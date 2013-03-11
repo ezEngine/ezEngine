@@ -1,0 +1,309 @@
+#cmake
+
+#########################################################################################
+## Configuration Variables
+## Add your variables here, if you need something (general) to configure from the cmake GUI
+
+# Define GUI Variables to configure the project
+set (EZ_COMPILE_ENGINE_AS_DLL ON CACHE BOOL "Whether to compile the code as a shared libraries (DLL).")
+set (EZ_ENABLE_QT_SUPPORT OFF CACHE BOOL "Whether to add Qt support.")
+set (EZ_SEPARATE_BUILD_FOLDERS ON CACHE BOOL "Whether the output from different build types should end up in different folders (Debug32, Release32, etc.).")
+
+set (EZ_OUTPUT_DIRECTORY_LIB "${CMAKE_SOURCE_DIR}/Output/Lib" CACHE PATH "Where to store the compiled .lib files.")
+set (EZ_OUTPUT_DIRECTORY_DLL "${CMAKE_SOURCE_DIR}/Output/Bin" CACHE PATH "Where to store the compiled .dll files.")
+
+#########################################################################################
+## Other configurations
+
+set (COMPILER_SETTINGS_ALL "")
+set (COMPILER_SETTINGS_RELEASE "")
+set (COMPILER_SETTINGS_DEBUG "")
+
+set (LINKER_SETTINGS_ALL "")
+set (LINKER_SETTINGS_RELEASE "")
+set (LINKER_SETTINGS_DEBUG "")
+
+set (CMAKE_C_COMPILER ${CMAKE_CXX_COMPILER}) # use the C++ compiler also for C code
+#set (CMAKE_DEBUG_POSTFIX "_d") # you could add a postfix for debug libraries here
+
+# set the default build type
+IF(NOT CMAKE_BUILD_TYPE)
+  SET(CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING
+      "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel."
+      FORCE)
+ENDIF(NOT CMAKE_BUILD_TYPE)
+
+#########################################################################################
+## Detects the current compiler, platform, etc.
+
+if (MSVC)
+	message (STATUS "Compiler is MSVC (BUILDSYSTEM_COMPILER_MSVC)")
+	set (BUILDSYSTEM_COMPILER_MSVC ON BOOL)
+	add_definitions (-DBUILDSYSTEM_COMPILER_MSVC)
+
+	if (MSVC80)
+		message (STATUS "Compiler is Visual Studio 2005 (BUILDSYSTEM_COMPILER_MSVC_80)")
+
+		set (BUILDSYSTEM_COMPILER_MSVC_80 ON BOOL)
+		add_definitions (-DBUILDSYSTEM_COMPILER_MSVC_80)
+	endif ()
+
+	if (MSVC90)
+		message (STATUS "Compiler is Visual Studio 2008 (BUILDSYSTEM_COMPILER_MSVC_90)")
+
+		set (BUILDSYSTEM_COMPILER_MSVC_90 ON BOOL)
+		add_definitions (-DBUILDSYSTEM_COMPILER_MSVC_90)
+	endif ()
+
+	if (MSVC10)
+		message (STATUS "Compiler is Visual Studio 2010 (BUILDSYSTEM_COMPILER_MSVC_100)")
+
+		set (BUILDSYSTEM_COMPILER_MSVC_100 ON BOOL)
+		add_definitions (-DBUILDSYSTEM_COMPILER_MSVC_100)
+
+	endif ()
+
+	if (MSVC11)
+		message (STATUS "Compiler is Visual Studio 2012 (BUILDSYSTEM_COMPILER_MSVC_110)")
+
+		set (BUILDSYSTEM_COMPILER_MSVC_110 ON BOOL)
+		add_definitions (-DBUILDSYSTEM_COMPILER_MSVC_110)
+
+	endif ()
+endif ()
+
+if (WIN32)
+	message (STATUS "Platform is Windows (BUILDSYSTEM_PLATFORM_WINDOWS)")
+
+	set (BUILDSYSTEM_PLATFORM_WINDOWS ON BOOL)
+	add_definitions (-DBUILDSYSTEM_PLATFORM_WINDOWS)
+else ()
+  # need to extend this, if we want to support other platforms
+	message (STATUS "Platform is Linux (BUILDSYSTEM_PLATFORM_LINUX)")
+
+	set (BUILDSYSTEM_PLATFORM_LINUX ON BOOL)
+	add_definitions (-DBUILDSYSTEM_PLATFORM_LINUX)
+endif ()
+
+# not sure whether this works on other platforms to detect 64 builds
+if (CMAKE_CL_64)
+	message (STATUS "Platform is 64-Bit (BUILDSYSTEM_PLATFORM_64BIT)")
+
+	set (BUILDSYSTEM_PLATFORM_64BIT ON BOOL)
+	add_definitions (-DBUILDSYSTEM_PLATFORM_64BIT)
+else ()
+	message (STATUS "Platform is 32-Bit (BUILDSYSTEM_PLATFORM_32BIT)")
+
+	set (BUILDSYSTEM_PLATFORM_32BIT ON BOOL)
+	add_definitions (-DBUILDSYSTEM_PLATFORM_32BIT)
+endif ()
+
+#########################################################################################
+## set output-path for binaries
+
+set (OUTPUT_LIB_DEBUG       "${EZ_OUTPUT_DIRECTORY_LIB}")
+set (OUTPUT_LIB_RELEASE     "${EZ_OUTPUT_DIRECTORY_LIB}")
+set (OUTPUT_LIB_MINSIZE     "${EZ_OUTPUT_DIRECTORY_LIB}")
+set (OUTPUT_LIB_RELWITHDEB  "${EZ_OUTPUT_DIRECTORY_LIB}")
+
+set (OUTPUT_DLL_DEBUG       "${EZ_OUTPUT_DIRECTORY_DLL}")
+set (OUTPUT_DLL_RELEASE     "${EZ_OUTPUT_DIRECTORY_DLL}")
+set (OUTPUT_DLL_MINSIZE     "${EZ_OUTPUT_DIRECTORY_DLL}")
+set (OUTPUT_DLL_RELWITHDEB  "${EZ_OUTPUT_DIRECTORY_DLL}")
+
+if (EZ_SEPARATE_BUILD_FOLDERS)
+  if (BUILDSYSTEM_PLATFORM_64BIT)
+    set (OUTPUT_LIB_DEBUG       "${OUTPUT_LIB_DEBUG}/Debug64")
+    set (OUTPUT_LIB_RELEASE     "${OUTPUT_LIB_RELEASE}/Release64")
+    set (OUTPUT_LIB_MINSIZE     "${OUTPUT_LIB_MINSIZE}/MinSize64")
+    set (OUTPUT_LIB_RELWITHDEB  "${OUTPUT_LIB_RELWITHDEB}/RelDeb64")
+    set (OUTPUT_DLL_DEBUG       "${OUTPUT_DLL_DEBUG}/Debug64")
+    set (OUTPUT_DLL_RELEASE     "${OUTPUT_DLL_RELEASE}/Release64")
+    set (OUTPUT_DLL_MINSIZE     "${OUTPUT_DLL_MINSIZE}/MinSize64")
+    set (OUTPUT_DLL_RELWITHDEB  "${OUTPUT_DLL_RELWITHDEB}/RelDeb64")
+  else ()  
+    set (OUTPUT_LIB_DEBUG       "${OUTPUT_LIB_DEBUG}/Debug32")
+    set (OUTPUT_LIB_RELEASE     "${OUTPUT_LIB_RELEASE}/Release32")
+    set (OUTPUT_LIB_MINSIZE     "${OUTPUT_LIB_MINSIZE}/MinSize32")
+    set (OUTPUT_LIB_RELWITHDEB  "${OUTPUT_LIB_RELWITHDEB}/RelDeb32")
+    set (OUTPUT_DLL_DEBUG       "${OUTPUT_DLL_DEBUG}/Debug32")
+    set (OUTPUT_DLL_RELEASE     "${OUTPUT_DLL_RELEASE}/Release32")
+    set (OUTPUT_DLL_MINSIZE     "${OUTPUT_DLL_MINSIZE}/MinSize32")
+    set (OUTPUT_DLL_RELWITHDEB  "${OUTPUT_DLL_RELWITHDEB}/RelDeb32")    
+  endif ()
+endif()
+
+set (CMAKE_RUNTIME_OUTPUT_DIRECTORY                 "${OUTPUT_DLL_DEBUG}")
+set (CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG           "${OUTPUT_DLL_DEBUG}")
+set (CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE         "${OUTPUT_DLL_RELEASE}")
+set (CMAKE_RUNTIME_OUTPUT_DIRECTORY_MINSIZEREL      "${OUTPUT_DLL_MINSIZE}")
+set (CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELWITHDEBINFO  "${OUTPUT_DLL_RELWITHDEB}")
+
+set (CMAKE_LIBRARY_OUTPUT_DIRECTORY                 "${OUTPUT_LIB_DEBUG}")
+set (CMAKE_LIBRARY_OUTPUT_DIRECTORY_DEBUG           "${OUTPUT_LIB_DEBUG}")
+set (CMAKE_LIBRARY_OUTPUT_DIRECTORY_RELEASE         "${OUTPUT_LIB_RELEASE}")
+set (CMAKE_LIBRARY_OUTPUT_DIRECTORY_MINSIZEREL      "${OUTPUT_LIB_MINSIZE}")
+set (CMAKE_LIBRARY_OUTPUT_DIRECTORY_RELWITHDEBINFO  "${OUTPUT_LIB_RELWITHDEB}")
+
+set (CMAKE_ARCHIVE_OUTPUT_DIRECTORY                 "${OUTPUT_LIB_DEBUG}")
+set (CMAKE_ARCHIVE_OUTPUT_DIRECTORY_DEBUG           "${OUTPUT_LIB_DEBUG}")
+set (CMAKE_ARCHIVE_OUTPUT_DIRECTORY_RELEASE         "${OUTPUT_LIB_RELEASE}")
+set (CMAKE_ARCHIVE_OUTPUT_DIRECTORY_MINSIZEREL      "${OUTPUT_LIB_MINSIZE}")
+set (CMAKE_ARCHIVE_OUTPUT_DIRECTORY_RELWITHDEBINFO  "${OUTPUT_LIB_RELWITHDEB}")
+
+#########################################################################################
+## Compiler specific settings
+
+# set MSVC specific compiler settings
+if (BUILDSYSTEM_COMPILER_MSVC)
+  # Enable minimal rebuild
+  set (COMPILER_SETTINGS_DEBUG "${COMPILER_SETTINGS_DEBUG} /Gm")
+	# enable mulithreaded compilation
+	set (COMPILER_SETTINGS_ALL "${COMPILER_SETTINGS_ALL} /MP")
+	# disable RTTI
+	set (COMPILER_SETTINGS_ALL "${COMPILER_SETTINGS_ALL} /GR-")
+	# use fast floating point model
+	set (COMPILER_SETTINGS_ALL "${COMPILER_SETTINGS_ALL} /fp:fast")
+  # enable floating point exceptions
+  #set (COMPILER_SETTINGS_ALL "${COMPILER_SETTINGS_ALL} /fp:except")
+
+	# enable strict warnings
+	#set (COMPILER_SETTINGS_ALL "${COMPILER_SETTINGS_ALL} /W4")
+	# treat warnings as errors
+	set (COMPILER_SETTINGS_ALL "${COMPILER_SETTINGS_ALL} /WX")
+
+	if (BUILDSYSTEM_PLATFORM_32BIT)
+		# enable SSE2 (incompatible with /fp:except)
+		set (COMPILER_SETTINGS_ALL "${COMPILER_SETTINGS_ALL} /arch:SSE2")
+    
+    if(MSVC10 OR MSVC11)
+      # enable static code analysis, only works on 32 Bit builds
+      set (COMPILER_SETTINGS_ALL "${COMPILER_SETTINGS_ALL} /analyze")
+      
+      message (STATUS "Enabling static code analysis.")
+    endif ()
+	endif ()
+
+  set (LINKER_SETTINGS_RELEASE "${LINKER_SETTINGS_RELEASE} /INCREMENTAL:NO") 
+  # Remove unreferenced data (does not work together with incremental build)
+  set (LINKER_SETTINGS_RELEASE "${LINKER_SETTINGS_RELEASE} /OPT:REF") 
+  # Don't know what it does, but Clemens wants it :-) (does not work together with incremental build)
+  set (LINKER_SETTINGS_RELEASE "${LINKER_SETTINGS_RELEASE} /OPT:ICF")
+  
+endif ()
+
+#########################################################################################
+## Code that depends on the values of the configuration variables
+
+if (EZ_COMPILE_ENGINE_AS_DLL)
+	message (STATUS "Linking to the Engine through DLLs.")
+	add_definitions (-DBUILDSYSTEM_COMPILE_ENGINE_AS_DLL)
+else ()
+	message (STATUS "Linking to the Engine through Static Libraries.")
+endif ()
+
+  add_definitions (-DBUILDSYSTEM_OUTPUT_FOLDER="${EZ_OUTPUT_DIRECTORY_DLL}")
+
+#########################################################################################
+## additional preprocessor definitions
+
+set(CMAKE_CXX_FLAGS_DEBUG           "${CMAKE_CXX_FLAGS_DEBUG}          -DBUILDSYSTEM_COMPILE_FOR_DEBUG")
+set(CMAKE_CXX_FLAGS_DEBUG           "${CMAKE_CXX_FLAGS_DEBUG}          -DBUILDSYSTEM_COMPILE_FOR_DEVELOPMENT")
+set(CMAKE_CXX_FLAGS_RELWITHDEBINFO  "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -DBUILDSYSTEM_COMPILE_FOR_DEVELOPMENT")
+
+#########################################################################################
+## packages that should be enabled
+
+# Enable OpenMP support, if possible
+find_package (OpenMP)
+
+
+
+#########################################################################################
+
+# Enable OpenMP
+if (OPENMP_FOUND)
+	set (COMPILER_SETTINGS "${COMPILER_SETTINGS} ${OpenMP_CXX_FLAGS}")
+endif ()
+
+
+#########################################################################################
+## Macro to enable precompiled headers
+
+MACRO(ADD_MSVC_PRECOMPILED_HEADER)
+  IF(MSVC)
+    set (PCH_FOUND false)
+
+    foreach (src_file ${ALL_SOURCE_FILES})
+      GET_FILENAME_COMPONENT(RawFilename ${src_file} NAME)
+      GET_FILENAME_COMPONENT(Extension ${src_file} EXT)
+
+      if (${Extension} STREQUAL ".cpp")
+        if (RawFilename STREQUAL "PCH.cpp")
+          set (PCH_FOUND true)
+        endif()
+      endif ()
+
+    endforeach ()
+
+    if (PCH_FOUND)
+      message (STATUS "Enabling Precompiled Header for this project.")
+      set_source_files_properties("PCH.cpp" PROPERTIES COMPILE_FLAGS "/Yc${PROJECT_FOLDER_NAME}/PCH.h")
+      
+      foreach (src_file ${ALL_SOURCE_FILES})
+        GET_FILENAME_COMPONENT(RawFilename ${src_file} NAME)
+        GET_FILENAME_COMPONENT(Extension ${src_file} EXT)
+
+        if (${Extension} STREQUAL ".cpp")
+          if (RawFilename STREQUAL "PCH.cpp")
+
+          else ()
+            set_source_files_properties (${src_file} PROPERTIES COMPILE_FLAGS "/Yu${PROJECT_FOLDER_NAME}/PCH.h")
+          endif ()
+        endif ()
+
+      endforeach ()
+      
+    endif()
+    
+  ENDIF(MSVC)
+ENDMACRO(ADD_MSVC_PRECOMPILED_HEADER)
+
+#########################################################################################
+## Macro to enable/disable experimental projects
+
+MACRO(BUILD_EXPERIMENTAL_PROJECT)
+  get_filename_component (PROJECT_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME_WE)
+  string(TOUPPER ${PROJECT_NAME} PROJECT_NAME_UPPER)
+  SET(EZ_BUILD_EXPERIMENTAL_PROJECT_${PROJECT_NAME_UPPER} OFF CACHE BOOL "Whether to build the experimental project '${PROJECT_NAME_UPPER}'")
+   
+  if (NOT EZ_BUILD_EXPERIMENTAL_PROJECT_${PROJECT_NAME_UPPER})
+    return ()
+  endif ()
+ENDMACRO()
+
+
+#########################################################################################
+## Macro to enable/disable application projects
+
+MACRO(BUILD_APPLICATION_PROJECT)
+  get_filename_component (PROJECT_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME_WE)
+  string(TOUPPER ${PROJECT_NAME} PROJECT_NAME_UPPER)
+  set(EZ_BUILD_APPLICATION_${PROJECT_NAME_UPPER} ON CACHE BOOL "Whether to build the application '${PROJECT_NAME_UPPER}'")
+   
+  if (NOT EZ_BUILD_APPLICATION_${PROJECT_NAME_UPPER})
+    return ()
+  endif ()
+ENDMACRO()
+
+#########################################################################################
+## Include directories
+
+include_directories ("${CMAKE_SOURCE_DIR}/Code/Engine")      # this way it will also work for applications
+include_directories ("${CMAKE_SOURCE_DIR}/Code/ThirdParty")  # this way it will also work for applications
+
+# Add all third party libraries here
+#include_directories ("${CMAKE_SOURCE_DIR}/ThirdParty/SomeLib/Include")
+#link_directories ("${CMAKE_SOURCE_DIR}/ThirdParty/SomeLib/lib")
+
+

@@ -1,0 +1,57 @@
+#pragma once
+
+#include <Foundation/Basics.h>
+#include <Foundation/Containers/StaticArray.h>
+
+/// User-configurable: How many pointer values can be stored in thread local variables (note that
+/// increasing the value increases the size of each ezThread object accordingly)
+#define EZ_THREAD_LOCAL_STORAGE_SLOT_COUNT 16
+
+#define EZ_THREAD_LOCAL_STORAGE_INVALID_SLOT EZ_THREAD_LOCAL_STORAGE_SLOT_COUNT
+
+typedef ezStaticArray<void*, EZ_THREAD_LOCAL_STORAGE_SLOT_COUNT> ezThreadLocalPointerTable;
+
+/// Collection of basic methods for interaction with thread local storage
+struct EZ_FOUNDATION_DLL ezThreadLocalStorage
+{
+public:
+
+  /// Allocates a slot from the TLS variable pool, returns EZ_THREAD_LOCAL_STORAGE_INVALID_SLOT on failure (may also be checked with IsValidSlot()).
+  /// Note that the preferred way of interaction is ezThreadLocal which encapsulates the logic to allocate and free TLS slots
+  static ezUInt32 AllocateSlot();
+
+  /// Frees a slot from the TLS variable pool.
+  static void FreeSlot(ezUInt32 uiSlotIndex);
+
+  /// Sets the pointer value for the given slot.
+  static void SetValueForSlot(ezUInt32 uiSlotIndex, void* pValue);
+
+  /// Returns the pointer value stored in the given slot.
+  static void* GetValueForSlot(ezUInt32 uiSlotIndex);
+
+  /// Helper function to check if the given slot is a valid one.
+  static inline bool IsValidSlot(ezUInt32 uiSlotIndex)
+  {
+    return uiSlotIndex < EZ_THREAD_LOCAL_STORAGE_SLOT_COUNT;
+  }
+
+  /// Sets the pointer to the per thread table used to handle an arbitrary amount of TLS variables
+  /// Note that all ezThread derived classes will set up this correctly before calling Run()
+  static void SetPerThreadPointerTable(ezThreadLocalPointerTable* pPerThreadPointerTable);
+
+  /// Returns the per thread pointer table used to store TLS values internally
+  static ezThreadLocalPointerTable* GetPerThreadPointerTable();
+
+  static bool IsInitialized() { return s_bInitialized; }
+
+private:
+  EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(Foundation, ThreadLocalStorage);
+
+  static bool s_bInitialized;
+
+  /// Initialization functionality of the thread local storage system (called by foundation startup and thus private)
+  static void Initialize();
+
+  /// Cleanup functionality of the thread local storage system (called by foundation shutdown and thus private)
+  static void Shutdown();
+};

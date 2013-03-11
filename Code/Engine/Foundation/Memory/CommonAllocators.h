@@ -1,0 +1,21 @@
+
+#pragma once
+
+#include <Foundation/Memory/Allocator.h>
+
+#include <Foundation/Memory/Policies/HeapAllocation.h>
+#include <Foundation/Memory/Policies/ProxyAllocation.h>
+
+#include <Foundation/Memory/Policies/BoundsChecking.h>
+
+#include <Foundation/Memory/Policies/Tracking.h>
+
+#include <Foundation/Threading/Mutex.h>
+
+/// Default heap allocator without guard bounds checking and with simple tracking
+typedef ezAllocator<ezMemoryPolicies::ezHeapAllocation, ezMemoryPolicies::ezNoBoundsChecking, 
+  ezMemoryPolicies::ezSimpleTracking, ezNoMutex> ezHeapAllocator;
+
+/// Proxy allocator with simple tracking
+typedef ezAllocator<ezMemoryPolicies::ezProxyAllocation, ezMemoryPolicies::ezNoBoundsChecking, 
+  ezMemoryPolicies::ezSimpleTracking, ezNoMutex> ezProxyAllocator;
