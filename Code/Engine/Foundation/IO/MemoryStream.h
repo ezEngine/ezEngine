@@ -10,7 +10,7 @@ class ezMemoryStreamReader;
 class ezMemoryStreamWriter;
 
 /// Instances of this class act as storage for memory streams
-class EZ_FOUNDATION_DLL ezMemoryStreamStorage : public ezIRefCounted
+class EZ_FOUNDATION_DLL ezMemoryStreamStorage : public ezRefCounted
 {
 public:
 

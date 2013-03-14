@@ -1,7 +1,7 @@
 #include <TestFramework/Framework/TestFramework.h>
 #include <Foundation/Basics/Types/RefCounted.h>
 
-class RefCountedTestClass : public ezIRefCounted
+class RefCountedTestClass : public ezRefCounted
 {
 };
 
