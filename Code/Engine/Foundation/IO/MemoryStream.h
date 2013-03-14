@@ -41,7 +41,7 @@ public:
 
   /// Reads either uiBytesToRead or the amount of remaining bytes in the stream into pReadBuffer.
   /// It is valid to pass NULL for pReadBuffer, in this case the memory stream position is only advanced by the given number of bytes.
-  virtual ezUInt64 ReadBytes(void* pReadBuffer, ezUInt64 uiBytesToRead) EZ_OVERRIDE;
+  virtual ezUInt64 ReadBytes(void* pReadBuffer, ezUInt64 uiBytesToRead) EZ_OVERRIDE; // [tested]
 
   /// Skips bytes in the stream (e.g. for skipping objects which can't be serialized due to missing information etc.)
   virtual ezUInt64 SkipBytes(ezUInt64 uiBytesToSkip);
@@ -72,7 +72,7 @@ public:
 
   /// Copies uiBytesToWrite from pWriteBuffer into the memory stream.
   /// pWriteBuffer must be a valid buffer and must hold that much data.
-  virtual ezResult WriteBytes(const void* pWriteBuffer, ezUInt64 uiBytesToWrite) EZ_OVERRIDE;
+  virtual ezResult WriteBytes(const void* pWriteBuffer, ezUInt64 uiBytesToWrite) EZ_OVERRIDE; // [tested]
 
   /// TODO: If we want to have such functionality, a "SetWritePosition" would be much more useful.
   void Rewind();

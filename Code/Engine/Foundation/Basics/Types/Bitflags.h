@@ -18,61 +18,61 @@ private:
 public:
     
   /// constructor
-  EZ_FORCE_INLINE ezBitflags() : m_value(0)
+  EZ_FORCE_INLINE ezBitflags() : m_value(0) // [tested]
   {
   }
 
   /// implict conversion is OK here
-  EZ_FORCE_INLINE ezBitflags(Enum flag1)
+  EZ_FORCE_INLINE ezBitflags(Enum flag1) // [tested]
   {
     m_value = flag1;
   }
 
   /// Checks if certain flags are set within the bitfield
-  EZ_FORCE_INLINE bool IsSet(Enum flag1) const
+  EZ_FORCE_INLINE bool IsSet(Enum flag1) const // [tested]
   {
     return (m_value & flag1) != 0;
   }
 
-  EZ_FORCE_INLINE bool AreAllSet(const ezBitflags<T>& rh) const
+  EZ_FORCE_INLINE bool AreAllSet(const ezBitflags<T>& rh) const // [tested]
   {
     return (m_value & rh.m_value) == rh.m_value;
   }
 
-  EZ_FORCE_INLINE bool IsAnySet(const ezBitflags<T>& rh) const
+  EZ_FORCE_INLINE bool IsAnySet(const ezBitflags<T>& rh) const // [tested]
   {
     return (m_value & rh.m_value) != 0;
   }
 
   /// Adds flags to the bitfield
-  EZ_FORCE_INLINE void Add(Enum flag1)
+  EZ_FORCE_INLINE void Add(Enum flag1) // [tested]
   {
     m_value |= flag1;
   }
 
   /// Removes flags from the bitfield
-  EZ_FORCE_INLINE void Remove(Enum flag1)
+  EZ_FORCE_INLINE void Remove(Enum flag1) // [tested]
   {
     m_value &= (~flag1);
   }
 
-  EZ_FORCE_INLINE void Toggle(Enum flag)
+  EZ_FORCE_INLINE void Toggle(Enum flag) // [tested]
   {
     m_value ^= flag;
   }
 
-  EZ_FORCE_INLINE void AddOrRemove(Enum flag, bool state)
+  EZ_FORCE_INLINE void AddOrRemove(Enum flag, bool state) // [tested]
   {
     m_value = (state) ? m_value | flag : m_value & (~flag);
   }
 
-  inline ezBitflags<T> operator | (const ezBitflags<T>& rh) const
+  inline ezBitflags<T> operator | (const ezBitflags<T>& rh) const // [tested]
   {
     return ezBitflags<T>(m_value | rh.m_value);
   }
 
   /// Returns the stored value
-  EZ_FORCE_INLINE StorageType GetValue() const
+  EZ_FORCE_INLINE StorageType GetValue() const // [tested]
   {
     return m_value;
   }

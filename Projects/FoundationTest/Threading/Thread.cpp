@@ -56,12 +56,9 @@ EZ_CREATE_SIMPLE_TEST(Threading, Thread)
     EZ_TEST(pTestThread != NULL);
     EZ_TEST(pTestThread2 != NULL);
 
-    // Both thread will increment via atomic operations the global variable
+    // Both thread will increment the global variable via atomic operations
     pTestThread->Start();
     pTestThread2->Start();
-
-    //pTestThread->WaitUntilRunningOrFinished();
-    //pTestThread2->WaitUntilRunningOrFinished();
 
     // Main thread will also increment the test variable
     ezAtomicUtils::Increment(g_iCrossThreadVariable);

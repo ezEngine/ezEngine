@@ -38,34 +38,30 @@ public:
   typedef void (*EZ_GLOBAL_EVENT_HANDLER)(const ezVariant& param0, const ezVariant& param1, const ezVariant& param2, const ezVariant& param3);
 
   /// [internal] Use the macro EZ_ON_GLOBAL_EVENT or EZ_ON_GLOBAL_EVENT_ONCE to create an event handler.
-  ezGlobalEvent(const char* szEventName, EZ_GLOBAL_EVENT_HANDLER EventHandler, bool bOnlyOnce);
+  ezGlobalEvent(const char* szEventName, EZ_GLOBAL_EVENT_HANDLER EventHandler, bool bOnlyOnce); // [tested]
 
   /// Destructor.
-  ~ezGlobalEvent();
+  ~ezGlobalEvent(); // [tested]
 
   /// This function will broadcast a system wide event to all event handlers that are registered to handle this specific type of event.
   /// The string specifies the event type, the parameters are optional and can be used to send additional event specific data.
-  static void Broadcast(const char* szEventName, ezVariant param0 = ezVariant(), ezVariant param1 = ezVariant(), ezVariant param2 = ezVariant(), ezVariant param3 = ezVariant());
+  static void Broadcast(const char* szEventName, ezVariant param0 = ezVariant(), ezVariant param1 = ezVariant(), ezVariant param2 = ezVariant(), ezVariant param3 = ezVariant()); // [tested]
 
   /// This function will output (via ezLog) some statistics about which events are used and how often.
   /// This allows to figure out which events are used throughout the engine and which events might be fired too often.
-  static void PrintGlobalEventStatistics();
+  static void PrintGlobalEventStatistics(); // [tested]
 
 
 private:
   bool m_bOnlyOnce;
   bool m_bHasBeenFired;
   const char* m_szEventName;
-  //ezGlobalEvent* m_pNextHandler;
   EZ_GLOBAL_EVENT_HANDLER m_EventHandler;
-
-  //void RemoveHandlerFromQueue();
 
   struct EventData
   {
     EventData();
 
-    //ezGlobalEvent* m_pFirstHandler;
     ezUInt32 m_uiNumTimesFired;
     ezUInt16 m_uiNumEventHandlersRegular;
     ezUInt16 m_uiNumEventHandlersOnce;

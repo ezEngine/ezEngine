@@ -21,15 +21,15 @@ public:
   static ezUInt32 MurmurHash(const void* pKey, size_t uiSizeInByte, ezUInt32 uiSeed = 0);
 
   /// calculates the 64bit murmur hash of the given key
-  static ezUInt64 MurmurHash64(const void* pKey, size_t uiSizeInByte, ezUInt64 uiSeed = 0);
+  static ezUInt64 MurmurHash64(const void* pKey, size_t uiSizeInByte, ezUInt64 uiSeed = 0); // [tested]
 
   /// calculates the 32bit murmur hash of a string constant at compile time. Encoding does not matter here.
   template <size_t N>
-  static ezUInt32 MurmurHash(const char (&str)[N], ezUInt32 uiSeed = 0);
+  static ezUInt32 MurmurHash(const char (&str)[N], ezUInt32 uiSeed = 0); // [tested]
 
   /// calculates the 32bit murmur hash of a string pointer during runtime. Encoding does not matter here.
   /// We cannot pass a string pointer directly since a string contant would be treated as pointer as well.
-  static ezUInt32 MurmurHash(StringWrapper str, ezUInt32 uiSeed = 0);
+  static ezUInt32 MurmurHash(StringWrapper str, ezUInt32 uiSeed = 0); // [tested]
 };
 
 template <typename T>

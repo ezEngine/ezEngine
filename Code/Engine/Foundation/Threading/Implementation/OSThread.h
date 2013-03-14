@@ -16,10 +16,10 @@ public:
   virtual ~ezOSThread();
   
   /// Starts the thread
-  void Start();
+  void Start(); // [tested]
   
   /// Waits in the calling thread until the thread has finished execution (e.g. returned from the thread function)
-  void Join();
+  void Join(); // [tested]
 
   /// Returns the thread handle of the thread object, may be used in comparison operations with ezThreadUtils::GetCurrentThreadHandle() for example.
   inline const ezThreadHandle& GetThreadHandle() const

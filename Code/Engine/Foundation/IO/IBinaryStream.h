@@ -23,19 +23,19 @@ public:
 
   /// Reads a raw number of bytes into the read buffer, this is the only method which has to be
   /// implemented to fully implement the interface.
-  virtual ezUInt64 ReadBytes(void* pReadBuffer, ezUInt64 uiBytesToRead) = 0;
+  virtual ezUInt64 ReadBytes(void* pReadBuffer, ezUInt64 uiBytesToRead) = 0; // [tested]
 
   /// Helper method to read a word value correctly (copes with potentially different endianess)
   template <typename T> 
-  ezUInt64 ReadWordValue(T* pWordValue);
+  ezUInt64 ReadWordValue(T* pWordValue); // [tested]
 
   /// Helper method to read a dword value correctly (copes with potentially different endianess)
   template <typename T> 
-  ezUInt64 ReadDWordValue(T* pDWordValue);
+  ezUInt64 ReadDWordValue(T* pDWordValue); // [tested]
 
   /// Helper method to read a qword value correctly (copes with potentially different endianess)
   template <typename T> 
-  ezUInt64 ReadQWordValue(T* pQWordValue);
+  ezUInt64 ReadQWordValue(T* pQWordValue); // [tested]
 
   /// Helper method to skip a number of bytes (implementations of the stream reader may implement this more efficiently for example)
   virtual ezUInt64 SkipBytes(ezUInt64 uiBytesToSkip)
@@ -80,26 +80,26 @@ public:
 
   /// Writes a raw number of bytes from the buffer, this is the only method which has to be
   /// implemented to fully implement the interface.
-  virtual ezResult WriteBytes(const void* pWriteBuffer, ezUInt64 uiBytesToWrite) = 0;
+  virtual ezResult WriteBytes(const void* pWriteBuffer, ezUInt64 uiBytesToWrite) = 0; // [tested]
 
   /// Flushes the stream, may be implemented (not necessary to implement the interface correctly) so
   /// that user code can ensure that content is written
-  virtual ezResult Flush()
+  virtual ezResult Flush() // [tested]
   {
     return EZ_SUCCESS;
   }
 
   /// Helper method to write a word value correctly (copes with potentially different endianess)
   template <typename T> 
-  ezUInt64 WriteWordValue(const T* pWordValue); 
+  ezUInt64 WriteWordValue(const T* pWordValue); // [tested]
 
   /// Helper method to write a dword value correctly (copes with potentially different endianess)
   template <typename T> 
-  ezUInt64 WriteDWordValue(const T* pDWordValue);
+  ezUInt64 WriteDWordValue(const T* pDWordValue); // [tested]
 
   /// Helper method to write a qword value correctly (copes with potentially different endianess)
   template <typename T> 
-  ezUInt64 WriteQWordValue(const T* pQWordValue);
+  ezUInt64 WriteQWordValue(const T* pQWordValue); // [tested]
 
 };
 

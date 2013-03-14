@@ -11,7 +11,7 @@ public:
   static void YieldTimeSlice();
 
   // Suspends the execution of the current thread for the given amount of time. (Precision may vary according to OS)
-  static void Sleep(ezUInt32 uiMilliSeconds);
+  static void Sleep(ezUInt32 uiMilliSeconds); // [tested]
 
   // Returns the current thread handle
   static ezThreadHandle GetCurrentThreadHandle();

@@ -56,14 +56,6 @@ public:
     return m_ThreadStatus;
   }
 
-  /// Helper function to wait until the thread started its work or even finished execution
-  void WaitUntilRunningOrFinished() const
-  {
-    while(m_ThreadStatus == Created)
-    {
-    }
-  }
-  
   /// Helper function to determine if the thread is running
   bool IsRunning() const
   {

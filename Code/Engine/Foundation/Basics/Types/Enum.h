@@ -35,24 +35,24 @@ public:
   typedef ezEnum<Derived, StorageType> SelfType;
 
   // Default constructor
-  EZ_FORCE_INLINE ezEnum() : m_value(Derived::DefaultInit) {}
+  EZ_FORCE_INLINE ezEnum() : m_value(Derived::DefaultInit) {} // [tested]
 
   // Construct from a c++ enum, and implicit conversion from enum type
-  EZ_FORCE_INLINE ezEnum(typename Derived::Enum init) : m_value(init) {}
+  EZ_FORCE_INLINE ezEnum(typename Derived::Enum init) : m_value(init) {} // [tested]
 
   // Assignment operator
-  EZ_FORCE_INLINE void operator= (const SelfType& rh)
+  EZ_FORCE_INLINE void operator= (const SelfType& rh) // [tested]
   {
     m_value = rh.m_value;
   }
 
-  EZ_FORCE_INLINE void operator= (const typename Derived::Enum value)
+  EZ_FORCE_INLINE void operator= (const typename Derived::Enum value) // [tested]
   {
     m_value = value;
   }
 
   // implict conversion to enum type
-  EZ_FORCE_INLINE operator typename Derived::Enum() const
+  EZ_FORCE_INLINE operator typename Derived::Enum() const // [tested]
   {
     return (Enum)m_value;
   }

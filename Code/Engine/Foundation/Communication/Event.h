@@ -23,14 +23,14 @@ public:
   typedef void (*ezEventHandler)(EventData pEventData, PassThrough pPassThrough);
 
   /// This function will broadcast to all registered users, that this event has just happened.
-  void Broadcast(EventData pEventData);
+  void Broadcast(EventData pEventData); // [tested]
 
   /// Adds a function as an event handler. All handlers will be notified in the order that they were registered.
-  void AddEventHandler(ezEventHandler callback, PassThrough pPassThrough);
+  void AddEventHandler(ezEventHandler callback, PassThrough pPassThrough); // [tested]
 
   /// Removes a previously registered handler. It is an error to remove a handler that was not registered.
   /// The exact same data that was passed to AddEventHandler (including pPassThrough) must be given.
-  void RemoveEventHandler(ezEventHandler callback, PassThrough pPassThrough);
+  void RemoveEventHandler(ezEventHandler callback, PassThrough pPassThrough); // [tested]
 
   EZ_DISALLOW_COPY_AND_ASSIGN(ezEventBase);
 
