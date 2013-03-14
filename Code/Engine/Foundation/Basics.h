@@ -32,9 +32,18 @@
 // Now declare all fundamental types
 #include <Foundation/Basics/Types.h>
 
+#ifdef BUILDSYSTEM_BUILDING_FOUNDATION_LIB
+  #if (defined(BUILDSYSTEM_COMPILE_ENGINE_AS_DLL) && !defined(EZ_COMPILE_ENGINE_AS_DLL))
+    #error "The Buildsystem is configured to build the Engine as a shared library, but EZ_COMPILE_ENGINE_AS_DLL is not defined in UserConfig.h"
+  #endif
+  #if (!defined(BUILDSYSTEM_COMPILE_ENGINE_AS_DLL) && defined(EZ_COMPILE_ENGINE_AS_DLL))
+    #error "The Buildsystem is configured to build the Engine as a static library, but EZ_COMPILE_ENGINE_AS_DLL is defined in UserConfig.h"
+  #endif
+#endif
+
 // Configure the DLL Import/Export Define
 #if EZ_COMPILE_ENGINE_AS_DLL
-  #ifdef BUILDSYSTEM_BUILDING_FOUNDATION_DLL
+  #ifdef BUILDSYSTEM_BUILDING_FOUNDATION_LIB
     #define EZ_FOUNDATION_DLL __declspec(dllexport)
     #define EZ_FOUNDATION_TEMPLATE
   #else

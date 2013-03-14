@@ -43,12 +43,11 @@ set_property (GLOBAL APPEND PROPERTY ALL_KNOWN_PROJECTS ${PROJECT_NAME})
 # if this library uses a precompile header
 ADD_MSVC_PRECOMPILED_HEADER ()
 
+string(TOUPPER ${PROJECT_NAME} PROJECT_NAME_UPPER)
+add_definitions (-DBUILDSYSTEM_BUILDING_${PROJECT_NAME_UPPER}_LIB)
+
 # add the library to the solution
 if (EZ_COMPILE_ENGINE_AS_DLL)
-
-  string(TOUPPER ${PROJECT_NAME} PROJECT_NAME_UPPER)
-  add_definitions (-DBUILDSYSTEM_BUILDING_${PROJECT_NAME_UPPER}_DLL)
-
   # add the project as a shared library
   add_library (${PROJECT_NAME} SHARED ${ALL_SOURCE_FILES})
 

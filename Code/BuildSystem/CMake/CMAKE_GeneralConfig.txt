@@ -5,6 +5,7 @@
 ## Add your variables here, if you need something (general) to configure from the cmake GUI
 
 # Define GUI Variables to configure the project
+set (EZ_COMPILE_ENGINE_AS_DLL ON CACHE BOOL "Whether to compile the code as a shared libraries (DLL).")
 #set (EZ_ENABLE_QT_SUPPORT OFF CACHE BOOL "Whether to add Qt support.")
 set (EZ_SEPARATE_BUILD_FOLDERS ON CACHE BOOL "Whether the output from different build types should end up in different folders (Debug32, Release32, etc.).")
 
@@ -173,6 +174,13 @@ endif ()
 
 #########################################################################################
 ## Code that depends on the values of the configuration variables
+
+if (EZ_COMPILE_ENGINE_AS_DLL)
+	message (STATUS "Linking to the Engine through DLLs.")
+	add_definitions (-DBUILDSYSTEM_COMPILE_ENGINE_AS_DLL)
+else ()
+	message (STATUS "Linking to the Engine through Static Libraries.")
+endif ()
 
 add_definitions (-DBUILDSYSTEM_OUTPUT_FOLDER="${EZ_OUTPUT_DIRECTORY_DLL}")
 
