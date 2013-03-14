@@ -1,6 +1,6 @@
 #pragma once
 
-#include <utf8/utf8.h>
+#include <../ThirdParty/utf8/utf8.h>
 #include <Foundation/Basics.h>
 #include <Foundation/Strings/UnicodeUtils.h>
 #include <Foundation/Threading/AtomicInteger.h>

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <utf8/utf8.h>
+#include <../ThirdParty/utf8/utf8.h>
 #include <Foundation/Strings/StringUtils.h>
 #include <Foundation/Strings/Implementation/StringBase.h>
 

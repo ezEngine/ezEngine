@@ -1,12 +1,12 @@
 #pragma once
 
+// Enables profiling features.
+#define EZ_PROFILING_ENABLED 1
 
-// For now profiling is enabled in all builds
-#define EZ_PROFILING_ENABLED
+// Enables some basic checks, even in release builds.
+#define EZ_COMPILE_FOR_DEVELOPMENT 1
 
+// Compiles the Engine as a DLL instead of a static library.
+#define EZ_COMPILE_ENGINE_AS_DLL 1
 
-// define whatever you need here
-
-//#define EZ_COMPILE_FOR_DEVELOPMENT
-//#define EZ_COMPILE_ENGINE_AS_DLL
 

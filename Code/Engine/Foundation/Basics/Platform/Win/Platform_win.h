@@ -4,41 +4,17 @@
   #error "This header should only be included on windows platforms
 #endif
 
-#ifdef BUILDSYSTEM_PLATFORM_32BIT
-  #define EZ_PLATFORM_WINDOWS_32BIT 1
-#endif
-#ifdef BUILDSYSTEM_PLATFORM_64BIT
+#ifdef _WIN64
   #define EZ_PLATFORM_WINDOWS_64BIT 1
-  #ifndef _WIN64
-    #define _WIN64
-  #endif
-#endif
-
-// Speeds up build process by excluding unused Windows headers
-#ifndef WIN32_LEAN_AND_MEAN
-  #define WIN32_LEAN_AND_MEAN
+  #define EZ_PLATFORM_64BIT 1
+#else
+  #define EZ_PLATFORM_WINDOWS_32BIT 1
+  #define EZ_PLATFORM_32BIT 1
 #endif
 
 #ifndef _CRT_SECURE_NO_WARNINGS
   #define _CRT_SECURE_NO_WARNINGS
 #endif
-
-#define NOGDICAPMASKS
-#define OEMRESOURCE
-#define NOATOM
-#define NOCLIPBOARD
-//#define NOCTLMGR
-#define NOMEMMGR
-#define NOMETAFILE
-#define NOOPENFILE
-#define NOSERVICE
-#define NOSOUND
-#define NOCOMM
-#define NOKANJI
-#define NOHELP
-#define NOPROFILER
-#define NODEFERWINDOWPOS
-#define NOMCX
 
 #include <Windows.h>
 #include <Shellapi.h>
@@ -64,9 +40,12 @@
 
 typedef DWORD ezThreadId;
 
-#if defined(BUILDSYSTEM_COMPILER_MSVC)
-  #ifndef _MSC_VER
-    #error "BUILDSYSTEM_COMPILER_MSVC is set on another compiler than MSVC"
+#if defined(_MSC_VER)
+
+  #define EZ_COMPILER_MSVC 1
+
+  #ifdef _DEBUG
+    #define EZ_COMPILE_FOR_DEBUG 1
   #endif
 
   #define EZ_ANALYSIS_ASSUME(code_to_be_true) __analysis_assume(code_to_be_true)

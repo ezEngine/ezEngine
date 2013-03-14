@@ -1,6 +1,11 @@
 #pragma once
 
-#include <Foundation/Basics/Platform/Setup.h>
+// This should be defined by the compiler specific header
+#ifdef NULL
+  #undef NULL
+#endif
+
+#include <Foundation/Basics/Platform/DetectPlatform.h>
 #include <Foundation/UserConfig.h>
 
 // include the different headers for the supported platforms

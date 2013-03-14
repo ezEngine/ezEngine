@@ -5,8 +5,7 @@
 ## Add your variables here, if you need something (general) to configure from the cmake GUI
 
 # Define GUI Variables to configure the project
-set (EZ_COMPILE_ENGINE_AS_DLL ON CACHE BOOL "Whether to compile the code as a shared libraries (DLL).")
-set (EZ_ENABLE_QT_SUPPORT OFF CACHE BOOL "Whether to add Qt support.")
+#set (EZ_ENABLE_QT_SUPPORT OFF CACHE BOOL "Whether to add Qt support.")
 set (EZ_SEPARATE_BUILD_FOLDERS ON CACHE BOOL "Whether the output from different build types should end up in different folders (Debug32, Release32, etc.).")
 
 set (EZ_OUTPUT_DIRECTORY_LIB "${CMAKE_SOURCE_DIR}/Output/Lib" CACHE PATH "Where to store the compiled .lib files.")
@@ -37,65 +36,45 @@ ENDIF(NOT CMAKE_BUILD_TYPE)
 ## Detects the current compiler, platform, etc.
 
 if (MSVC)
-	message (STATUS "Compiler is MSVC (BUILDSYSTEM_COMPILER_MSVC)")
+	message (STATUS "Compiler is MSVC")
 	set (BUILDSYSTEM_COMPILER_MSVC ON BOOL)
-	add_definitions (-DBUILDSYSTEM_COMPILER_MSVC)
 
 	if (MSVC80)
-		message (STATUS "Compiler is Visual Studio 2005 (BUILDSYSTEM_COMPILER_MSVC_80)")
-
+		message (STATUS "Compiler is Visual Studio 2005")
 		set (BUILDSYSTEM_COMPILER_MSVC_80 ON BOOL)
-		add_definitions (-DBUILDSYSTEM_COMPILER_MSVC_80)
 	endif ()
 
 	if (MSVC90)
-		message (STATUS "Compiler is Visual Studio 2008 (BUILDSYSTEM_COMPILER_MSVC_90)")
-
+		message (STATUS "Compiler is Visual Studio 2008")
 		set (BUILDSYSTEM_COMPILER_MSVC_90 ON BOOL)
-		add_definitions (-DBUILDSYSTEM_COMPILER_MSVC_90)
 	endif ()
 
 	if (MSVC10)
-		message (STATUS "Compiler is Visual Studio 2010 (BUILDSYSTEM_COMPILER_MSVC_100)")
-
+		message (STATUS "Compiler is Visual Studio 2010")
 		set (BUILDSYSTEM_COMPILER_MSVC_100 ON BOOL)
-		add_definitions (-DBUILDSYSTEM_COMPILER_MSVC_100)
-
 	endif ()
 
 	if (MSVC11)
-		message (STATUS "Compiler is Visual Studio 2012 (BUILDSYSTEM_COMPILER_MSVC_110)")
-
+		message (STATUS "Compiler is Visual Studio 2012")
 		set (BUILDSYSTEM_COMPILER_MSVC_110 ON BOOL)
-		add_definitions (-DBUILDSYSTEM_COMPILER_MSVC_110)
-
 	endif ()
 endif ()
 
 if (WIN32)
-	message (STATUS "Platform is Windows (BUILDSYSTEM_PLATFORM_WINDOWS)")
-
+	message (STATUS "Platform is Windows")
 	set (BUILDSYSTEM_PLATFORM_WINDOWS ON BOOL)
-	add_definitions (-DBUILDSYSTEM_PLATFORM_WINDOWS)
 else ()
   # need to extend this, if we want to support other platforms
-	message (STATUS "Platform is Linux (BUILDSYSTEM_PLATFORM_LINUX)")
-
-	set (BUILDSYSTEM_PLATFORM_LINUX ON BOOL)
-	add_definitions (-DBUILDSYSTEM_PLATFORM_LINUX)
+	message (SEND_ERROR "Platform is Unknown")
 endif ()
 
 # not sure whether this works on other platforms to detect 64 builds
 if (CMAKE_CL_64)
-	message (STATUS "Platform is 64-Bit (BUILDSYSTEM_PLATFORM_64BIT)")
-
+	message (STATUS "Platform is 64-Bit")
 	set (BUILDSYSTEM_PLATFORM_64BIT ON BOOL)
-	add_definitions (-DBUILDSYSTEM_PLATFORM_64BIT)
 else ()
-	message (STATUS "Platform is 32-Bit (BUILDSYSTEM_PLATFORM_32BIT)")
-
+	message (STATUS "Platform is 32-Bit")
 	set (BUILDSYSTEM_PLATFORM_32BIT ON BOOL)
-	add_definitions (-DBUILDSYSTEM_PLATFORM_32BIT)
 endif ()
 
 #########################################################################################
@@ -195,21 +174,12 @@ endif ()
 #########################################################################################
 ## Code that depends on the values of the configuration variables
 
-if (EZ_COMPILE_ENGINE_AS_DLL)
-	message (STATUS "Linking to the Engine through DLLs.")
-	add_definitions (-DBUILDSYSTEM_COMPILE_ENGINE_AS_DLL)
-else ()
-	message (STATUS "Linking to the Engine through Static Libraries.")
-endif ()
-
-  add_definitions (-DBUILDSYSTEM_OUTPUT_FOLDER="${EZ_OUTPUT_DIRECTORY_DLL}")
+add_definitions (-DBUILDSYSTEM_OUTPUT_FOLDER="${EZ_OUTPUT_DIRECTORY_DLL}")
 
 #########################################################################################
 ## additional preprocessor definitions
 
-set(CMAKE_CXX_FLAGS_DEBUG           "${CMAKE_CXX_FLAGS_DEBUG}          -DBUILDSYSTEM_COMPILE_FOR_DEBUG")
-set(CMAKE_CXX_FLAGS_DEBUG           "${CMAKE_CXX_FLAGS_DEBUG}          -DBUILDSYSTEM_COMPILE_FOR_DEVELOPMENT")
-set(CMAKE_CXX_FLAGS_RELWITHDEBINFO  "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -DBUILDSYSTEM_COMPILE_FOR_DEVELOPMENT")
+
 
 #########################################################################################
 ## packages that should be enabled
@@ -300,10 +270,7 @@ ENDMACRO()
 ## Include directories
 
 include_directories ("${CMAKE_SOURCE_DIR}/Code/Engine")      # this way it will also work for applications
-include_directories ("${CMAKE_SOURCE_DIR}/Code/ThirdParty")  # this way it will also work for applications
 
-# Add all third party libraries here
-#include_directories ("${CMAKE_SOURCE_DIR}/ThirdParty/SomeLib/Include")
-#link_directories ("${CMAKE_SOURCE_DIR}/ThirdParty/SomeLib/lib")
+
 
 

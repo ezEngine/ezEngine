@@ -30,7 +30,7 @@ EZ_CHECK_AT_COMPILETIME(sizeof(ezUInt64) == 8); // must be defined in the specif
 
 #if EZ_PLATFORM_64BIT
   #define EZ_ALIGNMENT_MINIMUM 8
-#elif BUILDSYSTEM_PLATFORM_32BIT
+#elif EZ_PLATFORM_32BIT
   #define EZ_ALIGNMENT_MINIMUM 4
 #else
   #error "Unknown pointer size."
