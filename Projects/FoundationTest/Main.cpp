@@ -6,6 +6,10 @@
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Logging/ConsoleWriter.h>
 
+#if EZ_PLATFORM_WINDOWS
+  #include <conio.h>
+#endif
+
 ezInt32 ezConstructionCounter::s_iConstructions = 0;
 ezInt32 ezConstructionCounter::s_iDestructions = 0;
 ezInt32 ezConstructionCounter::s_iConstructionsLast = 0;

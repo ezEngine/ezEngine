@@ -1,6 +1,6 @@
 
 #ifdef EZ_THREADUTILS_WIN_INL_H_INCLUDED
-#error This file must not be included twice.
+  #error This file must not be included twice.
 #endif
 
 #define EZ_THREADUTILS_WIN_INL_H_INCLUDED
@@ -26,6 +26,11 @@ void ezThreadUtils::YieldTimeSlice()
 void ezThreadUtils::Sleep(ezUInt32 uiMilliSeconds)
 {
   ::Sleep(uiMilliSeconds);
+}
+
+ezThreadHandle ezThreadUtils::GetCurrentThreadHandle()
+{
+  return ::GetCurrentThread();
 }
 
 bool ezThreadUtils::IsMainThread()
