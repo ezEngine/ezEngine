@@ -3,6 +3,7 @@
 #include <Foundation/Strings/StringUtils.h>
 #include <Foundation/Strings/StringIterator.h>
 #include <Foundation/Strings/Implementation/StringBase.h>
+#include <Foundation/Strings/StringConversion.h>
 #include <Foundation/Containers/HybridArray.h>
 
 /// A string class for storing and passing around strings.

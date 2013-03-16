@@ -10,16 +10,8 @@ public:
 
 // *** Data ***
 public:
-  union
-  {
-    float m_fComponents[4];
-
-    struct
-    {
-      ezVec3 v;
-      float w;
-    };
-  };
+  ezVec3 v;
+  float w;
 
 // *** Constructors ***
 public:

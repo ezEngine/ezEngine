@@ -58,11 +58,11 @@ void ezEventBase<EventData, PassThrough>::Broadcast(EventData pEventData)
 
 
 template <typename EventData, typename PassThrough, typename AllocatorWrapper>
-ezEvent<EventData, PassThrough, AllocatorWrapper>::ezEvent() : ezEventBase(AllocatorWrapper::GetAllocator())
+ezEvent<EventData, PassThrough, AllocatorWrapper>::ezEvent() : ezEventBase<EventData, PassThrough>(AllocatorWrapper::GetAllocator())
 {
 }
 
 template <typename EventData, typename PassThrough, typename AllocatorWrapper>
-ezEvent<EventData, PassThrough, AllocatorWrapper>::ezEvent(ezIAllocator* pAllocator) : ezEventBase(pAllocator)
+ezEvent<EventData, PassThrough, AllocatorWrapper>::ezEvent(ezIAllocator* pAllocator) : ezEventBase<EventData, PassThrough>(pAllocator)
 {
 }

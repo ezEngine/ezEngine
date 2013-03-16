@@ -1,5 +1,11 @@
 #cmake
 
+# Use this to get all current variables of cmake
+#get_cmake_property(_variableNames VARIABLES)
+#foreach (_variableName ${_variableNames})
+#    message(STATUS "${_variableName}=${${_variableName}}")
+#endforeach()
+
 #########################################################################################
 ## Configuration Variables
 ## Add your variables here, if you need something (general) to configure from the cmake GUI
@@ -61,22 +67,43 @@ if (MSVC)
 	endif ()
 endif ()
 
+if (XCODE)
+  # Technically this can be OS X and iOS as well use clang..
+	message (STATUS "BuildSystem is XCode using GCC (BUILDSYSTEM_COMPILER_GCC, BUILDSYSTEM_XCODE)")
+	set (BUILDSYSTEM_COMPILER_GCC BOOL)
+	set (BUILDSYSTEM_XCODE BOOL)
+	
+endif ()
+
+
 if (WIN32)
 	message (STATUS "Platform is Windows")
 	set (BUILDSYSTEM_PLATFORM_WINDOWS ON BOOL)
+	
+elseif (CURRENT_OSX_VERSION)
+  # OS X
+  message (STATUS "Platform is OS X (Platform OSX, Platform Posix)")
+  
+  set (BUILDSYSTEM_PLATFORM_OSX ON BOOL)
+  set (BUILDSYSTEM_PLATFORM_POSIX ON BOOL)
 else ()
   # need to extend this, if we want to support other platforms
 	message (SEND_ERROR "Platform is Unknown")
 endif ()
 
-# not sure whether this works on other platforms to detect 64 builds
-if (CMAKE_CL_64)
-	message (STATUS "Platform is 64-Bit")
-	set (BUILDSYSTEM_PLATFORM_64BIT ON BOOL)
-else ()
-	message (STATUS "Platform is 32-Bit")
-	set (BUILDSYSTEM_PLATFORM_32BIT ON BOOL)
-endif ()
+# detect 64 builds for MSVC
+if (MSVC)
+  if (CMAKE_CL_64)
+	  message (STATUS "Platform is 64-Bit (BUILDSYSTEM_PLATFORM_64BIT)")
+	  set (BUILDSYSTEM_PLATFORM_64BIT ON BOOL)
+  else ()
+	  message (STATUS "Platform is 32-Bit (BUILDSYSTEM_PLATFORM_32BIT)")
+	  set (BUILDSYSTEM_PLATFORM_32BIT ON BOOL)
+  endif ()
+endif()
+
+# OS X at least always has 32/64 bit support in the project files and the user switches on demand
+# Thus the header files there have to check for the current environment
 
 #########################################################################################
 ## set output-path for binaries

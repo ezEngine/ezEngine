@@ -34,6 +34,8 @@ public:
 
 #if EZ_PLATFORM_WINDOWS
   #include <Foundation/Threading/Implementation/Win/Mutex_win.h>
+#elif EZ_PLATFORM_OSX
+  #include <Foundation/Threading/Implementation/Posix/Mutex_posix.h>
 #else
   #error "Mutex is not implemented on current platform"
 #endif

@@ -3,11 +3,11 @@
 /// Put this in some cpp file of a subsystem to start its startup / shutdown sequence declaration.
 /// The first parameter is the name of the module, in which the subsystem resides, the second is the name of the subsystem itself.
 #define EZ_BEGIN_SUBSYSTEM_DECLARATION(ModuleName, SubsystemName) \
+class ModuleName##SubsystemName##SubSystem; \
 typedef ModuleName##SubsystemName##SubSystem SubSystemType; \
 class ModuleName##SubsystemName##SubSystem : public ezSubSystemDeclarationBase { \
   public: virtual const char* GetModuleName() const { return #ModuleName; } \
-  public: virtual const char* GetSubSystemName() const { return #SubsystemName; }
-
+  public: virtual const char* GetSubSystemName() const { return #SubsystemName; } \
 
 /// Finishes a subsystem's startup / shutdown sequence declaration.
 /// The first parameter is the name of the module, in which the subsystem resides, the second is the name of the subsystem itself.

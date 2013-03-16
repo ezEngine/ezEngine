@@ -23,16 +23,8 @@ public:
 // *** Data ***
 public:
 
-  union
-  {
-    float m_fComponents[4];
-
-    struct
-    {
-      ezVec3 m_vNormal;
-      float m_fNegDistance;
-    };
-  };
+  ezVec3 m_vNormal;
+  float m_fNegDistance;
 
 
 // *** Constructors ***

@@ -25,7 +25,7 @@ ezInternal::ezSharedStringBase ezSharedString::s_EmptyString;
   {
     EZ_LOG_BLOCK("String Length Statistics");
 
-    ezLog::Info("Max String Length: %i", g_MaxUsedStringLength);
+    ezLog::Info("Max String Length: %i", g_MaxUsedStringLength.Get());
 
     ezUInt32 uiCopiedStrings = 0;
     for (ezUInt32 i = 0; i < 256; ++i)

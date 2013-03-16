@@ -2,6 +2,8 @@
 
 #if EZ_PLATFORM_WINDOWS
   #include <Foundation/Basics/Platform/Win/PlatformFeatures_win.h>
+#elif EZ_PLATFORM_OSX
+  #include <Foundation/Basics/Platform/OSX/PlatformFeatures_OSX.h>
 #elif EZ_PLATFORM_LINUX
   #include <Foundation/Basics/Platform/Linux/PlatformFeatures_linux.h>
 #else

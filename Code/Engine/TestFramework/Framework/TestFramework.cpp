@@ -33,6 +33,8 @@ void ezTestFramework::Output(ezTestOutput::Enum Type, const char* szMsg, ...)
   case ezTestOutput::Error:
     ++s_iErrorCount;
     break;
+  default:
+    break;
   }
 
   // format the output text

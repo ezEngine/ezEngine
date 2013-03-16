@@ -3,6 +3,8 @@
 #include <Foundation/Memory/CommonAllocators.h>
 #include <TestFramework/Utilities/ConstructionCounter.h>
 
+#include <string>
+
 typedef ezConstructionCounter st;
 
 namespace

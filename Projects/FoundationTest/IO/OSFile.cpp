@@ -131,7 +131,7 @@ Only concrete and clocks.\n\
 
 #endif
 
-#ifdef EZ_SUPPORTS_FILE_ITERATORS
+#if defined(EZ_SUPPORTS_FILE_ITERATORS) && EZ_SUPPORTS_FILE_ITERATORS == 1
 
   EZ_TEST_BLOCK(true, "File Iterator")
   {

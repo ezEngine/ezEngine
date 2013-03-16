@@ -3,18 +3,20 @@ template <typename A, typename B, typename T, typename M>
 EZ_FORCE_INLINE ezAllocator<A, B, T, M>::ezAllocator(const char* szName, ezIAllocator* pParent /* = NULL */) : 
   ezIAllocator(szName),
   m_allocator(pParent),
-  m_threadId(GetCurrentThreadId()) // todo: make this platform independent
+  m_threadHandle(ezThreadUtils::GetCurrentThreadHandle())
 {
 }
 
 template <typename A, typename B, typename T, typename M>
 ezAllocator<A, B, T, M>::~ezAllocator()
 {
-  EZ_ASSERT_API(m_threadId == GetCurrentThreadId(), "Allocator is deleted from another thread");
+  EZ_ASSERT_API(m_threadHandle == ezThreadUtils::GetCurrentThreadHandle(), "Allocator is deleted from another thread");
 
   if (m_tracker.GetAllocationSize() != 0 || m_tracker.GetNumLiveAllocations() != 0)
   {
     EZ_REPORT_FAILURE("Memory leaks found");
+  
+    #if EZ_PLATFORM_WINDOWS
 
     // todo: make this platform independent
     wchar_t szName[32];
@@ -27,6 +29,8 @@ ezAllocator<A, B, T, M>::~ezAllocator()
       szName, (int)m_tracker.GetAllocationSize(), (int)m_tracker.GetNumLiveAllocations());
     
     OutputDebugStringW(szBuffer);
+  
+    #endif
 
     m_tracker.DumpMemoryLeaks();
   }

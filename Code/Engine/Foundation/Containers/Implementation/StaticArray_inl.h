@@ -2,13 +2,13 @@
 template <typename T, ezUInt32 C>
 ezStaticArray<T, C>::ezStaticArray()
 {
-  m_pElements = GetStaticArray();
+  this->m_pElements = GetStaticArray();
 }
 
 template <typename T, ezUInt32 C>
 ezStaticArray<T, C>::ezStaticArray(const ezStaticArray<T, C>& rhs)
 {
-  m_pElements = GetStaticArray();
+  this->m_pElements = GetStaticArray();
 
   *this = (ezArrayPtr<T>) rhs; // redirect this to the ezArrayPtr version
 }
@@ -17,7 +17,7 @@ template <typename T, ezUInt32 C>
 template <ezUInt32 OtherCapacity>
 ezStaticArray<T, C>::ezStaticArray(const ezStaticArray<T, OtherCapacity>& rhs)
 {
-  m_pElements = GetStaticArray();
+  this->m_pElements = GetStaticArray();
 
   *this = (ezArrayPtr<T>) rhs; // redirect this to the ezArrayPtr version
 }
@@ -25,7 +25,7 @@ ezStaticArray<T, C>::ezStaticArray(const ezStaticArray<T, OtherCapacity>& rhs)
 template <typename T, ezUInt32 C>
 ezStaticArray<T, C>::ezStaticArray(const ezArrayPtr<T>& rhs)
 {
-  m_pElements = GetStaticArray();
+  this->m_pElements = GetStaticArray();
 
   *this = rhs;
 }
@@ -33,9 +33,9 @@ ezStaticArray<T, C>::ezStaticArray(const ezArrayPtr<T>& rhs)
 template <typename T, ezUInt32 C>
 ezStaticArray<T, C>::~ezStaticArray()
 {
-  Clear();
+  this->Clear();
 
-  m_pElements = NULL;
+  this->m_pElements = NULL;
 }
 
 template <typename T, ezUInt32 C>
@@ -71,7 +71,7 @@ void ezStaticArray<T, C>::operator= (const ezArrayPtr<T>& rhs)
 
   SetCount(ezMath::Min(C, rhs.GetCount()));
 
-  ezMemoryUtils::Copy(m_pElements, rhs.GetPtr(), m_uiCount);
+  ezMemoryUtils::Copy(this->m_pElements, rhs.GetPtr(), this->m_uiCount);
 }
 
 template <typename T, ezUInt32 C>
@@ -79,17 +79,17 @@ void ezStaticArray<T, C>::SetCount(ezUInt32 uiCount)
 {
   EZ_ASSERT(uiCount <= C, "The static array has a capacity of %i elements, you cannot resize it to hold %i elements.", C, uiCount);
 
-  const ezUInt32 uiOldCount = m_uiCount;
+  const ezUInt32 uiOldCount = this->m_uiCount;
   const ezUInt32 uiNewCount = uiCount;
 
   if (uiNewCount > uiOldCount)
   {
-    ezMemoryUtils::Construct(m_pElements + uiOldCount, uiNewCount - uiOldCount);  
+    ezMemoryUtils::Construct(this->m_pElements + uiOldCount, uiNewCount - uiOldCount);  
   }
   else if (uiNewCount < uiOldCount)
   {
-    ezMemoryUtils::Destruct(m_pElements + uiNewCount, uiOldCount - uiNewCount);
+    ezMemoryUtils::Destruct(this->m_pElements + uiNewCount, uiOldCount - uiNewCount);
   }
 
-  m_uiCount = uiCount;
+  this->m_uiCount = uiCount;
 }

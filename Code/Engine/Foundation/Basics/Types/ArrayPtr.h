@@ -58,7 +58,7 @@ public:
   {
     EZ_ASSERT(uiStart < uiEnd, "Start has to be smaller than end");
     EZ_ASSERT(uiEnd <= m_uiCount, "End has to be smaller or equal than the count");
-    return Array<T>(m_ptr + uiStart, uiEnd - uiStart);
+    return ezArrayPtr<T>(m_ptr + uiStart, uiEnd - uiStart);
   }
 
   /// creates a sub-array from this array
@@ -66,7 +66,7 @@ public:
   {
     EZ_ASSERT(uiStart < uiEnd, "Start has to be smaller than end");
     EZ_ASSERT(uiEnd <= m_uiCount, "End has to be smaller or equal than the count");
-    return Array<T>(m_ptr + uiStart, uiEnd - uiStart);
+    return ezArrayPtr<T>(m_ptr + uiStart, uiEnd - uiStart);
   }
 
   EZ_FORCE_INLINE T& operator[](ezUInt32 uiIndex)

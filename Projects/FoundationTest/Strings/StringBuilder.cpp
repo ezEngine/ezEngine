@@ -16,7 +16,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
 
   EZ_TEST_BLOCK(true, "Constructor(Utf8)")
   {
-    ezStringUtf8 sUtf8 = L"abc äöü € def";
+    ezStringUtf8 sUtf8(L"abc äöü € def");
     ezStringBuilder s(sUtf8.GetData());
 
     EZ_TEST(s.GetData() != sUtf8.GetData());
@@ -35,7 +35,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
 
   EZ_TEST_BLOCK(true, "Constructor(wchar_t)")
   {
-    ezStringUtf8 sUtf8 = L"abc äöü € def";
+    ezStringUtf8 sUtf8(L"abc äöü € def");
     ezStringBuilder s(L"abc äöü € def");
 
     EZ_TEST(s == sUtf8.GetData());
@@ -53,7 +53,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
 
   EZ_TEST_BLOCK(true, "Constructor(copy)")
   {
-    ezStringUtf8 sUtf8 = L"abc äöü € def";
+    ezStringUtf8 sUtf8(L"abc äöü € def");
     ezStringBuilder s(L"abc äöü € def");
     ezStringBuilder s2(s);
 
@@ -65,7 +65,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
 
   EZ_TEST_BLOCK(true, "Constructor(StringIterator)")
   {
-    ezStringUtf8 sUtf8 = L"abc äöü € def";
+    ezStringUtf8 sUtf8(L"abc äöü € def");
 
     ezStringIterator it(sUtf8.GetData() + 2, sUtf8.GetData() + 8, sUtf8.GetData() + 2);
 
@@ -79,7 +79,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
 
   EZ_TEST_BLOCK(true, "operator=(Utf8)")
   {
-    ezStringUtf8 sUtf8 = L"abc äöü € def";
+    ezStringUtf8 sUtf8(L"abc äöü € def");
     ezStringBuilder s("bla");
     s = sUtf8.GetData();
 
@@ -100,7 +100,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
 
   EZ_TEST_BLOCK(true, "operator=(wchar_t)")
   {
-    ezStringUtf8 sUtf8 = L"abc äöü € def";
+    ezStringUtf8 sUtf8(L"abc äöü € def");
     ezStringBuilder s("bla");
     s = L"abc äöü € def";
 
@@ -120,7 +120,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
 
   EZ_TEST_BLOCK(true, "operator=(copy)")
   {
-    ezStringUtf8 sUtf8 = L"abc äöü € def";
+    ezStringUtf8 sUtf8(L"abc äöü € def");
     ezStringBuilder s(L"abc äöü € def");
     ezStringBuilder s2;
     s2 = s;
@@ -973,7 +973,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     p = "";
     EZ_TEST(p.GetFileNameAndExtension() == "");
 
-    p == "/";
+    p = "/";
     EZ_TEST(p.GetFileNameAndExtension() == "");
 
     p = "This/Is\\My//Path.dot\\";
@@ -1077,8 +1077,30 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
       EZ_TEST(!p.IsAbsolutePath());
       EZ_TEST(p.IsRelativePath());
 
+    #elif EZ_PLATFORM_OSX
+  
+      p = "C:\\test.stuff";
+      EZ_TEST(!p.IsAbsolutePath());
+      EZ_TEST(p.IsRelativePath());
+  
+      p = "test.stuff";
+      EZ_TEST(!p.IsAbsolutePath());
+      EZ_TEST(p.IsRelativePath());
+  
+      p = "/test.stuff";
+      EZ_TEST(p.IsAbsolutePath());
+      EZ_TEST(!p.IsRelativePath());
+  
+      p = "..\\test.stuff";
+      EZ_TEST(!p.IsAbsolutePath());
+      EZ_TEST(p.IsRelativePath());
+  
+      p = ".\\test.stuff";
+      EZ_TEST(!p.IsAbsolutePath());
+      EZ_TEST(p.IsRelativePath());
+  
     #elif EZ_PLATFORM_LINUX
-      #error Missing tests. 
+      #error Missing tests.
     #else
       #error Unknown platform.
     #endif

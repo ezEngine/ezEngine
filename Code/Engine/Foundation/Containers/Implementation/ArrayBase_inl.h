@@ -232,5 +232,5 @@ template <typename T, typename Derived>
 void ezArrayBase<T, Derived>::Sort()
 {
   if (m_uiCount > 1)
-    ezSorting<ezCompareHelper<T> >::QuickSort((ezArrayPtr<T>)*this);
+    ezSorting<ezCompareHelper<T> >::QuickSort((ezArrayPtr<T>&)*this);
 }

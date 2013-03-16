@@ -76,8 +76,8 @@ public:
     EZ_DECLARE_POD_TYPE();
     Iterator() : ConstIterator () {}
 
-    T& operator* () { return (m_pElement->m_Data);  }
-    T* operator->() { return (&m_pElement->m_Data); }
+    T& operator* () { return (this->m_pElement->m_Data);  }
+    T* operator->() { return (&this->m_pElement->m_Data); }
 
   private:
     friend class ezListBase<T>;

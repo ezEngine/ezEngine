@@ -11,6 +11,8 @@
 // include the different headers for the supported platforms
 #if EZ_PLATFORM_WINDOWS
   #include <Foundation/Basics/Platform/Win/Platform_win.h>
+#elif EZ_PLATFORM_OSX
+  #include <Foundation/Basics/Platform/OSX/Platform_OSX.h>
 #elif EZ_PLATFORM_LINUX
   #include <Foundation/Basics/Platform/Linux/Platform_linux.h>
 #else
@@ -36,7 +38,7 @@
   #if (defined(BUILDSYSTEM_COMPILE_ENGINE_AS_DLL) && !defined(EZ_COMPILE_ENGINE_AS_DLL))
     #error "The Buildsystem is configured to build the Engine as a shared library, but EZ_COMPILE_ENGINE_AS_DLL is not defined in UserConfig.h"
   #endif
-  #if (!defined(BUILDSYSTEM_COMPILE_ENGINE_AS_DLL) && defined(EZ_COMPILE_ENGINE_AS_DLL))
+  #if (!defined(BUILDSYSTEM_COMPILE_ENGINE_AS_DLL) && (defined(EZ_COMPILE_ENGINE_AS_DLL) && EZ_COMPILE_ENGINE_AS_DLL == 1))
     #error "The Buildsystem is configured to build the Engine as a static library, but EZ_COMPILE_ENGINE_AS_DLL is defined in UserConfig.h"
   #endif
 #endif

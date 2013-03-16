@@ -768,22 +768,22 @@ void ezDequeBase<T, Construct>::Sort()
 
 
 template <typename T, typename A, bool Construct>
-ezDeque<T, A, Construct>::ezDeque() : ezDequeBase(A::GetAllocator())
+ezDeque<T, A, Construct>::ezDeque() : ezDequeBase<T, Construct>(A::GetAllocator())
 {
 }
 
 template <typename T, typename A, bool Construct>
-ezDeque<T, A, Construct>:: ezDeque(ezIAllocator* pAllocator) : ezDequeBase(pAllocator)
+ezDeque<T, A, Construct>:: ezDeque(ezIAllocator* pAllocator) : ezDequeBase<T, Construct>(pAllocator)
 {
 }
 
 template <typename T, typename A, bool Construct>
-ezDeque<T, A, Construct>::ezDeque(const ezDeque<T, A, Construct>& other) : ezDequeBase(other, A::GetAllocator())
+ezDeque<T, A, Construct>::ezDeque(const ezDeque<T, A, Construct>& other) : ezDequeBase<T, Construct>(other, A::GetAllocator())
 {
 }
 
 template <typename T, typename A, bool Construct>
-ezDeque<T, A, Construct>:: ezDeque(const ezDequeBase<T, Construct>& other) : ezDequeBase(other, A::GetAllocator())
+ezDeque<T, A, Construct>:: ezDeque(const ezDequeBase<T, Construct>& other) : ezDequeBase<T, Construct>(other, A::GetAllocator())
 {
 }
 

@@ -54,7 +54,7 @@ public:
   // implict conversion to enum type
   EZ_FORCE_INLINE operator typename Derived::Enum() const // [tested]
   {
-    return (Enum)m_value;
+    return static_cast<typename Derived::Enum>(m_value);
   }
 
 private:

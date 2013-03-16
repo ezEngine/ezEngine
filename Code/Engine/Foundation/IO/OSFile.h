@@ -11,8 +11,6 @@ struct ezOSFileData;
 
 #if EZ_PLATFORM_WINDOWS
   #include <Foundation/IO/Implementation/Win/OSFileDeclarations_win.h>
-#else
-  #error "Unknown Platform."
 #endif
 
 /// Defines in which mode to open a file.
@@ -56,7 +54,7 @@ struct EZ_FOUNDATION_DLL ezFileStats
   bool m_bIsDirectory;
 };
 
-#ifdef EZ_SUPPORTS_FILE_ITERATORS
+#if defined(EZ_SUPPORTS_FILE_ITERATORS) && EZ_SUPPORTS_FILE_ITERATORS == 1
 
   struct ezFileIterationData;
 

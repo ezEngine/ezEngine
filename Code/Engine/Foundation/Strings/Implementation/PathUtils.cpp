@@ -127,6 +127,8 @@ ezStringIterator ezPathUtils::GetFileDirectory(const char* szPath, const char* s
   const char ezPathUtils::OsSpecificPathSeparator = '\\';
 #elif EZ_PLATFORM_LINUX
   const char ezPathUtils::OsSpecificPathSeparator = '/';
+#elif EZ_PLATFORM_OSX
+  const char ezPathUtils::OsSpecificPathSeparator = '/';
 #else
   #error Unknown platform.
 #endif
@@ -144,6 +146,8 @@ bool ezPathUtils::IsAbsolutePath(const char* szPath)
     // TODO: not sure if we should handle '//' identical to '\\' (currently we do)
     return ((szPath[1] == ':') || (IsPathSeparator(szPath[0]) && IsPathSeparator(szPath[1])));
   #elif EZ_PLATFORM_LINUX
+    return (szPath[0] == '/');
+  #elif EZ_PLATFORM_OSX
     return (szPath[0] == '/');
   #else
     #error Unknown platform.

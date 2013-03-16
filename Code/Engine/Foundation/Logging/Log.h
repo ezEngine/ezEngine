@@ -8,6 +8,9 @@
 /// Use this helper macro to easily create a scoped logging group. Will generate unique variable names to make the static code analysis happy.
 #define EZ_LOG_BLOCK(name) ezLogBlock EZ_CONCAT(_logblock_, EZ_SOURCE_LINE)(name);
 
+// Forward declaration, class is at the end of this file
+class ezLogBlock;
+
 /// Static class that allows to write out logging information.
 /// This class takes logging information, prepares it and then broadcasts it to all interested code
 /// via the event interface. It does not write anything on disk or somewhere else, itself. Instead it

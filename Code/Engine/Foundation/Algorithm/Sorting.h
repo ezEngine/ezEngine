@@ -3,6 +3,7 @@
 
 #include <Foundation/Basics.h>
 #include <Foundation/Algorithm/Comparer.h>
+#include <Foundation/Math/Math.h>
 
 template <typename Comparer>
 class ezSorting

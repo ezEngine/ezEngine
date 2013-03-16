@@ -93,7 +93,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, String)
   EZ_TEST_BLOCK(true, "GetSubString")
   {
     ezString s(L"abcäöü€def");
-    ezStringUtf8 s8 = L"äöü€";
+    ezStringUtf8 s8(L"äöü€");
 
     ezStringIterator it = s.GetSubString(3, 4);
     EZ_TEST(it == s8.GetData());

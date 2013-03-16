@@ -51,7 +51,7 @@ struct EZ_FOUNDATION_DLL ezEndianHelper
   /// Returns a single switched double word (32 bit value)
   static EZ_FORCE_INLINE ezUInt32 Switch(ezUInt32 uiDWord) // [tested]
   {
-    return (((uiDWord & 0xFF) << 24) | (((uiDWord >> 8) & 0xFF) << 16) | (((uiDWord >> 16) & 0xFF) << 8) | (uiDWord >> 24) & 0xFF);
+    return (((uiDWord & 0xFF) << 24) | (((uiDWord >> 8) & 0xFF) << 16) | (((uiDWord >> 16) & 0xFF) << 8) | ((uiDWord >> 24) & 0xFF));
   }
 
   /// Returns a single switched quad word (64 bit value)

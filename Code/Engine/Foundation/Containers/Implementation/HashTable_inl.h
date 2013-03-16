@@ -69,7 +69,7 @@ ezHashTableBase<K, V, H>::Iterator::Iterator(const ezHashTableBase<K, V, H>& has
 template <typename K, typename V, typename H>
 EZ_FORCE_INLINE V& ezHashTableBase<K, V, H>::Iterator::Value()
 {
-  return m_hashTable.m_pEntries[m_uiCurrentIndex].value;
+  return this->m_hashTable.m_pEntries[this->m_uiCurrentIndex].value;
 }
 
 
@@ -413,22 +413,22 @@ void ezHashTableBase<K, V, H>::MarkEntryAsDeleted(ezUInt32 uiEntryIndex)
 
 
 template <typename K, typename V, typename H, typename A>
-ezHashTable<K, V, H, A>::ezHashTable() : ezHashTableBase(A::GetAllocator())
+ezHashTable<K, V, H, A>::ezHashTable() : ezHashTableBase<K, V, H>(A::GetAllocator())
 {
 }
 
 template <typename K, typename V, typename H, typename A>
-ezHashTable<K, V, H, A>::ezHashTable(ezIAllocator* pAllocator) : ezHashTableBase(pAllocator)
+ezHashTable<K, V, H, A>::ezHashTable(ezIAllocator* pAllocator) : ezHashTableBase<K, V, H>(pAllocator)
 {
 }
 
 template <typename K, typename V, typename H, typename A>
-ezHashTable<K, V, H, A>::ezHashTable(const ezHashTable<K, V, H, A>& other) : ezHashTableBase(other, A::GetAllocator())
+ezHashTable<K, V, H, A>::ezHashTable(const ezHashTable<K, V, H, A>& other) : ezHashTableBase<K, V, H>(other, A::GetAllocator())
 {
 }
 
 template <typename K, typename V, typename H, typename A>
-ezHashTable<K, V, H, A>:: ezHashTable(const ezHashTableBase<K, V, H>& other) : ezHashTableBase(other, A::GetAllocator())
+ezHashTable<K, V, H, A>:: ezHashTable(const ezHashTableBase<K, V, H>& other) : ezHashTableBase<K, V, H>(other, A::GetAllocator())
 {
 }
 

@@ -20,7 +20,21 @@ EZ_FORCE_INLINE ezIAllocator* ezIAllocator::GetParent() const
 
 namespace ezInternal
 {
-  template <typename T> 
+  template <typename T>
+  T* CreateRawBuffer(ezIAllocator* pAllocator, size_t uiCount)
+  {
+    return static_cast<T*>(pAllocator->Allocate(sizeof(T) * uiCount, EZ_ALIGNMENT_OF(T)));
+  }
+  
+  inline void DeleteRawBuffer(ezIAllocator* pAllocator, void* ptr)
+  {
+    if (ptr != NULL)
+    {
+    pAllocator->Deallocate(ptr);
+    }
+  }
+  
+  template <typename T>
   void Delete(ezIAllocator* pAllocator, T* ptr)
   {
     if (ptr != NULL)
@@ -47,20 +61,6 @@ namespace ezInternal
     {
       ezMemoryUtils::Destruct(buffer, arrayPtr.GetCount()); 
       pAllocator->Deallocate(buffer);
-    }
-  }
-
-  template <typename T>
-  T* CreateRawBuffer(ezIAllocator* pAllocator, size_t uiCount)
-  {
-    return static_cast<T*>(pAllocator->Allocate(sizeof(T) * uiCount, EZ_ALIGNMENT_OF(T)));
-  }
-
-  inline void DeleteRawBuffer(ezIAllocator* pAllocator, void* ptr)
-  {
-    if (ptr != NULL)
-    {
-      pAllocator->Deallocate(ptr);
     }
   }
 }

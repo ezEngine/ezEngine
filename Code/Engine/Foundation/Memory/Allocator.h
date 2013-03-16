@@ -3,6 +3,7 @@
 #include <Foundation/Math/Math.h>
 #include <Foundation/Memory/IAllocator.h>
 #include <Foundation/Threading/Lock.h>
+#include <Foundation/Threading/ThreadUtils.h>
 
 /// policy based allocator implementation
 template <typename AllocationPolicy, typename BoundsCheckingPolicy, typename TrackingPolicy, 
@@ -23,7 +24,7 @@ private:
   TrackingPolicy m_tracker;
   MutexType m_mutex;
 
-  ezThreadId m_threadId;
+  ezThreadHandle m_threadHandle;
 
   void* Allocate(size_t uiSize, size_t uiAlign) EZ_OVERRIDE;
   void Deallocate(void* ptr) EZ_OVERRIDE;

@@ -95,7 +95,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, UnicodeUtils)
 
   EZ_TEST_BLOCK(true, "MoveToNextUtf8")
   {
-    ezStringUtf8 s = L"aböäß€de";
+    ezStringUtf8 s(L"aböäß€de");
 
     const char* sz = s.GetData();
 
@@ -125,7 +125,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, UnicodeUtils)
 
   EZ_TEST_BLOCK(true, "MoveToPriorUtf8")
   {
-    ezStringUtf8 s = L"aböäß€de";
+    ezStringUtf8 s(L"aböäß€de");
 
     const char* sz = &s.GetData()[13];
 

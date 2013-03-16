@@ -16,7 +16,7 @@ void* ezAlignedHeapAllocation<uiAlignment>::Allocate(size_t uiSize, size_t uiAli
     uiAlignment, uiAlign);
 
   void* ptr = _aligned_malloc(uiSize, uiAlignment);
-  EZ_CHECK_uiAlignment(ptr, uiAlign);
+  EZ_CHECK_ALIGNMENT(ptr, uiAlign);
 
   return ptr;
 }

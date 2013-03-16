@@ -3,11 +3,14 @@
 #include <Foundation/Threading/Lock.h>
 #include <Foundation/Threading/Mutex.h>
 
+// TODO: enum for color values
 #ifdef EZ_PLATFORM_WINDOWS
   static void SetConsoleColor (WORD ui)
   {
     SetConsoleTextAttribute (GetStdHandle (STD_OUTPUT_HANDLE), ui);
   }
+#elif EZ_PLATFORM_OSX
+  static void SetConsoleColor (ezUInt8 ui) { }
 #else
   #error Unknown Platform.
   static void SetConsoleColor (ezUInt8 ui) { }

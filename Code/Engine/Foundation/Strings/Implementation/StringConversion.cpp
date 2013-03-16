@@ -21,7 +21,8 @@ void ezStringWChar::operator=(const char* szUtf8)
       const ezUInt32 uiUtf32 = ezUnicodeUtils::DecodeUtf8ToUtf32(szUtf8);
   
       // encode utf32 to wchar_t
-      ezUnicodeUtils::EncodeUtf32ToWChar(uiUtf32, ezUnicodeUtils::UtfInserter<wchar_t, ezHybridArray<wchar_t, BufferSize> > (&m_Data));
+      ezUnicodeUtils::UtfInserter<wchar_t, ezHybridArray<wchar_t, BufferSize> > tempInserter(&m_Data);
+      ezUnicodeUtils::EncodeUtf32ToWChar(uiUtf32, tempInserter);
     }
   }
 
@@ -45,7 +46,8 @@ void ezStringWChar::operator=(const ezUInt16* szUtf16)
       const ezUInt32 uiUtf32 = ezUnicodeUtils::DecodeUtf16ToUtf32(szUtf16);
   
       // encode utf32 to wchar_t
-      ezUnicodeUtils::EncodeUtf32ToWChar(uiUtf32, ezUnicodeUtils::UtfInserter<wchar_t, ezHybridArray<wchar_t, BufferSize> > (&m_Data));
+      ezUnicodeUtils::UtfInserter<wchar_t, ezHybridArray<wchar_t, BufferSize> > tempInserter(&m_Data);
+      ezUnicodeUtils::EncodeUtf32ToWChar(uiUtf32, tempInserter);
     }
   }
 
@@ -67,7 +69,8 @@ void ezStringWChar::operator=(const ezUInt32* szUtf32)
       ++szUtf32;
   
       // encode utf32 to wchar_t
-      ezUnicodeUtils::EncodeUtf32ToWChar(uiUtf32, ezUnicodeUtils::UtfInserter<wchar_t, ezHybridArray<wchar_t, BufferSize> > (&m_Data));
+      ezUnicodeUtils::UtfInserter<wchar_t, ezHybridArray<wchar_t, BufferSize> > tempInserter(&m_Data);
+      ezUnicodeUtils::EncodeUtf32ToWChar(uiUtf32, tempInserter);
     }
   }
 
@@ -136,7 +139,8 @@ void ezStringUtf8::operator=(const ezUInt16* szUtf16)
       const ezUInt32 uiUtf32 = ezUnicodeUtils::DecodeUtf16ToUtf32(szUtf16);
   
       // encode utf32 to wchar_t
-      ezUnicodeUtils::EncodeUtf32ToUtf8(uiUtf32, ezUnicodeUtils::UtfInserter<char, ezHybridArray<char, BufferSize> > (&m_Data));
+      ezUnicodeUtils::UtfInserter<char, ezHybridArray<char, BufferSize> > tempInserter(&m_Data);
+      ezUnicodeUtils::EncodeUtf32ToUtf8(uiUtf32, tempInserter);
     }
   }
 
@@ -158,7 +162,8 @@ void ezStringUtf8::operator=(const ezUInt32* szUtf32)
       ++szUtf32;
   
       // encode utf32 to wchar_t
-      ezUnicodeUtils::EncodeUtf32ToUtf8(uiUtf32, ezUnicodeUtils::UtfInserter<char, ezHybridArray<char, BufferSize> > (&m_Data));
+      ezUnicodeUtils::UtfInserter<char, ezHybridArray<char, BufferSize> > tempInserter(&m_Data);
+      ezUnicodeUtils::EncodeUtf32ToUtf8(uiUtf32, tempInserter);
     }
   }
 
@@ -178,7 +183,8 @@ void ezStringUtf8::operator=(const wchar_t* szWChar)
       const ezUInt32 uiUtf32 = ezUnicodeUtils::DecodeWCharToUtf32(szWChar);
   
       // encode utf32 to wchar_t
-      ezUnicodeUtils::EncodeUtf32ToUtf8(uiUtf32, ezUnicodeUtils::UtfInserter<char, ezHybridArray<char, BufferSize> > (&m_Data));
+      ezUnicodeUtils::UtfInserter<char, ezHybridArray<char, BufferSize> > tempInserter(&m_Data);
+      ezUnicodeUtils::EncodeUtf32ToUtf8(uiUtf32, tempInserter);
     }
   }
 
@@ -208,7 +214,8 @@ void ezStringUtf16::operator=(const char* szUtf8)
       const ezUInt32 uiUtf32 = ezUnicodeUtils::DecodeUtf8ToUtf32(szUtf8);
   
       // encode utf32 to wchar_t
-      ezUnicodeUtils::EncodeUtf32ToUtf16(uiUtf32, ezUnicodeUtils::UtfInserter<ezUInt16, ezHybridArray<ezUInt16, BufferSize> > (&m_Data));
+      ezUnicodeUtils::UtfInserter<ezUInt16, ezHybridArray<ezUInt16, BufferSize> > tempInserter(&m_Data);
+      ezUnicodeUtils::EncodeUtf32ToUtf16(uiUtf32, tempInserter);
     }
   }
 
@@ -252,7 +259,8 @@ void ezStringUtf16::operator=(const ezUInt32* szUtf32)
       ++szUtf32;
   
       // encode utf32 to wchar_t
-      ezUnicodeUtils::EncodeUtf32ToUtf16(uiUtf32, ezUnicodeUtils::UtfInserter<ezUInt16, ezHybridArray<ezUInt16, BufferSize> > (&m_Data));
+      ezUnicodeUtils::UtfInserter<ezUInt16, ezHybridArray<ezUInt16, BufferSize> > tempInserter(&m_Data);
+      ezUnicodeUtils::EncodeUtf32ToUtf16(uiUtf32, tempInserter);
     }
   }
 
@@ -272,7 +280,8 @@ void ezStringUtf16::operator=(const wchar_t* szWChar)
       const ezUInt32 uiUtf32 = ezUnicodeUtils::DecodeWCharToUtf32(szWChar);
   
       // encode utf32 to wchar_t
-      ezUnicodeUtils::EncodeUtf32ToUtf16(uiUtf32, ezUnicodeUtils::UtfInserter<ezUInt16, ezHybridArray<ezUInt16, BufferSize> > (&m_Data));
+      ezUnicodeUtils::UtfInserter<ezUInt16, ezHybridArray<ezUInt16, BufferSize> > tempInserter(&m_Data);
+      ezUnicodeUtils::EncodeUtf32ToUtf16(uiUtf32, tempInserter);
     }
   }
 

@@ -398,7 +398,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBase)
 
   EZ_TEST_BLOCK(true, "FindWholeWord")
   {
-    ezStringUtf8 s = L"abc def mompfhüßß ßßß öäü abcdef abc def abc def";
+    ezStringUtf8 s(L"abc def mompfhüßß ßßß öäü abcdef abc def abc def");
     ezStringIterator it(s.GetData() + 8, s.GetData() + s.GetElementCount() - 8, s.GetData() + 8);
 
     EZ_TEST(it.FindWholeWord("abc", ezStringUtils::IsWordDelimiter_English) == &it.GetData()[34]);
@@ -408,7 +408,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBase)
 
   EZ_TEST_BLOCK(true, "FindWholeWord_NoCase")
   {
-    ezStringUtf8 s = L"abc def mompfhüßß ßßß öäü abcdef abc def abc def";
+    ezStringUtf8 s("abc def mompfhüßß ßßß öäü abcdef abc def abc def");
     ezStringIterator it(s.GetData() + 8, s.GetData() + s.GetElementCount() - 8, s.GetData() + 8);
 
     EZ_TEST(it.FindWholeWord_NoCase("ABC", ezStringUtils::IsWordDelimiter_English) == &it.GetData()[34]);

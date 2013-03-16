@@ -161,7 +161,8 @@ inline bool ezPlane::FlipIfNecessary(const ezVec3& vPoint, bool bPlaneShouldFace
 
 inline void ezPlane::SetInvalid()
 {
-  m_fComponents[0] = m_fComponents[1] = m_fComponents[2] = m_fComponents[3] = 0.0f;
+  m_vNormal.Set(0.0f);
+  m_fNegDistance = 0.0f;
 }
 
 inline bool ezPlane::IsValid() const

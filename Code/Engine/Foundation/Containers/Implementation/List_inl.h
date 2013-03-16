@@ -305,22 +305,22 @@ void ezListBase<T>::SetCount(ezUInt32 uiNewSize)
 
 
 template <typename T, typename A>
-ezList<T, A>::ezList() : ezListBase(A::GetAllocator())
+ezList<T, A>::ezList() : ezListBase<T>(A::GetAllocator())
 {
 }
 
 template <typename T, typename A>
-ezList<T, A>::ezList(ezIAllocator* pAllocator) : ezListBase(pAllocator)
+ezList<T, A>::ezList(ezIAllocator* pAllocator) : ezListBase<T>(pAllocator)
 {
 }
 
 template <typename T, typename A>
-ezList<T, A>::ezList(const ezList<T, A>& other) : ezListBase(other, A::GetAllocator())
+ezList<T, A>::ezList(const ezList<T, A>& other) : ezListBase<T>(other, A::GetAllocator())
 {
 }
 
 template <typename T, typename A>
-ezList<T, A>:: ezList(const ezListBase<T>& other) : ezListBase(other, A::GetAllocator())
+ezList<T, A>:: ezList(const ezListBase<T>& other) : ezListBase<T>(other, A::GetAllocator())
 {
 }
 

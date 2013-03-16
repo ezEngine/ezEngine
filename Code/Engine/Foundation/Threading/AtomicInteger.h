@@ -45,6 +45,8 @@ public:
   T Swap(T x);
 
   operator T() const;
+  
+  T Get() const;
 
 private:
   volatile T m_value;

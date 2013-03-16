@@ -2,6 +2,9 @@
 #include <Foundation/Containers/HybridArray.h>
 #include <TestFramework/Utilities/ConstructionCounter.h>
 
+#include <string>
+
+
 typedef ezConstructionCounter st;
 
 namespace

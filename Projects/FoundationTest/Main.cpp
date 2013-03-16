@@ -5,7 +5,6 @@
 #include <TestFramework/Utilities/HTMLOutput.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Logging/ConsoleWriter.h>
-#include <conio.h>
 
 ezInt32 ezConstructionCounter::s_iConstructions = 0;
 ezInt32 ezConstructionCounter::s_iDestructions = 0;

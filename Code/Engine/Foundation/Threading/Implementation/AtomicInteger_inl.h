@@ -95,3 +95,9 @@ EZ_FORCE_INLINE ezAtomicInteger<T>::operator T() const
 {
   return m_value;
 }
+
+template <typename T>
+EZ_FORCE_INLINE T ezAtomicInteger<T>::Get() const
+{
+  return m_value;
+}

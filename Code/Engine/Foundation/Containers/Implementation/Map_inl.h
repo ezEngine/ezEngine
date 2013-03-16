@@ -117,7 +117,7 @@ void ezMapBase<K, V, C>::ConstIterator::Prev()
 // ***** ezMapBase *****
 
 template <typename K, typename V, typename C>
-EZ_FORCE_INLINE ezMapBase<K, V, C>::NilNode::NilNode() : m_uiLevel(0), m_pParent(NULL)
+EZ_FORCE_INLINE ezMapBase<K, V, C>::NilNode::NilNode() : m_pParent(NULL), m_uiLevel(0)
 {
 }
 
@@ -533,7 +533,7 @@ EZ_FORCE_INLINE typename ezMapBase<K, V, C>::Node* ezMapBase<K, V, C>::SplitNode
 }
 
 template <typename K, typename V, typename C>
-typename void ezMapBase<K, V, C>::Insert(const K& key, const V& value, Node*& pInsertedNode)
+void ezMapBase<K, V, C>::Insert(const K& key, const V& value, Node*& pInsertedNode)
 {
   Node* root = m_pRoot;
 
@@ -764,22 +764,22 @@ typename ezMapBase<K, V, C>::Iterator ezMapBase<K, V, C>::Erase(const Iterator& 
 
 
 template <typename K, typename V, typename C, typename A>
-ezMap<K, V, C, A>::ezMap() : ezMapBase(A::GetAllocator())
+ezMap<K, V, C, A>::ezMap() : ezMapBase<K, V, C>(A::GetAllocator())
 {
 }
 
 template <typename K, typename V, typename C, typename A>
-ezMap<K, V, C, A>::ezMap(ezIAllocator* pAllocator) : ezMapBase(pAllocator)
+ezMap<K, V, C, A>::ezMap(ezIAllocator* pAllocator) : ezMapBase<K, V, C>(pAllocator)
 {
 }
 
 template <typename K, typename V, typename C, typename A>
-ezMap<K, V, C, A>::ezMap(const ezMap<K, V, C, A>& other) : ezMapBase(other, A::GetAllocator())
+ezMap<K, V, C, A>::ezMap(const ezMap<K, V, C, A>& other) : ezMapBase<K, V, C>(other, A::GetAllocator())
 {
 }
 
 template <typename K, typename V, typename C, typename A>
-ezMap<K, V, C, A>:: ezMap(const ezMapBase<K, V, C>& other) : ezMapBase(other, A::GetAllocator())
+ezMap<K, V, C, A>:: ezMap(const ezMapBase<K, V, C>& other) : ezMapBase<K, V, C>(other, A::GetAllocator())
 {
 }
 

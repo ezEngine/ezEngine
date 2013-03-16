@@ -46,7 +46,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringUtils)
     EZ_TEST_INT(ezStringUtils::GetCharacterCount("a"), 1);
     EZ_TEST_INT(ezStringUtils::GetCharacterCount("abc"), 3);
 
-    ezStringUtf8 s = L"äöü"; // 6 Bytes
+    ezStringUtf8 s(L"äöü"); // 6 Bytes
 
     EZ_TEST_INT(ezStringUtils::GetStringElementCount(s.GetData()), 6);
     EZ_TEST_INT(ezStringUtils::GetCharacterCount(s.GetData()), 3);
@@ -82,7 +82,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringUtils)
     EZ_TEST_INT(uiCC, 3);
     EZ_TEST_INT(uiEC, 3);
 
-    ezStringUtf8 s = L"äöü"; // 6 Bytes
+    ezStringUtf8 s(L"äöü"); // 6 Bytes
 
     ezStringUtils::GetCharacterAndElementCount(s.GetData(), uiCC, uiEC);
     EZ_TEST_INT(uiCC, 3);
@@ -182,8 +182,8 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringUtils)
 
   EZ_TEST_BLOCK(true, "ToUpperString")
   {
-    ezStringUtf8 sL = L"abc öäü ß €";
-    ezStringUtf8 sU = L"ABC ÖÄÜ ß €";
+    ezStringUtf8 sL(L"abc öäü ß €");
+    ezStringUtf8 sU(L"ABC ÖÄÜ ß €");
 
     char szCopy[256];
     ezStringUtils::Copy(szCopy, 256, sL.GetData());
@@ -195,8 +195,8 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringUtils)
 
   EZ_TEST_BLOCK(true, "ToLowerString")
   {
-    ezStringUtf8 sL = L"abc öäü ß €";
-    ezStringUtf8 sU = L"ABC ÖÄÜ ß €";
+    ezStringUtf8 sL(L"abc öäü ß €");
+    ezStringUtf8 sU(L"ABC ÖÄÜ ß €");
 
     char szCopy[256];
     ezStringUtils::Copy(szCopy, 256, sU.GetData());
@@ -293,9 +293,9 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringUtils)
     EZ_TEST(ezStringUtils::IsEqual_NoCase("", "") == true);
 
 
-    ezStringUtf8 sL = L"abc öäü ß €";
-    ezStringUtf8 sU = L"ABC ÖÄÜ ß €";
-    ezStringUtf8 sU2 = L"ABC ÖÄÜ ß € ";
+    ezStringUtf8 sL(L"abc öäü ß €");
+    ezStringUtf8 sU(L"ABC ÖÄÜ ß €");
+    ezStringUtf8 sU2(L"ABC ÖÄÜ ß € ");
 
     EZ_TEST(ezStringUtils::IsEqual_NoCase(sL.GetData(), sU.GetData()) == true);
     EZ_TEST(ezStringUtils::IsEqual_NoCase(sL.GetData(), sU2.GetData()) == false);
@@ -315,8 +315,8 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringUtils)
     EZ_TEST(ezStringUtils::IsEqualN_NoCase(NULL, "abc", 0) == true);
     EZ_TEST(ezStringUtils::IsEqualN_NoCase("", "abc", 0) == true);
 
-    ezStringUtf8 sL = L"abc öäü ß €";
-    ezStringUtf8 sU = L"ABC ÖÄÜ ß € moep";
+    ezStringUtf8 sL(L"abc öäü ß €");
+    ezStringUtf8 sU(L"ABC ÖÄÜ ß € moep");
 
     for (ezInt32 i = 0; i < 12; ++i)
       EZ_TEST(ezStringUtils::IsEqualN_NoCase(sL.GetData(), sU.GetData(), i) == true);
@@ -444,13 +444,13 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringUtils)
     // I am not going to do that here, I am quite confident the function works as expected with pure ASCII strings.
     // So I'm only testing a bit of Utf8 stuff.
 
-    ezStringUtf8 s = L"Abc %s äöü ß %i %s %.4f";
-    ezStringUtf8 s2 = L"ÄÖÜ";
+    ezStringUtf8 s(L"Abc %s äöü ß %i %s %.4f");
+    ezStringUtf8 s2(L"ÄÖÜ");
 
     char sz[256];
     ezStringUtils::snprintf(sz, 256, s.GetData(), "ASCII", 42, s2.GetData(), 23.31415);
 
-    ezStringUtf8 sC = L"Abc ASCII äöü ß 42 ÄÖÜ 23.3142"; // notice the correct float rounding ;-)
+    ezStringUtf8 sC(L"Abc ASCII äöü ß 42 ÄÖÜ 23.3142"); // notice the correct float rounding ;-)
 
     EZ_TEST_STRING(sz, sC.GetData());
   }
@@ -480,8 +480,8 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringUtils)
 
   EZ_TEST_BLOCK(true, "StartsWith_NoCase")
   {
-    ezStringUtf8 sL = L"äöü";
-    ezStringUtf8 sU = L"ÄÖÜ";
+    ezStringUtf8 sL(L"äöü");
+    ezStringUtf8 sU(L"ÄÖÜ");
 
     EZ_TEST(ezStringUtils::StartsWith_NoCase(NULL, NULL) == true);
     EZ_TEST(ezStringUtils::StartsWith_NoCase(NULL, "") == true);
@@ -532,8 +532,8 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringUtils)
 
   EZ_TEST_BLOCK(true, "EndsWith_NoCase")
   {
-    ezStringUtf8 sL = L"äöü";
-    ezStringUtf8 sU = L"ÄÖÜ";
+    ezStringUtf8 sL(L"äöü");
+    ezStringUtf8 sU(L"ÄÖÜ");
 
     EZ_TEST(ezStringUtils::EndsWith_NoCase(NULL, NULL) == true);
     EZ_TEST(ezStringUtils::EndsWith_NoCase(NULL, "") == true);
@@ -562,9 +562,9 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringUtils)
 
   EZ_TEST_BLOCK(true, "FindSubString")
   {
-    ezStringUtf8 s = L"abc def ghi äöü jkl ßßß abc2 def2 ghi2 äöü2 ß";
-    ezStringUtf8 s2 = L"äöü";
-    ezStringUtf8 s3 = L"äöü2";
+    ezStringUtf8 s(L"abc def ghi äöü jkl ßßß abc2 def2 ghi2 äöü2 ß");
+    ezStringUtf8 s2(L"äöü");
+    ezStringUtf8 s3(L"äöü2");
 
     const char* szABC = "abc";
 
@@ -591,9 +591,9 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringUtils)
   
   EZ_TEST_BLOCK(true, "FindSubString_NoCase")
   {
-    ezStringUtf8 s = L"abc def ghi äöü jkl ßßß abc2 def2 ghi2 äöü2 ß";
-    ezStringUtf8 s2 = L"äÖü";
-    ezStringUtf8 s3 = L"ÄöÜ2";
+    ezStringUtf8 s(L"abc def ghi äöü jkl ßßß abc2 def2 ghi2 äöü2 ß");
+    ezStringUtf8 s2(L"äÖü");
+    ezStringUtf8 s3(L"ÄöÜ2");
 
     const char* szABC = "abc";
 
@@ -620,9 +620,9 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringUtils)
 
   EZ_TEST_BLOCK(true, "FindLastSubString")
   {
-    ezStringUtf8 s = L"abc def ghi äöü jkl ßßß abc2 def2 ghi2 äöü2 ß";
-    ezStringUtf8 s2 = L"äöü";
-    ezStringUtf8 s3 = L"äöü2";
+    ezStringUtf8 s(L"abc def ghi äöü jkl ßßß abc2 def2 ghi2 äöü2 ß");
+    ezStringUtf8 s2(L"äöü");
+    ezStringUtf8 s3(L"äöü2");
 
     const char* szABC = "abc";
 
@@ -644,9 +644,9 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringUtils)
 
   EZ_TEST_BLOCK(true, "FindLastSubString_NoCase")
   {
-    ezStringUtf8 s = L"abc def ghi äöü jkl ßßß abc2 def2 ghi2 äöü2 ß";
-    ezStringUtf8 s2 = L"äÖü";
-    ezStringUtf8 s3 = L"ÄöÜ2";
+    ezStringUtf8 s(L"abc def ghi äöü jkl ßßß abc2 def2 ghi2 äöü2 ß");
+    ezStringUtf8 s2(L"äÖü");
+    ezStringUtf8 s3(L"ÄöÜ2");
 
     const char* szABC = "abc";
 
@@ -668,7 +668,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringUtils)
 
   EZ_TEST_BLOCK(true, "FindWholeWord")
   {
-    ezStringUtf8 s = L"mompfhüßß ßßß öäü abcdef abc def";
+    ezStringUtf8 s(L"mompfhüßß ßßß öäü abcdef abc def");
 
     EZ_TEST(ezStringUtils::FindWholeWord(s.GetData(), "abc", ezStringUtils::IsWordDelimiter_English) == &s.GetData()[34]);
     EZ_TEST(ezStringUtils::FindWholeWord(s.GetData(), "def", ezStringUtils::IsWordDelimiter_English) == &s.GetData()[38]);
@@ -682,7 +682,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringUtils)
 
   EZ_TEST_BLOCK(true, "FindWholeWord_NoCase")
   {
-    ezStringUtf8 s = L"mompfhüßß ßßß öäü abcdef abc def";
+    ezStringUtf8 s(L"mompfhüßß ßßß öäü abcdef abc def");
 
     EZ_TEST(ezStringUtils::FindWholeWord_NoCase(s.GetData(), "ABC", ezStringUtils::IsWordDelimiter_English) == &s.GetData()[34]);
     EZ_TEST(ezStringUtils::FindWholeWord_NoCase(s.GetData(), "DEF", ezStringUtils::IsWordDelimiter_English) == &s.GetData()[38]);

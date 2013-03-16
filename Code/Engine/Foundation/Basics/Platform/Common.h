@@ -5,7 +5,7 @@
 #include <Foundation/Basics/Compiler/DisableWarning.h>
 
 // include std header
-#include <new.h>
+#include <new>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>

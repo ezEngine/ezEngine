@@ -90,7 +90,7 @@ public:
     EZ_FORCE_INLINE Iterator()                   : ConstIterator()      { }
 
     /// Returns the 'value' of the element that this iterator points to.
-    EZ_FORCE_INLINE ValueType& Value() { EZ_ASSERT(IsValid(), "Cannot access the 'value' of an invalid iterator."); return m_pElement->m_Value; }
+    EZ_FORCE_INLINE ValueType& Value() { EZ_ASSERT(this->IsValid(), "Cannot access the 'value' of an invalid iterator."); return this->m_pElement->m_Value; }
 
   private:
     friend class ezMapBase<KeyType, ValueType, Comparer>;

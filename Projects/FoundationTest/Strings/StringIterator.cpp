@@ -103,7 +103,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringIterator)
 
   EZ_TEST_BLOCK(true, "GetCharacter")
   {
-    ezStringUtf8 s = L"abcäöü€";
+    ezStringUtf8 s(L"abcäöü€");
     ezStringIterator it = ezStringIterator(s.GetData());
 
     EZ_TEST_INT(it.GetCharacter(), ezUnicodeUtils::ConvertUtf8ToUtf32(&s.GetData()[0])); ++it;
@@ -118,7 +118,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringIterator)
 
   EZ_TEST_BLOCK(true, "GetElementCount")
   {
-    ezStringUtf8 s = L"abcäöü€";
+    ezStringUtf8 s(L"abcäöü€");
     ezStringIterator it = ezStringIterator(s.GetData());
 
     EZ_TEST_INT(it.GetElementCount(), 12); ++it;    EZ_TEST(it.IsValid());
@@ -178,7 +178,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringIterator)
 
   EZ_TEST_BLOCK(true, "Shrink")
   {
-    ezStringUtf8 s = L"abcäöü€def";
+    ezStringUtf8 s(L"abcäöü€def");
     ezStringIterator it(s.GetData());
     it += 2;
 

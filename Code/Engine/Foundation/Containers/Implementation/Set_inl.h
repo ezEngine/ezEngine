@@ -632,22 +632,22 @@ typename ezSetBase<K, C>::Iterator ezSetBase<K, C>::Erase(const Iterator& pos)
 
 
 template <typename K, typename C, typename A>
-ezSet<K, C, A>::ezSet() : ezSetBase(A::GetAllocator())
+ezSet<K, C, A>::ezSet() : ezSetBase<K, C>(A::GetAllocator())
 {
 }
 
 template <typename K, typename C, typename A>
-ezSet<K, C, A>::ezSet(ezIAllocator* pAllocator) : ezSetBase(pAllocator)
+ezSet<K, C, A>::ezSet(ezIAllocator* pAllocator) : ezSetBase<K, C>(pAllocator)
 {
 }
 
 template <typename K, typename C, typename A>
-ezSet<K, C, A>::ezSet(const ezSet<K, C, A>& other) : ezSetBase(other, A::GetAllocator())
+ezSet<K, C, A>::ezSet(const ezSet<K, C, A>& other) : ezSetBase<K, C>(other, A::GetAllocator())
 {
 }
 
 template <typename K, typename C, typename A>
-ezSet<K, C, A>:: ezSet(const ezSetBase<K, C>& other) : ezSetBase(other, A::GetAllocator())
+ezSet<K, C, A>:: ezSet(const ezSetBase<K, C>& other) : ezSetBase<K, C>(other, A::GetAllocator())
 {
 }
 
