@@ -5,7 +5,7 @@
 // ***** Const Iterator *****
 
 template <typename K, typename C>
-void ezSet<K, C>::Iterator::Next()
+void ezSetBase<K, C>::Iterator::Next()
 {
   const ezInt32 dir0 = 0;
   const ezInt32 dir1 = 1;
@@ -59,7 +59,7 @@ void ezSet<K, C>::Iterator::Next()
 }
 
 template <typename K, typename C>
-void ezSet<K, C>::Iterator::Prev()
+void ezSetBase<K, C>::Iterator::Prev()
 {
   const ezInt32 dir0 = 1;
   const ezInt32 dir1 = 0;
@@ -112,15 +112,15 @@ void ezSet<K, C>::Iterator::Prev()
   return;
 }
 
-// ***** ezSet *****
+// ***** ezSetBase *****
 
 template <typename K, typename C>
-EZ_FORCE_INLINE ezSet<K, C>::NilNode::NilNode() : m_uiLevel(0), m_pParent(NULL)
+EZ_FORCE_INLINE ezSetBase<K, C>::NilNode::NilNode() : m_uiLevel(0), m_pParent(NULL)
 {
 }
 
 template <typename K, typename C>
-void ezSet<K, C>::Constructor()
+void ezSetBase<K, C>::Constructor()
 {
   m_uiCount = 0;
 
@@ -134,13 +134,13 @@ void ezSet<K, C>::Constructor()
 }
 
 template <typename K, typename C>
-ezSet<K, C>::ezSet(ezIAllocator* pAllocator /* = ezFoundation::GetDefaultAllocator() */) : m_Elements(pAllocator)
+ezSetBase<K, C>::ezSetBase(ezIAllocator* pAllocator) : m_Elements(pAllocator)
 {
   Constructor();
 }
 
 template <typename K, typename C>
-ezSet<K, C>::ezSet (const ezSet<K, C>& cc) : m_Elements(cc.m_Elements.GetAllocator())
+ezSetBase<K, C>::ezSetBase (const ezSetBase<K, C>& cc, ezIAllocator* pAllocator) : m_Elements(pAllocator)
 {
   Constructor();
 
@@ -148,13 +148,13 @@ ezSet<K, C>::ezSet (const ezSet<K, C>& cc) : m_Elements(cc.m_Elements.GetAllocat
 }
 
 template <typename K, typename C>
-ezSet<K, C>::~ezSet ()
+ezSetBase<K, C>::~ezSetBase ()
 {
   Clear();
 }
 
 template <typename K, typename C>
-void ezSet<K, C>::operator= (const ezSet<K, C>& rhs)
+void ezSetBase<K, C>::operator= (const ezSetBase<K, C>& rhs)
 {
   Clear();
 
@@ -163,7 +163,7 @@ void ezSet<K, C>::operator= (const ezSet<K, C>& rhs)
 }
 
 template <typename K, typename C>
-void ezSet<K, C>::Clear()
+void ezSetBase<K, C>::Clear()
 {
   for (Iterator it = GetIterator(); it.IsValid(); ++it)
     ezMemoryUtils::Destruct<Node>(it.m_pElement, 1);
@@ -182,32 +182,32 @@ void ezSet<K, C>::Clear()
 }
 
 template <typename K, typename C>
-EZ_FORCE_INLINE bool ezSet<K, C>::IsEmpty() const
+EZ_FORCE_INLINE bool ezSetBase<K, C>::IsEmpty() const
 {
   return (m_uiCount == 0);
 }
 
 template <typename K, typename C>
-EZ_FORCE_INLINE ezUInt32 ezSet<K, C>::GetCount() const
+EZ_FORCE_INLINE ezUInt32 ezSetBase<K, C>::GetCount() const
 {
   return m_uiCount;
 }
 
 
 template <typename K, typename C>
-EZ_FORCE_INLINE typename ezSet<K, C>::Iterator ezSet<K, C>::GetIterator() const
+EZ_FORCE_INLINE typename ezSetBase<K, C>::Iterator ezSetBase<K, C>::GetIterator() const
 {
   return Iterator(GetLeftMost ());
 }
 
 template <typename K, typename C>
-EZ_FORCE_INLINE typename ezSet<K, C>::Iterator ezSet<K, C>::GetLastIterator() const
+EZ_FORCE_INLINE typename ezSetBase<K, C>::Iterator ezSetBase<K, C>::GetLastIterator() const
 {
   return Iterator(GetRightMost ());
 }
 
 template <typename K, typename C>
-typename ezSet<K, C>::Node* ezSet<K, C>::GetLeftMost() const
+typename ezSetBase<K, C>::Node* ezSetBase<K, C>::GetLeftMost() const
 {
   if (IsEmpty())
     return NULL;
@@ -221,7 +221,7 @@ typename ezSet<K, C>::Node* ezSet<K, C>::GetLeftMost() const
 }
 
 template <typename K, typename C>
-typename ezSet<K, C>::Node* ezSet<K, C>::GetRightMost() const
+typename ezSetBase<K, C>::Node* ezSetBase<K, C>::GetRightMost() const
 {
   if (IsEmpty())
     return NULL;
@@ -235,7 +235,7 @@ typename ezSet<K, C>::Node* ezSet<K, C>::GetRightMost() const
 }
 
 template <typename K, typename C>
-typename ezSet<K, C>::Node* ezSet<K, C>::Internal_Find (const K& key) const
+typename ezSetBase<K, C>::Node* ezSetBase<K, C>::Internal_Find (const K& key) const
 {
   Node* pNode = m_pRoot;
 
@@ -257,13 +257,13 @@ typename ezSet<K, C>::Node* ezSet<K, C>::Internal_Find (const K& key) const
 }
 
 template <typename K, typename C>
-EZ_FORCE_INLINE typename ezSet<K, C>::Iterator ezSet<K, C>::Find (const K& key)
+EZ_FORCE_INLINE typename ezSetBase<K, C>::Iterator ezSetBase<K, C>::Find (const K& key)
 {
   return Iterator(Internal_Find(key));
 }
 
 template <typename K, typename C>
-typename ezSet<K, C>::Node* ezSet<K, C>::Internal_LowerBound (const K& key) const
+typename ezSetBase<K, C>::Node* ezSetBase<K, C>::Internal_LowerBound (const K& key) const
 {
   Node* pNode = m_pRoot;
   Node* pNodeSmaller = NULL;
@@ -286,13 +286,13 @@ typename ezSet<K, C>::Node* ezSet<K, C>::Internal_LowerBound (const K& key) cons
 }
 
 template <typename K, typename C>
-EZ_FORCE_INLINE typename ezSet<K, C>::Iterator ezSet<K, C>::LowerBound (const K& key)
+EZ_FORCE_INLINE typename ezSetBase<K, C>::Iterator ezSetBase<K, C>::LowerBound (const K& key)
 {
   return Iterator(Internal_LowerBound(key));
 }
 
 template <typename K, typename C>
-typename ezSet<K, C>::Node* ezSet<K, C>::Internal_UpperBound (const K& key) const
+typename ezSetBase<K, C>::Node* ezSetBase<K, C>::Internal_UpperBound (const K& key) const
 {
   Node* pNode = m_pRoot;
   Node* pNodeSmaller = NULL;
@@ -319,13 +319,13 @@ typename ezSet<K, C>::Node* ezSet<K, C>::Internal_UpperBound (const K& key) cons
 }
 
 template <typename K, typename C>
-EZ_FORCE_INLINE typename ezSet<K, C>::Iterator ezSet<K, C>::UpperBound (const K& key)
+EZ_FORCE_INLINE typename ezSetBase<K, C>::Iterator ezSetBase<K, C>::UpperBound (const K& key)
 {
   return Iterator(Internal_UpperBound(key));
 }
 
 template <typename K, typename C>
-typename ezSet<K, C>::Iterator ezSet<K, C>::Insert(const K& key)
+typename ezSetBase<K, C>::Iterator ezSetBase<K, C>::Insert(const K& key)
 {
   Node* pInsertedNode = NULL;
 
@@ -337,7 +337,7 @@ typename ezSet<K, C>::Iterator ezSet<K, C>::Insert(const K& key)
 }
 
 template <typename K, typename C>
-void ezSet<K, C>::Erase (const K& key)
+void ezSetBase<K, C>::Erase (const K& key)
 {
   m_pRoot = Erase(m_pRoot, key);
   m_pRoot->m_pParent  = reinterpret_cast<Node*>(&m_NilNode);
@@ -345,7 +345,7 @@ void ezSet<K, C>::Erase (const K& key)
 }
 
 template <typename K, typename C>
-typename ezSet<K, C>::Node* ezSet<K, C>::AcquireNode(const K& key, ezInt32 m_uiLevel, Node* pParent)
+typename ezSetBase<K, C>::Node* ezSetBase<K, C>::AcquireNode(const K& key, ezInt32 m_uiLevel, Node* pParent)
 {
   Node* pNode;
 
@@ -374,7 +374,7 @@ typename ezSet<K, C>::Node* ezSet<K, C>::AcquireNode(const K& key, ezInt32 m_uiL
 }
 
 template <typename K, typename C>
-void ezSet<K, C>::ReleaseNode(Node* pNode)
+void ezSetBase<K, C>::ReleaseNode(Node* pNode)
 {
   EZ_ASSERT(pNode != NULL, "pNode is invalid.");
 
@@ -400,7 +400,7 @@ void ezSet<K, C>::ReleaseNode(Node* pNode)
 }
 
 template <typename K, typename C>
-typename ezSet<K, C>::Node* ezSet<K, C>::SkewNode(Node* root)
+typename ezSetBase<K, C>::Node* ezSetBase<K, C>::SkewNode(Node* root)
 {
   if ((root->m_pLink[0]->m_uiLevel == root->m_uiLevel) && (root->m_uiLevel != 0)) 
   {
@@ -416,7 +416,7 @@ typename ezSet<K, C>::Node* ezSet<K, C>::SkewNode(Node* root)
 }
 
 template <typename K, typename C>
-typename ezSet<K, C>::Node* ezSet<K, C>::SplitNode(Node* root)
+typename ezSetBase<K, C>::Node* ezSetBase<K, C>::SplitNode(Node* root)
 {
   if ((root->m_pLink[1]->m_pLink[1]->m_uiLevel == root->m_uiLevel) && (root->m_uiLevel != 0)) 
   {
@@ -433,7 +433,7 @@ typename ezSet<K, C>::Node* ezSet<K, C>::SplitNode(Node* root)
 }
 
 template <typename K, typename C>
-typename ezSet<K, C>::Node* ezSet<K, C>::Insert(Node* root, const K& key, Node*& pInsertedNode)
+typename ezSetBase<K, C>::Node* ezSetBase<K, C>::Insert(Node* root, const K& key, Node*& pInsertedNode)
 {
   if (root == &m_NilNode)
   {
@@ -490,7 +490,7 @@ typename ezSet<K, C>::Node* ezSet<K, C>::Insert(Node* root, const K& key, Node*&
 }
 
 template <typename K, typename C>
-typename ezSet<K, C>::Node* ezSet<K, C>::Erase(Node* root, const K& key)
+typename ezSetBase<K, C>::Node* ezSetBase<K, C>::Erase(Node* root, const K& key)
 {
   Node* ToErase    = reinterpret_cast<Node*>(&m_NilNode);
   Node* ToOverride = reinterpret_cast<Node*>(&m_NilNode);
@@ -620,7 +620,7 @@ typename ezSet<K, C>::Node* ezSet<K, C>::Erase(Node* root, const K& key)
 }
 
 template <typename K, typename C>
-typename ezSet<K, C>::Iterator ezSet<K, C>::Erase(const Iterator& pos)
+typename ezSetBase<K, C>::Iterator ezSetBase<K, C>::Erase(const Iterator& pos)
 {
   EZ_ASSERT(pos.m_pElement != NULL, "The Iterator (pos) is invalid.");
 
@@ -628,4 +628,37 @@ typename ezSet<K, C>::Iterator ezSet<K, C>::Erase(const Iterator& pos)
   ++temp;
   Erase(pos.Key());
   return temp;
+}
+
+
+template <typename K, typename C, typename A>
+ezSet<K, C, A>::ezSet() : ezSetBase(A::GetAllocator())
+{
+}
+
+template <typename K, typename C, typename A>
+ezSet<K, C, A>::ezSet(ezIAllocator* pAllocator) : ezSetBase(pAllocator)
+{
+}
+
+template <typename K, typename C, typename A>
+ezSet<K, C, A>::ezSet(const ezSet<K, C, A>& other) : ezSetBase(other, A::GetAllocator())
+{
+}
+
+template <typename K, typename C, typename A>
+ezSet<K, C, A>:: ezSet(const ezSetBase<K, C>& other) : ezSetBase(other, A::GetAllocator())
+{
+}
+
+template <typename K, typename C, typename A>
+void ezSet<K, C, A>::operator=(const ezSet<K, C, A>& rhs)
+{
+  ezSetBase<K, C>::operator=(rhs);
+}
+
+template <typename K, typename C, typename A>
+void ezSet<K, C, A>::operator=(const ezSetBase<K, C>& rhs)
+{
+  ezSetBase<K, C>::operator=(rhs);
 }

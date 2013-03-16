@@ -64,7 +64,7 @@ public:
 
   ezHybridArray(const ezHybridArray<T, Size, AllocatorWrapper>& other);
   ezHybridArray(const ezHybridArrayBase<T, Size>& other);
-  ezHybridArray(const ezArrayPtr<T>& other);
+  explicit ezHybridArray(const ezArrayPtr<T>& other);
 
   void operator=(const ezHybridArray<T, Size, AllocatorWrapper>& rhs);
   void operator=(const ezHybridArrayBase<T, Size>& rhs);

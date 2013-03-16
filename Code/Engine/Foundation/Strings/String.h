@@ -12,37 +12,37 @@
 /// to / from another ezHybridString, but uses reference counting and a shared data object to prevent unnecessary copies.
 /// It is thus no problem to pass it around by value, for example as a return value.
 /// The reference counting is thread-safe.
-template<ezUInt16 SIZE = 32>
-class ezHybridString : public ezStringBase<ezHybridString<SIZE> >
+template <ezUInt16 Size>
+class ezHybridStringBase : public ezStringBase<ezHybridStringBase<Size> >
 {
-public:
+protected:
   /// Creates an empty string.
-  ezHybridString(); // [tested]
+  ezHybridStringBase(ezIAllocator* pAllocator); // [tested]
 
   /// Creates a string which references the same data as rhs.
   /// Such copies are cheap, as the internal data is not copied, but reference counted.
-  ezHybridString(const ezHybridString& rhs); // [tested]
+  ezHybridStringBase(const ezHybridStringBase& rhs, ezIAllocator* pAllocator); // [tested]
 
   /// Creates a new string from the given (Utf8) data.
   /// This will allocate a new chunk of data to hold a copy of the passed string.
   /// Passing in an empty string will not allocate any data.
-  ezHybridString(const char* rhs); // [tested]
+  ezHybridStringBase(const char* rhs, ezIAllocator* pAllocator); // [tested]
 
   /// Creates a new string from the given wchar_t (Utf16 / Utf32) data.
   /// This will allocate a new chunk of data to hold a copy of the passed string.
   /// Passing in an empty string will not allocate any data.
-  ezHybridString(const wchar_t* rhs); // [tested]
+  ezHybridStringBase(const wchar_t* rhs, ezIAllocator* pAllocator); // [tested]
 
   /// Creates a new string from the given string iterator.
   /// This will allocate a new chunk of data to hold a copy of the passed string.
   /// Passing in an empty string will not allocate any data.
-  ezHybridString(const ezStringIterator& rhs); // [tested]
+  ezHybridStringBase(const ezStringIterator& rhs, ezIAllocator* pAllocator); // [tested]
 
   /// Only deallocates its data, if it is the last one to reference it.
-  ~ezHybridString(); // [tested]
+  ~ezHybridStringBase(); // [tested]
 
   /// Creates a string which references the same data as rhs. Such copies are cheap, as the internal data is not copied, but reference counted.
-  void operator=(const ezHybridString& rhs); // [tested]
+  void operator=(const ezHybridStringBase& rhs); // [tested]
 
   /// Creates a new string from the given (Utf8) data.
   /// This will allocate a new chunk of data to hold a copy of the passed string.
@@ -60,6 +60,7 @@ public:
   /// Assigning an empty string is the same as calling 'Clear'
   void operator=(const ezStringIterator& rhs); // [tested]
 
+public:
   /// Resets this string to an empty string.
   /// This will deallocate any previous data, if this object held the last reference to it.
   void Clear(); // [tested]
@@ -99,9 +100,30 @@ public:
   ezStringIterator GetLast(ezUInt32 uiNumCharacters) const; // [tested]
 
 private:
-  ezHybridArray<char, SIZE> m_Data;
+  ezHybridArray<char, Size> m_Data;
   ezUInt32 m_uiCharacterCount;
 };
+
+template <ezUInt16 Size, typename AllocatorWrapper = ezDefaultAllocatorWrapper>
+class ezHybridString : public ezHybridStringBase<Size>
+{
+public:
+  ezHybridString();
+  ezHybridString(ezIAllocator* pAllocator);
+
+  ezHybridString(const ezHybridString<Size, AllocatorWrapper>& other);
+  ezHybridString(const ezHybridStringBase<Size>& other);
+  ezHybridString(const char* rhs);
+  ezHybridString(const wchar_t* rhs);
+  ezHybridString(const ezStringIterator& rhs);
+
+  void operator=(const ezHybridString<Size, AllocatorWrapper>& rhs);
+  void operator=(const ezHybridStringBase<Size>& rhs);
+  void operator=(const char* szString);
+  void operator=(const wchar_t* szString);
+  void operator=(const ezStringIterator& rhs);
+};
+
 
 typedef ezHybridString<32> ezString;
 typedef ezHybridString<16> ezString16;

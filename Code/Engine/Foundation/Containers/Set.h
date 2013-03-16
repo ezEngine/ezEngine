@@ -8,8 +8,8 @@
     Insertion/erasure/lookup in sets is quite fast (O (log n)).
     This container is implemented with a red-black tree, so it will always be a balanced tree.
 */
-template <typename KeyType, typename Comparer = ezCompareHelper<KeyType> >
-class ezSet
+template <typename KeyType, typename Comparer>
+class ezSetBase
 {
 private:
   struct Node;
@@ -44,10 +44,10 @@ public:
     EZ_FORCE_INLINE bool IsValid() const { return (m_pElement != NULL); }
 
     /// Checks whether the two iterators point to the same element.
-    EZ_FORCE_INLINE bool operator==(const typename ezSet<KeyType, Comparer>::Iterator& it2) const { return (m_pElement == it2.m_pElement); }
+    EZ_FORCE_INLINE bool operator==(const typename ezSetBase<KeyType, Comparer>::Iterator& it2) const { return (m_pElement == it2.m_pElement); }
 
     /// Checks whether the two iterators point to the same element.
-    EZ_FORCE_INLINE bool operator!=(const typename ezSet<KeyType, Comparer>::Iterator& it2) const { return (m_pElement != it2.m_pElement); }
+    EZ_FORCE_INLINE bool operator!=(const typename ezSetBase<KeyType, Comparer>::Iterator& it2) const { return (m_pElement != it2.m_pElement); }
 
     /// Returns the 'key' of the element that this iterator points to.
     EZ_FORCE_INLINE const KeyType&   Key ()  const { EZ_ASSERT(IsValid(), "Cannot access the 'key' of an invalid iterator."); return m_pElement->m_Key;   }
@@ -65,27 +65,28 @@ public:
     EZ_FORCE_INLINE void operator--() { Prev(); }
 
   protected:
-    friend class ezSet<KeyType, Comparer>;
+    friend class ezSetBase<KeyType, Comparer>;
 
     EZ_FORCE_INLINE explicit Iterator(Node* pInit)              : m_pElement(pInit) { }
 
     Node* m_pElement;
   };
 
-public:
+protected:
 
   /// Initializes the set to be empty.
-  ezSet(ezIAllocator* pAllocator = ezFoundation::GetDefaultAllocator()); // [tested]
+  ezSetBase(ezIAllocator* pAllocator); // [tested]
 
   /// Copies all keys from the given set into this one.
-  ezSet(const ezSet<KeyType, Comparer>& cc); // [tested]
+  ezSetBase(const ezSetBase<KeyType, Comparer>& cc, ezIAllocator* pAllocator); // [tested]
 
   /// Destroys all elements in the set.
-  ~ezSet(); // [tested]
+  ~ezSetBase(); // [tested]
 
   /// Copies all keys from the given set into this one.
-  void operator= (const ezSet<KeyType, Comparer>& rhs);
+  void operator= (const ezSetBase<KeyType, Comparer>& rhs);
 
+public:
   /// Returns whether there are no elements in the set. O(1) operation.
   bool IsEmpty() const; // [tested]
 
@@ -163,6 +164,21 @@ private:
 
   /// Stack of recently discarded nodes to quickly acquire new nodes.
   Node* m_pFreeElementStack;
+};
+
+
+template <typename KeyType, typename Comparer = ezCompareHelper<KeyType>, typename AllocatorWrapper = ezDefaultAllocatorWrapper>
+class ezSet : public ezSetBase<KeyType, Comparer>
+{
+public:
+  ezSet();
+  ezSet(ezIAllocator* pAllocator);
+
+  ezSet(const ezSet<KeyType, Comparer, AllocatorWrapper>& other);
+  ezSet(const ezSetBase<KeyType, Comparer>& other);
+
+  void operator=(const ezSet<KeyType, Comparer, AllocatorWrapper>& rhs);
+  void operator=(const ezSetBase<KeyType, Comparer>& rhs);
 };
 
 #include <Foundation/Containers/Implementation/Set_inl.h>

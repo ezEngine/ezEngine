@@ -4,8 +4,8 @@
 #include <Foundation/Basics/Types/ArrayPtr.h>
 #include <Foundation/Math/Math.h>
 
-template <typename KeyType, typename ValueType, typename Hasher = ezHashHelper<KeyType> >
-class ezHashTable
+template <typename KeyType, typename ValueType, typename Hasher>
+class ezHashTableBase
 {
 private:
   struct Entry;
@@ -19,10 +19,10 @@ public:
     bool IsValid() const;
 
     /// Checks whether the two iterators point to the same element.
-    bool operator==(const typename ezHashTable<KeyType, ValueType, Hasher>::ConstIterator& it2) const;
+    bool operator==(const typename ezHashTableBase<KeyType, ValueType, Hasher>::ConstIterator& it2) const;
 
     /// Checks whether the two iterators point to the same element.
-    bool operator!=(const typename ezHashTable<KeyType, ValueType, Hasher>::ConstIterator& it2) const;
+    bool operator!=(const typename ezHashTableBase<KeyType, ValueType, Hasher>::ConstIterator& it2) const;
 
     /// Returns the 'key' of the element that this iterator points to.
     const KeyType& Key() const;
@@ -37,11 +37,11 @@ public:
     void operator++();
 
   protected:
-    friend class ezHashTable<KeyType, ValueType, Hasher>;
+    friend class ezHashTableBase<KeyType, ValueType, Hasher>;
 
-    explicit ConstIterator(const ezHashTable<KeyType, ValueType, Hasher>& hashTable);
+    explicit ConstIterator(const ezHashTableBase<KeyType, ValueType, Hasher>& hashTable);
 
-    const ezHashTable<KeyType, ValueType, Hasher>& m_hashTable;
+    const ezHashTableBase<KeyType, ValueType, Hasher>& m_hashTable;
     ezUInt32 m_uiCurrentIndex; // current element index that this iterator points to.
     ezUInt32 m_uiCurrentCount; // current number of valid elements that this iterator has found so far.
   };
@@ -53,23 +53,24 @@ public:
     ValueType& Value();
 
   private:
-    friend class ezHashTable<KeyType, ValueType, Hasher>;
+    friend class ezHashTableBase<KeyType, ValueType, Hasher>;
 
-    explicit Iterator(const ezHashTable<KeyType, ValueType, Hasher>& hashTable);
+    explicit Iterator(const ezHashTableBase<KeyType, ValueType, Hasher>& hashTable);
   };
 
-public:
+protected:
   /// Creates an empty hashtable. Does not allocate any data yet.
-  ezHashTable(ezIAllocator* pAllocator = ezFoundation::GetDefaultAllocator()); // [tested]
+  ezHashTableBase(ezIAllocator* pAllocator); // [tested]
   
   /// Creates a copy of the given hashtable.
-  ezHashTable(const ezHashTable<KeyType, ValueType, Hasher>& rhs); // [tested]
+  ezHashTableBase(const ezHashTableBase<KeyType, ValueType, Hasher>& rhs, ezIAllocator* pAllocator); // [tested]
 
-  ~ezHashTable(); // [tested]
+  ~ezHashTableBase(); // [tested]
 
   /// Copies the data from another hashtable into this one.
-  void operator= (const ezHashTable<KeyType, ValueType, Hasher>& rhs); // [tested]
+  void operator= (const ezHashTableBase<KeyType, ValueType, Hasher>& rhs); // [tested]
 
+public:
   /// Expands the hashtable by over-allocated the internal storage so that the load factor is lower or equal to 60% 
   /// when inserting the given number of entries.
   void Reserve(ezUInt32 uiCapacity); // [tested]
@@ -153,6 +154,21 @@ private:
 
   void MarkEntryAsValid(ezUInt32 uiEntryIndex);
   void MarkEntryAsDeleted(ezUInt32 uiEntryIndex);
+};
+
+
+template <typename KeyType, typename ValueType, typename Hasher = ezHashHelper<KeyType>, typename AllocatorWrapper = ezDefaultAllocatorWrapper>
+class ezHashTable : public ezHashTableBase<KeyType, ValueType, Hasher>
+{
+public:
+  ezHashTable();
+  ezHashTable(ezIAllocator* pAllocator);
+
+  ezHashTable(const ezHashTable<KeyType, ValueType, Hasher, AllocatorWrapper>& other);
+  ezHashTable(const ezHashTableBase<KeyType, ValueType, Hasher>& other);
+
+  void operator=(const ezHashTable<KeyType, ValueType, Hasher, AllocatorWrapper>& rhs);
+  void operator=(const ezHashTableBase<KeyType, ValueType, Hasher>& rhs);
 };
 
 #include <Foundation/Containers/Implementation/HashTable_inl.h>

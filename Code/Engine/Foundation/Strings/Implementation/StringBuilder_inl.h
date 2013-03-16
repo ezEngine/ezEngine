@@ -95,12 +95,12 @@ inline void ezStringBuilder::Append(const wchar_t* pData1, const wchar_t* pData2
 {
   // this is a bit heavy on the stack size (6KB)
   // but it is really only a convenience function, as one could always just use the char* Append function and convert explicitely
-  ezStringUtf8 s1(pData1);
-  ezStringUtf8 s2(pData2);
-  ezStringUtf8 s3(pData3);
-  ezStringUtf8 s4(pData4);
-  ezStringUtf8 s5(pData5);
-  ezStringUtf8 s6(pData6);
+  ezStringUtf8 s1(pData1, m_Data.GetAllocator());
+  ezStringUtf8 s2(pData2, m_Data.GetAllocator());
+  ezStringUtf8 s3(pData3, m_Data.GetAllocator());
+  ezStringUtf8 s4(pData4, m_Data.GetAllocator());
+  ezStringUtf8 s5(pData5, m_Data.GetAllocator());
+  ezStringUtf8 s6(pData6, m_Data.GetAllocator());
 
   Append(s1.GetData(), s2.GetData(), s3.GetData(), s4.GetData(), s5.GetData(), s6.GetData());
 }
@@ -109,12 +109,12 @@ inline void ezStringBuilder::Prepend(const wchar_t* pData1, const wchar_t* pData
 {
   // this is a bit heavy on the stack size (6KB)
   // but it is really only a convenience function, as one could always just use the char* Append function and convert explicitely
-  ezStringUtf8 s1(pData1);
-  ezStringUtf8 s2(pData2);
-  ezStringUtf8 s3(pData3);
-  ezStringUtf8 s4(pData4);
-  ezStringUtf8 s5(pData5);
-  ezStringUtf8 s6(pData6);
+  ezStringUtf8 s1(pData1, m_Data.GetAllocator());
+  ezStringUtf8 s2(pData2, m_Data.GetAllocator());
+  ezStringUtf8 s3(pData3, m_Data.GetAllocator());
+  ezStringUtf8 s4(pData4, m_Data.GetAllocator());
+  ezStringUtf8 s5(pData5, m_Data.GetAllocator());
+  ezStringUtf8 s6(pData6, m_Data.GetAllocator());
 
   Prepend(s1.GetData(), s2.GetData(), s3.GetData(), s4.GetData(), s5.GetData(), s6.GetData());
 }

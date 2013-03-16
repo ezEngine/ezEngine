@@ -8,7 +8,7 @@
     Define the type of object to store in the list via the template argument T.
 */
 template <typename T>
-class ezList
+class ezListBase
 {
 private:
 
@@ -38,10 +38,10 @@ private:
     ConstIterator() : m_pElement (NULL)  {}
 
     /// Equality comparison operator.
-    bool operator== (typename ezList<T>::ConstIterator it2) const { return (m_pElement == it2.m_pElement); }
+    bool operator== (typename ezListBase<T>::ConstIterator it2) const { return (m_pElement == it2.m_pElement); }
 
     /// Inequality comparison operator.
-    bool operator!= (typename ezList<T>::ConstIterator it2) const { return (m_pElement != it2.m_pElement); }
+    bool operator!= (typename ezListBase<T>::ConstIterator it2) const { return (m_pElement != it2.m_pElement); }
 
     /// Grants access to the node-data.
     const T& operator* () const { return (m_pElement->m_Data);  }
@@ -62,7 +62,7 @@ private:
     void operator-- () { Prev();  }
 
   private:
-    friend class ezList<T>;
+    friend class ezListBase<T>;
 
     ConstIterator(ListElement* pInit) : m_pElement (pInit) {}
 
@@ -80,21 +80,25 @@ public:
     T* operator->() { return (&m_pElement->m_Data); }
 
   private:
-    friend class ezList<T>;
+    friend class ezListBase<T>;
 
     explicit Iterator(ListElement* pInit) : ConstIterator (pInit) {}
   };
 
-public:
+protected:
   /// Initializes the list to be empty.
-  ezList(ezIAllocator* pAllocator = ezFoundation::GetDefaultAllocator()); // [tested]
+  ezListBase(ezIAllocator* pAllocator); // [tested]
 
   /// Initializes the list with a copy from another list.
-  ezList(const ezList<T>& cc); // [tested]
+  ezListBase(const ezListBase<T>& cc, ezIAllocator* pAllocator); // [tested]
 
   /// Destroys the list and all its content.
-  ~ezList(); // [tested]
+  ~ezListBase(); // [tested]
 
+  /// Copies the list cc into this list.
+  void operator=(const ezListBase<T>& cc); // [tested]
+
+public:
   /// Clears the list, afterwards it is empty.
   void Clear(); // [tested]
 
@@ -167,9 +171,6 @@ public:
   /// Returns a const-iterator pointing behind the last element. Necessary if one wants to insert elements at the end of a list.
   ConstIterator GetEndIterator() const; // [tested]
 
-  /// Copies the list cc into this list.
-  void operator=(const ezList<T>& cc); // [tested]
-
   /// Returns the allocator that is used by this instance.
   ezIAllocator* GetAllocator() const { return m_Elements.GetAllocator(); }
 
@@ -197,6 +198,21 @@ private:
 
   /// Stack that holds recently freed nodes, that can be quickly reused.
   ListElement* m_pFreeElementStack;
+};
+
+
+template <typename T, typename AllocatorWrapper = ezDefaultAllocatorWrapper>
+class ezList : public ezListBase<T>
+{
+public:
+  ezList();
+  ezList(ezIAllocator* pAllocator);
+
+  ezList(const ezList<T, AllocatorWrapper>& other);
+  ezList(const ezListBase<T>& other);
+
+  void operator=(const ezList<T, AllocatorWrapper>& rhs);
+  void operator=(const ezListBase<T>& rhs);
 };
 
 #include <Foundation/Containers/Implementation/List_inl.h>

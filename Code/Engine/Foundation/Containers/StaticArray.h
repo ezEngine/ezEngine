@@ -17,7 +17,7 @@ public:
   ezStaticArray(const ezStaticArray<T, OtherCapacity>& rhs); // [tested]
 
   /// Creates a copy of the given array.
-  ezStaticArray(const ezArrayPtr<T>& rhs); // [tested]
+  explicit ezStaticArray(const ezArrayPtr<T>& rhs); // [tested]
 
   /// Destroys all objects.
   ~ezStaticArray(); // [tested]

@@ -9,11 +9,11 @@
 class EZ_FOUNDATION_DLL ezStringWChar
 {
 public:
-  ezStringWChar();
-  ezStringWChar(const char* szUtf8);
-  ezStringWChar(const ezUInt16* szUtf16);
-  ezStringWChar(const ezUInt32* szUtf32);
-  ezStringWChar(const wchar_t* szUtf32);
+  ezStringWChar(ezIAllocator* pAllocator = ezFoundation::GetDefaultAllocator());
+  ezStringWChar(const char* szUtf8, ezIAllocator* pAllocator = ezFoundation::GetDefaultAllocator());
+  ezStringWChar(const ezUInt16* szUtf16, ezIAllocator* pAllocator = ezFoundation::GetDefaultAllocator());
+  ezStringWChar(const ezUInt32* szUtf32, ezIAllocator* pAllocator = ezFoundation::GetDefaultAllocator());
+  ezStringWChar(const wchar_t* szUtf32, ezIAllocator* pAllocator = ezFoundation::GetDefaultAllocator());
 
   void operator=(const char* szUtf8);
   void operator=(const ezUInt16* szUtf16);
@@ -37,11 +37,11 @@ private:
 class EZ_FOUNDATION_DLL ezStringUtf8
 {
 public:
-  ezStringUtf8();
-  ezStringUtf8(const char* szUtf8);
-  ezStringUtf8(const ezUInt16* szUtf16);
-  ezStringUtf8(const ezUInt32* szUtf32);
-  ezStringUtf8(const wchar_t* szUtf32);
+  ezStringUtf8(ezIAllocator* pAllocator = ezFoundation::GetDefaultAllocator());
+  ezStringUtf8(const char* szUtf8, ezIAllocator* pAllocator = ezFoundation::GetDefaultAllocator());
+  ezStringUtf8(const ezUInt16* szUtf16, ezIAllocator* pAllocator = ezFoundation::GetDefaultAllocator());
+  ezStringUtf8(const ezUInt32* szUtf32, ezIAllocator* pAllocator = ezFoundation::GetDefaultAllocator());
+  ezStringUtf8(const wchar_t* szUtf32, ezIAllocator* pAllocator = ezFoundation::GetDefaultAllocator());
 
   void operator=(const char* szUtf8);
   void operator=(const ezUInt16* szUtf16);
@@ -68,11 +68,11 @@ private:
 class EZ_FOUNDATION_DLL ezStringUtf16
 {
 public:
-  ezStringUtf16();
-  ezStringUtf16(const char* szUtf8);
-  ezStringUtf16(const ezUInt16* szUtf16);
-  ezStringUtf16(const ezUInt32* szUtf32);
-  ezStringUtf16(const wchar_t* szUtf32);
+  ezStringUtf16(ezIAllocator* pAllocator = ezFoundation::GetDefaultAllocator());
+  ezStringUtf16(const char* szUtf8, ezIAllocator* pAllocator = ezFoundation::GetDefaultAllocator());
+  ezStringUtf16(const ezUInt16* szUtf16, ezIAllocator* pAllocator = ezFoundation::GetDefaultAllocator());
+  ezStringUtf16(const ezUInt32* szUtf32, ezIAllocator* pAllocator = ezFoundation::GetDefaultAllocator());
+  ezStringUtf16(const wchar_t* szUtf32, ezIAllocator* pAllocator = ezFoundation::GetDefaultAllocator());
 
   void operator=(const char* szUtf8);
   void operator=(const ezUInt16* szUtf16);
@@ -97,11 +97,11 @@ private:
 class EZ_FOUNDATION_DLL ezStringUtf32
 {
 public:
-  ezStringUtf32();
-  ezStringUtf32(const char* szUtf8);
-  ezStringUtf32(const ezUInt16* szUtf16);
-  ezStringUtf32(const ezUInt32* szUtf32);
-  ezStringUtf32(const wchar_t* szUtf32);
+  ezStringUtf32(ezIAllocator* pAllocator = ezFoundation::GetDefaultAllocator());
+  ezStringUtf32(const char* szUtf8, ezIAllocator* pAllocator = ezFoundation::GetDefaultAllocator());
+  ezStringUtf32(const ezUInt16* szUtf16, ezIAllocator* pAllocator = ezFoundation::GetDefaultAllocator());
+  ezStringUtf32(const ezUInt32* szUtf32, ezIAllocator* pAllocator = ezFoundation::GetDefaultAllocator());
+  ezStringUtf32(const wchar_t* szUtf32, ezIAllocator* pAllocator = ezFoundation::GetDefaultAllocator());
 
   void operator=(const char* szUtf8);
   void operator=(const ezUInt16* szUtf16);

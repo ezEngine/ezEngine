@@ -2,7 +2,7 @@
 
 #include <Foundation/Basics/Types/Variant.h>
 #include <Foundation/Containers/Map.h>
-#include <Foundation/Strings/StaticString.h>
+#include <Foundation/Strings/String.h>
 #include <Foundation/Utilities/EnumerableClass.h>
 
 /// A class to broadcast and handle global (system-wide) events.
@@ -67,7 +67,10 @@ private:
     ezUInt16 m_uiNumEventHandlersOnce;
   };
 
-  static ezStatic<ezMap<ezStaticString<64>, EventData > > s_KnownEvents;
+  typedef ezHybridString<32, ezStaticAllocatorWrapper> EventKey;
+  typedef ezMap<EventKey, EventData, ezCompareHelper<EventKey>, ezStaticAllocatorWrapper> EventMap;
+
+  static EventMap s_KnownEvents;
 };
 
 

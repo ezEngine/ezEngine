@@ -6,7 +6,6 @@
 
 #include <Foundation/Basics.h>
 #include <Foundation/Basics/Assert.h>
-#include <Foundation/Basics/Static.h>
 #include <Foundation/Basics/Types.h>
 #include <Foundation/Basics/TypeTraits.h>
 
@@ -69,7 +68,6 @@
 
 #include <Foundation/Strings/PathUtils.h>
 #include <Foundation/Strings/SharedString.h>
-#include <Foundation/Strings/StaticString.h>
 #include <Foundation/Strings/String.h>
 #include <Foundation/Strings/StringBuilder.h>
 #include <Foundation/Strings/StringConversion.h>

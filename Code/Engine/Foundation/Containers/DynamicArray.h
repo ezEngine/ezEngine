@@ -57,7 +57,7 @@ public:
 
   ezDynamicArray(const ezDynamicArray<T, AllocatorWrapper>& other);
   ezDynamicArray(const ezDynamicArrayBase<T>& other);
-  ezDynamicArray(const ezArrayPtr<T>& other);
+  explicit ezDynamicArray(const ezArrayPtr<T>& other);
 
   void operator=(const ezDynamicArray<T, AllocatorWrapper>& rhs);
   void operator=(const ezDynamicArrayBase<T>& rhs);

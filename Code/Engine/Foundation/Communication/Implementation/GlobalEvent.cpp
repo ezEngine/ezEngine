@@ -4,7 +4,7 @@
 
 EZ_ENUMERABLE_CLASS_IMPLEMENTATION(ezGlobalEvent);
 
-ezStatic<ezMap<ezStaticString<64>, ezGlobalEvent::EventData > > ezGlobalEvent::s_KnownEvents;
+ezGlobalEvent::EventMap ezGlobalEvent::s_KnownEvents;
 
 ezGlobalEvent::EventData::EventData()
 {
@@ -90,7 +90,7 @@ void ezGlobalEvent::Broadcast(const char* szEventName, ezVariant p1, ezVariant p
   }
 
 
-  EventData& ed = s_KnownEvents.GetStatic()[szEventName]; // this will make sure to record all fired events, even if there are no handlers for them
+  EventData& ed = s_KnownEvents[szEventName]; // this will make sure to record all fired events, even if there are no handlers for them
   ed.m_uiNumTimesFired++;
 
   //ezGlobalEvent* pHandler = ed.m_pFirstHandler;
@@ -118,7 +118,7 @@ void ezGlobalEvent::PrintGlobalEventStatistics()
 
   while (pHandler)
   {
-    EventData& ed = s_KnownEvents.GetStatic()[pHandler->m_szEventName];
+    EventData& ed = s_KnownEvents[pHandler->m_szEventName];
     
     if (pHandler->m_bOnlyOnce)
       ++ed.m_uiNumEventHandlersOnce;
@@ -128,7 +128,7 @@ void ezGlobalEvent::PrintGlobalEventStatistics()
     pHandler = pHandler->GetNextInstance();
   }
 
-  ezMap<ezStaticString<64>, EventData >::Iterator it = s_KnownEvents.GetStatic().GetIterator();
+  EventMap::Iterator it = s_KnownEvents.GetIterator();
 
   while (it.IsValid())
   {

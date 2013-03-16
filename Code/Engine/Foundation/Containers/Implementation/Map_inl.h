@@ -7,7 +7,7 @@
 #define STACK_SIZE 48
 
 template <typename K, typename V, typename C>
-void ezMap<K, V, C>::ConstIterator::Next()
+void ezMapBase<K, V, C>::ConstIterator::Next()
 {
   const ezInt32 dir0 = 0;
   const ezInt32 dir1 = 1;
@@ -61,7 +61,7 @@ void ezMap<K, V, C>::ConstIterator::Next()
 }
 
 template <typename K, typename V, typename C>
-void ezMap<K, V, C>::ConstIterator::Prev()
+void ezMapBase<K, V, C>::ConstIterator::Prev()
 {
   const ezInt32 dir0 = 1;
   const ezInt32 dir1 = 0;
@@ -114,15 +114,15 @@ void ezMap<K, V, C>::ConstIterator::Prev()
   return;
 }
 
-// ***** ezMap *****
+// ***** ezMapBase *****
 
 template <typename K, typename V, typename C>
-EZ_FORCE_INLINE ezMap<K, V, C>::NilNode::NilNode() : m_uiLevel(0), m_pParent(NULL)
+EZ_FORCE_INLINE ezMapBase<K, V, C>::NilNode::NilNode() : m_uiLevel(0), m_pParent(NULL)
 {
 }
 
 template <typename K, typename V, typename C>
-void ezMap<K, V, C>::Constructor()
+void ezMapBase<K, V, C>::Constructor()
 {
   m_uiCount = 0;
 
@@ -136,13 +136,13 @@ void ezMap<K, V, C>::Constructor()
 }
 
 template <typename K, typename V, typename C>
-ezMap<K, V, C>::ezMap(ezIAllocator* pAllocator /* = ezFoundation::GetDefaultAllocator() */) : m_Elements(pAllocator)
+ezMapBase<K, V, C>::ezMapBase(ezIAllocator* pAllocator) : m_Elements(pAllocator)
 {
   Constructor();
 }
 
 template <typename K, typename V, typename C>
-ezMap<K, V, C>::ezMap (const ezMap<K, V, C>& cc) : m_Elements(cc.m_Elements.GetAllocator())
+ezMapBase<K, V, C>::ezMapBase (const ezMapBase<K, V, C>& cc, ezIAllocator* pAllocator) : m_Elements(pAllocator)
 {
   Constructor();
 
@@ -150,13 +150,13 @@ ezMap<K, V, C>::ezMap (const ezMap<K, V, C>& cc) : m_Elements(cc.m_Elements.GetA
 }
 
 template <typename K, typename V, typename C>
-ezMap<K, V, C>::~ezMap ()
+ezMapBase<K, V, C>::~ezMapBase ()
 {
   Clear();
 }
 
 template <typename K, typename V, typename C>
-void ezMap<K, V, C>::operator= (const ezMap<K, V, C>& rhs)
+void ezMapBase<K, V, C>::operator= (const ezMapBase<K, V, C>& rhs)
 {
   Clear();
 
@@ -165,7 +165,7 @@ void ezMap<K, V, C>::operator= (const ezMap<K, V, C>& rhs)
 }
 
 template <typename K, typename V, typename C>
-void ezMap<K, V, C>::Clear()
+void ezMapBase<K, V, C>::Clear()
 {
   for (Iterator it = GetIterator(); it.IsValid(); ++it)
     ezMemoryUtils::Destruct<Node>(it.m_pElement, 1);
@@ -184,44 +184,44 @@ void ezMap<K, V, C>::Clear()
 }
 
 template <typename K, typename V, typename C>
-EZ_FORCE_INLINE bool ezMap<K, V, C>::IsEmpty() const
+EZ_FORCE_INLINE bool ezMapBase<K, V, C>::IsEmpty() const
 {
   return (m_uiCount == 0);
 }
 
 template <typename K, typename V, typename C>
-EZ_FORCE_INLINE ezUInt32 ezMap<K, V, C>::GetCount() const
+EZ_FORCE_INLINE ezUInt32 ezMapBase<K, V, C>::GetCount() const
 {
   return m_uiCount;
 }
 
 
 template <typename K, typename V, typename C>
-EZ_FORCE_INLINE typename ezMap<K, V, C>::Iterator ezMap<K, V, C>::GetIterator()
+EZ_FORCE_INLINE typename ezMapBase<K, V, C>::Iterator ezMapBase<K, V, C>::GetIterator()
 {
   return Iterator(GetLeftMost ());
 }
 
 template <typename K, typename V, typename C>
-EZ_FORCE_INLINE typename ezMap<K, V, C>::ConstIterator ezMap<K, V, C>::GetIterator() const
+EZ_FORCE_INLINE typename ezMapBase<K, V, C>::ConstIterator ezMapBase<K, V, C>::GetIterator() const
 {
   return ConstIterator(GetLeftMost ());
 }
 
 template <typename K, typename V, typename C>
-EZ_FORCE_INLINE typename ezMap<K, V, C>::Iterator ezMap<K, V, C>::GetLastIterator()
+EZ_FORCE_INLINE typename ezMapBase<K, V, C>::Iterator ezMapBase<K, V, C>::GetLastIterator()
 {
   return Iterator(GetRightMost ());
 }
 
 template <typename K, typename V, typename C>
-EZ_FORCE_INLINE typename ezMap<K, V, C>::ConstIterator ezMap<K, V, C>::GetLastIterator() const
+EZ_FORCE_INLINE typename ezMapBase<K, V, C>::ConstIterator ezMapBase<K, V, C>::GetLastIterator() const
 {
   return ConstIterator(GetRightMost ());
 }
 
 template <typename K, typename V, typename C>
-typename ezMap<K, V, C>::Node* ezMap<K, V, C>::GetLeftMost() const
+typename ezMapBase<K, V, C>::Node* ezMapBase<K, V, C>::GetLeftMost() const
 {
   if (IsEmpty())
     return NULL;
@@ -235,7 +235,7 @@ typename ezMap<K, V, C>::Node* ezMap<K, V, C>::GetLeftMost() const
 }
 
 template <typename K, typename V, typename C>
-typename ezMap<K, V, C>::Node* ezMap<K, V, C>::GetRightMost() const
+typename ezMapBase<K, V, C>::Node* ezMapBase<K, V, C>::GetRightMost() const
 {
   if (IsEmpty())
     return NULL;
@@ -249,7 +249,7 @@ typename ezMap<K, V, C>::Node* ezMap<K, V, C>::GetRightMost() const
 }
 
 template <typename K, typename V, typename C>
-typename ezMap<K, V, C>::Node* ezMap<K, V, C>::Internal_Find (const K& key) const
+typename ezMapBase<K, V, C>::Node* ezMapBase<K, V, C>::Internal_Find (const K& key) const
 {
   Node* pNode = m_pRoot;
 
@@ -271,19 +271,19 @@ typename ezMap<K, V, C>::Node* ezMap<K, V, C>::Internal_Find (const K& key) cons
 }
 
 template <typename K, typename V, typename C>
-EZ_FORCE_INLINE typename ezMap<K, V, C>::Iterator ezMap<K, V, C>::Find (const K& key)
+EZ_FORCE_INLINE typename ezMapBase<K, V, C>::Iterator ezMapBase<K, V, C>::Find (const K& key)
 {
   return Iterator(Internal_Find(key));
 }
 
 template <typename K, typename V, typename C>
-EZ_FORCE_INLINE typename ezMap<K, V, C>::ConstIterator ezMap<K, V, C>::Find (const K& key) const
+EZ_FORCE_INLINE typename ezMapBase<K, V, C>::ConstIterator ezMapBase<K, V, C>::Find (const K& key) const
 {
   return ConstIterator(Internal_Find(key));
 }
 
 template <typename K, typename V, typename C>
-typename ezMap<K, V, C>::Node* ezMap<K, V, C>::Internal_LowerBound (const K& key) const
+typename ezMapBase<K, V, C>::Node* ezMapBase<K, V, C>::Internal_LowerBound (const K& key) const
 {
   Node* pNode = m_pRoot;
   Node* pNodeSmaller = NULL;
@@ -306,19 +306,19 @@ typename ezMap<K, V, C>::Node* ezMap<K, V, C>::Internal_LowerBound (const K& key
 }
 
 template <typename K, typename V, typename C>
-EZ_FORCE_INLINE typename ezMap<K, V, C>::Iterator ezMap<K, V, C>::LowerBound (const K& key)
+EZ_FORCE_INLINE typename ezMapBase<K, V, C>::Iterator ezMapBase<K, V, C>::LowerBound (const K& key)
 {
   return Iterator(Internal_LowerBound(key));
 }
 
 template <typename K, typename V, typename C>
-EZ_FORCE_INLINE typename ezMap<K, V, C>::ConstIterator ezMap<K, V, C>::LowerBound (const K& key) const
+EZ_FORCE_INLINE typename ezMapBase<K, V, C>::ConstIterator ezMapBase<K, V, C>::LowerBound (const K& key) const
 {
   return ConstIterator(Internal_LowerBound(key));
 }
 
 template <typename K, typename V, typename C>
-typename ezMap<K, V, C>::Node* ezMap<K, V, C>::Internal_UpperBound (const K& key) const
+typename ezMapBase<K, V, C>::Node* ezMapBase<K, V, C>::Internal_UpperBound (const K& key) const
 {
   Node* pNode = m_pRoot;
   Node* pNodeSmaller = NULL;
@@ -345,19 +345,19 @@ typename ezMap<K, V, C>::Node* ezMap<K, V, C>::Internal_UpperBound (const K& key
 }
 
 template <typename K, typename V, typename C>
-EZ_FORCE_INLINE typename ezMap<K, V, C>::Iterator ezMap<K, V, C>::UpperBound (const K& key)
+EZ_FORCE_INLINE typename ezMapBase<K, V, C>::Iterator ezMapBase<K, V, C>::UpperBound (const K& key)
 {
   return Iterator(Internal_UpperBound(key));
 }
 
 template <typename K, typename V, typename C>
-EZ_FORCE_INLINE typename ezMap<K, V, C>::ConstIterator ezMap<K, V, C>::UpperBound (const K& key) const
+EZ_FORCE_INLINE typename ezMapBase<K, V, C>::ConstIterator ezMapBase<K, V, C>::UpperBound (const K& key) const
 {
   return ConstIterator(Internal_UpperBound(key));
 }
 
 template <typename K, typename V, typename C>
-V& ezMap<K, V, C>::operator[] (const K& key)
+V& ezMapBase<K, V, C>::operator[] (const K& key)
 {
   Node* pNilNode = reinterpret_cast<Node*>(&m_NilNode);
   Node* pInsertedNode = NULL;
@@ -380,7 +380,7 @@ V& ezMap<K, V, C>::operator[] (const K& key)
 
         dir = C::Less(it->m_Key, key) ? 1 : 0;
 
-        EZ_ASSERT(top < STACK_SIZE, "ezMap's internal stack is not large enough to be able to sort %i elements.", GetCount());
+        EZ_ASSERT(top < STACK_SIZE, "ezMapBase's internal stack is not large enough to be able to sort %i elements.", GetCount());
         up[top++] = it;
 
         if (it->m_pLink[dir] == pNilNode)
@@ -426,7 +426,7 @@ V& ezMap<K, V, C>::operator[] (const K& key)
 }
 
 template <typename K, typename V, typename C>
-typename ezMap<K, V, C>::Iterator ezMap<K, V, C>::Insert(const K& key, const V& value)
+typename ezMapBase<K, V, C>::Iterator ezMapBase<K, V, C>::Insert(const K& key, const V& value)
 {
   Node* pInsertedNode = NULL;
 
@@ -436,7 +436,7 @@ typename ezMap<K, V, C>::Iterator ezMap<K, V, C>::Insert(const K& key, const V& 
 }
 
 template <typename K, typename V, typename C>
-void ezMap<K, V, C>::Erase (const K& key)
+void ezMapBase<K, V, C>::Erase (const K& key)
 {
   m_pRoot = Erase(m_pRoot, key);
   m_pRoot->m_pParent  = reinterpret_cast<Node*>(&m_NilNode);
@@ -444,7 +444,7 @@ void ezMap<K, V, C>::Erase (const K& key)
 }
 
 template <typename K, typename V, typename C>
-typename ezMap<K, V, C>::Node* ezMap<K, V, C>::AcquireNode(const K& key, const V& value, ezInt32 uiLevel, Node* pParent)
+typename ezMapBase<K, V, C>::Node* ezMapBase<K, V, C>::AcquireNode(const K& key, const V& value, ezInt32 uiLevel, Node* pParent)
 {
   Node* pNode;
 
@@ -474,7 +474,7 @@ typename ezMap<K, V, C>::Node* ezMap<K, V, C>::AcquireNode(const K& key, const V
 }
 
 template <typename K, typename V, typename C>
-void ezMap<K, V, C>::ReleaseNode(Node* pNode)
+void ezMapBase<K, V, C>::ReleaseNode(Node* pNode)
 {
   EZ_ASSERT(pNode != NULL, "pNode is invalid.");
 
@@ -500,7 +500,7 @@ void ezMap<K, V, C>::ReleaseNode(Node* pNode)
 }
 
 template <typename K, typename V, typename C>
-EZ_FORCE_INLINE typename ezMap<K, V, C>::Node* ezMap<K, V, C>::SkewNode(Node* root)
+EZ_FORCE_INLINE typename ezMapBase<K, V, C>::Node* ezMapBase<K, V, C>::SkewNode(Node* root)
 {
   if ((root->m_pLink[0]->m_uiLevel == root->m_uiLevel) && (root->m_uiLevel != 0)) 
   {
@@ -516,7 +516,7 @@ EZ_FORCE_INLINE typename ezMap<K, V, C>::Node* ezMap<K, V, C>::SkewNode(Node* ro
 }
 
 template <typename K, typename V, typename C>
-EZ_FORCE_INLINE typename ezMap<K, V, C>::Node* ezMap<K, V, C>::SplitNode(Node* root)
+EZ_FORCE_INLINE typename ezMapBase<K, V, C>::Node* ezMapBase<K, V, C>::SplitNode(Node* root)
 {
   if ((root->m_pLink[1]->m_pLink[1]->m_uiLevel == root->m_uiLevel) && (root->m_uiLevel != 0)) 
   {
@@ -533,7 +533,7 @@ EZ_FORCE_INLINE typename ezMap<K, V, C>::Node* ezMap<K, V, C>::SplitNode(Node* r
 }
 
 template <typename K, typename V, typename C>
-typename void ezMap<K, V, C>::Insert(const K& key, const V& value, Node*& pInsertedNode)
+typename void ezMapBase<K, V, C>::Insert(const K& key, const V& value, Node*& pInsertedNode)
 {
   Node* root = m_pRoot;
 
@@ -609,7 +609,7 @@ end:
 }
 
 template <typename K, typename V, typename C>
-typename ezMap<K, V, C>::Node* ezMap<K, V, C>::Erase(Node* root, const K& key)
+typename ezMapBase<K, V, C>::Node* ezMapBase<K, V, C>::Erase(Node* root, const K& key)
 {
   Node* ToErase    = reinterpret_cast<Node*>(&m_NilNode);
   Node* ToOverride = reinterpret_cast<Node*>(&m_NilNode);
@@ -750,7 +750,7 @@ typename ezMap<K, V, C>::Node* ezMap<K, V, C>::Erase(Node* root, const K& key)
 }
 
 template <typename K, typename V, typename C>
-typename ezMap<K, V, C>::Iterator ezMap<K, V, C>::Erase(const Iterator& pos)
+typename ezMapBase<K, V, C>::Iterator ezMapBase<K, V, C>::Erase(const Iterator& pos)
 {
   EZ_ASSERT(pos.m_pElement != NULL, "The Iterator (pos) is invalid.");
 
@@ -761,3 +761,36 @@ typename ezMap<K, V, C>::Iterator ezMap<K, V, C>::Erase(const Iterator& pos)
 }
 
 #undef STACK_SIZE
+
+
+template <typename K, typename V, typename C, typename A>
+ezMap<K, V, C, A>::ezMap() : ezMapBase(A::GetAllocator())
+{
+}
+
+template <typename K, typename V, typename C, typename A>
+ezMap<K, V, C, A>::ezMap(ezIAllocator* pAllocator) : ezMapBase(pAllocator)
+{
+}
+
+template <typename K, typename V, typename C, typename A>
+ezMap<K, V, C, A>::ezMap(const ezMap<K, V, C, A>& other) : ezMapBase(other, A::GetAllocator())
+{
+}
+
+template <typename K, typename V, typename C, typename A>
+ezMap<K, V, C, A>:: ezMap(const ezMapBase<K, V, C>& other) : ezMapBase(other, A::GetAllocator())
+{
+}
+
+template <typename K, typename V, typename C, typename A>
+void ezMap<K, V, C, A>::operator=(const ezMap<K, V, C, A>& rhs)
+{
+  ezMapBase<K, V, C>::operator=(rhs);
+}
+
+template <typename K, typename V, typename C, typename A>
+void ezMap<K, V, C, A>::operator=(const ezMapBase<K, V, C>& rhs)
+{
+  ezMapBase<K, V, C>::operator=(rhs);
+}

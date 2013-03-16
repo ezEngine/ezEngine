@@ -13,8 +13,8 @@ KeyType is the key type. For example a string.\n
 ValueType is the value type. For example int.\n
 Comparer is a helper class that implements a strictly weak-ordering comparison for Key types.
 */
-template <typename KeyType, typename ValueType, typename Comparer = ezCompareHelper<KeyType> >
-class ezMap
+template <typename KeyType, typename ValueType, typename Comparer>
+class ezMapBase
 {
 private:
   struct Node;
@@ -50,10 +50,10 @@ public:
     EZ_FORCE_INLINE bool IsValid() const { return (m_pElement != NULL); }
 
     /// Checks whether the two iterators point to the same element.
-    EZ_FORCE_INLINE bool operator==(const typename ezMap<KeyType, ValueType, Comparer>::ConstIterator& it2) const { return (m_pElement == it2.m_pElement); }
+    EZ_FORCE_INLINE bool operator==(const typename ezMapBase<KeyType, ValueType, Comparer>::ConstIterator& it2) const { return (m_pElement == it2.m_pElement); }
 
     /// Checks whether the two iterators point to the same element.
-    EZ_FORCE_INLINE bool operator!=(const typename ezMap<KeyType, ValueType, Comparer>::ConstIterator& it2) const { return (m_pElement != it2.m_pElement); }
+    EZ_FORCE_INLINE bool operator!=(const typename ezMapBase<KeyType, ValueType, Comparer>::ConstIterator& it2) const { return (m_pElement != it2.m_pElement); }
 
     /// Returns the 'key' of the element that this iterator points to.
     EZ_FORCE_INLINE const KeyType&   Key ()  const { EZ_ASSERT(IsValid(), "Cannot access the 'key' of an invalid iterator."); return m_pElement->m_Key;   }
@@ -74,7 +74,7 @@ public:
     EZ_FORCE_INLINE void operator--() { Prev(); }
 
   protected:
-    friend class ezMap<KeyType, ValueType, Comparer>;
+    friend class ezMapBase<KeyType, ValueType, Comparer>;
 
     EZ_FORCE_INLINE explicit ConstIterator(Node* pInit)              : m_pElement(pInit) { }
 
@@ -93,25 +93,26 @@ public:
     EZ_FORCE_INLINE ValueType& Value() { EZ_ASSERT(IsValid(), "Cannot access the 'value' of an invalid iterator."); return m_pElement->m_Value; }
 
   private:
-    friend class ezMap<KeyType, ValueType, Comparer>;
+    friend class ezMapBase<KeyType, ValueType, Comparer>;
 
     EZ_FORCE_INLINE explicit Iterator(Node* pInit)        : ConstIterator(pInit) { }
   };
 
-public:
+protected:
 
   /// Initializes the map to be empty.
-  ezMap(ezIAllocator* pAllocator = ezFoundation::GetDefaultAllocator()); // [tested]
+  ezMapBase(ezIAllocator* pAllocator); // [tested]
 
   /// Copies all key/value pairs from the given map into this one.
-  ezMap(const ezMap<KeyType, ValueType, Comparer>& cc); // [tested]
+  ezMapBase(const ezMapBase<KeyType, ValueType, Comparer>& cc, ezIAllocator* pAllocator); // [tested]
 
   /// Destroys all elements from the map.
-  ~ezMap(); // [tested]
+  ~ezMapBase(); // [tested]
 
   /// Copies all key/value pairs from the given map into this one.
-  void operator= (const ezMap<KeyType, ValueType, Comparer>& rhs);
+  void operator= (const ezMapBase<KeyType, ValueType, Comparer>& rhs);
 
+public:
   /// Returns whether there are no elements in the map. O(1) operation.
   bool IsEmpty() const; // [tested]
 
@@ -207,6 +208,21 @@ private:
 
   /// Stack of recently discarded nodes to quickly acquire new nodes.
   Node* m_pFreeElementStack;
+};
+
+
+template <typename KeyType, typename ValueType, typename Comparer = ezCompareHelper<KeyType>, typename AllocatorWrapper = ezDefaultAllocatorWrapper>
+class ezMap : public ezMapBase<KeyType, ValueType, Comparer>
+{
+public:
+  ezMap();
+  ezMap(ezIAllocator* pAllocator);
+
+  ezMap(const ezMap<KeyType, ValueType, Comparer, AllocatorWrapper>& other);
+  ezMap(const ezMapBase<KeyType, ValueType, Comparer>& other);
+
+  void operator=(const ezMap<KeyType, ValueType, Comparer, AllocatorWrapper>& rhs);
+  void operator=(const ezMapBase<KeyType, ValueType, Comparer>& rhs);
 };
 
 #include <Foundation/Containers/Implementation/Map_inl.h>

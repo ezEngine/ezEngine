@@ -763,9 +763,12 @@ void ezDequeBase<T, Construct>::Sort()
     ezSorting<ezCompareHelper<T> >::QuickSort(*this);
 }
 
+#undef REDUCE_SIZE
+#undef RESERVE
+
 
 template <typename T, typename A, bool Construct>
-ezDeque<T, A, Construct>::ezDeque() : ezDequeBase(A::GetAllocator()/*, uiChunkSize*/)
+ezDeque<T, A, Construct>::ezDeque() : ezDequeBase(A::GetAllocator())
 {
 }
 
@@ -796,5 +799,4 @@ void ezDeque<T, A, Construct>::operator=(const ezDequeBase<T, Construct>& rhs)
   ezDequeBase<T, Construct>::operator=(rhs);
 }
 
-#undef REDUCE_SIZE
-#undef RESERVE
+
