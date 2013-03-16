@@ -35,10 +35,10 @@
 #include <Foundation/Basics/Types.h>
 
 #ifdef BUILDSYSTEM_BUILDING_FOUNDATION_LIB
-  #if (defined(BUILDSYSTEM_COMPILE_ENGINE_AS_DLL) && !defined(EZ_COMPILE_ENGINE_AS_DLL))
+  #if BUILDSYSTEM_COMPILE_ENGINE_AS_DLL && !EZ_COMPILE_ENGINE_AS_DLL
     #error "The Buildsystem is configured to build the Engine as a shared library, but EZ_COMPILE_ENGINE_AS_DLL is not defined in UserConfig.h"
   #endif
-  #if (!defined(BUILDSYSTEM_COMPILE_ENGINE_AS_DLL) && (defined(EZ_COMPILE_ENGINE_AS_DLL) && EZ_COMPILE_ENGINE_AS_DLL == 1))
+  #if !BUILDSYSTEM_COMPILE_ENGINE_AS_DLL && EZ_COMPILE_ENGINE_AS_DLL
     #error "The Buildsystem is configured to build the Engine as a static library, but EZ_COMPILE_ENGINE_AS_DLL is defined in UserConfig.h"
   #endif
 #endif

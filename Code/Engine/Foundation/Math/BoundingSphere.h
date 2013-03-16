@@ -19,7 +19,7 @@ public:
   void SetZero(); // [tested]
 
   /// Checks whether the sphere is all zero.
-  bool IsZero(float fEpsilon = ezMath_DefaultEpsilon) const;
+  bool IsZero(float fEpsilon = ezMath_DefaultEpsilon) const; // [tested]
 
   /// Sets the bounding sphere to invalid values.
   void SetInvalid(); // [tested]

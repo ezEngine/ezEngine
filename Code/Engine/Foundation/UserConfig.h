@@ -6,7 +6,13 @@
 // Enables some basic checks, even in release builds.
 #define EZ_COMPILE_FOR_DEVELOPMENT 1
 
-// Compiles the Engine as a DLL instead of a static library.
-#define EZ_COMPILE_ENGINE_AS_DLL 0
+// Compile the Engine as a DLL or a static library.
+//#define EZ_COMPILE_ENGINE_AS_DLL 1
 
-
+#if EZ_PLATFORM_WINDOWS
+  // Always compile as a DLL on Windows
+  #define EZ_COMPILE_ENGINE_AS_DLL 1
+#else
+  // Compile as a static library on all other platforms.
+  #define EZ_COMPILE_ENGINE_AS_DLL 0
+#endif
