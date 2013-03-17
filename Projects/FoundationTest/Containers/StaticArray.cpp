@@ -1,8 +1,4 @@
-#include <TestFramework/Framework/TestFramework.h>
-#include <Foundation/Containers/StaticArray.h>
-#include <TestFramework/Utilities/ConstructionCounter.h>
-
-#include <string>
+#include <PCH.h>
 
 typedef ezConstructionCounter st;
 

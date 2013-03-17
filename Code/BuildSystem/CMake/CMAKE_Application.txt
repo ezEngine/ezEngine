@@ -42,6 +42,10 @@ if (IS_WIN32_APPLICATION)
 	set (APP_CONFIG "WIN32")
 endif ()
 
+# if this application uses a precompile header
+if (MSVC)
+  ADD_MSVC_PRECOMPILED_HEADER_APP ()
+endif ()
 
 # Define the Exe Project, add all required sources to it
 add_executable (${PROJECT_NAME} ${APP_CONFIG} ${ALL_SOURCE_FILES})

@@ -1,6 +1,4 @@
-#include <TestFramework/Framework/TestFramework.h>
-#include <Foundation/Threading/Thread.h>
-#include <Foundation/Threading/AtomicInteger.h>
+#include <PCH.h>
 
 namespace
 {

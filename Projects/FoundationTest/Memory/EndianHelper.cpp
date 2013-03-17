@@ -1,6 +1,4 @@
-#include <TestFramework/Framework/TestFramework.h>
-#include <Foundation/Memory/EndianHelper.h>
-#include <Foundation/Math/Declarations.h>
+#include <PCH.h>
 
 EZ_CREATE_SIMPLE_TEST(Memory, Endian)
 {

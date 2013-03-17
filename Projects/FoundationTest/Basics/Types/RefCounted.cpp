@@ -1,11 +1,8 @@
-#include <TestFramework/Framework/TestFramework.h>
-#include <Foundation/Basics/Types/RefCounted.h>
+#include <PCH.h>
 
 class RefCountedTestClass : public ezRefCounted
 {
 };
-
-
 
 EZ_CREATE_SIMPLE_TEST(Basics, RefCounted)
 {

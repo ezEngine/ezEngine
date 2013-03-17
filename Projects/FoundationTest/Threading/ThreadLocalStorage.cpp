@@ -1,9 +1,4 @@
-#include <TestFramework/Framework/TestFramework.h>
-#include <Foundation/Threading/Thread.h>
-#include <Foundation/Threading/ThreadLocalStorage.h>
-#include <Foundation/Threading/ThreadLocalPointer.h>
-#include <Foundation/Threading/AtomicUtils.h>
-#include <Foundation/Time/Time.h>
+#include <PCH.h>
 
 namespace 
 {

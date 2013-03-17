@@ -1,10 +1,7 @@
-#include <TestFramework/Framework/TestFramework.h>
-#include <TestFramework/Utilities/ConstructionCounter.h>
+#include <PCH.h>
 #include <TestFramework/Utilities/TestOrder.h>
 #include <TestFramework/Utilities/ConsoleOutput.h>
 #include <TestFramework/Utilities/HTMLOutput.h>
-#include <Foundation/Logging/Log.h>
-#include <Foundation/Logging/ConsoleWriter.h>
 
 #if EZ_PLATFORM_WINDOWS
   #include <conio.h>

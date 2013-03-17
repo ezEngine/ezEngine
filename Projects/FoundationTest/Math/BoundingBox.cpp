@@ -1,6 +1,4 @@
-#include <TestFramework/Framework/TestFramework.h>
-#include <Foundation/Math/BoundingBox.h>
-#include <Foundation/Math/Mat4.h>
+#include <PCH.h>
 
 EZ_CREATE_SIMPLE_TEST(Math, BoundingBox)
 {

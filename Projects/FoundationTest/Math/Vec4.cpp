@@ -1,13 +1,10 @@
-#include <TestFramework/Framework/TestFramework.h>
-#include <Foundation/Math/Vec4.h>
-#include <Foundation/Math/Vec3.h>
-#include <Foundation/Math/Vec2.h>
+#include <PCH.h>
 
 EZ_CREATE_SIMPLE_TEST(Math, Vec4)
 {
   EZ_TEST_BLOCK(true, "Constructor")
   {
-#if EZ_COMPILE_FOR_DEBUG
+#if EZ_COMPILE_FOR_DEBUG == 1
     // In debug the default constructor initializes everything with NaN.
     ezVec4 vDefCtor;
     EZ_TEST(ezMath::IsNaN(vDefCtor.x) && ezMath::IsNaN(vDefCtor.y) && ezMath::IsNaN(vDefCtor.z) && ezMath::IsNaN(vDefCtor.w));

@@ -1,6 +1,4 @@
-#include <TestFramework/Framework/TestFramework.h>
-#include <Foundation/IO/MemoryStream.h>
-#include <Foundation/Algorithm/Hashing.h>
+#include <PCH.h>
 
 EZ_CREATE_SIMPLE_TEST_GROUP(IO);
 

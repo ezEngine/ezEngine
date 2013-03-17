@@ -1,6 +1,4 @@
-#include <TestFramework/Framework/TestFramework.h>
-#include <Foundation/Containers/HashTable.h>
-#include <TestFramework/Utilities/ConstructionCounter.h>
+#include <PCH.h>
 
 namespace
 {

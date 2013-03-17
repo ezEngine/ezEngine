@@ -1,11 +1,4 @@
-#include <TestFramework/Framework/TestFramework.h>
-#include <Foundation/Logging/Log.h>
-#include <Foundation/Logging/ConsoleWriter.h>
-#include <Foundation/Logging/VisualStudioWriter.h>
-#include <Foundation/Logging/HTMLWriter.h>
-#include <Foundation/Configuration/Startup.h>
-#include <Foundation/IO/FileSystem/FileSystem.h>
-#include <Foundation/IO/FileSystem/DataDirType_Folder.h>
+#include <PCH.h>
 
 EZ_CREATE_SIMPLE_TEST_GROUP(Logging);
 

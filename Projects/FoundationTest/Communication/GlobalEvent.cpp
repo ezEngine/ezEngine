@@ -1,7 +1,4 @@
-#include <TestFramework/Framework/TestFramework.h>
-#include <Foundation/Communication/GlobalEvent.h>
-#include <Foundation/Logging/Log.h>
-#include <Foundation/Logging/ConsoleWriter.h>
+#include <PCH.h>
 
 static ezInt32 iTestData1 = 0;
 static ezInt32 iTestData2 = 0;

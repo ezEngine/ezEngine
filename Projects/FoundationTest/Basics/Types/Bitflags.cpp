@@ -1,5 +1,4 @@
-#include <TestFramework/Framework/TestFramework.h>
-#include <Foundation/Basics/Types/Bitflags.h>
+#include <PCH.h>
 
 namespace
 {

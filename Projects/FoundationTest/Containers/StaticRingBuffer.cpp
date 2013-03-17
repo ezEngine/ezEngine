@@ -1,6 +1,4 @@
-#include <TestFramework/Framework/TestFramework.h>
-#include <Foundation/Containers/StaticRingBuffer.h>
-#include <TestFramework/Utilities/ConstructionCounter.h>
+#include <PCH.h>
 
 typedef ezConstructionCounter cc;
 

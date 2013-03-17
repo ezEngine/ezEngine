@@ -1,9 +1,4 @@
-#include <TestFramework/Framework/TestFramework.h>
-#include <Foundation/Strings/StringBuilder.h>
-#include <Foundation/IO/FileSystem/FileSystem.h>
-#include <Foundation/IO/FileSystem/FileReader.h>
-#include <Foundation/IO/FileSystem/FileWriter.h>
-#include <Foundation/IO/FileSystem/DataDirType_Folder.h>
+#include <PCH.h>
 
 EZ_CREATE_SIMPLE_TEST(IO, FileSystem)
 {

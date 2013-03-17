@@ -1,5 +1,4 @@
-#include <TestFramework/Framework/TestFramework.h>
-#include <Foundation/Math/Math.h>
+#include <PCH.h>
 
 /// ********************* Binary to Int conversion *********************
 /// Most significant bit comes first.

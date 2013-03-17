@@ -1,5 +1,4 @@
-#include <TestFramework/Framework/TestFramework.h>
-#include <Foundation/IO/OSFile.h>
+#include <PCH.h>
 
 EZ_CREATE_SIMPLE_TEST(IO, OSFile)
 {

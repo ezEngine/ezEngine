@@ -1,7 +1,4 @@
-#include <TestFramework/Framework/TestFramework.h>
-#include <Foundation/Containers/Deque.h>
-#include <TestFramework/Utilities/ConstructionCounter.h>
-#include <Foundation/Configuration/Startup.h>
+#include <PCH.h>
 
 typedef ezConstructionCounter st;
 

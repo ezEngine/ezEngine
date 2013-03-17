@@ -1,6 +1,4 @@
-#include <TestFramework/Framework/TestFramework.h>
-#include <Foundation/Memory/CommonAllocators.h>
-#include <Foundation/Configuration/Startup.h>
+#include <PCH.h>
 
 struct NonAlignedVector
 {

@@ -1,4 +1,5 @@
-#include <Foundation/PCH.h>
+#include <TestFramework/Framework/TestFramework.h>
+#include <TestFramework/Utilities/ConstructionCounter.h>
 
 #include <Foundation/Algorithm/Comparer.h>
 #include <Foundation/Algorithm/Hashing.h>
@@ -89,7 +90,4 @@
 
 #include <Foundation/Utilities/EnumerableClass.h>
 
-
-
-
-
+#include <string>

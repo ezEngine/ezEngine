@@ -1,6 +1,4 @@
-﻿#include <TestFramework/Framework/TestFramework.h>
-#include <Foundation/Strings/UnicodeUtils.h>
-#include <Foundation/Strings/StringConversion.h>
+﻿#include <PCH.h>
 
 EZ_CREATE_SIMPLE_TEST(Strings, UnicodeUtils)
 {

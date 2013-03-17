@@ -1,5 +1,4 @@
-#include <TestFramework/Framework/TestFramework.h>
-#include <Foundation/Basics/Types/Enum.h>
+#include <PCH.h>
 
 //////////////////////////////////////////////////////////////////////
 // Start of the definition of a example Enum

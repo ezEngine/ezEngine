@@ -1,5 +1,4 @@
-#include <TestFramework/Framework/TestFramework.h>
-#include <Foundation/Communication/Event.h>
+#include <PCH.h>
 
 EZ_CREATE_SIMPLE_TEST_GROUP(Communication);
 
