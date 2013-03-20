@@ -3,6 +3,7 @@
 #include <Foundation/Basics.h>
 
 /// \brief The time class encapsulates a double value storing the time in seconds.
+///
 /// It offers convenient functions to get the time in other units.
 /// ezTime is a high-precision time using the OS specific high-precision timing functions
 /// and may thus be used for profiling as well as simulation code.
@@ -96,6 +97,7 @@ public:
   void Set(const Seconds& seconds);
 
   /// \brief Returns the time as a float value (in seconds).
+  ///
   /// Useful for simulation time steps etc.
   /// Please note that it is not recommended to use the float value for long running
   /// time calculations since the precision can deteriote quickly. (Only use for delta times is recommended)

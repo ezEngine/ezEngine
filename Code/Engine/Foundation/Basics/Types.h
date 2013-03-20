@@ -38,13 +38,14 @@ EZ_CHECK_AT_COMPILETIME(sizeof(ezUInt64) == 8); // must be defined in the specif
 
 EZ_CHECK_AT_COMPILETIME(sizeof(void*) == EZ_ALIGNMENT_MINIMUM);
 
+/// \brief Enum values for success and failure. To be used by functions as return values mostly, instead of bool.
 enum ezResultEnum
 {
   EZ_FAILURE,
   EZ_SUCCESS
 };
 
-/// Default enum for returning failure or success, instead of using a bool.
+/// \brief Default enum for returning failure or success, instead of using a bool.
 struct ezResult
 {
 public:

@@ -3,6 +3,7 @@
 #include <Foundation/Basics.h>
 #include <Foundation/Threading/Implementation/ThreadingDeclarations.h>
 
+/// \brief Contains general thread functions.
 class EZ_FOUNDATION_DLL ezThreadUtils
 {
 public:

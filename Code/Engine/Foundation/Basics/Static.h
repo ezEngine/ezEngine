@@ -5,6 +5,7 @@
 #pragma once
 
 /// \brief A small helper class to be able to construct global objects and static members that require a memory allocator.
+///
 /// By default all accesses to a memory allocator before program startup will trigger an assert.
 /// Otherwise global objects would either use the wrong allocator (not yet specified) or they would show false positives
 /// in the memory leak tracker, since they are usually not deallocated before application shutdown.

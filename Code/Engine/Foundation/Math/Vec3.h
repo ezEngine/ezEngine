@@ -163,7 +163,8 @@ public:
   ezResult CalculateNormal(const ezVec3& v1, const ezVec3& v2, const ezVec3& v3);
 
   /// \brief Modifies this direction vector to be orthogonal to the given (normalized) direction vector. The result is NOT normalized.
-  /// Note: This function may fail, e.g. create a vector that is zero, if the given normal is parallel to the vector itself.
+  ///
+  /// \note This function may fail, e.g. create a vector that is zero, if the given normal is parallel to the vector itself.
   ///       If you need to handle such cases, you should manually check afterwards, whether the result is zero, or cannot be normalized.
   void MakeOrthogonalTo(const ezVec3& vNormal);
 

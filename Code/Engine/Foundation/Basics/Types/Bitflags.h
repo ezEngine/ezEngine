@@ -96,6 +96,7 @@ private:
 };
 
 /// \brief Declares bitflags that can be used with the bitflag class above.
+///
 /// Usage: EZ_DECLARE_FLAGS(ezUInt32, Name, Value1, Value2, Value3, Value4)
 #define EZ_DECLARE_FLAGS(storage, name, ...)    \
 struct name    \

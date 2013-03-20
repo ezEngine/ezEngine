@@ -5,6 +5,7 @@
 #include <Foundation/Containers/DynamicArray.h>
 
 /// \brief The default class to use to read data from a file, implements the ezIBinaryStreamReader interface.
+///
 /// This file reader buffers reads up to a certain amount of bytes (configurable).
 /// It closes the file automatically once it goes out of scope.
 class EZ_FOUNDATION_DLL ezFileReader : public ezFileReaderBase
@@ -20,6 +21,7 @@ public:
   ~ezFileReader() { Close(); }
 
   /// \brief Opens the given file for reading. Returns EZ_SUCCESS if the file could be opened. A cache is created to speed up small reads.
+  ///
   /// You should typically not disable bAllowFileEvents, unless you need to prevent recursive file events,
   /// which is only the case, if you are doing file accesses from within a File Event Handler.
   ezResult Open(const char* szFile, ezUInt32 uiCacheSize = 1024 * 1024, bool bAllowFileEvents = true);

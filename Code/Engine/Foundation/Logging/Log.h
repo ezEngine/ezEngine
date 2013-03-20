@@ -12,6 +12,7 @@
 class ezLogBlock;
 
 /// \brief Static class that allows to write out logging information.
+///
 /// This class takes logging information, prepares it and then broadcasts it to all interested code
 /// via the event interface. It does not write anything on disk or somewhere else, itself. Instead it
 /// allows to register custom log writers that can then write it to disk, to console, send it over a
@@ -87,14 +88,17 @@ public:
   static void Info(const char* szFormat, ...);
 
   /// \brief Status information that is nice to have during development.
+  ///
   /// This function is compiled out in non-development builds.
   static void Dev(const char* szFormat, ...);
 
   /// \brief Status information during debugging. Very verbose. Usually only temporarily added to the code.
+  ///
   /// This function is compiled out in non-debug builds.
   static void Debug(const char* szFormat, ...);
 
   /// \brief Status information during debugging. Very verbose, happening every frame. Usually only temporarily added to the code.
+  ///
   /// This function is compiled out in non-debug builds.
   static void DebugRegular(const char* szFormat, ...);
 

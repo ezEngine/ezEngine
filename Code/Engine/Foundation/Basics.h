@@ -80,28 +80,28 @@ public:
 
   static Config s_Config;
 
-  /// The base allocator should only be used to allocate other allocators
+  /// \brief The base allocator should only be used to allocate other allocators
   EZ_FORCE_INLINE static ezIAllocator* GetBaseAllocator()
   { 
     EZ_ASSERT_API(s_pBaseAllocator != NULL, "ezFoundation must have been initialized before this function can be called. This error can occur when you have a global variable or a static member variable that (indirectly) requires an allocator. Check out the documentation for 'ezStatic' for more information about this issue."); 
     return s_pBaseAllocator;
   }
 
-  /// The debug allocator should be used to allocate debug information to seperate these from regular memory
+  /// \brief The debug allocator should be used to allocate debug information to seperate these from regular memory
   EZ_FORCE_INLINE static ezIAllocator* GetDebugAllocator()
   { 
     EZ_ASSERT_API(s_pDebugAllocator != NULL, "ezFoundation must have been initialized before this function can be called. This error can occur when you have a global variable or a static member variable that (indirectly) requires an allocator. Check out the documentation for 'ezStatic' for more information about this issue."); 
     return s_pDebugAllocator;
   }
 
-  /// The default allocator can be used for any kind of allocation if no alignment is required
+  /// \brief The default allocator can be used for any kind of allocation if no alignment is required
   EZ_FORCE_INLINE static ezIAllocator* GetDefaultAllocator()
   { 
     EZ_ASSERT_API(s_pDefaultAllocator != NULL, "ezFoundation must have been initialized before this function can be called. This error can occur when you have a global variable or a static member variable that (indirectly) requires an allocator. Check out the documentation for 'ezStatic' for more information about this issue."); 
     return s_pDefaultAllocator;
   }
 
-  /// The aligned allocator should be used for any allocations which need an alignment
+  /// \brief The aligned allocator should be used for any allocations which need an alignment
   EZ_FORCE_INLINE static ezIAllocator* GetAlignedAllocator()
   { 
     EZ_ASSERT_API(s_pAlignedAllocator != NULL, "ezFoundation must have been initialized before this function can be called. This error can occur when you have a global variable or a static member variable that (indirectly) requires an allocator. Check out the documentation for 'ezStatic' for more information about this issue."); 
@@ -121,10 +121,10 @@ private:
 
   friend struct ezStaticAllocatorWrapper;
 
-  /// Returns the allocator that is used to by global data and static members.
+  /// \brief Returns the allocator that is used to by global data and static members.
   static ezIAllocator* GetStaticAllocator();
 
-  /// Temporarily stores the current allocators and sets the static allocator for all of them.
+  /// \brief Temporarily stores the current allocators and sets the static allocator for all of them.
   static void PushStaticAllocator()
   {
     s_pBaseAllocatorTemp    = s_pBaseAllocator;
@@ -140,7 +140,7 @@ private:
     s_pAlignedAllocator = pAllocator;
   }
 
-  /// Resets all allocators back to their state before PushStaticAllocator was executed.
+  /// \brief Resets all allocators back to their state before PushStaticAllocator was executed.
   static void PopStaticAllocator()
   {
     s_pBaseAllocator    = s_pBaseAllocatorTemp;

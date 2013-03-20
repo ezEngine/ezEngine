@@ -3,6 +3,7 @@
 #include <Foundation/Containers/Deque.h>
 
 /// \brief A set container that only stores whether an element resides in it or not. Similar to STL::set
+///
 /// Sets are similar to maps that do not store a value (or only a bool that is always true).
 /// Sets can be used to reduce an unordered number of elements to only those that are unique.
 /// Insertion/erasure/lookup in sets is quite fast (O (log n)).
@@ -136,8 +137,9 @@ private:
   /// \brief Destroys the given node.
   void ReleaseNode(Node* pNode);
 
-  // \brief Red-Black Tree stuff(Anderson Tree to be exact).
-  // Code taken from here: http://eternallyconfuzzled.com/tuts/datastructures/jsw_tut_andersson.aspx
+  /// \brief Red-Black Tree stuff(Anderson Tree to be exact).
+  ///
+  /// Code taken from here: http://eternallyconfuzzled.com/tuts/datastructures/jsw_tut_andersson.aspx
   Node* SkewNode(Node* root);
   Node* SplitNode(Node* root);
   Node* Insert(Node* root, const KeyType& key, Node*& pInsertedNode);

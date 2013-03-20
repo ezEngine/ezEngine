@@ -1,6 +1,6 @@
 
 #ifdef EZ_ATOMICUTLS_POSIX_INL_H_INCLUDED
-#error This file must not be included twice.
+  #error This file must not be included twice.
 #endif
 
 #define EZ_ATOMICUTLS_POSIX_INL_H_INCLUDED
@@ -152,10 +152,10 @@ EZ_FORCE_INLINE bool ezAtomicUtils::CompareAndSwap(volatile ezInt64& dest, ezInt
 EZ_FORCE_INLINE bool ezAtomicUtils::CompareAndSwap(void** volatile dest, void* expected, void* value)
 {
   #if EZ_PLATFORM_64BIT
-  ezUInt64* puiTemp = *reinterpret_cast<ezUInt64**>(dest);
-  return __sync_bool_compare_and_swap(puiTemp, reinterpret_cast<ezUInt64>(expected), reinterpret_cast<ezUInt64>(value)) == reinterpret_cast<ezUInt64>(expected);
+    ezUInt64* puiTemp = *reinterpret_cast<ezUInt64**>(dest);
+    return __sync_bool_compare_and_swap(puiTemp, reinterpret_cast<ezUInt64>(expected), reinterpret_cast<ezUInt64>(value)) == reinterpret_cast<ezUInt64>(expected);
   #else
-  ezUInt32* puiTemp = *reinterpret_cast<ezUInt32**>(dest);
-  return __sync_bool_compare_and_swap(puiTemp, reinterpret_cast<ezUInt32>(expected), reinterpret_cast<ezUInt32>(value)) == reinterpret_cast<ezUInt32>(expected);
+    ezUInt32* puiTemp = *reinterpret_cast<ezUInt32**>(dest);
+    return __sync_bool_compare_and_swap(puiTemp, reinterpret_cast<ezUInt32>(expected), reinterpret_cast<ezUInt32>(value)) == reinterpret_cast<ezUInt32>(expected);
   #endif
 }

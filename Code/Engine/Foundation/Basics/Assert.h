@@ -27,34 +27,35 @@
 
 
 
-/// Called by the assert macros whenever a check failed. Returns true if the user wants to trigger a break point
-EZ_FOUNDATION_DLL bool ezFailedCheck(const char* szSourceFile, ezUInt32 uiLine, const char* szFunction, 
-  const char* szExpression, const char* szErrorMsg, ...);
+/// \brief Called by the assert macros whenever a check failed. Returns true if the user wants to trigger a break point
+EZ_FOUNDATION_DLL bool ezFailedCheck(const char* szSourceFile, ezUInt32 uiLine, const char* szFunction, const char* szExpression, const char* szErrorMsg, ...);
 
+/// \brief Macro to report a failure when that code is reached. This will ALWAYS be executed, even in release builds, therefore might crash the application (or trigger a debug break).
 #define EZ_REPORT_FAILURE(szErrorMsg, ...) \
   { if (ezFailedCheck(EZ_SOURCE_FILE, EZ_SOURCE_LINE, EZ_SOURCE_FUNCTION, "", szErrorMsg, ##__VA_ARGS__)) EZ_DEBUG_BREAK; }
 
-/// Macro to raise an error, if a condition is not met. Allows to write a message using printf style. This assert will be triggered, even in non-development builds and cannot be deactivated.
+/// \brief Macro to raise an error, if a condition is not met. Allows to write a message using printf style. This assert will be triggered, even in non-development builds and cannot be deactivated.
 #define EZ_ASSERT_ALWAYS(bCondition, szErrorMsg, ...) \
   EZ_ANALYSIS_ASSUME(bCondition); \
   if ((bCondition) == false) \
   { if (ezFailedCheck(EZ_SOURCE_FILE, EZ_SOURCE_LINE, EZ_SOURCE_FUNCTION, #bCondition, szErrorMsg, ##__VA_ARGS__)) EZ_DEBUG_BREAK; }
   
 
-/// This type of assert can be used to mark code as 'not (yet) implemented' 
-/// and makes it easier to find it later on by just searching for these asserts.
+/// \brief This type of assert can be used to mark code as 'not (yet) implemented' and makes it easier to find it later on by just searching for these asserts.
 #define EZ_ASSERT_NOT_IMPLEMENTED EZ_ASSERT_ALWAYS
 
 // Occurrences of EZ_ASSERT are compiled out in non-development builds
 #if EZ_COMPILE_FOR_DEVELOPMENT
 
-  /// Macro to raise an error, if a condition is not met.
+  /// \brief Macro to raise an error, if a condition is not met.
+  ///
   /// Allows to write a message using printf style.
   /// Compiled out in non-development builds.
   /// The condition is not evaluated, when this is compiled out, so do not execute important code in it.
   #define EZ_ASSERT EZ_ASSERT_ALWAYS
 
-  /// Macro to raise an error, if a condition is not met.
+  /// \brief Macro to raise an error, if a condition is not met.
+  ///
   /// Allows to write a message using printf style.
   /// Compiled out in non-development builds, however the condition is always evaluated,
   /// so you may execute important code in it.
@@ -62,13 +63,15 @@ EZ_FOUNDATION_DLL bool ezFailedCheck(const char* szSourceFile, ezUInt32 uiLine, 
 
 #else
 
-  /// Macro to raise an error, if a condition is not met.
+  /// \brief Macro to raise an error, if a condition is not met.
+  ///
   /// Allows to write a message using printf style.
   /// Compiled out in non-development builds.
   /// The condition is not evaluated, when this is compiled out, so do not execute important code in it.
   #define EZ_ASSERT(bCondition, szErrorMsg, ...) EZ_ANALYSIS_ASSUME(bCondition);
 
-  /// Macro to raise an error, if a condition is not met.
+  /// \brief Macro to raise an error, if a condition is not met.
+  ///
   /// Allows to write a message using printf style.
   /// Compiled out in non-development builds, however the condition is always evaluated,
   /// so you may execute important code in it.
@@ -80,7 +83,8 @@ EZ_FOUNDATION_DLL bool ezFailedCheck(const char* szSourceFile, ezUInt32 uiLine, 
 
 #if EZ_DISABLE_API_ASSERTS
 
-  /// An assert to check the correct usage of API functions.
+  /// \brief An assert to check the correct usage of API functions.
+  ///
   /// Should only be used inside engine code. 
   /// These asserts can be disabled (and then their condition will not be evaluated), 
   /// but this needs to be specifically done by the user by defining EZ_DISABLE_API_ASSERTS.
@@ -89,7 +93,8 @@ EZ_FOUNDATION_DLL bool ezFailedCheck(const char* szSourceFile, ezUInt32 uiLine, 
 
 #else
 
-  /// An assert to check the correct usage of API functions.
+  /// \brief An assert to check the correct usage of API functions.
+  ///
   /// Should only be used inside engine code. 
   /// These asserts can be disabled (and then their condition will not be evaluated), 
   /// but this needs to be specifically done by the user by defining EZ_DISABLE_API_ASSERTS.

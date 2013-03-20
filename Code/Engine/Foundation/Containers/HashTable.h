@@ -76,6 +76,7 @@ public:
   void Reserve(ezUInt32 uiCapacity); // [tested]
 
   /// \brief Tries to compact the hashtable to avoid wasting memory.
+  ///
   /// The resulting capacity is at least 'GetCount' (no elements get removed). 
   /// Will deallocate all data, if the hashtable is empty.
   void Compact(); // [tested]
@@ -90,6 +91,7 @@ public:
   void Clear(); // [tested]
 
   /// \brief Inserts the key value pair or replaces value if an entry with the given key already exists. 
+  ///
   /// Returns if an existing value was replaced and optionally writes out the old value to out_oldValue.
   bool Insert(const KeyType& key, const ValueType& value, ValueType* out_oldValue = NULL); // [tested]
 

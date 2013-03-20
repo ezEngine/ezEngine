@@ -4,6 +4,7 @@
 #include <Foundation/IO/FileSystem/FileWriter.h>
 
 /// \brief A log writer that writes out log messages to an HTML file.
+///
 /// Create an instance of this class, register the LogMessageHandler at ezLog and pass the pointer 
 /// to the instance as the pPassThrough argument to it.
 class EZ_FOUNDATION_DLL ezLog_HTMLWriter

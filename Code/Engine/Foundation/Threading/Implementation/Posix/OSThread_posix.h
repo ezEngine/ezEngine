@@ -1,6 +1,6 @@
 
 #ifdef EZ_OSTHREAD_POSIX_INL_H_INCLUDED
-#error This file must not be included twice.
+  #error This file must not be included twice.
 #endif
 
 #define EZ_OSTHREAD_POSIX_INL_H_INCLUDED
@@ -29,7 +29,7 @@ ezOSThread::~ezOSThread()
 /// Attempts to acquire an exclusive lock for this mutex object
 void ezOSThread::Start()
 {
-  // Complicated - TODO
+  /// \todo Complicated
   
 }
 

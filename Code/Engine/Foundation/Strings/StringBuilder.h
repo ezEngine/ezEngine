@@ -9,6 +9,7 @@
 #include <Foundation/Strings/PathUtils.h>
 
 /// \brief ezStringBuilder is a class that is meant for creating and modifying strings.
+///
 /// It is not meant to store strings for a longer duration.
 /// Each ezStringBuilder uses an ezHybridArray to allocate a large buffer on the stack, such that string manipulations
 /// are possible without memory allocations, unless the string is too large.
@@ -83,6 +84,7 @@ public:
   void ToLower(); // [tested]
 
   /// \brief Changes the single character in this string, to which the iterator currently points.
+  ///
   /// The string might need to be moved around, if its encoding size changes, however the given iterator will be adjusted
   /// so that it will always stay valid.
   /// \note
@@ -125,6 +127,7 @@ public:
   void Format(const char* szUtf8Format, va_list& args); // [tested]
 
   /// \brief Removes the first n and last m characters from this string.
+  ///
   /// This function will never reallocate data.
   /// Removing characters at the back is very cheap.
   /// Removing characters at the front needs to move data around, so can be quite costly.
@@ -141,6 +144,7 @@ public:
   void Remove(const char* szRemoveFromPos, const char* szRemoveToPos); // [tested]
 
   /// \brief Replaces the first occurrence of szSearchFor by szReplacement. Optionally starts searching at szStartSearchAt (or the beginning).
+  ///
   /// Returns the first position where szSearchFor was found, or NULL if nothing was found (and replaced).
   const char* ReplaceFirst(const char* szSearchFor, const char* szReplacement, const char* szStartSearchAt = NULL); // [tested]
 
@@ -148,6 +152,7 @@ public:
   const char* ReplaceFirst_NoCase(const char* szSearchFor, const char* szReplacement, const char* szStartSearchAt = NULL); // [tested]
 
   /// \brief Replaces the last occurrence of szSearchFor by szReplacement. Optionally starts searching at szStartSearchAt (or the end).
+  ///
   /// Returns the last position where szSearchFor was found, or NULL if nothing was found (and replaced).
   const char* ReplaceLast(const char* szSearchFor, const char* szReplacement, const char* szStartSearchAt = NULL); // [tested]
 
@@ -194,14 +199,17 @@ public:
   ezStringIterator GetFileExtension() const; // [tested]
 
   /// \brief Returns the file name of a path, exluding the path and extension.
+  ///
   /// If the path already ends with a path separator, the result will be empty.
   ezStringIterator GetFileName() const; // [tested]
 
   /// \brief Returns the substring that represents the file name including the file extension.
+  ///
   /// Returns an empty string, if sPath already ends in a path separator, or is empty itself.
   ezStringIterator GetFileNameAndExtension() const; // [tested]
 
   /// \brief Returns the directory of the given file, which is the substring up to the last path separator.
+  ///
   /// If the path already ends in a path separator, and thus points to a folder, instead of a file, the unchanged path is returned.
   /// "path/to/file" -> "path/to/"
   /// "path/to/folder/" -> "path/to/folder/"
@@ -219,6 +227,7 @@ public:
 
 
   /// \brief Removes double path-separators (ie. folder//folder -> folder/folder), removes "../" where possible, replaces all path separators with /
+  ///
   /// All paths use slashes on all platforms. If you need to convert a path to the OS specific representation, use 'MakePathOsSpecific'
   /// 'MakeCleanPath' will in rare circumstances grow the string by one character. That means it is quite safe to assume that
   /// it will not waste time on memory allocations.
@@ -227,11 +236,13 @@ public:
   void MakeCleanPath(); // [tested]
 
   /// \brief Modifies this string to point to the parent directory.
+  ///
   /// 'uiLevelsUp' can be used to go several folders upwards. It has to be at least one.
   /// If there are no more folders to go up, "../" is appended as much as needed.
   void PathParentDirectory(ezUInt32 uiLevelsUp = 1); // [tested]
 
   /// \brief Appends several path pieces. Makes sure they are always properly separated by a slash.
+  ///
   /// Will call 'MakeCleanPath' internally, so the representation of the path might change.
   void AppendPath(const char* szPath1, const char* szPath2 = NULL, const char* szPath3 = NULL, const char* szPath4 = NULL); // [tested]
 
@@ -242,10 +253,12 @@ public:
   void ChangeFileNameAndExtension(const char* szNewFileNameWithExtension); // [tested]
 
   /// \brief Only changes the file extension of the path. If there is no extension yet, one is appended.
+  ///
   /// szNewExtension must not start with a dot.
   void ChangeFileExtension(const char* szNewExtension); // [tested]
 
   /// \brief Sets this path to the absolute path by concatenating the absolute base path and the relative path.
+  ///
   /// The result is already cleaned up by 'MakeCleanPath'
   void MakeAbsolutePath(const char* szAbsoluteBasePath); // [tested]
 
@@ -253,11 +266,13 @@ public:
   void MakeRelativePath(const char* szAbsolutePathToMakeThisRelativeTo); // [tested]
 
   /// \brief Cleans this path up and replaces all path separators by the OS specific separator.
+  ///
   /// This can be used, if you want to present paths in the OS specific form to the user in GUI.
   /// In all other cases the internal representation uses slashes, no matter on which operating system.
   void MakePathOsSpecific();
 
   /// \brief Checks whether this path is a subpath of the given path.
+  ///
   /// This function will call 'MakeCleanPath' to be able to compare both paths, thus it might modify the data of this instance.
   bool IsPathBelowFolder (const char* szPathToFolder); // [tested]
 

@@ -3,6 +3,7 @@
 #include <Foundation/Containers/Deque.h>
 
 /// \brief An associative container. Similar to STL::map
+///
 /// A map allows to store key/value pairs. This in turn allows to search for values by looking them
 /// up with a certain key. Key/Value pairs can also be erased again.
 /// All insertion/erasure/lookup functions take O(log n) time. The map is implemented using a balanced tree

@@ -3,6 +3,7 @@
 #include <Foundation/Containers/DynamicArray.h>
 
 /// \brief This class allows to propagate events to code that might be interested in them.
+///
 /// An event can be anything that "happens" that might be of interest for other code, such
 /// that it can react on it in some way.
 /// Just create an instance of ezEvent and call "Broadcast" on it. Other intersted code needs access to
@@ -29,6 +30,7 @@ public:
   void AddEventHandler(ezEventHandler callback, PassThrough pPassThrough); // [tested]
 
   /// \brief Removes a previously registered handler. It is an error to remove a handler that was not registered.
+  ///
   /// The exact same data that was passed to AddEventHandler (including pPassThrough) must be given.
   void RemoveEventHandler(ezEventHandler callback, PassThrough pPassThrough); // [tested]
 

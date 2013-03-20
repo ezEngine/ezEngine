@@ -20,6 +20,7 @@
 EZ_THREAD_CLASS_ENTRY_POINT;
 
 /// \brief This class is the base class for platform independent long running threads
+///
 /// Used by deriving from this class and overriding the Run() method.
 class EZ_FOUNDATION_DLL ezThread : public ezOSThread
 {

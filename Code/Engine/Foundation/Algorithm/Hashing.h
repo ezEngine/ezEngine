@@ -29,6 +29,7 @@ public:
   static ezUInt32 MurmurHash(const char (&str)[N], ezUInt32 uiSeed = 0); // [tested]
 
   /// \brief Calculates the 32bit murmur hash of a string pointer during runtime. Encoding does not matter here.
+  ///
   /// We cannot pass a string pointer directly since a string contant would be treated as pointer as well.
   static ezUInt32 MurmurHash(StringWrapper str, ezUInt32 uiSeed = 0); // [tested]
 };

@@ -4,7 +4,7 @@
 
 namespace ezMemoryPolicies
 {
-  /// Heap memory allocation policy.
+  /// \brief Heap memory allocation policy.
   class ezHeapAllocation
   {
   public:

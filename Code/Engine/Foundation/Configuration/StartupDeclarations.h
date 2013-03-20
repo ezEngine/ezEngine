@@ -1,6 +1,7 @@
 #pragma once
 
 /// \brief Put this in some cpp file of a subsystem to start its startup / shutdown sequence declaration.
+///
 /// The first parameter is the name of the module, in which the subsystem resides, the second is the name of the subsystem itself.
 #define EZ_BEGIN_SUBSYSTEM_DECLARATION(ModuleName, SubsystemName) \
 class ModuleName##SubsystemName##SubSystem; \
@@ -10,41 +11,49 @@ class ModuleName##SubsystemName##SubSystem : public ezSubSystemDeclarationBase {
   public: virtual const char* GetSubSystemName() const { return #SubsystemName; } \
 
 /// \brief Finishes a subsystem's startup / shutdown sequence declaration.
+///
 /// The first parameter is the name of the module, in which the subsystem resides, the second is the name of the subsystem itself.
 #define EZ_END_SUBSYSTEM_DECLARATION \
   }; static SubSystemType EZ_CONCAT(s_SubSystem, EZ_SOURCE_LINE);
 
 /// \brief Defines what code is to be executed upon base startup.
+///
 /// Put this inside the subsystem declaration block.
 #define ON_BASE_STARTUP \
   private: virtual void OnBaseStartup()
 
 /// \brief Defines what code is to be executed upon base shutdown.
+///
 /// Put this inside the subsystem declaration block.
 #define ON_BASE_SHUTDOWN \
   private: virtual void OnBaseShutdown()
 
 /// \brief Defines what code is to be executed upon core startup.
+///
 /// Put this inside the subsystem declaration block.
 #define ON_CORE_STARTUP \
   private: virtual void OnCoreStartup()
 
 /// \brief Defines what code is to be executed upon core shutdown.
+///
 /// Put this inside the subsystem declaration block.
 #define ON_CORE_SHUTDOWN \
   private: virtual void OnCoreShutdown()
 
 /// \brief Defines what code is to be executed upon engine startup.
+///
 /// Put this inside the subsystem declaration block.
 #define ON_ENGINE_STARTUP \
   private: virtual void OnEngineStartup()
 
 /// \brief Defines what code is to be executed upon engine shutdown.
+///
 /// Put this inside the subsystem declaration block.
 #define ON_ENGINE_SHUTDOWN \
   private: virtual void OnEngineShutdown()
 
 /// \brief Begins the list of subsystems, on which the currently declared system depends on.
+///
 /// Must be followed by a series of strings with the names of the dependencies.
 #define BEGIN_SUBSYSTEM_DEPENDENCIES \
   public: virtual const char* GetDependency(ezInt32 iDep) \

@@ -1,6 +1,6 @@
 
 #ifdef EZ_THREADLOCALSTORAGE_WIN_INL_H_INCLUDED
-#error This file must not be included twice.
+  #error This file must not be included twice.
 #endif
 
 #define EZ_THREADLOCALSTORAGE_WIN_INL_H_INCLUDED

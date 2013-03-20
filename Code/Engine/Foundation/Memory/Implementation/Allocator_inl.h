@@ -18,17 +18,17 @@ ezAllocator<A, B, T, M>::~ezAllocator()
   
     #if EZ_PLATFORM_WINDOWS
 
-    // todo: make this platform independent
-    wchar_t szName[32];
-    mbstowcs(szName, m_szName, 32);
-    wchar_t szBuffer[512];
-    swprintf_s(szBuffer,
-      L"\n--------------------------------------------------------------------\n"
-      L"Allocator '%s' has leaks: %d bytes in %d allocation(s)"
-      L"\n--------------------------------------------------------------------\n\n",
-      szName, (int)m_tracker.GetAllocationSize(), (int)m_tracker.GetNumLiveAllocations());
+      // todo: make this platform independent
+      wchar_t szName[32];
+      mbstowcs(szName, m_szName, 32);
+      wchar_t szBuffer[512];
+      swprintf_s(szBuffer,
+        L"\n--------------------------------------------------------------------\n"
+        L"Allocator '%s' has leaks: %d bytes in %d allocation(s)"
+        L"\n--------------------------------------------------------------------\n\n",
+        szName, (int)m_tracker.GetAllocationSize(), (int)m_tracker.GetNumLiveAllocations());
     
-    OutputDebugStringW(szBuffer);
+      OutputDebugStringW(szBuffer);
   
     #endif
 

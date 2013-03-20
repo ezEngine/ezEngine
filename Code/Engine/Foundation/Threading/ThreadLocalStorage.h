@@ -4,7 +4,8 @@
 #include <Foundation/Containers/StaticArray.h>
 
 /// \brief User-configurable: How many pointer values can be stored in thread local variables
-/// (note that increasing the value increases the size of each ezThread object accordingly)
+///
+/// \note Note that increasing the value increases the size of each ezThread object accordingly)
 #define EZ_THREAD_LOCAL_STORAGE_SLOT_COUNT 16
 
 #define EZ_THREAD_LOCAL_STORAGE_INVALID_SLOT EZ_THREAD_LOCAL_STORAGE_SLOT_COUNT
@@ -17,6 +18,7 @@ struct EZ_FOUNDATION_DLL ezThreadLocalStorage
 public:
 
   /// \brief Allocates a slot from the TLS variable pool.
+  ///
   /// Returns EZ_THREAD_LOCAL_STORAGE_INVALID_SLOT on failure (may also be checked with IsValidSlot()).
   /// Note that the preferred way of interaction is ezThreadLocal which encapsulates the logic to allocate and free TLS slots
   static ezUInt32 AllocateSlot();
@@ -37,7 +39,8 @@ public:
   }
 
   /// \brief Sets the pointer to the per thread table used to handle an arbitrary amount of TLS variables.
-  /// Note that all ezThread derived classes will set up this correctly before calling Run()
+  ///
+  /// \note Note that all ezThread derived classes will set up this correctly before calling Run()
   static void SetPerThreadPointerTable(ezThreadLocalPointerTable* pPerThreadPointerTable);
 
   /// \brief Returns the per thread pointer table used to store TLS values internally

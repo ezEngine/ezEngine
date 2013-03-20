@@ -53,8 +53,9 @@ public:
   static bool IsAligned(const T* ptr, size_t uiAlignment);
 
   /// \brief Reserves the lower 4GB of address space in 64-bit builds to ensure all allocations start above 4GB.
-  /// Note that this does NOT reserve 4GB of RAM, only address space.
-  /// This can help to detect pointer truncation. In 32-bit builds it does nothing.
+  ///
+  /// \note Note that this does NOT reserve 4GB of RAM, only address space.
+  ///       This can help to detect pointer truncation. In 32-bit builds it does nothing.
   static void ReserveLower4GBAddressSpace();
 
 private:

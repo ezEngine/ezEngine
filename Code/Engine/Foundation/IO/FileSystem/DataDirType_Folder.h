@@ -8,6 +8,7 @@ class ezDataDirectory_Folder_Reader;
 class ezDataDirectory_Folder_Writer;
 
 /// \brief A data directory type to handle access to ordinary files.
+///
 /// Register the 'Factory' function at ezFileSystem to allow it to mount local directories.
 class EZ_FOUNDATION_DLL ezDataDirectoryType_Folder : public ezDataDirectoryType
 {

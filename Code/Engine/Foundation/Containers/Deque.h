@@ -30,6 +30,7 @@ public:
   void Reserve(ezUInt32 uiCount);
 
   /// \brief This function deallocates as much memory as possible to shrink the deque to the bare minimum size that it needs to work.
+  ///
   /// This function is never called internally. It is only for the user to trigger a size reduction when he feels like it.
   /// The index array data is not reduced as much as possible, a bit spare memory is keept to allow for scaling the deque
   /// up again, without immediate reallocation of all data structures.
@@ -145,6 +146,7 @@ private:
   void ResetReduceSizeCounter();
 
   /// \brief This function will periodically deallocate unused chunks to prevent unlimited memory usage. 
+  ///
   /// However it tries not to deallocate too much, so it does not immediately deallocate 'everything'.
   /// Instead the deque will track its upper limited of used elements in between size reductions and keep enough
   /// chunks allocated to fulfill those requirements.

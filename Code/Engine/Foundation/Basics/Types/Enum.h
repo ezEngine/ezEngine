@@ -1,6 +1,7 @@
 #pragma once
 
 /// \brief A custom enum implementation that allows to define the underlying storage type to control its memory footprint.
+///
 /// Advantages over a simple C++ enum:
 /// 1) Storage type can be defined
 /// 2) Enum is default initialized automatically
@@ -63,6 +64,7 @@ private:
 
 
 /// \brief Helper macro to generate a 'ToString' function for enum values.
+///
 /// Usage: EZ_ENUM_TO_STRING(Value1, Value2, Value3, Value4)
 /// Embed it into a struct (which defines the enums).
 /// Example:

@@ -3,6 +3,7 @@
 #include <Foundation/Strings/StringIterator.h>
 
 /// \brief Contains Helper functions to work with paths.
+///
 /// Only functions that require read-only access to a string are provided here
 /// All functions that require to modify the path are provided by ezPathBuilder.
 /// Many functions return ezStringIterator's, which will always be strict sub-strings of their input data.
@@ -29,14 +30,17 @@ public:
   static ezStringIterator GetFileExtension(const char* szPath, const char* szPathEnd = ezMaxStringEnd); // [tested]
 
   /// \brief Returns the file name of a path, exluding the path and extension.
+  ///
   /// If the path already ends with a path separator, the result will be empty.
   static ezStringIterator GetFileName(const char* szPath, const char* szPathEnd = ezMaxStringEnd); // [tested]
 
   /// \brief Returns the substring that represents the file name including the file extension.
+  ///
   /// Returns an empty string, if sPath already ends in a path separator, or is empty itself.
   static ezStringIterator GetFileNameAndExtension(const char* szPath, const char* szPathEnd = ezMaxStringEnd); // [tested]
 
   /// \brief Returns the directory of the given file, which is the substring up to the last path separator.
+  ///
   /// If the path already ends in a path separator, and thus points to a folder, instead of a file, the unchanged path is returned.
   /// "path/to/file" -> "path/to/"
   /// "path/to/folder/" -> "path/to/folder/"

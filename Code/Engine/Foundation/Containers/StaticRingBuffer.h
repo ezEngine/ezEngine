@@ -3,6 +3,7 @@
 #include <Foundation/Containers/StaticArray.h>
 
 /// \brief A ring-buffer container that will use a static array of a given capacity to cycle through elements.
+///
 /// If you need a dynamic ring-buffer, use an ezDeque.
 template <typename T, ezUInt32 Capacity>
 class ezStaticRingBuffer

@@ -3,6 +3,7 @@
 #include <Foundation/Memory/MemoryUtils.h>
 
 /// \brief This class encapsulates an array and it's size. It is recommended to use this class instead of plain C arrays.
+///
 /// No data is deallocated at destruction, the ezArrayPtr only allows for easier access.
 template <typename T>
 class ezArrayPtr

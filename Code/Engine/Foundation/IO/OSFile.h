@@ -13,7 +13,7 @@ struct ezOSFileData;
   #include <Foundation/IO/Implementation/Win/OSFileDeclarations_win.h>
 #endif
 
-/// Defines in which mode to open a file.
+/// \brief Defines in which mode to open a file.
 struct ezFileMode
 {
   enum Enum
@@ -25,7 +25,7 @@ struct ezFileMode
   };
 };
 
-/// For file seek operations this enum defines from which relative position the seek position is described.
+/// \brief For file seek operations this enum defines from which relative position the seek position is described.
 struct ezFilePos
 {
   enum Enum
@@ -36,21 +36,21 @@ struct ezFilePos
   };
 };
 
-/// Holds the stats for a file.
+/// \brief Holds the stats for a file.
 struct EZ_FOUNDATION_DLL ezFileStats
 {
   ezFileStats();
 
-  /// The name of the file or folder that the stats are for. Does not include the path to it.
+  /// \brief The name of the file or folder that the stats are for. Does not include the path to it.
   ezStringBuilder m_sFileName;
 
-  /// The last modification time. Note that this is stored in a platform specific format and cannot be used across platforms.
+  /// \brief The last modification time. Note that this is stored in a platform specific format and cannot be used across platforms.
   ezUInt64 m_uiLastModificationTime;
 
-  /// The size of the file in bytes.
+  /// \brief The size of the file in bytes.
   ezUInt64 m_uiFileSize;
 
-  /// Whether the file object is a file or folder.
+  /// \brief Whether the file object is a file or folder.
   bool m_bIsDirectory;
 };
 
@@ -58,7 +58,8 @@ struct EZ_FOUNDATION_DLL ezFileStats
 
   struct ezFileIterationData;
 
-  /// An ezFileSystemIterator allows to iterate over all files in a certain directory.
+  /// \brief An ezFileSystemIterator allows to iterate over all files in a certain directory.
+  ///
   /// The search can be recursive, and it can contain wildcards (* and ?) to limit the search to specific file types.
   class EZ_FOUNDATION_DLL ezFileSystemIterator
   {
@@ -68,7 +69,8 @@ struct EZ_FOUNDATION_DLL ezFileStats
     ezFileSystemIterator();
     ~ezFileSystemIterator();
 
-    /// Starts a search at the given folder. Use * and ? as wildcards.
+    /// \brief Starts a search at the given folder. Use * and ? as wildcards.
+    ///
     /// To iterate all files from on folder, use '/Some/Folder/*'
     /// To iterate over all files of a certain type (in one folder) use '/Some/Folder/*.ext'
     /// Only the final path segmant can use placeholders, folders in between must be fully named.
@@ -76,41 +78,46 @@ struct EZ_FOUNDATION_DLL ezFileStats
     /// If bReportFolders is false, only files will be reported, folders will be skipped (though they will be recursed into, if bRecursive is true).
     bool StartSearch(const char* szSearchStart, bool bRecursive = true, bool bReportFolders = true); // [tested]
 
-    /// Returns the current path in which files are searched. Changes when 'Next' moves in or out of a subfolder.
+    /// \brief Returns the current path in which files are searched. Changes when 'Next' moves in or out of a subfolder.
+    ///
     /// You can use this to get the full path of the current file, by appending this value and the filename from 'GetStats'
     const ezStringBuilder& GetCurrentPath() const { return m_sCurPath; } // [tested]
 
-    /// Returns the file stats of the current object that the iterator points to.
+    /// \brief Returns the file stats of the current object that the iterator points to.
     const ezFileStats& GetStats() const { return m_CurFile; } // [tested]
 
-    /// Advances the iterator to the next file object. Might recurse into subfolders.
+    /// \brief Advances the iterator to the next file object. Might recurse into subfolders.
+    ///
     /// Returns false, if the search has reached its end.
     bool Next(); // [tested]
 
-    /// The same as 'Next' only that the current folder will not be recursed into.
+    /// \brief The same as 'Next' only that the current folder will not be recursed into.
+    ///
     /// Returns false, if the search has reached its end.
     bool SkipFolder();
 
   private:
-    /// The current path of the folder, in which the iterator currently is.
+
+    /// \brief The current path of the folder, in which the iterator currently is.
     ezStringBuilder m_sCurPath;
 
-    /// Whether to do a recursive file search.
+    /// \brief Whether to do a recursive file search.
     bool m_bRecursive;
 
-    /// Whether to report folders to the user, or to skip over them.
+    /// \brief Whether to report folders to the user, or to skip over them.
     bool m_bReportFolders;
 
-    /// The stats about the file that the iterator currently points to.
+    /// \brief The stats about the file that the iterator currently points to.
     ezFileStats m_CurFile;
 
-    /// Platform specific data, required by the implementation.
+    /// \brief Platform specific data, required by the implementation.
     ezFileIterationData m_Data;
   };
 
 #endif
 
-/// This is an abstraction for the most important file operations.
+/// \brief This is an abstraction for the most important file operations.
+///
 /// Instances of ezOSFile can be used for reading and writing files.
 /// All paths must be absolute paths, relative paths and current working directories are not supported,
 /// since that cannot be guaranteed to work equally on all platforms under all circumstances.
@@ -123,50 +130,50 @@ public:
   ezOSFile();
   ~ezOSFile();
 
-  /// Opens a file for reading or writing. Returns true if the file could be opened successfully.
+  /// \brief Opens a file for reading or writing. Returns true if the file could be opened successfully.
   ezResult Open(const char* szFile, ezFileMode::Enum OpenMode); // [tested]
 
-  /// Returns true if a file is currently open.
+  /// \brief Returns true if a file is currently open.
   bool IsOpen() const; // [tested]
 
-  /// Closes the file, if it is currently opened.
+  /// \brief Closes the file, if it is currently opened.
   void Close(); // [tested]
 
-  /// Writes the given number of bytes from the buffer into the file. Returns true if all data was successfully written.
+  /// \brief Writes the given number of bytes from the buffer into the file. Returns true if all data was successfully written.
   ezResult Write(const void* pBuffer, ezUInt64 uiBytes); // [tested]
 
-  /// Reads up to the given number of bytes from the file. Returns the actual number of bytes that was read.
+  /// \brief Reads up to the given number of bytes from the file. Returns the actual number of bytes that was read.
   ezUInt64 Read(void* pBuffer, ezUInt64 uiBytes); // [tested]
 
-  /// Returns the name of the file that is currently opened. Returns an empty string, if no file is open.
+  /// \brief Returns the name of the file that is currently opened. Returns an empty string, if no file is open.
   const char* GetOpenFileName() const { return m_sFileName.GetData(); } // [tested]
 
-  /// Returns the position in the file at which read/write operations will occur.
+  /// \brief Returns the position in the file at which read/write operations will occur.
   ezUInt64 GetFilePosition() const; // [tested]
 
-  /// Sets the position where in the file to read/write next.
+  /// \brief Sets the position where in the file to read/write next.
   void SetFilePosition(ezInt64 iDistance, ezFilePos::Enum Pos) const; // [tested]
 
-  /// Returns the current total size of the file.
+  /// \brief Returns the current total size of the file.
   ezUInt64 GetFileSize() const; // [tested]
 
-  /// This will return the platform specific file data (handles etc.), if you really want to be able to wreak havoc.
+  /// \brief This will return the platform specific file data (handles etc.), if you really want to be able to wreak havoc.
   const ezOSFileData& GetFileData() const { return m_FileData; }
 
-  /// Deletes the given file. Returns EZ_SUCCESS, if the file was deleted or did not exist in the first place. Returns EZ_FAILURE
+  /// \brief Deletes the given file. Returns EZ_SUCCESS, if the file was deleted or did not exist in the first place. Returns EZ_FAILURE
   static ezResult DeleteFile(const char* szFile); // [tested]
 
-  /// Creates the given directory structure (meaning all directories in the path, that do not exist). Returns false, if any directory could not be created.
+  /// \brief Creates the given directory structure (meaning all directories in the path, that do not exist). Returns false, if any directory could not be created.
   static ezResult CreateDirectoryStructure(const char* szDirectory); // [tested]
 
-  /// Copies the source file into the destination file.
+  /// \brief Copies the source file into the destination file.
   static ezResult CopyFile(const char* szSource, const char* szDestination); // [tested]
 
 #ifdef EZ_SUPPORTS_FILE_STATS
-  /// Gets the stats about the given file or folder. Returns false, if the stats could not be determined.
+  /// \brief Gets the stats about the given file or folder. Returns false, if the stats could not be determined.
   static ezResult GetFileStats(const char* szFileOrFolder, ezFileStats& out_Stats); // [tested]
 
-  /// Useful on systems that are not strict about the casing of file names. Determines the correct name of a file.
+  /// \brief Useful on systems that are not strict about the casing of file names. Determines the correct name of a file.
   static ezResult GetFileCasing(const char* szFileOrFolder, ezStringBuilder& out_sCorrectSpelling); // [tested]
 #endif
 
@@ -190,13 +197,13 @@ private:
 
   // *************************************************************
 
-  /// Stores the mode with which the file was opened.
+  /// \brief Stores the mode with which the file was opened.
   ezFileMode::Enum m_FileMode;
 
-  /// Stores the (cleaned up) filename that was used to open the file.
+  /// \brief Stores the (cleaned up) filename that was used to open the file.
   ezStringBuilder m_sFileName;
 
-  /// Platform specific data about the open file.
+  /// \brief Platform specific data about the open file.
   ezOSFileData m_FileData;
 };
 

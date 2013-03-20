@@ -3,6 +3,7 @@
 #include <Foundation/Containers/Deque.h>
 
 /// \brief A List-class, similar to STL::list
+///
 /// This container class allows fast insertion and erasure of elements.
 /// Access is limited to iteration from front-to-back or back-to-front, there is no random-access.
 /// Define the type of object to store in the list via the template argument T.

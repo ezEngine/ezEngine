@@ -3,9 +3,9 @@
 #include <Foundation/Basics.h>
 #include <Foundation/Threading/Implementation/ThreadingDeclarations.h>
 
-/// Provides a simple mechanism for mutual exclusion to prevent multiple threads from accessing 
-/// a shared resource simultaneously. This can be used to protect code that is not thread-safe 
-/// against race conditions.
+/// \brief Provides a simple mechanism for mutual exclusion to prevent multiple threads from accessing a shared resource simultaneously. 
+///
+/// This can be used to protect code that is not thread-safe against race conditions.
 /// To ensure that mutexes are always properly released, use the scoped Lock class.
 class ezMutex
 {
@@ -13,10 +13,10 @@ public:
   ezMutex();
   ~ezMutex();
   
-  /// Attempts to acquire an exclusive lock for this mutex object
+  /// \brief Attempts to acquire an exclusive lock for this mutex object
   void Acquire();
   
-  /// Releases a lock that has been previously acquired
+  /// \brief Releases a lock that has been previously acquired
   void Release();
 
 private:

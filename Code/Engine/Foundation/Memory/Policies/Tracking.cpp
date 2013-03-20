@@ -1,7 +1,7 @@
 #include <Foundation/PCH.h>
 #include <Foundation/Memory/Policies/Tracking.h>
 
-// Clemens todo: implement stack tracking once we have a hashtable collection
+/// \todo Clemens: implement stack tracking once we have a hashtable collection
 #if 0
 #include "Utils/StackTracer.h"
 

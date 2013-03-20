@@ -6,6 +6,7 @@
 #include <Foundation/Threading/Mutex.h>
 
 /// \brief The ezFileSystem provides high-level functionality to manage files in a virtual file system.
+///
 /// There are two sides at which the file system can be extended:
 /// Data directories are the 'sources' of data. These can be simple folders, zip files, data-bases, http servers, etc.
 /// Different ezDataDirectoryType's can implement these different 'decoding methods', ie. they handle how to actually
@@ -53,6 +54,7 @@ public:
 
 public:
   /// \brief This factory creates a data directory type, if it can handle the given data directory. Otherwise it returns NULL.
+  ///
   /// Every time a data directory is supposed to be added, the file system will query its data dir factories, which one
   /// can successfully create an ezDataDirectoryType. In this process the last factory added has the highest priority.
   /// Once a factory is found that was able to create a ezDataDirectoryType, that one is used.
@@ -76,6 +78,7 @@ public:
   };
 
   /// \brief Adds a data directory. It will try all the registered factories to find a data directory type that can handle the given path.
+  ///
   /// If Usage is ReadOnly, writing to the data directory is not allowed. This is independent of whether the data directory type
   /// COULD write anything.
   /// szGroup defines to what 'group' of data directories this data dir belongs. This is only used in calls to RemoveDataDirectoryGroup,
@@ -107,16 +110,19 @@ public:
 public:
 
   /// \brief Deletes the given file from all data directories, if possible.
+  ///
   /// Files in read-only data directories will not be deleted.
   /// You can use category specifiers to only delete files from certain data directories (see AddDataDirectory).
   /// E.g. "<SETTINGS>MySettings.txt" would only delete "MySettings.txt" from data directories of the "SETTINGS" category.
   static void DeleteFile(const char* szFile);
 
   /// \brief Checks whether the given file exists in any data directory.
+  ///
   /// The search can be restricted to directories of certain categories (see AddDataDirectory).
   static bool ExistsFile(const char* szFile);
 
   /// \brief Tries to resolve the given path and returns the absolute and relative path to the final file.
+  ///
   /// If bForWriting is false, all data directories will be searched for an existing file.
   /// This is similar to what opening a file for reading does. So if there is any file that could be opened for reading,
   /// the path to that file will be returned.
@@ -137,6 +143,7 @@ private:
   friend class ezFileWriterBase;
 
   /// \brief This is used by the actual file readers (like ezFileReader) to get an abstract file reader.
+  ///
   /// It tries all data directories, to find the given file.
   /// szFile can be an absolute or relative path.
   /// If bAllowFileEvents is true, the file system will broadcast events about its activity.
@@ -145,6 +152,7 @@ private:
   static ezDataDirectory_Reader* GetFileReader(const char* szFile, bool bAllowFileEvents);
 
   /// \brief This is used by the actual file writers (like ezFileWriter) to get an abstract file writer.
+  ///
   /// It tries all data directories, to find where the given file could be written to.
   /// szFile can be an absolute or relative path.
   /// If bAllowFileEvents is true, the file system will broadcast events about its activity.

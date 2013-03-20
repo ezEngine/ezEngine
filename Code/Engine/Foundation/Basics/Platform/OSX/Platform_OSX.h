@@ -25,7 +25,7 @@ typedef timeval ezHighPrecisionTimeValue;
 typedef void* (*ezOSThreadEntryPoint)(void* pThreadParameter);
 typedef pthread_key_t ezThreadLocalStorageKey;
 
-// TODO: Detect / differentiate between GCC / CLANG?
+/// \todo Detect / differentiate between GCC / CLANG?
 #include <Foundation/Basics/Compiler/GCC/GCC.h>
 
 #define EZ_LITTLE_ENDIAN

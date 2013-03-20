@@ -3,7 +3,6 @@
 #include <Foundation/Threading/Lock.h>
 #include <Foundation/Threading/Mutex.h>
 
-// TODO: enum for color values
 #ifdef EZ_PLATFORM_WINDOWS
   static void SetConsoleColor (WORD ui)
   {

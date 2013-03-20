@@ -4,6 +4,7 @@
 #include <Foundation/Threading/AtomicUtils.h>
 
 /// \brief Base class for reference counted objects.
+///
 /// Note that no automatic deletion etc. happens, this is just to have shared base functionality for reference
 /// counted objects. The actual action which, should happen once an object is no longer referenced, obliges
 /// to the system that is using the objects.

@@ -29,11 +29,13 @@ public:
   static ezUInt32 GetSizeForCharacterInUtf8(ezUInt32 uiCharacter); // [tested]
 
   /// \brief Moves the given string pointer ahead to the next Utf8 character sequence.
+  ///
   /// The string may point to an invalid position (in between a character sequence).
   /// It may not point to a zero terminator already.
   static void MoveToNextUtf8(const char*& szUtf8, ezUInt32 uiNumCharacters = 1); // [tested]
 
   /// \brief Moves the given string pointer backwards to the previous Utf8 character sequence.
+  ///
   /// The string may point to an invalid position (in between a character sequence), or even the \0 terminator, 
   /// as long as there is a valid string before it (and the user knows when to stop).
   static void MoveToPriorUtf8(const char*& szUtf8, ezUInt32 uiNumCharacters = 1); // [tested]
@@ -42,14 +44,17 @@ public:
   static bool IsValidUtf8(const char* szString);
 
   /// \brief If the given string starts with a Utf8 Bom, the pointer is incremented behind the Bom, and the function returns true.
+  ///
   /// Otherwise the pointer is unchanged and false is returned.
   static bool SkipUtf8Bom(const char*& szUtf8); // [tested]
 
   /// \brief If the given string starts with a Utf16 little endian Bom, the pointer is incremented behind the Bom, and the function returns true.
+  ///
   /// Otherwise the pointer is unchanged and false is returned.
   static bool SkipUtf16BomLE(const ezUInt16*& szUtf16); // [tested]
 
   /// \brief If the given string starts with a Utf16 big endian Bom, the pointer is incremented behind the Bom, and the function returns true.
+  ///
   /// Otherwise the pointer is unchanged and false is returned.
   static bool SkipUtf16BomBE(const ezUInt16*& szUtf16); // [tested]
 

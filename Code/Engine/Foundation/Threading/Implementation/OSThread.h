@@ -3,6 +3,7 @@
 #include <Foundation/Basics.h>
 
 /// \brief Implementation of a thread.
+///
 /// Since the thread class needs a platform specific entrypoint it is usually
 /// recommended to use the ezThread class instead as the base for long running threads.
 class EZ_FOUNDATION_DLL ezOSThread
@@ -10,6 +11,7 @@ class EZ_FOUNDATION_DLL ezOSThread
 public:
 
   /// \brief Initializes the thread instance (e.g. thread creation etc.)
+  ///
   /// Note that the thread won't start execution until Start() is called.
   ezOSThread(ezOSThreadEntryPoint pThreadEntryPoint, void* pUserData = NULL, const char* pName = "ezOSThread", ezUInt32 uiStackSize = 128 * 1024);
 

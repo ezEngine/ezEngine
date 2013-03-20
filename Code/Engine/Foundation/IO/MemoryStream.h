@@ -29,6 +29,7 @@ private:
 };
 
 /// \brief A reader which can access a memory stream.
+///
 /// Please note that the functions exposed by this object are not thread safe! If access to the same ezMemoryStreamStorage object from
 /// multiple threads is desired please create one instance of ezMemoryStreamReader per thread.
 class EZ_FOUNDATION_DLL ezMemoryStreamReader : public ezIBinaryStreamReader
@@ -40,6 +41,7 @@ public:
   ~ezMemoryStreamReader();
 
   /// \brief Reads either uiBytesToRead or the amount of remaining bytes in the stream into pReadBuffer.
+  ///
   /// It is valid to pass NULL for pReadBuffer, in this case the memory stream position is only advanced by the given number of bytes.
   virtual ezUInt64 ReadBytes(void* pReadBuffer, ezUInt64 uiBytesToRead) EZ_OVERRIDE; // [tested]
 
@@ -61,6 +63,7 @@ private:
 };
 
 /// \brief A writer which can access a memory stream
+///
 /// Please note that the functions exposed by this object are not thread safe!
 class EZ_FOUNDATION_DLL ezMemoryStreamWriter : public ezIBinaryStreamWriter
 {
@@ -71,6 +74,7 @@ public:
   ~ezMemoryStreamWriter();
 
   /// \brief Copies uiBytesToWrite from pWriteBuffer into the memory stream.
+  ///
   /// pWriteBuffer must be a valid buffer and must hold that much data.
   virtual ezResult WriteBytes(const void* pWriteBuffer, ezUInt64 uiBytesToWrite) EZ_OVERRIDE; // [tested]
 
