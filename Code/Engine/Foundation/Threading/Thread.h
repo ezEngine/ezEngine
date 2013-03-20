@@ -19,13 +19,13 @@
 
 EZ_THREAD_CLASS_ENTRY_POINT;
 
-/// This class is the base class for platform independent long running threads
+/// \brief This class is the base class for platform independent long running threads
 /// Used by deriving from this class and overriding the Run() method.
 class EZ_FOUNDATION_DLL ezThread : public ezOSThread
 {
 public:
 
-  /// Describes the thread status
+  /// \brief Describes the thread status
   enum ezThreadStatus
   {
     Created = 0,
@@ -33,30 +33,29 @@ public:
     Finished
   };
 
-  /// Initializes the runnable class
+  /// \brief Initializes the runnable class
   ezThread(const char* pName = "ezThread", ezUInt32 uiStackSize = 128 * 1024)
     : ezOSThread(ezThreadClassEntryPoint, this, pName, uiStackSize), m_ThreadStatus(Created)
   {
   }
 
-  /// Destructor (used to check if the thread is deleted while still running, which is not allowed as this is a data hazard)
+  /// \brief Destructor (used to check if the thread is deleted while still running, which is not allowed as this is a data hazard)
   virtual ~ezThread()
   {
     EZ_ASSERT(!IsRunning(), "Thread deletion while still running detected!");
   }
 
 
-  /// The run function can be used to implement a long running task in a thread
-  /// in a platform independent way
+  /// \brief The run function can be used to implement a long running task in a thread in a platform independent way
   virtual ezUInt32 Run() = 0;
 
-  /// Returns the thread status
+  /// \brief Returns the thread status
   ezThreadStatus GetThreadStatus() const
   {
     return m_ThreadStatus;
   }
 
-  /// Helper function to determine if the thread is running
+  /// \brief Helper function to determine if the thread is running
   bool IsRunning() const
   {
     return m_ThreadStatus == Running;

@@ -15,19 +15,20 @@
 #define ezMath_LargeEpsilon     0.0001f
 #define ezMath_HugeEpsilon      0.001f
 
-/// Simple helper union to store ints and floats to modify their bit patterns.
+/// \brief Simple helper union to store ints and floats to modify their bit patterns.
 union ezIntFloatUnion
 {
   ezUInt32 i;
   float f;
 };
 
+/// \brief Enum to describe which memory layout is used to store a matrix in a float array.
 struct ezMatrixLayout
 {
   enum Enum
   {
-    RowMajor,
-    ColumnMajor
+    RowMajor,     ///< The matrix is store in row-major format.
+    ColumnMajor   ///< The matrix is store in column-major format.
   };
 };
 

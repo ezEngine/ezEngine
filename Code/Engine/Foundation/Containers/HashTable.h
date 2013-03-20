@@ -11,29 +11,29 @@ private:
   struct Entry;
 
 public:
-  /// Const iterator.
+  /// \brief Const iterator.
   class ConstIterator
   {
   public:
-    /// Checks whether this iterator points to a valid element.
+    /// \brief Checks whether this iterator points to a valid element.
     bool IsValid() const;
 
-    /// Checks whether the two iterators point to the same element.
+    /// \brief Checks whether the two iterators point to the same element.
     bool operator==(const typename ezHashTableBase<KeyType, ValueType, Hasher>::ConstIterator& it2) const;
 
-    /// Checks whether the two iterators point to the same element.
+    /// \brief Checks whether the two iterators point to the same element.
     bool operator!=(const typename ezHashTableBase<KeyType, ValueType, Hasher>::ConstIterator& it2) const;
 
-    /// Returns the 'key' of the element that this iterator points to.
+    /// \brief Returns the 'key' of the element that this iterator points to.
     const KeyType& Key() const;
 
-    /// Returns the 'value' of the element that this iterator points to.
+    /// \brief Returns the 'value' of the element that this iterator points to.
     const ValueType& Value() const;
 
-    /// Advances the iterator to the next element in the map. The iterator will not be valid anymore, if the end is reached.
+    /// \brief Advances the iterator to the next element in the map. The iterator will not be valid anymore, if the end is reached.
     void Next();
 
-    /// Shorthand for 'Next'
+    /// \brief Shorthand for 'Next'
     void operator++();
 
   protected:
@@ -46,10 +46,10 @@ public:
     ezUInt32 m_uiCurrentCount; // current number of valid elements that this iterator has found so far.
   };
 
-  /// Iterator with write access
+  /// \brief Iterator with write access.
   struct Iterator : public ConstIterator
   {
-    /// Returns the 'value' of the element that this iterator points to.
+    /// \brief Returns the 'value' of the element that this iterator points to.
     ValueType& Value();
 
   private:
@@ -59,61 +59,62 @@ public:
   };
 
 protected:
-  /// Creates an empty hashtable. Does not allocate any data yet.
+  /// \brief Creates an empty hashtable. Does not allocate any data yet.
   ezHashTableBase(ezIAllocator* pAllocator); // [tested]
   
-  /// Creates a copy of the given hashtable.
+  /// \brief Creates a copy of the given hashtable.
   ezHashTableBase(const ezHashTableBase<KeyType, ValueType, Hasher>& rhs, ezIAllocator* pAllocator); // [tested]
 
+  /// \brief Destructor.
   ~ezHashTableBase(); // [tested]
 
-  /// Copies the data from another hashtable into this one.
+  /// \brief Copies the data from another hashtable into this one.
   void operator= (const ezHashTableBase<KeyType, ValueType, Hasher>& rhs); // [tested]
 
 public:
-  /// Expands the hashtable by over-allocated the internal storage so that the load factor is lower or equal to 60% 
-  /// when inserting the given number of entries.
+  /// \brief Expands the hashtable by over-allocated the internal storage so that the load factor is lower or equal to 60% when inserting the given number of entries.
   void Reserve(ezUInt32 uiCapacity); // [tested]
 
-  /// Tries to compact the hashtable to avoid wasting memory. The resulting capacity is at least 'GetCount' (no elements get removed). 
+  /// \brief Tries to compact the hashtable to avoid wasting memory.
+  /// The resulting capacity is at least 'GetCount' (no elements get removed). 
   /// Will deallocate all data, if the hashtable is empty.
   void Compact(); // [tested]
 
-  /// Returns the number of active entries in the table.
+  /// \brief Returns the number of active entries in the table.
   ezUInt32 GetCount() const; // [tested]
 
-  /// Returns true, if the hashtable does not contain any elements.
+  /// \brief Returns true, if the hashtable does not contain any elements.
   bool IsEmpty() const; // [tested]
 
-  /// Clears the table.
+  /// \brief Clears the table.
   void Clear(); // [tested]
 
-  /// Inserts the key value pair or replaces value if an entry with the given key already exists. 
+  /// \brief Inserts the key value pair or replaces value if an entry with the given key already exists. 
   /// Returns if an existing value was replaced and optionally writes out the old value to out_oldValue.
   bool Insert(const KeyType& key, const ValueType& value, ValueType* out_oldValue = NULL); // [tested]
 
-  /// Removes the entry with the given key. Returns if an entry was removed and optionally writes out the old value to out_oldValue.
+  /// \brief Removes the entry with the given key. Returns if an entry was removed and optionally writes out the old value to out_oldValue.
   bool Remove(const KeyType& key, ValueType* out_oldValue = NULL); // [tested]
 
-  /// Returns if an entry with the given key was found and if found writes out the corresponding value to out_value.
+  /// \brief Returns if an entry with the given key was found and if found writes out the corresponding value to out_value.
   bool TryGetValue(const KeyType& key, ValueType& out_value) const; // [tested]
 
-  /// Returns if an entry with the given key was found and if found writes out the pointer to the corresponding value to out_pValue.
+  /// \brief Returns if an entry with the given key was found and if found writes out the pointer to the corresponding value to out_pValue.
   bool TryGetValue(const KeyType& key, ValueType*& out_pValue) const; // [tested]
   
-  /// Returns the value to the given key if found or creates a new entry with the given key and a default constructed value.
+  /// \brief Returns the value to the given key if found or creates a new entry with the given key and a default constructed value.
   ValueType& operator[](const KeyType& key); // [tested]
 
-  /// Returns if an entry with given key exists in the table.
+  /// \brief Returns if an entry with given key exists in the table.
   bool KeyExists(const KeyType& key) const; // [tested]
 
-  /// Returns an Iterator to the very first element.
+  /// \brief Returns an Iterator to the very first element.
   Iterator GetIterator(); // [tested]
 
-  /// Returns a constant Iterator to the very first element.
+  /// \brief Returns a constant Iterator to the very first element.
   ConstIterator GetIterator() const; // [tested]
 
-  /// Returns the allocator that is used by this instance.
+  /// \brief Returns the allocator that is used by this instance.
   ezIAllocator* GetAllocator() const;
 
 private:
@@ -156,7 +157,7 @@ private:
   void MarkEntryAsDeleted(ezUInt32 uiEntryIndex);
 };
 
-
+/// \brief \see ezHashTableBase
 template <typename KeyType, typename ValueType, typename Hasher = ezHashHelper<KeyType>, typename AllocatorWrapper = ezDefaultAllocatorWrapper>
 class ezHashTable : public ezHashTableBase<KeyType, ValueType, Hasher>
 {

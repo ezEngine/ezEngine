@@ -1,10 +1,10 @@
 #ifndef EZ_INCLUDE_STATIC_H
-#error Please do not include this file directly.
+  #error Please do not include this file directly.
 #endif
 
 #pragma once
 
-/// A small helper class to be able to construct global objects and static members that require a memory allocator.
+/// \brief A small helper class to be able to construct global objects and static members that require a memory allocator.
 /// By default all accesses to a memory allocator before program startup will trigger an assert.
 /// Otherwise global objects would either use the wrong allocator (not yet specified) or they would show false positives
 /// in the memory leak tracker, since they are usually not deallocated before application shutdown.
@@ -21,19 +21,21 @@ template <typename T>
 class ezStatic
 {
 public:
+
+  /// \brief Constructor.
   ezStatic() : m_SetStaticAllocator(), m_Data() // will be initialized in exactly that order, sets the allocators to the static allocator
   {
     ezFoundation::PopStaticAllocator(); // reset the allocators to their original state
   }
 
-  /// Returns the internal object.
+  /// \brief Returns the internal object.
   EZ_FORCE_INLINE T& GetStatic() { return m_Data; }
 
-  /// Returns the internal object.
+  /// \brief Returns the internal object.
   EZ_FORCE_INLINE const T& GetStatic() const { return m_Data; }
 
 private:
-  /// Helper struct, which will execute 'ezFoundation::PushStaticAllocator' upon construction.
+  /// \brief Helper struct, which will execute 'ezFoundation::PushStaticAllocator' upon construction.
   struct ezSetStaticAllocatorHelper
   {
     ezSetStaticAllocatorHelper()
@@ -42,10 +44,10 @@ private:
     }
   };
 
-  /// This must be the first member, it will ensure that the second member will get the static allocator during its construction.
+  /// \brief This must be the first member, it will ensure that the second member will get the static allocator during its construction.
   ezSetStaticAllocatorHelper m_SetStaticAllocator;
 
-  /// The actual object that should be constructed, which is supposed to get the static allocator
+  /// \brief The actual object that should be constructed, which is supposed to get the static allocator
   T m_Data;
 };
 

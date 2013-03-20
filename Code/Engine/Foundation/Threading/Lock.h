@@ -1,6 +1,6 @@
 #pragma once
 
-/// Manages a lock (e.g. a mutex) and ensures that it is properly released as the lock object goes out of scope.
+/// \brief Manages a lock (e.g. a mutex) and ensures that it is properly released as the lock object goes out of scope.
 template <typename T>
 class ezLock
 {

@@ -17,7 +17,7 @@
 #define EZ_GLOBALEVENT_UNLOAD_MODULE_BEGIN "ezStartup_UnloadModule_Begin"
 #define EZ_GLOBALEVENT_UNLOAD_MODULE_END "ezStartup_UnloadModule_End"
 
-/// The startup system makes sure to initialize and shut down all known subsystems in the proper order.
+/// \brief The startup system makes sure to initialize and shut down all known subsystems in the proper order.
 /// Each subsystem can define on which other subsystems it is dependent (ie. which other code it needs in an initialized
 /// state, before it can run itself). The startup system will sort all subsystems by their dependencies and then initialize
 /// them in the proper order.
@@ -74,37 +74,37 @@ public:
   // and those subsystems should not have any dependencies on each other.
   // 'Base Startup' is automatically done right before 'Core Startup'
 
-  /// Runs the 'base' startup sequence of all subsystems in the proper order.
+  /// \brief Runs the 'base' startup sequence of all subsystems in the proper order.
   static void StartupBase() { Startup(ezStartupStage::Base); }
 
-  /// Runs the 'base' shutdown sequence of all subsystems in the proper order (reversed startup order).
+  /// \brief Runs the 'base' shutdown sequence of all subsystems in the proper order (reversed startup order).
   /// Makes sure that the 'core' shutdown has been run first.
   static void ShutdownBase() { Shutdown(ezStartupStage::Base); }
 
-  /// Runs the 'core' startup sequence of all subsystems in the proper order.
+  /// \brief Runs the 'core' startup sequence of all subsystems in the proper order.
   /// Broadcasts the global event EZ_GLOBALEVENT_STARTUP_CORE_BEGIN and EZ_GLOBALEVENT_STARTUP_CORE_END
   static void StartupCore() { Startup(ezStartupStage::Core); }
 
-  /// Runs the 'core' shutdown sequence of all subsystems in the proper order (reversed startup order).
+  /// \brief Runs the 'core' shutdown sequence of all subsystems in the proper order (reversed startup order).
   /// Makes sure that the 'engine' shutdown has been run first.
   /// Broadcasts the global event EZ_GLOBALEVENT_SHUTDOWN_CORE_BEGIN and EZ_GLOBALEVENT_SHUTDOWN_CORE_END
   static void ShutdownCore() { Shutdown(ezStartupStage::Core); }
 
-  /// Runs the 'engine' startup sequence of all subsystems in the proper order.
+  /// \brief Runs the 'engine' startup sequence of all subsystems in the proper order.
   /// Makes sure that the 'core' initialization has been run first.
   /// Broadcasts the global event EZ_GLOBALEVENT_STARTUP_ENGINE_BEGIN and EZ_GLOBALEVENT_STARTUP_ENGINE_END
   static void StartupEngine() { Startup(ezStartupStage::Engine); }
 
-  /// Runs the 'core' shutdown sequence of all subsystems in the proper order (reversed startup order).
+  /// \brief Runs the 'core' shutdown sequence of all subsystems in the proper order (reversed startup order).
   /// Broadcasts the global event EZ_GLOBALEVENT_SHUTDOWN_ENGINE_BEGIN and EZ_GLOBALEVENT_SHUTDOWN_ENGINE_END
   static void ShutdownEngine() { Shutdown(ezStartupStage::Engine); }
 
-  /// Unloads all subsystems from the given module AND all subsystems that directly or indirectly depend on them.
+  /// \brief Unloads all subsystems from the given module AND all subsystems that directly or indirectly depend on them.
   /// This can be used to shutdown all systems from certain DLLs before that DLL is unloaded (and possibly reloaded).
   /// Broadcasts the global event EZ_GLOBALEVENT_UNLOAD_MODULE_BEGIN and EZ_GLOBALEVENT_UNLOAD_MODULE_END and passes szModuleName in the first event parameter.
   static void UnloadModuleSubSystems(const char* szModuleName);
 
-  /// Output info about all known subsystems via the logging system (can change when DLLs are loaded dynamically).
+  /// \brief Output info about all known subsystems via the logging system (can change when DLLs are loaded dynamically).
   static void PrintAllSubsystems();
 
 private:

@@ -12,10 +12,10 @@
 
 #include <Foundation/Threading/Mutex.h>
 
-/// Default heap allocator without guard bounds checking and with simple tracking
+/// \brief Default heap allocator without guard bounds checking and with simple tracking
 typedef ezAllocator<ezMemoryPolicies::ezHeapAllocation, ezMemoryPolicies::ezNoBoundsChecking, 
   ezMemoryPolicies::ezSimpleTracking, ezNoMutex> ezHeapAllocator;
 
-/// Proxy allocator with simple tracking
+/// \brief Proxy allocator with simple tracking
 typedef ezAllocator<ezMemoryPolicies::ezProxyAllocation, ezMemoryPolicies::ezNoBoundsChecking, 
   ezMemoryPolicies::ezSimpleTracking, ezNoMutex> ezProxyAllocator;

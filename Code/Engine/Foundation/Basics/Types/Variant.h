@@ -2,7 +2,7 @@
 
 #include <Foundation/Memory/MemoryUtils.h>
 
-/// A simple variant type that can hold an int, bool, const char*, void* or float.
+/// \briefA simple variant type that can hold an int, bool, const char*, void* or float.
 class ezVariant
 {
 public:

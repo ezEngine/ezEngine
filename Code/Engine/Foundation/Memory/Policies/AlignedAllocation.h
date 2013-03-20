@@ -5,7 +5,7 @@
 
 namespace ezMemoryPolicies
 {
-  /// Allocation Wrapper to support custom alignment per allocation
+  /// \brief Allocation Wrapper to support custom alignment per allocation
   template <typename T>
   class ezAlignedAllocation
   {

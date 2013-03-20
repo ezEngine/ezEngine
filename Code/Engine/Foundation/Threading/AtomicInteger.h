@@ -3,32 +3,32 @@
 #include <Foundation/Basics/TypeTraits.h>
 #include <Foundation/Threading/AtomicUtils.h>
 
-/// Integer class that can be manipulated in an atomic (i.e. thread-safe) fashion.
+/// \brief Integer class that can be manipulated in an atomic (i.e. thread-safe) fashion.
 template <typename T>
 class ezAtomicInteger
 {
 public:
   EZ_DECLARE_POD_TYPE();
 
-  /// Default constructor
+  /// \brief Default constructor
   ezAtomicInteger(); // [tested]
 
-  /// Initializes the object with a value
+  /// \brief Initializes the object with a value
   ezAtomicInteger(const T value); // [tested]
 
-  /// Copy-constructor
+  /// \brief Copy-constructor
   ezAtomicInteger(const ezAtomicInteger<T>& value); // [tested]
 
-  /// Assigns a new integer value to this object
+  /// \brief Assigns a new integer value to this object
   ezAtomicInteger& operator=(T value); // [tested]
 
-  /// Assignment operator
+  /// \brief Assignment operator
   ezAtomicInteger& operator=(const ezAtomicInteger& value); // [tested]
 
-  /// Increments the internal value and returns the incremented value
+  /// \brief Increments the internal value and returns the incremented value
   T Increment(); // [tested]
 
-  /// Decrements the internal value and returns the decremented value
+  /// \brief Decrements the internal value and returns the decremented value
   T Decrement(); // [tested]
 
   void Add(T x); // [tested]
@@ -41,7 +41,7 @@ public:
   void Min(T x); // [tested]
   void Max(T x); // [tested]
 
-  /// Replaces the internal value with x and returns the original internal value.
+  /// \brief Replaces the internal value with x and returns the original internal value.
   T Swap(T x);
 
   operator T() const;

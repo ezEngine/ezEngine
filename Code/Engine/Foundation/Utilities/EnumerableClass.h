@@ -2,9 +2,8 @@
 
 #include <Foundation/Basics.h>
 
-/// This started out as a nice clean templated class. However you cannot pass linkage information (dllimport / dllexport)
-/// to templates, which is quite important to make enumerable classes available from/to DLLs. So it was then converted
-/// to an ugly macro, which does the same as the template: it creates a new class-type that has the static information
+/// \brief Base class to add the ability to another class to enumerate all active instance of it, across DLL boundaries.
+/// This creates a new class-type that has the static information
 /// about all instances that were created from that class. Another class now only has to derive from that class and will
 /// then gain the ability to count and enumerate its instances.
 ///
@@ -23,7 +22,6 @@
 ///   EZ_ENUMERABLE_CLASS_IMPLEMENTATION(A);
 ///
 /// That's it, now the class instances can be enumerated with 'GetFirstInstance' and 'GetNextInstance'
-
 template <typename Derived>
 class ezEnumerable
 {

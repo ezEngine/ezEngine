@@ -5,7 +5,7 @@
 #include <Foundation/Communication/Event.h>
 #include <Foundation/Threading/Mutex.h>
 
-/// The ezFileSystem provides high-level functionality to manage files in a virtual file system.
+/// \brief The ezFileSystem provides high-level functionality to manage files in a virtual file system.
 /// There are two sides at which the file system can be extended:
 /// Data directories are the 'sources' of data. These can be simple folders, zip files, data-bases, http servers, etc.
 /// Different ezDataDirectoryType's can implement these different 'decoding methods', ie. they handle how to actually
@@ -39,20 +39,20 @@
 class EZ_FOUNDATION_DLL ezFileSystem
 {
 public:
-  /// Enum that describes the type of file-event that occured.
+  /// \brief Enum that describes the type of file-event that occured.
   struct FileEventType;
 
-  /// The data that is sent through the event interface.
+  /// \brief The data that is sent through the event interface.
   struct FileEvent;
 
-  /// Registers an Event Handler that will be informed about all the events that the file system broadcasts.
+  /// \brief Registers an Event Handler that will be informed about all the events that the file system broadcasts.
   static void RegisterEventHandler(ezEvent<const FileEvent&>::ezEventHandler Handler, void* pPassThrough);
 
-  /// Unregisters a previously registered Event Handler.
+  /// \brief Unregisters a previously registered Event Handler.
   static void UnregisterEventHandler(ezEvent<const FileEvent&>::ezEventHandler Handler, void* pPassThrough);
 
 public:
-  /// This factory creates a data directory type, if it can handle the given data directory. Otherwise it returns NULL.
+  /// \brief This factory creates a data directory type, if it can handle the given data directory. Otherwise it returns NULL.
   /// Every time a data directory is supposed to be added, the file system will query its data dir factories, which one
   /// can successfully create an ezDataDirectoryType. In this process the last factory added has the highest priority.
   /// Once a factory is found that was able to create a ezDataDirectoryType, that one is used.
@@ -62,20 +62,20 @@ public:
   /// can provide data from very different sources.
   typedef ezDataDirectoryType* (*ezDataDirFactory)(const char* szDataDirectory);
 
-  /// This function allows to register another data directory factory, which might be invoked when a new data directory is to be added.
+  /// \brief This function allows to register another data directory factory, which might be invoked when a new data directory is to be added.
   static void RegisterDataDirectoryFactory(ezDataDirFactory Factory) { s_Data->m_DataDirFactories.Push(Factory); }
 
-  /// Will remove all known data directory factories.
+  /// \brief Will remove all known data directory factories.
   static void ClearAllDataDirectoryFactories() { s_Data->m_DataDirFactories.Clear(); }
 
-  /// Describes in which mode a data directory is mounted.
+  /// \brief Describes in which mode a data directory is mounted.
   enum DataDirUsage
   {
     ReadOnly,
     AllowWrites,
   };
 
-  /// Adds a data directory. It will try all the registered factories to find a data directory type that can handle the given path.
+  /// \brief Adds a data directory. It will try all the registered factories to find a data directory type that can handle the given path.
   /// If Usage is ReadOnly, writing to the data directory is not allowed. This is independent of whether the data directory type
   /// COULD write anything.
   /// szGroup defines to what 'group' of data directories this data dir belongs. This is only used in calls to RemoveDataDirectoryGroup,
@@ -92,31 +92,31 @@ public:
   /// If you want a data directory to belong to several different categories, just mount it several times with different categories.
   static ezResult AddDataDirectory(const char* szDataDirectory, DataDirUsage Usage = AllowWrites, const char* szGroup = "", const char* szCategory = "");
 
-  /// Removes all data directories that belong to the given group. Returns the number of data directories that were removed.
+  /// \brief Removes all data directories that belong to the given group. Returns the number of data directories that were removed.
   static ezUInt32 RemoveDataDirectoryGroup(const char* szGroup);
 
-  /// Removes all data directories.
+  /// \brief Removes all data directories.
   static void ClearAllDataDirectories();
 
-  /// Returns the number of currently active data directories.
+  /// \brief Returns the number of currently active data directories.
   static ezUInt32 GetNumDataDirectories();
 
-  /// Returns the n-th currently active data directory.
+  /// \brief Returns the n-th currently active data directory.
   static ezDataDirectoryType* GetDataDirectory(ezUInt32 uiDataDirIndex);
 
 public:
 
-  /// Deletes the given file from all data directories, if possible.
+  /// \brief Deletes the given file from all data directories, if possible.
   /// Files in read-only data directories will not be deleted.
   /// You can use category specifiers to only delete files from certain data directories (see AddDataDirectory).
   /// E.g. "<SETTINGS>MySettings.txt" would only delete "MySettings.txt" from data directories of the "SETTINGS" category.
   static void DeleteFile(const char* szFile);
 
-  /// Checks whether the given file exists in any data directory.
+  /// \brief Checks whether the given file exists in any data directory.
   /// The search can be restricted to directories of certain categories (see AddDataDirectory).
   static bool ExistsFile(const char* szFile);
 
-  /// Tries to resolve the given path and returns the absolute and relative path to the final file.
+  /// \brief Tries to resolve the given path and returns the absolute and relative path to the final file.
   /// If bForWriting is false, all data directories will be searched for an existing file.
   /// This is similar to what opening a file for reading does. So if there is any file that could be opened for reading,
   /// the path to that file will be returned.
@@ -136,7 +136,7 @@ private:
   friend class ezFileReaderBase;
   friend class ezFileWriterBase;
 
-  /// This is used by the actual file readers (like ezFileReader) to get an abstract file reader.
+  /// \brief This is used by the actual file readers (like ezFileReader) to get an abstract file reader.
   /// It tries all data directories, to find the given file.
   /// szFile can be an absolute or relative path.
   /// If bAllowFileEvents is true, the file system will broadcast events about its activity.
@@ -144,7 +144,7 @@ private:
   /// itself, which should not trigger an endless recursion of file events.
   static ezDataDirectory_Reader* GetFileReader(const char* szFile, bool bAllowFileEvents);
 
-  /// This is used by the actual file writers (like ezFileWriter) to get an abstract file writer.
+  /// \brief This is used by the actual file writers (like ezFileWriter) to get an abstract file writer.
   /// It tries all data directories, to find where the given file could be written to.
   /// szFile can be an absolute or relative path.
   /// If bAllowFileEvents is true, the file system will broadcast events about its activity.
@@ -156,17 +156,17 @@ private:
 private:
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(Foundation, FileSystem);
 
-  /// Called by the Startup System to initialize the file system
+  /// \brief Called by the Startup System to initialize the file system
   static void Startup();
 
-  /// Called by the Startup System to shutdown the file system
+  /// \brief Called by the Startup System to shutdown the file system
   static void Shutdown();
 
 private:
-  /// Returns a list of data directory categories that were embedded in the path.
+  /// \brief Returns a list of data directory categories that were embedded in the path.
   static const char* ExtractDataDirsToSearch(const char* szPath, ezHybridArray<ezString, 4>& SearchDirs);
 
-  // Returns the given path relative to its data directory. The path must be inside the given data directory.
+  /// \brief Returns the given path relative to its data directory. The path must be inside the given data directory.
   static const char* GetDataDirRelativePath(const char* szPath, ezUInt32 uiDataDir);
 
   struct DataDirectory
@@ -189,7 +189,7 @@ private:
   static FileSystemData* s_Data;
 };
 
-/// Describes the type of events that are broadcasted by the ezFileSystem.
+/// \brief Describes the type of events that are broadcasted by the ezFileSystem.
 struct ezFileSystem::FileEventType
 {
   enum Enum
@@ -209,20 +209,20 @@ struct ezFileSystem::FileEventType
   };
 };
 
-/// The event data that is broadcasted by the ezFileSystem upon certain file operations.
+/// \brief The event data that is broadcasted by the ezFileSystem upon certain file operations.
 struct ezFileSystem::FileEvent
 {
   FileEvent();
 
-  /// The exact event that occured.
+  /// \brief The exact event that occured.
   ezFileSystem::FileEventType::Enum m_EventType;
 
-  /// Path to the file or directory that was involved.
+  /// \brief Path to the file or directory that was involved.
   const char* m_szFileOrDirectory;
 
-  /// Additional Path / Name that might be of interest.
+  /// \brief Additional Path / Name that might be of interest.
   const char* m_szOther;
 
-  /// The data-directory, that was involved.
+  /// \brief The data-directory, that was involved.
   const ezDataDirectoryType* m_pDataDir;
 };

@@ -5,24 +5,25 @@
 #include <Foundation/Algorithm/Comparer.h>
 #include <Foundation/Math/Math.h>
 
+/// \brief This class provides implementations of different sorting algorithms.
 template <typename Comparer>
 class ezSorting
 {
 public:
-  /// Sorts the elements in container using a in-place quick sort implementation (not stable)
+  /// \brief Sorts the elements in container using a in-place quick sort implementation (not stable).
   template <typename Container>
   static void QuickSort(Container& container); 
 
-  /// Sorts the elements in the array using a in-place quick sort implementation (not stable)
+  /// \brief Sorts the elements in the array using a in-place quick sort implementation (not stable).
   template <typename T>
   static void QuickSort(ezArrayPtr<T>& arrayPtr);
 
 
-  /// Sorts the elements in container using insertion sort (stable and in-place)
+  /// \brief Sorts the elements in container using insertion sort (stable and in-place).
   template <typename Container>
   static void InsertionSort(Container& container);
 
-  /// Sorts the elements in the array using insertion sort (stable and in-place)
+  /// \brief Sorts the elements in the array using insertion sort (stable and in-place).
   template <typename T>
   static void InsertionSort(ezArrayPtr<T>& arrayPtr);
 

@@ -87,8 +87,8 @@ void ezMat3::SetLookInDirectionMatrix (ezVec3 vLookDir, ezVec3 vUpDir)
   SetColumn(1, vUpDir);
   SetColumn(2, vLookDir);
 
-  // TODO: At some point we need to define a default coordinate system to use.
-  // I don't really know whether this code works (or better: how).
-  // It should probably use an OpenGL or DirectX coordinate system, not sure what exactly.
-  // The first guy to use it, will find it out.
+  /// \todo At some point we need to define a default coordinate system to use.
+  /// I don't really know whether this code works (or better: how).
+  /// It should probably use an OpenGL or DirectX coordinate system, not sure what exactly.
+  /// The first guy to use it, will find it out.
 }

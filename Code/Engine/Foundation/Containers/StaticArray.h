@@ -6,39 +6,39 @@ template <typename T, ezUInt32 Capacity>
 class ezStaticArray : public ezArrayBase<T, ezStaticArray<T, Capacity> >
 {
 public:
-  /// Creates an empty array.
+  /// \brief Creates an empty array.
   ezStaticArray(); // [tested]
 
-  /// Creates a copy of the given array.
+  /// \brief Creates a copy of the given array.
   ezStaticArray(const ezStaticArray<T, Capacity>& rhs); // [tested]
 
-  /// Creates a copy of the given array.
+  /// \brief Creates a copy of the given array.
   template<ezUInt32 OtherCapacity>
   ezStaticArray(const ezStaticArray<T, OtherCapacity>& rhs); // [tested]
 
-  /// Creates a copy of the given array.
+  /// \brief Creates a copy of the given array.
   explicit ezStaticArray(const ezArrayPtr<T>& rhs); // [tested]
 
-  /// Destroys all objects.
+  /// \brief Destroys all objects.
   ~ezStaticArray(); // [tested]
   
-  /// Copies the data from some other contiguous array into this one.
+  /// \brief Copies the data from some other contiguous array into this one.
   void operator= (const ezStaticArray<T, Capacity>& rhs); // [tested]
 
-  /// Copies the data from some other contiguous array into this one.
+  /// \brief Copies the data from some other contiguous array into this one.
   template<ezUInt32 OtherCapacity>
   void operator= (const ezStaticArray<T, OtherCapacity>& rhs); // [tested]
 
-  /// Copies the data from some other contiguous array into this one.
+  /// \brief Copies the data from some other contiguous array into this one.
   void operator= (const ezArrayPtr<T>& rhs); // [tested]
   
-  /// Resizes the array to have exactly uiCount elements. Default constructs extra elements if the array is grown.
+  /// \brief Resizes the array to have exactly uiCount elements. Default constructs extra elements if the array is grown.
   void SetCount(ezUInt32 uiCount); // [tested]
 
 private:
   T* GetStaticArray();
 
-  /// The fixed size array.
+  /// \brief The fixed size array.
   struct : ezAligned<EZ_ALIGNMENT_OF(T)>
   {
     ezUInt8 m_Data[Capacity * sizeof(T)];

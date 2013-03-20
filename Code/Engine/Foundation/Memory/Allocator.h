@@ -5,7 +5,7 @@
 #include <Foundation/Threading/Lock.h>
 #include <Foundation/Threading/ThreadUtils.h>
 
-/// policy based allocator implementation
+/// \brief policy based allocator implementation
 template <typename AllocationPolicy, typename BoundsCheckingPolicy, typename TrackingPolicy, 
   typename MutexType>
 class ezAllocator : public ezIAllocator

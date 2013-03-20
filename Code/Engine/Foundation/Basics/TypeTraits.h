@@ -15,25 +15,24 @@ typedef ezTraitInt<0> ezTypeIsClass;
 typedef char ezCompileTimeTrueType;
 typedef int ezCompileTimeFalseType;
 
-/// Default == operator for T and TypeIsPod which returns a CompileTimeFalseType.
+/// \brief Default == operator for T and TypeIsPod which returns a CompileTimeFalseType.
 template <typename T>
 ezCompileTimeFalseType operator==(const T&, const ezTypeIsPod&);
 
-/// if there is an == operator which takes a TypeIsPod and returns a CompileTimeTrueType T
-/// is Pod. Default == operator return false.
+/// \brief If there is an == operator which takes a TypeIsPod and returns a CompileTimeTrueType T is Pod. Default == operator return false.
 template <typename T>
 struct ezIsPodType : public ezTraitInt<(sizeof(*((T*)0) == *((const ezTypeIsPod*)0)) == 
   sizeof(ezCompileTimeTrueType)) ? 1 : 0> { };
 
-/// pointers are pod types
+/// \brief Pointers are POD types.
 template <typename T> 
 struct ezIsPodType<T*> : public ezTypeIsPod { };
 
-/// arrays are pod types
+/// \brief arrays are POD types
 template <typename T, int N>
 struct ezIsPodType<T[N]> : public ezTypeIsPod { };
 
-/// Static Conversion Test
+/// \brief Static Conversion Test
 template <typename From, typename To>
 struct ezConversionTest
 {
@@ -48,7 +47,7 @@ struct ezConversionTest
   };
 };
 
-/// Specialization for above type
+/// \brief Specialization for above Type.
 template <typename T>
 struct ezConversionTest<T, T>
 {
@@ -60,11 +59,11 @@ struct ezConversionTest<T, T>
 };
 
 
-/// declares a special == operator for Pod Types. Note the implementation is not needed.
+/// \brief Declares a special == operator for Pod Types. Note that the implementation is not needed.
 #define EZ_DECLARE_POD_TYPE() \
   ezCompileTimeTrueType operator==(const ezTypeIsPod&) const
 
-/// define a type T as Pod
+/// \brief Defines a type T as Pod.
 #define EZ_DEFINE_AS_POD_TYPE(T) \
   template<> struct ezIsPodType<T> : public ezTypeIsPod { };
 
@@ -82,7 +81,7 @@ EZ_DEFINE_AS_POD_TYPE(ezUInt32);
 EZ_DEFINE_AS_POD_TYPE(ezUInt64);
 EZ_DEFINE_AS_POD_TYPE(wchar_t);
 
-/// check inheritance at compile time
+/// \brief Checks inheritance at compile time.
 #define EZ_IS_DERIVED_FROM_STATIC(BaseClass, DerivedClass) \
   (ezConversionTest<const DerivedClass*, const BaseClass*>::exists && \
   !ezConversionTest<const BaseClass*, const void*>::sameType)

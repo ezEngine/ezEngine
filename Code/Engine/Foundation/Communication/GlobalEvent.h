@@ -5,7 +5,7 @@
 #include <Foundation/Strings/String.h>
 #include <Foundation/Utilities/EnumerableClass.h>
 
-/// A class to broadcast and handle global (system-wide) events.
+/// \brief A class to broadcast and handle global (system-wide) events.
 /// A global event is an event that will be sent to all instances of ezGlobalEvent (or rather their
 /// respective handler functions), without the need to first register these event-handlers anywhere.
 /// Thus they are very useful to notify sub-systems of certain important events, such as that some kind of
@@ -34,20 +34,20 @@ class EZ_FOUNDATION_DLL ezGlobalEvent : public ezEnumerable<ezGlobalEvent>
 
 public:
 
-  /// [internal] Use the macro EZ_ON_GLOBAL_EVENT or EZ_ON_GLOBAL_EVENT_ONCE to create an event handler.
+  /// \brief [internal] Use the macro EZ_ON_GLOBAL_EVENT or EZ_ON_GLOBAL_EVENT_ONCE to create an event handler.
   typedef void (*EZ_GLOBAL_EVENT_HANDLER)(const ezVariant& param0, const ezVariant& param1, const ezVariant& param2, const ezVariant& param3);
 
-  /// [internal] Use the macro EZ_ON_GLOBAL_EVENT or EZ_ON_GLOBAL_EVENT_ONCE to create an event handler.
+  /// \brief [internal] Use the macro EZ_ON_GLOBAL_EVENT or EZ_ON_GLOBAL_EVENT_ONCE to create an event handler.
   ezGlobalEvent(const char* szEventName, EZ_GLOBAL_EVENT_HANDLER EventHandler, bool bOnlyOnce); // [tested]
 
-  /// Destructor.
+  /// \brief Destructor.
   ~ezGlobalEvent(); // [tested]
 
-  /// This function will broadcast a system wide event to all event handlers that are registered to handle this specific type of event.
+  /// \brief This function will broadcast a system wide event to all event handlers that are registered to handle this specific type of event.
   /// The string specifies the event type, the parameters are optional and can be used to send additional event specific data.
   static void Broadcast(const char* szEventName, ezVariant param0 = ezVariant(), ezVariant param1 = ezVariant(), ezVariant param2 = ezVariant(), ezVariant param3 = ezVariant()); // [tested]
 
-  /// This function will output (via ezLog) some statistics about which events are used and how often.
+  /// \brief This function will output (via ezLog) some statistics about which events are used and how often.
   /// This allows to figure out which events are used throughout the engine and which events might be fired too often.
   static void PrintGlobalEventStatistics(); // [tested]
 
@@ -74,13 +74,13 @@ private:
 };
 
 
-// Use this macro to handle an event every time it is broadcasted (place function code in curly brackets after it)
+/// \brief Use this macro to handle an event every time it is broadcasted (place function code in curly brackets after it)
 #define EZ_ON_GLOBAL_EVENT(name) \
   static void EventHandler_##name (const ezVariant& param0, const ezVariant& param1, const ezVariant& param2, const ezVariant& param3); \
   static ezGlobalEvent s_EventHandler_##name (#name, EventHandler_##name, false); \
   static void EventHandler_##name (const ezVariant& param0, const ezVariant& param1, const ezVariant& param2, const ezVariant& param3)
 
-// Use this macro to handle an event only once (place function code in curly brackets after it)
+/// \brief Use this macro to handle an event only once (place function code in curly brackets after it)
 #define EZ_ON_GLOBAL_EVENT_ONCE(name) \
   static void EventHandler_##name (const ezVariant& param0, const ezVariant& param1, const ezVariant& param2, const ezVariant& param3); \
   static ezGlobalEvent s_EventHandler_##name (#name, EventHandler_##name, true); \

@@ -42,7 +42,7 @@ bool ezBoundingSphere::Contains(const ezVec3* pPoints, ezUInt32 uiNumPoints, ezU
 
 bool ezBoundingSphere::Contains(const ezBoundingBox& rhs) const
 {
-  // TODO: This could be done more efficiently.
+  /// \todo This could be done more efficiently.
 
   ezVec3 vCorners[8];
   rhs.GetCorners(vCorners);

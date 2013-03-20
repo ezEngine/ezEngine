@@ -2,7 +2,7 @@
 
 #include <Foundation/Math/Math.h>
 
-/// A 3-component vector class.
+/// \brief A 3-component vector class.
 class EZ_FOUNDATION_DLL ezVec3
 {
 public:
@@ -13,167 +13,167 @@ public:
 // *** Data ***
 public:
 
-  /// The union that allows different representations of the data.
+  /// \brief The union that allows different representations of the data.
   union
   {
-    /// The vector as x/y/z
+    /// \brief The vector as x/y/z
     struct { float x, y, z; };
 
-    /// The vector as a 3-component float-array.
+    /// \brief The vector as a 3-component float-array.
     float m_Data[3];
   };
 
 // *** Constructors ***
 public:
 
-  /// default-constructed vector is uninitialized (for speed)
+  /// \brief default-constructed vector is uninitialized (for speed)
   ezVec3(); // [tested]
 
-  /// Initializes the vector with x,y,z
+  /// \brief Initializes the vector with x,y,z
   ezVec3(float X, float Y, float Z); // [tested]
 
-  /// Initializes all 3 components with xyz
+  /// \brief Initializes all 3 components with xyz
   explicit ezVec3(float xyz); // [tested]
   // no copy-constructor and operator= since the default-generated ones will be faster
 
-  /// Static function that returns a zero-vector.
+  /// \brief Static function that returns a zero-vector.
   static const ezVec3 ZeroVector() { return ezVec3(0); } // [tested]
 
 // *** Conversions ***
 public:
 
-  /// Returns an ezVec2 with x and y from this vector.
+  /// \brief Returns an ezVec2 with x and y from this vector.
   const ezVec2 GetAsVec2() const; // [tested]
 
-  /// Returns an ezVec4 with x,y,z from this vector and w set to the parameter.
+  /// \brief Returns an ezVec4 with x,y,z from this vector and w set to the parameter.
   const ezVec4 GetAsVec4(float w) const; // [tested]
 
-  /// Returns an ezVec4 with x,y,z from this vector and w set 1.
+  /// \brief Returns an ezVec4 with x,y,z from this vector and w set 1.
   const ezVec4 GetAsPositionVec4() const; // [tested]
 
-  /// Returns an ezVec4 with x,y,z from this vector and w set 0.
+  /// \brief Returns an ezVec4 with x,y,z from this vector and w set 0.
   const ezVec4 GetAsDirectionVec4() const; // [tested]
 
 // *** Functions to set the vector to specific values ***
 public:
 
-  /// Sets all 3 components to this value.
+  /// \brief Sets all 3 components to this value.
   void Set(float xyz); // [tested]
 
-  /// Sets the vector to these values.
+  /// \brief Sets the vector to these values.
   void Set(float x, float y, float z); // [tested]
 
-  /// Sets the vector to all zero.
+  /// \brief Sets the vector to all zero.
   void SetZero(); // [tested]
 
 // *** Functions dealing with length ***
 public:
 
-  /// Returns the length of the vector.
+  /// \brief Returns the length of the vector.
   float GetLength() const; // [tested]
 
-  /// Tries to rescale the vector to the given length. If the vector is too close to zero, EZ_FAILURE is returned and the vector is set to zero.
+  /// \brief Tries to rescale the vector to the given length. If the vector is too close to zero, EZ_FAILURE is returned and the vector is set to zero.
   ezResult SetLength(float fNewLength, float fEpsilon = ezMath_DefaultEpsilon); // [tested]
 
-  /// Returns the squared length. Faster, since no square-root is taken. Useful, if one only wants to compare the lengths of two vectors.
+  /// \brief Returns the squared length. Faster, since no square-root is taken. Useful, if one only wants to compare the lengths of two vectors.
   float GetLengthSquared() const; // [tested]
 
-  /// Normalizes this vector and returns its previous length in one operation. More efficient than calling GetLength and then Normalize.
+  /// \brief Normalizes this vector and returns its previous length in one operation. More efficient than calling GetLength and then Normalize.
   float GetLengthAndNormalize(); // [tested]
 
-  /// Returns a normalized version of this vector, leaves the vector itself unchanged.
+  /// \brief Returns a normalized version of this vector, leaves the vector itself unchanged.
   const ezVec3 GetNormalized() const; // [tested]
 
-  /// Normalizes this vector.
+  /// \brief Normalizes this vector.
   void Normalize(); // [tested]
 
-  /// Tries to normalize this vector. If the vector is too close to zero, EZ_FAILURE is returned and the vector is set to the given fallback value.
+  /// \brief Tries to normalize this vector. If the vector is too close to zero, EZ_FAILURE is returned and the vector is set to the given fallback value.
   ezResult NormalizeIfNotZero(const ezVec3& vFallback = ezVec3(1, 0, 0), float fEpsilon = ezMath_SmallEpsilon); // [tested]
     
-  /// Returns, whether this vector is (0, 0, 0).
+  /// \brief Returns, whether this vector is (0, 0, 0).
   bool IsZero() const; // [tested]
 
-  /// Returns, whether this vector is (0, 0, 0) within a given epsilon.
+  /// \brief Returns, whether this vector is (0, 0, 0) within a given epsilon.
   bool IsZero(float fEpsilon) const; // [tested]
 
-  /// Returns, whether the squared length of this vector is between 0.999f and 1.001f.
+  /// \brief Returns, whether the squared length of this vector is between 0.999f and 1.001f.
   bool IsNormalized(float fEpsilon = ezMath_HugeEpsilon) const; // [tested]
 
-  /// Returns true, if any of x, y or z is NaN
+  /// \brief Returns true, if any of x, y or z is NaN
   bool IsNaN() const; // [tested]
 
-  /// Checks that all components are finite numbers.
+  /// \brief Checks that all components are finite numbers.
   bool IsValid() const; // [tested]
 
 
 // *** Operators ***
 public:
 
-  /// Returns the negation of this vector.
+  /// \brief Returns the negation of this vector.
   const ezVec3 operator- () const; // [tested]
 
-  /// Adds cc component-wise to this vector
+  /// \brief Adds cc component-wise to this vector
   void operator+= (const ezVec3& cc); // [tested]
 
-  /// Subtracts cc component-wise from this vector
+  /// \brief Subtracts cc component-wise from this vector
   void operator-= (const ezVec3& cc); // [tested]
 
-  /// Multiplies all components of this vector with f
+  /// \brief Multiplies all components of this vector with f
   void operator*= (float f); // [tested]
 
-  /// Divides all components of this vector by f
+  /// \brief Divides all components of this vector by f
   void operator/= (float f); // [tested]
 
-  /// Equality Check (bitwise)
+  /// \brief Equality Check (bitwise)
   bool IsIdentical(const ezVec3& rhs) const; // [tested]
 
-  /// Equality Check with epsilon
+  /// \brief Equality Check with epsilon
   bool IsEqual(const ezVec3& rhs, float fEpsilon) const; // [tested]
 
 
 // *** Common vector operations ***
 public:
 
-  /// Returns the positive angle between *this and rhs (in degree).
+  /// \brief Returns the positive angle between *this and rhs (in degree).
   float GetAngleBetween(const ezVec3& rhs) const; // [tested]
 
-  /// Returns the Dot-product of the two vectors (commutative, order does not matter)
+  /// \brief Returns the Dot-product of the two vectors (commutative, order does not matter)
   float Dot(const ezVec3& rhs) const; // [tested]
 
-  /// Returns the Cross-product of the two vectors (NOT commutative, order DOES matter)
+  /// \brief Returns the Cross-product of the two vectors (NOT commutative, order DOES matter)
   const ezVec3 Cross(const ezVec3& rhs) const; // [tested]
 
-  /// returns the component-wise minimum of *this and rhs
+  /// \brief Returns the component-wise minimum of *this and rhs
   const ezVec3 CompMin(const ezVec3& rhs) const; // [tested]
 
-  /// returns the component-wise maximum of *this and rhs
+  /// \brief Returns the component-wise maximum of *this and rhs
   const ezVec3 CompMax(const ezVec3& rhs) const; // [tested]
 
-  /// returns the component-wise multiplication of *this and rhs
+  /// \brief Returns the component-wise multiplication of *this and rhs
   const ezVec3 CompMult(const ezVec3& rhs) const; // [tested]
 
-  /// returns the component-wise division of *this and rhs
+  /// \brief Returns the component-wise division of *this and rhs
   const ezVec3 CompDiv(const ezVec3& rhs) const; // [tested]
 
 
 // *** Other common operations ***
 public:			
 
-  /// Calculates the normal of the triangle defined by the three vertices. Vertices are assumed to be ordered counter-clockwise.
+  /// \brief Calculates the normal of the triangle defined by the three vertices. Vertices are assumed to be ordered counter-clockwise.
   ezResult CalculateNormal(const ezVec3& v1, const ezVec3& v2, const ezVec3& v3);
 
-  /// Modifies this direction vector to be orthogonal to the given (normalized) direction vector. The result is NOT normalized.
+  /// \brief Modifies this direction vector to be orthogonal to the given (normalized) direction vector. The result is NOT normalized.
   /// Note: This function may fail, e.g. create a vector that is zero, if the given normal is parallel to the vector itself.
   ///       If you need to handle such cases, you should manually check afterwards, whether the result is zero, or cannot be normalized.
   void MakeOrthogonalTo(const ezVec3& vNormal);
 
-  /// Returns some arbitrary vector orthogonal to this one. The vector is NOT normalized.
+  /// \brief Returns some arbitrary vector orthogonal to this one. The vector is NOT normalized.
   const ezVec3 GetOrthogonalVector() const;
 
-  /// Returns this vector reflected at vNormal.
+  /// \brief Returns this vector reflected at vNormal.
   const ezVec3 GetReflectedVector(const ezVec3& vNormal) const;
 
-  /// Returns this vector, refracted at vNormal, using the refraction index of the current medium and the medium it enters.
+  /// \brief Returns this vector, refracted at vNormal, using the refraction index of the current medium and the medium it enters.
   const ezVec3 GetRefractedVector(const ezVec3& vNormal, float fRefIndex1, float fRefIndex2) const;
 
 };
@@ -193,7 +193,7 @@ const ezVec3 operator/ (const ezVec3& v, float f); // [tested]
 bool operator== (const ezVec3& v1, const ezVec3& v2); // [tested]
 bool operator!= (const ezVec3& v1, const ezVec3& v2); // [tested]
 
-/// Strict weak ordering. Useful for sorting vertices into a map.
+/// \brief Strict weak ordering. Useful for sorting vertices into a map.
 bool operator< (const ezVec3& v1, const ezVec3& v2); // [tested]
 
 #include <Foundation/Math/Implementation/Vec3_inl.h>

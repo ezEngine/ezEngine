@@ -7,14 +7,14 @@
 class ezDataDirectory_Folder_Reader;
 class ezDataDirectory_Folder_Writer;
 
-/// A data directory type to handle access to ordinary files.
+/// \brief A data directory type to handle access to ordinary files.
 /// Register the 'Factory' function at ezFileSystem to allow it to mount local directories.
 class EZ_FOUNDATION_DLL ezDataDirectoryType_Folder : public ezDataDirectoryType
 {
 public:
   ~ezDataDirectoryType_Folder();
 
-  /// The factory that can be registered at ezFileSystem to create data directories of this type.
+  /// \brief The factory that can be registered at ezFileSystem to create data directories of this type.
   static ezDataDirectoryType* Factory(const char* szDataDirectory);
 
 protected:
@@ -26,10 +26,10 @@ protected:
   virtual void DeleteFile(const char* szFile) EZ_OVERRIDE;
 
 private:
-  /// Called by 'ezDataDirectoryType_Folder::Factory'
+  /// \brief Called by 'ezDataDirectoryType_Folder::Factory'
   virtual ezResult InternalInitializeDataDirectory(const char* szDirectory) EZ_OVERRIDE;
 
-  /// Marks the given reader/writer as reusable.
+  /// \brief Marks the given reader/writer as reusable.
   virtual void OnReaderWriterClose(ezDataDirectory_ReaderWriter_Base* pClosed) EZ_OVERRIDE;
 
   ezHybridArray<ezDataDirectory_Folder_Reader*, 4> m_Readers;
@@ -37,7 +37,7 @@ private:
 };
 
 
-/// Handles reading from ordinary files.
+/// \brief Handles reading from ordinary files.
 class EZ_FOUNDATION_DLL ezDataDirectory_Folder_Reader : public ezDataDirectory_Reader
 {
   EZ_DISALLOW_COPY_AND_ASSIGN(ezDataDirectory_Folder_Reader);
@@ -56,7 +56,7 @@ private:
   ezOSFile m_File;
 };
 
-/// Handles writing to ordinary files.
+/// \brief Handles writing to ordinary files.
 class EZ_FOUNDATION_DLL ezDataDirectory_Folder_Writer : public ezDataDirectory_Writer
 {
   EZ_DISALLOW_COPY_AND_ASSIGN(ezDataDirectory_Folder_Writer);

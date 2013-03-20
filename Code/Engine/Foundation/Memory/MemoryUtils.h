@@ -2,38 +2,39 @@
 
 #include <Foundation/Basics.h>
 
+/// \brief This class provides functions to work on raw memory.
 class ezMemoryUtils
 {
 public:
-  /// constructs objects of type T in a raw buffer
+  /// \brief constructs objects of type T in a raw buffer
   template <typename T>
   static void Construct(T* pDestination, size_t uiCount);
 
-  /// constructs objects of type T in a raw buffer using the copy constructor
+  /// \brief constructs objects of type T in a raw buffer using the copy constructor
   template <typename T>
   static void Construct(T* pDestination, const T& copy, size_t uiCount);
 
-  /// constructs objects of type T in a raw buffer from an existing array using the copy constructor
+  /// \brief constructs objects of type T in a raw buffer from an existing array using the copy constructor
   template <typename T>
   static void Construct(T* pDestination, const T* pSource, size_t uiCount);
 
-  /// destructs objects of type T in pDestination
+  /// \brief destructs objects of type T in pDestination
   template <typename T>
   static void Destruct(T* pDestination, size_t uiCount);
 
-  /// copies objects of type T from pSource to pDestination, pDestination must not be a raw buffer
+  /// \brief copies objects of type T from pSource to pDestination, pDestination must not be a raw buffer
   template <typename T>
   static void Copy(T* pDestination, const T* pSource, size_t uiCount);
 
-  /// moves objects of type T from pSource to pDestination, pDestination must not be a raw buffer
+  /// \brief moves objects of type T from pSource to pDestination, pDestination must not be a raw buffer
   template <typename T>
   static void Move(T* pDestination, const T* pSource, size_t uiCount);
 
-  /// tests if objects of type T from pSource and pDestination are equal
+  /// \brief tests if objects of type T from pSource and pDestination are equal
   template <typename T>
   static bool IsEqual(const T* a, const T* b, size_t uiCount = 1);
 
-  /// zeros out a raw buffer
+  /// \brief zeros out a raw buffer
   template <typename T>
   static void ZeroFill(T* pDestination, size_t uiCount = 1);
 
@@ -43,15 +44,15 @@ public:
   template <typename T>
   static const T* AddByteOffsetConst(const T* ptr, ptrdiff_t iOffset);
 
-  /// Alignes the pointer ptr by moving its address backwards to the previous multiple of uiAlignment.  
+  /// \brief Alignes the pointer ptr by moving its address backwards to the previous multiple of uiAlignment.  
   template <typename T>
   static T* Align(T* ptr, size_t uiAlignment);
 
-  /// Checks whether ptr is aligned to a memory address that is a multiple of uiAlignment.
+  /// \brief Checks whether ptr is aligned to a memory address that is a multiple of uiAlignment.
   template <typename T>
   static bool IsAligned(const T* ptr, size_t uiAlignment);
 
-  /// Reserves the lower 4GB of address space in 64-bit builds to ensure all allocations start above 4GB.
+  /// \brief Reserves the lower 4GB of address space in 64-bit builds to ensure all allocations start above 4GB.
   /// Note that this does NOT reserve 4GB of RAM, only address space.
   /// This can help to detect pointer truncation. In 32-bit builds it does nothing.
   static void ReserveLower4GBAddressSpace();

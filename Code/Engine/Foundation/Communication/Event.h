@@ -2,7 +2,7 @@
 
 #include <Foundation/Containers/DynamicArray.h>
 
-/// This class allows to propagate events to code that might be interested in them.
+/// \brief This class allows to propagate events to code that might be interested in them.
 /// An event can be anything that "happens" that might be of interest for other code, such
 /// that it can react on it in some way.
 /// Just create an instance of ezEvent and call "Broadcast" on it. Other intersted code needs access to
@@ -15,27 +15,27 @@ template <typename EventData, typename PassThrough>
 class ezEventBase
 {
 protected:
-  /// Constructor.
+  /// \brief Constructor.
   ezEventBase(ezIAllocator* pAllocator);
 
 public:
-  /// Notification callback type for events.
+  /// \brief Notification callback type for events.
   typedef void (*ezEventHandler)(EventData pEventData, PassThrough pPassThrough);
 
-  /// This function will broadcast to all registered users, that this event has just happened.
+  /// \brief This function will broadcast to all registered users, that this event has just happened.
   void Broadcast(EventData pEventData); // [tested]
 
-  /// Adds a function as an event handler. All handlers will be notified in the order that they were registered.
+  /// \brief Adds a function as an event handler. All handlers will be notified in the order that they were registered.
   void AddEventHandler(ezEventHandler callback, PassThrough pPassThrough); // [tested]
 
-  /// Removes a previously registered handler. It is an error to remove a handler that was not registered.
+  /// \brief Removes a previously registered handler. It is an error to remove a handler that was not registered.
   /// The exact same data that was passed to AddEventHandler (including pPassThrough) must be given.
   void RemoveEventHandler(ezEventHandler callback, PassThrough pPassThrough); // [tested]
 
   EZ_DISALLOW_COPY_AND_ASSIGN(ezEventBase);
 
 private:
-  /// Used to detect recursive broadcasts and then throw asserts at you.
+  /// \brief Used to detect recursive broadcasts and then throw asserts at you.
   bool m_bBroadcasting;
 
   struct ezEventReceiver
@@ -46,10 +46,11 @@ private:
     PassThrough m_pPassThrough;
   };
 
-  /// A dynamic array allows to have zero overhead as long as no event receivers are registered.
+  /// \brief A dynamic array allows to have zero overhead as long as no event receivers are registered.
   ezDynamicArray<ezEventReceiver> m_EventHandlers;
 };
 
+/// \brief \see ezEventBase
 template <typename EventData, typename PassThrough = void*, typename AllocatorWrapper = ezDefaultAllocatorWrapper>
 class ezEvent : public ezEventBase<EventData, PassThrough>
 {

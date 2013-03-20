@@ -9,121 +9,121 @@ public:
   EZ_DECLARE_POD_TYPE();
 
 public:
-  /// Default constructor does not initialize anything.
+  /// \brief Default constructor does not initialize anything.
   ezBoundingBox();
 
-  /// Constructs the box with the given minimum and maximum values.
+  /// \brief Constructs the box with the given minimum and maximum values.
   ezBoundingBox(const ezVec3& vMin, const ezVec3& vMax); // [tested]
 
-  /// Resets the box to an invalid state. ExpandToInclude can then be used to make it into a bounding box for objects.
+  /// \brief Resets the box to an invalid state. ExpandToInclude can then be used to make it into a bounding box for objects.
   void SetInvalid(); // [tested]
 
-  /// Sets the box from a center point and half-extents for each axis.
+  /// \brief Sets the box from a center point and half-extents for each axis.
   void SetCenterAndHalfExtents(const ezVec3& vCenter, const ezVec3& vHalfExtents); // [tested]
 
-  /// Checks whether the box is in an invalid state.
+  /// \brief Checks whether the box is in an invalid state.
   bool IsValid() const; // [tested]
 
-  /// Directly sets the minimum and maximum values.
+  /// \brief Directly sets the minimum and maximum values.
   void SetElements(const ezVec3& vMin, const ezVec3& vMax); // [tested]
 
-  /// Creates a new bounding-box around the given set of points.
+  /// \brief Creates a new bounding-box around the given set of points.
   void SetFromPoints(const ezVec3* pPoints, ezUInt32 uiNumPoints, ezUInt32 uiStride = sizeof(ezVec3)); // [tested]
 
-  /// Writes the 8 different corners of the box to the given array.
+  /// \brief Writes the 8 different corners of the box to the given array.
   void GetCorners(ezVec3* out_pCorners) const; // [tested]
 
-  /// Returns the center position of the box.
+  /// \brief Returns the center position of the box.
   const ezVec3 GetCenter() const; // [tested]
 
-  /// Returns the extents of the box along each axis.
+  /// \brief Returns the extents of the box along each axis.
   const ezVec3 GetExtents() const; // [tested]
 
-  /// Returns the half extents of the box along each axis.
+  /// \brief Returns the half extents of the box along each axis.
   const ezVec3 GetHalfExtents() const; // [tested]
 
-  /// Expands the box such that the given point is inside it.
+  /// \brief Expands the box such that the given point is inside it.
   void ExpandToInclude(const ezVec3& vPoint); // [tested]
 
-  /// Expands the box such that the given box is inside it.
+  /// \brief Expands the box such that the given box is inside it.
   void ExpandToInclude(const ezBoundingBox& rhs); // [tested]
 
-  /// Expands the box such that all the given points are inside it.
+  /// \brief Expands the box such that all the given points are inside it.
   void ExpandToInclude(const ezVec3* pPoints, ezUInt32 uiNumPoints, ezUInt32 uiStride = sizeof(ezVec3)); // [tested]
 
-  /// If the box is not cubic all extents are set to the value of the maximum extent, such that the box becomes cubic.
+  /// \brief If the box is not cubic all extents are set to the value of the maximum extent, such that the box becomes cubic.
   void ExpandToCube(); // [tested]
 
-  /// Will increase the size of the box in all directions by the given amount (per axis).
+  /// \brief Will increase the size of the box in all directions by the given amount (per axis).
   void Grow(const ezVec3& vDiff); // [tested]
 
-  /// Checks whether the given point is inside the box.
+  /// \brief Checks whether the given point is inside the box.
   bool Contains(const ezVec3& vPoint) const; // [tested]
 
-  /// Checks whether the given box is completely inside this box.
+  /// \brief Checks whether the given box is completely inside this box.
   bool Contains(const ezBoundingBox& rhs) const; // [tested]
 
-  /// Checks whether all the given points are inside this box.
+  /// \brief Checks whether all the given points are inside this box.
   bool Contains(const ezVec3* pPoints, ezUInt32 uiNumPoints, ezUInt32 uiStride = sizeof(ezVec3)) const; // [tested]
 
-  /// Checks whether the given sphere is completely inside this box.
+  /// \brief Checks whether the given sphere is completely inside this box.
   bool Contains(const ezBoundingSphere& sphere) const; // [tested]
 
-  /// Checks whether this box overlaps with the given box.
+  /// \brief Checks whether this box overlaps with the given box.
   bool Overlaps(const ezBoundingBox& rhs) const; // [tested]
 
-  /// Checks whether any of the given points is inside this box.
+  /// \brief Checks whether any of the given points is inside this box.
   bool Overlaps(const ezVec3* pPoints, ezUInt32 uiNumPoints, ezUInt32 uiStride = sizeof(ezVec3)) const; // [tested]
 
-  /// Checks whether the given sphere overlaps with this box.
+  /// \brief Checks whether the given sphere overlaps with this box.
   bool Overlaps(const ezBoundingSphere& sphere) const; // [tested]
 
-  /// Checks whether this box and the other box are exactly identical.
+  /// \brief Checks whether this box and the other box are exactly identical.
   bool IsIdentical(const ezBoundingBox& rhs) const; // [tested]
 
-  /// Checks whether this box and the other box are equal within some threshold.
+  /// \brief Checks whether this box and the other box are equal within some threshold.
   bool IsEqual(const ezBoundingBox& rhs, float fEpsilon = ezMath_DefaultEpsilon) const; // [tested]
 
-  /// Moves the box by the given vector.
+  /// \brief Moves the box by the given vector.
   void Translate(const ezVec3& vDiff); // [tested]
 
-  /// Scales the box along each axis, but keeps its center constant.
+  /// \brief Scales the box along each axis, but keeps its center constant.
   void ScaleFromCenter(const ezVec3& vScale); // [tested]
 
-  /// Scales the box's corners by the given factors, thus also moves the box around.
+  /// \brief Scales the box's corners by the given factors, thus also moves the box around.
   void ScaleFromOrigin(const ezVec3& vScale); // [tested]
 
-  /// Transforms the corners of the box and recomputes the aabb of those transformed points. Rotations and scalings will influence the center position of the box.
+  /// \brief Transforms the corners of the box and recomputes the aabb of those transformed points. Rotations and scalings will influence the center position of the box.
   void TransformFromCenter(const ezMat4& mTransform); // [tested]
 
-  /// Transforms the corners of the box in its local space. The center of the box does not change, unless the transform contains a translation.
+  /// \brief Transforms the corners of the box in its local space. The center of the box does not change, unless the transform contains a translation.
   void TransformFromOrigin(const ezMat4& mTransform); // [tested]
 
-  /// The given point is clamped to the volume of the box, ie. it will be either inside the box or on its surface and it will have the closest possible distance to the original point.
+  /// \brief The given point is clamped to the volume of the box, ie. it will be either inside the box or on its surface and it will have the closest possible distance to the original point.
   const ezVec3 GetClampedPoint(const ezVec3& vPoint) const; // [tested]
 
-  /// Returns the squared minimum distance from the box's surface to the point. Zero if the point is inside the box.
+  /// \brief Returns the squared minimum distance from the box's surface to the point. Zero if the point is inside the box.
   float GetDistanceSquaredTo(const ezVec3& vPoint) const; // [tested]
 
-  /// Returns the minimum squared distance between the two boxes. Zero if the boxes overlap.
+  /// \brief Returns the minimum squared distance between the two boxes. Zero if the boxes overlap.
   float GetDistanceSquaredTo(const ezBoundingBox& rhs) const; // [tested]
 
-  /// Returns the minimum distance from the box's surface to the point. Zero if the point is inside the box.
+  /// \brief Returns the minimum distance from the box's surface to the point. Zero if the point is inside the box.
   float GetDistanceTo(const ezVec3& vPoint) const; // [tested]
 
-  /// Returns the minimum distance between the box and the sphere. Zero or negative if both overlap.
+  /// \brief Returns the minimum distance between the box and the sphere. Zero or negative if both overlap.
   float GetDistanceTo(const ezBoundingSphere& sphere) const; // [tested]
 
-  /// Returns the minimum distance between the two boxes. Zero if the boxes overlap.
+  /// \brief Returns the minimum distance between the two boxes. Zero if the boxes overlap.
   float GetDistanceTo(const ezBoundingBox& rhs) const; // [tested]
 
-  /// Returns whether the given ray intersects the box. Optionally returns the intersection distance and position.
+  /// \brief Returns whether the given ray intersects the box. Optionally returns the intersection distance and position.
   bool GetRayIntersection(const ezVec3& vStartPos, const ezVec3& vRayDirNormalized, float* out_fIntersection = NULL, ezVec3* out_vIntersection = NULL) const; // [tested]
 
-  /// Checks whether the line segment intersects the box. Optionally returns the intersection point and the fraction along the line segment where the intersection occurred.
+  /// \brief Checks whether the line segment intersects the box. Optionally returns the intersection point and the fraction along the line segment where the intersection occurred.
   bool GetLineSegmentIntersection(const ezVec3& vStartPos, const ezVec3& vEndPos, float* out_fLineFraction = NULL, ezVec3* out_vIntersection = NULL) const; // [tested]
 
-  /// Returns a bounding sphere that encloses this box.
+  /// \brief Returns a bounding sphere that encloses this box.
   const ezBoundingSphere GetBoundingSphere() const; // [tested]
 
 
@@ -133,10 +133,10 @@ public:
   ezVec3 m_vMax;
 };
 
-/// Checks whether this box and the other are identical.
+/// \brief Checks whether this box and the other are identical.
 bool operator== (const ezBoundingBox& lhs, const ezBoundingBox& rhs); // [tested]
 
-/// Checks whether this box and the other are not identical.
+/// \brief Checks whether this box and the other are not identical.
 bool operator!= (const ezBoundingBox& lhs, const ezBoundingBox& rhs); // [tested]
 
 
