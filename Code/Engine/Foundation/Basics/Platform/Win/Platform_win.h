@@ -1,15 +1,15 @@
 #pragma once
 
-#ifndef EZ_PLATFORM_WINDOWS
+#if EZ_DISABLED(EZ_PLATFORM_WINDOWS)
   #error "This header should only be included on windows platforms
 #endif
 
 #ifdef _WIN64
-  #define EZ_PLATFORM_WINDOWS_64BIT 1
-  #define EZ_PLATFORM_64BIT 1
+  #undef EZ_PLATFORM_64BIT
+  #define EZ_PLATFORM_64BIT EZ_ON
 #else
-  #define EZ_PLATFORM_WINDOWS_32BIT 1
-  #define EZ_PLATFORM_32BIT 1
+  #undef EZ_PLATFORM_32BIT
+  #define EZ_PLATFORM_32BIT EZ_ON
 #endif
 
 #ifndef _CRT_SECURE_NO_WARNINGS
@@ -42,10 +42,12 @@ typedef DWORD ezThreadId;
 
 #if defined(_MSC_VER)
 
-  #define EZ_COMPILER_MSVC 1
+  #undef EZ_COMPILER_MSVC
+  #define EZ_COMPILER_MSVC EZ_ON
 
   #ifdef _DEBUG
-    #define EZ_COMPILE_FOR_DEBUG 1
+    #undef EZ_COMPILE_FOR_DEBUG
+    #define EZ_COMPILE_FOR_DEBUG EZ_ON
   #endif
 
   #define EZ_ANALYSIS_ASSUME(code_to_be_true) __analysis_assume(code_to_be_true)
@@ -93,7 +95,8 @@ typedef DWORD ezThreadId;
   #define EZ_SOURCE_FILE __FILE__
 
   #if (_MSC_VER >= 1600) //Visual Studio 2010
-    #define EZ_CPP11
+    #undef EZ_SUPPORTS_CPP11
+    #define EZ_SUPPORTS_CPP11 EZ_ON
   #endif
 
   // declare platform specific types
@@ -129,8 +132,5 @@ typedef DWORD ezThreadId;
   #error "Unsupported compiler on windows"
 #endif
 
-#if defined(EZ_PLATFORM_XBOX360) || defined(EZ_PLATFORM_PS3)
-  #define EZ_BIG_ENDIAN
-#else
-  #define EZ_LITTLE_ENDIAN
-#endif
+#undef EZ_PLATFORM_LITTLE_ENDIAN
+#define EZ_PLATFORM_LITTLE_ENDIAN EZ_ON

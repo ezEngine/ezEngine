@@ -1,7 +1,7 @@
 
 #pragma once
 
-#if defined(EZ_BIG_ENDIAN)
+#if EZ_ENABLED(EZ_PLATFORM_BIG_ENDIAN)
 
 template <typename T> 
 ezUInt64 ezIBinaryStreamReader::ReadWordValue(T* pWordValue)

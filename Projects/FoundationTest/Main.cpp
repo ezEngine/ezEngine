@@ -3,7 +3,7 @@
 #include <TestFramework/Utilities/ConsoleOutput.h>
 #include <TestFramework/Utilities/HTMLOutput.h>
 
-#if EZ_PLATFORM_WINDOWS
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   #include <conio.h>
 #endif
 
@@ -62,7 +62,7 @@ int main()
   ezLog::AddLogWriter(ezLog_ConsoleWriter::LogMessageHandler);
   ezStringUtils::PrintStringLengthStatistics();
 
-  #if EZ_PLATFORM_WINDOWS
+  #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
     if (settings.m_bOpenHtmlOutput)
     {
       // opens the html file in a browser

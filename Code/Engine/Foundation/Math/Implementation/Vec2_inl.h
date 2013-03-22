@@ -2,7 +2,7 @@
 
 EZ_FORCE_INLINE ezVec2::ezVec2()
 {
-#if EZ_COMPILE_FOR_DEBUG
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
   // Initialize all data to NaN in debug mode to find problems with uninitialized data easier.
   const float fNaN = ezMath::NaN();
   x = fNaN;

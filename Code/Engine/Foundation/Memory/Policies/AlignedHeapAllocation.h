@@ -21,9 +21,9 @@ namespace ezMemoryPolicies
     EZ_FORCE_INLINE ezIAllocator* GetParent() const { return NULL; }
   };
 
-  #if EZ_PLATFORM_WINDOWS
+  #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
     #include <Foundation/Memory/Policies/Win/AlignedHeapAllocation_win.h>
-  #elif EZ_PLATFORM_OSX
+  #elif EZ_ENABLED(EZ_PLATFORM_OSX)
     #include <Foundation/Memory/Policies/Posix/AlignedHeapAllocation_posix.h>
   #else
     #error "ezAlignedHeapAllocation is not implemented on current platform"

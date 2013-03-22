@@ -2,7 +2,7 @@
 
 inline ezMat3::ezMat3()
 {
-#if EZ_COMPILE_FOR_DEBUG
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
   // Initialize all data to NaN in debug mode to find problems with uninitialized data easier.
   const float fNaN = ezMath::NaN();
   SetElements(fNaN, fNaN, fNaN,

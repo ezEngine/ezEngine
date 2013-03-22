@@ -14,8 +14,8 @@ bool ezFailedCheck(const char* szSourceFile, ezUInt32 uiLine, const char* szFunc
 
   printf("%s(%u) : error 13: Expression '%s' failed: %s\n", szSourceFile, uiLine, szExpression, szMsg);
 
-#if EZ_PLATFORM_WINDOWS
-  #if EZ_COMPILE_FOR_DEBUG
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+  #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
 
     ezInt32 iRes = _CrtDbgReport(_CRT_ASSERT, szSourceFile, uiLine, NULL, "'%s'\nFunction: %s\nMessage: %s", szExpression, szFunction, szMsg);
 

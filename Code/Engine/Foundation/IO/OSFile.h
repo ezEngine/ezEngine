@@ -5,11 +5,11 @@
 
 struct ezOSFileData;
 
-#if EZ_USE_POSIX_FILE_API
+#if EZ_ENABLED(EZ_USE_POSIX_FILE_API)
   #include <Foundation/IO/Implementation/Posix/OSFileDeclarations_posix.h>
 #endif
 
-#if EZ_PLATFORM_WINDOWS
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   #include <Foundation/IO/Implementation/Win/OSFileDeclarations_win.h>
 #endif
 
@@ -54,7 +54,7 @@ struct EZ_FOUNDATION_DLL ezFileStats
   bool m_bIsDirectory;
 };
 
-#if defined(EZ_SUPPORTS_FILE_ITERATORS) && EZ_SUPPORTS_FILE_ITERATORS == 1
+#if EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS)
 
   struct ezFileIterationData;
 
@@ -169,7 +169,7 @@ public:
   /// \brief Copies the source file into the destination file.
   static ezResult CopyFile(const char* szSource, const char* szDestination); // [tested]
 
-#ifdef EZ_SUPPORTS_FILE_STATS
+#if EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
   /// \brief Gets the stats about the given file or folder. Returns false, if the stats could not be determined.
   static ezResult GetFileStats(const char* szFileOrFolder, ezFileStats& out_Stats); // [tested]
 
@@ -191,7 +191,7 @@ private:
   static ezResult InternalDeleteFile(const char* szFile);
   static ezResult InternalCreateDirectory(const char* szFile);
 
-#ifdef EZ_SUPPORTS_FILE_STATS
+#if EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
   static ezResult InternalGetFileStats(const char* szFileOrFolder, ezFileStats& out_Stats);
 #endif
 

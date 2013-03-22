@@ -5,7 +5,7 @@
 
 ezInternal::ezSharedStringBase ezSharedString::s_EmptyString;
 
-#ifdef EZ_COMPILE_FOR_DEVELOPMENT
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   #include <Foundation/Logging/Log.h>
 
   ezAtomicInteger32 ezStringUtils::g_MaxUsedStringLength;

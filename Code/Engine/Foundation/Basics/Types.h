@@ -28,9 +28,9 @@ EZ_CHECK_AT_COMPILETIME(sizeof(ezUInt16) == 2);
 EZ_CHECK_AT_COMPILETIME(sizeof(ezUInt32) == 4);
 EZ_CHECK_AT_COMPILETIME(sizeof(ezUInt64) == 8); // must be defined in the specific compiler header
 
-#if EZ_PLATFORM_64BIT
+#if EZ_ENABLED(EZ_PLATFORM_64BIT)
   #define EZ_ALIGNMENT_MINIMUM 8
-#elif EZ_PLATFORM_32BIT
+#elif EZ_ENABLED(EZ_PLATFORM_32BIT)
   #define EZ_ALIGNMENT_MINIMUM 4
 #else
   #error "Unknown pointer size."

@@ -8,7 +8,7 @@ struct EZ_FOUNDATION_DLL ezEndianHelper
 
   /// \brief Returns true if called on a big endian system, false otherwise.
   ///
-  /// \note Note that usually the compile time decisions with the defines EZ_LITTLE_ENDIAN, EZ_BIG_ENDIAN is preferred.
+  /// \note Note that usually the compile time decisions with the defines EZ_PLATFORM_LITTLE_ENDIAN, EZ_PLATFORM_BIG_ENDIAN is preferred.
   static inline bool IsBigEndian()
   {
     const int i = 1;
@@ -17,7 +17,7 @@ struct EZ_FOUNDATION_DLL ezEndianHelper
 
   /// \brief Returns true if called on a little endian endian system, false otherwise.
   ///
-  /// \note Note that usually the compile time decisions with the defines EZ_LITTLE_ENDIAN, EZ_BIG_ENDIAN is preferred.
+  /// \note Note that usually the compile time decisions with the defines EZ_PLATFORM_LITTLE_ENDIAN, EZ_PLATFORM_BIG_ENDIAN is preferred.
   static inline bool IsLittleEndian()
   {
     return !IsBigEndian();
@@ -108,7 +108,7 @@ struct EZ_FOUNDATION_DLL ezEndianHelper
     }
   }*/
 
-  #if defined(EZ_LITTLE_ENDIAN)
+  #if EZ_ENABLED(EZ_PLATFORM_LITTLE_ENDIAN)
 
   static EZ_FORCE_INLINE void LittleEndianToNative(ezUInt16* pWords, ezUInt32 uiCount)
   {
@@ -164,7 +164,7 @@ struct EZ_FOUNDATION_DLL ezEndianHelper
     SwitchQWords(pQWords, uiCount);
   }
 
-  #elif defined(EZ_BIG_ENDIAN)
+  #elif EZ_ENABLED(EZ_PLATFORM_BIG_ENDIAN)
 
   static EZ_FORCE_INLINE void LittleEndianToNative(ezUInt16* pWords, ezUInt32 uiCount)
   {

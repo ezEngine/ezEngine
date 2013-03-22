@@ -2,7 +2,7 @@
 
 #include <TestFramework/Framework/TestFramework.h>
 
-#ifdef EZ_PLATFORM_WINDOWS
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   inline void SetConsoleColorInl (WORD ui)
   {
     SetConsoleTextAttribute (GetStdHandle (STD_OUTPUT_HANDLE), ui);

@@ -16,7 +16,7 @@ ezAllocator<A, B, T, M>::~ezAllocator()
   {
     EZ_REPORT_FAILURE("Memory leaks found");
   
-    #if EZ_PLATFORM_WINDOWS
+    #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
 
       // todo: make this platform independent
       wchar_t szName[32];

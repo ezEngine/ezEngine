@@ -98,7 +98,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, PathUtils)
 
   EZ_TEST_BLOCK(true, "IsAbsolutePath")
   {
-    #if EZ_PLATFORM_WINDOWS
+    #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
       EZ_TEST(ezPathUtils::IsAbsolutePath("C:\\test.stuff"));
       EZ_TEST(ezPathUtils::IsAbsolutePath("C:/test.stuff"));
       EZ_TEST(ezPathUtils::IsAbsolutePath("\\\\myserver\\test.stuff"));
@@ -108,7 +108,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, PathUtils)
       EZ_TEST(!ezPathUtils::IsAbsolutePath("\\test.stuff"));
       EZ_TEST(!ezPathUtils::IsAbsolutePath("..\\test.stuff"));
       EZ_TEST(!ezPathUtils::IsAbsolutePath(".\\test.stuff"));
-    #elif EZ_PLATFORM_OSX
+    #elif EZ_ENABLED(EZ_PLATFORM_OSX)
       EZ_TEST(ezPathUtils::IsAbsolutePath("/usr/local/.stuff"));
       EZ_TEST(ezPathUtils::IsAbsolutePath("/file.test"));
       EZ_TEST(!ezPathUtils::IsAbsolutePath("./file.stuff"));

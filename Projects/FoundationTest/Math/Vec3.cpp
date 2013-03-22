@@ -4,7 +4,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Vec3)
 {
   EZ_TEST_BLOCK(true, "Constructor")
   {
-#if EZ_COMPILE_FOR_DEBUG == 1
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
     // In debug the default constructor initializes everything with NaN.
     ezVec3 vDefCtor;
     EZ_TEST(ezMath::IsNaN(vDefCtor.x) && ezMath::IsNaN(vDefCtor.y) && ezMath::IsNaN(vDefCtor.z));

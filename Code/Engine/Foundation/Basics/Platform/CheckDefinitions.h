@@ -48,7 +48,7 @@
   #error "EZ_ALIGNMENT_OF is not defined."
 #endif
 
-#if !defined (EZ_PLATFORM_32BIT) && !defined (EZ_PLATFORM_64BIT)
+#if EZ_IS_NOT_EXCLUSIVE(EZ_PLATFORM_32BIT, EZ_PLATFORM_64BIT)
   #error "Platform is not defined as 32 Bit or 64 Bit"
 #endif
 
@@ -68,6 +68,7 @@
   #error "EZ_SOURCE_LINE is not defined."
 #endif
 
-#if !defined(EZ_LITTLE_ENDIAN) && !defined(EZ_BIG_ENDIAN)
-  #error "No Endianess is defined!"
+#if EZ_IS_NOT_EXCLUSIVE(EZ_PLATFORM_LITTLE_ENDIAN, EZ_PLATFORM_BIG_ENDIAN)
+  #error "Endianess is not correctly defined!"
 #endif
+

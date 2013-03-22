@@ -123,11 +123,11 @@ ezStringIterator ezPathUtils::GetFileDirectory(const char* szPath, const char* s
   return ezStringIterator(szPath, szSeparator + 1, szPath);
 }
 
-#if EZ_PLATFORM_WINDOWS
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   const char ezPathUtils::OsSpecificPathSeparator = '\\';
-#elif EZ_PLATFORM_LINUX
+#elif EZ_ENABLED(EZ_PLATFORM_LINUX)
   const char ezPathUtils::OsSpecificPathSeparator = '/';
-#elif EZ_PLATFORM_OSX
+#elif EZ_ENABLED(EZ_PLATFORM_OSX)
   const char ezPathUtils::OsSpecificPathSeparator = '/';
 #else
   #error Unknown platform.
@@ -140,14 +140,14 @@ bool ezPathUtils::IsAbsolutePath(const char* szPath)
 
   // szPath[0] will not be \0 -> so we can access szPath[1] without problems
 
-  #if EZ_PLATFORM_WINDOWS
+  #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
     /// if it is an absolute path, character 0 must be ASCII (A - Z)
     /// checks for local paths, ie. 'C:\stuff' and UNC paths, ie. '\\server\stuff'
     /// \todo not sure if we should handle '//' identical to '\\' (currently we do)
     return ((szPath[1] == ':') || (IsPathSeparator(szPath[0]) && IsPathSeparator(szPath[1])));
-  #elif EZ_PLATFORM_LINUX
+  #elif EZ_ENABLED(EZ_PLATFORM_LINUX)
     return (szPath[0] == '/');
-  #elif EZ_PLATFORM_OSX
+  #elif EZ_ENABLED(EZ_PLATFORM_OSX)
     return (szPath[0] == '/');
   #else
     #error Unknown platform.

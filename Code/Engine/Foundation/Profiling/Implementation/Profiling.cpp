@@ -47,7 +47,7 @@ void ezProfilingSystem::Shutdown()
 
 /*
 // Include inline file
-#if EZ_PLATFORM_WINDOWS
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
 #include <Foundation/Profiling/Implementation/Win/OSThread_win.h>
 #else
 #error "Thread functions are not implemented on current platform"

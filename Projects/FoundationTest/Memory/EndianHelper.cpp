@@ -5,10 +5,10 @@ EZ_CREATE_SIMPLE_TEST(Memory, Endian)
   EZ_TEST_BLOCK(true, "Basics")
   {
     // Test if the IsBigEndian() delivers the same result as the #define
-    #if defined(EZ_LITTLE_ENDIAN)
-    EZ_TEST(!ezEndianHelper::IsBigEndian());
-    #elif defined(EZ_BIG_ENDIAN)
-    EZ_TEST(ezEndianHelper::IsBigEndian());
+    #if EZ_ENABLED(EZ_PLATFORM_LITTLE_ENDIAN)
+      EZ_TEST(!ezEndianHelper::IsBigEndian());
+    #elif EZ_ENABLED(EZ_PLATFORM_BIG_ENDIAN)
+      EZ_TEST(ezEndianHelper::IsBigEndian());
     #endif
 
     // Test conversion functions for single elements

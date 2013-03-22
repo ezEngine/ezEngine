@@ -3,7 +3,7 @@
 #include <Foundation/Threading/Lock.h>
 #include <Foundation/Threading/Mutex.h>
 
-#ifdef EZ_PLATFORM_WINDOWS
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
 
 void ezLog_VisualStudioWriter::LogMessageHandler(const ezLog::LoggingEvent& EventData, void* pPassThrough)
 {

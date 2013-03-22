@@ -1,5 +1,5 @@
 
-#ifdef EZ_CPP11
+#if EZ_ENABLED(EZ_SUPPORTS_CPP11)
   #define EZ_CHECK_CLASS(T) \
     EZ_CHECK_AT_COMPILETIME_MSG(!std::is_trivial<T>::value, "Pod type is treated as class, did you forget EZ_DECLARE_POD_TYPE?")
 #else
@@ -12,7 +12,7 @@ void ezMemoryUtils::Construct(T* pDestination, size_t uiCount)
 {
   // Default constructor is always called, so that debug helper initializations (e.g. ezVec3 initializes to NaN) take place. 
   // Note that destructor is ONLY called for class types.
-#ifdef EZ_CPP11
+#if EZ_ENABLED(EZ_SUPPORTS_CPP11)
   // Special case for c++11 to prevent default construction of "real" Pod types, also avoids warnings on msvc
   Construct(pDestination, uiCount, ezTraitInt<ezIsPodType<T>::value && std::is_trivial<T>::value>());
 #else
@@ -90,7 +90,7 @@ EZ_FORCE_INLINE bool ezMemoryUtils::IsAligned(const T* ptr, size_t uiAlignment)
 
 // private methods
 
-#ifdef EZ_CPP11
+#if EZ_ENABLED(EZ_SUPPORTS_CPP11)
   template <typename T>
   EZ_FORCE_INLINE void ezMemoryUtils::Construct(T* pDestination, size_t uiCount, ezTypeIsPod)
   {

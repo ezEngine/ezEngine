@@ -1,19 +1,15 @@
 #pragma once
 
-// This should be defined by the compiler specific header
-#ifdef NULL
-  #undef NULL
-#endif
-
+#include <Foundation/Basics/AllDefinesOff.h>
 #include <Foundation/Basics/Platform/DetectPlatform.h>
 #include <Foundation/UserConfig.h>
 
 // include the different headers for the supported platforms
-#if EZ_PLATFORM_WINDOWS
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   #include <Foundation/Basics/Platform/Win/Platform_win.h>
-#elif EZ_PLATFORM_OSX
+#elif EZ_ENABLED(EZ_PLATFORM_OSX)
   #include <Foundation/Basics/Platform/OSX/Platform_OSX.h>
-#elif EZ_PLATFORM_LINUX
+#elif EZ_ENABLED(EZ_PLATFORM_LINUX)
   #include <Foundation/Basics/Platform/Linux/Platform_linux.h>
 #else
   #error "Undefined platform!"
@@ -35,16 +31,16 @@
 #include <Foundation/Basics/Types.h>
 
 #ifdef BUILDSYSTEM_BUILDING_FOUNDATION_LIB
-  #if BUILDSYSTEM_COMPILE_ENGINE_AS_DLL && !EZ_COMPILE_ENGINE_AS_DLL
+  #if BUILDSYSTEM_COMPILE_ENGINE_AS_DLL && EZ_DISABLED(EZ_COMPILE_ENGINE_AS_DLL)
     #error "The Buildsystem is configured to build the Engine as a shared library, but EZ_COMPILE_ENGINE_AS_DLL is not defined in UserConfig.h"
   #endif
-  #if !BUILDSYSTEM_COMPILE_ENGINE_AS_DLL && EZ_COMPILE_ENGINE_AS_DLL
+  #if !BUILDSYSTEM_COMPILE_ENGINE_AS_DLL && EZ_ENABLED(EZ_COMPILE_ENGINE_AS_DLL)
     #error "The Buildsystem is configured to build the Engine as a static library, but EZ_COMPILE_ENGINE_AS_DLL is defined in UserConfig.h"
   #endif
 #endif
 
 // Configure the DLL Import/Export Define
-#if EZ_COMPILE_ENGINE_AS_DLL
+#if EZ_ENABLED(EZ_COMPILE_ENGINE_AS_DLL)
   #ifdef BUILDSYSTEM_BUILDING_FOUNDATION_LIB
     #define EZ_FOUNDATION_DLL __declspec(dllexport)
     #define EZ_FOUNDATION_TEMPLATE
@@ -192,5 +188,5 @@ struct ezStaticAllocatorWrapper
 };
 
 #define EZ_INCLUDE_STATIC_H
-#include <Foundation/Basics/Static.h>
+  #include <Foundation/Basics/Static.h>
 #undef EZ_INCLUDE_STATIC_H

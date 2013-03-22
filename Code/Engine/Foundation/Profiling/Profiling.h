@@ -16,13 +16,15 @@ public:
 
 };
 
-#if defined(EZ_PROFILING_ENABLED)
+#if EZ_ENABLED(EZ_USE_PROFILING)
 
-/// \brief Profiles a scope, please note that Name is used as part of a variable name and thus has to be a valid C++ identifier.
-#define EZ_PROFILE(Name) ezProfilingScope _ezProfilingScope##Name_(#Name, EZ_SOURCE_FILE, EZ_SOURCE_FUNCTION, EZ_SOURCE_LINE)
+  /// \brief Profiles a scope, please note that Name is used as part of a variable name and thus has to be a valid C++ identifier.
+  #define EZ_PROFILE(Name) ezProfilingScope _ezProfilingScope##Name_(#Name, EZ_SOURCE_FILE, EZ_SOURCE_FUNCTION, EZ_SOURCE_LINE)
 
 #else
+
   #define EZ_PROFILE(Name)
+
 #endif
 
 /// \brief Helper functionality of the profiling system.

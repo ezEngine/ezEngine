@@ -93,14 +93,14 @@ double ezTestBaseClass::DoSubTestRun(ezInt32 iIdentifier, const char* szSubTestN
 
   try
   {
-    #if EZ_PLATFORM_WINDOWS
+    #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
       ezUInt64 uiStartTime, uiEndTime, uiFrequency;
       QueryPerformanceCounter(reinterpret_cast<LARGE_INTEGER*>(&uiStartTime));
     #endif
 
     RunSubTest(iIdentifier);
 
-    #if EZ_PLATFORM_WINDOWS
+    #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
       QueryPerformanceCounter(reinterpret_cast<LARGE_INTEGER*>(&uiEndTime));
       QueryPerformanceFrequency(reinterpret_cast<LARGE_INTEGER*>(&uiFrequency));
 
@@ -141,7 +141,7 @@ static void LogWriter(const ezLog::LoggingEvent& e, void* ptr)
 ezResult ezTestBaseClass::ExecuteTest(std::deque<ezSubTestEntry>& SubTestsToExecute, double& out_fTotalDuration)
 {
   out_fTotalDuration = 0.0;
-  #if EZ_PLATFORM_WINDOWS
+  #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
     ezUInt64 uiStartTime, uiEndTime, uiFrequency;
     QueryPerformanceCounter(reinterpret_cast<LARGE_INTEGER*>(&uiStartTime));
   #endif
@@ -196,7 +196,7 @@ ezResult ezTestBaseClass::ExecuteTest(std::deque<ezSubTestEntry>& SubTestsToExec
 
   DoTestDeInitialization();
 
-  #if EZ_PLATFORM_WINDOWS
+  #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
     QueryPerformanceCounter(reinterpret_cast<LARGE_INTEGER*>(&uiEndTime));
     QueryPerformanceFrequency(reinterpret_cast<LARGE_INTEGER*>(&uiFrequency));
 

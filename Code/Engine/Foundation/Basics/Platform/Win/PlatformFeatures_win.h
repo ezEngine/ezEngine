@@ -1,10 +1,13 @@
 #pragma once
 
 /// If set to 1, the POSIX file implementation will be used. Otherwise a platform specific implementation must be available.
-#define EZ_USE_POSIX_FILE_API 0
+#undef EZ_USE_POSIX_FILE_API
+#define EZ_USE_POSIX_FILE_API EZ_OFF
 
 /// Iterating through the file system is supported
-#define EZ_SUPPORTS_FILE_ITERATORS 1
+#undef EZ_SUPPORTS_FILE_ITERATORS
+#define EZ_SUPPORTS_FILE_ITERATORS EZ_ON
 
 /// Getting the stats of a file (modification times etc.) is supported.
-#define EZ_SUPPORTS_FILE_STATS 1
+#undef EZ_SUPPORTS_FILE_STATS
+#define EZ_SUPPORTS_FILE_STATS EZ_ON

@@ -3,12 +3,12 @@
 #include <Foundation/Threading/Lock.h>
 #include <Foundation/Threading/Mutex.h>
 
-#ifdef EZ_PLATFORM_WINDOWS
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   static void SetConsoleColor (WORD ui)
   {
     SetConsoleTextAttribute (GetStdHandle (STD_OUTPUT_HANDLE), ui);
   }
-#elif EZ_PLATFORM_OSX
+#elif EZ_ENABLED(EZ_PLATFORM_OSX)
   static void SetConsoleColor (ezUInt8 ui) { }
 #else
   #error Unknown Platform.

@@ -31,7 +31,7 @@ namespace
   };
 }
 
-#if EZ_PLATFORM_64BIT
+#if EZ_ENABLED(EZ_PLATFORM_64BIT)
   EZ_CHECK_AT_COMPILETIME(sizeof(ezDynamicArray<ezInt32>) == 24);
 #else
   EZ_CHECK_AT_COMPILETIME(sizeof(ezDynamicArray<ezInt32>) == 16);

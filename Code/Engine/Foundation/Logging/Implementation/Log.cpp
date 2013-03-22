@@ -229,7 +229,7 @@ void ezLog::Info(const char* szFormat, ...)
   BroadcastLoggingEvent (ThisType, szString);
 }
 
-#ifdef EZ_COMPILE_FOR_DEVELOPMENT
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
 
 void ezLog::Dev(const char* szFormat, ...)
 {
@@ -254,7 +254,7 @@ void ezLog::Dev(const char* szFormat, ...)
 
 #endif
 
-#ifdef EZ_COMPILE_FOR_DEBUG
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
 
 void ezLog::Debug(const char* szFormat, ...)
 {

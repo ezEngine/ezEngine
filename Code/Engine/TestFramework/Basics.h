@@ -3,7 +3,7 @@
 #include <Foundation/Basics.h>
 
 // Configure the DLL Import/Export Define
-#if EZ_COMPILE_ENGINE_AS_DLL
+#if EZ_ENABLED(EZ_COMPILE_ENGINE_AS_DLL)
   #ifdef BUILDSYSTEM_BUILDING_TESTFRAMEWORK_LIB
     #define EZ_TEST_DLL __declspec(dllexport)
     #define EZ_TEST_TEMPLATE

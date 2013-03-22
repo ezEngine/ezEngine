@@ -7,16 +7,13 @@
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Basics/Types/Variant.h>
 
-//#define EZ_USE_GUARDED_ALLOCATOR 1
-//#define EZ_USE_TRACE_ALLOCATOR 1
-
-#if EZ_USE_GUARDED_ALLOCATOR
+#if EZ_ENABLED(EZ_USE_GUARDED_ALLOCATOR)
   typedef ezMemoryPolicies::ezGuardedBoundsChecking DefaultAllocatorGuarding;
 #else
   typedef ezMemoryPolicies::ezNoBoundsChecking DefaultAllocatorGuarding;
 #endif
 
-#if EZ_USE_TRACE_ALLOCATOR
+#if EZ_ENABLED(EZ_USE_TRACE_ALLOCATOR)
   typedef ezMemoryPolicies::ezStackTracking DefaultAllocatorTracking;
 #else
   typedef ezMemoryPolicies::ezSimpleTracking DefaultAllocatorTracking;
@@ -64,7 +61,7 @@ void ezFoundation::Initialize()
 
   s_bIsInitialized = true;
 
-#if EZ_COMPILE_FOR_DEVELOPMENT
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   ezMemoryUtils::ReserveLower4GBAddressSpace();
 #endif
    

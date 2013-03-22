@@ -94,7 +94,7 @@ Only concrete and clocks.\n\
     f.Close();
   }
 
-#ifdef EZ_SUPPORTS_FILE_STATS
+#if EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
   EZ_TEST_BLOCK(true, "File Stats")
   {
     ezFileStats s;
@@ -130,7 +130,7 @@ Only concrete and clocks.\n\
 
 #endif
 
-#if defined(EZ_SUPPORTS_FILE_ITERATORS) && EZ_SUPPORTS_FILE_ITERATORS == 1
+#if EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS)
 
   EZ_TEST_BLOCK(true, "File Iterator")
   {

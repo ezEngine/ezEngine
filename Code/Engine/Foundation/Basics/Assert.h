@@ -45,7 +45,7 @@ EZ_FOUNDATION_DLL bool ezFailedCheck(const char* szSourceFile, ezUInt32 uiLine, 
 #define EZ_ASSERT_NOT_IMPLEMENTED EZ_ASSERT_ALWAYS
 
 // Occurrences of EZ_ASSERT are compiled out in non-development builds
-#if EZ_COMPILE_FOR_DEVELOPMENT
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
 
   /// \brief Macro to raise an error, if a condition is not met.
   ///

@@ -3,7 +3,7 @@
 
 void ezMemoryUtils::ReserveLower4GBAddressSpace()
 {
-#if EZ_PLATFORM_WINDOWS_64BIT
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS) && EZ_ENABLED(EZ_PLATFORM_64BIT)
   // The following code was taken from http://randomascii.wordpress.com/2012/02/14/64-bit-made-easy/
   // and adapted to our coding guidelines.
 

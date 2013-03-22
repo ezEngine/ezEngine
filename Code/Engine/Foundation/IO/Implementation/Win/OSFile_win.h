@@ -8,7 +8,7 @@ static ezUInt64 HighLowToUInt64(ezUInt32 uiHigh32, ezUInt32 uiLow32)
   return (uiHigh64 << 32) | uiLow64;
 }
 
-#if EZ_USE_POSIX_FILE_API == 0
+#if EZ_DISABLED(EZ_USE_POSIX_FILE_API)
 
 ezResult ezOSFile::InternalOpen(const char* szFile, ezFileMode::Enum OpenMode)
 {

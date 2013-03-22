@@ -151,7 +151,7 @@ EZ_FORCE_INLINE bool ezAtomicUtils::CompareAndSwap(volatile ezInt64& dest, ezInt
 
 EZ_FORCE_INLINE bool ezAtomicUtils::CompareAndSwap(void** volatile dest, void* expected, void* value)
 {
-  #if EZ_PLATFORM_64BIT
+  #if EZ_ENABLED(EZ_PLATFORM_64BIT)
     ezUInt64* puiTemp = *reinterpret_cast<ezUInt64**>(dest);
     return __sync_bool_compare_and_swap(puiTemp, reinterpret_cast<ezUInt64>(expected), reinterpret_cast<ezUInt64>(value)) == reinterpret_cast<ezUInt64>(expected);
   #else

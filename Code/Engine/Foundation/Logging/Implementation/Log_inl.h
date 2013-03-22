@@ -8,7 +8,7 @@ inline ezLog::LoggingEvent::LoggingEvent()
   m_szTag = "";
 }
 
-#ifndef EZ_COMPILE_FOR_DEVELOPMENT
+#if EZ_DISABLED(EZ_COMPILE_FOR_DEVELOPMENT)
 
 EZ_FORCE_INLINE void ezLog::Dev(const char* szFormat, ...)
 {
@@ -17,7 +17,7 @@ EZ_FORCE_INLINE void ezLog::Dev(const char* szFormat, ...)
 
 #endif
 
-#ifndef EZ_COMPILE_FOR_DEBUG
+#if EZ_DISABLED(EZ_COMPILE_FOR_DEBUG)
 
 EZ_FORCE_INLINE void ezLog::Debug(const char* szFormat, ...)
 {

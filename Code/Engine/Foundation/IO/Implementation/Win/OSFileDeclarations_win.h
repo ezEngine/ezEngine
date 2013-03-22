@@ -2,7 +2,7 @@
 
 #include <Foundation/Basics.h>
 
-#if EZ_USE_POSIX_FILE_API == 0
+#if EZ_DISABLED(EZ_USE_POSIX_FILE_API)
 
 struct ezOSFileData
 {

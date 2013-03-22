@@ -178,7 +178,7 @@ ezResult ezOSFile::CopyFile(const char* szSource, const char* szDestination)
   return EZ_SUCCESS;
 }
 
-#ifdef EZ_SUPPORTS_FILE_STATS
+#if EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
 
   ezResult ezOSFile::GetFileStats(const char* szFileOrFolder, ezFileStats& out_Stats)
   {
@@ -229,7 +229,7 @@ ezResult ezOSFile::CopyFile(const char* szSource, const char* szDestination)
 #endif // EZ_SUPPORTS_FILE_STATS
 
 
-#if EZ_PLATFORM_WINDOWS
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   #include <Foundation/IO/Implementation/Win/OSFile_win.h>
 #elif EZ_USE_POSIX_FILE_API
   #include <Foundation/IO/Implementation/Posix/OSFile_posix.h>

@@ -205,7 +205,7 @@ public:
   /// \brief Searches szString after position uiStartPos for the word szSearchFor. If IsDelimiterCB returns true for both characters in front and back of the word, the position is returned. Otherwise -1. Ignores case.
   static const char* FindWholeWord_NoCase(const char* szString, const char* szSearchFor, EZ_IS_WORD_DELIMITER IsDelimiterCB, const char* pStringEnd = ezMaxStringEnd); // [tested]
 
-#ifdef EZ_COMPILE_FOR_DEVELOPMENT
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   static void AddUsedStringLength(ezUInt32 uiLength);
   static void PrintStringLengthStatistics();
   static ezAtomicInteger32 g_MaxUsedStringLength;
