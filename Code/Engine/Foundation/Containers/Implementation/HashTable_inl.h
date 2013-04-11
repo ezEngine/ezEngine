@@ -7,6 +7,10 @@ template <typename K, typename V, typename H>
 ezHashTableBase<K, V, H>::ConstIterator::ConstIterator(const ezHashTableBase<K, V, H>& hashTable) :
   m_hashTable(hashTable), m_uiCurrentIndex(0), m_uiCurrentCount(0)
 {
+   while (!m_hashTable.IsValidEntry(m_uiCurrentIndex))
+   {
+     ++m_uiCurrentIndex;
+   }
 }
 
 template <typename K, typename V, typename H>
@@ -111,9 +115,15 @@ void ezHashTableBase<K, V, H>::operator= (const ezHashTableBase<K, V, H>& rhs)
 {
   Clear();
   Reserve(rhs.GetCount());
-  for (ezHashTableBase<K, V, H>::ConstIterator it = rhs.GetIterator(); it.IsValid(); ++it)
+
+  ezUInt32 uiCopied = 0;
+  for (ezUInt32 i = 0; uiCopied < rhs.GetCount(); ++i)
   {
-    Insert(it.Key(), it.Value());
+    if (rhs.IsValidEntry(i))
+    {
+      Insert(rhs.m_pEntries[i].key, rhs.m_pEntries[i].value);
+      ++uiCopied;
+    }
   }
 }
 
@@ -361,18 +371,28 @@ inline ezUInt32 ezHashTableBase<K, V, H>::FindEntry(ezUInt32 uiHash, const K& ke
   return ezInvalidIndex;
 }
 
+#define EZ_HASHTABLE_USE_BITFLAGS EZ_ON
+
 template <typename K, typename V, typename H>
 EZ_FORCE_INLINE ezUInt32 ezHashTableBase<K, V, H>::GetFlagsCapacity() const
 {
+#if EZ_ENABLED(EZ_HASHTABLE_USE_BITFLAGS)
   return (m_uiCapacity + 15) / 16;
+#else
+  return m_uiCapacity;
+#endif
 }
 
 template <typename K, typename V, typename H>
 ezUInt32 ezHashTableBase<K, V, H>::GetFlags(ezUInt32* pFlags, ezUInt32 uiEntryIndex) const
 {
+#if EZ_ENABLED(EZ_HASHTABLE_USE_BITFLAGS)
   const ezUInt32 uiIndex = uiEntryIndex / 16;
   const ezUInt32 uiSubIndex = (uiEntryIndex & 15) * 2;
   return (pFlags[uiIndex] >> uiSubIndex) & FLAGS_MASK;
+#else
+  return pFlags[uiEntryIndex] & FLAGS_MASK;
+#endif
 }
 
 template <typename K, typename V, typename H>
@@ -396,19 +416,27 @@ EZ_FORCE_INLINE bool ezHashTableBase<K, V, H>::IsDeletedEntry(ezUInt32 uiEntryIn
 template <typename K, typename V, typename H>
 void ezHashTableBase<K, V, H>::MarkEntryAsValid(ezUInt32 uiEntryIndex)
 {
+#if EZ_ENABLED(EZ_HASHTABLE_USE_BITFLAGS)
   const ezUInt32 uiIndex = uiEntryIndex / 16;
   const ezUInt32 uiSubIndex = (uiEntryIndex & 15) * 2;
   m_pEntryFlags[uiIndex] |= (VALID_ENTRY << uiSubIndex);
   m_pEntryFlags[uiIndex] &= ~(DELETED_ENTRY << uiSubIndex);
+#else
+  m_pEntryFlags[uiEntryIndex] = VALID_ENTRY;
+#endif
 }
 
 template <typename K, typename V, typename H>
 void ezHashTableBase<K, V, H>::MarkEntryAsDeleted(ezUInt32 uiEntryIndex)
 {
+#if EZ_ENABLED(EZ_HASHTABLE_USE_BITFLAGS)
   const ezUInt32 uiIndex = uiEntryIndex / 16;
   const ezUInt32 uiSubIndex = (uiEntryIndex & 15) * 2;
   m_pEntryFlags[uiIndex] |= (DELETED_ENTRY << uiSubIndex);
   m_pEntryFlags[uiIndex] &= ~(VALID_ENTRY << uiSubIndex);
+#else
+  m_pEntryFlags[uiEntryIndex] = DELETED_ENTRY;
+#endif
 }
 
 

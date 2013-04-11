@@ -1,62 +1,76 @@
 #include <Foundation/PCH.h>
 #include <Foundation/Memory/Policies/Tracking.h>
+#include <Foundation/Utilities/StackTracer.h>
 
-/// \todo Clemens: implement stack tracking once we have a hashtable collection
-#if 0
-#include "Utils/StackTracer.h"
+namespace ezMemoryPolicies
+{
 
 enum { INITIAL_TRACE_TABLE_SIZE = 128 };
 
-StackTracking::StackTracking() :
-  m_trackings(INITIAL_TRACE_TABLE_SIZE, DebugAllocator)
+ezStackTracking::ezStackTracking() :
+  m_trackings(ezFoundation::GetDebugAllocator())
 {
+  m_trackings.Reserve(INITIAL_TRACE_TABLE_SIZE);
 }
 
-void StackTracking::AddAllocation(void* ptr, size_t allocatedSize, size_t usedMemorySize,
-  const SourceLocation& location)
+ezStackTracking::~ezStackTracking()
 {
-  ezSimpleTracking::AddAllocation(ptr, allocatedSize, usedMemorySize, location);
+  for (ezHashTable<void*, TrackingInfo>::ConstIterator it = m_trackings.GetIterator(); it.IsValid(); ++it)
+  {
+    TrackingInfo info = it.Value();
+    EZ_DELETE_RAW_BUFFER(ezFoundation::GetDebugAllocator(), info.pTrace);
+  }
 
-  // get stacktrace and skip the last three frames since they are useless
-  ulong buffer[64];
-  int numTraces = utils::StackTracer::GetStackTrace(buffer, 64) - 3;
-
-  ulong* trace = DebugAllocator->CreateBuffer<ulong>(numTraces);
-  memory::Utils::Copy(trace, buffer, numTraces);
-
-  TrackingInfo info = { allocatedSize, trace };
-  m_trackings.Add(ptr, info);
+  m_trackings.Clear();
 }
 
-void StackTracking::RemoveAllocation(void* ptr, size_t allocatedSize, size_t usedMemorySize)
+void ezStackTracking::AddAllocation(void* ptr, size_t uiAllocatedSize, size_t uiUsedMemorySize)
 {
-  ezSimpleTracking::RemoveAllocation(ptr, allocatedSize, usedMemorySize);
+  ezSimpleTracking::AddAllocation(ptr, uiAllocatedSize, uiUsedMemorySize);
+
+  void* pBuffer[64];
+  ezArrayPtr<void*> tempTrace(pBuffer);
+  const ezUInt32 uiNumTraces = ezStackTracer::GetStackTrace(tempTrace);
+
+  void** pTrace = EZ_NEW_RAW_BUFFER(ezFoundation::GetDebugAllocator(), void*, uiNumTraces);
+  ezMemoryUtils::Copy(pTrace, tempTrace.GetPtr(), uiNumTraces);
+
+  TrackingInfo info = { uiAllocatedSize, pTrace };
+  m_trackings.Insert(ptr, info);
+}
+
+void ezStackTracking::RemoveAllocation(void* ptr, size_t uiAllocatedSize, size_t uiUsedMemorySize)
+{
+  ezSimpleTracking::RemoveAllocation(ptr, uiAllocatedSize, uiUsedMemorySize);
 
   TrackingInfo info = { 0, NULL };
-  bool result = m_trackings.Remove(ptr, info);
-  __ASSERT(result);
+  bool result = m_trackings.Remove(ptr, &info);
+  EZ_ASSERT(result, "No tracking information found for '%x'", ptr);
 
-  DebugAllocator->DeleteBuffer(info.trace);
+  EZ_DELETE_RAW_BUFFER(ezFoundation::GetDebugAllocator(), info.pTrace);
 }
 
-void StackTracking::DumpMemoryLeaks()
+void ezStackTracking::DumpMemoryLeaks() const
 {
   wchar_t buffer[512];
 
-  for (HashTable<void*, TrackingInfo>::Iterator i = m_trackings.Iterate(); i.Next();)
+  for (ezHashTable<void*, TrackingInfo>::ConstIterator it = m_trackings.GetIterator(); it.IsValid(); ++it)
   {
-    void* ptr = i.Key();
-    TrackingInfo info = i.Value();
-    int numTraces = (int)(DebugAllocator->AllocatedSize(info.trace) / sizeof(ulong));
+    void* ptr = it.Key();
+    TrackingInfo info = it.Value();
+    const ezUInt32 uiNumTraces = (ezUInt32)(ezFoundation::GetDebugAllocator()->AllocatedSize(info.pTrace) / sizeof(void*));
 
-    swprintf_s(buffer, L"Leaked %d bytes allocated from:\n", (int)info.allocatedSize);
+  #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+
+    // todo: make this platform independent
+    swprintf_s(buffer, L"Leaked %d bytes allocated from:\n", (int)info.uiAllocatedSize);
     OutputDebugStringW(buffer);
-    utils::StackTracer::DumpStackTrace(info.trace, numTraces);
+    ezStackTracer::DumpStackTrace(ezArrayPtr<void*>(info.pTrace, uiNumTraces));
     OutputDebugStringW(
       L"--------------------------------------------------------------------\n\n");
+  #endif
 
-    DebugAllocator->DeleteBuffer(info.trace);
   }
-  m_trackings.Clear();
 }
-#endif
+
+}

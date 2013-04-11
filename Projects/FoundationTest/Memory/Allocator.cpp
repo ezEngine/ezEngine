@@ -117,5 +117,26 @@ EZ_CREATE_SIMPLE_TEST(Memory, Allocator)
 
     ezStartup::ShutdownBase();
   }
+
+  EZ_TEST_BLOCK(true, "Tracking")
+  {
+    ezStartup::StartupBase();
+
+    typedef ezAllocator<ezMemoryPolicies::ezHeapAllocation, ezMemoryPolicies::ezNoBoundsChecking,
+      ezMemoryPolicies::ezStackTracking, ezMutex> TrackingAllocator;
+
+    ezIAllocator* pAllocator = EZ_NEW(ezFoundation::GetBaseAllocator(), TrackingAllocator)("TrackingAllocator", NULL);
+
+    // memory leak
+    char* szTestBuffer = EZ_NEW_RAW_BUFFER(pAllocator, char, 16);
+
+    static_cast<TrackingAllocator*>(pAllocator)->GetTracker().DumpMemoryLeaks();
+
+    EZ_DELETE_RAW_BUFFER(pAllocator, szTestBuffer);
+
+    EZ_DELETE(ezFoundation::GetBaseAllocator(), pAllocator);
+
+    ezStartup::ShutdownBase();
+  }
 }
 

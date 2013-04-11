@@ -56,7 +56,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, HashTable)
   {
     ezHashTable<ezInt32, st> table1;
 
-    for (ezInt32 i = 0; i < 32; ++i)
+    for (ezInt32 i = 0; i < 64; ++i)
     {
       table1.Insert(rand() % 100000, ezConstructionCounter(i));
     }
@@ -65,16 +65,19 @@ EZ_CREATE_SIMPLE_TEST(Containers, HashTable)
     table2 = table1;
     ezHashTable<ezInt32, st> table3(table1);
 
-    EZ_TEST_INT(table1.GetCount(), 32);
-    EZ_TEST_INT(table2.GetCount(), 32);
-    EZ_TEST_INT(table3.GetCount(), 32);
+    EZ_TEST_INT(table1.GetCount(), 64);
+    EZ_TEST_INT(table2.GetCount(), 64);
+    EZ_TEST_INT(table3.GetCount(), 64);
 
-    ezInt32 i = 0;
-    for (ezHashTable<ezInt32, st>::Iterator it = table1.GetIterator(); it.IsValid(); ++it)
+    for (ezHashTable<ezInt32, st>::ConstIterator it = table1.GetIterator(); it.IsValid(); ++it)
     {
-      EZ_TEST(it.Value() == table2[it.Key()]);
-      EZ_TEST(it.Value() == table3[it.Key()]);
-      ++i;
+      ezConstructionCounter value;
+
+      EZ_TEST(table2.TryGetValue(it.Key(), value));
+      EZ_TEST(it.Value() == value);
+
+      EZ_TEST(table3.TryGetValue(it.Key(), value));
+      EZ_TEST(it.Value() == value);
     }
   }
 

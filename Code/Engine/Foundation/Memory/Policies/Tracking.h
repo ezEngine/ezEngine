@@ -1,10 +1,11 @@
 #pragma once
 
+#include <Foundation/Containers/HashTable.h>
 #include <Foundation/Threading/AtomicInteger.h>
 
 namespace ezMemoryPolicies
 {
-  class ezSimpleTracking
+  class EZ_FOUNDATION_DLL ezSimpleTracking
   {
   public:
     void AddAllocation(void* ptr, size_t uiAllocatedSize, size_t uiUsedMemorySize)
@@ -21,7 +22,7 @@ namespace ezMemoryPolicies
       m_uiUsedMemorySize.Subtract(uiUsedMemorySize);
     }
 
-    EZ_FORCE_INLINE void DumpMemoryLeaks() { }
+    EZ_FORCE_INLINE void DumpMemoryLeaks() const { }
 
     ezUInt64 GetNumAllocations() const { return m_uiNumAllocations; }
     ezUInt64 GetNumDeallocations() const { return m_uiNumDeallocations; }
@@ -34,5 +35,28 @@ namespace ezMemoryPolicies
     ezAtomicInteger64 m_uiNumDeallocations;
     ezAtomicInteger64 m_uiAllocationSize;
     ezAtomicInteger64 m_uiUsedMemorySize;
+  };
+
+  class EZ_FOUNDATION_DLL ezStackTracking : public ezSimpleTracking
+  {
+  private:
+    struct TrackingInfo
+    {
+      EZ_DECLARE_POD_TYPE();
+
+      size_t uiAllocatedSize;
+      void** pTrace;
+    };
+
+    ezHashTable<void*, TrackingInfo> m_trackings;
+
+  public:
+    ezStackTracking();
+    ~ezStackTracking();
+
+    void AddAllocation(void* ptr, size_t uiAllocatedSize, size_t uiUsedMemorySize);
+    void RemoveAllocation(void* ptr, size_t uiAllocatedSize, size_t uiUsedMemorySize);
+
+    void DumpMemoryLeaks() const;
   };
 }
