@@ -7,9 +7,9 @@
 
 #define EZ_ON =
 #define EZ_OFF !
-#define EZ_ENABLED(x) (1 ##x= 1)
-#define EZ_DISABLED(x) (1 ##x= 2)
-#define EZ_IS_NOT_EXCLUSIVE(x, y) ((1 ##x= 1) == (1 ##y= 1))
+#define EZ_ENABLED(x) (1 x##= 1)
+#define EZ_DISABLED(x) (1 x##= 2)
+#define EZ_IS_NOT_EXCLUSIVE(x, y) ((1 x##= 1) == (1 y##= 1))
 
 
 

@@ -46,10 +46,7 @@ public:
   /// \brief Returns the per thread pointer table used to store TLS values internally
   static ezThreadLocalPointerTable* GetPerThreadPointerTable();
 
-  static bool IsInitialized() { return s_bInitialized; }
-
 private:
-  EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(Foundation, ThreadLocalStorage);
 
   static bool s_bInitialized;
 

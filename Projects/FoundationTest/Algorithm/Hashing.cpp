@@ -1,4 +1,4 @@
-#include "PCH.h"
+#include <PCH.h>
 
 EZ_CREATE_SIMPLE_TEST_GROUP(Algorithm);
 

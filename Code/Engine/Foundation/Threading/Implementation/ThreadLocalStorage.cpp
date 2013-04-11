@@ -5,23 +5,6 @@
 #include <Foundation/Threading/Lock.h>
 #include <Foundation/Configuration/Startup.h>
 
-EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, ThreadLocalStorage)
-
-  // no dependencies
-
-  ON_BASE_STARTUP
-  {
-    ezThreadLocalStorage::Initialize();
-  }
-
-  ON_BASE_SHUTDOWN
-  {
-    ezThreadLocalStorage::Shutdown();
-  }
-
-EZ_END_SUBSYSTEM_DECLARATION
-
-
 bool ezThreadLocalStorage::s_bInitialized = false;
 static ezThreadLocalPointerTable g_MainThreadLocalPointerTable;
 
@@ -35,6 +18,8 @@ static ezMutex g_TableManagementMutex;
 ezUInt32 ezThreadLocalStorage::AllocateSlot()
 {
   ezLock<ezMutex> Lock(g_TableManagementMutex);
+
+  Initialize();
 
   // Find a free slot
   for(ezUInt32 i = 0; i < EZ_THREAD_LOCAL_STORAGE_SLOT_COUNT; ++i)

@@ -144,26 +144,15 @@ public:
     m_szName = szName;
     m_bWritten = false;
 
-    if (ezThreadLocalStorage::IsInitialized())
-    {
-      m_pParentBlock = s_CurrentBlockTLS;
-      s_CurrentBlockTLS = this;
-    }
-    else
-    {
-      m_pParentBlock = s_CurrentBlock;
-      s_CurrentBlock = this;
-    }
+    m_pParentBlock = s_CurrentBlock;
+    s_CurrentBlock = this;
     
     m_iBlockDepth = m_pParentBlock ? (m_pParentBlock->m_iBlockDepth + 1) : 0;
   }
 
   ~ezLogBlock()
   {
-    if (ezThreadLocalStorage::IsInitialized())
-      s_CurrentBlockTLS = m_pParentBlock;
-    else
-      s_CurrentBlock = m_pParentBlock;
+    s_CurrentBlock = m_pParentBlock;
 
     ezLog::EndLogBlock(this);
   }
@@ -176,8 +165,7 @@ private:
   const char* m_szName;
   bool m_bWritten;
 
-  static ezLogBlock* s_CurrentBlock;
-  static ezThreadLocalPointer<ezLogBlock> s_CurrentBlockTLS;
+  static ezThreadLocalPointer<ezLogBlock> s_CurrentBlock;
 };
 
 #include <Foundation/Logging/Implementation/Log_inl.h>

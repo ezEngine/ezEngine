@@ -4,8 +4,8 @@
 ezLog::EventType::Enum ezLog::s_LogLevel = ezLog::EventType::All;
 ezAtomicInteger32 ezLog::s_uiMessageCount[EventType::ENUM_COUNT];
 ezEvent<const ezLog::LoggingEvent&, void*, ezStaticAllocatorWrapper> ezLog::s_LoggingEvent;
-ezLogBlock* ezLogBlock::s_CurrentBlock = NULL;
-ezThreadLocalPointer<ezLogBlock> ezLogBlock::s_CurrentBlockTLS;
+
+ezThreadLocalPointer<ezLogBlock> ezLogBlock::s_CurrentBlock;
 
 void ezLog::EndLogBlock (ezLogBlock* pBlock)
 {
@@ -57,13 +57,7 @@ void ezLog::WriteBlockHeader(ezLogBlock* pBlock)
 
 void ezLog::BroadcastLoggingEvent(EventType::Enum type, const char* szString)
 {
-  ezLogBlock* pTopBlock = NULL;
-  
-  if (ezThreadLocalStorage::IsInitialized())
-    pTopBlock = ezLogBlock::s_CurrentBlockTLS;
-  else
-    pTopBlock = ezLogBlock::s_CurrentBlock;
-
+  ezLogBlock* pTopBlock = ezLogBlock::s_CurrentBlock;
   ezInt32 iIndentation = 0;
 
   if (pTopBlock)
