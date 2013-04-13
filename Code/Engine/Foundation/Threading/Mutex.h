@@ -25,10 +25,18 @@ private:
   EZ_DISALLOW_COPY_AND_ASSIGN(ezMutex);
 };
 
+/// \brief A dummy mutex that does no locking.
+///
+/// Used when a mutex object needs to be passed to some code (such as allocators), but thread-synchronization
+/// is actually not necessary.
 class ezNoMutex
 {
 public:
+
+  /// \brief Implements the 'Acquire' interface function, but does nothing.
   EZ_FORCE_INLINE void Acquire() { }
+
+  /// \brief Implements the 'Release' interface function, but does nothing.
   EZ_FORCE_INLINE void Release() { }
 };
 

@@ -2,6 +2,10 @@
 
 #include <Foundation/Math/Vec3.h>
 
+/// \brief An implementation of a bounding sphere.
+///
+/// This class allows to construct and manipulate bounding spheres.
+/// It also provides a large set of functions to do overlap queries, ray casts and other useful operations.
 class EZ_FOUNDATION_DLL ezBoundingSphere
 {
 public:

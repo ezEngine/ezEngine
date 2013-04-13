@@ -5,6 +5,17 @@
 #define ezInvalidIndex 0xFFFFFFFF
 
 /// \brief A double ended queue container.
+///
+/// The deque allocates elements in fixed size chunks (usually around 4KB per chunk), 
+/// but with at least 32 elements per chunk. It will allocate additional chunks when necessary, but never reallocate
+/// already existing data. Therefore it is well suited when it is not known up front how many elements are needed,
+/// as it can start with a small amount of data and grow on demand. Also an element in a deque is never moved around
+/// in memory, thus it is safe to store pointers to elements inside the deque.
+/// The deque uses one redirection to look up elements, for which it uses one index array. Thus a look up into a deque
+/// is slightly slower than a pure array lookup, but still very fast, compared to all other containers.
+/// Deques can easily grow and shrink at both ends and are thus well suited for use as a fifo or lifo queue or even
+/// a ring-buffer. It is optimized to even handle the ring-buffer use case without any memory allocations, as long as
+/// the buffer does not need to grow.
 template <typename T, bool Construct>
 class ezDequeBase
 {
@@ -27,6 +38,13 @@ public:
   void Clear();
 
   /// \brief Rearranges the internal data structures such that the amount of reserved elements can be appended with as few allocations, as possible.
+  ///
+  /// This does not reserve the actual amount of chunks, that would be needed, but only grows the index array 
+  /// (for redirections) as much as needed.
+  /// Thus you can use it to reserve enough bookkeeping storage, without actually allocating all that data.
+  /// In contrast to the ezDynamicArray and ezHybridArray containers, ezDeque does not require you to reserve space
+  /// up front, to be fast. However, if useful information is available, 'Reserve' can be used to prevent a few
+  /// unnecessary reallocations of its internal data structures.
   void Reserve(ezUInt32 uiCount);
 
   /// \brief This function deallocates as much memory as possible to shrink the deque to the bare minimum size that it needs to work.

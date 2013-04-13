@@ -2,6 +2,14 @@
 
 #include <Foundation/Math/Vec3.h>
 
+/// \brief Quaternians can be used to represent rotations in 3D space.
+///
+/// Quaternions are useful to represent 3D rotations, as they are smaller and more efficient than matrices
+/// and can be concatenated easily, without having the 'Gimbal Lock' problem of Euler Angles.
+/// Either use a full blown transformation (e.g. a 4x4 matrix) to represent a object, or use a Quaternion
+/// bundled with a position vector, if (non-uniform) scale is not required.
+/// Quaternions can also easily be interpolated (via Slerp).
+/// This implementation also allows to convert back and forth between Quaternins and Matrices easily.
 class EZ_FOUNDATION_DLL ezQuat
 {
 public:

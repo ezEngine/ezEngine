@@ -2,6 +2,15 @@
 
 #include <Foundation/Basics.h>
 
+/// \brief This class provides functions to do atomic operations.
+///
+/// Atomic operations are generally faster than mutexes, and should therefore be preferred whenever possible.
+/// However only the operations in themselves are atomic, once you execute several of them in sequence,
+/// the sequence will not be atomic.
+/// Also atomic operations are a lot slower than non-atomic operations, thus you should not use them in code that
+/// does not need to be thread-safe.
+/// ezAtomicInteger is built on top of ezAtomicUtils and provides a more convenient interface to use atomic
+/// integer instructions.
 struct ezAtomicUtils
 {
   /// \brief Increments dest as an atomic operation and returns the new value.

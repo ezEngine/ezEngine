@@ -4,6 +4,9 @@
 
 namespace ezMemoryPolicies
 {
+  /// \brief Implements a bounds checking policy that does no bounds checking.
+  ///
+  /// Used to configure allocators to do no bounds checking.
   class ezNoBoundsChecking
   {
   public:
@@ -13,12 +16,19 @@ namespace ezMemoryPolicies
       GuardSizeBack = 0
     };
 
+    /// \brief Does nothing.
     void GuardFront(void*, size_t) const { }
+
+    /// \brief Does nothing.
     void GuardBack(void*) const { }
 
+    /// \brief Does nothing.
     void CheckFront(const void*, size_t) const { }
+
+    /// \brief Does nothing.
     void CheckBack(const void*) const { }
 
+    /// \brief Does nothing, returns zero.
     size_t GetGuardOffset(const void*) const { return 0; }
   };
 

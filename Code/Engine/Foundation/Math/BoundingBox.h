@@ -2,6 +2,10 @@
 
 #include <Foundation/Math/Vec3.h>
 
+/// \brief An axis-aligned bounding box implementation.
+///
+/// This class allows to construct AABBs and also provides a large set of functions to work with them,
+/// e.g. for overlap queries and ray casts.
 class EZ_FOUNDATION_DLL ezBoundingBox
 {
 public:

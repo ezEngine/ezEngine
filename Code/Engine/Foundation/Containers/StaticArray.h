@@ -2,6 +2,12 @@
 
 #include <Foundation/Containers/ArrayBase.h>
 
+/// \brief Wraps a C-style array, which has a fixed size at compile-time, with a more convenient interface.
+///
+/// ezStaticArray can be used to create a fixed size array, either on the stack or as a class member.
+/// Additionally it allows to use that array as a 'cache', ie. not all its elements need to be constructed.
+/// As such it can be used whenever a fixed size array is sufficient, but a more powerful interface is desired,
+/// and when the number of elements in an array is dynamic at run-time, but always capped at a fixed limit.
 template <typename T, ezUInt32 Capacity>
 class ezStaticArray : public ezArrayBase<T, ezStaticArray<T, Capacity> >
 {

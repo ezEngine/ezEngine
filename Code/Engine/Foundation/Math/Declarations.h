@@ -32,12 +32,17 @@ struct ezMatrixLayout
   };
 };
 
+/// \brief This enum describes for which depth range a projection matrix is constructed.
+///
+/// Different Rendering APIs use different depth ranges.
+/// E.g. OpenGL uses -1 for the near plane and +1 for the far plane.
+/// DirectX uses 0 for the near plane and 1 for the far plane.
 struct ezProjectionDepthRange
 {
   enum Enum
   {
-    MinusOneToOne,  
-    ZeroToOne,      
+    MinusOneToOne,  ///< Near plane at -1, far plane at +1
+    ZeroToOne,      ///< Near plane at 0, far plane at 1
   };
 };
 
