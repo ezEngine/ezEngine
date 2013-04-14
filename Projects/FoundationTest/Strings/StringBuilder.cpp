@@ -177,6 +177,26 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     EZ_TEST_INT(s.GetCharacterCount(), 15);
   }
 
+  EZ_TEST_BLOCK(true, "Append(single unicode char)")
+  {
+    ezStringUtf32 u32 = L"äöüß";
+
+    ezStringBuilder s("abc");
+    s.Append(u32.GetData()[0]);
+
+    EZ_TEST(s == ezStringUtf8(L"abcä").GetData());
+  }
+
+  EZ_TEST_BLOCK(true, "Prepend(single unicode char)")
+  {
+    ezStringUtf32 u32 = L"äöüß";
+
+    ezStringBuilder s("abc");
+    s.Prepend(u32.GetData()[0]);
+
+    EZ_TEST(s == ezStringUtf8(L"äabc").GetData());
+  }
+
   EZ_TEST_BLOCK(true, "Append(char)")
   {
     ezStringBuilder s("abc");
@@ -1203,6 +1223,21 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     p = ".\\\\test.stuff";
     p.RemoveDoubleSlashesInPath();
     EZ_TEST(p == "./test.stuff");
+  }
+
+  EZ_TEST_BLOCK(true, "MakePathOsSpecific")
+  {
+    ezStringBuilder p;
+    p = "This/is\\a/test\\\\path//to/my///file";
+
+    p.MakePathOsSpecific();
+
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+    EZ_TEST_STRING(p.GetData(), "This\\is\\a\\test\\\\path\\\\to\\my\\\\\\file");
+#else
+    EZ_TEST_STRING(p.GetData(), "This/is/a/test//path//to/my///file");
+#endif
+
   }
 }
 

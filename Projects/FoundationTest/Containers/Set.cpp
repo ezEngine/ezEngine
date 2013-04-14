@@ -190,6 +190,8 @@ EZ_CREATE_SIMPLE_TEST(Containers, Set)
       EZ_TEST_INT(it.Key(), i);
       ++i;
     }
+
+    EZ_TEST_INT(i, 1000);
   }
 
   EZ_TEST_BLOCK(true, "GetIterator / Forward Iteration (const)")
@@ -207,6 +209,8 @@ EZ_CREATE_SIMPLE_TEST(Containers, Set)
       EZ_TEST_INT(it.Key(), i);
       ++i;
     }
+
+    EZ_TEST_INT(i, 1000);
   }
 
   EZ_TEST_BLOCK(true, "GetLastIterator / Backward Iteration")

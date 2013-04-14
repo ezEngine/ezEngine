@@ -206,6 +206,8 @@ EZ_CREATE_SIMPLE_TEST(Containers, Map)
       EZ_TEST_INT(it.Value(), i * 10);
       ++i;
     }
+
+    EZ_TEST_INT(i, 1000);
   }
 
   EZ_TEST_BLOCK(true, "GetIterator / Forward Iteration (const)")
@@ -224,6 +226,8 @@ EZ_CREATE_SIMPLE_TEST(Containers, Map)
       EZ_TEST_INT(it.Value(), i * 10);
       ++i;
     }
+
+    EZ_TEST_INT(i, 1000);
   }
 
   EZ_TEST_BLOCK(true, "GetLastIterator / Backward Iteration")

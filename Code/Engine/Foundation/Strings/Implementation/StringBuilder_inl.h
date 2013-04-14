@@ -91,6 +91,15 @@ inline void ezStringBuilder::Append(ezUInt32 uiChar)
   Append(szChar);
 }
 
+inline void ezStringBuilder::Prepend(ezUInt32 uiChar)
+{
+  char szChar[6] = { 0, 0, 0, 0, 0, 0 };
+  char* pChar = &szChar[0];
+
+  ezUnicodeUtils::EncodeUtf32ToUtf8(uiChar, pChar);
+  Prepend(szChar);
+}
+
 inline void ezStringBuilder::Append(const wchar_t* pData1, const wchar_t* pData2, const wchar_t* pData3, const wchar_t* pData4, const wchar_t* pData5, const wchar_t* pData6)
 {
   // this is a bit heavy on the stack size (6KB)

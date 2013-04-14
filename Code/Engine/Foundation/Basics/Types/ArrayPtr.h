@@ -11,13 +11,13 @@ class ezArrayPtr
 public:
 
   /// \brief Initializes the ezArrayPtr to be empty.
-  EZ_FORCE_INLINE ezArrayPtr() :
+  EZ_FORCE_INLINE ezArrayPtr() : // [tested]
     m_ptr(NULL), m_uiCount(0)
   {
   }
 
   /// \brief Initializes the ezArrayPtr with the given pointer and number of elements. No memory is allocated or copied.
-  inline ezArrayPtr(T* ptr, ezUInt32 uiCount)
+  inline ezArrayPtr(T* ptr, ezUInt32 uiCount) // [tested]
   {
     if (ptr != NULL && uiCount != 0)
     {        
@@ -33,66 +33,64 @@ public:
 
   /// \brief Initializes the ezArrayPtr to encapsulate the given array.
   template <ezUInt32 N>
-  EZ_FORCE_INLINE ezArrayPtr(T (&staticArray)[N]) : m_ptr(staticArray), m_uiCount(N)
+  EZ_FORCE_INLINE ezArrayPtr(T (&staticArray)[N]) : m_ptr(staticArray), m_uiCount(N) // [tested]
   {
   }
 
   /// \brief Initializes the ezArrayPtr to be a copy of \a other. No memory is allocated or copied.
-  EZ_FORCE_INLINE ezArrayPtr(const ezArrayPtr<T>& other) : m_ptr(other.m_ptr), m_uiCount(other.m_uiCount)
+  EZ_FORCE_INLINE ezArrayPtr(const ezArrayPtr<T>& other) : m_ptr(other.m_ptr), m_uiCount(other.m_uiCount) // [tested]
   {
   }
 
   /// \brief Copies the pointer and size of /a other. Does not allocate any data.
-  EZ_FORCE_INLINE void operator=(const ezArrayPtr<T>& other)
+  EZ_FORCE_INLINE void operator=(const ezArrayPtr<T>& other) // [tested]
   {
     m_ptr = other.m_ptr;
     m_uiCount = other.m_uiCount;
   }
 
   /// \brief Returns the pointer to the array.
-  EZ_FORCE_INLINE T* GetPtr() const
+  EZ_FORCE_INLINE T* GetPtr() const // [tested]
   {
     return m_ptr;
   }
 
   /// \brief Returns the number of elements in the array.
-  EZ_FORCE_INLINE ezUInt32 GetCount() const
+  EZ_FORCE_INLINE ezUInt32 GetCount() const // [tested]
   {
     return m_uiCount;
   }
 
   /// \brief Creates a sub-array from this array.
-  EZ_FORCE_INLINE ezArrayPtr<T> operator()(ezUInt32 uiStart, ezUInt32 uiEnd)
+  EZ_FORCE_INLINE ezArrayPtr<T> GetSubArray(ezUInt32 uiStart, ezUInt32 uiCount) // [tested]
   {
-    EZ_ASSERT(uiStart < uiEnd, "Start has to be smaller than end");
-    EZ_ASSERT(uiEnd <= m_uiCount, "End has to be smaller or equal than the count");
-    return ezArrayPtr<T>(m_ptr + uiStart, uiEnd - uiStart);
+    EZ_ASSERT(uiStart + uiCount <= m_uiCount, "uiStart+uiCount (%i) has to be smaller or equal than the count (%i).", uiStart+uiCount, m_uiCount);
+    return ezArrayPtr<T>(m_ptr + uiStart, uiCount);
   }
 
   /// \brief Creates a sub-array from this array.
-  EZ_FORCE_INLINE const ezArrayPtr<T> operator()(ezUInt32 uiStart, ezUInt32 uiEnd) const
+  EZ_FORCE_INLINE const ezArrayPtr<T> GetSubArray(ezUInt32 uiStart, ezUInt32 uiCount) const // [tested]
   {
-    EZ_ASSERT(uiStart < uiEnd, "Start has to be smaller than end");
-    EZ_ASSERT(uiEnd <= m_uiCount, "End has to be smaller or equal than the count");
-    return ezArrayPtr<T>(m_ptr + uiStart, uiEnd - uiStart);
+    EZ_ASSERT(uiStart + uiCount <= m_uiCount, "uiStart+uiCount (%i) has to be smaller or equal than the count (%i).", uiStart+uiCount, m_uiCount);
+    return ezArrayPtr<T>(m_ptr + uiStart, uiCount);
   }
 
   /// \brief Index access.
-  EZ_FORCE_INLINE T& operator[](ezUInt32 uiIndex)
+  EZ_FORCE_INLINE T& operator[](ezUInt32 uiIndex) // [tested]
   {
-    EZ_ASSERT(uiIndex < m_uiCount, "out of bounds access");
+    EZ_ASSERT(uiIndex < m_uiCount, "Cannot access element %i, the array only holds %i elements.", uiIndex, m_uiCount);
     return m_ptr[uiIndex];
   }
 
   /// \brief Index access.
-  EZ_FORCE_INLINE const T& operator[](ezUInt32 uiIndex) const
+  EZ_FORCE_INLINE const T& operator[](ezUInt32 uiIndex) const // [tested]
   {
-    EZ_ASSERT(uiIndex < m_uiCount, "out of bounds access");
+    EZ_ASSERT(uiIndex < m_uiCount, "Cannot access element %i, the array only holds %i elements.", uiIndex, m_uiCount);
     return m_ptr[uiIndex];
   }
 
   /// \brief Compares the two arrays for equality.
-  inline bool operator==(const ezArrayPtr<T>& other) const
+  inline bool operator==(const ezArrayPtr<T>& other) const // [tested]
   {
     if (m_uiCount != other.m_uiCount)
       return false;
@@ -104,13 +102,13 @@ public:
   }
 
   /// \brief Compares the two arrays for inequality.
-  EZ_FORCE_INLINE bool operator!=(const ezArrayPtr<T>& other) const
+  EZ_FORCE_INLINE bool operator!=(const ezArrayPtr<T>& other) const // [tested]
   {
     return !operator==(other);
   }
 
   /// \brief Copies the data from \a other into this array. The arrays must have the exact same size.
-  inline void CopyFrom(const ezArrayPtr<T>& other)
+  inline void CopyFrom(const ezArrayPtr<T>& other) // [tested]
   {
     EZ_ASSERT(m_uiCount == other.m_uiCount, "Count for copy does not match. Target has %d elements, source %d elements", m_uiCount, other.m_uiCount);
 
@@ -118,7 +116,7 @@ public:
   }
 
   /// \brief Resets the ezArray to be empty. 
-  EZ_FORCE_INLINE void Reset()
+  EZ_FORCE_INLINE void Reset() // [tested]
   {
     m_ptr = NULL;
     m_uiCount = 0;

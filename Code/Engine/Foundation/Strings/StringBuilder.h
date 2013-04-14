@@ -51,7 +51,7 @@ public:
   void operator=(const wchar_t* szWChar); // [tested]
 
   /// \brief Copies the given substring into this one. The ezStringIterator might actually be a substring of this very string.
-  void operator=(const ezStringIterator& rhs);
+  void operator=(const ezStringIterator& rhs); // [tested]
 
   /// \brief Returns the allocator that is used by this object.
   ezIAllocator* GetAllocator() const;
@@ -94,7 +94,7 @@ public:
   void ChangeCharacter(ezStringIterator& Pos, ezUInt32 uiCharacter); // [tested]
 
   /// \brief Appends a single Utf32 character.
-  void Append(ezUInt32 uiChar);
+  void Append(ezUInt32 uiChar); // [tested]
 
   /// \brief Appends all the given strings at the back of this string in one operation.
   void Append(const wchar_t* pData1, const wchar_t* pData2 = NULL, const wchar_t* pData3 = NULL, const wchar_t* pData4 = NULL, const wchar_t* pData5 = NULL, const wchar_t* pData6 = NULL); // [tested]
@@ -107,6 +107,9 @@ public:
 
   /// \brief Appends the formatted string.
   void AppendFormat(const char* szUtf8Format, va_list& args); // [tested]
+
+  /// \brief Prepends a single Utf32 character.
+  void Prepend(ezUInt32 uiChar); // [tested]
 
   /// \brief Prepends all the given strings to the front of this string in one operation.
   void Prepend(const wchar_t* pData1, const wchar_t* pData2 = NULL, const wchar_t* pData3 = NULL, const wchar_t* pData4 = NULL, const wchar_t* pData5 = NULL, const wchar_t* pData6 = NULL); // [tested]
@@ -226,13 +229,15 @@ public:
 
 
 
-  /// \brief Removes double path-separators (ie. folder//folder -> folder/folder), removes "../" where possible, replaces all path separators with /
+  /// \brief Removes "../" where possible, replaces all path separators with /
   ///
   /// All paths use slashes on all platforms. If you need to convert a path to the OS specific representation, use 'MakePathOsSpecific'
   /// 'MakeCleanPath' will in rare circumstances grow the string by one character. That means it is quite safe to assume that
   /// it will not waste time on memory allocations.
   /// If it is repeatedly called on the same string, it has a minor overhead for computing the same string over and over, 
   /// but no memory allocations will be done (everything is in-place).
+  /// \note MakeCleanPath does NOT remove double slashes, as they might have some meaning in certain situations (UNC paths etc.)
+  ///       Use 'RemoveDoubleSlashesInPath' to get rid of extra path separators, if necessary (though the OS usually deals with that without problems).
   void MakeCleanPath(); // [tested]
 
   /// \brief Modifies this string to point to the parent directory.
@@ -267,9 +272,9 @@ public:
 
   /// \brief Cleans this path up and replaces all path separators by the OS specific separator.
   ///
-  /// This can be used, if you want to present paths in the OS specific form to the user in GUI.
+  /// This can be used, if you want to present paths in the OS specific form to the user in the UI.
   /// In all other cases the internal representation uses slashes, no matter on which operating system.
-  void MakePathOsSpecific();
+  void MakePathOsSpecific(); // [tested]
 
   /// \brief Checks whether this path is a subpath of the given path.
   ///
@@ -277,7 +282,7 @@ public:
   bool IsPathBelowFolder (const char* szPathToFolder); // [tested]
 
   /// \brief Will remove all double path separators (slashes and backslashes) in a path, except if the path starts with two (back-)slashes, those are kept, as they might indicate a UNC path.
-  void RemoveDoubleSlashesInPath();
+  void RemoveDoubleSlashesInPath(); // [tested]
 
 private:
   void ChangeCharacterNonASCII(ezStringIterator& Pos, ezUInt32 uiCharacter);

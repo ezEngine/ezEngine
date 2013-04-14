@@ -37,6 +37,18 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringUtils)
     EZ_TEST_INT(ezStringUtils::GetStringElementCount(sz, sz + 6), 6);
   }
 
+  EZ_TEST_BLOCK(true, "UpdateStringEnd")
+  {
+    const char* sz = "Test test";
+    const char* szEnd = ezMaxStringEnd;
+
+    ezStringUtils::UpdateStringEnd(sz, szEnd);
+    EZ_TEST(szEnd == sz + ezStringUtils::GetStringElementCount(sz));
+
+    ezStringUtils::UpdateStringEnd(sz, szEnd);
+    EZ_TEST(szEnd == sz + ezStringUtils::GetStringElementCount(sz));
+  }
+
   EZ_TEST_BLOCK(true, "GetCharacterCount")
   {
     EZ_TEST_INT(ezStringUtils::GetCharacterCount(NULL), 0);

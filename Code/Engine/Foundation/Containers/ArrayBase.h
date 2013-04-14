@@ -13,10 +13,10 @@ class ezArrayBase
 {
 public:
   /// \brief Constructor.
-  ezArrayBase();
+  ezArrayBase(); // [tested]
   
   /// \brief Destructor.
-  ~ezArrayBase();
+  ~ezArrayBase(); // [tested]
 
   /// \brief Conversion to const ezArrayPtr.
   operator const ezArrayPtr<T>() const; // [tested]
@@ -92,10 +92,10 @@ public:
 
   /// \brief Sort with explicit comparer
   template <typename C>
-  void Sort();
+  void Sort(); // [tested]
 
   /// \brief Sort with default comparer
-  void Sort();
+  void Sort(); // [tested]
 
 protected:
 

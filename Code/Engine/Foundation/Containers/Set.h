@@ -38,10 +38,10 @@ public:
     EZ_DECLARE_POD_TYPE();
 
     /// \brief Constructs an invalid iterator.
-    EZ_FORCE_INLINE Iterator()                         : m_pElement(NULL) { }
+    EZ_FORCE_INLINE Iterator() : m_pElement(NULL) { } // [tested]
 
     /// \brief Checks whether this iterator points to a valid element.
-    EZ_FORCE_INLINE bool IsValid() const { return (m_pElement != NULL); }
+    EZ_FORCE_INLINE bool IsValid() const { return (m_pElement != NULL); } // [tested]
 
     /// \brief Checks whether the two iterators point to the same element.
     EZ_FORCE_INLINE bool operator==(const typename ezSetBase<KeyType, Comparer>::Iterator& it2) const { return (m_pElement == it2.m_pElement); }
@@ -50,19 +50,19 @@ public:
     EZ_FORCE_INLINE bool operator!=(const typename ezSetBase<KeyType, Comparer>::Iterator& it2) const { return (m_pElement != it2.m_pElement); }
 
     /// \brief Returns the 'key' of the element that this iterator points to.
-    EZ_FORCE_INLINE const KeyType&   Key ()  const { EZ_ASSERT(IsValid(), "Cannot access the 'key' of an invalid iterator."); return m_pElement->m_Key;   }
+    EZ_FORCE_INLINE const KeyType&   Key ()  const { EZ_ASSERT(IsValid(), "Cannot access the 'key' of an invalid iterator."); return m_pElement->m_Key;   } // [tested]
 
     /// \brief Advances the iterator to the next element in the set. The iterator will not be valid anymore, if the end is reached.
-    void Next();
+    void Next(); // [tested]
 
     /// \brief Advances the iterator to the previous element in the set. The iterator will not be valid anymore, if the end is reached.
-    void Prev();
+    void Prev(); // [tested]
 
     /// \brief Shorthand for 'Next'
-    EZ_FORCE_INLINE void operator++() { Next();  }
+    EZ_FORCE_INLINE void operator++() { Next();  } // [tested]
 
     /// \brief Shorthand for 'Prev'
-    EZ_FORCE_INLINE void operator--() { Prev(); }
+    EZ_FORCE_INLINE void operator--() { Prev(); } // [tested]
 
   protected:
     friend class ezSetBase<KeyType, Comparer>;
@@ -84,7 +84,7 @@ protected:
   ~ezSetBase(); // [tested]
 
   /// \brief Copies all keys from the given set into this one.
-  void operator= (const ezSetBase<KeyType, Comparer>& rhs);
+  void operator= (const ezSetBase<KeyType, Comparer>& rhs); // [tested]
 
 public:
   /// \brief Returns whether there are no elements in the set. O(1) operation.

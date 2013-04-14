@@ -17,7 +17,7 @@ public:
   template <typename T>
   static bool IsNullOrEmpty(const T* pString); // [tested]
 
-  /// \brief Recomputes the end pointer of a string (szStringEnd), if that is currently set to ezMaxStringEnd. Otherwise does nothing.
+  /// \brief Recomputes the end pointer of a string (\a szStringEnd), if that is currently set to ezMaxStringEnd. Otherwise does nothing.
   template <typename T>
   static void UpdateStringEnd(const T* szStringStart, const T*& szStringEnd);
 

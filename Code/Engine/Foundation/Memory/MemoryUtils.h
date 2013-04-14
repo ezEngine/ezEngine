@@ -6,64 +6,70 @@
 class ezMemoryUtils
 {
 public:
-  /// \brief constructs objects of type T in a raw buffer
+  /// \brief Constructs \a uiCount objects of type T in a raw buffer at \a pDestination.
   template <typename T>
-  static void Construct(T* pDestination, size_t uiCount);
+  static void Construct(T* pDestination, size_t uiCount); // [tested]
 
-  /// \brief constructs objects of type T in a raw buffer using the copy constructor
+  /// \brief Constructs \a uiCount objects of type T in a raw buffer at \a pDestination, by creating \a uiCount copies of \a copy.
   template <typename T>
-  static void Construct(T* pDestination, const T& copy, size_t uiCount);
+  static void Construct(T* pDestination, const T& copy, size_t uiCount); // [tested]
 
-  /// \brief constructs objects of type T in a raw buffer from an existing array using the copy constructor
+  /// \brief Constructs \a uiCount objects of type T in a raw buffer at \a pDestination from an existing array of objects at \a pSource by using copy construction.
   template <typename T>
-  static void Construct(T* pDestination, const T* pSource, size_t uiCount);
+  static void Construct(T* pDestination, const T* pSource, size_t uiCount); // [tested]
 
-  /// \brief destructs objects of type T in pDestination
+  /// \brief Destructs \a uiCount objects of type T at \a pDestination.
   template <typename T>
-  static void Destruct(T* pDestination, size_t uiCount);
+  static void Destruct(T* pDestination, size_t uiCount); // [tested]
 
-  /// \brief copies objects of type T from pSource to pDestination, pDestination must not be a raw buffer
+  /// \brief Copies objects of type T from \a pSource to \a pDestination.
+  ///
+  /// You should use 'Move' instead of 'Copy', when the source and destination buffer might overlap.
   template <typename T>
-  static void Copy(T* pDestination, const T* pSource, size_t uiCount);
+  static void Copy(T* pDestination, const T* pSource, size_t uiCount); // [tested]
 
-  /// \brief moves objects of type T from pSource to pDestination, pDestination must not be a raw buffer
+  /// \brief Moves objects of type T from \a pSource to \a pDestination.
+  ///
+  /// You should use 'Move' instead of 'Copy', when the source and destination buffer might overlap.
   template <typename T>
-  static void Move(T* pDestination, const T* pSource, size_t uiCount);
+  static void Move(T* pDestination, const T* pSource, size_t uiCount); // [tested]
 
-  /// \brief tests if objects of type T from pSource and pDestination are equal
+  /// \brief Tests if objects of type T from \a pSource and \a pDestination are equal.
   template <typename T>
-  static bool IsEqual(const T* a, const T* b, size_t uiCount = 1);
+  static bool IsEqual(const T* a, const T* b, size_t uiCount = 1); // [tested]
 
-  /// \brief zeros out a raw buffer
+  /// \brief Zeros out buffer of a raw memory.
   template <typename T>
-  static void ZeroFill(T* pDestination, size_t uiCount = 1);
+  static void ZeroFill(T* pDestination, size_t uiCount = 1); // [tested]
 
   /// \brief Returns the address stored in \a ptr plus the given byte offset \a iOffset, cast to type \a T.
   ///
   /// This is useful when working with raw memory, to safely modify a pointer without having to take care of the
   /// details of pointer arithmetic.
   template <typename T>
-  static T* AddByteOffset(T* ptr, ptrdiff_t iOffset);
+  static T* AddByteOffset(T* ptr, ptrdiff_t iOffset); // [tested]
 
   /// \brief Returns the address stored in \a ptr plus the given byte offset \a iOffset, cast to type \a const \a T.
   ///
   /// This is useful when working with raw memory, to safely modify a pointer without having to take care of the
   /// details of pointer arithmetic. Also it allows you to modify the pointer without having to do a const_cast.
   template <typename T>
-  static const T* AddByteOffsetConst(const T* ptr, ptrdiff_t iOffset);
+  static const T* AddByteOffsetConst(const T* ptr, ptrdiff_t iOffset); // [tested]
 
-  /// \brief Alignes the pointer ptr by moving its address backwards to the previous multiple of uiAlignment.  
+  /// \brief Alignes the pointer \a ptr by moving its address backwards to the previous multiple of \a uiAlignment.  
   template <typename T>
-  static T* Align(T* ptr, size_t uiAlignment);
+  static T* Align(T* ptr, size_t uiAlignment); // [tested]
 
-  /// \brief Checks whether ptr is aligned to a memory address that is a multiple of uiAlignment.
+  /// \brief Checks whether \a ptr is aligned to a memory address that is a multiple of \a uiAlignment.
   template <typename T>
-  static bool IsAligned(const T* ptr, size_t uiAlignment);
+  static bool IsAligned(const T* ptr, size_t uiAlignment); // [tested]
 
   /// \brief Reserves the lower 4GB of address space in 64-bit builds to ensure all allocations start above 4GB.
   ///
   /// \note Note that this does NOT reserve 4GB of RAM, only address space.
   ///       This can help to detect pointer truncation. In 32-bit builds it does nothing.
+  ///
+  /// Currently only implemented on Windows.
   static void ReserveLower4GBAddressSpace();
 
 private:

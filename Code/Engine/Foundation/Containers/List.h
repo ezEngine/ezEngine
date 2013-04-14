@@ -37,34 +37,34 @@ private:
     EZ_DECLARE_POD_TYPE();
 
     /// \brief Constructor.
-    ConstIterator() : m_pElement (NULL)  {}
+    ConstIterator() : m_pElement (NULL)  {} // [tested]
 
     /// \brief Equality comparison operator.
-    bool operator== (typename ezListBase<T>::ConstIterator it2) const { return (m_pElement == it2.m_pElement); }
+    bool operator== (typename ezListBase<T>::ConstIterator it2) const { return (m_pElement == it2.m_pElement); } // [tested]
 
     /// \brief Inequality comparison operator.
-    bool operator!= (typename ezListBase<T>::ConstIterator it2) const { return (m_pElement != it2.m_pElement); }
+    bool operator!= (typename ezListBase<T>::ConstIterator it2) const { return (m_pElement != it2.m_pElement); } // [tested]
 
     /// \brief Grants access to the node-data.
-    const T& operator* () const { return (m_pElement->m_Data);  }
+    const T& operator* () const { return (m_pElement->m_Data);  } // [tested]
 
     /// \brief Grants access to the node-data.
-    const T* operator->() const { return (&m_pElement->m_Data); }
+    const T* operator->() const { return (&m_pElement->m_Data); } // [tested]
 
     /// \brief Moves the iterator to the next node.
-    void Next() { m_pElement = m_pElement->m_pNext; }
+    void Next() { m_pElement = m_pElement->m_pNext; } // [tested]
 
     /// \brief Moves the iterator to the previous node.
-    void Prev() { m_pElement = m_pElement->m_pPrev; }
+    void Prev() { m_pElement = m_pElement->m_pPrev; } // [tested]
 
     /// \brief Checks whether this iterator points to a valid element (and not the start/end of the list)
-    bool IsValid() const { return ((m_pElement != NULL) && (m_pElement->m_pPrev != NULL) && (m_pElement->m_pNext != NULL)); }
+    bool IsValid() const { return ((m_pElement != NULL) && (m_pElement->m_pPrev != NULL) && (m_pElement->m_pNext != NULL)); } // [tested]
 
     /// \brief Moves the iterator to the next element in the list.
-    void operator++ () { Next();  }
+    void operator++ () { Next();  } // [tested]
 
     /// \brief Moves the iterator to the previous element in the list.
-    void operator-- () { Prev();  }
+    void operator-- () { Prev();  } // [tested]
 
   private:
     friend class ezListBase<T>;
@@ -81,13 +81,13 @@ public:
     EZ_DECLARE_POD_TYPE();
 
     /// \brief Constructor.
-    Iterator() : ConstIterator () {}
+    Iterator() : ConstIterator () {} // [tested]
 
     /// \brief Accesses the element stored in the node.
-    T& operator* () { return (this->m_pElement->m_Data);  }
+    T& operator* () { return (this->m_pElement->m_Data);  } // [tested]
 
     /// \brief Accesses the element stored in the node.
-    T* operator->() { return (&this->m_pElement->m_Data); }
+    T* operator->() { return (&this->m_pElement->m_Data); } // [tested]
 
   private:
     friend class ezListBase<T>;
