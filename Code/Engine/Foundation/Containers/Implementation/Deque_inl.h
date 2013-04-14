@@ -363,15 +363,20 @@ EZ_FORCE_INLINE void ezDequeBase<T, Construct>::PushBack(const T& element)
 }
 
 template <typename T, bool Construct>
-EZ_FORCE_INLINE void ezDequeBase<T, Construct>::PopBack()
+EZ_FORCE_INLINE void ezDequeBase<T, Construct>::PopBack(ezUInt32 uiElements)
 {
-  if (Construct)
-    ezMemoryUtils::Destruct(&operator[](m_uiCount - 1), 1);
+  EZ_ASSERT(uiElements <= GetCount(), "Cannot remove %i elements, the deque only contains %i elements.", uiElements, GetCount());
 
-  --m_uiCount;
+  for (ezUInt32 i = 0; i < uiElements; ++i)
+  {
+    if (Construct)
+      ezMemoryUtils::Destruct(&operator[](m_uiCount - 1), 1);
+
+    --m_uiCount;
+  }
 
   // might trigger a memory reduction
-  REDUCE_SIZE(1);
+  REDUCE_SIZE(uiElements);
 }
 
 template <typename T, bool Construct>
@@ -400,16 +405,21 @@ EZ_FORCE_INLINE void ezDequeBase<T, Construct>::PushFront()
 }
 
 template <typename T, bool Construct>
-EZ_FORCE_INLINE void ezDequeBase<T, Construct>::PopFront()
+EZ_FORCE_INLINE void ezDequeBase<T, Construct>::PopFront(ezUInt32 uiElements)
 {
-  if (Construct)
-    ezMemoryUtils::Destruct(&operator[](0), 1);
+  EZ_ASSERT(uiElements <= GetCount(), "Cannot remove %i elements, the deque only contains %i elements.", uiElements, GetCount());
 
-  --m_uiCount;
-  ++m_uiFirstElement;
+  for (ezUInt32 i = 0; i < uiElements; ++i)
+  {
+    if (Construct)
+      ezMemoryUtils::Destruct(&operator[](0), 1);
+
+    --m_uiCount;
+    ++m_uiFirstElement;
+  }
 
   // might trigger a memory reduction
-  REDUCE_SIZE(1);
+  REDUCE_SIZE(uiElements);
 }
 
 template <typename T, bool Construct>

@@ -22,20 +22,20 @@ class ezDequeBase
 protected:
 
   /// \brief No memory is allocated during construction.
-  ezDequeBase(ezIAllocator* pAllocator);
+  ezDequeBase(ezIAllocator* pAllocator); // [tested]
 
   /// \brief No memory is allocated during construction.
-  ezDequeBase(const ezDequeBase<T, Construct>& rhs, ezIAllocator* pAllocator);
+  ezDequeBase(const ezDequeBase<T, Construct>& rhs, ezIAllocator* pAllocator); // [tested]
 
   /// \brief Destructor.
-  ~ezDequeBase();
+  ~ezDequeBase(); // [tested]
 
   /// \brief Assignment operator.
-  void operator= (const ezDequeBase<T, Construct>& rhs);
+  void operator= (const ezDequeBase<T, Construct>& rhs); // [tested]
 
 public:
   /// \brief Destructs all elements and sets the count to zero. Does not deallocate any data.
-  void Clear();
+  void Clear(); // [tested]
 
   /// \brief Rearranges the internal data structures such that the amount of reserved elements can be appended with as few allocations, as possible.
   ///
@@ -45,7 +45,7 @@ public:
   /// In contrast to the ezDynamicArray and ezHybridArray containers, ezDeque does not require you to reserve space
   /// up front, to be fast. However, if useful information is available, 'Reserve' can be used to prevent a few
   /// unnecessary reallocations of its internal data structures.
-  void Reserve(ezUInt32 uiCount);
+  void Reserve(ezUInt32 uiCount); // [tested]
 
   /// \brief This function deallocates as much memory as possible to shrink the deque to the bare minimum size that it needs to work.
   ///
@@ -53,80 +53,80 @@ public:
   /// The index array data is not reduced as much as possible, a bit spare memory is keept to allow for scaling the deque
   /// up again, without immediate reallocation of all data structures.
   /// If the deque is completely empty, ALL data is completely deallocated.
-  void Compact();
+  void Compact(); // [tested]
 
   /// \brief Sets the number of active elements in the deque. All new elements are default constructed. If the deque is shrunk, elements at the end of the deque are destructed.
-  void SetCount(ezUInt32 uiCount);
+  void SetCount(ezUInt32 uiCount); // [tested]
 
   /// \brief Accesses the n-th element in the deque.
-  T& operator[](ezUInt32 uiIndex);
+  T& operator[](ezUInt32 uiIndex); // [tested]
 
   /// \brief Accesses the n-th element in the deque.
-  const T& operator[](ezUInt32 uiIndex) const;
+  const T& operator[](ezUInt32 uiIndex) const; // [tested]
 
   /// \brief Adds one default constructed element to the back of the deque.
-  void PushBack();
+  void PushBack(); // [tested]
 
   /// \brief Adds one element to the back of the deque.
-  void PushBack(const T& element);
+  void PushBack(const T& element); // [tested]
 
   /// \brief Removes the last element from the deque.
-  void PopBack();
+  void PopBack(ezUInt32 uiElements = 1); // [tested]
 
   /// \brief Adds one element to the front of the deque.
-  void PushFront(const T& element);
+  void PushFront(const T& element); // [tested]
 
   /// \brief Adds one default constructed element to the front of the deque.
-  void PushFront();
+  void PushFront(); // [tested]
 
   /// \brief Removes the first element from the deque.
-  void PopFront();
+  void PopFront(ezUInt32 uiElements = 1); // [tested]
 
   /// \brief Checks whether no elements are active in the deque.
-  bool IsEmpty() const;
+  bool IsEmpty() const; // [tested]
 
   /// \brief Returns the number of active elements in the deque.
-  ezUInt32 GetCount() const;
+  ezUInt32 GetCount() const; // [tested]
 
   /// \brief Returns the first element.
-  const T& PeekFront() const;
+  const T& PeekFront() const; // [tested]
 
   /// \brief Returns the first element.
-  T& PeekFront();
+  T& PeekFront(); // [tested]
 
   /// \brief Returns the last element.
-  const T& PeekBack() const;
+  const T& PeekBack() const; // [tested]
 
   /// \brief Returns the last element.
-  T& PeekBack();
+  T& PeekBack(); // [tested]
 
   /// \brief Checks whether there is any element in the deque with the given value.
-  bool Contains(const T& value) const;
+  bool Contains(const T& value) const; // [tested]
 
   /// \brief Returns the first index at which an element with the given value could be found.
-  ezUInt32 IndexOf(const T& value, ezUInt32 uiStartIndex = 0) const;
+  ezUInt32 IndexOf(const T& value, ezUInt32 uiStartIndex = 0) const; // [tested]
 
   /// \brief Returns the last index at wich an element with the given value could be found.
-  ezUInt32 LastIndexOf(const T& value, ezUInt32 uiStartIndex = ezInvalidIndex) const;
+  ezUInt32 LastIndexOf(const T& value, ezUInt32 uiStartIndex = ezInvalidIndex) const; // [tested]
 
   /// \brief Removes the element at the given index and fills the gap with the last element in the deque.
-  void RemoveAtSwap(ezUInt32 uiIndex);
+  void RemoveAtSwap(ezUInt32 uiIndex); // [tested]
 
   /// \brief Removes the element at index and fills the gap by shifting all following elements
-  void RemoveAt(ezUInt32 uiIndex);
+  void RemoveAt(ezUInt32 uiIndex); // [tested]
 
   /// \brief Removes the first occurrence of value and fills the gap by shifting all following elements
-  bool Remove(const T& value);
+  bool Remove(const T& value); // [tested]
 
   /// \brief Inserts value at index by shifting all following elements. Valid insert positions are [0; GetCount].
-  void Insert(const T& value, ezUInt32 uiIndex);
+  void Insert(const T& value, ezUInt32 uiIndex); // [tested]
 
   /// \brief Sort with explicit comparer
   template <typename C>
-  void Sort();
+  void Sort(); // [tested]
 
   /// \brief Sort with default comparer
-  void Sort();
+  void Sort(); // [tested]
 
   /// \brief Returns the allocator that is used by this instance.
   ezIAllocator* GetAllocator() const { return m_pAllocator; }

@@ -273,5 +273,405 @@ EZ_CREATE_SIMPLE_TEST(Containers, Deque)
       last = list[i];
     }
   }
+
+
+
+  EZ_TEST_BLOCK(true, "Constructor")
+  {
+    ezDeque<ezInt32> a1;
+    ezDeque<st> a2;
+
+    EZ_TEST(a1.GetCount() == 0);
+    EZ_TEST(a2.GetCount() == 0);
+    EZ_TEST(a1.IsEmpty());
+    EZ_TEST(a2.IsEmpty());
+  }
+
+  EZ_TEST_BLOCK(true, "Copy Constructor")
+  {
+    ezDeque<ezInt32> a1;
+
+    for (ezInt32 i = 0; i < 32; ++i)
+      a1.PushBack(rand() % 100000);
+
+    ezDeque<ezInt32> a2 = a1;
+    ezDeque<ezInt32> a3 (a1);
+
+    EZ_TEST(a1.GetCount() == a2.GetCount());
+    EZ_TEST(a1.GetCount() == a3.GetCount());
+
+    for (ezUInt32 i = 0; i < a1.GetCount(); ++i)
+    {
+      EZ_TEST(a1[i] == a2[i]);
+      EZ_TEST(a1[i] == a3[i]);
+      EZ_TEST(a2[i] == a3[i]);
+    }
+  }
+
+
+  EZ_TEST_BLOCK(true, "operator =")
+  {
+    ezDeque<ezInt32> a1;
+    ezDeque<ezInt32> a2;
+
+    for (ezInt32 i = 0; i < 100; ++i)
+      a1.PushBack(i);
+
+    a2 = a1;
+
+    EZ_TEST(a1.GetCount() == a2.GetCount());
+
+    for (ezUInt32 i = 0; i < a1.GetCount(); ++i)
+      EZ_TEST(a1[i] == a2[i]);
+  }
+
+  EZ_TEST_BLOCK(true, "Index operator")
+  {
+    ezDeque<ezInt32> a1;
+    a1.SetCount(100);
+
+    for (ezInt32 i = 0; i < 100; ++i)
+      a1[i] = i;
+
+    for (ezInt32 i = 0; i < 100; ++i)
+      EZ_TEST_INT(a1[i], i);
+
+    ezDeque<ezInt32> ca1;
+    ca1 = a1;
+
+    for (ezInt32 i = 0; i < 100; ++i)
+      EZ_TEST_INT(ca1[i], i);
+  }
+
+  EZ_TEST_BLOCK(true, "SetCount / GetCount / IsEmpty")
+  {
+    ezDeque<ezInt32> a1;
+
+    EZ_TEST(a1.IsEmpty());
+
+    for (ezInt32 i = 0; i < 128; ++i)
+    {
+      a1.SetCount(i + 1);
+      a1[i] = i;
+
+      EZ_TEST_INT(a1.GetCount(), i + 1);
+      EZ_TEST(!a1.IsEmpty());
+    }
+
+    for (ezInt32 i = 0; i < 128; ++i)
+      EZ_TEST_INT(a1[i], i);
+
+    for (ezInt32 i = 128; i >= 0; --i)
+    {
+      a1.SetCount(i);
+
+      EZ_TEST_INT(a1.GetCount(), i);
+
+      for (ezInt32 i2 = 0; i2 < i; ++i2)
+        EZ_TEST_INT(a1[i2], i2);
+    }
+
+    EZ_TEST(a1.IsEmpty());
+  }
+
+  EZ_TEST_BLOCK(true, "Clear")
+  {
+    ezDeque<ezInt32> a1;
+    a1.Clear();
+
+    a1.PushBack(3);
+    a1.Clear();
+
+    EZ_TEST(a1.IsEmpty());
+  }
+
+  EZ_TEST_BLOCK(true, "Contains / IndexOf / LastIndexOf")
+  {
+    ezDeque<ezInt32> a1;
+
+    for (ezInt32 i = -100; i < 100; ++i)
+      EZ_TEST(!a1.Contains(i));
+
+    for (ezInt32 i = 0; i < 100; ++i)
+      a1.PushBack(i);
+
+    for (ezInt32 i = 0; i < 100; ++i)
+    {
+      EZ_TEST(a1.Contains(i));
+      EZ_TEST_INT(a1.IndexOf(i), i);
+      EZ_TEST_INT(a1.LastIndexOf(i), i);
+    }
+  }
+/*
+  EZ_TEST_BLOCK(true, "AppendUnchecked / AppendRange")
+  {
+    ezDynamicArray<ezInt32> a1;
+    a1.Reserve(100);
+
+    for (ezInt32 i = 0; i < 100; ++i)
+      a1.AppendUnchecked(i);
+
+    for (ezInt32 i = 0; i < 100; ++i)
+      EZ_TEST_INT(a1[i], i);
+
+    ezInt32 temp[] = { 100, 101, 102, 103, 104 };
+    ezArrayPtr<ezInt32> range(temp);
+
+    a1.AppendRange(range);
+
+    EZ_TEST_INT(a1.GetCount(), 105);
+    for (ezUInt32 i = 0; i < a1.GetCount(); ++i)
+      EZ_TEST_INT(a1[i], i);
+  }
+*/
+  
+  EZ_TEST_BLOCK(true, "Insert")
+  {
+    ezDeque<ezInt32> a1;
+
+    // always inserts at the front
+    for (ezInt32 i = 0; i < 100; ++i)
+      a1.Insert(i, 0);
+
+    for (ezInt32 i = 0; i < 100; ++i)
+      EZ_TEST_INT(a1[i], 99 - i);
+  }
+
+  EZ_TEST_BLOCK(true, "Remove")
+  {
+    ezDeque<ezInt32> a1;
+
+    for (ezInt32 i = 0; i < 100; ++i)
+      a1.PushBack(i % 2);
+
+    while (a1.Remove(1));
+
+    EZ_TEST(a1.GetCount() == 50);
+
+    for (ezUInt32 i = 0; i < a1.GetCount(); ++i)
+      EZ_TEST_INT(a1[i], 0);
+  }
+
+  EZ_TEST_BLOCK(true, "RemoveAt")
+  {
+    ezDeque<ezInt32> a1;
+
+    for (ezInt32 i = 0; i < 10; ++i)
+      a1.Insert(i, i); // inserts at the end
+
+    a1.RemoveAt(9);
+    a1.RemoveAt(7);
+    a1.RemoveAt(5);
+    a1.RemoveAt(3);
+    a1.RemoveAt(1);
+
+    EZ_TEST_INT(a1.GetCount(), 5);
+
+    for (ezInt32 i = 0; i < 5; ++i)
+      EZ_TEST_INT(a1[i], i * 2);
+  }
+
+  EZ_TEST_BLOCK(true, "RemoveAtSwap")
+  {
+    ezDeque<ezInt32> a1;
+
+    for (ezInt32 i = 0; i < 10; ++i)
+      a1.Insert(i, i); // inserts at the end
+
+    a1.RemoveAtSwap(9);
+    a1.RemoveAtSwap(7);
+    a1.RemoveAtSwap(5);
+    a1.RemoveAtSwap(3);
+    a1.RemoveAtSwap(1);
+
+    EZ_TEST_INT(a1.GetCount(), 5);
+
+    for (ezInt32 i = 0; i < 5; ++i)
+      EZ_TEST(ezMath::IsEven(a1[i]));
+  }
+
+  EZ_TEST_BLOCK(true, "PushBack / PopBack / PeekBack")
+  {
+    ezDeque<ezInt32> a1;
+
+    for (ezInt32 i = 0; i < 10; ++i)
+    {
+      a1.PushBack(i);
+      EZ_TEST_INT(a1.PeekBack(), i);
+    }
+
+    for (ezInt32 i = 9; i >= 0; --i)
+    {
+      EZ_TEST_INT(a1.PeekBack(), i);
+      a1.PopBack();
+    }
+
+    a1.PushBack(23);
+    a1.PushBack(2);
+    a1.PushBack(3);
+
+    a1.PopBack(2);
+    EZ_TEST_INT(a1.PeekBack(), 23);
+  }
+
+  EZ_TEST_BLOCK(true, "PushFront / PopFront / PeekFront")
+  {
+    ezDeque<ezInt32> a1;
+
+    for (ezInt32 i = 0; i < 10; ++i)
+    {
+      a1.PushFront(i);
+      EZ_TEST_INT(a1.PeekFront(), i);
+    }
+
+    for (ezInt32 i = 9; i >= 0; --i)
+    {
+      EZ_TEST_INT(a1.PeekFront(), i);
+      a1.PopFront();
+    }
+
+    a1.PushFront(23);
+    a1.PushFront(2);
+    a1.PushFront(3);
+
+    a1.PopFront(2);
+    EZ_TEST_INT(a1.PeekFront(), 23);
+  }
+
+  EZ_TEST_BLOCK(true, "Construction / Destruction")
+  {
+    {
+      EZ_TEST(st::HasAllDestructed());
+
+      ezDeque<st> a1;
+      ezDeque<st> a2;
+
+      EZ_TEST(st::HasDone(0, 0)); // nothing has been constructed / destructed in between
+      EZ_TEST(st::HasAllDestructed());
+
+      a1.PushBack(st(1));
+      EZ_TEST(st::HasDone(2, 1)); // one temporary, one final (copy constructed)
+
+      a1.Insert(st(2), 0);
+      EZ_TEST(st::HasDone(2, 1)); // one temporary, one final (copy constructed)
+
+      a2 = a1;
+      EZ_TEST(st::HasDone(2, 0)); // two copies
+
+      a1.Clear();
+      EZ_TEST(st::HasDone(0, 2));
+
+      a1.PushBack(st(3));
+      a1.PushBack(st(4));
+      a1.PushBack(st(5));
+      a1.PushBack(st(6));
+
+      EZ_TEST(st::HasDone(8, 4)); // four temporaries
+
+      a1.Remove(st(3));
+      EZ_TEST(st::HasDone(1, 2)); // one temporary, one destroyed
+
+      a1.Remove(st(3));
+      EZ_TEST(st::HasDone(1, 1)); // one temporary, none destroyed
+
+      a1.RemoveAt(0);
+      EZ_TEST(st::HasDone(0, 1)); // one destroyed
+
+      a1.RemoveAtSwap(0);
+      EZ_TEST(st::HasDone(0, 1)); // one destroyed
+    }
+
+    // tests the destructor of a2 and a1
+    EZ_TEST(st::HasAllDestructed());
+  }
+
+  EZ_TEST_BLOCK(true, "Reserve")
+  {
+    EZ_TEST(st::HasAllDestructed());
+
+    ezDeque<st> a;
+
+    EZ_TEST(st::HasDone(0, 0)); // nothing has been constructed / destructed in between
+    EZ_TEST(st::HasAllDestructed());
+
+    a.Reserve(100);
+
+    EZ_TEST(st::HasDone(0, 0)); // nothing has been constructed / destructed in between
+    EZ_TEST(st::HasAllDestructed());
+
+    a.SetCount(10);
+    EZ_TEST(st::HasDone(10, 0));
+
+    a.Reserve(100);
+    EZ_TEST(st::HasDone(0, 0));
+
+    a.SetCount(100);
+    EZ_TEST(st::HasDone(90, 0));
+
+    a.Reserve(200);
+    EZ_TEST(st::HasDone(0, 0)); // nothing had to be copied over
+
+    a.SetCount(200);
+    EZ_TEST(st::HasDone(100, 0));
+  }
+
+  EZ_TEST_BLOCK(true, "Compact")
+  {
+    EZ_TEST(st::HasAllDestructed());
+
+    ezDeque<st> a;
+
+    EZ_TEST(st::HasDone(0, 0)); // nothing has been constructed / destructed in between
+    EZ_TEST(st::HasAllDestructed());
+
+    a.SetCount(100);
+    EZ_TEST(st::HasDone(100, 0));
+
+    a.SetCount(200);
+    EZ_TEST(st::HasDone(100, 0));
+
+    a.SetCount(10);
+    EZ_TEST(st::HasDone(0, 190));
+
+    // no reallocations and copying, if the memory is already available
+    a.SetCount(200);
+    EZ_TEST(st::HasDone(190, 0));
+
+    a.SetCount(10);
+    EZ_TEST(st::HasDone(0, 190));
+
+    // now we remove the spare memory
+    a.Compact();
+    EZ_TEST(st::HasDone(0, 0));
+
+    // this time the array needs to be relocated, and thus the already present elements need to be copied
+    a.SetCount(200);
+    EZ_TEST(st::HasDone(190, 0));
+
+    // this does not deallocate memory
+    a.Clear();
+    EZ_TEST(st::HasDone(0, 200));
+
+    a.SetCount(100);
+    EZ_TEST(st::HasDone(100, 0));
+
+    // therefore no object relocation
+    a.SetCount(200);
+    EZ_TEST(st::HasDone(100, 0));
+
+    a.Clear();
+    EZ_TEST(st::HasDone(0, 200));
+
+    // this will deallocate ALL memory
+    a.Compact();
+
+    a.SetCount(100);
+    EZ_TEST(st::HasDone(100, 0));
+
+    // this time objects need to be relocated
+    a.SetCount(200);
+    EZ_TEST(st::HasDone(100, 0));
+  }
+
 }
 
