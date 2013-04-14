@@ -49,6 +49,16 @@ EZ_CREATE_SIMPLE_TEST(Memory, Endian)
       EZ_TEST(p16BitArray[i] == ezEndianHelper::Switch(p16BitArrayCopy[i]));
       EZ_TEST(p32BitArray[i] == ezEndianHelper::Switch(p32BitArrayCopy[i]));
       EZ_TEST(p64BitArray[i] == ezEndianHelper::Switch(p64BitArrayCopy[i]));
+
+      // Test in place switcher
+      ezEndianHelper::SwitchInPlace(&p16BitArrayCopy[i]);
+      EZ_TEST(p16BitArray[i] == p16BitArrayCopy[i]);
+
+      ezEndianHelper::SwitchInPlace(&p32BitArrayCopy[i]);
+      EZ_TEST(p32BitArray[i] == p32BitArrayCopy[i]);
+
+      ezEndianHelper::SwitchInPlace(&p64BitArrayCopy[i]);
+      EZ_TEST(p64BitArray[i] == p64BitArrayCopy[i]);
     }
 
 

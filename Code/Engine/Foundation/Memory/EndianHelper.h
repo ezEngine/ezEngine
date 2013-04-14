@@ -62,8 +62,8 @@ struct EZ_FOUNDATION_DLL ezEndianHelper
     return (((uiQWord & 0xFF) << 56) | ((uiQWord & 0xFF00) << 40) | ((uiQWord & 0xFF0000) << 24) | ((uiQWord & 0xFF000000) << 8) | ((uiQWord & 0xFF00000000) >> 8) | ((uiQWord & 0xFF0000000000) >> 24) | ((uiQWord & 0xFF000000000000) >> 40) | ((uiQWord & 0xFF00000000000000) >> 56));
   }
 
-  /*
-  template <typename T> static void SwitchInPlace(T* pValue)
+  /// \brief Switches a value in place (template accepts pointers for 2, 4 & 8 byte data types)
+  template <typename T> static void SwitchInPlace(T* pValue) // [tested]
   {
     EZ_CHECK_AT_COMPILETIME_MSG((sizeof(T) == 2 || sizeof(T) == 4 || sizeof(T) == 8), "Switch in place only works for type equivalents of ezUInt16, ezUInt32, ezUInt64!");
 
@@ -106,7 +106,7 @@ struct EZ_FOUNDATION_DLL ezEndianHelper
 
       *pValue = Temp.TValue;
     }
-  }*/
+  }
 
   #if EZ_ENABLED(EZ_PLATFORM_LITTLE_ENDIAN)
 
