@@ -23,6 +23,17 @@ union ezIntFloatUnion
 };
 
 /// \brief Enum to describe which memory layout is used to store a matrix in a float array.
+///
+/// All ezMatX classes use column-major format internally. That means they contain one array
+/// of, e.g. 16 elements, and the first elements represent the first column, then the second column, etc.
+/// So the data is stored column by column and is thus column-major.
+/// Some other libraries, such as OpenGL or DirectX require data represented either in column-major
+/// or row-major format. ezMatrixLayout allows to retrieve the data from an ezMatX class in the proper format,
+/// and it also allows to pass matrix data as an array back in the ezMatX class, and have it converted properly.
+/// That means, if you need to pass the content of an ezMatX to a function that requires the data in row-major
+/// format, you specify that you want to convert the matrix to ezMatrixLayout::RowMajor format and you will get
+/// the data properly transposed. If a function requires data in column-major format, you specify
+/// ezMatrixLayout::ColumnMajor and you get it in column-major format (which is simply a memcpy).
 struct ezMatrixLayout
 {
   enum Enum

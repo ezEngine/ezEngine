@@ -19,7 +19,7 @@ public:
   /// \brief Creates an empty string.
   ezSharedString(); // [tested]
 
-  /// \brief Creates a string which references the same data as rhs.
+  /// \brief Creates a string which references the same data as \a rhs.
   ///
   /// Such copies are cheap, as the internal data is not copied, but reference counted.
   ezSharedString(const ezSharedString& rhs); // [tested]

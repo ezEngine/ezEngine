@@ -487,4 +487,95 @@ EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
 
     list.Compact();
   }
+
+  EZ_TEST_BLOCK(true, "Reserve")
+  {
+    EZ_TEST(st::HasAllDestructed());
+
+    ezDynamicArray<st> a;
+
+    EZ_TEST(st::HasDone(0, 0)); // nothing has been constructed / destructed in between
+    EZ_TEST(st::HasAllDestructed());
+
+    a.Reserve(100);
+
+    EZ_TEST(st::HasDone(0, 0)); // nothing has been constructed / destructed in between
+    EZ_TEST(st::HasAllDestructed());
+
+    a.SetCount(10);
+    EZ_TEST(st::HasDone(10, 0));
+
+    a.Reserve(100);
+    EZ_TEST(st::HasDone(0, 0));
+
+    a.SetCount(100);
+    EZ_TEST(st::HasDone(90, 0));
+
+    a.Reserve(200);
+    EZ_TEST(st::HasDone(100, 100)); // had to copy some elements over
+
+    a.SetCount(200);
+    EZ_TEST(st::HasDone(100, 0));
+  }
+
+  EZ_TEST_BLOCK(true, "Compact")
+  {
+    EZ_TEST(st::HasAllDestructed());
+
+    ezDynamicArray<st> a;
+
+    EZ_TEST(st::HasDone(0, 0)); // nothing has been constructed / destructed in between
+    EZ_TEST(st::HasAllDestructed());
+
+    a.SetCount(100);
+    EZ_TEST(st::HasDone(100, 0));
+
+    a.SetCount(200);
+    EZ_TEST(st::HasDone(200, 100));
+
+    a.SetCount(10);
+    EZ_TEST(st::HasDone(0, 190));
+
+    // no reallocations and copying, if the memory is already available
+    a.SetCount(200);
+    EZ_TEST(st::HasDone(190, 0));
+
+    a.SetCount(10);
+    EZ_TEST(st::HasDone(0, 190));
+
+    // now we remove the spare memory
+    a.Compact();
+    EZ_TEST(st::HasDone(10, 10));
+
+    // this time the array needs to be relocated, and thus the already present elements need to be copied
+    a.SetCount(200);
+    EZ_TEST(st::HasDone(200, 10));
+
+    // this does not deallocate memory
+    a.Clear();
+    EZ_TEST(st::HasDone(0, 200));
+
+    a.SetCount(100);
+    EZ_TEST(st::HasDone(100, 0));
+
+    // therefore no object relocation
+    a.SetCount(200);
+    EZ_TEST(st::HasDone(100, 0));
+
+    a.Clear();
+    EZ_TEST(st::HasDone(0, 200));
+
+    // this will deallocate ALL memory
+    a.Compact();
+
+    a.SetCount(100);
+    EZ_TEST(st::HasDone(100, 0));
+
+    // this time objects need to be relocated
+    a.SetCount(200);
+    EZ_TEST(st::HasDone(200, 100));
+  }
 }
+
+
+

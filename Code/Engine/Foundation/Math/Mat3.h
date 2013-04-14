@@ -30,15 +30,24 @@ public:
   ezMat3();
 
   /// \brief Copies 9 values from pData into the matrix. Can handle the data in row-major or column-major order.
+  ///
+  /// \param pData
+  ///   The array of float values from which to set the matrix data.
+  /// \param layout
+  ///   The layout in which pData stores the matrix. The data will get transposed, if necessary.
   ezMat3(const float* const pData, ezMatrixLayout::Enum layout);
 
   /// \brief Sets each element manually: Naming is "column-n row-m"
   ezMat3(float c1r1, float c2r1, float c3r1,
          float c1r2, float c2r2, float c3r2,
-         float c1r3, float c2r3, float c3r3,
-         ezMatrixLayout::Enum layout = ezMatrixLayout::RowMajor);
+         float c1r3, float c2r3, float c3r3);
 
   /// \brief Copies 9 values from pData into the matrix. Can handle the data in row-major or column-major order.
+  ///
+  /// \param pData
+  ///   The array of float values from which to set the matrix data.
+  /// \param layout
+  ///   The layout in which pData stores the matrix. The data will get transposed, if necessary.
   void SetFromArray(const float* const pData, ezMatrixLayout::Enum layout);
 
   /// \brief Copies the 9 values of this matrix into the given array. 'layout' defines whether the data should end up in column-major or row-major format.
@@ -47,8 +56,7 @@ public:
   /// \brief Sets each element manually: Naming is "column-n row-m"
   void SetElements(float c1r1, float c2r1, float c3r1,
                    float c1r2, float c2r2, float c3r2,
-                   float c1r3, float c2r3, float c3r3,
-                   ezMatrixLayout::Enum layout = ezMatrixLayout::RowMajor);
+                   float c1r3, float c2r3, float c3r3);
 
 // *** Special matrix constructors ***
 public:

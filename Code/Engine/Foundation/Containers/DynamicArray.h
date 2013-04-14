@@ -32,10 +32,10 @@ protected:
 public:
 
   /// \brief Expands the array so it can at least store the given capacity.
-  void Reserve(ezUInt32 uiCapacity);
+  void Reserve(ezUInt32 uiCapacity); // [tested]
 
   /// \brief Tries to compact the array to avoid wasting memory. The resulting capacity is at least 'GetCount' (no elements get removed). Will deallocate all data, if the array is empty.
-  void Compact();
+  void Compact(); // [tested]
 
   /// \brief Resizes the array to have exactly uiCount elements. Default constructs extra elements if the array is grown.
   void SetCount(ezUInt32 uiCount); // [tested]

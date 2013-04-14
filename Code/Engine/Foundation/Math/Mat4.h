@@ -33,19 +33,28 @@ public:
   ezMat4();
 
   /// \brief Copies 16 values from pData into the matrix. Can handle the data in row-major or column-major order.
+  ///
+  /// \param pData
+  ///   The array of float values from which to set the matrix data.
+  /// \param layout
+  ///   The layout in which pData stores the matrix. The data will get transposed, if necessary.
   ezMat4(const float* const pData, ezMatrixLayout::Enum layout);
 
   /// \brief Sets each element manually: Naming is "column-n row-m"
   ezMat4(float c1r1, float c2r1, float c3r1, float c4r1,
          float c1r2, float c2r2, float c3r2, float c4r2,
          float c1r3, float c2r3, float c3r3, float c4r3,
-         float c1r4, float c2r4, float c3r4, float c4r4,
-         ezMatrixLayout::Enum layout = ezMatrixLayout::RowMajor);
+         float c1r4, float c2r4, float c3r4, float c4r4);
 
   /// \brief Creates a transformation matrix from a rotation and a translation.
   ezMat4(const ezMat3& Rotation, const ezVec3& vTranslation);
 
   /// \brief Copies 16 values from pData into the matrix. Can handle the data in row-major or column-major order.
+  ///
+  /// \param pData
+  ///   The array of float values from which to set the matrix data.
+  /// \param layout
+  ///   The layout in which pData stores the matrix. The data will get transposed, if necessary.
   void SetFromArray(const float* const pData, ezMatrixLayout::Enum layout);
 
   /// \brief Copies the 16 values of this matrix into the given array. 'layout' defines whether the data should end up in column-major or row-major format.
@@ -53,10 +62,9 @@ public:
 
   /// \brief Sets each element manually: Naming is "column-n row-m"
   void SetElements(float c1r1, float c2r1, float c3r1, float c4r1,
-                 float c1r2, float c2r2, float c3r2, float c4r2,
-                 float c1r3, float c2r3, float c3r3, float c4r3,
-                 float c1r4, float c2r4, float c3r4, float c4r4,
-                 ezMatrixLayout::Enum layout = ezMatrixLayout::RowMajor);
+                   float c1r2, float c2r2, float c3r2, float c4r2,
+                   float c1r3, float c2r3, float c3r3, float c4r3,
+                   float c1r4, float c2r4, float c3r4, float c4r4);
 
   /// \brief Sets a transformation matrix from a rotation and a translation.
   void SetTransformationMatrix(const ezMat3& Rotation, const ezVec3& vTranslation);

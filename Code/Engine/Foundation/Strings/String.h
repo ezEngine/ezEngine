@@ -10,10 +10,15 @@
 ///
 /// This class only allows read-access to its data. It does not allow modifications.
 /// To build / modify strings, use the ezStringBuilder class.
-/// ezHybridString is optimized to reduce allocations when passing strings around. It does not copy data, when it is assigned
-/// to / from another ezHybridString, but uses reference counting and a shared data object to prevent unnecessary copies.
-/// It is thus no problem to pass it around by value, for example as a return value.
-/// The reference counting is thread-safe.
+/// ezHybridString has an internal array to store short strings without any memory allocations, it will dynamically
+/// allocate additional memory, if that cache is insufficient. Thus a hybrid string will always take up a certain amount
+/// of memory, which might be of concern when it is used as a member variable, in such cases you might want to use an
+/// ezHybridString with a very small internal array (1 would basically make it into a completely dynamic string).
+/// On the other hand, creating ezHybridString instances on the stack and working locally with them, is quite fast.
+/// Prefer to use the typedef'ed string types \a ezString, \a ezDynamicString, \a ezString32 etc.
+/// Most strings in an application are rather short, typically shorter than 20 characters.
+/// Use \a ezString, which is a typedef'ed ezHybridString to use a cache size that is sufficient for more than 90%
+/// of all use cases.
 template <ezUInt16 Size>
 class ezHybridStringBase : public ezStringBase<ezHybridStringBase<Size> >
 {
@@ -22,59 +27,38 @@ protected:
   /// \brief Creates an empty string.
   ezHybridStringBase(ezIAllocator* pAllocator); // [tested]
 
-  /// \brief Creates a string which references the same data as rhs.
-  ///
-  /// Such copies are cheap, as the internal data is not copied, but reference counted.
+  /// \brief Copies the data from \a rhs.
   ezHybridStringBase(const ezHybridStringBase& rhs, ezIAllocator* pAllocator); // [tested]
 
-  /// \brief Creates a new string from the given (Utf8) data.
-  ///
-  /// This will allocate a new chunk of data to hold a copy of the passed string.
-  /// Passing in an empty string will not allocate any data.
+  /// \brief Copies the data from \a rhs.
   ezHybridStringBase(const char* rhs, ezIAllocator* pAllocator); // [tested]
 
-  /// \brief Creates a new string from the given wchar_t (Utf16 / Utf32) data.
-  ///
-  /// This will allocate a new chunk of data to hold a copy of the passed string.
-  /// Passing in an empty string will not allocate any data.
+  /// \brief Copies the data from \a rhs.
   ezHybridStringBase(const wchar_t* rhs, ezIAllocator* pAllocator); // [tested]
 
-  /// \brief Creates a new string from the given string iterator.
-  ///
-  /// This will allocate a new chunk of data to hold a copy of the passed string.
-  /// Passing in an empty string will not allocate any data.
+  /// \brief Copies the data from \a rhs.
   ezHybridStringBase(const ezStringIterator& rhs, ezIAllocator* pAllocator); // [tested]
 
-  /// \brief Only deallocates its data, if it is the last one to reference it.
+  /// \brief Destructor.
   ~ezHybridStringBase(); // [tested]
 
-  /// \brief Creates a string which references the same data as rhs. Such copies are cheap, as the internal data is not copied, but reference counted.
+  /// \brief Copies the data from \a rhs.
   void operator=(const ezHybridStringBase& rhs); // [tested]
 
-  /// \brief Creates a new string from the given (Utf8) data.
-  ///
-  /// This will allocate a new chunk of data to hold a copy of the passed string.
-  /// Assigning an empty string is the same as calling 'Clear'
-  void operator=(const char* szString); // [tested]
+  /// \brief Copies the data from \a rhs.
+  void operator=(const char* rhs); // [tested]
 
-  /// \brief Creates a new string from the given wchar_t (Utf16 / Utf32) data.
-  ///
-  /// This will allocate a new chunk of data to hold a copy of the passed string.
-  /// Assigning an empty string is the same as calling 'Clear'
-  void operator=(const wchar_t* szString); // [tested]
+  /// \brief Copies the data from \a rhs.
+  void operator=(const wchar_t* rhs); // [tested]
 
-  /// \brief Creates a new string from the given string iterator.
-  ///
-  /// The string iterator may be created from the same ezHybridString, into which it is copied.
-  /// This will allocate a new chunk of data to hold a copy of the passed string.
-  /// Assigning an empty string is the same as calling 'Clear'
+  /// \brief Copies the data from \a rhs.
   void operator=(const ezStringIterator& rhs); // [tested]
 
 public:
 
   /// \brief Resets this string to an empty string.
   ///
-  /// This will deallocate any previous data, if this object held the last reference to it.
+  /// This will not deallocate any previously allocated data, but reuse that memory.
   void Clear(); // [tested]
 
   /// \brief Returns a pointer to the internal Utf8 string.
@@ -144,6 +128,7 @@ public:
 };
 
 
+typedef ezHybridString<1> ezDynamicString;
 typedef ezHybridString<32> ezString;
 typedef ezHybridString<16> ezString16;
 typedef ezHybridString<24> ezString24;

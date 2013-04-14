@@ -17,14 +17,12 @@ inline ezMat3::ezMat3(const float* const pData, ezMatrixLayout::Enum layout)
 }
 
 inline ezMat3::ezMat3(float c1r1, float c2r1, float c3r1,
-                               float c1r2, float c2r2, float c3r2,
-                               float c1r3, float c2r3, float c3r3,
-                               ezMatrixLayout::Enum layout)
+                      float c1r2, float c2r2, float c3r2,
+                      float c1r3, float c2r3, float c3r3)
 {
   SetElements(c1r1, c2r1, c3r1,
               c1r2, c2r2, c3r2,
-              c1r3, c2r3, c3r3,
-              layout);
+              c1r3, c2r3, c3r3);
 }
 
 EZ_FORCE_INLINE const ezMat3 ezMat3::IdentityMatrix()
@@ -77,21 +75,11 @@ inline void ezMat3::GetAsArray(float* out_pData, ezMatrixLayout::Enum layout) co
 
 inline void ezMat3::SetElements(float c1r1, float c2r1, float c3r1,
                                 float c1r2, float c2r2, float c3r2,
-                                float c1r3, float c2r3, float c3r3,
-                                ezMatrixLayout::Enum layout)
+                                float c1r3, float c2r3, float c3r3)
 {
-  if (layout == ezMatrixLayout::ColumnMajor)
-  {
-    m_fColumn[0][0] = c1r1;	m_fColumn[0][1] = c2r1;	m_fColumn[0][2] = c3r1;
-    m_fColumn[1][0] = c1r2;	m_fColumn[1][1] = c2r2;	m_fColumn[1][2] = c3r2;
-    m_fColumn[2][0] = c1r3;	m_fColumn[2][1] = c2r3;	m_fColumn[2][2] = c3r3;
-  }
-  else
-  {
-    m_fColumn[0][0] = c1r1;	m_fColumn[1][0] = c2r1;	m_fColumn[2][0] = c3r1;
-    m_fColumn[0][1] = c1r2;	m_fColumn[1][1] = c2r2;	m_fColumn[2][1] = c3r2;
-    m_fColumn[0][2] = c1r3;	m_fColumn[1][2] = c2r3;	m_fColumn[2][2] = c3r3;
-  }
+  m_fColumn[0][0] = c1r1;	m_fColumn[1][0] = c2r1;	m_fColumn[2][0] = c3r1;
+  m_fColumn[0][1] = c1r2;	m_fColumn[1][1] = c2r2;	m_fColumn[2][1] = c3r2;
+  m_fColumn[0][2] = c1r3;	m_fColumn[1][2] = c2r3;	m_fColumn[2][2] = c3r3;
 }
 
 inline void ezMat3::SetZero()

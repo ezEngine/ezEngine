@@ -20,16 +20,14 @@ inline ezMat4::ezMat4(const float* const pData, ezMatrixLayout::Enum layout)
 }
 
 inline ezMat4::ezMat4(float c1r1, float c2r1, float c3r1, float c4r1,
-                               float c1r2, float c2r2, float c3r2, float c4r2,
-                               float c1r3, float c2r3, float c3r3, float c4r3,
-                               float c1r4, float c2r4, float c3r4, float c4r4,
-                               ezMatrixLayout::Enum layout)
+                      float c1r2, float c2r2, float c3r2, float c4r2,
+                      float c1r3, float c2r3, float c3r3, float c4r3,
+                      float c1r4, float c2r4, float c3r4, float c4r4)
 {
   SetElements(c1r1, c2r1, c3r1, c4r1,
               c1r2, c2r2, c3r2, c4r2,
               c1r3, c2r3, c3r3, c4r3,
-              c1r4, c2r4, c3r4, c4r4,
-              layout);
+              c1r4, c2r4, c3r4, c4r4);
 }
 
 inline ezMat4::ezMat4(const ezMat3& Rotation, const ezVec3& vTranslation)
@@ -99,23 +97,12 @@ inline void ezMat4::GetAsArray(float* out_pData, ezMatrixLayout::Enum layout) co
 inline void ezMat4::SetElements(float c1r1, float c2r1, float c3r1, float c4r1,
                                 float c1r2, float c2r2, float c3r2, float c4r2,
                                 float c1r3, float c2r3, float c3r3, float c4r3,
-                                float c1r4, float c2r4, float c3r4, float c4r4,
-                                ezMatrixLayout::Enum layout)
+                                float c1r4, float c2r4, float c3r4, float c4r4)
 {
-  if (layout == ezMatrixLayout::ColumnMajor)
-  {
-    m_fColumn[0][0] = c1r1;	m_fColumn[0][1] = c2r1;	m_fColumn[0][2] = c3r1;	m_fColumn[0][3] = c4r1;
-    m_fColumn[1][0] = c1r2;	m_fColumn[1][1] = c2r2;	m_fColumn[1][2] = c3r2;	m_fColumn[1][3] = c4r2;
-    m_fColumn[2][0] = c1r3;	m_fColumn[2][1] = c2r3;	m_fColumn[2][2] = c3r3;	m_fColumn[2][3] = c4r3;
-    m_fColumn[3][0] = c1r4;	m_fColumn[3][1] = c2r4;	m_fColumn[3][2] = c3r4;	m_fColumn[3][3] = c4r4;
-  }
-  else
-  {
-    m_fColumn[0][0] = c1r1;	m_fColumn[1][0] = c2r1;	m_fColumn[2][0] = c3r1;	m_fColumn[3][0] = c4r1;
-    m_fColumn[0][1] = c1r2;	m_fColumn[1][1] = c2r2;	m_fColumn[2][1] = c3r2;	m_fColumn[3][1] = c4r2;
-    m_fColumn[0][2] = c1r3;	m_fColumn[1][2] = c2r3;	m_fColumn[2][2] = c3r3;	m_fColumn[3][2] = c4r3;
-    m_fColumn[0][3] = c1r4;	m_fColumn[1][3] = c2r4;	m_fColumn[2][3] = c3r4;	m_fColumn[3][3] = c4r4;
-  }
+  m_fColumn[0][0] = c1r1;	m_fColumn[1][0] = c2r1;	m_fColumn[2][0] = c3r1;	m_fColumn[3][0] = c4r1;
+  m_fColumn[0][1] = c1r2;	m_fColumn[1][1] = c2r2;	m_fColumn[2][1] = c3r2;	m_fColumn[3][1] = c4r2;
+  m_fColumn[0][2] = c1r3;	m_fColumn[1][2] = c2r3;	m_fColumn[2][2] = c3r3;	m_fColumn[3][2] = c4r3;
+  m_fColumn[0][3] = c1r4;	m_fColumn[1][3] = c2r4;	m_fColumn[2][3] = c3r4;	m_fColumn[3][3] = c4r4;
 }
 
 inline void ezMat4::SetZero()
