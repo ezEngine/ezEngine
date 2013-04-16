@@ -105,3 +105,13 @@ private:
     EZ_TEST_DEBUG_BREAK \
   } \
 }
+
+#define EZ_TEST_VEC3(i1, i2, epsilon) EZ_TEST_VEC3_MSG(i1, i2, epsilon, "")
+
+#define EZ_TEST_VEC3_MSG(v1, v2, epsilon, msg) \
+{ \
+  \
+  EZ_TEST_FLOAT_MSG(v1.x, v2.x, epsilon, msg); \
+  EZ_TEST_FLOAT_MSG(v1.y, v2.y, epsilon, msg); \
+  EZ_TEST_FLOAT_MSG(v1.z, v2.z, epsilon, msg); \
+}
