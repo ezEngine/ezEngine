@@ -108,8 +108,10 @@ private:
 
 #define EZ_TEST_VEC3(i1, i2, epsilon) EZ_TEST_VEC3_MSG(i1, i2, epsilon, "")
 
-#define EZ_TEST_VEC3_MSG(v1, v2, epsilon, msg) \
+#define EZ_TEST_VEC3_MSG(r1, r2, epsilon, msg) \
 { \
+  const ezVec3 v1 = (ezVec3) (r1); \
+  const ezVec3 v2 = (ezVec3) (r2); \
   \
   EZ_TEST_FLOAT_MSG(v1.x, v2.x, epsilon, msg); \
   EZ_TEST_FLOAT_MSG(v1.y, v2.y, epsilon, msg); \

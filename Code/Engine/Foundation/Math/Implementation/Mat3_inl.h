@@ -308,7 +308,7 @@ inline bool ezMat3::IsEqual(const ezMat3& rhs, float fEpsilon) const
 
   for (ezUInt32 i = 0; i < 9; ++i)
   {
-    if (ezMath::IsFloatEqual(m_fElementsCM[i], rhs.m_fElementsCM[i], fEpsilon))
+    if (!ezMath::IsFloatEqual(m_fElementsCM[i], rhs.m_fElementsCM[i], fEpsilon))
       return false;
   }
 

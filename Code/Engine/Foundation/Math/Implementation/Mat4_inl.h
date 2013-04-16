@@ -494,7 +494,7 @@ inline bool ezMat4::IsEqual(const ezMat4& rhs, float fEpsilon) const
 
   for (ezUInt32 i = 0; i < 16; ++i)
   {
-    if (ezMath::IsFloatEqual(m_fElementsCM[i], rhs.m_fElementsCM[i], fEpsilon))
+    if (!ezMath::IsFloatEqual(m_fElementsCM[i], rhs.m_fElementsCM[i], fEpsilon))
       return false;
   }
 

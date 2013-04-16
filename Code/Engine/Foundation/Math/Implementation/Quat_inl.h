@@ -3,15 +3,17 @@
 #include <Foundation/Math/Vec3.h>
 #include <Foundation/Math/Mat4.h>
 
-inline ezQuat::ezQuat(float X, float Y, float Z, float W)
+EZ_FORCE_INLINE ezQuat::ezQuat()
 {
-  SetElements(X, Y, Z, W);
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+  // Initialize all data to NaN in debug mode to find problems with uninitialized data easier.
+  const float fNaN = ezMath::NaN();
+  w = fNaN;
+#endif
 }
 
-EZ_FORCE_INLINE void ezQuat::SetElements (const ezVec3& V, float W)
+EZ_FORCE_INLINE ezQuat::ezQuat(float X, float Y, float Z, float W) : v(X,Y,Z), w(W)
 {
-  v = V;
-  w = W;
 }
 
 EZ_FORCE_INLINE void ezQuat::SetElements(float X, float Y, float Z, float W)
@@ -40,40 +42,24 @@ inline void ezQuat::Normalize()
 {
   float n = v.x * v.x + v.y * v.y + v.z * v.z + w * w;
     
-  if (n == 1.0f)
-    return;
-
-  n = ezMath::Invert (ezMath::Sqrt (n));
+  n = ezMath::Invert(ezMath::Sqrt(n));
 
   v *= n;
   w *= n;
 }
 
-inline const ezQuat ezQuat::GetNormalized() const
+inline ezResult ezQuat::GetRotationAxisAndAngle(ezVec3& vAxis, float& fAngle) const
 {
-  float n = v.x * v.x + v.y * v.y + v.z * v.z + w * w;
-    
-  if (n == 1.0f)
-    return (*this);
-
-  n = ezMath::Invert (ezMath::Sqrt (n));
-
-  return (ezQuat(v.x * n, v.y * n, v.z * n, w * n));
-}
-
-inline const ezVec3 ezQuat::GetRotationAxis() const
-{
-  const float d = ezMath::SinRad (ezMath::ACosRad (w));
+  const float acos = ezMath::ACosRad(w);
+  const float d = ezMath::SinRad(acos);
 
   if (d == 0.0f)
-    return (ezVec3 (0, 1, 0));
+    return EZ_FAILURE;
 
-  return (v / d);
-}
+  vAxis = (v / d);
+  fAngle = ezMath::RadToDeg(acos * 2.0f);
 
-inline float ezQuat::GetRotationAngle() const
-{
-  return (ezMath::ACosDeg (w) * 2.0f);
+  return EZ_SUCCESS;
 }
 
 EZ_FORCE_INLINE const ezQuat ezQuat::operator-() const
@@ -97,26 +83,6 @@ EZ_FORCE_INLINE const ezQuat operator* (const ezQuat& q1, const ezQuat& q2)
   return (q);
 }
 
-inline bool ezQuat::IsIdentical(const ezQuat& rhs) const
-{
-  return (v.IsIdentical(rhs.v) && (w == rhs.w));
-}
-
-inline bool ezQuat::IsEqual(const ezQuat& rhs, float fEpsilon) const
-{
-  return (v.IsEqual(rhs.v, fEpsilon) && ezMath::IsFloatEqual(w, rhs.w, fEpsilon));
-}
-
-EZ_FORCE_INLINE bool operator== (const ezQuat& q1, const ezQuat& q2)
-{
-  return q1.IsIdentical(q2);
-}
-
-EZ_FORCE_INLINE bool operator!= (const ezQuat& q1, const ezQuat& q2)
-{
-  return !q1.IsIdentical(q2);
-}
-
 inline bool ezQuat::IsValid(float fEpsilon) const
 {
   if (!v.IsValid())
@@ -129,6 +95,25 @@ inline bool ezQuat::IsValid(float fEpsilon) const
   return (ezMath::IsFloatEqual(n, 1.0f, fEpsilon));
 }
 
+inline bool ezQuat::IsEqualRotation(const ezQuat& qOther, float fEpsilon) const
+{
+  ezVec3 vA1, vA2;
+  float fA1, fA2;
 
+  if (GetRotationAxisAndAngle(vA1, fA1) == EZ_FAILURE)
+    return false;
+  if (qOther.GetRotationAxisAndAngle(vA2, fA2) == EZ_FAILURE)
+    return false;
+
+  if ((ezMath::IsFloatEqual(fA1, fA2, fEpsilon)) &&
+      (vA1.IsEqual(vA2, fEpsilon)))
+      return true;
+
+  if ((ezMath::IsFloatEqual(fA1, -fA2, fEpsilon)) &&
+      (vA1.IsEqual(-vA2, fEpsilon)))
+      return true;
+
+  return false;
+}
 
 

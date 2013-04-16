@@ -5,7 +5,7 @@
 #define ezMath_e 2.71828182845904f
 #define ezMath_Pi 3.1415926535897932384626433832795f  ///< Pi
 #define ezMath_DegToRad (ezMath_Pi / 180.0f)          ///< Constant to convert from degree to rad
-#define ezMath_RadToDeg (180.f / ezMath_Pi)           ///< Constant to convert from rad to degree
+#define ezMath_RadToDeg (180.0f / ezMath_Pi)           ///< Constant to convert from rad to degree
 #define ezMath_FloatMax_Pos  3.402823465e+38F         ///< The largest positive number that floats can represent.
 #define ezMath_FloatMax_Neg -ezMath_FloatMax_Pos      ///< The largest negative number that floats can represent.
 
