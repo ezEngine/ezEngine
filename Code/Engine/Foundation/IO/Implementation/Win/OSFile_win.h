@@ -210,8 +210,8 @@ ezFileSystemIterator::~ezFileSystemIterator()
 {
   while (!m_Data.m_Handles.IsEmpty())
   {
-    FindClose(m_Data.m_Handles.Peek());
-    m_Data.m_Handles.Pop();
+    FindClose(m_Data.m_Handles.PeekBack());
+    m_Data.m_Handles.PopBack();
   }
 }
 
@@ -240,7 +240,7 @@ bool ezFileSystemIterator::StartSearch(const char* szSearchStart, bool bRecursiv
   m_CurFile.m_sFileName = data.cFileName;
   m_CurFile.m_uiLastModificationTime = HighLowToUInt64(data.ftLastWriteTime.dwHighDateTime, data.ftLastWriteTime.dwLowDateTime);
 
-  m_Data.m_Handles.Push(hSearch);
+  m_Data.m_Handles.PushBack(hSearch);
 
   if ((m_CurFile.m_sFileName == "..") || (m_CurFile.m_sFileName == "."))
     return Next(); // will search for the next file or folder that is not ".." or "." ; might return false though
@@ -273,7 +273,7 @@ bool ezFileSystemIterator::Next()
       m_CurFile.m_sFileName = data.cFileName;
       m_CurFile.m_uiLastModificationTime = HighLowToUInt64(data.ftLastWriteTime.dwHighDateTime, data.ftLastWriteTime.dwLowDateTime);
 
-      m_Data.m_Handles.Push(hSearch);
+      m_Data.m_Handles.PushBack(hSearch);
 
       if ((m_CurFile.m_sFileName == "..") || (m_CurFile.m_sFileName == "."))
         return Next(); // will search for the next file or folder that is not ".." or "." ; might return false though
@@ -288,11 +288,11 @@ bool ezFileSystemIterator::Next()
   }
 
   WIN32_FIND_DATAW data;
-  if (!FindNextFileW(m_Data.m_Handles.Peek(), &data))
+  if (!FindNextFileW(m_Data.m_Handles.PeekBack(), &data))
   {
     // nothing found in this directory anymore
-    FindClose(m_Data.m_Handles.Peek());
-    m_Data.m_Handles.Pop();
+    FindClose(m_Data.m_Handles.PeekBack());
+    m_Data.m_Handles.PopBack();
 
     if (m_Data.m_Handles.IsEmpty())
       return false;

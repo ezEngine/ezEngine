@@ -125,8 +125,8 @@ ezDataDirectory_Reader* ezDataDirectoryType_Folder::OpenFileToRead(const char* s
 
   if (pReader == NULL)
   {
-    m_Readers.Push(EZ_DEFAULT_NEW(ezDataDirectory_Folder_Reader));
-    pReader = m_Readers.Peek();
+    m_Readers.PushBack(EZ_DEFAULT_NEW(ezDataDirectory_Folder_Reader));
+    pReader = m_Readers.PeekBack();
   }
 
   // if opening the file fails, the reader state is never set to 'used', so nothing else needs to be done
@@ -150,8 +150,8 @@ ezDataDirectory_Writer* ezDataDirectoryType_Folder::OpenFileToWrite(const char* 
 
   if (pWriter == NULL)
   {
-    m_Writers.Push(EZ_DEFAULT_NEW(ezDataDirectory_Folder_Writer));
-    pWriter = m_Writers.Peek();
+    m_Writers.PushBack(EZ_DEFAULT_NEW(ezDataDirectory_Folder_Writer));
+    pWriter = m_Writers.PeekBack();
   }
 
   // if opening the file fails, the writer state is never set to 'used', so nothing else needs to be done

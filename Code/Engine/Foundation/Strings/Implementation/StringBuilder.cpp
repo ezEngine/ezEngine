@@ -179,7 +179,7 @@ void ezStringBuilder::ChangeCharacterNonASCII(ezStringIterator& It, ezUInt32 uiC
     ezMemoryUtils::Move(pPos, pPos + uiDifference, uiTrailStringBytes);
 
     // update the data array
-    m_Data.Pop(uiDifference);
+    m_Data.PopBack(uiDifference);
 
     // since the end of the array has changed, we must update the character iterator
     ezStringIterator NewIt(It.GetStart(), &m_Data[m_Data.GetCount() - 1], It.GetData());
@@ -225,7 +225,7 @@ void ezStringBuilder::Shrink(ezUInt32 uiShrinkCharsFront, ezUInt32 uiShrinkChars
   {
     if (uiShrinkCharsBack > 0)
     {
-      m_Data.Pop(uiShrinkCharsBack + 1);
+      m_Data.PopBack(uiShrinkCharsBack + 1);
       AppendTerminator();
     }
 
@@ -241,7 +241,7 @@ void ezStringBuilder::Shrink(ezUInt32 uiShrinkCharsFront, ezUInt32 uiShrinkChars
 
       const ezUInt32 uiLessBytes = (ezUInt32) (szEnd - szNewEnd);
 
-      m_Data.Pop(uiLessBytes + 1);
+      m_Data.PopBack(uiLessBytes + 1);
       AppendTerminator();
     }
 
@@ -253,7 +253,7 @@ void ezStringBuilder::Shrink(ezUInt32 uiShrinkCharsFront, ezUInt32 uiShrinkChars
     const ezUInt32 uiLessBytes = (ezUInt32) (szNewStart - &m_Data[0]);
 
     ezMemoryUtils::Move(&m_Data[0], szNewStart, m_Data.GetCount() - uiLessBytes);
-    m_Data.Pop(uiLessBytes);
+    m_Data.PopBack(uiLessBytes);
   }
 
   m_uiCharacterCount -= uiShrinkCharsFront;
@@ -310,7 +310,7 @@ void ezStringBuilder::ReplaceSubString(const char* szStartPos, const char* szEnd
     // now move all the characters from behind the replaced string to the correct position
     ezMemoryUtils::Move(szWritePos + uiWordBytes, szWritePos + uiSubStringBytes, szStringEnd - (szWritePos + uiSubStringBytes));
 
-    m_Data.Pop(uiDifference);
+    m_Data.PopBack(uiDifference);
 
     return;
   }

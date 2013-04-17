@@ -110,7 +110,7 @@ ezResult ReadCompleteFile(const char* szFile, ezDynamicArray<ezUInt8>& out_FileC
     if (uiRead == 0)
       return EZ_SUCCESS; // file is automatically closed here
 
-    out_FileContent.AppendRange(ezArrayPtr<ezUInt8>(uiTemp, (ezUInt32) uiRead));
+    out_FileContent.PushBackRange(ezArrayPtr<ezUInt8>(uiTemp, (ezUInt32) uiRead));
   }
 
   return EZ_SUCCESS; // file is automatically closed here
@@ -156,7 +156,7 @@ FileStats GetFileStats(const char* szFile)
   if (ReadCompleteFile(szFile, FileContent) == EZ_FAILURE)
     return s;
 
-  FileContent.Append('\0');
+  FileContent.PushBack('\0');
 
   // We should not append that directly at the ezStringBuilder, as the file read operations may end
   // in between a Utf8 sequence and then ezStringBuilder will complain about invalid Utf8 strings.

@@ -402,28 +402,6 @@ EZ_CREATE_SIMPLE_TEST(Containers, Deque)
       EZ_TEST_INT(a1.LastIndexOf(i), i);
     }
   }
-/*
-  EZ_TEST_BLOCK(true, "AppendUnchecked / AppendRange")
-  {
-    ezDynamicArray<ezInt32> a1;
-    a1.Reserve(100);
-
-    for (ezInt32 i = 0; i < 100; ++i)
-      a1.AppendUnchecked(i);
-
-    for (ezInt32 i = 0; i < 100; ++i)
-      EZ_TEST_INT(a1[i], i);
-
-    ezInt32 temp[] = { 100, 101, 102, 103, 104 };
-    ezArrayPtr<ezInt32> range(temp);
-
-    a1.AppendRange(range);
-
-    EZ_TEST_INT(a1.GetCount(), 105);
-    for (ezUInt32 i = 0; i < a1.GetCount(); ++i)
-      EZ_TEST_INT(a1[i], i);
-  }
-*/
   
   EZ_TEST_BLOCK(true, "Insert")
   {

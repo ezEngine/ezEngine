@@ -106,7 +106,7 @@ EZ_CREATE_SIMPLE_TEST(Threading, ThreadLocalStorage)
     // and not shared like intended
     for(ezUInt32 i = 0; i < EZ_THREAD_LOCAL_STORAGE_SLOT_COUNT * 2; ++i)
     {
-      TestThreads.Append(EZ_DEFAULT_NEW(TestThread));
+      TestThreads.PushBack(EZ_DEFAULT_NEW(TestThread));
       TestThreads[i]->SetThreadLocalVariable(i);
       TestThreads[i]->Start();
     }

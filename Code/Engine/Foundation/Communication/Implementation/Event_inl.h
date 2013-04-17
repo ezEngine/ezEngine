@@ -17,7 +17,7 @@ void ezEventBase<EventData, PassThrough>::AddEventHandler(ezEventHandler callbac
   er.m_Callback = callback;
   er.m_pPassThrough = pPassThrough;
 
-  m_EventHandlers.Append(er);
+  m_EventHandlers.PushBack(er);
 }
 
 /// Use exactly the same combination of callback/pass-through-data to unregister an event handlers.

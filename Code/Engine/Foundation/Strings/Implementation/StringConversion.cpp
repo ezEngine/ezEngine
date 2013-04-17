@@ -27,7 +27,7 @@ void ezStringWChar::operator=(const char* szUtf8)
   }
 
   // append terminator
-  m_Data.Append('\0');
+  m_Data.PushBack('\0');
 }
 
 void ezStringWChar::operator=(const ezUInt16* szUtf16)
@@ -52,7 +52,7 @@ void ezStringWChar::operator=(const ezUInt16* szUtf16)
   }
 
   // append terminator
-  m_Data.Append('\0');
+  m_Data.PushBack('\0');
 }
 
 void ezStringWChar::operator=(const ezUInt32* szUtf32)
@@ -75,7 +75,7 @@ void ezStringWChar::operator=(const ezUInt32* szUtf32)
   }
 
   // append terminator
-  m_Data.Append('\0');
+  m_Data.PushBack('\0');
 }
 
 void ezStringWChar::operator=(const wchar_t* szWChar)
@@ -87,13 +87,13 @@ void ezStringWChar::operator=(const wchar_t* szWChar)
 
     while (*szWChar != '\0')
     {
-      m_Data.Append(*szWChar);
+      m_Data.PushBack(*szWChar);
       ++szWChar;
     }
   }
 
   // append terminator
-  m_Data.Append('\0');
+  m_Data.PushBack('\0');
 }
 
 
@@ -113,13 +113,13 @@ void ezStringUtf8::operator=(const char* szUtf8)
 
     while (*szUtf8 != '\0')
     {
-      m_Data.Append(*szUtf8);
+      m_Data.PushBack(*szUtf8);
       ++szUtf8;
     }
   }
 
   // append terminator
-  m_Data.Append('\0');
+  m_Data.PushBack('\0');
 }
 
 
@@ -145,7 +145,7 @@ void ezStringUtf8::operator=(const ezUInt16* szUtf16)
   }
 
   // append terminator
-  m_Data.Append('\0');
+  m_Data.PushBack('\0');
 }
 
 
@@ -168,7 +168,7 @@ void ezStringUtf8::operator=(const ezUInt32* szUtf32)
   }
 
   // append terminator
-  m_Data.Append('\0');
+  m_Data.PushBack('\0');
 }
 
 void ezStringUtf8::operator=(const wchar_t* szWChar)
@@ -189,7 +189,7 @@ void ezStringUtf8::operator=(const wchar_t* szWChar)
   }
 
   // append terminator
-  m_Data.Append('\0');
+  m_Data.PushBack('\0');
 }
 
 
@@ -220,7 +220,7 @@ void ezStringUtf16::operator=(const char* szUtf8)
   }
 
   // append terminator
-  m_Data.Append('\0');
+  m_Data.PushBack('\0');
 }
 
 
@@ -236,13 +236,13 @@ void ezStringUtf16::operator=(const ezUInt16* szUtf16)
 
     while (*szUtf16 != '\0')
     {
-      m_Data.Append(*szUtf16);
+      m_Data.PushBack(*szUtf16);
       ++szUtf16;
     }
   }
 
   // append terminator
-  m_Data.Append('\0');
+  m_Data.PushBack('\0');
 }
 
 
@@ -265,7 +265,7 @@ void ezStringUtf16::operator=(const ezUInt32* szUtf32)
   }
 
   // append terminator
-  m_Data.Append('\0');
+  m_Data.PushBack('\0');
 }
 
 void ezStringUtf16::operator=(const wchar_t* szWChar)
@@ -286,7 +286,7 @@ void ezStringUtf16::operator=(const wchar_t* szWChar)
   }
 
   // append terminator
-  m_Data.Append('\0');
+  m_Data.PushBack('\0');
 }
 
 
@@ -310,12 +310,12 @@ void ezStringUtf32::operator=(const char* szUtf8)
     while (*szUtf8 != '\0')
     {
       // decode utf8 to utf32
-      m_Data.Append(ezUnicodeUtils::DecodeUtf8ToUtf32(szUtf8));
+      m_Data.PushBack(ezUnicodeUtils::DecodeUtf8ToUtf32(szUtf8));
     }
   }
 
   // append terminator
-  m_Data.Append('\0');
+  m_Data.PushBack('\0');
 }
 
 
@@ -332,12 +332,12 @@ void ezStringUtf32::operator=(const ezUInt16* szUtf16)
     while (*szUtf16 != '\0')
     {
       // decode utf16 to utf32
-      m_Data.Append(ezUnicodeUtils::DecodeUtf16ToUtf32(szUtf16));
+      m_Data.PushBack(ezUnicodeUtils::DecodeUtf16ToUtf32(szUtf16));
     }
   }
 
   // append terminator
-  m_Data.Append('\0');
+  m_Data.PushBack('\0');
 }
 
 
@@ -349,13 +349,13 @@ void ezStringUtf32::operator=(const ezUInt32* szUtf32)
   {
     while (*szUtf32 != '\0')
     {
-      m_Data.Append(*szUtf32);
+      m_Data.PushBack(*szUtf32);
       ++szUtf32;
     }
   }
 
   // append terminator
-  m_Data.Append('\0');
+  m_Data.PushBack('\0');
 }
 
 void ezStringUtf32::operator=(const wchar_t* szWChar)
@@ -367,12 +367,12 @@ void ezStringUtf32::operator=(const wchar_t* szWChar)
     while (*szWChar != '\0')
     {
       // decode wchar_t to utf32
-      m_Data.Append(ezUnicodeUtils::DecodeWCharToUtf32(szWChar));
+      m_Data.PushBack(ezUnicodeUtils::DecodeWCharToUtf32(szWChar));
     }
   }
 
   // append terminator
-  m_Data.Append('\0');
+  m_Data.PushBack('\0');
 }
 
 

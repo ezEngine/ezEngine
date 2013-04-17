@@ -8,7 +8,7 @@
 inline ezStringWChar::ezStringWChar(ezIAllocator* pAllocator) : 
   m_Data(pAllocator)
 {
-  m_Data.Push('\0');
+  m_Data.PushBack('\0');
 }
 
 inline ezStringWChar::ezStringWChar(const char* szUtf8, ezIAllocator* pAllocator) : 
@@ -42,7 +42,7 @@ inline ezStringWChar::ezStringWChar(const wchar_t* szWChar, ezIAllocator* pAlloc
 inline ezStringUtf8::ezStringUtf8(ezIAllocator* pAllocator) : 
   m_Data(pAllocator)
 {
-  m_Data.Push('\0');
+  m_Data.PushBack('\0');
 }
 
 inline ezStringUtf8::ezStringUtf8(const char* szUtf8, ezIAllocator* pAllocator) : 
@@ -76,7 +76,7 @@ inline ezStringUtf8::ezStringUtf8(const wchar_t* szWChar, ezIAllocator* pAllocat
 inline ezStringUtf16::ezStringUtf16(ezIAllocator* pAllocator) : 
   m_Data(pAllocator)
 {
-  m_Data.Push('\0');
+  m_Data.PushBack('\0');
 }
 
 inline ezStringUtf16::ezStringUtf16(const char* szUtf8, ezIAllocator* pAllocator) : 
@@ -112,7 +112,7 @@ inline ezStringUtf16::ezStringUtf16(const wchar_t* szWChar, ezIAllocator* pAlloc
 inline ezStringUtf32::ezStringUtf32(ezIAllocator* pAllocator) : 
   m_Data(pAllocator)
 {
-  m_Data.Push('\0');
+  m_Data.PushBack('\0');
 }
 
 inline ezStringUtf32::ezStringUtf32(const char* szUtf8, ezIAllocator* pAllocator) : 

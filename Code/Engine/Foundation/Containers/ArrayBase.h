@@ -48,17 +48,14 @@ public:
   /// \brief Checks whether the given value can be found in the array. O(n) complexity.
   bool Contains(const T& value) const; // [tested]
 
-  /// \brief Appends value at the end of the array. Increases the capacity if necessary. Returns the index of the added element.
-  ezUInt32 Append(const T& value); // [tested]
-
-  /// \brief Appends value at the end of the array. Does NOT ensure capacity. Returns the index of the added element.
-  ezUInt32 AppendUnchecked(const T& value); // [tested]
+  /// \brief Appends value at the end of the array. Does NOT ensure capacity.
+  void PushBackUnchecked(const T& value); // [tested]
 
   /// \brief Appends all elements in range at the end of the array. Increases the capacity if necessary.
-  void AppendRange(const ezArrayPtr<T>& range); // [tested]
+  void PushBackRange(const ezArrayPtr<T>& range); // [tested]
 
   /// \brief Appends all elements in range at the end of the array. Increases the capacity if necessary.
-  void AppendRange(const ezArrayPtr<const T>& range); // [tested]
+  void PushBackRange(const ezArrayPtr<const T>& range); // [tested]
 
   /// \brief Inserts value at index by shifting all following elements.
   void Insert(const T& value, ezUInt32 uiIndex); // [tested]
@@ -79,16 +76,16 @@ public:
   ezUInt32 LastIndexOf(const T& value, ezUInt32 uiStartIndex = ezInvalidIndex) const; // [tested]
 
   /// \brief Pushes value at the end of the array.
-  void Push(const T& value); // [tested]
+  void PushBack(const T& value); // [tested]
 
   /// \brief Removes count elements from the end of the array.
-  void Pop(ezUInt32 uiCountToRemove = 1); // [tested]
+  void PopBack(ezUInt32 uiCountToRemove = 1); // [tested]
 
   /// \brief Returns the last element of the arry.
-  T& Peek(); // [tested]
+  T& PeekBack(); // [tested]
 
   /// \brief Returns the last element of the arry.
-  const T& Peek() const; // [tested]
+  const T& PeekBack() const; // [tested]
 
   /// \brief Sort with explicit comparer
   template <typename C>

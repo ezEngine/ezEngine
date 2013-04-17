@@ -47,6 +47,9 @@ if (MSVC)
   ADD_MSVC_PRECOMPILED_HEADER_APP ()
 endif ()
 
+# Add the application source directory as an additional include dir (required to find PCH.h etc.)
+include_directories (${CMAKE_CURRENT_SOURCE_DIR})
+
 # Define the Exe Project, add all required sources to it
 add_executable (${PROJECT_NAME} ${APP_CONFIG} ${ALL_SOURCE_FILES})
 

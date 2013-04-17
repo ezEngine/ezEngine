@@ -1,6 +1,4 @@
 #include <PCH.h>
-#include <TestFramework/Framework/TestFramework.h>
-#include <Foundation/Math/Plane.h>
 
 EZ_CREATE_SIMPLE_TEST(Math, Plane)
 {

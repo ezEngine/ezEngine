@@ -136,8 +136,8 @@ inline const char* ezStringBuilder::GetData() const
 inline void ezStringBuilder::AppendTerminator()
 {
   // make sure the string terminates with a zero.
-  if (m_Data.IsEmpty() || (m_Data.Peek() != '\0'))
-    m_Data.Append('\0');
+  if (m_Data.IsEmpty() || (m_Data.PeekBack() != '\0'))
+    m_Data.PushBack('\0');
 }
 
 inline void ezStringBuilder::ToUpper()
@@ -285,13 +285,13 @@ void ezStringBuilder::Split(bool bReturnEmptyStrings, Container& Output, const c
       const ezUInt32 uiLen = ezStringUtils::GetStringElementCount(szReadPos);
 
       if (bReturnEmptyStrings || (uiLen > 0))
-        Output.Append(ezStringIterator(szReadPos, szReadPos + uiLen, szReadPos));
+        Output.PushBack(ezStringIterator(szReadPos, szReadPos + uiLen, szReadPos));
 
       return;
     }
     
     if (bReturnEmptyStrings || (szFoundPos > szReadPos))
-      Output.Append(ezStringIterator(szReadPos, szFoundPos, szReadPos));
+      Output.PushBack(ezStringIterator(szReadPos, szFoundPos, szReadPos));
 
     szReadPos = szFoundPos + SepLen[iFoundSeparator];
   }

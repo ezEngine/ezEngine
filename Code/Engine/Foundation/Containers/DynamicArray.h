@@ -4,8 +4,8 @@
 
 /// \brief Implementation a dynamically growing array.
 ///
-/// Best-case performance for the Append operation is in O(1) if the ezDynamicArray does not need to be expanded.
-/// In the worst case, Append is in O(n).
+/// Best-case performance for the PushBack operation is in O(1) if the ezDynamicArray does not need to be expanded.
+/// In the worst case, PushBack is in O(n).
 /// Look-up is guaranteed to always be in O(1).
 template <typename T>
 class ezDynamicArrayBase : public ezArrayBase<T, ezDynamicArrayBase<T> >

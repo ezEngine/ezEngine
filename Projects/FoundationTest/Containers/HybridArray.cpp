@@ -55,7 +55,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, HybridArray)
     ezHybridArray<ezInt32, 16> a1;
 
     for (ezInt32 i = 0; i < 32; ++i)
-      a1.Append(rand() % 100000);
+      a1.PushBack(rand() % 100000);
 
     ezHybridArray<ezInt32, 16> a2 = a1;
     ezHybridArray<ezInt32, 16> a3 (a1);
@@ -72,7 +72,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, HybridArray)
     for (ezInt32 i = 0; i < 100; ++i)
     {
       ezInt32 r = rand() % 100000;
-      a1.Append(r);
+      a1.PushBack(r);
     }
 
     ezArrayPtr<ezInt32> ap = a1;
@@ -85,7 +85,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, HybridArray)
     ezHybridArray<ezInt32, 16> a1, a2;
 
     for (ezInt32 i = 0; i < 100; ++i)
-      a1.Append(i);
+      a1.PushBack(i);
 
     a2 = a1;
 
@@ -107,8 +107,8 @@ EZ_CREATE_SIMPLE_TEST(Containers, HybridArray)
     for (ezInt32 i = 0; i < 100; ++i)
     {
       ezInt32 r = rand() % 100000;
-      a1.Append(r);
-      a2.Append(r);
+      a1.PushBack(r);
+      a2.PushBack(r);
     }
 
     EZ_TEST(a1 == a1);
@@ -171,7 +171,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, HybridArray)
     ezHybridArray<ezInt32, 16> a1;
     a1.Clear();
 
-    a1.Append(3);
+    a1.PushBack(3);
     a1.Clear();
 
     EZ_TEST(a1.IsEmpty());
@@ -185,7 +185,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, HybridArray)
       EZ_TEST(!a1.Contains(i));
 
     for (ezInt32 i = 0; i < 100; ++i)
-      a1.Append(i);
+      a1.PushBack(i);
 
     for (ezInt32 i = 0; i < 100; ++i)
     {
@@ -212,7 +212,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, HybridArray)
     ezHybridArray<ezInt32, 16> a1;
 
     for (ezInt32 i = 0; i < 100; ++i)
-      a1.Push(i % 2);
+      a1.PushBack(i % 2);
 
     while (a1.Remove(1));
 
@@ -260,28 +260,28 @@ EZ_CREATE_SIMPLE_TEST(Containers, HybridArray)
       EZ_TEST(ezMath::IsEven(a1[i]));
   }
 
-  EZ_TEST_BLOCK(true, "Push / Pop / Peek")
+  EZ_TEST_BLOCK(true, "PushBack / PopBack / PeekBack")
   {
     ezHybridArray<ezInt32, 16> a1;
 
     for (ezInt32 i = 0; i < 10; ++i)
     {
-      a1.Push(i);
-      EZ_TEST_INT(a1.Peek(), i);
+      a1.PushBack(i);
+      EZ_TEST_INT(a1.PeekBack(), i);
     }
 
     for (ezInt32 i = 9; i >= 0; --i)
     {
-      EZ_TEST_INT(a1.Peek(), i);
-      a1.Pop();
+      EZ_TEST_INT(a1.PeekBack(), i);
+      a1.PopBack();
     }
 
-    a1.Push(23);
-    a1.Push(2);
-    a1.Push(3);
+    a1.PushBack(23);
+    a1.PushBack(2);
+    a1.PushBack(3);
 
-    a1.Pop(2);
-    EZ_TEST_INT(a1.Peek(), 23);
+    a1.PopBack(2);
+    EZ_TEST_INT(a1.PeekBack(), 23);
   }
 
   EZ_TEST_BLOCK(true, "Construction / Destruction")
@@ -295,7 +295,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, HybridArray)
       EZ_TEST(st::HasDone(0, 0)); // nothing has been constructed / destructed in between
       EZ_TEST(st::HasAllDestructed());
 
-      a1.Append(st(1));
+      a1.PushBack(st(1));
       EZ_TEST(st::HasDone(2, 1)); // one temporary, one final (copy constructed)
 
       a1.Insert(st(2), 0);
@@ -307,10 +307,10 @@ EZ_CREATE_SIMPLE_TEST(Containers, HybridArray)
       a1.Clear();
       EZ_TEST(st::HasDone(0, 2));
 
-      a1.Push(st(3));
-      a1.Push(st(4));
-      a1.Push(st(5));
-      a1.Push(st(6));
+      a1.PushBack(st(3));
+      a1.PushBack(st(4));
+      a1.PushBack(st(5));
+      a1.PushBack(st(6));
 
       EZ_TEST(st::HasDone(8, 4)); // four temporaries
 
@@ -337,7 +337,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, HybridArray)
 
     for (ezInt32 i = 0; i < 1000; ++i)
     {
-      a.Push(i);
+      a.PushBack(i);
       EZ_TEST_INT(a.GetCount(), i + 1);
     }
 
@@ -362,7 +362,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, HybridArray)
 
     for (ezUInt32 i = 0; i < 45; i++)
     {
-      list.Append(std::rand());
+      list.PushBack(std::rand());
     }
     list.Sort();
 
@@ -381,7 +381,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, HybridArray)
 
     for (ezUInt32 i = 0; i < 100; i++)
     {
-      list.Append(Dummy(rand()));
+      list.PushBack(Dummy(rand()));
     }
     list.Sort();
 
@@ -396,9 +396,9 @@ EZ_CREATE_SIMPLE_TEST(Containers, HybridArray)
   EZ_TEST_BLOCK(true, "Various")
   {
     ezHybridArray<Dummy, 16> list;
-    list.Append(1);
-    list.Append(2);
-    list.Append(3);
+    list.PushBack(1);
+    list.PushBack(2);
+    list.PushBack(3);
     list.Insert(4, 3);
     list.Insert(0, 1);
     list.Insert(0, 5);
@@ -422,10 +422,10 @@ EZ_CREATE_SIMPLE_TEST(Containers, HybridArray)
     EZ_TEST(list.IndexOf(0) == 1);
     EZ_TEST(list.LastIndexOf(0) == 2);
 
-    list.Push(5);
+    list.PushBack(5);
     EZ_TEST(list[4].a == 5);
-    Dummy d = list.Peek();
-    list.Pop();
+    Dummy d = list.PeekBack();
+    list.PopBack();
     EZ_TEST(d.a == 5);
     EZ_TEST(list.GetCount() == 4);
   }
@@ -435,13 +435,13 @@ EZ_CREATE_SIMPLE_TEST(Containers, HybridArray)
     ezHybridArray<Dummy, 16> list;
     for (int i = 0; i < 16; i++)
     {
-      list.Append(Dummy(rand()));
+      list.PushBack(Dummy(rand()));
     }
 
     ezHybridArray<Dummy, 16> list2;
     for (int i = 0; i < 8; i++)
     {
-      list2.Append(Dummy(rand()));
+      list2.PushBack(Dummy(rand()));
     }
 
     list = list2;
@@ -451,16 +451,16 @@ EZ_CREATE_SIMPLE_TEST(Containers, HybridArray)
     EZ_TEST(list2.GetCount() == 0);
 
     list2 = list;
-    EZ_TEST(list.Peek() == list2.Peek());
+    EZ_TEST(list.PeekBack() == list2.PeekBack());
     EZ_TEST(list == list2);
 
     for (int i = 0; i < 16; i++)
     {
-      list2.Append(Dummy(rand()));
+      list2.PushBack(Dummy(rand()));
     }
 
     list = list2;
-    EZ_TEST(list.Peek() == list2.Peek());
+    EZ_TEST(list.PeekBack() == list2.PeekBack());
     EZ_TEST(list == list2);
   }
 
@@ -469,7 +469,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, HybridArray)
     ezHybridArray<Dummy, 16> list;
     for (int i = 0; i < 16; i++)
     {
-      list.Append(Dummy(rand()));
+      list.PushBack(Dummy(rand()));
     }
     list.SetCount(32);
     list.SetCount(4);

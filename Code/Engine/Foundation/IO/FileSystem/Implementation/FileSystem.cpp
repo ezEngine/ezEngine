@@ -67,7 +67,7 @@ ezResult ezFileSystem::AddDataDirectory(const char* szDataDirectory, DataDirUsag
       dd.m_sCategory = szCategory;
       dd.m_sGroup = szGroup;
 
-      s_Data->m_DataDirectories.Push(dd);
+      s_Data->m_DataDirectories.PushBack(dd);
 
       {
         // Broadcast that a data directory was added
@@ -259,7 +259,7 @@ const char* ezFileSystem::ExtractDataDirsToSearch(const char* szPath, ezHybridAr
   if (!ezStringUtils::StartsWith(szPath, "<"))
   {
     // if the path does not contain a <STUFF> filter, it is as if there is the <> filter (all data dirs with the empty category name)
-    SearchDirs.Append("");
+    SearchDirs.PushBack("");
     return szPath;
   }
 
@@ -271,7 +271,7 @@ const char* ezFileSystem::ExtractDataDirsToSearch(const char* szPath, ezHybridAr
   {
     if (it.GetCharacter() == '|')
     {
-      SearchDirs.Append(sCur.GetData());
+      SearchDirs.PushBack(sCur.GetData());
       sCur.Clear();
     }
     else
@@ -282,7 +282,7 @@ const char* ezFileSystem::ExtractDataDirsToSearch(const char* szPath, ezHybridAr
 
   EZ_ASSERT(!it.IsEmpty(), "Cannot parse the path \"%s\". The data-dir filter starts with a '<' but does not end with '>'.", szPath);
 
-  SearchDirs.Append(sCur.GetData());
+  SearchDirs.PushBack(sCur.GetData());
   ++it;
 
   return it.GetData(); // return the string after the data-dir filter declaration

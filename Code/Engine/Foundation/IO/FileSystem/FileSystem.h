@@ -65,7 +65,7 @@ public:
   typedef ezDataDirectoryType* (*ezDataDirFactory)(const char* szDataDirectory);
 
   /// \brief This function allows to register another data directory factory, which might be invoked when a new data directory is to be added.
-  static void RegisterDataDirectoryFactory(ezDataDirFactory Factory) { s_Data->m_DataDirFactories.Push(Factory); }
+  static void RegisterDataDirectoryFactory(ezDataDirFactory Factory) { s_Data->m_DataDirFactories.PushBack(Factory); }
 
   /// \brief Will remove all known data directory factories.
   static void ClearAllDataDirectoryFactories() { s_Data->m_DataDirFactories.Clear(); }
