@@ -22,25 +22,26 @@ class ezLogBlock;
 class EZ_FOUNDATION_DLL ezLog
 {
 public:
-  /// Describes the types of events that ezLog sends.
+
+  /// \brief Describes the types of events that ezLog sends.
   struct EventType
   {
     enum Enum
     {
-      FlushToDisk         = -3,
-      BeginGroup          = -2,
-      EndGroup            = -1,
-      None                = 0,
-      FatalErrorMsg       = 1,
-      ErrorMsg            = 2,
-      SeriousWarningMsg   = 3,
-      WarningMsg          = 4,
-      SuccessMsg          = 5,
-      InfoMsg             = 6,
-      DevMsg              = 7,
-      DebugMsg            = 8,
-      DebugRegularMsg     = 9,
-      All                 = 9,
+      FlushToDisk         = -3,   ///< All cached logging info is supposed to get flushed to disk at this moment (to save it, in case of crashes).
+      BeginGroup          = -2,   ///< A logging group has been opened.
+      EndGroup            = -1,   ///< A logging group has been closed.
+      None                = 0,    ///< Not used.
+      FatalErrorMsg       = 1,    ///< A fatal error message.
+      ErrorMsg            = 2,    ///< An error message.
+      SeriousWarningMsg   = 3,    ///< A serious warning message.
+      WarningMsg          = 4,    ///< A warning message.
+      SuccessMsg          = 5,    ///< A success message.
+      InfoMsg             = 6,    ///< An info message.
+      DevMsg              = 7,    ///< A development message.
+      DebugMsg            = 8,    ///< A debug message.
+      DebugRegularMsg     = 9,    ///< A regular debug message. These messages should not be written to disk, or shown everywhere, as they will appear very often.
+      All                 = 9,    ///< Can be used to enable all log message types.
 
       ENUM_COUNT
     };

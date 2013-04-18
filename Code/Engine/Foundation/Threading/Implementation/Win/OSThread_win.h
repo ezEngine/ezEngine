@@ -20,6 +20,10 @@ typedef struct tagTHREADNAME_INFO
 } THREADNAME_INFO;
 #pragma pack(pop)
 
+
+#define EZ_MSVC_WARNING_NUMBER 6312
+#include <Foundation/Basics/Compiler/DisableWarning.h>
+
 void SetThreadName(DWORD dwThreadID, LPCSTR szThreadName)
 {
   THREADNAME_INFO info;
@@ -27,9 +31,6 @@ void SetThreadName(DWORD dwThreadID, LPCSTR szThreadName)
   info.szName = szThreadName;
   info.dwThreadID = dwThreadID;
   info.dwFlags = 0;
-
-#define EZ_MSVC_WARNING_NUMBER 6312
-#include <Foundation/Basics/Compiler/DisableWarning.h>
 
   __try
   {
@@ -39,9 +40,10 @@ void SetThreadName(DWORD dwThreadID, LPCSTR szThreadName)
   {
     return; // makes the static code analysis happy
   }
+}
 
 #include <Foundation/Basics/Compiler/RestoreWarning.h>
-}
+
 
 // Windows specific implementation of the thread class
 
