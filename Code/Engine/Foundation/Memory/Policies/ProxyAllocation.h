@@ -7,6 +7,8 @@ namespace ezMemoryPolicies
   /// \brief This Allocation policy redirects all operations to its parent.
   ///
   /// \note Note that the stats are taken on the proxy as well as on the parent.
+  ///
+  /// \see ezAllocator
   class ezProxyAllocation
   {
   public:

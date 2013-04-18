@@ -41,12 +41,13 @@ public:
   void Min(T x); // [tested]
   void Max(T x); // [tested]
 
-  /// \brief Replaces the internal value with x and returns the original internal value.
-  T Swap(T x);
+  /// \brief Sets the internal value to x and returns the original internal value.
+  T Set(T x); // [tested]
 
-  operator T() const;
-  
-  T Get() const;
+  /// \brief Sets the internal value to x if the internal value is equal to expected and returns true, otherwise does nothing and returns false.
+  bool TestAndSet(T expected, T x); // [tested]
+
+  operator T() const; // [tested]
 
 private:
   volatile T m_value;

@@ -15,7 +15,10 @@ namespace
   ezAtomicInteger32 g_iMinVariable = 100;
   ezAtomicInteger32 g_iMaxVariable = -100;
 
-  ezAtomicInteger32 g_iHasWork = 0;
+  ezAtomicInteger32 g_iSetVariable = 0;
+
+  ezAtomicInteger32 g_iCompSwapVariable = 0;
+  ezInt32 g_iCompSwapCounter = 0;
 
   ezAtomicInteger64 g_iIncVariable64 = 0;
   ezAtomicInteger64 g_iDecVariable64 = 0;
@@ -29,6 +32,15 @@ namespace
 
   ezAtomicInteger64 g_iMinVariable64 = 100;
   ezAtomicInteger64 g_iMaxVariable64 = -100;
+
+  ezAtomicInteger64 g_iSetVariable64 = 0;
+
+  ezAtomicInteger64 g_iCompSwapVariable64 = 0;
+  ezInt32 g_iCompSwapCounter64 = 0;
+
+  void* g_pCompSwapPointer = NULL;
+  ezInt32 g_iCompSwapPointerCounter = 0;
+
 
   class TestThread : public ezThread
   {
@@ -54,15 +66,11 @@ namespace
       g_iMinVariable.Min(m_iIndex);
       g_iMaxVariable.Max(m_iIndex);
 
-      if (m_iIndex == 1)
+      g_iSetVariable.Set(m_iIndex);
+      
+      if (g_iCompSwapVariable.TestAndSet(0, m_iIndex))
       {
-        g_iHasWork.Swap(1);
-      }
-      else
-      {
-        while (g_iHasWork.Swap(0) == 1)
-        {          
-        }
+        ++g_iCompSwapCounter;
       }
 
       g_iIncVariable64.Increment();
@@ -77,6 +85,18 @@ namespace
 
       g_iMinVariable64.Min(m_iIndex);
       g_iMaxVariable64.Max(m_iIndex);
+
+      g_iSetVariable64.Set(m_iIndex);
+      
+      if (g_iCompSwapVariable64.TestAndSet(0, m_iIndex))
+      {
+        ++g_iCompSwapCounter64;
+      }
+
+      if (ezAtomicUtils::TestAndSet(&g_pCompSwapPointer, NULL, this))
+      {
+        ++g_iCompSwapPointerCounter;
+      }
 
       return 0;
     }
@@ -132,6 +152,10 @@ EZ_CREATE_SIMPLE_TEST(Threading, Atomics)
     EZ_TEST_INT(g_iMinVariable, 1);
     EZ_TEST_INT(g_iMaxVariable, 2);
 
+    EZ_TEST(g_iSetVariable > 0);
+
+    EZ_TEST(g_iCompSwapVariable > 0);
+    EZ_TEST_INT(g_iCompSwapCounter, 1); // only one thread should have set the variable
 
     EZ_TEST_INT(g_iIncVariable64, 2);
     EZ_TEST_INT(g_iDecVariable64, -2);
@@ -145,6 +169,14 @@ EZ_CREATE_SIMPLE_TEST(Threading, Atomics)
 
     EZ_TEST_INT(g_iMinVariable64, 1);
     EZ_TEST_INT(g_iMaxVariable64, 2);
+
+    EZ_TEST(g_iSetVariable64 > 0);
+
+    EZ_TEST(g_iCompSwapVariable64 > 0);
+    EZ_TEST_INT(g_iCompSwapCounter64, 1); // only one thread should have set the variable
+
+    EZ_TEST(g_pCompSwapPointer != NULL);
+    EZ_TEST_INT(g_iCompSwapPointerCounter, 1); // only one thread should have set the variable
   }
 }
 

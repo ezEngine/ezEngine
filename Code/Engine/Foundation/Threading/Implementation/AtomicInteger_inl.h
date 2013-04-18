@@ -85,19 +85,19 @@ EZ_FORCE_INLINE void ezAtomicInteger<T>::Max(T x)
 }
 
 template <typename T>
-EZ_FORCE_INLINE T ezAtomicInteger<T>::Swap(T x)
+EZ_FORCE_INLINE T ezAtomicInteger<T>::Set(T x)
 {
-  return ezAtomicUtils::Swap(m_value, x);
+  return ezAtomicUtils::Set(m_value, x);
+}
+
+template <typename T>
+EZ_FORCE_INLINE bool ezAtomicInteger<T>::TestAndSet(T expected, T x)
+{
+  return ezAtomicUtils::TestAndSet(m_value, expected, x);
 }
 
 template <typename T>
 EZ_FORCE_INLINE ezAtomicInteger<T>::operator T() const
-{
-  return m_value;
-}
-
-template <typename T>
-EZ_FORCE_INLINE T ezAtomicInteger<T>::Get() const
 {
   return m_value;
 }

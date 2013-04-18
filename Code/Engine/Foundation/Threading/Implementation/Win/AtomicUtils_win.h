@@ -127,28 +127,28 @@ inline void ezAtomicUtils::Max(volatile ezInt64& dest, ezInt64 value)
 }
 
 
-inline ezInt32 ezAtomicUtils::Swap(volatile ezInt32& dest, ezInt32 value)
+inline ezInt32 ezAtomicUtils::Set(volatile ezInt32& dest, ezInt32 value)
 {
   return InterlockedExchange(reinterpret_cast<volatile LONG*>(&dest), value);
 }
 
-EZ_FORCE_INLINE ezInt64 ezAtomicUtils::Swap(volatile ezInt64& dest, ezInt64 value)
+EZ_FORCE_INLINE ezInt64 ezAtomicUtils::Set(volatile ezInt64& dest, ezInt64 value)
 {
   return InterlockedExchange64(&dest, value);
 }
 
 
-EZ_FORCE_INLINE bool ezAtomicUtils::CompareAndSwap(volatile ezInt32& dest, ezInt32 expected, ezInt32 value)
+EZ_FORCE_INLINE bool ezAtomicUtils::TestAndSet(volatile ezInt32& dest, ezInt32 expected, ezInt32 value)
 {
   return InterlockedCompareExchange(reinterpret_cast<volatile LONG*>(&dest), value, expected) == expected;
 }
 
-EZ_FORCE_INLINE bool ezAtomicUtils::CompareAndSwap(volatile ezInt64& dest, ezInt64 expected, ezInt64 value)
+EZ_FORCE_INLINE bool ezAtomicUtils::TestAndSet(volatile ezInt64& dest, ezInt64 expected, ezInt64 value)
 {
   return InterlockedCompareExchange64(&dest, value, expected) == expected;
 }
 
-EZ_FORCE_INLINE bool ezAtomicUtils::CompareAndSwap(void** volatile dest, void* expected, void* value)
+EZ_FORCE_INLINE bool ezAtomicUtils::TestAndSet(void** volatile dest, void* expected, void* value)
 {
   return InterlockedCompareExchangePointer(dest, value, expected) == expected;
 }

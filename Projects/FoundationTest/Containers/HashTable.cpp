@@ -58,7 +58,15 @@ EZ_CREATE_SIMPLE_TEST(Containers, HashTable)
 
     for (ezInt32 i = 0; i < 64; ++i)
     {
-      table1.Insert(rand() % 100000, ezConstructionCounter(i));
+      ezInt32 key;
+      
+      do
+      {
+        key = rand() % 100000;
+      }
+      while (table1.KeyExists(key));
+
+      table1.Insert(key, ezConstructionCounter(i));
     }
 
     ezHashTable<ezInt32, st> table2;

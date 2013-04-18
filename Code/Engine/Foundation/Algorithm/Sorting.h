@@ -12,20 +12,20 @@ class ezSorting
 public:
   /// \brief Sorts the elements in container using a in-place quick sort implementation (not stable).
   template <typename Container>
-  static void QuickSort(Container& container); 
+  static void QuickSort(Container& container); // [tested]
 
   /// \brief Sorts the elements in the array using a in-place quick sort implementation (not stable).
   template <typename T>
-  static void QuickSort(ezArrayPtr<T>& arrayPtr);
+  static void QuickSort(ezArrayPtr<T>& arrayPtr); // [tested]
 
 
   /// \brief Sorts the elements in container using insertion sort (stable and in-place).
   template <typename Container>
-  static void InsertionSort(Container& container);
+  static void InsertionSort(Container& container); // [tested]
 
   /// \brief Sorts the elements in the array using insertion sort (stable and in-place).
   template <typename T>
-  static void InsertionSort(ezArrayPtr<T>& arrayPtr);
+  static void InsertionSort(ezArrayPtr<T>& arrayPtr); // [tested]
 
 private:
   enum { INSERTION_THRESHOLD = 16 };

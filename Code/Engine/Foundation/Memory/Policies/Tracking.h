@@ -5,6 +5,9 @@
 
 namespace ezMemoryPolicies
 {
+  /// \brief Simple tracking policy which keeps track of the number of allocations and the total size.
+  ///
+  /// \see ezAllocator
   class EZ_FOUNDATION_DLL ezSimpleTracking
   {
   public:
@@ -37,6 +40,9 @@ namespace ezMemoryPolicies
     ezAtomicInteger64 m_uiUsedMemorySize;
   };
 
+  /// \brief Tracking policy which stores a stacktrace for each allocation in addition to the number of allocations and the total size.
+  ///
+  /// \see ezAllocator
   class EZ_FOUNDATION_DLL ezStackTracking : public ezSimpleTracking
   {
   private:

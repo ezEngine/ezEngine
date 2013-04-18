@@ -5,6 +5,8 @@
 namespace ezMemoryPolicies
 {
   /// \brief Aligned Heap memory allocation policy. Only supports one alignment for all allocations.
+  ///
+  /// \see ezAllocator
   template <size_t uiAlignment>
   class ezAlignedHeapAllocation
   {

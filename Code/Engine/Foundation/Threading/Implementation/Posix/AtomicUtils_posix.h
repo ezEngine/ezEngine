@@ -128,28 +128,28 @@ EZ_FORCE_INLINE void ezAtomicUtils::Max(volatile ezInt64& dest, ezInt64 value)
 }
 
 
-EZ_FORCE_INLINE ezInt32 ezAtomicUtils::Swap(volatile ezInt32& dest, ezInt32 value)
+EZ_FORCE_INLINE ezInt32 ezAtomicUtils::Set(volatile ezInt32& dest, ezInt32 value)
 {
   return __sync_lock_test_and_set(&dest, value);
 }
 
-EZ_FORCE_INLINE ezInt64 ezAtomicUtils::Swap(volatile ezInt64& dest, ezInt64 value)
+EZ_FORCE_INLINE ezInt64 ezAtomicUtils::Set(volatile ezInt64& dest, ezInt64 value)
 {
   return __sync_lock_test_and_set(&dest, value);
 }
 
 
-EZ_FORCE_INLINE bool ezAtomicUtils::CompareAndSwap(volatile ezInt32& dest, ezInt32 expected, ezInt32 value)
+EZ_FORCE_INLINE bool ezAtomicUtils::TestAndSet(volatile ezInt32& dest, ezInt32 expected, ezInt32 value)
 {
-  return __sync_bool_compare_and_swap(&dest, expected, value) == expected;
+  return __sync_bool_compare_and_swap(&dest, expected, value);
 }
 
-EZ_FORCE_INLINE bool ezAtomicUtils::CompareAndSwap(volatile ezInt64& dest, ezInt64 expected, ezInt64 value)
+EZ_FORCE_INLINE bool ezAtomicUtils::TestAndSet(volatile ezInt64& dest, ezInt64 expected, ezInt64 value)
 {
-  return __sync_bool_compare_and_swap(&dest, expected, value) == expected;
+  return __sync_bool_compare_and_swap(&dest, expected, value);
 }
 
-EZ_FORCE_INLINE bool ezAtomicUtils::CompareAndSwap(void** volatile dest, void* expected, void* value)
+EZ_FORCE_INLINE bool ezAtomicUtils::TestAndSet(void** volatile dest, void* expected, void* value)
 {
   #if EZ_ENABLED(EZ_PLATFORM_64BIT)
     ezUInt64* puiTemp = *reinterpret_cast<ezUInt64**>(dest);

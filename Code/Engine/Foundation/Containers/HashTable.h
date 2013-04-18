@@ -4,6 +4,16 @@
 #include <Foundation/Basics/Types/ArrayPtr.h>
 #include <Foundation/Math/Math.h>
 
+/// \brief Implementation of a Hashtable which stores key/value pairs.
+///
+/// The hashtable maps keys to values by using the hash of the key as an index into the table. 
+/// This implementation uses linear-probing to resolve hash collisions which means all key/value pairs are stored 
+/// in a linear array.
+/// All insertion/erasure/lookup functions take O(1) time if the table does not need to be expanded, 
+/// which happens when the load gets greater than 60%.
+/// The hash function can be customized by providing a Hasher helper class like ezHashHelper.
+
+/// \see ezHashHelper
 template <typename KeyType, typename ValueType, typename Hasher>
 class ezHashTableBase
 {
@@ -16,7 +26,7 @@ public:
   {
   public:
     /// \brief Checks whether this iterator points to a valid element.
-    bool IsValid() const;
+    bool IsValid() const; // [tested]
 
     /// \brief Checks whether the two iterators point to the same element.
     bool operator==(const typename ezHashTableBase<KeyType, ValueType, Hasher>::ConstIterator& it2) const;
@@ -25,16 +35,16 @@ public:
     bool operator!=(const typename ezHashTableBase<KeyType, ValueType, Hasher>::ConstIterator& it2) const;
 
     /// \brief Returns the 'key' of the element that this iterator points to.
-    const KeyType& Key() const;
+    const KeyType& Key() const; // [tested]
 
     /// \brief Returns the 'value' of the element that this iterator points to.
-    const ValueType& Value() const;
+    const ValueType& Value() const; // [tested]
 
     /// \brief Advances the iterator to the next element in the map. The iterator will not be valid anymore, if the end is reached.
-    void Next();
+    void Next(); // [tested]
 
     /// \brief Shorthand for 'Next'
-    void operator++();
+    void operator++(); // [tested]
 
   protected:
     friend class ezHashTableBase<KeyType, ValueType, Hasher>;

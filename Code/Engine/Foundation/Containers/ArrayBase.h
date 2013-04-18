@@ -81,10 +81,10 @@ public:
   /// \brief Removes count elements from the end of the array.
   void PopBack(ezUInt32 uiCountToRemove = 1); // [tested]
 
-  /// \brief Returns the last element of the arry.
+  /// \brief Returns the last element of the array.
   T& PeekBack(); // [tested]
 
-  /// \brief Returns the last element of the arry.
+  /// \brief Returns the last element of the array.
   const T& PeekBack() const; // [tested]
 
   /// \brief Sort with explicit comparer

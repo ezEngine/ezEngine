@@ -16,10 +16,10 @@ public:
   };
 
   /// \brief Calculates the CRC32 checksum of the given key.
-  static ezUInt32 CRC32Hash(const void* pKey, size_t uiSizeInBytes);
+  static ezUInt32 CRC32Hash(const void* pKey, size_t uiSizeInBytes); // [tested]
 
   /// \brief Calculates the 32bit murmur hash of the given key.
-  static ezUInt32 MurmurHash(const void* pKey, size_t uiSizeInByte, ezUInt32 uiSeed = 0);
+  static ezUInt32 MurmurHash(const void* pKey, size_t uiSizeInByte, ezUInt32 uiSeed = 0); // [tested]
 
   /// \brief Calculates the 64bit murmur hash of the given key.
   static ezUInt64 MurmurHash64(const void* pKey, size_t uiSizeInByte, ezUInt64 uiSeed = 0); // [tested]
@@ -34,6 +34,9 @@ public:
   static ezUInt32 MurmurHash(StringWrapper str, ezUInt32 uiSeed = 0); // [tested]
 };
 
+/// \brief Helper struct to calculate the Hash of different types.
+///
+/// This struct can be used to provide a custom hash function for ezHashTable. The default implementation uses the murmur hash function.
 template <typename T>
 struct ezHashHelper
 {

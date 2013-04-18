@@ -5,7 +5,15 @@
 #include <Foundation/Threading/Lock.h>
 #include <Foundation/Threading/ThreadUtils.h>
 
-/// \brief policy based allocator implementation
+/// \brief Policy based allocator implementation of the ezIAllocator interface.
+///
+/// This class allows the creation of custom allocators by combining different policies, e.g.
+/// a custom allocation algorithm can be combined with the ezStackTracking policy to add stack traces for memory leaks. \n
+/// \n
+/// AllocationPolicy defines how the actual memory is allocated.\n
+/// BoundsCheckingPolicy defines if and how to add guard checking around the memory block to detect buffer over- and underruns.\n
+/// TrackingPolicy defines how stats about allocations are tracked.\n
+/// MutexType defines if a locking mechanism should prevent multiple threads from entering the methods simultaneously.
 template <typename AllocationPolicy, typename BoundsCheckingPolicy, typename TrackingPolicy, 
   typename MutexType>
 class ezAllocator : public ezIAllocator
