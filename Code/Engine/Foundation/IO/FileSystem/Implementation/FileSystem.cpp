@@ -288,7 +288,7 @@ const char* ezFileSystem::ExtractDataDirsToSearch(const char* szPath, ezHybridAr
   return it.GetData(); // return the string after the data-dir filter declaration
 }
 
-ezDataDirectory_Reader* ezFileSystem::GetFileReader(const char* szFile, bool bAllowFileEvents)
+ezDataDirectoryReader* ezFileSystem::GetFileReader(const char* szFile, bool bAllowFileEvents)
 {
   EZ_ASSERT(s_Data != NULL, "FileSystem is not initialized.");
 
@@ -326,7 +326,7 @@ ezDataDirectory_Reader* ezFileSystem::GetFileReader(const char* szFile, bool bAl
       }
 
       // Let the data directory try to open the file.
-      ezDataDirectory_Reader* pReader = s_Data->m_DataDirectories[i].m_pDataDirectory->OpenFileToRead(szRelPath);
+      ezDataDirectoryReader* pReader = s_Data->m_DataDirectories[i].m_pDataDirectory->OpenFileToRead(szRelPath);
 
       if (bAllowFileEvents && pReader != NULL)
       {
@@ -355,7 +355,7 @@ ezDataDirectory_Reader* ezFileSystem::GetFileReader(const char* szFile, bool bAl
   return NULL;
 }
 
-ezDataDirectory_Writer* ezFileSystem::GetFileWriter(const char* szFile, bool bAllowFileEvents)
+ezDataDirectoryWriter* ezFileSystem::GetFileWriter(const char* szFile, bool bAllowFileEvents)
 {
   EZ_ASSERT(s_Data != NULL, "FileSystem is not initialized.");
 
@@ -395,7 +395,7 @@ ezDataDirectory_Writer* ezFileSystem::GetFileWriter(const char* szFile, bool bAl
         s_Data->m_Event.Broadcast(fe);
       }
 
-      ezDataDirectory_Writer* pWriter = s_Data->m_DataDirectories[i].m_pDataDirectory->OpenFileToWrite(szRelPath);
+      ezDataDirectoryWriter* pWriter = s_Data->m_DataDirectories[i].m_pDataDirectory->OpenFileToWrite(szRelPath);
 
       if (bAllowFileEvents && pWriter != NULL)
       {
@@ -437,7 +437,7 @@ ezResult ezFileSystem::ResolvePath(const char* szPath, bool bForWriting, ezStrin
   if (!bWrite)
   {
     // try to get a reader -> if we get one, the file does indeed exist
-    ezDataDirectory_Reader* pReader = ezFileSystem::GetFileReader(szPath, true);
+    ezDataDirectoryReader* pReader = ezFileSystem::GetFileReader(szPath, true);
   
     if (pReader)
     {
@@ -477,7 +477,7 @@ ezResult ezFileSystem::ResolvePath(const char* szPath, bool bForWriting, ezStrin
     // that will actually create the directory structure (if it did not exist yet)
     // later the "Filename and Extension" will be changed back to "" and thus the path to the folder is returned
 
-    ezDataDirectory_Writer* pWriter = GetFileWriter(sNewPath.GetData(), true); // try to open the file for writing
+    ezDataDirectoryWriter* pWriter = GetFileWriter(sNewPath.GetData(), true); // try to open the file for writing
 
     if (pWriter)
     {

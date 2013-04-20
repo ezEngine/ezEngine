@@ -31,7 +31,7 @@
 #include <Foundation/IO/MemoryStream.h>
 #include <Foundation/IO/OSFile.h>
 
-#include <Foundation/IO/FileSystem/DataDirType_Folder.h>
+#include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>

@@ -22,13 +22,13 @@ Only concrete and clocks.\n\
   EZ_TEST_BLOCK(true, "Setup Data Dirs")
   {
     // adding the same factory three times would actually not make a difference
-    ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectoryType_Folder::Factory);
-    ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectoryType_Folder::Factory);
-    ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectoryType_Folder::Factory);
+    ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
+    ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
+    ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
 
     ezFileSystem::ClearAllDataDirectoryFactories();
 
-    ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectoryType_Folder::Factory);
+    ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
 
     EZ_TEST(ezFileSystem::AddDataDirectory(BUILDSYSTEM_OUTPUT_FOLDER, ezFileSystem::AllowWrites, "Clear") == EZ_SUCCESS);
 

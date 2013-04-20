@@ -2,13 +2,13 @@
 
 #include <Foundation/Strings/StringBuilder.h>
 
-inline ezDataDirectory_ReaderWriter_Base::ezDataDirectory_ReaderWriter_Base(bool bIsReader)
+inline ezDataDirectoryReaderWriterBase::ezDataDirectoryReaderWriterBase(bool bIsReader)
 {
   m_pDataDirectory = NULL;
   m_bIsReader = bIsReader; 
 }
 
-inline ezResult ezDataDirectory_ReaderWriter_Base::Open(const char* szResourcePath, ezDataDirectoryType* pDataDirectory)
+inline ezResult ezDataDirectoryReaderWriterBase::Open(const char* szResourcePath, ezDataDirectoryType* pDataDirectory)
 {
   m_pDataDirectory = pDataDirectory;
   m_sFilePath = szResourcePath;
@@ -19,12 +19,12 @@ inline ezResult ezDataDirectory_ReaderWriter_Base::Open(const char* szResourcePa
   return EZ_FAILURE;
 }
 
-inline const ezString128& ezDataDirectory_ReaderWriter_Base::GetFilePath() const 
+inline const ezString128& ezDataDirectoryReaderWriterBase::GetFilePath() const 
 { 
   return m_sFilePath; 
 }
 
-inline ezDataDirectoryType* ezDataDirectory_ReaderWriter_Base::GetDataDirectory() const 
+inline ezDataDirectoryType* ezDataDirectoryReaderWriterBase::GetDataDirectory() const 
 { 
   return m_pDataDirectory; 
 }

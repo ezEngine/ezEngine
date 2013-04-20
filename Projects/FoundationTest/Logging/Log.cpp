@@ -4,19 +4,19 @@ EZ_CREATE_SIMPLE_TEST_GROUP(Logging);
 
 EZ_CREATE_SIMPLE_TEST(Logging, Log)
 {
-  ezLog_HTMLWriter LogHTML;
+  ezLogWriter::HTML LogHTML;
 
   ezStringBuilder sOutputFolder1 = BUILDSYSTEM_OUTPUT_FOLDER;
   sOutputFolder1.AppendPath("FoundationTest");
 
-  ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectoryType_Folder::Factory);
+  ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
   ezFileSystem::AddDataDirectory(sOutputFolder1.GetData(), ezFileSystem::AllowWrites, "LoggingTest");
 
   LogHTML.BeginLog("Log_FoundationTest.htm", "FoundationTest");
 
-  ezLog::AddLogWriter(ezLog_ConsoleWriter::LogMessageHandler);
-  ezLog::AddLogWriter(ezLog_VisualStudioWriter::LogMessageHandler);
-  ezLog::AddLogWriter(ezLog_HTMLWriter::LogMessageHandler, &LogHTML);
+  ezLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);
+  ezLog::AddLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
+  ezLog::AddLogWriter(ezLogWriter::HTML::LogMessageHandler, &LogHTML);
 
   ezStartup::PrintAllSubsystems();
 
@@ -89,9 +89,9 @@ EZ_CREATE_SIMPLE_TEST(Logging, Log)
     ezLog::DebugRegular("Still alive, still alive.");
   }
 
-  ezLog::RemoveLogWriter(ezLog_ConsoleWriter::LogMessageHandler);
-  ezLog::RemoveLogWriter(ezLog_VisualStudioWriter::LogMessageHandler);
-  ezLog::RemoveLogWriter(ezLog_HTMLWriter::LogMessageHandler, &LogHTML);
+  ezLog::RemoveLogWriter(ezLogWriter::Console::LogMessageHandler);
+  ezLog::RemoveLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
+  ezLog::RemoveLogWriter(ezLogWriter::HTML::LogMessageHandler, &LogHTML);
 
   LogHTML.EndLog();
 

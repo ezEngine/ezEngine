@@ -3,9 +3,9 @@
 #include <Foundation/Basics.h>
 #include <Foundation/Strings/String.h>
 
-class ezDataDirectory_ReaderWriter_Base;
-class ezDataDirectory_Reader;
-class ezDataDirectory_Writer;
+class ezDataDirectoryReaderWriterBase;
+class ezDataDirectoryReader;
+class ezDataDirectoryWriter;
 
 /// \brief The base class for all data directory types.
 ///
@@ -31,13 +31,13 @@ protected:
   /// \brief Tries to setup the data directory. Can fail, if the type is incorrect (e.g. a ZIP file data directory type cannot handle a simple folder and vice versa)
   ezResult InitializeDataDirectory(const char* szDataDirPath);
 
-  /// \brief Must be implemented to create a ezDataDirectory_Reader for accessing the given file. Returns NULL if the file could not be opened.
-  virtual ezDataDirectory_Reader* OpenFileToRead(const char* szFile) = 0;
+  /// \brief Must be implemented to create a ezDataDirectoryReader for accessing the given file. Returns NULL if the file could not be opened.
+  virtual ezDataDirectoryReader* OpenFileToRead(const char* szFile) = 0;
 
-  /// \brief Must be implemented to create a ezDataDirectory_Writer for accessing the given file. Returns NULL if the file could not be opened. 
+  /// \brief Must be implemented to create a ezDataDirectoryWriter for accessing the given file. Returns NULL if the file could not be opened. 
   ///
   /// If it always returns NULL (default) the data directory is read-only (at least through this type).
-  virtual ezDataDirectory_Writer* OpenFileToWrite(const char* szFile) { return NULL; }
+  virtual ezDataDirectoryWriter* OpenFileToWrite(const char* szFile) { return NULL; }
 
   /// \brief This function is called by the filesystem when a data directory is removed.
   ///
@@ -54,13 +54,13 @@ protected:
   virtual bool ExistsFile(const char* szFile);
 
 private:
-  friend class ezDataDirectory_ReaderWriter_Base;
+  friend class ezDataDirectoryReaderWriterBase;
 
-  /// \brief This is automatically called whenever a ezDataDirectory_ReaderWriter_Base that was opened by this type is being closed.
+  /// \brief This is automatically called whenever a ezDataDirectoryReaderWriterBase that was opened by this type is being closed.
   ///
   /// It allows the ezDataDirectoryType to return the reader/writer to a pool of reusable objects, or to destroy it
   /// using the proper allocator.
-  virtual void OnReaderWriterClose(ezDataDirectory_ReaderWriter_Base* pClosed) { }
+  virtual void OnReaderWriterClose(ezDataDirectoryReaderWriterBase* pClosed) { }
 
   /// \brief This function should only be used by a Factory (which should be a static function in the respective ezDataDirectoryType).
   ///
@@ -77,15 +77,15 @@ private:
 /// \brief This is the base class for all data directory readers/writers.
 ///
 /// Different data directory types (ZIP file, simple folder, etc.) use different reader/writer types.
-class EZ_FOUNDATION_DLL ezDataDirectory_ReaderWriter_Base
+class EZ_FOUNDATION_DLL ezDataDirectoryReaderWriterBase
 {
-  EZ_DISALLOW_COPY_AND_ASSIGN(ezDataDirectory_ReaderWriter_Base);
+  EZ_DISALLOW_COPY_AND_ASSIGN(ezDataDirectoryReaderWriterBase);
 
 public:
   /// \brief The derived class should pass along whether it is a reader or writer.
-  ezDataDirectory_ReaderWriter_Base(bool bIsReader);
+  ezDataDirectoryReaderWriterBase(bool bIsReader);
 
-  virtual ~ezDataDirectory_ReaderWriter_Base() { }
+  virtual ~ezDataDirectoryReaderWriterBase() { }
 
   /// \brief Used by ezDataDirectoryType's to try to open the given file. They need to pass along their own pointer.
   ezResult Open(const char* szFilePath, ezDataDirectoryType* pOwnerDataDirectory);
@@ -117,12 +117,12 @@ private:
 /// \brief A base class for readers that handle reading from a (virtual) file inside a data directory.
 ///
 /// Different data directory types (ZIP file, simple folder, etc.) use different reader/writer types.
-class EZ_FOUNDATION_DLL ezDataDirectory_Reader : public ezDataDirectory_ReaderWriter_Base
+class EZ_FOUNDATION_DLL ezDataDirectoryReader : public ezDataDirectoryReaderWriterBase
 {
-  EZ_DISALLOW_COPY_AND_ASSIGN(ezDataDirectory_Reader);
+  EZ_DISALLOW_COPY_AND_ASSIGN(ezDataDirectoryReader);
 
 public:
-  ezDataDirectory_Reader() : ezDataDirectory_ReaderWriter_Base(true) { }
+  ezDataDirectoryReader() : ezDataDirectoryReaderWriterBase(true) { }
 
   virtual ezUInt64 Read(void* pBuffer, ezUInt64 uiBytes) = 0;
 };
@@ -130,12 +130,12 @@ public:
 /// \brief A base class for writers that handle writing to a (virtual) file inside a data directory.
 ///
 /// Different data directory types (ZIP file, simple folder, etc.) use different reader/writer types.
-class EZ_FOUNDATION_DLL ezDataDirectory_Writer : public ezDataDirectory_ReaderWriter_Base
+class EZ_FOUNDATION_DLL ezDataDirectoryWriter : public ezDataDirectoryReaderWriterBase
 {
-  EZ_DISALLOW_COPY_AND_ASSIGN(ezDataDirectory_Writer);
+  EZ_DISALLOW_COPY_AND_ASSIGN(ezDataDirectoryWriter);
 
 public:
-  ezDataDirectory_Writer() : ezDataDirectory_ReaderWriter_Base(false) { }
+  ezDataDirectoryWriter() : ezDataDirectoryReaderWriterBase(false) { }
 
   virtual ezResult Write(const void* pBuffer, ezUInt64 uiBytes) = 0;
 };

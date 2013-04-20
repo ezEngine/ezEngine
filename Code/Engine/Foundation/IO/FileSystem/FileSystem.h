@@ -138,7 +138,7 @@ public:
 
 
 private:
-  friend class ezDataDirectory_ReaderWriter_Base;
+  friend class ezDataDirectoryReaderWriterBase;
   friend class ezFileReaderBase;
   friend class ezFileWriterBase;
 
@@ -149,7 +149,7 @@ private:
   /// If bAllowFileEvents is true, the file system will broadcast events about its activity.
   /// This should usually be set to true, unless code is already acting on a file event and needs to do a file operation
   /// itself, which should not trigger an endless recursion of file events.
-  static ezDataDirectory_Reader* GetFileReader(const char* szFile, bool bAllowFileEvents);
+  static ezDataDirectoryReader* GetFileReader(const char* szFile, bool bAllowFileEvents);
 
   /// \brief This is used by the actual file writers (like ezFileWriter) to get an abstract file writer.
   ///
@@ -158,7 +158,7 @@ private:
   /// If bAllowFileEvents is true, the file system will broadcast events about its activity.
   /// This should usually be set to true, unless code is already acting on a file event and needs to do a file operation
   /// itself, which should not trigger an endless recursion of file events.
-  static ezDataDirectory_Writer* GetFileWriter(const char* szFile, bool bAllowFileEvents);
+  static ezDataDirectoryWriter* GetFileWriter(const char* szFile, bool bAllowFileEvents);
 
 
 private:

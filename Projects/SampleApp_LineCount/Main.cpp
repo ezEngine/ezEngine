@@ -1,6 +1,6 @@
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
-#include <Foundation/IO/FileSystem/DataDirType_Folder.h>
+#include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/Strings/PathUtils.h>
 #include <Foundation/Strings/StringBuilder.h>
@@ -18,7 +18,7 @@
 // However, if you absolutely need a global/static variable and cannot initialize it dynamically, wrap it inside the 'ezStatic'
 // template. This will make sure that the variable uses a different allocator, such that it won't be counted as a memory leak
 // at shutdown.
-ezStatic<ezLog_HTMLWriter> g_HtmlLog;
+ezStatic<ezLogWriter::HTML> g_HtmlLog;
 
 void Startup(const char* szStartDir)
 {
@@ -30,7 +30,7 @@ void Startup(const char* szStartDir)
 
   // Since we want to read/write files through the filesystem, we need to set that up too
   // First add a Factory that can create data directory types that handle normal folders
-  ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectoryType_Folder::Factory);
+  ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
 
   // Then add a folder as a data directory (the previously registered Factory will take care of creating the proper handler)
   // As we only need access to files through global paths, we add the "empty data directory"
@@ -46,12 +46,12 @@ void Startup(const char* szStartDir)
   sLogPath.AppendPath("CodeStatistics.htm");
 
   // The console log writer will pass all log messages to the standard console window
-  ezLog::AddLogWriter(ezLog_ConsoleWriter::LogMessageHandler);
+  ezLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);
   // The Visual Studio log writer will pass all messages to the output window in VS
-  ezLog::AddLogWriter(ezLog_VisualStudioWriter::LogMessageHandler);
+  ezLog::AddLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
   // The HTML log writer will write all log messages to an HTML file
   g_HtmlLog.GetStatic().BeginLog(sLogPath.GetData(), "Code Statistics");
-  ezLog::AddLogWriter(ezLog_HTMLWriter::LogMessageHandler, &g_HtmlLog.GetStatic());
+  ezLog::AddLogWriter(ezLogWriter::HTML::LogMessageHandler, &g_HtmlLog.GetStatic());
 }
 
 void Shutdown()

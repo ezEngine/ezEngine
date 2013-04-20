@@ -15,7 +15,7 @@
   static void SetConsoleColor (ezUInt8 ui) { }
 #endif
 
-void ezLog_ConsoleWriter::LogMessageHandler(const ezLog::LoggingEvent& EventData, void* pPassThrough)
+void ezLogWriter::Console::LogMessageHandler(const ezLog::LoggingEvent& EventData, void* pPassThrough)
 {
   static ezMutex WriterLock; // will only be created if this writer is used at all
   ezLock<ezMutex> lock(WriterLock);

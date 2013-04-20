@@ -13,19 +13,16 @@ class ezMemoryStreamWriter;
 class EZ_FOUNDATION_DLL ezMemoryStreamStorage : public ezRefCounted
 {
 public:
-
+  /// \brief Creates the storae object for a memory stream. Use \a uiInitialCapacity to reserve a some memory up front, to reduce reallocations.
   ezMemoryStreamStorage(ezUInt32 uiInitialCapacity = 0, ezIAllocator* pAllocator = ezFoundation::GetDefaultAllocator());
 
   ~ezMemoryStreamStorage();
 
 private:
-
   friend class ezMemoryStreamReader;
-
   friend class ezMemoryStreamWriter;
 
   ezDynamicArray<ezUInt8> m_Storage;
-
 };
 
 /// \brief A reader which can access a memory stream.
@@ -35,7 +32,7 @@ private:
 class EZ_FOUNDATION_DLL ezMemoryStreamReader : public ezIBinaryStreamReader
 {
 public:
-
+  /// \brief Pass the memory storage object from which to read from.
   ezMemoryStreamReader(ezMemoryStreamStorage* pStreamStorage);
 
   ~ezMemoryStreamReader();
@@ -54,7 +51,6 @@ public:
   void Rewind();
 
 private:
-
   friend class ezMemoryStreamStorage;
 
   ezScopedRefPointer<ezMemoryStreamStorage> m_pStreamStorage;
@@ -68,7 +64,7 @@ private:
 class EZ_FOUNDATION_DLL ezMemoryStreamWriter : public ezIBinaryStreamWriter
 {
 public:
-
+  /// \brief Pass the memory storage object to which to write to.
   ezMemoryStreamWriter(ezMemoryStreamStorage* pStreamStorage);
 
   ~ezMemoryStreamWriter();
@@ -82,7 +78,6 @@ public:
   void Rewind();
 
 private:
-
   friend class ezMemoryStreamStorage;
 
   ezScopedRefPointer<ezMemoryStreamStorage> m_pStreamStorage;

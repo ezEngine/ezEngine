@@ -5,7 +5,7 @@
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
 
-void ezLog_VisualStudioWriter::LogMessageHandler(const ezLog::LoggingEvent& EventData, void* pPassThrough)
+void ezLogWriter::VisualStudio::LogMessageHandler(const ezLog::LoggingEvent& EventData, void* pPassThrough)
 {
   static ezMutex WriterLock; // will only be created if this writer is used at all
   ezLock<ezMutex> lock(WriterLock);

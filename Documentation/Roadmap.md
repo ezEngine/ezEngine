@@ -10,8 +10,6 @@ Milestone 1
 
   * OSX Port (Marc)
   * Deactivate doxygen documentation for certain (internal/external) code
-  * Put Log writers into namespace
-  * Put data directory handlers into namespace
 
   * ezMemoryStreamReader: Rewind -> should change that
   * ezMemoryStreamWriter: Rewind -> should change that
@@ -33,8 +31,6 @@ Milestone 1
       * IsRunning
     * ezTime
   
-    * ezMat3
-    * ezMat4
     * ezVec2
     * ezVec3
       * CalculateNormal

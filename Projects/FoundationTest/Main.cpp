@@ -59,7 +59,7 @@ int main()
       ezTestFramework::Output(ezTestOutput::FinalResult, "Tests failed: %i. Tests passed: %i", ezTestFramework::GetTestsFailedCount(), ezTestFramework::GetTestsPassedCount());
   }
 
-  ezLog::AddLogWriter(ezLog_ConsoleWriter::LogMessageHandler);
+  ezLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);
   ezStringUtils::PrintStringLengthStatistics();
 
   #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)

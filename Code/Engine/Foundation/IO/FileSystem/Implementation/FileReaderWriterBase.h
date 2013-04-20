@@ -34,12 +34,12 @@ public:
   bool IsOpen() const { return m_pDataDirReader != NULL; }
 
 protected:
-  ezDataDirectory_Reader* GetFileReader(const char* szFile, bool bAllowFileEvents)
+  ezDataDirectoryReader* GetFileReader(const char* szFile, bool bAllowFileEvents)
   {
     return ezFileSystem::GetFileReader(szFile, bAllowFileEvents);
   }
 
-  ezDataDirectory_Reader* m_pDataDirReader;
+  ezDataDirectoryReader* m_pDataDirReader;
 };
 
 
@@ -73,10 +73,10 @@ public:
   bool IsOpen() const { return m_pDataDirWriter != NULL; }
 
 protected:
-  ezDataDirectory_Writer* GetFileWriter(const char* szFile, bool bAllowFileEvents)
+  ezDataDirectoryWriter* GetFileWriter(const char* szFile, bool bAllowFileEvents)
   {
     return ezFileSystem::GetFileWriter(szFile, bAllowFileEvents);
   }
 
-  ezDataDirectory_Writer* m_pDataDirWriter;
+  ezDataDirectoryWriter* m_pDataDirWriter;
 };

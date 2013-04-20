@@ -1,12 +1,12 @@
 #include <Foundation/PCH.h>
 #include <Foundation/Logging/HTMLWriter.h>
 
-ezLog_HTMLWriter::~ezLog_HTMLWriter ()
+ezLogWriter::HTML::~HTML()
 {
   EndLog ();
 }
 
-void ezLog_HTMLWriter::BeginLog (const char* szFile, const char* szAppTitle)
+void ezLogWriter::HTML::BeginLog (const char* szFile, const char* szAppTitle)
 {
   const ezUInt32 uiLogCache = 1024 * 10;
 
@@ -39,7 +39,7 @@ void ezLog_HTMLWriter::BeginLog (const char* szFile, const char* szAppTitle)
   m_File.WriteBytes(sText.GetData(), sizeof (char) * sText.GetElementCount());
 }
 
-void ezLog_HTMLWriter::EndLog()
+void ezLogWriter::HTML::EndLog()
 {
   if (!m_File.IsOpen())
     return;
@@ -58,19 +58,19 @@ void ezLog_HTMLWriter::EndLog()
   m_File.Close ();
 }
 
-const ezFileWriter& ezLog_HTMLWriter::GetOpenedLogFile() const
+const ezFileWriter& ezLogWriter::HTML::GetOpenedLogFile() const
 {
   return m_File;
 }
 
-void ezLog_HTMLWriter::LogMessageHandler(const ezLog::LoggingEvent& EventData, void* pPassThrough)
+void ezLogWriter::HTML::LogMessageHandler(const ezLog::LoggingEvent& EventData, void* pPassThrough)
 {
-  ezLog_HTMLWriter* pLog = (ezLog_HTMLWriter*) pPassThrough;
+  ezLogWriter::HTML* pLog = (ezLogWriter::HTML*) pPassThrough;
 
   pLog->MessageHandler(EventData);
 }
 
-void ezLog_HTMLWriter::WriteString(const char* szString, ezUInt32 uiColor)
+void ezLogWriter::HTML::WriteString(const char* szString, ezUInt32 uiColor)
 {
   ezStringBuilder sTemp;
   sTemp.Format("<font color=\"#%X\">%s</font>", uiColor, szString);
@@ -78,7 +78,7 @@ void ezLog_HTMLWriter::WriteString(const char* szString, ezUInt32 uiColor)
   m_File.WriteBytes(sTemp.GetData(), sizeof (char) * sTemp.GetElementCount());
 }
 
-void ezLog_HTMLWriter::MessageHandler(const ezLog::LoggingEvent& EventData)
+void ezLogWriter::HTML::MessageHandler(const ezLog::LoggingEvent& EventData)
 {
   if (!m_File.IsOpen())
     return;

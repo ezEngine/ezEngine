@@ -74,9 +74,9 @@ EZ_CREATE_SIMPLE_TEST(Communication, GlobalEvent)
   EZ_TEST_INT(iTestData1, 6);
   EZ_TEST_INT(iTestData2, 57);
 
-  ezLog::AddLogWriter(ezLog_ConsoleWriter::LogMessageHandler);
+  ezLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);
 
   ezGlobalEvent::PrintGlobalEventStatistics();
 
-  ezLog::RemoveLogWriter(ezLog_ConsoleWriter::LogMessageHandler);
+  ezLog::RemoveLogWriter(ezLogWriter::Console::LogMessageHandler);
 }

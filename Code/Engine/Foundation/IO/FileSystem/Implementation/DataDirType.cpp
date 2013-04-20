@@ -13,7 +13,7 @@ ezResult ezDataDirectoryType::InitializeDataDirectory(const char* szDataDirPath)
 
 bool ezDataDirectoryType::ExistsFile(const char* szFile)
 {
-  ezDataDirectory_Reader* pReader = OpenFileToRead(szFile);
+  ezDataDirectoryReader* pReader = OpenFileToRead(szFile);
 
   if (pReader)
   {
@@ -24,7 +24,7 @@ bool ezDataDirectoryType::ExistsFile(const char* szFile)
   return false;
 }
 
-void ezDataDirectory_ReaderWriter_Base::Close()
+void ezDataDirectoryReaderWriterBase::Close()
 {
   InternalClose();
 
