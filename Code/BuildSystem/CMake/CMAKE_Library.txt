@@ -55,6 +55,13 @@ if (EZ_COMPILE_ENGINE_AS_DLL)
 
   # for DLLs we need to know what other libraries to link against
   target_link_libraries (${PROJECT_NAME} ${LINK_LIBRARIES})
+
+  # This sets which linker dependencies are passed through to other libraries.
+  # Ie. agains which libraries other libraries are supposed to link, as well.
+  # Setting this to empty, means that other libraries will NOT link against
+  # any additional libraries, which should not be required anyway, since this
+  # is a shared library which should already contain everything.
+  set_target_properties(${PROJECT_NAME} PROPERTIES LINK_INTERFACE_LIBRARIES "")  
 else ()
   # add the project as a static library
   add_library (${PROJECT_NAME} ${ALL_SOURCE_FILES})
