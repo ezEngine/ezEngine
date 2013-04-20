@@ -110,6 +110,21 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat4)
     EZ_TEST_FLOAT(m.m_fColumn[0][3],13, 0.00001f); EZ_TEST_FLOAT(m.m_fColumn[1][3],14, 0.00001f); EZ_TEST_FLOAT(m.m_fColumn[2][3],15, 0.00001f); EZ_TEST_FLOAT(m.m_fColumn[3][3],16, 0.00001f);
   }
 
+  EZ_TEST_BLOCK(true, "Constructor (composite)")
+  {
+    ezMat3 mr(1, 2, 3,
+              4, 5, 6,
+              7, 8, 9);
+    ezVec3 vt(10, 11, 12);
+
+    ezMat4 m(mr, vt);
+
+    EZ_TEST_FLOAT(m.m_fColumn[0][0], 1, 0); EZ_TEST_FLOAT(m.m_fColumn[1][0], 2, 0); EZ_TEST_FLOAT(m.m_fColumn[2][0], 3, 0); EZ_TEST_FLOAT(m.m_fColumn[3][0], 10, 0);
+    EZ_TEST_FLOAT(m.m_fColumn[0][1], 4, 0); EZ_TEST_FLOAT(m.m_fColumn[1][1], 5, 0); EZ_TEST_FLOAT(m.m_fColumn[2][1], 6, 0); EZ_TEST_FLOAT(m.m_fColumn[3][1], 11, 0);
+    EZ_TEST_FLOAT(m.m_fColumn[0][2], 7, 0); EZ_TEST_FLOAT(m.m_fColumn[1][2], 8, 0); EZ_TEST_FLOAT(m.m_fColumn[2][2], 9, 0); EZ_TEST_FLOAT(m.m_fColumn[3][2], 12, 0);
+    EZ_TEST_FLOAT(m.m_fColumn[0][3], 0, 0); EZ_TEST_FLOAT(m.m_fColumn[1][3], 0, 0); EZ_TEST_FLOAT(m.m_fColumn[2][3], 0, 0); EZ_TEST_FLOAT(m.m_fColumn[3][3], 1, 0);
+  }
+
   EZ_TEST_BLOCK(true, "SetFromArray")
   {
     const float data[16] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 };
@@ -171,6 +186,22 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat4)
     EZ_TEST_FLOAT(m.m_fColumn[0][1], 5, 0.00001f); EZ_TEST_FLOAT(m.m_fColumn[1][1], 6, 0.00001f); EZ_TEST_FLOAT(m.m_fColumn[2][1], 7, 0.00001f); EZ_TEST_FLOAT(m.m_fColumn[3][1], 8, 0.00001f);
     EZ_TEST_FLOAT(m.m_fColumn[0][2], 9, 0.00001f); EZ_TEST_FLOAT(m.m_fColumn[1][2],10, 0.00001f); EZ_TEST_FLOAT(m.m_fColumn[2][2],11, 0.00001f); EZ_TEST_FLOAT(m.m_fColumn[3][2],12, 0.00001f);
     EZ_TEST_FLOAT(m.m_fColumn[0][3],13, 0.00001f); EZ_TEST_FLOAT(m.m_fColumn[1][3],14, 0.00001f); EZ_TEST_FLOAT(m.m_fColumn[2][3],15, 0.00001f); EZ_TEST_FLOAT(m.m_fColumn[3][3],16, 0.00001f);
+  }
+
+  EZ_TEST_BLOCK(true, "SetTransformationMatrix")
+  {
+    ezMat3 mr(1, 2, 3,
+              4, 5, 6,
+              7, 8, 9);
+    ezVec3 vt(10, 11, 12);
+
+    ezMat4 m;
+    m.SetTransformationMatrix(mr, vt);
+
+    EZ_TEST_FLOAT(m.m_fColumn[0][0], 1, 0); EZ_TEST_FLOAT(m.m_fColumn[1][0], 2, 0); EZ_TEST_FLOAT(m.m_fColumn[2][0], 3, 0); EZ_TEST_FLOAT(m.m_fColumn[3][0], 10, 0);
+    EZ_TEST_FLOAT(m.m_fColumn[0][1], 4, 0); EZ_TEST_FLOAT(m.m_fColumn[1][1], 5, 0); EZ_TEST_FLOAT(m.m_fColumn[2][1], 6, 0); EZ_TEST_FLOAT(m.m_fColumn[3][1], 11, 0);
+    EZ_TEST_FLOAT(m.m_fColumn[0][2], 7, 0); EZ_TEST_FLOAT(m.m_fColumn[1][2], 8, 0); EZ_TEST_FLOAT(m.m_fColumn[2][2], 9, 0); EZ_TEST_FLOAT(m.m_fColumn[3][2], 12, 0);
+    EZ_TEST_FLOAT(m.m_fColumn[0][3], 0, 0); EZ_TEST_FLOAT(m.m_fColumn[1][3], 0, 0); EZ_TEST_FLOAT(m.m_fColumn[2][3], 0, 0); EZ_TEST_FLOAT(m.m_fColumn[3][3], 1, 0);
   }
 
   EZ_TEST_BLOCK(true, "GetAsArray")
@@ -553,4 +584,344 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat4)
     EZ_TEST_VEC4(m.GetColumn(2), ezVec4(0, 0, 3, 0), 0.0f);
     EZ_TEST_VEC4(m.GetColumn(3), ezVec4(0, 0, 0, 4), 0.0f);
   }
+
+  EZ_TEST_BLOCK(true, "GetTranslationVector")
+  {
+    ezMat4 m(1, 2, 3, 4,
+             5, 6, 7, 8,
+             9,10,11,12,
+             13,14,15,16);
+
+    EZ_TEST_VEC3(m.GetTranslationVector(), ezVec3(4, 8, 12), 0.0f);
+  }
+
+  EZ_TEST_BLOCK(true, "SetTranslationVector")
+  {
+    ezMat4 m(1, 2, 3, 4,
+             5, 6, 7, 8,
+             9,10,11,12,
+             13,14,15,16);
+
+    m.SetTranslationVector(ezVec3(17, 18, 19));
+    EZ_TEST_VEC4(m.GetRow(0), ezVec4(1, 2, 3, 17), 0.0f);
+    EZ_TEST_VEC4(m.GetRow(1), ezVec4(5, 6, 7, 18), 0.0f);
+    EZ_TEST_VEC4(m.GetRow(2), ezVec4(9,10,11, 19), 0.0f);
+    EZ_TEST_VEC4(m.GetRow(3), ezVec4(13,14,15,16), 0.0f);
+  }
+
+  EZ_TEST_BLOCK(true, "SetRotationalPart")
+  {
+    ezMat4 m(1, 2, 3, 4,
+             5, 6, 7, 8,
+             9,10,11,12,
+             13,14,15,16);
+
+    ezMat3 r(17, 18, 19,
+             20, 21, 22,
+             23, 24, 25);
+
+    m.SetRotationalPart(r);
+    EZ_TEST_VEC4(m.GetRow(0), ezVec4(17, 18, 19, 4), 0.0f);
+    EZ_TEST_VEC4(m.GetRow(1), ezVec4(20, 21, 22, 8), 0.0f);
+    EZ_TEST_VEC4(m.GetRow(2), ezVec4(23, 24, 25, 12), 0.0f);
+    EZ_TEST_VEC4(m.GetRow(3), ezVec4(13, 14, 15, 16), 0.0f);
+  }
+
+  EZ_TEST_BLOCK(true, "GetRotationalPart")
+  {
+    ezMat4 m(1, 2, 3, 4,
+             5, 6, 7, 8,
+             9,10,11,12,
+             13,14,15,16);
+
+    ezMat3 r = m.GetRotationalPart();
+    EZ_TEST_VEC3(r.GetRow(0), ezVec3(1, 2, 3), 0.0f);
+    EZ_TEST_VEC3(r.GetRow(1), ezVec3(5, 6, 7), 0.0f);
+    EZ_TEST_VEC3(r.GetRow(2), ezVec3(9, 10, 11), 0.0f);
+  }
+
+  EZ_TEST_BLOCK(true, "GetScalingFactors")
+  {
+    ezMat4 m(1, 2, 3, 4,
+             5, 6, 7, 8,
+             9,10,11,12,
+             13,14,15,16);
+
+    ezVec3 s = m.GetScalingFactors();
+    EZ_TEST_VEC3(s, ezVec3(ezMath::Sqrt(1*1 + 5*5 + 9*9), ezMath::Sqrt(2*2 + 6*6 + 10*10), ezMath::Sqrt(3*3 + 7*7 + 11*11)), 0.0001f);
+  }
+
+  EZ_TEST_BLOCK(true, "SetScalingFactors")
+  {
+    ezMat4 m(1, 2, 3, 4,
+             5, 6, 7, 8,
+             9,10,11,12,
+             13,14,15,16);
+
+    EZ_TEST(m.SetScalingFactors(ezVec3(1, 2, 3)) == EZ_SUCCESS);
+
+    ezVec3 s = m.GetScalingFactors();
+    EZ_TEST_VEC3(s, ezVec3(1, 2, 3), 0.0001f);
+  }
+
+  EZ_TEST_BLOCK(true, "TransformDirection")
+  {
+    ezMat4 m(1, 2, 3, 4,
+             5, 6, 7, 8,
+             9,10,11,12,
+             13,14,15,16);
+
+    const ezVec3 r = m.TransformDirection(ezVec3(1, 2, 3));
+
+    EZ_TEST_VEC3(r, ezVec3(1 * 1 + 2 * 2 + 3 * 3, 1 * 5 + 2 * 6 + 3 * 7, 1 * 9 + 2 * 10 + 3 * 11), 0.0001f);
+  }
+
+  EZ_TEST_BLOCK(true, "TransformDirection(array)")
+  {
+    ezMat4 m(1, 2, 3, 4,
+             5, 6, 7, 8,
+             9,10,11,12,
+             13,14,15,16);
+
+    ezVec3 data[3] = { ezVec3(1, 2, 3), ezVec3(4, 5, 6), ezVec3(7, 8, 9) };
+
+    m.TransformDirection(data, 2);
+
+    EZ_TEST_VEC3(data[0], ezVec3(1 * 1 + 2 * 2 + 3 * 3, 1 * 5 + 2 * 6 + 3 * 7, 1 * 9 + 2 * 10 + 3 * 11), 0.0001f);
+    EZ_TEST_VEC3(data[1], ezVec3(4 * 1 + 5 * 2 + 6 * 3, 4 * 5 + 5 * 6 + 6 * 7, 4 * 9 + 5 * 10 + 6 * 11), 0.0001f);
+    EZ_TEST_VEC3(data[2], ezVec3(7, 8, 9), 0);
+  }
+
+  EZ_TEST_BLOCK(true, "TransformPosition")
+  {
+    ezMat4 m(1, 2, 3, 4,
+             5, 6, 7, 8,
+             9,10,11,12,
+             13,14,15,16);
+
+    const ezVec3 r = m.TransformPosition(ezVec3(1, 2, 3));
+
+    EZ_TEST_VEC3(r, ezVec3(1 * 1 + 2 * 2 + 3 * 3 + 4, 1 * 5 + 2 * 6 + 3 * 7 + 8, 1 * 9 + 2 * 10 + 3 * 11 + 12), 0.0001f);
+  }
+
+  EZ_TEST_BLOCK(true, "TransformPosition(array)")
+  {
+    ezMat4 m(1, 2, 3, 4,
+             5, 6, 7, 8,
+             9,10,11,12,
+             13,14,15,16);
+
+    ezVec3 data[3] = { ezVec3(1, 2, 3), ezVec3(4, 5, 6), ezVec3(7, 8, 9) };
+
+    m.TransformPosition(data, 2);
+
+    EZ_TEST_VEC3(data[0], ezVec3(1 * 1 + 2 * 2 + 3 * 3 + 4, 1 * 5 + 2 * 6 + 3 * 7 + 8, 1 * 9 + 2 * 10 + 3 * 11 + 12), 0.0001f);
+    EZ_TEST_VEC3(data[1], ezVec3(4 * 1 + 5 * 2 + 6 * 3 + 4, 4 * 5 + 5 * 6 + 6 * 7 + 8, 4 * 9 + 5 * 10 + 6 * 11 + 12), 0.0001f);
+    EZ_TEST_VEC3(data[2], ezVec3(7, 8, 9), 0);
+  }
+
+  EZ_TEST_BLOCK(true, "Transform")
+  {
+    ezMat4 m(1, 2, 3, 4,
+             5, 6, 7, 8,
+             9,10,11,12,
+             13,14,15,16);
+
+    const ezVec4 r = m.Transform(ezVec4(1, 2, 3, 4));
+
+    EZ_TEST_VEC4(r, ezVec4(1 * 1 + 2 * 2 + 3 * 3 + 4 * 4, 1 * 5 + 2 * 6 + 3 * 7 + 8 * 4, 1 * 9 + 2 * 10 + 3 * 11 + 12 * 4, 1 * 13 + 2 * 14 + 3 * 15 + 4 * 16), 0.0001f);
+  }
+
+  EZ_TEST_BLOCK(true, "Transform(array)")
+  {
+    ezMat4 m(1, 2, 3, 4,
+             5, 6, 7, 8,
+             9,10,11,12,
+             13,14,15,16);
+
+    ezVec4 data[3] = { ezVec4(1, 2, 3, 4), ezVec4(5, 6, 7, 8), ezVec4(9, 10, 11, 12) };
+
+    m.Transform(data, 2);
+
+    EZ_TEST_VEC4(data[0], ezVec4(1 * 1 + 2 * 2 + 3 * 3 + 4 * 4, 1 * 5 + 2 * 6 + 3 * 7 + 8 * 4, 1 * 9 + 2 * 10 + 3 * 11 + 12 * 4, 1 * 13 + 2 * 14 + 3 * 15 + 4 * 16), 0.0001f);
+    EZ_TEST_VEC4(data[1], ezVec4(5 * 1 + 6 * 2 + 7 * 3 + 8 * 4, 5 * 5 + 6 * 6 + 7 * 7 + 8 * 8, 5 * 9 + 6 * 10 + 7 * 11 + 12 * 8, 5 * 13 + 6 * 14 + 7 * 15 + 8 * 16), 0.0001f);
+    EZ_TEST_VEC4(data[2], ezVec4(9, 10, 11, 12), 0);
+  }
+
+  EZ_TEST_BLOCK(true, "operator*=")
+  {
+    ezMat4 m(1, 2, 3, 4,
+             5, 6, 7, 8,
+             9,10,11,12,
+             13,14,15,16);
+
+    m *= 2.0f;
+
+    EZ_TEST_VEC4(m.GetRow(0), ezVec4(2, 4, 6, 8), 0.0001f);
+    EZ_TEST_VEC4(m.GetRow(1), ezVec4(10, 12, 14, 16), 0.0001f);
+    EZ_TEST_VEC4(m.GetRow(2), ezVec4(18, 20, 22, 24), 0.0001f);
+    EZ_TEST_VEC4(m.GetRow(3), ezVec4(26, 28, 30, 32), 0.0001f);
+  }
+
+  EZ_TEST_BLOCK(true, "operator/=")
+  {
+    ezMat4 m(1, 2, 3, 4,
+             5, 6, 7, 8,
+             9,10,11,12,
+             13,14,15,16);
+
+    m *= 4.0f;
+    m /= 2.0f;
+
+    EZ_TEST_VEC4(m.GetRow(0), ezVec4(2, 4, 6, 8), 0.0001f);
+    EZ_TEST_VEC4(m.GetRow(1), ezVec4(10, 12, 14, 16), 0.0001f);
+    EZ_TEST_VEC4(m.GetRow(2), ezVec4(18, 20, 22, 24), 0.0001f);
+    EZ_TEST_VEC4(m.GetRow(3), ezVec4(26, 28, 30, 32), 0.0001f);
+  }
+
+  EZ_TEST_BLOCK(true, "IsIdentical")
+  {
+    ezMat4 m(1, 2, 3, 4,
+             5, 6, 7, 8,
+             9,10,11,12,
+             13,14,15,16);
+
+    ezMat4 m2 = m;
+
+    EZ_TEST(m.IsIdentical(m2));
+
+    m2.m_fElementsCM[0] += 0.00001f;
+    EZ_TEST(!m.IsIdentical(m2));
+  }
+
+  EZ_TEST_BLOCK(true, "IsEqual")
+  {
+    ezMat4 m(1, 2, 3, 4,
+             5, 6, 7, 8,
+             9,10,11,12,
+             13,14,15,16);
+
+    ezMat4 m2 = m;
+
+    EZ_TEST(m.IsEqual(m2, 0.0001f));
+
+    m2.m_fElementsCM[0] += 0.00001f;
+    EZ_TEST(m.IsEqual(m2, 0.0001f));
+    EZ_TEST(!m.IsEqual(m2, 0.000001f));
+  }
+
+  EZ_TEST_BLOCK(true, "operator*(mat, mat)")
+  {
+    ezMat4 m1(1, 2, 3, 4,
+             5, 6, 7, 8,
+             9,10,11,12,
+             13,14,15,16);
+
+    ezMat4 m2(-1, -2, -3, -4,
+              -5, -6, -7, -8,
+              -9,-10,-11,-12,
+              -13,-14,-15,-16);
+
+    ezMat4 r = m1 * m2;
+
+    EZ_TEST_VEC4(r.GetColumn(0), ezVec4(-1 * 1 + -5 * 2 + -9 * 3 + -13 * 4,  -1 * 5 + -5 * 6 + -9 * 7 + -13 * 8, -1 * 9 + -5 * 10 + -9 * 11 + -13 * 12, -1 * 13 + -5 * 14 + -9 * 15 + -13 * 16), 0.001f);
+    EZ_TEST_VEC4(r.GetColumn(1), ezVec4(-2 * 1 + -6 * 2 + -10 * 3 + -14 * 4, -2 * 5 + -6 * 6 + -10 * 7 + -14 * 8, -2 * 9 + -6 * 10 + -10 * 11 + -14 * 12, -2 * 13 + -6 * 14 + -10 * 15 + -14 * 16), 0.001f);
+    EZ_TEST_VEC4(r.GetColumn(2), ezVec4(-3 * 1 + -7 * 2 + -11 * 3 + -15 * 4, -3 * 5 + -7 * 6 + -11 * 7 + -15 * 8, -3 * 9 + -7 * 10 + -11 * 11 + -15 * 12, -3 * 13 + -7 * 14 + -11 * 15 + -15 * 16), 0.001f);
+    EZ_TEST_VEC4(r.GetColumn(3), ezVec4(-4 * 1 + -8 * 2 + -12 * 3 + -16 * 4, -4 * 5 + -8 * 6 + -12 * 7 + -16 * 8, -4 * 9 + -8 * 10 + -12 * 11 + -16 * 12, -4 * 13 + -8 * 14 + -12 * 15 + -16 * 16), 0.001f);
+  }
+
+  EZ_TEST_BLOCK(true, "operator*(mat, vec3)")
+  {
+    ezMat4 m(1, 2, 3, 4,
+             5, 6, 7, 8,
+             9,10,11,12,
+             13,14,15,16);
+
+    const ezVec3 r = m * ezVec3(1, 2, 3);
+
+    EZ_TEST_VEC3(r, ezVec3(1 * 1 + 2 * 2 + 3 * 3 + 4, 1 * 5 + 2 * 6 + 3 * 7 + 8, 1 * 9 + 2 * 10 + 3 * 11 + 12), 0.0001f);
+  }
+
+  EZ_TEST_BLOCK(true, "operator*(mat, vec4)")
+  {
+    ezMat4 m(1, 2, 3, 4,
+             5, 6, 7, 8,
+             9,10,11,12,
+             13,14,15,16);
+
+    const ezVec4 r = m * ezVec4(1, 2, 3, 4);
+
+    EZ_TEST_VEC4(r, ezVec4(1 * 1 + 2 * 2 + 3 * 3 + 4 * 4, 1 * 5 + 2 * 6 + 3 * 7 + 4 * 8, 1 * 9 + 2 * 10 + 3 * 11 + 4 * 12, 1* 13 + 2 * 14 + 3 * 15 + 4 * 16), 0.0001f);
+  }
+
+  EZ_TEST_BLOCK(true, "operator*(mat, float) | operator*(float, mat)")
+  {
+    ezMat4 m0(1, 2, 3, 4,
+             5, 6, 7, 8,
+             9,10,11,12,
+             13,14,15,16);
+
+    ezMat4 m = m0 * 2.0f;
+    ezMat4 m2 = 2.0f * m0;
+
+    EZ_TEST_VEC4(m.GetRow(0), ezVec4(2, 4, 6, 8), 0.0001f);
+    EZ_TEST_VEC4(m.GetRow(1), ezVec4(10, 12, 14, 16), 0.0001f);
+    EZ_TEST_VEC4(m.GetRow(2), ezVec4(18, 20, 22, 24), 0.0001f);
+    EZ_TEST_VEC4(m.GetRow(3), ezVec4(26, 28, 30, 32), 0.0001f);
+
+    EZ_TEST_VEC4(m2.GetRow(0), ezVec4(2, 4, 6, 8), 0.0001f);
+    EZ_TEST_VEC4(m2.GetRow(1), ezVec4(10, 12, 14, 16), 0.0001f);
+    EZ_TEST_VEC4(m2.GetRow(2), ezVec4(18, 20, 22, 24), 0.0001f);
+    EZ_TEST_VEC4(m2.GetRow(3), ezVec4(26, 28, 30, 32), 0.0001f);
+  }
+
+  EZ_TEST_BLOCK(true, "operator/(mat, float)")
+  {
+    ezMat4 m0(1, 2, 3, 4,
+             5, 6, 7, 8,
+             9,10,11,12,
+             13,14,15,16);
+
+    m0 *= 4.0f;
+    
+    ezMat4 m = m0 / 2.0f;
+
+    EZ_TEST_VEC4(m.GetRow(0), ezVec4(2, 4, 6, 8), 0.0001f);
+    EZ_TEST_VEC4(m.GetRow(1), ezVec4(10, 12, 14, 16), 0.0001f);
+    EZ_TEST_VEC4(m.GetRow(2), ezVec4(18, 20, 22, 24), 0.0001f);
+    EZ_TEST_VEC4(m.GetRow(3), ezVec4(26, 28, 30, 32), 0.0001f);
+  }
+
+  EZ_TEST_BLOCK(true, "operator+(mat, mat) | operator-(mat, mat)")
+  {
+    ezMat4 m0(1, 2, 3, 4,
+             5, 6, 7, 8,
+             9,10,11,12,
+             13,14,15,16);
+  
+    ezMat4 m1(-1, -2, -3, -4,
+             -5, -6, -7, -8,
+             -9,-10,-11,-12,
+             -13,-14,-15,-16);
+
+    EZ_TEST((m0 + m1).IsZero());
+    EZ_TEST((m0 - m1).IsEqual(m0 * 2.0f, 0.0001f));
+  }
+
+  EZ_TEST_BLOCK(true, "operator== (mat, mat) | operator!= (mat, mat)")
+  {
+    ezMat4 m(1, 2, 3, 4,
+             5, 6, 7, 8,
+             9,10,11,12,
+             13,14,15,16);
+
+    ezMat4 m2 = m;
+
+    EZ_TEST(m == m2);
+
+    m2.m_fElementsCM[0] += 0.00001f;
+
+    EZ_TEST(m != m2);
+  }
+
 }

@@ -48,8 +48,7 @@ public:
          float c1r4, float c2r4, float c3r4, float c4r4); // [tested]
 
   /// \brief Creates a transformation matrix from a rotation and a translation.
-  /// \test Requires a unit-test.
-  ezMat4(const ezMat3& Rotation, const ezVec3& vTranslation);
+  ezMat4(const ezMat3& Rotation, const ezVec3& vTranslation); // [tested]
 
   /// \brief Copies 16 values from pData into the matrix. Can handle the data in row-major or column-major order.
   ///
@@ -70,8 +69,7 @@ public:
                    float c1r4, float c2r4, float c3r4, float c4r4); // [tested]
 
   /// \brief Sets a transformation matrix from a rotation and a translation.
-  /// \test Requires a unit-test.
-  void SetTransformationMatrix(const ezMat3& Rotation, const ezVec3& vTranslation);
+  void SetTransformationMatrix(const ezMat3& Rotation, const ezVec3& vTranslation); // [tested]
 
 // *** Special matrix constructors ***
 public:
@@ -184,114 +182,89 @@ public:
   void SetDiagonal(const ezVec4& diag); // [tested]
 
   /// \brief Returns the first 3 components of the last column.
-  /// \test Requires a unit-test.
-  const ezVec3 GetTranslationVector() const;
+  const ezVec3 GetTranslationVector() const; // [tested]
 
   /// \brief Sets the first 3 components of the last column.
-  /// \test Requires a unit-test.
-  void SetTranslationVector(const ezVec3& v);
+  void SetTranslationVector(const ezVec3& v); // [tested]
 
   /// \brief Sets the 3x3 rotational part of the matrix.
-  /// \test Requires a unit-test.
-  void SetRotationalPart(const ezMat3& Rotation);
+  void SetRotationalPart(const ezMat3& Rotation); // [tested]
 
   /// \brief Returns the 3x3 rotational part of the matrix.
-  /// \test Requires a unit-test.
-  const ezMat3 GetRotationalPart() const;
+  const ezMat3 GetRotationalPart() const; // [tested]
 
   /// \brief Returns the 3 scaling factors that are encoded in the matrix.
-  /// \test Requires a unit-test.
-  const ezVec3 GetScalingFactors() const;
+  const ezVec3 GetScalingFactors() const; // [tested]
 
   /// \brief Tries to set the three scaling factors in the matrix. Returns EZ_FAILURE if the matrix columns cannot be normalized and thus no rescaling is possible.
-  /// \test Requires a unit-test.
-  ezResult SetScalingFactors(const ezVec3& vXYZ, float fEpsilon = ezMath_DefaultEpsilon);
+  ezResult SetScalingFactors(const ezVec3& vXYZ, float fEpsilon = ezMath_DefaultEpsilon); // [tested]
 
 // *** Operators ***
 public:
 
   /// \brief Matrix-vector multiplication, assuming the 4th component of the vector is one (default behavior).
-  /// \test Requires a unit-test.
-  const ezVec3 TransformPosition(const ezVec3& v) const;
+  const ezVec3 TransformPosition(const ezVec3& v) const; // [tested]
 
   /// \brief Matrix-vector multiplication, assuming the 4th component of the vector is one (default behavior).
-  /// \test Requires a unit-test.
-  void TransformPosition(ezVec3* inout_v, ezUInt32 uiNumVectors, ezUInt32 uiStride = sizeof(ezVec3)) const;
+  void TransformPosition(ezVec3* inout_v, ezUInt32 uiNumVectors, ezUInt32 uiStride = sizeof(ezVec3)) const; // [tested]
 
   /// \brief Matrix-vector multiplication, assuming the 4th component of the vector is zero. So, rotation/scaling only. Useful as an optimization.
-  /// \test Requires a unit-test.
-  const ezVec3 TransformDirection(const ezVec3& v) const;
+  const ezVec3 TransformDirection(const ezVec3& v) const; // [tested]
 
   /// \brief Matrix-vector multiplication, assuming the 4th component of the vector is zero. So, rotation/scaling only. Useful as an optimization.
-  /// \test Requires a unit-test.
-  void TransformDirection(ezVec3* inout_v, ezUInt32 uiNumVectors, ezUInt32 uiStride = sizeof(ezVec3)) const;
+  void TransformDirection(ezVec3* inout_v, ezUInt32 uiNumVectors, ezUInt32 uiStride = sizeof(ezVec3)) const; // [tested]
 
   /// \brief Matrix-vector multiplication.
-  /// \test Requires a unit-test.
-  const ezVec4 Transform(const ezVec4& v) const;
+  const ezVec4 Transform(const ezVec4& v) const; // [tested]
 
   /// \brief Matrix-vector multiplication.
-  /// \test Requires a unit-test.
-  void Transform(ezVec4* inout_v, ezUInt32 uiNumVectors, ezUInt32 uiStride = sizeof(ezVec4)) const;
+  void Transform(ezVec4* inout_v, ezUInt32 uiNumVectors, ezUInt32 uiStride = sizeof(ezVec4)) const; // [tested]
 
   /// \brief Component-wise multiplication (commutative)
-  /// \test Requires a unit-test.
-  void operator*= (float f);
+  void operator*= (float f); // [tested]
 
   /// \brief Component-wise division
-  /// \test Requires a unit-test.
-  void operator/= (float f);
+  void operator/= (float f); // [tested]
 
   /// \brief Equality Check
-  /// \test Requires a unit-test.
-  bool IsIdentical(const ezMat4& rhs) const;
+  bool IsIdentical(const ezMat4& rhs) const; // [tested]
 
   /// \brief Equality Check with epsilon
-  /// \test Requires a unit-test.
-  bool IsEqual(const ezMat4& rhs, float fEpsilon) const;
+  bool IsEqual(const ezMat4& rhs, float fEpsilon) const; // [tested]
 };
 
 
 // *** free functions ***
 
 /// \brief Matrix-Matrix multiplication
-/// \test Requires a unit-test.
-const ezMat4 operator* (const ezMat4& m1, const ezMat4& m2);	
+const ezMat4 operator* (const ezMat4& m1, const ezMat4& m2); // [tested]
 
 /// \brief Matrix-vector multiplication
-/// \test Requires a unit-test.
-const ezVec3 operator* (const ezMat4& m, const ezVec3& v);	
+const ezVec3 operator* (const ezMat4& m, const ezVec3& v); // [tested]
 
 /// \brief Matrix-vector multiplication
-/// \test Requires a unit-test.
-const ezVec4 operator* (const ezMat4& m, const ezVec4& v);	
+const ezVec4 operator* (const ezMat4& m, const ezVec4& v); // [tested]
 
 /// \brief Component-wise multiplication (commutative)
-/// \test Requires a unit-test.
-const ezMat4 operator* (const ezMat4& m1, float f);
+const ezMat4 operator* (const ezMat4& m1, float f); // [tested]
 
 /// \brief Component-wise multiplication (commutative)
-/// \test Requires a unit-test.
-const ezMat4 operator* (float f, const ezMat4& m1);
+const ezMat4 operator* (float f, const ezMat4& m1); // [tested]
 
 /// \brief Component-wise division
-/// \test Requires a unit-test.
-const ezMat4 operator/ (const ezMat4& m1, float f);
+const ezMat4 operator/ (const ezMat4& m1, float f); // [tested]
 
 /// \brief Adding two matrices (component-wise)
-/// \test Requires a unit-test.
-const ezMat4 operator+ (const ezMat4& m1, const ezMat4& m2);
+const ezMat4 operator+ (const ezMat4& m1, const ezMat4& m2); // [tested]
 
 /// \brief Subtracting two matrices (component-wise)
-/// \test Requires a unit-test.
-const ezMat4 operator- (const ezMat4& m1, const ezMat4& m2);
+const ezMat4 operator- (const ezMat4& m1, const ezMat4& m2); // [tested]
 
 /// \brief Comparison Operator ==
-/// \test Requires a unit-test.
-bool operator== (const ezMat4& lhs, const ezMat4& rhs);
+bool operator== (const ezMat4& lhs, const ezMat4& rhs); // [tested]
 
 /// \brief Comparison Operator !=
-bool operator!= (const ezMat4& lhs, const ezMat4& rhs);
+bool operator!= (const ezMat4& lhs, const ezMat4& rhs); // [tested]
 
 #include <Foundation/Math/Implementation/Mat4_inl.h>
 

@@ -148,64 +148,50 @@ public:
 public:
 
   /// \brief Matrix-vector multiplication, assuming the 4th component of the vector is zero. So, rotation/scaling only. Useful as an optimization.
-  /// \test Requires a unit-test.
-  const ezVec3 TransformDirection(const ezVec3& v) const;
+  const ezVec3 TransformDirection(const ezVec3& v) const; // [tested]
 
   /// \brief Component-wise multiplication (commutative)
-  /// \test Requires a unit-test.
   void operator*= (float f);
 
   /// \brief Component-wise division.
-  /// \test Requires a unit-test.
-  void operator/= (float f);
+  void operator/= (float f); // [tested]
 
   /// \brief Equality Check.
-  /// \test Requires a unit-test.
-  bool IsIdentical(const ezMat3& rhs) const;
+  bool IsIdentical(const ezMat3& rhs) const; // [tested]
 
   /// \brief Equality Check with epsilon.
-  /// \test Requires a unit-test.
-  bool IsEqual(const ezMat3& rhs, float fEpsilon) const;
+  bool IsEqual(const ezMat3& rhs, float fEpsilon) const; // [tested]
 };
 
 
 // *** free functions ***
 
 /// \brief Matrix-Matrix multiplication
-/// \test Requires a unit-test.
-const ezMat3 operator* (const ezMat3& m1, const ezMat3& m2);	
+const ezMat3 operator* (const ezMat3& m1, const ezMat3& m2); // [tested]
 
 /// \brief Matrix-vector multiplication
-/// \test Requires a unit-test.
-const ezVec3 operator* (const ezMat3& m, const ezVec3& v);	
+const ezVec3 operator* (const ezMat3& m, const ezVec3& v); // [tested]
 
 /// \brief Component-wise multiplication (commutative)
-/// \test Requires a unit-test.
-const ezMat3 operator* (const ezMat3& m1, float f);
+const ezMat3 operator* (const ezMat3& m1, float f); // [tested]
 
 /// \brief Component-wise multiplication (commutative)
-/// \test Requires a unit-test.
-const ezMat3 operator* (float f, const ezMat3& m1);
+const ezMat3 operator* (float f, const ezMat3& m1); // [tested]
 
 /// \brief Component-wise division
-/// \test Requires a unit-test.
-const ezMat3 operator/ (const ezMat3& m1, float f);
+const ezMat3 operator/ (const ezMat3& m1, float f); // [tested]
 
 /// \brief Adding two matrices (component-wise)
-/// \test Requires a unit-test.
-const ezMat3 operator+ (const ezMat3& m1, const ezMat3& m2);
+const ezMat3 operator+ (const ezMat3& m1, const ezMat3& m2); // [tested]
 
 /// \brief Subtracting two matrices (component-wise)
-/// \test Requires a unit-test.
-const ezMat3 operator- (const ezMat3& m1, const ezMat3& m2);
+const ezMat3 operator- (const ezMat3& m1, const ezMat3& m2); // [tested]
 
 /// \brief Comparison Operator ==
-/// \test Requires a unit-test.
-bool operator== (const ezMat3& lhs, const ezMat3& rhs);
+bool operator== (const ezMat3& lhs, const ezMat3& rhs); // [tested]
 
 /// \brief Comparison Operator !=
-/// \test Requires a unit-test.
-bool operator!= (const ezMat3& lhs, const ezMat3& rhs);
+bool operator!= (const ezMat3& lhs, const ezMat3& rhs); // [tested]
 
 #include <Foundation/Math/Implementation/Mat3_inl.h>
 
