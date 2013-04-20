@@ -117,3 +117,16 @@ private:
   EZ_TEST_FLOAT_MSG(v1.y, v2.y, epsilon, msg); \
   EZ_TEST_FLOAT_MSG(v1.z, v2.z, epsilon, msg); \
 }
+
+#define EZ_TEST_VEC4(i1, i2, epsilon) EZ_TEST_VEC4_MSG(i1, i2, epsilon, "")
+
+#define EZ_TEST_VEC4_MSG(r1, r2, epsilon, msg) \
+{ \
+  const ezVec4 v1 = (ezVec4) (r1); \
+  const ezVec4 v2 = (ezVec4) (r2); \
+  \
+  EZ_TEST_FLOAT_MSG(v1.x, v2.x, epsilon, msg); \
+  EZ_TEST_FLOAT_MSG(v1.y, v2.y, epsilon, msg); \
+  EZ_TEST_FLOAT_MSG(v1.z, v2.z, epsilon, msg); \
+  EZ_TEST_FLOAT_MSG(v1.w, v2.w, epsilon, msg); \
+}

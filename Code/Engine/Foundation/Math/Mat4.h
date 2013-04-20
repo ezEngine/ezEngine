@@ -30,8 +30,7 @@ public:
 public:
 
   /// \brief Default Constructor DOES NOT INITIALIZE the matrix, at all.
-  /// \test Requires a unit-test.
-  ezMat4();
+  ezMat4(); // [tested]
 
   /// \brief Copies 16 values from pData into the matrix. Can handle the data in row-major or column-major order.
   ///
@@ -39,15 +38,14 @@ public:
   ///   The array of float values from which to set the matrix data.
   /// \param layout
   ///   The layout in which pData stores the matrix. The data will get transposed, if necessary.
-  /// \test Requires a unit-test.
-  ezMat4(const float* const pData, ezMatrixLayout::Enum layout);
+  ///   The data should be in column-major format, if you want to prevent unnecessary transposes.
+  ezMat4(const float* const pData, ezMatrixLayout::Enum layout); // [tested]
 
   /// \brief Sets each element manually: Naming is "column-n row-m"
-  /// \test Requires a unit-test.
   ezMat4(float c1r1, float c2r1, float c3r1, float c4r1,
          float c1r2, float c2r2, float c3r2, float c4r2,
          float c1r3, float c2r3, float c3r3, float c4r3,
-         float c1r4, float c2r4, float c3r4, float c4r4);
+         float c1r4, float c2r4, float c3r4, float c4r4); // [tested]
 
   /// \brief Creates a transformation matrix from a rotation and a translation.
   /// \test Requires a unit-test.
@@ -59,19 +57,17 @@ public:
   ///   The array of float values from which to set the matrix data.
   /// \param layout
   ///   The layout in which pData stores the matrix. The data will get transposed, if necessary.
-  /// \test Requires a unit-test.
-  void SetFromArray(const float* const pData, ezMatrixLayout::Enum layout);
+  ///   The data should be in column-major format, if you want to prevent unnecessary transposes.
+  void SetFromArray(const float* const pData, ezMatrixLayout::Enum layout); // [tested]
 
   /// \brief Copies the 16 values of this matrix into the given array. 'layout' defines whether the data should end up in column-major or row-major format.
-  /// \test Requires a unit-test.
-  void GetAsArray(float* out_pData, ezMatrixLayout::Enum layout) const;
+  void GetAsArray(float* out_pData, ezMatrixLayout::Enum layout) const; // [tested]
 
   /// \brief Sets each element manually: Naming is "column-n row-m"
-  /// \test Requires a unit-test.
   void SetElements(float c1r1, float c2r1, float c3r1, float c4r1,
                    float c1r2, float c2r2, float c3r2, float c4r2,
                    float c1r3, float c2r3, float c3r3, float c4r3,
-                   float c1r4, float c2r4, float c3r4, float c4r4);
+                   float c1r4, float c2r4, float c3r4, float c4r4); // [tested]
 
   /// \brief Sets a transformation matrix from a rotation and a translation.
   /// \test Requires a unit-test.
@@ -81,36 +77,28 @@ public:
 public:
 
   /// \brief Sets all elements to zero.
-  /// \test Requires a unit-test.
-  void SetZero();
+  void SetZero(); // [tested]
 
   /// \brief Sets all elements to zero, except the diagonal, which is set to one.
-  /// \test Requires a unit-test.
-  void SetIdentity();
+  void SetIdentity(); // [tested]
 
   /// \brief Sets the matrix to all zero, except the last column, which is set to x,y,z,1
-  /// \test Requires a unit-test.
-  void SetTranslationMatrix(const ezVec3& vTranslation);
+  void SetTranslationMatrix(const ezVec3& vTranslation); // [tested]
 
   /// \brief Sets the matrix to all zero, except the diagonal, which is set to x,y,z,1
-  /// \test Requires a unit-test.
-  void SetScalingMatrix(const ezVec3& vScale);
+  void SetScalingMatrix(const ezVec3& vScale); // [tested]
 
   /// \brief Sets this matrix to be a rotation matrix around the X-axis.
-  /// \test Requires a unit-test.
-  void SetRotationMatrixX(float fAngle);
+  void SetRotationMatrixX(float fAngle); // [tested]
 
   /// \brief Sets this matrix to be a rotation matrix around the Y-axis.
-  /// \test Requires a unit-test.
-  void SetRotationMatrixY(float fAngle);
+  void SetRotationMatrixY(float fAngle); // [tested]
 
   /// \brief Sets this matrix to be a rotation matrix around the Z-axis.
-  /// \test Requires a unit-test.
-  void SetRotationMatrixZ(float fAngle);
+  void SetRotationMatrixZ(float fAngle); // [tested]
 
   /// \brief Sets this matrix to be a rotation matrix around the given axis.
-  /// \test Requires a unit-test.
-  void SetRotationMatrix(const ezVec3& vAxis, float fAngle);
+  void SetRotationMatrix(const ezVec3& vAxis, float fAngle); // [tested]
 
   /// \brief Creates a perspective projection matrix.
   /// \test Requires a unit-test.
@@ -144,71 +132,56 @@ public:
 public:
 
   /// \brief Returns an Identity Matrix.
-  /// \test Requires a unit-test.
-  static const ezMat4 IdentityMatrix();
+  static const ezMat4 IdentityMatrix(); // [tested]
 
   /// \brief Returns a Zero Matrix.
-  /// \test Requires a unit-test.
-  static const ezMat4 ZeroMatrix();
+  static const ezMat4 ZeroMatrix(); // [tested]
 
   /// \brief Transposes this matrix.
-  /// \test Requires a unit-test.
-  void Transpose();
+  void Transpose(); // [tested]
 
   /// \brief Returns the transpose of this matrix.
-  /// \test Requires a unit-test.
-  const ezMat4 GetTranspose() const;
+  const ezMat4 GetTranspose() const; // [tested]
 
   /// \brief Inverts this matrix. Return value indicates whether the matrix could be inverted.
-  /// \test Requires a unit-test.
-  ezResult Invert(float fEpsilon = ezMath_SmallEpsilon);
+  ezResult Invert(float fEpsilon = ezMath_SmallEpsilon); // [tested]
 
   /// \brief Returns the inverse of this matrix.
-  /// \test Requires a unit-test.
-  const ezMat4 GetInverse() const;
+  const ezMat4 GetInverse() const; // [tested]
 
 // *** Checks ***
 public:
 
   /// \brief Checks whether all elements are zero.
-  /// \test Requires a unit-test.
-  bool IsZero(float fEpsilon = ezMath_DefaultEpsilon) const;
+  bool IsZero(float fEpsilon = ezMath_DefaultEpsilon) const; // [tested]
 
   /// \brief Checks whether this is an identity matrix.
-  /// \test Requires a unit-test.
-  bool IsIdentity(float fEpsilon = ezMath_DefaultEpsilon) const;
+  bool IsIdentity(float fEpsilon = ezMath_DefaultEpsilon) const; // [tested]
 
   /// \brief Checks whether all components are finite numbers.
-  /// \test Requires a unit-test.
-  bool IsValid() const;
+  bool IsValid() const; // [tested]
 
 
 // *** Special Accessors ***
 public:
 
   /// \brief Returns all 4 components of the i-th row.
-  /// \test Requires a unit-test.
-  ezVec4 GetRow(ezUInt32 uiRow) const;
+  ezVec4 GetRow(ezUInt32 uiRow) const; // [tested]
 
   /// \brief Sets all 4 components of the i-th row.
-  /// \test Requires a unit-test.
-  void SetRow(ezUInt32 uiRow, const ezVec4& row);
+  void SetRow(ezUInt32 uiRow, const ezVec4& row); // [tested]
 
   /// \brief Returns all 4 components of the i-th column.
-  /// \test Requires a unit-test.
-  ezVec4 GetColumn(ezUInt32 uiColumn) const;
+  ezVec4 GetColumn(ezUInt32 uiColumn) const; // [tested]
 
   /// \brief Sets all 4 components of the i-th column.
-  /// \test Requires a unit-test.
-  void SetColumn(ezUInt32 uiColumn, const ezVec4& column);
+  void SetColumn(ezUInt32 uiColumn, const ezVec4& column); // [tested]
 
   /// \brief Returns all 4 components on the diagonal of the matrix.
-  /// \test Requires a unit-test.
-  ezVec4 GetDiagonal() const;
+  ezVec4 GetDiagonal() const; // [tested]
 
   /// \brief Sets all 4 components on the diagonal of the matrix.
-  /// \test Requires a unit-test.
-  void SetDiagonal(const ezVec4& diag);
+  void SetDiagonal(const ezVec4& diag); // [tested]
 
   /// \brief Returns the first 3 components of the last column.
   /// \test Requires a unit-test.

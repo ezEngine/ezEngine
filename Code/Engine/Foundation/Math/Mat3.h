@@ -27,8 +27,7 @@ public:
 // *** Constructors ***
 public:
   /// \brief Default Constructor DOES NOT INITIALIZE the matrix, at all.
-  /// \test Requires a unit-test.
-  ezMat3();
+  ezMat3(); // [tested]
 
   /// \brief Copies 9 values from pData into the matrix. Can handle the data in row-major or column-major order.
   ///
@@ -36,14 +35,13 @@ public:
   ///   The array of float values from which to set the matrix data.
   /// \param layout
   ///   The layout in which pData stores the matrix. The data will get transposed, if necessary.
-  /// \test Requires a unit-test.
-  ezMat3(const float* const pData, ezMatrixLayout::Enum layout);
+  ///   The data should be in column-major format, if you want to prevent unnecessary transposes.
+  ezMat3(const float* const pData, ezMatrixLayout::Enum layout); // [tested]
 
   /// \brief Sets each element manually: Naming is "column-n row-m"
-  /// \test Requires a unit-test.
   ezMat3(float c1r1, float c2r1, float c3r1,
          float c1r2, float c2r2, float c3r2,
-         float c1r3, float c2r3, float c3r3);
+         float c1r3, float c2r3, float c3r3); // [tested]
 
   /// \brief Copies 9 values from pData into the matrix. Can handle the data in row-major or column-major order.
   ///
@@ -51,123 +49,99 @@ public:
   ///   The array of float values from which to set the matrix data.
   /// \param layout
   ///   The layout in which pData stores the matrix. The data will get transposed, if necessary.
-  /// \test Requires a unit-test.
-  void SetFromArray(const float* const pData, ezMatrixLayout::Enum layout);
+  ///   The data should be in column-major format, if you want to prevent unnecessary transposes.
+  void SetFromArray(const float* const pData, ezMatrixLayout::Enum layout); // [tested]
 
   /// \brief Copies the 9 values of this matrix into the given array. 'layout' defines whether the data should end up in column-major or row-major format.
-  /// \test Requires a unit-test.
-  void GetAsArray(float* out_pData, ezMatrixLayout::Enum layout) const;
+  void GetAsArray(float* out_pData, ezMatrixLayout::Enum layout) const; // [tested]
 
   /// \brief Sets each element manually: Naming is "column-n row-m"
-  /// \test Requires a unit-test.
   void SetElements(float c1r1, float c2r1, float c3r1,
                    float c1r2, float c2r2, float c3r2,
-                   float c1r3, float c2r3, float c3r3);
+                   float c1r3, float c2r3, float c3r3); // [tested]
 
 // *** Special matrix constructors ***
 public:
 
   /// \brief Sets all elements to zero.
-  /// \test Requires a unit-test.
-  void SetZero();
+  void SetZero(); // [tested]
 
   /// \brief Sets all elements to zero, except the diagonal, which is set to one.
-  /// \test Requires a unit-test.
-  void SetIdentity();
+  void SetIdentity(); // [tested]
 
   /// \brief Sets the matrix to all zero, except the diagonal, which is set to x,y,z,1
-  /// \test Requires a unit-test.
-  void SetScalingMatrix(const ezVec3& vScale);
+  void SetScalingMatrix(const ezVec3& vScale); // [tested]
 
   /// \brief Sets this matrix to be a rotation matrix around the X-axis.
-  /// \test Requires a unit-test.
-  void SetRotationMatrixX(float fAngle);
+  void SetRotationMatrixX(float fAngle); // [tested]
 
   /// \brief Sets this matrix to be a rotation matrix around the Y-axis.
-  /// \test Requires a unit-test.
-  void SetRotationMatrixY(float fAngle);
+  void SetRotationMatrixY(float fAngle); // [tested]
 
   /// \brief Sets this matrix to be a rotation matrix around the Z-axis.
-  /// \test Requires a unit-test.
-  void SetRotationMatrixZ(float fAngle);
+  void SetRotationMatrixZ(float fAngle); // [tested]
 
   /// \brief Sets this matrix to be a rotation matrix around the given axis.
-  /// \test Requires a unit-test.
-  void SetRotationMatrix(const ezVec3& vAxis, float fAngle);
+  void SetRotationMatrix(const ezVec3& vAxis, float fAngle); // [tested]
 
   /// \brief Sets this matrix to be a look-at matrix (without the translation).
   /// \test Requires a unit-test.
-  void SetLookInDirectionMatrix (ezVec3 vLookDir, ezVec3 vUpDir = ezVec3 (0, 1, 0));
+  void SetLookInDirectionMatrix(ezVec3 vLookDir, ezVec3 vUpDir = ezVec3 (0, 1, 0));
 
 // *** Common Matrix Operations ***
 public:
 
   /// \brief Returns an Identity Matrix.
-  /// \test Requires a unit-test.
-  static const ezMat3 IdentityMatrix();
+  static const ezMat3 IdentityMatrix(); // [tested]
 
   /// \brief Returns a Zero Matrix.
-  /// \test Requires a unit-test.
-  static const ezMat3 ZeroMatrix();
+  static const ezMat3 ZeroMatrix(); // [tested]
 
   /// \brief Transposes this matrix.
-  /// \test Requires a unit-test.
-  void Transpose();
+  void Transpose(); // [tested]
 
   /// \brief Returns the transpose of this matrix.
-  /// \test Requires a unit-test.
-  const ezMat3 GetTranspose() const;
+  const ezMat3 GetTranspose() const; // [tested]
 
   /// \brief Inverts this matrix. Return value indicates whether the matrix could be Inverted.
-  /// \test Requires a unit-test.
-  ezResult Invert(float fEpsilon = ezMath_SmallEpsilon);
+  ezResult Invert(float fEpsilon = ezMath_SmallEpsilon); // [tested]
 
   /// \brief Returns the inverse of this matrix.
-  /// \test Requires a unit-test.
-  const ezMat3 GetInverse() const;
+  const ezMat3 GetInverse() const; // [tested]
 
 // *** Checks ***
 public:
 
   /// \brief Checks whether all elements are zero.
-  /// \test Requires a unit-test.
-  bool IsZero(float fEpsilon = ezMath_DefaultEpsilon) const;
+  bool IsZero(float fEpsilon = ezMath_DefaultEpsilon) const; // [tested]
 
   /// \brief Checks whether this is an identity matrix.
-  /// \test Requires a unit-test.
-  bool IsIdentity(float fEpsilon = ezMath_DefaultEpsilon) const;
+  bool IsIdentity(float fEpsilon = ezMath_DefaultEpsilon) const; // [tested]
 
   /// \brief Checks whether all components are finite numbers.
-  /// \test Requires a unit-test.
-  bool IsValid() const;
+  bool IsValid() const; // [tested]
 
 
 // *** Special Accessors ***
 public:
 
   /// \brief Returns all 3 components of the i-th row.
-  /// \test Requires a unit-test.
-  ezVec3 GetRow(ezUInt32 uiRow) const;
+  ezVec3 GetRow(ezUInt32 uiRow) const; // [tested]
 
   /// \brief Sets all 3 components of the i-th row.
-  /// \test Requires a unit-test.
-  void SetRow(ezUInt32 uiRow, const ezVec3& row);
+  void SetRow(ezUInt32 uiRow, const ezVec3& row); // [tested]
 
   /// \brief Returns all 3 components of the i-th column.
-  /// \test Requires a unit-test.
-  ezVec3 GetColumn(ezUInt32 uiColumn) const;
+  ezVec3 GetColumn(ezUInt32 uiColumn) const; // [tested]
 
   /// \brief Sets all 3 components of the i-th column.
-  /// \test Requires a unit-test.
-  void SetColumn(ezUInt32 uiColumn, const ezVec3& column);
+  void SetColumn(ezUInt32 uiColumn, const ezVec3& column); // [tested]
 
   /// \brief Returns all 3 components on the diagonal of the matrix.
-  /// \test Requires a unit-test.
-  ezVec3 GetDiagonal() const;
+  ezVec3 GetDiagonal() const; // [tested]
 
   /// \brief Sets all 3 components on the diagonal of the matrix.
-  /// \test Requires a unit-test.
-  void SetDiagonal(const ezVec3& diag);
+  void SetDiagonal(const ezVec3& diag); // [tested]
 
 
 // *** Operators ***
