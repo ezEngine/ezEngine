@@ -2,8 +2,6 @@ ezEngine Roadmap {#EngineRoadmap}
 ================
 
 This is a list of our planned features for the foreseeable future.
-Add / Modify as you like.
-
 
 Milestone 1
 -----------
@@ -22,8 +20,6 @@ Milestone 1
       * Rewind -> needs refactoring
     * ezIBinaryStreamReader
       * SkipBytes
-    * ezEndianHelper
-      * SwitchInPlace -> unfinished ?
     * ezThreadUtils
       * IsMainThread
     * ezThread
@@ -31,7 +27,6 @@ Milestone 1
       * IsRunning
     * ezTime
   
-    * ezVec2
     * ezVec3
       * CalculateNormal
       * MakeOrthogonalTo
