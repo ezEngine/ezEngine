@@ -22,17 +22,17 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat3)
     #else
         // Placement new of the default constructor should not have any effect on the previous data.
         float testBlock[9] = { 1.0f, 2.0f, 3.0f, 4.0f, 5.0f, 6.0f, 7.0f, 8.0f, 9.0f };
-        ezMat3* p = ::new ((void*) &testBlock[0]) ezMat3;
+        ezMat3* m = ::new ((void*) &testBlock[0]) ezMat3;
 
-        EZ_TEST(m.m_fElementsCM[0] == 1.0f && 
-                m.m_fElementsCM[1] == 2.0f && 
-                m.m_fElementsCM[2] == 3.0f && 
-                m.m_fElementsCM[3] == 4.0f && 
-                m.m_fElementsCM[4] == 5.0f && 
-                m.m_fElementsCM[5] == 6.0f && 
-                m.m_fElementsCM[6] == 7.0f && 
-                m.m_fElementsCM[7] == 8.0f && 
-                m.m_fElementsCM[8] == 9.0f);
+        EZ_TEST(m->m_fElementsCM[0] == 1.0f && 
+                m->m_fElementsCM[1] == 2.0f && 
+                m->m_fElementsCM[2] == 3.0f && 
+                m->m_fElementsCM[3] == 4.0f && 
+                m->m_fElementsCM[4] == 5.0f && 
+                m->m_fElementsCM[5] == 6.0f && 
+                m->m_fElementsCM[6] == 7.0f && 
+                m->m_fElementsCM[7] == 8.0f && 
+                m->m_fElementsCM[8] == 9.0f);
     #endif
   }
 
