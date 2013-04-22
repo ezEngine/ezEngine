@@ -15,7 +15,6 @@ public:
 
   union
   {
-    /// \brief The vector as x/y
     struct { float x, y; };
 
     /// \brief The vector as a 2-component float-array.
