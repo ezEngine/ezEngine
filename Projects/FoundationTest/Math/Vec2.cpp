@@ -354,12 +354,12 @@ EZ_CREATE_SIMPLE_TEST(Math, Vec2)
   EZ_TEST_BLOCK(true, "GetOrthogonalVector")
   {
     ezVec2 v;
-    
-    v.Set(1, 0);
-    EZ_TEST_VEC2(v.GetOrthogonalVector(), ezVec2(0, 1), 0.001f);
-
-    v.Set(0, 1);
-    EZ_TEST_VEC2(v.GetOrthogonalVector(), ezVec2(-1, 0), 0.001f);
+   
+    for (float i = 1; i < 360; i += 3.0f)
+    {
+      v.Set(i, i * 3);
+      EZ_TEST_FLOAT(v.GetOrthogonalVector().Dot(v), 0.0f, 0.001f);
+    }
   }
 
   EZ_TEST_BLOCK(true, "GetReflectedVector")

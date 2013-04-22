@@ -325,16 +325,48 @@ EZ_CREATE_SIMPLE_TEST(Math, Vec3)
     EZ_TEST(vOp1.CompDiv(vOp2).IsEqual(ezVec3(-2.0f, -0.66666666f, -14.0f), ezMath_SmallEpsilon));
   }
 
-  EZ_TEST_BLOCK(true, "Other Common")
+  EZ_TEST_BLOCK(true, "CalculateNormal")
   {
-    // CalculateNormal
+    ezVec3 n;
+    EZ_TEST(n.CalculateNormal(ezVec3(-1, 0, 1), ezVec3(1, 0, 1), ezVec3(0, 0, -1)) == EZ_SUCCESS);
+    EZ_TEST_VEC3(n, ezVec3(0, 1, 0), 0.001f);
 
-    // MakeOrthogonalTo
+    EZ_TEST(n.CalculateNormal(ezVec3(-1, 0, -1), ezVec3(1, 0, -1), ezVec3(0, 0, 1)) == EZ_SUCCESS);
+    EZ_TEST_VEC3(n, ezVec3(0, -1, 0), 0.001f);
 
-    // GetOrthogonalVector
+    EZ_TEST(n.CalculateNormal(ezVec3(-1, 0, 1), ezVec3(1, 0, 1), ezVec3(1, 0, 1)) == EZ_FAILURE);
+  }
 
-    // GetReflectedVector
+  EZ_TEST_BLOCK(true, "MakeOrthogonalTo")
+  {
+    ezVec3 v;
+    
+    v.Set(1, 1, 0);
+    v.MakeOrthogonalTo(ezVec3(1, 0, 0));
+    EZ_TEST_VEC3(v, ezVec3(0, 1, 0), 0.001f);
 
-    // GetRefractedVector
+    v.Set(1, 1, 0);
+    v.MakeOrthogonalTo(ezVec3(0, 1, 0));
+    EZ_TEST_VEC3(v, ezVec3(1, 0, 0), 0.001f);
+  }
+
+  EZ_TEST_BLOCK(true, "GetOrthogonalVector")
+  {
+    ezVec3 v;
+   
+    for (float i = 1; i < 360; i += 3.0f)
+    {
+      v.Set(i, i * 3, i * 7);
+      EZ_TEST_FLOAT(v.GetOrthogonalVector().Dot(v), 0.0f, 0.001f);
+    }
+  }
+
+  EZ_TEST_BLOCK(true, "GetReflectedVector")
+  {
+    ezVec3 v, v2;
+
+    v.Set(1, 1, 0);
+    v2 = v.GetReflectedVector(ezVec3(0, -1, 0));
+    EZ_TEST_VEC3(v2, ezVec3(1, -1, 0), 0.0001f);
   }
 }

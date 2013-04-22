@@ -14,7 +14,6 @@ public:
   // That means first is column 0 (with elements of row 0, row 1, row 2),
   // then column 1, then column 2
     
-  /// \brief The union that allows different representations of the matrix data.
   union
   {
     /// \brief The matrix as a 9-element float array (column-major)

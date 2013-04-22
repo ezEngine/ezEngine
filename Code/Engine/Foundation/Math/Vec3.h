@@ -13,7 +13,6 @@ public:
 // *** Data ***
 public:
 
-  /// \brief The union that allows different representations of the data.
   union
   {
     /// \brief The vector as x/y/z
@@ -160,23 +159,19 @@ public:
 public:			
 
   /// \brief Calculates the normal of the triangle defined by the three vertices. Vertices are assumed to be ordered counter-clockwise.
-  /// \test Requires a unit-test.
-  ezResult CalculateNormal(const ezVec3& v1, const ezVec3& v2, const ezVec3& v3);
+  ezResult CalculateNormal(const ezVec3& v1, const ezVec3& v2, const ezVec3& v3); // [tested]
 
   /// \brief Modifies this direction vector to be orthogonal to the given (normalized) direction vector. The result is NOT normalized.
   ///
   /// \note This function may fail, e.g. create a vector that is zero, if the given normal is parallel to the vector itself.
   ///       If you need to handle such cases, you should manually check afterwards, whether the result is zero, or cannot be normalized.
-  /// \test Requires a unit-test.
-  void MakeOrthogonalTo(const ezVec3& vNormal);
+  void MakeOrthogonalTo(const ezVec3& vNormal); // [tested]
 
   /// \brief Returns some arbitrary vector orthogonal to this one. The vector is NOT normalized.
-  /// \test Requires a unit-test.
-  const ezVec3 GetOrthogonalVector() const;
+  const ezVec3 GetOrthogonalVector() const; // [tested]
 
   /// \brief Returns this vector reflected at vNormal.
-  /// \test Requires a unit-test.
-  const ezVec3 GetReflectedVector(const ezVec3& vNormal) const;
+  const ezVec3 GetReflectedVector(const ezVec3& vNormal) const; // [tested]
 
   /// \brief Returns this vector, refracted at vNormal, using the refraction index of the current medium and the medium it enters.
   /// \test Requires a unit-test.

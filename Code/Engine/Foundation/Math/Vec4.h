@@ -13,7 +13,6 @@ public:
 // *** Data ***
 public:
 
-  /// \brief The union that allows different representations of the data.
   union
   {
     /// \brief The vector as x/y/z/w

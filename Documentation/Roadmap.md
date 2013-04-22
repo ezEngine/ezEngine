@@ -12,13 +12,6 @@ Milestone 1
   * Unit-Tests for:
     * ezTime
   
-    * ezVec3
-      * CalculateNormal
-      * MakeOrthogonalTo
-      * GetOrthogonalVector
-      * GetReflectedVector
-      * GetRefractedVector
-  
 Short Term
 ----------
 
