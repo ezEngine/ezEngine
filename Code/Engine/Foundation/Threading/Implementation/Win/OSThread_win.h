@@ -5,6 +5,9 @@
 
 #define EZ_OSTHREAD_WIN_INL_H_INCLUDED
 
+// Deactivate Doxygen document generation for the following block.
+/// \cond
+
 // Exception used to set a thread name
 // See: http://blogs.msdn.com/b/stevejs/archive/2005/12/19/505815.aspx for more details
 const DWORD MS_VC_EXCEPTION = 0x406D1388;
@@ -19,7 +22,6 @@ typedef struct tagTHREADNAME_INFO
   DWORD dwFlags; // Reserved for future use, must be zero.
 } THREADNAME_INFO;
 #pragma pack(pop)
-
 
 #define EZ_MSVC_WARNING_NUMBER 6312
 #include <Foundation/Basics/Compiler/DisableWarning.h>
@@ -43,6 +45,8 @@ void SetThreadName(DWORD dwThreadID, LPCSTR szThreadName)
 }
 
 #include <Foundation/Basics/Compiler/RestoreWarning.h>
+
+/// \endcond
 
 
 // Windows specific implementation of the thread class

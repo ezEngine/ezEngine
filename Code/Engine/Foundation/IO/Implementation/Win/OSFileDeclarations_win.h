@@ -2,6 +2,9 @@
 
 #include <Foundation/Basics.h>
 
+// Deactivate Doxygen document generation for the following block.
+/// \cond
+
 #if EZ_DISABLED(EZ_USE_POSIX_FILE_API)
 
 struct ezOSFileData
@@ -20,3 +23,5 @@ struct ezFileIterationData
 };
 
 #endif
+
+/// \endcond

@@ -2,7 +2,9 @@
 
 #include <Foundation/Basics.h>
 
-/// ***** Usage Guidelines *****
+/// \file
+///
+/// ***** Assert Usage Guidelines *****
 ///
 /// For your typical code, use EZ_ASSERT to check that vital preconditions are met.
 /// Be aware that EZ_ASSERT is removed in release builds, INCLUDING your code in the assert condition.

@@ -59,7 +59,7 @@ private:
   ezResultEnum e;
 };
 
-/// Alignment helper. Derive from this struct if alignment is depending on a template parameter.
+/// \brief Alignment helper. Derive from this struct if alignment is depending on a template parameter.
 /// If alignment is fixed always use the EZ_ALIGN macro.
 template <size_t ALIGNMENT> struct ezAligned;
 template <> struct EZ_ALIGN(ezAligned<1>, 1) { };

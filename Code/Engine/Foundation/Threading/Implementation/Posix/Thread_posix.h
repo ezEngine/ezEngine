@@ -5,6 +5,9 @@
 
 #define EZ_THREAD_POSIX_INL_H_INCLUDED
 
+// Deactivate Doxygen document generation for the following block.
+/// \cond
+
 // Thread entry point used to launch ezRunnable instances
 void* ezThreadClassEntryPoint(void* pThreadParameter)
 {
@@ -26,3 +29,5 @@ void* ezThreadClassEntryPoint(void* pThreadParameter)
   
   return NULL;
 }
+
+/// \endcond

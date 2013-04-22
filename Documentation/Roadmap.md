@@ -6,25 +6,10 @@ This is a list of our planned features for the foreseeable future.
 Milestone 1
 -----------
 
-  * OSX Port (Marc)
-  * Deactivate doxygen documentation for certain (internal/external) code
-
   * ezMemoryStreamReader: Rewind -> should change that
   * ezMemoryStreamWriter: Rewind -> should change that
 
   * Unit-Tests for:
-    * ezMemoryStreamReader
-      * SkipBytes
-      * Rewind -> needs refactoring
-    * ezMemoryStreamWriter
-      * Rewind -> needs refactoring
-    * ezIBinaryStreamReader
-      * SkipBytes
-    * ezThreadUtils
-      * IsMainThread
-    * ezThread
-      * GetThreadStatus
-      * IsRunning
     * ezTime
   
     * ezVec3
@@ -33,15 +18,11 @@ Milestone 1
       * GetOrthogonalVector
       * GetReflectedVector
       * GetRefractedVector
-    * ezFileSystemIterator
   
-  * Missing Documentation:
-    * ezBitflags -> Less "why this is better" documentation, more "how to use it". Also document the Macros at the bottom better and add examples.
-  
-
 Short Term
 ----------
 
+  * OSX Port (Marc)
   * Binary Search Algorithm
   * Finish Flags / Enum stuff (?)
   * Time: Stopwatch ?

@@ -5,6 +5,9 @@
 
 #define EZ_THREAD_WIN_INL_H_INCLUDED
 
+// Deactivate Doxygen document generation for the following block.
+/// \cond
+
 // Thread entry point used to launch ezRunnable instances
 DWORD __stdcall ezThreadClassEntryPoint(LPVOID lpThreadParameter)
 {
@@ -26,3 +29,6 @@ DWORD __stdcall ezThreadClassEntryPoint(LPVOID lpThreadParameter)
 
   return uiReturnCode;
 }
+
+
+/// \endcond

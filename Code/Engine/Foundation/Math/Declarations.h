@@ -1,5 +1,7 @@
 #pragma once
 
+/// \file
+
 #include <Foundation/Basics.h>
 
 #define ezMath_e 2.71828182845904f

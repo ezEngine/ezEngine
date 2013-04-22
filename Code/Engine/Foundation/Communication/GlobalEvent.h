@@ -1,5 +1,7 @@
 #pragma once
 
+/// \file
+
 #include <Foundation/Basics/Types/Variant.h>
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Strings/String.h>

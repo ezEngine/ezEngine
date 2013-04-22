@@ -15,9 +15,7 @@
 
 
 typedef void* ezModuleHandle;
-//typedef HWND ezWindowHandle;
 typedef FILE* ezFileHandle;
-//typedef OVERLAPPED ezAsyncIOHandle;
 typedef pthread_t ezThreadId;
 typedef pthread_t ezThreadHandle;
 typedef pthread_mutex_t ezMutexHandle;

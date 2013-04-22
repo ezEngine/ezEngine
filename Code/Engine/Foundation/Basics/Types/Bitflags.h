@@ -1,12 +1,17 @@
 #pragma once
 
+/// \file
+
 #include <Foundation/Basics.h>
 #include <Foundation/Basics/Types/Enum.h>
 
-// \brief A bitfield build from enum values
-// This has several advantages over the "normal" approach
-// 1) It is typesafe
-// 2) You can see from the code which enum contains the bit values
+/// \todo Documentation Example: How to create an ezBitflags thing.
+
+/// \brief A bitfield build from enum values
+///
+/// This has several advantages over the "normal" approach
+/// 1) It is typesafe
+/// 2) You can see from the code which enum contains the bit values
 template <typename T>
 struct ezBitflags
 {
@@ -116,9 +121,13 @@ struct name    \
   EZ_DECLARE_FLAGS_OR_OPERATOR(name)
 
 
+/// \todo Document
 #define EZ_DECLARE_FLAGS_ENUM(name, n)    name = (1 << n),
+
+/// \todo Document
 #define EZ_DECLARE_FLAGS_BITS(name)       StorageType name : 1;
 
+/// \todo Document
 #define EZ_DECLARE_FLAGS_OR_OPERATOR(name) \
   inline ezBitflags<name> operator|(name::Enum lhs, name::Enum rhs)    \
   {    \

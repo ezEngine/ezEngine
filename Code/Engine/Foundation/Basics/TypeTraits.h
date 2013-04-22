@@ -1,5 +1,7 @@
 #pragma once
 
+/// \file
+
 #include <Foundation/Basics.h>
 
 /// Type traits
@@ -59,11 +61,13 @@ struct ezConversionTest<T, T>
 };
 
 
-/// \brief Declares a special == operator for Pod Types. Note that the implementation is not needed.
+/// \brief Embed this into a class to mark it as a POD type.
+/// POD types will get special treatment from allocators and container classes, such that they are faster to construct and copy.
 #define EZ_DECLARE_POD_TYPE() \
   ezCompileTimeTrueType operator==(const ezTypeIsPod&) const
 
 /// \brief Defines a type T as Pod.
+/// POD types will get special treatment from allocators and container classes, such that they are faster to construct and copy.
 #define EZ_DEFINE_AS_POD_TYPE(T) \
   template<> struct ezIsPodType<T> : public ezTypeIsPod { };
 

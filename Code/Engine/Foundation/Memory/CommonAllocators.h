@@ -1,6 +1,8 @@
 
 #pragma once
 
+/// \file
+
 #include <Foundation/Memory/Allocator.h>
 
 #include <Foundation/Memory/Policies/HeapAllocation.h>

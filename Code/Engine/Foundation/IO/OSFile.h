@@ -95,7 +95,7 @@ struct EZ_FOUNDATION_DLL ezFileStats
     /// \brief The same as 'Next' only that the current folder will not be recursed into.
     ///
     /// Returns false, if the search has reached its end.
-    bool SkipFolder();
+    bool SkipFolder(); // [tested]
 
   private:
 

@@ -1,5 +1,38 @@
 #pragma once
 
+/// \file
+///
+/// *** Example Subsystem declarations ***
+///
+///EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, ExampleSubSystem)
+///
+///  BEGIN_SUBSYSTEM_DEPENDENCIES
+///    "SomeOtherSubSystem",
+///    "SomeOtherSubSystem2"
+///  END_SUBSYSTEM_DEPENDENCIES
+///
+///  ON_CORE_STARTUP
+///  {
+///    ezExampleSubSystem::BasicStartup();
+///  }
+///
+///  ON_CORE_SHUTDOWN
+///  {
+///    ezExampleSubSystem::BasicShutdown();
+///  }
+///
+///  ON_ENGINE_STARTUP
+///  {
+///    ezExampleSubSystem::EngineStartup();
+///  }
+///
+///  ON_ENGINE_SHUTDOWN
+///  {
+///    ezExampleSubSystem::EngineShutdown();
+///  }
+///
+///EZ_END_SUBSYSTEM_DECLARATION
+
 /// \brief Put this in some cpp file of a subsystem to start its startup / shutdown sequence declaration.
 ///
 /// The first parameter is the name of the module, in which the subsystem resides, the second is the name of the subsystem itself.
@@ -70,37 +103,4 @@ class ModuleName##SubsystemName##SubSystem : public ezSubSystemDeclarationBase {
 #define EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(ModuleName, SubsystemName) \
   friend class ModuleName##SubsystemName##SubSystem;
 
-/// *** Example Subsystem declarations ***
-/*
-
-EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, ExampleSubSystem)
-
-  BEGIN_SUBSYSTEM_DEPENDENCIES
-    "SomeOtherSubSystem",
-    "SomeOtherSubSystem2"
-  END_SUBSYSTEM_DEPENDENCIES
-
-  ON_CORE_STARTUP
-  {
-    ezExampleSubSystem::BasicStartup();
-  }
-
-  ON_CORE_SHUTDOWN
-  {
-    ezExampleSubSystem::BasicShutdown();
-  }
-
-  ON_ENGINE_STARTUP
-  {
-    ezExampleSubSystem::EngineStartup();
-  }
-
-  ON_ENGINE_SHUTDOWN
-  {
-    ezExampleSubSystem::EngineShutdown();
-  }
-
-EZ_END_SUBSYSTEM_DECLARATION
-
-*/
 

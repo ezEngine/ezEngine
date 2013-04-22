@@ -7,6 +7,9 @@
 
 #include <Foundation/Math/Math.h>
 
+// Deactivate Doxygen document generation for the following block.
+/// \cond
+
 typedef WORD (__stdcall *CaptureStackBackTraceFunc)(DWORD FramesToSkip, DWORD FramesToCapture, 
   PVOID *BackTrace, PDWORD BackTraceHash);
 
@@ -127,3 +130,6 @@ void ezStackTracer::DumpStackTrace(const ezArrayPtr<void*>& trace)
     }
   }
 }
+
+
+/// \endcond
