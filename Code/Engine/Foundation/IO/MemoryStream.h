@@ -43,12 +43,13 @@ public:
   virtual ezUInt64 ReadBytes(void* pReadBuffer, ezUInt64 uiBytesToRead) EZ_OVERRIDE; // [tested]
 
   /// \brief Skips bytes in the stream (e.g. for skipping objects which can't be serialized due to missing information etc.)
-  virtual ezUInt64 SkipBytes(ezUInt64 uiBytesToSkip);
+  virtual ezUInt64 SkipBytes(ezUInt64 uiBytesToSkip); // [tested]
 
-  /// \todo: Not sure, if this functionality is needed, at all.
-  ///  However, if yes, I would probably just implement a "SetReadPosition" function, instead of this very limited function.
-  /// For that it would probably also make sense to have a "GetByteCount" function, or so.
-  void Rewind();
+  /// \brief Sets the read position to be used
+  void SetReadPosition(ezUInt32 uiReadPosition); // [tested]
+
+  /// \brief Returns the total available bytes in the memory stream
+  ezUInt32 GetByteCount() const; // [tested]
 
 private:
   friend class ezMemoryStreamStorage;
@@ -74,8 +75,11 @@ public:
   /// pWriteBuffer must be a valid buffer and must hold that much data.
   virtual ezResult WriteBytes(const void* pWriteBuffer, ezUInt64 uiBytesToWrite) EZ_OVERRIDE; // [tested]
 
-  /// \todo: If we want to have such functionality, a "SetWritePosition" would be much more useful.
-  void Rewind();
+  /// \brief Sets the write position to be used
+  void SetWritePosition(ezUInt32 uiReadPosition); // [tested]
+
+  /// \brief Returns the total stored bytes in the memory stream
+  ezUInt32 GetByteCount() const; // [tested]
 
 private:
   friend class ezMemoryStreamStorage;

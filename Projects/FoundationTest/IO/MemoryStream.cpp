@@ -34,6 +34,10 @@ EZ_CREATE_SIMPLE_TEST(IO, MemoryStream)
     // Write the data
     EZ_TEST(StreamWriter.WriteBytes(reinterpret_cast<const ezUInt8*>(uiData), sizeof(ezUInt32) * 1024) == EZ_SUCCESS);
 
+    EZ_TEST(StreamWriter.GetByteCount() == sizeof(ezUInt32) * 1024);
+    EZ_TEST(StreamWriter.GetByteCount() == StreamReader.GetByteCount());
+
+
     // Clear the array for the read back
     ezMemoryUtils::ZeroFill(uiData, 1024);
 
@@ -51,7 +55,7 @@ EZ_CREATE_SIMPLE_TEST(IO, MemoryStream)
 
     const ezUInt32 uiHashOfModifiedData = ezHashing::CRC32Hash(uiData, sizeof(ezUInt32) * 4); // Only test the first 4 elements now
 
-    StreamWriter.Rewind();
+    StreamWriter.SetWritePosition(0);
 
     StreamWriter.WriteBytes(uiData, sizeof(ezUInt32) * 4);
 
@@ -59,7 +63,7 @@ EZ_CREATE_SIMPLE_TEST(IO, MemoryStream)
     ezMemoryUtils::ZeroFill(uiData, 4);
 
     // Test the rewind of the reader as well
-    StreamReader.Rewind();
+    StreamReader.SetReadPosition(0);
 
     uiBytesRead = StreamReader.ReadBytes(uiData, sizeof(ezUInt32) * 4);
 
@@ -70,7 +74,7 @@ EZ_CREATE_SIMPLE_TEST(IO, MemoryStream)
     EZ_TEST(uiHashAfterReadingOfModifiedData == uiHashOfModifiedData);    
 
     // Test skipping
-    StreamReader.Rewind();
+    StreamReader.SetReadPosition(0);
 
     StreamReader.SkipBytes(sizeof(ezUInt32));
 

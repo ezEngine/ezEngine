@@ -6,9 +6,6 @@ This is a list of our planned features for the foreseeable future.
 Milestone 1
 -----------
 
-  * ezMemoryStreamReader: Rewind -> should change that
-  * ezMemoryStreamWriter: Rewind -> should change that
-
   * Unit-Tests for:
     * ezTime
   

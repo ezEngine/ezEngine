@@ -51,9 +51,15 @@ ezUInt64 ezMemoryStreamReader::SkipBytes(ezUInt64 uiBytesToSkip)
   return uiBytes;
 }
 
-void ezMemoryStreamReader::Rewind()
+void ezMemoryStreamReader::SetReadPosition(ezUInt32 uiReadPosition)
 {
-  m_uiReadPosition = 0;
+  EZ_ASSERT_API(uiReadPosition < GetByteCount(), "Read position must be between 0 and GetByteCount()!");
+  m_uiReadPosition = uiReadPosition;
+}
+
+ezUInt32 ezMemoryStreamReader::GetByteCount() const
+{
+  return m_pStreamStorage->m_Storage.GetCount();
 }
 
 
@@ -92,7 +98,14 @@ ezResult ezMemoryStreamWriter::WriteBytes(const void* pWriteBuffer, ezUInt64 uiB
   return EZ_SUCCESS;
 }
 
-void ezMemoryStreamWriter::Rewind()
+void ezMemoryStreamWriter::SetWritePosition(ezUInt32 uiWritePosition)
 {
-  m_uiWritePosition = 0;
+  EZ_ASSERT_API(uiWritePosition <= GetByteCount(), "Write position must be between 0 and GetByteCount()!");
+  m_uiWritePosition = uiWritePosition;
 }
+
+ezUInt32 ezMemoryStreamWriter::GetByteCount() const
+{
+  return m_pStreamStorage->m_Storage.GetCount();
+}
+
