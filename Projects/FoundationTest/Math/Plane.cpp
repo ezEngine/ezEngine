@@ -195,6 +195,40 @@ EZ_CREATE_SIMPLE_TEST(Math, Plane)
     EZ_TEST(p.GetObjectPosition(v3, 3, 0.001f) == ezPositionOnPlane::OnPlane);
   }
 
+  EZ_TEST_BLOCK(true, "GetObjectPosition(sphere)")
+  {
+    ezPlane p(ezVec3(1, 0, 0), ezVec3(10, 0, 0));
+
+    EZ_TEST(p.GetObjectPosition(ezBoundingSphere(ezVec3(15, 2, 3), 3.0f)) == ezPositionOnPlane::Front);
+    EZ_TEST(p.GetObjectPosition(ezBoundingSphere(ezVec3(5, 2, 3), 3.0f)) == ezPositionOnPlane::Back);
+    EZ_TEST(p.GetObjectPosition(ezBoundingSphere(ezVec3(15, 2, 4.999f), 3.0f)) == ezPositionOnPlane::Front);
+    EZ_TEST(p.GetObjectPosition(ezBoundingSphere(ezVec3(5, 2, 3), 4.999f)) == ezPositionOnPlane::Back);
+    EZ_TEST(p.GetObjectPosition(ezBoundingSphere(ezVec3(8, 2, 3), 3.0f)) == ezPositionOnPlane::Spanning);
+    EZ_TEST(p.GetObjectPosition(ezBoundingSphere(ezVec3(12, 2, 3), 3.0f)) == ezPositionOnPlane::Spanning);
+  }
+
+  EZ_TEST_BLOCK(true, "GetObjectPosition(box)")
+  {
+    {
+      ezPlane p(ezVec3(1, 0, 0), ezVec3(10, 0, 0));
+      EZ_TEST(p.GetObjectPosition(ezBoundingBox (ezVec3(10.1f), ezVec3(15))) == ezPositionOnPlane::Front);
+      EZ_TEST(p.GetObjectPosition(ezBoundingBox (ezVec3(7), ezVec3(9.9f))) == ezPositionOnPlane::Back);
+      EZ_TEST(p.GetObjectPosition(ezBoundingBox (ezVec3(7), ezVec3(15))) == ezPositionOnPlane::Spanning);
+    }
+    {
+      ezPlane p(ezVec3(0, 1, 0), ezVec3(0, 10, 0));
+      EZ_TEST(p.GetObjectPosition(ezBoundingBox (ezVec3(10.1f), ezVec3(15))) == ezPositionOnPlane::Front);
+      EZ_TEST(p.GetObjectPosition(ezBoundingBox (ezVec3(7), ezVec3(9.9f))) == ezPositionOnPlane::Back);
+      EZ_TEST(p.GetObjectPosition(ezBoundingBox (ezVec3(7), ezVec3(15))) == ezPositionOnPlane::Spanning);
+    }
+    {
+      ezPlane p(ezVec3(0, 0, 1), ezVec3(0, 0, 10));
+      EZ_TEST(p.GetObjectPosition(ezBoundingBox (ezVec3(10.1f), ezVec3(15))) == ezPositionOnPlane::Front);
+      EZ_TEST(p.GetObjectPosition(ezBoundingBox (ezVec3(7), ezVec3(9.9f))) == ezPositionOnPlane::Back);
+      EZ_TEST(p.GetObjectPosition(ezBoundingBox (ezVec3(7), ezVec3(15))) == ezPositionOnPlane::Spanning);
+    }
+  }
+
   EZ_TEST_BLOCK(true, "ProjectOntoPlane")
   {
     ezPlane p(ezVec3(0, 1, 0), ezVec3(0, 10, 0));

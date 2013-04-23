@@ -98,31 +98,24 @@ public:
   void SetRotationMatrix(const ezVec3& vAxis, float fAngle); // [tested]
 
   /// \brief Creates a perspective projection matrix.
-  /// \test Requires a unit-test.
   void SetPerspectiveProjectionMatrix(float fViewWidth, float fViewHeight, float fNearZ, float fFarZ, ezProjectionDepthRange::Enum DepthRange);
 
   /// \brief Creates a perspective projection matrix.
-  /// \test Requires a unit-test.
   void SetPerspectiveProjectionMatrix(float fLeft, float fRight, float fBottom, float fTop, float fNearZ, float fFarZ, ezProjectionDepthRange::Enum DepthRange);
 
   /// \brief Creates a perspective projection matrix.
-  /// \test Requires a unit-test.
   void SetPerspectiveProjectionMatrixFromFovX(float fFieldOfViewX, float fAspectRatioWidthDivHeight, float fNearZ, float fFarZ, ezProjectionDepthRange::Enum DepthRange);
 
   /// \brief Creates a perspective projection matrix.
-  /// \test Requires a unit-test.
   void SetPerspectiveProjectionMatrixFromFovY(float fFieldOfViewY, float fAspectRatioWidthDivHeight, float fNearZ, float fFarZ, ezProjectionDepthRange::Enum DepthRange);
 
   /// \brief Creates an orthographic projection matrix.
-  /// \test Requires a unit-test.
   void SetOrthographicProjectionMatrix(float fViewWidth, float fViewHeight, float fNearZ, float fFarZ, ezProjectionDepthRange::Enum DepthRange);
 
   /// \brief Creates an orthographic projection matrix.
-  /// \test Requires a unit-test.
   void SetOrthographicProjectionMatrix(float fLeft, float fRight, float fBottom, float fTop, float fNearZ, float fFarZ, ezProjectionDepthRange::Enum DepthRange);
 
   /// \brief Creates a look-at matrix.
-  /// \test Requires a unit-test.
   void SetLookAtMatrix(const ezVec3& vStartPos, const ezVec3& vTargetPos, const ezVec3& vUpDir);
 
 // *** Common Matrix Operations ***

@@ -173,7 +173,6 @@ public:
   const ezVec3 GetReflectedVector(const ezVec3& vNormal) const; // [tested]
 
   /// \brief Returns this vector, refracted at vNormal, using the refraction index of the current medium and the medium it enters.
-  /// \test Requires a unit-test.
   const ezVec3 GetRefractedVector(const ezVec3& vNormal, float fRefIndex1, float fRefIndex2) const;
 
 };

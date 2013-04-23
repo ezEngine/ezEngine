@@ -94,8 +94,11 @@ public:
   /// \brief Returns on which side of the plane the set of points lies. Might be on boths sides.
   ezPositionOnPlane::Enum GetObjectPosition(const ezVec3* const vPoints, int iVertices, float fPlaneHalfWidth) const; // [tested]
 
-  /// \todo GetObjectPosition Boundingbox
-  /// \todo GetObjectPosition BoundingSphere
+  /// \brief Returns on which side of the plane the sphere is located.
+  ezPositionOnPlane::Enum GetObjectPosition(const ezBoundingSphere& Sphere) const; // [tested]
+
+  /// \brief Returns on which side of the plane the box is located.
+  ezPositionOnPlane::Enum GetObjectPosition(const ezBoundingBox& Box) const; // [tested]
 
   /// \brief Projects a point onto a plane (along the planes normal).
   const ezVec3 ProjectOntoPlane(const ezVec3& vPoint) const; // [tested]

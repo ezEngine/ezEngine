@@ -61,7 +61,6 @@ struct EZ_FOUNDATION_DLL ezFileStats
   /// \brief An ezFileSystemIterator allows to iterate over all files in a certain directory.
   ///
   /// The search can be recursive, and it can contain wildcards (* and ?) to limit the search to specific file types.
-  /// \test Requires a unit-test.
   class EZ_FOUNDATION_DLL ezFileSystemIterator
   {
     EZ_DISALLOW_COPY_AND_ASSIGN(ezFileSystemIterator);

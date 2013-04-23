@@ -1,5 +1,7 @@
 #include <Foundation/PCH.h>
 #include <Foundation/Math/Plane.h>
+#include <Foundation/Math/BoundingSphere.h>
+#include <Foundation/Math/BoundingBox.h>
 
 /*! The given vertices can be partially equal or lie on the same line. The algorithm will try to find 3 vertices, that
   form a plane, and deduce the normal from them. This algorithm is much slower, than all the other methods, so only
@@ -117,6 +119,51 @@ ezPositionOnPlane::Enum ezPlane::GetObjectPosition (const ezVec3* const vPoints,
     return (ezPositionOnPlane::Back);
 
   return (ezPositionOnPlane::OnPlane);
+}
+
+ezPositionOnPlane::Enum ezPlane::GetObjectPosition(const ezBoundingSphere& Sphere) const
+{
+  const float fDist = GetDistanceTo(Sphere.m_vCenter);
+
+  if (fDist >= Sphere.m_fRadius)
+    return ezPositionOnPlane::Front;
+
+  if (-fDist >= Sphere.m_fRadius)
+    return ezPositionOnPlane::Back;
+
+  return ezPositionOnPlane::Spanning;
+}
+
+ezPositionOnPlane::Enum ezPlane::GetObjectPosition(const ezBoundingBox& Box) const
+{
+  ezVec3 vPos = Box.m_vMin;
+  ezVec3 vNeg = Box.m_vMax;
+
+  if (m_vNormal.x >= 0.0f)
+  {
+    vPos.x = Box.m_vMax.x;
+    vNeg.x = Box.m_vMin.x;
+  }
+
+  if (m_vNormal.y >= 0.0f)
+  {
+    vPos.y = Box.m_vMax.y;
+    vNeg.y = Box.m_vMin.y;
+  }
+
+  if (m_vNormal.z >= 0.0f)
+  {
+    vPos.z = Box.m_vMax.z;
+    vNeg.z = Box.m_vMin.z;
+  }
+
+  if (GetDistanceTo(vPos) <= 0.0f)
+    return ezPositionOnPlane::Back;
+
+  if (GetDistanceTo(vNeg) >= 0.0f)
+    return ezPositionOnPlane::Front;
+
+  return ezPositionOnPlane::Spanning;
 }
 
 bool ezPlane::GetRayIntersection(const ezVec3& vRayStartPos, const ezVec3& vRayDir, float* out_fIntersection, ezVec3* out_vIntersection) const

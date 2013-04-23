@@ -84,7 +84,6 @@ public:
   void SetRotationMatrix(const ezVec3& vAxis, float fAngle); // [tested]
 
   /// \brief Sets this matrix to be a look-at matrix (without the translation).
-  /// \test Requires a unit-test.
   void SetLookInDirectionMatrix(ezVec3 vLookDir, ezVec3 vUpDir = ezVec3 (0, 1, 0));
 
 // *** Common Matrix Operations ***
