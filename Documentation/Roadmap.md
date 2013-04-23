@@ -6,9 +6,6 @@ This is a list of our planned features for the foreseeable future.
 Milestone 1
 -----------
 
-  * Unit-Tests for:
-    * ezTime
-  
 Short Term
 ----------
 
