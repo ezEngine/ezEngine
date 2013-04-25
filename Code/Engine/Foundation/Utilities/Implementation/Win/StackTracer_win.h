@@ -62,7 +62,7 @@ struct StackTracerImplementation
 
       if (!(*symbolInitialize)(GetCurrentProcess(), NULL, TRUE))
       {
-        EZ_ASSERT(false, "StackTracer could not initialize symbols");
+        EZ_REPORT_FAILURE("StackTracer could not initialize symbols");
         return;
       }
 
