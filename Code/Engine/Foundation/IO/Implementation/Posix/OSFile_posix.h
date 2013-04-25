@@ -109,6 +109,17 @@ void ezOSFile::InternalSetFilePosition(ezInt64 iDistance, ezFilePos::Enum Pos) c
   }
 }
 
+bool ezOSFile::InternalExists(const char* szFile)
+{
+  FILE* pFile = fopen(szFile, "r");
+
+  if (pFile == NULL)
+    return false;
+
+  fclose(pFile);
+  return true;
+}
+
 ezResult ezOSFile::InternalDeleteFile(const char* szFile)
 {
   int iRes = unlink(szFile);

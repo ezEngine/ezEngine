@@ -184,4 +184,32 @@ Only concrete and clocks.\n\
     EZ_TEST(f.Open(sOutputFile.GetData(), ezFileMode::Read) == EZ_FAILURE); // file should not exist anymore
     EZ_TEST(f.Open(sOutputFile2.GetData(), ezFileMode::Read) == EZ_FAILURE); // file should not exist anymore
   }
+
+  EZ_TEST_BLOCK(true, "Exists File")
+  {
+    EZ_TEST(ezOSFile::Exists(sOutputFile.GetData()) == false);
+    EZ_TEST(ezOSFile::Exists(sOutputFile2.GetData()) == false);
+
+    {
+      ezOSFile f;
+      EZ_TEST(f.Open(sOutputFile.GetData(), ezFileMode::Write) == EZ_SUCCESS);
+    }
+
+    EZ_TEST(ezOSFile::Exists(sOutputFile.GetData()) == true);
+    EZ_TEST(ezOSFile::Exists(sOutputFile2.GetData()) == false);
+
+    {
+      ezOSFile f;
+      EZ_TEST(f.Open(sOutputFile2.GetData(), ezFileMode::Write) == EZ_SUCCESS);
+    }
+
+    EZ_TEST(ezOSFile::Exists(sOutputFile.GetData()) == true);
+    EZ_TEST(ezOSFile::Exists(sOutputFile2.GetData()) == true);
+
+    EZ_TEST(ezOSFile::DeleteFile(sOutputFile.GetData()) == EZ_SUCCESS);
+    EZ_TEST(ezOSFile::DeleteFile(sOutputFile2.GetData()) == EZ_SUCCESS);
+
+    EZ_TEST(ezOSFile::Exists(sOutputFile.GetData()) == false);
+    EZ_TEST(ezOSFile::Exists(sOutputFile2.GetData()) == false);
+  }
 }

@@ -160,6 +160,9 @@ public:
   /// \brief This will return the platform specific file data (handles etc.), if you really want to be able to wreak havoc.
   const ezOSFileData& GetFileData() const { return m_FileData; }
 
+  /// \brief Checks whether the given file exists.
+  static bool Exists(const char* szFile); // [tested]
+
   /// \brief Deletes the given file. Returns EZ_SUCCESS, if the file was deleted or did not exist in the first place. Returns EZ_FAILURE
   static ezResult DeleteFile(const char* szFile); // [tested]
 
@@ -188,6 +191,7 @@ private:
   ezUInt64 InternalGetFilePosition() const;
   void InternalSetFilePosition(ezInt64 iDistance, ezFilePos::Enum Pos) const;
 
+  static bool InternalExists(const char* szFile);
   static ezResult InternalDeleteFile(const char* szFile);
   static ezResult InternalCreateDirectory(const char* szFile);
 

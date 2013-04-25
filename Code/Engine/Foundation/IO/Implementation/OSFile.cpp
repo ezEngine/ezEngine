@@ -109,6 +109,15 @@ ezUInt64 ezOSFile::GetFileSize() const
   return uiCurSize;
 }
 
+bool ezOSFile::Exists(const char* szFile)
+{
+  ezStringBuilder s(szFile);
+  s.MakeCleanPath();
+  s.MakePathOsSpecific();
+
+  return InternalExists(szFile);
+}
+
 ezResult ezOSFile::DeleteFile(const char* szFile)
 {
   ezStringBuilder s(szFile);

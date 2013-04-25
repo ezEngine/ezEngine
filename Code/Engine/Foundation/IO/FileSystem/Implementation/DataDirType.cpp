@@ -1,6 +1,7 @@
 #include <Foundation/PCH.h>
 #include <Foundation/IO/FileSystem/Implementation/DataDirType.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
+#include <Foundation/IO/OSFile.h>
 
 ezResult ezDataDirectoryType::InitializeDataDirectory(const char* szDataDirPath)
 {
@@ -13,15 +14,9 @@ ezResult ezDataDirectoryType::InitializeDataDirectory(const char* szDataDirPath)
 
 bool ezDataDirectoryType::ExistsFile(const char* szFile)
 {
-  ezDataDirectoryReader* pReader = OpenFileToRead(szFile);
-
-  if (pReader)
-  {
-    pReader->Close();
-    return true;
-  }
-
-  return false;
+  ezStringBuilder sPath = m_sDataDirectoryPath.GetData();
+  sPath.AppendPath(szFile);
+  return ezOSFile::Exists(sPath.GetData());
 }
 
 void ezDataDirectoryReaderWriterBase::Close()
