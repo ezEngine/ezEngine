@@ -338,4 +338,18 @@ bool ezFileSystemIterator::SkipFolder()
   return bRet;
 }
 
+const char* ezOSFile::GetApplicationDirectory()
+{
+  if (s_ApplicationPath.IsEmpty())
+  {
+    wchar_t szFilename[256];
+    GetModuleFileNameW(NULL, szFilename, 256);
+
+    ezStringBuilder sPath = ezStringUtf8(szFilename).GetData();
+    s_ApplicationPath = sPath.GetFileDirectory();
+  }
+
+  return s_ApplicationPath.GetData();
+}
+
 

@@ -2,6 +2,8 @@
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/Containers/DynamicArray.h>
 
+ezHybridString<64, ezStaticAllocatorWrapper> ezOSFile::s_ApplicationPath;
+
 ezFileStats::ezFileStats()
 {
   m_uiLastModificationTime = 0;

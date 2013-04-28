@@ -159,3 +159,8 @@ ezResult ezOSFile::InternalGetFileStats(const char* szFileOrFolder, ezFileStats&
   
   return EZ_SUCCESS;
 }
+
+const char* ezOSFile::GetApplicationDirectory()
+{
+  #error Not yet implemented.
+}

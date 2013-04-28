@@ -2,6 +2,7 @@
 
 #include <Foundation/Basics.h>
 #include <Foundation/Strings/StringBuilder.h>
+#include <Foundation/Strings/String.h>
 
 struct ezOSFileData;
 
@@ -180,6 +181,9 @@ public:
   static ezResult GetFileCasing(const char* szFileOrFolder, ezStringBuilder& out_sCorrectSpelling); // [tested]
 #endif
 
+  /// \brief Returns the path in which the applications binary file is located.
+  static const char* GetApplicationDirectory();
+
 private:
 
   // *** Internal Functions that do the platform specific work ***
@@ -209,6 +213,9 @@ private:
 
   /// \brief Platform specific data about the open file.
   ezOSFileData m_FileData;
+
+  /// \brief The application binaries' path.
+  static ezHybridString<64, ezStaticAllocatorWrapper> s_ApplicationPath;
 };
 
 
