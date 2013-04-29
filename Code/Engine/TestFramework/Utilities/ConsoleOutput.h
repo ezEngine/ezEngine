@@ -24,7 +24,10 @@ inline void OutputToConsole (ezTestOutput::Enum Type, const char* szMsg)
   case ezTestOutput::EndBlock:
     iIndentation -= 2;
     break;
-  case ezTestOutput::Info:
+  case ezTestOutput::Details:
+    SetConsoleColorInl (0x07);
+    break;
+  case ezTestOutput::ImportantInfo:
     SetConsoleColorInl (0x07);
     break;
   case ezTestOutput::Success:

@@ -131,8 +131,18 @@ static void LogWriter(const ezLog::LoggingEvent& e, void* ptr)
     ezTestFramework::Output(ezTestOutput::Error, "ezLog Serious Warning: %s", e.m_szText);
     break;
   case ezLog::EventType::WarningMsg:
-    ezTestFramework::Output(ezTestOutput::Info, "ezLog Warning: %s", e.m_szText);
+    ezTestFramework::Output(ezTestOutput::ImportantInfo, "ezLog Warning: %s", e.m_szText);
     break;
+  case ezLog::EventType::InfoMsg:
+  case ezLog::EventType::DevMsg:
+  case ezLog::EventType::DebugMsg:
+  case ezLog::EventType::DebugRegularMsg:
+    {
+      if (ezStringUtils::IsEqual_NoCase(e.m_szTag, "test"))
+        ezTestFramework::Output(ezTestOutput::Details, e.m_szText);
+    }
+    break;
+
   default:
     return;
   }

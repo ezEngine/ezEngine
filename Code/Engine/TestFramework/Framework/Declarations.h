@@ -33,7 +33,8 @@ struct ezTestOutput
   {
     BeginBlock,
     EndBlock,
-    Info,
+    ImportantInfo,
+    Details,
     Success,
     Message,
     Error,
@@ -48,9 +49,9 @@ struct ezTestOutput
   ezTestFramework::Output(ezTestOutput::BeginBlock, "");\
   if ((ezTestFramework::s_szTestBlockName != NULL) && (ezTestFramework::s_szTestBlockName[0] != '\0')) \
     ezTestFramework::Output(ezTestOutput::Message, "Block: '%s'", ezTestFramework::s_szTestBlockName);\
-  ezTestFramework::Output(ezTestOutput::Info, "File: %s", EZ_SOURCE_FILE);\
-  ezTestFramework::Output(ezTestOutput::Info, "Line: %i", EZ_SOURCE_LINE);\
-  ezTestFramework::Output(ezTestOutput::Info, "Function: %s", EZ_SOURCE_FUNCTION);\
+  ezTestFramework::Output(ezTestOutput::ImportantInfo, "File: %s", EZ_SOURCE_FILE);\
+  ezTestFramework::Output(ezTestOutput::ImportantInfo, "Line: %i", EZ_SOURCE_LINE);\
+  ezTestFramework::Output(ezTestOutput::ImportantInfo, "Function: %s", EZ_SOURCE_FUNCTION);\
   if ((msg != NULL) && (msg[0] != '\0'))\
     ezTestFramework::Output(ezTestOutput::Message, "Message: %s", msg);\
   ezTestFramework::Output(ezTestOutput::EndBlock, "");\

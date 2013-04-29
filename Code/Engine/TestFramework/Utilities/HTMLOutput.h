@@ -114,9 +114,11 @@ struct ezOutputToHTML
       bError = true;
       // fall through
 
-    case ezTestOutput::Info:
     case ezTestOutput::Message:
+    case ezTestOutput::ImportantInfo:
       bDetails = true;
+    
+    case ezTestOutput::Details:
       details << szMsg << "<br/>";
       break;
 
