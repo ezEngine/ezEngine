@@ -1,6 +1,10 @@
 
 #pragma once
 
+#include <Foundation/Strings/String.h>
+#include <Foundation/Strings/StringBuilder.h>
+#include <Foundation/Containers/HybridArray.h>
+
 // Standard operators for overloads of common data types
 
 /// bool versions
@@ -163,4 +167,70 @@ inline ezIBinaryStreamWriter& operator << (ezIBinaryStreamWriter& Stream, const 
 
   return Stream;
 }
+
+// ezHybridString
+
+template<ezUInt16 Size, typename AllocatorWrapper>
+inline ezIBinaryStreamWriter& operator << (ezIBinaryStreamWriter& Stream, const ezHybridString<Size, AllocatorWrapper>& sValue)
+{
+  return Stream << sValue.GetData();
+}
+
+template<ezUInt16 Size, typename AllocatorWrapper>
+inline ezIBinaryStreamReader& operator >> (ezIBinaryStreamReader& Stream, ezHybridString<Size, AllocatorWrapper>& sValue)
+{
+  ezUInt32 uiLength = 0;
+
+  Stream >> uiLength;
+
+  if(uiLength > 0)
+  {
+    ezHybridArray<ezUInt8, 256> sTemp;
+    sTemp.SetCount(uiLength + 1);
+
+    Stream.ReadBytes(&sTemp[0], uiLength);
+    sTemp[uiLength] = '\0';
+
+    sValue = reinterpret_cast<const char*>(&sTemp[0]);
+  }
+  else
+    sValue.Clear();
+
+  return Stream;
+}
+
+// ezStringBuilder
+
+template<ezUInt16 Size, typename AllocatorWrapper>
+inline ezIBinaryStreamWriter& operator << (ezIBinaryStreamWriter& Stream, const ezStringBuilder& sValue)
+{
+  return Stream << sValue.GetData();
+}
+
+template<ezUInt16 Size, typename AllocatorWrapper>
+inline ezIBinaryStreamReader& operator >> (ezIBinaryStreamReader& Stream, ezStringBuilder& sValue)
+{
+  ezUInt32 uiLength = 0;
+
+  Stream >> uiLength;
+
+  if(uiLength > 0)
+  {
+    ezHybridArray<ezUInt8, 256> sTemp;
+    sTemp.SetCount(uiLength + 1);
+
+    Stream.ReadBytes(&sTemp[0], uiLength);
+    sTemp[uiLength] = '\0';
+
+    sValue = reinterpret_cast<const char*>(&sTemp[0]);
+  }
+  else
+    sValue.Clear();
+
+  return Stream;
+}
+
+
+
+
 
