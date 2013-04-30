@@ -3,6 +3,7 @@
 #include <Foundation/Utilities/EnumerableClass.h>
 #include <Foundation/Configuration/Implementation/StartupBasics.h>
 #include <Foundation/Containers/Deque.h>
+#include <Foundation/Configuration/Plugin.h>
 
 #define EZ_GLOBALEVENT_STARTUP_CORE_BEGIN "ezStartup_StartupCore_Begin"
 #define EZ_GLOBALEVENT_STARTUP_CORE_END "ezStartup_StartupCore_End"
@@ -14,12 +15,12 @@
 #define EZ_GLOBALEVENT_SHUTDOWN_ENGINE_BEGIN "ezStartup_ShutdownEngine_Begin"
 #define EZ_GLOBALEVENT_SHUTDOWN_ENGINE_END "ezStartup_ShutdownEngine_End"
 
-#define EZ_GLOBALEVENT_UNLOAD_MODULE_BEGIN "ezStartup_UnloadModule_Begin"
-#define EZ_GLOBALEVENT_UNLOAD_MODULE_END "ezStartup_UnloadModule_End"
+#define EZ_GLOBALEVENT_UNLOAD_PLUGIN_BEGIN "ezStartup_UnloadPlugin_Begin"
+#define EZ_GLOBALEVENT_UNLOAD_PLUGIN_END "ezStartup_UnloadPlugin_End"
 
 /// \brief The startup system makes sure to initialize and shut down all known subsystems in the proper order.
 ///
-/// Each subsystem can define on which other subsystems it is dependent (ie. which other code it needs in an initialized
+/// Each subsystem can define on which other subsystems (or entire group) it is dependent (ie. which other code it needs in an initialized
 /// state, before it can run itself). The startup system will sort all subsystems by their dependencies and then initialize
 /// them in the proper order.
 /// The startup and shutdown sequence consists of two steps. First the 'core' functionality is initialized. This is usually
@@ -31,11 +32,12 @@
 ///
 /// A subsystem startup configuration needs to be put in some cpp file of the subsystem and looks like this:
 ///
-///EZ_BEGIN_SUBSYSTEM_DECLARATION(ExampleModule, ExampleSubSystem)
+///EZ_BEGIN_SUBSYSTEM_DECLARATION(ExampleGroup, ExampleSubSystem)
 ///
 ///  BEGIN_SUBSYSTEM_DEPENDENCIES
 ///    "SomeOtherSubSystem",
-///    "SomeOtherSubSystem2"
+///    "SomeOtherSubSystem2",
+///    "SomeGroup"
 ///  END_SUBSYSTEM_DEPENDENCIES
 ///
 ///  ON_CORE_STARTUP
@@ -62,9 +64,6 @@
 ///
 /// This will automatically register the subsystem, once the code is being loaded (can be dynamically loaded from a DLL).
 /// The next time any of the ezStartup functions are called (StartupCore, StartupEngine) the subsystem will be initialized.
-///
-/// If you need to dynamically unload a DLL and all subsystems within it, you can use ezStartup::UnloadModuleSubSystems
-/// to shutdown all subsystems from that module and other subsystems that depend on it.
 ///
 /// All startup / shutdown procedures broadcast global events before and after they execute.
 class EZ_FOUNDATION_DLL ezStartup
@@ -105,22 +104,31 @@ public:
   /// Broadcasts the global event EZ_GLOBALEVENT_SHUTDOWN_ENGINE_BEGIN and EZ_GLOBALEVENT_SHUTDOWN_ENGINE_END
   static void ShutdownEngine() { Shutdown(ezStartupStage::Engine); }
 
-  /// \brief Unloads all subsystems from the given module AND all subsystems that directly or indirectly depend on them.
-  ///
-  /// This can be used to shutdown all systems from certain DLLs before that DLL is unloaded (and possibly reloaded).
-  /// Broadcasts the global event EZ_GLOBALEVENT_UNLOAD_MODULE_BEGIN and EZ_GLOBALEVENT_UNLOAD_MODULE_END and passes szModuleName in the first event parameter.
-  static void UnloadModuleSubSystems(const char* szModuleName);
-
   /// \brief Output info about all known subsystems via the logging system (can change when DLLs are loaded dynamically).
   static void PrintAllSubsystems();
 
+  /// \brief Calls StartupBase, StartupCore or StartupEngine again, depending on what was done last.
+  ///
+  /// This can be used to first unload plugins and reload them, and then reinit the engine to the state that it was in again.
+  static void ReinitToCurrentState();
+
 private:
+
+  /// \brief Unloads all subsystems from the given plugin AND all subsystems that directly or indirectly depend on them.
+  ///
+  /// This can be used to shutdown all systems from certain DLLs before that DLL is unloaded (and possibly reloaded).
+  /// Broadcasts the global event EZ_GLOBALEVENT_UNLOAD_PLUGIN_BEGIN and EZ_GLOBALEVENT_UNLOAD_PLUGIN_END and passes szPluginName in the first event parameter.
+  static void UnloadPluginSubSystems(const char* szPluginName);
+  
+  static void PluginEventHandler(const ezPlugin::PluginEvent& EventData, void* pPassThrough);
+
   static void ComputeOrder(ezDeque<ezSubSystemDeclarationBase*>& Order);
-  static bool HasDependencyOnModule(ezSubSystemDeclarationBase* pSubSystem, const char* szModule);
+  static bool HasDependencyOnPlugin(ezSubSystemDeclarationBase* pSubSystem, const char* szModule);
 
   static void Startup(ezStartupStage::Enum stage);
   static void Shutdown(ezStartupStage::Enum stage);
 
   static bool s_bPrintAllSubSystems;
+  static ezStartupStage::Enum s_CurrentState;
 };
 

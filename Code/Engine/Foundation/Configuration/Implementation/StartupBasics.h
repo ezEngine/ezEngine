@@ -5,6 +5,7 @@ struct ezStartupStage
 {
   enum Enum
   {
+    None = -1,
     Base,       ///< In this stage the absolute base functionality is started / shut down. This should only be used by the Foundation library.
     Core,       ///< In this stage the core functionality is being started / shut down
     Engine,     ///< In this stage the higher level functionality, which depends on a rendering context, is being started / shut down
@@ -13,7 +14,7 @@ struct ezStartupStage
   };
 };
 
-/// [internal] Base class for all module declarations.
+/// [internal] Base class for all subsystem declarations.
 class EZ_FOUNDATION_DLL ezSubSystemDeclarationBase : public ezEnumerable<ezSubSystemDeclarationBase>
 {
   EZ_DECLARE_ENUMERABLE_CLASS(ezSubSystemDeclarationBase);
@@ -22,15 +23,19 @@ class EZ_FOUNDATION_DLL ezSubSystemDeclarationBase : public ezEnumerable<ezSubSy
 public:
   ezSubSystemDeclarationBase()
   {
+    m_szPluginName = NULL;
+
     for (ezInt32 i = 0; i < ezStartupStage::ENUM_COUNT; ++i)
       m_bStartupDone[i] = false;
   }
 
+  const char* m_szPluginName;
+
   /// Returns the name of the subsystem.
   virtual const char* GetSubSystemName() const = 0;
 
-  /// Returns the name of the module to which this subsystem belongs.
-  virtual const char* GetModuleName() const = 0;
+  /// Returns the name of the group to which this subsystem belongs.
+  virtual const char* GetGroupName() const = 0;
 
   /// Returns a series of strings with the names of the subsystem, which this subsystem depends on. NULL indicates the last entry.
   virtual const char* GetDependency(ezInt32 iDep) { return NULL; }

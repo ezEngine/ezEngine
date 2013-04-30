@@ -15,6 +15,7 @@
 
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Configuration/StartupDeclarations.h>
+#include <Foundation/Configuration/Plugin.h>
 
 #include <Foundation/Containers/ArrayBase.h>
 #include <Foundation/Containers/Deque.h>

@@ -35,17 +35,15 @@
 
 /// \brief Put this in some cpp file of a subsystem to start its startup / shutdown sequence declaration.
 ///
-/// The first parameter is the name of the module, in which the subsystem resides, the second is the name of the subsystem itself.
-#define EZ_BEGIN_SUBSYSTEM_DECLARATION(ModuleName, SubsystemName) \
-class ModuleName##SubsystemName##SubSystem; \
-typedef ModuleName##SubsystemName##SubSystem SubSystemType; \
-class ModuleName##SubsystemName##SubSystem : public ezSubSystemDeclarationBase { \
-  public: virtual const char* GetModuleName() const { return #ModuleName; } \
+/// The first parameter is the name of the group, in which the subsystem resides, the second is the name of the subsystem itself.
+#define EZ_BEGIN_SUBSYSTEM_DECLARATION(GroupName, SubsystemName) \
+class GroupName##SubsystemName##SubSystem; \
+typedef GroupName##SubsystemName##SubSystem SubSystemType; \
+class GroupName##SubsystemName##SubSystem : public ezSubSystemDeclarationBase { \
+  public: virtual const char* GetGroupName() const { return #GroupName; } \
   public: virtual const char* GetSubSystemName() const { return #SubsystemName; } \
 
 /// \brief Finishes a subsystem's startup / shutdown sequence declaration.
-///
-/// The first parameter is the name of the module, in which the subsystem resides, the second is the name of the subsystem itself.
 #define EZ_END_SUBSYSTEM_DECLARATION \
   }; static SubSystemType EZ_CONCAT(s_SubSystem, EZ_SOURCE_LINE);
 
@@ -99,8 +97,8 @@ class ModuleName##SubsystemName##SubSystem : public ezSubSystemDeclarationBase {
     return szDeps[iDep]; \
   }
 
-/// \brief This inserts a friend declaration into a class, such that the given module/subsystem can access private functions which it might need.
-#define EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(ModuleName, SubsystemName) \
-  friend class ModuleName##SubsystemName##SubSystem;
+/// \brief This inserts a friend declaration into a class, such that the given group/subsystem can access private functions which it might need.
+#define EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(GroupName, SubsystemName) \
+  friend class GroupName##SubsystemName##SubSystem;
 
 
