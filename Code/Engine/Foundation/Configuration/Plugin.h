@@ -4,6 +4,7 @@
 #include <Foundation/Strings/String.h>
 #include <Foundation/Strings/StringBuilder.h>
 #include <Foundation/Communication/Event.h>
+#include <Foundation/Configuration/ReloadableVariable.h>
 
 /// \brief ezPlugin allows to manage all dynamically loadable plugins. Each plugin DLL must contain one global instance of ezPlugin.
 ///
@@ -125,4 +126,8 @@ private:
 
   static ezInt32 s_iPluginChangeRecursionCounter;
 };
+
+
+
+
 

@@ -96,6 +96,8 @@ void ezPlugin::BeginPluginChanges()
     e.m_pPluginObject = NULL;
     e.m_szPluginFile = NULL;
     s_PluginEvents.Broadcast(e);
+
+    ezReloadableVariableBase::StoreVariables();
   }
 
   ++s_iPluginChangeRecursionCounter;

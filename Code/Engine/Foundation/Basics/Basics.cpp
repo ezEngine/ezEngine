@@ -6,6 +6,7 @@
 #include <Foundation/Threading/ThreadLocalStorage.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Basics/Types/Variant.h>
+#include <Foundation/Communication/GlobalEvent.h>
 
 #if EZ_ENABLED(EZ_USE_GUARDED_ALLOCATOR)
   typedef ezMemoryPolicies::ezGuardedBoundsChecking DefaultAllocatorGuarding;
@@ -95,6 +96,8 @@ void ezFoundation::Shutdown()
 {
   if (!s_bIsInitialized)
     return;
+
+  ezGlobalEvent::Broadcast("ezFoundation_Shutdown");
 
   EZ_DELETE(s_pBaseAllocator, s_pAlignedAllocator);
   EZ_DELETE(s_pBaseAllocator, s_pDefaultAllocator);
