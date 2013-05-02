@@ -8,12 +8,12 @@
 //static
 ezUInt32 ezStackTracer::GetStackTrace(ezArrayPtr<void*>& trace)
 {
-  EZ_ASSERT_NOT_IMPLEMENTED(false, "Not implemented");
+  EZ_ASSERT_NOT_IMPLEMENTED;
   return 0;
 }
 
 //static
 void ezStackTracer::DumpStackTrace(const ezArrayPtr<void*>& trace)
 {
-  EZ_ASSERT_NOT_IMPLEMENTED(false, "Not implemented");
+  EZ_ASSERT_NOT_IMPLEMENTED;
 }

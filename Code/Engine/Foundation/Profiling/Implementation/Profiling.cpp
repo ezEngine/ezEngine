@@ -1,7 +1,11 @@
 #include <Foundation/PCH.h>
-#include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Configuration/Startup.h>
+#include <Foundation/Containers/DynamicArray.h>
+#include <Foundation/Profiling/Profiling.h>
+#include <Foundation/Threading/Lock.h>
+#include <Foundation/Threading/Mutex.h>
 
+#if EZ_ENABLED(EZ_USE_PROFILING)
 
 EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, ProfilingSystem)
 
@@ -19,39 +23,51 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, ProfilingSystem)
 
 EZ_END_SUBSYSTEM_DECLARATION
 
-
-
-// For now there are only stubs: (remove when starting to implement the profiling system)
-
-
-ezProfilingScope::ezProfilingScope(const char* pszSampleName, const char* pszFileName, const char* pszFunctionName, const ezUInt32 uiLineNumber)
+namespace
 {
-  // This function has to be in the specific implementation (e.g. Profiling_GPA_inl.h)
+  struct ProfilingInfo;
+  ProfilingInfo& GetProfilingInfo(ezId24 id);
 }
 
-ezProfilingScope::~ezProfilingScope()
-{
-  // This function has to be in the specific implementation (e.g. Profiling_GPA_inl.h)
-}
+// Include inline file
+#if EZ_ENABLED(EZ_USE_PROFILING_GPA) && EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+  #include <Foundation/Profiling/Implementation/Profiling_GPA_inl.h>
+#else
+  #include <Foundation/Profiling/Implementation/Profiling_EZ_inl.h>
+#endif
 
+namespace
+{
+  ezDynamicArray<ProfilingInfo, ezStaticAllocatorWrapper> g_ProfilingInfos;
+  ezMutex g_ProfilingInfosMutex;
+
+  ProfilingInfo& GetProfilingInfo(ezId24 id)
+  {
+    return g_ProfilingInfos[id.GetIndex()];
+  }
+}
 
 void ezProfilingSystem::Initialize()
 {
-  // This function has to be in the specific implementation (e.g. Profiling_GPA_inl.h)
+  SetThreadName("Main Thread");
 }
 
 void ezProfilingSystem::Shutdown()
 {
-  // This function has to be in the specific implementation (e.g. Profiling_GPA_inl.h)
 }
 
-/*
-// Include inline file
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-#include <Foundation/Profiling/Implementation/Win/OSThread_win.h>
-#else
-#error "Thread functions are not implemented on current platform"
+ezId24 ezProfilingSystem::RegisterId(const char* szName)
+{
+  ezLock<ezMutex> lock(g_ProfilingInfosMutex);
+
+  g_ProfilingInfos.PushBack(ProfilingInfo(szName));
+  return ezId24(g_ProfilingInfos.GetCount() - 1, 0);
+}
+
+/// \todo: implementation
+void ezProfilingSystem::DeregisterId(ezId24 id)
+{
+  
+}
+
 #endif
-*/
-
-

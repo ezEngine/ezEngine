@@ -44,7 +44,7 @@ EZ_FOUNDATION_DLL bool ezFailedCheck(const char* szSourceFile, ezUInt32 uiLine, 
   
 
 /// \brief This type of assert can be used to mark code as 'not (yet) implemented' and makes it easier to find it later on by just searching for these asserts.
-#define EZ_ASSERT_NOT_IMPLEMENTED EZ_ASSERT_ALWAYS
+#define EZ_ASSERT_NOT_IMPLEMENTED EZ_REPORT_FAILURE("Not implemented")
 
 // Occurrences of EZ_ASSERT are compiled out in non-development builds
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)

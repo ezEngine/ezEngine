@@ -9,6 +9,7 @@ void ezSimpleTestGroup::AddSimpleTest(const char* szName, SimpleTestFunc TestFun
   SimpleTestEntry e;
   e.m_szName = szName;
   e.m_Func = TestFunc;
+  e.m_ProfilingId = ezProfilingId(szName);
 
   for (ezUInt32 i = 0; i < m_SimpleTests.size(); ++i)
   {
@@ -30,7 +31,10 @@ void ezSimpleTestGroup::RunSubTest(ezInt32 iIdentifier)
   // initialize everything up to 'core'
   ezStartup::StartupCore();
 
-  m_SimpleTests[iIdentifier].m_Func();
+  {
+    EZ_PROFILE(m_SimpleTests[iIdentifier].m_ProfilingId);
+    m_SimpleTests[iIdentifier].m_Func();
+  }
 
   // shut down completely
   ezStartup::ShutdownBase();

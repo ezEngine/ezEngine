@@ -8,7 +8,7 @@
 
 // Windows specific implementation of the thread class
 
-ezOSThread::ezOSThread(ezOSThreadEntryPoint pThreadEntryPoint, void* pUserData /*= NULL*/, const char* pName /*= "ezThread"*/, ezUInt32 uiStackSize /*= 128 * 1024*/)
+ezOSThread::ezOSThread(ezOSThreadEntryPoint pThreadEntryPoint, void* pUserData /*= NULL*/, const char* szName /*= "ezThread"*/, ezUInt32 uiStackSize /*= 128 * 1024*/)
 {
   pthread_attr_t ThreadAttributes;
   pthread_attr_init(&ThreadAttributes);

@@ -25,6 +25,7 @@ private:
   {
     const char* m_szName;
     SimpleTestFunc m_Func;
+    ezProfilingId m_ProfilingId;
   };
 
   const char* m_szTestName;

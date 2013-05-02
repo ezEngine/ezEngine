@@ -78,18 +78,12 @@ EZ_CREATE_SIMPLE_TEST(Memory, Allocator)
 {
   EZ_TEST_BLOCK(true, "Alignment")
   {
-    ezStartup::StartupBase();
-
     TestAlignmentHelper<NonAlignedVector>(4);
     TestAlignmentHelper<AlignedVector>(16);
-
-    ezStartup::ShutdownBase();
   }
 
   EZ_TEST_BLOCK(true, "Guards")
   {
-    ezStartup::StartupBase();
-
     typedef ezAllocator<ezMemoryPolicies::ezHeapAllocation, ezMemoryPolicies::ezGuardedBoundsChecking,
       ezMemoryPolicies::ezSimpleTracking, ezMutex> GuardedAllocator;
 
@@ -114,14 +108,10 @@ EZ_CREATE_SIMPLE_TEST(Memory, Allocator)
     EZ_DELETE_RAW_BUFFER(pAllocator, szTestBuffer);
 
     EZ_DELETE(ezFoundation::GetBaseAllocator(), pAllocator);
-
-    ezStartup::ShutdownBase();
   }
 
   EZ_TEST_BLOCK(true, "Tracking")
   {
-    ezStartup::StartupBase();
-
     typedef ezAllocator<ezMemoryPolicies::ezHeapAllocation, ezMemoryPolicies::ezNoBoundsChecking,
       ezMemoryPolicies::ezStackTracking, ezMutex> TrackingAllocator;
 
@@ -135,8 +125,6 @@ EZ_CREATE_SIMPLE_TEST(Memory, Allocator)
     EZ_DELETE_RAW_BUFFER(pAllocator, szTestBuffer);
 
     EZ_DELETE(ezFoundation::GetBaseAllocator(), pAllocator);
-
-    ezStartup::ShutdownBase();
   }
 }
 

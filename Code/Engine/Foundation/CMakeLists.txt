@@ -20,4 +20,12 @@
 #  OpenGL32.lib    # Example: A library that can be found in any lib path, but was not built with cmake
 # )
 
+if (MSVC)
+  link_directories(${CMAKE_SOURCE_DIR}/Code/ThirdParty/gpa_ITT/libs/$(Platform))
+
+  SET (LINK_LIBRARIES
+    gpasdk_d.lib
+  )
+endif()
+
 include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/CMAKE_Library.txt)
