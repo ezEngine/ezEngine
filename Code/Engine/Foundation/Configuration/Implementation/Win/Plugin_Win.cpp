@@ -1,5 +1,5 @@
-#include <Foundation\PCH.h>
-#include <Foundation\Configuration\Plugin.h>
+#include <Foundation/PCH.h>
+#include <Foundation/Configuration/Plugin.h>
 #include <Foundation/Strings/StringBuilder.h>
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/Configuration/Implementation/Win/Plugin_Win.h>

@@ -14,14 +14,16 @@ EZ_ON_GLOBAL_EVENT(ezFoundation_Shutdown)
 
 void ezReloadableVariableBase::Shutdown()
 {
-  delete s_StoredVariables;
+  EZ_DEFAULT_DELETE(s_StoredVariables);
   s_StoredVariables = NULL;
 }
+
+typedef ezMap<ezString, ezMemoryStreamStorage> MemStreamMap;
 
 void ezReloadableVariableBase::StoreVariables()
 {
   if (s_StoredVariables == NULL)
-    s_StoredVariables = new (ezMap<ezString, ezMemoryStreamStorage>); // EZ_DEFAULT_NEW does not compile with this
+    s_StoredVariables = EZ_DEFAULT_NEW(MemStreamMap);
 
   ezReloadableVariableBase* pVar = GetFirstInstance();
 

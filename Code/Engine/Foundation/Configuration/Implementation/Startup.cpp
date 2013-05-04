@@ -58,7 +58,7 @@ void ezStartup::PluginEventHandler(const ezPlugin::PluginEvent& EventData, void*
   {
   case ezPlugin::PluginEvent::BeforeLoading:
     {
-      AssignSubSystemPlugin("<Static>");
+      AssignSubSystemPlugin("Static");
     }
     break;
 

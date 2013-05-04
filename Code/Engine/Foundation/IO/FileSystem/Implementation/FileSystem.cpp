@@ -2,6 +2,7 @@
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Threading/Lock.h>
+#include <Foundation/Logging/Log.h>
 
 EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, FileSystem)
 
@@ -92,6 +93,7 @@ ezResult ezFileSystem::AddDataDirectory(const char* szDataDirectory, DataDirUsag
     s_Data->m_Event.Broadcast(fe);
   }
 
+  ezLog::Error("Adding Data Directory '%s' failed.", szDataDirectory);
   return EZ_FAILURE;
 }
 

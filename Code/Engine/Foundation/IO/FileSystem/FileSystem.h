@@ -83,7 +83,7 @@ public:
   /// COULD write anything.
   /// szGroup defines to what 'group' of data directories this data dir belongs. This is only used in calls to RemoveDataDirectoryGroup,
   /// to remove all data directories of the same group.
-  /// You could use categories such as 'Base', 'Project', 'Settings', 'Level', 'Temp' to distingiush between different sets of data directories.
+  /// You could use groups such as 'Base', 'Project', 'Settings', 'Level', 'Temp' to distingiush between different sets of data directories.
   /// You can also specify the exact same string as szDataDirectory for szGroup, and thus uniquely identify the data dir, to be able to remove just that one.
   /// szCategory can be a (short) identifier, such as 'BIN', 'PACKAGE', 'SETTINGS' etc.
   /// Categories are used to look up files in specific data directories via a path-prefix.

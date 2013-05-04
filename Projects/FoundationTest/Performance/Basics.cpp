@@ -38,6 +38,15 @@
     Float Division:           8.13 ns
     Float Multiplication:     4.13 ns
 
+  Intel Core i7 3770 3.4 GHz, 64 Bit, Release Mode
+    Virtual Function Calls:   ~3.8 ns
+    Simple Function Calls:    ~4.4 ns
+    Fastcall Function Calls:  ~4.0 ns
+    Integer Division:         8.25 ns
+    Integer Multiplication:   1.55 ns
+    Float Division:           4.40 ns
+    Float Multiplication:     1.87 ns
+
 */
 
 EZ_CREATE_SIMPLE_TEST_GROUP(Performance);
@@ -260,7 +269,7 @@ EZ_CREATE_SIMPLE_TEST(Performance, Basics)
     ezTime tdiff = t1 - t0;
     double t = tdiff.GetNanoSeconds() / (double) (iNumObjects);
 
-    ezLog::Info("[test]Time Float Multiplication: %.2fns", t, iResult);
+    ezLog::Info("[test]Float Multiplication: %.2fns", t, iResult);
   }
 }
 
