@@ -49,7 +49,29 @@ struct ezCVarFlags
 
 EZ_DECLARE_FLAGS_OR_OPERATOR(ezCVarFlags);
 
-/// \todo Awesome detailed documentation
+/// \brief CVars are global variables that are used for configuring the engine.
+///
+/// The state of a CVar can be automatically stored when the application is shut down, and during reloading of plugins.
+/// It will be restored again when the application starts again.
+/// This makes it possible to use them to tweak code that is work in progress or to change global settings.
+/// CVars are enumerable, which is why it is easy to present them in a console or a GUI at runtime, to allow modifying them
+/// while the application is running.
+/// It is very easy and convenient to temporarily add a CVar while some code is in development, to be able to try out different
+/// approaches. However, one should throw out all unnecessary variables after such work is finished.
+/// CVars are stored in one settings file per plugin. That means plugins can easily contain additional CVars for their own use
+/// and their states are restored at plugin loading time, as well.
+/// For the storage of CVars to work, the 'StorageFolder' must have been set. Also at startup the application should explicitely
+/// load CVars via 'LoadCVars', once the filesystem is set up and the storage folder is configured.
+/// The CVar system listens to events from the Plugin system, and it will automatically take care to serialize and deserialize
+/// CVar values whenever plugins are loaded or unloaded.
+/// CVars additionally allow to only change their visible value after a certain subsystem has been 'restarted', ie. a user can
+/// change the CVar value at runtime, but when the 'current' value is read, it will not have changed.
+/// It will change however, once the application is restarted (such that code can initialize the engine with the correct values)
+/// or after the corresponding subsystem explicitely sets the CVar to the updated value.
+/// This is useful, e.g. for a screen resolution CVar, as changing this at runtime might be possible in a GUI, but the engine
+/// might not support that without a restart.
+/// Finally all CVars broadcast events when their value is changed, which can be used to listen to certain CVars and react
+/// properly when their value changes.
 class EZ_FOUNDATION_DLL ezCVar : public ezEnumerable<ezCVar>
 {
   EZ_DECLARE_ENUMERABLE_CLASS(ezCVar);
@@ -62,16 +84,17 @@ public:
   /// so \a szFolder must not be a file name, but only a path to a folder.
   ///
   /// After setting the storage folder, one should immediately load all CVars via LoadCVars.
-  static void SetStorageFolder(const char* szFolder);
+  static void SetStorageFolder(const char* szFolder); // [tested]
 
   /// \brief Searches all CVars for one with the given name. Returns NULL if no CVar could be found. The name is case-sensitive.
-  static ezCVar* FindCVarByName(const char* szName);
+  static ezCVar* FindCVarByName(const char* szName); // [tested]
+
   /// \brief Stores all CVar values in files in the storage folder, that must have been set via 'SetStorageFolder'.
   ///
   /// This function has no effect, if 'SetStorageFolder' has not been called, or the folder has been set to be empty.
   /// This function is also automatically called whenever plugin changes occur, or when the engine is shut down.
   /// So it might not be necessary to call this function manually at shutdown.
-  static void SaveCVars();
+  static void SaveCVars(); // [tested]
 
   /// \brief Loads the CVars from the settings files in the storage folder.
   ///
@@ -84,7 +107,7 @@ public:
   /// Otherwise their 'Current' value will always stay unchanged and the value from disk will only be
   /// stored in the 'Restart' value.
   /// Independent on the parameter settings, all CVar changes during loading will always trigger change events.
-  static void LoadCVars(bool bOnlyNewOnes = true, bool bSetAsCurrentValue = true);
+  static void LoadCVars(bool bOnlyNewOnes = true, bool bSetAsCurrentValue = true); // [tested]
 
 
 
@@ -93,19 +116,19 @@ public:
   /// This change will not trigger a 'restart value changed' event, but it might trigger a 'current value changed' event.
   /// Code that uses a CVar that is flagged as 'RequiresRestart' for its initialization (and which is the reason, that that CVar
   /// is flagged as such) should always call this BEFORE it uses the CVar value.
-  virtual void SetToRestartValue() = 0;
+  virtual void SetToRestartValue() = 0; // [tested]
 
   /// \brief Returns the (display) name of the CVar.
-  const char* GetName() const { return m_szName; }
+  const char* GetName() const { return m_szName; } // [tested]
 
   /// \brief Returns the type of the CVar.
-  virtual ezCVarType::Enum GetType() const = 0;
+  virtual ezCVarType::Enum GetType() const = 0; // [tested]
 
   /// \brief Returns the description of the CVar.
-  const char* GetDescription() const { return m_szDescription; }
+  const char* GetDescription() const { return m_szDescription; } // [tested]
 
   /// \brief Returns all the CVar flags.
-  ezBitflags<ezCVarFlags> GetFlags() const { return m_Flags; }
+  ezBitflags<ezCVarFlags> GetFlags() const { return m_Flags; } // [tested]
 
   /// \brief The data that is broadcasted whenever a cvar is changed.
   struct CVarEvent
@@ -126,7 +149,7 @@ public:
   };
 
   /// \brief Code that needs to be execute whenever a cvar is changed can register itself here to be notified of such events.
-  ezEvent<const CVarEvent&, void*> m_CVarEvents;
+  ezEvent<const CVarEvent&, void*> m_CVarEvents; // [tested]
 
 protected:
   ezCVar(const char* szName, ezBitflags<ezCVarFlags> Flags, const char* szDescription);
@@ -167,16 +190,16 @@ public:
   ezTypedCVar(const char* szName, const Type& Value, ezBitflags<ezCVarFlags> Flags, const char* szDescription);
 
   /// \brief Returns the 'current' value of the CVar. Same as 'GetValue(ezCVarValue::Current)'
-  operator const Type&() const;
+  operator const Type&() const; // [tested]
 
   /// \brief Returns the internal values of the CVar.
-  const Type& GetValue(ezCVarValue::Enum val = ezCVarValue::Current) const;
+  const Type& GetValue(ezCVarValue::Enum val = ezCVarValue::Current) const; // [tested]
 
   /// \brief Changes the CVar's value and broadcasts the proper events.
   ///
   /// Usually the 'Current' value is changed, unless the 'RequiresRestart' flag is set.
   /// In that case only the 'Restart' value is modified.
-  void operator= (const Type& value);
+  void operator= (const Type& value); // [tested]
 
   virtual ezCVarType::Enum GetType() const EZ_OVERRIDE;
   virtual void SetToRestartValue() EZ_OVERRIDE;

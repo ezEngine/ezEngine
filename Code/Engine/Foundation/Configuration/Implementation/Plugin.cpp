@@ -38,9 +38,8 @@ ezInt32 ezPlugin::s_iPluginChangeRecursionCounter = 0;
 ezEvent<const ezPlugin::PluginEvent&, void*, ezStaticAllocatorWrapper> ezPlugin::s_PluginEvents;
 
 
-ezPlugin::ezPlugin(const char* szPluginName, bool bIsReloadable, OnPluginLoadedFunction OnLoadPlugin, OnPluginUnloadedFunction OnUnloadPlugin, const char* szPluginDependency1, const char* szPluginDependency2, const char* szPluginDependency3, const char* szPluginDependency4, const char* szPluginDependency5)
+ezPlugin::ezPlugin(bool bIsReloadable, OnPluginLoadedFunction OnLoadPlugin, OnPluginUnloadedFunction OnUnloadPlugin, const char* szPluginDependency1, const char* szPluginDependency2, const char* szPluginDependency3, const char* szPluginDependency4, const char* szPluginDependency5)
 {
-  m_szPluginName = szPluginName;
   m_bInitialized = false;
   m_OnLoadPlugin = OnLoadPlugin;
   m_OnUnloadPlugin = OnUnloadPlugin;
@@ -346,11 +345,11 @@ ezResult ezPlugin::ReloadPlugins()
           {
             if (g_LoadedPlugins[pPlugin->m_sLoadedFromFile.GetData()].m_uiLastModificationTime == stat.m_uiLastModificationTime)
             {
-              ezLog::Dev("Plugin '%s' is not modified.", pPlugin->GetPluginFileName());
+              ezLog::Dev("Plugin '%s' is not modified.", pPlugin->GetPluginName());
               bModified = false;
             }
             else
-              ezLog::Info("Plugin '%s' is modified, reloading.", pPlugin->GetPluginFileName());
+              ezLog::Info("Plugin '%s' is modified, reloading.", pPlugin->GetPluginName());
           }
         #endif
         }
@@ -360,7 +359,7 @@ ezResult ezPlugin::ReloadPlugins()
           ezStringBuilder sBackup = sNewPlugin;
           sBackup.Append(".backup");
 
-          EZ_VERIFY(ezOSFile::CopyFile(sNewPlugin.GetData(), sBackup.GetData()) == EZ_SUCCESS, "Could not create backup of plugin '%s'", pPlugin->GetPluginFileName());
+          EZ_VERIFY(ezOSFile::CopyFile(sNewPlugin.GetData(), sBackup.GetData()) == EZ_SUCCESS, "Could not create backup of plugin '%s'", pPlugin->GetPluginName());
 
           PluginsToReload.PushBack(pPlugin->m_sLoadedFromFile);
         }

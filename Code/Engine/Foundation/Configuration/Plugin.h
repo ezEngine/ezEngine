@@ -31,8 +31,6 @@ public:
 
   /// \brief Creates a new plugin object. 
   ///
-  /// \param szPluginName
-  ///   The name of this plugin. Should be unique across all plugins. 
   /// \param bIsReloadable
   ///   If set to true, 'ReloadPlugins' will reload this plugin (if it was modified).
   /// \param OnLoadPlugin
@@ -41,14 +39,11 @@ public:
   ///   Will be called shortly before the DLL is finally unloaded. All other code has already been notified that the plugin is being unloaded.
   /// \param szPluginDependency1
   ///   Allows to specify other modules that this plugin depends on. These will be automatically loaded and unloaded together with this plugin.
-  ezPlugin(const char* szPluginName, bool bIsReloadable, OnPluginLoadedFunction OnLoadPlugin = NULL, OnPluginUnloadedFunction OnUnloadPlugin = NULL, 
+  ezPlugin(bool bIsReloadable, OnPluginLoadedFunction OnLoadPlugin = NULL, OnPluginUnloadedFunction OnUnloadPlugin = NULL, 
     const char* szPluginDependency1 = NULL, const char* szPluginDependency2 = NULL, const char* szPluginDependency3 = NULL, const char* szPluginDependency4 = NULL, const char* szPluginDependency5 = NULL);
 
-  /// \brief Returns the internal name of the plugin. Might differ from the filename from which it is loaded.
-  const char* GetPluginName() const { return m_szPluginName; }
-
   /// \brief Returns the name that was used to load the plugin from disk.
-  const char* GetPluginFileName() const { return m_sLoadedFromFile.GetData(); }
+  const char* GetPluginName() const { return m_sLoadedFromFile.GetData(); }
 
   /// \brief Returns whether this plugin supports hot-reloading.
   bool IsReloadable() const { return m_bIsReloadable; }
@@ -109,7 +104,6 @@ private:
   static void GetPluginPaths(const char* szPluginName, ezStringBuilder& sOldPath, ezStringBuilder& sNewPath);
 
   const char* m_szPluginDependencies[5];
-  const char* m_szPluginName;
   ezString m_sLoadedFromFile;
 
   OnPluginLoadedFunction m_OnLoadPlugin;

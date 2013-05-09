@@ -32,9 +32,11 @@ ezResult ezOSFile::Open(const char* szFile, ezFileMode::Enum OpenMode)
 
   ezStringBuilder sFolder = m_sFileName.GetFileDirectory();
 
-  CreateDirectoryStructure(sFolder.GetData());
+  if (OpenMode == ezFileMode::Write || OpenMode == ezFileMode::Append)
+    CreateDirectoryStructure(sFolder.GetData());
 
-  EZ_ASSERT(m_sFileName.IsAbsolutePath(), "ezOSFile can only open files whose location is given with an absolute path. '%s' is not an absolute path.", m_sFileName.GetData());
+  if (!m_sFileName.IsAbsolutePath())
+    return EZ_FAILURE;
 
   if (InternalOpen(m_sFileName.GetData(), OpenMode) == EZ_SUCCESS)
   {
