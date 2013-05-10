@@ -477,6 +477,7 @@ template <typename KeyType, typename ValueType, typename Comparer>
 void ezMapBase<KeyType, ValueType, Comparer>::ReleaseNode(Node* pNode)
 {
   EZ_ASSERT(pNode != NULL, "pNode is invalid.");
+  EZ_ASSERT(pNode != &m_NilNode, "pNode is invalid.");
 
   ezMemoryUtils::Destruct<Node>(pNode, 1);
 
@@ -744,7 +745,8 @@ typename ezMapBase<KeyType, ValueType, Comparer>::Node* ezMapBase<KeyType, Value
   }
 
   // remove the erased node
-  ReleaseNode(ToOverride);
+  if (ToOverride != &m_NilNode)
+    ReleaseNode(ToOverride);
 
   return root;
 }

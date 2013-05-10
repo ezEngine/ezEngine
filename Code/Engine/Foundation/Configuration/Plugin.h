@@ -76,7 +76,7 @@ public:
   /// In case that fails as well, the application will probably crash.
   /// EZ_FAILURE is returned if anything could not be reloaded as desired, independent of whether the system was able
   /// to recover from it. So 'failure' means that not all reloadable code has been updated.
-  static ezResult ReloadPlugins();
+  static ezResult ReloadPlugins(bool bForceReload = false);
 
   /// \brief The data that is broadcasted whenever a plugin is (un-) loaded.
   struct PluginEvent

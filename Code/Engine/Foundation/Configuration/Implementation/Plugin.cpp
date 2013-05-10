@@ -120,6 +120,9 @@ ezResult ezPlugin::UnloadPluginInternal(const char* szPluginFile)
 {
   BeginPluginChanges();
 
+  if (!g_LoadedPlugins.Find(szPluginFile).IsValid())
+    return EZ_SUCCESS;
+
   // Broadcast event: Before unloading plugin
   {
     PluginEvent e;
@@ -306,7 +309,7 @@ ezResult ezPlugin::UnloadPlugin(const char* szPluginFile)
   return EZ_SUCCESS;
 }
 
-ezResult ezPlugin::ReloadPlugins()
+ezResult ezPlugin::ReloadPlugins(bool bForceReload)
 {
   EZ_LOG_BLOCK("Reload Plugins");
 
@@ -339,19 +342,22 @@ ezResult ezPlugin::ReloadPlugins()
         else
         {
         #if EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
- 
-          ezFileStats stat;
-          if (ezOSFile::GetFileStats(sOldPlugin.GetData(), stat) == EZ_SUCCESS)
+
+          if (!bForceReload)
           {
-            if (g_LoadedPlugins[pPlugin->m_sLoadedFromFile.GetData()].m_uiLastModificationTime == stat.m_uiLastModificationTime)
+            ezFileStats stat;
+            if (ezOSFile::GetFileStats(sOldPlugin.GetData(), stat) == EZ_SUCCESS)
             {
-              ezLog::Dev("Plugin '%s' is not modified.", pPlugin->GetPluginName());
-              bModified = false;
+              if (g_LoadedPlugins[pPlugin->m_sLoadedFromFile.GetData()].m_uiLastModificationTime == stat.m_uiLastModificationTime)
+              {
+                ezLog::Dev("Plugin '%s' is not modified.", pPlugin->GetPluginName());
+                bModified = false;
+              }
+              else
+                ezLog::Info("Plugin '%s' is modified, reloading.", pPlugin->GetPluginName());
             }
-            else
-              ezLog::Info("Plugin '%s' is modified, reloading.", pPlugin->GetPluginName());
           }
-        #endif
+          #endif
         }
 
         if (bModified)
@@ -369,7 +375,7 @@ ezResult ezPlugin::ReloadPlugins()
     }
   }
 
-    // now unload all unloaded plugins
+    // now unload all modified plugins
   {
     EZ_LOG_BLOCK("Unloading Plugins");
 

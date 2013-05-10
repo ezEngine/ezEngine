@@ -149,7 +149,7 @@ public:
   };
 
   /// \brief Code that needs to be execute whenever a cvar is changed can register itself here to be notified of such events.
-  ezEvent<const CVarEvent&, void*> m_CVarEvents; // [tested]
+  ezEvent<const CVarEvent&, void*, ezStaticAllocatorWrapper> m_CVarEvents; // [tested]
 
 protected:
   ezCVar(const char* szName, ezBitflags<ezCVarFlags> Flags, const char* szDescription);

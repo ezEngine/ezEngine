@@ -614,7 +614,8 @@ typename ezSetBase<KeyType, Comparer>::Node* ezSetBase<KeyType, Comparer>::Erase
   }
 
   // remove the erased node
-  ReleaseNode(ToOverride);
+  if (ToOverride != &m_NilNode)
+    ReleaseNode(ToOverride);
 
   return root;
 }

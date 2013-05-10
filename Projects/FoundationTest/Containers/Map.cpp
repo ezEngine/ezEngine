@@ -133,6 +133,20 @@ EZ_CREATE_SIMPLE_TEST(Containers, Map)
       EZ_TEST_INT(m[i], i * 10);
   }
 
+  EZ_TEST_BLOCK(true, "Erase (non-existing)")
+  {
+    ezMap<ezUInt32, ezUInt32> m;
+
+    for (ezInt32 i = 0; i < 1000; ++i)
+      m.Erase(i);
+
+    for (ezInt32 i = 0; i < 1000; ++i)
+      m[i] = i * 10;
+
+    for (ezInt32 i = 0; i < 1000; ++i)
+      m.Erase(i + 500);
+  }
+
   EZ_TEST_BLOCK(true, "Erase (Iterator)")
   {
     ezMap<ezUInt32, ezUInt32> m;

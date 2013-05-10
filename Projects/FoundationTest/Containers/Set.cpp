@@ -118,6 +118,20 @@ EZ_CREATE_SIMPLE_TEST(Containers, Set)
       EZ_TEST_INT(m.Find(i).Key(), i);
   }
 
+  EZ_TEST_BLOCK(true, "Erase (non-existing)")
+  {
+    ezSet<ezUInt32> m;
+
+    for (ezInt32 i = 0; i < 1000; ++i)
+      m.Erase(i);
+
+    for (ezInt32 i = 0; i < 1000; ++i)
+      m.Insert(i);
+
+    for (ezInt32 i = 0; i < 1000; ++i)
+      m.Erase(i + 500);
+  }
+
   EZ_TEST_BLOCK(true, "Erase (Iterator)")
   {
     ezSet<ezUInt32> m;
