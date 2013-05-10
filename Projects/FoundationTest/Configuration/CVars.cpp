@@ -1,5 +1,7 @@
 #include <PCH.h>
 
+EZ_CREATE_SIMPLE_TEST_GROUP(Configuration);
+
 #define ezCVarValueDefault ezCVarValue::Default
 #define ezCVarValueStored ezCVarValue::Stored
 #define ezCVarValueRestart ezCVarValue::Restart
