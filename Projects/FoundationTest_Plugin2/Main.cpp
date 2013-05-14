@@ -1,7 +1,10 @@
 #include <PCH.h>
+#include <TestFramework/Framework/TestFramework.h>
 
-void OnLoadPlugin();
-void OnUnloadPlugin();
+static ezInt32 g_iPluginState = -1;
+
+void OnLoadPlugin(bool bReloading);
+void OnUnloadPlugin(bool bReloading);
 
 ezPlugin g_Plugin(true, OnLoadPlugin, OnUnloadPlugin, "FoundationTest_Plugin1");
 
@@ -10,16 +13,61 @@ ezCVarFloat   CVar_TestFloat  ("test2_Float", 2.2f, ezCVarFlags::Default, "Desc:
 ezCVarBool    CVar_TestBool   ("test2_Bool",  true, ezCVarFlags::Save, "Desc: test2_Bool");
 ezCVarString  CVar_TestString ("test2_String", "test2", ezCVarFlags::RequiresRestart, "Desc: test2_String");
 
-void OnLoadPlugin()
+ezCVarBool    CVar_TestInited ("test2_Inited", false, ezCVarFlags::None, "");
+
+void OnLoadPlugin(bool bReloading)
 {
+  EZ_TEST_MSG(g_iPluginState == -1, "Plugin is in an invalid state.");
+  g_iPluginState = 1;
+
+  EZ_TEST(ezPlugin::FindPluginByName("FoundationTest_Plugin1") != NULL); // dependency is already loaded
+  EZ_TEST(ezPlugin::FindPluginByName("FoundationTest_Plugin2") != NULL); // should find itself
+
   ezCVarInt* pCVar = (ezCVarInt*) ezCVar::FindCVarByName("TestPlugin2InitCount");
   *pCVar = *pCVar + 1;
+
+  if (bReloading)
+  {
+    ezCVarInt* pCVarReload = (ezCVarInt*) ezCVar::FindCVarByName("TestPlugin2Reloaded");
+    *pCVarReload = *pCVarReload + 1;
+  }
+
+  ezCVarBool* pCVarDep = (ezCVarBool*) ezCVar::FindCVarByName("TestPlugin2FoundDependencies");
+  *pCVarDep = true;
+
+  // check that all CVars from plugin1 are available (ie. plugin1 is already loaded)
+  *pCVarDep = *pCVarDep && (ezCVar::FindCVarByName("test1_Int") != NULL);
+  *pCVarDep = *pCVarDep && (ezCVar::FindCVarByName("test1_Float") != NULL);
+  *pCVarDep = *pCVarDep && (ezCVar::FindCVarByName("test1_Bool") != NULL);
+  *pCVarDep = *pCVarDep && (ezCVar::FindCVarByName("test1_String") != NULL);
+
+  CVar_TestInited = true;
 }
 
-void OnUnloadPlugin()
+void OnUnloadPlugin(bool bReloading)
 {
+  EZ_TEST_MSG(g_iPluginState == 1, "Plugin is in an invalid state.");
+  g_iPluginState = 2;
+
   ezCVarInt* pCVar = (ezCVarInt*) ezCVar::FindCVarByName("TestPlugin2UninitCount");
   *pCVar = *pCVar + 1;
+
+  if (bReloading)
+  {
+    ezCVarInt* pCVarReload = (ezCVarInt*) ezCVar::FindCVarByName("TestPlugin2Reloaded");
+    *pCVarReload = *pCVarReload + 1;
+  }
+
+  ezCVarBool* pCVarDep = (ezCVarBool*) ezCVar::FindCVarByName("TestPlugin2FoundDependencies");
+  *pCVarDep = true;
+
+  // check that all CVars from plugin1 are STILL available (ie. plugin1 is not yet unloaded)
+  *pCVarDep = *pCVarDep && (ezCVar::FindCVarByName("test1_Int") != NULL);
+  *pCVarDep = *pCVarDep && (ezCVar::FindCVarByName("test1_Float") != NULL);
+  *pCVarDep = *pCVarDep && (ezCVar::FindCVarByName("test1_Bool") != NULL);
+  *pCVarDep = *pCVarDep && (ezCVar::FindCVarByName("test1_String") != NULL);
+
+  CVar_TestInited = false;
 }
 
 EZ_BEGIN_SUBSYSTEM_DECLARATION(PluginGroup_Plugin2, TestSubSystem2)

@@ -4,6 +4,7 @@
 #include <Foundation/Strings/StringBuilder.h>
 #include <Foundation/Strings/String.h>
 #include <Foundation/Containers/Map.h>
+#include <Foundation/Containers/Set.h>
 #include <Foundation/IO/OSFile.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
@@ -52,24 +53,30 @@ ezPlugin::ezPlugin(bool bIsReloadable, OnPluginLoadedFunction OnLoadPlugin, OnPl
   m_szPluginDependencies[4] = szPluginDependency5;
 }
 
-void ezPlugin::Initialize()
+void ezPlugin::Initialize(bool bReloading)
 {
   if (m_bInitialized)
     return;
 
   m_bInitialized = true;
 
-  for (ezInt32 i = 0; i < 5; ++i)
+  // do not load dependencies while reloading
+  // the dependencies are already loaded, and this would only mess up
+  // the reference count
+  if (!bReloading)
   {
-    if (m_szPluginDependencies[i])
-      LoadPlugin(m_szPluginDependencies[i]);
+    for (ezInt32 i = 0; i < 5; ++i)
+    {
+      if (m_szPluginDependencies[i])
+        LoadPlugin(m_szPluginDependencies[i]);
+    }
   }
 
   if (m_OnLoadPlugin)
-    m_OnLoadPlugin();
+    m_OnLoadPlugin(bReloading);
 }
 
-void ezPlugin::Uninitialize()
+void ezPlugin::Uninitialize(bool bReloading)
 {
   if (!m_bInitialized)
     return;
@@ -77,12 +84,18 @@ void ezPlugin::Uninitialize()
   m_bInitialized = false;
 
   if (m_OnUnloadPlugin)
-    m_OnUnloadPlugin();
+    m_OnUnloadPlugin(bReloading);
 
-  for (ezInt32 i = 5; i > 0; --i)
+  // do not unload dependencies while reloading
+  // the dependencies will be reloaded, if they are marked as reloadable
+  // if we were to unload them here, ALL dependencies would get reloaded
+  if (!bReloading)
   {
-    if (m_szPluginDependencies[i - 1])
-      UnloadPlugin(m_szPluginDependencies[i - 1]);
+    for (ezInt32 i = 5; i > 0; --i)
+    {
+      if (m_szPluginDependencies[i - 1])
+        UnloadPlugin(m_szPluginDependencies[i - 1]);
+    }
   }
 }
 
@@ -116,7 +129,7 @@ void ezPlugin::EndPluginChanges()
   }
 }
 
-ezResult ezPlugin::UnloadPluginInternal(const char* szPluginFile)
+ezResult ezPlugin::UnloadPluginInternal(const char* szPluginFile, bool bReloading)
 {
   BeginPluginChanges();
 
@@ -135,7 +148,7 @@ ezResult ezPlugin::UnloadPluginInternal(const char* szPluginFile)
   // if there is a plugin object, uninitialize it
   if (g_LoadedPlugins[szPluginFile].m_pPluginObject)
   {
-    g_LoadedPlugins[szPluginFile].m_pPluginObject->Uninitialize();
+    g_LoadedPlugins[szPluginFile].m_pPluginObject->Uninitialize(bReloading);
   }
 
   // unload the plugin module
@@ -173,7 +186,7 @@ ezResult ezPlugin::UnloadPluginInternal(const char* szPluginFile)
   return EZ_SUCCESS;
 }
 
-ezResult ezPlugin::LoadPluginInternal(const char* szPluginFile, bool bLoadCopy)
+ezResult ezPlugin::LoadPluginInternal(const char* szPluginFile, bool bLoadCopy, bool bReloading)
 {
   ezStringBuilder sOldPlugin, sNewPlugin;
   GetPluginPaths(szPluginFile, sOldPlugin, sNewPlugin);
@@ -188,7 +201,6 @@ ezResult ezPlugin::LoadPluginInternal(const char* szPluginFile, bool bLoadCopy)
     }
   }
 
-  g_LoadedPlugins[szPluginFile].m_iReferenceCount++;
   BeginPluginChanges();
 
   // Broadcast Event: Before loading plugin
@@ -242,7 +254,7 @@ ezResult ezPlugin::LoadPluginInternal(const char* szPluginFile, bool bLoadCopy)
           s_PluginEvents.Broadcast(e);
         }
 
-        pPlugin->Initialize();
+        pPlugin->Initialize(bReloading);
 
         // Broadcast Event: After loading plugin
         {
@@ -281,8 +293,9 @@ ezResult ezPlugin::LoadPlugin(const char* szPluginFile)
   }
 
   ezLog::Info("Plugin to load: \"%s\"", szPluginFile);
+  g_LoadedPlugins[szPluginFile].m_iReferenceCount = 1;
 
-  return LoadPluginInternal(szPluginFile, true);
+  return LoadPluginInternal(szPluginFile, true, false);
 }
 
 ezResult ezPlugin::UnloadPlugin(const char* szPluginFile)
@@ -304,9 +317,86 @@ ezResult ezPlugin::UnloadPlugin(const char* szPluginFile)
   }
 
   ezLog::Info("Plugin to unload: \"%s\"", szPluginFile);
-  UnloadPluginInternal(szPluginFile);
+  UnloadPluginInternal(szPluginFile, false);
 
   return EZ_SUCCESS;
+}
+
+ezPlugin* ezPlugin::FindPluginByName(const char* szPluginName)
+{
+  ezPlugin* pPlugin = ezPlugin::GetFirstInstance();
+
+  while(pPlugin)
+  {
+    if (ezStringUtils::IsEqual(szPluginName, pPlugin->GetPluginName()))
+      return pPlugin;
+
+    pPlugin = pPlugin->GetNextInstance();
+  }
+
+  return NULL;
+}
+
+void ezPlugin::SortPluginReloadOrder(ezHybridArray<ezString, 16>& PluginsToReload)
+{
+  EZ_LOG_BLOCK("SortPluginReloadOrder");
+
+  // sorts all plugins by their plugin-dependencies, such that the first item in the array does not depend
+  // on any of the other plugins in the list and the successive items only depend on previous items in the list
+
+  ezHybridArray<ezPlugin*, 16> PluginsToSort;
+  ezSet<ezString> NotYetSorted;
+
+  // convert the plugin names to pointers
+  for (ezUInt32 i = 0; i < PluginsToReload.GetCount(); ++i)
+  {
+    NotYetSorted.Insert(PluginsToReload[i].GetData());
+    PluginsToSort.PushBack(FindPluginByName(PluginsToReload[i].GetData()));
+  }
+
+  // we will recreate that array in sorted order
+  PluginsToReload.Clear();
+
+  while (!NotYetSorted.IsEmpty()) // that's like three negations in one line...
+  {
+    bool bFoundAny = false;
+
+    // find the next plugin that has no dependency anymore
+    for (ezUInt32 iPlugin = 0; iPlugin < PluginsToSort.GetCount(); ++iPlugin)
+    {
+      if (PluginsToSort[iPlugin] == NULL) // plugins that have been inserted are removed this way from the array
+        continue;
+
+      bool bHasDependency = false;
+
+      // check if any of the plugin dependencies is still in the NotYetSorted set
+      for (ezUInt32 iDep = 0; iDep < 5; ++iDep)
+      {
+        if (NotYetSorted.Find(PluginsToSort[iPlugin]->m_szPluginDependencies[iDep]).IsValid())
+        {
+          //ezLog::Debug("[test] Plugin '%s' has a depencency on '%s'", PluginsToSort[iPlugin]->GetPluginName(), PluginsToSort[iPlugin]->m_szPluginDependencies[iDep]);
+
+          // The plugin has a dependency on another plugin that is not yet in the list -> do not put it into the list yet
+          bHasDependency = true;
+          break;
+        }
+      }
+
+      // this plugin has no dependency, so remove it from the NotYetSorted list and append it to the output array
+      if (!bHasDependency)
+      {
+        PluginsToReload.PushBack(PluginsToSort[iPlugin]->GetPluginName());
+        NotYetSorted.Erase(PluginsToSort[iPlugin]->GetPluginName());
+        PluginsToSort[iPlugin] = NULL;
+
+        bFoundAny = true;
+
+        //ezLog::Debug("[test] Plugin reload order (%i): '%s'", PluginsToReload.GetCount(), PluginsToReload.PeekBack().GetData());
+      }
+    }
+
+    EZ_VERIFY(bFoundAny, "The reloadable plugins seem to have circular dependencies.");
+  }
 }
 
 ezResult ezPlugin::ReloadPlugins(bool bForceReload)
@@ -341,22 +431,25 @@ ezResult ezPlugin::ReloadPlugins(bool bForceReload)
         }
         else
         {
-        #if EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
+          // if the platform supports file stat calls, we can check whether the plugin has been modified
+          // otherwise we always reload it (same as bForceReload)
+          #if EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
 
-          if (!bForceReload)
-          {
-            ezFileStats stat;
-            if (ezOSFile::GetFileStats(sOldPlugin.GetData(), stat) == EZ_SUCCESS)
+            if (!bForceReload)
             {
-              if (g_LoadedPlugins[pPlugin->m_sLoadedFromFile.GetData()].m_uiLastModificationTime == stat.m_uiLastModificationTime)
+              ezFileStats stat;
+              if (ezOSFile::GetFileStats(sOldPlugin.GetData(), stat) == EZ_SUCCESS)
               {
-                ezLog::Dev("Plugin '%s' is not modified.", pPlugin->GetPluginName());
-                bModified = false;
+                if (g_LoadedPlugins[pPlugin->m_sLoadedFromFile.GetData()].m_uiLastModificationTime == stat.m_uiLastModificationTime)
+                {
+                  ezLog::Dev("Plugin '%s' is not modified.", pPlugin->GetPluginName());
+                  bModified = false;
+                }
+                else
+                  ezLog::Info("Plugin '%s' is modified, reloading.", pPlugin->GetPluginName());
               }
-              else
-                ezLog::Info("Plugin '%s' is modified, reloading.", pPlugin->GetPluginName());
             }
-          }
+
           #endif
         }
 
@@ -375,17 +468,23 @@ ezResult ezPlugin::ReloadPlugins(bool bForceReload)
     }
   }
 
-    // now unload all modified plugins
+  // sort plugins by their dependencies, such that no plugin gets unloaded
+  // before all plugins that might depend on it have been unloaded
+  SortPluginReloadOrder(PluginsToReload);
+
+  // now unload all modified plugins
   {
     EZ_LOG_BLOCK("Unloading Plugins");
 
-    for (ezUInt32 i = 0; i < PluginsToReload.GetCount(); ++i)
+    for (ezUInt32 i = PluginsToReload.GetCount(); i > 0; --i)
     {
-      EZ_VERIFY (UnloadPluginInternal(PluginsToReload[i].GetData()) == EZ_SUCCESS, "Could not unload plugin '%s'.", PluginsToReload[i].GetData());
+      ezUInt32 iIndex = i - 1;
+
+      EZ_VERIFY (UnloadPluginInternal(PluginsToReload[iIndex].GetData(), true) == EZ_SUCCESS, "Could not unload plugin '%s'.", PluginsToReload[iIndex].GetData());
     }
   }
 
-  // now load all unloaded plugins
+  // now load all unloaded plugins (reverse unloading order)
   {
     EZ_LOG_BLOCK("Loading Plugins");
 
@@ -397,7 +496,7 @@ ezResult ezPlugin::ReloadPlugins(bool bForceReload)
       ezStringBuilder sBackup = sNewPlugin;
       sBackup.Append(".backup");
 
-      if (LoadPluginInternal(PluginsToReload[i].GetData(), true) == EZ_FAILURE)
+      if (LoadPluginInternal(PluginsToReload[i].GetData(), true, true) == EZ_FAILURE)
       {
         ezLog::Error("Loading of Plugin '%s' failed. Falling back to backup of previous version.", PluginsToReload[i].GetData());
 
@@ -405,7 +504,9 @@ ezResult ezPlugin::ReloadPlugins(bool bForceReload)
 
         if (ezOSFile::CopyFile(sBackup.GetData(), sNewPlugin.GetData()) == EZ_SUCCESS)
         {
-          EZ_VERIFY (LoadPluginInternal(PluginsToReload[i].GetData(), false) == EZ_SUCCESS, "Could not reload backup of plugin '%s'", PluginsToReload[i].GetData());
+          // if we cannot reload a plugin (not even its backup), all we can do is crash with an error message
+          // everything else would most probably result in crashes in very strange ways
+          EZ_VERIFY (LoadPluginInternal(PluginsToReload[i].GetData(), false, true) == EZ_SUCCESS, "Could not reload backup of plugin '%s'", PluginsToReload[i].GetData());
         }
       }
 

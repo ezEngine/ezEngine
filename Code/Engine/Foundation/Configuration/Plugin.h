@@ -17,11 +17,11 @@ class EZ_FOUNDATION_DLL ezPlugin : public ezEnumerable<ezPlugin>
   EZ_DECLARE_ENUMERABLE_CLASS(ezPlugin);
 
 public:
-  /// \brief Callback type for when a plugin has just been loaded (not yet initialized).
-  typedef void(*OnPluginLoadedFunction)();
+  /// \brief Callback type for when a plugin has just been loaded (not yet initialized). bReloading is true, if the plugin is currently being reloaded.
+  typedef void(*OnPluginLoadedFunction)(bool bReloading); // [tested]
 
-  /// \brief Callback type for when a plugin will be unloaded (after all deinitializations).
-  typedef void(*OnPluginUnloadedFunction)();
+  /// \brief Callback type for when a plugin will be unloaded (after all deinitializations). bReloading is true, if the plugin is currently being reloaded.
+  typedef void(*OnPluginUnloadedFunction)(bool bReloading); // [tested]
 
   /// \brief Call this before loading / unloading several plugins in a row, to prevent unnecessary re-initializations.
   static void BeginPluginChanges();
@@ -43,10 +43,10 @@ public:
     const char* szPluginDependency1 = NULL, const char* szPluginDependency2 = NULL, const char* szPluginDependency3 = NULL, const char* szPluginDependency4 = NULL, const char* szPluginDependency5 = NULL);
 
   /// \brief Returns the name that was used to load the plugin from disk.
-  const char* GetPluginName() const { return m_sLoadedFromFile.GetData(); }
+  const char* GetPluginName() const { return m_sLoadedFromFile.GetData(); } // [tested]
 
   /// \brief Returns whether this plugin supports hot-reloading.
-  bool IsReloadable() const { return m_bIsReloadable; }
+  bool IsReloadable() const { return m_bIsReloadable; } // [tested]
 
   /// \brief Tries to load a DLL dynamically into the program.
   ///
@@ -55,7 +55,7 @@ public:
   /// 
   /// EZ_SUCCESS is returned when the DLL is either successfully loaded or has already been loaded before.
   /// EZ_FAILURE is returned if the DLL cannot be located or it could not be loaded properly.
-  static ezResult LoadPlugin(const char* szPluginFile);
+  static ezResult LoadPlugin(const char* szPluginFile); // [tested]
 
   /// \brief Tries to unload a previously loaded plugin.
   ///
@@ -65,7 +65,7 @@ public:
   /// 
   /// EZ_SUCCESS is returned when the DLL is either successfully unloaded are has already been unloaded before (or has even never been loaded before).
   /// EZ_FAILURE is returned if the DLL cannot be unloaded (at this time).
-  static ezResult UnloadPlugin(const char* szPluginFile);
+  static ezResult UnloadPlugin(const char* szPluginFile); // [tested]
 
   /// \brief Hot-reloads all plugins that are marked as reloadable.
   ///
@@ -76,7 +76,11 @@ public:
   /// In case that fails as well, the application will probably crash.
   /// EZ_FAILURE is returned if anything could not be reloaded as desired, independent of whether the system was able
   /// to recover from it. So 'failure' means that not all reloadable code has been updated.
-  static ezResult ReloadPlugins(bool bForceReload = false);
+  static ezResult ReloadPlugins(bool bForceReload = false); // [tested]
+
+  /// \brief Tries to find an ezPlugin instance by the given name. Returns NULL if there is no such plugin.
+  /// Can be used to check whether a certain plugin is loaded.
+  static ezPlugin* FindPluginByName(const char* szPluginName); // [tested]
 
   /// \brief The data that is broadcasted whenever a plugin is (un-) loaded.
   struct PluginEvent
@@ -109,11 +113,12 @@ private:
   OnPluginLoadedFunction m_OnLoadPlugin;
   OnPluginUnloadedFunction m_OnUnloadPlugin;
 
-  static ezResult UnloadPluginInternal(const char* szPlugin);
-  static ezResult LoadPluginInternal(const char* szPlugin, bool bLoadCopy);
+  static ezResult UnloadPluginInternal(const char* szPlugin, bool bReloading);
+  static ezResult LoadPluginInternal(const char* szPlugin, bool bLoadCopy, bool bReloading);
+  static void SortPluginReloadOrder(ezHybridArray<ezString, 16>& PluginsToReload);
 
-  void Initialize();
-  void Uninitialize();
+  void Initialize(bool bReloading);
+  void Uninitialize(bool bReloading);
 
   bool m_bInitialized;
   bool m_bIsReloadable;
