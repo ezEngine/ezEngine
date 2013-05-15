@@ -34,7 +34,7 @@ public:
   virtual void Deallocate(void* ptr) = 0;
   virtual size_t AllocatedSize(const void* ptr) = 0;
   virtual size_t UsedMemorySize(const void* ptr) = 0;
-  virtual void GetStats(Stats& stats) = 0;
+  virtual void GetStats(Stats& stats) const = 0;
 
   const char* GetName() const;
 

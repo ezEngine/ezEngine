@@ -86,7 +86,9 @@ typedef DWORD ezThreadId;
   #endif
 
   #define EZ_ALIGN(decl, alignment) __declspec(align(alignment)) decl
-  #define EZ_ALIGNMENT_OF(type) __alignof(type)
+
+  // workaround for msvc compiler issue with alignment determination of dependent types
+  #define EZ_ALIGNMENT_OF(type) ((sizeof(type) < __alignof(type)) ? sizeof(type) : __alignof(type))
 
   #define EZ_DEBUG_BREAK { __debugbreak(); }
   

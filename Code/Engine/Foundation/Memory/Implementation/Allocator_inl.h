@@ -101,7 +101,7 @@ size_t ezAllocator<A, B, T, M>::UsedMemorySize(const void* ptr)
 }
 
 template <typename A, typename B, typename T, typename M>
-void ezAllocator<A, B, T, M>::GetStats(Stats& stats)
+void ezAllocator<A, B, T, M>::GetStats(Stats& stats) const
 {
   stats.m_uiNumAllocations = m_tracker.GetNumAllocations();
   stats.m_uiNumDeallocations = m_tracker.GetNumDeallocations();
