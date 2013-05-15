@@ -176,7 +176,7 @@ EZ_CREATE_SIMPLE_TEST(Memory, MemoryUtils)
 
     const ezInt32* pData2 = NULL;
     const ezInt32* pData3 = ezMemoryUtils::AddByteOffsetConst(pData2, 17);
-    EZ_TEST_INT(pData3, 17);
+    EZ_TEST(pData3 == reinterpret_cast<ezInt32*>(17));
   }
 
   EZ_TEST_BLOCK(true, "Align / IsAligned")
@@ -185,28 +185,28 @@ EZ_CREATE_SIMPLE_TEST(Memory, MemoryUtils)
       ezInt32* pData = (ezInt32*) 1;
       EZ_TEST(!ezMemoryUtils::IsAligned(pData, 4));
       pData = ezMemoryUtils::Align(pData, 4);
-      EZ_TEST_INT(pData, 0);
+      EZ_TEST(pData == reinterpret_cast<ezInt32*>(0));
       EZ_TEST(ezMemoryUtils::IsAligned(pData, 4));
     }
     {
       ezInt32* pData = (ezInt32*) 2;
       EZ_TEST(!ezMemoryUtils::IsAligned(pData, 4));
       pData = ezMemoryUtils::Align(pData, 4);
-      EZ_TEST_INT(pData, 0);
+      EZ_TEST(pData == reinterpret_cast<ezInt32*>(0));
       EZ_TEST(ezMemoryUtils::IsAligned(pData, 4));
     }
     {
       ezInt32* pData = (ezInt32*) 3;
       EZ_TEST(!ezMemoryUtils::IsAligned(pData, 4));
       pData = ezMemoryUtils::Align(pData, 4);
-      EZ_TEST_INT(pData, 0);
+      EZ_TEST(pData == reinterpret_cast<ezInt32*>(0));
       EZ_TEST(ezMemoryUtils::IsAligned(pData, 4));
     }
     {
       ezInt32* pData = (ezInt32*) 4;
       EZ_TEST(ezMemoryUtils::IsAligned(pData, 4));
       pData = ezMemoryUtils::Align(pData, 4);
-      EZ_TEST_INT(pData, 4);
+      EZ_TEST(pData == reinterpret_cast<ezInt32*>(4));
       EZ_TEST(ezMemoryUtils::IsAligned(pData, 4));
     }
   }

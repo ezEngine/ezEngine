@@ -46,6 +46,7 @@ EZ_CREATE_SIMPLE_TEST(Configuration, CVars)
   EZ_TEST(ezFileSystem::AddDataDirectory(sOutputFolder1.GetData(), ezFileSystem::AllowWrites, "test") == EZ_SUCCESS);
 
   // Delete all cvar setting files
+#if EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
   {
     sOutputFolder1.AppendPath("CVars/*");
 
@@ -63,6 +64,9 @@ EZ_CREATE_SIMPLE_TEST(Configuration, CVars)
       while (it.Next());
     }
   }
+#else
+  #warning "The CVars test might fail on this platform."
+#endif
 
   ezCVar::SetStorageFolder("CVars");
   ezCVar::LoadCVars(); // should do nothing (no settings files available)

@@ -1,17 +1,21 @@
-  
+
 #pragma once
-  
-#define EZ_FORCE_INLINE __attribute__((always_inline))
-  
+
+#if __has_attribute(always_inline)
+  #define EZ_FORCE_INLINE __attribute__((always_inline))
+#else
+  #define EZ_FORCE_INLINE inline
+#endif
+
 #define EZ_RESTRICT __restrict
-  
+
 #define EZ_OVERRIDE 
-  
+
 #define EZ_ALIGN(decl, alignment) __attribute__((aligned(alignment))) decl
 #define EZ_ALIGNMENT_OF(type) __alignof(type)
 
 #define EZ_DEBUG_BREAK { __builtin_trap(); }  
-  
+
 #define EZ_SOURCE_FUNCTION __FUNCTION__
 #define EZ_SOURCE_LINE __LINE__
 #define EZ_SOURCE_FILE __FILE__
@@ -27,4 +31,3 @@
 // declare compiler specific types
 typedef unsigned long long int  ezUInt64;
 typedef long long int           ezInt64;
-  

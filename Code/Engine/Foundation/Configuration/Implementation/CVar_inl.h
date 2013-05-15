@@ -34,7 +34,7 @@ void ezTypedCVar<Type, CVarType>::SetToRestartValue()
 }
 
 template<typename Type, ezCVarType::Enum CVarType>
-const Type& ezTypedCVar<Type, CVarType>::GetValue(ezCVarValue::Enum val = ezCVarValue::Current) const 
+const Type& ezTypedCVar<Type, CVarType>::GetValue(ezCVarValue::Enum val) const 
 { 
   return (m_Values[val]); 
 }

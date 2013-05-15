@@ -374,7 +374,7 @@ EZ_FORCE_INLINE T ezMath::Lerp(T f1, T f2, float factor)
 {
   EZ_ASSERT ((factor >= -ezMath_DefaultEpsilon) && (factor <= 1.0f + ezMath_DefaultEpsilon), "ezMath::lerp: factor %.2f is not in the range [0; 1]", factor);
 
-  return ((T) (f1 * (1.0f - factor) + f2 * factor));
+  return (T) (f1 + (factor * (f2 - f1)));
 }
 
 ///  Returns 0, if value < edge, and 1, if value >= edge.

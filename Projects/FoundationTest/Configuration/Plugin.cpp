@@ -1,5 +1,4 @@
 #include <PCH.h>
-#include <conio.h>
 
 ezCVarInt CVar_TestPlugin1InitializedCount ("TestPlugin1InitCount", 0, ezCVarFlags::None, "How often Plugin1 has been initialized.");
 ezCVarInt CVar_TestPlugin1UninitializedCount ("TestPlugin1UninitCount", 0, ezCVarFlags::None, "How often Plugin1 has been uninitialized.");

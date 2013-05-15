@@ -14,13 +14,13 @@
 #define EZ_OFF !
 
 /// \brief Used in conjunction with EZ_ON and EZ_OFF for safe checks. Use #if EZ_ENABLED(x) or #if EZ_DISABLED(x) in conditional compilation.
-#define EZ_ENABLED(x) (1 x##= 1)
+#define EZ_ENABLED(x) (1 EZ_CONCAT(x,=) 1)
 
 /// \brief Used in conjunction with EZ_ON and EZ_OFF for safe checks. Use #if EZ_ENABLED(x) or #if EZ_DISABLED(x) in conditional compilation.
-#define EZ_DISABLED(x) (1 x##= 2)
+#define EZ_DISABLED(x) (1 EZ_CONCAT(x,=) 2)
 
 /// \brief Checks whether x AND y are both defined as EZ_ON or EZ_OFF. Usually used to check whether configurations overlap, to issue an error.
-#define EZ_IS_NOT_EXCLUSIVE(x, y) ((1 x##= 1) == (1 y##= 1))
+#define EZ_IS_NOT_EXCLUSIVE(x, y) ((1 EZ_CONCAT(x,=) 1) == (1 EZ_CONCAT(y,=) 1))
 
 
 

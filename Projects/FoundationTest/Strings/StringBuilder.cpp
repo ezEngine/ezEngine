@@ -179,7 +179,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
 
   EZ_TEST_BLOCK(true, "Append(single unicode char)")
   {
-    ezStringUtf32 u32 = L"äöüß";
+    ezStringUtf32 u32 (L"äöüß");
 
     ezStringBuilder s("abc");
     s.Append(u32.GetData()[0]);
@@ -189,7 +189,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
 
   EZ_TEST_BLOCK(true, "Prepend(single unicode char)")
   {
-    ezStringUtf32 u32 = L"äöüß";
+    ezStringUtf32 u32 (L"äöüß");
 
     ezStringBuilder s("abc");
     s.Prepend(u32.GetData()[0]);

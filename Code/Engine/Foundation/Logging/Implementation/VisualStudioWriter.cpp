@@ -74,7 +74,7 @@ void ezLogWriter::VisualStudio::LogMessageHandler(const ezLog::LoggingEvent& Eve
 
 #else
 
-void ezLog_VisualStudioWriter::LogMessageHandler(const ezLog::LoggingEvent& EventData, void* pPassThrough)
+void ezLogWriter::VisualStudio::LogMessageHandler(const ezLog::LoggingEvent& EventData, void* pPassThrough)
 {
 }
 

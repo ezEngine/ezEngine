@@ -63,7 +63,7 @@ public:
   #define EZ_FASTCALL __fastcall
   #define EZ_NO_INLINE __declspec(noinline)
 #else
-  #error Unknown Platform.
+  #warning Unknown Platform.
   #define EZ_FASTCALL
   #define EZ_NO_INLINE __attribute__((noinline)) /* should work on GCC */
 #endif

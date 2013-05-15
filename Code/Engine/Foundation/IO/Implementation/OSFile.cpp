@@ -244,7 +244,7 @@ ezResult ezOSFile::CopyFile(const char* szSource, const char* szDestination)
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   #include <Foundation/IO/Implementation/Win/OSFile_win.h>
-#elif EZ_USE_POSIX_FILE_API
+#elif EZ_ENABLED(EZ_USE_POSIX_FILE_API)
   #include <Foundation/IO/Implementation/Posix/OSFile_posix.h>
 #else
   #error "Unknown Platform."
