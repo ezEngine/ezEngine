@@ -7,10 +7,13 @@ template <typename K, typename V, typename H>
 ezHashTableBase<K, V, H>::ConstIterator::ConstIterator(const ezHashTableBase<K, V, H>& hashTable) :
   m_hashTable(hashTable), m_uiCurrentIndex(0), m_uiCurrentCount(0)
 {
-   while (!m_hashTable.IsValidEntry(m_uiCurrentIndex))
-   {
-     ++m_uiCurrentIndex;
-   }
+  if (m_hashTable.IsEmpty())
+    return;
+  
+  while (!m_hashTable.IsValidEntry(m_uiCurrentIndex))
+  {
+    ++m_uiCurrentIndex;
+  }  
 }
 
 template <typename K, typename V, typename H>

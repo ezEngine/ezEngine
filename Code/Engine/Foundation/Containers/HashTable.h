@@ -17,9 +17,6 @@
 template <typename KeyType, typename ValueType, typename Hasher>
 class ezHashTableBase
 {
-private:
-  struct Entry;
-
 public:
   /// \brief Const iterator.
   class ConstIterator
