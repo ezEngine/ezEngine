@@ -1,15 +1,11 @@
 
 #pragma once
 
-#if __has_attribute(always_inline)
-  #define EZ_FORCE_INLINE __attribute__((always_inline))
-#else
-  #define EZ_FORCE_INLINE inline
-#endif
+#define EZ_FORCE_INLINE inline
 
 #define EZ_RESTRICT __restrict
 
-#define EZ_OVERRIDE 
+#define EZ_OVERRIDE override
 
 #define EZ_ALIGN(decl, alignment) __attribute__((aligned(alignment))) decl
 #define EZ_ALIGNMENT_OF(type) __alignof(type)

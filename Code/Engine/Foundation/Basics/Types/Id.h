@@ -46,7 +46,7 @@ public:
 
   EZ_FORCE_INLINE void SetIndex(T index)
   {
-    m_data = (index & INDEX_MASK) | m_data & (COUNTER_MASK << INDEX_BITS);
+    m_data = (index & INDEX_MASK) | (m_data & (COUNTER_MASK << INDEX_BITS));
   }
 
   EZ_FORCE_INLINE T GetCounter() const

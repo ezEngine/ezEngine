@@ -133,7 +133,7 @@ public:
   /// \brief The data that is broadcasted whenever a cvar is changed.
   struct CVarEvent
   {
-    CVarEvent(ezCVar* pCVar) : m_pCVar(pCVar), m_EventType(ValueChanged) { }
+    CVarEvent(ezCVar* pCVar) : m_EventType(ValueChanged), m_pCVar(pCVar) { }
 
     enum Type
     {

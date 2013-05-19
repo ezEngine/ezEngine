@@ -6,7 +6,7 @@
 // Deactivate Doxygen document generation for the following block.
 /// \cond
 
-static ezUInt32 RunThread(ezThread* pThread)
+ezUInt32 RunThread(ezThread* pThread)
 {
   if (pThread == NULL)
     return 0;

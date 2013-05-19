@@ -91,6 +91,8 @@ namespace ezDataDirectory
     if (ezStringUtils::IsNullOrEmpty(szDirectory))
       return EZ_SUCCESS;
 
+#if EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
+
     ezFileStats stats;
     if (ezOSFile::GetFileStats(szDirectory, stats) == EZ_FAILURE)
       return EZ_FAILURE;
@@ -98,6 +100,8 @@ namespace ezDataDirectory
     // If this is not a simple directory, this DataDirectoryType cannot mount it.
     if (!stats.m_bIsDirectory)
       return EZ_FAILURE;
+
+#endif
 
     return EZ_SUCCESS;
   }

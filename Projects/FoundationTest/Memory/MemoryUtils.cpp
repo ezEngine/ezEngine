@@ -172,7 +172,7 @@ EZ_CREATE_SIMPLE_TEST(Memory, MemoryUtils)
   {
     ezInt32* pData1 = NULL;
     pData1 = ezMemoryUtils::AddByteOffset(pData1, 13);
-    EZ_TEST_INT(pData1, 13);
+    EZ_TEST(pData1 == reinterpret_cast<ezInt32*>(13));
 
     const ezInt32* pData2 = NULL;
     const ezInt32* pData3 = ezMemoryUtils::AddByteOffsetConst(pData2, 17);
