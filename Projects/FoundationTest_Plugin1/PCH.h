@@ -20,6 +20,7 @@
 #include <Foundation/Configuration/CVar.h>
 
 #include <Foundation/Containers/ArrayBase.h>
+#include <Foundation/Containers/Bitfield.h>
 #include <Foundation/Containers/Deque.h>
 #include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/Containers/HashTable.h>
