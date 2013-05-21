@@ -101,8 +101,11 @@ void ezStringBuilder::Prepend(const char* pData1, const char* pData2, const char
   }
 }
 
-void ezStringBuilder::AppendFormat(const char* szUtf8Format, va_list& args)
+void ezStringBuilder::AppendFormat(const char* szUtf8Format, va_list args0)
 {
+  va_list args;
+  va_copy(args, args0);
+
   const ezUInt32 TempBuffer = 4096;
 
   char szTemp[TempBuffer];
@@ -121,10 +124,15 @@ void ezStringBuilder::AppendFormat(const char* szUtf8Format, va_list& args)
   {
     Append(&szTemp[0]);
   }
+
+  va_end(args);
 }
 
-void ezStringBuilder::PrependFormat(const char* szUtf8Format, va_list& args)
+void ezStringBuilder::PrependFormat(const char* szUtf8Format, va_list args0)
 {
+  va_list args;
+  va_copy(args, args0);
+
   const ezUInt32 TempBuffer = 4096;
 
   char szTemp[TempBuffer];
@@ -143,6 +151,8 @@ void ezStringBuilder::PrependFormat(const char* szUtf8Format, va_list& args)
   {
     Prepend(&szTemp[0]);
   }
+
+  va_end(args);
 }
 
 void ezStringBuilder::ChangeCharacterNonASCII(ezStringIterator& It, ezUInt32 uiCharacter)

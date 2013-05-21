@@ -134,6 +134,10 @@ typedef DWORD ezThreadId;
     #define EZ_PASS_VA(...)                            EZ_LEFT_PARENTHESIS __VA_ARGS__ EZ_RIGHT_PARENTHESIS
   #endif
 
+  #ifndef va_copy
+    #define va_copy(dest, source) (dest) = (source)
+  #endif
+
 #else
   #error "Unsupported compiler on windows"
 #endif

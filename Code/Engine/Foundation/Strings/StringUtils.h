@@ -162,7 +162,7 @@ public:
   /// uiDstSize may be zero.\n
   /// This can be used to query how much storage is required, then allocate it and call snprintf again to fill it.\n
   /// Formatting works exactly like printf.
-  static ezInt32 vsnprintf(char* szDst, ezUInt32 uiDstSize, const char* szFormat, va_list& ap); // [tested]
+  static ezInt32 vsnprintf(char* szDst, ezUInt32 uiDstSize, const char* szFormat, va_list ap); // [tested]
 
   /// \brief Returns true if szString starts with the string given in szStartsWith.
   static bool StartsWith(const char* szString, const char* szStartsWith, const char* pStringEnd = ezMaxStringEnd); // [tested]

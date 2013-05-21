@@ -106,7 +106,7 @@ public:
   void AppendFormat(const char* szUtf8Format, ...); // [tested]
 
   /// \brief Appends the formatted string.
-  void AppendFormat(const char* szUtf8Format, va_list& args); // [tested]
+  void AppendFormat(const char* szUtf8Format, va_list args); // [tested]
 
   /// \brief Prepends a single Utf32 character.
   void Prepend(ezUInt32 uiChar); // [tested]
@@ -121,13 +121,13 @@ public:
   void PrependFormat(const char* szUtf8Format, ...); // [tested]
 
   /// \brief Prepens the formatted string.
-  void PrependFormat(const char* szUtf8Format, va_list& args); // [tested]
+  void PrependFormat(const char* szUtf8Format, va_list args); // [tested]
 
   /// \brief Sets this string to the formatted string.
   void Format(const char* szUtf8Format, ...); // [tested]
 
   /// \brief Sets this string to the formatted string.
-  void Format(const char* szUtf8Format, va_list& args); // [tested]
+  void Format(const char* szUtf8Format, va_list args); // [tested]
 
   /// \brief Removes the first n and last m characters from this string.
   ///

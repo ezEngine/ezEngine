@@ -186,10 +186,15 @@ inline void ezStringBuilder::Format(const char* szUtf8Format, ...)
   va_end (args);
 }
 
-inline void ezStringBuilder::Format(const char* szUtf8Format, va_list& args)
+inline void ezStringBuilder::Format(const char* szUtf8Format, va_list args0)
 {
+  va_list args;
+  va_copy(args, args0);
+
   Clear();
   AppendFormat(szUtf8Format, args);
+
+  va_end(args);
 }
 
 inline void ezStringBuilder::ChangeCharacter(ezStringIterator& It, ezUInt32 uiCharacter)

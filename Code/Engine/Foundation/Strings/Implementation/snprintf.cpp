@@ -762,8 +762,11 @@ static void OutputFloat_Short (char* szOutputBuffer, unsigned int uiBufferSize, 
     OutputFloat (szOutputBuffer, uiBufferSize, uiWritePos, value, iWidth, iPrecF, Flags, bUpperCase, bScientific, iPrecision < 0);
 }
 
-int ezStringUtils::vsnprintf (char* szOutputBuffer, unsigned int uiBufferSize, const char* szFormat, va_list& args)
+int ezStringUtils::vsnprintf(char* szOutputBuffer, unsigned int uiBufferSize, const char* szFormat, va_list args0)
 {
+  va_list args;
+  va_copy(args, args0);
+
   EZ_ASSERT(ezUnicodeUtils::IsValidUtf8(szFormat), "The sprintf format string must be valid Utf8.");
 
   // make sure the last character is a \0
@@ -806,6 +809,7 @@ int ezStringUtils::vsnprintf (char* szOutputBuffer, unsigned int uiBufferSize, c
     if (bError)
     {
       snprintf (szOutputBuffer, uiBufferSize, "Error in formatting string at position %i ('%c').", uiReadPos, cSpecifier);
+      va_end(args);
       return -1;
     }
 
@@ -941,6 +945,8 @@ int ezStringUtils::vsnprintf (char* szOutputBuffer, unsigned int uiBufferSize, c
 
   // write the final \0
   OutputChar (szOutputBuffer, uiBufferSize, uiWritePos, '\0');
+
+  va_end(args);
 
   // return the number of characters that would have been written
   // minus the terminating zero

@@ -33,6 +33,9 @@ Mid Term
   * RTTI
   * Text Streams
   * Type-safe printf
+  * JSON reader / writer
+  * Game Object basics (Clemens)
+  * Rendering Abstraction basics (Marc)
 
 Bugs
 ----
