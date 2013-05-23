@@ -85,6 +85,9 @@ void ezStartup::PluginEventHandler(const ezPlugin::PluginEvent& EventData, void*
       ezStartup::ReinitToCurrentState();
     }
     break;
+      
+  default:
+    break;
   }
 }
 
@@ -245,6 +248,9 @@ void ezStartup::Startup(ezStartupStage::Enum stage)
       case ezStartupStage::Engine:
         Order[i]->OnEngineStartup();
         break;
+          
+      default:
+        break;
       }
 
       Order[i]->m_bStartupDone[stage] = true;
@@ -305,6 +311,9 @@ void ezStartup::Startup(ezStartupStage::Enum stage)
   case ezStartupStage::Engine:
     ezGlobalEvent::Broadcast(EZ_GLOBALEVENT_STARTUP_ENGINE_END);
     break;
+      
+  default:
+    break;
   }
 
   if (s_CurrentState == ezStartupStage::None)
@@ -357,11 +366,16 @@ void ezStartup::Shutdown(ezStartupStage::Enum stage)
         case ezStartupStage::Base:
           Order[i]->OnBaseShutdown();
           break;
+            
         case ezStartupStage::Core:
           Order[i]->OnCoreShutdown();
           break;
+            
         case ezStartupStage::Engine:
           Order[i]->OnEngineShutdown();
+          break;
+            
+        default:
           break;
         }
 
@@ -374,11 +388,16 @@ void ezStartup::Shutdown(ezStartupStage::Enum stage)
   {
   case ezStartupStage::Base:
     break;
+      
   case ezStartupStage::Core:
     ezGlobalEvent::Broadcast(EZ_GLOBALEVENT_SHUTDOWN_CORE_END);
     break;
+      
   case ezStartupStage::Engine:
     ezGlobalEvent::Broadcast(EZ_GLOBALEVENT_SHUTDOWN_ENGINE_END);
+    break;
+      
+  default:
     break;
   }
 

@@ -128,11 +128,6 @@ EZ_CREATE_SIMPLE_TEST(Containers, Deque)
 
     for (ezInt32 i = 1; i < 1000; ++i)
     {
-      if (i == 99)
-      {
-        int urg = 0;
-      }
-
       d1.PushBack(i);
 
       EZ_TEST(d1.PeekBack() == i);

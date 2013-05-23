@@ -9,8 +9,10 @@
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   #include <Foundation/Configuration/Implementation/Win/Plugin_Win.h>
+#elif EZ_ENABLED(EZ_PLATFORM_OSX)
+  #include <Foundation/Configuration/Implementation/Posix/Plugin_Posix.h>
 #else
-  #error "Unknown Platform."
+  #error "Plugins not implemented on this Platform."
 #endif
 
 ezResult UnloadPluginModule(ezPluginModule& Module, const char* szPluginFile);

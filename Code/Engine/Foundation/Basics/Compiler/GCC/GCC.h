@@ -1,6 +1,7 @@
 
 #pragma once
 
+// reinvestigate: attribute(always inline) does not work for some reason
 #define EZ_FORCE_INLINE inline
 
 #define EZ_RESTRICT __restrict

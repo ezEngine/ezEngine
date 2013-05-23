@@ -110,11 +110,11 @@ struct name    \
     typedef storage StorageType; \
     enum Enum    \
     {    \
-      EZ_EXPAND_ARGS_WITH_INDEX EZ_PASS_VA(EZ_DECLARE_FLAGS_ENUM, __VA_ARGS__)    \
+      EZ_EXPAND_ARGS_WITH_INDEX(EZ_DECLARE_FLAGS_ENUM, ##__VA_ARGS__)    \
     };    \
     struct Bits    \
     {    \
-      EZ_EXPAND_ARGS EZ_PASS_VA(EZ_DECLARE_FLAGS_BITS, __VA_ARGS__)    \
+      EZ_EXPAND_ARGS(EZ_DECLARE_FLAGS_BITS, ##__VA_ARGS__)    \
     };    \
     EZ_ENUM_TO_STRING(__VA_ARGS__) \
   };    \

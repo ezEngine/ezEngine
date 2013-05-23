@@ -129,11 +129,6 @@ typedef DWORD ezThreadId;
     #define EZ_VA_NUM_ARGS(...)                        EZ_VA_NUM_ARGS_HELPER EZ_LEFT_PARENTHESIS __VA_ARGS__, EZ_VA_NUM_ARGS_REVERSE_SEQUENCE EZ_RIGHT_PARENTHESIS
   #endif
 
-  // EZ_PASS_VA passes __VA_ARGS__ as multiple parameters to another macro, working around the above-mentioned bug
-  #if _MSC_VER >= 1400
-    #define EZ_PASS_VA(...)                            EZ_LEFT_PARENTHESIS __VA_ARGS__ EZ_RIGHT_PARENTHESIS
-  #endif
-
   #ifndef va_copy
     #define va_copy(dest, source) (dest) = (source)
   #endif

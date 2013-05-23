@@ -60,3 +60,6 @@
 #define EZ_CHECK_ALIGNMENT_32(ptr) EZ_CHECK_ALIGNMENT(ptr, 32)
 #define EZ_CHECK_ALIGNMENT_64(ptr) EZ_CHECK_ALIGNMENT(ptr, 64)
 #define EZ_CHECK_ALIGNMENT_128(ptr) EZ_CHECK_ALIGNMENT(ptr, 128)
+
+// Template helper which allows to suppress "Unused variable" warnings (e.g. result used in platform specific block, ..)
+template<class T> void EZ_IGNORE_UNUSED(const T&) {}

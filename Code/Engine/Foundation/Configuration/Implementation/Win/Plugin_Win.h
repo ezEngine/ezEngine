@@ -1,4 +1,3 @@
-#include <Foundation/Basics.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
 

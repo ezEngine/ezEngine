@@ -81,7 +81,7 @@ public:
 class Derived2 : public Base
 {
 public:
-  EZ_NO_INLINE ezInt32 __fastcall FastCall() { return 2; }
+  EZ_NO_INLINE ezInt32 EZ_FASTCALL FastCall() { return 2; }
   EZ_NO_INLINE ezInt32 NonVirtual() { return 2; }
   EZ_NO_INLINE virtual ezInt32 Virtual() { return 2; }
 };

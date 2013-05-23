@@ -255,15 +255,19 @@ ezUInt32 ezStringUtils::ToLowerString(char* pString)
       return (ret_equal);\
   }\
   if (szString1 == NULL)\
+  {\
     if (szString2[0] == '\0') /* if String1 is NULL, String2 is never NULL, otherwise the previous IF would have returned already */ \
       return (ret_equal);\
     else\
       return (ret_str2_larger);\
+  }\
   if (szString2 == NULL) \
+  {\
     if (szString1[0] == '\0') /* if String2 is NULL, String1 is never NULL, otherwise the previous IF would have returned already */ \
       return (ret_equal);\
     else\
-      return (ret_str1_larger);
+      return (ret_str1_larger);\
+  }
 
 ezInt32 ezStringUtils::Compare(const char* pString1, const char* pString2, const char* pString1End, const char* pString2End)
 {

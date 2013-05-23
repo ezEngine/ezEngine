@@ -95,6 +95,9 @@ void ezCVar::PluginEventHandler(const ezPlugin::PluginEvent& EventData, void* pP
       SaveCVars();
     }
     break;
+      
+  default:
+    break;
   }
 }
 

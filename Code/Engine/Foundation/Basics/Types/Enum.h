@@ -63,6 +63,9 @@ private:
 };
 
 
+#define EZ_ENUM_VALUE_TO_STRING(name) \
+  case name: return EZ_STRINGIZE(name);
+
 /// \brief Helper macro to generate a 'ToString' function for enum values.
 ///
 /// Usage: EZ_ENUM_TO_STRING(Value1, Value2, Value3, Value4)
@@ -84,10 +87,7 @@ private:
   { \
     switch(value) \
     { \
-      EZ_EXPAND_ARGS EZ_PASS_VA(EZ_ENUM_VALUE_TO_STRING, __VA_ARGS__) \
+      EZ_EXPAND_ARGS(EZ_ENUM_VALUE_TO_STRING, ##__VA_ARGS__) \
       default: return NULL; \
     } \
   }
-
-#define EZ_ENUM_VALUE_TO_STRING(name) \
-  case name: return EZ_STRINGIZE(name);

@@ -38,7 +38,7 @@ void ezStringWChar::operator=(const ezUInt16* szUtf16)
   {
     // skip any Utf16 little endian Byte Order Mark
     ezUnicodeUtils::SkipUtf16BomLE(szUtf16);
-    EZ_ASSERT_NOT_IMPLEMENTED(!ezUnicodeUtils::SkipUtf16BomBE(szUtf16), "Utf-16 Big Endian is currently not supported.");
+    EZ_ASSERT(!ezUnicodeUtils::SkipUtf16BomBE(szUtf16), "Utf-16 Big Endian is currently not supported.");
 
     while (*szUtf16 != '\0')
     {
@@ -131,7 +131,7 @@ void ezStringUtf8::operator=(const ezUInt16* szUtf16)
   {
     // skip any Utf16 little endian Byte Order Mark
     ezUnicodeUtils::SkipUtf16BomLE(szUtf16);
-    EZ_ASSERT_NOT_IMPLEMENTED(!ezUnicodeUtils::SkipUtf16BomBE(szUtf16), "Utf-16 Big Endian is currently not supported.");
+    EZ_ASSERT(!ezUnicodeUtils::SkipUtf16BomBE(szUtf16), "Utf-16 Big Endian is currently not supported.");
 
     while (*szUtf16 != '\0')
     {
@@ -232,7 +232,7 @@ void ezStringUtf16::operator=(const ezUInt16* szUtf16)
   {
     // skip any Utf16 little endian Byte Order Mark
     ezUnicodeUtils::SkipUtf16BomLE(szUtf16);
-    EZ_ASSERT_NOT_IMPLEMENTED(!ezUnicodeUtils::SkipUtf16BomBE(szUtf16), "Utf-16 Big Endian is currently not supported.");
+    EZ_ASSERT(!ezUnicodeUtils::SkipUtf16BomBE(szUtf16), "Utf-16 Big Endian is currently not supported.");
 
     while (*szUtf16 != '\0')
     {
@@ -327,7 +327,7 @@ void ezStringUtf32::operator=(const ezUInt16* szUtf16)
   {
     // skip any Utf16 little endian Byte Order Mark
     ezUnicodeUtils::SkipUtf16BomLE(szUtf16);
-    EZ_ASSERT_NOT_IMPLEMENTED(!ezUnicodeUtils::SkipUtf16BomBE(szUtf16), "Utf-16 Big Endian is currently not supported.");
+    EZ_ASSERT(!ezUnicodeUtils::SkipUtf16BomBE(szUtf16), "Utf-16 Big Endian is currently not supported.");
 
     while (*szUtf16 != '\0')
     {

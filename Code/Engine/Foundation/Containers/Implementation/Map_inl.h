@@ -370,7 +370,7 @@ ValueType& ezMapBase<KeyType, ValueType, Comparer>::operator[] (const KeyType& k
       Node* it = m_pRoot;
       Node* up[STACK_SIZE];
 
-      ezInt8 top = 0;
+      ezInt32 top = 0;
       ezUInt32 dir = 0;
 
       while (true) 
@@ -619,7 +619,7 @@ typename ezMapBase<KeyType, ValueType, Comparer>::Node* ezMapBase<KeyType, Value
   {
     Node* it = root;
     Node* up[STACK_SIZE];
-    ezInt8 top = 0;
+    ezInt32 top = 0;
     ezInt32 dir = 0;
 
     while (true)

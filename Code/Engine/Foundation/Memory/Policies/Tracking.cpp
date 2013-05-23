@@ -52,15 +52,16 @@ void ezStackTracking::RemoveAllocation(void* ptr, size_t uiAllocatedSize, size_t
 
 void ezStackTracking::DumpMemoryLeaks() const
 {
-  wchar_t buffer[512];
-
   for (ezHashTable<void*, TrackingInfo>::ConstIterator it = m_trackings.GetIterator(); it.IsValid(); ++it)
   {
-    void* ptr = it.Key();
     TrackingInfo info = it.Value();
     const ezUInt32 uiNumTraces = (ezUInt32)(ezFoundation::GetDebugAllocator()->AllocatedSize(info.pTrace) / sizeof(void*));
+    
+    EZ_IGNORE_UNUSED(uiNumTraces);
 
   #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+    
+    wchar_t buffer[512];
 
     // todo: make this platform independent
     swprintf_s(buffer, L"Leaked %d bytes allocated from:\n", (int)info.uiAllocatedSize);

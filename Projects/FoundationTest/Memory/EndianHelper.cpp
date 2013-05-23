@@ -1,6 +1,26 @@
 #include <PCH.h>
 #include <Foundation/Memory/EndianHelper.h>
 
+namespace
+{
+  struct TempStruct
+  {
+    float fVal;
+    ezUInt32 uiDVal;
+    ezUInt16 uiWVal1; ezUInt16 uiWVal2;
+    char pad[4];
+  };
+  
+  struct FloatAndInt
+  {
+    union
+    {
+      float fVal;
+      ezUInt32 uiVal;
+    };
+  };
+}
+
 
 EZ_CREATE_SIMPLE_TEST(Memory, Endian)
 {
@@ -76,24 +96,7 @@ EZ_CREATE_SIMPLE_TEST(Memory, Endian)
 
   EZ_TEST_BLOCK(true, "Switching Structs")
   {
-    struct TempStruct
-    {
-      float fVal;
-      ezUInt32 uiDVal;
-      ezUInt16 uiWVal1; ezUInt16 uiWVal2;
-      char pad[4];
-    };
-
-    struct FloatAndInt
-    {
-      union
-      {
-        float fVal;
-        ezUInt32 uiVal;
-      };
-    };
-
-    TempStruct instance = {42.0f, 0x34AA12FF, 0x15FF, 0x23FF, 'E', 'Z', 'F', 'T' };
+    TempStruct instance = { 42.0f, 0x34AA12FF, 0x15FF, 0x23FF, {'E', 'Z', 'F', 'T'} };
 
     ezEndianHelper::SwitchStruct(&instance, "ddwwcccc");
 

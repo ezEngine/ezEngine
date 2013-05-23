@@ -1,23 +1,29 @@
 
-ezProfilingScope::ezProfilingScope(ezUInt32 uiId, const char* szSampleName, const char* szFileName, 
-  const char* szFunctionName, ezUInt32 uiLineNumber)
+namespace
 {
-  EZ_ASSERT_NOT_IMPLEMENTED;
+struct ProfilingInfo
+{
+  EZ_DECLARE_POD_TYPE();
+  
+  ProfilingInfo(const char* szName)
+  {
+  }
+};
+}
+
+
+ezProfilingScope::ezProfilingScope(const ezProfilingId& id, const char* szFileName,
+  const char* szFunctionName, ezUInt32 uiLineNumber) :
+  m_Id(id)
+{
+  //EZ_ASSERT_NOT_IMPLEMENTED;
 }
 
 ezProfilingScope::~ezProfilingScope()
 {
-  EZ_ASSERT_NOT_IMPLEMENTED;
+  //EZ_ASSERT_NOT_IMPLEMENTED;
 }
 
-
-void ezProfilingSystem::Initialize()
+void ezProfilingSystem::SetThreadName(const char* szThreadName)
 {
-  EZ_ASSERT_NOT_IMPLEMENTED;
 }
-
-void ezProfilingSystem::Shutdown()
-{
-  EZ_ASSERT_NOT_IMPLEMENTED;
-}
-

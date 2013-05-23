@@ -18,9 +18,9 @@ ezListBase<T>::ListElement::ListElement(const T& data) : m_Data(data)
 
 template <typename T>
 ezListBase<T>::ezListBase(ezIAllocator* pAllocator) : 
-  m_uiCount(0), 
-  m_End(reinterpret_cast<ListElement*>(&m_Last)), 
-  m_Elements(pAllocator), 
+  m_End(reinterpret_cast<ListElement*>(&m_Last)),
+  m_uiCount(0),
+  m_Elements(pAllocator),
   m_pFreeElementStack(NULL)
 {
   m_First.m_pNext = reinterpret_cast<ListElement*>(&m_Last);
@@ -29,9 +29,9 @@ ezListBase<T>::ezListBase(ezIAllocator* pAllocator) :
 
 template <typename T>
 ezListBase<T>::ezListBase(const ezListBase<T>& cc, ezIAllocator* pAllocator) : 
-  m_uiCount(0), 
-  m_End(reinterpret_cast<ListElement*>(&m_Last)), 
-  m_Elements(pAllocator), 
+  m_End(reinterpret_cast<ListElement*>(&m_Last)),
+  m_uiCount(0),
+  m_Elements(pAllocator),
   m_pFreeElementStack(NULL)
 {
   m_First.m_pNext = reinterpret_cast<ListElement*>(&m_Last);

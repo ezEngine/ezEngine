@@ -49,6 +49,8 @@ inline void OutputToConsole (ezTestOutput::Enum Type, const char* szMsg)
     // reset it for the next test round
     bAnyError = false;
     break;
+  default:
+    break;
   }
 
   printf ("%*s%s\n", iIndentation, "", szMsg);

@@ -144,6 +144,7 @@ ezResult ezOSFile::InternalCreateDirectory(const char* szDirectory)
   return EZ_FAILURE;
 }
 
+#if EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
 ezResult ezOSFile::InternalGetFileStats(const char* szFileOrFolder, ezFileStats& out_Stats)
 {
   struct stat tempStat;
@@ -159,8 +160,10 @@ ezResult ezOSFile::InternalGetFileStats(const char* szFileOrFolder, ezFileStats&
   
   return EZ_SUCCESS;
 }
+#endif
 
 const char* ezOSFile::GetApplicationDirectory()
 {
-  #error Not yet implemented.
+  #warning Not yet implemented.
+  return NULL;
 }

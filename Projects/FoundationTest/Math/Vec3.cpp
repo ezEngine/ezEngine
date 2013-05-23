@@ -236,7 +236,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Vec3)
 
     // operator/ (ezVec3, float)
     ezVec3 vDivVec3Float = (vOp1 / 2.0f);
-    EZ_TEST(vDivFloat.IsEqual(ezVec3(-2.0f, 0.1f, -3.5f), ezMath_SmallEpsilon));
+    EZ_TEST(vDivVec3Float.IsEqual(ezVec3(-2.0f, 0.1f, -3.5f), ezMath_SmallEpsilon));
 
     // operator== (ezVec3, ezVec3)
     EZ_TEST(vOp1 == vOp1);

@@ -8,10 +8,8 @@
   #define EZ_VA_NUM_ARGS_HELPER(_1, _2, _3, _4, _5, _6, _7, _8, _9, _10, N, ...)    N
 #endif
 
-/// Passes variadic preprocessor arguments to another macro
-#ifndef EZ_PASS_VA
-  #define EZ_PASS_VA(...) (__VA_ARGS__)
-#endif
+
+#define EZ_CALL_MACRO(macro, args) macro args
 
 
 #define EZ_EXPAND_ARGS_1(op, a0)                                        op(a0)
@@ -39,9 +37,9 @@
 
 
 /// Variadic macro "dispatching" the arguments to the correct macro.
-/// The number of arguments is found by using ME_PP_NUM_ARGS(__VA_ARGS__)
+/// The number of arguments is found by using EZ_VA_NUM_ARGS(__VA_ARGS__)
 #define EZ_EXPAND_ARGS(op, ...) \
-  EZ_CONCAT(EZ_EXPAND_ARGS_, EZ_VA_NUM_ARGS(__VA_ARGS__)) EZ_PASS_VA(op, __VA_ARGS__)
+  EZ_CALL_MACRO(EZ_CONCAT(EZ_EXPAND_ARGS_, EZ_VA_NUM_ARGS(__VA_ARGS__)), (op, __VA_ARGS__))
 
 #define EZ_EXPAND_ARGS_WITH_INDEX(op, ...) \
-  EZ_CONCAT(EZ_EXPAND_ARGS_WITH_INDEX_, EZ_VA_NUM_ARGS(__VA_ARGS__)) EZ_PASS_VA(op, __VA_ARGS__)
+  EZ_CALL_MACRO(EZ_CONCAT(EZ_EXPAND_ARGS_WITH_INDEX_, EZ_VA_NUM_ARGS(__VA_ARGS__)), (op, __VA_ARGS__))

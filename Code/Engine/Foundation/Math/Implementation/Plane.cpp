@@ -85,6 +85,9 @@ ezPositionOnPlane::Enum ezPlane::GetObjectPosition (const ezVec3* const vPoints,
         return (ezPositionOnPlane::Spanning);
       bBack = true;
       break;
+        
+    default:
+      break;
     }
   }
 
@@ -109,6 +112,9 @@ ezPositionOnPlane::Enum ezPlane::GetObjectPosition (const ezVec3* const vPoints,
       if (bFront)
         return (ezPositionOnPlane::Spanning);
       bBack = true;
+      break;
+        
+    default:
       break;
     }
   }
