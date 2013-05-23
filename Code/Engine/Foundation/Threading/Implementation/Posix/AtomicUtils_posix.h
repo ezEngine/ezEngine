@@ -10,23 +10,23 @@
 
 EZ_FORCE_INLINE ezInt32 ezAtomicUtils::Increment(volatile ezInt32& dest)
 {  
-  return __sync_fetch_and_add(&dest, 1);
+  return __sync_add_and_fetch(&dest, 1);
 }
 
 EZ_FORCE_INLINE ezInt64 ezAtomicUtils::Increment(volatile ezInt64& dest)
 {  
-  return __sync_fetch_and_add(&dest, 1);
+  return __sync_add_and_fetch(&dest, 1);
 }
 
 
 EZ_FORCE_INLINE ezInt32 ezAtomicUtils::Decrement(volatile ezInt32& dest)
 {
-  return __sync_fetch_and_sub(&dest, 1);
+  return __sync_sub_and_fetch(&dest, 1);
 }
 
 EZ_FORCE_INLINE ezInt64 ezAtomicUtils::Decrement(volatile ezInt64& dest)
 {
-  return __sync_fetch_and_sub(&dest, 1);
+  return __sync_sub_and_fetch(&dest, 1);
 }
 
 
@@ -82,7 +82,7 @@ EZ_FORCE_INLINE void ezAtomicUtils::Min(volatile ezInt32& dest, ezInt32 value)
     ezInt32 iOldValue = dest;
     ezInt32 iNewValue = ezMath::Min(iOldValue, value);
   
-    if (__sync_bool_compare_and_swap(&dest, iOldValue, iNewValue) == iOldValue)
+    if (__sync_bool_compare_and_swap(&dest, iOldValue, iNewValue))
       break;
   }
 }
@@ -95,7 +95,7 @@ EZ_FORCE_INLINE void ezAtomicUtils::Min(volatile ezInt64& dest, ezInt64 value)
     ezInt64 iOldValue = dest;
     ezInt64 iNewValue = ezMath::Min(iOldValue, value);
   
-    if (__sync_bool_compare_and_swap(&dest, iOldValue, iNewValue) == iOldValue)
+    if (__sync_bool_compare_and_swap(&dest, iOldValue, iNewValue))
       break;
   }
 }
@@ -109,7 +109,7 @@ EZ_FORCE_INLINE void ezAtomicUtils::Max(volatile ezInt32& dest, ezInt32 value)
     ezInt32 iOldValue = dest;
     ezInt32 iNewValue = ezMath::Max(iOldValue, value);
   
-    if (__sync_bool_compare_and_swap(&dest, iOldValue, iNewValue) == iOldValue)
+    if (__sync_bool_compare_and_swap(&dest, iOldValue, iNewValue))
       break;
   }
 }
@@ -122,7 +122,7 @@ EZ_FORCE_INLINE void ezAtomicUtils::Max(volatile ezInt64& dest, ezInt64 value)
     ezInt64 iOldValue = dest;
     ezInt64 iNewValue = ezMath::Max(iOldValue, value);
   
-    if (__sync_bool_compare_and_swap(&dest, iOldValue, iNewValue) == iOldValue)
+    if (__sync_bool_compare_and_swap(&dest, iOldValue, iNewValue))
       break;
   }
 }
@@ -153,9 +153,9 @@ EZ_FORCE_INLINE bool ezAtomicUtils::TestAndSet(void** volatile dest, void* expec
 {
   #if EZ_ENABLED(EZ_PLATFORM_64BIT)
     ezUInt64* puiTemp = *reinterpret_cast<ezUInt64**>(dest);
-    return __sync_bool_compare_and_swap(puiTemp, reinterpret_cast<ezUInt64>(expected), reinterpret_cast<ezUInt64>(value)) == reinterpret_cast<ezUInt64>(expected);
+    return __sync_bool_compare_and_swap(puiTemp, reinterpret_cast<ezUInt64>(expected), reinterpret_cast<ezUInt64>(value));
   #else
     ezUInt32* puiTemp = *reinterpret_cast<ezUInt32**>(dest);
-    return __sync_bool_compare_and_swap(puiTemp, reinterpret_cast<ezUInt32>(expected), reinterpret_cast<ezUInt32>(value)) == reinterpret_cast<ezUInt32>(expected);
+    return __sync_bool_compare_and_swap(puiTemp, reinterpret_cast<ezUInt32>(expected), reinterpret_cast<ezUInt32>(value));
   #endif
 }

@@ -52,7 +52,7 @@ void* ezAllocator<A, B, T, M>::Allocate(size_t uiSize, size_t uiAlign)
   m_boundsChecker.GuardBack(pMemory + uiGuardedSize);
 
   void* ptr = pMemory + uiGuardSizeFront;
-  m_tracker.AddAllocation(ptr, uiSize, m_allocator.UsedMemorySize(pMemory));
+  m_tracker.AddAllocation(ptr, m_allocator.AllocatedSize(pMemory), m_allocator.UsedMemorySize(pMemory));
 
   return ptr;
 }
