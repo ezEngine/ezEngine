@@ -1,4 +1,6 @@
 #include <PCH.h>
+#include <Foundation/Time/Time.h>
+#include <Foundation/Logging/Log.h>
 
 /* Performance Statistics:
 

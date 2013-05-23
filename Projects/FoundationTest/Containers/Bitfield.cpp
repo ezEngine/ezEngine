@@ -1,4 +1,5 @@
 #include <PCH.h>
+#include <Foundation/Containers/Bitfield.h>
 
 EZ_CREATE_SIMPLE_TEST(Containers, Bitfield)
 {

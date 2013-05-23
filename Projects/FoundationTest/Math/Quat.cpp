@@ -1,4 +1,5 @@
 #include <PCH.h>
+#include <Foundation/Math/Quat.h>
 
 EZ_CREATE_SIMPLE_TEST(Math, Quaternion)
 {

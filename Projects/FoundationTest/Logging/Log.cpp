@@ -1,4 +1,10 @@
 #include <PCH.h>
+#include <Foundation/Logging/Log.h>
+#include <Foundation/Logging/ConsoleWriter.h>
+#include <Foundation/Logging/HTMLWriter.h>
+#include <Foundation/Logging/VisualStudioWriter.h>
+#include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
+#include <Foundation/Configuration/Startup.h>
 
 EZ_CREATE_SIMPLE_TEST_GROUP(Logging);
 

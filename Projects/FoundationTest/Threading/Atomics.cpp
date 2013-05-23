@@ -1,4 +1,5 @@
 #include <PCH.h>
+#include <Foundation/Threading/Thread.h>
 
 namespace
 {

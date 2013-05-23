@@ -1,4 +1,5 @@
 #include <PCH.h>
+#include <Foundation/Math/Math.h>
 
 /// ********************* Binary to Int conversion *********************
 /// Most significant bit comes first.

@@ -1,4 +1,6 @@
 #include <PCH.h>
+#include <Foundation/Memory/EndianHelper.h>
+
 
 EZ_CREATE_SIMPLE_TEST(Memory, Endian)
 {

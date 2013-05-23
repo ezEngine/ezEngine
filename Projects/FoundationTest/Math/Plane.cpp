@@ -1,4 +1,7 @@
 #include <PCH.h>
+#include <Foundation/Math/Plane.h>
+#include <Foundation/Math/BoundingBox.h>
+#include <Foundation/Math/BoundingSphere.h>
 
 EZ_CREATE_SIMPLE_TEST(Math, Plane)
 {

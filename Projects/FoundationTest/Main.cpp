@@ -1,4 +1,6 @@
 #include <PCH.h>
+#include <Foundation/Logging/Log.h>
+#include <Foundation/Logging/ConsoleWriter.h>
 #include <TestFramework/Utilities/TestOrder.h>
 #include <TestFramework/Utilities/ConsoleOutput.h>
 #include <TestFramework/Utilities/HTMLOutput.h>

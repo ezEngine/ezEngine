@@ -1,4 +1,5 @@
 #include <PCH.h>
+#include <Foundation/IO/OSFile.h>
 
 EZ_CREATE_SIMPLE_TEST(IO, OSFile)
 {

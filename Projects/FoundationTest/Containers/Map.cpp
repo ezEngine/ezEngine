@@ -1,4 +1,5 @@
 #include <PCH.h>
+#include <Foundation/Containers/Map.h>
 
 typedef ezConstructionCounter st;
 

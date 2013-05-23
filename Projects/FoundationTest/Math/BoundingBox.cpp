@@ -1,4 +1,5 @@
 #include <PCH.h>
+#include <Foundation/Math/BoundingBox.h>
 
 EZ_CREATE_SIMPLE_TEST(Math, BoundingBox)
 {

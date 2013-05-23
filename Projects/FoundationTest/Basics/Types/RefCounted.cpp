@@ -1,4 +1,5 @@
 #include <PCH.h>
+#include <Foundation/Basics/Types/RefCounted.h>
 
 class RefCountedTestClass : public ezRefCounted
 {

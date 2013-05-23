@@ -1,4 +1,6 @@
 #include <PCH.h>
+#include <Foundation/Threading/Thread.h>
+#include <Foundation/Time/Time.h>
 
 namespace 
 {

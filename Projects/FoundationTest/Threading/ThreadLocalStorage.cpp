@@ -1,4 +1,7 @@
 #include <PCH.h>
+#include <Foundation/Threading/Thread.h>
+#include <Foundation/Threading/ThreadLocalStorage.h>
+#include <Foundation/Threading/ThreadLocalPointer.h>
 
 namespace 
 {

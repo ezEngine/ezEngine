@@ -1,5 +1,7 @@
 #include <PCH.h>
-#include <TestFramework/Framework/TestFramework.h>
+#include <Foundation/Configuration/Plugin.h>
+#include <Foundation/Configuration/CVar.h>
+#include <Foundation/Configuration/Startup.h>
 
 static ezInt32 g_iPluginState = -1;
 

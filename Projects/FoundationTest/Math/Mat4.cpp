@@ -1,4 +1,5 @@
 #include <PCH.h>
+#include <Foundation/Math/Mat4.h>
 
 EZ_CREATE_SIMPLE_TEST(Math, Mat4)
 {

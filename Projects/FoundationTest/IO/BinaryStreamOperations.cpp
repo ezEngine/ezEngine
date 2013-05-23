@@ -1,4 +1,6 @@
 #include <PCH.h>
+#include <Foundation/IO/IBinaryStream.h>
+#include <Foundation/IO/MemoryStream.h>
 
 EZ_CREATE_SIMPLE_TEST(IO, BinaryStreamOperation)
 {

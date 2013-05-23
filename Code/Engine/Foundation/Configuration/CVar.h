@@ -4,6 +4,7 @@
 #include <Foundation/Strings/String.h>
 #include <Foundation/Basics/Types/Bitflags.h>
 #include <Foundation/Communication/Event.h>
+#include <Foundation/Configuration/Plugin.h>
 
 /// \brief Describes of which type a CVar is. Use that info to cast an ezCVar* to the proper derived class.
 struct ezCVarType
