@@ -51,7 +51,7 @@ protected:
 
 /// \brief creates a new instance of type using the given allocator
 #define EZ_NEW(allocator, type) \
-  new (allocator->Allocate(sizeof(type), EZ_ALIGNMENT_OF(type))) type
+  new ((allocator)->Allocate(sizeof(type), EZ_ALIGNMENT_OF(type))) type
 
 /// \brief deletes the instance stored in ptr using the given allocator and sets ptr to NULL
 #define EZ_DELETE(allocator, ptr) \

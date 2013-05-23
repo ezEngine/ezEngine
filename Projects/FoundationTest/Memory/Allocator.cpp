@@ -94,9 +94,9 @@ EZ_CREATE_SIMPLE_TEST(Memory, Allocator)
 
     EZ_TEST(pAllocator->AllocatedSize(szTestBuffer) == 16);
 
-    ezIAllocator::Stats stats;
+    /*ezIAllocator::Stats stats;
     pAllocator->GetStats(stats);
-    EZ_TEST(stats.m_uiAllocationSize == 16);
+    EZ_TEST(stats.m_uiAllocationSize == 16);*/
 
     strcpy(szTestBuffer, "TestTestTestTes");
 

@@ -73,7 +73,7 @@ void ezAllocator<A, B, T, M>::Deallocate(void* ptr)
   m_boundsChecker.CheckFront(pMemory, uiOffset);
   m_boundsChecker.CheckBack(pMemory + uiGuardedSize);
   
-  m_tracker.RemoveAllocation(ptr, uiAllocatedSize, uiUsedMemorySize);
+  m_tracker.RemoveAllocation(ptr, uiGuardedSize, uiUsedMemorySize);
 
   m_allocator.Deallocate(pMemory);
 }
