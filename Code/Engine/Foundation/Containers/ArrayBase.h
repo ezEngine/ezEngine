@@ -63,6 +63,10 @@ public:
   /// \brief Removes the first occurrence of value and fills the gap by shifting all following elements
   bool Remove(const T& value); // [tested]
 
+  /// \brief Removes the first occurrence of value and fills the gap by swapping in the last element
+  /// \todo Unit-Test
+  bool RemoveSwap(const T& value);
+
   /// \brief Removes the element at index and fills the gap by shifting all following elements
   void RemoveAt(ezUInt32 uiIndex); // [tested]
 

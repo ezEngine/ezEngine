@@ -28,6 +28,11 @@ ezFileSystem::FileEvent::FileEvent()
   m_pDataDir = NULL;
 }
 
+ezMutex& ezFileSystem::GetFileSystemMutex()
+{
+  return s_Data->m_Mutex;
+}
+
 void ezFileSystem::RegisterEventHandler(ezEvent<const FileEvent&>::ezEventHandler Handler, void* pPassThrough)
 {
   EZ_ASSERT(s_Data != NULL, "FileSystem is not initialized.");

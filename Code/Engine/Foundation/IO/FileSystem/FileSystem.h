@@ -52,6 +52,9 @@ public:
   /// \brief Unregisters a previously registered Event Handler.
   static void UnregisterEventHandler(ezEvent<const FileEvent&>::ezEventHandler Handler, void* pPassThrough);
 
+  /// \brief Returns the mutex that the filesystem uses.
+  static ezMutex& GetFileSystemMutex();
+
 public:
   /// \brief This factory creates a data directory type, if it can handle the given data directory. Otherwise it returns NULL.
   ///

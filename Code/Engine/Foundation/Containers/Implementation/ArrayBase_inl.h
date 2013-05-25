@@ -134,6 +134,18 @@ bool ezArrayBase<T, Derived>::Remove(const T& value)
 }
 
 template <typename T, typename Derived>
+bool ezArrayBase<T, Derived>::RemoveSwap(const T& value)
+{
+  ezUInt32 uiIndex = IndexOf(value);
+
+  if (uiIndex == ezInvalidIndex)
+    return false;
+
+  RemoveAtSwap(uiIndex);
+  return true;
+}
+
+template <typename T, typename Derived>
 void ezArrayBase<T, Derived>::RemoveAt(ezUInt32 uiIndex)
 {
   EZ_ASSERT(uiIndex < m_uiCount, "Out of bounds access. Array has %i elements, trying to remove element at index %i.", m_uiCount, uiIndex);
