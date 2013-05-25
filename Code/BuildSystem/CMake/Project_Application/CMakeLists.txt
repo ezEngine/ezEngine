@@ -21,14 +21,27 @@ BUILD_APPLICATION_PROJECT()
 #link_directories ("Stuff/lib")
 
 # add all the library references that the application needs here
-set (LINK_LIBRARIES
+SET (LINK_LIBRARIES
   Foundation # All projects that are created through cmake can be easily referenced by name
 )
 
 # Set this to true, if your application is a real win32 app (not a console app)
-#set (IS_WIN32_APPLICATION true)
+#SET (IS_WIN32_APPLICATION true)
+
+# Enables the use of Qt in this project.
+#SET (EZ_QTPROJECT ON)
+
+# Call this in case this project does not function without Qt.
+#BUILD_REQUIRES_QT()
+
+# Set all headers, that shall be MOC'ed that do not end with moc.h and thus will be MOC'ed automatically.
+#SET (EZ_MOC_HEADERS
+#  mainwindow.h
+#)
 
 # execute the "application"-template
 include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/CMAKE_Application.txt)
 
+# Define which qt modules are going to be used in this project.
+#qt5_use_modules(${PROJECT_NAME} Widgets)
 

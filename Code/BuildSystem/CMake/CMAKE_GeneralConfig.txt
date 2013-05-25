@@ -12,7 +12,10 @@
 
 # Define GUI Variables to configure the project
 set (EZ_COMPILE_ENGINE_AS_DLL ON CACHE BOOL "Whether to compile the code as a shared libraries (DLL).")
-#set (EZ_ENABLE_QT_SUPPORT OFF CACHE BOOL "Whether to add Qt support.")
+set (EZ_ENABLE_QT_SUPPORT OFF CACHE BOOL "Whether to add Qt support.")
+set (EZ_QT_DIR $ENV{QTDIR} CACHE PATH "Directory of qt installation")
+set (EZ_QT_DIR_FOUND "NOT_FOUND" CACHE PATH "Last found directory of qt installation")
+mark_as_advanced(FORCE EZ_QT_DIR_FOUND)
 set (EZ_SEPARATE_BUILD_FOLDERS ON CACHE BOOL "Whether the output from different build types should end up in different folders (Debug32, Release32, etc.).")
 
 set (EZ_OUTPUT_DIRECTORY_LIB "${CMAKE_SOURCE_DIR}/Output/Lib" CACHE PATH "Where to store the compiled .lib files.")
@@ -260,10 +263,11 @@ MACRO(ADD_MSVC_PRECOMPILED_HEADER)
         GET_FILENAME_COMPONENT(Extension ${src_file} EXT)
 
         if (${Extension} STREQUAL ".cpp")
-          if (RawFilename STREQUAL "PCH.cpp")
-
-          else ()
-            set_source_files_properties (${src_file} PROPERTIES COMPILE_FLAGS "/Yu${PROJECT_FOLDER_NAME}/PCH.h")
+          if (NOT RawFilename STREQUAL "PCH.cpp")
+            # We don't want to enable PCH usage for moc files (they all start with moc_)
+            if (NOT ${src_file} MATCHES ".*(/moc_|/qrc_).*")
+              set_source_files_properties (${src_file} PROPERTIES COMPILE_FLAGS "/Yu${PROJECT_FOLDER_NAME}/PCH.h")
+            endif ()
           endif ()
         endif ()
 
@@ -300,10 +304,11 @@ MACRO(ADD_MSVC_PRECOMPILED_HEADER_APP)
         GET_FILENAME_COMPONENT(Extension ${src_file} EXT)
 
         if (${Extension} STREQUAL ".cpp")
-          if (RawFilename STREQUAL "PCH.cpp")
-
-          else ()
-            set_source_files_properties (${src_file} PROPERTIES COMPILE_FLAGS "/YuPCH.h")
+          if (NOT RawFilename STREQUAL "PCH.cpp")
+            # We don't want to enable PCH usage for moc files (they all start with moc_)
+            if (NOT ${src_file} MATCHES ".*(/moc_|/qrc_).*")
+              set_source_files_properties (${src_file} PROPERTIES COMPILE_FLAGS "/YuPCH.h")
+            endif ()
           endif ()
         endif ()
 
@@ -341,10 +346,22 @@ MACRO(BUILD_APPLICATION_PROJECT)
   endif ()
 ENDMACRO()
 
+
+#########################################################################################
+## Macro to skip a Qt-only project if EZ_ENABLE_QT_SUPPORT is not enabled globally
+
+MACRO(BUILD_REQUIRES_QT)
+  if (EZ_QTPROJECT AND NOT EZ_ENABLE_QT_SUPPORT)
+    return ()
+  endif ()
+ENDMACRO()
+
+
 #########################################################################################
 ## Include directories
 
-include_directories ("${CMAKE_SOURCE_DIR}/Code/Engine")      # this way it will also work for applications
+include_directories ("${CMAKE_SOURCE_DIR}/Code/Engine")   # this way it will also work for applications
+include_directories ("${CMAKE_SOURCE_DIR}/Projects")      # different projects may need to include from each other
 
 
 
