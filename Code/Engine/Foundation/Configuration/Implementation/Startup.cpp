@@ -151,7 +151,7 @@ void ezStartup::ComputeOrder(ezDeque<ezSubSystemDeclarationBase*>& Order)
     {
       if (!sSystemsInited.Find(pSub->GetSubSystemName()).IsValid())
       {
-        bool bAllDependsFullfilled = true;
+        bool bAllDependsFulfilled = true;
         ezInt32 iDep = 0;
 
         while(pSub->GetDependency(iDep) != NULL)
@@ -164,7 +164,7 @@ void ezStartup::ComputeOrder(ezDeque<ezSubSystemDeclarationBase*>& Order)
             {
               if (!sSystemsInited.Find(szNextSubSystem).IsValid())
               {
-                bAllDependsFullfilled = false;
+                bAllDependsFulfilled = false;
                 break;
               }
 
@@ -176,7 +176,7 @@ void ezStartup::ComputeOrder(ezDeque<ezSubSystemDeclarationBase*>& Order)
           {
             if (!sSystemsInited.Find(pSub->GetDependency(iDep)).IsValid())
             {
-              bAllDependsFullfilled = false;
+              bAllDependsFulfilled = false;
               break;
             }
           }
@@ -184,7 +184,7 @@ void ezStartup::ComputeOrder(ezDeque<ezSubSystemDeclarationBase*>& Order)
           ++iDep;
         }
 
-        if (bAllDependsFullfilled)
+        if (bAllDependsFulfilled)
         {
           bCouldInitAny = true;
           Order.PushBack(pSub);
