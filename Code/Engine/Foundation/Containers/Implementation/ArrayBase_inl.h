@@ -89,7 +89,7 @@ void ezArrayBase<T, Derived>::PushBackUnchecked(const T& value)
 }
 
 template <typename T, typename Derived>
-void ezArrayBase<T, Derived>::PushBackRange(const ezArrayPtr<T>& range)
+void ezArrayBase<T, Derived>::PushBackRange(const ezArrayPtr<typename ezTypeTraits<T>::NonConstType>& range)
 {
   const ezUInt32 uiRangeCount = range.GetCount();
   static_cast<Derived*>(this)->Reserve(m_uiCount + uiRangeCount);

@@ -9,10 +9,10 @@ template <typename T>
 class ezArrayPtr
 {
 public:
+  EZ_DECLARE_POD_TYPE();
 
   /// \brief Initializes the ezArrayPtr to be empty.
-  EZ_FORCE_INLINE ezArrayPtr() : // [tested]
-    m_ptr(NULL), m_uiCount(0)
+  EZ_FORCE_INLINE ezArrayPtr() : m_ptr(NULL), m_uiCount(0) // [tested]
   {
   }
 
@@ -20,7 +20,7 @@ public:
   inline ezArrayPtr(T* ptr, ezUInt32 uiCount) // [tested]
   {
     if (ptr != NULL && uiCount != 0)
-    {        
+    {
       m_ptr = ptr;
       m_uiCount = uiCount;
     }
@@ -38,15 +38,17 @@ public:
   }
 
   /// \brief Initializes the ezArrayPtr to be a copy of \a other. No memory is allocated or copied.
-  EZ_FORCE_INLINE ezArrayPtr(const ezArrayPtr<T>& other) : m_ptr(other.m_ptr), m_uiCount(other.m_uiCount) // [tested]
+  EZ_FORCE_INLINE ezArrayPtr(const ezArrayPtr<typename ezTypeTraits<T>::NonConstType>& other) // [tested]
   {
+    m_ptr = other.GetPtr();
+    m_uiCount = other.GetCount();
   }
 
   /// \brief Copies the pointer and size of /a other. Does not allocate any data.
-  EZ_FORCE_INLINE void operator=(const ezArrayPtr<T>& other) // [tested]
+  EZ_FORCE_INLINE void operator=(const ezArrayPtr<typename ezTypeTraits<T>::NonConstType>& other) // [tested]
   {
-    m_ptr = other.m_ptr;
-    m_uiCount = other.m_uiCount;
+    m_ptr = other.GetPtr();
+    m_uiCount = other.GetCount();
   }
 
   /// \brief Returns the pointer to the array.
@@ -76,33 +78,38 @@ public:
   }
 
   /// \brief Index access.
-  EZ_FORCE_INLINE T& operator[](ezUInt32 uiIndex) // [tested]
-  {
-    EZ_ASSERT(uiIndex < m_uiCount, "Cannot access element %i, the array only holds %i elements.", uiIndex, m_uiCount);
-    return m_ptr[uiIndex];
-  }
-
-  /// \brief Index access.
-  EZ_FORCE_INLINE const T& operator[](ezUInt32 uiIndex) const // [tested]
+  EZ_FORCE_INLINE T& operator[](ezUInt32 uiIndex) const // [tested]
   {
     EZ_ASSERT(uiIndex < m_uiCount, "Cannot access element %i, the array only holds %i elements.", uiIndex, m_uiCount);
     return m_ptr[uiIndex];
   }
 
   /// \brief Compares the two arrays for equality.
-  inline bool operator==(const ezArrayPtr<T>& other) const // [tested]
+  inline bool operator==(const ezArrayPtr<typename ezTypeTraits<T>::NonConstType>& other) const // [tested]
   {
-    if (m_uiCount != other.m_uiCount)
+    if (m_uiCount != other.GetCount())
       return false;
 
-    if (m_ptr == other.m_ptr)
+    if (m_ptr == other.GetPtr())
       return true;
 
-    return ezMemoryUtils::IsEqual(m_ptr, other.m_ptr, m_uiCount);
+    return ezMemoryUtils::IsEqual(m_ptr, other.GetPtr(), m_uiCount);
+  }
+
+  /// \brief Compares the two arrays for equality.
+  EZ_FORCE_INLINE bool operator==(const ezArrayPtr<const T>& other) const // [tested]
+  {
+    return other == *this;
   }
 
   /// \brief Compares the two arrays for inequality.
-  EZ_FORCE_INLINE bool operator!=(const ezArrayPtr<T>& other) const // [tested]
+  EZ_FORCE_INLINE bool operator!=(const ezArrayPtr<typename ezTypeTraits<T>::NonConstType>& other) const // [tested]
+  {
+    return !operator==(other);
+  }
+
+  /// \brief Compares the two arrays for inequality.
+  EZ_FORCE_INLINE bool operator!=(const ezArrayPtr<const T>& other) const // [tested]
   {
     return !operator==(other);
   }

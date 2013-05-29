@@ -52,7 +52,7 @@ public:
   void PushBackUnchecked(const T& value); // [tested]
 
   /// \brief Appends all elements in range at the end of the array. Increases the capacity if necessary.
-  void PushBackRange(const ezArrayPtr<T>& range); // [tested]
+  void PushBackRange(const ezArrayPtr<typename ezTypeTraits<T>::NonConstType>& range); // [tested]
 
   /// \brief Appends all elements in range at the end of the array. Increases the capacity if necessary.
   void PushBackRange(const ezArrayPtr<const T>& range); // [tested]

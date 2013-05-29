@@ -89,3 +89,26 @@ EZ_DEFINE_AS_POD_TYPE(wchar_t);
 #define EZ_IS_DERIVED_FROM_STATIC(BaseClass, DerivedClass) \
   (ezConversionTest<const DerivedClass*, const BaseClass*>::exists && \
   !ezConversionTest<const BaseClass*, const void*>::sameType)
+
+
+template <typename T>
+struct ezTypeTraits
+{
+private:
+  template<typename U>
+  struct RemoveConst
+  {
+    typedef U type;
+  };
+
+  template<typename U>
+  struct RemoveConst<const U>
+  {
+    typedef U type;
+  };
+
+public:
+  /// \brief removes const qualifier
+  typedef typename RemoveConst<T>::type NonConstType;
+};
+

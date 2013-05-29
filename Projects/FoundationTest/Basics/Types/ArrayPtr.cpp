@@ -82,6 +82,8 @@ EZ_CREATE_SIMPLE_TEST(Basics, ArrayPtr)
     EZ_TEST_INT(ap[0], 2);
     EZ_TEST_INT(ap[1], 3);
     EZ_TEST_INT(ap[2], 4);
+    ap[2] = 10;
+    EZ_TEST_INT(ap[2], 10);
   }
 
   EZ_TEST_BLOCK(true, "const operator[]")
@@ -117,6 +119,119 @@ EZ_CREATE_SIMPLE_TEST(Basics, ArrayPtr)
 
     ezArrayPtr<ezInt32> ap1(pIntData1, 5);
     ezArrayPtr<ezInt32> ap2 = ap1.GetSubArray(2, 3);
+
+    EZ_TEST(ap2.GetPtr() == &pIntData1[2]);
+    EZ_TEST(ap2.GetCount() == 3);
+  }
+
+  EZ_TEST_BLOCK(true, "Const Conversions")
+  {
+    ezInt32 pIntData1[] = { 1, 2, 3, 4, 5 };
+    ezArrayPtr<ezInt32> ap1(pIntData1);
+    ezArrayPtr<const ezInt32> ap2(ap1);
+    ezArrayPtr<const ezInt32> ap3(pIntData1);
+    ap2 = ap1; // non const to const assign
+    ap3 = ap2; // const to const assign
+  }
+
+  EZ_TEST_BLOCK(true, "Empty Constructor (const)")
+  {
+    ezArrayPtr<const ezInt32> Empty;
+
+    EZ_TEST(Empty.GetPtr() == NULL);
+    EZ_TEST(Empty.GetCount() == 0);
+  }
+
+  EZ_TEST_BLOCK(true, "Constructor (const)")
+  {
+    const ezInt32 pIntData[] = { 1, 2, 3, 4, 5 };
+
+    ezArrayPtr<const ezInt32> ap(pIntData, 3);
+    EZ_TEST(ap.GetPtr() == pIntData);
+    EZ_TEST(ap.GetCount() == 3);
+
+    ezArrayPtr<const ezInt32> ap2(pIntData, 0);
+    EZ_TEST(ap2.GetPtr() == NULL);
+    EZ_TEST(ap2.GetCount() == 0);
+
+    ezArrayPtr<const ezInt32> ap3(pIntData);
+    EZ_TEST(ap3.GetPtr() == pIntData);
+    EZ_TEST(ap3.GetCount() == 5);
+
+    ezArrayPtr<const ezInt32> ap4(ap);
+    EZ_TEST(ap4.GetPtr() == pIntData);
+    EZ_TEST(ap4.GetCount() == 3);
+  }
+
+  EZ_TEST_BLOCK(true, "operator=  (const)")
+  {
+    const ezInt32 pIntData[] = { 1, 2, 3, 4, 5 };
+
+    ezArrayPtr<const ezInt32> ap(pIntData, 3);
+    EZ_TEST(ap.GetPtr() == pIntData);
+    EZ_TEST(ap.GetCount() == 3);
+
+    ezArrayPtr<const ezInt32> ap2;
+    ap2 = ap;
+
+    EZ_TEST(ap2.GetPtr() == pIntData);
+    EZ_TEST(ap2.GetCount() == 3);
+  }
+
+  EZ_TEST_BLOCK(true, "Reset  (const)")
+  {
+    const ezInt32 pIntData[] = { 1, 2, 3, 4, 5 };
+
+    ezArrayPtr<const ezInt32> ap(pIntData, 3);
+    EZ_TEST(ap.GetPtr() == pIntData);
+    EZ_TEST(ap.GetCount() == 3);
+
+    ap.Reset();
+
+    EZ_TEST(ap.GetPtr() == NULL);
+    EZ_TEST(ap.GetCount() == 0);
+  }
+
+  EZ_TEST_BLOCK(true, "operator== / operator!=  (const)")
+  {
+    ezInt32 pIntData[] = { 1, 2, 3, 4, 5 };
+
+    ezArrayPtr<ezInt32> ap1(pIntData, 3);
+    ezArrayPtr<const ezInt32> ap2(pIntData, 3);
+    ezArrayPtr<const ezInt32> ap3(pIntData, 4);
+    ezArrayPtr<const ezInt32> ap4(pIntData + 1, 3);
+
+    EZ_TEST(ap1 == ap2);
+    EZ_TEST(ap3 != ap1);
+    EZ_TEST(ap1 != ap4);
+  }
+
+  EZ_TEST_BLOCK(true, "operator[]  (const)")
+  {
+    const ezInt32 pIntData[] = { 1, 2, 3, 4, 5 };
+
+    ezArrayPtr<const ezInt32> ap(pIntData + 1, 3);
+    EZ_TEST_INT(ap[0], 2);
+    EZ_TEST_INT(ap[1], 3);
+    EZ_TEST_INT(ap[2], 4);
+  }
+
+  EZ_TEST_BLOCK(true, "const operator[] (const)")
+  {
+    const ezInt32 pIntData[] = { 1, 2, 3, 4, 5 };
+
+    const ezArrayPtr<const ezInt32> ap(pIntData + 1, 3);
+    EZ_TEST_INT(ap[0], 2);
+    EZ_TEST_INT(ap[1], 3);
+    EZ_TEST_INT(ap[2], 4);
+  }
+
+  EZ_TEST_BLOCK(true, "GetSubArray (const)")
+  {
+    const ezInt32 pIntData1[] = { 1, 2, 3, 4, 5 };
+
+    ezArrayPtr<const ezInt32> ap1(pIntData1, 5);
+    ezArrayPtr<const ezInt32> ap2 = ap1.GetSubArray(2, 3);
 
     EZ_TEST(ap2.GetPtr() == &pIntData1[2]);
     EZ_TEST(ap2.GetCount() == 3);
