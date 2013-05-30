@@ -1,0 +1,38 @@
+;-----------------------------------EZ Engine----------------------------------
+
+ezInstanceId<*,*>{
+	preview(
+		#(
+			"{InstanceIndex=", $c.m_instanceIndex, " Generation=", $c.m_generation, "}"
+		)
+	)
+}
+
+ezGlobalInstanceId<*,*,*>{
+	preview(
+		#(
+			"{InstanceIndex=", $c.m_instanceIndex, " Generation=", $c.m_generation, " SystemIndex=", $c.m_systemIndex, "}"
+		)
+	)
+}
+
+ezArrayBase<*>{
+	preview(
+        #(
+            "{Elements=", [$c.m_pElements,x], " Count=", $c.m_uiCount, "}"
+        )
+	)
+
+    children(
+    	#(
+            [m_pElements]: [$c.m_pElements,!],
+            [m_uiCount]: [$c.m_uiCount,i],
+            [m_uiCapacity]: [$c.m_uiCapacity,i],
+    		#array
+    		(
+    			expr : ($c.m_pElements[$i]),
+    			size : ($c.m_uiCount)
+    		)
+    	)
+    )
+}

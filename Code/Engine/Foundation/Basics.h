@@ -163,31 +163,6 @@ private:
   static ezIAllocator* s_pAlignedAllocatorTemp;
 };
 
-struct ezNullAllocatorWrapper
-{
-  EZ_FORCE_INLINE static ezIAllocator* GetAllocator()
-  {
-    EZ_REPORT_FAILURE("This method should never be called");
-    return NULL;
-  }
-};
-
-struct ezDefaultAllocatorWrapper
-{
-  EZ_FORCE_INLINE static ezIAllocator* GetAllocator()
-  {
-    return ezFoundation::GetDefaultAllocator();
-  }
-};
-
-struct ezStaticAllocatorWrapper
-{
-  EZ_FORCE_INLINE static ezIAllocator* GetAllocator()
-  {
-    return ezFoundation::GetStaticAllocator();
-  }
-};
-
 #define EZ_INCLUDE_STATIC_H
   #include <Foundation/Basics/Static.h>
 #undef EZ_INCLUDE_STATIC_H

@@ -61,7 +61,7 @@ private:
 
 /// \brief Alignment helper. Derive from this struct if alignment is depending on a template parameter.
 /// If alignment is fixed always use the EZ_ALIGN macro.
-template <size_t ALIGNMENT> struct ezAligned;
+template <size_t Alignment> struct ezAligned;
 template <> struct EZ_ALIGN(ezAligned<1>, 1) { };
 template <> struct EZ_ALIGN(ezAligned<2>, 2) { };
 template <> struct EZ_ALIGN(ezAligned<4>, 4) { };
@@ -76,3 +76,16 @@ template <> struct EZ_ALIGN(ezAligned<1024>, 1024) { };
 template <> struct EZ_ALIGN(ezAligned<2048>, 2048) { };
 template <> struct EZ_ALIGN(ezAligned<4096>, 4096) { };
 template <> struct EZ_ALIGN(ezAligned<8192>, 8192) { };
+
+
+/// \brief Helper struct to get a storage type from a size in byte.
+template <size_t SizeInByte> struct ezSizeToType;
+template <> struct ezSizeToType<1> { typedef ezUInt8 Type; };
+template <> struct ezSizeToType<2> { typedef ezUInt16 Type; };
+template <> struct ezSizeToType<3> { typedef ezUInt32 Type; };
+template <> struct ezSizeToType<4> { typedef ezUInt32 Type; };
+template <> struct ezSizeToType<5> { typedef ezUInt64 Type; };
+template <> struct ezSizeToType<6> { typedef ezUInt64 Type; };
+template <> struct ezSizeToType<7> { typedef ezUInt64 Type; };
+template <> struct ezSizeToType<8> { typedef ezUInt64 Type; };
+

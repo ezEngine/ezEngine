@@ -52,6 +52,7 @@ void ezSystemInformation::Initialize()
   GetNativeSystemInfo(&sysInfo);
 
   s_SystemInformation.m_uiCPUCoreCount = sysInfo.dwNumberOfProcessors;
+  s_SystemInformation.m_uiMemoryPageSize = sysInfo.dwPageSize;
 
   MEMORYSTATUSEX memStatus;
   ZeroMemory(&memStatus, sizeof(memStatus));

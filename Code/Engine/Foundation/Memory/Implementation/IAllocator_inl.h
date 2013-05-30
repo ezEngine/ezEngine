@@ -30,7 +30,7 @@ namespace ezInternal
   {
     if (ptr != NULL)
     {
-    pAllocator->Deallocate(ptr);
+      pAllocator->Deallocate(ptr);
     }
   }
   

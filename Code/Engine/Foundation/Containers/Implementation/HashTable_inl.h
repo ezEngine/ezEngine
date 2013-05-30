@@ -13,7 +13,7 @@ ezHashTableBase<K, V, H>::ConstIterator::ConstIterator(const ezHashTableBase<K, 
   while (!m_hashTable.IsValidEntry(m_uiCurrentIndex))
   {
     ++m_uiCurrentIndex;
-  }  
+  }
 }
 
 template <typename K, typename V, typename H>
@@ -137,7 +137,7 @@ void ezHashTableBase<K, V, H>::Reserve(ezUInt32 uiCapacity)
   if (m_uiCapacity >= uiNewCapacity)
     return;
 
-  uiNewCapacity = ezMath::Max<ezUInt32>(m_uiCapacity * 2, CAPACITY_ALIGNMENT);
+  uiNewCapacity = ezMath::Max<ezUInt32>(ezMath::PowerOfTwo_Ceil(uiNewCapacity), CAPACITY_ALIGNMENT);
   SetCapacity(uiNewCapacity);
 }
 

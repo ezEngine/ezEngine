@@ -9,3 +9,7 @@
 /// Stringizes a string, even macros
 #define EZ_STRINGIZE(str) EZ_STRINGIZE_HELPER(str)
 #define EZ_STRINGIZE_HELPER(x) #x
+
+// Only use these if a compile-time constant expression is needed
+#define EZ_COMPILE_TIME_MAX(a, b) (a) > (b) ? (a) : (b)
+#define EZ_COMPILE_TIME_MIN(a, b) (a) < (b) ? (a) : (b)

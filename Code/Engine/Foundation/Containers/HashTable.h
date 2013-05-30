@@ -3,6 +3,7 @@
 #include <Foundation/Algorithm/Hashing.h>
 #include <Foundation/Basics/Types/ArrayPtr.h>
 #include <Foundation/Math/Math.h>
+#include <Foundation/Memory/AllocatorWrapper.h>
 
 /// \brief Implementation of a Hashtable which stores key/value pairs.
 ///
@@ -54,7 +55,7 @@ public:
   };
 
   /// \brief Iterator with write access.
-  struct Iterator : public ConstIterator
+  class Iterator : public ConstIterator
   {
     /// \brief Returns the 'value' of the element that this iterator points to.
     ValueType& Value();

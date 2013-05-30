@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Foundation/Algorithm/Sorting.h>
+#include <Foundation/Memory/AllocatorWrapper.h>
 
 #define ezInvalidIndex 0xFFFFFFFF
 

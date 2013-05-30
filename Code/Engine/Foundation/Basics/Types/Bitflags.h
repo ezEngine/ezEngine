@@ -33,34 +33,44 @@ public:
     m_value = flag1;
   }
 
-  /// \brief Checks if certain flags are set within the bitfield.
-  EZ_FORCE_INLINE bool IsSet(Enum flag1) const // [tested]
+  EZ_FORCE_INLINE bool operator==(const ezBitflags<T>& rhs) const
   {
-    return (m_value & flag1) != 0;
+    return m_value == rhs.m_value;
+  }
+
+  EZ_FORCE_INLINE bool operator!=(const ezBitflags<T>& rhs) const
+  {
+    return m_value != rhs.m_value;
+  }
+
+  /// \brief Checks if certain flags are set within the bitfield.
+  EZ_FORCE_INLINE bool IsSet(Enum flag) const // [tested]
+  {
+    return (m_value & flag) != 0;
   }
   
   /// \brief Returns whether all the given flags are set.
-  EZ_FORCE_INLINE bool AreAllSet(const ezBitflags<T>& rh) const // [tested]
+  EZ_FORCE_INLINE bool AreAllSet(const ezBitflags<T>& rhs) const // [tested]
   {
-    return (m_value & rh.m_value) == rh.m_value;
+    return (m_value & rhs.m_value) == rhs.m_value;
   }
 
   /// \brief  Returns whether any of the given flags is set.
-  EZ_FORCE_INLINE bool IsAnySet(const ezBitflags<T>& rh) const // [tested]
+  EZ_FORCE_INLINE bool IsAnySet(const ezBitflags<T>& rhs) const // [tested]
   {
-    return (m_value & rh.m_value) != 0;
+    return (m_value & rhs.m_value) != 0;
   }
 
   /// \brief Sets the given flag.
-  EZ_FORCE_INLINE void Add(Enum flag1) // [tested]
+  EZ_FORCE_INLINE void Add(Enum flag) // [tested]
   {
-    m_value |= flag1;
+    m_value |= flag;
   }
 
   /// \brief Removes the given flag.
-  EZ_FORCE_INLINE void Remove(Enum flag1) // [tested]
+  EZ_FORCE_INLINE void Remove(Enum flag) // [tested]
   {
-    m_value &= (~flag1);
+    m_value &= (~flag);
   }
 
   /// \brief Toggles the state of the given flag.

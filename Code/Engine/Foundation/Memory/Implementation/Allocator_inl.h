@@ -12,28 +12,8 @@ ezAllocator<A, B, T, M>::~ezAllocator()
 {
   EZ_ASSERT_API(m_threadHandle == ezThreadUtils::GetCurrentThreadHandle(), "Allocator is deleted from another thread");
 
-  if (m_tracker.GetAllocationSize() != 0 || m_tracker.GetNumLiveAllocations() != 0)
-  {
-    EZ_REPORT_FAILURE("Memory leaks found");
-  
-    #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-
-      // todo: make this platform independent
-      wchar_t szName[32];
-      mbstowcs(szName, m_szName, 32);
-      wchar_t szBuffer[512];
-      swprintf_s(szBuffer,
-        L"\n--------------------------------------------------------------------\n"
-        L"Allocator '%s' has leaks: %d bytes in %d allocation(s)"
-        L"\n--------------------------------------------------------------------\n\n",
-        szName, (int)m_tracker.GetAllocationSize(), (int)m_tracker.GetNumLiveAllocations());
-    
-      OutputDebugStringW(szBuffer);
-  
-    #endif
-
-    m_tracker.DumpMemoryLeaks();
-  }
+  DumpMemoryLeaks();
+  m_tracker.DumpMemoryLeaks();
 }
 
 template <typename A, typename B, typename T, typename M>

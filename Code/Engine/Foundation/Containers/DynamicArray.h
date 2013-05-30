@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Foundation/Containers/ArrayBase.h>
+#include <Foundation/Memory/AllocatorWrapper.h>
 
 /// \brief Implementation a dynamically growing array.
 ///

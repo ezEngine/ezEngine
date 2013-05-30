@@ -15,6 +15,12 @@ public:
     return m_uiInstalledMainMemory;
   }
 
+  /// \brief Returns the size of a memory page in bytes
+  inline ezUInt32 GetMemoryPageSize() const
+  {
+    return m_uiMemoryPageSize;
+  }
+
   /// \brief Returns the CPU core count of the system.
   inline ezUInt32 GetCPUCoreCount() const
   {
@@ -38,6 +44,8 @@ public:
 private:
 
   ezUInt64 m_uiInstalledMainMemory;
+
+  ezUInt32 m_uiMemoryPageSize;
 
   ezUInt32 m_uiCPUCoreCount;
 

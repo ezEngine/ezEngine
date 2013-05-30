@@ -14,7 +14,7 @@
 #endif
 
 /// \brief Interface for all memory allocators including helper methods.
-class ezIAllocator
+class EZ_FOUNDATION_DLL ezIAllocator
 {
 public:
   struct Stats
@@ -43,6 +43,8 @@ public:
 
 protected:
   const char* m_szName;
+
+  void DumpMemoryLeaks() const;
 
   EZ_DISALLOW_COPY_AND_ASSIGN(ezIAllocator);
 };
