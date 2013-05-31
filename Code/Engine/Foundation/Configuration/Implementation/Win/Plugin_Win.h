@@ -35,6 +35,8 @@
 
       ezLog::Error("Could not unload plugin '%s'. Error-Code %u (\"%s\")", szPluginFile, err, lpMsgBuf);
 
+      LocalFree(lpMsgBuf);
+
       return EZ_FAILURE;
     }
 
