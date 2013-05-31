@@ -2,9 +2,14 @@
 
 #include <Foundation/Strings/StringUtils.h>
 
+/// Base class which marks a class as containing string data
+class ezThisIsAString
+{
+};
+
 /// Base class for strings, which implements all read-only string functions.
 template <typename Derived>
-class ezStringBase
+class ezStringBase : public ezThisIsAString
 {
 public:
   /// Returns whether the string is an empty string.
@@ -92,6 +97,9 @@ private: // friends
 
   template <typename DerivedLhs, typename DerivedRhs>
   friend bool operator>= (const ezStringBase<DerivedLhs>& lhs, const ezStringBase<DerivedRhs>& rhs);
+
+  template <typename D, bool isString>
+  friend struct ezHashHelperImpl;
 };
 
 

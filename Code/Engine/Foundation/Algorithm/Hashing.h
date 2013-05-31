@@ -40,7 +40,7 @@ public:
 template <typename T>
 struct ezHashHelper
 {
-  static ezUInt32 Hash(T value);
+  static ezUInt32 Hash(const T& value);
 };
 
 #include <Foundation/Algorithm/Implementation/Hashing_inl.h>
