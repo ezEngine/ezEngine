@@ -28,6 +28,7 @@ Look at the existing code to get a general feeling for the coding style.
     * `b` for bool
     * `v` for vectors.
     * Everything else, as you wish (so usually no prefix).
+  * Variables that have no prefix should start with an upper-case letter. E.g. m_MyVar
     
   * Use empty lines and good formatting to make the code more readable.
   * Write unit-tests for (nearly) everything.
