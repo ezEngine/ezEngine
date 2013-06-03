@@ -121,6 +121,7 @@ private:
   static void UnloadPluginSubSystems(const char* szPluginName);
   
   static void PluginEventHandler(const ezPlugin::PluginEvent& EventData, void* pPassThrough);
+  static void AssignSubSystemPlugin(const char* szPluginName);
 
   static void ComputeOrder(ezDeque<ezSubSystemDeclarationBase*>& Order);
   static bool HasDependencyOnPlugin(ezSubSystemDeclarationBase* pSubSystem, const char* szModule);

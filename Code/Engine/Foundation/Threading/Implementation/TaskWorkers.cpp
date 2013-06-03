@@ -37,19 +37,40 @@ ezTaskWorkerThread::ezTaskWorkerThread(ezWorkerThreadType::Enum ToDo, ezUInt32 i
 
 void ezTaskSystem::StopWorkerThreads()
 {
+  // tell all threads that they should terminate
   for (ezUInt32 type = 0; type < ezWorkerThreadType::ENUM_COUNT; ++type)
   {
     for (ezUInt32 i = 0; i < s_WorkerThreads[type].GetCount(); ++i)
+    {
       s_WorkerThreads[type][i]->m_bActive = false;
+    }
   }
 
-  // send enough signals to wake up all of the worker threads
-  for (ezUInt32 type = 0; type < ezWorkerThreadType::ENUM_COUNT; ++type)
+  bool bWorkersStillRunning = true;
+
+  // as long as any worker thread is still active, send the wake up signal
+  while (bWorkersStillRunning)
   {
-    for (ezUInt32 i = 0; i < s_WorkerThreads[type].GetCount() * 2; ++i)
-      s_TasksAvailableSignal[type].RaiseSignal();
-  }
+    bWorkersStillRunning = false;
 
+    for (ezUInt32 type = 0; type < ezWorkerThreadType::ENUM_COUNT; ++type)
+    {
+      for (ezUInt32 i = 0; i < s_WorkerThreads[type].GetCount(); ++i)
+      {
+        if (s_WorkerThreads[type][i]->GetThreadStatus() != ezThread::Finished)
+        {
+          bWorkersStillRunning = true;
+
+          // send a signal
+          s_TasksAvailableSignal[type].RaiseSignal();
+
+          // waste some time
+          ezThreadUtils::YieldTimeSlice();
+        }
+      }
+    }
+  }
+  
   for (ezUInt32 type = 0; type < ezWorkerThreadType::ENUM_COUNT; ++type)
   {
     for (ezUInt32 i = 0; i < s_WorkerThreads[type].GetCount(); ++i)

@@ -36,7 +36,7 @@ void ezStartup::PrintAllSubsystems()
   }
 }
 
-static void AssignSubSystemPlugin(const char* szPluginName)
+void ezStartup::AssignSubSystemPlugin(const char* szPluginName)
 {
   // iterates over all existing subsystems and finds those that have no plugin name yet
   // assigns the given name to them

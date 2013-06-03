@@ -9,6 +9,9 @@
 #include <Foundation/Threading/ThreadSignal.h>
 #include <Foundation/Threading/Implementation/TaskSystemDeclarations.h>
 
+// TODO
+// TaskGroupFinished and TaskFinished callbacks should have pass-through value
+
 /// \brief Derive from this base class to implement custom tasks.
 class EZ_FOUNDATION_DLL ezTask
 {
@@ -21,6 +24,11 @@ public:
 public:
   ezTask();
   virtual ~ezTask() {}
+
+  /// \brief Changes the name of the task, which it will be displayed in profiling tools.
+  ///
+  /// This will only have an effect if it is called before the task is added to a task group.
+  void SetTaskName(const char* szName);
 
   /// \brief Sets an additional callback function to execute when the task is finished (or canceled).
   /// The most common use case for this is to deallocate the task at this time.
@@ -39,12 +47,11 @@ public:
   /// \brief Can be used inside an overrideen 'Execute' function to terminate execution prematurely.
   bool HasBeenCanceled() const { return m_bCancelExecution; }
 
-private:
-  /// \brief Override this function to generate a proper name for this task.
-  ///
-  /// Called by GetProfilingID to get a display string for profiling.
-  virtual void GetTaskName(ezStringBuilder& sName) const = 0;
+public:
+  /// \brief Allocates and returns a profiling ID for this task. Called by ezTaskSystem.
+  const ezProfilingId& GetProfilingID();
 
+private:
   /// \brief Override this to implement the task's supposed functionality.
   virtual void Execute() = 0;
 
@@ -56,9 +63,6 @@ private:
 
   /// \brief Called by ezTaskSystem to execute the task. Calls 'Execute' internally.
   void Run();
-
-  /// \brief Allocates and returns a profiling ID for this task. Called by ezTaskSystem.
-  const ezProfilingId& GetProfilingID();
 
   /// \brief Set to true once the task is finished or properly canceled.
   volatile bool m_bIsFinished;
@@ -77,6 +81,8 @@ private:
   
   /// \brief The parent group to which this task belongs.
   ezTaskGroupID m_BelongsToGroup;
+
+  ezString m_sTaskName;
 };
 
 /// \brief This system allows to automatically distribute tasks onto a number of worker threads.

@@ -29,8 +29,6 @@ public:
       m_bStartupDone[i] = false;
   }
 
-  const char* m_szPluginName;
-
   /// Returns the name of the subsystem.
   virtual const char* GetSubSystemName() const = 0;
 
@@ -61,6 +59,8 @@ private:
 
   /// This will be called to shut down the subsystems engine / rendering components.
   virtual void OnEngineShutdown() { }
+
+  const char* m_szPluginName;
 
   /// Stores which startup phase has been done already.
   bool m_bStartupDone[ezStartupStage::ENUM_COUNT];

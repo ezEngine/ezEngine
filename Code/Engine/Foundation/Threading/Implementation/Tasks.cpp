@@ -10,6 +10,13 @@ ezTask::ezTask()
   m_bProfilingIDGenerated = false; 
   m_bCancelExecution = false; 
   m_OnTaskFinished = NULL;
+  m_sTaskName = "Unnamed Task";
+}
+
+void ezTask::SetTaskName(const char* szName)
+{
+  m_sTaskName = szName;
+  m_bProfilingIDGenerated = false;
 }
 
 void ezTask::SetOnTaskFinished(OnTaskFinished Callback)
@@ -31,10 +38,8 @@ const ezProfilingId& ezTask::GetProfilingID()
 {
   if (!m_bProfilingIDGenerated)
   {
-    ezStringBuilder sName;
     m_bProfilingIDGenerated = true;
-    GetTaskName(sName);
-    m_ProfilingID = ezProfilingId(sName.GetData());
+    m_ProfilingID = ezProfilingId(m_sTaskName.GetData());
   }
 
   return m_ProfilingID;
