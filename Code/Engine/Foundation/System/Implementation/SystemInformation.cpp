@@ -26,7 +26,7 @@ ezSystemInformation ezSystemInformation::s_SystemInformation;
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   #include <Foundation/System/Implementation/Win/SystemInformation_win.h>
 #elif EZ_ENABLED(EZ_PLATFORM_OSX)
-  #include <Foundation/Time/Implementation/Posix/SystemInformation_posix.h>
+  #include <Foundation/System/Implementation/OSX/SystemInformation_OSX.h>
 #else
   #error "System configuration functions are not implemented on current platform"
 #endif

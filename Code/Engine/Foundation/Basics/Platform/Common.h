@@ -32,10 +32,10 @@
 #else
   // Declares an array with an invalid size, if the expression is invalid -> generates a compile-time error
   #define EZ_CHECK_AT_COMPILETIME(exp) \
-    typedef int EZ_CompileTimeAssert[(exp) ? 1 : -1]
+    typedef int EZ_CONCAT(EZ_CompileTimeAssert, __LINE__)[(exp) ? 1 : -1]
 
   #define EZ_CHECK_AT_COMPILETIME_MSG(exp, msg) \
-    typedef int EZ_CompileTimeAssert[(exp) ? 1 : -1]
+    typedef int EZ_CONCAT(EZ_CompileTimeAssert, __LINE__)[(exp) ? 1 : -1]
 #endif
 
 /// Disallow the copy constructor and the assignment operator for this type. 
