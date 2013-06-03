@@ -161,7 +161,7 @@ EZ_CREATE_SIMPLE_TEST(Memory, Allocator)
       {
         blocks.PushBack(allocator.AllocateBlock<int>());
       }
-      else
+      else if (blocks.GetCount() > 0)
       {
         ezUInt32 uiIndex = rand() % blocks.GetCount();
         ezDataBlock<int> block = blocks[uiIndex];

@@ -102,7 +102,7 @@ void ezLargeBlockAllocator::Deallocate(void* ptr)
 
   if (!bFound)
   {
-    EZ_REPORT_FAILURE("'%x' was not allocated with this allocator", ptr);
+    EZ_REPORT_FAILURE("'%p' was not allocated with this allocator", ptr);
     return;
   }
 
