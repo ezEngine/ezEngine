@@ -76,6 +76,23 @@ private:
   } \
 }
 
+#define EZ_TEST_DOUBLE(f1, f2, epsilon) EZ_TEST_DOUBLE_MSG(f1, f2, epsilon, "")
+
+#define EZ_TEST_DOUBLE_MSG(f1, f2, epsilon, msg) \
+{ \
+  const double internal_r1 = (f1); \
+  const double internal_r2 = (f2); \
+  const double internal_fD = internal_r1 - internal_r2; \
+  const double internal_fEps = (double) epsilon; \
+  if (internal_fD < -internal_fEps || internal_fD > +internal_fEps) \
+  { \
+    char szLocal_TestMacro[256]; \
+    sprintf (szLocal_TestMacro, "Failure: '%s' (%.8f) does not equal '%s' (%.8f) within an epsilon of %.8f", EZ_STRINGIZE(f1), internal_r1, EZ_STRINGIZE(f2), internal_r2, internal_fEps); \
+    EZ_TEST_FAILURE(szLocal_TestMacro, msg); \
+    EZ_TEST_DEBUG_BREAK \
+  } \
+}
+
 #define EZ_TEST_INT(i1, i2) EZ_TEST_INT_MSG(i1, i2, "")
 
 #define EZ_TEST_INT_MSG(i1, i2, msg) \

@@ -47,6 +47,7 @@
 #include <Foundation/Math/BoundingBox.h>
 #include <Foundation/Math/BoundingSphere.h>
 #include <Foundation/Math/Declarations.h>
+#include <Foundation/Math/FixedPoint.h>
 #include <Foundation/Math/Mat3.h>
 #include <Foundation/Math/Mat4.h>
 #include <Foundation/Math/Math.h>
