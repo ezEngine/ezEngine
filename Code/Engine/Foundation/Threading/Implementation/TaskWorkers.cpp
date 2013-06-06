@@ -128,6 +128,8 @@ ezUInt32 ezTaskWorkerThread::Run()
     LastPriority = ezTaskPriority::FileAccess;
   }
 
+  EZ_ASSERT(m_WorkerType < ezWorkerThreadType::ENUM_COUNT, "Worker Thread Typs is invalid: %i", m_WorkerType);
+
   while (m_bActive)
   {
     if (!ezTaskSystem::ExecuteTask(FirstPriority, LastPriority))

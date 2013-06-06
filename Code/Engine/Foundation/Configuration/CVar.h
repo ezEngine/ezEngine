@@ -30,12 +30,12 @@ struct ezCVarFlags
 
     /// \brief If this flag is set, the CVar will be stored on disk and loaded again.
     /// Otherwise all changes to it will be lost on shutdown.
-    Save              = 1 << 0,
+    Save              = EZ_BIT(0),
 
     /// \brief Indicates that changing this cvar will only take effect after the proper subsystem has been reinitialized.
     /// This will always enforce the 'Save' flag as well.
     /// With this flag set, the 'Current' value never changes, unless 'SetToRestartValue' is called.
-    RequiresRestart   = 1 << 1,
+    RequiresRestart   = EZ_BIT(1),
 
     /// \brief By default CVars are not saved.
     Default           = None

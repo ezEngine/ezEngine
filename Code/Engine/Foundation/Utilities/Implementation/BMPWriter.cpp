@@ -26,12 +26,15 @@ ezResult ezBMPWriter::Write(ezArrayPtr<const ezUInt8> data, ezUInt32 uiWidth, ez
 
   ezUInt32 uiNull = 0;
 
+  ezHybridArray<ezUInt8, 1024 * 4> lineData;
+  lineData.SetCount(uiDstBytesPerLine);
 
+  /// \todo This code needs a lot of cleanup.
   
-  ezArrayPtr<ezUInt8> lineData((ezUInt8*)alloca(uiDstBytesPerLine), uiDstBytesPerLine);
+  //ezArrayPtr<ezUInt8> lineData((ezUInt8*)alloca(uiDstBytesPerLine), uiDstBytesPerLine);
   for(ezUInt32 line = 1; line <= uiHeight; line++)
   {
-    memcpy(lineData.GetPtr(), data.GetSubArray((uiHeight - line) * uiSrcBytesPerLine, uiSrcBytesPerLine).GetPtr(), uiSrcBytesPerLine);
+    memcpy(&lineData[0], data.GetSubArray((uiHeight - line) * uiSrcBytesPerLine, uiSrcBytesPerLine).GetPtr(), uiSrcBytesPerLine);
     if(format == DataFormat::Grayscale8)
     {
       for(ezUInt32 i=1; i <= uiWidth; i++)
@@ -46,7 +49,7 @@ ezResult ezBMPWriter::Write(ezArrayPtr<const ezUInt8> data, ezUInt32 uiWidth, ez
     {
       ezMath::Swap(lineData[i], lineData[i+2]);
     }
-    if(outStream.WriteBytes(lineData.GetPtr(), lineData.GetCount()) != EZ_SUCCESS)
+    if(outStream.WriteBytes(&lineData[0], lineData.GetCount()) != EZ_SUCCESS)
       return EZ_FAILURE;
     if(outStream.WriteBytes(&uiNull, uiPaddingPerLine) != EZ_SUCCESS)
       return EZ_FAILURE;

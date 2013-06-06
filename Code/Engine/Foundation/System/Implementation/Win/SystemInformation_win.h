@@ -13,7 +13,10 @@ BOOL IsWow64()
   // Use GetModuleHandle to get a handle to the DLL that contains the function
   // and GetProcAddress to get a pointer to the function if available.
 
-  LPFN_ISWOW64PROCESS pfnIsWow64Process = (LPFN_ISWOW64PROCESS) GetProcAddress(GetModuleHandle(TEXT("kernel32")),"IsWow64Process");
+  HMODULE hModule = GetModuleHandle(TEXT("kernel32"));
+  EZ_ASSERT(hModule != NULL, "Could not find Kernel32 DLL.");
+
+  LPFN_ISWOW64PROCESS pfnIsWow64Process = (LPFN_ISWOW64PROCESS) GetProcAddress(hModule,"IsWow64Process");
 
   if(NULL != pfnIsWow64Process)
   {

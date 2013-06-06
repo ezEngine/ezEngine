@@ -44,7 +44,7 @@ public:
   /// has finished, even minutes later.
   bool IsTaskFinished() const { return m_bIsFinished; }
 
-  /// \brief Can be used inside an overrideen 'Execute' function to terminate execution prematurely.
+  /// \brief Can be used inside an overridden 'Execute' function to terminate execution prematurely.
   bool HasBeenCanceled() const { return m_bCancelExecution; }
 
 public:

@@ -20,10 +20,10 @@ EZ_FORCE_INLINE bool ezUnicodeUtils::IsASCII(ezUInt32 uiChar)
 
 inline ezUInt32 ezUnicodeUtils::GetUtf8SequenceLength(char uiFirstByte)
 {
-  const ezUInt32 uiBit7 = uiFirstByte & (1 << 7);
-  const ezUInt32 uiBit6 = uiFirstByte & (1 << 6);
-  const ezUInt32 uiBit5 = uiFirstByte & (1 << 5);
-  const ezUInt32 uiBit4 = uiFirstByte & (1 << 4);
+  const ezUInt32 uiBit7 = uiFirstByte & EZ_BIT(7);
+  const ezUInt32 uiBit6 = uiFirstByte & EZ_BIT(6);
+  const ezUInt32 uiBit5 = uiFirstByte & EZ_BIT(5);
+  const ezUInt32 uiBit4 = uiFirstByte & EZ_BIT(4);
 
   if (uiBit7 == 0) // ASCII character '0xxxxxxx'
     return 1;

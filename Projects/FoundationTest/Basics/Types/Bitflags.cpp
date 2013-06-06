@@ -12,10 +12,10 @@ namespace
 
     enum Enum
     {
-      Bit1 = (1 << 0),
-      Bit2 = (1 << 1),
-      Bit3 = (1 << 2),
-      Bit4 = (1 << 3),
+      Bit1 = EZ_BIT(0),
+      Bit2 = EZ_BIT(1),
+      Bit3 = EZ_BIT(2),
+      Bit4 = EZ_BIT(3),
 
       Default = Bit1 | Bit2
     };

@@ -31,12 +31,12 @@ struct sprintfFlags
   enum Enum
   {
     None,
-    LeftJustify   = 1 << 0,  // -
-    ForceSign     = 1 << 1,  // +
-    BlankSign     = 1 << 2,  // (space)
-    Hash          = 1 << 3,  // #
-    PadZeros      = 1 << 4,  // 0
-    ForceZeroSign = 1 << 5,  // [internal] Prints a '+' even for zero
+    LeftJustify   = EZ_BIT(0),  // -
+    ForceSign     = EZ_BIT(1),  // +
+    BlankSign     = EZ_BIT(2),  // (space)
+    Hash          = EZ_BIT(3),  // #
+    PadZeros      = EZ_BIT(4),  // 0
+    ForceZeroSign = EZ_BIT(5),  // [internal] Prints a '+' even for zero
   };
 };
 

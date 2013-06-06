@@ -132,7 +132,7 @@ struct name    \
 
 
 /// \todo Document
-#define EZ_DECLARE_FLAGS_ENUM(name, n)    name = (1 << n),
+#define EZ_DECLARE_FLAGS_ENUM(name, n)    name = EZ_BIT(n),
 
 /// \todo Document
 #define EZ_DECLARE_FLAGS_BITS(name)       StorageType name : 1;

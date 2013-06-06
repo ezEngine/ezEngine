@@ -102,14 +102,14 @@ EZ_CREATE_SIMPLE_TEST(Math, FixedPoint)
 
   EZ_TEST_BLOCK(true, "Max Value")
   {
-    ezFixedPoint<12> fp1 ((1 << 19) - 1);
-    ezFixedPoint<12> fp2 ((1 << 19));
+    ezFixedPoint<12> fp1 ( (1 << 19) - 1);
+    ezFixedPoint<12> fp2 ( (1 << 19));
     ezFixedPoint<12> fp3 (-(1 << 19)); // one more value available in the negative range
     ezFixedPoint<12> fp4 (-(1 << 19) - 1);
 
     // 12 Bits for the fraction -> 19 Bits for the integral part and 1 'Sign Bit'
-    EZ_TEST((ezInt32) fp1 == (1 << 19) - 1); // This maximum value is still representable
-    EZ_TEST((ezInt32) fp2 != (1 << 19));     // The next value isn't representable anymore
+    EZ_TEST((ezInt32) fp1 ==  (1 << 19) - 1); // This maximum value is still representable
+    EZ_TEST((ezInt32) fp2 !=  (1 << 19));     // The next value isn't representable anymore
     EZ_TEST((ezInt32) fp3 == -(1 << 19));
     EZ_TEST((ezInt32) fp4 != -(1 << 19) - 1);
   }

@@ -88,6 +88,8 @@ ezTaskSystem::TaskData ezTaskSystem::GetNextTask(ezTaskPriority::Enum FirstPrior
   // queue, it will not be a problem. The function will return with 'no work' for the thread,  the thread will try to go to sleep, but the
   // thread-signal will be signaled already and thus the thread will loop again, call 'GetNextTask' a second time and THEN detect the new work item
 
+  EZ_ASSERT(FirstPriority >= ezTaskPriority::EarlyThisFrame && LastPriority < ezTaskPriority::ENUM_COUNT, "Priority Range is invalid: %i to %i", FirstPriority, LastPriority);
+
   for (ezUInt32 i = FirstPriority; i <= (ezUInt32) LastPriority; ++i)
   {
     if (!s_Tasks[i].IsEmpty())

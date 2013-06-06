@@ -24,8 +24,8 @@ struct ezTestEnum2Base
 {
   enum Enum
   {
-    Bit1 = 1 << 0,
-    Bit2 = 1 << 1,
+    Bit1 = EZ_BIT(0),
+    Bit2 = EZ_BIT(1),
     DefaultInit = Bit1
   };
 };
