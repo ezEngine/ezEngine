@@ -3,37 +3,40 @@
 #include <Foundation/Math/Math.h>
 
 template<ezUInt8 DecimalBits>
-void ezFixedPoint<DecimalBits>::operator=(ezInt32 IntVal)
+const ezFixedPoint<DecimalBits>& ezFixedPoint<DecimalBits>::operator=(ezInt32 IntVal)
 {
   m_Value = IntVal << DecimalBits;
+  return *this;
 }
 
 template<ezUInt8 DecimalBits>
-void ezFixedPoint<DecimalBits>::operator=(float FloatVal)
+const ezFixedPoint<DecimalBits>& ezFixedPoint<DecimalBits>::operator=(float FloatVal)
 {
   m_Value = (ezInt32) ezMath::Round(FloatVal * (1 << DecimalBits));
+  return *this;
 }
 
 template<ezUInt8 DecimalBits>
-void ezFixedPoint<DecimalBits>::operator=(double FloatVal)
+const ezFixedPoint<DecimalBits>& ezFixedPoint<DecimalBits>::operator=(double FloatVal)
 {
-  m_Value = (ezInt32) floor((FloatVal * (1 << DecimalBits)) + 0.5);
+  m_Value = (ezInt32) ezMath::Round(FloatVal * (1 << DecimalBits));
+  return *this;
 }
 
 template<ezUInt8 DecimalBits>
-ezFixedPoint<DecimalBits>::operator ezInt32() const
+ezInt32 ezFixedPoint<DecimalBits>::ToInt() const
 {
-  return m_Value >> DecimalBits;
+  return (ezInt32) (m_Value >> DecimalBits);
 }
 
 template<ezUInt8 DecimalBits>
-ezFixedPoint<DecimalBits>::operator float() const
+float ezFixedPoint<DecimalBits>::ToFloat() const
 {
   return (float) ((double) m_Value / (double) (1 << DecimalBits));
 }
 
 template<ezUInt8 DecimalBits>
-ezFixedPoint<DecimalBits>::operator double() const
+double ezFixedPoint<DecimalBits>::ToDouble() const
 {
   return ((double) m_Value / (double) (1 << DecimalBits));
 }
@@ -84,7 +87,7 @@ void ezFixedPoint<DecimalBits>::operator/= (const ezFixedPoint<DecimalBits>& rhs
 
 
 template<ezUInt8 DecimalBits>
-typename ezFixedPoint<DecimalBits> operator+ (const ezFixedPoint<DecimalBits>& lhs, const ezFixedPoint<DecimalBits>& rhs)
+ezFixedPoint<DecimalBits> operator+ (const ezFixedPoint<DecimalBits>& lhs, const ezFixedPoint<DecimalBits>& rhs)
 {
   ezFixedPoint<DecimalBits> res = lhs;
   res += rhs;
@@ -92,7 +95,7 @@ typename ezFixedPoint<DecimalBits> operator+ (const ezFixedPoint<DecimalBits>& l
 }
 
 template<ezUInt8 DecimalBits>
-typename ezFixedPoint<DecimalBits> operator- (const ezFixedPoint<DecimalBits>& lhs, const ezFixedPoint<DecimalBits>& rhs)
+ezFixedPoint<DecimalBits> operator- (const ezFixedPoint<DecimalBits>& lhs, const ezFixedPoint<DecimalBits>& rhs)
 {
   ezFixedPoint<DecimalBits> res = lhs;
   res -= rhs;
@@ -100,7 +103,7 @@ typename ezFixedPoint<DecimalBits> operator- (const ezFixedPoint<DecimalBits>& l
 }
 
 template<ezUInt8 DecimalBits>
-typename ezFixedPoint<DecimalBits> operator* (const ezFixedPoint<DecimalBits>& lhs, const ezFixedPoint<DecimalBits>& rhs)
+ezFixedPoint<DecimalBits> operator* (const ezFixedPoint<DecimalBits>& lhs, const ezFixedPoint<DecimalBits>& rhs)
 {
   ezFixedPoint<DecimalBits> res = lhs;
   res *= rhs;
@@ -108,7 +111,7 @@ typename ezFixedPoint<DecimalBits> operator* (const ezFixedPoint<DecimalBits>& l
 }
 
 template<ezUInt8 DecimalBits>
-typename ezFixedPoint<DecimalBits> operator/ (const ezFixedPoint<DecimalBits>& lhs, const ezFixedPoint<DecimalBits>& rhs)
+ezFixedPoint<DecimalBits> operator/ (const ezFixedPoint<DecimalBits>& lhs, const ezFixedPoint<DecimalBits>& rhs)
 {
   ezFixedPoint<DecimalBits> res = lhs;
   res /= rhs;
@@ -117,7 +120,7 @@ typename ezFixedPoint<DecimalBits> operator/ (const ezFixedPoint<DecimalBits>& l
 
 
 template<ezUInt8 DecimalBits>
-typename ezFixedPoint<DecimalBits> operator* (const ezFixedPoint<DecimalBits>& lhs, ezInt32 rhs)
+ezFixedPoint<DecimalBits> operator* (const ezFixedPoint<DecimalBits>& lhs, ezInt32 rhs)
 {
   ezFixedPoint<DecimalBits> ret = lhs;
   ret *= rhs;
@@ -125,7 +128,7 @@ typename ezFixedPoint<DecimalBits> operator* (const ezFixedPoint<DecimalBits>& l
 }
 
 template<ezUInt8 DecimalBits>
-typename ezFixedPoint<DecimalBits> operator* (ezInt32 lhs, const ezFixedPoint<DecimalBits>& rhs)
+ezFixedPoint<DecimalBits> operator* (ezInt32 lhs, const ezFixedPoint<DecimalBits>& rhs)
 {
   ezFixedPoint<DecimalBits> ret = rhs;
   ret *= lhs;
@@ -133,7 +136,7 @@ typename ezFixedPoint<DecimalBits> operator* (ezInt32 lhs, const ezFixedPoint<De
 }
 
 template<ezUInt8 DecimalBits>
-typename ezFixedPoint<DecimalBits> operator/ (const ezFixedPoint<DecimalBits>& lhs, ezInt32 rhs)
+ezFixedPoint<DecimalBits> operator/ (const ezFixedPoint<DecimalBits>& lhs, ezInt32 rhs)
 {
   ezFixedPoint<DecimalBits> ret = lhs;
   ret /= rhs;

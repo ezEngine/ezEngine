@@ -11,162 +11,180 @@
 #include <Foundation/Math/BoundingBox.h>
 #include <Foundation/Math/BoundingSphere.h>
 
-// ezVec2
+// ezVec2Template
 
-inline ezIBinaryStreamWriter& operator << (ezIBinaryStreamWriter& Stream, const ezVec2& Value)
+template<typename Type>
+inline ezIBinaryStreamWriter& operator << (ezIBinaryStreamWriter& Stream, const ezVec2Template<Type>& Value)
 {
-  Stream.WriteDWordValue(&Value.x);
-  Stream.WriteDWordValue(&Value.y);
+  Stream << Value.x;
+  Stream << Value.y;
   return Stream;
 }
 
-inline ezIBinaryStreamReader& operator >> (ezIBinaryStreamReader& Stream, ezVec2& Value)
+template<typename Type>
+inline ezIBinaryStreamReader& operator >> (ezIBinaryStreamReader& Stream, ezVec2Template<Type>& Value)
 {
-  Stream.ReadDWordValue(&Value.x);
-  Stream.ReadDWordValue(&Value.y);
+  Stream >> Value.x;
+  Stream >> Value.y;
   return Stream;
 }
 
-// ezVec3
+// ezVec3Template
 
-inline ezIBinaryStreamWriter& operator << (ezIBinaryStreamWriter& Stream, const ezVec3& Value)
+template<typename Type>
+inline ezIBinaryStreamWriter& operator << (ezIBinaryStreamWriter& Stream, const ezVec3Template<Type>& Value)
 {
-  Stream.WriteDWordValue(&Value.x);
-  Stream.WriteDWordValue(&Value.y);
-  Stream.WriteDWordValue(&Value.z);
+  Stream << Value.x;
+  Stream << Value.y;
+  Stream << Value.z;
   return Stream;
 }
 
-inline ezIBinaryStreamReader& operator >> (ezIBinaryStreamReader& Stream, ezVec3& Value)
+template<typename Type>
+inline ezIBinaryStreamReader& operator >> (ezIBinaryStreamReader& Stream, ezVec3Template<Type>& Value)
 {
-  Stream.ReadDWordValue(&Value.x);
-  Stream.ReadDWordValue(&Value.y);
-  Stream.ReadDWordValue(&Value.z);
+  Stream >> Value.x;
+  Stream >> Value.y;
+  Stream >> Value.z;
   return Stream;
 }
 
-// ezVec4
+// ezVec4Template
 
-inline ezIBinaryStreamWriter& operator << (ezIBinaryStreamWriter& Stream, const ezVec4& Value)
+template<typename Type>
+inline ezIBinaryStreamWriter& operator << (ezIBinaryStreamWriter& Stream, const ezVec4Template<Type>& Value)
 {
-  Stream.WriteDWordValue(&Value.x);
-  Stream.WriteDWordValue(&Value.y);
-  Stream.WriteDWordValue(&Value.z);
-  Stream.WriteDWordValue(&Value.w);
+  Stream << Value.x;
+  Stream << Value.y;
+  Stream << Value.z;
+  Stream << Value.w;
   return Stream;
 }
 
-inline ezIBinaryStreamReader& operator >> (ezIBinaryStreamReader& Stream, ezVec4& Value)
+template<typename Type>
+inline ezIBinaryStreamReader& operator >> (ezIBinaryStreamReader& Stream, ezVec4Template<Type>& Value)
 {
-  Stream.ReadDWordValue(&Value.x);
-  Stream.ReadDWordValue(&Value.y);
-  Stream.ReadDWordValue(&Value.z);
-  Stream.ReadDWordValue(&Value.w);
+  Stream >> Value.x;
+  Stream >> Value.y;
+  Stream >> Value.z;
+  Stream >> Value.w;
   return Stream;
 }
 
-// ezMat3
+// ezMat3Template
 
-inline ezIBinaryStreamWriter& operator << (ezIBinaryStreamWriter& Stream, const ezMat3& Value)
+template<typename Type>
+inline ezIBinaryStreamWriter& operator << (ezIBinaryStreamWriter& Stream, const ezMat3Template<Type>& Value)
 {
   for (ezUInt32 i = 0; i < 9; ++i)
-    Stream.WriteDWordValue(&Value.m_fElementsCM[i]);
+    Stream << Value.m_fElementsCM[i];
 
   return Stream;
 }
 
-inline ezIBinaryStreamReader& operator >> (ezIBinaryStreamReader& Stream, ezMat3& Value)
+template<typename Type>
+inline ezIBinaryStreamReader& operator >> (ezIBinaryStreamReader& Stream, ezMat3Template<Type>& Value)
 {
   for (ezUInt32 i = 0; i < 9; ++i)
-    Stream.ReadDWordValue(&Value.m_fElementsCM[i]);
+    Stream >> Value.m_fElementsCM[i];
   
   return Stream;
 }
 
-// ezMat4
+// ezMat4Template
 
-inline ezIBinaryStreamWriter& operator << (ezIBinaryStreamWriter& Stream, const ezMat4& Value)
+template<typename Type>
+inline ezIBinaryStreamWriter& operator << (ezIBinaryStreamWriter& Stream, const ezMat4Template<Type>& Value)
 {
   for (ezUInt32 i = 0; i < 16; ++i)
-    Stream.WriteDWordValue(&Value.m_fElementsCM[i]);
+    Stream << Value.m_fElementsCM[i];
 
   return Stream;
 }
 
-inline ezIBinaryStreamReader& operator >> (ezIBinaryStreamReader& Stream, ezMat4& Value)
+template<typename Type>
+inline ezIBinaryStreamReader& operator >> (ezIBinaryStreamReader& Stream, ezMat4Template<Type>& Value)
 {
   for (ezUInt32 i = 0; i < 16; ++i)
-    Stream.ReadDWordValue(&Value.m_fElementsCM[i]);
+    Stream >> Value.m_fElementsCM[i];
   
   return Stream;
 }
 
-// ezPlane
+// ezPlaneTemplate
 
-inline ezIBinaryStreamWriter& operator << (ezIBinaryStreamWriter& Stream, const ezPlane& Value)
+template<typename Type>
+inline ezIBinaryStreamWriter& operator << (ezIBinaryStreamWriter& Stream, const ezPlaneTemplate<Type>& Value)
 {
-  Stream.WriteDWordValue(&Value.m_vNormal.x);
-  Stream.WriteDWordValue(&Value.m_vNormal.y);
-  Stream.WriteDWordValue(&Value.m_vNormal.z);
-  Stream.WriteDWordValue(&Value.m_fNegDistance);
+  Stream << Value.m_vNormal.x;
+  Stream << Value.m_vNormal.y;
+  Stream << Value.m_vNormal.z;
+  Stream << Value.m_fNegDistance;
   return Stream;
 }
 
-inline ezIBinaryStreamReader& operator >> (ezIBinaryStreamReader& Stream, ezPlane& Value)
+template<typename Type>
+inline ezIBinaryStreamReader& operator >> (ezIBinaryStreamReader& Stream, ezPlaneTemplate<Type>& Value)
 {
-  Stream.ReadDWordValue(&Value.m_vNormal.x);
-  Stream.ReadDWordValue(&Value.m_vNormal.y);
-  Stream.ReadDWordValue(&Value.m_vNormal.z);
-  Stream.ReadDWordValue(&Value.m_fNegDistance);
+  Stream >> Value.m_vNormal.x;
+  Stream >> Value.m_vNormal.y;
+  Stream >> Value.m_vNormal.z;
+  Stream >> Value.m_fNegDistance;
   return Stream;
 }
 
-// ezQuat
+// ezQuatTemplate
 
-inline ezIBinaryStreamWriter& operator << (ezIBinaryStreamWriter& Stream, const ezQuat& Value)
+template<typename Type>
+inline ezIBinaryStreamWriter& operator << (ezIBinaryStreamWriter& Stream, const ezQuatTemplate<Type>& Value)
 {
-  Stream.WriteDWordValue(&Value.v.x);
-  Stream.WriteDWordValue(&Value.v.y);
-  Stream.WriteDWordValue(&Value.v.z);
-  Stream.WriteDWordValue(&Value.w);
+  Stream << Value.v.x;
+  Stream << Value.v.y;
+  Stream << Value.v.z;
+  Stream << Value.w;
   return Stream;
 }
 
-inline ezIBinaryStreamReader& operator >> (ezIBinaryStreamReader& Stream, ezQuat& Value)
+template<typename Type>
+inline ezIBinaryStreamReader& operator >> (ezIBinaryStreamReader& Stream, ezQuatTemplate<Type>& Value)
 {
-  Stream.ReadDWordValue(&Value.v.x);
-  Stream.ReadDWordValue(&Value.v.y);
-  Stream.ReadDWordValue(&Value.v.z);
-  Stream.ReadDWordValue(&Value.w);
+  Stream >> Value.v.x;
+  Stream >> Value.v.y;
+  Stream >> Value.v.z;
+  Stream >> Value.w;
   return Stream;
 }
 
-// ezBoundingBox
+// ezBoundingBoxTemplate
 
-inline ezIBinaryStreamWriter& operator << (ezIBinaryStreamWriter& Stream, const ezBoundingBox& Value)
+template<typename Type>
+inline ezIBinaryStreamWriter& operator << (ezIBinaryStreamWriter& Stream, const ezBoundingBoxTemplate<Type>& Value)
 {
   Stream << Value.m_vMax;
   Stream << Value.m_vMin;
   return Stream;
 }
 
-inline ezIBinaryStreamReader& operator >> (ezIBinaryStreamReader& Stream, ezBoundingBox& Value)
+template<typename Type>
+inline ezIBinaryStreamReader& operator >> (ezIBinaryStreamReader& Stream, ezBoundingBoxTemplate<Type>& Value)
 {
   Stream >> Value.m_vMax;
   Stream >> Value.m_vMin;
   return Stream;
 }
 
-// ezBoundingSphere
+// ezBoundingSphereTemplate
 
-inline ezIBinaryStreamWriter& operator << (ezIBinaryStreamWriter& Stream, const ezBoundingSphere& Value)
+template<typename Type>
+inline ezIBinaryStreamWriter& operator << (ezIBinaryStreamWriter& Stream, const ezBoundingSphereTemplate<Type>& Value)
 {
   Stream << Value.m_vCenter;
   Stream << Value.m_fRadius;
   return Stream;
 }
 
-inline ezIBinaryStreamReader& operator >> (ezIBinaryStreamReader& Stream, ezBoundingSphere& Value)
+template<typename Type>
+inline ezIBinaryStreamReader& operator >> (ezIBinaryStreamReader& Stream, ezBoundingSphereTemplate<Type>& Value)
 {
   Stream >> Value.m_vCenter;
   Stream >> Value.m_fRadius;

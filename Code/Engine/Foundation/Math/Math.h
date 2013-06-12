@@ -3,241 +3,282 @@
 #include <Foundation/Basics.h>
 #include <Foundation/Math/Declarations.h>
 
-/// \brief This class provides common math-functionality as static functions.
-struct EZ_FOUNDATION_DLL ezMath
+
+/// \brief This namespace provides common math-functionality as functions.
+///
+/// It is a namespace, instead of a static class, because that allows it to be extended
+/// at other locations, which is especially useful when adding custom types.
+namespace ezMath
 {
-  /// \brief Returns the natural constant e.
-  static float e();
+  /// \brief Returns whether the given value is NaN under this type.
+  template<typename Type>
+  static bool IsNaN(Type value) { return false; }
 
-  /// \brief Returns the natural constant pi.
-  static float Pi();
+  /// \brief Returns whether the given value represents a finite value (ie. not +/- Infinity and not NaN)
+  template<typename Type>
+  static bool IsFinite(Type value) { return true; }
 
-  /// \brief Returns the largest positive floating point number.
-  static float FloatMax_Pos(); // [tested]
+  template<typename Type>
+  struct BasicType
+  {
+    /// \brief Returns whether the templated type supports NaN, at all. Usually only true for \c float and \c double.
+    static bool SupportsNaN() { return false; }
 
-  /// \brief Returns the largest negative floating point number.
-  static float FloatMax_Neg(); // [tested]
+    /// \brief Returns the value for NaN as the template type. Returns zero, if the type does not support NaN.
+    ///
+    /// Do not use this for comparisons, it will fail. Use it to initialize data (e.g. in debug builds), to detect uninitialized variables.
+    /// Use the function IsNaN() to check whether a value is not a number.
+    static Type GetNaN() { return Type(0); }
+
+    /// \brief Returns whether this templated type supports specialized values to represent Infinity.
+    static bool SupportsInfinity() { return false; }
+
+    /// \brief Returns the value for Infinity as the template type. Returns zero, if the type does not support Infinity.
+    static Type GetInfinity() { return Type(0); }
+
+    /// \brief Returns the natural constant e.
+    static Type e() { return (Type) 2.71828182845904; }
+
+    /// \brief Returns the natural constant pi.
+    static Type Pi() { return (Type) 3.1415926535897932384626433832795; }
+
+    /// \brief Returns the largest possible positive value.
+    static Type MaxValue();
+
+    static Type SmallEpsilon()    { return (Type) 0.000001; }
+    static Type DefaultEpsilon()  { return (Type) 0.00001; }
+    static Type LargeEpsilon()    { return (Type) 0.0001; }
+    static Type HugeEpsilon()     { return (Type) 0.001; }
+  };
+
+  /// ***** Trigonometric Functions *****
+
+  /// \brief Returns the constant to multiply with an angle in degree to convert it to radians.
+  template<typename Type>
+  EZ_FORCE_INLINE Type DegToRadMultiplier() { return BasicType<Type>::Pi() / (Type) 180; }
+
+  /// \brief Returns the constant to multiply with an angle in degree to convert it to radians.
+  template<typename Type>
+  EZ_FORCE_INLINE Type RadToDegMultiplier() { return ((Type) 180) / BasicType<Type>::Pi(); }
 
   /// \brief Converts an angle in degree to radians.
-  static float DegToRad(float f);// [tested]
+  template<typename Type>
+  Type DegToRad(Type f) { return f * DegToRadMultiplier<Type>(); } // [tested]
 
   /// \brief Converts an angle in radians to degree.
-  static float RadToDeg(float f);// [tested]
-
-  /// \brief Returns the a float that represents '+Infinity'.
-  static float Infinity(); // [tested]
-
-  /// \brief Returns float NaN. Do not use this for comparisons, it will fail. Use it to initialize data (e.g. in debug builds), to detect uninitialized variables.
-  static float NaN(); // [tested]
+  template<typename Type>
+  Type RadToDeg(Type f) { return f * RadToDegMultiplier<Type>(); } // [tested]
 
   /// \brief Takes an angle in degree, returns its sine
-  static float SinDeg(float f); // [tested]
+  float SinDeg(float f); // [tested]
 
   /// \brief Takes an angle in degree, returns its cosine
-  static float CosDeg(float f); // [tested]
+  float CosDeg(float f); // [tested]
 
   /// \brief Takes an angle in radians, returns its sine
-  static float SinRad(float f); // [tested]
+  float SinRad(float f); // [tested]
 
   /// \brief Takes an angle in radians, returns its cosine
-  static float CosRad(float f); // [tested]
+  float CosRad(float f); // [tested]
 
   /// \brief Takes an angle in degree, returns its tangent
-  static float TanDeg(float f); // [tested]
+  float TanDeg(float f); // [tested]
 
   /// \brief Takes an angle in radians, returns its tangent
-  static float TanRad(float f); // [tested]
+  float TanRad(float f); // [tested]
 
   /// \brief Returns the arcus sinus of f, in degree
-  static float ASinDeg(float f); // [tested]
+  float ASinDeg(float f); // [tested]
 
   /// \brief Returns the arcus cosinus of f, in degree
-  static float ACosDeg(float f); // [tested]
+  float ACosDeg(float f); // [tested]
 
   /// \brief Returns the arcus sinus of f, in radians
-  static float ASinRad(float f); // [tested]
+  float ASinRad(float f); // [tested]
 
   /// \brief Returns the arcus cosinus of f, in radians
-  static float ACosRad(float f); // [tested]
+  float ACosRad(float f); // [tested]
 
   /// \brief Returns the arcus tangent of f, in degree
-  static float ATanDeg(float f); // [tested]
+  float ATanDeg(float f); // [tested]
 
   /// \brief Returns the arcus tangent of f, in radians
-  static float ATanRad(float f); // [tested]
+  float ATanRad(float f); // [tested]
 
   /// \brief Returns the atan2 of x and y, in degree
-  static float ATan2Deg(float x, float y); // [tested]
+  float ATan2Deg(float x, float y); // [tested]
 
   /// \brief Returns the atan2 of x and y, in radians
-  static float ATan2Rad(float x, float y); // [tested]
+  float ATan2Rad(float x, float y); // [tested]
 
   /// \brief Returns e^f
-  static float Exp(float f); // [tested]
+  float Exp(float f); // [tested]
 
   /// \brief Returns the logarithmus naturalis of f
-  static float Ln(float f); // [tested]
+  float Ln(float f); // [tested]
 
   /// \brief Returns log (f), to the base 2
-  static float Log2(float f); // [tested]
+  float Log2(float f); // [tested]
 
   /// \brief Returns the integral logarithm to the base 2, that comes closest to the given integer.
-  static ezUInt32 Log2i(ezUInt32 val); // [tested]
+  ezUInt32 Log2i(ezUInt32 val); // [tested]
 
   /// \brief Returns log (f), to the base 10
-  static float Log10(float f); // [tested]
+  float Log10(float f); // [tested]
 
   /// \brief Returns log (f), to the base fBase
-  static float Log(float fBase, float f); // [tested]
+  float Log(float fBase, float f); // [tested]
 
   /// \brief Returns 2^f
-  static float Pow2(float f); // [tested]
+  float Pow2(float f); // [tested]
 
   /// \brief Returns base^exp
-  static float Pow(float base, float exp); // [tested]
+  float Pow(float base, float exp); // [tested]
 
   /// \brief Returns 2^f
-  static ezInt32 Pow2(ezInt32 i);// [tested]
+  ezInt32 Pow2(ezInt32 i);// [tested]
 
   /// \brief Returns base^exp
-  static ezInt32 Pow(ezInt32 base, ezInt32 exp); // [tested]
+  ezInt32 Pow(ezInt32 base, ezInt32 exp); // [tested]
 
   /// \brief Returns f * f
   template <typename T>
-  static T Square(T f); // [tested]
+  T Square(T f); // [tested]
 
   /// \brief Returns the square root of f
-  static float Sqrt(float f); // [tested]
+  float Sqrt(float f); // [tested]
 
   /// \brief Returns the n-th root of f.
-  static float Root(float f, float NthRoot); // [tested]
+  float Root(float f, float NthRoot); // [tested]
 
   /// \brief Returns the sign of f (ie: -1, 1 or 0)
   template <typename T>
-  static T Sign(T f); // [tested]
+  T Sign(T f); // [tested]
 
   /// \brief Returns the absolute value of f
   template <typename T>
-  static T Abs(T f); // [tested]
+  T Abs(T f); // [tested]
 
   /// \brief Returns the smaller value, f1 or f2
   template <typename T>
-  static T Min(T f1, T f2); // [tested]
+  T Min(T f1, T f2); // [tested]
 
   /// \brief Returns the smaller value, f1 or f2 or f3
   template <typename T>
-  static T Min(T f1, T f2, T f3); // [tested]
+  T Min(T f1, T f2, T f3); // [tested]
 
   /// \brief Returns the smaller value, f1 or f2 or f3 or f4
   template <typename T>
-  static T Min(T f1, T f2, T f3, T f4); // [tested]
+  T Min(T f1, T f2, T f3, T f4); // [tested]
 
   /// \brief Returns the greater value, f1 or f2
   template <typename T>
-  static T Max(T f1, T f2); // [tested]
+  T Max(T f1, T f2); // [tested]
 
   /// \brief Returns the smaller value, f1 or f2 or f3
   template <typename T>
-  static T Max(T f1, T f2, T f3); // [tested]
+  T Max(T f1, T f2, T f3); // [tested]
 
   /// \brief Returns the smaller value, f1 or f2 or f3 or f4
   template <typename T>
-  static T Max(T f1, T f2, T f3, T f4); // [tested]
+  T Max(T f1, T f2, T f3, T f4); // [tested]
 
   /// \brief Clamps "value" to the range [min; max]. Returns "value", if it is inside the range already
   template <typename T>
-  static T Clamp(T value, T min_val, T max_val); // [tested]
+  T Clamp(T value, T min_val, T max_val); // [tested]
 
   /// \brief Returns the next smaller integer, closest to f. Also the SMALLER value, if f is negative.
-  static float Floor(float f); // [tested]
+  float Floor(float f); // [tested]
 
   /// \brief Returns the next higher integer, closest to f. Also the HIGHER value, if f is negative.
-  static float Ceil(float f); // [tested]
+  float Ceil(float f); // [tested]
 
   /// \brief Returns a multiple of fMultiple that is smaller than f.
-  static float Floor(float f, float fMultiple); // [tested]
+  float Floor(float f, float fMultiple); // [tested]
 
   /// \brief Returns a multiple of fMultiple that is larger than f.
-  static float Ceil(float f, float fMultiple); // [tested]
+  float Ceil(float f, float fMultiple); // [tested]
 
   /// \brief Returns a multiple of uiMultiple that is smaller than i.
-  static ezInt32 Floor(ezInt32 i, ezUInt32 uiMultiple); // [tested]
+  ezInt32 Floor(ezInt32 i, ezUInt32 uiMultiple); // [tested]
 
   /// \brief Returns a multiple of uiMultiple that is larger than i.
-  static ezInt32 Ceil(ezInt32 i, ezUInt32 uiMultiple); // [tested]
+  ezInt32 Ceil(ezInt32 i, ezUInt32 uiMultiple); // [tested]
 
   /// \brief Returns the integer-part of f (removes the fraction).
-  static float Trunc(float f); // [tested]
+  template<typename Type>
+  Type Trunc(Type f); // [tested]
 
   /// \brief Rounds f to the next integer. If f is positive 0.5 is rounded UP (ie. to 1), if f is negative, -0.5 is rounded DOWN (ie. to -1).
-  static float Round(float f); // [tested]
+  template<typename Type>
+  Type Round(Type f); // [tested]
 
   /// \brief Rounds f to the closest multiple of fRoundTo.
-  static float Round(float f, float fRoundTo); // [tested]
+  template<typename Type>
+  Type Round(Type f, Type fRoundTo); // [tested]
 
   /// \brief Returns the fraction-part of f.
-  static float Fraction(float f); // [tested]
-
-  /// \brief Converts f into an integer.
-  static ezInt32 FloatToInt(float f); // [tested]
+  template<typename Type>
+  Type Fraction(Type f); // [tested]
 
   /// \brief Returns "value mod div" for floats.
-  static float Mod(float f, float div); // [tested]
+  float Mod(float f, float div); // [tested]
 
   /// \brief Returns 1 / f
-  static float Invert(float f); // [tested]
+  template<typename Type>
+  Type Invert(Type f); // [tested]
 
   /// \brief Returns true, if i is an odd number
-  static bool IsOdd(ezInt32 i); // [tested]
+  bool IsOdd(ezInt32 i); // [tested]
 
   /// \brief Returns true, if i is an even number
-  static bool IsEven(ezInt32 i); // [tested]
+  bool IsEven(ezInt32 i); // [tested]
 
   /// \brief Swaps the values in the two variables f1 and f2
   template <typename T>
-  static void Swap(T& f1, T& f2); // [tested]
+  void Swap(T& f1, T& f2); // [tested]
 
   /// \brief Returns the linear interpolation of f1 and f2. factor is a value between 0 and 1.
   template <typename T>
-  static T Lerp(T f1, T f2, float factor); // [tested]
+  T Lerp(T f1, T f2, float factor); // [tested]
 
   /// \brief Returns 0, if value < edge, and 1, if value >= edge.
   template <typename T>
-  static T Step(T value, T edge); // [tested]
+  T Step(T value, T edge); // [tested]
 
   /// \brief Returns 0, if value is <= edge1, 1 if value >= edge2 and the hermite interpolation in between
-  static float SmoothStep(float value, float edge1, float edge2); // [tested]
+  template<typename Type>
+  Type SmoothStep(Type value, Type edge1, Type edge2); // [tested]
 
   /// \brief Returns true, if there exists some x with base^x == value
-  static bool IsPowerOf(ezInt32 value, ezInt32 base); // [tested]
+  EZ_FOUNDATION_DLL bool IsPowerOf(ezInt32 value, ezInt32 base); // [tested]
 
   /// \brief Returns true, if there exists some x with 2^x == value
-  static bool IsPowerOf2(ezInt32 value); // [tested]
+  bool IsPowerOf2(ezInt32 value); // [tested]
 
   /// \brief Returns the next power-of-two that is <= value
-  static ezInt32 PowerOfTwo_Floor(ezUInt32 value); // [tested]
+  EZ_FOUNDATION_DLL ezInt32 PowerOfTwo_Floor(ezUInt32 value); // [tested]
 
   /// \brief Returns the next power-of-two that is >= value
-  static ezInt32 PowerOfTwo_Ceil(ezUInt32 value); // [tested]
+  EZ_FOUNDATION_DLL ezInt32 PowerOfTwo_Ceil(ezUInt32 value); // [tested]
 
   /// \brief Checks, whether fValue is in the range [fDesired - fMaxImprecision; fDesired + fMaxImprecision].
-  static bool IsFloatEqual(float lhs, float rhs, float fEpsilon = ezMath_LargeEpsilon); // [tested]
-
-  /// \brief Returns true if f is NaN.
-  static bool IsNaN(float f); // [tested]
-
-  /// \brief Returns whether f is a valid finite float (e.g. not NaN and not +/-Infinity).
-  static bool IsFinite(float f); // [tested]
-
+  template<typename Type>
+  bool IsEqual(Type lhs, Type rhs, Type fEpsilon);
+  
   /// \brief Checks whether the value of the first parameter lies between the value of the second and third.
   template <typename T>
-  static bool IsInRange(T Value, T MinVal, T MaxVal); // [tested]
+  bool IsInRange(T Value, T MinVal, T MaxVal); // [tested]
 
   /// \brief Checks whether the given number is close to zero.
-  static bool IsZero(float f, float fEpsilon = ezMath_DefaultEpsilon); // [tested]
-    
+  template<typename Type>
+  bool IsZero(Type f, Type fEpsilon); // [tested]
+
 };
 
 #include <Foundation/Math/Implementation/Math_inl.h>
+#include <Foundation/Math/Implementation/MathFloat_inl.h>
+#include <Foundation/Math/Implementation/MathDouble_inl.h>
+#include <Foundation/Math/Implementation/MathFixedPoint_inl.h>
 
 

@@ -59,14 +59,18 @@ private:
   EZ_TEST_DEBUG_BREAK \
 }
 
+inline float ToFloat(int f) { return (float) f; }
+inline float ToFloat(float f) { return f; }
+inline float ToFloat(double f) { return (float) f; }
+
 #define EZ_TEST_FLOAT(f1, f2, epsilon) EZ_TEST_FLOAT_MSG(f1, f2, epsilon, "")
 
 #define EZ_TEST_FLOAT_MSG(f1, f2, epsilon, msg) \
 { \
-  const float internal_r1 = (f1); \
-  const float internal_r2 = (f2); \
+  const float internal_r1 = ToFloat(f1); \
+  const float internal_r2 = ToFloat(f2); \
   const float internal_fD = internal_r1 - internal_r2; \
-  const float internal_fEps = (float) epsilon; \
+  const float internal_fEps = ToFloat(epsilon); \
   if (internal_fD < -internal_fEps || internal_fD > +internal_fEps) \
   { \
     char szLocal_TestMacro[256]; \
@@ -129,8 +133,8 @@ private:
 
 #define EZ_TEST_VEC2_MSG(r1, r2, epsilon, msg) \
 { \
-  const ezVec2 internal_v1 = (ezVec2) (r1); \
-  const ezVec2 internal_v2 = (ezVec2) (r2); \
+  const ezVec2T internal_v1 = (ezVec2T) (r1); \
+  const ezVec2T internal_v2 = (ezVec2T) (r2); \
   \
   EZ_TEST_FLOAT_MSG(internal_v1.x, internal_v2.x, epsilon, msg); \
   EZ_TEST_FLOAT_MSG(internal_v1.y, internal_v2.y, epsilon, msg); \
@@ -140,8 +144,8 @@ private:
 
 #define EZ_TEST_VEC3_MSG(r1, r2, epsilon, msg) \
 { \
-  const ezVec3 internal_v1 = (ezVec3) (r1); \
-  const ezVec3 internal_v2 = (ezVec3) (r2); \
+  const ezVec3T internal_v1 = (ezVec3T) (r1); \
+  const ezVec3T internal_v2 = (ezVec3T) (r2); \
   \
   EZ_TEST_FLOAT_MSG(internal_v1.x, internal_v2.x, epsilon, msg); \
   EZ_TEST_FLOAT_MSG(internal_v1.y, internal_v2.y, epsilon, msg); \
@@ -152,8 +156,8 @@ private:
 
 #define EZ_TEST_VEC4_MSG(r1, r2, epsilon, msg) \
 { \
-  const ezVec4 internal_v1 = (ezVec4) (r1); \
-  const ezVec4 internal_v2 = (ezVec4) (r2); \
+  const ezVec4T internal_v1 = (ezVec4T) (r1); \
+  const ezVec4T internal_v2 = (ezVec4T) (r2); \
   \
   EZ_TEST_FLOAT_MSG(internal_v1.x, internal_v2.x, epsilon, msg); \
   EZ_TEST_FLOAT_MSG(internal_v1.y, internal_v2.y, epsilon, msg); \

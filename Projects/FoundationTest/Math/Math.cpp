@@ -39,28 +39,28 @@ EZ_CREATE_SIMPLE_TEST_GROUP(Math);
 
 EZ_CREATE_SIMPLE_TEST(Math, General)
 {
-  EZ_TEST_BLOCK(true, "Constants")
-  {
-    // Macro test
-    EZ_TEST(EZ_8BIT(01010101) == 85);
-    EZ_TEST(EZ_16BIT(10101010, 01010101) == 43605);
-    EZ_TEST(EZ_32BIT(10000000, 11111111, 10101010, 01010101) == 2164238933);
+  //EZ_TEST_BLOCK(true, "Constants")
+  //{
+  //  // Macro test
+  //  EZ_TEST(EZ_8BIT(01010101) == 85);
+  //  EZ_TEST(EZ_16BIT(10101010, 01010101) == 43605);
+  //  EZ_TEST(EZ_32BIT(10000000, 11111111, 10101010, 01010101) == 2164238933);
 
-    // Infinity test
-    //                           Sign:_
-    //                       Exponent: _______  _
-    //                       Fraction:           _______  ________  ________
-    ezIntFloatUnion uInf = { EZ_32BIT(01111111, 10000000, 00000000, 00000000) };
-    EZ_TEST(uInf.f == ezMath::Infinity());
+  //  // Infinity test
+  //  //                           Sign:_
+  //  //                       Exponent: _______  _
+  //  //                       Fraction:           _______  ________  ________
+  //  ezIntFloatUnion uInf = { EZ_32BIT(01111111, 10000000, 00000000, 00000000) };
+  //  EZ_TEST(uInf.f == ezMath::FloatInfinity());
 
-    // FloatMax_Pos test
-    ezIntFloatUnion uMax = { EZ_32BIT(01111111, 01111111, 11111111, 11111111) };
-    EZ_TEST(uMax.f == ezMath::FloatMax_Pos());
+  //  // FloatMax_Pos test
+  //  ezIntFloatUnion uMax = { EZ_32BIT(01111111, 01111111, 11111111, 11111111) };
+  //  EZ_TEST(uMax.f == ezMath::FloatMax_Pos());
 
-    // FloatMax_Neg test
-    ezIntFloatUnion uMin = { EZ_32BIT(11111111, 01111111, 11111111, 11111111) };
-    EZ_TEST(uMin.f == ezMath::FloatMax_Neg());
-  }
+  //  // FloatMax_Neg test
+  //  ezIntFloatUnion uMin = { EZ_32BIT(11111111, 01111111, 11111111, 11111111) };
+  //  EZ_TEST(uMin.f == ezMath::FloatMax_Neg());
+  //}
 
   EZ_TEST_BLOCK(true, "Sin")
   {
@@ -428,12 +428,6 @@ EZ_CREATE_SIMPLE_TEST(Math, General)
     EZ_TEST_FLOAT(ezMath::Fraction(-12.34f), -0.34f, 0.00001f);
   }
 
-  EZ_TEST_BLOCK(true, "FloatToInt")
-  {
-    EZ_TEST(ezMath::FloatToInt(12.34f) == 12);
-    EZ_TEST(ezMath::FloatToInt(-12.34f) == -12);
-  }
-
   EZ_TEST_BLOCK(true, "Mod")
   {
     EZ_TEST_FLOAT(2.34f, ezMath::Mod(12.34f, 2.5f), 0.000001f);
@@ -558,27 +552,30 @@ EZ_CREATE_SIMPLE_TEST(Math, General)
     EZ_TEST(ezMath::PowerOfTwo_Ceil(0) == 1);
   }
 
-  EZ_TEST_BLOCK(true, "IsFloatEqual")
+  EZ_TEST_BLOCK(true, "IsEqual")
   {
-    EZ_TEST(ezMath::IsFloatEqual(1.0f, 0.999f, 0.01f) == true);
-    EZ_TEST(ezMath::IsFloatEqual(1.0f, 1.001f, 0.01f) == true);
-    EZ_TEST(ezMath::IsFloatEqual(1.0f, 0.999f, 0.0001f) == false);
-    EZ_TEST(ezMath::IsFloatEqual(1.0f, 1.001f, 0.0001f) == false);
+    EZ_TEST(ezMath::IsEqual(1.0f, 0.999f, 0.01f) == true);
+    EZ_TEST(ezMath::IsEqual(1.0f, 1.001f, 0.01f) == true);
+    EZ_TEST(ezMath::IsEqual(1.0f, 0.999f, 0.0001f) == false);
+    EZ_TEST(ezMath::IsEqual(1.0f, 1.001f, 0.0001f) == false);
   }
 
   EZ_TEST_BLOCK(true, "NaN_Infinity")
   {
-    EZ_TEST(ezMath::IsNaN(ezMath::NaN()) == true);
+    if (ezMath::BasicType<ezMathTestType>::SupportsNaN())
+    {
+      EZ_TEST(ezMath::IsNaN(ezMath::BasicType<ezMathTestType>::GetNaN()) == true);
 
-    EZ_TEST(ezMath::Infinity() == ezMath::Infinity() - 1);
-    EZ_TEST(ezMath::Infinity() == ezMath::Infinity() + 1);
+      EZ_TEST(ezMath::BasicType<ezMathTestType>::GetInfinity() == ezMath::BasicType<ezMathTestType>::GetInfinity() - (ezMathTestType) 1);
+      EZ_TEST(ezMath::BasicType<ezMathTestType>::GetInfinity() == ezMath::BasicType<ezMathTestType>::GetInfinity() + (ezMathTestType) 1);
 
-    EZ_TEST(ezMath::IsNaN(ezMath::Infinity() - ezMath::Infinity()));
+      EZ_TEST(ezMath::IsNaN(ezMath::BasicType<ezMathTestType>::GetInfinity() - ezMath::BasicType<ezMathTestType>::GetInfinity()));
 
-    EZ_TEST(!ezMath::IsFinite( ezMath::Infinity()));
-    EZ_TEST(!ezMath::IsFinite(-ezMath::Infinity()));
-    EZ_TEST(!ezMath::IsFinite(ezMath::NaN()));
-    EZ_TEST(!ezMath::IsNaN(ezMath::Infinity()));
+      EZ_TEST(!ezMath::IsFinite( ezMath::BasicType<ezMathTestType>::GetInfinity()));
+      EZ_TEST(!ezMath::IsFinite(-ezMath::BasicType<ezMathTestType>::GetInfinity()));
+      EZ_TEST(!ezMath::IsFinite(ezMath::BasicType<ezMathTestType>::GetNaN()));
+      EZ_TEST(!ezMath::IsNaN(ezMath::BasicType<ezMathTestType>::GetInfinity()));
+    }
   }
 
   EZ_TEST_BLOCK(true, "IsInRange")

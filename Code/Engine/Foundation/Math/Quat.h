@@ -14,23 +14,26 @@
 /// Quaternions have no 'IsIdentical' or 'IsEqual' function, as there can be different representations for the
 /// same rotation, and it is rather difficult to check this. So to not convey any false notion of being equal
 /// (or rather inequal), those functions are not provided.
-class EZ_FOUNDATION_DLL ezQuat
+template<typename Type>
+class ezQuatTemplate
 {
 public:
   // Means this object can be copied using memcpy instead of copy construction.
   EZ_DECLARE_POD_TYPE();
 
+  typedef Type ComponentType;
+
 // *** Data ***
 public:
-  ezVec3 v;
-  float w;
+  ezVec3Template<Type> v;
+  Type w;
 
 // *** Constructors ***
 public:
-  ezQuat(); // [tested]
+  ezQuatTemplate(); // [tested]
 
   /// \brief For internal use. You should never construct quaternions this way.
-  ezQuat(float X, float Y, float Z, float W); // [tested]
+  ezQuatTemplate(Type X, Type Y, Type Z, Type W); // [tested]
 
 // *** Functions to create a quaternion ***
 public:
@@ -41,19 +44,19 @@ public:
   /// \brief Sets the individual elements of the quaternion directly. Note that x,y,z do NOT represent a rotation axis, and w does NOT represent an angle.
   ///
   /// Use this function only if you have good understanding of quaternion math and know exactly what you are doing.
-  void SetElements(float X, float Y, float Z, float W); // [tested]
+  void SetElements(Type X, Type Y, Type Z, Type W); // [tested]
 
   /// \brief Creates a quaternion from a rotation-axis and an angle.
-  void SetFromAxisAndAngle(const ezVec3& vRotationAxis, float fAngle); // [tested]
+  void SetFromAxisAndAngle(const ezVec3Template<Type>& vRotationAxis, Type fAngle); // [tested]
   
   /// \brief Creates a quaternion, that rotates through the shortest arc from "vDirFrom" to "vDirTo".
-  void SetShortestRotation(const ezVec3& vDirFrom, const ezVec3& vDirTo); // [tested]
+  void SetShortestRotation(const ezVec3Template<Type>& vDirFrom, const ezVec3Template<Type>& vDirTo); // [tested]
 
   /// \brief Creates a quaternion from the given matrix.
-  void SetFromMat3(const ezMat3& m); // [tested]
+  void SetFromMat3(const ezMat3Template<Type>& m); // [tested]
 
   /// \brief Sets this quaternion to be the spherical linear interpolation of the other two.
-  void SetSlerp(const ezQuat& qFrom, const ezQuat& qTo, float t); // [tested]
+  void SetSlerp(const ezQuatTemplate& qFrom, const ezQuatTemplate& qTo, Type t); // [tested]
 
 // *** Common Functions ***
 public:
@@ -62,36 +65,38 @@ public:
   void Normalize(); // [tested]
 
   /// \brief Returns the rotation-axis and angle, that this quaternion rotates around.
-  ezResult GetRotationAxisAndAngle(ezVec3& vAxis, float& fAngle) const; // [tested]
+  ezResult GetRotationAxisAndAngle(ezVec3Template<Type>& vAxis, Type& fAngle) const; // [tested]
   
   /// \brief Returns the Quaternion as a matrix.
-  const ezMat3 GetAsMat3() const; // [tested]
+  const ezMat3Template<Type> GetAsMat3() const; // [tested]
 
   /// \brief Returns the Quaternion as a matrix.
-  const ezMat4 GetAsMat4() const; // [tested]
+  const ezMat4Template<Type> GetAsMat4() const; // [tested]
   
   /// \brief Checks whether all components are neither NaN nor infinite and that the quaternion is normalized.
-  bool IsValid(float fEpsilon = ezMath_DefaultEpsilon) const; // [tested]
+  bool IsValid(Type fEpsilon = ezMath::BasicType<Type>::DefaultEpsilon()) const; // [tested]
 
   /// \brief Determines whether \a this and \a qOther represent the same rotation. This is a rather slow operation.
   ///
   /// Currently it fails when one of the given quaternions is identity (so no rotation, at all), as it tries to
   /// compare rotation axis' and angles, which is undefined for the identity quaternion (also there are infinite
   /// representations for 'identity', so it's difficult to check for it).
-  bool IsEqualRotation(const ezQuat& qOther, float fEpsilon) const; // [tested]
+  bool IsEqualRotation(const ezQuatTemplate& qOther, Type fEpsilon) const; // [tested]
 
 // *** Operators ***
 public:
 
   /// \brief Returns a Quaternion that represents the negative / inverted rotation.
-  const ezQuat operator-() const; // [tested]
+  const ezQuatTemplate operator-() const; // [tested]
 };
 
 /// \brief Rotates v by q
-const ezVec3 operator* (const ezQuat& q, const ezVec3& v); // [tested]
+template<typename Type>
+const ezVec3Template<Type> operator* (const ezQuatTemplate<Type>& q, const ezVec3Template<Type>& v); // [tested]
 
 /// \brief Concatenates the rotations of q1 and q2
-const ezQuat operator* (const ezQuat& q1, const ezQuat& q2); // [tested]
+template<typename Type>
+const ezQuatTemplate<Type> operator* (const ezQuatTemplate<Type>& q1, const ezQuatTemplate<Type>& q2); // [tested]
 
 #include <Foundation/Math/Implementation/Quat_inl.h>
 

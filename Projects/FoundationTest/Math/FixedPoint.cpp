@@ -1,47 +1,22 @@
 #include <PCH.h>
 #include <Foundation/Math/FixedPoint.h>
 
-//template<typename T>
-//T Sqrt(T a)
-//{
-//  T x = a / 2;
-//
-//  for (ezUInt32 i = 0; i < 6; ++i)
-//  {
-//    T ax = a / x;
-//    T xpax = x + ax;
-//    x = xpax / 2;
-//  }
-//
-//  return x;
-//}
-
 EZ_CREATE_SIMPLE_TEST(Math, FixedPoint)
 {
-  //EZ_TEST_BLOCK(true, "Sqrt")
-  //{
-  //  float f1 = Sqrt(ezFixedPoint<12> (16.0f));
-  //  float f2 = Sqrt(ezFixedPoint<12> (25.0f));
-  //  float f3 = Sqrt(ezFixedPoint<12> (64.0f));
-  //  float f4 = Sqrt(ezFixedPoint<12> (100.0f));
-
-  //  int i = 2;
-  //}
-
   EZ_TEST_BLOCK(true, "Constructor (int) / Conversion to Int")
   {
     // positive values
     for (ezInt32 i = 0; i < 1024; ++i)
     {
       ezFixedPoint<12> fp (i);
-      EZ_TEST_INT(fp, i);
+      EZ_TEST_INT(fp.ToInt(), i);
     }
 
     // negative values
     for (ezInt32 i = 0; i < 1024; ++i)
     {
       ezFixedPoint<12> fp (-i);
-      EZ_TEST_INT(fp, -i);
+      EZ_TEST_INT(fp.ToInt(), -i);
     }
   }
 
@@ -71,7 +46,7 @@ EZ_CREATE_SIMPLE_TEST(Math, FixedPoint)
     {
       ezFixedPoint<12> fp (f);
 
-      EZ_TEST_DOUBLE(fp, f, 0.001);
+      EZ_TEST_DOUBLE(fp.ToDouble(), f, 0.001);
     }
 
     // negative values
@@ -79,7 +54,7 @@ EZ_CREATE_SIMPLE_TEST(Math, FixedPoint)
     {
       ezFixedPoint<12> fp (-f);
 
-      EZ_TEST_DOUBLE(fp, -f, 0.001);
+      EZ_TEST_DOUBLE(fp.ToDouble(), -f, 0.001);
     }
   }
 
@@ -108,10 +83,10 @@ EZ_CREATE_SIMPLE_TEST(Math, FixedPoint)
     ezFixedPoint<12> fp4 (-(1 << 19) - 1);
 
     // 12 Bits for the fraction -> 19 Bits for the integral part and 1 'Sign Bit'
-    EZ_TEST((ezInt32) fp1 ==  (1 << 19) - 1); // This maximum value is still representable
-    EZ_TEST((ezInt32) fp2 !=  (1 << 19));     // The next value isn't representable anymore
-    EZ_TEST((ezInt32) fp3 == -(1 << 19));
-    EZ_TEST((ezInt32) fp4 != -(1 << 19) - 1);
+    EZ_TEST(fp1.ToInt() ==  (1 << 19) - 1); // This maximum value is still representable
+    EZ_TEST(fp2.ToInt() !=  (1 << 19));     // The next value isn't representable anymore
+    EZ_TEST(fp3.ToInt() == -(1 << 19));
+    EZ_TEST(fp4.ToInt() != -(1 << 19) - 1);
   }
 
   EZ_TEST_BLOCK(true, "operator*(fp, int)")
@@ -119,11 +94,11 @@ EZ_CREATE_SIMPLE_TEST(Math, FixedPoint)
     ezFixedPoint<12> fp (3.2f);
     fp = fp * 2;
 
-    EZ_TEST_FLOAT((float) fp, 6.4f, 0.001f);
+    EZ_TEST_FLOAT(fp.ToFloat(), 6.4f, 0.001f);
 
     fp = 3 * fp;
 
-    EZ_TEST_FLOAT((float) fp, 19.2f, 0.001f);
+    EZ_TEST_FLOAT(fp.ToFloat(), 19.2f, 0.001f);
   }
 
   EZ_TEST_BLOCK(true, "operator/(fp, int)")
@@ -131,11 +106,11 @@ EZ_CREATE_SIMPLE_TEST(Math, FixedPoint)
     ezFixedPoint<12> fp (12.4f);
     fp = fp / 2;
 
-    EZ_TEST_FLOAT((float) fp, 6.2f, 0.001f);
+    EZ_TEST_FLOAT(fp.ToFloat(), 6.2f, 0.001f);
 
     fp = fp / 3;
 
-    EZ_TEST_FLOAT((float) fp, 2.066f, 0.001f);
+    EZ_TEST_FLOAT(fp.ToFloat(), 2.066f, 0.001f);
   }
 
   EZ_TEST_BLOCK(true, "operator+(fp, fp)")
@@ -143,11 +118,11 @@ EZ_CREATE_SIMPLE_TEST(Math, FixedPoint)
     ezFixedPoint<12> fp (3.2f);
     fp = fp + ezFixedPoint<12>(2);
 
-    EZ_TEST_FLOAT((float) fp, 5.2f, 0.001f);
+    EZ_TEST_FLOAT(fp.ToFloat(), 5.2f, 0.001f);
 
     fp = ezFixedPoint<12>(3) + fp;
 
-    EZ_TEST_FLOAT((float) fp, 8.2f, 0.001f);
+    EZ_TEST_FLOAT(fp.ToFloat(), 8.2f, 0.001f);
   }
 
   EZ_TEST_BLOCK(true, "operator-(fp, fp)")
@@ -155,11 +130,11 @@ EZ_CREATE_SIMPLE_TEST(Math, FixedPoint)
     ezFixedPoint<12> fp (3.2f);
     fp = fp - ezFixedPoint<12>(2);
 
-    EZ_TEST_FLOAT((float) fp, 1.2f, 0.001f);
+    EZ_TEST_FLOAT(fp.ToFloat(), 1.2f, 0.001f);
 
     fp = ezFixedPoint<12>(3) - fp;
 
-    EZ_TEST_FLOAT((float) fp, 1.8f, 0.001f);
+    EZ_TEST_FLOAT(fp.ToFloat(), 1.8f, 0.001f);
   }
 
   EZ_TEST_BLOCK(true, "operator*(fp, fp)")
@@ -167,10 +142,10 @@ EZ_CREATE_SIMPLE_TEST(Math, FixedPoint)
     ezFixedPoint<12> fp (3.2f);
 
     fp = fp * ezFixedPoint<12>(2.5f);
-    EZ_TEST_FLOAT((float) fp, 8.0f, 0.001f);
+    EZ_TEST_FLOAT(fp.ToFloat(), 8.0f, 0.001f);
 
     fp = fp * ezFixedPoint<12>(-123.456f);
-    EZ_TEST_FLOAT((float) fp, -987.648f, 0.1f);
+    EZ_TEST_FLOAT(fp.ToFloat(), -987.648f, 0.1f);
   }
 
   EZ_TEST_BLOCK(true, "operator/(fp, fp)")
@@ -178,10 +153,10 @@ EZ_CREATE_SIMPLE_TEST(Math, FixedPoint)
     ezFixedPoint<12> fp (100000.248f);
 
     fp = fp / ezFixedPoint<12>(-2);
-    EZ_TEST_FLOAT((float) fp, -50000.124f, 0.001f);
+    EZ_TEST_FLOAT(fp.ToFloat(), -50000.124f, 0.001f);
 
     fp = fp / ezFixedPoint<12>(-4);
-    EZ_TEST_FLOAT((float) fp, 12500.031f, 0.001f);
+    EZ_TEST_FLOAT(fp.ToFloat(), 12500.031f, 0.001f);
   }
 
   EZ_TEST_BLOCK(true, "Operator<,>,<=,>=,==,!=")
@@ -212,60 +187,60 @@ EZ_CREATE_SIMPLE_TEST(Math, FixedPoint)
 
 
     fp = 1000.1f;
-    EZ_TEST_DOUBLE(fp, 1000.0, 0.01);
+    EZ_TEST_DOUBLE(fp.ToDouble(), 1000.0, 0.01);
 
     fp = 1000.2f;
-    EZ_TEST_DOUBLE(fp, 1000.25, 0.01);
+    EZ_TEST_DOUBLE(fp.ToDouble(), 1000.25, 0.01);
 
     fp = 1000.3f;
-    EZ_TEST_DOUBLE(fp, 1000.25, 0.01);
+    EZ_TEST_DOUBLE(fp.ToDouble(), 1000.25, 0.01);
 
     fp = 1000.4f;
-    EZ_TEST_DOUBLE(fp, 1000.5, 0.01);
+    EZ_TEST_DOUBLE(fp.ToDouble(), 1000.5, 0.01);
 
     fp = 1000.5f;
-    EZ_TEST_DOUBLE(fp, 1000.5, 0.01);
+    EZ_TEST_DOUBLE(fp.ToDouble(), 1000.5, 0.01);
 
     fp = 1000.6f;
-    EZ_TEST_DOUBLE(fp, 1000.5, 0.01);
+    EZ_TEST_DOUBLE(fp.ToDouble(), 1000.5, 0.01);
 
     fp = 1000.7f;
-    EZ_TEST_DOUBLE(fp, 1000.75, 0.01);
+    EZ_TEST_DOUBLE(fp.ToDouble(), 1000.75, 0.01);
 
     fp = 1000.8f;
-    EZ_TEST_DOUBLE(fp, 1000.75, 0.01);
+    EZ_TEST_DOUBLE(fp.ToDouble(), 1000.75, 0.01);
 
     fp = 1000.9f;
-    EZ_TEST_DOUBLE(fp, 1001.0, 0.01);
+    EZ_TEST_DOUBLE(fp.ToDouble(), 1001.0, 0.01);
 
 
     // negative
     fp = -1000.1;
-    EZ_TEST_FLOAT(fp, -1000.0f, 0.01f);
+    EZ_TEST_FLOAT(fp.ToFloat(), -1000.0f, 0.01f);
 
     fp = -1000.2;
-    EZ_TEST_FLOAT(fp, -1000.25f, 0.01f);
+    EZ_TEST_FLOAT(fp.ToFloat(), -1000.25f, 0.01f);
 
     fp = -1000.3;
-    EZ_TEST_FLOAT(fp, -1000.25f, 0.01f);
+    EZ_TEST_FLOAT(fp.ToFloat(), -1000.25f, 0.01f);
 
     fp = -1000.4;
-    EZ_TEST_FLOAT(fp, -1000.5f, 0.01f);
+    EZ_TEST_FLOAT(fp.ToFloat(), -1000.5f, 0.01f);
 
     fp = -1000.5;
-    EZ_TEST_FLOAT(fp, -1000.5f, 0.01f);
+    EZ_TEST_FLOAT(fp.ToFloat(), -1000.5f, 0.01f);
 
     fp = -1000.6;
-    EZ_TEST_FLOAT(fp, -1000.5f, 0.01f);
+    EZ_TEST_FLOAT(fp.ToFloat(), -1000.5f, 0.01f);
 
     fp = -1000.7;
-    EZ_TEST_FLOAT(fp, -1000.75f, 0.01f);
+    EZ_TEST_FLOAT(fp.ToFloat(), -1000.75f, 0.01f);
 
     fp = -1000.8;
-    EZ_TEST_FLOAT(fp, -1000.75f, 0.01f);
+    EZ_TEST_FLOAT(fp.ToFloat(), -1000.75f, 0.01f);
 
     fp = -1000.9;
-    EZ_TEST_FLOAT(fp, -1001.0f, 0.01f);
+    EZ_TEST_FLOAT(fp.ToFloat(), -1001.0f, 0.01f);
   }
 
   EZ_TEST_BLOCK(true, "Multiplication Rounding")

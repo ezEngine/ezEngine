@@ -26,31 +26,31 @@ public:
   EZ_FORCE_INLINE ezFixedPoint() { } // [tested]
 
   /// \brief Construct from an integer.
-  explicit ezFixedPoint(ezInt32 IntVal) { *this = IntVal; } // [tested]
+  /* implicit */ ezFixedPoint(ezInt32 IntVal) { *this = IntVal; } // [tested]
 
   /// \brief Construct from a float.
-  explicit ezFixedPoint(float FloatVal) { *this = FloatVal; } // [tested]
+  /* implicit */ ezFixedPoint(float FloatVal) { *this = FloatVal; } // [tested]
 
   /// \brief Construct from a double.
-  explicit ezFixedPoint(double FloatVal) { *this = FloatVal; } // [tested]
+  /* implicit */ ezFixedPoint(double FloatVal) { *this = FloatVal; } // [tested]
 
   /// \brief Assignment from an integer.
-  void operator=(ezInt32 IntVal); // [tested]
+  const ezFixedPoint<DecimalBits>& operator=(ezInt32 IntVal); // [tested]
 
   /// \brief Assignment from a float.
-  void operator=(float FloatVal); // [tested]
+  const ezFixedPoint<DecimalBits>& operator=(float FloatVal); // [tested]
 
   /// \brief Assignment from a double.
-  void operator=(double FloatVal); // [tested]
+  const ezFixedPoint<DecimalBits>& operator=(double FloatVal); // [tested]
 
   /// \brief Implicit conversion to int (the fractional part is dropped).
-  operator ezInt32() const; // [tested]
+  ezInt32 ToInt() const; // [tested]
 
   /// \brief Implicit conversion to float.
-  operator float() const; // [tested]
+  float ToFloat() const; // [tested]
 
   /// \brief Implicit conversion to double.
-  operator double() const; // [tested]
+  double ToDouble() const; // [tested]
 
   /// \brief 'Equality' comparison.
   bool operator==(const ezFixedPoint<DecimalBits>& rhs) const { return m_Value == rhs.m_Value; } // [tested]
@@ -69,6 +69,9 @@ public:
 
   /// \brief 'Greater than or equal' comparison.
   bool operator>=(const ezFixedPoint<DecimalBits>& rhs) const { return m_Value >= rhs.m_Value; } // [tested]
+
+
+  const ezFixedPoint<DecimalBits> operator-() const { return ezFixedPoint<DecimalBits>(-m_Value, true); }
 
   /// \brief += operator
   void operator+= (const ezFixedPoint<DecimalBits>& rhs) { m_Value += rhs.m_Value; } // [tested]
@@ -98,6 +101,9 @@ private:
 
   ezInt32 m_Value;
 };
+
+template<ezUInt8 DecimalBits>
+float ToFloat(ezFixedPoint<DecimalBits> f) { return f.ToFloat(); }
 
 // Additional operators:
 // ezFixedPoint operator+ (ezFixedPoint, ezFixedPoint); // [tested]

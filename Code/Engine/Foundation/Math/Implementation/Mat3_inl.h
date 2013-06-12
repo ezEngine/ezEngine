@@ -1,45 +1,51 @@
 #pragma once
 
-inline ezMat3::ezMat3()
+template<typename Type>
+ezMat3Template<Type>::ezMat3Template()
 {
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
   // Initialize all data to NaN in debug mode to find problems with uninitialized data easier.
-  const float fNaN = ezMath::NaN();
-  SetElements(fNaN, fNaN, fNaN,
-            fNaN, fNaN, fNaN,
-            fNaN, fNaN, fNaN);
+  const Type TypeNaN = ezMath::BasicType<Type>::GetNaN();
+  SetElements(TypeNaN, TypeNaN, TypeNaN,
+              TypeNaN, TypeNaN, TypeNaN,
+              TypeNaN, TypeNaN, TypeNaN);
 #endif
 }
 
-inline ezMat3::ezMat3(const float* const pData, ezMatrixLayout::Enum layout)
+template<typename Type>
+ezMat3Template<Type>::ezMat3Template(const Type* const pData, ezMatrixLayout::Enum layout)
 {
   SetFromArray(pData, layout);
 }
 
-inline ezMat3::ezMat3(float c1r1, float c2r1, float c3r1,
-                      float c1r2, float c2r2, float c3r2,
-                      float c1r3, float c2r3, float c3r3)
+template<typename Type>
+ezMat3Template<Type>::ezMat3Template(Type c1r1, Type c2r1, Type c3r1,
+                                     Type c1r2, Type c2r2, Type c3r2,
+                                     Type c1r3, Type c2r3, Type c3r3)
 {
   SetElements(c1r1, c2r1, c3r1,
               c1r2, c2r2, c3r2,
               c1r3, c2r3, c3r3);
 }
 
-EZ_FORCE_INLINE const ezMat3 ezMat3::IdentityMatrix()
+template<typename Type>
+EZ_FORCE_INLINE const ezMat3Template<Type> ezMat3Template<Type>::IdentityMatrix()
 {
-  return ezMat3(1, 0, 0,
+  return ezMat3Template<Type>(1, 0, 0,
                 0, 1, 0,
                 0, 0, 1);
 }
 
-EZ_FORCE_INLINE const ezMat3 ezMat3::ZeroMatrix()
+template<typename Type>
+EZ_FORCE_INLINE const ezMat3Template<Type> ezMat3Template<Type>::ZeroMatrix()
 {
-  return ezMat3(0, 0, 0,
+  return ezMat3Template<Type>(0, 0, 0,
                 0, 0, 0,
                 0, 0, 0);
 }
 
-inline void ezMat3::SetFromArray(const float* EZ_RESTRICT const pData, ezMatrixLayout::Enum layout)
+template<typename Type>
+void ezMat3Template<Type>::SetFromArray(const Type* EZ_RESTRICT const pData, ezMatrixLayout::Enum layout)
 {
   if (layout == ezMatrixLayout::ColumnMajor)
   {
@@ -49,14 +55,15 @@ inline void ezMat3::SetFromArray(const float* EZ_RESTRICT const pData, ezMatrixL
   {
     for (int i = 0; i < 3; ++i)
     {
-      m_fColumn[0][i] = pData[i * 3 + 0];
-      m_fColumn[1][i] = pData[i * 3 + 1];
-      m_fColumn[2][i] = pData[i * 3 + 2];
+      Element(0, i) = pData[i * 3 + 0];
+      Element(1, i) = pData[i * 3 + 1];
+      Element(2, i) = pData[i * 3 + 2];
     }
   }
 }
 
-inline void ezMat3::GetAsArray(float* out_pData, ezMatrixLayout::Enum layout) const
+template<typename Type>
+void ezMat3Template<Type>::GetAsArray(Type* out_pData, ezMatrixLayout::Enum layout) const
 {
   if (layout == ezMatrixLayout::ColumnMajor)
   {
@@ -66,57 +73,63 @@ inline void ezMat3::GetAsArray(float* out_pData, ezMatrixLayout::Enum layout) co
   {
     for (int i = 0; i < 3; ++i)
     {
-      out_pData[i * 3 + 0] = m_fColumn[0][i];
-      out_pData[i * 3 + 1] = m_fColumn[1][i];
-      out_pData[i * 3 + 2] = m_fColumn[2][i];
+      out_pData[i * 3 + 0] = Element(0, i);
+      out_pData[i * 3 + 1] = Element(1, i);
+      out_pData[i * 3 + 2] = Element(2, i);
     }
   }
 }
 
-inline void ezMat3::SetElements(float c1r1, float c2r1, float c3r1,
-                                float c1r2, float c2r2, float c3r2,
-                                float c1r3, float c2r3, float c3r3)
+template<typename Type>
+void ezMat3Template<Type>::SetElements(Type c1r1, Type c2r1, Type c3r1,
+                                Type c1r2, Type c2r2, Type c3r2,
+                                Type c1r3, Type c2r3, Type c3r3)
 {
-  m_fColumn[0][0] = c1r1;	m_fColumn[1][0] = c2r1;	m_fColumn[2][0] = c3r1;
-  m_fColumn[0][1] = c1r2;	m_fColumn[1][1] = c2r2;	m_fColumn[2][1] = c3r2;
-  m_fColumn[0][2] = c1r3;	m_fColumn[1][2] = c2r3;	m_fColumn[2][2] = c3r3;
+  Element(0, 0) = c1r1; Element(1, 0) = c2r1;	Element(2, 0) = c3r1;
+  Element(0, 1) = c1r2; Element(1, 1) = c2r2;	Element(2, 1) = c3r2;
+  Element(0, 2) = c1r3; Element(1, 2) = c2r3;	Element(2, 2) = c3r3;
 }
 
-inline void ezMat3::SetZero()
+template<typename Type>
+void ezMat3Template<Type>::SetZero()
 {
   SetElements(0, 0, 0,
               0, 0, 0,
               0, 0, 0);
 }
 
-inline void ezMat3::SetIdentity()
+template<typename Type>
+void ezMat3Template<Type>::SetIdentity()
 {
   SetElements(1, 0, 0,
               0, 1, 0,
               0, 0, 1);
 }
 
-inline void ezMat3::SetScalingMatrix(const ezVec3& s)
+template<typename Type>
+void ezMat3Template<Type>::SetScalingMatrix(const ezVec3Template<Type>& s)
 {
   SetElements(s.x,  0,   0,
                0,  s.y,  0,
                0,   0,  s.z);
 }
 
-inline void ezMat3::SetRotationMatrixX(float fAngle)
+template<typename Type>
+void ezMat3Template<Type>::SetRotationMatrixX(Type fAngle)
 {
-  const float fSin = ezMath::SinDeg(fAngle);
-  const float fCos = ezMath::CosDeg(fAngle);
+  const Type fSin = ezMath::SinDeg(fAngle);
+  const Type fCos = ezMath::CosDeg(fAngle);
 
   SetElements(1.0f, 0.0f, 0.0f,
               0.0f, fCos,-fSin,
               0.0f, fSin, fCos);
 }
 
-inline void ezMat3::SetRotationMatrixY(float fAngle)
+template<typename Type>
+void ezMat3Template<Type>::SetRotationMatrixY(Type fAngle)
 {
-  const float fSin = ezMath::SinDeg(fAngle);
-  const float fCos = ezMath::CosDeg(fAngle);
+  const Type fSin = ezMath::SinDeg(fAngle);
+  const Type fCos = ezMath::CosDeg(fAngle);
 
 
   SetElements(fCos, 0.0f, fSin,
@@ -124,125 +137,139 @@ inline void ezMat3::SetRotationMatrixY(float fAngle)
              -fSin, 0.0f, fCos);
 }
 
-inline void ezMat3::SetRotationMatrixZ(float fAngle)
+template<typename Type>
+void ezMat3Template<Type>::SetRotationMatrixZ(Type fAngle)
 {
-  const float fSin = ezMath::SinDeg(fAngle);
-  const float fCos = ezMath::CosDeg(fAngle);
+  const Type fSin = ezMath::SinDeg(fAngle);
+  const Type fCos = ezMath::CosDeg(fAngle);
 
   SetElements(fCos,-fSin, 0.0f,
               fSin, fCos, 0.0f,
               0.0f, 0.0f, 1.0f);
 }
 
-inline void ezMat3::Transpose()
+template<typename Type>
+void ezMat3Template<Type>::Transpose()
 {
-  ezMath::Swap(m_fColumn[0][1], m_fColumn[1][0]);
-  ezMath::Swap(m_fColumn[0][2], m_fColumn[2][0]);
-  ezMath::Swap(m_fColumn[1][2], m_fColumn[2][1]);
+  ezMath::Swap(Element(0, 1), Element(1, 0));
+  ezMath::Swap(Element(0, 2), Element(2, 0));
+  ezMath::Swap(Element(1, 2), Element(2, 1));
 }
 
-inline const ezMat3 ezMat3::GetTranspose() const
+template<typename Type>
+const ezMat3Template<Type> ezMat3Template<Type>::GetTranspose() const
 {
-  return ezMat3(m_fElementsCM, ezMatrixLayout::RowMajor);
+  return ezMat3Template(m_fElementsCM, ezMatrixLayout::RowMajor);
 }
 
-
-inline const ezMat3 ezMat3::GetInverse() const
+template<typename Type>
+const ezMat3Template<Type> ezMat3Template<Type>::GetInverse() const
 {
-  ezMat3 Inverse = *this;
+  ezMat3Template<Type> Inverse = *this;
   Inverse.Invert();
   return Inverse;
 }
 
-inline ezVec3 ezMat3::GetRow(ezUInt32 uiRow) const
+template<typename Type>
+ezVec3Template<Type> ezMat3Template<Type>::GetRow(ezUInt32 uiRow) const
 {
   EZ_ASSERT(uiRow <= 2, "Invalid Row Index %d", uiRow);
 
-  ezVec3 r;
-  r.x = m_fColumn[0][uiRow];
-  r.y = m_fColumn[1][uiRow];
-  r.z = m_fColumn[2][uiRow];
+  ezVec3Template<Type> r;
+  r.x = Element(0, uiRow);
+  r.y = Element(1, uiRow);
+  r.z = Element(2, uiRow);
 
   return r;
 }
 
-inline void ezMat3::SetRow(ezUInt32 uiRow, const ezVec3& row)
+template<typename Type>
+void ezMat3Template<Type>::SetRow(ezUInt32 uiRow, const ezVec3Template<Type>& row)
 {
   EZ_ASSERT(uiRow <= 2, "Invalid Row Index %d", uiRow);
 
-  m_fColumn[0][uiRow] = row.x;
-  m_fColumn[1][uiRow] = row.y;
-  m_fColumn[2][uiRow] = row.z;
+  Element(0, uiRow) = row.x;
+  Element(1, uiRow) = row.y;
+  Element(2, uiRow) = row.z;
 }
 
-inline ezVec3 ezMat3::GetColumn(ezUInt32 uiColumn) const
+template<typename Type>
+ezVec3Template<Type> ezMat3Template<Type>::GetColumn(ezUInt32 uiColumn) const
 {
   EZ_ASSERT(uiColumn <= 2, "Invalid Column Index %d", uiColumn);
 
-  ezVec3 r;
-  r.x = m_fColumn[uiColumn][0];
-  r.y = m_fColumn[uiColumn][1];
-  r.z = m_fColumn[uiColumn][2];
+  ezVec3Template<Type> r;
+  r.x = Element(uiColumn, 0);
+  r.y = Element(uiColumn, 1);
+  r.z = Element(uiColumn, 2);
 
   return r;
 }
 
-inline void ezMat3::SetColumn(ezUInt32 uiColumn, const ezVec3& column)
+template<typename Type>
+void ezMat3Template<Type>::SetColumn(ezUInt32 uiColumn, const ezVec3Template<Type>& column)
 {
   EZ_ASSERT(uiColumn <= 2, "Invalid Column Index %d", uiColumn);
 
-  m_fColumn[uiColumn][0] = column.x;
-  m_fColumn[uiColumn][1] = column.y;
-  m_fColumn[uiColumn][2] = column.z;
+  Element(uiColumn, 0) = column.x;
+  Element(uiColumn, 1) = column.y;
+  Element(uiColumn, 2) = column.z;
 }
 
-inline ezVec3 ezMat3::GetDiagonal() const
+template<typename Type>
+ezVec3Template<Type> ezMat3Template<Type>::GetDiagonal() const
 {
-  return ezVec3(m_fColumn[0][0], m_fColumn[1][1], m_fColumn[2][2]);
+  return ezVec3Template<Type>(Element(0, 0), Element(1, 1), Element(2, 2));
 }
 
-inline void ezMat3::SetDiagonal(const ezVec3& diag)
+template<typename Type>
+void ezMat3Template<Type>::SetDiagonal(const ezVec3Template<Type>& diag)
 {
-  m_fColumn[0][0] = diag.x;
-  m_fColumn[1][1] = diag.y;
-  m_fColumn[2][2] = diag.z;
+  Element(0, 0) = diag.x;
+  Element(1, 1) = diag.y;
+  Element(2, 2) = diag.z;
 }
 
-EZ_FORCE_INLINE const ezVec3 ezMat3::TransformDirection(const ezVec3& v) const
+template<typename Type>
+EZ_FORCE_INLINE const ezVec3Template<Type> ezMat3Template<Type>::TransformDirection(const ezVec3Template<Type>& v) const
 {
-  ezVec3 r;
-  r.x = m_fColumn[0][0] * v.x + m_fColumn[1][0] * v.y + m_fColumn[2][0] * v.z;
-  r.y = m_fColumn[0][1] * v.x + m_fColumn[1][1] * v.y + m_fColumn[2][1] * v.z;
-  r.z = m_fColumn[0][2] * v.x + m_fColumn[1][2] * v.y + m_fColumn[2][2] * v.z;
+  ezVec3Template<Type> r;
+  r.x = Element(0, 0) * v.x + Element(1, 0) * v.y + Element(2, 0) * v.z;
+  r.y = Element(0, 1) * v.x + Element(1, 1) * v.y + Element(2, 1) * v.z;
+  r.z = Element(0, 2) * v.x + Element(1, 2) * v.y + Element(2, 2) * v.z;
   return r;
 }
 
-EZ_FORCE_INLINE void ezMat3::operator*= (float f)
+template<typename Type>
+EZ_FORCE_INLINE void ezMat3Template<Type>::operator*= (Type f)
 {
   for (ezInt32 i = 0; i < 9; ++i)
     m_fElementsCM[i] *= f;
 }
 
-EZ_FORCE_INLINE void ezMat3::operator/= (float f)
+template<typename Type>
+EZ_FORCE_INLINE void ezMat3Template<Type>::operator/= (Type f)
 {
-  const float fInv = ezMath::Invert(f);
+  const Type fInv = ezMath::Invert(f);
 
   operator*= (fInv);
 }
 
-inline const ezMat3 operator* (const ezMat3& m1, const ezMat3& m2)
+template<typename Type>
+const ezMat3Template<Type> operator* (const ezMat3Template<Type>& m1, const ezMat3Template<Type>& m2)
 {
-  ezMat3 r;
+  ezMat3Template<Type> r;
   for (ezInt32 i = 0; i < 3; ++i)
   {
-    r.m_fColumn[0][i] = m1.m_fColumn[0][i] * m2.m_fColumn[0][0] + m1.m_fColumn[1][i] * m2.m_fColumn[0][1] + m1.m_fColumn[2][i] * m2.m_fColumn[0][2];
-    r.m_fColumn[1][i] = m1.m_fColumn[0][i] * m2.m_fColumn[1][0] + m1.m_fColumn[1][i] * m2.m_fColumn[1][1] + m1.m_fColumn[2][i] * m2.m_fColumn[1][2];
-    r.m_fColumn[2][i] = m1.m_fColumn[0][i] * m2.m_fColumn[2][0] + m1.m_fColumn[1][i] * m2.m_fColumn[2][1] + m1.m_fColumn[2][i] * m2.m_fColumn[2][2];
+    r.Element(0, i) = m1.Element(0, i) * m2.Element(0, 0) + m1.Element(1, i) * m2.Element(0, 1) + m1.Element(2, i) * m2.Element(0, 2);
+    r.Element(1, i) = m1.Element(0, i) * m2.Element(1, 0) + m1.Element(1, i) * m2.Element(1, 1) + m1.Element(2, i) * m2.Element(1, 2);
+    r.Element(2, i) = m1.Element(0, i) * m2.Element(2, 0) + m1.Element(1, i) * m2.Element(2, 1) + m1.Element(2, i) * m2.Element(2, 2);
   }
   return r;
 }
 
-EZ_FORCE_INLINE const ezVec3 operator* (const ezMat3& m, const ezVec3& v)
+template<typename Type>
+EZ_FORCE_INLINE const ezVec3Template<Type> operator* (const ezMat3Template<Type>& m, const ezVec3Template<Type>& v)
 {
   return m.TransformDirection(v);
 }
@@ -251,14 +278,16 @@ EZ_FORCE_INLINE const ezVec3 operator* (const ezMat3& m, const ezVec3& v)
 
 // *** free functions ***
 
-EZ_FORCE_INLINE const ezMat3 operator* (float f, const ezMat3& m1)
+template<typename Type>
+EZ_FORCE_INLINE const ezMat3Template<Type> operator* (Type f, const ezMat3Template<Type>& m1)
 {
   return operator* (m1, f);
 }
 
-inline const ezMat3 operator* (const ezMat3& m1, float f)
+template<typename Type>
+const ezMat3Template<Type> operator* (const ezMat3Template<Type>& m1, Type f)
 {
-  ezMat3 r;
+  ezMat3Template<Type> r;
 
   for (ezUInt32 i = 0; i < 9; ++i)
     r.m_fElementsCM[i] = m1.m_fElementsCM[i] * f;
@@ -266,14 +295,16 @@ inline const ezMat3 operator* (const ezMat3& m1, float f)
   return r;
 }
 
-EZ_FORCE_INLINE const ezMat3 operator/ (const ezMat3& m1, float f)
+template<typename Type>
+EZ_FORCE_INLINE const ezMat3Template<Type> operator/ (const ezMat3Template<Type>& m1, Type f)
 {
   return operator* (m1, ezMath::Invert(f));
 }
 
-inline const ezMat3 operator+ (const ezMat3& m1, const ezMat3& m2)
+template<typename Type>
+const ezMat3Template<Type> operator+ (const ezMat3Template<Type>& m1, const ezMat3Template<Type>& m2)
 {
-  ezMat3 r;
+  ezMat3Template<Type> r;
 
   for (ezUInt32 i = 0; i < 9; ++i)
     r.m_fElementsCM[i] = m1.m_fElementsCM[i] + m2.m_fElementsCM[i];
@@ -281,9 +312,10 @@ inline const ezMat3 operator+ (const ezMat3& m1, const ezMat3& m2)
   return r;
 }
 
-inline const ezMat3 operator- (const ezMat3& m1, const ezMat3& m2)
+template<typename Type>
+const ezMat3Template<Type> operator- (const ezMat3Template<Type>& m1, const ezMat3Template<Type>& m2)
 {
-  ezMat3 r;
+  ezMat3Template<Type> r;
 
   for (ezUInt32 i = 0; i < 9; ++i)
     r.m_fElementsCM[i] = m1.m_fElementsCM[i] - m2.m_fElementsCM[i];
@@ -291,7 +323,8 @@ inline const ezMat3 operator- (const ezMat3& m1, const ezMat3& m2)
   return r;
 }
 
-inline bool ezMat3::IsIdentical(const ezMat3& rhs) const
+template<typename Type>
+bool ezMat3Template<Type>::IsIdentical(const ezMat3Template<Type>& rhs) const
 {
   for (ezUInt32 i = 0; i < 9; ++i)
   {
@@ -302,30 +335,34 @@ inline bool ezMat3::IsIdentical(const ezMat3& rhs) const
   return true;
 }
 
-inline bool ezMat3::IsEqual(const ezMat3& rhs, float fEpsilon) const
+template<typename Type>
+bool ezMat3Template<Type>::IsEqual(const ezMat3Template<Type>& rhs, Type fEpsilon) const
 {
   EZ_ASSERT(fEpsilon >= 0.0f, "Epsilon may not be negativ.");
 
   for (ezUInt32 i = 0; i < 9; ++i)
   {
-    if (!ezMath::IsFloatEqual(m_fElementsCM[i], rhs.m_fElementsCM[i], fEpsilon))
+    if (!ezMath::IsEqual(m_fElementsCM[i], rhs.m_fElementsCM[i], fEpsilon))
       return false;
   }
 
   return true;
 }
 
-EZ_FORCE_INLINE bool operator== (const ezMat3& lhs, const ezMat3& rhs)
+template<typename Type>
+EZ_FORCE_INLINE bool operator== (const ezMat3Template<Type>& lhs, const ezMat3Template<Type>& rhs)
 {
   return lhs.IsIdentical(rhs);
 }
 
-EZ_FORCE_INLINE bool operator!= (const ezMat3& lhs, const ezMat3& rhs)
+template<typename Type>
+EZ_FORCE_INLINE bool operator!= (const ezMat3Template<Type>& lhs, const ezMat3Template<Type>& rhs)
 {
   return !lhs.IsIdentical(rhs);
 }
 
-inline bool ezMat3::IsZero(float fEpsilon) const
+template<typename Type>
+bool ezMat3Template<Type>::IsZero(Type fEpsilon) const
 {
   for (ezUInt32 i = 0; i < 9; ++i)
   {
@@ -336,24 +373,26 @@ inline bool ezMat3::IsZero(float fEpsilon) const
   return true;
 }
 
-inline bool ezMat3::IsIdentity(float fEpsilon) const
+template<typename Type>
+bool ezMat3Template<Type>::IsIdentity(Type fEpsilon) const
 {
-  if (!ezMath::IsFloatEqual(m_fColumn[0][0], 1.0f, fEpsilon)) return false;
-  if (!ezMath::IsFloatEqual(m_fColumn[0][1], 0.0f, fEpsilon)) return false;
-  if (!ezMath::IsFloatEqual(m_fColumn[0][2], 0.0f, fEpsilon)) return false;
+  if (!ezMath::IsEqual(Element(0, 0), (Type) 1, fEpsilon)) return false;
+  if (!ezMath::IsEqual(Element(0, 1), (Type) 0, fEpsilon)) return false;
+  if (!ezMath::IsEqual(Element(0, 2), (Type) 0, fEpsilon)) return false;
 
-  if (!ezMath::IsFloatEqual(m_fColumn[1][0], 0.0f, fEpsilon)) return false;
-  if (!ezMath::IsFloatEqual(m_fColumn[1][1], 1.0f, fEpsilon)) return false;
-  if (!ezMath::IsFloatEqual(m_fColumn[1][2], 0.0f, fEpsilon)) return false;
+  if (!ezMath::IsEqual(Element(1, 0), (Type) 0, fEpsilon)) return false;
+  if (!ezMath::IsEqual(Element(1, 1), (Type) 1, fEpsilon)) return false;
+  if (!ezMath::IsEqual(Element(1, 2), (Type) 0, fEpsilon)) return false;
 
-  if (!ezMath::IsFloatEqual(m_fColumn[2][0], 0.0f, fEpsilon)) return false;
-  if (!ezMath::IsFloatEqual(m_fColumn[2][1], 0.0f, fEpsilon)) return false;
-  if (!ezMath::IsFloatEqual(m_fColumn[2][2], 1.0f, fEpsilon)) return false;
+  if (!ezMath::IsEqual(Element(2, 0), (Type) 0, fEpsilon)) return false;
+  if (!ezMath::IsEqual(Element(2, 1), (Type) 0, fEpsilon)) return false;
+  if (!ezMath::IsEqual(Element(2, 2), (Type) 1, fEpsilon)) return false;
 
   return true;
 }
 
-inline bool ezMat3::IsValid() const
+template<typename Type>
+bool ezMat3Template<Type>::IsValid() const
 {
   for (ezUInt32 i = 0; i < 9; ++i)
   {
@@ -364,5 +403,5 @@ inline bool ezMat3::IsValid() const
   return true;
 }
 
-
+#include <Foundation/Math/Implementation/AllClasses_inl.h>
 

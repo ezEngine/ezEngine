@@ -1,73 +1,85 @@
 #pragma once
 
-EZ_FORCE_INLINE ezVec2::ezVec2()
+template<typename Type>
+EZ_FORCE_INLINE ezVec2Template<Type>::ezVec2Template()
 {
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
   // Initialize all data to NaN in debug mode to find problems with uninitialized data easier.
-  const float fNaN = ezMath::NaN();
-  x = fNaN;
-  y = fNaN;
+  const Type TypeNaN = ezMath::BasicType<Type>::GetNaN();
+  x = TypeNaN;
+  y = TypeNaN;
 #endif
 }
 
-EZ_FORCE_INLINE ezVec2::ezVec2(float X, float Y) : x (X), y (Y)
+template<typename Type>
+EZ_FORCE_INLINE ezVec2Template<Type>::ezVec2Template(Type X, Type Y) : x (X), y (Y)
 {
 }
 
-EZ_FORCE_INLINE ezVec2::ezVec2(float V) : x (V), y (V)
+template<typename Type>
+EZ_FORCE_INLINE ezVec2Template<Type>::ezVec2Template(Type V) : x (V), y (V)
 {
 }
 
-EZ_FORCE_INLINE void ezVec2::Set(float xy)
+template<typename Type>
+EZ_FORCE_INLINE void ezVec2Template<Type>::Set(Type xy)
 {
   x = xy;
   y = xy; 
 }
 
-EZ_FORCE_INLINE void ezVec2::Set(float X, float Y)
+template<typename Type>
+EZ_FORCE_INLINE void ezVec2Template<Type>::Set(Type X, Type Y)
 {
   x = X;
   y = Y;
 }
 
-EZ_FORCE_INLINE void ezVec2::SetZero()
+template<typename Type>
+EZ_FORCE_INLINE void ezVec2Template<Type>::SetZero()
 {
   x = y = 0.0f;
 }
 
-EZ_FORCE_INLINE float ezVec2::GetLength() const
+template<typename Type>
+EZ_FORCE_INLINE Type ezVec2Template<Type>::GetLength() const
 {
   return (ezMath::Sqrt(GetLengthSquared()));
 }
 
-EZ_FORCE_INLINE float ezVec2::GetLengthSquared() const
+template<typename Type>
+EZ_FORCE_INLINE Type ezVec2Template<Type>::GetLengthSquared() const
 {
   return (x * x + y * y);
 }
 
-EZ_FORCE_INLINE float ezVec2::GetLengthAndNormalize()
+template<typename Type>
+EZ_FORCE_INLINE Type ezVec2Template<Type>::GetLengthAndNormalize()
 {
-  const float fLength = GetLength();
+  const Type fLength = GetLength();
   *this /= fLength;
   return fLength;
 }
 
-EZ_FORCE_INLINE const ezVec2 ezVec2::GetNormalized() const
+template<typename Type>
+EZ_FORCE_INLINE const ezVec2Template<Type> ezVec2Template<Type>::GetNormalized() const
 {
-  const float fLen = GetLength ();
+  const Type fLen = GetLength ();
 
-  const float fLengthInv = ezMath::Invert(fLen);
-  return ezVec2(x * fLengthInv, y * fLengthInv);
+  const Type fLengthInv = ezMath::Invert(fLen);
+  return ezVec2Template<Type>(x * fLengthInv, y * fLengthInv);
 }
 
-EZ_FORCE_INLINE void ezVec2::Normalize()
+template<typename Type>
+EZ_FORCE_INLINE void ezVec2Template<Type>::Normalize()
 {
   *this /= GetLength ();
 }
 
-inline ezResult ezVec2::NormalizeIfNotZero(const ezVec2& vFallback, float fEpsilon)
+template<typename Type>
+inline ezResult ezVec2Template<Type>::NormalizeIfNotZero(const ezVec2Template<Type>& vFallback, Type fEpsilon)
 {
-  const float fLength = GetLength();
+  const Type fLength = GetLength();
 
   if (!ezMath::IsFinite(fLength) || ezMath::IsZero(fLength, fEpsilon))
   {
@@ -82,37 +94,41 @@ inline ezResult ezVec2::NormalizeIfNotZero(const ezVec2& vFallback, float fEpsil
 /*! \note Normalization, especially with SSE is not very precise. So this function checks whether the (squared)
   length is between a lower and upper limit.
 */
-inline bool ezVec2::IsNormalized(float fEpsilon) const
+template<typename Type>
+inline bool ezVec2Template<Type>::IsNormalized(Type fEpsilon /* = ezMath::BasicType<Type>::HugeEpsilon() */) const
 {
-  const float t = GetLengthSquared ();
-  return ezMath::IsFloatEqual(t, 1.0f, fEpsilon);
+  const Type t = GetLengthSquared ();
+  return ezMath::IsEqual(t, (Type) (1), fEpsilon);
 }
 
-
-inline bool ezVec2::IsZero() const
+template<typename Type>
+inline bool ezVec2Template<Type>::IsZero() const
 {
-  return ((x == 0.0f) && (y == 0.0f));
+  return (x == 0 && y == 0);
 }
 
-inline bool ezVec2::IsZero(float fEpsilon) const
+template<typename Type>
+inline bool ezVec2Template<Type>::IsZero(Type fEpsilon) const
 {
   return (ezMath::IsZero (x, fEpsilon) &&
           ezMath::IsZero (y, fEpsilon));
 }
 
-inline bool ezVec2::IsNaN() const
+template<typename Type>
+inline bool ezVec2Template<Type>::IsNaN() const
 {
-  if (ezMath::IsNaN (x))
+  if (ezMath::IsNaN(x))
     return true;
-  if (ezMath::IsNaN (y))
+  if (ezMath::IsNaN(y))
     return true;
 
   return false;
 }
 
-inline bool ezVec2::IsValid() const
+template<typename Type>
+inline bool ezVec2Template<Type>::IsValid() const
 {
-  if (!ezMath::IsFinite (x))
+  if (!ezMath::IsFinite(x))
     return false;
   if (!ezMath::IsFinite (y))
     return false;
@@ -120,141 +136,165 @@ inline bool ezVec2::IsValid() const
   return true;
 }
 
-EZ_FORCE_INLINE const ezVec2 ezVec2::operator-() const
+template<typename Type>
+EZ_FORCE_INLINE const ezVec2Template<Type> ezVec2Template<Type>::operator-() const
 {
-  return ezVec2(-x, -y);
+  return ezVec2Template<Type>(-x, -y);
 }
 
-EZ_FORCE_INLINE void ezVec2::operator+= (const ezVec2& cc)
+template<typename Type>
+EZ_FORCE_INLINE void ezVec2Template<Type>::operator+= (const ezVec2Template<Type>& cc)
 {
   x += cc.x;
   y += cc.y;
 }
 
-EZ_FORCE_INLINE void ezVec2::operator-= (const ezVec2& cc)
+template<typename Type>
+EZ_FORCE_INLINE void ezVec2Template<Type>::operator-= (const ezVec2Template<Type>& cc)
 {
   x -= cc.x;
   y -= cc.y;
 }
 
-EZ_FORCE_INLINE void ezVec2::operator*= (float f)
+template<typename Type>
+EZ_FORCE_INLINE void ezVec2Template<Type>::operator*= (Type f)
 {
   x *= f;
   y *= f;
 }
 
-EZ_FORCE_INLINE void ezVec2::operator/= (float f)
+template<typename Type>
+EZ_FORCE_INLINE void ezVec2Template<Type>::operator/= (Type f)
 {
-  const float f_inv = ezMath::Invert(f);
+  const Type f_inv = ezMath::Invert(f);
 
   x *= f_inv;
   y *= f_inv;
 }
 
-inline void ezVec2::MakeOrthogonalTo (const ezVec2& vNormal)
+template<typename Type>
+inline void ezVec2Template<Type>::MakeOrthogonalTo (const ezVec2Template<Type>& vNormal)
 {
   EZ_ASSERT(vNormal.IsNormalized (), "The normal must be normalized.");
 
-  const float fDot = this->Dot (vNormal);
+  const Type fDot = this->Dot (vNormal);
   *this -= fDot * vNormal;
 }
 
-EZ_FORCE_INLINE const ezVec2 ezVec2::GetOrthogonalVector() const
+template<typename Type>
+EZ_FORCE_INLINE const ezVec2Template<Type> ezVec2Template<Type>::GetOrthogonalVector() const
 {
-  EZ_ASSERT(!IsZero(ezMath_SmallEpsilon), "The vector must not be zero to be able to compute an orthogonal vector.");
+  EZ_ASSERT(!IsZero(ezMath::BasicType<Type>::SmallEpsilon()), "The vector must not be zero to be able to compute an orthogonal vector.");
 
-  return ezVec2(-y, x);
+  return ezVec2Template<Type>(-y, x);
 }
 
-inline const ezVec2 ezVec2::GetReflectedVector(const ezVec2& vNormal) const 
+template<typename Type>
+inline const ezVec2Template<Type> ezVec2Template<Type>::GetReflectedVector(const ezVec2Template<Type>& vNormal) const 
 {
   EZ_ASSERT(vNormal.IsNormalized(), "vNormal must be normalized.");
 
-  return ((*this) - (2.0f * this->Dot (vNormal) * vNormal));
+  return ((*this) - (2 * this->Dot(vNormal) * vNormal));
 }
 
-EZ_FORCE_INLINE float ezVec2::Dot(const ezVec2& rhs) const
+template<typename Type>
+EZ_FORCE_INLINE Type ezVec2Template<Type>::Dot(const ezVec2Template<Type>& rhs) const
 {
   return ((x * rhs.x) + (y * rhs.y));
 }
 
-inline float ezVec2::GetAngleBetween(const ezVec2& rhs) const
+template<typename Type>
+inline Type ezVec2Template<Type>::GetAngleBetween(const ezVec2Template<Type>& rhs) const
 {
   EZ_ASSERT (this->IsNormalized(), "This vector must be normalized.");
   EZ_ASSERT (rhs.IsNormalized(), "The other vector must be normalized.");
 
-  return ezMath::ACosDeg (ezMath::Clamp(this->Dot (rhs), -1.0f, 1.0f));
+  return ezMath::ACosDeg(ezMath::Clamp<Type>(this->Dot(rhs), (Type) -1, (Type) 1));
 }
 
-EZ_FORCE_INLINE const ezVec2 ezVec2::CompMin(const ezVec2& rhs) const
+template<typename Type>
+EZ_FORCE_INLINE const ezVec2Template<Type> ezVec2Template<Type>::CompMin(const ezVec2Template<Type>& rhs) const
 {
-  return ezVec2(ezMath::Min(x, rhs.x), ezMath::Min(y, rhs.y));
+  return ezVec2Template<Type>(ezMath::Min(x, rhs.x), ezMath::Min(y, rhs.y));
 }
 
-EZ_FORCE_INLINE const ezVec2 ezVec2::CompMax(const ezVec2& rhs) const
+template<typename Type>
+EZ_FORCE_INLINE const ezVec2Template<Type> ezVec2Template<Type>::CompMax(const ezVec2Template<Type>& rhs) const
 {
-  return ezVec2(ezMath::Max(x, rhs.x), ezMath::Max(y, rhs.y));
+  return ezVec2Template<Type>(ezMath::Max(x, rhs.x), ezMath::Max(y, rhs.y));
 }
 
-EZ_FORCE_INLINE const ezVec2 ezVec2::CompMult(const ezVec2& rhs) const
+template<typename Type>
+EZ_FORCE_INLINE const ezVec2Template<Type> ezVec2Template<Type>::CompMult(const ezVec2Template<Type>& rhs) const
 {
-  return ezVec2(x * rhs.x, y * rhs.y);
+  return ezVec2Template<Type>(x * rhs.x, y * rhs.y);
 }
 
-EZ_FORCE_INLINE const ezVec2 ezVec2::CompDiv(const ezVec2& rhs) const
+template<typename Type>
+EZ_FORCE_INLINE const ezVec2Template<Type> ezVec2Template<Type>::CompDiv(const ezVec2Template<Type>& rhs) const
 {
-  return ezVec2(x / rhs.x, y / rhs.y);
+  return ezVec2Template<Type>(x / rhs.x, y / rhs.y);
 }
 
-EZ_FORCE_INLINE const ezVec2 operator+ (const ezVec2& v1, const ezVec2& v2)
+template<typename Type>
+EZ_FORCE_INLINE const ezVec2Template<Type> operator+ (const ezVec2Template<Type>& v1, const ezVec2Template<Type>& v2)
 {
-  return ezVec2(v1.x + v2.x, v1.y + v2.y);
+  return ezVec2Template<Type>(v1.x + v2.x, v1.y + v2.y);
 }
 
-EZ_FORCE_INLINE const ezVec2 operator- (const ezVec2& v1, const ezVec2& v2)
+template<typename Type>
+EZ_FORCE_INLINE const ezVec2Template<Type> operator- (const ezVec2Template<Type>& v1, const ezVec2Template<Type>& v2)
 {
-  return ezVec2(v1.x - v2.x, v1.y - v2.y);
+  return ezVec2Template<Type>(v1.x - v2.x, v1.y - v2.y);
 }
 
-EZ_FORCE_INLINE const ezVec2 operator* (float f, const ezVec2& v)
+template<typename Type>
+EZ_FORCE_INLINE const ezVec2Template<Type> operator* (Type f, const ezVec2Template<Type>& v)
 {
-  return ezVec2(v.x * f, v.y * f);
+  return ezVec2Template<Type>(v.x * f, v.y * f);
 }
 
-EZ_FORCE_INLINE const ezVec2 operator* (const ezVec2& v, float f)
+template<typename Type>
+EZ_FORCE_INLINE const ezVec2Template<Type> operator* (const ezVec2Template<Type>& v, Type f)
 {
-  return ezVec2(v.x * f, v.y * f);
+  return ezVec2Template<Type>(v.x * f, v.y * f);
 }
 
-EZ_FORCE_INLINE const ezVec2 operator/ (const ezVec2& v, float f)
+template<typename Type>
+EZ_FORCE_INLINE const ezVec2Template<Type> operator/ (const ezVec2Template<Type>& v, Type f)
 {
   // multiplication is much faster than division
-  const float f_inv = ezMath::Invert(f);
-  return ezVec2(v.x * f_inv, v.y * f_inv);
+  const Type f_inv = ezMath::Invert(f);
+  return ezVec2Template<Type>(v.x * f_inv, v.y * f_inv);
 }
 
-inline bool ezVec2::IsIdentical(const ezVec2& rhs) const
+template<typename Type>
+inline bool ezVec2Template<Type>::IsIdentical(const ezVec2Template<Type>& rhs) const
 {
   return ((x == rhs.x) && (y == rhs.y));
 }
 
-inline bool ezVec2::IsEqual(const ezVec2& rhs, float fEpsilon) const
+template<typename Type>
+inline bool ezVec2Template<Type>::IsEqual(const ezVec2Template<Type>& rhs, Type fEpsilon) const
 {
-  return (ezMath::IsFloatEqual(x, rhs.x, fEpsilon) && 
-          ezMath::IsFloatEqual(y, rhs.y, fEpsilon));
+  return (ezMath::IsEqual(x, rhs.x, fEpsilon) && 
+          ezMath::IsEqual(y, rhs.y, fEpsilon));
 }
 
-EZ_FORCE_INLINE bool operator== (const ezVec2& v1, const ezVec2& v2)
+template<typename Type>
+EZ_FORCE_INLINE bool operator== (const ezVec2Template<Type>& v1, const ezVec2Template<Type>& v2)
 {
   return v1.IsIdentical(v2);
 }
 
-EZ_FORCE_INLINE bool operator!= (const ezVec2& v1, const ezVec2& v2)
+template<typename Type>
+EZ_FORCE_INLINE bool operator!= (const ezVec2Template<Type>& v1, const ezVec2Template<Type>& v2)
 {
   return !v1.IsIdentical(v2);
 }
 
-EZ_FORCE_INLINE bool operator< (const ezVec2& v1, const ezVec2& v2)
+template<typename Type>
+EZ_FORCE_INLINE bool operator< (const ezVec2Template<Type>& v1, const ezVec2Template<Type>& v2)
 {
   if (v1.x < v2.x)
     return true;

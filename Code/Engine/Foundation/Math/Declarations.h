@@ -4,24 +4,19 @@
 
 #include <Foundation/Basics.h>
 
-#define ezMath_e 2.71828182845904f
-#define ezMath_Pi 3.1415926535897932384626433832795f  ///< Pi
-#define ezMath_DegToRad (ezMath_Pi / 180.0f)          ///< Constant to convert from degree to rad
-#define ezMath_RadToDeg (180.0f / ezMath_Pi)           ///< Constant to convert from rad to degree
-#define ezMath_FloatMax_Pos  3.402823465e+38F         ///< The largest positive number that floats can represent.
-#define ezMath_FloatMax_Neg -ezMath_FloatMax_Pos      ///< The largest negative number that floats can represent.
-
-#define ezMath_FloatEpsilon     1.192092896e-07F      ///< Smallest representable value for floats
-#define ezMath_SmallEpsilon     0.000001f
-#define ezMath_DefaultEpsilon   0.00001f
-#define ezMath_LargeEpsilon     0.0001f
-#define ezMath_HugeEpsilon      0.001f
 
 /// \brief Simple helper union to store ints and floats to modify their bit patterns.
 union ezIntFloatUnion
 {
   ezUInt32 i;
   float f;
+};
+
+/// \brief Simple helper union to store ints and doubles to modify their bit patterns.
+union ezInt64DoubleUnion
+{
+  ezUInt64 i;
+  double f;
 };
 
 /// \brief Enum to describe which memory layout is used to store a matrix in a float array.
@@ -61,12 +56,60 @@ struct ezProjectionDepthRange
 
 
 // forward declarations
-class ezVec2;
-class ezVec3;
-class ezVec4;
-class ezMat3;
-class ezMat4;
-class ezPlane;
-class ezQuat;
-class ezBoundingBox;
-class ezBoundingSphere;
+template<typename Type>
+class ezVec2Template;
+
+typedef ezVec2Template<float> ezVec2;
+typedef ezVec2Template<double> ezVec2d;
+
+template<typename Type>
+class ezVec3Template;
+
+typedef ezVec3Template<float> ezVec3;
+typedef ezVec3Template<double> ezVec3d;
+
+template<typename Type>
+class ezVec4Template;
+
+typedef ezVec4Template<float> ezVec4;
+typedef ezVec4Template<double> ezVec4d;
+
+
+template<typename Type>
+class ezMat3Template;
+
+typedef ezMat3Template<float> ezMat3;
+typedef ezMat3Template<double> ezMat3d;
+
+template<typename Type>
+class ezMat4Template;
+
+typedef ezMat4Template<float> ezMat4;
+typedef ezMat4Template<double> ezMat4d;
+
+template<typename Type>
+class ezPlaneTemplate;
+
+typedef ezPlaneTemplate<float> ezPlane;
+typedef ezPlaneTemplate<double> ezPlaned;
+
+template<typename Type>
+class ezQuatTemplate;
+
+typedef ezQuatTemplate<float> ezQuat;
+typedef ezQuatTemplate<double> ezQuatd;
+
+template<typename Type>
+class ezBoundingBoxTemplate;
+
+typedef ezBoundingBoxTemplate<float> ezBoundingBox;
+typedef ezBoundingBoxTemplate<double> ezBoundingBoxd;
+
+template<typename Type>
+class ezBoundingSphereTemplate;
+
+typedef ezBoundingSphereTemplate<float> ezBoundingSphere;
+typedef ezBoundingSphereTemplate<double> ezBoundingSphered;
+
+template<ezUInt8 DecimalBits>
+class ezFixedPoint;
