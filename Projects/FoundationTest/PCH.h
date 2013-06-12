@@ -17,7 +17,7 @@
 
 #include <Foundation/Math/Declarations.h>
 
-typedef double ezMathTestType;
+typedef float ezMathTestType;
 
 typedef ezVec2Template<ezMathTestType> ezVec2T; ///< This is only for testing purposes
 typedef ezVec3Template<ezMathTestType> ezVec3T; ///< This is only for testing purposes
