@@ -808,7 +808,7 @@ int ezStringUtils::vsnprintf(char* szOutputBuffer, unsigned int uiBufferSize, co
 
     if (bError)
     {
-      snprintf (szOutputBuffer, uiBufferSize, "Error in formatting string at position %i ('%c').", uiReadPos, cSpecifier);
+      snprintf (szOutputBuffer, uiBufferSize, "Error in formatting string at position %u ('%c').", uiReadPos, cSpecifier);
       va_end(args);
       return -1;
     }
