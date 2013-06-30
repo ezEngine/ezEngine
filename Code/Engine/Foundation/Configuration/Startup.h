@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Foundation/Utilities/EnumerableClass.h>
-#include <Foundation/Configuration/Implementation/StartupBasics.h>
+#include <Foundation/Configuration/SubSystem.h>
 #include <Foundation/Containers/Deque.h>
 #include <Foundation/Configuration/Plugin.h>
 
@@ -28,42 +28,48 @@
 /// After all systems have had their 'core' functionality initialized, the 'engine' functionality can be initialized.
 /// In between these steps the rendering context should be created.
 /// Tools that might not create a window or do not want to actually load GPU resources, might get away with only doing
-/// the 'core' initialization.
+/// the 'core' initialization. Thus a subsystem should do all the initialization that is independent from a window or rendering
+/// context in 'core' startup, and it should be able to work (with some features disabled), even when 'engine' startup is not done.
 ///
-/// A subsystem startup configuration needs to be put in some cpp file of the subsystem and looks like this:
+/// A subsystem startup configuration for a static subsystem needs to be put in some cpp file of the subsystem and looks like this:
 ///
-///EZ_BEGIN_SUBSYSTEM_DECLARATION(ExampleGroup, ExampleSubSystem)
-///
-///  BEGIN_SUBSYSTEM_DEPENDENCIES
-///    "SomeOtherSubSystem",
-///    "SomeOtherSubSystem2",
-///    "SomeGroup"
-///  END_SUBSYSTEM_DEPENDENCIES
-///
-///  ON_CORE_STARTUP
-///  {
-///    ezExampleSubSystem::BasicStartup();
-///  }
-///
-///  ON_CORE_SHUTDOWN
-///  {
-///    ezExampleSubSystem::BasicShutdown();
-///  }
-///
-///  ON_ENGINE_STARTUP
-///  {
-///    ezExampleSubSystem::EngineStartup();
-///  }
-///
-///  ON_ENGINE_SHUTDOWN
-///  {
-///    ezExampleSubSystem::EngineShutdown();
-///  }
-///
-///EZ_END_SUBSYSTEM_DECLARATION
+/// EZ_BEGIN_SUBSYSTEM_DECLARATION(ExampleGroup, ExampleSubSystem)
+/// 
+///   BEGIN_SUBSYSTEM_DEPENDENCIES
+///     "SomeOtherSubSystem",
+///     "SomeOtherSubSystem2",
+///     "SomeGroup"
+///   END_SUBSYSTEM_DEPENDENCIES
+/// 
+///   ON_CORE_STARTUP
+///   {
+///     ezExampleSubSystem::BasicStartup();
+///   }
+/// 
+///   ON_CORE_SHUTDOWN
+///   {
+///     ezExampleSubSystem::BasicShutdown();
+///   }
+/// 
+///   ON_ENGINE_STARTUP
+///   {
+///     ezExampleSubSystem::EngineStartup();
+///   }
+/// 
+///   ON_ENGINE_SHUTDOWN
+///   {
+///     ezExampleSubSystem::EngineShutdown();
+///   }
+/// 
+/// EZ_END_SUBSYSTEM_DECLARATION
 ///
 /// This will automatically register the subsystem, once the code is being loaded (can be dynamically loaded from a DLL).
 /// The next time any of the ezStartup functions are called (StartupCore, StartupEngine) the subsystem will be initialized.
+///
+/// If however your subsystem is implemented as a normal class, you need to derive from the base class 'ezSubSystem' and
+/// override the virtual functions. Then when you have an instance of that class and call ezStartup::StartupCore etc., that
+/// instance will be properly initialized as well. However, you must ensure that the subsystem is properly shut down, before
+/// its instance is destroyed. Also you should never have two instances of the same subsystem.
 ///
 /// All startup / shutdown procedures broadcast global events before and after they execute.
 class EZ_FOUNDATION_DLL ezStartup
@@ -123,8 +129,8 @@ private:
   static void PluginEventHandler(const ezPlugin::PluginEvent& EventData, void* pPassThrough);
   static void AssignSubSystemPlugin(const char* szPluginName);
 
-  static void ComputeOrder(ezDeque<ezSubSystemDeclarationBase*>& Order);
-  static bool HasDependencyOnPlugin(ezSubSystemDeclarationBase* pSubSystem, const char* szModule);
+  static void ComputeOrder(ezDeque<ezSubSystem*>& Order);
+  static bool HasDependencyOnPlugin(ezSubSystem* pSubSystem, const char* szModule);
 
   static void Startup(ezStartupStage::Enum stage);
   static void Shutdown(ezStartupStage::Enum stage);

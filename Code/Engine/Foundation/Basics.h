@@ -60,7 +60,7 @@
 
 #include <Foundation/Memory/IAllocator.h>
 
-#include <Foundation/Configuration/StartupDeclarations.h>
+#include <Foundation/Configuration/StaticSubSystem.h>
 
 class EZ_FOUNDATION_DLL ezFoundation
 {

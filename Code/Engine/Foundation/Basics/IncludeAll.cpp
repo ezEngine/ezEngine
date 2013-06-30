@@ -15,7 +15,8 @@
 #include <Foundation/Communication/GlobalEvent.h>
 
 #include <Foundation/Configuration/Startup.h>
-#include <Foundation/Configuration/StartupDeclarations.h>
+#include <Foundation/Configuration/StaticSubSystem.h>
+#include <Foundation/Configuration/SubSystem.h>
 #include <Foundation/Configuration/Plugin.h>
 
 #include <Foundation/Containers/ArrayBase.h>

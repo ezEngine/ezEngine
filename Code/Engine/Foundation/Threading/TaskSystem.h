@@ -9,9 +9,6 @@
 #include <Foundation/Threading/ThreadSignal.h>
 #include <Foundation/Threading/Implementation/TaskSystemDeclarations.h>
 
-// TODO
-// TaskGroupFinished and TaskFinished callbacks should have pass-through value
-
 /// \brief Derive from this base class to implement custom tasks.
 class EZ_FOUNDATION_DLL ezTask
 {
@@ -19,7 +16,7 @@ class EZ_FOUNDATION_DLL ezTask
 
 public:
   /// \brief Function type for callbacks when a task has been finished (or canceled).
-  typedef void(*OnTaskFinished)(ezTask* pTask);
+  typedef void(*OnTaskFinished)(ezTask* pTask, void* pPassThrough);
 
 public:
   ezTask();
@@ -32,7 +29,7 @@ public:
 
   /// \brief Sets an additional callback function to execute when the task is finished (or canceled).
   /// The most common use case for this is to deallocate the task at this time.
-  void SetOnTaskFinished(OnTaskFinished Callback);
+  void SetOnTaskFinished(OnTaskFinished Callback, void* pPassThrough = NULL);
 
   /// \brief Returns whether the task has been finished. This includes being canceled.
   ///
@@ -78,6 +75,7 @@ private:
 
   /// \brief Optional callback to be fired when the task has finished or was canceled.
   OnTaskFinished m_OnTaskFinished;
+  void* m_pCallbackPassThrough;
   
   /// \brief The parent group to which this task belongs.
   ezTaskGroupID m_BelongsToGroup;
@@ -109,7 +107,7 @@ public:
   ///
   /// All tasks that are added to this group will be run with the same given \a Priority.
   /// Once all tasks in the group are finished and thus the group is finished, an optional \a Callback can be executed.
-  static ezTaskGroupID CreateTaskGroup(ezTaskPriority::Enum Priority, ezTaskGroup::OnTaskGroupFinished Callback = NULL);
+  static ezTaskGroupID CreateTaskGroup(ezTaskPriority::Enum Priority, ezTaskGroup::OnTaskGroupFinished Callback = NULL, void* pPassThrough = NULL);
 
   /// \brief Adds a task to the given task group. The group must not yet have been started.
   static void AddTaskToGroup(ezTaskGroupID Group, ezTask* pTask);

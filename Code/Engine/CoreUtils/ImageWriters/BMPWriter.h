@@ -1,14 +1,15 @@
 #pragma once
 
-#include <Foundation/Basics.h>
+#include <CoreUtils/Basics.h>
 
 // forward declarations
 class ezIBinaryStreamWriter;
 
 /// \brief utility class for writing bmp images
-class ezBMPWriter
+class EZ_COREUTILS_DLL ezBMPWriter
 {
 private:
+
 #pragma pack(push, 1)
   struct BMPHeader
   {
@@ -84,6 +85,5 @@ public:
   ///
   /// \param uiHeight
   ///   the height of the data
-
-  EZ_FOUNDATION_DLL static ezResult Write(ezArrayPtr<const ezUInt8> data, ezUInt32 uiWidth, ezUInt32 uiHeight, DataFormat::Enum format, ezIBinaryStreamWriter& outStream);
+  static ezResult Write(ezArrayPtr<const ezUInt8> data, ezUInt32 uiWidth, ezUInt32 uiHeight, DataFormat::Enum format, ezIBinaryStreamWriter& outStream);
 };

@@ -6,13 +6,7 @@
 #include <Foundation/Time/Time.h>
 #include <Foundation/System/SystemInformation.h>
 
-// Earlier there were two mutexes, one to protect the 'Group' data, one to protect the 'Task' data.
-// However, with the amount of code now, I cannot guarantee that this would work out correctly.
-// Therefore I have reduced it to just one mutex for the entire task system, for now.
-// If it turns out to be a performance bottleneck, we might try to implement it with more than one mutex again.
 ezMutex ezTaskSystem::s_TaskSystemMutex;
-//ezMutex ezTaskSystem::s_TaskGroupMutex;
-//ezMutex ezTaskSystem::s_TaskMutex;
 
 ezThreadSignal ezTaskSystem::s_TasksAvailableSignal[ezWorkerThreadType::ENUM_COUNT];
 ezDynamicArray<ezTaskWorkerThread*, ezStaticAllocatorWrapper> ezTaskSystem::s_WorkerThreads[ezWorkerThreadType::ENUM_COUNT];
@@ -241,7 +235,6 @@ void ezTaskSystem::FinishFrameTasks(double fSmoothFrameMS)
   // so now we reprioritize the tasks for the next frame
   {
     ezLock<ezMutex> Lock(s_TaskSystemMutex);
-    //ezLock<ezMutex> Lock(s_TaskMutex);
 
     // get this info once, it won't shrink (but might grow) while we are outside the lock
     uiSomeFrameTasks = s_Tasks[ezTaskPriority::SomeFrameMainThread].GetCount();

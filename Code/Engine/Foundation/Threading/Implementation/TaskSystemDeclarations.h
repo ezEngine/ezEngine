@@ -118,7 +118,7 @@ class ezTaskGroup
 {
 public:
   /// \brief The function type to use when one wants to get informed when a task group has been finished.
-  typedef void(*OnTaskGroupFinished)(void);
+  typedef void(*OnTaskGroupFinished)(void* pPassThrough);
 
 private:
   friend class ezTaskSystem;
@@ -135,5 +135,6 @@ private:
   ezAtomicInteger32 m_iRemainingTasks;
   ezTaskPriority::Enum m_Priority;
   OnTaskGroupFinished m_OnFinishedCallback;
+  void* m_pCallbackPassThrough;
 };
 

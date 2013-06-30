@@ -1,5 +1,5 @@
-#include <Foundation/PCH.h>
-#include <Foundation/Utilities/BMPWriter.h>
+#include <CoreUtils/PCH.h>
+#include <CoreUtils/ImageWriters/BMPWriter.h>
 #include <Foundation/IO/IBinaryStream.h>
 
 ezResult ezBMPWriter::Write(ezArrayPtr<const ezUInt8> data, ezUInt32 uiWidth, ezUInt32 uiHeight, DataFormat::Enum format, ezIBinaryStreamWriter& outStream)

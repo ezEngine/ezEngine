@@ -7,7 +7,7 @@
 #include <Foundation/Threading/ThreadUtils.h>
 #include <Foundation/Configuration/Plugin.h>
 
-EZ_ENUMERABLE_CLASS_IMPLEMENTATION(ezSubSystemDeclarationBase);
+EZ_ENUMERABLE_CLASS_IMPLEMENTATION(ezSubSystem);
 
 bool ezStartup::s_bPrintAllSubSystems = true;
 ezStartupStage::Enum ezStartup::s_CurrentState = ezStartupStage::None;
@@ -16,11 +16,11 @@ void ezStartup::PrintAllSubsystems()
 {
   EZ_LOG_BLOCK("Available Subsystems");
 
-  ezSubSystemDeclarationBase* pSub = ezSubSystemDeclarationBase::GetFirstInstance();
+  ezSubSystem* pSub = ezSubSystem::GetFirstInstance();
 
   while(pSub)
   {
-    ezLog::Info("Subsystem: '%s' in Group '%s'", pSub->GetSubSystemName(), pSub->GetGroupName());
+    ezLog::Info("Subsystem: '%s::%s'", pSub->GetGroupName(), pSub->GetSubSystemName());
 
     if (pSub->GetDependency(0) == NULL)
       ezLog::Info("  <no dependencies>");
@@ -41,7 +41,7 @@ void ezStartup::AssignSubSystemPlugin(const char* szPluginName)
   // iterates over all existing subsystems and finds those that have no plugin name yet
   // assigns the given name to them
 
-  ezSubSystemDeclarationBase* pSub = ezSubSystemDeclarationBase::GetFirstInstance();
+  ezSubSystem* pSub = ezSubSystem::GetFirstInstance();
 
   while(pSub)
   {
@@ -93,7 +93,7 @@ void ezStartup::PluginEventHandler(const ezPlugin::PluginEvent& EventData, void*
 
 static bool IsGroupName(const char* szName)
 {
-  ezSubSystemDeclarationBase* pSub = ezSubSystemDeclarationBase::GetFirstInstance();
+  ezSubSystem* pSub = ezSubSystem::GetFirstInstance();
 
   bool bGroup = false;
   bool bSubSystem = false;
@@ -116,7 +116,7 @@ static bool IsGroupName(const char* szName)
 
 static const char* GetGroupSubSystems(const char* szGroup, ezInt32 iSubSystem)
 {
-  ezSubSystemDeclarationBase* pSub = ezSubSystemDeclarationBase::GetFirstInstance();
+  ezSubSystem* pSub = ezSubSystem::GetFirstInstance();
 
   while(pSub)
   {
@@ -134,7 +134,7 @@ static const char* GetGroupSubSystems(const char* szGroup, ezInt32 iSubSystem)
   return NULL;
 }
 
-void ezStartup::ComputeOrder(ezDeque<ezSubSystemDeclarationBase*>& Order)
+void ezStartup::ComputeOrder(ezDeque<ezSubSystem*>& Order)
 {
   Order.Clear();
   ezSet<ezString> sSystemsInited;
@@ -145,7 +145,7 @@ void ezStartup::ComputeOrder(ezDeque<ezSubSystemDeclarationBase*>& Order)
   {
     bCouldInitAny = false;
 
-    ezSubSystemDeclarationBase* pSub = ezSubSystemDeclarationBase::GetFirstInstance();
+    ezSubSystem* pSub = ezSubSystem::GetFirstInstance();
 
     while(pSub)
     {
@@ -228,7 +228,7 @@ void ezStartup::Startup(ezStartupStage::Enum stage)
 
   EZ_LOG_BLOCK(szStartup[stage]);
 
-  ezDeque<ezSubSystemDeclarationBase*> Order;
+  ezDeque<ezSubSystem*> Order;
   ComputeOrder(Order);
 
   for (ezUInt32 i = 0; i < Order.GetCount(); ++i)
@@ -266,7 +266,7 @@ void ezStartup::Startup(ezStartupStage::Enum stage)
 
     ezSet<ezString> sSystemsFound;
 
-    ezSubSystemDeclarationBase* pSub = ezSubSystemDeclarationBase::GetFirstInstance();
+    ezSubSystem* pSub = ezSubSystem::GetFirstInstance();
 
     while(pSub)
     {
@@ -274,7 +274,7 @@ void ezStartup::Startup(ezStartupStage::Enum stage)
       pSub = pSub->GetNextInstance();
     }
 
-    pSub = ezSubSystemDeclarationBase::GetFirstInstance();
+    pSub = ezSubSystem::GetFirstInstance();
 
     while(pSub)
     {
@@ -352,7 +352,7 @@ void ezStartup::Shutdown(ezStartupStage::Enum stage)
 
     EZ_LOG_BLOCK(szStartup[stage]);
 
-    ezDeque<ezSubSystemDeclarationBase*> Order;
+    ezDeque<ezSubSystem*> Order;
     ComputeOrder(Order);
 
     for (ezInt32 i = (ezInt32) Order.GetCount() - 1; i >= 0; --i)
@@ -417,14 +417,14 @@ void ezStartup::Shutdown(ezStartupStage::Enum stage)
   }
 }
 
-bool ezStartup::HasDependencyOnPlugin(ezSubSystemDeclarationBase* pSubSystem, const char* szModule)
+bool ezStartup::HasDependencyOnPlugin(ezSubSystem* pSubSystem, const char* szModule)
 {
   if (ezStringUtils::IsEqual(pSubSystem->m_szPluginName, szModule))
     return true;
 
   for (ezUInt32 i = 0; pSubSystem->GetDependency(i) != NULL; ++i)
   {
-    ezSubSystemDeclarationBase* pSub = ezSubSystemDeclarationBase::GetFirstInstance();
+    ezSubSystem* pSub = ezSubSystem::GetFirstInstance();
     while (pSub)
     {
       if (ezStringUtils::IsEqual(pSub->GetSubSystemName(), pSubSystem->GetDependency(i)))
@@ -449,7 +449,7 @@ void ezStartup::UnloadPluginSubSystems(const char* szPluginName)
 
   ezGlobalEvent::Broadcast(EZ_GLOBALEVENT_UNLOAD_PLUGIN_BEGIN, ezVariant(szPluginName));
 
-  ezDeque<ezSubSystemDeclarationBase*> Order;
+  ezDeque<ezSubSystem*> Order;
   ComputeOrder(Order);
 
   for (ezInt32 i = (ezInt32) Order.GetCount() - 1; i >= 0; --i)

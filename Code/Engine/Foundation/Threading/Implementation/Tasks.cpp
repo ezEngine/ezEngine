@@ -10,6 +10,7 @@ ezTask::ezTask()
   m_bProfilingIDGenerated = false; 
   m_bCancelExecution = false; 
   m_OnTaskFinished = NULL;
+  m_pCallbackPassThrough = NULL;
   m_sTaskName = "Unnamed Task";
 }
 
@@ -19,9 +20,10 @@ void ezTask::SetTaskName(const char* szName)
   m_bProfilingIDGenerated = false;
 }
 
-void ezTask::SetOnTaskFinished(OnTaskFinished Callback)
+void ezTask::SetOnTaskFinished(OnTaskFinished Callback, void* pPassThrough)
 {
   m_OnTaskFinished = Callback;
+  m_pCallbackPassThrough = pPassThrough;
 }
 
 void ezTask::Run() 
@@ -55,7 +57,6 @@ void ezTaskSystem::TaskHasFinished(ezTask* pTask, ezTaskGroup* pGroup)
     if (!pGroup->m_OthersDependingOnMe.IsEmpty())
     {
       ezLock<ezMutex> Lock(s_TaskSystemMutex);
-      //ezLock<ezMutex> Lock(s_TaskGroupMutex);
 
       for (ezUInt32 dep = 0; dep < pGroup->m_OthersDependingOnMe.GetCount(); ++dep)
       {
@@ -68,13 +69,13 @@ void ezTaskSystem::TaskHasFinished(ezTask* pTask, ezTaskGroup* pGroup)
     pGroup->m_bInUse = false;
 
     if (pGroup->m_OnFinishedCallback)
-      pGroup->m_OnFinishedCallback();
+      pGroup->m_OnFinishedCallback(pGroup->m_pCallbackPassThrough);
   }
 
   // call the callback after everything else is done
   // this might be used to deallocate a task, so it must not be referenced anywhere anymore
   if (pTask && pTask->m_OnTaskFinished)
-    pTask->m_OnTaskFinished(pTask);
+    pTask->m_OnTaskFinished(pTask, pTask->m_pCallbackPassThrough);
 }
 
 ezTaskSystem::TaskData ezTaskSystem::GetNextTask(ezTaskPriority::Enum FirstPriority, ezTaskPriority::Enum LastPriority, ezTask* pPrioritizeThis)
@@ -108,7 +109,6 @@ foundany:
   // we have detected that there MIGHT be work
 
   ezLock<ezMutex> Lock(s_TaskSystemMutex);
-  //ezLock<ezMutex> Lock(s_TaskMutex);
 
   // if there is a task that should be prioritized, check if it exists in any of the task lists
   if (pPrioritizeThis != NULL)
@@ -245,7 +245,6 @@ ezResult ezTaskSystem::CancelTask(ezTask* pTask, ezOnTaskRunning::Enum OnTaskRun
 
   {
     ezLock<ezMutex> Lock(s_TaskSystemMutex);
-    //ezLock<ezMutex> Lock(s_TaskMutex);
 
     // if the task is still in the queue of its group, it had not yet been scheduled
     if (pTask->m_BelongsToGroup.m_pTaskGroup->m_Tasks.RemoveSwap(pTask))

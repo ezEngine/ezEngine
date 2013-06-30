@@ -16,12 +16,13 @@ ezTaskGroup::ezTaskGroup()
   m_bIsActive = false;
   m_uiGroupCounter = 1;
   m_Priority = ezTaskPriority::ThisFrame;
+  m_OnFinishedCallback = NULL;
+  m_pCallbackPassThrough = NULL;
 }
 
-ezTaskGroupID ezTaskSystem::CreateTaskGroup(ezTaskPriority::Enum Priority, ezTaskGroup::OnTaskGroupFinished Callback)
+ezTaskGroupID ezTaskSystem::CreateTaskGroup(ezTaskPriority::Enum Priority, ezTaskGroup::OnTaskGroupFinished Callback, void* pPassThrough)
 {
   ezLock<ezMutex> Lock(s_TaskSystemMutex);
-  //ezLock<ezMutex> Lock(s_TaskGroupMutex);
 
   ezUInt32 i = 0;
 
@@ -45,6 +46,7 @@ foundtaskgroup:
   s_TaskGroups[i].m_OthersDependingOnMe.Clear();
   s_TaskGroups[i].m_Priority = Priority;
   s_TaskGroups[i].m_OnFinishedCallback = Callback;
+  s_TaskGroups[i].m_pCallbackPassThrough = pPassThrough;
 
   ezTaskGroupID id;
   id.m_pTaskGroup = &s_TaskGroups[i];
@@ -56,7 +58,6 @@ void ezTaskSystem::DebugCheckTaskGroup(ezTaskGroupID Group)
 {
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   ezLock<ezMutex> Lock(s_TaskSystemMutex);
-  //ezLock<ezMutex> Lock(s_TaskGroupMutex);
 
   EZ_ASSERT(Group.m_pTaskGroup != NULL, "TaskGroupID is invalid.");
   EZ_ASSERT(Group.m_pTaskGroup->m_uiGroupCounter == Group.m_uiGroupCounter, "The given TaskGroupID is not valid anymore.");
@@ -92,7 +93,6 @@ void ezTaskSystem::StartTaskGroup(ezTaskGroupID Group)
 
   {
     ezLock<ezMutex> Lock(s_TaskSystemMutex);
-    //ezLock<ezMutex> Lock(s_TaskGroupMutex);
 
     ezTaskGroup& tg = *Group.m_pTaskGroup;
 
@@ -155,7 +155,6 @@ void ezTaskSystem::ScheduleGroupTasks(ezTaskGroup* pGroup)
   // add all the tasks to the task list, so that they will be processed
   {
     ezLock<ezMutex> Lock(s_TaskSystemMutex);
-    //ezLock<ezMutex> Lock(s_TaskMutex);
 
     // store how many tasks from this groups still need to be processed
     pGroup->m_iRemainingTasks = pGroup->m_Tasks.GetCount();
@@ -257,7 +256,6 @@ ezResult ezTaskSystem::CancelGroup(ezTaskGroupID Group, ezOnTaskRunning::Enum On
   EZ_PROFILE(s_ProfileCancelGroup);
 
   ezLock<ezMutex> Lock(s_TaskSystemMutex);
-  //ezLock<ezMutex> Lock(s_TaskMutex);
 
   ezResult res = EZ_SUCCESS;
 

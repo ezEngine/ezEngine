@@ -39,7 +39,7 @@
 #define EZ_BEGIN_SUBSYSTEM_DECLARATION(GroupName, SubsystemName) \
 class GroupName##SubsystemName##SubSystem; \
 typedef GroupName##SubsystemName##SubSystem SubSystemType; \
-class GroupName##SubsystemName##SubSystem : public ezSubSystemDeclarationBase { \
+class GroupName##SubsystemName##SubSystem : public ezSubSystem { \
   public: virtual const char* GetGroupName() const { return #GroupName; } \
   public: virtual const char* GetSubSystemName() const { return #SubsystemName; } \
 
