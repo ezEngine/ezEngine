@@ -13,7 +13,7 @@ void ezRun(ezApplication* pApplicationInstance)
 
   pApplicationInstance->BeforeEngineInit();
 
-  ezFoundation::Initialize();
+  //ezFoundation::Initialize();
 
   pApplicationInstance->AfterEngineInit();
 
@@ -24,7 +24,7 @@ void ezRun(ezApplication* pApplicationInstance)
 
   pApplicationInstance->BeforeEngineShutdown();
 
-  ezFoundation::Shutdown();
+  //ezFoundation::Shutdown();
 
   pApplicationInstance->AfterEngineShutdown();
 

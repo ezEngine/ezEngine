@@ -58,6 +58,8 @@ private:
   friend class ezTaskWorkerThread;
   friend class ezTaskSystem;
 
+  void Reset();
+
   /// \brief Called by ezTaskSystem to execute the task. Calls 'Execute' internally.
   void Run();
 
@@ -66,6 +68,9 @@ private:
 
   /// \brief Set to true when the task is SUPPOSED to cancel. Whether the task is able to do that, depends on its implementation.
   volatile bool m_bCancelExecution;
+
+  /// \brief Whether this task has been scheduled for execution already, or is still waiting for dependencies to finish.
+  bool m_bTaskIsScheduled;
 
   /// \brief Just stores whether m_ProfilingID has been generated, to prevent doing it twice.
   bool m_bProfilingIDGenerated;
@@ -85,7 +90,19 @@ private:
 
 /// \brief This system allows to automatically distribute tasks onto a number of worker threads.
 ///
-/// 
+/// By deriving from ezTask you can create your own task types. These can be executed through this task system.
+/// You can run a single task using the 'StartSingleTask' function. For more complex setups, it is possible
+/// to create groups of tasks, which can have interdependencies. This should be used to group all
+/// tasks that belong to one system and need to be done before another system runs. For example you could group
+/// all tasks to update particle systems, and then hae another group for all tasks to update sound, which depends
+/// on the first group, such that sound is only updated after all particle systems are done with.
+///
+/// Although it is possible to wait for tasks or to cancel them, it is generally advised to try to minimize their use.
+/// Tasks that might need to be canceled regularly (e.g. path searches) should be implemented in a way that they
+/// are aware of being canceled and will stop their work prematurely, instead of running through to the end.
+///
+/// Note that it is crucial to call 'FinishFrameTasks' once per frame, otherwise tasks that need to be executed on the
+/// main thread are never executed.
 class EZ_FOUNDATION_DLL ezTaskSystem
 {
 public:
@@ -93,7 +110,14 @@ public:
   ///
   /// \a uiShortTasks and \a uiLongTasks must be at least 1 and should not exceed the number of available CPU cores.
   /// There will always be exactly one additional thread for file access tasks (ezTaskPriority::FileAccess).
-  static void SetWorkThreadCount(ezUInt8 uiShortTasks, ezUInt8 uiLongTasks);
+  ///
+  /// If \a uiShortTasks or \a uiLongTasks is smaller than 1, a default number of threads will be used for that type of work.
+  /// This number of threads depends on the number of available CPU cores.
+  /// If SetWorkThreadCount is never called, at all, the first time any task is started the number of worker threads is set to
+  /// this default configuration.
+  /// Unless you have a good idea how to set up the number of worker threads to make good use of the available cores,
+  /// it is a good idea to just use the default settings.
+  static void SetWorkThreadCount(ezInt8 iShortTasks = -1, ezInt8 iLongTasks = -1);
 
   /// \brief A helper function to insert a single task into the system and start it right away. Returns ID of the Group into which the task has been put.
   static ezTaskGroupID StartSingleTask(ezTask* pTask, ezTaskPriority::Enum Priority);
@@ -139,10 +163,14 @@ public:
   ///
   /// Finally this function executes tasks with the priority 'SomeFrameMainThread' as long as the target frame time is not exceeded.
   /// You can configure this with \a fSmoothFrameMS, which defines how long (in milliseconds) the frame is allowed to be. As long
-  /// as that time is not exceeded, additional 'main thread' tasks will be executed.
+  /// as that time is not exceeded, additional 'SomeFrameMainThread' tasks will be executed.
   /// If the frame time spikes for a few frames, no such tasks will be executed, to prevent making it worse. However, if the frame
   /// time stays high over a longer period, 'FinishFrameTasks' will execute 'SomeFrameMainThread' tasks every once in a while,
   /// to guarantee some progress.
+  ///
+  /// \note After this function returns all tasks of priority 'ThisFrameMainThread' are finished. All tasks of priority 
+  /// 'EarlyThisFrame' up to 'LateThisFrame' are either finished or currently running on some thread, so they will be finished soon.
+  /// There is however no guarantee that they are indeed all finished, as that would introduce unnecessary stalls.
   static void FinishFrameTasks(double fSmoothFrameMS = 1000.0 / 40.0 /* 40 FPS -> 25 ms */);
 
   /// \brief This function will block until the given task has finished.

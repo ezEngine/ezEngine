@@ -4,7 +4,6 @@
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Math/Math.h>
 #include <Foundation/Time/Time.h>
-#include <Foundation/System/SystemInformation.h>
 
 ezMutex ezTaskSystem::s_TaskSystemMutex;
 
@@ -47,21 +46,6 @@ void ezTaskSystem::Startup()
   s_ProfileCancelGroup = ezProfilingId("CancelGroup");
   s_ProfileMainThreadTasks = ezProfilingId("MainThreadTasks");
   s_ProfileSomeFrameTasks = ezProfilingId("MainThreadTasks2");
-
-  ezSystemInformation info = ezSystemInformation::Get();
-
-  // these settings are supposed to be a sensible default for most applications
-  // an app can of course change that to optimize for its own usage
-
-  // 1 on single core, dual core, tri core CPUs, 2 on Quad core, 4 on six cores and up
-  const ezUInt32 uiWorkersShort = ezMath::Clamp<ezUInt32>(info.GetCPUCoreCount() - 2, 1, 4);
-  // 1 on single core, dual core, tri core CPUs, 2 on Quad core, 4 on six cores, 6 on eight cores and up
-  const ezUInt32 uiWorkersLong  = ezMath::Clamp<ezUInt32>(info.GetCPUCoreCount() - 2, 1, 6);
-
-  // plus there is always one additional 'file access' thread
-  // and the main thread, of course
-
-  SetWorkThreadCount(uiWorkersShort, uiWorkersLong);
 }
 
 void ezTaskSystem::Shutdown()

@@ -8,30 +8,52 @@ public:
 
   ezUInt32 m_uiIterations;
   ezTestTask* m_pDependency;
+  bool m_bSupportCancel;
+  ezInt32 m_iTaskID;
 
   ezTestTask()
   {
     m_uiIterations = 50;
     m_pDependency = NULL;
+    m_bStarted = false;
     m_bDone = false;
+    m_bSupportCancel = false;
+    m_iTaskID = -1;
   }
 
+  bool IsStarted() const { return m_bStarted; }
   bool IsDone() const { return m_bDone; }
 
 private:
 
+  bool m_bStarted;
   bool m_bDone;
   
   virtual void Execute (void) EZ_OVERRIDE
   {
+    if (m_iTaskID >= 0)
+      printf("Starting Task %i\n", m_iTaskID);
+
+    m_bStarted = true;
+
     EZ_TEST(m_pDependency == NULL || m_pDependency->IsTaskFinished());
 
     for (ezUInt32 obst = 0; obst < m_uiIterations; ++obst)
     {
       ezThreadUtils::Sleep(1);
+
+      if (HasBeenCanceled() && m_bSupportCancel)
+      {
+        if (m_iTaskID >= 0)
+          printf("Canceling Task %i\n", m_iTaskID);
+        return;
+      }
     }
 
     m_bDone = true;
+
+    if (m_iTaskID >= 0)
+      printf("Finishing Task %i\n", m_iTaskID);
   }
 };
 
@@ -160,7 +182,6 @@ EZ_CREATE_SIMPLE_TEST(Threading, TaskSystem)
   {
     const int Tasks = 20;
     ezTestTask t[Tasks];
-    //ezTestTask tm[2];
 
     for (int i = 0; i < Tasks; i += 2)
     {
@@ -209,23 +230,159 @@ EZ_CREATE_SIMPLE_TEST(Threading, TaskSystem)
     }
   }
 
-  // frame tasks / next frame tasks
-  // long running tasks
-  // cancel task
-  // cancel group
-  // all task priorities
+  EZ_TEST_BLOCK(true, "Main Thread Tasks")
+  {
+    const int Tasks = 20;
+    ezTestTask t[Tasks];
 
-//  //// cancel all these tasks, but don't wait for them
-//  //for (ezUInt32 i = g_uiTasks/2; i < g_uiTasks; ++i)
-//  //  ezTaskSystem::CancelGroup(g_PathSearchGroups[i], false);
-//
-//  //// try again, this time wait for them
-//  //for (ezUInt32 i = g_uiTasks/2; i < g_uiTasks; ++i)
-//  //  ezTaskSystem::CancelTask(&g_PathSearches[i].GetStatic(), true);
-//
-// finishes the grid creators
-//  //ezTaskSystem::FinishFrameTasks();
-//
-//  // finishes the path searches
-//  //ezTaskSystem::FinishFrameTasks();
+    for (int i = 0; i < Tasks; ++i)
+    {
+      t[i].m_uiIterations = 10;
+
+      ezTaskSystem::StartSingleTask(&t[i], ezTaskPriority::ThisFrameMainThread);
+    }
+
+    ezTaskSystem::FinishFrameTasks();
+
+    for (int i = 0; i < Tasks; ++i)
+    {
+      EZ_TEST(t[i].IsTaskFinished());
+    }
+  }
+
+  EZ_TEST_BLOCK(true, "Canceling Tasks")
+  {
+    const int Tasks = 20;
+    ezTestTask t[Tasks];
+
+    for (int i = 0; i < Tasks; ++i)
+    {
+      t[i].m_uiIterations = 50;
+
+      ezTaskSystem::StartSingleTask(&t[i], ezTaskPriority::ThisFrame);
+    }
+
+    ezThreadUtils::Sleep(1);
+
+    ezInt32 iCanceled = 0;
+
+    for (int i = Tasks - 1; i >= 0; --i)
+    {
+      if (ezTaskSystem::CancelTask(&t[i], ezOnTaskRunning::ReturnWithoutBlocking) == EZ_SUCCESS)
+        ++iCanceled;
+    }
+
+    ezInt32 iDone = 0;
+    ezInt32 iStarted = 0;
+
+    for (int i = 0; i < Tasks; ++i)
+    {
+      ezTaskSystem::WaitForTask(&t[i]);
+      EZ_TEST(t[i].IsTaskFinished());
+
+      if (t[i].IsDone())
+        ++iDone;
+      if (t[i].IsStarted())
+        ++iStarted;
+    }
+
+    // at least one task should have run and thus be 'done'
+    EZ_TEST(iDone > 0);
+    EZ_TEST(iDone < Tasks);
+
+    EZ_TEST(iStarted > 0);
+    EZ_TEST(iStarted <= 4); // should not have managed to start more tasks than there are threads
+  }
+
+  EZ_TEST_BLOCK(true, "Canceling Tasks (forcefully)")
+  {
+    const int Tasks = 20;
+    ezTestTask t[Tasks];
+
+    for (int i = 0; i < Tasks; ++i)
+    {
+      t[i].m_uiIterations = 50;
+      t[i].m_bSupportCancel = true;
+
+      ezTaskSystem::StartSingleTask(&t[i], ezTaskPriority::ThisFrame);
+    }
+
+    ezThreadUtils::Sleep(1);
+
+    ezInt32 iCanceled = 0;
+
+    for (int i = Tasks - 1; i >= 0; --i)
+    {
+      if (ezTaskSystem::CancelTask(&t[i], ezOnTaskRunning::ReturnWithoutBlocking) == EZ_SUCCESS)
+        ++iCanceled;
+    }
+
+    ezInt32 iDone = 0;
+    ezInt32 iStarted = 0;
+
+    for (int i = 0; i < Tasks; ++i)
+    {
+      ezTaskSystem::WaitForTask(&t[i]);
+      EZ_TEST(t[i].IsTaskFinished());
+
+      if (t[i].IsDone())
+        ++iDone;
+      if (t[i].IsStarted())
+        ++iStarted;
+    }
+
+    // not a single thread should have finished the execution
+    EZ_TEST(iDone == 0);
+    EZ_TEST(iStarted > 0);
+    EZ_TEST(iStarted <= 4); // should not have managed to start more tasks than there are threads
+  }
+
+  EZ_TEST_BLOCK(true, "Canceling Group")
+  {
+    const int Tasks = 4;
+    ezTestTask t1[Tasks];
+    ezTestTask t2[Tasks];
+
+    ezTaskGroupID g1, g2;
+    g1 = ezTaskSystem::CreateTaskGroup(ezTaskPriority::ThisFrame);
+    g2 = ezTaskSystem::CreateTaskGroup(ezTaskPriority::ThisFrame);
+
+    ezTaskSystem::AddTaskGroupDependency(g2, g1);
+
+    for (int i = 0; i < Tasks; ++i)
+    {
+      //t1[i].m_iTaskID = i;
+      //t2[i].m_iTaskID = Tasks + i;
+
+      ezTaskSystem::AddTaskToGroup(g1, &t1[i]);
+      ezTaskSystem::AddTaskToGroup(g2, &t2[i]);
+    }
+
+    ezTaskSystem::StartTaskGroup(g2);
+    ezTaskSystem::StartTaskGroup(g1);
+
+    ezThreadUtils::Sleep(10);
+
+    EZ_TEST(ezTaskSystem::CancelGroup(g2, ezOnTaskRunning::WaitTillFinished) == EZ_SUCCESS);
+
+    for (int i = 0; i < Tasks; ++i)
+    {
+      EZ_TEST(!t2[i].IsDone());
+      EZ_TEST(t2[i].IsTaskFinished());
+    }
+
+    ezThreadUtils::Sleep(1);
+
+    EZ_TEST(ezTaskSystem::CancelGroup(g1, ezOnTaskRunning::WaitTillFinished) == EZ_FAILURE);
+
+    for (int i = 0; i < Tasks; ++i)
+    {
+      EZ_TEST(!t2[i].IsDone());
+
+      EZ_TEST(t1[i].IsTaskFinished());
+      EZ_TEST(t2[i].IsTaskFinished());
+    }
+
+    ezThreadUtils::Sleep(100);
+  }
 }

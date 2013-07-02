@@ -3,6 +3,7 @@
 #include <Foundation/Threading/Lock.h>
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Math/Math.h>
+#include <Foundation/System/SystemInformation.h>
 
 // Helper function to generate a nice thread name.
 static const char* GenerateThreadName(ezWorkerThreadType::Enum ToDo, ezUInt32 iThreadNumber)
@@ -83,22 +84,35 @@ void ezTaskSystem::StopWorkerThreads()
   }
 }
 
-void ezTaskSystem::SetWorkThreadCount(ezUInt8 uiShortTasks, ezUInt8 uiLongTasks)
+void ezTaskSystem::SetWorkThreadCount(ezInt8 iShortTasks, ezInt8 iLongTasks)
 {
-  EZ_ASSERT(uiShortTasks > 0, "At least one worker thread for short tasks must be active.");
-  EZ_ASSERT(uiLongTasks > 0, "At least one worker thread for long tasks must be active.");
+  ezSystemInformation info = ezSystemInformation::Get();
 
-  uiShortTasks = ezMath::Max<ezUInt8>(uiShortTasks, 1);
-  uiLongTasks  = ezMath::Max<ezUInt8>(uiLongTasks, 1);
+  // these settings are supposed to be a sensible default for most applications
+  // an app can of course change that to optimize for its own usage
+
+  // 1 on single core, dual core, tri core CPUs, 2 on Quad core, 4 on six cores and up
+  if (iShortTasks <= 0)
+    iShortTasks = ezMath::Clamp<ezInt8>(info.GetCPUCoreCount() - 2, 1, 4);
+
+  // 1 on single core, dual core, tri core CPUs, 2 on Quad core, 4 on six cores, 6 on eight cores and up
+  if (iLongTasks <= 0)
+    iLongTasks = ezMath::Clamp<ezInt8>(info.GetCPUCoreCount() - 2, 1, 6);
+
+  // plus there is always one additional 'file access' thread
+  // and the main thread, of course
+
+  iShortTasks = ezMath::Max<ezInt8>(iShortTasks, 1);
+  iLongTasks  = ezMath::Max<ezInt8>(iLongTasks, 1);
 
   // if nothing has changed, do nothing
-  if (s_WorkerThreads[ezWorkerThreadType::ShortTasks].GetCount() == uiShortTasks && s_WorkerThreads[ezWorkerThreadType::LongTasks].GetCount() == uiLongTasks)
+  if (s_WorkerThreads[ezWorkerThreadType::ShortTasks].GetCount() == iShortTasks && s_WorkerThreads[ezWorkerThreadType::LongTasks].GetCount() == iLongTasks)
     return;
 
   StopWorkerThreads();
 
-  s_WorkerThreads[ezWorkerThreadType::ShortTasks].SetCount(uiShortTasks);
-  s_WorkerThreads[ezWorkerThreadType::LongTasks].SetCount(uiLongTasks);
+  s_WorkerThreads[ezWorkerThreadType::ShortTasks].SetCount(iShortTasks);
+  s_WorkerThreads[ezWorkerThreadType::LongTasks].SetCount(iLongTasks);
   s_WorkerThreads[ezWorkerThreadType::FileAccess].SetCount(1);
 
   for (ezUInt32 type = 0; type < ezWorkerThreadType::ENUM_COUNT; ++type)

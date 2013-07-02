@@ -68,10 +68,11 @@ void ezTaskSystem::DebugCheckTaskGroup(ezTaskGroupID Group)
 void ezTaskSystem::AddTaskToGroup(ezTaskGroupID Group, ezTask* pTask)
 {
   EZ_ASSERT(pTask != NULL, "Cannot add NULL tasks.");
+  EZ_ASSERT(pTask->IsTaskFinished(), "The task that is not finished! Cannot reuse a task before it is done.");
 
   DebugCheckTaskGroup(Group);
 
-  pTask->m_bIsFinished = false;
+  pTask->Reset();
   pTask->m_BelongsToGroup = Group;
   Group.m_pTaskGroup->m_Tasks.PushBack(pTask);
 
@@ -87,6 +88,9 @@ void ezTaskSystem::AddTaskGroupDependency(ezTaskGroupID Group, ezTaskGroupID Dep
 
 void ezTaskSystem::StartTaskGroup(ezTaskGroupID Group)
 {
+  if (s_WorkerThreads[ezWorkerThreadType::ShortTasks].GetCount() == 0)
+    SetWorkThreadCount(-1, -1); // set the default number of threads, if none are started yet
+
   DebugCheckTaskGroup(Group);
 
   ezInt32 iActiveDependencies = 0;
@@ -124,15 +128,6 @@ void ezTaskSystem::StartTaskGroup(ezTaskGroupID Group)
   {
     ScheduleGroupTasks(Group.m_pTaskGroup);
   }
-
-  // if we have no threads running, execute all the tasks right away in this thread
-  if (s_WorkerThreads[ezWorkerThreadType::ShortTasks].IsEmpty())
-  {
-    // executes all tasks, the short and the long, the ones for the main thread and the others as well
-    while(ExecuteTask((ezTaskPriority::Enum) 0, (ezTaskPriority::Enum) (ezTaskPriority::ENUM_COUNT - 1)))
-    {
-    }
-  }
 }
 
 bool ezTaskSystem::IsTaskGroupFinished(ezTaskGroupID Group)
@@ -165,6 +160,7 @@ void ezTaskSystem::ScheduleGroupTasks(ezTaskGroup* pGroup)
     for (ezUInt32 task = 0; task < pGroup->m_Tasks.GetCount(); ++task)
     {
       td.m_pTask = pGroup->m_Tasks[task];
+      td.m_pTask->m_bTaskIsScheduled = true;
       s_Tasks[pGroup->m_Priority].PushBack(td);
     }
   }
@@ -259,10 +255,12 @@ ezResult ezTaskSystem::CancelGroup(ezTaskGroupID Group, ezOnTaskRunning::Enum On
 
   ezResult res = EZ_SUCCESS;
 
+  ezHybridArray<ezTask*, 16> TasksCopy = Group.m_pTaskGroup->m_Tasks;
+
   // first cancel ALL the tasks in the group, without waiting for anything
-  for (ezUInt32 task = 0; task < Group.m_pTaskGroup->m_Tasks.GetCount(); ++task)
+  for (ezUInt32 task = 0; task < TasksCopy.GetCount(); ++task)
   {
-    if (CancelTask(Group.m_pTaskGroup->m_Tasks[task], ezOnTaskRunning::ReturnWithoutBlocking) == EZ_FAILURE)
+    if (CancelTask(TasksCopy[task], ezOnTaskRunning::ReturnWithoutBlocking) == EZ_FAILURE)
       res = EZ_FAILURE;
   }
 
@@ -271,8 +269,8 @@ ezResult ezTaskSystem::CancelGroup(ezTaskGroupID Group, ezOnTaskRunning::Enum On
   if (OnTaskRunning == ezOnTaskRunning::WaitTillFinished && res == EZ_FAILURE)
   {
     // now cancel the tasks in the group again, this time wait for those that are already running
-    for (ezUInt32 task = 0; task < Group.m_pTaskGroup->m_Tasks.GetCount(); ++task)
-      CancelTask(Group.m_pTaskGroup->m_Tasks[task], ezOnTaskRunning::WaitTillFinished);
+    for (ezUInt32 task = 0; task < TasksCopy.GetCount(); ++task)
+      CancelTask(TasksCopy[task], ezOnTaskRunning::WaitTillFinished);
   }
 
   return res;

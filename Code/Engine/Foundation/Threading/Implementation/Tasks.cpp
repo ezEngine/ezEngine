@@ -5,13 +5,21 @@
 #include <Foundation/Math/Math.h>
 
 ezTask::ezTask() 
-{ 
-  m_bIsFinished = true; 
+{
+  Reset();
+
+  m_bIsFinished = true;
   m_bProfilingIDGenerated = false; 
-  m_bCancelExecution = false; 
+  m_sTaskName = "Unnamed Task";
   m_OnTaskFinished = NULL;
   m_pCallbackPassThrough = NULL;
-  m_sTaskName = "Unnamed Task";
+}
+
+void ezTask::Reset()
+{
+  m_bIsFinished = false;
+  m_bCancelExecution = false;
+  m_bTaskIsScheduled = false;
 }
 
 void ezTask::SetTaskName(const char* szName)
@@ -28,8 +36,12 @@ void ezTask::SetOnTaskFinished(OnTaskFinished Callback, void* pPassThrough)
 
 void ezTask::Run() 
 {
-  m_bCancelExecution = false;
-  m_bIsFinished = false;
+  // actually this should not be possible to happen
+  if (m_bIsFinished || m_bCancelExecution)
+  {
+    m_bIsFinished = true;
+    return;
+  }
 
   Execute (); 
 
@@ -129,10 +141,6 @@ foundany:
         {
           TaskData td = *it;
 
-          // remove this task from the task-list of its group, to make sure that 'CancelGroup'
-          // etc. don't try to work with the task
-          td.m_pTask->m_BelongsToGroup.m_pTaskGroup->m_Tasks.RemoveSwap(td.m_pTask);
-
           s_Tasks[i].Erase(it);
           return td;
         }
@@ -149,10 +157,6 @@ foundany:
     if (!s_Tasks[i].IsEmpty())
     {
       TaskData td = *s_Tasks[i].GetIterator();
-
-      // remove this task from the task-list of its group, to make sure that 'CancelGroup'
-      // etc. don't try to work with the task
-      td.m_pTask->m_BelongsToGroup.m_pTaskGroup->m_Tasks.RemoveSwap(td.m_pTask);
 
       s_Tasks[i].Erase(s_Tasks[i].GetIterator());
       return td;
@@ -247,7 +251,7 @@ ezResult ezTaskSystem::CancelTask(ezTask* pTask, ezOnTaskRunning::Enum OnTaskRun
     ezLock<ezMutex> Lock(s_TaskSystemMutex);
 
     // if the task is still in the queue of its group, it had not yet been scheduled
-    if (pTask->m_BelongsToGroup.m_pTaskGroup->m_Tasks.RemoveSwap(pTask))
+    if (!pTask->m_bTaskIsScheduled && pTask->m_BelongsToGroup.m_pTaskGroup->m_Tasks.RemoveSwap(pTask))
     {
       // we set the task to finished, even though it was not executed
       pTask->m_bIsFinished = true;
