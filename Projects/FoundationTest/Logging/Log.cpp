@@ -15,8 +15,10 @@ EZ_CREATE_SIMPLE_TEST(Logging, Log)
   ezStringBuilder sOutputFolder1 = BUILDSYSTEM_OUTPUT_FOLDER;
   sOutputFolder1.AppendPath("FoundationTest");
 
+  ezOSFile::CreateDirectoryStructure(sOutputFolder1.GetData());
+
   ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
-  ezFileSystem::AddDataDirectory(sOutputFolder1.GetData(), ezFileSystem::AllowWrites, "LoggingTest");
+  EZ_TEST(ezFileSystem::AddDataDirectory(sOutputFolder1.GetData(), ezFileSystem::AllowWrites, "LoggingTest") == EZ_SUCCESS);
 
   LogHTML.BeginLog("Log_FoundationTest.htm", "FoundationTest");
 

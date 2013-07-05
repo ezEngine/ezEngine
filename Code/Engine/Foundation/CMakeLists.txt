@@ -21,7 +21,7 @@
 # )
 
 if (MSVC)
-  link_directories(${CMAKE_SOURCE_DIR}/Code/ThirdParty/gpa_ITT/libs/$(Platform))
+  link_directories(${CMAKE_SOURCE_DIR}/Code/ThirdParty/gpa_ITT/libs/$(PlatformName))
 
   SET (LINK_LIBRARIES
     gpasdk_d.lib

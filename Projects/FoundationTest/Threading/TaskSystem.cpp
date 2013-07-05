@@ -71,12 +71,6 @@ void TaskGroupFinished(void* pPassThrough)
 
 EZ_CREATE_SIMPLE_TEST(Threading, TaskSystem)
 {
-  //ezStringBuilder sOutputFolder1 = BUILDSYSTEM_OUTPUT_FOLDER;
-  //sOutputFolder1.AppendPath("FoundationTest");
-
-  //ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
-  //EZ_TEST(ezFileSystem::AddDataDirectory(sOutputFolder1.GetData(), ezFileSystem::AllowWrites, "test") == EZ_SUCCESS);
-
   ezUInt32 uiWorkersShort = 4;
   ezUInt32 uiWorkersLong = 4;
 

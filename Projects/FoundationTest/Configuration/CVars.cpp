@@ -43,6 +43,8 @@ EZ_CREATE_SIMPLE_TEST(Configuration, CVars)
   ezStringBuilder sOutputFolder1 = BUILDSYSTEM_OUTPUT_FOLDER;
   sOutputFolder1.AppendPath("FoundationTest");
 
+  ezOSFile::CreateDirectoryStructure(sOutputFolder1.GetData());
+
   ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
 
   EZ_TEST(ezFileSystem::AddDataDirectory("", ezFileSystem::ReadOnly, "test") == EZ_SUCCESS);
