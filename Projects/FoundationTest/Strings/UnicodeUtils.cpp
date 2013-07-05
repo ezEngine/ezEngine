@@ -36,7 +36,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, UnicodeUtils)
     for (ezUInt32 i = 0; i < 128; ++i)
       EZ_TEST_INT(ezUnicodeUtils::GetUtf8SequenceLength(i), 1);
 
-    // Todo: ... auch UTF-8 Zeichen testen...
+    /// \todo: ... auch UTF-8 Zeichen testen...
   }
 
   EZ_TEST_BLOCK(true, "ConvertUtf8ToUtf32")
@@ -50,8 +50,6 @@ EZ_CREATE_SIMPLE_TEST(Strings, UnicodeUtils)
     // All ASCII characters are 1 byte in length
     for (ezUInt32 i = 0; i < 128; ++i)
       EZ_TEST_INT(ezUnicodeUtils::GetSizeForCharacterInUtf8(i), 1);
-
-    // Todo: Could test this more throughly, although that function is really trivial.
   }
 
   EZ_TEST_BLOCK(true, "Decode")

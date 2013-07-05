@@ -82,7 +82,7 @@ private:
   friend class ezTaskSystem;
 
   /// \brief Tells the worker thread what tasks to execute and which thread index it has.
-  ezTaskWorkerThread(ezWorkerThreadType::Enum ToDo, ezUInt32 iThreadNumber);
+  ezTaskWorkerThread(ezWorkerThreadType::Enum ThreadType, ezUInt32 iThreadNumber);
 
   // Whether the thread is supposed to continue running.
   volatile bool m_bActive;

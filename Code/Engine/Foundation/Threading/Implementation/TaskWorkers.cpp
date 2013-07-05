@@ -6,11 +6,11 @@
 #include <Foundation/System/SystemInformation.h>
 
 // Helper function to generate a nice thread name.
-static const char* GenerateThreadName(ezWorkerThreadType::Enum ToDo, ezUInt32 iThreadNumber)
+static const char* GenerateThreadName(ezWorkerThreadType::Enum ThreadType, ezUInt32 iThreadNumber)
 {
   static ezStringBuilder sTemp;
 
-  switch (ToDo)
+  switch (ThreadType)
   {
   case ezWorkerThreadType::ShortTasks:
     sTemp.Format("Short Tasks %i", iThreadNumber + 1);
@@ -29,10 +29,10 @@ static const char* GenerateThreadName(ezWorkerThreadType::Enum ToDo, ezUInt32 iT
   return sTemp.GetData();
 }
 
-ezTaskWorkerThread::ezTaskWorkerThread(ezWorkerThreadType::Enum ToDo, ezUInt32 iThreadNumber) : ezThread(GenerateThreadName(ToDo, iThreadNumber))
+ezTaskWorkerThread::ezTaskWorkerThread(ezWorkerThreadType::Enum ThreadType, ezUInt32 iThreadNumber) : ezThread(GenerateThreadName(ThreadType, iThreadNumber))
 {
   m_bActive = true;
-  m_WorkerType = ToDo;
+  m_WorkerType = ThreadType;
   m_uiWorkerThreadNumber = iThreadNumber;
 }
 
