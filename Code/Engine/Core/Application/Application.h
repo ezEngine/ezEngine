@@ -1,7 +1,7 @@
 
 #pragma once
 
-
+#include <Core/Basics.h>
 #include <Core/Application/Implementation/ApplicationEntryPoint.h>
 
 class ezApplication;
@@ -16,8 +16,14 @@ class EZ_CORE_DLL ezApplication
 {
 public:
 
+  enum ApplicationExecution
+  {
+    Continue, ///< The 'Run' function should return this to keep the application running
+    Quit,     ///< The 'Run' function should return this to quit the application
+  };
+
   ezApplication()
-    : m_iReturnCode(0), m_iArgumentCount(0), m_ppArguments(NULL)
+    : m_iReturnCode(0), m_uiArgumentCount(0), m_ppArguments(NULL)
   {
   }
 
@@ -53,8 +59,8 @@ public:
 
   /// \brief Main run function which is called periodically.
   ///
-  /// Return false if the application should quit. You may set a return code via SetReturnCode() beforehand.
-  virtual bool Run() = 0;
+  /// Return ApplicationExecution::Quit when the application should quit. You may set a return code via SetReturnCode() beforehand.
+  virtual ApplicationExecution Run() = 0;
 
 
   inline void SetReturnCode(ezInt32 iReturnCode)
@@ -67,18 +73,39 @@ public:
     return m_iReturnCode;
   }
 
-  inline void SetCommandLineArguments(ezInt32 iArgumentCount, const char** ppArguments)
+  inline void SetCommandLineArguments(ezUInt32 uiArgumentCount, const char** ppArguments)
   {
-    m_iArgumentCount = iArgumentCount;
+    m_uiArgumentCount = uiArgumentCount;
     m_ppArguments = ppArguments;
   }
 
+  static ezApplication* GetApplicationInstance()
+  {
+    return s_pApplicationInstance;
+  }
+
+  ezUInt32 GetArgumentCount() const
+  {
+    return m_uiArgumentCount;
+  }
+
+  const char* GetArgument(ezUInt32 uiArgument) const
+  {
+    EZ_ASSERT(uiArgument < m_uiArgumentCount, "There are only %i arguments, cannot access argument %i.", m_uiArgumentCount, uiArgument);
+
+    return m_ppArguments[uiArgument];
+  }
+
+  const char** GetArgumentsArray() const
+  {
+    return m_ppArguments;
+  }
 
 private:
 
   ezInt32 m_iReturnCode;
 
-  ezInt32 m_iArgumentCount;
+  ezUInt32 m_uiArgumentCount;
 
   const char** m_ppArguments;
 

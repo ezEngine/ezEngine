@@ -245,7 +245,7 @@ void ezQuatTemplate<Type>::SetFromMat3(const ezMat3Template<Type>& m)
 
 /*! \note This function will ALWAYS return a quaternion that rotates from one direction to another.
   If both directions are identical, it is the unit rotation (none). If they are exactly opposing, this will be
-  ANY 180.0° rotation. That means the vectors will align perfectly, but there is no determine rotation for other points
+  ANY 180.0 degree rotation. That means the vectors will align perfectly, but there is no determine rotation for other points
   that might be rotated with this quaternion. If a main / fallback axis is needed to rotate points, you need to calculate
   such a rotation with other means.
 */

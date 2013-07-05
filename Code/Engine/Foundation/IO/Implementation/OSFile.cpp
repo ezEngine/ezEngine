@@ -30,13 +30,13 @@ ezResult ezOSFile::Open(const char* szFile, ezFileMode::Enum OpenMode)
   m_sFileName.MakeCleanPath();
   m_sFileName.MakePathOsSpecific();
 
+  if (!m_sFileName.IsAbsolutePath())
+    return EZ_FAILURE;
+
   ezStringBuilder sFolder = m_sFileName.GetFileDirectory();
 
   if (OpenMode == ezFileMode::Write || OpenMode == ezFileMode::Append)
     CreateDirectoryStructure(sFolder.GetData());
-
-  if (!m_sFileName.IsAbsolutePath())
-    return EZ_FAILURE;
 
   if (InternalOpen(m_sFileName.GetData(), OpenMode) == EZ_SUCCESS)
   {

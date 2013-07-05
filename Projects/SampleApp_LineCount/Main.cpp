@@ -10,6 +10,7 @@
 #include <Foundation/Logging/ConsoleWriter.h>
 #include <Foundation/Logging/VisualStudioWriter.h>
 #include <Foundation/Logging/HTMLWriter.h>
+#include <Core/Application/Application.h>
 
 // In general it is not possible to have global or static variables that (indirectly) require an allocator.
 // If you create a variable that somehow needs to have an allocator, an assert will fail.
@@ -19,50 +20,6 @@
 // template. This will make sure that the variable uses a different allocator, such that it won't be counted as a memory leak
 // at shutdown.
 ezStatic<ezLogWriter::HTML> g_HtmlLog;
-
-void Startup(const char* szStartDir)
-{
-  // Startup all subsystems that need initialization
-  // Since this is a console app, we only need the 'Core' initialization
-  // If you write a graphical application, you can additionally execute the 'Engine Startup' after window creation
-  // to startup all systems that require a valid graphics context
-  ezStartup::StartupCore();
-
-  // Since we want to read/write files through the filesystem, we need to set that up too
-  // First add a Factory that can create data directory types that handle normal folders
-  ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
-
-  // Then add a folder as a data directory (the previously registered Factory will take care of creating the proper handler)
-  // As we only need access to files through global paths, we add the "empty data directory"
-  // This data dir will manage all accesses through absolute paths, unless any other data directory can handle them
-  // since we don't add any further data dirs, this is it
-  ezFileSystem::AddDataDirectory("");
-
-  
-  // now we can set up the logging system (we could do it earlier, but the HTML writer needs access to the file system)
-
-  ezStringBuilder sLogPath = szStartDir;
-  sLogPath.PathParentDirectory(); // go one folder up
-  sLogPath.AppendPath("CodeStatistics.htm");
-
-  // The console log writer will pass all log messages to the standard console window
-  ezLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);
-  // The Visual Studio log writer will pass all messages to the output window in VS
-  ezLog::AddLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
-  // The HTML log writer will write all log messages to an HTML file
-  g_HtmlLog.GetStatic().BeginLog(sLogPath.GetData(), "Code Statistics");
-  ezLog::AddLogWriter(ezLogWriter::HTML::LogMessageHandler, &g_HtmlLog.GetStatic());
-}
-
-void Shutdown()
-{
-  // close the HTML log, from now on no more log messages are written to the file
-  g_HtmlLog.GetStatic().EndLog();
-
-  // shut down the engine completely -> will shut down all subsystems that require deinitialization
-  ezStartup::ShutdownCore();
-}
-
 
 struct FileStats
 {
@@ -211,79 +168,123 @@ FileStats GetFileStats(const char* szFile)
 }
 
 
-int main(int argc, char** argv)
+class ezLineCountApp : public ezApplication
 {
-  const char* szSearchDir = "";
+private:
+  const char* m_szSearchDir;
 
-  // pass the absolute path to the directory that should be scanned as the first parameter to this application
-  if (argc >= 2)
-    szSearchDir = argv[1];
-
-  Startup(szSearchDir);
-
-  ezUInt32 uiDirectories = 0;
-  ezUInt32 uiFiles = 0;
-  ezMap<ezString, FileStats> FileTypeStatistics;
-
-  // get a directory iterator for the search directory
-  ezFileSystemIterator it;
-  if (it.StartSearch(szSearchDir))
+public:
+  ezLineCountApp()
   {
-    ezStringBuilder b, sExt;
+    m_szSearchDir = "";
+  }
 
-    // while there are additional files / folders
-    do
+  virtual void AfterEngineInit() EZ_OVERRIDE
+  {
+    // pass the absolute path to the directory that should be scanned as the first parameter to this application
+    if (GetArgumentCount() >= 2)
+      m_szSearchDir = GetArgument(1);
+
+    // Since we want to read/write files through the filesystem, we need to set that up too
+    // First add a Factory that can create data directory types that handle normal folders
+    ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
+
+    // Then add a folder as a data directory (the previously registered Factory will take care of creating the proper handler)
+    // As we only need access to files through global paths, we add the "empty data directory"
+    // This data dir will manage all accesses through absolute paths, unless any other data directory can handle them
+    // since we don't add any further data dirs, this is it
+    ezFileSystem::AddDataDirectory("");
+
+  
+    // now we can set up the logging system (we could do it earlier, but the HTML writer needs access to the file system)
+
+    ezStringBuilder sLogPath = m_szSearchDir;
+    sLogPath.PathParentDirectory(); // go one folder up
+    sLogPath.AppendPath("CodeStatistics.htm");
+
+    // The console log writer will pass all log messages to the standard console window
+    ezLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);
+    // The Visual Studio log writer will pass all messages to the output window in VS
+    ezLog::AddLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
+    // The HTML log writer will write all log messages to an HTML file
+    g_HtmlLog.GetStatic().BeginLog(sLogPath.GetData(), "Code Statistics");
+    ezLog::AddLogWriter(ezLogWriter::HTML::LogMessageHandler, &g_HtmlLog.GetStatic());
+  }
+
+  virtual void BeforeEngineShutdown() EZ_OVERRIDE
+  {
+    // close the HTML log, from now on no more log messages are written to the file
+    g_HtmlLog.GetStatic().EndLog();
+  }
+
+  virtual ezApplication::ApplicationExecution Run() EZ_OVERRIDE
+  {
+    ezUInt32 uiDirectories = 0;
+    ezUInt32 uiFiles = 0;
+    ezMap<ezString, FileStats> FileTypeStatistics;
+
+    // get a directory iterator for the search directory
+    ezFileSystemIterator it;
+    if (it.StartSearch(m_szSearchDir))
     {
-      // build the absolute path to the current file
-      b = it.GetCurrentPath();
-      b.AppendPath(it.GetStats().m_sFileName.GetData());
+      ezStringBuilder b, sExt;
 
-      // log some info
-      ezLog::Info("%s: %s", it.GetStats().m_bIsDirectory ? "Directory" : "File", b.GetData());
-
-      if (it.GetStats().m_bIsDirectory)
-        ++uiDirectories;
-      else
+      // while there are additional files / folders
+      do
       {
-        // file extensions are always converted to lower-case actually
-        sExt = b.GetFileExtension();
+        // build the absolute path to the current file
+        b = it.GetCurrentPath();
+        b.AppendPath(it.GetStats().m_sFileName.GetData());
 
-        if (sExt.IsEqual_NoCase("cpp") || sExt.IsEqual_NoCase("h") || sExt.IsEqual_NoCase("hpp") || sExt.IsEqual_NoCase("inl"))
+        // log some info
+        ezLog::Info("%s: %s", it.GetStats().m_bIsDirectory ? "Directory" : "File", b.GetData());
+
+        if (it.GetStats().m_bIsDirectory)
+          ++uiDirectories;
+        else
         {
-          ++uiFiles;
+          // file extensions are always converted to lower-case actually
+          sExt = b.GetFileExtension();
 
-          // get additional stats and add them to the overall stats
-          FileStats& TypeStats = FileTypeStatistics[sExt.GetData()];
-          ++TypeStats.m_uiFileCount;
+          if (sExt.IsEqual_NoCase("cpp") || sExt.IsEqual_NoCase("h") || sExt.IsEqual_NoCase("hpp") || sExt.IsEqual_NoCase("inl"))
+          {
+            ++uiFiles;
 
-          TypeStats += GetFileStats(b.GetData());
+            // get additional stats and add them to the overall stats
+            FileStats& TypeStats = FileTypeStatistics[sExt.GetData()];
+            ++TypeStats.m_uiFileCount;
+
+            TypeStats += GetFileStats(b.GetData());
+          }
         }
       }
+      while (it.Next());
+
+
+      // now output some statistics
+      ezLog::Info("Directories: %i, Files: %i, Avg. Files per Dir: %.1f", uiDirectories, uiFiles, uiFiles / (float) uiDirectories);
+
+      FileStats AllTypes;
+
+      // iterate over all elements in the amp
+      ezMap<ezString, FileStats>::Iterator MapIt = FileTypeStatistics.GetIterator();
+      while (MapIt.IsValid())
+      {
+        ezLog::Info("File Type: '%s': %i Files, %i Lines, %i Empty Lines, Bytes: %i, Non-ASCII Characters: %i, Words: %i", MapIt.Key().GetData(), MapIt.Value().m_uiFileCount, MapIt.Value().m_uiLines, MapIt.Value().m_uiEmptyLines, MapIt.Value().m_uiBytes, MapIt.Value().m_uiBytes - MapIt.Value().m_uiCharacters, MapIt.Value().m_uiWords);
+
+        AllTypes += MapIt.Value();
+
+        ++MapIt;
+      }
+
+      ezLog::Info("File Type: '%s': %i Files, %i Lines, %i Empty Lines, All Lines: %i, Bytes: %i, Non-ASCII Characters: %i, Words: %i", "all", AllTypes.m_uiFileCount, AllTypes.m_uiLines, AllTypes.m_uiEmptyLines, AllTypes.m_uiLines + AllTypes.m_uiEmptyLines, AllTypes.m_uiBytes, AllTypes.m_uiBytes - AllTypes.m_uiCharacters, AllTypes.m_uiWords);
     }
-    while (it.Next());
+    else
+      ezLog::Error("Could not search the directory '%s'", m_szSearchDir);
 
-
-    // now output some statistics
-    ezLog::Info("Directories: %i, Files: %i, Avg. Files per Dir: %.1f", uiDirectories, uiFiles, uiFiles / (float) uiDirectories);
-
-    FileStats AllTypes;
-
-    // iterate over all elements in the amp
-    ezMap<ezString, FileStats>::Iterator MapIt = FileTypeStatistics.GetIterator();
-    while (MapIt.IsValid())
-    {
-      ezLog::Info("File Type: '%s': %i Files, %i Lines, %i Empty Lines, Bytes: %i, Non-ASCII Characters: %i, Words: %i", MapIt.Key().GetData(), MapIt.Value().m_uiFileCount, MapIt.Value().m_uiLines, MapIt.Value().m_uiEmptyLines, MapIt.Value().m_uiBytes, MapIt.Value().m_uiBytes - MapIt.Value().m_uiCharacters, MapIt.Value().m_uiWords);
-
-      AllTypes += MapIt.Value();
-
-      ++MapIt;
-    }
-
-    ezLog::Info("File Type: '%s': %i Files, %i Lines, %i Empty Lines, All Lines: %i, Bytes: %i, Non-ASCII Characters: %i, Words: %i", "all", AllTypes.m_uiFileCount, AllTypes.m_uiLines, AllTypes.m_uiEmptyLines, AllTypes.m_uiLines + AllTypes.m_uiEmptyLines, AllTypes.m_uiBytes, AllTypes.m_uiBytes - AllTypes.m_uiCharacters, AllTypes.m_uiWords);
+    return ezApplication::Quit;
   }
-  else
-    ezLog::Error("Could not search the directory '%s'", szSearchDir);
+};
 
-  // and clean up afterwards
-  Shutdown();
-}
+
+EZ_CONSOLEAPP_ENTRY_POINT(ezLineCountApp);
