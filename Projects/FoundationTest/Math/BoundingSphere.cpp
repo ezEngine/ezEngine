@@ -307,6 +307,17 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingSphere)
 
     EZ_TEST(s.Contains(b1));
     EZ_TEST(!s.Contains(b2));
+
+    ezVec3T vDir(1, 1, 1);
+    vDir.SetLength(3.99f);
+    ezBoundingBoxT b3(ezVec3T(1,2,3) - ezVec3T(1), ezVec3T(1,2,3) + vDir);
+
+    EZ_TEST(s.Contains(b3));
+
+    vDir.SetLength(4.01f);
+    ezBoundingBoxT b4(ezVec3T(1,2,3) - ezVec3T(1), ezVec3T(1,2,3) + vDir);
+
+    EZ_TEST(!s.Contains(b4));
   }
 
 

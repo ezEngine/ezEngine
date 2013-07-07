@@ -53,12 +53,20 @@ Type ezBoundingSphereTemplate<Type>::GetDistanceTo(const ezBoundingBoxTemplate<T
 template<typename Type>
 bool ezBoundingSphereTemplate<Type>::Contains(const ezBoundingBoxTemplate<Type>& rhs) const
 {
-  /// \todo This could be done more efficiently.
+  // compute the min and max extends of the AABB relative to the sphere (sphere center is the new origin)
+  const ezVec3 vDiffMax = rhs.m_vMax - m_vCenter;
+  const ezVec3 vDiffMin = rhs.m_vMin - m_vCenter;
 
-  ezVec3Template<Type> vCorners[8];
-  rhs.GetCorners(vCorners);
+  // compute the absolute distance to each AABB extremum, per axis
+  const ezVec3 vDiffMaxAbs(ezMath::Abs(vDiffMax.x), ezMath::Abs(vDiffMax.y), ezMath::Abs(vDiffMax.z));
+  const ezVec3 vDiffMinAbs(ezMath::Abs(vDiffMin.x), ezMath::Abs(vDiffMin.y), ezMath::Abs(vDiffMin.z));
 
-  return Contains(vCorners, 8);
+  // take the maximum distance for each axis, to compute the point that is the farthest away from the sphere
+  const ezVec3 vMostDistantPoint = vDiffMinAbs.CompMax(vDiffMaxAbs);
+
+  // if the squared length of that point is still smaller than the sphere radius, it is inside the sphere
+  // and thus the whole AABB is inside the sphere
+  return vMostDistantPoint.GetLengthSquared() <= m_fRadius * m_fRadius;
 }
 
 template<typename Type>
