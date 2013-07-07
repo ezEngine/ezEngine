@@ -6,34 +6,37 @@
 #define EZ_OSTHREAD_POSIX_INL_H_INCLUDED
 
 
-// Windows specific implementation of the thread class
+// Posix specific implementation of the thread class
 
 ezOSThread::ezOSThread(ezOSThreadEntryPoint pThreadEntryPoint, void* pUserData /*= NULL*/, const char* szName /*= "ezThread"*/, ezUInt32 uiStackSize /*= 128 * 1024*/)
-{
-  pthread_attr_t ThreadAttributes;
-  pthread_attr_init(&ThreadAttributes);
-  pthread_attr_setdetachstate(&ThreadAttributes, PTHREAD_CREATE_JOINABLE);
+{  
+  m_EntryPoint = pThreadEntryPoint;
+  m_pUserData = pUserData;
+  m_szName = szName;
+  m_uiStackSize = uiStackSize;
   
-  int iReturnCode = pthread_create(&m_Handle, &ThreadAttributes, pThreadEntryPoint, pUserData);
-  EZ_ASSERT(iReturnCode == 0, "Thread creation failed!");
-  
-  pthread_attr_destroy(&ThreadAttributes);
-  
-  m_EntryPoint = pThreadEntryPoint;  
+  // Thread creation is deferred since Posix threads can't be created sleeping
 }
 
 ezOSThread::~ezOSThread()
 {
 }
 
-/// Attempts to acquire an exclusive lock for this mutex object
+/// Starts the thread
 void ezOSThread::Start()
 {
-  /// \todo Complicated
+  pthread_attr_t ThreadAttributes;
+  pthread_attr_init(&ThreadAttributes);
+  pthread_attr_setdetachstate(&ThreadAttributes, PTHREAD_CREATE_JOINABLE);
+  pthread_attr_setstacksize(&ThreadAttributes, m_uiStackSize);
   
+  int iReturnCode = pthread_create(&m_Handle, &ThreadAttributes, m_EntryPoint, m_pUserData);
+  EZ_ASSERT(iReturnCode == 0, "Thread creation failed!");
+  
+  pthread_attr_destroy(&ThreadAttributes);
 }
 
-/// Releases a lock that has been previously acquired
+/// Joins with the thread (waits for termination)
 void ezOSThread::Join()
 {
   pthread_join(m_Handle, NULL);

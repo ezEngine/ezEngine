@@ -920,9 +920,17 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
 
   EZ_TEST_BLOCK(true, "MakeAbsolutePath")
   {
+    #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
     ezStringBuilder p = "../../d/..\\f";
     p.MakeAbsolutePath("C:\\a/b/c/");
     EZ_TEST(p == "C:/a/f");
+    #elif EZ_ENABLED(EZ_PLATFORM_OSX)
+    ezStringBuilder p = "../../d/..\\f";
+    p.MakeAbsolutePath("/a/b/c/");
+    EZ_TEST(p == "/a/f");
+    #else
+      #warning "Missing test code!"
+    #endif
 
   }
 

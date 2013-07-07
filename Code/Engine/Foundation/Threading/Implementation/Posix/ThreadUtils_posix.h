@@ -27,7 +27,7 @@ void ezThreadUtils::Sleep(ezUInt32 uiMilliSeconds)
 {
   timespec SleepTime;
   SleepTime.tv_sec = 0;
-  SleepTime.tv_nsec = uiMilliSeconds * 1000;
+  SleepTime.tv_nsec = uiMilliSeconds * 1000000;
   nanosleep(&SleepTime, NULL);
 }
 

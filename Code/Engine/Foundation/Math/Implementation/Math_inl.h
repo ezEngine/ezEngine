@@ -1,5 +1,7 @@
 #pragma once
 
+#include <algorithm>
+
 namespace ezMath
 {
   inline ezUInt32 Log2i(ezUInt32 val) 

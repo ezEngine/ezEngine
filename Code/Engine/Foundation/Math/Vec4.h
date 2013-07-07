@@ -74,7 +74,7 @@ public:
   void Normalize(); // [tested]
 
   /// \brief Tries to normalize this vector. If the vector is too close to zero, EZ_FAILURE is returned and the vector is set to the given fallback value.
-  ezResult NormalizeIfNotZero(const ezVec4Template& vFallback = ezVec4Template(1, 0, 0, 0), Type fEpsilon = ezMath_SmallEpsilon); // [tested]
+  ezResult NormalizeIfNotZero(const ezVec4Template& vFallback = ezVec4Template(1, 0, 0, 0), Type fEpsilon = ezMath::BasicType<Type>::SmallEpsilon()); // [tested]
     
   /// \brief Returns, whether this vector is (0, 0, 0, 0).
   bool IsZero() const; // [tested]

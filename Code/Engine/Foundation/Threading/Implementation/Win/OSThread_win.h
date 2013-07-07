@@ -56,7 +56,11 @@ ezOSThread::ezOSThread(ezOSThreadEntryPoint pThreadEntryPoint, void* pUserData /
   m_Handle = CreateThread(NULL, uiStackSize, pThreadEntryPoint, pUserData, CREATE_SUSPENDED, NULL);
   EZ_ASSERT(m_Handle != INVALID_HANDLE_VALUE, "Thread creation failed!");
   EZ_ASSERT(m_Handle != NULL, "Thread creation failed!"); // makes the static code analysis happy
+  
   m_EntryPoint = pThreadEntryPoint;
+  m_pUserData = pUserData;
+  m_szName = szName;
+  m_uiStackSize = uiStackSize;
 
   // If a name is given, assign it here
   if(szName != NULL)

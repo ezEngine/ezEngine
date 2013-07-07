@@ -49,6 +49,8 @@ void ezAllocator<A, B, T, M>::Deallocate(void* ptr)
   const size_t uiGuardedSize = m_allocator.AllocatedSize(pMemory);
   const size_t uiAllocatedSize = uiGuardedSize - uiOffset - B::GuardSizeBack;
   const size_t uiUsedMemorySize = m_allocator.UsedMemorySize(pMemory);
+  
+  EZ_IGNORE_UNUSED(uiAllocatedSize);
 
   m_boundsChecker.CheckFront(pMemory, uiOffset);
   m_boundsChecker.CheckBack(pMemory + uiGuardedSize);

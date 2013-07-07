@@ -64,6 +64,13 @@ public:
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   #define EZ_FASTCALL __fastcall
   #define EZ_NO_INLINE __declspec(noinline)
+#elif EZ_ENABLED(EZ_PLATFORM_OSX)
+  #if EZ_ENABLED(EZ_PLATFORM_64BIT)
+    #define EZ_FASTCALL 
+  #else
+    #define EZ_FASTCALL __attribute((fastcall)) // Fastcall only relevant on x86-32 and would otherwise generate warnings
+  #endif
+  #define EZ_NO_INLINE __attribute__((noinline))
 #else
   #warning Unknown Platform.
   #define EZ_FASTCALL

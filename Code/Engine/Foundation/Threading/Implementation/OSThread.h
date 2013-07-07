@@ -12,7 +12,7 @@ public:
 
   /// \brief Initializes the thread instance (e.g. thread creation etc.)
   ///
-  /// Note that the thread won't start execution until Start() is called.
+  /// Note that the thread won't start execution until Start() is called. Please note that szName must be valid until Start() has been called!
   ezOSThread(ezOSThreadEntryPoint pThreadEntryPoint, void* pUserData = NULL, const char* szName = "ezOSThread", ezUInt32 uiStackSize = 128 * 1024);
 
   /// \brief Destructor.
@@ -35,6 +35,12 @@ protected:
   ezThreadHandle m_Handle;
 
   ezOSThreadEntryPoint m_EntryPoint;
+  
+  void* m_pUserData;
+  
+  const char* m_szName;
+  
+  ezUInt32 m_uiStackSize;
 
   EZ_DISALLOW_COPY_AND_ASSIGN(ezOSThread);
 };

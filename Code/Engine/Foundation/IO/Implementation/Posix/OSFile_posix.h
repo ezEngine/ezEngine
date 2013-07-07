@@ -124,7 +124,7 @@ ezResult ezOSFile::InternalDeleteFile(const char* szFile)
 {
   int iRes = unlink(szFile);
   
-  if(iRes == 0 || iRes == ENOENT)
+  if(iRes == 0 || (iRes == -1 && errno == ENOENT))
     return EZ_SUCCESS;
   
   return EZ_FAILURE;
@@ -138,7 +138,7 @@ ezResult ezOSFile::InternalCreateDirectory(const char* szDirectory)
   
   int iRes = mkdir(szDirectory, 0777);
   
-  if(iRes == 0 || iRes == EEXIST)
+  if(iRes == 0 || (iRes == -1 && errno == EEXIST))
     return EZ_SUCCESS;
     
   return EZ_FAILURE;
