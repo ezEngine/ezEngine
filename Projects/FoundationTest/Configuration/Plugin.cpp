@@ -17,7 +17,7 @@ EZ_CREATE_SIMPLE_TEST(Configuration, Plugin)
   CVar_TestPlugin2InitializedCount = 0;
   CVar_TestPlugin2UninitializedCount = 0;
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+#if EZ_ENABLED(EZ_SUPPORTS_DYNAMIC_PLUGINS)
 
   EZ_TEST_BLOCK(true, "LoadPlugin")
   {
@@ -117,8 +117,8 @@ EZ_CREATE_SIMPLE_TEST(Configuration, Plugin)
     EZ_TEST_INT(CVar_TestPlugin1Reloaded, 2);
     EZ_TEST_INT(CVar_TestPlugin2Reloaded, 2);
   }
-  
 
 #endif
+
 }
 

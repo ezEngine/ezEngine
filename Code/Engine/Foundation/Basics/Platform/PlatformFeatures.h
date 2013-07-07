@@ -24,3 +24,7 @@
 #ifndef EZ_SUPPORTS_FILE_STATS
   #error "EZ_SUPPORTS_FILE_STATS is not defined."
 #endif
+
+#ifndef EZ_SUPPORTS_DYNAMIC_PLUGINS
+  #error "EZ_SUPPORTS_DYNAMIC_PLUGINS is not defined."
+#endif

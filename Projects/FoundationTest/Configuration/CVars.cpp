@@ -51,27 +51,19 @@ EZ_CREATE_SIMPLE_TEST(Configuration, CVars)
   EZ_TEST(ezFileSystem::AddDataDirectory(sOutputFolder1.GetData(), ezFileSystem::AllowWrites, "test") == EZ_SUCCESS);
 
   // Delete all cvar setting files
-#if EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
   {
-    sOutputFolder1.AppendPath("CVars/*");
+    ezStringBuilder sConfigFile;
 
-    ezFileSystemIterator it;
-    if (it.StartSearch(sOutputFolder1.GetData(), true, false))
-    {
-      ezStringBuilder s;
+    sConfigFile = sOutputFolder1;
+    sConfigFile.AppendPath("CVars/CVars_FoundationTest_Plugin1.cfg");
 
-      do
-      {
-        s = it.GetCurrentPath().GetData();
-        s.AppendPath(it.GetStats().m_sFileName.GetData());
-        ezFileSystem::DeleteFile(s.GetData());
-      }
-      while (it.Next());
-    }
+    ezFileSystem::DeleteFile(sConfigFile.GetData());
+
+    sConfigFile = sOutputFolder1;
+    sConfigFile.AppendPath("CVars/CVars_FoundationTest_Plugin2.cfg");
+
+    ezFileSystem::DeleteFile(sConfigFile.GetData());
   }
-#else
-  #warning "The CVars test might fail on this platform."
-#endif
 
   ezCVar::SetStorageFolder("CVars");
   ezCVar::LoadCVars(); // should do nothing (no settings files available)
@@ -88,6 +80,8 @@ EZ_CREATE_SIMPLE_TEST(Configuration, CVars)
     EZ_TEST(ezCVar::FindCVarByName("test2_Bool") == NULL);
     EZ_TEST(ezCVar::FindCVarByName("test2_String") == NULL);
   }
+
+#if EZ_ENABLED(EZ_SUPPORTS_DYNAMIC_PLUGINS)
 
   EZ_TEST_BLOCK(true, "Plugin1 Loaded")
   {
@@ -106,6 +100,8 @@ EZ_CREATE_SIMPLE_TEST(Configuration, CVars)
     EZ_TEST(ezPlugin::UnloadPlugin("FoundationTest_Plugin1") == EZ_SUCCESS);
   }
 
+#endif
+
   EZ_TEST_BLOCK(true, "No Plugin Loaded (2)")
   {
     EZ_TEST(ezCVar::FindCVarByName("test1_Int") == NULL);
@@ -118,6 +114,8 @@ EZ_CREATE_SIMPLE_TEST(Configuration, CVars)
     EZ_TEST(ezCVar::FindCVarByName("test2_Bool") == NULL);
     EZ_TEST(ezCVar::FindCVarByName("test2_String") == NULL);
   }
+
+#if EZ_ENABLED(EZ_SUPPORTS_DYNAMIC_PLUGINS)
 
   EZ_TEST_BLOCK(true, "Plugin2 Loaded")
   {
@@ -138,6 +136,8 @@ EZ_CREATE_SIMPLE_TEST(Configuration, CVars)
     EZ_TEST(ezPlugin::UnloadPlugin("FoundationTest_Plugin2") == EZ_SUCCESS);
   }
 
+#endif
+
   EZ_TEST_BLOCK(true, "No Plugin Loaded (2)")
   {
     EZ_TEST(ezCVar::FindCVarByName("test1_Int") == NULL);
@@ -150,6 +150,8 @@ EZ_CREATE_SIMPLE_TEST(Configuration, CVars)
     EZ_TEST(ezCVar::FindCVarByName("test2_Bool") == NULL);
     EZ_TEST(ezCVar::FindCVarByName("test2_String") == NULL);
   }
+
+#if EZ_ENABLED(EZ_SUPPORTS_DYNAMIC_PLUGINS)
 
   EZ_TEST_BLOCK(true, "Default Value Test")
   {
@@ -292,6 +294,8 @@ EZ_CREATE_SIMPLE_TEST(Configuration, CVars)
 
     EZ_TEST(ezPlugin::UnloadPlugin("FoundationTest_Plugin2") == EZ_SUCCESS);
   }
+
+#endif
   
   ezFileSystem::ClearAllDataDirectories();
   ezFileSystem::ClearAllDataDirectoryFactories();
