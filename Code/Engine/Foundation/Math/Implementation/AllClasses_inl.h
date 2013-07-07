@@ -34,12 +34,18 @@ inline const ezBoundingSphereTemplate<Type> ezBoundingBoxTemplate<Type>::GetBoun
 template<typename Type>
 void ezBoundingSphereTemplate<Type>::ExpandToInclude(const ezBoundingBoxTemplate<Type>& rhs)
 {
-  // This could be made more efficient by chosing only the point that is farthest away from the sphere
+  // compute the min and max extends of the AABB relative to the sphere (sphere center is the new origin)
+  const ezVec3 vDiffMax = rhs.m_vMax - m_vCenter;
+  const ezVec3 vDiffMin = rhs.m_vMin - m_vCenter;
 
-  ezVec3Template<Type> vCorners[8];
-  rhs.GetCorners(vCorners);
+  // compute the absolute distance to each AABB extremum, per axis
+  const ezVec3 vDiffMaxAbs(ezMath::Abs(vDiffMax.x), ezMath::Abs(vDiffMax.y), ezMath::Abs(vDiffMax.z));
+  const ezVec3 vDiffMinAbs(ezMath::Abs(vDiffMin.x), ezMath::Abs(vDiffMin.y), ezMath::Abs(vDiffMin.z));
 
-  ExpandToInclude(vCorners, 8);
+  // take the maximum distance for each axis, to compute the point that is the farthest away from the sphere
+  const ezVec3 vMostDistantPoint = vDiffMinAbs.CompMax(vDiffMaxAbs);
+
+  ExpandToInclude(vMostDistantPoint);
 }
 
 template<typename Type>

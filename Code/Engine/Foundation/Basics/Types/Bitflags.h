@@ -5,13 +5,77 @@
 #include <Foundation/Basics.h>
 #include <Foundation/Basics/Types/Enum.h>
 
-/// \todo Documentation Example: How to create an ezBitflags thing.
-
-/// \brief A bitfield build from enum values
+/// \brief The ezBitflags class allows you to work with typesafe bitflags.
 ///
-/// This has several advantages over the "normal" approach
-/// 1) It is typesafe
-/// 2) You can see from the code which enum contains the bit values
+/// ezBitflags takes a struct as its template parameter, which contains an enum for the available flag values.
+/// ezBitflags wraps this type in a way which enables the compiler to do type-checks. This makes it very easy
+/// to document and enforce what flags are to be used in an interface.
+/// For example, in traditional C++ code, you usually need to have an integer as a function parameter type,
+/// when that parameter is supposed to take flags. However, WHICH flags (e.g. from which enum) cannot be enforced
+/// through compile time checks. Thus it is difficult for the user to see whether he used the correct type, and
+/// it is impossible for the compiler to help find such bugs.
+/// ezBitflags solves this problem. However the flag type used to instantiate ezBitflags must fulfill some requirements.
+///
+/// There are two ways to define your bitflags type, that can be used with ezBitflags.
+///
+/// The easier, less powerful way: Use the EZ_DECLARE_FLAGS() macro.\n
+/// Example:\n
+/// \code{.cpp}
+///   EZ_DECLARE_FLAGS(ezUInt8, SimpleRenderFlags, EnableEffects, EnableLighting, EnableShadows);
+/// \endcode
+/// This will declare a type 'SimpleRenderFlags' which contains three different flags.
+/// You can then create a function which takes flags like this:
+/// \code{.cpp}
+///   void RenderScene(ezBitflags<SimpleRenderFlags> Flags);
+/// \endcode
+/// And this function can be called like this:\n
+/// \code{.cpp}
+///   RenderScene(EnableEffects | EnableLighting | EnableShadows);
+/// \endcode
+/// However it will refuse to compile with anything else, for example this will not work:\n
+/// \code{.cpp}
+///   RenderScene(1);
+/// \endcode
+///
+/// The second way to declare your bitflags type allows even more flexibility. Here you need to declare your bitflag type manually:
+/// \code{.cpp}
+///   struct SimpleRenderFlags
+///   {
+///     typedef ezUInt32 StorageType;
+///
+///     enum Enum
+///     {
+///       EnableEffects   = EZ_BIT(0),
+///       EnableLighting  = EZ_BIT(1),
+///       EnableShadows   = EZ_BIT(2),
+///       FullLighting    = EnableLighting | EnableShadows,
+///       AllFeatures     = FullLighting | EnableEffects,
+///       Default = AllFeatures
+///     };
+///
+///     struct Bits
+///     {
+///       StorageType EnableEffects   : 1;
+///       StorageType EnableLighting  : 1;
+///       StorageType EnableShadows   : 1;
+///     };
+///   };
+///
+///   EZ_DECLARE_FLAGS_OR_OPERATOR(SimpleRenderFlags);
+/// \endcode
+///
+/// Here we declare a struct which contains our enum that contains all the flags that we want to have. This enum can contain
+/// flags that are combinations of other flags. Note also the 'Default' flag, which is mandatory.\n
+/// The 'Bits' struct enables debuggers to show exactly which flags are enabled (with nice names) when you inspect an ezBitflags
+/// instance. You could leave this struct empty, but then your debugger can not show helpful information about the flags anymore.
+/// The Bits struct should contain one named entry for each individual bit. E.g. here only the flags 'EnableEffects', 'EnableLighting'
+/// and 'EnableShadows' actually map to single bits, the other flags are combinations of those. Therefore the Bits struct only
+/// specifies names for those first three Bits.\n
+/// The typedef 'StorageType' is also mandatory, such that ezBitflags can access it.\n
+/// Finally the macro EZ_DECLARE_FLAGS_OR_OPERATOR will define the required operator to be able to combine bitflags of your type.
+/// Ie. it enables to write ezBitflags<SimpleRenderFlags> f = EnableEffects | EnableLighting;\n
+///
+/// For a real world usage example, see ezCVarFlags.
 template <typename T>
 struct ezBitflags
 {
@@ -22,22 +86,24 @@ private:
 
 public:
     
-  /// \brief Constructor.
+  /// \brief Constructor. Initializes the flags to all empty.
   EZ_FORCE_INLINE ezBitflags() : m_value(0) // [tested]
   {
   }
 
-  /// \brief Implict conversion is OK here
+  /// \brief Converts the incoming type to ezBitflags<T>
   EZ_FORCE_INLINE ezBitflags(Enum flag1) // [tested]
   {
     m_value = flag1;
   }
 
+  /// \brief Comparison operator.
   EZ_FORCE_INLINE bool operator==(const ezBitflags<T>& rhs) const
   {
     return m_value == rhs.m_value;
   }
 
+  /// \brief Comparison operator.
   EZ_FORCE_INLINE bool operator!=(const ezBitflags<T>& rhs) const
   {
     return m_value != rhs.m_value;
@@ -110,14 +176,37 @@ private:
   };
 };
 
-/// \brief Declares bitflags that can be used with the bitflag class above.
+
+/// This macro will define the operator| function that is required for class \a FlagsType to work with ezBitflags.
+/// See class ezBitflags for more information.
+#define EZ_DECLARE_FLAGS_OR_OPERATOR(FlagsType) \
+  inline ezBitflags<FlagsType> operator|(FlagsType::Enum lhs, FlagsType::Enum rhs)    \
+  {    \
+    return (ezBitflags<FlagsType>(lhs) | ezBitflags<FlagsType>(rhs));    \
+  }
+
+
+/// \brief This macro allows to conveniently declare a bitflag type that can be used with the ezBitflags class.
 ///
-/// Usage: EZ_DECLARE_FLAGS(ezUInt32, Name, Value1, Value2, Value3, Value4)
-#define EZ_DECLARE_FLAGS(storage, name, ...)    \
-struct name    \
+/// Usage: EZ_DECLARE_FLAGS(ezUInt32, FlagsTypeName, Flag1Name, Flag2Name, Flag3Name, Flag4Name, ...)
+///
+/// This macro will define a simple type of with the name that is given as the second parameter, 
+/// which can be used as typesafe bitflags. Everything that is necessary to work with the ezBitflags
+/// class, will be set up automatically.
+/// The bitflag type will use the integer type that is given as the first parameter for its internal
+/// storage. So if you pass ezUInt32 as the first parameter, your bitflag type will take up 4 bytes
+/// and will support up to 32 flags. You can also pass any other integer type to adjust the required
+/// storage space, if you don't need that many flags.
+///
+/// The third parameter and onwards declare the names of the flags that the type should contain.
+/// Each flag will use a different bit. If you need to define flags that are combinations of several 
+/// other flags, you need to declare the bitflag struct manually. See the ezBitflags class for more
+/// information on how to do that.
+#define EZ_DECLARE_FLAGS(InternalStorageType, BitflagsTypeName, ...)    \
+struct BitflagsTypeName    \
   {    \
     static const ezUInt32 Count = EZ_VA_NUM_ARGS(__VA_ARGS__);    \
-    typedef storage StorageType; \
+    typedef InternalStorageType StorageType; \
     enum Enum    \
     {    \
       EZ_EXPAND_ARGS_WITH_INDEX(EZ_DECLARE_FLAGS_ENUM, ##__VA_ARGS__)    \
@@ -128,18 +217,14 @@ struct name    \
     };    \
     EZ_ENUM_TO_STRING(__VA_ARGS__) \
   };    \
-  EZ_DECLARE_FLAGS_OR_OPERATOR(name)
+  EZ_DECLARE_FLAGS_OR_OPERATOR(BitflagsTypeName)
 
+/// \cond
 
-/// \todo Document
+/// Internal Do not use.
 #define EZ_DECLARE_FLAGS_ENUM(name, n)    name = EZ_BIT(n),
 
-/// \todo Document
+/// Internal Do not use.
 #define EZ_DECLARE_FLAGS_BITS(name)       StorageType name : 1;
 
-/// \todo Document
-#define EZ_DECLARE_FLAGS_OR_OPERATOR(name) \
-  inline ezBitflags<name> operator|(name::Enum lhs, name::Enum rhs)    \
-  {    \
-    return (ezBitflags<name>(lhs) | ezBitflags<name>(rhs));    \
-  }
+/// \endcond
