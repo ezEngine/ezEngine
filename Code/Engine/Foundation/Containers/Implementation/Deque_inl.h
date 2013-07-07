@@ -743,6 +743,20 @@ bool ezDequeBase<T, Construct>::Remove(const T& value)
 }
 
 template <typename T, bool Construct>
+bool ezDequeBase<T, Construct>::RemoveSwap(const T& value)
+{
+  EZ_CHECK_AT_COMPILETIME_MSG(Construct, "This function is not supported on Deques that do not construct their data.");
+
+  ezUInt32 uiIndex = IndexOf(value);
+
+  if (uiIndex == ezInvalidIndex)
+    return false;
+
+  RemoveAtSwap(uiIndex);
+  return true;
+}
+
+template <typename T, bool Construct>
 void ezDequeBase<T, Construct>::Insert(const T& value, ezUInt32 uiIndex)
 {
   EZ_CHECK_AT_COMPILETIME_MSG(Construct, "This function is not supported on Deques that do not construct their data.");

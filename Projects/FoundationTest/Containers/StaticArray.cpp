@@ -223,6 +223,25 @@ EZ_CREATE_SIMPLE_TEST(Containers, StaticArray)
       EZ_TEST_INT(a1[i], 0);
   }
 
+  EZ_TEST_BLOCK(true, "RemoveSwap")
+  {
+    ezStaticArray<ezInt32, 128> a1;
+
+    for (ezInt32 i = 0; i < 10; ++i)
+      a1.Insert(i, i); // inserts at the end
+
+    a1.RemoveSwap(9);
+    a1.RemoveSwap(7);
+    a1.RemoveSwap(5);
+    a1.RemoveSwap(3);
+    a1.RemoveSwap(1);
+
+    EZ_TEST_INT(a1.GetCount(), 5);
+
+    for (ezInt32 i = 0; i < 5; ++i)
+      EZ_TEST(ezMath::IsEven(a1[i]));
+  }
+
   EZ_TEST_BLOCK(true, "RemoveAt")
   {
     ezStaticArray<ezInt32, 128> a1;

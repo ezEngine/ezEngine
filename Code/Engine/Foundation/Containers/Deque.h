@@ -119,6 +119,9 @@ public:
   /// \brief Removes the first occurrence of value and fills the gap by shifting all following elements
   bool Remove(const T& value); // [tested]
 
+  /// \brief Removes the first occurrence of value and fills the gap with the last element in the deque.
+  bool RemoveSwap(const T& value); // [tested]
+
   /// \brief Inserts value at index by shifting all following elements. Valid insert positions are [0; GetCount].
   void Insert(const T& value, ezUInt32 uiIndex); // [tested]
 
