@@ -111,14 +111,14 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingSphere)
   EZ_TEST_BLOCK(true, "ExpandToInclude (box)")
   {
     ezBoundingSphereT s;
-    s.SetElements(ezVec3T(0, 0, 0), 1);
+    s.SetElements(ezVec3T(1, 2, 3), 1);
 
     ezBoundingBoxT b;
-    b.SetCenterAndHalfExtents(ezVec3T(0, 0, 0), ezVec3T(2.0f));
+    b.SetCenterAndHalfExtents(ezVec3T(1, 2, 3), ezVec3T(2.0f));
 
     s.ExpandToInclude(b);
 
-    EZ_TEST(s.m_vCenter == ezVec3T(0));
+    EZ_TEST(s.m_vCenter == ezVec3T(1, 2, 3));
     EZ_TEST(s.m_fRadius == ezMath::Sqrt((ezMathTestType) 12));
   }
 

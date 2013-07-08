@@ -45,7 +45,10 @@ void ezBoundingSphereTemplate<Type>::ExpandToInclude(const ezBoundingBoxTemplate
   // take the maximum distance for each axis, to compute the point that is the farthest away from the sphere
   const ezVec3 vMostDistantPoint = vDiffMinAbs.CompMax(vDiffMaxAbs);
 
-  ExpandToInclude(m_vCenter + vMostDistantPoint);
+  const Type fDistSQR = vMostDistantPoint.GetLengthSquared();
+
+  if (ezMath::Square(m_fRadius) < fDistSQR)
+    m_fRadius = ezMath::Sqrt(fDistSQR);
 }
 
 template<typename Type>
