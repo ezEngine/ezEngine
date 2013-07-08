@@ -34,7 +34,7 @@ void ezLogWriter::HTML::BeginLog (const char* szFile, const char* szAppTitle)
   }
 
   ezStringBuilder sText;
-  sText.Format("<HTML><HEAD><TITLE>Log - %s</TITLE></HEAD><BODY>", szAppTitle);
+  sText.Format("<HTML><HEAD><META HTTP-EQUIV=\"Content-Type\" content=\"text/html; charset=utf-8\"><TITLE>Log - %s</TITLE></HEAD><BODY>", szAppTitle);
 
   m_File.WriteBytes(sText.GetData(), sizeof (char) * sText.GetElementCount());
 }
