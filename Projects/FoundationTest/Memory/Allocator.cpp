@@ -35,8 +35,10 @@ struct EZ_ALIGN_16(AlignedVector)
   float w;
 };
 
-#ifdef EZ_PLATFORM_WINDOWS
-  #define SUPPORTS_MEMSIZE
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+  #define SUPPORTS_MEMSIZE EZ_ON
+#else
+  #define SUPPORTS_MEMSIZE EZ_OFF
 #endif
 
 template <typename T>
@@ -62,7 +64,7 @@ void TestAlignmentHelper(size_t uiExpectedAlignment)
   EZ_TEST(ezMemoryUtils::IsAligned(pTestBuffer, uiExpectedAlignment));
   EZ_TEST(ezMemoryUtils::IsAligned(TestArray.GetPtr(), uiExpectedAlignment));
 
-#ifdef SUPPORTS_MEMSIZE
+#if EZ_ENABLED(SUPPORTS_MEMSIZE)
   size_t uiExpectedSize = sizeof(T) * 32;
   EZ_TEST(pAllocator->AllocatedSize(pTestBuffer) == uiExpectedSize);
 
@@ -75,7 +77,7 @@ void TestAlignmentHelper(size_t uiExpectedAlignment)
   EZ_DELETE_ARRAY(pAllocator, TestArray);
   EZ_DELETE_RAW_BUFFER(pAllocator, pTestBuffer);
 
-#ifdef SUPPORTS_MEMSIZE
+#if EZ_ENABLED(SUPPORTS_MEMSIZE)
   pAllocator->GetStats(stats);
   EZ_TEST(stats.m_uiAllocationSize == 0);
   EZ_TEST(stats.m_uiNumLiveAllocations == 0);
