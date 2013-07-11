@@ -8,26 +8,18 @@
 #include <Foundation/Basics/Types/Variant.h>
 #include <Foundation/Communication/GlobalEvent.h>
 
-#if EZ_ENABLED(EZ_USE_GUARDED_ALLOCATOR)
-  typedef ezMemoryPolicies::ezGuardedBoundsChecking DefaultAllocatorGuarding;
-#else
-  typedef ezMemoryPolicies::ezNoBoundsChecking DefaultAllocatorGuarding;
-#endif
-
 #if EZ_ENABLED(EZ_USE_TRACE_ALLOCATOR)
   typedef ezMemoryPolicies::ezStackTracking DefaultAllocatorTracking;
 #else
   typedef ezMemoryPolicies::ezSimpleTracking DefaultAllocatorTracking;
 #endif
 
-typedef ezAllocator<ezMemoryPolicies::ezHeapAllocation, ezMemoryPolicies::ezNoBoundsChecking, 
-  ezMemoryPolicies::ezSimpleTracking, ezNoMutex> DebugHeapAllocator;
+typedef ezAllocator<ezMemoryPolicies::ezHeapAllocation, ezMemoryPolicies::ezSimpleTracking, ezNoMutex> DebugHeapAllocator;
 
-typedef ezAllocator<ezMemoryPolicies::ezHeapAllocation, DefaultAllocatorGuarding, 
-  DefaultAllocatorTracking, ezMutex> DefaultHeapAllocator;
+typedef ezAllocator<ezMemoryPolicies::ezHeapAllocation, DefaultAllocatorTracking, ezMutex> DefaultHeapAllocator;
 
 typedef ezAllocator<ezMemoryPolicies::ezAlignedAllocation<ezMemoryPolicies::ezHeapAllocation>, 
-  DefaultAllocatorGuarding, DefaultAllocatorTracking, ezMutex> AlignedHeapAllocator;
+  DefaultAllocatorTracking, ezMutex> AlignedHeapAllocator;
 
 enum { BUFFER_SIZE = sizeof(ezHeapAllocator) };
 static ezUInt8 g_BaseAllocatorBuffer[BUFFER_SIZE];

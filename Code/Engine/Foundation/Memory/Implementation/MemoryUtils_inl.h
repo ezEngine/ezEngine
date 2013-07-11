@@ -8,7 +8,7 @@
 
 // public methods: redirect to implementation
 template <typename T>
-void ezMemoryUtils::Construct(T* pDestination, size_t uiCount)
+EZ_FORCE_INLINE void ezMemoryUtils::Construct(T* pDestination, size_t uiCount)
 {
   // Default constructor is always called, so that debug helper initializations (e.g. ezVec3 initializes to NaN) take place. 
   // Note that destructor is ONLY called for class types.
@@ -39,26 +39,26 @@ EZ_FORCE_INLINE void ezMemoryUtils::Destruct(T* pDestination, size_t uiCount)
 }
 
 template <typename T>
-void ezMemoryUtils::Copy(T* pDestination, const T* pSource, size_t uiCount)
+EZ_FORCE_INLINE void ezMemoryUtils::Copy(T* pDestination, const T* pSource, size_t uiCount)
 {
   EZ_ASSERT_API(pDestination < pSource || pSource + uiCount <= pDestination, "Memory regions must not overlap when using Copy. Use Move instead.");
   Copy(pDestination, pSource, uiCount, ezIsPodType<T>());
 }
 
 template <typename T>
-void ezMemoryUtils::Move(T* pDestination, const T* pSource, size_t uiCount)
+EZ_FORCE_INLINE void ezMemoryUtils::Move(T* pDestination, const T* pSource, size_t uiCount)
 {
   Move(pDestination, pSource, uiCount, ezIsPodType<T>());
 }
 
 template <typename T>
-bool ezMemoryUtils::IsEqual(const T* a, const T* b, size_t uiCount /*= 1*/)
+EZ_FORCE_INLINE bool ezMemoryUtils::IsEqual(const T* a, const T* b, size_t uiCount /*= 1*/)
 {
   return IsEqual(a, b, uiCount, ezIsPodType<T>());
 }
 
 template <typename T>
-void ezMemoryUtils::ZeroFill(T* pDestination, size_t uiCount /*= 1*/)
+EZ_FORCE_INLINE void ezMemoryUtils::ZeroFill(T* pDestination, size_t uiCount /*= 1*/)
 {
   memset(pDestination, 0, uiCount * sizeof(T));
 }
@@ -99,7 +99,7 @@ EZ_FORCE_INLINE bool ezMemoryUtils::IsAligned(const T* ptr, size_t uiAlignment)
 #endif
 
 template <typename T>
-void ezMemoryUtils::Construct(T* pDestination, size_t uiCount, ezTypeIsClass)
+EZ_FORCE_INLINE void ezMemoryUtils::Construct(T* pDestination, size_t uiCount, ezTypeIsClass)
 {
   EZ_CHECK_CLASS(T);
 
@@ -110,7 +110,7 @@ void ezMemoryUtils::Construct(T* pDestination, size_t uiCount, ezTypeIsClass)
 }
 
 template <typename T>
-void ezMemoryUtils::Construct(T* pDestination, const T& copy, size_t uiCount, ezTypeIsPod)
+EZ_FORCE_INLINE void ezMemoryUtils::Construct(T* pDestination, const T& copy, size_t uiCount, ezTypeIsPod)
 {
   for (size_t i = 0; i < uiCount; i++)
   {
@@ -119,7 +119,7 @@ void ezMemoryUtils::Construct(T* pDestination, const T& copy, size_t uiCount, ez
 }
 
 template <typename T>
-void ezMemoryUtils::Construct(T* pDestination, const T& copy, size_t uiCount, ezTypeIsClass)
+EZ_FORCE_INLINE void ezMemoryUtils::Construct(T* pDestination, const T& copy, size_t uiCount, ezTypeIsClass)
 {
   EZ_CHECK_CLASS(T);
 
@@ -130,13 +130,13 @@ void ezMemoryUtils::Construct(T* pDestination, const T& copy, size_t uiCount, ez
 }
 
 template <typename T>
-void ezMemoryUtils::Construct(T* pDestination, const T* pSource, size_t uiCount, ezTypeIsPod)
+EZ_FORCE_INLINE void ezMemoryUtils::Construct(T* pDestination, const T* pSource, size_t uiCount, ezTypeIsPod)
 {
   memcpy(pDestination, pSource, uiCount * sizeof(T));
 }
 
 template <typename T>
-void ezMemoryUtils::Construct(T* pDestination, const T* pSource, size_t uiCount, ezTypeIsClass)
+EZ_FORCE_INLINE void ezMemoryUtils::Construct(T* pDestination, const T* pSource, size_t uiCount, ezTypeIsClass)
 {
   EZ_CHECK_CLASS(T);
 
@@ -153,7 +153,7 @@ EZ_FORCE_INLINE void ezMemoryUtils::Destruct(T* pDestination, size_t uiCount, ez
 }
 
 template <typename T>
-void ezMemoryUtils::Destruct(T* pDestination, size_t uiCount, ezTypeIsClass)
+EZ_FORCE_INLINE void ezMemoryUtils::Destruct(T* pDestination, size_t uiCount, ezTypeIsClass)
 {
   EZ_CHECK_CLASS(T);
 
@@ -164,13 +164,13 @@ void ezMemoryUtils::Destruct(T* pDestination, size_t uiCount, ezTypeIsClass)
 }
 
 template <typename T>
-void ezMemoryUtils::Copy(T* pDestination, const T* pSource, size_t uiCount, ezTypeIsPod)
+EZ_FORCE_INLINE void ezMemoryUtils::Copy(T* pDestination, const T* pSource, size_t uiCount, ezTypeIsPod)
 {
   memcpy(pDestination, pSource, uiCount * sizeof(T));
 }
 
 template <typename T>
-void ezMemoryUtils::Copy(T* pDestination, const T* pSource, size_t uiCount, ezTypeIsClass)
+EZ_FORCE_INLINE void ezMemoryUtils::Copy(T* pDestination, const T* pSource, size_t uiCount, ezTypeIsClass)
 {
   EZ_CHECK_CLASS(T);
 
@@ -181,13 +181,13 @@ void ezMemoryUtils::Copy(T* pDestination, const T* pSource, size_t uiCount, ezTy
 }
 
 template <typename T>
-void ezMemoryUtils::Move(T* pDestination, const T* pSource, size_t uiCount, ezTypeIsPod)
+EZ_FORCE_INLINE void ezMemoryUtils::Move(T* pDestination, const T* pSource, size_t uiCount, ezTypeIsPod)
 {
   memmove(pDestination, pSource, uiCount * sizeof(T));
 }
 
 template <typename T>
-void ezMemoryUtils::Move(T* pDestination, const T* pSource, size_t uiCount, ezTypeIsClass)
+inline void ezMemoryUtils::Move(T* pDestination, const T* pSource, size_t uiCount, ezTypeIsClass)
 {
   EZ_CHECK_CLASS(T);
 
@@ -211,13 +211,13 @@ void ezMemoryUtils::Move(T* pDestination, const T* pSource, size_t uiCount, ezTy
 }
 
 template <typename T>
-bool ezMemoryUtils::IsEqual(const T* a, const T* b, size_t uiCount, ezTypeIsPod)
+EZ_FORCE_INLINE bool ezMemoryUtils::IsEqual(const T* a, const T* b, size_t uiCount, ezTypeIsPod)
 {
   return memcmp(a, b, uiCount * sizeof(T)) == 0;
 }
 
 template <typename T>
-bool ezMemoryUtils::IsEqual(const T* a, const T* b, size_t uiCount, ezTypeIsClass)
+EZ_FORCE_INLINE bool ezMemoryUtils::IsEqual(const T* a, const T* b, size_t uiCount, ezTypeIsClass)
 {
   EZ_CHECK_CLASS(T);
 

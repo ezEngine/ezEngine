@@ -59,13 +59,13 @@
 #include <Foundation/Math/Vec4.h>
 
 #include <Foundation/Memory/Allocator.h>
+#include <Foundation/Memory/AllocatorWrapper.h>
 #include <Foundation/Memory/CommonAllocators.h>
 #include <Foundation/Memory/EndianHelper.h>
 #include <Foundation/Memory/IAllocator.h>
 #include <Foundation/Memory/MemoryUtils.h>
 #include <Foundation/Memory/Policies/AlignedAllocation.h>
 #include <Foundation/Memory/Policies/AlignedHeapAllocation.h>
-#include <Foundation/Memory/Policies/BoundsChecking.h>
 #include <Foundation/Memory/Policies/HeapAllocation.h>
 #include <Foundation/Memory/Policies/ProxyAllocation.h>
 #include <Foundation/Memory/Policies/Tracking.h>

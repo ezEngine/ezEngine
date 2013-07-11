@@ -1,14 +1,14 @@
 
-template <typename A, typename B, typename T, typename M>
-EZ_FORCE_INLINE ezAllocator<A, B, T, M>::ezAllocator(const char* szName, ezIAllocator* pParent /* = NULL */) : 
+template <typename A, typename T, typename M>
+EZ_FORCE_INLINE ezAllocator<A, T, M>::ezAllocator(const char* szName, ezIAllocator* pParent /* = NULL */) : 
   ezIAllocator(szName),
   m_allocator(pParent),
   m_threadHandle(ezThreadUtils::GetCurrentThreadHandle())
 {
 }
 
-template <typename A, typename B, typename T, typename M>
-ezAllocator<A, B, T, M>::~ezAllocator()
+template <typename A, typename T, typename M>
+ezAllocator<A, T, M>::~ezAllocator()
 {
   EZ_ASSERT_API(m_threadHandle == ezThreadUtils::GetCurrentThreadHandle(), "Allocator is deleted from another thread");
 
@@ -16,74 +16,48 @@ ezAllocator<A, B, T, M>::~ezAllocator()
   m_tracker.DumpMemoryLeaks();
 }
 
-template <typename A, typename B, typename T, typename M>
-void* ezAllocator<A, B, T, M>::Allocate(size_t uiSize, size_t uiAlign)
+template <typename A, typename T, typename M>
+void* ezAllocator<A, T, M>::Allocate(size_t uiSize, size_t uiAlign)
 {
   EZ_ASSERT_API(ezMath::IsPowerOf2((ezUInt32)uiAlign), "Alignment must be power of two");
 
   ezLock<M> lock(m_mutex);
   
-  const size_t uiGuardSizeFront = B::GuardSizeFront ? ezMath::Max<size_t>(B::GuardSizeFront, uiAlign) : 0;
-  const size_t uiGuardedSize = uiSize + uiGuardSizeFront + B::GuardSizeBack;
+  void* ptr = m_allocator.Allocate(uiSize, uiAlign);
 
-  ezUInt8* pMemory = static_cast<ezUInt8*>(m_allocator.Allocate(uiGuardedSize, uiAlign));
-
-  m_boundsChecker.GuardFront(pMemory, uiGuardSizeFront);
-  m_boundsChecker.GuardBack(pMemory + uiGuardedSize);
-
-  void* ptr = pMemory + uiGuardSizeFront;
-  m_tracker.AddAllocation(ptr, m_allocator.AllocatedSize(pMemory), m_allocator.UsedMemorySize(pMemory));
+  m_tracker.AddAllocation(ptr, m_allocator.AllocatedSize(ptr), m_allocator.UsedMemorySize(ptr));
 
   return ptr;
 }
 
-template <typename A, typename B, typename T, typename M>
-void ezAllocator<A, B, T, M>::Deallocate(void* ptr)
+template <typename A, typename T, typename M>
+void ezAllocator<A, T, M>::Deallocate(void* ptr)
 {
   ezLock<M> lock(m_mutex);
 
-  ezUInt8* ptrAsByte = static_cast<ezUInt8*>(ptr);
-  size_t uiOffset = m_boundsChecker.GetGuardOffset(ptr);
-  ezUInt8* pMemory = ptrAsByte - uiOffset;
+  m_tracker.RemoveAllocation(ptr, m_allocator.AllocatedSize(ptr), m_allocator.UsedMemorySize(ptr));
 
-  const size_t uiGuardedSize = m_allocator.AllocatedSize(pMemory);
-  const size_t uiAllocatedSize = uiGuardedSize - uiOffset - B::GuardSizeBack;
-  const size_t uiUsedMemorySize = m_allocator.UsedMemorySize(pMemory);
-  
-  EZ_IGNORE_UNUSED(uiAllocatedSize);
-
-  m_boundsChecker.CheckFront(pMemory, uiOffset);
-  m_boundsChecker.CheckBack(pMemory + uiGuardedSize);
-  
-  m_tracker.RemoveAllocation(ptr, uiGuardedSize, uiUsedMemorySize);
-
-  m_allocator.Deallocate(pMemory);
+  m_allocator.Deallocate(ptr);
 }
 
-template <typename A, typename B, typename T, typename M>
-size_t ezAllocator<A, B, T, M>::AllocatedSize(const void* ptr)
+template <typename A, typename T, typename M>
+size_t ezAllocator<A, T, M>::AllocatedSize(const void* ptr)
 {
   ezLock<M> lock(m_mutex);
 
-  const ezUInt8* pMemory = static_cast<const ezUInt8*>(ptr);
-  size_t uiOffset = m_boundsChecker.GetGuardOffset(ptr);
-
-  return m_allocator.AllocatedSize(pMemory - uiOffset) - uiOffset - B::GuardSizeBack;
+  return m_allocator.AllocatedSize(ptr);
 }
 
-template <typename A, typename B, typename T, typename M>
-size_t ezAllocator<A, B, T, M>::UsedMemorySize(const void* ptr)
+template <typename A, typename T, typename M>
+size_t ezAllocator<A, T, M>::UsedMemorySize(const void* ptr)
 {
   ezLock<M> lock(m_mutex);
 
-  const ezUInt8* pMemory = static_cast<const ezUInt8*>(ptr);
-  size_t uiOffset = m_boundsChecker.GetGuardOffset(ptr);
-
-  return m_allocator.UsedMemorySize(pMemory - uiOffset);
+  return m_allocator.UsedMemorySize(ptr);
 }
 
-template <typename A, typename B, typename T, typename M>
-void ezAllocator<A, B, T, M>::GetStats(Stats& stats) const
+template <typename A, typename T, typename M>
+void ezAllocator<A, T, M>::GetStats(Stats& stats) const
 {
   stats.m_uiNumAllocations = m_tracker.GetNumAllocations();
   stats.m_uiNumDeallocations = m_tracker.GetNumDeallocations();
@@ -92,14 +66,14 @@ void ezAllocator<A, B, T, M>::GetStats(Stats& stats) const
   stats.m_uiUsedMemorySize = m_tracker.GetUsedMemorySize();
 }
 
-template <typename A, typename B, typename T, typename M>
-EZ_FORCE_INLINE ezIAllocator* ezAllocator<A, B, T, M>::GetParent() const
+template <typename A, typename T, typename M>
+EZ_FORCE_INLINE ezIAllocator* ezAllocator<A, T, M>::GetParent() const
 {
   return m_allocator.GetParent();
 }
 
-template <typename A, typename B, typename T, typename M>
-EZ_FORCE_INLINE const T& ezAllocator<A, B, T, M>::GetTracker() const
+template <typename A, typename T, typename M>
+EZ_FORCE_INLINE const T& ezAllocator<A, T, M>::GetTracker() const
 {
   return m_tracker;
 }

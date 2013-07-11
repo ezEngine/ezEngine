@@ -35,6 +35,10 @@ struct EZ_ALIGN_16(AlignedVector)
   float w;
 };
 
+#ifdef EZ_PLATFORM_WINDOWS
+  #define SUPPORTS_MEMSIZE
+#endif
+
 template <typename T>
 void TestAlignmentHelper(size_t uiExpectedAlignment)
 {
@@ -58,6 +62,7 @@ void TestAlignmentHelper(size_t uiExpectedAlignment)
   EZ_TEST(ezMemoryUtils::IsAligned(pTestBuffer, uiExpectedAlignment));
   EZ_TEST(ezMemoryUtils::IsAligned(TestArray.GetPtr(), uiExpectedAlignment));
 
+#ifdef SUPPORTS_MEMSIZE
   size_t uiExpectedSize = sizeof(T) * 32;
   EZ_TEST(pAllocator->AllocatedSize(pTestBuffer) == uiExpectedSize);
 
@@ -65,13 +70,16 @@ void TestAlignmentHelper(size_t uiExpectedAlignment)
   pAllocator->GetStats(stats);
   EZ_TEST(stats.m_uiAllocationSize == uiExpectedSize * 2);
   EZ_TEST(stats.m_uiNumLiveAllocations == 2);
+#endif
 
   EZ_DELETE_ARRAY(pAllocator, TestArray);
   EZ_DELETE_RAW_BUFFER(pAllocator, pTestBuffer);
 
+#ifdef SUPPORTS_MEMSIZE
   pAllocator->GetStats(stats);
   EZ_TEST(stats.m_uiAllocationSize == 0);
   EZ_TEST(stats.m_uiNumLiveAllocations == 0);
+#endif
 }
 
 EZ_CREATE_SIMPLE_TEST_GROUP(Memory);
@@ -84,38 +92,9 @@ EZ_CREATE_SIMPLE_TEST(Memory, Allocator)
     TestAlignmentHelper<AlignedVector>(16);
   }
 
-  EZ_TEST_BLOCK(true, "Guards")
-  {
-    typedef ezAllocator<ezMemoryPolicies::ezHeapAllocation, ezMemoryPolicies::ezGuardedBoundsChecking,
-      ezMemoryPolicies::ezSimpleTracking, ezMutex> GuardedAllocator;
-
-    ezIAllocator* pAllocator = EZ_NEW(ezFoundation::GetBaseAllocator(), GuardedAllocator)("GuardedAllocator", NULL);
-
-    char* szTestBuffer = EZ_NEW_RAW_BUFFER(pAllocator, char, 16);
-
-    EZ_TEST(pAllocator->AllocatedSize(szTestBuffer) == 16);
-
-    /*ezIAllocator::Stats stats;
-    pAllocator->GetStats(stats);
-    EZ_TEST(stats.m_uiAllocationSize == 16);*/
-
-    strcpy(szTestBuffer, "TestTestTestTes");
-
-    // buffer overflow
-    //strcpy(szTestBuffer, "TestTestTestTest1");
-
-    // buffer underflow
-    //szTestBuffer[-1] = 'b';
-
-    EZ_DELETE_RAW_BUFFER(pAllocator, szTestBuffer);
-
-    EZ_DELETE(ezFoundation::GetBaseAllocator(), pAllocator);
-  }
-
   EZ_TEST_BLOCK(true, "Tracking")
   {
-    typedef ezAllocator<ezMemoryPolicies::ezHeapAllocation, ezMemoryPolicies::ezNoBoundsChecking,
-      ezMemoryPolicies::ezStackTracking, ezMutex> TrackingAllocator;
+    typedef ezAllocator<ezMemoryPolicies::ezHeapAllocation, ezMemoryPolicies::ezStackTracking, ezMutex> TrackingAllocator;
 
     ezIAllocator* pAllocator = EZ_NEW(ezFoundation::GetBaseAllocator(), TrackingAllocator)("TrackingAllocator", NULL);
 
@@ -184,4 +163,3 @@ EZ_CREATE_SIMPLE_TEST(Memory, Allocator)
     EZ_TEST(stats.m_uiUsedMemorySize <= 5 * 32 * 4096);
   }
 }
-
