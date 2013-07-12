@@ -9,12 +9,15 @@ inline ezPageAllocation::~ezPageAllocation()
 
 inline void* ezPageAllocation::PageAllocate(size_t uiSize)
 {
-  EZ_ASSERT_NOT_IMPLEMENTED;
+  void* pMemory = NULL;
+  
+  posix_memalign(&pMemory, sysconf(_SC_PAGESIZE), uiSize);
 
-  return NULL;
+  return pMemory;
 }
 
 inline void ezPageAllocation::PageDeallocate(void* ptr)
 {
-  EZ_ASSERT_NOT_IMPLEMENTED;
+  if(ptr != NULL)
+    free(ptr);
 }
