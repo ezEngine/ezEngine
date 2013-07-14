@@ -16,6 +16,7 @@ if (EZ_ENABLE_QT_SUPPORT AND EZ_QTPROJECT)
   # Add user defined headers to the list
   if (EZ_MOC_HEADERS)
     set(MOC_HEADERS ${MOC_HEADERS} ${EZ_MOC_HEADERS})
+    set(EZ_MOC_HEADERS false)
   endif()
 endif ()
 
