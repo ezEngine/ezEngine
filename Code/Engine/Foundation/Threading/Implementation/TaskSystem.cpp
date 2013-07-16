@@ -40,12 +40,12 @@ EZ_END_SUBSYSTEM_DECLARATION
 
 void ezTaskSystem::Startup()
 {
-  s_ProfileWaitForTask = ezProfilingId("WaitForTask");
-  s_ProfileWaitForGroup = ezProfilingId("WaitForGroup");
-  s_ProfileCancelTask = ezProfilingId("CancelTask");
-  s_ProfileCancelGroup = ezProfilingId("CancelGroup");
-  s_ProfileMainThreadTasks = ezProfilingId("MainThreadTasks");
-  s_ProfileSomeFrameTasks = ezProfilingId("MainThreadTasks2");
+  s_ProfileWaitForTask = ezProfilingSystem::CreateId("WaitForTask");
+  s_ProfileWaitForGroup = ezProfilingSystem::CreateId("WaitForGroup");
+  s_ProfileCancelTask = ezProfilingSystem::CreateId("CancelTask");
+  s_ProfileCancelGroup = ezProfilingSystem::CreateId("CancelGroup");
+  s_ProfileMainThreadTasks = ezProfilingSystem::CreateId("MainThreadTasks");
+  s_ProfileSomeFrameTasks = ezProfilingSystem::CreateId("MainThreadTasks2");
 }
 
 void ezTaskSystem::Shutdown()

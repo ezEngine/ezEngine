@@ -57,8 +57,9 @@ public:
   /// \brief Iterator with write access.
   class Iterator : public ConstIterator
   {
+  public:
     /// \brief Returns the 'value' of the element that this iterator points to.
-    ValueType& Value();
+    ValueType& Value(); // [tested]
 
   private:
     friend class ezHashTableBase<KeyType, ValueType, Hasher>;

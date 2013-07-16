@@ -7,7 +7,7 @@ namespace
   volatile ezInt32 g_iCrossThreadVariable = 0;
   const ezUInt32 g_uiIncrementSteps = 160000;
 
-  ezProfilingId g_TestThreadProfilingId("Test Thread::Run");
+  ezProfilingId g_TestThreadProfilingId = ezProfilingSystem::CreateId("Test Thread::Run");
 
   class TestThread : public ezThread
   {

@@ -1,6 +1,6 @@
 #include <Foundation/PCH.h>
 #include <Foundation/Configuration/Startup.h>
-#include <Foundation/Containers/DynamicArray.h>
+#include <Foundation/Containers/IdTable.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Threading/Lock.h>
 #include <Foundation/Threading/Mutex.h>
@@ -26,7 +26,7 @@ EZ_END_SUBSYSTEM_DECLARATION
 namespace
 {
   struct ProfilingInfo;
-  ProfilingInfo& GetProfilingInfo(ezId24 id);
+  ProfilingInfo& GetProfilingInfo(ezProfilingId::InternalId id);
 }
 
 // Include inline file
@@ -38,14 +38,14 @@ namespace
 
 namespace
 {
-  typedef ezDynamicArray<ProfilingInfo, ezStaticAllocatorWrapper> ProfilingInfoTable;
+  typedef ezIdTable<ezProfilingId::InternalId, ProfilingInfo, ezStaticAllocatorWrapper> ProfilingInfoTable;
 
   ProfilingInfoTable* g_pProfilingInfos;
   ezMutex g_ProfilingInfosMutex;
 
-  ProfilingInfo& GetProfilingInfo(ezId24 id)
+  ProfilingInfo& GetProfilingInfo(ezProfilingId::InternalId id)
   {
-    return (*g_pProfilingInfos)[id.GetIndex()];
+    return (*g_pProfilingInfos)[id];
   }
 }
 
@@ -58,7 +58,7 @@ void ezProfilingSystem::Shutdown()
 {
 }
 
-ezId24 ezProfilingSystem::RegisterId(const char* szName)
+ezProfilingId ezProfilingSystem::CreateId(const char* szName)
 {
   ezLock<ezMutex> lock(g_ProfilingInfosMutex);
 
@@ -68,14 +68,14 @@ ezId24 ezProfilingSystem::RegisterId(const char* szName)
     g_pProfilingInfos = new (ProfilingInfosBuffer) ProfilingInfoTable();
   }
 
-  g_pProfilingInfos->PushBack(ProfilingInfo(szName));
-  return ezId24(g_pProfilingInfos->GetCount() - 1, 0);
+  return ezProfilingId(g_pProfilingInfos->Insert(ProfilingInfo(szName)));
 }
 
-/// \todo: implementation
-void ezProfilingSystem::DeregisterId(ezId24 id)
+void ezProfilingSystem::DeleteId(const ezProfilingId& id)
 {
-  
+  ezLock<ezMutex> lock(g_ProfilingInfosMutex);
+
+  g_pProfilingInfos->Remove(id.m_Id);
 }
 
 #endif

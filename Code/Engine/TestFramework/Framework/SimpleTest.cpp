@@ -9,7 +9,7 @@ void ezSimpleTestGroup::AddSimpleTest(const char* szName, SimpleTestFunc TestFun
   SimpleTestEntry e;
   e.m_szName = szName;
   e.m_Func = TestFunc;
-  e.m_ProfilingId = ezProfilingId(szName);
+  e.m_ProfilingId = ezProfilingSystem::CreateId(szName);
 
   for (ezUInt32 i = 0; i < m_SimpleTests.size(); ++i)
   {

@@ -25,6 +25,7 @@
 #include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/Containers/HashTable.h>
 #include <Foundation/Containers/HybridArray.h>
+#include <Foundation/Containers/IdTable.h>
 #include <Foundation/Containers/List.h>
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Containers/Set.h>

@@ -60,7 +60,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, HashTable)
     EZ_TEST_INT(counter, 0);
   }
 
-  EZ_TEST_BLOCK(true, "Copy Constructor/Assignment")
+  EZ_TEST_BLOCK(true, "Copy Constructor/Assignment/Iterator")
   {
     ezHashTable<ezInt32, st> table1;
 
@@ -88,6 +88,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, HashTable)
     EZ_TEST_INT(table2.GetCount(), 65);
     EZ_TEST_INT(table3.GetCount(), 65);
 
+    ezUInt32 uiCounter = 0;
     for (ezHashTable<ezInt32, st>::ConstIterator it = table1.GetIterator(); it.IsValid(); ++it)
     {
       ezConstructionCounter value;
@@ -97,6 +98,23 @@ EZ_CREATE_SIMPLE_TEST(Containers, HashTable)
 
       EZ_TEST(table3.TryGetValue(it.Key(), value));
       EZ_TEST(it.Value() == value);
+
+      ++uiCounter;
+    }
+    EZ_TEST_INT(uiCounter, table1.GetCount());
+
+    for (ezHashTable<ezInt32, st>::Iterator it = table1.GetIterator(); it.IsValid(); ++it)
+    {
+      it.Value() = st(42);
+    }
+
+    for (ezHashTable<ezInt32, st>::ConstIterator it = table1.GetIterator(); it.IsValid(); ++it)
+    {
+      ezConstructionCounter value;
+
+      EZ_TEST(table1.TryGetValue(it.Key(), value));
+      EZ_TEST(it.Value() == value);
+      EZ_TEST(value.m_iData == 42);
     }
   }
 

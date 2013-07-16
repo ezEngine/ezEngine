@@ -1,17 +1,9 @@
 ;-----------------------------------EZ Engine----------------------------------
 
-ezInstanceId<*,*>{
+ezGenericId<*,*>{
 	preview(
 		#(
-			"{InstanceIndex=", $c.m_instanceIndex, " Generation=", $c.m_generation, "}"
-		)
-	)
-}
-
-ezGlobalInstanceId<*,*,*>{
-	preview(
-		#(
-			"{InstanceIndex=", $c.m_instanceIndex, " Generation=", $c.m_generation, " SystemIndex=", $c.m_systemIndex, "}"
+			"{InstanceIndex=", $c.m_InstanceIndex, " Generation=", $c.m_Generation, "}"
 		)
 	)
 }

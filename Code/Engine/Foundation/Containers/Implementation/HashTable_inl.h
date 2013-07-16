@@ -49,13 +49,15 @@ EZ_FORCE_INLINE const V& ezHashTableBase<K, V, H>::ConstIterator::Value() const
 template <typename K, typename V, typename H>
 void ezHashTableBase<K, V, H>::ConstIterator::Next()
 {
+  ++m_uiCurrentCount;
+  if (m_uiCurrentCount == m_hashTable.m_uiCount)
+    return;
+
   do
   {
     ++m_uiCurrentIndex;
   }
   while (!m_hashTable.IsValidEntry(m_uiCurrentIndex));
-
-  ++m_uiCurrentCount;
 }
 
 template <typename K, typename V, typename H>
@@ -422,9 +424,11 @@ void ezHashTableBase<K, V, H>::MarkEntryAsValid(ezUInt32 uiEntryIndex)
 #if EZ_ENABLED(EZ_HASHTABLE_USE_BITFLAGS)
   const ezUInt32 uiIndex = uiEntryIndex / 16;
   const ezUInt32 uiSubIndex = (uiEntryIndex & 15) * 2;
+  EZ_ASSERT(uiIndex < GetFlagsCapacity(), "Out of bounds access");
   m_pEntryFlags[uiIndex] |= (VALID_ENTRY << uiSubIndex);
   m_pEntryFlags[uiIndex] &= ~(DELETED_ENTRY << uiSubIndex);
 #else
+  EZ_ASSERT(uiEntryIndex < GetFlagsCapacity(), "Out of bounds access");
   m_pEntryFlags[uiEntryIndex] = VALID_ENTRY;
 #endif
 }
@@ -435,9 +439,11 @@ void ezHashTableBase<K, V, H>::MarkEntryAsDeleted(ezUInt32 uiEntryIndex)
 #if EZ_ENABLED(EZ_HASHTABLE_USE_BITFLAGS)
   const ezUInt32 uiIndex = uiEntryIndex / 16;
   const ezUInt32 uiSubIndex = (uiEntryIndex & 15) * 2;
+  EZ_ASSERT(uiIndex < GetFlagsCapacity(), "Out of bounds access");
   m_pEntryFlags[uiIndex] |= (DELETED_ENTRY << uiSubIndex);
   m_pEntryFlags[uiIndex] &= ~(VALID_ENTRY << uiSubIndex);
 #else
+  EZ_ASSERT(uiEntryIndex < GetFlagsCapacity(), "Out of bounds access");
   m_pEntryFlags[uiEntryIndex] = DELETED_ENTRY;
 #endif
 }

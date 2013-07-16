@@ -53,7 +53,7 @@ const ezProfilingId& ezTask::GetProfilingID()
   if (!m_bProfilingIDGenerated)
   {
     m_bProfilingIDGenerated = true;
-    m_ProfilingID = ezProfilingId(m_sTaskName.GetData());
+    m_ProfilingID = ezProfilingSystem::CreateId(m_sTaskName.GetData());
   }
 
   return m_ProfilingID;
