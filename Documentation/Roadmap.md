@@ -3,7 +3,6 @@ ezEngine Roadmap {#EngineRoadmap}
 
 This is a list of our planned features for the foreseeable future.
 
-  * OSX Port (Marc)
   * Binary Search Algorithm
   * Time: Stopwatch
   * Variant Type
@@ -15,7 +14,6 @@ This is a list of our planned features for the foreseeable future.
   * Game Timer (fixed time step, frame time smoothing)
   * Optimize container regarding construction/destruction, unnecessary operations (ask Clemens for more info)
   * StringId using hashed string
-  * Id / Id Mapping Table
   * RTTI
   * Text Streams
   * Type-safe printf

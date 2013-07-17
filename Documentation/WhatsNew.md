@@ -9,6 +9,7 @@ Milestone 2
   * Added GPA integration for profiling
   * Added Reloadable global variables for plugins
   * Added Bitfield Container
+  * Added generic Id class and Id mapping table
   * Added Stack Tracing for better memory leak detection
   * Added Mac Port (mostly)
   * Added Application Entry Point abstraction (main / WinMain)
