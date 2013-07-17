@@ -38,7 +38,20 @@ namespace
 
 namespace
 {
-  typedef ezIdTable<ezProfilingId::InternalId, ProfilingInfo, ezStaticAllocatorWrapper> ProfilingInfoTable;
+  struct RefCountedProfilingInfo : public ProfilingInfo
+  {
+    EZ_DECLARE_POD_TYPE();
+
+    RefCountedProfilingInfo(const char* szName) : ProfilingInfo(szName)
+    {
+      m_uiRefCount = 1;
+    }
+
+    ezAtomicInteger32 m_uiRefCount;
+  };
+
+  typedef ezIdTable<ezProfilingId::InternalId, RefCountedProfilingInfo, 
+    ezStaticAllocatorWrapper> ProfilingInfoTable;
 
   ProfilingInfoTable* g_pProfilingInfos;
   ezMutex g_ProfilingInfosMutex;
@@ -49,15 +62,18 @@ namespace
   }
 }
 
+//static
 void ezProfilingSystem::Initialize()
 {
   SetThreadName("Main Thread");
 }
 
+//static
 void ezProfilingSystem::Shutdown()
 {
 }
 
+//static
 ezProfilingId ezProfilingSystem::CreateId(const char* szName)
 {
   ezLock<ezMutex> lock(g_ProfilingInfosMutex);
@@ -66,16 +82,62 @@ ezProfilingId ezProfilingSystem::CreateId(const char* szName)
   {
     static ezUInt8 ProfilingInfosBuffer[sizeof(ProfilingInfoTable)];
     g_pProfilingInfos = new (ProfilingInfosBuffer) ProfilingInfoTable();
+    g_pProfilingInfos->Reserve(EZ_PROFILING_ID_COUNT);
   }
 
-  return ezProfilingId(g_pProfilingInfos->Insert(ProfilingInfo(szName)));
+  EZ_ASSERT(g_pProfilingInfos->GetCount() < EZ_PROFILING_ID_COUNT,
+    "Max profiling id count (%d) reached. Increase EZ_PROFILING_ID_COUNT.", EZ_PROFILING_ID_COUNT);
+  return ezProfilingId(g_pProfilingInfos->Insert(RefCountedProfilingInfo(szName)));
 }
 
+//static
 void ezProfilingSystem::DeleteId(const ezProfilingId& id)
 {
   ezLock<ezMutex> lock(g_ProfilingInfosMutex);
 
   g_pProfilingInfos->Remove(id.m_Id);
+}
+
+//static
+void ezProfilingSystem::AddReference(const ezProfilingId& id)
+{
+  RefCountedProfilingInfo* pInfo;
+  if (g_pProfilingInfos->TryGetValue(id.m_Id, pInfo))
+  {
+    pInfo->m_uiRefCount.Increment();
+  }
+}
+
+//static
+void ezProfilingSystem::ReleaseReference(const ezProfilingId& id)
+{
+  RefCountedProfilingInfo* pInfo;
+  if (g_pProfilingInfos->TryGetValue(id.m_Id, pInfo))
+  {
+    if (pInfo->m_uiRefCount.Decrement() == 0)
+    {
+      ezLock<ezMutex> lock(g_ProfilingInfosMutex);
+      g_pProfilingInfos->Remove(id.m_Id);
+    }
+  }
+}
+
+#else
+
+//static
+ezProfilingId ezProfilingSystem::CreateId(const char* szName)
+{
+  return ezProfilingId();
+}
+
+//static
+void ezProfilingSystem::DeleteId(const ezProfilingId& id)
+{
+}
+
+//static
+void ezProfilingSystem::SetThreadName(const char* szThreadName)
+{
 }
 
 #endif
