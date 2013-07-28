@@ -18,8 +18,8 @@ public:
     EZ_CHECK_AT_COMPILETIME_MSG(sizeof(Method) <= sizeof(m_Data), "Member function pointer must not be bigger than 16 bytes");
     EZ_ASSERT(ezMemoryUtils::IsAligned(&m_Data, EZ_ALIGNMENT_OF(Method)), "Wrong alignment. Expected %d bytes alignment", EZ_ALIGNMENT_OF(Method));
 
-    memcpy(m_Data, &method, sizeof(Method));
-    memset(m_Data + sizeof(Method), 0, sizeof(m_Data) - sizeof(Method));
+    memcpy(&m_Data, &method, sizeof(Method));
+    memset(&m_Data + sizeof(Method), 0, sizeof(m_Data) - sizeof(Method));
     m_pInstance.m_Ptr = pInstance;
     m_pDispatchFunction = &DispatchToMethod<Method, Class>;
   }
@@ -30,8 +30,8 @@ public:
     EZ_CHECK_AT_COMPILETIME_MSG(sizeof(Method) <= sizeof(m_Data), "Member function pointer must not be bigger than 16 bytes");
     EZ_ASSERT(ezMemoryUtils::IsAligned(&m_Data, EZ_ALIGNMENT_OF(Method)), "Wrong alignment. Expected %d bytes alignment", EZ_ALIGNMENT_OF(Method));
 
-    memcpy(m_Data, &method, sizeof(Method));
-    memset(m_Data + sizeof(Method), 0, sizeof(m_Data) - sizeof(Method));
+    memcpy(&m_Data, &method, sizeof(Method));
+    memset(&m_Data + sizeof(Method), 0, sizeof(m_Data) - sizeof(Method));
     m_pInstance.m_ConstPtr = pInstance;
     m_pDispatchFunction = &DispatchToConstMethod<Method, Class>;
   }
@@ -41,22 +41,44 @@ public:
   {
     EZ_ASSERT(ezMemoryUtils::IsAligned(&m_Data, EZ_ALIGNMENT_OF(Function)), "Wrong alignment. Expected %d bytes alignment", EZ_ALIGNMENT_OF(Function));
 
-    memcpy(m_Data, &function, sizeof(Function));
-    memset(m_Data + sizeof(Function), 0, sizeof(m_Data) - sizeof(Function));
+    memcpy(&m_Data, &function, sizeof(Function));
+    memset(&m_Data + sizeof(Function), 0, sizeof(m_Data) - sizeof(Function));
     m_pDispatchFunction = &DispatchToFunction<Function>;
   }
 
-  EZ_FORCE_INLINE void operator=(const ezDelegate& other)
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+  EZ_FORCE_INLINE ~ezDelegate()
+  {
+    m_pDispatchFunction = NULL;
+  }
+#endif
+
+  EZ_FORCE_INLINE void operator=(const SelfType& other)
   {
     m_pInstance = other.m_pInstance;
     m_pDispatchFunction = other.m_pDispatchFunction;
-    memcpy(m_Data, other.m_Data, sizeof(m_Data));
+    memcpy(&m_Data, &other.m_Data, sizeof(m_Data));
   }
 
   EZ_FORCE_INLINE R operator()(EZ_PAIR_LIST(ARG, arg, ARG_COUNT))
   {
     EZ_ASSERT(m_pDispatchFunction != NULL, "Delegate is not bound.");
     return (*m_pDispatchFunction)(*this EZ_COMMA_IF(ARG_COUNT) EZ_LIST(arg, ARG_COUNT));
+  }
+
+  EZ_FORCE_INLINE bool operator==(const SelfType& other) const
+  {
+    return memcmp(&m_Data, &other.m_Data, sizeof(m_Data)) == 0 && m_pInstance.m_Ptr == other.m_pInstance.m_Ptr;
+  }
+
+  EZ_FORCE_INLINE bool operator!=(const SelfType& other) const
+  {
+    return !(*this == other);
+  }
+
+  EZ_FORCE_INLINE void* GetInstance() const
+  {
+    return m_pInstance.m_Ptr;
   }
 
 private:
@@ -86,5 +108,8 @@ private:
   typedef R (*DispatchFunction)(SelfType& self EZ_COMMA_IF(ARG_COUNT) EZ_LIST(ARG, ARG_COUNT));
   DispatchFunction m_pDispatchFunction;
 
-  ezUInt8 m_Data[16];
+  struct
+  {
+    ezUInt32 m_uiData[4];
+  } m_Data;
 };

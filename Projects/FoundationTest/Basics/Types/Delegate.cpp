@@ -12,7 +12,7 @@ namespace
 
     ezInt32 ConstMethod(ezInt32 b) const
     {
-      return b + m_iA;
+      return b + m_iA + 4;
     }
 
     virtual ezInt32 VirtualMethod(ezInt32 b)
@@ -69,7 +69,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, Delegate)
     constTest.m_iA = 35;
 
     d = TestDelegate(&TestType::ConstMethod, &constTest);
-    EZ_TEST_INT(d(4), 39);
+    EZ_TEST_INT(d(4), 43);
   }
 
   EZ_TEST_BLOCK(true, "Virtual Method")

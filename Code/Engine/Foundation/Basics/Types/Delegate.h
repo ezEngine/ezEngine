@@ -20,6 +20,7 @@ protected:
   InstancePtr m_pInstance;
 };
 
+/// \brief A generic delegate class which supports static functions and member functions.
 template <typename T>
 class ezDelegate : public ezDelegateBase
 {

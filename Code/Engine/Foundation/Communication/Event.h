@@ -6,7 +6,7 @@
 ///
 /// An event can be anything that "happens" that might be of interest for other code, such
 /// that it can react on it in some way.
-/// Just create an instance of ezEvent and call "Broadcast" on it. Other intersted code needs access to
+/// Just create an instance of ezEvent and call "Broadcast" on it. Other interested code needs access to
 /// the variable (or at least to AddEventHandler / RemoveEventHandler) such that it can
 /// register itself as an interested party. To pass information to the handlers, create your own
 /// custom struct to package that information and then pass a pointer to that data through Broadcast.

@@ -9,6 +9,7 @@
 template <typename T>
 struct ezDataBlock
 {
+public:
   EZ_DECLARE_POD_TYPE();
 
   enum 
@@ -17,8 +18,31 @@ struct ezDataBlock
     CAPACITY = SIZE_IN_BYTES / sizeof(T) 
   };
 
+  EZ_FORCE_INLINE ezDataBlock(T* pData, ezUInt32 uiCount)
+  {
+    m_pData = pData;
+    m_uiCount = uiCount;
+  }
+
+  EZ_FORCE_INLINE T* ReserveBack()
+  {
+    EZ_ASSERT(m_uiCount < CAPACITY, "Block is full.");
+    return m_pData + m_uiCount++;
+  }
+
+  EZ_FORCE_INLINE bool IsFull() const
+  {
+    return m_uiCount == CAPACITY;
+  }
+
+  EZ_FORCE_INLINE T& operator[](ezUInt32 uiIndex) const
+  {
+    EZ_ASSERT(uiIndex < m_uiCount, "Out of bounds access. Data block has %i elements, trying to access element at index %i.", m_uiCount, uiIndex);
+    return m_pData[uiIndex];
+  }
+
   T* m_pData;
-  ezUInt32 m_uiCount;  
+  ezUInt32 m_uiCount;
 };
 
 /// \brief A block allocator which can only allocates 4k blocks of memory at once.
@@ -31,9 +55,7 @@ public:
   template <typename T>
   ezDataBlock<T> AllocateBlock()
   {
-    ezDataBlock<T> block;
-    block.m_pData = static_cast<T*>(Allocate(ezDataBlock<T>::SIZE_IN_BYTES, EZ_ALIGNMENT_OF(T)));
-    block.m_uiCount = 0;
+    ezDataBlock<T> block(static_cast<T*>(Allocate(ezDataBlock<T>::SIZE_IN_BYTES, EZ_ALIGNMENT_OF(T))), 0);
     return block;
   }
 

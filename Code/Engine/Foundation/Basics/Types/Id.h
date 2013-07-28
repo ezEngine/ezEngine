@@ -1,5 +1,7 @@
 #pragma once
 
+/// \file
+
 #include <Foundation/Basics.h>
 
 /// \brief Declares an id type, see generic id below how to use this
@@ -38,3 +40,11 @@ struct ezGenericId
     };
   };
 };
+
+#define EZ_DECLARE_HANDLE_TYPE(name, IdType) \
+  public: \
+    EZ_DECLARE_POD_TYPE(); \
+    EZ_FORCE_INLINE name() { } \
+  protected: \
+    EZ_FORCE_INLINE name(IdType internalId) : m_InternalId(internalId) { } \
+    IdType m_InternalId;

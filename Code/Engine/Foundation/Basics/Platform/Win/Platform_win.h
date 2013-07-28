@@ -37,6 +37,7 @@
 #undef DeleteFile
 #undef CreateDirectory
 #undef CopyFile
+#undef SendMessage
 
 typedef DWORD ezThreadId;
 

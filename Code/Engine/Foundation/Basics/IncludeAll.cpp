@@ -14,6 +14,7 @@
 
 #include <Foundation/Communication/Event.h>
 #include <Foundation/Communication/GlobalEvent.h>
+#include <Foundation/Communication/Message.h>
 
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Configuration/StaticSubSystem.h>
@@ -62,6 +63,7 @@
 
 #include <Foundation/Memory/Allocator.h>
 #include <Foundation/Memory/AllocatorWrapper.h>
+#include <Foundation/Memory/BlockStorage.h>
 #include <Foundation/Memory/CommonAllocators.h>
 #include <Foundation/Memory/EndianHelper.h>
 #include <Foundation/Memory/IAllocator.h>
