@@ -1,5 +1,7 @@
 #pragma once
 
+/// \file
+
 #include <Foundation/Basics.h>
 
 /// \brief Base class to add the ability to another class to enumerate all active instance of it, across DLL boundaries.
@@ -69,6 +71,7 @@ protected:
   ezEnumerable* m_pNextInstance;
 };
 
+/// \todo Document
 #define EZ_DECLARE_ENUMERABLE_CLASS(self) \
   private: \
     friend class ezEnumerable<self>; \
@@ -80,6 +83,7 @@ protected:
     self* GetNextInstance() { return (self*) m_pNextInstance; } \
   private:
 
+/// \todo Document
 #define EZ_ENUMERABLE_CLASS_IMPLEMENTATION(self) \
   ezEnumerable<self>* self::s_pFirstInstance = NULL; \
   ezEnumerable<self>* self::s_pLastInstance = NULL; \
