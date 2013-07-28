@@ -9,6 +9,7 @@
 #include <Foundation/Basics/Types.h>
 #include <Foundation/Basics/TypeTraits.h>
 #include <Foundation/Basics/Types/Bitflags.h>
+#include <Foundation/Basics/Types/Delegate.h>
 #include <Foundation/Basics/Types/Id.h>
 
 #include <Foundation/Communication/Event.h>

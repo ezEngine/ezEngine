@@ -13,10 +13,10 @@
 #define EZ_STRINGIZE_HELPER(x) #x
 
 /// \brief Max value of two compile-time constant expression.
-#define EZ_COMPILE_TIME_MAX(a, b) (a) > (b) ? (a) : (b)
+#define EZ_COMPILE_TIME_MAX(a, b) ((a) > (b) ? (a) : (b))
 
 /// \brief Min value of two compile-time constant expression.
-#define EZ_COMPILE_TIME_MIN(a, b) (a) < (b) ? (a) : (b)
+#define EZ_COMPILE_TIME_MIN(a, b) ((a) < (b) ? (a) : (b))
 
 
 /// \brief Creates a bit mask with only the n-th Bit set. Useful when creating enum values for flags.
