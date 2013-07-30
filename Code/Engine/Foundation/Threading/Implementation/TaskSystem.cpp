@@ -1,6 +1,6 @@
 #include <Foundation/PCH.h>
-#include <Foundation/Threading/TaskSystem.h>
 #include <Foundation/Threading/Lock.h>
+#include <Foundation/Threading/TaskSystem.h>
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Math/Math.h>
 #include <Foundation/Time/Time.h>

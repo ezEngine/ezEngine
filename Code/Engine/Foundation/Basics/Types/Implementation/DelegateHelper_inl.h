@@ -15,11 +15,11 @@ public:
   template <typename Method, typename Class>
   EZ_FORCE_INLINE ezDelegate(Method method, Class* pInstance)
   {
-    EZ_CHECK_AT_COMPILETIME_MSG(sizeof(Method) <= sizeof(m_Data), "Member function pointer must not be bigger than 16 bytes");
+    EZ_CHECK_AT_COMPILETIME_MSG(sizeof(Method) <= DATA_SIZE, "Member function pointer must not be bigger than 16 bytes");
     EZ_ASSERT(ezMemoryUtils::IsAligned(&m_Data, EZ_ALIGNMENT_OF(Method)), "Wrong alignment. Expected %d bytes alignment", EZ_ALIGNMENT_OF(Method));
 
-    memcpy(&m_Data, &method, sizeof(Method));
-    memset(&m_Data + sizeof(Method), 0, sizeof(m_Data) - sizeof(Method));
+    memcpy(m_Data, &method, sizeof(Method));
+    memset(m_Data + sizeof(Method), 0, DATA_SIZE - sizeof(Method));
     m_pInstance.m_Ptr = pInstance;
     m_pDispatchFunction = &DispatchToMethod<Method, Class>;
   }
@@ -27,11 +27,11 @@ public:
   template <typename Method, typename Class>
   EZ_FORCE_INLINE ezDelegate(Method method, const Class* pInstance)
   {
-    EZ_CHECK_AT_COMPILETIME_MSG(sizeof(Method) <= sizeof(m_Data), "Member function pointer must not be bigger than 16 bytes");
+    EZ_CHECK_AT_COMPILETIME_MSG(sizeof(Method) <= DATA_SIZE, "Member function pointer must not be bigger than 16 bytes");
     EZ_ASSERT(ezMemoryUtils::IsAligned(&m_Data, EZ_ALIGNMENT_OF(Method)), "Wrong alignment. Expected %d bytes alignment", EZ_ALIGNMENT_OF(Method));
 
-    memcpy(&m_Data, &method, sizeof(Method));
-    memset(&m_Data + sizeof(Method), 0, sizeof(m_Data) - sizeof(Method));
+    memcpy(m_Data, &method, sizeof(Method));
+    memset(m_Data + sizeof(Method), 0, DATA_SIZE - sizeof(Method));
     m_pInstance.m_ConstPtr = pInstance;
     m_pDispatchFunction = &DispatchToConstMethod<Method, Class>;
   }
@@ -41,8 +41,8 @@ public:
   {
     EZ_ASSERT(ezMemoryUtils::IsAligned(&m_Data, EZ_ALIGNMENT_OF(Function)), "Wrong alignment. Expected %d bytes alignment", EZ_ALIGNMENT_OF(Function));
 
-    memcpy(&m_Data, &function, sizeof(Function));
-    memset(&m_Data + sizeof(Function), 0, sizeof(m_Data) - sizeof(Function));
+    memcpy(m_Data, &function, sizeof(Function));
+    memset(m_Data + sizeof(Function), 0, DATA_SIZE - sizeof(Function));
     m_pDispatchFunction = &DispatchToFunction<Function>;
   }
 
@@ -57,7 +57,7 @@ public:
   {
     m_pInstance = other.m_pInstance;
     m_pDispatchFunction = other.m_pDispatchFunction;
-    memcpy(&m_Data, &other.m_Data, sizeof(m_Data));
+    memcpy(m_Data, other.m_Data, DATA_SIZE);
   }
 
   EZ_FORCE_INLINE R operator()(EZ_PAIR_LIST(ARG, arg, ARG_COUNT))
@@ -68,7 +68,7 @@ public:
 
   EZ_FORCE_INLINE bool operator==(const SelfType& other) const
   {
-    return memcmp(&m_Data, &other.m_Data, sizeof(m_Data)) == 0 && m_pInstance.m_Ptr == other.m_pInstance.m_Ptr;
+    return memcmp(m_Data, other.m_Data, DATA_SIZE) == 0 && m_pInstance.m_Ptr == other.m_pInstance.m_Ptr;
   }
 
   EZ_FORCE_INLINE bool operator!=(const SelfType& other) const
@@ -108,8 +108,6 @@ private:
   typedef R (*DispatchFunction)(SelfType& self EZ_COMMA_IF(ARG_COUNT) EZ_LIST(ARG, ARG_COUNT));
   DispatchFunction m_pDispatchFunction;
 
-  struct
-  {
-    ezUInt32 m_uiData[4];
-  } m_Data;
+  enum { DATA_SIZE = 16 };
+  ezUInt8 m_Data[DATA_SIZE];
 };

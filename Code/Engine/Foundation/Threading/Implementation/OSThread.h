@@ -2,6 +2,8 @@
 
 #include <Foundation/Basics.h>
 
+#include <Foundation/Threading/Implementation/ThreadingDeclarations.h>
+
 /// \brief Implementation of a thread.
 ///
 /// Since the thread class needs a platform specific entrypoint it is usually

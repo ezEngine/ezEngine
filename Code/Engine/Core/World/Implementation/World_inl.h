@@ -79,7 +79,7 @@ EZ_FORCE_INLINE ManagerType* ezWorld::GetComponentManager() const
   return NULL;
 }
 
-EZ_FORCE_INLINE bool ezWorld::IsValidComponent(const ezComponentHandle& component) const
+inline bool ezWorld::IsValidComponent(const ezComponentHandle& component) const
 {
   EZ_ASSERT_NOT_IMPLEMENTED;
   return false;

@@ -57,6 +57,14 @@ ezResult ezGameObject::RemoveComponent(const ezComponentHandle& component)
 
 void ezGameObject::OnMessage(ezMessage& msg, MsgRouting::Enum routing)
 {
+  for (ezUInt32 i = 0; i < m_Components.GetCount(); ++i)
+  {
+    if (ezComponent* pComponent = m_pWorld->GetComponent(m_Components[i]))
+    {
+      pComponent->OnMessage(msg);
+    }
+  }
+
   if ((routing & MsgRouting::ToParent) != 0)
   {
     if (ezGameObject* pParent = m_pWorld->GetObject(m_Parent))
@@ -69,14 +77,6 @@ void ezGameObject::OnMessage(ezMessage& msg, MsgRouting::Enum routing)
     for (ChildIterator it = GetChildren(); it.IsValid(); ++it)
     {
       it->OnMessage(msg, routing);
-    }
-
-    for (ezUInt32 i = 0; i < m_Components.GetCount(); ++i)
-    {
-      if (ezComponent* pComponent = m_pWorld->GetComponent(m_Components[i]))
-      {
-        pComponent->OnMessage(msg);
-      }
     }
   }
 }

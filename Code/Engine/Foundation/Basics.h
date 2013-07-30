@@ -44,14 +44,11 @@
 #if EZ_ENABLED(EZ_COMPILE_ENGINE_AS_DLL)
   #ifdef BUILDSYSTEM_BUILDING_FOUNDATION_LIB
     #define EZ_FOUNDATION_DLL __declspec(dllexport)
-    #define EZ_FOUNDATION_TEMPLATE
   #else
     #define EZ_FOUNDATION_DLL __declspec(dllimport)
-    #define EZ_FOUNDATION_TEMPLATE extern
   #endif
 #else
   #define EZ_FOUNDATION_DLL
-  #define EZ_FOUNDATION_TEMPLATE
 #endif
 
 // Finally include the rest of basics

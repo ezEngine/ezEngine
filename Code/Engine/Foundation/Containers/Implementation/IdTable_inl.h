@@ -323,7 +323,7 @@ bool ezIdTableBase<IdType, ValueType>::IsFreelistValid() const
 template <typename IdType, typename ValueType>
 void ezIdTableBase<IdType, ValueType>::SetCapacity(IndexType uiCapacity)
 {
-  Entry* pNewEntries = EZ_NEW_RAW_BUFFER(m_pAllocator, Entry, uiCapacity);
+  Entry* pNewEntries = EZ_NEW_RAW_BUFFER(m_pAllocator, Entry, (size_t)uiCapacity);
 
   for (IndexType i = 0; i < m_uiCapacity; ++i)
   {

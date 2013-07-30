@@ -1,12 +1,11 @@
 #pragma once
 
 #include <Foundation/Basics.h>
-#include <Foundation/Containers/StaticArray.h>
 #include <Foundation/Strings/String.h>
-#include <Foundation/Threading/ThreadUtils.h>
-#include <Foundation/Threading/Implementation/OSThread.h>
 #include <Foundation/Threading/ThreadLocalStorage.h>
-#include <Foundation/Threading/Implementation/ThreadingDeclarations.h>
+#include <Foundation/Threading/ThreadUtils.h>
+
+#include <Foundation/Threading/Implementation/OSThread.h>
 
 // Warning: 'this' used in member initialization list (is fine here since it is just stored and not
 // accessed in the constructor (so no operations on a not completly initialized object happen)
