@@ -35,7 +35,7 @@ public:
   /// If it is false, the internal state will not be changed. This should only be used, if the calling code does not do anything meaningful with the value.
   static wchar_t RetrieveLastCharacter(bool bResetCurrent = true);
 
-  struct ezInputActionConfig
+  struct EZ_CORE_DLL ezInputActionConfig
   {
     enum { MaxInputSlotAlternatives = 3 };
 
@@ -114,7 +114,7 @@ private:
     ezKeyState::Enum m_State;
   };
 
-  typedef ezMap<ezString, ezActionData> ezActionMap;
+  typedef ezMap<ezString, ezActionData, ezCompareHelper<ezString>, ezStaticAllocatorWrapper> ezActionMap;
   typedef ezMap<ezString, ezActionMap, ezCompareHelper<ezString>, ezStaticAllocatorWrapper > ezInputSetMap; 
 
   static void UpdateInputActions(ezActionMap& Actions);

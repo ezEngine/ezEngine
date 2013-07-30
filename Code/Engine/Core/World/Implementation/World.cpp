@@ -115,7 +115,8 @@ void ezWorld::CreateObjects(ezArrayPtr<ezGameObjectHandle> out_objects,
     pNewObject->m_pWorld = this;
   
     // fill out the hierarchical data
-    ezGameObject::HierarchicalData* pHierarchicalData = hierarchicalData[i];
+    // TODO: FIX THIS !
+    ezGameObject::HierarchicalData* pHierarchicalData = EZ_DEFAULT_NEW(ezGameObject::HierarchicalData);//hierarchicalData[i];
     pHierarchicalData->m_internalId = newId;
     pHierarchicalData->m_pParentData = pParentData;
     pHierarchicalData->m_localPosition = desc.m_LocalPosition.GetAsPositionVec4();

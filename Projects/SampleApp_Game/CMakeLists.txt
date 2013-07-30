@@ -18,6 +18,9 @@
 SET (LINK_LIBRARIES
   Foundation
   Core
+  OpenGL32
+  InputWindows
+  InputXBox360
 )
 
 include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/CMAKE_Application.txt)

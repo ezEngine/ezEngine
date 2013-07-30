@@ -49,6 +49,7 @@ ManagerType* ezWorld::CreateComponentManager()
   const ezUInt16 uiTypeId = ManagerType::ComponentType::TypeId();
   while (uiTypeId >= m_ComponentManagers.GetCount())
   {
+    // TODO: Hier sollte ein Resize reichen (?)
     m_ComponentManagers.PushBack(NULL);
   }
 
