@@ -19,7 +19,7 @@ ezProfilingId ezTaskSystem::s_ProfileCancelGroup;
 ezProfilingId ezTaskSystem::s_ProfileMainThreadTasks;
 ezProfilingId ezTaskSystem::s_ProfileSomeFrameTasks;
 
-EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, TaskSystem2)
+EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, TaskSystem)
 
   BEGIN_SUBSYSTEM_DEPENDENCIES
     "ThreadUtils",

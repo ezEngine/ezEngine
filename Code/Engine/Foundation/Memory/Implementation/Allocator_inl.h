@@ -24,6 +24,7 @@ void* ezAllocator<A, T, M>::Allocate(size_t uiSize, size_t uiAlign)
   ezLock<M> lock(m_mutex);
   
   void* ptr = m_allocator.Allocate(uiSize, uiAlign);
+  EZ_ASSERT(ptr != NULL, "Could not allocate %d bytes. Out of memory?", uiSize);
 
   m_tracker.AddAllocation(ptr, m_allocator.AllocatedSize(ptr), m_allocator.UsedMemorySize(ptr));
 

@@ -125,7 +125,7 @@ void ezStackTracer::DumpStackTrace(const ezArrayPtr<void*>& trace)
       (*g_implementation.lineFromAdress)(currentProcess, pSymbolAddress, &displacement, &lineInfo);
 
       wchar_t str[1024];
-      swprintf_s(str, L"%s(%i):'%s'\n", lineInfo.FileName, lineInfo.LineNumber, symbolInfo.Name);
+      swprintf_s(str, L"%s(%u):'%s'\n", lineInfo.FileName, lineInfo.LineNumber, symbolInfo.Name);
       OutputDebugStringW(str);
     }
   }

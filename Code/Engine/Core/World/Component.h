@@ -7,10 +7,16 @@
 class EZ_CORE_DLL ezComponent
 {
 public:
-  ezComponent() { }
+  ezComponent() : m_Flags(ezObjectFlags::Default) { }
   virtual ~ezComponent() { }
 
   virtual ezUInt16 GetTypeId() const = 0;
+
+  EZ_FORCE_INLINE bool IsDynamic() { return m_Flags.IsSet(ezObjectFlags::Dynamic); }
+
+  void Activate();
+  void Deactivate();
+  EZ_FORCE_INLINE bool IsActive() { return m_Flags.IsSet(ezObjectFlags::Active); }
 
   virtual ezResult Initialize() { return EZ_SUCCESS; }
   virtual ezResult Deinitialize() { return EZ_SUCCESS; }
@@ -25,6 +31,7 @@ protected:
   ezGameObject* m_pOwner;
 
   ezGenericComponentId m_InternalId;
+  ezBitflags<ezObjectFlags> m_Flags;
 };
 
 #define EZ_DECLARE_COMPONENT_TYPE(componentType, managerType) \

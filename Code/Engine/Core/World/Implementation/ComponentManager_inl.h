@@ -58,11 +58,6 @@ EZ_FORCE_INLINE ezComponentHandle ezComponentManager<ComponentType>::CreateCompo
 }
 
 template <typename ComponentType>
-void ezComponentManager<ComponentType>::DeleteComponent(const ezComponentHandle& component)
-{
-}
-
-template <typename ComponentType>
 EZ_FORCE_INLINE ComponentType* ezComponentManager<ComponentType>::GetComponent(const ezComponentHandle& component) const
 {
   EZ_ASSERT(ComponentType::TypeId() == GetIdFromHandle(component).m_TypeId, 
@@ -70,6 +65,12 @@ EZ_FORCE_INLINE ComponentType* ezComponentManager<ComponentType>::GetComponent(c
     ComponentType::TypeId(), GetIdFromHandle(component).m_TypeId);
 
   return static_cast<ComponentType*>(ezComponentManagerBase::GetComponent(component));
+}
+
+template <typename ComponentType>
+EZ_FORCE_INLINE typename ezBlockStorage<ComponentType>::Iterator ezComponentManager<ComponentType>::GetComponents()
+{
+  return m_ComponentStorage.GetIterator();
 }
 
 template <typename ComponentType>
@@ -111,14 +112,12 @@ ezResult ezComponentManagerSimple<ComponentType>::Initialize()
 template <typename ComponentType>
 void ezComponentManagerSimple<ComponentType>::SimpleUpdate(ezUInt32 uiStartIndex, ezUInt32 uiCount)
 {
-  struct UpdateFunctor
+  for (ezBlockStorage<ComponentType>::Iterator it = m_ComponentStorage.GetIterator(uiStartIndex, uiCount); it.IsValid(); ++it)
   {
-    EZ_FORCE_INLINE void operator()(ComponentType& component)
+    ComponentType& component = *it;
+    if (component.IsActive())
     {
       component.Update();
     }
-  };
-
-  UpdateFunctor functor;
-  m_ComponentStorage.Iterate(functor, uiStartIndex, uiCount);
+  }
 }

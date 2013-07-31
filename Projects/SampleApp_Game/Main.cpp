@@ -546,7 +546,7 @@ void HealthComponent::Update()
       {
         pEnemeyComponent->m_iHealth = ezMath::Max(pEnemeyComponent->m_iHealth - 100, 0);
 
-        const ezInt32 iMaxParticles = 4;
+        const ezInt32 iMaxParticles = 100;
 
         {
           const float fAngle = 10.0f + (rand() % 90);

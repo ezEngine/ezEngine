@@ -48,10 +48,12 @@ public:
   ezComponent* GetComponent(const ezComponentHandle& component) const;
   ezUInt32 GetComponentCount() const;
 
+  void DeleteComponent(const ezComponentHandle& component);
+
   static ezUInt16 GetNextTypeId();
 
 protected:
-  ezComponentHandle CreateComponent(ezComponent* pComponent, ezUInt16 uiTypeId);
+  ezComponentHandle CreateComponent(ezComponent* pComponent, ezUInt16 uiTypeId);  
 
   ezIAllocator* GetAllocator();
   ezLargeBlockAllocator* GetBlockAllocator();
@@ -80,9 +82,9 @@ public:
   virtual ~ezComponentManager();
 
   ezComponentHandle CreateComponent();
-  void DeleteComponent(const ezComponentHandle& component);
 
   ComponentType* GetComponent(const ezComponentHandle& component) const;
+  typename ezBlockStorage<ComponentType>::Iterator GetComponents();
 
 protected:
   friend ComponentType;

@@ -1,7 +1,7 @@
 
 EZ_FORCE_INLINE const char* ezWorld::GetName() const
 { 
-  return m_Name.GetData(); 
+  return m_Data.m_Name.GetData(); 
 }
 
 EZ_FORCE_INLINE ezGameObjectHandle ezWorld::CreateObject(const ezGameObjectDesc& desc, 
@@ -22,7 +22,7 @@ EZ_FORCE_INLINE bool ezWorld::IsValidObject(const ezGameObjectHandle& object) co
   EZ_ASSERT(object.m_InternalId.m_WorldIndex == m_uiIndex, 
     "Object does not belong to this world. Expected world id %d got id %d", m_uiIndex, object.m_InternalId.m_WorldIndex);
 
-  return m_Objects.Contains(object.m_InternalId);
+  return m_Data.m_Objects.Contains(object.m_InternalId);
 }
 
 EZ_FORCE_INLINE ezGameObject* ezWorld::GetObject(const ezGameObjectHandle& object) const
@@ -31,13 +31,13 @@ EZ_FORCE_INLINE ezGameObject* ezWorld::GetObject(const ezGameObjectHandle& objec
     "Object does not belong to this world. Expected world id %d got id %d", m_uiIndex, object.m_InternalId.m_WorldIndex);
 
   ezGameObject* pObject = NULL;
-  m_Objects.TryGetValue(object.m_InternalId, pObject);
+  m_Data.m_Objects.TryGetValue(object.m_InternalId, pObject);
   return pObject;
 }
 
 EZ_FORCE_INLINE ezUInt32 ezWorld::GetObjectCount() const
 {
-  return m_Objects.GetCount();
+  return m_Data.m_Objects.GetCount();
 }
 
 template <typename ManagerType>
@@ -47,19 +47,18 @@ ManagerType* ezWorld::CreateComponentManager()
     "Not a valid component manager type");
 
   const ezUInt16 uiTypeId = ManagerType::ComponentType::TypeId();
-  while (uiTypeId >= m_ComponentManagers.GetCount())
+  while (uiTypeId >= m_Data.m_ComponentManagers.GetCount())
   {
-    // TODO: Hier sollte ein Resize reichen (?)
-    m_ComponentManagers.PushBack(NULL);
+    m_Data.m_ComponentManagers.PushBack(NULL);
   }
 
-  ManagerType* pManager = static_cast<ManagerType*>(m_ComponentManagers[uiTypeId]);
+  ManagerType* pManager = static_cast<ManagerType*>(m_Data.m_ComponentManagers[uiTypeId]);
   if (pManager == NULL)
   {
-    pManager = EZ_NEW(&m_Allocator, ManagerType)(this);
+    pManager = EZ_NEW(&m_Data.m_Allocator, ManagerType)(this);
     pManager->Initialize();
     
-    m_ComponentManagers[uiTypeId] = pManager;
+    m_Data.m_ComponentManagers[uiTypeId] = pManager;
   }
 
   return pManager;
@@ -72,9 +71,9 @@ EZ_FORCE_INLINE ManagerType* ezWorld::GetComponentManager() const
     "Not a valid component manager type");
 
   const ezUInt16 uiTypeId = ManagerType::ComponentType::TypeId();
-  if (uiTypeId < m_ComponentManagers.GetCount())
+  if (uiTypeId < m_Data.m_ComponentManagers.GetCount())
   {
-    return static_cast<ManagerType*>(m_ComponentManagers[uiTypeId]);
+    return static_cast<ManagerType*>(m_Data.m_ComponentManagers[uiTypeId]);
   }
 
   return NULL;
@@ -109,10 +108,9 @@ inline ezComponent* ezWorld::GetComponent(const ezComponentHandle& component) co
 {
   const ezUInt16 uiTypeId = component.m_InternalId.m_TypeId;
 
-  if (uiTypeId < m_ComponentManagers.GetCount())
+  if (uiTypeId < m_Data.m_ComponentManagers.GetCount())
   {
-    ezComponentManagerBase* pManager = m_ComponentManagers[uiTypeId];
-    if (pManager != NULL)
+    if (ezComponentManagerBase* pManager = m_Data.m_ComponentManagers[uiTypeId])
     {
       return pManager->GetComponent(component);
     }
@@ -123,12 +121,12 @@ inline ezComponent* ezWorld::GetComponent(const ezComponentHandle& component) co
 
 EZ_FORCE_INLINE ezIAllocator* ezWorld::GetAllocator()
 {
-  return &m_Allocator;
+  return &m_Data.m_Allocator;
 }
 
 EZ_FORCE_INLINE ezLargeBlockAllocator* ezWorld::GetBlockAllocator()
 {
-  return &m_BlockAllocator;
+  return &m_Data.m_BlockAllocator;
 }
 
 //static

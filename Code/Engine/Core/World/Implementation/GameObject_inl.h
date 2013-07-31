@@ -78,11 +78,6 @@ EZ_FORCE_INLINE void ezGameObject::DetachChildren(const ezArrayPtr<const ezGameO
   EZ_ASSERT_NOT_IMPLEMENTED;
 }
 
-EZ_FORCE_INLINE ezUInt32 ezGameObject::GetChildCount() const
-{
-  return m_uiChildCount;
-}
-
 EZ_FORCE_INLINE ezWorld* ezGameObject::GetWorld() const
 {
   return m_pWorld;

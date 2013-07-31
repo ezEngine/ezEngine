@@ -14,6 +14,18 @@ ezComponentManagerBase::~ezComponentManagerBase()
 {
 }
 
+void ezComponentManagerBase::DeleteComponent(const ezComponentHandle& component)
+{
+  ezComponent* pComponent = NULL;
+  if (m_Components.TryGetValue(component.m_InternalId, pComponent))
+  {
+    pComponent->m_InternalId = ezGenericComponentId();
+    pComponent->m_Flags.Remove(ezObjectFlags::Active);
+    m_pWorld->m_Data.m_DeadComponents.PushBack(pComponent);
+    m_Components.Remove(component.m_InternalId);
+  }
+}
+
 ezComponentHandle ezComponentManagerBase::CreateComponent(ezComponent* pComponent, ezUInt16 uiTypeId)
 {
   ezGenericComponentId newId = m_Components.Insert(pComponent);

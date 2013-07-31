@@ -5,14 +5,8 @@
 ezStaticArray<ezWorld*, 64> ezWorld::s_Worlds;
 
 ezWorld::ezWorld(const char* szWorldName) :
-  m_Name(szWorldName),
-  m_Allocator(m_Name.GetData(), ezFoundation::GetDefaultAllocator()),
-  m_AllocatorWrapper(&m_Allocator),
-  m_BlockAllocator(m_Name.GetData(), &m_Allocator),
-  m_ObjectStorage(&m_BlockAllocator, &m_Allocator)
+  m_Data(szWorldName)
 {
-  m_AllocatorWrapper.Reset();
-
   m_uiIndex = ezInvalidIndex;
 
   // find a free world slot
@@ -30,25 +24,12 @@ ezWorld::ezWorld(const char* szWorldName) :
     m_uiIndex = s_Worlds.GetCount();
     s_Worlds.PushBack(this);
   }
-
-  for (ezUInt32 i = 0; i < HIERARCHY_COUNT; ++i)
-  {
-    m_hierarchies[i].m_pWorld = this;
-  }
-
-  EZ_CHECK_AT_COMPILETIME(sizeof(ezGameObject::HierarchicalData) == 128);
-  EZ_CHECK_AT_COMPILETIME(sizeof(ezGameObject) == 128);
 }
 
 ezWorld::~ezWorld()
 {
-  // delete all component manager
-  for (ezUInt32 i = 0; i < m_ComponentManagers.GetCount(); ++i)
-  {
-    EZ_DELETE(&m_Allocator, m_ComponentManagers[i]);
-  }
-
   s_Worlds[m_uiIndex] = NULL;
+  m_uiIndex = ezInvalidIndex;
 }
 
 void ezWorld::CreateObjects(ezArrayPtr<ezGameObjectHandle> out_objects, 
@@ -61,16 +42,13 @@ void ezWorld::CreateObjects(ezArrayPtr<ezGameObjectHandle> out_objects,
   ezGameObject* pParentObject = NULL;
   ezGameObject::HierarchicalData* pParentData = NULL;
   ezUInt32 uiHierarchyLevel = 0;
-  ezBitflags<ezGameObjectFlags> flags = descs[0].m_Flags;
+  ezBitflags<ezObjectFlags> flags = descs[0].m_Flags;
 
   if (pParentObject = GetObject(parent))
   {
     pParentData = pParentObject->m_pHierarchicalData;
     uiHierarchyLevel = pParentObject->m_uiHierarchyLevel + 1;
     flags = pParentObject->m_Flags;
-
-    // update parent object
-    pParentObject->m_uiChildCount += uiCount;
   }
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)  
@@ -81,25 +59,18 @@ void ezWorld::CreateObjects(ezArrayPtr<ezGameObjectHandle> out_objects,
 #endif
 
   // get storage for the hierarchical data
-  ezHybridArray<ezGameObject::HierarchicalData*, 32> hierarchicalData(&m_Allocator);
+  ezHybridArray<ezGameObject::HierarchicalData*, 32> hierarchicalData(&m_Data.m_Allocator);
   hierarchicalData.SetCount(uiCount);
-
-  HierarchyType type = GetHierarchyType(flags);
-  ezUInt32 uiFirstIndex = m_hierarchies[type].ReserveData(hierarchicalData, uiHierarchyLevel, ezInvalidIndex);
-  
-  /*if (pParentObject != NULL)
-  {
-    pParentObject->m_uiFirstChildIndex = ezMath::Min(pParentObject->m_uiFirstChildIndex, uiFirstIndex);
-  }*/
+  ezUInt32 uiHierarchicalDataIndex = m_Data.CreateHierarchicalData(flags, uiHierarchyLevel, hierarchicalData);
 
   for (ezUInt32 i = 0; i < uiCount; ++i)
   {
     const ezGameObjectDesc& desc = descs[i];
 
-    ezGameObject* pNewObject = m_ObjectStorage.Create();
+    ezGameObject* pNewObject = m_Data.m_ObjectStorage.Create();
 
     // insert the new object into the id mapping table
-    ezGameObjectId newId = m_Objects.Insert(pNewObject);
+    ezGameObjectId newId = m_Data.m_Objects.Insert(pNewObject);
     newId.m_WorldIndex = m_uiIndex;
 
     // construct the new object and fill out some data
@@ -108,22 +79,25 @@ void ezWorld::CreateObjects(ezArrayPtr<ezGameObjectHandle> out_objects,
     pNewObject->m_Flags = desc.m_Flags;
     pNewObject->m_uiPersistentId = 0; // todo
     pNewObject->m_Parent = parent;
-    pNewObject->m_FirstChild = ezGameObjectHandle();
-    pNewObject->m_uiChildCount = 0;
     pNewObject->m_uiHierarchyLevel = uiHierarchyLevel;
+    pNewObject->m_uiHierarchicalDataIndex = uiHierarchicalDataIndex + i;
 
     pNewObject->m_pWorld = this;
+
+    if (!ezStringUtils::IsNullOrEmpty(desc.m_szName))
+    {
+      SetObjectName(newId, desc.m_szName);
+    }
   
     // fill out the hierarchical data
-    // TODO: FIX THIS !
-    ezGameObject::HierarchicalData* pHierarchicalData = EZ_DEFAULT_NEW(ezGameObject::HierarchicalData);//hierarchicalData[i];
-    pHierarchicalData->m_internalId = newId;
+    ezGameObject::HierarchicalData* pHierarchicalData = hierarchicalData[i];
+    pHierarchicalData->m_pObject = pNewObject;
     pHierarchicalData->m_pParentData = pParentData;
     pHierarchicalData->m_localPosition = desc.m_LocalPosition.GetAsPositionVec4();
     pHierarchicalData->m_localRotation = desc.m_LocalRotation;
     pHierarchicalData->m_localScaling = desc.m_LocalScaling.GetAsDirectionVec4();
     
-    // link the hierarchical data to the game object    
+    // link the hierarchical data to the game object
     pNewObject->m_pHierarchicalData = pHierarchicalData;
   
     out_objects[i] = newId;
@@ -137,12 +111,28 @@ void ezWorld::DeleteObjects(const ezArrayPtr<const ezGameObjectHandle>& objects)
     const ezGameObjectId id = objects[i].m_InternalId;
 
     ezGameObject* pObject = NULL;
-    if (m_Objects.TryGetValue(id, pObject))
-    {
-      m_DeadObjects.PushBack(pObject);
-      m_Objects.Remove(id);
+    if (!m_Data.m_Objects.TryGetValue(id, pObject))
+      continue;
 
-      // todo: handle children, fix parent etc
+    pObject->m_InternalId = ezGameObjectId();
+    pObject->m_Flags.Remove(ezObjectFlags::Active);
+    m_Data.m_DeadObjects.PushBack(pObject);
+    m_Data.m_Objects.Remove(id);
+
+    // todo: handle children, fix parent etc
+
+    ezArrayPtr<ezComponentHandle> components = pObject->GetComponents();
+    for (ezUInt32 c = 0; c < components.GetCount(); ++c)
+    {
+      const ezUInt16 uiTypeId = components[i].m_InternalId.m_TypeId;
+
+      if (uiTypeId >= m_Data.m_ComponentManagers.GetCount())
+        continue;
+        
+      if (ezComponentManagerBase* pManager = m_Data.m_ComponentManagers[uiTypeId])
+      {
+        pManager->DeleteComponent(components[i]);
+      }
     }
   }
 }
@@ -150,10 +140,10 @@ void ezWorld::DeleteObjects(const ezArrayPtr<const ezGameObjectHandle>& objects)
 ezGameObject* ezWorld::GetObject(ezUInt64 uiPersistentId) const
 {
   ezGameObjectId internalId;
-  if (m_PersistentToInternalTable.TryGetValue(uiPersistentId, internalId))
+  if (m_Data.m_PersistentToInternalTable.TryGetValue(uiPersistentId, internalId))
   {
     ezGameObject* pObject = NULL;
-    m_Objects.TryGetValue(internalId, pObject);
+    m_Data.m_Objects.TryGetValue(internalId, pObject);
     return pObject;
   }
   return NULL;
@@ -162,10 +152,10 @@ ezGameObject* ezWorld::GetObject(ezUInt64 uiPersistentId) const
 ezGameObject* ezWorld::GetObject(const char* szObjectName) const
 {
   ezGameObjectId internalId;
-  if (m_NameToInternalTable.TryGetValue(szObjectName, internalId))
+  if (m_Data.m_NameToInternalTable.TryGetValue(szObjectName, internalId))
   {
     ezGameObject* pObject = NULL;
-    m_Objects.TryGetValue(internalId, pObject);
+    m_Data.m_Objects.TryGetValue(internalId, pObject);
     return pObject;
   }
   return NULL;
@@ -173,49 +163,35 @@ ezGameObject* ezWorld::GetObject(const char* szObjectName) const
 
 void ezWorld::Update()
 {
-  EZ_ASSERT(m_UnresolvedUpdateFunctions.IsEmpty(), "There are update functions with unresolved depedencies.");
+  EZ_ASSERT(m_Data.m_UnresolvedUpdateFunctions.IsEmpty(), "There are update functions with unresolved depedencies.");
   
   // pre-async phase
-  UpdateSynchronous(m_UpdateFunctions[ezComponentManagerBase::UpdateFunctionDesc::PreAsync]);
+  UpdateSynchronous(m_Data.m_UpdateFunctions[ezComponentManagerBase::UpdateFunctionDesc::PreAsync]);
 
   // async phase
   UpdateAsynchronous();
 
   // post-async phase
-  UpdateSynchronous(m_UpdateFunctions[ezComponentManagerBase::UpdateFunctionDesc::PostAsync]);
+  UpdateSynchronous(m_Data.m_UpdateFunctions[ezComponentManagerBase::UpdateFunctionDesc::PostAsync]);
 
   DeleteDeadObjects();
 
   UpdateWorldTransforms();
 }
 
-void ezWorld::GetMemStats(ezIAllocator::Stats& stats) const
-{
-  m_Allocator.GetStats(stats);
-
-  ezIAllocator::Stats blockStats;
-  m_BlockAllocator.GetStats(blockStats);
-
-  stats.m_uiNumAllocations += blockStats.m_uiAllocationSize;
-  stats.m_uiNumDeallocations += blockStats.m_uiNumDeallocations;
-  stats.m_uiNumLiveAllocations += blockStats.m_uiNumLiveAllocations;
-  stats.m_uiAllocationSize += blockStats.m_uiAllocationSize;
-  stats.m_uiUsedMemorySize += blockStats.m_uiUsedMemorySize;
-}
-
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void ezWorld::SetName(ezGameObjectId internalId, const char* szName)
+void ezWorld::SetObjectName(ezGameObjectId internalId, const char* szName)
 {
-  m_InternalToNameTable.Insert(internalId, szName);
-  const char* szInsertedName = m_InternalToNameTable[internalId].GetData();
-  m_NameToInternalTable.Insert(szInsertedName, internalId);
+  m_Data.m_InternalToNameTable.Insert(internalId, szName);
+  const char* szInsertedName = m_Data.m_InternalToNameTable[internalId].GetData();
+  m_Data.m_NameToInternalTable.Insert(szInsertedName, internalId);
 }
 
-const char* ezWorld::GetName(ezGameObjectId internalId) const
+const char* ezWorld::GetObjectName(ezGameObjectId internalId) const
 {
   ezString name;
-  if (m_InternalToNameTable.TryGetValue(internalId, name))
+  if (m_Data.m_InternalToNameTable.TryGetValue(internalId, name))
   {
     return name.GetData();
   }
@@ -224,20 +200,15 @@ const char* ezWorld::GetName(ezGameObjectId internalId) const
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void ezWorld::UpdateTask::Execute()
-{
-  m_Function(m_uiStartIndex, m_uiCount);
-}
-
 ezResult ezWorld::RegisterUpdateFunction(const ezComponentManagerBase::UpdateFunctionDesc& desc)
 {
   EZ_ASSERT(desc.m_Phase == ezComponentManagerBase::UpdateFunctionDesc::Async || desc.m_uiGranularity == 0, "Granularity must be 0 for synchronous update functions");
 
-  ezDynamicArrayBase<RegisteredUpdateFunction>& updateFunctions = m_UpdateFunctions[desc.m_Phase];
+  ezDynamicArrayBase<ezInternal::WorldData::RegisteredUpdateFunction>& updateFunctions = m_Data.m_UpdateFunctions[desc.m_Phase];
 
   if (desc.m_DependsOn.IsEmpty())
   {
-    RegisteredUpdateFunction newFunction;
+    ezInternal::WorldData::RegisteredUpdateFunction newFunction;
     newFunction.m_Function = desc.m_Function;
     newFunction.m_uiGranularity = desc.m_uiGranularity;
 
@@ -252,9 +223,9 @@ ezResult ezWorld::RegisterUpdateFunction(const ezComponentManagerBase::UpdateFun
   }
 
   // new function was registered successfully, try to insert unresolved functions
-  for (ezUInt32 i = 0; i < m_UnresolvedUpdateFunctions.GetCount(); ++i)
+  for (ezUInt32 i = 0; i < m_Data.m_UnresolvedUpdateFunctions.GetCount(); ++i)
   {
-    RegisterUpdateFunctionWithDependency(m_UnresolvedUpdateFunctions[i], false);
+    RegisterUpdateFunctionWithDependency(m_Data.m_UnresolvedUpdateFunctions[i], false);
   }
 
   return EZ_SUCCESS;
@@ -263,7 +234,7 @@ ezResult ezWorld::RegisterUpdateFunction(const ezComponentManagerBase::UpdateFun
 ezResult ezWorld::RegisterUpdateFunctionWithDependency(const ezComponentManagerBase::UpdateFunctionDesc& desc, 
   bool bInsertAsUnresolved)
 {
-  ezDynamicArrayBase<RegisteredUpdateFunction>& updateFunctions = m_UpdateFunctions[desc.m_Phase];
+  ezDynamicArrayBase<ezInternal::WorldData::RegisteredUpdateFunction>& updateFunctions = m_Data.m_UpdateFunctions[desc.m_Phase];
   ezUInt32 uiInsertionIndex = 0;
 
   for (ezUInt32 i = 0; i < desc.m_DependsOn.GetCount(); ++i)
@@ -282,7 +253,7 @@ ezResult ezWorld::RegisterUpdateFunctionWithDependency(const ezComponentManagerB
 
     if (uiDependencyIndex == ezInvalidIndex) // dependency not found
     {
-      m_UnresolvedUpdateFunctions.PushBack(desc);
+      m_Data.m_UnresolvedUpdateFunctions.PushBack(desc);
       return EZ_FAILURE;
     }
     else
@@ -291,7 +262,7 @@ ezResult ezWorld::RegisterUpdateFunctionWithDependency(const ezComponentManagerB
     }
   }
 
-  RegisteredUpdateFunction newFunction;
+  ezInternal::WorldData::RegisteredUpdateFunction newFunction;
   newFunction.m_Function = desc.m_Function;
   newFunction.m_uiGranularity = desc.m_uiGranularity;
 
@@ -304,7 +275,7 @@ ezResult ezWorld::DeregisterUpdateFunction(const ezComponentManagerBase::UpdateF
 {
   ezResult result = EZ_FAILURE;
 
-  ezDynamicArrayBase<RegisteredUpdateFunction>& updateFunctions = m_UpdateFunctions[desc.m_Phase];
+  ezDynamicArrayBase<ezInternal::WorldData::RegisteredUpdateFunction>& updateFunctions = m_Data.m_UpdateFunctions[desc.m_Phase];
 
   for (ezUInt32 i = 0; i < updateFunctions.GetCount(); ++i)
   {
@@ -319,11 +290,11 @@ ezResult ezWorld::DeregisterUpdateFunction(const ezComponentManagerBase::UpdateF
   return result;
 }
 
-void ezWorld::UpdateSynchronous(const ezArrayPtr<RegisteredUpdateFunction>& updateFunctions)
+void ezWorld::UpdateSynchronous(const ezArrayPtr<ezInternal::WorldData::RegisteredUpdateFunction>& updateFunctions)
 {
   for (ezUInt32 i = 0; i < updateFunctions.GetCount(); ++i)
   {
-    RegisteredUpdateFunction& updateFunction = updateFunctions[i];
+    ezInternal::WorldData::RegisteredUpdateFunction& updateFunction = updateFunctions[i];
     ezComponentManagerBase* pManager = static_cast<ezComponentManagerBase*>(updateFunction.m_Function.GetInstance());
 
     updateFunction.m_Function(0, pManager->GetComponentCount());
@@ -334,13 +305,14 @@ void ezWorld::UpdateAsynchronous()
 {
   ezTaskGroupID taskGroupId = ezTaskSystem::CreateTaskGroup(ezTaskPriority::EarlyThisFrame);
 
-  ezDynamicArrayBase<RegisteredUpdateFunction>& updateFunctions = m_UpdateFunctions[ezComponentManagerBase::UpdateFunctionDesc::Async];
+  ezDynamicArrayBase<ezInternal::WorldData::RegisteredUpdateFunction>& updateFunctions = 
+    m_Data.m_UpdateFunctions[ezComponentManagerBase::UpdateFunctionDesc::Async];
 
   ezUInt32 uiCurrentTaskIndex = 0;
 
   for (ezUInt32 i = 0; i < updateFunctions.GetCount(); ++i)
   {
-    RegisteredUpdateFunction& updateFunction = updateFunctions[i];
+    ezInternal::WorldData::RegisteredUpdateFunction& updateFunction = updateFunctions[i];
     ezComponentManagerBase* pManager = static_cast<ezComponentManagerBase*>(updateFunction.m_Function.GetInstance());
 
     const ezUInt32 uiTotalCount = pManager->GetComponentCount();
@@ -349,18 +321,18 @@ void ezWorld::UpdateAsynchronous()
 
     while (uiStartIndex < uiTotalCount)
     {
-      UpdateTask* pTask;
-      if (uiCurrentTaskIndex < m_UpdateTasks.GetCount())
+      ezInternal::WorldData::UpdateTask* pTask;
+      if (uiCurrentTaskIndex < m_Data.m_UpdateTasks.GetCount())
       {
-        pTask = m_UpdateTasks[uiCurrentTaskIndex];
+        pTask = m_Data.m_UpdateTasks[uiCurrentTaskIndex];
       }
       else
       {
-        pTask = EZ_NEW(&m_Allocator, UpdateTask)();
-        m_UpdateTasks.PushBack(pTask);
+        pTask = EZ_NEW(&m_Data.m_Allocator, ezInternal::WorldData::UpdateTask)();
+        m_Data.m_UpdateTasks.PushBack(pTask);
       }
             
-      pTask->SetTaskName("Update Task");
+      pTask->SetTaskName("Update Task"); // todo: get name from delegate
       pTask->m_Function = updateFunction.m_Function;
       pTask->m_uiStartIndex = uiStartIndex;
       pTask->m_uiCount = ezMath::Min(uiGranularity, uiTotalCount - uiStartIndex);

@@ -8,6 +8,11 @@
 #include <Core/Basics.h>
 
 class ezWorld;
+namespace ezInternal
+{
+  struct WorldData;
+}
+
 class ezGameObject;
 struct ezGameObjectDesc;
 
@@ -80,3 +85,25 @@ class ezComponentHandle
   friend class ezComponentManagerBase;
   friend class ezComponent;
 };
+
+struct ezObjectFlags
+{
+  typedef ezUInt32 StorageType;
+
+  enum Enum
+  {
+    Dynamic = 1U << 0,
+    Active = 1U << 1,
+
+    InternalFlags = Active - 1,
+    Default = Dynamic | Active
+  };
+
+  struct Bits
+  {
+    StorageType Dynamic : 1;
+    StorageType Active : 1;
+  };
+};
+
+EZ_DECLARE_FLAGS_OR_OPERATOR(ezObjectFlags);

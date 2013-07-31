@@ -8,22 +8,24 @@
 class EZ_CORE_DLL ezGameObject
 {
 private:
+  friend class ezWorld;
+  friend struct ezInternal::WorldData;
+  friend class ezMemoryUtils;
+
   ezGameObject();
   ~ezGameObject();
   
   EZ_DISALLOW_COPY_AND_ASSIGN(ezGameObject);
 
-  struct HierarchicalData//EZ_ALIGN_16(HierarchicalData)
+  struct EZ_ALIGN_16(HierarchicalData)
   {
     EZ_DECLARE_POD_TYPE();
 
-    ezGameObjectId m_internalId;
-    ezGameObjectId m_nextSiblingId;
-
+    ezGameObject* m_pObject;
     HierarchicalData* m_pParentData;
     
   #if EZ_ENABLED(EZ_PLATFORM_32BIT)
-    ezUInt32 m_uiPadding;
+    ezUInt64 m_uiPadding;
   #endif
 
     ezVec4 m_localPosition;
@@ -64,8 +66,11 @@ public:
   ezGameObjectHandle Clone() const;
 
   void MakeDynamic();
+  bool IsDynamic();
+
   void Activate();
   void Deactivate();
+  bool IsActive();
 
   ezUInt64 GetPersistentId() const;
 
@@ -81,7 +86,6 @@ public:
   void DetachChild(const ezGameObjectHandle& child);
   void DetachChildren(const ezArrayPtr<const ezGameObjectHandle>& children);
 
-  ezUInt32 GetChildCount() const;
   ChildIterator GetChildren() const;
 
   ezWorld* GetWorld() const;
@@ -135,21 +139,23 @@ public:
   void SendMessage(ezMessage& msg, MsgRouting::Enum routing = MsgRouting::ToChildren);
   
 private:
-  friend class ezWorld;
-  friend class ezMemoryUtils;
-
   void OnMessage(ezMessage& msg, MsgRouting::Enum routing);
 
   ezGameObjectId m_InternalId;
-  ezBitflags<ezGameObjectFlags> m_Flags;
+  ezBitflags<ezObjectFlags> m_Flags;
   ezUInt64 m_uiPersistentId;
   
   ezGameObjectHandle m_Parent;
   ezGameObjectHandle m_FirstChild;
-  ezUInt32 m_uiChildCount;
-  
-  ezUInt32 m_uiHierarchyLevel;
+  ezGameObjectHandle m_NextSibling;
+
+  struct
+  {
+    ezUInt32 m_uiHierarchicalDataIndex : 20;
+    ezUInt32 m_uiHierarchyLevel : 12;
+  };
   HierarchicalData* m_pHierarchicalData;
+
   ezWorld* m_pWorld;
 
 #if EZ_ENABLED(EZ_PLATFORM_32BIT)

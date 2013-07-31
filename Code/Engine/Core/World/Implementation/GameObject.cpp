@@ -3,17 +3,17 @@
 
 void ezGameObject::ChildIterator::Next()
 {
-  m_pObject = m_pObject->m_pWorld->GetObject(m_pObject->m_pHierarchicalData->m_nextSiblingId);
+  m_pObject = m_pObject->m_pWorld->GetObject(m_pObject->m_NextSibling);
 }
 
 void ezGameObject::SetName(const char* szName)
 {
-  m_pWorld->SetName(m_InternalId, szName);
+  m_pWorld->SetObjectName(m_InternalId, szName);
 }
 
 const char* ezGameObject::GetName() const
 {
-  return m_pWorld->GetName(m_InternalId);
+  return m_pWorld->GetObjectName(m_InternalId);
 }
 
 ezGameObject::ChildIterator ezGameObject::GetChildren() const

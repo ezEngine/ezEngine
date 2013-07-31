@@ -43,7 +43,7 @@ public:
       // Can't call GetSubSystemName and GetGroupName, because they are pure virtual and the destructor is called
       // after the derived destructor has already run, thus those virtual functions are potentially not available anymore.
       // This actually gives a linker error already.
-      EZ_ASSERT(m_bStartupDone[i] == false, "This SubSystem is not entirely shut down. Phase %i is still active.", i);
+      EZ_ASSERT(!m_bStartupDone[i], "This SubSystem is not entirely shut down. Phase %i is still active.", i);
     }
   }
 

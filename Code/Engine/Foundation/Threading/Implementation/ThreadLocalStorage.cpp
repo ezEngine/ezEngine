@@ -33,7 +33,7 @@ ezUInt32 ezThreadLocalStorage::AllocateSlot()
 
   // We assert here since failing to allocate a TLS slot is probably very bad for the
   // calling code anyhow
-  EZ_ASSERT_ALWAYS(false, "Couldn't allocate free TLS slot!");
+  EZ_REPORT_FAILURE("Couldn't allocate free TLS slot!");
 
 
   return EZ_THREAD_LOCAL_STORAGE_INVALID_SLOT;
