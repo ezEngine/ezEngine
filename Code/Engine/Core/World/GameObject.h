@@ -13,7 +13,7 @@ private:
   
   EZ_DISALLOW_COPY_AND_ASSIGN(ezGameObject);
 
-  struct EZ_ALIGN_16(HierarchicalData)
+  struct HierarchicalData//EZ_ALIGN_16(HierarchicalData)
   {
     EZ_DECLARE_POD_TYPE();
 

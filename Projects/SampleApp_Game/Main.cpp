@@ -540,7 +540,7 @@ void HealthComponent::Update()
 
     const ezVec3 vPos = m_pOwner->GetLocalPosition();
 
-    if (bs.GetLineSegmentIntersection(vPos, vPos + m_vVelocity))
+    if (!m_vVelocity.IsZero(0.001f) && bs.GetLineSegmentIntersection(vPos, vPos + m_vVelocity))
     {
       if (m_bDoesDamage)
       {
@@ -629,7 +629,7 @@ void DamageComponent::Update()
 
   const ezVec3 vShipDir = m_pOwner->GetLocalRotation() * ezVec3(0, 1, 0);
 
-  if (!m_vVelocity.IsZero())
+  if (!m_vVelocity.IsZero(0.001f))
   {
     for (ezInt32 p = 0; p < MaxPlayers; ++p)
     {
