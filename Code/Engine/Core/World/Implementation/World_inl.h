@@ -27,6 +27,18 @@ EZ_FORCE_INLINE bool ezWorld::IsValidObject(const ezGameObjectHandle& object) co
 
 EZ_FORCE_INLINE ezGameObject* ezWorld::GetObject(const ezGameObjectHandle& object) const
 {
+  /// \todo Force users to check that an object is alive with an interface like this:
+  // bool ezWorld::IsObjectAvailable(const ezGameObjectHandle& object, ezGameObject*& out_Pointer);
+  //
+  // Then users would be used to write code like this:
+  // if (GetWorld()->IsObjectAvailable(hMyObject, pMyObject))
+  // {
+  //    Do something with pMyObject
+  // }
+  // This also prevents excessive use of that function, as it is more typing work.
+  // Therefore users will more likely create a temporary pointer, than to call the function over and over again.
+
+
   EZ_ASSERT(object.m_InternalId.m_WorldIndex == m_uiIndex, 
     "Object does not belong to this world. Expected world id %d got id %d", m_uiIndex, object.m_InternalId.m_WorldIndex);
 

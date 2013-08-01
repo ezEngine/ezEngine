@@ -58,6 +58,9 @@ public:
   ezIAllocator* GetAllocator();
   ezLargeBlockAllocator* GetBlockAllocator();
 
+  /// \todo Hack (?)
+  void* m_pUserData;
+
 public:
   static ezUInt32 GetWorldCount();
   static ezWorld* GetWorld(ezUInt32 uiIndex);

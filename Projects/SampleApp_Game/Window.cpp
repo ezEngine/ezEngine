@@ -1,21 +1,44 @@
-#include <Foundation/Basics.h>
+#include "Application.h"
 #include <Core/Input/InputManager.h>
 #include <InputWindows/InputDeviceWindows.h>
 #include <gl/GL.h>
 
-LRESULT CALLBACK WndProc (HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
-void RenderSingleFrame();
+static HWND g_hWnd = NULL;
+static HDC g_hDC = NULL;
+static HGLRC g_hRC = NULL;
 
-HWND g_hWnd = NULL;
-HDC g_hDC = NULL;
-HGLRC g_hRC = NULL;
-bool g_bFullscreen = false;
-bool g_bActiveRenderLoop = false;
-ezUInt32 g_uiResolutionX = 800;
-ezUInt32 g_uiResolutionY = 800;
-const char* g_szAppName = "ezSampleGame";
+static LRESULT CALLBACK WndProc (HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
+{
+  g_InputDeviceWindows.WindowMessage(hWnd, msg, wParam, lParam);
 
-void CreateContextOGL (void)
+  switch (msg)
+  {
+  case WM_PAINT:
+    {
+      PAINTSTRUCT ps;
+      BeginPaint (hWnd, &ps);
+      EndPaint (hWnd, &ps);
+    }
+    return (0);
+
+  case WM_DESTROY:
+    PostQuitMessage (0);
+    return (0);
+
+  case WM_SIZE:
+    {
+      SampleGameApp* pApp = (SampleGameApp*) ezApplication::GetApplicationInstance();
+
+      pApp->m_uiResolutionX = LOWORD (lParam);
+      pApp->m_uiResolutionY = HIWORD (lParam);
+    }
+    break;
+  }
+
+  return (DefWindowProc (hWnd, msg, wParam, lParam));
+}
+
+static void CreateContextOGL()
 {
   int iColorBits = 24;
   int iDepthBits = 24;
@@ -62,7 +85,7 @@ void CreateContextOGL (void)
   SetForegroundWindow(g_hWnd);
 }
 
-void DestroyContextOGL (void)
+static void DestroyContextOGL()
 {
   if (g_hRC)
   {
@@ -79,12 +102,12 @@ void DestroyContextOGL (void)
 }
 
 
-void CreateAppWindow ()
+void SampleGameApp::CreateAppWindow()
 {
   WNDCLASSEX wc;
   ZeroMemory (&wc, sizeof (wc));
   wc.cbSize = sizeof (wc);
-  wc.lpszClassName = g_szAppName;
+  wc.lpszClassName = m_szAppName;
   wc.hInstance = GetModuleHandle(NULL);
   wc.lpfnWndProc = WndProc;
   wc.hCursor = LoadCursor (NULL, IDC_ARROW);
@@ -93,25 +116,25 @@ void CreateAppWindow ()
   RegisterClassEx (&wc);
 
 
-  if (g_bFullscreen)
+  if (m_bFullscreen)
   {
     DEVMODE dmScreenSettings;
 
     memset (&dmScreenSettings, 0, sizeof (DEVMODE));
     dmScreenSettings.dmSize = sizeof (DEVMODE);
-    dmScreenSettings.dmPelsWidth = g_uiResolutionX;
-    dmScreenSettings.dmPelsHeight = g_uiResolutionY;
+    dmScreenSettings.dmPelsWidth = m_uiResolutionX;
+    dmScreenSettings.dmPelsHeight = m_uiResolutionY;
     dmScreenSettings.dmBitsPerPel = 32;
     dmScreenSettings.dmFields = DM_BITSPERPEL | DM_PELSWIDTH | DM_PELSHEIGHT;
 
     if (ChangeDisplaySettings (&dmScreenSettings, CDS_FULLSCREEN) != DISP_CHANGE_SUCCESSFUL)
-      g_bFullscreen = false;
+      m_bFullscreen = false;
   }
 
   DWORD dwExStyle = WS_EX_APPWINDOW;
   DWORD dwStyle = WS_CLIPSIBLINGS | WS_CLIPCHILDREN;
 
-  if (!g_bFullscreen)
+  if (!m_bFullscreen)
     dwStyle |= WS_OVERLAPPED | WS_BORDER | WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU | WS_VISIBLE;
   else
     dwStyle |= WS_POPUP;
@@ -119,8 +142,8 @@ void CreateAppWindow ()
   RECT WindowRect;
   WindowRect.top = 0;
   WindowRect.left = 0;
-  WindowRect.right = g_uiResolutionX;
-  WindowRect.bottom = g_uiResolutionY;
+  WindowRect.right = m_uiResolutionX;
+  WindowRect.bottom = m_uiResolutionY;
 
   if (!AdjustWindowRectEx (&WindowRect, dwStyle, false, dwExStyle))
     return;
@@ -130,8 +153,6 @@ void CreateAppWindow ()
 
   g_hWnd = CreateWindowEx (dwExStyle, wc.lpszClassName, wc.lpszClassName, dwStyle, 0, 0,
     uiWinWidth, uiWinHeight, NULL, NULL, wc.hInstance, NULL);
-
-  ShowCursor (!g_bFullscreen);
 
   if (g_hWnd == INVALID_HANDLE_VALUE)
     return;
@@ -143,85 +164,46 @@ void CreateAppWindow ()
   CreateContextOGL();
 }
 
-void DestroyAppWindow (void)
+void SampleGameApp::DestroyAppWindow(void)
 {
   DestroyContextOGL();
 
   if (g_hWnd)
   {
-    if (g_bFullscreen)
-    {
+    if (m_bFullscreen)
       ChangeDisplaySettings (NULL, 0);
-      ShowCursor (true);
-    }
 
     DestroyWindow (g_hWnd);
     g_hWnd = NULL;
   }
 
-  UnregisterClass (g_szAppName, GetModuleHandle(NULL));
+  UnregisterClass (m_szAppName, GetModuleHandle(NULL));
 }
 
-void GameLoop()
+void SampleGameApp::GameLoop()
 {
-  MSG	msg;
-  g_bActiveRenderLoop = true;
-  bool bRender = true;
+  MSG msg;
+  m_bActiveRenderLoop = true;
 
-  while (g_bActiveRenderLoop)
+  while (m_bActiveRenderLoop)
   {
     if (PeekMessage (&msg, NULL, 0, 0, PM_REMOVE))	
     {
       if (msg.message == WM_QUIT)
-        break;					
+        break;
 
       TranslateMessage (&msg);
       DispatchMessage (&msg);
     }
-
-    if (bRender)
+    else
     {
       RenderSingleFrame();
-
       SwapBuffers(g_hDC);
+      Sleep(10);
     }
-
-    Sleep(10);
   }
 }
 
 
-LRESULT CALLBACK WndProc (HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
-{
-  g_InputDeviceWindows.WindowMessage(hWnd, msg, wParam, lParam);
 
-  switch (msg)
-  {
-  case WM_PAINT:
-    {
-      PAINTSTRUCT ps;
-      BeginPaint (hWnd, &ps);
-      EndPaint (hWnd, &ps);
-    }
-    return (0);
-
-  case WM_CHAR:
-    //aeInputManager::setCurrentChar ((char) (wParam));
-    break;
-
-  case WM_DESTROY:
-    PostQuitMessage (0);
-    return (0);
-
-  case WM_SIZE:
-    {
-      g_uiResolutionX = LOWORD (lParam);
-      g_uiResolutionY = HIWORD (lParam);
-      glViewport(0, 0, g_uiResolutionX, g_uiResolutionY);
-    }
-    break;
-  }
-
-  return (DefWindowProc (hWnd, msg, wParam, lParam));
-}
 

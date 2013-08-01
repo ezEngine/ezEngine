@@ -24,6 +24,9 @@ ezWorld::ezWorld(const char* szWorldName) :
     m_uiIndex = s_Worlds.GetCount();
     s_Worlds.PushBack(this);
   }
+
+  /// \todo Hack (?)
+  m_pUserData = NULL;
 }
 
 ezWorld::~ezWorld()

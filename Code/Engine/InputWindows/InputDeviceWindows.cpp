@@ -34,16 +34,16 @@ void ezInputDeviceWindows::InitializeDevice()
   {
     RAWINPUTDEVICE Rid[2];
 
-    // mouse
+    // keyboard
     Rid[0].usUsagePage = 0x01; 
-    Rid[0].usUsage = 0x02; 
-    Rid[0].dwFlags = 0;
+    Rid[0].usUsage = 0x06; 
+    Rid[0].dwFlags = RIDEV_NOHOTKEYS; // Disables Windows-Key and Application-Key
     Rid[0].hwndTarget = NULL;
 
-    // keyboard
+    // mouse
     Rid[1].usUsagePage = 0x01; 
-    Rid[1].usUsage = 0x06; 
-    Rid[1].dwFlags = RIDEV_NOHOTKEYS; // Disables Windows-Key and Application-Key
+    Rid[1].usUsage = 0x02; 
+    Rid[1].dwFlags = 0;
     Rid[1].hwndTarget = NULL;
 
     if (RegisterRawInputDevices(&Rid[0], (UINT) 2, sizeof(RAWINPUTDEVICE)) == FALSE) 
@@ -212,10 +212,10 @@ void ezInputDeviceWindows::RegisterInputSlots()
   ezInputManager::SetInputSlotDeadZone("mouse_move_negy", 0.0f);
   ezInputManager::SetInputSlotDeadZone("mouse_move_posy", 0.0f);
 
-  ezInputManager::SetInputSlotScale("mouse_move_negx", 0.01f);
-  ezInputManager::SetInputSlotScale("mouse_move_posx", 0.01f);
-  ezInputManager::SetInputSlotScale("mouse_move_negy", 0.01f);
-  ezInputManager::SetInputSlotScale("mouse_move_posy", 0.01f);
+  ezInputManager::SetInputSlotScale("mouse_move_negx", 0.1f);
+  ezInputManager::SetInputSlotScale("mouse_move_posx", 0.1f);
+  ezInputManager::SetInputSlotScale("mouse_move_negy", 0.1f);
+  ezInputManager::SetInputSlotScale("mouse_move_posy", 0.1f);
 
 
   RegisterInputSlot("mouse_position_x", "Mouse Position X");
@@ -424,10 +424,10 @@ void ezInputDeviceWindows::WindowMessage(HWND hWnd, UINT Msg, WPARAM wParam, LPA
         // if at all, we should handle them as touch points, not as mouse positions
         if (raw->data.mouse.usFlags == MOUSE_MOVE_RELATIVE)
         {
-          m_InputSlotValues["mouse_move_negx"] = (raw->data.mouse.lLastX < 0) ? (float) -raw->data.mouse.lLastX : 0.0f;
-          m_InputSlotValues["mouse_move_posx"] = (raw->data.mouse.lLastX > 0) ? (float)  raw->data.mouse.lLastX : 0.0f;
-          m_InputSlotValues["mouse_move_negy"] = (raw->data.mouse.lLastY < 0) ? (float) -raw->data.mouse.lLastY : 0.0f;
-          m_InputSlotValues["mouse_move_posy"] = (raw->data.mouse.lLastY > 0) ? (float)  raw->data.mouse.lLastY : 0.0f;
+          m_InputSlotValues["mouse_move_negx"] += (raw->data.mouse.lLastX < 0) ? (float) -raw->data.mouse.lLastX : 0.0f;
+          m_InputSlotValues["mouse_move_posx"] += (raw->data.mouse.lLastX > 0) ? (float)  raw->data.mouse.lLastX : 0.0f;
+          m_InputSlotValues["mouse_move_negy"] += (raw->data.mouse.lLastY < 0) ? (float) -raw->data.mouse.lLastY : 0.0f;
+          m_InputSlotValues["mouse_move_posy"] += (raw->data.mouse.lLastY > 0) ? (float)  raw->data.mouse.lLastY : 0.0f;
         }
         //else
         //if (raw->data.mouse.usFlags == MOUSE_MOVE_ABSOLUTE)
