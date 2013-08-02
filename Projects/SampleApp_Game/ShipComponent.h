@@ -26,7 +26,9 @@ private:
   ezVec3 m_vVelocity;
   bool m_bIsShooting;
   ezInt32 m_iShootDelay;
+  ezInt32 m_iCurShootCooldown;
   ezInt32 m_iAmmunition;
+  ezInt32 m_iMaxAmmunition;
   ezInt32 m_iAmmoPerShot;
 };
 

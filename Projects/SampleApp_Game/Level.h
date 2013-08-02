@@ -19,6 +19,7 @@ public:
 private:
   void UpdatePlayerInput(ezInt32 iPlayer);
   void CreatePlayerShip(ezInt32 iPlayer);
+  void CreateAsteroid();
 
   ezWorld* m_pWorld;
   ezGameObjectHandle m_hPlayerShips[MaxPlayers];

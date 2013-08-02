@@ -23,6 +23,9 @@ public:
 
   virtual void OnMessage(ezMessage& msg) { }
 
+  const ezGameObject* GetOwner() const { return m_pOwner; }
+  ezGameObject* GetOwner() { return m_pOwner; }
+
 protected:
   friend class ezGameObject;
   friend class ezComponentManagerBase;

@@ -1,6 +1,7 @@
 #include "Level.h"
 #include "ShipComponent.h"
 #include "ProjectileComponent.h"
+#include "CollidableComponent.h"
 
 EZ_IMPLEMENT_COMPONENT_TYPE(ShipComponent, ShipComponentManager);
 
@@ -8,16 +9,18 @@ ShipComponent::ShipComponent()
 {
   m_vVelocity.SetZero();
   m_bIsShooting = false;
-  m_iShootDelay = 0;
-  m_iAmmunition = 100;
-  m_iAmmoPerShot = 20;
+  m_iShootDelay = 2;//5;
+  m_iCurShootCooldown = 0;
+  m_iMaxAmmunition = 100;
+  m_iAmmunition = m_iMaxAmmunition / 2;
+  m_iAmmoPerShot = 10;
   m_iHealth = 1000;
   m_iPlayerIndex = -1;
 }
 
 void ShipComponent::SetVelocity(ezVec3& vVel)
 {
-  m_vVelocity += vVel * 0.2f;
+  m_vVelocity += vVel * 0.1f;
 }
 
 void ShipComponent::SetIsShooting(bool b)
@@ -36,37 +39,45 @@ void ShipComponent::Update()
 
   if (!m_vVelocity.IsZero(0.001f))
   {
-    for (ezInt32 p = 0; p < MaxPlayers; ++p)
+    CollidableComponentManager* pCollidableManager = GetWorld()->GetComponentManager<CollidableComponentManager>();
+
+    ezBlockStorage<CollidableComponent>::Iterator it = pCollidableManager->GetComponents();
+
+    for ( ; it.IsValid(); ++it)
     {
-      if (p == m_iPlayerIndex)
-        continue;
+      CollidableComponent& Collider = *it;
+      ezGameObject* pColliderObject = Collider.GetOwner();
+      ShipComponent* pShipComponent = pColliderObject->GetComponentOfType<ShipComponent>();
 
-      ezGameObject* pEnemy = GetWorld()->GetObject(pLevel->GetPlayerShip(p));
-      ShipComponent* pEnemeyComponent = pEnemy->GetComponentOfType<ShipComponent>();
+      if (pShipComponent)
+      {
+        if (pShipComponent->m_iPlayerIndex == m_iPlayerIndex)
+          continue;
 
-      if (pEnemeyComponent->m_iHealth <= 0)
-        continue;
+        if (pShipComponent->m_iHealth <= 0)
+          continue;
+      }
 
-      ezBoundingSphere bs(pEnemy->GetLocalPosition(), 1.0f);
+      ezBoundingSphere bs(pColliderObject->GetLocalPosition(), Collider.m_fCollisionRadius);
 
       const ezVec3 vPos = m_pOwner->GetLocalPosition();
 
-      if (bs.GetLineSegmentIntersection(vPos, vPos + m_vVelocity))
+      if (!bs.Contains(vPos) && bs.GetLineSegmentIntersection(vPos, vPos + m_vVelocity))
       {
-        m_vVelocity *= -1;
+        m_vVelocity *= -0.5f;
       }
     }
   }
 
   m_pOwner->SetLocalPosition(m_pOwner->GetLocalPosition() + m_vVelocity);
-  m_vVelocity *= 0.95f;
+  m_vVelocity *= 0.97f;
 
-  if (m_iShootDelay > 0)
-    --m_iShootDelay;
+  if (m_iCurShootCooldown > 0)
+    --m_iCurShootCooldown;
   else
     if (m_bIsShooting && m_iAmmunition >= m_iAmmoPerShot)
     {
-      m_iShootDelay = 4;
+      m_iCurShootCooldown = m_iShootDelay;
 
       ezGameObjectDesc desc;
       desc.m_LocalPosition = m_pOwner->GetLocalPosition();
@@ -84,8 +95,8 @@ void ShipComponent::Update()
       m_iAmmunition -= m_iAmmoPerShot;
     }
 
-    m_iAmmunition = ezMath::Clamp(m_iAmmunition + 1, 0, 100);
-    //m_iHealth = ezMath::Clamp(m_iHealth + 1, 0, 1000);
+    m_iAmmunition = ezMath::Clamp(m_iAmmunition + 1, 0, m_iMaxAmmunition);
+    m_iHealth = ezMath::Clamp(m_iHealth + 1, 0, 1000);
 
 
     ezVec3 vCurPos = m_pOwner->GetLocalPosition();

@@ -16,6 +16,7 @@ public:
 
   ezInt32 m_iTimeToLive;
   ezVec3 m_vVelocity;
+  ezVec3 m_vDrawDir;
   ezInt32 m_iBelongsToPlayer;
   bool m_bDoesDamage;
 };

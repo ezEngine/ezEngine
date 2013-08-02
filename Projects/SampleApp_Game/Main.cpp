@@ -2,6 +2,7 @@
 #include "Application.h"
 #include <Foundation/Logging/ConsoleWriter.h>
 #include <Foundation/Logging/VisualStudioWriter.h>
+#include <Foundation/Time/Time.h>
 
 SampleGameApp::SampleGameApp()
 {
@@ -20,6 +21,8 @@ void SampleGameApp::AfterEngineInit()
 
   // Map the input keys to actions
   SetupInput();
+
+  srand((ezUInt32) ezSystemTime::Now().GetMicroSeconds());
 
   CreateGameLevel();
 }

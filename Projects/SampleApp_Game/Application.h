@@ -18,6 +18,9 @@ private:
 
   void RenderSingleFrame();
   void UpdateInput();
+  void RenderProjectiles();
+  void RenderAsteroids();
+  void RenderPlayerShips();
 
   void CreateAppWindow();
   void DestroyAppWindow();

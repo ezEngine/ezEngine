@@ -7,10 +7,10 @@
 
 #include "ShipComponent.h"
 
-const ezInt32 MaxPlayerActions = 5;
+const ezInt32 MaxPlayerActions = 7;
 
-const char* szPlayerActions[MaxPlayerActions] = { "Forwards",        "Backwards",        "Left",             "Right",            "Shoot"         };
-const char* szControlerKeys[MaxPlayerActions] = { "leftstick_posy",  "leftstick_negy",   "rightstick_negx",  "rightstick_posx",  "right_trigger" };
+const char* szPlayerActions[MaxPlayerActions] = { "Forwards",        "Backwards",        "Left",             "Right",         "RotLeft", "RotRight",    "Shoot"         };
+const char* szControlerKeys[MaxPlayerActions] = { "leftstick_posy",  "leftstick_negy",   "leftstick_negx",  "leftstick_posx", "rightstick_negx",  "rightstick_posx",  "right_trigger" };
 
 void SampleGameApp::UpdateInput()
 {
@@ -18,6 +18,12 @@ void SampleGameApp::UpdateInput()
 
   if (ezInputManager::GetInputActionState("Main", "CloseApp") == ezKeyState::Pressed)
     m_bActiveRenderLoop = false;
+
+  if (ezInputManager::GetInputActionState("Main", "ResetLevel") == ezKeyState::Pressed)
+  {
+    DestroyGameLevel();
+    CreateGameLevel();
+  }
 }
 
 static void RegisterInputAction(const char* szInputSet, const char* szInputAction, const char* szKey1, const char* szKey2 = NULL, const char* szKey3 = NULL)
@@ -40,6 +46,7 @@ void SampleGameApp::SetupInput()
   g_InputDeviceWindows.SetShowMouseCursor(false);
 
   RegisterInputAction("Main", "CloseApp", "keyboard_escape");
+  RegisterInputAction("Main", "ResetLevel", "keyboard_return");
 
   // setup all controllers
   for (ezInt32 iPlayer = 0; iPlayer < MaxPlayers; ++iPlayer)
@@ -107,42 +114,67 @@ void Level::UpdatePlayerInput(ezInt32 iPlayer)
 
   if (ezInputManager::GetInputActionState("Game", sControls[0].GetData(), &fVal) != ezKeyState::Up)
   {
-    ezVec3 vPos = pShip->GetLocalPosition();
-    vVelocity += 0.1f * vShipDir * fVal;
+    fVal = ezMath::Square(fVal);
 
-    pShip->SetLocalPosition(vPos);
+    ezVec3 vPos = pShip->GetLocalPosition();
+    //vVelocity += 0.1f * vShipDir * fVal;
+    vVelocity += 0.1f * ezVec3(0, 1, 0) * fVal;
   }
 
   if (ezInputManager::GetInputActionState("Game", sControls[1].GetData(), &fVal) != ezKeyState::Up)
   {
-    ezVec3 vPos = pShip->GetLocalPosition();
-    vVelocity -= 0.1f * vShipDir * fVal;
+    fVal = ezMath::Square(fVal);
 
-    pShip->SetLocalPosition(vPos);
+    ezVec3 vPos = pShip->GetLocalPosition();
+    //vVelocity -= 0.1f * vShipDir * fVal;
+    vVelocity += 0.1f * ezVec3(0, -1, 0) * fVal;
+  }
+
+  if (ezInputManager::GetInputActionState("Game", sControls[2].GetData(), &fVal) != ezKeyState::Up)
+  {
+    fVal = ezMath::Square(fVal);
+
+    ezVec3 vPos = pShip->GetLocalPosition();
+    //vVelocity += 0.1f * vShipDir * fVal;
+    vVelocity += 0.1f * ezVec3(-1, 0, 0) * fVal;
+  }
+
+  if (ezInputManager::GetInputActionState("Game", sControls[3].GetData(), &fVal) != ezKeyState::Up)
+  {
+    fVal = ezMath::Square(fVal);
+
+    ezVec3 vPos = pShip->GetLocalPosition();
+    //vVelocity -= 0.1f * vShipDir * fVal;
+    vVelocity += 0.1f * ezVec3(1, 0, 0) * fVal;
+  }
+
+  if (ezInputManager::GetInputActionState("Game", sControls[4].GetData(), &fVal) != ezKeyState::Up)
+  {
+    fVal = ezMath::Square(fVal);
+
+    ezQuat qRotation;
+    qRotation.SetFromAxisAndAngle(ezVec3(0, 0, 1), 3.0f * fVal);
+
+    ezQuat qNewRot = qRotation * pShip->GetLocalRotation();
+    pShip->SetLocalRotation(qNewRot);
+  }
+
+  if (ezInputManager::GetInputActionState("Game", sControls[5].GetData(), &fVal) != ezKeyState::Up)
+  {
+    fVal = ezMath::Square(fVal);
+
+    ezQuat qRotation;
+    qRotation.SetFromAxisAndAngle(ezVec3(0, 0, 1), -3.0f * fVal);
+
+    ezQuat qNewRot = qRotation * pShip->GetLocalRotation();
+    pShip->SetLocalRotation(qNewRot);
   }
 
   if (!vVelocity.IsZero())
     pShipComponent->SetVelocity(vVelocity);
 
-  if (ezInputManager::GetInputActionState("Game", sControls[2].GetData(), &fVal) != ezKeyState::Up)
-  {
-    ezQuat qRotation;
-    qRotation.SetFromAxisAndAngle(ezVec3(0, 0, 1), 4.0f * fVal);
 
-    ezQuat qNewRot = qRotation * pShip->GetLocalRotation();
-    pShip->SetLocalRotation(qNewRot);
-  }
-
-  if (ezInputManager::GetInputActionState("Game", sControls[3].GetData(), &fVal) != ezKeyState::Up)
-  {
-    ezQuat qRotation;
-    qRotation.SetFromAxisAndAngle(ezVec3(0, 0, 1), -4.0f * fVal);
-
-    ezQuat qNewRot = qRotation * pShip->GetLocalRotation();
-    pShip->SetLocalRotation(qNewRot);
-  }
-
-  if (ezInputManager::GetInputActionState("Game", sControls[4].GetData(), &fVal) != ezKeyState::Up)
+  if (ezInputManager::GetInputActionState("Game", sControls[6].GetData(), &fVal) != ezKeyState::Up)
     pShipComponent->SetIsShooting(true);
   else
     pShipComponent->SetIsShooting(false);

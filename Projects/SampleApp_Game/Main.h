@@ -4,4 +4,4 @@
 
 #define MaxPlayers 4
 
-
+#define MaxAsteroids 30

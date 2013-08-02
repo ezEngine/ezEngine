@@ -1,6 +1,7 @@
 #include "Application.h"
 #include "ShipComponent.h"
 #include "ProjectileComponent.h"
+#include "AsteroidComponent.h"
 #include <gl/GL.h>
 
 const float g_fShipColors[4][3] =
@@ -11,7 +12,7 @@ const float g_fShipColors[4][3] =
   { 1, 1, 0 },
 };
 
-void RenderShip(ezGameObject* pShip, ezInt32 iPlayer)
+static void RenderShip(ezGameObject* pShip, ezInt32 iPlayer)
 {
   ShipComponent* pShipComponent = pShip->GetComponentOfType<ShipComponent>();
 
@@ -47,20 +48,105 @@ void RenderShip(ezGameObject* pShip, ezInt32 iPlayer)
   glEnd();
 }
 
-void RenderProjectile(ezGameObject* pObj, ProjectileComponent* pProjectile)
+void SampleGameApp::RenderPlayerShips()
 {
+  ShipComponentManager* pShipManager = m_pLevel->GetWorld()->GetComponentManager<ShipComponentManager>();
+
+  ezBlockStorage<ShipComponent>::Iterator it = pShipManager->GetComponents();
+
+  for ( ; it.IsValid(); ++it)
+  {
+    RenderShip ((*it).GetOwner(), (*it).m_iPlayerIndex);
+  }
+}
+
+void RenderAsteroid(ezGameObject* pObject, AsteroidComponent* pComponent)
+{
+  const ezVec3 vPos = pObject->GetLocalPosition();
+  const ezQuat qRot = pObject->GetLocalRotation();
+
+  glColor3ub(128, 128, 128);
+
+  const ezInt32 iCorners = 14;
+  const float fStep = 360.0f / iCorners;
+  ezVec3 v[iCorners];
+
+  for (ezInt32 i = 0; i < iCorners; ++i)
+  {
+    v[i].x = ezMath::CosDeg(fStep * i) * pComponent->m_fRadius;
+    v[i].y = ezMath::SinDeg(fStep * i) * pComponent->m_fRadius;
+    v[i].z = 0.0f;
+  }
+
+  srand(pComponent->m_iShapeRandomSeed);
+
+  for (ezInt32 i = 0; i < iCorners; ++i)
+    v[i] *= 0.9f + ((rand() % 1000) / 999.0f) * 0.2f;
+
+  for (ezInt32 i = 0; i < iCorners; ++i)
+    v[i] = qRot * v[i] + vPos;
+
+  glBegin(GL_TRIANGLES);
+
+    for (ezInt32 i = 0; i < iCorners - 2; ++i)
+    {
+      glVertex3f(v[0    ].x, v[0    ].y, v[0    ].z);
+      glVertex3f(v[i + 1].x, v[i + 1].y, v[i + 1].z);
+      glVertex3f(v[i + 2].x, v[i + 2].y, v[i + 2].z);
+    }
+
+  glEnd();
+}
+
+void SampleGameApp::RenderAsteroids()
+{
+  AsteroidComponentManager* pManager = m_pLevel->GetWorld()->GetComponentManager<AsteroidComponentManager>();
+
+  ezBlockStorage<AsteroidComponent>::Iterator it = pManager->GetComponents();
+
+  for ( ; it.IsValid(); ++it)
+  {
+    RenderAsteroid((*it).GetOwner(), &(*it));
+  }
+}
+
+
+static void RenderProjectile(ezGameObject* pObj, ProjectileComponent* pProjectile)
+{
+  if (pProjectile->m_iTimeToLive <= 0)
+    return;
+
   const ezInt32 iPlayer = pProjectile->m_iBelongsToPlayer;
+
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
   ezVec3 v[2];
   v[0] = pObj->GetLocalPosition();
-  v[1] = v[0] + pProjectile->m_vVelocity;
+  v[1] = v[0] + pProjectile->m_vDrawDir;
+
+  const float fAlpha = 1.0f - ezMath::Square(1.0f - ezMath::Clamp(pProjectile->m_iTimeToLive / 25.0f, 0.0f, 1.0f));
 
   glBegin(GL_LINES);
-    glColor3f(g_fShipColors[iPlayer][0], g_fShipColors[iPlayer][1], g_fShipColors[iPlayer][2]);
+    glColor4f(g_fShipColors[iPlayer][0], g_fShipColors[iPlayer][1], g_fShipColors[iPlayer][2], fAlpha);
 
     glVertex3f(v[0].x, v[0].y, v[0].z);
     glVertex3f(v[1].x, v[1].y, v[1].z);
   glEnd();
+
+  glDisable(GL_BLEND);
+}
+
+void SampleGameApp::RenderProjectiles()
+{
+  ProjectileComponentManager* pProjectileManager = m_pLevel->GetWorld()->GetComponentManager<ProjectileComponentManager>();
+
+  ezBlockStorage<ProjectileComponent>::Iterator it = pProjectileManager->GetComponents();
+
+  for ( ; it.IsValid(); ++it)
+  {
+    RenderProjectile ((*it).GetOwner(), &(*it));
+  }
 }
 
 void SampleGameApp::RenderSingleFrame()
@@ -84,12 +170,11 @@ void SampleGameApp::RenderSingleFrame()
 
   m_pLevel->Update();
 
-  for (ezInt32 i = 0; i < MaxPlayers; ++i)
-  {
-    ezGameObject* pShip = m_pLevel->GetWorld()->GetObject(m_pLevel->GetPlayerShip(i));
 
-    RenderShip(pShip, i);
-  }
+  RenderProjectiles();
+  RenderAsteroids();
+  RenderPlayerShips();
+  
 }
 
 
