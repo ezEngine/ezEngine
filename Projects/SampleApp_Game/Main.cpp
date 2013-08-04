@@ -3,6 +3,7 @@
 #include <Foundation/Logging/ConsoleWriter.h>
 #include <Foundation/Logging/VisualStudioWriter.h>
 #include <Foundation/Time/Time.h>
+#include <Foundation/Configuration/Startup.h>
 
 SampleGameApp::SampleGameApp()
 {
@@ -35,7 +36,13 @@ void SampleGameApp::BeforeEngineShutdown()
 ezApplication::ApplicationExecution SampleGameApp::Run()
 {
   CreateAppWindow();
+
+  ezStartup::StartupEngine();
+
   GameLoop();
+
+  ezStartup::ShutdownEngine();
+
   DestroyAppWindow();
 
   return ezApplication::Quit;

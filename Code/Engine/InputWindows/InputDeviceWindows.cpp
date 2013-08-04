@@ -5,8 +5,6 @@
 #include <Foundation/Strings/StringConversion.h>
 #include <Foundation/Containers/HybridArray.h>
 
-EZ_INPUTWINDOWS_DLL ezInputDeviceWindows g_InputDeviceWindows(0);
-
 bool ezInputDeviceWindows::s_bMainWindowUsed = false;
 
 ezInputDeviceWindows::ezInputDeviceWindows(ezUInt32 uiWindowNumber)

@@ -9,7 +9,7 @@ static HGLRC g_hRC = NULL;
 
 static LRESULT CALLBACK WndProc (HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
-  g_InputDeviceWindows.WindowMessage(hWnd, msg, wParam, lParam);
+  ezInputDeviceWindows::GetDevice()->WindowMessage(hWnd, msg, wParam, lParam);
 
   switch (msg)
   {

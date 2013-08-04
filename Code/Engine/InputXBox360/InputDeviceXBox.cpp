@@ -5,8 +5,6 @@
 #include <Core/Input/InputManager.h>
 #include <Xinput.h>
 
-EZ_INPUTXBOX360_DLL ezInputDeviceXBox360 g_InputDeviceXBox360;
-
 ezInputDeviceXBox360::ezInputDeviceXBox360()
 {
   for (ezInt32 i = 0; i < 4; ++i)

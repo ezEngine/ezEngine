@@ -9,6 +9,9 @@ public:
   ezInputDeviceWindows(ezUInt32 uiWindowNumber);
   ~ezInputDeviceWindows();
 
+  static ezInputDeviceWindows* GetDevice(ezUInt32 uiWindowNumber = 0);
+  static void DestroyAllDevices();
+
   virtual const char* GetDeviceName() const { return "MouseKeyboardWindows"; }
 
   void WindowMessage(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam);
@@ -33,4 +36,3 @@ private:
   bool m_bClipCursor;
 };
 
-extern EZ_INPUTWINDOWS_DLL ezInputDeviceWindows g_InputDeviceWindows;

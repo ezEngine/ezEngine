@@ -1,6 +1,7 @@
 #include <Core/PCH.h>
 #include <Core/Input/InputManager.h>
 #include <Foundation/Logging/Log.h>
+#include <Foundation/Configuration/Startup.h>
 
 ezMap<ezString, ezInputManager::ezInputSlot, ezCompareHelper<ezString>, ezStaticAllocatorWrapper> ezInputManager::s_InputSlots;
 wchar_t ezInputManager::s_LastCharacter = '\0';

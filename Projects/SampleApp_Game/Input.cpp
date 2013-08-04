@@ -41,9 +41,9 @@ static void RegisterInputAction(const char* szInputSet, const char* szInputActio
 
 void SampleGameApp::SetupInput()
 {
-  g_InputDeviceXBox360.EnableVibration(0, true);
-  g_InputDeviceWindows.SetClipMouseCursor(true);
-  g_InputDeviceWindows.SetShowMouseCursor(false);
+  ezInputDeviceXBox360::GetDevice();
+  ezInputDeviceWindows::GetDevice()->SetClipMouseCursor(true);
+  ezInputDeviceWindows::GetDevice()->SetShowMouseCursor(false);
 
   RegisterInputAction("Main", "CloseApp", "keyboard_escape");
   RegisterInputAction("Main", "ResetLevel", "keyboard_return");

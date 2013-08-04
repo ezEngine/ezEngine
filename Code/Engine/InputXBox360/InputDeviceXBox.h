@@ -8,6 +8,9 @@ class EZ_INPUTXBOX360_DLL ezInputDeviceXBox360 : public ezInputDeviceController
 public:
   ezInputDeviceXBox360();
 
+  static ezInputDeviceXBox360* GetDevice();
+  static void DestroyAllDevices();
+
   virtual const char* GetDeviceName() const { return "ControllerXBox"; }
 
   virtual bool IsControllerConnected(ezUInt8 uiPhysical) const EZ_OVERRIDE { EZ_ASSERT(uiPhysical < 4, "Invalid Controller Index"); return m_bControllerConnected[uiPhysical]; }
@@ -33,4 +36,3 @@ private:
   static void SetDeadZoneAndScale(const char* szButton);
 };
 
-EZ_INPUTXBOX360_DLL extern ezInputDeviceXBox360 g_InputDeviceXBox360;
