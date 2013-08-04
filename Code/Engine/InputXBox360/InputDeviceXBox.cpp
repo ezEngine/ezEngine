@@ -27,6 +27,25 @@ void ezInputDeviceXBox360::RegisterControllerButton(const char* szButton, const 
     s2.Format("Cont %i: %s", i + 1, szName);
     RegisterInputSlot(s.GetData(), s2.GetData());
   }
+
+  for (ezInt32 i = 0; i < 4; ++i)
+  {
+    s.Format("controller%i_%s", i, szButton);
+    ezInputManager::SetInputSlotDeadZone(s.GetData(), 0.23f);
+    ezInputManager::SetInputSlotScale(s.GetData(), -3.0f);
+  }
+}
+
+void ezInputDeviceXBox360::SetDeadZoneAndScale(const char* szButton)
+{
+  ezStringBuilder s;
+
+  for (ezInt32 i = 0; i < 4; ++i)
+  {
+    s.Format("controller%i_%s", i, szButton);
+    ezInputManager::SetInputSlotDeadZone(s.GetData(), 0.23f);
+    ezInputManager::SetInputSlotScale(s.GetData(), -3.0f);
+  }
 }
 
 void ezInputDeviceXBox360::RegisterInputSlots()
@@ -57,6 +76,17 @@ void ezInputDeviceXBox360::RegisterInputSlots()
   RegisterControllerButton("rightstick_posx", "Right Stick Right");
   RegisterControllerButton("rightstick_negy", "Right Stick Down");
   RegisterControllerButton("rightstick_posy", "Right Stick Up");
+
+  SetDeadZoneAndScale("left_trigger");
+  SetDeadZoneAndScale("right_trigger");
+  SetDeadZoneAndScale("left_stick_negx");
+  SetDeadZoneAndScale("left_stick_posx");
+  SetDeadZoneAndScale("left_stick_negy");
+  SetDeadZoneAndScale("left_stick_posy");
+  SetDeadZoneAndScale("right_stick_negx");
+  SetDeadZoneAndScale("right_stick_posx");
+  SetDeadZoneAndScale("right_stick_negy");
+  SetDeadZoneAndScale("right_stick_posy");
 
   ezLog::Success("Initialized XBox 360 Controller.");
 }

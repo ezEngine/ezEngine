@@ -112,7 +112,7 @@ void SampleGameApp::CreateAppWindow()
   wc.lpfnWndProc = WndProc;
   wc.hCursor = LoadCursor (NULL, IDC_ARROW);
   wc.hIcon = LoadIcon (NULL, IDI_APPLICATION);
-  wc.style = CS_OWNDC | CS_HREDRAW | CS_VREDRAW;
+  wc.style = CS_OWNDC | CS_HREDRAW | CS_VREDRAW | CS_DBLCLKS;
   RegisterClassEx (&wc);
 
 

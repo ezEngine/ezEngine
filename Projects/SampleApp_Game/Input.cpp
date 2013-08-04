@@ -67,29 +67,21 @@ void SampleGameApp::SetupInput()
 
   // some more keyboard key bindings
 
-  RegisterInputAction("Game", "Player0_Forwards",   NULL, "keyboard_w");
-  RegisterInputAction("Game", "Player0_Backwards",  NULL, "keyboard_s");
-  RegisterInputAction("Game", "Player0_Left",       NULL, "keyboard_a");
-  RegisterInputAction("Game", "Player0_Right",      NULL, "keyboard_d");
-  RegisterInputAction("Game", "Player0_Shoot",      NULL, "keyboard_space");
+  RegisterInputAction("Game", "Player1_Forwards",   NULL, "keyboard_w");
+  RegisterInputAction("Game", "Player1_Backwards",  NULL, "keyboard_s");
+  RegisterInputAction("Game", "Player1_Left",       NULL, "keyboard_a");
+  RegisterInputAction("Game", "Player1_Right",      NULL, "keyboard_d");
+  RegisterInputAction("Game", "Player1_Shoot",      NULL, "keyboard_space");
+  RegisterInputAction("Game", "Player1_RotLeft",    NULL, "keyboard_left");
+  RegisterInputAction("Game", "Player1_RotRight",   NULL, "keyboard_right");
 
-  RegisterInputAction("Game", "Player1_Forwards",   NULL, "keyboard_up");
-  RegisterInputAction("Game", "Player1_Backwards",  NULL, "keyboard_down");
-  RegisterInputAction("Game", "Player1_Left",       NULL, "keyboard_left");
-  RegisterInputAction("Game", "Player1_Right",      NULL, "keyboard_right");
-  RegisterInputAction("Game", "Player1_Shoot",      NULL, "keyboard_right_ctrl");
-
-  RegisterInputAction("Game", "Player2_Forwards",   NULL, "keyboard_numpad_8");
-  RegisterInputAction("Game", "Player2_Backwards",  NULL, "keyboard_numpad_5");
-  RegisterInputAction("Game", "Player2_Left",       NULL, "keyboard_numpad_4");
-  RegisterInputAction("Game", "Player2_Right",      NULL, "keyboard_numpad_6");
-  RegisterInputAction("Game", "Player2_Shoot",      NULL, "keyboard_numpad_0");
-
-  RegisterInputAction("Game", "Player3_Forwards",   NULL, "mouse_button_1");
-  RegisterInputAction("Game", "Player3_Backwards",  NULL, "mouse_button_2");
+  RegisterInputAction("Game", "Player3_Forwards",   NULL, "mouse_move_negy");
+  RegisterInputAction("Game", "Player3_Backwards",  NULL, "mouse_move_posy");
   RegisterInputAction("Game", "Player3_Left",       NULL, "mouse_move_negx");
   RegisterInputAction("Game", "Player3_Right",      NULL, "mouse_move_posx");
-  RegisterInputAction("Game", "Player3_Shoot",      NULL, "mouse_button_0");
+  RegisterInputAction("Game", "Player3_Shoot",      NULL, "mouse_button_2");
+  RegisterInputAction("Game", "Player3_RotLeft",    NULL, "mouse_button_0");
+  RegisterInputAction("Game", "Player3_RotRight",   NULL, "mouse_button_1");
 }
 
 
@@ -114,8 +106,6 @@ void Level::UpdatePlayerInput(ezInt32 iPlayer)
 
   if (ezInputManager::GetInputActionState("Game", sControls[0].GetData(), &fVal) != ezKeyState::Up)
   {
-    fVal = ezMath::Square(fVal);
-
     ezVec3 vPos = pShip->GetLocalPosition();
     //vVelocity += 0.1f * vShipDir * fVal;
     vVelocity += 0.1f * ezVec3(0, 1, 0) * fVal;
@@ -123,8 +113,6 @@ void Level::UpdatePlayerInput(ezInt32 iPlayer)
 
   if (ezInputManager::GetInputActionState("Game", sControls[1].GetData(), &fVal) != ezKeyState::Up)
   {
-    fVal = ezMath::Square(fVal);
-
     ezVec3 vPos = pShip->GetLocalPosition();
     //vVelocity -= 0.1f * vShipDir * fVal;
     vVelocity += 0.1f * ezVec3(0, -1, 0) * fVal;
@@ -132,8 +120,6 @@ void Level::UpdatePlayerInput(ezInt32 iPlayer)
 
   if (ezInputManager::GetInputActionState("Game", sControls[2].GetData(), &fVal) != ezKeyState::Up)
   {
-    fVal = ezMath::Square(fVal);
-
     ezVec3 vPos = pShip->GetLocalPosition();
     //vVelocity += 0.1f * vShipDir * fVal;
     vVelocity += 0.1f * ezVec3(-1, 0, 0) * fVal;
@@ -141,8 +127,6 @@ void Level::UpdatePlayerInput(ezInt32 iPlayer)
 
   if (ezInputManager::GetInputActionState("Game", sControls[3].GetData(), &fVal) != ezKeyState::Up)
   {
-    fVal = ezMath::Square(fVal);
-
     ezVec3 vPos = pShip->GetLocalPosition();
     //vVelocity -= 0.1f * vShipDir * fVal;
     vVelocity += 0.1f * ezVec3(1, 0, 0) * fVal;
@@ -150,8 +134,6 @@ void Level::UpdatePlayerInput(ezInt32 iPlayer)
 
   if (ezInputManager::GetInputActionState("Game", sControls[4].GetData(), &fVal) != ezKeyState::Up)
   {
-    fVal = ezMath::Square(fVal);
-
     ezQuat qRotation;
     qRotation.SetFromAxisAndAngle(ezVec3(0, 0, 1), 3.0f * fVal);
 
@@ -161,8 +143,6 @@ void Level::UpdatePlayerInput(ezInt32 iPlayer)
 
   if (ezInputManager::GetInputActionState("Game", sControls[5].GetData(), &fVal) != ezKeyState::Up)
   {
-    fVal = ezMath::Square(fVal);
-
     ezQuat qRotation;
     qRotation.SetFromAxisAndAngle(ezVec3(0, 0, 1), -3.0f * fVal);
 

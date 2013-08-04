@@ -3,6 +3,7 @@
 #include "ProjectileComponent.h"
 #include "AsteroidComponent.h"
 #include <gl/GL.h>
+#include <Core/Input/InputManager.h>
 
 const float g_fShipColors[4][3] =
 {
@@ -174,7 +175,21 @@ void SampleGameApp::RenderSingleFrame()
   RenderProjectiles();
   RenderAsteroids();
   RenderPlayerShips();
+
+  if (ezInputManager::GetInputSlotState("touchpoint_0") == ezKeyState::Down)
+  {
+    float pX = 0, pY = 0;
+    ezInputManager::GetInputSlotState("touchpoint_0_position_x", &pX);
+    ezInputManager::GetInputSlotState("touchpoint_0_position_y", &pY);
+
   
+    glBegin(GL_POINTS);
+      glColor3ub(255, 255, 255);
+
+      glVertex3f(pX * 40.0f - 20.0f, pY * -40.0f + 20.0f, 0);
+
+    glEnd();
+  }
 }
 
 

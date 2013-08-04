@@ -205,13 +205,6 @@ void ezInputDeviceWindows::RegisterInputSlots()
   RegisterInputSlot("mouse_button_1_doubleclick", "Right Double Click");
   RegisterInputSlot("mouse_button_2_doubleclick", "Middle Double Click");
 
-  // dead-zones on mice are a pretty bad idea, most mice only send deltas of 1, but they send them pretty often
-  // instead scale the mouse input down, to reduce its impact
-  ezInputManager::SetInputSlotDeadZone("mouse_move_negx", 0.0f);
-  ezInputManager::SetInputSlotDeadZone("mouse_move_posx", 0.0f);
-  ezInputManager::SetInputSlotDeadZone("mouse_move_negy", 0.0f);
-  ezInputManager::SetInputSlotDeadZone("mouse_move_posy", 0.0f);
-
   ezInputManager::SetInputSlotScale("mouse_move_negx", 0.1f);
   ezInputManager::SetInputSlotScale("mouse_move_posx", 0.1f);
   ezInputManager::SetInputSlotScale("mouse_move_negy", 0.1f);
@@ -221,8 +214,10 @@ void ezInputDeviceWindows::RegisterInputSlots()
   RegisterInputSlot("mouse_position_x", "Mouse Position X");
   RegisterInputSlot("mouse_position_y", "Mouse Position Y");
 
-  ezInputManager::SetInputSlotDeadZone("mouse_position_x", 0.0f);
-  ezInputManager::SetInputSlotDeadZone("mouse_position_y", 0.0f);
+
+  RegisterInputSlot("touchpoint_0", "Touchpoint 1");
+  RegisterInputSlot("touchpoint_0_position_x", "Touchpoint 1 Position X");
+  RegisterInputSlot("touchpoint_0_position_y", "Touchpoint 1 Position Y");
 }
 
 void ezInputDeviceWindows::ResetInputSlotValues()
@@ -422,44 +417,39 @@ void ezInputDeviceWindows::WindowMessage(HWND hWnd, UINT Msg, WPARAM wParam, LPA
 
         // "absolute" positions are only reported by devices such as Pens
         // if at all, we should handle them as touch points, not as mouse positions
-        if (raw->data.mouse.usFlags == MOUSE_MOVE_RELATIVE)
+        if ((raw->data.mouse.usFlags & MOUSE_MOVE_ABSOLUTE) == 0)
         {
           m_InputSlotValues["mouse_move_negx"] += (raw->data.mouse.lLastX < 0) ? (float) -raw->data.mouse.lLastX : 0.0f;
           m_InputSlotValues["mouse_move_posx"] += (raw->data.mouse.lLastX > 0) ? (float)  raw->data.mouse.lLastX : 0.0f;
           m_InputSlotValues["mouse_move_negy"] += (raw->data.mouse.lLastY < 0) ? (float) -raw->data.mouse.lLastY : 0.0f;
           m_InputSlotValues["mouse_move_posy"] += (raw->data.mouse.lLastY > 0) ? (float)  raw->data.mouse.lLastY : 0.0f;
-        }
-        //else
-        //if (raw->data.mouse.usFlags == MOUSE_MOVE_ABSOLUTE)
-        //{
-        //  ezLog::Info("Absolute Mouse Move: %.1f | %.1f", (float) raw->data.mouse.lLastX, (float) raw->data.mouse.lLastY);
-        //}
-        //else
-        //if (raw->data.mouse.usFlags == MOUSE_VIRTUAL_DESKTOP)
-        //{
-        //  ezLog::Info("Virtual Mouse Move: %.1f | %.1f", (float) raw->data.mouse.lLastX, (float) raw->data.mouse.lLastY);
-        //}
-        //else
-        //if (raw->data.mouse.usFlags == (MOUSE_VIRTUAL_DESKTOP | MOUSE_MOVE_ABSOLUTE))
-        //{
-        //  ezLog::Info("Virtual/Abs Mouse Move: %.1f | %.1f", (float) raw->data.mouse.lLastX, (float) raw->data.mouse.lLastY);
-        //}
-        //else
-        //{
-        //  ezLog::Info("Unknown Mouse Move: %.1f | %.1f, Flags = %i", (float) raw->data.mouse.lLastX, (float) raw->data.mouse.lLastY, raw->data.mouse.usFlags);
-        //}
 
+          for (ezInt32 mb = 0; mb < 5; ++mb)
+          {
+            char szTemp[32];
+            ezStringUtils::snprintf(szTemp, 32, "mouse_button_%i", mb);
 
-        for (ezInt32 mb = 0; mb < 5; ++mb)
-        {
-          char szTemp[32];
-          ezStringUtils::snprintf(szTemp, 32, "mouse_button_%i", mb);
-
-          if ((uiButtons & (RI_MOUSE_BUTTON_1_DOWN << (mb * 2))) != 0)
-            m_InputSlotValues[szTemp] = 1.0f;
+            if ((uiButtons & (RI_MOUSE_BUTTON_1_DOWN << (mb * 2))) != 0)
+              m_InputSlotValues[szTemp] = 1.0f;
           
-          if ((uiButtons & (RI_MOUSE_BUTTON_1_DOWN << (mb * 2 + 1))) != 0)
-            m_InputSlotValues[szTemp] = 0.0f;
+            if ((uiButtons & (RI_MOUSE_BUTTON_1_DOWN << (mb * 2 + 1))) != 0)
+              m_InputSlotValues[szTemp] = 0.0f;
+          }
+        }
+        else
+        if ((raw->data.mouse.usFlags & MOUSE_MOVE_ABSOLUTE) != 0)
+        {
+          m_InputSlotValues["touchpoint_0_position_x"] = (raw->data.mouse.lLastX / 65535.0f) + m_uiWindowNumber;
+          m_InputSlotValues["touchpoint_0_position_y"] = (raw->data.mouse.lLastY / 65535.0f);
+
+          if ((uiButtons & (RI_MOUSE_BUTTON_1_DOWN | RI_MOUSE_BUTTON_2_DOWN)) != 0)
+            m_InputSlotValues["touchpoint_0"] = 1.0f;
+          if ((uiButtons & (RI_MOUSE_BUTTON_1_UP | RI_MOUSE_BUTTON_2_UP)) != 0)
+            m_InputSlotValues["touchpoint_0"] = 0.0f;
+        }
+        else
+        {
+          ezLog::Info("Unknown Mouse Move: %.1f | %.1f, Flags = %i", (float) raw->data.mouse.lLastX, (float) raw->data.mouse.lLastY, raw->data.mouse.usFlags);
         }
       } 
       

@@ -72,6 +72,8 @@ void Level::CreateAsteroid()
   desc.m_LocalPosition.x = (((rand() % 1000) / 999.0f) * 40.0f) - 20.0f;
   desc.m_LocalPosition.y = (((rand() % 1000) / 999.0f) * 40.0f) - 20.0f;
 
+  const float fRadius = 1.0f + ((rand() % 1000) / 999.0f);
+
   ezGameObjectHandle hAsteroid = m_pWorld->CreateObject(desc);
 
   ezGameObject* pGameObject = m_pWorld->GetObject(hAsteroid);
@@ -80,12 +82,13 @@ void Level::CreateAsteroid()
   pGameObject->AddComponent(hAsteroidComponent);
 
   AsteroidComponent* pAsteroidComponent = pAsteroidManager->GetComponent(hAsteroidComponent);
+  pAsteroidComponent->m_fRadius = fRadius;
   
   ezComponentHandle hCollidableomponent = pCollidableManager->CreateComponent();
   pGameObject->AddComponent(hCollidableomponent);
 
   CollidableComponent* pCollidableComponent = pCollidableManager->GetComponent(hCollidableomponent);
-  pCollidableComponent->m_fCollisionRadius = 1.0f;
+  pCollidableComponent->m_fCollisionRadius = fRadius;
 
 }
 

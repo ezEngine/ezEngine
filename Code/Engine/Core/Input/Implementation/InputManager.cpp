@@ -9,7 +9,7 @@ ezInputManager::ezInputSlot::ezInputSlot()
 {
   m_fValue = 0.0f;
   m_State = ezKeyState::Up;
-  m_fDeadZone = 0.23f;
+  m_fDeadZone = 0.0f;
   m_fScale = 1.0f;
 }
 
@@ -161,11 +161,14 @@ void ezInputManager::GatherDeviceInputSlotValues()
       if (it.Value() > 0.0f)
       {
         ezInputManager::ezInputSlot& Slot = s_InputSlots[it.Key()];
-        const float fStoreValue = it.Value() * Slot.m_fScale;
 
         // do not store a value larger than 0 unless it exceeds the deadzone threshold
-        if (fStoreValue > Slot.m_fDeadZone)
+        if (it.Value() > Slot.m_fDeadZone)
+        {
+          const float fStoreValue = (Slot.m_fScale >= 0.0f) ? it.Value() * Slot.m_fScale : ezMath::Pow(it.Value(), -Slot.m_fScale);
+
           Slot.m_fValue = ezMath::Max(Slot.m_fValue, fStoreValue); // 'accumulate' the values for one slot from all the connected devices
+        }
       }
     }
   }

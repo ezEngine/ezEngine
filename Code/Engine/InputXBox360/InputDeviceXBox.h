@@ -30,6 +30,7 @@ private:
   void SetValue(ezInt32 iController, const char* szButton, float fValue);
 
   static void RegisterControllerButton(const char* szButton, const char* szName);
+  static void SetDeadZoneAndScale(const char* szButton);
 };
 
 EZ_INPUTXBOX360_DLL extern ezInputDeviceXBox360 g_InputDeviceXBox360;
