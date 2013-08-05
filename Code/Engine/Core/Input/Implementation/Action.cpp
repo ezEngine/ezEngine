@@ -2,9 +2,6 @@
 #include <Foundation/Logging/Log.h>
 #include <Core/Input/InputManager.h>
 
-ezMap<ezString, ezInputManager::ezActionMap, ezCompareHelper<ezString>, ezStaticAllocatorWrapper > ezInputManager::s_ActionMapping;
-ezMap<ezString, ezString, ezCompareHelper<ezString>, ezStaticAllocatorWrapper> ezInputManager::s_ActionDisplayNames; 
-
 ezInputManager::ezInputActionConfig::ezInputActionConfig()
 {
   m_fFilterXMinValue = 0.0f;
@@ -26,7 +23,7 @@ ezInputManager::ezActionData::ezActionData()
 
 void ezInputManager::ClearInputMapping(const char* szInputSet, const char* szInputSlot)
 {
-  ezActionMap& Actions = s_ActionMapping[szInputSet];
+  ezActionMap& Actions = GetInternals().s_ActionMapping[szInputSet];
 
   // iterate over all existing actions
   for (ezActionMap::Iterator it = Actions.GetIterator(); it.IsValid(); ++it)
@@ -54,12 +51,12 @@ void ezInputManager::SetInputActionConfig(const char* szInputSet, const char* sz
   }
 
   // store the new action mapping
-  s_ActionMapping[szInputSet][szAction].m_Config = Config;
+  GetInternals().s_ActionMapping[szInputSet][szAction].m_Config = Config;
 }
 
 ezInputManager::ezInputActionConfig ezInputManager::GetInputActionConfig(const char* szInputSet, const char* szAction)
 {
-  const ezInputSetMap::ConstIterator ItSet = s_ActionMapping.Find(szInputSet);
+  const ezInputSetMap::ConstIterator ItSet = GetInternals().s_ActionMapping.Find(szInputSet);
 
   if (!ItSet.IsValid())
     return ezInputManager::ezInputActionConfig();
@@ -74,7 +71,7 @@ ezInputManager::ezInputActionConfig ezInputManager::GetInputActionConfig(const c
 
 void ezInputManager::RemoveInputAction(const char* szInputSet, const char* szAction)
 {
-  s_ActionMapping[szInputSet].Erase(szAction);
+  GetInternals().s_ActionMapping[szInputSet].Erase(szAction);
 }
 
 ezKeyState::Enum ezInputManager::GetInputActionState(const char* szInputSet, const char* szAction, float* pValue)
@@ -82,7 +79,7 @@ ezKeyState::Enum ezInputManager::GetInputActionState(const char* szInputSet, con
   if (pValue)
     *pValue = 0.0f;
 
-  const ezInputSetMap::ConstIterator ItSet = s_ActionMapping.Find(szInputSet);
+  const ezInputSetMap::ConstIterator ItSet = GetInternals().s_ActionMapping.Find(szInputSet);
 
   if (!ItSet.IsValid())
     return ezKeyState::Up;
@@ -162,7 +159,7 @@ hell:
     // if any filter is set, check that it is in range
     if (!ThisAction.m_Config.m_sFilterByInputSlotX.IsEmpty())
     {
-      const float fVal = s_InputSlots[ThisAction.m_Config.m_sFilterByInputSlotX].m_fValue;
+      const float fVal = GetInternals().s_InputSlots[ThisAction.m_Config.m_sFilterByInputSlotX].m_fValue;
       if (fVal < ThisAction.m_Config.m_fFilterXMinValue || fVal > ThisAction.m_Config.m_fFilterXMaxValue)
         continue;
     }
@@ -171,7 +168,7 @@ hell:
     // if any filter is set, check that it is in range
     if (!ThisAction.m_Config.m_sFilterByInputSlotY.IsEmpty())
     {
-      const float fVal = s_InputSlots[ThisAction.m_Config.m_sFilterByInputSlotY].m_fValue;
+      const float fVal = GetInternals().s_InputSlots[ThisAction.m_Config.m_sFilterByInputSlotY].m_fValue;
       if (fVal < ThisAction.m_Config.m_fFilterYMinValue || fVal > ThisAction.m_Config.m_fFilterYMaxValue)
         continue;
     }
@@ -188,7 +185,7 @@ void ezInputManager::UpdateInputActions()
 {
   // update each input set
   // all input sets are disjunct from each other, so one key press can have different effects in each input set
-  for (ezInputSetMap::Iterator ItSets = s_ActionMapping.GetIterator(); ItSets.IsValid(); ++ItSets)
+  for (ezInputSetMap::Iterator ItSets = GetInternals().s_ActionMapping.GetIterator(); ItSets.IsValid(); ++ItSets)
   {
     UpdateInputActions(ItSets.Value());
   }
@@ -201,7 +198,7 @@ void ezInputManager::UpdateInputActions(ezActionMap& Actions)
     ItActions.Value().m_fValue = 0.0f;
 
   // iterate over all input slots and check how their values affect the actions from the current input set
-  for (ezInputSlotsMap::Iterator ItSlots = s_InputSlots.GetIterator(); ItSlots.IsValid(); ++ItSlots)
+  for (ezInputSlotsMap::Iterator ItSlots = GetInternals().s_InputSlots.GetIterator(); ItSlots.IsValid(); ++ItSlots)
   {
     // if this input slot is not active, ignore it; we will reset all actions later
     if (ItSlots.Value().m_fValue == 0.0f)
@@ -250,12 +247,12 @@ void ezInputManager::UpdateInputActions(ezActionMap& Actions)
 
 void ezInputManager::SetActionDisplayName(const char* szAction, const char* szDisplayName)
 {
-  s_ActionDisplayNames[szAction] = szDisplayName;
+  GetInternals().s_ActionDisplayNames[szAction] = szDisplayName;
 }
 
 const char* ezInputManager::GetActionDisplayName(const char* szAction)
 {
-  ezMap<ezString, ezString, ezCompareHelper<ezString>, ezStaticAllocatorWrapper>::Iterator it = s_ActionDisplayNames.Find(szAction);
+  ezMap<ezString, ezString, ezCompareHelper<ezString>, ezStaticAllocatorWrapper>::Iterator it = GetInternals().s_ActionDisplayNames.Find(szAction);
 
   if (it.IsValid())
     return it.Value().GetData();
@@ -265,13 +262,13 @@ const char* ezInputManager::GetActionDisplayName(const char* szAction)
 
 void ezInputManager::GetAllInputSets(ezDynamicArray<ezString>& out_InputSetNames)
 {
-  for (ezInputSetMap::Iterator it = s_ActionMapping.GetIterator(); it.IsValid(); ++it)
+  for (ezInputSetMap::Iterator it = GetInternals().s_ActionMapping.GetIterator(); it.IsValid(); ++it)
     out_InputSetNames.PushBack(it.Key());
 }
 
 void ezInputManager::GetAllInputActions(const char* szInputSetName, ezDynamicArray<ezString>& out_InputActions)
 {
-  for (ezActionMap::Iterator it = s_ActionMapping[szInputSetName].GetIterator(); it.IsValid(); ++it)
+  for (ezActionMap::Iterator it = GetInternals().s_ActionMapping[szInputSetName].GetIterator(); it.IsValid(); ++it)
     out_InputActions.PushBack(it.Key());
 }
 

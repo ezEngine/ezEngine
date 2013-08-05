@@ -32,7 +32,7 @@ private:
 
   void SetValue(ezInt32 iController, const char* szButton, float fValue);
 
-  static void RegisterControllerButton(const char* szButton, const char* szName);
+  static void RegisterControllerButton(const char* szButton, const char* szName, ezBitflags<ezInputSlotFlags> SlotFlags);
   static void SetDeadZoneAndScale(const char* szButton);
 };
 

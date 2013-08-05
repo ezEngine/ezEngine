@@ -15,7 +15,7 @@ public:
 
   void Update();
 
-  void SetVelocity(ezVec3& vVel);
+  void SetVelocity(const ezVec3& vVel);
 
   void SetIsShooting(bool b);
 

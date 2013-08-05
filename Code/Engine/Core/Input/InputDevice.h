@@ -4,23 +4,7 @@
 #include <Foundation/Utilities/EnumerableClass.h>
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Strings/String.h>
-
-/// \brief This struct defines the different states a key can be in.
-///        All keys always go through the states 'Pressed' and 'Released', even if they are active for only one frame.
-///        A key is 'Down' when it is pressed for at least two frames. It is 'Up' when it is not pressed for at least two frames.
-struct EZ_CORE_DLL ezKeyState
-{
-  enum Enum
-  {
-    Up,         ///< Key is not pressed at all.
-    Released,   ///< Key has just been released this frame.
-    Pressed,    ///< Key has just been pressed down this frame.
-    Down        ///< Key is pressed down for longer than one frame now.
-  };
-
-  /// \brief Computes the new key state from a previous key state and whether it is currently pressed or not.
-  static ezKeyState::Enum GetNewKeyState(ezKeyState::Enum PrevState, bool bKeyDown);
-};
+#include <Core/Input/Declarations.h>
 
 /// \brief The base class for all input device types.
 ///
@@ -88,7 +72,7 @@ private:
 
 protected:
   /// \brief Calls RegisterInputSlot() on the ezInputManager and passes the parameters through.
-  static void RegisterInputSlot(const char* szName, const char* szDefaultDisplayName);
+  static void RegisterInputSlot(const char* szName, const char* szDefaultDisplayName, ezBitflags<ezInputSlotFlags> SlotFlags);
 
   /// \brief Stores all the values for all input slots that this device handles.
   ///

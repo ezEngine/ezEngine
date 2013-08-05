@@ -3,8 +3,21 @@
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Configuration/Startup.h>
 
-ezMap<ezString, ezInputManager::ezInputSlot, ezCompareHelper<ezString>, ezStaticAllocatorWrapper> ezInputManager::s_InputSlots;
+ezInputManager::InternalData* ezInputManager::s_pData = NULL;
 wchar_t ezInputManager::s_LastCharacter = '\0';
+
+ezInputManager::InternalData& ezInputManager::GetInternals()
+{
+  if (s_pData == NULL)
+    s_pData = EZ_DEFAULT_NEW(InternalData);
+
+  return *s_pData;
+}
+
+void ezInputManager::DeallocateInternals()
+{
+  EZ_DEFAULT_DELETE(s_pData);
+}
 
 ezInputManager::ezInputSlot::ezInputSlot()
 {
@@ -14,29 +27,58 @@ ezInputManager::ezInputSlot::ezInputSlot()
   m_fScale = 1.0f;
 }
 
-void ezInputManager::RegisterInputSlot(const char* szInputSlot, const char* szDefaultDisplayName)
+void ezInputManager::RegisterInputSlot(const char* szInputSlot, const char* szDefaultDisplayName, ezBitflags<ezInputSlotFlags> SlotFlags)
 {
-  ezMap<ezString, ezInputSlot>::ConstIterator it = s_InputSlots.Find(szInputSlot);
+  ezMap<ezString, ezInputSlot>::Iterator it = GetInternals().s_InputSlots.Find(szInputSlot);
 
-  // If the key already exists, but key and display string are identical, than overwrite the display string with the incoming string
-  if (it.IsValid() && (it.Value().m_sDisplayName != it.Key()))
-    return;
+  
+  if (it.IsValid())
+  {
+    if (it.Value().m_SlotFlags != SlotFlags)
+    {
+      if (it.Value().m_SlotFlags != ezInputSlotFlags::Default)
+        ezLog::Warning("Different devices register Input Slot '%s' with different Slot Flags: %16b vs. %16b", szInputSlot, it.Value().m_SlotFlags, SlotFlags);
 
-  s_InputSlots[szInputSlot].m_sDisplayName = szDefaultDisplayName;
+      it.Value().m_SlotFlags = it.Value().m_SlotFlags | SlotFlags; /// \todo |= etc. on ezBitflags would be useful.
+    }
+
+    // If the key already exists, but key and display string are identical, than overwrite the display string with the incoming string
+    if (it.Value().m_sDisplayName != it.Key())
+      return;
+  }
+
+
+  ezLog::Dev("Registered Input Slot: '%s'", szInputSlot);
+
+  GetInternals().s_InputSlots[szInputSlot].m_sDisplayName = szDefaultDisplayName;
+  GetInternals().s_InputSlots[szInputSlot].m_SlotFlags = SlotFlags;
+}
+
+ezBitflags<ezInputSlotFlags> ezInputManager::GetInputSlotFlags(const char* szInputSlot)
+{
+  ezMap<ezString, ezInputSlot>::ConstIterator it = GetInternals().s_InputSlots.Find(szInputSlot);
+
+  if (it.IsValid())
+    return it.Value().m_SlotFlags;
+
+  ezLog::Warning("ezInputManager::GetInputSlotFlags: Input Slot '%s' does not exist (yet).", szInputSlot);
+
+  return ezInputSlotFlags::Default;
 }
 
 void ezInputManager::SetInputSlotDisplayName(const char* szInputSlot, const char* szDefaultDisplayName)
 {
-  s_InputSlots[szInputSlot].m_sDisplayName = szDefaultDisplayName;
+  GetInternals().s_InputSlots[szInputSlot].m_sDisplayName = szDefaultDisplayName;
 }
 
 const char* ezInputManager::GetInputSlotDisplayName(const char* szInputSlot)
 {
-  ezMap<ezString, ezInputSlot>::ConstIterator it = s_InputSlots.Find(szInputSlot);
+  ezMap<ezString, ezInputSlot>::ConstIterator it = GetInternals().s_InputSlots.Find(szInputSlot);
 
   if (it.IsValid())
     return it.Value().m_sDisplayName.GetData();
 
+  ezLog::Warning("ezInputManager::GetInputSlotDisplayName: Input Slot '%s' does not exist (yet).", szInputSlot);
   return szInputSlot;
 }
 
@@ -72,16 +114,17 @@ ezInputDevice* ezInputManager::GetInputDeviceByName(const char* szName)
 
 void ezInputManager::SetInputSlotDeadZone(const char* szInputSlot, float fDeadZone)
 {
-  RegisterInputSlot(szInputSlot, szInputSlot);
-  s_InputSlots[szInputSlot].m_fDeadZone = ezMath::Max(fDeadZone, 0.0001f);
+  GetInternals().s_InputSlots[szInputSlot].m_fDeadZone = ezMath::Max(fDeadZone, 0.0001f);
 }
 
 float ezInputManager::GetInputSlotDeadZone(const char* szInputSlot)
 {
-  ezMap<ezString, ezInputSlot>::ConstIterator it = s_InputSlots.Find(szInputSlot);
+  ezMap<ezString, ezInputSlot>::ConstIterator it = GetInternals().s_InputSlots.Find(szInputSlot);
 
   if (it.IsValid())
     return it.Value().m_fDeadZone;
+
+  ezLog::Warning("ezInputManager::GetInputSlotDeadZone: Input Slot '%s' does not exist (yet).", szInputSlot);
 
   ezInputSlot s;
   return s.m_fDeadZone; // return the default value
@@ -89,16 +132,17 @@ float ezInputManager::GetInputSlotDeadZone(const char* szInputSlot)
 
 void ezInputManager::SetInputSlotScale(const char* szInputSlot, float fScale)
 {
-  RegisterInputSlot(szInputSlot, szInputSlot);
-  s_InputSlots[szInputSlot].m_fScale = fScale;
+  GetInternals().s_InputSlots[szInputSlot].m_fScale = fScale;
 }
 
 float ezInputManager::GetInputSlotScale(const char* szInputSlot)
 {
-  ezMap<ezString, ezInputSlot>::ConstIterator it = s_InputSlots.Find(szInputSlot);
+  ezMap<ezString, ezInputSlot>::ConstIterator it = GetInternals().s_InputSlots.Find(szInputSlot);
 
   if (it.IsValid())
     return it.Value().m_fScale;
+
+  ezLog::Warning("ezInputManager::GetInputSlotScale: Input Slot '%s' does not exist (yet).", szInputSlot);
 
   ezInputSlot s;
   return s.m_fScale; // return the default value
@@ -106,7 +150,7 @@ float ezInputManager::GetInputSlotScale(const char* szInputSlot)
 
 ezKeyState::Enum ezInputManager::GetInputSlotState(const char* szInputSlot, float* pValue)
 {
-  ezMap<ezString, ezInputSlot>::ConstIterator it = s_InputSlots.Find(szInputSlot);
+  ezMap<ezString, ezInputSlot>::ConstIterator it = GetInternals().s_InputSlots.Find(szInputSlot);
 
   if (it.IsValid())
   {
@@ -118,6 +162,8 @@ ezKeyState::Enum ezInputManager::GetInputSlotState(const char* szInputSlot, floa
 
   if (pValue)
     *pValue = 0.0f;
+
+  ezLog::Warning("ezInputManager::GetInputSlotState: Input Slot '%s' does not exist (yet).", szInputSlot);
 
   return ezKeyState::Up;
 }
@@ -142,7 +188,7 @@ void ezInputManager::ResetInputSlotValues()
 {
   // set all input slot values to zero
   // this is crucial for accumulating the new values and for reseting the input state later
-  for (ezInputSlotsMap::Iterator it = s_InputSlots.GetIterator(); it.IsValid(); it.Next())
+  for (ezInputSlotsMap::Iterator it = GetInternals().s_InputSlots.GetIterator(); it.IsValid(); it.Next())
   {
     it.Value().m_fValue = 0.0f;
   }
@@ -161,7 +207,7 @@ void ezInputManager::GatherDeviceInputSlotValues()
     {
       if (it.Value() > 0.0f)
       {
-        ezInputManager::ezInputSlot& Slot = s_InputSlots[it.Key()];
+        ezInputManager::ezInputSlot& Slot = GetInternals().s_InputSlots[it.Key()];
 
         // do not store a value larger than 0 unless it exceeds the deadzone threshold
         if (it.Value() > Slot.m_fDeadZone)
@@ -177,7 +223,7 @@ void ezInputManager::GatherDeviceInputSlotValues()
 
 void ezInputManager::UpdateInputSlotStates()
 {
-  for (ezInputSlotsMap::Iterator it = s_InputSlots.GetIterator(); it.IsValid(); it.Next())
+  for (ezInputSlotsMap::Iterator it = GetInternals().s_InputSlots.GetIterator(); it.IsValid(); it.Next())
   {
     // update the state of the input slot, depending on its current value
     // its value will only be larger than zero, if it is also larger than its deadzone value
@@ -188,10 +234,10 @@ void ezInputManager::UpdateInputSlotStates()
 void ezInputManager::RetrieveAllKnownInputSlots(ezDynamicArray<const char*>& out_InputSlots)
 {
   out_InputSlots.Clear();
-  out_InputSlots.Reserve(s_InputSlots.GetCount());
+  out_InputSlots.Reserve(GetInternals().s_InputSlots.GetCount());
 
   // just copy all slot names into the given array
-  for (ezInputSlotsMap::Iterator it = s_InputSlots.GetIterator(); it.IsValid(); it.Next())
+  for (ezInputSlotsMap::Iterator it = GetInternals().s_InputSlots.GetIterator(); it.IsValid(); it.Next())
   {
     out_InputSlots.PushBack(it.Key().GetData());
   }

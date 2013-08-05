@@ -18,7 +18,7 @@ ShipComponent::ShipComponent()
   m_iPlayerIndex = -1;
 }
 
-void ShipComponent::SetVelocity(ezVec3& vVel)
+void ShipComponent::SetVelocity(const ezVec3& vVel)
 {
   m_vVelocity += vVel * 0.1f;
 }

@@ -150,7 +150,7 @@ namespace
             char* pTarget = target.GetDataPointer<char>(uiMipLevel, uiFace, uiArrayIndex, 0, 0, uiSlice);
             for(ezUInt32 uiRow = 0; uiRow < source.GetHeight(uiMipLevel); uiRow++)
             {
-              memcpy(pTarget, pSource, ezMath::Min(uiSourceRowPitch, uiTargetRowPitch));
+              ezMemoryUtils::Copy(pTarget, pSource, ezMath::Min(uiSourceRowPitch, uiTargetRowPitch));
               pSource += uiSourceRowPitch;
               pTarget += uiTargetRowPitch;
             }

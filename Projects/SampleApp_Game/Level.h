@@ -12,8 +12,6 @@ public:
   void SetupLevel(const char* szLevelName);
   void Update();
 
-  ezGameObjectHandle GetPlayerShip(ezInt32 iPlayer) const { return m_hPlayerShips[iPlayer]; }
-
   const ezWorld* GetWorld() const { return m_pWorld; }
 
 private:

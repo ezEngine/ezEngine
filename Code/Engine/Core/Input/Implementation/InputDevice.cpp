@@ -26,9 +26,9 @@ ezInputDevice::ezInputDevice()
   m_LastCharacter = '\0';
 }
 
-void ezInputDevice::RegisterInputSlot(const char* szName, const char* szDefaultDisplayName)
+void ezInputDevice::RegisterInputSlot(const char* szName, const char* szDefaultDisplayName, ezBitflags<ezInputSlotFlags> SlotFlags)
 {
-  ezInputManager::RegisterInputSlot(szName, szDefaultDisplayName);
+  ezInputManager::RegisterInputSlot(szName, szDefaultDisplayName, SlotFlags);
 }
 
 void ezInputDevice::Initialize()

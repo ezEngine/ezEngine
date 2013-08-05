@@ -31,7 +31,7 @@ struct ezImageConversionMixin
 
   static void ConvertSubImage(const ezImage& source, ezImage& target, ezUInt32 uiFace, ezUInt32 uiMipLevel, ezUInt32 uiArrayIndex)
   {
-    const ezUInt32 uiWidth = source.GetWidth();
+    const ezUInt32 uiWidth = source.GetWidth(uiMipLevel);
     const ezUInt32 uiHeight = source.GetHeight(uiMipLevel);
 
     // If the row pitch is a multiple of the pixel size, we can transform a whole slice at once

@@ -57,151 +57,151 @@ void ezInputDeviceWindows::InitializeDevice()
 
 void ezInputDeviceWindows::RegisterInputSlots()
 {
-  RegisterInputSlot("keyboard_left", "Left");
-  RegisterInputSlot("keyboard_right", "Right");
-  RegisterInputSlot("keyboard_up", "Up");
-  RegisterInputSlot("keyboard_down", "Down");
+  RegisterInputSlot("keyboard_left", "Left", ezInputSlotFlags::IsButton);
+  RegisterInputSlot("keyboard_right", "Right", ezInputSlotFlags::IsButton);
+  RegisterInputSlot("keyboard_up", "Up", ezInputSlotFlags::IsButton);
+  RegisterInputSlot("keyboard_down", "Down", ezInputSlotFlags::IsButton);
 
-  RegisterInputSlot("keyboard_escape", "Escape");
-  RegisterInputSlot("keyboard_space", "Space");
-  RegisterInputSlot("keyboard_backspace", "Backspace");
-  RegisterInputSlot("keyboard_return", "Return");
-  RegisterInputSlot("keyboard_tab", "Tab");
+  RegisterInputSlot("keyboard_escape", "Escape", ezInputSlotFlags::IsButton);
+  RegisterInputSlot("keyboard_space", "Space", ezInputSlotFlags::IsButton);
+  RegisterInputSlot("keyboard_backspace", "Backspace", ezInputSlotFlags::IsButton);
+  RegisterInputSlot("keyboard_return", "Return", ezInputSlotFlags::IsButton);
+  RegisterInputSlot("keyboard_tab", "Tab", ezInputSlotFlags::IsButton);
 
-  RegisterInputSlot("keyboard_left_shift", "Left Shift");
-  RegisterInputSlot("keyboard_right_shift", "Right Shift");
+  RegisterInputSlot("keyboard_left_shift", "Left Shift", ezInputSlotFlags::IsButton);
+  RegisterInputSlot("keyboard_right_shift", "Right Shift", ezInputSlotFlags::IsButton);
 
-  RegisterInputSlot("keyboard_left_ctrl", "Left Ctrl");
-  RegisterInputSlot("keyboard_right_ctrl", "Right Ctrl");
+  RegisterInputSlot("keyboard_left_ctrl", "Left Ctrl", ezInputSlotFlags::IsButton);
+  RegisterInputSlot("keyboard_right_ctrl", "Right Ctrl", ezInputSlotFlags::IsButton);
 
-  RegisterInputSlot("keyboard_left_alt", "Left Alt");
-  RegisterInputSlot("keyboard_right_alt", "Right Alt");
+  RegisterInputSlot("keyboard_left_alt", "Left Alt", ezInputSlotFlags::IsButton);
+  RegisterInputSlot("keyboard_right_alt", "Right Alt", ezInputSlotFlags::IsButton);
 
-  RegisterInputSlot("keyboard_left_win", "Left Win");
-  RegisterInputSlot("keyboard_right_win", "Right Win");
+  RegisterInputSlot("keyboard_left_win", "Left Win", ezInputSlotFlags::IsButton);
+  RegisterInputSlot("keyboard_right_win", "Right Win", ezInputSlotFlags::IsButton);
 
-  RegisterInputSlot("keyboard_bracket_open", "[");
-  RegisterInputSlot("keyboard_bracket_close", "]");
+  RegisterInputSlot("keyboard_bracket_open", "[", ezInputSlotFlags::IsButton);
+  RegisterInputSlot("keyboard_bracket_close", "]", ezInputSlotFlags::IsButton);
 
-  RegisterInputSlot("keyboard_semicolon", ";");
-  RegisterInputSlot("keyboard_apostrophe", "'");
-  RegisterInputSlot("keyboard_slash", "/");
-  RegisterInputSlot("keyboard_equals", "=");
-  RegisterInputSlot("keyboard_tilde", "~");
-  RegisterInputSlot("keyboard_hyphen", "-");
-  RegisterInputSlot("keyboard_comma", ",");
-  RegisterInputSlot("keyboard_period", ".");
-  RegisterInputSlot("keyboard_backslash", "\\");
-  RegisterInputSlot("keyboard_pipe", "|");
+  RegisterInputSlot("keyboard_semicolon", ";", ezInputSlotFlags::IsButton);
+  RegisterInputSlot("keyboard_apostrophe", "'", ezInputSlotFlags::IsButton);
+  RegisterInputSlot("keyboard_slash", "/", ezInputSlotFlags::IsButton);
+  RegisterInputSlot("keyboard_equals", "=", ezInputSlotFlags::IsButton);
+  RegisterInputSlot("keyboard_tilde", "~", ezInputSlotFlags::IsButton);
+  RegisterInputSlot("keyboard_hyphen", "-", ezInputSlotFlags::IsButton);
+  RegisterInputSlot("keyboard_comma", ",", ezInputSlotFlags::IsButton);
+  RegisterInputSlot("keyboard_period", ".", ezInputSlotFlags::IsButton);
+  RegisterInputSlot("keyboard_backslash", "\\", ezInputSlotFlags::IsButton);
+  RegisterInputSlot("keyboard_pipe", "|", ezInputSlotFlags::IsButton);
 
-  RegisterInputSlot("keyboard_1", "1");
-  RegisterInputSlot("keyboard_2", "2");
-  RegisterInputSlot("keyboard_3", "3");
-  RegisterInputSlot("keyboard_4", "4");
-  RegisterInputSlot("keyboard_5", "5");
-  RegisterInputSlot("keyboard_6", "6");
-  RegisterInputSlot("keyboard_7", "7");
-  RegisterInputSlot("keyboard_8", "8");
-  RegisterInputSlot("keyboard_9", "9");
-  RegisterInputSlot("keyboard_0", "0");
+  RegisterInputSlot("keyboard_1", "1", ezInputSlotFlags::IsButton);
+  RegisterInputSlot("keyboard_2", "2", ezInputSlotFlags::IsButton);
+  RegisterInputSlot("keyboard_3", "3", ezInputSlotFlags::IsButton);
+  RegisterInputSlot("keyboard_4", "4", ezInputSlotFlags::IsButton);
+  RegisterInputSlot("keyboard_5", "5", ezInputSlotFlags::IsButton);
+  RegisterInputSlot("keyboard_6", "6", ezInputSlotFlags::IsButton);
+  RegisterInputSlot("keyboard_7", "7", ezInputSlotFlags::IsButton);
+  RegisterInputSlot("keyboard_8", "8", ezInputSlotFlags::IsButton);
+  RegisterInputSlot("keyboard_9", "9", ezInputSlotFlags::IsButton);
+  RegisterInputSlot("keyboard_0", "0", ezInputSlotFlags::IsButton);
 
-  RegisterInputSlot("keyboard_numpad_1", "Numpad 1");
-  RegisterInputSlot("keyboard_numpad_2", "Numpad 2");
-  RegisterInputSlot("keyboard_numpad_3", "Numpad 3");
-  RegisterInputSlot("keyboard_numpad_4", "Numpad 4");
-  RegisterInputSlot("keyboard_numpad_5", "Numpad 5");
-  RegisterInputSlot("keyboard_numpad_6", "Numpad 6");
-  RegisterInputSlot("keyboard_numpad_7", "Numpad 7");
-  RegisterInputSlot("keyboard_numpad_8", "Numpad 8");
-  RegisterInputSlot("keyboard_numpad_9", "Numpad 9");
-  RegisterInputSlot("keyboard_numpad_0", "Numpad 0");
+  RegisterInputSlot("keyboard_numpad_1", "Numpad 1", ezInputSlotFlags::IsButton);
+  RegisterInputSlot("keyboard_numpad_2", "Numpad 2", ezInputSlotFlags::IsButton);
+  RegisterInputSlot("keyboard_numpad_3", "Numpad 3", ezInputSlotFlags::IsButton);
+  RegisterInputSlot("keyboard_numpad_4", "Numpad 4", ezInputSlotFlags::IsButton);
+  RegisterInputSlot("keyboard_numpad_5", "Numpad 5", ezInputSlotFlags::IsButton);
+  RegisterInputSlot("keyboard_numpad_6", "Numpad 6", ezInputSlotFlags::IsButton);
+  RegisterInputSlot("keyboard_numpad_7", "Numpad 7", ezInputSlotFlags::IsButton);
+  RegisterInputSlot("keyboard_numpad_8", "Numpad 8", ezInputSlotFlags::IsButton);
+  RegisterInputSlot("keyboard_numpad_9", "Numpad 9", ezInputSlotFlags::IsButton);
+  RegisterInputSlot("keyboard_numpad_0", "Numpad 0", ezInputSlotFlags::IsButton);
 
-  RegisterInputSlot("keyboard_a", "A");
-  RegisterInputSlot("keyboard_b", "B");
-  RegisterInputSlot("keyboard_c", "C");
-  RegisterInputSlot("keyboard_d", "D");
-  RegisterInputSlot("keyboard_e", "E");
-  RegisterInputSlot("keyboard_f", "F");
-  RegisterInputSlot("keyboard_g", "G");
-  RegisterInputSlot("keyboard_h", "H");
-  RegisterInputSlot("keyboard_i", "I");
-  RegisterInputSlot("keyboard_j", "J");
-  RegisterInputSlot("keyboard_k", "K");
-  RegisterInputSlot("keyboard_l", "L");
-  RegisterInputSlot("keyboard_m", "M");
-  RegisterInputSlot("keyboard_n", "N");
-  RegisterInputSlot("keyboard_o", "O");
-  RegisterInputSlot("keyboard_p", "P");
-  RegisterInputSlot("keyboard_q", "Q");
-  RegisterInputSlot("keyboard_r", "R");
-  RegisterInputSlot("keyboard_s", "S");
-  RegisterInputSlot("keyboard_t", "T");
-  RegisterInputSlot("keyboard_u", "U");
-  RegisterInputSlot("keyboard_v", "V");
-  RegisterInputSlot("keyboard_w", "W");
-  RegisterInputSlot("keyboard_x", "X");
-  RegisterInputSlot("keyboard_y", "Y");
-  RegisterInputSlot("keyboard_z", "Z");
+  RegisterInputSlot("keyboard_a", "A", ezInputSlotFlags::IsButton);
+  RegisterInputSlot("keyboard_b", "B", ezInputSlotFlags::IsButton);
+  RegisterInputSlot("keyboard_c", "C", ezInputSlotFlags::IsButton);
+  RegisterInputSlot("keyboard_d", "D", ezInputSlotFlags::IsButton);
+  RegisterInputSlot("keyboard_e", "E", ezInputSlotFlags::IsButton);
+  RegisterInputSlot("keyboard_f", "F", ezInputSlotFlags::IsButton);
+  RegisterInputSlot("keyboard_g", "G", ezInputSlotFlags::IsButton);
+  RegisterInputSlot("keyboard_h", "H", ezInputSlotFlags::IsButton);
+  RegisterInputSlot("keyboard_i", "I", ezInputSlotFlags::IsButton);
+  RegisterInputSlot("keyboard_j", "J", ezInputSlotFlags::IsButton);
+  RegisterInputSlot("keyboard_k", "K", ezInputSlotFlags::IsButton);
+  RegisterInputSlot("keyboard_l", "L", ezInputSlotFlags::IsButton);
+  RegisterInputSlot("keyboard_m", "M", ezInputSlotFlags::IsButton);
+  RegisterInputSlot("keyboard_n", "N", ezInputSlotFlags::IsButton);
+  RegisterInputSlot("keyboard_o", "O", ezInputSlotFlags::IsButton);
+  RegisterInputSlot("keyboard_p", "P", ezInputSlotFlags::IsButton);
+  RegisterInputSlot("keyboard_q", "Q", ezInputSlotFlags::IsButton);
+  RegisterInputSlot("keyboard_r", "R", ezInputSlotFlags::IsButton);
+  RegisterInputSlot("keyboard_s", "S", ezInputSlotFlags::IsButton);
+  RegisterInputSlot("keyboard_t", "T", ezInputSlotFlags::IsButton);
+  RegisterInputSlot("keyboard_u", "U", ezInputSlotFlags::IsButton);
+  RegisterInputSlot("keyboard_v", "V", ezInputSlotFlags::IsButton);
+  RegisterInputSlot("keyboard_w", "W", ezInputSlotFlags::IsButton);
+  RegisterInputSlot("keyboard_x", "X", ezInputSlotFlags::IsButton);
+  RegisterInputSlot("keyboard_y", "Y", ezInputSlotFlags::IsButton);
+  RegisterInputSlot("keyboard_z", "Z", ezInputSlotFlags::IsButton);
 
-  RegisterInputSlot("keyboard_f1", "F1");
-  RegisterInputSlot("keyboard_f2", "F2");
-  RegisterInputSlot("keyboard_f3", "F3");
-  RegisterInputSlot("keyboard_f4", "F4");
-  RegisterInputSlot("keyboard_f5", "F5");
-  RegisterInputSlot("keyboard_f6", "F6");
-  RegisterInputSlot("keyboard_f7", "F7");
-  RegisterInputSlot("keyboard_f8", "F8");
-  RegisterInputSlot("keyboard_f9", "F9");
-  RegisterInputSlot("keyboard_f10", "F10");
-  RegisterInputSlot("keyboard_f11", "F11");
-  RegisterInputSlot("keyboard_f12", "F12");
+  RegisterInputSlot("keyboard_f1", "F1", ezInputSlotFlags::IsButton);
+  RegisterInputSlot("keyboard_f2", "F2", ezInputSlotFlags::IsButton);
+  RegisterInputSlot("keyboard_f3", "F3", ezInputSlotFlags::IsButton);
+  RegisterInputSlot("keyboard_f4", "F4", ezInputSlotFlags::IsButton);
+  RegisterInputSlot("keyboard_f5", "F5", ezInputSlotFlags::IsButton);
+  RegisterInputSlot("keyboard_f6", "F6", ezInputSlotFlags::IsButton);
+  RegisterInputSlot("keyboard_f7", "F7", ezInputSlotFlags::IsButton);
+  RegisterInputSlot("keyboard_f8", "F8", ezInputSlotFlags::IsButton);
+  RegisterInputSlot("keyboard_f9", "F9", ezInputSlotFlags::IsButton);
+  RegisterInputSlot("keyboard_f10", "F10", ezInputSlotFlags::IsButton);
+  RegisterInputSlot("keyboard_f11", "F11", ezInputSlotFlags::IsButton);
+  RegisterInputSlot("keyboard_f12", "F12", ezInputSlotFlags::IsButton);
 
-  RegisterInputSlot("keyboard_home", "Home");
-  RegisterInputSlot("keyboard_end", "End");
-  RegisterInputSlot("keyboard_delete", "Delete");
-  RegisterInputSlot("keyboard_insert", "Insert");
-  RegisterInputSlot("keyboard_page_up", "Page Up");
-  RegisterInputSlot("keyboard_page_down", "Page Down");
+  RegisterInputSlot("keyboard_home", "Home", ezInputSlotFlags::IsButton);
+  RegisterInputSlot("keyboard_end", "End", ezInputSlotFlags::IsButton);
+  RegisterInputSlot("keyboard_delete", "Delete", ezInputSlotFlags::IsButton);
+  RegisterInputSlot("keyboard_insert", "Insert", ezInputSlotFlags::IsButton);
+  RegisterInputSlot("keyboard_page_up", "Page Up", ezInputSlotFlags::IsButton);
+  RegisterInputSlot("keyboard_page_down", "Page Down", ezInputSlotFlags::IsButton);
 
-  RegisterInputSlot("keyboard_numlock", "Numlock");
-  RegisterInputSlot("keyboard_numpad_plus", "Numpad +");
-  RegisterInputSlot("keyboard_numpad_minus", "Numpad -");
-  RegisterInputSlot("keyboard_numpad_star", "Numpad *");
-  RegisterInputSlot("keyboard_numpad_slash", "Numpad /");
-  RegisterInputSlot("keyboard_numpad_period", "Numpad .");
-  RegisterInputSlot("keyboard_numpad_enter", "Enter");
+  RegisterInputSlot("keyboard_numlock", "Numlock", ezInputSlotFlags::IsButton);
+  RegisterInputSlot("keyboard_numpad_plus", "Numpad +", ezInputSlotFlags::IsButton);
+  RegisterInputSlot("keyboard_numpad_minus", "Numpad -", ezInputSlotFlags::IsButton);
+  RegisterInputSlot("keyboard_numpad_star", "Numpad *", ezInputSlotFlags::IsButton);
+  RegisterInputSlot("keyboard_numpad_slash", "Numpad /", ezInputSlotFlags::IsButton);
+  RegisterInputSlot("keyboard_numpad_period", "Numpad .", ezInputSlotFlags::IsButton);
+  RegisterInputSlot("keyboard_numpad_enter", "Enter", ezInputSlotFlags::IsButton);
 
-  RegisterInputSlot("keyboard_capslock", "Capslock");
-  RegisterInputSlot("keyboard_print", "Print");
-  RegisterInputSlot("keyboard_scroll", "Scroll");
-  RegisterInputSlot("keyboard_pause", "Pause");
-  RegisterInputSlot("keyboard_apps", "Application");
+  RegisterInputSlot("keyboard_capslock", "Capslock", ezInputSlotFlags::IsButton);
+  RegisterInputSlot("keyboard_print", "Print", ezInputSlotFlags::IsButton);
+  RegisterInputSlot("keyboard_scroll", "Scroll", ezInputSlotFlags::IsButton);
+  RegisterInputSlot("keyboard_pause", "Pause", ezInputSlotFlags::IsButton);
+  RegisterInputSlot("keyboard_apps", "Application", ezInputSlotFlags::IsButton);
   
-  RegisterInputSlot("keyboard_prev_track", "Previous Track");
-  RegisterInputSlot("keyboard_next_track", "Next Track");
-  RegisterInputSlot("keyboard_play_pause", "Play / Pause");
-  RegisterInputSlot("keyboard_stop", "Stop");
-  RegisterInputSlot("keyboard_volume_up", "Volume Up");
-  RegisterInputSlot("keyboard_volume_down", "Volume Down");
-  RegisterInputSlot("keyboard_mute", "Mute");
+  RegisterInputSlot("keyboard_prev_track", "Previous Track", ezInputSlotFlags::IsButton);
+  RegisterInputSlot("keyboard_next_track", "Next Track", ezInputSlotFlags::IsButton);
+  RegisterInputSlot("keyboard_play_pause", "Play / Pause", ezInputSlotFlags::IsButton);
+  RegisterInputSlot("keyboard_stop", "Stop", ezInputSlotFlags::IsButton);
+  RegisterInputSlot("keyboard_volume_up", "Volume Up", ezInputSlotFlags::IsButton);
+  RegisterInputSlot("keyboard_volume_down", "Volume Down", ezInputSlotFlags::IsButton);
+  RegisterInputSlot("keyboard_mute", "Mute", ezInputSlotFlags::IsButton);
 
-  RegisterInputSlot("mouse_wheel_up", "Mousewheel Up");
-  RegisterInputSlot("mouse_wheel_down", "Mousewheel Down");
+  RegisterInputSlot("mouse_wheel_up", "Mousewheel Up", ezInputSlotFlags::IsMouseWheel);
+  RegisterInputSlot("mouse_wheel_down", "Mousewheel Down", ezInputSlotFlags::IsMouseWheel);
 
-  RegisterInputSlot("mouse_move_negx", "Mouse Move Left");
-  RegisterInputSlot("mouse_move_posx", "Mouse Move Right");
-  RegisterInputSlot("mouse_move_negy", "Mouse Move Down");
-  RegisterInputSlot("mouse_move_posy", "Mouse Move Up");
+  RegisterInputSlot("mouse_move_negx", "Mouse Move Left", ezInputSlotFlags::IsMosueAxisMove);
+  RegisterInputSlot("mouse_move_posx", "Mouse Move Right", ezInputSlotFlags::IsMosueAxisMove);
+  RegisterInputSlot("mouse_move_negy", "Mouse Move Down", ezInputSlotFlags::IsMosueAxisMove);
+  RegisterInputSlot("mouse_move_posy", "Mouse Move Up", ezInputSlotFlags::IsMosueAxisMove);
 
-  RegisterInputSlot("mouse_button_0", "Mousebutton 0");
-  RegisterInputSlot("mouse_button_1", "Mousebutton 1");
-  RegisterInputSlot("mouse_button_2", "Mousebutton 2");
-  RegisterInputSlot("mouse_button_3", "Mousebutton 3");
-  RegisterInputSlot("mouse_button_4", "Mousebutton 4");
+  RegisterInputSlot("mouse_button_0", "Mousebutton 0", ezInputSlotFlags::IsButton);
+  RegisterInputSlot("mouse_button_1", "Mousebutton 1", ezInputSlotFlags::IsButton);
+  RegisterInputSlot("mouse_button_2", "Mousebutton 2", ezInputSlotFlags::IsButton);
+  RegisterInputSlot("mouse_button_3", "Mousebutton 3", ezInputSlotFlags::IsButton);
+  RegisterInputSlot("mouse_button_4", "Mousebutton 4", ezInputSlotFlags::IsButton);
 
-  RegisterInputSlot("mouse_button_0_doubleclick", "Left Double Click");
-  RegisterInputSlot("mouse_button_1_doubleclick", "Right Double Click");
-  RegisterInputSlot("mouse_button_2_doubleclick", "Middle Double Click");
+  RegisterInputSlot("mouse_button_0_doubleclick", "Left Double Click",   ezInputSlotFlags::IsDoubleClick);
+  RegisterInputSlot("mouse_button_1_doubleclick", "Right Double Click",  ezInputSlotFlags::IsDoubleClick);
+  RegisterInputSlot("mouse_button_2_doubleclick", "Middle Double Click", ezInputSlotFlags::IsDoubleClick);
 
   ezInputManager::SetInputSlotScale("mouse_move_negx", 0.1f);
   ezInputManager::SetInputSlotScale("mouse_move_posx", 0.1f);
@@ -209,13 +209,13 @@ void ezInputDeviceWindows::RegisterInputSlots()
   ezInputManager::SetInputSlotScale("mouse_move_posy", 0.1f);
 
 
-  RegisterInputSlot("mouse_position_x", "Mouse Position X");
-  RegisterInputSlot("mouse_position_y", "Mouse Position Y");
+  RegisterInputSlot("mouse_position_x", "Mouse Position X", ezInputSlotFlags::IsMosueAxisPosition);
+  RegisterInputSlot("mouse_position_y", "Mouse Position Y", ezInputSlotFlags::IsMosueAxisPosition);
 
 
-  RegisterInputSlot("touchpoint_0", "Touchpoint 1");
-  RegisterInputSlot("touchpoint_0_position_x", "Touchpoint 1 Position X");
-  RegisterInputSlot("touchpoint_0_position_y", "Touchpoint 1 Position Y");
+  RegisterInputSlot("touchpoint_0", "Touchpoint 1", ezInputSlotFlags::IsTouchPoint);
+  RegisterInputSlot("touchpoint_0_position_x", "Touchpoint 1 Position X", ezInputSlotFlags::IsTouchPosition);
+  RegisterInputSlot("touchpoint_0_position_y", "Touchpoint 1 Position Y", ezInputSlotFlags::IsTouchPosition);
 }
 
 void ezInputDeviceWindows::ResetInputSlotValues()

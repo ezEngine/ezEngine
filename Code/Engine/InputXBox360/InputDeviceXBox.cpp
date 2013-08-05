@@ -15,7 +15,7 @@ ezInputDeviceXBox360::ezInputDeviceXBox360()
   }
 }
 
-void ezInputDeviceXBox360::RegisterControllerButton(const char* szButton, const char* szName)
+void ezInputDeviceXBox360::RegisterControllerButton(const char* szButton, const char* szName, ezBitflags<ezInputSlotFlags> SlotFlags)
 {
   ezStringBuilder s, s2;
 
@@ -23,7 +23,7 @@ void ezInputDeviceXBox360::RegisterControllerButton(const char* szButton, const 
   {
     s.Format("controller%i_%s", i, szButton);
     s2.Format("Cont %i: %s", i + 1, szName);
-    RegisterInputSlot(s.GetData(), s2.GetData());
+    RegisterInputSlot(s.GetData(), s2.GetData(), SlotFlags);
   }
 
   for (ezInt32 i = 0; i < 4; ++i)
@@ -48,32 +48,32 @@ void ezInputDeviceXBox360::SetDeadZoneAndScale(const char* szButton)
 
 void ezInputDeviceXBox360::RegisterInputSlots()
 {
-  RegisterControllerButton("button_a", "Button A");
-  RegisterControllerButton("button_b", "Button B");
-  RegisterControllerButton("button_x", "Button X");
-  RegisterControllerButton("button_y", "Button Y");
-  RegisterControllerButton("button_start", "Start");
-  RegisterControllerButton("button_back", "Back");
-  RegisterControllerButton("left_shoulder", "Left Shoulder");
-  RegisterControllerButton("right_shoulder", "Right Shoulder");
-  RegisterControllerButton("left_trigger", "Left Trigger");
-  RegisterControllerButton("right_trigger", "Right Trigger");
-  RegisterControllerButton("pad_up", "Pad Up");
-  RegisterControllerButton("pad_down", "Pad Down");
-  RegisterControllerButton("pad_left", "Pad Left");
-  RegisterControllerButton("pad_right", "Pad Right");
-  RegisterControllerButton("left_stick", "Left Stick");
-  RegisterControllerButton("right_stick", "Right Stick");
+  RegisterControllerButton("button_a", "Button A", ezInputSlotFlags::IsButton);
+  RegisterControllerButton("button_b", "Button B", ezInputSlotFlags::IsButton);
+  RegisterControllerButton("button_x", "Button X", ezInputSlotFlags::IsButton);
+  RegisterControllerButton("button_y", "Button Y", ezInputSlotFlags::IsButton);
+  RegisterControllerButton("button_start", "Start", ezInputSlotFlags::IsButton);
+  RegisterControllerButton("button_back", "Back", ezInputSlotFlags::IsButton);
+  RegisterControllerButton("left_shoulder", "Left Shoulder", ezInputSlotFlags::IsButton);
+  RegisterControllerButton("right_shoulder", "Right Shoulder", ezInputSlotFlags::IsButton);
+  RegisterControllerButton("left_trigger", "Left Trigger", ezInputSlotFlags::IsAnalogTrigger);
+  RegisterControllerButton("right_trigger", "Right Trigger", ezInputSlotFlags::IsAnalogTrigger);
+  RegisterControllerButton("pad_up", "Pad Up", ezInputSlotFlags::IsButton);
+  RegisterControllerButton("pad_down", "Pad Down", ezInputSlotFlags::IsButton);
+  RegisterControllerButton("pad_left", "Pad Left", ezInputSlotFlags::IsButton);
+  RegisterControllerButton("pad_right", "Pad Right", ezInputSlotFlags::IsButton);
+  RegisterControllerButton("left_stick", "Left Stick", ezInputSlotFlags::IsButton);
+  RegisterControllerButton("right_stick", "Right Stick", ezInputSlotFlags::IsButton);
 
-  RegisterControllerButton("leftstick_negx", "Left Stick Left");
-  RegisterControllerButton("leftstick_posx", "Left Stick Right");
-  RegisterControllerButton("leftstick_negy", "Left Stick Down");
-  RegisterControllerButton("leftstick_posy", "Left Stick Up");
+  RegisterControllerButton("leftstick_negx", "Left Stick Left", ezInputSlotFlags::IsAnalogStick);
+  RegisterControllerButton("leftstick_posx", "Left Stick Right", ezInputSlotFlags::IsAnalogStick);
+  RegisterControllerButton("leftstick_negy", "Left Stick Down", ezInputSlotFlags::IsAnalogStick);
+  RegisterControllerButton("leftstick_posy", "Left Stick Up", ezInputSlotFlags::IsAnalogStick);
 
-  RegisterControllerButton("rightstick_negx", "Right Stick Left");
-  RegisterControllerButton("rightstick_posx", "Right Stick Right");
-  RegisterControllerButton("rightstick_negy", "Right Stick Down");
-  RegisterControllerButton("rightstick_posy", "Right Stick Up");
+  RegisterControllerButton("rightstick_negx", "Right Stick Left", ezInputSlotFlags::IsAnalogStick);
+  RegisterControllerButton("rightstick_posx", "Right Stick Right", ezInputSlotFlags::IsAnalogStick);
+  RegisterControllerButton("rightstick_negy", "Right Stick Down", ezInputSlotFlags::IsAnalogStick);
+  RegisterControllerButton("rightstick_posy", "Right Stick Up", ezInputSlotFlags::IsAnalogStick);
 
   SetDeadZoneAndScale("left_trigger");
   SetDeadZoneAndScale("right_trigger");
