@@ -6,7 +6,6 @@
 #include "ezImageHeader.h"
 #include "ezImageDefinitions.h"
 #include "Foundation/Containers/DynamicArray.h"
-#include "ezImageAlignment.h"
 #include "Foundation/Math/Implementation/Math_inl.h"
 
 class ezImage : public ezImageHeader
