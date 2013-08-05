@@ -3,6 +3,34 @@
 #include <Foundation/Containers/Bitfield.h>
 #include "ezImageConversionMixin.h"
 
+
+struct ezImageConversion4444_8888 : public ezImageConversionMixin<ezImageConversion4444_8888>
+{
+  static const ezUInt32 s_uiSourceBpp = 16;
+  static const ezUInt32 s_uiTargetBpp = 32;
+  static const ezUInt32 s_uiMultiConversionSize = 1;
+
+  typedef ezUInt8 SourceTypeSingle;
+  typedef ezUInt8 TargetTypeSingle;
+
+  static void ConvertSingle(const SourceTypeSingle* pSource, TargetTypeSingle* pTarget)
+  {
+    pTarget[0] = (pSource[0] & 0x0F) * 17;
+    pTarget[1] = (pSource[0] >> 4) * 17;
+    pTarget[2] = (pSource[1] & 0x0F) * 17;
+    pTarget[3] = (pSource[1] >> 4) * 17;
+  }
+
+  typedef SourceTypeSingle SourceTypeMultiple;
+  typedef TargetTypeSingle TargetTypeMultiple;
+
+  static void ConvertMultiple(const SourceTypeMultiple* pSource, TargetTypeMultiple* pTarget)
+  {
+    return ConvertSingle(pSource, pTarget);
+  }
+};
+
+
 struct ezImageSwizzleConversion32_2103_SSE2 : public ezImageConversionMixin<ezImageSwizzleConversion32_2103_SSE2>
 {
   static const ezUInt32 s_uiSourceBpp = 32;
@@ -120,7 +148,7 @@ namespace
           {
             const char* pSource = source.GetDataPointer<char>(uiMipLevel, uiFace, uiArrayIndex, 0, 0, uiSlice);
             char* pTarget = target.GetDataPointer<char>(uiMipLevel, uiFace, uiArrayIndex, 0, 0, uiSlice);
-            for(ezUInt32 uiRow = 0; uiRow < source.GetHeight(); uiRow++)
+            for(ezUInt32 uiRow = 0; uiRow < source.GetHeight(uiMipLevel); uiRow++)
             {
               memcpy(pTarget, pSource, ezMath::Min(uiSourceRowPitch, uiTargetRowPitch));
               pSource += uiSourceRowPitch;
@@ -275,6 +303,11 @@ void ezImageConversion::Startup()
     RegisterConversionFunction(ezImageSwizzleConversion32_2103_SSE2::ConvertImage, ezImageFormat::R8G8B8A8_UNORM, ezImageFormat::B8G8R8A8_UNORM);
     RegisterConversionFunction(ezImageSwizzleConversion32_2103_SSE2::ConvertImage, ezImageFormat::R8G8B8A8_UNORM_SRGB, ezImageFormat::B8G8R8A8_UNORM_SRGB);
   }
+
+  // Alpha can be converted to unused component by simply copying
+  RegisterConversionFunction(CopyImage, ezImageFormat::B5G5R5A1_UNORM, ezImageFormat::B5G5R5X1_UNORM);
+
+  RegisterConversionFunction(ezImageConversion4444_8888::ConvertImage, ezImageFormat::B4G4R4A4_UNORM, ezImageFormat::B8G8R8A8_UNORM);
 
   for(ezUInt32 uiFormat = 0; uiFormat < ezImageFormat::NUM_FORMATS; uiFormat++)
   {

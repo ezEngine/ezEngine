@@ -7,6 +7,7 @@
 #include "ezImageDefinitions.h"
 #include "Foundation/Containers/DynamicArray.h"
 #include "ezImageAlignment.h"
+#include "Foundation/Math/Implementation/Math_inl.h"
 
 class ezImage : public ezImageHeader
 {
@@ -17,12 +18,12 @@ public:
 
   void SetDataSize(ezUInt32 uiSize)
   {
-    m_data.SetCount(uiSize);
+    m_data.SetCount(uiSize + 16);
   }
 
   ezUInt32 GetDataSize() const
   {
-    return m_data.GetCount();
+    return ezMath::Max(static_cast<int>(m_data.GetCount()) - 16, 0);
   }
 
   template<typename T>

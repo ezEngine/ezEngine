@@ -24,5 +24,5 @@ void ezImage::AllocateImageData()
     }
   }
 
-  m_data.SetCount(uiDataSize);
+  m_data.SetCount(uiDataSize + 16);
 }

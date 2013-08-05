@@ -118,6 +118,7 @@ private:
 
 ezResult ezBmpWriter::write()
 {
+  // Technically almost arbitrary formats are supported, but we only use the common ones.
   ezImageFormat::Enum compatibleFormats[] =
   {
     ezImageFormat::B8G8R8X8_UNORM,
@@ -134,7 +135,7 @@ ezResult ezBmpWriter::write()
   {
     return EZ_FAILURE;
   }
-
+  
   ezImage convertedImage;
   convertedImage.SetImageFormat(format);
   convertedImage.SetRowAlignment(4); // BMP requires row alignment of 4 bytes
@@ -142,18 +143,20 @@ ezResult ezBmpWriter::write()
   {
     return EZ_FAILURE;
   }
+  
+  ezUInt32 uiRowPitch = convertedImage.GetRowPitch(0, 0, 0);
 
-  ezUInt32 rowPitch = m_image.GetRowPitch(0, 0, 0);
+  ezUInt32 uiHeight = convertedImage.GetHeight();
 
-  int dataSize = rowPitch * m_image.GetHeight();
+  int dataSize = uiRowPitch * uiHeight;
 
   ezBmpFileInfoHeader fileInfoHeader;
   fileInfoHeader.m_width = m_image.GetWidth();
-  fileInfoHeader.m_height = m_image.GetHeight();
+  fileInfoHeader.m_height = uiHeight;
   fileInfoHeader.m_planes = 1;
   fileInfoHeader.m_bitCount = ezImageFormat::GetBitsPerPixel(format);
 
-  fileInfoHeader.m_sizeImage = m_image.GetDataSize();
+  fileInfoHeader.m_sizeImage = convertedImage.GetDataSize();
 
   fileInfoHeader.m_xPelsPerMeter = 0;
   fileInfoHeader.m_yPelsPerMeter = 0;
@@ -213,7 +216,7 @@ ezResult ezBmpWriter::write()
   header.m_offBits = uiHeaderSize;
 
 
-  const void* dataPtr = m_image.GetDataPointer<void>(0, 0, 0);
+  const void* dataPtr = convertedImage.GetDataPointer<void>(0, 0, 0);
   
   // Write all data
   if(m_stream.WriteBytes(&header, sizeof(header)) != EZ_SUCCESS)
@@ -261,11 +264,15 @@ ezResult ezBmpWriter::write()
     }
   }
 
-  if(m_stream.WriteBytes(dataPtr, dataSize) != EZ_SUCCESS)
+  // Write rows in reverse order
+  for(ezInt32 iRow = uiHeight - 1; iRow >= 0; iRow--)
   {
-    return EZ_FAILURE;
+    if(m_stream.WriteBytes(convertedImage.GetDataPointer<void>(0, 0, 0, 0, iRow, 0), uiRowPitch) != EZ_SUCCESS)
+    {
+      return EZ_FAILURE;
+    }
   }
-
+  
   return EZ_SUCCESS;
 }
 
@@ -450,7 +457,6 @@ ezResult ezBmpReader::read()
   m_image.SetHeight(uiHeight);
   m_image.SetDepth(1);
 
-  // Input data is 4 byte aligned - align the same way so we can read the entire image at once
   m_image.SetRowAlignment(4);
 
   m_image.AllocateImageData();
@@ -489,11 +495,12 @@ ezResult ezBmpReader::read()
 
       const ezUInt8* pIn = &compressedData[0];
       const ezUInt8* pInEnd = pIn + uiDataSize;
-      ezBmpBgrxQuad* pLine = m_image.GetDataPointer<ezBmpBgrxQuad>(0, 0, 0);
 
       // Current output position
-      ezUInt32 uiRow = 0;
+      ezUInt32 uiRow = uiHeight - 1;
       ezUInt32 uiCol = 0;
+
+      ezBmpBgrxQuad* pLine = m_image.GetDataPointer<ezBmpBgrxQuad>(0, 0, 0, 0, uiRow, 0);
 
       // Decode RLE data directly to RGBX
       while(pIn < pInEnd)
@@ -549,8 +556,8 @@ ezResult ezBmpReader::read()
 
               // Begin next line
               uiCol = 0;
-              uiRow++;
-              pLine += uiWidth;
+              uiRow--;
+              pLine -= uiWidth;
             }
             
             break;
@@ -558,7 +565,7 @@ ezResult ezBmpReader::read()
           // End of image marker
           case 1:
             // Check that we really reached the end of the image.
-            if(uiRow != uiHeight - 1 && uiCol != uiHeight - 1)
+            if(uiRow != 0 && uiCol != uiHeight - 1)
             {
               return EZ_FAILURE;
             }
@@ -621,7 +628,9 @@ ezResult ezBmpReader::read()
       for(ezUInt32 uiRow = 0; uiRow < m_image.GetHeight(); uiRow++)
       {
         ezUInt8* pIn = &indexedData[uiRowPitchIn * uiRow];
-        ezBmpBgrxQuad* pOut = m_image.GetDataPointer<ezBmpBgrxQuad>(0, 0, 0, 0, uiRow, 0);
+
+        // Convert flipped vertically
+        ezBmpBgrxQuad* pOut = m_image.GetDataPointer<ezBmpBgrxQuad>(0, 0, 0, 0, uiHeight - uiRow - 1, 0);
         for(ezUInt32 uiCol = 0; uiCol < m_image.GetWidth(); uiCol++)
         {
           pOut[uiCol] = palette[ExtractBits(pIn, uiCol * uiBpp, uiBpp)];
@@ -642,10 +651,13 @@ ezResult ezBmpReader::read()
       return EZ_FAILURE;
     }
 
-    // We can read the image data directly
-    if(m_stream.ReadBytes(m_image.GetDataPointer<void>(), uiDataSize) != uiDataSize)
+    // Read rows in reverse order
+    for(ezInt32 iRow = uiHeight - 1; iRow >= 0; iRow--)
     {
-      return EZ_FAILURE;
+      if(m_stream.ReadBytes(m_image.GetDataPointer<void>(0, 0, 0, 0, iRow, 0), uiRowPitchIn) != uiRowPitchIn)
+      {
+        return EZ_FAILURE;
+      }
     }
   }
 
