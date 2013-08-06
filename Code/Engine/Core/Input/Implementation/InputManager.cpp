@@ -36,7 +36,7 @@ void ezInputManager::RegisterInputSlot(const char* szInputSlot, const char* szDe
   {
     if (it.Value().m_SlotFlags != SlotFlags)
     {
-      if (it.Value().m_SlotFlags != ezInputSlotFlags::Default)
+      if ((it.Value().m_SlotFlags != ezInputSlotFlags::Default) && (SlotFlags != ezInputSlotFlags::Default))
         ezLog::Warning("Different devices register Input Slot '%s' with different Slot Flags: %16b vs. %16b", szInputSlot, it.Value().m_SlotFlags, SlotFlags);
 
       it.Value().m_SlotFlags = it.Value().m_SlotFlags | SlotFlags; /// \todo |= etc. on ezBitflags would be useful.
@@ -68,6 +68,7 @@ ezBitflags<ezInputSlotFlags> ezInputManager::GetInputSlotFlags(const char* szInp
 
 void ezInputManager::SetInputSlotDisplayName(const char* szInputSlot, const char* szDefaultDisplayName)
 {
+  RegisterInputSlot(szInputSlot, szDefaultDisplayName, ezInputSlotFlags::Default);
   GetInternals().s_InputSlots[szInputSlot].m_sDisplayName = szDefaultDisplayName;
 }
 
@@ -114,6 +115,7 @@ ezInputDevice* ezInputManager::GetInputDeviceByName(const char* szName)
 
 void ezInputManager::SetInputSlotDeadZone(const char* szInputSlot, float fDeadZone)
 {
+  RegisterInputSlot(szInputSlot, szInputSlot, ezInputSlotFlags::Default);
   GetInternals().s_InputSlots[szInputSlot].m_fDeadZone = ezMath::Max(fDeadZone, 0.0001f);
 }
 
@@ -132,6 +134,7 @@ float ezInputManager::GetInputSlotDeadZone(const char* szInputSlot)
 
 void ezInputManager::SetInputSlotScale(const char* szInputSlot, float fScale)
 {
+  RegisterInputSlot(szInputSlot, szInputSlot, ezInputSlotFlags::Default);
   GetInternals().s_InputSlots[szInputSlot].m_fScale = fScale;
 }
 

@@ -43,6 +43,8 @@ struct ezInputSlotFlags
     HalfAxis                  = EZ_BIT(6),  ///< The input slot represents one half of the actually possible data. Used for all axes (pos / neg mouse movement, thumbsticks).
     FullAxis                  = EZ_BIT(7),  ///< The input slot represents one full axis. Mostly used for devices that report absolute values, such as the mouse position or touch input positions (values between zero and one) 
     RequiresDeadZone          = EZ_BIT(8),  ///< The input slot represents hardware that should use a dead zone, otherwise it might fire prematurely. Mostly used on thumbsticks and trigger buttons.
+    ValuesAreNonContinuous    = EZ_BIT(9),  ///< The values of the slot can jump around randomly, ie. the user can input arbitrary values, like the position on a touchpad
+    ActivationDependsOnOthers = EZ_BIT(10), ///< Whether this slot can be activated depends on whether certain other slots are active. This is the case for touchpoints which are numbered depending on how many other touchpoints are already active.
 
     // Some predefined sets of flags for the most common use cases
     IsButton                  =                         ValueBinaryZeroOrOne | Pressable | Holdable,
@@ -52,8 +54,9 @@ struct ezInputSlotFlags
     IsMosueAxisMove           = ReportsRelativeValues | ValueRangeZeroToInf  |                        HalfAxis,
     IsAnalogStick             =                         ValueRangeZeroToOne  |             Holdable | HalfAxis | RequiresDeadZone,
     IsDoubleClick             =                         ValueBinaryZeroOrOne | Pressable,
-    IsTouchPosition           =                         ValueRangeZeroToOne  |                        FullAxis,
-    IsTouchPoint              =                         ValueBinaryZeroOrOne | Pressable | Holdable,
+    IsTouchPosition           =                         ValueRangeZeroToOne  |                        FullAxis |                    ValuesAreNonContinuous,
+    IsTouchPoint              =                         ValueBinaryZeroOrOne | Pressable | Holdable |                                                       ActivationDependsOnOthers,
+    IsDPad                    =                         ValueBinaryZeroOrOne | Pressable | Holdable | HalfAxis,
 
     Default                   = None
   };

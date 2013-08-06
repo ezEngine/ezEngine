@@ -58,10 +58,10 @@ void ezInputDeviceXBox360::RegisterInputSlots()
   RegisterControllerButton("right_shoulder", "Right Shoulder", ezInputSlotFlags::IsButton);
   RegisterControllerButton("left_trigger", "Left Trigger", ezInputSlotFlags::IsAnalogTrigger);
   RegisterControllerButton("right_trigger", "Right Trigger", ezInputSlotFlags::IsAnalogTrigger);
-  RegisterControllerButton("pad_up", "Pad Up", ezInputSlotFlags::IsButton);
-  RegisterControllerButton("pad_down", "Pad Down", ezInputSlotFlags::IsButton);
-  RegisterControllerButton("pad_left", "Pad Left", ezInputSlotFlags::IsButton);
-  RegisterControllerButton("pad_right", "Pad Right", ezInputSlotFlags::IsButton);
+  RegisterControllerButton("pad_up", "Pad Up", ezInputSlotFlags::IsDPad);
+  RegisterControllerButton("pad_down", "Pad Down", ezInputSlotFlags::IsDPad);
+  RegisterControllerButton("pad_left", "Pad Left", ezInputSlotFlags::IsDPad);
+  RegisterControllerButton("pad_right", "Pad Right", ezInputSlotFlags::IsDPad);
   RegisterControllerButton("left_stick", "Left Stick", ezInputSlotFlags::IsButton);
   RegisterControllerButton("right_stick", "Right Stick", ezInputSlotFlags::IsButton);
 
