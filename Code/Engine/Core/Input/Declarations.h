@@ -72,8 +72,10 @@ struct ezInputSlotFlags
     StorageType HalfAxis                  : 1;
     StorageType FullAxis                  : 1;
     StorageType RequiresDeadZone          : 1;
+    StorageType ValuesAreNonContinuous    : 1;
+    StorageType ActivationDependsOnOthers : 1;
   };
 };
 
-EZ_DECLARE_FLAGS_OR_OPERATOR(ezInputSlotFlags);
+EZ_DECLARE_FLAGS_OPERATORS(ezInputSlotFlags);
 

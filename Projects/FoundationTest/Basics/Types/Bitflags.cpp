@@ -29,7 +29,7 @@ namespace
     };
   };
 
-  EZ_DECLARE_FLAGS_OR_OPERATOR(ManualFlags);
+  EZ_DECLARE_FLAGS_OPERATORS(ManualFlags);
 }
 
 EZ_CHECK_AT_COMPILETIME(sizeof(ezBitflags<AutoFlags>) == 4);
@@ -62,4 +62,24 @@ EZ_CREATE_SIMPLE_TEST(Basics, Bitflags)
   ezBitflags<ManualFlags> manualFlags = ManualFlags::Default;
   EZ_TEST(manualFlags.AreAllSet(ManualFlags::Bit1 | ManualFlags::Bit2));
   EZ_TEST(manualFlags.GetValue() == flags.GetValue());
+
+  ezBitflags<AutoFlags> flags2 = AutoFlags::Bit1 & AutoFlags::Bit4;
+  EZ_TEST(flags2.GetValue() == 0);
+
+  EZ_TEST_BLOCK(true, "operator|=")
+  {
+    ezBitflags<AutoFlags> f = AutoFlags::Bit1 | AutoFlags::Bit2;
+    f |= AutoFlags::Bit3;
+
+    EZ_TEST(f.GetValue() == (AutoFlags::Bit1 | AutoFlags::Bit2 | AutoFlags::Bit3).GetValue());
+  }
+
+  EZ_TEST_BLOCK(true, "operator&=")
+  {
+    ezBitflags<AutoFlags> f = AutoFlags::Bit1 | AutoFlags::Bit2 | AutoFlags::Bit3;
+    f &= AutoFlags::Bit3;
+
+    EZ_TEST(f.GetValue() == AutoFlags::Bit3);
+  }
+
 }

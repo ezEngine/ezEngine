@@ -71,7 +71,9 @@ protected:
   ezEnumerable* m_pNextInstance;
 };
 
-/// \todo Document
+/// \brief Insert this macro in a class that is supposed to be enumerable, and pass the class name as the parameter.
+///
+/// See class ezEnumerable for more details.
 #define EZ_DECLARE_ENUMERABLE_CLASS(self) \
   private: \
     friend class ezEnumerable<self>; \
@@ -83,7 +85,9 @@ protected:
     self* GetNextInstance() { return (self*) m_pNextInstance; } \
   private:
 
-/// \todo Document
+/// \brief Insert this macro in a cpp file and pass the class name of the to-be-enumerable class as the parameter.
+///
+/// See class ezEnumerable for more details.
 #define EZ_ENUMERABLE_CLASS_IMPLEMENTATION(self) \
   ezEnumerable<self>* self::s_pFirstInstance = NULL; \
   ezEnumerable<self>* self::s_pLastInstance = NULL; \

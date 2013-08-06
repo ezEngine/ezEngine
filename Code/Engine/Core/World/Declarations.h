@@ -106,4 +106,4 @@ struct ezObjectFlags
   };
 };
 
-EZ_DECLARE_FLAGS_OR_OPERATOR(ezObjectFlags);
+EZ_DECLARE_FLAGS_OPERATORS(ezObjectFlags);

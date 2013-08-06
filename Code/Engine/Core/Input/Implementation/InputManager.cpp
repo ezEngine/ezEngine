@@ -39,7 +39,7 @@ void ezInputManager::RegisterInputSlot(const char* szInputSlot, const char* szDe
       if ((it.Value().m_SlotFlags != ezInputSlotFlags::Default) && (SlotFlags != ezInputSlotFlags::Default))
         ezLog::Warning("Different devices register Input Slot '%s' with different Slot Flags: %16b vs. %16b", szInputSlot, it.Value().m_SlotFlags, SlotFlags);
 
-      it.Value().m_SlotFlags = it.Value().m_SlotFlags | SlotFlags; /// \todo |= etc. on ezBitflags would be useful.
+      it.Value().m_SlotFlags |= SlotFlags;
     }
 
     // If the key already exists, but key and display string are identical, than overwrite the display string with the incoming string

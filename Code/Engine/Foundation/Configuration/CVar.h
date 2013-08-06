@@ -48,7 +48,7 @@ struct ezCVarFlags
   };
 };
 
-EZ_DECLARE_FLAGS_OR_OPERATOR(ezCVarFlags);
+EZ_DECLARE_FLAGS_OPERATORS(ezCVarFlags);
 
 /// \brief CVars are global variables that are used for configuring the engine.
 ///

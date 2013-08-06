@@ -61,7 +61,7 @@
 ///     };
 ///   };
 ///
-///   EZ_DECLARE_FLAGS_OR_OPERATOR(SimpleRenderFlags);
+///   EZ_DECLARE_FLAGS_OPERATORS(SimpleRenderFlags);
 /// \endcode
 ///
 /// Here we declare a struct which contains our enum that contains all the flags that we want to have. This enum can contain
@@ -72,7 +72,7 @@
 /// and 'EnableShadows' actually map to single bits, the other flags are combinations of those. Therefore the Bits struct only
 /// specifies names for those first three Bits.\n
 /// The typedef 'StorageType' is also mandatory, such that ezBitflags can access it.\n
-/// Finally the macro EZ_DECLARE_FLAGS_OR_OPERATOR will define the required operator to be able to combine bitflags of your type.
+/// Finally the macro EZ_DECLARE_FLAGS_OPERATORS will define the required operator to be able to combine bitflags of your type.
 /// Ie. it enables to write ezBitflags<SimpleRenderFlags> f = EnableEffects | EnableLighting;\n
 ///
 /// For a real world usage example, see ezCVarFlags.
@@ -87,103 +87,127 @@ private:
 public:
     
   /// \brief Constructor. Initializes the flags to all empty.
-  EZ_FORCE_INLINE ezBitflags() : m_value(0) // [tested]
+  EZ_FORCE_INLINE ezBitflags() : m_Value(0) // [tested]
   {
   }
 
   /// \brief Converts the incoming type to ezBitflags<T>
   EZ_FORCE_INLINE ezBitflags(Enum flag1) // [tested]
   {
-    m_value = flag1;
+    m_Value = flag1;
   }
 
   /// \brief Comparison operator.
   EZ_FORCE_INLINE bool operator==(const ezBitflags<T>& rhs) const
   {
-    return m_value == rhs.m_value;
+    return m_Value == rhs.m_Value;
   }
 
   /// \brief Comparison operator.
   EZ_FORCE_INLINE bool operator!=(const ezBitflags<T>& rhs) const
   {
-    return m_value != rhs.m_value;
+    return m_Value != rhs.m_Value;
   }
 
   /// \brief Checks if certain flags are set within the bitfield.
   EZ_FORCE_INLINE bool IsSet(Enum flag) const // [tested]
   {
-    return (m_value & flag) != 0;
+    return (m_Value & flag) != 0;
   }
   
   /// \brief Returns whether all the given flags are set.
   EZ_FORCE_INLINE bool AreAllSet(const ezBitflags<T>& rhs) const // [tested]
   {
-    return (m_value & rhs.m_value) == rhs.m_value;
+    return (m_Value & rhs.m_Value) == rhs.m_Value;
   }
 
   /// \brief  Returns whether any of the given flags is set.
   EZ_FORCE_INLINE bool IsAnySet(const ezBitflags<T>& rhs) const // [tested]
   {
-    return (m_value & rhs.m_value) != 0;
+    return (m_Value & rhs.m_Value) != 0;
   }
 
   /// \brief Sets the given flag.
   EZ_FORCE_INLINE void Add(Enum flag) // [tested]
   {
-    m_value |= flag;
+    m_Value |= flag;
   }
 
   /// \brief Removes the given flag.
   EZ_FORCE_INLINE void Remove(Enum flag) // [tested]
   {
-    m_value &= (~flag);
+    m_Value &= (~flag);
   }
 
   /// \brief Toggles the state of the given flag.
   EZ_FORCE_INLINE void Toggle(Enum flag) // [tested]
   {
-    m_value ^= flag;
+    m_Value ^= flag;
   }
 
   /// \brief Sets or clears the given flag.
   EZ_FORCE_INLINE void AddOrRemove(Enum flag, bool state) // [tested]
   {
-    m_value = (state) ? m_value | flag : m_value & (~flag);
+    m_Value = (state) ? m_Value | flag : m_Value & (~flag);
   }
 
   /// \brief Returns an object that has the flags of \a this and \a rhs combined.
   inline ezBitflags<T> operator | (const ezBitflags<T>& rhs) const // [tested]
   {
-    return ezBitflags<T>(m_value | rhs.m_value);
+    return ezBitflags<T>(m_Value | rhs.m_Value);
+  }
+
+  /// \brief Returns an object that has the flags that were set both in \a this and \a rhs.
+  inline ezBitflags<T> operator & (const ezBitflags<T>& rhs) const // [tested]
+  {
+    return ezBitflags<T>(m_Value & rhs.m_Value);
+  }
+
+  /// \brief Modifies \a this to also contain the bits from \a rhs.
+  inline void operator|= (const ezBitflags<T>& rhs) // [tested]
+  {
+    m_Value |= rhs.m_Value;
+  }
+
+  /// \brief Modifies \a this to only contain the bits that were set in \a this and \a rhs.
+  inline void operator&= (const ezBitflags<T>& rhs) // [tested]
+  {
+    m_Value &= rhs.m_Value;
   }
 
   /// \brief Returns the stored value as the underlying integer type.
   EZ_FORCE_INLINE StorageType GetValue() const // [tested]
   {
-    return m_value;
+    return m_Value;
   }
 
 private:
   EZ_FORCE_INLINE explicit ezBitflags(StorageType flags)
-    : m_value(flags)
+    : m_Value(flags)
   {
   }
 
   union
   {
-    StorageType m_value;
+    StorageType m_Value;
     Bits m_bits;
   };
 };
 
 
-/// This macro will define the operator| function that is required for class \a FlagsType to work with ezBitflags.
+/// This macro will define the operator| and operator& function that is required for class \a FlagsType to work with ezBitflags.
 /// See class ezBitflags for more information.
-#define EZ_DECLARE_FLAGS_OR_OPERATOR(FlagsType) \
+#define EZ_DECLARE_FLAGS_OPERATORS(FlagsType) \
   inline ezBitflags<FlagsType> operator|(FlagsType::Enum lhs, FlagsType::Enum rhs)    \
   {    \
     return (ezBitflags<FlagsType>(lhs) | ezBitflags<FlagsType>(rhs));    \
+  } \
+  \
+  inline ezBitflags<FlagsType> operator&(FlagsType::Enum lhs, FlagsType::Enum rhs)    \
+  {    \
+    return (ezBitflags<FlagsType>(lhs) & ezBitflags<FlagsType>(rhs));    \
   }
+  
 
 
 /// \brief This macro allows to conveniently declare a bitflag type that can be used with the ezBitflags class.
@@ -217,7 +241,7 @@ struct BitflagsTypeName    \
     };    \
     EZ_ENUM_TO_STRING(__VA_ARGS__) \
   };    \
-  EZ_DECLARE_FLAGS_OR_OPERATOR(BitflagsTypeName)
+  EZ_DECLARE_FLAGS_OPERATORS(BitflagsTypeName)
 
 /// \cond
 
