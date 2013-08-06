@@ -2,6 +2,7 @@
 
 #include <Core/Application/Application.h>
 #include "Level.h"
+#include <Core/Input/VirtualThumbStick.h>
 
 class SampleGameApp : public ezApplication
 {
@@ -35,4 +36,6 @@ private:
   ezUInt32 m_uiResolutionY;
   const char* m_szAppName;
   Level* m_pLevel;
+
+  ezVirtualThumbStick* m_pThumbstick;
 };

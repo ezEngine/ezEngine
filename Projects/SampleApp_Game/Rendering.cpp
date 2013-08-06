@@ -190,6 +190,29 @@ void SampleGameApp::RenderSingleFrame()
 
     glEnd();
   }
+
+  if (m_pThumbstick && m_pThumbstick->IsEnabled())
+  {
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    glColor3ub(0, 0, 255);
+
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+
+    glOrtho(0.0f, 1.0f, 1.0f, 0.0f, -10, 10);
+
+    ezVec2 vLL, vUR;
+    m_pThumbstick->GetInputArea(vLL, vUR);
+
+    glBegin(GL_QUADS);
+      glVertex3f(vLL.x, vLL.y, 0.0f);
+      glVertex3f(vUR.x, vLL.y, 0.0f);
+      glVertex3f(vUR.x, vUR.y, 0.0f);
+      glVertex3f(vLL.x, vUR.y, 0.0f);
+    glEnd();
+
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+  }
 }
 
 

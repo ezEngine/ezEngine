@@ -135,6 +135,17 @@ public:
   /// \brief Returns the names of all input actions in the given input set.
   static void GetAllInputActions(const char* szInputSetName, ezDynamicArray<ezString>& out_InputActions);
 
+  /// \brief This function allows to 'inject' input state for one frame.
+  ///
+  /// This can be useful to emulate certain keys, e.g. for virtual devices.
+  /// Note that it usually makes more sense to actually have another input device, however this can be used to
+  /// get data into the system quickly for when a full blown input device might be overkill.
+  /// The injected input state is cleared immediately after it has been processed, so to keep a virtual input slot active,
+  /// the input needs to be injected every frame.
+  ///
+  /// Note that when the input is injected after ezInputManager::Update was called, its effect will be delayed by one frame.
+  static void InjectInputSlotValue(const char* szInputSlot, float fValue);
+
 private:
   friend class ezInputDevice;
 
@@ -181,6 +192,7 @@ private:
     ezInputSetMap s_ActionMapping;                      ///< Maps input set names to their data.
     ezInputSlotsMap s_InputSlots;                       ///< Maps input slot names to their data.
     ezMap<ezString, ezString> s_ActionDisplayNames;     ///< Stores a display name for each input action.
+    ezMap<ezString, float> s_InjectedInputSlots;
   };
 
   /// \brief The last (unicode) character that was typed by the user, as reported by the OS (on Windows: WM_CHAR).

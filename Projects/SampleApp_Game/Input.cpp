@@ -24,6 +24,9 @@ void SampleGameApp::UpdateInput()
     DestroyGameLevel();
     CreateGameLevel();
   }
+
+  if (ezInputManager::GetInputActionState("Main", "ToggleThumbstick") == ezKeyState::Pressed)
+    m_pThumbstick->SetEnabled(!m_pThumbstick->IsEnabled());
 }
 
 static void RegisterInputAction(const char* szInputSet, const char* szInputAction, const char* szKey1, const char* szKey2 = NULL, const char* szKey3 = NULL)
@@ -47,6 +50,7 @@ void SampleGameApp::SetupInput()
 
   RegisterInputAction("Main", "CloseApp", "keyboard_escape");
   RegisterInputAction("Main", "ResetLevel", "keyboard_return");
+  RegisterInputAction("Main", "ToggleThumbstick", "keyboard_t");
 
   // setup all controllers
   for (ezInt32 iPlayer = 0; iPlayer < MaxPlayers; ++iPlayer)
@@ -82,6 +86,11 @@ void SampleGameApp::SetupInput()
   RegisterInputAction("Game", "Player3_Shoot",      NULL, "mouse_button_2");
   RegisterInputAction("Game", "Player3_RotLeft",    NULL, "mouse_button_0");
   RegisterInputAction("Game", "Player3_RotRight",   NULL, "mouse_button_1");
+
+  m_pThumbstick = EZ_DEFAULT_NEW(ezVirtualThumbStick);
+  m_pThumbstick->SetInputArea(ezVec2(0.1f, 0.1f), ezVec2(0.3f, 0.3f));
+  m_pThumbstick->SetThumbstickOutput(ezVirtualThumbStick::OutputTrigger::Controller0_RightStick);
+  m_pThumbstick->SetEnabled(false);
 }
 
 

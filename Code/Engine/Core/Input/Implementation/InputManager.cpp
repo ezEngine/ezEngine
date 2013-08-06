@@ -222,6 +222,23 @@ void ezInputManager::GatherDeviceInputSlotValues()
       }
     }
   }
+
+  ezMap<ezString, float>::Iterator it = GetInternals().s_InjectedInputSlots.GetIterator();
+
+  for ( ; it.IsValid(); ++it)
+  {
+    ezInputManager::ezInputSlot& Slot = GetInternals().s_InputSlots[it.Key()];
+
+    // do not store a value larger than 0 unless it exceeds the deadzone threshold
+    if (it.Value() > Slot.m_fDeadZone)
+    {
+      const float fStoreValue = (Slot.m_fScale >= 0.0f) ? it.Value() * Slot.m_fScale : ezMath::Pow(it.Value(), -Slot.m_fScale);
+
+      Slot.m_fValue = ezMath::Max(Slot.m_fValue, fStoreValue); // 'accumulate' the values for one slot from all the connected devices
+    }
+  }
+
+  GetInternals().s_InjectedInputSlots.Clear();
 }
 
 void ezInputManager::UpdateInputSlotStates()
@@ -255,4 +272,12 @@ wchar_t ezInputManager::RetrieveLastCharacter(bool bResetCurrent)
   s_LastCharacter = L'\0';
   return Temp;
 }
+
+void ezInputManager::InjectInputSlotValue(const char* szInputSlot, float fValue)
+{
+  GetInternals().s_InjectedInputSlots[szInputSlot] = ezMath::Max(GetInternals().s_InjectedInputSlots[szInputSlot], fValue);
+}
+
+
+
 

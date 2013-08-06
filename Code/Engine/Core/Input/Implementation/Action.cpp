@@ -229,7 +229,7 @@ void ezInputManager::UpdateInputActions(ezActionMap& Actions)
         // we check whether this is either a fresh click (inside the area) or the action is already active
         // if it is already active, the mouse is most likely held clicked atm
 
-        if (bFreshClick || (itBestAction.Value().m_fValue > 0.0f))
+        if (bFreshClick || (itBestAction.Value().m_fValue > 0.0f) || (itBestAction.Value().m_State == ezKeyState::Pressed) || (itBestAction.Value().m_State == ezKeyState::Down))
           itBestAction.Value().m_fValue = fNewValue;
       }
       else
