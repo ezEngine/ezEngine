@@ -11,7 +11,7 @@ ezVirtualThumbStick::ezVirtualThumbStick()
   SetTriggerInputSlot(ezVirtualThumbStick::InputTrigger::Touchpoint);
   SetThumbstickOutput(ezVirtualThumbStick::OutputTrigger::Controller0_LeftStick);
 
-  SetInputArea(ezVec2(0.1f), ezVec2(0.2f));
+  SetInputArea(ezVec2(0.0f), ezVec2(0.0f), 0.0f);
 
   ezStringBuilder s;
   s.Format("Thumbstick_%i", s_iThumbsticks);
@@ -19,12 +19,13 @@ ezVirtualThumbStick::ezVirtualThumbStick()
 
   ++s_iThumbsticks;
 
-  m_bEnabled = true;
+  m_bEnabled = false;
+  m_bConfigChanged = false;
 }
 
 ezVirtualThumbStick::~ezVirtualThumbStick()
 {
-  ezInputManager::RemoveInputAction("VirtualThumbsticks", m_sName.GetData());
+  ezInputManager::RemoveInputAction(GetDeviceName(), m_sName.GetData());
 }
 
 void ezVirtualThumbStick::SetTriggerInputSlot(ezVirtualThumbStick::InputTrigger::Enum Input, const char* szFilterAxisX, const char* szFilterAxisY, const char* szTrigger1, const char* szTrigger2, const char* szTrigger3)
@@ -50,6 +51,8 @@ void ezVirtualThumbStick::SetTriggerInputSlot(ezVirtualThumbStick::InputTrigger:
     }
     break;
   }
+
+  m_bConfigChanged = true;
 }
 
 void ezVirtualThumbStick::SetThumbstickOutput(ezVirtualThumbStick::OutputTrigger::Enum Output, const char* szOutputLeft, const char* szOutputRight, const char* szOutputUp, const char* szOutputDown)
@@ -81,18 +84,25 @@ void ezVirtualThumbStick::SetThumbstickOutput(ezVirtualThumbStick::OutputTrigger
     }
     break;
   }
+
+  m_bConfigChanged = true;
 }
 
 void ezVirtualThumbStick::SetAreaFocusMode(ezInputManager::ezInputActionConfig::OnEnterArea OnEnter, ezInputManager::ezInputActionConfig::OnLeaveArea OnLeave)
 {
+  m_bConfigChanged = true;
+
   m_OnEnter = OnEnter;
   m_OnLeave = OnLeave;
 }
 
-void ezVirtualThumbStick::SetInputArea(const ezVec2& vLowerLeft, const ezVec2& vUpperRight)
+void ezVirtualThumbStick::SetInputArea(const ezVec2& vLowerLeft, const ezVec2& vUpperRight, float fPriority)
 {
+  m_bConfigChanged = true;
+
   m_vLowerLeft = vLowerLeft;
   m_vUpperRight = vUpperRight;
+  m_fPriority = fPriority;
 }
 
 void ezVirtualThumbStick::GetInputArea(ezVec2& out_vLowerLeft, ezVec2& out_vUpperRight)
@@ -103,13 +113,16 @@ void ezVirtualThumbStick::GetInputArea(ezVec2& out_vLowerLeft, ezVec2& out_vUppe
 
 void ezVirtualThumbStick::UpdateActionMapping()
 {
+  if (!m_bConfigChanged)
+    return;
+
   ezInputManager::ezInputActionConfig ac;
 
   ac.m_fFilterXMinValue = m_vLowerLeft.x;
   ac.m_fFilterXMaxValue = m_vUpperRight.x;
   ac.m_fFilterYMinValue = m_vLowerLeft.y;
   ac.m_fFilterYMaxValue = m_vUpperRight.y;
-  ac.m_fFilteredPriority = 1.0f;
+  ac.m_fFilteredPriority = m_fPriority;
   ac.m_OnEnterArea = m_OnEnter;
   ac.m_OnLeaveArea = m_OnLeave;
   ac.m_sFilterByInputSlotX  = m_szFilterAxisX;
@@ -118,7 +131,9 @@ void ezVirtualThumbStick::UpdateActionMapping()
   ac.m_sInputSlotTrigger[1] = m_szTrigger2;
   ac.m_sInputSlotTrigger[2] = m_szTrigger3;
 
-  ezInputManager::SetInputActionConfig("VirtualThumbsticks", m_sName.GetData(), ac, false);
+  ezInputManager::SetInputActionConfig(GetDeviceName(), m_sName.GetData(), ac, false);
+
+  m_bConfigChanged = false;
 }
 
 void ezVirtualThumbStick::UpdateInputSlotValues()
@@ -130,13 +145,13 @@ void ezVirtualThumbStick::UpdateInputSlotValues()
 
   if (!m_bEnabled)
   {
-    ezInputManager::RemoveInputAction("VirtualThumbsticks", m_sName.GetData());
+    ezInputManager::RemoveInputAction(GetDeviceName(), m_sName.GetData());
     return;
   }
 
   UpdateActionMapping();
   
-  if (ezInputManager::GetInputActionState("VirtualThumbsticks", m_sName.GetData()) != ezKeyState::Up)
+  if (ezInputManager::GetInputActionState(GetDeviceName(), m_sName.GetData()) != ezKeyState::Up)
   {
     const ezVec2 vHalf = (m_vUpperRight - m_vLowerLeft) * 0.5f;
     const float fRadius = ezMath::Min(vHalf.x, vHalf.y);

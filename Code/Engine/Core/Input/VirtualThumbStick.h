@@ -11,11 +11,7 @@ public:
   ~ezVirtualThumbStick();
 
   virtual const char* GetDeviceType() const EZ_OVERRIDE { return "Thumbstick"; }
-
   virtual const char* GetDeviceName() const EZ_OVERRIDE { return "VirtualThumbstick"; }
-
-  void SetInputArea(const ezVec2& vLowerLeft, const ezVec2& vUpperRight);
-  void GetInputArea(ezVec2& out_vLowerLeft, ezVec2& out_vUpperRight);
 
   struct InputTrigger
   {
@@ -36,6 +32,9 @@ public:
     };
   };
 
+  void SetInputArea(const ezVec2& vLowerLeft, const ezVec2& vUpperRight, float fPriority);
+  void GetInputArea(ezVec2& out_vLowerLeft, ezVec2& out_vUpperRight);
+
   void SetTriggerInputSlot(InputTrigger::Enum Input, const char* szFilterAxisX = NULL, const char* szFilterAxisY = NULL, const char* szTrigger1 = NULL, const char* szTrigger2 = NULL, const char* szTrigger3 = NULL);
 
   void SetThumbstickOutput(OutputTrigger::Enum Output, const char* szOutputLeft = NULL, const char* szOutputRight = NULL, const char* szOutputUp = NULL, const char* szOutputDown = NULL);
@@ -46,18 +45,13 @@ public:
 
   bool IsEnabled() const { return m_bEnabled; }
 
-private:
+protected:
 
   void UpdateActionMapping();
 
-  virtual void InitializeDevice() EZ_OVERRIDE { }
-
-  virtual void UpdateInputSlotValues() EZ_OVERRIDE;
-
-  virtual void RegisterInputSlots() EZ_OVERRIDE;
-
   ezVec2 m_vLowerLeft;
   ezVec2 m_vUpperRight;
+  float m_fPriority;
 
   ezInputManager::ezInputActionConfig::OnEnterArea m_OnEnter;
   ezInputManager::ezInputActionConfig::OnLeaveArea m_OnLeave;
@@ -73,8 +67,13 @@ private:
   const char* m_szOutputUp;
   const char* m_szOutputDown;
 
+  bool m_bEnabled;
+  bool m_bConfigChanged;
+  ezString m_sName;
   static ezInt32 s_iThumbsticks;
 
-  bool m_bEnabled;
-  ezString m_sName;
+private:
+  virtual void InitializeDevice() EZ_OVERRIDE { }
+  virtual void UpdateInputSlotValues() EZ_OVERRIDE;
+  virtual void RegisterInputSlots() EZ_OVERRIDE;
 };
