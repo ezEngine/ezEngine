@@ -31,6 +31,7 @@ void SampleGameApp::AfterEngineInit()
 void SampleGameApp::BeforeEngineShutdown()
 {
   EZ_DEFAULT_DELETE(m_pThumbstick);
+  EZ_DEFAULT_DELETE(m_pThumbstick2);
 
   DestroyGameLevel();
 }

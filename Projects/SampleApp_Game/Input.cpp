@@ -26,7 +26,10 @@ void SampleGameApp::UpdateInput()
   }
 
   if (ezInputManager::GetInputActionState("Main", "ToggleThumbstick") == ezKeyState::Pressed)
+  {
     m_pThumbstick->SetEnabled(!m_pThumbstick->IsEnabled());
+    m_pThumbstick2->SetEnabled(!m_pThumbstick2->IsEnabled());
+  }
 }
 
 static void RegisterInputAction(const char* szInputSet, const char* szInputAction, const char* szKey1, const char* szKey2 = NULL, const char* szKey3 = NULL)
@@ -48,9 +51,9 @@ void SampleGameApp::SetupInput()
   ezInputDeviceWindows::GetDevice()->SetClipMouseCursor(true);
   ezInputDeviceWindows::GetDevice()->SetShowMouseCursor(false);
 
-  RegisterInputAction("Main", "CloseApp", "keyboard_escape");
-  RegisterInputAction("Main", "ResetLevel", "keyboard_return");
-  RegisterInputAction("Main", "ToggleThumbstick", "keyboard_t");
+  RegisterInputAction("Main", "CloseApp", ezInputSlot_KeyEscape);
+  RegisterInputAction("Main", "ResetLevel", ezInputSlot_KeyReturn);
+  RegisterInputAction("Main", "ToggleThumbstick", ezInputSlot_KeyT);
 
   // setup all controllers
   for (ezInt32 iPlayer = 0; iPlayer < MaxPlayers; ++iPlayer)
@@ -71,26 +74,31 @@ void SampleGameApp::SetupInput()
 
   // some more keyboard key bindings
 
-  RegisterInputAction("Game", "Player1_Forwards",   NULL, "keyboard_w");
-  RegisterInputAction("Game", "Player1_Backwards",  NULL, "keyboard_s");
-  RegisterInputAction("Game", "Player1_Left",       NULL, "keyboard_a");
-  RegisterInputAction("Game", "Player1_Right",      NULL, "keyboard_d");
-  RegisterInputAction("Game", "Player1_Shoot",      NULL, "keyboard_space");
-  RegisterInputAction("Game", "Player1_RotLeft",    NULL, "keyboard_left");
-  RegisterInputAction("Game", "Player1_RotRight",   NULL, "keyboard_right");
+  RegisterInputAction("Game", "Player1_Right",      NULL, ezInputSlot_KeyD);
+  RegisterInputAction("Game", "Player1_Shoot",      NULL, ezInputSlot_KeySpace);
+  RegisterInputAction("Game", "Player1_Forwards",   NULL, ezInputSlot_KeyW);
+  RegisterInputAction("Game", "Player1_Backwards",  NULL, ezInputSlot_KeyS);
+  RegisterInputAction("Game", "Player1_Left",       NULL, ezInputSlot_KeyA);
+  RegisterInputAction("Game", "Player1_RotLeft",    NULL, ezInputSlot_KeyLeft);
+  RegisterInputAction("Game", "Player1_RotRight",   NULL, ezInputSlot_KeyRight);
 
-  RegisterInputAction("Game", "Player3_Forwards",   NULL, "mouse_move_negy");
-  RegisterInputAction("Game", "Player3_Backwards",  NULL, "mouse_move_posy");
-  RegisterInputAction("Game", "Player3_Left",       NULL, "mouse_move_negx");
-  RegisterInputAction("Game", "Player3_Right",      NULL, "mouse_move_posx");
-  RegisterInputAction("Game", "Player3_Shoot",      NULL, "mouse_button_2");
-  RegisterInputAction("Game", "Player3_RotLeft",    NULL, "mouse_button_0");
-  RegisterInputAction("Game", "Player3_RotRight",   NULL, "mouse_button_1");
+  RegisterInputAction("Game", "Player3_Forwards",   NULL, ezInputSlot_MouseMoveNegY);
+  RegisterInputAction("Game", "Player3_Backwards",  NULL, ezInputSlot_MouseMovePosY);
+  RegisterInputAction("Game", "Player3_Left",       NULL, ezInputSlot_MouseMoveNegX);
+  RegisterInputAction("Game", "Player3_Right",      NULL, ezInputSlot_MouseMovePosX);
+  RegisterInputAction("Game", "Player3_Shoot",      NULL, ezInputSlot_MouseButton2);
+  RegisterInputAction("Game", "Player3_RotLeft",    NULL, ezInputSlot_MouseButton0);
+  RegisterInputAction("Game", "Player3_RotRight",   NULL, ezInputSlot_MouseButton1);
 
   m_pThumbstick = EZ_DEFAULT_NEW(ezVirtualThumbStick);
-  m_pThumbstick->SetInputArea(ezVec2(0.1f, 0.1f), ezVec2(0.3f, 0.3f));
-  m_pThumbstick->SetThumbstickOutput(ezVirtualThumbStick::OutputTrigger::Controller0_RightStick);
+  m_pThumbstick->SetInputArea(ezVec2(0.1f, 0.1f), ezVec2(0.3f, 0.3f), 0.0f);
+  m_pThumbstick->SetThumbstickOutput(ezVirtualThumbStick::OutputTrigger::Controller0_LeftStick);
   m_pThumbstick->SetEnabled(false);
+
+  m_pThumbstick2 = EZ_DEFAULT_NEW(ezVirtualThumbStick);
+  m_pThumbstick2->SetInputArea(ezVec2(0.2f, 0.1f), ezVec2(0.4f, 0.4f), 1.0f);
+  m_pThumbstick2->SetThumbstickOutput(ezVirtualThumbStick::OutputTrigger::Controller0_RightStick);
+  m_pThumbstick2->SetEnabled(false);
 }
 
 

@@ -38,4 +38,5 @@ private:
   Level* m_pLevel;
 
   ezVirtualThumbStick* m_pThumbstick;
+  ezVirtualThumbStick* m_pThumbstick2;
 };

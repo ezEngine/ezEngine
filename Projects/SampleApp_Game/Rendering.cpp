@@ -176,11 +176,11 @@ void SampleGameApp::RenderSingleFrame()
   RenderAsteroids();
   RenderPlayerShips();
 
-  if (ezInputManager::GetInputSlotState("touchpoint_0") == ezKeyState::Down)
+  if (ezInputManager::GetInputSlotState(ezInputSlot_TouchPoint0) == ezKeyState::Down)
   {
     float pX = 0, pY = 0;
-    ezInputManager::GetInputSlotState("touchpoint_0_position_x", &pX);
-    ezInputManager::GetInputSlotState("touchpoint_0_position_y", &pY);
+    ezInputManager::GetInputSlotState(ezInputSlot_TouchPoint0_PositionX, &pX);
+    ezInputManager::GetInputSlotState(ezInputSlot_TouchPoint0_PositionY, &pY);
 
   
     glBegin(GL_POINTS);
@@ -203,6 +203,29 @@ void SampleGameApp::RenderSingleFrame()
 
     ezVec2 vLL, vUR;
     m_pThumbstick->GetInputArea(vLL, vUR);
+
+    glBegin(GL_QUADS);
+      glVertex3f(vLL.x, vLL.y, 0.0f);
+      glVertex3f(vUR.x, vLL.y, 0.0f);
+      glVertex3f(vUR.x, vUR.y, 0.0f);
+      glVertex3f(vLL.x, vUR.y, 0.0f);
+    glEnd();
+
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+  }
+
+  if (m_pThumbstick2 && m_pThumbstick2->IsEnabled())
+  {
+    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+    glColor3ub(0, 0, 255);
+
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+
+    glOrtho(0.0f, 1.0f, 1.0f, 0.0f, -10, 10);
+
+    ezVec2 vLL, vUR;
+    m_pThumbstick2->GetInputArea(vLL, vUR);
 
     glBegin(GL_QUADS);
       glVertex3f(vLL.x, vLL.y, 0.0f);

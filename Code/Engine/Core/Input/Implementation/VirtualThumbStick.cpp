@@ -34,11 +34,11 @@ void ezVirtualThumbStick::SetTriggerInputSlot(ezVirtualThumbStick::InputTrigger:
   {
   case ezVirtualThumbStick::InputTrigger::Touchpoint:
     {
-      m_szFilterAxisX = "touchpoint_0_position_x";
-      m_szFilterAxisY = "touchpoint_0_position_y";
-      m_szTrigger1    = "touchpoint_0";
-      m_szTrigger2    = "touchpoint_1";
-      m_szTrigger3    = "touchpoint_2";
+      m_szFilterAxisX = ezInputSlot_TouchPoint0_PositionX;
+      m_szFilterAxisY = ezInputSlot_TouchPoint0_PositionY;
+      m_szTrigger1    = ezInputSlot_TouchPoint0;
+      m_szTrigger2    = ezInputSlot_TouchPoint1;
+      m_szTrigger3    = ezInputSlot_TouchPoint2;
     }
     break;
   case ezVirtualThumbStick::InputTrigger::Custom:
@@ -61,18 +61,18 @@ void ezVirtualThumbStick::SetThumbstickOutput(ezVirtualThumbStick::OutputTrigger
   {
   case ezVirtualThumbStick::OutputTrigger::Controller0_LeftStick:
     {
-      m_szOutputLeft  = "controller0_leftstick_negx";
-      m_szOutputRight = "controller0_leftstick_posx";
-      m_szOutputUp    = "controller0_leftstick_posy";
-      m_szOutputDown  = "controller0_leftstick_negy";
+      m_szOutputLeft  = ezInputSlot_Controller0_LeftStick_NegX;
+      m_szOutputRight = ezInputSlot_Controller0_LeftStick_PosX;
+      m_szOutputUp    = ezInputSlot_Controller0_LeftStick_PosY;
+      m_szOutputDown  = ezInputSlot_Controller0_LeftStick_NegY;
     }
     break;
   case ezVirtualThumbStick::OutputTrigger::Controller0_RightStick:
     {
-      m_szOutputLeft  = "controller0_rightstick_negx";
-      m_szOutputRight = "controller0_rightstick_posx";
-      m_szOutputUp    = "controller0_rightstick_posy";
-      m_szOutputDown  = "controller0_rightstick_negy";
+      m_szOutputLeft  = ezInputSlot_Controller0_RightStick_NegX;
+      m_szOutputRight = ezInputSlot_Controller0_RightStick_PosX;
+      m_szOutputUp    = ezInputSlot_Controller0_RightStick_PosY;
+      m_szOutputDown  = ezInputSlot_Controller0_RightStick_NegY;
     }
     break;
   case ezVirtualThumbStick::OutputTrigger::Custom:
@@ -177,15 +177,15 @@ void ezVirtualThumbStick::UpdateInputSlotValues()
 
 void ezVirtualThumbStick::RegisterInputSlots()
 {
-  RegisterInputSlot("controller0_leftstick_negx",   "Left Stick Left",   ezInputSlotFlags::IsAnalogStick);
-  RegisterInputSlot("controller0_leftstick_posx",   "Left Stick Right",  ezInputSlotFlags::IsAnalogStick);
-  RegisterInputSlot("controller0_leftstick_negy",   "Left Stick Down",   ezInputSlotFlags::IsAnalogStick);
-  RegisterInputSlot("controller0_leftstick_posy",   "Left Stick Up",     ezInputSlotFlags::IsAnalogStick);
+  RegisterInputSlot(ezInputSlot_Controller0_LeftStick_NegX,   "Left Stick Left",   ezInputSlotFlags::IsAnalogStick);
+  RegisterInputSlot(ezInputSlot_Controller0_LeftStick_PosX,   "Left Stick Right",  ezInputSlotFlags::IsAnalogStick);
+  RegisterInputSlot(ezInputSlot_Controller0_LeftStick_NegY,   "Left Stick Down",   ezInputSlotFlags::IsAnalogStick);
+  RegisterInputSlot(ezInputSlot_Controller0_LeftStick_PosY,   "Left Stick Up",     ezInputSlotFlags::IsAnalogStick);
 
-  RegisterInputSlot("controller0_rightstick_negx",  "Right Stick Left",  ezInputSlotFlags::IsAnalogStick);
-  RegisterInputSlot("controller0_rightstick_posx",  "Right Stick Right", ezInputSlotFlags::IsAnalogStick);
-  RegisterInputSlot("controller0_rightstick_negy",  "Right Stick Down",  ezInputSlotFlags::IsAnalogStick);
-  RegisterInputSlot("controller0_rightstick_posy",  "Right Stick Up",    ezInputSlotFlags::IsAnalogStick);
+  RegisterInputSlot(ezInputSlot_Controller0_RightStick_NegX,  "Right Stick Left",  ezInputSlotFlags::IsAnalogStick);
+  RegisterInputSlot(ezInputSlot_Controller0_RightStick_PosX,  "Right Stick Right", ezInputSlotFlags::IsAnalogStick);
+  RegisterInputSlot(ezInputSlot_Controller0_RightStick_NegY,  "Right Stick Down",  ezInputSlotFlags::IsAnalogStick);
+  RegisterInputSlot(ezInputSlot_Controller0_RightStick_PosY,  "Right Stick Up",    ezInputSlotFlags::IsAnalogStick);
 }
 
 
