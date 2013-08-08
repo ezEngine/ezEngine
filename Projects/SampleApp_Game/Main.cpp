@@ -26,10 +26,18 @@ void SampleGameApp::AfterEngineInit()
   srand((ezUInt32) ezSystemTime::Now().GetMicroSeconds());
 
   CreateGameLevel();
+
+  CreateAppWindow();
+
+  ezStartup::StartupEngine();
 }
 
 void SampleGameApp::BeforeEngineShutdown()
 {
+  ezStartup::ShutdownEngine();
+
+  DestroyAppWindow();
+
   EZ_DEFAULT_DELETE(m_pThumbstick);
   EZ_DEFAULT_DELETE(m_pThumbstick2);
 
@@ -38,15 +46,7 @@ void SampleGameApp::BeforeEngineShutdown()
 
 ezApplication::ApplicationExecution SampleGameApp::Run()
 {
-  CreateAppWindow();
-
-  ezStartup::StartupEngine();
-
   GameLoop();
-
-  ezStartup::ShutdownEngine();
-
-  DestroyAppWindow();
 
   return ezApplication::Quit;
 }

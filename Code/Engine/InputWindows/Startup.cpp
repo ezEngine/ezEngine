@@ -29,13 +29,19 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(InputDevices, InputDeviceWindows)
     "InputManager"
     
   END_SUBSYSTEM_DEPENDENCIES
- 
+
+  ON_BASE_SHUTDOWN
+  {
+    ezInputDeviceWindows::DestroyAllDevices();
+  }
+
   ON_CORE_STARTUP
   {
   }
  
   ON_CORE_SHUTDOWN
   {
+    ezInputDeviceWindows::DestroyAllDevices();
   }
 
   ON_ENGINE_STARTUP

@@ -2,8 +2,6 @@
 #include <InputTest/InputListModel.moc.h>
 #include <Core/Input/InputManager.h>
 
-//extern ezStatic<ezInputStateHandler> g_InputHandler;
-
 InputListModel* g_pFileListModel = NULL;
 
 InputListModel::InputListModel(QObject *parent) : QAbstractTableModel(parent) 
@@ -16,8 +14,6 @@ int InputListModel::rowCount(const QModelIndex& parent) const
   ezDynamicArray<const char*> Slots;
   ezInputManager::RetrieveAllKnownInputSlots(Slots);
   return Slots.GetCount();
-
-  //return ezInputKey::ENUM_COUNT;
 }
 
 int InputListModel::columnCount(const QModelIndex& parent) const 

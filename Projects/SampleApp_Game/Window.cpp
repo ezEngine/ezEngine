@@ -21,10 +21,6 @@ static LRESULT CALLBACK WndProc (HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPar
     }
     return (0);
 
-  case WM_DESTROY:
-    PostQuitMessage (0);
-    return (0);
-
   case WM_SIZE:
     {
       SampleGameApp* pApp = (SampleGameApp*) ezApplication::GetApplicationInstance();

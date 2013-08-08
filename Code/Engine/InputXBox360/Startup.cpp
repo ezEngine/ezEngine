@@ -24,6 +24,11 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(InputDevices, InputDeviceXBox360)
     "InputManager"
     
   END_SUBSYSTEM_DEPENDENCIES
+
+  ON_BASE_SHUTDOWN
+  {
+    ezInputDeviceXBox360::DestroyAllDevices();
+  }
  
   ON_CORE_STARTUP
   {
@@ -31,6 +36,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(InputDevices, InputDeviceXBox360)
  
   ON_CORE_SHUTDOWN
   {
+    ezInputDeviceXBox360::DestroyAllDevices();
   }
 
   ON_ENGINE_STARTUP

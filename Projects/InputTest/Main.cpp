@@ -1,5 +1,6 @@
 #include <PCH.h>
 #include <QApplication>
+#include <Foundation/Configuration/Startup.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
@@ -37,11 +38,6 @@ public:
     ezLog::AddLogWriter(ezLogWriter::HTML::LogMessageHandler, &g_HtmlLog.GetStatic());
 
     ezInputDeviceWindows::LocalizeButtonDisplayNames();
-
-    //g_InputDeviceWindows.SetShowMouseCursor(false);
-
-    //g_InputDeviceXBox360.SetPhysicalToVirtualControllerMapping(0, 1);
-    //g_InputDeviceXBox360.SetPhysicalToVirtualControllerMapping(2, -1);
   }
 
   virtual void BeforeEngineShutdown() EZ_OVERRIDE

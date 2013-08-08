@@ -40,10 +40,10 @@ ezMainWindow::ezMainWindow() : QMainWindow()
   ComboMapController4->addItem("Controller 3", QVariant(2));
   ComboMapController4->addItem("Controller 4", QVariant(3));
 
-  ComboMapController1->setCurrentIndex(g_InputDeviceXBox360.GetPhysicalToVirtualControllerMapping(0) + 1);
-  ComboMapController2->setCurrentIndex(g_InputDeviceXBox360.GetPhysicalToVirtualControllerMapping(1) + 1);
-  ComboMapController3->setCurrentIndex(g_InputDeviceXBox360.GetPhysicalToVirtualControllerMapping(2) + 1);
-  ComboMapController4->setCurrentIndex(g_InputDeviceXBox360.GetPhysicalToVirtualControllerMapping(3) + 1);
+  ComboMapController1->setCurrentIndex(ezInputDeviceXBox360::GetDevice()->GetPhysicalToVirtualControllerMapping(0) + 1);
+  ComboMapController2->setCurrentIndex(ezInputDeviceXBox360::GetDevice()->GetPhysicalToVirtualControllerMapping(1) + 1);
+  ComboMapController3->setCurrentIndex(ezInputDeviceXBox360::GetDevice()->GetPhysicalToVirtualControllerMapping(2) + 1);
+  ComboMapController4->setCurrentIndex(ezInputDeviceXBox360::GetDevice()->GetPhysicalToVirtualControllerMapping(3) + 1);
 
   ComboMapController1->blockSignals(false);
   ComboMapController2->blockSignals(false);
@@ -69,30 +69,30 @@ void ezMainWindow::paintEvent(QPaintEvent* event)
 
   m_ListModel.layoutChanged();
 
-  CheckClipCursor->setChecked(g_InputDeviceWindows.GetClipMouseCursor());
-  CheckShowCursor->setChecked(g_InputDeviceWindows.GetShowMouseCursor());
+  CheckClipCursor->setChecked(ezInputDeviceWindows::GetDevice()->GetClipMouseCursor());
+  CheckShowCursor->setChecked(ezInputDeviceWindows::GetDevice()->GetShowMouseCursor());
 
-  ComboMapController1->setEnabled(g_InputDeviceXBox360.IsControllerConnected(0));
-  ComboMapController2->setEnabled(g_InputDeviceXBox360.IsControllerConnected(1));
-  ComboMapController3->setEnabled(g_InputDeviceXBox360.IsControllerConnected(2));
-  ComboMapController4->setEnabled(g_InputDeviceXBox360.IsControllerConnected(3));
+  ComboMapController1->setEnabled(ezInputDeviceXBox360::GetDevice()->IsControllerConnected(0));
+  ComboMapController2->setEnabled(ezInputDeviceXBox360::GetDevice()->IsControllerConnected(1));
+  ComboMapController3->setEnabled(ezInputDeviceXBox360::GetDevice()->IsControllerConnected(2));
+  ComboMapController4->setEnabled(ezInputDeviceXBox360::GetDevice()->IsControllerConnected(3));
 
-  if (g_InputDeviceXBox360.IsControllerConnected(0))
+  if (ezInputDeviceXBox360::GetDevice()->IsControllerConnected(0))
     Controller1_Connected->setText(QString::fromUtf8("Controller 1 is connected."));
   else
     Controller1_Connected->setText(QString::fromUtf8("Controller 1 is NOT connected."));
 
-  if (g_InputDeviceXBox360.IsControllerConnected(1))
+  if (ezInputDeviceXBox360::GetDevice()->IsControllerConnected(1))
     Controller2_Connected->setText(QString::fromUtf8("Controller 2 is connected."));
   else
     Controller2_Connected->setText(QString::fromUtf8("Controller 2 is NOT connected."));
 
-  if (g_InputDeviceXBox360.IsControllerConnected(2))
+  if (ezInputDeviceXBox360::GetDevice()->IsControllerConnected(2))
     Controller3_Connected->setText(QString::fromUtf8("Controller 3 is connected."));
   else
     Controller3_Connected->setText(QString::fromUtf8("Controller 3 is NOT connected."));
 
-  if (g_InputDeviceXBox360.IsControllerConnected(3))
+  if (ezInputDeviceXBox360::GetDevice()->IsControllerConnected(3))
     Controller4_Connected->setText(QString::fromUtf8("Controller 4 is connected."));
   else
     Controller4_Connected->setText(QString::fromUtf8("Controller 4 is NOT connected."));
@@ -102,32 +102,32 @@ void ezMainWindow::paintEvent(QPaintEvent* event)
 
 void ezMainWindow::on_CheckClipCursor_clicked()
 {
-  g_InputDeviceWindows.SetClipMouseCursor(!CheckClipCursor->isChecked());
+  ezInputDeviceWindows::GetDevice()->SetClipMouseCursor(!CheckClipCursor->isChecked());
 }
 
 void ezMainWindow::on_CheckShowCursor_clicked()
 {
-  g_InputDeviceWindows.SetShowMouseCursor(!CheckShowCursor->isChecked());
+  ezInputDeviceWindows::GetDevice()->SetShowMouseCursor(!CheckShowCursor->isChecked());
 }
 
 void ezMainWindow::on_ComboMapController1_currentIndexChanged(int index)
 {
-  g_InputDeviceXBox360.SetPhysicalToVirtualControllerMapping(0, index - 1);
+  ezInputDeviceXBox360::GetDevice()->SetPhysicalToVirtualControllerMapping(0, index - 1);
 }
 
 void ezMainWindow::on_ComboMapController2_currentIndexChanged(int index)
 {
-  g_InputDeviceXBox360.SetPhysicalToVirtualControllerMapping(1, index - 1);
+  ezInputDeviceXBox360::GetDevice()->SetPhysicalToVirtualControllerMapping(1, index - 1);
 }
 
 void ezMainWindow::on_ComboMapController3_currentIndexChanged(int index)
 {
-  g_InputDeviceXBox360.SetPhysicalToVirtualControllerMapping(2, index - 1);
+  ezInputDeviceXBox360::GetDevice()->SetPhysicalToVirtualControllerMapping(2, index - 1);
 }
 
 void ezMainWindow::on_ComboMapController4_currentIndexChanged(int index)
 {
-  g_InputDeviceXBox360.SetPhysicalToVirtualControllerMapping(3, index - 1);
+  ezInputDeviceXBox360::GetDevice()->SetPhysicalToVirtualControllerMapping(3, index - 1);
 }
 
 
