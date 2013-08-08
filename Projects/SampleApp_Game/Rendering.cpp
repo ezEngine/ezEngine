@@ -191,6 +191,21 @@ void SampleGameApp::RenderSingleFrame()
     glEnd();
   }
 
+  //if (ezInputManager::GetInputSlotState(ezInputSlot_TouchPoint0) == ezKeyState::Down)
+  {
+    float pX = 0, pY = 0;
+    ezInputManager::GetInputSlotState(ezInputSlot_MousePositionX, &pX);
+    ezInputManager::GetInputSlotState(ezInputSlot_MousePositionY, &pY);
+
+  
+    glBegin(GL_POINTS);
+      glColor3ub(255, 128, 255);
+
+      glVertex3f(pX * 40.0f - 20.0f, pY * -40.0f + 20.0f, 0);
+
+    glEnd();
+  }
+
   if (m_pThumbstick && m_pThumbstick->IsEnabled())
   {
     glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);

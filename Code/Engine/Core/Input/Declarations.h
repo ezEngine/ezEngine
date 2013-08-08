@@ -79,6 +79,7 @@ struct ezInputSlotFlags
 
 EZ_DECLARE_FLAGS_OPERATORS(ezInputSlotFlags);
 
+#define ezInputSlot_None                  ""
 
 #define ezInputSlot_TouchPoint0           "touchpoint_0"
 #define ezInputSlot_TouchPoint0_PositionX "touchpoint_0_position_x"

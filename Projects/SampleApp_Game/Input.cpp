@@ -74,11 +74,11 @@ void SampleGameApp::SetupInput()
 
   // some more keyboard key bindings
 
-  RegisterInputAction("Game", "Player1_Right",      NULL, ezInputSlot_KeyD);
-  RegisterInputAction("Game", "Player1_Shoot",      NULL, ezInputSlot_KeySpace);
   RegisterInputAction("Game", "Player1_Forwards",   NULL, ezInputSlot_KeyW);
   RegisterInputAction("Game", "Player1_Backwards",  NULL, ezInputSlot_KeyS);
   RegisterInputAction("Game", "Player1_Left",       NULL, ezInputSlot_KeyA);
+  RegisterInputAction("Game", "Player1_Right",      NULL, ezInputSlot_KeyD);
+  RegisterInputAction("Game", "Player1_Shoot",      NULL, ezInputSlot_KeySpace);
   RegisterInputAction("Game", "Player1_RotLeft",    NULL, ezInputSlot_KeyLeft);
   RegisterInputAction("Game", "Player1_RotRight",   NULL, ezInputSlot_KeyRight);
 
@@ -91,13 +91,15 @@ void SampleGameApp::SetupInput()
   RegisterInputAction("Game", "Player3_RotRight",   NULL, ezInputSlot_MouseButton1);
 
   m_pThumbstick = EZ_DEFAULT_NEW(ezVirtualThumbStick);
-  m_pThumbstick->SetInputArea(ezVec2(0.1f, 0.1f), ezVec2(0.3f, 0.3f), 0.0f);
-  m_pThumbstick->SetThumbstickOutput(ezVirtualThumbStick::OutputTrigger::Controller0_LeftStick);
+  m_pThumbstick->SetInputArea(ezVec2(0.1f, 0.1f), ezVec2(0.3f, 0.3f), 0.1f, 0.0f);
+  m_pThumbstick->SetTriggerInputSlot(ezVirtualThumbStick::Input::MousePosition);
+  m_pThumbstick->SetThumbstickOutput(ezVirtualThumbStick::Output::Controller0_LeftStick);
   m_pThumbstick->SetEnabled(false);
 
   m_pThumbstick2 = EZ_DEFAULT_NEW(ezVirtualThumbStick);
-  m_pThumbstick2->SetInputArea(ezVec2(0.2f, 0.1f), ezVec2(0.4f, 0.4f), 1.0f);
-  m_pThumbstick2->SetThumbstickOutput(ezVirtualThumbStick::OutputTrigger::Controller0_RightStick);
+  m_pThumbstick2->SetInputArea(ezVec2(0.2f, 0.1f), ezVec2(0.4f, 0.4f), 0.1f, 0.0f);
+  m_pThumbstick2->SetTriggerInputSlot(ezVirtualThumbStick::Input::MousePosition);
+  m_pThumbstick2->SetThumbstickOutput(ezVirtualThumbStick::Output::Controller0_RightStick);
   m_pThumbstick2->SetEnabled(false);
 }
 
