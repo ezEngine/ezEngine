@@ -65,7 +65,7 @@ bool ezMainWindow::nativeEvent(const QByteArray& eventType, void* message, long*
 
 void ezMainWindow::paintEvent(QPaintEvent* event)
 {
-  ezInputManager::Update();
+  ezInputManager::Update(1.0 / 60.0);
 
   m_ListModel.layoutChanged();
 

@@ -45,16 +45,18 @@ struct ezInputSlotFlags
     RequiresDeadZone          = EZ_BIT(8),  ///< The input slot represents hardware that should use a dead zone, otherwise it might fire prematurely. Mostly used on thumbsticks and trigger buttons.
     ValuesAreNonContinuous    = EZ_BIT(9),  ///< The values of the slot can jump around randomly, ie. the user can input arbitrary values, like the position on a touchpad
     ActivationDependsOnOthers = EZ_BIT(10), ///< Whether this slot can be activated depends on whether certain other slots are active. This is the case for touchpoints which are numbered depending on how many other touchpoints are already active.
+    NeverTimeScale            = EZ_BIT(11), ///< When this flag is specified, data from the input slot will never be scaled by the input update time difference. Important for mouse deltas and such.
+
 
     // Some predefined sets of flags for the most common use cases
     IsButton                  =                         ValueBinaryZeroOrOne | Pressable | Holdable,
-    IsMouseWheel              = ReportsRelativeValues | ValueRangeZeroToInf  | Pressable |            HalfAxis,
+    IsMouseWheel              = ReportsRelativeValues | ValueRangeZeroToInf  | Pressable |            HalfAxis |                    NeverTimeScale,
     IsAnalogTrigger           =                         ValueRangeZeroToOne  | Pressable | Holdable | FullAxis | RequiresDeadZone,
-    IsMosueAxisPosition       =                         ValueRangeZeroToOne  |                        FullAxis,
-    IsMosueAxisMove           = ReportsRelativeValues | ValueRangeZeroToInf  |                        HalfAxis,
+    IsMosueAxisPosition       =                         ValueRangeZeroToOne  |                        FullAxis |                    NeverTimeScale,
+    IsMosueAxisMove           = ReportsRelativeValues | ValueRangeZeroToInf  |                        HalfAxis |                    NeverTimeScale,
     IsAnalogStick             =                         ValueRangeZeroToOne  |             Holdable | HalfAxis | RequiresDeadZone,
-    IsDoubleClick             =                         ValueBinaryZeroOrOne | Pressable,
-    IsTouchPosition           =                         ValueRangeZeroToOne  |                        FullAxis |                    ValuesAreNonContinuous,
+    IsDoubleClick             =                         ValueBinaryZeroOrOne | Pressable |                                          NeverTimeScale,
+    IsTouchPosition           =                         ValueRangeZeroToOne  |                        FullAxis |                    NeverTimeScale |        ValuesAreNonContinuous,
     IsTouchPoint              =                         ValueBinaryZeroOrOne | Pressable | Holdable |                                                       ActivationDependsOnOthers,
     IsDPad                    =                         ValueBinaryZeroOrOne | Pressable | Holdable | HalfAxis,
 

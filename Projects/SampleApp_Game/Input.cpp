@@ -14,7 +14,7 @@ const char* szControlerKeys[MaxPlayerActions] = { "leftstick_posy",  "leftstick_
 
 void SampleGameApp::UpdateInput()
 {
-  ezInputManager::Update();
+  ezInputManager::Update(1.0 / 60.0);
 
   if (ezInputManager::GetInputActionState("Main", "CloseApp") == ezKeyState::Pressed)
     m_bActiveRenderLoop = false;
@@ -37,6 +37,7 @@ static void RegisterInputAction(const char* szInputSet, const char* szInputActio
   ezInputManager::ezInputActionConfig cfg;
 
   cfg = ezInputManager::GetInputActionConfig(szInputSet, szInputAction);
+  cfg.m_bApplyTimeScaling = true;
 
   if (szKey1 != NULL)     cfg.m_sInputSlotTrigger[0] = szKey1;
   if (szKey2 != NULL)     cfg.m_sInputSlotTrigger[1] = szKey2;
@@ -50,6 +51,7 @@ void SampleGameApp::SetupInput()
   ezInputDeviceXBox360::GetDevice();
   ezInputDeviceWindows::GetDevice()->SetClipMouseCursor(true);
   ezInputDeviceWindows::GetDevice()->SetShowMouseCursor(false);
+  ezInputDeviceWindows::GetDevice()->SetMouseSpeed(ezVec2(0.002f));
 
   RegisterInputAction("Main", "CloseApp", ezInputSlot_KeyEscape);
   RegisterInputAction("Main", "ResetLevel", ezInputSlot_KeyReturn);
@@ -79,16 +81,16 @@ void SampleGameApp::SetupInput()
   RegisterInputAction("Game", "Player1_Left",       NULL, ezInputSlot_KeyA);
   RegisterInputAction("Game", "Player1_Right",      NULL, ezInputSlot_KeyD);
   RegisterInputAction("Game", "Player1_Shoot",      NULL, ezInputSlot_KeySpace);
-  RegisterInputAction("Game", "Player1_RotLeft",    NULL, ezInputSlot_KeyLeft);
-  RegisterInputAction("Game", "Player1_RotRight",   NULL, ezInputSlot_KeyRight);
+  RegisterInputAction("Game", "Player1_RotLeft",    NULL, ezInputSlot_KeyLeft,  ezInputSlot_MouseMoveNegX);
+  RegisterInputAction("Game", "Player1_RotRight",   NULL, ezInputSlot_KeyRight, ezInputSlot_MouseMovePosX);
 
-  RegisterInputAction("Game", "Player3_Forwards",   NULL, ezInputSlot_MouseMoveNegY);
-  RegisterInputAction("Game", "Player3_Backwards",  NULL, ezInputSlot_MouseMovePosY);
-  RegisterInputAction("Game", "Player3_Left",       NULL, ezInputSlot_MouseMoveNegX);
-  RegisterInputAction("Game", "Player3_Right",      NULL, ezInputSlot_MouseMovePosX);
-  RegisterInputAction("Game", "Player3_Shoot",      NULL, ezInputSlot_MouseButton2);
-  RegisterInputAction("Game", "Player3_RotLeft",    NULL, ezInputSlot_MouseButton0);
-  RegisterInputAction("Game", "Player3_RotRight",   NULL, ezInputSlot_MouseButton1);
+  //RegisterInputAction("Game", "Player3_Forwards",   NULL, ezInputSlot_MouseMoveNegY);
+  //RegisterInputAction("Game", "Player3_Backwards",  NULL, ezInputSlot_MouseMovePosY);
+  //RegisterInputAction("Game", "Player3_Left",       NULL, ezInputSlot_MouseMoveNegX);
+  //RegisterInputAction("Game", "Player3_Right",      NULL, ezInputSlot_MouseMovePosX);
+  //RegisterInputAction("Game", "Player3_Shoot",      NULL, ezInputSlot_MouseButton2);
+  //RegisterInputAction("Game", "Player3_RotLeft",    NULL, ezInputSlot_MouseButton0);
+  //RegisterInputAction("Game", "Player3_RotRight",   NULL, ezInputSlot_MouseButton1);
 
   m_pThumbstick = EZ_DEFAULT_NEW(ezVirtualThumbStick);
   m_pThumbstick->SetInputArea(ezVec2(0.1f, 0.1f), ezVec2(0.3f, 0.3f), 0.1f, 0.0f);
@@ -127,34 +129,34 @@ void Level::UpdatePlayerInput(ezInt32 iPlayer)
   {
     ezVec3 vPos = pShip->GetLocalPosition();
     //vVelocity += 0.1f * vShipDir * fVal;
-    vVelocity += 0.1f * ezVec3(0, 1, 0) * fVal;
+    vVelocity += 0.1f * ezVec3(0, 1, 0) * fVal * 60.0f;
   }
 
   if (ezInputManager::GetInputActionState("Game", sControls[1].GetData(), &fVal) != ezKeyState::Up)
   {
     ezVec3 vPos = pShip->GetLocalPosition();
     //vVelocity -= 0.1f * vShipDir * fVal;
-    vVelocity += 0.1f * ezVec3(0, -1, 0) * fVal;
+    vVelocity += 0.1f * ezVec3(0, -1, 0) * fVal * 60.0f;
   }
 
   if (ezInputManager::GetInputActionState("Game", sControls[2].GetData(), &fVal) != ezKeyState::Up)
   {
     ezVec3 vPos = pShip->GetLocalPosition();
     //vVelocity += 0.1f * vShipDir * fVal;
-    vVelocity += 0.1f * ezVec3(-1, 0, 0) * fVal;
+    vVelocity += 0.1f * ezVec3(-1, 0, 0) * fVal * 60.0f;
   }
 
   if (ezInputManager::GetInputActionState("Game", sControls[3].GetData(), &fVal) != ezKeyState::Up)
   {
     ezVec3 vPos = pShip->GetLocalPosition();
     //vVelocity -= 0.1f * vShipDir * fVal;
-    vVelocity += 0.1f * ezVec3(1, 0, 0) * fVal;
+    vVelocity += 0.1f * ezVec3(1, 0, 0) * fVal * 60.0f;
   }
 
   if (ezInputManager::GetInputActionState("Game", sControls[4].GetData(), &fVal) != ezKeyState::Up)
   {
     ezQuat qRotation;
-    qRotation.SetFromAxisAndAngle(ezVec3(0, 0, 1), 3.0f * fVal);
+    qRotation.SetFromAxisAndAngle(ezVec3(0, 0, 1), 3.0f * fVal * 60.0f);
 
     ezQuat qNewRot = qRotation * pShip->GetLocalRotation();
     pShip->SetLocalRotation(qNewRot);
@@ -163,7 +165,7 @@ void Level::UpdatePlayerInput(ezInt32 iPlayer)
   if (ezInputManager::GetInputActionState("Game", sControls[5].GetData(), &fVal) != ezKeyState::Up)
   {
     ezQuat qRotation;
-    qRotation.SetFromAxisAndAngle(ezVec3(0, 0, 1), -3.0f * fVal);
+    qRotation.SetFromAxisAndAngle(ezVec3(0, 0, 1), -3.0f * fVal * 60.0f);
 
     ezQuat qNewRot = qRotation * pShip->GetLocalRotation();
     pShip->SetLocalRotation(qNewRot);

@@ -18,7 +18,7 @@ int InputListModel::rowCount(const QModelIndex& parent) const
 
 int InputListModel::columnCount(const QModelIndex& parent) const 
 {
-  return 6;
+  return 5;
 }
 
 QVariant InputListModel::headerData(int section, Qt::Orientation orientation, int role) const
@@ -38,8 +38,6 @@ QVariant InputListModel::headerData(int section, Qt::Orientation orientation, in
       return QString("Value");
     if (section == 4)
       return QString("Deadzone");
-    if (section == 5)
-      return QString("Scale");
 
     return QVariant();
   }
@@ -96,10 +94,6 @@ QVariant InputListModel::data(const QModelIndex& index, int role) const
 
     if (index.column() == 4)
       return QVariant(ezInputManager::GetInputSlotDeadZone(Slots[index.row()]));
-
-    if (index.column() == 5)
-      return QVariant(ezInputManager::GetInputSlotScale(Slots[index.row()]));
-
   }
 
   if (role == Qt::BackgroundColorRole)

@@ -24,7 +24,6 @@ ezInputManager::ezInputSlot::ezInputSlot()
   m_fValue = 0.0f;
   m_State = ezKeyState::Up;
   m_fDeadZone = 0.0f;
-  m_fScale = 1.0f;
 }
 
 void ezInputManager::RegisterInputSlot(const char* szInputSlot, const char* szDefaultDisplayName, ezBitflags<ezInputSlotFlags> SlotFlags)
@@ -132,25 +131,6 @@ float ezInputManager::GetInputSlotDeadZone(const char* szInputSlot)
   return s.m_fDeadZone; // return the default value
 }
 
-void ezInputManager::SetInputSlotScale(const char* szInputSlot, float fScale)
-{
-  RegisterInputSlot(szInputSlot, szInputSlot, ezInputSlotFlags::Default);
-  GetInternals().s_InputSlots[szInputSlot].m_fScale = fScale;
-}
-
-float ezInputManager::GetInputSlotScale(const char* szInputSlot)
-{
-  ezMap<ezString, ezInputSlot>::ConstIterator it = GetInternals().s_InputSlots.Find(szInputSlot);
-
-  if (it.IsValid())
-    return it.Value().m_fScale;
-
-  ezLog::Warning("ezInputManager::GetInputSlotScale: Input Slot '%s' does not exist (yet).", szInputSlot);
-
-  ezInputSlot s;
-  return s.m_fScale; // return the default value
-}
-
 ezKeyState::Enum ezInputManager::GetInputSlotState(const char* szInputSlot, float* pValue)
 {
   ezMap<ezString, ezInputSlot>::ConstIterator it = GetInternals().s_InputSlots.Find(szInputSlot);
@@ -173,7 +153,7 @@ ezKeyState::Enum ezInputManager::GetInputSlotState(const char* szInputSlot, floa
 
 
 
-void ezInputManager::Update()
+void ezInputManager::Update(double fTimeDifference)
 {
   ezInputDevice::UpdateAllDevices();
 
@@ -182,7 +162,7 @@ void ezInputManager::Update()
 
   s_LastCharacter = ezInputDevice::RetrieveLastCharacterFromAllDevices();
 
-  UpdateInputActions();
+  UpdateInputActions(fTimeDifference);
 
   ezInputDevice::ResetAllDevices();
 }
@@ -214,11 +194,7 @@ void ezInputManager::GatherDeviceInputSlotValues()
 
         // do not store a value larger than 0 unless it exceeds the deadzone threshold
         if (it.Value() > Slot.m_fDeadZone)
-        {
-          const float fStoreValue = (Slot.m_fScale >= 0.0f) ? it.Value() * Slot.m_fScale : ezMath::Pow(it.Value(), -Slot.m_fScale);
-
-          Slot.m_fValue = ezMath::Max(Slot.m_fValue, fStoreValue); // 'accumulate' the values for one slot from all the connected devices
-        }
+          Slot.m_fValue = ezMath::Max(Slot.m_fValue, it.Value()); // 'accumulate' the values for one slot from all the connected devices
       }
     }
   }
@@ -231,11 +207,7 @@ void ezInputManager::GatherDeviceInputSlotValues()
 
     // do not store a value larger than 0 unless it exceeds the deadzone threshold
     if (it.Value() > Slot.m_fDeadZone)
-    {
-      const float fStoreValue = (Slot.m_fScale >= 0.0f) ? it.Value() * Slot.m_fScale : ezMath::Pow(it.Value(), -Slot.m_fScale);
-
-      Slot.m_fValue = ezMath::Max(Slot.m_fValue, fStoreValue); // 'accumulate' the values for one slot from all the connected devices
-    }
+      Slot.m_fValue = ezMath::Max(Slot.m_fValue, it.Value()); // 'accumulate' the values for one slot from all the connected devices
   }
 
   GetInternals().s_InjectedInputSlots.Clear();

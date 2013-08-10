@@ -4,6 +4,8 @@
 
 ezInputManager::ezInputActionConfig::ezInputActionConfig()
 {
+  m_bApplyTimeScaling = false;
+
   m_fFilterXMinValue = 0.0f;
   m_fFilterXMaxValue = 1.0f;
   m_fFilterYMinValue = 0.0f;
@@ -16,6 +18,7 @@ ezInputManager::ezInputActionConfig::ezInputActionConfig()
 
   for (ezInt32 i = 0; i < MaxInputSlotAlternatives; ++i)
   {
+    m_fInputSlotScale[i] = 1.0f;
     m_sInputSlotTrigger[i]   = ezInputSlot_None;
     m_sFilterByInputSlotX[i] = ezInputSlot_None;
     m_sFilterByInputSlotY[i] = ezInputSlot_None;
@@ -207,17 +210,17 @@ hell:
   return itBestAction;
 }
 
-void ezInputManager::UpdateInputActions()
+void ezInputManager::UpdateInputActions(double fTimeDifference)
 {
   // update each input set
   // all input sets are disjunct from each other, so one key press can have different effects in each input set
   for (ezInputSetMap::Iterator ItSets = GetInternals().s_ActionMapping.GetIterator(); ItSets.IsValid(); ++ItSets)
   {
-    UpdateInputActions(ItSets.Value());
+    UpdateInputActions(ItSets.Value(), fTimeDifference);
   }
 }
 
-void ezInputManager::UpdateInputActions(ezActionMap& Actions)
+void ezInputManager::UpdateInputActions(ezActionMap& Actions, double fTimeDifference)
 {
   // reset all action values to zero
   for (ezActionMap::Iterator ItActions = Actions.GetIterator(); ItActions.IsValid(); ++ItActions)
@@ -247,7 +250,19 @@ void ezInputManager::UpdateInputActions(ezActionMap& Actions)
       if (!itBestAction.IsValid())
         break;
 
-      const float fNewValue = ezMath::Max(itBestAction.Value().m_fValue, ItSlots.Value().m_fValue);
+      const float fSlotScale = itBestAction.Value().m_Config.m_fInputSlotScale[itBestAction.Value().m_iTriggeredViaAlternative];
+
+      float fSlotValue = ItSlots.Value().m_fValue;
+
+      if (fSlotScale >= 0.0f)
+        fSlotValue *= fSlotScale;
+      else
+        fSlotValue = ezMath::Pow(fSlotValue, -fSlotScale);
+
+      if ((!ItSlots.Value().m_SlotFlags.IsAnySet(ezInputSlotFlags::NeverTimeScale)) && (itBestAction.Value().m_Config.m_bApplyTimeScaling))
+        fSlotValue *= (float) fTimeDifference;
+
+      const float fNewValue = ezMath::Max(itBestAction.Value().m_fValue, fSlotValue);
 
       if (itBestAction.Value().m_Config.m_OnEnterArea == ezInputActionConfig::RequireKeyUp)
       {

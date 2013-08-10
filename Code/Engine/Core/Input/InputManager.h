@@ -12,7 +12,7 @@ class EZ_CORE_DLL ezInputManager
 public:
 
   /// \brief Updates the state of the input manager. This should be called exactly once each frame.
-  static void Update();
+  static void Update(double fTimeDifference);
 
 
   /// \brief Will be replaced once we have an RTTI system.
@@ -32,16 +32,6 @@ public:
 
   /// \brief Returns the dead zone value for the given input slot.
   static float GetInputSlotDeadZone(const char* szInputSlot);
-
-  /// \brief Sets the scale that is applied to the value that was reported by the hardware (after dead zone evaluation).
-  ///
-  /// Allows to scale values up or down to accommodate e.g. for mice which report very large or small values.
-  /// If \a fScale is larger than zero, the scale is applied as is (ie. linearly).
-  /// If \a fScale is smaller than zero, the input slot is scaled exponentially by the absolute scale value. E.g. fScale == -2 will square the input slot value.
-  static void SetInputSlotScale(const char* szInputSlot, float fScale);
-
-  /// \brief Returns the scale that is applied on the input slot value.
-  static float GetInputSlotScale(const char* szInputSlot);
 
   /// \brief Returns the flags for the given input slot.
   static ezBitflags<ezInputSlotFlags> GetInputSlotFlags(const char* szInputSlot);
@@ -66,13 +56,19 @@ public:
 
     ezInputActionConfig();
 
+    /// \brief If this is set to true, the value of the action is scaled by the time difference since the last input update. Default is false.
+    bool m_bApplyTimeScaling;
+
     /// \brief Which input slots will trigger this action.
     ezString m_sInputSlotTrigger[MaxInputSlotAlternatives];
 
-    /// \brief If this is set, the input slot with the given name must have a value between m_fFilterXMinValue and m_fFilterXMaxValue. Otherwise this action will not be triggered.
+    /// \brief This scale is applied to the input slot value (before time scaling). Positive values mean a linear scaling, negative values an exponential scaling (i.e SlotValue = ezMath::Pow(SlotValue, -ScaleValue)). Default is 1.0f.
+    float m_fInputSlotScale[MaxInputSlotAlternatives];
+
+    /// \brief For Input Areas: If this is set, the input slot with the given name must have a value between m_fFilterXMinValue and m_fFilterXMaxValue. Otherwise this action will not be triggered.
     ezString m_sFilterByInputSlotX[MaxInputSlotAlternatives];
 
-    /// \brief If this is set, the input slot with the given name must have a value between m_fFilterYMinValue and m_fFilterYMaxValue. Otherwise this action will not be triggered.
+    /// \brief For Input Areas: If this is set, the input slot with the given name must have a value between m_fFilterYMinValue and m_fFilterYMaxValue. Otherwise this action will not be triggered.
     ezString m_sFilterByInputSlotY[MaxInputSlotAlternatives];
 
     float m_fFilterXMinValue; ///< =0; see m_sFilterByInputSlotX
@@ -80,16 +76,16 @@ public:
     float m_fFilterYMinValue; ///< =0; see m_sFilterByInputSlotY
     float m_fFilterYMaxValue; ///< =1; see m_sFilterByInputSlotY
 
-    float m_fFilteredPriority; ///< =large negative value; If two input actions overlap and they have different priorities, the one with the larger priority will be triggered. Otherwise both are triggered.
+    float m_fFilteredPriority; ///< =large negative value; For Input Areas: If two input actions overlap and they have different priorities, the one with the larger priority will be triggered. Otherwise both are triggered.
 
-    /// \brief Describes what happens when an action is currently triggered, but the input slots used for filtering leave their min/max values.
+    /// \brief For Input Areas: Describes what happens when an action is currently triggered, but the input slots used for filtering leave their min/max values.
     enum OnLeaveArea
     {
       LoseFocus,  ///< The input action will lose focus and thus get 'deactivated' immediately. Ie. it will return ezKeyState::Released.
       KeepFocus,  ///< The input action will keep focus and continue to return ezKeyState::Down, until all trigger slots are actually released.
     };
 
-    /// \brief Describes what happens when any trigger slot is already active will the input slots that are used for filtering enter the valid ranges.
+    /// \brief For Input Areas: Describes what happens when any trigger slot is already active will the input slots that are used for filtering enter the valid ranges.
     enum OnEnterArea
     {
       ActivateImmediately,  ///< The input action will immediately get activated and return ezKeyState::Pressed, even though the input slots are already pressed for some time.
@@ -172,7 +168,6 @@ private:
     float m_fValue;                           ///< The current value.
     ezKeyState::Enum m_State;                 ///< The current state.
     float m_fDeadZone;                        ///< The dead zone. Unless the value exceeds this, it reports a zero value.
-    float m_fScale;                           ///< The scale that is applied to the value (once it exceeds the dead zone).
     ezBitflags<ezInputSlotFlags> m_SlotFlags; ///< Describes the capabilities of the slot.
   };
 
@@ -216,10 +211,10 @@ private:
   static void UpdateInputSlotStates();
 
   /// \brief Uses the previously queried input slot values to update the state (and value) of all input actions.
-  static void UpdateInputActions();
+  static void UpdateInputActions(double fTimeDifference);
 
   /// \brief Updates the state of all input actions in the given input set.
-  static void UpdateInputActions(ezActionMap& Actions);
+  static void UpdateInputActions(ezActionMap& Actions, double fTimeDifference);
 
   /// \brief Returns an iterator to the (next) action that should get triggered by the given slot.
   ///

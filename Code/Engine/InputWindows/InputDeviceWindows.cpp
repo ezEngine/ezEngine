@@ -203,12 +203,6 @@ void ezInputDeviceWindows::RegisterInputSlots()
   RegisterInputSlot(ezInputSlot_MouseDblClick1, "Right Double Click",  ezInputSlotFlags::IsDoubleClick);
   RegisterInputSlot(ezInputSlot_MouseDblClick2, "Middle Double Click", ezInputSlotFlags::IsDoubleClick);
 
-  ezInputManager::SetInputSlotScale(ezInputSlot_MouseMoveNegX, 0.1f);
-  ezInputManager::SetInputSlotScale(ezInputSlot_MouseMovePosX, 0.1f);
-  ezInputManager::SetInputSlotScale(ezInputSlot_MouseMoveNegY, 0.1f);
-  ezInputManager::SetInputSlotScale(ezInputSlot_MouseMovePosY, 0.1f);
-
-
   RegisterInputSlot(ezInputSlot_MousePositionX, "Mouse Position X", ezInputSlotFlags::IsMosueAxisPosition);
   RegisterInputSlot(ezInputSlot_MousePositionY, "Mouse Position Y", ezInputSlotFlags::IsMosueAxisPosition);
 
@@ -453,10 +447,10 @@ void ezInputDeviceWindows::WindowMessage(HWND hWnd, UINT Msg, WPARAM wParam, LPA
         // if at all, we should handle them as touch points, not as mouse positions
         if ((raw->data.mouse.usFlags & MOUSE_MOVE_ABSOLUTE) == 0)
         {
-          m_InputSlotValues[ezInputSlot_MouseMoveNegX] += (raw->data.mouse.lLastX < 0) ? (float) -raw->data.mouse.lLastX : 0.0f;
-          m_InputSlotValues[ezInputSlot_MouseMovePosX] += (raw->data.mouse.lLastX > 0) ? (float)  raw->data.mouse.lLastX : 0.0f;
-          m_InputSlotValues[ezInputSlot_MouseMoveNegY] += (raw->data.mouse.lLastY < 0) ? (float) -raw->data.mouse.lLastY : 0.0f;
-          m_InputSlotValues[ezInputSlot_MouseMovePosY] += (raw->data.mouse.lLastY > 0) ? (float)  raw->data.mouse.lLastY : 0.0f;
+          m_InputSlotValues[ezInputSlot_MouseMoveNegX] += ((raw->data.mouse.lLastX < 0) ? (float) -raw->data.mouse.lLastX : 0.0f) * GetMouseSpeed().x;
+          m_InputSlotValues[ezInputSlot_MouseMovePosX] += ((raw->data.mouse.lLastX > 0) ? (float)  raw->data.mouse.lLastX : 0.0f) * GetMouseSpeed().x;
+          m_InputSlotValues[ezInputSlot_MouseMoveNegY] += ((raw->data.mouse.lLastY < 0) ? (float) -raw->data.mouse.lLastY : 0.0f) * GetMouseSpeed().y;
+          m_InputSlotValues[ezInputSlot_MouseMovePosY] += ((raw->data.mouse.lLastY > 0) ? (float)  raw->data.mouse.lLastY : 0.0f) * GetMouseSpeed().y;
 
           for (ezInt32 mb = 0; mb < 5; ++mb)
           {
