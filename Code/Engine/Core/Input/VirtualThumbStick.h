@@ -86,7 +86,7 @@ public:
   ///
   /// If \a Input is 'Custom' the remaining parameters define the filter axes and up to three input slots that trigger the thumbstick.
   /// Otherwise the remaining parameters are ignored.
-  void SetTriggerInputSlot(Input::Enum Input, const char* szFilterAxisX = NULL, const char* szFilterAxisY = NULL, const char* szTrigger1 = NULL, const char* szTrigger2 = NULL, const char* szTrigger3 = NULL);
+  void SetTriggerInputSlot(Input::Enum Input, const ezInputManager::ezInputActionConfig* pCustomConfig = NULL);
 
   /// \brief Specifies which output the thumbstick generates.
   ///
@@ -113,17 +113,8 @@ protected:
   ezVec2 m_vLowerLeft;
   ezVec2 m_vUpperRight;
   float m_fRadius;
-  float m_fPriority;
 
-  ezInputManager::ezInputActionConfig::OnEnterArea m_OnEnter;
-  ezInputManager::ezInputActionConfig::OnLeaveArea m_OnLeave;
-
-  const char* m_szFilterAxisX;
-  const char* m_szFilterAxisY;
-  const char* m_szTrigger1;
-  const char* m_szTrigger2;
-  const char* m_szTrigger3;
-
+  ezInputManager::ezInputActionConfig m_ActionConfig;
   const char* m_szOutputLeft;
   const char* m_szOutputRight;
   const char* m_szOutputUp;

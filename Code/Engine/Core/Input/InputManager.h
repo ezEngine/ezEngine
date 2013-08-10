@@ -70,10 +70,10 @@ public:
     ezString m_sInputSlotTrigger[MaxInputSlotAlternatives];
 
     /// \brief If this is set, the input slot with the given name must have a value between m_fFilterXMinValue and m_fFilterXMaxValue. Otherwise this action will not be triggered.
-    ezString m_sFilterByInputSlotX;
+    ezString m_sFilterByInputSlotX[MaxInputSlotAlternatives];
 
     /// \brief If this is set, the input slot with the given name must have a value between m_fFilterYMinValue and m_fFilterYMaxValue. Otherwise this action will not be triggered.
-    ezString m_sFilterByInputSlotY;
+    ezString m_sFilterByInputSlotY[MaxInputSlotAlternatives];
 
     float m_fFilterXMinValue; ///< =0; see m_sFilterByInputSlotX
     float m_fFilterXMaxValue; ///< =1; see m_sFilterByInputSlotX
@@ -121,7 +121,7 @@ public:
   ///
   /// This is the one function that is called repeatedly at runtime to figure out which actions are active and thus which gameplay functions
   /// to execute. You can (and should) use the /a pValue to scale gameplay features (e.g. how fast to drive).
-  static ezKeyState::Enum GetInputActionState(const char* szInputSet, const char* szAction, float* pValue = NULL);
+  static ezKeyState::Enum GetInputActionState(const char* szInputSet, const char* szAction, float* pValue = NULL, ezInt8* iTriggeredSlot = NULL);
 
   /// \brief Sets the display name for the given action.
   static void SetActionDisplayName(const char* szAction, const char* szDisplayName);
@@ -145,6 +145,11 @@ public:
   ///
   /// Note that when the input is injected after ezInputManager::Update was called, its effect will be delayed by one frame.
   static void InjectInputSlotValue(const char* szInputSlot, float fValue);
+
+  /// \brief Checks whether any input slot has been triggered in this frame, which has all \a MustHaveFlags and has none of the \a MustNotHaveFlags.
+  ///
+  /// This function can be used in a UI to wait for user input and then assign that input to a certain action.
+  static const char* GetPressedInputSlot(ezInputSlotFlags::Enum MustHaveFlags, ezInputSlotFlags::Enum MustNotHaveFlags);
 
 private:
   friend class ezInputDevice;
@@ -180,6 +185,8 @@ private:
 
     float m_fValue;               ///< The current value. This is the maximum of all input slot values that trigger this action.
     ezKeyState::Enum m_State;     ///< The current state. Derived from m_fValue.
+
+    ezInt8 m_iTriggeredViaAlternative;
   };
 
   typedef ezMap<ezString, ezActionData> ezActionMap;    ///< Maps input action names to their data.

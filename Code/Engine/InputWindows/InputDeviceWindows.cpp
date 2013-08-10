@@ -216,6 +216,42 @@ void ezInputDeviceWindows::RegisterInputSlots()
   RegisterInputSlot(ezInputSlot_TouchPoint0, "Touchpoint 1", ezInputSlotFlags::IsTouchPoint);
   RegisterInputSlot(ezInputSlot_TouchPoint0_PositionX, "Touchpoint 1 Position X", ezInputSlotFlags::IsTouchPosition);
   RegisterInputSlot(ezInputSlot_TouchPoint0_PositionY, "Touchpoint 1 Position Y", ezInputSlotFlags::IsTouchPosition);
+
+  RegisterInputSlot(ezInputSlot_TouchPoint1, "Touchpoint 2", ezInputSlotFlags::IsTouchPoint);
+  RegisterInputSlot(ezInputSlot_TouchPoint1_PositionX, "Touchpoint 2 Position X", ezInputSlotFlags::IsTouchPosition);
+  RegisterInputSlot(ezInputSlot_TouchPoint1_PositionY, "Touchpoint 2 Position Y", ezInputSlotFlags::IsTouchPosition);
+
+  RegisterInputSlot(ezInputSlot_TouchPoint2, "Touchpoint 3", ezInputSlotFlags::IsTouchPoint);
+  RegisterInputSlot(ezInputSlot_TouchPoint2_PositionX, "Touchpoint 3 Position X", ezInputSlotFlags::IsTouchPosition);
+  RegisterInputSlot(ezInputSlot_TouchPoint2_PositionY, "Touchpoint 3 Position Y", ezInputSlotFlags::IsTouchPosition);
+
+  RegisterInputSlot(ezInputSlot_TouchPoint3, "Touchpoint 4", ezInputSlotFlags::IsTouchPoint);
+  RegisterInputSlot(ezInputSlot_TouchPoint3_PositionX, "Touchpoint 4 Position X", ezInputSlotFlags::IsTouchPosition);
+  RegisterInputSlot(ezInputSlot_TouchPoint3_PositionY, "Touchpoint 4 Position Y", ezInputSlotFlags::IsTouchPosition);
+
+  RegisterInputSlot(ezInputSlot_TouchPoint4, "Touchpoint 5", ezInputSlotFlags::IsTouchPoint);
+  RegisterInputSlot(ezInputSlot_TouchPoint4_PositionX, "Touchpoint 5 Position X", ezInputSlotFlags::IsTouchPosition);
+  RegisterInputSlot(ezInputSlot_TouchPoint4_PositionY, "Touchpoint 5 Position Y", ezInputSlotFlags::IsTouchPosition);
+
+  RegisterInputSlot(ezInputSlot_TouchPoint5, "Touchpoint 6", ezInputSlotFlags::IsTouchPoint);
+  RegisterInputSlot(ezInputSlot_TouchPoint5_PositionX, "Touchpoint 6 Position X", ezInputSlotFlags::IsTouchPosition);
+  RegisterInputSlot(ezInputSlot_TouchPoint5_PositionY, "Touchpoint 6 Position Y", ezInputSlotFlags::IsTouchPosition);
+
+  RegisterInputSlot(ezInputSlot_TouchPoint6, "Touchpoint 7", ezInputSlotFlags::IsTouchPoint);
+  RegisterInputSlot(ezInputSlot_TouchPoint6_PositionX, "Touchpoint 7 Position X", ezInputSlotFlags::IsTouchPosition);
+  RegisterInputSlot(ezInputSlot_TouchPoint6_PositionY, "Touchpoint 7 Position Y", ezInputSlotFlags::IsTouchPosition);
+
+  RegisterInputSlot(ezInputSlot_TouchPoint7, "Touchpoint 8", ezInputSlotFlags::IsTouchPoint);
+  RegisterInputSlot(ezInputSlot_TouchPoint7_PositionX, "Touchpoint 8 Position X", ezInputSlotFlags::IsTouchPosition);
+  RegisterInputSlot(ezInputSlot_TouchPoint7_PositionY, "Touchpoint 8 Position Y", ezInputSlotFlags::IsTouchPosition);
+
+  RegisterInputSlot(ezInputSlot_TouchPoint8, "Touchpoint 9", ezInputSlotFlags::IsTouchPoint);
+  RegisterInputSlot(ezInputSlot_TouchPoint8_PositionX, "Touchpoint 9 Position X", ezInputSlotFlags::IsTouchPosition);
+  RegisterInputSlot(ezInputSlot_TouchPoint8_PositionY, "Touchpoint 9 Position Y", ezInputSlotFlags::IsTouchPosition);
+
+  RegisterInputSlot(ezInputSlot_TouchPoint9, "Touchpoint 10", ezInputSlotFlags::IsTouchPoint);
+  RegisterInputSlot(ezInputSlot_TouchPoint9_PositionX, "Touchpoint 10 Position X", ezInputSlotFlags::IsTouchPosition);
+  RegisterInputSlot(ezInputSlot_TouchPoint9_PositionY, "Touchpoint 10 Position Y", ezInputSlotFlags::IsTouchPosition);
 }
 
 void ezInputDeviceWindows::ResetInputSlotValues()
@@ -437,13 +473,55 @@ void ezInputDeviceWindows::WindowMessage(HWND hWnd, UINT Msg, WPARAM wParam, LPA
         else
         if ((raw->data.mouse.usFlags & MOUSE_MOVE_ABSOLUTE) != 0)
         {
-          m_InputSlotValues[ezInputSlot_TouchPoint0_PositionX] = (raw->data.mouse.lLastX / 65535.0f) + m_uiWindowNumber;
-          m_InputSlotValues[ezInputSlot_TouchPoint0_PositionY] = (raw->data.mouse.lLastY / 65535.0f);
+          static int iTouchPoint = 0;
+          static bool bTouchPointDown = false;
+
+          const char* szSlot  = ezInputSlot_TouchPoint0;
+          const char* szSlotX = ezInputSlot_TouchPoint0_PositionX;
+          const char* szSlotY = ezInputSlot_TouchPoint0_PositionY;
+
+          switch (iTouchPoint)
+          {
+          case 1:
+            szSlot  = ezInputSlot_TouchPoint1;
+            szSlotX = ezInputSlot_TouchPoint1_PositionX;
+            szSlotY = ezInputSlot_TouchPoint1_PositionY;
+            break;
+          case 2:
+            szSlot  = ezInputSlot_TouchPoint2;
+            szSlotX = ezInputSlot_TouchPoint2_PositionX;
+            szSlotY = ezInputSlot_TouchPoint2_PositionY;
+            break;
+          case 3:
+            szSlot  = ezInputSlot_TouchPoint3;
+            szSlotX = ezInputSlot_TouchPoint3_PositionX;
+            szSlotY = ezInputSlot_TouchPoint3_PositionY;
+            break;
+          case 4:
+            szSlot  = ezInputSlot_TouchPoint4;
+            szSlotX = ezInputSlot_TouchPoint4_PositionX;
+            szSlotY = ezInputSlot_TouchPoint4_PositionY;
+            break;
+          }
+
+          m_InputSlotValues[szSlotX] = (raw->data.mouse.lLastX / 65535.0f) + m_uiWindowNumber;
+          m_InputSlotValues[szSlotY] = (raw->data.mouse.lLastY / 65535.0f);
 
           if ((uiButtons & (RI_MOUSE_BUTTON_1_DOWN | RI_MOUSE_BUTTON_2_DOWN)) != 0)
-            m_InputSlotValues[ezInputSlot_TouchPoint0] = 1.0f;
+          {
+            bTouchPointDown = true;
+            m_InputSlotValues[szSlot] = 1.0f;
+          }
+
           if ((uiButtons & (RI_MOUSE_BUTTON_1_UP | RI_MOUSE_BUTTON_2_UP)) != 0)
-            m_InputSlotValues[ezInputSlot_TouchPoint0] = 0.0f;
+          {
+            bTouchPointDown = false;
+            m_InputSlotValues[szSlot] = 0.0f;
+
+            //iTouchPoint = (iTouchPoint + 1) % 5;
+
+            //ezLog::Info("Next TouchPoint: %i", iTouchPoint);
+          }
         }
         else
         {

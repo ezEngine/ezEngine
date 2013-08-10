@@ -13,12 +13,20 @@ ezInputManager::ezInputActionConfig::ezInputActionConfig()
 
   m_OnLeaveArea = LoseFocus;
   m_OnEnterArea = ActivateImmediately;
+
+  for (ezInt32 i = 0; i < MaxInputSlotAlternatives; ++i)
+  {
+    m_sInputSlotTrigger[i]   = ezInputSlot_None;
+    m_sFilterByInputSlotX[i] = ezInputSlot_None;
+    m_sFilterByInputSlotY[i] = ezInputSlot_None;
+  }
 }
 
 ezInputManager::ezActionData::ezActionData()
 {
   m_fValue = 0.0f;
   m_State = ezKeyState::Up;
+  m_iTriggeredViaAlternative = -1;
 }
 
 void ezInputManager::ClearInputMapping(const char* szInputSet, const char* szInputSlot)
@@ -74,10 +82,13 @@ void ezInputManager::RemoveInputAction(const char* szInputSet, const char* szAct
   GetInternals().s_ActionMapping[szInputSet].Erase(szAction);
 }
 
-ezKeyState::Enum ezInputManager::GetInputActionState(const char* szInputSet, const char* szAction, float* pValue)
+ezKeyState::Enum ezInputManager::GetInputActionState(const char* szInputSet, const char* szAction, float* pValue, ezInt8* iTriggeredSlot)
 {
   if (pValue)
     *pValue = 0.0f;
+
+if (iTriggeredSlot)
+  *iTriggeredSlot = -1;
 
   const ezInputSetMap::ConstIterator ItSet = GetInternals().s_ActionMapping.Find(szInputSet);
 
@@ -91,6 +102,9 @@ ezKeyState::Enum ezInputManager::GetInputActionState(const char* szInputSet, con
 
   if (pValue)
     *pValue = ItAction.Value().m_fValue;
+
+  if (iTriggeredSlot)
+    *iTriggeredSlot = ItAction.Value().m_iTriggeredViaAlternative;
 
   return ItAction.Value().m_State;
 }
@@ -109,7 +123,7 @@ ezInputManager::ezActionMap::Iterator ezInputManager::GetBestAction(ezActionMap&
 
   if (ItAction.IsValid())
   {
-    // otherwise take the priority of the last returned value as the basis to compare all other actions against
+    // take the priority of the last returned value as the basis to compare all other actions against
     fBestPriority = ItAction.Value().m_Config.m_fFilteredPriority;
 
     // and make sure to skip the last returned action, of course
@@ -117,7 +131,7 @@ ezInputManager::ezActionMap::Iterator ezInputManager::GetBestAction(ezActionMap&
   }
   else
   {
-    // if an invalid iterator is passed in, this is the first call to this function, start searching a the very beginning
+    // if an invalid iterator is passed in, this is the first call to this function, start searching at the beginning
     ItAction = Actions.GetIterator();
   }
 
@@ -126,11 +140,21 @@ ezInputManager::ezActionMap::Iterator ezInputManager::GetBestAction(ezActionMap&
   {
     ezActionData& ThisAction = ItAction.Value();
 
-    // if we the given slot triggers this action (over any of its alternative slots), continue
-    for (ezUInt32 AltSlot = 0; AltSlot < ezInputActionConfig::MaxInputSlotAlternatives; ++AltSlot)
+    ezUInt32 AltSlot = ThisAction.m_iTriggeredViaAlternative;
+
+    if (AltSlot != -1)
     {
       if (ThisAction.m_Config.m_sInputSlotTrigger[AltSlot] == sSlot)
         goto hell;
+    }
+    else
+    {
+      // if the given slot triggers this action (or any of its alternative slots), continue
+      for (AltSlot = 0 ; AltSlot < ezInputActionConfig::MaxInputSlotAlternatives; ++AltSlot)
+      {
+        if (ThisAction.m_Config.m_sInputSlotTrigger[AltSlot] == sSlot)
+          goto hell;
+      }
     }
 
     // if the action is not triggered by this slot, skip it
@@ -157,18 +181,18 @@ hell:
 
     // this is the "mouse cursor filter" for the x-axis
     // if any filter is set, check that it is in range
-    if (!ThisAction.m_Config.m_sFilterByInputSlotX.IsEmpty())
+    if (!ThisAction.m_Config.m_sFilterByInputSlotX[AltSlot].IsEmpty())
     {
-      const float fVal = GetInternals().s_InputSlots[ThisAction.m_Config.m_sFilterByInputSlotX].m_fValue;
+      const float fVal = GetInternals().s_InputSlots[ThisAction.m_Config.m_sFilterByInputSlotX[AltSlot]].m_fValue;
       if (fVal < ThisAction.m_Config.m_fFilterXMinValue || fVal > ThisAction.m_Config.m_fFilterXMaxValue)
         continue;
     }
 
     // this is the "mouse cursor filter" for the y-axis
     // if any filter is set, check that it is in range
-    if (!ThisAction.m_Config.m_sFilterByInputSlotY.IsEmpty())
+    if (!ThisAction.m_Config.m_sFilterByInputSlotY[AltSlot].IsEmpty())
     {
-      const float fVal = GetInternals().s_InputSlots[ThisAction.m_Config.m_sFilterByInputSlotY].m_fValue;
+      const float fVal = GetInternals().s_InputSlots[ThisAction.m_Config.m_sFilterByInputSlotY[AltSlot]].m_fValue;
       if (fVal < ThisAction.m_Config.m_fFilterYMinValue || fVal > ThisAction.m_Config.m_fFilterYMaxValue)
         continue;
     }
@@ -176,6 +200,8 @@ hell:
     // we found something!
     fBestPriority = ThisAction.m_Config.m_fFilteredPriority;
     itBestAction = ItAction;
+
+    ThisAction.m_iTriggeredViaAlternative = AltSlot;
   }
 
   return itBestAction;
@@ -242,6 +268,9 @@ void ezInputManager::UpdateInputActions(ezActionMap& Actions)
   {
     const bool bHasInput = ItActions.Value().m_fValue > 0.0f;
     ItActions.Value().m_State = ezKeyState::GetNewKeyState(ItActions.Value().m_State, bHasInput);
+
+    if (ItActions.Value().m_State == ezKeyState::Up)
+      ItActions.Value().m_iTriggeredViaAlternative = -1;
   }
 }
 

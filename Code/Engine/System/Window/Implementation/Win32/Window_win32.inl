@@ -4,7 +4,7 @@
 #include <System/Basics.h>
 #include <System/Window/Window.h>
 
-static LRESULT ezWindowsMessageFuncTrampoline(HWND hWnd, UINT Msg, WPARAM WParam, LPARAM LParam)
+static LRESULT CALLBACK ezWindowsMessageFuncTrampoline(HWND hWnd, UINT Msg, WPARAM WParam, LPARAM LParam)
 {
   ezWindow* pWindow = reinterpret_cast<ezWindow*>(GetWindowLong(hWnd, GWLP_USERDATA));
 
@@ -57,7 +57,7 @@ ezResult ezWindow::Initialize()
 
   // Initialize window class
   memset(&windowClass, 0, sizeof(WNDCLASS));
-  windowClass.style          = CS_OWNDC;
+  windowClass.style          = CS_OWNDC | CS_DBLCLKS;
   windowClass.cbClsExtra     = 0;
   windowClass.cbWndExtra     = 0;
   windowClass.hInstance      = GetModuleHandle(NULL);
@@ -66,7 +66,7 @@ ezResult ezWindow::Initialize()
   windowClass.hbrBackground  = static_cast<HBRUSH>(GetStockObject(BLACK_BRUSH));
   windowClass.lpszMenuName   = NULL;
   windowClass.lpszClassName  = "ezWindow";
-  windowClass.lpfnWndProc    = DefWindowProc; // TODO: How do we want to handle this?
+  windowClass.lpfnWndProc    = ezWindowsMessageFuncTrampoline;
 
   if(!RegisterClass(&windowClass))
   {

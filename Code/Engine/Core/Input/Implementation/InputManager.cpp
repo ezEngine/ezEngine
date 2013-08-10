@@ -278,6 +278,24 @@ void ezInputManager::InjectInputSlotValue(const char* szInputSlot, float fValue)
   GetInternals().s_InjectedInputSlots[szInputSlot] = ezMath::Max(GetInternals().s_InjectedInputSlots[szInputSlot], fValue);
 }
 
+const char* ezInputManager::GetPressedInputSlot(ezInputSlotFlags::Enum MustHaveFlags, ezInputSlotFlags::Enum MustNotHaveFlags)
+{
+  for (ezInputSlotsMap::Iterator it = GetInternals().s_InputSlots.GetIterator(); it.IsValid(); ++it)
+  {
+    if (it.Value().m_State != ezKeyState::Pressed)
+      continue;
+
+    if (it.Value().m_SlotFlags.IsAnySet(MustNotHaveFlags))
+      continue;
+
+    if (it.Value().m_SlotFlags.AreAllSet(MustHaveFlags))
+      return it.Key().GetData();
+  }
+
+  return ezInputSlot_None;
+}
+
+
 
 
 

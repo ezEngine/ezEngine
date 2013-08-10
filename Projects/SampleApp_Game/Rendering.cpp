@@ -191,6 +191,66 @@ void SampleGameApp::RenderSingleFrame()
     glEnd();
   }
 
+  if (ezInputManager::GetInputSlotState(ezInputSlot_TouchPoint1) == ezKeyState::Down)
+  {
+    float pX = 0, pY = 0;
+    ezInputManager::GetInputSlotState(ezInputSlot_TouchPoint1_PositionX, &pX);
+    ezInputManager::GetInputSlotState(ezInputSlot_TouchPoint1_PositionY, &pY);
+
+  
+    glBegin(GL_POINTS);
+      glColor3ub(255, 255, 255);
+
+      glVertex3f(pX * 40.0f - 20.0f, pY * -40.0f + 20.0f, 0);
+
+    glEnd();
+  }
+
+  if (ezInputManager::GetInputSlotState(ezInputSlot_TouchPoint2) == ezKeyState::Down)
+  {
+    float pX = 0, pY = 0;
+    ezInputManager::GetInputSlotState(ezInputSlot_TouchPoint2_PositionX, &pX);
+    ezInputManager::GetInputSlotState(ezInputSlot_TouchPoint2_PositionY, &pY);
+
+  
+    glBegin(GL_POINTS);
+      glColor3ub(255, 255, 255);
+
+      glVertex3f(pX * 40.0f - 20.0f, pY * -40.0f + 20.0f, 0);
+
+    glEnd();
+  }
+
+  if (ezInputManager::GetInputSlotState(ezInputSlot_TouchPoint3) == ezKeyState::Down)
+  {
+    float pX = 0, pY = 0;
+    ezInputManager::GetInputSlotState(ezInputSlot_TouchPoint3_PositionX, &pX);
+    ezInputManager::GetInputSlotState(ezInputSlot_TouchPoint3_PositionY, &pY);
+
+  
+    glBegin(GL_POINTS);
+      glColor3ub(255, 0, 0);
+
+      glVertex3f(pX * 40.0f - 20.0f, pY * -40.0f + 20.0f, 0);
+
+    glEnd();
+  }
+
+  if (ezInputManager::GetInputSlotState(ezInputSlot_TouchPoint4) == ezKeyState::Down)
+  {
+    float pX = 0, pY = 0;
+    ezInputManager::GetInputSlotState(ezInputSlot_TouchPoint4_PositionX, &pX);
+    ezInputManager::GetInputSlotState(ezInputSlot_TouchPoint4_PositionY, &pY);
+
+  
+    glBegin(GL_POINTS);
+      glColor3ub(255, 0, 0);
+
+      glVertex3f(pX * 40.0f - 20.0f, pY * -40.0f + 20.0f, 0);
+
+    glEnd();
+  }
+
   //if (ezInputManager::GetInputSlotState(ezInputSlot_TouchPoint0) == ezKeyState::Down)
   {
     float pX = 0, pY = 0;
@@ -199,7 +259,7 @@ void SampleGameApp::RenderSingleFrame()
 
   
     glBegin(GL_POINTS);
-      glColor3ub(255, 128, 255);
+      glColor3ub(0, 255, 0);
 
       glVertex3f(pX * 40.0f - 20.0f, pY * -40.0f + 20.0f, 0);
 

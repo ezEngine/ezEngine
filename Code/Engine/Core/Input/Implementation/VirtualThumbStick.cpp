@@ -7,7 +7,7 @@ ezInt32 ezVirtualThumbStick::s_iThumbsticks = 0;
 
 ezVirtualThumbStick::ezVirtualThumbStick()
 {
-  SetAreaFocusMode(ezInputManager::ezInputActionConfig::OnEnterArea::RequireKeyUp, ezInputManager::ezInputActionConfig::OnLeaveArea::KeepFocus);
+  SetAreaFocusMode(ezInputManager::ezInputActionConfig::RequireKeyUp, ezInputManager::ezInputActionConfig::KeepFocus);
   SetTriggerInputSlot(ezVirtualThumbStick::Input::Touchpoint);
   SetThumbstickOutput(ezVirtualThumbStick::Output::Controller0_LeftStick);
 
@@ -29,35 +29,49 @@ ezVirtualThumbStick::~ezVirtualThumbStick()
   ezInputManager::RemoveInputAction(GetDeviceName(), m_sName.GetData());
 }
 
-void ezVirtualThumbStick::SetTriggerInputSlot(ezVirtualThumbStick::Input::Enum Input, const char* szFilterAxisX, const char* szFilterAxisY, const char* szTrigger1, const char* szTrigger2, const char* szTrigger3)
+void ezVirtualThumbStick::SetTriggerInputSlot(ezVirtualThumbStick::Input::Enum Input, const ezInputManager::ezInputActionConfig* pCustomConfig)
 {
+  for (ezInt32 i = 0; i < ezInputManager::ezInputActionConfig::MaxInputSlotAlternatives; ++i)
+  {
+    m_ActionConfig.m_sFilterByInputSlotX[i] = ezInputSlot_None;
+    m_ActionConfig.m_sFilterByInputSlotY[i] = ezInputSlot_None;
+    m_ActionConfig.m_sInputSlotTrigger[i]   = ezInputSlot_None;
+  }
+
   switch (Input)
   {
   case ezVirtualThumbStick::Input::Touchpoint:
     {
-      m_szFilterAxisX = ezInputSlot_TouchPoint0_PositionX;
-      m_szFilterAxisY = ezInputSlot_TouchPoint0_PositionY;
-      m_szTrigger1    = ezInputSlot_TouchPoint0;
-      m_szTrigger2    = ezInputSlot_None;
-      m_szTrigger3    = ezInputSlot_None;
+      m_ActionConfig.m_sFilterByInputSlotX[0] = ezInputSlot_TouchPoint0_PositionX;
+      m_ActionConfig.m_sFilterByInputSlotY[0] = ezInputSlot_TouchPoint0_PositionY;
+      m_ActionConfig.m_sInputSlotTrigger[0]   = ezInputSlot_TouchPoint0;
+
+      m_ActionConfig.m_sFilterByInputSlotX[1] = ezInputSlot_TouchPoint1_PositionX;
+      m_ActionConfig.m_sFilterByInputSlotY[1] = ezInputSlot_TouchPoint1_PositionY;
+      m_ActionConfig.m_sInputSlotTrigger[1]   = ezInputSlot_TouchPoint1;
+
+      m_ActionConfig.m_sFilterByInputSlotX[2] = ezInputSlot_TouchPoint2_PositionX;
+      m_ActionConfig.m_sFilterByInputSlotY[2] = ezInputSlot_TouchPoint2_PositionY;
+      m_ActionConfig.m_sInputSlotTrigger[2]   = ezInputSlot_TouchPoint2;
     }
     break;
   case ezVirtualThumbStick::Input::MousePosition:
     {
-      m_szFilterAxisX = ezInputSlot_MousePositionX;
-      m_szFilterAxisY = ezInputSlot_MousePositionY;
-      m_szTrigger1    = ezInputSlot_MouseButton0;
-      m_szTrigger2    = ezInputSlot_None;
-      m_szTrigger3    = ezInputSlot_None;
+      m_ActionConfig.m_sFilterByInputSlotX[0] = ezInputSlot_MousePositionX;
+      m_ActionConfig.m_sFilterByInputSlotY[0] = ezInputSlot_MousePositionY;
+      m_ActionConfig.m_sInputSlotTrigger[0]   = ezInputSlot_MouseButton0;
     }
     break;
   case ezVirtualThumbStick::Input::Custom:
     {
-      m_szFilterAxisX = szFilterAxisX;
-      m_szFilterAxisY = szFilterAxisY;
-      m_szTrigger1    = szTrigger1;
-      m_szTrigger2    = szTrigger2;
-      m_szTrigger3    = szTrigger3;
+      EZ_ASSERT(pCustomConfig != NULL, "Must pass a custom config, if you want to have a custom config.");
+
+      for (ezInt32 i = 0; i < ezInputManager::ezInputActionConfig::MaxInputSlotAlternatives; ++i)
+      {
+        m_ActionConfig.m_sFilterByInputSlotX[i] = pCustomConfig->m_sFilterByInputSlotX[i];
+        m_ActionConfig.m_sFilterByInputSlotY[i] = pCustomConfig->m_sFilterByInputSlotY[i];
+        m_ActionConfig.m_sInputSlotTrigger[i]   = pCustomConfig->m_sInputSlotTrigger[i];
+      }
     }
     break;
   }
@@ -150,8 +164,8 @@ void ezVirtualThumbStick::SetAreaFocusMode(ezInputManager::ezInputActionConfig::
 {
   m_bConfigChanged = true;
 
-  m_OnEnter = OnEnter;
-  m_OnLeave = OnLeave;
+  m_ActionConfig.m_OnEnterArea = OnEnter;
+  m_ActionConfig.m_OnLeaveArea = OnLeave;
 }
 
 void ezVirtualThumbStick::SetInputArea(const ezVec2& vLowerLeft, const ezVec2& vUpperRight, float fThumbstickRadius, float fPriority, CenterMode::Enum center)
@@ -161,7 +175,7 @@ void ezVirtualThumbStick::SetInputArea(const ezVec2& vLowerLeft, const ezVec2& v
   m_vLowerLeft = vLowerLeft;
   m_vUpperRight = vUpperRight;
   m_fRadius = fThumbstickRadius;
-  m_fPriority = fPriority;
+  m_ActionConfig.m_fFilteredPriority = fPriority;
   m_CenterMode = center;
 }
 
@@ -176,22 +190,12 @@ void ezVirtualThumbStick::UpdateActionMapping()
   if (!m_bConfigChanged)
     return;
 
-  ezInputManager::ezInputActionConfig ac;
+  m_ActionConfig.m_fFilterXMinValue = m_vLowerLeft.x;
+  m_ActionConfig.m_fFilterXMaxValue = m_vUpperRight.x;
+  m_ActionConfig.m_fFilterYMinValue = m_vLowerLeft.y;
+  m_ActionConfig.m_fFilterYMaxValue = m_vUpperRight.y;
 
-  ac.m_fFilterXMinValue = m_vLowerLeft.x;
-  ac.m_fFilterXMaxValue = m_vUpperRight.x;
-  ac.m_fFilterYMinValue = m_vLowerLeft.y;
-  ac.m_fFilterYMaxValue = m_vUpperRight.y;
-  ac.m_fFilteredPriority = m_fPriority;
-  ac.m_OnEnterArea = m_OnEnter;
-  ac.m_OnLeaveArea = m_OnLeave;
-  ac.m_sFilterByInputSlotX  = m_szFilterAxisX;
-  ac.m_sFilterByInputSlotY  = m_szFilterAxisY;
-  ac.m_sInputSlotTrigger[0] = m_szTrigger1;
-  ac.m_sInputSlotTrigger[1] = m_szTrigger2;
-  ac.m_sInputSlotTrigger[2] = m_szTrigger3;
-
-  ezInputManager::SetInputActionConfig(GetDeviceName(), m_sName.GetData(), ac, false);
+  ezInputManager::SetInputActionConfig(GetDeviceName(), m_sName.GetData(), m_ActionConfig, false);
 
   m_bConfigChanged = false;
 }
@@ -213,7 +217,10 @@ void ezVirtualThumbStick::UpdateInputSlotValues()
 
   UpdateActionMapping();
 
-  const ezKeyState::Enum ks = ezInputManager::GetInputActionState(GetDeviceName(), m_sName.GetData());
+  float fValue;
+  ezInt8 iTriggerAlt;
+
+  const ezKeyState::Enum ks = ezInputManager::GetInputActionState(GetDeviceName(), m_sName.GetData(), &fValue, &iTriggerAlt);
   
   if (ks != ezKeyState::Up)
   {
@@ -221,8 +228,8 @@ void ezVirtualThumbStick::UpdateInputSlotValues()
 
     ezVec2 vTouchPos(0.0f);
 
-    ezInputManager::GetInputSlotState(m_szFilterAxisX, &vTouchPos.x);
-    ezInputManager::GetInputSlotState(m_szFilterAxisY, &vTouchPos.y);
+    ezInputManager::GetInputSlotState(m_ActionConfig.m_sFilterByInputSlotX[iTriggerAlt].GetData(), &vTouchPos.x);
+    ezInputManager::GetInputSlotState(m_ActionConfig.m_sFilterByInputSlotY[iTriggerAlt].GetData(), &vTouchPos.y);
 
     if (ks == ezKeyState::Pressed)
     {
