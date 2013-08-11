@@ -317,7 +317,8 @@ public:
   }
 };
 
-class ezImageConversion_BC6U_RGBA : public ezImageConversionMixinBlockDecompression<ezImageConversion_BC6U_RGBA>
+template<bool bSigned>
+class ezImageConversion_BC6_RGBA : public ezImageConversionMixinBlockDecompression<ezImageConversion_BC6_RGBA<bSigned> >
 {
 public:
   static const ezUInt32 s_uiSourceBpp = 8;
@@ -410,9 +411,9 @@ public:
 
   struct Color
   {
-    ezUInt16 r;
-    ezUInt16 g;
-    ezUInt16 b;
+    ezUInt32 r;
+    ezUInt32 g;
+    ezUInt32 b;
 
     void operator+=(const Color& other)
     {
@@ -422,10 +423,17 @@ public:
     }
   };
 
-  static FP32 HalfToFloat(ezUInt16 uiHalf)
+  static FP32 HalfToFloat(ezUInt32 uiHalf)
   {
     FP32 out;
-    out.u = (uiHalf << 12) + ((127 - 15) << 23);
+    if(bSigned)
+    {
+      out.u = (((uiHalf & 0x7FFF) << 13) + ((127 - 15) << 23)) | ((uiHalf & 0x8000) << 16);
+    }
+    else
+    {
+      out.u = (uiHalf << 12) + ((127 - 15) << 23);
+    }
     return out;
   }
 
@@ -537,6 +545,11 @@ public:
     B[1].g = ReadBits<4, 51>(pSource) | (ReadBits<1, 40>(pSource) << 4);
     B[1].b = ReadBits<1, 50>(pSource) | (ReadBits<1, 60>(pSource) << 1) | (ReadBits<1, 70>(pSource) << 2) | (ReadBits<1, 76>(pSource) << 3) | (ReadBits<1, 4>(pSource) << 4);
 
+    if(bSigned)
+    {
+      SignExtend(A[0], 10, 10, 10);
+    }
+
     SignExtend(A[1], 5, 5, 5);
     SignExtend(B[0], 5, 5, 5);
     SignExtend(B[1], 5, 5, 5);
@@ -572,6 +585,11 @@ public:
     B[1].r = ReadBits<6, 71>(pSource);
     B[1].g = ReadBits<4, 51>(pSource) | (ReadBits<1, 3>(pSource) << 4) | (ReadBits<1, 4>(pSource) << 5);
     B[1].b = ReadBits<1, 12>(pSource) | (ReadBits<1, 13>(pSource) << 1) | (ReadBits<1, 23>(pSource) << 2) | (ReadBits<1, 32>(pSource) << 3) | (ReadBits<1, 34>(pSource) << 4) | (ReadBits<1, 33>(pSource) << 5);
+
+    if(bSigned)
+    {
+      SignExtend(A[0], 7, 7, 7);
+    }
 
     SignExtend(A[1], 6, 6, 6);
     SignExtend(B[0], 6, 6, 6);
@@ -609,6 +627,11 @@ public:
     B[1].g = ReadBits<4, 51>(pSource);
     B[1].b = ReadBits<1, 50>(pSource) | (ReadBits<1, 60>(pSource) << 1) | (ReadBits<1, 70>(pSource) << 2) | (ReadBits<1, 76>(pSource) << 3);
 
+    if(bSigned)
+    {
+      SignExtend(A[0], 11, 11, 11);
+    }
+
     SignExtend(A[1], 5, 4, 4);
     SignExtend(B[0], 5, 4, 4);
     SignExtend(B[1], 5, 4, 4);
@@ -636,6 +659,12 @@ public:
     B.g = ReadBits<10, 45>(pSource);
     B.b = ReadBits<10, 55>(pSource);
 
+    if(bSigned)
+    {
+      SignExtend(A, 10, 10, 10);
+      SignExtend(B, 10, 10, 10);
+    }
+
     Unquantize(A, 10);
     Unquantize(B, 10);
 
@@ -661,6 +690,11 @@ public:
     B[1].r = ReadBits<4, 71>(pSource);
     B[1].g = ReadBits<4, 51>(pSource) | (ReadBits<1, 40>(pSource) << 4);
     B[1].b = ReadBits<1, 69>(pSource) | (ReadBits<1, 60>(pSource) << 1) | (ReadBits<1, 70>(pSource) << 2) | (ReadBits<1, 76>(pSource) << 3);
+
+    if(bSigned)
+    {
+      SignExtend(A[0], 11, 11, 11);
+    }
 
     SignExtend(A[1], 4, 5, 4);
     SignExtend(B[0], 4, 5, 4);
@@ -688,6 +722,11 @@ public:
     B.r = ReadBits<9, 35>(pSource);
     B.g = ReadBits<9, 45>(pSource);
     B.b = ReadBits<9, 55>(pSource);
+
+    if(bSigned)
+    {
+      SignExtend(A, 11, 11, 11);
+    }
 
     SignExtend(B, 9, 9, 9);
 
@@ -719,6 +758,11 @@ public:
     B[1].g = ReadBits<4, 51>(pSource);
     B[1].b = ReadBits<1, 50>(pSource) | (ReadBits<1, 69>(pSource) << 1) | (ReadBits<1, 70>(pSource) << 2) | (ReadBits<1, 76>(pSource) << 3) | (ReadBits<1, 75>(pSource) << 4);
 
+    if(bSigned)
+    {
+      SignExtend(A[0], 11, 11, 11);
+    }
+
     SignExtend(A[1], 4, 4, 5);
     SignExtend(B[0], 4, 4, 5);
     SignExtend(B[1], 4, 4, 5);
@@ -745,6 +789,11 @@ public:
     B.r = ReadBits<8, 35>(pSource);
     B.g = ReadBits<8, 45>(pSource);
     B.b = ReadBits<8, 55>(pSource);
+
+    if(bSigned)
+    {
+      SignExtend(A, 12, 12, 12);
+    }
 
     SignExtend(B, 8, 8, 8);
 
@@ -775,6 +824,11 @@ public:
     B[1].r = ReadBits<5, 71>(pSource);
     B[1].g = ReadBits<4, 51>(pSource) | (ReadBits<1, 40>(pSource) << 4);
     B[1].b = ReadBits<1, 50>(pSource) | (ReadBits<1, 60>(pSource) << 1) | (ReadBits<1, 70>(pSource) << 2) | (ReadBits<1, 76>(pSource) << 3) | (ReadBits<1, 34>(pSource) << 4);
+
+    if(bSigned)
+    {
+      SignExtend(A[0], 9, 9, 9);
+    }
 
     SignExtend(A[1], 5, 5, 5);
     SignExtend(B[0], 5, 5, 5);
@@ -812,6 +866,11 @@ public:
     B[1].g = ReadBits<4, 51>(pSource) | (ReadBits<1, 13>(pSource) << 4);
     B[1].b = ReadBits<1, 50>(pSource) | (ReadBits<1, 60>(pSource) << 1) | (ReadBits<1, 23>(pSource) << 2) | (ReadBits<1, 33>(pSource) << 3) | (ReadBits<1, 34>(pSource) << 4);
 
+    if(bSigned)
+    {
+      SignExtend(A[0], 8, 8, 8);
+    }
+
     SignExtend(A[1], 6, 5, 5);
     SignExtend(B[0], 6, 5, 5);
     SignExtend(B[1], 6, 5, 5);
@@ -847,6 +906,11 @@ public:
     B[1].r = ReadBits<5, 71>(pSource);
     B[1].g = ReadBits<4, 51>(pSource) | (ReadBits<1, 40>(pSource) << 4) | (ReadBits<1, 33>(pSource) << 5);
     B[1].b = ReadBits<1, 13>(pSource) | (ReadBits<1, 60>(pSource) << 1) | (ReadBits<1, 70>(pSource) << 2) | (ReadBits<1, 76>(pSource) << 3) | (ReadBits<1, 34>(pSource) << 4);
+
+    if(bSigned)
+    {
+      SignExtend(A[0], 8, 8, 8);
+    }
 
     SignExtend(A[1], 5, 6, 5);
     SignExtend(B[0], 5, 6, 5);
@@ -884,6 +948,11 @@ public:
     B[1].g = ReadBits<4, 51>(pSource) | (ReadBits<1, 40>(pSource) << 4);
     B[1].b = ReadBits<1, 50>(pSource) | (ReadBits<1, 13>(pSource) << 1) | (ReadBits<1, 70>(pSource) << 2) | (ReadBits<1, 76>(pSource) << 3) | (ReadBits<1, 34>(pSource) << 4) | (ReadBits<1, 33>(pSource) << 5);
 
+    if(bSigned)
+    {
+      SignExtend(A[0], 8, 8, 8);
+    }
+
     SignExtend(A[1], 5, 5, 6);
     SignExtend(B[0], 5, 5, 6);
     SignExtend(B[1], 5, 5, 6);
@@ -920,6 +989,14 @@ public:
     B[1].g = ReadBits<4, 51>(pSource) | (ReadBits<1, 11>(pSource) << 4) | (ReadBits<1, 31>(pSource) << 5);
     B[1].b = ReadBits<1, 12>(pSource) | (ReadBits<1, 13>(pSource) << 1) | (ReadBits<1, 23>(pSource) << 2) | (ReadBits<1, 32>(pSource) << 3) | (ReadBits<1, 34>(pSource) << 4) | (ReadBits<1, 33>(pSource) << 5);
 
+    if(bSigned)
+    {
+      SignExtend(A[0], 6, 6, 6);
+      SignExtend(A[1], 6, 6, 6);
+      SignExtend(B[0], 6, 6, 6);
+      SignExtend(B[1], 6, 6, 6);
+    }
+
     Unquantize(A[0], 6);
     Unquantize(A[1], 6);
     Unquantize(B[0], 6);
@@ -949,25 +1026,64 @@ public:
     color.b = Unquantize(color.b, uiBitPerComponent);
   }
 
-  static ezUInt32 Unquantize(ezUInt32 uiComponent, ezUInt32 uiBitsPerComponent)
+  static ezUInt32 Unquantize(ezInt32 iComponent, ezUInt32 uiBitsPerComponent)
   {
-    if(uiComponent == 0)
+    if(bSigned)
     {
-      return 0;
-    }
-    else if(uiComponent == ((1U << uiBitsPerComponent) - 1))
-    {
-      return 0xFFFF;
+      ezInt32 iSign = 1;
+      if(iComponent < 0)
+      {
+        iSign = -1;
+        iComponent = -iComponent;
+      }
+
+      if(iComponent == 0)
+      {
+        return 0;
+      }
+      else if(iComponent >= ((1 << (uiBitsPerComponent - 1)) - 1))
+      {
+        return 0x7FFF * iSign;
+      }
+      else
+      {
+        return (((iComponent << 15) + 0x4000) >> (uiBitsPerComponent - 1)) * iSign;
+      }
     }
     else
     {
-      return ((uiComponent << 16) + 0x8000) >> uiBitsPerComponent;
+      if(iComponent == 0)
+      {
+        return 0;
+      }
+      else if(iComponent == ((1U << uiBitsPerComponent) - 1))
+      {
+        return 0xFFFF;
+      }
+      else
+      {
+        return ((iComponent << 16) + 0x8000) >> uiBitsPerComponent;
+      }
     }
   }
 
-  static ezUInt32 FinishUnquantize(ezUInt32 uiComponent)
+  static ezUInt32 FinishUnquantize(ezInt32 iComponent)
   {
-    return (uiComponent * 31) >> 5;
+    if(bSigned)
+    {
+      iComponent = (iComponent < 0) ? -(((-iComponent) * 31) >> 5) : (iComponent * 31) >> 5;   // scale the magnitude by 31/32
+      int s = 0;
+      if(iComponent < 0)
+      {
+        s = 0x8000;
+        iComponent = -iComponent;
+      }
+      return (unsigned short) (s | iComponent);
+    }
+    else
+    {
+      return (iComponent * 31) >> 5;
+    }
   }
 
   template<ezUInt32 uiNumBits, ezUInt32 uiBitPosition>
@@ -1212,7 +1328,8 @@ void ezImageConversion::Startup()
   RegisterConversionFunction(ezImageConversion_BC3_BGRA::ConvertImage, ezImageFormat::BC3_UNORM, ezImageFormat::B8G8R8A8_UNORM);
   RegisterConversionFunction(ezImageConversion_BC4_R::ConvertImage, ezImageFormat::BC4_UNORM, ezImageFormat::R8_UNORM);
   RegisterConversionFunction(ezImageConversion_BC5_RG::ConvertImage, ezImageFormat::BC5_UNORM, ezImageFormat::R8G8_UNORM);
-  RegisterConversionFunction(ezImageConversion_BC6U_RGBA::ConvertImage, ezImageFormat::BC6H_UF16, ezImageFormat::R32G32B32A32_FLOAT);
+  RegisterConversionFunction(ezImageConversion_BC6_RGBA<false>::ConvertImage, ezImageFormat::BC6H_UF16, ezImageFormat::R32G32B32A32_FLOAT);
+  RegisterConversionFunction(ezImageConversion_BC6_RGBA<true>::ConvertImage, ezImageFormat::BC6H_SF16, ezImageFormat::R32G32B32A32_FLOAT);
 
   for(ezUInt32 uiFormat = 0; uiFormat < ezImageFormat::NUM_FORMATS; uiFormat++)
   {
