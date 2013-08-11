@@ -1,6 +1,15 @@
 What's New {#WhatsNew}
 ==========
 
+Milestone 3
+-----------
+  
+  * Added an input abstraction system (ezInputManager, etc.).
+     * Implements mouse/keyboard and XBox 360 controller on Windows.
+     * Contains a Virtual Thumbstick, which can be used on touch devices for 'controller input'.
+     * Can be extended through additional ezInputDevice's to handle more platforms and device types.
+  * Added a sample game, similar to Asteroids, to show how to use the Game Object system and the Input System.
+
 Milestone 2
 -----------
 
@@ -25,3 +34,4 @@ Milestone 2
   * Added features to the build system to work with Qt5
   * Added ezThreadSignal for inter-thread synchronization
   * Fixed several bugs.
+

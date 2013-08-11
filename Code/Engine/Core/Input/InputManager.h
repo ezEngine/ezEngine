@@ -4,16 +4,87 @@
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Containers/DynamicArray.h>
 
-EZ_CORE_DLL const char* ConvertScanCodeToEngineName(ezUInt8 uiScanCode, bool bIsExtendedKey);
+/// \brief A struct that defines how to register an input action.
+struct EZ_CORE_DLL ezInputActionConfig
+{
+  /// \brief Change this value to adjust how many input slots may trigger the same action.
+  enum { MaxInputSlotAlternatives = 3 };
 
-/// \todo Document
+  ezInputActionConfig();
+
+  /// \brief If this is set to true, the value of the action is scaled by the time difference since the last input update. Default is true.
+  ///
+  /// You should enable this, if the value of the triggered action is used to modify how much to e.g. move an or rotate something.
+  /// For example, if an action 'RotateLeft' will rotate the player to the left, then he should rotate each frame an amount that is dependent on how
+  /// much time has passed since the last update and by how much the button is pressed (e.g. a thumbstick can be pressed only slightly).
+  /// Mouse input, however, should not get scaled, because when the user moved the mouse one centimeter in the last frame, then that is an absolute
+  /// movement and it does not depend on how much time elapsed. Therefore the ezInputManager will take care NOT to scale input from such devices,
+  /// whereas input from a thumbstick or a keyboard key would be scaled by the elapsed time.
+  ///
+  /// However, if you for example use a thumbstick to position something on screen (e.g. a cursor), then that action should NEVER be scaled by the
+  /// elapsed time, because you are actually interested in the absolute value of the thumbstick (and thus the action). In such cases you should
+  /// disable time scaling.
+  ///
+  /// When you have an action where your are not intersted in the value, only in whether it is triggered, at all, you can ignore time scaling altogether.
+  bool m_bApplyTimeScaling;
+
+  /// \brief Which input slots will trigger this action.
+  ezString m_sInputSlotTrigger[MaxInputSlotAlternatives];
+
+  /// \brief This scale is applied to the input slot value (before time scaling). Positive values mean a linear scaling, negative values an exponential scaling (i.e SlotValue = ezMath::Pow(SlotValue, -ScaleValue)). Default is 1.0f.
+  float m_fInputSlotScale[MaxInputSlotAlternatives];
+
+  /// \brief For Input Areas: If this is set, the input slot with the given name must have a value between m_fFilterXMinValue and m_fFilterXMaxValue. Otherwise this action will not be triggered.
+  ezString m_sFilterByInputSlotX[MaxInputSlotAlternatives];
+
+  /// \brief For Input Areas: If this is set, the input slot with the given name must have a value between m_fFilterYMinValue and m_fFilterYMaxValue. Otherwise this action will not be triggered.
+  ezString m_sFilterByInputSlotY[MaxInputSlotAlternatives];
+
+  float m_fFilterXMinValue; ///< =0; see m_sFilterByInputSlotX
+  float m_fFilterXMaxValue; ///< =1; see m_sFilterByInputSlotX
+  float m_fFilterYMinValue; ///< =0; see m_sFilterByInputSlotY
+  float m_fFilterYMaxValue; ///< =1; see m_sFilterByInputSlotY
+
+  float m_fFilteredPriority; ///< =large negative value; For Input Areas: If two input actions overlap and they have different priorities, the one with the larger priority will be triggered. Otherwise both are triggered.
+
+  /// \brief For Input Areas: Describes what happens when an action is currently triggered, but the input slots used for filtering leave their min/max values.
+  enum OnLeaveArea
+  {
+    LoseFocus,  ///< The input action will lose focus and thus get 'deactivated' immediately. Ie. it will return ezKeyState::Released.
+    KeepFocus,  ///< The input action will keep focus and continue to return ezKeyState::Down, until all trigger slots are actually released.
+  };
+
+  /// \brief For Input Areas: Describes what happens when any trigger slot is already active will the input slots that are used for filtering enter the valid ranges.
+  enum OnEnterArea
+  {
+    ActivateImmediately,  ///< The input action will immediately get activated and return ezKeyState::Pressed, even though the input slots are already pressed for some time.
+    RequireKeyUp,         ///< The input action will not get triggered, unless some trigger input slot is actually pressed while the input slots that are used for filtering are actually within valid ranges.
+  };
+
+  OnLeaveArea m_OnLeaveArea; ///< =LoseFocus
+  OnEnterArea m_OnEnterArea; ///< =ActivateImmediately
+};
+
+
+/// \brief The central class to set up and query the state of all input.
+///
+/// The ezInputManager is the central hub through which you can configure which keys will trigger which actions. You can query in which state
+/// an action is (inactive (up), active (down), just recently activated (pressed) or just recently deactivated (released)). You can query their
+/// values (e.g. how much a thumbstick or the mouse was moved).
+/// Additionally you can localize buttons and actions. The internal data will always use english names and the US keyboard layout, but what with which
+/// names those keys are presented to the user can be changed.
+/// Although the input manager allows to query the state of each key, button, axis, etc. directly, this is not advised. Instead the user should set
+/// up 'actions' and define which keys will trigger those actions. At runtime the user should only query the state of actions. In the best case, an
+/// application allows the player to change the mapping which keys are used to trigger which actions.
 class EZ_CORE_DLL ezInputManager
 {
 public:
 
   /// \brief Updates the state of the input manager. This should be called exactly once each frame.
+  ///
+  /// \param fTimeDifference The time elapsed since the last update. This will affect the value scaling of actions that
+  /// use frame time scaling and is necessary to update controller vibration tracks.
   static void Update(double fTimeDifference);
-
 
   /// \brief Will be replaced once we have an RTTI system.
   static ezInputDevice* GetInputDeviceByType(const char* szType);
@@ -48,61 +119,31 @@ public:
   /// If it is false, the internal state will not be changed. This should only be used, if the calling code does not do anything meaningful with the value.
   static wchar_t RetrieveLastCharacter(bool bResetCurrent = true);
 
-  /// \brief A struct that defines how to register an input action.
-  struct EZ_CORE_DLL ezInputActionConfig
-  {
-    /// \brief Change this value to adjust how many input slots may trigger the same action.
-    enum { MaxInputSlotAlternatives = 3 };
-
-    ezInputActionConfig();
-
-    /// \brief If this is set to true, the value of the action is scaled by the time difference since the last input update. Default is false.
-    bool m_bApplyTimeScaling;
-
-    /// \brief Which input slots will trigger this action.
-    ezString m_sInputSlotTrigger[MaxInputSlotAlternatives];
-
-    /// \brief This scale is applied to the input slot value (before time scaling). Positive values mean a linear scaling, negative values an exponential scaling (i.e SlotValue = ezMath::Pow(SlotValue, -ScaleValue)). Default is 1.0f.
-    float m_fInputSlotScale[MaxInputSlotAlternatives];
-
-    /// \brief For Input Areas: If this is set, the input slot with the given name must have a value between m_fFilterXMinValue and m_fFilterXMaxValue. Otherwise this action will not be triggered.
-    ezString m_sFilterByInputSlotX[MaxInputSlotAlternatives];
-
-    /// \brief For Input Areas: If this is set, the input slot with the given name must have a value between m_fFilterYMinValue and m_fFilterYMaxValue. Otherwise this action will not be triggered.
-    ezString m_sFilterByInputSlotY[MaxInputSlotAlternatives];
-
-    float m_fFilterXMinValue; ///< =0; see m_sFilterByInputSlotX
-    float m_fFilterXMaxValue; ///< =1; see m_sFilterByInputSlotX
-    float m_fFilterYMinValue; ///< =0; see m_sFilterByInputSlotY
-    float m_fFilterYMaxValue; ///< =1; see m_sFilterByInputSlotY
-
-    float m_fFilteredPriority; ///< =large negative value; For Input Areas: If two input actions overlap and they have different priorities, the one with the larger priority will be triggered. Otherwise both are triggered.
-
-    /// \brief For Input Areas: Describes what happens when an action is currently triggered, but the input slots used for filtering leave their min/max values.
-    enum OnLeaveArea
-    {
-      LoseFocus,  ///< The input action will lose focus and thus get 'deactivated' immediately. Ie. it will return ezKeyState::Released.
-      KeepFocus,  ///< The input action will keep focus and continue to return ezKeyState::Down, until all trigger slots are actually released.
-    };
-
-    /// \brief For Input Areas: Describes what happens when any trigger slot is already active will the input slots that are used for filtering enter the valid ranges.
-    enum OnEnterArea
-    {
-      ActivateImmediately,  ///< The input action will immediately get activated and return ezKeyState::Pressed, even though the input slots are already pressed for some time.
-      RequireKeyUp,         ///< The input action will not get triggered, unless some trigger input slot is actually pressed while the input slots that are used for filtering are actually within valid ranges.
-    };
-
-    OnLeaveArea m_OnLeaveArea; ///< =LoseFocus
-    OnEnterArea m_OnEnterArea; ///< =ActivateImmediately
-  };
-
   /// \brief If \a szInputSlot is used in any action in \a szInputSet, it will be removed from all of them.
   ///
   /// This should be used to reset the usage of an input slot before it is bound to another input action.
   static void ClearInputMapping(const char* szInputSet, const char* szInputSlot);
 
-  /// \brief This is the one function to set up which input actions are available and by which input slots (keys) the are triggered.
-  /// \todo More documentation
+  /// \brief This is the one function to set up which input actions are available and by which input slots (keys) they are triggered.
+  ///
+  /// \param szInputSet
+  ///   'Input Sets' are sets of actions that are disjunct from each other. That means the same input slot (key, mouse button, etc.) can trigger
+  ///   multiple different actions from different input sets. For example In the input set 'Game' the left mouse button may trigger the action
+  ///   'Shoot', but in the input set 'UI' the left mouse button may trigger the action 'Click'. All input sets are always evaluated and update their
+  ///   state simultaniously. The user only has to decide which actions to react to, ie. whether the game is currently running un thus the 'Game' input
+  ///   set is queried or whether a menu is shown and thus the 'UI' input set is queried.
+  /// \param szAction
+  ///   The action that is supposed to be triggered. The same action name may be reused in multiple input sets, they will have nothing in common.
+  ///   The action name should describe WHAT is to be done, not which key the user pressed. For example an action could be 'player_forwards'. Which
+  ///   key is set to triggere that action should be irrelevant at run-time.
+  /// \param Config
+  ///   This struct defines exactly which input slots (keys, buttons etc.) will trigger this action. The configuration allows to scale key values by
+  ///   the frame time, to get smooth movement when the frame-rate varies. It allows to only accept input from a slot if two other slots have certain
+  ///   values. This makes it possible to react to mouse or touch input only if that input is done inside a certain input area.
+  ///   The action can be triggered by multiple keys, if desired.
+  ///   In the most common cases, one will only set one or two input slots as triggers (Config.m_sInputSlotTrigger) and possibly decide whether
+  ///   frame time scaling is required. It makes sense to let the ezInputManager do the frame time scaling, because it should not be applied to all
+  ///   input, e.g. mouse delta values should never be scaled by the frame time.
   static void SetInputActionConfig(const char* szInputSet, const char* szAction, const ezInputActionConfig& Config, bool bClearPreviousInputMappings);
 
   /// \brief Returns the configuration for the given input action in the given input set. Returns a default configuration, if the action does not exist.
@@ -146,6 +187,9 @@ public:
   ///
   /// This function can be used in a UI to wait for user input and then assign that input to a certain action.
   static const char* GetPressedInputSlot(ezInputSlotFlags::Enum MustHaveFlags, ezInputSlotFlags::Enum MustNotHaveFlags);
+
+  /// \brief Mostly for internal use. Converts a scancode value to the string that is used inside the engine for that key.
+  static const char* ConvertScanCodeToEngineName(ezUInt8 uiScanCode, bool bIsExtendedKey);
 
 private:
   friend class ezInputDevice;

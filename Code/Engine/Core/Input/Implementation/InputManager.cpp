@@ -155,7 +155,7 @@ ezKeyState::Enum ezInputManager::GetInputSlotState(const char* szInputSlot, floa
 
 void ezInputManager::Update(double fTimeDifference)
 {
-  ezInputDevice::UpdateAllDevices();
+  ezInputDevice::UpdateAllDevices(fTimeDifference);
 
   GatherDeviceInputSlotValues();
   UpdateInputSlotStates();

@@ -48,13 +48,13 @@ void ezInputDevice::Initialize()
 
 
 
-void ezInputDevice::UpdateAllDevices()
+void ezInputDevice::UpdateAllDevices(double fTimeDifference)
 {
   // tell each device to update its current input slot values
   for (ezInputDevice* pDevice = ezInputDevice::GetFirstInstance(); pDevice != NULL; pDevice = pDevice->GetNextInstance())
   {
     pDevice->Initialize();
-    pDevice->UpdateInputSlotValues();
+    pDevice->UpdateInputSlotValues(fTimeDifference);
   }
 }
 

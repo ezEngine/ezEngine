@@ -1,8 +1,8 @@
 #include <Core/PCH.h>
-#include <Core/Input/InputDevice.h>
+#include <Core/Input/InputManager.h>
 #include <Foundation/Containers/DynamicArray.h>
 
-EZ_CORE_DLL const char* ConvertScanCodeToEngineName(ezUInt8 uiScanCode, bool bIsExtendedKey)
+const char* ezInputManager::ConvertScanCodeToEngineName(ezUInt8 uiScanCode, bool bIsExtendedKey)
 {
   const ezUInt8 uiFinalScanCode = bIsExtendedKey ? (uiScanCode + 128) : uiScanCode;
 

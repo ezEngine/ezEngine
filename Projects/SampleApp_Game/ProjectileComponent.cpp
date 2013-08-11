@@ -2,6 +2,7 @@
 #include "ProjectileComponent.h"
 #include "ShipComponent.h"
 #include "CollidableComponent.h"
+#include <InputXBox360/InputDeviceXBox.h>
 
 EZ_IMPLEMENT_COMPONENT_TYPE(ProjectileComponent, ProjectileComponentManager);
 
@@ -61,7 +62,17 @@ void ProjectileComponent::Update()
     {
       if (pShipComponent && m_bDoesDamage)
       {
-        pShipComponent->m_iHealth = ezMath::Max(pShipComponent->m_iHealth - 100, 0);
+        //pShipComponent->m_iHealth = ezMath::Max(pShipComponent->m_iHealth - 100, 0);
+
+        {
+          float HitTrack[20] =
+          {
+            1.0f, 0.1f, 0.0f, 0.1f, 0.0f, 0.1f, 0.0f, 0.1f, 0.0f, 0.0f,
+            0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f
+          };
+
+          ezInputDeviceXBox360::GetDevice()->AddVibrationTrack(pShipComponent->m_iPlayerIndex, ezInputDeviceController::Motor::LeftMotor, HitTrack, 20);
+        }
 
         const ezInt32 iMaxParticles = 100;
 

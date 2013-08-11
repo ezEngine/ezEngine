@@ -23,7 +23,10 @@ public:
   /// \brief Returns whether the mouse cursor is shown.
   virtual bool GetShowMouseCursor() const = 0;
 
+  /// \brief Sets the scaling factor that is applied on all (relative) mouse input.
   virtual void SetMouseSpeed(const ezVec2& vScale) { m_vMouseScale = vScale; }
+
+  /// \brief Returns the scaling factor that is applied on all (relative) mouse input.
   ezVec2 GetMouseSpeed() const { return m_vMouseScale; }
 
 private:

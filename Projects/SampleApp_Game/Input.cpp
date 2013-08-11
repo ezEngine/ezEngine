@@ -34,7 +34,7 @@ void SampleGameApp::UpdateInput()
 
 static void RegisterInputAction(const char* szInputSet, const char* szInputAction, const char* szKey1, const char* szKey2 = NULL, const char* szKey3 = NULL)
 {
-  ezInputManager::ezInputActionConfig cfg;
+  ezInputActionConfig cfg;
 
   cfg = ezInputManager::GetInputActionConfig(szInputSet, szInputAction);
   cfg.m_bApplyTimeScaling = true;
@@ -48,7 +48,11 @@ static void RegisterInputAction(const char* szInputSet, const char* szInputActio
 
 void SampleGameApp::SetupInput()
 {
-  ezInputDeviceXBox360::GetDevice();
+  ezInputDeviceXBox360::GetDevice()->EnableVibration(0, true);
+  ezInputDeviceXBox360::GetDevice()->EnableVibration(1, true);
+  ezInputDeviceXBox360::GetDevice()->EnableVibration(2, true);
+  ezInputDeviceXBox360::GetDevice()->EnableVibration(3, true);
+
   ezInputDeviceWindows::GetDevice()->SetClipMouseCursor(true);
   ezInputDeviceWindows::GetDevice()->SetShowMouseCursor(false);
   ezInputDeviceWindows::GetDevice()->SetMouseSpeed(ezVec2(0.002f));

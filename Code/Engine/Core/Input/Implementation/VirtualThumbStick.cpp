@@ -7,7 +7,7 @@ ezInt32 ezVirtualThumbStick::s_iThumbsticks = 0;
 
 ezVirtualThumbStick::ezVirtualThumbStick()
 {
-  SetAreaFocusMode(ezInputManager::ezInputActionConfig::RequireKeyUp, ezInputManager::ezInputActionConfig::KeepFocus);
+  SetAreaFocusMode(ezInputActionConfig::RequireKeyUp, ezInputActionConfig::KeepFocus);
   SetTriggerInputSlot(ezVirtualThumbStick::Input::Touchpoint);
   SetThumbstickOutput(ezVirtualThumbStick::Output::Controller0_LeftStick);
 
@@ -29,9 +29,9 @@ ezVirtualThumbStick::~ezVirtualThumbStick()
   ezInputManager::RemoveInputAction(GetDeviceName(), m_sName.GetData());
 }
 
-void ezVirtualThumbStick::SetTriggerInputSlot(ezVirtualThumbStick::Input::Enum Input, const ezInputManager::ezInputActionConfig* pCustomConfig)
+void ezVirtualThumbStick::SetTriggerInputSlot(ezVirtualThumbStick::Input::Enum Input, const ezInputActionConfig* pCustomConfig)
 {
-  for (ezInt32 i = 0; i < ezInputManager::ezInputActionConfig::MaxInputSlotAlternatives; ++i)
+  for (ezInt32 i = 0; i < ezInputActionConfig::MaxInputSlotAlternatives; ++i)
   {
     m_ActionConfig.m_sFilterByInputSlotX[i] = ezInputSlot_None;
     m_ActionConfig.m_sFilterByInputSlotY[i] = ezInputSlot_None;
@@ -66,7 +66,7 @@ void ezVirtualThumbStick::SetTriggerInputSlot(ezVirtualThumbStick::Input::Enum I
     {
       EZ_ASSERT(pCustomConfig != NULL, "Must pass a custom config, if you want to have a custom config.");
 
-      for (ezInt32 i = 0; i < ezInputManager::ezInputActionConfig::MaxInputSlotAlternatives; ++i)
+      for (ezInt32 i = 0; i < ezInputActionConfig::MaxInputSlotAlternatives; ++i)
       {
         m_ActionConfig.m_sFilterByInputSlotX[i] = pCustomConfig->m_sFilterByInputSlotX[i];
         m_ActionConfig.m_sFilterByInputSlotY[i] = pCustomConfig->m_sFilterByInputSlotY[i];
@@ -160,7 +160,7 @@ void ezVirtualThumbStick::SetThumbstickOutput(ezVirtualThumbStick::Output::Enum 
   m_bConfigChanged = true;
 }
 
-void ezVirtualThumbStick::SetAreaFocusMode(ezInputManager::ezInputActionConfig::OnEnterArea OnEnter, ezInputManager::ezInputActionConfig::OnLeaveArea OnLeave)
+void ezVirtualThumbStick::SetAreaFocusMode(ezInputActionConfig::OnEnterArea OnEnter, ezInputActionConfig::OnLeaveArea OnLeave)
 {
   m_bConfigChanged = true;
 
@@ -200,7 +200,7 @@ void ezVirtualThumbStick::UpdateActionMapping()
   m_bConfigChanged = false;
 }
 
-void ezVirtualThumbStick::UpdateInputSlotValues()
+void ezVirtualThumbStick::UpdateInputSlotValues(double fTimeDifference)
 {
   m_bIsActive = false;
 

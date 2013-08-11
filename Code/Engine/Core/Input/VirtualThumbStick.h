@@ -86,7 +86,7 @@ public:
   ///
   /// If \a Input is 'Custom' the remaining parameters define the filter axes and up to three input slots that trigger the thumbstick.
   /// Otherwise the remaining parameters are ignored.
-  void SetTriggerInputSlot(Input::Enum Input, const ezInputManager::ezInputActionConfig* pCustomConfig = NULL);
+  void SetTriggerInputSlot(Input::Enum Input, const ezInputActionConfig* pCustomConfig = NULL);
 
   /// \brief Specifies which output the thumbstick generates.
   ///
@@ -95,7 +95,7 @@ public:
   void SetThumbstickOutput(Output::Enum Output, const char* szOutputLeft = NULL, const char* szOutputRight = NULL, const char* szOutputUp = NULL, const char* szOutputDown = NULL);
 
   /// \brief Specifies what happens when the input slots that trigger the thumbstick are active while entering or leaving the input area.
-  void SetAreaFocusMode(ezInputManager::ezInputActionConfig::OnEnterArea OnEnter, ezInputManager::ezInputActionConfig::OnLeaveArea OnLeave);
+  void SetAreaFocusMode(ezInputActionConfig::OnEnterArea OnEnter, ezInputActionConfig::OnLeaveArea OnLeave);
 
   /// \brief Allows to enable or disable the entire thumbstick temporarily.
   void SetEnabled(bool bEnabled) { m_bEnabled = bEnabled; }
@@ -114,7 +114,7 @@ protected:
   ezVec2 m_vUpperRight;
   float m_fRadius;
 
-  ezInputManager::ezInputActionConfig m_ActionConfig;
+  ezInputActionConfig m_ActionConfig;
   const char* m_szOutputLeft;
   const char* m_szOutputRight;
   const char* m_szOutputUp;
@@ -132,6 +132,6 @@ protected:
 private:
 
   virtual void InitializeDevice() EZ_OVERRIDE { }
-  virtual void UpdateInputSlotValues() EZ_OVERRIDE;
+  virtual void UpdateInputSlotValues(double fTimeDifference) EZ_OVERRIDE;
   virtual void RegisterInputSlots() EZ_OVERRIDE;
 };

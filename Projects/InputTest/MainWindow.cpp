@@ -40,10 +40,10 @@ ezMainWindow::ezMainWindow() : QMainWindow()
   ComboMapController4->addItem("Controller 3", QVariant(2));
   ComboMapController4->addItem("Controller 4", QVariant(3));
 
-  ComboMapController1->setCurrentIndex(ezInputDeviceXBox360::GetDevice()->GetPhysicalToVirtualControllerMapping(0) + 1);
-  ComboMapController2->setCurrentIndex(ezInputDeviceXBox360::GetDevice()->GetPhysicalToVirtualControllerMapping(1) + 1);
-  ComboMapController3->setCurrentIndex(ezInputDeviceXBox360::GetDevice()->GetPhysicalToVirtualControllerMapping(2) + 1);
-  ComboMapController4->setCurrentIndex(ezInputDeviceXBox360::GetDevice()->GetPhysicalToVirtualControllerMapping(3) + 1);
+  //ComboMapController1->setCurrentIndex(ezInputDeviceXBox360::GetDevice()->GetPhysicalToVirtualControllerMapping(0) + 1);
+  //ComboMapController2->setCurrentIndex(ezInputDeviceXBox360::GetDevice()->GetPhysicalToVirtualControllerMapping(1) + 1);
+  //ComboMapController3->setCurrentIndex(ezInputDeviceXBox360::GetDevice()->GetPhysicalToVirtualControllerMapping(2) + 1);
+  //ComboMapController4->setCurrentIndex(ezInputDeviceXBox360::GetDevice()->GetPhysicalToVirtualControllerMapping(3) + 1);
 
   ComboMapController1->blockSignals(false);
   ComboMapController2->blockSignals(false);
@@ -112,22 +112,22 @@ void ezMainWindow::on_CheckShowCursor_clicked()
 
 void ezMainWindow::on_ComboMapController1_currentIndexChanged(int index)
 {
-  ezInputDeviceXBox360::GetDevice()->SetPhysicalToVirtualControllerMapping(0, index - 1);
+  //ezInputDeviceXBox360::GetDevice()->SetPhysicalToVirtualControllerMapping(0, index - 1);
 }
 
 void ezMainWindow::on_ComboMapController2_currentIndexChanged(int index)
 {
-  ezInputDeviceXBox360::GetDevice()->SetPhysicalToVirtualControllerMapping(1, index - 1);
+  //ezInputDeviceXBox360::GetDevice()->SetPhysicalToVirtualControllerMapping(1, index - 1);
 }
 
 void ezMainWindow::on_ComboMapController3_currentIndexChanged(int index)
 {
-  ezInputDeviceXBox360::GetDevice()->SetPhysicalToVirtualControllerMapping(2, index - 1);
+  //ezInputDeviceXBox360::GetDevice()->SetPhysicalToVirtualControllerMapping(2, index - 1);
 }
 
 void ezMainWindow::on_ComboMapController4_currentIndexChanged(int index)
 {
-  ezInputDeviceXBox360::GetDevice()->SetPhysicalToVirtualControllerMapping(3, index - 1);
+  //ezInputDeviceXBox360::GetDevice()->SetPhysicalToVirtualControllerMapping(3, index - 1);
 }
 
 

@@ -408,7 +408,7 @@ void ezInputDeviceWindows::WindowMessage(HWND hWnd, UINT Msg, WPARAM wParam, LPA
           return;
         }
 
-        const char* szInputSlotName = ConvertScanCodeToEngineName(uiScanCode, bIsExtended);
+        const char* szInputSlotName = ezInputManager::ConvertScanCodeToEngineName(uiScanCode, bIsExtended);
 
         // On Windows this only happens with the Pause key, but it will actually send the 'Right Ctrl' key value
         // so we need to fix this manually

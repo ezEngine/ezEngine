@@ -2,9 +2,9 @@
 #include <Foundation/Logging/Log.h>
 #include <Core/Input/InputManager.h>
 
-ezInputManager::ezInputActionConfig::ezInputActionConfig()
+ezInputActionConfig::ezInputActionConfig()
 {
-  m_bApplyTimeScaling = false;
+  m_bApplyTimeScaling = true;
 
   m_fFilterXMinValue = 0.0f;
   m_fFilterXMaxValue = 1.0f;
@@ -65,17 +65,17 @@ void ezInputManager::SetInputActionConfig(const char* szInputSet, const char* sz
   GetInternals().s_ActionMapping[szInputSet][szAction].m_Config = Config;
 }
 
-ezInputManager::ezInputActionConfig ezInputManager::GetInputActionConfig(const char* szInputSet, const char* szAction)
+ezInputActionConfig ezInputManager::GetInputActionConfig(const char* szInputSet, const char* szAction)
 {
   const ezInputSetMap::ConstIterator ItSet = GetInternals().s_ActionMapping.Find(szInputSet);
 
   if (!ItSet.IsValid())
-    return ezInputManager::ezInputActionConfig();
+    return ezInputActionConfig();
 
   const ezActionMap::ConstIterator ItAction = ItSet.Value().Find(szAction);
 
   if (!ItAction.IsValid())
-    return ezInputManager::ezInputActionConfig();
+    return ezInputActionConfig();
 
   return ItAction.Value().m_Config;
 }

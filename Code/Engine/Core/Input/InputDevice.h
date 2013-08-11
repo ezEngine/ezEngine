@@ -62,7 +62,7 @@ private:
   wchar_t RetrieveLastCharacter();
 
   /// \brief Calls Initialize() and UpdateInputSlotValues() on all devices.
-  static void UpdateAllDevices();
+  static void UpdateAllDevices(double fTimeDifference);
 
   /// \brief Calls ResetInputSlotValues() on all devices.
   static void ResetAllDevices();
@@ -102,7 +102,7 @@ private:
   virtual void InitializeDevice() = 0;
 
   /// \brief Override this, if you need to query the state of the hardware to update the input slots.
-  virtual void UpdateInputSlotValues() = 0;
+  virtual void UpdateInputSlotValues(double fTimeDifference) = 0;
 
   /// \brief Override this, if you need to reset certain input slot values to zero, after the ezInputManager is finished with the current frame update.
   virtual void ResetInputSlotValues() { };
