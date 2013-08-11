@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Foundation/Basics.h>
-#include <../ThirdParty/utf8/utf8.h>
+#include <ThirdParty/utf8/utf8.h>
 
 /// \brief Helper functions to work with unicode.
 class EZ_FOUNDATION_DLL ezUnicodeUtils

@@ -20,7 +20,6 @@ This is a list of our planned features for the foreseeable future.
   * JSON reader / writer
   * Game Object basics (Clemens)
   * Rendering Abstraction basics (Marc)
-  * Input System (Jan)
   * Window Abstraction
   * Resource Manager
   * Qt based UI for the Test Framework (Christopher)

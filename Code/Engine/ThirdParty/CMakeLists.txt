@@ -11,21 +11,12 @@
 #
 
 # Add all the preprocessor definitions that are needed to configure this library
-# add_definitions (-DMY_PREPROCESS_DEFINITION_1)
-# add_definitions (-DMY_PREPROCESS_DEFINITION_2)
+#add_definitions (-DZLIB_INTERNAL)
 
-# Add all the libraries that this project needs to link against here
-SET (LINK_LIBRARIES
-  ThirdParty
- )
-
-if (MSVC)
-  link_directories(${CMAKE_SOURCE_DIR}/Code/ThirdParty/gpa_ITT/libs/$(PlatformName))
-
-  SET (LINK_LIBRARIES
-    ${LINK_LIBRARIES}
-    gpasdk_d.lib
-  )
-endif()
+SET (LINK_LIBRARIES 
+  
+)
 
 include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/CMAKE_Library.txt)
+
+SET_TARGET_PROPERTIES(${PROJECT_NAME} PROPERTIES LINKER_LANGUAGE CPP)

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <../ThirdParty/utf8/utf8.h>
+#include <ThirdParty/utf8/utf8.h>
 #include <Foundation/Strings/UnicodeUtils.h>
 
 // **************** ezStringWChar ****************
