@@ -26,56 +26,37 @@ public:
   }
 
   template<typename T>
-  T* GetDataPointer()
-  {
-    return reinterpret_cast<T*>(&m_data[0]);
-  }
+  T* GetDataPointer();
 
   template<typename T>
-  const T* GetDataPointer(ezUInt32 uiMipLevel, ezUInt32 uiFace, ezUInt32 uiArrayIndex) const
-  {
-    return reinterpret_cast<const T*>(&m_data[GetSubImage(uiMipLevel, uiFace, uiArrayIndex).m_uiDataOffset]);
-  }
+  const T* GetSubImagePointer(ezUInt32 uiMipLevel, ezUInt32 uiFace, ezUInt32 uiArrayIndex) const;
 
   template<typename T>
-  T* GetDataPointer(ezUInt32 uiMipLevel, ezUInt32 uiFace, ezUInt32 uiArrayIndex)
-  {
-    return reinterpret_cast<T*>(&m_data[GetSubImage(uiMipLevel, uiFace, uiArrayIndex).m_uiDataOffset]);
-  }
+  T* GetSubImagePointer(ezUInt32 uiMipLevel, ezUInt32 uiFace, ezUInt32 uiArrayIndex);
 
   template<typename T>
-  const T* GetDataPointer(ezUInt32 uiMipLevel, ezUInt32 uiFace, ezUInt32 uiArrayIndex, ezUInt32 x, ezUInt32 y, ezUInt32 z) const
-  {
-    const ezUInt8* pPointer = GetDataPointer<ezUInt8>(uiMipLevel, uiFace, uiArrayIndex);
-
-    pPointer += z * GetDepthPitch(uiMipLevel, uiFace, uiArrayIndex);
-    pPointer += y * GetRowPitch(uiMipLevel, uiFace, uiArrayIndex);
-    pPointer += x * ezImageFormat::GetBitsPerPixel(m_format) / 8;
-
-    return reinterpret_cast<const T*>(pPointer);
-  }
+  const T* GetPixelPointer(ezUInt32 uiMipLevel, ezUInt32 uiFace, ezUInt32 uiArrayIndex, ezUInt32 x, ezUInt32 y, ezUInt32 z) const;
 
   template<typename T>
-  T* GetDataPointer(ezUInt32 uiMipLevel, ezUInt32 uiFace, ezUInt32 uiArrayIndex, ezUInt32 x, ezUInt32 y, ezUInt32 z)
-  {
-    ezUInt8* basePointer = GetDataPointer<ezUInt8>(uiMipLevel, uiFace, uiArrayIndex);
+  T* GetPixelPointer(ezUInt32 uiMipLevel, ezUInt32 uiFace, ezUInt32 uiArrayIndex, ezUInt32 x, ezUInt32 y, ezUInt32 z);
 
-    basePointer += z * GetDepthPitch(uiMipLevel, uiFace, uiArrayIndex);
-    basePointer += y * GetRowPitch(uiMipLevel, uiFace, uiArrayIndex);
-    basePointer += x * ezImageFormat::GetBitsPerPixel(m_format) / 8;
+  template<typename T>
+  const T* GetBlockPointer(ezUInt32 uiMipLevel, ezUInt32 uiFace, ezUInt32 uiArrayIndex, ezUInt32 uiBlockX, ezUInt32 uiBlockY, ezUInt32 z) const;
 
-    return reinterpret_cast<T*>(basePointer);
-  }
+  template<typename T>
+  T* GetBlockPointer(ezUInt32 uiMipLevel, ezUInt32 uiFace, ezUInt32 uiArrayIndex, ezUInt32 uiBlockX, ezUInt32 uiBlockY, ezUInt32 z);
 
   void AllocateImageData();
 
   void SetRowPitch(ezUInt32 uiMipLevel, ezUInt32 uiFace, ezUInt32 uiArrayIndex, ezUInt32 uiRowPitch)
   {
+    EZ_ASSERT(ezImageFormat::GetType(m_format) == ezImageFormatType::LINEAR, "Row pitch can only be set for linear formats.");
     GetSubImage(uiMipLevel, uiFace, uiArrayIndex).m_uiRowPitch = uiRowPitch;
   }
 
   ezUInt32 GetRowPitch(ezUInt32 uiMipLevel, ezUInt32 uiFace, ezUInt32 uiArrayIndex) const
   {
+    EZ_ASSERT(ezImageFormat::GetType(m_format) == ezImageFormatType::LINEAR, "Row pitch can only be retrieved for linear formats.");
     return GetSubImage(uiMipLevel, uiFace, uiArrayIndex).m_uiRowPitch;
   }
 
@@ -129,6 +110,21 @@ public:
     return m_uiSubImageAlignment;
   }
 
+  ezUInt32 GetNumBlocksX(ezUInt32 uiMipLevel = 0) const
+  {
+    EZ_ASSERT(ezImageFormat::GetType(m_format) == ezImageFormatType::BLOCK_COMPRESSED,
+      "Number of blocks can only be retrieved for block compressed formats.");
+    ezUInt32 uiBlockSize = 4;
+    return (GetWidth(uiMipLevel) + uiBlockSize - 1) / uiBlockSize;
+  }
+
+  ezUInt32 GetNumBlocksY(ezUInt32 uiMipLevel = 0) const
+  {
+    EZ_ASSERT(ezImageFormat::GetType(m_format) == ezImageFormatType::BLOCK_COMPRESSED,
+      "Number of blocks can only be retrieved for block compressed formats.");
+    ezUInt32 uiBlockSize = 4;
+    return (GetHeight(uiMipLevel) + uiBlockSize - 1) / uiBlockSize;
+  }
 
 private:
   struct SubImage
@@ -140,39 +136,11 @@ private:
     int m_uiDataOffset;
   };
 
-  void ValidateSubImageIndices(ezUInt32 uiMipLevel, ezUInt32 uiFace, ezUInt32 uiArrayIndex) const
-  {
-    EZ_ASSERT(uiMipLevel < m_uiNumMipLevels, "Invalid mip level");
-    EZ_ASSERT(uiFace < m_uiNumFaces,  "Invalid uiFace");
-    EZ_ASSERT(uiArrayIndex < m_uiNumArrayIndices, "Invalid array slice");
-  }
+  inline void ValidateSubImageIndices(ezUInt32 uiMipLevel, ezUInt32 uiFace, ezUInt32 uiArrayIndex) const;
 
-  SubImage& GetSubImage(ezUInt32 uiMipLevel, ezUInt32 uiFace, ezUInt32 uiArrayIndex)
-  {
-    ValidateSubImageIndices(uiMipLevel, uiFace, uiArrayIndex);
-    return m_subImages[uiMipLevel + m_uiNumMipLevels * (uiFace + m_uiNumFaces * uiArrayIndex)];
-  }
+  inline SubImage& GetSubImage(ezUInt32 uiMipLevel, ezUInt32 uiFace, ezUInt32 uiArrayIndex);
 
-  const SubImage& GetSubImage(ezUInt32 uiMipLevel, ezUInt32 uiFace, ezUInt32 uiArrayIndex) const
-  {
-    ValidateSubImageIndices(uiMipLevel, uiFace, uiArrayIndex);
-    return m_subImages[uiMipLevel + m_uiNumMipLevels * (uiFace + m_uiNumFaces * uiArrayIndex)];
-  }
-
-  ezUInt32 CalculateRowPitch(ezUInt32 uiWidth) const
-  {
-	  return ((uiWidth * ezImageFormat::GetBitsPerPixel(m_format) / 8 - 1) / m_uiRowAlignment + 1) * m_uiRowAlignment;
-  }
-
-  ezUInt32 CalculateDepthPitch(ezUInt32 uiWidth, ezUInt32 uiHeight) const
-  {
-	  return ((uiHeight * CalculateRowPitch(uiWidth) - 1) / m_uiDepthAlignment + 1) * m_uiDepthAlignment;
-  }
-
-  ezUInt32 CalculateSubImagePitch(ezUInt32 uiWidth, ezUInt32 uiHeight, ezUInt32 uiDepth) const
-  {
-	  return ((uiDepth * CalculateDepthPitch(uiWidth, uiHeight) - 1) / m_uiSubImageAlignment + 1) * m_uiSubImageAlignment;
-  }
+  inline const SubImage& GetSubImage(ezUInt32 uiMipLevel, ezUInt32 uiFace, ezUInt32 uiArrayIndex) const;
 
   ezUInt32 m_uiRowAlignment;
   ezUInt32 m_uiDepthAlignment;
@@ -181,3 +149,5 @@ private:
   ezDynamicArray<SubImage> m_subImages;
   ezDynamicArray<ezUInt8> m_data;
 };
+
+#include <ezImage_inl.h>

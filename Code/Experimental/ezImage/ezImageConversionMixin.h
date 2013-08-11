@@ -1,5 +1,5 @@
 template<typename Impl>
-struct ezImageConversionMixin
+struct ezImageConversionMixinBase
 {
   static void ConvertImage(const ezImage& source, ezImage& target)
   {
@@ -23,15 +23,87 @@ struct ezImageConversionMixin
       {
         for(ezUInt32 uiMipLevel = 0; uiMipLevel < source.GetNumMipLevels(); uiMipLevel++)
         {
-          ConvertSubImage(source, target, uiFace, uiMipLevel, uiArrayIndex);
+          Impl::ConvertSubImage(source, target, uiFace, uiMipLevel, uiArrayIndex);
         }
       }
     }
   }
+};
 
+template<typename Impl>
+struct ezImageConversionMixinBlockDecompression : ezImageConversionMixinBase<Impl>
+{
   static void ConvertSubImage(const ezImage& source, ezImage& target, ezUInt32 uiFace, ezUInt32 uiMipLevel, ezUInt32 uiArrayIndex)
   {
     const ezUInt32 uiWidth = source.GetWidth(uiMipLevel);
+    const ezUInt32 uiHeight = source.GetHeight(uiMipLevel);
+
+    const ezUInt32 uiBlockSize = 4;
+
+    const ezUInt32 uiNumBlocksX = source.GetNumBlocksX(uiMipLevel);
+    const ezUInt32 uiNumBlocksY = source.GetNumBlocksY(uiMipLevel);
+
+    // If the row pitch is a multiple of the pixel size, we can transform a whole slice at once
+    // instead of converting row-wise.
+    const ezImageFormat::Enum sourceFormat = source.GetImageFormat();
+    const ezImageFormat::Enum targetFormat = target.GetImageFormat();
+
+    const ezUInt32 uiSourceBytesPerPixel = Impl::s_uiSourceBpp / 8;
+    const ezUInt32 uiTargetBytesPerPixel = Impl::s_uiTargetBpp / 8;
+
+    const ezUInt32 uiTargetRowPitch = target.GetRowPitch(uiMipLevel, uiFace, uiArrayIndex);
+
+    const ezUInt32 uiSourceDepthPitch = source.GetDepthPitch(uiMipLevel, uiFace, uiArrayIndex);
+    const ezUInt32 uiTargetDepthPitch = target.GetDepthPitch(uiMipLevel, uiFace, uiArrayIndex);
+
+    ezUInt32 uiBytesPerBlock = uiBlockSize * uiBlockSize * uiSourceBytesPerPixel;
+
+    for(ezUInt32 uiSlice = 0; uiSlice < source.GetDepth(uiMipLevel); uiSlice++)
+    {
+      for(ezUInt32 uiBlockY = 0; uiBlockY < uiNumBlocksY; uiBlockY++)
+      {
+        for(ezUInt32 uiBlockX = 0; uiBlockX < uiNumBlocksX; uiBlockX++)
+        {
+          const ezUInt8* pSource = source.GetBlockPointer<ezUInt8>(uiMipLevel, uiFace, uiArrayIndex, uiBlockX, uiBlockY, uiSlice);
+
+          // Decompress into a temp memory block so we don't have to explicitly handle the case where the image is not a multiple of the block size
+          ezUInt8 tempBuffer[uiBlockSize * uiBlockSize * uiTargetBytesPerPixel];
+
+          HeapValidate(GetProcessHeap(), 0, 0);
+
+          Impl::DecompressBlock(reinterpret_cast<const Impl::SourceType*>(pSource), reinterpret_cast<Impl::TargetType*>(tempBuffer));
+
+          HeapValidate(GetProcessHeap(), 0, 0);
+
+
+          ezUInt8* pTarget = target.GetPixelPointer<ezUInt8>(
+            uiMipLevel, uiFace, uiArrayIndex,
+            uiBlockX * uiBlockSize, uiBlockY * uiBlockSize, uiSlice);
+          
+          // Copy into actual target, clamping to image dimensions
+          ezUInt32 uiCopyWidth = ezMath::Min(uiBlockSize, uiWidth - uiBlockX * uiBlockSize);
+          ezUInt32 uiCopyHeight= ezMath::Min(uiBlockSize, uiHeight - uiBlockY * uiBlockSize);
+          for(ezUInt32 uiRow = 0; uiRow < uiCopyHeight; uiRow++)
+          {
+            memcpy(pTarget, &tempBuffer[uiRow * uiBlockSize * uiTargetBytesPerPixel], uiCopyWidth * uiTargetBytesPerPixel);
+            pTarget += uiTargetRowPitch;
+          }
+
+          HeapValidate(GetProcessHeap(), 0, 0);
+          HeapValidate(GetProcessHeap(), 0, 0);
+
+        }
+      }
+    }
+  }
+};
+
+template<typename Impl>
+struct ezImageConversionMixinLinear : ezImageConversionMixinBase<Impl>
+{
+  static void ConvertSubImage(const ezImage& source, ezImage& target, ezUInt32 uiFace, ezUInt32 uiMipLevel, ezUInt32 uiArrayIndex)
+  {
+    const ezUInt32 uiWidth = source.GetWidth();
     const ezUInt32 uiHeight = source.GetHeight(uiMipLevel);
 
     // If the row pitch is a multiple of the pixel size, we can transform a whole slice at once
@@ -54,8 +126,8 @@ struct ezImageConversionMixin
 
     for(ezUInt32 uiSlice = 0; uiSlice < source.GetDepth(uiMipLevel); uiSlice++)
     {
-      const char* pSource = source.GetDataPointer<char>(uiMipLevel, uiFace, uiArrayIndex, 0, 0, uiSlice);
-      char* pTarget = target.GetDataPointer<char>(uiMipLevel, uiFace, uiArrayIndex, 0, 0, uiSlice);
+      const ezUInt8* pSource = source.GetPixelPointer<ezUInt8>(uiMipLevel, uiFace, uiArrayIndex, 0, 0, uiSlice);
+      ezUInt8* pTarget = target.GetPixelPointer<ezUInt8>(uiMipLevel, uiFace, uiArrayIndex, 0, 0, uiSlice);
 
       if(bConvertRowWise)
       {
@@ -73,7 +145,7 @@ struct ezImageConversionMixin
     }
   }
 
-  static void ConvertBatch(const char* pSource, char* pTarget, const ezUInt32 uiElements)
+  static void ConvertBatch(const ezUInt8* pSource, ezUInt8* pTarget, const ezUInt32 uiElements)
   {
     const ezUInt64 uiSource = reinterpret_cast<const ezUInt64&>(pSource);
     const ezUInt64 uiTarget = reinterpret_cast<const ezUInt64&>(pTarget);
@@ -109,7 +181,7 @@ struct ezImageConversionMixin
       // Convert multiple elements for as long as possible
       const ezUInt32 uiMiddleElements =
         (uiElements / Impl::s_uiMultiConversionSize) * Impl::s_uiMultiConversionSize;
-      for(ezUInt32 uiElement = 0; uiElement < uiMiddleElements; uiElement++)
+      for(ezUInt32 uiElement = 0; uiElement < uiMiddleElements; uiElement += Impl::s_uiMultiConversionSize)
       {
         Impl::ConvertMultiple(
           reinterpret_cast<const Impl::SourceTypeMultiple*>(pSource),

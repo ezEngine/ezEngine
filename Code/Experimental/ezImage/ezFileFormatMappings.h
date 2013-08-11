@@ -6,6 +6,7 @@
 
 class ezFileFormatMappings
 {
+public:
   static ezUInt32 ToDxgiFormat(ezImageFormat::Enum format);
   static ezImageFormat::Enum FromDxgiFormat(ezUInt32 uiDxgiFormat);
 };

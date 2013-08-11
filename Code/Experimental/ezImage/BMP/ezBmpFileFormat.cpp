@@ -216,7 +216,7 @@ ezResult ezBmpWriter::write()
   header.m_offBits = uiHeaderSize;
 
 
-  const void* dataPtr = convertedImage.GetDataPointer<void>(0, 0, 0);
+  const void* dataPtr = convertedImage.GetDataPointer<void>();
   
   // Write all data
   if(m_stream.WriteBytes(&header, sizeof(header)) != EZ_SUCCESS)
@@ -267,7 +267,7 @@ ezResult ezBmpWriter::write()
   // Write rows in reverse order
   for(ezInt32 iRow = uiHeight - 1; iRow >= 0; iRow--)
   {
-    if(m_stream.WriteBytes(convertedImage.GetDataPointer<void>(0, 0, 0, 0, iRow, 0), uiRowPitch) != EZ_SUCCESS)
+    if(m_stream.WriteBytes(convertedImage.GetPixelPointer<void>(0, 0, 0, 0, iRow, 0), uiRowPitch) != EZ_SUCCESS)
     {
       return EZ_FAILURE;
     }
@@ -500,7 +500,7 @@ ezResult ezBmpReader::read()
       ezUInt32 uiRow = uiHeight - 1;
       ezUInt32 uiCol = 0;
 
-      ezBmpBgrxQuad* pLine = m_image.GetDataPointer<ezBmpBgrxQuad>(0, 0, 0, 0, uiRow, 0);
+      ezBmpBgrxQuad* pLine = m_image.GetPixelPointer<ezBmpBgrxQuad>(0, 0, 0, 0, uiRow, 0);
 
       // Decode RLE data directly to RGBX
       while(pIn < pInEnd)
@@ -630,7 +630,7 @@ ezResult ezBmpReader::read()
         ezUInt8* pIn = &indexedData[uiRowPitchIn * uiRow];
 
         // Convert flipped vertically
-        ezBmpBgrxQuad* pOut = m_image.GetDataPointer<ezBmpBgrxQuad>(0, 0, 0, 0, uiHeight - uiRow - 1, 0);
+        ezBmpBgrxQuad* pOut = m_image.GetPixelPointer<ezBmpBgrxQuad>(0, 0, 0, 0, uiHeight - uiRow - 1, 0);
         for(ezUInt32 uiCol = 0; uiCol < m_image.GetWidth(); uiCol++)
         {
           pOut[uiCol] = palette[ExtractBits(pIn, uiCol * uiBpp, uiBpp)];
@@ -654,7 +654,7 @@ ezResult ezBmpReader::read()
     // Read rows in reverse order
     for(ezInt32 iRow = uiHeight - 1; iRow >= 0; iRow--)
     {
-      if(m_stream.ReadBytes(m_image.GetDataPointer<void>(0, 0, 0, 0, iRow, 0), uiRowPitchIn) != uiRowPitchIn)
+      if(m_stream.ReadBytes(m_image.GetPixelPointer<void>(0, 0, 0, 0, iRow, 0), uiRowPitchIn) != uiRowPitchIn)
       {
         return EZ_FAILURE;
       }

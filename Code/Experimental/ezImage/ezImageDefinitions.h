@@ -12,14 +12,56 @@ struct ezRgba
 
   }
 
-  ezRgba(ezUInt8 red, ezUInt8 green, ezUInt8 blue, ezUInt8 alpha) :
-    m_red(red), m_green(green), m_blue(blue), m_alpha(alpha)
+  ezRgba(ezUInt8 r, ezUInt8 g, ezUInt8 b, ezUInt8 a) :
+    r(r), g(g), b(b), a(a)
   {
 
   }
 
-  ezUInt8 m_red;
-  ezUInt8 m_green;
-  ezUInt8 m_blue;
-  ezUInt8 m_alpha;
+  ezUInt8 r;
+  ezUInt8 g;
+  ezUInt8 b;
+  ezUInt8 a;
+};
+
+struct ezRgbaF
+{
+  EZ_DECLARE_POD_TYPE();
+
+  ezRgbaF()
+  {
+
+  }
+
+  ezRgbaF(float r, float g, float b, float a) :
+    r(r), g(g), b(b), a(a)
+  {
+
+  }
+
+  float r;
+  float g;
+  float b;
+  float a;
+};
+
+struct ezBgra
+{
+  EZ_DECLARE_POD_TYPE();
+
+  ezBgra()
+  {
+
+  }
+
+  ezBgra(ezUInt8 b, ezUInt8 g, ezUInt8 r, ezUInt8 a) :
+    b(b), g(g), r(r), a(a)
+  {
+
+  }
+
+  ezUInt8 b;
+  ezUInt8 g;
+  ezUInt8 r;
+  ezUInt8 a;
 };

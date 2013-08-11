@@ -1,4 +1,17 @@
+#pragma once
+
 #include "Foundation\Basics\Types.h"
+
+struct ezImageFormatType
+{
+  enum Enum
+  {
+    UNKNOWN,
+    LINEAR,
+    SUBSAMPLED,
+    BLOCK_COMPRESSED
+  };
+};
 
 struct ezImageFormat
 {
@@ -158,8 +171,11 @@ struct ezImageFormat
   static ezUInt32 GetGreenMask(Enum format);
   static ezUInt32 GetBlueMask(Enum format);
   static ezUInt32 GetAlphaMask(Enum format);
+  static ezUInt32 GetFourCc(Enum format);
+  static ezImageFormatType::Enum GetType(Enum format);
 
   static ezImageFormat::Enum FromPixelMask(ezUInt32 uiRedMask, ezUInt32 uiGreenMask, ezUInt32 uiBlueMask, ezUInt32 uiAlphaMask);
+  static ezImageFormat::Enum FromFourCc(ezUInt32 uiFourCc);
 
   static void Initialize();
 };
