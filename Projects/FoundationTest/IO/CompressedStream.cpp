@@ -57,23 +57,66 @@ EZ_CREATE_SIMPLE_TEST(IO, CompressedStream)
     ezDynamicArray<ezUInt32> Data;
     Data.SetCount(uiItems);
 
+    for (ezUInt32 i = 0; i < uiItems; ++i)
+      Data[i] = 0;
+
     ezUInt32 uiStartPos = 0;
+    bool bSkip = false;
 
     // read the data in blocks that get larger and larger
     for (ezUInt32 iRead = 1; iRead < uiItems; ++iRead)
     {
-      iRead = ezMath::Min(iRead, uiItems - uiStartPos);
+      ezUInt32 iToRead = ezMath::Min(iRead, uiItems - uiStartPos);
 
-      if (iRead == 0)
+      if (iToRead == 0)
         break;
 
-      EZ_TEST(CompressedReader.ReadBytes(&Data[uiStartPos], sizeof(ezUInt32) * iRead) == sizeof(ezUInt32) * iRead);
+      if (bSkip)
+      {
+        const ezUInt64 uiReadFromStream = CompressedReader.SkipBytes(sizeof(ezUInt32) * iToRead);
+        EZ_TEST(uiReadFromStream == sizeof(ezUInt32) * iToRead);
+      }
+      else
+      {
+        const ezUInt64 uiReadFromStream = CompressedReader.ReadBytes(&Data[uiStartPos], sizeof(ezUInt32) * iToRead);
+        EZ_TEST(uiReadFromStream == sizeof(ezUInt32) * iToRead);
+      }
 
-      uiStartPos += iRead;
+      bSkip = !bSkip;
+
+      uiStartPos += iToRead;
     }
 
-    for (ezUInt32 i = 0; i < uiItems; ++i)
-      EZ_TEST_INT(Data[i], i);
+
+    bSkip = false;
+    uiStartPos = 0;
+
+    // read the data in blocks that get larger and larger
+    for (ezUInt32 iRead = 1; iRead < uiItems; ++iRead)
+    {
+      ezUInt32 iToRead = ezMath::Min(iRead, uiItems - uiStartPos);
+
+      if (iToRead == 0)
+        break;
+
+      if (bSkip)
+      {
+        for (ezUInt32 i = 0; i < iToRead; ++i)
+        {
+          EZ_TEST_INT(Data[uiStartPos + i], 0);
+        }
+      }
+      else
+      {
+        for (ezUInt32 i = 0; i < iToRead; ++i)
+        {
+          EZ_TEST_INT(Data[uiStartPos + i], uiStartPos + i);
+        }
+      }
+
+      bSkip = !bSkip;
+      uiStartPos += iToRead;
+    }
 
     // test reading after the end of the stream
     for (ezUInt32 i = 0; i < 1000; ++i)

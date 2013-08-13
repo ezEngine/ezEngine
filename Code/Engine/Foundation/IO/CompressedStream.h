@@ -10,7 +10,7 @@ struct z_stream_s;
 /// \brief A stream reader that will decompress data that was stored using the ezCompressedStreamWriter.
 ///
 /// The reader takes another reader as its data source (e.g. a file or a memory stream). The compressed reader
-/// uses a cache of 1 KB internally to prevent excessive reads from its source and to improve decompression speed.
+/// uses a cache of 256 Bytes internally to prevent excessive reads from its source and to improve decompression speed.
 /// Note that currently neither ezCompressedStreamReader nor ezCompressedStreamWriter are able to handle streams that are larger than 4 GB.
 class EZ_FOUNDATION_DLL ezCompressedStreamReader : public ezIBinaryStreamReader
 {
@@ -23,23 +23,24 @@ public:
   /// \brief Reads either uiBytesToRead or the amount of remaining bytes in the stream into pReadBuffer.
   ///
   /// It is valid to pass NULL for pReadBuffer, in this case the memory stream position is only advanced by the given number of bytes.
+  /// However, since this is a compressed stream, the decompression still needs to be done, so this won't save any time.
   virtual ezUInt64 ReadBytes(void* pReadBuffer, ezUInt64 uiBytesToRead) EZ_OVERRIDE; // [tested]
 
 private:
-  ezUInt32 m_uiUncompressedSize;
-  ezUInt32 m_uiCompressedSize;
+  bool m_bReachedEnd;
+  ezUInt8 m_CompressedCache[256];
   ezIBinaryStreamReader& m_InputStream;
   z_stream_s* m_pZLibStream;
-
-  ezUInt8 m_CompressedCache[1024];
 };
 
 /// \brief A stream writer that will compress all incoming data and then passes it on into another stream.
 ///
-/// The compressed data is cached in an internal array and only written to the output stream when the compressed stream is destroyed.
-/// This is necessary to be able to write the length of the compressed data at the beginning of the output data, which is important
-/// for the compressed stream reader.
-/// Therefore Flush() has no effect on a compressed stream.
+/// The stream uses an internal cache of 255 Bytes to compress data, before it passes that on to the output stream.
+/// It does not need to compress the entire data first, and it will not do any dynamic memory allocations.
+/// Calling Flush() will write the current amount of compressed data to the output stream. Calling this frequently might reduce the compression
+/// ratio and it should only be used to reduce output lag. However, there is absolutely no guarantee that all the data that was put into the
+/// stream will be readable from the output stream, after calling Flush(). In fact, it is quite likely that a large amount of data has still
+/// not been written to it, because it is still inside the compressor.
 /// Note that currently neither ezCompressedStreamReader nor ezCompressedStreamWriter are able to handle streams that are larger than 4 GB.
 class EZ_FOUNDATION_DLL ezCompressedStreamWriter : public ezIBinaryStreamWriter
 {
@@ -60,19 +61,21 @@ public:
   /// \brief The constructor takes another stream writer to pass the output into, and a compression level.
   ezCompressedStreamWriter(ezIBinaryStreamWriter& OutputStream, Compression Ratio); // [tested]
 
-  /// \brief The data is only written to the ouptput stream during destruction of this stream.
+  /// \brief Calls CloseStream() internally.
   ~ezCompressedStreamWriter(); // [tested]
 
   /// \brief Compresses \a uiBytesToWrite from \a pWriteBuffer.
+  ///
+  /// Will output bursts of 256 bytes to the output stream every once in a while.
   virtual ezResult WriteBytes(const void* pWriteBuffer, ezUInt64 uiBytesToWrite) EZ_OVERRIDE; // [tested]
 
-  /// \brief Finishes the stream and writes all data to the output stream.
+  /// \brief Finishes the stream and writes all remaining data to the output stream.
   ///
   /// After calling this function, no more data can be written to the stream. GetCompressedSize() will return the final compressed size
   /// of the data.
   /// Note that this function is not the same as Flush(), since Flush() assumes that more data can be written to the stream afterwards,
   /// which is not the case for CloseStream().
-  void CloseStream(); // [tested]
+  ezResult CloseStream(); // [tested]
 
   /// \brief Returns the size of the data in its uncompressed state.
   ezUInt32 GetUncompressedSize() const { return m_uiUncompressedSize; } // [tested]
@@ -82,8 +85,14 @@ public:
   /// This value is only accurate after CloseStream() has been called. Before that it is only a rough value, because a lot of data
   /// might still be cached and not yet accounted for.
   /// Note that GetCompressedSize() returns the compressed size of the data, not the size of the data that was written to the output stream,
-  /// which will be 8 byte more, because some book keeping information is written to it, as well.
-  ezUInt32 GetCompressedSize() const; // [tested]
+  /// which will be larger (1 additional byte per 255 compressed bytes, plus one zero terminator byte).
+  ezUInt32 GetCompressedSize() const { return m_uiCompressedSize; } // [tested]
+
+  /// \brief Writes the currently available compressed data to the stream.
+  ///
+  /// This does NOT guarantee that you can read all the uncompressed data from the output stream afterwards, because a lot of data
+  /// will still be inside the compressor and thus not yet written to the stream.
+  virtual ezResult Flush();
 
 private:
   ezUInt32 m_uiUncompressedSize;
@@ -92,5 +101,5 @@ private:
   ezIBinaryStreamWriter& m_OutputStream;
   z_stream_s* m_pZLibStream;
 
-  ezDynamicArray<ezUInt8> m_CompressedData;
+  ezUInt8 m_CompressedCache[256];
 };

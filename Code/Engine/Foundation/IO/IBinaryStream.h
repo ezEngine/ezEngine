@@ -52,7 +52,7 @@ public:
       uiBytesSkipped += uiBytesRead;
 
       // Terminate early if the stream didn't read as many bytes as we requested (EOF for example)
-      if(uiBytesRead < uiBytesToSkip)
+      if(uiBytesRead < uiBytesToRead)
         break;
     }
 
