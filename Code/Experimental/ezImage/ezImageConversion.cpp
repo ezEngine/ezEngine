@@ -341,7 +341,6 @@ public:
       uiMode &= 0x1F;
     }
 
-    // Decompression for 16.4 is still missing - need a sample case. All others should be bit-exact according to the spec.
     switch(uiMode)
     {
     case 0:
@@ -378,6 +377,10 @@ public:
 
     case 14:
       DecompressMode14(pSource, pTarget);
+      break;
+
+    case 15:
+      DecompressMode15(pSource, pTarget);
       break;
 
     case 18:
@@ -844,6 +847,35 @@ public:
     Unquantize(B[1], 9);
 
     DecodeIndices2(pSource, pTarget, A, B);
+  }
+
+  static void DecompressMode15(const SourceType* pSource, TargetType* pTarget)
+  {
+    Color A, B;
+    A.r = ReadBits<10, 5>(pSource) | (ReadBits<1, 49>(pSource) << 10) | (ReadBits<1, 48>(pSource) << 11) | (ReadBits<1, 47>(pSource) << 12) |
+      (ReadBits<1, 46>(pSource) << 13) | (ReadBits<1, 45>(pSource) << 14) | (ReadBits<1, 44>(pSource) << 15) | (ReadBits<1, 43>(pSource) << 16);
+    A.g = ReadBits<10, 15>(pSource) | (ReadBits<1, 59>(pSource) << 10) | (ReadBits<1, 58>(pSource) << 11) | (ReadBits<1, 57>(pSource) << 12) |
+      (ReadBits<1, 56>(pSource) << 13) | (ReadBits<1, 55>(pSource) << 14) | (ReadBits<1, 54>(pSource) << 15) | (ReadBits<1, 53>(pSource) << 16);
+    A.b = ReadBits<10, 25>(pSource) | (ReadBits<1, 69>(pSource) << 10) | (ReadBits<1, 68>(pSource) << 11) | (ReadBits<1, 67>(pSource) << 12) |
+      (ReadBits<1, 66>(pSource) << 13) | (ReadBits<1, 65>(pSource) << 14) | (ReadBits<1, 64>(pSource) << 15) | (ReadBits<1, 63>(pSource) << 16);
+
+    B.r = ReadBits<4, 35>(pSource);
+    B.g = ReadBits<4, 45>(pSource);
+    B.b = ReadBits<4, 55>(pSource);
+
+    if(bSigned)
+    {
+      SignExtend(A, 16, 16, 16);
+    }
+
+    SignExtend(B, 4, 4, 4);
+
+    B += A;
+
+    Unquantize(A, 16);
+    Unquantize(B, 16);
+
+    DecodeIndices(pSource, pTarget, A, B);
   }
 
   static void DecompressMode18(const SourceType* pSource, TargetType* pTarget)

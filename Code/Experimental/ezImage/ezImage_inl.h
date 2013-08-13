@@ -1,7 +1,13 @@
 template<typename T>
+const T* ezImage::GetDataPointer() const
+{
+  return reinterpret_cast<const T*>(&m_data[0]);
+}
+
+template<typename T>
 T* ezImage::GetDataPointer()
 {
-  return reinterpret_cast<T*>(&m_data[0]);
+  return const_cast<T*>(static_cast<const ezImage*>(this)->GetDataPointer<T>());
 }
 
 template<typename T>

@@ -29,6 +29,9 @@ public:
   T* GetDataPointer();
 
   template<typename T>
+  const T* GetDataPointer() const;
+
+  template<typename T>
   const T* GetSubImagePointer(ezUInt32 uiMipLevel, ezUInt32 uiFace, ezUInt32 uiArrayIndex) const;
 
   template<typename T>

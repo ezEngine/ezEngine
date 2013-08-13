@@ -8,7 +8,6 @@ struct ezImageFormatType
   {
     UNKNOWN,
     LINEAR,
-    SUBSAMPLED,
     BLOCK_COMPRESSED
   };
 };
@@ -132,10 +131,6 @@ struct ezImageFormat
     // 1b per component, one component
 		R1_UNORM,
 		R9G9B9E5_SHAREDEXP,
-
-    // Subsampled formats
-		R8G8_B8G8_UNORM,
-		G8R8_G8B8_UNORM,
 
     // Block compression formats
 		BC1_TYPELESS,
