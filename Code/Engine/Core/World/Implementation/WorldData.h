@@ -28,19 +28,20 @@ namespace ezInternal
     enum
     {
       GAME_OBJECTS_PER_BLOCK = ezDataBlock<ezGameObject>::CAPACITY,
-      HIERARCHICAL_DATA_PER_BLOCK = ezDataBlock<ezGameObject::HierarchicalData>::CAPACITY
+      TRANSFORMATION_DATA_PER_BLOCK = ezDataBlock<ezGameObject::TransformationData>::CAPACITY
     };
 
     // object storage
-    ezIdTable<ezGameObjectId, ezGameObject*, ezLocalAllocatorWrapper> m_Objects;
-    ezBlockStorage<ezGameObject> m_ObjectStorage;
+    typedef ezBlockStorage<ezGameObject> ObjectStorage;
+    ezIdTable<ezGameObjectId, ObjectStorage::Entry, ezLocalAllocatorWrapper> m_Objects;
+    ObjectStorage m_ObjectStorage;
 
-    ezDynamicArray<ezGameObject*, ezLocalAllocatorWrapper> m_DeadObjects;
+    ezDynamicArray<ObjectStorage::Entry, ezLocalAllocatorWrapper> m_DeadObjects;
 
     // hierarchy structures
     struct Hierarchy
     {
-      typedef ezDataBlock<ezGameObject::HierarchicalData> DataBlock;
+      typedef ezDataBlock<ezGameObject::TransformationData> DataBlock;
       typedef ezDynamicArray<DataBlock> DataBlockArray;
 
       ezHybridArray<DataBlockArray*, 8, ezLocalAllocatorWrapper> m_Data;
@@ -48,22 +49,21 @@ namespace ezInternal
 
     struct HierarchyType
     {
-      enum Enum 
-      { 
-        Static, 
-        Dynamic, 
-        Inactive,
-        COUNT 
+      enum Enum
+      {
+        Static,
+        Dynamic,
+        COUNT
       };
     };
 
     Hierarchy m_Hierarchies[HierarchyType::COUNT];
 
-    ezUInt32 CreateHierarchicalData(const ezBitflags<ezObjectFlags>& objectFlags, ezUInt32 uiHierarchyLevel,
-      ezArrayPtr<ezGameObject::HierarchicalData*> out_data);
+    ezUInt32 CreateTransformationData(const ezBitflags<ezObjectFlags>& objectFlags, ezUInt32 uiHierarchyLevel,
+      ezArrayPtr<ezGameObject::TransformationData*> out_data);
 
-    void DeleteHierarchicalData(const ezBitflags<ezObjectFlags>& objectFlags, ezUInt32 uiHierarchyLevel, 
-        ezUInt32 uiIndex, ezUInt32 uiCount = 1);
+    void DeleteTransformationData(const ezBitflags<ezObjectFlags>& objectFlags, ezUInt32 uiHierarchyLevel, 
+        ezUInt32 uiIndex);
 
     // game object lookups
     ezHashTable<ezUInt64, ezGameObjectId, ezHashHelper<ezUInt64>, ezLocalAllocatorWrapper> m_PersistentToInternalTable;
@@ -73,7 +73,7 @@ namespace ezInternal
     // component manager
     ezDynamicArray<ezComponentManagerBase*, ezLocalAllocatorWrapper> m_ComponentManagers;
 
-    ezDynamicArray<ezComponent*, ezLocalAllocatorWrapper> m_DeadComponents;
+    ezDynamicArray<ezComponentManagerBase::ComponentStorageEntry, ezLocalAllocatorWrapper> m_DeadComponents;
 
     typedef ezComponentManagerBase::UpdateFunction UpdateFunction;
     struct RegisteredUpdateFunction
@@ -97,5 +97,7 @@ namespace ezInternal
     ezDynamicArray<ezComponentManagerBase::UpdateFunctionDesc, ezLocalAllocatorWrapper> m_UnresolvedUpdateFunctions;
 
     ezDynamicArray<UpdateTask*, ezLocalAllocatorWrapper> m_UpdateTasks;
+
+    void* m_pUserData;
   };
 }

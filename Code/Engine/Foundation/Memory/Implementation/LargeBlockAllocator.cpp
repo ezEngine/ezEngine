@@ -100,16 +100,12 @@ void ezLargeBlockAllocator::Deallocate(void* ptr)
     }
   }
 
-  if (!bFound)
-  {
-    EZ_REPORT_FAILURE("'%p' was not allocated with this allocator", ptr);
-    return;
-  }
-
+  EZ_ASSERT(bFound, "'%p' was not allocated with this allocator", ptr);
+  
   SuperBlock& superBlock = m_superBlocks[uiSuperBlockIndex];
   --superBlock.m_uiUsedBlocks;
 
-  if (superBlock.m_uiUsedBlocks == 0 && m_freeBlocks.GetCount() > SuperBlock::NUM_BLOCKS * 5)
+  if (superBlock.m_uiUsedBlocks == 0 && m_freeBlocks.GetCount() > SuperBlock::NUM_BLOCKS * 4)
   {
     // give memory back
     m_allocator.PageDeallocate(superBlock.m_pBasePtr);

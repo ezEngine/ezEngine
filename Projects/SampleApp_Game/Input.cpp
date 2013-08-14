@@ -114,11 +114,15 @@ void Level::UpdatePlayerInput(ezInt32 iPlayer)
 {
   float fVal = 0.0f;
 
-  ezGameObject* pShip = m_pWorld->GetObject(m_hPlayerShips[iPlayer]);
-  ShipComponent* pShipComponent = pShip->GetComponentOfType<ShipComponent>();
+  ezGameObject* pShip = NULL;
+  if (!m_pWorld->TryGetObject(m_hPlayerShips[iPlayer], pShip))
+    return;
+
+  ShipComponent* pShipComponent = NULL;
+  if (!pShip->TryGetComponentOfType(pShipComponent))
+    return;
 
   ezVec3 vVelocity(0.0f);
-
 
   const ezQuat qRot = pShip->GetLocalRotation();
   const ezVec3 vShipDir = qRot * ezVec3(0, 1, 0);

@@ -4,12 +4,29 @@ EZ_FORCE_INLINE const char* ezWorld::GetName() const
   return m_Data.m_Name.GetData(); 
 }
 
-EZ_FORCE_INLINE ezGameObjectHandle ezWorld::CreateObject(const ezGameObjectDesc& desc, 
-  const ezGameObjectHandle& parent)
+EZ_FORCE_INLINE ezGameObjectHandle ezWorld::CreateObject(const ezGameObjectDesc& desc)
 {
   ezGameObjectHandle newObject;
-  CreateObjects(ezArrayPtr<ezGameObjectHandle>(&newObject, 1), ezArrayPtr<const ezGameObjectDesc>(&desc, 1), parent);
+  CreateObjects(ezArrayPtr<const ezGameObjectDesc>(&desc, 1), ezArrayPtr<ezGameObjectHandle>(&newObject, 1));
   return newObject;
+}
+
+EZ_FORCE_INLINE ezGameObjectHandle ezWorld::CreateObject(const ezGameObjectDesc& desc, ezGameObject*& out_pObject)
+{
+  ezGameObjectHandle newObject;
+  CreateObjects(ezArrayPtr<const ezGameObjectDesc>(&desc, 1), ezArrayPtr<ezGameObjectHandle>(&newObject, 1));
+  out_pObject = m_Data.m_Objects[newObject.m_InternalId].m_Ptr;
+  return newObject;
+}
+
+inline void ezWorld::CreateObjects(const ezArrayPtr<const ezGameObjectDesc>& descs, ezArrayPtr<ezGameObjectHandle> out_objects, 
+  ezArrayPtr<ezGameObject*> out_pObjects)
+{
+  CreateObjects(descs, out_objects);
+  for (ezUInt32 i = 0; i < out_objects.GetCount(); ++i)
+  {
+    out_pObjects[i] = m_Data.m_Objects[out_objects[i].m_InternalId].m_Ptr;
+  }
 }
 
 EZ_FORCE_INLINE void ezWorld::DeleteObject(const ezGameObjectHandle& object)
@@ -25,26 +42,15 @@ EZ_FORCE_INLINE bool ezWorld::IsValidObject(const ezGameObjectHandle& object) co
   return m_Data.m_Objects.Contains(object.m_InternalId);
 }
 
-EZ_FORCE_INLINE ezGameObject* ezWorld::GetObject(const ezGameObjectHandle& object) const
+EZ_FORCE_INLINE bool ezWorld::TryGetObject(const ezGameObjectHandle& object, ezGameObject*& out_pObject) const
 {
-  /// \todo Force users to check that an object is alive with an interface like this:
-  // bool ezWorld::IsObjectAvailable(const ezGameObjectHandle& object, ezGameObject*& out_Pointer);
-  //
-  // Then users would be used to write code like this:
-  // if (GetWorld()->IsObjectAvailable(hMyObject, pMyObject))
-  // {
-  //    Do something with pMyObject
-  // }
-  // This also prevents excessive use of that function, as it is more typing work.
-  // Therefore users will more likely create a temporary pointer, than to call the function over and over again.
-
-
   EZ_ASSERT(object.m_InternalId.m_WorldIndex == m_uiIndex, 
     "Object does not belong to this world. Expected world id %d got id %d", m_uiIndex, object.m_InternalId.m_WorldIndex);
 
-  ezGameObject* pObject = NULL;
-  m_Data.m_Objects.TryGetValue(object.m_InternalId, pObject);
-  return pObject;
+  ObjectStorageEntry storageEntry = { NULL };
+  bool res = m_Data.m_Objects.TryGetValue(object.m_InternalId, storageEntry);
+  out_pObject = storageEntry.m_Ptr;
+  return res;
 }
 
 EZ_FORCE_INLINE ezUInt32 ezWorld::GetObjectCount() const
@@ -83,40 +89,17 @@ EZ_FORCE_INLINE ManagerType* ezWorld::GetComponentManager() const
     "Not a valid component manager type");
 
   const ezUInt16 uiTypeId = ManagerType::ComponentType::TypeId();
+  ManagerType* pManager = NULL;
   if (uiTypeId < m_Data.m_ComponentManagers.GetCount())
   {
-    return static_cast<ManagerType*>(m_Data.m_ComponentManagers[uiTypeId]);
+    pManager = static_cast<ManagerType*>(m_Data.m_ComponentManagers[uiTypeId]);
   }
 
-  return NULL;
+  EZ_ASSERT(pManager != NULL, "Component Manager (id: %u) does not exists.", uiTypeId); /// \todo use RTTI to print a useful name
+  return pManager;
 }
 
 inline bool ezWorld::IsValidComponent(const ezComponentHandle& component) const
-{
-  EZ_ASSERT_NOT_IMPLEMENTED;
-  return false;
-}
-  
-template <typename ComponentType>
-EZ_FORCE_INLINE bool ezWorld::IsComponentOfType(const ezComponentHandle& component) const
-{
-  return component.m_InternalId.m_TypeId == ComponentType::TypeId();
-}
-
-template <typename ComponentType>
-EZ_FORCE_INLINE ComponentType* ezWorld::GetComponent(const ezComponentHandle& component) const
-{
-  EZ_CHECK_AT_COMPILETIME_MSG(EZ_IS_DERIVED_FROM_STATIC(ezComponent, ComponentType), 
-    "Not a valid component type");
-
-  EZ_ASSERT(IsComponentOfType<ComponentType>(), 
-    "The given component handle is not of the expected type. Expected type id %d, got type id %d",
-    ComponentType::TypeId(), component.m_InternalId.m_TypeId);
-
-  return static_cast<ComponentType*>(GetComponent(component));
-}
-
-inline ezComponent* ezWorld::GetComponent(const ezComponentHandle& component) const
 {
   const ezUInt16 uiTypeId = component.m_InternalId.m_TypeId;
 
@@ -124,11 +107,45 @@ inline ezComponent* ezWorld::GetComponent(const ezComponentHandle& component) co
   {
     if (ezComponentManagerBase* pManager = m_Data.m_ComponentManagers[uiTypeId])
     {
-      return pManager->GetComponent(component);
+      return pManager->IsValidComponent(component);
     }
   }
 
-  return NULL;
+  return false;
+}
+  
+template <typename ComponentType>
+EZ_FORCE_INLINE bool ezWorld::IsComponentOfType(const ezComponentHandle& component) const
+{
+  /// \todo: Use RTTI
+  return component.m_InternalId.m_TypeId == ComponentType::TypeId() || ComponentType::TypeId() == ezComponent::TypeId();
+}
+
+template <typename ComponentType>
+inline bool ezWorld::TryGetComponent(const ezComponentHandle& component, ComponentType*& out_pComponent) const
+{
+  EZ_CHECK_AT_COMPILETIME_MSG(EZ_IS_DERIVED_FROM_STATIC(ezComponent, ComponentType),
+    "Not a valid component type");
+
+  EZ_ASSERT(IsComponentOfType<ComponentType>(component),
+    "The given component handle is not of the expected type. Expected type id %d, got type id %d",
+    ComponentType::TypeId(), component.m_InternalId.m_TypeId);
+
+  const ezUInt16 uiTypeId = component.m_InternalId.m_TypeId;
+
+  if (uiTypeId < m_Data.m_ComponentManagers.GetCount())
+  {
+    ezComponentManagerBase* pManager = m_Data.m_ComponentManagers[uiTypeId];
+    ezComponent* pComponent = NULL;
+
+    if (pManager != NULL && pManager->TryGetComponent(component, pComponent))
+    {
+      out_pComponent = static_cast<ComponentType*>(pComponent);
+      return true;
+    }
+  }
+
+  return false;
 }
 
 EZ_FORCE_INLINE ezIAllocator* ezWorld::GetAllocator()
@@ -139,6 +156,16 @@ EZ_FORCE_INLINE ezIAllocator* ezWorld::GetAllocator()
 EZ_FORCE_INLINE ezLargeBlockAllocator* ezWorld::GetBlockAllocator()
 {
   return &m_Data.m_BlockAllocator;
+}
+
+EZ_FORCE_INLINE void ezWorld::SetUserData(void* pUserData)
+{
+  m_Data.m_pUserData = pUserData;
+}
+
+EZ_FORCE_INLINE void* ezWorld::GetUserData() const
+{
+  return m_Data.m_pUserData;
 }
 
 //static

@@ -35,6 +35,26 @@ EZ_FORCE_INLINE void ezBlockStorage<T>::Iterator::operator++()
 
 
 template <typename T>
+EZ_FORCE_INLINE bool ezBlockStorage<T>::Entry::operator<(const Entry& rhs) const
+{
+  return m_uiIndex < rhs.m_uiIndex;
+}
+
+template <typename T>
+EZ_FORCE_INLINE bool ezBlockStorage<T>::Entry::operator>(const Entry& rhs) const
+{
+  return m_uiIndex > rhs.m_uiIndex;
+}
+
+template <typename T>
+EZ_FORCE_INLINE bool ezBlockStorage<T>::Entry::operator==(const Entry& rhs) const
+{
+  return m_uiIndex == rhs.m_uiIndex;
+}
+
+
+
+template <typename T>
 EZ_FORCE_INLINE ezBlockStorage<T>::ezBlockStorage(ezLargeBlockAllocator* pBlockAllocator, ezIAllocator* pAllocator) : 
   m_pBlockAllocator(pBlockAllocator), m_Blocks(pAllocator), m_uiCount(0)
 {
@@ -52,7 +72,7 @@ ezBlockStorage<T>::~ezBlockStorage()
 }
 
 template <typename T>
-T* ezBlockStorage<T>::Create()
+typename ezBlockStorage<T>::Entry ezBlockStorage<T>::Create()
 {
   ezDataBlock<T>* pBlock = NULL;
 
@@ -67,18 +87,44 @@ T* ezBlockStorage<T>::Create()
     pBlock = &m_Blocks.PeekBack();
   }
 
+  Entry entry;
+  entry.m_Ptr = pBlock->ReserveBack();
+  entry.m_uiIndex = m_uiCount;
+
+  ezMemoryUtils::Construct(entry.m_Ptr, 1);
+
   ++m_uiCount;
-  return pBlock->ReserveBack();
+  return entry;
 }
 
 template <typename T>
-void ezBlockStorage<T>::Delete(ezUInt32 uiIndex)
+void ezBlockStorage<T>::Delete(Entry entry)
 {
+  EZ_ASSERT(entry.m_uiIndex < m_uiCount, "Out of bounds access. Block storage has %i objects, trying to remove object at index %i.", 
+    m_uiCount, entry.m_uiIndex);
 
-  const ezUInt32 uiBlockIndex = uiIndex / ezDataBlock<T>::CAPACITY;
-  const ezUInt32 uiInnerIndex = uiIndex - uiBlockIndex * ezDataBlock<T>::CAPACITY;
+  ezDataBlock<T>& lastBlock = m_Blocks.PeekBack();
+  T* pLast = lastBlock.PopBack();
 
+  --m_uiCount;
+  if (m_uiCount != entry.m_uiIndex)
+  {
+    const ezUInt32 uiBlockIndex = entry.m_uiIndex / ezDataBlock<T>::CAPACITY;
+    const ezUInt32 uiInnerIndex = entry.m_uiIndex - uiBlockIndex * ezDataBlock<T>::CAPACITY;
 
+    ezDataBlock<T>& block = m_Blocks[uiBlockIndex];
+    EZ_ASSERT(&block[uiInnerIndex] == entry.m_Ptr, "Memory Corruption");
+
+    ezMemoryUtils::Copy(&block[uiInnerIndex], pLast, 1);
+  }
+
+  ezMemoryUtils::Destruct(pLast, 1);
+
+  if (lastBlock.IsEmpty())
+  {
+    m_pBlockAllocator->DeallocateBlock(lastBlock);
+    m_Blocks.PopBack();
+  }
 }
 
 template <typename T>

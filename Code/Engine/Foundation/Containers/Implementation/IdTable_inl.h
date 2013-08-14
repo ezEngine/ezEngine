@@ -230,7 +230,7 @@ bool ezIdTableBase<IdType, ValueType>::Remove(const IdType id, ValueType* out_ol
 }
 
 template <typename IdType, typename ValueType>
-inline bool ezIdTableBase<IdType, ValueType>::TryGetValue(const IdType id, ValueType& out_value) const
+EZ_FORCE_INLINE bool ezIdTableBase<IdType, ValueType>::TryGetValue(const IdType id, ValueType& out_value) const
 {
   const IndexType index = id.m_InstanceIndex;
   if (index < m_uiCapacity && m_pEntries[index].id == id)
@@ -242,7 +242,7 @@ inline bool ezIdTableBase<IdType, ValueType>::TryGetValue(const IdType id, Value
 }
 
 template <typename IdType, typename ValueType>
-inline bool ezIdTableBase<IdType, ValueType>::TryGetValue(const IdType id, ValueType*& out_pValue) const
+EZ_FORCE_INLINE bool ezIdTableBase<IdType, ValueType>::TryGetValue(const IdType id, ValueType*& out_pValue) const
 {
   const IndexType index = id.m_InstanceIndex;
   if (index < m_uiCapacity && m_pEntries[index].id == id)

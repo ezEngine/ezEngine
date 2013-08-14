@@ -26,11 +26,23 @@ public:
     ezUInt32 m_uiEndIndex;
   };
 
+  struct Entry
+  {
+    EZ_DECLARE_POD_TYPE();
+
+    T* m_Ptr;
+    ezUInt32 m_uiIndex;
+
+    bool operator<(const Entry& rhs) const;
+    bool operator>(const Entry& rhs) const;
+    bool operator==(const Entry& rhs) const;
+  };
+
   ezBlockStorage(ezLargeBlockAllocator* pBlockAllocator, ezIAllocator* pAllocator); 
   ~ezBlockStorage();
   
-  T* Create();
-  void Delete(ezUInt32 uiIndex);
+  Entry Create();
+  void Delete(Entry entry);
   
   Iterator GetIterator(ezUInt32 uiStartIndex = 0, ezUInt32 uiCount = ezInvalidIndex);
   

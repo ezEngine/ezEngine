@@ -37,8 +37,6 @@ void ShipComponent::Update()
   if (m_iHealth <= 0)
     return;
 
-  const Level* pLevel = (Level*) GetWorld()->m_pUserData;
-
   const ezVec3 vShipDir = m_pOwner->GetLocalRotation() * ezVec3(0, 1, 0);
 
   if (!m_vVelocity.IsZero(0.001f))
@@ -51,9 +49,9 @@ void ShipComponent::Update()
     {
       CollidableComponent& Collider = *it;
       ezGameObject* pColliderObject = Collider.GetOwner();
-      ShipComponent* pShipComponent = pColliderObject->GetComponentOfType<ShipComponent>();
+      ShipComponent* pShipComponent = NULL;
 
-      if (pShipComponent)
+      if (pColliderObject->TryGetComponentOfType(pShipComponent))
       {
         if (pShipComponent->m_iPlayerIndex == m_iPlayerIndex)
           continue;
@@ -77,24 +75,27 @@ void ShipComponent::Update()
   m_vVelocity *= 0.97f;
 
   if (m_iCurShootCooldown > 0)
+  {
     --m_iCurShootCooldown;
-  else
-  if (m_bIsShooting && m_iAmmunition >= m_iAmmoPerShot)
+  }
+  else if (m_bIsShooting && m_iAmmunition >= m_iAmmoPerShot)
   {
     m_iCurShootCooldown = m_iShootDelay;
 
     ezGameObjectDesc desc;
     desc.m_LocalPosition = m_pOwner->GetLocalPosition();
-    ezGameObjectHandle hProjectile = GetWorld()->CreateObject(desc);
 
-    ezGameObject* pProjectile = GetWorld()->GetObject(hProjectile);
+    ezGameObject* pProjectile = NULL;
+    ezGameObjectHandle hProjectile = GetWorld()->CreateObject(desc, pProjectile);
 
-    pProjectile->AddComponent(GetWorld()->GetComponentManager<ProjectileComponentManager>()->CreateComponent());
+    ProjectileComponent* pProjectileComponent = NULL;
+    ezComponentHandle hProjectileComponent = GetWorld()->GetComponentManager<ProjectileComponentManager>()->CreateComponent(pProjectileComponent);
 
-    ProjectileComponent* pProjectileComponent = pProjectile->GetComponentOfType<ProjectileComponent>();
     pProjectileComponent->m_iBelongsToPlayer = m_iPlayerIndex;
     pProjectileComponent->m_vVelocity = vShipDir * ezMath::Max(m_vVelocity.GetLength(), 1.0f) * 1.0f;
     pProjectileComponent->m_bDoesDamage = true;
+
+    pProjectile->AddComponent(hProjectileComponent);
 
     m_iAmmunition -= m_iAmmoPerShot;
 

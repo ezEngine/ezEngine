@@ -13,8 +13,6 @@ AsteroidComponent::AsteroidComponent()
 
 void AsteroidComponent::Update()
 {
-  const Level* pLevel = (Level*) GetWorld()->m_pUserData;
-
   ezQuat qRot;
   qRot.SetFromAxisAndAngle(ezVec3(0, 0, 1), m_fRotationSpeed);
   

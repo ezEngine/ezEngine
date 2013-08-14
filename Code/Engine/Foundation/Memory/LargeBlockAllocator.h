@@ -9,7 +9,6 @@
 template <typename T>
 struct ezDataBlock
 {
-public:
   EZ_DECLARE_POD_TYPE();
 
   enum 
@@ -28,6 +27,18 @@ public:
   {
     EZ_ASSERT(m_uiCount < CAPACITY, "Block is full.");
     return m_pData + m_uiCount++;
+  }
+
+  EZ_FORCE_INLINE T* PopBack()
+  {
+    EZ_ASSERT(m_uiCount > 0, "Block is empty");
+    --m_uiCount;
+    return m_pData + m_uiCount;
+  }
+
+  EZ_FORCE_INLINE bool IsEmpty() const
+  {
+    return m_uiCount == 0;
   }
 
   EZ_FORCE_INLINE bool IsFull() const

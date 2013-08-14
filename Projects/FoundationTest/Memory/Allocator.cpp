@@ -112,6 +112,8 @@ EZ_CREATE_SIMPLE_TEST(Memory, Allocator)
 
   EZ_TEST_BLOCK(true, "LargeBlockAllocator")
   {
+    enum { BLOCK_SIZE_IN_BYTES = ezDataBlock<int>::SIZE_IN_BYTES };
+
     ezLargeBlockAllocator allocator("Test", ezFoundation::GetDefaultAllocator());
 
     ezDynamicArray<ezDataBlock<int> > blocks;
@@ -120,7 +122,7 @@ EZ_CREATE_SIMPLE_TEST(Memory, Allocator)
     for (ezUInt32 i = 0; i < 17; ++i)
     {
       ezDataBlock<int> block = allocator.AllocateBlock<int>();
-      EZ_TEST(ezMemoryUtils::IsAligned(block.m_pData, 4096)); // test page alignment
+      EZ_TEST(ezMemoryUtils::IsAligned(block.m_pData, BLOCK_SIZE_IN_BYTES)); // test page alignment
       EZ_TEST_INT(block.m_uiCount, 0);
 
       blocks.PushBack(block);
@@ -132,8 +134,28 @@ EZ_CREATE_SIMPLE_TEST(Memory, Allocator)
     EZ_TEST(stats.m_uiNumAllocations == 17);
     EZ_TEST(stats.m_uiNumDeallocations == 0);
     EZ_TEST(stats.m_uiNumLiveAllocations == 17);
-    EZ_TEST(stats.m_uiAllocationSize == 17 * 4096);
-    EZ_TEST(stats.m_uiUsedMemorySize == 32 * 4096);
+    EZ_TEST(stats.m_uiAllocationSize == 17 * BLOCK_SIZE_IN_BYTES);
+    EZ_TEST(stats.m_uiUsedMemorySize == 32 * BLOCK_SIZE_IN_BYTES);
+
+    for (ezUInt32 i = 0; i < 200; ++i)
+    {
+      ezDataBlock<int> block = allocator.AllocateBlock<int>();
+      blocks.PushBack(block);
+    }
+
+    for (ezUInt32 i = 0; i < 200; ++i)
+    {
+      allocator.DeallocateBlock(blocks.PeekBack());
+      blocks.PopBack();
+    }
+
+    allocator.GetStats(stats);
+
+    EZ_TEST(stats.m_uiNumAllocations == 217);
+    EZ_TEST(stats.m_uiNumDeallocations == 200);
+    EZ_TEST(stats.m_uiNumLiveAllocations == 17);
+    EZ_TEST(stats.m_uiAllocationSize == 17 * BLOCK_SIZE_IN_BYTES);
+    EZ_TEST(stats.m_uiUsedMemorySize == 6 * 16 * BLOCK_SIZE_IN_BYTES);
 
     for (ezUInt32 i = 0; i < 2000; ++i)
     {

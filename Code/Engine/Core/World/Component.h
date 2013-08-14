@@ -6,25 +6,27 @@
 
 class EZ_CORE_DLL ezComponent
 {
-public:
-  ezComponent() : m_Flags(ezObjectFlags::Default) { }
-  virtual ~ezComponent() { }
+protected:
+  ezComponent();
+  virtual ~ezComponent();
 
+public:
   virtual ezUInt16 GetTypeId() const = 0;
 
-  EZ_FORCE_INLINE bool IsDynamic() { return m_Flags.IsSet(ezObjectFlags::Dynamic); }
+  bool IsDynamic() const;
 
   void Activate();
   void Deactivate();
-  EZ_FORCE_INLINE bool IsActive() { return m_Flags.IsSet(ezObjectFlags::Active); }
+  bool IsActive() const;
 
-  virtual ezResult Initialize() { return EZ_SUCCESS; }
-  virtual ezResult Deinitialize() { return EZ_SUCCESS; }
+  virtual ezResult Initialize();
+  virtual ezResult Deinitialize();
 
-  virtual void OnMessage(ezMessage& msg) { }
+  virtual void OnMessage(ezMessage& msg);
 
-  const ezGameObject* GetOwner() const { return m_pOwner; }
-  ezGameObject* GetOwner() { return m_pOwner; }
+  ezGameObject* GetOwner() const;
+
+  static ezUInt16 TypeId();
 
 protected:
   friend class ezGameObject;
@@ -35,7 +37,12 @@ protected:
 
   ezGenericComponentId m_InternalId;
   ezBitflags<ezObjectFlags> m_Flags;
+
+private:
+  static ezUInt16 TYPE_ID;
 };
+
+#include <Core/World/Implementation/Component_inl.h>
 
 #define EZ_DECLARE_COMPONENT_TYPE(componentType, managerType) \
   public: \

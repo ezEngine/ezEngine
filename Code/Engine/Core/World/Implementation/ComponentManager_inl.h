@@ -4,16 +4,27 @@ EZ_FORCE_INLINE ezWorld* ezComponentManagerBase::GetWorld() const
   return m_pWorld;
 }
 
-EZ_FORCE_INLINE ezComponent* ezComponentManagerBase::GetComponent(const ezComponentHandle& component) const
+EZ_FORCE_INLINE bool ezComponentManagerBase::IsValidComponent(const ezComponentHandle& component) const
 {
-  ezComponent* pComponent = NULL;
-  m_Components.TryGetValue(component.m_InternalId, pComponent);
-  return pComponent;
+  return m_Components.Contains(component.m_InternalId);
+}
+
+EZ_FORCE_INLINE bool ezComponentManagerBase::TryGetComponent(const ezComponentHandle& component, ezComponent*& out_pComponent) const
+{
+  ComponentStorageEntry storageEntry = { NULL };
+  bool res = m_Components.TryGetValue(component.m_InternalId, storageEntry);
+  out_pComponent = storageEntry.m_Ptr;
+  return res;
 }
 
 EZ_FORCE_INLINE ezUInt32 ezComponentManagerBase::GetComponentCount() const
 {
   return m_Components.GetCount();
+}
+
+EZ_FORCE_INLINE ezUInt32 ezComponentManagerBase::GetActiveComponentCount() const
+{
+  return m_uiActiveComponentCount;
 }
 
 //static 
@@ -41,6 +52,8 @@ ezComponentManager<ComponentType>::ezComponentManager(ezWorld* pWorld) :
   ezComponentManagerBase(pWorld),
   m_ComponentStorage(GetBlockAllocator(), GetAllocator())
 {
+  EZ_CHECK_AT_COMPILETIME_MSG(EZ_IS_DERIVED_FROM_STATIC(ezComponent, ComponentType),
+    "Not a valid component type");
 }
 
 template <typename ComponentType>
@@ -51,14 +64,21 @@ ezComponentManager<ComponentType>::~ezComponentManager()
 template <typename ComponentType>
 EZ_FORCE_INLINE ezComponentHandle ezComponentManager<ComponentType>::CreateComponent()
 {
-  ComponentType* pNewComponent = m_ComponentStorage.Create();
-  ezMemoryUtils::Construct(pNewComponent, 1);
-
-  return ezComponentManagerBase::CreateComponent(pNewComponent, ComponentType::TypeId());
+  ComponentType* pNewComponent = NULL;
+  return CreateComponent(pNewComponent);
 }
 
 template <typename ComponentType>
-EZ_FORCE_INLINE ComponentType* ezComponentManager<ComponentType>::GetComponent(const ezComponentHandle& component) const
+EZ_FORCE_INLINE ezComponentHandle ezComponentManager<ComponentType>::CreateComponent(ComponentType*& out_pComponent)
+{
+  ezBlockStorage<ComponentType>::Entry storageEntry = m_ComponentStorage.Create();
+  out_pComponent = storageEntry.m_Ptr;
+
+  return ezComponentManagerBase::CreateComponent(*reinterpret_cast<ComponentStorageEntry*>(&storageEntry), ComponentType::TypeId());
+}
+
+template <typename ComponentType>
+EZ_FORCE_INLINE bool ezComponentManager<ComponentType>::TryGetComponent(const ezComponentHandle& component, ComponentType*& out_pComponent) const
 {
   EZ_ASSERT(ComponentType::TypeId() == GetIdFromHandle(component).m_TypeId, 
     "The given component handle is not of the expected type. Expected type id %d, got type id %d",
@@ -71,6 +91,13 @@ template <typename ComponentType>
 EZ_FORCE_INLINE typename ezBlockStorage<ComponentType>::Iterator ezComponentManager<ComponentType>::GetComponents()
 {
   return m_ComponentStorage.GetIterator();
+}
+
+template <typename ComponentType>
+EZ_FORCE_INLINE void ezComponentManager<ComponentType>::DeleteDeadComponent(ComponentStorageEntry storageEntry)
+{
+  m_ComponentStorage.Delete(*reinterpret_cast<ezBlockStorage<ComponentType>::Entry*>(&storageEntry));
+  ezComponentManagerBase::DeleteDeadComponent(storageEntry);
 }
 
 template <typename ComponentType>

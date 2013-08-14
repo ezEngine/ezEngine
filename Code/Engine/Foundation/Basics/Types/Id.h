@@ -45,6 +45,9 @@ struct ezGenericId
   public: \
     EZ_DECLARE_POD_TYPE(); \
     EZ_FORCE_INLINE name() { } \
+    EZ_FORCE_INLINE bool operator==(const name other) const { return m_InternalId == other.m_InternalId; } \
+    EZ_FORCE_INLINE bool operator!=(const name other) const { return m_InternalId != other.m_InternalId; } \
+    EZ_FORCE_INLINE void Invalidate() { m_InternalId = IdType(); } \
   protected: \
     EZ_FORCE_INLINE name(IdType internalId) : m_InternalId(internalId) { } \
     IdType m_InternalId;

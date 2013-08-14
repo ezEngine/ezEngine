@@ -13,16 +13,17 @@ private:
   friend class ezMemoryUtils;
 
   ezGameObject();
+  ezGameObject(const ezGameObject& other);
   ~ezGameObject();
   
-  EZ_DISALLOW_COPY_AND_ASSIGN(ezGameObject);
+  void operator=(const ezGameObject& other);
 
-  struct EZ_ALIGN_16(HierarchicalData)
+  struct EZ_ALIGN_16(TransformationData)
   {
     EZ_DECLARE_POD_TYPE();
 
     ezGameObject* m_pObject;
-    HierarchicalData* m_pParentData;
+    TransformationData* m_pParentData;
     
   #if EZ_ENABLED(EZ_PLATFORM_32BIT)
     ezUInt64 m_uiPadding;
@@ -66,11 +67,11 @@ public:
   ezGameObjectHandle Clone() const;
 
   void MakeDynamic();
-  bool IsDynamic();
+  bool IsDynamic() const;
 
   void Activate();
   void Deactivate();
-  bool IsActive();
+  bool IsActive() const;
 
   ezUInt64 GetPersistentId() const;
 
@@ -117,29 +118,41 @@ public:
   ezResult RemoveComponent(const ezComponentHandle& component);
 
   template <typename T>
-  T* GetComponentOfType() const;
+  bool TryGetComponentOfType(T*& out_pComponent) const;
 
   template <typename T>
-  ezResult GetComponentsOfType(ezArrayPtr<T*> out_components) const;
+  bool TryGetComponentsOfType(ezArrayPtr<T*> out_components) const;
 
   ezArrayPtr<ezComponentHandle> GetComponents() const;
-  ezResult GetComponents(ezArrayPtr<ezComponent*> out_components) const;
 
   // messaging
   struct MsgRouting
   {
+    typedef ezUInt32 StorageType;
+
     enum Enum
     {
       ToParent   = EZ_BIT(0),
       ToChildren = EZ_BIT(1),
-      Broadcast  = ToParent | ToChildren
+
+      Direct     = 0,
+      Queued     = EZ_BIT(2),
+
+      Default    = ToChildren | Direct
+    };
+
+    struct Bits
+    {
+      StorageType ToParent : 1;
+      StorageType ToChildren : 1;
+      StorageType Queued : 1;
     };
   };
 
-  void SendMessage(ezMessage& msg, MsgRouting::Enum routing = MsgRouting::ToChildren);
+  void SendMessage(ezMessage& msg, ezBitflags<MsgRouting> routing = MsgRouting::Default);
   
 private:
-  void OnMessage(ezMessage& msg, MsgRouting::Enum routing);
+  void OnMessage(ezMessage& msg, ezBitflags<MsgRouting> routing);
 
   ezGameObjectId m_InternalId;
   ezBitflags<ezObjectFlags> m_Flags;
@@ -151,10 +164,10 @@ private:
 
   struct
   {
-    ezUInt32 m_uiHierarchicalDataIndex : 20;
     ezUInt32 m_uiHierarchyLevel : 12;
+    ezUInt32 m_uiTransformationDataIndex : 20;    
   };
-  HierarchicalData* m_pHierarchicalData;
+  TransformationData* m_pTransformationData;
 
   ezWorld* m_pWorld;
 

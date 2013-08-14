@@ -95,7 +95,6 @@ struct ezObjectFlags
     Dynamic = 1U << 0,
     Active = 1U << 1,
 
-    InternalFlags = Active - 1,
     Default = Dynamic | Active
   };
 

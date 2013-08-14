@@ -11,11 +11,12 @@ public:
 
   const char* GetName() const;
   
-  ezGameObjectHandle CreateObject(const ezGameObjectDesc& desc, 
-    const ezGameObjectHandle& parent = ezGameObjectHandle());
+  ezGameObjectHandle CreateObject(const ezGameObjectDesc& desc);
+  ezGameObjectHandle CreateObject(const ezGameObjectDesc& desc, ezGameObject*& out_pObject);
 
-  void CreateObjects(ezArrayPtr<ezGameObjectHandle> out_objects, const ezArrayPtr<const ezGameObjectDesc>& descs, 
-    const ezGameObjectHandle& parent = ezGameObjectHandle());
+  void CreateObjects(const ezArrayPtr<const ezGameObjectDesc>& descs, ezArrayPtr<ezGameObjectHandle> out_objects);
+  void CreateObjects(const ezArrayPtr<const ezGameObjectDesc>& descs, ezArrayPtr<ezGameObjectHandle> out_objects, 
+    ezArrayPtr<ezGameObject*> out_pObjects);
 
   void DeleteObject(const ezGameObjectHandle& object);
 
@@ -23,11 +24,11 @@ public:
 
   bool IsValidObject(const ezGameObjectHandle& object) const;
   
-  ezGameObject* GetObject(const ezGameObjectHandle& object) const;
+  bool TryGetObject(const ezGameObjectHandle& object, ezGameObject*& out_pObject) const;
   
   // slow access
-  ezGameObject* GetObject(ezUInt64 uiPersistentId) const;
-  ezGameObject* GetObject(const char* szObjectName) const;
+  bool TryGetObject(ezUInt64 uiPersistentId, ezGameObject*& out_pObject) const;
+  bool TryGetObject(const char* szObjectName, ezGameObject*& out_pObject) const;
 
   ezUInt32 GetObjectCount() const;
 
@@ -47,9 +48,7 @@ public:
   bool IsComponentOfType(const ezComponentHandle& component) const;
 
   template <typename ComponentType>
-  ComponentType* GetComponent(const ezComponentHandle& component) const;
-
-  ezComponent* GetComponent(const ezComponentHandle& component) const;
+  bool TryGetComponent(const ezComponentHandle& component, ComponentType*& out_pComponent) const;
 
   // update
   void Update();
@@ -58,8 +57,9 @@ public:
   ezIAllocator* GetAllocator();
   ezLargeBlockAllocator* GetBlockAllocator();
 
-  /// \todo Hack (?)
-  void* m_pUserData;
+  // user data
+  void SetUserData(void* pUserData);
+  void* GetUserData() const;
 
 public:
   static ezUInt32 GetWorldCount();
@@ -74,6 +74,8 @@ private:
 
   void SetParent(ezGameObject* pObject, const ezGameObjectHandle& parent);
 
+  void QueueMessage(ezMessage& msg, ezBitflags<ezGameObject::MsgRouting> routing, const ezGameObjectHandle& senderObject);
+
   ezResult RegisterUpdateFunction(const ezComponentManagerBase::UpdateFunctionDesc& desc);
   ezResult RegisterUpdateFunctionWithDependency(const ezComponentManagerBase::UpdateFunctionDesc& desc, bool bInsertAsUnresolved);
   ezResult DeregisterUpdateFunction(const ezComponentManagerBase::UpdateFunctionDesc& desc);
@@ -81,9 +83,11 @@ private:
   void UpdateSynchronous(const ezArrayPtr<ezInternal::WorldData::RegisteredUpdateFunction>& updateFunctions);
   void UpdateAsynchronous();
   void DeleteDeadObjects();
+  void DeleteDeadComponents();
   void UpdateWorldTransforms();
 
   ezInternal::WorldData m_Data;
+  typedef ezInternal::WorldData::ObjectStorage::Entry ObjectStorageEntry;
 
   ezUInt32 m_uiIndex;
   static ezStaticArray<ezWorld*, 64> s_Worlds;

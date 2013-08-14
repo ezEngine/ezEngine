@@ -41,7 +41,7 @@ EZ_FORCE_INLINE void ezMemoryUtils::Destruct(T* pDestination, size_t uiCount)
 template <typename T>
 EZ_FORCE_INLINE void ezMemoryUtils::Copy(T* pDestination, const T* pSource, size_t uiCount)
 {
-  EZ_ASSERT_API(pDestination < pSource || pSource + uiCount <= pDestination, "Memory regions must not overlap when using Copy. Use Move instead.");
+  EZ_ASSERT(pDestination < pSource || pSource + uiCount <= pDestination, "Memory regions must not overlap when using Copy. Use Move instead.");
   Copy(pDestination, pSource, uiCount, ezIsPodType<T>());
 }
 

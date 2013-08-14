@@ -14,6 +14,27 @@ protected:
   ezComponentManagerBase(ezWorld* pWorld);
   
 public:
+  virtual ~ezComponentManagerBase();
+
+  virtual ezResult Initialize() { return EZ_SUCCESS; }
+  virtual ezResult Deinitialize() { return EZ_SUCCESS; }
+
+  ezWorld* GetWorld() const;
+
+  bool IsValidComponent(const ezComponentHandle& component) const;
+
+  bool TryGetComponent(const ezComponentHandle& component, ezComponent*& out_pComponent) const;
+  ezUInt32 GetComponentCount() const;
+  ezUInt32 GetActiveComponentCount() const;
+
+  void DeleteComponent(const ezComponentHandle& component);
+
+  static ezUInt16 GetNextTypeId();
+
+protected:
+  friend class ezWorld;
+  friend struct ezInternal::WorldData;
+
   typedef ezDelegate<void (ezUInt32, ezUInt32)> UpdateFunction;
 
   struct UpdateFunctionDesc
@@ -38,22 +59,10 @@ public:
     ezUInt32 m_uiGranularity;
   };
 
-  virtual ~ezComponentManagerBase();
+  typedef ezBlockStorage<ezComponent>::Entry ComponentStorageEntry;
 
-  virtual ezResult Initialize() { return EZ_SUCCESS; }
-  virtual ezResult Deinitialize() { return EZ_SUCCESS; }
-
-  ezWorld* GetWorld() const;
-
-  ezComponent* GetComponent(const ezComponentHandle& component) const;
-  ezUInt32 GetComponentCount() const;
-
-  void DeleteComponent(const ezComponentHandle& component);
-
-  static ezUInt16 GetNextTypeId();
-
-protected:
-  ezComponentHandle CreateComponent(ezComponent* pComponent, ezUInt16 uiTypeId);  
+  ezComponentHandle CreateComponent(ComponentStorageEntry storageEntry, ezUInt16 uiTypeId);
+  virtual void DeleteDeadComponent(ComponentStorageEntry storageEntry);
 
   ezIAllocator* GetAllocator();
   ezLargeBlockAllocator* GetBlockAllocator();
@@ -64,8 +73,9 @@ protected:
   static ezComponentId GetIdFromHandle(const ezComponentHandle& component);
   static ezComponentHandle GetHandle(ezGenericComponentId internalId, ezUInt16 uiTypeId);
 
-  ezIdTable<ezGenericComponentId, ezComponent*> m_Components;
-    
+  ezIdTable<ezGenericComponentId, ComponentStorageEntry> m_Components;
+  ezUInt32 m_uiActiveComponentCount;
+
 private:
   ezWorld* m_pWorld;
 
@@ -82,12 +92,15 @@ public:
   virtual ~ezComponentManager();
 
   ezComponentHandle CreateComponent();
+  ezComponentHandle CreateComponent(ComponentType*& out_pComponent);
 
-  ComponentType* GetComponent(const ezComponentHandle& component) const;
+  bool TryGetComponent(const ezComponentHandle& component, ComponentType*& out_pComponent) const;
   typename ezBlockStorage<ComponentType>::Iterator GetComponents();
 
 protected:
   friend ComponentType;
+
+  virtual void DeleteDeadComponent(ComponentStorageEntry storageEntry) EZ_OVERRIDE;
 
   void RegisterUpdateFunction(UpdateFunctionDesc& desc);
 

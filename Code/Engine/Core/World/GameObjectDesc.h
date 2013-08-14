@@ -22,6 +22,8 @@ struct ezGameObjectDesc
 
   const char* m_szName;
 
+  ezGameObjectHandle m_Parent;
+
   ezVec3 m_LocalPosition;
   ezQuat m_LocalRotation;
   ezVec3 m_LocalScaling;

@@ -34,6 +34,11 @@ EZ_FORCE_INLINE ezGameObject::ezGameObject()
 {
 }
 
+EZ_FORCE_INLINE ezGameObject::ezGameObject(const ezGameObject& other)
+{
+  *this = other;
+}
+
 EZ_FORCE_INLINE ezGameObject::~ezGameObject()
 {
 }
@@ -41,6 +46,16 @@ EZ_FORCE_INLINE ezGameObject::~ezGameObject()
 EZ_FORCE_INLINE ezGameObjectHandle ezGameObject::GetHandle() const
 {
   return ezGameObjectHandle(m_InternalId);
+}
+
+EZ_FORCE_INLINE bool ezGameObject::IsDynamic() const
+{
+  return m_Flags.IsSet(ezObjectFlags::Dynamic);
+}
+  
+EZ_FORCE_INLINE bool ezGameObject::IsActive() const
+{
+  return m_Flags.IsSet(ezObjectFlags::Active);
 }
 
 EZ_FORCE_INLINE ezUInt64 ezGameObject::GetPersistentId() const
@@ -85,57 +100,57 @@ EZ_FORCE_INLINE ezWorld* ezGameObject::GetWorld() const
 
 EZ_FORCE_INLINE void ezGameObject::SetLocalPosition(const ezVec3& position)
 {
-  m_pHierarchicalData->m_localPosition = position.GetAsPositionVec4();
+  m_pTransformationData->m_localPosition = position.GetAsPositionVec4();
 }
 
 EZ_FORCE_INLINE const ezVec3& ezGameObject::GetLocalPosition() const
 {
-  return *reinterpret_cast<const ezVec3*>(&m_pHierarchicalData->m_localPosition);
+  return *reinterpret_cast<const ezVec3*>(&m_pTransformationData->m_localPosition);
 }
 
 EZ_FORCE_INLINE void ezGameObject::SetLocalRotation(const ezQuat& rotation)
 {
-  m_pHierarchicalData->m_localRotation = rotation;
+  m_pTransformationData->m_localRotation = rotation;
 }
 
 EZ_FORCE_INLINE const ezQuat& ezGameObject::GetLocalRotation() const
 {
-  return m_pHierarchicalData->m_localRotation;
+  return m_pTransformationData->m_localRotation;
 }
 
 EZ_FORCE_INLINE void ezGameObject::SetLocalScaling(const ezVec3& scaling)
 {
-  m_pHierarchicalData->m_localScaling = scaling.GetAsDirectionVec4();
+  m_pTransformationData->m_localScaling = scaling.GetAsDirectionVec4();
 }
 
 EZ_FORCE_INLINE const ezVec3& ezGameObject::GetLocalScaling() const
 {
-  return *reinterpret_cast<const ezVec3*>(&m_pHierarchicalData->m_localScaling);
+  return *reinterpret_cast<const ezVec3*>(&m_pTransformationData->m_localScaling);
 }
 
 EZ_FORCE_INLINE ezMat4 ezGameObject::GetWorldTransform() const
 {
-  return ezMat4(m_pHierarchicalData->m_worldRotation, m_pHierarchicalData->m_worldPosition);
+  return ezMat4(m_pTransformationData->m_worldRotation, m_pTransformationData->m_worldPosition);
 }
 
 EZ_FORCE_INLINE const ezVec3& ezGameObject::GetVelocity() const
 {
-  return *reinterpret_cast<const ezVec3*>(&m_pHierarchicalData->m_velocity);
+  return *reinterpret_cast<const ezVec3*>(&m_pTransformationData->m_velocity);
 }
 
 template <typename T>
-T* ezGameObject::GetComponentOfType() const
+bool ezGameObject::TryGetComponentOfType(T*& out_pComponent) const
 {
   for (ezUInt32 i = 0; i < m_Components.GetCount(); ++i)
   {
     ezComponentHandle component = m_Components[i];
     if (m_pWorld->IsComponentOfType<T>(component))
     {
-      return static_cast<T*>(m_pWorld->GetComponent(component));
+      return m_pWorld->TryGetComponent(component, out_pComponent);
     }
   }
 
-  return NULL;
+  return false;
 }
 
 //template <typename T>
@@ -146,9 +161,4 @@ T* ezGameObject::GetComponentOfType() const
 EZ_FORCE_INLINE ezArrayPtr<ezComponentHandle> ezGameObject::GetComponents() const
 {
   return m_Components;
-}
-
-EZ_FORCE_INLINE void ezGameObject::SendMessage(ezMessage& msg, MsgRouting::Enum routing /*= MsgRouting::ToChildren*/)
-{
-  OnMessage(msg, routing);
 }
