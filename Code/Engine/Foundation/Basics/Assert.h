@@ -38,9 +38,11 @@ EZ_FOUNDATION_DLL bool ezFailedCheck(const char* szSourceFile, ezUInt32 uiLine, 
 
 /// \brief Macro to raise an error, if a condition is not met. Allows to write a message using printf style. This assert will be triggered, even in non-development builds and cannot be deactivated.
 #define EZ_ASSERT_ALWAYS(bCondition, szErrorMsg, ...) \
+  do { \
   EZ_ANALYSIS_ASSUME(bCondition); \
   if ((bCondition) == false) \
-  { if (ezFailedCheck(EZ_SOURCE_FILE, EZ_SOURCE_LINE, EZ_SOURCE_FUNCTION, #bCondition, szErrorMsg, ##__VA_ARGS__)) EZ_DEBUG_BREAK; }
+  { if (ezFailedCheck(EZ_SOURCE_FILE, EZ_SOURCE_LINE, EZ_SOURCE_FUNCTION, #bCondition, szErrorMsg, ##__VA_ARGS__)) EZ_DEBUG_BREAK; } \
+  } while(false)
   
 
 /// \brief This type of assert can be used to mark code as 'not (yet) implemented' and makes it easier to find it later on by just searching for these asserts.
