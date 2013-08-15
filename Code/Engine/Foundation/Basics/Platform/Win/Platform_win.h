@@ -16,6 +16,8 @@
   #define _CRT_SECURE_NO_WARNINGS
 #endif
 
+#include <winsock2.h>
+
 #include <Windows.h>
 #include <Shellapi.h>
 #include <Rpc.h>

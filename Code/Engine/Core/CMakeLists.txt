@@ -21,7 +21,8 @@
 # )
 
 SET (LINK_LIBRARIES 
-  Foundation 
+  Foundation
+  ThirdParty
 )
 
 include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/CMAKE_Library.txt)

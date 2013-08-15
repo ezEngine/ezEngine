@@ -43,7 +43,7 @@ void ezEventBase<EventData, PassThrough>::RemoveEventHandler(ezEventHandler call
 template <typename EventData, typename PassThrough>
 void ezEventBase<EventData, PassThrough>::Broadcast(EventData pEventData)
 {
-  EZ_ASSERT(!m_bBroadcasting, "The event has been triggered recursively or from several threads simultaniously.");
+  EZ_ASSERT(!m_bBroadcasting, "The event has been triggered recursively or from several threads simultaneously.");
 
   if (m_bBroadcasting)
     return;

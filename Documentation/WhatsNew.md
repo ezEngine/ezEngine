@@ -4,11 +4,12 @@ What's New {#WhatsNew}
 Milestone 3
 -----------
   
-  * Added an input abstraction system (ezInputManager, etc.).
+  * Added an input abstraction system (ezInputManager, ezInputDevice, etc.).
      * Implements mouse/keyboard and XBox 360 controller on Windows.
-     * Contains a Virtual Thumbstick, which can be used on touch devices for 'controller input'.
+     * Contains ezVirtualThumbStick, which can be used on touch devices for 'controller input'.
      * Can be extended through additional ezInputDevice's to handle more platforms and device types.
   * Added a sample game, similar to Asteroids, to show how to use the Game Object system and the Input System.
+  * Added ezCompressedStreamReader and ezCompressedStreamWriter, which allow to (un-)compress data while writing/reading a file or memory stream.
 
 Milestone 2
 -----------

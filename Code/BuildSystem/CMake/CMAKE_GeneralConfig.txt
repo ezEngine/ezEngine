@@ -17,6 +17,7 @@ set (EZ_QT_DIR $ENV{QTDIR} CACHE PATH "Directory of qt installation")
 set (EZ_QT_DIR_FOUND "NOT_FOUND" CACHE PATH "Last found directory of qt installation")
 mark_as_advanced(FORCE EZ_QT_DIR_FOUND)
 set (EZ_SEPARATE_BUILD_FOLDERS ON CACHE BOOL "Whether the output from different build types should end up in different folders (Debug32, Release32, etc.).")
+set (EZ_USE_PCH ON CACHE BOOL "Whether to use Precompiled Headers.")
 
 set (EZ_OUTPUT_DIRECTORY_LIB "${CMAKE_SOURCE_DIR}/Output/Lib" CACHE PATH "Where to store the compiled .lib files.")
 set (EZ_OUTPUT_DIRECTORY_DLL "${CMAKE_SOURCE_DIR}/Output/Bin" CACHE PATH "Where to store the compiled .dll files.")
@@ -253,6 +254,10 @@ MACRO(ADD_MSVC_PRECOMPILED_HEADER)
       endif ()
 
     endforeach ()
+    
+    if (NOT EZ_USE_PCH)
+      set (PCH_FOUND false)
+    endif()
 
     if (PCH_FOUND)
       message (STATUS "Enabling Precompiled Header for this project.")
@@ -294,6 +299,10 @@ MACRO(ADD_MSVC_PRECOMPILED_HEADER_APP)
       endif ()
 
     endforeach ()
+    
+    if (NOT EZ_USE_PCH)
+      set (PCH_FOUND false)
+    endif()
 
     if (PCH_FOUND)
       message (STATUS "Enabling Precompiled Header for this project.")

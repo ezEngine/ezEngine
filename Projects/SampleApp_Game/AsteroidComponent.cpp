@@ -33,16 +33,18 @@ void AsteroidComponent::Update()
 
     const float fDist = vDir.GetLength();
 
-    if (fDist > 6.0f)
+    const float fMaxDist = 4.0f;
+
+    if (fDist > fMaxDist)
       continue;
 
-    const float fFactor = 1.0f - fDist / 6.0f;
+    const float fFactor = 1.0f - fDist / fMaxDist;
 
-    const float fScaledFactor = ezMath::Pow(fFactor, 4.0f);
+    const float fScaledFactor = ezMath::Pow(fFactor, 2.0f);
 
     const ezVec3 vPull = vDir * fScaledFactor;
 
-    Ship.SetVelocity(vPull * 0.04f);
+    Ship.SetVelocity(vPull * 0.06f);
 
   }
 }

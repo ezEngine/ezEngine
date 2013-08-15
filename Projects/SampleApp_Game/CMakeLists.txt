@@ -21,6 +21,7 @@ SET (LINK_LIBRARIES
   OpenGL32
   InputWindows
   InputXBox360
+  ThirdParty
 )
 
 include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/CMAKE_Application.txt)
