@@ -162,6 +162,11 @@ struct ezImageFormat
 		NUM_FORMATS
 	};
 
+  /// \brief Returns the name of the given format.
+  ///
+  /// The returned string is guaranteed to be stable across engine versions and thus suitable for serialization.
+  static const char* GetName(Enum format);
+
   /// \brief Returns the number of bits per pixel of the given format.
 	static ezUInt32 GetBitsPerPixel(Enum format);
 

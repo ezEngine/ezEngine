@@ -88,37 +88,7 @@ struct ezBmpBgrxQuad {
   ezUInt8 m_reserved;
 };
 
-class ezBmpWriter
-{
-public:
-  ezBmpWriter(ezIBinaryStreamWriter& stream, const ezImage& image) : m_stream(stream), m_image(image)
-  {
-  }
-
-  ezResult write();
-
-private:
-  ezIBinaryStreamWriter& m_stream;
-  const ezImage& m_image;
-};
-
-
-
-class ezBmpReader
-{
-public:
-  ezBmpReader(ezIBinaryStreamReader& stream, ezImage& image) : m_stream(stream), m_image(image)
-  {
-  }
-
-  ezResult read();
-
-private:
-  ezIBinaryStreamReader& m_stream;
-  ezImage& m_image;
-};
-
-ezResult ezBmpWriter::write()
+ezResult ezBmpFormat::writeImage(ezIBinaryStreamWriter& stream, const ezImage& image, ezStringBuilder& errorOut) const
 {
   // Technically almost arbitrary formats are supported, but we only use the common ones.
   ezImageFormat::Enum compatibleFormats[] =
@@ -131,18 +101,21 @@ ezResult ezBmpWriter::write()
   };
 
   // Find a format to convert to, and then write out the raw data directly.
-  ezImageFormat::Enum format = ezImageConversion::FindClosestCompatibleFormat(m_image.GetImageFormat(), compatibleFormats);
+  ezImageFormat::Enum format = ezImageConversion::FindClosestCompatibleFormat(image.GetImageFormat(), compatibleFormats);
 
   if(format == ezImageFormat::UNKNOWN)
   {
+    errorOut.AppendFormat("No conversion from format '%s' to a format suitable for BMP files known.", ezImageFormat::GetName(image.GetImageFormat()));
     return EZ_FAILURE;
   }
   
   ezImage convertedImage;
   convertedImage.SetImageFormat(format);
   convertedImage.SetRowAlignment(4); // BMP requires row alignment of 4 bytes
-  if(ezImageConversion::Convert(m_image, convertedImage) != EZ_SUCCESS)
+  if(ezImageConversion::Convert(image, convertedImage) != EZ_SUCCESS)
   {
+    // This should never happen
+    EZ_ASSERT(false, "ezImageConversion::Convert failed even though the conversion was to the format returned by FindClosestCompatibleFormat.");
     return EZ_FAILURE;
   }
   
@@ -153,7 +126,7 @@ ezResult ezBmpWriter::write()
   int dataSize = uiRowPitch * uiHeight;
 
   ezBmpFileInfoHeader fileInfoHeader;
-  fileInfoHeader.m_width = m_image.GetWidth(0);
+  fileInfoHeader.m_width = image.GetWidth(0);
   fileInfoHeader.m_height = uiHeight;
   fileInfoHeader.m_planes = 1;
   fileInfoHeader.m_bitCount = ezImageFormat::GetBitsPerPixel(format);
@@ -221,13 +194,15 @@ ezResult ezBmpWriter::write()
   const void* dataPtr = convertedImage.GetDataPointer<void>();
   
   // Write all data
-  if(m_stream.WriteBytes(&header, sizeof(header)) != EZ_SUCCESS)
+  if(stream.WriteBytes(&header, sizeof(header)) != EZ_SUCCESS)
   {
+    errorOut.AppendFormat("Failed to write data.");
     return EZ_FAILURE;
   }
 
-  if(m_stream.WriteBytes(&fileInfoHeader, sizeof(fileInfoHeader)) != EZ_SUCCESS)
+  if(stream.WriteBytes(&fileInfoHeader, sizeof(fileInfoHeader)) != EZ_SUCCESS)
   {
+    errorOut.AppendFormat("Failed to write data.");
     return EZ_FAILURE;
   }
 
@@ -241,8 +216,9 @@ ezResult ezBmpWriter::write()
     fileInfoHeaderV4.m_blueMask = ezImageFormat::GetBlueMask(format);
     fileInfoHeaderV4.m_alphaMask = ezImageFormat::GetAlphaMask(format);
 
-    if(m_stream.WriteBytes(&fileInfoHeaderV4, sizeof(fileInfoHeaderV4)) != EZ_SUCCESS)
+    if(stream.WriteBytes(&fileInfoHeaderV4, sizeof(fileInfoHeaderV4)) != EZ_SUCCESS)
     {
+      errorOut.AppendFormat("Failed to write data.");
       return EZ_FAILURE;
     }
   }
@@ -260,8 +236,9 @@ ezResult ezBmpWriter::write()
     colorMask.m_green = ezImageFormat::GetGreenMask(format);
     colorMask.m_blue = ezImageFormat::GetBlueMask(format);
 
-    if(m_stream.WriteBytes(&colorMask, sizeof(colorMask)) != EZ_SUCCESS)
+    if(stream.WriteBytes(&colorMask, sizeof(colorMask)) != EZ_SUCCESS)
     {
+      errorOut.AppendFormat("Failed to write data.");
       return EZ_FAILURE;
     }
   }
@@ -269,8 +246,9 @@ ezResult ezBmpWriter::write()
   // Write rows in reverse order
   for(ezInt32 iRow = uiHeight - 1; iRow >= 0; iRow--)
   {
-    if(m_stream.WriteBytes(convertedImage.GetPixelPointer<void>(0, 0, 0, 0, iRow, 0), uiRowPitch) != EZ_SUCCESS)
+    if(stream.WriteBytes(convertedImage.GetPixelPointer<void>(0, 0, 0, 0, iRow, 0), uiRowPitch) != EZ_SUCCESS)
     {
+      errorOut.AppendFormat("Failed to write data.");
       return EZ_FAILURE;
     }
   }
@@ -290,25 +268,28 @@ namespace
   }
 }
 
-ezResult ezBmpReader::read()
+ezResult ezBmpFormat::readImage(ezIBinaryStreamReader& stream, ezImage& image, ezStringBuilder& errorOut) const
 {
   ezBmpFileHeader fileHeader;
-  if(m_stream.ReadBytes(&fileHeader, sizeof(ezBmpFileHeader)) != sizeof(ezBmpFileHeader))
+  if(stream.ReadBytes(&fileHeader, sizeof(ezBmpFileHeader)) != sizeof(ezBmpFileHeader))
   {
+    errorOut.AppendFormat("Failed to read header data.");
     return EZ_FAILURE;
   }
 
   // Some very old BMP variants may have different magic numbers, but we don't support them.
   if(fileHeader.m_type != ezBmpFileMagic)
   {
+    errorOut.AppendFormat("The file is not a recognized BMP file.");
     return EZ_FAILURE;
   }
 
   // We expect at least header version 3
   ezUInt32 uiHeaderVersion = 3;
   ezBmpFileInfoHeader fileInfoHeader;
-  if(m_stream.ReadBytes(&fileInfoHeader, sizeof(ezBmpFileInfoHeader)) != sizeof(ezBmpFileInfoHeader))
+  if(stream.ReadBytes(&fileInfoHeader, sizeof(ezBmpFileInfoHeader)) != sizeof(ezBmpFileInfoHeader))
   {
+    errorOut.AppendFormat("Failed to read header data.");
     return EZ_FAILURE;
   }
 
@@ -317,6 +298,7 @@ ezResult ezBmpReader::read()
   // File header shorter than expected - happens with corrupt files or e.g. with OS/2 BMP files which may have shorter headers
   if(remainingHeaderBytes < 0)
   {
+    errorOut.AppendFormat("The file header was shorter than expected.");
     return EZ_FAILURE;
   }
 
@@ -325,16 +307,18 @@ ezResult ezBmpReader::read()
   if(remainingHeaderBytes >= sizeof(ezBmpFileInfoHeaderV4))
   {
     uiHeaderVersion = 4;
-    if(m_stream.ReadBytes(&fileInfoHeaderV4, sizeof(ezBmpFileInfoHeaderV4)) != sizeof(ezBmpFileInfoHeaderV4))
+    if(stream.ReadBytes(&fileInfoHeaderV4, sizeof(ezBmpFileInfoHeaderV4)) != sizeof(ezBmpFileInfoHeaderV4))
     {
+      errorOut.AppendFormat("Failed to read header data.");
       return EZ_FAILURE;
     }
     remainingHeaderBytes -= sizeof(ezBmpFileInfoHeaderV4);
   }
 
   // Skip rest of header
-  if(m_stream.SkipBytes(remainingHeaderBytes) != remainingHeaderBytes)
+  if(stream.SkipBytes(remainingHeaderBytes) != remainingHeaderBytes)
   {
+    errorOut.AppendFormat("Failed to read header data.");
     return EZ_FAILURE;
   }
 
@@ -390,7 +374,7 @@ ezResult ezBmpReader::read()
           ezUInt32 m_blue;
         } colorMask;
 
-        if(m_stream.ReadBytes(&colorMask, sizeof(colorMask)) != sizeof(colorMask))
+        if(stream.ReadBytes(&colorMask, sizeof(colorMask)) != sizeof(colorMask))
         {
           return EZ_FAILURE;
         }
@@ -430,6 +414,7 @@ ezResult ezBmpReader::read()
 
   if(format == ezImageFormat::UNKNOWN)
   {
+    errorOut.AppendFormat("Unknown or unsupported BMP encoding.");
     return EZ_FAILURE;
   }
 
@@ -443,25 +428,25 @@ ezResult ezBmpReader::read()
   {
     if(fileInfoHeader.m_compression != RGB)
     {
-      // Data size must be specified in the header, except for uncompressed images - corrupt file format?
+      errorOut.AppendFormat("The data size wasn't specified in the header.");
       return EZ_FAILURE;
     }
     uiDataSize = uiRowPitchIn * uiHeight;
   }
 
   // Set image data
-  m_image.SetImageFormat(format);
-  m_image.SetNumMipLevels(1);
-  m_image.SetNumArrayIndices(1);
-  m_image.SetNumFaces(1);
+  image.SetImageFormat(format);
+  image.SetNumMipLevels(1);
+  image.SetNumArrayIndices(1);
+  image.SetNumFaces(1);
 
-  m_image.SetWidth(uiWidth);
-  m_image.SetHeight(uiHeight);
-  m_image.SetDepth(1);
+  image.SetWidth(uiWidth);
+  image.SetHeight(uiHeight);
+  image.SetDepth(1);
 
-  m_image.SetRowAlignment(4);
+  image.SetRowAlignment(4);
 
-  m_image.AllocateImageData();
+  image.AllocateImageData();
 
   if(bIndexed)
   {
@@ -474,8 +459,9 @@ ezResult ezBmpReader::read()
 
     ezDynamicArray<ezBmpBgrxQuad> palette;
     palette.SetCount(paletteSize);
-    if(m_stream.ReadBytes(&palette[0], paletteSize * sizeof(ezBmpBgrxQuad)) != paletteSize * sizeof(ezBmpBgrxQuad))
+    if(stream.ReadBytes(&palette[0], paletteSize * sizeof(ezBmpBgrxQuad)) != paletteSize * sizeof(ezBmpBgrxQuad))
     {
+      errorOut.AppendFormat("Failed to read palette data.");
       return EZ_FAILURE;
     }
 
@@ -484,14 +470,16 @@ ezResult ezBmpReader::read()
       // Compressed data is always in pairs of bytes
       if(uiDataSize % 2 != 0)
       {
+        errorOut.AppendFormat("The data size is not a multiple of 2 bytes in an RLE-compressed file.");
         return EZ_FAILURE;
       }
 
       ezDynamicArray<ezUInt8> compressedData;
       compressedData.SetCount(uiDataSize);
       
-      if(m_stream.ReadBytes(&compressedData[0], uiDataSize) != uiDataSize)
+      if(stream.ReadBytes(&compressedData[0], uiDataSize) != uiDataSize)
       {
+        errorOut.AppendFormat("Failed to read data.");
         return EZ_FAILURE;
       }
 
@@ -502,7 +490,7 @@ ezResult ezBmpReader::read()
       ezUInt32 uiRow = uiHeight - 1;
       ezUInt32 uiCol = 0;
 
-      ezBmpBgrxQuad* pLine = m_image.GetPixelPointer<ezBmpBgrxQuad>(0, 0, 0, 0, uiRow, 0);
+      ezBmpBgrxQuad* pLine = image.GetPixelPointer<ezBmpBgrxQuad>(0, 0, 0, 0, uiRow, 0);
 
       // Decode RLE data directly to RGBX
       while(pIn < pInEnd)
@@ -569,12 +557,13 @@ ezResult ezBmpReader::read()
             // Check that we really reached the end of the image.
             if(uiRow != 0 && uiCol != uiHeight - 1)
             {
+              errorOut.AppendFormat("Unexpected end of image marker found.");
               return EZ_FAILURE;
             }
             break;
 
           case 2:
-            // Position delta marker - not implemented.
+            errorOut.AppendFormat("Found a RLE compression position delta - this is not supported.");
             return EZ_FAILURE;
 
           default:
@@ -621,8 +610,9 @@ ezResult ezBmpReader::read()
     {
       ezDynamicArray<ezUInt8> indexedData;
       indexedData.SetCount(uiDataSize);
-      if(m_stream.ReadBytes(&indexedData[0], uiDataSize) != uiDataSize)
+      if(stream.ReadBytes(&indexedData[0], uiDataSize) != uiDataSize)
       {
+        errorOut.AppendFormat("Failed to read data.");
         return EZ_FAILURE;
       }
 
@@ -632,8 +622,8 @@ ezResult ezBmpReader::read()
         ezUInt8* pIn = &indexedData[uiRowPitchIn * uiRow];
 
         // Convert flipped vertically
-        ezBmpBgrxQuad* pOut = m_image.GetPixelPointer<ezBmpBgrxQuad>(0, 0, 0, 0, uiHeight - uiRow - 1, 0);
-        for(ezUInt32 uiCol = 0; uiCol < m_image.GetWidth(0); uiCol++)
+        ezBmpBgrxQuad* pOut = image.GetPixelPointer<ezBmpBgrxQuad>(0, 0, 0, 0, uiHeight - uiRow - 1, 0);
+        for(ezUInt32 uiCol = 0; uiCol < image.GetWidth(0); uiCol++)
         {
           pOut[uiCol] = palette[ExtractBits(pIn, uiCol * uiBpp, uiBpp)];
         }
@@ -645,33 +635,27 @@ ezResult ezBmpReader::read()
     // Format must match the number of bits in the file
     if(ezImageFormat::GetBitsPerPixel(format) != uiBpp)
     {
+      errorOut.AppendFormat("The number of bits per pixel specified in the file (%d) does not match the expected value of %d for the format '%s'.",
+        uiBpp, ezImageFormat::GetBitsPerPixel(format), ezImageFormat::GetName(format));
       return EZ_FAILURE;
     }
 
-    if(uiDataSize != m_image.GetDataSize())
+    if(uiDataSize != image.GetDataSize())
     {
+      errorOut.AppendFormat("The data size specified in the header doesn't match the expected size.");
       return EZ_FAILURE;
     }
 
     // Read rows in reverse order
     for(ezInt32 iRow = uiHeight - 1; iRow >= 0; iRow--)
     {
-      if(m_stream.ReadBytes(m_image.GetPixelPointer<void>(0, 0, 0, 0, iRow, 0), uiRowPitchIn) != uiRowPitchIn)
+      if(stream.ReadBytes(image.GetPixelPointer<void>(0, 0, 0, 0, iRow, 0), uiRowPitchIn) != uiRowPitchIn)
       {
+        errorOut.AppendFormat("Failed to read data.");
         return EZ_FAILURE;
       }
     }
   }
 
   return EZ_SUCCESS;
-}
-
-ezResult ezBmpFormat::readImage(ezIBinaryStreamReader& stream, ezImage& image) const
-{
-  return ezBmpReader(stream, image).read();
-}
-
-ezResult ezBmpFormat::writeImage(ezIBinaryStreamWriter& stream, const ezImage& image) const
-{
-  return ezBmpWriter(stream, image).write();
 }

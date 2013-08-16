@@ -189,6 +189,13 @@ ezImageFormat::Enum ezImageFormat::FromPixelMask(ezUInt32 uiRedMask, ezUInt32 ui
   return UNKNOWN;
 }
 
+
+const char* ezImageFormat::GetName(Enum format)
+{
+  return s_formatMetaData[format].m_szName;
+}
+
+
 ezUInt32 ezImageFormat::GetRedMask(Enum format)
 {
   return s_formatMetaData[format].m_uiRedMask;
