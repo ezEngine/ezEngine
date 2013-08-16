@@ -7,6 +7,8 @@
 #include <ImageConversion.h>
 #include <ImageFormatMappings.h>
 
+ezDdsFormat g_ddsFormat;
+
 struct ezDdsPixelFormat {
   ezUInt32 m_uiSize;
   ezUInt32 m_uiFlags;
@@ -112,7 +114,7 @@ struct ezDdsCaps2
 static const ezUInt32 ezDdsMagic = 0x20534444;
 static const ezUInt32 ezDdsDxt10FourCc = 0x30315844;
 
-ezResult ezDdsFormat::readImage(ezIBinaryStreamReader& stream, ezImage& image, ezStringBuilder& errorOut) const
+ezResult ezDdsFormat::ReadImage(ezIBinaryStreamReader& stream, ezImage& image, ezStringBuilder& errorOut) const
 {
   ezDdsHeader fileHeader;
   if(stream.ReadBytes(&fileHeader, sizeof(ezDdsHeader)) != sizeof(ezDdsHeader))
@@ -282,7 +284,7 @@ ezResult ezDdsFormat::readImage(ezIBinaryStreamReader& stream, ezImage& image, e
   return EZ_SUCCESS;
 }
 
-ezResult ezDdsFormat::writeImage(ezIBinaryStreamWriter& stream, const ezImage& image, ezStringBuilder& errorOut) const
+ezResult ezDdsFormat::WriteImage(ezIBinaryStreamWriter& stream, const ezImage& image, ezStringBuilder& errorOut) const
 {
   const ezImageFormat::Enum format = image.GetImageFormat();
 
@@ -314,7 +316,7 @@ ezResult ezDdsFormat::writeImage(ezIBinaryStreamWriter& stream, const ezImage& i
       return EZ_FAILURE;
     }
 
-    return writeImage(stream, converted, errorOut);
+    return WriteImage(stream, converted, errorOut);
   }
 
   bool bHasMipMaps = uiNumMipLevels > 1;
@@ -511,4 +513,9 @@ ezResult ezDdsFormat::writeImage(ezIBinaryStreamWriter& stream, const ezImage& i
   }
 
   return EZ_SUCCESS;
+}
+
+bool ezDdsFormat::IsKnownExtension(const char* szExtension) const
+{
+  return ezStringUtils::Compare_NoCase(szExtension, "dds") == 0;
 }

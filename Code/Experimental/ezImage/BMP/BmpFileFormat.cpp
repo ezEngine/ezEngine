@@ -6,6 +6,8 @@
 #include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/IO/IBinaryStream.h>
 
+ezBmpFileFormat g_bmpFormat;
+
 enum ezBmpCompression
 {
   RGB = 0L,
@@ -88,7 +90,7 @@ struct ezBmpBgrxQuad {
   ezUInt8 m_reserved;
 };
 
-ezResult ezBmpFormat::writeImage(ezIBinaryStreamWriter& stream, const ezImage& image, ezStringBuilder& errorOut) const
+ezResult ezBmpFileFormat::WriteImage(ezIBinaryStreamWriter& stream, const ezImage& image, ezStringBuilder& errorOut) const
 {
   // Technically almost arbitrary formats are supported, but we only use the common ones.
   ezImageFormat::Enum compatibleFormats[] =
@@ -268,7 +270,7 @@ namespace
   }
 }
 
-ezResult ezBmpFormat::readImage(ezIBinaryStreamReader& stream, ezImage& image, ezStringBuilder& errorOut) const
+ezResult ezBmpFileFormat::ReadImage(ezIBinaryStreamReader& stream, ezImage& image, ezStringBuilder& errorOut) const
 {
   ezBmpFileHeader fileHeader;
   if(stream.ReadBytes(&fileHeader, sizeof(ezBmpFileHeader)) != sizeof(ezBmpFileHeader))
@@ -658,4 +660,12 @@ ezResult ezBmpFormat::readImage(ezIBinaryStreamReader& stream, ezImage& image, e
   }
 
   return EZ_SUCCESS;
+}
+
+bool ezBmpFileFormat::IsKnownExtension(const char* szExtension) const
+{
+  return
+    ezStringUtils::Compare_NoCase(szExtension, "bmp") == 0 ||
+    ezStringUtils::Compare_NoCase(szExtension, "dib") == 0 ||
+    ezStringUtils::Compare_NoCase(szExtension, "rle") == 0;
 }

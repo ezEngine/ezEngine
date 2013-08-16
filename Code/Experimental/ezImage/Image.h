@@ -9,7 +9,7 @@
 ///
 /// This class is a lightweight container for image data and the description required for interpreting the data,
 /// such as the image format, its dimensions, number of subimages (i.e. cubemap faces, mip levels and array subimages).
-/// However, it does not provide any methods for interpreting, modifying or loading/saving of the image data.
+/// However, it does not provide any methods for interpreting or  modifying of the image data.
 /// 
 /// The subimages are stored in a predefined order compatible with the layout of DDS files, that is, it first stores
 /// the mip chain for each image, then all faces in a case of a cubemap, then the individual images of an image array.
@@ -18,6 +18,12 @@ class ezImage : public ezImageHeader
 public:
   /// \brief Constructs an empty image.
   inline ezImage();
+
+  /// \brief Convenience function to load the image from the given file.
+  ezResult LoadFrom(const char* szFileName);
+
+  /// \brief Convenience function to save the image to the given file.
+  ezResult SaveTo(const char* szFileName);
 
   /// \brief Sets the alignment to use for each pixel row. The default is 1.
   inline void SetRowAlignment(ezUInt32 uiRowAlignment);
