@@ -1,7 +1,8 @@
 #pragma once
-#include "ezImageFileFormat.h"
 
-class ezBmpFormat : public ezImageFileFormat
+#include <ImageFileFormat.h>
+
+class ezDdsFormat : public ezImageFileFormat
 {
 public:
   virtual ezResult readImage(ezIBinaryStreamReader& stream, ezImage& image) const EZ_OVERRIDE;

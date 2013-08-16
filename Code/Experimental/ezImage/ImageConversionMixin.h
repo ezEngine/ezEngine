@@ -1,6 +1,10 @@
+#include <Image.h>
+
+/// \brief A template mixin useful as a base for custom image conversion routines.
 template<typename Impl>
 struct ezImageConversionMixinBase
 {
+  /// \brief Converts an image by iterating over all subimages and calling the implementation.
   static void ConvertImage(const ezImage& source, ezImage& target)
   {
     EZ_ASSERT(
@@ -8,9 +12,9 @@ struct ezImageConversionMixinBase
       ezImageFormat::GetBitsPerPixel(target.GetImageFormat()) == Impl::s_uiTargetBpp,
       "Image format pixel size not supported by this conversion routine");
 
-    target.SetWidth(source.GetWidth());
-    target.SetHeight(source.GetHeight());
-    target.SetDepth(source.GetDepth());
+    target.SetWidth(source.GetWidth(0));
+    target.SetHeight(source.GetHeight(0));
+    target.SetDepth(source.GetDepth(0));
     target.SetNumMipLevels(source.GetNumMipLevels());
     target.SetNumFaces(source.GetNumFaces());
     target.SetNumArrayIndices(source.GetNumArrayIndices());
@@ -30,6 +34,7 @@ struct ezImageConversionMixinBase
   }
 };
 
+/// \brief A template mixin useful to implement block decompression routines.
 template<typename Impl>
 struct ezImageConversionMixinBlockDecompression : ezImageConversionMixinBase<Impl>
 {
@@ -51,10 +56,10 @@ struct ezImageConversionMixinBlockDecompression : ezImageConversionMixinBase<Imp
     const ezUInt32 uiSourceBytesPerPixel = Impl::s_uiSourceBpp / 8;
     const ezUInt32 uiTargetBytesPerPixel = Impl::s_uiTargetBpp / 8;
 
-    const ezUInt32 uiTargetRowPitch = target.GetRowPitch(uiMipLevel, uiFace, uiArrayIndex);
+    const ezUInt32 uiTargetRowPitch = target.GetRowPitch(uiMipLevel);
 
-    const ezUInt32 uiSourceDepthPitch = source.GetDepthPitch(uiMipLevel, uiFace, uiArrayIndex);
-    const ezUInt32 uiTargetDepthPitch = target.GetDepthPitch(uiMipLevel, uiFace, uiArrayIndex);
+    const ezUInt32 uiSourceDepthPitch = source.GetDepthPitch(uiMipLevel);
+    const ezUInt32 uiTargetDepthPitch = target.GetDepthPitch(uiMipLevel);
 
     ezUInt32 uiBytesPerBlock = uiBlockSize * uiBlockSize * uiSourceBytesPerPixel;
 
@@ -69,12 +74,7 @@ struct ezImageConversionMixinBlockDecompression : ezImageConversionMixinBase<Imp
           // Decompress into a temp memory block so we don't have to explicitly handle the case where the image is not a multiple of the block size
           ezUInt8 tempBuffer[uiBlockSize * uiBlockSize * uiTargetBytesPerPixel];
 
-          HeapValidate(GetProcessHeap(), 0, 0);
-
           Impl::DecompressBlock(reinterpret_cast<const Impl::SourceType*>(pSource), reinterpret_cast<Impl::TargetType*>(tempBuffer));
-
-          HeapValidate(GetProcessHeap(), 0, 0);
-
 
           ezUInt8* pTarget = target.GetPixelPointer<ezUInt8>(
             uiMipLevel, uiFace, uiArrayIndex,
@@ -88,22 +88,19 @@ struct ezImageConversionMixinBlockDecompression : ezImageConversionMixinBase<Imp
             memcpy(pTarget, &tempBuffer[uiRow * uiBlockSize * uiTargetBytesPerPixel], uiCopyWidth * uiTargetBytesPerPixel);
             pTarget += uiTargetRowPitch;
           }
-
-          HeapValidate(GetProcessHeap(), 0, 0);
-          HeapValidate(GetProcessHeap(), 0, 0);
-
         }
       }
     }
   }
 };
 
+/// \brief A template mixin useful to implement linear format conversion routines.
 template<typename Impl>
 struct ezImageConversionMixinLinear : ezImageConversionMixinBase<Impl>
 {
   static void ConvertSubImage(const ezImage& source, ezImage& target, ezUInt32 uiFace, ezUInt32 uiMipLevel, ezUInt32 uiArrayIndex)
   {
-    const ezUInt32 uiWidth = source.GetWidth();
+    const ezUInt32 uiWidth = source.GetWidth(uiMipLevel);
     const ezUInt32 uiHeight = source.GetHeight(uiMipLevel);
 
     // If the row pitch is a multiple of the pixel size, we can transform a whole slice at once
@@ -114,11 +111,11 @@ struct ezImageConversionMixinLinear : ezImageConversionMixinBase<Impl>
     const ezUInt32 uiSourceBytesPerPixel = Impl::s_uiSourceBpp / 8;
     const ezUInt32 uiTargetBytesPerPixel = Impl::s_uiTargetBpp / 8;
 
-    const ezUInt32 uiSourceRowPitch = source.GetRowPitch(uiMipLevel, uiFace, uiArrayIndex);
-    const ezUInt32 uiTargetRowPitch = target.GetRowPitch(uiMipLevel, uiFace, uiArrayIndex);
+    const ezUInt32 uiSourceRowPitch = source.GetRowPitch(uiMipLevel);
+    const ezUInt32 uiTargetRowPitch = target.GetRowPitch(uiMipLevel);
 
-    const ezUInt32 uiSourceDepthPitch = source.GetDepthPitch(uiMipLevel, uiFace, uiArrayIndex);
-    const ezUInt32 uiTargetDepthPitch = target.GetDepthPitch(uiMipLevel, uiFace, uiArrayIndex);
+    const ezUInt32 uiSourceDepthPitch = source.GetDepthPitch(uiMipLevel);
+    const ezUInt32 uiTargetDepthPitch = target.GetDepthPitch(uiMipLevel);
 
     const bool bConvertRowWise =
       (uiSourceRowPitch % uiSourceBytesPerPixel != 0) ||

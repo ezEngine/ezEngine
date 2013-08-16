@@ -1,8 +1,10 @@
-#include <BMP/ezBmpFileFormat.h>
-#include "Foundation/Containers/DynamicArray.h"
-#include "ezImage.h"
-#include "ezImageConversion.h"
-#include "Foundation/IO/IBinaryStream.h"
+#include <BMP/BmpFileFormat.h>
+
+#include <Image.h>
+#include <ImageConversion.h>
+
+#include <Foundation/Containers/DynamicArray.h>
+#include <Foundation/IO/IBinaryStream.h>
 
 enum ezBmpCompression
 {
@@ -144,14 +146,14 @@ ezResult ezBmpWriter::write()
     return EZ_FAILURE;
   }
   
-  ezUInt32 uiRowPitch = convertedImage.GetRowPitch(0, 0, 0);
+  ezUInt32 uiRowPitch = convertedImage.GetRowPitch(0);
 
-  ezUInt32 uiHeight = convertedImage.GetHeight();
+  ezUInt32 uiHeight = convertedImage.GetHeight(0);
 
   int dataSize = uiRowPitch * uiHeight;
 
   ezBmpFileInfoHeader fileInfoHeader;
-  fileInfoHeader.m_width = m_image.GetWidth();
+  fileInfoHeader.m_width = m_image.GetWidth(0);
   fileInfoHeader.m_height = uiHeight;
   fileInfoHeader.m_planes = 1;
   fileInfoHeader.m_bitCount = ezImageFormat::GetBitsPerPixel(format);
@@ -625,13 +627,13 @@ ezResult ezBmpReader::read()
       }
 
       // Convert to non-indexed
-      for(ezUInt32 uiRow = 0; uiRow < m_image.GetHeight(); uiRow++)
+      for(ezUInt32 uiRow = 0; uiRow < uiHeight; uiRow++)
       {
         ezUInt8* pIn = &indexedData[uiRowPitchIn * uiRow];
 
         // Convert flipped vertically
         ezBmpBgrxQuad* pOut = m_image.GetPixelPointer<ezBmpBgrxQuad>(0, 0, 0, 0, uiHeight - uiRow - 1, 0);
-        for(ezUInt32 uiCol = 0; uiCol < m_image.GetWidth(); uiCol++)
+        for(ezUInt32 uiCol = 0; uiCol < m_image.GetWidth(0); uiCol++)
         {
           pOut[uiCol] = palette[ExtractBits(pIn, uiCol * uiBpp, uiBpp)];
         }

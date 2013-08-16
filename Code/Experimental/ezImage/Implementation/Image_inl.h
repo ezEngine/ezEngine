@@ -1,3 +1,62 @@
+#pragma once
+
+ezImage::ezImage() : m_uiRowAlignment(1), m_uiDepthAlignment(1), m_uiSubImageAlignment(1)
+{
+
+}
+
+void ezImage::SetRowAlignment(ezUInt32 uiRowAlignment)
+{
+  m_uiRowAlignment = uiRowAlignment;
+}
+
+ezUInt32 ezImage::GetRowAlignment() const
+{
+  return m_uiRowAlignment;
+}
+
+void ezImage::SetDepthAlignment(ezUInt32 uiDepthAlignment)
+{
+  m_uiDepthAlignment = uiDepthAlignment;
+}
+
+ezUInt32 ezImage::GetDepthAlignment() const
+{
+  return m_uiDepthAlignment;
+}
+
+void ezImage::SetSubImageAlignment(ezUInt32 uiSubImageAlignment)
+{
+  m_uiSubImageAlignment = uiSubImageAlignment;
+}
+
+ezUInt32 ezImage::GetSubImageAlignment() const
+{
+  return m_uiSubImageAlignment;
+}
+
+ezUInt32 ezImage::GetNumBlocksX(ezUInt32 uiMipLevel) const
+{
+  EZ_ASSERT(ezImageFormat::GetType(m_format) == ezImageFormatType::BLOCK_COMPRESSED,
+    "Number of blocks can only be retrieved for block compressed formats.");
+  ezUInt32 uiBlockSize = 4;
+  return (GetWidth(uiMipLevel) + uiBlockSize - 1) / uiBlockSize;
+}
+
+ezUInt32 ezImage::GetNumBlocksY(ezUInt32 uiMipLevel) const
+{
+  EZ_ASSERT(ezImageFormat::GetType(m_format) == ezImageFormatType::BLOCK_COMPRESSED,
+    "Number of blocks can only be retrieved for block compressed formats.");
+  ezUInt32 uiBlockSize = 4;
+  return (GetHeight(uiMipLevel) + uiBlockSize - 1) / uiBlockSize;
+}
+
+ezUInt32 ezImage::GetDataSize() const
+{
+  return ezMath::Max(static_cast<int>(m_data.GetCount()) - 16, 0);
+}
+
+
 template<typename T>
 const T* ezImage::GetDataPointer() const
 {
@@ -29,8 +88,8 @@ const T* ezImage::GetPixelPointer(ezUInt32 uiMipLevel, ezUInt32 uiFace, ezUInt32
 
   const ezUInt8* pPointer = GetSubImagePointer<ezUInt8>(uiMipLevel, uiFace, uiArrayIndex);
 
-  pPointer += z * GetDepthPitch(uiMipLevel, uiFace, uiArrayIndex);
-  pPointer += y * GetRowPitch(uiMipLevel, uiFace, uiArrayIndex);
+  pPointer += z * GetDepthPitch(uiMipLevel);
+  pPointer += y * GetRowPitch(uiMipLevel);
   pPointer += x * ezImageFormat::GetBitsPerPixel(m_format) / 8;
 
   return reinterpret_cast<const T*>(pPointer);
@@ -51,7 +110,7 @@ const T* ezImage::GetBlockPointer(ezUInt32 uiMipLevel, ezUInt32 uiFace, ezUInt32
 
   const ezUInt8* basePointer = GetSubImagePointer<ezUInt8>(uiMipLevel, uiFace, uiArrayIndex);
 
-  basePointer += z * GetDepthPitch(uiMipLevel, uiFace, uiArrayIndex);
+  basePointer += z * GetDepthPitch(uiMipLevel);
 
   const ezUInt32 uiBlockSize = 4;
 
@@ -89,3 +148,20 @@ void ezImage::ValidateSubImageIndices(ezUInt32 uiMipLevel, ezUInt32 uiFace, ezUI
   EZ_ASSERT(uiFace < m_uiNumFaces, "Invalid uiFace");
   EZ_ASSERT(uiArrayIndex < m_uiNumArrayIndices, "Invalid array slice");
 }
+
+ezUInt32 ezImage::GetRowPitch(ezUInt32 uiMipLevel) const
+{
+  EZ_ASSERT(ezImageFormat::GetType(m_format) == ezImageFormatType::LINEAR, "Row pitch can only be retrieved for linear formats.");
+  return GetSubImage(uiMipLevel, 0, 0).m_uiRowPitch;
+}
+
+ezUInt32 ezImage::GetDepthPitch(ezUInt32 uiMipLevel) const
+{
+  return GetSubImage(uiMipLevel, 0, 0).m_uiDepthPitch;
+}
+
+ezUInt32 ezImage::GetDataOffSet(ezUInt32 uiMipLevel, ezUInt32 uiFace, ezUInt32 uiArrayIndex) const
+{
+  return GetSubImage(uiMipLevel, uiFace, uiArrayIndex).m_uiDataOffset;
+}
+

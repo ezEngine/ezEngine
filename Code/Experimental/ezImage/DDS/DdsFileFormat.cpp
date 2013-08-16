@@ -1,10 +1,11 @@
-#include <DDS/ezDdsFileFormat.h>
+#include <DDS/DdsFileFormat.h>
 
-#include "Foundation/Containers/DynamicArray.h"
-#include "ezImage.h"
-#include "ezImageConversion.h"
-#include "Foundation/IO/IBinaryStream.h"
-#include "ezFileFormatMappings.h"
+#include <Foundation/Containers/DynamicArray.h>
+#include <Foundation/IO/IBinaryStream.h>
+
+#include <Image.h>
+#include <ImageConversion.h>
+#include <ImageFormatMappings.h>
 
 struct ezDdsPixelFormat {
   ezUInt32 m_uiSize;
@@ -176,11 +177,11 @@ ezResult ezDdsFormat::readImage(ezIBinaryStreamReader& stream, ezImage& image) c
       }
       bDxt10 = true;
 
-      format = ezFileFormatMappings::FromDxgiFormat(headerDxt10.m_uiDxgiFormat);
+      format = ezImageFormatMappings::FromDxgiFormat(headerDxt10.m_uiDxgiFormat);
     }
     else
     {
-      format = ezImageFormat::FromFourCc(fileHeader.m_ddspf.m_uiFourCC);
+      format = ezImageFormatMappings::FromFourCc(fileHeader.m_ddspf.m_uiFourCC);
     }
   }
 
@@ -230,7 +231,7 @@ ezResult ezDdsFormat::readImage(ezIBinaryStreamReader& stream, ezImage& image) c
   image.AllocateImageData();
 
   // If pitch is specified, it must match the computed value
-  if(bPitch && image.GetRowPitch(0, 0, 0) != fileHeader.m_uiPitchOrLinearSize)
+  if(bPitch && image.GetRowPitch(0) != fileHeader.m_uiPitchOrLinearSize)
   {
     return EZ_FAILURE;
   }
@@ -253,9 +254,9 @@ ezResult ezDdsFormat::writeImage(ezIBinaryStreamWriter& stream, const ezImage& i
   const ezUInt32 uiNumMipLevels = image.GetNumMipLevels();
   const ezUInt32 uiNumArrayIndices = image.GetNumArrayIndices();
 
-  const ezUInt32 uiWidth = image.GetWidth();
-  const ezUInt32 uiHeight = image.GetHeight();
-  const ezUInt32 uiDepth = image.GetDepth();
+  const ezUInt32 uiWidth = image.GetWidth(0);
+  const ezUInt32 uiHeight = image.GetHeight(0);
+  const ezUInt32 uiDepth = image.GetDepth(0);
   
   if(image.GetRowAlignment() != 1 || image.GetDepthAlignment() != 1 || image.GetSubImageAlignment() != 1)
   {
@@ -322,7 +323,7 @@ ezResult ezDdsFormat::writeImage(ezIBinaryStreamWriter& stream, const ezImage& i
   {
   case ezImageFormatType::LINEAR:
     fileHeader.m_uiFlags |= ezDdsdFlags::PITCH;
-    fileHeader.m_uiPitchOrLinearSize = image.GetRowPitch(0, 0, 0);
+    fileHeader.m_uiPitchOrLinearSize = image.GetRowPitch(0);
     break;
 
   case ezImageFormatType::BLOCK_COMPRESSED:
@@ -377,8 +378,8 @@ ezResult ezDdsFormat::writeImage(ezIBinaryStreamWriter& stream, const ezImage& i
   ezUInt32 uiBlueMask = ezImageFormat::GetBlueMask(format);
   ezUInt32 uiAlphaMask = ezImageFormat::GetAlphaMask(format);
 
-  ezUInt32 uiFourCc = ezImageFormat::GetFourCc(format);
-  ezUInt32 uiDxgiFormat = ezFileFormatMappings::ToDxgiFormat(format);
+  ezUInt32 uiFourCc = ezImageFormatMappings::ToFourCc(format);
+  ezUInt32 uiDxgiFormat = ezImageFormatMappings::ToDxgiFormat(format);
 
   // When not required to use a DXT10 texture, try to write a legacy DDS by specifying FourCC or pixel masks
   if(!bDxt10)

@@ -1,321 +1,7 @@
-#include <ezImageConversion.h>
+#include <Conversions/BC6Conversions.h>
 
-#include <Foundation/Containers/Bitfield.h>
-#include "ezImageConversionMixin.h"
-#include "Foundation/Memory/EndianHelper.h"
-
-
-struct ezImageConversion4444_8888 : public ezImageConversionMixinLinear<ezImageConversion4444_8888>
-{
-  static const ezUInt32 s_uiSourceBpp = 16;
-  static const ezUInt32 s_uiTargetBpp = 32;
-  static const ezUInt32 s_uiMultiConversionSize = 8;
-
-  typedef ezUInt8 SourceTypeSingle;
-  typedef ezUInt8 TargetTypeSingle;
-
-  static void ConvertSingle(const SourceTypeSingle* pSource, TargetTypeSingle* pTarget)
-  {
-    pTarget[0] = (pSource[0] & 0x0F) * 17;
-    pTarget[1] = (pSource[0] >> 4) * 17;
-    pTarget[2] = (pSource[1] & 0x0F) * 17;
-    pTarget[3] = (pSource[1] >> 4) * 17;
-  }
-
-  typedef __m128i SourceTypeMultiple;
-  typedef __m128i TargetTypeMultiple;
-
-  static EZ_FORCE_INLINE void ConvertMultiple(const SourceTypeMultiple* pSource, TargetTypeMultiple* pTarget)
-  {
-     __m128i mask = _mm_set1_epi32(0x0F0F0F0F);
-       
-    // Mask out 4bits per byte
-    __m128i A = _mm_and_si128(mask, pSource[0]);       
-    __m128i B = _mm_andnot_si128(mask, pSource[0]);    
-
-    // Duplicate each 4bit group - equivalent to multiplying by 17 = 255/15
-    A = _mm_or_si128(A, _mm_slli_epi32(A, 4));     
-    B = _mm_or_si128(B, _mm_srli_epi32(B, 4));
-
-    // Interleave bytes again
-    pTarget[0] = _mm_unpacklo_epi8(A, B);
-    pTarget[1] = _mm_unpackhi_epi8(A, B);
-  }
-};
-
-
-struct ezImageSwizzleConversion32_2103_SSE2 : public ezImageConversionMixinLinear<ezImageSwizzleConversion32_2103_SSE2>
-{
-  static const ezUInt32 s_uiSourceBpp = 32;
-  static const ezUInt32 s_uiTargetBpp = 32;
-  static const ezUInt32 s_uiMultiConversionSize = 16;
-
-  typedef ezUInt8 SourceTypeSingle;
-  typedef ezUInt8 TargetTypeSingle;
-
-  static void ConvertSingle(const SourceTypeSingle* pSource, TargetTypeSingle* pTarget)
-  {
-    pTarget[0] = pSource[2]; 
-    pTarget[1] = pSource[1];
-    pTarget[2] = pSource[0];
-    pTarget[3] = pSource[3];
-  }
-
-  typedef __m128i SourceTypeMultiple;
-  typedef __m128i TargetTypeMultiple;
-
-  static void ConvertMultiple(const SourceTypeMultiple* pSource, TargetTypeMultiple* pTarget)
-  {
-    __m128i mask1 = _mm_set1_epi32(0xff00ff00);
-    __m128i mask2 = _mm_set1_epi32(0x00ff00ff);
-
-    // Intel optimization manual, Color Pixel Format Conversion Using SSE2
-    pTarget[0] = _mm_or_si128(_mm_and_si128(pSource[0], mask1), _mm_and_si128(_mm_or_si128(_mm_slli_epi32(pSource[0], 16), _mm_srli_epi32(pSource[0], 16)), mask2));
-    pTarget[1] = _mm_or_si128(_mm_and_si128(pSource[1], mask1), _mm_and_si128(_mm_or_si128(_mm_slli_epi32(pSource[1], 16), _mm_srli_epi32(pSource[1], 16)), mask2));
-    pTarget[2] = _mm_or_si128(_mm_and_si128(pSource[2], mask1), _mm_and_si128(_mm_or_si128(_mm_slli_epi32(pSource[2], 16), _mm_srli_epi32(pSource[2], 16)), mask2));
-    pTarget[3] = _mm_or_si128(_mm_and_si128(pSource[3], mask1), _mm_and_si128(_mm_or_si128(_mm_slli_epi32(pSource[3], 16), _mm_srli_epi32(pSource[3], 16)), mask2));
-  }
-};
-
-struct ezImageSwizzleConversion32_2103_SSSE3 : public ezImageConversionMixinLinear<ezImageSwizzleConversion32_2103_SSSE3>
-{
-  static const ezUInt32 s_uiSourceBpp = 32;
-  static const ezUInt32 s_uiTargetBpp = 32;
-  static const ezUInt32 s_uiMultiConversionSize = 16;
-
-  typedef ezUInt8 SourceTypeSingle;
-  typedef ezUInt8 TargetTypeSingle;
-
-  static void ConvertSingle(const SourceTypeSingle* pSource, TargetTypeSingle* pTarget)
-  {
-    pTarget[0] = pSource[2];
-    pTarget[1] = pSource[1];
-    pTarget[2] = pSource[0];
-    pTarget[3] = pSource[3];
-  }
-
-  typedef __m128i SourceTypeMultiple;
-  typedef __m128i TargetTypeMultiple;
-
-  static void ConvertMultiple(const SourceTypeMultiple* pSource, TargetTypeMultiple* pTarget)
-  {
-    // Intel optimization manual, Color Pixel Format Conversion Using SSSE3
-    __m128i shuffleMask = _mm_set_epi8(15, 12, 13, 14, 11, 8, 9, 10, 7, 4, 5, 6, 3, 0, 1, 2);
-    pTarget[0] = _mm_shuffle_epi8(pSource[0], shuffleMask);
-    pTarget[1] = _mm_shuffle_epi8(pSource[1], shuffleMask);
-    pTarget[2] = _mm_shuffle_epi8(pSource[2], shuffleMask);
-    pTarget[3] = _mm_shuffle_epi8(pSource[3], shuffleMask);
-  }
-};
-
-struct ezImageConversionF32_U8 : public ezImageConversionMixinLinear<ezImageConversionF32_U8>
-{
-  static const ezUInt32 s_uiSourceBpp = 128;
-  static const ezUInt32 s_uiTargetBpp = 32;
-  static const ezUInt32 s_uiMultiConversionSize = 1;
-
-  typedef ezRgbaF SourceTypeSingle;
-  typedef ezRgba TargetTypeSingle;
-
-  static void ConvertSingle(const SourceTypeSingle* pSource, TargetTypeSingle* pTarget)
-  {
-    pTarget[0].r = static_cast<ezUInt8>(ezMath::Clamp(floor(pSource[0].r * 0xFF + 0.5f), 0.0f, 255.0f));
-    pTarget[0].b = static_cast<ezUInt8>(ezMath::Clamp(floor(pSource[0].b * 0xFF + 0.5f), 0.0f, 255.0f));
-    pTarget[0].g = static_cast<ezUInt8>(ezMath::Clamp(floor(pSource[0].g * 0xFF + 0.5f), 0.0f, 255.0f));
-    pTarget[0].a = static_cast<ezUInt8>(ezMath::Clamp(floor(pSource[0].a * 0xFF + 0.5f), 0.0f, 255.0f));
-  }
-
-  typedef ezRgbaF SourceTypeMultiple;
-  typedef ezRgba TargetTypeMultiple;
-
-  static void ConvertMultiple(const SourceTypeMultiple* pSource, TargetTypeMultiple* pTarget)
-  {
-    return ConvertSingle(pSource, pTarget);
-  }
-};
-
-ezBgra ezDecompress565(ezUInt16 uiColor)
-{
-  ezBgra result;
-  result.b = (uiColor & 0x001Fu) * 255 / 31;
-  result.g = (uiColor & 0x07E0u) * 255 / 2016;
-  result.r = (uiColor & 0xF800u) * 255 / 63488;
-  result.a = 0xFF;
-  return result;
-}
-
-void ezDecompressBC1Block(const ezUInt8* pSource, ezBgra* pTarget, bool bForceFourColorMode)
-{
-  ezUInt16 uiColor0 = pSource[0] | (pSource[1] << 8);
-  ezUInt16 uiColor1 = pSource[2] | (pSource[3] << 8);
-
-  ezBgra colors[4];
-
-  colors[0] = ezDecompress565(pSource[0] | (pSource[1] << 8));
-  colors[1] = ezDecompress565(pSource[2] | (pSource[3] << 8));
-
-  if(uiColor0 > uiColor1 || bForceFourColorMode)
-  {
-    colors[2] = ezBgra(
-      (2 * colors[0].b + colors[1].b + 1) / 3,
-      (2 * colors[0].g + colors[1].g + 1) / 3,
-      (2 * colors[0].r + colors[1].r + 1) / 3,
-      0xFF);
-    colors[3] = ezBgra(
-      (colors[0].b + 2 * colors[1].b + 1) / 3,
-      (colors[0].g + 2 * colors[1].g + 1) / 3,
-      (colors[0].r + 2 * colors[1].r + 1) / 3,
-      0xFF);
-  }
-  else
-  {
-    colors[2] = ezBgra(
-      (colors[0].b + colors[1].b) / 2,
-      (colors[0].g + colors[1].g) / 2,
-      (colors[0].r + colors[1].r) / 2,
-      0xFF);
-    colors[3] = ezBgra(0, 0, 0, 0);
-  }
-
-  for(ezUInt32 uiByteIdx = 0; uiByteIdx < 4; uiByteIdx++)
-  {
-    ezUInt8 uiIndices = pSource[4 + uiByteIdx];
-
-    pTarget[4 * uiByteIdx + 0] = colors[(uiIndices >> 0) & 0x03];
-    pTarget[4 * uiByteIdx + 1] = colors[(uiIndices >> 2) & 0x03];
-    pTarget[4 * uiByteIdx + 2] = colors[(uiIndices >> 4) & 0x03];
-    pTarget[4 * uiByteIdx + 3] = colors[(uiIndices >> 6) & 0x03];
-  }
-}
-
-void ezDecompressBC4Block(const ezUInt8* pSource, ezUInt8* pTarget, ezUInt32 uiStride)
-{
-  ezUInt8 uiAlphas[8];
-
-  uiAlphas[0] = pSource[0];
-  uiAlphas[1] = pSource[1];
-
-  if(uiAlphas[0] > uiAlphas[1])
-  {
-    uiAlphas[2] = (6 * uiAlphas[0] + 1 * uiAlphas[1] + 3) / 7;
-    uiAlphas[3] = (5 * uiAlphas[0] + 2 * uiAlphas[1] + 3) / 7;
-    uiAlphas[4] = (4 * uiAlphas[0] + 3 * uiAlphas[1] + 3) / 7;
-    uiAlphas[5] = (3 * uiAlphas[0] + 4 * uiAlphas[1] + 3) / 7;
-    uiAlphas[6] = (2 * uiAlphas[0] + 5 * uiAlphas[1] + 3) / 7;
-    uiAlphas[7] = (1 * uiAlphas[0] + 6 * uiAlphas[1] + 3) / 7;
-  }
-  else
-  {
-    uiAlphas[2] = (4 * uiAlphas[0] + 1 * uiAlphas[1] + 2) / 5;
-    uiAlphas[3] = (3 * uiAlphas[0] + 2 * uiAlphas[1] + 2) / 5;
-    uiAlphas[4] = (2 * uiAlphas[0] + 3 * uiAlphas[1] + 2) / 5;
-    uiAlphas[5] = (1 * uiAlphas[0] + 4 * uiAlphas[1] + 2) / 5;
-    uiAlphas[6] = 0x00;
-    uiAlphas[7] = 0xFF;
-  }
-
-  for(ezUInt32 uiTripleIdx = 0; uiTripleIdx < 2; uiTripleIdx++)
-  {
-    ezUInt32 uiIndices =
-      pSource[2 + uiTripleIdx * 3 + 0] << 0 |
-      pSource[2 + uiTripleIdx * 3 + 1] << 8 |
-      pSource[2 + uiTripleIdx * 3 + 2] << 16;
-
-    pTarget[(8 * uiTripleIdx + 0) * uiStride] = uiAlphas[(uiIndices >> 0) & 0x07];
-    pTarget[(8 * uiTripleIdx + 1) * uiStride] = uiAlphas[(uiIndices >> 3) & 0x07];
-    pTarget[(8 * uiTripleIdx + 2) * uiStride] = uiAlphas[(uiIndices >> 6) & 0x07];
-    pTarget[(8 * uiTripleIdx + 3) * uiStride] = uiAlphas[(uiIndices >> 9) & 0x07];
-    pTarget[(8 * uiTripleIdx + 4) * uiStride] = uiAlphas[(uiIndices >> 12) & 0x07];
-    pTarget[(8 * uiTripleIdx + 5) * uiStride] = uiAlphas[(uiIndices >> 15) & 0x07];
-    pTarget[(8 * uiTripleIdx + 6) * uiStride] = uiAlphas[(uiIndices >> 18) & 0x07];
-    pTarget[(8 * uiTripleIdx + 7) * uiStride] = uiAlphas[(uiIndices >> 21) & 0x07];
-  }
-}
-
-class ezImageConversion_BC1_BGRA : public ezImageConversionMixinBlockDecompression<ezImageConversion_BC1_BGRA>
-{
-public:
-  static const ezUInt32 s_uiSourceBpp = 4;
-  static const ezUInt32 s_uiTargetBpp = 32;
-
-  typedef ezUInt8 SourceType;
-  typedef ezBgra TargetType;
-
-  static void DecompressBlock(const SourceType* pSource, TargetType* pTarget)
-  {
-    ezDecompressBC1Block(pSource, pTarget, false);
-  }
-};
-
-class ezImageConversion_BC2_BGRA : public ezImageConversionMixinBlockDecompression<ezImageConversion_BC2_BGRA>
-{
-public:
-  static const ezUInt32 s_uiSourceBpp = 8;
-  static const ezUInt32 s_uiTargetBpp = 32;
-
-  typedef ezUInt8 SourceType;
-  typedef ezBgra TargetType;
-
-  static void DecompressBlock(const SourceType* pSource, TargetType* pTarget)
-  {
-    ezDecompressBC1Block(pSource + 8, pTarget, true);
-
-    for(ezUInt32 uiByteIdx = 0; uiByteIdx < 8; uiByteIdx++)
-    {
-      ezUInt8 uiIndices = pSource[uiByteIdx];
-
-      pTarget[2 * uiByteIdx + 0].a = (uiIndices & 0x0F) | (uiIndices << 4);
-      pTarget[2 * uiByteIdx + 1].a = (uiIndices & 0xF0) | (uiIndices >> 4);
-    }
-  }
-};
-
-class ezImageConversion_BC3_BGRA : public ezImageConversionMixinBlockDecompression<ezImageConversion_BC3_BGRA>
-{
-public:
-  static const ezUInt32 s_uiSourceBpp = 8;
-  static const ezUInt32 s_uiTargetBpp = 32;
-
-  typedef ezUInt8 SourceType;
-  typedef ezBgra TargetType;
-
-  static void DecompressBlock(const SourceType* pSource, TargetType* pTarget)
-  {
-    ezDecompressBC1Block(pSource + 8, pTarget, true);
-    ezDecompressBC4Block(pSource, reinterpret_cast<ezUInt8*>(pTarget), 4);
-  }
-};
-
-class ezImageConversion_BC4_R : public ezImageConversionMixinBlockDecompression<ezImageConversion_BC4_R>
-{
-public:
-  static const ezUInt32 s_uiSourceBpp = 4;
-  static const ezUInt32 s_uiTargetBpp = 8;
-
-  typedef ezUInt8 SourceType;
-  typedef ezUInt8 TargetType;
-
-  static void DecompressBlock(const SourceType* pSource, TargetType* pTarget)
-  {
-    ezDecompressBC4Block(pSource, pTarget, 1);
-  }
-};
-
-class ezImageConversion_BC5_RG : public ezImageConversionMixinBlockDecompression<ezImageConversion_BC5_RG>
-{
-public:
-  static const ezUInt32 s_uiSourceBpp = 8;
-  static const ezUInt32 s_uiTargetBpp = 16;
-
-  typedef ezUInt8 SourceType;
-  typedef ezUInt8 TargetType;
-
-  static void DecompressBlock(const SourceType* pSource, TargetType* pTarget)
-  {
-    ezDecompressBC4Block(pSource + 0, pTarget + 0, 2);
-    ezDecompressBC4Block(pSource + 8, pTarget + 1, 2);
-  }
-};
+#include <ImageConversionMixin.h>
+#include <ImageDefinitions.h>
 
 template<bool bSigned>
 class ezImageConversion_BC6_RGBA : public ezImageConversionMixinBlockDecompression<ezImageConversion_BC6_RGBA<bSigned> >
@@ -370,7 +56,7 @@ public:
     case 10:
       DecompressMode10(pSource, pTarget);
       break;
-      
+
     case 11:
       DecompressMode11(pSource, pTarget);
       break;
@@ -391,7 +77,7 @@ public:
       DecompressMode22(pSource, pTarget);
       break;
 
-   case 26:
+    case 26:
       DecompressMode26(pSource, pTarget);
       break;
 
@@ -405,6 +91,8 @@ public:
       break;
     }
   }
+
+private:
 
   union FP32
   {
@@ -525,7 +213,7 @@ public:
       pTarget[uiIndex].b = HalfToFloat(FinishUnquantize(Interpolate8(A[uiRegion].b, B[uiRegion].b, i))).f;
       pTarget[uiIndex].a = 1.0f;
     }
-    
+
   }
 
   static void DecompressMode0(const SourceType* pSource, TargetType* pTarget)
@@ -621,7 +309,7 @@ public:
     B[0].r = ReadBits<5, 35>(pSource);
     B[0].g = ReadBits<4, 45>(pSource);
     B[0].b = ReadBits<4, 55>(pSource);
-    
+
     A[1].r = ReadBits<5, 65>(pSource);
     A[1].g = ReadBits<4, 41>(pSource);
     A[1].b = ReadBits<4, 61>(pSource);
@@ -667,6 +355,8 @@ public:
       SignExtend(A, 10, 10, 10);
       SignExtend(B, 10, 10, 10);
     }
+
+    // In this mode, the end points aren't delta-encoded
 
     Unquantize(A, 10);
     Unquantize(B, 10);
@@ -804,7 +494,7 @@ public:
 
     Unquantize(A, 12);
     Unquantize(B, 12);
-   
+
     DecodeIndices(pSource, pTarget, A, B);
   }
 
@@ -872,8 +562,7 @@ public:
 
     B += A;
 
-    Unquantize(A, 16);
-    Unquantize(B, 16);
+    // No need to Unquantize since we already have 16b values
 
     DecodeIndices(pSource, pTarget, A, B);
   }
@@ -1029,6 +718,8 @@ public:
       SignExtend(B[1], 6, 6, 6);
     }
 
+    // In this mode, the end points aren't delta-encoded
+
     Unquantize(A[0], 6);
     Unquantize(A[1], 6);
     Unquantize(B[0], 6);
@@ -1052,7 +743,7 @@ public:
   }
 
   static void Unquantize(Color& color, ezUInt32 uiBitPerComponent)
-  {          
+  {
     color.r = Unquantize(color.r, uiBitPerComponent);
     color.g = Unquantize(color.g, uiBitPerComponent);
     color.b = Unquantize(color.b, uiBitPerComponent);
@@ -1133,268 +824,19 @@ public:
     /*ezUInt32 uiResult = 0;
     for(ezUInt32 uiBit = uiBitPosition; uiBit < uiBitPosition + uiNumBits; uiBit++)
     {
-      uiResult |= ((pSource[uiBit >> 3] >> (uiBit & 7)) & 1) << (uiBit - uiBitPosition);
+    uiResult |= ((pSource[uiBit >> 3] >> (uiBit & 7)) & 1) << (uiBit - uiBitPosition);
     }
     return uiResult;*/
   }
 };
 
-namespace
+void ezDecompressImageBC6U(const ezImage& source, ezImage& target)
 {
-  struct ezImageConversionFunctionEntry
-  {
-    ezImageConversionFunctionEntry(ezImageConversion::ConversionFunction pFunction, ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat) :
-      m_pFunction(pFunction), m_sourceFormat(sourceFormat), m_targetFormat(targetFormat), m_fCost(1.0f)
-    {}
-
-    ezImageConversion::ConversionFunction m_pFunction;
-    ezImageFormat::Enum m_sourceFormat;
-    ezImageFormat::Enum m_targetFormat;
-    float m_fCost;
-  };
-
-  ezDynamicArray<ezImageConversionFunctionEntry>* s_conversionFunctions = NULL;
-
-  ezStaticArray<ezInt32, ezImageFormat::NUM_FORMATS * ezImageFormat::NUM_FORMATS> s_conversionTable;
-  ezStaticArray<float, ezImageFormat::NUM_FORMATS * ezImageFormat::NUM_FORMATS> s_costTable;
-  bool s_bConversionTableValid = false;
-
-  ezUInt32 GetTableIndex(ezUInt32 sourceFormat, ezUInt32 targetFormat)
-  {
-    return sourceFormat * ezImageFormat::NUM_FORMATS + targetFormat;
-  }
-
-  void CopyImage(const ezImage& source, ezImage& target)
-  {
-    EZ_ASSERT(
-      ezImageFormat::GetBitsPerPixel(source.GetImageFormat()) == ezImageFormat::GetBitsPerPixel(target.GetImageFormat()),
-      "Can only copy images with matching pixel sizes");
-
-    target.SetWidth(source.GetWidth());
-    target.SetHeight(source.GetHeight());
-    target.SetDepth(source.GetDepth());
-    target.SetNumMipLevels(source.GetNumMipLevels());
-    target.SetNumFaces(source.GetNumFaces());
-    target.SetNumArrayIndices(source.GetNumArrayIndices());
-
-    target.AllocateImageData();
-
-    for(ezUInt32 uiArrayIndex = 0; uiArrayIndex < source.GetNumArrayIndices(); uiArrayIndex++)
-    {
-      for(ezUInt32 uiFace = 0; uiFace < source.GetNumFaces(); uiFace++)
-      {
-        for(ezUInt32 uiMipLevel = 0; uiMipLevel < source.GetNumMipLevels(); uiMipLevel++)
-        {
-          const ezUInt32 uiSourceRowPitch = source.GetRowPitch(uiMipLevel, uiFace, uiArrayIndex);
-          const ezUInt32 uiTargetRowPitch = target.GetRowPitch(uiMipLevel, uiFace, uiArrayIndex);
-
-          for(ezUInt32 uiSlice = 0; uiSlice < source.GetDepth(uiMipLevel); uiSlice++)
-          {
-            const char* pSource = source.GetPixelPointer<char>(uiMipLevel, uiFace, uiArrayIndex, 0, 0, uiSlice);
-            char* pTarget = target.GetPixelPointer<char>(uiMipLevel, uiFace, uiArrayIndex, 0, 0, uiSlice);
-            for(ezUInt32 uiRow = 0; uiRow < source.GetHeight(uiMipLevel); uiRow++)
-            {
-              ezMemoryUtils::Copy(pTarget, pSource, ezMath::Min(uiSourceRowPitch, uiTargetRowPitch));
-              pSource += uiSourceRowPitch;
-              pTarget += uiTargetRowPitch;
-            }
-          }
-        }
-      }
-    }
-  }
+  return ezImageConversion_BC6_RGBA<false>::ConvertImage(source, target);
 }
 
-ezResult ezImageConversion::Convert(const ezImage& source, ezImage& target)
+void ezDecompressImageBC6S(const ezImage& source, ezImage& target)
 {
-  ezImageFormat::Enum sourceFormat = source.GetImageFormat();
-  const ezImageFormat::Enum targetFormat = target.GetImageFormat();
-
-  if(!s_bConversionTableValid)
-  {
-    RebuildConversionTable();
-  }
-
-  ezUInt32 uiCurrentTableIndex = GetTableIndex(sourceFormat, targetFormat);
-
-  // No conversion known
-  if(s_conversionTable[uiCurrentTableIndex] == -1)
-  {
-    return EZ_FAILURE;
-  }
-
-  // Count number of conversion steps
-  ezUInt32 uiConversionSteps = 1;
-  while((*s_conversionFunctions)[s_conversionTable[uiCurrentTableIndex]].m_targetFormat != targetFormat)
-  {
-    uiCurrentTableIndex = GetTableIndex((*s_conversionFunctions)[s_conversionTable[uiCurrentTableIndex]].m_targetFormat, targetFormat);
-    uiConversionSteps++;
-  }
-
-  ezImage intermediate;
-
-  // To convert, we ping-pong between the target image and an intermediate. Choose the first target depending on the parity of the conversion
-  // chain length so that the final conversion ends up in the target image.
-  const ezImage* pSource = &source;
-  ezImage* pTarget = NULL;
-  ezImage* pSwapTarget = NULL;
-
-  if(uiConversionSteps % 2 == 0)
-  {
-    pTarget = &intermediate;
-    pSwapTarget = &target;
-  }
-  else
-  {
-    pTarget = &target;
-    pSwapTarget = &intermediate;
-  }
-
-  // Apply conversion
-  uiCurrentTableIndex = GetTableIndex(sourceFormat, targetFormat);
-  for(ezUInt32 uiStep = 0; uiStep < uiConversionSteps; uiStep++)
-  {
-    const ezImageConversionFunctionEntry& entry = (*s_conversionFunctions)[s_conversionTable[GetTableIndex(sourceFormat, targetFormat)]];
-    pTarget->SetImageFormat(entry.m_targetFormat);
-    entry.m_pFunction(*pSource, *pTarget);
-
-    pSource = pTarget;
-
-    ezMath::Swap(pTarget, pSwapTarget);
-
-    sourceFormat = entry.m_targetFormat;
-  }
-
-  return EZ_SUCCESS;
-}
-
-void ezImageConversion::RegisterConversionFunction(ConversionFunction pFunction, ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat)
-{
-  s_conversionFunctions->PushBack(ezImageConversionFunctionEntry(pFunction, sourceFormat, targetFormat));
-  s_bConversionTableValid = false;
-}
-
-void ezImageConversion::RebuildConversionTable()
-{
-  // Straight from http://en.wikipedia.org/wiki/Floyd-Warshall_algorithm
-  s_conversionTable.SetCount(ezImageFormat::NUM_FORMATS * ezImageFormat::NUM_FORMATS);
-  s_costTable.SetCount(ezImageFormat::NUM_FORMATS * ezImageFormat::NUM_FORMATS);
-
-  for(ezUInt32 tableIdx = 0; tableIdx < s_conversionTable.GetCount(); tableIdx++)
-  {
-    s_conversionTable[tableIdx] = -1;
-    s_costTable[tableIdx] = ezMath::BasicType<float>::GetInfinity();
-  }
-
-  // Prime conversion table with known functions
-  for(ezUInt32 uiConversionIdx = 0; uiConversionIdx < s_conversionFunctions->GetCount(); uiConversionIdx++)
-  {
-    const ezImageConversionFunctionEntry& entry = (*s_conversionFunctions)[uiConversionIdx];
-    ezUInt32 uiTableIndex = GetTableIndex(entry.m_sourceFormat, entry.m_targetFormat);
-    s_conversionTable[uiTableIndex] = uiConversionIdx;
-    s_costTable[uiTableIndex] = entry.m_fCost;
-  }
-
-  for(ezUInt32 k = 0; k < ezImageFormat::NUM_FORMATS; k++)
-  {
-    for(ezUInt32 i = 0; i < ezImageFormat::NUM_FORMATS; i++)
-    {
-      ezUInt32 uiTableIndexIK = GetTableIndex(i, k);
-      for(ezUInt32 j = 0; j < ezImageFormat::NUM_FORMATS; j++)
-      {
-        ezUInt32 uiTableIndexIJ = GetTableIndex(i, j);
-        ezUInt32 uiTableIndexKJ = GetTableIndex(k, j);
-        if(s_costTable[uiTableIndexIK] + s_costTable[uiTableIndexKJ] < s_costTable[uiTableIndexIJ])
-        {
-          s_costTable[uiTableIndexIJ] = s_costTable[uiTableIndexIK] + s_costTable[uiTableIndexKJ];
-
-          // To convert from format I to format J, first convert from I to K
-          s_conversionTable[uiTableIndexIJ] = s_conversionTable[uiTableIndexIK];
-        }
-      }
-    }
-  }
-
-  s_bConversionTableValid = true;
-}
-
-void ezImageConversion::Startup()
-{
-  s_conversionFunctions = new ezDynamicArray<ezImageConversionFunctionEntry>();
-
-  bool bSupportsSSSE3 = true;
-  if(bSupportsSSSE3)
-  {
-    // BGRA => RGBA swizzling
-    RegisterConversionFunction(ezImageSwizzleConversion32_2103_SSSE3::ConvertImage, ezImageFormat::B8G8R8A8_TYPELESS, ezImageFormat::R8G8B8A8_TYPELESS);
-    RegisterConversionFunction(ezImageSwizzleConversion32_2103_SSSE3::ConvertImage, ezImageFormat::B8G8R8A8_UNORM, ezImageFormat::R8G8B8A8_UNORM);
-    RegisterConversionFunction(ezImageSwizzleConversion32_2103_SSSE3::ConvertImage, ezImageFormat::B8G8R8A8_UNORM_SRGB, ezImageFormat::R8G8B8A8_UNORM_SRGB);
-
-    // RGBA => BGRA swizzling
-    RegisterConversionFunction(ezImageSwizzleConversion32_2103_SSSE3::ConvertImage, ezImageFormat::R8G8B8A8_TYPELESS, ezImageFormat::B8G8R8A8_TYPELESS);
-    RegisterConversionFunction(ezImageSwizzleConversion32_2103_SSSE3::ConvertImage, ezImageFormat::R8G8B8A8_UNORM, ezImageFormat::B8G8R8A8_UNORM);
-    RegisterConversionFunction(ezImageSwizzleConversion32_2103_SSSE3::ConvertImage, ezImageFormat::R8G8B8A8_UNORM_SRGB, ezImageFormat::B8G8R8A8_UNORM_SRGB);
-  }
-  else
-  {
-    // BGRA => RGBA swizzling
-    RegisterConversionFunction(ezImageSwizzleConversion32_2103_SSE2::ConvertImage, ezImageFormat::B8G8R8A8_TYPELESS, ezImageFormat::R8G8B8A8_TYPELESS);
-    RegisterConversionFunction(ezImageSwizzleConversion32_2103_SSE2::ConvertImage, ezImageFormat::B8G8R8A8_UNORM, ezImageFormat::R8G8B8A8_UNORM);
-    RegisterConversionFunction(ezImageSwizzleConversion32_2103_SSE2::ConvertImage, ezImageFormat::B8G8R8A8_UNORM_SRGB, ezImageFormat::R8G8B8A8_UNORM_SRGB);
-
-    // RGBA => BGRA swizzling
-    RegisterConversionFunction(ezImageSwizzleConversion32_2103_SSE2::ConvertImage, ezImageFormat::R8G8B8A8_TYPELESS, ezImageFormat::B8G8R8A8_TYPELESS);
-    RegisterConversionFunction(ezImageSwizzleConversion32_2103_SSE2::ConvertImage, ezImageFormat::R8G8B8A8_UNORM, ezImageFormat::B8G8R8A8_UNORM);
-    RegisterConversionFunction(ezImageSwizzleConversion32_2103_SSE2::ConvertImage, ezImageFormat::R8G8B8A8_UNORM_SRGB, ezImageFormat::B8G8R8A8_UNORM_SRGB);
-  }
-
-  // Alpha can be converted to unused component by simply copying
-  RegisterConversionFunction(CopyImage, ezImageFormat::B5G5R5A1_UNORM, ezImageFormat::B5G5R5X1_UNORM);
-
-  RegisterConversionFunction(ezImageConversionF32_U8::ConvertImage, ezImageFormat::R32G32B32A32_FLOAT, ezImageFormat::R8G8B8A8_UNORM);
-
-  RegisterConversionFunction(ezImageConversion4444_8888::ConvertImage, ezImageFormat::B4G4R4A4_UNORM, ezImageFormat::B8G8R8A8_UNORM);
-
-  RegisterConversionFunction(ezImageConversion_BC1_BGRA::ConvertImage, ezImageFormat::BC1_UNORM, ezImageFormat::B8G8R8A8_UNORM);
-  RegisterConversionFunction(ezImageConversion_BC2_BGRA::ConvertImage, ezImageFormat::BC2_UNORM, ezImageFormat::B8G8R8A8_UNORM);
-  RegisterConversionFunction(ezImageConversion_BC3_BGRA::ConvertImage, ezImageFormat::BC3_UNORM, ezImageFormat::B8G8R8A8_UNORM);
-  RegisterConversionFunction(ezImageConversion_BC4_R::ConvertImage, ezImageFormat::BC4_UNORM, ezImageFormat::R8_UNORM);
-  RegisterConversionFunction(ezImageConversion_BC5_RG::ConvertImage, ezImageFormat::BC5_UNORM, ezImageFormat::R8G8_UNORM);
-  RegisterConversionFunction(ezImageConversion_BC6_RGBA<false>::ConvertImage, ezImageFormat::BC6H_UF16, ezImageFormat::R32G32B32A32_FLOAT);
-  RegisterConversionFunction(ezImageConversion_BC6_RGBA<true>::ConvertImage, ezImageFormat::BC6H_SF16, ezImageFormat::R32G32B32A32_FLOAT);
-
-  for(ezUInt32 uiFormat = 0; uiFormat < ezImageFormat::NUM_FORMATS; uiFormat++)
-  {
-    ezImageFormat::Enum format = static_cast<ezImageFormat::Enum>(uiFormat);
-    RegisterConversionFunction(CopyImage, format, format);
-  }
-}
-
-void ezImageConversion::Shutdown()
-{
-  delete s_conversionFunctions;
-}
-
-ezImageFormat::Enum
-  ezImageConversion::FindClosestCompatibleFormat(ezImageFormat::Enum format, const ezImageFormat::Enum* pCompatibleFormats, ezUInt32 uiNumCompatible)
-{
-  if(!s_bConversionTableValid)
-  {
-    RebuildConversionTable();
-  }
-
-  ezImageFormat::Enum bestMatch = ezImageFormat::UNKNOWN;
-  float fBestCost = ezMath::BasicType<float>::GetInfinity();
-
-  for(ezUInt32 uiIndex = 0; uiIndex < uiNumCompatible; uiIndex++)
-  {
-    if(s_costTable[GetTableIndex(format, pCompatibleFormats[uiIndex])] < fBestCost)
-    {
-      fBestCost = s_costTable[GetTableIndex(format, pCompatibleFormats[uiIndex])];
-      bestMatch = pCompatibleFormats[uiIndex];
-    }
-  }
-
-  return bestMatch;
+  return ezImageConversion_BC6_RGBA<true>::ConvertImage(source, target);
 }
 

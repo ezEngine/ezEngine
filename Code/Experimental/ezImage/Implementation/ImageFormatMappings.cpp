@@ -1,6 +1,6 @@
-#include <ezFileFormatMappings.h>
+#include <ImageFormatMappings.h>
 
-#include <Foundation/Containers/StaticArray.h>
+#define MAKE_FOURCC(a, b, c, d) (a) | ((b) << 8) | ((c) << 16) | ((d) << 24)
 
 typedef enum DXGI_FORMAT {
   DXGI_FORMAT_UNKNOWN = 0,
@@ -122,7 +122,7 @@ typedef enum DXGI_FORMAT {
   DXGI_FORMAT_FORCE_UINT = 0xffffffffUL
 } DXGI_FORMAT;
 
-ezUInt32 ezFileFormatMappings::ToDxgiFormat(ezImageFormat::Enum format)
+ezUInt32 ezImageFormatMappings::ToDxgiFormat(ezImageFormat::Enum format)
 {
 
 #define CASE_EZ2DXGI(ez) case ezImageFormat::ez: return DXGI_FORMAT_##ez
@@ -232,7 +232,7 @@ ezUInt32 ezFileFormatMappings::ToDxgiFormat(ezImageFormat::Enum format)
   }
 }
 
-ezImageFormat::Enum ezFileFormatMappings::FromDxgiFormat(ezUInt32 uiDxgiFormat)
+ezImageFormat::Enum ezImageFormatMappings::FromDxgiFormat(ezUInt32 uiDxgiFormat)
 {
 #define CASE_DXGI2EZ(ez) case DXGI_FORMAT_##ez: return ezImageFormat::ez
   switch(uiDxgiFormat)
@@ -338,5 +338,55 @@ ezImageFormat::Enum ezFileFormatMappings::FromDxgiFormat(ezUInt32 uiDxgiFormat)
     CASE_DXGI2EZ(BC7_UNORM);
     CASE_DXGI2EZ(BC7_UNORM_SRGB);
     CASE_DXGI2EZ(B4G4R4A4_UNORM);
+  }
+}
+
+ezUInt32 ezImageFormatMappings::ToFourCc(ezImageFormat::Enum format)
+{
+  switch(format)
+  {
+  case ezImageFormat::BC1_UNORM:
+    return MAKE_FOURCC('D', 'X', 'T', '1');
+
+  case ezImageFormat::BC2_UNORM:
+    return MAKE_FOURCC('D', 'X', 'T', '3');
+
+  case ezImageFormat::BC3_UNORM:
+    return MAKE_FOURCC('D', 'X', 'T', '5');
+
+  case ezImageFormat::BC4_UNORM:
+    return MAKE_FOURCC('A', 'T', 'I', '1');
+
+  case ezImageFormat::BC5_UNORM:
+    return MAKE_FOURCC('A', 'T', 'I', '2');
+
+  default:
+    return 0;
+  }
+}
+
+ezImageFormat::Enum ezImageFormatMappings::FromFourCc(ezUInt32 uiFourCc)
+{
+  switch(uiFourCc)
+  {
+  case MAKE_FOURCC('D', 'X', 'T', '1'):
+    return ezImageFormat::BC1_UNORM;
+
+  case MAKE_FOURCC('D', 'X', 'T', '2'):
+  case MAKE_FOURCC('D', 'X', 'T', '3'):
+    return ezImageFormat::BC2_UNORM;
+
+  case MAKE_FOURCC('D', 'X', 'T', '4'):
+  case MAKE_FOURCC('D', 'X', 'T', '5'):
+    return ezImageFormat::BC3_UNORM;
+
+  case MAKE_FOURCC('A', 'T', 'I', '1'):
+    return ezImageFormat::BC4_UNORM;
+
+  case MAKE_FOURCC('A', 'T', 'I', '2'):
+    return ezImageFormat::BC5_UNORM;
+
+  default:
+    return ezImageFormat::UNKNOWN;
   }
 }

@@ -1,9 +1,11 @@
 #pragma once
 
-#include "Foundation\Basics\Types.h"
+#include <Foundation/Basics/Types.h>
 
+/// \brief Enum describing the type of an image format.
 struct ezImageFormatType
 {
+  /// \brief Enum describing the type of an image format.
   enum Enum
   {
     UNKNOWN,
@@ -12,11 +14,10 @@ struct ezImageFormatType
   };
 };
 
+/// \brief Enum describing the encoding format of the pixels of an image.
 struct ezImageFormat
 {
-
-  // Order can be changed and isn't guaranteed to be stable - use the format name for serialization.
-  // Keep UNORM formats as the first entries so they will be returned when doing a lookup from color mask to format enum.
+  /// \brief Enum describing the encoding format of the pixels of an image. 
 	enum Enum
 	{
 		UNKNOWN,
@@ -47,7 +48,7 @@ struct ezImageFormat
 		R32G32_UINT,
 		R32G32_SINT,
 
-    // Composite depth-stencil formats
+    // Pseudo depth-stencil formats
 		R32G8X24_TYPELESS,
 		D32_FLOAT_S8X24_UINT,
 		R32_FLOAT_X8X24_TYPELESS,
@@ -161,16 +162,30 @@ struct ezImageFormat
 		NUM_FORMATS
 	};
 
+  /// \brief Returns the number of bits per pixel of the given format.
 	static ezUInt32 GetBitsPerPixel(Enum format);
+
+  /// \brief If applicable, returns a bitmask for the red component of the format.
   static ezUInt32 GetRedMask(Enum format);
+
+  /// \brief If applicable, returns a bitmask for the green component of the format.
   static ezUInt32 GetGreenMask(Enum format);
+
+  /// \brief If applicable, returns a bitmask for the blue component of the format.
   static ezUInt32 GetBlueMask(Enum format);
+
+  /// \brief If applicable, returns a bitmask for alpha red component of the format.
   static ezUInt32 GetAlphaMask(Enum format);
-  static ezUInt32 GetFourCc(Enum format);
+
+  /// \brief Returns the type of the image format.
   static ezImageFormatType::Enum GetType(Enum format);
 
+  /// \brief Finds a format matching the given component masks.
   static ezImageFormat::Enum FromPixelMask(ezUInt32 uiRedMask, ezUInt32 uiGreenMask, ezUInt32 uiBlueMask, ezUInt32 uiAlphaMask);
-  static ezImageFormat::Enum FromFourCc(ezUInt32 uiFourCc);
 
-  static void Initialize();
+  private:
+    EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(Core, Image);
+
+    static void Startup();
+    static void Shutdown();
 };

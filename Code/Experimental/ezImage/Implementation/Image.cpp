@@ -1,5 +1,6 @@
+#include <Image.h>
+
 #include <Foundation/Basics.h>
-#include "ezImage.h"
 
 void ezImage::AllocateImageData()
 {
