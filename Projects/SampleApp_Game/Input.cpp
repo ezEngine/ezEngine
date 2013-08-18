@@ -1,6 +1,7 @@
 #include "Main.h"
 #include "Application.h"
 
+#include <Foundation/Logging/Log.h>
 #include <Core/Input/InputManager.h>
 #include <InputXBox360/InputDeviceXBox.h>
 #include <InputWindows/InputDeviceWindows.h>
@@ -21,6 +22,8 @@ void SampleGameApp::UpdateInput()
 
   if (ezInputManager::GetInputActionState("Main", "ResetLevel") == ezKeyState::Pressed)
   {
+    ezLog::Info("Reseting Level");
+
     DestroyGameLevel();
     CreateGameLevel();
   }

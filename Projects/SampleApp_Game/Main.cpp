@@ -1,24 +1,30 @@
+#include <ThirdParty/enet/enet.h>
 #include "Main.h"
 #include "Application.h"
 #include <Foundation/Logging/ConsoleWriter.h>
 #include <Foundation/Logging/VisualStudioWriter.h>
 #include <Foundation/Time/Time.h>
 #include <Foundation/Configuration/Startup.h>
+#include <Foundation/Communication/Telemetry.h>
+
 
 SampleGameApp::SampleGameApp()
 {
   m_bActiveRenderLoop = false;
   m_bFullscreen = false;
-  m_uiResolutionX = 950;
-  m_uiResolutionY = 950;
+  m_uiResolutionX = 500;
+  m_uiResolutionY = 500;
   m_szAppName = "ezSampleGame";
 }
 
 void SampleGameApp::AfterEngineInit()
 {
+  ezTelemetry::CreateServer();
+
   // Setup the logging system
   ezLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);
   ezLog::AddLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
+  ezLog::AddLogWriter(ezLogWriter::NetworkBroadcast::LogMessageHandler);
 
   // Map the input keys to actions
   SetupInput();
@@ -30,6 +36,8 @@ void SampleGameApp::AfterEngineInit()
   CreateAppWindow();
 
   ezStartup::StartupEngine();
+
+  
 }
 
 void SampleGameApp::BeforeEngineShutdown()
@@ -42,6 +50,8 @@ void SampleGameApp::BeforeEngineShutdown()
   EZ_DEFAULT_DELETE(m_pThumbstick2);
 
   DestroyGameLevel();
+
+  ezTelemetry::CloseConnection();
 }
 
 ezApplication::ApplicationExecution SampleGameApp::Run()

@@ -2,6 +2,7 @@
 #include <Core/Input/InputManager.h>
 #include <InputWindows/InputDeviceWindows.h>
 #include <gl/GL.h>
+#include <Foundation/Communication/Telemetry.h>
 
 static HWND g_hWnd = NULL;
 static HDC g_hDC = NULL;
