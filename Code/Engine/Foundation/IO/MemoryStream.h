@@ -18,6 +18,9 @@ public:
 
   ~ezMemoryStreamStorage();
 
+  /// \brief Returns the number of bytes that is currently stored.
+  ezUInt32 GetStorageSize() const { return m_Storage.GetCount(); }
+
 private:
   friend class ezMemoryStreamReader;
   friend class ezMemoryStreamWriter;
@@ -33,9 +36,14 @@ class EZ_FOUNDATION_DLL ezMemoryStreamReader : public ezIBinaryStreamReader
 {
 public:
   /// \brief Pass the memory storage object from which to read from.
-  ezMemoryStreamReader(ezMemoryStreamStorage* pStreamStorage);
+  /// Pass NULL if you are going to set the storage stream later via SetStorage().
+  ezMemoryStreamReader(ezMemoryStreamStorage* pStreamStorage = NULL);
 
   ~ezMemoryStreamReader();
+
+  /// \brief Sets the storage object upon which to operate. Resests the read position to zero.
+  /// Pass NULL if you want to detach from any previous storage stream, for example to ensure its reference count gets properly reduced.
+  void SetStorage(ezMemoryStreamStorage* pStreamStorage) { m_pStreamStorage = pStreamStorage; m_uiReadPosition = 0; }
 
   /// \brief Reads either uiBytesToRead or the amount of remaining bytes in the stream into pReadBuffer.
   ///
@@ -66,9 +74,19 @@ class EZ_FOUNDATION_DLL ezMemoryStreamWriter : public ezIBinaryStreamWriter
 {
 public:
   /// \brief Pass the memory storage object to which to write to.
-  ezMemoryStreamWriter(ezMemoryStreamStorage* pStreamStorage);
+  ezMemoryStreamWriter(ezMemoryStreamStorage* pStreamStorage = NULL);
 
   ~ezMemoryStreamWriter();
+
+  /// \brief Sets the storage object upon which to operate. Resests the write position to the end of the storage stream.
+  /// Pass NULL if you want to detach from any previous storage stream, for example to ensure its reference count gets properly reduced.
+  void SetStorage(ezMemoryStreamStorage* pStreamStorage)
+  { 
+    m_pStreamStorage = pStreamStorage; 
+    m_uiWritePosition = 0; 
+    if (m_pStreamStorage) 
+      m_uiWritePosition = m_pStreamStorage->GetStorageSize(); 
+  }
 
   /// \brief Copies uiBytesToWrite from pWriteBuffer into the memory stream.
   ///

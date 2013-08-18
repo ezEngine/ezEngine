@@ -17,6 +17,16 @@ public:
   {
   }
 
+  ezRefCounted(const ezRefCounted& rhs) : m_iRefCount(0)
+  {
+    // do not copy the ref count
+  }
+
+  void operator=(const ezRefCounted& rhs)
+  {
+    // do not copy the ref count
+  }
+
   /// \brief Increments the reference counter
   inline void AddRef()
   {
@@ -63,6 +73,13 @@ public:
     AddReferenceIfValid();
   }
 
+  ezScopedRefPointer(const ezScopedRefPointer<T>& Other)
+  {
+    m_pReferencedObject = Other.m_pReferencedObject;
+
+    AddReferenceIfValid();
+  }
+
   /// \brief Destructor - releases the reference on the refcounted object (if there is one).
   ~ezScopedRefPointer()
   {
@@ -98,14 +115,12 @@ public:
   /// \brief Returns the referenced object (may be NULL).
   operator const T*() const
   {
-    EZ_ASSERT(m_pReferencedObject != NULL, "Pointer is NULL.");
     return m_pReferencedObject;
   }
 
   /// \brief Returns the referenced object (may be NULL).
   operator T*()
   {
-    EZ_ASSERT(m_pReferencedObject != NULL, "Pointer is NULL.");
     return m_pReferencedObject;
   }
 

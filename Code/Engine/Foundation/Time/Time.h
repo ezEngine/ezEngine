@@ -73,16 +73,16 @@ public:
   explicit ezTime(double fTime);
 
   /// \brief Initializes the ezTime instance from a known nanoseconds value.
-  explicit ezTime(const NanoSeconds& nanoSeconds);
+  ezTime(const NanoSeconds& nanoSeconds);
 
   /// \brief Initializes the ezTime instance from a known microseconds value.
-  explicit ezTime(const MicroSeconds& microSeconds);
+  ezTime(const MicroSeconds& microSeconds);
 
   /// \brief Initializes the ezTime instance from a known milliseconds value.
-  explicit ezTime(const MilliSeconds& milliSeconds);
+  ezTime(const MilliSeconds& milliSeconds);
 
   /// \brief Initializes the ezTime instance from a known seconds value.
-  explicit ezTime(const Seconds& seconds);
+  ezTime(const Seconds& seconds);
   
   /// \brief Sets the value of the instance from a known nanoseconds value.
   void Set(const NanoSeconds& seconds);
@@ -126,6 +126,13 @@ public:
 
   /// \brief Returns the sum: "this instance + other"
   ezTime operator + (const ezTime& other) const;
+
+  bool operator< (const ezTime& rhs) const { return m_fTime <  rhs.m_fTime; }
+  bool operator<=(const ezTime& rhs) const { return m_fTime <= rhs.m_fTime; }
+  bool operator> (const ezTime& rhs) const { return m_fTime >  rhs.m_fTime; }
+  bool operator>=(const ezTime& rhs) const { return m_fTime >= rhs.m_fTime; }
+  bool operator==(const ezTime& rhs) const { return m_fTime == rhs.m_fTime; }
+  bool operator!=(const ezTime& rhs) const { return m_fTime != rhs.m_fTime; }
 
 private:
 

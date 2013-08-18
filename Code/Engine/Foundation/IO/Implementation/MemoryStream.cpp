@@ -20,7 +20,6 @@ ezMemoryStreamStorage::~ezMemoryStreamStorage()
 ezMemoryStreamReader::ezMemoryStreamReader(ezMemoryStreamStorage* pStreamStorage)
   : m_pStreamStorage(pStreamStorage), m_uiReadPosition(0)
 {
-  EZ_ASSERT_API(pStreamStorage != NULL, "The memory stream reader needs a valid memory storage object!");
 }
 
 ezMemoryStreamReader::~ezMemoryStreamReader()
@@ -29,6 +28,8 @@ ezMemoryStreamReader::~ezMemoryStreamReader()
 
 ezUInt64 ezMemoryStreamReader::ReadBytes(void* pReadBuffer, ezUInt64 uiBytesToRead)
 {
+  EZ_ASSERT_API(m_pStreamStorage != NULL, "The memory stream reader needs a valid memory storage object!");
+
   const ezUInt32 uiBytes = ezMath::Min<ezUInt32>(static_cast<ezUInt32>(uiBytesToRead), m_pStreamStorage->m_Storage.GetCount() - m_uiReadPosition);
 
   if (uiBytes == 0)
@@ -44,6 +45,8 @@ ezUInt64 ezMemoryStreamReader::ReadBytes(void* pReadBuffer, ezUInt64 uiBytesToRe
 
 ezUInt64 ezMemoryStreamReader::SkipBytes(ezUInt64 uiBytesToSkip)
 {
+  EZ_ASSERT_API(m_pStreamStorage != NULL, "The memory stream reader needs a valid memory storage object!");
+
   const ezUInt32 uiBytes = ezMath::Min<ezUInt32>(static_cast<ezUInt32>(uiBytesToSkip), m_pStreamStorage->m_Storage.GetCount() - m_uiReadPosition);
 
   m_uiReadPosition += uiBytes;
@@ -59,6 +62,8 @@ void ezMemoryStreamReader::SetReadPosition(ezUInt32 uiReadPosition)
 
 ezUInt32 ezMemoryStreamReader::GetByteCount() const
 {
+  EZ_ASSERT_API(m_pStreamStorage != NULL, "The memory stream reader needs a valid memory storage object!");
+
   return m_pStreamStorage->m_Storage.GetCount();
 }
 
@@ -67,7 +72,6 @@ ezUInt32 ezMemoryStreamReader::GetByteCount() const
 ezMemoryStreamWriter::ezMemoryStreamWriter(ezMemoryStreamStorage* pStreamStorage)
   : m_pStreamStorage(pStreamStorage), m_uiWritePosition(0)
 {
-  EZ_ASSERT_API(pStreamStorage != NULL, "The memory stream writer needs a valid memory storage object!");
 }
 
 ezMemoryStreamWriter::~ezMemoryStreamWriter()
@@ -76,6 +80,8 @@ ezMemoryStreamWriter::~ezMemoryStreamWriter()
 
 ezResult ezMemoryStreamWriter::WriteBytes(const void* pWriteBuffer, ezUInt64 uiBytesToWrite)
 {
+  EZ_ASSERT_API(m_pStreamStorage != NULL, "The memory stream writer needs a valid memory storage object!");
+
   if(uiBytesToWrite == 0)
     return EZ_SUCCESS;
 
@@ -100,12 +106,16 @@ ezResult ezMemoryStreamWriter::WriteBytes(const void* pWriteBuffer, ezUInt64 uiB
 
 void ezMemoryStreamWriter::SetWritePosition(ezUInt32 uiWritePosition)
 {
+  EZ_ASSERT_API(m_pStreamStorage != NULL, "The memory stream writer needs a valid memory storage object!");
+
   EZ_ASSERT_API(uiWritePosition <= GetByteCount(), "Write position must be between 0 and GetByteCount()!");
   m_uiWritePosition = uiWritePosition;
 }
 
 ezUInt32 ezMemoryStreamWriter::GetByteCount() const
 {
+  EZ_ASSERT_API(m_pStreamStorage != NULL, "The memory stream writer needs a valid memory storage object!");
+
   return m_pStreamStorage->m_Storage.GetCount();
 }
 
