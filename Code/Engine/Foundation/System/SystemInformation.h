@@ -33,6 +33,11 @@ public:
     return m_b64BitOS;
   }
 
+  inline const char* GetPlatformName() const
+  {
+    return m_szPlatformName;
+  }
+
 public:
 
   /// \brief Allows access to the current system configuration.
@@ -50,6 +55,8 @@ private:
   ezUInt32 m_uiCPUCoreCount;
 
   bool m_b64BitOS; 
+
+  const char* m_szPlatformName;
 
 
 

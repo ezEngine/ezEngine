@@ -30,4 +30,6 @@ void ezSystemInformation::Initialize()
 #else
   s_SystemInformation.m_b64BitOS = false;
 #endif
+
+  s_SystemInformation.m_szPlatformName = "OSX";
 }

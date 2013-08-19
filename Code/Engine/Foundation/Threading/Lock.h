@@ -17,5 +17,9 @@ public:
   }
 
 private:
+  ezLock();
+  ezLock(const ezLock<T>& rhs);
+  void operator= (const ezLock<T>& rhs);
+
   T& m_lock;
 };

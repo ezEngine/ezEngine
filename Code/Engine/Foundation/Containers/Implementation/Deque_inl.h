@@ -239,14 +239,14 @@ void ezDequeBase<T, Construct>::CompactIndexArray(ezUInt32 uiMinChunksToKeep)
     {
       if (m_pChunks[i])
       {
-        EZ_ASSERT(iPos < 16 || ((iPos >= 16 + uiMinChunksToKeep) && (iPos < uiChunksToKeep)), "Implementation error.");
+        EZ_ASSERT(iPos < 16 || ((iPos >= 16 + uiRequiredChunks) && (iPos < uiChunksToKeep)), "Implementation error.");
 
         pNewChunkArray[iPos] = m_pChunks[i];
         m_pChunks[i] = NULL;
         ++iPos;
 
         if (iPos == 16)
-          iPos += uiMinChunksToKeep;
+          iPos += uiRequiredChunks;
       }
     }
 
@@ -254,14 +254,14 @@ void ezDequeBase<T, Construct>::CompactIndexArray(ezUInt32 uiMinChunksToKeep)
     {
       if (m_pChunks[i])
       {
-        EZ_ASSERT(iPos < 16 || ((iPos >= 16 + uiMinChunksToKeep) && (iPos < uiChunksToKeep)), "Implementation error.");
+        EZ_ASSERT(iPos < 16 || ((iPos >= 16 + uiRequiredChunks) && (iPos < uiChunksToKeep)), "Implementation error.");
 
         pNewChunkArray[iPos] = m_pChunks[i];
         m_pChunks[i] = NULL;
         ++iPos;
 
         if (iPos == 16)
-          iPos += uiMinChunksToKeep;
+          iPos += uiRequiredChunks;
       }
     }
   }

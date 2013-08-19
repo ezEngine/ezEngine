@@ -66,4 +66,6 @@ void ezSystemInformation::Initialize()
 
 
   s_SystemInformation.m_b64BitOS = Is64BitWindows();
+
+  s_SystemInformation.m_szPlatformName = "Windows";
 }
