@@ -1,5 +1,7 @@
 #include <Foundation/PCH.h>
 #include <Foundation/Basics/Assert.h>
+#include <Foundation/Communication/Telemetry.h>
+#include <Foundation/Threading/ThreadUtils.h>
 
 bool ezFailedCheck(const char* szSourceFile, ezUInt32 uiLine, const char* szFunction, const char* szExpression, const char* szErrorMsg, ...)
 {
@@ -12,7 +14,25 @@ bool ezFailedCheck(const char* szSourceFile, ezUInt32 uiLine, const char* szFunc
 
   va_end (ap);
 
-  printf("%s(%u) : error 13: Expression '%s' failed: %s\n", szSourceFile, uiLine, szExpression, szMsg);
+  printf("%s(%u): Expression '%s' failed: %s\n", szSourceFile, uiLine, szExpression, szMsg);
+
+  ezTelemetryMessage msg;
+  msg.SetMessageID('APP', 'ASRT');
+  msg.GetWriter() << szSourceFile;
+  msg.GetWriter() << uiLine;
+  msg.GetWriter() << szFunction;
+  msg.GetWriter() << szExpression;
+  msg.GetWriter() << szMsg;
+
+  ezTelemetry::Broadcast(ezTelemetry::Reliable, msg);
+
+  // messages might not arrive, if the network does not get enough time to transmit them
+  // since we are crashing the application in (half) 'a second', we need to make sure the network traffic has indeed been sent
+  for (ezUInt32 i = 0; i < 5; ++i)
+  {
+    ezThreadUtils::Sleep(100);
+    ezTelemetry::UpdateNetwork();
+  }
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)

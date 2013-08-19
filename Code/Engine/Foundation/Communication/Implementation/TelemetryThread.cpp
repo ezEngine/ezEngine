@@ -58,6 +58,7 @@ ezMutex& ezTelemetry::GetTelemetryMutex()
 {
   return s_TelemetryMutex;
 }
+
 void ezTelemetry::StartTelemetryThread()
 {
   if (!g_pBroadcastThread)

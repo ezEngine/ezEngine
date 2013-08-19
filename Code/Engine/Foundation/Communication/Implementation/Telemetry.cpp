@@ -93,7 +93,11 @@ void ezTelemetry::UpdateNetwork()
         {
           s_bConnectedToServer = false;
 
-          // try to reconnect
+          // First wait a bit to ensure that the Server could shut down, if this was a legitimate disconnect
+          ezThreadUtils::Sleep(1000);
+
+          // Now try to reconnect. If the Server still exists, fine, connect to that.
+          // If it does not exist anymore, this will connect to the next best Server that can be found.
           g_pConnectionToServer = enet_host_connect(g_pHost, &g_pServerAddress, 2, 'EZBC');
         }
         else
@@ -162,7 +166,7 @@ ezResult ezTelemetry::RetrieveMessage(ezUInt32 uiSystemID, ezTelemetryMessage& o
 void ezTelemetry::InitializeAsServer()
 {
   g_pServerAddress.host = ENET_HOST_ANY;
-  g_pServerAddress.port = 1234;
+  g_pServerAddress.port = s_uiPort;
 
   g_pHost = enet_host_create(&g_pServerAddress, 32, 2, 0, 0);
 
@@ -196,7 +200,7 @@ ezResult ezTelemetry::InitializeAsClient(const char* szConnectTo)
   else
     enet_address_set_host(&g_pServerAddress, szConnectTo);
 
-  g_pServerAddress.port = 1234;
+  g_pServerAddress.port = s_uiPort;
 
   g_pConnectionToServer = NULL;
   g_pConnectionToServer = enet_host_connect(g_pHost, &g_pServerAddress, 2, 'EZBC');
@@ -269,7 +273,7 @@ void ezTelemetry::Send(TransmitMode tm, ezUInt32 uiSystemID, ezUInt32 uiMsgID, c
     // when we do have a connection, just send the message out
 
     ezHybridArray<ezUInt8, 64> TempData;
-    TempData.SetCount(sizeof(ezUInt32) * 2 + uiDataBytes);
+    TempData.SetCount(8 + uiDataBytes);
     *((ezUInt32*) &TempData[0]) = uiSystemID;
     *((ezUInt32*) &TempData[4]) = uiMsgID;
 
@@ -348,14 +352,12 @@ void ezTelemetry::CloseConnection()
   if (g_pHost)
   {
     // send all peers that we are disconnecting
-    for (ezUInt32 p = 0; p < g_pHost->connectedPeers; ++p)
-    {
-      enet_peer_disconnect(&g_pHost->peers[p], 0);
+    for (ezUInt32 i = (ezUInt32) g_pHost->connectedPeers; i > 0; --i)
+      enet_peer_disconnect(&g_pHost->peers[i - 1], 0);
 
-      // process the network messages (e.g. send the disconnect messages)
-      UpdateNetwork();
-      ezThreadUtils::Sleep(10);
-    }
+    // process the network messages (e.g. send the disconnect messages)
+    UpdateNetwork();
+    ezThreadUtils::Sleep(10);
   }
 
   // finally close the network connection

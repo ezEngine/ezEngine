@@ -27,15 +27,17 @@ public:
     int iArgs = GetArgumentCount();
     char** cArgs = (char**) GetArgumentsArray();
 
-    ezTelemetry::AcceptMessagesForSystem('LOG', true);
-    ezTelemetry::AcceptMessagesForSystem('MEM', true);
+    QApplication app(iArgs, cArgs);
+    app.setApplicationName("ezInspector");
+    ezMainWindow MainWindow;
+
+    ezTelemetry::AcceptMessagesForSystem('LOG', true, ezMainWindow::ProcessTelemetry_Log, &MainWindow);
+    ezTelemetry::AcceptMessagesForSystem('MEM', true, ezMainWindow::ProcessTelemetry_Memory, &MainWindow);
+    ezTelemetry::AcceptMessagesForSystem('APP', true, ezMainWindow::ProcessTelemetry_General, &MainWindow);
 
     ezTelemetry::ConnectToServer();
 
-    QApplication app(iArgs, cArgs);
-    app.setApplicationName("ezInspector");
-    ezMainWindow mainWindow;
-    mainWindow.show();
+    MainWindow.show();
     SetReturnCode(app.exec());
 
     ezTelemetry::CloseConnection();

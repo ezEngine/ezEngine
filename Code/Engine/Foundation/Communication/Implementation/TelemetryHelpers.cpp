@@ -1,3 +1,4 @@
+#include <Foundation/PCH.h>
 #include <Foundation/Communication/Telemetry.h>
 #include <Foundation/Threading/Lock.h>
 #include <Foundation/Threading/Mutex.h>
@@ -28,9 +29,16 @@ void ezTelemetry::QueueOutgoingMessage(TransmitMode tm, ezUInt32 uiSystemID, ezU
 
 void ezTelemetry::FlushOutgoingQueues()
 {
+  static bool bRecursion = false;
+
+  if (bRecursion)
+    return;
+
   // if there is no connection to anyone (yet), don't do anything
   if (!IsConnectedToOther())
     return;
+
+  bRecursion = true;
 
   ezLock<ezMutex> Lock(GetTelemetryMutex());
 
@@ -51,6 +59,8 @@ void ezTelemetry::FlushOutgoingQueues()
 
     it.Value().m_OutgoingQueue.Clear();
   }
+
+  bRecursion = false;
 }
 
 
@@ -59,18 +69,36 @@ ezResult ezTelemetry::ConnectToServer(const char* szConnectTo)
   return OpenConnection(Client, szConnectTo);
 }
 
-ezResult ezTelemetry::CreateServer()
+void ezTelemetry::CreateServer()
 {
-  return OpenConnection(Server);
+  EZ_VERIFY(OpenConnection(Server) == EZ_SUCCESS, "Opening a connection as a server should not be possible to fail.");
 }
 
-void ezTelemetry::AcceptMessagesForSystem(ezUInt32 uiSystemID, bool bAccept)
+void ezTelemetry::AcceptMessagesForSystem(ezUInt32 uiSystemID, bool bAccept, ProcessMessagesCallback Callback, void* pPassThrough)
 {
+  ezLock<ezMutex> Lock(GetTelemetryMutex());
+
   s_SystemMessages[uiSystemID].m_bAcceptMessages = bAccept;
+  s_SystemMessages[uiSystemID].m_Callback = Callback;
+  s_SystemMessages[uiSystemID].m_pPassThrough = pPassThrough;
+}
+
+void ezTelemetry::CallProcessMessagesCallbacks()
+{
+  ezLock<ezMutex> Lock(GetTelemetryMutex());
+
+  // Call each callback to process the incoming messages
+  for (ezMap<ezUInt32, ezTelemetry::MessageQueue, ezCompareHelper<ezUInt32>, ezStaticAllocatorWrapper >::Iterator it = s_SystemMessages.GetIterator(); it.IsValid(); ++it)
+  {
+    if (!it.Value().m_IncomingQueue.IsEmpty() && it.Value().m_Callback)
+      it.Value().m_Callback(it.Value().m_pPassThrough);
+  }
 }
 
 void ezTelemetry::SetOutgoingQueueSize(ezUInt32 uiSystemID, ezUInt16 uiMaxQueued)
 {
+  ezLock<ezMutex> Lock(GetTelemetryMutex());
+
   s_SystemMessages[uiSystemID].m_uiMaxQueuedOutgoing = uiMaxQueued;
 }
 
@@ -134,21 +162,3 @@ void ezTelemetry::Send(TransmitMode tm, ezTelemetryMessage& msg)
 }
 
 
-namespace ezLogWriter
-{
-  void NetworkBroadcast::LogMessageHandler(const ezLog::LoggingEvent& EventData, void* pPassThrough)
-  {
-    ezTelemetryMessage msg;
-    msg.SetMessageID('LOG', 'MSG');
-
-    msg.GetWriter() << (ezUInt16) EventData.m_EventType;
-    msg.GetWriter() << (ezUInt16) EventData.m_uiIndentation;
-    msg.GetWriter() << EventData.m_szTag;
-    msg.GetWriter() << EventData.m_szText;
-    //ezUInt32 len = ezStringUtils::GetStringElementCount(EventData.m_szText) + 1;
-    //msg.GetWriter().WriteBytes(&len, 4);
-    //msg.GetWriter().WriteBytes(EventData.m_szText, len);
-
-    ezTelemetry::Broadcast(ezTelemetry::Reliable, msg);
-  }
-}

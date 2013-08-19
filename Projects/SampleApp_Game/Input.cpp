@@ -28,6 +28,13 @@ void SampleGameApp::UpdateInput()
     CreateGameLevel();
   }
 
+  if (ezInputManager::GetInputActionState("Main", "Assert") == ezKeyState::Pressed)
+  {
+    ezLog::Info("Asserting");
+
+    EZ_ASSERT(false, "This is safe to ignore.");
+  }
+
   if (ezInputManager::GetInputActionState("Main", "ToggleThumbstick") == ezKeyState::Pressed)
   {
     m_pThumbstick->SetEnabled(!m_pThumbstick->IsEnabled());
@@ -63,6 +70,7 @@ void SampleGameApp::SetupInput()
   RegisterInputAction("Main", "CloseApp", ezInputSlot_KeyEscape);
   RegisterInputAction("Main", "ResetLevel", ezInputSlot_KeyReturn);
   RegisterInputAction("Main", "ToggleThumbstick", ezInputSlot_KeyT);
+  RegisterInputAction("Main", "Assert", ezInputSlot_KeyNumpadEnter);
 
   // setup all controllers
   for (ezInt32 iPlayer = 0; iPlayer < MaxPlayers; ++iPlayer)
