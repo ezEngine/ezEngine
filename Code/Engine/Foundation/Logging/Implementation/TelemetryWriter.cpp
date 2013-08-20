@@ -9,7 +9,7 @@ namespace ezLogWriter
     ezTelemetryMessage msg;
     msg.SetMessageID('LOG', 'MSG');
 
-    msg.GetWriter() << (ezUInt16) EventData.m_EventType;
+    msg.GetWriter() << (ezInt16) EventData.m_EventType;
     msg.GetWriter() << (ezUInt16) EventData.m_uiIndentation;
     msg.GetWriter() << EventData.m_szTag;
     msg.GetWriter() << EventData.m_szText;

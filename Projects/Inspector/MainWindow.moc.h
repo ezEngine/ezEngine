@@ -23,6 +23,10 @@ public:
   static void ProcessTelemetry_Log(void* pPassThrough);
   static void ProcessTelemetry_Memory(void* pPassThrough);
   static void ProcessTelemetry_General(void* pPassThrough);
+
+public:
+  void SaveLayout (const char* szFile) const;
+  void LoadLayout (const char* szFile);
 };
 
 

@@ -16,17 +16,23 @@ void ezMainWindow::ProcessTelemetry_Log(void* pPassThrough)
   {
     bChange = true;
 
-    ezUInt16 uiEventType = 0;
+    ezInt16 iEventType = 0;
     ezUInt16 uiIndentation = 0;
     ezString sTag, sText;
 
-    Msg.GetReader() >> uiEventType;
+    Msg.GetReader() >> iEventType;
     Msg.GetReader() >> uiIndentation;
     Msg.GetReader() >> sTag;
     Msg.GetReader() >> sText;
 
     ezStringBuilder sFormat;
 
+    if (iEventType == ezLog::EventType::BeginGroup)
+      sFormat.Format("%*s>> %s", uiIndentation * 4, "", sText.GetData());
+    else
+    if (iEventType == ezLog::EventType::EndGroup)
+      sFormat.Format("%*s<< %s", uiIndentation * 4, "", sText.GetData());
+    else
     if (sTag.IsEmpty())
       sFormat.Format("%*s%s", uiIndentation * 4, "", sText.GetData());
     else
@@ -35,13 +41,13 @@ void ezMainWindow::ProcessTelemetry_Log(void* pPassThrough)
     QListWidgetItem* pItem = new QListWidgetItem;
     pItem->setText(sFormat.GetData());
 
-    switch(uiEventType)
+    switch(iEventType)
     {
     case ezLog::EventType::BeginGroup:
-      pItem->setTextColor(QColor::fromRgb(100, 0, 255));
+      pItem->setTextColor(QColor::fromRgb(160, 90, 255));
       break;
     case ezLog::EventType::EndGroup:
-      pItem->setTextColor(QColor::fromRgb(100, 0, 255));
+      pItem->setTextColor(QColor::fromRgb(110, 60, 185));
       break;
     case ezLog::EventType::FlushToDisk:
       pItem->setText(">> Log Flush To Disk <<");
@@ -63,7 +69,7 @@ void ezMainWindow::ProcessTelemetry_Log(void* pPassThrough)
       pItem->setTextColor(QColor::fromRgb(0, 128, 0));
       break;
     case ezLog::EventType::InfoMsg:
-      pItem->setTextColor(QColor::fromRgb(0, 0, 0));
+      //pItem->setTextColor(QColor::fromRgb(0, 0, 0));
       break;
     case ezLog::EventType::DevMsg:
       pItem->setTextColor(QColor::fromRgb(128, 128, 128));
