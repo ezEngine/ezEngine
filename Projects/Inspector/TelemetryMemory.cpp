@@ -1,11 +1,11 @@
-#include <Inspector/MainWindow.moc.h>
+#include <Inspector/MemoryWidget.moc.h>
 #include <Foundation/Communication/Telemetry.h>
 #include <qlistwidget.h>
 #include <qinputdialog.h>
 
-void ezMainWindow::ProcessTelemetry_Memory(void* pPassThrough)
+void ezMemoryWidget::ProcessTelemetry_Memory(void* pPassThrough)
 {
-  ezMainWindow* pWindow = (ezMainWindow*) pPassThrough;
+  ezMemoryWidget* pWindow = (ezMemoryWidget*) pPassThrough;
 
   ezTelemetryMessage Msg;
 

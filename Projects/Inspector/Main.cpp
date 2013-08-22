@@ -1,6 +1,9 @@
 #include <Core/Application/Application.h>
 #include <Foundation/Communication/Telemetry.h>
 #include <Inspector/MainWindow.moc.h>
+#include <Inspector/LogWidget.moc.h>
+#include <Inspector/GeneralWidget.moc.h>
+#include <Inspector/MemoryWidget.moc.h>
 #include <QApplication>
 #include <qstylefactory.h>
 
@@ -72,16 +75,35 @@ public:
 
     ezMainWindow MainWindow;
 
-    QMainWindow* pWindow = new QMainWindow(&MainWindow);
-    MainWindow.setCentralWidget(pWindow);
+    QWidget* pCenter = new QWidget();
+    pCenter->setMinimumHeight(0);
+    pCenter->setMaximumHeight(0);
+    pCenter->setFixedHeight(0);
+    pCenter->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
+    MainWindow.setCentralWidget(pCenter);
 
-    ezTelemetry::AcceptMessagesForSystem('LOG', true, ezMainWindow::ProcessTelemetry_Log, &MainWindow);
-    ezTelemetry::AcceptMessagesForSystem('MEM', true, ezMainWindow::ProcessTelemetry_Memory, &MainWindow);
-    ezTelemetry::AcceptMessagesForSystem('APP', true, ezMainWindow::ProcessTelemetry_General, &MainWindow);
+    ezLogWidget* pLogWidget = new ezLogWidget(&MainWindow);
+    ezMemoryWidget* pMemoryWidget = new ezMemoryWidget(&MainWindow);
+    ezGeneralWidget* pGeneralWidget = new ezGeneralWidget(&MainWindow);
+
+    MainWindow.addDockWidget(Qt::BottomDockWidgetArea, pGeneralWidget);
+    MainWindow.splitDockWidget(pGeneralWidget, pLogWidget, Qt::Horizontal);
+    MainWindow.splitDockWidget(pGeneralWidget, pMemoryWidget, Qt::Vertical);
+
+    //pCenter->setMinimumHeight(0);
+    //pCenter->setMaximumHeight(100);
+    //pCenter->setFixedHeight(100);
+    //pCenter->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
+    //pCenter->resize(pCenter->width(), 100);
+
+
+    ezTelemetry::AcceptMessagesForSystem('LOG', true, ezLogWidget::ProcessTelemetry_Log, pLogWidget);
+    ezTelemetry::AcceptMessagesForSystem('MEM', true, ezMemoryWidget::ProcessTelemetry_Memory, pMemoryWidget);
+    ezTelemetry::AcceptMessagesForSystem('APP', true, ezGeneralWidget::ProcessTelemetry_General, pGeneralWidget);
 
     ezTelemetry::ConnectToServer();
 
-    MainWindow.LoadLayout("layout.qt");
+    //MainWindow.LoadLayout("layout.qt");
 
     MainWindow.show();
     SetReturnCode(app.exec());

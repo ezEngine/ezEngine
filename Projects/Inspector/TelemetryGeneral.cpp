@@ -1,12 +1,13 @@
 #include <Inspector/MainWindow.moc.h>
+#include <Inspector/GeneralWidget.moc.h>
 #include <Foundation/Communication/Telemetry.h>
 #include <qlistwidget.h>
 #include <qinputdialog.h>
 #include <qmessagebox.h>
 
-void ezMainWindow::ProcessTelemetry_General(void* pPassThrough)
+void ezGeneralWidget::ProcessTelemetry_General(void* pPassThrough)
 {
-  ezMainWindow* pWindow = (ezMainWindow*) pPassThrough;
+  ezGeneralWidget* pWindow = (ezGeneralWidget*) pPassThrough;
 
   ezTelemetryMessage Msg;
 
@@ -57,4 +58,18 @@ void ezMainWindow::ProcessTelemetry_General(void* pPassThrough)
     }
   }
 }
+
+void ezGeneralWidget::on_ButtonConnect_clicked()
+{
+  bool bOk = false;
+  QString sRes = QInputDialog::getText(this, "Input Server Name or IP Address", "", QLineEdit::Normal, "", &bOk);
+
+  if (!bOk)
+    return;
+
+  if (ezTelemetry::ConnectToServer(sRes.toUtf8().data()) == EZ_SUCCESS)
+  {
+  }
+}
+
 

@@ -1,11 +1,12 @@
 #include <Inspector/MainWindow.moc.h>
+#include <Inspector/LogWidget.moc.h>
 #include <Foundation/Communication/Telemetry.h>
 #include <qlistwidget.h>
 #include <qinputdialog.h>
 
-void ezMainWindow::ProcessTelemetry_Log(void* pPassThrough)
+void ezLogWidget::ProcessTelemetry_Log(void* pPassThrough)
 {
-  ezMainWindow* pWindow = (ezMainWindow*) pPassThrough;
+  ezLogWidget* pWindow = (ezLogWidget*) pPassThrough;
 
   ezTelemetryMessage Msg;
 

@@ -15,12 +15,9 @@ public:
   void paintEvent(QPaintEvent* event) EZ_OVERRIDE;
 
 private slots:
-  virtual void on_ButtonClearLog_clicked();
-  virtual void on_ButtonConnect_clicked();
 
 public:
 
-  static void ProcessTelemetry_Log(void* pPassThrough);
   static void ProcessTelemetry_Memory(void* pPassThrough);
   static void ProcessTelemetry_General(void* pPassThrough);
 
