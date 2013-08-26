@@ -4,6 +4,7 @@
 
 #include <Foundation/Basics.h>
 #include <Foundation/Basics/Types/ArrayPtr.h>
+#include <Foundation/Utilities/EnumerableClass.h>
 
 #ifdef new
   #undef new
@@ -14,11 +15,15 @@
 #endif
 
 /// \brief Interface for all memory allocators including helper methods.
-class EZ_FOUNDATION_DLL ezIAllocator
+class EZ_FOUNDATION_DLL ezIAllocator : public ezEnumerable<ezIAllocator>
 {
+  EZ_DECLARE_ENUMERABLE_CLASS(ezIAllocator);
+
 public:
   struct Stats
   {
+    EZ_FORCE_INLINE Stats() { ezMemoryUtils::ZeroFill(this); }
+
     ezUInt64 m_uiNumAllocations;      ///< total number of allocations
     ezUInt64 m_uiNumDeallocations;    ///< total number of deallocations
     ezUInt64 m_uiNumLiveAllocations;  ///< total number of live allocations
@@ -101,3 +106,6 @@ protected:
 ///  #define new DISALLOWED_USAGE_OF_NEW
 ///  #define delete DISALLOWED_USAGE_OF_DELETE
 ///#endif
+
+/// \brief Operator to allow accumulating stats of different allocators.
+ezIAllocator::Stats operator+ (const ezIAllocator::Stats& lhs, const ezIAllocator::Stats& rhs);

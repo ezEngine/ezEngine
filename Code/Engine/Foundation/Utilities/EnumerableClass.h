@@ -91,4 +91,4 @@ protected:
 #define EZ_ENUMERABLE_CLASS_IMPLEMENTATION(self) \
   ezEnumerable<self>* self::s_pFirstInstance = NULL; \
   ezEnumerable<self>* self::s_pLastInstance = NULL; \
-  ezUInt32 self::s_uiInstances = 0;
+  ezUInt32 self::s_uiInstances = 0

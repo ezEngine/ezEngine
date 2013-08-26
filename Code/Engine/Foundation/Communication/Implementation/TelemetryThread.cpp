@@ -15,12 +15,26 @@ public:
 
   volatile bool m_bKeepRunning;
 
-  void BroadcastMemoryStats(ezIAllocator* pAllocator)
+  void BroadcastMemoryStats()
   {
-    ezIAllocator::Stats s;
-    pAllocator->GetStats(s);
+    ezIAllocator* pAllocator = ezIAllocator::GetFirstInstance();
 
-    ezTelemetry::Broadcast(ezTelemetry::Unreliable, 'MEM', 'STAT', &s, sizeof(ezIAllocator::Stats));
+    while (pAllocator)
+    {
+      ezIAllocator::Stats s;
+      pAllocator->GetStats(s);
+
+      ezTelemetryMessage msg;
+      msg.SetMessageID('MEM', 'STAT');
+      msg.GetWriter() << pAllocator->GetName();
+      msg.GetWriter() << s;
+
+      ezTelemetry::Broadcast(ezTelemetry::Unreliable, msg);
+
+      pAllocator = pAllocator->GetNextInstance();
+    }
+
+    
   }
 
 private:
@@ -30,7 +44,7 @@ private:
 
     while(m_bKeepRunning)
     {
-      BroadcastMemoryStats(ezFoundation::GetDefaultAllocator());
+      BroadcastMemoryStats();
 
       ezTelemetry::UpdateNetwork();
 

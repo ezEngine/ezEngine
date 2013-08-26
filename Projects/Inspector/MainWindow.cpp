@@ -100,6 +100,69 @@ void ezMainWindow::LoadLayout (const char* szFile)
 
 void ezMainWindow::paintEvent(QPaintEvent* event)
 {
+  bool bResetStats = false;
+
+  {
+    static ezUInt32 uiServerID = 0;
+    static bool bConnected = false;
+
+    if (ezTelemetry::IsConnectedToServer())
+    {
+      bConnected = true;
+
+      if ((uiServerID == 0) && (ezTelemetry::GetServerID() != 0))
+      {
+        uiServerID = ezTelemetry::GetServerID();
+        bResetStats = true;
+
+        ezStringBuilder s;
+        s.Format("Connected to Server with ID %i", uiServerID);
+
+        ezMainWindow::s_pWidget->Log(s.GetData());
+
+        ezTelemetry::SendToServer('APP', 'RQDT');
+      }
+
+      if (uiServerID != ezTelemetry::GetServerID())
+      {
+        uiServerID = ezTelemetry::GetServerID();
+        bResetStats = true;
+
+        ezStringBuilder s;
+        s.Format("Connected to Server with ID %i", uiServerID);
+
+        ezMainWindow::s_pWidget->Log(s.GetData());
+      }
+      else
+      if (!bConnected)
+      {
+        ezMainWindow::s_pWidget->Log("Reconnected to Server.");
+      }
+    }
+    else
+    {
+      if (bConnected)
+      {
+        ezMainWindow::s_pWidget->Log("Lost Connection to Server.");
+      }
+
+      bConnected = false;
+    }
+  }
+
+  if (bResetStats)
+  {
+    if (ezLogWidget::s_pWidget)
+      ezLogWidget::s_pWidget->ResetStats();
+
+    if (ezGeneralWidget::s_pWidget)
+      ezGeneralWidget::s_pWidget->ResetStats();
+
+    if (ezMemoryWidget::s_pWidget)
+      ezMemoryWidget::s_pWidget->ResetStats();
+  }
+
+
   if (ezLogWidget::s_pWidget)
     ezLogWidget::s_pWidget->UpdateStats();
 

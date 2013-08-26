@@ -110,7 +110,7 @@ void SampleGameApp::CreateGameLevel()
 {
   m_pLevel = EZ_DEFAULT_NEW(Level);
 
-  m_pLevel->SetupLevel("Asteroids");
+  m_pLevel->SetupLevel("Asteroids - World");
 }
 
 void SampleGameApp::DestroyGameLevel()

@@ -20,6 +20,7 @@ private slots:
 public:
   static void ProcessTelemetry_General(void* pPassThrough);
 
+  void ResetStats();
   void UpdateStats();
 };
 

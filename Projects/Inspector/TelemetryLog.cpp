@@ -90,3 +90,9 @@ void ezLogWidget::ProcessTelemetry_Log(void* pPassThrough)
     pWindow->ListLog->setCurrentItem(pWindow->ListLog->item(pWindow->ListLog->count() - 1));
 }
 
+void ezLogWidget::ResetStats()
+{
+  if (CheckAutoClear->isChecked())
+    ListLog->clear();
+}
+

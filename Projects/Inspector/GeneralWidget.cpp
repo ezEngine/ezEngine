@@ -12,6 +12,10 @@ ezGeneralWidget::ezGeneralWidget(QWidget* parent) : QDockWidget (parent)
   
 }
 
+void ezGeneralWidget::ResetStats()
+{
+}
+
 void ezGeneralWidget::UpdateStats()
 {
   if (!ezTelemetry::IsConnectedToServer())
