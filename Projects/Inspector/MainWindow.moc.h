@@ -1,6 +1,8 @@
 #pragma once
 
 #include <Foundation/Basics.h>
+#include <Foundation/Containers/Deque.h>
+#include <Foundation/Strings/String.h>
 #include <QMainWindow>
 #include <Projects/Inspector/ui_mainwindow.h>
 
@@ -12,18 +14,25 @@ public:
 public:
   ezMainWindow();
 
+  static ezMainWindow* s_pWidget;
+
   void paintEvent(QPaintEvent* event) EZ_OVERRIDE;
+
+  void SaveLayout (const char* szFile) const;
+  void LoadLayout (const char* szFile);
+
+  void Log(const char* szMsg);
 
 private slots:
 
-public:
+private:
 
-  static void ProcessTelemetry_Memory(void* pPassThrough);
-  static void ProcessTelemetry_General(void* pPassThrough);
+  struct LogMessage
+  {
+    ezString m_sMsg;
+  };
 
-public:
-  void SaveLayout (const char* szFile) const;
-  void LoadLayout (const char* szFile);
+  ezDeque<LogMessage> m_LogList;
 };
 
 

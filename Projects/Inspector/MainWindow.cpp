@@ -7,8 +7,12 @@
 #include <qinputdialog.h>
 #include <qfile.h>
 
+ezMainWindow* ezMainWindow::s_pWidget = NULL;
+
 ezMainWindow::ezMainWindow() : QMainWindow()
 {
+  s_pWidget = this;
+
   setupUi(this);
 
 }
@@ -109,4 +113,15 @@ void ezMainWindow::paintEvent(QPaintEvent* event)
 
   update();
 }
+
+void ezMainWindow::Log(const char* szMsg)
+{
+  LogMessage lm;
+  lm.m_sMsg = szMsg;
+
+  m_LogList.PushBack(lm);
+
+  ListAppLog->addItem(szMsg);
+}
+
 

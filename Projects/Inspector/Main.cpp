@@ -75,27 +75,13 @@ public:
 
     ezMainWindow MainWindow;
 
-    QWidget* pCenter = new QWidget();
-    pCenter->setMinimumHeight(0);
-    pCenter->setMaximumHeight(0);
-    pCenter->setFixedHeight(0);
-    pCenter->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
-    MainWindow.setCentralWidget(pCenter);
-
     ezLogWidget* pLogWidget = new ezLogWidget(&MainWindow);
     ezMemoryWidget* pMemoryWidget = new ezMemoryWidget(&MainWindow);
     ezGeneralWidget* pGeneralWidget = new ezGeneralWidget(&MainWindow);
 
-    MainWindow.addDockWidget(Qt::BottomDockWidgetArea, pGeneralWidget);
+    MainWindow.addDockWidget(Qt::TopDockWidgetArea, pGeneralWidget);
     MainWindow.splitDockWidget(pGeneralWidget, pLogWidget, Qt::Horizontal);
     MainWindow.splitDockWidget(pGeneralWidget, pMemoryWidget, Qt::Vertical);
-
-    //pCenter->setMinimumHeight(0);
-    //pCenter->setMaximumHeight(100);
-    //pCenter->setFixedHeight(100);
-    //pCenter->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Maximum);
-    //pCenter->resize(pCenter->width(), 100);
-
 
     ezTelemetry::AcceptMessagesForSystem('LOG', true, ezLogWidget::ProcessTelemetry_Log, pLogWidget);
     ezTelemetry::AcceptMessagesForSystem('MEM', true, ezMemoryWidget::ProcessTelemetry_Memory, pMemoryWidget);
@@ -103,7 +89,7 @@ public:
 
     ezTelemetry::ConnectToServer();
 
-    //MainWindow.LoadLayout("layout.qt");
+    MainWindow.LoadLayout("layout.qt");
 
     MainWindow.show();
     SetReturnCode(app.exec());
