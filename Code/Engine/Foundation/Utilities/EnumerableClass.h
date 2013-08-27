@@ -2,8 +2,6 @@
 
 /// \file
 
-#include <Foundation/Basics.h>
-
 /// \brief Base class to add the ability to another class to enumerate all active instance of it, across DLL boundaries.
 ///
 /// This creates a new class-type that has the static information

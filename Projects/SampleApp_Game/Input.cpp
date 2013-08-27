@@ -22,7 +22,7 @@ void SampleGameApp::UpdateInput()
 
   if (ezInputManager::GetInputActionState("Main", "ResetLevel") == ezKeyState::Pressed)
   {
-    ezLog::Info("Reseting Level");
+    ezLog::Info("Resetting Level");
 
     DestroyGameLevel();
     CreateGameLevel();

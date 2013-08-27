@@ -1,6 +1,5 @@
 #pragma once
 
-#include <Foundation/Utilities/EnumerableClass.h>
 #include <Foundation/Configuration/SubSystem.h>
 #include <Foundation/Containers/Deque.h>
 #include <Foundation/Configuration/Plugin.h>

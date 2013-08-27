@@ -3,20 +3,30 @@
 
 #include <Foundation/Basics.h>
 #include <Foundation/IO/IBinaryStream.h>
-#include <Foundation/Containers/DynamicArray.h>
+#include <Foundation/Containers/HybridArray.h>
 #include <Foundation/Basics/Types/RefCounted.h>
 
 class ezMemoryStreamReader;
 class ezMemoryStreamWriter;
 
 /// \brief Instances of this class act as storage for memory streams
-class EZ_FOUNDATION_DLL ezMemoryStreamStorage : public ezRefCounted
+///
+/// ezMemoryStreamStorage holds internally an ezHybridArray<ezUInt8, 256>, to prevent allocations when only small temporary memory streams are needed.
+/// That means it will have a memory overhead of that size.
+class ezMemoryStreamStorage : public ezRefCounted
 {
 public:
   /// \brief Creates the storae object for a memory stream. Use \a uiInitialCapacity to reserve a some memory up front, to reduce reallocations.
-  ezMemoryStreamStorage(ezUInt32 uiInitialCapacity = 0, ezIAllocator* pAllocator = ezFoundation::GetDefaultAllocator());
+  ezMemoryStreamStorage(ezUInt32 uiInitialCapacity = 0, ezIAllocator* pAllocator = ezFoundation::GetDefaultAllocator())
+    : m_Storage(pAllocator)
+  {
+    m_Storage.Reserve(uiInitialCapacity);
+  }
 
-  ~ezMemoryStreamStorage();
+  ~ezMemoryStreamStorage()
+  {
+    EZ_ASSERT_API(!IsReferenced(), "Memory stream storage destroyed while there are still references by reader / writer object(s)!");
+  }
 
   /// \brief Returns the number of bytes that is currently stored.
   ezUInt32 GetStorageSize() const { return m_Storage.GetCount(); }
@@ -25,7 +35,7 @@ private:
   friend class ezMemoryStreamReader;
   friend class ezMemoryStreamWriter;
 
-  ezDynamicArray<ezUInt8> m_Storage;
+  ezHybridArray<ezUInt8, 256> m_Storage;
 };
 
 /// \brief A reader which can access a memory stream.
@@ -60,8 +70,7 @@ public:
   ezUInt32 GetByteCount() const; // [tested]
 
 private:
-  friend class ezMemoryStreamStorage;
-
+  
   ezScopedRefPointer<ezMemoryStreamStorage> m_pStreamStorage;
 
   ezUInt32 m_uiReadPosition;
@@ -100,7 +109,6 @@ public:
   ezUInt32 GetByteCount() const; // [tested]
 
 private:
-  friend class ezMemoryStreamStorage;
 
   ezScopedRefPointer<ezMemoryStreamStorage> m_pStreamStorage;
 

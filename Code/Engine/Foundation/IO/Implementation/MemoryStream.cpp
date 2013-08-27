@@ -4,18 +4,6 @@
 #include <Foundation/IO/MemoryStream.h>
 
 
-ezMemoryStreamStorage::ezMemoryStreamStorage(ezUInt32 uiInitialCapacity /*= 0*/, ezIAllocator* pAllocator /*= ezFoundation::GetDefaultAllocator()*/)
-  : m_Storage(pAllocator)
-{
-  m_Storage.Reserve(uiInitialCapacity);
-}
-
-ezMemoryStreamStorage::~ezMemoryStreamStorage()
-{
-  EZ_ASSERT_API(!IsReferenced(), "Memory stream storage destroyed while there are still references by reader / writer object(s)!");
-}
-
-
 // Reader implementation
 ezMemoryStreamReader::ezMemoryStreamReader(ezMemoryStreamStorage* pStreamStorage)
   : m_pStreamStorage(pStreamStorage), m_uiReadPosition(0)

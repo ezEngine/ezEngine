@@ -1,5 +1,7 @@
 #pragma once
 
+#include <Foundation/Basics.h>
+
 /// \brief Describes the different stages during startup and shutdown
 struct ezStartupStage
 {

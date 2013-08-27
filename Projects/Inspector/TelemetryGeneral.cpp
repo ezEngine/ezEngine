@@ -41,7 +41,7 @@ void ezGeneralWidget::ProcessTelemetry_General(void* pPassThrough)
       {
         ezString sPlatform;
         ezUInt32 uiCoreCount = 0;
-        ezUInt32 uiMemorySize = 0;
+        ezUInt64 uiMemorySize = 0;
         bool bIs64Bit = false;
 
         Msg.GetReader() >> sPlatform;

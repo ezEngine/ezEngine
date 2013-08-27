@@ -170,7 +170,7 @@ void ezInputManager::Update(double fTimeDifference)
 void ezInputManager::ResetInputSlotValues()
 {
   // set all input slot values to zero
-  // this is crucial for accumulating the new values and for reseting the input state later
+  // this is crucial for accumulating the new values and for resetting the input state later
   for (ezInputSlotsMap::Iterator it = GetInternals().s_InputSlots.GetIterator(); it.IsValid(); it.Next())
   {
     it.Value().m_fValue = 0.0f;

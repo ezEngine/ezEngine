@@ -1,6 +1,4 @@
-
-#pragma once
-
+#include <Foundation/PCH.h>
 #include <Foundation/IO/IBinaryStream.h>
 
 void operator<< (ezIBinaryStreamWriter& Stream, const ezIAllocator::Stats& rhs)
