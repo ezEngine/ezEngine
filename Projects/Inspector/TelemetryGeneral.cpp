@@ -27,14 +27,28 @@ void ezGeneralWidget::ProcessTelemetry_General(void* pPassThrough)
         Msg.GetReader() >> sMessage;
 
         ezStringBuilder sOut;
-        sOut.Format("Application Assert:\n\n%s\n\nFile: '%s'\nLine: %i\nFunction: '%s'\n\n'%s'", 
-          sExpression.GetData(),
-          sSourceFile.GetData(),
-          uiLine,
-          sFunction.GetData(),
-          sMessage.GetData());
 
-        QMessageBox::critical(pWindow, "Assertion", sOut.GetData());
+        ezMainWindow::s_pWidget->Log("");
+        ezMainWindow::s_pWidget->Log("<<< Application Assertion >>>");
+        ezMainWindow::s_pWidget->Log("");
+
+        sOut.Format("    Expression: '%s'", sExpression.GetData());
+        ezMainWindow::s_pWidget->Log(sOut.GetData());
+        ezMainWindow::s_pWidget->Log("");
+
+        sOut.Format("   File: '%s'", sSourceFile.GetData());
+        ezMainWindow::s_pWidget->Log(sOut.GetData());
+
+        sOut.Format("   Line: %i", uiLine);
+        ezMainWindow::s_pWidget->Log(sOut.GetData());
+
+        sOut.Format("   In Function: '%s'", sFunction.GetData());
+        ezMainWindow::s_pWidget->Log(sOut.GetData());
+
+        ezMainWindow::s_pWidget->Log("");
+
+        ezMainWindow::s_pWidget->Log(">>> Application Assertion <<<");
+        ezMainWindow::s_pWidget->Log("");
       }
       break;
     case 'DATA':

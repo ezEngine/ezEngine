@@ -108,8 +108,6 @@ void ezMainWindow::paintEvent(QPaintEvent* event)
 
     if (ezTelemetry::IsConnectedToServer())
     {
-      bConnected = true;
-
       if ((uiServerID == 0) && (ezTelemetry::GetServerID() != 0))
       {
         uiServerID = ezTelemetry::GetServerID();
@@ -138,6 +136,8 @@ void ezMainWindow::paintEvent(QPaintEvent* event)
       {
         ezMainWindow::s_pWidget->Log("Reconnected to Server.");
       }
+
+      bConnected = true;
     }
     else
     {

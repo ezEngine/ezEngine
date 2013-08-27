@@ -25,6 +25,7 @@ public:
 private slots:
 
   void on_ListAllocators_itemChanged(QListWidgetItem* item);
+  void on_ComboTimeframe_currentIndexChanged(int index);
 
 public:
   static void ProcessTelemetry_Memory(void* pPassThrough);
@@ -35,13 +36,15 @@ public:
 private:
 
   QGraphicsPathItem* m_pPath[s_uiMaxColors];
+  QGraphicsPathItem* m_pPathMax;
   QGraphicsScene m_Scene;
 
   ezTime m_LastUsedMemoryStored;
+  ezTime m_LastUpdatedAllocatorList;
 
   ezUInt32 m_uiMaxSamples;
+  ezUInt32 m_uiDisplaySamples;
 
-  ezInt8 m_uiDropOne;
   ezUInt8 m_uiColorsUsed;
   bool m_bAllocatorsChanged;
 
@@ -55,8 +58,8 @@ private:
     ezUInt64 m_uiDeallocs;
     ezUInt64 m_uiLiveAllocs;
     ezUInt64 m_uiMaxUsedMemoryRecently;
-    ezUInt64 m_uiMinUsedMemory;
     ezUInt64 m_uiMaxUsedMemory;
+    QListWidgetItem* m_pListItem;
 
     AllocatorData()
     {
@@ -66,10 +69,12 @@ private:
       m_uiDeallocs = 0;
       m_uiLiveAllocs = 0;
       m_uiMaxUsedMemoryRecently = 0;
-      m_uiMinUsedMemory = 0xFFFFFFFF;
       m_uiMaxUsedMemory = 0;
+      m_pListItem = NULL;
     }
   };
+
+  AllocatorData m_Accu;
 
   ezMap<ezString, AllocatorData> m_AllocatorData;
 };

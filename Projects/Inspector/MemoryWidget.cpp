@@ -18,12 +18,39 @@ static QColor s_Colors[ezMemoryWidget::s_uiMaxColors] =
   QColor( 72,   0, 255), // lilac
 };
 
+void FormatSize(ezStringBuilder& s, const char* szPrefix, ezUInt64 uiSize)
+{
+  if (uiSize < 1024)
+    s.Format("%s%llu Byte", szPrefix, uiSize);
+  else if (uiSize < 1024 * 1024)
+    s.Format("%s%.1f KB", szPrefix, uiSize / 1024.0);
+  else if (uiSize < 1024 * 1024 * 1024)
+    s.Format("%s%.2f MB", szPrefix, uiSize / 1024.0 / 1024.0);
+  else
+    s.Format("%s%.2f GB", szPrefix, uiSize / 1024.0 / 1024.0 / 1024.0);
+}
 
 ezMemoryWidget::ezMemoryWidget(QWidget* parent) : QDockWidget (parent)
 {
   s_pWidget = this;
 
   setupUi (this);
+
+  ComboTimeframe->blockSignals(true);
+  ComboTimeframe->addItem("Timeframe: 1 minute");
+  ComboTimeframe->addItem("Timeframe: 2 minutes");
+  ComboTimeframe->addItem("Timeframe: 3 minutes");
+  ComboTimeframe->addItem("Timeframe: 4 minutes");
+  ComboTimeframe->addItem("Timeframe: 5 minutes");
+  ComboTimeframe->addItem("Timeframe: 6 minutes");
+  ComboTimeframe->addItem("Timeframe: 7 minutes");
+  ComboTimeframe->addItem("Timeframe: 8 minutes");
+  ComboTimeframe->addItem("Timeframe: 9 minutes");
+  ComboTimeframe->addItem("Timeframe: 10 minutes");
+  ComboTimeframe->setCurrentIndex(0);
+  ComboTimeframe->blockSignals(false);
+
+  m_pPathMax = m_Scene.addPath (QPainterPath (), QPen (QBrush (QColor(255, 255, 255)), 0 ));
 
   for (ezUInt32 i = 0; i < s_uiMaxColors; ++i)
     m_pPath[i] = m_Scene.addPath (QPainterPath (), QPen (QBrush (s_Colors[i]), 0 ));
@@ -46,10 +73,12 @@ void ezMemoryWidget::ResetStats()
 {
   m_AllocatorData.Clear();
 
-  m_uiDropOne = 0;
-  m_uiMaxSamples = 300;
-  m_uiColorsUsed = 0;
+  m_uiMaxSamples = 3000;
+  m_uiDisplaySamples = 5 * 60; // 5 samples per second, 60 seconds
+  m_uiColorsUsed = 1;
   m_bAllocatorsChanged = true;
+
+  m_Accu = AllocatorData();
 
   ListAllocators->clear();
 }
@@ -79,6 +108,17 @@ void ezMemoryWidget::UpdateStats()
     ListAllocators->blockSignals(true);
     ListAllocators->clear();
 
+    {
+      ListAllocators->addItem("<Accumulated>");
+
+      m_Accu.m_pListItem = ListAllocators->item(ListAllocators->count() - 1);
+      m_Accu.m_pListItem->setFlags(Qt::ItemFlag::ItemIsEnabled | Qt::ItemFlag::ItemIsSelectable | Qt::ItemFlag::ItemIsUserCheckable);
+      m_Accu.m_pListItem->setCheckState (m_Accu.m_bDisplay ? Qt::Checked : Qt::Unchecked);
+      m_Accu.m_pListItem->setData(Qt::UserRole, QString("<Accumulated>"));
+
+      m_Accu.m_pListItem->setTextColor(QColor(255, 255, 255));
+    }
+
     for (ezMap<ezString, ezMemoryWidget::AllocatorData>::Iterator it = m_AllocatorData.GetIterator(); it.IsValid(); ++it)
     {
       ListAllocators->addItem(it.Key().GetData());
@@ -86,31 +126,77 @@ void ezMemoryWidget::UpdateStats()
       QListWidgetItem* pItem = ListAllocators->item(ListAllocators->count() - 1);
       pItem->setFlags(Qt::ItemFlag::ItemIsEnabled | Qt::ItemFlag::ItemIsSelectable | Qt::ItemFlag::ItemIsUserCheckable);
       pItem->setCheckState (it.Value().m_bDisplay ? Qt::Checked : Qt::Unchecked);
+      pItem->setData(Qt::UserRole, QString(it.Key().GetData()));
 
       pItem->setTextColor(s_Colors[it.Value().m_iColor % s_uiMaxColors]);
+
+      it.Value().m_pListItem = pItem;
     }
 
     ListAllocators->blockSignals(false);
+  }
+
+  // once a second update the display of the allocators in the list
+  if (ezSystemTime::Now() - m_LastUpdatedAllocatorList > ezTime::Seconds(1))
+  {
+    m_LastUpdatedAllocatorList = ezSystemTime::Now();
+
+    for (ezMap<ezString, ezMemoryWidget::AllocatorData>::Iterator it = m_AllocatorData.GetIterator(); it.IsValid(); ++it)
+    {
+      if (!it.Value().m_pListItem || it.Value().m_UsedMemory.IsEmpty())
+        continue;
+
+      ezStringBuilder sSize;
+      FormatSize(sSize, "", it.Value().m_UsedMemory.PeekBack());
+
+      ezStringBuilder sMaxSize;
+      FormatSize(sMaxSize, "", it.Value().m_uiMaxUsedMemory);
+
+      ezStringBuilder sText = it.Key().GetData();
+      sText.AppendFormat(" [%s]", sSize.GetData());
+
+      ezStringBuilder sTooltip;
+      sTooltip.Format("<p>Current Memory Used: <b>%s</b><br>Max Memory Used: <b>%s</b><br>Live Allocations: <b>%llu</b><br>Allocations: <b>%llu</b><br>Deallocations: <b>%llu</b><br>",
+        sSize.GetData(), sMaxSize.GetData(), it.Value().m_uiLiveAllocs, it.Value().m_uiAllocs, it.Value().m_uiDeallocs);
+
+      it.Value().m_pListItem->setText(sText.GetData());
+      it.Value().m_pListItem->setToolTip(sTooltip.GetData());
+    }
+
+    if (m_Accu.m_pListItem && !m_Accu.m_UsedMemory.IsEmpty())
+    {
+      ezStringBuilder sSize;
+      FormatSize(sSize, "", m_Accu.m_UsedMemory.PeekBack());
+
+      ezStringBuilder sMaxSize;
+      FormatSize(sMaxSize, "", m_Accu.m_uiMaxUsedMemory);
+
+      ezStringBuilder sText = "<Accumulated>";
+      sText.AppendFormat(" [%s]", sSize.GetData());
+
+      ezStringBuilder sTooltip;
+      sTooltip.Format("<p>Current Memory Used: <b>%s</b><br>Max Memory Used: <b>%s</b><br>Live Allocations: <b>%llu</b><br>Allocations: <b>%llu</b><br>Deallocations: <b>%llu</b><br>",
+        sSize.GetData(), sMaxSize.GetData(), m_Accu.m_uiLiveAllocs, m_Accu.m_uiAllocs, m_Accu.m_uiDeallocs);
+
+      m_Accu.m_pListItem->setText(sText.GetData());
+      m_Accu.m_pListItem->setToolTip(sTooltip.GetData());
+    }
   }
 
   if (ezSystemTime::Now() - s_pWidget->m_LastUsedMemoryStored > ezTime::MilliSeconds(200))
   {
     m_LastUsedMemoryStored = ezSystemTime::Now();
 
-    ++m_uiDropOne;
+    ezUInt64 uiSumMemory = 0;
 
     for (ezMap<ezString, ezMemoryWidget::AllocatorData>::Iterator it = m_AllocatorData.GetIterator(); it.IsValid(); ++it)
     {
+      uiSumMemory += it.Value().m_uiMaxUsedMemoryRecently;
+
       it.Value().m_UsedMemory.PushBack(it.Value().m_uiMaxUsedMemoryRecently);
 
       it.Value().m_uiMaxUsedMemoryRecently = 0;
-
-      if (m_uiDropOne >= 5)
-        it.Value().m_UsedMemory.PopFront();
     }
-
-    if (m_uiDropOne >= 5)
-      m_uiDropOne = 0;
   }
   else
     return;
@@ -126,45 +212,99 @@ void ezMemoryWidget::UpdateStats()
   ezUInt64 uiMinUsedMemory = 0xFFFFFFFF;
   ezUInt64 uiMaxUsedMemory = 0;
 
-  for (ezMap<ezString, AllocatorData>::Iterator it = s_pWidget->m_AllocatorData.GetIterator(); it.IsValid(); ++it)
   {
-    if (!it.Value().m_UsedMemory.IsEmpty() && it.Value().m_bDisplay)
-    {
-      const ezUInt32 uiColorPath = it.Value().m_iColor % s_uiMaxColors;
+    m_Accu.m_UsedMemory.SetCount(m_uiDisplaySamples);
 
-      uiUsedMemory += it.Value().m_UsedMemory.PeekBack();
-      uiLiveAllocs += it.Value().m_uiLiveAllocs;
-      uiAllocs     += it.Value().m_uiAllocs;
-      uiDeallocs   += it.Value().m_uiDeallocs;
+    for (ezUInt32 i = 0; i < m_uiDisplaySamples; ++i)
+      m_Accu.m_UsedMemory[i] = 0;
 
-      uiMaxSamples = ezMath::Max(uiMaxSamples, it.Value().m_UsedMemory.GetCount());
-
-      if (it.Value().m_UsedMemory.GetCount() > m_uiMaxSamples)
-        it.Value().m_UsedMemory.PopFront(it.Value().m_UsedMemory.GetCount() - m_uiMaxSamples);
-
-      pp[uiColorPath].moveTo (QPointF (0.0f, it.Value().m_UsedMemory[0]));
-      uiMinUsedMemory = ezMath::Min(uiMinUsedMemory, it.Value().m_UsedMemory[0]);
-
-      for (ezUInt32 i = 1; i < it.Value().m_UsedMemory.GetCount(); ++i)
-      {
-        pp[uiColorPath].lineTo (QPointF (i, it.Value().m_UsedMemory[i]));
-        uiMinUsedMemory = ezMath::Min(uiMinUsedMemory, it.Value().m_UsedMemory[i]);
-      }
-
-      uiMaxUsedMemory = ezMath::Max(uiMaxUsedMemory, it.Value().m_uiMaxUsedMemory);
-    }
+    m_Accu.m_uiAllocs = 0;
+    m_Accu.m_uiDeallocs = 0;
+    m_Accu.m_uiLiveAllocs = 0;
+    m_Accu.m_uiMaxUsedMemory = 0;
   }
 
+  for (ezMap<ezString, AllocatorData>::Iterator it = s_pWidget->m_AllocatorData.GetIterator(); it.IsValid(); ++it)
+  {
+    if (it.Value().m_UsedMemory.IsEmpty() || !it.Value().m_bDisplay)
+      continue;
+
+    ezUInt64 uiMinUsedMemoryThis = 0xFFFFFFFF;
+    ezUInt64 uiMaxUsedMemoryThis = 0;
+
+    const ezUInt32 uiColorPath = it.Value().m_iColor % s_uiMaxColors;
+
+    uiUsedMemory += it.Value().m_UsedMemory.PeekBack();
+    uiLiveAllocs += it.Value().m_uiLiveAllocs;
+    uiAllocs     += it.Value().m_uiAllocs;
+    uiDeallocs   += it.Value().m_uiDeallocs;
+
+    if (it.Value().m_UsedMemory.GetCount() > m_uiMaxSamples)
+      it.Value().m_UsedMemory.PopFront(it.Value().m_UsedMemory.GetCount() - m_uiMaxSamples);
+
+    uiMaxSamples = ezMath::Max(uiMaxSamples, ezMath::Min(m_uiDisplaySamples, it.Value().m_UsedMemory.GetCount()));
+
+    const ezUInt32 uiFirstSample = (it.Value().m_UsedMemory.GetCount() <= m_uiDisplaySamples) ? 0 : (it.Value().m_UsedMemory.GetCount() - m_uiDisplaySamples);
+    const ezUInt32 uiStartPos    = (it.Value().m_UsedMemory.GetCount() >= m_uiDisplaySamples) ? 0 : (m_uiDisplaySamples - it.Value().m_UsedMemory.GetCount());
+
+    pp[uiColorPath].moveTo (QPointF (uiStartPos, it.Value().m_UsedMemory[uiFirstSample]));
+    uiMinUsedMemoryThis = ezMath::Min(uiMinUsedMemoryThis, it.Value().m_UsedMemory[uiFirstSample]);
+    uiMaxUsedMemoryThis = ezMath::Max(uiMaxUsedMemoryThis, it.Value().m_UsedMemory[uiFirstSample]);
+
+    {
+      m_Accu.m_uiAllocs     += it.Value().m_uiAllocs;
+      m_Accu.m_uiDeallocs   += it.Value().m_uiDeallocs;
+      m_Accu.m_uiLiveAllocs += it.Value().m_uiLiveAllocs;
+
+      m_Accu.m_UsedMemory[uiStartPos] += it.Value().m_UsedMemory[uiFirstSample];
+      m_Accu.m_uiMaxUsedMemory += it.Value().m_uiMaxUsedMemory;
+    }
+
+    for (ezUInt32 i = uiFirstSample + 1; i < it.Value().m_UsedMemory.GetCount(); ++i)
+    {
+      pp[uiColorPath].lineTo (QPointF (uiStartPos + i - uiFirstSample, it.Value().m_UsedMemory[i]));
+
+      uiMinUsedMemoryThis = ezMath::Min(uiMinUsedMemoryThis, it.Value().m_UsedMemory[i]);
+      uiMaxUsedMemoryThis = ezMath::Max(uiMaxUsedMemoryThis, it.Value().m_UsedMemory[i]);
+
+      m_Accu.m_UsedMemory[uiStartPos + i - uiFirstSample] += it.Value().m_UsedMemory[i];
+
+      if (m_Accu.m_bDisplay)
+        uiMaxUsedMemoryThis = ezMath::Max(uiMaxUsedMemoryThis, m_Accu.m_UsedMemory[uiStartPos + i - uiFirstSample]);
+    }
+
+    uiMinUsedMemory = ezMath::Min(uiMinUsedMemory, uiMinUsedMemoryThis);
+    uiMaxUsedMemory = ezMath::Max(uiMaxUsedMemory, uiMaxUsedMemoryThis);
+  }
+
+  QPainterPath pMax;
+
+  if (m_Accu.m_bDisplay)
+  {
+    pMax.moveTo (QPointF (0, m_Accu.m_UsedMemory[0]));
+
+    for (ezUInt32 i = 1; i < m_Accu.m_UsedMemory.GetCount(); ++i)
+      pMax.lineTo(QPointF(i, m_Accu.m_UsedMemory[i]));
+  }
+
+  m_pPathMax->setPath(pMax);
+
   for (ezUInt32 i = 0; i < s_uiMaxColors; ++i)
-    m_pPath[i]->setPath (pp[i]);
+    m_pPath[i]->setPath(pp[i]);
+
+  // round min and max to some power of two
+  {
+    uiMinUsedMemory = ezMath::PowerOfTwo_Floor(uiMinUsedMemory);
+    uiMaxUsedMemory = ezMath::PowerOfTwo_Ceil(uiMaxUsedMemory);
+  }
 
   {
-    UsedMemoryView->setSceneRect (QRectF (0, uiMinUsedMemory, uiMaxSamples - 1, uiMaxUsedMemory));
-    UsedMemoryView->fitInView    (QRectF (0, uiMinUsedMemory, uiMaxSamples - 1, uiMaxUsedMemory));
+    UsedMemoryView->setSceneRect (QRectF (0, uiMinUsedMemory, m_uiDisplaySamples - 1, uiMaxUsedMemory));
+    UsedMemoryView->fitInView    (QRectF (0, uiMinUsedMemory, m_uiDisplaySamples - 1, uiMaxUsedMemory));
 
     ezStringBuilder s;
-
-    s.Format("Min: %.2f MB", uiMinUsedMemory / 1024.0 / 1024.0);
+    
+    FormatSize(s, "Min: ", uiMinUsedMemory);
     LabelMinMemory->setText(QString::fromUtf8(s.GetData()));
 
     s.Format("<p>Recent Minimum Memory Usage:<br>%.2f GB<br>%.2f MB<br>%.2f KB<br>%llu Byte</p>", 
@@ -174,7 +314,7 @@ void ezMemoryWidget::UpdateStats()
       uiMinUsedMemory);
     LabelMinMemory->setToolTip(QString::fromUtf8(s.GetData()));
 
-    s.Format("Max: %.2f MB", uiMaxUsedMemory / 1024.0 / 1024.0);
+    FormatSize(s, "Max: ", uiMaxUsedMemory);
     LabelMaxMemory->setText(QString::fromUtf8(s.GetData()));
 
     s.Format("<p>Recent Maximum Memory Usage:<br>%.2f GB<br>%.2f MB<br>%.2f KB<br>%llu Byte</p>", 
@@ -186,7 +326,7 @@ void ezMemoryWidget::UpdateStats()
 
     const ezUInt64 uiCurUsedMemory = uiUsedMemory;
 
-    s.Format("Cur: %.2f MB", uiCurUsedMemory / 1024.0 / 1024.0);
+    FormatSize(s, "Sum: ", uiCurUsedMemory);
     LabelCurMemory->setText(QString::fromUtf8(s.GetData()));
 
     s.Format("<p>Current Memory Usage:<br>%.2f GB<br>%.2f MB<br>%.2f KB<br>%llu Byte</p>", 
@@ -241,6 +381,16 @@ void ezMemoryWidget::ProcessTelemetry_Memory(void* pPassThrough)
 
 void ezMemoryWidget::on_ListAllocators_itemChanged(QListWidgetItem* item)
 {
-  m_AllocatorData[item->text().toUtf8().data()].m_bDisplay = (item->checkState() == Qt::Checked);
+  if (item->data(Qt::UserRole).toString() == "<Accumulated>")
+  {
+    m_Accu.m_bDisplay = (item->checkState() == Qt::Checked);
+    return;
+  }
+
+  m_AllocatorData[item->data(Qt::UserRole).toString().toUtf8().data()].m_bDisplay = (item->checkState() == Qt::Checked);
 }
 
+void ezMemoryWidget::on_ComboTimeframe_currentIndexChanged(int index)
+{
+  m_uiDisplaySamples = 5 * 60 * (index + 1); // 5 samples per second, 60 seconds
+}
