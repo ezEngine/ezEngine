@@ -4,6 +4,7 @@
 #include <Inspector/LogWidget.moc.h>
 #include <Inspector/GeneralWidget.moc.h>
 #include <Inspector/MemoryWidget.moc.h>
+#include <Inspector/InputWidget.moc.h>
 #include <QApplication>
 #include <qstylefactory.h>
 
@@ -78,14 +79,17 @@ public:
     ezLogWidget* pLogWidget = new ezLogWidget(&MainWindow);
     ezMemoryWidget* pMemoryWidget = new ezMemoryWidget(&MainWindow);
     ezGeneralWidget* pGeneralWidget = new ezGeneralWidget(&MainWindow);
+    ezInputWidget* pInputWidget = new ezInputWidget(&MainWindow);
 
     MainWindow.addDockWidget(Qt::TopDockWidgetArea, pGeneralWidget);
     MainWindow.splitDockWidget(pGeneralWidget, pLogWidget, Qt::Horizontal);
     MainWindow.splitDockWidget(pGeneralWidget, pMemoryWidget, Qt::Vertical);
+    MainWindow.tabifyDockWidget(pLogWidget, pInputWidget);
 
     ezTelemetry::AcceptMessagesForSystem('LOG', true, ezLogWidget::ProcessTelemetry_Log, pLogWidget);
     ezTelemetry::AcceptMessagesForSystem('MEM', true, ezMemoryWidget::ProcessTelemetry_Memory, pMemoryWidget);
     ezTelemetry::AcceptMessagesForSystem('APP', true, ezGeneralWidget::ProcessTelemetry_General, pGeneralWidget);
+    ezTelemetry::AcceptMessagesForSystem('INPT', true, ezInputWidget::ProcessTelemetry_Input, pInputWidget);
 
     ezTelemetry::ConnectToServer();
 

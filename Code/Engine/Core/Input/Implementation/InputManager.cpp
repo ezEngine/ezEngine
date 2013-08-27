@@ -2,6 +2,7 @@
 #include <Core/Input/InputManager.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Configuration/Startup.h>
+#include <Foundation/Communication/Telemetry.h>
 
 ezInputManager::InternalData* ezInputManager::s_pData = NULL;
 wchar_t ezInputManager::s_LastCharacter = '\0';
@@ -49,8 +50,23 @@ void ezInputManager::RegisterInputSlot(const char* szInputSlot, const char* szDe
 
   ezLog::Dev("Registered Input Slot: '%s'", szInputSlot);
 
-  GetInternals().s_InputSlots[szInputSlot].m_sDisplayName = szDefaultDisplayName;
-  GetInternals().s_InputSlots[szInputSlot].m_SlotFlags = SlotFlags;
+  ezInputSlot& sm = GetInternals().s_InputSlots[szInputSlot];
+
+  sm.m_sDisplayName = szDefaultDisplayName;
+  sm.m_SlotFlags = SlotFlags;
+
+  // Telemetry
+  {
+    ezTelemetryMessage msg;
+    msg.SetMessageID('INPT', 'SLOT');
+    msg.GetWriter() << szInputSlot;
+    msg.GetWriter() << SlotFlags.GetValue();
+    msg.GetWriter() << (ezUInt8) sm.m_State;
+    msg.GetWriter() << sm.m_fValue;
+    msg.GetWriter() << sm.m_fDeadZone;
+
+    ezTelemetry::Broadcast(ezTelemetry::Reliable, msg);
+  }
 }
 
 ezBitflags<ezInputSlotFlags> ezInputManager::GetInputSlotFlags(const char* szInputSlot)
@@ -219,7 +235,22 @@ void ezInputManager::UpdateInputSlotStates()
   {
     // update the state of the input slot, depending on its current value
     // its value will only be larger than zero, if it is also larger than its deadzone value
-    it.Value().m_State = ezKeyState::GetNewKeyState(it.Value().m_State, it.Value().m_fValue > 0.0f);
+    const ezKeyState::Enum NewState = ezKeyState::GetNewKeyState(it.Value().m_State, it.Value().m_fValue > 0.0f);
+
+    if ((it.Value().m_State != NewState) || (NewState != ezKeyState::Up))
+    {
+      it.Value().m_State = NewState;
+
+      ezTelemetryMessage msg;
+      msg.SetMessageID('INPT', 'SLOT');
+      msg.GetWriter() << it.Key().GetData();
+      msg.GetWriter() << it.Value().m_SlotFlags.GetValue();
+      msg.GetWriter() << (ezUInt8) NewState;
+      msg.GetWriter() << it.Value().m_fValue;
+      msg.GetWriter() << it.Value().m_fDeadZone;
+
+      ezTelemetry::Broadcast(ezTelemetry::Reliable, msg);
+    }
   }
 }
 
