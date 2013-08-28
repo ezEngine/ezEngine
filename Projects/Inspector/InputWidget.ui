@@ -6,13 +6,13 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>544</width>
-    <height>575</height>
+    <width>552</width>
+    <height>587</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
-    <width>296</width>
+    <width>408</width>
     <height>318</height>
    </size>
   </property>
@@ -32,7 +32,7 @@
    <string>Input</string>
   </property>
   <widget class="QWidget" name="dockWidgetContents">
-   <layout class="QHBoxLayout" name="horizontalLayout">
+   <layout class="QVBoxLayout" name="verticalLayout_3">
     <property name="spacing">
      <number>0</number>
     </property>
@@ -56,51 +56,20 @@
       <property name="frameShadow">
        <enum>QFrame::Plain</enum>
       </property>
-      <layout class="QVBoxLayout" name="verticalLayout">
+      <layout class="QVBoxLayout" name="verticalLayout_4">
        <item>
         <widget class="QTabWidget" name="TabInput">
          <property name="tabPosition">
           <enum>QTabWidget::South</enum>
          </property>
          <property name="currentIndex">
-          <number>0</number>
+          <number>1</number>
          </property>
          <widget class="QWidget" name="tab">
           <attribute name="title">
            <string>Input Slots</string>
           </attribute>
           <layout class="QVBoxLayout" name="verticalLayout_2">
-           <item>
-            <layout class="QHBoxLayout" name="horizontalLayout_2">
-             <item>
-              <widget class="QLabel" name="label">
-               <property name="text">
-                <string>Registered Input Slots:</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <spacer name="horizontalSpacer">
-               <property name="orientation">
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeHint" stdset="0">
-                <size>
-                 <width>40</width>
-                 <height>20</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
-             <item>
-              <widget class="QPushButton" name="ButtonClear">
-               <property name="text">
-                <string>Clear List</string>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
            <item>
             <widget class="QTableWidget" name="TableInputSlots">
              <property name="selectionMode">
@@ -128,7 +97,7 @@
               <number>100</number>
              </attribute>
              <attribute name="horizontalHeaderMinimumSectionSize">
-              <number>30</number>
+              <number>80</number>
              </attribute>
              <attribute name="horizontalHeaderShowSortIndicator" stdset="0">
               <bool>false</bool>
@@ -144,6 +113,105 @@
              <column/>
              <column/>
             </widget>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_2">
+             <item>
+              <spacer name="horizontalSpacer">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item>
+              <widget class="QPushButton" name="ButtonClearSlots">
+               <property name="text">
+                <string>Clear List</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </item>
+          </layout>
+         </widget>
+         <widget class="QWidget" name="tab_2">
+          <attribute name="title">
+           <string>Input Actions</string>
+          </attribute>
+          <layout class="QVBoxLayout" name="verticalLayout">
+           <item>
+            <widget class="QTableWidget" name="TableInputActions">
+             <property name="selectionMode">
+              <enum>QAbstractItemView::SingleSelection</enum>
+             </property>
+             <property name="selectionBehavior">
+              <enum>QAbstractItemView::SelectRows</enum>
+             </property>
+             <property name="sortingEnabled">
+              <bool>false</bool>
+             </property>
+             <property name="cornerButtonEnabled">
+              <bool>false</bool>
+             </property>
+             <property name="columnCount">
+              <number>4</number>
+             </property>
+             <attribute name="horizontalHeaderVisible">
+              <bool>true</bool>
+             </attribute>
+             <attribute name="horizontalHeaderCascadingSectionResizes">
+              <bool>false</bool>
+             </attribute>
+             <attribute name="horizontalHeaderDefaultSectionSize">
+              <number>100</number>
+             </attribute>
+             <attribute name="horizontalHeaderMinimumSectionSize">
+              <number>80</number>
+             </attribute>
+             <attribute name="horizontalHeaderShowSortIndicator" stdset="0">
+              <bool>false</bool>
+             </attribute>
+             <attribute name="horizontalHeaderStretchLastSection">
+              <bool>true</bool>
+             </attribute>
+             <attribute name="verticalHeaderVisible">
+              <bool>false</bool>
+             </attribute>
+             <column/>
+             <column/>
+             <column/>
+             <column/>
+            </widget>
+           </item>
+           <item>
+            <layout class="QHBoxLayout" name="horizontalLayout_3">
+             <item>
+              <spacer name="horizontalSpacer_2">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item>
+              <widget class="QPushButton" name="ButtonClearActions">
+               <property name="text">
+                <string>Clear List</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
            </item>
           </layout>
          </widget>

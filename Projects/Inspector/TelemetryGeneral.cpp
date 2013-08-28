@@ -36,6 +36,10 @@ void ezGeneralWidget::ProcessTelemetry_General(void* pPassThrough)
         ezMainWindow::s_pWidget->Log(sOut.GetData());
         ezMainWindow::s_pWidget->Log("");
 
+        sOut.Format("    Message: '%s'", sMessage.GetData());
+        ezMainWindow::s_pWidget->Log(sOut.GetData());
+        ezMainWindow::s_pWidget->Log("");
+
         sOut.Format("   File: '%s'", sSourceFile.GetData());
         ezMainWindow::s_pWidget->Log(sOut.GetData());
 

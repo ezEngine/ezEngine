@@ -258,7 +258,7 @@ private:
   static void UpdateInputActions(double fTimeDifference);
 
   /// \brief Updates the state of all input actions in the given input set.
-  static void UpdateInputActions(ezActionMap& Actions, double fTimeDifference);
+  static void UpdateInputActions(const char* szInputSet, ezActionMap& Actions, double fTimeDifference);
 
   /// \brief Returns an iterator to the (next) action that should get triggered by the given slot.
   ///
@@ -270,6 +270,7 @@ private:
 
   static void DeallocateInternals();
   static InternalData& GetInternals();
+  static void SendActionTelemetry(const char* szInputSet, const char* szAction, const ezInputManager::ezActionData& ad);
 
   static InternalData* s_pData;
 };

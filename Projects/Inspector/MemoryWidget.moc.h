@@ -52,6 +52,7 @@ private:
   {
     ezDeque<ezUInt64> m_UsedMemory;
   
+    bool m_bReceivedDate;
     bool m_bDisplay;
     ezInt8 m_iColor;
     ezUInt64 m_uiAllocs;
@@ -63,6 +64,7 @@ private:
 
     AllocatorData()
     {
+      m_bReceivedDate = false;
       m_bDisplay = true;
       m_iColor = -1;
       m_uiAllocs = 0;

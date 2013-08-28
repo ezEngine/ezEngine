@@ -1,6 +1,7 @@
 #include <Core/PCH.h>
 #include <Foundation/Logging/Log.h>
 #include <Core/Input/InputManager.h>
+#include <Foundation/Communication/Telemetry.h>
 
 ezInputActionConfig::ezInputActionConfig()
 {
@@ -50,6 +51,25 @@ void ezInputManager::ClearInputMapping(const char* szInputSet, const char* szInp
   }
 }
 
+void ezInputManager::SendActionTelemetry(const char* szInputSet, const char* szAction, const ezInputManager::ezActionData& ad)
+{
+  ezTelemetryMessage msg;
+  msg.SetMessageID('INPT', 'ACTN');
+  msg.GetWriter() << szInputSet;
+  msg.GetWriter() << szAction;
+  msg.GetWriter() << (ezUInt8) ad.m_State;
+  msg.GetWriter() << ad.m_fValue;
+  msg.GetWriter() << ad.m_Config.m_bApplyTimeScaling;
+
+  for (ezUInt32 i = 0; i < ezInputActionConfig::MaxInputSlotAlternatives; ++i)
+  {
+    msg.GetWriter() << ad.m_Config.m_sInputSlotTrigger[i];
+    msg.GetWriter() << ad.m_Config.m_fInputSlotScale[i];
+  }
+
+  ezTelemetry::Broadcast(ezTelemetry::Reliable, msg);
+}
+
 void ezInputManager::SetInputActionConfig(const char* szInputSet, const char* szAction, const ezInputActionConfig& Config, bool bClearPreviousInputMappings)
 {
   EZ_ASSERT(!ezStringUtils::IsNullOrEmpty(szInputSet), "The InputSet name must not be empty.");
@@ -62,7 +82,10 @@ void ezInputManager::SetInputActionConfig(const char* szInputSet, const char* sz
   }
 
   // store the new action mapping
-  GetInternals().s_ActionMapping[szInputSet][szAction].m_Config = Config;
+  ezInputManager::ezActionData& ad = GetInternals().s_ActionMapping[szInputSet][szAction];
+  ad.m_Config = Config;
+
+  SendActionTelemetry(szInputSet, szAction, ad);
 }
 
 ezInputActionConfig ezInputManager::GetInputActionConfig(const char* szInputSet, const char* szAction)
@@ -216,11 +239,11 @@ void ezInputManager::UpdateInputActions(double fTimeDifference)
   // all input sets are disjunct from each other, so one key press can have different effects in each input set
   for (ezInputSetMap::Iterator ItSets = GetInternals().s_ActionMapping.GetIterator(); ItSets.IsValid(); ++ItSets)
   {
-    UpdateInputActions(ItSets.Value(), fTimeDifference);
+    UpdateInputActions(ItSets.Key().GetData(), ItSets.Value(), fTimeDifference);
   }
 }
 
-void ezInputManager::UpdateInputActions(ezActionMap& Actions, double fTimeDifference)
+void ezInputManager::UpdateInputActions(const char* szInputSet, ezActionMap& Actions, double fTimeDifference)
 {
   // reset all action values to zero
   for (ezActionMap::Iterator ItActions = Actions.GetIterator(); ItActions.IsValid(); ++ItActions)
@@ -282,9 +305,15 @@ void ezInputManager::UpdateInputActions(ezActionMap& Actions, double fTimeDiffer
   for (ezActionMap::Iterator ItActions = Actions.GetIterator(); ItActions.IsValid(); ++ItActions)
   {
     const bool bHasInput = ItActions.Value().m_fValue > 0.0f;
-    ItActions.Value().m_State = ezKeyState::GetNewKeyState(ItActions.Value().m_State, bHasInput);
+    const ezKeyState::Enum NewState = ezKeyState::GetNewKeyState(ItActions.Value().m_State, bHasInput);
 
-    if (ItActions.Value().m_State == ezKeyState::Up)
+    if ((NewState != ezKeyState::Up) || (NewState != ItActions.Value().m_State))
+    {
+      ItActions.Value().m_State = NewState;
+      SendActionTelemetry(szInputSet, ItActions.Key().GetData(), ItActions.Value());
+    }
+
+    if (NewState == ezKeyState::Up)
       ItActions.Value().m_iTriggeredViaAlternative = -1;
   }
 }
