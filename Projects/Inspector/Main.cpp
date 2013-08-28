@@ -90,6 +90,7 @@ public:
     ezTelemetry::AcceptMessagesForSystem('MEM', true, ezMemoryWidget::ProcessTelemetry_Memory, pMemoryWidget);
     ezTelemetry::AcceptMessagesForSystem('APP', true, ezGeneralWidget::ProcessTelemetry_General, pGeneralWidget);
     ezTelemetry::AcceptMessagesForSystem('INPT', true, ezInputWidget::ProcessTelemetry_Input, pInputWidget);
+    ezTelemetry::AcceptMessagesForSystem('STRT', true, ezGeneralWidget::ProcessTelemetry_General, pGeneralWidget);
 
     ezTelemetry::ConnectToServer();
 

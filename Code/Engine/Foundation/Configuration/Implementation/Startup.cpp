@@ -6,11 +6,42 @@
 #include <Foundation/Communication/GlobalEvent.h>
 #include <Foundation/Threading/ThreadUtils.h>
 #include <Foundation/Configuration/Plugin.h>
+#include <Foundation/Communication/Telemetry.h>
 
 EZ_ENUMERABLE_CLASS_IMPLEMENTATION(ezSubSystem);
 
 bool ezStartup::s_bPrintAllSubSystems = true;
 ezStartupStage::Enum ezStartup::s_CurrentState = ezStartupStage::None;
+
+void ezStartup::SendSubsystemTelemetry()
+{
+  ezSubSystem* pSub = ezSubSystem::GetFirstInstance();
+
+  while(pSub)
+  {
+    ezTelemetryMessage msg;
+    msg.SetMessageID('STRT', 'SYST');
+    msg.GetWriter() << pSub->GetGroupName();
+    msg.GetWriter() << pSub->GetSubSystemName();
+    msg.GetWriter() << pSub->GetPluginName();
+
+    for (ezUInt32 i = 0; i < ezStartupStage::ENUM_COUNT; ++i)
+      msg.GetWriter() << pSub->m_bStartupDone[i];
+
+    ezUInt8 uiDependencies = 0;
+    while (pSub->GetDependency(uiDependencies) != NULL)
+      ++uiDependencies;
+
+    msg.GetWriter() << uiDependencies;
+
+    for (ezUInt8 i = 0; i < uiDependencies; ++i)
+      msg.GetWriter() << pSub->GetDependency(i);
+
+    ezTelemetry::Broadcast(ezTelemetry::Reliable, msg);
+
+    pSub = pSub->GetNextInstance();
+  }
+}
 
 void ezStartup::PrintAllSubsystems()
 {
@@ -322,6 +353,8 @@ void ezStartup::Startup(ezStartupStage::Enum stage)
   }
 
   s_CurrentState = stage;
+
+  SendSubsystemTelemetry();
 }
 
 void ezStartup::Shutdown(ezStartupStage::Enum stage)
@@ -400,6 +433,8 @@ void ezStartup::Shutdown(ezStartupStage::Enum stage)
   default:
     break;
   }
+
+  SendSubsystemTelemetry();
 
   if (stage == ezStartupStage::Base)
   {

@@ -119,6 +119,8 @@ public:
 
 private:
 
+  static void SendSubsystemTelemetry();
+
   /// \brief Unloads all subsystems from the given plugin AND all subsystems that directly or indirectly depend on them.
   ///
   /// This can be used to shutdown all systems from certain DLLs before that DLL is unloaded (and possibly reloaded).

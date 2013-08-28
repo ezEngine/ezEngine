@@ -58,6 +58,9 @@ public:
   /// \brief Returns a series of strings with the names of the subsystem, which this subsystem depends on. NULL indicates the last entry. Must be overridden.
   virtual const char* GetDependency(ezInt32 iDep) { return NULL; }
 
+  /// \brief Returns the plugin name to which this subsystem belongs.
+  const char* GetPluginName() const { return m_szPluginName; }
+
 private:
   // only the startup system may access the following functionality
   friend class ezStartup;
