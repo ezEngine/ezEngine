@@ -24,6 +24,8 @@ EZ_ON_GLOBAL_EVENT_ONCE(TestGlobalEvent3)
   iTestData2 += 42;
 }
 
+static bool g_bFirstRun = true;
+
 EZ_CREATE_SIMPLE_TEST(Communication, GlobalEvent)
 {
   iTestData1 = 0;
@@ -55,7 +57,17 @@ EZ_CREATE_SIMPLE_TEST(Communication, GlobalEvent)
   ezGlobalEvent::Broadcast("TestGlobalEvent3", 4);
 
   EZ_TEST_INT(iTestData1, 6);
-  EZ_TEST_INT(iTestData2, 46);
+
+  if (g_bFirstRun)
+  {
+    g_bFirstRun = false;
+    EZ_TEST_INT(iTestData2, 46);
+  }
+  else
+  {
+    EZ_TEST_INT(iTestData2, 4);
+    iTestData2 += 42;
+  }
   
   ezGlobalEvent::Broadcast("TestGlobalEvent2", 5);
 

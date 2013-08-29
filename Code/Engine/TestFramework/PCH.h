@@ -8,4 +8,4 @@
 #include <sstream>
 #include <algorithm>
 
-#define EZ_SVN_REVISION "SVN $Revision$"
+#define EZ_SVN_REVISION "SVN $Revision: 162 $"
