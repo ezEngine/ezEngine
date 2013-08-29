@@ -138,6 +138,7 @@ void ezTestFramework::ResetTests()
   const ezUInt32 uiTestCount = GetTestCount();
   for (ezUInt32 uiTestIdx = 0; uiTestIdx < uiTestCount; ++uiTestIdx)
   {
+    m_TestEntries[uiTestIdx].m_Result.Reset();
     const ezUInt32 uiSubTestCount = (ezUInt32)m_TestEntries[uiTestIdx].m_SubTests.size();
     for (ezUInt32 uiSubTest = 0; uiSubTest < uiSubTestCount; ++uiSubTest)
     {

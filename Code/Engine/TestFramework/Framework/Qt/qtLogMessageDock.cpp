@@ -69,6 +69,26 @@ QVariant ezQtLogMessageModel::data(const QModelIndex& index, int role) const
     {
       return QString(Message.m_sMessage.c_str());
     }
+  case Qt::TextColorRole:
+    {
+      switch (Message.m_Type)
+      {
+      case ezTestOutput::BeginBlock:
+      case ezTestOutput::Message:
+        return QColor(Qt::yellow);
+      case ezTestOutput::Error:
+        return QColor(Qt::red);
+      case ezTestOutput::Success:
+        return QColor(Qt::green);
+      case ezTestOutput::StartOutput:
+      case ezTestOutput::EndBlock:
+      case ezTestOutput::ImportantInfo:
+      case ezTestOutput::Details:
+      case ezTestOutput::Duration:
+      case ezTestOutput::FinalResult:
+        return QVariant();
+      }
+    }
   //case Qt::DecorationRole:
   //  {
   //    switch (Message.m_Type)
