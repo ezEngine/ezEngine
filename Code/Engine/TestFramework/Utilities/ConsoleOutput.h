@@ -18,6 +18,8 @@ inline void OutputToConsole (ezTestOutput::Enum Type, const char* szMsg)
 
   switch (Type)
   {
+  case ezTestOutput::StartOutput:
+    break;
   case ezTestOutput::BeginBlock:
     iIndentation += 2;
     break;

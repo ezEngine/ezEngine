@@ -28,15 +28,22 @@ void ezSimpleTestGroup::SetupSubTests()
 
 void ezSimpleTestGroup::RunSubTest(ezInt32 iIdentifier)
 {
-  // initialize everything up to 'core'
-  ezStartup::StartupCore();
-
   {
     EZ_PROFILE(m_SimpleTests[iIdentifier].m_ProfilingId);
     m_SimpleTests[iIdentifier].m_Func();
   }
-
-  // shut down completely
-  ezStartup::ShutdownBase();
 }
 
+ezResult ezSimpleTestGroup::InitializeSubTest(ezInt32 iIdentifier)
+{
+  // initialize everything up to 'core'
+  ezStartup::StartupCore();
+  return EZ_SUCCESS;
+}
+
+ezResult ezSimpleTestGroup::DeInitializeSubTest(ezInt32 iIdentifier)
+{
+  // shut down completely
+  ezStartup::ShutdownBase();
+  return EZ_SUCCESS;
+}

@@ -17,10 +17,10 @@ Only concrete and clocks.\n\
 ...";
 
   ezStringBuilder sOutputFolder1 = BUILDSYSTEM_OUTPUT_FOLDER;
-  sOutputFolder1.AppendPath("FoundationTest", "SubFolder");
+  sOutputFolder1.AppendPath("FoundationTest", "IO", "SubFolder");
 
   ezStringBuilder sOutputFolder2 = BUILDSYSTEM_OUTPUT_FOLDER;
-  sOutputFolder2.AppendPath("FoundationTest", "SubFolder2");
+  sOutputFolder2.AppendPath("FoundationTest", "IO", "SubFolder2");
 
 
   EZ_TEST_BLOCK(true, "Setup Data Dirs")

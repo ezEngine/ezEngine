@@ -13,7 +13,7 @@ EZ_CREATE_SIMPLE_TEST(Logging, Log)
   ezLogWriter::HTML LogHTML;
 
   ezStringBuilder sOutputFolder1 = BUILDSYSTEM_OUTPUT_FOLDER;
-  sOutputFolder1.AppendPath("FoundationTest");
+  sOutputFolder1.AppendPath("FoundationTest", "Logging");
 
   ezOSFile::CreateDirectoryStructure(sOutputFolder1.GetData());
 

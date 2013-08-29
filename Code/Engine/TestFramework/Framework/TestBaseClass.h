@@ -51,22 +51,17 @@ private:
 
     const char* m_szName;
     ezInt32 m_iIdentifier;
-    double m_fDuration;
   };
 
   /// Removes all sub-tests.
   void ClearSubTests();
 
-  void SetSubTestDuration(ezInt32 iIndex, double fDuration);
-
-  /// Called by ezTestFramework. Runs all sub-tests.
-  ezResult ExecuteTest(std::deque<ezSubTestEntry>& inout_SubTestsToExecute, double& out_fTotalDuration);
-
+  // Called by ezTestFramework.
   ezResult DoTestInitialization();
   void DoTestDeInitialization();
   ezResult DoSubTestInitialization(ezInt32 iIdentifier);
   void DoSubTestDeInitialization(ezInt32 iIdentifier);
-  double DoSubTestRun(ezInt32 iIdentifier, const char* szSubTestName);
+  double DoSubTestRun(ezInt32 iIdentifier);
 
 
   std::deque<TestEntry> m_Entries;

@@ -19,6 +19,8 @@ public:
 private:
   virtual void SetupSubTests() EZ_OVERRIDE;
   virtual void RunSubTest(ezInt32 iIdentifier) EZ_OVERRIDE;
+  virtual ezResult InitializeSubTest(ezInt32 iIdentifier) EZ_OVERRIDE;
+  virtual ezResult DeInitializeSubTest(ezInt32 iIdentifier) EZ_OVERRIDE;
 
 private:
   struct SimpleTestEntry

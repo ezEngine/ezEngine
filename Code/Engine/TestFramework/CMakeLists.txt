@@ -19,4 +19,21 @@ SET (LINK_LIBRARIES
   Foundation      # Example: Another library build with cmake
 )
 
+# Enables the use of Qt in this library.
+SET (EZ_QTPROJECT ON)
+
+# Set all headers, that shall be MOC'ed that do not end with moc.h and thus will be MOC'ed automatically.
+SET (EZ_MOC_HEADERS
+  Framework/Qt/qtTestFramework.h
+  Framework/Qt/qtTestGUI.h
+  Framework/Qt/qtTestModel.h
+  Framework/Qt/qtTestDelegate.h
+  Framework/Qt/qtLogMessageDock.h
+)
+
 include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/CMAKE_Library.txt)
+
+if (EZ_ENABLE_QT_SUPPORT)
+  # Define which qt modules are going to be used in this library.
+  qt5_use_modules(${PROJECT_NAME} Widgets)
+endif ()

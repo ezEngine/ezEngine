@@ -16,11 +16,11 @@ Only concrete and clocks.\n\
   const ezUInt32 uiTextLen = sFileContent.GetElementCount();
 
   ezStringBuilder sOutputFile = BUILDSYSTEM_OUTPUT_FOLDER;
-  sOutputFile.AppendPath("FoundationTest", "SubFolder");
+  sOutputFile.AppendPath("FoundationTest", "IO", "SubFolder");
   sOutputFile.AppendPath("OSFile_TestFile.txt");
 
   ezStringBuilder sOutputFile2 = BUILDSYSTEM_OUTPUT_FOLDER;
-  sOutputFile2.AppendPath("FoundationTest", "SubFolder2");
+  sOutputFile2.AppendPath("FoundationTest", "IO", "SubFolder2");
   sOutputFile2.AppendPath("OSFile_TestFileCopy.txt");
 
   EZ_TEST_BLOCK(true, "Write File")
@@ -110,7 +110,7 @@ Only concrete and clocks.\n\
     //printf("%s Name: '%s' (%lli Bytes), Modified Time: %lli\n", s.m_bIsDirectory ? "Directory" : "File", s.m_sFileName.GetData(), s.m_uiFileSize, s.m_uiLastModificationTime);
 
     ezStringBuilder sOutputFile3 = BUILDSYSTEM_OUTPUT_FOLDER;
-    sOutputFile3.AppendPath("FoundationTest", "SubFolder2");
+    sOutputFile3.AppendPath("FoundationTest", "IO", "SubFolder2");
     sOutputFile3.AppendPath("*.txt");
 
     EZ_TEST(ezOSFile::GetFileStats(sOutputFile3.GetData(), s) == EZ_SUCCESS);

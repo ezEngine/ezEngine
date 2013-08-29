@@ -1,38 +1,92 @@
 #pragma once
 
-#include <Foundation/Basics.h>
+#include <TestFramework/Basics.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <TestFramework/Framework/Declarations.h>
 #include <TestFramework/Framework/TestBaseClass.h>
 #include <TestFramework/Framework/SimpleTest.h>
+#include <TestFramework/Utilities/TestOrder.h>
 
 class EZ_TEST_DLL ezTestFramework
 {
 public:
+  ezTestFramework(const char* szTestName, const char* szAbsTestDir);
+  virtual ~ezTestFramework();
+
   typedef void(*OutputHandler)(ezTestOutput::Enum Type, const char* szMsg);
 
-  static void RegisterOutputHandler(OutputHandler Handler);
+  // Test management
+  const char* GetTestName() const;
+  const char* GetAbsOutputPath() const;
+  void RegisterOutputHandler(OutputHandler Handler);
+  void GatherAllTests();
+  void LoadTestOrder();
+  void SaveTestOrder();
+  void SetAllTestsEnabledStatus(bool bEnable);
 
-  static void GatherAllTests(std::deque<ezTestEntry>& out_AllTests);
-  static void ExecuteAllTests(std::deque<ezTestEntry>& inout_TestsToExecute);
+  // Test execution
+  void ResetTests();
+  void ExecuteAllTests();
 
-  static void Output(ezTestOutput::Enum Type, const char* szMsg, ...);
+  void StartTests();
+  void ExecuteTest(ezUInt32 uiTestIndex);
+  void EndTests();
 
-  static ezInt32 GetErrorCount();
-  static ezInt32 GetTestsPassedCount() { return s_iTestsPassed; }
-  static ezInt32 GetTestsFailedCount() { return s_iTestsFailed; }
-  static bool GetAssertOnTestFail() { return s_bAssertOnTestFail; }
-  static void SetAssertOnTestFail(bool m_bAssertOnTestFail) { s_bAssertOnTestFail = m_bAssertOnTestFail; }
+  // Test queries
+  ezUInt32 GetTestCount(ezTestResultQuery::Enum countQuery = ezTestResultQuery::Count) const;
+  ezInt32 SubTestIdentifierToSubTestIndex(ezUInt32 uiSubTestIdentifier) const;
+  ezInt32 GetCurrentTestIndex() {return m_iCurrentTestIndex;}
+  ezInt32 GetCurrentSubTestIndex() {return m_iCurrentSubTestIndex;}
+  ezTestEntry* GetTest(ezUInt32 uiTestIndex);
+  bool GetTestsRunning() const { return m_bTestsRunning; }
 
+  // Global settings
+  TestSettings GetSettings() const;
+  void SetSettings(const TestSettings& settings);
+
+  // Test results
+  ezInt32 GetTotalErrorCount() const;
+  ezInt32 GetTestsPassedCount() const;
+  ezInt32 GetTestsFailedCount() const;
+  double GetTotalTestDuration() const;
+
+protected:
+  virtual void OutputImpl(ezTestOutput::Enum Type, const char* szMsg);
+  virtual void TestResultImpl(ezInt32 iSubTestIdentifier, bool bSuccess, double fDuration);
+
+  // ignore this for now
+public:
   static const char* s_szTestBlockName;
 
-private:
-  static ezInt32 s_iErrorCount;
-  static ezInt32 s_iTestsFailed;
-  static ezInt32 s_iTestsPassed;
-  static bool s_bAssertOnTestFail;
-  static std::deque<OutputHandler> s_OutputHandlers;
+  // static functions
+public:
+  static ezTestFramework* GetInstance() { return s_pInstance; }
 
+  static bool GetAssertOnTestFail() { return s_bAssertOnTestFail; }
+  static void SetAssertOnTestFail(bool m_bAssertOnTestFail) { s_bAssertOnTestFail = m_bAssertOnTestFail; }
+  
+  static void Output(ezTestOutput::Enum Type, const char* szMsg, ...);
+  static void TestResult(ezInt32 iSubTestIdentifier, bool bSuccess, double fDuration);
+
+  // static members
+private:
+  static ezTestFramework* s_pInstance;
+  static bool s_bAssertOnTestFail;
+  
+private:
+  std::string m_sTestName;  ///< The name of the tests being done
+  std::string m_sAbsTestDir; ///< Absolute path to the output folder where results and temp data is stored
+  ezInt32 m_iErrorCount;
+  ezInt32 m_iTestsFailed;
+  ezInt32 m_iTestsPassed;
+  TestSettings m_Settings;
+  std::deque<OutputHandler> m_OutputHandlers;
+  std::deque<ezTestEntry> m_TestEntries;
+
+protected:
+  ezInt32 m_iCurrentTestIndex;
+  ezInt32 m_iCurrentSubTestIndex;
+  bool m_bTestsRunning;
 };
 
 // Starts a small test block inside a larger test. 
