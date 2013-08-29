@@ -7,3 +7,5 @@
 #include <fstream>
 #include <sstream>
 #include <algorithm>
+
+#define EZ_SVN_REVISION "SVN $Revision$"
