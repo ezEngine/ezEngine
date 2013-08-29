@@ -112,7 +112,7 @@ void ezMemoryWidget::UpdateStats()
       ListAllocators->addItem("<Accumulated>");
 
       m_Accu.m_pListItem = ListAllocators->item(ListAllocators->count() - 1);
-      m_Accu.m_pListItem->setFlags(Qt::ItemFlag::ItemIsEnabled | Qt::ItemFlag::ItemIsSelectable | Qt::ItemFlag::ItemIsUserCheckable);
+      m_Accu.m_pListItem->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsUserCheckable);
       m_Accu.m_pListItem->setCheckState (m_Accu.m_bDisplay ? Qt::Checked : Qt::Unchecked);
       m_Accu.m_pListItem->setData(Qt::UserRole, QString("<Accumulated>"));
 
@@ -124,7 +124,7 @@ void ezMemoryWidget::UpdateStats()
       ListAllocators->addItem(it.Key().GetData());
 
       QListWidgetItem* pItem = ListAllocators->item(ListAllocators->count() - 1);
-      pItem->setFlags(Qt::ItemFlag::ItemIsEnabled | Qt::ItemFlag::ItemIsSelectable | Qt::ItemFlag::ItemIsUserCheckable);
+      pItem->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsUserCheckable);
       pItem->setCheckState (it.Value().m_bDisplay ? Qt::Checked : Qt::Unchecked);
       pItem->setData(Qt::UserRole, QString(it.Key().GetData()));
 

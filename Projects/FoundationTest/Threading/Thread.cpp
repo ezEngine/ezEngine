@@ -38,6 +38,9 @@ EZ_CREATE_SIMPLE_TEST_GROUP(Threading);
 
 EZ_CREATE_SIMPLE_TEST(Threading, Thread)
 {
+  g_iCrossThreadVariable = 0;
+
+
   EZ_TEST_BLOCK(true, "Thread")
   {
     TestThread* pTestThread = NULL;

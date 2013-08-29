@@ -14,8 +14,11 @@ EZ_CREATE_SIMPLE_TEST(Configuration, Plugin)
 {
   CVar_TestPlugin1InitializedCount = 0;
   CVar_TestPlugin1UninitializedCount = 0;
+  CVar_TestPlugin1Reloaded = 0;
   CVar_TestPlugin2InitializedCount = 0;
   CVar_TestPlugin2UninitializedCount = 0;
+  CVar_TestPlugin2Reloaded = 0;
+  CVar_TestPlugin2FoundDependencies = false;
 
 #if EZ_ENABLED(EZ_SUPPORTS_DYNAMIC_PLUGINS)
 

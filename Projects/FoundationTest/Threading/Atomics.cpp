@@ -109,6 +109,49 @@ namespace
 
 EZ_CREATE_SIMPLE_TEST(Threading, Atomics)
 {
+  // Initialization
+  {
+    g_iIncVariable = 0;
+    g_iDecVariable = 0;
+
+    g_iAddVariable = 0;
+    g_iSubVariable = 0;
+
+    g_iAndVariable = 0xFF;
+    g_iOrVariable = 1;
+    g_iXorVariable = 3;
+
+    g_iMinVariable = 100;
+    g_iMaxVariable = -100;
+
+    g_iSetVariable = 0;
+
+    g_iCompSwapVariable = 0;
+    g_iCompSwapCounter = 0;
+
+    g_iIncVariable64 = 0;
+    g_iDecVariable64 = 0;
+
+    g_iAddVariable64 = 0;
+    g_iSubVariable64 = 0;
+
+    g_iAndVariable64 = 0xFF;
+    g_iOrVariable64 = 1;
+    g_iXorVariable64 = 3;
+
+    g_iMinVariable64 = 100;
+    g_iMaxVariable64 = -100;
+
+    g_iSetVariable64 = 0;
+
+    g_iCompSwapVariable64 = 0;
+    g_iCompSwapCounter64 = 0;
+
+    g_pCompSwapPointer = NULL;
+    g_iCompSwapPointerCounter = 0;
+  }
+
+
   EZ_TEST_BLOCK(true, "Thread")
   {
     TestThread* pTestThread = NULL;

@@ -37,6 +37,9 @@ static void ChangedCVar(const ezCVar::CVarEvent& e, void*)
 
 EZ_CREATE_SIMPLE_TEST(Configuration, CVars)
 {
+  iChangedValue = 0;
+  iChangedRestart = 0;
+
   // setup the filesystem
   // we need it to test the storing of cvars (during plugin reloading)
 
