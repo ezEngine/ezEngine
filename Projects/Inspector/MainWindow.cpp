@@ -2,6 +2,7 @@
 #include <Inspector/GeneralWidget.moc.h>
 #include <Inspector/MemoryWidget.moc.h>
 #include <Inspector/InputWidget.moc.h>
+#include <Inspector/CVarsWidget.moc.h>
 #include <Inspector/LogWidget.moc.h>
 #include <Foundation/Communication/Telemetry.h>
 #include <qlistwidget.h>
@@ -109,28 +110,17 @@ void ezMainWindow::paintEvent(QPaintEvent* event)
 
     if (ezTelemetry::IsConnectedToServer())
     {
-      if ((uiServerID == 0) && (ezTelemetry::GetServerID() != 0))
-      {
-        uiServerID = ezTelemetry::GetServerID();
-        bResetStats = true;
-
-        ezStringBuilder s;
-        s.Format("Connected to Server with ID %i", uiServerID);
-
-        ezMainWindow::s_pWidget->Log(s.GetData());
-
-        ezTelemetry::SendToServer('APP', 'RQDT');
-      }
-
       if (uiServerID != ezTelemetry::GetServerID())
       {
         uiServerID = ezTelemetry::GetServerID();
         bResetStats = true;
 
         ezStringBuilder s;
-        s.Format("Connected to Server with ID %i", uiServerID);
+        s.Format("Connected to new Server with ID %i", uiServerID);
 
         ezMainWindow::s_pWidget->Log(s.GetData());
+
+        ezTelemetry::SendToServer('APP', 'RQDT');
       }
       else
       if (!bConnected)
@@ -161,6 +151,12 @@ void ezMainWindow::paintEvent(QPaintEvent* event)
 
     if (ezMemoryWidget::s_pWidget)
       ezMemoryWidget::s_pWidget->ResetStats();
+
+    if (ezInputWidget::s_pWidget)
+      ezInputWidget::s_pWidget->ResetStats();
+
+    if (ezCVarsWidget::s_pWidget)
+      ezCVarsWidget::s_pWidget->ResetStats();
   }
 
 
@@ -172,6 +168,12 @@ void ezMainWindow::paintEvent(QPaintEvent* event)
 
   if (ezMemoryWidget::s_pWidget)
     ezMemoryWidget::s_pWidget->UpdateStats();
+
+  if (ezInputWidget::s_pWidget)
+    ezInputWidget::s_pWidget->UpdateStats();
+
+  if (ezCVarsWidget::s_pWidget)
+    ezCVarsWidget::s_pWidget->UpdateStats();
 
   ezTelemetry::CallProcessMessagesCallbacks();
 
@@ -194,6 +196,7 @@ void ezMainWindow::DockWidgetVisibilityChanged(bool bVisible)
   ActionShowWindowMemory->setChecked(ezMemoryWidget::s_pWidget->isVisible());
   ActionShowWindowConfig->setChecked(ezGeneralWidget::s_pWidget->isVisible());
   ActionShowWindowInput->setChecked(ezInputWidget::s_pWidget->isVisible());
+  ActionShowWindowCVar->setChecked(ezCVarsWidget::s_pWidget->isVisible());
 }
 
 void ezMainWindow::on_ActionShowWindowLog_triggered()
@@ -214,4 +217,9 @@ void ezMainWindow::on_ActionShowWindowMemory_triggered()
 void ezMainWindow::on_ActionShowWindowInput_triggered()
 {
   ezInputWidget::s_pWidget->setVisible(ActionShowWindowInput->isChecked());
+}
+
+void ezMainWindow::on_ActionShowWindowCVar_triggered()
+{
+  ezCVarsWidget::s_pWidget->setVisible(ActionShowWindowCVar->isChecked());
 }

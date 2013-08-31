@@ -3,8 +3,14 @@
 #include "ShipComponent.h"
 #include "CollidableComponent.h"
 #include <InputXBox360/InputDeviceXBox.h>
+#include <Foundation/Configuration/CVar.h>
 
 EZ_IMPLEMENT_COMPONENT_TYPE(ProjectileComponent, ProjectileComponentManager);
+
+ezCVarFloat CVar_Test1("g_Float", 1.0f, ezCVarFlags::Default, "cvar float");
+ezCVarBool CVar_Test2("g_Bool", true, ezCVarFlags::Default, "cvar bool");
+ezCVarInt CVar_Test3("g_Int", 23, ezCVarFlags::Default, "cvar int");
+ezCVarString CVar_Test4("g_String", "zwei und vierzig", ezCVarFlags::Default, "cvar string");
 
 ProjectileComponent::ProjectileComponent()
 {

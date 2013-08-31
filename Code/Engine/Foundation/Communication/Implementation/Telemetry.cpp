@@ -8,6 +8,7 @@
 #include <Foundation/Strings/StringBuilder.h>
 #include <Foundation/Strings/String.h>
 #include <Foundation/Containers/HybridArray.h>
+#include <Foundation/Configuration/CVar.h>
 
 class ezTelemetryThread;
 
@@ -118,6 +119,7 @@ void ezTelemetry::UpdateNetwork()
           {
           case 'RQID':
             Broadcast(ezTelemetry::Reliable, 'EZBC', 'EZID', &s_uiApplicationID, sizeof(ezUInt32));
+            ezCVar::SendAllCVarTelemetry();
             break;
           case 'EZID':
             s_uiServerID = *((ezUInt32*) pData);

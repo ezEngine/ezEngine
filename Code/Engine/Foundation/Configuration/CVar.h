@@ -152,14 +152,21 @@ public:
   /// \brief Code that needs to be execute whenever a cvar is changed can register itself here to be notified of such events.
   ezEvent<const CVarEvent&, void*, ezStaticAllocatorWrapper> m_CVarEvents; // [tested]
 
+  static void SendAllCVarTelemetry();
+
 protected:
   ezCVar(const char* szName, ezBitflags<ezCVarFlags> Flags, const char* szDescription);
+
+  const char* GetPluginName() const { return m_szPluginName; }
 
 private:
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(Foundation, CVars);
 
+  virtual void SendCVarTelemetry() = 0;
+
   static void AssignSubSystemPlugin(const char* szPluginName);
   static void PluginEventHandler(const ezPlugin::PluginEvent& EventData, void* pPassThrough);
+  
 
   bool m_bHasNeverBeenLoaded;
   const char* m_szName;
@@ -207,6 +214,8 @@ public:
 
 private:
   friend class ezCVar;
+
+  virtual void SendCVarTelemetry() EZ_OVERRIDE;
 
   Type m_Values[ezCVarValue::ENUM_COUNT];
 };

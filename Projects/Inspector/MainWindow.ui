@@ -76,12 +76,13 @@
    </property>
    <widget class="QMenu" name="menuWindows">
     <property name="title">
-     <string>Windows</string>
+     <string>Panels</string>
     </property>
     <addaction name="ActionShowWindowConfig"/>
     <addaction name="ActionShowWindowLog"/>
     <addaction name="ActionShowWindowMemory"/>
     <addaction name="ActionShowWindowInput"/>
+    <addaction name="ActionShowWindowCVar"/>
    </widget>
    <addaction name="menuWindows"/>
   </widget>
@@ -120,6 +121,14 @@
    </property>
    <property name="text">
     <string>Input</string>
+   </property>
+  </action>
+  <action name="ActionShowWindowCVar">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>CVars</string>
    </property>
   </action>
  </widget>

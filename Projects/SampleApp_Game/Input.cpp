@@ -5,6 +5,7 @@
 #include <Core/Input/InputManager.h>
 #include <InputXBox360/InputDeviceXBox.h>
 #include <InputWindows/InputDeviceWindows.h>
+#include <Foundation/Configuration/CVar.h>
 
 #include "ShipComponent.h"
 
@@ -12,6 +13,8 @@ const ezInt32 MaxPlayerActions = 7;
 
 const char* szPlayerActions[MaxPlayerActions] = { "Forwards",        "Backwards",        "Left",             "Right",         "RotLeft", "RotRight",    "Shoot"         };
 const char* szControlerKeys[MaxPlayerActions] = { "leftstick_posy",  "leftstick_negy",   "leftstick_negx",  "leftstick_posx", "rightstick_negx",  "rightstick_posx",  "right_trigger" };
+
+ezCVarInt CVarInput("CVar_Input", 0, ezCVarFlags::Default, "Bla bla");
 
 void SampleGameApp::UpdateInput()
 {
@@ -33,6 +36,16 @@ void SampleGameApp::UpdateInput()
     ezLog::Info("Asserting");
 
     EZ_ASSERT(false, "This is safe to ignore.");
+  }
+
+  if (ezInputManager::GetInputActionState("Main", "CVarUp") == ezKeyState::Pressed)
+  {
+    CVarInput = CVarInput + 1;
+  }
+
+  if (ezInputManager::GetInputActionState("Main", "CVarDown") == ezKeyState::Pressed)
+  {
+    CVarInput = CVarInput - 1;
   }
 
   if (ezInputManager::GetInputActionState("Main", "ToggleThumbstick") == ezKeyState::Pressed)
@@ -71,6 +84,8 @@ void SampleGameApp::SetupInput()
   RegisterInputAction("Main", "ResetLevel", ezInputSlot_KeyReturn);
   RegisterInputAction("Main", "ToggleThumbstick", ezInputSlot_KeyT);
   RegisterInputAction("Main", "Assert", ezInputSlot_KeyNumpadEnter);
+  RegisterInputAction("Main", "CVarDown", ezInputSlot_KeyO);
+  RegisterInputAction("Main", "CVarUp", ezInputSlot_KeyP);
 
   // setup all controllers
   for (ezInt32 iPlayer = 0; iPlayer < MaxPlayers; ++iPlayer)

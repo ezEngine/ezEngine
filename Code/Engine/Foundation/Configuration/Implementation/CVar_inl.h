@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Foundation/Configuration/CVar.h>
+#include <Foundation/Communication/Telemetry.h>
 
 template<typename Type, ezCVarType::Enum CVarType>
 ezTypedCVar<Type, CVarType>::ezTypedCVar(const char* szName, const Type& Value, ezBitflags<ezCVarFlags> Flags, const char* szDescription)
@@ -62,5 +63,25 @@ void ezTypedCVar<Type, CVarType>::operator= (const Type& value)
 
   m_Values[ezCVarValue::Restart] = value;
 
+  SendCVarTelemetry();
+
   m_CVarEvents.Broadcast(e);
 }
+
+template<typename Type, ezCVarType::Enum CVarType>
+void ezTypedCVar<Type, CVarType>::SendCVarTelemetry()
+{
+  ezTelemetryMessage msg;
+  msg.SetMessageID('CVAR', 'DATA');
+  msg.GetWriter() << GetName();
+  msg.GetWriter() << GetPluginName();
+  msg.GetWriter() << (ezUInt8) GetFlags().GetValue();
+  msg.GetWriter() << (ezUInt8) GetType();
+  msg.GetWriter() << GetValue();
+
+  ezTelemetry::Broadcast(ezTelemetry::Reliable, msg);
+}
+
+
+
+

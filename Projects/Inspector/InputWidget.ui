@@ -54,7 +54,7 @@
           <enum>QTabWidget::South</enum>
          </property>
          <property name="currentIndex">
-          <number>1</number>
+          <number>0</number>
          </property>
          <widget class="QWidget" name="tab">
           <attribute name="title">
@@ -76,7 +76,7 @@
               <bool>false</bool>
              </property>
              <property name="columnCount">
-              <number>4</number>
+              <number>9</number>
              </property>
              <attribute name="horizontalHeaderVisible">
               <bool>false</bool>
@@ -99,6 +99,31 @@
              <attribute name="verticalHeaderVisible">
               <bool>false</bool>
              </attribute>
+             <column>
+              <property name="text">
+               <string>Slot</string>
+              </property>
+             </column>
+             <column>
+              <property name="text">
+               <string>State</string>
+              </property>
+             </column>
+             <column>
+              <property name="text">
+               <string>Value</string>
+              </property>
+             </column>
+             <column>
+              <property name="text">
+               <string>Dead Zone</string>
+              </property>
+             </column>
+             <column>
+              <property name="text">
+               <string>Flags (Binary)</string>
+              </property>
+             </column>
              <column/>
              <column/>
              <column/>
@@ -151,7 +176,7 @@
               <bool>false</bool>
              </property>
              <property name="columnCount">
-              <number>4</number>
+              <number>3</number>
              </property>
              <attribute name="horizontalHeaderVisible">
               <bool>false</bool>
@@ -174,10 +199,21 @@
              <attribute name="verticalHeaderVisible">
               <bool>false</bool>
              </attribute>
-             <column/>
-             <column/>
-             <column/>
-             <column/>
+             <column>
+              <property name="text">
+               <string>Action</string>
+              </property>
+             </column>
+             <column>
+              <property name="text">
+               <string>State</string>
+              </property>
+             </column>
+             <column>
+              <property name="text">
+               <string>Value</string>
+              </property>
+             </column>
             </widget>
            </item>
            <item>

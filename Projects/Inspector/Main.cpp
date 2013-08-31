@@ -5,6 +5,7 @@
 #include <Inspector/GeneralWidget.moc.h>
 #include <Inspector/MemoryWidget.moc.h>
 #include <Inspector/InputWidget.moc.h>
+#include <Inspector/CVarsWidget.moc.h>
 #include <QApplication>
 #include <qstylefactory.h>
 
@@ -80,17 +81,21 @@ public:
     ezMemoryWidget* pMemoryWidget = new ezMemoryWidget(&MainWindow);
     ezGeneralWidget* pGeneralWidget = new ezGeneralWidget(&MainWindow);
     ezInputWidget* pInputWidget = new ezInputWidget(&MainWindow);
+    ezCVarsWidget* pCVarsWidget = new ezCVarsWidget(&MainWindow);
 
     EZ_VERIFY(QWidget::connect(pLogWidget, SIGNAL(visibilityChanged(bool)), &MainWindow, SLOT(DockWidgetVisibilityChanged(bool))), "Bla");
     EZ_VERIFY(QWidget::connect(pMemoryWidget, SIGNAL(visibilityChanged(bool)), &MainWindow, SLOT(DockWidgetVisibilityChanged(bool))), "Bla");
     EZ_VERIFY(QWidget::connect(pGeneralWidget, SIGNAL(visibilityChanged(bool)), &MainWindow, SLOT(DockWidgetVisibilityChanged(bool))), "Bla");
     EZ_VERIFY(QWidget::connect(pInputWidget, SIGNAL(visibilityChanged(bool)), &MainWindow, SLOT(DockWidgetVisibilityChanged(bool))), "Bla");
+    EZ_VERIFY(QWidget::connect(pCVarsWidget, SIGNAL(visibilityChanged(bool)), &MainWindow, SLOT(DockWidgetVisibilityChanged(bool))), "Bla");
 
     MainWindow.addDockWidget(Qt::TopDockWidgetArea, pGeneralWidget);
     MainWindow.splitDockWidget(pGeneralWidget, pLogWidget, Qt::Horizontal);
     MainWindow.splitDockWidget(pGeneralWidget, pMemoryWidget, Qt::Vertical);
     MainWindow.tabifyDockWidget(pLogWidget, pInputWidget);
+    MainWindow.tabifyDockWidget(pLogWidget, pCVarsWidget);
 
+    ezTelemetry::AcceptMessagesForSystem('CVAR', true, ezCVarsWidget::ProcessTelemetry_CVars, pCVarsWidget);
     ezTelemetry::AcceptMessagesForSystem('LOG', true, ezLogWidget::ProcessTelemetry_Log, pLogWidget);
     ezTelemetry::AcceptMessagesForSystem('MEM', true, ezMemoryWidget::ProcessTelemetry_Memory, pMemoryWidget);
     ezTelemetry::AcceptMessagesForSystem('APP', true, ezGeneralWidget::ProcessTelemetry_General, pGeneralWidget);

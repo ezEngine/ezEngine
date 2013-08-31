@@ -29,6 +29,7 @@ public slots:
   void on_ActionShowWindowConfig_triggered();
   void on_ActionShowWindowMemory_triggered();
   void on_ActionShowWindowInput_triggered();
+  void on_ActionShowWindowCVar_triggered();
 
 private:
 

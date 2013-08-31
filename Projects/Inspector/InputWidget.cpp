@@ -24,12 +24,41 @@ void ezInputWidget::ClearSlots()
 {
   m_InputSlots.Clear();
   TableInputSlots->clear();
+
+  {
+    TableInputSlots->setColumnCount(5);
+
+    QStringList Headers;
+    Headers.append(" Slot ");
+    Headers.append(" State ");
+    Headers.append(" Value ");
+    Headers.append(" Dead Zone ");
+    Headers.append(" Flags (Binary) ");
+
+    TableInputSlots->setHorizontalHeaderLabels(Headers);
+    TableInputSlots->horizontalHeader()->show();
+  }
 }
 
 void ezInputWidget::ClearActions()
 {
   m_InputActions.Clear();
   TableInputActions->clear();
+
+  {
+    TableInputActions->setColumnCount(3 + ezInputActionConfig::MaxInputSlotAlternatives);
+
+    QStringList Headers;
+    Headers.append(" Action ");
+    Headers.append(" State ");
+    Headers.append(" Value ");
+
+    for (ezInt32 slot = 0; slot < ezInputActionConfig::MaxInputSlotAlternatives; ++slot)
+      Headers.append(QString(" Slot %1 ").arg(slot + 1));
+
+    TableInputActions->setHorizontalHeaderLabels(Headers);
+    TableInputActions->horizontalHeader()->show();
+  }
 }
 
 void ezInputWidget::UpdateStats()
@@ -136,6 +165,7 @@ void ezInputWidget::UpdateSlotTable(bool bRecreate)
     Headers.append(" Flags (Binary) ");
 
     TableInputSlots->setHorizontalHeaderLabels(Headers);
+    TableInputSlots->horizontalHeader()->show();
 
     ezStringBuilder sTemp;
 
@@ -270,6 +300,7 @@ void ezInputWidget::UpdateActionTable(bool bRecreate)
       Headers.append(QString(" Slot %1 ").arg(slot + 1));
 
     TableInputActions->setHorizontalHeaderLabels(Headers);
+    TableInputActions->horizontalHeader()->show();
 
     ezStringBuilder sTemp;
 
