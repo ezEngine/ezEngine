@@ -12,8 +12,8 @@
   </property>
   <property name="minimumSize">
    <size>
-    <width>187</width>
-    <height>150</height>
+    <width>238</width>
+    <height>204</height>
    </size>
   </property>
   <property name="sizeIncrement">
@@ -23,7 +23,7 @@
    </size>
   </property>
   <property name="features">
-   <set>QDockWidget::DockWidgetFloatable|QDockWidget::DockWidgetMovable</set>
+   <set>QDockWidget::AllDockWidgetFeatures</set>
   </property>
   <property name="allowedAreas">
    <set>Qt::AllDockWidgetAreas</set>
@@ -49,29 +49,65 @@
       </property>
       <layout class="QVBoxLayout" name="verticalLayout">
        <item>
-        <widget class="QListWidget" name="ListLog">
-         <property name="alternatingRowColors">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <layout class="QHBoxLayout" name="horizontalLayout_2">
+        <layout class="QHBoxLayout" name="horizontalLayout_3">
          <item>
-          <widget class="QCheckBox" name="CheckAutoClear">
-           <property name="toolTip">
-            <string>When enabled, the log is automatically cleared whenever a connection is made to a new application instance.</string>
-           </property>
-           <property name="text">
-            <string>Auto Clear</string>
-           </property>
-           <property name="checked">
-            <bool>true</bool>
+          <widget class="QComboBox" name="ComboLogLevel">
+           <item>
+            <property name="text">
+             <string>All</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Debug</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Dev</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Info</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Success</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Warning</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Serious Warning</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Error</string>
+            </property>
+           </item>
+           <item>
+            <property name="text">
+             <string>Fatal Error</string>
+            </property>
+           </item>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLineEdit" name="LineSearch">
+           <property name="placeholderText">
+            <string>Search</string>
            </property>
           </widget>
          </item>
          <item>
-          <spacer name="horizontalSpacer_2">
+          <spacer name="horizontalSpacer">
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
            </property>
@@ -91,6 +127,13 @@
           </widget>
          </item>
         </layout>
+       </item>
+       <item>
+        <widget class="QListWidget" name="ListLog">
+         <property name="alternatingRowColors">
+          <bool>true</bool>
+         </property>
+        </widget>
        </item>
       </layout>
      </widget>

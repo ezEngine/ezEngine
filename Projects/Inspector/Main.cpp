@@ -81,6 +81,11 @@ public:
     ezGeneralWidget* pGeneralWidget = new ezGeneralWidget(&MainWindow);
     ezInputWidget* pInputWidget = new ezInputWidget(&MainWindow);
 
+    EZ_VERIFY(QWidget::connect(pLogWidget, SIGNAL(visibilityChanged(bool)), &MainWindow, SLOT(DockWidgetVisibilityChanged(bool))), "Bla");
+    EZ_VERIFY(QWidget::connect(pMemoryWidget, SIGNAL(visibilityChanged(bool)), &MainWindow, SLOT(DockWidgetVisibilityChanged(bool))), "Bla");
+    EZ_VERIFY(QWidget::connect(pGeneralWidget, SIGNAL(visibilityChanged(bool)), &MainWindow, SLOT(DockWidgetVisibilityChanged(bool))), "Bla");
+    EZ_VERIFY(QWidget::connect(pInputWidget, SIGNAL(visibilityChanged(bool)), &MainWindow, SLOT(DockWidgetVisibilityChanged(bool))), "Bla");
+
     MainWindow.addDockWidget(Qt::TopDockWidgetArea, pGeneralWidget);
     MainWindow.splitDockWidget(pGeneralWidget, pLogWidget, Qt::Horizontal);
     MainWindow.splitDockWidget(pGeneralWidget, pMemoryWidget, Qt::Vertical);

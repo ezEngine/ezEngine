@@ -1,6 +1,7 @@
 #include <Inspector/MainWindow.moc.h>
 #include <Inspector/GeneralWidget.moc.h>
 #include <Inspector/MemoryWidget.moc.h>
+#include <Inspector/InputWidget.moc.h>
 #include <Inspector/LogWidget.moc.h>
 #include <Foundation/Communication/Telemetry.h>
 #include <qlistwidget.h>
@@ -187,4 +188,30 @@ void ezMainWindow::Log(const char* szMsg)
   ListAppLog->addItem(szMsg);
 }
 
+void ezMainWindow::DockWidgetVisibilityChanged(bool bVisible)
+{
+  ActionShowWindowLog->setChecked(ezLogWidget::s_pWidget->isVisible());
+  ActionShowWindowMemory->setChecked(ezMemoryWidget::s_pWidget->isVisible());
+  ActionShowWindowConfig->setChecked(ezGeneralWidget::s_pWidget->isVisible());
+  ActionShowWindowInput->setChecked(ezInputWidget::s_pWidget->isVisible());
+}
 
+void ezMainWindow::on_ActionShowWindowLog_triggered()
+{
+  ezLogWidget::s_pWidget->setVisible(ActionShowWindowLog->isChecked());
+}
+
+void ezMainWindow::on_ActionShowWindowConfig_triggered()
+{
+  ezGeneralWidget::s_pWidget->setVisible(ActionShowWindowConfig->isChecked());
+}
+
+void ezMainWindow::on_ActionShowWindowMemory_triggered()
+{
+  ezMemoryWidget::s_pWidget->setVisible(ActionShowWindowMemory->isChecked());
+}
+
+void ezMainWindow::on_ActionShowWindowInput_triggered()
+{
+  ezInputWidget::s_pWidget->setVisible(ActionShowWindowInput->isChecked());
+}

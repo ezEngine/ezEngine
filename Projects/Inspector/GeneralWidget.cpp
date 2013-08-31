@@ -21,6 +21,8 @@ void ezGeneralWidget::ResetStats()
 {
   m_bUpdateSubsystems = true;
   m_Subsystems.Clear();
+
+  
 }
 
 void ezGeneralWidget::UpdateStats()

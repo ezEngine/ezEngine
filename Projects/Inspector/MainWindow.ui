@@ -37,16 +37,7 @@
     <property name="spacing">
      <number>0</number>
     </property>
-    <property name="leftMargin">
-     <number>2</number>
-    </property>
-    <property name="topMargin">
-     <number>2</number>
-    </property>
-    <property name="rightMargin">
-     <number>2</number>
-    </property>
-    <property name="bottomMargin">
+    <property name="margin">
      <number>2</number>
     </property>
     <item>
@@ -74,6 +65,63 @@
    </layout>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>757</width>
+     <height>21</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuWindows">
+    <property name="title">
+     <string>Windows</string>
+    </property>
+    <addaction name="ActionShowWindowConfig"/>
+    <addaction name="ActionShowWindowLog"/>
+    <addaction name="ActionShowWindowMemory"/>
+    <addaction name="ActionShowWindowInput"/>
+   </widget>
+   <addaction name="menuWindows"/>
+  </widget>
+  <action name="actionConfiguration">
+   <property name="text">
+    <string>Configuration</string>
+   </property>
+  </action>
+  <action name="ActionShowWindowConfig">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Configuration</string>
+   </property>
+  </action>
+  <action name="ActionShowWindowLog">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Log</string>
+   </property>
+  </action>
+  <action name="ActionShowWindowMemory">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Memory</string>
+   </property>
+  </action>
+  <action name="ActionShowWindowInput">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Input</string>
+   </property>
+  </action>
  </widget>
  <resources>
   <include location="resources.qrc"/>

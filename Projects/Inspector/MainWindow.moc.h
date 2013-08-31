@@ -23,7 +23,12 @@ public:
 
   void Log(const char* szMsg);
 
-private slots:
+public slots:
+  void DockWidgetVisibilityChanged(bool bVisible);
+  void on_ActionShowWindowLog_triggered();
+  void on_ActionShowWindowConfig_triggered();
+  void on_ActionShowWindowMemory_triggered();
+  void on_ActionShowWindowInput_triggered();
 
 private:
 
