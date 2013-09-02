@@ -84,7 +84,10 @@ EZ_FORCE_INLINE bool ezComponentManager<ComponentType>::TryGetComponent(const ez
     "The given component handle is not of the expected type. Expected type id %d, got type id %d",
     ComponentType::TypeId(), GetIdFromHandle(component).m_TypeId);
 
-  return ezComponentManagerBase::TryGetComponent(component, out_pComponent);
+  ezComponent* pComponent = NULL;
+  bool bResult = ezComponentManagerBase::TryGetComponent(component, pComponent);
+  out_pComponent = static_cast<ComponentType*>(pComponent);
+  return bResult;
 }
 
 template <typename ComponentType>
