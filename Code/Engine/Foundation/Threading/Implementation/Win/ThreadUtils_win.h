@@ -20,7 +20,7 @@ void ezThreadUtils::Shutdown()
 
 void ezThreadUtils::YieldTimeSlice()
 {
-  Sleep(0);
+  ::Sleep(0);
 }
 
 void ezThreadUtils::Sleep(ezUInt32 uiMilliSeconds)
@@ -35,5 +35,5 @@ ezThreadHandle ezThreadUtils::GetCurrentThreadHandle()
 
 bool ezThreadUtils::IsMainThread()
 {
-  return GetCurrentThreadId() == g_uiMainThreadID;
+  return ::GetCurrentThreadId() == g_uiMainThreadID;
 }

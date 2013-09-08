@@ -50,6 +50,10 @@ public:
   template <typename ComponentType>
   bool TryGetComponent(const ezComponentHandle& component, ComponentType*& out_pComponent) const;
 
+  // messaging
+  void SendMessage(const ezGameObjectHandle& receiverObject, ezMessage& msg, 
+    ezBitflags<ezObjectMsgRouting> routing = ezObjectMsgRouting::Default);
+
   // update
   void Update();
 
@@ -69,12 +73,19 @@ private:
   friend class ezGameObject;
   friend class ezComponentManagerBase;
 
+  void CheckForMultithreadedAccess() const;
+
   void SetObjectName(ezGameObjectId internalId, const char* szName);
   const char* GetObjectName(ezGameObjectId internalId) const;
 
   void SetParent(ezGameObject* pObject, const ezGameObjectHandle& parent);
 
-  void QueueMessage(ezMessage& msg, ezBitflags<ezGameObject::MsgRouting> routing, const ezGameObjectHandle& senderObject);
+  void QueueMessage(const ezGameObjectHandle& receiverObject, ezMessage& msg, ezBitflags<ezObjectMsgRouting> routing);
+  void HandleMessage(ezGameObject* pReceiverObject, ezMessage& msg, ezBitflags<ezObjectMsgRouting> routing);
+  ezUInt32 GetHandledMessageCounter() const;
+
+  typedef ezInternal::WorldData::MessageQueueType MessageQueueType;
+  void ProcessQueuedMessages(MessageQueueType::Enum queueType);
 
   ezResult RegisterUpdateFunction(const ezComponentManagerBase::UpdateFunctionDesc& desc);
   ezResult RegisterUpdateFunctionWithDependency(const ezComponentManagerBase::UpdateFunctionDesc& desc, bool bInsertAsUnresolved);
@@ -88,6 +99,8 @@ private:
 
   ezInternal::WorldData m_Data;
   typedef ezInternal::WorldData::ObjectStorage::Entry ObjectStorageEntry;
+
+  typedef ezInternal::WorldData::QueuedMsgMetaData QueuedMsgMetaData;
 
   ezUInt32 m_uiIndex;
   static ezStaticArray<ezWorld*, 64> s_Worlds;

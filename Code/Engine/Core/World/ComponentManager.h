@@ -47,13 +47,16 @@ protected:
       PHASE_COUNT
     };
 
-    UpdateFunctionDesc()
+    UpdateFunctionDesc(const UpdateFunction& function, const char* szFunctionName)
     {
+      m_Function = function;
+      m_szFunctionName = szFunctionName;
       m_Phase = PreAsync;
       m_uiGranularity = 0;
     }
 
     UpdateFunction m_Function;
+    const char* m_szFunctionName;
     ezHybridArray<UpdateFunction, 4> m_DependsOn;
     Phase m_Phase;
     ezUInt32 m_uiGranularity;
@@ -120,5 +123,9 @@ public:
   // simple update function that iterates over all components and calls update
   void SimpleUpdate(ezUInt32 uiStartIndex, ezUInt32 uiCount);
 };
+
+/// \brief Helper macro to create an update function description with proper name
+#define EZ_CREATE_COMPONENT_UPDATE_FUNCTION_DESC(func, instance) \
+  UpdateFunctionDesc(UpdateFunction(&func, instance), #func)
 
 #include <Core/World/Implementation/ComponentManager_inl.h>

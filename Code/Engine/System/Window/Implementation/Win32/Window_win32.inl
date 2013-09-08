@@ -26,7 +26,7 @@ ezResult ezWindow::Initialize()
 
   DWORD dwWindowStyle = WS_POPUP | WS_CAPTION | WS_BORDER | WS_SYSMENU;
 
-  // TODO: Expose as "point" in creation description
+  /// \todo Expose as "point" in creation description
   ezUInt32 x = m_CreationDescription.m_bFullscreenWindow ? 0 : 10;
   ezUInt32 y = x;
 
@@ -61,7 +61,7 @@ ezResult ezWindow::Initialize()
   windowClass.cbClsExtra     = 0;
   windowClass.cbWndExtra     = 0;
   windowClass.hInstance      = GetModuleHandle(NULL);
-  windowClass.hIcon          = LoadIcon(NULL, IDI_APPLICATION); // TODO: Expose this somehow?
+  windowClass.hIcon          = LoadIcon(NULL, IDI_APPLICATION); /// \todo Expose this somehow?
   windowClass.hCursor        = LoadCursor(NULL, IDC_ARROW);
   windowClass.hbrBackground  = static_cast<HBRUSH>(GetStockObject(BLACK_BRUSH));
   windowClass.lpszMenuName   = NULL;

@@ -14,6 +14,8 @@ static void zLibFree OF((voidpf opaque, voidpf address))
   EZ_DEFAULT_DELETE_RAW_BUFFER(pData);
 }
 
+EZ_DEFINE_AS_POD_TYPE(z_stream_s);
+
 ezCompressedStreamReader::ezCompressedStreamReader(ezIBinaryStreamReader& InputStream) : m_InputStream(InputStream)
 {
   m_bReachedEnd = false;

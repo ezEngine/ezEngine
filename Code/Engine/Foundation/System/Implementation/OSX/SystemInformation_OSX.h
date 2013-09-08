@@ -24,7 +24,7 @@ void ezSystemInformation::Initialize()
   
   
   
-  // TODO: Not correct for 32 bit process on 64 bit system
+  /// \todo Not correct for 32 bit process on 64 bit system
 #if EZ_ENABLED(EZ_PLATFORM_64BIT)
   s_SystemInformation.m_b64BitOS = true;
 #else

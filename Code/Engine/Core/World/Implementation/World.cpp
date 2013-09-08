@@ -28,12 +28,16 @@ ezWorld::ezWorld(const char* szWorldName) :
 
 ezWorld::~ezWorld()
 {
+  CheckForMultithreadedAccess();
+
   s_Worlds[m_uiIndex] = NULL;
   m_uiIndex = ezInvalidIndex;
 }
 
 void ezWorld::CreateObjects(const ezArrayPtr<const ezGameObjectDesc>& descs, ezArrayPtr<ezGameObjectHandle> out_objects)
 {
+  CheckForMultithreadedAccess();
+
   EZ_ASSERT_API(out_objects.GetCount() == descs.GetCount(), "out_objects array must be the same size as descs array");
 
   const ezUInt32 uiCount = descs.GetCount();
@@ -84,6 +88,8 @@ void ezWorld::CreateObjects(const ezArrayPtr<const ezGameObjectDesc>& descs, ezA
     pNewObject->m_uiTransformationDataIndex = uiTransformationDataIndex + i;
 
     pNewObject->m_pWorld = this;
+    pNewObject->m_uiHandledMessageCounter = 0;
+    pNewObject->m_uiReserved = 0;
 
     if (!ezStringUtils::IsNullOrEmpty(desc.m_szName))
     {
@@ -107,6 +113,8 @@ void ezWorld::CreateObjects(const ezArrayPtr<const ezGameObjectDesc>& descs, ezA
 
 void ezWorld::DeleteObjects(const ezArrayPtr<const ezGameObjectHandle>& objects)
 {
+  CheckForMultithreadedAccess();
+
   for (ezUInt32 i = 0; i < objects.GetCount(); ++i)
   {
     const ezGameObjectId id = objects[i].m_InternalId;
@@ -121,7 +129,7 @@ void ezWorld::DeleteObjects(const ezArrayPtr<const ezGameObjectHandle>& objects)
     m_Data.m_DeadObjects.PushBack(storageEntry);
     m_Data.m_Objects.Remove(id);
 
-    /// \todo: fix parent etc
+    /// \todo fix parent etc.
 
     // delete attached components
     const ezArrayPtr<ezComponentHandle> components = pObject->GetComponents();
@@ -149,6 +157,8 @@ void ezWorld::DeleteObjects(const ezArrayPtr<const ezGameObjectHandle>& objects)
 
 bool ezWorld::TryGetObject(ezUInt64 uiPersistentId, ezGameObject*& out_pObject) const
 {
+  CheckForMultithreadedAccess();
+
   ezGameObjectId internalId;
   if (m_Data.m_PersistentToInternalTable.TryGetValue(uiPersistentId, internalId))
   {
@@ -160,6 +170,8 @@ bool ezWorld::TryGetObject(ezUInt64 uiPersistentId, ezGameObject*& out_pObject) 
 
 bool ezWorld::TryGetObject(const char* szObjectName, ezGameObject*& out_pObject) const
 {
+  CheckForMultithreadedAccess();
+
   ezGameObjectId internalId;
   if (m_Data.m_NameToInternalTable.TryGetValue(szObjectName, internalId))
   {
@@ -169,17 +181,38 @@ bool ezWorld::TryGetObject(const char* szObjectName, ezGameObject*& out_pObject)
   return false;
 }
 
+void ezWorld::SendMessage(const ezGameObjectHandle& receiverObject, ezMessage& msg,
+  ezBitflags<ezObjectMsgRouting> routing /*= ezObjectMsgRouting::Default*/)
+{
+  if (routing.IsAnySet(ezObjectMsgRouting::QueuedForPostAsync | ezObjectMsgRouting::QueuedForNextFrame))
+  {
+    QueueMessage(receiverObject, msg, routing);
+  }
+  else
+  {
+    ezGameObject* pReceiverObject = NULL;
+    if (TryGetObject(receiverObject, pReceiverObject))
+    {
+      HandleMessage(pReceiverObject, msg, routing);
+    }
+  }
+}
+
 void ezWorld::Update()
 {
+  CheckForMultithreadedAccess();
+
   EZ_ASSERT(m_Data.m_UnresolvedUpdateFunctions.IsEmpty(), "There are update functions with unresolved depedencies.");
-  
+
   // pre-async phase
+  ProcessQueuedMessages(MessageQueueType::NextFrame);  
   UpdateSynchronous(m_Data.m_UpdateFunctions[ezComponentManagerBase::UpdateFunctionDesc::PreAsync]);
 
   // async phase
   UpdateAsynchronous();
 
   // post-async phase
+  ProcessQueuedMessages(MessageQueueType::PostAsync);  
   UpdateSynchronous(m_Data.m_UpdateFunctions[ezComponentManagerBase::UpdateFunctionDesc::PostAsync]);
 
   DeleteDeadObjects();
@@ -192,6 +225,8 @@ void ezWorld::Update()
 
 void ezWorld::SetObjectName(ezGameObjectId internalId, const char* szName)
 {
+  CheckForMultithreadedAccess();
+
   m_Data.m_InternalToNameTable.Insert(internalId, szName);
   const char* szInsertedName = m_Data.m_InternalToNameTable[internalId].GetData();
   m_Data.m_NameToInternalTable.Insert(szInsertedName, internalId);
@@ -207,15 +242,60 @@ const char* ezWorld::GetObjectName(ezGameObjectId internalId) const
   return NULL;
 }
 
-void ezWorld::QueueMessage(ezMessage& msg, ezBitflags<ezGameObject::MsgRouting> routing, const ezGameObjectHandle& senderObject)
+void ezWorld::QueueMessage(const ezGameObjectHandle& receiverObject, ezMessage& msg, ezBitflags<ezObjectMsgRouting> routing)
 {
-  EZ_ASSERT_NOT_IMPLEMENTED;
+  const MessageQueueType::Enum queueType = routing.IsSet(ezObjectMsgRouting::QueuedForPostAsync) ?
+    MessageQueueType::PostAsync : MessageQueueType::NextFrame;
+
+  routing.Remove(ezObjectMsgRouting::QueuedForPostAsync);
+  routing.Remove(ezObjectMsgRouting::QueuedForNextFrame);
+
+  QueuedMsgMetaData metaData;
+  metaData.m_ReceiverObject = receiverObject;
+  metaData.m_Routing = routing;
+
+  m_Data.m_MessageQueues[queueType].Enqueue(msg, metaData);
+}
+
+void ezWorld::ProcessQueuedMessages(MessageQueueType::Enum queueType)
+{
+  struct MessageComparer
+  {
+    EZ_FORCE_INLINE static bool Less(const ezInternal::WorldData::MessageQueue::Entry& a, const ezInternal::WorldData::MessageQueue::Entry& b)
+    {
+      if (a.m_pMessage->GetId() != b.m_pMessage->GetId())
+        return a.m_pMessage->GetId() < b.m_pMessage->GetId();
+
+      if (a.m_MetaData.m_ReceiverObject != b.m_MetaData.m_ReceiverObject)
+        return a.m_MetaData.m_ReceiverObject < b.m_MetaData.m_ReceiverObject;
+          
+      return a.m_pMessage->GetHash() < b.m_pMessage->GetHash();
+    }
+  };
+
+  ezInternal::WorldData::MessageQueue& queue = m_Data.m_MessageQueues[queueType];
+  queue.Sort<MessageComparer>();
+
+  for (ezUInt32 i = 0; i < queue.GetCount(); ++i)
+  {
+    const ezInternal::WorldData::MessageQueue::Entry& entry = queue[i];
+
+    ezGameObject* pReceiverObject = NULL;
+    if (TryGetObject(entry.m_MetaData.m_ReceiverObject, pReceiverObject))
+    {
+      HandleMessage(pReceiverObject, *entry.m_pMessage, entry.m_MetaData.m_Routing);
+    }
+  }
+
+  queue.Clear();
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
 ezResult ezWorld::RegisterUpdateFunction(const ezComponentManagerBase::UpdateFunctionDesc& desc)
 {
+  CheckForMultithreadedAccess();
+
   EZ_ASSERT(desc.m_Phase == ezComponentManagerBase::UpdateFunctionDesc::Async || desc.m_uiGranularity == 0, "Granularity must be 0 for synchronous update functions");
 
   ezDynamicArrayBase<ezInternal::WorldData::RegisteredUpdateFunction>& updateFunctions = m_Data.m_UpdateFunctions[desc.m_Phase];
@@ -224,6 +304,7 @@ ezResult ezWorld::RegisterUpdateFunction(const ezComponentManagerBase::UpdateFun
   {
     ezInternal::WorldData::RegisteredUpdateFunction newFunction;
     newFunction.m_Function = desc.m_Function;
+    newFunction.m_szFunctionName = desc.m_szFunctionName;
     newFunction.m_uiGranularity = desc.m_uiGranularity;
 
     updateFunctions.PushBack(newFunction);
@@ -278,6 +359,7 @@ ezResult ezWorld::RegisterUpdateFunctionWithDependency(const ezComponentManagerB
 
   ezInternal::WorldData::RegisteredUpdateFunction newFunction;
   newFunction.m_Function = desc.m_Function;
+  newFunction.m_szFunctionName = desc.m_szFunctionName;
   newFunction.m_uiGranularity = desc.m_uiGranularity;
 
   updateFunctions.Insert(newFunction, uiInsertionIndex);
@@ -287,6 +369,8 @@ ezResult ezWorld::RegisterUpdateFunctionWithDependency(const ezComponentManagerB
 
 ezResult ezWorld::DeregisterUpdateFunction(const ezComponentManagerBase::UpdateFunctionDesc& desc)
 {
+  CheckForMultithreadedAccess();
+
   ezResult result = EZ_FAILURE;
 
   ezDynamicArrayBase<ezInternal::WorldData::RegisteredUpdateFunction>& updateFunctions = m_Data.m_UpdateFunctions[desc.m_Phase];
@@ -317,6 +401,8 @@ void ezWorld::UpdateSynchronous(const ezArrayPtr<ezInternal::WorldData::Register
 
 void ezWorld::UpdateAsynchronous()
 {
+  m_Data.m_bIsInAsyncPhase = true;
+
   ezTaskGroupID taskGroupId = ezTaskSystem::CreateTaskGroup(ezTaskPriority::EarlyThisFrame);
 
   ezDynamicArrayBase<ezInternal::WorldData::RegisteredUpdateFunction>& updateFunctions = 
@@ -346,10 +432,10 @@ void ezWorld::UpdateAsynchronous()
         m_Data.m_UpdateTasks.PushBack(pTask);
       }
             
-      pTask->SetTaskName("Update Task"); /// \todo: get name from delegate
+      pTask->SetTaskName(updateFunction.m_szFunctionName);
       pTask->m_Function = updateFunction.m_Function;
       pTask->m_uiStartIndex = uiStartIndex;
-      pTask->m_uiCount = ezMath::Min(uiGranularity, uiTotalCount - uiStartIndex); ///  \todo: set count to invalidindex for last task
+      pTask->m_uiCount = (uiStartIndex + uiGranularity < uiTotalCount) ? uiGranularity : ezInvalidIndex;
 
       ++uiCurrentTaskIndex;
       uiStartIndex += uiGranularity;
@@ -358,6 +444,8 @@ void ezWorld::UpdateAsynchronous()
 
   ezTaskSystem::StartTaskGroup(taskGroupId);
   ezTaskSystem::WaitForGroup(taskGroupId);
+
+  m_Data.m_bIsInAsyncPhase = false;
 }
 
 void ezWorld::DeleteDeadObjects()

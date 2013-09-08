@@ -36,6 +36,7 @@ EZ_FORCE_INLINE void ezWorld::DeleteObject(const ezGameObjectHandle& object)
 
 EZ_FORCE_INLINE bool ezWorld::IsValidObject(const ezGameObjectHandle& object) const
 {
+  CheckForMultithreadedAccess();
   EZ_ASSERT(object.m_InternalId.m_WorldIndex == m_uiIndex, 
     "Object does not belong to this world. Expected world id %d got id %d", m_uiIndex, object.m_InternalId.m_WorldIndex);
 
@@ -44,13 +45,14 @@ EZ_FORCE_INLINE bool ezWorld::IsValidObject(const ezGameObjectHandle& object) co
 
 EZ_FORCE_INLINE bool ezWorld::TryGetObject(const ezGameObjectHandle& object, ezGameObject*& out_pObject) const
 {
+  CheckForMultithreadedAccess();
   EZ_ASSERT(object.m_InternalId.m_WorldIndex == m_uiIndex, 
     "Object does not belong to this world. Expected world id %d got id %d", m_uiIndex, object.m_InternalId.m_WorldIndex);
 
   ObjectStorageEntry storageEntry = { NULL };
-  bool res = m_Data.m_Objects.TryGetValue(object.m_InternalId, storageEntry);
+  bool bResult = m_Data.m_Objects.TryGetValue(object.m_InternalId, storageEntry);
   out_pObject = storageEntry.m_Ptr;
-  return res;
+  return bResult;
 }
 
 EZ_FORCE_INLINE ezUInt32 ezWorld::GetObjectCount() const
@@ -61,6 +63,7 @@ EZ_FORCE_INLINE ezUInt32 ezWorld::GetObjectCount() const
 template <typename ManagerType>
 ManagerType* ezWorld::CreateComponentManager()
 {
+  CheckForMultithreadedAccess();
   EZ_CHECK_AT_COMPILETIME_MSG(EZ_IS_DERIVED_FROM_STATIC(ezComponentManagerBase, ManagerType), 
     "Not a valid component manager type");
 
@@ -85,6 +88,7 @@ ManagerType* ezWorld::CreateComponentManager()
 template <typename ManagerType>
 EZ_FORCE_INLINE ManagerType* ezWorld::GetComponentManager() const
 {
+  CheckForMultithreadedAccess();
   EZ_CHECK_AT_COMPILETIME_MSG(EZ_IS_DERIVED_FROM_STATIC(ezComponentManagerBase, ManagerType), 
     "Not a valid component manager type");
 
@@ -101,6 +105,7 @@ EZ_FORCE_INLINE ManagerType* ezWorld::GetComponentManager() const
 
 inline bool ezWorld::IsValidComponent(const ezComponentHandle& component) const
 {
+  CheckForMultithreadedAccess();
   const ezUInt16 uiTypeId = component.m_InternalId.m_TypeId;
 
   if (uiTypeId < m_Data.m_ComponentManagers.GetCount())
@@ -117,13 +122,14 @@ inline bool ezWorld::IsValidComponent(const ezComponentHandle& component) const
 template <typename ComponentType>
 EZ_FORCE_INLINE bool ezWorld::IsComponentOfType(const ezComponentHandle& component) const
 {
-  /// \todo: Use RTTI
+  /// \todo Use RTTI
   return component.m_InternalId.m_TypeId == ComponentType::TypeId() || ComponentType::TypeId() == ezComponent::TypeId();
 }
 
 template <typename ComponentType>
 inline bool ezWorld::TryGetComponent(const ezComponentHandle& component, ComponentType*& out_pComponent) const
 {
+  CheckForMultithreadedAccess();
   EZ_CHECK_AT_COMPILETIME_MSG(EZ_IS_DERIVED_FROM_STATIC(ezComponent, ComponentType),
     "Not a valid component type");
 
@@ -135,13 +141,12 @@ inline bool ezWorld::TryGetComponent(const ezComponentHandle& component, Compone
 
   if (uiTypeId < m_Data.m_ComponentManagers.GetCount())
   {
-    ezComponentManagerBase* pManager = m_Data.m_ComponentManagers[uiTypeId];
-    ezComponent* pComponent = NULL;
-
-    if (pManager != NULL && pManager->TryGetComponent(component, pComponent))
+    if (ezComponentManagerBase* pManager = m_Data.m_ComponentManagers[uiTypeId])
     {
+      ezComponent* pComponent = NULL;
+      bool bResult = pManager->TryGetComponent(component, pComponent);
       out_pComponent = static_cast<ComponentType*>(pComponent);
-      return true;
+      return bResult;
     }
   }
 
@@ -178,4 +183,23 @@ EZ_FORCE_INLINE ezUInt32 ezWorld::GetWorldCount()
 EZ_FORCE_INLINE ezWorld* ezWorld::GetWorld(ezUInt32 uiIndex)
 {
   return s_Worlds[uiIndex];
+}
+
+EZ_FORCE_INLINE void ezWorld::CheckForMultithreadedAccess() const
+{
+  EZ_ASSERT(!m_Data.m_bIsInAsyncPhase && m_Data.m_ThreadHandle == ezThreadUtils::GetCurrentThreadHandle(), \
+    "World must not be accessed while in async update phase or from another thread than the creation thread.");
+}
+
+EZ_FORCE_INLINE void ezWorld::HandleMessage(ezGameObject* pReceiverObject, ezMessage& msg, ezBitflags<ezObjectMsgRouting> routing)
+{
+  CheckForMultithreadedAccess();
+
+  ++m_Data.m_uiHandledMessageCounter;
+  pReceiverObject->OnMessage(msg, routing);
+}
+
+EZ_FORCE_INLINE ezUInt32  ezWorld::GetHandledMessageCounter() const
+{
+  return m_Data.m_uiHandledMessageCounter;
 }

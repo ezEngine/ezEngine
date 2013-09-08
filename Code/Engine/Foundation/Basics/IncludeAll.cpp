@@ -15,6 +15,7 @@
 #include <Foundation/Communication/Event.h>
 #include <Foundation/Communication/GlobalEvent.h>
 #include <Foundation/Communication/Message.h>
+#include <Foundation/Communication/MessageQueue.h>
 
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Configuration/StaticSubSystem.h>

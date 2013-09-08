@@ -100,12 +100,6 @@ protected:
 /// \brief deletes a raw buffer stored in ptr using the default allocator, but does NOT call destructor
 #define EZ_DEFAULT_DELETE_RAW_BUFFER(ptr) EZ_DELETE_RAW_BUFFER(ezFoundation::GetDefaultAllocator(), ptr)
 
-/// \todo: find a better solution for that
-/// Disallow the use of new, always use the macros above
-///#if !(defined(EZ_ALLOW_STANDARD_NEW) && EZ_ALLOW_STANDARD_NEW)
-///  #define new DISALLOWED_USAGE_OF_NEW
-///  #define delete DISALLOWED_USAGE_OF_DELETE
-///#endif
 
 /// \brief Operator to allow accumulating stats of different allocators.
 ezIAllocator::Stats operator+ (const ezIAllocator::Stats& lhs, const ezIAllocator::Stats& rhs);

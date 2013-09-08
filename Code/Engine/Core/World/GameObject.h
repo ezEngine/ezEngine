@@ -33,7 +33,7 @@ private:
     ezQuat m_localRotation;
     ezVec4 m_localScaling;
 
-    // todo: simd struct
+    /// \todo simd struct
     ezMat3 m_worldRotation;
     ezVec3 m_worldPosition;
 
@@ -126,33 +126,10 @@ public:
   ezArrayPtr<ezComponentHandle> GetComponents() const;
 
   // messaging
-  struct MsgRouting
-  {
-    typedef ezUInt32 StorageType;
-
-    enum Enum
-    {
-      ToParent   = EZ_BIT(0),
-      ToChildren = EZ_BIT(1),
-
-      Direct     = 0,
-      Queued     = EZ_BIT(2),
-
-      Default    = ToChildren | Direct
-    };
-
-    struct Bits
-    {
-      StorageType ToParent : 1;
-      StorageType ToChildren : 1;
-      StorageType Queued : 1;
-    };
-  };
-
-  void SendMessage(ezMessage& msg, ezBitflags<MsgRouting> routing = MsgRouting::Default);
+  void SendMessage(ezMessage& msg, ezBitflags<ezObjectMsgRouting> routing = ezObjectMsgRouting::Default);
   
 private:
-  void OnMessage(ezMessage& msg, ezBitflags<MsgRouting> routing);
+  void OnMessage(ezMessage& msg, ezBitflags<ezObjectMsgRouting> routing);
 
   ezGameObjectId m_InternalId;
   ezBitflags<ezObjectFlags> m_Flags;
@@ -175,12 +152,15 @@ private:
   ezUInt64 m_uiPadding;
 #endif
 
-  // todo: small array class to reduce memory overhead
-  ezHybridArray<ezComponentHandle, 7> m_Components;
+  /// \todo small array class to reduce memory overhead
+  ezHybridArray<ezComponentHandle, 6> m_Components;
 
 #if EZ_ENABLED(EZ_PLATFORM_32BIT)
   ezUInt64 m_uiPadding2;
 #endif
+
+  ezUInt32 m_uiHandledMessageCounter;
+  ezUInt32 m_uiReserved;
 };
 
 #include <Core/World/Implementation/GameObject_inl.h>

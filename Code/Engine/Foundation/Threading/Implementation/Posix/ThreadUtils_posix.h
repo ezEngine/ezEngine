@@ -31,12 +31,12 @@ void ezThreadUtils::Sleep(ezUInt32 uiMilliSeconds)
   nanosleep(&SleepTime, NULL);
 }
 
-bool ezThreadUtils::IsMainThread()
-{
-  return pthread_self() == g_MainThread;
-}
-
 ezThreadHandle ezThreadUtils::GetCurrentThreadHandle()
 {
   return pthread_self();
+}
+
+bool ezThreadUtils::IsMainThread()
+{
+  return pthread_self() == g_MainThread;
 }

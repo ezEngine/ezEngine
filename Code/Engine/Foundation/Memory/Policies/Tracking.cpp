@@ -63,7 +63,7 @@ void ezStackTracking::DumpMemoryLeaks() const
     
     wchar_t buffer[512];
 
-    // todo: make this platform independent
+    /// \todo make this platform independent
     swprintf_s(buffer, L"Leaked %d bytes allocated from:\n", (int)info.uiAllocatedSize);
     OutputDebugStringW(buffer);
     ezStackTracer::DumpStackTrace(ezArrayPtr<void*>(info.pTrace, uiNumTraces));

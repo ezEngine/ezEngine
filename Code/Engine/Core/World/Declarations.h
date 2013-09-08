@@ -106,3 +106,30 @@ struct ezObjectFlags
 };
 
 EZ_DECLARE_FLAGS_OPERATORS(ezObjectFlags);
+
+struct ezObjectMsgRouting
+{
+  typedef ezUInt32 StorageType;
+
+  enum Enum
+  {
+    ToParent   = EZ_BIT(0),
+    ToChildren = EZ_BIT(1),
+
+    Direct     = 0,
+    QueuedForPostAsync = EZ_BIT(2),
+    QueuedForNextFrame = EZ_BIT(3),
+
+    Default    = ToChildren | Direct
+  };
+
+  struct Bits
+  {
+    StorageType ToParent : 1;
+    StorageType ToChildren : 1;
+    StorageType QueuedForPostAsync : 1;
+    StorageType QueuedForNextFrame : 1;
+  };
+};
+
+EZ_DECLARE_FLAGS_OPERATORS(ezObjectMsgRouting);

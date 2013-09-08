@@ -13,16 +13,6 @@
 #undef min
 #undef max
 
-
-typedef void* ezModuleHandle;
-typedef FILE* ezFileHandle;
-typedef pthread_t ezThreadId;
-typedef pthread_t ezThreadHandle;
-typedef pthread_mutex_t ezMutexHandle;
-typedef timeval ezHighPrecisionTimeValue;
-typedef void* (*ezOSThreadEntryPoint)(void* pThreadParameter);
-typedef pthread_key_t ezThreadLocalStorageKey;
-
 /// \todo Detect / differentiate between GCC / CLANG?
 #include <Foundation/Basics/Compiler/GCC/GCC.h>
 

@@ -25,7 +25,7 @@ void ezIAllocator::DumpMemoryLeaks() const
   
     #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
 
-      // todo: make this platform independent
+      /// \todo make this platform independent
       wchar_t szName[32];
       mbstowcs(szName, m_szName, 32);
       wchar_t szBuffer[512];

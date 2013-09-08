@@ -19,6 +19,9 @@ WorldData::WorldData(const char* szWorldName) :
   m_AllocatorWrapper(&m_Allocator),
   m_BlockAllocator(m_Name.GetData(), &m_Allocator),
   m_ObjectStorage(&m_BlockAllocator, &m_Allocator),
+  m_uiHandledMessageCounter(0),
+  m_ThreadHandle(ezThreadUtils::GetCurrentThreadHandle()),
+  m_bIsInAsyncPhase(false),
   m_pUserData(NULL)
 {
   m_AllocatorWrapper.Reset();

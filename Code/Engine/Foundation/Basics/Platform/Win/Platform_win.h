@@ -41,7 +41,6 @@
 #undef CopyFile
 #undef SendMessage
 
-typedef DWORD ezThreadId;
 
 #if defined(_MSC_VER)
 

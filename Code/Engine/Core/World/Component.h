@@ -22,15 +22,17 @@ public:
   virtual ezResult Initialize();
   virtual ezResult Deinitialize();
 
-  virtual void OnMessage(ezMessage& msg);
-
   ezGameObject* GetOwner() const;
+
+  void SendMessageToOwner(ezMessage& msg, ezBitflags<ezObjectMsgRouting> routing = ezObjectMsgRouting::Default);
 
   static ezUInt16 TypeId();
 
 protected:
   friend class ezGameObject;
   friend class ezComponentManagerBase;
+
+  virtual void OnMessage(ezMessage& msg);
 
   ezComponentManagerBase* m_pManager;
   ezGameObject* m_pOwner;

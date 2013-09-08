@@ -98,20 +98,31 @@ ezResult ezGameObject::RemoveComponent(const ezComponentHandle& component)
   return result;
 }
 
-void ezGameObject::SendMessage(ezMessage& msg, ezBitflags<MsgRouting> routing /*= MsgRouting::Default*/)
+void ezGameObject::SendMessage(ezMessage& msg, ezBitflags<ezObjectMsgRouting> routing /*= MsgRouting::Default*/)
 {
-  if (routing.IsSet(MsgRouting::Queued))
+  if (routing.IsAnySet(ezObjectMsgRouting::QueuedForPostAsync | ezObjectMsgRouting::QueuedForNextFrame))
   {
-    m_pWorld->QueueMessage(msg, routing, GetHandle());
+    m_pWorld->QueueMessage(GetHandle(), msg, routing);
   }
   else
   {
-    OnMessage(msg, routing);
+    m_pWorld->HandleMessage(this, msg, routing);
   }
 }
 
-void ezGameObject::OnMessage(ezMessage& msg, ezBitflags<MsgRouting> routing)
+void ezGameObject::OnMessage(ezMessage& msg, ezBitflags<ezObjectMsgRouting> routing)
 {
+  EZ_ASSERT(!routing.IsAnySet(ezObjectMsgRouting::QueuedForPostAsync | ezObjectMsgRouting::QueuedForNextFrame),
+    "Queued message is handled directly");
+
+  // prevent double message handling when sending to parent and children
+  const ezUInt32 uiHandledMessageCounter = m_pWorld->GetHandledMessageCounter();
+  if (m_uiHandledMessageCounter == uiHandledMessageCounter)
+    return;
+
+  m_uiHandledMessageCounter = uiHandledMessageCounter;
+
+  // always send message to all components
   for (ezUInt32 i = 0; i < m_Components.GetCount(); ++i)
   {
     ezComponent* pComponent = NULL;
@@ -121,8 +132,8 @@ void ezGameObject::OnMessage(ezMessage& msg, ezBitflags<MsgRouting> routing)
     }
   }
 
-  /// \todo: prevent double message handling when sending to parent and children
-  if (routing.IsSet(MsgRouting::ToParent))
+  // route message to parent and/or children
+  if (routing.IsSet(ezObjectMsgRouting::ToParent))
   {
     ezGameObject* pParent = NULL;
     if (m_pWorld->TryGetObject(m_Parent, pParent))
@@ -130,7 +141,7 @@ void ezGameObject::OnMessage(ezMessage& msg, ezBitflags<MsgRouting> routing)
       pParent->OnMessage(msg, routing);
     }
   }
-  if (routing.IsSet(MsgRouting::ToChildren))
+  if (routing.IsSet(ezObjectMsgRouting::ToChildren))
   {
     for (ChildIterator it = GetChildren(); it.IsValid(); ++it)
     {

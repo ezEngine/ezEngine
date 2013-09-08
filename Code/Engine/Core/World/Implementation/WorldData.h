@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Foundation/Communication/MessageQueue.h>
 #include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/Containers/HashTable.h>
 #include <Foundation/Containers/IdTable.h>
@@ -81,6 +82,7 @@ namespace ezInternal
       EZ_DECLARE_POD_TYPE();
 
       UpdateFunction m_Function;
+      const char* m_szFunctionName;
       ezUInt32 m_uiGranularity;
     };
   
@@ -97,6 +99,31 @@ namespace ezInternal
     ezDynamicArray<ezComponentManagerBase::UpdateFunctionDesc, ezLocalAllocatorWrapper> m_UnresolvedUpdateFunctions;
 
     ezDynamicArray<UpdateTask*, ezLocalAllocatorWrapper> m_UpdateTasks;
+
+    struct MessageQueueType
+    {
+      enum Enum
+      {
+        PostAsync,
+        NextFrame,
+        COUNT
+      };
+    };
+
+    struct QueuedMsgMetaData
+    {
+      ezGameObjectHandle m_ReceiverObject;
+      ezBitflags<ezObjectMsgRouting> m_Routing;
+    };
+
+    /// \todo temp allocator
+    typedef ezMessageQueue<QueuedMsgMetaData, ezMutex, ezLocalAllocatorWrapper, ezLocalAllocatorWrapper> MessageQueue;
+    MessageQueue m_MessageQueues[MessageQueueType::COUNT];
+
+    ezUInt32 m_uiHandledMessageCounter;
+
+    ezThreadHandle m_ThreadHandle;
+    bool m_bIsInAsyncPhase;
 
     void* m_pUserData;
   };

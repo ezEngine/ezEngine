@@ -1,5 +1,5 @@
 #include <Core/PCH.h>
-#include <Core/World/ComponentManager.h>
+#include <Core/World/GameObject.h>
 
 ezUInt16 ezComponent::TYPE_ID = ezComponentManagerBase::GetNextTypeId();
 
@@ -19,6 +19,11 @@ ezResult ezComponent::Initialize()
 ezResult ezComponent::Deinitialize()
 {
   return EZ_SUCCESS;
+}
+
+void ezComponent::SendMessageToOwner(ezMessage& msg, ezBitflags<ezObjectMsgRouting> routing /*= ezObjectMsgRouting::Default*/)
+{
+  m_pOwner->SendMessage(msg, routing);
 }
 
 void ezComponent::OnMessage(ezMessage& msg) 
