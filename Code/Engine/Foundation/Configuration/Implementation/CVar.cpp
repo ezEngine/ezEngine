@@ -21,8 +21,6 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, CVars)
   ON_BASE_STARTUP
   {
     ezPlugin::s_PluginEvents.AddEventHandler(ezCVar::PluginEventHandler, NULL);
-
-    ezCVar::SendAllCVarTelemetry();
   }
 
   ON_BASE_SHUTDOWN
@@ -35,11 +33,6 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, CVars)
     // save the CVars every time the engine is shut down
     // at this point the filesystem should usually still be configured properly
     ezCVar::SaveCVars();
-  }
-
-  ON_CORE_STARTUP
-  {
-    ezCVar::SendAllCVarTelemetry();
   }
 
   ON_CORE_SHUTDOWN
@@ -113,8 +106,7 @@ void ezCVar::SendAllCVarTelemetry()
   // clear
   {
     ezTelemetryMessage msg;
-    msg.SetMessageID('CVAR', 'CLR');
-    ezTelemetry::Broadcast(ezTelemetry::Reliable, msg);
+    ezTelemetry::Broadcast(ezTelemetry::Reliable, 'CVAR', 'CLR', NULL, 0);
   }
 
   ezCVar* pCVar = ezCVar::GetFirstInstance();

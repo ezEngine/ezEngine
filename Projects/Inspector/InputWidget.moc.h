@@ -22,7 +22,7 @@ private slots:
   virtual void on_ButtonClearActions_clicked();
 
 public:
-  static void ProcessTelemetry_Input(void* pPassThrough);
+  static void ProcessTelemetry(void* pUnuseed);
 
   void ResetStats();
   void UpdateStats();

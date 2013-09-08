@@ -44,6 +44,7 @@ private:
 
     while(m_bKeepRunning)
     {
+      /// \todo Do this in a more appropriate place (outside of ezTelemetry)
       BroadcastMemoryStats();
 
       ezTelemetry::UpdateNetwork();

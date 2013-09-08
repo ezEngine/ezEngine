@@ -3,6 +3,7 @@
 #include "ProjectileComponent.h"
 #include "CollidableComponent.h"
 #include <InputXBox360/InputDeviceXBox.h>
+#include <Foundation/Utilities/Stats.h>
 
 EZ_IMPLEMENT_COMPONENT_TYPE(ShipComponent, ShipComponentManager);
 
@@ -22,6 +23,12 @@ ShipComponent::ShipComponent()
 void ShipComponent::SetVelocity(const ezVec3& vVel)
 {
   m_vVelocity += vVel * 0.1f;
+
+  ezStringBuilder s, v;
+  s.Format("Game/Player%i/Velocity", m_iPlayerIndex);
+  v.Format("%.3f | %.3f | %.3f", m_vVelocity.x, m_vVelocity.y, m_vVelocity.z);
+
+  ezStats::SetStat(s.GetData(), v.GetData());
 }
 
 void ShipComponent::SetIsShooting(bool b)
@@ -30,6 +37,12 @@ void ShipComponent::SetIsShooting(bool b)
   //ezInputDeviceXBox360::GetDevice()->SetVibrationStrength(m_iPlayerIndex, 1, b ? 1.0f : 0.0f);
 
   m_bIsShooting = b;
+
+  ezStringBuilder s, v;
+  s.Format("Game/Player%i/Shooting", m_iPlayerIndex);
+  v = b ? "Yes" : "No";
+
+  ezStats::SetStat(s.GetData(), v.GetData());
 }
 
 void ShipComponent::Update()
@@ -117,4 +130,21 @@ void ShipComponent::Update()
   vCurPos = vCurPos.CompMin(ezVec3(20.0f));
 
   m_pOwner->SetLocalPosition(vCurPos);
+
+
+  ezStringBuilder s, v;
+
+  {
+    s.Format("Game/Player%i/Health", m_iPlayerIndex);
+    v.Format("%i", m_iHealth);
+
+    ezStats::SetStat(s.GetData(), v.GetData());
+  }
+
+  {
+    s.Format("Game/Player%i/Ammo", m_iPlayerIndex);
+    v.Format("%i", m_iAmmunition);
+
+    ezStats::SetStat(s.GetData(), v.GetData());
+  }
 }

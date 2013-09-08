@@ -83,6 +83,7 @@
     <addaction name="ActionShowWindowMemory"/>
     <addaction name="ActionShowWindowInput"/>
     <addaction name="ActionShowWindowCVar"/>
+    <addaction name="ActionShowWindowStats"/>
    </widget>
    <addaction name="menuWindows"/>
   </widget>
@@ -129,6 +130,11 @@
    </property>
    <property name="text">
     <string>CVars</string>
+   </property>
+  </action>
+  <action name="ActionShowWindowStats">
+   <property name="text">
+    <string>Stats</string>
    </property>
   </action>
  </widget>

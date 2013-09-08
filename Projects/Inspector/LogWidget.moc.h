@@ -23,7 +23,7 @@ private slots:
   virtual void on_ComboLogLevel_currentIndexChanged(int iIndex);
 
 public:
-  static void ProcessTelemetry_Log(void* pPassThrough);
+  static void ProcessTelemetry(void* pUnuseed);
 
   void ResetStats();
   void UpdateStats();

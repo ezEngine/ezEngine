@@ -18,8 +18,8 @@ public:
 
   void paintEvent(QPaintEvent* event) EZ_OVERRIDE;
 
-  void SaveLayout (const char* szFile) const;
-  void LoadLayout (const char* szFile);
+  void SaveLayout() const;
+  void LoadLayout();
 
   void Log(const char* szMsg);
 
@@ -30,6 +30,7 @@ public slots:
   void on_ActionShowWindowMemory_triggered();
   void on_ActionShowWindowInput_triggered();
   void on_ActionShowWindowCVar_triggered();
+  void on_ActionShowWindowStats_triggered();
 
 private:
 

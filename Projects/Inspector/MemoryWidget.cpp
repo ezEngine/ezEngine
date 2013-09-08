@@ -353,7 +353,7 @@ void ezMemoryWidget::UpdateStats()
   }
 }
 
-void ezMemoryWidget::ProcessTelemetry_Memory(void* pPassThrough)
+void ezMemoryWidget::ProcessTelemetry(void* pUnuseed)
 {
   if (s_pWidget == NULL)
     return;

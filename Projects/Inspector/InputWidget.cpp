@@ -65,7 +65,7 @@ void ezInputWidget::UpdateStats()
 {
 }
 
-void ezInputWidget::ProcessTelemetry_Input(void* pPassThrough)
+void ezInputWidget::ProcessTelemetry(void* pUnuseed)
 {
   if (!s_pWidget)
     return;

@@ -20,7 +20,7 @@ public:
 private slots:
 
 public:
-  static void ProcessTelemetry_CVars(void* pPassThrough);
+  static void ProcessTelemetry(void* pUnuseed);
 
   void ResetStats();
   void UpdateStats();

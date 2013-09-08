@@ -28,7 +28,7 @@ private slots:
   void on_ComboTimeframe_currentIndexChanged(int index);
 
 public:
-  static void ProcessTelemetry_Memory(void* pPassThrough);
+  static void ProcessTelemetry(void* pUnuseed);
 
   void ResetStats();
   void UpdateStats();

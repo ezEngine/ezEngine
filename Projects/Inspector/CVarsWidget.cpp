@@ -22,7 +22,7 @@ void ezCVarsWidget::UpdateStats()
 {
 }
 
-void ezCVarsWidget::ProcessTelemetry_CVars(void* pPassThrough)
+void ezCVarsWidget::ProcessTelemetry(void* pUnuseed)
 {
   if (!s_pWidget)
     return;

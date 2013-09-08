@@ -9,6 +9,7 @@
 #include <Foundation/Strings/String.h>
 #include <Foundation/Containers/HybridArray.h>
 #include <Foundation/Configuration/CVar.h>
+#include <Foundation/Utilities/Stats.h>
 
 class ezTelemetryThread;
 
@@ -26,7 +27,7 @@ static ENetAddress g_pServerAddress;
 static ENetHost* g_pHost = NULL;
 static ENetPeer* g_pConnectionToServer = NULL;
 ezTelemetry::ConnectionMode ezTelemetry::s_ConnectionMode = ezTelemetry::None;
-ezMap<ezUInt32, ezTelemetry::MessageQueue, ezCompareHelper<ezUInt32>, ezStaticAllocatorWrapper > ezTelemetry::s_SystemMessages;
+ezMap<ezUInt64, ezTelemetry::MessageQueue, ezCompareHelper<ezUInt64>, ezStaticAllocatorWrapper > ezTelemetry::s_SystemMessages;
 
 
 void ezTelemetry::UpdateServerPing()
@@ -109,9 +110,9 @@ void ezTelemetry::UpdateNetwork()
 
     case ENET_EVENT_TYPE_RECEIVE:
       {
-        const ezUInt32 uiSystemID = *((ezUInt32*) &NetworkEvent.packet->data[0]);
-        const ezUInt32 uiMsgID    = *((ezUInt32*) &NetworkEvent.packet->data[4]);
-        const ezUInt8* pData = &NetworkEvent.packet->data[8];
+        const ezUInt64 uiSystemID = *((ezUInt64*) &NetworkEvent.packet->data[0]);
+        const ezUInt32 uiMsgID    = *((ezUInt32*) &NetworkEvent.packet->data[8]);
+        const ezUInt8* pData = &NetworkEvent.packet->data[12];
 
         if (uiSystemID == 'EZBC')
         {
@@ -119,8 +120,12 @@ void ezTelemetry::UpdateNetwork()
           {
           case 'RQID':
             Broadcast(ezTelemetry::Reliable, 'EZBC', 'EZID', &s_uiApplicationID, sizeof(ezUInt32));
+
+            /// \todo Make this better (let systems react to the 'connect' event)
             ezCVar::SendAllCVarTelemetry();
+            ezStats::SendAllStatsTelemetry();
             break;
+
           case 'EZID':
             s_uiServerID = *((ezUInt32*) pData);
             break;
@@ -148,7 +153,7 @@ void ezTelemetry::UpdateNetwork()
   }
 }
 
-ezResult ezTelemetry::RetrieveMessage(ezUInt32 uiSystemID, ezTelemetryMessage& out_Message)
+ezResult ezTelemetry::RetrieveMessage(ezUInt64 uiSystemID, ezTelemetryMessage& out_Message)
 {
   if (s_SystemMessages[uiSystemID].m_IncomingQueue.IsEmpty())
     return EZ_FAILURE;
@@ -262,7 +267,7 @@ void ezTelemetry::Transmit(TransmitMode tm, const void* pData, ezUInt32 uiDataBy
   ezTelemetry::UpdateNetwork();
 }
 
-void ezTelemetry::Send(TransmitMode tm, ezUInt32 uiSystemID, ezUInt32 uiMsgID, const void* pData, ezUInt32 uiDataBytes)
+void ezTelemetry::Send(TransmitMode tm, ezUInt64 uiSystemID, ezUInt32 uiMsgID, const void* pData, ezUInt32 uiDataBytes)
 {
   if (!g_pHost)
     return;
@@ -275,18 +280,18 @@ void ezTelemetry::Send(TransmitMode tm, ezUInt32 uiSystemID, ezUInt32 uiMsgID, c
     // when we do have a connection, just send the message out
 
     ezHybridArray<ezUInt8, 64> TempData;
-    TempData.SetCount(8 + uiDataBytes);
-    *((ezUInt32*) &TempData[0]) = uiSystemID;
-    *((ezUInt32*) &TempData[4]) = uiMsgID;
+    TempData.SetCount(12 + uiDataBytes);
+    *((ezUInt64*) &TempData[0]) = uiSystemID;
+    *((ezUInt32*) &TempData[8]) = uiMsgID;
 
     if (pData && uiDataBytes > 0)
-      ezMemoryUtils::Copy((ezUInt8*) &TempData[8], (ezUInt8*) pData, uiDataBytes);
+      ezMemoryUtils::Copy((ezUInt8*) &TempData[12], (ezUInt8*) pData, uiDataBytes);
 
     Transmit(tm, &TempData[0], TempData.GetCount());
   }
 }
 
-void ezTelemetry::Send(TransmitMode tm, ezUInt32 uiSystemID, ezUInt32 uiMsgID, ezIBinaryStreamReader& Stream, ezInt32 iDataBytes)
+void ezTelemetry::Send(TransmitMode tm, ezUInt64 uiSystemID, ezUInt32 uiMsgID, ezIBinaryStreamReader& Stream, ezInt32 iDataBytes)
 {
   if (!g_pHost)
     return;
@@ -296,9 +301,9 @@ void ezTelemetry::Send(TransmitMode tm, ezUInt32 uiSystemID, ezUInt32 uiMsgID, e
   const ezUInt32 uiStackSize = 1024;
 
   ezHybridArray<ezUInt8, uiStackSize + 8> TempData;
-  TempData.SetCount(8);
-  *((ezUInt32*) &TempData[0]) = uiSystemID;
-  *((ezUInt32*) &TempData[4]) = uiMsgID;
+  TempData.SetCount(12);
+  *((ezUInt64*) &TempData[0]) = uiSystemID;
+  *((ezUInt32*) &TempData[8]) = uiMsgID;
 
   // if we don't know how much to take out of the stream, read the data piece by piece from the input stream
   if (iDataBytes < 0)
@@ -321,13 +326,13 @@ void ezTelemetry::Send(TransmitMode tm, ezUInt32 uiSystemID, ezUInt32 uiMsgID, e
   }
   else
   {
-    TempData.SetCount(8 + iDataBytes);
-    Stream.ReadBytes(&TempData[8], iDataBytes);
+    TempData.SetCount(12 + iDataBytes);
+    Stream.ReadBytes(&TempData[12], iDataBytes);
   }
 
   // in case we have no connection to a peer, queue the message
   if (!IsConnectedToOther())
-    QueueOutgoingMessage(tm, uiSystemID, uiMsgID, &TempData[8], TempData.GetCount() - 8);
+    QueueOutgoingMessage(tm, uiSystemID, uiMsgID, &TempData[12], TempData.GetCount() - 12);
   else
   {
     // when we do have a connection, just send the message out
@@ -377,7 +382,7 @@ void ezTelemetry::CloseConnection()
 
 
     // if there are any queued messages, throw them away
-  for (ezMap<ezUInt32, ezTelemetry::MessageQueue, ezCompareHelper<ezUInt32>, ezStaticAllocatorWrapper >::Iterator it = s_SystemMessages.GetIterator(); it.IsValid(); ++it)
+  for (ezMap<ezUInt64, ezTelemetry::MessageQueue, ezCompareHelper<ezUInt64>, ezStaticAllocatorWrapper >::Iterator it = s_SystemMessages.GetIterator(); it.IsValid(); ++it)
   {
     it.Value().m_IncomingQueue.Clear();
     it.Value().m_OutgoingQueue.Clear();

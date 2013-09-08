@@ -101,9 +101,10 @@ void ezGeneralWidget::UpdateSubSystems()
   TableSubsystems->blockSignals(false);
 }
 
-void ezGeneralWidget::ProcessTelemetry_General(void* pPassThrough)
+void ezGeneralWidget::ProcessTelemetry(void* pUnuseed)
 {
-  ezGeneralWidget* pWindow = (ezGeneralWidget*) pPassThrough;
+  if (!s_pWidget)
+    return;
 
   ezTelemetryMessage Msg;
 
@@ -166,7 +167,7 @@ void ezGeneralWidget::ProcessTelemetry_General(void* pPassThrough)
         ezStringBuilder sInfo;
         sInfo.Format("%s %s, %i Cores, %.1f GB RAM", sPlatform.GetData(), bIs64Bit ? "64 Bit" : "32 Bit", uiCoreCount, uiMemorySize / 1024.0f / 1024.0f / 1024.0f);
 
-        pWindow->LabelAppName->setText(sInfo.GetData());
+        s_pWidget->LabelAppName->setText(sInfo.GetData());
       }
       break;
     }

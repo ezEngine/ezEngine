@@ -115,13 +115,14 @@ bool ezLogWidget::IsFiltered(const LogMsg& lm)
   return true;
 }
 
-void ezLogWidget::ProcessTelemetry_Log(void* pPassThrough)
+void ezLogWidget::ProcessTelemetry(void* pUnuseed)
 {
-  ezLogWidget* pWindow = (ezLogWidget*) pPassThrough;
+  if (!s_pWidget)
+    return;
 
   ezTelemetryMessage Msg;
 
-  const bool bLastSelected = (pWindow->ListLog->count() == 0) || (pWindow->ListLog->currentItem() == pWindow->ListLog->item(pWindow->ListLog->count() - 1));
+  const bool bLastSelected = (s_pWidget->ListLog->count() == 0) || (s_pWidget->ListLog->currentItem() == s_pWidget->ListLog->item(s_pWidget->ListLog->count() - 1));
   bool bChange = false;
 
   while (ezTelemetry::RetrieveMessage('LOG', Msg) == EZ_SUCCESS)
@@ -149,11 +150,11 @@ void ezLogWidget::ProcessTelemetry_Log(void* pPassThrough)
     bChange = true;
 
     QListWidgetItem* pItem = s_pWidget->CreateLogItem(lm, s_pWidget->m_Messages.GetCount() - 1);
-    pWindow->ListLog->addItem(pItem);
+    s_pWidget->ListLog->addItem(pItem);
   }
 
   if (bChange && bLastSelected)
-    pWindow->ListLog->setCurrentItem(pWindow->ListLog->item(pWindow->ListLog->count() - 1));
+    s_pWidget->ListLog->setCurrentItem(s_pWidget->ListLog->item(s_pWidget->ListLog->count() - 1));
 }
 
 void ezLogWidget::on_ComboLogLevel_currentIndexChanged(int iIndex)

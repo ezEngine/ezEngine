@@ -4,10 +4,13 @@
 #include <Inspector/InputWidget.moc.h>
 #include <Inspector/CVarsWidget.moc.h>
 #include <Inspector/LogWidget.moc.h>
+#include <Inspector/StatsWidget.moc.h>
 #include <Foundation/Communication/Telemetry.h>
 #include <qlistwidget.h>
 #include <qinputdialog.h>
 #include <qfile.h>
+#include <qstandardpaths.h>
+#include <qdir.h>
 
 ezMainWindow* ezMainWindow::s_pWidget = NULL;
 
@@ -19,9 +22,13 @@ ezMainWindow::ezMainWindow() : QMainWindow()
 
 }
 
-void ezMainWindow::SaveLayout (const char* szFile) const
+void ezMainWindow::SaveLayout() const
 {
-  QFile f(szFile);
+  QString sFile = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
+  QDir d; d.mkpath(sFile);
+  sFile.append("/AppLayout.qt");
+
+  QFile f(sFile);
   if (!f.open(QIODevice::WriteOnly))
     return;
 
@@ -54,9 +61,15 @@ void ezMainWindow::SaveLayout (const char* szFile) const
   f.close();
 }
 
-void ezMainWindow::LoadLayout (const char* szFile)
+void ezMainWindow::LoadLayout()
 {
-  QFile f(szFile);
+  QString sFile = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
+  QDir d; d.mkpath(sFile);
+  sFile.append("/AppLayout.qt");
+
+  ezString s = sFile.toUtf8().data();
+
+  QFile f(sFile);
   if (!f.open(QIODevice::ReadOnly))
     return;
 
@@ -157,6 +170,9 @@ void ezMainWindow::paintEvent(QPaintEvent* event)
 
     if (ezCVarsWidget::s_pWidget)
       ezCVarsWidget::s_pWidget->ResetStats();
+
+    if (ezStatsWidget::s_pWidget)
+      ezStatsWidget::s_pWidget->ResetStats();
   }
 
 
@@ -174,6 +190,9 @@ void ezMainWindow::paintEvent(QPaintEvent* event)
 
   if (ezCVarsWidget::s_pWidget)
     ezCVarsWidget::s_pWidget->UpdateStats();
+
+  if (ezStatsWidget::s_pWidget)
+    ezStatsWidget::s_pWidget->UpdateStats();
 
   ezTelemetry::CallProcessMessagesCallbacks();
 
@@ -197,6 +216,7 @@ void ezMainWindow::DockWidgetVisibilityChanged(bool bVisible)
   ActionShowWindowConfig->setChecked(ezGeneralWidget::s_pWidget->isVisible());
   ActionShowWindowInput->setChecked(ezInputWidget::s_pWidget->isVisible());
   ActionShowWindowCVar->setChecked(ezCVarsWidget::s_pWidget->isVisible());
+  ActionShowWindowStats->setChecked(ezStatsWidget::s_pWidget->isVisible());
 }
 
 void ezMainWindow::on_ActionShowWindowLog_triggered()
@@ -222,4 +242,9 @@ void ezMainWindow::on_ActionShowWindowInput_triggered()
 void ezMainWindow::on_ActionShowWindowCVar_triggered()
 {
   ezCVarsWidget::s_pWidget->setVisible(ActionShowWindowCVar->isChecked());
+}
+
+void ezMainWindow::on_ActionShowWindowStats_triggered()
+{
+  ezStatsWidget::s_pWidget->setVisible(ActionShowWindowStats->isChecked());
 }

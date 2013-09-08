@@ -98,6 +98,8 @@
 #include <Foundation/Time/Time.h>
 
 #include <Foundation/Utilities/EnumerableClass.h>
+#include <Foundation/Utilities/StackTracer.h>
+#include <Foundation/Utilities/Stats.h>
 
 
 
