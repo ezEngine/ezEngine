@@ -58,6 +58,7 @@ public:
   virtual ~ezQtTestModel();
 
   void Reset();
+  void InvalidateAll();
   void TestDataChanged(ezInt32 iTestIndex, ezInt32 iSubTestIndex);
 
   struct UserRoles

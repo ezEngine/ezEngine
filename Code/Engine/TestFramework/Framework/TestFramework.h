@@ -62,7 +62,16 @@ public:
 public:
   static ezTestFramework* GetInstance() { return s_pInstance; }
 
-  static bool GetAssertOnTestFail() { return s_bAssertOnTestFail; }
+  /// \brief Returns whether to asset on test fail, will return false if no debugger is attached to prevent crashing. 
+  static bool GetAssertOnTestFail()
+  {
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+    if (!IsDebuggerPresent())
+      return false;
+#endif
+    return s_bAssertOnTestFail;
+  }
+
   static void SetAssertOnTestFail(bool m_bAssertOnTestFail) { s_bAssertOnTestFail = m_bAssertOnTestFail; }
   
   static void Output(ezTestOutput::Enum Type, const char* szMsg, ...);
@@ -102,7 +111,7 @@ protected:
   } \
   else
 
-#define EZ_TEST_DEBUG_BREAK if (ezTestFramework::GetAssertOnTestFail()) \
+#define EZ_TEST_DEBUG_BREAK if (ezTestFramework::GetAssertOnTestFail())\
   EZ_DEBUG_BREAK
 
 #define EZ_TEST(condition) EZ_TEST_MSG(condition, "")

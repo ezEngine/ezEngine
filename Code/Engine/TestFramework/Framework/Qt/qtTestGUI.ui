@@ -64,16 +64,9 @@
        </spacer>
       </item>
       <item>
-       <widget class="QPushButton" name="pushButtonRunSelectedTests">
+       <widget class="QPushButton" name="pushButtonRunTests">
         <property name="text">
-         <string>Run Selected Tests</string>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QPushButton" name="pushButtonRunAllTests">
-        <property name="text">
-         <string>Run All Tests</string>
+         <string>Run Tests</string>
         </property>
        </widget>
       </item>
@@ -95,8 +88,7 @@
     <property name="title">
      <string>Run</string>
     </property>
-    <addaction name="actionRunSelectedTests"/>
-    <addaction name="actionRunAllTests"/>
+    <addaction name="actionRunTests"/>
     <addaction name="separator"/>
     <addaction name="actionAbort"/>
     <addaction name="actionQuit"/>
@@ -136,14 +128,12 @@
     <string>Keep Console Open</string>
    </property>
   </action>
-  <action name="actionRunSelectedTests">
+  <action name="actionRunTests">
    <property name="text">
-    <string>Run Selected Tests</string>
+    <string>Run Tests</string>
    </property>
-  </action>
-  <action name="actionRunAllTests">
-   <property name="text">
-    <string>Run All Tests</string>
+   <property name="toolTip">
+    <string>Run Tests</string>
    </property>
   </action>
   <action name="actionAbort">
@@ -196,6 +186,14 @@
     <string>Collapses all test nodes.</string>
    </property>
   </action>
+  <action name="actionEnableAllChildren">
+   <property name="text">
+    <string>Enable All Children</string>
+   </property>
+   <property name="toolTip">
+    <string>Enables all children of the selected test.</string>
+   </property>
+  </action>
  </widget>
  <resources>
   <include location="resources.qrc"/>
@@ -234,25 +232,9 @@
    </hints>
   </connection>
   <connection>
-   <sender>pushButtonRunAllTests</sender>
+   <sender>pushButtonRunTests</sender>
    <signal>clicked()</signal>
-   <receiver>actionRunAllTests</receiver>
-   <slot>trigger()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>360</x>
-     <y>665</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>-1</x>
-     <y>-1</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>pushButtonRunSelectedTests</sender>
-   <signal>clicked()</signal>
-   <receiver>actionRunSelectedTests</receiver>
+   <receiver>actionRunTests</receiver>
    <slot>trigger()</slot>
    <hints>
     <hint type="sourcelabel">

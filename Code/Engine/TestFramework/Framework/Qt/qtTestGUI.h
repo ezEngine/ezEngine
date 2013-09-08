@@ -28,12 +28,12 @@ private slots:
   void on_actionAssertOnTestFail_triggered(bool bChecked);
   void on_actionOpenHTMLOutput_triggered(bool bChecked);
   void on_actionKeepConsoleOpen_triggered(bool bChecked);
-  void on_actionRunSelectedTests_triggered();
-  void on_actionRunAllTests_triggered();
+  void on_actionRunTests_triggered();
   void on_actionAbort_triggered();
   void on_actionQuit_triggered();
 
   void on_actionEnableOnlyThis_triggered();
+  void on_actionEnableAllChildren_triggered();
   void on_actionEnableAll_triggered();
   void on_actionDisableAll_triggered();
 
@@ -47,6 +47,8 @@ private slots:
 
 private:
   void UpdateButtonStates();
+  void SetCheckStateRecursive(const QModelIndex& index, bool bChecked);
+  void EnableAllParents(const QModelIndex& index);
 
 public:
   static void SetDarkTheme();
@@ -57,6 +59,7 @@ private:
   ezQtTestDelegate* m_pDelegate;
   ezQtLogMessageDock* m_pMessageLogDock;
   QLabel* m_pStatusText;
+  ezInt32 m_bExpandedCurrentTest;
   bool m_bAbort;
 };
 

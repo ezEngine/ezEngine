@@ -16,10 +16,11 @@
 // ezQtTestGUI public functions
 ////////////////////////////////////////////////////////////////////////
 
-ezQtTestGUI::ezQtTestGUI(ezQtTestFramework& testFramework) : QMainWindow(), m_pTestFramework(&testFramework), m_pModel(NULL), m_bAbort(false)
+ezQtTestGUI::ezQtTestGUI(ezQtTestFramework& testFramework)
+  : QMainWindow(), m_pTestFramework(&testFramework), m_pModel(NULL), m_bExpandedCurrentTest(false), m_bAbort(false)
 {
   this->setupUi(this);
-
+  this->setWindowTitle(testFramework.GetTestName());
   // Status Bar
   m_pStatusText = new QLabel(this);
   testStatusBar->addWidget(m_pStatusText);
@@ -32,7 +33,7 @@ ezQtTestGUI::ezQtTestGUI(ezQtTestFramework& testFramework) : QMainWindow(), m_pT
   m_pDelegate = new ezQtTestDelegate(this);
 
   // View
-  testTreeView->expandAll();
+  //testTreeView->expandAll();
   testTreeView->resizeColumnToContents(0);
   testTreeView->header()->setStretchLastSection(false);
   testTreeView->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -83,7 +84,6 @@ void ezQtTestGUI::on_actionAssertOnTestFail_triggered(bool bChecked)
   TestSettings settings = m_pTestFramework->GetSettings();
   settings.m_bAssertOnTestFail = bChecked;
   m_pTestFramework->SetSettings(settings);
-  m_pTestFramework->SaveTestOrder();
 }
 
 void ezQtTestGUI::on_actionOpenHTMLOutput_triggered(bool bChecked)
@@ -91,7 +91,6 @@ void ezQtTestGUI::on_actionOpenHTMLOutput_triggered(bool bChecked)
   TestSettings settings = m_pTestFramework->GetSettings();
   settings.m_bOpenHtmlOutput = bChecked;
   m_pTestFramework->SetSettings(settings);
-  m_pTestFramework->SaveTestOrder();
 }
 
 void ezQtTestGUI::on_actionKeepConsoleOpen_triggered(bool bChecked)
@@ -99,13 +98,14 @@ void ezQtTestGUI::on_actionKeepConsoleOpen_triggered(bool bChecked)
   TestSettings settings = m_pTestFramework->GetSettings();
   settings.m_bKeepConsoleOpen = bChecked;
   m_pTestFramework->SetSettings(settings);
-  m_pTestFramework->SaveTestOrder();
 }
 
-void ezQtTestGUI::on_actionRunSelectedTests_triggered()
+void ezQtTestGUI::on_actionRunTests_triggered()
 {
+  m_pTestFramework->SaveTestOrder();
   m_pTestFramework->StartTests();
-  m_pModel->Reset();
+  m_pModel->InvalidateAll();
+  m_bExpandedCurrentTest = false;
   m_pMessageLogDock->currentTestResultChanged(NULL);
   UpdateButtonStates();
 
@@ -140,12 +140,6 @@ void ezQtTestGUI::on_actionRunSelectedTests_triggered()
   }
 }
 
-void ezQtTestGUI::on_actionRunAllTests_triggered()
-{
-  m_pTestFramework->SetAllTestsEnabledStatus(true);
-  on_actionRunSelectedTests_triggered();
-}
-
 void ezQtTestGUI::on_actionAbort_triggered()
 {
   m_bAbort = true;
@@ -160,30 +154,27 @@ void ezQtTestGUI::on_actionEnableOnlyThis_triggered()
 {
   QModelIndex CurrentIndex = testTreeView->currentIndex();
   if (!CurrentIndex.isValid())
-  {
     return;
-  }
+
+  // Need to set data on column 0
   CurrentIndex = m_pModel->index(CurrentIndex.row(), 0, CurrentIndex.parent());
 
   m_pTestFramework->SetAllTestsEnabledStatus(false);
+  EnableAllParents(CurrentIndex);
+  SetCheckStateRecursive(CurrentIndex, true);
+
+  m_pModel->dataChanged(QModelIndex(), QModelIndex());
+}
+
+void ezQtTestGUI::on_actionEnableAllChildren_triggered()
+{
+  QModelIndex CurrentIndex = testTreeView->currentIndex();
+  if (!CurrentIndex.isValid())
+    return;
+  
   // Need to set data on column 0
-  m_pModel->setData(CurrentIndex, Qt::Checked, Qt::CheckStateRole);
-  QModelIndex ParentIndex = m_pModel->parent(CurrentIndex);
-  if (ParentIndex.isValid())
-  {
-    // The parent is always at column 0 so there is no need to adjust it.
-    m_pModel->setData(ParentIndex, Qt::Checked, Qt::CheckStateRole);
-  }
-  else
-  {
-    // There is no parent so the index is a test and must have sub-tests.
-    ezInt32 iChildren = m_pModel->rowCount(CurrentIndex);
-    for (ezInt32 i = 0; i < iChildren; ++i)
-    {
-      m_pModel->setData(CurrentIndex.child(i, 0), Qt::Checked, Qt::CheckStateRole);
-    }
-  }
-  m_pModel->dataChanged(QModelIndex(),QModelIndex());
+  CurrentIndex = m_pModel->index(CurrentIndex.row(), 0, CurrentIndex.parent());
+  SetCheckStateRecursive(CurrentIndex, true);
 }
 
 void ezQtTestGUI::on_actionEnableAll_triggered()
@@ -214,7 +205,23 @@ void ezQtTestGUI::onTestFrameworkTestResultReceived(qint32 iTestIndex, qint32 iS
 
   QModelIndex TestModelIndex = m_pModel->index(iTestIndex, 0);
   QModelIndex LastSubTest = m_pModel->index(m_pModel->rowCount(TestModelIndex)-1, 0, TestModelIndex);
-  testTreeView->scrollTo(LastSubTest);
+
+  if (iSubTestIndex != -1)
+  {
+    bool bExpanded = testTreeView->isExpanded(TestModelIndex);
+    if (!bExpanded)
+    {
+      // Remeber if we expanded the test so we can close it again once the tests is done.
+      testTreeView->expand(TestModelIndex);
+      m_bExpandedCurrentTest = true;
+    }
+    testTreeView->scrollTo(LastSubTest);
+  }
+  else if (m_bExpandedCurrentTest)
+  {
+    m_bExpandedCurrentTest = false;
+    testTreeView->collapse(TestModelIndex);
+  }
 
   // Update status bar
   const ezUInt32 uiTestCount = m_pTestFramework->GetTestCount();
@@ -248,6 +255,7 @@ void ezQtTestGUI::onTestTreeViewCustomContextMenuRequested(const QPoint& pnt)
   if (CurrentIndex.isValid())
   {
     ContextMenu.addAction(actionEnableOnlyThis);
+    ContextMenu.addAction(actionEnableAllChildren);
   }
   ContextMenu.addAction(actionEnableAll);
   ContextMenu.addAction(actionDisableAll);
@@ -282,8 +290,28 @@ void ezQtTestGUI::UpdateButtonStates()
 
   pushButtonQuit->setEnabled(!bTestsRunning);
   pushButtonAbort->setEnabled(bTestsRunning);
-  pushButtonRunSelectedTests->setEnabled(!bTestsRunning);
-  pushButtonRunAllTests->setEnabled(!bTestsRunning);
+  pushButtonRunTests->setEnabled(!bTestsRunning);
+}
+
+void ezQtTestGUI::SetCheckStateRecursive(const QModelIndex& index, bool bChecked)
+{
+  m_pModel->setData(index, bChecked ? Qt::Checked : Qt::Unchecked, Qt::CheckStateRole);
+
+  ezInt32 iChildren = m_pModel->rowCount(index);
+  for (ezInt32 i = 0; i < iChildren; ++i)
+  {
+    SetCheckStateRecursive(index.child(i, 0), bChecked);
+  }
+}
+
+void ezQtTestGUI::EnableAllParents(const QModelIndex& index)
+{ 
+  QModelIndex ParentIndex = m_pModel->parent(index);
+  while (ParentIndex.isValid())
+  {
+    m_pModel->setData(ParentIndex, Qt::Checked, Qt::CheckStateRole);
+    ParentIndex = m_pModel->parent(ParentIndex);
+  }
 }
 
 
