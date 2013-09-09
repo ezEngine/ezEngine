@@ -71,6 +71,8 @@ void ezTypedCVar<Type, CVarType>::operator= (const Type& value)
 template<typename Type, ezCVarType::Enum CVarType>
 void ezTypedCVar<Type, CVarType>::SendCVarTelemetry()
 {
+  RegisterCVarTelemetryChangeCB();
+
   ezTelemetryMessage msg;
   msg.SetMessageID('CVAR', 'DATA');
   msg.GetWriter() << GetName();

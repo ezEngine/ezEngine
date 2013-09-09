@@ -1,3 +1,4 @@
+#include <TestFramework/PCH.h>
 #include <TestFramework/Utilities/TestSetup.h>
 
 #include <TestFramework/Framework/TestFramework.h>

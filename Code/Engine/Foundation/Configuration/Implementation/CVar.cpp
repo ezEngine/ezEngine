@@ -437,3 +437,77 @@ void ezCVar::LoadCVars(bool bOnlyNewOnes, bool bSetAsCurrentValue)
     ++it;
   }
 }
+
+void ezCVar::RegisterCVarTelemetryChangeCB()
+{
+  ezTelemetry::AcceptMessagesForSystem('SVAR', true, ezCVar::TelemetryMessage, NULL);
+}
+
+void ezCVar::TelemetryMessage(void* pPassThrough)
+{
+  ezTelemetryMessage Msg;
+
+  while (ezTelemetry::RetrieveMessage('SVAR', Msg) == EZ_SUCCESS)
+  {
+    if (Msg.GetMessageID() == 'SET')
+    {
+      ezString sCVar;
+      ezUInt8 uiType;
+
+      float fValue;
+      ezInt32 iValue;
+      bool bValue;
+      ezString sValue;
+
+      Msg.GetReader() >> sCVar;
+      Msg.GetReader() >> uiType;
+
+      switch (uiType)
+      {
+      case ezCVarType::Float:
+        Msg.GetReader() >> fValue;
+        break;
+      case ezCVarType::Int:
+        Msg.GetReader() >> iValue;
+        break;
+      case ezCVarType::Bool:
+        Msg.GetReader() >> bValue;
+        break;
+      case ezCVarType::String:
+        Msg.GetReader() >> sValue;
+        break;
+      }
+
+      ezCVar* pCVar = ezCVar::GetFirstInstance();
+
+      while (pCVar)
+      {
+        if (((ezUInt8) pCVar->GetType() == uiType) && (pCVar->GetName() == sCVar))
+        {
+          switch (uiType)
+          {
+          case ezCVarType::Float:
+            *((ezCVarFloat*) pCVar) = fValue;
+            break;
+          case ezCVarType::Int:
+            *((ezCVarInt*) pCVar) = iValue;
+            break;
+          case ezCVarType::Bool:
+            *((ezCVarBool*) pCVar) = bValue;
+            break;
+          case ezCVarType::String:
+            *((ezCVarString*) pCVar) = sValue;
+            break;
+          }
+        }
+
+        pCVar = pCVar->GetNextInstance();
+      }
+    }
+  }
+
+}
+
+
+
+

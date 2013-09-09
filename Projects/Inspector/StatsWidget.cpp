@@ -180,10 +180,7 @@ void ezStatsWidget::ProcessTelemetry(void* pUnuseed)
           sd.m_pItem = s_pWidget->CreateStat(sStatName.GetData(), false);
 
           if (s_pWidget->m_Favourites.Find(sStatName).IsValid())
-          {
             sd.m_pItem->setCheckState(0, Qt::Checked);
-            //s_pWidget->SetFavourite(sStatName, true);
-          }
         }
 
         sd.m_pItem->setData(1, Qt::DisplayRole, sd.m_sValue.GetData());

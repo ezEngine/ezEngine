@@ -18,6 +18,10 @@ public:
   static ezCVarsWidget* s_pWidget;
 
 private slots:
+  virtual void BoolChanged(int index);
+  virtual void FloatChanged(double d);
+  virtual void IntChanged(int i);
+  virtual void StringChanged(const QString& val);
 
 public:
   static void ProcessTelemetry(void* pUnuseed);

@@ -4,18 +4,18 @@
 #include "CollidableComponent.h"
 #include <InputXBox360/InputDeviceXBox.h>
 #include <Foundation/Configuration/CVar.h>
+#include <Foundation/Utilities/Stats.h>
 
 EZ_IMPLEMENT_COMPONENT_TYPE(ProjectileComponent, ProjectileComponentManager);
 
-ezCVarFloat CVar_Test1("g_Float", 1.0f, ezCVarFlags::Default, "cvar float");
 ezCVarBool CVar_Test2("g_Bool", true, ezCVarFlags::Default, "cvar bool");
-ezCVarInt CVar_Test3("g_Int", 23, ezCVarFlags::Default, "cvar int");
+ezCVarInt CVar_ProjectileTTL("g_ProjectileTTL", 25, ezCVarFlags::Default, "cvar int");
 ezCVarString CVar_Test4("g_String", "zwei und vierzig", ezCVarFlags::Default, "cvar string");
 
 ProjectileComponent::ProjectileComponent()
 {
   m_vVelocity.SetZero();
-  m_iTimeToLive = 25;
+  m_iTimeToLive = CVar_ProjectileTTL;
   m_iBelongsToPlayer = -1;
   m_bDoesDamage = false;
   m_vDrawDir.SetZero();
@@ -33,6 +33,9 @@ void ProjectileComponent::Update()
 
   if (m_vVelocity.IsZero())
     return;
+
+  ezStats::SetStat("g_Bool", (bool) CVar_Test2 ? "true" : "false");
+  ezStats::SetStat("g_String", CVar_Test4.GetValue().GetData());
 
   m_vDrawDir = m_vVelocity;
 

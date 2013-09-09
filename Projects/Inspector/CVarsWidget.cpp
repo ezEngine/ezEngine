@@ -2,6 +2,9 @@
 #include <qlistwidget.h>
 #include <Foundation/Communication/Telemetry.h>
 #include <MainWindow.moc.h>
+#include <qlineedit.h>
+#include <qcombobox.h>
+#include <qspinbox.h>
 
 ezCVarsWidget* ezCVarsWidget::s_pWidget = NULL;
 
@@ -16,6 +19,7 @@ ezCVarsWidget::ezCVarsWidget(QWidget* parent) : QDockWidget (parent)
 
 void ezCVarsWidget::ResetStats()
 {
+  TableCVars->clear();
 }
 
 void ezCVarsWidget::UpdateStats()
@@ -112,7 +116,49 @@ void ezCVarsWidget::UpdateCVarsTable(bool bRecreate)
       sTemp.Format("  %s  ", it.Key().GetData());
       TableCVars->setCellWidget(iRow, 1, new QLabel(sTemp.GetData())); // Name
 
-      TableCVars->setCellWidget(iRow, 2, new QLabel("  ??????  ")); // Value
+      switch (it.Value().m_uiType)
+      {
+      case ezCVarType::Bool:
+        {
+          QComboBox* pValue = new QComboBox;
+          pValue->addItem("true");
+          pValue->addItem("false");
+          TableCVars->setCellWidget(iRow, 2, pValue); // Value
+
+          QWidget::connect(pValue, SIGNAL(currentIndexChanged(int)), this, SLOT(BoolChanged(int)));
+        }
+        break;
+      case ezCVarType::Float:
+        {
+          QDoubleSpinBox* pValue = new QDoubleSpinBox;
+          pValue->setMinimum(-(1 << 30));
+          pValue->setMaximum( (1 << 30));
+          pValue->setDecimals(4);
+          pValue->setSingleStep(1.0);
+          TableCVars->setCellWidget(iRow, 2, pValue); // Value        
+
+          QWidget::connect(pValue, SIGNAL(valueChanged(double)), this, SLOT(FloatChanged(double)));
+        }
+        break;
+      case ezCVarType::Int:
+        {
+          QSpinBox* pValue = new QSpinBox;
+          pValue->setMinimum(-(1 << 30));
+          pValue->setMaximum( (1 << 30));
+          TableCVars->setCellWidget(iRow, 2, pValue); // Value
+
+          QWidget::connect(pValue, SIGNAL(valueChanged(int)), this, SLOT(IntChanged(int)));
+        }
+        break;
+      case ezCVarType::String:
+        {
+          QLineEdit* pValue = new QLineEdit;
+          TableCVars->setCellWidget(iRow, 2, pValue); // Value
+
+          QWidget::connect(pValue, SIGNAL(textChanged (const QString&)), this, SLOT(StringChanged(const QString&)));
+        }
+        break;
+      }
 
       ++iRow;
     }
@@ -121,31 +167,44 @@ void ezCVarsWidget::UpdateCVarsTable(bool bRecreate)
   }
 
   {
-    ezStringBuilder sTemp;
-
     ezInt32 iRow = 0;
     for (ezMap<ezString, CVarData>::Iterator it = m_CVars.GetIterator(); it.IsValid(); ++it)
     {
       // Value
       {
-        QLabel* pValue = (QLabel*) TableCVars->cellWidget(iRow, 2);
-
         switch (it.Value().m_uiType)
         {
         case ezCVarType::Bool:
-          pValue->setText(it.Value().m_bValue ? "  true  " : "  false  ");
+          {
+            QComboBox* pValue = (QComboBox*) TableCVars->cellWidget(iRow, 2);
+            pValue->blockSignals(true);
+            pValue->setCurrentIndex(it.Value().m_bValue ? 0 : 1);
+            pValue->blockSignals(false);
+          }
           break;
         case ezCVarType::Float:
-          sTemp.Format("  %.3f  ", it.Value().m_fValue);
-          pValue->setText(sTemp.GetData());
+          {
+            QDoubleSpinBox* pValue = (QDoubleSpinBox*) TableCVars->cellWidget(iRow, 2);
+            pValue->blockSignals(true);
+            pValue->setValue(it.Value().m_fValue);
+            pValue->blockSignals(false);
+          }
           break;
         case ezCVarType::Int:
-          sTemp.Format("  %i  ", it.Value().m_iValue);
-          pValue->setText(sTemp.GetData());
+          {
+            QSpinBox* pValue = (QSpinBox*) TableCVars->cellWidget(iRow, 2);
+            pValue->blockSignals(true);
+            pValue->setValue(it.Value().m_iValue);
+            pValue->blockSignals(false);
+          }
           break;
         case ezCVarType::String:
-          sTemp.Format("  %s  ", it.Value().m_sValue.GetData());
-          pValue->setText(sTemp.GetData());
+          {
+            QLineEdit* pValue = (QLineEdit*) TableCVars->cellWidget(iRow, 2);
+            pValue->blockSignals(true);
+            pValue->setText(it.Value().m_sValue.GetData());
+            pValue->blockSignals(false);
+          }
           break;
         }
       }
@@ -158,3 +217,102 @@ void ezCVarsWidget::UpdateCVarsTable(bool bRecreate)
   TableCVars->blockSignals(false);
 }
 
+
+void ezCVarsWidget::BoolChanged(int index)
+{
+  for (ezMap<ezString, CVarData>::Iterator it = m_CVars.GetIterator(); it.IsValid(); ++it)
+  {
+    if (it.Value().m_uiType != ezCVarType::Bool)
+      continue;
+
+    QComboBox* pValue = (QComboBox*) TableCVars->cellWidget(it.Value().m_iTableRow, 2);
+
+    const ezInt32 iValue = it.Value().m_bValue ? 0 : 1;
+
+    if (pValue->currentIndex() == iValue) // index 0 is 'true', index 1 is 'false'
+      continue;
+
+    it.Value().m_bValue = (pValue->currentIndex() == 0);
+
+    ezTelemetryMessage Msg;
+    Msg.SetMessageID('SVAR', 'SET');
+    Msg.GetWriter() << it.Key().GetData();
+    Msg.GetWriter() << it.Value().m_uiType;
+    Msg.GetWriter() << it.Value().m_bValue;
+
+    ezTelemetry::SendToServer(Msg);
+  }
+}
+
+void ezCVarsWidget::FloatChanged(double val)
+{
+  for (ezMap<ezString, CVarData>::Iterator it = m_CVars.GetIterator(); it.IsValid(); ++it)
+  {
+    if (it.Value().m_uiType != ezCVarType::Float)
+      continue;
+
+    QDoubleSpinBox* pValue = (QDoubleSpinBox*) TableCVars->cellWidget(it.Value().m_iTableRow, 2);
+
+    if (pValue->value() == it.Value().m_fValue)
+      continue;
+
+    it.Value().m_fValue = (float) pValue->value();
+
+    ezTelemetryMessage Msg;
+    Msg.SetMessageID('SVAR', 'SET');
+    Msg.GetWriter() << it.Key().GetData();
+    Msg.GetWriter() << it.Value().m_uiType;
+    Msg.GetWriter() << it.Value().m_fValue;
+
+    ezTelemetry::SendToServer(Msg);
+  }
+}
+
+void ezCVarsWidget::IntChanged(int val)
+{
+  for (ezMap<ezString, CVarData>::Iterator it = m_CVars.GetIterator(); it.IsValid(); ++it)
+  {
+    if (it.Value().m_uiType != ezCVarType::Int)
+      continue;
+
+    QSpinBox* pValue = (QSpinBox*) TableCVars->cellWidget(it.Value().m_iTableRow, 2);
+
+    if (pValue->value() == it.Value().m_iValue)
+      continue;
+
+    it.Value().m_iValue = pValue->value();
+
+    ezTelemetryMessage Msg;
+    Msg.SetMessageID('SVAR', 'SET');
+    Msg.GetWriter() << it.Key().GetData();
+    Msg.GetWriter() << it.Value().m_uiType;
+    Msg.GetWriter() << it.Value().m_iValue;
+
+    ezTelemetry::SendToServer(Msg);
+  }
+}
+
+void ezCVarsWidget::StringChanged(const QString& val)
+{
+  for (ezMap<ezString, CVarData>::Iterator it = m_CVars.GetIterator(); it.IsValid(); ++it)
+  {
+    if (it.Value().m_uiType != ezCVarType::String)
+      continue;
+
+    QLineEdit* pValue = (QLineEdit*) TableCVars->cellWidget(it.Value().m_iTableRow, 2);
+
+    if (pValue->text().toUtf8().data() == it.Value().m_sValue)
+      continue;
+
+    it.Value().m_sValue = pValue->text().toUtf8().data();
+
+    ezTelemetryMessage Msg;
+    Msg.SetMessageID('SVAR', 'SET');
+    Msg.GetWriter() << it.Key().GetData();
+    Msg.GetWriter() << it.Value().m_uiType;
+    Msg.GetWriter() << it.Value().m_sValue;
+
+    ezTelemetry::SendToServer(Msg);
+  }
+
+}

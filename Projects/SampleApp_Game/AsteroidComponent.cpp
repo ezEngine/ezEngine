@@ -1,8 +1,12 @@
 #include "Level.h"
 #include "AsteroidComponent.h"
 #include "ShipComponent.h"
+#include <Foundation/Configuration/CVar.h>
 
 EZ_IMPLEMENT_COMPONENT_TYPE(AsteroidComponent, AsteroidComponentManager);
+
+ezCVarFloat CVar_AsteroidMaxDist("g_AsteroidMaxDist", 4.0f, ezCVarFlags::Default, "cvar float");
+ezCVarFloat CVar_AsteroidPush("g_AsteroidPush", 0.06f, ezCVarFlags::Default, "cvar float");
 
 AsteroidComponent::AsteroidComponent()
 {
@@ -33,7 +37,7 @@ void AsteroidComponent::Update()
 
     const float fDist = vDir.GetLength();
 
-    const float fMaxDist = 4.0f;
+    const float fMaxDist = CVar_AsteroidMaxDist;
 
     if (fDist > fMaxDist)
       continue;
@@ -44,7 +48,7 @@ void AsteroidComponent::Update()
 
     const ezVec3 vPull = vDir * fScaledFactor;
 
-    Ship.SetVelocity(vPull * 0.06f);
+    Ship.SetVelocity(vPull * (float) CVar_AsteroidPush);
 
   }
 }

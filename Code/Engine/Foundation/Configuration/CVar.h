@@ -159,6 +159,10 @@ protected:
 
   const char* GetPluginName() const { return m_szPluginName; }
 
+  void RegisterCVarTelemetryChangeCB();
+
+  static void TelemetryMessage(void* pPassThrough);
+
 private:
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(Foundation, CVars);
 
