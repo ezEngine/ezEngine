@@ -3,6 +3,7 @@
 #include <Foundation/Basics.h>
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Strings/String.h>
+#include <Foundation/Communication/Event.h>
 
 /// \brief This class holds a simple map that maps strings (keys) to strings (values), which represent certain stats.
 ///
@@ -33,13 +34,32 @@ public:
   /// \brief Returns the entire map of stats, can be used to display them.
   static const MapType& GetAllStats() { return s_Stats; }
 
-  /// \brief Sends the values and names of ALL stats through ezTelemetry. Does not need to be called by hand,
-  ///   it will be called automatically be ezTelemetry (at the moment) to sync stats when a new connection is made).
-  static void SendAllStatsTelemetry();
+  /// \brief The event data that is broadcasted whenever a stat is changed.
+  struct StatsEventData
+  {
+    /// \brief Which type of event this is.
+    enum EventType
+    {
+      Set,    ///< A variable has been added or changed.
+      Remove  ///< A variable that existed has been removed.
+    };
 
-  /// \todo Add an ezEvent for stat changes
+    EventType m_EventType;
+    const char* m_szStatName;
+    const char* m_szNewStatValue;
+  };
+
+  typedef ezEvent<const StatsEventData&, void*, ezStaticAllocatorWrapper> ezEventStats;
+
+  /// \brief Adds an event handler that is called every time a stat is changed.
+  static void AddEventHandler(ezEventStats::ezEventHandler callback, void* pPassThrough = NULL)    { s_StatsEvents.AddEventHandler   (callback, pPassThrough);  }
+
+  /// \brief Removes a previously added event handler.
+  static void RemoveEventHandler(ezEventStats::ezEventHandler callback, void* pPassThrough = NULL) { s_StatsEvents.RemoveEventHandler (callback, pPassThrough); }
 
 private:
   static MapType s_Stats;
+
+  static ezEventStats s_StatsEvents;
 };
 

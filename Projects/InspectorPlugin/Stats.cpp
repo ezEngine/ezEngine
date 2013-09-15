@@ -1,0 +1,73 @@
+#include <PCH.h>
+
+void StatsEventHandler(const ezStats::StatsEventData& e, void* pPassThrough)
+{
+  if (!ezTelemetry::IsConnectedToClient())
+    return;
+
+  switch (e.m_EventType)
+  {
+  case ezStats::StatsEventData::Set:
+    {
+      ezTelemetryMessage msg;
+      msg.SetMessageID('STAT', 'SET');
+      msg.GetWriter() << e.m_szStatName;
+      msg.GetWriter() << e.m_szNewStatValue;
+
+      ezTelemetry::Broadcast(ezTelemetry::Unreliable, msg);
+    }
+    break;
+  case ezStats::StatsEventData::Remove:
+    {
+      ezTelemetryMessage msg;
+      msg.SetMessageID('STAT', 'DEL');
+      msg.GetWriter() << e.m_szStatName;
+
+      ezTelemetry::Broadcast(ezTelemetry::Reliable, msg);
+    }
+    break;
+  }
+}
+
+
+static void SendAllStatsTelemetry()
+{
+  if (!ezTelemetry::IsConnectedToClient())
+    return;
+
+  for (ezStats::MapType::ConstIterator it = ezStats::GetAllStats().GetIterator(); it.IsValid(); ++it)
+  {
+    ezTelemetryMessage msg;
+    msg.SetMessageID('STAT', 'SET');
+    msg.GetWriter() << it.Key().GetData();
+    msg.GetWriter() << it.Value().GetData();
+
+    ezTelemetry::Broadcast(ezTelemetry::Reliable, msg);
+  }
+}
+
+static void TelemetryEventsHandler(const ezTelemetry::TelemetryEventData& e, void* pPassThrough)
+{
+  switch (e.m_EventType)
+  {
+  case ezTelemetry::TelemetryEventData::ConnectedToClient:
+    SendAllStatsTelemetry();
+    break;
+  }
+}
+
+
+void AddStatsEventHandler()
+{
+  ezStats::AddEventHandler(StatsEventHandler);
+
+  ezTelemetry::AddEventHandler(TelemetryEventsHandler);
+}
+
+void RemoveStatsEventHandler()
+{
+  ezTelemetry::RemoveEventHandler(TelemetryEventsHandler);
+
+  ezStats::RemoveEventHandler(StatsEventHandler);
+}
+

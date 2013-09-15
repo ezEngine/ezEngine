@@ -13,6 +13,7 @@
 
 class ezTelemetryThread;
 
+ezTelemetry::ezEventTelemetry ezTelemetry::s_TelemetryEvents;
 ezUInt32 ezTelemetry::s_uiApplicationID = 0;
 ezUInt32 ezTelemetry::s_uiServerID = 0;
 static bool g_bServerRunning = false;
@@ -76,11 +77,21 @@ void ezTelemetry::UpdateNetwork()
           s_bConnectedToServer = true;
 
           SendToServer('EZBC', 'RQID', NULL, 0);
+
+          TelemetryEventData e;
+          e.m_EventType = TelemetryEventData::ConnectedToServer;
+
+          s_TelemetryEvents.Broadcast(e);
         }
         else
         {
           Broadcast(ezTelemetry::Reliable, 'EZBC', 'EZID', &s_uiApplicationID, sizeof(ezUInt32));
           s_bConnectedToClient = true;
+
+          TelemetryEventData e;
+          e.m_EventType = TelemetryEventData::ConnectedToClient;
+
+          s_TelemetryEvents.Broadcast(e);
         }
 
         FlushOutgoingQueues();
@@ -101,9 +112,23 @@ void ezTelemetry::UpdateNetwork()
           // Now try to reconnect. If the Server still exists, fine, connect to that.
           // If it does not exist anymore, this will connect to the next best Server that can be found.
           g_pConnectionToServer = enet_host_connect(g_pHost, &g_pServerAddress, 2, 'EZBC');
+
+          TelemetryEventData e;
+          e.m_EventType = TelemetryEventData::DisconnectedFromServer;
+
+          s_TelemetryEvents.Broadcast(e);
+
         }
         else
+        {
+          /// \todo This assumes we only connect to a single client ...
           s_bConnectedToClient = false;
+
+          TelemetryEventData e;
+          e.m_EventType = TelemetryEventData::DisconnectedFromClient;
+
+          s_TelemetryEvents.Broadcast(e);
+        }
 
       }
       break;
@@ -120,14 +145,17 @@ void ezTelemetry::UpdateNetwork()
           {
           case 'RQID':
             Broadcast(ezTelemetry::Reliable, 'EZBC', 'EZID', &s_uiApplicationID, sizeof(ezUInt32));
-
-            /// \todo Make this better (let systems react to the 'connect' event)
-            ezCVar::SendAllCVarTelemetry();
-            ezStats::SendAllStatsTelemetry();
             break;
 
           case 'EZID':
-            s_uiServerID = *((ezUInt32*) pData);
+            {
+              s_uiServerID = *((ezUInt32*) pData);
+
+              TelemetryEventData e;
+              e.m_EventType = TelemetryEventData::ChangedServerID;
+
+              s_TelemetryEvents.Broadcast(e);
+            }
             break;
           }
         }

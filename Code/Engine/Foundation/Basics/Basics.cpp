@@ -46,8 +46,6 @@ ezFoundation::Config::Config()
 
 ezFoundation::Config ezFoundation::s_Config;
 
-static void Telemetry_AppRequests(void* pPassThrough);
-
 void ezFoundation::Initialize()
 {
   if (s_bIsInitialized)
@@ -85,8 +83,6 @@ void ezFoundation::Initialize()
     s_pAlignedAllocator = EZ_NEW(s_pBaseAllocator, AlignedHeapAllocator)("AlignedHeap");
   else
     s_pAlignedAllocator = config.pAlignedAllocator;
-
-  ezTelemetry::AcceptMessagesForSystem('APP', true, Telemetry_AppRequests);
 }
 
 void ezFoundation::Shutdown()
@@ -118,37 +114,6 @@ ezIAllocator* ezFoundation::GetStaticAllocator()
   }
 
   return s_pStaticAllocator;
-}
-
-
-#include <Foundation/System/SystemInformation.h>
-#include <Foundation/IO/IBinaryStream.h>
-
-static void Telemetry_AppRequests(void* pPassThrough)
-{
-  ezTelemetryMessage Msg;
-
-  while (ezTelemetry::RetrieveMessage('APP', Msg) == EZ_SUCCESS)
-  {
-    switch (Msg.GetMessageID())
-    {
-    case 'RQDT': // Request Data
-      {
-        ezTelemetryMessage Out;
-        Out.SetMessageID('APP', 'DATA');
-
-        const ezSystemInformation info = ezSystemInformation::Get();
-
-        Out.GetWriter() << info.GetPlatformName();
-        Out.GetWriter() << info.GetCPUCoreCount();
-        Out.GetWriter() << info.GetInstalledMainMemory();
-        Out.GetWriter() << info.Is64BitOS();
-
-        ezTelemetry::Broadcast(ezTelemetry::Reliable, Out);
-      }
-      break;
-    }
-  }
 }
 
 

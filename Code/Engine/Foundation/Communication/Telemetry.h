@@ -151,7 +151,27 @@ public:
 
   /// @}
 
+  struct TelemetryEventData
+  {
+    enum EventType
+    {
+      ConnectedToClient,  ///< brief Send whenever a new connection to a client has been established.
+      ConnectedToServer,  ///< brief Send whenever a connection to the server has been established.
+      ChangedServerID,    ///< Send when the ID of the server has been updated
+      DisconnectedFromClient,
+      DisconnectedFromServer,
+    };
 
+    EventType m_EventType;
+  };
+
+  typedef ezEvent<const TelemetryEventData&, void*, ezStaticAllocatorWrapper> ezEventTelemetry;
+
+  /// \brief Adds an event handler that is called for every ezTelemetry event.
+  static void AddEventHandler(ezEventTelemetry::ezEventHandler callback, void* pPassThrough = NULL)    { s_TelemetryEvents.AddEventHandler   (callback, pPassThrough);  }
+
+  /// \brief Removes a previously added event handler.
+  static void RemoveEventHandler(ezEventTelemetry::ezEventHandler callback, void* pPassThrough = NULL) { s_TelemetryEvents.RemoveEventHandler (callback, pPassThrough); }
 
 
 private:
@@ -208,6 +228,8 @@ private:
   };
 
   static ezMap<ezUInt64, MessageQueue, ezCompareHelper<ezUInt64>, ezStaticAllocatorWrapper > s_SystemMessages;
+
+  static ezEventTelemetry s_TelemetryEvents;
 
 private:
   static ezMutex s_TelemetryMutex;

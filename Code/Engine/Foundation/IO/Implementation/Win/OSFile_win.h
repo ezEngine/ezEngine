@@ -223,7 +223,7 @@ ezFileSystemIterator::~ezFileSystemIterator()
   }
 }
 
-bool ezFileSystemIterator::StartSearch(const char* szSearchStart, bool bRecursive, bool bReportFolders)
+ezResult ezFileSystemIterator::StartSearch(const char* szSearchStart, bool bRecursive, bool bReportFolders)
 {
   EZ_ASSERT(m_Data.m_Handles.IsEmpty(), "Cannot start another search.");
 
@@ -241,7 +241,7 @@ bool ezFileSystemIterator::StartSearch(const char* szSearchStart, bool bRecursiv
   HANDLE hSearch = FindFirstFileW(ezStringWChar(sSearch.GetData()).GetData(), &data);
 
   if ((hSearch == NULL) || (hSearch == INVALID_HANDLE_VALUE))
-    return false;
+    return EZ_FAILURE;
 
   m_CurFile.m_uiFileSize = HighLowToUInt64(data.nFileSizeHigh, data.nFileSizeLow);
   m_CurFile.m_bIsDirectory = (data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
@@ -256,13 +256,13 @@ bool ezFileSystemIterator::StartSearch(const char* szSearchStart, bool bRecursiv
   if (m_CurFile.m_bIsDirectory && !m_bReportFolders)
     return Next();
 
-  return true;
+  return EZ_SUCCESS;
 }
 
-bool ezFileSystemIterator::Next()
+ezResult ezFileSystemIterator::Next()
 {
   if (m_Data.m_Handles.IsEmpty())
-    return false;
+    return EZ_FAILURE;
 
   if (m_bRecursive && m_CurFile.m_bIsDirectory && (m_CurFile.m_sFileName != "..") && (m_CurFile.m_sFileName != "."))
   {
@@ -289,7 +289,7 @@ bool ezFileSystemIterator::Next()
       if (m_CurFile.m_bIsDirectory && !m_bReportFolders)
         return Next();
 
-      return true;
+      return EZ_SUCCESS;
     }
 
     // if the recursion did not work, just iterate in this folder further
@@ -303,7 +303,7 @@ bool ezFileSystemIterator::Next()
     m_Data.m_Handles.PopBack();
 
     if (m_Data.m_Handles.IsEmpty())
-      return false;
+      return EZ_FAILURE;
 
     m_sCurPath.PathParentDirectory();
 
@@ -321,17 +321,17 @@ bool ezFileSystemIterator::Next()
   if (m_CurFile.m_bIsDirectory && !m_bReportFolders)
     return Next();
 
-  return true;
+  return EZ_SUCCESS;
 }
 
-bool ezFileSystemIterator::SkipFolder()
+ezResult ezFileSystemIterator::SkipFolder()
 {
   EZ_ASSERT(m_bRecursive, "SkipFolder has no meaning when the iterator is not set to be recursive.");
   EZ_ASSERT(m_CurFile.m_bIsDirectory, "SkipFolder can only be called when the current object is a folder.");
 
   m_bRecursive = false;
 
-  const bool bRet = Next();
+  const ezResult bRet = Next();
 
   m_bRecursive = true;
 

@@ -3,10 +3,10 @@
 #include "Application.h"
 #include <Foundation/Logging/ConsoleWriter.h>
 #include <Foundation/Logging/VisualStudioWriter.h>
-#include <Foundation/Logging/TelemetryWriter.h>
 #include <Foundation/Time/Time.h>
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Communication/Telemetry.h>
+#include <Foundation/Configuration/Plugin.h>
 
 
 SampleGameApp::SampleGameApp()
@@ -22,10 +22,14 @@ void SampleGameApp::AfterEngineInit()
 {
   ezTelemetry::CreateServer();
 
+  if (ezPlugin::LoadPlugin("InspectorPlugin") == EZ_SUCCESS)
+  {
+
+  }
+
   // Setup the logging system
   ezLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);
   ezLog::AddLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
-  ezLog::AddLogWriter(ezLogWriter::Telemetry::LogMessageHandler);
 
   // Map the input keys to actions
   SetupInput();

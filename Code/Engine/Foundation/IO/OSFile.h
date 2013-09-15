@@ -77,7 +77,11 @@ struct EZ_FOUNDATION_DLL ezFileStats
     /// Only the final path segmant can use placeholders, folders in between must be fully named.
     /// If bRecursive is false, the iterator will only iterate over the files in the start folder, and will not recurse into subdirectories.
     /// If bReportFolders is false, only files will be reported, folders will be skipped (though they will be recursed into, if bRecursive is true).
-    bool StartSearch(const char* szSearchStart, bool bRecursive = true, bool bReportFolders = true); // [tested]
+    ///
+    /// If EZ_SUCCESS is returned, the iterator points to a valid file, and the functions GetCurrentPath() and GetStats() will return
+    /// the information about that file. To advance to the next file, use Next() or SkipFolder().
+    /// When no iteration is possible (the directory does not exist or the wildcards are used incorrectly), EZ_FAILURE is returned.
+    ezResult StartSearch(const char* szSearchStart, bool bRecursive = true, bool bReportFolders = true); // [tested]
 
     /// \brief Returns the current path in which files are searched. Changes when 'Next' moves in or out of a subfolder.
     ///
@@ -90,12 +94,12 @@ struct EZ_FOUNDATION_DLL ezFileStats
     /// \brief Advances the iterator to the next file object. Might recurse into subfolders.
     ///
     /// Returns false, if the search has reached its end.
-    bool Next(); // [tested]
+    ezResult Next(); // [tested]
 
     /// \brief The same as 'Next' only that the current folder will not be recursed into.
     ///
     /// Returns false, if the search has reached its end.
-    bool SkipFolder(); // [tested]
+    ezResult SkipFolder(); // [tested]
 
   private:
 

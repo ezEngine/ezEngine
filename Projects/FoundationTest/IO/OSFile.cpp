@@ -145,7 +145,7 @@ Only concrete and clocks.\n\
     ezStringBuilder sFullPath;
 
     ezFileSystemIterator it;
-    if (it.StartSearch(sOutputFolder.GetData(), true, true))
+    if (it.StartSearch(sOutputFolder.GetData(), true, true) == EZ_SUCCESS)
     {
       int SkipFolder = 1;
 
@@ -161,13 +161,13 @@ Only concrete and clocks.\n\
         {
           SkipFolder++;
 
-          if ((SkipFolder % 2 == 0) && (!it.SkipFolder()))
+          if ((SkipFolder % 2 == 0) && (it.SkipFolder() == EZ_FAILURE))
             break;
         }
 
         //printf("%s: '%s'\n", it.GetStats().m_bIsDirectory ? "[Dir] " : "[File]", sFullPath.GetData());
       }
-      while(it.Next());
+      while(it.Next() == EZ_SUCCESS);
     }
   }
 

@@ -3,6 +3,7 @@
 #include <Foundation/Communication/Telemetry.h>
 
 ezStats::MapType ezStats::s_Stats;
+ezStats::ezEventStats ezStats::s_StatsEvents;
 
 void ezStats::RemoveStat(const char* szStatName)
 {
@@ -13,14 +14,12 @@ void ezStats::RemoveStat(const char* szStatName)
 
   s_Stats.Erase(it);
 
-  if (!ezTelemetry::IsConnectedToClient())
-    return;
+  StatsEventData e;
+  e.m_EventType = StatsEventData::Remove;
+  e.m_szStatName = szStatName;
+  e.m_szNewStatValue = NULL;
 
-  ezTelemetryMessage msg;
-  msg.SetMessageID('STAT', 'DEL');
-  msg.GetWriter() << szStatName;
-
-  ezTelemetry::Broadcast(ezTelemetry::Reliable, msg);
+  s_StatsEvents.Broadcast(e);
 }
 
 void ezStats::SetStat(const char* szStatName, const char* szValue)
@@ -32,30 +31,10 @@ void ezStats::SetStat(const char* szStatName, const char* szValue)
 
   sValue = szValue;
 
-  if (!ezTelemetry::IsConnectedToClient())
-    return;
+  StatsEventData e;
+  e.m_EventType = StatsEventData::Set;
+  e.m_szStatName = szStatName;
+  e.m_szNewStatValue = szValue;
 
-  ezTelemetryMessage msg;
-  msg.SetMessageID('STAT', 'SET');
-  msg.GetWriter() << szStatName;
-  msg.GetWriter() << szValue;
-
-  ezTelemetry::Broadcast(ezTelemetry::Unreliable, msg);
+  s_StatsEvents.Broadcast(e);
 }
-
-void ezStats::SendAllStatsTelemetry()
-{
-  if (!ezTelemetry::IsConnectedToClient())
-    return;
-
-  for (MapType::Iterator it = s_Stats.GetIterator(); it.IsValid(); ++it)
-  {
-    ezTelemetryMessage msg;
-    msg.SetMessageID('STAT', 'SET');
-    msg.GetWriter() << it.Key().GetData();
-    msg.GetWriter() << it.Value().GetData();
-
-    ezTelemetry::Broadcast(ezTelemetry::Reliable, msg);
-  }
-}
-

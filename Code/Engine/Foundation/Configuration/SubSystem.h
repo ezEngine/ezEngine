@@ -61,6 +61,9 @@ public:
   /// \brief Returns the plugin name to which this subsystem belongs.
   const char* GetPluginName() const { return m_szPluginName; }
 
+  /// \brief Returns whether the given startup stage has been done on this subsystem.
+  bool IsStartupPhaseDone(ezStartupStage::Enum Stage) const { return m_bStartupDone[Stage]; }
+
 private:
   // only the startup system may access the following functionality
   friend class ezStartup;

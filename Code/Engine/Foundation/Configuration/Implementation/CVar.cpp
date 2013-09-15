@@ -51,6 +51,7 @@ EZ_END_SUBSYSTEM_DECLARATION
 
 
 ezHybridString<32, ezStaticAllocatorWrapper> ezCVar::s_StorageFolder;
+ezEvent<const ezCVar::CVarEvent&, void*, ezStaticAllocatorWrapper> ezCVar::s_AllCVarEvents;
 
 void ezCVar::AssignSubSystemPlugin(const char* szPluginName)
 {
@@ -100,25 +101,6 @@ void ezCVar::PluginEventHandler(const ezPlugin::PluginEvent& EventData, void* pP
     break;
   }
 }
-
-void ezCVar::SendAllCVarTelemetry()
-{
-  // clear
-  {
-    ezTelemetryMessage msg;
-    ezTelemetry::Broadcast(ezTelemetry::Reliable, 'CVAR', 'CLR', NULL, 0);
-  }
-
-  ezCVar* pCVar = ezCVar::GetFirstInstance();
-
-  while (pCVar)
-  {
-    pCVar->SendCVarTelemetry();
-
-    pCVar = pCVar->GetNextInstance();
-  }
-}
-
 
 ezCVar::ezCVar(const char* szName, ezBitflags<ezCVarFlags> Flags, const char* szDescription)
 {
@@ -438,75 +420,6 @@ void ezCVar::LoadCVars(bool bOnlyNewOnes, bool bSetAsCurrentValue)
   }
 }
 
-void ezCVar::RegisterCVarTelemetryChangeCB()
-{
-  ezTelemetry::AcceptMessagesForSystem('SVAR', true, ezCVar::TelemetryMessage, NULL);
-}
-
-void ezCVar::TelemetryMessage(void* pPassThrough)
-{
-  ezTelemetryMessage Msg;
-
-  while (ezTelemetry::RetrieveMessage('SVAR', Msg) == EZ_SUCCESS)
-  {
-    if (Msg.GetMessageID() == 'SET')
-    {
-      ezString sCVar;
-      ezUInt8 uiType;
-
-      float fValue;
-      ezInt32 iValue;
-      bool bValue;
-      ezString sValue;
-
-      Msg.GetReader() >> sCVar;
-      Msg.GetReader() >> uiType;
-
-      switch (uiType)
-      {
-      case ezCVarType::Float:
-        Msg.GetReader() >> fValue;
-        break;
-      case ezCVarType::Int:
-        Msg.GetReader() >> iValue;
-        break;
-      case ezCVarType::Bool:
-        Msg.GetReader() >> bValue;
-        break;
-      case ezCVarType::String:
-        Msg.GetReader() >> sValue;
-        break;
-      }
-
-      ezCVar* pCVar = ezCVar::GetFirstInstance();
-
-      while (pCVar)
-      {
-        if (((ezUInt8) pCVar->GetType() == uiType) && (pCVar->GetName() == sCVar))
-        {
-          switch (uiType)
-          {
-          case ezCVarType::Float:
-            *((ezCVarFloat*) pCVar) = fValue;
-            break;
-          case ezCVarType::Int:
-            *((ezCVarInt*) pCVar) = iValue;
-            break;
-          case ezCVarType::Bool:
-            *((ezCVarBool*) pCVar) = bValue;
-            break;
-          case ezCVarType::String:
-            *((ezCVarString*) pCVar) = sValue;
-            break;
-          }
-        }
-
-        pCVar = pCVar->GetNextInstance();
-      }
-    }
-  }
-
-}
 
 
 

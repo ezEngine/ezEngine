@@ -84,6 +84,7 @@
     <addaction name="ActionShowWindowInput"/>
     <addaction name="ActionShowWindowCVar"/>
     <addaction name="ActionShowWindowStats"/>
+    <addaction name="ActionShowWindowFile"/>
    </widget>
    <addaction name="menuWindows"/>
   </widget>
@@ -133,8 +134,19 @@
    </property>
   </action>
   <action name="ActionShowWindowStats">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="text">
     <string>Stats</string>
+   </property>
+  </action>
+  <action name="ActionShowWindowFile">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>File Operations</string>
    </property>
   </action>
  </widget>

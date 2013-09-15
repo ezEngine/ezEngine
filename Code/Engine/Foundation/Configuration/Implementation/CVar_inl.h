@@ -32,6 +32,9 @@ void ezTypedCVar<Type, CVarType>::SetToRestartValue()
   CVarEvent e(this);
   e.m_EventType = ezCVar::CVarEvent::ValueChanged;
   m_CVarEvents.Broadcast(e);
+
+  // broadcast the same to the 'all cvars' event handlers
+  s_AllCVarEvents.Broadcast(e);
 }
 
 template<typename Type, ezCVarType::Enum CVarType>
@@ -63,27 +66,9 @@ void ezTypedCVar<Type, CVarType>::operator= (const Type& value)
 
   m_Values[ezCVarValue::Restart] = value;
 
-  SendCVarTelemetry();
-
   m_CVarEvents.Broadcast(e);
+
+  // broadcast the same to the 'all cvars' event handlers
+  s_AllCVarEvents.Broadcast(e);
 }
-
-template<typename Type, ezCVarType::Enum CVarType>
-void ezTypedCVar<Type, CVarType>::SendCVarTelemetry()
-{
-  RegisterCVarTelemetryChangeCB();
-
-  ezTelemetryMessage msg;
-  msg.SetMessageID('CVAR', 'DATA');
-  msg.GetWriter() << GetName();
-  msg.GetWriter() << GetPluginName();
-  msg.GetWriter() << (ezUInt8) GetFlags().GetValue();
-  msg.GetWriter() << (ezUInt8) GetType();
-  msg.GetWriter() << GetValue();
-
-  ezTelemetry::Broadcast(ezTelemetry::Reliable, msg);
-}
-
-
-
 
