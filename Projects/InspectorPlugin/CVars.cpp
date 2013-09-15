@@ -106,6 +106,9 @@ static void SendCVarTelemetry(ezCVar* pCVar)
 
 static void SendAllCVarTelemetry()
 {
+  if (!ezTelemetry::IsConnectedToClient())
+    return;
+
   // clear
   {
     ezTelemetryMessage msg;
@@ -135,6 +138,9 @@ static void TelemetryEventsHandler(const ezTelemetry::TelemetryEventData& e, voi
 
 static void CVarEventHandler(const ezCVar::CVarEvent& e, void* pPassThrough)
 {
+  if (!ezTelemetry::IsConnectedToClient())
+    return;
+
   switch (e.m_EventType)
   {
   case ezCVar::CVarEvent::ValueChanged:

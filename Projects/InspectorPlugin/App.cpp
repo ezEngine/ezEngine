@@ -2,6 +2,9 @@
 
 void Inspector_AppDataRequests(void* pPassThrough)
 {
+  if (!ezTelemetry::IsConnectedToClient())
+    return;
+
   ezTelemetryMessage Msg;
 
   while (ezTelemetry::RetrieveMessage('APP', Msg) == EZ_SUCCESS)

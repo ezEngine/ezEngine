@@ -83,16 +83,23 @@ void ezTelemetry::AcceptMessagesForSystem(ezUInt64 uiSystemID, bool bAccept, Pro
   s_SystemMessages[uiSystemID].m_pPassThrough = pPassThrough;
 }
 
-void ezTelemetry::CallProcessMessagesCallbacks()
+void ezTelemetry::PerFrameUpdate()
 {
-  ezLock<ezMutex> Lock(GetTelemetryMutex());
-
-  // Call each callback to process the incoming messages
-  for (ezMap<ezUInt64, ezTelemetry::MessageQueue, ezCompareHelper<ezUInt64>, ezStaticAllocatorWrapper >::Iterator it = s_SystemMessages.GetIterator(); it.IsValid(); ++it)
   {
-    if (!it.Value().m_IncomingQueue.IsEmpty() && it.Value().m_Callback)
-      it.Value().m_Callback(it.Value().m_pPassThrough);
+    ezLock<ezMutex> Lock(GetTelemetryMutex());
+
+    // Call each callback to process the incoming messages
+    for (ezMap<ezUInt64, ezTelemetry::MessageQueue, ezCompareHelper<ezUInt64>, ezStaticAllocatorWrapper >::Iterator it = s_SystemMessages.GetIterator(); it.IsValid(); ++it)
+    {
+      if (!it.Value().m_IncomingQueue.IsEmpty() && it.Value().m_Callback)
+        it.Value().m_Callback(it.Value().m_pPassThrough);
+    }
   }
+
+  TelemetryEventData e;
+  e.m_EventType = TelemetryEventData::PerFrameUpdate;
+
+  s_TelemetryEvents.Broadcast(e);
 }
 
 void ezTelemetry::SetOutgoingQueueSize(ezUInt64 uiSystemID, ezUInt16 uiMaxQueued)

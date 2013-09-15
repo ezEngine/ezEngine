@@ -138,7 +138,8 @@ public:
 
   static void AcceptMessagesForSystem(ezUInt64 uiSystemID, bool bAccept, ProcessMessagesCallback Callback = NULL, void* pPassThrough = NULL);
 
-  static void CallProcessMessagesCallbacks();
+  /// \brief Call this once per frame to process queued messages and to send the PerFrameUpdate event.
+  static void PerFrameUpdate();
 
   /// \brief Specifies how many reliable messages from a system might get queued when no receipient is available yet.
   ///
@@ -151,15 +152,19 @@ public:
 
   /// @}
 
+  /// \name ezTelemetry Events
+  /// @{ 
+
   struct TelemetryEventData
   {
     enum EventType
     {
-      ConnectedToClient,  ///< brief Send whenever a new connection to a client has been established.
-      ConnectedToServer,  ///< brief Send whenever a connection to the server has been established.
-      ChangedServerID,    ///< Send when the ID of the server has been updated
-      DisconnectedFromClient,
-      DisconnectedFromServer,
+      ConnectedToClient,        ///< brief Send whenever a new connection to a client has been established.
+      ConnectedToServer,        ///< brief Send whenever a connection to the server has been established.
+      ChangedServerID,          ///< Send when the ID of the server has been updated
+      DisconnectedFromClient,   ///< Send every time the connection to a client is dropped
+      DisconnectedFromServer,   ///< Send when the connection to the server has been lost
+      PerFrameUpdate,           ///< Send once per frame, react to this to send per-frame statistics
     };
 
     EventType m_EventType;
@@ -173,6 +178,7 @@ public:
   /// \brief Removes a previously added event handler.
   static void RemoveEventHandler(ezEventTelemetry::ezEventHandler callback, void* pPassThrough = NULL) { s_TelemetryEvents.RemoveEventHandler (callback, pPassThrough); }
 
+  /// @}
 
 private:
   static void UpdateServerPing();

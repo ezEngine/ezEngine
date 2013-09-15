@@ -3,6 +3,7 @@
 #include <Core/Input/InputDevice.h>
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Containers/DynamicArray.h>
+#include <Foundation/Communication/Event.h>
 
 /// \brief A struct that defines how to register an input action.
 struct EZ_CORE_DLL ezInputActionConfig
@@ -191,6 +192,36 @@ public:
   /// \brief Mostly for internal use. Converts a scancode value to the string that is used inside the engine for that key.
   static const char* ConvertScanCodeToEngineName(ezUInt8 uiScanCode, bool bIsExtendedKey);
 
+  /// \brief The data that is broadcasted when certain events occur.
+  struct InputEventData
+  {
+    enum EventType
+    {
+      InputSlotChanged,   ///< An input slot has been registered or its state changed.
+      InputActionChanged, ///< An input action has been registered or its state changed.
+    };
+
+    EventType m_EventType;
+    const char* m_szInputSlot;
+    const char* m_szInputSet;
+    const char* m_szInputAction;
+
+    InputEventData()
+    {
+      m_szInputSlot = NULL;
+      m_szInputSet = NULL;
+      m_szInputAction = NULL;
+    }
+  };
+
+  typedef ezEvent<const InputEventData&, void*, ezStaticAllocatorWrapper> ezEventInput;
+
+  /// \brief Adds an event handler that is called for input events.
+  static void AddEventHandler(ezEventInput::ezEventHandler callback, void* pPassThrough = NULL)    { s_InputEvents.AddEventHandler   (callback, pPassThrough);  }
+
+  /// \brief Removes a previously added event handler.
+  static void RemoveEventHandler(ezEventInput::ezEventHandler callback, void* pPassThrough = NULL) { s_InputEvents.RemoveEventHandler (callback, pPassThrough); }
+
 private:
   friend class ezInputDevice;
 
@@ -270,7 +301,8 @@ private:
 
   static void DeallocateInternals();
   static InternalData& GetInternals();
-  static void SendActionTelemetry(const char* szInputSet, const char* szAction, const ezInputManager::ezActionData& ad);
+
+  static ezEventInput s_InputEvents;
 
   static InternalData* s_pData;
 };

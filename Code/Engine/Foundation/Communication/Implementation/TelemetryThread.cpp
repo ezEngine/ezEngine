@@ -15,28 +15,6 @@ public:
 
   volatile bool m_bKeepRunning;
 
-  void BroadcastMemoryStats()
-  {
-    ezIAllocator* pAllocator = ezIAllocator::GetFirstInstance();
-
-    while (pAllocator)
-    {
-      ezIAllocator::Stats s;
-      pAllocator->GetStats(s);
-
-      ezTelemetryMessage msg;
-      msg.SetMessageID('MEM', 'STAT');
-      msg.GetWriter() << pAllocator->GetName();
-      msg.GetWriter() << s;
-
-      ezTelemetry::Broadcast(ezTelemetry::Unreliable, msg);
-
-      pAllocator = pAllocator->GetNextInstance();
-    }
-
-    
-  }
-
 private:
   virtual ezUInt32 Run()
   {
@@ -44,9 +22,6 @@ private:
 
     while(m_bKeepRunning)
     {
-      /// \todo Do this in a more appropriate place (outside of ezTelemetry)
-      BroadcastMemoryStats();
-
       ezTelemetry::UpdateNetwork();
 
       // Send a Ping every once in a while

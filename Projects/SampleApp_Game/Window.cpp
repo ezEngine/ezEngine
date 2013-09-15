@@ -197,7 +197,7 @@ void SampleGameApp::GameLoop()
       RenderSingleFrame();
       SwapBuffers(g_hDC);
 
-      ezTelemetry::CallProcessMessagesCallbacks();
+      ezTelemetry::PerFrameUpdate();
 
       Sleep(10);
     }

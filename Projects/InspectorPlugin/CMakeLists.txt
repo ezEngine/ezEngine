@@ -17,6 +17,7 @@
 # Add all the libraries that this project needs to link against here
 SET (LINK_LIBRARIES
   Foundation
+  Core
 )
 
 include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/CMAKE_Plugin.txt)

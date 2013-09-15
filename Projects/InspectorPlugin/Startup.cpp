@@ -59,6 +59,9 @@ static void SendSubsystemTelemetry()
 
 static void TelemetryEventsHandler(const ezTelemetry::TelemetryEventData& e, void* pPassThrough)
 {
+  if (!ezTelemetry::IsConnectedToClient())
+    return;
+
   switch (e.m_EventType)
   {
   case ezTelemetry::TelemetryEventData::ConnectedToClient:

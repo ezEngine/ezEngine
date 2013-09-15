@@ -4,6 +4,7 @@
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Communication/Telemetry.h>
 
+ezInputManager::ezEventInput ezInputManager::s_InputEvents;
 ezInputManager::InternalData* ezInputManager::s_pData = NULL;
 wchar_t ezInputManager::s_LastCharacter = '\0';
 
@@ -42,7 +43,7 @@ void ezInputManager::RegisterInputSlot(const char* szInputSlot, const char* szDe
       it.Value().m_SlotFlags |= SlotFlags;
     }
 
-    // If the key already exists, but key and display string are identical, than overwrite the display string with the incoming string
+    // If the key already exists, but key and display string are identical, then overwrite the display string with the incoming string
     if (it.Value().m_sDisplayName != it.Key())
       return;
   }
@@ -55,18 +56,11 @@ void ezInputManager::RegisterInputSlot(const char* szInputSlot, const char* szDe
   sm.m_sDisplayName = szDefaultDisplayName;
   sm.m_SlotFlags = SlotFlags;
 
-  // Telemetry
-  {
-    ezTelemetryMessage msg;
-    msg.SetMessageID('INPT', 'SLOT');
-    msg.GetWriter() << szInputSlot;
-    msg.GetWriter() << SlotFlags.GetValue();
-    msg.GetWriter() << (ezUInt8) sm.m_State;
-    msg.GetWriter() << sm.m_fValue;
-    msg.GetWriter() << sm.m_fDeadZone;
+  InputEventData e;
+  e.m_EventType = InputEventData::InputSlotChanged;
+  e.m_szInputSlot = szInputSlot;
 
-    ezTelemetry::Broadcast(ezTelemetry::Reliable, msg);
-  }
+  s_InputEvents.Broadcast(e);
 }
 
 ezBitflags<ezInputSlotFlags> ezInputManager::GetInputSlotFlags(const char* szInputSlot)
@@ -85,6 +79,12 @@ void ezInputManager::SetInputSlotDisplayName(const char* szInputSlot, const char
 {
   RegisterInputSlot(szInputSlot, szDefaultDisplayName, ezInputSlotFlags::Default);
   GetInternals().s_InputSlots[szInputSlot].m_sDisplayName = szDefaultDisplayName;
+
+  InputEventData e;
+  e.m_EventType = InputEventData::InputSlotChanged;
+  e.m_szInputSlot = szInputSlot;
+
+  s_InputEvents.Broadcast(e);
 }
 
 const char* ezInputManager::GetInputSlotDisplayName(const char* szInputSlot)
@@ -132,6 +132,12 @@ void ezInputManager::SetInputSlotDeadZone(const char* szInputSlot, float fDeadZo
 {
   RegisterInputSlot(szInputSlot, szInputSlot, ezInputSlotFlags::Default);
   GetInternals().s_InputSlots[szInputSlot].m_fDeadZone = ezMath::Max(fDeadZone, 0.0001f);
+
+  InputEventData e;
+  e.m_EventType = InputEventData::InputSlotChanged;
+  e.m_szInputSlot = szInputSlot;
+
+  s_InputEvents.Broadcast(e);
 }
 
 float ezInputManager::GetInputSlotDeadZone(const char* szInputSlot)
@@ -241,15 +247,11 @@ void ezInputManager::UpdateInputSlotStates()
     {
       it.Value().m_State = NewState;
 
-      ezTelemetryMessage msg;
-      msg.SetMessageID('INPT', 'SLOT');
-      msg.GetWriter() << it.Key().GetData();
-      msg.GetWriter() << it.Value().m_SlotFlags.GetValue();
-      msg.GetWriter() << (ezUInt8) NewState;
-      msg.GetWriter() << it.Value().m_fValue;
-      msg.GetWriter() << it.Value().m_fDeadZone;
+      InputEventData e;
+      e.m_EventType = InputEventData::InputSlotChanged;
+      e.m_szInputSlot = it.Key().GetData();
 
-      ezTelemetry::Broadcast(ezTelemetry::Reliable, msg);
+      s_InputEvents.Broadcast(e);
     }
   }
 }

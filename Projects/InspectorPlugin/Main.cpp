@@ -29,6 +29,11 @@ void RemoveStartupEventHandler();
 void AddCVarEventHandler();
 void RemoveCVarEventHandler();
 
+void AddMemoryEventHandler();
+void RemoveMemoryEventHandler();
+
+void AddInputEventHandler();
+void RemoveInputEventHandler();
 
 EZ_BEGIN_SUBSYSTEM_DECLARATION(InspectorPlugin, Main)
 
@@ -44,24 +49,20 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(InspectorPlugin, Main)
     AddStatsEventHandler();
     AddStartupEventHandler();
     AddCVarEventHandler();
+    AddMemoryEventHandler();
+    AddInputEventHandler();
   }
 
   ON_CORE_SHUTDOWN
   {
+    RemoveInputEventHandler();
+    RemoveMemoryEventHandler();
     RemoveCVarEventHandler();
     RemoveStartupEventHandler();
     RemoveStatsEventHandler();
     RemoveLogWriter();
 
     ezTelemetry::AcceptMessagesForSystem('APP', false);
-  }
-
-  ON_ENGINE_STARTUP
-  {
-  }
-
-  ON_ENGINE_SHUTDOWN
-  {
   }
 
 EZ_END_SUBSYSTEM_DECLARATION

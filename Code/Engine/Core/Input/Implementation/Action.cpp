@@ -51,25 +51,6 @@ void ezInputManager::ClearInputMapping(const char* szInputSet, const char* szInp
   }
 }
 
-void ezInputManager::SendActionTelemetry(const char* szInputSet, const char* szAction, const ezInputManager::ezActionData& ad)
-{
-  ezTelemetryMessage msg;
-  msg.SetMessageID('INPT', 'ACTN');
-  msg.GetWriter() << szInputSet;
-  msg.GetWriter() << szAction;
-  msg.GetWriter() << (ezUInt8) ad.m_State;
-  msg.GetWriter() << ad.m_fValue;
-  msg.GetWriter() << ad.m_Config.m_bApplyTimeScaling;
-
-  for (ezUInt32 i = 0; i < ezInputActionConfig::MaxInputSlotAlternatives; ++i)
-  {
-    msg.GetWriter() << ad.m_Config.m_sInputSlotTrigger[i];
-    msg.GetWriter() << ad.m_Config.m_fInputSlotScale[i];
-  }
-
-  ezTelemetry::Broadcast(ezTelemetry::Reliable, msg);
-}
-
 void ezInputManager::SetInputActionConfig(const char* szInputSet, const char* szAction, const ezInputActionConfig& Config, bool bClearPreviousInputMappings)
 {
   EZ_ASSERT(!ezStringUtils::IsNullOrEmpty(szInputSet), "The InputSet name must not be empty.");
@@ -85,7 +66,12 @@ void ezInputManager::SetInputActionConfig(const char* szInputSet, const char* sz
   ezInputManager::ezActionData& ad = GetInternals().s_ActionMapping[szInputSet][szAction];
   ad.m_Config = Config;
 
-  SendActionTelemetry(szInputSet, szAction, ad);
+  InputEventData e;
+  e.m_EventType = InputEventData::InputActionChanged;
+  e.m_szInputSet = szInputSet;
+  e.m_szInputAction = szAction;
+
+  s_InputEvents.Broadcast(e);
 }
 
 ezInputActionConfig ezInputManager::GetInputActionConfig(const char* szInputSet, const char* szAction)
@@ -310,7 +296,13 @@ void ezInputManager::UpdateInputActions(const char* szInputSet, ezActionMap& Act
     if ((NewState != ezKeyState::Up) || (NewState != ItActions.Value().m_State))
     {
       ItActions.Value().m_State = NewState;
-      SendActionTelemetry(szInputSet, ItActions.Key().GetData(), ItActions.Value());
+
+      InputEventData e;
+      e.m_EventType = InputEventData::InputActionChanged;
+      e.m_szInputSet = szInputSet;
+      e.m_szInputAction = ItActions.Key().GetData();
+
+      s_InputEvents.Broadcast(e);
     }
 
     if (NewState == ezKeyState::Up)
