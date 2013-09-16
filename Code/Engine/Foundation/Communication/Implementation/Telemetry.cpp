@@ -37,11 +37,16 @@ void ezTelemetry::UpdateServerPing()
   ezTelemetry::s_PingToServer = ezTime::MilliSeconds(g_pConnectionToServer->lastRoundTripTime);
 }
 
-
 void ezTelemetry::UpdateNetwork()
 {
   if (!g_pHost)
     return;
+
+  static bool bRecursive = false;
+  if (bRecursive)
+    return;
+
+  bRecursive = true;
 
   ENetEvent NetworkEvent;
 
@@ -52,7 +57,10 @@ void ezTelemetry::UpdateNetwork()
     const ezInt32 iStatus = enet_host_service(g_pHost, &NetworkEvent, 0);
 
     if (iStatus <= 0)
+    {
+      bRecursive = false;
       return;
+    }
 
     switch(NetworkEvent.type) 
     {
@@ -179,6 +187,8 @@ void ezTelemetry::UpdateNetwork()
 
     }
   }
+
+  bRecursive = false;
 }
 
 ezResult ezTelemetry::RetrieveMessage(ezUInt64 uiSystemID, ezTelemetryMessage& out_Message)
