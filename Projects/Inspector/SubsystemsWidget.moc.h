@@ -2,23 +2,20 @@
 
 #include <Foundation/Basics.h>
 #include <QDockWidget>
-#include <Projects/Inspector/ui_GeneralWidget.h>
+#include <Projects/Inspector/ui_SubsystemsWidget.h>
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Strings/String.h>
 #include <Foundation/Configuration/Startup.h>
 
-class ezGeneralWidget : public QDockWidget, public Ui_GeneralWidget
+class ezSubsystemsWidget : public QDockWidget, public Ui_SubsystemsWidget
 {
 public:
   Q_OBJECT
 
 public:
-  ezGeneralWidget(QWidget* parent = 0);
+  ezSubsystemsWidget(QWidget* parent = 0);
 
-  static ezGeneralWidget* s_pWidget;
-
-private slots:
-  virtual void on_ButtonConnect_clicked();
+  static ezSubsystemsWidget* s_pWidget;
 
 public:
   static void ProcessTelemetry(void* pUnuseed);

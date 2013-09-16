@@ -31,9 +31,34 @@ void ezLogWidget::ResetStats()
   ComboLogLevel->setCurrentIndex(ezLog::EventType::All - m_LogLevel);
 }
 
-
-void ezLogWidget::UpdateStats()
+void ezLogWidget::Log(const char* szFormat, ...)
 {
+  char szString[4096];
+
+  va_list args;
+  va_start (args, szFormat);
+
+  ezStringUtils::vsnprintf(szString, 4096, szFormat, args);
+
+  va_end (args);
+
+  const bool bLastSelected = (ListLog->count() == 0) || (ListLog->currentItem() == ListLog->item(ListLog->count() - 1));
+
+  LogMsg lm;
+  lm.m_sMsg = szString;
+  lm.m_Type = ezLog::EventType::InfoMsg;
+  lm.m_uiIndentation = 0;
+
+  m_Messages.PushBack(lm);
+
+    if (IsFiltered(lm))
+      return;
+
+  QListWidgetItem* pItem = CreateLogItem(lm, m_Messages.GetCount() - 1);
+  ListLog->addItem(pItem);
+
+  if (bLastSelected)
+    ListLog->setCurrentItem(ListLog->item(ListLog->count() - 1));
 }
 
 QListWidgetItem* ezLogWidget::CreateLogItem(const LogMsg& lm, ezInt32 iMessageIndex)

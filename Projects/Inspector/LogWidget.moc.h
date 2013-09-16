@@ -15,6 +15,8 @@ public:
 public:
   ezLogWidget(QWidget* parent = 0);
 
+  void Log(const char* szFormat, ...);
+
   static ezLogWidget* s_pWidget;
 
 private slots:
@@ -26,7 +28,6 @@ public:
   static void ProcessTelemetry(void* pUnuseed);
 
   void ResetStats();
-  void UpdateStats();
 
 private:
   void UpdateLogList();

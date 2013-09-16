@@ -61,10 +61,6 @@ void ezInputWidget::ClearActions()
   }
 }
 
-void ezInputWidget::UpdateStats()
-{
-}
-
 void ezInputWidget::ProcessTelemetry(void* pUnuseed)
 {
   if (!s_pWidget)

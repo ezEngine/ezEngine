@@ -25,7 +25,6 @@ public:
   static void ProcessTelemetry(void* pUnuseed);
 
   void ResetStats();
-  void UpdateStats();
 
 private:
   void ClearSlots();

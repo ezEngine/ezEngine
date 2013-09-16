@@ -2,11 +2,11 @@
 #include <Foundation/Communication/Telemetry.h>
 #include <Inspector/MainWindow.moc.h>
 #include <Inspector/LogWidget.moc.h>
-#include <Inspector/GeneralWidget.moc.h>
 #include <Inspector/MemoryWidget.moc.h>
 #include <Inspector/InputWidget.moc.h>
 #include <Inspector/CVarsWidget.moc.h>
-#include <Inspector/StatsWidget.moc.h>
+#include <Inspector/SubsystemsWidget.moc.h>
+#include <Inspector/FileWidget.moc.h>
 #include <QApplication>
 #include <qstylefactory.h>
 
@@ -72,53 +72,32 @@ public:
     char** cArgs = (char**) GetArgumentsArray();
 
     QApplication app(iArgs, cArgs);
-    app.setApplicationName("ezInspector");
+    QCoreApplication::setOrganizationDomain("www.ezengine.net");
+    QCoreApplication::setOrganizationName("ezEngine Project");
+    QCoreApplication::setApplicationName("ezInspector");
+    QCoreApplication::setApplicationVersion("1.0.0");
 
     SetStyleSheet();
 
     ezMainWindow MainWindow;
 
-    ezLogWidget* pLogWidget = new ezLogWidget(&MainWindow);
-    ezMemoryWidget* pMemoryWidget = new ezMemoryWidget(&MainWindow);
-    ezGeneralWidget* pGeneralWidget = new ezGeneralWidget(&MainWindow);
-    ezInputWidget* pInputWidget = new ezInputWidget(&MainWindow);
-    ezCVarsWidget* pCVarsWidget = new ezCVarsWidget(&MainWindow);
-    ezStatsWidget* pStatsWidget = new ezStatsWidget(&MainWindow);
-
-    EZ_VERIFY(QWidget::connect(pLogWidget, SIGNAL(visibilityChanged(bool)), &MainWindow, SLOT(DockWidgetVisibilityChanged(bool))), "Bla");
-    EZ_VERIFY(QWidget::connect(pMemoryWidget, SIGNAL(visibilityChanged(bool)), &MainWindow, SLOT(DockWidgetVisibilityChanged(bool))), "Bla");
-    EZ_VERIFY(QWidget::connect(pGeneralWidget, SIGNAL(visibilityChanged(bool)), &MainWindow, SLOT(DockWidgetVisibilityChanged(bool))), "Bla");
-    EZ_VERIFY(QWidget::connect(pInputWidget, SIGNAL(visibilityChanged(bool)), &MainWindow, SLOT(DockWidgetVisibilityChanged(bool))), "Bla");
-    EZ_VERIFY(QWidget::connect(pCVarsWidget, SIGNAL(visibilityChanged(bool)), &MainWindow, SLOT(DockWidgetVisibilityChanged(bool))), "Bla");
-    EZ_VERIFY(QWidget::connect(pStatsWidget, SIGNAL(visibilityChanged(bool)), &MainWindow, SLOT(DockWidgetVisibilityChanged(bool))), "Bla");
-
-    MainWindow.addDockWidget(Qt::TopDockWidgetArea, pGeneralWidget);
-    MainWindow.splitDockWidget(pGeneralWidget, pLogWidget, Qt::Horizontal);
-    MainWindow.splitDockWidget(pGeneralWidget, pMemoryWidget, Qt::Vertical);
-    MainWindow.tabifyDockWidget(pLogWidget, pInputWidget);
-    MainWindow.tabifyDockWidget(pLogWidget, pCVarsWidget);
-    MainWindow.tabifyDockWidget(pLogWidget, pStatsWidget);
-
     ezTelemetry::AcceptMessagesForSystem('CVAR', true, ezCVarsWidget::ProcessTelemetry, NULL);
     ezTelemetry::AcceptMessagesForSystem('LOG', true, ezLogWidget::ProcessTelemetry, NULL);
     ezTelemetry::AcceptMessagesForSystem('MEM', true, ezMemoryWidget::ProcessTelemetry, NULL);
-    ezTelemetry::AcceptMessagesForSystem('APP', true, ezGeneralWidget::ProcessTelemetry, NULL);
+    ezTelemetry::AcceptMessagesForSystem('APP', true, ezMainWindow::ProcessTelemetry, NULL);
+    ezTelemetry::AcceptMessagesForSystem('FILE', true, ezFileWidget::ProcessTelemetry, NULL);
     ezTelemetry::AcceptMessagesForSystem('INPT', true, ezInputWidget::ProcessTelemetry, NULL);
-    ezTelemetry::AcceptMessagesForSystem('STRT', true, ezGeneralWidget::ProcessTelemetry, NULL);
-    ezTelemetry::AcceptMessagesForSystem('STAT', true, ezStatsWidget::ProcessTelemetry, NULL);
+    ezTelemetry::AcceptMessagesForSystem('STRT', true, ezSubsystemsWidget::ProcessTelemetry, NULL);
+    ezTelemetry::AcceptMessagesForSystem('STAT', true, ezMainWindow::ProcessTelemetry, NULL);
 
     ezTelemetry::ConnectToServer();
-
-    MainWindow.LoadLayout();
 
     MainWindow.show();
     SetReturnCode(app.exec());
 
     ezTelemetry::CloseConnection();
 
-    QByteArray ba = MainWindow.saveState();
 
-    MainWindow.SaveLayout();
 
     return ezApplication::Quit;
   }

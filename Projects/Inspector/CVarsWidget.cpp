@@ -20,10 +20,18 @@ ezCVarsWidget::ezCVarsWidget(QWidget* parent) : QDockWidget (parent)
 void ezCVarsWidget::ResetStats()
 {
   TableCVars->clear();
-}
 
-void ezCVarsWidget::UpdateStats()
-{
+  {
+    TableCVars->setColumnCount(3);
+
+    QStringList Headers;
+    Headers.append(" Plugin ");
+    Headers.append(" CVar ");
+    Headers.append(" Value ");
+
+    TableCVars->setHorizontalHeaderLabels(Headers);
+    TableCVars->horizontalHeader()->show();
+  }
 }
 
 void ezCVarsWidget::ProcessTelemetry(void* pUnuseed)
