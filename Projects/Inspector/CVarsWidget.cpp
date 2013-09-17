@@ -19,6 +19,7 @@ ezCVarsWidget::ezCVarsWidget(QWidget* parent) : QDockWidget (parent)
 
 void ezCVarsWidget::ResetStats()
 {
+  m_CVars.Clear();
   TableCVars->clear();
 
   {
@@ -174,6 +175,8 @@ void ezCVarsWidget::UpdateCVarsTable(bool bRecreate)
     TableCVars->resizeColumnsToContents();
   }
 
+  TableCVars->blockSignals(false);
+
   {
     ezInt32 iRow = 0;
     for (ezMap<ezString, CVarData>::Iterator it = m_CVars.GetIterator(); it.IsValid(); ++it)
@@ -222,7 +225,6 @@ void ezCVarsWidget::UpdateCVarsTable(bool bRecreate)
   }
 
   
-  TableCVars->blockSignals(false);
 }
 
 

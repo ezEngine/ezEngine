@@ -15,8 +15,6 @@ void OnUnloadPlugin(bool bReloading)
 
 }
 
-void Inspector_AppDataRequests(void* pPassThrough);
-
 void AddLogWriter();
 void RemoveLogWriter();
 
@@ -35,6 +33,8 @@ void RemoveMemoryEventHandler();
 void AddInputEventHandler();
 void RemoveInputEventHandler();
 
+void SetAppStats();
+
 EZ_BEGIN_SUBSYSTEM_DECLARATION(InspectorPlugin, Main)
 
   BEGIN_SUBSYSTEM_DEPENDENCIES
@@ -43,14 +43,14 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(InspectorPlugin, Main)
 
   ON_CORE_STARTUP
   {
-    ezTelemetry::AcceptMessagesForSystem('APP', true, Inspector_AppDataRequests);
-
     AddLogWriter();
     AddStatsEventHandler();
     AddStartupEventHandler();
     AddCVarEventHandler();
     AddMemoryEventHandler();
     AddInputEventHandler();
+
+    SetAppStats();
   }
 
   ON_CORE_SHUTDOWN

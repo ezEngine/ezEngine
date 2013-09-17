@@ -97,7 +97,10 @@ void ezTelemetry::PerFrameUpdate()
   TelemetryEventData e;
   e.m_EventType = TelemetryEventData::PerFrameUpdate;
 
+  const bool bAllowUpdate = s_bAllowNetworkUpdate;
+  s_bAllowNetworkUpdate = false;
   s_TelemetryEvents.Broadcast(e);
+  s_bAllowNetworkUpdate = bAllowUpdate;
 }
 
 void ezTelemetry::SetOutgoingQueueSize(ezUInt64 uiSystemID, ezUInt16 uiMaxQueued)

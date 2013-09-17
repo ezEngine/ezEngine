@@ -161,7 +161,6 @@ public:
     {
       ConnectedToClient,        ///< brief Send whenever a new connection to a client has been established.
       ConnectedToServer,        ///< brief Send whenever a connection to the server has been established.
-      ChangedServerID,          ///< Send when the ID of the server has been updated
       DisconnectedFromClient,   ///< Send every time the connection to a client is dropped
       DisconnectedFromServer,   ///< Send when the connection to the server has been lost
       PerFrameUpdate,           ///< Send once per frame, react to this to send per-frame statistics
@@ -207,6 +206,7 @@ private:
 
   static bool s_bConnectedToServer;
   static bool s_bConnectedToClient;
+  static bool s_bAllowNetworkUpdate;
 
   static void QueueOutgoingMessage(TransmitMode tm, ezUInt64 uiSystemID, ezUInt32 uiMsgID, const void* pData, ezUInt32 uiDataBytes);
 

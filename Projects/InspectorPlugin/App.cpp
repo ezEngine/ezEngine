@@ -1,33 +1,63 @@
 #include <PCH.h>
 
-void Inspector_AppDataRequests(void* pPassThrough)
+void SetAppStats()
 {
-  if (!ezTelemetry::IsConnectedToClient())
-    return;
+  ezStringBuilder sOut;
+  const ezSystemInformation info = ezSystemInformation::Get();
 
-  ezTelemetryMessage Msg;
+  ezStats::SetStat("App/Platform/Name", info.GetPlatformName());
 
-  while (ezTelemetry::RetrieveMessage('APP', Msg) == EZ_SUCCESS)
-  {
-    switch (Msg.GetMessageID())
-    {
-    case 'RQDT': // Request Data
-      {
-        ezTelemetryMessage Out;
-        Out.SetMessageID('APP', 'DATA');
+  sOut.Format("%i", info.GetCPUCoreCount());
+  ezStats::SetStat("App/CPU Cores", sOut.GetData());
 
-        const ezSystemInformation info = ezSystemInformation::Get();
+  sOut.Format("%.1f GB", info.GetInstalledMainMemory() / 1024.0f / 1024.0f / 1024.0f);
+  ezStats::SetStat("App/RAM", sOut.GetData());
 
-        Out.GetWriter() << info.GetPlatformName();
-        Out.GetWriter() << info.GetCPUCoreCount();
-        Out.GetWriter() << info.GetInstalledMainMemory();
-        Out.GetWriter() << info.Is64BitOS();
+  sOut = info.Is64BitOS() ? "64 Bit" : "32 Bit";
+  ezStats::SetStat("App/Platform/Architecture", sOut.GetData());
 
-        ezTelemetry::Broadcast(ezTelemetry::Reliable, Out);
-      }
-      break;
-    }
-  }
-}
+  #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+    sOut = "Debug";
+  #elif EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+    sOut = "Dev";
+  #else
+    sOut = "Release";
+  #endif
+  ezStats::SetStat("App/Platform/Build", sOut.GetData());
+
+  #if EZ_ENABLED(EZ_USE_PROFILING)
+    sOut = "Enabled";
+  #else
+    sOut = "Disabled";
+  #endif
+  ezStats::SetStat("App/Features/Profiling", sOut.GetData());
+
+  #if EZ_ENABLED(EZ_USE_PROFILING_GPA)
+    sOut = "Enabled";
+  #else
+    sOut = "Disabled";
+  #endif
+  ezStats::SetStat("App/Features/Intel GPA Support", sOut.GetData());
+
+  #if EZ_ENABLED(EZ_USE_TRACE_ALLOCATOR)
+    sOut = "Enabled";
+  #else
+    sOut = "Disabled";
+  #endif
+  ezStats::SetStat("App/Features/Trace Allocator", sOut.GetData());
+
+  #if EZ_ENABLED(EZ_SUPPORTS_CPP11)
+    sOut = "Enabled";
+  #else
+    sOut = "Disabled";
+  #endif
+  ezStats::SetStat("App/Platform/C++ 11 Feature Set", sOut.GetData());
+
+  #if EZ_ENABLED(EZ_PLATFORM_LITTLE_ENDIAN)
+    sOut = "Little";
+  #else
+    sOut = "Big";
+  #endif
+  ezStats::SetStat("App/Platform/Endianess", sOut.GetData());}
 
 

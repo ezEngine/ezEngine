@@ -19,6 +19,7 @@ ezUInt32 ezTelemetry::s_uiServerID = 0;
 static bool g_bServerRunning = false;
 bool ezTelemetry::s_bConnectedToServer = false;
 bool ezTelemetry::s_bConnectedToClient = false;
+bool ezTelemetry::s_bAllowNetworkUpdate = true;
 ezTime ezTelemetry::s_PingToServer;
 ezHybridString<32, ezStaticAllocatorWrapper> ezTelemetry::s_ServerName;
 ezHybridString<32, ezStaticAllocatorWrapper> ezTelemetry::s_ServerIP;
@@ -42,11 +43,10 @@ void ezTelemetry::UpdateNetwork()
   if (!g_pHost)
     return;
 
-  static bool bRecursive = false;
-  if (bRecursive)
+  if (!s_bAllowNetworkUpdate)
     return;
 
-  bRecursive = true;
+  s_bAllowNetworkUpdate = false;
 
   ENetEvent NetworkEvent;
 
@@ -58,7 +58,7 @@ void ezTelemetry::UpdateNetwork()
 
     if (iStatus <= 0)
     {
-      bRecursive = false;
+      s_bAllowNetworkUpdate = true;
       return;
     }
 
@@ -82,29 +82,18 @@ void ezTelemetry::UpdateNetwork()
         {
           ezTelemetry::s_ServerName = szHostName;
           ezTelemetry::s_ServerIP   = szHostIP;
-          s_bConnectedToServer = true;
 
-          SendToServer('EZBC', 'RQID', NULL, 0);
-
-          TelemetryEventData e;
-          e.m_EventType = TelemetryEventData::ConnectedToServer;
-
-          s_TelemetryEvents.Broadcast(e);
+          // now we are waiting for the server to send its ID
         }
         else
         {
+          // got a new client, send the server ID to it
+          s_bConnectedToClient = true; // we need this fake state, otherwise Broadcast will queue the message instead of sending it
           Broadcast(ezTelemetry::Reliable, 'EZBC', 'EZID', &s_uiApplicationID, sizeof(ezUInt32));
-          s_bConnectedToClient = true;
+          s_bConnectedToClient = false;
 
-          TelemetryEventData e;
-          e.m_EventType = TelemetryEventData::ConnectedToClient;
-
-          s_TelemetryEvents.Broadcast(e);
+          // then wait for its acknowledgement message
         }
-
-        FlushOutgoingQueues();
-
-        //ezLog::Info("New Connection from Host: '%s', IP: %s", szHostName, szHostIP);
       }
       break;
 
@@ -151,18 +140,39 @@ void ezTelemetry::UpdateNetwork()
         {
           switch (uiMsgID)
           {
-          case 'RQID':
-            Broadcast(ezTelemetry::Reliable, 'EZBC', 'EZID', &s_uiApplicationID, sizeof(ezUInt32));
-            break;
-
           case 'EZID':
             {
               s_uiServerID = *((ezUInt32*) pData);
 
+              // connection to server is finalized
+              s_bConnectedToServer = true;
+
+              // acknowledge that the ID has been received
+              SendToServer('EZBC', 'AKID', NULL, 0);
+
+              // go tell the others about it
               TelemetryEventData e;
-              e.m_EventType = TelemetryEventData::ChangedServerID;
+              e.m_EventType = TelemetryEventData::ConnectedToServer;
 
               s_TelemetryEvents.Broadcast(e);
+
+              FlushOutgoingQueues();
+            }
+            break;
+          case 'AKID':
+            {
+              // the client received the server ID -> the connection has been established properly
+
+              /// \todo This assumes we only connect to a single client ...
+              s_bConnectedToClient = true;
+
+              // go tell the others about it
+              TelemetryEventData e;
+              e.m_EventType = TelemetryEventData::ConnectedToClient;
+
+              s_TelemetryEvents.Broadcast(e);
+
+              FlushOutgoingQueues();
             }
             break;
           }
@@ -188,7 +198,7 @@ void ezTelemetry::UpdateNetwork()
     }
   }
 
-  bRecursive = false;
+  s_bAllowNetworkUpdate = true;
 }
 
 ezResult ezTelemetry::RetrieveMessage(ezUInt64 uiSystemID, ezTelemetryMessage& out_Message)

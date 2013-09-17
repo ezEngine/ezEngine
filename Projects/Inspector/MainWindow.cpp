@@ -432,24 +432,6 @@ void ezMainWindow::ProcessTelemetry(void* pUnuseed)
         ezLogWidget::s_pWidget->Log("");
       }
       break;
-    case 'DATA':
-      {
-        ezString sPlatform;
-        ezUInt32 uiCoreCount = 0;
-        ezUInt64 uiMemorySize = 0;
-        bool bIs64Bit = false;
-
-        Msg.GetReader() >> sPlatform;
-        Msg.GetReader() >> uiCoreCount;
-        Msg.GetReader() >> uiMemorySize;
-        Msg.GetReader() >> bIs64Bit;
-
-        ezStringBuilder sInfo;
-        sInfo.Format("%s %s, %i Cores, %.1f GB RAM", sPlatform.GetData(), bIs64Bit ? "64 Bit" : "32 Bit", uiCoreCount, uiMemorySize / 1024.0f / 1024.0f / 1024.0f);
-
-        s_pWidget->LabelAppName->setText(sInfo.GetData());
-      }
-      break;
     }
   }
 }
