@@ -15,7 +15,7 @@ class EZ_FOUNDATION_DLL ezTelemetry
 public:
 
   /// \brief The port over which ezTelemetry will connect.
-  static const ezUInt16 s_uiPort = 1040;
+  static ezUInt16 s_uiPort;
 
   /// \brief Defines how the ezTelemetry system was configured.
   enum ConnectionMode

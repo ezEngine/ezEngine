@@ -53,6 +53,33 @@ static void TelemetryEventsHandler(const ezTelemetry::TelemetryEventData& e, voi
   case ezTelemetry::TelemetryEventData::ConnectedToClient:
     SendAllStatsTelemetry();
     break;
+  case ezTelemetry::TelemetryEventData::PerFrameUpdate:
+    {
+      const ezTime Now = ezSystemTime::Now();
+
+      static ezTime LastTime = Now;
+      static ezTime LastFPS = Now;
+      static ezUInt32 uiFPS = 0;
+      ++uiFPS;
+
+      const ezTime TimeDiff = Now - LastTime;
+
+      ezStringBuilder s;
+      s.Format("%.2fms", TimeDiff.GetMilliSeconds());
+      ezStats::SetStat("App/FrameTime", s.GetData());
+
+      LastTime = Now;
+
+      if ((Now - LastFPS).GetSeconds() >= 1.0)
+      {
+      s.Format("%u", uiFPS);
+      ezStats::SetStat("App/FPS", s.GetData());
+
+        LastFPS = Now;
+        uiFPS = 0;
+      }
+    }
+    break;
   }
 }
 

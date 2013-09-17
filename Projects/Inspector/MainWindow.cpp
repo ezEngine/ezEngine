@@ -191,8 +191,6 @@ void ezMainWindow::paintEvent(QPaintEvent* event)
         s.Format("Connected to new Server with ID %i", uiServerID);
 
         ezLogWidget::s_pWidget->Log(s.GetData());
-
-        ezTelemetry::SendToServer('APP', 'RQDT');
       }
       else
         if (!bConnected)

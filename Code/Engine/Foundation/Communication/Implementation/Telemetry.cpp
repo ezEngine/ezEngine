@@ -16,7 +16,7 @@ class ezTelemetryThread;
 ezTelemetry::ezEventTelemetry ezTelemetry::s_TelemetryEvents;
 ezUInt32 ezTelemetry::s_uiApplicationID = 0;
 ezUInt32 ezTelemetry::s_uiServerID = 0;
-static bool g_bServerRunning = false;
+ezUInt16 ezTelemetry::s_uiPort = 1040;
 bool ezTelemetry::s_bConnectedToServer = false;
 bool ezTelemetry::s_bConnectedToClient = false;
 bool ezTelemetry::s_bAllowNetworkUpdate = true;
