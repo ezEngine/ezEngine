@@ -223,6 +223,7 @@
     <addaction name="ActionShowWindowSubsystems"/>
     <addaction name="ActionShowWindowFile"/>
     <addaction name="ActionShowWindowPlugins"/>
+    <addaction name="ActionShowWindowGlobalEvents"/>
    </widget>
    <addaction name="menuWindows"/>
   </widget>
@@ -283,6 +284,14 @@
    </property>
    <property name="text">
     <string>Plugins</string>
+   </property>
+  </action>
+  <action name="ActionShowWindowGlobalEvents">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Global Events</string>
    </property>
   </action>
  </widget>

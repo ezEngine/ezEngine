@@ -37,6 +37,7 @@ private slots:
   void on_ActionShowWindowSubsystems_triggered();
   void on_ActionShowWindowPlugins_triggered();
   void on_ActionShowWindowFile_triggered();
+  void on_ActionShowWindowGlobalEvents_triggered();
   void on_ButtonConnect_clicked();
 
   void on_TreeStats_itemChanged(QTreeWidgetItem* item, int column);

@@ -8,7 +8,6 @@ ezGlobalEvent::EventMap ezGlobalEvent::s_KnownEvents;
 
 ezGlobalEvent::EventData::EventData()
 {
-//  m_pFirstHandler = NULL;
   m_uiNumTimesFired = 0;
   m_uiNumEventHandlersOnce = 0;
   m_uiNumEventHandlersRegular = 0;
@@ -16,59 +15,11 @@ ezGlobalEvent::EventData::EventData()
 
 ezGlobalEvent::ezGlobalEvent(const char* szEventName, EZ_GLOBAL_EVENT_HANDLER Handler, bool bOnlyOnce)
 {
-  //EventData& ed = s_KnownEvents.GetStatic()[szEventName];
-
   m_szEventName = szEventName;
   m_bOnlyOnce = bOnlyOnce;
   m_bHasBeenFired = false;
   m_EventHandler = Handler;
-  //m_pNextHandler = ed.m_pFirstHandler;
-  
-
-  //ed.m_pFirstHandler = this;
-
-  //if (m_bOnlyOnce)
-  //  ed.m_uiNumEventHandlersOnce++;
-  //else
-  //  ed.m_uiNumEventHandlersRegular++;
 }
-
-ezGlobalEvent::~ezGlobalEvent()
-{
-  //EventData& ed = s_KnownEvents.GetStatic()[m_szEventName];
-
-  //if (m_bOnlyOnce)
-  //  ed.m_uiNumEventHandlersOnce--;
-  //else
-  //  ed.m_uiNumEventHandlersRegular--;
-
-
-  //RemoveHandlerFromQueue();
-}
-
-//void ezGlobalEvent::RemoveHandlerFromQueue()
-//{
-//  EventData& ed = s_KnownEvents.GetStatic()[m_szEventName];
-//
-//  ezGlobalEvent* pPrev = NULL;
-//  ezGlobalEvent* pCur = ed.m_pFirstHandler;
-//    
-//  while (pCur)
-//  {
-//    if (pCur == this)
-//    {
-//      if (pPrev == NULL)
-//        ed.m_pFirstHandler = m_pNextHandler;
-//      else
-//        pPrev->m_pNextHandler = m_pNextHandler;
-//        
-//      break;
-//    }
-//      
-//    pPrev = pCur;
-//    pCur = pCur->m_pNextHandler;
-//  }
-//}
 
 void ezGlobalEvent::Broadcast(const char* szEventName, ezVariant p1, ezVariant p2, ezVariant p3, ezVariant p4)
 {
@@ -92,27 +43,15 @@ void ezGlobalEvent::Broadcast(const char* szEventName, ezVariant p1, ezVariant p
 
   EventData& ed = s_KnownEvents[szEventName]; // this will make sure to record all fired events, even if there are no handlers for them
   ed.m_uiNumTimesFired++;
-
-  //ezGlobalEvent* pHandler = ed.m_pFirstHandler;
-
-  //while (pHandler)
-  {
-    // send the event
-    //pHandler->m_EventHandler(p1, p2, p3, p4);
-
-    //ezGlobalEvent* pNext = pHandler->m_pNextHandler;
-
-    //// if this handler was supposed to handle the event only once, just remove it from the handler queue
-    //if (pHandler->m_bOnlyOnce)
-    //  pHandler->RemoveHandlerFromQueue();
-    //
-    //pHandler = pNext;
-  }
 }
 
-void ezGlobalEvent::PrintGlobalEventStatistics()
+void ezGlobalEvent::UpdateGlobalEventStatistics()
 {
-  EZ_LOG_BLOCK("Globel Event Statistics");
+  for (EventMap::Iterator it = s_KnownEvents.GetIterator(); it.IsValid(); ++it)
+  {
+    it.Value().m_uiNumEventHandlersRegular = 0;
+    it.Value().m_uiNumEventHandlersOnce = 0;
+  }
 
   ezGlobalEvent* pHandler = ezGlobalEvent::GetFirstInstance();
 
@@ -127,6 +66,13 @@ void ezGlobalEvent::PrintGlobalEventStatistics()
 
     pHandler = pHandler->GetNextInstance();
   }
+}
+
+void ezGlobalEvent::PrintGlobalEventStatistics()
+{
+  UpdateGlobalEventStatistics();
+
+  EZ_LOG_BLOCK("Globel Event Statistics");
 
   EventMap::Iterator it = s_KnownEvents.GetIterator();
 

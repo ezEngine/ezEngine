@@ -37,14 +37,25 @@ class EZ_FOUNDATION_DLL ezGlobalEvent : public ezEnumerable<ezGlobalEvent>
 
 public:
 
+  struct EZ_FOUNDATION_DLL EventData
+  {
+    EventData();
+
+    ezUInt32 m_uiNumTimesFired;
+    ezUInt16 m_uiNumEventHandlersRegular;
+    ezUInt16 m_uiNumEventHandlersOnce;
+  };
+
+  typedef ezHybridString<32, ezStaticAllocatorWrapper> EventKey;
+  typedef ezMap<EventKey, EventData, ezCompareHelper<EventKey>, ezStaticAllocatorWrapper> EventMap;
+
+public:
+
   /// \brief [internal] Use the macro EZ_ON_GLOBAL_EVENT or EZ_ON_GLOBAL_EVENT_ONCE to create an event handler.
   typedef void (*EZ_GLOBAL_EVENT_HANDLER)(const ezVariant& param0, const ezVariant& param1, const ezVariant& param2, const ezVariant& param3);
 
   /// \brief [internal] Use the macro EZ_ON_GLOBAL_EVENT or EZ_ON_GLOBAL_EVENT_ONCE to create an event handler.
   ezGlobalEvent(const char* szEventName, EZ_GLOBAL_EVENT_HANDLER EventHandler, bool bOnlyOnce); // [tested]
-
-  /// \brief Destructor.
-  ~ezGlobalEvent(); // [tested]
 
   /// \brief This function will broadcast a system wide event to all event handlers that are registered to handle this specific type of event.
   ///
@@ -56,24 +67,17 @@ public:
   /// This allows to figure out which events are used throughout the engine and which events might be fired too often.
   static void PrintGlobalEventStatistics(); // [tested]
 
+  /// \brief Updates all global event statistics.
+  static void UpdateGlobalEventStatistics();
+
+  /// \brief Returns the map that holds the current statistics about the global events.
+  static const EventMap& GetEventStatistics() { return s_KnownEvents; }
 
 private:
   bool m_bOnlyOnce;
   bool m_bHasBeenFired;
   const char* m_szEventName;
   EZ_GLOBAL_EVENT_HANDLER m_EventHandler;
-
-  struct EventData
-  {
-    EventData();
-
-    ezUInt32 m_uiNumTimesFired;
-    ezUInt16 m_uiNumEventHandlersRegular;
-    ezUInt16 m_uiNumEventHandlersOnce;
-  };
-
-  typedef ezHybridString<32, ezStaticAllocatorWrapper> EventKey;
-  typedef ezMap<EventKey, EventData, ezCompareHelper<EventKey>, ezStaticAllocatorWrapper> EventMap;
 
   static EventMap s_KnownEvents;
 };

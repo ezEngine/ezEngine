@@ -6,6 +6,7 @@
 #include <Inspector/SubsystemsWidget.moc.h>
 #include <Inspector/FileWidget.moc.h>
 #include <Inspector/PluginsWidget.moc.h>
+#include <Inspector/GlobalEventsWidget.moc.h>
 #include <Foundation/Communication/Telemetry.h>
 #include <qlistwidget.h>
 #include <qinputdialog.h>
@@ -27,21 +28,23 @@ ezMainWindow::ezMainWindow() : QMainWindow()
 
   restoreGeometry(qsettings.value( "geometry", saveGeometry() ).toByteArray());
 
-  ezLogWidget*        pLogWidget        = new ezLogWidget(this);
-  ezMemoryWidget*     pMemoryWidget     = new ezMemoryWidget(this);
-  ezInputWidget*      pInputWidget      = new ezInputWidget(this);
-  ezCVarsWidget*      pCVarsWidget      = new ezCVarsWidget(this);
-  ezSubsystemsWidget* pSubsystemsWidget = new ezSubsystemsWidget(this);
-  ezFileWidget*       pFileWidget       = new ezFileWidget(this);
-  ezPluginsWidget*    pPluginsWidget    = new ezPluginsWidget(this);
+  ezLogWidget*          pLogWidget            = new ezLogWidget(this);
+  ezMemoryWidget*       pMemoryWidget         = new ezMemoryWidget(this);
+  ezInputWidget*        pInputWidget          = new ezInputWidget(this);
+  ezCVarsWidget*        pCVarsWidget          = new ezCVarsWidget(this);
+  ezSubsystemsWidget*   pSubsystemsWidget     = new ezSubsystemsWidget(this);
+  ezFileWidget*         pFileWidget           = new ezFileWidget(this);
+  ezPluginsWidget*      pPluginsWidget        = new ezPluginsWidget(this);
+  ezGlobalEventsWidget* pGlobalEventesWidget  = new ezGlobalEventsWidget(this);
 
-  EZ_VERIFY(QWidget::connect(pLogWidget, SIGNAL(visibilityChanged(bool)), this, SLOT(DockWidgetVisibilityChanged(bool))), "Bla");
-  EZ_VERIFY(QWidget::connect(pMemoryWidget, SIGNAL(visibilityChanged(bool)), this, SLOT(DockWidgetVisibilityChanged(bool))), "Bla");
-  EZ_VERIFY(QWidget::connect(pInputWidget, SIGNAL(visibilityChanged(bool)), this, SLOT(DockWidgetVisibilityChanged(bool))), "Bla");
-  EZ_VERIFY(QWidget::connect(pCVarsWidget, SIGNAL(visibilityChanged(bool)), this, SLOT(DockWidgetVisibilityChanged(bool))), "Bla");
-  EZ_VERIFY(QWidget::connect(pSubsystemsWidget, SIGNAL(visibilityChanged(bool)), this, SLOT(DockWidgetVisibilityChanged(bool))), "Bla");
-  EZ_VERIFY(QWidget::connect(pFileWidget, SIGNAL(visibilityChanged(bool)), this, SLOT(DockWidgetVisibilityChanged(bool))), "Bla");
-  EZ_VERIFY(QWidget::connect(pPluginsWidget, SIGNAL(visibilityChanged(bool)), this, SLOT(DockWidgetVisibilityChanged(bool))), "Bla");
+  EZ_VERIFY(QWidget::connect(pLogWidget,            SIGNAL(visibilityChanged(bool)), this, SLOT(DockWidgetVisibilityChanged(bool))), "Bla");
+  EZ_VERIFY(QWidget::connect(pMemoryWidget,         SIGNAL(visibilityChanged(bool)), this, SLOT(DockWidgetVisibilityChanged(bool))), "Bla");
+  EZ_VERIFY(QWidget::connect(pInputWidget,          SIGNAL(visibilityChanged(bool)), this, SLOT(DockWidgetVisibilityChanged(bool))), "Bla");
+  EZ_VERIFY(QWidget::connect(pCVarsWidget,          SIGNAL(visibilityChanged(bool)), this, SLOT(DockWidgetVisibilityChanged(bool))), "Bla");
+  EZ_VERIFY(QWidget::connect(pSubsystemsWidget,     SIGNAL(visibilityChanged(bool)), this, SLOT(DockWidgetVisibilityChanged(bool))), "Bla");
+  EZ_VERIFY(QWidget::connect(pFileWidget,           SIGNAL(visibilityChanged(bool)), this, SLOT(DockWidgetVisibilityChanged(bool))), "Bla");
+  EZ_VERIFY(QWidget::connect(pPluginsWidget,        SIGNAL(visibilityChanged(bool)), this, SLOT(DockWidgetVisibilityChanged(bool))), "Bla");
+  EZ_VERIFY(QWidget::connect(pGlobalEventesWidget,  SIGNAL(visibilityChanged(bool)), this, SLOT(DockWidgetVisibilityChanged(bool))), "Bla");
 
   addDockWidget(Qt::BottomDockWidgetArea, pMemoryWidget);
   addDockWidget(Qt::BottomDockWidgetArea, pFileWidget);
@@ -59,6 +62,9 @@ ezMainWindow::ezMainWindow() : QMainWindow()
 
   addDockWidget(Qt::RightDockWidgetArea, pPluginsWidget);
   tabifyDockWidget(pLogWidget, pPluginsWidget);
+
+  addDockWidget(Qt::RightDockWidgetArea, pGlobalEventesWidget);
+  tabifyDockWidget(pLogWidget, pGlobalEventesWidget);
 
   pLogWidget->raise();
 
@@ -248,6 +254,9 @@ void ezMainWindow::paintEvent(QPaintEvent* event)
 
     if (ezSubsystemsWidget::s_pWidget)
       ezSubsystemsWidget::s_pWidget->ResetStats();
+
+    if (ezGlobalEventsWidget::s_pWidget)
+      ezGlobalEventsWidget::s_pWidget->ResetStats();
   }
 
   UpdateStats();
@@ -328,6 +337,7 @@ void ezMainWindow::DockWidgetVisibilityChanged(bool bVisible)
   ActionShowWindowSubsystems->setChecked(ezSubsystemsWidget::s_pWidget->isVisible());
   ActionShowWindowFile->setChecked(ezFileWidget::s_pWidget->isVisible());
   ActionShowWindowPlugins->setChecked(ezPluginsWidget::s_pWidget->isVisible());
+  ActionShowWindowGlobalEvents->setChecked(ezGlobalEventsWidget::s_pWidget->isVisible());
 }
 
 void ezMainWindow::on_ActionShowWindowLog_triggered()
@@ -363,6 +373,11 @@ void ezMainWindow::on_ActionShowWindowPlugins_triggered()
 void ezMainWindow::on_ActionShowWindowFile_triggered()
 {
   ezFileWidget::s_pWidget->setVisible(ActionShowWindowFile->isChecked());
+}
+
+void ezMainWindow::on_ActionShowWindowGlobalEvents_triggered()
+{
+  ezGlobalEventsWidget::s_pWidget->setVisible(ActionShowWindowGlobalEvents->isChecked());
 }
 
 void ezMainWindow::ProcessTelemetry(void* pUnuseed)
