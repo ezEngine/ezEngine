@@ -1,19 +1,9 @@
 #include <PCH.h>
 
-void OnLoadPlugin(bool bReloading);
-void OnUnloadPlugin(bool bReloading);
+void OnLoadPlugin(bool bReloading)    { }
+void OnUnloadPlugin(bool bReloading)  { }
 
 ezPlugin g_Plugin(false, OnLoadPlugin, OnUnloadPlugin);
-
-void OnLoadPlugin(bool bReloading)
-{
-
-}
-
-void OnUnloadPlugin(bool bReloading)
-{
-
-}
 
 void AddLogWriter();
 void RemoveLogWriter();
@@ -33,6 +23,9 @@ void RemoveMemoryEventHandler();
 void AddInputEventHandler();
 void RemoveInputEventHandler();
 
+void AddPluginEventHandler();
+void RemovePluginEventHandler();
+
 void SetAppStats();
 
 EZ_BEGIN_SUBSYSTEM_DECLARATION(InspectorPlugin, Main)
@@ -49,12 +42,14 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(InspectorPlugin, Main)
     AddCVarEventHandler();
     AddMemoryEventHandler();
     AddInputEventHandler();
+    AddPluginEventHandler();
 
     SetAppStats();
   }
 
   ON_CORE_SHUTDOWN
   {
+    RemovePluginEventHandler();
     RemoveInputEventHandler();
     RemoveMemoryEventHandler();
     RemoveCVarEventHandler();

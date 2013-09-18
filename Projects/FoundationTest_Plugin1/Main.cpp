@@ -23,12 +23,16 @@ void OnLoadPlugin(bool bReloading)
   EZ_TEST(ezPlugin::FindPluginByName("FoundationTest_Plugin1") != NULL); // should find itself
 
   ezCVarInt* pCVar = (ezCVarInt*) ezCVar::FindCVarByName("TestPlugin1InitCount");
-  *pCVar = *pCVar + 1;
+
+  if (pCVar)
+    *pCVar = *pCVar + 1;
 
   if (bReloading)
   {
     ezCVarInt* pCVarReload = (ezCVarInt*) ezCVar::FindCVarByName("TestPlugin1Reloaded");
-    *pCVarReload = *pCVarReload + 1;
+
+    if (pCVarReload)
+      *pCVarReload = *pCVarReload + 1;
   }
 
   ezCVarBool* pCVarPlugin2Inited = (ezCVarBool*) ezCVar::FindCVarByName("test2_Inited");
@@ -44,12 +48,16 @@ void OnUnloadPlugin(bool bReloading)
   g_iPluginState = 2;
 
   ezCVarInt* pCVar = (ezCVarInt*) ezCVar::FindCVarByName("TestPlugin1UninitCount");
-  *pCVar = *pCVar + 1;
+
+  if (pCVar)
+    *pCVar = *pCVar + 1;
 
   if (bReloading)
   {
     ezCVarInt* pCVarReload = (ezCVarInt*) ezCVar::FindCVarByName("TestPlugin1Reloaded");
-    *pCVarReload = *pCVarReload + 1;
+
+    if (pCVarReload)
+      *pCVarReload = *pCVarReload + 1;
   }
 }
 

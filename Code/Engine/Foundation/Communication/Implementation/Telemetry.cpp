@@ -344,8 +344,6 @@ void ezTelemetry::Send(TransmitMode tm, ezUInt64 uiSystemID, ezUInt32 uiMsgID, e
   if (!g_pHost)
     return;
 
-  EZ_ASSERT(iDataBytes != 0, "Use the non-stream Send() method when you want to send messages without extra data.");
-
   const ezUInt32 uiStackSize = 1024;
 
   ezHybridArray<ezUInt8, uiStackSize + 8> TempData;
@@ -375,12 +373,19 @@ void ezTelemetry::Send(TransmitMode tm, ezUInt64 uiSystemID, ezUInt32 uiMsgID, e
   else
   {
     TempData.SetCount(12 + iDataBytes);
-    Stream.ReadBytes(&TempData[12], iDataBytes);
+
+    if (iDataBytes > 0)
+      Stream.ReadBytes(&TempData[12], iDataBytes);
   }
 
   // in case we have no connection to a peer, queue the message
   if (!IsConnectedToOther())
-    QueueOutgoingMessage(tm, uiSystemID, uiMsgID, &TempData[12], TempData.GetCount() - 12);
+  {
+    if (TempData.GetCount() > 12)
+      QueueOutgoingMessage(tm, uiSystemID, uiMsgID, &TempData[12], TempData.GetCount() - 12);
+    else
+      QueueOutgoingMessage(tm, uiSystemID, uiMsgID, NULL, 0);
+  }
   else
   {
     // when we do have a connection, just send the message out

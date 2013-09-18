@@ -7,6 +7,7 @@
 #include <Inspector/CVarsWidget.moc.h>
 #include <Inspector/SubsystemsWidget.moc.h>
 #include <Inspector/FileWidget.moc.h>
+#include <Inspector/PluginsWidget.moc.h>
 #include <QApplication>
 #include <qstylefactory.h>
 
@@ -89,6 +90,8 @@ public:
     ezTelemetry::AcceptMessagesForSystem('INPT', true, ezInputWidget::ProcessTelemetry, NULL);
     ezTelemetry::AcceptMessagesForSystem('STRT', true, ezSubsystemsWidget::ProcessTelemetry, NULL);
     ezTelemetry::AcceptMessagesForSystem('STAT', true, ezMainWindow::ProcessTelemetry, NULL);
+    ezTelemetry::AcceptMessagesForSystem('PLUG', true, ezPluginsWidget::ProcessTelemetry, NULL);
+    
 
     ezTelemetry::ConnectToServer();
 

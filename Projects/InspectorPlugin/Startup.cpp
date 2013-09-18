@@ -29,6 +29,8 @@ static void SendSubsystemTelemetry()
   if (s_iSendSubSystemTelemetry <= 0)
     return;
 
+  ezTelemetry::Broadcast(ezTelemetry::Reliable, 'STRT', 'CLR', NULL, 0);
+
   ezSubSystem* pSub = ezSubSystem::GetFirstInstance();
 
   while(pSub)

@@ -94,6 +94,13 @@ void ezSubsystemsWidget::ProcessTelemetry(void* pUnuseed)
   {
     switch (Msg.GetMessageID())
     {
+    case 'CLR':
+      {
+        s_pWidget->m_Subsystems.Clear();
+        s_pWidget->m_bUpdateSubsystems = true;
+      }
+      break;
+
     case 'SYST':
       {
         ezString sGroup, sSystem;

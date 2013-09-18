@@ -222,6 +222,7 @@
     <addaction name="ActionShowWindowCVar"/>
     <addaction name="ActionShowWindowSubsystems"/>
     <addaction name="ActionShowWindowFile"/>
+    <addaction name="ActionShowWindowPlugins"/>
    </widget>
    <addaction name="menuWindows"/>
   </widget>
@@ -274,6 +275,14 @@
    </property>
    <property name="text">
     <string>File Operations</string>
+   </property>
+  </action>
+  <action name="ActionShowWindowPlugins">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Plugins</string>
    </property>
   </action>
  </widget>

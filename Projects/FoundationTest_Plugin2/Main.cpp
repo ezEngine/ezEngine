@@ -26,22 +26,30 @@ void OnLoadPlugin(bool bReloading)
   EZ_TEST(ezPlugin::FindPluginByName("FoundationTest_Plugin2") != NULL); // should find itself
 
   ezCVarInt* pCVar = (ezCVarInt*) ezCVar::FindCVarByName("TestPlugin2InitCount");
-  *pCVar = *pCVar + 1;
+
+  if (pCVar)
+    *pCVar = *pCVar + 1;
 
   if (bReloading)
   {
     ezCVarInt* pCVarReload = (ezCVarInt*) ezCVar::FindCVarByName("TestPlugin2Reloaded");
-    *pCVarReload = *pCVarReload + 1;
+
+    if (pCVarReload)
+      *pCVarReload = *pCVarReload + 1;
   }
 
   ezCVarBool* pCVarDep = (ezCVarBool*) ezCVar::FindCVarByName("TestPlugin2FoundDependencies");
-  *pCVarDep = true;
 
-  // check that all CVars from plugin1 are available (ie. plugin1 is already loaded)
-  *pCVarDep = *pCVarDep && (ezCVar::FindCVarByName("test1_Int") != NULL);
-  *pCVarDep = *pCVarDep && (ezCVar::FindCVarByName("test1_Float") != NULL);
-  *pCVarDep = *pCVarDep && (ezCVar::FindCVarByName("test1_Bool") != NULL);
-  *pCVarDep = *pCVarDep && (ezCVar::FindCVarByName("test1_String") != NULL);
+  if (pCVarDep)
+  {
+    *pCVarDep = true;
+
+    // check that all CVars from plugin1 are available (ie. plugin1 is already loaded)
+    *pCVarDep = *pCVarDep && (ezCVar::FindCVarByName("test1_Int") != NULL);
+    *pCVarDep = *pCVarDep && (ezCVar::FindCVarByName("test1_Float") != NULL);
+    *pCVarDep = *pCVarDep && (ezCVar::FindCVarByName("test1_Bool") != NULL);
+    *pCVarDep = *pCVarDep && (ezCVar::FindCVarByName("test1_String") != NULL);
+  }
 
   CVar_TestInited = true;
 }
@@ -52,22 +60,30 @@ void OnUnloadPlugin(bool bReloading)
   g_iPluginState = 2;
 
   ezCVarInt* pCVar = (ezCVarInt*) ezCVar::FindCVarByName("TestPlugin2UninitCount");
-  *pCVar = *pCVar + 1;
+
+  if (pCVar)
+    *pCVar = *pCVar + 1;
 
   if (bReloading)
   {
     ezCVarInt* pCVarReload = (ezCVarInt*) ezCVar::FindCVarByName("TestPlugin2Reloaded");
-    *pCVarReload = *pCVarReload + 1;
+
+    if (pCVarReload)
+      *pCVarReload = *pCVarReload + 1;
   }
 
   ezCVarBool* pCVarDep = (ezCVarBool*) ezCVar::FindCVarByName("TestPlugin2FoundDependencies");
-  *pCVarDep = true;
 
-  // check that all CVars from plugin1 are STILL available (ie. plugin1 is not yet unloaded)
-  *pCVarDep = *pCVarDep && (ezCVar::FindCVarByName("test1_Int") != NULL);
-  *pCVarDep = *pCVarDep && (ezCVar::FindCVarByName("test1_Float") != NULL);
-  *pCVarDep = *pCVarDep && (ezCVar::FindCVarByName("test1_Bool") != NULL);
-  *pCVarDep = *pCVarDep && (ezCVar::FindCVarByName("test1_String") != NULL);
+  if (pCVarDep)
+  {
+    *pCVarDep = true;
+
+    // check that all CVars from plugin1 are STILL available (ie. plugin1 is not yet unloaded)
+    *pCVarDep = *pCVarDep && (ezCVar::FindCVarByName("test1_Int") != NULL);
+    *pCVarDep = *pCVarDep && (ezCVar::FindCVarByName("test1_Float") != NULL);
+    *pCVarDep = *pCVarDep && (ezCVar::FindCVarByName("test1_Bool") != NULL);
+    *pCVarDep = *pCVarDep && (ezCVar::FindCVarByName("test1_String") != NULL);
+  }
 
   CVar_TestInited = false;
 }

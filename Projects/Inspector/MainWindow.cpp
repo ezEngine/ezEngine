@@ -5,6 +5,7 @@
 #include <Inspector/LogWidget.moc.h>
 #include <Inspector/SubsystemsWidget.moc.h>
 #include <Inspector/FileWidget.moc.h>
+#include <Inspector/PluginsWidget.moc.h>
 #include <Foundation/Communication/Telemetry.h>
 #include <qlistwidget.h>
 #include <qinputdialog.h>
@@ -32,6 +33,7 @@ ezMainWindow::ezMainWindow() : QMainWindow()
   ezCVarsWidget*      pCVarsWidget      = new ezCVarsWidget(this);
   ezSubsystemsWidget* pSubsystemsWidget = new ezSubsystemsWidget(this);
   ezFileWidget*       pFileWidget       = new ezFileWidget(this);
+  ezPluginsWidget*    pPluginsWidget    = new ezPluginsWidget(this);
 
   EZ_VERIFY(QWidget::connect(pLogWidget, SIGNAL(visibilityChanged(bool)), this, SLOT(DockWidgetVisibilityChanged(bool))), "Bla");
   EZ_VERIFY(QWidget::connect(pMemoryWidget, SIGNAL(visibilityChanged(bool)), this, SLOT(DockWidgetVisibilityChanged(bool))), "Bla");
@@ -39,6 +41,7 @@ ezMainWindow::ezMainWindow() : QMainWindow()
   EZ_VERIFY(QWidget::connect(pCVarsWidget, SIGNAL(visibilityChanged(bool)), this, SLOT(DockWidgetVisibilityChanged(bool))), "Bla");
   EZ_VERIFY(QWidget::connect(pSubsystemsWidget, SIGNAL(visibilityChanged(bool)), this, SLOT(DockWidgetVisibilityChanged(bool))), "Bla");
   EZ_VERIFY(QWidget::connect(pFileWidget, SIGNAL(visibilityChanged(bool)), this, SLOT(DockWidgetVisibilityChanged(bool))), "Bla");
+  EZ_VERIFY(QWidget::connect(pPluginsWidget, SIGNAL(visibilityChanged(bool)), this, SLOT(DockWidgetVisibilityChanged(bool))), "Bla");
 
   addDockWidget(Qt::BottomDockWidgetArea, pMemoryWidget);
   addDockWidget(Qt::BottomDockWidgetArea, pFileWidget);
@@ -53,7 +56,14 @@ ezMainWindow::ezMainWindow() : QMainWindow()
 
   addDockWidget(Qt::RightDockWidgetArea, pInputWidget);
   tabifyDockWidget(pLogWidget, pInputWidget);
+
+  addDockWidget(Qt::RightDockWidgetArea, pPluginsWidget);
+  tabifyDockWidget(pLogWidget, pPluginsWidget);
+
   pLogWidget->raise();
+
+  splitter->restoreState(qsettings.value("SplitterState", splitter->saveState()).toByteArray());
+  splitter->restoreGeometry(qsettings.value("SplitterGeometry", splitter->saveGeometry()).toByteArray());
 
   restoreState(qsettings.value( "savestate", saveState() ).toByteArray());
   move(qsettings.value( "pos", pos() ).toPoint());
@@ -77,16 +87,19 @@ void ezMainWindow::closeEvent(QCloseEvent* event)
 {
   QSettings qsettings;
 
-  qsettings.beginGroup( "mainwindow" );
+  qsettings.beginGroup("mainwindow");
 
-  qsettings.setValue( "geometry", saveGeometry());
-  qsettings.setValue( "savestate", saveState());
-  qsettings.setValue( "maximized", isMaximized());
+  qsettings.setValue("geometry", saveGeometry());
+  qsettings.setValue("savestate", saveState());
+  qsettings.setValue("maximized", isMaximized());
+
+  qsettings.setValue("SplitterState", splitter->saveState());
+  qsettings.setValue("SplitterGeometry", splitter->saveGeometry());
 
   if (!isMaximized()) 
   {
-    qsettings.setValue( "pos", pos() );
-    qsettings.setValue( "size", size() );
+    qsettings.setValue("pos", pos());
+    qsettings.setValue("size", size());
   }
 
   qsettings.endGroup();
@@ -229,9 +242,18 @@ void ezMainWindow::paintEvent(QPaintEvent* event)
 
     if (ezFileWidget::s_pWidget)
       ezFileWidget::s_pWidget->ResetStats();
+
+    if (ezPluginsWidget::s_pWidget)
+      ezPluginsWidget::s_pWidget->ResetStats();
+
+    if (ezSubsystemsWidget::s_pWidget)
+      ezSubsystemsWidget::s_pWidget->ResetStats();
   }
 
   UpdateStats();
+
+  if (ezPluginsWidget::s_pWidget)
+    ezPluginsWidget::s_pWidget->UpdateStats();
 
   if (ezSubsystemsWidget::s_pWidget)
     ezSubsystemsWidget::s_pWidget->UpdateStats();
@@ -274,7 +296,7 @@ QTreeWidgetItem* ezMainWindow::CreateStat(const char* szPath, bool bParent)
     {
       pParent = CreateStat(sParentPath.GetData(), true);
       pParent->addChild(sd.m_pItem);
-      pParent->setExpanded(true);
+      pParent->setExpanded(false);
     }
     else
     {
@@ -305,6 +327,7 @@ void ezMainWindow::DockWidgetVisibilityChanged(bool bVisible)
   ActionShowWindowCVar->setChecked(ezCVarsWidget::s_pWidget->isVisible());
   ActionShowWindowSubsystems->setChecked(ezSubsystemsWidget::s_pWidget->isVisible());
   ActionShowWindowFile->setChecked(ezFileWidget::s_pWidget->isVisible());
+  ActionShowWindowPlugins->setChecked(ezPluginsWidget::s_pWidget->isVisible());
 }
 
 void ezMainWindow::on_ActionShowWindowLog_triggered()
@@ -330,6 +353,11 @@ void ezMainWindow::on_ActionShowWindowCVar_triggered()
 void ezMainWindow::on_ActionShowWindowSubsystems_triggered()
 {
   ezSubsystemsWidget::s_pWidget->setVisible(ActionShowWindowSubsystems->isChecked());
+}
+
+void ezMainWindow::on_ActionShowWindowPlugins_triggered()
+{
+  ezPluginsWidget::s_pWidget->setVisible(ActionShowWindowPlugins->isChecked());
 }
 
 void ezMainWindow::on_ActionShowWindowFile_triggered()
