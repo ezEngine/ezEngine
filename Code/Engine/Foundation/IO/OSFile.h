@@ -3,6 +3,7 @@
 #include <Foundation/Basics.h>
 #include <Foundation/Strings/StringBuilder.h>
 #include <Foundation/Strings/String.h>
+#include <Foundation/Threading/AtomicInteger.h>
 
 struct ezOSFileData;
 
@@ -215,11 +216,17 @@ private:
   /// \brief Stores the (cleaned up) filename that was used to open the file.
   ezStringBuilder m_sFileName;
 
+  /// \brief Stores the value of s_FileCounter when the ezOSFile is created.
+  ezInt32 m_iFileID;
+
   /// \brief Platform specific data about the open file.
   ezOSFileData m_FileData;
 
   /// \brief The application binaries' path.
   static ezHybridString<64, ezStaticAllocatorWrapper> s_ApplicationPath;
+
+  /// \brief Counts how many different files are touched.225
+  static ezAtomicInteger32 s_FileCounter;
 };
 
 

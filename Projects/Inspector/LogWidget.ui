@@ -12,7 +12,7 @@
   </property>
   <property name="minimumSize">
    <size>
-    <width>238</width>
+    <width>326</width>
     <height>204</height>
    </size>
   </property>
@@ -36,7 +36,16 @@
     <property name="spacing">
      <number>0</number>
     </property>
-    <property name="margin">
+    <property name="leftMargin">
+     <number>2</number>
+    </property>
+    <property name="topMargin">
+     <number>2</number>
+    </property>
+    <property name="rightMargin">
+     <number>2</number>
+    </property>
+    <property name="bottomMargin">
      <number>2</number>
     </property>
     <item>
@@ -132,6 +141,12 @@
         <widget class="QListWidget" name="ListLog">
          <property name="alternatingRowColors">
           <bool>true</bool>
+         </property>
+         <property name="verticalScrollMode">
+          <enum>QAbstractItemView::ScrollPerPixel</enum>
+         </property>
+         <property name="horizontalScrollMode">
+          <enum>QAbstractItemView::ScrollPerPixel</enum>
          </property>
         </widget>
        </item>

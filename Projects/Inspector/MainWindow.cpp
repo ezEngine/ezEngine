@@ -13,7 +13,7 @@
 #include <qfile.h>
 #include <qstandardpaths.h>
 #include <qdir.h>
-#include <qsettings.h>
+#include <QSettings.h>
 
 ezMainWindow* ezMainWindow::s_pWidget = NULL;
 
@@ -23,10 +23,10 @@ ezMainWindow::ezMainWindow() : QMainWindow()
 
   setupUi(this);
 
-  QSettings qsettings;
-  qsettings.beginGroup( "mainwindow" );
+  QSettings Settings;
+  Settings.beginGroup("MainWindow");
 
-  restoreGeometry(qsettings.value( "geometry", saveGeometry() ).toByteArray());
+  restoreGeometry(Settings.value("WindowGeometry", saveGeometry() ).toByteArray());
 
   ezLogWidget*          pLogWidget            = new ezLogWidget(this);
   ezMemoryWidget*       pMemoryWidget         = new ezMemoryWidget(this);
@@ -37,14 +37,14 @@ ezMainWindow::ezMainWindow() : QMainWindow()
   ezPluginsWidget*      pPluginsWidget        = new ezPluginsWidget(this);
   ezGlobalEventsWidget* pGlobalEventesWidget  = new ezGlobalEventsWidget(this);
 
-  EZ_VERIFY(QWidget::connect(pLogWidget,            SIGNAL(visibilityChanged(bool)), this, SLOT(DockWidgetVisibilityChanged(bool))), "Bla");
-  EZ_VERIFY(QWidget::connect(pMemoryWidget,         SIGNAL(visibilityChanged(bool)), this, SLOT(DockWidgetVisibilityChanged(bool))), "Bla");
-  EZ_VERIFY(QWidget::connect(pInputWidget,          SIGNAL(visibilityChanged(bool)), this, SLOT(DockWidgetVisibilityChanged(bool))), "Bla");
-  EZ_VERIFY(QWidget::connect(pCVarsWidget,          SIGNAL(visibilityChanged(bool)), this, SLOT(DockWidgetVisibilityChanged(bool))), "Bla");
-  EZ_VERIFY(QWidget::connect(pSubsystemsWidget,     SIGNAL(visibilityChanged(bool)), this, SLOT(DockWidgetVisibilityChanged(bool))), "Bla");
-  EZ_VERIFY(QWidget::connect(pFileWidget,           SIGNAL(visibilityChanged(bool)), this, SLOT(DockWidgetVisibilityChanged(bool))), "Bla");
-  EZ_VERIFY(QWidget::connect(pPluginsWidget,        SIGNAL(visibilityChanged(bool)), this, SLOT(DockWidgetVisibilityChanged(bool))), "Bla");
-  EZ_VERIFY(QWidget::connect(pGlobalEventesWidget,  SIGNAL(visibilityChanged(bool)), this, SLOT(DockWidgetVisibilityChanged(bool))), "Bla");
+  EZ_VERIFY(QWidget::connect(pLogWidget,            SIGNAL(visibilityChanged(bool)), this, SLOT(DockWidgetVisibilityChanged(bool))), "");
+  EZ_VERIFY(QWidget::connect(pMemoryWidget,         SIGNAL(visibilityChanged(bool)), this, SLOT(DockWidgetVisibilityChanged(bool))), "");
+  EZ_VERIFY(QWidget::connect(pInputWidget,          SIGNAL(visibilityChanged(bool)), this, SLOT(DockWidgetVisibilityChanged(bool))), "");
+  EZ_VERIFY(QWidget::connect(pCVarsWidget,          SIGNAL(visibilityChanged(bool)), this, SLOT(DockWidgetVisibilityChanged(bool))), "");
+  EZ_VERIFY(QWidget::connect(pSubsystemsWidget,     SIGNAL(visibilityChanged(bool)), this, SLOT(DockWidgetVisibilityChanged(bool))), "");
+  EZ_VERIFY(QWidget::connect(pFileWidget,           SIGNAL(visibilityChanged(bool)), this, SLOT(DockWidgetVisibilityChanged(bool))), "");
+  EZ_VERIFY(QWidget::connect(pPluginsWidget,        SIGNAL(visibilityChanged(bool)), this, SLOT(DockWidgetVisibilityChanged(bool))), "");
+  EZ_VERIFY(QWidget::connect(pGlobalEventesWidget,  SIGNAL(visibilityChanged(bool)), this, SLOT(DockWidgetVisibilityChanged(bool))), "");
 
   addDockWidget(Qt::BottomDockWidgetArea, pMemoryWidget);
   addDockWidget(Qt::BottomDockWidgetArea, pFileWidget);
@@ -68,16 +68,16 @@ ezMainWindow::ezMainWindow() : QMainWindow()
 
   pLogWidget->raise();
 
-  splitter->restoreState(qsettings.value("SplitterState", splitter->saveState()).toByteArray());
-  splitter->restoreGeometry(qsettings.value("SplitterGeometry", splitter->saveGeometry()).toByteArray());
+  splitter->restoreState(Settings.value("SplitterState", splitter->saveState()).toByteArray());
+  splitter->restoreGeometry(Settings.value("SplitterSize", splitter->saveGeometry()).toByteArray());
 
-  restoreState(qsettings.value( "savestate", saveState() ).toByteArray());
-  move(qsettings.value( "pos", pos() ).toPoint());
-  resize(qsettings.value( "size", size() ).toSize());
-  if ( qsettings.value( "maximized", isMaximized() ).toBool() )
+  restoreState(Settings.value("WindowState", saveState()).toByteArray());
+  move(Settings.value("WindowPosition", pos()).toPoint());
+  resize(Settings.value("WindowSize", size()).toSize());
+  if (Settings.value("IsMaximized", isMaximized()).toBool())
     showMaximized();
 
-  qsettings.endGroup();
+  Settings.endGroup();
 
   ResetStats();
 
@@ -91,24 +91,24 @@ ezMainWindow::~ezMainWindow()
 
 void ezMainWindow::closeEvent(QCloseEvent* event) 
 {
-  QSettings qsettings;
+  QSettings Settings;
 
-  qsettings.beginGroup("mainwindow");
+  Settings.beginGroup("MainWindow");
 
-  qsettings.setValue("geometry", saveGeometry());
-  qsettings.setValue("savestate", saveState());
-  qsettings.setValue("maximized", isMaximized());
+  Settings.setValue("WindowGeometry", saveGeometry());
+  Settings.setValue("WindowState", saveState());
+  Settings.setValue("IsMaximized", isMaximized());
 
-  qsettings.setValue("SplitterState", splitter->saveState());
-  qsettings.setValue("SplitterGeometry", splitter->saveGeometry());
+  Settings.setValue("SplitterState", splitter->saveState());
+  Settings.setValue("SplitterGeometry", splitter->saveGeometry());
 
   if (!isMaximized()) 
   {
-    qsettings.setValue("pos", pos());
-    qsettings.setValue("size", size());
+    Settings.setValue("WindowPosition", pos());
+    Settings.setValue("WindowSize", size());
   }
 
-  qsettings.endGroup();
+  Settings.endGroup();
 }
 
 void ezMainWindow::SaveFavourites()
@@ -269,6 +269,10 @@ void ezMainWindow::paintEvent(QPaintEvent* event)
 
   if (ezMemoryWidget::s_pWidget)
     ezMemoryWidget::s_pWidget->UpdateStats();
+
+  if (ezFileWidget::s_pWidget)
+    ezFileWidget::s_pWidget->UpdateStats();
+
 
   ezTelemetry::PerFrameUpdate();
 
