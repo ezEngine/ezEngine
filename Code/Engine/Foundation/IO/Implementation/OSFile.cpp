@@ -2,6 +2,7 @@
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/Communication/Telemetry.h>
+#include <Foundation/Threading/ThreadUtils.h>
 #include <Foundation/Time/Time.h>
 
 ezHybridString<64, ezStaticAllocatorWrapper> ezOSFile::s_ApplicationPath;
@@ -71,6 +72,7 @@ done:
 
   Msg.GetWriter() << (bool) (Res == EZ_SUCCESS);
   Msg.GetWriter() << tdiff.GetSeconds();
+  Msg.GetWriter() << ezThreadUtils::IsMainThread();
 
   ezTelemetry::Broadcast(ezTelemetry::Reliable, Msg);
 
@@ -98,6 +100,7 @@ void ezOSFile::Close()
   Msg.SetMessageID('FILE', 'CLOS');
   Msg.GetWriter() << m_iFileID;
   Msg.GetWriter() << tdiff.GetSeconds();
+  Msg.GetWriter() << ezThreadUtils::IsMainThread();
 
   ezTelemetry::Broadcast(ezTelemetry::Reliable, Msg);
 
@@ -123,6 +126,7 @@ ezResult ezOSFile::Write(const void* pBuffer, ezUInt64 uiBytes)
   Msg.GetWriter() << uiBytes;
   Msg.GetWriter() << (bool) (Res == EZ_SUCCESS);
   Msg.GetWriter() << tdiff.GetSeconds();
+  Msg.GetWriter() << ezThreadUtils::IsMainThread();
 
   ezTelemetry::Broadcast(ezTelemetry::Reliable, Msg);
 
@@ -147,6 +151,7 @@ ezUInt64 ezOSFile::Read(void* pBuffer, ezUInt64 uiBytes)
   Msg.GetWriter() << uiBytes;
   Msg.GetWriter() << Res;
   Msg.GetWriter() << tdiff.GetSeconds();
+  Msg.GetWriter() << ezThreadUtils::IsMainThread();
 
   ezTelemetry::Broadcast(ezTelemetry::Reliable, Msg);
 
@@ -204,6 +209,7 @@ bool ezOSFile::Exists(const char* szFile)
   Msg.GetWriter() << szFile;
   Msg.GetWriter() << bRes;
   Msg.GetWriter() << tdiff.GetSeconds();
+  Msg.GetWriter() << ezThreadUtils::IsMainThread();
 
   ezTelemetry::Broadcast(ezTelemetry::Reliable, Msg);
 
@@ -229,6 +235,7 @@ ezResult ezOSFile::DeleteFile(const char* szFile)
   Msg.GetWriter() << szFile;
   Msg.GetWriter() << (bool) (Res == EZ_SUCCESS);
   Msg.GetWriter() << tdiff.GetSeconds();
+  Msg.GetWriter() << ezThreadUtils::IsMainThread();
 
   ezTelemetry::Broadcast(ezTelemetry::Reliable, Msg);
 
@@ -272,15 +279,13 @@ ezResult ezOSFile::CreateDirectoryStructure(const char* szDirectory)
   const ezTime t1 = ezSystemTime::Now();
   const ezTime tdiff = t1 - t0;
 
-  if (tdiff.GetSeconds() < 0.0002)
-    return Res;
-
   ezTelemetryMessage Msg;
   Msg.SetMessageID('FILE', 'CDIR');
   Msg.GetWriter() << s_FileCounter.Increment();
   Msg.GetWriter() << szDirectory;
   Msg.GetWriter() << (bool) (Res == EZ_SUCCESS);
   Msg.GetWriter() << tdiff.GetSeconds();
+  Msg.GetWriter() << ezThreadUtils::IsMainThread();
 
   ezTelemetry::Broadcast(ezTelemetry::Reliable, Msg);
 
@@ -334,6 +339,7 @@ done:
   Msg.GetWriter() << szDestination;
   Msg.GetWriter() << (bool) (Res == EZ_SUCCESS);
   Msg.GetWriter() << tdiff.GetSeconds();
+  Msg.GetWriter() << ezThreadUtils::IsMainThread();
 
   ezTelemetry::Broadcast(ezTelemetry::Reliable, Msg);
 
@@ -344,17 +350,36 @@ done:
 
   ezResult ezOSFile::GetFileStats(const char* szFileOrFolder, ezFileStats& out_Stats)
   {
+    const ezTime t0 = ezSystemTime::Now();
+
     ezStringBuilder s = szFileOrFolder;
     s.MakeCleanPath();
     s.MakePathOsSpecific();
 
     EZ_ASSERT(s.IsAbsolutePath(), "The path '%s' is not absolute.", s.GetData());
 
-    return InternalGetFileStats(s.GetData(), out_Stats);
+    const ezResult Res = InternalGetFileStats(s.GetData(), out_Stats);
+
+    const ezTime t1 = ezSystemTime::Now();
+    const ezTime tdiff = t1 - t0;
+
+    ezTelemetryMessage Msg;
+    Msg.SetMessageID('FILE', 'STAT');
+    Msg.GetWriter() << s_FileCounter.Increment();
+    Msg.GetWriter() << szFileOrFolder;
+    Msg.GetWriter() << (bool) (Res == EZ_SUCCESS);
+    Msg.GetWriter() << tdiff.GetSeconds();
+    Msg.GetWriter() << ezThreadUtils::IsMainThread();
+
+    ezTelemetry::Broadcast(ezTelemetry::Reliable, Msg);
+
+    return Res;
   }
 
   ezResult ezOSFile::GetFileCasing(const char* szFileOrFolder, ezStringBuilder& out_sCorrectSpelling)
   {
+    const ezTime t0 = ezSystemTime::Now();
+
     ezStringBuilder s(szFileOrFolder);
     s.MakeCleanPath();
     s.MakePathOsSpecific();
@@ -367,6 +392,8 @@ done:
 
     out_sCorrectSpelling.Clear();
 
+    ezResult Res = EZ_SUCCESS;
+
     while (!it.IsEmpty())
     {
       while ((it.GetCharacter() != '\0') && (!ezPathUtils::IsPathSeparator(it.GetCharacter())))
@@ -377,7 +404,10 @@ done:
 
       ezFileStats stats;
       if (GetFileStats(sCurPath.GetData(), stats) == EZ_FAILURE)
-        return EZ_FAILURE;
+      {
+        Res = EZ_FAILURE;
+        break;
+      }
 
       out_sCorrectSpelling.AppendPath(stats.m_sFileName.GetData());
 
@@ -385,7 +415,20 @@ done:
       ++it;
     }
 
-    return EZ_SUCCESS;
+    const ezTime t1 = ezSystemTime::Now();
+    const ezTime tdiff = t1 - t0;
+
+    ezTelemetryMessage Msg;
+    Msg.SetMessageID('FILE', 'CASE');
+    Msg.GetWriter() << s_FileCounter.Increment();
+    Msg.GetWriter() << szFileOrFolder;
+    Msg.GetWriter() << (bool) (Res == EZ_SUCCESS);
+    Msg.GetWriter() << tdiff.GetSeconds();
+    Msg.GetWriter() << ezThreadUtils::IsMainThread();
+
+    ezTelemetry::Broadcast(ezTelemetry::Reliable, Msg);
+
+    return Res;
   }
 
 #endif // EZ_SUPPORTS_FILE_STATS

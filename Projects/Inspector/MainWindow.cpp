@@ -8,6 +8,7 @@
 #include <Inspector/PluginsWidget.moc.h>
 #include <Inspector/GlobalEventsWidget.moc.h>
 #include <Foundation/Communication/Telemetry.h>
+#include <Foundation/Threading/ThreadUtils.h>
 #include <qlistwidget.h>
 #include <qinputdialog.h>
 #include <qfile.h>
@@ -258,7 +259,7 @@ void ezMainWindow::paintEvent(QPaintEvent* event)
     if (ezGlobalEventsWidget::s_pWidget)
       ezGlobalEventsWidget::s_pWidget->ResetStats();
   }
-
+  
   UpdateStats();
 
   if (ezPluginsWidget::s_pWidget)
@@ -272,10 +273,12 @@ void ezMainWindow::paintEvent(QPaintEvent* event)
 
   if (ezFileWidget::s_pWidget)
     ezFileWidget::s_pWidget->UpdateStats();
-
+    
 
   ezTelemetry::PerFrameUpdate();
 
+  /// \todo Only update when messages have arrived and there is work to do (?)
+  ezThreadUtils::Sleep(20);
   update();
 }
 

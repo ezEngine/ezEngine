@@ -19,6 +19,11 @@ public:
 
 private slots:
 
+  virtual void on_SpinLimitToRecent_valueChanged(int val);
+  virtual void on_SpinMinDuration_valueChanged(double val);
+  virtual void on_LineFilterByName_textChanged();
+  virtual void on_CheckMainThread_stateChanged(int state);
+
 public:
   static void ProcessTelemetry(void* pUnuseed);
 
@@ -44,26 +49,34 @@ private:
     FileCopy,
     FileCopyFailed,
     CreateDirs,
-    CreateDirsFailed
+    CreateDirsFailed,
+    FileStat,
+    FileStatFailed,
+    FileCasing,
+    FileCasingFailed,
   };
 
   struct FileOpData
   {
     ezString m_sFile;
     FileOpState m_State;
-    //ezTime m_StartTime;
+    ezTime m_StartTime;
     ezTime m_BlockedDuration;
     ezUInt64 m_uiBytesAccessed;
+    bool m_bMainThread;
 
     FileOpData()
     {
       m_State = None;
       m_uiBytesAccessed = 0;
+      m_bMainThread = false;
     }
   };
 
-  const char* GetStateString(FileOpState State) const;
+  QTableWidgetItem* GetStateString(FileOpState State) const;
 
+  ezInt32 m_iMaxID;
+  ezTime m_LastTableUpdate;
   bool m_bUpdateTable;
   ezHashTable<ezUInt32, FileOpData> m_FileOps;
 };
