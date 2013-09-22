@@ -150,10 +150,10 @@ public:
   };
 
   /// \brief Code that needs to be execute whenever a cvar is changed can register itself here to be notified of such events.
-  ezEvent<const CVarEvent&, void*, ezStaticAllocatorWrapper> m_CVarEvents; // [tested]
+  ezEvent<const CVarEvent&, ezNoMutex, ezStaticAllocatorWrapper> m_CVarEvents; // [tested]
 
   /// \brief Broadcasts changes to ANY CVar. Thus code that needs to update when any one of them changes can use this to be notified.
-  static ezEvent<const CVarEvent&, void*, ezStaticAllocatorWrapper> s_AllCVarEvents;
+  static ezEvent<const CVarEvent&, ezNoMutex, ezStaticAllocatorWrapper> s_AllCVarEvents;
 
   /// \brief Returns the name of the plugin which this CVar is declared in.
   const char* GetPluginName() const { return m_szPluginName; }
@@ -169,7 +169,7 @@ private:
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(Foundation, CVars);
 
   static void AssignSubSystemPlugin(const char* szPluginName);
-  static void PluginEventHandler(const ezPlugin::PluginEvent& EventData, void* pPassThrough);
+  static void PluginEventHandler(const ezPlugin::PluginEvent& EventData);
   
 
   bool m_bHasNeverBeenLoaded;

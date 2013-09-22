@@ -20,7 +20,7 @@ static void BroadcastMemoryStats()
   }
 }
 
-static void TelemetryEventsHandler(const ezTelemetry::TelemetryEventData& e, void* pPassThrough)
+static void TelemetryEventsHandler(const ezTelemetry::TelemetryEventData& e)
 {
   if (!ezTelemetry::IsConnectedToClient())
     return;

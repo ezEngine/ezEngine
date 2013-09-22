@@ -169,13 +169,13 @@ public:
     EventType m_EventType;
   };
 
-  typedef ezEvent<const TelemetryEventData&, void*, ezStaticAllocatorWrapper> ezEventTelemetry;
+  typedef ezEvent<const TelemetryEventData&, ezMutex, ezStaticAllocatorWrapper> ezEventTelemetry;
 
   /// \brief Adds an event handler that is called for every ezTelemetry event.
-  static void AddEventHandler(ezEventTelemetry::ezEventHandler callback, void* pPassThrough = NULL)    { s_TelemetryEvents.AddEventHandler   (callback, pPassThrough);  }
+  static void AddEventHandler(ezEventTelemetry::Handler handler)    { s_TelemetryEvents.AddEventHandler    (handler); }
 
   /// \brief Removes a previously added event handler.
-  static void RemoveEventHandler(ezEventTelemetry::ezEventHandler callback, void* pPassThrough = NULL) { s_TelemetryEvents.RemoveEventHandler (callback, pPassThrough); }
+  static void RemoveEventHandler(ezEventTelemetry::Handler handler) { s_TelemetryEvents.RemoveEventHandler (handler); }
 
   /// @}
 

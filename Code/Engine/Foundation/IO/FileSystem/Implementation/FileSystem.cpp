@@ -33,22 +33,22 @@ ezMutex& ezFileSystem::GetFileSystemMutex()
   return s_Data->m_Mutex;
 }
 
-void ezFileSystem::RegisterEventHandler(ezEvent<const FileEvent&>::ezEventHandler Handler, void* pPassThrough)
+void ezFileSystem::RegisterEventHandler(ezEvent<const FileEvent&>::Handler handler)
 {
   EZ_ASSERT(s_Data != NULL, "FileSystem is not initialized.");
 
   ezLock<ezMutex> lock(s_Data->m_Mutex);
 
-  s_Data->m_Event.AddEventHandler(Handler, pPassThrough);
+  s_Data->m_Event.AddEventHandler(handler);
 }
 
-void ezFileSystem::UnregisterEventHandler(ezEvent<const FileEvent&>::ezEventHandler Handler, void* pPassThrough)
+void ezFileSystem::UnregisterEventHandler(ezEvent<const FileEvent&>::Handler handler)
 {
   EZ_ASSERT(s_Data != NULL, "FileSystem is not initialized.");
 
   ezLock<ezMutex> lock(s_Data->m_Mutex);
 
-  s_Data->m_Event.RemoveEventHandler(Handler, pPassThrough);
+  s_Data->m_Event.RemoveEventHandler(handler);
 }
 
 ezResult ezFileSystem::AddDataDirectory(const char* szDataDirectory, DataDirUsage Usage, const char* szGroup, const char* szCategory)

@@ -102,7 +102,7 @@ public:
   };
 
   /// \brief Code that needs to be execute whenever a plugin is loaded or unloaded can register itself here to be notified of such events.
-  static ezEvent<const PluginEvent&, void*, ezStaticAllocatorWrapper> s_PluginEvents;
+  static ezEvent<const PluginEvent&, ezNoMutex, ezStaticAllocatorWrapper> s_PluginEvents;
 
   /// \brief Returns the n-th plugin that this one is dependent on, or NULL if there is no further dependency.
   const char* GetPluginDependency(ezUInt8 uiDependency) const { return (uiDependency < 5) ? m_szPluginDependencies[uiDependency] : NULL; }

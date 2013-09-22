@@ -47,10 +47,10 @@ public:
   struct FileEvent;
 
   /// \brief Registers an Event Handler that will be informed about all the events that the file system broadcasts.
-  static void RegisterEventHandler(ezEvent<const FileEvent&>::ezEventHandler Handler, void* pPassThrough);
+  static void RegisterEventHandler(ezEvent<const FileEvent&>::Handler handler);
 
   /// \brief Unregisters a previously registered Event Handler.
-  static void UnregisterEventHandler(ezEvent<const FileEvent&>::ezEventHandler Handler, void* pPassThrough);
+  static void UnregisterEventHandler(ezEvent<const FileEvent&>::Handler handler);
 
   /// \brief Returns the mutex that the filesystem uses.
   static ezMutex& GetFileSystemMutex();

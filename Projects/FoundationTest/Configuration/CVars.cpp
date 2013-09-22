@@ -22,7 +22,7 @@ EZ_CREATE_SIMPLE_TEST_GROUP(Configuration);
 
 static ezInt32 iChangedValue = 0;
 static ezInt32 iChangedRestart = 0;
-static void ChangedCVar(const ezCVar::CVarEvent& e, void*)
+static void ChangedCVar(const ezCVar::CVarEvent& e)
 {
   switch (e.m_EventType)
   {
@@ -168,7 +168,7 @@ EZ_CREATE_SIMPLE_TEST(Configuration, CVars)
       EZ_TEST(ezStringUtils::IsEqual(pInt->GetName(), "test1_Int"));
       EZ_TEST(ezStringUtils::IsEqual(pInt->GetDescription(), "Desc: test1_Int"));
 
-      pInt->m_CVarEvents.AddEventHandler(ChangedCVar, NULL);
+      pInt->m_CVarEvents.AddEventHandler(ChangedCVar);
 
       *pInt = 12;
       CHECK_CVAR(pInt, 12, 11, 11, 12);
@@ -186,7 +186,7 @@ EZ_CREATE_SIMPLE_TEST(Configuration, CVars)
       EZ_TEST(ezStringUtils::IsEqual(pFloat->GetName(), "test1_Float"));
       EZ_TEST(ezStringUtils::IsEqual(pFloat->GetDescription(), "Desc: test1_Float"));
 
-      pFloat->m_CVarEvents.AddEventHandler(ChangedCVar, NULL);
+      pFloat->m_CVarEvents.AddEventHandler(ChangedCVar);
 
       *pFloat = 1.2f;
       CHECK_CVAR(pFloat, 1.1f, 1.1f, 1.1f, 1.2f);
@@ -229,7 +229,7 @@ EZ_CREATE_SIMPLE_TEST(Configuration, CVars)
       ezCVarInt* pInt = (ezCVarInt*) ezCVar::FindCVarByName("test2_Int");
       CHECK_CVAR(pInt, 22, 22, 22, 22);
 
-      pInt->m_CVarEvents.AddEventHandler(ChangedCVar, NULL);
+      pInt->m_CVarEvents.AddEventHandler(ChangedCVar);
       
       *pInt = 23;
       CHECK_CVAR(pInt, 23, 22, 22, 23);

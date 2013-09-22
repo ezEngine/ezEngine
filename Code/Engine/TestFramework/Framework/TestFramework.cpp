@@ -171,7 +171,7 @@ void ezTestFramework::StartTests()
 }
 
 // Redirects engine warnings / errors to testframework output
-static void LogWriter(const ezLog::LoggingEvent& e, void* ptr)
+static void LogWriter(const ezLog::EventData& e)
 {
   switch (e.m_EventType)
   {

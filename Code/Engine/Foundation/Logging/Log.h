@@ -48,9 +48,9 @@ public:
   };
 
   /// \brief The data that is sent through the event interface.
-  struct LoggingEvent
+  struct EventData
   {
-    LoggingEvent();
+    EventData();
 
     /// \brief The type of information that is sent.
     EventType::Enum m_EventType;
@@ -106,11 +106,13 @@ public:
   /// \brief Can be called at any time to make sure the log is written to disk.
   static void FlushToDisk();
 
+  typedef ezEvent<const EventData&, ezNoMutex, ezStaticAllocatorWrapper> Event;
+
   /// \brief Allows to register a function as an event receiver. All receivers will be notified in the order that they registered.
-  static void AddLogWriter(ezEvent<const LoggingEvent&>::ezEventHandler callback, void* pPassThrough = NULL)   { s_LoggingEvent.AddEventHandler   (callback, pPassThrough); }
+  static void AddLogWriter(Event::Handler handler)    { s_LoggingEvent.AddEventHandler    (handler); }
 
   /// \brief Unregisters a previously registered receiver. It is an error to unregister a receiver that was not registered.
-  static void RemoveLogWriter(ezEvent<const LoggingEvent&>::ezEventHandler callback, void* pPassThrough = NULL) { s_LoggingEvent.RemoveEventHandler (callback, pPassThrough); }
+  static void RemoveLogWriter(Event::Handler handler) { s_LoggingEvent.RemoveEventHandler (handler); }
 
   /// \brief Returns how many message of the given type occured.
   static ezUInt32 GetMessageCount(EventType::Enum MessageType) { return s_uiMessageCount[MessageType]; }
@@ -129,7 +131,7 @@ private:
   static ezAtomicInteger32 s_uiMessageCount[EventType::ENUM_COUNT];
 
   /// \brief Manages all the Event Handlers for the logging events.
-  static ezEvent<const LoggingEvent&, void*, ezStaticAllocatorWrapper> s_LoggingEvent;
+  static Event s_LoggingEvent;
 
   static void BroadcastLoggingEvent(EventType::Enum type, const char* szString);
 

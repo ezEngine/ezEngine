@@ -1,6 +1,9 @@
 #pragma once
 
+#include <Foundation/Basics/Types/Delegate.h>
 #include <Foundation/Containers/DynamicArray.h>
+#include <Foundation/Threading/Lock.h>
+#include <Foundation/Threading/Mutex.h>
 
 /// \brief This class allows to propagate events to code that might be interested in them.
 ///
@@ -12,7 +15,7 @@
 /// custom struct to package that information and then pass a pointer to that data through Broadcast.
 /// The handlers just need to cast the void-pointer to the proper struct and thus can get all the detailed
 /// information about the event.
-template <typename EventData, typename PassThrough>
+template <typename EventData, typename MutexType>
 class ezEventBase
 {
 protected:
@@ -21,18 +24,16 @@ protected:
 
 public:
   /// \brief Notification callback type for events.
-  typedef void (*ezEventHandler)(EventData pEventData, PassThrough pPassThrough);
+  typedef ezDelegate<void (EventData)> Handler;
 
   /// \brief This function will broadcast to all registered users, that this event has just happened.
   void Broadcast(EventData pEventData); // [tested]
 
   /// \brief Adds a function as an event handler. All handlers will be notified in the order that they were registered.
-  void AddEventHandler(ezEventHandler callback, PassThrough pPassThrough); // [tested]
+  void AddEventHandler(Handler handler); // [tested]
 
   /// \brief Removes a previously registered handler. It is an error to remove a handler that was not registered.
-  ///
-  /// The exact same data that was passed to AddEventHandler (including pPassThrough) must be given.
-  void RemoveEventHandler(ezEventHandler callback, PassThrough pPassThrough); // [tested]
+  void RemoveEventHandler(Handler handler); // [tested]
 
   EZ_DISALLOW_COPY_AND_ASSIGN(ezEventBase);
 
@@ -40,21 +41,15 @@ private:
   /// \brief Used to detect recursive broadcasts and then throw asserts at you.
   bool m_bBroadcasting;
 
-  struct ezEventReceiver
-  {
-    EZ_DECLARE_POD_TYPE();
-
-    ezEventHandler m_Callback;
-    PassThrough m_pPassThrough;
-  };
+  MutexType m_Mutex;
 
   /// \brief A dynamic array allows to have zero overhead as long as no event receivers are registered.
-  ezDynamicArray<ezEventReceiver> m_EventHandlers;
+  ezDynamicArray<Handler> m_EventHandlers;  
 };
 
 /// \brief \see ezEventBase
-template <typename EventData, typename PassThrough = void*, typename AllocatorWrapper = ezDefaultAllocatorWrapper>
-class ezEvent : public ezEventBase<EventData, PassThrough>
+template <typename EventData, typename MutexType = ezNoMutex, typename AllocatorWrapper = ezDefaultAllocatorWrapper>
+class ezEvent : public ezEventBase<EventData, MutexType>
 {
 public:
   ezEvent();

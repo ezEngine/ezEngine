@@ -24,7 +24,7 @@ EZ_CREATE_SIMPLE_TEST(Logging, Log)
 
   ezLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);
   ezLog::AddLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
-  ezLog::AddLogWriter(ezLogWriter::HTML::LogMessageHandler, &LogHTML);
+  ezLog::AddLogWriter(ezLog::Event::Handler(&ezLogWriter::HTML::LogMessageHandler, &LogHTML));
 
   ezStartup::PrintAllSubsystems();
 
@@ -99,7 +99,7 @@ EZ_CREATE_SIMPLE_TEST(Logging, Log)
 
   ezLog::RemoveLogWriter(ezLogWriter::Console::LogMessageHandler);
   ezLog::RemoveLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
-  ezLog::RemoveLogWriter(ezLogWriter::HTML::LogMessageHandler, &LogHTML);
+  ezLog::RemoveLogWriter(ezLog::Event::Handler(&ezLogWriter::HTML::LogMessageHandler, &LogHTML));
 
   LogHTML.EndLog();
 

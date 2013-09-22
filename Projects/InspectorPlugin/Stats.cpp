@@ -1,6 +1,6 @@
 #include <PCH.h>
 
-void StatsEventHandler(const ezStats::StatsEventData& e, void* pPassThrough)
+void StatsEventHandler(const ezStats::StatsEventData& e)
 {
   if (!ezTelemetry::IsConnectedToClient())
     return;
@@ -46,7 +46,7 @@ static void SendAllStatsTelemetry()
   }
 }
 
-static void TelemetryEventsHandler(const ezTelemetry::TelemetryEventData& e, void* pPassThrough)
+static void TelemetryEventsHandler(const ezTelemetry::TelemetryEventData& e)
 {
   switch (e.m_EventType)
   {

@@ -1,6 +1,6 @@
 #pragma once
 
-inline ezLog::LoggingEvent::LoggingEvent()
+inline ezLog::EventData::EventData()
 {
   m_EventType = ezLog::EventType::None;
   m_uiIndentation = 0;

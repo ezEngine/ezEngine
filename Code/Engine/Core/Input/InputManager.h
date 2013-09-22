@@ -214,13 +214,13 @@ public:
     }
   };
 
-  typedef ezEvent<const InputEventData&, void*, ezStaticAllocatorWrapper> ezEventInput;
+  typedef ezEvent<const InputEventData&, ezNoMutex, ezStaticAllocatorWrapper> ezEventInput;
 
   /// \brief Adds an event handler that is called for input events.
-  static void AddEventHandler(ezEventInput::ezEventHandler callback, void* pPassThrough = NULL)    { s_InputEvents.AddEventHandler   (callback, pPassThrough);  }
+  static void AddEventHandler(ezEventInput::Handler handler)    { s_InputEvents.AddEventHandler   (handler);  }
 
   /// \brief Removes a previously added event handler.
-  static void RemoveEventHandler(ezEventInput::ezEventHandler callback, void* pPassThrough = NULL) { s_InputEvents.RemoveEventHandler (callback, pPassThrough); }
+  static void RemoveEventHandler(ezEventInput::Handler handler) { s_InputEvents.RemoveEventHandler (handler); }
 
 private:
   friend class ezInputDevice;

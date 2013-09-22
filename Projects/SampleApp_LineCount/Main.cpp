@@ -208,7 +208,7 @@ public:
     ezLog::AddLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
     // The HTML log writer will write all log messages to an HTML file
     g_HtmlLog.GetStatic().BeginLog(sLogPath.GetData(), "Code Statistics");
-    ezLog::AddLogWriter(ezLogWriter::HTML::LogMessageHandler, &g_HtmlLog.GetStatic());
+    ezLog::AddLogWriter(ezLog::Event::Handler(&ezLogWriter::HTML::LogMessageHandler, &g_HtmlLog.GetStatic()));
   }
 
   virtual void BeforeEngineShutdown() EZ_OVERRIDE
@@ -225,7 +225,7 @@ public:
 
     // get a directory iterator for the search directory
     ezFileSystemIterator it;
-    if (it.StartSearch(m_szSearchDir))
+    if (it.StartSearch(m_szSearchDir) == EZ_SUCCESS)
     {
       ezStringBuilder b, sExt;
 
@@ -258,7 +258,7 @@ public:
           }
         }
       }
-      while (it.Next());
+      while (it.Next() == EZ_SUCCESS);
 
 
       // now output some statistics

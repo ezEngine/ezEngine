@@ -53,7 +53,7 @@ void ezStartup::AssignSubSystemPlugin(const char* szPluginName)
   }
 }
 
-void ezStartup::PluginEventHandler(const ezPlugin::PluginEvent& EventData, void* pPassThrough)
+void ezStartup::PluginEventHandler(const ezPlugin::PluginEvent& EventData)
 {
   switch (EventData.m_EventType)
   {
@@ -319,7 +319,7 @@ void ezStartup::Startup(ezStartupStage::Enum stage)
 
   if (s_CurrentState == ezStartupStage::None)
   {
-    ezPlugin::s_PluginEvents.AddEventHandler(PluginEventHandler, NULL);
+    ezPlugin::s_PluginEvents.AddEventHandler(PluginEventHandler);
   }
 
   s_CurrentState = stage;
@@ -413,7 +413,7 @@ void ezStartup::Shutdown(ezStartupStage::Enum stage)
 
     if (s_CurrentState == ezStartupStage::None)
     {
-      ezPlugin::s_PluginEvents.RemoveEventHandler(PluginEventHandler, NULL);
+      ezPlugin::s_PluginEvents.RemoveEventHandler(PluginEventHandler);
     }
   }
 }

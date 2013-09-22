@@ -63,28 +63,13 @@ const ezFileWriter& ezLogWriter::HTML::GetOpenedLogFile() const
   return m_File;
 }
 
-void ezLogWriter::HTML::LogMessageHandler(const ezLog::LoggingEvent& EventData, void* pPassThrough)
-{
-  ezLogWriter::HTML* pLog = (ezLogWriter::HTML*) pPassThrough;
-
-  pLog->MessageHandler(EventData);
-}
-
-void ezLogWriter::HTML::WriteString(const char* szString, ezUInt32 uiColor)
-{
-  ezStringBuilder sTemp;
-  sTemp.Format("<font color=\"#%X\">%s</font>", uiColor, szString);
-
-  m_File.WriteBytes(sTemp.GetData(), sizeof (char) * sTemp.GetElementCount());
-}
-
-void ezLogWriter::HTML::MessageHandler(const ezLog::LoggingEvent& EventData)
+void ezLogWriter::HTML::LogMessageHandler(const ezLog::EventData& eventData)
 {
   if (!m_File.IsOpen())
     return;
 
   ezStringBuilder sText;
-  ezStringBuilder sOriginalText = EventData.m_szText;
+  ezStringBuilder sOriginalText = eventData.m_szText;
 
   // Cannot write <, > or & to HTML, must be escaped
   sOriginalText.ReplaceAll ("&", "&amp;");
@@ -93,7 +78,7 @@ void ezLogWriter::HTML::MessageHandler(const ezLog::LoggingEvent& EventData)
 
   bool bFlushWriteCache = false;
 
-  switch (EventData.m_EventType)
+  switch (eventData.m_EventType)
   {
   case ezLog::EventType::FlushToDisk:
     bFlushWriteCache = true;
@@ -135,7 +120,7 @@ void ezLogWriter::HTML::MessageHandler(const ezLog::LoggingEvent& EventData)
   default:
     sText.Format("<font color=\"#A0A0A0\">%s</font><br>\n", sOriginalText.GetData());
 
-    ezLog::Warning ("Unknown Message Type %d", EventData.m_EventType);
+    ezLog::Warning ("Unknown Message Type %d", eventData.m_EventType);
     break;
   }
 
@@ -146,7 +131,10 @@ void ezLogWriter::HTML::MessageHandler(const ezLog::LoggingEvent& EventData)
     m_File.Flush();
 }
 
+void ezLogWriter::HTML::WriteString(const char* szString, ezUInt32 uiColor)
+{
+  ezStringBuilder sTemp;
+  sTemp.Format("<font color=\"#%X\">%s</font>", uiColor, szString);
 
-
-
-
+  m_File.WriteBytes(sTemp.GetData(), sizeof (char) * sTemp.GetElementCount());
+}

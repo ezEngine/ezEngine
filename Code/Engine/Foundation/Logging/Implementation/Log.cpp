@@ -3,7 +3,7 @@
 
 ezLog::EventType::Enum ezLog::s_LogLevel = ezLog::EventType::All;
 ezAtomicInteger32 ezLog::s_uiMessageCount[EventType::ENUM_COUNT];
-ezEvent<const ezLog::LoggingEvent&, void*, ezStaticAllocatorWrapper> ezLog::s_LoggingEvent;
+ezLog::Event ezLog::s_LoggingEvent;
 
 ezThreadLocalPointer<ezLogBlock> ezLogBlock::s_CurrentBlock;
 
@@ -11,7 +11,7 @@ void ezLog::EndLogBlock (ezLogBlock* pBlock)
 {
   if (pBlock->m_bWritten)
   {
-    LoggingEvent le;
+    EventData le;
     le.m_EventType = EventType::EndGroup;
     le.m_szText = pBlock->m_szName;
     le.m_uiIndentation = pBlock->m_iBlockDepth;
@@ -31,7 +31,7 @@ void ezLog::SetLogLevel(EventType::Enum LogLevel)
 
 void ezLog::FlushToDisk()
 {
-  LoggingEvent le;
+  EventData le;
   le.m_EventType = EventType::FlushToDisk;
 
   s_LoggingEvent.Broadcast(le);
@@ -46,7 +46,7 @@ void ezLog::WriteBlockHeader(ezLogBlock* pBlock)
 
   WriteBlockHeader(pBlock->m_pParentBlock);
 
-  LoggingEvent le;
+  EventData le;
   le.m_EventType = EventType::BeginGroup;
   le.m_szText = pBlock->m_szName;
   le.m_uiIndentation = pBlock->m_iBlockDepth;
@@ -88,7 +88,7 @@ void ezLog::BroadcastLoggingEvent(EventType::Enum type, const char* szString)
       ++szString;
   }
 
-  LoggingEvent le;
+  EventData le;
   le.m_EventType = type;
   le.m_szText = szString;
   le.m_uiIndentation = iIndentation;

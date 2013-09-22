@@ -38,7 +38,7 @@ struct PluginData
 
 static ezMap<ezString, PluginData, ezCompareHelper<ezString>, ezStaticAllocatorWrapper> g_LoadedPlugins;
 ezInt32 ezPlugin::s_iPluginChangeRecursionCounter = 0;
-ezEvent<const ezPlugin::PluginEvent&, void*, ezStaticAllocatorWrapper> ezPlugin::s_PluginEvents;
+ezEvent<const ezPlugin::PluginEvent&, ezNoMutex, ezStaticAllocatorWrapper> ezPlugin::s_PluginEvents;
 
 
 ezPlugin::ezPlugin(bool bIsReloadable, OnPluginLoadedFunction OnLoadPlugin, OnPluginUnloadedFunction OnUnloadPlugin, const char* szPluginDependency1, const char* szPluginDependency2, const char* szPluginDependency3, const char* szPluginDependency4, const char* szPluginDependency5)

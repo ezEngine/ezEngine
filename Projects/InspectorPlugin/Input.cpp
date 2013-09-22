@@ -63,7 +63,7 @@ static void SendAllInputActions()
   }
 }
 
-static void TelemetryEventsHandler(const ezTelemetry::TelemetryEventData& e, void* pPassThrough)
+static void TelemetryEventsHandler(const ezTelemetry::TelemetryEventData& e)
 {
   if (!ezTelemetry::IsConnectedToClient())
     return;
@@ -77,7 +77,7 @@ static void TelemetryEventsHandler(const ezTelemetry::TelemetryEventData& e, voi
   }
 }
 
-static void InputManagerEventHandler(const ezInputManager::InputEventData& e, void* pPassThrough)
+static void InputManagerEventHandler(const ezInputManager::InputEventData& e)
 {
   if (!ezTelemetry::IsConnectedToClient())
     return;

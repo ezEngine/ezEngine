@@ -49,13 +49,13 @@ public:
     const char* m_szNewStatValue;
   };
 
-  typedef ezEvent<const StatsEventData&, void*, ezStaticAllocatorWrapper> ezEventStats;
+  typedef ezEvent<const StatsEventData&, ezNoMutex, ezStaticAllocatorWrapper> ezEventStats;
 
   /// \brief Adds an event handler that is called every time a stat is changed.
-  static void AddEventHandler(ezEventStats::ezEventHandler callback, void* pPassThrough = NULL)    { s_StatsEvents.AddEventHandler   (callback, pPassThrough);  }
+  static void AddEventHandler(ezEventStats::Handler handler)    { s_StatsEvents.AddEventHandler    (handler); }
 
   /// \brief Removes a previously added event handler.
-  static void RemoveEventHandler(ezEventStats::ezEventHandler callback, void* pPassThrough = NULL) { s_StatsEvents.RemoveEventHandler (callback, pPassThrough); }
+  static void RemoveEventHandler(ezEventStats::Handler handler) { s_StatsEvents.RemoveEventHandler (handler); }
 
 private:
   static MapType s_Stats;

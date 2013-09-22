@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Foundation/Basics/TypeTraits.h>
+#include <Foundation/Basics.h>
 
 class ezDelegateBase
 {

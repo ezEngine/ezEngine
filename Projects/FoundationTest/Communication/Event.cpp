@@ -3,45 +3,55 @@
 
 EZ_CREATE_SIMPLE_TEST_GROUP(Communication);
 
-void DoStuff(ezInt32* pEventData, ezInt32* pPassThrough)
+namespace
 {
-  ezInt32* iPassThrough = (ezInt32*) pPassThrough;
+  struct Test
+  {
+    void DoStuff(ezInt32* pEventData)
+    {
+      *pEventData += m_iData;
+    }
 
-  ezInt32* iData = (ezInt32*) pEventData;
-  *iData += *iPassThrough;
+    ezInt32 m_iData;
+  };
 }
 
 EZ_CREATE_SIMPLE_TEST(Communication, Event)
 {
   {
-    ezEvent<ezInt32*, ezInt32*> e;
+    typedef ezEvent<ezInt32*> TestEvent;
+    TestEvent e;
 
-    ezInt32 iER1 = 3;
-    ezInt32 iER2 = 5;
+    Test test1;
+    test1.m_iData = 3;
+
+    Test test2;
+    test2.m_iData = 5;
+
     ezInt32 iResult = 0;
 
-    e.AddEventHandler(DoStuff, &iER1);
+    e.AddEventHandler(TestEvent::Handler(&Test::DoStuff, &test1));
 
     iResult = 0;
     e.Broadcast(&iResult);
 
     EZ_TEST_INT(iResult, 3);
 
-    e.AddEventHandler(DoStuff, &iER2);
+    e.AddEventHandler(TestEvent::Handler(&Test::DoStuff, &test2));
 
     iResult = 0;
     e.Broadcast(&iResult);
 
     EZ_TEST_INT(iResult, 8);
 
-    e.RemoveEventHandler(DoStuff, &iER1);
+    e.RemoveEventHandler(TestEvent::Handler(&Test::DoStuff, &test1));
 
     iResult = 0;
     e.Broadcast(&iResult);
 
     EZ_TEST_INT(iResult, 5);
 
-    e.RemoveEventHandler(DoStuff, &iER2);
+    e.RemoveEventHandler(TestEvent::Handler(&Test::DoStuff, &test2));
 
     iResult = 0;
     e.Broadcast(&iResult);

@@ -7,15 +7,15 @@ namespace ezLogWriter
   {
   public:
     /// \brief Register this at ezLog to broadcast all log messages through ezTelemetry.
-    static void LogMessageHandler(const ezLog::LoggingEvent& EventData, void* pPassThrough)
+    static void LogMessageHandler(const ezLog::EventData& eventData)
     {
       ezTelemetryMessage msg;
       msg.SetMessageID('LOG', 'MSG');
 
-      msg.GetWriter() << (ezInt16) EventData.m_EventType;
-      msg.GetWriter() << (ezUInt16) EventData.m_uiIndentation;
-      msg.GetWriter() << EventData.m_szTag;
-      msg.GetWriter() << EventData.m_szText;
+      msg.GetWriter() << (ezInt16) eventData.m_EventType;
+      msg.GetWriter() << (ezUInt16) eventData.m_uiIndentation;
+      msg.GetWriter() << eventData.m_szTag;
+      msg.GetWriter() << eventData.m_szText;
 
       ezTelemetry::Broadcast(ezTelemetry::Reliable, msg);
     }

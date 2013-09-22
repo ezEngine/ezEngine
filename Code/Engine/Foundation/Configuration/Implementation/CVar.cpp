@@ -20,12 +20,12 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, CVars)
 
   ON_BASE_STARTUP
   {
-    ezPlugin::s_PluginEvents.AddEventHandler(ezCVar::PluginEventHandler, NULL);
+    ezPlugin::s_PluginEvents.AddEventHandler(ezCVar::PluginEventHandler);
   }
 
   ON_BASE_SHUTDOWN
   {
-    ezPlugin::s_PluginEvents.RemoveEventHandler(ezCVar::PluginEventHandler, NULL);
+    ezPlugin::s_PluginEvents.RemoveEventHandler(ezCVar::PluginEventHandler);
   }
 
   ON_ENGINE_SHUTDOWN
@@ -51,7 +51,7 @@ EZ_END_SUBSYSTEM_DECLARATION
 
 
 ezHybridString<32, ezStaticAllocatorWrapper> ezCVar::s_StorageFolder;
-ezEvent<const ezCVar::CVarEvent&, void*, ezStaticAllocatorWrapper> ezCVar::s_AllCVarEvents;
+ezEvent<const ezCVar::CVarEvent&, ezNoMutex, ezStaticAllocatorWrapper> ezCVar::s_AllCVarEvents;
 
 void ezCVar::AssignSubSystemPlugin(const char* szPluginName)
 {
@@ -66,7 +66,7 @@ void ezCVar::AssignSubSystemPlugin(const char* szPluginName)
   }
 }
 
-void ezCVar::PluginEventHandler(const ezPlugin::PluginEvent& EventData, void* pPassThrough)
+void ezCVar::PluginEventHandler(const ezPlugin::PluginEvent& EventData)
 {
   switch (EventData.m_EventType)
   {

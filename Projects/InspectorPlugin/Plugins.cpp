@@ -38,7 +38,7 @@ static void SendPluginTelemetry()
   }
 }
 
-static void TelemetryEventsHandler(const ezTelemetry::TelemetryEventData& e, void* pPassThrough)
+static void TelemetryEventsHandler(const ezTelemetry::TelemetryEventData& e)
 {
   switch (e.m_EventType)
   {
@@ -48,7 +48,7 @@ static void TelemetryEventsHandler(const ezTelemetry::TelemetryEventData& e, voi
   }
 }
 
-static void PluginEventHandler(const ezPlugin::PluginEvent& e, void* pPassthrough)
+static void PluginEventHandler(const ezPlugin::PluginEvent& e)
 {
   switch (e.m_EventType)
   {
@@ -61,12 +61,12 @@ static void PluginEventHandler(const ezPlugin::PluginEvent& e, void* pPassthroug
 void AddPluginEventHandler()
 {
   ezTelemetry::AddEventHandler(TelemetryEventsHandler);
-  ezPlugin::s_PluginEvents.AddEventHandler(PluginEventHandler, NULL);
+  ezPlugin::s_PluginEvents.AddEventHandler(PluginEventHandler);
 }
 
 void RemovePluginEventHandler()
 {
-  ezPlugin::s_PluginEvents.RemoveEventHandler(PluginEventHandler, NULL);
+  ezPlugin::s_PluginEvents.RemoveEventHandler(PluginEventHandler);
   ezTelemetry::RemoveEventHandler(TelemetryEventsHandler);
 }
 

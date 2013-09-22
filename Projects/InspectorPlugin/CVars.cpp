@@ -126,7 +126,7 @@ static void SendAllCVarTelemetry()
 }
 
 
-static void TelemetryEventsHandler(const ezTelemetry::TelemetryEventData& e, void* pPassThrough)
+static void TelemetryEventsHandler(const ezTelemetry::TelemetryEventData& e)
 {
   switch (e.m_EventType)
   {
@@ -136,7 +136,7 @@ static void TelemetryEventsHandler(const ezTelemetry::TelemetryEventData& e, voi
   }
 }
 
-static void CVarEventHandler(const ezCVar::CVarEvent& e, void* pPassThrough)
+static void CVarEventHandler(const ezCVar::CVarEvent& e)
 {
   if (!ezTelemetry::IsConnectedToClient())
     return;
@@ -157,12 +157,12 @@ void AddCVarEventHandler()
 
   ezTelemetry::AcceptMessagesForSystem('SVAR', true, TelemetryMessage, NULL);
 
-  ezCVar::s_AllCVarEvents.AddEventHandler(CVarEventHandler, NULL);
+  ezCVar::s_AllCVarEvents.AddEventHandler(CVarEventHandler);
 }
 
 void RemoveCVarEventHandler()
 {
-  ezCVar::s_AllCVarEvents.RemoveEventHandler(CVarEventHandler, NULL);
+  ezCVar::s_AllCVarEvents.RemoveEventHandler(CVarEventHandler);
 
   ezTelemetry::RemoveEventHandler(TelemetryEventsHandler);
 
