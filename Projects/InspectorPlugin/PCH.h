@@ -6,4 +6,5 @@
 #include <Foundation/Logging/Log.h>
 #include <Foundation/System/SystemInformation.h>
 #include <Foundation/IO/IBinaryStream.h>
+#include <Foundation/IO/OSFile.h>
 #include <Core/Input/InputManager.h>

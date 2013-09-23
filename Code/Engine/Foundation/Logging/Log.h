@@ -106,7 +106,7 @@ public:
   /// \brief Can be called at any time to make sure the log is written to disk.
   static void FlushToDisk();
 
-  typedef ezEvent<const EventData&, ezNoMutex, ezStaticAllocatorWrapper> Event;
+  typedef ezEvent<const EventData&, ezMutex, ezStaticAllocatorWrapper> Event;
 
   /// \brief Allows to register a function as an event receiver. All receivers will be notified in the order that they registered.
   static void AddLogWriter(Event::Handler handler)    { s_LoggingEvent.AddEventHandler    (handler); }

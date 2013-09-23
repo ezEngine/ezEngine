@@ -49,7 +49,7 @@ public:
     const char* m_szNewStatValue;
   };
 
-  typedef ezEvent<const StatsEventData&, ezNoMutex, ezStaticAllocatorWrapper> ezEventStats;
+  typedef ezEvent<const StatsEventData&, ezMutex, ezStaticAllocatorWrapper> ezEventStats;
 
   /// \brief Adds an event handler that is called every time a stat is changed.
   static void AddEventHandler(ezEventStats::Handler handler)    { s_StatsEvents.AddEventHandler    (handler); }

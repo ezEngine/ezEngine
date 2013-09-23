@@ -4,6 +4,9 @@
 #include <Foundation/Strings/StringBuilder.h>
 #include <Foundation/Strings/String.h>
 #include <Foundation/Threading/AtomicInteger.h>
+#include <Foundation/Communication/Event.h>
+#include <Foundation/Threading/Mutex.h>
+#include <Foundation/Time/Time.h>
 
 struct ezOSFileData;
 
@@ -189,7 +192,76 @@ public:
   /// \brief Returns the path in which the applications binary file is located.
   static const char* GetApplicationDirectory();
 
+public:
+
+  /// \brief Describes the types of events that ezOSFile sends.
+  struct EventType
+  {
+    enum Enum
+    {
+      None,
+      FileOpen,     ///< A file has been (attempted) to open.
+      FileClose,    ///< An open file has been closed.
+      FileExists,   ///< A check whether a file exists has been done.
+      FileDelete,   ///< A file was attempted to be deleted.
+      FileRead,     ///< From an open file data was read.
+      FileWrite,    ///< Data was written to an open file.
+      MakeDir,      ///< A path has been created (recursive directory creation).
+      FileCopy,     ///< A file has been copied to another location.
+    };
+  };
+
+  /// \brief The data that is sent through the event interface.
+  struct EventData
+  {
+    /// \brief The type of information that is sent.
+    EventType::Enum m_EventType;
+
+    /// \brief A unique ID for each file access. Reads and writes to the same open file use the same ID. If the same file is opened multiple times, different IDs are used.
+    ezInt32 m_iFileID;
+
+    /// \brief The name of the file that was operated upon.
+    const char* m_szFile;
+
+    /// \brief If a second file was operated upon (FileCopy), that is the second file name.
+    const char* m_szFile2;
+
+    /// \brief Mode that a file has been opened in.
+    ezFileMode::Enum m_FileMode;
+
+    /// \brief Whether the operation succeeded (reading, writing, etc.)
+    bool m_bSuccess;
+
+    /// \brief How long the operation took.
+    ezTime m_Duration;
+
+    /// \brief How many bytes were transfered (reading, writing)
+    ezUInt64 m_uiBytesAccessed;
+
+    EventData()
+    {
+      m_EventType = EventType::None;
+      m_iFileID = 0;
+      m_szFile = NULL;
+      m_szFile2 = NULL;
+      m_FileMode = ezFileMode::None;
+      m_bSuccess = true;
+      m_uiBytesAccessed = 0;
+    }
+  };
+
+  typedef ezEvent<const EventData&, ezMutex, ezStaticAllocatorWrapper> Event;
+
+  /// \brief Allows to register a function as an event receiver. All receivers will be notified in the order that they registered.
+  static void AddEventHandler(Event::Handler handler)    { s_FileEvents.AddEventHandler    (handler); }
+
+  /// \brief Unregisters a previously registered receiver. It is an error to unregister a receiver that was not registered.
+  static void RemoveEventHandler(Event::Handler handler) { s_FileEvents.RemoveEventHandler (handler); }
+
 private:
+
+  /// \brief Manages all the Event Handlers for the OSFile events.
+  static Event s_FileEvents;
 
   // *** Internal Functions that do the platform specific work ***
 

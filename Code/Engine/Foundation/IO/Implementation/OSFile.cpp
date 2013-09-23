@@ -7,6 +7,7 @@
 
 ezHybridString<64, ezStaticAllocatorWrapper> ezOSFile::s_ApplicationPath;
 ezAtomicInteger32 ezOSFile::s_FileCounter;
+ezOSFile::Event ezOSFile::s_FileEvents;
 
 ezFileStats::ezFileStats()
 {
@@ -64,17 +65,15 @@ done:
   const ezTime t1 = ezSystemTime::Now();
   const ezTime tdiff = t1 - t0;
 
-  ezTelemetryMessage Msg;
-  Msg.SetMessageID('FILE', 'OPEN');
-  Msg.GetWriter() << m_iFileID;
-  Msg.GetWriter() << m_sFileName.GetData();
-  Msg.GetWriter() << (ezUInt8) OpenMode;
+  EventData e;
+  e.m_bSuccess = Res == EZ_SUCCESS;
+  e.m_Duration = tdiff;
+  e.m_FileMode = OpenMode;
+  e.m_iFileID = m_iFileID;
+  e.m_szFile = m_sFileName.GetData();
+  e.m_EventType = EventType::FileOpen;
 
-  Msg.GetWriter() << (bool) (Res == EZ_SUCCESS);
-  Msg.GetWriter() << tdiff.GetSeconds();
-  Msg.GetWriter() << ezThreadUtils::IsMainThread();
-
-  ezTelemetry::Broadcast(ezTelemetry::Reliable, Msg);
+  s_FileEvents.Broadcast(e);
 
   return Res;
 }
@@ -96,13 +95,14 @@ void ezOSFile::Close()
   const ezTime t1 = ezSystemTime::Now();
   const ezTime tdiff = t1 - t0;
 
-  ezTelemetryMessage Msg;
-  Msg.SetMessageID('FILE', 'CLOS');
-  Msg.GetWriter() << m_iFileID;
-  Msg.GetWriter() << tdiff.GetSeconds();
-  Msg.GetWriter() << ezThreadUtils::IsMainThread();
+  EventData e;
+  e.m_bSuccess = true;
+  e.m_Duration = tdiff;
+  e.m_iFileID = m_iFileID;
+  e.m_szFile = m_sFileName.GetData();
+  e.m_EventType = EventType::FileClose;
 
-  ezTelemetry::Broadcast(ezTelemetry::Reliable, Msg);
+  s_FileEvents.Broadcast(e);
 
   m_sFileName.Clear();
   m_FileMode = ezFileMode::None;
@@ -120,15 +120,15 @@ ezResult ezOSFile::Write(const void* pBuffer, ezUInt64 uiBytes)
   const ezTime t1 = ezSystemTime::Now();
   const ezTime tdiff = t1 - t0;
 
-  ezTelemetryMessage Msg;
-  Msg.SetMessageID('FILE', 'WRIT');
-  Msg.GetWriter() << m_iFileID;
-  Msg.GetWriter() << uiBytes;
-  Msg.GetWriter() << (bool) (Res == EZ_SUCCESS);
-  Msg.GetWriter() << tdiff.GetSeconds();
-  Msg.GetWriter() << ezThreadUtils::IsMainThread();
+  EventData e;
+  e.m_bSuccess = Res == EZ_SUCCESS;
+  e.m_Duration = tdiff;
+  e.m_iFileID = m_iFileID;
+  e.m_szFile = m_sFileName.GetData();
+  e.m_EventType = EventType::FileWrite;
+  e.m_uiBytesAccessed = uiBytes;
 
-  ezTelemetry::Broadcast(ezTelemetry::Reliable, Msg);
+  s_FileEvents.Broadcast(e);
 
   return Res;
 }
@@ -145,15 +145,15 @@ ezUInt64 ezOSFile::Read(void* pBuffer, ezUInt64 uiBytes)
   const ezTime t1 = ezSystemTime::Now();
   const ezTime tdiff = t1 - t0;
 
-  ezTelemetryMessage Msg;
-  Msg.SetMessageID('FILE', 'READ');
-  Msg.GetWriter() << m_iFileID;
-  Msg.GetWriter() << uiBytes;
-  Msg.GetWriter() << Res;
-  Msg.GetWriter() << tdiff.GetSeconds();
-  Msg.GetWriter() << ezThreadUtils::IsMainThread();
+  EventData e;
+  e.m_bSuccess = (Res == uiBytes);
+  e.m_Duration = tdiff;
+  e.m_iFileID = m_iFileID;
+  e.m_szFile = m_sFileName.GetData();
+  e.m_EventType = EventType::FileRead;
+  e.m_uiBytesAccessed = uiBytes;
 
-  ezTelemetry::Broadcast(ezTelemetry::Reliable, Msg);
+  s_FileEvents.Broadcast(e);
 
   return Res;
 }
@@ -203,15 +203,15 @@ bool ezOSFile::Exists(const char* szFile)
   const ezTime t1 = ezSystemTime::Now();
   const ezTime tdiff = t1 - t0;
 
-  ezTelemetryMessage Msg;
-  Msg.SetMessageID('FILE', 'EXST');
-  Msg.GetWriter() << s_FileCounter.Increment();
-  Msg.GetWriter() << szFile;
-  Msg.GetWriter() << bRes;
-  Msg.GetWriter() << tdiff.GetSeconds();
-  Msg.GetWriter() << ezThreadUtils::IsMainThread();
 
-  ezTelemetry::Broadcast(ezTelemetry::Reliable, Msg);
+  EventData e;
+  e.m_bSuccess = bRes;
+  e.m_Duration = tdiff;
+  e.m_iFileID = s_FileCounter.Increment();
+  e.m_szFile = szFile;
+  e.m_EventType = EventType::FileExists;
+
+  s_FileEvents.Broadcast(e);
 
   return bRes;
 }
@@ -229,15 +229,14 @@ ezResult ezOSFile::DeleteFile(const char* szFile)
   const ezTime t1 = ezSystemTime::Now();
   const ezTime tdiff = t1 - t0;
 
-  ezTelemetryMessage Msg;
-  Msg.SetMessageID('FILE', 'DEL');
-  Msg.GetWriter() << s_FileCounter.Increment();
-  Msg.GetWriter() << szFile;
-  Msg.GetWriter() << (bool) (Res == EZ_SUCCESS);
-  Msg.GetWriter() << tdiff.GetSeconds();
-  Msg.GetWriter() << ezThreadUtils::IsMainThread();
+  EventData e;
+  e.m_bSuccess = Res == EZ_SUCCESS;
+  e.m_Duration = tdiff;
+  e.m_iFileID = s_FileCounter.Increment();
+  e.m_szFile = szFile;
+  e.m_EventType = EventType::FileDelete;
 
-  ezTelemetry::Broadcast(ezTelemetry::Reliable, Msg);
+  s_FileEvents.Broadcast(e);
 
   return Res;
 }
@@ -279,15 +278,14 @@ ezResult ezOSFile::CreateDirectoryStructure(const char* szDirectory)
   const ezTime t1 = ezSystemTime::Now();
   const ezTime tdiff = t1 - t0;
 
-  ezTelemetryMessage Msg;
-  Msg.SetMessageID('FILE', 'CDIR');
-  Msg.GetWriter() << s_FileCounter.Increment();
-  Msg.GetWriter() << szDirectory;
-  Msg.GetWriter() << (bool) (Res == EZ_SUCCESS);
-  Msg.GetWriter() << tdiff.GetSeconds();
-  Msg.GetWriter() << ezThreadUtils::IsMainThread();
+  EventData e;
+  e.m_bSuccess = Res == EZ_SUCCESS;
+  e.m_Duration = tdiff;
+  e.m_iFileID = s_FileCounter.Increment();
+  e.m_szFile = szDirectory;
+  e.m_EventType = EventType::MakeDir;
 
-  ezTelemetry::Broadcast(ezTelemetry::Reliable, Msg);
+  s_FileEvents.Broadcast(e);
 
   return Res;
 }
@@ -332,16 +330,15 @@ done:
   const ezTime t1 = ezSystemTime::Now();
   const ezTime tdiff = t1 - t0;
 
-  ezTelemetryMessage Msg;
-  Msg.SetMessageID('FILE', 'COPY');
-  Msg.GetWriter() << s_FileCounter.Increment();
-  Msg.GetWriter() << szSource;
-  Msg.GetWriter() << szDestination;
-  Msg.GetWriter() << (bool) (Res == EZ_SUCCESS);
-  Msg.GetWriter() << tdiff.GetSeconds();
-  Msg.GetWriter() << ezThreadUtils::IsMainThread();
+  EventData e;
+  e.m_bSuccess = Res == EZ_SUCCESS;
+  e.m_Duration = tdiff;
+  e.m_iFileID = s_FileCounter.Increment();
+  e.m_szFile = szSource;
+  e.m_szFile2 = szDestination;
+  e.m_EventType = EventType::FileCopy;
 
-  ezTelemetry::Broadcast(ezTelemetry::Reliable, Msg);
+  s_FileEvents.Broadcast(e);
 
   return Res;
 }

@@ -1,6 +1,6 @@
 #include <PCH.h>
 
-void StatsEventHandler(const ezStats::StatsEventData& e)
+static void StatsEventHandler(const ezStats::StatsEventData& e)
 {
   if (!ezTelemetry::IsConnectedToClient())
     return;

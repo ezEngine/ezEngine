@@ -29,6 +29,9 @@ void RemovePluginEventHandler();
 void AddGlobalEventHandler();
 void RemoveGlobalEventHandler();
 
+void AddOSFileEventHandler();
+void RemoveOSFileEventHandler();
+
 void SetAppStats();
 
 EZ_BEGIN_SUBSYSTEM_DECLARATION(InspectorPlugin, Main)
@@ -47,12 +50,14 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(InspectorPlugin, Main)
     AddInputEventHandler();
     AddPluginEventHandler();
     AddGlobalEventHandler();
+    AddOSFileEventHandler();
 
     SetAppStats();
   }
 
   ON_CORE_SHUTDOWN
   {
+    RemoveOSFileEventHandler();
     RemoveGlobalEventHandler();
     RemovePluginEventHandler();
     RemoveInputEventHandler();
