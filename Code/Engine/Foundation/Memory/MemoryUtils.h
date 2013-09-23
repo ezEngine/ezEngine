@@ -7,6 +7,8 @@ class ezMemoryUtils
 {
 public:
   /// \brief Constructs \a uiCount objects of type T in a raw buffer at \a pDestination.
+  ///
+  /// You should use 'DefaultConstruct' instead if default construction is needed for trivial types as well.
   template <typename T>
   static void Construct(T* pDestination, size_t uiCount); // [tested]
 
@@ -21,6 +23,10 @@ public:
   /// \brief Destructs \a uiCount objects of type T at \a pDestination.
   template <typename T>
   static void Destruct(T* pDestination, size_t uiCount); // [tested]
+
+  /// \brief Default constructs \a uiCount objects of type T in a raw buffer at \a pDestination regardless of T being a class, POD or trivial.
+  template <typename T>
+  static void DefaultConstruct(T* pDestination, size_t uiCount); // [tested]
 
   /// \brief Copies objects of type T from \a pSource to \a pDestination.
   ///
@@ -41,6 +47,10 @@ public:
   /// \brief Zeros out buffer of a raw memory.
   template <typename T>
   static void ZeroFill(T* pDestination, size_t uiCount = 1); // [tested]
+
+  /// \brief Compares two buffer of raw memory byte wise.
+  template <typename T>
+  static ezInt32 ByteCompare(const T* a, const T* b, size_t uiCount = 1); // [tested]
 
   /// \brief Returns the address stored in \a ptr plus the given byte offset \a iOffset, cast to type \a T.
   ///

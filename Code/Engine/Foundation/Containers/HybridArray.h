@@ -38,9 +38,6 @@ public:
   /// \brief Tries to compact the array to avoid wasting memory. The resulting capacity is at least 'GetCount' (no elements get removed). Will deallocate all data, if the array is empty.
   void Compact(); // [tested]
 
-  /// \brief Resizes the array to have exactly uiCount elements. Default constructs extra elements if the array is grown.
-  void SetCount(ezUInt32 uiCount); // [tested]
-
   /// \brief Returns the allocator that is used by this instance.
   ezIAllocator* GetAllocator() const { return m_pAllocator; }
 

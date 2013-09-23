@@ -289,7 +289,7 @@ void ezDequeBase<T, Construct>::SetCount(ezUInt32 uiCount)
     {
       // default construct the new eleemnts
       for (ezUInt32 i = uiOldCount; i < uiNewCount; ++i)
-        ezMemoryUtils::Construct(&ElementAt(i), 1);
+        ezMemoryUtils::DefaultConstruct(&ElementAt(i), 1);
     }
     else
     {
@@ -348,7 +348,7 @@ EZ_FORCE_INLINE void ezDequeBase<T, Construct>::PushBack()
   T* pElement = &ElementAt(m_uiCount - 1);
 
   if (Construct)
-    ezMemoryUtils::Construct(pElement, 1);
+    ezMemoryUtils::DefaultConstruct(pElement, 1);
 }
 
 template <typename T, bool Construct>
@@ -359,7 +359,7 @@ EZ_FORCE_INLINE void ezDequeBase<T, Construct>::PushBack(const T& element)
   RESERVE(m_uiCount + 1);
   ++m_uiCount;
 
-  ezMemoryUtils::Construct(&ElementAt(m_uiCount - 1), &element, 1);
+  ezMemoryUtils::Construct(&ElementAt(m_uiCount - 1), element, 1);
 }
 
 template <typename T, bool Construct>

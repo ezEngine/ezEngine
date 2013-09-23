@@ -123,23 +123,6 @@ void ezHybridArrayBase<T, Size>::Compact()
   }
 }
 
-template <typename T, ezUInt32 Size>
-void ezHybridArrayBase<T, Size>::SetCount(ezUInt32 uiCount)
-{
-  const ezUInt32 uiOldCount = this->m_uiCount;
-  const ezUInt32 uiNewCount = uiCount;
-  if (uiNewCount > uiOldCount)
-  {
-    Reserve(uiNewCount);
-    ezMemoryUtils::Construct(this->m_pElements + uiOldCount, uiNewCount - uiOldCount);  
-  }
-  else if (uiNewCount < uiOldCount)
-  {
-    ezMemoryUtils::Destruct(this->m_pElements + uiNewCount, uiOldCount - uiNewCount);
-  }
-  this->m_uiCount = uiCount;
-}
-
 
 template <typename T, ezUInt32 Size, typename A>
 ezHybridArray<T, Size, A>::ezHybridArray() : ezHybridArrayBase<T, Size>(A::GetAllocator())

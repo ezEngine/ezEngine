@@ -55,6 +55,44 @@ EZ_FORCE_INLINE T& ezArrayBase<T, Derived>::operator[](const ezUInt32 uiIndex)
 }
 
 template <typename T, typename Derived>
+void ezArrayBase<T, Derived>::SetCount(ezUInt32 uiCount)
+{
+  const ezUInt32 uiOldCount = m_uiCount;
+  const ezUInt32 uiNewCount = uiCount;
+
+  if (uiNewCount > uiOldCount)
+  {
+    static_cast<Derived*>(this)->Reserve(uiNewCount);
+    ezMemoryUtils::DefaultConstruct(m_pElements + uiOldCount, uiNewCount - uiOldCount);  
+  }
+  else if (uiNewCount < uiOldCount)
+  {
+    ezMemoryUtils::Destruct(m_pElements + uiNewCount, uiOldCount - uiNewCount);
+  }
+
+  m_uiCount = uiCount;
+}
+
+template <typename T, typename Derived>
+void ezArrayBase<T, Derived>::SetCountUninitialized(ezUInt32 uiCount)
+{
+  const ezUInt32 uiOldCount = m_uiCount;
+  const ezUInt32 uiNewCount = uiCount;
+
+  if (uiNewCount > uiOldCount)
+  {
+    static_cast<Derived*>(this)->Reserve(uiNewCount);
+    ezMemoryUtils::Construct(m_pElements + uiOldCount, uiNewCount - uiOldCount);  
+  }
+  else if (uiNewCount < uiOldCount)
+  {
+    ezMemoryUtils::Destruct(m_pElements + uiNewCount, uiOldCount - uiNewCount);
+  }
+
+  m_uiCount = uiCount;
+}
+
+template <typename T, typename Derived>
 EZ_FORCE_INLINE ezUInt32 ezArrayBase<T, Derived>::GetCount() const
 {
   return m_uiCount;
@@ -77,35 +115,6 @@ template <typename T, typename Derived>
 bool ezArrayBase<T, Derived>::Contains(const T& value) const
 {
   return IndexOf(value) != ezInvalidIndex;
-}
-
-template <typename T, typename Derived>
-void ezArrayBase<T, Derived>::PushBackUnchecked(const T& value)
-{
-  EZ_ASSERT(m_uiCount < m_uiCapacity, "Appending unchecked to array with insufficient capacity.");
-
-  ezMemoryUtils::Construct(m_pElements + m_uiCount, value, 1);
-  m_uiCount++;
-}
-
-template <typename T, typename Derived>
-void ezArrayBase<T, Derived>::PushBackRange(const ezArrayPtr<typename ezTypeTraits<T>::NonConstType>& range)
-{
-  const ezUInt32 uiRangeCount = range.GetCount();
-  static_cast<Derived*>(this)->Reserve(m_uiCount + uiRangeCount);
-  
-  ezMemoryUtils::Construct(m_pElements + m_uiCount, range.GetPtr(), uiRangeCount);
-  m_uiCount += uiRangeCount;
-}
-
-template <typename T, typename Derived>
-void ezArrayBase<T, Derived>::PushBackRange(const ezArrayPtr<const T>& range)
-{
-  const ezUInt32 uiRangeCount = range.GetCount();
-  static_cast<Derived*>(this)->Reserve(m_uiCount + uiRangeCount);
-  
-  ezMemoryUtils::Construct(m_pElements + m_uiCount, range.GetPtr(), uiRangeCount);
-  m_uiCount += uiRangeCount;
 }
 
 template <typename T, typename Derived>
@@ -197,6 +206,35 @@ void ezArrayBase<T, Derived>::PushBack(const T& value)
   
   ezMemoryUtils::Construct(m_pElements + m_uiCount, value, 1);
   m_uiCount++;
+}
+
+template <typename T, typename Derived>
+void ezArrayBase<T, Derived>::PushBackUnchecked(const T& value)
+{
+  EZ_ASSERT(m_uiCount < m_uiCapacity, "Appending unchecked to array with insufficient capacity.");
+
+  ezMemoryUtils::Construct(m_pElements + m_uiCount, value, 1);
+  m_uiCount++;
+}
+
+template <typename T, typename Derived>
+void ezArrayBase<T, Derived>::PushBackRange(const ezArrayPtr<typename ezTypeTraits<T>::NonConstType>& range)
+{
+  const ezUInt32 uiRangeCount = range.GetCount();
+  static_cast<Derived*>(this)->Reserve(m_uiCount + uiRangeCount);
+  
+  ezMemoryUtils::Construct(m_pElements + m_uiCount, range.GetPtr(), uiRangeCount);
+  m_uiCount += uiRangeCount;
+}
+
+template <typename T, typename Derived>
+void ezArrayBase<T, Derived>::PushBackRange(const ezArrayPtr<const T>& range)
+{
+  const ezUInt32 uiRangeCount = range.GetCount();
+  static_cast<Derived*>(this)->Reserve(m_uiCount + uiRangeCount);
+  
+  ezMemoryUtils::Construct(m_pElements + m_uiCount, range.GetPtr(), uiRangeCount);
+  m_uiCount += uiRangeCount;
 }
 
 template <typename T, typename Derived>

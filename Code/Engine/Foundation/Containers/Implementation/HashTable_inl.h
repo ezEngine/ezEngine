@@ -290,7 +290,7 @@ inline V& ezHashTableBase<K, V, H>::operator[](const K& key)
   
     // new entry
     ezMemoryUtils::Construct(&m_pEntries[uiIndex].key, key, 1);
-    ezMemoryUtils::Construct(&m_pEntries[uiIndex].value, 1);
+    ezMemoryUtils::DefaultConstruct(&m_pEntries[uiIndex].value, 1);
     MarkEntryAsValid(uiIndex);
     ++m_uiCount;
   }

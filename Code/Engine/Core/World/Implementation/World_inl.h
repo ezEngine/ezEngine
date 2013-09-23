@@ -68,9 +68,9 @@ ManagerType* ezWorld::CreateComponentManager()
     "Not a valid component manager type");
 
   const ezUInt16 uiTypeId = ManagerType::ComponentType::TypeId();
-  while (uiTypeId >= m_Data.m_ComponentManagers.GetCount())
+  if (uiTypeId >= m_Data.m_ComponentManagers.GetCount())
   {
-    m_Data.m_ComponentManagers.PushBack(NULL);
+    m_Data.m_ComponentManagers.SetCount(uiTypeId + 1);
   }
 
   ManagerType* pManager = static_cast<ManagerType*>(m_Data.m_ComponentManagers[uiTypeId]);

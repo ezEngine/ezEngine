@@ -39,6 +39,15 @@ EZ_FORCE_INLINE void ezMemoryUtils::Destruct(T* pDestination, size_t uiCount)
 }
 
 template <typename T>
+EZ_FORCE_INLINE void ezMemoryUtils::DefaultConstruct(T* pDestination, size_t uiCount)
+{
+  for (size_t i = 0; i < uiCount; i++)
+  {
+    new (pDestination + i) T();
+  }
+}
+
+template <typename T>
 EZ_FORCE_INLINE void ezMemoryUtils::Copy(T* pDestination, const T* pSource, size_t uiCount)
 {
   EZ_ASSERT(pDestination < pSource || pSource + uiCount <= pDestination, "Memory regions must not overlap when using Copy. Use Move instead.");
@@ -61,6 +70,12 @@ template <typename T>
 EZ_FORCE_INLINE void ezMemoryUtils::ZeroFill(T* pDestination, size_t uiCount /*= 1*/)
 {
   memset(pDestination, 0, uiCount * sizeof(T));
+}
+
+template <typename T>
+EZ_FORCE_INLINE ezInt32 ezMemoryUtils::ByteCompare(const T* a, const T* b, size_t uiCount /*= 1*/)
+{
+  return memcmp(a, b, uiCount * sizeof(T));
 }
 
 template <typename T>

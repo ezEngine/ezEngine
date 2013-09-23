@@ -459,7 +459,7 @@ typename ezMapBase<KeyType, ValueType, Comparer>::Node* ezMapBase<KeyType, Value
     m_pFreeElementStack = m_pFreeElementStack->m_pParent;
   }
 
-  ezMemoryUtils::Construct<Node>(pNode, 1);
+  ezMemoryUtils::Construct(pNode, 1);
 
   pNode->m_pParent = pParent;
   pNode->m_Key = key;

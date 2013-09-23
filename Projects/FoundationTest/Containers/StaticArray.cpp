@@ -145,6 +145,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, StaticArray)
     for (ezInt32 i = 0; i < 128; ++i)
     {
       a1.SetCount(i + 1);
+      EZ_TEST_INT(a1[i], 0);
       a1[i] = i;
 
       EZ_TEST_INT(a1.GetCount(), i + 1);
@@ -165,6 +166,11 @@ EZ_CREATE_SIMPLE_TEST(Containers, StaticArray)
     }
 
     EZ_TEST(a1.IsEmpty());
+
+    a1.SetCountUninitialized(32);
+    EZ_TEST_INT(a1.GetCount(), 32);
+    a1[31] = 45;
+    EZ_TEST_INT(a1[31], 45);
   }
 
   EZ_TEST_BLOCK(true, "Clear")

@@ -295,4 +295,16 @@ EZ_CREATE_SIMPLE_TEST(Containers, HashTable)
     for (ezInt32 i = 500; i < 1000; ++i)
       EZ_TEST_INT(a[i].m_iData, i);
   }
+
+  EZ_TEST_BLOCK(true, "operator[]")
+  {
+    ezHashTable<ezInt32, ezInt32> a;
+
+    a.Insert(4, 20);
+    a[2] = 30;
+
+    EZ_TEST_INT(a[4], 20);
+    EZ_TEST_INT(a[2], 30);
+    EZ_TEST_INT(a[1], 0); // new values are default constructed
+  }
 }

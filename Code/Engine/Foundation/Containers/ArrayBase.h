@@ -36,6 +36,12 @@ public:
   /// \brief Returns the element at the given index. Does bounds checks in debug builds.
   T& operator[](ezUInt32 uiIndex); // [tested]
 
+  /// \brief Resizes the array to have exactly uiCount elements. Default constructs extra elements if the array is grown.
+  void SetCount(ezUInt32 uiCount); // [tested]
+
+  /// \brief Resizes the array to have exactly uiCount elements. Extra elements might be uninitialized.
+  void SetCountUninitialized(ezUInt32 uiCount); // [tested]
+
   /// \brief Returns the number of active elements in the array.
   ezUInt32 GetCount() const; // [tested]
 
@@ -47,15 +53,6 @@ public:
 
   /// \brief Checks whether the given value can be found in the array. O(n) complexity.
   bool Contains(const T& value) const; // [tested]
-
-  /// \brief Appends value at the end of the array. Does NOT ensure capacity.
-  void PushBackUnchecked(const T& value); // [tested]
-
-  /// \brief Appends all elements in range at the end of the array. Increases the capacity if necessary.
-  void PushBackRange(const ezArrayPtr<typename ezTypeTraits<T>::NonConstType>& range); // [tested]
-
-  /// \brief Appends all elements in range at the end of the array. Increases the capacity if necessary.
-  void PushBackRange(const ezArrayPtr<const T>& range); // [tested]
 
   /// \brief Inserts value at index by shifting all following elements.
   void Insert(const T& value, ezUInt32 uiIndex); // [tested]
@@ -80,6 +77,15 @@ public:
 
   /// \brief Pushes value at the end of the array.
   void PushBack(const T& value); // [tested]
+
+  /// \brief Pushes value at the end of the array. Does NOT ensure capacity.
+  void PushBackUnchecked(const T& value); // [tested]
+
+  /// \brief Pushes all elements in range at the end of the array. Increases the capacity if necessary.
+  void PushBackRange(const ezArrayPtr<typename ezTypeTraits<T>::NonConstType>& range); // [tested]
+
+  /// \brief Pushes all elements in range at the end of the array. Increases the capacity if necessary.
+  void PushBackRange(const ezArrayPtr<const T>& range); // [tested]
 
   /// \brief Removes count elements from the end of the array.
   void PopBack(ezUInt32 uiCountToRemove = 1); // [tested]

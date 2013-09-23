@@ -91,6 +91,16 @@ EZ_CREATE_SIMPLE_TEST(Memory, MemoryUtils)
     EZ_TEST_INT(pTest[4].m_iData, 0);
   }
 
+  EZ_TEST_BLOCK(true, "DefaultConstruct")
+  {
+    ezUInt32 uiRawData[5]; // not initialized here
+    
+    ezMemoryUtils::DefaultConstruct(uiRawData + 1, 2);
+
+    EZ_TEST_INT(uiRawData[1], 0);
+    EZ_TEST_INT(uiRawData[2], 0);
+  }
+
   EZ_TEST_BLOCK(true, "Copy")
   {
     ezUInt8 uiRawData[5]  = { 1, 2, 3, 4, 5 };
@@ -138,6 +148,17 @@ EZ_CREATE_SIMPLE_TEST(Memory, MemoryUtils)
     EZ_TEST_INT(uiRawData[4], 4);
   }
 
+  EZ_TEST_BLOCK(true, "IsEqual")
+  {
+    ezUInt8 uiRawData1[5] = { 1, 2, 3, 4, 5 };
+    ezUInt8 uiRawData2[5] = { 1, 2, 3, 4, 5 };
+    ezUInt8 uiRawData3[5] = { 1, 2, 3, 4, 6 };
+
+    EZ_TEST(ezMemoryUtils::IsEqual(uiRawData1, uiRawData2, 5));
+    EZ_TEST(!ezMemoryUtils::IsEqual(uiRawData1, uiRawData3, 5));
+    EZ_TEST(ezMemoryUtils::IsEqual(uiRawData1, uiRawData3, 4));
+  }
+
   EZ_TEST_BLOCK(true, "ZeroFill")
   {
     ezUInt8 uiRawData[5] = { 1, 2, 3, 4, 5 };
@@ -157,15 +178,21 @@ EZ_CREATE_SIMPLE_TEST(Memory, MemoryUtils)
     EZ_TEST_INT(uiRawData[4], 5);
   }
 
-  EZ_TEST_BLOCK(true, "IsEqual")
+  EZ_TEST_BLOCK(true, "ByteCompare")
   {
-    ezUInt8 uiRawData1[5] = { 1, 2, 3, 4, 5 };
-    ezUInt8 uiRawData2[5] = { 1, 2, 3, 4, 5 };
-    ezUInt8 uiRawData3[5] = { 1, 2, 3, 4, 6 };
+    ezUInt32 uiRawDataA[3] = { 1, 2, 3 };
+    ezUInt32 uiRawDataB[3] = { 3, 4, 5 };
+    
+    EZ_TEST_INT(uiRawDataA[0], 1);
+    EZ_TEST_INT(uiRawDataA[1], 2);
+    EZ_TEST_INT(uiRawDataA[2], 3);
+    EZ_TEST_INT(uiRawDataB[0], 3);
+    EZ_TEST_INT(uiRawDataB[1], 4);
+    EZ_TEST_INT(uiRawDataB[2], 5);
 
-    EZ_TEST(ezMemoryUtils::IsEqual(uiRawData1, uiRawData2, 5));
-    EZ_TEST(!ezMemoryUtils::IsEqual(uiRawData1, uiRawData3, 5));
-    EZ_TEST(ezMemoryUtils::IsEqual(uiRawData1, uiRawData3, 4));
+    EZ_TEST_INT(ezMemoryUtils::ByteCompare(uiRawDataA, uiRawDataB, 3), -1);
+    EZ_TEST_INT(ezMemoryUtils::ByteCompare(uiRawDataA + 2, uiRawDataB, 1), 0);
+    EZ_TEST_INT(ezMemoryUtils::ByteCompare(uiRawDataB, uiRawDataA, 3), 1);
   }
 
   EZ_TEST_BLOCK(true, "AddByteOffset")

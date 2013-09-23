@@ -73,23 +73,3 @@ void ezStaticArray<T, C>::operator= (const ezArrayPtr<T>& rhs)
 
   ezMemoryUtils::Copy(this->m_pElements, rhs.GetPtr(), this->m_uiCount);
 }
-
-template <typename T, ezUInt32 C>
-void ezStaticArray<T, C>::SetCount(ezUInt32 uiCount)
-{
-  EZ_ASSERT(uiCount <= C, "The static array has a capacity of %i elements, you cannot resize it to hold %i elements.", C, uiCount);
-
-  const ezUInt32 uiOldCount = this->m_uiCount;
-  const ezUInt32 uiNewCount = uiCount;
-
-  if (uiNewCount > uiOldCount)
-  {
-    ezMemoryUtils::Construct(this->m_pElements + uiOldCount, uiNewCount - uiOldCount);  
-  }
-  else if (uiNewCount < uiOldCount)
-  {
-    ezMemoryUtils::Destruct(this->m_pElements + uiNewCount, uiOldCount - uiNewCount);
-  }
-
-  this->m_uiCount = uiCount;
-}

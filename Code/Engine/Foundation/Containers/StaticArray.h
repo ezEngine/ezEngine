@@ -37,9 +37,6 @@ public:
 
   /// \brief Copies the data from some other contiguous array into this one.
   void operator= (const ezArrayPtr<T>& rhs); // [tested]
-  
-  /// \brief Resizes the array to have exactly uiCount elements. Default constructs extra elements if the array is grown.
-  void SetCount(ezUInt32 uiCount); // [tested]
 
 private:
   T* GetStaticArray();
