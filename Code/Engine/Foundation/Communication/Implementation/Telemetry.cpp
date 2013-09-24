@@ -231,14 +231,24 @@ ezResult ezTelemetry::InitializeAsClient(const char* szConnectTo)
 {
   g_pHost = enet_host_create(NULL, 1, 2, 0, 0);
 
-  if (ezStringUtils::IsNullOrEmpty(szConnectTo) || ezStringUtils::IsEqual_NoCase(szConnectTo, "localhost"))
+  ezStringBuilder sConnectTo = szConnectTo;
+
+  const char* szColon = sConnectTo.FindLastSubString(":");
+  if (szColon != NULL)
+  {
+    sConnectTo.Shrink(0, ezStringUtils::GetStringElementCount(szColon));
+
+    ezStringBuilder sPort = szColon + 1;
+    s_uiPort = atoi(sPort.GetData());
+  }
+
+  if (sConnectTo.IsEmpty() || sConnectTo.IsEqual_NoCase("localhost"))
     enet_address_set_host(&g_pServerAddress, "localhost");
   else
-  if (ezStringUtils::FindSubString(szConnectTo, ".") != NULL)
+  if (sConnectTo.FindSubString(".") != NULL)
   {
     ezHybridArray<ezString, 8> IP;
-    ezStringBuilder s = szConnectTo;
-    s.Split(false, IP, ".");
+    sConnectTo.Split(false, IP, ".");
 
     if (IP.GetCount() != 4)
       return EZ_FAILURE;
@@ -253,7 +263,7 @@ ezResult ezTelemetry::InitializeAsClient(const char* szConnectTo)
     g_pServerAddress.host = uiIP;
   }
   else
-    enet_address_set_host(&g_pServerAddress, szConnectTo);
+    enet_address_set_host(&g_pServerAddress, sConnectTo.GetData());
 
   g_pServerAddress.port = s_uiPort;
 

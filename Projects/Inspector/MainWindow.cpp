@@ -15,6 +15,7 @@
 #include <qstandardpaths.h>
 #include <qdir.h>
 #include <QSettings.h>
+#include <qtimer.h>
 
 ezMainWindow* ezMainWindow::s_pWidget = NULL;
 
@@ -83,6 +84,8 @@ ezMainWindow::ezMainWindow() : QMainWindow()
   ResetStats();
 
   LoadFavourites();
+
+  SetupNetworkTimer();
 }
 
 ezMainWindow::~ezMainWindow()
@@ -187,12 +190,28 @@ void ezMainWindow::UpdateStats()
   else
   {
     LabelStatus->setText("<p><span style=\" font-weight:600;\">Status: </span><span style=\" font-weight:600; color:#00aa00;\">Connected</span></p>");
-    LabelServer->setText(QString::fromUtf8("<p>Server: %1 (%2)</p>").arg(ezTelemetry::GetServerName()).arg(ezTelemetry::GetServerIP()));
+    LabelServer->setText(QString::fromUtf8("<p>Server: %1 (%2:%3)</p>").arg(ezTelemetry::GetServerName()).arg(ezTelemetry::GetServerIP()).arg(ezTelemetry::s_uiPort));
     LabelPing->setText(QString::fromUtf8("<p>Ping: %1ms</p>").arg((ezUInt32) ezTelemetry::GetPingToServer().GetMilliSeconds()));
   }
 }
 
-void ezMainWindow::paintEvent(QPaintEvent* event)
+void ezMainWindow::SetupNetworkTimer()
+{
+  // reset the timer to fire again
+  if (m_pNetworkTimer == NULL)
+    m_pNetworkTimer = new QTimer(this);
+
+  m_pNetworkTimer->singleShot(40, this, SLOT(UpdateNetworkTimeOut()));
+}
+
+void ezMainWindow::UpdateNetworkTimeOut()
+{
+  UpdateNetwork();
+
+  SetupNetworkTimer();
+}
+
+void ezMainWindow::UpdateNetwork()
 {
   bool bResetStats = false;
 
@@ -276,10 +295,6 @@ void ezMainWindow::paintEvent(QPaintEvent* event)
     
 
   ezTelemetry::PerFrameUpdate();
-
-  /// \todo Only update when messages have arrived and there is work to do (?)
-  ezThreadUtils::Sleep(20);
-  update();
 }
 
 
@@ -486,11 +501,16 @@ void ezMainWindow::ProcessTelemetry(void* pUnuseed)
 
 void ezMainWindow::on_ButtonConnect_clicked()
 {
+  QSettings Settings;
+  const QString sServer = Settings.value("LastConnection", QLatin1String("localhost:1040")).toString();
+
   bool bOk = false;
-  QString sRes = QInputDialog::getText(this, "Input Server Name or IP Address", "", QLineEdit::Normal, "", &bOk);
+  QString sRes = QInputDialog::getText(this, "Host", "Host Name or IP Address:\nDefault is 'localhost:1040'", QLineEdit::Normal, sServer, &bOk);
 
   if (!bOk)
     return;
+
+  Settings.setValue("LastConnection", sRes);
 
   if (ezTelemetry::ConnectToServer(sRes.toUtf8().data()) == EZ_SUCCESS)
   {

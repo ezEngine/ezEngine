@@ -11,6 +11,7 @@
 #include <Inspector/GlobalEventsWidget.moc.h>
 #include <QApplication>
 #include <qstylefactory.h>
+#include <QSettings.h>
 
 class ezInspectorApp : public ezApplication
 {
@@ -94,8 +95,10 @@ public:
     ezTelemetry::AcceptMessagesForSystem('PLUG', true, ezPluginsWidget::ProcessTelemetry, NULL);
     ezTelemetry::AcceptMessagesForSystem('EVNT', true, ezGlobalEventsWidget::ProcessTelemetry, NULL);
     
+    QSettings Settings;
+    const QString sServer = Settings.value("LastConnection", QLatin1String("localhost:1040")).toString();
 
-    ezTelemetry::ConnectToServer();
+    ezTelemetry::ConnectToServer(sServer.toUtf8().data());
 
     MainWindow.show();
     SetReturnCode(app.exec());

@@ -20,14 +20,13 @@ public:
 
   static ezMainWindow* s_pWidget;
 
-  void paintEvent(QPaintEvent* event) EZ_OVERRIDE;
-
   static void ProcessTelemetry(void* pUnuseed);
 
   virtual void closeEvent(QCloseEvent* event);
 
 public slots:
   void DockWidgetVisibilityChanged(bool bVisible);
+  void UpdateNetworkTimeOut();
 
 private slots:
   void on_ActionShowWindowLog_triggered();
@@ -43,6 +42,9 @@ private slots:
   void on_TreeStats_itemChanged(QTreeWidgetItem* item, int column);
 
 private:
+  void SetupNetworkTimer();
+  void UpdateNetwork();
+
   void ResetStats();
   void UpdateStats();
 
@@ -67,6 +69,7 @@ private:
 
   ezMap<ezString, StatData> m_Stats;
   ezSet<ezString> m_Favourites;
+  QTimer* m_pNetworkTimer;
 };
 
 
