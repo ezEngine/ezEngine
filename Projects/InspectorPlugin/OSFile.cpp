@@ -1,5 +1,6 @@
 #include <PCH.h>
 #include <Foundation/Threading/ThreadUtils.h>
+#include <Foundation/Threading/TaskSystem.h>
 
 static void OSFileEventHandler(const ezOSFile::EventData& e)
 {
@@ -24,7 +25,6 @@ static void OSFileEventHandler(const ezOSFile::EventData& e)
     {
       Msg.SetMessageID('FILE', 'READ');
       Msg.GetWriter() << e.m_uiBytesAccessed;
-      Msg.GetWriter() << (e.m_bSuccess ? e.m_uiBytesAccessed : (ezUInt64) 0);
     }
     break;
 
@@ -39,7 +39,6 @@ static void OSFileEventHandler(const ezOSFile::EventData& e)
   case ezOSFile::EventType::FileClose:
     {
       Msg.SetMessageID('FILE', 'CLOS');
-      Msg.GetWriter() << e.m_iFileID;
     }
     break;
 
@@ -78,8 +77,20 @@ static void OSFileEventHandler(const ezOSFile::EventData& e)
     break;
   }
 
+  ezUInt8 uiThreadType = 0;
+
+  if (ezThreadUtils::IsMainThread())
+    uiThreadType = 1 << 0;
+  else
+  if (ezTaskSystem::IsLoadingThread())
+    uiThreadType = 1 << 1;
+  else
+    uiThreadType = 1 << 2;
+
+  EZ_ASSERT(uiThreadType == 1, "Send");
+
   Msg.GetWriter() << e.m_Duration.GetSeconds();
-  Msg.GetWriter() << ezThreadUtils::IsMainThread();
+  Msg.GetWriter() << uiThreadType;
 
   ezTelemetry::Broadcast(ezTelemetry::Reliable, Msg);
 }

@@ -36,6 +36,14 @@ ezTaskWorkerThread::ezTaskWorkerThread(ezWorkerThreadType::Enum ThreadType, ezUI
   m_uiWorkerThreadNumber = iThreadNumber;
 }
 
+bool ezTaskSystem::IsLoadingThread()
+{
+  if (s_WorkerThreads[ezWorkerThreadType::FileAccess].IsEmpty())
+    return false;
+
+  return ezThreadUtils::GetCurrentThreadHandle() == s_WorkerThreads[ezWorkerThreadType::FileAccess][0]->GetThreadHandle();
+}
+
 void ezTaskSystem::StopWorkerThreads()
 {
   // tell all threads that they should terminate

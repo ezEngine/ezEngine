@@ -30,7 +30,7 @@ void ezFileWidget::ResetStats()
     Headers.append(" # ");
     Headers.append(" Operation ");
     Headers.append(" Duration (ms)");
-    Headers.append(" Kilobytes ");
+    Headers.append(" Bytes ");
     Headers.append(" Thread ");
     Headers.append(" File ");
 
@@ -54,21 +54,21 @@ void ezFileWidget::ProcessTelemetry(void* pUnuseed)
   {
     s_pWidget->m_bUpdateTable = true;
 
+    ezInt32 iFileID = 0;
+    Msg.GetReader() >> iFileID;
+
+    s_pWidget->m_iMaxID = ezMath::Max(s_pWidget->m_iMaxID, iFileID);
+    FileOpData& data = s_pWidget->m_FileOps[iFileID];
+
+    if (data.m_StartTime.GetSeconds() == 0.0)
+      data.m_StartTime = ezSystemTime::Now();
+
     switch (Msg.GetMessageID())
     {
     case 'OPEN':
       {
-        ezInt32 iFileID = 0;
         ezUInt8 uiMode = 0;
         bool bSuccess = false;
-        bool bMainThread = false;
-        double dTime = 0.0f;
-
-        Msg.GetReader() >> iFileID;
-        s_pWidget->m_iMaxID = ezMath::Max(s_pWidget->m_iMaxID, iFileID);
-
-        FileOpData& data = s_pWidget->m_FileOps[iFileID];
-        data.m_StartTime = ezSystemTime::Now();
 
         Msg.GetReader() >> data.m_sFile;
         Msg.GetReader() >> uiMode;
@@ -84,31 +84,10 @@ void ezFileWidget::ProcessTelemetry(void* pUnuseed)
           data.m_State = bSuccess ? OpenReading: OpenReadingFailed;
           break;
         }
-
-        Msg.GetReader() >> dTime;
-        data.m_BlockedDuration += ezTime::Seconds(dTime);
-
-        Msg.GetReader() >> bMainThread;
-        data.m_bMainThread = data.m_bMainThread || bMainThread;
       }
       break;
     case 'CLOS':
       {
-        ezInt32 iFileID;
-        double dTime;
-        bool bMainThread = false;
-
-        Msg.GetReader() >> iFileID;
-        s_pWidget->m_iMaxID = ezMath::Max(s_pWidget->m_iMaxID, iFileID);
-
-        FileOpData& data = s_pWidget->m_FileOps[iFileID];
-
-        Msg.GetReader() >> dTime;
-        data.m_BlockedDuration += ezTime::Seconds(dTime);
-
-        Msg.GetReader() >> bMainThread;
-        data.m_bMainThread = data.m_bMainThread || bMainThread;
-
         switch (data.m_State)
         {
         case OpenReading:
@@ -122,25 +101,11 @@ void ezFileWidget::ProcessTelemetry(void* pUnuseed)
       break;
     case 'WRIT':
       {
-        ezInt32 iFileID = 0;
         ezUInt64 uiSize;
         bool bSuccess = false;
-        double dTime = 0;
-        bool bMainThread = false;
-
-        Msg.GetReader() >> iFileID;
-        s_pWidget->m_iMaxID = ezMath::Max(s_pWidget->m_iMaxID, iFileID);
-
-        FileOpData& data = s_pWidget->m_FileOps[iFileID];
 
         Msg.GetReader() >> uiSize;
         Msg.GetReader() >> bSuccess;
-
-        Msg.GetReader() >> dTime;
-        data.m_BlockedDuration += ezTime::Seconds(dTime);
-
-        Msg.GetReader() >> bMainThread;
-        data.m_bMainThread = data.m_bMainThread || bMainThread;
 
         data.m_uiBytesAccessed += uiSize;
 
@@ -150,25 +115,8 @@ void ezFileWidget::ProcessTelemetry(void* pUnuseed)
       break;
     case 'READ':
       {
-        ezInt32 iFileID = 0;
-        ezUInt64 uiSize;
         ezUInt64 uiRead;
-        double dTime = 0;
-        bool bMainThread = false;
-
-        Msg.GetReader() >> iFileID;
-        s_pWidget->m_iMaxID = ezMath::Max(s_pWidget->m_iMaxID, iFileID);
-
-        FileOpData& data = s_pWidget->m_FileOps[iFileID];
-
-        Msg.GetReader() >> uiSize;
         Msg.GetReader() >> uiRead;
-
-        Msg.GetReader() >> dTime;
-        data.m_BlockedDuration += ezTime::Seconds(dTime);
-
-        Msg.GetReader() >> bMainThread;
-        data.m_bMainThread = data.m_bMainThread || bMainThread;
 
         data.m_uiBytesAccessed += uiRead;
       }
@@ -176,167 +124,85 @@ void ezFileWidget::ProcessTelemetry(void* pUnuseed)
 
     case 'EXST':
       {
-        ezInt32 iFileID = 0;
-        double dTime = 0;
         bool bSuccess;
-        bool bMainThread = false;
-
-        Msg.GetReader() >> iFileID;
-        s_pWidget->m_iMaxID = ezMath::Max(s_pWidget->m_iMaxID, iFileID);
-
-        FileOpData& data = s_pWidget->m_FileOps[iFileID];
-        data.m_StartTime = ezSystemTime::Now();
 
         Msg.GetReader() >> data.m_sFile;
         Msg.GetReader() >> bSuccess;
 
-        Msg.GetReader() >> dTime;
-        data.m_BlockedDuration += ezTime::Seconds(dTime);
-
-        Msg.GetReader() >> bMainThread;
-        data.m_bMainThread = data.m_bMainThread || bMainThread;
-        
         data.m_State = bSuccess ? FileExists : FileExistsFailed;
       }
       break;
 
     case 'DEL':
       {
-        ezInt32 iFileID = 0;
-        double dTime = 0;
         bool bSuccess;
-        bool bMainThread = false;
-
-        Msg.GetReader() >> iFileID;
-        s_pWidget->m_iMaxID = ezMath::Max(s_pWidget->m_iMaxID, iFileID);
-
-        FileOpData& data = s_pWidget->m_FileOps[iFileID];
-        data.m_StartTime = ezSystemTime::Now();
 
         Msg.GetReader() >> data.m_sFile;
         Msg.GetReader() >> bSuccess;
 
-        Msg.GetReader() >> dTime;
-        data.m_BlockedDuration += ezTime::Seconds(dTime);
-
-        Msg.GetReader() >> bMainThread;
-        data.m_bMainThread = data.m_bMainThread || bMainThread;
-        
         data.m_State = bSuccess ? FileDelete : FileDeleteFailed;
       }
       break;
 
     case 'CDIR':
       {
-        ezInt32 iFileID = 0;
-        double dTime = 0;
         bool bSuccess;
-        bool bMainThread = false;
-
-        Msg.GetReader() >> iFileID;
-        s_pWidget->m_iMaxID = ezMath::Max(s_pWidget->m_iMaxID, iFileID);
-
-        FileOpData& data = s_pWidget->m_FileOps[iFileID];
-        data.m_StartTime = ezSystemTime::Now();
 
         Msg.GetReader() >> data.m_sFile;
         Msg.GetReader() >> bSuccess;
 
-        Msg.GetReader() >> dTime;
-        data.m_BlockedDuration += ezTime::Seconds(dTime);
-
-        Msg.GetReader() >> bMainThread;
-        data.m_bMainThread = data.m_bMainThread || bMainThread;
-        
         data.m_State = bSuccess ? CreateDirs : CreateDirsFailed;
       }
       break;
 
     case 'COPY':
       {
-        ezInt32 iFileID = 0;
-        double dTime = 0;
         bool bSuccess;
-        bool bMainThread = false;
-
         ezString sFile1, sFile2;
-
-        Msg.GetReader() >> iFileID;
-        s_pWidget->m_iMaxID = ezMath::Max(s_pWidget->m_iMaxID, iFileID);
-
-        FileOpData& data = s_pWidget->m_FileOps[iFileID];
-        data.m_StartTime = ezSystemTime::Now();
 
         Msg.GetReader() >> sFile1;
         Msg.GetReader() >> sFile2;
         Msg.GetReader() >> bSuccess;
-        Msg.GetReader() >> dTime;
 
         ezStringBuilder s;
         s.Format("'%s' -> '%s'", sFile1.GetData(), sFile2.GetData());
         data.m_sFile = s.GetData();
 
-        data.m_BlockedDuration += ezTime::Seconds(dTime);
-
-        Msg.GetReader() >> bMainThread;
-        data.m_bMainThread = data.m_bMainThread || bMainThread;
-        
         data.m_State = bSuccess ? FileCopy : FileCopyFailed;
       }
       break;
 
     case 'STAT':
       {
-        ezInt32 iFileID = 0;
-        double dTime = 0;
         bool bSuccess;
-        bool bMainThread = false;
-
-        Msg.GetReader() >> iFileID;
-        s_pWidget->m_iMaxID = ezMath::Max(s_pWidget->m_iMaxID, iFileID);
-
-        FileOpData& data = s_pWidget->m_FileOps[iFileID];
-        data.m_StartTime = ezSystemTime::Now();
 
         Msg.GetReader() >> data.m_sFile;
         Msg.GetReader() >> bSuccess;
 
-        Msg.GetReader() >> dTime;
-        data.m_BlockedDuration += ezTime::Seconds(dTime);
-
-        Msg.GetReader() >> bMainThread;
-        data.m_bMainThread = data.m_bMainThread || bMainThread;
-        
         data.m_State = bSuccess ? FileStat : FileStatFailed;
       }
       break;
 
     case 'CASE':
       {
-        ezInt32 iFileID = 0;
-        double dTime = 0;
         bool bSuccess;
-        bool bMainThread = false;
-
-        Msg.GetReader() >> iFileID;
-        s_pWidget->m_iMaxID = ezMath::Max(s_pWidget->m_iMaxID, iFileID);
-
-        FileOpData& data = s_pWidget->m_FileOps[iFileID];
-        data.m_StartTime = ezSystemTime::Now();
 
         Msg.GetReader() >> data.m_sFile;
         Msg.GetReader() >> bSuccess;
 
-        Msg.GetReader() >> dTime;
-        data.m_BlockedDuration += ezTime::Seconds(dTime);
-
-        Msg.GetReader() >> bMainThread;
-        data.m_bMainThread = data.m_bMainThread || bMainThread;
-        
         data.m_State = bSuccess ? FileCasing : FileCasingFailed;
       }
       break;
     }
+
+    double dTime = 0.0;
+    Msg.GetReader() >> dTime;
+    data.m_BlockedDuration += ezTime::Seconds(dTime);
+
+    ezUInt8 uiThreadTypes = 0;
+    Msg.GetReader() >> uiThreadTypes;
+    data.m_uiThreadTypes |= uiThreadTypes;
+
   }
 }
 
@@ -443,7 +309,7 @@ void ezFileWidget::UpdateTable()
     Headers.append(" # ");
     Headers.append(" Operation ");
     Headers.append(" Duration (ms) ");
-    Headers.append(" Kilobytes ");
+    Headers.append(" Bytes ");
     Headers.append(" Thread ");
     Headers.append(" File ");
 
@@ -452,19 +318,18 @@ void ezFileWidget::UpdateTable()
     Table->horizontalHeader()->show();
   }
 
-  const Qt::CheckState iThread = CheckMainThread->checkState();
   const double fMinDuration = SpinMinDuration->value();
   const ezUInt32 uiMMaxElements = SpinLimitToRecent->value();
   ezString sFilter = LineFilterByName->text().toUtf8().data();
 
+  const ezUInt32 iThread = ComboThread->currentIndex();
+  const ezUInt8 uiThreadFilter = (iThread == 0) ? 0xFF : (1 << (iThread - 1));
+
   ezUInt32 uiRow = 0;
   for (ezHashTable<ezUInt32, FileOpData>::Iterator it = m_FileOps.GetIterator(); it.IsValid(); ++it)
   {
-    if (iThread != Qt::Unchecked)
-    {
-      if ((iThread == Qt::Checked) != it.Value().m_bMainThread)
-        continue;
-    }
+    if ((uiThreadFilter & it.Value().m_uiThreadTypes) == 0)
+      continue;
 
     if (it.Value().m_BlockedDuration.GetSeconds() < fMinDuration)
       continue;
@@ -492,13 +357,30 @@ void ezFileWidget::UpdateTable()
     Table->setItem(uiRow, 2, pItem);
 
     pItem = new QTableWidgetItem();
-    pItem->setData(Qt::DisplayRole, QVariant(it.Value().m_uiBytesAccessed / 1024.0));
+    pItem->setData(Qt::DisplayRole, QVariant(it.Value().m_uiBytesAccessed));
     Table->setItem(uiRow, 3, pItem);
 
     pItem = new QTableWidgetItem();
     pItem->setTextAlignment(Qt::AlignCenter);
-    pItem->setTextColor(it.Value().m_bMainThread ? QColor::fromRgb(255, 64, 0) : QColor::fromRgb(160, 90, 255));
-    pItem->setData(Qt::DisplayRole, QVariant(it.Value().m_bMainThread ? "Main" : "Other"));
+
+    ezStringBuilder sThread;
+
+    if ((it.Value().m_uiThreadTypes & (1 << 0)) != 0) // Main Thread
+      pItem->setTextColor(QColor::fromRgb(255, 64, 0));
+    else 
+    if ((it.Value().m_uiThreadTypes & (1 << 2)) != 0) // Other Thread
+      pItem->setTextColor(QColor::fromRgb(160, 90, 255));
+    else // Task Loading Thread
+      pItem->setTextColor(QColor::fromRgb(0, 255, 0));
+
+    if ((it.Value().m_uiThreadTypes & (1 << 0)) != 0) // Main Thread
+      sThread.Append(" Main ");
+    if ((it.Value().m_uiThreadTypes & (1 << 1)) != 0) // Loading Thread
+      sThread.Append(" Loading ");
+    if ((it.Value().m_uiThreadTypes & (1 << 2)) != 0) // Other Thread
+      sThread.Append(" Other ");
+
+    pItem->setData(Qt::DisplayRole, QVariant(sThread.GetData()));
     Table->setItem(uiRow, 4, pItem);
 
     pItem = new QTableWidgetItem();

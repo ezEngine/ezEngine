@@ -63,13 +63,13 @@ private:
     ezTime m_StartTime;
     ezTime m_BlockedDuration;
     ezUInt64 m_uiBytesAccessed;
-    bool m_bMainThread;
+    ezUInt8 m_uiThreadTypes; // 1 = Main, 2 = Task: Loading, 4 = Other
 
     FileOpData()
     {
       m_State = None;
       m_uiBytesAccessed = 0;
-      m_bMainThread = false;
+      m_uiThreadTypes = 0;
     }
   };
 
