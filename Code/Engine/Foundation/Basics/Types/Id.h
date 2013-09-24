@@ -42,14 +42,16 @@ struct ezGenericId
   };
 };
 
-#define EZ_DECLARE_HANDLE_TYPE(name, IdType) \
+#define EZ_DECLARE_HANDLE_TYPE(name, idType) \
   public: \
     EZ_DECLARE_POD_TYPE(); \
     EZ_FORCE_INLINE name() { } \
     EZ_FORCE_INLINE bool operator==(const name other) const { return m_InternalId == other.m_InternalId; } \
     EZ_FORCE_INLINE bool operator!=(const name other) const { return m_InternalId != other.m_InternalId; } \
     EZ_FORCE_INLINE bool operator<(const name other) const { return m_InternalId < other.m_InternalId; } \
-    EZ_FORCE_INLINE void Invalidate() { m_InternalId = IdType(); } \
+    EZ_FORCE_INLINE void Invalidate() { m_InternalId = idType(); } \
+    typedef idType IdType; \
   protected: \
-    EZ_FORCE_INLINE name(IdType internalId) : m_InternalId(internalId) { } \
-    IdType m_InternalId;
+    EZ_FORCE_INLINE name(idType internalId) : m_InternalId(internalId) { } \
+    idType m_InternalId; \
+    operator idType () { return m_InternalId; }
