@@ -5,11 +5,14 @@
 
 #define EZ_OSTHREAD_POSIX_INL_H_INCLUDED
 
+ezAtomicInteger32 ezOSThread::s_iThreadCount;
 
 // Posix specific implementation of the thread class
 
 ezOSThread::ezOSThread(ezOSThreadEntryPoint pThreadEntryPoint, void* pUserData /*= NULL*/, const char* szName /*= "ezThread"*/, ezUInt32 uiStackSize /*= 128 * 1024*/)
-{  
+{
+  s_iThreadCount.Increment();
+
   m_EntryPoint = pThreadEntryPoint;
   m_pUserData = pUserData;
   m_szName = szName;
@@ -20,6 +23,7 @@ ezOSThread::ezOSThread(ezOSThreadEntryPoint pThreadEntryPoint, void* pUserData /
 
 ezOSThread::~ezOSThread()
 {
+  s_iThreadCount.Decrement();
 }
 
 /// Starts the thread

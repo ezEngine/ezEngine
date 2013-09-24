@@ -1,4 +1,5 @@
 #include <PCH.h>
+#include <Foundation/Threading/Thread.h>
 
 void SetAppStats()
 {
@@ -12,6 +13,9 @@ void SetAppStats()
 
   sOut.Format("%.1f GB", info.GetInstalledMainMemory() / 1024.0f / 1024.0f / 1024.0f);
   ezStats::SetStat("App/RAM", sOut.GetData());
+
+  sOut.Format("%i", ezOSThread::GetThreadCount());
+  ezStats::SetStat("App/Threads", sOut.GetData());
 
   sOut = info.Is64BitOS() ? "64 Bit" : "32 Bit";
   ezStats::SetStat("App/Platform/Architecture", sOut.GetData());

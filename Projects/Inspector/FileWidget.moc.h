@@ -22,7 +22,7 @@ private slots:
   virtual void on_SpinLimitToRecent_valueChanged(int val);
   virtual void on_SpinMinDuration_valueChanged(double val);
   virtual void on_LineFilterByName_textChanged();
-  virtual void on_CheckMainThread_stateChanged(int state);
+  virtual void on_ComboThread_currentIndexChanged(int state);
 
 public:
   static void ProcessTelemetry(void* pUnuseed);

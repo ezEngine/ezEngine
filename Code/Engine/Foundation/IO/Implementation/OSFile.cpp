@@ -151,7 +151,7 @@ ezUInt64 ezOSFile::Read(void* pBuffer, ezUInt64 uiBytes)
   e.m_iFileID = m_iFileID;
   e.m_szFile = m_sFileName.GetData();
   e.m_EventType = EventType::FileRead;
-  e.m_uiBytesAccessed = uiBytes;
+  e.m_uiBytesAccessed = Res;
 
   s_FileEvents.Broadcast(e);
 

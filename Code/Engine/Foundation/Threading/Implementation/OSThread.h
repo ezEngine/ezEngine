@@ -27,10 +27,13 @@ public:
   void Join(); // [tested]
 
   /// \brief Returns the thread handle of the thread object, may be used in comparison operations with ezThreadUtils::GetCurrentThreadHandle() for example.
-  inline const ezThreadHandle& GetThreadHandle() const
+  const ezThreadHandle& GetThreadHandle() const
   {
     return m_Handle;
   }
+
+  /// \brief Returns how many ezOSThreads are currently active.
+  static ezInt32 GetThreadCount() { return s_iThreadCount; }
 
 protected:
 
@@ -43,6 +46,12 @@ protected:
   const char* m_szName;
   
   ezUInt32 m_uiStackSize;
+
+
+private:
+
+  /// Stores how many ezOSThread are currently active.
+  static ezAtomicInteger32 s_iThreadCount;
 
   EZ_DISALLOW_COPY_AND_ASSIGN(ezOSThread);
 };

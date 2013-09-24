@@ -5,6 +5,8 @@
 
 #define EZ_OSTHREAD_WIN_INL_H_INCLUDED
 
+ezAtomicInteger32 ezOSThread::s_iThreadCount;
+
 // Deactivate Doxygen document generation for the following block.
 /// \cond
 
@@ -53,6 +55,8 @@ void SetThreadName(DWORD dwThreadID, LPCSTR szThreadName)
 
 ezOSThread::ezOSThread(ezOSThreadEntryPoint pThreadEntryPoint, void* pUserData /*= NULL*/, const char* szName /*= "ezThread"*/, ezUInt32 uiStackSize /*= 128 * 1024*/)
 {
+  s_iThreadCount.Increment();
+
   m_Handle = CreateThread(NULL, uiStackSize, pThreadEntryPoint, pUserData, CREATE_SUSPENDED, NULL);
   EZ_ASSERT(m_Handle != INVALID_HANDLE_VALUE, "Thread creation failed!");
   EZ_ASSERT(m_Handle != NULL, "Thread creation failed!"); // makes the static code analysis happy
@@ -73,6 +77,8 @@ ezOSThread::ezOSThread(ezOSThreadEntryPoint pThreadEntryPoint, void* pUserData /
 ezOSThread::~ezOSThread()
 {
   CloseHandle(m_Handle);
+
+  s_iThreadCount.Decrement();
 }
 
 /// Attempts to acquire an exclusive lock for this mutex object

@@ -83,6 +83,9 @@ void ezFileWidget::ProcessTelemetry(void* pUnuseed)
         case ezFileMode::Read:
           data.m_State = bSuccess ? OpenReading: OpenReadingFailed;
           break;
+        default:
+          EZ_REPORT_FAILURE("Unknown File Open Mode %i", uiMode);
+          break;
         }
       }
       break;
@@ -96,6 +99,11 @@ void ezFileWidget::ProcessTelemetry(void* pUnuseed)
         case OpenWriting:
           data.m_State = ClosedWriting;
           break;
+        default:
+
+          // dangling 'read' or 'write', just ignore it
+          s_pWidget->m_FileOps.Remove(iFileID);
+          return;
         }
       }
       break;
@@ -109,6 +117,9 @@ void ezFileWidget::ProcessTelemetry(void* pUnuseed)
 
         data.m_uiBytesAccessed += uiSize;
 
+        if (data.m_State == None)
+          data.m_State = OpenWriting;
+
         if (!bSuccess)
           data.m_State = OpenWritingFailed;
       }
@@ -119,6 +130,9 @@ void ezFileWidget::ProcessTelemetry(void* pUnuseed)
         Msg.GetReader() >> uiRead;
 
         data.m_uiBytesAccessed += uiRead;
+
+        if (data.m_State == None)
+          data.m_State = OpenReading;
       }
       break;
 
@@ -213,6 +227,10 @@ QTableWidgetItem* ezFileWidget::GetStateString(FileOpState State) const
 
   switch (State)
   {
+  case None:
+    pItem->setText("Unknown");
+    pItem->setTextColor(Qt::red);
+    break;
   case ClosedReading:
     pItem->setText("Read");
     pItem->setTextColor(QColor::fromRgb(110, 60, 185));
@@ -284,6 +302,9 @@ QTableWidgetItem* ezFileWidget::GetStateString(FileOpState State) const
   case FileCasingFailed:
     pItem->setText("Casing (fail)");
     pItem->setTextColor(Qt::red);
+    break;
+  default:
+    EZ_REPORT_FAILURE("Unknown File Operation %i", (ezInt32) State);
     break;
   }
 
@@ -418,7 +439,7 @@ void ezFileWidget::on_LineFilterByName_textChanged()
   m_bUpdateTable = true;
 }
 
-void ezFileWidget::on_CheckMainThread_stateChanged(int state)
+void ezFileWidget::on_ComboThread_currentIndexChanged(int state)
 {
   m_bUpdateTable = true;
 }
