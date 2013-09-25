@@ -6,13 +6,13 @@ EZ_FORCE_INLINE ezWorld* ezComponentManagerBase::GetWorld() const
 
 EZ_FORCE_INLINE bool ezComponentManagerBase::IsValidComponent(const ezComponentHandle& component) const
 {
-  return m_Components.Contains(component.m_InternalId);
+  return m_Components.Contains(component);
 }
 
 EZ_FORCE_INLINE bool ezComponentManagerBase::TryGetComponent(const ezComponentHandle& component, ezComponent*& out_pComponent) const
 {
   ComponentStorageEntry storageEntry = { NULL };
-  bool res = m_Components.TryGetValue(component.m_InternalId, storageEntry);
+  bool res = m_Components.TryGetValue(component, storageEntry);
   out_pComponent = storageEntry.m_Ptr;
   return res;
 }
@@ -36,7 +36,7 @@ EZ_FORCE_INLINE ezUInt16 ezComponentManagerBase::GetNextTypeId()
 //static
 EZ_FORCE_INLINE ezComponentId ezComponentManagerBase::GetIdFromHandle(const ezComponentHandle& component)
 {
-  return component.m_InternalId;
+  return component;
 }
 
 //static

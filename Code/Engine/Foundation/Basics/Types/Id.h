@@ -12,7 +12,8 @@
   EZ_FORCE_INLINE name() { m_Data = INVALID_INSTANCE_INDEX; } \
   EZ_FORCE_INLINE bool operator==(const name other) const { return m_Data == other.m_Data; } \
   EZ_FORCE_INLINE bool operator!=(const name other) const { return m_Data != other.m_Data; } \
-  EZ_FORCE_INLINE bool operator<(const name other) const { return m_Data < other.m_Data; }
+  EZ_FORCE_INLINE bool operator<(const name other) const { return m_Data < other.m_Data; } \
+  EZ_FORCE_INLINE void Invalidate() { m_Data = INVALID_INSTANCE_INDEX; }
 
 
 /// \brief A generic id class that holds an id combined of an intance index and a generation counter. 
@@ -49,9 +50,10 @@ struct ezGenericId
     EZ_FORCE_INLINE bool operator==(const name other) const { return m_InternalId == other.m_InternalId; } \
     EZ_FORCE_INLINE bool operator!=(const name other) const { return m_InternalId != other.m_InternalId; } \
     EZ_FORCE_INLINE bool operator<(const name other) const { return m_InternalId < other.m_InternalId; } \
-    EZ_FORCE_INLINE void Invalidate() { m_InternalId = idType(); } \
+    EZ_FORCE_INLINE void Invalidate() { m_InternalId.Invalidate(); } \
     typedef idType IdType; \
   protected: \
     EZ_FORCE_INLINE name(idType internalId) : m_InternalId(internalId) { } \
     idType m_InternalId; \
-    operator idType () { return m_InternalId; }
+    operator idType () { return m_InternalId; } \
+    operator const idType () const { return m_InternalId; }

@@ -18,13 +18,13 @@ ezComponentManagerBase::~ezComponentManagerBase()
 void ezComponentManagerBase::DeleteComponent(const ezComponentHandle& component)
 {
   ComponentStorageEntry storageEntry;
-  if (m_Components.TryGetValue(component.m_InternalId, storageEntry))
+  if (m_Components.TryGetValue(component, storageEntry))
   {
     ezComponent* pComponent = storageEntry.m_Ptr;
-    pComponent->m_InternalId = ezGenericComponentId();
+    pComponent->m_InternalId.Invalidate();
     pComponent->m_Flags.Remove(ezObjectFlags::Active);
     m_pWorld->m_Data.m_DeadComponents.PushBack(storageEntry);
-    m_Components.Remove(component.m_InternalId);
+    m_Components.Remove(component);
   }
 }
 

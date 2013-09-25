@@ -7,7 +7,7 @@ EZ_FORCE_INLINE ezComponent::~ezComponent()
 {
   m_pManager = NULL;
   m_pOwner = NULL;
-  m_InternalId = ezGenericComponentId();
+  m_InternalId.Invalidate();
 }
 
 EZ_FORCE_INLINE bool ezComponent::IsDynamic() const

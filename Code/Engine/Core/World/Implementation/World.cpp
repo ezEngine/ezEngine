@@ -117,14 +117,14 @@ void ezWorld::DeleteObjects(const ezArrayPtr<const ezGameObjectHandle>& objects)
 
   for (ezUInt32 i = 0; i < objects.GetCount(); ++i)
   {
-    const ezGameObjectId id = objects[i].m_InternalId;
+    const ezGameObjectId id = objects[i];
 
     ObjectStorageEntry storageEntry;
     if (!m_Data.m_Objects.TryGetValue(id, storageEntry))
       continue;
 
     ezGameObject* pObject = storageEntry.m_Ptr;
-    pObject->m_InternalId = ezGameObjectId();
+    pObject->m_InternalId.Invalidate();
     pObject->m_Flags.Remove(ezObjectFlags::Active);
     m_Data.m_DeadObjects.PushBack(storageEntry);
     m_Data.m_Objects.Remove(id);

@@ -15,7 +15,7 @@ EZ_FORCE_INLINE ezGameObjectHandle ezWorld::CreateObject(const ezGameObjectDesc&
 {
   ezGameObjectHandle newObject;
   CreateObjects(ezArrayPtr<const ezGameObjectDesc>(&desc, 1), ezArrayPtr<ezGameObjectHandle>(&newObject, 1));
-  out_pObject = m_Data.m_Objects[newObject.m_InternalId].m_Ptr;
+  out_pObject = m_Data.m_Objects[newObject].m_Ptr;
   return newObject;
 }
 
@@ -25,7 +25,7 @@ inline void ezWorld::CreateObjects(const ezArrayPtr<const ezGameObjectDesc>& des
   CreateObjects(descs, out_objects);
   for (ezUInt32 i = 0; i < out_objects.GetCount(); ++i)
   {
-    out_pObjects[i] = m_Data.m_Objects[out_objects[i].m_InternalId].m_Ptr;
+    out_pObjects[i] = m_Data.m_Objects[out_objects[i]].m_Ptr;
   }
 }
 
@@ -40,7 +40,7 @@ EZ_FORCE_INLINE bool ezWorld::IsValidObject(const ezGameObjectHandle& object) co
   EZ_ASSERT(object.m_InternalId.m_WorldIndex == m_uiIndex, 
     "Object does not belong to this world. Expected world id %d got id %d", m_uiIndex, object.m_InternalId.m_WorldIndex);
 
-  return m_Data.m_Objects.Contains(object.m_InternalId);
+  return m_Data.m_Objects.Contains(object);
 }
 
 EZ_FORCE_INLINE bool ezWorld::TryGetObject(const ezGameObjectHandle& object, ezGameObject*& out_pObject) const
@@ -50,7 +50,7 @@ EZ_FORCE_INLINE bool ezWorld::TryGetObject(const ezGameObjectHandle& object, ezG
     "Object does not belong to this world. Expected world id %d got id %d", m_uiIndex, object.m_InternalId.m_WorldIndex);
 
   ObjectStorageEntry storageEntry = { NULL };
-  bool bResult = m_Data.m_Objects.TryGetValue(object.m_InternalId, storageEntry);
+  bool bResult = m_Data.m_Objects.TryGetValue(object, storageEntry);
   out_pObject = storageEntry.m_Ptr;
   return bResult;
 }

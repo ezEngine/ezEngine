@@ -29,6 +29,16 @@
 
 
 
+/// \brief Assert handler callback. Should return true to trigger a break point or false if the assert should be ignored
+typedef bool (*ezAssertHandler)(const char* szSourceFile, ezUInt32 uiLine, const char* szFunction, const char* szExpression, const char* szAssertMsg);
+
+/// \brief Gets the current assert handler. The default assert handler shows a dialog on windows or prints to the console on other platforms.
+EZ_FOUNDATION_DLL ezAssertHandler ezGetAssertHandler();
+
+/// \brief Sets the assert handler. It is the responsibility of the user to chain assert handler if needed.
+EZ_FOUNDATION_DLL void ezSetAssertHandler(ezAssertHandler handler);
+
+
 /// \brief Called by the assert macros whenever a check failed. Returns true if the user wants to trigger a break point
 EZ_FOUNDATION_DLL bool ezFailedCheck(const char* szSourceFile, ezUInt32 uiLine, const char* szFunction, const char* szExpression, const char* szErrorMsg, ...);
 
