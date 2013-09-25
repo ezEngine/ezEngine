@@ -1,8 +1,6 @@
 #include <Foundation/PCH.h>
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/Containers/DynamicArray.h>
-#include <Foundation/Communication/Telemetry.h>
-#include <Foundation/Threading/ThreadUtils.h>
 #include <Foundation/Time/Time.h>
 
 ezHybridString<64, ezStaticAllocatorWrapper> ezOSFile::s_ApplicationPath;
@@ -360,15 +358,14 @@ done:
     const ezTime t1 = ezSystemTime::Now();
     const ezTime tdiff = t1 - t0;
 
-    ezTelemetryMessage Msg;
-    Msg.SetMessageID('FILE', 'STAT');
-    Msg.GetWriter() << s_FileCounter.Increment();
-    Msg.GetWriter() << szFileOrFolder;
-    Msg.GetWriter() << (bool) (Res == EZ_SUCCESS);
-    Msg.GetWriter() << tdiff.GetSeconds();
-    Msg.GetWriter() << ezThreadUtils::IsMainThread();
+    EventData e;
+    e.m_bSuccess = Res == EZ_SUCCESS;
+    e.m_Duration = tdiff;
+    e.m_iFileID = s_FileCounter.Increment();
+    e.m_szFile = szFileOrFolder;
+    e.m_EventType = EventType::FileStat;
 
-    ezTelemetry::Broadcast(ezTelemetry::Reliable, Msg);
+    s_FileEvents.Broadcast(e);
 
     return Res;
   }
@@ -415,15 +412,14 @@ done:
     const ezTime t1 = ezSystemTime::Now();
     const ezTime tdiff = t1 - t0;
 
-    ezTelemetryMessage Msg;
-    Msg.SetMessageID('FILE', 'CASE');
-    Msg.GetWriter() << s_FileCounter.Increment();
-    Msg.GetWriter() << szFileOrFolder;
-    Msg.GetWriter() << (bool) (Res == EZ_SUCCESS);
-    Msg.GetWriter() << tdiff.GetSeconds();
-    Msg.GetWriter() << ezThreadUtils::IsMainThread();
+    EventData e;
+    e.m_bSuccess = Res == EZ_SUCCESS;
+    e.m_Duration = tdiff;
+    e.m_iFileID = s_FileCounter.Increment();
+    e.m_szFile = szFileOrFolder;
+    e.m_EventType = EventType::FileCasing;
 
-    ezTelemetry::Broadcast(ezTelemetry::Reliable, Msg);
+    s_FileEvents.Broadcast(e);
 
     return Res;
   }

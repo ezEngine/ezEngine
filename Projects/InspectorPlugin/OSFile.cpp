@@ -75,6 +75,22 @@ static void OSFileEventHandler(const ezOSFile::EventData& e)
       Msg.GetWriter() << e.m_bSuccess;
     }
     break;
+
+  case ezOSFile::EventType::FileStat:
+    {
+      Msg.SetMessageID('FILE', 'STAT');
+      Msg.GetWriter() << e.m_szFile;
+      Msg.GetWriter() << e.m_bSuccess;
+    }
+    break;
+
+  case ezOSFile::EventType::FileCasing:
+    {
+      Msg.SetMessageID('FILE', 'CASE');
+      Msg.GetWriter() << e.m_szFile;
+      Msg.GetWriter() << e.m_bSuccess;
+    }
+    break;
   }
 
   ezUInt8 uiThreadType = 0;

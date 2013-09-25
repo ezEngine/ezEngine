@@ -1,7 +1,6 @@
 #include <Core/PCH.h>
 #include <Foundation/Logging/Log.h>
 #include <Core/Input/InputManager.h>
-#include <Foundation/Communication/Telemetry.h>
 
 ezInputActionConfig::ezInputActionConfig()
 {

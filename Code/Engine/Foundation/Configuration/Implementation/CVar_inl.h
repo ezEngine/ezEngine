@@ -1,7 +1,6 @@
 #pragma once
 
 #include <Foundation/Configuration/CVar.h>
-#include <Foundation/Communication/Telemetry.h>
 
 template<typename Type, ezCVarType::Enum CVarType>
 ezTypedCVar<Type, CVarType>::ezTypedCVar(const char* szName, const Type& Value, ezBitflags<ezCVarFlags> Flags, const char* szDescription)

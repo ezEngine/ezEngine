@@ -208,6 +208,8 @@ public:
       FileWrite,    ///< Data was written to an open file.
       MakeDir,      ///< A path has been created (recursive directory creation).
       FileCopy,     ///< A file has been copied to another location.
+      FileStat,     ///< The stats of a file are queried
+      FileCasing,   ///< The exact spelling of a file/path is requested
     };
   };
 

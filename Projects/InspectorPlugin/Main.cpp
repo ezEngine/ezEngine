@@ -32,6 +32,10 @@ void RemoveGlobalEventHandler();
 void AddOSFileEventHandler();
 void RemoveOSFileEventHandler();
 
+void AddTelemetryAssertHandler();
+void RemoveTelemetryAssertHandler();
+
+
 void SetAppStats();
 
 EZ_BEGIN_SUBSYSTEM_DECLARATION(InspectorPlugin, Main)
@@ -42,6 +46,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(InspectorPlugin, Main)
 
   ON_CORE_STARTUP
   {
+    AddTelemetryAssertHandler();
     AddLogWriter();
     AddStatsEventHandler();
     AddStartupEventHandler();
@@ -66,6 +71,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(InspectorPlugin, Main)
     RemoveStartupEventHandler();
     RemoveStatsEventHandler();
     RemoveLogWriter();
+    RemoveTelemetryAssertHandler();
 
     ezTelemetry::AcceptMessagesForSystem('APP', false);
   }

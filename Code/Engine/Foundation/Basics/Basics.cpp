@@ -7,7 +7,6 @@
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Basics/Types/Variant.h>
 #include <Foundation/Communication/GlobalEvent.h>
-#include <Foundation/Communication/Telemetry.h>
 
 #if EZ_ENABLED(EZ_USE_TRACE_ALLOCATOR)
   typedef ezMemoryPolicies::ezStackTracking DefaultAllocatorTracking;

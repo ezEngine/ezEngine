@@ -2,7 +2,6 @@
 #include <Core/Input/InputManager.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Configuration/Startup.h>
-#include <Foundation/Communication/Telemetry.h>
 
 ezInputManager::ezEventInput ezInputManager::s_InputEvents;
 ezInputManager::InternalData* ezInputManager::s_pData = NULL;

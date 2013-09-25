@@ -6,7 +6,6 @@
 #include <Foundation/Communication/GlobalEvent.h>
 #include <Foundation/Threading/ThreadUtils.h>
 #include <Foundation/Configuration/Plugin.h>
-#include <Foundation/Communication/Telemetry.h>
 
 EZ_ENUMERABLE_CLASS_IMPLEMENTATION(ezSubSystem);
 

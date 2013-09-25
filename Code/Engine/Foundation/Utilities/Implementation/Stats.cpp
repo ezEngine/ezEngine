@@ -1,6 +1,5 @@
 #include <Foundation/PCH.h>
 #include <Foundation/Utilities/Stats.h>
-#include <Foundation/Communication/Telemetry.h>
 
 ezStats::MapType ezStats::s_Stats;
 ezStats::ezEventStats ezStats::s_StatsEvents;

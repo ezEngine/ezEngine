@@ -1,32 +1,10 @@
 #include <Foundation/PCH.h>
 #include <Foundation/Basics/Assert.h>
-#include <Foundation/Communication/Telemetry.h>
 #include <Foundation/Threading/ThreadUtils.h>
 
 bool ezDefaultAssertHandler(const char* szSourceFile, ezUInt32 uiLine, const char* szFunction, const char* szExpression, const char* szAssertMsg)
 {
   printf("%s(%u): Expression '%s' failed: %s\n", szSourceFile, uiLine, szExpression, szAssertMsg);
-
-  if (ezTelemetry::IsConnectedToClient())
-  {
-    ezTelemetryMessage msg;
-    msg.SetMessageID('APP', 'ASRT');
-    msg.GetWriter() << szSourceFile;
-    msg.GetWriter() << uiLine;
-    msg.GetWriter() << szFunction;
-    msg.GetWriter() << szExpression;
-    msg.GetWriter() << szAssertMsg;
-
-    ezTelemetry::Broadcast(ezTelemetry::Reliable, msg);
-
-    // messages might not arrive, if the network does not get enough time to transmit them
-    // since we are crashing the application in (half) 'a second', we need to make sure the network traffic has indeed been sent
-    for (ezUInt32 i = 0; i < 5; ++i)
-    {
-      ezThreadUtils::Sleep(100);
-      ezTelemetry::UpdateNetwork();
-    }
-  }
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
@@ -44,14 +22,6 @@ bool ezDefaultAssertHandler(const char* szSourceFile, ezUInt32 uiLine, const cha
     MessageBox(NULL, szTemp, "Assertion", MB_ICONERROR);
   #endif
 
-#else
-  printf("\n *** Assertion *** \n");
-  printf("Expression: \"%s\"\n", szExpression);
-  printf("Function: \"%s\"\n", szFunction);
-  printf("File: \"%s\"\n", szSourceFile);
-  printf("Line: %u\n", uiLine);
-  printf("Message: \"%s\"\n", szAssertMsg);
-  printf(" +++ Assertion +++ \n\n");
 #endif
 
   // always do a debug-break
@@ -73,6 +43,10 @@ void ezSetAssertHandler(ezAssertHandler handler)
 
 bool ezFailedCheck(const char* szSourceFile, ezUInt32 uiLine, const char* szFunction, const char* szExpression, const char* szErrorMsg, ...)
 {
+  // always do a debug-break if no assert handler is installed
+  if (g_AssertHandler == NULL)
+    return true;
+
   va_list ap;
   va_start (ap, szErrorMsg);
 
@@ -82,13 +56,7 @@ bool ezFailedCheck(const char* szSourceFile, ezUInt32 uiLine, const char* szFunc
 
   va_end (ap);
 
-  if (g_AssertHandler != NULL)
-  {
-    return (*g_AssertHandler)(szSourceFile, uiLine, szFunction, szExpression, szMsg);
-  }
-
-  // always do a debug-break if no assert handler is installed
-  return true;
+  return (*g_AssertHandler)(szSourceFile, uiLine, szFunction, szExpression, szMsg);
 }
 
 

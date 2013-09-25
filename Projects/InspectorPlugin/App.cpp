@@ -1,6 +1,49 @@
 #include <PCH.h>
 #include <Foundation/Threading/Thread.h>
 
+static ezAssertHandler g_PreviousAssertHandler = NULL;
+
+static bool TelemetryAssertHandler(const char* szSourceFile, ezUInt32 uiLine, const char* szFunction, const char* szExpression, const char* szAssertMsg)
+{
+  if (ezTelemetry::IsConnectedToClient())
+  {
+    ezTelemetryMessage msg;
+    msg.SetMessageID('APP', 'ASRT');
+    msg.GetWriter() << szSourceFile;
+    msg.GetWriter() << uiLine;
+    msg.GetWriter() << szFunction;
+    msg.GetWriter() << szExpression;
+    msg.GetWriter() << szAssertMsg;
+
+    ezTelemetry::Broadcast(ezTelemetry::Reliable, msg);
+
+    // messages might not arrive, if the network does not get enough time to transmit them
+    // since we are crashing the application in (half) 'a second', we need to make sure the network traffic has indeed been sent
+    for (ezUInt32 i = 0; i < 5; ++i)
+    {
+      ezThreadUtils::Sleep(100);
+      ezTelemetry::UpdateNetwork();
+    }
+  }
+
+  if (g_PreviousAssertHandler)
+    return g_PreviousAssertHandler(szSourceFile, uiLine, szFunction, szExpression, szAssertMsg);
+
+  return true;
+}
+
+void AddTelemetryAssertHandler()
+{
+  g_PreviousAssertHandler = ezGetAssertHandler();
+  ezSetAssertHandler(TelemetryAssertHandler);
+}
+
+void RemoveTelemetryAssertHandler()
+{
+  ezSetAssertHandler(g_PreviousAssertHandler);
+  g_PreviousAssertHandler = NULL;
+}
+
 void SetAppStats()
 {
   ezStringBuilder sOut;
@@ -62,6 +105,8 @@ void SetAppStats()
   #else
     sOut = "Big";
   #endif
-  ezStats::SetStat("App/Platform/Endianess", sOut.GetData());}
+  ezStats::SetStat("App/Platform/Endianess", sOut.GetData());
+
+}
 
 
