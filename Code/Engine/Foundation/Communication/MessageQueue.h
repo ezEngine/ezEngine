@@ -1,9 +1,11 @@
+
 #pragma once
 
 #include <Foundation/Communication/Message.h>
 #include <Foundation/Containers/Deque.h>
 #include <Foundation/Threading/Lock.h>
 
+/// \todo document and test
 template <typename MetaDataType, typename MutexType>
 class ezMessageQueueBase
 {

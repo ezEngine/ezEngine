@@ -1,5 +1,7 @@
 #pragma once
 
+#include <Foundation/Basics.h>
+
 /// \brief A simple size class templated on the type for width and height.
 ///
 template<typename Type>
@@ -18,8 +20,10 @@ public:
 // *** Constructors ***
 public:
 
+  /// \brief Default constructor does not initialize the data.
   ezSizeTemplate();
 
+  /// \brief Constructor to set all values.
   ezSizeTemplate(Type Width, Type Height);
 
 

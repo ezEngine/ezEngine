@@ -35,7 +35,7 @@ typedef bool (*ezAssertHandler)(const char* szSourceFile, ezUInt32 uiLine, const
 /// \brief Gets the current assert handler. The default assert handler shows a dialog on windows or prints to the console on other platforms.
 EZ_FOUNDATION_DLL ezAssertHandler ezGetAssertHandler();
 
-/// \brief Sets the assert handler. It is the responsibility of the user to chain assert handler if needed.
+/// \brief Sets the assert handler. It is the responsibility of the user to chain assert handlers if needed.
 EZ_FOUNDATION_DLL void ezSetAssertHandler(ezAssertHandler handler);
 
 

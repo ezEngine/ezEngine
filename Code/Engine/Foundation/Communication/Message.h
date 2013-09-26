@@ -4,6 +4,7 @@
 
 typedef ezUInt16 ezMessageId;
 
+/// \todo document and test
 class EZ_FOUNDATION_DLL ezMessage
 {
 public:

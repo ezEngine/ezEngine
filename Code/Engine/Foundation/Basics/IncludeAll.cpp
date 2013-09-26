@@ -58,9 +58,10 @@
 #include <Foundation/Math/Math.h>
 #include <Foundation/Math/Plane.h>
 #include <Foundation/Math/Quat.h>
+#include <Foundation/Math/Rect.h>
+#include <Foundation/Math/Size.h>
 #include <Foundation/Math/Vec2.h>
 #include <Foundation/Math/Vec3.h>
-#include <Foundation/Math/Vec4.h>
 
 #include <Foundation/Memory/Allocator.h>
 #include <Foundation/Memory/AllocatorWrapper.h>

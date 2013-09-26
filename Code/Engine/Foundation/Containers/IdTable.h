@@ -9,7 +9,7 @@
 /// All insertion/erasure/lookup functions take O(1) time if the table does not need to be expanded. 
 /// Lookup is nearly as fast as a simple array lookup. 
 /// The table stores a freelist in its free elements to ensure fast insertion/erasure.
-
+///
 /// \see ezGenericId
 template <typename IdType, typename ValueType>
 class ezIdTableBase

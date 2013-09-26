@@ -13,40 +13,40 @@ class EZ_FOUNDATION_DLL ezRefCounted
 public:
 
   /// \brief Constructor
-  ezRefCounted() : m_iRefCount(0)
+  ezRefCounted() : m_iRefCount(0) // [tested]
   {
   }
 
-  ezRefCounted(const ezRefCounted& rhs) : m_iRefCount(0)
+  ezRefCounted(const ezRefCounted& rhs) : m_iRefCount(0) // [tested]
   {
     // do not copy the ref count
   }
 
-  void operator=(const ezRefCounted& rhs)
+  void operator=(const ezRefCounted& rhs) // [tested]
   {
     // do not copy the ref count
   }
 
   /// \brief Increments the reference counter
-  inline void AddRef()
+  inline void AddRef() // [tested]
   {
     ezAtomicUtils::Increment(m_iRefCount);
   }
 
   /// \brief Decrements the reference counter
-  inline void ReleaseRef()
+  inline void ReleaseRef() // [tested]
   {
     ezAtomicUtils::Decrement(m_iRefCount);
   }
 
   /// \brief Returns true if the reference count is greater than 0, false otherwise
-  inline bool IsReferenced() const
+  inline bool IsReferenced() const // [tested]
   {
     return m_iRefCount > 0;
   }
 
   /// \brief Returns the current reference count
-  inline ezInt32 GetRefCount() const
+  inline ezInt32 GetRefCount() const // [tested]
   {
     return m_iRefCount;
   }

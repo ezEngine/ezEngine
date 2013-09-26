@@ -1,5 +1,7 @@
 #pragma once
 
+#include <Foundation/Basics.h>
+
 /// \brief A simple rectangle class templated on the type for x, y and width, height.
 ///
 template<typename Type>
@@ -20,10 +22,13 @@ public:
 // *** Constructors ***
 public:
 
+  /// \brief Default constructor does not initialize the data.
   ezRectTemplate();
 
+  /// \brief Constructor to set all values.
   ezRectTemplate(Type X, Type Y, Type Width, Type Height);
 
+  /// \brief Initializes x and y with zero, width and height with the given values.
   ezRectTemplate(Type Width, Type Height);
 
 

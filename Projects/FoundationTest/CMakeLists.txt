@@ -20,12 +20,4 @@ SET (LINK_LIBRARIES
   TestFramework
 )
 
-# Enables the use of Qt in this library.
-#SET (EZ_QTPROJECT ON)
-
 include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/CMAKE_Application.txt)
-
-#if (EZ_ENABLE_QT_SUPPORT)
-#  # Define which qt modules are going to be used in this library.
-#  qt5_use_modules(${PROJECT_NAME} Widgets)
-#endif ()

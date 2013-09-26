@@ -5,6 +5,8 @@
 #include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/Communication/Event.h>
 
+/// \todo Tests for the InputSystem.
+
 /// \brief A struct that defines how to register an input action.
 struct EZ_CORE_DLL ezInputActionConfig
 {

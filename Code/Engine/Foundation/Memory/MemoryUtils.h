@@ -48,7 +48,7 @@ public:
   template <typename T>
   static void ZeroFill(T* pDestination, size_t uiCount = 1); // [tested]
 
-  /// \brief Compares two buffer of raw memory byte wise.
+  /// \brief Compares two buffers of raw memory byte wise.
   template <typename T>
   static ezInt32 ByteCompare(const T* a, const T* b, size_t uiCount = 1); // [tested]
 

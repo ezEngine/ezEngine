@@ -10,6 +10,7 @@
 #include <Foundation/Threading/Mutex.h>
 
 
+/// \todo document and test (and finish)
 class EZ_FOUNDATION_DLL ezTelemetry
 {
 public:
