@@ -46,8 +46,7 @@ EZ_CREATE_SIMPLE_TEST(Threading, Thread)
     TestThread* pTestThread = NULL;
     TestThread* pTestThread2 = NULL;
 
-    /// the try-catch is necessary to quite the static code analysis
-    /// \todo Marc: The thread internally throws an exception, maybe we can convince the code analysis there, that this is not a bug.
+    /// the try-catch is necessary to quiet the static code analysis
     try
     {
       pTestThread = new TestThread;

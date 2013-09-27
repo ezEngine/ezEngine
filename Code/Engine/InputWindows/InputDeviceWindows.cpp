@@ -371,7 +371,7 @@ void ezInputDeviceWindows::WindowMessage(HWND hWnd, UINT Msg, WPARAM wParam, LPA
 
   case WM_INPUT:
     {
-      ezUInt32 uiSize;
+      ezUInt32 uiSize = 0;
 
       GetRawInputData((HRAWINPUT) lParam, RID_INPUT, NULL, &uiSize, sizeof(RAWINPUTHEADER));
 

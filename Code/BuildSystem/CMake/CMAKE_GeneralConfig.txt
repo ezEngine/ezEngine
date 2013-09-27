@@ -187,13 +187,17 @@ if (BUILDSYSTEM_COMPILER_MSVC)
 		# enable SSE2 (incompatible with /fp:except)
 		set (COMPILER_SETTINGS_ALL "${COMPILER_SETTINGS_ALL} /arch:SSE2")
     
-    if(MSVC10 OR MSVC11)
+    if(MSVC10)
       # enable static code analysis, only works on 32 Bit builds
       set (COMPILER_SETTINGS_ALL "${COMPILER_SETTINGS_ALL} /analyze")
       
       message (STATUS "Enabling static code analysis.")
     endif ()
 	endif ()
+  
+  if(MSVC11)
+    #set (COMPILER_SETTINGS_ALL "${COMPILER_SETTINGS_ALL} /analyze")
+  endif()
 
   set (LINKER_SETTINGS_RELEASE "${LINKER_SETTINGS_RELEASE} /INCREMENTAL:NO") 
   # Remove unreferenced data (does not work together with incremental build)

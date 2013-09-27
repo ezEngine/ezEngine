@@ -8,6 +8,7 @@ Milestone 3
      * Implements mouse/keyboard and XBox 360 controller on Windows.
      * Contains ezVirtualThumbStick, which can be used on touch devices for 'controller input'.
      * Can be extended through additional ezInputDevice's to handle more platforms and device types.
+  * Added the basics of a game object system (ezWorld, ezGameObject, ezComponent). The Asteroids game sample already shows how to do a simple game with it. The system is not yet complete but good enough for now.     
   * Added a sample game, similar to Asteroids, to show how to use the Game Object system and the Input System.
   * Added ezCompressedStreamReader and ezCompressedStreamWriter, which allow to (un-)compress data while writing/reading a file or memory stream.
   * Asserts can now be intercepted with an Assert Handler
@@ -20,7 +21,6 @@ Milestone 3
   * Added a Qt GUI for the testframework.
   * Added ezApplication, a basic application abstraction.
   * Added ezWindow, a basic window abstraction.
-  * Added the basics of a game object system (ezWorld, ezGameObject, ezComponent). The Asteroids game sample already shows how to do a simple game with it. The system is not yet complete but good enough for now.
   * Changed ezMemoryStreamStorage, ezMemoryStreamReader and ezMemoryStreamWriter to allow to use them in more complicated code and without allocations in many situations.
   * Added ezRectTemplate and ezSizeTemplate for rect and size types.
   * Added ezMemoryUtils::DefaultConstruct which will always default construct objects, even POD types such as int, float, etc.

@@ -68,8 +68,7 @@ static void SendChangedGlobalEventTelemetry()
     const ezGlobalEvent::EventData& ed1 = it.Value();
     const ezGlobalEvent::EventData& ed2 = s_LastState[it.Key()];
 
-    /// \todo There is no ezMemoryUtils::MemCompare, only IsEqual, which is not the same (cannot compare arbirary memory of classes)
-    if (memcmp(&ed1, &ed2, sizeof(ezGlobalEvent::EventData)) != 0)
+    if (ezMemoryUtils::ByteCompare(&ed1, &ed2) != 0)
     {
       bChange = true;
       SendGlobalEventTelemetry(it.Key().GetData(), it.Value());

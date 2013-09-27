@@ -37,7 +37,7 @@ ezResult ezWindow::Initialize()
   // Account for left or top placed task bars
   if(!m_CreationDescription.m_bFullscreenWindow)
   {
-    RECT RectWorkArea;
+    RECT RectWorkArea = {0};
     SystemParametersInfo(SPI_GETWORKAREA, 0, &RectWorkArea, 0);
 
     x += RectWorkArea.left;
