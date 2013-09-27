@@ -1,0 +1,253 @@
+#include <PCH.h>
+#include <Core/Input/InputManager.h>
+#include <Foundation/Memory/MemoryUtils.h>
+
+EZ_CREATE_SIMPLE_TEST_GROUP(Input);
+
+static bool operator== (const ezInputActionConfig& lhs, const ezInputActionConfig& rhs)
+{
+  if (lhs.m_bApplyTimeScaling != rhs.m_bApplyTimeScaling)
+    return false;
+  if (lhs.m_fFilteredPriority != rhs.m_fFilteredPriority)
+    return false;
+  if (lhs.m_fFilterXMaxValue != rhs.m_fFilterXMaxValue)
+    return false;
+  if (lhs.m_fFilterXMinValue != rhs.m_fFilterXMinValue)
+    return false;
+  if (lhs.m_fFilterYMaxValue != rhs.m_fFilterYMaxValue)
+    return false;
+  if (lhs.m_fFilterYMinValue != rhs.m_fFilterYMinValue)
+    return false;
+
+  if (lhs.m_OnEnterArea != rhs.m_OnEnterArea)
+    return false;
+  if (lhs.m_OnLeaveArea != rhs.m_OnLeaveArea)
+    return false;
+
+  for (int i = 0; i < ezInputActionConfig::MaxInputSlotAlternatives; ++i)
+  {
+    if (lhs.m_sInputSlotTrigger[i] != rhs.m_sInputSlotTrigger[i])
+      return false;
+    if (lhs.m_fInputSlotScale[i] != rhs.m_fInputSlotScale[i])
+      return false;
+    if (lhs.m_sFilterByInputSlotX[i] != rhs.m_sFilterByInputSlotX[i])
+      return false;
+    if (lhs.m_sFilterByInputSlotY[i] != rhs.m_sFilterByInputSlotY[i])
+      return false;
+  }
+  
+  return true;
+}
+
+static bool operator!= (const ezInputActionConfig& lhs, const ezInputActionConfig& rhs)
+{
+  return !(lhs == rhs);
+}
+
+EZ_CREATE_SIMPLE_TEST(Input, InputManager)
+{
+  EZ_TEST_BLOCK(true, "SetInputSlotDisplayName / GetInputSlotDisplayName")
+  {
+    ezInputManager::SetInputSlotDisplayName("test_slot_1", "Test Slot 1 Name");
+    ezInputManager::SetInputSlotDisplayName("test_slot_2", "Test Slot 2 Name");
+    ezInputManager::SetInputSlotDisplayName("test_slot_3", "Test Slot 3 Name");
+    ezInputManager::SetInputSlotDisplayName("test_slot_4", "Test Slot 4 Name");
+
+    EZ_TEST(ezStringUtils::IsEqual(ezInputManager::GetInputSlotDisplayName("test_slot_1"), "Test Slot 1 Name"));
+    EZ_TEST(ezStringUtils::IsEqual(ezInputManager::GetInputSlotDisplayName("test_slot_2"), "Test Slot 2 Name"));
+    EZ_TEST(ezStringUtils::IsEqual(ezInputManager::GetInputSlotDisplayName("test_slot_3"), "Test Slot 3 Name"));
+    EZ_TEST(ezStringUtils::IsEqual(ezInputManager::GetInputSlotDisplayName("test_slot_4"), "Test Slot 4 Name"));
+  }
+
+  EZ_TEST_BLOCK(true, "SetInputSlotDeadZone / GetInputSlotDisplayName")
+  {
+    ezInputManager::SetInputSlotDeadZone("test_slot_1", 0.1f);
+    ezInputManager::SetInputSlotDeadZone("test_slot_2", 0.2f);
+    ezInputManager::SetInputSlotDeadZone("test_slot_3", 0.3f);
+    ezInputManager::SetInputSlotDeadZone("test_slot_4", 0.4f);
+
+    EZ_TEST_FLOAT(ezInputManager::GetInputSlotDeadZone("test_slot_1"), 0.1f, 0.0f);
+    EZ_TEST_FLOAT(ezInputManager::GetInputSlotDeadZone("test_slot_2"), 0.2f, 0.0f);
+    EZ_TEST_FLOAT(ezInputManager::GetInputSlotDeadZone("test_slot_3"), 0.3f, 0.0f);
+    EZ_TEST_FLOAT(ezInputManager::GetInputSlotDeadZone("test_slot_4"), 0.4f, 0.0f);
+  }
+
+  EZ_TEST_BLOCK(true, "SetInputActionConfig / GetInputActionConfig")
+  {
+    ezInputActionConfig iac1, iac2;
+    iac1.m_bApplyTimeScaling = true;
+    iac1.m_fFilteredPriority = 23.0f;
+    iac1.m_fInputSlotScale[0] = 2.0f;
+    iac1.m_fInputSlotScale[1] = 3.0f;
+    iac1.m_fInputSlotScale[2] = 4.0f;
+    iac1.m_sInputSlotTrigger[0] = ezInputSlot_Key0;
+    iac1.m_sInputSlotTrigger[1] = ezInputSlot_Key1;
+    iac1.m_sInputSlotTrigger[2] = ezInputSlot_Key2;
+
+    iac2.m_bApplyTimeScaling = false;
+    iac2.m_fFilteredPriority = 42.0f;
+    iac2.m_fInputSlotScale[0] = 4.0f;
+    iac2.m_fInputSlotScale[1] = 5.0f;
+    iac2.m_fInputSlotScale[2] = 6.0f;
+    iac2.m_sInputSlotTrigger[0] = ezInputSlot_Key3;
+    iac2.m_sInputSlotTrigger[1] = ezInputSlot_Key4;
+    iac2.m_sInputSlotTrigger[2] = ezInputSlot_Key5;
+
+    ezInputManager::SetInputActionConfig("test_inputset", "test_action_1", iac1, true);
+    ezInputManager::SetInputActionConfig("test_inputset", "test_action_2", iac2, true);
+
+    EZ_TEST(ezInputManager::GetInputActionConfig("test_inputset", "test_action_1") == iac1);
+    EZ_TEST(ezInputManager::GetInputActionConfig("test_inputset", "test_action_2") == iac2);
+
+    ezInputManager::SetInputActionConfig("test_inputset", "test_action_3", iac1, false);
+    ezInputManager::SetInputActionConfig("test_inputset", "test_action_4", iac2, false);
+
+    EZ_TEST(ezInputManager::GetInputActionConfig("test_inputset", "test_action_1") == iac1);
+    EZ_TEST(ezInputManager::GetInputActionConfig("test_inputset", "test_action_2") == iac2);
+    EZ_TEST(ezInputManager::GetInputActionConfig("test_inputset", "test_action_3") == iac1);
+    EZ_TEST(ezInputManager::GetInputActionConfig("test_inputset", "test_action_4") == iac2);
+
+    ezInputManager::SetInputActionConfig("test_inputset", "test_action_3", iac1, true);
+    ezInputManager::SetInputActionConfig("test_inputset", "test_action_4", iac2, true);
+
+    EZ_TEST(ezInputManager::GetInputActionConfig("test_inputset", "test_action_1") != iac1);
+    EZ_TEST(ezInputManager::GetInputActionConfig("test_inputset", "test_action_2") != iac2);
+    EZ_TEST(ezInputManager::GetInputActionConfig("test_inputset", "test_action_3") == iac1);
+    EZ_TEST(ezInputManager::GetInputActionConfig("test_inputset", "test_action_4") == iac2);
+
+
+    ezInputManager::RemoveInputAction("test_inputset", "test_action_1");
+    ezInputManager::RemoveInputAction("test_inputset", "test_action_2");
+    ezInputManager::RemoveInputAction("test_inputset", "test_action_3");
+    ezInputManager::RemoveInputAction("test_inputset", "test_action_4");
+
+
+  }
+
+  EZ_TEST_BLOCK(true, "Input Slot State Changes / Dead Zones")
+  {
+    float f = 0;
+    ezInputManager::InjectInputSlotValue("test_slot_1", 0.0f);
+    ezInputManager::SetInputSlotDeadZone("test_slot_1", 0.25f);
+
+    // just check the first state
+    EZ_TEST(ezInputManager::GetInputSlotState("test_slot_1", &f) == ezKeyState::Up);
+    EZ_TEST_FLOAT(f, 0.0f, 0);
+
+    // value is not yet propagated
+    ezInputManager::InjectInputSlotValue("test_slot_1", 1.0f);
+    EZ_TEST(ezInputManager::GetInputSlotState("test_slot_1", &f) == ezKeyState::Up);
+    EZ_TEST_FLOAT(f, 0.0f, 0);
+
+    ezInputManager::Update(1.0f / 60.0f);
+    EZ_TEST(ezInputManager::GetInputSlotState("test_slot_1", &f) == ezKeyState::Pressed);
+    EZ_TEST_FLOAT(f, 1.0f, 0);
+
+    ezInputManager::InjectInputSlotValue("test_slot_1", 0.5f);
+
+    ezInputManager::Update(1.0f / 60.0f);
+    EZ_TEST(ezInputManager::GetInputSlotState("test_slot_1", &f) == ezKeyState::Down);
+    EZ_TEST_FLOAT(f, 0.5f, 0);
+
+    ezInputManager::InjectInputSlotValue("test_slot_1", 0.3f);
+
+    ezInputManager::Update(1.0f / 60.0f);
+    EZ_TEST(ezInputManager::GetInputSlotState("test_slot_1", &f) == ezKeyState::Down);
+    EZ_TEST_FLOAT(f, 0.3f, 0);
+
+    // below dead zone value
+    ezInputManager::InjectInputSlotValue("test_slot_1", 0.2f);
+
+    ezInputManager::Update(1.0f / 60.0f);
+    EZ_TEST(ezInputManager::GetInputSlotState("test_slot_1", &f) == ezKeyState::Released);
+    EZ_TEST_FLOAT(f, 0.0f, 0);
+
+    ezInputManager::InjectInputSlotValue("test_slot_1", 0.5f);
+
+    ezInputManager::Update(1.0f / 60.0f);
+    EZ_TEST(ezInputManager::GetInputSlotState("test_slot_1", &f) == ezKeyState::Pressed);
+    EZ_TEST_FLOAT(f, 0.5f, 0);
+
+    ezInputManager::Update(1.0f / 60.0f);
+    EZ_TEST(ezInputManager::GetInputSlotState("test_slot_1", &f) == ezKeyState::Released);
+    EZ_TEST_FLOAT(f, 0.0f, 0);
+
+    ezInputManager::InjectInputSlotValue("test_slot_1", 0.2f);
+
+    ezInputManager::Update(1.0f / 60.0f);
+    EZ_TEST(ezInputManager::GetInputSlotState("test_slot_1", &f) == ezKeyState::Up);
+    EZ_TEST_FLOAT(f, 0.0f, 0);
+  }
+
+  EZ_TEST_BLOCK(true, "SetActionDisplayName / GetActionDisplayName")
+  {
+    ezInputManager::SetActionDisplayName("test_action_1", "Test Action 1 Name");
+    ezInputManager::SetActionDisplayName("test_action_2", "Test Action 2 Name");
+    ezInputManager::SetActionDisplayName("test_action_3", "Test Action 3 Name");
+    ezInputManager::SetActionDisplayName("test_action_4", "Test Action 4 Name");
+
+    EZ_TEST(ezStringUtils::IsEqual(ezInputManager::GetActionDisplayName("test_action_1"), "Test Action 1 Name"));
+    EZ_TEST(ezStringUtils::IsEqual(ezInputManager::GetActionDisplayName("test_action_2"), "Test Action 2 Name"));
+    EZ_TEST(ezStringUtils::IsEqual(ezInputManager::GetActionDisplayName("test_action_3"), "Test Action 3 Name"));
+    EZ_TEST(ezStringUtils::IsEqual(ezInputManager::GetActionDisplayName("test_action_4"), "Test Action 4 Name"));
+  }
+
+
+  EZ_TEST_BLOCK(true, "Input Sets")
+  {
+    ezInputActionConfig iac;
+    ezInputManager::SetInputActionConfig("test_inputset", "test_action_1", iac, true);
+    ezInputManager::SetInputActionConfig("test_inputset2", "test_action_2", iac, true);
+
+    ezDynamicArray<ezString> InputSetNames;
+    ezInputManager::GetAllInputSets(InputSetNames);
+
+    EZ_TEST_INT(InputSetNames.GetCount(), 2);
+
+    EZ_TEST_STRING(InputSetNames[0].GetData(), "test_inputset");
+    EZ_TEST_STRING(InputSetNames[1].GetData(), "test_inputset2");
+
+    ezInputManager::RemoveInputAction("test_inputset", "test_action_1");
+    ezInputManager::RemoveInputAction("test_inputset2", "test_action_2");
+  }
+
+  EZ_TEST_BLOCK(true, "GetAllInputActions / RemoveInputAction")
+  {
+    ezDynamicArray<ezString> InputActions;
+
+    ezInputManager::GetAllInputActions("test_inputset_3", InputActions);
+
+    EZ_TEST(InputActions.IsEmpty());
+
+    ezInputActionConfig iac;
+    ezInputManager::SetInputActionConfig("test_inputset_3", "test_action_1", iac, true);
+    ezInputManager::SetInputActionConfig("test_inputset_3", "test_action_2", iac, true);
+    ezInputManager::SetInputActionConfig("test_inputset_3", "test_action_3", iac, true);
+
+    ezInputManager::GetAllInputActions("test_inputset_3", InputActions);
+
+    EZ_TEST_INT(InputActions.GetCount(), 3);
+
+    EZ_TEST_STRING(InputActions[0].GetData(), "test_action_1");
+    EZ_TEST_STRING(InputActions[1].GetData(), "test_action_2");
+    EZ_TEST_STRING(InputActions[2].GetData(), "test_action_3");
+
+
+    ezInputManager::RemoveInputAction("test_inputset_3", "test_action_2");
+
+    ezInputManager::GetAllInputActions("test_inputset_3", InputActions);
+
+    EZ_TEST_INT(InputActions.GetCount(), 2);
+
+    EZ_TEST_STRING(InputActions[0].GetData(), "test_action_1");
+    EZ_TEST_STRING(InputActions[1].GetData(), "test_action_3");
+
+    ezInputManager::RemoveInputAction("test_inputset_3", "test_action_1");
+    ezInputManager::RemoveInputAction("test_inputset_3", "test_action_3");
+
+    ezInputManager::GetAllInputActions("test_inputset_3", InputActions);
+
+    EZ_TEST(InputActions.IsEmpty());
+  }
+}
+

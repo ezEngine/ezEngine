@@ -26,7 +26,7 @@ struct ezOutputToHTML
     {
     case ezTestOutput::StartOutput:
       {
-        std::string sOutputFile = std::string(ezTestFramework::GetInstance()->GetAbsOutputPath()) + "/FoundationTests.htm";
+        std::string sOutputFile = std::string(ezTestFramework::GetInstance()->GetAbsOutputPath()) + "/UnitTestsLog.htm";
         const char* szTestName = ezTestFramework::GetInstance()->GetTestName();
 
         const char* szStyle = "body { margin: 0; padding: 20px; font-size: 12px; font-family: Arial, Sans-Serif; background-color: #fff; text-align: center; }"
@@ -126,7 +126,7 @@ struct ezOutputToHTML
         htmlFile << "</div>\n</body>\n</html>";
         htmlFile.close();
 
-        std::string sOutputFile = std::string(ezTestFramework::GetInstance()->GetAbsOutputPath()) + "/FoundationTests.htm";
+        std::string sOutputFile = std::string(ezTestFramework::GetInstance()->GetAbsOutputPath()) + "/UnitTestsLog.htm";
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
         TestSettings settings = ezTestFramework::GetInstance()->GetSettings();

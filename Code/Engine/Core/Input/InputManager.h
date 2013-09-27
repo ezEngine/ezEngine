@@ -96,22 +96,22 @@ public:
   static ezInputDevice* GetInputDeviceByName(const char* szName);
 
   /// \brief Changes the display name of an input slot.
-  static void SetInputSlotDisplayName(const char* szInputSlot, const char* szDefaultDisplayName);
+  static void SetInputSlotDisplayName(const char* szInputSlot, const char* szDefaultDisplayName); // [tested]
 
   /// \brief Returns the display name that was assigned to the given input slot.
-  static const char* GetInputSlotDisplayName(const char* szInputSlot);
+  static const char* GetInputSlotDisplayName(const char* szInputSlot); // [tested]
 
   /// \brief Sets the dead zone for the given input slot. As long as the hardware reports values lower than this, the input slot will report a value of zero.
-  static void SetInputSlotDeadZone(const char* szInputSlot, float fDeadZone);
+  static void SetInputSlotDeadZone(const char* szInputSlot, float fDeadZone); // [tested]
 
   /// \brief Returns the dead zone value for the given input slot.
-  static float GetInputSlotDeadZone(const char* szInputSlot);
+  static float GetInputSlotDeadZone(const char* szInputSlot); // [tested]
 
   /// \brief Returns the flags for the given input slot.
   static ezBitflags<ezInputSlotFlags> GetInputSlotFlags(const char* szInputSlot);
 
   /// \brief Returns the current key state of the given input slot and optionally also returns its full value.
-  static ezKeyState::Enum GetInputSlotState(const char* szInputSlot, float* pValue = NULL);
+  static ezKeyState::Enum GetInputSlotState(const char* szInputSlot, float* pValue = NULL); // [tested]
 
   /// \brief Returns an array that contains all the names of all currently known input slots.
   static void RetrieveAllKnownInputSlots(ezDynamicArray<const char*>& out_InputSlots);
@@ -147,15 +147,20 @@ public:
   ///   In the most common cases, one will only set one or two input slots as triggers (Config.m_sInputSlotTrigger) and possibly decide whether
   ///   frame time scaling is required. It makes sense to let the ezInputManager do the frame time scaling, because it should not be applied to all
   ///   input, e.g. mouse delta values should never be scaled by the frame time.
-  static void SetInputActionConfig(const char* szInputSet, const char* szAction, const ezInputActionConfig& Config, bool bClearPreviousInputMappings);
+  /// \param bClearPreviousInputMappings
+  ///   If set to true it is ensured that all the input slots that are used by this action are not mapped to any other action.
+  ///   That means no other action can be triggered by this key within this input set.
+  ///   For most actions this should be set to true. However, if you have several actions that can be triggered by the same slot
+  ///   (for example touch input) but only in different areas of the screen, this should be set to false.
+  static void SetInputActionConfig(const char* szInputSet, const char* szAction, const ezInputActionConfig& Config, bool bClearPreviousInputMappings); // [tested]
 
   /// \brief Returns the configuration for the given input action in the given input set. Returns a default configuration, if the action does not exist.
-  static ezInputActionConfig GetInputActionConfig(const char* szInputSet, const char* szAction);
+  static ezInputActionConfig GetInputActionConfig(const char* szInputSet, const char* szAction); // [tested]
 
   /// \brief Deletes all state associated with the given input action.
   ///
   /// It is not necessary to call this function for cleanup.
-  static void RemoveInputAction(const char* szInputSet, const char* szAction);
+  static void RemoveInputAction(const char* szInputSet, const char* szAction); // [tested]
 
   /// \brief Returns the current state and value of the given input action.
   ///
@@ -164,16 +169,16 @@ public:
   static ezKeyState::Enum GetInputActionState(const char* szInputSet, const char* szAction, float* pValue = NULL, ezInt8* iTriggeredSlot = NULL);
 
   /// \brief Sets the display name for the given action.
-  static void SetActionDisplayName(const char* szAction, const char* szDisplayName);
+  static void SetActionDisplayName(const char* szAction, const char* szDisplayName); // [tested]
 
   /// \brief Returns the display name for the given action, or the action name itself, if no special display name was specified yet.
-  static const char* GetActionDisplayName(const char* szAction);
+  static const char* GetActionDisplayName(const char* szAction); // [tested]
 
   /// \brief Returns the names of all currently registered input sets.
-  static void GetAllInputSets(ezDynamicArray<ezString>& out_InputSetNames);
+  static void GetAllInputSets(ezDynamicArray<ezString>& out_InputSetNames); // [tested]
 
   /// \brief Returns the names of all input actions in the given input set.
-  static void GetAllInputActions(const char* szInputSetName, ezDynamicArray<ezString>& out_InputActions);
+  static void GetAllInputActions(const char* szInputSetName, ezDynamicArray<ezString>& out_InputActions); // [tested]
 
   /// \brief This function allows to 'inject' input state for one frame.
   ///
@@ -184,7 +189,7 @@ public:
   /// the input needs to be injected every frame.
   ///
   /// Note that when the input is injected after ezInputManager::Update was called, its effect will be delayed by one frame.
-  static void InjectInputSlotValue(const char* szInputSlot, float fValue);
+  static void InjectInputSlotValue(const char* szInputSlot, float fValue); // [tested]
 
   /// \brief Checks whether any input slot has been triggered in this frame, which has all \a MustHaveFlags and has none of the \a MustNotHaveFlags.
   ///

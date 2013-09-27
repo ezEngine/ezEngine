@@ -6,11 +6,12 @@
 
 struct TestSettings
 {
-  TestSettings() : m_bAssertOnTestFail(true), m_bOpenHtmlOutput(true), m_bKeepConsoleOpen(true) {}
+  TestSettings() : m_bAssertOnTestFail(true), m_bOpenHtmlOutput(true), m_bKeepConsoleOpen(true), m_bShowMessageBox(true) {}
 
   bool m_bAssertOnTestFail;
   bool m_bOpenHtmlOutput;
   bool m_bKeepConsoleOpen;
+  bool m_bShowMessageBox;
 };
 
 /// Operator to sort tests alphabetically
@@ -52,6 +53,8 @@ inline void SaveTestOrder(const char* szFile, const std::deque<ezTestEntry>& All
     sprintf(szTemp, "  OpenHtmlOutput = %s\n", testSettings.m_bOpenHtmlOutput ? "on" : "off");
     fwrite(szTemp, sizeof(char), strlen(szTemp), pFile);
     sprintf(szTemp, "  KeepConsoleOpen = %s\n", testSettings.m_bKeepConsoleOpen ? "on" : "off");
+    fwrite(szTemp, sizeof(char), strlen(szTemp), pFile);
+    sprintf(szTemp, "  ShowMessageBox = %s\n", testSettings.m_bShowMessageBox ? "on" : "off");
     fwrite(szTemp, sizeof(char), strlen(szTemp), pFile);
   }
 
@@ -203,6 +206,10 @@ inline void LoadTestOrder(const char* szFile, std::deque<ezTestEntry>& AllTests,
           else if (strcmp("KeepConsoleOpen", szTestName) == 0)
           {
             testSettings.m_bKeepConsoleOpen = !bIsOff;
+          }
+          else if (strcmp("ShowMessageBox", szTestName) == 0)
+          {
+            testSettings.m_bShowMessageBox = !bIsOff;
           }
         }
         // We are in a test block

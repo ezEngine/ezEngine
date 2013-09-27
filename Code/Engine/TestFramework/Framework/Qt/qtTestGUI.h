@@ -28,6 +28,7 @@ private slots:
   void on_actionAssertOnTestFail_triggered(bool bChecked);
   void on_actionOpenHTMLOutput_triggered(bool bChecked);
   void on_actionKeepConsoleOpen_triggered(bool bChecked);
+  void on_actionShowMessageBox_triggered(bool bChecked);
   void on_actionRunTests_triggered();
   void on_actionAbort_triggered();
   void on_actionQuit_triggered();
@@ -53,11 +54,15 @@ private:
 public:
   static void SetDarkTheme();
 
+protected:
+  virtual void closeEvent(QCloseEvent* e) EZ_OVERRIDE;
+
 private:
   ezQtTestFramework* m_pTestFramework;
   ezQtTestModel* m_pModel;
   ezQtTestDelegate* m_pDelegate;
   ezQtLogMessageDock* m_pMessageLogDock;
+  QLabel* m_pStatusTextWorkState;
   QLabel* m_pStatusText;
   ezInt32 m_bExpandedCurrentTest;
   bool m_bAbort;

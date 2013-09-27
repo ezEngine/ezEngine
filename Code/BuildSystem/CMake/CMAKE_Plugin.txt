@@ -37,6 +37,9 @@ include_directories (${CMAKE_CURRENT_SOURCE_DIR})
 # Define the Exe Project, add all required sources to it
 add_library (${PROJECT_NAME} SHARED ${APP_CONFIG} ${ALL_SOURCE_FILES})
 
+set_target_properties(${PROJECT_NAME} PROPERTIES IMPORT_PREFIX "ez")
+set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "ez")
+
 target_link_libraries (${PROJECT_NAME} ${LINK_LIBRARIES} ${QT_LIBRARIES} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY})
 
 SET_PROPERTY(GLOBAL PROPERTY USE_FOLDERS ON)

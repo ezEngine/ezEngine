@@ -111,6 +111,8 @@ void ezTestFramework::LoadTestOrder()
 
 void ezTestFramework::SaveTestOrder()
 {
+  /// \todo Need to make sure the output folder exists. (ezOSFile::CreateFolderStructure ... does not work because of allocators)
+
   std::string sTestSettingsFile = m_sAbsTestDir + std::string("/TestSettings.txt");
   ::SaveTestOrder(sTestSettingsFile.c_str(), m_TestEntries, m_Settings);
 }

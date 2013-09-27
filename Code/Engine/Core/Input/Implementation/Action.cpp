@@ -326,12 +326,16 @@ const char* ezInputManager::GetActionDisplayName(const char* szAction)
 
 void ezInputManager::GetAllInputSets(ezDynamicArray<ezString>& out_InputSetNames)
 {
+  out_InputSetNames.Clear();
+
   for (ezInputSetMap::Iterator it = GetInternals().s_ActionMapping.GetIterator(); it.IsValid(); ++it)
     out_InputSetNames.PushBack(it.Key());
 }
 
 void ezInputManager::GetAllInputActions(const char* szInputSetName, ezDynamicArray<ezString>& out_InputActions)
 {
+  out_InputActions.Clear();
+
   for (ezActionMap::Iterator it = GetInternals().s_ActionMapping[szInputSetName].GetIterator(); it.IsValid(); ++it)
     out_InputActions.PushBack(it.Key());
 }

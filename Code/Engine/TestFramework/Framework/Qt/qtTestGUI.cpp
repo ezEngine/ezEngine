@@ -22,8 +22,12 @@ ezQtTestGUI::ezQtTestGUI(ezQtTestFramework& testFramework)
   this->setupUi(this);
   this->setWindowTitle(testFramework.GetTestName());
   // Status Bar
+  m_pStatusTextWorkState = new QLabel(this);
+  testStatusBar->addWidget(m_pStatusTextWorkState);
+
   m_pStatusText = new QLabel(this);
   testStatusBar->addWidget(m_pStatusText);
+
 
   // Model
   m_pModel = new ezQtTestModel(this, m_pTestFramework);
@@ -58,6 +62,7 @@ ezQtTestGUI::ezQtTestGUI(ezQtTestFramework& testFramework)
   this->actionAssertOnTestFail->setChecked(settings.m_bAssertOnTestFail);
   this->actionOpenHTMLOutput->setChecked(settings.m_bOpenHtmlOutput);
   this->actionKeepConsoleOpen->setChecked(settings.m_bKeepConsoleOpen);
+  this->actionShowMessageBox->setChecked(settings.m_bShowMessageBox);
 
   connect(m_pTestFramework, SIGNAL( TestResultReceived(qint32, qint32) ), this, SLOT( onTestFrameworkTestResultReceived(qint32, qint32) ) );
 
@@ -74,6 +79,10 @@ ezQtTestGUI::~ezQtTestGUI()
   m_pDelegate = NULL;
 }
 
+void ezQtTestGUI::closeEvent(QCloseEvent* e)
+{
+  m_pTestFramework->SaveTestOrder();
+}
 
 ////////////////////////////////////////////////////////////////////////
 // ezQtTestGUI public slots
@@ -100,6 +109,13 @@ void ezQtTestGUI::on_actionKeepConsoleOpen_triggered(bool bChecked)
   m_pTestFramework->SetSettings(settings);
 }
 
+void ezQtTestGUI::on_actionShowMessageBox_triggered(bool bChecked)
+{
+  TestSettings settings = m_pTestFramework->GetSettings();
+  settings.m_bShowMessageBox = bChecked;
+  m_pTestFramework->SetSettings(settings);
+}
+
 void ezQtTestGUI::on_actionRunTests_triggered()
 {
   m_pTestFramework->SaveTestOrder();
@@ -108,6 +124,8 @@ void ezQtTestGUI::on_actionRunTests_triggered()
   m_bExpandedCurrentTest = false;
   m_pMessageLogDock->currentTestResultChanged(NULL);
   UpdateButtonStates();
+
+  m_pStatusTextWorkState->setText("<p><span style=\"font-weight:600; color:#ff5500;\" >  [Working...]</span></p>");
 
   const ezUInt32 uiTestCount = m_pTestFramework->GetTestCount();
   for (ezUInt32 uiTestIdx = 0; uiTestIdx < uiTestCount; ++uiTestIdx)
@@ -124,18 +142,28 @@ void ezQtTestGUI::on_actionRunTests_triggered()
 
   if (m_bAbort)
   {
-    QMessageBox::information(this, "Tests Aborted", "The tests were aborted by the user.", QMessageBox::Ok, QMessageBox::Ok);
+    m_pStatusTextWorkState->setText("<p><span style=\"font-weight:600; color:#ff0000;\">  [Tests Aborted]</span></p>");
+
+    if (m_pTestFramework->GetSettings().m_bShowMessageBox)
+      QMessageBox::information(this, "Tests Aborted", "The tests were aborted by the user.", QMessageBox::Ok, QMessageBox::Ok);
+
     m_bAbort = false;
   }
   else
   {
     if (m_pTestFramework->GetTotalErrorCount() > 0)
     {
-      QMessageBox::critical(this, "Tests Failed", "Some tests have failed.", QMessageBox::Ok, QMessageBox::Ok);
+      m_pStatusTextWorkState->setText("<p><span style=\"font-weight:600; color:#ff0000;\">  [Tests Failed]</span></p>");
+
+      if (m_pTestFramework->GetSettings().m_bShowMessageBox)
+        QMessageBox::critical(this, "Tests Failed", "Some tests have failed.", QMessageBox::Ok, QMessageBox::Ok);
     }
     else
     {
-      QMessageBox::information(this, "Tests Succeeded", "All tests succeeded.", QMessageBox::Ok, QMessageBox::Ok);
+      m_pStatusTextWorkState->setText("<p><span style=\"font-weight:600; color:#00aa00;\">  [All Tests Passed]</span></p>");
+
+      if (m_pTestFramework->GetSettings().m_bShowMessageBox)
+        QMessageBox::information(this, "Tests Succeeded", "All tests succeeded.", QMessageBox::Ok, QMessageBox::Ok);
     }
   }
 }
@@ -242,6 +270,7 @@ void ezQtTestGUI::onTestFrameworkTestResultReceived(qint32 iTestIndex, qint32 iS
   QString sStatusText = QLatin1String("[progress: ") % QString::number(fProgress, 'f', 2) % QLatin1String("%] [passed: ") % QString::number(uiPassed)
     % QLatin1String("] [failed: ") % QString::number(uiFailed) % QLatin1String("] [errors: ") % QString::number(uiErrors) % QLatin1String("] [time taken: ")
     % QString::number(fTestDurationInSeconds, 'f', 2) % QLatin1String(" seconds]");
+
   m_pStatusText->setText(sStatusText);
 
   QApplication::processEvents();
