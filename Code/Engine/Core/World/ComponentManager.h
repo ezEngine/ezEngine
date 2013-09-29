@@ -27,6 +27,7 @@ public:
   ezUInt32 GetComponentCount() const;
   ezUInt32 GetActiveComponentCount() const;
 
+  virtual ezComponentHandle CreateComponent() = 0;
   void DeleteComponent(const ezComponentHandle& component);
 
   static ezUInt16 GetNextTypeId();
@@ -94,7 +95,7 @@ public:
   ezComponentManager(ezWorld* pWorld);
   virtual ~ezComponentManager();
 
-  ezComponentHandle CreateComponent();
+  virtual ezComponentHandle CreateComponent() EZ_OVERRIDE;
   ezComponentHandle CreateComponent(ComponentType*& out_pComponent);
 
   bool TryGetComponent(const ezComponentHandle& component, ComponentType*& out_pComponent) const;
