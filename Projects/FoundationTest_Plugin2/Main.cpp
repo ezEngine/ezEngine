@@ -8,7 +8,7 @@ static ezInt32 g_iPluginState = -1;
 void OnLoadPlugin(bool bReloading);
 void OnUnloadPlugin(bool bReloading);
 
-ezPlugin g_Plugin(true, OnLoadPlugin, OnUnloadPlugin, "FoundationTest_Plugin1");
+ezPlugin g_Plugin(true, OnLoadPlugin, OnUnloadPlugin, "ezFoundationTest_Plugin1");
 
 ezCVarInt     CVar_TestInt    ("test2_Int",   22,   ezCVarFlags::None, "Desc: test2_Int");
 ezCVarFloat   CVar_TestFloat  ("test2_Float", 2.2f, ezCVarFlags::Default, "Desc: test2_Float");
@@ -22,8 +22,8 @@ void OnLoadPlugin(bool bReloading)
   EZ_TEST_MSG(g_iPluginState == -1, "Plugin is in an invalid state.");
   g_iPluginState = 1;
 
-  EZ_TEST(ezPlugin::FindPluginByName("FoundationTest_Plugin1") != NULL); // dependency is already loaded
-  EZ_TEST(ezPlugin::FindPluginByName("FoundationTest_Plugin2") != NULL); // should find itself
+  EZ_TEST(ezPlugin::FindPluginByName("ezFoundationTest_Plugin1") != NULL); // dependency is already loaded
+  EZ_TEST(ezPlugin::FindPluginByName("ezFoundationTest_Plugin2") != NULL); // should find itself
 
   ezCVarInt* pCVar = (ezCVarInt*) ezCVar::FindCVarByName("TestPlugin2InitCount");
 

@@ -25,8 +25,8 @@ EZ_CREATE_SIMPLE_TEST(Configuration, Plugin)
   EZ_TEST_BLOCK(true, "LoadPlugin")
   {
     CVar_TestPlugin2FoundDependencies = false;
-    EZ_TEST(ezPlugin::LoadPlugin("FoundationTest_Plugin2") == EZ_SUCCESS);
-    EZ_TEST(ezPlugin::LoadPlugin("FoundationTest_Plugin2") == EZ_SUCCESS); // loading already loaded plugin is always a success
+    EZ_TEST(ezPlugin::LoadPlugin("ezFoundationTest_Plugin2") == EZ_SUCCESS);
+    EZ_TEST(ezPlugin::LoadPlugin("ezFoundationTest_Plugin2") == EZ_SUCCESS); // loading already loaded plugin is always a success
 
     EZ_TEST_INT(CVar_TestPlugin1InitializedCount, 1);
     EZ_TEST_INT(CVar_TestPlugin2InitializedCount, 1);
@@ -46,8 +46,8 @@ EZ_CREATE_SIMPLE_TEST(Configuration, Plugin)
   EZ_TEST_BLOCK(true, "UnloadPlugin")
   {
     CVar_TestPlugin2FoundDependencies = false;
-    EZ_TEST(ezPlugin::UnloadPlugin("FoundationTest_Plugin2") == EZ_SUCCESS);
-    EZ_TEST(ezPlugin::UnloadPlugin("FoundationTest_Plugin2") == EZ_SUCCESS); // unloading something that is not loaded always succeeds
+    EZ_TEST(ezPlugin::UnloadPlugin("ezFoundationTest_Plugin2") == EZ_SUCCESS);
+    EZ_TEST(ezPlugin::UnloadPlugin("ezFoundationTest_Plugin2") == EZ_SUCCESS); // unloading something that is not loaded always succeeds
 
     EZ_TEST_INT(CVar_TestPlugin1InitializedCount, 1);
     EZ_TEST_INT(CVar_TestPlugin2InitializedCount, 1);
@@ -66,7 +66,7 @@ EZ_CREATE_SIMPLE_TEST(Configuration, Plugin)
   
   EZ_TEST_BLOCK(true, "ReloadPlugin")
   {
-    EZ_TEST(ezPlugin::LoadPlugin("FoundationTest_Plugin2") == EZ_SUCCESS);
+    EZ_TEST(ezPlugin::LoadPlugin("ezFoundationTest_Plugin2") == EZ_SUCCESS);
 
     EZ_TEST_INT(CVar_TestPlugin1InitializedCount, 2);
     EZ_TEST_INT(CVar_TestPlugin2InitializedCount, 2);
@@ -109,7 +109,7 @@ EZ_CREATE_SIMPLE_TEST(Configuration, Plugin)
 
     EZ_TEST(CVar_TestPlugin2FoundDependencies);
 
-    EZ_TEST(ezPlugin::UnloadPlugin("FoundationTest_Plugin2") == EZ_SUCCESS);
+    EZ_TEST(ezPlugin::UnloadPlugin("ezFoundationTest_Plugin2") == EZ_SUCCESS);
 
     EZ_TEST_INT(CVar_TestPlugin1InitializedCount, 3);
     EZ_TEST_INT(CVar_TestPlugin2InitializedCount, 3);

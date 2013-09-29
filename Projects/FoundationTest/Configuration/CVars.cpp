@@ -58,12 +58,12 @@ EZ_CREATE_SIMPLE_TEST(Configuration, CVars)
     ezStringBuilder sConfigFile;
 
     sConfigFile = sOutputFolder1;
-    sConfigFile.AppendPath("CVars/CVars_FoundationTest_Plugin1.cfg");
+    sConfigFile.AppendPath("CVars/CVars_ezFoundationTest_Plugin1.cfg");
 
     ezFileSystem::DeleteFile(sConfigFile.GetData());
 
     sConfigFile = sOutputFolder1;
-    sConfigFile.AppendPath("CVars/CVars_FoundationTest_Plugin2.cfg");
+    sConfigFile.AppendPath("CVars/CVars_ezFoundationTest_Plugin2.cfg");
 
     ezFileSystem::DeleteFile(sConfigFile.GetData());
   }
@@ -88,7 +88,7 @@ EZ_CREATE_SIMPLE_TEST(Configuration, CVars)
 
   EZ_TEST_BLOCK(true, "Plugin1 Loaded")
   {
-    EZ_TEST(ezPlugin::LoadPlugin("FoundationTest_Plugin1") == EZ_SUCCESS);
+    EZ_TEST(ezPlugin::LoadPlugin("ezFoundationTest_Plugin1") == EZ_SUCCESS);
 
     EZ_TEST(ezCVar::FindCVarByName("test1_Int") != NULL);
     EZ_TEST(ezCVar::FindCVarByName("test1_Float") != NULL);
@@ -100,7 +100,7 @@ EZ_CREATE_SIMPLE_TEST(Configuration, CVars)
     EZ_TEST(ezCVar::FindCVarByName("test2_Bool") == NULL);
     EZ_TEST(ezCVar::FindCVarByName("test2_String") == NULL);
 
-    EZ_TEST(ezPlugin::UnloadPlugin("FoundationTest_Plugin1") == EZ_SUCCESS);
+    EZ_TEST(ezPlugin::UnloadPlugin("ezFoundationTest_Plugin1") == EZ_SUCCESS);
   }
 
 #endif
@@ -124,7 +124,7 @@ EZ_CREATE_SIMPLE_TEST(Configuration, CVars)
   {
     // Plugin2 should automatically load Plugin1 with it
 
-    EZ_TEST(ezPlugin::LoadPlugin("FoundationTest_Plugin2") == EZ_SUCCESS);
+    EZ_TEST(ezPlugin::LoadPlugin("ezFoundationTest_Plugin2") == EZ_SUCCESS);
 
     EZ_TEST(ezCVar::FindCVarByName("test1_Int") != NULL);
     EZ_TEST(ezCVar::FindCVarByName("test1_Float") != NULL);
@@ -136,7 +136,7 @@ EZ_CREATE_SIMPLE_TEST(Configuration, CVars)
     EZ_TEST(ezCVar::FindCVarByName("test2_Bool") != NULL);
     EZ_TEST(ezCVar::FindCVarByName("test2_String") != NULL);
 
-    EZ_TEST(ezPlugin::UnloadPlugin("FoundationTest_Plugin2") == EZ_SUCCESS);
+    EZ_TEST(ezPlugin::UnloadPlugin("ezFoundationTest_Plugin2") == EZ_SUCCESS);
   }
 
 #endif
@@ -158,7 +158,7 @@ EZ_CREATE_SIMPLE_TEST(Configuration, CVars)
 
   EZ_TEST_BLOCK(true, "Default Value Test")
   {
-    EZ_TEST(ezPlugin::LoadPlugin("FoundationTest_Plugin2") == EZ_SUCCESS);
+    EZ_TEST(ezPlugin::LoadPlugin("ezFoundationTest_Plugin2") == EZ_SUCCESS);
 
     // CVars from Plugin 1
     {
@@ -258,12 +258,12 @@ EZ_CREATE_SIMPLE_TEST(Configuration, CVars)
       CHECK_CVAR(pString, "test2_value2", "test2", "test2", "test2_value2");
     }
 
-    EZ_TEST(ezPlugin::UnloadPlugin("FoundationTest_Plugin2") == EZ_SUCCESS);
+    EZ_TEST(ezPlugin::UnloadPlugin("ezFoundationTest_Plugin2") == EZ_SUCCESS);
   }
   
   EZ_TEST_BLOCK(true, "Loaded Value Test")
   {
-    EZ_TEST(ezPlugin::LoadPlugin("FoundationTest_Plugin2") == EZ_SUCCESS);
+    EZ_TEST(ezPlugin::LoadPlugin("ezFoundationTest_Plugin2") == EZ_SUCCESS);
 
     // CVars from Plugin 1
     {
@@ -295,7 +295,7 @@ EZ_CREATE_SIMPLE_TEST(Configuration, CVars)
       CHECK_CVAR(pString, "test2_value2", "test2", "test2_value2", "test2_value2");
     }
 
-    EZ_TEST(ezPlugin::UnloadPlugin("FoundationTest_Plugin2") == EZ_SUCCESS);
+    EZ_TEST(ezPlugin::UnloadPlugin("ezFoundationTest_Plugin2") == EZ_SUCCESS);
   }
 
 #endif

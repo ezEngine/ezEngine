@@ -217,6 +217,10 @@ QVariant ezQtTestModel::data(const QModelIndex& index, int role) const
           return QString("Test Disabled");
         }
       }
+    case Qt::TextAlignmentRole:
+      {
+        return Qt::AlignRight;
+      }
     default:
       return QVariant();
     }
@@ -285,6 +289,11 @@ QVariant ezQtTestModel::data(const QModelIndex& index, int role) const
         }
         return QVariant();
       }
+    case Qt::TextAlignmentRole:
+      {
+        return Qt::AlignRight;
+      }
+
     default:
       return QVariant();
     }
@@ -345,6 +354,11 @@ QVariant ezQtTestModel::data(const QModelIndex& index, int role) const
         }
         return QVariant();
       }
+    case Qt::TextAlignmentRole:
+      {
+        return Qt::AlignRight;
+      }
+
     default:
       return QVariant();
     }

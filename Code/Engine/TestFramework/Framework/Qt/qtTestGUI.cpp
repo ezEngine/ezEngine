@@ -38,8 +38,12 @@ ezQtTestGUI::ezQtTestGUI(ezQtTestFramework& testFramework)
 
   // View
   //testTreeView->expandAll();
+  testTreeView->resizeColumnToContents(4);
+  testTreeView->resizeColumnToContents(3);
+  testTreeView->resizeColumnToContents(2);
+  testTreeView->resizeColumnToContents(1);
   testTreeView->resizeColumnToContents(0);
-  testTreeView->header()->setStretchLastSection(false);
+  testTreeView->header()->setStretchLastSection(true);
   testTreeView->setContextMenuPolicy(Qt::CustomContextMenu);
   testTreeView->setUniformRowHeights(true);
   testTreeView->setItemDelegate(m_pDelegate);

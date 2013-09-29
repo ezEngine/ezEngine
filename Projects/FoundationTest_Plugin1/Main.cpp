@@ -20,7 +20,7 @@ void OnLoadPlugin(bool bReloading)
   EZ_TEST_MSG(g_iPluginState == -1, "Plugin is in an invalid state.");
   g_iPluginState = 1;
 
-  EZ_TEST(ezPlugin::FindPluginByName("FoundationTest_Plugin1") != NULL); // should find itself
+  EZ_TEST(ezPlugin::FindPluginByName("ezFoundationTest_Plugin1") != NULL); // should find itself
 
   ezCVarInt* pCVar = (ezCVarInt*) ezCVar::FindCVarByName("TestPlugin1InitCount");
 
