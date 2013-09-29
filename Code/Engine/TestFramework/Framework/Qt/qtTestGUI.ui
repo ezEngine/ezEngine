@@ -68,6 +68,12 @@
         <property name="text">
          <string>Run Tests</string>
         </property>
+        <property name="autoDefault">
+         <bool>true</bool>
+        </property>
+        <property name="default">
+         <bool>true</bool>
+        </property>
        </widget>
       </item>
      </layout>
@@ -136,15 +142,24 @@
    <property name="toolTip">
     <string>Run Tests</string>
    </property>
+   <property name="shortcut">
+    <string>Alt+R</string>
+   </property>
   </action>
   <action name="actionAbort">
    <property name="text">
     <string>Abort</string>
    </property>
+   <property name="shortcut">
+    <string>Alt+A</string>
+   </property>
   </action>
   <action name="actionQuit">
    <property name="text">
     <string>Quit</string>
+   </property>
+   <property name="shortcut">
+    <string>Alt+Q</string>
    </property>
   </action>
   <action name="actionEnableOnlyThis">

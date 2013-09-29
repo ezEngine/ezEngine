@@ -72,7 +72,7 @@ private:
 
 protected:
   /// \brief Calls RegisterInputSlot() on the ezInputManager and passes the parameters through.
-  static void RegisterInputSlot(const char* szName, const char* szDefaultDisplayName, ezBitflags<ezInputSlotFlags> SlotFlags);
+  static void RegisterInputSlot(const char* szName, const char* szDefaultDisplayName, ezBitflags<ezInputSlotFlags> SlotFlags); // [tested]
 
   /// \brief Stores all the values for all input slots that this device handles.
   ///
@@ -105,13 +105,13 @@ private:
   virtual void UpdateInputSlotValues(double fTimeDifference) = 0;
 
   /// \brief Override this, if you need to reset certain input slot values to zero, after the ezInputManager is finished with the current frame update.
-  virtual void ResetInputSlotValues() { };
+  virtual void ResetInputSlotValues() { }; // [tested]
 
   /// \brief Override this to register all the input slots that this device exposes.
   ///
   /// This is called once during initialization. It needs to call RegisterInputSlot() once for every input slot that this device
   /// exposes to the system.
-  virtual void RegisterInputSlots() = 0;
+  virtual void RegisterInputSlots() = 0; // [tested]
 };
 
 

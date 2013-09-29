@@ -122,6 +122,7 @@ void ezQtTestGUI::on_actionRunTests_triggered()
   m_pTestFramework->StartTests();
   m_pModel->InvalidateAll();
   m_bExpandedCurrentTest = false;
+  m_bAbort = false;
   m_pMessageLogDock->currentTestResultChanged(NULL);
   UpdateButtonStates();
 
@@ -320,6 +321,10 @@ void ezQtTestGUI::UpdateButtonStates()
   pushButtonQuit->setEnabled(!bTestsRunning);
   pushButtonAbort->setEnabled(bTestsRunning);
   pushButtonRunTests->setEnabled(!bTestsRunning);
+
+  actionQuit->setEnabled(!bTestsRunning);
+  actionAbort->setEnabled(bTestsRunning);
+  actionRunTests->setEnabled(!bTestsRunning);
 }
 
 void ezQtTestGUI::SetCheckStateRecursive(const QModelIndex& index, bool bChecked)

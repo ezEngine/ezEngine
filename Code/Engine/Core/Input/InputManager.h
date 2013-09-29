@@ -166,7 +166,7 @@ public:
   ///
   /// This is the one function that is called repeatedly at runtime to figure out which actions are active and thus which gameplay functions
   /// to execute. You can (and should) use the /a pValue to scale gameplay features (e.g. how fast to drive).
-  static ezKeyState::Enum GetInputActionState(const char* szInputSet, const char* szAction, float* pValue = NULL, ezInt8* iTriggeredSlot = NULL);
+  static ezKeyState::Enum GetInputActionState(const char* szInputSet, const char* szAction, float* pValue = NULL, ezInt8* iTriggeredSlot = NULL); // [tested]
 
   /// \brief Sets the display name for the given action.
   static void SetActionDisplayName(const char* szAction, const char* szDisplayName); // [tested]
@@ -194,7 +194,7 @@ public:
   /// \brief Checks whether any input slot has been triggered in this frame, which has all \a MustHaveFlags and has none of the \a MustNotHaveFlags.
   ///
   /// This function can be used in a UI to wait for user input and then assign that input to a certain action.
-  static const char* GetPressedInputSlot(ezInputSlotFlags::Enum MustHaveFlags, ezInputSlotFlags::Enum MustNotHaveFlags);
+  static const char* GetPressedInputSlot(ezInputSlotFlags::Enum MustHaveFlags, ezInputSlotFlags::Enum MustNotHaveFlags); // [tested]
 
   /// \brief Mostly for internal use. Converts a scancode value to the string that is used inside the engine for that key.
   static const char* ConvertScanCodeToEngineName(ezUInt8 uiScanCode, bool bIsExtendedKey);
