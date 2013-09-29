@@ -191,5 +191,19 @@ EZ_CREATE_SIMPLE_TEST(Math, Quaternion)
 
     EZ_TEST(qr.IsEqualRotation(q3, 0.0001f));
   }
+
+  EZ_TEST_BLOCK(true, "operator==/!=")
+  {
+    ezQuatT q1, q2;
+    q1.SetFromAxisAndAngle(ezVec3T(0, 0, 1), 60);
+    q2.SetFromAxisAndAngle(ezVec3T(0, 0, 1), 30);
+    EZ_TEST(q1 != q2);
+
+    q2.SetFromAxisAndAngle(ezVec3T(1, 0, 0), 60);
+    EZ_TEST(q1 != q2);
+
+    q2.SetFromAxisAndAngle(ezVec3T(0, 0, 1), 60);
+    EZ_TEST(q1 == q2);
+  }
 }
 

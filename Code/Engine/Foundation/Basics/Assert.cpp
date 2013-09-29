@@ -1,6 +1,5 @@
 #include <Foundation/PCH.h>
 #include <Foundation/Basics/Assert.h>
-#include <Foundation/Threading/ThreadUtils.h>
 
 bool ezDefaultAssertHandler(const char* szSourceFile, ezUInt32 uiLine, const char* szFunction, const char* szExpression, const char* szAssertMsg)
 {
@@ -17,7 +16,7 @@ bool ezDefaultAssertHandler(const char* szSourceFile, ezUInt32 uiLine, const cha
 
   #else
     char szTemp[1024 * 4] = "";
-    sprintf(szTemp, " *** Assertion ***\n\nExpression: \"%s\"\nFunction: \"%s\"\nFile: \"%s\"\nLine: %u\nMessage: \"%s\"", szExpression, szFunction, szSourceFile, uiLine, szMsg);
+    sprintf(szTemp, " *** Assertion ***\n\nExpression: \"%s\"\nFunction: \"%s\"\nFile: \"%s\"\nLine: %u\nMessage: \"%s\"", szExpression, szFunction, szSourceFile, uiLine, szAssertMsg);
     szTemp[1024 * 4 - 1] = '\0';
     MessageBox(NULL, szTemp, "Assertion", MB_ICONERROR);
   #endif

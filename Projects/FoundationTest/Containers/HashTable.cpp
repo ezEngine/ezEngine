@@ -307,4 +307,38 @@ EZ_CREATE_SIMPLE_TEST(Containers, HashTable)
     EZ_TEST_INT(a[2], 30);
     EZ_TEST_INT(a[1], 0); // new values are default constructed
   }
+
+  EZ_TEST_BLOCK(true, "operator==/!=")
+  {
+    ezStaticArray<ezInt32, 64> keys[2];
+
+    for (ezUInt32 i = 0; i < 64; ++i)
+    {
+      keys[0].PushBack(rand());
+    }
+
+    keys[1] = keys[0];
+
+    ezHashTable<ezInt32, st> t[2];
+
+    for (ezUInt32 i = 0; i < 2; ++i)
+    {
+      while (!keys[i].IsEmpty())
+      {
+        const ezUInt32 uiIndex = rand() % keys[i].GetCount();
+        const ezInt32 key = keys[i][uiIndex];
+        t[i].Insert(key, st(key * 3456));
+
+        keys[i].RemoveAtSwap(uiIndex);
+      }
+    }
+
+    EZ_TEST(t[0] == t[1]);
+
+    t[0].Insert(32, st(64));
+    EZ_TEST(t[0] != t[1]);
+
+    t[1].Insert(32, st(47));
+    EZ_TEST(t[0] != t[1]);
+  }
 }

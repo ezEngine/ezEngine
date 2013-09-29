@@ -133,6 +133,37 @@ void ezHashTableBase<K, V, H>::operator= (const ezHashTableBase<K, V, H>& rhs)
 }
 
 template <typename K, typename V, typename H>
+bool ezHashTableBase<K, V, H>::operator== (const ezHashTableBase<K, V, H>& rhs) const
+{
+  if (m_uiCount != rhs.m_uiCount)
+    return false;
+
+  ezUInt32 uiCompared = 0;
+  for (ezUInt32 i = 0; uiCompared < m_uiCount; ++i)
+  {
+    if (IsValidEntry(i))
+    {
+      V* pRhsValue = NULL;
+      if (!rhs.TryGetValue(m_pEntries[i].key, pRhsValue))
+        return false;
+
+      if (m_pEntries[i].value != *pRhsValue)
+        return false;
+
+      ++uiCompared;
+    }
+  }
+
+  return true;
+}
+
+template <typename K, typename V, typename H>
+EZ_FORCE_INLINE bool ezHashTableBase<K, V, H>::operator!= (const ezHashTableBase<K, V, H>& rhs) const
+{
+  return !(*this == rhs);
+}
+
+template <typename K, typename V, typename H>
 void ezHashTableBase<K, V, H>::Reserve(ezUInt32 uiCapacity)
 {
   ezUInt32 uiNewCapacity = uiCapacity + (uiCapacity / 3) * 2; // ensure a maximum load of 60%

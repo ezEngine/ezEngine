@@ -81,6 +81,13 @@ protected:
   void operator= (const ezHashTableBase<KeyType, ValueType, Hasher>& rhs); // [tested]
 
 public:
+
+  /// \brief Compares this table to another table.
+  bool operator== (const ezHashTableBase<KeyType, ValueType, Hasher>& rhs) const; // [tested]
+
+   /// \brief Compares this table to another table.
+  bool operator!= (const ezHashTableBase<KeyType, ValueType, Hasher>& rhs) const; // [tested]
+
   /// \brief Expands the hashtable by over-allocated the internal storage so that the load factor is lower or equal to 60% when inserting the given number of entries.
   void Reserve(ezUInt32 uiCapacity); // [tested]
 

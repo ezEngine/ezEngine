@@ -78,8 +78,8 @@ EZ_FORCE_INLINE const ezQuatTemplate<Type> ezQuatTemplate<Type>::operator-() con
 template<typename Type>
 const ezVec3Template<Type> operator* (const ezQuatTemplate<Type>& q, const ezVec3Template<Type>& v)
 {
-  ezQuatTemplate<Type> qt (v.x, v.y, v.z, 0);
-  return (((q * qt) * (-q)).v);
+  ezVec3Template<Type> t = q.v.Cross(v) * (Type) 2;
+  return v + q.w * t + q.v.Cross(t);
 }
 
 template<typename Type>
@@ -347,4 +347,14 @@ void ezQuatTemplate<Type>::SetSlerp(const ezQuatTemplate<Type>& qFrom, const ezQ
 
 }
 
+template<typename Type>
+EZ_FORCE_INLINE bool operator== (const ezQuatTemplate<Type>& q1, const ezQuatTemplate<Type>& q2)
+{
+  return q1.v.IsIdentical(q2.v) && q1.w == q2.w;
+}
 
+template<typename Type>
+EZ_FORCE_INLINE bool operator!= (const ezQuatTemplate<Type>& q1, const ezQuatTemplate<Type>& q2)
+{
+  return !(q1 == q2);
+}

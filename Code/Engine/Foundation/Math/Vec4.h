@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Foundation/Math/Math.h>
-#include <Foundation/Math/Vec2.h>
+#include <Foundation/Math/Vec3.h>
 
 /// \brief A 4-component vector class.
 template<typename Type>
