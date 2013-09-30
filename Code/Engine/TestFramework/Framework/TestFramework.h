@@ -16,6 +16,7 @@ public:
   typedef void(*OutputHandler)(ezTestOutput::Enum Type, const char* szMsg);
 
   // Test management
+  void CreateOutputFolder();
   const char* GetTestName() const;
   const char* GetAbsOutputPath() const;
   void RegisterOutputHandler(OutputHandler Handler);

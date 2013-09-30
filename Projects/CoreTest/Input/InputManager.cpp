@@ -429,15 +429,105 @@ EZ_CREATE_SIMPLE_TEST(Input, InputManager)
 
   EZ_TEST_BLOCK(true, "LastCharacter")
   {
-      ezTestInputDevide dev;
-      dev.ActivateAll();
+    ezTestInputDevide dev;
+    dev.ActivateAll();
 
-      ezInputManager::Update(1.0 / 60.0);
+    EZ_TEST(ezInputManager::RetrieveLastCharacter(true) == '\0');
 
-      //ezInputManager::
+    ezInputManager::Update(1.0 / 60.0);
 
-
+    EZ_TEST(ezInputManager::RetrieveLastCharacter(false) == '\42');
+    EZ_TEST(ezInputManager::RetrieveLastCharacter(true) == '\42');
+    EZ_TEST(ezInputManager::RetrieveLastCharacter(true) == '\0');
   }
 
+  EZ_TEST_BLOCK(true, "Time Scaling")
+  {
+    ezInputManager::Update(1.0 / 60.0);
+
+    ezInputActionConfig iac;
+    iac.m_bApplyTimeScaling = true;
+    iac.m_sInputSlotTrigger[0] = "testdevice_button";
+    ezInputManager::SetInputActionConfig("test_inputset", "test_timescaling", iac, true);
+
+    ezTestInputDevide dev;
+    dev.ActivateAll();
+
+    float fVal;
+
+    ezInputManager::Update(1.0 / 60.0);
+    ezInputManager::GetInputActionState("test_inputset", "test_timescaling", &fVal);
+
+    EZ_TEST_FLOAT(fVal, 0.1f * (1.0 / 60.0), 0.0001f); // testdevice_button has a value of 0.1f
+
+    dev.ActivateAll();
+
+    ezInputManager::Update(1.0 / 30.0);
+    ezInputManager::GetInputActionState("test_inputset", "test_timescaling", &fVal);
+
+    EZ_TEST_FLOAT(fVal, 0.1f * (1.0 / 30.0), 0.0001f);
+
+
+    iac.m_bApplyTimeScaling = false;
+    iac.m_sInputSlotTrigger[0] = "testdevice_button";
+    ezInputManager::SetInputActionConfig("test_inputset", "test_timescaling", iac, true);
+
+    dev.ActivateAll();
+
+    ezInputManager::Update(1.0 / 60.0);
+    ezInputManager::GetInputActionState("test_inputset", "test_timescaling", &fVal);
+
+    EZ_TEST_FLOAT(fVal, 0.1f, 0.0001f); // testdevice_button has a value of 0.1f
+
+    dev.ActivateAll();
+
+    ezInputManager::Update(1.0 / 30.0);
+    ezInputManager::GetInputActionState("test_inputset", "test_timescaling", &fVal);
+
+    EZ_TEST_FLOAT(fVal, 0.1f, 0.0001f);
+  }
+
+  EZ_TEST_BLOCK(true, "GetInputSlotFlags")
+  {
+    ezTestInputDevide dev;
+    ezInputManager::Update(1.0 / 30.0);
+
+    EZ_TEST(ezInputManager::GetInputSlotFlags("testdevice_button") == ezInputSlotFlags::IsButton);
+    EZ_TEST(ezInputManager::GetInputSlotFlags("testdevice_stick") == ezInputSlotFlags::IsAnalogStick);
+    EZ_TEST(ezInputManager::GetInputSlotFlags("testdevice_wheel") == ezInputSlotFlags::IsMouseWheel);
+    EZ_TEST(ezInputManager::GetInputSlotFlags("testdevice_touchpoint") == ezInputSlotFlags::IsTouchPoint);
+  }
+
+  EZ_TEST_BLOCK(true, "ClearInputMapping")
+  {
+    ezInputManager::Update(1.0 / 60.0);
+
+    ezInputActionConfig iac;
+    iac.m_bApplyTimeScaling = true;
+    iac.m_sInputSlotTrigger[0] = "testdevice_button";
+    ezInputManager::SetInputActionConfig("test_inputset", "test_timescaling", iac, true);
+
+    ezTestInputDevide dev;
+    dev.ActivateAll();
+
+    float fVal;
+
+    ezInputManager::Update(1.0 / 60.0);
+    ezInputManager::GetInputActionState("test_inputset", "test_timescaling", &fVal);
+
+    EZ_TEST_FLOAT(fVal, 0.1f * (1.0 / 60.0), 0.0001f); // testdevice_button has a value of 0.1f
+
+    // clear the button from the action
+    ezInputManager::ClearInputMapping("test_inputset", "testdevice_button");
+
+    dev.ActivateAll();
+
+    ezInputManager::Update(1.0 / 60.0);
+
+    // should not receive input anymore
+    ezInputManager::GetInputActionState("test_inputset", "test_timescaling", &fVal);
+
+    EZ_TEST_FLOAT(fVal, 0.0f, 0.0001f);
+  }
 }
 

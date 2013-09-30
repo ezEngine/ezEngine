@@ -98,8 +98,8 @@ ezKeyState::Enum ezInputManager::GetInputActionState(const char* szInputSet, con
   if (pValue)
     *pValue = 0.0f;
 
-if (iTriggeredSlot)
-  *iTriggeredSlot = -1;
+  if (iTriggeredSlot)
+    *iTriggeredSlot = -1;
 
   const ezInputSetMap::ConstIterator ItSet = GetInternals().s_ActionMapping.Find(szInputSet);
 

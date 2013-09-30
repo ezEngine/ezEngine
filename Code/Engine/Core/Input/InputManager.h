@@ -87,7 +87,7 @@ public:
   ///
   /// \param fTimeDifference The time elapsed since the last update. This will affect the value scaling of actions that
   /// use frame time scaling and is necessary to update controller vibration tracks.
-  static void Update(double fTimeDifference);
+  static void Update(double fTimeDifference); // [tested]
 
   /// \brief Will be replaced once we have an RTTI system.
   static ezInputDevice* GetInputDeviceByType(const char* szType);
@@ -108,7 +108,7 @@ public:
   static float GetInputSlotDeadZone(const char* szInputSlot); // [tested]
 
   /// \brief Returns the flags for the given input slot.
-  static ezBitflags<ezInputSlotFlags> GetInputSlotFlags(const char* szInputSlot);
+  static ezBitflags<ezInputSlotFlags> GetInputSlotFlags(const char* szInputSlot); // [tested]
 
   /// \brief Returns the current key state of the given input slot and optionally also returns its full value.
   static ezKeyState::Enum GetInputSlotState(const char* szInputSlot, float* pValue = NULL); // [tested]
@@ -120,12 +120,12 @@ public:
   ///
   /// If \a bResetCurrent is true, the internal last character will be reset to '\0'.
   /// If it is false, the internal state will not be changed. This should only be used, if the calling code does not do anything meaningful with the value.
-  static wchar_t RetrieveLastCharacter(bool bResetCurrent = true);
+  static wchar_t RetrieveLastCharacter(bool bResetCurrent = true); // [tested]
 
   /// \brief If \a szInputSlot is used in any action in \a szInputSet, it will be removed from all of them.
   ///
   /// This should be used to reset the usage of an input slot before it is bound to another input action.
-  static void ClearInputMapping(const char* szInputSet, const char* szInputSlot);
+  static void ClearInputMapping(const char* szInputSet, const char* szInputSlot); // [tested]
 
   /// \brief This is the one function to set up which input actions are available and by which input slots (keys) they are triggered.
   ///

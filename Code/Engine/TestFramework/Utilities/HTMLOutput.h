@@ -26,6 +26,8 @@ struct ezOutputToHTML
     {
     case ezTestOutput::StartOutput:
       {
+        ezTestFramework::GetInstance()->CreateOutputFolder();
+
         std::string sOutputFile = std::string(ezTestFramework::GetInstance()->GetAbsOutputPath()) + "/UnitTestsLog.htm";
         const char* szTestName = ezTestFramework::GetInstance()->GetTestName();
 

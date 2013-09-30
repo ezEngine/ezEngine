@@ -2,6 +2,8 @@
 #include <TestFramework/Framework/TestFramework.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Time/Time.h>
+#include <Foundation/Configuration/Startup.h>
+#include <Foundation/IO/OSFile.h>
 
 ezTestFramework* ezTestFramework::s_pInstance = NULL;
 bool ezTestFramework::s_bAssertOnTestFail = true;
@@ -109,9 +111,16 @@ void ezTestFramework::LoadTestOrder()
   ::LoadTestOrder(sTestSettingsFile.c_str(), m_TestEntries, m_Settings);
 }
 
+void ezTestFramework::CreateOutputFolder()
+{
+  ezStartup::StartupBase();
+  ezOSFile::CreateDirectoryStructure(m_sAbsTestDir.c_str());
+  ezStartup::ShutdownBase();
+}
+
 void ezTestFramework::SaveTestOrder()
 {
-  /// \todo Need to make sure the output folder exists. (ezOSFile::CreateFolderStructure ... does not work because of allocators)
+  CreateOutputFolder();
 
   std::string sTestSettingsFile = m_sAbsTestDir + std::string("/TestSettings.txt");
   ::SaveTestOrder(sTestSettingsFile.c_str(), m_TestEntries, m_Settings);
