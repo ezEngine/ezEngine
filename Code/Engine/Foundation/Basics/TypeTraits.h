@@ -17,13 +17,13 @@ typedef ezTraitInt<0> ezTypeIsClass;
 typedef char ezCompileTimeTrueType;
 typedef int ezCompileTimeFalseType;
 
-/// \brief Default == operator for T and TypeIsPod which returns a CompileTimeFalseType.
+/// \brief Default % operator for T and TypeIsPod which returns a CompileTimeFalseType.
 template <typename T>
-ezCompileTimeFalseType operator==(const T&, const ezTypeIsPod&);
+ezCompileTimeFalseType operator%(const T&, const ezTypeIsPod&);
 
-/// \brief If there is an == operator which takes a TypeIsPod and returns a CompileTimeTrueType T is Pod. Default == operator return false.
+/// \brief If there is an % operator which takes a TypeIsPod and returns a CompileTimeTrueType T is Pod. Default % operator return false.
 template <typename T>
-struct ezIsPodType : public ezTraitInt<(sizeof(*((T*)0) == *((const ezTypeIsPod*)0)) == 
+struct ezIsPodType : public ezTraitInt<(sizeof(*((T*)0) % *((const ezTypeIsPod*)0)) == 
   sizeof(ezCompileTimeTrueType)) ? 1 : 0> { };
 
 /// \brief Pointers are POD types.
@@ -64,7 +64,7 @@ struct ezConversionTest<T, T>
 /// \brief Embed this into a class to mark it as a POD type.
 /// POD types will get special treatment from allocators and container classes, such that they are faster to construct and copy.
 #define EZ_DECLARE_POD_TYPE() \
-  ezCompileTimeTrueType operator==(const ezTypeIsPod&) const
+  ezCompileTimeTrueType operator%(const ezTypeIsPod&) const
 
 /// \brief Defines a type T as Pod.
 /// POD types will get special treatment from allocators and container classes, such that they are faster to construct and copy.
@@ -90,6 +90,9 @@ EZ_DEFINE_AS_POD_TYPE(wchar_t);
   (ezConversionTest<const DerivedClass*, const BaseClass*>::exists && \
   !ezConversionTest<const BaseClass*, const void*>::sameType)
 
+/// \brief Checks whether A and B are the same type
+#define EZ_IS_SAME_TYPE(TypeA, TypeB) \
+  ezConversionTest<TypeA, TypeB>::sameType
 
 template <typename T>
 struct ezTypeTraits

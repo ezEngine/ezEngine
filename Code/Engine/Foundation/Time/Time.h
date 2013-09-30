@@ -67,6 +67,8 @@ public:
     friend class ezTime;
   };
 
+  EZ_DECLARE_POD_TYPE();
+
   ezTime() { m_fTime = 0.0; }
 
   /// \brief Initializes the ezTime instance with fTime as seconds. For clarity the usage of ezTime::Seconds may be preferred.

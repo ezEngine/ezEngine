@@ -10,12 +10,12 @@ static ezInt32 iTestData2 = 0;
 
 EZ_ON_GLOBAL_EVENT(TestGlobalEvent1)
 {
-  iTestData1 += param0.GetInt();
+  iTestData1 += param0.Get<ezInt32>();
 }
 
 EZ_ON_GLOBAL_EVENT(TestGlobalEvent2)
 {
-  iTestData2 += param0.GetInt();
+  iTestData2 += param0.Get<ezInt32>();
 }
 
 EZ_ON_GLOBAL_EVENT_ONCE(TestGlobalEvent3)

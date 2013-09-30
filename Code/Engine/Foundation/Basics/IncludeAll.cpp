@@ -11,6 +11,8 @@
 #include <Foundation/Basics/Types/Bitflags.h>
 #include <Foundation/Basics/Types/Delegate.h>
 #include <Foundation/Basics/Types/Id.h>
+#include <Foundation/Basics/Types/RefCounted.h>
+#include <Foundation/Basics/Types/Variant.h>
 
 #include <Foundation/Communication/Event.h>
 #include <Foundation/Communication/GlobalEvent.h>

@@ -1,9 +1,16 @@
 #pragma once
 
-#include <Foundation/Memory/MemoryUtils.h>
+#include <Foundation/Containers/DynamicArray.h>
+#include <Foundation/Containers/HashTable.h>
+#include <Foundation/Math/Mat3.h>
+#include <Foundation/Math/Mat4.h>
+#include <Foundation/Math/Quat.h>
+#include <Foundation/Strings/String.h>
+#include <Foundation/Threading/AtomicInteger.h>
+#include <Foundation/Time/Time.h>
 
-/// \brief A simple variant type that can hold an int, bool, const char*, void* or float.
-class ezVariant
+/// \todo document and test
+class EZ_FOUNDATION_DLL ezVariant
 {
 public:
 
@@ -12,48 +19,146 @@ public:
     enum Enum
     {
       Invalid,
-      Int,
       Bool,
-      ConstCharPtr,
-      VoidPtr,
+      Int32,
+      UInt32,
+      Int64,
+      UInt64,
       Float,
+      Double,
+      Color,
+      Vector2,
+      Vector3,
+      Vector4,
+      Quaternion,
+      Matrix3,
+      Matrix4,
+      String,
+      Time,
+      VariantArray,
+      VariantDictionary,
+      ObjectPointer,
+      VoidPointer
     };
   };
 
-  ezVariant()                       { m_Type = Type::Invalid;                               }
-  ezVariant(ezInt32 val)            { m_Type = Type::Int;            m_Int           = val; }
-  ezVariant(bool val)               { m_Type = Type::Bool;           m_Bool          = val; }
-  ezVariant(const char* val)        { m_Type = Type::ConstCharPtr;   m_ConstCharPtr  = val; }
-  ezVariant(void* val)              { m_Type = Type::VoidPtr;        m_VoidPtr       = val; }
-  ezVariant(float val)              { m_Type = Type::Float;          m_Float         = val; }
+  template <typename T>
+  struct TypeDeduction
+  {
+    enum
+    {
+      value = Type::Invalid,
+      forceSharing = false
+    };
 
-  void operator= (ezInt32 val)      { m_Type = Type::Int;            m_Int           = val; }
-  void operator= (bool val)         { m_Type = Type::Bool;           m_Bool          = val; }
-  void operator= (const char* val)  { m_Type = Type::ConstCharPtr;   m_ConstCharPtr  = val; }
-  void operator= (void* val)        { m_Type = Type::VoidPtr;        m_VoidPtr       = val; }
-  void operator= (float val)        { m_Type = Type::Float;          m_Float         = val; }
+    typedef T StorageType;
+  };
+  
+  static const ezVariant Invalid;
 
-  Type::Enum GetType() const { return m_Type; }
+  ezVariant();
+  ezVariant(const ezVariant& other);
 
-  ezInt32 GetInt() const              { EZ_ASSERT(m_Type == Type::Int,          "Incorrect Variant Type."); return m_Int;           }
-  bool GetBool() const                { EZ_ASSERT(m_Type == Type::Bool,         "Incorrect Variant Type."); return m_Bool;          }
-  const char* GetConstCharPtr() const { EZ_ASSERT(m_Type == Type::ConstCharPtr, "Incorrect Variant Type."); return m_ConstCharPtr;  }
-  void* GetVoidPtr() const            { EZ_ASSERT(m_Type == Type::VoidPtr,      "Incorrect Variant Type."); return m_VoidPtr;       }
-  float GetFloat() const              { EZ_ASSERT(m_Type == Type::Float,        "Incorrect Variant Type."); return m_Float;         }
+  template <typename T>
+  ezVariant(const T& value);
+
+  ~ezVariant();
+
+  void operator=(const ezVariant& other);
+
+  template <typename T>
+  void operator=(const T& value);
+
+  bool operator==(const ezVariant& other) const;
+  bool operator!=(const ezVariant& other) const;
+  
+  template <typename T>
+  bool operator==(const T& other) const;
+
+  template <typename T>
+  bool operator!=(const T& other) const;
+
+  bool IsValid() const;
+
+  template <typename T>
+  bool IsA() const;
+
+  Type::Enum GetType() const;
+
+  template <typename T>
+  const T& Get() const;
+
+  template <typename T>
+  bool CanConvertTo() const;
+
+  bool CanConvertTo(Type::Enum type) const;
+
+  template <typename T>
+  T ConvertTo() const;
+
+  ezVariant ConvertTo(Type::Enum type) const;
+
+  template <typename R, typename Functor>
+  static R DispatchTo(Functor& functor, Type::Enum type);
 
 private:
 
-  Type::Enum m_Type;
+  friend struct ezVariantConversion;
+  friend struct CompareFunc;
+  friend struct DestructFunc;
+  friend struct CopyFunc;
 
-  union
+  struct SharedData
   {
-    ezInt32 m_Int;
-    bool m_Bool;
-    const char* m_ConstCharPtr;
-    void* m_VoidPtr;
-    float m_Float;
+    ezAtomicInteger32 m_uiRef;
+    void* m_Ptr;
+    EZ_FORCE_INLINE SharedData(void* ptr) : m_Ptr(ptr), m_uiRef(1) { }
+    virtual ~SharedData() { }
   };
+
+  template <typename T>
+  class TypedSharedData : public SharedData
+  {
+  private:
+    T m_t;
+  public:
+    EZ_FORCE_INLINE TypedSharedData(const T& value) : SharedData(&m_t), m_t(value) { }
+  };
+
+  union Data
+  {
+    float f[4];
+    SharedData* shared;
+  } m_Data;
+
+  ezUInt32 m_Type : 31;
+  ezUInt32 m_bIsShared : 1;
+
+  template <typename T>
+  void Init(const T& value);
+
+  template <typename StorageType, typename T>
+  void Store(const T& value, ezTraitInt<0>);
+
+  template <typename StorageType, typename T>
+  void Store(const T& value, ezTraitInt<1>);
+
+  void Release();
+  void CopyFrom(const ezVariant& other);
+
+  template <typename T>
+  T& Cast();
+
+  template <typename T>
+  const T& Cast() const;
+
+  template <typename T>
+  T ConvertNumber() const;
 };
 
+typedef ezDynamicArray<ezVariant> ezVariantArray;
+typedef ezHashTable<ezString, ezVariant> ezVariantDictionary;
 
-
+#include <Foundation/Basics/Types/Implementation/VariantTypeDeduction_inl.h>
+#include <Foundation/Basics/Types/Implementation/VariantConversion_inl.h>
+#include <Foundation/Basics/Types/Implementation/Variant_inl.h>
