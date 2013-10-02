@@ -30,6 +30,13 @@ EZ_FORCE_INLINE void ezVariant::operator=(const ezVariant& other)
   }
 }
 
+template <typename T>
+EZ_FORCE_INLINE void ezVariant::operator=(const T& value)
+{
+  Release();
+  Init(value);
+}
+
 EZ_FORCE_INLINE bool ezVariant::operator!=(const ezVariant& other) const
 {
   return !(*this == other);
@@ -85,76 +92,84 @@ EZ_FORCE_INLINE T ezVariant::ConvertTo() const
   return result;
 }
 
-template <typename R, typename Functor>
-R ezVariant::DispatchTo(Functor& functor, Type::Enum type)
+// for some reason MSVC does not accept the template keyword here
+#if EZ_ENABLED(EZ_COMPILER_MSVC)
+  #define CALL_FUNCTOR(functor, type) functor.operator()<type>()
+#else
+  #define CALL_FUNCTOR(functor, type) functor.template operator()<type>()
+#endif
+
+template <typename Functor>
+void ezVariant::DispatchTo(Functor& functor, Type::Enum type)
 {
   switch (type)
   {
   case Type::Bool:
-    return functor.operator()<bool>();
+    CALL_FUNCTOR(functor, bool); break;
 
   case Type::Int32:
-    return functor.operator()<ezInt32>();
+    CALL_FUNCTOR(functor, ezInt32); break;
 
   case Type::UInt32:
-    return functor.operator()<ezUInt32>();
+    CALL_FUNCTOR(functor, ezUInt32); break;
 
   case Type::Int64:
-    return functor.operator()<ezInt64>();
+    CALL_FUNCTOR(functor, ezInt64); break;
 
   case Type::UInt64:
-    return functor.operator()<ezUInt64>();
+    CALL_FUNCTOR(functor, ezUInt64); break;
 
   case Type::Float:
-    return functor.operator()<float>();
+    CALL_FUNCTOR(functor, float); break;
 
   case Type::Double:
-    return functor.operator()<double>();
+    CALL_FUNCTOR(functor, double); break;
 
   /*case Type::Color:
-    return functor.operator()<ezColor>();*/
+    CALL_FUNCTOR(functor, ezColor); break;*/
 
   case Type::Vector2:
-    return functor.operator()<ezVec2>();
+    CALL_FUNCTOR(functor, ezVec2); break;
 
   case Type::Vector3:
-    return functor.operator()<ezVec3>();
+    CALL_FUNCTOR(functor, ezVec3); break;
 
   case Type::Vector4:
-    return functor.operator()<ezVec4>();
+    CALL_FUNCTOR(functor, ezVec4); break;
 
   case Type::Quaternion:
-    return functor.operator()<ezQuat>();
+    CALL_FUNCTOR(functor, ezQuat); break;
 
   case Type::Matrix3:
-    return functor.operator()<ezMat3>();
+    CALL_FUNCTOR(functor, ezMat3); break;
 
   case Type::Matrix4:
-    return functor.operator()<ezMat4>();
+    CALL_FUNCTOR(functor, ezMat4); break;
 
   case Type::String:
-    return functor.operator()<ezString>();
+    CALL_FUNCTOR(functor, ezString); break;
 
   case Type::Time:
-    return functor.operator()<ezTime>();
+    CALL_FUNCTOR(functor, ezTime); break;
 
   case Type::VariantArray:
-    return functor.operator()<ezVariantArray>();
+    CALL_FUNCTOR(functor, ezVariantArray); break;
 
   case Type::VariantDictionary:
-    return functor.operator()<ezVariantDictionary>();
+    CALL_FUNCTOR(functor, ezVariantDictionary); break;
 
   /*case Type::ObjectPointer:
-    return functor.operator()<ezObject*>();*/
+    CALL_FUNCTOR(functor, ezObject*); break;*/
 
   case Type::VoidPointer:
-    return functor.operator()<void*>();
+    CALL_FUNCTOR(functor, void*); break;
 
-  }
-
-  EZ_REPORT_FAILURE("Could not dispatch type '%d'", type);
-  return R();
+  default:
+    EZ_REPORT_FAILURE("Could not dispatch type '%d'", type); break;
+  }  
 }
+
+#undef CALL_FUNCTOR
 
 /// private methods
 
@@ -165,7 +180,7 @@ EZ_FORCE_INLINE void ezVariant::Init(const T& value)
 
   m_Type = TypeDeduction<T>::value;
 
-  Store<TypeDeduction<T>::StorageType, T>(value, ezTraitInt<(sizeof(TypeDeduction<T>::StorageType) > sizeof(Data)) || TypeDeduction<T>::forceSharing>());
+  Store<typename TypeDeduction<T>::StorageType, T>(value, ezTraitInt<(sizeof(typename TypeDeduction<T>::StorageType) > sizeof(Data)) || TypeDeduction<T>::forceSharing>());
 }
 
 template <typename StorageType, typename T>
@@ -185,7 +200,7 @@ EZ_FORCE_INLINE void ezVariant::Store(const T& value, ezTraitInt<1>)
 template <typename T>
 EZ_FORCE_INLINE T& ezVariant::Cast()
 {
-  EZ_CHECK_AT_COMPILETIME_MSG(EZ_IS_SAME_TYPE(T, TypeDeduction<T>::StorageType), "Invalid Cast, can only cast to storage type");
+  EZ_CHECK_AT_COMPILETIME_MSG(EZ_IS_SAME_TYPE(T, typename TypeDeduction<T>::StorageType), "Invalid Cast, can only cast to storage type");
 
   return (sizeof(T) > sizeof(Data) || TypeDeduction<T>::forceSharing) ?
     *static_cast<T*>(m_Data.shared->m_Ptr) :
@@ -195,7 +210,7 @@ EZ_FORCE_INLINE T& ezVariant::Cast()
 template <typename T>
 EZ_FORCE_INLINE const T& ezVariant::Cast() const
 {
-  EZ_CHECK_AT_COMPILETIME_MSG(EZ_IS_SAME_TYPE(T, TypeDeduction<T>::StorageType), "Invalid Cast, can only cast to storage type");
+  EZ_CHECK_AT_COMPILETIME_MSG(EZ_IS_SAME_TYPE(T, typename TypeDeduction<T>::StorageType), "Invalid Cast, can only cast to storage type");
 
   return (sizeof(T) > sizeof(Data) || TypeDeduction<T>::forceSharing) ?
     *static_cast<const T*>(m_Data.shared->m_Ptr) :

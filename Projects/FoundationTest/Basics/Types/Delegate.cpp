@@ -5,6 +5,10 @@ namespace
 {
   struct TestType
   {
+    TestType()
+    {
+    }
+    
     ezInt32 Method(ezInt32 b)
     {
       return b + m_iA;

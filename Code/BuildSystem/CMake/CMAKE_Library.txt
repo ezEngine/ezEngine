@@ -49,6 +49,8 @@ if (EZ_COMPILE_ENGINE_AS_DLL)
 else ()
   # add the project as a static library
   add_library (${PROJECT_NAME} ${ALL_SOURCE_FILES})
+
+  target_link_libraries (${PROJECT_NAME} ${LINK_LIBRARIES})
 endif ()
 
 set_target_properties(${PROJECT_NAME} PROPERTIES IMPORT_PREFIX "ez")

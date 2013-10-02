@@ -53,7 +53,7 @@ EZ_FORCE_INLINE void ezHybridArrayBase<T, Size>::operator= (const ezHybridArrayB
 template <typename T, ezUInt32 Size>
 void ezHybridArrayBase<T, Size>::operator= (const ezArrayPtr<T>& rhs)
 {
-  SetCount(rhs.GetCount());
+  this->SetCount(rhs.GetCount());
   ezMemoryUtils::Copy(this->m_pElements, rhs.GetPtr(), rhs.GetCount());
 }
 

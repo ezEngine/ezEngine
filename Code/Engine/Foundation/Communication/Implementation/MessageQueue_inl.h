@@ -130,7 +130,7 @@ template <typename MetaDataType, typename MutexType>
 template <typename C>
 EZ_FORCE_INLINE void ezMessageQueueBase<MetaDataType, MutexType>::Sort()
 {
-  m_Queue.Sort<C>();
+  m_Queue.template Sort<C>();
 }
 
 template <typename MetaDataType, typename MutexType>

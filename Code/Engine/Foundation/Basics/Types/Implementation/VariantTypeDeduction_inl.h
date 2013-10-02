@@ -180,6 +180,18 @@ struct ezVariant::TypeDeduction<ezString>
 };
 
 template <>
+struct ezVariant::TypeDeduction<char*>
+{
+  enum
+  {
+    value = Type::String,
+    forceSharing = true
+  };
+  
+  typedef ezString StorageType;
+};
+
+template <>
 struct ezVariant::TypeDeduction<const char*>
 {
   enum
@@ -188,6 +200,18 @@ struct ezVariant::TypeDeduction<const char*>
     forceSharing = true
   };
 
+  typedef ezString StorageType;
+};
+
+template <size_t N>
+struct ezVariant::TypeDeduction<char[N]>
+{
+  enum
+  {
+    value = Type::String,
+    forceSharing = true
+  };
+  
   typedef ezString StorageType;
 };
 

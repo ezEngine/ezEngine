@@ -9,7 +9,7 @@ ezInt32 ezConstructionCounter::s_iDestructionsLast = 0;
 
 int main(int argc, char **argv)
 {
-  ezTestFramework* ezTestFramework = ezTestSetup::InitTestFramework("FoundationTest", "Foundation Tests");
+  ezTestSetup::InitTestFramework("FoundationTest", "Foundation Tests");
   
   // *** Add additional output handlers and configurations here. ***
 

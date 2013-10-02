@@ -2,9 +2,6 @@
 #include <Foundation/Communication/Telemetry.h>
 #include <Foundation/Threading/Thread.h>
 
-static ezTelemetryThread* g_pBroadcastThread = NULL;
-ezMutex ezTelemetry::s_TelemetryMutex;
-
 class ezTelemetryThread : public ezThread
 {
 public:
@@ -43,6 +40,10 @@ private:
     return 0;
   }
 };
+
+static ezTelemetryThread* g_pBroadcastThread = NULL;
+ezMutex ezTelemetry::s_TelemetryMutex;
+
 
 ezMutex& ezTelemetry::GetTelemetryMutex()
 {

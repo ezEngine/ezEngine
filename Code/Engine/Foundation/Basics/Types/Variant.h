@@ -98,8 +98,8 @@ public:
 
   ezVariant ConvertTo(Type::Enum type) const;
 
-  template <typename R, typename Functor>
-  static R DispatchTo(Functor& functor, Type::Enum type);
+  template <typename Functor>
+  static void DispatchTo(Functor& functor, Type::Enum type);
 
 private:
 
@@ -110,8 +110,8 @@ private:
 
   struct SharedData
   {
-    ezAtomicInteger32 m_uiRef;
     void* m_Ptr;
+    ezAtomicInteger32 m_uiRef;
     EZ_FORCE_INLINE SharedData(void* ptr) : m_Ptr(ptr), m_uiRef(1) { }
     virtual ~SharedData() { }
   };

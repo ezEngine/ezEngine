@@ -265,12 +265,18 @@ template <typename C>
 void ezArrayBase<T, Derived>::Sort()
 {
   if (m_uiCount > 1)
-    ezSorting<C>::QuickSort((ezArrayPtr<T>)*this);
+  {
+    ezArrayPtr<T> ar = *this;
+    ezSorting<C>::QuickSort(ar);
+  }
 }
 
 template <typename T, typename Derived>
 void ezArrayBase<T, Derived>::Sort()
 {
   if (m_uiCount > 1)
-    ezSorting<ezCompareHelper<T> >::QuickSort((ezArrayPtr<T>&)*this);
+  {
+    ezArrayPtr<T> ar = *this;
+    ezSorting<ezCompareHelper<T> >::QuickSort(ar);
+  }
 }

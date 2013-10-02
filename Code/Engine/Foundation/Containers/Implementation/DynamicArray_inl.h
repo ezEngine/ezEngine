@@ -41,7 +41,7 @@ EZ_FORCE_INLINE void ezDynamicArrayBase<T>::operator= (const ezDynamicArrayBase<
 template <typename T>
 void ezDynamicArrayBase<T>::operator= (const ezArrayPtr<T>& rhs)
 {
-  SetCount(rhs.GetCount());
+  this->SetCount(rhs.GetCount());
   ezMemoryUtils::Copy(this->m_pElements, rhs.GetPtr(), rhs.GetCount());
 }
 

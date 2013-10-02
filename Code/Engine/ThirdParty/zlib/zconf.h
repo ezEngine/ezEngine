@@ -8,7 +8,9 @@
 #ifndef ZCONF_H
 #define ZCONF_H
 
-#define ZLIB_DLL
+#if BUILDSYSTEM_COMPILE_ENGINE_AS_DLL
+  #define ZLIB_DLL
+#endif
 
 /*
  * If you *really* need a unique prefix for all types and library functions,

@@ -24,6 +24,9 @@ static const char* GenerateThreadName(ezWorkerThreadType::Enum ThreadType, ezUIn
     else
       sTemp = "Resource Loading";
     break;
+  default:
+    /// \todo: not reached macro
+    break;
   }
 
   return sTemp.GetData();

@@ -22,6 +22,9 @@ EZ_CREATE_SIMPLE_TEST_GROUP(Configuration);
 
 static ezInt32 iChangedValue = 0;
 static ezInt32 iChangedRestart = 0;
+
+#if EZ_ENABLED(EZ_SUPPORTS_DYNAMIC_PLUGINS)
+
 static void ChangedCVar(const ezCVar::CVarEvent& e)
 {
   switch (e.m_EventType)
@@ -34,6 +37,8 @@ static void ChangedCVar(const ezCVar::CVarEvent& e)
     break;
   }
 }
+
+#endif
 
 EZ_CREATE_SIMPLE_TEST(Configuration, CVars)
 {

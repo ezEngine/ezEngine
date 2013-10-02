@@ -14,26 +14,28 @@ const ezVariant ezVariant::Invalid;
 struct CompareFunc
 {
   template <typename T>
-  EZ_FORCE_INLINE bool operator()() const
+  EZ_FORCE_INLINE void operator()()
   {
-    return m_pThis->Cast<T>() == m_pOther->Cast<T>();
+    m_bResult = m_pThis->Cast<T>() == m_pOther->Cast<T>();
   }
 
   const ezVariant* m_pThis;
   const ezVariant* m_pOther;
+  bool m_bResult;
 };
 
 struct ConvertFunc
 {
   template <typename T>
-  EZ_FORCE_INLINE ezVariant operator()() const
+  EZ_FORCE_INLINE void operator()()
   {
     T result;
     ezVariantConversion::To(result, *m_pThis);
-    return result;
+    m_Result = result;
   }
 
   const ezVariant* m_pThis;
+  ezVariant m_Result;
 };
 
 struct DestructFunc
@@ -71,7 +73,9 @@ bool ezVariant::operator==(const ezVariant& other) const
   compareFunc.m_pThis = this;
   compareFunc.m_pOther = &other;
 
-  return DispatchTo<bool>(compareFunc, GetType());
+  DispatchTo(compareFunc, GetType());
+
+  return compareFunc.m_bResult;
 }
 
 bool ezVariant::CanConvertTo(Type::Enum type) const
@@ -101,7 +105,9 @@ ezVariant ezVariant::ConvertTo(Type::Enum type) const
   ConvertFunc convertFunc;
   convertFunc.m_pThis = this;
 
-  return DispatchTo<ezVariant>(convertFunc, type);
+  DispatchTo(convertFunc, type);
+
+  return convertFunc.m_Result;
 }
 
 /// private methods
@@ -120,7 +126,7 @@ void ezVariant::Release()
     DestructFunc destructFunc;
     destructFunc.m_pThis = this;
 
-    DispatchTo<void>(destructFunc, GetType());
+    DispatchTo(destructFunc, GetType());
   }
 }
 
@@ -140,6 +146,6 @@ void ezVariant::CopyFrom(const ezVariant& other)
     copyFunc.m_pThis = this;
     copyFunc.m_pOther = &other;
 
-    DispatchTo<void>(copyFunc, GetType());
+    DispatchTo(copyFunc, GetType());
   }
 }

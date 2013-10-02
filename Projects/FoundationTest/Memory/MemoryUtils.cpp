@@ -190,9 +190,9 @@ EZ_CREATE_SIMPLE_TEST(Memory, MemoryUtils)
     EZ_TEST_INT(uiRawDataB[1], 4);
     EZ_TEST_INT(uiRawDataB[2], 5);
 
-    EZ_TEST_INT(ezMemoryUtils::ByteCompare(uiRawDataA, uiRawDataB, 3), -1);
-    EZ_TEST_INT(ezMemoryUtils::ByteCompare(uiRawDataA + 2, uiRawDataB, 1), 0);
-    EZ_TEST_INT(ezMemoryUtils::ByteCompare(uiRawDataB, uiRawDataA, 3), 1);
+    EZ_TEST(ezMemoryUtils::ByteCompare(uiRawDataA, uiRawDataB, 3) < 0);
+    EZ_TEST(ezMemoryUtils::ByteCompare(uiRawDataA + 2, uiRawDataB, 1) == 0);
+    EZ_TEST(ezMemoryUtils::ByteCompare(uiRawDataB, uiRawDataA, 3) > 0);
   }
 
   EZ_TEST_BLOCK(true, "AddByteOffset")

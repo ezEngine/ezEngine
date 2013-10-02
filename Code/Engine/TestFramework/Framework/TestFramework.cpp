@@ -224,7 +224,6 @@ void ezTestFramework::ExecuteTest(ezUInt32 uiTestIndex)
   ezTestEntry& TestEntry = m_TestEntries[uiTestIndex];
   ezTestBaseClass* pTestClass = m_TestEntries[uiTestIndex].m_pTest;
 
-  ezResult TestResult = EZ_FAILURE;
   // Execute test
   {
     m_iCurrentTestIndex = (ezInt32)uiTestIndex;

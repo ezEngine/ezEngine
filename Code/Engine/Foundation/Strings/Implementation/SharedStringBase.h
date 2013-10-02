@@ -18,7 +18,7 @@ namespace ezInternal
 
     // Only a few classes shall use the ezSharedStringBase internally.
     // Add all these classes as friends here, if you need to add another string type that uses shared data.
-    friend class ezSharedString;
+    friend class ::ezSharedString;
 
     static ezSharedStringBase* CreateSharedString(const char* szString, const char* szStringEnd = ezMaxStringEnd)
     {

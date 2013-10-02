@@ -194,6 +194,9 @@ void ezTelemetry::UpdateNetwork()
         enet_packet_destroy(NetworkEvent.packet);
       }
       break;
+        
+    default:
+      break;
 
     }
   }
@@ -299,6 +302,8 @@ ezResult ezTelemetry::OpenConnection(ConnectionMode Mode, const char* szConnectT
       CloseConnection();
       return EZ_FAILURE;
     }
+    break;
+  default:
     break;
   }
 
