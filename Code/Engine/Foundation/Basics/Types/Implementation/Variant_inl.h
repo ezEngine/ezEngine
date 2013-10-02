@@ -200,7 +200,8 @@ EZ_FORCE_INLINE void ezVariant::Store(const T& value, ezTraitInt<1>)
 template <typename T>
 EZ_FORCE_INLINE T& ezVariant::Cast()
 {
-  EZ_CHECK_AT_COMPILETIME_MSG(EZ_IS_SAME_TYPE(T, typename TypeDeduction<T>::StorageType), "Invalid Cast, can only cast to storage type");
+  const bool validType = ezConversionTest<T, typename TypeDeduction<T>::StorageType>::sameType;
+  EZ_CHECK_AT_COMPILETIME_MSG(validType, "Invalid Cast, can only cast to storage type");
 
   return (sizeof(T) > sizeof(Data) || TypeDeduction<T>::forceSharing) ?
     *static_cast<T*>(m_Data.shared->m_Ptr) :
@@ -210,7 +211,8 @@ EZ_FORCE_INLINE T& ezVariant::Cast()
 template <typename T>
 EZ_FORCE_INLINE const T& ezVariant::Cast() const
 {
-  EZ_CHECK_AT_COMPILETIME_MSG(EZ_IS_SAME_TYPE(T, typename TypeDeduction<T>::StorageType), "Invalid Cast, can only cast to storage type");
+  const bool validType = ezConversionTest<T, typename TypeDeduction<T>::StorageType>::sameType;
+  EZ_CHECK_AT_COMPILETIME_MSG(validType, "Invalid Cast, can only cast to storage type");
 
   return (sizeof(T) > sizeof(Data) || TypeDeduction<T>::forceSharing) ?
     *static_cast<const T*>(m_Data.shared->m_Ptr) :
