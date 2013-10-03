@@ -18,6 +18,7 @@
 SET (LINK_LIBRARIES
   Foundation
   Core
+  System
   OpenGL32
   InputWindows
   InputXBox360
