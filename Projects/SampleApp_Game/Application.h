@@ -14,6 +14,8 @@ public:
 
   virtual ezApplication::ApplicationExecution Run() EZ_OVERRIDE;
 
+
+
 private:
   friend LRESULT CALLBACK WndProc (HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -31,11 +33,8 @@ private:
   void DestroyGameLevel();
 
   bool m_bActiveRenderLoop;
-  bool m_bFullscreen;
-  ezUInt32 m_uiResolutionX;
-  ezUInt32 m_uiResolutionY;
-  const char* m_szAppName;
   Level* m_pLevel;
+  class GameWindow* m_pWindow;
 
   ezVirtualThumbStick* m_pThumbstick;
   ezVirtualThumbStick* m_pThumbstick2;

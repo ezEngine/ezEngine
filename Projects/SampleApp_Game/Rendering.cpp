@@ -1,9 +1,12 @@
 #include "Application.h"
+#include "Window.h"
 #include "ShipComponent.h"
 #include "ProjectileComponent.h"
 #include "AsteroidComponent.h"
 #include <gl/GL.h>
 #include <Core/Input/InputManager.h>
+#include <Foundation/math/Size.h>
+
 
 const float g_fShipColors[4][3] =
 {
@@ -156,7 +159,8 @@ void SampleGameApp::RenderSingleFrame()
 {
   UpdateInput();
 
-  glViewport(0, 0, m_uiResolutionX, m_uiResolutionY);
+  ezSizeU32 resolution = m_pWindow->GetResolution();
+  glViewport(0, 0, resolution.width, resolution.height);
 
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();

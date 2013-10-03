@@ -5,6 +5,12 @@
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   #include <System/Window/Implementation/Win32/Window_win32.inl>
-#else
+#else 
   #error "Missing code for ezWindow!"
 #endif
+
+ezWindow::~ezWindow()
+{
+  if(m_bInitialized)
+    Destroy();
+}

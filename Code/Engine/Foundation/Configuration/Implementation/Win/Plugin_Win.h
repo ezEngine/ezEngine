@@ -49,7 +49,7 @@
     // reset last error code
     if (GetLastError()) { }
 
-    Module = LoadLibrary(szFileToLoad);
+    Module = LoadLibraryW(ezStringWChar(szFileToLoad).GetData());
 
     if (Module == NULL)
     {

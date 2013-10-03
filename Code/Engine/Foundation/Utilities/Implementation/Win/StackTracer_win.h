@@ -44,7 +44,7 @@ struct StackTracerImplementation
     if (isInitialized)
       return;
 
-    kernel32Dll = LoadLibrary("kernel32.dll");
+    kernel32Dll = LoadLibraryW(L"kernel32.dll");
     EZ_ASSERT(kernel32Dll != NULL, "StackTracer could not load kernel32.dll");
     if (kernel32Dll != NULL)
     {
@@ -52,7 +52,7 @@ struct StackTracerImplementation
         "RtlCaptureStackBackTrace");
     }
 
-    dbgHelpDll = LoadLibrary("dbghelp.dll");
+    dbgHelpDll = LoadLibraryW(L"dbghelp.dll");
     EZ_ASSERT(dbgHelpDll != NULL, "StackTracer could not load dbghelp.dll");
     if (dbgHelpDll != NULL)
     {

@@ -1,6 +1,7 @@
 #include <ThirdParty/enet/enet.h>
 #include "Main.h"
 #include "Application.h"
+#include "Window.h"
 #include <Foundation/Logging/ConsoleWriter.h>
 #include <Foundation/Logging/VisualStudioWriter.h>
 #include <Foundation/Time/Time.h>
@@ -12,10 +13,7 @@
 SampleGameApp::SampleGameApp()
 {
   m_bActiveRenderLoop = false;
-  m_bFullscreen = false;
-  m_uiResolutionX = 500;
-  m_uiResolutionY = 500;
-  m_szAppName = "ezSampleGame";
+  m_pWindow = nullptr;
 }
 
 void SampleGameApp::AfterEngineInit()
@@ -38,18 +36,18 @@ void SampleGameApp::AfterEngineInit()
 
   CreateGameLevel();
 
-  CreateAppWindow();
+  m_pWindow = EZ_DEFAULT_NEW(GameWindow);
 
   ezStartup::StartupEngine();
 
-  
+  m_bActiveRenderLoop = true;
 }
 
 void SampleGameApp::BeforeEngineShutdown()
 {
   ezStartup::ShutdownEngine();
 
-  DestroyAppWindow();
+  EZ_DEFAULT_DELETE(m_pWindow);
 
   EZ_DEFAULT_DELETE(m_pThumbstick);
   EZ_DEFAULT_DELETE(m_pThumbstick2);
@@ -61,10 +59,22 @@ void SampleGameApp::BeforeEngineShutdown()
 
 ezApplication::ApplicationExecution SampleGameApp::Run()
 {
-  GameLoop();
+  m_bActiveRenderLoop = (m_pWindow->ProcessWindowMessages() == ezWindow::Continue);
 
-  return ezApplication::Quit;
+  if(!m_bActiveRenderLoop)
+    return ezApplication::Quit;
+
+  RenderSingleFrame();
+  m_pWindow->SwapBuffers();
+  
+
+  ezTelemetry::PerFrameUpdate();
+
+  Sleep(10);  // still necessary?
+
+  return ezApplication::Continue;
 }
+
 
 EZ_CONSOLEAPP_ENTRY_POINT(SampleGameApp);
 

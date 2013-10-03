@@ -61,6 +61,7 @@ class ezVec2Template;
 
 typedef ezVec2Template<float> ezVec2;
 typedef ezVec2Template<double> ezVec2d;
+typedef ezVec2Template<ezUInt32> ezVec2U32;
 
 template<typename Type>
 class ezVec3Template;
