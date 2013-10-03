@@ -23,6 +23,9 @@ public:
 
   bool IsValidComponent(const ezComponentHandle& component) const;
 
+  template <typename ComponentType>
+  static bool IsComponentOfType(const ezComponentHandle& component);
+
   bool TryGetComponent(const ezComponentHandle& component, ezComponent*& out_pComponent) const;
   ezUInt32 GetComponentCount() const;
   ezUInt32 GetActiveComponentCount() const;
@@ -90,8 +93,6 @@ template <typename ComponentType>
 class ezComponentManager : public ezComponentManagerBase
 {
 public:
-  typedef ComponentType ComponentType;
-
   ezComponentManager(ezWorld* pWorld);
   virtual ~ezComponentManager();
 
@@ -100,6 +101,8 @@ public:
 
   bool TryGetComponent(const ezComponentHandle& component, ComponentType*& out_pComponent) const;
   typename ezBlockStorage<ComponentType>::Iterator GetComponents();
+
+  static ezUInt16 TypeId();
 
 protected:
   friend ComponentType;

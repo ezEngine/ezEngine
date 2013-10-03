@@ -67,7 +67,7 @@ ManagerType* ezWorld::CreateComponentManager()
   EZ_CHECK_AT_COMPILETIME_MSG(EZ_IS_DERIVED_FROM_STATIC(ezComponentManagerBase, ManagerType), 
     "Not a valid component manager type");
 
-  const ezUInt16 uiTypeId = ManagerType::ComponentType::TypeId();
+  const ezUInt16 uiTypeId = ManagerType::TypeId();
   if (uiTypeId >= m_Data.m_ComponentManagers.GetCount())
   {
     m_Data.m_ComponentManagers.SetCount(uiTypeId + 1);
@@ -92,7 +92,7 @@ EZ_FORCE_INLINE ManagerType* ezWorld::GetComponentManager() const
   EZ_CHECK_AT_COMPILETIME_MSG(EZ_IS_DERIVED_FROM_STATIC(ezComponentManagerBase, ManagerType), 
     "Not a valid component manager type");
 
-  const ezUInt16 uiTypeId = ManagerType::ComponentType::TypeId();
+  const ezUInt16 uiTypeId = ManagerType::TypeId();
   ManagerType* pManager = NULL;
   if (uiTypeId < m_Data.m_ComponentManagers.GetCount())
   {
@@ -118,12 +118,12 @@ inline bool ezWorld::IsValidComponent(const ezComponentHandle& component) const
 
   return false;
 }
-  
+
+//static
 template <typename ComponentType>
-EZ_FORCE_INLINE bool ezWorld::IsComponentOfType(const ezComponentHandle& component) const
+EZ_FORCE_INLINE bool ezWorld::IsComponentOfType(const ezComponentHandle& component)
 {
-  /// \todo Use RTTI
-  return component.m_InternalId.m_TypeId == ComponentType::TypeId() || ComponentType::TypeId() == ezComponent::TypeId();
+  return ezComponentManagerBase::IsComponentOfType<ComponentType>(component);
 }
 
 template <typename ComponentType>

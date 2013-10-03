@@ -144,19 +144,34 @@ bool ezGameObject::TryGetComponentOfType(T*& out_pComponent) const
   for (ezUInt32 i = 0; i < m_Components.GetCount(); ++i)
   {
     ezComponentHandle component = m_Components[i];
-    if (m_pWorld->IsComponentOfType<T>(component))
+    ezComponent* pComponent = NULL;
+    if (ezComponentManagerBase::IsComponentOfType<T>(component) && TryGetComponent(component, pComponent))
     {
-      return m_pWorld->TryGetComponent(component, out_pComponent);
+      out_pComponent = static_cast<T*>(pComponent);
+      return true;
     }
   }
 
   return false;
 }
 
-//template <typename T>
-//ezResult ezGameObject::GetComponentsOfType(ezArrayPtr<ezComponentHandle> out_components) const
-//{
-//}
+template <typename T>
+bool ezGameObject::TryGetComponentsOfType(ezArrayPtr<T*> out_components) const
+{
+  ezUInt32 uiOutIndex = 0;
+  for (ezUInt32 i = 0; i < m_Components.GetCount(); ++i)
+  {
+    ezComponentHandle component = m_Components[i];
+    ezComponent* pComponent = NULL;
+    if (ezComponentManagerBase::IsComponentOfType<T>(component) && TryGetComponent(component, pComponent))
+    {
+      out_components[uiOutIndex] = static_cast<T*>(pComponent);
+      ++uiOutIndex;
+    }
+  }
+
+  return uiOutIndex > 0;
+}
 
 EZ_FORCE_INLINE ezArrayPtr<ezComponentHandle> ezGameObject::GetComponents() const
 {

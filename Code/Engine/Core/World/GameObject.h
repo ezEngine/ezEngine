@@ -129,6 +129,7 @@ public:
   void SendMessage(ezMessage& msg, ezBitflags<ezObjectMsgRouting> routing = ezObjectMsgRouting::Default);
   
 private:
+  bool TryGetComponent(const ezComponentHandle& component, ezComponent*& out_pComponent) const;
   void OnMessage(ezMessage& msg, ezBitflags<ezObjectMsgRouting> routing);
 
   ezGameObjectId m_InternalId;

@@ -45,7 +45,7 @@ public:
   bool IsValidComponent(const ezComponentHandle& component) const;
   
   template <typename ComponentType>
-  bool IsComponentOfType(const ezComponentHandle& component) const;
+  static bool IsComponentOfType(const ezComponentHandle& component);
 
   template <typename ComponentType>
   bool TryGetComponent(const ezComponentHandle& component, ComponentType*& out_pComponent) const;

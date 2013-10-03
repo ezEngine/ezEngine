@@ -98,6 +98,11 @@ ezResult ezGameObject::RemoveComponent(const ezComponentHandle& component)
   return result;
 }
 
+bool ezGameObject::TryGetComponent(const ezComponentHandle& component, ezComponent*& out_pComponent) const
+{
+  return m_pWorld->TryGetComponent(component, out_pComponent);
+}
+
 void ezGameObject::SendMessage(ezMessage& msg, ezBitflags<ezObjectMsgRouting> routing /*= MsgRouting::Default*/)
 {
   if (routing.IsAnySet(ezObjectMsgRouting::QueuedForPostAsync | ezObjectMsgRouting::QueuedForNextFrame))

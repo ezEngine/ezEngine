@@ -9,6 +9,14 @@ EZ_FORCE_INLINE bool ezComponentManagerBase::IsValidComponent(const ezComponentH
   return m_Components.Contains(component);
 }
 
+//static
+template <typename ComponentType>
+EZ_FORCE_INLINE bool ezComponentManagerBase::IsComponentOfType(const ezComponentHandle& component)
+{
+  /// \todo Use RTTI
+  return component.m_InternalId.m_TypeId == ComponentType::TypeId() || ComponentType::TypeId() == ezComponent::TypeId();
+}
+
 EZ_FORCE_INLINE bool ezComponentManagerBase::TryGetComponent(const ezComponentHandle& component, ezComponent*& out_pComponent) const
 {
   ComponentStorageEntry storageEntry = { NULL };
@@ -71,7 +79,7 @@ EZ_FORCE_INLINE ezComponentHandle ezComponentManager<ComponentType>::CreateCompo
 template <typename ComponentType>
 EZ_FORCE_INLINE ezComponentHandle ezComponentManager<ComponentType>::CreateComponent(ComponentType*& out_pComponent)
 {
-  ezBlockStorage<ComponentType>::Entry storageEntry = m_ComponentStorage.Create();
+  typename ezBlockStorage<ComponentType>::Entry storageEntry = m_ComponentStorage.Create();
   out_pComponent = storageEntry.m_Ptr;
 
   return ezComponentManagerBase::CreateComponent(*reinterpret_cast<ComponentStorageEntry*>(&storageEntry), ComponentType::TypeId());
@@ -96,10 +104,17 @@ EZ_FORCE_INLINE typename ezBlockStorage<ComponentType>::Iterator ezComponentMana
   return m_ComponentStorage.GetIterator();
 }
 
+//static
+template <typename ComponentType>
+ezUInt16 ezComponentManager<ComponentType>::TypeId()
+{
+  return ComponentType::TypeId();
+}
+
 template <typename ComponentType>
 EZ_FORCE_INLINE void ezComponentManager<ComponentType>::DeleteDeadComponent(ComponentStorageEntry storageEntry)
 {
-  m_ComponentStorage.Delete(*reinterpret_cast<ezBlockStorage<ComponentType>::Entry*>(&storageEntry));
+  m_ComponentStorage.Delete(*reinterpret_cast<typename ezBlockStorage<ComponentType>::Entry*>(&storageEntry));
   ezComponentManagerBase::DeleteDeadComponent(storageEntry);
 }
 
@@ -124,16 +139,16 @@ EZ_FORCE_INLINE ezComponentHandle ezComponentManager<ComponentType>::GetHandle(e
 
 template <typename ComponentType>
 ezComponentManagerSimple<ComponentType>::ezComponentManagerSimple(ezWorld* pWorld) : 
-  ezComponentManager(pWorld)
+  ezComponentManager<ComponentType>(pWorld)
 {
 }
 
 template <typename ComponentType>
 ezResult ezComponentManagerSimple<ComponentType>::Initialize()
 {
-  UpdateFunctionDesc desc = EZ_CREATE_COMPONENT_UPDATE_FUNCTION_DESC(ezComponentManagerSimple<ComponentType>::SimpleUpdate, this);
+  ezComponentManagerBase::UpdateFunctionDesc desc = EZ_CREATE_COMPONENT_UPDATE_FUNCTION_DESC(ezComponentManagerSimple<ComponentType>::SimpleUpdate, this);
 
-  RegisterUpdateFunction(desc);
+  this->RegisterUpdateFunction(desc);
 
   return EZ_SUCCESS;
 }
@@ -141,7 +156,7 @@ ezResult ezComponentManagerSimple<ComponentType>::Initialize()
 template <typename ComponentType>
 void ezComponentManagerSimple<ComponentType>::SimpleUpdate(ezUInt32 uiStartIndex, ezUInt32 uiCount)
 {
-  for (ezBlockStorage<ComponentType>::Iterator it = m_ComponentStorage.GetIterator(uiStartIndex, uiCount); it.IsValid(); ++it)
+  for (typename ezBlockStorage<ComponentType>::Iterator it = this->m_ComponentStorage.GetIterator(uiStartIndex, uiCount); it.IsValid(); ++it)
   {
     ComponentType& component = *it;
     if (component.IsActive())

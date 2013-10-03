@@ -4,7 +4,7 @@
 
 int main(int argc, char **argv)
 {
-  ezTestFramework* ezTestFramework = ezTestSetup::InitTestFramework("CoreTest", "Core Tests");
+  ezTestSetup::InitTestFramework("CoreTest", "Core Tests");
   
   // *** Add additional output handlers and configurations here. ***
 
