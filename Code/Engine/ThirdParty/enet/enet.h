@@ -5,7 +5,9 @@
 #ifndef __ENET_ENET_H__
 #define __ENET_ENET_H__
 
-#define ENET_DLL
+#if BUILDSYSTEM_COMPILE_ENGINE_AS_DLL
+  #define ENET_DLL
+#endif
 
 #ifdef __cplusplus
 extern "C"

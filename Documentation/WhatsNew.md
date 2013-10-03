@@ -33,6 +33,7 @@ Milestone 3
   * Added ezDelegate for callbacks that work with static functions and member functions.
   * Fixed some code analysis warnings with Visual Studio 2012.
   * Fixed several bugs.
+  * New ezVariant type that is much more powerful and useful than the previous implementation.
   
 
 Milestone 2

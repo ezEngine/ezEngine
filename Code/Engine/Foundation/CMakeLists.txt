@@ -20,11 +20,11 @@ SET (LINK_LIBRARIES
  )
 
 if (MSVC)
-  link_directories(${CMAKE_SOURCE_DIR}/Code/ThirdParty/gpa_ITT/libs/$(PlatformName))
+  #link_directories(${CMAKE_SOURCE_DIR}/Code/ThirdParty/gpa_ITT/libs/$(PlatformName))
 
   SET (LINK_LIBRARIES
     ${LINK_LIBRARIES}
-    gpasdk_d.lib
+    ${CMAKE_SOURCE_DIR}/Code/ThirdParty/gpa_ITT/libs/$(PlatformName)/gpasdk_d.lib
   )
 endif()
 
