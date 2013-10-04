@@ -50,7 +50,7 @@ struct ezTestResultQuery
 /// \brief Stores the results of a test run. Used by both ezTestEntry and ezSubTestEntry.
 struct ezTestResult
 {
-  ezTestResult() : m_bEnableTest(false), m_bExecuted(false), m_bSuccess(false), m_fTestDuration(0.0), m_uiErrorCount(0) { }
+  ezTestResult() : m_bEnableTest(true), m_bExecuted(false), m_bSuccess(false), m_fTestDuration(0.0), m_uiErrorCount(0) { }
   void Reset()
   {
     m_bExecuted = false;

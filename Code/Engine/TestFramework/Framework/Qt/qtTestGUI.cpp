@@ -59,7 +59,7 @@ ezQtTestGUI::ezQtTestGUI(ezQtTestFramework& testFramework)
 
   // connect current row changed signal
   QItemSelectionModel* pSelectionModel = testTreeView->selectionModel();
-  bool bBla = connect(pSelectionModel, SIGNAL( currentRowChanged(const QModelIndex&, const QModelIndex&) ), this, SLOT( onSelectionModelCurrentRowChanged(const QModelIndex&) ));
+  connect(pSelectionModel, SIGNAL( currentRowChanged(const QModelIndex&, const QModelIndex&) ), this, SLOT( onSelectionModelCurrentRowChanged(const QModelIndex&) ));
 
   // Sync actions with test framework settings
   TestSettings settings = m_pTestFramework->GetSettings();

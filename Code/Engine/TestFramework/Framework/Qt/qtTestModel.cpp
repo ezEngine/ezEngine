@@ -274,7 +274,7 @@ QVariant ezQtTestModel::data(const QModelIndex& index, int role) const
     {
     case Qt::DisplayRole:
       {
-        return QString::number(TestResult.m_uiErrorCount) % QLatin1String(" / ") % QString::number(TestResult.m_TestOutput.size());
+        return QString("%1 / %2").arg(TestResult.m_uiErrorCount).arg(TestResult.m_TestOutput.size());
       }
     case Qt::BackgroundColorRole:
       {
