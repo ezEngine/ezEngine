@@ -13,7 +13,7 @@
 SampleGameApp::SampleGameApp()
 {
   m_bActiveRenderLoop = false;
-  m_pWindow = nullptr;
+  m_pWindow = NULL;
 }
 
 void SampleGameApp::AfterEngineInit()
@@ -59,7 +59,7 @@ void SampleGameApp::BeforeEngineShutdown()
 
 ezApplication::ApplicationExecution SampleGameApp::Run()
 {
-  m_bActiveRenderLoop = (m_pWindow->ProcessWindowMessages() == ezWindow::Continue);
+  m_bActiveRenderLoop = m_bActiveRenderLoop && (m_pWindow->ProcessWindowMessages() == ezWindow::Continue);
 
   if(!m_bActiveRenderLoop)
     return ezApplication::Quit;
@@ -70,7 +70,7 @@ ezApplication::ApplicationExecution SampleGameApp::Run()
 
   ezTelemetry::PerFrameUpdate();
 
-  Sleep(10);  // still necessary?
+  Sleep(10);  // still necessary? (yes, as long as we cannot guarantee that v-sync is always enabled)
 
   return ezApplication::Continue;
 }
