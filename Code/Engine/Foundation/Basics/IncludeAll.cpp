@@ -1,5 +1,8 @@
 #include <Foundation/PCH.h>
 
+// This file includes everything from Foundation to ensure that all template code is looked at when building the Foundation library.
+// For non-template code this is not really necessary, but to be sure, just include everything.
+
 #include <Foundation/Algorithm/Comparer.h>
 #include <Foundation/Algorithm/Hashing.h>
 #include <Foundation/Algorithm/Sorting.h>
@@ -100,9 +103,11 @@
 
 #include <Foundation/Time/Time.h>
 
+#include <Foundation/Utilities/ConversionUtils.h>
 #include <Foundation/Utilities/EnumerableClass.h>
 #include <Foundation/Utilities/StackTracer.h>
 #include <Foundation/Utilities/Stats.h>
+
 
 
 

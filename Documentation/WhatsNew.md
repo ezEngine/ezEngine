@@ -34,6 +34,7 @@ Milestone 3
   * Fixed some code analysis warnings with Visual Studio 2012.
   * Fixed several bugs.
   * New ezVariant type that is much more powerful and useful than the previous implementation.
+  * Added ezConversionUtils class for converting strings to int/float/bool.
   
 
 Milestone 2
