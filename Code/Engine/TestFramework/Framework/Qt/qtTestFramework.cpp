@@ -9,6 +9,7 @@
 
 ezQtTestFramework::ezQtTestFramework(const char* szTestName, const char* szAbsTestDir) : ezTestFramework(szTestName, szAbsTestDir)
 {
+  Q_INIT_RESOURCE(resources);
 }
 
 ezQtTestFramework::~ezQtTestFramework()
