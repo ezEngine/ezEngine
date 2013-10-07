@@ -6,8 +6,6 @@
 
 static LRESULT CALLBACK ezWindowsMessageFuncTrampoline(HWND hWnd, UINT Msg, WPARAM WParam, LPARAM LParam)
 {
-  EZ_LOG_BLOCK("ezWindow")
-
   ezWindow* pWindow = reinterpret_cast<ezWindow*>(GetWindowLongPtrW(hWnd, GWLP_USERDATA));
 
   if (pWindow != NULL && pWindow->IsInitialized())

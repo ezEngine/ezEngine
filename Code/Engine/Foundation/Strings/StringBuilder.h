@@ -136,6 +136,9 @@ public:
   /// Removing characters at the front needs to move data around, so can be quite costly.
   void Shrink(ezUInt32 uiShrinkCharsFront, ezUInt32 uiShrinkCharsBack); // [tested]
   
+  /// \brief Reserves uiNumElements bytes.
+  void Reserve(ezUInt32 uiNumElements); // [tested]
+
 
   /// \brief Replaces the string that starts at szStartPos and ands at szEndPos with the string szReplaceWith.
   void ReplaceSubString(const char* szStartPos, const char* szEndPos, const char* szReplaceWith, const char* szReplaceWithEnd = ezMaxStringEnd); // [tested]

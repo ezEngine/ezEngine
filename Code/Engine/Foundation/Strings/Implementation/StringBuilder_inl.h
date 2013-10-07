@@ -231,6 +231,11 @@ EZ_FORCE_INLINE bool ezStringBuilder::IsPureASCII() const
   return m_uiCharacterCount + 1 == m_Data.GetCount();
 }
 
+inline void ezStringBuilder::Reserve(ezUInt32 uiNumElements)
+{
+  m_Data.Reserve(uiNumElements);
+}
+
 inline void ezStringBuilder::Insert (const char* szInsertAtPos, const char* szTextToInsert, const char* szTextToInsertEnd)
 {
   ReplaceSubString(szInsertAtPos, szInsertAtPos, szTextToInsert, szTextToInsertEnd);

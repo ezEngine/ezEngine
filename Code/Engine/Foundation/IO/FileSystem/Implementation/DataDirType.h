@@ -102,6 +102,9 @@ public:
   /// \brief Returns true if this is a reader stream, false if it is a writer stream.
   bool IsReader() const { return m_bIsReader; }
 
+  /// \brief Returns the current total size of the file.
+  virtual ezUInt64 GetFileSize() const = 0;
+
 private:
   /// \brief This function must be implemented by the derived class.
   virtual ezResult InternalOpen() = 0;

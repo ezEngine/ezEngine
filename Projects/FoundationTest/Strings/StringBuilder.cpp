@@ -1,4 +1,5 @@
 ﻿#include <PCH.h>
+#include "Foundation/Memory/CommonAllocators.h"
 
 EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
 {
@@ -311,6 +312,21 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
 
     s.Shrink(0, 10);
     EZ_TEST(s == ezStringUtf8(L"").GetData());
+  }
+
+  EZ_TEST_BLOCK(true, "Reserve")
+  {
+    ezHeapAllocator allocator("reserve test allocator", ezFoundation::GetDefaultAllocator());
+    ezStringBuilder s(L"abcdefghijklmnopqrstuvwxyzäöü€ß", &allocator);
+    ezUInt32 characterCountBefore = s.GetCharacterCount();
+
+    s.Reserve(2048);
+    
+    EZ_TEST(s.GetCharacterCount() == characterCountBefore);
+
+    ezUInt64 iNumAllocs = allocator.GetTracker().GetNumAllocations();
+    s.Append("blablablablablablablablablablablablablablablablablablablablablablablablablablablablablabla");
+    EZ_TEST(iNumAllocs == allocator.GetTracker().GetNumAllocations())
   }
 
   EZ_TEST_BLOCK(true, "GetIteratorFront")

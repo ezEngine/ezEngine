@@ -83,7 +83,12 @@ Only concrete and clocks.\n\
     EZ_TEST(FileOut.GetFilePathRelative() == "FileSystemTest.txt");
     EZ_TEST(FileOut.GetFilePathAbsolute() == sAbs.GetData());
 
+    EZ_TEST(FileOut.GetFileSize() == 0);
+
     EZ_TEST(FileOut.WriteBytes(sFileContent.GetData(), sFileContent.GetElementCount()) == EZ_SUCCESS);
+
+    FileOut.Flush();
+    EZ_TEST(FileOut.GetFileSize() == sFileContent.GetElementCount());
 
     FileOut.Close();
   }
@@ -99,6 +104,8 @@ Only concrete and clocks.\n\
 
     EZ_TEST(FileIn.GetFilePathRelative() == "FileSystemTest.txt");
     EZ_TEST(FileIn.GetFilePathAbsolute() == sAbs.GetData());
+
+    EZ_TEST(FileIn.GetFileSize() == sFileContent.GetElementCount());
 
     char szTemp[1024 * 2];
     EZ_TEST(FileIn.ReadBytes(szTemp, 1024 * 2) == sFileContent.GetElementCount());
@@ -119,6 +126,8 @@ Only concrete and clocks.\n\
 
     EZ_TEST(FileIn.GetFilePathRelative() == "FileSystemTest.txt");
     EZ_TEST(FileIn.GetFilePathAbsolute() == sAbs.GetData());
+
+    EZ_TEST(FileIn.GetFileSize() == sFileContent.GetElementCount());
 
     char szTemp[1024 * 2];
     EZ_TEST(FileIn.ReadBytes(szTemp, 1024 * 2) == sFileContent.GetElementCount());

@@ -48,6 +48,7 @@ namespace ezDataDirectory
   public:
     FolderReader() { m_bIsInUse = false; } 
     virtual ezUInt64 Read(void* pBuffer, ezUInt64 uiBytes) EZ_OVERRIDE;
+    virtual ezUInt64 GetFileSize() const EZ_OVERRIDE;
 
   private:
     virtual ezResult InternalOpen() EZ_OVERRIDE;
@@ -67,6 +68,7 @@ namespace ezDataDirectory
   public:
     FolderWriter() { m_bIsInUse = false; }
     virtual ezResult Write(const void* pBuffer, ezUInt64 uiBytes) EZ_OVERRIDE;
+    virtual ezUInt64 GetFileSize() const EZ_OVERRIDE;
 
   private:
     virtual ezResult InternalOpen() EZ_OVERRIDE;

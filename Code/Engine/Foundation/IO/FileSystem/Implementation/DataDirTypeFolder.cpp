@@ -22,6 +22,10 @@ namespace ezDataDirectory
     return m_File.Read(pBuffer, uiBytes);
   }
 
+  ezUInt64 FolderReader::GetFileSize() const
+  {
+    return m_File.GetFileSize();
+  }
 
   ezResult FolderWriter::InternalOpen()
   {
@@ -39,6 +43,11 @@ namespace ezDataDirectory
   ezResult FolderWriter::Write(const void* pBuffer, ezUInt64 uiBytes)
   {
     return m_File.Write(pBuffer, uiBytes);
+  }
+
+  ezUInt64 FolderWriter::GetFileSize() const
+  {
+    return m_File.GetFileSize();
   }
 
   ezDataDirectoryType* FolderType::Factory(const char* szDataDirectory)

@@ -33,7 +33,7 @@
 /// file accesses, checking out files from revision control systems, or simply logging all file activity.
 ///
 /// All operations that go through the ezFileSystem are protected by a mutex, which means that opening, closing, deleting
-/// files, as well as adding or removing data directories etc. will be synchonized and cannot happen in parallel.
+/// files, as well as adding or removing data directories etc. will be synchronized and cannot happen in parallel.
 /// Reading/writing file streams can happen in parallel, only the administrative tasks need to be protected.
 /// File events are broadcasted as they occur, that means they will be executed on whichever thread triggered them.
 /// Since they are executed from within the filesystem mutex, they cannot occur in parallel.

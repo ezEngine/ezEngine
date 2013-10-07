@@ -33,6 +33,9 @@ public:
   /// Returns true, if the file is currently open.
   bool IsOpen() const { return m_pDataDirReader != NULL; }
 
+  /// \brief Returns the current total size of the file.
+  ezUInt64 GetFileSize() const { return m_pDataDirReader->GetFileSize(); }
+
 protected:
   ezDataDirectoryReader* GetFileReader(const char* szFile, bool bAllowFileEvents)
   {
@@ -71,6 +74,9 @@ public:
 
   /// Returns true, if the file is currently open.
   bool IsOpen() const { return m_pDataDirWriter != NULL; }
+
+  /// \brief Returns the current total size of the file.
+  ezUInt64 GetFileSize() const { return m_pDataDirWriter->GetFileSize(); }  // [tested]
 
 protected:
   ezDataDirectoryWriter* GetFileWriter(const char* szFile, bool bAllowFileEvents)

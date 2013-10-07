@@ -143,7 +143,6 @@ ezStringIterator ezHybridStringBase<Size>::GetLast(ezUInt32 uiNumCharacters) con
   return GetSubString(m_uiCharacterCount - uiNumCharacters, uiNumCharacters);
 }
 
-
 template <ezUInt16 Size, typename A>
 EZ_FORCE_INLINE ezHybridString<Size, A>::ezHybridString() : 
   ezHybridStringBase<Size>(A::GetAllocator())

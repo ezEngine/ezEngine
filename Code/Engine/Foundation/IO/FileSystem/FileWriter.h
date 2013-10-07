@@ -39,7 +39,7 @@ public:
   /// \note Flush only guarantees that the data is sent through the OS file functions. It does not guarantee that the OS
   /// actually wrote the data on the disk, it might still use buffer itself and thus an application that crashes might
   /// still see data loss even when 'Flush' had been called.
-  virtual ezResult Flush() EZ_OVERRIDE;
+  virtual ezResult Flush() EZ_OVERRIDE; 
 
 private:
   ezUInt64 m_uiCacheWritePosition;
