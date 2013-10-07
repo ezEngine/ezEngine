@@ -95,7 +95,7 @@ struct ezTestEntry
 
     for (ezUInt32 uiSubTest = 0; uiSubTest < uiSubTests; ++uiSubTest)
     {
-      switch(countQuery)
+      switch (countQuery)
       {
       case ezTestResultQuery::Enabled:
         uiAccumulator += m_SubTests[uiSubTest].m_Result.m_bEnableTest ? 1 : 0;

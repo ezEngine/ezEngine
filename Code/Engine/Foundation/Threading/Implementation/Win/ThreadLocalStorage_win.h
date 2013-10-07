@@ -36,7 +36,7 @@ void ezThreadLocalStorage::Shutdown()
 void ezThreadLocalStorage::SetPerThreadPointerTable(ezThreadLocalPointerTable* pPerThreadPointerTable)
 {
   // Initialize the table with NULL pointers
-  if(pPerThreadPointerTable != NULL)
+  if (pPerThreadPointerTable != NULL)
   {
     pPerThreadPointerTable->SetCount(EZ_THREAD_LOCAL_STORAGE_SLOT_COUNT);
   }

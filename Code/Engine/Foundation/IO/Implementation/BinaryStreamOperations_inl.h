@@ -157,12 +157,12 @@ inline ezIBinaryStreamWriter& operator << (ezIBinaryStreamWriter& Stream, const 
 {
   ezUInt32 uiLength = 0;
 
-  if(szValue != NULL)
+  if (szValue != NULL)
     uiLength = static_cast<ezUInt32>(strlen(szValue));
 
   Stream << uiLength;
 
-  if(uiLength > 0)
+  if (uiLength > 0)
     Stream.WriteBytes(reinterpret_cast<const ezUInt8*>(szValue), uiLength);
 
   return Stream;
@@ -183,7 +183,7 @@ inline ezIBinaryStreamReader& operator >> (ezIBinaryStreamReader& Stream, ezHybr
 
   Stream >> uiLength;
 
-  if(uiLength > 0)
+  if (uiLength > 0)
   {
     ezHybridArray<ezUInt8, 256> sTemp;
     sTemp.SetCount(uiLength + 1);
@@ -214,7 +214,7 @@ inline ezIBinaryStreamReader& operator >> (ezIBinaryStreamReader& Stream, ezStri
 
   Stream >> uiLength;
 
-  if(uiLength > 0)
+  if (uiLength > 0)
   {
     ezHybridArray<ezUInt8, 256> sTemp;
     sTemp.SetCount(uiLength + 1);

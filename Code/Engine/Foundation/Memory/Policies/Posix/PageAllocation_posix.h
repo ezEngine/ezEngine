@@ -18,6 +18,6 @@ inline void* ezPageAllocation::PageAllocate(size_t uiSize)
 
 inline void ezPageAllocation::PageDeallocate(void* ptr)
 {
-  if(ptr != NULL)
+  if (ptr != NULL)
     free(ptr);
 }

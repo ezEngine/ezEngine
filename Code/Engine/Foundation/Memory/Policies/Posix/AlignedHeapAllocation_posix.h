@@ -17,7 +17,7 @@ void* ezAlignedHeapAllocation<uiAlignment>::Allocate(size_t uiSize, size_t uiAli
   
   void* ptr = NULL;
   
-  if(posix_memalign(&ptr, uiAlignment, uiSize) != 0)
+  if (posix_memalign(&ptr, uiAlignment, uiSize) != 0)
     return NULL;
   
   EZ_CHECK_ALIGNMENT(ptr, uiAlign);

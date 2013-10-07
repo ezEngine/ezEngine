@@ -50,7 +50,7 @@ EZ_CREATE_SIMPLE_TEST(Memory, Endian)
     ezArrayPtr<ezUInt64> p64BitArray = EZ_DEFAULT_NEW_ARRAY(ezUInt64, 1024);
     ezArrayPtr<ezUInt64> p64BitArrayCopy = EZ_DEFAULT_NEW_ARRAY(ezUInt64, 1024);
 
-    for(ezUInt32 i = 0; i < 1024; i++)
+    for (ezUInt32 i = 0; i < 1024; i++)
     {
       ezInt32 iRand = rand();
       p16BitArray[i] = static_cast<ezUInt16>(iRand);
@@ -66,7 +66,7 @@ EZ_CREATE_SIMPLE_TEST(Memory, Endian)
     ezEndianHelper::SwitchDWords(p32BitArray.GetPtr(), 1024);
     ezEndianHelper::SwitchQWords(p64BitArray.GetPtr(), 1024);
 
-    for(ezUInt32 i = 0; i < 1024; i++)
+    for (ezUInt32 i = 0; i < 1024; i++)
     {
       EZ_TEST(p16BitArray[i] == ezEndianHelper::Switch(p16BitArrayCopy[i]));
       EZ_TEST(p32BitArray[i] == ezEndianHelper::Switch(p32BitArrayCopy[i]));

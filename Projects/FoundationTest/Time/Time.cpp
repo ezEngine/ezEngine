@@ -12,7 +12,7 @@ EZ_CREATE_SIMPLE_TEST(Time, Timer)
     EZ_TEST(TestTime.GetMicroSeconds() > 0.0);
     
     volatile ezUInt32 testValue = 0;
-    for(ezUInt32 i = 0; i < 42000; ++i)
+    for (ezUInt32 i = 0; i < 42000; ++i)
     {
       testValue += 23;
     }

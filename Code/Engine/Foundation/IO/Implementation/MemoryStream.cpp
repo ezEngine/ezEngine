@@ -70,7 +70,7 @@ ezResult ezMemoryStreamWriter::WriteBytes(const void* pWriteBuffer, ezUInt64 uiB
 {
   EZ_ASSERT_API(m_pStreamStorage != NULL, "The memory stream writer needs a valid memory storage object!");
 
-  if(uiBytesToWrite == 0)
+  if (uiBytesToWrite == 0)
     return EZ_SUCCESS;
 
   EZ_ASSERT(pWriteBuffer != NULL, "No valid buffer containing data given!");

@@ -132,7 +132,7 @@ foundany:
       ezList<TaskData, ezStaticAllocatorWrapper>::Iterator it = s_Tasks[i].GetIterator();
 
       // just blindly search the entire list
-      while(it.IsValid())
+      while (it.IsValid())
       {
         // if we find that task, return it
         // otherwise this whole search will do nothing and the default priority based
@@ -265,7 +265,7 @@ ezResult ezTaskSystem::CancelTask(ezTask* pTask, ezOnTaskRunning::Enum OnTaskRun
       {
         ezList<TaskData, ezStaticAllocatorWrapper>::Iterator it = s_Tasks[i].GetIterator();
 
-        while(it.IsValid())
+        while (it.IsValid())
         {
           if (it->m_pTask == pTask)
           {

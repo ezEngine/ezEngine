@@ -23,7 +23,7 @@ public:
   /// \brief Frees the associated thread local storage index for this variable
   ~ezThreadLocalPointer()
   {
-    if(ezThreadLocalStorage::IsValidSlot(m_uiThreadLocalSlotIndex))
+    if (ezThreadLocalStorage::IsValidSlot(m_uiThreadLocalSlotIndex))
       ezThreadLocalStorage::FreeSlot(m_uiThreadLocalSlotIndex);
   }
 
@@ -32,7 +32,7 @@ public:
   /// \note Note that a variable which hasn't been assigned yet will return NULL
   operator T* ()
   {
-    if(!ezThreadLocalStorage::IsValidSlot(m_uiThreadLocalSlotIndex))
+    if (!ezThreadLocalStorage::IsValidSlot(m_uiThreadLocalSlotIndex))
       return NULL;
     else
       return reinterpret_cast<T*>(ezThreadLocalStorage::GetValueForSlot(m_uiThreadLocalSlotIndex));
@@ -43,7 +43,7 @@ public:
   /// \note Note that a variable which hasn't been assigned yet will return NULL
   operator const T* () const
   {
-    if(!ezThreadLocalStorage::IsValidSlot(m_uiThreadLocalSlotIndex))
+    if (!ezThreadLocalStorage::IsValidSlot(m_uiThreadLocalSlotIndex))
       return NULL;
     else
       return reinterpret_cast<const T*>(ezThreadLocalStorage::GetValueForSlot(m_uiThreadLocalSlotIndex));
@@ -54,7 +54,7 @@ public:
   /// \note Note that this triggers on first access the allocation of the TLS slot (see constructor description)
   void operator = (T* pValue)
   {
-    if(!ezThreadLocalStorage::IsValidSlot(m_uiThreadLocalSlotIndex))
+    if (!ezThreadLocalStorage::IsValidSlot(m_uiThreadLocalSlotIndex))
     {
       m_uiThreadLocalSlotIndex = ezThreadLocalStorage::AllocateSlot();
     }

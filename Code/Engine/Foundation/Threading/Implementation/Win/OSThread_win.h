@@ -67,7 +67,7 @@ ezOSThread::ezOSThread(ezOSThreadEntryPoint pThreadEntryPoint, void* pUserData /
   m_uiStackSize = uiStackSize;
 
   // If a name is given, assign it here
-  if(szName != NULL)
+  if (szName != NULL)
   {
     SetThreadName(GetThreadId(m_Handle), szName);
   }

@@ -1,12 +1,18 @@
 #include <Foundation/PCH.h>
 #include <Foundation/Utilities/ConversionUtils.h>
+#include <Foundation/Strings/StringUtils.h>
+
+static bool IsWhitespace(char c)
+{
+  return (c == ' ' || c == '\t' || c == '\r' || c == '\n' || c == '\v' || c == '\f' || c == '\a');
+}
 
 static void SkipWhitespace(const char*& szString)
 {
   if (szString == NULL)
     return;
 
-  while (*szString != '\0' && (*szString == ' ' || *szString == '\t' || *szString == '\r' || *szString == '\n'))
+  while (*szString != '\0' && IsWhitespace(*szString))
   {
     ++szString;
   }
@@ -27,7 +33,7 @@ static ezResult FindFirstDigit(const char*& inout_szString, bool& out_bSignIsPos
       break;
 
     // skip all whitespaces
-    if (c == ' ' || c == '\t' || c == '\r' || c == '\n')
+    if (IsWhitespace(c))
     {
       ++inout_szString;
       continue;
@@ -207,7 +213,7 @@ ezResult ezConversionUtils::StringToFloat(const char* szString, double& out_Res,
       }
     }
 
-    if (c == 'f')
+    if ((c == 'f') || (c == 'd'))
     {
       // if we find an 'f', skip it as well, then stop parsing
       ++szString;

@@ -85,7 +85,7 @@ private:
 #define EZ_ENUM_TO_STRING(...) \
   const char* ToString(ezUInt32 value) \
   { \
-    switch(value) \
+    switch (value) \
     { \
       EZ_EXPAND_ARGS(EZ_ENUM_VALUE_TO_STRING, ##__VA_ARGS__) \
       default: return NULL; \

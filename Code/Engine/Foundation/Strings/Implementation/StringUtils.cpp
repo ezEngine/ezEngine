@@ -473,7 +473,7 @@ bool ezStringUtils::StartsWith(const char* szString, const char* szStartsWith, c
   if (IsNullOrEmpty(szString))
     return false;
 
-  while((*szString != '\0') && (szString < pStringEnd))
+  while ((*szString != '\0') && (szString < pStringEnd))
   {
     // if we have reached the end of the StartsWith string, the other string DOES start with it
     if (*szStartsWith == '\0')
@@ -497,7 +497,7 @@ bool ezStringUtils::StartsWith_NoCase(const char* szString, const char* szStarts
   if (IsNullOrEmpty(szString))
     return false;
 
-  while((*szString != '\0') && (szString < pStringEnd))
+  while ((*szString != '\0') && (szString < pStringEnd))
   {
     // if we have reached the end of the StartsWith string, the other string DOES start with it
     if (*szStartsWith == '\0')

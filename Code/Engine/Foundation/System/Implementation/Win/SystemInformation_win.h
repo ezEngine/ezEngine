@@ -18,7 +18,7 @@ BOOL IsWow64()
 
   LPFN_ISWOW64PROCESS pfnIsWow64Process = (LPFN_ISWOW64PROCESS) GetProcAddress(hModule,"IsWow64Process");
 
-  if(NULL != pfnIsWow64Process)
+  if (NULL != pfnIsWow64Process)
   {
     if (!pfnIsWow64Process(GetCurrentProcess(),&bIsWow64))
     {

@@ -62,7 +62,7 @@ void ezTelemetry::UpdateNetwork()
       return;
     }
 
-    switch(NetworkEvent.type) 
+    switch (NetworkEvent.type) 
     {
     case ENET_EVENT_TYPE_CONNECT:
       {

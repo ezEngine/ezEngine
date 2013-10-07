@@ -30,7 +30,7 @@ void ezThreadSignal::WaitForSignal()
   pthread_mutex_lock(&m_Data.m_Mutex);
 
   // if no one was waiting for the signal, so far, this thread will get the signal immediately
-  while(!m_Data.m_bSignalIsRaised)
+  while (!m_Data.m_bSignalIsRaised)
     pthread_cond_wait(&m_Data.m_ConditionVariable, &m_Data.m_Mutex);
 
   // this thread got the signal, so reset the state of the signal, to prevent other threads from running as well

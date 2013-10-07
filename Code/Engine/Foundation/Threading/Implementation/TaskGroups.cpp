@@ -166,7 +166,7 @@ void ezTaskSystem::ScheduleGroupTasks(ezTaskGroup* pGroup)
   }
 
   // send the proper thread signal, to make sure one of the correct worker threads is awake
-  switch(pGroup->m_Priority)
+  switch (pGroup->m_Priority)
   {
   case ezTaskPriority::EarlyThisFrame:
   case ezTaskPriority::ThisFrame:

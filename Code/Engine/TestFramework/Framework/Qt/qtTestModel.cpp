@@ -47,7 +47,7 @@ ezUInt32 ezQtTestModelEntry::GetNumSubEntries() const
 
 ezQtTestModelEntry* ezQtTestModelEntry::GetSubEntry(ezUInt32 uiIndex) const
 {
-  if(uiIndex >= GetNumSubEntries())
+  if (uiIndex >= GetNumSubEntries())
     return NULL;
 
   return m_SubEntries[uiIndex];

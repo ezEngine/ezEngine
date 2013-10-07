@@ -89,7 +89,7 @@ public:
   /// \brief Assignment operator, decreases the ref count of the currently referenced object and increases the ref count of the newly assigned object.
   void operator = (T* pNewReference)
   {
-    if(pNewReference == m_pReferencedObject)
+    if (pNewReference == m_pReferencedObject)
       return;
 
     ReleaseReferenceIfValid();
@@ -102,7 +102,7 @@ public:
   /// \brief Assignment operator, decreases the ref count of the currently referenced object and increases the ref count of the newly assigned object.
   void operator = (const ezScopedRefPointer<T>& Other)
   {
-    if(Other.m_pReferencedObject == m_pReferencedObject)
+    if (Other.m_pReferencedObject == m_pReferencedObject)
       return;
 
     ReleaseReferenceIfValid();
@@ -143,7 +143,7 @@ private:
   /// \brief Internal helper function to add a reference on the current object (if != NULL)
   inline void AddReferenceIfValid()
   {
-    if(m_pReferencedObject != NULL)
+    if (m_pReferencedObject != NULL)
     {
       m_pReferencedObject->AddRef();
     }
@@ -152,7 +152,7 @@ private:
   /// \brief Internal helper function to release a reference on the current object (if != NULL)
   inline void ReleaseReferenceIfValid()
   {
-    if(m_pReferencedObject != NULL)
+    if (m_pReferencedObject != NULL)
     {
       m_pReferencedObject->ReleaseRef();
     }

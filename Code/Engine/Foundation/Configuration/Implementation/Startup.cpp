@@ -18,7 +18,7 @@ void ezStartup::PrintAllSubsystems()
 
   ezSubSystem* pSub = ezSubSystem::GetFirstInstance();
 
-  while(pSub)
+  while (pSub)
   {
     ezLog::Info("Subsystem: '%s::%s'", pSub->GetGroupName(), pSub->GetSubSystemName());
 
@@ -43,7 +43,7 @@ void ezStartup::AssignSubSystemPlugin(const char* szPluginName)
 
   ezSubSystem* pSub = ezSubSystem::GetFirstInstance();
 
-  while(pSub)
+  while (pSub)
   {
     if (pSub->m_szPluginName == NULL)
       pSub->m_szPluginName = szPluginName;
@@ -98,7 +98,7 @@ static bool IsGroupName(const char* szName)
   bool bGroup = false;
   bool bSubSystem = false;
 
-  while(pSub)
+  while (pSub)
   {
     if (ezStringUtils::IsEqual(pSub->GetGroupName(), szName))
       bGroup = true;
@@ -118,7 +118,7 @@ static const char* GetGroupSubSystems(const char* szGroup, ezInt32 iSubSystem)
 {
   ezSubSystem* pSub = ezSubSystem::GetFirstInstance();
 
-  while(pSub)
+  while (pSub)
   {
     if (ezStringUtils::IsEqual(pSub->GetGroupName(), szGroup))
     {
@@ -141,20 +141,20 @@ void ezStartup::ComputeOrder(ezDeque<ezSubSystem*>& Order)
 
   bool bCouldInitAny = true;
 
-  while(bCouldInitAny)
+  while (bCouldInitAny)
   {
     bCouldInitAny = false;
 
     ezSubSystem* pSub = ezSubSystem::GetFirstInstance();
 
-    while(pSub)
+    while (pSub)
     {
       if (!sSystemsInited.Find(pSub->GetSubSystemName()).IsValid())
       {
         bool bAllDependsFulfilled = true;
         ezInt32 iDep = 0;
 
-        while(pSub->GetDependency(iDep) != NULL)
+        while (pSub->GetDependency(iDep) != NULL)
         {
           if (IsGroupName(pSub->GetDependency(iDep)))
           {
@@ -237,7 +237,7 @@ void ezStartup::Startup(ezStartupStage::Enum stage)
     {
       ezLog::Info("Starting Sub-System '%s' from Group '%s'", Order[i]->GetSubSystemName(), Order[i]->GetGroupName());
 
-      switch(stage)
+      switch (stage)
       {
       case ezStartupStage::Base:
         Order[i]->OnBaseStartup();
@@ -268,7 +268,7 @@ void ezStartup::Startup(ezStartupStage::Enum stage)
 
     ezSubSystem* pSub = ezSubSystem::GetFirstInstance();
 
-    while(pSub)
+    while (pSub)
     {
       sSystemsFound.Insert(pSub->GetSubSystemName());
       pSub = pSub->GetNextInstance();
@@ -276,13 +276,13 @@ void ezStartup::Startup(ezStartupStage::Enum stage)
 
     pSub = ezSubSystem::GetFirstInstance();
 
-    while(pSub)
+    while (pSub)
     {
       if (!pSub->m_bStartupDone[stage])
       {
         ezInt32 iDep = 0;
 
-        while(pSub->GetDependency(iDep) != NULL)
+        while (pSub->GetDependency(iDep) != NULL)
         {
           if (!sSystemsFound.Find(pSub->GetDependency(iDep)).IsValid())
           {
@@ -301,7 +301,7 @@ void ezStartup::Startup(ezStartupStage::Enum stage)
     }
   }
 
-  switch(stage)
+  switch (stage)
   {
   case ezStartupStage::Base:
     break;
@@ -361,7 +361,7 @@ void ezStartup::Shutdown(ezStartupStage::Enum stage)
       {
         ezLog::Info("Shutting down Sub-System '%s::%s'", Order[i]->GetGroupName(), Order[i]->GetSubSystemName());
 
-        switch(stage)
+        switch (stage)
         {
         case ezStartupStage::Base:
           Order[i]->OnBaseShutdown();
@@ -384,7 +384,7 @@ void ezStartup::Shutdown(ezStartupStage::Enum stage)
     }
   }
 
-  switch(stage)
+  switch (stage)
   {
   case ezStartupStage::Base:
     break;

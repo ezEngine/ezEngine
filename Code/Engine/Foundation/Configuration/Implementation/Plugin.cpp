@@ -328,7 +328,7 @@ ezPlugin* ezPlugin::FindPluginByName(const char* szPluginName)
 {
   ezPlugin* pPlugin = ezPlugin::GetFirstInstance();
 
-  while(pPlugin)
+  while (pPlugin)
   {
     if (ezStringUtils::IsEqual(szPluginName, pPlugin->GetPluginName()))
       return pPlugin;
@@ -416,7 +416,7 @@ ezResult ezPlugin::ReloadPlugins(bool bForceReload)
   {
     ezPlugin* pPlugin = ezPlugin::GetFirstInstance();
 
-    while(pPlugin)
+    while (pPlugin)
     {
       if (pPlugin->IsReloadable())
       {

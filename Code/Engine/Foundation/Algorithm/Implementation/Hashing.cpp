@@ -129,12 +129,12 @@ static const ezUInt32 uiCRC32Table[256] =
 // static
 ezUInt32 ezHashing::CRC32Hash(const void* pKey, size_t uiSizeInBytes)
 {
-  if(pKey == 0 || uiSizeInBytes <= 0)
+  if (pKey == 0 || uiSizeInBytes <= 0)
     return 0;
 
   ezUInt32 uiCRC32 = 0xFFFFFFFF;
 
-  for(size_t i = 0; i < uiSizeInBytes; i++)
+  for (size_t i = 0; i < uiSizeInBytes; i++)
     uiCRC32 = (uiCRC32 >> 8) ^ uiCRC32Table[(uiCRC32 & 0xFF) ^ static_cast<const ezUInt8*>(pKey)[i]]; 
 
   return static_cast<ezUInt32>(uiCRC32 ^ 0xFFFFFFFF); 

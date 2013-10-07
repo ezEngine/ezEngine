@@ -11,6 +11,6 @@
 
 ezWindow::~ezWindow()
 {
-  if(m_bInitialized)
+  if (m_bInitialized)
     Destroy();
 }

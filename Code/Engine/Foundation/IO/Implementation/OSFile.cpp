@@ -309,7 +309,7 @@ ezResult ezOSFile::CopyFile(const char* szSource, const char* szDestination)
     ezDynamicArray<ezUInt8> TempBuffer;
     TempBuffer.SetCount(uiTempSize);
 
-    while(true)
+    while (true)
     {
       const ezUInt64 uiRead = SrcFile.Read(&TempBuffer[0], uiTempSize);
 

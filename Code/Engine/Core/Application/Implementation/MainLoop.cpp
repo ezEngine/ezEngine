@@ -22,7 +22,7 @@ void ezRun(ezApplication* pApplicationInstance)
   pApplicationInstance->AfterEngineInit();
 
 
-  while(pApplicationInstance->Run() == ezApplication::Continue)
+  while (pApplicationInstance->Run() == ezApplication::Continue)
   {
   }
 

@@ -22,9 +22,9 @@ ezUInt32 ezThreadLocalStorage::AllocateSlot()
   Initialize();
 
   // Find a free slot
-  for(ezUInt32 i = 0; i < EZ_THREAD_LOCAL_STORAGE_SLOT_COUNT; ++i)
+  for (ezUInt32 i = 0; i < EZ_THREAD_LOCAL_STORAGE_SLOT_COUNT; ++i)
   {
-    if(!g_bThreadLocalStorageAllocationTable[i])
+    if (!g_bThreadLocalStorageAllocationTable[i])
     {
       g_bThreadLocalStorageAllocationTable[i] = true;
       return i;

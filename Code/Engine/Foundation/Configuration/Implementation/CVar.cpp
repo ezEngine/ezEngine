@@ -57,7 +57,7 @@ void ezCVar::AssignSubSystemPlugin(const char* szPluginName)
 {
   ezCVar* pCVar = ezCVar::GetFirstInstance();
 
-  while(pCVar)
+  while (pCVar)
   {
     if (pCVar->m_szPluginName == NULL)
       pCVar->m_szPluginName = szPluginName;
@@ -166,7 +166,7 @@ void ezCVar::SaveCVars()
   ezStringBuilder sTemp;
 
   // now save all cvars in their plugin specific file
-  while(it.IsValid())
+  while (it.IsValid())
   {
     // create the plugin specific file
     sTemp.Format("%s/CVars_%s.cfg", s_StorageFolder.GetData(), it.Key().GetData());
@@ -236,12 +236,12 @@ static ezResult ReadLine(ezIBinaryStreamReader& Stream, ezStringBuilder& sLine)
   // skip all white-spaces at the beginning
   // also skip all empty lines
   // this shit is why I wanted to use Lua...
-  while((c[0] == '\n' || c[0] == '\r' || c[0] == ' ' || c[0] == '\t') && (Stream.ReadBytes(c, 1) > 0))
+  while ((c[0] == '\n' || c[0] == '\r' || c[0] == ' ' || c[0] == '\t') && (Stream.ReadBytes(c, 1) > 0))
   {
   }
 
   // we found something that is not empty, so now read till the end of the line
-  while(c[0] != '\0' && c[0] != '\n')
+  while (c[0] != '\0' && c[0] != '\n')
   {
     // skip all tabs and carriage returns
     if (c[0] != '\r' && c[0] != '\t')
@@ -341,7 +341,7 @@ void ezCVar::LoadCVars(bool bOnlyNewOnes, bool bSetAsCurrentValue)
   ezStringBuilder sTemp;
 
   // now save all cvars in their plugin specific file
-  while(it.IsValid())
+  while (it.IsValid())
   {
     // create the plugin specific file
     sTemp.Format("%s/CVars_%s.cfg", s_StorageFolder.GetData(), it.Key().GetData());

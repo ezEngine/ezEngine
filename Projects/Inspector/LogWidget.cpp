@@ -77,7 +77,7 @@ QListWidgetItem* ezLogWidget::CreateLogItem(const LogMsg& lm, ezInt32 iMessageIn
   QListWidgetItem* pItem = new QListWidgetItem;
   pItem->setText(sFormat.GetData());
 
-  switch(lm.m_Type)
+  switch (lm.m_Type)
   {
   case ezLog::EventType::BeginGroup:
     pItem->setTextColor(QColor::fromRgb(160, 90, 255));

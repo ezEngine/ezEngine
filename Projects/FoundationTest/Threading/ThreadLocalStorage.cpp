@@ -31,13 +31,13 @@ namespace
       
       ezUInt32* pValueStoredInTLSVar = g_TlsValue;
 
-      if(pValueStoredInTLSVar == NULL)
+      if (pValueStoredInTLSVar == NULL)
         return 0;
 
-      if(pValueStoredInTLSVar != &m_uiThreadLocalVariable)
+      if (pValueStoredInTLSVar != &m_uiThreadLocalVariable)
         return 0;
 
-      if(*pValueStoredInTLSVar != uiCopyOfValue)
+      if (*pValueStoredInTLSVar != uiCopyOfValue)
         return 0;
 
       m_bTestsCheckedOut = true;
@@ -111,19 +111,19 @@ EZ_CREATE_SIMPLE_TEST(Threading, ThreadLocalStorage)
     // Now spawn additional threads which also assign values to the TLS variable
     // We spawn more than available TLS slots to make sure nothing is allocated per thread
     // and not shared like intended
-    for(ezUInt32 i = 0; i < EZ_THREAD_LOCAL_STORAGE_SLOT_COUNT * 2; ++i)
+    for (ezUInt32 i = 0; i < EZ_THREAD_LOCAL_STORAGE_SLOT_COUNT * 2; ++i)
     {
       TestThreads.PushBack(EZ_DEFAULT_NEW(TestThread));
       TestThreads[i]->SetThreadLocalVariable(i);
       TestThreads[i]->Start();
     }
 
-    for(ezUInt32 i = 0; i < EZ_THREAD_LOCAL_STORAGE_SLOT_COUNT * 2; ++i)
+    for (ezUInt32 i = 0; i < EZ_THREAD_LOCAL_STORAGE_SLOT_COUNT * 2; ++i)
     {
       TestThreads[i]->Join();
     }
 
-    for(ezUInt32 i = 0; i < EZ_THREAD_LOCAL_STORAGE_SLOT_COUNT * 2; ++i)
+    for (ezUInt32 i = 0; i < EZ_THREAD_LOCAL_STORAGE_SLOT_COUNT * 2; ++i)
     {
       EZ_TEST(TestThreads[i]->DidTestsCheckOut());
       EZ_DEFAULT_DELETE(TestThreads[i]);

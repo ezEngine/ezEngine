@@ -43,7 +43,7 @@ public:
 
     ezUInt64 uiBytesSkipped = 0;
 
-    while(uiBytesSkipped < uiBytesToSkip)
+    while (uiBytesSkipped < uiBytesToSkip)
     {
       ezUInt64 uiBytesToRead = ezMath::Min<ezUInt64>(uiBytesToSkip - uiBytesSkipped, 1024);
 
@@ -52,7 +52,7 @@ public:
       uiBytesSkipped += uiBytesRead;
 
       // Terminate early if the stream didn't read as many bytes as we requested (EOF for example)
-      if(uiBytesRead < uiBytesToRead)
+      if (uiBytesRead < uiBytesToRead)
         break;
     }
 

@@ -95,7 +95,7 @@ ezUInt64 ezOSFile::InternalGetFilePosition() const
 
 void ezOSFile::InternalSetFilePosition(ezInt64 iDistance, ezFilePos::Enum Pos) const
 {
-  switch(Pos)
+  switch (Pos)
   {
   case ezFilePos::FromStart:
     EZ_VERIFY(fseeko(m_FileData.m_pFileHandle, iDistance, SEEK_SET) == 0, "Seek Failed");
@@ -124,7 +124,7 @@ ezResult ezOSFile::InternalDeleteFile(const char* szFile)
 {
   int iRes = unlink(szFile);
   
-  if(iRes == 0 || (iRes == -1 && errno == ENOENT))
+  if (iRes == 0 || (iRes == -1 && errno == ENOENT))
     return EZ_SUCCESS;
   
   return EZ_FAILURE;
@@ -138,7 +138,7 @@ ezResult ezOSFile::InternalCreateDirectory(const char* szDirectory)
   
   int iRes = mkdir(szDirectory, 0777);
   
-  if(iRes == 0 || (iRes == -1 && errno == EEXIST))
+  if (iRes == 0 || (iRes == -1 && errno == EEXIST))
     return EZ_SUCCESS;
     
   return EZ_FAILURE;
@@ -150,7 +150,7 @@ ezResult ezOSFile::InternalGetFileStats(const char* szFileOrFolder, ezFileStats&
   struct stat tempStat;
   int iRes = stat(szFileOrFolder, &tempStat);
   
-  if(iRes != 0)
+  if (iRes != 0)
     return EZ_FAILURE;
   
   out_Stats.m_bIsDirectory = S_ISDIR(tempStat.st_mode);

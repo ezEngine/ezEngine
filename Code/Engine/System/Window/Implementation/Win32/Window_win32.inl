@@ -10,7 +10,7 @@ static LRESULT CALLBACK ezWindowsMessageFuncTrampoline(HWND hWnd, UINT Msg, WPAR
 
   ezWindow* pWindow = reinterpret_cast<ezWindow*>(GetWindowLongPtrW(hWnd, GWLP_USERDATA));
 
-  if(pWindow != NULL && pWindow->IsInitialized())
+  if (pWindow != NULL && pWindow->IsInitialized())
   {
     switch (Msg)
     {
@@ -47,7 +47,7 @@ ezResult ezWindow::Initialize()
 {
   EZ_LOG_BLOCK("ezWindow")
 
-  if(m_bInitialized)
+  if (m_bInitialized)
     Destroy();
 
   EZ_ASSERT_API(m_CreationDescription.m_ClientAreaSize.HasNonZeroArea(), "The client area size can't be zero sized!");
@@ -64,7 +64,7 @@ ezResult ezWindow::Initialize()
   windowClass.lpszClassName  = L"ezWindow";
   windowClass.lpfnWndProc    = ezWindowsMessageFuncTrampoline;
 
-  if(!RegisterClassExW(&windowClass)) // \todo test & support for multiple windows
+  if (!RegisterClassExW(&windowClass)) // \todo test & support for multiple windows
   {
     ezLog::Error("Failed to create ezWindow window class!");
     return EZ_FAILURE;
@@ -99,7 +99,7 @@ ezResult ezWindow::Initialize()
  
   // Create rectangle for window
   ezUInt32 x = 0, y = 0;
-  if(!m_CreationDescription.m_bFullscreenWindow)
+  if (!m_CreationDescription.m_bFullscreenWindow)
   {
     x = m_CreationDescription.m_WindowPosition.x;
     y = m_CreationDescription.m_WindowPosition.y;
@@ -108,7 +108,7 @@ ezResult ezWindow::Initialize()
   AdjustWindowRect(&Rect, dwWindowStyle, FALSE);
 
   // Account for left or top placed task bars
-  if(!m_CreationDescription.m_bFullscreenWindow)
+  if (!m_CreationDescription.m_bFullscreenWindow)
   {
     RECT RectWorkArea = {0};
     SystemParametersInfo(SPI_GETWORKAREA, 0, &RectWorkArea, 0);
@@ -132,7 +132,7 @@ ezResult ezWindow::Initialize()
   m_WindowHandle = CreateWindowW(L"ezWindow", sTitelWChar_, dwWindowStyle, 
                                   Rect.left, Rect.top, Rect.right - Rect.left, Rect.bottom - Rect.top, 
                                   NULL, NULL, windowClass.hInstance, NULL);
-  if(m_WindowHandle == INVALID_HANDLE_VALUE)
+  if (m_WindowHandle == INVALID_HANDLE_VALUE)
   {
     ezLog::Error("Failed to create window.");
     return EZ_FAILURE;
@@ -169,13 +169,13 @@ ezResult ezWindow::Destroy()
 
 ezWindow::WindowMessageResult ezWindow::ProcessWindowMessages()
 {
-  if(!m_bInitialized)
+  if (!m_bInitialized)
     return Quit;
 
   MSG msg = {0};
-  while(PeekMessageW(&msg, m_WindowHandle, 0, 0, PM_REMOVE))	
+  while (PeekMessageW(&msg, m_WindowHandle, 0, 0, PM_REMOVE))	
   {
-    if(msg.message == WM_QUIT)
+    if (msg.message == WM_QUIT)
     {
       Destroy();
       return Quit;

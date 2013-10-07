@@ -33,7 +33,7 @@ static void SendSubsystemTelemetry()
 
   ezSubSystem* pSub = ezSubSystem::GetFirstInstance();
 
-  while(pSub)
+  while (pSub)
   {
     ezTelemetryMessage msg;
     msg.SetMessageID('STRT', 'SYST');

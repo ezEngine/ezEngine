@@ -22,7 +22,7 @@ namespace
     {
       EZ_PROFILE(g_TestThreadProfilingId);
 
-      for(ezUInt32 i = 0; i < g_uiIncrementSteps; i++)
+      for (ezUInt32 i = 0; i < g_uiIncrementSteps; i++)
       {
         ezAtomicUtils::Increment(g_iCrossThreadVariable);
 

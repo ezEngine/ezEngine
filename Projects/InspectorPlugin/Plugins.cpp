@@ -10,7 +10,7 @@ static void SendPluginTelemetry()
 
   ezPlugin* pSub = ezPlugin::GetFirstInstance();
 
-  while(pSub)
+  while (pSub)
   {
     ezTelemetryMessage msg;
     msg.SetMessageID('PLUG', 'DATA');

@@ -118,7 +118,7 @@ void ezOSFile::InternalSetFilePosition(ezInt64 iDistance, ezFilePos::Enum Pos) c
   LARGE_INTEGER newpos;
   pos.QuadPart = static_cast<LONGLONG>(iDistance);
 
-  switch(Pos)
+  switch (Pos)
   {
   case ezFilePos::FromStart:
     EZ_VERIFY(SetFilePointerEx(m_FileData.m_pFileHandle, pos, &newpos, FILE_BEGIN), "Seek Failed.");

@@ -17,7 +17,7 @@ private:
   {
     static ezTime LastPing(0.0);
 
-    while(m_bKeepRunning)
+    while (m_bKeepRunning)
     {
       ezTelemetry::UpdateNetwork();
 

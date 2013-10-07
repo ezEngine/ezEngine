@@ -1,7 +1,6 @@
 #pragma once
 
 #include <Foundation/Basics.h>
-#include <Foundation/Strings/StringBuilder.h>
 
 /// \brief This class contains functions to convert between different types.
 ///
@@ -32,7 +31,7 @@ public:
   ///   EZ_FAILURE if the string starts with something that can not be interpreted as an integer.
   static ezResult StringToInt(const char* szString, ezInt32& out_Res, const char** out_LastParsePosition = NULL); // [tested]
 
-  /// \brief Pases szString and converts it to a doule value. Returns EZ_FAILURE if the string contains no parsable floating point value.
+  /// \brief Pases szString and converts it to a double value. Returns EZ_FAILURE if the string contains no parsable floating point value.
   ///
   /// \param szString
   ///   If szString is NULL or an empty string or starts with an some non-whitespace and non-sign character, EZ_FAILURE is returned.

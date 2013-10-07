@@ -26,7 +26,7 @@ EZ_CREATE_SIMPLE_TEST(IO, MemoryStream)
 
     // Now try writing data to the stream and reading it back
     ezUInt32 uiData[1024];
-    for(ezUInt32 i = 0; i < 1024; i++)
+    for (ezUInt32 i = 0; i < 1024; i++)
       uiData[i] = rand();
 
     // Calculate the hash so we can reuse the array

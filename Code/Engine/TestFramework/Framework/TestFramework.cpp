@@ -303,7 +303,7 @@ ezUInt32 ezTestFramework::GetTestCount(ezTestResultQuery::Enum countQuery) const
 
   for (ezUInt32 uiTest = 0; uiTest < uiTests; ++uiTest)
   {
-    switch(countQuery)
+    switch (countQuery)
     {
     case ezTestResultQuery::Enabled:
       uiAccumulator += m_TestEntries[uiTest].m_Result.m_bEnableTest ? 1 : 0;

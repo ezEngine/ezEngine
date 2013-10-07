@@ -167,7 +167,7 @@ Only concrete and clocks.\n\
 
         //printf("%s: '%s'\n", it.GetStats().m_bIsDirectory ? "[Dir] " : "[File]", sFullPath.GetData());
       }
-      while(it.Next() == EZ_SUCCESS);
+      while (it.Next() == EZ_SUCCESS);
     }
   }
 

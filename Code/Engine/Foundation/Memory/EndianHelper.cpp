@@ -9,9 +9,9 @@ void ezEndianHelper::SwitchStruct(void* pDataPointer, const char* szFormat)
   ezUInt8* pWorkPointer = static_cast<ezUInt8*>(pDataPointer);
   char cCurrentElement = *szFormat;
 
-  while(cCurrentElement != '\0')
+  while (cCurrentElement != '\0')
   {
-    switch(cCurrentElement)
+    switch (cCurrentElement)
     {
       case 'c':
       case 'b':
@@ -56,7 +56,7 @@ void ezEndianHelper::SwitchStructs(void* pDataPointer, const char* szFormat, ezU
   EZ_ASSERT(szFormat != NULL && strlen(szFormat) > 0, "Struct format description necessary!");
   EZ_ASSERT(uiStride > 0, "Struct size necessary!");
 
-  for(ezUInt32 i = 0; i < uiCount; i++)
+  for (ezUInt32 i = 0; i < uiCount; i++)
   {
     SwitchStruct(pDataPointer, szFormat);
     pDataPointer = ezMemoryUtils::AddByteOffset(pDataPointer, uiStride);

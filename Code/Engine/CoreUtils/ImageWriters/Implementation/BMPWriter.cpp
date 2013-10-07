@@ -19,9 +19,9 @@ ezResult ezBMPWriter::Write(ezArrayPtr<const ezUInt8> data, ezUInt32 uiWidth, ez
   infoHeader.uiDataSize = data.GetCount() + uiTotalPadding;
   header.uiFileSize = sizeof(header) + sizeof(infoHeader) + infoHeader.uiDataSize;
 
-  if(outStream.WriteBytes(&header, sizeof(header)) != EZ_SUCCESS)
+  if (outStream.WriteBytes(&header, sizeof(header)) != EZ_SUCCESS)
     return EZ_FAILURE;
-  if(outStream.WriteBytes(&infoHeader, sizeof(infoHeader)) != EZ_SUCCESS)
+  if (outStream.WriteBytes(&infoHeader, sizeof(infoHeader)) != EZ_SUCCESS)
     return EZ_FAILURE;
 
   ezUInt32 uiNull = 0;
@@ -32,12 +32,12 @@ ezResult ezBMPWriter::Write(ezArrayPtr<const ezUInt8> data, ezUInt32 uiWidth, ez
   /// \todo This code needs a lot of cleanup.
   
   //ezArrayPtr<ezUInt8> lineData((ezUInt8*)alloca(uiDstBytesPerLine), uiDstBytesPerLine);
-  for(ezUInt32 line = 1; line <= uiHeight; line++)
+  for (ezUInt32 line = 1; line <= uiHeight; line++)
   {
     memcpy(&lineData[0], data.GetSubArray((uiHeight - line) * uiSrcBytesPerLine, uiSrcBytesPerLine).GetPtr(), uiSrcBytesPerLine);
-    if(format == DataFormat::Grayscale8)
+    if (format == DataFormat::Grayscale8)
     {
-      for(ezUInt32 i=1; i <= uiWidth; i++)
+      for (ezUInt32 i=1; i <= uiWidth; i++)
       {
         ezUInt32 invI = uiWidth - i;
         lineData[invI * 3 + 2] = lineData[invI];
@@ -45,13 +45,13 @@ ezResult ezBMPWriter::Write(ezArrayPtr<const ezUInt8> data, ezUInt32 uiWidth, ez
         lineData[invI * 3 + 0] = lineData[invI];
       }
     }
-    for(ezUInt32 i=0; i < uiDstBytesPerLine; i += 3)
+    for (ezUInt32 i=0; i < uiDstBytesPerLine; i += 3)
     {
       ezMath::Swap(lineData[i], lineData[i+2]);
     }
-    if(outStream.WriteBytes(&lineData[0], lineData.GetCount()) != EZ_SUCCESS)
+    if (outStream.WriteBytes(&lineData[0], lineData.GetCount()) != EZ_SUCCESS)
       return EZ_FAILURE;
-    if(outStream.WriteBytes(&uiNull, uiPaddingPerLine) != EZ_SUCCESS)
+    if (outStream.WriteBytes(&uiNull, uiPaddingPerLine) != EZ_SUCCESS)
       return EZ_FAILURE;
   }
   return EZ_SUCCESS;

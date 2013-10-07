@@ -26,21 +26,21 @@ struct EZ_FOUNDATION_DLL ezEndianHelper
   /// \brief Switches endianess of the given array of words (16 bit values).
   static inline void SwitchWords(ezUInt16* pWords, ezUInt32 uiCount) // [tested]
   {
-    for(ezUInt32 i = 0; i < uiCount; i++)
+    for (ezUInt32 i = 0; i < uiCount; i++)
       pWords[i] = Switch(pWords[i]);
   }
 
   /// \brief Switches endianess of the given array of double words (32 bit values).
   static inline void SwitchDWords(ezUInt32* pDWords, ezUInt32 uiCount) // [tested]
   {
-    for(ezUInt32 i = 0; i < uiCount; i++)
+    for (ezUInt32 i = 0; i < uiCount; i++)
       pDWords[i] = Switch(pDWords[i]);
   }
 
   /// \brief Switches endianess of the given array of quad words (64 bit values).
   static inline void SwitchQWords(ezUInt64* pQWords, ezUInt32 uiCount) // [tested]
   {
-    for(ezUInt32 i = 0; i < uiCount; i++)
+    for (ezUInt32 i = 0; i < uiCount; i++)
       pQWords[i] = Switch(pQWords[i]);
   }
 
@@ -67,7 +67,7 @@ struct EZ_FOUNDATION_DLL ezEndianHelper
   {
     EZ_CHECK_AT_COMPILETIME_MSG((sizeof(T) == 2 || sizeof(T) == 4 || sizeof(T) == 8), "Switch in place only works for type equivalents of ezUInt16, ezUInt32, ezUInt64!");
 
-    if(sizeof(T) == 2)
+    if (sizeof(T) == 2)
     {
       struct TAnd16BitUnion
       {
@@ -80,7 +80,7 @@ struct EZ_FOUNDATION_DLL ezEndianHelper
 
       *pValue = Temp.TValue;
     }
-    else if(sizeof(T) == 4)
+    else if (sizeof(T) == 4)
     {
       struct TAnd32BitUnion
       {
@@ -93,7 +93,7 @@ struct EZ_FOUNDATION_DLL ezEndianHelper
 
       *pValue = Temp.TValue;
     }
-    else if(sizeof(T) == 8)
+    else if (sizeof(T) == 8)
     {
       struct TAnd64BitUnion
       {
