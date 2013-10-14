@@ -1,5 +1,5 @@
 ﻿#include <PCH.h>
-#include "Foundation/Memory/CommonAllocators.h"
+#include <Foundation/Memory/CommonAllocators.h>
 
 EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
 {

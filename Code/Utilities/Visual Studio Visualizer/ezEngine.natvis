@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+
+	<!-- Strings-->
+	<Type Name="ezHybridStringBase&lt;*&gt;">
+		<DisplayString>{m_Data.m_pElements,s8}</DisplayString>
+		<StringView>m_Data.m_pElements,s8</StringView>
+	</Type>
+	<Type Name="ezStringBuilder">
+		<DisplayString>{m_Data.m_pElements,s8}</DisplayString>
+		<StringView>m_Data.m_pElements,s8</StringView>
+	</Type>
+
+	<!-- Container & Arrays-->
+	<Type Name="ezArrayBase&lt;*&gt;">
+		<DisplayString>{{ size={m_uiCount} }}</DisplayString>
+		<Expand>
+			<Item Name="[size]">m_uiCount</Item>
+			<Item Name="[capacity]">m_uiCapacity</Item>
+			<ArrayItems>
+				<Size>m_uiCount</Size>
+				<ValuePointer>m_pElements</ValuePointer>
+			</ArrayItems>
+		</Expand>
+	</Type>
+
+	<Type Name="ezListBase&lt;*&gt;">
+  	<DisplayString>{{ size={m_uiCount} }}</DisplayString>
+		<Expand>
+	    <Item Name="[size]">m_uiCount</Item>
+	    <LinkedListItems>
+	      <Size>m_uiCount</Size>
+	      <HeadPointer>m_First.m_pNext</HeadPointer>
+	      <NextPointer>m_pNext</NextPointer>
+	      <ValueNode>m_Data</ValueNode>
+	    </LinkedListItems>
+  	</Expand>
+	</Type>
+
+	<Type Name="ezMapBase&lt;*&gt;">
+		<AlternativeType Name="ezSet&lt;*&gt;" />
+  	<DisplayString>{{ size={m_uiCount} }}</DisplayString>
+		<Expand>
+	    <Item Name="[size]">m_uiCount</Item>
+	    <LinkedListItems>
+	      <Size>m_uiCount</Size>
+	      <HeadPointer>m_pRoot</HeadPointer>
+	      <NextPointer>m_pLink[1]</NextPointer>
+	      <ValueNode>*this</ValueNode>
+	    </LinkedListItems>
+  	</Expand>
+	</Type>
+
+	<Type Name="ezHashTableBase&lt;*&gt;">
+  	<DisplayString>{{ size={m_uiCount} }}</DisplayString>
+		<Expand>
+	    <Item Name="[size]">m_uiCount</Item>
+	    <Item Name="[capacity]">m_uiCapacity</Item>
+			<ArrayItems>
+				<Size>m_uiCount</Size>
+				<ValuePointer>m_pEntries</ValuePointer>
+			</ArrayItems>
+  	</Expand>
+	</Type>
+
+	<Type Name="ezArrayPtr&lt;*&gt;">
+		<DisplayString>{ {size={m_uiCount}} }</DisplayString>
+		<Expand>
+			<Item Name="[size]">m_uiCount</Item>
+			<ArrayItems>
+				<Size>m_uiCount</Size>
+				<ValuePointer>m_ptr</ValuePointer>
+			</ArrayItems>
+		</Expand>
+	</Type>
+</AutoVisualizer>
