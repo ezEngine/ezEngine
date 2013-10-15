@@ -35,6 +35,7 @@ Milestone 3
   * Fixed several bugs.
   * New ezVariant type that is much more powerful and useful than the previous implementation.
   * Added ezConversionUtils class for converting strings to int/float/bool.
+  * Added optional *.natvis support for Visual Studio 2012. This enables much more comfortable inspection of basic types in the debugger.
   
 
 Milestone 2
