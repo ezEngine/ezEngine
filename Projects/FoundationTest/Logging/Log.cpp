@@ -6,6 +6,8 @@
 #include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
 #include <Foundation/Configuration/Startup.h>
 
+#define VerboseDebugMessage Debug
+
 EZ_CREATE_SIMPLE_TEST_GROUP(Logging);
 
 EZ_CREATE_SIMPLE_TEST(Logging, Log)
@@ -22,9 +24,9 @@ EZ_CREATE_SIMPLE_TEST(Logging, Log)
 
   LogHTML.BeginLog("Log_FoundationTest.htm", "FoundationTest");
 
-  ezLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);
-  ezLog::AddLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
-  ezLog::AddLogWriter(ezLog::Event::Handler(&ezLogWriter::HTML::LogMessageHandler, &LogHTML));
+  ezGlobalLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);
+  ezGlobalLog::AddLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
+  ezGlobalLog::AddLogWriter(ezLoggingEvent::Handler(&ezLogWriter::HTML::LogMessageHandler, &LogHTML));
 
   ezStartup::PrintAllSubsystems();
 
@@ -45,7 +47,7 @@ EZ_CREATE_SIMPLE_TEST(Logging, Log)
       ezLog::Dev("But there's no sense crying over every mistake.");
       ezLog::Debug("You just keep on trying 'till you run out of cake.");
       ezLog::Info("And the science gets done, and you make a neat gun");
-      ezLog::DebugRegular("for the people who are still alive.");
+      ezLog::VerboseDebugMessage("for the people who are still alive.");
     }
 
     {
@@ -65,10 +67,10 @@ EZ_CREATE_SIMPLE_TEST(Logging, Log)
 
         ezLog::Info("So I'm glad I got burned,");
         ezLog::Debug("think of all the things we learned");
-        ezLog::DebugRegular("for the people who are still alive.");
+        ezLog::VerboseDebugMessage("for the people who are still alive.");
       
         {
-          ezLogBlock b5("Verse 5");
+          EZ_LOG_BLOCK("Verse 5");
 
           ezLog::Debug("Go ahead and leave me.");
           ezLog::Info("I think I prefer to stay inside.");
@@ -80,7 +82,7 @@ EZ_CREATE_SIMPLE_TEST(Logging, Log)
           ezLog::Dev("Look at me still talking when there's science to do.");
           ezLog::Debug("When I look up there it makes me glad I'm not you.");
           ezLog::Info("I've experiments to run,");
-          ezLog::DebugRegular("there is research to be done on the people who are still alive.");
+          ezLog::VerboseDebugMessage("there is research to be done on the people who are still alive.");
         }
       }
     }
@@ -94,12 +96,12 @@ EZ_CREATE_SIMPLE_TEST(Logging, Log)
     ezLog::Success("I feel fantastic and I'm still alive.");
     ezLog::Dev("While you're dying I'll be still alive.");
     ezLog::Dev("And when you're dead I will be, still alive.");
-    ezLog::DebugRegular("Still alive, still alive.");
+    ezLog::VerboseDebugMessage("Still alive, still alive.");
   }
 
-  ezLog::RemoveLogWriter(ezLogWriter::Console::LogMessageHandler);
-  ezLog::RemoveLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
-  ezLog::RemoveLogWriter(ezLog::Event::Handler(&ezLogWriter::HTML::LogMessageHandler, &LogHTML));
+  ezGlobalLog::RemoveLogWriter(ezLogWriter::Console::LogMessageHandler);
+  ezGlobalLog::RemoveLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
+  ezGlobalLog::RemoveLogWriter(ezLoggingEvent::Handler(&ezLogWriter::HTML::LogMessageHandler, &LogHTML));
 
   LogHTML.EndLog();
 

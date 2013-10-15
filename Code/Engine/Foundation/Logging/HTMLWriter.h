@@ -16,7 +16,7 @@ namespace ezLogWriter
     ~HTML ();
 
     /// \brief Register this at ezLog to write all log messages to an HTML file.
-    void LogMessageHandler(const ezLog::EventData& eventData);
+    void LogMessageHandler(const ezLoggingEventData& eventData);
 
     /// \brief Opens the given file for writing the log. From now on all incoming log messages are written into it.
     void BeginLog(const char* szFile, const char* szAppTitle);

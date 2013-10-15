@@ -10,7 +10,7 @@ namespace ezLogWriter
   {
   public:
     /// \brief Register this at ezLog to write all log messages to visual studios output window.
-    static void LogMessageHandler(const ezLog::EventData& eventData);
+    static void LogMessageHandler(const ezLoggingEventData& eventData);
 
   };
 

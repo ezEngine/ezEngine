@@ -1,8 +1,8 @@
 #pragma once
 
-inline ezLog::EventData::EventData()
+inline ezLoggingEventData::ezLoggingEventData()
 {
-  m_EventType = ezLog::EventType::None;
+  m_EventType = ezLogMsgType::None;
   m_uiIndentation = 0;
   m_szText = "";
   m_szTag = "";
@@ -24,9 +24,5 @@ EZ_FORCE_INLINE void ezLog::Debug(const char* szFormat, ...)
   // in non-debug builds this function is completely removed from the source
 }
 
-EZ_FORCE_INLINE void ezLog::DebugRegular(const char* szFormat, ...)
-{
-  // in non-debug builds this function is completely removed from the source
-}
-
 #endif
+

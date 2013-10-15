@@ -182,26 +182,22 @@ void ezTestFramework::StartTests()
 }
 
 // Redirects engine warnings / errors to testframework output
-static void LogWriter(const ezLog::EventData& e)
+static void LogWriter(const ezLoggingEventData& e)
 {
   switch (e.m_EventType)
   {
-  case ezLog::EventType::FatalErrorMsg:
-    ezTestFramework::Output(ezTestOutput::Error, "ezLog Fatal Error: %s", e.m_szText);
-    break;
-  case ezLog::EventType::ErrorMsg:
+  case ezLogMsgType::ErrorMsg:
     ezTestFramework::Output(ezTestOutput::Error, "ezLog Error: %s", e.m_szText);
     break;
-  case ezLog::EventType::SeriousWarningMsg:
+  case ezLogMsgType::SeriousWarningMsg:
     ezTestFramework::Output(ezTestOutput::Error, "ezLog Serious Warning: %s", e.m_szText);
     break;
-  case ezLog::EventType::WarningMsg:
+  case ezLogMsgType::WarningMsg:
     ezTestFramework::Output(ezTestOutput::ImportantInfo, "ezLog Warning: %s", e.m_szText);
     break;
-  case ezLog::EventType::InfoMsg:
-  case ezLog::EventType::DevMsg:
-  case ezLog::EventType::DebugMsg:
-  case ezLog::EventType::DebugRegularMsg:
+  case ezLogMsgType::InfoMsg:
+  case ezLogMsgType::DevMsg:
+  case ezLogMsgType::DebugMsg:
     {
       if (ezStringUtils::IsEqual_NoCase(e.m_szTag, "test"))
         ezTestFramework::Output(ezTestOutput::Details, e.m_szText);
@@ -228,7 +224,7 @@ void ezTestFramework::ExecuteTest(ezUInt32 uiTestIndex)
   {
     m_iCurrentTestIndex = (ezInt32)uiTestIndex;
     // Log writer translates engine warnings / errors into test framework error messages.
-    ezLog::AddLogWriter(LogWriter);
+    ezGlobalLog::AddLogWriter(LogWriter);
 
     const ezInt32 iTestErrorCount = GetTotalErrorCount();
 
@@ -276,7 +272,7 @@ void ezTestFramework::ExecuteTest(ezUInt32 uiTestIndex)
     // *** Test De-Initialization ***
     pTestClass->DoTestDeInitialization();
 
-    ezLog::RemoveLogWriter(LogWriter);
+    ezGlobalLog::RemoveLogWriter(LogWriter);
 
     bool bTestSuccess = iTestErrorCount == GetTotalErrorCount();
     ezTestFramework::TestResult(-1, bTestSuccess, fTotalTestDuration);

@@ -25,10 +25,10 @@ void ezLogWidget::ResetStats()
   ListLog->clear();
   s_pWidget->m_Messages.Clear();
 
-  m_LogLevel = ezLog::EventType::All;
+  m_LogLevel = ezLogMsgType::All;
   m_sSearchText.Clear();
 
-  ComboLogLevel->setCurrentIndex(ezLog::EventType::All - m_LogLevel);
+  ComboLogLevel->setCurrentIndex(ezLogMsgType::All - m_LogLevel);
 }
 
 void ezLogWidget::Log(const char* szFormat, ...)
@@ -46,7 +46,7 @@ void ezLogWidget::Log(const char* szFormat, ...)
 
   LogMsg lm;
   lm.m_sMsg = szString;
-  lm.m_Type = ezLog::EventType::InfoMsg;
+  lm.m_Type = ezLogMsgType::InfoMsg;
   lm.m_uiIndentation = 0;
 
   m_Messages.PushBack(lm);
@@ -65,9 +65,9 @@ QListWidgetItem* ezLogWidget::CreateLogItem(const LogMsg& lm, ezInt32 iMessageIn
 {
   ezStringBuilder sFormat;
 
-  if (lm.m_Type == ezLog::EventType::BeginGroup)
+  if (lm.m_Type == ezLogMsgType::BeginGroup)
     sFormat.Format("%*s>> %s", lm.m_uiIndentation * 4, "", lm.m_sMsg.GetData());
-  else if (lm.m_Type == ezLog::EventType::EndGroup)
+  else if (lm.m_Type == ezLogMsgType::EndGroup)
     sFormat.Format("%*s<< %s", lm.m_uiIndentation * 4, "", lm.m_sMsg.GetData());
   else if (lm.m_sTag.IsEmpty())
     sFormat.Format("%*s%s", lm.m_uiIndentation * 4, "", lm.m_sMsg.GetData());
@@ -79,42 +79,32 @@ QListWidgetItem* ezLogWidget::CreateLogItem(const LogMsg& lm, ezInt32 iMessageIn
 
   switch (lm.m_Type)
   {
-  case ezLog::EventType::BeginGroup:
+  case ezLogMsgType::BeginGroup:
     pItem->setTextColor(QColor::fromRgb(160, 90, 255));
     break;
-  case ezLog::EventType::EndGroup:
+  case ezLogMsgType::EndGroup:
     pItem->setTextColor(QColor::fromRgb(110, 60, 185));
     break;
-  case ezLog::EventType::FlushToDisk:
-    pItem->setText(">> Log Flush To Disk <<");
-    pItem->setTextColor(QColor::fromRgb(255, 130, 0));
-    break;
-  case ezLog::EventType::FatalErrorMsg:
-    pItem->setTextColor(QColor::fromRgb(150, 0, 0));
-    break;
-  case ezLog::EventType::ErrorMsg:
+  case ezLogMsgType::ErrorMsg:
     pItem->setTextColor(QColor::fromRgb(255, 0, 0));
     break;
-  case ezLog::EventType::SeriousWarningMsg:
+  case ezLogMsgType::SeriousWarningMsg:
     pItem->setTextColor(QColor::fromRgb(255, 64, 0));
     break;
-  case ezLog::EventType::WarningMsg:
+  case ezLogMsgType::WarningMsg:
     pItem->setTextColor(QColor::fromRgb(255, 140, 0));
     break;
-  case ezLog::EventType::SuccessMsg:
+  case ezLogMsgType::SuccessMsg:
     pItem->setTextColor(QColor::fromRgb(0, 128, 0));
     break;
-  case ezLog::EventType::InfoMsg:
+  case ezLogMsgType::InfoMsg:
     //pItem->setTextColor(QColor::fromRgb(0, 0, 0));
     break;
-  case ezLog::EventType::DevMsg:
+  case ezLogMsgType::DevMsg:
     pItem->setTextColor(QColor::fromRgb(128, 128, 128));
     break;
-  case ezLog::EventType::DebugMsg:
+  case ezLogMsgType::DebugMsg:
     pItem->setTextColor(QColor::fromRgb(255, 0, 255));
-    break;
-  case ezLog::EventType::DebugRegularMsg:
-    pItem->setTextColor(QColor::fromRgb(0, 255, 255));
     break;
   }
 
@@ -164,7 +154,7 @@ void ezLogWidget::ProcessTelemetry(void* pUnuseed)
     LogMsg lm;
     lm.m_sMsg = sText;
     lm.m_sTag = sTag;
-    lm.m_Type = (ezLog::EventType::Enum) iEventType;
+    lm.m_Type = (ezLogMsgType::Enum) iEventType;
     lm.m_uiIndentation = uiIndentation;
 
     s_pWidget->m_Messages.PushBack(lm);
@@ -184,7 +174,7 @@ void ezLogWidget::ProcessTelemetry(void* pUnuseed)
 
 void ezLogWidget::on_ComboLogLevel_currentIndexChanged(int iIndex)
 {
-  m_LogLevel = (ezLog::EventType::Enum) (ezLog::EventType::All - iIndex);
+  m_LogLevel = (ezLogMsgType::Enum) (ezLogMsgType::All - iIndex);
 
   UpdateLogList();
 }
@@ -217,8 +207,8 @@ void ezLogWidget::UpdateLogList()
 
     if (!FilteredList.IsEmpty())
     {
-      if ((m_Messages[FilteredList.PeekBack()].m_Type == ezLog::EventType::BeginGroup) &&
-          (m_Messages[i].m_Type == ezLog::EventType::EndGroup))
+      if ((m_Messages[FilteredList.PeekBack()].m_Type == ezLogMsgType::BeginGroup) &&
+          (m_Messages[i].m_Type == ezLogMsgType::EndGroup))
       {
         FilteredList.PopBack();
         continue;

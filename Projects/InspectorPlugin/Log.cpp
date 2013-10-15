@@ -7,7 +7,7 @@ namespace ezLogWriter
   {
   public:
     /// \brief Register this at ezLog to broadcast all log messages through ezTelemetry.
-    static void LogMessageHandler(const ezLog::EventData& eventData)
+    static void LogMessageHandler(const ezLoggingEventData& eventData)
     {
       ezTelemetryMessage msg;
       msg.SetMessageID('LOG', 'MSG');
@@ -24,11 +24,11 @@ namespace ezLogWriter
 
 void AddLogWriter()
 {
-  ezLog::AddLogWriter(&ezLogWriter::Telemetry::LogMessageHandler);
+  ezGlobalLog::AddLogWriter(&ezLogWriter::Telemetry::LogMessageHandler);
 }
 
 void RemoveLogWriter()
 {
-  ezLog::RemoveLogWriter(&ezLogWriter::Telemetry::LogMessageHandler);
+  ezGlobalLog::RemoveLogWriter(&ezLogWriter::Telemetry::LogMessageHandler);
 }
 

@@ -63,7 +63,7 @@ const ezFileWriter& ezLogWriter::HTML::GetOpenedLogFile() const
   return m_File;
 }
 
-void ezLogWriter::HTML::LogMessageHandler(const ezLog::EventData& eventData)
+void ezLogWriter::HTML::LogMessageHandler(const ezLoggingEventData& eventData)
 {
   if (!m_File.IsOpen())
     return;
@@ -80,41 +80,33 @@ void ezLogWriter::HTML::LogMessageHandler(const ezLog::EventData& eventData)
 
   switch (eventData.m_EventType)
   {
-  case ezLog::EventType::FlushToDisk:
-    bFlushWriteCache = true;
-    break;
-  case ezLog::EventType::BeginGroup:
+  case ezLogMsgType::BeginGroup:
     sText.Format("<br><font color=\"#8080FF\"><b> <<< <u>%s</u> >>> </b></font><br><table width=100%% border=0><tr width=100%%><td width=10></td><td width=*>\n", sOriginalText.GetData());
     break;
-  case ezLog::EventType::EndGroup:
+  case ezLogMsgType::EndGroup:
     sText.Format("</td></tr></table><font color=\"#8080FF\"><b> <<< %s >>> </b></font><br><br>\n", sOriginalText.GetData());
     break;
-  case ezLog::EventType::FatalErrorMsg:
-    bFlushWriteCache = true;
-    sText.Format("<font color=\"#FF0000\"><b><u>Fatal Error: %s</u></b></font><br>\n", sOriginalText.GetData());
-    break;
-  case ezLog::EventType::ErrorMsg:
+  case ezLogMsgType::ErrorMsg:
     bFlushWriteCache = true;
     sText.Format("<font color=\"#FF0000\"><b><u>Error:</u> %s</b></font><br>\n", sOriginalText.GetData());
     break;
-  case ezLog::EventType::SeriousWarningMsg:
+  case ezLogMsgType::SeriousWarningMsg:
     bFlushWriteCache = true;
     sText.Format("<font color=\"#FF4000\"><b><u>Seriously:</u> %s</b></font><br>\n", sOriginalText.GetData());
     break;
-  case ezLog::EventType::WarningMsg:
+  case ezLogMsgType::WarningMsg:
     sText.Format("<font color=\"#FF8000\"><u>Warning:</u> %s</font><br>\n", sOriginalText.GetData());
     break;
-  case ezLog::EventType::SuccessMsg:
+  case ezLogMsgType::SuccessMsg:
     sText.Format("<font color=\"#009000\">%s</font><br>\n", sOriginalText.GetData());
     break;
-  case ezLog::EventType::InfoMsg:
+  case ezLogMsgType::InfoMsg:
     sText.Format("<font color=\"#000000\">%s</font><br>\n", sOriginalText.GetData());
     break;
-  case ezLog::EventType::DevMsg:
+  case ezLogMsgType::DevMsg:
     sText.Format("<font color=\"#3030F0\">%s</font><br>\n", sOriginalText.GetData());
     break;
-  case ezLog::EventType::DebugMsg:
-  case ezLog::EventType::DebugRegularMsg:
+  case ezLogMsgType::DebugMsg:
     sText.Format("<font color=\"#A000FF\">%s</font><br>\n", sOriginalText.GetData());
     break;
   default:

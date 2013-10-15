@@ -62,7 +62,7 @@ void ezTestSetup::DeInitTestFramework()
 {
   ezTestFramework* pTestFramework = ezTestFramework::GetInstance();
 
-  ezLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);
+  ezGlobalLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);
   ezStringUtils::PrintStringLengthStatistics();
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)

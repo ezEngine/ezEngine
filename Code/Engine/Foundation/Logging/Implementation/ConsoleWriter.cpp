@@ -15,12 +15,12 @@
   static void SetConsoleColor (ezUInt8 ui) { }
 #endif
 
-void ezLogWriter::Console::LogMessageHandler(const ezLog::EventData& eventData)
+void ezLogWriter::Console::LogMessageHandler(const ezLoggingEventData& eventData)
 {
   static ezMutex WriterLock; // will only be created if this writer is used at all
   ezLock<ezMutex> lock(WriterLock);
 
-  if (eventData.m_EventType == ezLog::EventType::BeginGroup)
+  if (eventData.m_EventType == ezLogMsgType::BeginGroup)
     printf ("\n");
 
   for (ezUInt32 i = 0; i < eventData.m_uiIndentation; ++i)
@@ -28,46 +28,39 @@ void ezLogWriter::Console::LogMessageHandler(const ezLog::EventData& eventData)
 
   switch (eventData.m_EventType)
   {
-  case ezLog::EventType::FlushToDisk:
-    break;
-  case ezLog::EventType::BeginGroup:
+  case ezLogMsgType::BeginGroup:
     SetConsoleColor (0x02);
     printf ("+++++ %s +++++\n", eventData.m_szText);
     break;
-  case ezLog::EventType::EndGroup:
+  case ezLogMsgType::EndGroup:
     SetConsoleColor (0x02);
     printf ("----- %s -----\n\n", eventData.m_szText);
     break;
-  case ezLog::EventType::FatalErrorMsg:
-    SetConsoleColor (0x0D);
-    printf ("Fatal Error: %s\n", eventData.m_szText);
-    break;
-  case ezLog::EventType::ErrorMsg:
+  case ezLogMsgType::ErrorMsg:
     SetConsoleColor (0x0C);
     printf ("Error: %s\n", eventData.m_szText);
     break;
-  case ezLog::EventType::SeriousWarningMsg:
+  case ezLogMsgType::SeriousWarningMsg:
     SetConsoleColor (0x0C);
     printf ("Seriously: %s\n", eventData.m_szText);
     break;
-  case ezLog::EventType::WarningMsg:
+  case ezLogMsgType::WarningMsg:
     SetConsoleColor (0x0E);
     printf ("Warning: %s\n", eventData.m_szText);
     break;
-  case ezLog::EventType::SuccessMsg:
+  case ezLogMsgType::SuccessMsg:
     SetConsoleColor (0x0A);
     printf ("%s\n", eventData.m_szText);
     break;
-  case ezLog::EventType::InfoMsg:
+  case ezLogMsgType::InfoMsg:
     SetConsoleColor (0x07);
     printf ("%s\n", eventData.m_szText);
     break;
-  case ezLog::EventType::DevMsg:
+  case ezLogMsgType::DevMsg:
     SetConsoleColor (0x08);
     printf ("%s\n", eventData.m_szText);
     break;
-  case ezLog::EventType::DebugMsg:
-  case ezLog::EventType::DebugRegularMsg:
+  case ezLogMsgType::DebugMsg:
     SetConsoleColor (0x09);
     printf ("%s\n", eventData.m_szText);
     break;

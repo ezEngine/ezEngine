@@ -5,12 +5,12 @@
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
 
-void ezLogWriter::VisualStudio::LogMessageHandler(const ezLog::EventData& eventData)
+void ezLogWriter::VisualStudio::LogMessageHandler(const ezLoggingEventData& eventData)
 {
   static ezMutex WriterLock; // will only be created if this writer is used at all
   ezLock<ezMutex> lock(WriterLock);
 
-  if (eventData.m_EventType == ezLog::EventType::BeginGroup)
+  if (eventData.m_EventType == ezLogMsgType::BeginGroup)
     OutputDebugString ("\n");
 
   for (ezUInt32 i = 0; i < eventData.m_uiIndentation; ++i)
@@ -20,46 +20,39 @@ void ezLogWriter::VisualStudio::LogMessageHandler(const ezLog::EventData& eventD
 
   switch (eventData.m_EventType)
   {
-  case ezLog::EventType::FlushToDisk:
-    break;
-  case ezLog::EventType::BeginGroup:
+  case ezLogMsgType::BeginGroup:
     ezStringUtils::snprintf(sz, 1024, "+++++ %s +++++\n", eventData.m_szText);
     OutputDebugString (sz);
     break;
-  case ezLog::EventType::EndGroup:
+  case ezLogMsgType::EndGroup:
     ezStringUtils::snprintf(sz, 1024, "----- %s -----\n\n", eventData.m_szText);
     OutputDebugString (sz);
     break;
-  case ezLog::EventType::FatalErrorMsg:
-    ezStringUtils::snprintf(sz, 1024, "Fatal Error: %s\n", eventData.m_szText);
-    OutputDebugString (sz);
-    break;
-  case ezLog::EventType::ErrorMsg:
+  case ezLogMsgType::ErrorMsg:
     ezStringUtils::snprintf(sz, 1024, "Error: %s\n", eventData.m_szText);
     OutputDebugString (sz);
     break;
-  case ezLog::EventType::SeriousWarningMsg:
+  case ezLogMsgType::SeriousWarningMsg:
     ezStringUtils::snprintf(sz, 1024, "Seriously: %s\n", eventData.m_szText);
     OutputDebugString (sz);
     break;
-  case ezLog::EventType::WarningMsg:
+  case ezLogMsgType::WarningMsg:
     ezStringUtils::snprintf(sz, 1024, "Warning: %s\n", eventData.m_szText);
     OutputDebugString (sz);
     break;
-  case ezLog::EventType::SuccessMsg:
+  case ezLogMsgType::SuccessMsg:
     ezStringUtils::snprintf(sz, 1024, "%s\n", eventData.m_szText);
     OutputDebugString (sz);
     break;
-  case ezLog::EventType::InfoMsg:
+  case ezLogMsgType::InfoMsg:
     ezStringUtils::snprintf(sz, 1024, "%s\n", eventData.m_szText);
     OutputDebugString (sz);
     break;
-  case ezLog::EventType::DevMsg:
+  case ezLogMsgType::DevMsg:
     ezStringUtils::snprintf(sz, 1024, "%s\n", eventData.m_szText);
     OutputDebugString (sz);
     break;
-  case ezLog::EventType::DebugMsg:
-  case ezLog::EventType::DebugRegularMsg:
+  case ezLogMsgType::DebugMsg:
     ezStringUtils::snprintf(sz, 1024, "%s\n", eventData.m_szText);
     OutputDebugString (sz);
     break;
@@ -74,7 +67,7 @@ void ezLogWriter::VisualStudio::LogMessageHandler(const ezLog::EventData& eventD
 
 #else
 
-void ezLogWriter::VisualStudio::LogMessageHandler(const ezLog::EventData& eventData)
+void ezLogWriter::VisualStudio::LogMessageHandler(const ezLoggingEventData& eventData)
 {
 }
 

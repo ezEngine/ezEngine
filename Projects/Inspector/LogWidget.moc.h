@@ -36,7 +36,7 @@ private:
   {
     ezString m_sMsg;
     ezString m_sTag;
-    ezLog::EventType::Enum m_Type;
+    ezLogMsgType::Enum m_Type;
     ezUInt8 m_uiIndentation;
   };
 
@@ -45,7 +45,7 @@ private:
 
   ezDeque<LogMsg> m_Messages;
 
-  ezLog::EventType::Enum m_LogLevel;
+  ezLogMsgType::Enum m_LogLevel;
   ezString m_sSearchText;
 };
 
