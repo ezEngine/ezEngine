@@ -26,8 +26,8 @@ void SampleGameApp::AfterEngineInit()
   }
 
   // Setup the logging system
-  ezLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);
-  ezLog::AddLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
+  ezGlobalLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);
+  ezGlobalLog::AddLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
 
   // Map the input keys to actions
   SetupInput();

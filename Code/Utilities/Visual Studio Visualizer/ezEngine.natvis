@@ -3,19 +3,16 @@
 
 	<!-- Strings-->
 	<Type Name="ezHybridStringBase&lt;*&gt;">
+		<AlternativeType Name="ezStringBuilder" />
 		<DisplayString>{m_Data.m_pElements,s8}</DisplayString>
 		<StringView>m_Data.m_pElements,s8</StringView>
 	</Type>
-	<Type Name="ezStringBuilder">
-		<DisplayString>{m_Data.m_pElements,s8}</DisplayString>
-		<StringView>m_Data.m_pElements,s8</StringView>
-	</Type>
-
+	
 	<!-- Container & Arrays-->
 	<Type Name="ezArrayBase&lt;*&gt;">
-		<DisplayString>{{ size={m_uiCount} }}</DisplayString>
+		<DisplayString>{{ count={m_uiCount} }}</DisplayString>
 		<Expand>
-			<Item Name="[size]">m_uiCount</Item>
+			<Item Name="[count]">m_uiCount</Item>
 			<Item Name="[capacity]">m_uiCapacity</Item>
 			<ArrayItems>
 				<Size>m_uiCount</Size>
@@ -25,9 +22,9 @@
 	</Type>
 
 	<Type Name="ezListBase&lt;*&gt;">
-  	<DisplayString>{{ size={m_uiCount} }}</DisplayString>
+  	<DisplayString>{{ count={m_uiCount} }}</DisplayString>
 		<Expand>
-	    <Item Name="[size]">m_uiCount</Item>
+	    <Item Name="[count]">m_uiCount</Item>
 	    <LinkedListItems>
 	      <Size>m_uiCount</Size>
 	      <HeadPointer>m_First.m_pNext</HeadPointer>
@@ -39,9 +36,9 @@
 
 	<Type Name="ezMapBase&lt;*&gt;">
 		<AlternativeType Name="ezSet&lt;*&gt;" />
-  	<DisplayString>{{ size={m_uiCount} }}</DisplayString>
+  	<DisplayString>{{ count={m_uiCount} }}</DisplayString>
 		<Expand>
-	    <Item Name="[size]">m_uiCount</Item>
+	    <Item Name="[count]">m_uiCount</Item>
 	    <LinkedListItems>
 	      <Size>m_uiCount</Size>
 	      <HeadPointer>m_pRoot</HeadPointer>
@@ -51,22 +48,22 @@
   	</Expand>
 	</Type>
 
-	<Type Name="ezHashTableBase&lt;*&gt;">
-  	<DisplayString>{{ size={m_uiCount} }}</DisplayString>
+	<Type Name="ezStaticRingBuffer&lt;*&gt;">
+		<DisplayString>{{ count={m_uiCount} }}</DisplayString>
 		<Expand>
-	    <Item Name="[size]">m_uiCount</Item>
-	    <Item Name="[capacity]">m_uiCapacity</Item>
+			<Item Name="[count]">m_uiCount</Item>
+			<Item Name="[start index]">m_uiFirstElement</Item>
 			<ArrayItems>
 				<Size>m_uiCount</Size>
-				<ValuePointer>m_pEntries</ValuePointer>
+				<ValuePointer>m_pElements</ValuePointer>
 			</ArrayItems>
-  	</Expand>
+		</Expand>
 	</Type>
 
 	<Type Name="ezArrayPtr&lt;*&gt;">
-		<DisplayString>{ {size={m_uiCount}} }</DisplayString>
+		<DisplayString>{ {count={m_uiCount}} }</DisplayString>
 		<Expand>
-			<Item Name="[size]">m_uiCount</Item>
+			<Item Name="[count]">m_uiCount</Item>
 			<ArrayItems>
 				<Size>m_uiCount</Size>
 				<ValuePointer>m_ptr</ValuePointer>

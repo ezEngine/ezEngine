@@ -31,8 +31,7 @@ Some of them are implicit by parent types, more types could be affected.
 - ezMapBase
     - ezSet (alias)  
     - ezMap
-- ezHashTableBase
-    - ezHashTable
+- ezStaticRingBuffer (wrong element order)
 - ezArrayPtr
 
 nativvistest.cpp

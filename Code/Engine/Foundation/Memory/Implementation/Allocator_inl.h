@@ -19,6 +19,10 @@ ezAllocator<A, T, M>::~ezAllocator()
 template <typename A, typename T, typename M>
 void* ezAllocator<A, T, M>::Allocate(size_t uiSize, size_t uiAlign)
 {
+  // zero size allocations alway return NULL without tracking (since deallocate NULL is ignored)
+  if(uiSize == 0)
+    return NULL;
+
   EZ_ASSERT_API(ezMath::IsPowerOf2((ezUInt32)uiAlign), "Alignment must be power of two");
 
   ezLock<M> lock(m_mutex);
