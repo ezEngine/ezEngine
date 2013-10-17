@@ -203,12 +203,12 @@ public:
     sLogPath.AppendPath("CodeStatistics.htm");
 
     // The console log writer will pass all log messages to the standard console window
-    ezLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);
+    ezGlobalLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);
     // The Visual Studio log writer will pass all messages to the output window in VS
-    ezLog::AddLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
+    ezGlobalLog::AddLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
     // The HTML log writer will write all log messages to an HTML file
     g_HtmlLog.GetStatic().BeginLog(sLogPath.GetData(), "Code Statistics");
-    ezLog::AddLogWriter(ezLog::Event::Handler(&ezLogWriter::HTML::LogMessageHandler, &g_HtmlLog.GetStatic()));
+    ezGlobalLog::AddLogWriter(ezLoggingEvent::Handler(&ezLogWriter::HTML::LogMessageHandler, &g_HtmlLog.GetStatic()));
   }
 
   virtual void BeforeEngineShutdown() EZ_OVERRIDE

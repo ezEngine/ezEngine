@@ -1,1 +1,1 @@
-#include <InspectorPlugin/PCH.h>
+#include <PCH.h>
