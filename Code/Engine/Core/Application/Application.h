@@ -3,6 +3,7 @@
 
 /// \file
 
+#include <Foundation/Utilities/CommandLineUtils.h>
 #include <Core/Basics.h>
 #include <Core/Application/Implementation/ApplicationEntryPoint.h>
 
@@ -150,6 +151,7 @@ public:
   {
     m_uiArgumentCount = uiArgumentCount;
     m_ppArguments = ppArguments;
+    m_CommandLine.SetCommandLine(uiArgumentCount, ppArguments);
   }
 
   /// \brief Returns the one instance of ezApplication that is available.
@@ -180,6 +182,11 @@ public:
     return m_ppArguments;
   }
 
+  const ezCommandLineUtils& GetCommandLine() const
+  {
+    return m_CommandLine;
+  }
+
 private:
 
   ezInt32 m_iReturnCode;
@@ -192,5 +199,6 @@ private:
 
   friend EZ_CORE_DLL void ezRun(ezApplication* pApplicationInstance);
 
+  ezCommandLineUtils m_CommandLine;
 
 };
