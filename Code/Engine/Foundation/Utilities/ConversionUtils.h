@@ -6,10 +6,8 @@
 ///
 /// Contains helper functions to convert from strings to numerical values.
 /// To convert from numerical values to strings, use ezStringUtils::Format, which provides a rich set of formatting options.
-class EZ_FOUNDATION_DLL ezConversionUtils
+namespace ezConversionUtils
 {
-public:
-
   /// \brief Parses szString and converts it to an integer value. Returns EZ_FAILURE if the string contains no parsable integer value.
   ///
   /// \param szString
@@ -29,7 +27,7 @@ public:
   ///   EZ_SUCCESS if any integer value could get properly extracted from szString (including 0). This includes that only some part of the
   ///   string was parsed until a non-digit character was encountered.
   ///   EZ_FAILURE if the string starts with something that can not be interpreted as an integer.
-  static ezResult StringToInt(const char* szString, ezInt32& out_Res, const char** out_LastParsePosition = NULL); // [tested]
+  EZ_FOUNDATION_DLL ezResult StringToInt(const char* szString, ezInt32& out_Res, const char** out_LastParsePosition = NULL); // [tested]
 
   /// \brief Pases szString and converts it to a double value. Returns EZ_FAILURE if the string contains no parsable floating point value.
   ///
@@ -64,7 +62,7 @@ public:
   ///   On the down-side StringToFloat() is probably not as precise as atof(), because of a very simplistic conversion algorithm.
   ///   If you require the features of StringToFloat() and the precision of atof(), you can let StringToFloat() handle the cases for detecting
   ///   the validity, the sign and where the value ends and then use atof to parse only that substring with maximum precision.
-  static ezResult StringToFloat(const char* szString, double& out_Res, const char** out_LastParsePosition = NULL);
+  EZ_FOUNDATION_DLL ezResult StringToFloat(const char* szString, double& out_Res, const char** out_LastParsePosition = NULL); // [tested]
 
   /// \brief Parses szString and checks that the first word it finds stats with a phrase that can be interpreted as a boolean value.
   ///
@@ -86,7 +84,7 @@ public:
   /// \return
   ///   EZ_SUCCESS if any phrase was encountered that can be interpreted as a boolean value.
   ///   EZ_FAILURE otherwise.
-  static ezResult StringToBool(const char* szString, bool& out_Res, const char** out_LastParsePosition = NULL); // [tested]
+  EZ_FOUNDATION_DLL ezResult StringToBool(const char* szString, bool& out_Res, const char** out_LastParsePosition = NULL); // [tested]
 
 
 };
