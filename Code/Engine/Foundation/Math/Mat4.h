@@ -103,9 +103,11 @@ public:
   void SetPerspectiveProjectionMatrix(Type fLeft, Type fRight, Type fBottom, Type fTop, Type fNearZ, Type fFarZ, ezProjectionDepthRange::Enum DepthRange);
 
   /// \brief Creates a perspective projection matrix.
+  /// \param fFieldOfViewY    Horizontal field of view in degree.
   void SetPerspectiveProjectionMatrixFromFovX(Type fFieldOfViewX, Type fAspectRatioWidthDivHeight, Type fNearZ, Type fFarZ, ezProjectionDepthRange::Enum DepthRange);
 
   /// \brief Creates a perspective projection matrix.
+  /// \param fFieldOfViewY    Vertical field of view in degree.
   void SetPerspectiveProjectionMatrixFromFovY(Type fFieldOfViewY, Type fAspectRatioWidthDivHeight, Type fNearZ, Type fFarZ, ezProjectionDepthRange::Enum DepthRange);
 
   /// \brief Creates an orthographic projection matrix.

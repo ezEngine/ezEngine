@@ -20,7 +20,7 @@ static LRESULT CALLBACK ezWindowsMessageFuncTrampoline(HWND hWnd, UINT Msg, WPAR
         EndPaint(hWnd, &ps);
       }
       return 0;
-
+      
     case WM_CLOSE:
       pWindow->Destroy();
       return 0;
@@ -54,12 +54,12 @@ ezResult ezWindow::Initialize()
   WNDCLASSEXW windowClass;
   ezMemoryUtils::ZeroFill(&windowClass);
   windowClass.cbSize         = sizeof(WNDCLASSEXW);
-  windowClass.style          = CS_HREDRAW | CS_VREDRAW;
+  windowClass.style          = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
   windowClass.hInstance      = GetModuleHandleW(NULL);
   windowClass.hIcon          = LoadIcon(NULL, IDI_APPLICATION); /// \todo Expose icon functionality somehow
   windowClass.hCursor        = LoadCursor(NULL, IDC_ARROW);
   windowClass.hbrBackground  = static_cast<HBRUSH>(GetStockObject(BLACK_BRUSH));
-  windowClass.lpszClassName  = L"ezWindow";
+  windowClass.lpszClassName  = L"ezWin32Window";
   windowClass.lpfnWndProc    = ezWindowsMessageFuncTrampoline;
 
   if (!RegisterClassExW(&windowClass)) // \todo test & support for multiple windows
@@ -86,14 +86,18 @@ ezResult ezWindow::Initialize()
       ezLog::Warning("Failed to created fullscreen window. Will created windowed window."); 
     }
   }
-
+  
 
   // setup window style
-  DWORD dwWindowStyle = 0;
+  DWORD dwExStyle = WS_EX_APPWINDOW;
+  DWORD dwWindowStyle = WS_CLIPSIBLINGS | WS_CLIPCHILDREN;
   if (!m_CreationDescription.m_bFullscreenWindow)
-    dwWindowStyle = WS_OVERLAPPEDWINDOW;
+  {
+    dwWindowStyle |= WS_OVERLAPPEDWINDOW;
+    dwExStyle |= WS_EX_WINDOWEDGE;
+  }
   else
-    dwWindowStyle = WS_POPUP;
+    dwWindowStyle |= WS_POPUP;
  
   // Create rectangle for window
   ezUInt32 x = 0, y = 0;
@@ -103,13 +107,13 @@ ezResult ezWindow::Initialize()
     y = m_CreationDescription.m_WindowPosition.y;
   }
   RECT Rect = {x, y, x + m_CreationDescription.m_ClientAreaSize.width, y + m_CreationDescription.m_ClientAreaSize.height};
-  AdjustWindowRect(&Rect, dwWindowStyle, FALSE);
+  AdjustWindowRectEx(&Rect, dwWindowStyle, FALSE, dwExStyle);
 
   // Account for left or top placed task bars
   if (!m_CreationDescription.m_bFullscreenWindow)
   {
     RECT RectWorkArea = {0};
-    SystemParametersInfo(SPI_GETWORKAREA, 0, &RectWorkArea, 0);
+    SystemParametersInfoW(SPI_GETWORKAREA, 0, &RectWorkArea, 0);
 
     x += RectWorkArea.left;
     y += RectWorkArea.top;
@@ -122,12 +126,12 @@ ezResult ezWindow::Initialize()
 
     Rect.top += dy;
     Rect.bottom += dy;
-  } 
-
+  }
+  
   // create window
   ezStringWChar sTitelWChar(m_CreationDescription.m_Title.GetData());
-  const wchar_t* sTitelWChar_ = sTitelWChar.GetData();
-  m_WindowHandle = CreateWindowW(L"ezWindow", sTitelWChar_, dwWindowStyle, 
+  const wchar_t* sTitelWCharRaw = sTitelWChar.GetData();
+  m_WindowHandle = CreateWindowExW(dwExStyle, L"ezWin32Window", sTitelWCharRaw, dwWindowStyle, 
                                   Rect.left, Rect.top, Rect.right - Rect.left, Rect.bottom - Rect.top, 
                                   NULL, NULL, windowClass.hInstance, NULL);
   if (m_WindowHandle == INVALID_HANDLE_VALUE)
@@ -140,7 +144,10 @@ ezResult ezWindow::Initialize()
   SetWindowLongPtrW(m_WindowHandle, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
 
   // activate window
-  ShowWindow(m_WindowHandle, SW_SHOW);
+  ShowWindow(m_WindowHandle, SW_SHOWNORMAL);
+  SetActiveWindow(m_WindowHandle);
+  SetForegroundWindow(m_WindowHandle);
+  SetFocus(m_WindowHandle);
 
   m_bInitialized = true;
   ezLog::Success("Created window successfully.");
@@ -156,7 +163,7 @@ ezResult ezWindow::Destroy()
   DestroyWindow(GetNativeWindowHandle());
   SetWindowLongPtrW(GetNativeWindowHandle(), GWLP_USERDATA, reinterpret_cast<LONG_PTR>(NULL));
 
-  UnregisterClassW(L"ezWindow", GetModuleHandle(NULL));
+  UnregisterClassW(L"ezWindow", GetModuleHandleW(NULL));
 
   m_bInitialized = false;
   m_WindowHandle = INVALID_WINDOW_HANDLE_VALUE;
