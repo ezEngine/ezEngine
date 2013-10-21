@@ -421,6 +421,10 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     EZ_TEST(s == ezStringUtf8(L"abc def").GetData());
     EZ_TEST_INT(s.GetCharacterCount(), 7);
     EZ_TEST_INT(s.GetElementCount(), 7);
+
+    /// \todo Test replacing parts by such a large string that a reallocation is triggered
+    /// maybe reduce ezStringBuilders internal static array so much that reallocations appear all the time
+    /// and then run all tests, to ensure that no other functions are broken as well
   }
 
   EZ_TEST_BLOCK(true, "Insert")

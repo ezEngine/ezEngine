@@ -21,6 +21,8 @@ This is a list of our planned features for the foreseeable future.
   * Game Object basics (Clemens)
   * Rendering Abstraction basics (Marc)
   * Resource Manager
+  * Simple Text Rendering
+  * In Game Console
 
 Known Bugs
 ----------

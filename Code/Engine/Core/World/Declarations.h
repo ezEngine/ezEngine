@@ -92,8 +92,8 @@ struct ezObjectFlags
 
   enum Enum
   {
-    Dynamic = 1U << 0,
-    Active = 1U << 1,
+    Dynamic = EZ_BIT(0),
+    Active  = EZ_BIT(1),
 
     Default = Dynamic | Active
   };
