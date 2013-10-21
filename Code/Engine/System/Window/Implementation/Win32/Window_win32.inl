@@ -92,46 +92,47 @@ ezResult ezWindow::Initialize()
   DWORD dwExStyle = WS_EX_APPWINDOW;
   DWORD dwWindowStyle = WS_CLIPSIBLINGS | WS_CLIPCHILDREN;
   if (!m_CreationDescription.m_bFullscreenWindow)
-  {
-    dwWindowStyle |= WS_OVERLAPPEDWINDOW;
-    dwExStyle |= WS_EX_WINDOWEDGE;
-  }
+    dwWindowStyle |= WS_OVERLAPPED | WS_BORDER | WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU | WS_VISIBLE; //WS_OVERLAPPEDWINDOW;
   else
     dwWindowStyle |= WS_POPUP;
  
   // Create rectangle for window
-  ezUInt32 x = 0, y = 0;
-  if (!m_CreationDescription.m_bFullscreenWindow)
-  {
-    x = m_CreationDescription.m_WindowPosition.x;
-    y = m_CreationDescription.m_WindowPosition.y;
-  }
-  RECT Rect = {x, y, x + m_CreationDescription.m_ClientAreaSize.width, y + m_CreationDescription.m_ClientAreaSize.height};
-  AdjustWindowRectEx(&Rect, dwWindowStyle, FALSE, dwExStyle);
+  RECT Rect = {0, 0, m_CreationDescription.m_ClientAreaSize.width, m_CreationDescription.m_ClientAreaSize.height};
 
   // Account for left or top placed task bars
   if (!m_CreationDescription.m_bFullscreenWindow)
   {
+    // Adjust for borders and bars etc.
+    AdjustWindowRectEx(&Rect, dwWindowStyle, FALSE, dwExStyle);
+
+    // top left position now be negative (due to AdjustWindowRectEx)
+    // move
+    Rect.right -= Rect.left;
+    Rect.bottom -= Rect.top;
+    // apply user translation
+    Rect.left = m_CreationDescription.m_WindowPosition.x;
+    Rect.top = m_CreationDescription.m_WindowPosition.y;
+    Rect.right += m_CreationDescription.m_WindowPosition.x;
+    Rect.bottom += m_CreationDescription.m_WindowPosition.y;
+
+    // move into work area
     RECT RectWorkArea = {0};
     SystemParametersInfoW(SPI_GETWORKAREA, 0, &RectWorkArea, 0);
 
-    x += RectWorkArea.left;
-    y += RectWorkArea.top;
-
-    int dx = x - Rect.left;
-    int dy = y - Rect.top;
+    int dx = RectWorkArea.left - Rect.left;
+    int dy = RectWorkArea.top - Rect.top;
 
     Rect.left += dx;
     Rect.right += dx;
-
     Rect.top += dy;
     Rect.bottom += dy;
   }
-  
+
+
   // create window
   ezStringWChar sTitelWChar(m_CreationDescription.m_Title.GetData());
   const wchar_t* sTitelWCharRaw = sTitelWChar.GetData();
-  m_WindowHandle = CreateWindowExW(dwExStyle, L"ezWin32Window", sTitelWCharRaw, dwWindowStyle, 
+  m_WindowHandle = CreateWindowExW(dwExStyle, windowClass.lpszClassName, sTitelWCharRaw, dwWindowStyle, 
                                   Rect.left, Rect.top, Rect.right - Rect.left, Rect.bottom - Rect.top, 
                                   NULL, NULL, windowClass.hInstance, NULL);
   if (m_WindowHandle == INVALID_HANDLE_VALUE)
@@ -144,7 +145,7 @@ ezResult ezWindow::Initialize()
   SetWindowLongPtrW(m_WindowHandle, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
 
   // activate window
-  ShowWindow(m_WindowHandle, SW_SHOWNORMAL);
+  ShowWindow(m_WindowHandle, SW_SHOW);
   SetActiveWindow(m_WindowHandle);
   SetForegroundWindow(m_WindowHandle);
   SetFocus(m_WindowHandle);
