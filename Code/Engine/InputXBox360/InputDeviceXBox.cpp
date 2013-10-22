@@ -86,10 +86,13 @@ void ezInputDeviceXBox360::SetValue(ezInt32 iController, const char* szButton, f
   fVal = ezMath::Max(fVal, fValue);
 }
 
-void ezInputDeviceXBox360::UpdateInputSlotValues(double fTimeDifference)
+void ezInputDeviceXBox360::UpdateHardwareState(ezTime tTimeDifference)
 {
-  UpdateVibration(fTimeDifference);
+  UpdateVibration(tTimeDifference);
+}
 
+void ezInputDeviceXBox360::UpdateInputSlotValues()
+{
   // reset all keys
   for (ezMap<ezString, float, ezCompareHelper<ezString>, ezStaticAllocatorWrapper>::Iterator it = m_InputSlotValues.GetIterator(); it.IsValid(); ++it)
     it.Value() = 0.0f;

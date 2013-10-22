@@ -4,6 +4,7 @@
 #include <Foundation/Utilities/EnumerableClass.h>
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Strings/String.h>
+#include <Foundation/Time/Time.h>
 #include <Core/Input/Declarations.h>
 
 /// \brief The base class for all input device types.
@@ -61,8 +62,11 @@ private:
   /// itself, but instead query this information from the OS, which will also handle localization.
   wchar_t RetrieveLastCharacter();
 
+  /// \brief Calls UpdateHardwareState() on all devices.
+  static void UpdateAllHardwareStates(ezTime tTimeDifference);
+
   /// \brief Calls Initialize() and UpdateInputSlotValues() on all devices.
-  static void UpdateAllDevices(double fTimeDifference);
+  static void UpdateAllDevices();
 
   /// \brief Calls ResetInputSlotValues() on all devices.
   static void ResetAllDevices();
@@ -78,10 +82,10 @@ protected:
   ///
   /// A derived class needs to fill out this map every frame. There are two ways this map can be filled out.
   /// For devices where you can query the complete state at one point in time (e.g. controllers), you can update the entire
-  /// map inside and overridden UpdateInputSlotValues() function.
+  /// map inside an overridden UpdateInputSlotValues() function.
   /// For devices where you get the input only piece-wise and usually only when something changes (e.g. through messages)
   /// you can also just update the map whenever input arrives. However in such a use-case you sometimes need to manually
-  /// reset the state of certain input slots. For example when a mouse-move message arrives that movement delta is store in
+  /// reset the state of certain input slots. For example when a mouse-move message arrives that movement delta is accumulated in
   /// the map. However, when the mouse stops usually no 'mosue stopped' message is sent but the values in the map need to be
   /// reset to zero, to prevent the mouse from keeping moving in the engine.
   /// Do this inside an overridden ResetInputSlotValues() function. You don't need to do this for input slots that
@@ -102,7 +106,13 @@ private:
   virtual void InitializeDevice() = 0;
 
   /// \brief Override this, if you need to query the state of the hardware to update the input slots.
-  virtual void UpdateInputSlotValues(double fTimeDifference) = 0;
+  ///
+  /// \note This function might be called multiple times before ResetInputSlotValues() is called.
+  /// This will be the case when ezInputManager::PollHardware is used to make more frequent hardware updates
+  /// than input is actually processed.
+  /// Just make sure to always accumulate delta values (such as mouse move values) and don't expect ResetInputSlotValues()
+  /// to be called in tandem with this function and it will be fine.
+  virtual void UpdateInputSlotValues() = 0;
 
   /// \brief Override this, if you need to reset certain input slot values to zero, after the ezInputManager is finished with the current frame update.
   virtual void ResetInputSlotValues() { }; // [tested]
@@ -112,6 +122,10 @@ private:
   /// This is called once during initialization. It needs to call RegisterInputSlot() once for every input slot that this device
   /// exposes to the system.
   virtual void RegisterInputSlots() = 0; // [tested]
+
+  /// \brief This function is called once after ezInputManager::Update with the same time delta value.
+  /// It allows to update hardware state, such as the vibration of gamepad motors.
+  virtual void UpdateHardwareState(ezTime tTimeDifference) { }
 };
 
 

@@ -98,7 +98,7 @@ protected:
   /// This function needs to be called by a derived implementation in its UpdateInputSlotValues() function.
   /// It will call ApplyVibration() for each controller and motor with the current value. It already takes care
   /// of whether vibration is enabled or disabled, and also mapping virtual to physical controllers.
-  void UpdateVibration(double fTimeDifference);
+  void UpdateVibration(ezTime tTimeDifference);
 
 private:
   /// \brief Must be implemented by a derived controller implementation. Should set apply the vibration for the given physical controller and motor with the given strength.

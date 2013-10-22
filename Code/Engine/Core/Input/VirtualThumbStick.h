@@ -132,6 +132,6 @@ protected:
 private:
 
   virtual void InitializeDevice() EZ_OVERRIDE { }
-  virtual void UpdateInputSlotValues(double fTimeDifference) EZ_OVERRIDE;
+  virtual void UpdateInputSlotValues() EZ_OVERRIDE;
   virtual void RegisterInputSlots() EZ_OVERRIDE;
 };

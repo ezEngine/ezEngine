@@ -36,6 +36,7 @@ private:
     ezInt32 m_iTableRow;
 
     ezString m_sPlugin;
+    ezString m_sDescription;
     ezUInt8 m_uiFlags;
     ezUInt8 m_uiType;
 

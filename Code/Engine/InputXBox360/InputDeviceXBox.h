@@ -28,8 +28,9 @@ private:
   bool m_bControllerConnected[4];
 
   virtual void InitializeDevice() EZ_OVERRIDE { }
-  virtual void UpdateInputSlotValues(double fTimeDifference) EZ_OVERRIDE;
+  virtual void UpdateInputSlotValues() EZ_OVERRIDE;
   virtual void RegisterInputSlots() EZ_OVERRIDE;
+  virtual void UpdateHardwareState(ezTime tTimeDifference) EZ_OVERRIDE;
 
   void SetValue(ezInt32 iController, const char* szButton, float fValue);
 

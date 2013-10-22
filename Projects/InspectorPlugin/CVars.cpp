@@ -72,6 +72,7 @@ static void SendCVarTelemetry(ezCVar* pCVar)
   msg.GetWriter() << pCVar->GetPluginName();
   msg.GetWriter() << (ezUInt8) pCVar->GetFlags().GetValue();
   msg.GetWriter() << (ezUInt8) pCVar->GetType();
+  msg.GetWriter() << pCVar->GetDescription();
 
   switch (pCVar->GetType())
   {

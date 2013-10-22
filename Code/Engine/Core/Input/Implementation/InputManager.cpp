@@ -6,6 +6,7 @@
 ezInputManager::ezEventInput ezInputManager::s_InputEvents;
 ezInputManager::InternalData* ezInputManager::s_pData = NULL;
 wchar_t ezInputManager::s_LastCharacter = '\0';
+bool ezInputManager::s_bInputSlotResetRequired = true;
 
 ezInputManager::InternalData& ezInputManager::GetInternals()
 {
@@ -172,20 +173,34 @@ ezKeyState::Enum ezInputManager::GetInputSlotState(const char* szInputSlot, floa
   return ezKeyState::Up;
 }
 
-
-
-void ezInputManager::Update(double fTimeDifference)
+void ezInputManager::PollHardware()
 {
-  ezInputDevice::UpdateAllDevices(fTimeDifference);
+  if (s_bInputSlotResetRequired)
+  {
+    s_bInputSlotResetRequired = false;
+    ResetInputSlotValues();
+  }
+
+  ezInputDevice::UpdateAllDevices();
 
   GatherDeviceInputSlotValues();
+}
+
+void ezInputManager::Update(ezTime tTimeDifference)
+{
+  PollHardware();
+
   UpdateInputSlotStates();
 
   s_LastCharacter = ezInputDevice::RetrieveLastCharacterFromAllDevices();
 
-  UpdateInputActions(fTimeDifference);
+  UpdateInputActions(tTimeDifference);
 
   ezInputDevice::ResetAllDevices();
+
+  ezInputDevice::UpdateAllHardwareStates(tTimeDifference);
+
+  s_bInputSlotResetRequired = true;
 }
 
 void ezInputManager::ResetInputSlotValues()
@@ -200,8 +215,6 @@ void ezInputManager::ResetInputSlotValues()
 
 void ezInputManager::GatherDeviceInputSlotValues()
 {
-  ResetInputSlotValues();
-
   for (ezInputDevice* pDevice = ezInputDevice::GetFirstInstance(); pDevice != NULL; pDevice = pDevice->GetNextInstance())
   {
     ezMap<ezString, float, ezCompareHelper<ezString>, ezStaticAllocatorWrapper>::ConstIterator it = pDevice->m_InputSlotValues.GetIterator();

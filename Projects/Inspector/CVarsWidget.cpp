@@ -23,12 +23,13 @@ void ezCVarsWidget::ResetStats()
   TableCVars->clear();
 
   {
-    TableCVars->setColumnCount(3);
+    TableCVars->setColumnCount(4);
 
     QStringList Headers;
     Headers.append(" Plugin ");
     Headers.append(" CVar ");
     Headers.append(" Value ");
+    Headers.append(" Description ");
 
     TableCVars->setHorizontalHeaderLabels(Headers);
     TableCVars->horizontalHeader()->show();
@@ -62,6 +63,7 @@ void ezCVarsWidget::ProcessTelemetry(void* pUnuseed)
       msg.GetReader() >> sd.m_sPlugin;
       msg.GetReader() >> sd.m_uiFlags;
       msg.GetReader() >> sd.m_uiType;
+      msg.GetReader() >> sd.m_sDescription;
 
       switch (sd.m_uiType)
       {
@@ -101,13 +103,14 @@ void ezCVarsWidget::UpdateCVarsTable(bool bRecreate)
   if (bRecreate)
   {
     TableCVars->clear();
-    TableCVars->setColumnCount(3);
+    TableCVars->setColumnCount(4);
     TableCVars->setRowCount(m_CVars.GetCount());
 
     QStringList Headers;
     Headers.append(" Plugin ");
     Headers.append(" CVar ");
     Headers.append(" Value ");
+    Headers.append(" Description ");
 
     TableCVars->setHorizontalHeaderLabels(Headers);
     TableCVars->horizontalHeader()->show();
@@ -124,6 +127,8 @@ void ezCVarsWidget::UpdateCVarsTable(bool bRecreate)
 
       sTemp.Format("  %s  ", it.Key().GetData());
       TableCVars->setCellWidget(iRow, 1, new QLabel(sTemp.GetData())); // Name
+
+      TableCVars->setCellWidget(iRow, 3, new QLabel(it.Value().m_sDescription.GetData())); // Description
 
       switch (it.Value().m_uiType)
       {

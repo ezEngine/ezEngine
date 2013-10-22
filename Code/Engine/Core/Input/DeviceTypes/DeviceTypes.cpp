@@ -98,15 +98,15 @@ void ezInputDeviceController::AddVibrationTrack(ezUInt8 uiVirtual, Motor::Enum e
   }
 }
 
-void ezInputDeviceController::UpdateVibration(double fTimeDifference)
+void ezInputDeviceController::UpdateVibration(ezTime tTimeDifference)
 {
-  static double fElapsedTime = 0.0;
-  fElapsedTime += fTimeDifference;
+  static ezTime tElapsedTime;
+  tElapsedTime += tTimeDifference;
 
   // advance the vibration track sampling
-  while (fElapsedTime >= 0.1)
+  while (tElapsedTime.GetSeconds() >= 0.1)
   {
-    fElapsedTime -= 0.1;
+    tElapsedTime -= ezTime::Seconds(0.1);
 
     for (ezUInt32 c = 0; c < MaxControllers; ++c)
     {

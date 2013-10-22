@@ -218,17 +218,17 @@ hell:
   return itBestAction;
 }
 
-void ezInputManager::UpdateInputActions(double fTimeDifference)
+void ezInputManager::UpdateInputActions(ezTime tTimeDifference)
 {
   // update each input set
   // all input sets are disjunct from each other, so one key press can have different effects in each input set
   for (ezInputSetMap::Iterator ItSets = GetInternals().s_ActionMapping.GetIterator(); ItSets.IsValid(); ++ItSets)
   {
-    UpdateInputActions(ItSets.Key().GetData(), ItSets.Value(), fTimeDifference);
+    UpdateInputActions(ItSets.Key().GetData(), ItSets.Value(), tTimeDifference);
   }
 }
 
-void ezInputManager::UpdateInputActions(const char* szInputSet, ezActionMap& Actions, double fTimeDifference)
+void ezInputManager::UpdateInputActions(const char* szInputSet, ezActionMap& Actions, ezTime tTimeDifference)
 {
   // reset all action values to zero
   for (ezActionMap::Iterator ItActions = Actions.GetIterator(); ItActions.IsValid(); ++ItActions)
@@ -268,7 +268,7 @@ void ezInputManager::UpdateInputActions(const char* szInputSet, ezActionMap& Act
         fSlotValue = ezMath::Pow(fSlotValue, -fSlotScale);
 
       if ((!ItSlots.Value().m_SlotFlags.IsAnySet(ezInputSlotFlags::NeverTimeScale)) && (itBestAction.Value().m_Config.m_bApplyTimeScaling))
-        fSlotValue *= (float) fTimeDifference;
+        fSlotValue *= (float) tTimeDifference.GetSeconds();
 
       const float fNewValue = ezMath::Max(itBestAction.Value().m_fValue, fSlotValue);
 

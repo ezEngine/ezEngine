@@ -200,7 +200,7 @@ void ezVirtualThumbStick::UpdateActionMapping()
   m_bConfigChanged = false;
 }
 
-void ezVirtualThumbStick::UpdateInputSlotValues(double fTimeDifference)
+void ezVirtualThumbStick::UpdateInputSlotValues()
 {
   m_bIsActive = false;
 

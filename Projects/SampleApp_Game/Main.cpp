@@ -20,7 +20,7 @@ void SampleGameApp::AfterEngineInit()
 {
   ezTelemetry::CreateServer();
 
-  if (ezPlugin::LoadPlugin("InspectorPlugin") == EZ_SUCCESS)
+  if (ezPlugin::LoadPlugin("ezInspectorPlugin") == EZ_SUCCESS)
   {
 
   }
@@ -69,8 +69,6 @@ ezApplication::ApplicationExecution SampleGameApp::Run()
   
 
   ezTelemetry::PerFrameUpdate();
-
-  Sleep(10);  // still necessary? (yes, as long as we cannot guarantee that v-sync is always enabled)
 
   return ezApplication::Continue;
 }

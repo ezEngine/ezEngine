@@ -47,14 +47,22 @@ void ezInputDevice::Initialize()
 }
 
 
+void ezInputDevice::UpdateAllHardwareStates(ezTime tTimeDifference)
+{
+  // tell each device to update its hardware
+  for (ezInputDevice* pDevice = ezInputDevice::GetFirstInstance(); pDevice != NULL; pDevice = pDevice->GetNextInstance())
+  {
+    pDevice->UpdateHardwareState(tTimeDifference);
+  }
+}
 
-void ezInputDevice::UpdateAllDevices(double fTimeDifference)
+void ezInputDevice::UpdateAllDevices()
 {
   // tell each device to update its current input slot values
   for (ezInputDevice* pDevice = ezInputDevice::GetFirstInstance(); pDevice != NULL; pDevice = pDevice->GetNextInstance())
   {
     pDevice->Initialize();
-    pDevice->UpdateInputSlotValues(fTimeDifference);
+    pDevice->UpdateInputSlotValues();
   }
 }
 

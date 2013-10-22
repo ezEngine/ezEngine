@@ -5,8 +5,8 @@
 #include "AsteroidComponent.h"
 #include <gl/GL.h>
 #include <Core/Input/InputManager.h>
-#include <Foundation/math/Size.h>
-
+#include <Foundation/Math/Size.h>
+#include <Foundation/Configuration/CVar.h>
 
 const float g_fShipColors[4][3] =
 {
@@ -155,9 +155,35 @@ void SampleGameApp::RenderProjectiles()
   }
 }
 
+ezCVarInt CVarGameSlowDown("CVar_GameSlowDown", 0, ezCVarFlags::Default, "How much to slow down the game (20 is a good value).");
+
 void SampleGameApp::RenderSingleFrame()
 {
-  UpdateInput();
+  // always update the game with a fixed time step of 1/60 seconds
+  const ezTime tUpdateInterval = ezTime::Seconds(1.0 / 60.0);
+  const ezTime tNow = ezSystemTime::Now();
+
+  static ezTime s_LastGameUpdate = tNow;
+
+  // This loop lets you artificially slow down the game to see how the fixed
+  // game time stepping kicks in to do more updates per frame and keep a stable simulation
+  //if (false)
+  {
+    // enable this loop to reduce the overall framerate
+    for (int i = 0; i < CVarGameSlowDown; ++i)
+    {
+      ezThreadUtils::Sleep(1);
+      ezInputManager::PollHardware();
+    }
+  }
+
+  while (tNow - s_LastGameUpdate > tUpdateInterval)
+  {
+    UpdateInput(tUpdateInterval);
+    m_pLevel->Update();
+
+    s_LastGameUpdate += tUpdateInterval;
+  }
 
   ezSizeU32 resolution = m_pWindow->GetResolution();
   glViewport(0, 0, resolution.width, resolution.height);
@@ -174,9 +200,6 @@ void SampleGameApp::RenderSingleFrame()
 
   glClearColor(0, 0, 0.1f, 1);
   glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-  m_pLevel->Update();
-
 
   RenderProjectiles();
   RenderAsteroids();

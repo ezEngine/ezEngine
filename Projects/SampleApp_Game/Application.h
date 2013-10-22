@@ -3,6 +3,7 @@
 #include <Core/Application/Application.h>
 #include "Level.h"
 #include <Core/Input/VirtualThumbStick.h>
+#include <Foundation/Time/Time.h>
 
 class SampleGameApp : public ezApplication
 {
@@ -20,7 +21,7 @@ private:
   friend LRESULT CALLBACK WndProc (HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
   void RenderSingleFrame();
-  void UpdateInput();
+  void UpdateInput(ezTime UpdateDiff);
   void RenderProjectiles();
   void RenderAsteroids();
   void RenderPlayerShips();

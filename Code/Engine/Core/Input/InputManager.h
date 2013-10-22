@@ -5,8 +5,6 @@
 #include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/Communication/Event.h>
 
-/// \todo Tests for the InputSystem.
-
 /// \brief A struct that defines how to register an input action.
 struct EZ_CORE_DLL ezInputActionConfig
 {
@@ -85,9 +83,9 @@ public:
 
   /// \brief Updates the state of the input manager. This should be called exactly once each frame.
   ///
-  /// \param fTimeDifference The time elapsed since the last update. This will affect the value scaling of actions that
+  /// \param tTimeDifference The time elapsed since the last update. This will affect the value scaling of actions that
   /// use frame time scaling and is necessary to update controller vibration tracks.
-  static void Update(double fTimeDifference); // [tested]
+  static void Update(ezTime tTimeDifference); // [tested]
 
   /// \brief Will be replaced once we have an RTTI system.
   static ezInputDevice* GetInputDeviceByType(const char* szType);
@@ -121,6 +119,16 @@ public:
   /// If \a bResetCurrent is true, the internal last character will be reset to '\0'.
   /// If it is false, the internal state will not be changed. This should only be used, if the calling code does not do anything meaningful with the value.
   static wchar_t RetrieveLastCharacter(bool bResetCurrent = true); // [tested]
+
+  /// \brief Makes sure that hardware input is processed at this moment, which allows to do this more often than Update() is called.
+  ///
+  /// When you have a game where you are doing relatively few game updates (including processing input), for example only 20 times
+  /// per second, it is possible to 'miss' input. PollHardware() allows to introduce sampling the hardeware state more often to prevent this.
+  /// E.g. when your renderer renders at 60 Hz, you can poll input also at 60 Hz, even though you really only process it at 20 Hz.
+  /// In typical usage scenarios this is not required to do and can be ignored.
+  /// Note that you can call PollHardware() as often as you like and at irregular intervals, it will not have a negative effect
+  /// on the input states.
+  static void PollHardware();
 
   /// \brief If \a szInputSlot is used in any action in \a szInputSet, it will be removed from all of them.
   ///
@@ -282,6 +290,7 @@ private:
   /// \brief The last (unicode) character that was typed by the user, as reported by the OS (on Windows: WM_CHAR).
   static wchar_t s_LastCharacter;
 
+  static bool s_bInputSlotResetRequired;
 
   /// \brief Resets all input slot value to zero.
   static void ResetInputSlotValues();
@@ -293,10 +302,10 @@ private:
   static void UpdateInputSlotStates();
 
   /// \brief Uses the previously queried input slot values to update the state (and value) of all input actions.
-  static void UpdateInputActions(double fTimeDifference);
+  static void UpdateInputActions(ezTime tTimeDifference);
 
   /// \brief Updates the state of all input actions in the given input set.
-  static void UpdateInputActions(const char* szInputSet, ezActionMap& Actions, double fTimeDifference);
+  static void UpdateInputActions(const char* szInputSet, ezActionMap& Actions, ezTime tTimeDifference);
 
   /// \brief Returns an iterator to the (next) action that should get triggered by the given slot.
   ///

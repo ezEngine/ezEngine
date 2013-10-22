@@ -16,9 +16,9 @@ const char* szControlerKeys[MaxPlayerActions] = { "leftstick_posy",  "leftstick_
 
 ezCVarInt CVarInput("CVar_Input", 0, ezCVarFlags::Default, "Bla bla");
 
-void SampleGameApp::UpdateInput()
+void SampleGameApp::UpdateInput(ezTime UpdateDiff)
 {
-  ezInputManager::Update(1.0 / 60.0);
+  ezInputManager::Update(UpdateDiff);
 
   if (ezInputManager::GetInputActionState("Main", "CloseApp") == ezKeyState::Pressed)
     m_bActiveRenderLoop = false;
