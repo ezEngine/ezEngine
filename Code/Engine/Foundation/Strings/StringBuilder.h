@@ -140,7 +140,7 @@ public:
   void Reserve(ezUInt32 uiNumElements); // [tested]
 
 
-  /// \brief Replaces the string that starts at szStartPos and ands at szEndPos with the string szReplaceWith.
+  /// \brief Replaces the string that starts at szStartPos and ends at szEndPos with the string szReplaceWith.
   void ReplaceSubString(const char* szStartPos, const char* szEndPos, const char* szReplaceWith, const char* szReplaceWithEnd = ezMaxStringEnd); // [tested]
 
   /// \brief A wrapper around ReplaceSubString. Will insert the given string at szInsertAtPos.

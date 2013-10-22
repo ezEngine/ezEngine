@@ -422,9 +422,20 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     EZ_TEST_INT(s.GetCharacterCount(), 7);
     EZ_TEST_INT(s.GetElementCount(), 7);
 
-    /// \todo Test replacing parts by such a large string that a reallocation is triggered
-    /// maybe reduce ezStringBuilders internal static array so much that reallocations appear all the time
-    /// and then run all tests, to ensure that no other functions are broken as well
+    // insert very large block
+    s = ezStringBuilder("a");  // hard reset to keep buffer small
+    ezString insertString("omfg this string is so long it possibly won't never ever ever ever fit into the current buffer - this will hopefully lead to a buffer resize :)"
+      "........................................................................................................................................................................"
+      "........................................................................................................................................................................"
+      "........................................................................................................................................................................"
+      "........................................................................................................................................................................"
+      "........................................................................................................................................................................"
+      "........................................................................................................................................................................");
+    s.ReplaceSubString(s.GetData(), s.GetData()+s.GetElementCount(), insertString.GetData());
+    EZ_TEST(s == insertString.GetData());
+    EZ_TEST_INT(s.GetCharacterCount(), insertString.GetCharacterCount());
+    EZ_TEST_INT(s.GetElementCount(), insertString.GetElementCount());
+
   }
 
   EZ_TEST_BLOCK(true, "Insert")

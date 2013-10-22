@@ -4,6 +4,7 @@
 #include <Foundation/Strings/StringIterator.h>
 #include <Foundation/Strings/Implementation/StringBase.h>
 #include <Foundation/Strings/StringConversion.h>
+#include <Foundation/Strings/StringBuilder.h>
 #include <Foundation/Containers/HybridArray.h>
 
 /// \brief A string class for storing and passing around strings.
@@ -39,6 +40,9 @@ protected:
   /// \brief Copies the data from \a rhs.
   ezHybridStringBase(const ezStringIterator& rhs, ezIAllocator* pAllocator); // [tested]
 
+  /// \brief Copies the data from \a rhs.
+  ezHybridStringBase(const ezStringBuilder& rhs, ezIAllocator* pAllocator); // [tested]
+
   /// \brief Destructor.
   ~ezHybridStringBase(); // [tested]
 
@@ -53,6 +57,9 @@ protected:
 
   /// \brief Copies the data from \a rhs.
   void operator=(const ezStringIterator& rhs); // [tested]
+
+  /// \brief Copies the data from \a rhs.
+  void operator=(const ezStringBuilder& rhs); // [tested]
 
 public:
 
@@ -119,12 +126,14 @@ public:
   ezHybridString(const char* rhs);
   ezHybridString(const wchar_t* rhs);
   ezHybridString(const ezStringIterator& rhs);
+  ezHybridString(const ezStringBuilder& rhs);
 
   void operator=(const ezHybridString<Size, AllocatorWrapper>& rhs);
   void operator=(const ezHybridStringBase<Size>& rhs);
   void operator=(const char* szString);
   void operator=(const wchar_t* szString);
   void operator=(const ezStringIterator& rhs);
+  void operator=(const ezStringBuilder& rhs);
 };
 
 

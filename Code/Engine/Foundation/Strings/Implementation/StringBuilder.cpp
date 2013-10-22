@@ -330,11 +330,15 @@ void ezStringBuilder::ReplaceSubString(const char* szStartPos, const char* szEnd
     m_uiCharacterCount -= ezStringUtils::GetCharacterCount(szStartPos, szEndPos);
     m_uiCharacterCount += uiWordChars;
 
-    const char* szStringEnd = GetData() + m_Data.GetCount();
-
     const ezUInt32 uiDifference = uiWordBytes - uiSubStringBytes;
+    const ezUInt64 uiRelativeWritePosition = szWritePos - GetData();
+    const ezUInt64 uiDataByteCountBefore = m_Data.GetCount();
 
     m_Data.SetCount(m_Data.GetCount() + uiDifference);
+
+    // all pointer are now possibly invalid since the data may be reallocated!
+    szWritePos = const_cast<char*>(GetData()) + uiRelativeWritePosition;
+    const char* szStringEnd = GetData() + uiDataByteCountBefore;
 
     // first move the characters to the proper position from back to front
     ezMemoryUtils::Move(szWritePos + uiWordBytes, szWritePos + uiSubStringBytes, szStringEnd - (szWritePos + uiSubStringBytes));

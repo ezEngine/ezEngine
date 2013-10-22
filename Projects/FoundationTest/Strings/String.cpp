@@ -20,6 +20,10 @@ EZ_CREATE_SIMPLE_TEST(Strings, String)
     ezStringIterator it = s4.GetFirst(2);
     ezString s5(it);
     EZ_TEST(s5 == "ab");
+
+    ezStringBuilder strB("wobwob");
+    ezString s6(strB);
+    EZ_TEST(s6 == "wobwob");
   }
 
   EZ_TEST_BLOCK(true, "operator=")
@@ -38,6 +42,11 @@ EZ_CREATE_SIMPLE_TEST(Strings, String)
     ezStringIterator it (s5.GetData() + 2, s5.GetData() + 10, s5.GetData() + 2);
     s5 = it;
     EZ_TEST(s5 == "cdefghij");
+
+    ezString s6("aölsdföasld");
+    ezStringBuilder strB("wobwob");
+    s6 = strB;
+    EZ_TEST(s6 == "wobwob");
   }
 
   EZ_TEST_BLOCK(true, "Clear")

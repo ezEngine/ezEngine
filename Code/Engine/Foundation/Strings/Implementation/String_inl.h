@@ -36,6 +36,13 @@ ezHybridStringBase<Size>::ezHybridStringBase(const ezStringIterator& rhs, ezIAll
 }
 
 template<ezUInt16 Size>
+ezHybridStringBase<Size>::ezHybridStringBase(const ezStringBuilder& rhs, ezIAllocator* pAllocator) :
+  m_Data(pAllocator)
+{
+  *this = rhs;
+}
+
+template<ezUInt16 Size>
 ezHybridStringBase<Size>::~ezHybridStringBase()
 {
 }
@@ -98,6 +105,12 @@ void ezHybridStringBase<Size>::operator=(const ezStringIterator& rhs)
   m_Data.SetCount(rhs.GetElementCount() + 1);
   ezStringUtils::Copy(&m_Data[0], m_Data.GetCount() + 1, rhs.GetData(), rhs.GetEnd());
   m_uiCharacterCount = ezStringUtils::GetCharacterCount(GetData());
+}
+
+template<ezUInt16 Size>
+void ezHybridStringBase<Size>::operator=(const ezStringBuilder& rhs)
+{
+  *this = rhs.GetData();
 }
 
 template<ezUInt16 Size>
@@ -186,6 +199,12 @@ EZ_FORCE_INLINE ezHybridString<Size, A>::ezHybridString(const ezStringIterator& 
 }
 
 template <ezUInt16 Size, typename A>
+EZ_FORCE_INLINE ezHybridString<Size, A>::ezHybridString(const ezStringBuilder& rhs) :
+  ezHybridStringBase<Size>(rhs, A::GetAllocator())
+{
+}
+
+template <ezUInt16 Size, typename A>
 EZ_FORCE_INLINE void ezHybridString<Size, A>::operator=(const ezHybridString<Size, A>& rhs)
 {
   ezHybridStringBase<Size>::operator=(rhs);
@@ -214,3 +233,10 @@ EZ_FORCE_INLINE void ezHybridString<Size, A>::operator=(const ezStringIterator& 
 {
   ezHybridStringBase<Size>::operator=(rhs);
 }
+
+template <ezUInt16 Size, typename A>
+EZ_FORCE_INLINE void ezHybridString<Size, A>::operator=(const ezStringBuilder& rhs)
+{
+  ezHybridStringBase<Size>::operator=(rhs);
+}
+
