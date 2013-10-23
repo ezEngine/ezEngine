@@ -16,5 +16,5 @@ ezTime ezSystemTime::Now()
 
   QueryPerformanceCounter(&temp);
 
-  return ezTime((double(temp.QuadPart) / double(g_qpcFrequency.QuadPart)));
+  return ezTime::Seconds((double(temp.QuadPart) / double(g_qpcFrequency.QuadPart)));
 }

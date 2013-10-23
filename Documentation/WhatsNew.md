@@ -37,6 +37,7 @@ Milestone 3
   * Added ezConversionUtils class for converting strings to int/float/bool.
   * Added optional *.natvis support for Visual Studio 2012. This enables much more comfortable inspection of basic types in the debugger.
   * The logging system has been improved. You can now log locally into another system (useful for tools) or you can replace the default implementation entirely.
+  * Added ezClock for managing game time updates.
 
 Milestone 2
 -----------

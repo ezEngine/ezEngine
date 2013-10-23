@@ -103,6 +103,7 @@ void ezWorld::CreateObjects(const ezArrayPtr<const ezGameObjectDesc>& descs, ezA
     pTransformationData->m_localPosition = desc.m_LocalPosition.GetAsPositionVec4();
     pTransformationData->m_localRotation = desc.m_LocalRotation;
     pTransformationData->m_localScaling = desc.m_LocalScaling.GetAsDirectionVec4();
+    pTransformationData->m_velocity.SetZero();
     
     // link the transformation data to the game object
     pNewObject->m_pTransformationData = pTransformationData;

@@ -71,9 +71,6 @@ public:
 
   ezTime() { m_fTime = 0.0; }
 
-  /// \brief Initializes the ezTime instance with fTime as seconds. For clarity the usage of ezTime::Seconds may be preferred.
-  explicit ezTime(double fTime);
-
   /// \brief Initializes the ezTime instance from a known nanoseconds value.
   ezTime(const NanoSeconds& nanoSeconds);
 
@@ -87,16 +84,16 @@ public:
   ezTime(const Seconds& seconds);
   
   /// \brief Sets the value of the instance from a known nanoseconds value.
-  void Set(const NanoSeconds& seconds);
+  void operator=(const NanoSeconds& seconds);
 
   /// \brief Sets the value of the instance from a known microseconds value.
-  void Set(const MicroSeconds& seconds);
+  void operator=(const MicroSeconds& seconds);
 
   /// \brief Sets the value of the instance from a known milliseconds value.
-  void Set(const MilliSeconds& seconds);
+  void operator=(const MilliSeconds& seconds);
 
-  /// \brief Sets the value of the instance from a known econds value.
-  void Set(const Seconds& seconds);
+  /// \brief Sets the value of the instance from a known seconds value.
+  void operator=(const Seconds& seconds);
 
   /// \brief Returns the time as a float value (in seconds).
   ///
@@ -138,9 +135,18 @@ public:
 
 private:
 
+  /// \brief For internal use only.
+  explicit ezTime(double fTime);
+
   /// \brief The time is stored in seconds
   double m_fTime;
 };
+
+ezTime operator* (ezTime t, double f);
+ezTime operator* (double f, ezTime t);
+
+ezTime operator/ (ezTime t, double f);
+ezTime operator/ (double f, ezTime t);
 
 
 /// \brief Encapsulation of functions in relation to system handling of the time.

@@ -133,6 +133,11 @@ EZ_FORCE_INLINE ezMat4 ezGameObject::GetWorldTransform() const
   return ezMat4(m_pTransformationData->m_worldRotation, m_pTransformationData->m_worldPosition);
 }
 
+EZ_FORCE_INLINE void ezGameObject::SetVelocity(const ezVec3& vVelocity)
+{
+  *reinterpret_cast<ezVec3*>(&m_pTransformationData->m_velocity) = vVelocity;
+}
+
 EZ_FORCE_INLINE const ezVec3& ezGameObject::GetVelocity() const
 {
   return *reinterpret_cast<const ezVec3*>(&m_pTransformationData->m_velocity);

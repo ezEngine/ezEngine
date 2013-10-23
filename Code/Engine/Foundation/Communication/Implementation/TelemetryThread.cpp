@@ -15,7 +15,7 @@ public:
 private:
   virtual ezUInt32 Run()
   {
-    static ezTime LastPing(0.0);
+    static ezTime LastPing;
 
     while (m_bKeepRunning)
     {

@@ -112,6 +112,7 @@ public:
   ezMat4 GetWorldTransform() const;
 
   const ezVec3& GetVelocity() const;
+  void SetVelocity(const ezVec3& vVelocity);
 
   // components
   ezResult AddComponent(const ezComponentHandle& component);

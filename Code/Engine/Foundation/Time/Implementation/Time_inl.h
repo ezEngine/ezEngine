@@ -8,40 +8,40 @@ inline ezTime::ezTime(double fTime) : m_fTime(fTime)
 
 inline ezTime::ezTime(const NanoSeconds& nanoSeconds)
 {
-  Set(nanoSeconds);
+  operator=(nanoSeconds);
 }
 
 inline ezTime::ezTime(const MicroSeconds& microSeconds)
 {
-  Set(microSeconds);
+  operator=(microSeconds);
 }
 
 inline ezTime::ezTime(const MilliSeconds& milliSeconds)
 {
-  Set(milliSeconds);
+  operator=(milliSeconds);
 }
 
 inline ezTime::ezTime(const Seconds& seconds)
 {
-  Set(seconds);
+  operator=(seconds);
 }
 
-inline void ezTime::Set(const NanoSeconds& seconds)
+inline void ezTime::operator=(const NanoSeconds& seconds)
 {
   m_fTime = seconds.m_fTime * 0.000000001;
 }
 
-inline void ezTime::Set(const MicroSeconds& seconds)
+inline void ezTime::operator=(const MicroSeconds& seconds)
 {
   m_fTime = seconds.m_fTime * 0.000001;
 }
 
-inline void ezTime::Set(const MilliSeconds& seconds)
+inline void ezTime::operator=(const MilliSeconds& seconds)
 {
   m_fTime = seconds.m_fTime * 0.001;
 }
 
-inline void ezTime::Set(const Seconds& seconds)
+inline void ezTime::operator=(const Seconds& seconds)
 {
   m_fTime = seconds.m_fTime;
 }
@@ -91,3 +91,22 @@ inline ezTime ezTime::operator + (const ezTime& other) const
   return ezTime(m_fTime + other.m_fTime);
 }
 
+EZ_FORCE_INLINE ezTime operator* (ezTime t, double f)
+{
+  return ezTime::Seconds(t.GetSeconds() * f);
+}
+
+EZ_FORCE_INLINE ezTime operator* (double f, ezTime t)
+{
+  return ezTime::Seconds(t.GetSeconds() * f);
+}
+
+EZ_FORCE_INLINE ezTime operator/ (ezTime t, double f)
+{
+  return ezTime::Seconds(t.GetSeconds() / f);
+}
+
+EZ_FORCE_INLINE ezTime operator/ (double f, ezTime t)
+{
+  return ezTime::Seconds(t.GetSeconds() / f);
+}

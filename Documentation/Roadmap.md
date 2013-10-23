@@ -11,7 +11,6 @@ This is a list of our planned features for the foreseeable future.
   * Math: Random Number Generators
   * Math: Frustum
   * Math: Simd (Clemens)
-  * Game Timer (fixed time step, frame time smoothing)
   * Optimize container regarding construction/destruction, unnecessary operations (ask Clemens for more info)
   * StringId using hashed string
   * RTTI
