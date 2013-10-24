@@ -82,6 +82,9 @@ public:
 
   /// \brief Initializes the ezTime instance from a known seconds value.
   ezTime(const Seconds& seconds);
+
+  /// \brief Sets the time value to zero.
+  void SetZero();
   
   /// \brief Sets the value of the instance from a known nanoseconds value.
   void operator=(const NanoSeconds& seconds);

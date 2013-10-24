@@ -101,6 +101,9 @@
 #include <Foundation/Threading/ThreadLocalStorage.h>
 #include <Foundation/Threading/ThreadUtils.h>
 
+#include <Foundation/Time/Clock.h>
+#include <Foundation/Time/DefaultTimeStepSmoothing.h>
+#include <Foundation/Time/Stopwatch.h>
 #include <Foundation/Time/Time.h>
 
 #include <Foundation/Utilities/CommandLineUtils.h>

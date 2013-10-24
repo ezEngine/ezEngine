@@ -5,7 +5,6 @@ This is a list of our planned features for the foreseeable future.
 
   * Fixes / Tools for correct static linking
   * Binary Search Algorithm
-  * Time: Stopwatch
   * ezMap, ezSet Comparer mit dem Comparer in Algorithm ersetzen; auﬂerdem < und == sinnvoller verwenden (-1, 0, 1 vergleich etc.) (Clemens :-P )
   * Containers: Sorted Array (Requires Binary Search)
   * Math: Random Number Generators
