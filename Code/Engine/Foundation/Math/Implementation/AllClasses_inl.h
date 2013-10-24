@@ -221,19 +221,21 @@ void ezMat3Template<Type>::SetLookInDirectionMatrix (ezVec3Template<Type> vLookD
     vUpDir = vLookDir.GetOrthogonalVector();
 
   // ensure vUpDir is orthogonal to the looking direction
-  const ezVec3Template<Type> vRightDir = vLookDir.Cross(vUpDir).GetNormalized ();
+  const ezVec3Template<Type> vRightDir = vUpDir.Cross(vLookDir).GetNormalized ();
 
   // orthogonalize vUpDir
-  vUpDir = vRightDir.Cross(vLookDir); // vLookDir and vRightDir are normalized and orthogonal, vUpDir will be normalized too
+  vUpDir = vLookDir.Cross(vRightDir); // vLookDir and vRightDir are normalized and orthogonal, vUpDir will be normalized too
 
-  SetColumn(0, vRightDir);
-  SetColumn(1, vUpDir);
-  SetColumn(2, vLookDir);
+  SetRow(0, vRightDir);
+  SetRow(1, vUpDir);
+  SetRow(2, vLookDir);
 
   /// \todo At some point we need to define a default coordinate system to use.
   /// I don't really know whether this code works (or better: how).
   /// It should probably use an OpenGL or DirectX coordinate system, not sure what exactly.
   /// The first guy to use it, will find it out.
+  
+  /// Andreas: I'am quite sure everything here is LeftHanded
 }
 
 
@@ -388,7 +390,7 @@ void ezMat4Template<Type>::SetOrthographicProjectionMatrix(Type fLeft, Type fRig
   if (DepthRange == ezProjectionDepthRange::MinusOneToOne)
   {
     Element(2, 2) =  2 * fOneDivFarMinusNear;
-    Element(3, 2) = -(fFarZ + fNearZ) * fOneDivFarMinusNear;
+    Element(3, 2) = (fFarZ + fNearZ) * fOneDivFarMinusNear;
   }
   else
   {
@@ -420,9 +422,9 @@ template<typename Type>
 void ezMat4Template<Type>::SetLookAtMatrix(const ezVec3Template<Type>& vStartPos, const ezVec3Template<Type>& vTargetPos, const ezVec3Template<Type>& vUpDir)
 {
   ezMat3Template<Type> Rotation;
-  Rotation.SetLookInDirectionMatrix (vTargetPos - vStartPos, vUpDir);
+  Rotation.SetLookInDirectionMatrix(vTargetPos - vStartPos, vUpDir);
 
   SetRotationalPart(Rotation);
-  SetTranslationVector(vStartPos);
+  SetTranslationVector(-(Rotation.GetTranspose() * vStartPos));
   SetRow(3, ezVec4Template<Type>(0, 0, 0, 1));
 }
