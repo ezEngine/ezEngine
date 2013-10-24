@@ -61,17 +61,14 @@ void ezClock::Update()
   {
     // in variable time step mode, apply the time step smoother, if available
     if (m_pTimeStepSmoother)
-      m_LastTimeDiff = m_pTimeStepSmoother->GetSmoothedTimeStep(tDiff, m_Speed, this);
+      m_LastTimeDiff = m_pTimeStepSmoother->GetSmoothedTimeStep(tDiff, this);
     else
     {
       // scale the time step by the speed factor
-      m_LastTimeDiff = tDiff * m_Speed;
+      // and make sure the time step does not leave the predetermined bounds
+      m_LastTimeDiff = ezMath::Clamp(tDiff * m_Speed, m_MinTimeStep, m_MaxTimeStep);
     }
   }
-
-  // make sure the time step does not leave the predetermined bounds
-  m_LastTimeDiff = ezMath::Clamp(m_LastTimeDiff, m_MinTimeStep, m_MaxTimeStep);
-
 
   m_AccumulatedTime += m_LastTimeDiff;
 }

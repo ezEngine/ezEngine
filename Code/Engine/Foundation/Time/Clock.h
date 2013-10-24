@@ -29,7 +29,7 @@ public:
   static void CreateGlobalClocks(ezUInt32 uiNumClocks = ezGlobalClockCount);
 
   /// \brief Returns the global clock with the given index. Does NOT ensure that clock exists (will assert).
-  static ezClock* Get(ezUInt32 uiGlobalClock = ezGlobalClockCount);
+  static ezClock* Get(ezUInt32 uiGlobalClock = ezGlobalClock_GameLogic);
 
 public:
 
@@ -104,20 +104,20 @@ public:
   /// \brief Sets the minimum time that must pass between clock updates.
   ///
   /// By default a minimum time step of 0.001 seconds is enabled to ensure that code does not break down
-  /// due to very small time steps. The minimum time step is applied after the clock speed is applied,
-  /// and also AFTER the time step smoothing is applied. So if you are using a time step smoother that
-  /// tries to resync the time to the real time over time, you should make sure that the minimum and maximum
-  /// time steps are configure such that it does not interfere with the time step smoothing.
+  /// due to very small time steps. The minimum time step is applied after the clock speed is applied.
+  /// When a custom time step smoother is set, that class needs to apply the clock speed AND also clamp
+  /// the value to the min/max time step (which means it can ignore or override that feature).
   /// When the clock is paused, it will always return a time step of zero.
   void SetMinimumTimeStep(ezTime tMin); // [tested]
 
   /// \brief Sets the maximum time that may pass between clock updates.
   ///
   /// By default a maximum time step of 0.1 seconds is enabled to ensure that code does not break down
-  /// due to very large time steps. The maximum time step is applied after the clock speed is applied
-  /// and also AFTER the time step smoothing is applied.
+  /// due to very large time steps. The maximum time step is applied after the clock speed is applied.
+  /// When a custom time step smoother is set, that class needs to apply the clock speed AND also clamp
+  /// the value to the min/max time step (which means it can ignore or override that feature).
   /// \sa SetMinimumTimeStep
-  void SetMaximumTimeStep(ezTime tMin); // [tested]
+  void SetMaximumTimeStep(ezTime tMax); // [tested]
 
   /// \brief Returns the value for the minimum time step.
   /// \sa SetMinimumTimeStep
@@ -164,16 +164,19 @@ public:
   ///
   /// \param RawTimeStep
   ///   The actual raw time difference since the last clock update without any modification.
-  /// \param fClockSpeed
-  ///   The clock speed multiplier that the clock would usually apply to the time step.
-  ///   It is the responsibility of the time step smoother to return a scaled result.
   /// \param pClock
   ///   The clock that calls this time step smoother.
-  ///   Can be used to look up the min/max time step that will be applied later, if that is
-  ///   of concern for the time step smoother.
-  virtual ezTime GetSmoothedTimeStep(ezTime RawTimeStep, double fClockSpeed, const ezClock* pClock) = 0;
+  ///   Can be used to look up the clock speed and min/max time step.
+  ///
+  /// \note It is the responsibility of each ezTimeStepSmoothing class to implement
+  /// clock speed and also to clamp the time step to the min/max values.
+  /// This allows the smoothing algorithm to override these values, if necessary.
+  virtual ezTime GetSmoothedTimeStep(ezTime RawTimeStep, const ezClock* pClock) = 0;
 
   /// \brief Called when ezClock::Reset(), ezClock::Load() or ezClock::SetPaused(true) was called.
+  ///
+  /// \param pClock
+  ///   The clock that is calling this function.
   virtual void Reset(const ezClock* pClock) = 0;
 };
 
