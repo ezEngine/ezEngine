@@ -105,67 +105,88 @@ void ezVariant::DispatchTo(Functor& functor, Type::Enum type)
   switch (type)
   {
   case Type::Bool:
-    CALL_FUNCTOR(functor, bool); break;
+    CALL_FUNCTOR(functor, bool);
+    break;
 
   case Type::Int32:
-    CALL_FUNCTOR(functor, ezInt32); break;
+    CALL_FUNCTOR(functor, ezInt32);
+    break;
 
   case Type::UInt32:
-    CALL_FUNCTOR(functor, ezUInt32); break;
+    CALL_FUNCTOR(functor, ezUInt32);
+    break;
 
   case Type::Int64:
-    CALL_FUNCTOR(functor, ezInt64); break;
+    CALL_FUNCTOR(functor, ezInt64);
+    break;
 
   case Type::UInt64:
-    CALL_FUNCTOR(functor, ezUInt64); break;
+    CALL_FUNCTOR(functor, ezUInt64);
+    break;
 
   case Type::Float:
-    CALL_FUNCTOR(functor, float); break;
+    CALL_FUNCTOR(functor, float);
+    break;
 
   case Type::Double:
-    CALL_FUNCTOR(functor, double); break;
+    CALL_FUNCTOR(functor, double);
+    break;
 
   /*case Type::Color:
-    CALL_FUNCTOR(functor, ezColor); break;*/
+    CALL_FUNCTOR(functor, ezColor);
+    break;*/
 
   case Type::Vector2:
-    CALL_FUNCTOR(functor, ezVec2); break;
+    CALL_FUNCTOR(functor, ezVec2);
+    break;
 
   case Type::Vector3:
-    CALL_FUNCTOR(functor, ezVec3); break;
+    CALL_FUNCTOR(functor, ezVec3);
+    break;
 
   case Type::Vector4:
-    CALL_FUNCTOR(functor, ezVec4); break;
+    CALL_FUNCTOR(functor, ezVec4);
+    break;
 
   case Type::Quaternion:
-    CALL_FUNCTOR(functor, ezQuat); break;
+    CALL_FUNCTOR(functor, ezQuat);
+    break;
 
   case Type::Matrix3:
-    CALL_FUNCTOR(functor, ezMat3); break;
+    CALL_FUNCTOR(functor, ezMat3);
+    break;
 
   case Type::Matrix4:
-    CALL_FUNCTOR(functor, ezMat4); break;
+    CALL_FUNCTOR(functor, ezMat4);
+    break;
 
   case Type::String:
-    CALL_FUNCTOR(functor, ezString); break;
+    CALL_FUNCTOR(functor, ezString);
+    break;
 
   case Type::Time:
-    CALL_FUNCTOR(functor, ezTime); break;
+    CALL_FUNCTOR(functor, ezTime);
+    break;
 
   case Type::VariantArray:
-    CALL_FUNCTOR(functor, ezVariantArray); break;
+    CALL_FUNCTOR(functor, ezVariantArray);
+    break;
 
   case Type::VariantDictionary:
-    CALL_FUNCTOR(functor, ezVariantDictionary); break;
+    CALL_FUNCTOR(functor, ezVariantDictionary);
+    break;
 
   /*case Type::ObjectPointer:
-    CALL_FUNCTOR(functor, ezObject*); break;*/
+    CALL_FUNCTOR(functor, ezObject*);
+    break;*/
 
   case Type::VoidPointer:
-    CALL_FUNCTOR(functor, void*); break;
+    CALL_FUNCTOR(functor, void*);
+    break;
 
   default:
-    EZ_REPORT_FAILURE("Could not dispatch type '%d'", type); break;
+    EZ_REPORT_FAILURE("Could not dispatch type '%d'", type);
+    break;
   }  
 }
 

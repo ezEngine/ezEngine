@@ -26,7 +26,7 @@ public:
       UInt64,
       Float,
       Double,
-      Color,
+      //Color, /// \todo Implement ezColor type.
       Vector2,
       Vector3,
       Vector4,
@@ -37,7 +37,7 @@ public:
       Time,
       VariantArray,
       VariantDictionary,
-      ObjectPointer,
+      //ObjectPointer,
       VoidPointer
     };
   };
@@ -56,50 +56,50 @@ public:
   
   static const ezVariant Invalid;
 
-  ezVariant();
+  ezVariant(); // [tested]
   ezVariant(const ezVariant& other);
 
   template <typename T>
-  ezVariant(const T& value);
+  ezVariant(const T& value); // [tested]
 
   ~ezVariant();
 
-  void operator=(const ezVariant& other);
+  void operator=(const ezVariant& other); // [tested]
 
   template <typename T>
-  void operator=(const T& value);
+  void operator=(const T& value); // [tested]
 
-  bool operator==(const ezVariant& other) const;
-  bool operator!=(const ezVariant& other) const;
+  bool operator==(const ezVariant& other) const; // [tested]
+  bool operator!=(const ezVariant& other) const; // [tested]
   
   template <typename T>
-  bool operator==(const T& other) const;
+  bool operator==(const T& other) const; // [tested]
 
   template <typename T>
-  bool operator!=(const T& other) const;
+  bool operator!=(const T& other) const; // [tested]
 
-  bool IsValid() const;
-
-  template <typename T>
-  bool IsA() const;
-
-  Type::Enum GetType() const;
+  bool IsValid() const; // [tested]
 
   template <typename T>
-  const T& Get() const;
+  bool IsA() const; // [tested]
+
+  Type::Enum GetType() const; // [tested]
 
   template <typename T>
-  bool CanConvertTo() const;
-
-  bool CanConvertTo(Type::Enum type) const;
+  const T& Get() const; // [tested]
 
   template <typename T>
-  T ConvertTo() const;
+  bool CanConvertTo() const; /// \todo Not compiling
 
-  ezVariant ConvertTo(Type::Enum type) const;
+  bool CanConvertTo(Type::Enum type) const; // [tested]
+
+  template <typename T>
+  T ConvertTo() const; /// \todo Not tested
+
+  ezVariant ConvertTo(Type::Enum type) const; /// \todo Not tested
 
   template <typename Functor>
-  static void DispatchTo(Functor& functor, Type::Enum type);
+  static void DispatchTo(Functor& functor, Type::Enum type); /// \todo Not tested, whatever it does.
 
 private:
 
