@@ -36,7 +36,7 @@ void ezInputDevice::Initialize()
   if (m_bInitialized)
     return;
 
-  EZ_LOG_BLOCK("Initializing Input Device");
+  EZ_LOG_BLOCK("Initializing Input Device", GetDeviceName());
 
   ezLog::Info("Input Device Type: %s, Device Name: %s", GetDeviceType(), GetDeviceName());
 

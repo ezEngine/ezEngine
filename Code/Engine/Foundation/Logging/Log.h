@@ -6,8 +6,7 @@
 #include <Foundation/Strings/StringUtils.h>
 
 /// \brief Use this helper macro to easily create a scoped logging group. Will generate unique variable names to make the static code analysis happy.
-#define EZ_LOG_BLOCK(name) ezLogBlock EZ_CONCAT(_logblock_, EZ_SOURCE_LINE)(name, ezGlobalLog::GetInstance());
-#define EZ_LOG_BLOCK_LOCAL(name, log) ezLogBlock EZ_CONCAT(_logblock_, EZ_SOURCE_LINE)(name, log);
+#define EZ_LOG_BLOCK ezLogBlock EZ_CONCAT(_logblock_, EZ_SOURCE_LINE)
 
 // Forward declaration, class is at the end of this file
 class ezLogBlock;
@@ -216,7 +215,24 @@ private:
 class EZ_FOUNDATION_DLL ezLogBlock
 {
 public:
-  ezLogBlock(const char* szName, ezLogInterface* pInterface);
+
+  /// \brief Creates a named grouping block for log messages.
+  ///
+  /// Use the szContextInfo to pass in a string that can give additional context information (e.g. a file name).
+  /// This string must point to valid memory until after the log block object is destroyed.
+  /// Logwriters get these strings provided through the ezLoggingEventData::m_szTag variable.
+  /// \note The log block header (and context info) will not be printed until a message is successfully logged,
+  /// ie. as long as all messages in this block are filtered out (via the LogLevel setting), the log block
+  /// header will not be printed, to prevent spamming the log.
+  ///
+  /// This constructor will output the log block data to the ezGlobalLog.
+  ezLogBlock(const char* szName, const char* szContextInfo = "");
+
+  /// \brief Creates a named grouping block for log messages.
+  ///
+  /// This variant of the constructor takes an explicit ezLogInterface to write the log messages to.
+  ezLogBlock(ezLogInterface* pInterface, const char* szName, const char* szContextInfo = "");
+
   ~ezLogBlock();
 
 private:
@@ -226,6 +242,7 @@ private:
   ezInt32 m_iBlockDepth;
   ezLogBlock* m_pParentBlock;
   const char* m_szName;
+  const char* m_szContextInfo;
   bool m_bWritten;
 };
 

@@ -47,7 +47,25 @@ void ezGlobalLog::SetLogLevel(ezLogMsgType::Enum LogLevel)
 }
 
 
-ezLogBlock::ezLogBlock(const char* szName, ezLogInterface* pInterface)
+ezLogBlock::ezLogBlock(const char* szName, const char* szContextInfo)
+{
+  m_pLogInterface = ezGlobalLog::GetInstance();
+
+  if (!m_pLogInterface)
+    return;
+
+  m_szName = szName;
+  m_szContextInfo = szContextInfo;
+  m_bWritten = false;
+
+  m_pParentBlock = m_pLogInterface->m_pCurrentBlock;
+  m_pLogInterface->m_pCurrentBlock = this;
+    
+  m_iBlockDepth = m_pParentBlock ? (m_pParentBlock->m_iBlockDepth + 1) : 0;
+}
+
+
+ezLogBlock::ezLogBlock(ezLogInterface* pInterface, const char* szName, const char* szContextInfo)
 {
   m_pLogInterface = pInterface;
 
@@ -55,6 +73,7 @@ ezLogBlock::ezLogBlock(const char* szName, ezLogInterface* pInterface)
     return;
 
   m_szName = szName;
+  m_szContextInfo = szContextInfo;
   m_bWritten = false;
 
   m_pParentBlock = m_pLogInterface->m_pCurrentBlock;
@@ -82,7 +101,7 @@ void ezLog::EndLogBlock(ezLogInterface* pInterface, ezLogBlock* pBlock)
     le.m_EventType = ezLogMsgType::EndGroup;
     le.m_szText = pBlock->m_szName;
     le.m_uiIndentation = pBlock->m_iBlockDepth;
-    le.m_szTag = "";
+    le.m_szTag = pBlock->m_szContextInfo;
 
     pInterface->HandleLogMessage(le);
   }
@@ -101,7 +120,7 @@ void ezLog::WriteBlockHeader(ezLogInterface* pInterface, ezLogBlock* pBlock)
   le.m_EventType = ezLogMsgType::BeginGroup;
   le.m_szText = pBlock->m_szName;
   le.m_uiIndentation = pBlock->m_iBlockDepth;
-  le.m_szTag = "";
+  le.m_szTag = pBlock->m_szContextInfo;
 
   pInterface->HandleLogMessage(le);
 }

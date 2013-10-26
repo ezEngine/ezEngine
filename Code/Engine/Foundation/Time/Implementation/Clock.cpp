@@ -6,7 +6,7 @@ ezDynamicArray<ezClock, ezStaticAllocatorWrapper> ezClock::s_GlobalClocks;
 void ezClock::UpdateAllGlobalClocks()
 {
   if (s_GlobalClocks.IsEmpty())
-    CreateGlobalClocks();
+    SetNumGlobalClocks();
 
   for (ezUInt32 i = 0; i < s_GlobalClocks.GetCount(); ++i)
     s_GlobalClocks[i].Update();

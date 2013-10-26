@@ -30,7 +30,7 @@ void ezLogWriter::Console::LogMessageHandler(const ezLoggingEventData& eventData
   {
   case ezLogMsgType::BeginGroup:
     SetConsoleColor (0x02);
-    printf ("+++++ %s +++++\n", eventData.m_szText);
+    printf ("+++++ %s (%s) +++++\n", eventData.m_szText, eventData.m_szTag);
     break;
   case ezLogMsgType::EndGroup:
     SetConsoleColor (0x02);

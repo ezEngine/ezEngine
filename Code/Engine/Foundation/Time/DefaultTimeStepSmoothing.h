@@ -20,6 +20,10 @@ public:
 
   virtual void Reset(const ezClock* pClock) EZ_OVERRIDE;
 
+  /// \brief Changes the factor with which to lerp from the last used time step to the new average time step. Default is 0.2
+  ///
+  /// A value of 1.0 would mean that the new average time step is used immediately. The lower the value the more slowly the
+  /// time step will change from its previous value to the new average value, thus smoothing the time step even more.
   void SetLerpFactor(float f) { m_fLerpFactor = f; }
 
 private:

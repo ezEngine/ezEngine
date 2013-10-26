@@ -2,7 +2,7 @@
 
 #include <Foundation/Time/Clock.h>
 
-inline void ezClock::CreateGlobalClocks(ezUInt32 uiNumClocks)
+inline void ezClock::SetNumGlobalClocks(ezUInt32 uiNumClocks)
 {
   s_GlobalClocks.SetCount(uiNumClocks);
 }

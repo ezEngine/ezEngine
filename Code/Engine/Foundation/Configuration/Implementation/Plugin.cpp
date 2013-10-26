@@ -285,7 +285,7 @@ ezResult ezPlugin::LoadPlugin(const char* szPluginFile)
 {
   ezStringBuilder sPlugin = szPluginFile;
 
-  EZ_LOG_BLOCK("Loading Plugin");
+  EZ_LOG_BLOCK("Loading Plugin", szPluginFile);
 
   if (g_LoadedPlugins.Find(szPluginFile).IsValid())
   {
@@ -294,7 +294,7 @@ ezResult ezPlugin::LoadPlugin(const char* szPluginFile)
     return EZ_SUCCESS;
   }
 
-  ezLog::Info("Plugin to load: \"%s\"", szPluginFile);
+  ezLog::Dev("Plugin to load: \"%s\"", szPluginFile);
   g_LoadedPlugins[szPluginFile].m_iReferenceCount = 1;
 
   return LoadPluginInternal(szPluginFile, true, false);
@@ -302,7 +302,7 @@ ezResult ezPlugin::LoadPlugin(const char* szPluginFile)
 
 ezResult ezPlugin::UnloadPlugin(const char* szPluginFile)
 {
-  EZ_LOG_BLOCK("Unloading Plugin");
+  EZ_LOG_BLOCK("Unloading Plugin", szPluginFile);
 
   if (!g_LoadedPlugins.Find(szPluginFile).IsValid())
   {
@@ -318,7 +318,7 @@ ezResult ezPlugin::UnloadPlugin(const char* szPluginFile)
     return EZ_SUCCESS;
   }
 
-  ezLog::Info("Plugin to unload: \"%s\"", szPluginFile);
+  ezLog::Dev("Plugin to unload: \"%s\"", szPluginFile);
   UnloadPluginInternal(szPluginFile, false);
 
   return EZ_SUCCESS;

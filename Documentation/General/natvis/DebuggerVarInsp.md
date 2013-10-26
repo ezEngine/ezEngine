@@ -9,7 +9,7 @@ By default it is very tiresome to view the actual content of some base types lik
 
 How to Use
 ---------------
-ezEngine comes with a *.natvis file for Visual Studio 2012. You can find the file under ["Code/Utilities/Visual Studio Visualizer/"](../../Code/Utilities/Visual Studio Visualizer/ezEngine.natvis)
+ezEngine comes with a *.natvis file for Visual Studio 2012. You can find the file under ["Code/Utilities/Visual Studio Visualizer/ezEngine.natvis"](../../../Code/Utilities/Visual Studio Visualizer/ezEngine.natvis)
 - Copy _ezEngine.natvis_ to "%USERPROFILE%/My Documents/Visual Studio 2012/Visualizers/"
 - Have a fun debug session! No restart of Visual Studio needed!
 
@@ -34,9 +34,9 @@ Some of them are implicit by parent types, more types could be affected.
 - ezStaticRingBuffer (wrong element order)
 - ezArrayPtr
 
-nativvistest.cpp
+natvis_samplecode.cpp
 ---------------
-["Code/Utilities/Visual Studio Visualizer/natvis_samplecode.cpp"](../../Code/Utilities/Visual Studio Visualizer/natvis_samplecode.cpp) contains also a sample code that compares debug display of ez-classes with equivalent classes of the C++ standard library.
+["Code/Utilities/Visual Studio Visualizer/natvis_samplecode.cpp"](../../../Code/Utilities/Visual Studio Visualizer/natvis_samplecode.cpp) contains also a sample code that compares debug display of ez-classes with equivalent classes of the C++ standard library.
 
 Extending/writing natvis definitions
 ---------------

@@ -66,7 +66,7 @@ QListWidgetItem* ezLogWidget::CreateLogItem(const LogMsg& lm, ezInt32 iMessageIn
   ezStringBuilder sFormat;
 
   if (lm.m_Type == ezLogMsgType::BeginGroup)
-    sFormat.Format("%*s>> %s", lm.m_uiIndentation * 4, "", lm.m_sMsg.GetData());
+    sFormat.Format("%*s>> %s (%s)", lm.m_uiIndentation * 4, "", lm.m_sMsg.GetData(), lm.m_sTag.GetData());
   else if (lm.m_Type == ezLogMsgType::EndGroup)
     sFormat.Format("%*s<< %s", lm.m_uiIndentation * 4, "", lm.m_sMsg.GetData());
   else if (lm.m_sTag.IsEmpty())

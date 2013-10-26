@@ -32,7 +32,7 @@ EZ_CREATE_SIMPLE_TEST(Logging, Log)
 
   EZ_TEST_BLOCK(true, "Output")
   {
-    EZ_LOG_BLOCK("Verse 1");
+    EZ_LOG_BLOCK("Verse 1", "Portal: Still Alive");
 
     ezLog::Success("%s", "This was a triumph.");
     ezLog::Info("%s", "I'm making a note here:");
@@ -89,7 +89,7 @@ EZ_CREATE_SIMPLE_TEST(Logging, Log)
   }
     
   {
-    EZ_LOG_BLOCK("Verse 6");
+    EZ_LOG_BLOCK("Verse 6", "Last One");
 
     ezLog::Dev("And believe me I am still alive.");
     ezLog::Info("I'm doing science and I'm still alive.");

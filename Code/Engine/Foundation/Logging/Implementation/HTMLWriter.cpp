@@ -71,17 +71,23 @@ void ezLogWriter::HTML::LogMessageHandler(const ezLoggingEventData& eventData)
   ezStringBuilder sText;
   ezStringBuilder sOriginalText = eventData.m_szText;
 
+  ezStringBuilder sTag = eventData.m_szTag;
+
   // Cannot write <, > or & to HTML, must be escaped
   sOriginalText.ReplaceAll ("&", "&amp;");
   sOriginalText.ReplaceAll ("<", "&lt;");
   sOriginalText.ReplaceAll (">", "&gt;");
+
+  sTag.ReplaceAll ("&", "&amp;");
+  sTag.ReplaceAll ("<", "&lt;");
+  sTag.ReplaceAll (">", "&gt;");
 
   bool bFlushWriteCache = false;
 
   switch (eventData.m_EventType)
   {
   case ezLogMsgType::BeginGroup:
-    sText.Format("<br><font color=\"#8080FF\"><b> <<< <u>%s</u> >>> </b></font><br><table width=100%% border=0><tr width=100%%><td width=10></td><td width=*>\n", sOriginalText.GetData());
+    sText.Format("<br><font color=\"#8080FF\"><b> <<< <u>%s</u> >>> </b> (%s) </font><br><table width=100%% border=0><tr width=100%%><td width=10></td><td width=*>\n", sOriginalText.GetData(), sTag.GetData());
     break;
   case ezLogMsgType::EndGroup:
     sText.Format("</td></tr></table><font color=\"#8080FF\"><b> <<< %s >>> </b></font><br><br>\n", sOriginalText.GetData());

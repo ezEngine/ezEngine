@@ -21,7 +21,7 @@ void ezLogWriter::VisualStudio::LogMessageHandler(const ezLoggingEventData& even
   switch (eventData.m_EventType)
   {
   case ezLogMsgType::BeginGroup:
-    ezStringUtils::snprintf(sz, 1024, "+++++ %s +++++\n", eventData.m_szText);
+    ezStringUtils::snprintf(sz, 1024, "+++++ %s (%s) +++++\n", eventData.m_szText, eventData.m_szTag);
     OutputDebugString (sz);
     break;
   case ezLogMsgType::EndGroup:

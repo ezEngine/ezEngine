@@ -43,7 +43,7 @@ static LRESULT CALLBACK ezWindowsMessageFuncTrampoline(HWND hWnd, UINT Msg, WPAR
 
 ezResult ezWindow::Initialize()
 {
-  EZ_LOG_BLOCK("ezWindow")
+  EZ_LOG_BLOCK("ezWindow");
 
   if (m_bInitialized)
     Destroy();
