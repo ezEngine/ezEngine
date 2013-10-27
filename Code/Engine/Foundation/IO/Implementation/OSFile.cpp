@@ -27,6 +27,8 @@ ezOSFile::~ezOSFile()
 
 ezResult ezOSFile::Open(const char* szFile, ezFileMode::Enum OpenMode)
 {
+  m_iFileID = s_FileCounter.Increment();
+
   EZ_ASSERT(OpenMode >= ezFileMode::Read && OpenMode <= ezFileMode::Append, "Invalid Mode");
   EZ_ASSERT(!IsOpen(), "The file has already been opened.");
 

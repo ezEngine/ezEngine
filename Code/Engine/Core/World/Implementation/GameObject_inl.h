@@ -163,6 +163,11 @@ bool ezGameObject::TryGetComponentOfType(T*& out_pComponent) const
 template <typename T>
 bool ezGameObject::TryGetComponentsOfType(ezArrayPtr<T*> out_components) const
 {
+  /// \todo This function is not that useful:
+  /// It does no bounds check, it will just write into the provided array and crash if it is too small
+  /// It does not return how many components it actually wrote
+  /// Maybe it would make more sense to take a hybrid array as parameter
+
   ezUInt32 uiOutIndex = 0;
   for (ezUInt32 i = 0; i < m_Components.GetCount(); ++i)
   {

@@ -11,6 +11,9 @@ ezLogWidget::ezLogWidget(QWidget* parent) : QDockWidget (parent)
 
   setupUi (this);
 
+  m_LogLevel = ezLogMsgType::All;
+  m_sSearchText.Clear();
+
   ResetStats();
 }
 
@@ -25,8 +28,7 @@ void ezLogWidget::ResetStats()
   ListLog->clear();
   s_pWidget->m_Messages.Clear();
 
-  m_LogLevel = ezLogMsgType::All;
-  m_sSearchText.Clear();
+  LineSearch->setText(m_sSearchText.GetData());
 
   ComboLogLevel->setCurrentIndex(ezLogMsgType::All - m_LogLevel);
 }
