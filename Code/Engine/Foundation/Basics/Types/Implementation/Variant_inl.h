@@ -45,6 +45,23 @@ EZ_FORCE_INLINE bool ezVariant::operator!=(const ezVariant& other) const
 template <typename T>
 EZ_FORCE_INLINE bool ezVariant::operator==(const T& other) const
 {
+  struct TypeInfo
+  {
+    enum
+    {
+      isNumber = TypeDeduction<T>::value > Type::Invalid && TypeDeduction<T>::value <= Type::Double
+    };
+  };
+
+  if (IsFloatingPoint(m_Type))
+  {
+    return ezVariantHelper::CompareFloat(*this, other, ezTraitInt<TypeInfo::isNumber>());
+  }
+  else if (IsNumber(m_Type))
+  {
+    return ezVariantHelper::CompareNumber(*this, other, ezTraitInt<TypeInfo::isNumber>());
+  }
+
   EZ_ASSERT(IsA<T>(), "Stored type '%d' does not match comparison type '%d'", m_Type, TypeDeduction<T>::value);
   return Cast<T>() == other;
 }
@@ -81,7 +98,7 @@ EZ_FORCE_INLINE const T& ezVariant::Get() const
 template <typename T>
 EZ_FORCE_INLINE bool ezVariant::CanConvertTo() const
 {
-  return CanConvertTo(TypeDeduction<T>::value);
+  return CanConvertTo(static_cast<Type::Enum>(TypeDeduction<T>::value));
 }
 
 template <typename T>
@@ -240,11 +257,23 @@ EZ_FORCE_INLINE const T& ezVariant::Cast() const
     *reinterpret_cast<const T*>(&m_Data);
 }
 
+EZ_FORCE_INLINE bool ezVariant::IsNumber(ezUInt32 type)
+{
+  return type > Type::Invalid && type <= Type::Double;
+}
+
+EZ_FORCE_INLINE bool ezVariant::IsFloatingPoint(ezUInt32 type)
+{
+  return type == Type::Float || type == Type::Double;
+}
+
 template <typename T>
 T ezVariant::ConvertNumber() const
 {
   switch (m_Type)
   {
+  case Type::Bool:
+    return static_cast<T>(Cast<bool>());
   case Type::Int32:
     return static_cast<T>(Cast<ezInt32>());
   case Type::UInt32:

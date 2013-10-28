@@ -8,6 +8,7 @@
 #include <Foundation/Strings/String.h>
 #include <Foundation/Threading/AtomicInteger.h>
 #include <Foundation/Time/Time.h>
+#include <Foundation/Utilities/ConversionUtils.h>
 
 /// \todo document and test
 class EZ_FOUNDATION_DLL ezVariant
@@ -103,7 +104,7 @@ public:
 
 private:
 
-  friend struct ezVariantConversion;
+  friend class ezVariantHelper;
   friend struct CompareFunc;
   friend struct DestructFunc;
   friend struct CopyFunc;
@@ -152,6 +153,9 @@ private:
   template <typename T>
   const T& Cast() const;
 
+  static bool IsNumber(ezUInt32 type);
+  static bool IsFloatingPoint(ezUInt32 type);
+
   template <typename T>
   T ConvertNumber() const;
 };
@@ -160,5 +164,5 @@ typedef ezDynamicArray<ezVariant> ezVariantArray;
 typedef ezHashTable<ezString, ezVariant> ezVariantDictionary;
 
 #include <Foundation/Basics/Types/Implementation/VariantTypeDeduction_inl.h>
-#include <Foundation/Basics/Types/Implementation/VariantConversion_inl.h>
+#include <Foundation/Basics/Types/Implementation/VariantHelper_inl.h>
 #include <Foundation/Basics/Types/Implementation/Variant_inl.h>

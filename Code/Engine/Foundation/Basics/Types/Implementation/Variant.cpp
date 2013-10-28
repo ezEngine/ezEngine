@@ -30,7 +30,7 @@ struct ConvertFunc
   EZ_FORCE_INLINE void operator()()
   {
     T result;
-    ezVariantConversion::To(result, *m_pThis);
+    ezVariantHelper::To(result, *m_pThis);
     m_Result = result;
   }
 
@@ -66,16 +66,26 @@ struct CopyFunc
 
 bool ezVariant::operator==(const ezVariant& other) const
 {
-  if (m_Type != other.m_Type)
-    return false;
+  if (IsFloatingPoint(m_Type) && IsNumber(other.m_Type))
+  {
+    return ConvertNumber<double>() == other.ConvertNumber<double>();
+  }
+  else if (IsNumber(m_Type) && IsNumber(other.m_Type))
+  {
+    return ConvertNumber<ezInt64>() == other.ConvertNumber<ezInt64>();
+  }
+  else if (m_Type == other.m_Type)
+  {
+    CompareFunc compareFunc;
+    compareFunc.m_pThis = this;
+    compareFunc.m_pOther = &other;
 
-  CompareFunc compareFunc;
-  compareFunc.m_pThis = this;
-  compareFunc.m_pOther = &other;
+    DispatchTo(compareFunc, GetType());
 
-  DispatchTo(compareFunc, GetType());
-
-  return compareFunc.m_bResult;
+    return compareFunc.m_bResult;
+  }
+    
+  return false;
 }
 
 bool ezVariant::CanConvertTo(Type::Enum type) const
@@ -83,13 +93,13 @@ bool ezVariant::CanConvertTo(Type::Enum type) const
   if (m_Type == type) 
     return true;
 
-  if (m_Type == Type::Invalid)
+  if (!IsValid() || type == Type::Invalid)
     return false;
   
-  if (type <= Type::Double && m_Type <= Type::Double)
+  if (IsNumber(type) && (IsNumber(m_Type) || m_Type == Type::String))
     return true;
 
-  if (type == Type::String || m_Type == Type::String)
+  if (type == Type::String && m_Type < Type::VariantArray)
     return true;
 
   return false;

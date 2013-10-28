@@ -60,10 +60,14 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     EZ_TEST(b.IsA<ezUInt32>());
     EZ_TEST(b.Get<ezUInt32>() == 23U);
 
-    EZ_TEST(b == ezVariant(23U)); /// \todo with other int types it compares false :-(
+    EZ_TEST(b == ezVariant(23));
+    EZ_TEST(b != ezVariant(11));
+    EZ_TEST(b == ezVariant(23U));
     EZ_TEST(b != ezVariant(11U));
 
-    EZ_TEST(b == 23U); /// \todo this does not work without the U -> runtime assert :-(
+    EZ_TEST(b == 23);
+    EZ_TEST(b != 24);
+    EZ_TEST(b == 23U);
     EZ_TEST(b != 24U);
 
     b = 17U;
@@ -81,10 +85,14 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     EZ_TEST(b.IsA<ezInt64>());
     EZ_TEST(b.Get<ezInt64>() == 23);
 
-    EZ_TEST(b == ezVariant((ezInt64) 23));  /// \todo with other int types it compares false :-(
+    EZ_TEST(b == ezVariant(23));
+    EZ_TEST(b != ezVariant(11));
+    EZ_TEST(b == ezVariant((ezInt64) 23));
     EZ_TEST(b != ezVariant((ezInt64) 11));
 
-    EZ_TEST(b == (ezInt64) 23); /// \todo does not work with other int types -> runtime assert :-(
+    EZ_TEST(b == 23);
+    EZ_TEST(b != 24);
+    EZ_TEST(b == (ezInt64) 23);
     EZ_TEST(b != (ezInt64) 24);
 
     b = (ezInt64) 17;
@@ -102,10 +110,14 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     EZ_TEST(b.IsA<ezUInt64>());
     EZ_TEST(b.Get<ezUInt64>() == 23);
 
-    EZ_TEST(b == ezVariant((ezUInt64) 23)); /// \todo with other int types it compares false :-(
+    EZ_TEST(b == ezVariant(23));
+    EZ_TEST(b != ezVariant(11));
+    EZ_TEST(b == ezVariant((ezUInt64) 23));
     EZ_TEST(b != ezVariant((ezUInt64) 11));
 
-    EZ_TEST(b == (ezUInt64) 23); /// \todo does not work with other int types -> runtime assert :-(
+    EZ_TEST(b == 23);
+    EZ_TEST(b != 24);
+    EZ_TEST(b == (ezUInt64) 23);
     EZ_TEST(b != (ezUInt64) 24);
 
     b = (ezUInt64) 17;
@@ -123,9 +135,17 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     EZ_TEST(b.IsA<float>());
     EZ_TEST(b.Get<float>() == 42.0f);
 
+    EZ_TEST(b == ezVariant(42));
+    EZ_TEST(b != ezVariant(11));
+    EZ_TEST(b == ezVariant(42.0));
+    EZ_TEST(b != ezVariant(11.0));
     EZ_TEST(b == ezVariant(42.0f));
     EZ_TEST(b != ezVariant(11.0f));
 
+    EZ_TEST(b == 42);
+    EZ_TEST(b != 41);
+    EZ_TEST(b == 42.0);
+    EZ_TEST(b != 41.0);
     EZ_TEST(b == 42.0f);
     EZ_TEST(b != 41.0f);
 
@@ -144,11 +164,19 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     EZ_TEST(b.IsA<double>());
     EZ_TEST(b.Get<double>() == 42.0);
 
+    EZ_TEST(b == ezVariant(42));
+    EZ_TEST(b != ezVariant(11));
     EZ_TEST(b == ezVariant(42.0));
     EZ_TEST(b != ezVariant(11.0));
+    EZ_TEST(b == ezVariant(42.0f));
+    EZ_TEST(b != ezVariant(11.0f));
 
+    EZ_TEST(b == 42);
+    EZ_TEST(b != 41);
     EZ_TEST(b == 42.0);
     EZ_TEST(b != 41.0);
+    EZ_TEST(b == 42.0f);
+    EZ_TEST(b != 41.0f);
 
     b = 17.0;
     EZ_TEST(b == 17.0);
@@ -411,10 +439,10 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
   {
     ezVariant v(true);
 
-    //EZ_TEST(v.CanConvertTo<bool>());    /// \todo Does not compile
-    //EZ_TEST(v.CanConvertTo<ezInt32>()); /// \todo Does not compile
+    EZ_TEST(v.CanConvertTo<bool>());
+    EZ_TEST(v.CanConvertTo<ezInt32>());
 
-    EZ_TEST(v.CanConvertTo(ezVariant::Type::Invalid)); /// \todo Does this make sense?
+    EZ_TEST(v.CanConvertTo(ezVariant::Type::Invalid) == false);
     EZ_TEST(v.CanConvertTo(ezVariant::Type::Bool));
     EZ_TEST(v.CanConvertTo(ezVariant::Type::Int32));
     EZ_TEST(v.CanConvertTo(ezVariant::Type::UInt32));
@@ -439,10 +467,10 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
   {
     ezVariant v((ezInt32) 3);
 
-    //EZ_TEST(v.CanConvertTo<bool>());    /// \todo Does not compile
-    //EZ_TEST(v.CanConvertTo<ezInt32>()); /// \todo Does not compile
+    EZ_TEST(v.CanConvertTo<bool>());
+    EZ_TEST(v.CanConvertTo<ezInt32>());
 
-    EZ_TEST(v.CanConvertTo(ezVariant::Type::Invalid)); /// \todo Does this make sense?
+    EZ_TEST(v.CanConvertTo(ezVariant::Type::Invalid) == false);
     EZ_TEST(v.CanConvertTo(ezVariant::Type::Bool));
     EZ_TEST(v.CanConvertTo(ezVariant::Type::Int32));
     EZ_TEST(v.CanConvertTo(ezVariant::Type::UInt32));
@@ -467,7 +495,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
   {
     ezVariant v((ezUInt32) 3);
 
-    EZ_TEST(v.CanConvertTo(ezVariant::Type::Invalid));
+    EZ_TEST(v.CanConvertTo(ezVariant::Type::Invalid) == false);
     EZ_TEST(v.CanConvertTo(ezVariant::Type::Bool));
     EZ_TEST(v.CanConvertTo(ezVariant::Type::Int32));
     EZ_TEST(v.CanConvertTo(ezVariant::Type::UInt32));
@@ -492,7 +520,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
   {
     ezVariant v((ezInt64) 3);
 
-    EZ_TEST(v.CanConvertTo(ezVariant::Type::Invalid));
+    EZ_TEST(v.CanConvertTo(ezVariant::Type::Invalid) == false);
     EZ_TEST(v.CanConvertTo(ezVariant::Type::Bool));
     EZ_TEST(v.CanConvertTo(ezVariant::Type::Int32));
     EZ_TEST(v.CanConvertTo(ezVariant::Type::UInt32));
@@ -517,7 +545,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
   {
     ezVariant v((ezUInt64) 3);
 
-    EZ_TEST(v.CanConvertTo(ezVariant::Type::Invalid));
+    EZ_TEST(v.CanConvertTo(ezVariant::Type::Invalid) == false);
     EZ_TEST(v.CanConvertTo(ezVariant::Type::Bool));
     EZ_TEST(v.CanConvertTo(ezVariant::Type::Int32));
     EZ_TEST(v.CanConvertTo(ezVariant::Type::UInt32));
@@ -542,7 +570,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
   {
     ezVariant v((float) 3.0f);
 
-    EZ_TEST(v.CanConvertTo(ezVariant::Type::Invalid));
+    EZ_TEST(v.CanConvertTo(ezVariant::Type::Invalid) == false);
     EZ_TEST(v.CanConvertTo(ezVariant::Type::Bool));
     EZ_TEST(v.CanConvertTo(ezVariant::Type::Int32));
     EZ_TEST(v.CanConvertTo(ezVariant::Type::UInt32));
@@ -567,7 +595,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
   {
     ezVariant v((double) 3.0f);
 
-    EZ_TEST(v.CanConvertTo(ezVariant::Type::Invalid));
+    EZ_TEST(v.CanConvertTo(ezVariant::Type::Invalid) == false);
     EZ_TEST(v.CanConvertTo(ezVariant::Type::Bool));
     EZ_TEST(v.CanConvertTo(ezVariant::Type::Int32));
     EZ_TEST(v.CanConvertTo(ezVariant::Type::UInt32));
@@ -592,7 +620,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
   {
     ezVariant v(ezVec2(3.0f, 4.0f));
 
-    EZ_TEST(v.CanConvertTo(ezVariant::Type::Invalid) == false); /// \todo And suddenly it does not convert...
+    EZ_TEST(v.CanConvertTo(ezVariant::Type::Invalid) == false);
     EZ_TEST(v.CanConvertTo(ezVariant::Type::Bool) == false);
     EZ_TEST(v.CanConvertTo(ezVariant::Type::Int32) == false);
     EZ_TEST(v.CanConvertTo(ezVariant::Type::UInt32) == false);
@@ -742,7 +770,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
   {
     ezVariant v("ich hab keine Lust mehr");
 
-    EZ_TEST(v.CanConvertTo(ezVariant::Type::Invalid)); /// \todo Why?
+    EZ_TEST(v.CanConvertTo(ezVariant::Type::Invalid) == false);
     EZ_TEST(v.CanConvertTo(ezVariant::Type::Bool)); /// \todo These conversions need to be thoroughly tested
     EZ_TEST(v.CanConvertTo(ezVariant::Type::Int32));
     EZ_TEST(v.CanConvertTo(ezVariant::Type::UInt32));
@@ -750,17 +778,17 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     EZ_TEST(v.CanConvertTo(ezVariant::Type::UInt64));
     EZ_TEST(v.CanConvertTo(ezVariant::Type::Float));
     EZ_TEST(v.CanConvertTo(ezVariant::Type::Double));
-    EZ_TEST(v.CanConvertTo(ezVariant::Type::Vector2)); /// \todo Orly?
-    EZ_TEST(v.CanConvertTo(ezVariant::Type::Vector3)); /// \todo Orly?
-    EZ_TEST(v.CanConvertTo(ezVariant::Type::Vector4)); /// \todo Orly?
-    EZ_TEST(v.CanConvertTo(ezVariant::Type::Quaternion)); /// \todo Quite certainly not
-    EZ_TEST(v.CanConvertTo(ezVariant::Type::Matrix3)); /// \todo Nope
-    EZ_TEST(v.CanConvertTo(ezVariant::Type::Matrix4)); /// \todo Ne
+    EZ_TEST(v.CanConvertTo(ezVariant::Type::Vector2) == false);
+    EZ_TEST(v.CanConvertTo(ezVariant::Type::Vector3) == false);
+    EZ_TEST(v.CanConvertTo(ezVariant::Type::Vector4) == false);
+    EZ_TEST(v.CanConvertTo(ezVariant::Type::Quaternion) == false);
+    EZ_TEST(v.CanConvertTo(ezVariant::Type::Matrix3) == false);
+    EZ_TEST(v.CanConvertTo(ezVariant::Type::Matrix4) == false);
     EZ_TEST(v.CanConvertTo(ezVariant::Type::String));
-    EZ_TEST(v.CanConvertTo(ezVariant::Type::Time)); /// \todo Nix da
-    EZ_TEST(v.CanConvertTo(ezVariant::Type::VariantArray)); /// \todo How?
-    EZ_TEST(v.CanConvertTo(ezVariant::Type::VariantDictionary)); /// \todo How?
-    EZ_TEST(v.CanConvertTo(ezVariant::Type::VoidPointer)); /// \todo Can I haz string valuz to store pointas ?
+    EZ_TEST(v.CanConvertTo(ezVariant::Type::Time) == false);
+    EZ_TEST(v.CanConvertTo(ezVariant::Type::VariantArray) == false);
+    EZ_TEST(v.CanConvertTo(ezVariant::Type::VariantDictionary) == false);
+    EZ_TEST(v.CanConvertTo(ezVariant::Type::VoidPointer) == false);
   }
 
   EZ_TEST_BLOCK(true, "CanConvertTo (ezTime)")
@@ -807,7 +835,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     EZ_TEST(v.CanConvertTo(ezVariant::Type::Quaternion) == false);
     EZ_TEST(v.CanConvertTo(ezVariant::Type::Matrix3) == false);
     EZ_TEST(v.CanConvertTo(ezVariant::Type::Matrix4) == false);
-    EZ_TEST(v.CanConvertTo(ezVariant::Type::String)); /// \todo Sure?
+    EZ_TEST(v.CanConvertTo(ezVariant::Type::String) == false);
     EZ_TEST(v.CanConvertTo(ezVariant::Type::Time) == false);
     EZ_TEST(v.CanConvertTo(ezVariant::Type::VariantArray));
     EZ_TEST(v.CanConvertTo(ezVariant::Type::VariantDictionary) == false);
@@ -833,7 +861,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     EZ_TEST(v.CanConvertTo(ezVariant::Type::Quaternion) == false);
     EZ_TEST(v.CanConvertTo(ezVariant::Type::Matrix3) == false);
     EZ_TEST(v.CanConvertTo(ezVariant::Type::Matrix4) == false);
-    EZ_TEST(v.CanConvertTo(ezVariant::Type::String)); /// \todo Sure?
+    EZ_TEST(v.CanConvertTo(ezVariant::Type::String) == false);
     EZ_TEST(v.CanConvertTo(ezVariant::Type::Time) == false);
     EZ_TEST(v.CanConvertTo(ezVariant::Type::VariantArray) == false);
     EZ_TEST(v.CanConvertTo(ezVariant::Type::VariantDictionary));
@@ -858,7 +886,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     EZ_TEST(v.CanConvertTo(ezVariant::Type::Quaternion) == false);
     EZ_TEST(v.CanConvertTo(ezVariant::Type::Matrix3) == false);
     EZ_TEST(v.CanConvertTo(ezVariant::Type::Matrix4) == false);
-    EZ_TEST(v.CanConvertTo(ezVariant::Type::String)); /// \todo Sure?
+    EZ_TEST(v.CanConvertTo(ezVariant::Type::String) == false);
     EZ_TEST(v.CanConvertTo(ezVariant::Type::Time) == false);
     EZ_TEST(v.CanConvertTo(ezVariant::Type::VariantArray) == false);
     EZ_TEST(v.CanConvertTo(ezVariant::Type::VariantDictionary) == false);
