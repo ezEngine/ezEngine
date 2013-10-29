@@ -230,6 +230,7 @@
     <addaction name="ActionShowWindowFile"/>
     <addaction name="ActionShowWindowPlugins"/>
     <addaction name="ActionShowWindowGlobalEvents"/>
+    <addaction name="ActionShowWindowTime"/>
    </widget>
    <addaction name="menuWindows"/>
   </widget>
@@ -298,6 +299,14 @@
    </property>
    <property name="text">
     <string>Global Events</string>
+   </property>
+  </action>
+  <action name="ActionShowWindowTime">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Time</string>
    </property>
   </action>
  </widget>

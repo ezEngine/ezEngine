@@ -31,6 +31,7 @@ public slots:
 private slots:
   void on_ActionShowWindowLog_triggered();
   void on_ActionShowWindowMemory_triggered();
+  void on_ActionShowWindowTime_triggered();
   void on_ActionShowWindowInput_triggered();
   void on_ActionShowWindowCVar_triggered();
   void on_ActionShowWindowSubsystems_triggered();

@@ -32,6 +32,9 @@ void RemoveGlobalEventHandler();
 void AddOSFileEventHandler();
 void RemoveOSFileEventHandler();
 
+void AddTimeEventHandler();
+void RemoveTimeEventHandler();
+
 void AddTelemetryAssertHandler();
 void RemoveTelemetryAssertHandler();
 
@@ -56,12 +59,14 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(InspectorPlugin, Main)
     AddPluginEventHandler();
     AddGlobalEventHandler();
     AddOSFileEventHandler();
+    AddTimeEventHandler();
 
     SetAppStats();
   }
 
   ON_CORE_SHUTDOWN
   {
+    RemoveTimeEventHandler();
     RemoveOSFileEventHandler();
     RemoveGlobalEventHandler();
     RemovePluginEventHandler();

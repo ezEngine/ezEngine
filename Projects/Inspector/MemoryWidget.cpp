@@ -85,6 +85,9 @@ void ezMemoryWidget::ResetStats()
 
 void ezMemoryWidget::UpdateStats()
 {
+  if (!isVisible())
+    return;
+
   if (!ezTelemetry::IsConnectedToServer())
   {
     ListAllocators->setEnabled(false);
@@ -193,7 +196,7 @@ void ezMemoryWidget::UpdateStats()
     {
       // sometimes no data arrives in time (game is too slow)
       // in this case simply assume the stats have not changed
-      if (!it.Value().m_bReceivedDate && !it.Value().m_UsedMemory.IsEmpty())
+      if (!it.Value().m_bReceivedData && !it.Value().m_UsedMemory.IsEmpty())
         it.Value().m_uiMaxUsedMemoryRecently = it.Value().m_UsedMemory.PeekBack();
 
       uiSumMemory += it.Value().m_uiMaxUsedMemoryRecently;
@@ -201,7 +204,7 @@ void ezMemoryWidget::UpdateStats()
       it.Value().m_UsedMemory.PushBack(it.Value().m_uiMaxUsedMemoryRecently);
 
       it.Value().m_uiMaxUsedMemoryRecently = 0;
-      it.Value().m_bReceivedDate = false;
+      it.Value().m_bReceivedData = false;
     }
   }
   else
@@ -369,7 +372,7 @@ void ezMemoryWidget::ProcessTelemetry(void* pUnuseed)
     Msg.GetReader() >> MemStat;
 
     AllocatorData& ad = s_pWidget->m_AllocatorData[sAllocatorName];
-    ad.m_bReceivedDate = true;
+    ad.m_bReceivedData = true;
 
     if (ad.m_iColor < 0)
     {

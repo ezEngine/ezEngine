@@ -2,6 +2,23 @@
 #include <Foundation/Time/Clock.h>
 
 ezDynamicArray<ezClock, ezStaticAllocatorWrapper> ezClock::s_GlobalClocks;
+ezClock::Event ezClock::s_TimeEvents;
+ezUInt32 ezClock::s_uiClockCount = 0;
+
+void ezClock::SetNumGlobalClocks(ezUInt32 uiNumClocks)
+{
+  const bool bEmpty = s_GlobalClocks.IsEmpty();
+
+  s_GlobalClocks.SetCount(uiNumClocks);
+
+  if (bEmpty)
+  {
+    if (uiNumClocks > 0)
+      s_GlobalClocks[0].SetClockName("GameLogic");
+    if (uiNumClocks > 1)
+      s_GlobalClocks[1].SetClockName("UI");
+  }
+}
 
 void ezClock::UpdateAllGlobalClocks()
 {
@@ -14,6 +31,12 @@ void ezClock::UpdateAllGlobalClocks()
 
 ezClock::ezClock()
 {
+  ++s_uiClockCount;
+
+  ezStringBuilder sName;
+  sName.Format("Clock %i", s_uiClockCount);
+  SetClockName(sName.GetData());
+
   Reset(true);
 }
 
@@ -50,7 +73,6 @@ void ezClock::Update()
   {
     // no change during pause
     m_LastTimeDiff = ezTime::Seconds(0.0);
-    return; // other wise the clamping below might 'kill us'
   }
   else if (m_FixedTimeStep > ezTime::Seconds(0.0))
   {
@@ -71,6 +93,13 @@ void ezClock::Update()
   }
 
   m_AccumulatedTime += m_LastTimeDiff;
+
+  EventData ed;
+  ed.m_szClockName = m_sName.GetData();
+  ed.m_RawTimeStep = tDiff;
+  ed.m_SmoothedTimeStep = m_LastTimeDiff;
+
+  s_TimeEvents.Broadcast(ed);
 }
 
 void ezClock::SetAccumulatedTime(ezTime t)

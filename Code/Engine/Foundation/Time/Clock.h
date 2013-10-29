@@ -6,6 +6,7 @@
 #include <Foundation/Time/Time.h>
 #include <Foundation/IO/IBinaryStream.h>
 #include <Foundation/Containers/DynamicArray.h>
+#include <Foundation/Communication/Event.h>
 
 class ezTimeStepSmoothing;
 
@@ -140,11 +141,42 @@ public:
   /// \brief Deserializes the current clock state from a stream.
   void Load(ezIBinaryStreamReader& Stream);
 
+  /// \brief Sets the name of the clock. Useful to identify the clock in tools such as ezInspector.
+  void SetClockName(const char* szName);
+
+  /// \brief Returns the name of the clock. All clocks get default names 'Clock N', unless the user specifies another name with SetClockName.
+  const char* GetClockName() const;
+
+
+public:
+
+  /// \brief The data that is sent through the event interface.
+  struct EventData
+  {
+    const char* m_szClockName;
+
+    ezTime m_RawTimeStep;
+    ezTime m_SmoothedTimeStep;
+  };
+
+  typedef ezEvent<const EventData&, ezMutex, ezStaticAllocatorWrapper> Event;
+
+  /// \brief Allows to register a function as an event receiver. All receivers will be notified in the order that they registered.
+  static void AddEventHandler(Event::Handler handler)    { s_TimeEvents.AddEventHandler    (handler); }
+
+  /// \brief Unregisters a previously registered receiver. It is an error to unregister a receiver that was not registered.
+  static void RemoveEventHandler(Event::Handler handler) { s_TimeEvents.RemoveEventHandler (handler); }
+
+
 private:
 
   static ezDynamicArray<ezClock, ezStaticAllocatorWrapper> s_GlobalClocks;
 
-private:
+  static Event s_TimeEvents;
+
+  static ezUInt32 s_uiClockCount;
+
+  ezString m_sName;
 
   ezTime m_AccumulatedTime;
   ezTime m_LastTimeDiff;

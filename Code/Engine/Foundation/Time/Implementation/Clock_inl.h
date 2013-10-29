@@ -2,9 +2,14 @@
 
 #include <Foundation/Time/Clock.h>
 
-inline void ezClock::SetNumGlobalClocks(ezUInt32 uiNumClocks)
+inline void ezClock::SetClockName(const char* szName)
+{ 
+  m_sName = szName; 
+}
+
+inline const char* ezClock::GetClockName() const
 {
-  s_GlobalClocks.SetCount(uiNumClocks);
+  return m_sName.GetData();
 }
 
 EZ_FORCE_INLINE ezClock* ezClock::Get(ezUInt32 uiClock)

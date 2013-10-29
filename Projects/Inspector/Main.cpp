@@ -3,6 +3,7 @@
 #include <Inspector/MainWindow.moc.h>
 #include <Inspector/LogWidget.moc.h>
 #include <Inspector/MemoryWidget.moc.h>
+#include <Inspector/TimeWidget.moc.h>
 #include <Inspector/InputWidget.moc.h>
 #include <Inspector/CVarsWidget.moc.h>
 #include <Inspector/SubsystemsWidget.moc.h>
@@ -87,6 +88,7 @@ public:
     ezTelemetry::AcceptMessagesForSystem('CVAR', true, ezCVarsWidget::ProcessTelemetry, NULL);
     ezTelemetry::AcceptMessagesForSystem('LOG', true, ezLogWidget::ProcessTelemetry, NULL);
     ezTelemetry::AcceptMessagesForSystem('MEM', true, ezMemoryWidget::ProcessTelemetry, NULL);
+    ezTelemetry::AcceptMessagesForSystem('TIME', true, ezTimeWidget::ProcessTelemetry, NULL);
     ezTelemetry::AcceptMessagesForSystem('APP', true, ezMainWindow::ProcessTelemetry, NULL);
     ezTelemetry::AcceptMessagesForSystem('FILE', true, ezFileWidget::ProcessTelemetry, NULL);
     ezTelemetry::AcceptMessagesForSystem('INPT', true, ezInputWidget::ProcessTelemetry, NULL);

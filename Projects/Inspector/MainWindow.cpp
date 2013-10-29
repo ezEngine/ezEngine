@@ -1,5 +1,6 @@
 #include <Inspector/MainWindow.moc.h>
 #include <Inspector/MemoryWidget.moc.h>
+#include <Inspector/TimeWidget.moc.h>
 #include <Inspector/InputWidget.moc.h>
 #include <Inspector/CVarsWidget.moc.h>
 #include <Inspector/LogWidget.moc.h>
@@ -32,6 +33,7 @@ ezMainWindow::ezMainWindow() : QMainWindow()
 
   ezLogWidget*          pLogWidget            = new ezLogWidget(this);
   ezMemoryWidget*       pMemoryWidget         = new ezMemoryWidget(this);
+  ezTimeWidget*         pTimeWidget           = new ezTimeWidget(this);
   ezInputWidget*        pInputWidget          = new ezInputWidget(this);
   ezCVarsWidget*        pCVarsWidget          = new ezCVarsWidget(this);
   ezSubsystemsWidget*   pSubsystemsWidget     = new ezSubsystemsWidget(this);
@@ -40,6 +42,7 @@ ezMainWindow::ezMainWindow() : QMainWindow()
   ezGlobalEventsWidget* pGlobalEventesWidget  = new ezGlobalEventsWidget(this);
 
   EZ_VERIFY(QWidget::connect(pLogWidget,            SIGNAL(visibilityChanged(bool)), this, SLOT(DockWidgetVisibilityChanged(bool))), "");
+  EZ_VERIFY(QWidget::connect(pTimeWidget,           SIGNAL(visibilityChanged(bool)), this, SLOT(DockWidgetVisibilityChanged(bool))), "");
   EZ_VERIFY(QWidget::connect(pMemoryWidget,         SIGNAL(visibilityChanged(bool)), this, SLOT(DockWidgetVisibilityChanged(bool))), "");
   EZ_VERIFY(QWidget::connect(pInputWidget,          SIGNAL(visibilityChanged(bool)), this, SLOT(DockWidgetVisibilityChanged(bool))), "");
   EZ_VERIFY(QWidget::connect(pCVarsWidget,          SIGNAL(visibilityChanged(bool)), this, SLOT(DockWidgetVisibilityChanged(bool))), "");
@@ -50,7 +53,9 @@ ezMainWindow::ezMainWindow() : QMainWindow()
 
   addDockWidget(Qt::BottomDockWidgetArea, pMemoryWidget);
   addDockWidget(Qt::BottomDockWidgetArea, pFileWidget);
+  addDockWidget(Qt::BottomDockWidgetArea, pTimeWidget);
   tabifyDockWidget(pMemoryWidget, pFileWidget);
+  tabifyDockWidget(pMemoryWidget, pTimeWidget);
   pMemoryWidget->raise();
 
   addDockWidget(Qt::RightDockWidgetArea, pCVarsWidget);
@@ -260,6 +265,9 @@ void ezMainWindow::UpdateNetwork()
     if (ezMemoryWidget::s_pWidget)
       ezMemoryWidget::s_pWidget->ResetStats();
 
+    if (ezTimeWidget::s_pWidget)
+      ezTimeWidget::s_pWidget->ResetStats();
+
     if (ezInputWidget::s_pWidget)
       ezInputWidget::s_pWidget->ResetStats();
 
@@ -290,9 +298,11 @@ void ezMainWindow::UpdateNetwork()
   if (ezMemoryWidget::s_pWidget)
     ezMemoryWidget::s_pWidget->UpdateStats();
 
+  if (ezTimeWidget::s_pWidget)
+    ezTimeWidget::s_pWidget->UpdateStats();
+
   if (ezFileWidget::s_pWidget)
     ezFileWidget::s_pWidget->UpdateStats();
-    
 
   ezTelemetry::PerFrameUpdate();
 }
@@ -354,6 +364,7 @@ void ezMainWindow::DockWidgetVisibilityChanged(bool bVisible)
 {
   ActionShowWindowLog->setChecked(ezLogWidget::s_pWidget->isVisible());
   ActionShowWindowMemory->setChecked(ezMemoryWidget::s_pWidget->isVisible());
+  ActionShowWindowTime->setChecked(ezTimeWidget::s_pWidget->isVisible());
   ActionShowWindowInput->setChecked(ezInputWidget::s_pWidget->isVisible());
   ActionShowWindowCVar->setChecked(ezCVarsWidget::s_pWidget->isVisible());
   ActionShowWindowSubsystems->setChecked(ezSubsystemsWidget::s_pWidget->isVisible());
@@ -370,6 +381,11 @@ void ezMainWindow::on_ActionShowWindowLog_triggered()
 void ezMainWindow::on_ActionShowWindowMemory_triggered()
 {
   ezMemoryWidget::s_pWidget->setVisible(ActionShowWindowMemory->isChecked());
+}
+
+void ezMainWindow::on_ActionShowWindowTime_triggered()
+{
+  ezTimeWidget::s_pWidget->setVisible(ActionShowWindowTime->isChecked());
 }
 
 void ezMainWindow::on_ActionShowWindowInput_triggered()
