@@ -20,7 +20,7 @@ static const ezUInt32 uiSize = sizeof(ezConstructTest);
 
 EZ_CREATE_SIMPLE_TEST(Memory, MemoryUtils)
 {
-  EZ_TEST_BLOCK(true, "Construct")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Construct")
   {
     ezUInt8 uiRawData[uiSize * 5] = { 0 };
     ezConstructTest* pTest = (ezConstructTest*)(uiRawData);
@@ -34,7 +34,7 @@ EZ_CREATE_SIMPLE_TEST(Memory, MemoryUtils)
     EZ_TEST_INT(pTest[4].m_iData, 0);
   }
 
-  EZ_TEST_BLOCK(true, "Construct Copy(Array)")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Construct Copy(Array)")
   {
     ezUInt8 uiRawData[uiSize * 5] = { 0 };
     ezConstructTest* pTest = (ezConstructTest*)(uiRawData);
@@ -52,7 +52,7 @@ EZ_CREATE_SIMPLE_TEST(Memory, MemoryUtils)
     EZ_TEST_INT(pTest[4].m_iData, 0);
   }
 
-  EZ_TEST_BLOCK(true, "Construct Copy(Element)")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Construct Copy(Element)")
   {
     ezUInt8 uiRawData[uiSize * 5] = { 0 };
     ezConstructTest* pTest = (ezConstructTest*)(uiRawData);
@@ -69,7 +69,7 @@ EZ_CREATE_SIMPLE_TEST(Memory, MemoryUtils)
     EZ_TEST_INT(pTest[4].m_iData, 0);
   }
 
-  EZ_TEST_BLOCK(true, "Destruct")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Destruct")
   {
     ezUInt8 uiRawData[uiSize * 5] = { 0 };
     ezConstructTest* pTest = (ezConstructTest*)(uiRawData);
@@ -91,7 +91,7 @@ EZ_CREATE_SIMPLE_TEST(Memory, MemoryUtils)
     EZ_TEST_INT(pTest[4].m_iData, 0);
   }
 
-  EZ_TEST_BLOCK(true, "DefaultConstruct")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "DefaultConstruct")
   {
     ezUInt32 uiRawData[5]; // not initialized here
     
@@ -101,7 +101,7 @@ EZ_CREATE_SIMPLE_TEST(Memory, MemoryUtils)
     EZ_TEST_INT(uiRawData[2], 0);
   }
 
-  EZ_TEST_BLOCK(true, "Copy")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Copy")
   {
     ezUInt8 uiRawData[5]  = { 1, 2, 3, 4, 5 };
     ezUInt8 uiRawData2[5] = { 6, 7, 8, 9, 0 };
@@ -121,7 +121,7 @@ EZ_CREATE_SIMPLE_TEST(Memory, MemoryUtils)
     EZ_TEST_INT(uiRawData[4], 5);
   }
 
-  EZ_TEST_BLOCK(true, "Move")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Move")
   {
     ezUInt8 uiRawData[5]  = { 1, 2, 3, 4, 5 };
     
@@ -148,7 +148,7 @@ EZ_CREATE_SIMPLE_TEST(Memory, MemoryUtils)
     EZ_TEST_INT(uiRawData[4], 4);
   }
 
-  EZ_TEST_BLOCK(true, "IsEqual")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsEqual")
   {
     ezUInt8 uiRawData1[5] = { 1, 2, 3, 4, 5 };
     ezUInt8 uiRawData2[5] = { 1, 2, 3, 4, 5 };
@@ -159,7 +159,7 @@ EZ_CREATE_SIMPLE_TEST(Memory, MemoryUtils)
     EZ_TEST(ezMemoryUtils::IsEqual(uiRawData1, uiRawData3, 4));
   }
 
-  EZ_TEST_BLOCK(true, "ZeroFill")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ZeroFill")
   {
     ezUInt8 uiRawData[5] = { 1, 2, 3, 4, 5 };
     
@@ -178,7 +178,7 @@ EZ_CREATE_SIMPLE_TEST(Memory, MemoryUtils)
     EZ_TEST_INT(uiRawData[4], 5);
   }
 
-  EZ_TEST_BLOCK(true, "ByteCompare")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ByteCompare")
   {
     ezUInt32 uiRawDataA[3] = { 1, 2, 3 };
     ezUInt32 uiRawDataB[3] = { 3, 4, 5 };
@@ -195,7 +195,7 @@ EZ_CREATE_SIMPLE_TEST(Memory, MemoryUtils)
     EZ_TEST(ezMemoryUtils::ByteCompare(uiRawDataB, uiRawDataA, 3) > 0);
   }
 
-  EZ_TEST_BLOCK(true, "AddByteOffset")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "AddByteOffset")
   {
     ezInt32* pData1 = NULL;
     pData1 = ezMemoryUtils::AddByteOffset(pData1, 13);
@@ -206,7 +206,7 @@ EZ_CREATE_SIMPLE_TEST(Memory, MemoryUtils)
     EZ_TEST(pData3 == reinterpret_cast<ezInt32*>(17));
   }
 
-  EZ_TEST_BLOCK(true, "Align / IsAligned")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Align / IsAligned")
   {
     {
       ezInt32* pData = (ezInt32*) 1;

@@ -23,7 +23,7 @@ Only concrete and clocks.\n\
   sOutputFile2.AppendPath("FoundationTest", "IO", "SubFolder2");
   sOutputFile2.AppendPath("OSFile_TestFileCopy.txt");
 
-  EZ_TEST_BLOCK(true, "Write File")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Write File")
   {
     ezOSFile f;
     EZ_TEST(f.Open(sOutputFile.GetData(), ezFileMode::Write) == EZ_SUCCESS);
@@ -46,7 +46,7 @@ Only concrete and clocks.\n\
     // f.Close(); // The file should be closed automatically
   }
 
-  EZ_TEST_BLOCK(true, "Append File")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Append File")
   {
     ezOSFile f;
     EZ_TEST(f.Open(sOutputFile.GetData(), ezFileMode::Append) == EZ_SUCCESS);
@@ -58,7 +58,7 @@ Only concrete and clocks.\n\
     EZ_TEST(!f.IsOpen());
   }
 
-  EZ_TEST_BLOCK(true, "Read File")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Read File")
   {
     const ezUInt32 FS_MAX_PATH = 1024;
     char szTemp[FS_MAX_PATH];
@@ -77,7 +77,7 @@ Only concrete and clocks.\n\
     f.Close();
   }
 
-  EZ_TEST_BLOCK(true, "Copy File")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Copy File")
   {
     ezOSFile::CopyFile(sOutputFile.GetData(), sOutputFile2.GetData());
 
@@ -96,7 +96,7 @@ Only concrete and clocks.\n\
   }
 
 #if EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
-  EZ_TEST_BLOCK(true, "File Stats")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "File Stats")
   {
     ezFileStats s;
 
@@ -117,7 +117,7 @@ Only concrete and clocks.\n\
     //printf("%s Name: '%s' (%lli Bytes), Modified Time: %lli\n", s.m_bIsDirectory ? "Directory" : "File", s.m_sFileName.GetData(), s.m_uiFileSize, s.m_uiLastModificationTime);
   }
 
-  EZ_TEST_BLOCK(true, "GetFileCasing")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetFileCasing")
   {
     ezStringBuilder dir = sOutputFile2;
     dir.ToLower();
@@ -133,7 +133,7 @@ Only concrete and clocks.\n\
 
 #if EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS)
 
-  EZ_TEST_BLOCK(true, "File Iterator")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "File Iterator")
   {
     // It is not really possible to test this stuff (with a guaranteed result), as long as we do not have
     // a test data folder with deterministic content
@@ -173,7 +173,7 @@ Only concrete and clocks.\n\
 
 #endif
 
-  EZ_TEST_BLOCK(true, "Delete File")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Delete File")
   {
     EZ_TEST(ezOSFile::DeleteFile(sOutputFile.GetData()) == EZ_SUCCESS);
     EZ_TEST(ezOSFile::DeleteFile(sOutputFile.GetData()) == EZ_SUCCESS); // second time should still 'succeed'
@@ -186,7 +186,7 @@ Only concrete and clocks.\n\
     EZ_TEST(f.Open(sOutputFile2.GetData(), ezFileMode::Read) == EZ_FAILURE); // file should not exist anymore
   }
 
-  EZ_TEST_BLOCK(true, "Exists File")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Exists File")
   {
     EZ_TEST(ezOSFile::Exists(sOutputFile.GetData()) == false);
     EZ_TEST(ezOSFile::Exists(sOutputFile2.GetData()) == false);

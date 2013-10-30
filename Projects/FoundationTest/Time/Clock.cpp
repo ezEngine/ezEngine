@@ -17,7 +17,7 @@ public:
 
 EZ_CREATE_SIMPLE_TEST(Time, Clock)
 {
-  EZ_TEST_BLOCK(true, "Constructor / Reset")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Constructor / Reset")
   {
     ezClock c; // calls 'Reset' internally
 
@@ -46,7 +46,7 @@ EZ_CREATE_SIMPLE_TEST(Time, Clock)
     EZ_TEST(c.GetTimeStepSmoothing() == NULL); // after constructor
   }
 
-  EZ_TEST_BLOCK(true, "SetPaused / GetPaused")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetPaused / GetPaused")
   {
     ezClock c;
     EZ_TEST(!c.GetPaused());
@@ -64,7 +64,7 @@ EZ_CREATE_SIMPLE_TEST(Time, Clock)
     EZ_TEST(!c.GetPaused());
   }
 
-  EZ_TEST_BLOCK(true, "Updates while Paused / Unpaused")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Updates while Paused / Unpaused")
   {
     ezClock c;
 
@@ -87,7 +87,7 @@ EZ_CREATE_SIMPLE_TEST(Time, Clock)
     EZ_TEST(t1 == t2);
   }
 
-  EZ_TEST_BLOCK(true, "SetFixedTimeStep / GetFixedTimeStep")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetFixedTimeStep / GetFixedTimeStep")
   {
     ezClock c;
 
@@ -98,7 +98,7 @@ EZ_CREATE_SIMPLE_TEST(Time, Clock)
     EZ_TEST_DOUBLE(c.GetFixedTimeStep().GetSeconds(), 1.0 / 60.0, 0.000001);
   }
 
-  EZ_TEST_BLOCK(true, "Updates with fixed time step")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Updates with fixed time step")
   {
     ezClock c;
     c.SetFixedTimeStep(ezTime::Seconds(1.0 / 60.0));
@@ -118,7 +118,7 @@ EZ_CREATE_SIMPLE_TEST(Time, Clock)
     EZ_TEST_DOUBLE(c.GetTimeDiff().GetSeconds(), 1.0 / 60.0, 0.000001);
   }
 
-  EZ_TEST_BLOCK(true, "SetAccumulatedTime / GetAccumulatedTime")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetAccumulatedTime / GetAccumulatedTime")
   {
     ezClock c;
 
@@ -141,7 +141,7 @@ EZ_CREATE_SIMPLE_TEST(Time, Clock)
     EZ_TEST(c.GetTimeDiff().GetSeconds() > 0.0);
   }
 
-  EZ_TEST_BLOCK(true, "SetSpeed / GetSpeed / GetTimeDiff")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetSpeed / GetSpeed / GetTimeDiff")
   {
     ezClock c;
     EZ_TEST_DOUBLE(c.GetSpeed(), 1.0, 0.0);
@@ -168,7 +168,7 @@ EZ_CREATE_SIMPLE_TEST(Time, Clock)
     EZ_TEST_DOUBLE(t2.GetSeconds(), 0.01, 0.00001)
   }
 
-  EZ_TEST_BLOCK(true, "SetMinimumTimeStep / GetMinimumTimeStep")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetMinimumTimeStep / GetMinimumTimeStep")
   {
     ezClock c;
     EZ_TEST_DOUBLE(c.GetMinimumTimeStep().GetSeconds(), 0.001, 0.0); // to ensure the tests fail if somebody changes these constants
@@ -189,7 +189,7 @@ EZ_CREATE_SIMPLE_TEST(Time, Clock)
     EZ_TEST_DOUBLE(c.GetTimeDiff().GetSeconds(), c.GetMinimumTimeStep().GetSeconds(), 0.0000000001);
   }
 
-  EZ_TEST_BLOCK(true, "SetMaximumTimeStep / GetMaximumTimeStep")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetMaximumTimeStep / GetMaximumTimeStep")
   {
     ezClock c;
     EZ_TEST_DOUBLE(c.GetMaximumTimeStep().GetSeconds(), 0.1, 0.0); // to ensure the tests fail if somebody changes these constants
@@ -209,7 +209,7 @@ EZ_CREATE_SIMPLE_TEST(Time, Clock)
     EZ_TEST_DOUBLE(c.GetTimeDiff().GetSeconds(), c.GetMaximumTimeStep().GetSeconds(), 0.0000000001);
   }
 
-  EZ_TEST_BLOCK(true, "SetTimeStepSmoothing / GetTimeStepSmoothing")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetTimeStepSmoothing / GetTimeStepSmoothing")
   {
     ezClock c;
 

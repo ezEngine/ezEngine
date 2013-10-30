@@ -7,7 +7,7 @@ class RefCountedTestClass : public ezRefCounted
 
 EZ_CREATE_SIMPLE_TEST(Basics, RefCounted)
 {
-  EZ_TEST_BLOCK(true, "Ref Counting")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Ref Counting")
   {
     RefCountedTestClass Instance;
 

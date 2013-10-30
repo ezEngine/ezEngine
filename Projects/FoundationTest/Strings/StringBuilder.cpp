@@ -3,7 +3,7 @@
 
 EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
 {
-  EZ_TEST_BLOCK(true, "Constructor(empty)")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Constructor(empty)")
   {
     ezStringBuilder s;
 
@@ -14,7 +14,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     EZ_TEST(s == "");
   }
 
-  EZ_TEST_BLOCK(true, "Constructor(Utf8)")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Constructor(Utf8)")
   {
     ezStringUtf8 sUtf8(L"abc äöü € def");
     ezStringBuilder s(sUtf8.GetData());
@@ -33,7 +33,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     EZ_TEST(s2.IsPureASCII());
   }
 
-  EZ_TEST_BLOCK(true, "Constructor(wchar_t)")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Constructor(wchar_t)")
   {
     ezStringUtf8 sUtf8(L"abc äöü € def");
     ezStringBuilder s(L"abc äöü € def");
@@ -51,7 +51,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     EZ_TEST(s2.IsPureASCII());
   }
 
-  EZ_TEST_BLOCK(true, "Constructor(copy)")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Constructor(copy)")
   {
     ezStringUtf8 sUtf8(L"abc äöü € def");
     ezStringBuilder s(L"abc äöü € def");
@@ -63,7 +63,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     EZ_TEST(!s2.IsPureASCII());
   }
 
-  EZ_TEST_BLOCK(true, "Constructor(StringIterator)")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Constructor(StringIterator)")
   {
     ezStringUtf8 sUtf8(L"abc äöü € def");
 
@@ -77,7 +77,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     EZ_TEST(s == ezStringUtf8(L"c äö").GetData());
   }
 
-  EZ_TEST_BLOCK(true, "operator=(Utf8)")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator=(Utf8)")
   {
     ezStringUtf8 sUtf8(L"abc äöü € def");
     ezStringBuilder s("bla");
@@ -98,7 +98,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     EZ_TEST(s2.IsPureASCII());
   }
 
-  EZ_TEST_BLOCK(true, "operator=(wchar_t)")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator=(wchar_t)")
   {
     ezStringUtf8 sUtf8(L"abc äöü € def");
     ezStringBuilder s("bla");
@@ -118,7 +118,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     EZ_TEST(s2.IsPureASCII());
   }
 
-  EZ_TEST_BLOCK(true, "operator=(copy)")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator=(copy)")
   {
     ezStringUtf8 sUtf8(L"abc äöü € def");
     ezStringBuilder s(L"abc äöü € def");
@@ -131,7 +131,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     EZ_TEST(!s2.IsPureASCII());
   }
 
-  EZ_TEST_BLOCK(true, "operator=(StringIterator)")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator=(StringIterator)")
   {
     ezStringBuilder s ("abcdefghi");
     ezStringIterator it(s.GetData() + 2, s.GetData() + 8, s.GetData() + 3);
@@ -143,7 +143,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     EZ_TEST_INT(s.GetCharacterCount(), 5);
   }
 
-  EZ_TEST_BLOCK(true, "Clear")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Clear")
   {
     ezStringBuilder s(L"abc äöü € def");
 
@@ -157,7 +157,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     EZ_TEST(s.IsPureASCII());
   }
 
-  EZ_TEST_BLOCK(true, "GetElementCount / GetCharacterCount / IsPureASCII")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetElementCount / GetCharacterCount / IsPureASCII")
   {
     ezStringBuilder s(L"abc äöü € def");
 
@@ -178,7 +178,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     EZ_TEST_INT(s.GetCharacterCount(), 15);
   }
 
-  EZ_TEST_BLOCK(true, "Append(single unicode char)")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Append(single unicode char)")
   {
     ezStringUtf32 u32 (L"äöüß");
 
@@ -188,7 +188,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     EZ_TEST(s == ezStringUtf8(L"abcä").GetData());
   }
 
-  EZ_TEST_BLOCK(true, "Prepend(single unicode char)")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Prepend(single unicode char)")
   {
     ezStringUtf32 u32 (L"äöüß");
 
@@ -198,7 +198,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     EZ_TEST(s == ezStringUtf8(L"äabc").GetData());
   }
 
-  EZ_TEST_BLOCK(true, "Append(char)")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Append(char)")
   {
     ezStringBuilder s("abc");
     s.Append("de", "fg", "hi", ezStringUtf8(L"öä").GetData(), "jk", ezStringUtf8(L"ü€").GetData());
@@ -210,7 +210,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     EZ_TEST(s == ezStringUtf8(L"pupsbdü€").GetData());
   }
 
-  EZ_TEST_BLOCK(true, "Append(wchar_t)")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Append(wchar_t)")
   {
     ezStringBuilder s("abc");
     s.Append(L"de", L"fg", L"hi", L"öä", L"jk", L"ü€");
@@ -222,7 +222,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     EZ_TEST(s == ezStringUtf8(L"pupsbdü€").GetData());
   }
 
-  EZ_TEST_BLOCK(true, "AppendFormat")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "AppendFormat")
   {
     ezStringBuilder s("abc");
     s.AppendFormat("Test%i%s%s", 42, "foo", ezStringUtf8(L"bär").GetData());
@@ -230,7 +230,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     EZ_TEST(s == ezStringUtf8(L"abcTest42foobär").GetData());
   }
 
-  EZ_TEST_BLOCK(true, "Prepend(char)")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Prepend(char)")
   {
     ezStringBuilder s("abc");
     s.Prepend("de", "fg", "hi", ezStringUtf8(L"öä").GetData(), "jk", ezStringUtf8(L"ü€").GetData());
@@ -242,7 +242,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     EZ_TEST(s == ezStringUtf8(L"bdü€pups").GetData());
   }
 
-  EZ_TEST_BLOCK(true, "Prepend(wchar_t)")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Prepend(wchar_t)")
   {
     ezStringBuilder s("abc");
     s.Prepend(L"de", L"fg", L"hi", L"öä", L"jk", L"ü€");
@@ -254,7 +254,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     EZ_TEST(s == ezStringUtf8(L"bdü€pups").GetData());
   }
 
-  EZ_TEST_BLOCK(true, "PrependFormat")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "PrependFormat")
   {
     ezStringBuilder s("abc");
     s.PrependFormat("Test%i%s%s", 42, "foo", ezStringUtf8(L"bär").GetData());
@@ -263,7 +263,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
   }
 
 
-  EZ_TEST_BLOCK(true, "Format")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Format")
   {
     ezStringBuilder s("abc");
     s.Format("Test%i%s%s", 42, "foo", ezStringUtf8(L"bär").GetData());
@@ -271,21 +271,21 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     EZ_TEST(s == ezStringUtf8(L"Test42foobär").GetData());
   }
 
-  EZ_TEST_BLOCK(true, "ToUpper")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ToUpper")
   {
     ezStringBuilder s(L"abcdefghijklmnopqrstuvwxyzäöü€ß");
     s.ToUpper();
     EZ_TEST(s == ezStringUtf8(L"ABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÜ€ß").GetData());
   }
 
-  EZ_TEST_BLOCK(true, "ToLower")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ToLower")
   {
     ezStringBuilder s(L"ABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÜ€ß");
     s.ToLower();
     EZ_TEST(s == ezStringUtf8(L"abcdefghijklmnopqrstuvwxyzäöü€ß").GetData());
   }
 
-  EZ_TEST_BLOCK(true, "Shrink")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Shrink")
   {
     ezStringBuilder s(L"abcdefghijklmnopqrstuvwxyzäöü€ß");
     s.Shrink(5, 3);
@@ -314,7 +314,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     EZ_TEST(s == ezStringUtf8(L"").GetData());
   }
 
-  EZ_TEST_BLOCK(true, "Reserve")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Reserve")
   {
     ezHeapAllocator allocator("reserve test allocator", ezFoundation::GetDefaultAllocator());
     ezStringBuilder s(L"abcdefghijklmnopqrstuvwxyzäöü€ß", &allocator);
@@ -329,7 +329,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     EZ_TEST(iNumAllocs == allocator.GetTracker().GetNumAllocations())
   }
 
-  EZ_TEST_BLOCK(true, "GetIteratorFront")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetIteratorFront")
   {
     ezStringBuilder s(L"abcdefghijklmnopqrstuvwxyzäöü€ß");
     ezStringIterator it = s.GetIteratorFront();
@@ -343,7 +343,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     EZ_TEST(it.EndsWith(ezStringUtf8(L"ß").GetData()));
   }
 
-  EZ_TEST_BLOCK(true, "GetIteratorBack")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetIteratorBack")
   {
     ezStringBuilder s(L"abcdefghijklmnopqrstuvwxyzäöü€ß");
     ezStringIterator it = s.GetIteratorBack();
@@ -357,7 +357,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     EZ_TEST(it.EndsWith(ezStringUtf8(L"abcdefghijklmnopqrstuvwxyzäöü€ß").GetData()));
   }
 
-  EZ_TEST_BLOCK(true, "ChangeCharacter")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ChangeCharacter")
   {
     ezStringBuilder s(L"abcdefghijklmnopqrstuvwxyzäöü€ß");
 
@@ -376,7 +376,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     EZ_TEST_INT(s.GetElementCount(), 37);
   }
 
-  EZ_TEST_BLOCK(true, "ReplaceSubString")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ReplaceSubString")
   {
     ezStringBuilder s(L"abcdefghijklmnopqrstuvwxyzäöü€ß");
 
@@ -438,7 +438,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
 
   }
 
-  EZ_TEST_BLOCK(true, "Insert")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Insert")
   {
     ezStringBuilder s;
 
@@ -455,7 +455,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     EZ_TEST(s == "MOEPteTUTsthompf");
   }
 
-  EZ_TEST_BLOCK(true, "Remove")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Remove")
   {
     ezStringBuilder s("MOEPteTUTsthompf");
 
@@ -472,7 +472,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     EZ_TEST(s == "");
   }
 
-  EZ_TEST_BLOCK(true, "ReplaceFirst")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ReplaceFirst")
   {
     ezStringBuilder s = "abc def abc def ghi abc ghi";
 
@@ -504,7 +504,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     EZ_TEST(s == "");
   }
 
-  EZ_TEST_BLOCK(true, "ReplaceLast")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ReplaceLast")
   {
     ezStringBuilder s = "abc def abc def ghi abc ghi";
 
@@ -524,7 +524,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     EZ_TEST(s == "ABC def ABC def GHI ABC ghI");
   }
 
-  EZ_TEST_BLOCK(true, "ReplaceAll")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ReplaceAll")
   {
     ezStringBuilder s = "abc def abc def ghi abc ghi";
 
@@ -556,7 +556,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     EZ_TEST(s == "a hihi hihi");
   }
 
-  EZ_TEST_BLOCK(true, "ReplaceFirst_NoCase")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ReplaceFirst_NoCase")
   {
     ezStringBuilder s = "abc def abc def ghi abc ghi";
 
@@ -588,7 +588,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     EZ_TEST(s == "");
   }
 
-  EZ_TEST_BLOCK(true, "ReplaceLast_NoCase")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ReplaceLast_NoCase")
   {
     ezStringBuilder s = "abc def abc def ghi abc ghi";
 
@@ -608,7 +608,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     EZ_TEST(s == "abc def abc def GHI ABC ghI");
   }
 
-  EZ_TEST_BLOCK(true, "ReplaceAll_NoCase")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ReplaceAll_NoCase")
   {
     ezStringBuilder s = "abc def abc def ghi abc ghi";
 
@@ -640,7 +640,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     EZ_TEST(s == "a hihi hihi");
   }
 
-  EZ_TEST_BLOCK(true, "ReplaceWholeWord")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ReplaceWholeWord")
   {
     ezStringBuilder s = "abcd abc abcd abc dabc abc";
 
@@ -666,7 +666,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     EZ_TEST(s == "def def def def dabc def");
   }
 
-  EZ_TEST_BLOCK(true, "ReplaceWholeWord_NoCase")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ReplaceWholeWord_NoCase")
   {
     ezStringBuilder s = "abcd abc abcd abc dabc abc";
 
@@ -692,7 +692,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     EZ_TEST(s == "def def def def dabc def");
   }
 
-  EZ_TEST_BLOCK(true, "ReplaceWholeWordAll")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ReplaceWholeWordAll")
   {
     ezStringBuilder s = "abcd abc abcd abc dabc abc";
 
@@ -709,7 +709,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     EZ_TEST(s == "def def def def dabc def");
   }
 
-  EZ_TEST_BLOCK(true, "ReplaceWholeWordAll_NoCase")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ReplaceWholeWordAll_NoCase")
   {
     ezStringBuilder s = "abcd abc abcd abc dabc abc";
 
@@ -726,7 +726,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     EZ_TEST(s == "def def def def dabc def");
   }
 
-  EZ_TEST_BLOCK(true, "teset")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "teset")
   {
     const char* sz = "abc def";
     ezStringIterator it(sz);
@@ -734,7 +734,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     ezStringBuilder s = it;
   }
 
-  EZ_TEST_BLOCK(true, "Split")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Split")
   {
     ezStringBuilder s = "|abc,def<>ghi|,<>jkl|mno,pqr|stu";
 
@@ -767,7 +767,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
   }
 
 
-  EZ_TEST_BLOCK(true, "MakeCleanPath")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "MakeCleanPath")
   {
     ezStringBuilder p;
 
@@ -820,7 +820,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     EZ_TEST(p == "../../e/f/..");
   }
 
-  EZ_TEST_BLOCK(true, "PathParentDirectory")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "PathParentDirectory")
   {
     ezStringBuilder p;
 
@@ -849,7 +849,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     EZ_TEST(p == "../../");
   }
 
-  EZ_TEST_BLOCK(true, "AppendPath")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "AppendPath")
   {
     ezStringBuilder p;
 
@@ -870,7 +870,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     EZ_TEST(p == "bla");
   }
 
-  EZ_TEST_BLOCK(true, "ChangeFileName")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ChangeFileName")
   {
     ezStringBuilder p;
 
@@ -899,7 +899,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     EZ_TEST(p == "test/test/tut/murpf/.extension/toeff");
   }
 
-  EZ_TEST_BLOCK(true, "ChangeFileNameAndExtension")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ChangeFileNameAndExtension")
   {
     ezStringBuilder p;
 
@@ -928,7 +928,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     EZ_TEST(p == "test/test/tut/murpf/.extension/toeff");
   }
 
-  EZ_TEST_BLOCK(true, "ChangeFileExtension")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ChangeFileExtension")
   {
     ezStringBuilder p;
 
@@ -949,7 +949,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     EZ_TEST(p == "C:/test/test/tut.");
   }
 
-  EZ_TEST_BLOCK(true, "MakeAbsolutePath")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "MakeAbsolutePath")
   {
     #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
     ezStringBuilder p = "../../d/..\\f";
@@ -965,7 +965,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
 
   }
 
-  EZ_TEST_BLOCK(true, "HasAnyExtension")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "HasAnyExtension")
   {
     ezStringBuilder p = "This/Is\\My//Path.dot\\file.extension";
     EZ_TEST(p.HasAnyExtension());
@@ -975,7 +975,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     EZ_TEST(!p.HasAnyExtension());
   }
 
-  EZ_TEST_BLOCK(true, "HasExtension")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "HasExtension")
   {
     ezStringBuilder p;
 
@@ -998,7 +998,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     EZ_TEST(!p.HasExtension("ext"));
   }
 
-  EZ_TEST_BLOCK(true, "GetFileExtension")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetFileExtension")
   {
     ezStringBuilder p;
 
@@ -1012,7 +1012,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     EZ_TEST(p.GetFileExtension() == "");
   }
 
-  EZ_TEST_BLOCK(true, "GetFileNameAndExtension")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetFileNameAndExtension")
   {
     ezStringBuilder p;
 
@@ -1038,7 +1038,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     EZ_TEST(p.GetFileNameAndExtension() == "");
   }
 
-  EZ_TEST_BLOCK(true, "GetFileName")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetFileName")
   {
     ezStringBuilder p;
 
@@ -1065,7 +1065,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     EZ_TEST(p.GetFileName() == "");
   }
 
-  EZ_TEST_BLOCK(true, "GetFileDirectory")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetFileDirectory")
   {
     ezStringBuilder p;
 
@@ -1094,7 +1094,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     EZ_TEST(p.GetFileDirectory() == "");
   }
 
-  EZ_TEST_BLOCK(true, "IsAbsolutePath / IsRelativePath")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsAbsolutePath / IsRelativePath")
   {
     ezStringBuilder p;
 
@@ -1164,7 +1164,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     #endif
   }
 
-  EZ_TEST_BLOCK(true, "IsPathBelowFolder")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsPathBelowFolder")
   {
     ezStringBuilder p;
 
@@ -1178,7 +1178,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     EZ_TEST(!p.IsPathBelowFolder("b"));
   }
 
-  EZ_TEST_BLOCK(true, "MakeRelativePath")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "MakeRelativePath")
   {
     ezStringBuilder p;
 
@@ -1223,7 +1223,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     EZ_TEST(p == "../../");
   }
 
-  EZ_TEST_BLOCK(true, "RemoveDoubleSlashesInPath")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "RemoveDoubleSlashesInPath")
   {
     ezStringBuilder p;
 
@@ -1264,7 +1264,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     EZ_TEST(p == "./test.stuff");
   }
 
-  EZ_TEST_BLOCK(true, "MakePathOsSpecific")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "MakePathOsSpecific")
   {
     ezStringBuilder p;
     p = "This/is\\a/test\\\\path//to/my///file";

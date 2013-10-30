@@ -4,7 +4,7 @@ EZ_CREATE_SIMPLE_TEST_GROUP(Strings);
 
 EZ_CREATE_SIMPLE_TEST(Strings, StringUtils)
 {
-  EZ_TEST_BLOCK(true, "IsNullOrEmpty")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsNullOrEmpty")
   {
     EZ_TEST(ezStringUtils::IsNullOrEmpty((char*) NULL) == true);
     EZ_TEST(ezStringUtils::IsNullOrEmpty("") == true);
@@ -14,7 +14,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringUtils)
       EZ_TEST(ezStringUtils::IsNullOrEmpty(&c) == false);
   }
 
-  EZ_TEST_BLOCK(true, "GetStringElementCount")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetStringElementCount")
   {
     EZ_TEST_INT(ezStringUtils::GetStringElementCount((char*) NULL), 0);
 
@@ -37,7 +37,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringUtils)
     EZ_TEST_INT(ezStringUtils::GetStringElementCount(sz, sz + 6), 6);
   }
 
-  EZ_TEST_BLOCK(true, "UpdateStringEnd")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "UpdateStringEnd")
   {
     const char* sz = "Test test";
     const char* szEnd = ezMaxStringEnd;
@@ -49,7 +49,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringUtils)
     EZ_TEST(szEnd == sz + ezStringUtils::GetStringElementCount(sz));
   }
 
-  EZ_TEST_BLOCK(true, "GetCharacterCount")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetCharacterCount")
   {
     EZ_TEST_INT(ezStringUtils::GetCharacterCount(NULL), 0);
     EZ_TEST_INT(ezStringUtils::GetCharacterCount(""), 0);
@@ -72,7 +72,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringUtils)
     EZ_TEST_INT(ezStringUtils::GetCharacterCount(s.GetData(), s.GetData() + 4), 2);
   }
 
-  EZ_TEST_BLOCK(true, "GetCharacterAndElementCount")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetCharacterAndElementCount")
   {
     ezUInt32 uiCC, uiEC;
 
@@ -107,7 +107,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringUtils)
     EZ_TEST_INT(uiEC, 4);
   }
 
-  EZ_TEST_BLOCK(true, "Copy (full)")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Copy (full)")
   {
     char szDest[256] = "";
 
@@ -147,7 +147,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringUtils)
     EZ_TEST(ezStringUtils::IsEqualN(szDest, szUTF8, 5)); // two characters less
   }
 
-  EZ_TEST_BLOCK(true, "CopyN")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "CopyN")
   {
     char szDest[256] = "";
 
@@ -176,21 +176,21 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringUtils)
     EZ_TEST(ezStringUtils::IsEqualN(szDest, szUTF8, 5));
   }
 
-  EZ_TEST_BLOCK(true, "ToUpperChar")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ToUpperChar")
   {
     // this only tests the ASCII range
     for (ezInt32 i = 0; i < 128; ++i)
       EZ_TEST_INT(ezStringUtils::ToUpperChar(i), toupper(i));
   }
 
-  EZ_TEST_BLOCK(true, "ToLowerChar")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ToLowerChar")
   {
     // this only tests the ASCII range
     for (ezInt32 i = 0; i < 128; ++i)
       EZ_TEST_INT(ezStringUtils::ToLowerChar(i), tolower(i));
   }
 
-  EZ_TEST_BLOCK(true, "ToUpperString")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ToUpperString")
   {
     ezStringUtf8 sL(L"abc öäü ß €");
     ezStringUtf8 sU(L"ABC ÖÄÜ ß €");
@@ -203,7 +203,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringUtils)
     EZ_TEST(ezStringUtils::IsEqual(szCopy, sU.GetData()));
   }
 
-  EZ_TEST_BLOCK(true, "ToLowerString")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ToLowerString")
   {
     ezStringUtf8 sL(L"abc öäü ß €");
     ezStringUtf8 sU(L"ABC ÖÄÜ ß €");
@@ -216,21 +216,21 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringUtils)
     EZ_TEST(ezStringUtils::IsEqual(szCopy, sL.GetData()));
   }
 
-  EZ_TEST_BLOCK(true, "CompareChars")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "CompareChars")
   {
     EZ_TEST(ezStringUtils::CompareChars('a', 'a') == 0); // make sure the order is right
     EZ_TEST(ezStringUtils::CompareChars('a', 'b') < 0);  // a smaller than b -> negative
     EZ_TEST(ezStringUtils::CompareChars('b', 'a') > 0);  // b bigger than a  -> positive
   }
 
-  EZ_TEST_BLOCK(true, "CompareChars(utf8)")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "CompareChars(utf8)")
   {
     EZ_TEST(ezStringUtils::CompareChars("a", "a") == 0); // make sure the order is right
     EZ_TEST(ezStringUtils::CompareChars("a", "b") < 0);  // a smaller than b -> negative
     EZ_TEST(ezStringUtils::CompareChars("b", "a") > 0);  // b bigger than a  -> positive
   }
 
-  EZ_TEST_BLOCK(true, "CompareChars_NoCase")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "CompareChars_NoCase")
   {
     EZ_TEST(ezStringUtils::CompareChars_NoCase('a', 'A') == 0);
     EZ_TEST(ezStringUtils::CompareChars_NoCase('a', 'B') < 0);
@@ -245,7 +245,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringUtils)
     EZ_TEST(ezStringUtils::CompareChars_NoCase(L'ö', L'Ä') > 0);
   }
 
-  EZ_TEST_BLOCK(true, "CompareChars_NoCase(utf8)")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "CompareChars_NoCase(utf8)")
   {
     EZ_TEST(ezStringUtils::CompareChars_NoCase("a", "A") == 0);
     EZ_TEST(ezStringUtils::CompareChars_NoCase("a", "B") < 0);
@@ -256,7 +256,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringUtils)
     EZ_TEST(ezStringUtils::CompareChars_NoCase("b", "A") > 0);
   }
 
-  EZ_TEST_BLOCK(true, "IsEqual")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsEqual")
   {
     EZ_TEST(ezStringUtils::IsEqual(NULL, NULL) == true);
     EZ_TEST(ezStringUtils::IsEqual(NULL, "") == true);
@@ -271,7 +271,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringUtils)
     EZ_TEST(ezStringUtils::IsEqual(NULL, "a") == false);
   }
 
-  EZ_TEST_BLOCK(true, "IsEqualN")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsEqualN")
   {
     EZ_TEST(ezStringUtils::IsEqualN(NULL, NULL, 1) == true);
     EZ_TEST(ezStringUtils::IsEqualN(NULL, "", 1) == true);
@@ -295,7 +295,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringUtils)
     EZ_TEST(ezStringUtils::IsEqualN("abcdef", "abc", 4) == false);
   }
 
-  EZ_TEST_BLOCK(true, "IsEqual_NoCase")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsEqual_NoCase")
   {
     EZ_TEST(ezStringUtils::IsEqual_NoCase(NULL, NULL) == true);
     EZ_TEST(ezStringUtils::IsEqual_NoCase(NULL, "") == true);
@@ -312,7 +312,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringUtils)
     EZ_TEST(ezStringUtils::IsEqual_NoCase(sU2.GetData(), sL.GetData()) == false);
   }
 
-  EZ_TEST_BLOCK(true, "IsEqualN_NoCase")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsEqualN_NoCase")
   {
     EZ_TEST(ezStringUtils::IsEqualN_NoCase(NULL, NULL, 1) == true);
     EZ_TEST(ezStringUtils::IsEqualN_NoCase(NULL, "", 1) == true);
@@ -337,7 +337,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringUtils)
     EZ_TEST(ezStringUtils::IsEqualN_NoCase(sU.GetData(), sL.GetData(), 12) == false);
   }
 
-  EZ_TEST_BLOCK(true, "Compare")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Compare")
   {
     EZ_TEST(ezStringUtils::Compare(NULL, NULL) == 0);
     EZ_TEST(ezStringUtils::Compare(NULL, "") == 0);
@@ -360,7 +360,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringUtils)
     EZ_TEST(ezStringUtils::Compare(sz, sz, sz + 7, sz + 8) < 0);
   }
 
-  EZ_TEST_BLOCK(true, "CompareN")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "CompareN")
   {
     EZ_TEST(ezStringUtils::CompareN(NULL, NULL, 1) == 0);
     EZ_TEST(ezStringUtils::CompareN(NULL, "", 1) == 0);
@@ -392,7 +392,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringUtils)
     EZ_TEST(ezStringUtils::CompareN(sz, sz, 10, sz + 7, sz + 8) < 0);
   }
 
-  EZ_TEST_BLOCK(true, "Compare_NoCase")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Compare_NoCase")
   {
     EZ_TEST(ezStringUtils::Compare_NoCase(NULL, NULL) == 0);
     EZ_TEST(ezStringUtils::Compare_NoCase(NULL, "") == 0);
@@ -415,7 +415,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringUtils)
     EZ_TEST(ezStringUtils::Compare_NoCase(sz, sz, sz + 7, sz + 8) < 0);
   }
 
-  EZ_TEST_BLOCK(true, "CompareN_NoCase")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "CompareN_NoCase")
   {
     EZ_TEST(ezStringUtils::CompareN_NoCase(NULL, NULL, 1) == 0);
     EZ_TEST(ezStringUtils::CompareN_NoCase(NULL, "", 1) == 0);
@@ -447,7 +447,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringUtils)
     EZ_TEST(ezStringUtils::CompareN_NoCase(sz, sz, 10, sz + 7, sz + 8) < 0);
   }
 
-  EZ_TEST_BLOCK(true, "snprintf")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "snprintf")
   {
     // This function has been tested to death during its implementation.
     // That test-code would require several pages, if one would try to test it properly.
@@ -465,7 +465,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringUtils)
     EZ_TEST_STRING(sz, sC.GetData());
   }
 
-  EZ_TEST_BLOCK(true, "StartsWith")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "StartsWith")
   {
     EZ_TEST(ezStringUtils::StartsWith(NULL, NULL) == true);
     EZ_TEST(ezStringUtils::StartsWith(NULL, "") == true);
@@ -488,7 +488,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringUtils)
     EZ_TEST(ezStringUtils::StartsWith(sz, "abc", sz + 0) == false);
   }
 
-  EZ_TEST_BLOCK(true, "StartsWith_NoCase")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "StartsWith_NoCase")
   {
     ezStringUtf8 sL(L"äöü");
     ezStringUtf8 sU(L"ÄÖÜ");
@@ -516,7 +516,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringUtils)
     EZ_TEST(ezStringUtils::StartsWith_NoCase(sz, "ABC", sz + 0) == false);
   }
 
-  EZ_TEST_BLOCK(true, "EndsWith")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "EndsWith")
   {
     EZ_TEST(ezStringUtils::EndsWith(NULL, NULL) == true);
     EZ_TEST(ezStringUtils::EndsWith(NULL, "") == true);
@@ -540,7 +540,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringUtils)
     EZ_TEST(ezStringUtils::EndsWith(sz, "def", sz + 8) == false);
   }
 
-  EZ_TEST_BLOCK(true, "EndsWith_NoCase")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "EndsWith_NoCase")
   {
     ezStringUtf8 sL(L"äöü");
     ezStringUtf8 sU(L"ÄÖÜ");
@@ -570,7 +570,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringUtils)
     EZ_TEST(ezStringUtils::EndsWith_NoCase(sz, "DEF", sz + 8) == false);  
   }
 
-  EZ_TEST_BLOCK(true, "FindSubString")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "FindSubString")
   {
     ezStringUtf8 s(L"abc def ghi äöü jkl ßßß abc2 def2 ghi2 äöü2 ß");
     ezStringUtf8 s2(L"äöü");
@@ -599,7 +599,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringUtils)
     EZ_TEST(ezStringUtils::FindSubString(s.GetData(), "abc2", s.GetData() + 33) == NULL);
   }
   
-  EZ_TEST_BLOCK(true, "FindSubString_NoCase")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "FindSubString_NoCase")
   {
     ezStringUtf8 s(L"abc def ghi äöü jkl ßßß abc2 def2 ghi2 äöü2 ß");
     ezStringUtf8 s2(L"äÖü");
@@ -628,7 +628,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringUtils)
     EZ_TEST(ezStringUtils::FindSubString_NoCase(s.GetData(), "abC2", s.GetData() + 33) == NULL);
   }
 
-  EZ_TEST_BLOCK(true, "FindLastSubString")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "FindLastSubString")
   {
     ezStringUtf8 s(L"abc def ghi äöü jkl ßßß abc2 def2 ghi2 äöü2 ß");
     ezStringUtf8 s2(L"äöü");
@@ -652,7 +652,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringUtils)
     EZ_TEST(ezStringUtils::FindLastSubString(s.GetData(), "abc", NULL, s.GetData() + 32) == &s.GetData()[0]);
   }
 
-  EZ_TEST_BLOCK(true, "FindLastSubString_NoCase")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "FindLastSubString_NoCase")
   {
     ezStringUtf8 s(L"abc def ghi äöü jkl ßßß abc2 def2 ghi2 äöü2 ß");
     ezStringUtf8 s2(L"äÖü");
@@ -676,7 +676,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringUtils)
     EZ_TEST(ezStringUtils::FindLastSubString_NoCase(s.GetData(), "ABC", NULL, s.GetData() + 32) == &s.GetData()[0]);
   }
 
-  EZ_TEST_BLOCK(true, "FindWholeWord")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "FindWholeWord")
   {
     ezStringUtf8 s(L"mompfhüßß ßßß öäü abcdef abc def");
 
@@ -690,7 +690,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringUtils)
     EZ_TEST(ezStringUtils::FindWholeWord(s.GetData(), "abc", ezStringUtils::IsWordDelimiter_English, s.GetData() + 30) == s.GetData() + 27);
   }
 
-  EZ_TEST_BLOCK(true, "FindWholeWord_NoCase")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "FindWholeWord_NoCase")
   {
     ezStringUtf8 s(L"mompfhüßß ßßß öäü abcdef abc def");
 

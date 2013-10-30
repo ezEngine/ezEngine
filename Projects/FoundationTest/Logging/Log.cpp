@@ -30,7 +30,7 @@ EZ_CREATE_SIMPLE_TEST(Logging, Log)
 
   ezStartup::PrintAllSubsystems();
 
-  EZ_TEST_BLOCK(true, "Output")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Output")
   {
     EZ_LOG_BLOCK("Verse 1", "Portal: Still Alive");
 

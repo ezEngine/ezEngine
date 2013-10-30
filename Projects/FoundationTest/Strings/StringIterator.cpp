@@ -2,7 +2,7 @@
 
 EZ_CREATE_SIMPLE_TEST(Strings, StringIterator)
 {
-  EZ_TEST_BLOCK(true, "Constructor (simple)")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Constructor (simple)")
   {
     const char* sz = "abcdefghijklmnopqrstuvwxyz";
 
@@ -21,7 +21,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringIterator)
     EZ_TEST_INT(it2.GetElementCount(), 11);
   }
 
-  EZ_TEST_BLOCK(true, "Constructor (complex, YARLY!)")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Constructor (complex, YARLY!)")
   {
     const char* sz = "abcdefghijklmnopqrstuvwxyz";
 
@@ -33,7 +33,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringIterator)
     EZ_TEST_INT(it.GetElementCount(), 12);
   }
 
-  EZ_TEST_BLOCK(true, "operator++")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator++")
   {
     const char* sz = "abcdefghijklmnopqrstuvwxyz";
     ezStringIterator it(sz);
@@ -52,7 +52,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringIterator)
     EZ_TEST(!it.IsValid());
   }
 
-  EZ_TEST_BLOCK(true, "operator--")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator--")
   {
     const char* sz = "abcdefghijklmnopqrstuvwxyz";
     ezStringIterator it(sz, sz + 26, sz + 25);
@@ -71,7 +71,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringIterator)
     EZ_TEST(!it.IsValid());
   }
 
-  EZ_TEST_BLOCK(true, "operator+=")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator+=")
   {
     const char* sz = "abcdefghijklmnopqrstuvwxyz";
     ezStringIterator it(sz);
@@ -86,7 +86,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringIterator)
     EZ_TEST(!it.IsValid());
   }
 
-  EZ_TEST_BLOCK(true, "operator-=")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator-=")
   {
     const char* sz = "abcdefghijklmnopqrstuvwxyz";
     ezStringIterator it(sz, sz + 26, sz + 25);
@@ -99,7 +99,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringIterator)
     }
   }
 
-  EZ_TEST_BLOCK(true, "GetCharacter")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetCharacter")
   {
     ezStringUtf8 s(L"abcäöü€");
     ezStringIterator it = ezStringIterator(s.GetData());
@@ -114,7 +114,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringIterator)
     EZ_TEST(!it.IsValid());
   }
 
-  EZ_TEST_BLOCK(true, "GetElementCount")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetElementCount")
   {
     ezStringUtf8 s(L"abcäöü€");
     ezStringIterator it = ezStringIterator(s.GetData());
@@ -129,7 +129,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringIterator)
     EZ_TEST_INT(it.GetElementCount(),  0); ++it;    EZ_TEST(!it.IsValid());
   }
 
-  EZ_TEST_BLOCK(true, "SetCurrentPosition")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetCurrentPosition")
   {
     const char* sz = "abcdefghijklmnopqrstuvwxyz";
     ezStringIterator it(sz);
@@ -153,7 +153,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringIterator)
     }
   }
 
-  EZ_TEST_BLOCK(true, "IsPureASCII")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsPureASCII")
   {
     const char* sz = "abcdefghijklmnopqrstuvwxyz";
     ezStringIterator it(sz, true);
@@ -164,7 +164,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringIterator)
     EZ_TEST(!it2.IsPureASCII());
   }
 
-  EZ_TEST_BLOCK(true, "GetStart / GetEnd / GetData")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetStart / GetEnd / GetData")
   {
     const char* sz = "abcdefghijklmnopqrstuvwxyz";
     ezStringIterator it(sz + 7, sz + 19, sz + 13);
@@ -174,7 +174,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringIterator)
     EZ_TEST(it.GetData() == sz + 13);
   }
 
-  EZ_TEST_BLOCK(true, "Shrink")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Shrink")
   {
     ezStringUtf8 s(L"abcäöü€def");
     ezStringIterator it(s.GetData());
@@ -221,7 +221,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringIterator)
     EZ_TEST(!it.IsValid());
   }
 
-  EZ_TEST_BLOCK(true, "ResetToFront")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ResetToFront")
   {
     const char* sz = "abcdefghijklmnopqrstuvwxyz";
     ezStringIterator it(sz + 7, sz + 19, sz + 13);
@@ -242,7 +242,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringIterator)
     EZ_TEST(it.IsValid());
   }
 
-  EZ_TEST_BLOCK(true, "ResetToBack")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ResetToBack")
   {
     const char* sz = "abcdefghijklmnopqrstuvwxyz";
     ezStringIterator it(sz + 7, sz + 19, sz + 13);

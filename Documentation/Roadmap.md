@@ -3,7 +3,15 @@ ezEngine Roadmap {#EngineRoadmap}
 
 This is a list of our planned features for the foreseeable future.
 
+  * Refactor Allocators / Memory tracking
+  * JSON reader / writer
+  * Game Object basics (Clemens)
+  * Rendering Abstraction basics (Marc)
   * Fixes / Tools for correct static linking
+  
+  * StringId using hashed string
+  * Resource Manager
+  * RTTI
   * Binary Search Algorithm
   * ezMap, ezSet Comparer mit dem Comparer in Algorithm ersetzen; auﬂerdem < und == sinnvoller verwenden (-1, 0, 1 vergleich etc.) (Clemens :-P )
   * Containers: Sorted Array (Requires Binary Search)
@@ -11,14 +19,8 @@ This is a list of our planned features for the foreseeable future.
   * Math: Frustum
   * Math: Simd (Clemens)
   * Optimize container regarding construction/destruction, unnecessary operations (ask Clemens for more info)
-  * StringId using hashed string
-  * RTTI
   * Text Streams
   * Type-safe printf
-  * JSON reader / writer
-  * Game Object basics (Clemens)
-  * Rendering Abstraction basics (Marc)
-  * Resource Manager
   * Simple Text Rendering
   * In Game Console
 

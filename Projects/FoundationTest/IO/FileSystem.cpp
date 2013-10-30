@@ -23,7 +23,7 @@ Only concrete and clocks.\n\
   sOutputFolder2.AppendPath("FoundationTest", "IO", "SubFolder2");
 
 
-  EZ_TEST_BLOCK(true, "Setup Data Dirs")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Setup Data Dirs")
   {
     // adding the same factory three times would actually not make a difference
     ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
@@ -71,7 +71,7 @@ Only concrete and clocks.\n\
     EZ_TEST(ezFileSystem::AddDataDirectory(sOutputFolder2.GetData(), ezFileSystem::ReadOnly) == EZ_SUCCESS);
   }
 
-  EZ_TEST_BLOCK(true, "Write File")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Write File")
   {
     ezFileWriter FileOut;
 
@@ -93,7 +93,7 @@ Only concrete and clocks.\n\
     FileOut.Close();
   }
 
-  EZ_TEST_BLOCK(true, "Read File")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Read File")
   {
     ezFileReader FileIn;
 
@@ -115,7 +115,7 @@ Only concrete and clocks.\n\
     FileIn.Close();
   }
 
-  EZ_TEST_BLOCK(true, "Read File (Absolute Path)")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Read File (Absolute Path)")
   {
     ezFileReader FileIn;
 
@@ -137,7 +137,7 @@ Only concrete and clocks.\n\
     FileIn.Close();
   }
 
-  EZ_TEST_BLOCK(true, "Delete File / Exists File")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Delete File / Exists File")
   {
     EZ_TEST(ezFileSystem::ExistsFile("FileSystemTest.txt"));
     ezFileSystem::DeleteFile("FileSystemTest.txt");
@@ -147,7 +147,7 @@ Only concrete and clocks.\n\
     EZ_TEST(FileIn.Open("FileSystemTest.txt") == EZ_FAILURE);
   }
 
-  EZ_TEST_BLOCK(true, "Find Valid Path")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Find Valid Path")
   {
     ezString sRel, sAbs;
 

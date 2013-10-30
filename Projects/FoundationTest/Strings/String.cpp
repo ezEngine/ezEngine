@@ -2,7 +2,7 @@
 
 EZ_CREATE_SIMPLE_TEST(Strings, String)
 {
-  EZ_TEST_BLOCK(true, "Constructor")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Constructor")
   {
     ezString s1;
     EZ_TEST(s1 == "");
@@ -26,7 +26,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, String)
     EZ_TEST(s6 == "wobwob");
   }
 
-  EZ_TEST_BLOCK(true, "operator=")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator=")
   {
     ezString s2; s2 = "abc";
     EZ_TEST(s2 == "abc");
@@ -49,7 +49,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, String)
     EZ_TEST(s6 == "wobwob");
   }
 
-  EZ_TEST_BLOCK(true, "Clear")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Clear")
   {
     ezString s("abcdef");
     EZ_TEST(s == "abcdef");
@@ -61,7 +61,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, String)
     
   }
 
-  EZ_TEST_BLOCK(true, "GetData")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetData")
   {
     const char* sz = "abcdef";
 
@@ -69,7 +69,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, String)
     EZ_TEST(s.GetData() != sz); // it should NOT be the exact same string
   }
 
-  EZ_TEST_BLOCK(true, "GetElementCount / GetCharacterCount")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetElementCount / GetCharacterCount")
   {
     ezString s(L"abcäöü€");
 
@@ -86,7 +86,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, String)
     EZ_TEST_INT(s.GetCharacterCount(), 0);
   }
 
-  EZ_TEST_BLOCK(true, "GetIteratorFront / GetIteratorBack")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetIteratorFront / GetIteratorBack")
   {
     ezString s(L"abcäöü€def");
 
@@ -97,7 +97,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, String)
     EZ_TEST(s.GetIteratorBack().EndsWith("f"));
   }
 
-  EZ_TEST_BLOCK(true, "GetSubString")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetSubString")
   {
     ezString s(L"abcäöü€def");
     ezStringUtf8 s8(L"äöü€");
@@ -106,14 +106,14 @@ EZ_CREATE_SIMPLE_TEST(Strings, String)
     EZ_TEST(it == s8.GetData());
   }
 
-  EZ_TEST_BLOCK(true, "GetFirst")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetFirst")
   {
     ezString s(L"abcäöü€def");
 
     EZ_TEST(s.GetFirst(3) == "abc");
   }
 
-  EZ_TEST_BLOCK(true, "GetLast")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetLast")
   {
     ezString s(L"abcäöü€def");
 

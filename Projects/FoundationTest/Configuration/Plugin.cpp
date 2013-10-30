@@ -22,7 +22,7 @@ EZ_CREATE_SIMPLE_TEST(Configuration, Plugin)
 
 #if EZ_ENABLED(EZ_SUPPORTS_DYNAMIC_PLUGINS)
 
-  EZ_TEST_BLOCK(true, "LoadPlugin")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "LoadPlugin")
   {
     CVar_TestPlugin2FoundDependencies = false;
     EZ_TEST(ezPlugin::LoadPlugin("ezFoundationTest_Plugin2") == EZ_SUCCESS);
@@ -43,7 +43,7 @@ EZ_CREATE_SIMPLE_TEST(Configuration, Plugin)
     //EZ_TEST(ezPlugin::LoadPlugin("Test") == EZ_FAILURE); // plugin does not exist
   }
 
-  EZ_TEST_BLOCK(true, "UnloadPlugin")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "UnloadPlugin")
   {
     CVar_TestPlugin2FoundDependencies = false;
     EZ_TEST(ezPlugin::UnloadPlugin("ezFoundationTest_Plugin2") == EZ_SUCCESS);
@@ -64,7 +64,7 @@ EZ_CREATE_SIMPLE_TEST(Configuration, Plugin)
   }
 
   
-  EZ_TEST_BLOCK(true, "ReloadPlugin")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ReloadPlugin")
   {
     EZ_TEST(ezPlugin::LoadPlugin("ezFoundationTest_Plugin2") == EZ_SUCCESS);
 

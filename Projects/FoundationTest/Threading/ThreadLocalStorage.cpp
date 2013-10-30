@@ -61,7 +61,7 @@ namespace
 
 EZ_CREATE_SIMPLE_TEST(Threading, ThreadLocalStorage)
 {
-  EZ_TEST_BLOCK(true, "Thread Local Storage")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Thread Local Storage")
   {
     // Test simply accessing the main thread values first
 
@@ -92,7 +92,7 @@ EZ_CREATE_SIMPLE_TEST(Threading, ThreadLocalStorage)
 
   
 
-  EZ_TEST_BLOCK(true, "Thread Local Variable Class")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Thread Local Variable Class")
   {
     ezUInt32 uiMainThreadValue = 42;
     ezUInt32 uiCopyValue = uiMainThreadValue;

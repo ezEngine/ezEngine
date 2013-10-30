@@ -5,7 +5,7 @@ typedef ezConstructionCounter cc;
 
 EZ_CREATE_SIMPLE_TEST(Containers, StaticRingBuffer)
 {
-  EZ_TEST_BLOCK(true, "Constructor")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Constructor")
   {
     EZ_TEST(ezConstructionCounter::HasAllDestructed());
 
@@ -18,7 +18,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, StaticRingBuffer)
     EZ_TEST(ezConstructionCounter::HasAllDestructed());
   }
 
-  EZ_TEST_BLOCK(true, "Copy Constructor / Operator=")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Copy Constructor / Operator=")
   {
     EZ_TEST(ezConstructionCounter::HasAllDestructed());
 
@@ -43,7 +43,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, StaticRingBuffer)
     EZ_TEST(ezConstructionCounter::HasAllDestructed());
   }
 
-  EZ_TEST_BLOCK(true, "Operator==")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Operator==")
   {
     EZ_TEST(ezConstructionCounter::HasAllDestructed());
 
@@ -69,7 +69,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, StaticRingBuffer)
     EZ_TEST(ezConstructionCounter::HasAllDestructed());
   }
 
-  EZ_TEST_BLOCK(true, "PushBack / operator[] / CanAppend")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "PushBack / operator[] / CanAppend")
   {
     ezStaticRingBuffer<ezInt32, 16> r;
 
@@ -85,7 +85,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, StaticRingBuffer)
       EZ_TEST_INT(r[i], i);
   }
 
-  EZ_TEST_BLOCK(true, "GetCount / IsEmpty")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetCount / IsEmpty")
   {
     ezStaticRingBuffer<ezInt32, 16> r;
 
@@ -101,7 +101,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, StaticRingBuffer)
     }
   }
 
-  EZ_TEST_BLOCK(true, "Clear / IsEmpty")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Clear / IsEmpty")
   {
     ezStaticRingBuffer<ezInt32, 16> r;
 
@@ -117,7 +117,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, StaticRingBuffer)
     EZ_TEST(r.IsEmpty());
   }
 
-  EZ_TEST_BLOCK(true, "Cycle Items / PeekFront")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Cycle Items / PeekFront")
   {
     EZ_TEST(ezConstructionCounter::HasAllDestructed());
 

@@ -15,7 +15,7 @@ namespace
 
 EZ_CREATE_SIMPLE_TEST(Containers, IdTable)
 {
-  EZ_TEST_BLOCK(true, "Constructor")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Constructor")
   {
     ezIdTable<Id, ezInt32> table;
 
@@ -30,7 +30,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, IdTable)
     EZ_TEST_INT(counter, 0);
   }
 
-  EZ_TEST_BLOCK(true, "Copy Constructor/Assignment/Iterator")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Copy Constructor/Assignment/Iterator")
   {
     EZ_TEST(st::HasAllDestructed());
     {
@@ -99,7 +99,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, IdTable)
     EZ_TEST(st::HasAllDestructed());
   }
 
-  EZ_TEST_BLOCK(true, "Insert/Remove")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Insert/Remove")
   {
     ezIdTable<Id, TestObject> table;
 
@@ -148,7 +148,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, IdTable)
     EZ_TEST_INT(table.GetCount(), 130);
   }
 
-  EZ_TEST_BLOCK(true, "Crash test")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Crash test")
   {
     ezIdTable<Id, TestObject> table;
     ezDynamicArray<Id> ids;
@@ -175,7 +175,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, IdTable)
     }
   }
 
-  EZ_TEST_BLOCK(true, "Clear")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Clear")
   {
     EZ_TEST(st::HasAllDestructed());
 
@@ -198,7 +198,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, IdTable)
     EZ_TEST(m1.IsFreelistValid());
   }
 
-  /*EZ_TEST_BLOCK(true, "Remove/Compact")
+  /*EZ_TEST_BLOCK(ezTestBlock::Enabled, "Remove/Compact")
   {
     ezIdTable<Id, st> a;
 

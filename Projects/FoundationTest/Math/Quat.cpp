@@ -3,7 +3,7 @@
 
 EZ_CREATE_SIMPLE_TEST(Math, Quaternion)
 {
-  EZ_TEST_BLOCK(true, "Default Constructor")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Default Constructor")
   {
     #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
       if (ezMath::BasicType<ezMat3T::ComponentType>::SupportsNaN())
@@ -23,7 +23,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Quaternion)
     #endif
   }
 
-  EZ_TEST_BLOCK(true, "Constructor(x,y,z,w)")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Constructor(x,y,z,w)")
   {
     ezQuatT q(1, 2, 3, 4);
 
@@ -31,7 +31,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Quaternion)
     EZ_TEST_FLOAT(q.w, 4, 0.0001f);
   }
 
-  EZ_TEST_BLOCK(true, "SetIdentity")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetIdentity")
   {
     ezQuatT q(1, 2, 3, 4);
 
@@ -41,7 +41,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Quaternion)
     EZ_TEST_FLOAT(q.w, 1, 0.0001f);
   }
 
-  EZ_TEST_BLOCK(true, "SetElements")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetElements")
   {
     ezQuatT q(5, 6, 7, 8);
 
@@ -51,7 +51,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Quaternion)
     EZ_TEST_FLOAT(q.w, 4, 0.0001f);
   }
 
-  EZ_TEST_BLOCK(true, "SetFromAxisAndAngle / operator* (quat, vec)")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetFromAxisAndAngle / operator* (quat, vec)")
   {
     {
       ezQuatT q;
@@ -75,7 +75,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Quaternion)
     }
   }
 
-  EZ_TEST_BLOCK(true, "SetShortestRotation / IsEqualRotation")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetShortestRotation / IsEqualRotation")
   {
     ezQuatT q1, q2, q3;
     q1.SetShortestRotation(ezVec3T(0, 1, 0), ezVec3T(1, 0, 0));
@@ -86,7 +86,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Quaternion)
     EZ_TEST(q1.IsEqualRotation(q3, ezMath::BasicType<ezMat3T::ComponentType>::LargeEpsilon()));
   }
 
-  EZ_TEST_BLOCK(true, "SetFromMat3")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetFromMat3")
   {
     ezMat3T m;
     m.SetRotationMatrixZ(-90);
@@ -100,7 +100,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Quaternion)
     EZ_TEST(q1.IsEqualRotation(q3, ezMath::BasicType<ezMat3T::ComponentType>::LargeEpsilon()));
   }
 
-  EZ_TEST_BLOCK(true, "SetSlerp")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetSlerp")
   {
     ezQuatT q1, q2, q3, qr;
     q1.SetFromAxisAndAngle(ezVec3T(0, 0, 1), 45);
@@ -112,7 +112,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Quaternion)
     EZ_TEST(q1.IsEqualRotation(qr, 0.0001f));
   }
 
-  EZ_TEST_BLOCK(true, "GetRotationAxisAndAngle")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetRotationAxisAndAngle")
   {
     ezQuatT q1, q2, q3;
     q1.SetShortestRotation(ezVec3T(0, 1, 0), ezVec3T(1, 0, 0));
@@ -135,7 +135,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Quaternion)
     EZ_TEST_FLOAT(angle, 90, ezMath::BasicType<ezMat3T::ComponentType>::LargeEpsilon());
   }
 
-  EZ_TEST_BLOCK(true, "GetAsMat3")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetAsMat3")
   {
     ezQuatT q;
     q.SetFromAxisAndAngle(ezVec3T(0, 0, 1), 90);
@@ -148,7 +148,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Quaternion)
     EZ_TEST(mr.IsEqual(m, ezMath::BasicType<ezMat3T::ComponentType>::DefaultEpsilon()));
   }
 
-  EZ_TEST_BLOCK(true, "GetAsMat4")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetAsMat4")
   {
     ezQuatT q;
     q.SetFromAxisAndAngle(ezVec3T(0, 0, 1), 90);
@@ -161,7 +161,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Quaternion)
     EZ_TEST(mr.IsEqual(m, ezMath::BasicType<ezMat3T::ComponentType>::DefaultEpsilon()));
   }
 
-  EZ_TEST_BLOCK(true, "IsValid / Normalize")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsValid / Normalize")
   {
     ezQuatT q(1, 2, 3, 4);
     EZ_TEST(!q.IsValid(0.001f));
@@ -170,7 +170,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Quaternion)
     EZ_TEST(q.IsValid(0.001f));
   }
 
-  EZ_TEST_BLOCK(true, "operator-")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator-")
   {
     ezQuatT q, q1;
     q.SetFromAxisAndAngle(ezVec3T(0, 0, 1), 90);
@@ -180,7 +180,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Quaternion)
     EZ_TEST(q1.IsEqualRotation(q2, 0.0001f));
   }
 
-  EZ_TEST_BLOCK(true, "operator*(quat, quat)")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator*(quat, quat)")
   {
     ezQuatT q1, q2, qr, q3;
     q1.SetFromAxisAndAngle(ezVec3T(0, 0, 1), 60);
@@ -192,7 +192,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Quaternion)
     EZ_TEST(qr.IsEqualRotation(q3, 0.0001f));
   }
 
-  EZ_TEST_BLOCK(true, "operator==/!=")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator==/!=")
   {
     ezQuatT q1, q2;
     q1.SetFromAxisAndAngle(ezVec3T(0, 0, 1), 60);

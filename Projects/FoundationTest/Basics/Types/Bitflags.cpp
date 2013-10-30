@@ -66,7 +66,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, Bitflags)
   ezBitflags<AutoFlags> flags2 = AutoFlags::Bit1 & AutoFlags::Bit4;
   EZ_TEST(flags2.GetValue() == 0);
 
-  EZ_TEST_BLOCK(true, "operator|=")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator|=")
   {
     ezBitflags<AutoFlags> f = AutoFlags::Bit1 | AutoFlags::Bit2;
     f |= AutoFlags::Bit3;
@@ -74,7 +74,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, Bitflags)
     EZ_TEST(f.GetValue() == (AutoFlags::Bit1 | AutoFlags::Bit2 | AutoFlags::Bit3).GetValue());
   }
 
-  EZ_TEST_BLOCK(true, "operator&=")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator&=")
   {
     ezBitflags<AutoFlags> f = AutoFlags::Bit1 | AutoFlags::Bit2 | AutoFlags::Bit3;
     f &= AutoFlags::Bit3;

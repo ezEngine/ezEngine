@@ -45,7 +45,7 @@ struct ezHashHelper<st>
 
 EZ_CREATE_SIMPLE_TEST(Containers, HashTable)
 {
-  EZ_TEST_BLOCK(true, "Constructor")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Constructor")
   {
     ezHashTable<ezInt32, st> table1;
 
@@ -60,7 +60,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, HashTable)
     EZ_TEST_INT(counter, 0);
   }
 
-  EZ_TEST_BLOCK(true, "Copy Constructor/Assignment/Iterator")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Copy Constructor/Assignment/Iterator")
   {
     ezHashTable<ezInt32, st> table1;
 
@@ -118,7 +118,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, HashTable)
     }
   }
 
-  EZ_TEST_BLOCK(true, "Collision Tests")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Collision Tests")
   {
     ezHashTable<Collision, int> map2;
 
@@ -199,7 +199,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, HashTable)
     EZ_TEST(map2[Collision(1, 3)] == 4);
   }
 
-  EZ_TEST_BLOCK(true, "Clear")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Clear")
   {
     EZ_TEST(st::HasAllDestructed());
 
@@ -236,7 +236,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, HashTable)
     }
   }
 
-  EZ_TEST_BLOCK(true, "Insert/TryGetValue")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Insert/TryGetValue")
   {
     ezHashTable<ezInt32, st> a1;
 
@@ -267,7 +267,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, HashTable)
     EZ_TEST_INT(a1[9].m_iData, 20);
   }
 
-  EZ_TEST_BLOCK(true, "Remove/Compact")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Remove/Compact")
   {
     ezHashTable<ezInt32, st> a;
 
@@ -296,7 +296,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, HashTable)
       EZ_TEST_INT(a[i].m_iData, i);
   }
 
-  EZ_TEST_BLOCK(true, "operator[]")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator[]")
   {
     ezHashTable<ezInt32, ezInt32> a;
 
@@ -308,7 +308,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, HashTable)
     EZ_TEST_INT(a[1], 0); // new values are default constructed
   }
 
-  EZ_TEST_BLOCK(true, "operator==/!=")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator==/!=")
   {
     ezStaticArray<ezInt32, 64> keys[2];
 

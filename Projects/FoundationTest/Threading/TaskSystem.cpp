@@ -77,7 +77,7 @@ EZ_CREATE_SIMPLE_TEST(Threading, TaskSystem)
   ezTaskSystem::SetWorkThreadCount(uiWorkersShort, uiWorkersLong);
   ezThreadUtils::Sleep(500);
 
-  EZ_TEST_BLOCK(true, "Single Tasks")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Single Tasks")
   {
     ezTestTask t[3];
    
@@ -94,7 +94,7 @@ EZ_CREATE_SIMPLE_TEST(Threading, TaskSystem)
     EZ_TEST(t[2].IsDone());
   }
 
-  EZ_TEST_BLOCK(true, "Single Tasks with Dependencies")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Single Tasks with Dependencies")
   {
     ezTestTask t[4];
     ezTaskGroupID g[4];
@@ -113,7 +113,7 @@ EZ_CREATE_SIMPLE_TEST(Threading, TaskSystem)
     EZ_TEST(t[3].IsDone());
   }
 
-  EZ_TEST_BLOCK(true, "Grouped Tasks / TaskFinished Callback / GroupFinished Callback")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Grouped Tasks / TaskFinished Callback / GroupFinished Callback")
   {
     ezTestTask t[8];
     ezTaskGroupID g[4];
@@ -172,7 +172,7 @@ EZ_CREATE_SIMPLE_TEST(Threading, TaskSystem)
     }
   }
 
-  EZ_TEST_BLOCK(true, "This Frame Tasks / Next Frame Tasks")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "This Frame Tasks / Next Frame Tasks")
   {
     const int Tasks = 20;
     ezTestTask t[Tasks];
@@ -224,7 +224,7 @@ EZ_CREATE_SIMPLE_TEST(Threading, TaskSystem)
     }
   }
 
-  EZ_TEST_BLOCK(true, "Main Thread Tasks")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Main Thread Tasks")
   {
     const int Tasks = 20;
     ezTestTask t[Tasks];
@@ -244,7 +244,7 @@ EZ_CREATE_SIMPLE_TEST(Threading, TaskSystem)
     }
   }
 
-  EZ_TEST_BLOCK(true, "Canceling Tasks")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Canceling Tasks")
   {
     const int Tasks = 20;
     ezTestTask t[Tasks];
@@ -288,7 +288,7 @@ EZ_CREATE_SIMPLE_TEST(Threading, TaskSystem)
     EZ_TEST(iStarted <= 4); // should not have managed to start more tasks than there are threads
   }
 
-  EZ_TEST_BLOCK(true, "Canceling Tasks (forcefully)")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Canceling Tasks (forcefully)")
   {
     const int Tasks = 20;
     ezTestTask t[Tasks];
@@ -331,7 +331,7 @@ EZ_CREATE_SIMPLE_TEST(Threading, TaskSystem)
     EZ_TEST(iStarted <= 4); // should not have managed to start more tasks than there are threads
   }
 
-  EZ_TEST_BLOCK(true, "Canceling Group")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Canceling Group")
   {
     const int Tasks = 4;
     ezTestTask t1[Tasks];

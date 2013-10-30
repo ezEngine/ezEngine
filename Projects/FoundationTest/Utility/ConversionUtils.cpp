@@ -5,7 +5,7 @@ EZ_CREATE_SIMPLE_TEST_GROUP(Utility);
 
 EZ_CREATE_SIMPLE_TEST(Utility, ConversionUtils)
 {
-  EZ_TEST_BLOCK(true, "StringToInt")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "StringToInt")
   {
     const char* szString = "1a";
     const char* szResultPos = NULL;
@@ -127,7 +127,7 @@ EZ_CREATE_SIMPLE_TEST(Utility, ConversionUtils)
     EZ_TEST_INT(iRes, 42);
   }
 
-  EZ_TEST_BLOCK(true, "StringToFloat")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "StringToFloat")
   {
     const char* szString = NULL;
     const char* szResultPos = NULL;
@@ -226,7 +226,7 @@ EZ_CREATE_SIMPLE_TEST(Utility, ConversionUtils)
     EZ_TEST(szResultPos == szString + 26);  
   }
 
-  EZ_TEST_BLOCK(true, "StringToBool")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "StringToBool")
   {
     const char* szString = "";
     const char* szResultPos = NULL;

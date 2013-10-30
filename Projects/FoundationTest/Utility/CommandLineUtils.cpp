@@ -3,7 +3,7 @@
 
 EZ_CREATE_SIMPLE_TEST(Utility, CommandLineUtils)
 {
-  EZ_TEST_BLOCK(true, "GetParameterCount / GetParameter")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetParameterCount / GetParameter")
   {
     const int argc = 9;
     const char* argv[argc] =
@@ -30,7 +30,7 @@ EZ_CREATE_SIMPLE_TEST(Utility, CommandLineUtils)
     EZ_TEST_STRING(CmdLn.GetParameter(7), "-Test5");
   }
 
-  EZ_TEST_BLOCK(true, "GetOptionIndex / GetStringOptionArguments  / GetStringOption")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetOptionIndex / GetStringOptionArguments  / GetStringOption")
   {
     const int argc = 15;
     const char* argv[argc] =
@@ -82,7 +82,7 @@ EZ_CREATE_SIMPLE_TEST(Utility, CommandLineUtils)
     EZ_TEST_STRING(CmdLn.GetStringOption("-opt6", 0), "");
   }
 
-  EZ_TEST_BLOCK(true, "GetBoolOption")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetBoolOption")
   {
     const int argc = 9;
     const char* argv[argc] =
@@ -129,7 +129,7 @@ EZ_CREATE_SIMPLE_TEST(Utility, CommandLineUtils)
     EZ_TEST(CmdLn.GetBoolOption("-Test5", false) == true);
   }
 
-  EZ_TEST_BLOCK(true, "GetIntOption")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetIntOption")
   {
     const int argc = 9;
     const char* argv[argc] =
@@ -161,7 +161,7 @@ EZ_CREATE_SIMPLE_TEST(Utility, CommandLineUtils)
     EZ_TEST_INT(CmdLn.GetIntOption("-Test5"), 0);
   }
 
-  EZ_TEST_BLOCK(true, "GetFloatOption")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetFloatOption")
   {
     const int argc = 9;
     const char* argv[argc] =

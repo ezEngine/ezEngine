@@ -16,7 +16,7 @@ EZ_CREATE_SIMPLE_TEST(IO, CompressedStream)
   const ezUInt32 uiItems = 1024 * 1024 * 5; // if you change this, you might need to adjust the expected compression ratio
   const float fExpectedCompressionRatio = 2.5f; // this is a guess that is based on the current input data and size
 
-  EZ_TEST_BLOCK(true, "Compress Data")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Compress Data")
   {
     ezDynamicArray<ezUInt32> Data;
     Data.SetCount(uiItems);
@@ -50,7 +50,7 @@ EZ_CREATE_SIMPLE_TEST(IO, CompressedStream)
     EZ_TEST((float) uiCompressed <= (float) uiUncompressed / fExpectedCompressionRatio);
   }
 
-  EZ_TEST_BLOCK(true, "Uncompress Data")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Uncompress Data")
   {
     
 

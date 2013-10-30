@@ -5,13 +5,13 @@ typedef ezConstructionCounter st;
 
 EZ_CREATE_SIMPLE_TEST(Containers, List)
 {
-  EZ_TEST_BLOCK(true, "Constructor")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Constructor")
   {
     ezList<ezInt32> l;
 
   }
 
-  EZ_TEST_BLOCK(true, "PushBack() / PeekBack")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "PushBack() / PeekBack")
   {
     ezList<ezInt32> l;
     l.PushBack();
@@ -20,7 +20,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, List)
     EZ_TEST_INT(l.PeekBack(), 0);
   }
 
-  EZ_TEST_BLOCK(true, "PushBack(i) / GetCount")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "PushBack(i) / GetCount")
   {
     ezList<ezInt32> l;
 
@@ -42,7 +42,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, List)
     EZ_TEST_INT(i, 1000);
   }
 
-  EZ_TEST_BLOCK(true, "PopBack()")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "PopBack()")
   {
     ezList<ezInt32> l;
 
@@ -58,7 +58,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, List)
     }
   }
 
-  EZ_TEST_BLOCK(true, "PushFront() / PeekFront")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "PushFront() / PeekFront")
   {
     ezList<ezInt32> l;
     l.PushFront();
@@ -67,7 +67,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, List)
     EZ_TEST_INT(l.PeekFront(), 0);
   }
 
-  EZ_TEST_BLOCK(true, "PushFront(i) / PeekFront")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "PushFront(i) / PeekFront")
   {
     ezList<ezInt32> l;
 
@@ -89,7 +89,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, List)
     EZ_TEST_INT(i2, 0);
   }
 
-  EZ_TEST_BLOCK(true, "PopFront()")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "PopFront()")
   {
     ezList<ezInt32> l;
 
@@ -106,7 +106,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, List)
   }
 
 
-  EZ_TEST_BLOCK(true, "Clear / IsEmpty")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Clear / IsEmpty")
   {
     ezList<ezInt32> l;
 
@@ -130,7 +130,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, List)
     }
   }
 
-  EZ_TEST_BLOCK(true, "operator=")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator=")
   {
     ezList<ezInt32> l, l2;
 
@@ -149,7 +149,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, List)
     EZ_TEST_INT(i, 1000);
   }
 
-  EZ_TEST_BLOCK(true, "Copy Constructor")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Copy Constructor")
   {
     ezList<ezInt32> l;
 
@@ -168,7 +168,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, List)
     EZ_TEST_INT(i, 1000);
   }
 
-  EZ_TEST_BLOCK(true, "SetCount")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetCount")
   {
     ezList<ezInt32> l;
     l.SetCount(1000);
@@ -205,7 +205,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, List)
     EZ_TEST_INT(i, 501);
   }
 
-  EZ_TEST_BLOCK(true, "Insert(item)")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Insert(item)")
   {
     ezList<ezInt32> l;
 
@@ -234,7 +234,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, List)
     EZ_TEST_INT(i, 1000);
   }
 
-  EZ_TEST_BLOCK(true, "Erase(item)")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Erase(item)")
   {
     ezList<ezInt32> l;
 
@@ -268,7 +268,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, List)
     EZ_TEST_INT(i, 1000);
   }
 
-  EZ_TEST_BLOCK(true, "Iterator::IsValid")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Iterator::IsValid")
   {
     ezList<ezInt32> l;
 
@@ -285,7 +285,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, List)
     EZ_TEST(!l.GetEndIterator().IsValid());
   }
 
-  EZ_TEST_BLOCK(true, "Element Constructions / Destructions")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Element Constructions / Destructions")
   {
     EZ_TEST(st::HasAllDestructed());
 

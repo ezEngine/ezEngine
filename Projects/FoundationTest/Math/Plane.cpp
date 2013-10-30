@@ -5,7 +5,7 @@
 
 EZ_CREATE_SIMPLE_TEST(Math, Plane)
 {
-  EZ_TEST_BLOCK(true, "Default Constructor")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Default Constructor")
   {
     #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
       if (ezMath::BasicType<ezMat3T::ComponentType>::SupportsNaN())
@@ -25,7 +25,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Plane)
     #endif
   }
 
-  EZ_TEST_BLOCK(true, "Constructor(Normal, Point)")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Constructor(Normal, Point)")
   {
     ezPlaneT p (ezVec3T(1, 0, 0), ezVec3T(5, 3, 1));
 
@@ -33,7 +33,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Plane)
     EZ_TEST_FLOAT(p.m_fNegDistance, -5.0f, 0.0001f);
   }
 
-  EZ_TEST_BLOCK(true, "Constructor(Point, Point, Point)")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Constructor(Point, Point, Point)")
   {
     ezPlaneT p (ezVec3T(-1, 5, 1), ezVec3T(1, 5, 1), ezVec3T(0, 5, -5));
 
@@ -41,7 +41,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Plane)
     EZ_TEST_FLOAT(p.m_fNegDistance, -5.0f, 0.0001f);
   }
 
-  EZ_TEST_BLOCK(true, "Constructor(Points)")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Constructor(Points)")
   {
     ezVec3T v[3] = { ezVec3T(-1, 5, 1), ezVec3T(1, 5, 1), ezVec3T(0, 5, -5) };
 
@@ -51,7 +51,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Plane)
     EZ_TEST_FLOAT(p.m_fNegDistance, -5.0f, 0.0001f);
   }
 
-  EZ_TEST_BLOCK(true, "Constructor(Points, numpoints)")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Constructor(Points, numpoints)")
   {
     ezVec3T v[6] = { ezVec3T(-1, 5, 1), ezVec3T(-1, 5, 1), ezVec3T(1, 5, 1), ezVec3T(1, 5, 1), ezVec3T(0, 5, -5), ezVec3T(0, 5, -5) };
 
@@ -61,7 +61,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Plane)
     EZ_TEST_FLOAT(p.m_fNegDistance, -5.0f, 0.0001f);
   }
 
-  EZ_TEST_BLOCK(true, "SetFromNormalAndPoint")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetFromNormalAndPoint")
   {
     ezPlaneT p;
     p.SetFromNormalAndPoint(ezVec3T(1, 0, 0), ezVec3T(5, 3, 1));
@@ -70,7 +70,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Plane)
     EZ_TEST_FLOAT(p.m_fNegDistance, -5.0f, 0.0001f);
   }
 
-  EZ_TEST_BLOCK(true, "SetFromPoints")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetFromPoints")
   {
     ezPlaneT p;
     p.SetFromPoints(ezVec3T(-1, 5, 1), ezVec3T(1, 5, 1), ezVec3T(0, 5, -5));
@@ -79,7 +79,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Plane)
     EZ_TEST_FLOAT(p.m_fNegDistance, -5.0f, 0.0001f);
   }
 
-  EZ_TEST_BLOCK(true, "SetFromPoints")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetFromPoints")
   {
     ezVec3T v[3] = { ezVec3T(-1, 5, 1), ezVec3T(1, 5, 1), ezVec3T(0, 5, -5) };
 
@@ -90,7 +90,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Plane)
     EZ_TEST_FLOAT(p.m_fNegDistance, -5.0f, 0.0001f);
   }
 
-  EZ_TEST_BLOCK(true, "SetFromPoints")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetFromPoints")
   {
     ezVec3T v[6] = { ezVec3T(-1, 5, 1), ezVec3T(-1, 5, 1), ezVec3T(1, 5, 1), ezVec3T(1, 5, 1), ezVec3T(0, 5, -5), ezVec3T(0, 5, -5) };
 
@@ -101,7 +101,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Plane)
     EZ_TEST_FLOAT(p.m_fNegDistance, -5.0f, 0.0001f);
   }
 
-  EZ_TEST_BLOCK(true, "SetFromDirections")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetFromDirections")
   {
     ezPlaneT p;
     p.SetFromDirections(ezVec3T(1, 0, 0), ezVec3T(1, 0, -1), ezVec3T(3, 5, 9));
@@ -110,7 +110,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Plane)
     EZ_TEST_FLOAT(p.m_fNegDistance, -5.0f, 0.0001f);
   }
 
-  EZ_TEST_BLOCK(true, "SetInvalid")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetInvalid")
   {
     ezPlaneT p;
     p.SetFromDirections(ezVec3T(1, 0, 0), ezVec3T(1, 0, -1), ezVec3T(3, 5, 9));
@@ -121,7 +121,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Plane)
     EZ_TEST_FLOAT(p.m_fNegDistance, 0.0f, 0.0001f);
   }
 
-  EZ_TEST_BLOCK(true, "GetDistanceTo")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetDistanceTo")
   {
     ezPlaneT p(ezVec3T(1, 0, 0), ezVec3T(5, 0, 0));
 
@@ -130,7 +130,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Plane)
     EZ_TEST_FLOAT(p.GetDistanceTo(ezVec3T(5, 12, 23)), 0.0f, 0.0001f);
   }
 
-  EZ_TEST_BLOCK(true, "GetMinimumDistanceTo")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetMinimumDistanceTo")
   {
     ezVec3T v1[3] = { ezVec3T(15, 3, 5), ezVec3T(6, 7, 123), ezVec3T(10, 12, 23)};
     ezVec3T v2[3] = { ezVec3T(3, 3, 5), ezVec3T(5, 7, 123), ezVec3T(10, 12, 23)};
@@ -141,7 +141,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Plane)
     EZ_TEST_FLOAT(p.GetMinimumDistanceTo(v2, 3), -2.0f, 0.0001f);
   }
 
-  EZ_TEST_BLOCK(true, "GetMinMaxDistanceTo")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetMinMaxDistanceTo")
   {
     ezVec3T v1[3] = { ezVec3T(15, 3, 5), ezVec3T(5, 7, 123), ezVec3T(0, 12, 23)};
     ezVec3T v2[3] = { ezVec3T(8, 3, 5), ezVec3T(6, 7, 123), ezVec3T(10, 12, 23)};
@@ -159,7 +159,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Plane)
     EZ_TEST_FLOAT(fmax, 5, 0.0001f);
   }
 
-  EZ_TEST_BLOCK(true, "GetPointPosition")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetPointPosition")
   {
     ezPlaneT p(ezVec3T(0, 1, 0), ezVec3T(0, 10, 0));
 
@@ -167,7 +167,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Plane)
     EZ_TEST(p.GetPointPosition(ezVec3T(0, 5, 0)) == ezPositionOnPlane::Back);
   }
 
-  EZ_TEST_BLOCK(true, "GetPointPosition(planewidth)")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetPointPosition(planewidth)")
   {
     ezPlaneT p(ezVec3T(0, 1, 0), ezVec3T(0, 10, 0));
 
@@ -176,7 +176,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Plane)
     EZ_TEST(p.GetPointPosition(ezVec3T(0, 10, 0), 0.01f) == ezPositionOnPlane::OnPlane);
   }
 
-  EZ_TEST_BLOCK(true, "GetObjectPosition")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetObjectPosition")
   {
     ezPlaneT p(ezVec3T(1, 0, 0), ezVec3T(10, 0, 0));
 
@@ -189,7 +189,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Plane)
     EZ_TEST(p.GetObjectPosition(v2, 3) == ezPositionOnPlane::Spanning);
   }
 
-  EZ_TEST_BLOCK(true, "GetObjectPosition(fPlaneHalfWidth)")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetObjectPosition(fPlaneHalfWidth)")
   {
     ezPlaneT p(ezVec3T(1, 0, 0), ezVec3T(10, 0, 0));
 
@@ -204,7 +204,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Plane)
     EZ_TEST(p.GetObjectPosition(v3, 3, 0.001f) == ezPositionOnPlane::OnPlane);
   }
 
-  EZ_TEST_BLOCK(true, "GetObjectPosition(sphere)")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetObjectPosition(sphere)")
   {
     ezPlaneT p(ezVec3T(1, 0, 0), ezVec3T(10, 0, 0));
 
@@ -216,7 +216,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Plane)
     EZ_TEST(p.GetObjectPosition(ezBoundingSphereT(ezVec3T(12, 2, 3), 3.0f)) == ezPositionOnPlane::Spanning);
   }
 
-  EZ_TEST_BLOCK(true, "GetObjectPosition(box)")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetObjectPosition(box)")
   {
     {
       ezPlaneT p(ezVec3T(1, 0, 0), ezVec3T(10, 0, 0));
@@ -238,7 +238,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Plane)
     }
   }
 
-  EZ_TEST_BLOCK(true, "ProjectOntoPlane")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ProjectOntoPlane")
   {
     ezPlaneT p(ezVec3T(0, 1, 0), ezVec3T(0, 10, 0));
 
@@ -246,7 +246,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Plane)
     EZ_TEST_VEC3(p.ProjectOntoPlane(ezVec3T(-1, 5, -5)), ezVec3T(-1, 10, -5), 0.001f);
   }
 
-  EZ_TEST_BLOCK(true, "Mirror")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Mirror")
   {
     ezPlaneT p(ezVec3T(0, 1, 0), ezVec3T(0, 10, 0));
 
@@ -254,7 +254,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Plane)
     EZ_TEST_VEC3(p.Mirror(ezVec3T(-1, 5, -5)), ezVec3T(-1, 15, -5), 0.001f);
   }
 
-  EZ_TEST_BLOCK(true, "GetCoplanarDirection")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetCoplanarDirection")
   {
     ezPlaneT p(ezVec3T(0, 1, 0), ezVec3T(0, 10, 0));
 
@@ -265,7 +265,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Plane)
     EZ_TEST_VEC3(p.GetCoplanarDirection(ezVec3T(0, 1, -1)).GetNormalized(), ezVec3T(0, 0, -1), 0.001f);
   }
 
-  EZ_TEST_BLOCK(true, "IsIdentical / operator== / operator!=")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsIdentical / operator== / operator!=")
   {
     ezPlaneT p1(ezVec3T(0, 1, 0), ezVec3T(0, 10, 0));
     ezPlaneT p2(ezVec3T(0, 1, 0), ezVec3T(0, 10, 0));
@@ -289,7 +289,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Plane)
     EZ_TEST(p2 != p3);
   }
 
-  EZ_TEST_BLOCK(true, "IsEqual")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsEqual")
   {
     ezPlaneT p1(ezVec3T(0, 1, 0), ezVec3T(0, 10, 0));
     ezPlaneT p2(ezVec3T(0, 1, 0), ezVec3T(0, 10, 0));
@@ -306,7 +306,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Plane)
     EZ_TEST(p2.IsEqual(p3));
   }
 
-  EZ_TEST_BLOCK(true, "IsValid")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsValid")
   {
     ezPlaneT p1(ezVec3T(0, 1, 0), ezVec3T(0, 10, 0));
 
@@ -316,7 +316,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Plane)
     EZ_TEST(!p1.IsValid());
   }
 
-  EZ_TEST_BLOCK(true, "Transform(Mat3)")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Transform(Mat3)")
   {
     ezPlaneT p(ezVec3T(0, 1, 0), ezVec3T(0, 10, 0));
 
@@ -329,7 +329,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Plane)
     EZ_TEST_FLOAT(p.m_fNegDistance, -10.0f, 0.0001f);
   }
 
-  EZ_TEST_BLOCK(true, "Transform(Mat4)")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Transform(Mat4)")
   {
     {
       ezPlaneT p(ezVec3T(0, 1, 0), ezVec3T(0, 10, 0));
@@ -358,7 +358,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Plane)
     }
   }
 
-  EZ_TEST_BLOCK(true, "Flip")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Flip")
   {
     ezPlaneT p(ezVec3T(0, 1, 0), ezVec3T(0, 10, 0));
 
@@ -371,7 +371,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Plane)
     EZ_TEST_FLOAT(p.m_fNegDistance, 10.0f, 0.0001f);
   }
 
-  EZ_TEST_BLOCK(true, "FlipIfNecessary")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "FlipIfNecessary")
   {
     {
       ezPlaneT p(ezVec3T(0, 1, 0), ezVec3T(0, 10, 0));
@@ -398,7 +398,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Plane)
     }
   }
 
-  EZ_TEST_BLOCK(true, "GetRayIntersection")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetRayIntersection")
   {
     ezPlaneT p(ezVec3T(0, 1, 0), ezVec3T(0, 10, 0));
 
@@ -413,7 +413,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Plane)
     EZ_TEST(!p.GetRayIntersection(ezVec3T(3, 1, 7), ezVec3T(0, -1, 0), &f, &v));
   }
 
-  EZ_TEST_BLOCK(true, "GetRayIntersectionBiDirectional")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetRayIntersectionBiDirectional")
   {
     ezPlaneT p(ezVec3T(0, 1, 0), ezVec3T(0, 10, 0));
 
@@ -431,7 +431,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Plane)
     EZ_TEST_VEC3(v, ezVec3T(3, 10, 7), 0.0001f);
   }
 
-  EZ_TEST_BLOCK(true, "GetLineSegmentIntersection")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetLineSegmentIntersection")
   {
     ezPlaneT p(ezVec3T(0, 1, 0), ezVec3T(0, 10, 0));
 
@@ -445,7 +445,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Plane)
     EZ_TEST(!p.GetLineSegmentIntersection(ezVec3T(3, 5, 7), ezVec3T(13, 5, 7), &f, &v));
   }
 
-  EZ_TEST_BLOCK(true, "GetPlanesIntersectionPoint")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetPlanesIntersectionPoint")
   {
     ezPlaneT p1(ezVec3T(1, 0, 0), ezVec3T(0, 10, 0));
     ezPlaneT p2(ezVec3T(0, 1, 0), ezVec3T(0, 10, 0));
@@ -461,7 +461,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Plane)
     EZ_TEST(ezPlaneT::GetPlanesIntersectionPoint(p3, p2, p3, r) == EZ_FAILURE);
   }
 
-  EZ_TEST_BLOCK(true, "FindSupportPoints")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "FindSupportPoints")
   {
     ezVec3T v[6] = { ezVec3T(-1, 5, 1), ezVec3T(-1, 5, 1), ezVec3T(1, 5, 1), ezVec3T(1, 5, 1), ezVec3T(0, 5, -5), ezVec3T(0, 5, -5) };
 

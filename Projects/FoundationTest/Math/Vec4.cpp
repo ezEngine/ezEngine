@@ -6,7 +6,7 @@
 
 EZ_CREATE_SIMPLE_TEST(Math, Vec4)
 {
-  EZ_TEST_BLOCK(true, "Constructor")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Constructor")
   {
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
     if (ezMath::BasicType<ezMathTestType>::SupportsNaN())
@@ -42,7 +42,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Vec4)
     EZ_TEST(vZero.x == 0.0f && vZero.y == 0.0f && vZero.z == 0.0f && vZero.w == 0.0f);
   }
 
-  EZ_TEST_BLOCK(true, "Conversion")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Conversion")
   {
     ezVec4T vData(1.0f, 2.0f, 3.0f, 4.0f);
     ezVec2T vToVec2 = vData.GetAsVec2();
@@ -52,7 +52,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Vec4)
     EZ_TEST(vToVec3.x == vData.x && vToVec3.y == vData.y && vToVec3.z == vData.z);
   }
 
-  EZ_TEST_BLOCK(true, "Setter")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Setter")
   {
     ezVec4T vSet1F;
     vSet1F.Set(2.0f);
@@ -67,7 +67,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Vec4)
     EZ_TEST(vSetZero.x == 0.0f && vSetZero.y == 0.0f && vSetZero.z == 0.0f && vSetZero.w == 0.0f);
   }
 
-  EZ_TEST_BLOCK(true, "Length")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Length")
   {
     const ezVec4T vOp1(-4.0, 4.0f, -2.0f, -0.0f);
     const ezVec4T compArray[4] = { ezVec4T(1.0f, 0.0f, 0.0f, 0.0f),
@@ -162,7 +162,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Vec4)
     }
   }
 
-  EZ_TEST_BLOCK(true, "Operators")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Operators")
   {
     const ezVec4T vOp1(-4.0, 0.2f, -7.0f, -0.0f);
     const ezVec4T vOp2( 2.0, 0.3f,  0.0f,  1.0f);
@@ -278,7 +278,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Vec4)
     }
   }
 
-  EZ_TEST_BLOCK(true, "Common")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Common")
   {
     const ezVec4T vOp1(-4.0, 0.2f, -7.0f, -0.0f);
     const ezVec4T vOp2( 2.0, -0.3f, 0.5f,  1.0f);

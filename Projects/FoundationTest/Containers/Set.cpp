@@ -5,14 +5,14 @@ typedef ezConstructionCounter st;
 
 EZ_CREATE_SIMPLE_TEST(Containers, Set)
 {
-  EZ_TEST_BLOCK(true, "Constructor")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Constructor")
   {
     ezSet<ezUInt32> m;
     ezSet<st, ezUInt32> m2;
     ezSet<st, st> m3;
   }
 
-  EZ_TEST_BLOCK(true, "IsEmpty")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsEmpty")
   {
     ezSet<ezUInt32> m;
     EZ_TEST(m.IsEmpty());
@@ -24,7 +24,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, Set)
     EZ_TEST(m.IsEmpty());
   }
 
-  EZ_TEST_BLOCK(true, "GetCount")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetCount")
   {
     ezSet<ezUInt32> m;
     EZ_TEST_INT(m.GetCount(), 0);
@@ -45,7 +45,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, Set)
     EZ_TEST_INT(m.GetCount(), 0);
   }
 
-  EZ_TEST_BLOCK(true, "Clear")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Clear")
   {
     EZ_TEST(st::HasAllDestructed());
 
@@ -82,7 +82,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, Set)
     }
   }
 
-  EZ_TEST_BLOCK(true, "Insert")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Insert")
   {
     ezSet<ezUInt32> m;
     m.Insert(1);
@@ -108,7 +108,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, Set)
     EZ_TEST_INT(m.GetCount(), 9);
   }
 
-  EZ_TEST_BLOCK(true, "Find")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Find")
   {
     ezSet<ezUInt32> m;
 
@@ -119,7 +119,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, Set)
       EZ_TEST_INT(m.Find(i).Key(), i);
   }
 
-  EZ_TEST_BLOCK(true, "Erase (non-existing)")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Erase (non-existing)")
   {
     ezSet<ezUInt32> m;
 
@@ -133,7 +133,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, Set)
       m.Erase(i + 500);
   }
 
-  EZ_TEST_BLOCK(true, "Erase (Iterator)")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Erase (Iterator)")
   {
     ezSet<ezUInt32> m;
 
@@ -150,7 +150,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, Set)
     }
   }
 
-  EZ_TEST_BLOCK(true, "Erase (Key)")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Erase (Key)")
   {
     ezSet<ezUInt32> m;
 
@@ -166,7 +166,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, Set)
     }
   }
 
-  EZ_TEST_BLOCK(true, "operator=")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator=")
   {
     ezSet<ezUInt32> m, m2;
 
@@ -179,7 +179,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, Set)
       EZ_TEST(m2.Find(i).IsValid());
   }
 
-  EZ_TEST_BLOCK(true, "Copy Constructor")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Copy Constructor")
   {
     ezSet<ezUInt32> m;
 
@@ -192,7 +192,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, Set)
       EZ_TEST(m2.Find(i).IsValid());
   }
 
-  EZ_TEST_BLOCK(true, "GetIterator / Forward Iteration")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetIterator / Forward Iteration")
   {
     ezSet<ezUInt32> m;
 
@@ -209,7 +209,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, Set)
     EZ_TEST_INT(i, 1000);
   }
 
-  EZ_TEST_BLOCK(true, "GetIterator / Forward Iteration (const)")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetIterator / Forward Iteration (const)")
   {
     ezSet<ezUInt32> m;
 
@@ -228,7 +228,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, Set)
     EZ_TEST_INT(i, 1000);
   }
 
-  EZ_TEST_BLOCK(true, "GetLastIterator / Backward Iteration")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetLastIterator / Backward Iteration")
   {
     ezSet<ezUInt32> m;
 
@@ -243,7 +243,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, Set)
     }
   }
 
-  EZ_TEST_BLOCK(true, "GetLastIterator / Backward Iteration (const)")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetLastIterator / Backward Iteration (const)")
   {
     ezSet<ezUInt32> m;
 
@@ -260,7 +260,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, Set)
     }
   }
 
-  EZ_TEST_BLOCK(true, "LowerBound")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "LowerBound")
   {
     ezSet<ezInt32> m, m2;
 
@@ -284,7 +284,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, Set)
     EZ_TEST(!m.LowerBound(10).IsValid());
   }
 
-  EZ_TEST_BLOCK(true, "UpperBound")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "UpperBound")
   {
     ezSet<ezInt32> m, m2;
 
@@ -307,7 +307,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, Set)
     EZ_TEST(!m.UpperBound(10).IsValid());
   }
 
-  EZ_TEST_BLOCK(true, "Insert / Erase")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Insert / Erase")
   {
     // Tests whether reusing of elements makes problems
 

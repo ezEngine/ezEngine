@@ -152,7 +152,7 @@ EZ_CREATE_SIMPLE_TEST(Threading, Atomics)
   }
 
 
-  EZ_TEST_BLOCK(true, "Thread")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Thread")
   {
     TestThread* pTestThread = NULL;
     TestThread* pTestThread2 = NULL;

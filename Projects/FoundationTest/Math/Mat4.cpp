@@ -7,7 +7,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat4)
 
 
 
-  EZ_TEST_BLOCK(true, "Default Constructor")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Default Constructor")
   {
     #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
       if (ezMath::BasicType<ezMat3T::ComponentType>::SupportsNaN())
@@ -58,7 +58,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat4)
     #endif
   }
 
-  EZ_TEST_BLOCK(true, "Constructor (Array Data)")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Constructor (Array Data)")
   {
     const ezMathTestType data[16] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 };
 
@@ -105,7 +105,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat4)
     }
   }
 
-  EZ_TEST_BLOCK(true, "Constructor (Elements)")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Constructor (Elements)")
   {
     ezMat4T m(1, 2, 3, 4,
              5, 6, 7, 8,
@@ -118,7 +118,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat4)
     EZ_TEST_FLOAT(m.Element(0, 3),13, 0.00001f); EZ_TEST_FLOAT(m.Element(1, 3),14, 0.00001f); EZ_TEST_FLOAT(m.Element(2, 3),15, 0.00001f); EZ_TEST_FLOAT(m.Element(3, 3),16, 0.00001f);
   }
 
-  EZ_TEST_BLOCK(true, "Constructor (composite)")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Constructor (composite)")
   {
     ezMat3T mr(1, 2, 3,
               4, 5, 6,
@@ -133,7 +133,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat4)
     EZ_TEST_FLOAT(m.Element(0, 3), 0, 0); EZ_TEST_FLOAT(m.Element(1, 3), 0, 0); EZ_TEST_FLOAT(m.Element(2, 3), 0, 0); EZ_TEST_FLOAT(m.Element(3, 3), 1, 0);
   }
 
-  EZ_TEST_BLOCK(true, "SetFromArray")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetFromArray")
   {
     const ezMathTestType data[16] = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16 };
 
@@ -182,7 +182,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat4)
     }
   }
 
-  EZ_TEST_BLOCK(true, "SetElements")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetElements")
   {
     ezMat4T m;
     m.SetElements (1, 2, 3, 4,
@@ -196,7 +196,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat4)
     EZ_TEST_FLOAT(m.Element(0, 3),13, 0.00001f); EZ_TEST_FLOAT(m.Element(1, 3),14, 0.00001f); EZ_TEST_FLOAT(m.Element(2, 3),15, 0.00001f); EZ_TEST_FLOAT(m.Element(3, 3),16, 0.00001f);
   }
 
-  EZ_TEST_BLOCK(true, "SetTransformationMatrix")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetTransformationMatrix")
   {
     ezMat3T mr(1, 2, 3,
               4, 5, 6,
@@ -212,7 +212,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat4)
     EZ_TEST_FLOAT(m.Element(0, 3), 0, 0); EZ_TEST_FLOAT(m.Element(1, 3), 0, 0); EZ_TEST_FLOAT(m.Element(2, 3), 0, 0); EZ_TEST_FLOAT(m.Element(3, 3), 1, 0);
   }
 
-  EZ_TEST_BLOCK(true, "GetAsArray")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetAsArray")
   {
     ezMat4T m(1, 2, 3, 4,
              5, 6, 7, 8,
@@ -258,7 +258,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat4)
     EZ_TEST_FLOAT(data[15],16, 0.0001f);
   }
 
-  EZ_TEST_BLOCK(true, "SetZero")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetZero")
   {
     ezMat4T m;
     m.SetZero();
@@ -267,7 +267,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat4)
       EZ_TEST_FLOAT(m.m_fElementsCM[i], 0.0f, 0.0f);
   }
 
-  EZ_TEST_BLOCK(true, "SetIdentity")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetIdentity")
   {
     ezMat4T m;
     m.SetIdentity();
@@ -278,7 +278,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat4)
     EZ_TEST_FLOAT(m.Element(0, 3), 0, 0); EZ_TEST_FLOAT(m.Element(1, 3), 0, 0); EZ_TEST_FLOAT(m.Element(2, 3), 0, 0); EZ_TEST_FLOAT(m.Element(3, 3), 1, 0);
   }
 
-  EZ_TEST_BLOCK(true, "SetTranslationMatrix")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetTranslationMatrix")
   {
     ezMat4T m;
     m.SetTranslationMatrix(ezVec3T(2, 3, 4));
@@ -289,7 +289,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat4)
     EZ_TEST_FLOAT(m.Element(0, 3), 0, 0); EZ_TEST_FLOAT(m.Element(1, 3), 0, 0); EZ_TEST_FLOAT(m.Element(2, 3), 0, 0); EZ_TEST_FLOAT(m.Element(3, 3), 1, 0);
   }
 
-  EZ_TEST_BLOCK(true, "SetScalingMatrix")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetScalingMatrix")
   {
     ezMat4T m;
     m.SetScalingMatrix(ezVec3T(2, 3, 4));
@@ -300,7 +300,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat4)
     EZ_TEST_FLOAT(m.Element(0, 3), 0, 0); EZ_TEST_FLOAT(m.Element(1, 3), 0, 0); EZ_TEST_FLOAT(m.Element(2, 3), 0, 0); EZ_TEST_FLOAT(m.Element(3, 3), 1, 0);
   }
 
-  EZ_TEST_BLOCK(true, "SetRotationMatrixX")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetRotationMatrixX")
   {
     ezMat4T m;
 
@@ -317,7 +317,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat4)
     EZ_TEST((m * ezVec3T(1, 2, 3)).IsEqual(ezVec3T(1, 2, 3), 0.0001f));
   }
 
-  EZ_TEST_BLOCK(true, "SetRotationMatrixY")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetRotationMatrixY")
   {
     ezMat4T m;
 
@@ -334,7 +334,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat4)
     EZ_TEST((m * ezVec3T(1, 2, 3)).IsEqual(ezVec3T(1, 2, 3), 0.0001f));
   }
 
-  EZ_TEST_BLOCK(true, "SetRotationMatrixZ")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetRotationMatrixZ")
   {
     ezMat4T m;
 
@@ -351,7 +351,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat4)
     EZ_TEST((m * ezVec3T(1, 2, 3)).IsEqual(ezVec3T(1, 2, 3), 0.0001f));
   }
 
-  EZ_TEST_BLOCK(true, "SetRotationMatrix")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetRotationMatrix")
   {
     ezMat4T m;
 
@@ -383,7 +383,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat4)
     EZ_TEST((m * ezVec3T(1, 2, 3)).IsEqual(ezVec3T(2, -1, 3), ezMath::BasicType<ezMat3T::ComponentType>::DefaultEpsilon()));
   }
 
-  EZ_TEST_BLOCK(true, "IdentityMatrix")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "IdentityMatrix")
   {
     ezMat4T m = ezMat4T::IdentityMatrix();
 
@@ -393,7 +393,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat4)
     EZ_TEST_FLOAT(m.Element(0, 3), 0, 0); EZ_TEST_FLOAT(m.Element(1, 3), 0, 0); EZ_TEST_FLOAT(m.Element(2, 3), 0, 0); EZ_TEST_FLOAT(m.Element(3, 3), 1, 0);
   }
 
-  EZ_TEST_BLOCK(true, "ZeroMatrix")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ZeroMatrix")
   {
     ezMat4T m = ezMat4T::ZeroMatrix();
 
@@ -403,7 +403,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat4)
     EZ_TEST_FLOAT(m.Element(0, 3), 0, 0); EZ_TEST_FLOAT(m.Element(1, 3), 0, 0); EZ_TEST_FLOAT(m.Element(2, 3), 0, 0); EZ_TEST_FLOAT(m.Element(3, 3), 0, 0);
   }
 
-  EZ_TEST_BLOCK(true, "Transpose")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Transpose")
   {
     ezMat4T m(1, 2, 3, 4,
              5, 6, 7, 8,
@@ -418,7 +418,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat4)
     EZ_TEST_FLOAT(m.Element(0, 3), 4, 0); EZ_TEST_FLOAT(m.Element(1, 3), 8, 0); EZ_TEST_FLOAT(m.Element(2, 3),12, 0); EZ_TEST_FLOAT(m.Element(3, 3),16, 0);
   }
 
-  EZ_TEST_BLOCK(true, "GetTranspose")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetTranspose")
   {
     ezMat4T m0(1, 2, 3, 4,
              5, 6, 7, 8,
@@ -433,7 +433,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat4)
     EZ_TEST_FLOAT(m.Element(0, 3), 4, 0); EZ_TEST_FLOAT(m.Element(1, 3), 8, 0); EZ_TEST_FLOAT(m.Element(2, 3),12, 0); EZ_TEST_FLOAT(m.Element(3, 3),16, 0);
   }
 
-  EZ_TEST_BLOCK(true, "Invert")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Invert")
   {
     for (float x = 1.0f; x < 360.0f; x += 10.0f)
     {
@@ -455,7 +455,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat4)
     }
   }
 
-  EZ_TEST_BLOCK(true, "GetInverse")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetInverse")
   {
     for (float x = 1.0f; x < 360.0f; x += 9.0f)
     {
@@ -476,7 +476,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat4)
     }
   }
 
-  EZ_TEST_BLOCK(true, "IsZero")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsZero")
   {
     ezMat4T m;
 
@@ -487,7 +487,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat4)
     EZ_TEST(m.IsZero());
   }
 
-  EZ_TEST_BLOCK(true, "IsIdentity")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsIdentity")
   {
     ezMat4T m;
 
@@ -498,7 +498,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat4)
     EZ_TEST(!m.IsIdentity());
   }
 
-  EZ_TEST_BLOCK(true, "IsValid")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsValid")
   {
     if (ezMath::BasicType<ezMat3T::ComponentType>::SupportsNaN())
     {
@@ -512,7 +512,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat4)
     }
   }
 
-  EZ_TEST_BLOCK(true, "GetRow")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetRow")
   {
     ezMat4T m(1, 2, 3, 4,
              5, 6, 7, 8,
@@ -525,7 +525,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat4)
     EZ_TEST_VEC4(m.GetRow(3), ezVec4T(13,14,15,16), 0.0f);
   }
 
-  EZ_TEST_BLOCK(true, "SetRow")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetRow")
   {
     ezMat4T m;
     m.SetZero();
@@ -543,7 +543,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat4)
     EZ_TEST_VEC4(m.GetRow(3), ezVec4T(13, 14, 15, 16), 0.0f);
   }
 
-  EZ_TEST_BLOCK(true, "GetColumn")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetColumn")
   {
     ezMat4T m(1, 2, 3, 4,
              5, 6, 7, 8,
@@ -556,7 +556,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat4)
     EZ_TEST_VEC4(m.GetColumn(3), ezVec4T(4, 8, 12, 16), 0.0f);
   }
 
-  EZ_TEST_BLOCK(true, "SetColumn")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetColumn")
   {
     ezMat4T m;
     m.SetZero();
@@ -574,7 +574,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat4)
     EZ_TEST_VEC4(m.GetColumn(3), ezVec4T(13, 14, 15, 16), 0.0f);
   }
 
-  EZ_TEST_BLOCK(true, "GetDiagonal")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetDiagonal")
   {
     ezMat4T m(1, 2, 3, 4,
              5, 6, 7, 8,
@@ -584,7 +584,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat4)
     EZ_TEST_VEC4(m.GetDiagonal(), ezVec4T(1, 6, 11, 16), 0.0f);
   }
 
-  EZ_TEST_BLOCK(true, "SetDiagonal")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetDiagonal")
   {
     ezMat4T m;
     m.SetZero();
@@ -596,7 +596,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat4)
     EZ_TEST_VEC4(m.GetColumn(3), ezVec4T(0, 0, 0, 4), 0.0f);
   }
 
-  EZ_TEST_BLOCK(true, "GetTranslationVector")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetTranslationVector")
   {
     ezMat4T m(1, 2, 3, 4,
              5, 6, 7, 8,
@@ -606,7 +606,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat4)
     EZ_TEST_VEC3(m.GetTranslationVector(), ezVec3T(4, 8, 12), 0.0f);
   }
 
-  EZ_TEST_BLOCK(true, "SetTranslationVector")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetTranslationVector")
   {
     ezMat4T m(1, 2, 3, 4,
              5, 6, 7, 8,
@@ -620,7 +620,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat4)
     EZ_TEST_VEC4(m.GetRow(3), ezVec4T(13,14,15,16), 0.0f);
   }
 
-  EZ_TEST_BLOCK(true, "SetRotationalPart")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetRotationalPart")
   {
     ezMat4T m(1, 2, 3, 4,
              5, 6, 7, 8,
@@ -638,7 +638,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat4)
     EZ_TEST_VEC4(m.GetRow(3), ezVec4T(13, 14, 15, 16), 0.0f);
   }
 
-  EZ_TEST_BLOCK(true, "GetRotationalPart")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetRotationalPart")
   {
     ezMat4T m(1, 2, 3, 4,
              5, 6, 7, 8,
@@ -651,7 +651,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat4)
     EZ_TEST_VEC3(r.GetRow(2), ezVec3T(9, 10, 11), 0.0f);
   }
 
-  EZ_TEST_BLOCK(true, "GetScalingFactors")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetScalingFactors")
   {
     ezMat4T m(1, 2, 3, 4,
              5, 6, 7, 8,
@@ -662,7 +662,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat4)
     EZ_TEST_VEC3(s, ezVec3T(ezMath::Sqrt((ezMathTestType) (1*1 + 5*5 + 9*9)), ezMath::Sqrt((ezMathTestType) (2*2 + 6*6 + 10*10)), ezMath::Sqrt((ezMathTestType) (3*3 + 7*7 + 11*11))), 0.0001f);
   }
 
-  EZ_TEST_BLOCK(true, "SetScalingFactors")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetScalingFactors")
   {
     ezMat4T m(1, 2, 3, 4,
              5, 6, 7, 8,
@@ -675,7 +675,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat4)
     EZ_TEST_VEC3(s, ezVec3T(1, 2, 3), 0.0001f);
   }
 
-  EZ_TEST_BLOCK(true, "TransformDirection")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "TransformDirection")
   {
     ezMat4T m(1, 2, 3, 4,
              5, 6, 7, 8,
@@ -687,7 +687,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat4)
     EZ_TEST_VEC3(r, ezVec3T(1 * 1 + 2 * 2 + 3 * 3, 1 * 5 + 2 * 6 + 3 * 7, 1 * 9 + 2 * 10 + 3 * 11), 0.0001f);
   }
 
-  EZ_TEST_BLOCK(true, "TransformDirection(array)")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "TransformDirection(array)")
   {
     ezMat4T m(1, 2, 3, 4,
              5, 6, 7, 8,
@@ -703,7 +703,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat4)
     EZ_TEST_VEC3(data[2], ezVec3T(7, 8, 9), 0);
   }
 
-  EZ_TEST_BLOCK(true, "TransformPosition")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "TransformPosition")
   {
     ezMat4T m(1, 2, 3, 4,
              5, 6, 7, 8,
@@ -715,7 +715,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat4)
     EZ_TEST_VEC3(r, ezVec3T(1 * 1 + 2 * 2 + 3 * 3 + 4, 1 * 5 + 2 * 6 + 3 * 7 + 8, 1 * 9 + 2 * 10 + 3 * 11 + 12), 0.0001f);
   }
 
-  EZ_TEST_BLOCK(true, "TransformPosition(array)")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "TransformPosition(array)")
   {
     ezMat4T m(1, 2, 3, 4,
              5, 6, 7, 8,
@@ -731,7 +731,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat4)
     EZ_TEST_VEC3(data[2], ezVec3T(7, 8, 9), 0);
   }
 
-  EZ_TEST_BLOCK(true, "Transform")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Transform")
   {
     ezMat4T m(1, 2, 3, 4,
              5, 6, 7, 8,
@@ -743,7 +743,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat4)
     EZ_TEST_VEC4(r, ezVec4T(1 * 1 + 2 * 2 + 3 * 3 + 4 * 4, 1 * 5 + 2 * 6 + 3 * 7 + 8 * 4, 1 * 9 + 2 * 10 + 3 * 11 + 12 * 4, 1 * 13 + 2 * 14 + 3 * 15 + 4 * 16), 0.0001f);
   }
 
-  EZ_TEST_BLOCK(true, "Transform(array)")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Transform(array)")
   {
     ezMat4T m(1, 2, 3, 4,
              5, 6, 7, 8,
@@ -759,7 +759,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat4)
     EZ_TEST_VEC4(data[2], ezVec4T(9, 10, 11, 12), 0);
   }
 
-  EZ_TEST_BLOCK(true, "operator*=")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator*=")
   {
     ezMat4T m(1, 2, 3, 4,
              5, 6, 7, 8,
@@ -774,7 +774,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat4)
     EZ_TEST_VEC4(m.GetRow(3), ezVec4T(26, 28, 30, 32), 0.0001f);
   }
 
-  EZ_TEST_BLOCK(true, "operator/=")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator/=")
   {
     ezMat4T m(1, 2, 3, 4,
              5, 6, 7, 8,
@@ -790,7 +790,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat4)
     EZ_TEST_VEC4(m.GetRow(3), ezVec4T(26, 28, 30, 32), 0.0001f);
   }
 
-  EZ_TEST_BLOCK(true, "IsIdentical")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsIdentical")
   {
     ezMat4T m(1, 2, 3, 4,
              5, 6, 7, 8,
@@ -805,7 +805,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat4)
     EZ_TEST(!m.IsIdentical(m2));
   }
 
-  EZ_TEST_BLOCK(true, "IsEqual")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsEqual")
   {
     ezMat4T m(1, 2, 3, 4,
              5, 6, 7, 8,
@@ -821,7 +821,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat4)
     EZ_TEST(!m.IsEqual(m2, 0.000001f));
   }
 
-  EZ_TEST_BLOCK(true, "operator*(mat, mat)")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator*(mat, mat)")
   {
     ezMat4T m1(1, 2, 3, 4,
              5, 6, 7, 8,
@@ -841,7 +841,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat4)
     EZ_TEST_VEC4(r.GetColumn(3), ezVec4T(-4 * 1 + -8 * 2 + -12 * 3 + -16 * 4, -4 * 5 + -8 * 6 + -12 * 7 + -16 * 8, -4 * 9 + -8 * 10 + -12 * 11 + -16 * 12, -4 * 13 + -8 * 14 + -12 * 15 + -16 * 16), 0.001f);
   }
 
-  EZ_TEST_BLOCK(true, "operator*(mat, vec3)")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator*(mat, vec3)")
   {
     ezMat4T m(1, 2, 3, 4,
              5, 6, 7, 8,
@@ -853,7 +853,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat4)
     EZ_TEST_VEC3(r, ezVec3T(1 * 1 + 2 * 2 + 3 * 3 + 4, 1 * 5 + 2 * 6 + 3 * 7 + 8, 1 * 9 + 2 * 10 + 3 * 11 + 12), 0.0001f);
   }
 
-  EZ_TEST_BLOCK(true, "operator*(mat, vec4)")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator*(mat, vec4)")
   {
     ezMat4T m(1, 2, 3, 4,
              5, 6, 7, 8,
@@ -865,7 +865,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat4)
     EZ_TEST_VEC4(r, ezVec4T(1 * 1 + 2 * 2 + 3 * 3 + 4 * 4, 1 * 5 + 2 * 6 + 3 * 7 + 4 * 8, 1 * 9 + 2 * 10 + 3 * 11 + 4 * 12, 1* 13 + 2 * 14 + 3 * 15 + 4 * 16), 0.0001f);
   }
 
-  EZ_TEST_BLOCK(true, "operator*(mat, float) | operator*(float, mat)")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator*(mat, float) | operator*(float, mat)")
   {
     ezMat4T m0(1, 2, 3, 4,
              5, 6, 7, 8,
@@ -886,7 +886,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat4)
     EZ_TEST_VEC4(m2.GetRow(3), ezVec4T(26, 28, 30, 32), 0.0001f);
   }
 
-  EZ_TEST_BLOCK(true, "operator/(mat, float)")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator/(mat, float)")
   {
     ezMat4T m0(1, 2, 3, 4,
              5, 6, 7, 8,
@@ -903,7 +903,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat4)
     EZ_TEST_VEC4(m.GetRow(3), ezVec4T(26, 28, 30, 32), 0.0001f);
   }
 
-  EZ_TEST_BLOCK(true, "operator+(mat, mat) | operator-(mat, mat)")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator+(mat, mat) | operator-(mat, mat)")
   {
     ezMat4T m0(1, 2, 3, 4,
              5, 6, 7, 8,
@@ -919,7 +919,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat4)
     EZ_TEST((m0 - m1).IsEqual(m0 * (ezMathTestType) 2, 0.0001f));
   }
 
-  EZ_TEST_BLOCK(true, "operator== (mat, mat) | operator!= (mat, mat)")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator== (mat, mat) | operator!= (mat, mat)")
   {
     ezMat4T m(1, 2, 3, 4,
              5, 6, 7, 8,

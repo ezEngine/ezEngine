@@ -76,7 +76,7 @@ EZ_CREATE_SIMPLE_TEST(Configuration, CVars)
   ezCVar::SetStorageFolder("CVars");
   ezCVar::LoadCVars(); // should do nothing (no settings files available)
 
-  EZ_TEST_BLOCK(true, "No Plugin Loaded")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "No Plugin Loaded")
   {
     EZ_TEST(ezCVar::FindCVarByName("test1_Int") == NULL);
     EZ_TEST(ezCVar::FindCVarByName("test1_Float") == NULL);
@@ -91,7 +91,7 @@ EZ_CREATE_SIMPLE_TEST(Configuration, CVars)
 
 #if EZ_ENABLED(EZ_SUPPORTS_DYNAMIC_PLUGINS)
 
-  EZ_TEST_BLOCK(true, "Plugin1 Loaded")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Plugin1 Loaded")
   {
     EZ_TEST(ezPlugin::LoadPlugin("ezFoundationTest_Plugin1") == EZ_SUCCESS);
 
@@ -110,7 +110,7 @@ EZ_CREATE_SIMPLE_TEST(Configuration, CVars)
 
 #endif
 
-  EZ_TEST_BLOCK(true, "No Plugin Loaded (2)")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "No Plugin Loaded (2)")
   {
     EZ_TEST(ezCVar::FindCVarByName("test1_Int") == NULL);
     EZ_TEST(ezCVar::FindCVarByName("test1_Float") == NULL);
@@ -125,7 +125,7 @@ EZ_CREATE_SIMPLE_TEST(Configuration, CVars)
 
 #if EZ_ENABLED(EZ_SUPPORTS_DYNAMIC_PLUGINS)
 
-  EZ_TEST_BLOCK(true, "Plugin2 Loaded")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Plugin2 Loaded")
   {
     // Plugin2 should automatically load Plugin1 with it
 
@@ -146,7 +146,7 @@ EZ_CREATE_SIMPLE_TEST(Configuration, CVars)
 
 #endif
 
-  EZ_TEST_BLOCK(true, "No Plugin Loaded (2)")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "No Plugin Loaded (2)")
   {
     EZ_TEST(ezCVar::FindCVarByName("test1_Int") == NULL);
     EZ_TEST(ezCVar::FindCVarByName("test1_Float") == NULL);
@@ -161,7 +161,7 @@ EZ_CREATE_SIMPLE_TEST(Configuration, CVars)
 
 #if EZ_ENABLED(EZ_SUPPORTS_DYNAMIC_PLUGINS)
 
-  EZ_TEST_BLOCK(true, "Default Value Test")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Default Value Test")
   {
     EZ_TEST(ezPlugin::LoadPlugin("ezFoundationTest_Plugin2") == EZ_SUCCESS);
 
@@ -266,7 +266,7 @@ EZ_CREATE_SIMPLE_TEST(Configuration, CVars)
     EZ_TEST(ezPlugin::UnloadPlugin("ezFoundationTest_Plugin2") == EZ_SUCCESS);
   }
   
-  EZ_TEST_BLOCK(true, "Loaded Value Test")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Loaded Value Test")
   {
     EZ_TEST(ezPlugin::LoadPlugin("ezFoundationTest_Plugin2") == EZ_SUCCESS);
 

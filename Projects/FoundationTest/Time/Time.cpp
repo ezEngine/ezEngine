@@ -5,7 +5,7 @@ EZ_CREATE_SIMPLE_TEST_GROUP(Time);
 
 EZ_CREATE_SIMPLE_TEST(Time, Timer)
 {
-  EZ_TEST_BLOCK(true, "Basics")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Basics")
   {
     ezTime TestTime = ezSystemTime::Now();
     

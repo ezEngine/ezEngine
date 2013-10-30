@@ -6,7 +6,7 @@
 
 EZ_CREATE_SIMPLE_TEST(Math, Vec3)
 {
-  EZ_TEST_BLOCK(true, "Constructor")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Constructor")
   {
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
     if (ezMath::BasicType<ezVec3T::ComponentType>::SupportsNaN())
@@ -41,7 +41,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Vec3)
     EZ_TEST(vZero.x == 0.0f && vZero.y == 0.0f && vZero.z == 0.0f);
   }
 
-  EZ_TEST_BLOCK(true, "Conversion")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Conversion")
   {
     ezVec3T vData(1.0f, 2.0f, 3.0f);
     ezVec2T vToVec2 = vData.GetAsVec2();
@@ -57,7 +57,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Vec3)
     EZ_TEST(vToVec4Dir.x == vData.x && vToVec4Dir.y == vData.y && vToVec4Dir.z == vData.z && vToVec4Dir.w == 0.0f);
   }
 
-  EZ_TEST_BLOCK(true, "Setter")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Setter")
   {
     ezVec3T vSet1F;
     vSet1F.Set(2.0f);
@@ -79,12 +79,12 @@ EZ_CREATE_SIMPLE_TEST(Math, Vec3)
                                   ezVec3T(0.0f, 1.0f, 0.0f),
                                   ezVec3T(0.0f, 0.0f, 1.0f) };
 
-    EZ_TEST_BLOCK(true, "GetLength")
+    EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetLength")
     {
       EZ_TEST_FLOAT(vOp1.GetLength(), 6.0f, ezMath::BasicType<ezMathTestType>::SmallEpsilon());
     }
 
-    EZ_TEST_BLOCK(true, "SetLength")
+    EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetLength")
     {
       ezVec3T vSetLength = vOp1.GetNormalized() * ezMath::BasicType<ezMathTestType>::DefaultEpsilon();
       EZ_TEST(vSetLength.SetLength(4.0f, ezMath::BasicType<ezMathTestType>::LargeEpsilon()) == EZ_FAILURE);
@@ -94,12 +94,12 @@ EZ_CREATE_SIMPLE_TEST(Math, Vec3)
       EZ_TEST_FLOAT(vSetLength.GetLength(), 4.0f, ezMath::BasicType<ezMathTestType>::SmallEpsilon());
     }
 
-    EZ_TEST_BLOCK(true, "GetLengthSquared")
+    EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetLengthSquared")
     {
       EZ_TEST_FLOAT(vOp1.GetLengthSquared(), 36.0f, ezMath::BasicType<ezMathTestType>::SmallEpsilon());
     }
 
-    EZ_TEST_BLOCK(true, "GetLengthAndNormalize")
+    EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetLengthAndNormalize")
     {
       ezVec3T vLengthAndNorm = vOp1;
       ezMathTestType fLength = vLengthAndNorm.GetLengthAndNormalize();
@@ -110,14 +110,14 @@ EZ_CREATE_SIMPLE_TEST(Math, Vec3)
       EZ_TEST(vLengthAndNorm.IsNormalized(ezMath::BasicType<ezMathTestType>::SmallEpsilon()));
     }
 
-    EZ_TEST_BLOCK(true, "GetNormalized")
+    EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetNormalized")
     {
       ezVec3T vGetNorm = vOp1.GetNormalized();
       EZ_TEST_FLOAT(vGetNorm.x * vGetNorm.x + vGetNorm.y * vGetNorm.y + vGetNorm.z * vGetNorm.z, 1.0f, ezMath::BasicType<ezMathTestType>::SmallEpsilon());
       EZ_TEST(vGetNorm.IsNormalized(ezMath::BasicType<ezMathTestType>::SmallEpsilon()));
     }
 
-    EZ_TEST_BLOCK(true, "Normalize")
+    EZ_TEST_BLOCK(ezTestBlock::Enabled, "Normalize")
     {
       ezVec3T vNorm = vOp1;
       vNorm.Normalize();
@@ -125,7 +125,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Vec3)
       EZ_TEST(vNorm.IsNormalized(ezMath::BasicType<ezMathTestType>::SmallEpsilon()));
     }
 
-    EZ_TEST_BLOCK(true, "NormalizeIfNotZero")
+    EZ_TEST_BLOCK(ezTestBlock::Enabled, "NormalizeIfNotZero")
     {
       ezVec3T vNorm = vOp1;
       vNorm.Normalize();
@@ -138,7 +138,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Vec3)
       EZ_TEST_VEC3(vNormCond, vNorm, ezMath::BasicType<ezVec3T::ComponentType>::DefaultEpsilon());
     }
 
-    EZ_TEST_BLOCK(true, "IsZero")
+    EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsZero")
     {
       EZ_TEST(ezVec3T::ZeroVector().IsZero());
       for (int i = 0; i < 3; ++i)
@@ -147,7 +147,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Vec3)
       }
     }
 
-    EZ_TEST_BLOCK(true, "IsZero(float)")
+    EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsZero(float)")
     {
       EZ_TEST(ezVec3T::ZeroVector().IsZero(0.0f));
       for (int i = 0; i < 3; ++i)
@@ -158,7 +158,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Vec3)
       }
     }
 
-    EZ_TEST_BLOCK(true, "IsNormalized (2)")
+    EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsNormalized (2)")
     {
       for (int i = 0; i < 3; ++i)
       {
@@ -177,7 +177,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Vec3)
         ezVec3T(0.0f, fNaN, 0.0f),
         ezVec3T(0.0f, 0.0f, fNaN) };
 
-      EZ_TEST_BLOCK(true, "IsNaN")
+      EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsNaN")
       {
         for (int i = 0; i < 3; ++i)
         {
@@ -186,7 +186,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Vec3)
         }
       }
 
-      EZ_TEST_BLOCK(true, "IsValid")
+      EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsValid")
       {
         for (int i = 0; i < 3; ++i)
         {
@@ -200,7 +200,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Vec3)
     }
   }
 
-  EZ_TEST_BLOCK(true, "Operators")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Operators")
   {
     const ezVec3T vOp1(-4.0, 0.2f, -7.0f);
     const ezVec3T vOp2( 2.0, 0.3f,  0.0f);
@@ -315,7 +315,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Vec3)
     }
   }
 
-  EZ_TEST_BLOCK(true, "Common")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Common")
   {
     const ezVec3T vOp1(-4.0, 0.2f, -7.0f);
     const ezVec3T vOp2( 2.0, -0.3f, 0.5f);
@@ -366,7 +366,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Vec3)
     EZ_TEST(vOp1.CompDiv(vOp2).IsEqual(ezVec3T(-2.0f, -0.66666666f, -14.0f), ezMath::BasicType<ezMathTestType>::SmallEpsilon()));
   }
 
-  EZ_TEST_BLOCK(true, "CalculateNormal")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "CalculateNormal")
   {
     ezVec3T n;
     EZ_TEST(n.CalculateNormal(ezVec3T(-1, 0, 1), ezVec3T(1, 0, 1), ezVec3T(0, 0, -1)) == EZ_SUCCESS);
@@ -378,7 +378,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Vec3)
     EZ_TEST(n.CalculateNormal(ezVec3T(-1, 0, 1), ezVec3T(1, 0, 1), ezVec3T(1, 0, 1)) == EZ_FAILURE);
   }
 
-  EZ_TEST_BLOCK(true, "MakeOrthogonalTo")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "MakeOrthogonalTo")
   {
     ezVec3T v;
     
@@ -391,7 +391,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Vec3)
     EZ_TEST_VEC3(v, ezVec3T(1, 0, 0), 0.001f);
   }
 
-  EZ_TEST_BLOCK(true, "GetOrthogonalVector")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetOrthogonalVector")
   {
     ezVec3T v;
    
@@ -402,7 +402,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Vec3)
     }
   }
 
-  EZ_TEST_BLOCK(true, "GetReflectedVector")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetReflectedVector")
   {
     ezVec3T v, v2;
 

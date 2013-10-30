@@ -2,7 +2,7 @@
 
 EZ_CREATE_SIMPLE_TEST(Strings, UnicodeUtils)
 {
-  EZ_TEST_BLOCK(true, "IsASCII")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsASCII")
   {
     // test all ASCII Characters
     for (ezUInt32 i = 0; i < 128; ++i)
@@ -12,7 +12,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, UnicodeUtils)
       EZ_TEST(!ezUnicodeUtils::IsASCII(i));
   }
 
-  EZ_TEST_BLOCK(true, "IsUtf8ContinuationByte")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsUtf8ContinuationByte")
   {
     // all ASCII Characters are not continuation bytes
     for (ezUInt32 i = 0; i < 128; ++i)
@@ -30,7 +30,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, UnicodeUtils)
     }
   }
 
-  EZ_TEST_BLOCK(true, "GetUtf8SequenceLength")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetUtf8SequenceLength")
   {
     // All ASCII characters are 1 byte in length
     for (ezUInt32 i = 0; i < 128; ++i)
@@ -39,20 +39,20 @@ EZ_CREATE_SIMPLE_TEST(Strings, UnicodeUtils)
     /// \todo: ... auch UTF-8 Zeichen testen...
   }
 
-  EZ_TEST_BLOCK(true, "ConvertUtf8ToUtf32")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ConvertUtf8ToUtf32")
   {
     // Just wraps around 'utf8::peek_next'
     // I think we can assume that that works.
   }
 
-  EZ_TEST_BLOCK(true, "GetSizeForCharacterInUtf8")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetSizeForCharacterInUtf8")
   {
     // All ASCII characters are 1 byte in length
     for (ezUInt32 i = 0; i < 128; ++i)
       EZ_TEST_INT(ezUnicodeUtils::GetSizeForCharacterInUtf8(i), 1);
   }
 
-  EZ_TEST_BLOCK(true, "Decode")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Decode")
   {
     char utf8[] = { 'a', 0 };
     ezUInt16 utf16[] = { 'a', 0 };
@@ -70,7 +70,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, UnicodeUtils)
     EZ_TEST_INT(uiUtf321, uiUtf323);
   }
 
-  EZ_TEST_BLOCK(true, "Encode")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Encode")
   {
     char utf8[4] = { 0 };
     ezUInt16 utf16[4] = { 0 };
@@ -89,7 +89,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, UnicodeUtils)
     EZ_TEST(wchar[0] == 'a');
   }
 
-  EZ_TEST_BLOCK(true, "MoveToNextUtf8")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "MoveToNextUtf8")
   {
     ezStringUtf8 s(L"aböäß€de");
 
@@ -119,7 +119,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, UnicodeUtils)
     EZ_TEST(sz == &s.GetData()[12]);
   }
 
-  EZ_TEST_BLOCK(true, "MoveToPriorUtf8")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "MoveToPriorUtf8")
   {
     ezStringUtf8 s(L"aböäß€de");
 
@@ -152,7 +152,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, UnicodeUtils)
     EZ_TEST(sz == &s.GetData()[0]);
   }
 
-  EZ_TEST_BLOCK(true, "SkipUtf8Bom")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SkipUtf8Bom")
   {
     // C++ is really stupid, chars are signed, but Utf8 only works with unsigned values ... argh!
 
@@ -169,7 +169,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, UnicodeUtils)
     EZ_TEST(pString == szNoBom);
   }
 
-  EZ_TEST_BLOCK(true, "SkipUtf16BomLE")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SkipUtf16BomLE")
   {
     ezUInt16 szWithBom[] = { 0xfffe, 'a' };
     ezUInt16 szNoBom[] = { 'a' };
@@ -185,7 +185,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, UnicodeUtils)
     EZ_TEST(pString == szNoBom);
   }
 
-  EZ_TEST_BLOCK(true, "SkipUtf16BomBE")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SkipUtf16BomBE")
   {
     ezUInt16 szWithBom[] = { 0xfeff, 'a' };
     ezUInt16 szNoBom[] = { 'a' };

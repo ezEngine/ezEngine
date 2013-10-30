@@ -24,7 +24,7 @@ namespace
 
 EZ_CREATE_SIMPLE_TEST(Memory, Endian)
 {
-  EZ_TEST_BLOCK(true, "Basics")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Basics")
   {
     // Test if the IsBigEndian() delivers the same result as the #define
     #if EZ_ENABLED(EZ_PLATFORM_LITTLE_ENDIAN)
@@ -39,7 +39,7 @@ EZ_CREATE_SIMPLE_TEST(Memory, Endian)
     EZ_TEST(ezEndianHelper::Switch(static_cast<ezUInt64>(0x34AA12FFABC3421E)) == 0x1E42C3ABFF12AA34);
   }
 
-  EZ_TEST_BLOCK(true, "Switching Arrays")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Switching Arrays")
   {
     ezArrayPtr<ezUInt16> p16BitArray = EZ_DEFAULT_NEW_ARRAY(ezUInt16, 1024);
     ezArrayPtr<ezUInt16> p16BitArrayCopy = EZ_DEFAULT_NEW_ARRAY(ezUInt16, 1024);
@@ -94,7 +94,7 @@ EZ_CREATE_SIMPLE_TEST(Memory, Endian)
     EZ_DEFAULT_DELETE_ARRAY(p64BitArrayCopy);
   }
 
-  EZ_TEST_BLOCK(true, "Switching Structs")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Switching Structs")
   {
     TempStruct instance = { 42.0f, 0x34AA12FF, 0x15FF, 0x23FF, {'E', 'Z', 'F', 'T'} };
 

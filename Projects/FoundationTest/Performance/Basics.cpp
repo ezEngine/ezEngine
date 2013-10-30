@@ -106,7 +106,7 @@ EZ_CREATE_SIMPLE_TEST(Performance, Basics)
   for (ezInt32 i = 1; i < iNumObjects; i += 2)
     Objects[i] = new Derived2();
 
-  EZ_TEST_BLOCK(true, "Virtual")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Virtual")
   {
     ezInt32 iResult = 0;
 
@@ -129,7 +129,7 @@ EZ_CREATE_SIMPLE_TEST(Performance, Basics)
     ezLog::Info("[test]Virtual Function Calls: %.2fns", tFC, iResult);
   }
 
-  EZ_TEST_BLOCK(true, "NonVirtual")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "NonVirtual")
   {
     ezInt32 iResult = 0;
 
@@ -158,7 +158,7 @@ EZ_CREATE_SIMPLE_TEST(Performance, Basics)
     ezLog::Info("[test]Non-Virtual Function Calls: %.2fns", tFC, iResult);
   }
 
-  EZ_TEST_BLOCK(true, "FastCall")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "FastCall")
   {
     ezInt32 iResult = 0;
 
@@ -187,7 +187,7 @@ EZ_CREATE_SIMPLE_TEST(Performance, Basics)
     ezLog::Info("[test]FastCall Function Calls: %.2fns", tFC, iResult);
   }
 
-  EZ_TEST_BLOCK(true, "Int Division")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Int Division")
   {
     ezDynamicArray<ezInt32> Ints;
     Ints.SetCount(iNumObjects);
@@ -210,7 +210,7 @@ EZ_CREATE_SIMPLE_TEST(Performance, Basics)
     ezLog::Info("[test]Integer Division: %.2fns", t, iResult);
   }
 
-  EZ_TEST_BLOCK(true, "Int Multiplication")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Int Multiplication")
   {
     ezDynamicArray<ezInt32> Ints;
     Ints.SetCount(iNumObjects);
@@ -233,7 +233,7 @@ EZ_CREATE_SIMPLE_TEST(Performance, Basics)
     ezLog::Info("[test]Integer Multiplication: %.2fns", t, iResult);
   }
 
-  EZ_TEST_BLOCK(true, "Float Division")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Float Division")
   {
     ezDynamicArray<float> Ints;
     Ints.SetCount(iNumObjects);
@@ -257,7 +257,7 @@ EZ_CREATE_SIMPLE_TEST(Performance, Basics)
     ezLog::Info("[test]Float Division: %.2fns", t, fResult);
   }
 
-  EZ_TEST_BLOCK(true, "Float Multiplication")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Float Multiplication")
   {
     ezDynamicArray<float> Ints;
     Ints.SetCount(iNumObjects);

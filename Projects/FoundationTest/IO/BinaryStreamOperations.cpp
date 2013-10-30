@@ -4,7 +4,7 @@
 
 EZ_CREATE_SIMPLE_TEST(IO, BinaryStreamOperation)
 {
-  EZ_TEST_BLOCK(true, "Binary Stream Basic Operations (built-in types)")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Binary Stream Basic Operations (built-in types)")
   {
     ezMemoryStreamStorage StreamStorage(4096);
 

@@ -14,6 +14,7 @@ The current version allows to monitor the following data:
   * __File Operations__: This panel shows which files get accessed by the engine, whether they occur on the main thread, how much data is read or written per operation, how much time that takes (and thus why an application might be blocking or stuttering). Allows to sort and filter by different criteria to get a better grasp at what and how data is accessed.
   * __Cvars__: This panel displays all CVars that are available. You can not only see their current values, but also modify them, such that you can change the behavior of the application without restarting it. This allows to quickly change parameters of things that you are trying out, such that you can see the effects immediately.
   * __Stats__: Using ezStats a game can display the status of certain internals. This allows to make it easy to inspect what a game object is doing or what state some component is in. So instead of printing this debug information on screen inside the game, you can watch it with ezInspector. Additionally ezInspector allows to mark stats as 'favorites' which means you can output hundreds of stats in your game, but easily only display the subset that you are currently interested in inside ezInspector.
+  * __Time__: Displays all ezClock instances that are active. Shows the raw time step and the filtered time step, which allows to see hiccups and general performance characteristics of the application.
 
 
 Setting up your game to support ezInspector

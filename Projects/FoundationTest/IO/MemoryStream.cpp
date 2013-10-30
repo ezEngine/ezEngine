@@ -5,7 +5,7 @@ EZ_CREATE_SIMPLE_TEST_GROUP(IO);
 
 EZ_CREATE_SIMPLE_TEST(IO, MemoryStream)
 {
-  EZ_TEST_BLOCK(true, "Memory Stream Reading / Writing")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Memory Stream Reading / Writing")
   {
     ezMemoryStreamStorage StreamStorage;
 

@@ -45,7 +45,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
   ezProxyAllocator proxy("DynamicArrayTestAllocator", ezFoundation::GetDefaultAllocator()); 
   g_pTestAllocator = &proxy;
 
-  EZ_TEST_BLOCK(true, "Constructor")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Constructor")
   {
     ezDynamicArray<ezInt32> a1;
     ezDynamicArray<st> a2;
@@ -56,7 +56,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
     EZ_TEST(a2.IsEmpty());
   }
 
-  EZ_TEST_BLOCK(true, "Copy Constructor")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Copy Constructor")
   {
     ezDynamicArray<ezInt32, ezTestAllocatorWrapper> a1;
 
@@ -71,7 +71,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
     EZ_TEST(a2 == a3);
   }
 
-  EZ_TEST_BLOCK(true, "Convert to ArrayPtr")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Convert to ArrayPtr")
   {
     ezDynamicArray<ezInt32> a1;
 
@@ -86,7 +86,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
     EZ_TEST(ap.GetCount () == a1.GetCount());
   }
 
-  EZ_TEST_BLOCK(true, "operator =")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator =")
   {
     ezDynamicArray<ezInt32, ezTestAllocatorWrapper> a1;
     ezDynamicArray<ezInt32> a2;
@@ -105,7 +105,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
     EZ_TEST(a2 == arrayPtr);
   }
 
-  EZ_TEST_BLOCK(true, "operator == / !=")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator == / !=")
   {
     ezDynamicArray<ezInt32> a1, a2;
     
@@ -131,7 +131,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
     EZ_TEST((a1 != a2) == false);
   }
 
-  EZ_TEST_BLOCK(true, "Index operator")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Index operator")
   {
     ezDynamicArray<ezInt32> a1;
     a1.SetCount(100);
@@ -149,7 +149,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
       EZ_TEST_INT(ca1[i], i);
   }
 
-  EZ_TEST_BLOCK(true, "SetCount / GetCount / IsEmpty")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetCount / GetCount / IsEmpty")
   {
     ezDynamicArray<ezInt32> a1;
 
@@ -186,7 +186,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
     EZ_TEST_INT(a1[31], 45);
   }
 
-  EZ_TEST_BLOCK(true, "Clear")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Clear")
   {
     ezDynamicArray<ezInt32> a1;
     a1.Clear();
@@ -197,7 +197,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
     EZ_TEST(a1.IsEmpty());
   }
 
-  EZ_TEST_BLOCK(true, "Contains / IndexOf / LastIndexOf")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Contains / IndexOf / LastIndexOf")
   {
     ezDynamicArray<ezInt32> a1;
 
@@ -215,7 +215,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
     }
   }
 
-  EZ_TEST_BLOCK(true, "PushBackUnchecked / PushBackRange")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "PushBackUnchecked / PushBackRange")
   {
     ezDynamicArray<ezInt32> a1;
     a1.Reserve(100);
@@ -236,7 +236,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
       EZ_TEST_INT(a1[i], i);
   }
 
-  EZ_TEST_BLOCK(true, "Insert")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Insert")
   {
     ezDynamicArray<ezInt32> a1;
 
@@ -248,7 +248,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
       EZ_TEST_INT(a1[i], 99 - i);
   }
 
-  EZ_TEST_BLOCK(true, "Remove")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Remove")
   {
     ezDynamicArray<ezInt32> a1;
 
@@ -263,7 +263,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
       EZ_TEST_INT(a1[i], 0);
   }
 
-  EZ_TEST_BLOCK(true, "RemoveSwap")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "RemoveSwap")
   {
     ezDynamicArray<ezInt32> a1;
 
@@ -282,7 +282,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
       EZ_TEST(ezMath::IsEven(a1[i]));
   }
 
-  EZ_TEST_BLOCK(true, "RemoveAt")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "RemoveAt")
   {
     ezDynamicArray<ezInt32> a1;
 
@@ -301,7 +301,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
       EZ_TEST_INT(a1[i], i * 2);
   }
 
-  EZ_TEST_BLOCK(true, "RemoveAtSwap")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "RemoveAtSwap")
   {
     ezDynamicArray<ezInt32> a1;
 
@@ -320,7 +320,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
       EZ_TEST(ezMath::IsEven(a1[i]));
   }
 
-  EZ_TEST_BLOCK(true, "PushBack / PopBack / PeekBack")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "PushBack / PopBack / PeekBack")
   {
     ezDynamicArray<ezInt32> a1;
 
@@ -344,7 +344,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
     EZ_TEST_INT(a1.PeekBack(), 23);
   }
 
-  EZ_TEST_BLOCK(true, "Construction / Destruction")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Construction / Destruction")
   {
     {
       EZ_TEST(st::HasAllDestructed());
@@ -391,7 +391,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
     EZ_TEST(st::HasAllDestructed());
   }
 
-  EZ_TEST_BLOCK(true, "SortingPrimitives")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SortingPrimitives")
   {
     ezDynamicArray<ezUInt32> list;
 
@@ -411,7 +411,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
     }
   }
 
-  EZ_TEST_BLOCK(true, "SortingObjects")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SortingObjects")
   {
     ezDynamicArray<Dummy> list;
     list.Reserve(128);
@@ -430,7 +430,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
     }
   }
 
-  EZ_TEST_BLOCK(true, "Various")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Various")
   {
     ezDynamicArray<Dummy> list;
     list.PushBack(1);
@@ -467,7 +467,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
     EZ_TEST(list.GetCount() == 4);
   }
 
-  EZ_TEST_BLOCK(true, "Assignment")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Assignment")
   {
     ezDynamicArray<Dummy> list;
     for (int i = 0; i < 16; i++)
@@ -501,7 +501,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
     EZ_TEST(list == list2);
   }
 
-  EZ_TEST_BLOCK(true, "Count")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Count")
   {
     ezDynamicArray<Dummy> list;
     for (int i = 0; i < 16; i++)
@@ -514,7 +514,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
     list.Compact();
   }
 
-  EZ_TEST_BLOCK(true, "Reserve")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Reserve")
   {
     EZ_TEST(st::HasAllDestructed());
 
@@ -544,7 +544,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
     EZ_TEST(st::HasDone(100, 0));
   }
 
-  EZ_TEST_BLOCK(true, "Compact")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Compact")
   {
     EZ_TEST(st::HasAllDestructed());
 

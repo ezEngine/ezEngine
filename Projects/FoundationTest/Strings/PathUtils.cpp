@@ -2,7 +2,7 @@
 
 EZ_CREATE_SIMPLE_TEST(Strings, PathUtils)
 {
-  EZ_TEST_BLOCK(true, "IsPathSeparator")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsPathSeparator")
   {
     for (int i = 0; i < 0xFFFF; ++i)
     {
@@ -22,7 +22,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, PathUtils)
     }
   }
 
-  EZ_TEST_BLOCK(true, "FindPreviousSeparator")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "FindPreviousSeparator")
   {
     const char* szPath = "This/Is\\My//Path.dot\\file.extension";
 
@@ -36,14 +36,14 @@ EZ_CREATE_SIMPLE_TEST(Strings, PathUtils)
     EZ_TEST(ezPathUtils::FindPreviousSeparator(NULL, NULL)  == NULL);
   }
 
-  EZ_TEST_BLOCK(true, "HasAnyExtension")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "HasAnyExtension")
   {
     EZ_TEST(ezPathUtils::HasAnyExtension("This/Is\\My//Path.dot\\file.extension"));
     EZ_TEST(!ezPathUtils::HasAnyExtension("This/Is\\My//Path.dot\\file_no_extension"));
     EZ_TEST(!ezPathUtils::HasAnyExtension(""));
   }
 
-  EZ_TEST_BLOCK(true, "HasExtension")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "HasExtension")
   {
     EZ_TEST(ezPathUtils::HasExtension("This/Is\\My//Path.dot\\file.extension", ".Extension"));
     EZ_TEST(ezPathUtils::HasExtension("This/Is\\My//Path.dot\\file.ext", "EXT"));
@@ -53,14 +53,14 @@ EZ_CREATE_SIMPLE_TEST(Strings, PathUtils)
     EZ_TEST(!ezPathUtils::HasExtension("", "ext"));
   }
 
-  EZ_TEST_BLOCK(true, "GetFileExtension")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetFileExtension")
   {
     EZ_TEST(ezPathUtils::GetFileExtension("This/Is\\My//Path.dot\\file.extension") == "extension");
     EZ_TEST(ezPathUtils::GetFileExtension("This/Is\\My//Path.dot\\file") == "");
     EZ_TEST(ezPathUtils::GetFileExtension("") == "");
   }
 
-  EZ_TEST_BLOCK(true, "GetFileNameAndExtension")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetFileNameAndExtension")
   {
     EZ_TEST(ezPathUtils::GetFileNameAndExtension("This/Is\\My//Path.dot\\file.extension") == "file.extension");
     EZ_TEST(ezPathUtils::GetFileNameAndExtension("This/Is\\My//Path.dot\\.extension") == ".extension");
@@ -71,7 +71,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, PathUtils)
     EZ_TEST(ezPathUtils::GetFileNameAndExtension("This/Is\\My//Path.dot\\") == "");
   }
 
-  EZ_TEST_BLOCK(true, "GetFileName")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetFileName")
   {
     EZ_TEST(ezPathUtils::GetFileName("This/Is\\My//Path.dot\\file.extension") == "file");
     EZ_TEST(ezPathUtils::GetFileName("This/Is\\My//Path.dot\\file") == "file");
@@ -84,7 +84,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, PathUtils)
     EZ_TEST(ezPathUtils::GetFileName("This/Is\\My//Path.dot\\.stupidfile") == "");
   }
 
-  EZ_TEST_BLOCK(true, "GetFileDirectory")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetFileDirectory")
   {
     EZ_TEST(ezPathUtils::GetFileDirectory("This/Is\\My//Path.dot\\file.extension") == "This/Is\\My//Path.dot\\");
     EZ_TEST(ezPathUtils::GetFileDirectory("This/Is\\My//Path.dot\\.extension") == "This/Is\\My//Path.dot\\");
@@ -96,7 +96,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, PathUtils)
     EZ_TEST(ezPathUtils::GetFileDirectory("This") == "");
   }
 
-  EZ_TEST_BLOCK(true, "IsAbsolutePath")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsAbsolutePath")
   {
     #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
       EZ_TEST(ezPathUtils::IsAbsolutePath("C:\\test.stuff"));

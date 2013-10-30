@@ -3,7 +3,7 @@
 
 EZ_CREATE_SIMPLE_TEST(Containers, Bitfield)
 {
-  EZ_TEST_BLOCK(true, "GetCount / IsEmpty / Clear")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetCount / IsEmpty / Clear")
   {
     ezDynamicBitfield bf; // using a dynamic array
 
@@ -26,7 +26,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, Bitfield)
     EZ_TEST(!bf.IsEmpty());
   }
   
-  EZ_TEST_BLOCK(true, "SetCount / SetAllBits / ClearAllBits")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetCount / SetAllBits / ClearAllBits")
   {
     ezBitfield<ezHybridArray<ezUInt32, 16> > bf; // using a hybrid array
 
@@ -59,7 +59,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, Bitfield)
       EZ_TEST(bf.IsSet(i));
   }
   
-  EZ_TEST_BLOCK(true, "SetCount / SetBit / ClearBit")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetCount / SetBit / ClearBit")
   {
     ezBitfield<ezHybridArray<ezUInt32, 16> > bf; // using a hybrid array
 
@@ -91,7 +91,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, Bitfield)
     }
   }
 
-  EZ_TEST_BLOCK(true, "SetRange")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetRange")
   {
     for (ezUInt32 size = 1; size < 1024; ++size)
     {
@@ -117,7 +117,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, Bitfield)
     }
   }
 
-  EZ_TEST_BLOCK(true, "ClearRange")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ClearRange")
   {
     for (ezUInt32 size = 1; size < 1024; ++size)
     {

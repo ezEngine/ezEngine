@@ -55,7 +55,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, Delegate)
   EZ_TEST(sizeof(d) == 32);
 #endif
 
-  EZ_TEST_BLOCK(true, "Method")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Method")
   {
     TestTypeDerived test;
     test.m_iA = 42;
@@ -67,7 +67,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, Delegate)
     EZ_TEST_INT(d(4), 8);
   }
 
-  EZ_TEST_BLOCK(true, "Const Method")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Const Method")
   {
     const TestType constTest;
     constTest.m_iA = 35;
@@ -76,7 +76,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, Delegate)
     EZ_TEST_INT(d(4), 43);
   }
 
-  EZ_TEST_BLOCK(true, "Virtual Method")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Virtual Method")
   {
     TestTypeDerived test;
 
@@ -87,7 +87,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, Delegate)
     EZ_TEST_INT(d(4), 47);
   }
 
-  EZ_TEST_BLOCK(true, "Function")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Function")
   {
     d = &Function;
     EZ_TEST_INT(d(4), 6);

@@ -4,7 +4,7 @@
 
 EZ_CREATE_SIMPLE_TEST(Time, Stopwatch)
 {
-  EZ_TEST_BLOCK(true, "General Functionality")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "General Functionality")
   {
     ezStopwatch sw;
 

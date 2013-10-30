@@ -35,7 +35,7 @@ EZ_CREATE_SIMPLE_TEST(Communication, MessageQueue)
 
   TestMessageQueue q;
   
-  EZ_TEST_BLOCK(true, "Enqueue")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Enqueue")
   {
     for (ezUInt32 i = 0; i < 100; ++i)
     {
@@ -50,7 +50,7 @@ EZ_CREATE_SIMPLE_TEST(Communication, MessageQueue)
     }
   }
 
-  EZ_TEST_BLOCK(true, "Sorting")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Sorting")
   {
     struct MessageComparer
     {
@@ -66,7 +66,7 @@ EZ_CREATE_SIMPLE_TEST(Communication, MessageQueue)
     q.Sort<MessageComparer>();
   }
 
-  EZ_TEST_BLOCK(true, "operator[]")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator[]")
   {
     ezMessage* pLastMsg = q[0].m_pMessage;
     MetaData lastMd = q[0].m_MetaData;
@@ -87,7 +87,7 @@ EZ_CREATE_SIMPLE_TEST(Communication, MessageQueue)
     }
   }
 
-  EZ_TEST_BLOCK(true, "Dequeue")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Dequeue")
   {
     ezMessage* pMsg = NULL;
     MetaData md;

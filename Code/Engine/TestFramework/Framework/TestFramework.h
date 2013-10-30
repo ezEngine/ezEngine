@@ -99,13 +99,23 @@ protected:
   bool m_bTestsRunning;
 };
 
-// Starts a small test block inside a larger test. 
-// First parameter allows to quickly disable a block depending on a condition (e.g. platform). 
-// Second parameter just gives it a name for better error reporting.
-// Also skipped tests are highlighted in the output, such that people can quickly see when a test is currently deactivated.
+struct ezTestBlock
+{
+  enum Enum
+  {
+    Disabled,
+    Enabled
+  };
+};
+
+/// \brief Starts a small test block inside a larger test. 
+///
+/// First parameter allows to quickly disable a block depending on a condition (e.g. platform). 
+/// Second parameter just gives it a name for better error reporting.
+/// Also skipped tests are highlighted in the output, such that people can quickly see when a test is currently deactivated.
 #define EZ_TEST_BLOCK(enable, name) \
   ezTestFramework::s_szTestBlockName = name; \
-  if (!enable) \
+  if (enable == ezTestBlock::Disabled) \
   { \
     ezTestFramework::s_szTestBlockName = ""; \
     ezTestFramework::Output(ezTestOutput::Message, "Skipped Test Block '%s'", name); \

@@ -41,7 +41,7 @@ EZ_CREATE_SIMPLE_TEST(Threading, Thread)
   g_iCrossThreadVariable = 0;
 
 
-  EZ_TEST_BLOCK(true, "Thread")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Thread")
   {
     TestThread* pTestThread = NULL;
     TestThread* pTestThread2 = NULL;
@@ -77,7 +77,7 @@ EZ_CREATE_SIMPLE_TEST(Threading, Thread)
     EZ_TEST_INT(g_iCrossThreadVariable, g_uiIncrementSteps * 2 + 1);
   }
 
-  EZ_TEST_BLOCK(true, "Thread Sleeping")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Thread Sleeping")
   {
     const ezTime start = ezSystemTime::Now();
 

@@ -88,13 +88,13 @@ EZ_CREATE_SIMPLE_TEST_GROUP(Memory);
 
 EZ_CREATE_SIMPLE_TEST(Memory, Allocator)
 {
-  EZ_TEST_BLOCK(true, "Alignment")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Alignment")
   {
     TestAlignmentHelper<NonAlignedVector>(4);
     TestAlignmentHelper<AlignedVector>(16);
   }
 
-  EZ_TEST_BLOCK(true, "Tracking")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Tracking")
   {
     typedef ezAllocator<ezMemoryPolicies::ezHeapAllocation, ezMemoryPolicies::ezStackTracking, ezMutex> TrackingAllocator;
 
@@ -110,7 +110,7 @@ EZ_CREATE_SIMPLE_TEST(Memory, Allocator)
     EZ_DELETE(ezFoundation::GetBaseAllocator(), pAllocator);
   }
 
-  EZ_TEST_BLOCK(true, "LargeBlockAllocator")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "LargeBlockAllocator")
   {
     enum { BLOCK_SIZE_IN_BYTES = ezDataBlock<int>::SIZE_IN_BYTES };
 
