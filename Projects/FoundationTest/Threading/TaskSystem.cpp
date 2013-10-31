@@ -32,7 +32,7 @@ private:
   virtual void Execute (void) EZ_OVERRIDE
   {
     if (m_iTaskID >= 0)
-      printf("Starting Task %i\n", m_iTaskID);
+      printf("Starting Task %i at %.4f\n", m_iTaskID, ezSystemTime::Now().GetSeconds());
 
     m_bStarted = true;
 
@@ -41,11 +41,12 @@ private:
     for (ezUInt32 obst = 0; obst < m_uiIterations; ++obst)
     {
       ezThreadUtils::Sleep(1);
+      ezSystemTime::Now();
 
       if (HasBeenCanceled() && m_bSupportCancel)
       {
         if (m_iTaskID >= 0)
-          printf("Canceling Task %i\n", m_iTaskID);
+          printf("Canceling Task %i at %.4f\n", m_iTaskID, ezSystemTime::Now().GetSeconds());
         return;
       }
     }
@@ -53,7 +54,7 @@ private:
     m_bDone = true;
 
     if (m_iTaskID >= 0)
-      printf("Finishing Task %i\n", m_iTaskID);
+      printf("Finishing Task %i at %.4f\n", m_iTaskID, ezSystemTime::Now().GetSeconds());
   }
 };
 

@@ -26,7 +26,9 @@ namespace
       {
         ezAtomicUtils::Increment(g_iCrossThreadVariable);
 
+        ezSystemTime::Now();
         ezThreadUtils::YieldTimeSlice();
+        ezSystemTime::Now();
       }
 
       return 0;
