@@ -4,6 +4,7 @@
 #include "Level.h"
 #include <Core/Input/VirtualThumbStick.h>
 #include <Foundation/Time/Time.h>
+#include <Foundation/Time/DefaultTimeStepSmoothing.h>
 
 class SampleGameApp : public ezApplication
 {
@@ -37,6 +38,7 @@ private:
   Level* m_pLevel;
   class GameWindow* m_pWindow;
 
+  ezDefaultTimeStepSmoothing m_TimeStepSmoother;
   ezVirtualThumbStick* m_pThumbstick;
   ezVirtualThumbStick* m_pThumbstick2;
 };

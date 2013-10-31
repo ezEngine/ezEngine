@@ -8,6 +8,8 @@
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Communication/Telemetry.h>
 #include <Foundation/Configuration/Plugin.h>
+#include <Foundation/Time/Clock.h>
+
 
 
 SampleGameApp::SampleGameApp()
@@ -28,6 +30,9 @@ void SampleGameApp::AfterEngineInit()
   // Setup the logging system
   ezGlobalLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);
   ezGlobalLog::AddLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
+
+  ezClock::SetNumGlobalClocks();
+  ezClock::Get()->SetTimeStepSmoothing(&m_TimeStepSmoother);
 
   // Map the input keys to actions
   SetupInput();
@@ -63,6 +68,8 @@ ezApplication::ApplicationExecution SampleGameApp::Run()
 
   if(!m_bActiveRenderLoop)
     return ezApplication::Quit;
+
+  ezClock::UpdateAllGlobalClocks();
 
   RenderSingleFrame();
   m_pWindow->SwapBuffers();
