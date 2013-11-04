@@ -7,13 +7,14 @@
 #include <Core/Input/InputManager.h>
 #include <Foundation/Math/Size.h>
 #include <Foundation/Configuration/CVar.h>
+#include <Foundation/Math/Color.h>
 
-const float g_fShipColors[4][3] =
+const ezColor g_fShipColors[4] =
 {
-  { 1, 0, 0 },
-  { 0, 1, 0 },
-  { 1, 0, 1 },
-  { 1, 1, 0 },
+  ezColor::GetRed(),
+  ezColor::GetGreen(),
+  ezColor::GetPink(),
+  ezColor::GetYellow()
 };
 
 static void RenderShip(ezGameObject* pShip, ezInt32 iPlayer)
@@ -36,7 +37,8 @@ static void RenderShip(ezGameObject* pShip, ezInt32 iPlayer)
   const float fHealthPerc = pShipComponent->m_iHealth / 1000.0f;
 
   glBegin(GL_TRIANGLES);
-    glColor3f(g_fShipColors[iPlayer][0] * fHealthPerc, g_fShipColors[iPlayer][1] * fHealthPerc, g_fShipColors[iPlayer][2] * fHealthPerc);
+    ezColor shipColorScaled_health = g_fShipColors[iPlayer] * fHealthPerc;
+    glColor4fv(shipColorScaled_health);
 
     for (ezInt32 i = 0; i < 3; ++i)
       glVertex3f(vCorners[i].x, vCorners[i].y, vCorners[i].z);
@@ -46,7 +48,8 @@ static void RenderShip(ezGameObject* pShip, ezInt32 iPlayer)
 
   glBegin(GL_LINE_LOOP);
 
-    glColor3f(g_fShipColors[iPlayer][0] * fOutline, g_fShipColors[iPlayer][1] * fOutline, g_fShipColors[iPlayer][2] * fOutline);
+    ezColor shipColorScaled_outline = g_fShipColors[iPlayer] * fOutline;
+    glColor4fv(shipColorScaled_outline);
 
     for (ezInt32 i = 0; i < 3; ++i)
       glVertex3f(vCorners[i].x, vCorners[i].y, vCorners[i].z);
@@ -131,10 +134,11 @@ static void RenderProjectile(ezGameObject* pObj, ProjectileComponent* pProjectil
   v[0] = pObj->GetLocalPosition();
   v[1] = v[0] + pProjectile->m_vDrawDir;
 
-  const float fAlpha = 1.0f - ezMath::Square(1.0f - ezMath::Clamp(pProjectile->m_iTimeToLive / 25.0f, 0.0f, 1.0f));
+  ezColor projectileColor(g_fShipColors[iPlayer]);
+  projectileColor.a = 1.0f - ezMath::Square(1.0f - ezMath::Clamp(pProjectile->m_iTimeToLive / 25.0f, 0.0f, 1.0f));
 
   glBegin(GL_LINES);
-    glColor4f(g_fShipColors[iPlayer][0], g_fShipColors[iPlayer][1], g_fShipColors[iPlayer][2], fAlpha);
+    glColor4fv(projectileColor);
 
     glVertex3f(v[0].x, v[0].y, v[0].z);
     glVertex3f(v[1].x, v[1].y, v[1].z);

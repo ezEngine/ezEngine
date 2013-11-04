@@ -67,6 +67,8 @@
 #include <Foundation/Math/Size.h>
 #include <Foundation/Math/Vec2.h>
 #include <Foundation/Math/Vec3.h>
+#include <Foundation/Math/Color.h>
+#include <Foundation/Math/Color8UNorm.h>
 
 #include <Foundation/Memory/Allocator.h>
 #include <Foundation/Memory/AllocatorWrapper.h>

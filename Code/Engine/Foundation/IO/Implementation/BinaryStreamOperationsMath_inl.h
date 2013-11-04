@@ -10,6 +10,8 @@
 #include <Foundation/Math/Quat.h>
 #include <Foundation/Math/BoundingBox.h>
 #include <Foundation/Math/BoundingSphere.h>
+#include <Foundation/Math/Color.h>
+#include <Foundation/Math/Color8Unorm.h>
 
 // ezVec2Template
 
@@ -188,5 +190,43 @@ inline ezIBinaryStreamReader& operator >> (ezIBinaryStreamReader& Stream, ezBoun
 {
   Stream >> Value.m_vCenter;
   Stream >> Value.m_fRadius;
+  return Stream;
+}
+
+// ezColor
+inline ezIBinaryStreamWriter& operator << (ezIBinaryStreamWriter& Stream, ezColor& Value)
+{
+  Stream << Value.r;
+  Stream << Value.g;
+  Stream << Value.b;
+  Stream << Value.a;
+  return Stream;
+}
+
+inline ezIBinaryStreamReader& operator >> (ezIBinaryStreamReader& Stream, ezColor& Value)
+{
+  Stream >> Value.r;
+  Stream >> Value.g;
+  Stream >> Value.b;
+  Stream >> Value.a;
+  return Stream;
+}
+
+// ezColor8Unorm
+inline ezIBinaryStreamWriter& operator << (ezIBinaryStreamWriter& Stream, ezColor8UNorm& Value)
+{
+  Stream << Value.r;
+  Stream << Value.g;
+  Stream << Value.b;
+  Stream << Value.a;
+  return Stream;
+}
+
+inline ezIBinaryStreamReader& operator >> (ezIBinaryStreamReader& Stream, ezColor8UNorm& Value)
+{
+  Stream >> Value.r;
+  Stream >> Value.g;
+  Stream >> Value.b;
+  Stream >> Value.a;
   return Stream;
 }
