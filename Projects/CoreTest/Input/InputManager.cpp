@@ -474,7 +474,7 @@ EZ_CREATE_SIMPLE_TEST(Input, InputManager)
 
     dev.ActivateAll();
 
-    ezInputManager::Update(ezTime::Seconds(ezTime::Seconds(1.0 / 60.0)));
+    ezInputManager::Update(ezTime::Seconds(1.0 / 60.0));
     ezInputManager::GetInputActionState("test_inputset", "test_timescaling", &fVal);
 
     EZ_TEST_FLOAT(fVal, 0.1f, 0.0001f); // testdevice_button has a value of 0.1f

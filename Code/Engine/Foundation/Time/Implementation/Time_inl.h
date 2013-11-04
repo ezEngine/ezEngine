@@ -6,49 +6,9 @@ inline ezTime::ezTime(double fTime) : m_fTime(fTime)
 {
 }
 
-inline ezTime::ezTime(const NanoSeconds& nanoSeconds)
-{
-  operator=(nanoSeconds);
-}
-
-inline ezTime::ezTime(const MicroSeconds& microSeconds)
-{
-  operator=(microSeconds);
-}
-
-inline ezTime::ezTime(const MilliSeconds& milliSeconds)
-{
-  operator=(milliSeconds);
-}
-
-inline ezTime::ezTime(const Seconds& seconds)
-{
-  operator=(seconds);
-}
-
 inline void ezTime::SetZero()
 {
   m_fTime = 0.0;
-}
-
-inline void ezTime::operator=(const NanoSeconds& seconds)
-{
-  m_fTime = seconds.m_fTime * 0.000000001;
-}
-
-inline void ezTime::operator=(const MicroSeconds& seconds)
-{
-  m_fTime = seconds.m_fTime * 0.000001;
-}
-
-inline void ezTime::operator=(const MilliSeconds& seconds)
-{
-  m_fTime = seconds.m_fTime * 0.001;
-}
-
-inline void ezTime::operator=(const Seconds& seconds)
-{
-  m_fTime = seconds.m_fTime;
 }
 
 inline float ezTime::AsFloat() const

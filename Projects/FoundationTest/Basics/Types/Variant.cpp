@@ -356,23 +356,23 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezTime")
   {
-    ezVariant v(ezTime(ezTime::Seconds(1337))); // the implicit cast to ezTime (from ezTime::Seconds) does not work here
+    ezVariant v(ezTime::Seconds(1337));
     EZ_TEST(v.IsValid());
     EZ_TEST(v.GetType() == ezVariant::Type::Time);
     EZ_TEST(v.IsA<ezTime>());
     EZ_TEST(v.Get<ezTime>() == ezTime::Seconds(1337));
 
-    EZ_TEST(v == ezVariant(ezTime(ezTime::Seconds(1337))));
-    EZ_TEST(v != ezVariant(ezTime(ezTime::Seconds(1336))));
+    EZ_TEST(v == ezVariant(ezTime::Seconds(1337)));
+    EZ_TEST(v != ezVariant(ezTime::Seconds(1336)));
 
-    EZ_TEST(v == ezTime(ezTime::Seconds(1337)));
-    EZ_TEST(v != ezTime(ezTime::Seconds(1338)));
+    EZ_TEST(v == ezTime::Seconds(1337));
+    EZ_TEST(v != ezTime::Seconds(1338));
 
-    v = ezTime(ezTime::Seconds(8472));
-    EZ_TEST(v == ezTime(ezTime::Seconds(8472)));
+    v = ezTime::Seconds(8472);
+    EZ_TEST(v == ezTime::Seconds(8472));
 
-    v = ezVariant(ezTime(ezTime::Seconds(13)));
-    EZ_TEST(v == ezTime(ezTime::Seconds(13)));
+    v = ezVariant(ezTime::Seconds(13));
+    EZ_TEST(v == ezTime::Seconds(13));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezVariantArray")
@@ -793,7 +793,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "CanConvertTo (ezTime)")
   {
-    ezVariant v(ezTime(ezTime::Seconds(0.0)));
+    ezVariant v(ezTime::Seconds(0.0));
 
     EZ_TEST(v.CanConvertTo(ezVariant::Type::Invalid) == false);
     EZ_TEST(v.CanConvertTo(ezVariant::Type::Bool) == false);

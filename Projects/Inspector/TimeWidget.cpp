@@ -148,8 +148,8 @@ void ezTimeWidget::UpdateStats()
 
     for (ezUInt32 i = 1; i < 10; ++i)
     {
-      pMax.moveTo(QPointF (-m_DisplayInterval.GetSeconds(), ezTime(ezTime::MilliSeconds(10.0 * i)).GetSeconds()));
-      pMax.lineTo(QPointF (0, ezTime(ezTime::MilliSeconds(10.0 * i)).GetSeconds()));
+      pMax.moveTo(QPointF (-m_DisplayInterval.GetSeconds(), ezTime::MilliSeconds(10.0 * i).GetSeconds()));
+      pMax.lineTo(QPointF (0, ezTime::MilliSeconds(10.0 * i).GetSeconds()));
     }
 
     m_pPathMax->setPath(pMax);
@@ -225,8 +225,15 @@ void ezTimeWidget::ProcessTelemetry(void* pUnuseed)
 
     s_pWidget->m_MaxGlobalTime = ezMath::Max(s_pWidget->m_MaxGlobalTime, Sample.m_AtGlobalTime);
 
-    ad.m_TimeSamples.PushBack(Sample);
-    ads.m_TimeSamples.PushBack(SampleSmooth);
+    if (ad.m_TimeSamples.GetCount() > 1 && (ezMath::IsEqual(ad.m_TimeSamples.PeekBack().m_Timestep, Sample.m_Timestep, ezTime::MicroSeconds(100))))
+      ad.m_TimeSamples.PeekBack() = Sample;
+    else
+      ad.m_TimeSamples.PushBack(Sample);
+
+    if (ads.m_TimeSamples.GetCount() > 1 && (ezMath::IsEqual(ads.m_TimeSamples.PeekBack().m_Timestep, SampleSmooth.m_Timestep, ezTime::MicroSeconds(100))))
+      ads.m_TimeSamples.PeekBack() = SampleSmooth;
+    else
+      ads.m_TimeSamples.PushBack(SampleSmooth);
 
     ad.m_MinTimestep = ezMath::Min(ad.m_MinTimestep, Sample.m_Timestep);
     ad.m_MaxTimestep = ezMath::Max(ad.m_MaxTimestep, Sample.m_Timestep);

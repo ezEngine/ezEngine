@@ -11,93 +11,25 @@ class EZ_FOUNDATION_DLL ezTime
 {
 public:
 
-  /// \brief Helper class to encapsulate nanoseconds.
-  class NanoSeconds
-  {
-  public:
+  /// \brief Creates an instance of ezTime that was initialized from nanoseconds.
+  static ezTime NanoSeconds(double fNanoSeconds)    { return ezTime(fNanoSeconds * 0.000000001); }
 
-    explicit NanoSeconds(double fNanoSeconds) : m_fTime(fNanoSeconds) { }
+  /// \brief Creates an instance of ezTime that was initialized from microseconds.
+  static ezTime MicroSeconds(double fMicroSeconds)  { return ezTime(fMicroSeconds * 0.000001); }
 
-  private:
+  /// \brief Creates an instance of ezTime that was initialized from milliseconds.
+  static ezTime MilliSeconds(double fMilliSeconds)  { return ezTime(fMilliSeconds * 0.001); }
 
-    double m_fTime;
-
-    friend class ezTime;
-  };
-
-  /// \brief Helper class to encapsulate microseconds.
-  class MicroSeconds
-  {
-  public:
-
-    explicit MicroSeconds(double fMicroSeconds) : m_fTime(fMicroSeconds) { }
-
-  private:
-
-    double m_fTime;
-
-    friend class ezTime;
-  };
-
-  /// \brief Helper class to encapsulate milliseconds.
-  class MilliSeconds
-  {
-  public:
-    
-    explicit MilliSeconds(double fMilliSeconds) : m_fTime(fMilliSeconds) { }
-
-  private:
-
-    double m_fTime;
-
-    friend class ezTime;
-  };
-
-  /// \brief Helper class to encapsulate seconds.
-  class Seconds
-  {
-  public:
-
-    explicit Seconds(double fSeconds) : m_fTime(fSeconds) { }
-
-  private:
-
-    double m_fTime;
-
-    friend class ezTime;
-  };
+  /// \brief Creates an instance of ezTime that was initialized from seconds.
+  static ezTime Seconds(double fSeconds)            { return ezTime(fSeconds); }
 
   EZ_DECLARE_POD_TYPE();
 
   ezTime() { m_fTime = 0.0; }
 
-  /// \brief Initializes the ezTime instance from a known nanoseconds value.
-  ezTime(const NanoSeconds& nanoSeconds);
-
-  /// \brief Initializes the ezTime instance from a known microseconds value.
-  ezTime(const MicroSeconds& microSeconds);
-
-  /// \brief Initializes the ezTime instance from a known milliseconds value.
-  ezTime(const MilliSeconds& milliSeconds);
-
-  /// \brief Initializes the ezTime instance from a known seconds value.
-  ezTime(const Seconds& seconds);
-
   /// \brief Sets the time value to zero.
   void SetZero();
   
-  /// \brief Sets the value of the instance from a known nanoseconds value.
-  void operator=(const NanoSeconds& seconds);
-
-  /// \brief Sets the value of the instance from a known microseconds value.
-  void operator=(const MicroSeconds& seconds);
-
-  /// \brief Sets the value of the instance from a known milliseconds value.
-  void operator=(const MilliSeconds& seconds);
-
-  /// \brief Sets the value of the instance from a known seconds value.
-  void operator=(const Seconds& seconds);
-
   /// \brief Returns the time as a float value (in seconds).
   ///
   /// Useful for simulation time steps etc.
