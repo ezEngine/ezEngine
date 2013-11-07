@@ -47,7 +47,7 @@ public:
   void SetElements(Type X, Type Y, Type Z, Type W); // [tested]
 
   /// \brief Creates a quaternion from a rotation-axis and an angle.
-  void SetFromAxisAndAngle(const ezVec3Template<Type>& vRotationAxis, Type fAngle); // [tested]
+  void SetFromAxisAndAngle(const ezVec3Template<Type>& vRotationAxis, ezAngle angle); // [tested]
   
   /// \brief Creates a quaternion, that rotates through the shortest arc from "vDirFrom" to "vDirTo".
   void SetShortestRotation(const ezVec3Template<Type>& vDirFrom, const ezVec3Template<Type>& vDirTo); // [tested]
@@ -65,7 +65,7 @@ public:
   void Normalize(); // [tested]
 
   /// \brief Returns the rotation-axis and angle, that this quaternion rotates around.
-  ezResult GetRotationAxisAndAngle(ezVec3Template<Type>& vAxis, Type& fAngle) const; // [tested]
+  ezResult GetRotationAxisAndAngle(ezVec3Template<Type>& vAxis, ezAngle& angle) const; // [tested]
   
   /// \brief Returns the Quaternion as a matrix.
   const ezMat3Template<Type> GetAsMat3() const; // [tested]
@@ -81,7 +81,7 @@ public:
   /// Currently it fails when one of the given quaternions is identity (so no rotation, at all), as it tries to
   /// compare rotation axis' and angles, which is undefined for the identity quaternion (also there are infinite
   /// representations for 'identity', so it's difficult to check for it).
-  bool IsEqualRotation(const ezQuatTemplate& qOther, Type fEpsilon) const; // [tested]
+  bool IsEqualRotation(const ezQuatTemplate& qOther, float fEpsilon) const; // [tested]
 
 // *** Operators ***
 public:

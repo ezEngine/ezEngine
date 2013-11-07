@@ -190,7 +190,7 @@ void Level::UpdatePlayerInput(ezInt32 iPlayer)
   if (ezInputManager::GetInputActionState("Game", sControls[4].GetData(), &fVal) != ezKeyState::Up)
   {
     ezQuat qRotation;
-    qRotation.SetFromAxisAndAngle(ezVec3(0, 0, 1), 3.0f * fVal * 60.0f);
+    qRotation.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(3.0f * fVal * 60.0f));
 
     ezQuat qNewRot = qRotation * pShip->GetLocalRotation();
     pShip->SetLocalRotation(qNewRot);
@@ -199,7 +199,7 @@ void Level::UpdatePlayerInput(ezInt32 iPlayer)
   if (ezInputManager::GetInputActionState("Game", sControls[5].GetData(), &fVal) != ezKeyState::Up)
   {
     ezQuat qRotation;
-    qRotation.SetFromAxisAndAngle(ezVec3(0, 0, 1), -3.0f * fVal * 60.0f);
+    qRotation.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(-3.0f * fVal * 60.0f));
 
     ezQuat qNewRot = qRotation * pShip->GetLocalRotation();
     pShip->SetLocalRotation(qNewRot);

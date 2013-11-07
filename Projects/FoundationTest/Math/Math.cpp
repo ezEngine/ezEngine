@@ -64,147 +64,94 @@ EZ_CREATE_SIMPLE_TEST(Math, General)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Sin")
   {
-    EZ_TEST_FLOAT(ezMath::SinDeg(0.0f),   0.0f, 0.000001f);
-    EZ_TEST_FLOAT(ezMath::SinDeg(90.0f),  1.0f, 0.000001f);
-    EZ_TEST_FLOAT(ezMath::SinDeg(180.0f), 0.0f, 0.000001f);
-    EZ_TEST_FLOAT(ezMath::SinDeg(270.0f),-1.0f, 0.000001f);
+    EZ_TEST_FLOAT(ezMath::Sin(ezAngle::Degree(0.0f)),   0.0f, 0.000001f);
+    EZ_TEST_FLOAT(ezMath::Sin(ezAngle::Degree(90.0f)),  1.0f, 0.000001f);
+    EZ_TEST_FLOAT(ezMath::Sin(ezAngle::Degree(180.0f)), 0.0f, 0.000001f);
+    EZ_TEST_FLOAT(ezMath::Sin(ezAngle::Degree(270.0f)),-1.0f, 0.000001f);
     
-    EZ_TEST_FLOAT(ezMath::SinDeg(45.0f),  0.7071067f, 0.000001f);
-    EZ_TEST_FLOAT(ezMath::SinDeg(135.0f), 0.7071067f, 0.000001f);
-    EZ_TEST_FLOAT(ezMath::SinDeg(225.0f),-0.7071067f, 0.000001f);
-    EZ_TEST_FLOAT(ezMath::SinDeg(315.0f),-0.7071067f, 0.000001f);
-
-    EZ_TEST_FLOAT(ezMath::SinRad(ezMath::DegToRad(0.0f)),   0.0f, 0.000001f);
-    EZ_TEST_FLOAT(ezMath::SinRad(ezMath::DegToRad(90.0f)),  1.0f, 0.000001f);
-    EZ_TEST_FLOAT(ezMath::SinRad(ezMath::DegToRad(180.0f)), 0.0f, 0.000001f);
-    EZ_TEST_FLOAT(ezMath::SinRad(ezMath::DegToRad(270.0f)),-1.0f, 0.000001f);
-    
-    EZ_TEST_FLOAT(ezMath::SinRad(ezMath::DegToRad(45.0f )), 0.7071067f, 0.000001f);
-    EZ_TEST_FLOAT(ezMath::SinRad(ezMath::DegToRad(135.0f)), 0.7071067f, 0.000001f);
-    EZ_TEST_FLOAT(ezMath::SinRad(ezMath::DegToRad(225.0f)),-0.7071067f, 0.000001f);
-    EZ_TEST_FLOAT(ezMath::SinRad(ezMath::DegToRad(315.0f)),-0.7071067f, 0.000001f);
+    EZ_TEST_FLOAT(ezMath::Sin(ezAngle::Degree(45.0f)),  0.7071067f, 0.000001f);
+    EZ_TEST_FLOAT(ezMath::Sin(ezAngle::Degree(135.0f)), 0.7071067f, 0.000001f);
+    EZ_TEST_FLOAT(ezMath::Sin(ezAngle::Degree(225.0f)),-0.7071067f, 0.000001f);
+    EZ_TEST_FLOAT(ezMath::Sin(ezAngle::Degree(315.0f)),-0.7071067f, 0.000001f);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Cos")
   {
-    EZ_TEST_FLOAT(ezMath::CosDeg(0.0f),   1.0f, 0.000001f);
-    EZ_TEST_FLOAT(ezMath::CosDeg(90.0f),  0.0f, 0.000001f);
-    EZ_TEST_FLOAT(ezMath::CosDeg(180.0f),-1.0f, 0.000001f);
-    EZ_TEST_FLOAT(ezMath::CosDeg(270.0f), 0.0f, 0.000001f);
+    EZ_TEST_FLOAT(ezMath::Cos(ezAngle::Degree(0.0f)),   1.0f, 0.000001f);
+    EZ_TEST_FLOAT(ezMath::Cos(ezAngle::Degree(90.0f)),  0.0f, 0.000001f);
+    EZ_TEST_FLOAT(ezMath::Cos(ezAngle::Degree(180.0f)),-1.0f, 0.000001f);
+    EZ_TEST_FLOAT(ezMath::Cos(ezAngle::Degree(270.0f)), 0.0f, 0.000001f);
     
-    EZ_TEST_FLOAT(ezMath::CosDeg(45.0f),  0.7071067f, 0.000001f);
-    EZ_TEST_FLOAT(ezMath::CosDeg(135.0f),-0.7071067f, 0.000001f);
-    EZ_TEST_FLOAT(ezMath::CosDeg(225.0f),-0.7071067f, 0.000001f);
-    EZ_TEST_FLOAT(ezMath::CosDeg(315.0f), 0.7071067f, 0.000001f);
-
-    EZ_TEST_FLOAT(ezMath::CosRad(ezMath::DegToRad(0.0f  )), 1.0f, 0.000001f);
-    EZ_TEST_FLOAT(ezMath::CosRad(ezMath::DegToRad(90.0f )), 0.0f, 0.000001f);
-    EZ_TEST_FLOAT(ezMath::CosRad(ezMath::DegToRad(180.0f)),-1.0f, 0.000001f);
-    EZ_TEST_FLOAT(ezMath::CosRad(ezMath::DegToRad(270.0f)), 0.0f, 0.000001f);
-
-    EZ_TEST_FLOAT(ezMath::CosRad(ezMath::DegToRad(45.0f )), 0.7071067f, 0.000001f);
-    EZ_TEST_FLOAT(ezMath::CosRad(ezMath::DegToRad(135.0f)),-0.7071067f, 0.000001f);
-    EZ_TEST_FLOAT(ezMath::CosRad(ezMath::DegToRad(225.0f)),-0.7071067f, 0.000001f);
-    EZ_TEST_FLOAT(ezMath::CosRad(ezMath::DegToRad(315.0f)), 0.7071067f, 0.000001f);
+    EZ_TEST_FLOAT(ezMath::Cos(ezAngle::Degree(45.0f)),  0.7071067f, 0.000001f);
+    EZ_TEST_FLOAT(ezMath::Cos(ezAngle::Degree(135.0f)),-0.7071067f, 0.000001f);
+    EZ_TEST_FLOAT(ezMath::Cos(ezAngle::Degree(225.0f)),-0.7071067f, 0.000001f);
+    EZ_TEST_FLOAT(ezMath::Cos(ezAngle::Degree(315.0f)), 0.7071067f, 0.000001f);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Tan")
   {
-    EZ_TEST_FLOAT(ezMath::TanDeg(0.0f), 0.0f, 0.000001f);
-    EZ_TEST_FLOAT(ezMath::TanDeg(45.0f), 1.0f, 0.000001f);
-    EZ_TEST_FLOAT(ezMath::TanDeg(-45.0f), -1.0f, 0.000001f);
-    EZ_TEST(ezMath::TanDeg(90.00001f) < 1000000.0f);
-    EZ_TEST(ezMath::TanDeg(89.99999f) > 1000000.0f);
-
-    EZ_TEST_FLOAT(ezMath::TanRad(ezMath::DegToRad(0.0f)), 0.0f, 0.000001f);
-    EZ_TEST_FLOAT(ezMath::TanRad(ezMath::DegToRad(45.0f)), 1.0f, 0.000001f);
-    EZ_TEST_FLOAT(ezMath::TanRad(ezMath::DegToRad(-45.0f)), -1.0f, 0.000001f);
-    EZ_TEST(ezMath::TanRad(ezMath::DegToRad(90.00001f)) < 1000000.0f);
-    EZ_TEST(ezMath::TanRad(ezMath::DegToRad(89.99999f)) > 1000000.0f);
+    EZ_TEST_FLOAT(ezMath::Tan(ezAngle::Degree(0.0f)), 0.0f, 0.000001f);
+    EZ_TEST_FLOAT(ezMath::Tan(ezAngle::Degree(45.0f)), 1.0f, 0.000001f);
+    EZ_TEST_FLOAT(ezMath::Tan(ezAngle::Degree(-45.0f)), -1.0f, 0.000001f);
+    EZ_TEST(ezMath::Tan(ezAngle::Degree(90.00001f)) < 1000000.0f);
+    EZ_TEST(ezMath::Tan(ezAngle::Degree(89.99999f)) > 1000000.0f);
 
     // Testing the period of tan(x) centered at 0 and the adjacent ones
-    float fAngle = -89.0f;
-    while (fAngle < 89.0f)
+    ezAngle angle = ezAngle::Degree(-89.0f);
+    while (angle.GetDegree() < 89.0f)
     {
-      float fTan = ezMath::TanDeg(fAngle);
-      float fTanPrev = ezMath::TanDeg(fAngle - 180.0f);
-      float fTanNext = ezMath::TanDeg(fAngle + 180.0f);
-      float fSin = ezMath::SinDeg(fAngle);
-      float fCos = ezMath::CosDeg(fAngle);
+      float fTan = ezMath::Tan(angle);
+      float fTanPrev = ezMath::Tan(ezAngle::Degree(angle.GetDegree() - 180.0f));
+      float fTanNext = ezMath::Tan(ezAngle::Degree(angle.GetDegree() + 180.0f));
+      float fSin = ezMath::Sin(angle);
+      float fCos = ezMath::Cos(angle);
 
       EZ_TEST_FLOAT(fTan - fTanPrev, 0.0f, 0.001f);
       EZ_TEST_FLOAT(fTan - fTanNext, 0.0f, 0.001f);
       EZ_TEST_FLOAT(fTan - (fSin / fCos), 0.0f, 0.0001f);
-      fAngle += 1.234f;
+      angle += ezAngle::Degree(1.234f);
     }
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ASin")
   {
-    EZ_TEST_FLOAT(ezMath::ASinDeg(0.0f),   0.0f, 0.00001f);
-    EZ_TEST_FLOAT(ezMath::ASinDeg(1.0f),  90.0f, 0.00001f);
-    EZ_TEST_FLOAT(ezMath::ASinDeg(-1.0f),-90.0f, 0.00001f);
+    EZ_TEST_FLOAT(ezMath::ASin(0.0f).GetDegree(),   0.0f, 0.00001f);
+    EZ_TEST_FLOAT(ezMath::ASin(1.0f).GetDegree(),  90.0f, 0.00001f);
+    EZ_TEST_FLOAT(ezMath::ASin(-1.0f).GetDegree(),-90.0f, 0.00001f);
     
-    EZ_TEST_FLOAT(ezMath::ASinDeg(0.7071067f),  45.0f, 0.0001f);
-    EZ_TEST_FLOAT(ezMath::ASinDeg(-0.7071067f),-45.0f, 0.0001f);
-
-    EZ_TEST_FLOAT(ezMath::RadToDeg(ezMath::ASinRad( 0.0f)),  0.0f, 0.00001f);
-    EZ_TEST_FLOAT(ezMath::RadToDeg(ezMath::ASinRad( 1.0f)), 90.0f, 0.00001f);
-    EZ_TEST_FLOAT(ezMath::RadToDeg(ezMath::ASinRad(-1.0f)),-90.0f, 0.00001f);
-    
-    EZ_TEST_FLOAT(ezMath::RadToDeg(ezMath::ASinRad( 0.7071067f)),  45.0f, 0.0001f);
-    EZ_TEST_FLOAT(ezMath::RadToDeg(ezMath::ASinRad(-0.7071067f)),-45.0f, 0.0001f);
+    EZ_TEST_FLOAT(ezMath::ASin(0.7071067f).GetDegree(),  45.0f, 0.0001f);
+    EZ_TEST_FLOAT(ezMath::ASin(-0.7071067f).GetDegree(),-45.0f, 0.0001f);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ACos")
   {
-    EZ_TEST_FLOAT(ezMath::ACosDeg(0.0f),  90.0f, 0.00001f);
-    EZ_TEST_FLOAT(ezMath::ACosDeg(1.0f),   0.0f, 0.00001f);
-    EZ_TEST_FLOAT(ezMath::ACosDeg(-1.0f),180.0f, 0.0001f);
+    EZ_TEST_FLOAT(ezMath::ACos(0.0f).GetDegree(),  90.0f, 0.00001f);
+    EZ_TEST_FLOAT(ezMath::ACos(1.0f).GetDegree(),   0.0f, 0.00001f);
+    EZ_TEST_FLOAT(ezMath::ACos(-1.0f).GetDegree(),180.0f, 0.0001f);
     
-    EZ_TEST_FLOAT(ezMath::ACosDeg( 0.7071067f), 45.0f, 0.0001f);
-    EZ_TEST_FLOAT(ezMath::ACosDeg(-0.7071067f),135.0f, 0.0001f);
-
-    EZ_TEST_FLOAT(ezMath::RadToDeg(ezMath::ACosRad ( 0.0f)),  90.0f, 0.00001f);
-    EZ_TEST_FLOAT(ezMath::RadToDeg(ezMath::ACosRad ( 1.0f)),   0.0f, 0.00001f);
-    EZ_TEST_FLOAT(ezMath::RadToDeg(ezMath::ACosRad (-1.0f)), 180.0f, 0.0001f);
-    
-    EZ_TEST_FLOAT(ezMath::RadToDeg(ezMath::ACosRad( 0.7071067f)),  45.0f, 0.0001f);
-    EZ_TEST_FLOAT(ezMath::RadToDeg(ezMath::ACosRad(-0.7071067f)), 135.0f, 0.0001f);
+    EZ_TEST_FLOAT(ezMath::ACos( 0.7071067f).GetDegree(), 45.0f, 0.0001f);
+    EZ_TEST_FLOAT(ezMath::ACos(-0.7071067f).GetDegree(),135.0f, 0.0001f);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ATan")
   {
-    EZ_TEST_FLOAT(ezMath::ATanDeg(0.0f), 0.0f, 0.0000001f);
-    EZ_TEST_FLOAT(ezMath::ATanDeg(1.0f), 45.0f, 0.00001f);
-    EZ_TEST_FLOAT(ezMath::ATanDeg(-1.0f), -45.0f, 0.00001f);
-    EZ_TEST_FLOAT(ezMath::ATanDeg(10000000.0f), 90.0f, 0.00001f);
-    EZ_TEST_FLOAT(ezMath::ATanDeg(-10000000.0f), -90.0f, 0.00001f);
-
-    EZ_TEST_FLOAT(ezMath::RadToDeg(ezMath::ATanRad(0.0f)), 0.0f, 0.0000001f);
-    EZ_TEST_FLOAT(ezMath::RadToDeg(ezMath::ATanRad(1.0f)), 45.0f, 0.00001f);
-    EZ_TEST_FLOAT(ezMath::RadToDeg(ezMath::ATanRad(-1.0f)), -45.0f, 0.00001f);
-    EZ_TEST_FLOAT(ezMath::RadToDeg(ezMath::ATanRad(10000000.0f)), 90.0f, 0.00001f);
-    EZ_TEST_FLOAT(ezMath::RadToDeg(ezMath::ATanRad(-10000000.0f)), -90.0f, 0.00001f);
+    EZ_TEST_FLOAT(ezMath::ATan(0.0f).GetDegree(), 0.0f, 0.0000001f);
+    EZ_TEST_FLOAT(ezMath::ATan(1.0f).GetDegree(), 45.0f, 0.00001f);
+    EZ_TEST_FLOAT(ezMath::ATan(-1.0f).GetDegree(), -45.0f, 0.00001f);
+    EZ_TEST_FLOAT(ezMath::ATan(10000000.0f).GetDegree(), 90.0f, 0.00001f);
+    EZ_TEST_FLOAT(ezMath::ATan(-10000000.0f).GetDegree(), -90.0f, 0.00001f);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ATan2")
   {
     for (float fScale = 0.125f; fScale < 1000000.0f; fScale *= 2.0f)
     {
-      EZ_TEST_FLOAT(ezMath::ATan2Deg(0.0f, fScale), 0.0f, 0.0000001f);
-      EZ_TEST_FLOAT(ezMath::ATan2Deg(fScale, fScale), 45.0f, 0.00001f);
-      EZ_TEST_FLOAT(ezMath::ATan2Deg(fScale, 0.0f), 90.0f, 0.00001f);
-      EZ_TEST_FLOAT(ezMath::ATan2Deg(-fScale, fScale), -45.0f, 0.00001f);
-      EZ_TEST_FLOAT(ezMath::ATan2Deg(-fScale, 0.0f), -90.0f, 0.00001f);
-      EZ_TEST_FLOAT(ezMath::ATan2Deg(0.0f, -fScale), 180.0f, 0.0001f);
-
-      EZ_TEST_FLOAT(ezMath::RadToDeg(ezMath::ATan2Rad(0.0f, fScale)), 0.0f, 0.0000001f);
-      EZ_TEST_FLOAT(ezMath::RadToDeg(ezMath::ATan2Rad(fScale, fScale)), 45.0f, 0.00001f);
-      EZ_TEST_FLOAT(ezMath::RadToDeg(ezMath::ATan2Rad(fScale, 0.0f)), 90.0f, 0.00001f);
-      EZ_TEST_FLOAT(ezMath::RadToDeg(ezMath::ATan2Rad(-fScale, fScale)), -45.0f, 0.00001f);
-      EZ_TEST_FLOAT(ezMath::RadToDeg(ezMath::ATan2Rad(-fScale, 0.0f)), -90.0f, 0.00001f);
-      EZ_TEST_FLOAT(ezMath::RadToDeg(ezMath::ATan2Rad(0.0f, -fScale)), 180.0f, 0.0001f);
+      EZ_TEST_FLOAT(ezMath::ATan2(0.0f, fScale).GetDegree(), 0.0f, 0.0000001f);
+      EZ_TEST_FLOAT(ezMath::ATan2(fScale, fScale).GetDegree(), 45.0f, 0.00001f);
+      EZ_TEST_FLOAT(ezMath::ATan2(fScale, 0.0f).GetDegree(), 90.0f, 0.00001f);
+      EZ_TEST_FLOAT(ezMath::ATan2(-fScale, fScale).GetDegree(), -45.0f, 0.00001f);
+      EZ_TEST_FLOAT(ezMath::ATan2(-fScale, 0.0f).GetDegree(), -90.0f, 0.00001f);
+      EZ_TEST_FLOAT(ezMath::ATan2(0.0f, -fScale).GetDegree(), 180.0f, 0.0001f);
     }
   }
 

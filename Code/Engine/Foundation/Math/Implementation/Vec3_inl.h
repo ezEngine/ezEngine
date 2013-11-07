@@ -245,12 +245,12 @@ const ezVec3Template<Type> ezVec3Template<Type>::Cross(const ezVec3Template<Type
 }
 
 template<typename Type>
-Type ezVec3Template<Type>::GetAngleBetween(const ezVec3Template<Type>& rhs) const
+ezAngle ezVec3Template<Type>::GetAngleBetween(const ezVec3Template<Type>& rhs) const
 {
   EZ_ASSERT (this->IsNormalized(), "This vector must be normalized.");
   EZ_ASSERT (rhs.IsNormalized(), "The other vector must be normalized.");
 
-  return ezMath::ACosDeg (ezMath::Clamp(this->Dot (rhs), (Type) -1, (Type) 1));
+  return ezMath::ACos(ezMath::Clamp(this->Dot (rhs), (Type) -1, (Type) 1));
 }
 
 template<typename Type>

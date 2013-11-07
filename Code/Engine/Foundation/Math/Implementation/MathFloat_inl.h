@@ -98,74 +98,39 @@ namespace ezMath
     return fFactor * fMultiple;
   }
 
-  EZ_FORCE_INLINE float SinDeg(float f)
+  EZ_FORCE_INLINE float Sin(ezAngle a)
   {
-    return sinf(DegToRad(f));
+    return sinf(a.GetRadian());
   }
 
-  EZ_FORCE_INLINE float CosDeg(float f)
+  EZ_FORCE_INLINE float Cos(ezAngle a)
   {
-    return cosf(DegToRad(f));
+    return cosf(a.GetRadian());
   }
 
-  EZ_FORCE_INLINE float SinRad(float f)
+  EZ_FORCE_INLINE float Tan(ezAngle a)
   {
-    return sinf(f);
+    return tanf(a.GetRadian());
   }
 
-  EZ_FORCE_INLINE float CosRad(float f)
+  EZ_FORCE_INLINE ezAngle ASin(float f)
   {
-    return cosf(f);
+    return ezAngle::Radian(asinf(f));
   }
 
-  EZ_FORCE_INLINE float TanDeg(float f)
+  EZ_FORCE_INLINE ezAngle ACos(float f)
   {
-    return tanf(DegToRad(f));
+    return ezAngle::Radian(acosf(f));
   }
 
-  EZ_FORCE_INLINE float TanRad(float f)
+  EZ_FORCE_INLINE ezAngle ATan(float f)
   {
-    return tanf(f);
+    return ezAngle::Radian(atanf(f));
   }
 
-  EZ_FORCE_INLINE float ASinDeg(float f)
+  EZ_FORCE_INLINE ezAngle ATan2(float x, float y)
   {
-    return RadToDeg(asinf(f));
-  }
-
-  EZ_FORCE_INLINE float ACosDeg(float f)
-  {
-    return RadToDeg(acosf(f));
-  }
-
-  EZ_FORCE_INLINE float ASinRad(float f)
-  {
-    return asinf(f);
-  }
-
-  EZ_FORCE_INLINE float ACosRad(float f)
-  {
-    return acosf(f);
-  }
-
-  EZ_FORCE_INLINE float ATanDeg(float f)
-  {
-    return RadToDeg(atanf(f));
-  }
-
-  EZ_FORCE_INLINE float ATanRad(float f)
-  {
-    return atanf(f);
-  }
-
-  EZ_FORCE_INLINE float ATan2Deg(float x, float y)
-  {
-    return RadToDeg(atan2f(x, y));
-  }
-
-  EZ_FORCE_INLINE float ATan2Rad(float x, float y)
-  {
-    return atan2f(x, y);
+    return ezAngle::Radian(atan2f(x, y));
   }
 
   EZ_FORCE_INLINE float Exp(float f)

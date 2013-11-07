@@ -2,6 +2,7 @@
 
 #include <Foundation/Math/Vec3.h>
 #include <Foundation/Math/Vec4.h>
+#include <Foundation/Math/Angle.h>
 
 /// \brief A 4x4 component matrix class.
 template<typename Type>
@@ -85,16 +86,16 @@ public:
   void SetScalingMatrix(const ezVec3Template<Type>& vScale); // [tested]
 
   /// \brief Sets this matrix to be a rotation matrix around the X-axis.
-  void SetRotationMatrixX(Type fAngle); // [tested]
+  void SetRotationMatrixX(ezAngle angle); // [tested]
 
   /// \brief Sets this matrix to be a rotation matrix around the Y-axis.
-  void SetRotationMatrixY(Type fAngle); // [tested]
+  void SetRotationMatrixY(ezAngle angle); // [tested]
 
   /// \brief Sets this matrix to be a rotation matrix around the Z-axis.
-  void SetRotationMatrixZ(Type fAngle); // [tested]
+  void SetRotationMatrixZ(ezAngle angle); // [tested]
 
   /// \brief Sets this matrix to be a rotation matrix around the given axis.
-  void SetRotationMatrix(const ezVec3Template<Type>& vAxis, Type fAngle); // [tested]
+  void SetRotationMatrix(const ezVec3Template<Type>& vAxis, ezAngle angle); // [tested]
 
   /// \brief Creates a perspective projection matrix.
   void SetPerspectiveProjectionMatrix(Type fViewWidth, Type fViewHeight, Type fNearZ, Type fFarZ, ezProjectionDepthRange::Enum DepthRange);
@@ -103,12 +104,12 @@ public:
   void SetPerspectiveProjectionMatrix(Type fLeft, Type fRight, Type fBottom, Type fTop, Type fNearZ, Type fFarZ, ezProjectionDepthRange::Enum DepthRange);
 
   /// \brief Creates a perspective projection matrix.
-  /// \param fFieldOfViewX    Horizontal field of view in degree.
-  void SetPerspectiveProjectionMatrixFromFovX(Type fFieldOfViewX, Type fAspectRatioWidthDivHeight, Type fNearZ, Type fFarZ, ezProjectionDepthRange::Enum DepthRange);
+  /// \param fFieldOfViewX    Horizontal field of view.
+  void SetPerspectiveProjectionMatrixFromFovX(ezAngle fieldOfViewX, Type fAspectRatioWidthDivHeight, Type fNearZ, Type fFarZ, ezProjectionDepthRange::Enum DepthRange);
 
   /// \brief Creates a perspective projection matrix.
-  /// \param fFieldOfViewY    Vertical field of view in degree.
-  void SetPerspectiveProjectionMatrixFromFovY(Type fFieldOfViewY, Type fAspectRatioWidthDivHeight, Type fNearZ, Type fFarZ, ezProjectionDepthRange::Enum DepthRange);
+  /// \param fFieldOfViewY    Vertical field of view.
+  void SetPerspectiveProjectionMatrixFromFovY(ezAngle fieldOfViewY, Type fAspectRatioWidthDivHeight, Type fNearZ, Type fFarZ, ezProjectionDepthRange::Enum DepthRange);
 
   /// \brief Creates an orthographic projection matrix.
   void SetOrthographicProjectionMatrix(Type fViewWidth, Type fViewHeight, Type fNearZ, Type fFarZ, ezProjectionDepthRange::Enum DepthRange);

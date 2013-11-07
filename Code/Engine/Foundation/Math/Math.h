@@ -2,6 +2,7 @@
 
 #include <Foundation/Basics.h>
 #include <Foundation/Math/Declarations.h>
+#include <Foundation/Math/Angle.h>
 
 
 /// \brief This namespace provides common math-functionality as functions.
@@ -53,63 +54,26 @@ namespace ezMath
 
   /// ***** Trigonometric Functions *****
 
-  /// \brief Returns the constant to multiply with an angle in degree to convert it to radians.
-  template<typename Type>
-  EZ_FORCE_INLINE Type DegToRadMultiplier() { return BasicType<Type>::Pi() / (Type) 180; }
+  /// \brief Takes an angle, returns its sine
+  float Sin(ezAngle a); // [tested]
 
-  /// \brief Returns the constant to multiply with an angle in degree to convert it to radians.
-  template<typename Type>
-  EZ_FORCE_INLINE Type RadToDegMultiplier() { return ((Type) 180) / BasicType<Type>::Pi(); }
+  /// \brief Takes an angle, returns its cosine
+  float Cos(ezAngle a); // [tested]
 
-  /// \brief Converts an angle in degree to radians.
-  template<typename Type>
-  Type DegToRad(Type f) { return f * DegToRadMultiplier<Type>(); } // [tested]
+  /// \brief Takes an angle, returns its tangent
+  float Tan(ezAngle a); // [tested]
 
-  /// \brief Converts an angle in radians to degree.
-  template<typename Type>
-  Type RadToDeg(Type f) { return f * RadToDegMultiplier<Type>(); } // [tested]
+  /// \brief Returns the arcus sinus of f
+  ezAngle ASin(float f); // [tested]
 
-  /// \brief Takes an angle in degree, returns its sine
-  float SinDeg(float f); // [tested]
+  /// \brief Returns the arcus cosinus of f
+  ezAngle ACos(float f); // [tested]
 
-  /// \brief Takes an angle in degree, returns its cosine
-  float CosDeg(float f); // [tested]
+  /// \brief Returns the arcus tangent of f
+  ezAngle ATan(float f); // [tested]
 
-  /// \brief Takes an angle in radians, returns its sine
-  float SinRad(float f); // [tested]
-
-  /// \brief Takes an angle in radians, returns its cosine
-  float CosRad(float f); // [tested]
-
-  /// \brief Takes an angle in degree, returns its tangent
-  float TanDeg(float f); // [tested]
-
-  /// \brief Takes an angle in radians, returns its tangent
-  float TanRad(float f); // [tested]
-
-  /// \brief Returns the arcus sinus of f, in degree
-  float ASinDeg(float f); // [tested]
-
-  /// \brief Returns the arcus cosinus of f, in degree
-  float ACosDeg(float f); // [tested]
-
-  /// \brief Returns the arcus sinus of f, in radians
-  float ASinRad(float f); // [tested]
-
-  /// \brief Returns the arcus cosinus of f, in radians
-  float ACosRad(float f); // [tested]
-
-  /// \brief Returns the arcus tangent of f, in degree
-  float ATanDeg(float f); // [tested]
-
-  /// \brief Returns the arcus tangent of f, in radians
-  float ATanRad(float f); // [tested]
-
-  /// \brief Returns the atan2 of x and y, in degree
-  float ATan2Deg(float x, float y); // [tested]
-
-  /// \brief Returns the atan2 of x and y, in radians
-  float ATan2Rad(float x, float y); // [tested]
+  /// \brief Returns the atan2 of x and y
+  ezAngle ATan2(float x, float y); // [tested]
 
   /// \brief Returns e^f
   float Exp(float f); // [tested]

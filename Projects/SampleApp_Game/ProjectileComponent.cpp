@@ -88,7 +88,7 @@ void ProjectileComponent::Update()
         for (ezInt32 i = 0; i < iMaxParticles; ++i)
         {
           ezQuat qRot;
-          qRot.SetFromAxisAndAngle(ezVec3(0, 0, 1), /*180.0f +*/ (float) (i - (iMaxParticles / 2)) * fSteps);
+          qRot.SetFromAxisAndAngle(ezVec3(0, 0, 1), /*180.0f +*/ ezAngle::Degree((i - (iMaxParticles / 2)) * fSteps));
           const ezVec3 vDir = qRot * m_vVelocity;
 
           {

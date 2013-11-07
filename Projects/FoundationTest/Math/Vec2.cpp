@@ -296,10 +296,10 @@ EZ_CREATE_SIMPLE_TEST(Math, Vec2)
     ezVec2T v1(1, 0);
     ezVec2T v2(0, 1);
 
-    EZ_TEST_FLOAT(v1.GetAngleBetween(v1),  0, 0.001f);
-    EZ_TEST_FLOAT(v2.GetAngleBetween(v2),  0, 0.001f);
-    EZ_TEST_FLOAT(v1.GetAngleBetween(v2),   90, 0.001f);
-    EZ_TEST_FLOAT(v1.GetAngleBetween(-v1), 180, 0.001f);
+    EZ_TEST_FLOAT(v1.GetAngleBetween(v1).GetDegree(),  0, 0.001f);
+    EZ_TEST_FLOAT(v2.GetAngleBetween(v2).GetDegree(),  0, 0.001f);
+    EZ_TEST_FLOAT(v1.GetAngleBetween(v2).GetDegree(),   90, 0.001f);
+    EZ_TEST_FLOAT(v1.GetAngleBetween(-v1).GetDegree(), 180, 0.001f);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Dot")

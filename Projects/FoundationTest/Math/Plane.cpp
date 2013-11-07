@@ -321,7 +321,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Plane)
     ezPlaneT p(ezVec3T(0, 1, 0), ezVec3T(0, 10, 0));
 
     ezMat3T m;
-    m.SetRotationMatrixX(90);
+    m.SetRotationMatrixX(ezAngle::Degree(90));
 
     p.Transform(m);
 
@@ -335,7 +335,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Plane)
       ezPlaneT p(ezVec3T(0, 1, 0), ezVec3T(0, 10, 0));
 
       ezMat4T m;
-      m.SetRotationMatrixX(90);
+      m.SetRotationMatrixX(ezAngle::Degree(90));
       m.SetTranslationVector(ezVec3T(0, 5, 0));
 
       p.Transform(m);
@@ -348,7 +348,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Plane)
       ezPlaneT p(ezVec3T(0, 1, 0), ezVec3T(0, 10, 0));
 
       ezMat4T m;
-      m.SetRotationMatrixX(90);
+      m.SetRotationMatrixX(ezAngle::Degree(90));
       m.SetTranslationVector(ezVec3T(0, 0, 5));
 
       p.Transform(m);

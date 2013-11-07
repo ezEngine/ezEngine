@@ -33,12 +33,12 @@ EZ_FORCE_INLINE void ezQuatTemplate<Type>::SetIdentity()
 }
 
 template<typename Type>
-void ezQuatTemplate<Type>::SetFromAxisAndAngle(const ezVec3Template<Type>& vRotationAxis, Type fAngle)
+void ezQuatTemplate<Type>::SetFromAxisAndAngle(const ezVec3Template<Type>& vRotationAxis, ezAngle angle)
 {
-  const Type d = ezMath::DegToRad(fAngle * (Type) 0.5);
+  const ezAngle halfAngle = angle * 0.5f;
 
-  v = ezMath::SinRad (d) * vRotationAxis;
-  w = ezMath::CosRad (d);
+  v = ezMath::Sin(halfAngle) * vRotationAxis;
+  w = ezMath::Cos(halfAngle);
 
   Normalize ();
 }
@@ -55,16 +55,16 @@ void ezQuatTemplate<Type>::Normalize()
 }
 
 template<typename Type>
-ezResult ezQuatTemplate<Type>::GetRotationAxisAndAngle(ezVec3Template<Type>& vAxis, Type& fAngle) const
+ezResult ezQuatTemplate<Type>::GetRotationAxisAndAngle(ezVec3Template<Type>& vAxis, ezAngle& angle) const
 {
-  const Type acos = ezMath::ACosRad(w);
-  const Type d = ezMath::SinRad(acos);
+  const ezAngle acos = ezMath::ACos(w);
+  const float d = ezMath::Sin(acos);
 
-  if (d == (Type) 0)
+  if (d == 0)
     return EZ_FAILURE;
 
   vAxis = (v / d);
-  fAngle = ezMath::RadToDeg(acos * (Type) 2);
+  angle = acos * 2;
 
   return EZ_SUCCESS;
 }
@@ -107,21 +107,21 @@ bool ezQuatTemplate<Type>::IsValid(Type fEpsilon) const
 }
 
 template<typename Type>
-bool ezQuatTemplate<Type>::IsEqualRotation(const ezQuatTemplate<Type>& qOther, Type fEpsilon) const
+bool ezQuatTemplate<Type>::IsEqualRotation(const ezQuatTemplate<Type>& qOther, float fEpsilon) const
 {
   ezVec3Template<Type> vA1, vA2;
-  Type fA1, fA2;
+  ezAngle A1, A2;
 
-  if (GetRotationAxisAndAngle(vA1, fA1) == EZ_FAILURE)
+  if (GetRotationAxisAndAngle(vA1, A1) == EZ_FAILURE)
     return false;
-  if (qOther.GetRotationAxisAndAngle(vA2, fA2) == EZ_FAILURE)
+  if (qOther.GetRotationAxisAndAngle(vA2, A2) == EZ_FAILURE)
     return false;
 
-  if ((ezMath::IsEqual(fA1, fA2, fEpsilon)) &&
+  if ((A1.IsEqualSimple(A2, ezAngle::Degree(fEpsilon))) &&
       (vA1.IsEqual(vA2, fEpsilon)))
       return true;
 
-  if ((ezMath::IsEqual(fA1, -fA2, fEpsilon)) &&
+  if ((A1.IsEqualSimple(-A2, ezAngle::Degree(fEpsilon))) &&
       (vA1.IsEqual(-vA2, fEpsilon)))
       return true;
 
@@ -269,9 +269,9 @@ void ezQuatTemplate<Type>::SetShortestRotation(const ezVec3Template<Type>& vDirF
   {
     // find an axis, that is not identical and not opposing, ezVec3Template::Cross-product to find perpendicular vector, rotate around that
     if (ezMath::Abs (v0.Dot (ezVec3Template<Type>(1, 0, 0))) < (Type) 0.8)
-      SetFromAxisAndAngle(v0.Cross (ezVec3Template<Type>(1, 0, 0)).GetNormalized (), (Type) 180);
+      SetFromAxisAndAngle(v0.Cross (ezVec3Template<Type>(1, 0, 0)).GetNormalized (), ezAngle::Radian(ezMath::BasicType<float>::Pi()));
     else
-      SetFromAxisAndAngle(v0.Cross (ezVec3Template<Type>(0, 1, 0)).GetNormalized (), (Type) 180);
+      SetFromAxisAndAngle(v0.Cross (ezVec3Template<Type>(0, 1, 0)).GetNormalized (), ezAngle::Radian(ezMath::BasicType<float>::Pi()));
 
     return;
   }
@@ -311,14 +311,14 @@ void ezQuatTemplate<Type>::SetSlerp(const ezQuatTemplate<Type>& qFrom, const ezQ
 
   if (cosTheta < qdelta)
   {
-    Type theta = ezMath::ACosRad (cosTheta);
+    ezAngle theta = ezMath::ACos(cosTheta);
 
     // use sqrtInv(1+c^2) instead of 1.0/sin(theta) 
     const Type iSinTheta = (Type) 1 / ezMath::Sqrt(one - (cosTheta*cosTheta));
-    const Type tTheta = t * theta;
+    const ezAngle tTheta = t * theta;
 
-    Type s0 = ezMath::SinRad (theta-tTheta);
-    Type s1 = ezMath::SinRad (tTheta);
+    Type s0 = ezMath::Sin(theta-tTheta);
+    Type s1 = ezMath::Sin(tTheta);
 
     t0 = s0 * iSinTheta;
     t1 = s1 * iSinTheta;

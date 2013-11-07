@@ -196,16 +196,16 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat3)
   {
     ezMat3T m;
 
-    m.SetRotationMatrixX(90);
+    m.SetRotationMatrixX(ezAngle::Degree(90));
     EZ_TEST((m * ezVec3T(1, 2, 3)).IsEqual(ezVec3T(1, -3, 2), 0.0001f));
 
-    m.SetRotationMatrixX(180);
+    m.SetRotationMatrixX(ezAngle::Degree(180));
     EZ_TEST((m * ezVec3T(1, 2, 3)).IsEqual(ezVec3T(1, -2, -3), 0.0001f));
 
-    m.SetRotationMatrixX(270);
+    m.SetRotationMatrixX(ezAngle::Degree(270));
     EZ_TEST((m * ezVec3T(1, 2, 3)).IsEqual(ezVec3T(1, 3, -2), 0.0001f));
 
-    m.SetRotationMatrixX(360);
+    m.SetRotationMatrixX(ezAngle::Degree(360));
     EZ_TEST((m * ezVec3T(1, 2, 3)).IsEqual(ezVec3T(1, 2, 3), 0.0001f));
   }
 
@@ -213,16 +213,16 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat3)
   {
     ezMat3T m;
 
-    m.SetRotationMatrixY(90);
+    m.SetRotationMatrixY(ezAngle::Degree(90));
     EZ_TEST((m * ezVec3T(1, 2, 3)).IsEqual(ezVec3T(3, 2, -1), 0.0001f));
 
-    m.SetRotationMatrixY(180);
+    m.SetRotationMatrixY(ezAngle::Degree(180));
     EZ_TEST((m * ezVec3T(1, 2, 3)).IsEqual(ezVec3T(-1, 2, -3), 0.0001f));
 
-    m.SetRotationMatrixY(270);
+    m.SetRotationMatrixY(ezAngle::Degree(270));
     EZ_TEST((m * ezVec3T(1, 2, 3)).IsEqual(ezVec3T(-3, 2, 1), 0.0001f));
 
-    m.SetRotationMatrixY(360);
+    m.SetRotationMatrixY(ezAngle::Degree(360));
     EZ_TEST((m * ezVec3T(1, 2, 3)).IsEqual(ezVec3T(1, 2, 3), 0.0001f));
   }
 
@@ -230,16 +230,16 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat3)
   {
     ezMat3T m;
 
-    m.SetRotationMatrixZ(90);
+    m.SetRotationMatrixZ(ezAngle::Degree(90));
     EZ_TEST((m * ezVec3T(1, 2, 3)).IsEqual(ezVec3T(-2, 1, 3), 0.0001f));
 
-    m.SetRotationMatrixZ(180);
+    m.SetRotationMatrixZ(ezAngle::Degree(180));
     EZ_TEST((m * ezVec3T(1, 2, 3)).IsEqual(ezVec3T(-1, -2, 3), 0.0001f));
 
-    m.SetRotationMatrixZ(270);
+    m.SetRotationMatrixZ(ezAngle::Degree(270));
     EZ_TEST((m * ezVec3T(1, 2, 3)).IsEqual(ezVec3T(2, -1, 3), 0.0001f));
 
-    m.SetRotationMatrixZ(360);
+    m.SetRotationMatrixZ(ezAngle::Degree(360));
     EZ_TEST((m * ezVec3T(1, 2, 3)).IsEqual(ezVec3T(1, 2, 3), 0.0001f));
   }
 
@@ -247,31 +247,31 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat3)
   {
     ezMat3T m;
 
-    m.SetRotationMatrix(ezVec3T(1, 0, 0), 90);
+    m.SetRotationMatrix(ezVec3T(1, 0, 0), ezAngle::Degree(90));
     EZ_TEST((m * ezVec3T(1, 2, 3)).IsEqual(ezVec3T(1, -3, 2), ezMath::BasicType<ezMathTestType>::LargeEpsilon()));
 
-    m.SetRotationMatrix(ezVec3T(1, 0, 0), 180);
+    m.SetRotationMatrix(ezVec3T(1, 0, 0), ezAngle::Degree(180));
     EZ_TEST((m * ezVec3T(1, 2, 3)).IsEqual(ezVec3T(1, -2, -3), ezMath::BasicType<ezMathTestType>::LargeEpsilon()));
 
-    m.SetRotationMatrix(ezVec3T(1, 0, 0), 270);
+    m.SetRotationMatrix(ezVec3T(1, 0, 0), ezAngle::Degree(270));
     EZ_TEST((m * ezVec3T(1, 2, 3)).IsEqual(ezVec3T(1, 3, -2), ezMath::BasicType<ezMathTestType>::LargeEpsilon()));
 
-    m.SetRotationMatrix(ezVec3T(0, 1, 0), 90);
+    m.SetRotationMatrix(ezVec3T(0, 1, 0), ezAngle::Degree(90));
     EZ_TEST((m * ezVec3T(1, 2, 3)).IsEqual(ezVec3T(3, 2, -1), ezMath::BasicType<ezMathTestType>::LargeEpsilon()));
 
-    m.SetRotationMatrix(ezVec3T(0, 1, 0), 180);
+    m.SetRotationMatrix(ezVec3T(0, 1, 0), ezAngle::Degree(180));
     EZ_TEST((m * ezVec3T(1, 2, 3)).IsEqual(ezVec3T(-1, 2, -3), ezMath::BasicType<ezMathTestType>::LargeEpsilon()));
 
-    m.SetRotationMatrix(ezVec3T(0, 1, 0), 270);
+    m.SetRotationMatrix(ezVec3T(0, 1, 0), ezAngle::Degree(270));
     EZ_TEST((m * ezVec3T(1, 2, 3)).IsEqual(ezVec3T(-3, 2, 1), ezMath::BasicType<ezMathTestType>::LargeEpsilon()));
 
-    m.SetRotationMatrix(ezVec3T(0, 0, 1), 90);
+    m.SetRotationMatrix(ezVec3T(0, 0, 1), ezAngle::Degree(90));
     EZ_TEST((m * ezVec3T(1, 2, 3)).IsEqual(ezVec3T(-2, 1, 3), ezMath::BasicType<ezMathTestType>::LargeEpsilon()));
 
-    m.SetRotationMatrix(ezVec3T(0, 0, 1), 180);
+    m.SetRotationMatrix(ezVec3T(0, 0, 1), ezAngle::Degree(180));
     EZ_TEST((m * ezVec3T(1, 2, 3)).IsEqual(ezVec3T(-1, -2, 3), ezMath::BasicType<ezMathTestType>::LargeEpsilon()));
 
-    m.SetRotationMatrix(ezVec3T(0, 0, 1), 270);
+    m.SetRotationMatrix(ezVec3T(0, 0, 1), ezAngle::Degree(270));
     EZ_TEST((m * ezVec3T(1, 2, 3)).IsEqual(ezVec3T(2, -1, 3), ezMath::BasicType<ezMathTestType>::LargeEpsilon()));
   }
 
@@ -328,7 +328,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat3)
         for (float z = 3.0f; z < 360.0f; z += 23.0f)
         {
           ezMat3T m, inv;
-          m.SetRotationMatrix(ezVec3T(x, y, z).GetNormalized(), 19.0f);
+          m.SetRotationMatrix(ezVec3T(x, y, z).GetNormalized(), ezAngle::Degree(19.0f));
           inv = m;
           EZ_TEST(inv.Invert() == EZ_SUCCESS);
 
@@ -350,7 +350,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat3)
         for (float z = 3.0f; z < 360.0f; z += 21.0f)
         {
           ezMat3T m, inv;
-          m.SetRotationMatrix(ezVec3T(x, y, z).GetNormalized(), 83.0f);
+          m.SetRotationMatrix(ezVec3T(x, y, z).GetNormalized(), ezAngle::Degree(83.0f));
           inv = m.GetInverse();
 
           ezVec3T v = m * ezVec3T(1, 1, 1);

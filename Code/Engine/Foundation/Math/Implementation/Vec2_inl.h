@@ -204,12 +204,12 @@ EZ_FORCE_INLINE Type ezVec2Template<Type>::Dot(const ezVec2Template<Type>& rhs) 
 }
 
 template<typename Type>
-inline Type ezVec2Template<Type>::GetAngleBetween(const ezVec2Template<Type>& rhs) const
+inline ezAngle ezVec2Template<Type>::GetAngleBetween(const ezVec2Template<Type>& rhs) const
 {
   EZ_ASSERT (this->IsNormalized(), "This vector must be normalized.");
   EZ_ASSERT (rhs.IsNormalized(), "The other vector must be normalized.");
 
-  return ezMath::ACosDeg(ezMath::Clamp<Type>(this->Dot(rhs), (Type) -1, (Type) 1));
+  return ezMath::ACos(ezMath::Clamp<Type>(this->Dot(rhs), (Type) -1, (Type) 1));
 }
 
 template<typename Type>

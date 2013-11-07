@@ -115,10 +115,10 @@ void ezMat3Template<Type>::SetScalingMatrix(const ezVec3Template<Type>& s)
 }
 
 template<typename Type>
-void ezMat3Template<Type>::SetRotationMatrixX(Type fAngle)
+void ezMat3Template<Type>::SetRotationMatrixX(ezAngle angle)
 {
-  const Type fSin = ezMath::SinDeg(fAngle);
-  const Type fCos = ezMath::CosDeg(fAngle);
+  const Type fSin = ezMath::Sin(angle);
+  const Type fCos = ezMath::Cos(angle);
 
   SetElements(1.0f, 0.0f, 0.0f,
               0.0f, fCos,-fSin,
@@ -126,10 +126,10 @@ void ezMat3Template<Type>::SetRotationMatrixX(Type fAngle)
 }
 
 template<typename Type>
-void ezMat3Template<Type>::SetRotationMatrixY(Type fAngle)
+void ezMat3Template<Type>::SetRotationMatrixY(ezAngle angle)
 {
-  const Type fSin = ezMath::SinDeg(fAngle);
-  const Type fCos = ezMath::CosDeg(fAngle);
+  const Type fSin = ezMath::Sin(angle);
+  const Type fCos = ezMath::Cos(angle);
 
 
   SetElements(fCos, 0.0f, fSin,
@@ -138,10 +138,10 @@ void ezMat3Template<Type>::SetRotationMatrixY(Type fAngle)
 }
 
 template<typename Type>
-void ezMat3Template<Type>::SetRotationMatrixZ(Type fAngle)
+void ezMat3Template<Type>::SetRotationMatrixZ(ezAngle angle)
 {
-  const Type fSin = ezMath::SinDeg(fAngle);
-  const Type fCos = ezMath::CosDeg(fAngle);
+  const Type fSin = ezMath::Sin(angle);
+  const Type fCos = ezMath::Cos(angle);
 
   SetElements(fCos,-fSin, 0.0f,
               fSin, fCos, 0.0f,

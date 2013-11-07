@@ -18,7 +18,7 @@ AsteroidComponent::AsteroidComponent()
 void AsteroidComponent::Update()
 {
   ezQuat qRot;
-  qRot.SetFromAxisAndAngle(ezVec3(0, 0, 1), m_fRotationSpeed);
+  qRot.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(m_fRotationSpeed));
   
   m_pOwner->SetLocalRotation(qRot * m_pOwner->GetLocalRotation());
 

@@ -142,13 +142,12 @@ ezPositionOnPlane::Enum ezPlaneTemplate<Type>::GetObjectPosition(const ezBoundin
 
 
 template<typename Type>
-void ezMat3Template<Type>::SetRotationMatrix (const ezVec3Template<Type>& vAxis, Type fAngle)
+void ezMat3Template<Type>::SetRotationMatrix (const ezVec3Template<Type>& vAxis, ezAngle angle)
 {
   EZ_ASSERT(vAxis.IsNormalized(), "vAxis must be normalized.");
 
-  const Type rad = ezMath::DegToRad(fAngle);
-  const Type cos = ezMath::CosRad (rad);
-  const Type sin = ezMath::SinRad (rad);
+  const Type cos = ezMath::Cos(angle);
+  const Type sin = ezMath::Sin(angle);
   const Type oneminuscos = (Type) 1 - cos;
 
   const Type xy = vAxis.x * vAxis.y;
@@ -242,13 +241,12 @@ void ezMat3Template<Type>::SetLookInDirectionMatrix (ezVec3Template<Type> vLookD
 
 
 template<typename Type>
-void ezMat4Template<Type>::SetRotationMatrix(const ezVec3Template<Type>& vAxis, Type fAngle)
+void ezMat4Template<Type>::SetRotationMatrix(const ezVec3Template<Type>& vAxis, ezAngle angle)
 {
   EZ_ASSERT(vAxis.IsNormalized(), "vAxis must be normalized.");
 
-  const Type rad = ezMath::DegToRad(fAngle);
-  const Type cos = ezMath::CosRad (rad);
-  const Type sin = ezMath::SinRad (rad);
+  const Type cos = ezMath::Cos(angle);
+  const Type sin = ezMath::Sin(angle);
   const Type oneminuscos = (Type) 1 - cos;
 
   const Type xy = vAxis.x * vAxis.y;
@@ -317,18 +315,18 @@ ezResult ezMat4Template<Type>::Invert(Type fEpsilon)
 }
 
 template<typename Type>
-void ezMat4Template<Type>::SetPerspectiveProjectionMatrixFromFovX (Type fFieldOfViewX, Type fAspectRatioWidthDivHeight, Type fNearZ, Type fFarZ, ezProjectionDepthRange::Enum DepthRange)
+void ezMat4Template<Type>::SetPerspectiveProjectionMatrixFromFovX (ezAngle fieldOfViewX, Type fAspectRatioWidthDivHeight, Type fNearZ, Type fFarZ, ezProjectionDepthRange::Enum DepthRange)
 {
-  const Type xm = fNearZ * ezMath::TanDeg (fFieldOfViewX * (Type) 0.5);
+  const Type xm = fNearZ * ezMath::Tan(fieldOfViewX * 0.5f);
   const Type ym = xm / fAspectRatioWidthDivHeight;
 
   SetPerspectiveProjectionMatrix (-xm, xm, -ym, ym, fNearZ, fFarZ, DepthRange);
 }
 
 template<typename Type>
-void ezMat4Template<Type>::SetPerspectiveProjectionMatrixFromFovY (Type fFieldOfViewY, Type fAspectRatioWidthDivHeight, Type fNearZ, Type fFarZ, ezProjectionDepthRange::Enum DepthRange)
+void ezMat4Template<Type>::SetPerspectiveProjectionMatrixFromFovY (ezAngle fieldOfViewY, Type fAspectRatioWidthDivHeight, Type fNearZ, Type fFarZ, ezProjectionDepthRange::Enum DepthRange)
 {
-  const Type ym = fNearZ * ezMath::TanDeg (fFieldOfViewY * (Type) 0.5);
+  const Type ym = fNearZ * ezMath::Tan(fieldOfViewY * 0.5);
   const Type xm = ym * fAspectRatioWidthDivHeight;
 
   SetPerspectiveProjectionMatrix (-xm, xm, -ym, ym, fNearZ, fFarZ, DepthRange);
@@ -425,6 +423,6 @@ void ezMat4Template<Type>::SetLookAtMatrix(const ezVec3Template<Type>& vStartPos
   Rotation.SetLookInDirectionMatrix(vTargetPos - vStartPos, vUpDir);
 
   SetRotationalPart(Rotation);
-  SetTranslationVector(-(Rotation.GetTranspose() * vStartPos));
+  SetTranslationVector(-(Rotation * vStartPos));
   SetRow(3, ezVec4Template<Type>(0, 0, 0, 1));
 }

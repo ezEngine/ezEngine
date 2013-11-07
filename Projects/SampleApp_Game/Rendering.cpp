@@ -82,8 +82,8 @@ void RenderAsteroid(ezGameObject* pObject, AsteroidComponent* pComponent)
 
   for (ezInt32 i = 0; i < iCorners; ++i)
   {
-    v[i].x = ezMath::CosDeg(fStep * i) * pComponent->m_fRadius;
-    v[i].y = ezMath::SinDeg(fStep * i) * pComponent->m_fRadius;
+    v[i].x = ezMath::Cos(ezAngle::Degree(fStep * i)) * pComponent->m_fRadius;
+    v[i].y = ezMath::Sin(ezAngle::Degree(fStep * i)) * pComponent->m_fRadius;
     v[i].z = 0.0f;
   }
 

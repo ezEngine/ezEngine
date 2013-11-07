@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Foundation/Math/Vec3.h>
+#include <Foundation/Math/Angle.h>
 
 /// \brief A 3x3 component matrix class.
 template<typename Type>
@@ -72,16 +73,16 @@ public:
   void SetScalingMatrix(const ezVec3Template<Type>& vScale); // [tested]
 
   /// \brief Sets this matrix to be a rotation matrix around the X-axis.
-  void SetRotationMatrixX(Type fAngle); // [tested]
+  void SetRotationMatrixX(ezAngle angle); // [tested]
 
   /// \brief Sets this matrix to be a rotation matrix around the Y-axis.
-  void SetRotationMatrixY(Type fAngle); // [tested]
+  void SetRotationMatrixY(ezAngle angle); // [tested]
 
   /// \brief Sets this matrix to be a rotation matrix around the Z-axis.
-  void SetRotationMatrixZ(Type fAngle); // [tested]
+  void SetRotationMatrixZ(ezAngle angle); // [tested]
 
   /// \brief Sets this matrix to be a rotation matrix around the given axis.
-  void SetRotationMatrix(const ezVec3Template<Type>& vAxis, Type fAngle); // [tested]
+  void SetRotationMatrix(const ezVec3Template<Type>& vAxis, ezAngle angle); // [tested]
 
   /// \brief Sets this matrix to be a look-at matrix (without the translation).
   void SetLookInDirectionMatrix(ezVec3Template<Type> vLookDir, ezVec3Template<Type> vUpDir = ezVec3Template<Type> (0, 1, 0));
