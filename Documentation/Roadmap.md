@@ -4,7 +4,7 @@ ezEngine Roadmap {#EngineRoadmap}
 This is a list of our planned features for the foreseeable future.
 
   * Refactor Allocators / Memory tracking
-  * JSON reader / writer
+  * JSON reader
   * Game Object basics (Clemens)
   * Rendering Abstraction basics (Marc)
   * Fixes / Tools for correct static linking

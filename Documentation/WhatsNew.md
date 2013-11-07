@@ -39,6 +39,8 @@ Milestone 3
   * The logging system has been improved. You can now log locally into another system (useful for tools) or you can replace the default implementation entirely.
   * Added ezClock for managing game time updates.
   * Added ezStopwatch for measuring time.
+  * Added the ezAngle class to better deal with angles in degree, radians (easier to use, typesafe and more efficient!)
+  * Added ezJSONWriter interface and two derived implementations for writing standard JSON and 'extended' JSON.
 
 Milestone 2
 -----------
