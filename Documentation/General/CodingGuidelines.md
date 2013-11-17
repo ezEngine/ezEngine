@@ -28,12 +28,13 @@ Look at the existing code to get a general feeling for the coding style.
     * `b` for bool
     * `v` for vectors.
     * Everything else, as you wish (so usually no prefix).
-  * Variables that have no prefix should start with an upper-case letter. E.g. m_MyVar
+  * Member variables that have no prefix should start with an upper-case letter. E.g. `m_MyVar`
+  * Local variables that have no prefix should start with an lower-case letter. E.g. `angle`
     
   * Use empty lines and good formatting to make the code more readable.
   * Write unit-tests for (nearly) everything.
     * Mark functions with `[tested]` to indicate that a unit-test exists for that function.
-    * Mark functions with \\test to indicate that a test is needed but not yet written.
+    * Mark functions with `\\test` to indicate that a test is needed but not yet written.
   * Use Doxygen comments to document your code.
     * All doxygen comments start with three slashes.
     * \\brief `Short Description` for a short description.
