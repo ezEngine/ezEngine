@@ -69,6 +69,8 @@
 #include <Foundation/Math/Vec3.h>
 #include <Foundation/Math/Color.h>
 #include <Foundation/Math/Color8UNorm.h>
+#include <Foundation/Math/Color16f.h>
+#include <Foundation/Math/Float16.h>
 #include <Foundation/Math/Angle.h>
 
 #include <Foundation/Memory/Allocator.h>

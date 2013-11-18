@@ -1,0 +1,94 @@
+#include <PCH.h>
+#include <Foundation/Math/Color.h>
+#include <Foundation/Math/Color8UNorm.h>
+
+
+EZ_CREATE_SIMPLE_TEST(Math, Color8UNorm)
+{
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Constructor empty")
+  {
+    // Placement new of the default constructor should not have any effect on the previous data.
+    ezUInt8 testBlock[4] = { 0, 64, 128, 255 };
+    ezColor8UNorm* pDefCtor = ::new ((void*)&testBlock[0]) ezColor8UNorm;
+    EZ_TEST(pDefCtor->r == 0 && 
+      pDefCtor->g == 64 && 
+      pDefCtor->b == 128 && 
+      pDefCtor->a == 255);
+
+    // Make sure the class didn't accidentally change in size
+    EZ_TEST(sizeof(ezColor8UNorm) == sizeof(ezUInt8)*4);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Constructor components")
+  {
+    ezColor8UNorm init3(100, 123, 255);
+    EZ_TEST(init3.r == 100 && init3.g == 123 && init3.b == 255 && init3.a == 255);
+
+    ezColor8UNorm init4(100, 123, 255, 42);
+    EZ_TEST(init4.r == 100 && init4.g == 123 && init4.b == 255 && init4.a == 42);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Constructor copy")
+  {
+    ezColor8UNorm init4(100, 123, 255, 42);
+    ezColor8UNorm copy(init4);
+    EZ_TEST(copy.r == 100 && copy.g == 123 && copy.b == 255 && copy.a == 42);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Constructor ezColor")
+  {
+    ezColor8UNorm fromColor32f(ezColor::GetCornflowerBlue());
+    EZ_TEST(ezMath::IsEqual<ezUInt8>(fromColor32f.r, static_cast<ezUInt8>(ezColor::GetCornflowerBlue().r * 255), 2) &&
+      ezMath::IsEqual<ezUInt8>(fromColor32f.g, static_cast<ezUInt8>(ezColor::GetCornflowerBlue().g * 255), 2) &&
+      ezMath::IsEqual<ezUInt8>(fromColor32f.b, static_cast<ezUInt8>(ezColor::GetCornflowerBlue().b * 255), 2) &&
+      ezMath::IsEqual<ezUInt8>(fromColor32f.a, static_cast<ezUInt8>(ezColor::GetCornflowerBlue().a * 255), 2));
+  }
+
+  // conversion
+  {
+    ezColor8UNorm cornflowerBlue(ezColor::GetCornflowerBlue());
+
+    EZ_TEST_BLOCK(ezTestBlock::Enabled, "Conversion ezColor")
+    {
+      ezColor color32f = static_cast<ezColor>(cornflowerBlue);
+      EZ_TEST(ezMath::IsEqual<float>(color32f.r, ezColor::GetCornflowerBlue().r, 2.0f / 255.0f) &&
+        ezMath::IsEqual<float>(color32f.g, ezColor::GetCornflowerBlue().g, 2.0f / 255.0f) &&
+        ezMath::IsEqual<float>(color32f.b, ezColor::GetCornflowerBlue().b, 2.0f / 255.0f) &&
+        ezMath::IsEqual<float>(color32f.a, ezColor::GetCornflowerBlue().a, 2.0f / 255.0f));
+    }
+
+    EZ_TEST_BLOCK(ezTestBlock::Enabled, "Conversion ezUInt*")
+    {
+      const ezUInt8* pUIntsConst = static_cast<const ezUInt8*>(cornflowerBlue);
+      EZ_TEST(pUIntsConst[0] == cornflowerBlue.r && pUIntsConst[1] == cornflowerBlue.g && pUIntsConst[2] == cornflowerBlue.b && pUIntsConst[3] == cornflowerBlue.a);
+
+      ezUInt8* pUInts = static_cast<ezUInt8*>(cornflowerBlue);
+      EZ_TEST(pUInts[0] == cornflowerBlue.r && pUInts[1] == cornflowerBlue.g && pUInts[2] == cornflowerBlue.b && pUInts[3] == cornflowerBlue.a);
+    }
+  }
+
+  // comparison
+  {
+    ezColor8UNorm comp0(1,2,3);
+    ezColor8UNorm comp1(1,2,3);
+    ezColor8UNorm comp2(11,22,33);
+
+    EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsIdentical")
+    {
+      EZ_TEST(comp0.IsIdentical(comp1));
+      EZ_TEST(!comp0.IsIdentical(comp2));
+    }
+
+    EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator ==")
+    {
+      EZ_TEST(comp0 == comp1);
+      EZ_TEST(!(comp0 == comp2));
+    }
+
+    EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator !=")
+    {
+      EZ_TEST(comp0 != comp2);
+      EZ_TEST(!(comp0 != comp1));
+    }
+  }
+}

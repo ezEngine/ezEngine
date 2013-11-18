@@ -31,7 +31,7 @@ public:
   /// \brief Initializes the color with r, g, b, a
   ezColor8UNorm(ezUInt8 r, ezUInt8 g, ezUInt8 b, ezUInt8 a = 255); // [tested]
 
-  /// \brief Initializes the color with ezColor32f
+  /// \brief Initializes the color with ezColor.
   /// Assumes that the given color is normalized.
   /// \see ezColor32f::IsNormalized
   ezColor8UNorm(const ezColor& color); // [tested]
@@ -41,11 +41,14 @@ public:
   // *** Functions ***
 public:
 
-  /// \brief Conversion to ezColor32f.
+  /// \brief Conversion to ezColor.
   operator ezColor () const; // [tested]
 
   /// \brief Conversion to const ezUInt8*.
   operator const ezUInt8* () const { return &r; } // [tested]
+
+  /// \brief Conversion to const ezUInt32.
+  operator ezUInt32 () const { return *reinterpret_cast<const ezUInt32*>(&r); }
 
   /// \brief Conversion to ezUInt8* - use with care!
   operator ezUInt8* () { return &r; } // [tested]
