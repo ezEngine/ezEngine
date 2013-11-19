@@ -6,7 +6,7 @@
 class ezReflectedBase
 {
 public:
-  static  const ezTypeRTTI* GetStaticRTTI()  { return NULL; }
+  static        ezTypeRTTI* GetStaticRTTI()  { return NULL; }
   virtual const ezTypeRTTI* GetDynamicRTTI() { return NULL; }
 
 };
@@ -21,9 +21,12 @@ public:
 
 
 #define EZ_DECLARE_REFLECTED_CLASS(CLASS, BASECLASS)                            \
+  template<class T>                                                             \
+  friend struct Blaaaa;                                                         \
+                                                                                \
   public:                                                                       \
     typedef BASECLASS SUPER;                                                    \
-    static  const ezTypeRTTI* GetStaticRTTI()              { return &s_Type; }  \
+    static        ezTypeRTTI* GetStaticRTTI()              { return &s_Type; }  \
     virtual const ezTypeRTTI* GetDynamicRTTI() EZ_OVERRIDE { return &s_Type; }  \
                                                                                 \
   private:                                                                      \
@@ -34,11 +37,14 @@ public:
 
 
 #define EZ_DECLARE_REFLECTED_STRUCT                                             \
+  template<class T>                                                             \
+  friend struct Blaaaa;                                                         \
+                                                                                \
   private:                                                                      \
     static ezTypeRTTI s_Type;                                                   \
                                                                                 \
   public:                                                                       \
-    static  const ezTypeRTTI* GetStaticRTTI()              { return &s_Type; }  \
+    static ezTypeRTTI* GetStaticRTTI()              { return &s_Type; }  \
 
 #define EZ_IMPLEMENT_REFLECTED_STRUCT(STRUCT)                                   \
   ezTypeRTTI STRUCT::s_Type(#STRUCT, NULL, ezTypeRTTI::Struct)
