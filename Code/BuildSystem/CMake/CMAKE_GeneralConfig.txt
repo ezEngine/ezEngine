@@ -267,6 +267,12 @@ MACRO(ADD_MSVC_PRECOMPILED_HEADER)
       message (STATUS "Enabling Precompiled Header for this project.")
       set_source_files_properties("PCH.cpp" PROPERTIES COMPILE_FLAGS "/Yc${PROJECT_FOLDER_NAME}/PCH.h")
       
+	  # Remove CMAKE's increase of the max precompiled header size (/Zm1000)
+	  # as this will cause C1027 errors during compiling due to ASLR.
+	  string(REGEX REPLACE "/Zm[0-9]+ *" "" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
+	  # Force the above change into the cache.
+      set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}" CACHE STRING "" FORCE)
+
       foreach (src_file ${ALL_SOURCE_FILES})
         GET_FILENAME_COMPONENT(RawFilename ${src_file} NAME)
         GET_FILENAME_COMPONENT(Extension ${src_file} EXT)
