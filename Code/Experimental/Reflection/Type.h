@@ -75,7 +75,8 @@ private:
 };
 
 #define EZ_ADD_PROPERTY_WITH_ACCESSOR(CLASS, NAME) \
-  static ezCallAtStartup RegisterPropertyAccessor_##CLASS_##NAME([] { GetStaticRTTI<CLASS>()->m_Properties.push_back(new ezCustomAccessorProperty<CLASS, decltype(((CLASS*) NULL)->Get##NAME())>(#NAME, &CLASS::Get##NAME, &CLASS::Set##NAME)); } );
+  static void StupidVS2010bla_##CLASS_##NAME() { GetStaticRTTI<CLASS>()->m_Properties.push_back(new ezCustomAccessorProperty<CLASS, decltype(((CLASS*) NULL)->Get##NAME())>(#NAME, &CLASS::Get##NAME, &CLASS::Set##NAME)); } \
+  static ezCallAtStartup RegisterPropertyAccessor_##CLASS_##NAME(StupidVS2010bla_##CLASS_##NAME);
 
 // all classes of type Blaaaa (including specializations) are a friend of reflected classes
 // so we just generate some unique dummy type to represent the specialization for this particular property
@@ -87,13 +88,14 @@ private:
   template<> \
   struct Blaaaa<DummyType_##CLASS_##NAME> \
   { \
-    typedef decltype(CLASS::NAME) MemberType; \
+    typedef decltype(((CLASS*) NULL)->NAME) MemberType; \
     static MemberType GetProperty(const CLASS* pClass) { return pClass->NAME; } \
     static void SetProperty(CLASS* pClass, MemberType value) { pClass->NAME = value; } \
     static void* GetPropertyPointer(const CLASS* pClass) { return (void*)(&pClass->NAME); } \
   }; \
-  static ezCallAtStartup RegisterPropertyMember_##CLASS_##NAME([] { GetStaticRTTI<CLASS>()->m_Properties.push_back(new ezGeneratedAccessorProperty<CLASS, Blaaaa<DummyType_##CLASS_##NAME>::MemberType >(#NAME, \
+  static void StupidVS2010_##CLASS_##NAME() { GetStaticRTTI<CLASS>()->m_Properties.push_back(new ezGeneratedAccessorProperty<CLASS, Blaaaa<DummyType_##CLASS_##NAME>::MemberType >(#NAME, \
       Blaaaa<DummyType_##CLASS_##NAME>::GetProperty, \
       Blaaaa<DummyType_##CLASS_##NAME>::SetProperty, \
       Blaaaa<DummyType_##CLASS_##NAME>::GetPropertyPointer)); \
-  });
+  } \
+  static ezCallAtStartup RegisterPropertyMember_##CLASS_##NAME(StupidVS2010_##CLASS_##NAME);
