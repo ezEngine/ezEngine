@@ -2,8 +2,10 @@
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Strings/String.h>
 
-ezTypeRTTI::ezTypeRTTI(const char* szTypeName, const ezTypeRTTI* pParentType, TypeMode mode)
+ezTypeRTTI::ezTypeRTTI(const char* szTypeName, const ezTypeRTTI* pParentType)
 {
+  // TODO: we could parse away any namespace name
+
   m_szTypeName = szTypeName;
   
   // actually we don't need this ID at startup
@@ -12,7 +14,6 @@ ezTypeRTTI::ezTypeRTTI(const char* szTypeName, const ezTypeRTTI* pParentType, Ty
   m_iTypeID = GetRTTIClassID(szTypeName);
 
   m_pParentType = pParentType;
-  m_TypeMode = mode;
 }
 
 ezInt32 ezTypeRTTI::GetRTTIClassID(const char* szClassName)

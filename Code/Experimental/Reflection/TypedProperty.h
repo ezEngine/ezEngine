@@ -3,8 +3,6 @@
 #include <Foundation/Basics.h>
 #include "Property.h"
 
-class ezReflectedBase;
-
 template<class TYPE>
 class ezTypedProperty : public ezAbstractProperty
 {
@@ -13,9 +11,9 @@ public:
   {
   }
 
-  virtual ezPropertyType GetPropertyType() const
+  virtual const ezTypeRTTI* GetPropertyType() const
   {
-    return ezPropertyTypeDeduction<TYPE>::s_TypeID;
+    return GetStaticRTTI<TYPE>();
   }
 
   virtual TYPE GetValue(const void* pReflected) const = 0;
@@ -50,6 +48,11 @@ public:
       (((OWNER*) pReflected)->*m_Setter)(Value);
   }
 
+  virtual void* GetPropertyPointer(const void* pReflected) const
+  {
+    return NULL;
+  }
+
   virtual bool IsReadOnly()
   {
     return m_Setter == NULL;
@@ -67,11 +70,13 @@ class ezGeneratedAccessorProperty : public ezTypedProperty<TYPE>
 public:
   typedef TYPE (*GetterFunc)(const OWNER* pReflected);
   typedef void (*SetterFunc)(      OWNER* pReflected, TYPE value);
+  typedef void* (*PointerGetterFunc)(const OWNER* pReflected);
 
-  ezGeneratedAccessorProperty(const char* szName, GetterFunc getter, SetterFunc setter) : ezTypedProperty(szName)
+  ezGeneratedAccessorProperty(const char* szName, GetterFunc getter, SetterFunc setter, PointerGetterFunc property) : ezTypedProperty(szName)
   {
     m_Getter = getter;
     m_Setter = setter;
+    m_PropertyGetter = property;
   }
 
   virtual TYPE GetValue(const void* pReflected) const
@@ -85,12 +90,18 @@ public:
       m_Setter((OWNER*) pReflected, Value);
   }
 
+  virtual void* GetPropertyPointer(const void* pReflected) const
+  {
+    return m_PropertyGetter((OWNER*) pReflected);
+  }
+
   virtual bool IsReadOnly()
   {
     return m_Setter == NULL;
   }
 
 private:
+  PointerGetterFunc m_PropertyGetter;
   GetterFunc m_Getter;
   SetterFunc m_Setter;
 };

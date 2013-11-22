@@ -8,25 +8,18 @@ using namespace std;
 class ezTypeRTTI
 {
 public:
-  enum TypeMode
-  {
-    Struct,
-    Class
-  };
 
-  ezTypeRTTI(const char* szTypeName, const ezTypeRTTI* pParentType, TypeMode mode);
+  ezTypeRTTI(const char* szTypeName, const ezTypeRTTI* pParentType);
 
   const char* GetTypeName() const { return m_szTypeName; }
   ezInt32 GetTypeID() const { return m_iTypeID; }
   const ezTypeRTTI* GetParentRTTI() const { return m_pParentType; }
-  TypeMode GetTypeMode() const { return m_TypeMode; }
 
   static ezInt32 GetRTTIClassID(const char* szClassName);
 
-  template<class DERIVED>
-  bool IsDerivedFrom() const
+  bool IsDerivedFrom(const ezTypeRTTI* pRTTI) const
   {
-    ezInt32 iTypeID = DERIVED::GetStaticRTTI()->GetTypeID();
+    ezInt32 iTypeID = pRTTI->GetTypeID();
 
     const ezTypeRTTI* pCur = this;
 
@@ -42,16 +35,26 @@ public:
     return false;
   }
 
+  template<class DERIVED>
+  bool IsDerivedFrom() const
+  {
+    return IsDerivedFrom(GetStaticRTTI<DERIVED>());
+  }
+
+  bool IsOfType(const ezTypeRTTI* pRTTI) const
+  {
+    return GetTypeID() == pRTTI->GetTypeID();
+  }
+
   template<class TYPE>
   bool IsOfType() const
   {
-    return GetTypeID() == TYPE::GetStaticRTTI()->GetTypeID();
+    return IsOfType(GetStaticRTTI<TYPE>());
   }
 
   vector<ezAbstractProperty*> m_Properties;
 
 private:
-  TypeMode m_TypeMode;
   const char* m_szTypeName;
   ezInt32 m_iTypeID;
   const ezTypeRTTI* m_pParentType;
@@ -71,24 +74,26 @@ private:
 
 };
 
-#define EZ_ADD_PROPERTY(CLASS, TYPE, NAME) \
-  static ezCallAtStartup RegisterProperty_##CLASS_##NAME([] { CLASS::GetStaticRTTI()->m_Properties.push_back(new ezCustomAccessorProperty<CLASS, TYPE>(#NAME, &CLASS::Get##NAME, &CLASS::Set##NAME)); } );
+#define EZ_ADD_PROPERTY_WITH_ACCESSOR(CLASS, NAME) \
+  static ezCallAtStartup RegisterPropertyAccessor_##CLASS_##NAME([] { GetStaticRTTI<CLASS>()->m_Properties.push_back(new ezCustomAccessorProperty<CLASS, decltype(((CLASS*) NULL)->Get##NAME())>(#NAME, &CLASS::Get##NAME, &CLASS::Set##NAME)); } );
 
 // all classes of type Blaaaa (including specializations) are a friend of reflected classes
 // so we just generate some unique dummy type to represent the specialization for this particular property
 // then we specialize Blaaaa under that type and implement the getter and setter for the property, even though that member might be private
 // then we just register those static functions from Blaaaa as the getter/setter functions for the using ezGeneratedAccessorProperty
 
-#define EZ_ADD_PROPERTY_NO_ACCESSOR(CLASS, TYPE, NAME) \
+#define EZ_ADD_MEMBER_PROPERTY(CLASS, NAME) \
   class DummyType_##CLASS_##NAME { }; \
   template<> \
   struct Blaaaa<DummyType_##CLASS_##NAME> \
   { \
-    static TYPE GetProperty(const CLASS* pClass) { return pClass->NAME; } \
-    static void SetProperty(CLASS* pClass, TYPE value) { pClass->NAME = value; } \
+    typedef decltype(CLASS::NAME) MemberType; \
+    static MemberType GetProperty(const CLASS* pClass) { return pClass->NAME; } \
+    static void SetProperty(CLASS* pClass, MemberType value) { pClass->NAME = value; } \
+    static void* GetPropertyPointer(const CLASS* pClass) { return (void*)(&pClass->NAME); } \
   }; \
-  static ezCallAtStartup RegisterProperty_##CLASS_##NAME([] { CLASS::GetStaticRTTI()->m_Properties.push_back(new ezGeneratedAccessorProperty<CLASS, TYPE>(#NAME, \
+  static ezCallAtStartup RegisterPropertyMember_##CLASS_##NAME([] { GetStaticRTTI<CLASS>()->m_Properties.push_back(new ezGeneratedAccessorProperty<CLASS, Blaaaa<DummyType_##CLASS_##NAME>::MemberType >(#NAME, \
       Blaaaa<DummyType_##CLASS_##NAME>::GetProperty, \
-     Blaaaa<DummyType_##CLASS_##NAME>::SetProperty)); \
+      Blaaaa<DummyType_##CLASS_##NAME>::SetProperty, \
+      Blaaaa<DummyType_##CLASS_##NAME>::GetPropertyPointer)); \
   });
-
