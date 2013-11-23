@@ -39,6 +39,7 @@ public:
   template <typename Function>
   EZ_FORCE_INLINE ezDelegate(Function function)
   {
+    EZ_CHECK_AT_COMPILETIME_MSG(sizeof(Function) <= DATA_SIZE, "Function object must not be bigger than 16 bytes");
     EZ_ASSERT(ezMemoryUtils::IsAligned(&m_Data, EZ_ALIGNMENT_OF(Function)), "Wrong alignment. Expected %d bytes alignment", EZ_ALIGNMENT_OF(Function));
 
     memcpy(m_Data, &function, sizeof(Function));
@@ -101,9 +102,9 @@ private:
   template <typename Function>
   static EZ_FORCE_INLINE R DispatchToFunction(SelfType& self EZ_COMMA_IF(ARG_COUNT) EZ_PAIR_LIST(ARG, arg, ARG_COUNT))
   {
-    Function function = *reinterpret_cast<Function*>(&self.m_Data);
-    return (*function)(EZ_LIST(arg, ARG_COUNT));
+    return (*reinterpret_cast<Function*>(&self.m_Data))(EZ_LIST(arg, ARG_COUNT));
   }
+
 
   typedef R (*DispatchFunction)(SelfType& self EZ_COMMA_IF(ARG_COUNT) EZ_LIST(ARG, ARG_COUNT));
   DispatchFunction m_pDispatchFunction;

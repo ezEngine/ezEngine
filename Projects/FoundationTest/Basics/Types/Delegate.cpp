@@ -92,5 +92,44 @@ EZ_CREATE_SIMPLE_TEST(Basics, Delegate)
     d = &Function;
     EZ_TEST_INT(d(4), 6);
   }
-}
 
+#if EZ_ENABLED(EZ_SUPPORTS_CPP11)
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Lambda - no capture")
+  {
+    d = [](ezInt32 i) { return i * 4; };
+    EZ_TEST_INT(d(2), 8);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Lambda - capture by value")
+  {
+    ezInt32 c = 20;
+    d = [c](ezInt32) { return c; };
+    EZ_TEST_INT(d(3), 20);
+    c = 10;
+    EZ_TEST_INT(d(3), 20);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Lambda - capture by value, mutable")
+  {
+    ezInt32 c = 20;
+    d = [c](ezInt32) mutable { return c; };
+    EZ_TEST_INT(d(3), 20);
+    c = 10;
+    EZ_TEST_INT(d(3), 20);
+
+    d = [c](ezInt32 b) mutable { auto result = b + c; c = 1; return result; };
+    EZ_TEST_INT(d(3), 13);
+    EZ_TEST_INT(d(3), 4);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Lambda - capture by reference")
+  {
+    ezInt32 c = 20;
+    d = [&c](ezInt32 i) { c = 5; return i; };
+    EZ_TEST_INT(d(3), 3);
+    EZ_TEST_INT(c, 5);
+  }
+
+#endif
+}
