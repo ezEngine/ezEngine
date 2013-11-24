@@ -33,12 +33,13 @@ set (LINKER_SETTINGS_ALL "")
 set (LINKER_SETTINGS_RELEASE "")
 set (LINKER_SETTINGS_DEBUG "")
 
-set (CMAKE_C_COMPILER ${CMAKE_CXX_COMPILER}) # use the C++ compiler also for C code
+# Doesn't work on OSX:
+#set (CMAKE_C_COMPILER ${CMAKE_CXX_COMPILER}) # use the C++ compiler also for C code
 #set (CMAKE_DEBUG_POSTFIX "_d") # you could add a postfix for debug libraries here
 
 # set the default build type
 IF(NOT CMAKE_BUILD_TYPE)
-  SET(CMAKE_BUILD_TYPE RelWithDebInfo CACHE STRING
+  SET(CMAKE_BUILD_TYPE Debug CACHE STRING
       "Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel."
       FORCE)
 ENDIF(NOT CMAKE_BUILD_TYPE)
@@ -73,10 +74,15 @@ endif ()
 
 if (XCODE)
   # Technically this can be OS X and iOS as well use clang..
-	message (STATUS "BuildSystem is XCode using GCC (BUILDSYSTEM_COMPILER_GCC, BUILDSYSTEM_XCODE)")
-	set (BUILDSYSTEM_COMPILER_GCC BOOL)
-	set (BUILDSYSTEM_XCODE BOOL)
-	
+  message (STATUS "BuildSystem is XCode using GCC (BUILDSYSTEM_COMPILER_GCC, BUILDSYSTEM_XCODE)")
+  set (BUILDSYSTEM_COMPILER_GCC BOOL)
+  set (BUILDSYSTEM_XCODE BOOL)
+  # Cmake complains that this is not defined on OSX makefile build.
+  if(EZ_COMPILE_ENGINE_AS_DLL)
+    set (CMAKE_CPP_CREATE_DYNAMIC_LIBRARY ON BOOL)
+  else ()
+    set (CMAKE_CPP_CREATE_STATIC_LIBRARY ON BOOL)
+  endif ()
 endif ()
 
 
@@ -88,6 +94,8 @@ elseif (CURRENT_OSX_VERSION)
   # OS X
   message (STATUS "Platform is OS X (Platform OSX, Platform Posix)")
   
+  # Enable c++11 features
+  set (CMAKE_CXX_FLAGS "-std=c++11 -stdlib=libc++")
   set (BUILDSYSTEM_PLATFORM_OSX ON BOOL)
   set (BUILDSYSTEM_PLATFORM_POSIX ON BOOL)
 else ()
@@ -228,7 +236,8 @@ add_definitions (-DBUILDSYSTEM_OUTPUT_FOLDER="${EZ_OUTPUT_DIRECTORY_DLL}")
 ## packages that should be enabled
 
 # Enable OpenMP support, if possible
-find_package (OpenMP)
+# Takes ages on non-windows systems and is executed every time. Also we won't use it anyway.
+# find_package (OpenMP)
 
 
 
@@ -381,6 +390,11 @@ ENDMACRO()
 
 include_directories ("${CMAKE_SOURCE_DIR}/Code/Engine")   # this way it will also work for applications
 include_directories ("${CMAKE_SOURCE_DIR}/Projects")      # different projects may need to include from each other
+
+if (EZ_BUILD_EXPERIMENTAL)
+  include_directories ("${CMAKE_SOURCE_DIR}/Code/Experimental")   # this way it will also work for applications
+  include_directories ("${CMAKE_SOURCE_DIR}/Projects/Experimental")      # different projects may need to include from each other
+endif()
 
 
 

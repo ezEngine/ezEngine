@@ -1,3 +1,4 @@
+#include <unistd.h>
 
 inline ezPageAllocation::ezPageAllocation()
 {
