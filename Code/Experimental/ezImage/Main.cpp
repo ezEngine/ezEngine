@@ -3,13 +3,13 @@
 #include <Foundation/Basics/Types.h>
 #include <Foundation/Containers/DynamicArray.h>
 
-#include "ezImageDefinitions.h"
-#include "ezImage.h"
+#include "ImageDefinitions.h"
+#include "Image.h"
 #include "Foundation/Configuration/Startup.h"
-#include "ezImageConversion.h"
-#include "ezImageConversionMixin.h"
+#include "ImageConversion.h"
+#include "ImageConversionMixin.h"
 #include "Foundation/IO/FileSystem/FileSystem.h"
-#include "BMP/ezBmpFileFormat.h"
+#include "BMP/BmpFileFormat.h"
 #include "Foundation/IO/FileSystem/FileReader.h"
 #include "Foundation/IO/FileSystem/FileWriter.h"
 #include "Foundation/IO/FileSystem/DataDirTypeFolder.h"
@@ -17,8 +17,9 @@
 int main()
 {
   ezStartup::StartupCore();
-  ezImageConversion::Startup();
-  ezImageFormat::Initialize();
+  // Does this now work by default?
+  // ezImageConversion::Startup();
+  // ezImageFormat::Initialize();
 
   ezStringBuilder dataDir = BUILDSYSTEM_OUTPUT_FOLDER;
 
@@ -27,7 +28,7 @@ int main()
   ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
   ezFileSystem::AddDataDirectory(dataDir.GetData());
 
-  ezImageFileFormat* bmpFormat = new ezBmpFormat;
+  ezIImageFileFormat* bmpFormat = new ezBmpFileFormat;
 
   const char* testImages[] =
   {
@@ -48,9 +49,10 @@ int main()
 
       EZ_ASSERT(result == EZ_SUCCESS, "Reading image failed");
 
-      result = bmpFormat->readImage(reader, image);
+      ezStringBuilder errorString;
+      result = bmpFormat->ReadImage(reader, image, errorString);
 
-      EZ_ASSERT(result == EZ_SUCCESS, "Reading image failed");
+      EZ_ASSERT(result == EZ_SUCCESS, "Reading image failed: %s", errorString.GetData());
     }
 
     {
@@ -60,15 +62,17 @@ int main()
       ezFileWriter writer;
       writer.Open(fileName.GetData());
 
-      ezResult result = bmpFormat->writeImage(writer, image);
+      ezStringBuilder errorString;
+      ezResult result = bmpFormat->WriteImage(writer, image, errorString);
 
-      EZ_ASSERT(result == EZ_SUCCESS, "Reading image failed");
+      EZ_ASSERT(result == EZ_SUCCESS, "Reading image failed: %s", errorString.GetData());
     }
    }
 
   delete bmpFormat;
 
-  ezImageConversion::Shutdown();
+  // Does this now work by default?
+  // ezImageConversion::Shutdown();
   ezStartup::ShutdownBase();
   ezStartup::ShutdownCore();
 }
