@@ -377,30 +377,30 @@ ezResult StringToBool(const char* szString, bool& out_Res, const char** out_Last
 
 ezString ToString(ezInt32 value)
 {
-  char buffer[16];
-  _itoa_s(value, buffer, 10);
-  return buffer;
+  ezStringBuilder sb;
+  sb.Format("%i", value);
+  return sb;
 }
 
 ezString ToString(ezUInt32 value)
 {
-  char buffer[16];
-  _ultoa_s(value, buffer, 10);
-  return buffer;
+  ezStringBuilder sb;
+  sb.Format("%u", value);
+  return sb;
 }
 
 ezString ToString(ezInt64 value)
 {
-  char buffer[32];
-  _i64toa_s(value, buffer, 32, 10);
-  return buffer;
+  ezStringBuilder sb;
+  sb.Format("%lli", value);
+  return sb;
 }
 
 ezString ToString(ezUInt64 value)
 {
-  char buffer[32];
-  _ui64toa_s(value, buffer, 32, 10);
-  return buffer;
+  ezStringBuilder sb;
+  sb.Format("%llu", value);
+  return sb;
 }
 
 ezString ToString(float value)
