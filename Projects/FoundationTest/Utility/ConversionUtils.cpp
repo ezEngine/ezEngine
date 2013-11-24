@@ -116,14 +116,65 @@ EZ_CREATE_SIMPLE_TEST(Utility, ConversionUtils)
     // overflow check
 
     iRes = 42;
-    szString = "0002147483639"; // valid
+    szString = "0002147483647"; // valid
     EZ_TEST(ezConversionUtils::StringToInt(szString, iRes, &szResultPos) == EZ_SUCCESS);
+    EZ_TEST_INT(iRes, 2147483647);
+    EZ_TEST(szResultPos == szString + ezStringUtils::GetStringElementCount(szString));
+
+    iRes = 42;
+    szString = "-2147483648"; // valid
+    EZ_TEST(ezConversionUtils::StringToInt(szString, iRes, &szResultPos) == EZ_SUCCESS);
+    EZ_TEST_INT(iRes, (ezInt32)0x80000000);
+    EZ_TEST(szResultPos == szString + ezStringUtils::GetStringElementCount(szString));
+
+    iRes = 42;
+    szString = "0002147483648"; // invalid
+    EZ_TEST(ezConversionUtils::StringToInt(szString, iRes, &szResultPos) == EZ_FAILURE);
+    EZ_TEST_INT(iRes, 42);
+
+    iRes = 42;
+    szString = "-2147483649"; // invalid
+    EZ_TEST(ezConversionUtils::StringToInt(szString, iRes, &szResultPos) == EZ_FAILURE);
+    EZ_TEST_INT(iRes, 42);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "StringToInt64")
+  {
+    // overflow check
+    ezInt64 iRes = 42;
+    const char* szString = "0002147483639"; // valid
+    const char* szResultPos = NULL;
+
+    EZ_TEST(ezConversionUtils::StringToInt64(szString, iRes, &szResultPos) == EZ_SUCCESS);
     EZ_TEST_INT(iRes, 2147483639);
     EZ_TEST(szResultPos == szString + ezStringUtils::GetStringElementCount(szString));
 
     iRes = 42;
-    szString = "0002147483640"; // invalid
-    EZ_TEST(ezConversionUtils::StringToInt(szString, iRes, &szResultPos) == EZ_FAILURE);
+    szString = "0002147483640"; // also valid with 64bit
+    EZ_TEST(ezConversionUtils::StringToInt64(szString, iRes, &szResultPos) == EZ_SUCCESS);
+    EZ_TEST_INT(iRes, 2147483640);
+    EZ_TEST(szResultPos == szString + ezStringUtils::GetStringElementCount(szString));
+
+    iRes = 42;
+    szString = "0009223372036854775807"; // last valid positive number
+    EZ_TEST(ezConversionUtils::StringToInt64(szString, iRes, &szResultPos) == EZ_SUCCESS);
+    EZ_TEST_INT(iRes, 9223372036854775807);
+    EZ_TEST(szResultPos == szString + ezStringUtils::GetStringElementCount(szString));
+
+    iRes = 42;
+    szString = "0009223372036854775808"; // invalid
+    EZ_TEST(ezConversionUtils::StringToInt64(szString, iRes, &szResultPos) == EZ_FAILURE);
+    EZ_TEST_INT(iRes, 42);
+
+    iRes = 42;
+    szString = "-9223372036854775808"; // last valid negative number
+    EZ_TEST(ezConversionUtils::StringToInt64(szString, iRes, &szResultPos) == EZ_SUCCESS);
+    EZ_TEST_INT(iRes, (ezInt64)0x8000000000000000);
+    EZ_TEST(szResultPos == szString + ezStringUtils::GetStringElementCount(szString));
+
+    iRes = 42;
+    szString = "-9223372036854775809"; // invalid
+    EZ_TEST(ezConversionUtils::StringToInt64(szString, iRes, &szResultPos) == EZ_FAILURE);
     EZ_TEST_INT(iRes, 42);
   }
 

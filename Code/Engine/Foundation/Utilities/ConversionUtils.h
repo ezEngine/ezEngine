@@ -1,11 +1,17 @@
 #pragma once
 
 #include <Foundation/Basics.h>
+#include <Foundation/Math/Color.h>
+#include <Foundation/Math/Mat3.h>
+#include <Foundation/Math/Mat4.h>
+#include <Foundation/Math/Quat.h>
+#include <Foundation/Strings/String.h>
+#include <Foundation/Time/Time.h>
 
-/// \brief This class contains functions to convert between different types.
+/// \brief This namespace contains functions to convert between different types.
 ///
 /// Contains helper functions to convert from strings to numerical values.
-/// To convert from numerical values to strings, use ezStringUtils::Format, which provides a rich set of formatting options.
+/// To convert from numerical values to strings, use ezStringBuilder::Format, which provides a rich set of formatting options.
 namespace ezConversionUtils
 {
   /// \brief Parses szString and converts it to an integer value. Returns EZ_FAILURE if the string contains no parsable integer value.
@@ -28,6 +34,9 @@ namespace ezConversionUtils
   ///   string was parsed until a non-digit character was encountered.
   ///   EZ_FAILURE if the string starts with something that can not be interpreted as an integer.
   EZ_FOUNDATION_DLL ezResult StringToInt(const char* szString, ezInt32& out_Res, const char** out_LastParsePosition = NULL); // [tested]
+
+  /// \brief Same as StringToInt but converts to a 64bit integer value instead.
+  EZ_FOUNDATION_DLL ezResult StringToInt64(const char* szString, ezInt64& out_Res, const char** out_LastParsePosition = NULL); // [tested]
 
   /// \brief Pases szString and converts it to a double value. Returns EZ_FAILURE if the string contains no parsable floating point value.
   ///
@@ -86,7 +95,57 @@ namespace ezConversionUtils
   ///   EZ_FAILURE otherwise.
   EZ_FOUNDATION_DLL ezResult StringToBool(const char* szString, bool& out_Res, const char** out_LastParsePosition = NULL); // [tested]
 
+  /// \brief Converts a bool to a string
+  EZ_FORCE_INLINE ezString ToString(bool value) // [tested]
+  {
+    return value ? "true" : "false";
+  }
 
+  /// \brief Converts a 32bit signed integer to a string
+  EZ_FOUNDATION_DLL ezString ToString(ezInt32 value); // [tested]
+  
+  /// \brief Converts a 32bit unsigned integer to a string
+  EZ_FOUNDATION_DLL ezString ToString(ezUInt32 value); // [tested]
+  
+  /// \brief Converts a 64bit signed integer to a string
+  EZ_FOUNDATION_DLL ezString ToString(ezInt64 value); // [tested]
+  
+  /// \brief Converts a 64bit unsigned integer to a string
+  EZ_FOUNDATION_DLL ezString ToString(ezUInt64 value); // [tested]
+  
+  /// \brief Converts a float to a string
+  EZ_FOUNDATION_DLL ezString ToString(float value); // [tested]
+  
+  /// \brief Converts a double to a string
+  EZ_FOUNDATION_DLL ezString ToString(double value); // [tested]
+
+  /// \brief Converts a color to a string
+  EZ_FOUNDATION_DLL ezString ToString(const ezColor& value); // [tested]
+
+  /// \brief Converts a vec2 to a string
+  EZ_FOUNDATION_DLL ezString ToString(const ezVec2& value); // [tested]
+
+  /// \brief Converts a vec3 to a string
+  EZ_FOUNDATION_DLL ezString ToString(const ezVec3& value); // [tested]
+
+  /// \brief Converts a vec4 to a string
+  EZ_FOUNDATION_DLL ezString ToString(const ezVec4& value); // [tested]
+
+  /// \brief Converts a quat to a string
+  EZ_FOUNDATION_DLL ezString ToString(const ezQuat& value); // [tested]
+
+  /// \brief Converts a mat3 to a string
+  EZ_FOUNDATION_DLL ezString ToString(const ezMat3& value); // [tested]
+
+  /// \brief Converts a mat4 to a string
+  EZ_FOUNDATION_DLL ezString ToString(const ezMat4& value); // [tested]
+  
+  /// \brief Fallback ToString implementation for all types that don't have one
+  template <typename T>
+  EZ_FORCE_INLINE ezString ToString(const T& value)
+  {
+    return "N/A";
+  }
 };
 
 

@@ -102,10 +102,31 @@ EZ_FORCE_INLINE bool ezVariant::CanConvertTo() const
 }
 
 template <typename T>
-EZ_FORCE_INLINE T ezVariant::ConvertTo() const
+T ezVariant::ConvertTo(bool* out_pSuccessful /* = NULL*/) const
 {
+  if (!CanConvertTo<T>())
+  {
+    if (out_pSuccessful != NULL)
+      *out_pSuccessful = false;
+
+    return T();
+  }
+
+  if (m_Type == TypeDeduction<T>::value)
+  {
+    if (out_pSuccessful != NULL)
+      *out_pSuccessful = true;
+
+    return Cast<T>();
+  }
+
   T result;
-  ezVariantConversion::To(result, *this);
+  bool bSuccessful = true;
+  ezVariantHelper::To(*this, result, bSuccessful);
+
+  if (out_pSuccessful != NULL)
+    *out_pSuccessful = bSuccessful;
+
   return result;
 }
 
@@ -149,9 +170,9 @@ void ezVariant::DispatchTo(Functor& functor, Type::Enum type)
     CALL_FUNCTOR(functor, double);
     break;
 
-  /*case Type::Color:
+  case Type::Color:
     CALL_FUNCTOR(functor, ezColor);
-    break;*/
+    break;
 
   case Type::Vector2:
     CALL_FUNCTOR(functor, ezVec2);

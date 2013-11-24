@@ -120,6 +120,9 @@
   // class 'type' needs to have dll-interface to be used by clients of class 'type2' -> dll export / import issues (mostly with templates)
   #pragma warning(disable: 4251)
 
+  // behavior change: an object of POD type constructed with an initializer of the form () will be default-initialized
+  #pragma warning(disable: 4345)  
+
   // EZ_VA_NUM_ARGS() is a very nifty macro to retrieve the number of arguments handed to a variable-argument macro
   // unfortunately, VS 2010 still has this compiler bug which treats a __VA_ARGS__ argument as being one single parameter:
   // https://connect.microsoft.com/VisualStudio/feedback/details/521844/variadic-macro-treating-va-args-as-a-single-parameter-for-other-macros#details

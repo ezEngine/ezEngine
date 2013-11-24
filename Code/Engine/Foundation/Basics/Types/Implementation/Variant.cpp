@@ -30,12 +30,13 @@ struct ConvertFunc
   EZ_FORCE_INLINE void operator()()
   {
     T result;
-    ezVariantHelper::To(result, *m_pThis);
+    ezVariantHelper::To(*m_pThis, result, m_bSuccessful);
     m_Result = result;
   }
 
   const ezVariant* m_pThis;
   ezVariant m_Result;
+  bool m_bSuccessful;
 };
 
 struct DestructFunc
@@ -105,17 +106,32 @@ bool ezVariant::CanConvertTo(Type::Enum type) const
   return false;
 }
 
-ezVariant ezVariant::ConvertTo(Type::Enum type) const
+ezVariant ezVariant::ConvertTo(Type::Enum type, bool* out_pSuccessful /* = NULL*/) const
 {
-  EZ_ASSERT(CanConvertTo(type), "Cannot convert to type '%d'", type);
+  if (!CanConvertTo(type))
+  {
+    if (out_pSuccessful != NULL)
+      *out_pSuccessful = false;
 
-  if (m_Type == type) 
+    return ezVariant::Invalid;
+  }
+
+  if (m_Type == type)
+  {
+    if (out_pSuccessful != NULL)
+      *out_pSuccessful = true;
+
     return *this;
+  }
 
   ConvertFunc convertFunc;
   convertFunc.m_pThis = this;
+  convertFunc.m_bSuccessful = true;
 
   DispatchTo(convertFunc, type);
+
+  if (out_pSuccessful != NULL)
+    *out_pSuccessful = convertFunc.m_bSuccessful;
 
   return convertFunc.m_Result;
 }

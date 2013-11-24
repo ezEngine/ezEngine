@@ -117,10 +117,10 @@ public:
   /// \brief Prepends all the given strings to the front of this string in one operation.
   void Prepend(const char* pData1, const char* pData2 = NULL, const char* pData3 = NULL, const char* pData4 = NULL, const char* pData5 = NULL, const char* pData6 = NULL); // [tested]
 
-  /// \brief Prepens the formatted string.
+  /// \brief Prepends the formatted string.
   void PrependFormat(const char* szUtf8Format, ...); // [tested]
 
-  /// \brief Prepens the formatted string.
+  /// \brief Prepends the formatted string.
   void PrependFormat(const char* szUtf8Format, va_list args); // [tested]
 
   /// \brief Sets this string to the formatted string.

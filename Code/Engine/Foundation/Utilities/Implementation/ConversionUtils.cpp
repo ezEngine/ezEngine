@@ -2,6 +2,9 @@
 #include <Foundation/Utilities/ConversionUtils.h>
 #include <Foundation/Strings/StringUtils.h>
 
+namespace ezConversionUtils
+{
+
 static bool IsWhitespace(char c)
 {
   return (c == ' ' || c == '\t' || c == '\r' || c == '\n' || c == '\v' || c == '\f' || c == '\a');
@@ -72,7 +75,20 @@ static ezResult FindFirstDigit(const char*& inout_szString, bool& out_bSignIsPos
   return EZ_SUCCESS;
 }
 
-ezResult ezConversionUtils::StringToInt(const char* szString, ezInt32& out_Res, const char** out_LastParsePosition)
+ezResult StringToInt(const char* szString, ezInt32& out_Res, const char** out_LastParsePosition)
+{
+  ezInt64 tmp = out_Res;
+  if (StringToInt64(szString, tmp, out_LastParsePosition) == EZ_SUCCESS && 
+    tmp <= (ezInt32)0x7FFFFFFF && tmp >= (ezInt32)0x80000000)
+  {
+    out_Res = (ezInt32)tmp;
+    return EZ_SUCCESS;
+  }
+
+  return EZ_FAILURE;
+}
+
+ezResult StringToInt64(const char* szString, ezInt64& out_Res, const char** out_LastParsePosition)
 {
   if (ezStringUtils::IsNullOrEmpty(szString))
     return EZ_FAILURE;
@@ -82,7 +98,10 @@ ezResult ezConversionUtils::StringToInt(const char* szString, ezInt32& out_Res, 
   if (FindFirstDigit(szString, bSignIsPos) == EZ_FAILURE)
     return EZ_FAILURE;
 
-  ezInt32 iCurRes = 0;
+  ezInt64 iCurRes = 0;
+  ezInt64 iSign = bSignIsPos ? 1 : -1;
+  const ezInt64 iMax = 0x7FFFFFFFFFFFFFFF;
+  const ezInt64 iMin = 0x8000000000000000;
 
   while (*szString != '\0')
   {
@@ -92,28 +111,28 @@ ezResult ezConversionUtils::StringToInt(const char* szString, ezInt32& out_Res, 
     if (c < '0' || c > '9')
       break;
 
-    if (iCurRes >= 214748364) // going to overflow
+    const ezInt64 iLastDigit = c - '0';
+
+    if ((iCurRes > iMax / 10) || (iCurRes == iMax / 10 && iLastDigit > 7)) // going to overflow
       return EZ_FAILURE;
 
-    iCurRes *= 10; // shift all previously read digits to the left
+    if ((iCurRes < iMin / 10) || (iCurRes == iMin / 10 && iLastDigit > 8)) // going to underflow
+      return EZ_FAILURE;
 
-    iCurRes += c - '0'; // add the last digit
+    iCurRes = iCurRes * 10 + iLastDigit * iSign; // shift all previously read digits to the left and add the last digit
 
     ++szString;
   }
 
-  if (!bSignIsPos)
-    iCurRes = -iCurRes;
-
   out_Res = iCurRes;
 
-  if (out_LastParsePosition)
+  if (out_LastParsePosition != NULL)
     *out_LastParsePosition = szString;
 
   return EZ_SUCCESS;
 }
 
-ezResult ezConversionUtils::StringToFloat(const char* szString, double& out_Res, const char** out_LastParsePosition)
+ezResult StringToFloat(const char* szString, double& out_Res, const char** out_LastParsePosition)
 {
   if (ezStringUtils::IsNullOrEmpty(szString))
     return EZ_FAILURE;
@@ -243,7 +262,7 @@ ezResult ezConversionUtils::StringToFloat(const char* szString, double& out_Res,
   return EZ_SUCCESS;
 }
 
-ezResult ezConversionUtils::StringToBool(const char* szString, bool& out_Res, const char** out_LastParsePosition)
+ezResult StringToBool(const char* szString, bool& out_Res, const char** out_LastParsePosition)
 {
   SkipWhitespace(szString);
 
@@ -355,3 +374,108 @@ ezResult ezConversionUtils::StringToBool(const char* szString, bool& out_Res, co
   return EZ_FAILURE;
 }
 
+
+ezString ToString(ezInt32 value)
+{
+  char buffer[16];
+  _itoa_s(value, buffer, 10);
+  return buffer;
+}
+
+ezString ToString(ezUInt32 value)
+{
+  char buffer[16];
+  _ultoa_s(value, buffer, 10);
+  return buffer;
+}
+
+ezString ToString(ezInt64 value)
+{
+  char buffer[32];
+  _i64toa_s(value, buffer, 32, 10);
+  return buffer;
+}
+
+ezString ToString(ezUInt64 value)
+{
+  char buffer[32];
+  _ui64toa_s(value, buffer, 32, 10);
+  return buffer;
+}
+
+ezString ToString(float value)
+{
+  ezStringBuilder sb;
+  sb.Format("%f", value);
+  return sb;
+}
+
+ezString ToString(double value)
+{
+  ezStringBuilder sb;
+  sb.Format("%f", value);
+  return sb;
+}
+
+ezString ToString(const ezColor& value)
+{
+  ezStringBuilder sb;
+  sb.Format("{ r=%f, g=%f, b=%f, a=%f }", value.r, value.g, value.b, value.a);
+  return sb;
+}
+
+ezString ToString(const ezVec2& value)
+{
+  ezStringBuilder sb;
+  sb.Format("{ x=%f, y=%f }", value.x, value.y);
+  return sb;
+}
+
+ezString ToString(const ezVec3& value)
+{
+  ezStringBuilder sb;
+  sb.Format("{ x=%f, y=%f, z=%f }", value.x, value.y, value.z);
+  return sb;
+}
+
+ezString ToString(const ezVec4& value)
+{
+  ezStringBuilder sb;
+  sb.Format("{ x=%f, y=%f, z=%f, w=%f }", value.x, value.y, value.z, value.w);
+  return sb;
+}
+
+ezString ToString(const ezQuat& value)
+{
+  ezStringBuilder sb;
+  sb.Format("{ x=%f, y=%f, z=%f, w=%f }", value.v.x, value.v.y, value.v.z, value.w);
+  return sb;
+}
+
+ezString ToString(const ezMat3& value)
+{
+  ezStringBuilder sb;
+  sb.Format("{ c1r1=%f, c2r1=%f, c3r1=%f, "
+              "c1r2=%f, c2r2=%f, c3r2=%f, "
+              "c1r3=%f, c2r3=%f, c3r3=%f }",
+              value.Element(0, 0), value.Element(1, 0), value.Element(2, 0),
+              value.Element(0, 1), value.Element(1, 1), value.Element(2, 1),
+              value.Element(0, 2), value.Element(1, 2), value.Element(2, 2));
+  return sb;
+}
+
+ezString ToString(const ezMat4& value)
+{
+  ezStringBuilder sb;
+  sb.Format("{ c1r1=%f, c2r1=%f, c3r1=%f, c4r1=%f, "
+              "c1r2=%f, c2r2=%f, c3r2=%f, c4r2=%f, "
+              "c1r3=%f, c2r3=%f, c3r3=%f, c4r3=%f, "
+              "c1r4=%f, c2r4=%f, c3r4=%f, c4r4=%f }",
+              value.Element(0, 0), value.Element(1, 0), value.Element(2, 0), value.Element(3, 0),
+              value.Element(0, 1), value.Element(1, 1), value.Element(2, 1), value.Element(3, 1),
+              value.Element(0, 2), value.Element(1, 2), value.Element(2, 2), value.Element(3, 2),
+              value.Element(0, 3), value.Element(1, 3), value.Element(2, 3), value.Element(3, 3));
+  return sb;
+}
+
+} // namespace ezConvertionUtils

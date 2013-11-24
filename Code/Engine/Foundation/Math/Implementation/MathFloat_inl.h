@@ -6,18 +6,18 @@
 namespace ezMath
 {
   template<>
-  inline bool BasicType<float>::SupportsInfinity()
+  EZ_FORCE_INLINE bool BasicType<float>::SupportsInfinity()
   {
     return true;
   }
 
   template<>
-  inline bool BasicType<float>::SupportsNaN()
+  EZ_FORCE_INLINE bool BasicType<float>::SupportsNaN()
   {
     return true;
   }
 
-  inline bool IsFinite(float value)
+  EZ_FORCE_INLINE bool IsFinite(float value)
   {
     // Check the 8 exponent bits.
     // NAN -> (exponent = all 1, mantissa = non-zero)
@@ -28,7 +28,7 @@ namespace ezMath
     return ((i2f.i & 0x7f800000) != 0x7f800000);
   }
 
-  inline bool IsNaN(float value)
+  EZ_FORCE_INLINE bool IsNaN(float value)
   {
     // Check the 8 exponent bits.
     // NAN -> (exponent = all 1, mantissa = non-zero)
@@ -41,7 +41,7 @@ namespace ezMath
   }
 
   template<>
-  inline float BasicType<float>::GetNaN()
+  EZ_FORCE_INLINE float BasicType<float>::GetNaN()
   {
     // NAN -> (exponent = all 1, mantissa = non-zero)
     // INF -> (exponent = all 1, mantissa = zero)
@@ -55,7 +55,7 @@ namespace ezMath
   };
 
   template<>
-  inline float BasicType<float>::GetInfinity()
+  EZ_FORCE_INLINE float BasicType<float>::GetInfinity()
   {
     // NAN -> (exponent = all 1, mantissa = non-zero)
     // INF -> (exponent = all 1, mantissa = zero)
@@ -69,7 +69,7 @@ namespace ezMath
   }
 
   template<>
-  inline float BasicType<float>::MaxValue()
+  EZ_FORCE_INLINE float BasicType<float>::MaxValue()
   {
     return 3.402823465e+38F;
   }

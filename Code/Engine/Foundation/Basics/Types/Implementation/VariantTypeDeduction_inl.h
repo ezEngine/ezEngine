@@ -83,17 +83,17 @@ struct ezVariant::TypeDeduction<double>
   typedef double StorageType;
 };
 
-//template <>
-//struct ezVariant::TypeDeduction<ezColor>
-//{
-//  enum
-//  {
-//    value = Type::Color,
-//    forceSharing = false
-//  };
-//
-//  typedef ezColor StorageType;
-//};
+template <>
+struct ezVariant::TypeDeduction<ezColor>
+{
+  enum
+  {
+    value = Type::Color,
+    forceSharing = false
+  };
+
+  typedef ezColor StorageType;
+};
 
 template <>
 struct ezVariant::TypeDeduction<ezVec2>

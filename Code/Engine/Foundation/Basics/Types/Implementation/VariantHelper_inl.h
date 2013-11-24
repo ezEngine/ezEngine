@@ -26,65 +26,142 @@ public:
     return false;
   }
 
-  static void To(bool& result, const ezVariant& value)
+  static void To(const ezVariant& value, bool& result, bool& bSuccessful)
   {
     if (value.GetType() <= ezVariant::Type::Double)
       result = value.ConvertNumber<ezInt32>() != 0;
     else if (value.GetType() == ezVariant::Type::String)
-      ezConversionUtils::StringToBool(value.Cast<ezString>().GetData(), result);
+    {
+      if (ezConversionUtils::StringToBool(value.Cast<ezString>().GetData(), result) == EZ_FAILURE)
+      {
+        result = false;
+        bSuccessful = false;
+      }
+    }
     else
       EZ_REPORT_FAILURE("Conversion to bool failed");
   }
 
-  static void To(ezInt32& result, const ezVariant& value)
+  static void To(const ezVariant& value, ezInt32& result, bool& bSuccessful)
   {
     if (value.GetType() <= ezVariant::Type::Double)
-      result = value.ConvertNumber<ezInt32>() != 0;
+      result = value.ConvertNumber<ezInt32>();
     else if (value.GetType() == ezVariant::Type::String)
-      ezConversionUtils::StringToInt(value.Cast<ezString>().GetData(), result);
+    {
+      if (ezConversionUtils::StringToInt(value.Cast<ezString>().GetData(), result) == EZ_FAILURE)
+      {
+        result = 0;
+        bSuccessful = false;
+      }
+    }
     else
       EZ_REPORT_FAILURE("Conversion to int failed");
   }
 
-  /// \todo add more conversion function
-
-  static void To(float& result, const ezVariant& value)
+  static void To(const ezVariant& value, ezUInt32& result, bool& bSuccessful)
   {
     if (value.GetType() <= ezVariant::Type::Double)
-      result = value.ConvertNumber<float>() != 0;
+      result = value.ConvertNumber<ezUInt32>();
+    else if (value.GetType() == ezVariant::Type::String)
+    {
+      ezInt64 tmp = result;
+      if (ezConversionUtils::StringToInt64(value.Cast<ezString>().GetData(), tmp) == EZ_FAILURE)
+      {
+        result = 0;
+        bSuccessful = false;
+      }
+      else
+        result = (ezUInt32)tmp;
+    }
+    else
+      EZ_REPORT_FAILURE("Conversion to uint failed");
+  }
+
+  static void To(const ezVariant& value, ezInt64& result, bool& bSuccessful)
+  {
+    if (value.GetType() <= ezVariant::Type::Double)
+      result = value.ConvertNumber<ezInt64>();
+    else if (value.GetType() == ezVariant::Type::String)
+    {
+      if (ezConversionUtils::StringToInt64(value.Cast<ezString>().GetData(), result) == EZ_FAILURE)
+      {
+        result = 0;
+        bSuccessful = false;
+      }
+    }
+    else
+      EZ_REPORT_FAILURE("Conversion to int64 failed");
+  }
+
+  static void To(const ezVariant& value, ezUInt64& result, bool& bSuccessful)
+  {
+    if (value.GetType() <= ezVariant::Type::Double)
+      result = value.ConvertNumber<ezUInt64>();
+    else if (value.GetType() == ezVariant::Type::String)
+    {
+      ezInt64 tmp = result;
+      if (ezConversionUtils::StringToInt64(value.Cast<ezString>().GetData(), tmp) == EZ_FAILURE)
+      {
+        result = 0;
+        bSuccessful = false;
+      }
+      else
+        result = (ezUInt64)tmp;
+    }
+    else
+      EZ_REPORT_FAILURE("Conversion to uint64 failed");
+  }
+
+  static void To(const ezVariant& value, float& result, bool& bSuccessful)
+  {
+    if (value.GetType() <= ezVariant::Type::Double)
+      result = value.ConvertNumber<float>();
     else if (value.GetType() == ezVariant::Type::String)
     {
       double tmp = result;
-      ezConversionUtils::StringToFloat(value.Cast<ezString>().GetData(), tmp);
-      result = static_cast<float>(tmp);
+      if (ezConversionUtils::StringToFloat(value.Cast<ezString>().GetData(), tmp) == EZ_FAILURE)
+      {
+        result = 0.0f;
+        bSuccessful = false;
+      }
+      else
+        result = (float)tmp;
     }
     else
       EZ_REPORT_FAILURE("Conversion to float failed");
   }
 
-  static void To(double& result, const ezVariant& value)
+  static void To(const ezVariant& value, double& result, bool& bSuccessful)
   {
     if (value.GetType() <= ezVariant::Type::Double)
-      result = value.ConvertNumber<double>() != 0;
+      result = value.ConvertNumber<double>();
     else if (value.GetType() == ezVariant::Type::String)
-      ezConversionUtils::StringToFloat(value.Cast<ezString>().GetData(), result);
+    {
+      if (ezConversionUtils::StringToFloat(value.Cast<ezString>().GetData(), result) == EZ_FAILURE)
+      {
+        result = 0.0;
+        bSuccessful = false;
+      }
+    }
     else
       EZ_REPORT_FAILURE("Conversion to double failed");
   }
 
-  static void To(ezString& result, const ezVariant& value)
+  static void To(const ezVariant& value, ezString& result, bool& bSuccessful)
   {
-    /*ToStringFunc toStringFunc;
+    ToStringFunc toStringFunc;
     toStringFunc.m_pThis = &value;
     toStringFunc.m_pResult = &result;
 
-    ezVariant::DispatchTo(toStringFunc, value.GetType());*/
+    ezVariant::DispatchTo(toStringFunc, value.GetType());
+    bSuccessful = true;
   }
 
   template <typename T>
-  static void To(T& result, const ezVariant& value)
+  static void To(const ezVariant& value, T& result, bool& bSuccessful)
   {
     EZ_REPORT_FAILURE("Conversion function not implemented for target type '%d'", ezVariant::TypeDeduction<T>::value);
+    bSuccessful = false;
   }
 
 private:
@@ -93,7 +170,7 @@ private:
     template <typename T>
     EZ_FORCE_INLINE void operator()()
     {
-      ezConversionUtils::ToString(m_pThis->Cast<T>());
+      *m_pResult = ezConversionUtils::ToString(m_pThis->Cast<T>());
     }
 
     const ezVariant* m_pThis;

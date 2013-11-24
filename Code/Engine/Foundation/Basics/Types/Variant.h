@@ -2,12 +2,7 @@
 
 #include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/Containers/HashTable.h>
-#include <Foundation/Math/Mat3.h>
-#include <Foundation/Math/Mat4.h>
-#include <Foundation/Math/Quat.h>
-#include <Foundation/Strings/String.h>
 #include <Foundation/Threading/AtomicInteger.h>
-#include <Foundation/Time/Time.h>
 #include <Foundation/Utilities/ConversionUtils.h>
 
 /// \todo document and test
@@ -27,7 +22,7 @@ public:
       UInt64,
       Float,
       Double,
-      //Color, /// \todo Implement ezColor type.
+      Color,
       Vector2,
       Vector3,
       Vector4,
@@ -90,17 +85,17 @@ public:
   const T& Get() const; // [tested]
 
   template <typename T>
-  bool CanConvertTo() const; /// \todo Not compiling
+  bool CanConvertTo() const; // [tested]
 
   bool CanConvertTo(Type::Enum type) const; // [tested]
 
   template <typename T>
-  T ConvertTo() const; /// \todo Not tested
+  T ConvertTo(bool* out_pSuccessful = NULL) const; // [tested]
 
-  ezVariant ConvertTo(Type::Enum type) const; /// \todo Not tested
+  ezVariant ConvertTo(Type::Enum type, bool* out_pSuccessful = NULL) const; // [tested]
 
   template <typename Functor>
-  static void DispatchTo(Functor& functor, Type::Enum type); /// \todo Not tested, whatever it does.
+  static void DispatchTo(Functor& functor, Type::Enum type); // [tested]
 
 private:
 

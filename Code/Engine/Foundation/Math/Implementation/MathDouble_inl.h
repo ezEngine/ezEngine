@@ -3,18 +3,18 @@
 namespace ezMath
 {
   template<>
-  inline bool BasicType<double>::SupportsInfinity()
+  EZ_FORCE_INLINE bool BasicType<double>::SupportsInfinity()
   {
     return true;
   }
 
   template<>
-  inline bool BasicType<double>::SupportsNaN()
+  EZ_FORCE_INLINE bool BasicType<double>::SupportsNaN()
   {
     return true;
   }
 
-  inline bool IsFinite(double value)
+  EZ_FORCE_INLINE bool IsFinite(double value)
   {
     // Check the 11 exponent bits.
     // NAN -> (exponent = all 1, mantissa = non-zero)
@@ -25,7 +25,7 @@ namespace ezMath
     return ((i2f.i & 0x7FF0000000000000LL) != 0x7FF0000000000000LL);
   }
 
-  inline bool IsNaN(double value)
+  EZ_FORCE_INLINE bool IsNaN(double value)
   {
     // Check the 11 exponent bits.
     // NAN -> (exponent = all 1, mantissa = non-zero)
@@ -38,7 +38,7 @@ namespace ezMath
   }
 
   template<>
-  inline double BasicType<double>::GetNaN()
+  EZ_FORCE_INLINE double BasicType<double>::GetNaN()
   {
     // NAN -> (exponent = all 1, mantissa = non-zero)
     // INF -> (exponent = all 1, mantissa = zero)
@@ -52,7 +52,7 @@ namespace ezMath
   };
 
   template<>
-  inline double BasicType<double>::GetInfinity()
+  EZ_FORCE_INLINE double BasicType<double>::GetInfinity()
   {
     // NAN -> (exponent = all 1, mantissa = non-zero)
     // INF -> (exponent = all 1, mantissa = zero)
@@ -66,7 +66,7 @@ namespace ezMath
   }
 
   template<>
-  inline double BasicType<double>::MaxValue()
+  EZ_FORCE_INLINE double BasicType<double>::MaxValue()
   {
     return 1.7976931348623158e+307;
   }
