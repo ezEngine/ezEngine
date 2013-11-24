@@ -115,7 +115,7 @@ inline ezVec3Template<Type> ezColor::ConvertToHSV() const
 
 // http://www.rapidtables.com/convert/color/hsv-to-rgb.htm
 template<typename Type>
-inline static ezColor ezColor::FromHSV(Type hue, Type sat, Type val)
+inline ezColor ezColor::FromHSV(Type hue, Type sat, Type val)
 {
   EZ_ASSERT(hue <= 360 && hue >= 0, "HSV Hue value is in invalid range.");
   EZ_ASSERT(sat <= 1 && val >= 0, "HSV saturation value is in invalid range.");
