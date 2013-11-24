@@ -43,7 +43,7 @@ EZ_FORCE_INLINE void ezMemoryUtils::DefaultConstruct(T* pDestination, size_t uiC
 {
   for (size_t i = 0; i < uiCount; i++)
   {
-    new (pDestination + i) T();
+    new (pDestination + i) T;
   }
 }
 
