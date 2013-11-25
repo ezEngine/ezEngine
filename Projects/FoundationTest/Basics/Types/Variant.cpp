@@ -1,4 +1,4 @@
-#include <PCH.h>
+Ôªø#include <PCH.h>
 #include <Foundation/Basics/Types/Variant.h>
 
 EZ_CREATE_SIMPLE_TEST(Basics, Variant)
@@ -350,8 +350,8 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     v = "blurg!";
     EZ_TEST(v == ezString("blurg!"));
 
-    v = ezVariant("bl‰rg!");
-    EZ_TEST(v == ezString("bl‰rg!"));
+    v = ezVariant("bl√§rg!");
+    EZ_TEST(v == ezString("bl√§rg!"));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezString")
@@ -371,8 +371,8 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     v = ezString("blurg!");
     EZ_TEST(v == ezString("blurg!"));
 
-    v = ezVariant(ezString("bl‰rg!"));
-    EZ_TEST(v == ezString("bl‰rg!"));
+    v = ezVariant(ezString("bl√§rg!"));
+    EZ_TEST(v == ezString("bl√§rg!"));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezTime")
