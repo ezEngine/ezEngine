@@ -1027,110 +1027,110 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     EZ_TEST(v.CanConvertTo(ezVariant::Type::VoidPointer) == false);
 
     {
-      bool bSuccessful = true;
-      EZ_TEST(v.ConvertTo<bool>(&bSuccessful) == false);
-      EZ_TEST(bSuccessful == false);
+      ezResult ConversionStatus = EZ_SUCCESS;
+      EZ_TEST(v.ConvertTo<bool>(&ConversionStatus) == false);
+      EZ_TEST(ConversionStatus == EZ_FAILURE);
 
-      bSuccessful = true;
-      EZ_TEST(v.ConvertTo<ezInt32>(&bSuccessful) == 0);
-      EZ_TEST(bSuccessful == false);
+      ConversionStatus = EZ_SUCCESS;
+      EZ_TEST(v.ConvertTo<ezInt32>(&ConversionStatus) == 0);
+      EZ_TEST(ConversionStatus == EZ_FAILURE);
 
-      bSuccessful = true;
-      EZ_TEST(v.ConvertTo<ezUInt32>(&bSuccessful) == 0);
-      EZ_TEST(bSuccessful == false);
+      ConversionStatus = EZ_SUCCESS;
+      EZ_TEST(v.ConvertTo<ezUInt32>(&ConversionStatus) == 0);
+      EZ_TEST(ConversionStatus == EZ_FAILURE);
 
-      bSuccessful = true;
-      EZ_TEST(v.ConvertTo<ezInt64>(&bSuccessful) == 0);
-      EZ_TEST(bSuccessful == false);
+      ConversionStatus = EZ_SUCCESS;
+      EZ_TEST(v.ConvertTo<ezInt64>(&ConversionStatus) == 0);
+      EZ_TEST(ConversionStatus == EZ_FAILURE);
 
-      bSuccessful = true;
-      EZ_TEST(v.ConvertTo<ezUInt64>(&bSuccessful) == 0);
-      EZ_TEST(bSuccessful == false);
+      ConversionStatus = EZ_SUCCESS;
+      EZ_TEST(v.ConvertTo<ezUInt64>(&ConversionStatus) == 0);
+      EZ_TEST(ConversionStatus == EZ_FAILURE);
 
-      bSuccessful = true;
-      EZ_TEST(v.ConvertTo<float>(&bSuccessful) == 0.0f);
-      EZ_TEST(bSuccessful == false);
+      ConversionStatus = EZ_SUCCESS;
+      EZ_TEST(v.ConvertTo<float>(&ConversionStatus) == 0.0f);
+      EZ_TEST(ConversionStatus == EZ_FAILURE);
 
-      bSuccessful = true;
-      EZ_TEST(v.ConvertTo<double>(&bSuccessful) == 0.0);
-      EZ_TEST(bSuccessful == false);
+      ConversionStatus = EZ_SUCCESS;
+      EZ_TEST(v.ConvertTo<double>(&ConversionStatus) == 0.0);
+      EZ_TEST(ConversionStatus == EZ_FAILURE);
     }
 
     {
       v = "true";
-      bool bSuccessful = false;
-      EZ_TEST(v.ConvertTo<bool>(&bSuccessful) == true);
-      EZ_TEST(bSuccessful);
+      ezResult ConversionStatus = EZ_FAILURE;
+      EZ_TEST(v.ConvertTo<bool>(&ConversionStatus) == true);
+      EZ_TEST(ConversionStatus == EZ_SUCCESS);
 
-      bSuccessful = false;
-      EZ_TEST(v.ConvertTo(ezVariant::Type::Bool, &bSuccessful).Get<bool>() == true);
-      EZ_TEST(bSuccessful);
+      ConversionStatus = EZ_FAILURE;
+      EZ_TEST(v.ConvertTo(ezVariant::Type::Bool, &ConversionStatus).Get<bool>() == true);
+      EZ_TEST(ConversionStatus == EZ_SUCCESS);
     }
 
     {
       v = "46";
-      bool bSuccessful = false;
-      EZ_TEST(v.ConvertTo<ezInt32>(&bSuccessful) == 46);
-      EZ_TEST(bSuccessful);
+      ezResult ConversionStatus = EZ_FAILURE;
+      EZ_TEST(v.ConvertTo<ezInt32>(&ConversionStatus) == 46);
+      EZ_TEST(ConversionStatus == EZ_SUCCESS);
 
-      bSuccessful = false;
-      EZ_TEST(v.ConvertTo(ezVariant::Type::Int32, &bSuccessful).Get<ezInt32>() == 46);
-      EZ_TEST(bSuccessful);
+      ConversionStatus = EZ_FAILURE;
+      EZ_TEST(v.ConvertTo(ezVariant::Type::Int32, &ConversionStatus).Get<ezInt32>() == 46);
+      EZ_TEST(ConversionStatus == EZ_SUCCESS);
     }
 
     {
       v = "356";
-      bool bSuccessful = false;
-      EZ_TEST(v.ConvertTo<ezUInt32>(&bSuccessful) == 356);
-      EZ_TEST(bSuccessful);
+      ezResult ConversionStatus = EZ_FAILURE;
+      EZ_TEST(v.ConvertTo<ezUInt32>(&ConversionStatus) == 356);
+      EZ_TEST(ConversionStatus == EZ_SUCCESS);
 
-      bSuccessful = false;
-      EZ_TEST(v.ConvertTo(ezVariant::Type::UInt32, &bSuccessful).Get<ezUInt32>() == 356);
-      EZ_TEST(bSuccessful);
+      ConversionStatus = EZ_FAILURE;
+      EZ_TEST(v.ConvertTo(ezVariant::Type::UInt32, &ConversionStatus).Get<ezUInt32>() == 356);
+      EZ_TEST(ConversionStatus == EZ_SUCCESS);
     }
 
     {
       v = "64";
-      bool bSuccessful = false;
-      EZ_TEST(v.ConvertTo<ezInt64>(&bSuccessful) == 64);
-      EZ_TEST(bSuccessful);
+      ezResult ConversionStatus = EZ_FAILURE;
+      EZ_TEST(v.ConvertTo<ezInt64>(&ConversionStatus) == 64);
+      EZ_TEST(ConversionStatus == EZ_SUCCESS);
 
-      bSuccessful = false;
-      EZ_TEST(v.ConvertTo(ezVariant::Type::Int64, &bSuccessful).Get<ezInt64>() == 64);
-      EZ_TEST(bSuccessful);
+      ConversionStatus = EZ_FAILURE;
+      EZ_TEST(v.ConvertTo(ezVariant::Type::Int64, &ConversionStatus).Get<ezInt64>() == 64);
+      EZ_TEST(ConversionStatus == EZ_SUCCESS);
     }
 
     {
       v = "6464";
-      bool bSuccessful = false;
-      EZ_TEST(v.ConvertTo<ezUInt64>(&bSuccessful) == 6464);
-      EZ_TEST(bSuccessful);
+      ezResult ConversionStatus = EZ_FAILURE;
+      EZ_TEST(v.ConvertTo<ezUInt64>(&ConversionStatus) == 6464);
+      EZ_TEST(ConversionStatus == EZ_SUCCESS);
 
-      bSuccessful = false;
-      EZ_TEST(v.ConvertTo(ezVariant::Type::UInt64, &bSuccessful).Get<ezUInt64>() == 6464);
-      EZ_TEST(bSuccessful);
+      ConversionStatus = EZ_FAILURE;
+      EZ_TEST(v.ConvertTo(ezVariant::Type::UInt64, &ConversionStatus).Get<ezUInt64>() == 6464);
+      EZ_TEST(ConversionStatus == EZ_SUCCESS);
     }
 
     {
       v = "0.07564f";
-      bool bSuccessful = false;
-      EZ_TEST(v.ConvertTo<float>(&bSuccessful) == 0.07564f);
-      EZ_TEST(bSuccessful);
+      ezResult ConversionStatus = EZ_FAILURE;
+      EZ_TEST(v.ConvertTo<float>(&ConversionStatus) == 0.07564f);
+      EZ_TEST(ConversionStatus == EZ_SUCCESS);
 
-      bSuccessful = false;
-      EZ_TEST(v.ConvertTo(ezVariant::Type::Float, &bSuccessful).Get<float>() == 0.07564f);
-      EZ_TEST(bSuccessful);
+      ConversionStatus = EZ_FAILURE;
+      EZ_TEST(v.ConvertTo(ezVariant::Type::Float, &ConversionStatus).Get<float>() == 0.07564f);
+      EZ_TEST(ConversionStatus == EZ_SUCCESS);
     }
 
     {
       v = "0.4453";
-      bool bSuccessful = false;
-      EZ_TEST(v.ConvertTo<double>(&bSuccessful) == 0.4453);
-      EZ_TEST(bSuccessful);
+      ezResult ConversionStatus = EZ_FAILURE;
+      EZ_TEST(v.ConvertTo<double>(&ConversionStatus) == 0.4453);
+      EZ_TEST(ConversionStatus == EZ_SUCCESS);
 
-      bSuccessful = false;
-      EZ_TEST(v.ConvertTo(ezVariant::Type::Double, &bSuccessful).Get<double>() == 0.4453);
-      EZ_TEST(bSuccessful);
+      ConversionStatus = EZ_FAILURE;
+      EZ_TEST(v.ConvertTo(ezVariant::Type::Double, &ConversionStatus).Get<double>() == 0.4453);
+      EZ_TEST(ConversionStatus == EZ_SUCCESS);
     }
   }
 

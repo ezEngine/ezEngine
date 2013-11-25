@@ -41,6 +41,10 @@ Milestone 3
   * Added ezStopwatch for measuring time.
   * Added the ezAngle class to better deal with angles in degree, radians (easier to use, typesafe and more efficient!)
   * Added ezJSONWriter interface and two derived implementations for writing standard JSON and 'extended' JSON.
+  * Added ezColor, a class to convert color values back and forth between different color spaces.
+  * Added ezColor8UNorm to store 8-Bit RGBA color values.
+  * Added ezColor16f to store 16-Bit RGBA color values.
+  * Added ezFloat16 to convert float values to 16-Bit half floats and back.
 
 Milestone 2
 -----------

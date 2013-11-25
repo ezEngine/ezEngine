@@ -7,8 +7,6 @@
   EZ_CHECK_AT_COMPILETIME(sizeof(ezVariant) == 20);
 #endif
 
-const ezVariant ezVariant::Invalid;
-
 /// functors
 
 struct CompareFunc
@@ -106,20 +104,20 @@ bool ezVariant::CanConvertTo(Type::Enum type) const
   return false;
 }
 
-ezVariant ezVariant::ConvertTo(Type::Enum type, bool* out_pSuccessful /* = NULL*/) const
+ezVariant ezVariant::ConvertTo(Type::Enum type, ezResult* out_pConversionStatus /* = NULL*/) const
 {
   if (!CanConvertTo(type))
   {
-    if (out_pSuccessful != NULL)
-      *out_pSuccessful = false;
+    if (out_pConversionStatus != NULL)
+      *out_pConversionStatus = EZ_FAILURE;
 
-    return ezVariant::Invalid;
+    return ezVariant(); // creates an invalid variant
   }
 
   if (m_Type == type)
   {
-    if (out_pSuccessful != NULL)
-      *out_pSuccessful = true;
+    if (out_pConversionStatus != NULL)
+      *out_pConversionStatus = EZ_SUCCESS;
 
     return *this;
   }
@@ -130,8 +128,8 @@ ezVariant ezVariant::ConvertTo(Type::Enum type, bool* out_pSuccessful /* = NULL*
 
   DispatchTo(convertFunc, type);
 
-  if (out_pSuccessful != NULL)
-    *out_pSuccessful = convertFunc.m_bSuccessful;
+  if (out_pConversionStatus != NULL)
+    *out_pConversionStatus = convertFunc.m_bSuccessful ? EZ_SUCCESS : EZ_FAILURE;
 
   return convertFunc.m_Result;
 }
