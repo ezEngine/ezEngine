@@ -211,7 +211,7 @@ EZ_CREATE_SIMPLE_TEST(Threading, TaskSystem)
         ++iNotAllNextTasksFinished;
     }
 
-    EZ_TEST(iNotAllNextTasksFinished > 0);
+    EZ_TEST_MSG(iNotAllNextTasksFinished > 0, "This test CAN fail, if the PC is blocked just right. It does not matter though, it is not really a failure.");
 
     ezTaskSystem::FinishFrameTasks();
 
@@ -286,7 +286,7 @@ EZ_CREATE_SIMPLE_TEST(Threading, TaskSystem)
     EZ_TEST(iDone < Tasks);
 
     EZ_TEST(iStarted > 0);
-    EZ_TEST(iStarted <= 4); // should not have managed to start more tasks than there are threads
+    EZ_TEST_MSG(iStarted <= 4, "This test can fail when the PC is under heavy load."); // should not have managed to start more tasks than there are threads
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Canceling Tasks (forcefully)")

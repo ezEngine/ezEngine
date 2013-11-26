@@ -93,6 +93,6 @@ EZ_CREATE_SIMPLE_TEST(Threading, Thread)
 
     // We test for 0.25 - 0.35 since the threading functions are a bit varying in their precision
     EZ_TEST(duration.GetSeconds() > 0.25);
-    EZ_TEST(duration.GetSeconds() < 0.35);
+    EZ_TEST_MSG(duration.GetSeconds() < 1.0, "This test can fail when the machine is under too much load and blocks the process for too long.");
   }
 }

@@ -119,7 +119,7 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingSphere)
     s.ExpandToInclude(b);
 
     EZ_TEST(s.m_vCenter == ezVec3T(1, 2, 3));
-    EZ_TEST(s.m_fRadius == ezMath::Sqrt((ezMathTestType) 12));
+    EZ_TEST_FLOAT(s.m_fRadius, ezMath::Sqrt((ezMathTestType) 12), 0.000001f);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Grow")
