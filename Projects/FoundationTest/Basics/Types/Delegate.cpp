@@ -118,7 +118,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, Delegate)
     c = 10;
     EZ_TEST_INT(d(3), 20);
 
-    d = [c](ezInt32 b) mutable { auto result = b + c; c = 1; return result; };
+    d = [c](ezInt32 b) mutable -> decltype(b + c) { auto result = b + c; c = 1; return result; };
     EZ_TEST_INT(d(3), 13);
     EZ_TEST_INT(d(3), 4);
   }
@@ -126,7 +126,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, Delegate)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Lambda - capture by reference")
   {
     ezInt32 c = 20;
-    d = [&c](ezInt32 i) { c = 5; return i; };
+    d = [&c](ezInt32 i) -> decltype(i) { c = 5; return i; };
     EZ_TEST_INT(d(3), 3);
     EZ_TEST_INT(c, 5);
   }
