@@ -26,6 +26,7 @@ if(MSVC)
   )
 endif()
 
+set (BUILDSYSTEM_PREVENT_STATIC_CODE_ANALYSIS true)
 
 include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/CMAKE_Library.txt)
 

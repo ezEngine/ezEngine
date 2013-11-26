@@ -43,10 +43,18 @@ EZ_CREATE_SIMPLE_TEST(Math, Color)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Constructor from vector")
   {
     ezColor initV(ezVec4(0.5f, 0.6f, 0.7f, 0.8));
-    EZ_TEST(initV.r == 0.5f && initV.g == 0.6f && initV.b == 0.7f && initV.a == 0.8f);
+
+    EZ_TEST_FLOAT(initV.r, 0.5f, 0.000001f);
+    EZ_TEST_FLOAT(initV.g, 0.6f, 0.000001f);
+    EZ_TEST_FLOAT(initV.b, 0.7f, 0.000001f);
+    EZ_TEST_FLOAT(initV.a, 0.8f, 0.000001f);
 
     ezColor initVd(ezVec4d(0.5, 0.6, 0.7, 0.8));
-    EZ_TEST(initVd.r == 0.5 && initVd.g == 0.6 && initVd.b == 0.7 && initVd.a == 0.8);
+
+    EZ_TEST_FLOAT(initVd.r, 0.5f, 0.000001f);
+    EZ_TEST_FLOAT(initVd.g, 0.6f, 0.000001f);
+    EZ_TEST_FLOAT(initVd.b, 0.7f, 0.000001f);
+    EZ_TEST_FLOAT(initVd.a, 0.8f, 0.000001f);
   }
 
   {

@@ -38,6 +38,7 @@ ezUInt64 ezCompressedStreamReader::ReadBytes(void* pReadBuffer, ezUInt64 uiBytes
   if (m_pZLibStream == NULL)
   {
     m_pZLibStream = EZ_DEFAULT_NEW(z_stream_s);
+    EZ_ANALYSIS_ASSUME(m_pZLibStream != NULL);
     ezMemoryUtils::ZeroFill(m_pZLibStream);
 
     m_pZLibStream->opaque = NULL;
@@ -128,6 +129,8 @@ ezCompressedStreamWriter::ezCompressedStreamWriter(ezIBinaryStreamWriter& Output
   m_uiCompressedSize = 0;
 
   m_pZLibStream = EZ_DEFAULT_NEW(z_stream_s);
+  EZ_ANALYSIS_ASSUME(m_pZLibStream != NULL);
+
   ezMemoryUtils::ZeroFill(m_pZLibStream);
 
   m_pZLibStream->opaque = NULL;

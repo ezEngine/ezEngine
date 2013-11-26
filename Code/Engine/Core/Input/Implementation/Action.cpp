@@ -153,7 +153,7 @@ ezInputManager::ezActionMap::Iterator ezInputManager::GetBestAction(ezActionMap&
 
     ezUInt32 AltSlot = ThisAction.m_iTriggeredViaAlternative;
 
-    if (AltSlot != -1)
+    if (AltSlot >= 0)
     {
       if (ThisAction.m_Config.m_sInputSlotTrigger[AltSlot] == sSlot)
         goto hell;
@@ -172,6 +172,8 @@ ezInputManager::ezActionMap::Iterator ezInputManager::GetBestAction(ezActionMap&
     continue;
 
 hell:
+
+    EZ_ASSERT(AltSlot >= 0 && AltSlot < ezInputActionConfig::MaxInputSlotAlternatives, "Alternate Slot out of bounds.");
 
     // if the action had input in the last update AND wants to keep the focus, it will ALWAYS get the input, until the input slot gets inactive (key up)
     // independent from priority, overlap of areas etc.

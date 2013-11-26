@@ -161,8 +161,12 @@ ezResult ezWindow::Destroy()
   if (m_CreationDescription.m_bFullscreenWindow && m_CreationDescription.m_bWindowsUseDevmodeFullscreen)
     ChangeDisplaySettings (NULL, 0);
 
-  DestroyWindow(GetNativeWindowHandle());
-  SetWindowLongPtrW(GetNativeWindowHandle(), GWLP_USERDATA, reinterpret_cast<LONG_PTR>(NULL));
+  HWND hWindow = GetNativeWindowHandle();
+  DestroyWindow(hWindow);
+
+  // the following line of code is a work around, because 'LONG_PTR pNull = reinterpret_cast<LONG_PTR>(NULL)' crashes the VS 2010 32 Bit compiler :-(
+  LONG_PTR pNull = 0;
+  SetWindowLongPtrW(hWindow, GWLP_USERDATA, pNull);
 
   UnregisterClassW(L"ezWindow", GetModuleHandleW(NULL));
 
