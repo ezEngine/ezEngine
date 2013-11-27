@@ -3,10 +3,7 @@
 
 void ezGameObject::ChildIterator::Next()
 {
-  m_pObject = NULL;
-
-  /// \todo This code makes no sense.
-  //m_pObject->m_pWorld->TryGetObject(m_pObject->m_NextSibling, m_pObject);
+  m_pObject->m_pWorld->TryGetObject(m_pObject->m_NextSibling, m_pObject);
 }
 
 void ezGameObject::operator=(const ezGameObject& other)
