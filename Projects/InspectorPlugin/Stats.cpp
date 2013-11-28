@@ -65,7 +65,7 @@ static void TelemetryEventsHandler(const ezTelemetry::TelemetryEventData& e)
       const ezTime TimeDiff = Now - LastTime;
 
       ezStringBuilder s;
-      s.Format("%.2fms", TimeDiff.GetMilliSeconds());
+      s.Format("%.2fms", TimeDiff.GetMilliseconds());
       ezStats::SetStat("App/FrameTime", s.GetData());
 
       LastTime = Now;

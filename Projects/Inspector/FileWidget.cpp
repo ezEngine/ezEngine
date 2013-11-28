@@ -367,7 +367,7 @@ void ezFileWidget::UpdateTable()
     QTableWidgetItem* pItem;
 
     pItem = new QTableWidgetItem();
-    pItem->setData(Qt::DisplayRole, QVariant((ezUInt64) it.Value().m_StartTime.GetMicroSeconds()));
+    pItem->setData(Qt::DisplayRole, QVariant((ezUInt64) it.Value().m_StartTime.GetMicroseconds()));
     Table->setItem(uiRow, 0, pItem);
 
     pItem = GetStateString(it.Value().m_State);

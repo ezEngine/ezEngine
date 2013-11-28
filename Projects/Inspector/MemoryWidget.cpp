@@ -186,7 +186,7 @@ void ezMemoryWidget::UpdateStats()
     }
   }
 
-  if (ezSystemTime::Now() - s_pWidget->m_LastUsedMemoryStored > ezTime::MilliSeconds(200))
+  if (ezSystemTime::Now() - s_pWidget->m_LastUsedMemoryStored > ezTime::Milliseconds(200))
   {
     m_LastUsedMemoryStored = ezSystemTime::Now();
 

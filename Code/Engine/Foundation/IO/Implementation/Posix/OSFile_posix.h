@@ -17,7 +17,7 @@ ezResult ezOSFile::InternalOpen(const char* szFile, ezFileMode::Enum OpenMode)
   case ezFileMode::Append:
     m_FileData.m_pFileHandle = fopen(szFile, "ab");
 
-    // in append mode we need to set the file pointer to the end explicitely, otherwise GetFilePosition might return 0 the first time
+    // in append mode we need to set the file pointer to the end explicitly, otherwise GetFilePosition might return 0 the first time
     if (m_FileData.m_pFileHandle != NULL)
       InternalSetFilePosition(0, ezFilePos::FromEnd);
 
@@ -156,7 +156,7 @@ ezResult ezOSFile::InternalGetFileStats(const char* szFileOrFolder, ezFileStats&
   out_Stats.m_bIsDirectory = S_ISDIR(tempStat.st_mode);
   out_Stats.m_uiFileSize = tempStat.st_size;
   out_Stats.m_sFileName = "";
-  out_Stats.m_uiLastModificationTime = tempStat.st_mtime;
+  out_Stats.m_LastModificationTime.SetInt64(tempStat.st_mtime, ezSIUnitOfTime::Second);
   
   return EZ_SUCCESS;
 }

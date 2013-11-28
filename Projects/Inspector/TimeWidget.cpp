@@ -148,8 +148,8 @@ void ezTimeWidget::UpdateStats()
 
     for (ezUInt32 i = 1; i < 10; ++i)
     {
-      pMax.moveTo(QPointF (-m_DisplayInterval.GetSeconds(), ezTime::MilliSeconds(10.0 * i).GetSeconds()));
-      pMax.lineTo(QPointF (0, ezTime::MilliSeconds(10.0 * i).GetSeconds()));
+      pMax.moveTo(QPointF (-m_DisplayInterval.GetSeconds(), ezTime::Milliseconds(10.0 * i).GetSeconds()));
+      pMax.lineTo(QPointF (0, ezTime::Milliseconds(10.0 * i).GetSeconds()));
     }
 
     m_pPathMax->setPath(pMax);
@@ -159,7 +159,7 @@ void ezTimeWidget::UpdateStats()
 
   for (ezUInt32 t = 25; t < 100; t += 25)
   {
-    tShowMax = ezTime::MilliSeconds(1) * t;
+    tShowMax = ezTime::Milliseconds(1) * t;
 
     if (tMax < tShowMax)
       break;
@@ -176,7 +176,7 @@ void ezTimeWidget::UpdateStats()
     m_LastUpdatedClockList = ezSystemTime::Now();
 
     ezStringBuilder s;
-    s.Format("Max: %.0fms", tShowMax.GetMilliSeconds());
+    s.Format("Max: %.0fms", tShowMax.GetMilliseconds());
     LabelMaxTime->setText(s.GetData());
 
     for (ezMap<ezString, ezTimeWidget::ClockData>::Iterator it = m_ClockData.GetIterator(); it.IsValid(); ++it)
@@ -188,7 +188,7 @@ void ezTimeWidget::UpdateStats()
 
       ezStringBuilder sTooltip;
       sTooltip.Format("<p>Clock: %s<br>Max Time Step: <b>%.2fms</b><br>Min Time Step: <b>%.2fms</b><br></p>",
-        it.Key().GetData(), Clock.m_MaxTimestep.GetMilliSeconds(), Clock.m_MinTimestep.GetMilliSeconds());
+        it.Key().GetData(), Clock.m_MaxTimestep.GetMilliseconds(), Clock.m_MinTimestep.GetMilliseconds());
 
       Clock.m_pListItem->setToolTip(sTooltip.GetData());
     }
@@ -225,12 +225,12 @@ void ezTimeWidget::ProcessTelemetry(void* pUnuseed)
 
     s_pWidget->m_MaxGlobalTime = ezMath::Max(s_pWidget->m_MaxGlobalTime, Sample.m_AtGlobalTime);
 
-    if (ad.m_TimeSamples.GetCount() > 1 && (ezMath::IsEqual(ad.m_TimeSamples.PeekBack().m_Timestep, Sample.m_Timestep, ezTime::MicroSeconds(100))))
+    if (ad.m_TimeSamples.GetCount() > 1 && (ezMath::IsEqual(ad.m_TimeSamples.PeekBack().m_Timestep, Sample.m_Timestep, ezTime::Microseconds(100))))
       ad.m_TimeSamples.PeekBack() = Sample;
     else
       ad.m_TimeSamples.PushBack(Sample);
 
-    if (ads.m_TimeSamples.GetCount() > 1 && (ezMath::IsEqual(ads.m_TimeSamples.PeekBack().m_Timestep, SampleSmooth.m_Timestep, ezTime::MicroSeconds(100))))
+    if (ads.m_TimeSamples.GetCount() > 1 && (ezMath::IsEqual(ads.m_TimeSamples.PeekBack().m_Timestep, SampleSmooth.m_Timestep, ezTime::Microseconds(100))))
       ads.m_TimeSamples.PeekBack() = SampleSmooth;
     else
       ads.m_TimeSamples.PushBack(SampleSmooth);

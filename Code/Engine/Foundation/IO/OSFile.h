@@ -6,7 +6,7 @@
 #include <Foundation/Threading/AtomicInteger.h>
 #include <Foundation/Communication/Event.h>
 #include <Foundation/Threading/Mutex.h>
-#include <Foundation/Time/Time.h>
+#include <Foundation/Time/Timestamp.h>
 
 struct ezOSFileData;
 
@@ -49,8 +49,8 @@ struct EZ_FOUNDATION_DLL ezFileStats
   /// \brief The name of the file or folder that the stats are for. Does not include the path to it.
   ezStringBuilder m_sFileName;
 
-  /// \brief The last modification time. Note that this is stored in a platform specific format and cannot be used across platforms.
-  ezUInt64 m_uiLastModificationTime;
+  /// \brief The last modification time as an UTC timestamp since unix epoch.
+  ezTimestamp m_LastModificationTime;
 
   /// \brief The size of the file in bytes.
   ezUInt64 m_uiFileSize;

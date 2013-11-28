@@ -1,4 +1,4 @@
-
+#include <time.h>
 
 void ezSystemTime::Initialize()
 {
@@ -10,8 +10,8 @@ void ezSystemTime::Shutdown()
 
 ezTime ezSystemTime::Now()
 {
-  timeval CurrentTime;
-  gettimeofday(&CurrentTime, NULL);
-  
-  return ezTime((double)CurrentTime.tv_sec) + ezTime::MicroSeconds(CurrentTime.tv_usec);
+  struct timespec sp;
+  clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &sp);
+
+  return ezTime::Seconds( (double)sp.tv_sec + (double)(sp.tv_nsec / 1000000000.0));
 }

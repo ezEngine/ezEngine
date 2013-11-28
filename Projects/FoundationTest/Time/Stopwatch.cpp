@@ -43,10 +43,10 @@ EZ_CREATE_SIMPLE_TEST(Time, Stopwatch)
     // these tests are deliberately written such that they cannot fail,
     // even when the OS is under heavy load
 
-    EZ_TEST(t0 > ezTime::MilliSeconds(5));
-    EZ_TEST(t1 > ezTime::MilliSeconds(5));
-    EZ_TEST(t2 > ezTime::MilliSeconds(5));
-    EZ_TEST(t3 > ezTime::MilliSeconds(5));
+    EZ_TEST(t0 > ezTime::Milliseconds(5));
+    EZ_TEST(t1 > ezTime::Milliseconds(5));
+    EZ_TEST(t2 > ezTime::Milliseconds(5));
+    EZ_TEST(t3 > ezTime::Milliseconds(5));
 
 
     EZ_TEST(t1 + t2 + t3 <= tTotal1);

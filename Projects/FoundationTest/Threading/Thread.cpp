@@ -85,7 +85,7 @@ EZ_CREATE_SIMPLE_TEST(Threading, Thread)
 
     ezTime sleepTime(ezTime::Seconds(0.3));
 
-    ezThreadUtils::Sleep((ezUInt32)sleepTime.GetMilliSeconds());
+    ezThreadUtils::Sleep((ezUInt32)sleepTime.GetMilliseconds());
 
     const ezTime stop = ezSystemTime::Now();
 

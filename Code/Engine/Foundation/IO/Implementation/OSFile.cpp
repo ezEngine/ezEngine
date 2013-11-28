@@ -9,7 +9,7 @@ ezOSFile::Event ezOSFile::s_FileEvents;
 
 ezFileStats::ezFileStats()
 {
-  m_uiLastModificationTime = 0;
+  m_LastModificationTime.Invalidate();
   m_uiFileSize = 0;
   m_bIsDirectory = false;
 }

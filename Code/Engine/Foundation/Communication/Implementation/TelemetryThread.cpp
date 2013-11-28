@@ -26,7 +26,7 @@ private:
       {
         ezTime tNow = ezSystemTime::Now();
 
-        if (tNow - LastPing > ezTime::MilliSeconds(500))
+        if (tNow - LastPing > ezTime::Milliseconds(500))
         {
           LastPing = tNow;
 

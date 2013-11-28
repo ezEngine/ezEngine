@@ -12,13 +12,13 @@ class EZ_FOUNDATION_DLL ezTime
 public:
 
   /// \brief Creates an instance of ezTime that was initialized from nanoseconds.
-  static ezTime NanoSeconds(double fNanoSeconds)    { return ezTime(fNanoSeconds * 0.000000001); }
+  static ezTime Nanoseconds(double fNanoseconds)    { return ezTime(fNanoseconds * 0.000000001); }
 
   /// \brief Creates an instance of ezTime that was initialized from microseconds.
-  static ezTime MicroSeconds(double fMicroSeconds)  { return ezTime(fMicroSeconds * 0.000001); }
+  static ezTime Microseconds(double fMicroseconds)  { return ezTime(fMicroseconds * 0.000001); }
 
   /// \brief Creates an instance of ezTime that was initialized from milliseconds.
-  static ezTime MilliSeconds(double fMilliSeconds)  { return ezTime(fMilliSeconds * 0.001); }
+  static ezTime Milliseconds(double fMilliseconds)  { return ezTime(fMilliseconds * 0.001); }
 
   /// \brief Creates an instance of ezTime that was initialized from seconds.
   static ezTime Seconds(double fSeconds)            { return ezTime(fSeconds); }
@@ -34,17 +34,17 @@ public:
   ///
   /// Useful for simulation time steps etc.
   /// Please note that it is not recommended to use the float value for long running
-  /// time calculations since the precision can deteriote quickly. (Only use for delta times is recommended)
+  /// time calculations since the precision can deteriorate quickly. (Only use for delta times is recommended)
   float AsFloat() const;
 
   /// \brief Returns the nanoseconds value
-  double GetNanoSeconds() const;
+  double GetNanoseconds() const;
 
   /// \brief Returns the microseconds value
-  double GetMicroSeconds() const;
+  double GetMicroseconds() const;
 
   /// \brief Returns the milliseconds value
-  double GetMilliSeconds() const;
+  double GetMilliseconds() const;
 
   /// \brief Returns the seconds value.
   double GetSeconds() const;

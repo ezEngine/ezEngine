@@ -16,17 +16,17 @@ inline float ezTime::AsFloat() const
   return static_cast<float>(m_fTime);
 }
 
-inline double ezTime::GetNanoSeconds() const
+inline double ezTime::GetNanoseconds() const
 {
   return m_fTime * 1000000000.0;
 }
 
-inline double ezTime::GetMicroSeconds() const
+inline double ezTime::GetMicroseconds() const
 {
   return m_fTime * 1000000.0;
 }
 
-inline double ezTime::GetMilliSeconds() const
+inline double ezTime::GetMilliseconds() const
 {
   return m_fTime * 1000.0;
 }

@@ -14,20 +14,10 @@
 # add_definitions (-DMY_PREPROCESS_DEFINITION_1)
 # add_definitions (-DMY_PREPROCESS_DEFINITION_2)
 
-if (CURRENT_OSX_VERSION)
-  FIND_LIBRARY(CORESERVICES_LIBRARY CoreServices )
-  FIND_LIBRARY(COREFOUNDATION_LIBRARY CoreFoundation )
-  
-  MARK_AS_ADVANCED (CORESERVICES_LIBRARY
-                    COREFOUNDATION_LIBRARY)
-  SET(EXTRA_LIBS ${CORESERVICES_LIBRARY} ${COREFOUNDATION_LIBRARY} )
-endif()
-
 # Add all the libraries that this project needs to link against here
 SET (LINK_LIBRARIES
   Foundation      # Example: Another library build with cmake
   TestFramework
-  ${EXTRA_LIBS}
 )
 
 include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/CMAKE_Plugin.txt)

@@ -35,7 +35,7 @@ ezMap<ezUInt64, ezTelemetry::MessageQueue, ezCompareHelper<ezUInt64>, ezStaticAl
 void ezTelemetry::UpdateServerPing()
 {
   enet_peer_ping(g_pConnectionToServer);
-  ezTelemetry::s_PingToServer = ezTime::MilliSeconds(g_pConnectionToServer->lastRoundTripTime);
+  ezTelemetry::s_PingToServer = ezTime::Milliseconds(g_pConnectionToServer->lastRoundTripTime);
 }
 
 void ezTelemetry::UpdateNetwork()

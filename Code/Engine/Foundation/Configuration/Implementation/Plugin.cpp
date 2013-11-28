@@ -27,11 +27,11 @@ struct PluginData
   {
     m_pPluginObject = NULL;
     m_iReferenceCount = 0;
-    m_uiLastModificationTime = 0;
+    m_LastModificationTime.Invalidate();
   }
 
   ezPluginModule m_hModule;
-  ezUInt64 m_uiLastModificationTime;
+  ezTimestamp m_LastModificationTime;
   ezPlugin* m_pPluginObject;
   ezInt32 m_iReferenceCount;
 };
@@ -228,7 +228,7 @@ ezResult ezPlugin::LoadPluginInternal(const char* szPluginFile, bool bLoadCopy, 
     ezFileStats stat;
     if (ezOSFile::GetFileStats(sOldPlugin.GetData(), stat) == EZ_SUCCESS)
     {
-      g_LoadedPlugins[szPluginFile].m_uiLastModificationTime = stat.m_uiLastModificationTime;
+      g_LoadedPlugins[szPluginFile].m_LastModificationTime = stat.m_LastModificationTime;
     }
   }
   #endif
@@ -442,7 +442,7 @@ ezResult ezPlugin::ReloadPlugins(bool bForceReload)
               ezFileStats stat;
               if (ezOSFile::GetFileStats(sOldPlugin.GetData(), stat) == EZ_SUCCESS)
               {
-                if (g_LoadedPlugins[pPlugin->m_sLoadedFromFile.GetData()].m_uiLastModificationTime == stat.m_uiLastModificationTime)
+                if (g_LoadedPlugins[pPlugin->m_sLoadedFromFile.GetData()].m_LastModificationTime.IsEqual(stat.m_LastModificationTime, ezTimestamp::CompareMode::FileTime))
                 {
                   ezLog::Dev("Plugin '%s' is not modified.", pPlugin->GetPluginName());
                   bModified = false;

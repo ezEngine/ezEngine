@@ -160,7 +160,7 @@ void ezTaskSystem::ExecuteSomeFrameTasks(ezUInt32 uiSomeFrameTasks, double fSmoo
   s_LastFrame = CurTime;
 
   // as long as we have a smooth frame rate, execute as many of these tasks, as possible
-  while ((uiSomeFrameTasks > 0) && ((CurTime - LastTime).GetMilliSeconds() < fSmoothFrameMS))
+  while ((uiSomeFrameTasks > 0) && ((CurTime - LastTime).GetMilliseconds() < fSmoothFrameMS))
   {
     // we execute one of these tasks, so reset the frame time threshold
     s_fFrameTimeThreshold = fSmoothFrameMS;
@@ -176,7 +176,7 @@ void ezTaskSystem::ExecuteSomeFrameTasks(ezUInt32 uiSomeFrameTasks, double fSmoo
   if (uiSomeFrameTasks == 0)
     return;
 
-  if ((CurTime - LastTime).GetMilliSeconds() < s_fFrameTimeThreshold)
+  if ((CurTime - LastTime).GetMilliseconds() < s_fFrameTimeThreshold)
   {
     // we execute one of these tasks, so reset the frame time threshold
     s_fFrameTimeThreshold = fSmoothFrameMS;

@@ -104,17 +104,17 @@ Only concrete and clocks.\n\
     dir.ToLower();
 
     EZ_TEST(ezOSFile::GetFileStats(sOutputFile2.GetData(), s) == EZ_SUCCESS);
-    //printf("%s Name: '%s' (%lli Bytes), Modified Time: %lli\n", s.m_bIsDirectory ? "Directory" : "File", s.m_sFileName.GetData(), s.m_uiFileSize, s.m_uiLastModificationTime);
+    //printf("%s Name: '%s' (%lli Bytes), Modified Time: %lli\n", s.m_bIsDirectory ? "Directory" : "File", s.m_sFileName.GetData(), s.m_uiFileSize, s.m_LastModificationTime.GetInt64(ezSIUnitOfTime::Microsecond));
 
     EZ_TEST(ezOSFile::GetFileStats(dir.GetData(), s) == EZ_SUCCESS);
-    //printf("%s Name: '%s' (%lli Bytes), Modified Time: %lli\n", s.m_bIsDirectory ? "Directory" : "File", s.m_sFileName.GetData(), s.m_uiFileSize, s.m_uiLastModificationTime);
+    //printf("%s Name: '%s' (%lli Bytes), Modified Time: %lli\n", s.m_bIsDirectory ? "Directory" : "File", s.m_sFileName.GetData(), s.m_uiFileSize, s.m_LastModificationTime.GetInt64(ezSIUnitOfTime::Microsecond));
 
     ezStringBuilder sOutputFile3 = BUILDSYSTEM_OUTPUT_FOLDER;
     sOutputFile3.AppendPath("FoundationTest", "IO", "SubFolder2");
     sOutputFile3.AppendPath("*.txt");
 
     EZ_TEST(ezOSFile::GetFileStats(sOutputFile3.GetData(), s) == EZ_SUCCESS);
-    //printf("%s Name: '%s' (%lli Bytes), Modified Time: %lli\n", s.m_bIsDirectory ? "Directory" : "File", s.m_sFileName.GetData(), s.m_uiFileSize, s.m_uiLastModificationTime);
+    //printf("%s Name: '%s' (%lli Bytes), Modified Time: %lli\n", s.m_bIsDirectory ? "Directory" : "File", s.m_sFileName.GetData(), s.m_uiFileSize, s.m_LastModificationTime.GetInt64(ezSIUnitOfTime::Microsecond));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetFileCasing")

@@ -124,7 +124,7 @@ EZ_CREATE_SIMPLE_TEST(Performance, Basics)
     EZ_TEST_INT(iResult, iNumObjects * 1 + iNumObjects * 2);
 
     ezTime tdiff = t1 - t0;
-    double tFC = tdiff.GetNanoSeconds() / (double) iNumObjects;
+    double tFC = tdiff.GetNanoseconds() / (double) iNumObjects;
 
     ezLog::Info("[test]Virtual Function Calls: %.2fns", tFC, iResult);
   }
@@ -153,7 +153,7 @@ EZ_CREATE_SIMPLE_TEST(Performance, Basics)
     EZ_TEST_INT(iResult, iNumObjects * 1 + iNumObjects * 2);
 
     ezTime tdiff = t1 - t0;
-    double tFC = tdiff.GetNanoSeconds() / (double) iNumObjects;
+    double tFC = tdiff.GetNanoseconds() / (double) iNumObjects;
 
     ezLog::Info("[test]Non-Virtual Function Calls: %.2fns", tFC, iResult);
   }
@@ -182,7 +182,7 @@ EZ_CREATE_SIMPLE_TEST(Performance, Basics)
     EZ_TEST_INT(iResult, iNumObjects * 1 + iNumObjects * 2);
 
     ezTime tdiff = t1 - t0;
-    double tFC = tdiff.GetNanoSeconds() / (double) iNumObjects;
+    double tFC = tdiff.GetNanoseconds() / (double) iNumObjects;
 
     ezLog::Info("[test]FastCall Function Calls: %.2fns", tFC, iResult);
   }
@@ -205,7 +205,7 @@ EZ_CREATE_SIMPLE_TEST(Performance, Basics)
     ezTime t1 = ezSystemTime::Now();
 
     ezTime tdiff = t1 - t0;
-    double t = tdiff.GetNanoSeconds() / (double) (iNumObjects-1);
+    double t = tdiff.GetNanoseconds() / (double) (iNumObjects-1);
 
     ezLog::Info("[test]Integer Division: %.2fns", t, iResult);
   }
@@ -228,7 +228,7 @@ EZ_CREATE_SIMPLE_TEST(Performance, Basics)
     ezTime t1 = ezSystemTime::Now();
 
     ezTime tdiff = t1 - t0;
-    double t = tdiff.GetNanoSeconds() / (double) (iNumObjects);
+    double t = tdiff.GetNanoseconds() / (double) (iNumObjects);
 
     ezLog::Info("[test]Integer Multiplication: %.2fns", t, iResult);
   }
@@ -252,7 +252,7 @@ EZ_CREATE_SIMPLE_TEST(Performance, Basics)
     ezTime t1 = ezSystemTime::Now();
 
     ezTime tdiff = t1 - t0;
-    double t = tdiff.GetNanoSeconds() / (double) (iNumObjects);
+    double t = tdiff.GetNanoseconds() / (double) (iNumObjects);
 
     ezLog::Info("[test]Float Division: %.2fns", t, fResult);
   }
@@ -276,7 +276,7 @@ EZ_CREATE_SIMPLE_TEST(Performance, Basics)
     ezTime t1 = ezSystemTime::Now();
 
     ezTime tdiff = t1 - t0;
-    double t = tdiff.GetNanoSeconds() / (double) (iNumObjects);
+    double t = tdiff.GetNanoseconds() / (double) (iNumObjects);
 
     ezLog::Info("[test]Float Multiplication: %.2fns", t, iResult);
   }
