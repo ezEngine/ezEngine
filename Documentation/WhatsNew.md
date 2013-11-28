@@ -45,6 +45,8 @@ Milestone 3
   * Added ezColor8UNorm to store 8-Bit RGBA color values.
   * Added ezColor16f to store 16-Bit RGBA color values.
   * Added ezFloat16 to convert float values to 16-Bit half floats and back.
+  * Added ezTimestamp which stores a timestamp in microseconds since unix epoch.
+  * Added ezDateTime which converts an ezTimestamp into human readable form and back.
 
 Milestone 2
 -----------
