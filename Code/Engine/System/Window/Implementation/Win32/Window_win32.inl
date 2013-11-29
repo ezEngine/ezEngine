@@ -92,9 +92,12 @@ ezResult ezWindow::Initialize()
   DWORD dwExStyle = WS_EX_APPWINDOW;
   DWORD dwWindowStyle = WS_CLIPSIBLINGS | WS_CLIPCHILDREN;
   if (!m_CreationDescription.m_bFullscreenWindow)
-    dwWindowStyle |= WS_OVERLAPPED | WS_BORDER | WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU | WS_VISIBLE; //WS_OVERLAPPEDWINDOW;
+    dwWindowStyle |= WS_OVERLAPPED | WS_BORDER | WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU | WS_VISIBLE;
   else
     dwWindowStyle |= WS_POPUP;
+  if(m_CreationDescription.m_bResizable)
+    dwWindowStyle |= WS_MAXIMIZEBOX | WS_THICKFRAME;
+
  
   // Create rectangle for window
   RECT Rect = {0, 0, m_CreationDescription.m_ClientAreaSize.width, m_CreationDescription.m_ClientAreaSize.height};

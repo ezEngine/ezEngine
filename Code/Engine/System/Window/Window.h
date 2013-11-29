@@ -32,6 +32,7 @@ struct EZ_SYSTEM_DLL ezWindowCreationDesc
     : m_ClientAreaSize(1280, 720),
     m_Title("ezWindow"),
     m_bFullscreenWindow(false),
+    m_bResizable(false),
     m_bWindowsUseDevmodeFullscreen(false)
   {
   }
@@ -42,6 +43,10 @@ struct EZ_SYSTEM_DLL ezWindowCreationDesc
   ezHybridString<64> m_Title;
 
   bool m_bFullscreenWindow;
+
+  /// Enables window resizing by the user.
+  /// Ignored for fullscreen windows.
+  bool m_bResizable;
 
   /// Windows only - set to true if you want create a fullscreen window using the Windows device mode
   /// Does not work together with DirectX device settings
