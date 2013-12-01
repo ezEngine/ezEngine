@@ -1,9 +1,13 @@
 What's New {#WhatsNew}
 ==========
 
+  * Added Linux support. Is now on par with OS X port.
+
 Milestone 3
 -----------
   
+  * Added ezTimestamp, a platform independent timestamp for file-time and system-time stored in microseconds since Unix epoch.
+  * Added ezDateTime, a class that converts an ezTimestamp into human-readable form.
   * Added an input abstraction system (ezInputManager, ezInputDevice, etc.).
      * Implements mouse/keyboard and XBox 360 controller on Windows.
      * Contains ezVirtualThumbStick, which can be used on touch devices for 'controller input'.

@@ -25,7 +25,7 @@ if (IS_WIN32_APPLICATION)
 endif ()
 
 # if this application uses a precompile header
-if (MSVC)
+if (BUILDSYSTEM_MSVC)
   ADD_MSVC_PRECOMPILED_HEADER_APP ()
 endif ()
 
@@ -41,8 +41,13 @@ SET_PROPERTY(GLOBAL PROPERTY USE_FOLDERS ON)
 file(RELATIVE_PATH RELATIVE_PARENT_FOLDER ${CMAKE_SOURCE_DIR} ${PARENT_FOLDER})
 SET_PROPERTY(TARGET ${PROJECT_NAME} PROPERTY FOLDER ${RELATIVE_PARENT_FOLDER})
 
-if (BUILDSYSTEM_COMPILER_MSVC)
+if (BUILDSYSTEM_MSVC)
 	target_link_libraries (${PROJECT_NAME} winmm)
+endif ()
+
+# We need to link against X11 and pthread last or linker errors will occur.
+if (BUILDSYSTEM_COMPILER_GCC)
+	target_link_libraries (${PROJECT_NAME} X11 pthread)
 endif ()
 
 if (COMPILER_SETTINGS_ALL)

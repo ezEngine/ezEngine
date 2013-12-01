@@ -7,22 +7,6 @@
 #endforeach()
 
 #########################################################################################
-## Configuration Variables
-## Add your variables here, if you need something (general) to configure from the cmake GUI
-
-# Define GUI Variables to configure the project
-set (EZ_COMPILE_ENGINE_AS_DLL ON CACHE BOOL "Whether to compile the code as a shared libraries (DLL).")
-set (EZ_ENABLE_QT_SUPPORT OFF CACHE BOOL "Whether to add Qt support.")
-set (EZ_QT_DIR $ENV{QTDIR} CACHE PATH "Directory of qt installation")
-set (EZ_QT_DIR_FOUND "NOT_FOUND" CACHE PATH "Last found directory of qt installation")
-mark_as_advanced(FORCE EZ_QT_DIR_FOUND)
-set (EZ_SEPARATE_BUILD_FOLDERS ON CACHE BOOL "Whether the output from different build types should end up in different folders (Debug32, Release32, etc.).")
-set (EZ_USE_PCH ON CACHE BOOL "Whether to use Precompiled Headers.")
-
-set (EZ_OUTPUT_DIRECTORY_LIB "${CMAKE_SOURCE_DIR}/Output/Lib" CACHE PATH "Where to store the compiled .lib files.")
-set (EZ_OUTPUT_DIRECTORY_DLL "${CMAKE_SOURCE_DIR}/Output/Bin" CACHE PATH "Where to store the compiled .dll files.")
-
-#########################################################################################
 ## Other configurations
 
 set (COMPILER_SETTINGS_ALL "")
@@ -44,121 +28,201 @@ IF(NOT CMAKE_BUILD_TYPE)
       FORCE)
 ENDIF(NOT CMAKE_BUILD_TYPE)
 
+
 #########################################################################################
-## Detects the current compiler, platform, etc.
+## Detects the current platform
+
+set (PLATFORM_PREFIX "")
+
+if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
+  # Windows
+  message (STATUS "Platform is Windows (BUILDSYSTEM_PLATFORM_WINDOWS)")
+  set (BUILDSYSTEM_PLATFORM_WINDOWS ON BOOL)
+  set (PLATFORM_PREFIX "Win")
+  
+elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin" AND CURRENT_OSX_VERSION)
+  # OS X
+  message (STATUS "Platform is OS X (BUILDSYSTEM_PLATFORM_OSX, BUILDSYSTEM_PLATFORM_POSIX)")
+  set (BUILDSYSTEM_PLATFORM_OSX ON BOOL)
+  set (BUILDSYSTEM_PLATFORM_POSIX ON BOOL)
+  set (PLATFORM_PREFIX "Osx")
+  
+elseif (CMAKE_SYSTEM_NAME STREQUAL "Linux")
+  # Linux
+  message (STATUS "Platform is Linux (BUILDSYSTEM_PLATFORM_LINUX, BUILDSYSTEM_PLATFORM_POSIX)")  
+  set (BUILDSYSTEM_PLATFORM_LINUX ON BOOL)
+  set (BUILDSYSTEM_PLATFORM_POSIX ON BOOL)
+  set (PLATFORM_PREFIX "Linux")
+  
+else ()
+  message (FATAL_ERROR "Platform '${CMAKE_SYSTEM_NAME}' is not supported! Please extend CMAKE_GeneralConfig.txt.")
+endif ()
+
+
+#########################################################################################
+## Detects the current build-system / generator
+
+set (BUILDSYSTEM_PREFIX "")
+
+if (BUILDSYSTEM_PLATFORM_WINDOWS)
+  # Supported windows generators
+  if (MSVC)
+    # Visual Studio (All VS generators define MSVC)
+    message (STATUS "Buildsystem is MSVC (BUILDSYSTEM_MSVC)")
+    set (BUILDSYSTEM_MSVC ON BOOL)
+    set (BUILDSYSTEM_PREFIX "Vs")
+  else ()
+    message (FATAL_ERROR "Generator '${CMAKE_GENERATOR}' is not supported on Windows! Please extend CMAKE_GeneralConfig.txt.")
+  endif ()
+  
+elseif (BUILDSYSTEM_PLATFORM_OSX)
+  # Supported OSX generators
+  if (CMAKE_GENERATOR STREQUAL "Xcode")
+    # XCODE
+    message (STATUS "Buildsystem is Xcode (BUILDSYSTEM_XCODE)")
+    set (BUILDSYSTEM_XCODE ON BOOL)
+    set (BUILDSYSTEM_PREFIX "Xcode")
+  elseif (CMAKE_GENERATOR STREQUAL "Unix Makefiles")
+    # Unix Makefiles (for QtCreator etc.)
+    message (STATUS "Buildsystem is Make (BUILDSYSTEM_MAKE)")
+    set (BUILDSYSTEM_MAKE ON BOOL)
+    set (BUILDSYSTEM_PREFIX "Make")
+  else ()
+    message (FATAL_ERROR "Generator '${CMAKE_GENERATOR}' is not supported on OS X! Please extend CMAKE_GeneralConfig.txt.")
+  endif ()
+  
+elseif (BUILDSYSTEM_PLATFORM_LINUX)
+  if (CMAKE_GENERATOR STREQUAL "Unix Makefiles")
+    # Unix Makefiles (for QtCreator etc.)
+    message (STATUS "Buildsystem is Make (BUILDSYSTEM_MAKE)")
+    set (BUILDSYSTEM_MAKE ON BOOL)
+    set (BUILDSYSTEM_PREFIX "Make")
+  else ()
+    message (FATAL_ERROR "Generator '${CMAKE_GENERATOR}' is not supported on OS X! Please extend CMAKE_GeneralConfig.txt.")
+  endif ()
+  
+else ()
+  message (FATAL_ERROR "Platform '${CMAKE_SYSTEM_NAME}' has not setup the supported generators. Please extend CMAKE_GeneralConfig.txt.")
+endif ()
+
+
+#########################################################################################
+## Detects the current compiler
 
 set (COMPILER_POSTFIX "")
 
-if (MSVC)
-	message (STATUS "Compiler is MSVC")
-	set (BUILDSYSTEM_COMPILER_MSVC ON BOOL)
-
-	if (MSVC80)
-		message (STATUS "Compiler is Visual Studio 2005")
-		set (BUILDSYSTEM_COMPILER_MSVC_80 ON BOOL)
-    set (COMPILER_POSTFIX "vs2005")
-	endif ()
-
-	if (MSVC90)
-		message (STATUS "Compiler is Visual Studio 2008")
-		set (BUILDSYSTEM_COMPILER_MSVC_90 ON BOOL)
-    set (COMPILER_POSTFIX "vs2008")
-	endif ()
-
-	if (MSVC10)
-		message (STATUS "Compiler is Visual Studio 2010")
-		set (BUILDSYSTEM_COMPILER_MSVC_100 ON BOOL)
-    set (COMPILER_POSTFIX "vs2010")
-	endif ()
-
-	if (MSVC11)
-		message (STATUS "Compiler is Visual Studio 2012")
-		set (BUILDSYSTEM_COMPILER_MSVC_110 ON BOOL)
-    set (COMPILER_POSTFIX "vs2012")
-	endif ()
-endif ()
-
-if (XCODE)
-  # Technically this can be OS X and iOS as well use clang..
-  set (COMPILER_POSTFIX "gcc")
-
-  message (STATUS "BuildSystem is XCode using GCC (BUILDSYSTEM_COMPILER_GCC, BUILDSYSTEM_XCODE)")
-  set (BUILDSYSTEM_COMPILER_GCC BOOL)
-  set (BUILDSYSTEM_XCODE BOOL)
-  # Cmake complains that this is not defined on OSX makefile build.
-  if(EZ_COMPILE_ENGINE_AS_DLL)
-    set (CMAKE_CPP_CREATE_DYNAMIC_LIBRARY ON BOOL)
-  else ()
-    set (CMAKE_CPP_CREATE_STATIC_LIBRARY ON BOOL)
-  endif ()
-endif ()
-
-
-if (WIN32)
-	message (STATUS "Platform is Windows")
-	set (BUILDSYSTEM_PLATFORM_WINDOWS ON BOOL)
-	
-elseif (CURRENT_OSX_VERSION)
-  # OS X
-  message (STATUS "Platform is OS X (Platform OSX, Platform Posix)")
+if (BUILDSYSTEM_MSVC)
+  # Visual Studio Compiler
+  message (STATUS "Compiler is MSVC (BUILDSYSTEM_COMPILER_MSVC)")
+  set (BUILDSYSTEM_COMPILER_MSVC ON BOOL)
   
-  # Enable c++11 features
-  set (CMAKE_CXX_FLAGS "-std=c++11 -stdlib=libc++")
-  set (BUILDSYSTEM_PLATFORM_OSX ON BOOL)
-  set (BUILDSYSTEM_PLATFORM_POSIX ON BOOL)
+  if (MSVC12)
+    message (STATUS "Compiler is Visual Studio 2013")
+    set (BUILDSYSTEM_COMPILER_MSVC_120 ON BOOL)
+    set (COMPILER_POSTFIX "2013")
+  elseif (MSVC11)
+    message (STATUS "Compiler is Visual Studio 2012")
+    set (BUILDSYSTEM_COMPILER_MSVC_110 ON BOOL)
+    set (COMPILER_POSTFIX "2012")
+  elseif (MSVC10)
+    message (STATUS "Compiler is Visual Studio 2010")
+    set (BUILDSYSTEM_COMPILER_MSVC_100 ON BOOL)
+    set (COMPILER_POSTFIX "2010") 
+  else ()
+    message (FATAL_ERROR "Compiler for generator '${CMAKE_GENERATOR}' is not supported on MSVC! Please extend CMAKE_GeneralConfig.txt.")
+  endif ()
+  
+elseif (BUILDSYSTEM_PLATFORM_OSX)
+  # Currently all are clang by default.
+  # We should probably make this more idiot-proof in case someone actually changes the compiler to gcc.
+  message (STATUS "Compiler is clang (BUILDSYSTEM_COMPILER_CLANG)")  
+  set (BUILDSYSTEM_COMPILER_CLANG ON BOOL)
+  set (COMPILER_POSTFIX "Clang")
+  
+elseif (BUILDSYSTEM_PLATFORM_LINUX)
+  # Currently all are gcc by default. See OSX comment.
+  message (STATUS "Compiler is gcc (BUILDSYSTEM_COMPILER_GCC)")  
+  set (BUILDSYSTEM_COMPILER_GCC ON BOOL)
+  set (COMPILER_POSTFIX "Gcc")
+  
 else ()
-  # need to extend this, if we want to support other platforms
-	message (SEND_ERROR "Platform is Unknown")
+  message (FATAL_ERROR "Compiler for generator '${CMAKE_GENERATOR}' is not supported on '${CMAKE_SYSTEM_NAME}'. Please extend CMAKE_GeneralConfig.txt.")
 endif ()
 
-# detect 64 builds for MSVC
-if (MSVC)
+
+#########################################################################################
+## Detects the current architecture
+
+set (ARCHITECTURE_POSTFIX "")
+
+if (BUILDSYSTEM_PLATFORM_WINDOWS AND BUILDSYSTEM_COMPILER_MSVC)
+  # Detect 64-bit builds for MSVC.
   if (CMAKE_CL_64)
-	  message (STATUS "Platform is 64-Bit (BUILDSYSTEM_PLATFORM_64BIT)")
-	  set (BUILDSYSTEM_PLATFORM_64BIT ON BOOL)
+    message (STATUS "Platform is 64-Bit (BUILDSYSTEM_PLATFORM_64BIT)")
+    set (BUILDSYSTEM_PLATFORM_64BIT ON BOOL)
+    set (ARCHITECTURE_POSTFIX "64")
   else ()
-	  message (STATUS "Platform is 32-Bit (BUILDSYSTEM_PLATFORM_32BIT)")
-	  set (BUILDSYSTEM_PLATFORM_32BIT ON BOOL)
+    message (STATUS "Platform is 32-Bit (BUILDSYSTEM_PLATFORM_32BIT)")
+    set (BUILDSYSTEM_PLATFORM_32BIT ON BOOL)
+    set (ARCHITECTURE_POSTFIX "32")
   endif ()
+  
+elseif (BUILDSYSTEM_PLATFORM_OSX AND BUILDSYSTEM_COMPILER_CLANG)
+  # OS X always has 32/64 bit support in the project files and the user switches on demand.
+  # Thus the header files there have to check for the current environment.
+  message (STATUS "Platform uses universal binaries 32-Bit / 64-Bit (BUILDSYSTEM_PLATFORM_32BIT, BUILDSYSTEM_PLATFORM_64BIT)")
+  set (BUILDSYSTEM_PLATFORM_64BIT ON BOOL)
+  set (BUILDSYSTEM_PLATFORM_32BIT ON BOOL)
+  set (ARCHITECTURE_POSTFIX "")
+  
+elseif (BUILDSYSTEM_PLATFORM_LINUX AND BUILDSYSTEM_COMPILER_GCC)
+  # Detect 64-bit builds for Linux, no other way than checking CMAKE_SIZEOF_VOID_P.
+  if (CMAKE_SIZEOF_VOID_P EQUAL 8)
+    message (STATUS "Platform is 64-Bit (BUILDSYSTEM_PLATFORM_64BIT)")
+    set (BUILDSYSTEM_PLATFORM_64BIT ON BOOL)
+    set (ARCHITECTURE_POSTFIX "64")
+  else ()
+    message (STATUS "Platform is 32-Bit (BUILDSYSTEM_PLATFORM_32BIT)")
+    set (BUILDSYSTEM_PLATFORM_32BIT ON BOOL)
+    set (ARCHITECTURE_POSTFIX "32")
+  endif ()
+  
+else ()
+  message (FATAL_ERROR "Architecture could not be determined. Please extend CMAKE_GeneralConfig.txt.")
+endif ()
+
+
+#########################################################################################
+## Configuration Variables
+## Add your variables here, if you need something (general) to configure from the cmake GUI
+
+# Define GUI Variables to configure the project
+if (BUILDSYSTEM_PLATFORM_WINDOWS)
+  set (EZ_COMPILE_ENGINE_AS_DLL ON CACHE BOOL "Whether to compile the code as a shared libraries (DLL).")
 endif()
 
-# OS X at least always has 32/64 bit support in the project files and the user switches on demand
-# Thus the header files there have to check for the current environment
+set (EZ_ENABLE_QT_SUPPORT OFF CACHE BOOL "Whether to add Qt support.")
+set (EZ_QT_DIR $ENV{QTDIR} CACHE PATH "Directory of qt installation")
+set (EZ_QT_DIR_FOUND "NOT_FOUND" CACHE PATH "Last found directory of qt installation")
+mark_as_advanced(FORCE EZ_QT_DIR_FOUND)
+set (EZ_USE_PCH ON CACHE BOOL "Whether to use Precompiled Headers.")
+
+set (EZ_OUTPUT_DIRECTORY_LIB "${CMAKE_SOURCE_DIR}/Output/Lib" CACHE PATH "Where to store the compiled .lib files.")
+set (EZ_OUTPUT_DIRECTORY_DLL "${CMAKE_SOURCE_DIR}/Output/Bin" CACHE PATH "Where to store the compiled .dll files.")
+
 
 #########################################################################################
 ## set output-path for binaries
 
-set (OUTPUT_LIB_DEBUG       "${EZ_OUTPUT_DIRECTORY_LIB}/${COMPILER_POSTFIX}")
-set (OUTPUT_LIB_RELEASE     "${EZ_OUTPUT_DIRECTORY_LIB}/${COMPILER_POSTFIX}")
-set (OUTPUT_LIB_MINSIZE     "${EZ_OUTPUT_DIRECTORY_LIB}/${COMPILER_POSTFIX}")
-set (OUTPUT_LIB_RELWITHDEB  "${EZ_OUTPUT_DIRECTORY_LIB}/${COMPILER_POSTFIX}")
+set (OUTPUT_LIB_DEBUG       "${EZ_OUTPUT_DIRECTORY_LIB}/${PLATFORM_PREFIX}${BUILDSYSTEM_PREFIX}${COMPILER_POSTFIX}Debug${ARCHITECTURE_POSTFIX}")
+set (OUTPUT_LIB_RELEASE     "${EZ_OUTPUT_DIRECTORY_LIB}/${PLATFORM_PREFIX}${BUILDSYSTEM_PREFIX}${COMPILER_POSTFIX}Release${ARCHITECTURE_POSTFIX}")
+set (OUTPUT_LIB_MINSIZE     "${EZ_OUTPUT_DIRECTORY_LIB}/${PLATFORM_PREFIX}${BUILDSYSTEM_PREFIX}${COMPILER_POSTFIX}MinSize${ARCHITECTURE_POSTFIX}")
+set (OUTPUT_LIB_RELWITHDEB  "${EZ_OUTPUT_DIRECTORY_LIB}/${PLATFORM_PREFIX}${BUILDSYSTEM_PREFIX}${COMPILER_POSTFIX}RelDeb${ARCHITECTURE_POSTFIX}")
                                                        
-set (OUTPUT_DLL_DEBUG       "${EZ_OUTPUT_DIRECTORY_DLL}/${COMPILER_POSTFIX}")
-set (OUTPUT_DLL_RELEASE     "${EZ_OUTPUT_DIRECTORY_DLL}/${COMPILER_POSTFIX}")
-set (OUTPUT_DLL_MINSIZE     "${EZ_OUTPUT_DIRECTORY_DLL}/${COMPILER_POSTFIX}")
-set (OUTPUT_DLL_RELWITHDEB  "${EZ_OUTPUT_DIRECTORY_DLL}/${COMPILER_POSTFIX}")
-
-if (EZ_SEPARATE_BUILD_FOLDERS)
-  if (BUILDSYSTEM_PLATFORM_64BIT)
-    set (OUTPUT_LIB_DEBUG       "${OUTPUT_LIB_DEBUG}Debug64")
-    set (OUTPUT_LIB_RELEASE     "${OUTPUT_LIB_RELEASE}Release64")
-    set (OUTPUT_LIB_MINSIZE     "${OUTPUT_LIB_MINSIZE}MinSize64")
-    set (OUTPUT_LIB_RELWITHDEB  "${OUTPUT_LIB_RELWITHDEB}RelDeb64")
-    set (OUTPUT_DLL_DEBUG       "${OUTPUT_DLL_DEBUG}Debug64")
-    set (OUTPUT_DLL_RELEASE     "${OUTPUT_DLL_RELEASE}Release64")
-    set (OUTPUT_DLL_MINSIZE     "${OUTPUT_DLL_MINSIZE}MinSize64")
-    set (OUTPUT_DLL_RELWITHDEB  "${OUTPUT_DLL_RELWITHDEB}RelDeb64")
-  else ()  
-    set (OUTPUT_LIB_DEBUG       "${OUTPUT_LIB_DEBUG}Debug32")
-    set (OUTPUT_LIB_RELEASE     "${OUTPUT_LIB_RELEASE}Release32")
-    set (OUTPUT_LIB_MINSIZE     "${OUTPUT_LIB_MINSIZE}MinSize32")
-    set (OUTPUT_LIB_RELWITHDEB  "${OUTPUT_LIB_RELWITHDEB}RelDeb32")
-    set (OUTPUT_DLL_DEBUG       "${OUTPUT_DLL_DEBUG}Debug32")
-    set (OUTPUT_DLL_RELEASE     "${OUTPUT_DLL_RELEASE}Release32")
-    set (OUTPUT_DLL_MINSIZE     "${OUTPUT_DLL_MINSIZE}MinSize32")
-    set (OUTPUT_DLL_RELWITHDEB  "${OUTPUT_DLL_RELWITHDEB}RelDeb32")    
-  endif ()
-endif()
+set (OUTPUT_DLL_DEBUG       "${EZ_OUTPUT_DIRECTORY_DLL}/${PLATFORM_PREFIX}${BUILDSYSTEM_PREFIX}${COMPILER_POSTFIX}Debug${ARCHITECTURE_POSTFIX}")
+set (OUTPUT_DLL_RELEASE     "${EZ_OUTPUT_DIRECTORY_DLL}/${PLATFORM_PREFIX}${BUILDSYSTEM_PREFIX}${COMPILER_POSTFIX}Release${ARCHITECTURE_POSTFIX}")
+set (OUTPUT_DLL_MINSIZE     "${EZ_OUTPUT_DIRECTORY_DLL}/${PLATFORM_PREFIX}${BUILDSYSTEM_PREFIX}${COMPILER_POSTFIX}MinSize${ARCHITECTURE_POSTFIX}")
+set (OUTPUT_DLL_RELWITHDEB  "${EZ_OUTPUT_DIRECTORY_DLL}/${PLATFORM_PREFIX}${BUILDSYSTEM_PREFIX}${COMPILER_POSTFIX}RelDeb${ARCHITECTURE_POSTFIX}")
 
 set (CMAKE_RUNTIME_OUTPUT_DIRECTORY                 "${OUTPUT_DLL_DEBUG}")
 set (CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG           "${OUTPUT_DLL_DEBUG}")
@@ -178,14 +242,14 @@ set (CMAKE_ARCHIVE_OUTPUT_DIRECTORY_RELEASE         "${OUTPUT_LIB_RELEASE}")
 set (CMAKE_ARCHIVE_OUTPUT_DIRECTORY_MINSIZEREL      "${OUTPUT_LIB_MINSIZE}")
 set (CMAKE_ARCHIVE_OUTPUT_DIRECTORY_RELWITHDEBINFO  "${OUTPUT_LIB_RELWITHDEB}")
 
+
 #########################################################################################
 ## Compiler specific settings
 
-# set MSVC specific compiler settings
 if (BUILDSYSTEM_COMPILER_MSVC)
   # Enable minimal rebuild
   set (COMPILER_SETTINGS_DEBUG "${COMPILER_SETTINGS_DEBUG} /Gm")
-	# enable mulithreaded compilation
+	# enable multi-threaded compilation
 	set (COMPILER_SETTINGS_ALL "${COMPILER_SETTINGS_ALL} /MP")
 	# disable RTTI
 	set (COMPILER_SETTINGS_ALL "${COMPILER_SETTINGS_ALL} /GR-")
@@ -221,7 +285,26 @@ if (BUILDSYSTEM_COMPILER_MSVC)
   # Don't know what it does, but Clemens wants it :-) (does not work together with incremental build)
   set (LINKER_SETTINGS_RELEASE "${LINKER_SETTINGS_RELEASE} /OPT:ICF")
   
+elseif (BUILDSYSTEM_COMPILER_CLANG)
+  # Cmake complains that this is not defined on OSX make build.
+  if(EZ_COMPILE_ENGINE_AS_DLL)
+    set (CMAKE_CPP_CREATE_DYNAMIC_LIBRARY ON BOOL)
+  else ()
+    set (CMAKE_CPP_CREATE_STATIC_LIBRARY ON BOOL)
+  endif ()
+  # Enable c++11 features
+  set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -stdlib=libc++")
+  
+elseif (BUILDSYSTEM_COMPILER_GCC)
+  # dynamic linking will fail without fPIC (plugins)
+  # Wno-enum-compare removes all annoying enum cast warnings
+  # std=c++11 is - well needed for c++11.
+  set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -Wno-enum-compare -std=c++11")
+  
+else ()
+  message (FATAL_ERROR "Not settings are defined for the selected compiler. Please extend CMAKE_GeneralConfig.txt.")
 endif ()
+
 
 #########################################################################################
 ## Code that depends on the values of the configuration variables
@@ -258,7 +341,7 @@ endif ()
 
 
 #########################################################################################
-## Macro to enable precompiled headers
+## Macro to enable pre-compiled headers
 
 MACRO(ADD_MSVC_PRECOMPILED_HEADER)
   IF(MSVC)
@@ -284,7 +367,7 @@ MACRO(ADD_MSVC_PRECOMPILED_HEADER)
       message (STATUS "Enabling Precompiled Header for this project.")
       set_source_files_properties("PCH.cpp" PROPERTIES COMPILE_FLAGS "/Yc${PROJECT_FOLDER_NAME}/PCH.h")
       
-	  # Remove CMAKE's increase of the max precompiled header size (/Zm1000)
+	  # Remove CMAKE's increase of the max pre-compiled header size (/Zm1000)
 	  # as this will cause C1027 errors during compiling due to ASLR.
 	  string(REGEX REPLACE "/Zm[0-9]+ *" "" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
 	  # Force the above change into the cache.

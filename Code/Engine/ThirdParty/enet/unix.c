@@ -39,6 +39,12 @@
 #endif
 #endif
 
+#ifdef __linux
+  #ifndef HAS_SOCKLEN_T
+    #define HAS_SOCKLEN_T 1
+  #endif
+#endif
+
 #ifdef HAS_FCNTL
 #include <fcntl.h>
 #endif

@@ -5,7 +5,10 @@
 
 #define EZ_THREADUTILS_POSIX_INL_H_INCLUDED
 
-// Windows implementation of thread helper functions
+
+// Posix implementation of thread helper functions
+
+#include <pthread.h>
 
 static pthread_t g_MainThread = (pthread_t)0;
 
@@ -20,14 +23,14 @@ void ezThreadUtils::Shutdown()
 
 void ezThreadUtils::YieldTimeSlice()
 {
-  Sleep(0);
+  sched_yield();
 }
 
 void ezThreadUtils::Sleep(ezUInt32 uiMilliSeconds)
 {
   timespec SleepTime;
-  SleepTime.tv_sec = 0;
-  SleepTime.tv_nsec = uiMilliSeconds * 1000000;
+  SleepTime.tv_sec = uiMilliSeconds / 1000;
+  SleepTime.tv_nsec = (uiMilliSeconds * 1000000LL) % 1000000000LL;
   nanosleep(&SleepTime, NULL);
 }
 
