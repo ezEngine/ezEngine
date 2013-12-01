@@ -271,9 +271,9 @@ if (BUILDSYSTEM_COMPILER_MSVC)
     
     if(MSVC10)
       # enable static code analysis, only works on 32 Bit builds
-      set (COMPILER_SETTINGS_ALL "${COMPILER_SETTINGS_ALL} /analyze")
-      
-      message (STATUS "Enabling static code analysis.")
+      # (may cause compile errors when combined with Qt, disabled for the time being)
+      #set (COMPILER_SETTINGS_ALL "${COMPILER_SETTINGS_ALL} /analyze")    
+      #message (STATUS "Enabling static code analysis.")
     endif ()
 	endif ()
   
