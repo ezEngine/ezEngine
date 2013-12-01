@@ -64,7 +64,7 @@ public:
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   #define EZ_FASTCALL __fastcall
   #define EZ_NO_INLINE __declspec(noinline)
-#elif EZ_ENABLED(EZ_PLATFORM_OSX)
+#elif EZ_ENABLED(EZ_PLATFORM_OSX) || EZ_ENABLED(EZ_PLATFORM_LINUX)
   #if EZ_ENABLED(EZ_PLATFORM_64BIT)
     #define EZ_FASTCALL 
   #else

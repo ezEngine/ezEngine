@@ -29,7 +29,7 @@ ezUInt32 RunThread(ezThread* pThread)
 // Include inline file
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   #include <Foundation/Threading/Implementation/Win/Thread_win.h>
-#elif EZ_ENABLED(EZ_PLATFORM_OSX)
+#elif EZ_ENABLED(EZ_PLATFORM_OSX) || EZ_ENABLED(EZ_PLATFORM_LINUX)
   #include <Foundation/Threading/Implementation/Posix/Thread_posix.h>
 #else
   #error "Runnable thread entry functions are not implemented on current platform"

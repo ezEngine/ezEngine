@@ -1,7 +1,7 @@
 #include <PCH.h>
 #include <Foundation/Configuration/CVar.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
-#include <Foundation/io/FileSystem/DataDirTypeFolder.h>
+#include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
 
 EZ_CREATE_SIMPLE_TEST_GROUP(Configuration);
 

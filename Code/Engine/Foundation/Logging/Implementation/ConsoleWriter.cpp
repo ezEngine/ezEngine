@@ -8,7 +8,7 @@
   {
     SetConsoleTextAttribute (GetStdHandle (STD_OUTPUT_HANDLE), ui);
   }
-#elif EZ_ENABLED(EZ_PLATFORM_OSX)
+#elif EZ_ENABLED(EZ_PLATFORM_OSX) || EZ_ENABLED(EZ_PLATFORM_LINUX)
   static void SetConsoleColor (ezUInt8 ui) { }
 #else
   #error Unknown Platform.

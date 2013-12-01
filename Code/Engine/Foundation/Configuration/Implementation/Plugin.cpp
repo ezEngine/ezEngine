@@ -9,7 +9,7 @@
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   #include <Foundation/Configuration/Implementation/Win/Plugin_Win.h>
-#elif EZ_ENABLED(EZ_PLATFORM_OSX)
+#elif EZ_ENABLED(EZ_PLATFORM_OSX) || EZ_ENABLED(EZ_PLATFORM_LINUX)
   #include <Foundation/Configuration/Implementation/Posix/Plugin_Posix.h>
 #else
   #error "Plugins not implemented on this Platform."

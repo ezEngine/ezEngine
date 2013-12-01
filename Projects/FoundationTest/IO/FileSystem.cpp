@@ -1,6 +1,6 @@
 #include <PCH.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
-#include <Foundation/io/FileSystem/FileReader.h>
+#include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
 

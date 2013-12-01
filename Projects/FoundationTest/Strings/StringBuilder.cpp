@@ -955,7 +955,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     ezStringBuilder p = "../../d/..\\f";
     p.MakeAbsolutePath("C:\\a/b/c/");
     EZ_TEST(p == "C:/a/f");
-    #elif EZ_ENABLED(EZ_PLATFORM_OSX)
+    #elif EZ_ENABLED(EZ_PLATFORM_OSX) || EZ_ENABLED(EZ_PLATFORM_LINUX)
     ezStringBuilder p = "../../d/..\\f";
     p.MakeAbsolutePath("/a/b/c/");
     EZ_TEST(p == "/a/f");
@@ -1135,7 +1135,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
       EZ_TEST(!p.IsAbsolutePath());
       EZ_TEST(p.IsRelativePath());
 
-    #elif EZ_ENABLED(EZ_PLATFORM_OSX)
+    #elif EZ_ENABLED(EZ_PLATFORM_OSX) || EZ_ENABLED(EZ_PLATFORM_LINUX)
   
       p = "C:\\test.stuff";
       EZ_TEST(!p.IsAbsolutePath());
@@ -1156,9 +1156,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
       p = ".\\test.stuff";
       EZ_TEST(!p.IsAbsolutePath());
       EZ_TEST(p.IsRelativePath());
-  
-    #elif EZ_ENABLED(EZ_PLATFORM_LINUX)
-      #error Missing tests.
+
     #else
       #error Unknown platform.
     #endif

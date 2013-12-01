@@ -120,7 +120,8 @@ EZ_CREATE_SIMPLE_TEST(Time, Timestamp)
     currentDateTime.SetTimestamp(currentTimestamp);
     ezTimestamp currentTimestamp2 = currentDateTime.GetTimestamp();
     // OS date time functions should be accurate within one second.
-    EZ_TEST(ezMath::Abs(currentTimestamp.GetInt64(ezSIUnitOfTime::Microsecond) - currentTimestamp2.GetInt64(ezSIUnitOfTime::Microsecond)) < 1000000);
+    ezInt64 iDiff = ezMath::Abs(currentTimestamp.GetInt64(ezSIUnitOfTime::Microsecond) - currentTimestamp2.GetInt64(ezSIUnitOfTime::Microsecond));
+    EZ_TEST(iDiff <= 1000000);
 
     // Setter
     ezDateTime oneSmallStep;

@@ -5,7 +5,7 @@
 #elif EZ_ENABLED(EZ_PLATFORM_OSX)
   #include <Foundation/Basics/Platform/OSX/PlatformFeatures_OSX.h>
 #elif EZ_ENABLED(EZ_PLATFORM_LINUX)
-  #include <Foundation/Basics/Platform/Linux/PlatformFeatures_linux.h>
+  #include <Foundation/Basics/Platform/Linux/PlatformFeatures_Linux.h>
 #else
   #error "Undefined platform!"
 #endif

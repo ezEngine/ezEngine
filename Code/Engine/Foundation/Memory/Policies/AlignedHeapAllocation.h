@@ -25,7 +25,7 @@ namespace ezMemoryPolicies
 
   #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
     #include <Foundation/Memory/Policies/Win/AlignedHeapAllocation_win.h>
-  #elif EZ_ENABLED(EZ_PLATFORM_OSX)
+  #elif EZ_ENABLED(EZ_PLATFORM_OSX) || EZ_ENABLED(EZ_PLATFORM_LINUX)
     #include <Foundation/Memory/Policies/Posix/AlignedHeapAllocation_posix.h>
   #else
     #error "ezAlignedHeapAllocation is not implemented on current platform"

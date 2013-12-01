@@ -11,7 +11,7 @@
 #elif EZ_ENABLED(EZ_PLATFORM_OSX)
   #include <Foundation/Basics/Platform/OSX/Platform_OSX.h>
 #elif EZ_ENABLED(EZ_PLATFORM_LINUX)
-  #include <Foundation/Basics/Platform/Linux/Platform_linux.h>
+  #include <Foundation/Basics/Platform/Linux/Platform_Linux.h>
 #else
   #error "Undefined platform!"
 #endif

@@ -72,7 +72,7 @@ void* ezThreadLocalStorage::GetValueForSlot(ezUInt32 uiSlotIndex)
 // Include inline file containing the platform specific functions
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   #include <Foundation/Threading/Implementation/Win/ThreadLocalStorage_win.h>
-#elif EZ_ENABLED(EZ_PLATFORM_OSX)
+#elif EZ_ENABLED(EZ_PLATFORM_OSX) || EZ_ENABLED(EZ_PLATFORM_LINUX)
   #include <Foundation/Threading/Implementation/Posix/ThreadLocalStorage_posix.h>
 #else
   #error "Thread local storage functions are not implemented on current platform"

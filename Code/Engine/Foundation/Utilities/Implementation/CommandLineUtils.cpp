@@ -44,9 +44,9 @@ void ezCommandLineUtils::SetCommandLine()
 }
 
 #elif EZ_ENABLED(EZ_PLATFORM_OSX)
-
   // Not implemented on OSX.
-
+#elif EZ_ENABLED(EZ_PLATFORM_LINUX)
+  // Not implemented on Linux.
 #else
   #error "ezCommandLineUtils::SetCommandLine(): Abstraction missing."
 #endif
