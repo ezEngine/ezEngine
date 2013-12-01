@@ -1,7 +1,10 @@
 What's New {#WhatsNew}
 ==========
 
-  * Added Linux support. Is now on par with OS X port.
+Milestone 4
+-----------
+
+  * Added Linux support. Is now on par with OS X port. Tested with Ubuntu 12.4 and GCC 4.8
 
 Milestone 3
 -----------
@@ -20,7 +23,7 @@ Milestone 3
   * ezEvent can now be used with a locking policy, if thread-safety is required.
   * Added ezTelemetry, a system that allows to broadcast information about the application to interested other applications via network. Once connected, communication can go both ways to modify the application behavior.
   * Added ezStats, an easy system to store information about the current application state (player health, ammo, AI status, ...). This can be transmitted via ezTelemetry (or other tools) and displayed in a convenient way for better debugging.
-  * Added ezInspector, a tool that can display information about ezStats, ezCVar, ezLog messages, ezSubSystem, ezPlugin, ezGlobalEvent, ezOSFile, memory allocations an asserts. It can be run in parallel to a game, either on the same PC or a different one and connect via TCP to the application that will then transmit that information.
+  * Added ezInspector, a tool that can display information about ezStats, ezCVar, ezLog messages, ezSubSystem, ezPlugin, ezGlobalEvent, ezOSFile, memory allocations and asserts. It can be run in parallel to a game, either on the same PC or a different one and connect via TCP to the application that will then transmit that information.
   * Added ezInspectorPlugin, the engine-side plugin that enables the introspection features required to communicate with ezInspector.
   * Added a Qt GUI for the testframework.
   * Added ezApplication, a basic application abstraction.

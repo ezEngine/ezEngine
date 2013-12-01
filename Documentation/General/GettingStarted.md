@@ -4,7 +4,7 @@ Getting Started {#GettingStarted}
 IDE to use:
   * Visual Studio 2012 (tested)
   * Visual Studio 2010 (tested)
-  * Visual Studio 2008 (no guarantees)
+  * Visual Studio 2013 (no guarantees)
 
 Build System:
   * For now we generate the solutions with CMake.
