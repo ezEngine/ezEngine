@@ -10,6 +10,9 @@
 # *** Modify this file as required ***
 #
 
+# Pass a boolean expression into this macro to build this library only if the expression evaluates to true.
+#BUILD_CONDITIONAL(BUILDSYSTEM_PLATFORM_WINDOWS AND NOT BUILDSYSTEM_PLATFORM_64BIT)
+
 # Add all the preprocessor definitions that are needed to configure this library
 # add_definitions (-DMY_PREPROCESS_DEFINITION_1)
 # add_definitions (-DMY_PREPROCESS_DEFINITION_2)

@@ -37,21 +37,21 @@ set (PLATFORM_PREFIX "")
 if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
   # Windows
   message (STATUS "Platform is Windows (BUILDSYSTEM_PLATFORM_WINDOWS)")
-  set (BUILDSYSTEM_PLATFORM_WINDOWS ON BOOL)
+  set (BUILDSYSTEM_PLATFORM_WINDOWS ON)
   set (PLATFORM_PREFIX "Win")
   
 elseif (CMAKE_SYSTEM_NAME STREQUAL "Darwin" AND CURRENT_OSX_VERSION)
   # OS X
   message (STATUS "Platform is OS X (BUILDSYSTEM_PLATFORM_OSX, BUILDSYSTEM_PLATFORM_POSIX)")
-  set (BUILDSYSTEM_PLATFORM_OSX ON BOOL)
-  set (BUILDSYSTEM_PLATFORM_POSIX ON BOOL)
+  set (BUILDSYSTEM_PLATFORM_OSX ON)
+  set (BUILDSYSTEM_PLATFORM_POSIX ON)
   set (PLATFORM_PREFIX "Osx")
   
 elseif (CMAKE_SYSTEM_NAME STREQUAL "Linux")
   # Linux
   message (STATUS "Platform is Linux (BUILDSYSTEM_PLATFORM_LINUX, BUILDSYSTEM_PLATFORM_POSIX)")  
-  set (BUILDSYSTEM_PLATFORM_LINUX ON BOOL)
-  set (BUILDSYSTEM_PLATFORM_POSIX ON BOOL)
+  set (BUILDSYSTEM_PLATFORM_LINUX ON)
+  set (BUILDSYSTEM_PLATFORM_POSIX ON)
   set (PLATFORM_PREFIX "Linux")
   
 else ()
@@ -69,7 +69,7 @@ if (BUILDSYSTEM_PLATFORM_WINDOWS)
   if (MSVC)
     # Visual Studio (All VS generators define MSVC)
     message (STATUS "Buildsystem is MSVC (BUILDSYSTEM_MSVC)")
-    set (BUILDSYSTEM_MSVC ON BOOL)
+    set (BUILDSYSTEM_MSVC ON)
     set (BUILDSYSTEM_PREFIX "Vs")
   else ()
     message (FATAL_ERROR "Generator '${CMAKE_GENERATOR}' is not supported on Windows! Please extend CMAKE_GeneralConfig.txt.")
@@ -80,12 +80,12 @@ elseif (BUILDSYSTEM_PLATFORM_OSX)
   if (CMAKE_GENERATOR STREQUAL "Xcode")
     # XCODE
     message (STATUS "Buildsystem is Xcode (BUILDSYSTEM_XCODE)")
-    set (BUILDSYSTEM_XCODE ON BOOL)
+    set (BUILDSYSTEM_XCODE ON)
     set (BUILDSYSTEM_PREFIX "Xcode")
   elseif (CMAKE_GENERATOR STREQUAL "Unix Makefiles")
     # Unix Makefiles (for QtCreator etc.)
     message (STATUS "Buildsystem is Make (BUILDSYSTEM_MAKE)")
-    set (BUILDSYSTEM_MAKE ON BOOL)
+    set (BUILDSYSTEM_MAKE ON)
     set (BUILDSYSTEM_PREFIX "Make")
   else ()
     message (FATAL_ERROR "Generator '${CMAKE_GENERATOR}' is not supported on OS X! Please extend CMAKE_GeneralConfig.txt.")
@@ -95,7 +95,7 @@ elseif (BUILDSYSTEM_PLATFORM_LINUX)
   if (CMAKE_GENERATOR STREQUAL "Unix Makefiles")
     # Unix Makefiles (for QtCreator etc.)
     message (STATUS "Buildsystem is Make (BUILDSYSTEM_MAKE)")
-    set (BUILDSYSTEM_MAKE ON BOOL)
+    set (BUILDSYSTEM_MAKE ON)
     set (BUILDSYSTEM_PREFIX "Make")
   else ()
     message (FATAL_ERROR "Generator '${CMAKE_GENERATOR}' is not supported on OS X! Please extend CMAKE_GeneralConfig.txt.")
@@ -114,19 +114,19 @@ set (COMPILER_POSTFIX "")
 if (BUILDSYSTEM_MSVC)
   # Visual Studio Compiler
   message (STATUS "Compiler is MSVC (BUILDSYSTEM_COMPILER_MSVC)")
-  set (BUILDSYSTEM_COMPILER_MSVC ON BOOL)
+  set (BUILDSYSTEM_COMPILER_MSVC ON)
   
   if (MSVC12)
     message (STATUS "Compiler is Visual Studio 2013")
-    set (BUILDSYSTEM_COMPILER_MSVC_120 ON BOOL)
+    set (BUILDSYSTEM_COMPILER_MSVC_120 ON)
     set (COMPILER_POSTFIX "2013")
   elseif (MSVC11)
     message (STATUS "Compiler is Visual Studio 2012")
-    set (BUILDSYSTEM_COMPILER_MSVC_110 ON BOOL)
+    set (BUILDSYSTEM_COMPILER_MSVC_110 ON)
     set (COMPILER_POSTFIX "2012")
   elseif (MSVC10)
     message (STATUS "Compiler is Visual Studio 2010")
-    set (BUILDSYSTEM_COMPILER_MSVC_100 ON BOOL)
+    set (BUILDSYSTEM_COMPILER_MSVC_100 ON)
     set (COMPILER_POSTFIX "2010") 
   else ()
     message (FATAL_ERROR "Compiler for generator '${CMAKE_GENERATOR}' is not supported on MSVC! Please extend CMAKE_GeneralConfig.txt.")
@@ -136,13 +136,13 @@ elseif (BUILDSYSTEM_PLATFORM_OSX)
   # Currently all are clang by default.
   # We should probably make this more idiot-proof in case someone actually changes the compiler to gcc.
   message (STATUS "Compiler is clang (BUILDSYSTEM_COMPILER_CLANG)")  
-  set (BUILDSYSTEM_COMPILER_CLANG ON BOOL)
+  set (BUILDSYSTEM_COMPILER_CLANG ON)
   set (COMPILER_POSTFIX "Clang")
   
 elseif (BUILDSYSTEM_PLATFORM_LINUX)
   # Currently all are gcc by default. See OSX comment.
   message (STATUS "Compiler is gcc (BUILDSYSTEM_COMPILER_GCC)")  
-  set (BUILDSYSTEM_COMPILER_GCC ON BOOL)
+  set (BUILDSYSTEM_COMPILER_GCC ON)
   set (COMPILER_POSTFIX "Gcc")
   
 else ()
@@ -159,11 +159,11 @@ if (BUILDSYSTEM_PLATFORM_WINDOWS AND BUILDSYSTEM_COMPILER_MSVC)
   # Detect 64-bit builds for MSVC.
   if (CMAKE_CL_64)
     message (STATUS "Platform is 64-Bit (BUILDSYSTEM_PLATFORM_64BIT)")
-    set (BUILDSYSTEM_PLATFORM_64BIT ON BOOL)
+    set (BUILDSYSTEM_PLATFORM_64BIT ON)
     set (ARCHITECTURE_POSTFIX "64")
   else ()
     message (STATUS "Platform is 32-Bit (BUILDSYSTEM_PLATFORM_32BIT)")
-    set (BUILDSYSTEM_PLATFORM_32BIT ON BOOL)
+    set (BUILDSYSTEM_PLATFORM_32BIT ON)
     set (ARCHITECTURE_POSTFIX "32")
   endif ()
   
@@ -171,19 +171,19 @@ elseif (BUILDSYSTEM_PLATFORM_OSX AND BUILDSYSTEM_COMPILER_CLANG)
   # OS X always has 32/64 bit support in the project files and the user switches on demand.
   # Thus the header files there have to check for the current environment.
   message (STATUS "Platform uses universal binaries 32-Bit / 64-Bit (BUILDSYSTEM_PLATFORM_32BIT, BUILDSYSTEM_PLATFORM_64BIT)")
-  set (BUILDSYSTEM_PLATFORM_64BIT ON BOOL)
-  set (BUILDSYSTEM_PLATFORM_32BIT ON BOOL)
+  set (BUILDSYSTEM_PLATFORM_64BIT ON)
+  set (BUILDSYSTEM_PLATFORM_32BIT ON)
   set (ARCHITECTURE_POSTFIX "")
   
 elseif (BUILDSYSTEM_PLATFORM_LINUX AND BUILDSYSTEM_COMPILER_GCC)
   # Detect 64-bit builds for Linux, no other way than checking CMAKE_SIZEOF_VOID_P.
   if (CMAKE_SIZEOF_VOID_P EQUAL 8)
     message (STATUS "Platform is 64-Bit (BUILDSYSTEM_PLATFORM_64BIT)")
-    set (BUILDSYSTEM_PLATFORM_64BIT ON BOOL)
+    set (BUILDSYSTEM_PLATFORM_64BIT ON)
     set (ARCHITECTURE_POSTFIX "64")
   else ()
     message (STATUS "Platform is 32-Bit (BUILDSYSTEM_PLATFORM_32BIT)")
-    set (BUILDSYSTEM_PLATFORM_32BIT ON BOOL)
+    set (BUILDSYSTEM_PLATFORM_32BIT ON)
     set (ARCHITECTURE_POSTFIX "32")
   endif ()
   
@@ -191,7 +191,9 @@ else ()
   message (FATAL_ERROR "Architecture could not be determined. Please extend CMAKE_GeneralConfig.txt.")
 endif ()
 
-
+if (BUILDSYSTEM_PLATFORM_LINUX AND BUILDSYSTEM_MAKEa)
+  Message ("Do2sdfdfgdfgdg!")
+endif()
 #########################################################################################
 ## Configuration Variables
 ## Add your variables here, if you need something (general) to configure from the cmake GUI
@@ -288,9 +290,9 @@ if (BUILDSYSTEM_COMPILER_MSVC)
 elseif (BUILDSYSTEM_COMPILER_CLANG)
   # Cmake complains that this is not defined on OSX make build.
   if(EZ_COMPILE_ENGINE_AS_DLL)
-    set (CMAKE_CPP_CREATE_DYNAMIC_LIBRARY ON BOOL)
+    set (CMAKE_CPP_CREATE_DYNAMIC_LIBRARY ON)
   else ()
-    set (CMAKE_CPP_CREATE_STATIC_LIBRARY ON BOOL)
+    set (CMAKE_CPP_CREATE_STATIC_LIBRARY ON)
   endif ()
   # Enable c++11 features
   set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -stdlib=libc++")
@@ -300,6 +302,7 @@ elseif (BUILDSYSTEM_COMPILER_GCC)
   # Wno-enum-compare removes all annoying enum cast warnings
   # std=c++11 is - well needed for c++11.
   set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -Wno-enum-compare -std=c++11")
+  set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC")
   
 else ()
   message (FATAL_ERROR "Not settings are defined for the selected compiler. Please extend CMAKE_GeneralConfig.txt.")
@@ -471,6 +474,23 @@ ENDMACRO()
 
 MACRO(BUILD_REQUIRES_QT)
   if (EZ_QTPROJECT AND NOT EZ_ENABLE_QT_SUPPORT)
+    get_filename_component (BUILD_REQUIRES_QT_MACRO_FOLDERNAME ${CMAKE_CURRENT_SOURCE_DIR} NAME_WE)
+    Message (STATUS "Skipping ${BUILD_REQUIRES_QT_MACRO_FOLDERNAME}. Requires Qt which is disabled.")
+    return ()
+  endif ()
+ENDMACRO()
+
+
+#########################################################################################
+## Macro to skip a project / library if a certain conditional is not met.
+
+MACRO(BUILD_CONDITIONAL expression)
+  # Negating this in place doesn't work as cmake does not support braces.
+  if (${ARGV})
+    
+  else ()
+    get_filename_component (BUILD_CONDITIONAL_MACRO_FOLDERNAME ${CMAKE_CURRENT_SOURCE_DIR} NAME_WE)
+    Message (STATUS "Skipping ${BUILD_CONDITIONAL_MACRO_FOLDERNAME}. Not supported in this configuration.")
     return ()
   endif ()
 ENDMACRO()

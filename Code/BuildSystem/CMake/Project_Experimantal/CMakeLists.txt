@@ -8,6 +8,9 @@
 # *** Do not modify this file. ***
 #
 
+# Pass a boolean expression into this macro to build this project only if the expression evaluates to true.
+#BUILD_CONDITIONAL(BUILDSYSTEM_PLATFORM_WINDOWS AND NOT BUILDSYSTEM_PLATFORM_64BIT)
+
 # Macro that automatically implement the enabling / disabling of experimental projects.
 BUILD_EXPERIMENTAL_PROJECT()
 

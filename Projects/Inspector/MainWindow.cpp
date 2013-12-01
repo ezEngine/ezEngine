@@ -15,7 +15,7 @@
 #include <qfile.h>
 #include <qstandardpaths.h>
 #include <qdir.h>
-#include <QSettings.h>
+#include <QSettings>
 #include <qtimer.h>
 
 ezMainWindow* ezMainWindow::s_pWidget = NULL;

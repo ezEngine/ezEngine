@@ -45,9 +45,9 @@ if (BUILDSYSTEM_MSVC)
 	target_link_libraries (${PROJECT_NAME} winmm)
 endif ()
 
-# We need to link against X11 and pthread last or linker errors will occur.
+# We need to link against X11, pthread and rt last or linker errors will occur.
 if (BUILDSYSTEM_COMPILER_GCC)
-	target_link_libraries (${PROJECT_NAME} X11 pthread)
+	target_link_libraries (${PROJECT_NAME} X11 pthread rt)
 endif ()
 
 if (COMPILER_SETTINGS_ALL)

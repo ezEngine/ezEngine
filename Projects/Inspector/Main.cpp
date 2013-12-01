@@ -12,7 +12,7 @@
 #include <Inspector/GlobalEventsWidget.moc.h>
 #include <QApplication>
 #include <qstylefactory.h>
-#include <QSettings.h>
+#include <QSettings>
 
 class ezInspectorApp : public ezApplication
 {
