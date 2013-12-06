@@ -501,6 +501,7 @@ ENDMACRO()
 
 include_directories ("${CMAKE_SOURCE_DIR}/Code/Engine")   # this way it will also work for applications
 include_directories ("${CMAKE_SOURCE_DIR}/Projects")      # different projects may need to include from each other
+include_directories ("${CMAKE_SOURCE_DIR}/Code/ThirdParty")
 
 if (EZ_BUILD_EXPERIMENTAL)
   include_directories ("${CMAKE_SOURCE_DIR}/Code/Experimental")   # this way it will also work for applications

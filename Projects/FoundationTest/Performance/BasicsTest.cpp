@@ -95,7 +95,7 @@ public:
 
 EZ_CREATE_SIMPLE_TEST(Performance, Basics)
 {
-  const ezInt32 iNumObjects = 100000;
+  const ezInt32 iNumObjects = 1000000;
   const float fNumObjects = (float) iNumObjects;
 
   ezDynamicArray<Base*> Objects;
@@ -187,7 +187,7 @@ EZ_CREATE_SIMPLE_TEST(Performance, Basics)
     ezLog::Info("[test]FastCall Function Calls: %.2fns", tFC, iResult);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Int Division")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "32 Bit Integer Division")
   {
     ezDynamicArray<ezInt32> Ints;
     Ints.SetCount(iNumObjects);
@@ -207,10 +207,10 @@ EZ_CREATE_SIMPLE_TEST(Performance, Basics)
     ezTime tdiff = t1 - t0;
     double t = tdiff.GetNanoseconds() / (double) (iNumObjects-1);
 
-    ezLog::Info("[test]Integer Division: %.2fns", t, iResult);
+    ezLog::Info("[test]32 Bit Integer Division: %.2fns", t, iResult);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Int Multiplication")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "32 Bit Integer Multiplication")
   {
     ezDynamicArray<ezInt32> Ints;
     Ints.SetCount(iNumObjects);
@@ -230,10 +230,56 @@ EZ_CREATE_SIMPLE_TEST(Performance, Basics)
     ezTime tdiff = t1 - t0;
     double t = tdiff.GetNanoseconds() / (double) (iNumObjects);
 
-    ezLog::Info("[test]Integer Multiplication: %.2fns", t, iResult);
+    ezLog::Info("[test]32 Bit Integer Multiplication: %.2fns", t, iResult);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Float Division")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "64 Bit Integer Division")
+  {
+    ezDynamicArray<ezInt64> Ints;
+    Ints.SetCount(iNumObjects);
+
+    for (ezInt32 i = 0; i < iNumObjects; i += 1)
+      Ints[i] = (ezInt64) i * (ezInt64) 100;
+
+    ezTime t0 = ezSystemTime::Now();
+
+    ezInt64 iResult = 0;
+
+    for (ezInt32 i = 1; i < iNumObjects; i += 1)
+      iResult += Ints[i] / (ezInt64) i;
+
+    ezTime t1 = ezSystemTime::Now();
+
+    ezTime tdiff = t1 - t0;
+    double t = tdiff.GetNanoseconds() / (double) (iNumObjects-1);
+
+    ezLog::Info("[test]64 Bit Integer Division: %.2fns", t, iResult);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "64 Bit Integer Multiplication")
+  {
+    ezDynamicArray<ezInt64> Ints;
+    Ints.SetCount(iNumObjects);
+
+    for (ezInt32 i = 0; i < iNumObjects; i += 1)
+      Ints[i] = iNumObjects - i;
+
+    ezTime t0 = ezSystemTime::Now();
+
+    ezInt64 iResult = 0;
+
+    for (ezInt32 i = 0; i < iNumObjects; i += 1)
+      iResult += Ints[i] * (ezInt64) i;
+
+    ezTime t1 = ezSystemTime::Now();
+
+    ezTime tdiff = t1 - t0;
+    double t = tdiff.GetNanoseconds() / (double) (iNumObjects);
+
+    ezLog::Info("[test]64 Bit Integer Multiplication: %.2fns", t, iResult);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "32 Bit Float Division")
   {
     ezDynamicArray<float> Ints;
     Ints.SetCount(iNumObjects);
@@ -254,10 +300,10 @@ EZ_CREATE_SIMPLE_TEST(Performance, Basics)
     ezTime tdiff = t1 - t0;
     double t = tdiff.GetNanoseconds() / (double) (iNumObjects);
 
-    ezLog::Info("[test]Float Division: %.2fns", t, fResult);
+    ezLog::Info("[test]32 Bit Float Division: %.2fns", t, fResult);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Float Multiplication")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "32 Bit Float Multiplication")
   {
     ezDynamicArray<float> Ints;
     Ints.SetCount(iNumObjects);
@@ -278,8 +324,57 @@ EZ_CREATE_SIMPLE_TEST(Performance, Basics)
     ezTime tdiff = t1 - t0;
     double t = tdiff.GetNanoseconds() / (double) (iNumObjects);
 
-    ezLog::Info("[test]Float Multiplication: %.2fns", t, iResult);
+    ezLog::Info("[test]32 Bit Float Multiplication: %.2fns", t, iResult);
   }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "64 Bit Double Division")
+  {
+    ezDynamicArray<double> Ints;
+    Ints.SetCount(iNumObjects);
+
+    for (ezInt32 i = 0; i < iNumObjects; i += 1)
+      Ints[i] = i * 100.0;
+
+    ezTime t0 = ezSystemTime::Now();
+
+    double fResult = 0;
+
+    double d = 1.0;
+    for (ezInt32 i = 0; i < iNumObjects; i++, d += 1.0f)
+      fResult += Ints[i] / d;
+
+    ezTime t1 = ezSystemTime::Now();
+
+    ezTime tdiff = t1 - t0;
+    double t = tdiff.GetNanoseconds() / (double) (iNumObjects);
+
+    ezLog::Info("[test]64 Bit Double Division: %.2fns", t, fResult);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "64 Bit Double Multiplication")
+  {
+    ezDynamicArray<double> Ints;
+    Ints.SetCount(iNumObjects);
+
+    for (ezInt32 i = 0; i < iNumObjects; i++)
+      Ints[i] = (double) (fNumObjects) - (double) (i);
+
+    ezTime t0 = ezSystemTime::Now();
+
+    double iResult = 0;
+
+    double d = 1.0;
+    for (ezInt32 i = 0; i < iNumObjects; i++, d += 1.0)
+      iResult += Ints[i] * d;
+
+    ezTime t1 = ezSystemTime::Now();
+
+    ezTime tdiff = t1 - t0;
+    double t = tdiff.GetNanoseconds() / (double) (iNumObjects);
+
+    ezLog::Info("[test]64 Bit Double Multiplication: %.2fns", t, iResult);
+  }
+
 }
 
 
