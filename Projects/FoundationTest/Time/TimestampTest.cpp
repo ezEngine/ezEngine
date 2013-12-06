@@ -106,13 +106,13 @@ EZ_CREATE_SIMPLE_TEST(Time, Timestamp)
     ezDateTime firstContactDataTime(firstContact);
 
     // Getter
-    EZ_TEST(firstContactDataTime.GetYear() == 2063);
-    EZ_TEST(firstContactDataTime.GetMonth() == 4);
-    EZ_TEST(firstContactDataTime.GetDay() == 5);
-    EZ_TEST(firstContactDataTime.GetHour() == 0);
-    EZ_TEST(firstContactDataTime.GetMinute() == 0);
-    EZ_TEST(firstContactDataTime.GetSecond() == 0);
-    EZ_TEST(firstContactDataTime.GetMicroseconds() == 0);
+    EZ_TEST_INT(firstContactDataTime.GetYear(), 2063);
+    EZ_TEST_INT(firstContactDataTime.GetMonth(), 4);
+    EZ_TEST_INT(firstContactDataTime.GetDay(), 5);
+    EZ_TEST_INT(firstContactDataTime.GetHour(), 0);
+    EZ_TEST_INT(firstContactDataTime.GetMinute(), 0);
+    EZ_TEST_INT(firstContactDataTime.GetSecond(), 0);
+    EZ_TEST_INT(firstContactDataTime.GetMicroseconds(), 0);
 
     // SetTimestamp / GetTimestamp
     ezTimestamp currentTimestamp = ezTimestamp::CurrentTimestamp();
@@ -135,7 +135,7 @@ EZ_CREATE_SIMPLE_TEST(Time, Timestamp)
 
     ezTimestamp oneSmallStepTimestamp = oneSmallStep.GetTimestamp();
     EZ_TEST(oneSmallStepTimestamp.IsValid());
-    EZ_TEST(oneSmallStepTimestamp.GetInt64(ezSIUnitOfTime::Second) == -14159040LL);
+    EZ_TEST_INT(oneSmallStepTimestamp.GetInt64(ezSIUnitOfTime::Second), -14159040LL);
   }
 }
 

@@ -213,10 +213,10 @@ EZ_CREATE_SIMPLE_TEST(Math, Color)
       EZ_TEST(op1.IsEqual(op1, 0.0f));
       for (int i = 0; i < 4; ++i)
       {
-        EZ_TEST(op1.IsEqual(op1 + ezMath::BasicType<float>::SmallEpsilon() * compArray[i], ezMath::BasicType<float>::SmallEpsilon()));
-        EZ_TEST(op1.IsEqual(op1 - ezMath::BasicType<float>::SmallEpsilon() * compArray[i], ezMath::BasicType<float>::SmallEpsilon()));
-        EZ_TEST(op1.IsEqual(op1 + ezMath::BasicType<float>::DefaultEpsilon() * compArray[i], ezMath::BasicType<float>::DefaultEpsilon()));
-        EZ_TEST(op1.IsEqual(op1 - ezMath::BasicType<float>::DefaultEpsilon() * compArray[i], ezMath::BasicType<float>::DefaultEpsilon()));
+        EZ_TEST(op1.IsEqual(op1 + ezMath::BasicType<float>::SmallEpsilon()   * compArray[i], 2 * ezMath::BasicType<float>::SmallEpsilon()));
+        EZ_TEST(op1.IsEqual(op1 - ezMath::BasicType<float>::SmallEpsilon()   * compArray[i], 2 * ezMath::BasicType<float>::SmallEpsilon()));
+        EZ_TEST(op1.IsEqual(op1 + ezMath::BasicType<float>::DefaultEpsilon() * compArray[i], 2 * ezMath::BasicType<float>::DefaultEpsilon()));
+        EZ_TEST(op1.IsEqual(op1 - ezMath::BasicType<float>::DefaultEpsilon() * compArray[i], 2 * ezMath::BasicType<float>::DefaultEpsilon()));
       }
     }
 

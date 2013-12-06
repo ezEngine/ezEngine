@@ -182,10 +182,10 @@ EZ_CREATE_SIMPLE_TEST(Math, Vec4)
     EZ_TEST(vOp1.IsEqual(vOp1, 0.0f));
     for (int i = 0; i < 4; ++i)
     {
-      EZ_TEST(vOp1.IsEqual(vOp1 + ezMath::BasicType<ezMathTestType>::SmallEpsilon() * compArray[i], ezMath::BasicType<ezMathTestType>::SmallEpsilon()));
-      EZ_TEST(vOp1.IsEqual(vOp1 - ezMath::BasicType<ezMathTestType>::SmallEpsilon() * compArray[i], ezMath::BasicType<ezMathTestType>::SmallEpsilon()));
-      EZ_TEST(vOp1.IsEqual(vOp1 + ezMath::BasicType<ezMathTestType>::DefaultEpsilon() * compArray[i], ezMath::BasicType<ezMathTestType>::DefaultEpsilon()));
-      EZ_TEST(vOp1.IsEqual(vOp1 - ezMath::BasicType<ezMathTestType>::DefaultEpsilon() * compArray[i], ezMath::BasicType<ezMathTestType>::DefaultEpsilon()));
+      EZ_TEST(vOp1.IsEqual(vOp1 + ezMath::BasicType<ezMathTestType>::SmallEpsilon()   * compArray[i], 2 * ezMath::BasicType<ezMathTestType>::SmallEpsilon()));
+      EZ_TEST(vOp1.IsEqual(vOp1 - ezMath::BasicType<ezMathTestType>::SmallEpsilon()   * compArray[i], 2 * ezMath::BasicType<ezMathTestType>::SmallEpsilon()));
+      EZ_TEST(vOp1.IsEqual(vOp1 + ezMath::BasicType<ezMathTestType>::DefaultEpsilon() * compArray[i], 2 * ezMath::BasicType<ezMathTestType>::DefaultEpsilon()));
+      EZ_TEST(vOp1.IsEqual(vOp1 - ezMath::BasicType<ezMathTestType>::DefaultEpsilon() * compArray[i], 2 * ezMath::BasicType<ezMathTestType>::DefaultEpsilon()));
     }
 
     // operator-
