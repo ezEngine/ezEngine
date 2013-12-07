@@ -5,6 +5,7 @@ Milestone 4
 -----------
 
   * Added Linux support. Is now on par with OS X port. Tested with Ubuntu 12.4 and GCC 4.8
+  * Removed the InputWindows plugin and merged the functionality into the ezWindow code (System library).
 
 Milestone 3
 -----------

@@ -1,13 +1,13 @@
 #include <Core/PCH.h>
 #include <Foundation/Logging/Log.h>
-#include <InputWindows/InputDeviceWindows.h>
+#include <System/Window/Implementation/Win32/InputDevice_win32.h>
 #include <Core/Input/InputManager.h>
 #include <Foundation/Strings/StringConversion.h>
 #include <Foundation/Containers/HybridArray.h>
 
-bool ezInputDeviceWindows::s_bMainWindowUsed = false;
+bool ezStandardInputDevice::s_bMainWindowUsed = false;
 
-ezInputDeviceWindows::ezInputDeviceWindows(ezUInt32 uiWindowNumber)
+ezStandardInputDevice::ezStandardInputDevice(ezUInt32 uiWindowNumber)
 {
   m_uiWindowNumber = uiWindowNumber;
   m_bClipCursor = false;
@@ -15,18 +15,18 @@ ezInputDeviceWindows::ezInputDeviceWindows(ezUInt32 uiWindowNumber)
 
   if (uiWindowNumber == 0)
   {
-    EZ_ASSERT_API(!s_bMainWindowUsed, "You cannot have two devices of Type ezInputDeviceWindows with the window number zero.");
-    ezInputDeviceWindows::s_bMainWindowUsed = true;
+    EZ_ASSERT_API(!s_bMainWindowUsed, "You cannot have two devices of Type ezStandardInputDevice with the window number zero.");
+    ezStandardInputDevice::s_bMainWindowUsed = true;
   }
 }
 
-ezInputDeviceWindows::~ezInputDeviceWindows()
+ezStandardInputDevice::~ezStandardInputDevice()
 {
   if (m_uiWindowNumber == 0)
-    ezInputDeviceWindows::s_bMainWindowUsed = false;
+    ezStandardInputDevice::s_bMainWindowUsed = false;
 }
 
-void ezInputDeviceWindows::InitializeDevice()
+void ezStandardInputDevice::InitializeDevice()
 {
   if (m_uiWindowNumber == 0)
   {
@@ -55,7 +55,7 @@ void ezInputDeviceWindows::InitializeDevice()
     ezLog::Info("Window %i does not need to initialize Mouse or Keybard.", m_uiWindowNumber);
 }
 
-void ezInputDeviceWindows::RegisterInputSlots()
+void ezStandardInputDevice::RegisterInputSlots()
 {
   RegisterInputSlot(ezInputSlot_KeyLeft, "Left", ezInputSlotFlags::IsButton);
   RegisterInputSlot(ezInputSlot_KeyRight, "Right", ezInputSlotFlags::IsButton);
@@ -248,7 +248,7 @@ void ezInputDeviceWindows::RegisterInputSlots()
   RegisterInputSlot(ezInputSlot_TouchPoint9_PositionY, "Touchpoint 10 Position Y", ezInputSlotFlags::IsTouchPosition);
 }
 
-void ezInputDeviceWindows::ResetInputSlotValues()
+void ezStandardInputDevice::ResetInputSlotValues()
 {
   m_InputSlotValues[ezInputSlot_MouseWheelUp]  = 0;
   m_InputSlotValues[ezInputSlot_MouseWheelDown]= 0;
@@ -287,7 +287,7 @@ void SetClipRect(bool bClip, HWND hWnd)
     ClipCursor(NULL);
 }
 
-void ezInputDeviceWindows::SetClipMouseCursor(bool bEnable)
+void ezStandardInputDevice::SetClipMouseCursor(bool bEnable)
 {
   m_bClipCursor = bEnable;
 
@@ -296,7 +296,7 @@ void ezInputDeviceWindows::SetClipMouseCursor(bool bEnable)
 }
 
 
-void ezInputDeviceWindows::WindowMessage(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
+void ezStandardInputDevice::WindowMessage(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 {
   switch (Msg)
   {
@@ -542,9 +542,9 @@ static void SetKeyNameForScanCode(int iScanCode, bool bExtended, const char* szI
   ezInputManager::SetInputSlotDisplayName(szInputSlot, sName.GetData());
 }
 
-void ezInputDeviceWindows::LocalizeButtonDisplayNames()
+void ezStandardInputDevice::LocalizeButtonDisplayNames()
 {
-  EZ_LOG_BLOCK("ezInputDeviceWindows::LocalizeButtonDisplayNames");
+  EZ_LOG_BLOCK("ezStandardInputDevice::LocalizeButtonDisplayNames");
 
   SetKeyNameForScanCode( 1, false, ezInputSlot_KeyEscape);
   SetKeyNameForScanCode( 2, false, ezInputSlot_Key1);
@@ -672,7 +672,7 @@ void ezInputDeviceWindows::LocalizeButtonDisplayNames()
   SetKeyNameForScanCode(83, true, ezInputSlot_KeyDelete);
 }
 
-void ezInputDeviceWindows::SetShowMouseCursor(bool bShow)
+void ezStandardInputDevice::SetShowMouseCursor(bool bShow)
 {
   if (m_bShowCursor == bShow)
     return;
@@ -681,7 +681,7 @@ void ezInputDeviceWindows::SetShowMouseCursor(bool bShow)
   ShowCursor(m_bShowCursor);
 }
 
-bool ezInputDeviceWindows::GetShowMouseCursor() const
+bool ezStandardInputDevice::GetShowMouseCursor() const
 {
   return m_bShowCursor;
 }

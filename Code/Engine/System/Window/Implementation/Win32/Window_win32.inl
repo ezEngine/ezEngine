@@ -34,12 +34,14 @@ static LRESULT CALLBACK ezWindowsMessageFuncTrampoline(HWND hWnd, UINT Msg, WPAR
       break;
     }
 
+    if (pWindow->GetInputDevice())
+      pWindow->GetInputDevice()->WindowMessage(hWnd, Msg, WParam, LParam);
+
     pWindow->OnWindowMessage(hWnd, Msg, WParam, LParam);
   } 
 
   return DefWindowProcW(hWnd, Msg, WParam, LParam);
 }
-
 
 ezResult ezWindow::Initialize()
 {
@@ -156,11 +158,16 @@ ezResult ezWindow::Initialize()
   m_bInitialized = true;
   ezLog::Success("Created window successfully.");
 
+  /// \todo This won't work with more than one window at the moment.
+  m_pInputDevice = EZ_DEFAULT_NEW(ezStandardInputDevice)(0);
+
   return EZ_SUCCESS;
 }
 
 ezResult ezWindow::Destroy()
 {
+  EZ_DEFAULT_DELETE(m_pInputDevice);
+
   if (m_CreationDescription.m_bFullscreenWindow && m_CreationDescription.m_bWindowsUseDevmodeFullscreen)
     ChangeDisplaySettings (NULL, 0);
 
@@ -200,3 +207,7 @@ ezWindow::WindowMessageResult ezWindow::ProcessWindowMessages()
 
   return Continue;
 }
+
+
+
+

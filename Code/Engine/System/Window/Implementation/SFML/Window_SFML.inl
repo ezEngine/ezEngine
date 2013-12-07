@@ -1,9 +1,6 @@
 
 #include <System/PCH.h>
-#include <Foundation/Basics.h>
-#include <System/Basics.h>
 #include <System/Window/Window.h>
-
 
 
 ezResult ezWindow::Initialize()

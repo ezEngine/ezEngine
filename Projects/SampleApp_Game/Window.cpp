@@ -97,7 +97,3 @@ ezSizeU32 GameWindow::GetResolution() const
   return m_CreationDescription.m_ClientAreaSize;
 }
 
-void GameWindow::OnWindowMessage(HWND hWnd, UINT Msg, WPARAM WParam, LPARAM LParam)
-{
-  ezInputDeviceWindows::GetDevice()->WindowMessage(hWnd, Msg, WParam, LParam);
-}

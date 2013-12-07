@@ -1,28 +1,39 @@
 #pragma once
 
+#include <System/Basics.h>
 #include <Foundation/Math/Rect.h>
 #include <Foundation/Math/Size.h>
 #include <Foundation/Math/Vec2.h>
 #include <Foundation/Strings/String.h>
-#include <System/Basics.h>
+
+
+// Include the proper Input implementation to use
+#if EZ_ENABLED(EZ_SUPPORTS_SFML)
+  #include <System/Window/Implementation/SFML/InputDevice_SFML.h>
+#elif EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+  #include <System/Window/Implementation/Win32/InputDevice_win32.h>
+#else 
+  #error "Missing code for ezWindow Input!"
+#endif
+
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
 
-typedef HWND ezWindowHandle;
-#define INVALID_WINDOW_HANDLE_VALUE (ezWindowHandle)(0)
+  typedef HWND ezWindowHandle;
+  #define INVALID_WINDOW_HANDLE_VALUE (ezWindowHandle)(0)
 
 #elif EZ_ENABLED(EZ_PLATFORM_OSX)
 
-typedef void* ezWindowHandle; // TODO
-#define INVALID_WINDOW_HANDLE_VALUE (ezWindowHandle)(0)
+  typedef void* ezWindowHandle; // TODO
+  #define INVALID_WINDOW_HANDLE_VALUE (ezWindowHandle)(0)
 
 #elif EZ_ENABLED(EZ_PLATFORM_LINUX)
 
-typedef void* ezWindowHandle; // TODO
-#define INVALID_WINDOW_HANDLE_VALUE (ezWindowHandle)(0)
+  typedef void* ezWindowHandle; // TODO
+  #define INVALID_WINDOW_HANDLE_VALUE (ezWindowHandle)(0)
 
 #else
-#error "Missing Platform Code!"
+  #error "Missing Platform Code!"
 #endif
 
 struct EZ_SYSTEM_DLL ezWindowCreationDesc
@@ -140,10 +151,7 @@ public:
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   /// \brief Called on any window message.
   ///
-  /// You can use this function for example to dispatch the message to another system:
-  /// \code {.cpp}
-  ///   ezInputDeviceWindows::GetDevice()->WindowMessage(hWnd, msg, wParam, lParam);
-  /// \endcode
+  /// You can use this function for example to dispatch the message to another system.
   ///
   /// \remarks
   ///   Will be called <i>after</i> the On[...]Message callbacks!
@@ -151,8 +159,11 @@ public:
   /// \see OnResizeMessage
   virtual void OnWindowMessage(HWND hWnd, UINT Msg, WPARAM WParam, LPARAM LParam) {}
 #else
-#error "Missing code for ezWindow on this platform!"
+  #error "Missing code for ezWindow on this platform!"
 #endif
+
+  /// \brief Returns the input device that is attached to this window and typically provides mouse / keyboard input.
+  ezStandardInputDevice* GetInputDevice() const { return m_pInputDevice; }
 
 protected:
 
@@ -160,9 +171,14 @@ protected:
   /// \remarks That means that messages like Resize will also have no effect on this variable.
   ezWindowCreationDesc m_CreationDescription;
 
+
+  
+
 private:
 
   bool m_bInitialized;
+
+  ezStandardInputDevice* m_pInputDevice;
 
   mutable ezWindowHandle m_WindowHandle;
 };

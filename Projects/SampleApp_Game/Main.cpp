@@ -27,6 +27,8 @@ void SampleGameApp::AfterEngineInit()
 
   }
 
+  m_pWindow = EZ_DEFAULT_NEW(GameWindow);
+
   // Setup the logging system
   ezGlobalLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);
   ezGlobalLog::AddLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
@@ -40,8 +42,6 @@ void SampleGameApp::AfterEngineInit()
   srand((ezUInt32) ezSystemTime::Now().GetMicroseconds());
 
   CreateGameLevel();
-
-  m_pWindow = EZ_DEFAULT_NEW(GameWindow);
 
   ezStartup::StartupEngine();
 

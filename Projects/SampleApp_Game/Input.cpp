@@ -1,10 +1,10 @@
 #include "Main.h"
 #include "Application.h"
+#include "Window.h"
 
 #include <Foundation/Logging/Log.h>
 #include <Core/Input/InputManager.h>
 #include <InputXBox360/InputDeviceXBox.h>
-#include <InputWindows/InputDeviceWindows.h>
 #include <Foundation/Configuration/CVar.h>
 
 #include "ShipComponent.h"
@@ -76,9 +76,9 @@ void SampleGameApp::SetupInput()
   ezInputDeviceXBox360::GetDevice()->EnableVibration(2, true);
   ezInputDeviceXBox360::GetDevice()->EnableVibration(3, true);
 
-  ezInputDeviceWindows::GetDevice()->SetClipMouseCursor(true);
-  ezInputDeviceWindows::GetDevice()->SetShowMouseCursor(false);
-  ezInputDeviceWindows::GetDevice()->SetMouseSpeed(ezVec2(0.002f));
+  m_pWindow->GetInputDevice()->SetClipMouseCursor(true);
+  m_pWindow->GetInputDevice()->SetShowMouseCursor(false);
+  m_pWindow->GetInputDevice()->SetMouseSpeed(ezVec2(0.002f));
 
   RegisterInputAction("Main", "CloseApp", ezInputSlot_KeyEscape);
   RegisterInputAction("Main", "ResetLevel", ezInputSlot_KeyReturn);

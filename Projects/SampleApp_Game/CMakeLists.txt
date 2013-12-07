@@ -23,7 +23,6 @@ SET (LINK_LIBRARIES
   Core
   System
   OpenGL32
-  InputWindows
   InputXBox360
   ThirdParty
 )

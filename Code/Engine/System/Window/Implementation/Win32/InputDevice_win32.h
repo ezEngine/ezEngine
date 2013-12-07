@@ -1,22 +1,16 @@
 #pragma once
 
-#include <InputWindows/Basics.h>
+#include <System/Basics.h>
 #include <Core/Input/DeviceTypes/MouseKeyboard.h>
 
-class EZ_INPUTWINDOWS_DLL ezInputDeviceWindows : public ezInputDeviceMouseKeyboard
+class EZ_SYSTEM_DLL ezStandardInputDevice : public ezInputDeviceMouseKeyboard
 {
 public:
-  ezInputDeviceWindows(ezUInt32 uiWindowNumber);
-  ~ezInputDeviceWindows();
-
-  /// \brief Returns an ezInputDeviceWindows device for the given window.
-  static ezInputDeviceWindows* GetDevice(ezUInt32 uiWindowNumber = 0);
-
-  /// \brief Destroys all devices of this type. Automatically called at engine shutdown.
-  static void DestroyAllDevices();
+  ezStandardInputDevice(ezUInt32 uiWindowNumber);
+  ~ezStandardInputDevice();
 
   /// \brief Returns "MouseKeyboardWindows".
-  virtual const char* GetDeviceName() const { return "MouseKeyboardWindows"; }
+  virtual const char* GetDeviceName() const EZ_OVERRIDE { return "MouseKeyboardWindows"; }
 
   /// \brief This function needs to be called by all Windows functions, to pass the input information through to this input device.
   void WindowMessage(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam);

@@ -24,7 +24,8 @@ BUILD_CONDITIONAL(BUILDSYSTEM_PLATFORM_WINDOWS)
 # )
 
 SET (LINK_LIBRARIES 
-  Foundation 
+  Foundation
+  Core
 )
 
 include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/CMAKE_Library.txt)
