@@ -54,8 +54,9 @@ const ezRTTI* ezGetStaticRTTI()
     static ezRTTI rtti(#Type, NULL);                                  \
     return &rtti;                                                     \
   }                                                                   \
+  static void Register_##Type() { ezReflectableTypeRTTI_##Type(); }   \
   static ezExecuteAtStartup s_AutoRegister_##Type                     \
-    ([] { ezReflectableTypeRTTI_##Type(); });                         \
+    (Register_##Type);                                                \
 
 /// \brief Implements the necessary functionality for a type to be generally reflectable.
 #define EZ_IMPLEMENT_REFLECTABLE_TYPE_WITH_BASE(Type, Base)           \
@@ -64,8 +65,9 @@ const ezRTTI* ezGetStaticRTTI()
     static ezRTTI rtti(#Type, ezGetStaticRTTI<Base>());               \
     return &rtti;                                                     \
   }                                                                   \
+  static void Register_##Type() { ezReflectableTypeRTTI_##Type(); }   \
   static ezExecuteAtStartup s_AutoRegister_##Type                     \
-    ([] { ezReflectableTypeRTTI_##Type(); });                         \
+    (Register_##Type);                                                \
 
 
 

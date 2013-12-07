@@ -1,5 +1,4 @@
 #include "Window.h"
-#include <InputWindows/InputDeviceWindows.h>
 #include <gl/GL.h>
 
 GameWindow::GameWindow() :
