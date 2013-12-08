@@ -1,9 +1,7 @@
 #pragma once
 
-#include "StaticRTTI.h"
-#include "StandardTypes.h"
-#include "DynamicRTTI.h"
 #include <Foundation/Logging/Log.h>
+#include "ReflectionSystem.h"
 
 class TestBase : public ezReflectedClass
 {
@@ -13,12 +11,18 @@ public:
   TestBase()
   {
     ezLog::Debug("TestBase");
+    m_Float1 = 23;
   }
 
   ~TestBase()
   {
     ezLog::Debug("~TestBase");
   }
+
+  float GetFloat1() const { return m_Float1; }
+  void SetFloat1(float v) { m_Float1 = v; }
+
+  float m_Float1;
 };
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, TestBase);
@@ -36,6 +40,11 @@ public:
   ~TestClassA()
   {
     ezLog::Debug("~TestClassA");
+  }
+
+  void DoSomething()
+  {
+    ezLog::Dev("I'm useful!");
   }
 };
 

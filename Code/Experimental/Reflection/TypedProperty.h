@@ -25,13 +25,13 @@ public:
 
 
 template<class OWNER, class TYPE>
-class ezCustomAccessorProperty : public ezTypedProperty<TYPE>
+class ezAccessorProperty : public ezTypedProperty<TYPE>
 {
 public:
   typedef TYPE (OWNER::*GetterFunc)() const;
   typedef void (OWNER::*SetterFunc)(TYPE value);
 
-  ezCustomAccessorProperty(const char* szName, GetterFunc getter, SetterFunc setter) : ezTypedProperty(szName)
+  ezAccessorProperty(const char* szName, GetterFunc getter, SetterFunc setter) : ezTypedProperty(szName)
   {
     m_Getter = getter;
     m_Setter = setter;

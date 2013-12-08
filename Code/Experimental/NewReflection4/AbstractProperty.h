@@ -14,7 +14,10 @@ public:
     Array
   };
 
-  ezAbstractProperty(const char* szPropertyName);
+  ezAbstractProperty(const char* szPropertyName)
+  {
+    m_szPropertyName = szPropertyName;
+  }
 
   const char* GetPropertyName() const { return m_szPropertyName; }
 
@@ -27,18 +30,25 @@ private:
 class ezAbstractMemberProperty : public ezAbstractProperty
 {
 public:
-  ezAbstractMemberProperty(const char* szPropertyName);
+  ezAbstractMemberProperty(const char* szPropertyName) : ezAbstractProperty(szPropertyName)
+  {
+  }
 
   virtual ezAbstractProperty::PropertyCategory GetCategory() const EZ_OVERRIDE { return ezAbstractProperty::Member; }
 
-  //virtual const ezRTTI* GetPropertyType() const = 0;
+  virtual const ezRTTI* GetPropertyType() const = 0;
 
+  virtual void* GetPropertyPointer() const = 0;
+
+  virtual bool IsReadOnly() const = 0;
 };
 
 class ezAbstractFunctionProperty : public ezAbstractProperty
 {
 public:
-  ezAbstractFunctionProperty(const char* szPropertyName);
+  ezAbstractFunctionProperty(const char* szPropertyName) : ezAbstractProperty(szPropertyName)
+  {
+  }
 
   virtual ezAbstractProperty::PropertyCategory GetCategory() const EZ_OVERRIDE { return ezAbstractProperty::Function; }
 
@@ -49,7 +59,9 @@ public:
 class ezAbstractArrayProperty : public ezAbstractProperty
 {
 public:
-  ezAbstractArrayProperty(const char* szPropertyName);
+  ezAbstractArrayProperty(const char* szPropertyName) : ezAbstractProperty(szPropertyName)
+  {
+  }
 
   virtual ezAbstractProperty::PropertyCategory GetCategory() const EZ_OVERRIDE { return ezAbstractProperty::Array; }
 

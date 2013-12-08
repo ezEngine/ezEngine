@@ -3,12 +3,13 @@
 
 EZ_ENUMERABLE_CLASS_IMPLEMENTATION(ezRTTI);
 
-ezRTTI::ezRTTI(const char* szName, const ezRTTI* pParentType, ezRTTIAllocator* pAllocator, ezArrayPtr<ezAbstractProperty*> pProperties)
+ezRTTI::ezRTTI(const char* szName, const ezRTTI* pParentType, ezUInt32 uiTypeSize, ezRTTIAllocator* pAllocator, ezArrayPtr<ezAbstractProperty*> pProperties)
 {
   m_szTypeName = szName;
   m_pParentType = pParentType;
   m_pAllocator = pAllocator;
   m_Properties = pProperties;
+  m_uiTypeSize = uiTypeSize;
 }
 
 bool ezRTTI::IsDerivedFrom(const ezRTTI* pBaseType) const

@@ -4,24 +4,27 @@
 #include <Foundation/Logging/VisualStudioWriter.h>
 
 #include "Main.h"
-#include "RTTI.h"
 
 EZ_BEGIN_REFLECTED_TYPE(TestBase, ezReflectedClass, ezRTTIDefaultAllocator<TestBase>);
   EZ_BEGIN_PROPERTIES
-    EZ_MEMBER_PROPERTY(Test),
-    EZ_MEMBER_PROPERTY(Test2)
+//    EZ_MEMBER_PROPERTY(Test),
+//    EZ_MEMBER_PROPERTY(Test2)
+    EZ_MEMBER_PROPERTY_WITH_ACCESSOR("Float1", GetFloat1, SetFloat1)
   EZ_END_PROPERTIES
 EZ_END_REFLECTED_TYPE(TestBase);
 
 EZ_BEGIN_REFLECTED_TYPE(TestClassA, TestBase, ezRTTIDefaultAllocator<TestClassA>);
+  EZ_BEGIN_PROPERTIES
+    EZ_FUNCTION_PROPERTY("Be Useful", DoSomething)
+  EZ_END_PROPERTIES
 EZ_END_REFLECTED_TYPE(TestClassA);
 
-void PrintTypeInfo(const ezRTTI* pRTTI, bool bAllocate = false, bool bRecursive = true)
+void PrintTypeInfo(const ezRTTI* pRTTI, bool bAllocate = false, bool bRecursive = true, void* pInstance = NULL)
 {
   if (pRTTI == NULL)
     return;
 
-  ezLog::Info("Type: '%s'", pRTTI->GetTypeName());
+  ezLog::Info("Type: '%s' (%i Bytes)", pRTTI->GetTypeName(), pRTTI->GetTypeSize());
 
   if (pRTTI->GetAllocator()->CanAllocate())
   {
@@ -37,7 +40,29 @@ void PrintTypeInfo(const ezRTTI* pRTTI, bool bAllocate = false, bool bRecursive 
 
   {
     for (ezUInt32 p = 0; p < pRTTI->GetPropertyCount(); ++p)
+    {
       ezLog::Info("  Property: '%s'", pRTTI->GetProperty(p)->GetPropertyName());
+
+      if (pInstance != NULL && pRTTI->GetProperty(p)->GetCategory() == ezAbstractProperty::Function)
+      {
+        ezAbstractFunctionProperty* pFunc = (ezAbstractFunctionProperty*) pRTTI->GetProperty(p);
+        pFunc->Execute(pInstance);
+      }
+
+      if (pInstance != NULL && pRTTI->GetProperty(p)->GetCategory() == ezAbstractProperty::Member)
+      {
+        ezAbstractMemberProperty* pMember = (ezAbstractMemberProperty*) pRTTI->GetProperty(p);
+
+        const ezRTTI* pPropRTTI = pMember->GetPropertyType();
+
+        if (pPropRTTI == ezGetStaticRTTI<float>())
+        {
+          ezTypedMemberProperty<float>* pFinal = (ezTypedMemberProperty<float>*) pMember;
+
+          ezLog::Dev("    Value: %.2f", pFinal->GetValue(pInstance));
+        }
+      }
+    }
   }
 
   if (!bRecursive)
@@ -46,7 +71,7 @@ void PrintTypeInfo(const ezRTTI* pRTTI, bool bAllocate = false, bool bRecursive 
   if (pRTTI->GetParentType() != NULL)
   {
     EZ_LOG_BLOCK("Parent Type");
-    PrintTypeInfo(pRTTI->GetParentType(), false, true);
+    PrintTypeInfo(pRTTI->GetParentType(), false, true, pInstance);
   }
 }
 
@@ -89,6 +114,15 @@ int main()
       pRTTI = pRTTI->GetNextInstance();
     }
   }
+
+  {
+    EZ_LOG_BLOCK("Instance Test");
+
+    TestClassA a;
+    PrintTypeInfo(a.GetDynamicRTTI(), false, true, &a);
+
+  }
+
   ezGlobalLog::RemoveLogWriter(ezLogWriter::Console::LogMessageHandler);
   ezGlobalLog::RemoveLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
 

@@ -75,7 +75,7 @@ private:
 };
 
 #define EZ_ADD_PROPERTY_WITH_ACCESSOR(CLASS, NAME) \
-  static void StupidVS2010bla_##CLASS_##NAME() { GetStaticRTTI<CLASS>()->m_Properties.push_back(new ezCustomAccessorProperty<CLASS, decltype(((CLASS*) NULL)->Get##NAME())>(#NAME, &CLASS::Get##NAME, &CLASS::Set##NAME)); } \
+  static void StupidVS2010bla_##CLASS_##NAME() { GetStaticRTTI<CLASS>()->m_Properties.push_back(new ezAccessorProperty<CLASS, decltype(((CLASS*) NULL)->Get##NAME())>(#NAME, &CLASS::Get##NAME, &CLASS::Set##NAME)); } \
   static ezCallAtStartup RegisterPropertyAccessor_##CLASS_##NAME(StupidVS2010bla_##CLASS_##NAME);
 
 // all classes of type Blaaaa (including specializations) are a friend of reflected classes

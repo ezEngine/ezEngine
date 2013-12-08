@@ -2,19 +2,19 @@
 
 #include <Foundation/Basics.h>
 #include <Foundation/Utilities/EnumerableClass.h>
-#include "AbstractProperty.h"
 
 // *****************************************
 // ***** Runtime Type Information Data *****
 
 struct ezRTTIAllocator;
+class ezAbstractProperty;
 
 class ezRTTI : public ezEnumerable<ezRTTI>
 {
   EZ_DECLARE_ENUMERABLE_CLASS(ezRTTI);
 
 public:
-  ezRTTI(const char* szName, const ezRTTI* pParentType, ezRTTIAllocator* pAllocator, ezArrayPtr<ezAbstractProperty*> pProperties = ezArrayPtr<ezAbstractProperty*>());
+  ezRTTI(const char* szName, const ezRTTI* pParentType, ezUInt32 uiTypeSize, ezRTTIAllocator* pAllocator, ezArrayPtr<ezAbstractProperty*> pProperties);
 
   const char* GetTypeName() const { return m_szTypeName; }
 
@@ -23,29 +23,22 @@ public:
   bool IsDerivedFrom(const ezRTTI* pBaseType) const;
 
   template<typename BASE>
-  bool IsDerivedFrom() const
-  {
-    return IsDerivedFrom(ezGetStaticRTTI<BASE>());
-  }
+  bool IsDerivedFrom() const { return IsDerivedFrom(ezGetStaticRTTI<BASE>()); }
 
-  ezRTTIAllocator* GetAllocator() const
-  {
-    return m_pAllocator;
-  }
+  ezRTTIAllocator* GetAllocator() const { return m_pAllocator; }
 
-  ezUInt32 GetPropertyCount() const
-  {
-    return m_Properties.GetCount();
-  }
+  ezUInt32 GetPropertyCount() const { return m_Properties.GetCount(); }
 
-  const ezAbstractProperty* GetProperty(ezUInt32 uiIndex) const
-  {
-    return m_Properties[uiIndex];
-  }
+  const ezAbstractProperty* GetProperty(ezUInt32 uiIndex) const { return m_Properties[uiIndex]; }
+
+  ezUInt32 GetTypeSize() const { return m_uiTypeSize; }
+
+  /// \todo Store from which Plugin a Type was added
 
 private:
   const char* m_szTypeName;
   const ezRTTI* m_pParentType;
+  ezUInt32 m_uiTypeSize;
   ezRTTIAllocator* m_pAllocator;
   ezArrayPtr<ezAbstractProperty*> m_Properties;
 };

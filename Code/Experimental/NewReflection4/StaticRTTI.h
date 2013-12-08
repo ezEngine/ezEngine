@@ -1,10 +1,21 @@
 #pragma once
 
 #include "RTTI.h"
-#include "Helpers.h"
 
 /// \brief Dummy type to pass to EZ_BEGIN_REFLECTED_TYPE for all types that have no base class.
 class ezNoBase { };
+
+/// \brief Simple helper class to execute code at startup.
+class ezExecuteAtStartup
+{
+public:
+  typedef void (*Function)();
+
+  ezExecuteAtStartup(Function f)
+  {
+    f();
+  }
+};
 
 // ****************************************************
 // ***** Templates for accessing static RTTI data *****
@@ -80,23 +91,33 @@ const ezRTTI* ezGetStaticRTTI()
                                                                               \
     typedef Type OwnType;                                                     \
     typedef BaseType OwnBaseType;                                             \
-  };                                                                          \
                                                                               \
-  ezRTTI* ezReflectableTypeRTTI_##Type()                                      \
-  {                                                                           \
-    static AllocatorType Allocator;                                           \
-    static ezArrayPtr<ezAbstractProperty*> Properties                         \
+    static ezRTTI* GetReflectableTypeRTTI()                                   \
+    {                                                                         \
+      static AllocatorType Allocator;                                         \
+      static ezArrayPtr<ezAbstractProperty*> Properties                       \
 
 
 #define EZ_END_REFLECTED_TYPE(Type)                                           \
-    static ezRTTI rtti(ezRTTInfo_##Type::GetTypeName(),                       \
-      ezGetStaticRTTI<ezRTTInfo_##Type::OwnBaseType>(),                       \
-      &Allocator, Properties);                                                \
+      static ezRTTI rtti(GetTypeName(),                                       \
+        ezGetStaticRTTI<OwnBaseType>(),                                       \
+        sizeof(OwnType),                                                      \
+        &Allocator, Properties);                                              \
                                                                               \
-    return &rtti;                                                             \
+      return &rtti;                                                           \
+    }                                                                         \
+  };                                                                          \
+  static void Register_##Type()                                               \
+  {                                                                           \
+    ezRTTInfo_##Type::GetReflectableTypeRTTI();                               \
   }                                                                           \
-  static void Register_##Type() { ezReflectableTypeRTTI_##Type(); }           \
-  static ezExecuteAtStartup s_AutoRegister_##Type (Register_##Type)           \
+                                                                              \
+  static ezExecuteAtStartup s_AutoRegister_##Type (Register_##Type);          \
+                                                                              \
+  ezRTTI* ezReflectableTypeRTTI_##Type()                                      \
+  {                                                                           \
+    return ezRTTInfo_##Type::GetReflectableTypeRTTI();                        \
+  }                                                                           \
 
 
 #define EZ_BEGIN_PROPERTIES                                                   \
@@ -110,9 +131,16 @@ const ezRTTI* ezGetStaticRTTI()
 
 
 #define EZ_MEMBER_PROPERTY(PropertyName)                                      \
-  new ezAbstractMemberProperty(#PropertyName)
+  new ezAbstractMemberProperty(PropertyName)
 
+#define EZ_FUNCTION_PROPERTY(PropertyName, FunctionName)                      \
+  new ezFunctionProperty<OwnType>(PropertyName, OwnType::FunctionName)        \
 
+#define EZ_GETTER_TYPE(Class, GetterFunc)                                     \
+  decltype(((Class*) NULL)->GetterFunc())
 
+#define EZ_MEMBER_PROPERTY_WITH_ACCESSOR(PropertyName, Getter, Setter)        \
+  new ezAccessorProperty<OwnType, EZ_GETTER_TYPE(OwnType, OwnType::Getter)>   \
+    (PropertyName, OwnType::Getter, OwnType::Setter)                          \
 
 

@@ -1,4 +1,5 @@
 #include <Foundation/Configuration/Startup.h>
+#include <Foundation/Math/Vec3.h>
 #include <Foundation/Logging/ConsoleWriter.h>
 #include <Foundation/Logging/VisualStudioWriter.h>
 
@@ -28,6 +29,17 @@ EZ_ADD_PROPERTY_WITH_ACCESSOR(StructA, m_Vec3);
 EZ_ADD_MEMBER_PROPERTY(StructA, m_Vec3);
 
 //ezCallAtStartup bla([] { printf("Look Ma! A Lamba!"); } );
+
+class FuncTestClass
+{
+public:
+  void MyMemberFunc(int i, ezVec3 v)
+  {
+    ezLog::Success("%i: Called MyMemberFunc with %i and %.2f | %.2f | %.2f", m_iInstance, i, v.x, v.y, v.z);
+  }
+
+  int m_iInstance;
+};
 
 void PrintStats(const ezTypeRTTI* pRTTI)
 {
@@ -190,6 +202,22 @@ int main()
     blub.m_Deque.PushBack(2.3f);
     blub.m_Deque.PushBack(4.5f);
     PrintPropertyValues(GetStaticRTTI<stuff::StructB>(), &blub);
+  }
+
+  // Functions
+  {
+    ezReflectedFunctionImpl<FuncTestClass, int, ezVec3> FuncWrap(&FuncTestClass::MyMemberFunc);
+
+    ezVariant Vars[5];
+    Vars[0] = 5;
+    Vars[1] = ezVec3(1, 2, 3);
+
+    ezArrayPtr<ezVariant> Params(Vars, FuncWrap.GetParameterCount());
+
+    FuncTestClass t1;
+    t1.m_iInstance = 17;
+
+    FuncWrap.Execute(&t1, Params);
   }
 
   ezGlobalLog::RemoveLogWriter(ezLogWriter::Console::LogMessageHandler);
