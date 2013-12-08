@@ -34,8 +34,8 @@ EZ_CREATE_SIMPLE_TEST(Math, Float16)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator ==")
   {
-    EZ_TEST_FLOAT(ezFloat16(1.0f), ezFloat16(1.0f), 0);
-    EZ_TEST_FLOAT(ezFloat16(10000000.0f), ezFloat16(10000000.0f), 0);
+    EZ_TEST(ezFloat16(1.0f) == ezFloat16(1.0f));
+    EZ_TEST(ezFloat16(10000000.0f) == ezFloat16(10000000.0f));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator !=")
