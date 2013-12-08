@@ -12,6 +12,8 @@ public:
   {
     ezLog::Debug("TestBase");
     m_Float1 = 23;
+    m_Test = 42;
+    m_Test2 = 11.22f;
   }
 
   ~TestBase()
@@ -19,9 +21,13 @@ public:
     ezLog::Debug("~TestBase");
   }
 
+  ezInt32 m_Test;
+
+private:
   float GetFloat1() const { return m_Float1; }
   void SetFloat1(float v) { m_Float1 = v; }
 
+  float m_Test2;
   float m_Float1;
 };
 

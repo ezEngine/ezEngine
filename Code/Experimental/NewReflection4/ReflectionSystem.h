@@ -1,11 +1,11 @@
 #pragma once
 
 #include <Foundation/Basics.h>
-#include "RTTI.h"
-#include "StaticRTTI.h"
-#include "DynamicRTTI.h"
-#include "FunctionProperty.h"
-#include "MemberProperty.h"
-#include "ArrayProperty.h"
+#include "Implementation/RTTI.h"
+#include "Implementation/StaticRTTI.h"
+#include "Implementation/DynamicRTTI.h"
+#include "Implementation/FunctionProperty.h"
+#include "Implementation/MemberProperty.h"
+#include "Implementation/ArrayProperty.h"
 
-#include "StandardTypes.h"
+#include "Implementation/StandardTypes.h"

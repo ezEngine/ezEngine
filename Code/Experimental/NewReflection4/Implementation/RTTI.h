@@ -1,5 +1,7 @@
 #pragma once
 
+/// \file
+
 #include <Foundation/Basics.h>
 #include <Foundation/Utilities/EnumerableClass.h>
 

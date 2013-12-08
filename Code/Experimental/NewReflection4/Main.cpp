@@ -7,9 +7,9 @@
 
 EZ_BEGIN_REFLECTED_TYPE(TestBase, ezReflectedClass, ezRTTIDefaultAllocator<TestBase>);
   EZ_BEGIN_PROPERTIES
-//    EZ_MEMBER_PROPERTY(Test),
-//    EZ_MEMBER_PROPERTY(Test2)
-    EZ_MEMBER_PROPERTY_WITH_ACCESSOR("Float1", GetFloat1, SetFloat1)
+    EZ_MEMBER_PROPERTY("TestProp1", m_Test),
+    EZ_MEMBER_PROPERTY("TestProp2", m_Test2),
+    EZ_ACCESSOR_PROPERTY("Float1", GetFloat1, SetFloat1)
   EZ_END_PROPERTIES
 EZ_END_REFLECTED_TYPE(TestBase);
 
@@ -60,6 +60,13 @@ void PrintTypeInfo(const ezRTTI* pRTTI, bool bAllocate = false, bool bRecursive 
           ezTypedMemberProperty<float>* pFinal = (ezTypedMemberProperty<float>*) pMember;
 
           ezLog::Dev("    Value: %.2f", pFinal->GetValue(pInstance));
+        }
+        else
+        if (pPropRTTI == ezGetStaticRTTI<int>())
+        {
+          ezTypedMemberProperty<int>* pFinal = (ezTypedMemberProperty<int>*) pMember;
+
+          ezLog::Dev("    Value: %i", pFinal->GetValue(pInstance));
         }
       }
     }

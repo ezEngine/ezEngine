@@ -1,5 +1,7 @@
 #pragma once
 
+/// \file
+
 #include "StaticRTTI.h"
 #include <Foundation/Math/Vec2.h>
 #include <Foundation/Math/Vec3.h>

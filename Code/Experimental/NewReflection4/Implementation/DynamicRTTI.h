@@ -1,5 +1,7 @@
 #pragma once
 
+/// \file
+
 #include "StaticRTTI.h"
 
 // ****************************************************
@@ -19,6 +21,7 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezReflectedClass);
 
 /// \brief This needs to be put into the class declaration of EVERY dynamically reflectable class.
 #define EZ_ADD_DYNAMIC_REFLECTION(SELF)                               \
+  EZ_ALLOW_PRIVATE_PROPERTIES(SELF);                                  \
   public:                                                             \
     virtual const ezRTTI* GetDynamicRTTI() EZ_OVERRIDE                \
     {                                                                 \

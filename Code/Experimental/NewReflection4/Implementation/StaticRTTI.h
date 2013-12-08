@@ -1,5 +1,7 @@
 #pragma once
 
+/// \file
+
 #include "RTTI.h"
 
 /// \brief Dummy type to pass to EZ_BEGIN_REFLECTED_TYPE for all types that have no base class.
@@ -71,6 +73,10 @@ const ezRTTI* ezGetStaticRTTI()
     }                                                                 \
   };                                                                  \
 
+/// \brief Insert this into a class/struct to enable properties that are private members.
+/// All types that have dynamic reflection (\see EZ_ADD_DYNAMIC_REFLECTION) already have this ability.
+#define EZ_ALLOW_PRIVATE_PROPERTIES(SELF)                             \
+  friend class ezRTTInfo_##SELF                                       \
 
 /// \brief Implements the necessary functionality for a type to be generally reflectable.
 ///
@@ -129,18 +135,24 @@ const ezRTTI* ezGetStaticRTTI()
     };                                                                        \
   Properties = PropertyList;                                                  \
 
-
-#define EZ_MEMBER_PROPERTY(PropertyName)                                      \
-  new ezAbstractMemberProperty(PropertyName)
-
 #define EZ_FUNCTION_PROPERTY(PropertyName, FunctionName)                      \
   new ezFunctionProperty<OwnType>(PropertyName, OwnType::FunctionName)        \
 
 #define EZ_GETTER_TYPE(Class, GetterFunc)                                     \
   decltype(((Class*) NULL)->GetterFunc())
 
-#define EZ_MEMBER_PROPERTY_WITH_ACCESSOR(PropertyName, Getter, Setter)        \
+#define EZ_ACCESSOR_PROPERTY(PropertyName, Getter, Setter)                    \
   new ezAccessorProperty<OwnType, EZ_GETTER_TYPE(OwnType, OwnType::Getter)>   \
     (PropertyName, OwnType::Getter, OwnType::Setter)                          \
+
+#define EZ_MEMBER_TYPE(Class, Member)                                         \
+  decltype(((Class*) NULL)->Member)
+
+#define EZ_MEMBER_PROPERTY(PropertyName, MemberName)                          \
+  new ezMemberProperty<OwnType, EZ_MEMBER_TYPE(OwnType, MemberName)>          \
+    (PropertyName,                                                            \
+    &ezPropertyAccessor<OwnType, EZ_MEMBER_TYPE(OwnType, MemberName), &OwnType::MemberName>::GetValue, \
+    &ezPropertyAccessor<OwnType, EZ_MEMBER_TYPE(OwnType, MemberName), &OwnType::MemberName>::SetValue) \
+
 
 

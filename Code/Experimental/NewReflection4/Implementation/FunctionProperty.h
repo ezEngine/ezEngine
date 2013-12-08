@@ -1,5 +1,7 @@
 #pragma once
 
+/// \file
+
 #include "AbstractProperty.h"
 
 template<typename CLASS>
