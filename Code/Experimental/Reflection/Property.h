@@ -23,3 +23,24 @@ private:
   const char* m_szPropertyName;
 };
 
+
+class ezArrayProperty : public ezAbstractProperty
+{
+public:
+
+  ezArrayProperty(const char* szName) : ezAbstractProperty(szName)
+  {
+  }
+
+  virtual const ezTypeRTTI* GetPropertyType() const;
+
+  virtual const ezTypeRTTI* GetElementType() const = 0;
+
+  virtual ezUInt32 GetCount(const void* pProperty) const = 0;
+
+  virtual void* GetElement(const void* pProperty, ezUInt32 at) = 0;
+
+};
+
+
+

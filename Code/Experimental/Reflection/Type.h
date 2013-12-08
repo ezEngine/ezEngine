@@ -99,3 +99,25 @@ private:
       Blaaaa<DummyType_##CLASS_##NAME>::GetPropertyPointer)); \
   } \
   static ezCallAtStartup RegisterPropertyMember_##CLASS_##NAME(StupidVS2010_##CLASS_##NAME);
+
+
+#define EZ_ADD_ARRAY_PROPERTY(CLASS, NAME, SUBTYPE) \
+  class DummyType_##CLASS_##NAME { }; \
+  template<> \
+  struct Blaaaa<DummyType_##CLASS_##NAME> \
+  { \
+    typedef decltype(((CLASS*) NULL)->NAME) MemberType; \
+    \
+    class Array : public ezArrayProperty \
+    { \
+    public: \
+    Array(const char* szName) : ezArrayProperty(szName) { } \
+      virtual const ezTypeRTTI* GetElementType() const EZ_OVERRIDE { return GetStaticRTTI<SUBTYPE>(); } \
+      virtual ezUInt32 GetCount(const void* pProperty) const EZ_OVERRIDE { return ((MemberType*) pProperty)->GetCount(); } \
+      virtual void* GetElement(const void* pProperty, ezUInt32 at) EZ_OVERRIDE { return (void*) &((*((MemberType*) pProperty))[at]); } \
+      virtual void* GetPropertyPointer(const void* pReflected) const EZ_OVERRIDE { return (void*) &(((CLASS*) pReflected)->NAME); } \
+    }; \
+  }; \
+  static void StupidVS2010_##CLASS_##NAME() { GetStaticRTTI<CLASS>()->m_Properties.push_back(new Blaaaa<DummyType_##CLASS_##NAME>::Array(#NAME)); } \
+  \
+  static ezCallAtStartup RegisterPropertyMember_##CLASS_##NAME(StupidVS2010_##CLASS_##NAME);

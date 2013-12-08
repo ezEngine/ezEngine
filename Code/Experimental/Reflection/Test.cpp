@@ -20,6 +20,7 @@ EZ_ADD_MEMBER_PROPERTY(TestAB, privateint2);
 
 EZ_ADD_MEMBER_PROPERTY(stuff::StructB, StructB_Float);
 EZ_ADD_MEMBER_PROPERTY(stuff::StructB, StructB_Bool);
+EZ_ADD_ARRAY_PROPERTY(stuff::StructB, m_Deque, float);
 
 EZ_ADD_PROPERTY_WITH_ACCESSOR(StructA, SomeFloat);
 EZ_ADD_MEMBER_PROPERTY(StructA, m_SubProperty);
@@ -96,6 +97,29 @@ void PrintPropertyValues(const ezTypeRTTI* pRTTI, const void* pReflected)
     {
       val.Format("%.2f", ((ezTypedProperty<float>*) pRTTI->m_Properties[i])->GetValue(pReflected));
     }
+    else if (iTypeID == GetStaticRTTI<ezArrayProperty>()->GetTypeID())
+    {
+      val.Format("array");
+
+      ezArrayProperty* pArray = (ezArrayProperty*) pRTTI->m_Properties[i];
+      void* pSubReflected = pRTTI->m_Properties[i]->GetPropertyPointer(pReflected);
+
+      const ezTypeRTTI* pSubType = pArray->GetElementType();
+
+      EZ_LOG_BLOCK("Array Property", pSubType->GetTypeName());
+
+      ezLog::Info("Elements: %i", pArray->GetCount(pSubReflected));
+
+      for (ezUInt32 el = 0; el < pArray->GetCount(pSubReflected); ++el)
+      {
+        if (pSubType->GetTypeID() == GetStaticRTTI<float>()->GetTypeID())
+        {
+          float* pData = (float*) pArray->GetElement(pSubReflected, el);
+          ezLog::Info("[%i] = %.2f", el, *pData);
+        }        
+      }
+
+    }
     else
     {
       val.Format("unknown");
@@ -163,6 +187,8 @@ int main()
 
   {
     stuff::StructB blub;
+    blub.m_Deque.PushBack(2.3f);
+    blub.m_Deque.PushBack(4.5f);
     PrintPropertyValues(GetStaticRTTI<stuff::StructB>(), &blub);
   }
 

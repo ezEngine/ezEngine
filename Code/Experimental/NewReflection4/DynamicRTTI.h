@@ -9,9 +9,13 @@
 class ezReflectedClass
 {
 public:
-  virtual const ezRTTI* GetDynamicRTTI() = 0;
-
+  virtual const ezRTTI* GetDynamicRTTI()
+  {
+    return ezGetStaticRTTI<ezReflectedClass>();
+  }
 };
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezReflectedClass);
 
 /// \brief This needs to be put into the class declaration of EVERY dynamically reflectable class.
 #define EZ_ADD_DYNAMIC_REFLECTION(SELF)                               \

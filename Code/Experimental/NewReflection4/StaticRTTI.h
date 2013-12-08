@@ -3,6 +3,9 @@
 #include "RTTI.h"
 #include "Helpers.h"
 
+/// \brief Dummy type to pass to EZ_BEGIN_REFLECTED_TYPE for all types that have no base class.
+class ezNoBase { };
+
 // ****************************************************
 // ***** Templates for accessing static RTTI data *****
 
@@ -12,6 +15,17 @@ struct ezStaticRTTI
 {
   static ezRTTI* GetRTTI();
 };
+
+// Special implementation for types that have no base
+template<>
+struct ezStaticRTTI<ezNoBase>
+{
+  static ezRTTI* GetRTTI()
+  {
+    return NULL;
+  }
+};
+
 
 /// \brief Use this function, specialized with the type that you are interested in, to get the static RTTI data for some type.
 template<typename T>
@@ -48,26 +62,57 @@ const ezRTTI* ezGetStaticRTTI()
 
 
 /// \brief Implements the necessary functionality for a type to be generally reflectable.
-#define EZ_IMPLEMENT_REFLECTABLE_TYPE(Type)                           \
-  ezRTTI* ezReflectableTypeRTTI_##Type()                              \
-  {                                                                   \
-    static ezRTTI rtti(#Type, NULL);                                  \
-    return &rtti;                                                     \
-  }                                                                   \
-  static void Register_##Type() { ezReflectableTypeRTTI_##Type(); }   \
-  static ezExecuteAtStartup s_AutoRegister_##Type                     \
-    (Register_##Type);                                                \
+///
+/// \param Type
+///   The type for which the reflection functionality should be implemented.
+/// \param Base
+///   The base class type of \a Type. If it has no base class, pass ezNoBase
+/// \param Allocator
+///   The type of an ezRTTIAllocator that can be used to create and destroy instances
+///   of \a Type. Pass ezRTTINoAllocator for types that should not be created dynamically.
+///   Pass ezRTTIDefaultAllocator<Type> for types that should be created on the default heap.
+///   Pass a custom ezRTTIAllocator type to handle allocation differently.
+#define EZ_BEGIN_REFLECTED_TYPE(Type, BaseType, AllocatorType)                \
+  class ezRTTInfo_##Type                                                      \
+  {                                                                           \
+  public:                                                                     \
+    static const char* GetTypeName() { return #Type; }                        \
+                                                                              \
+    typedef Type OwnType;                                                     \
+    typedef BaseType OwnBaseType;                                             \
+  };                                                                          \
+                                                                              \
+  ezRTTI* ezReflectableTypeRTTI_##Type()                                      \
+  {                                                                           \
+    static AllocatorType Allocator;                                           \
+    static ezArrayPtr<ezAbstractProperty*> Properties                         \
 
-/// \brief Implements the necessary functionality for a type to be generally reflectable.
-#define EZ_IMPLEMENT_REFLECTABLE_TYPE_WITH_BASE(Type, Base)           \
-  ezRTTI* ezReflectableTypeRTTI_##Type()                              \
-  {                                                                   \
-    static ezRTTI rtti(#Type, ezGetStaticRTTI<Base>());               \
-    return &rtti;                                                     \
-  }                                                                   \
-  static void Register_##Type() { ezReflectableTypeRTTI_##Type(); }   \
-  static ezExecuteAtStartup s_AutoRegister_##Type                     \
-    (Register_##Type);                                                \
+
+#define EZ_END_REFLECTED_TYPE(Type)                                           \
+    static ezRTTI rtti(ezRTTInfo_##Type::GetTypeName(),                       \
+      ezGetStaticRTTI<ezRTTInfo_##Type::OwnBaseType>(),                       \
+      &Allocator, Properties);                                                \
+                                                                              \
+    return &rtti;                                                             \
+  }                                                                           \
+  static void Register_##Type() { ezReflectableTypeRTTI_##Type(); }           \
+  static ezExecuteAtStartup s_AutoRegister_##Type (Register_##Type)           \
+
+
+#define EZ_BEGIN_PROPERTIES                                                   \
+    static ezAbstractProperty* PropertyList[] =                               \
+    {                                                                         \
+
+
+#define EZ_END_PROPERTIES                                                     \
+    };                                                                        \
+  Properties = PropertyList;                                                  \
+
+
+#define EZ_MEMBER_PROPERTY(PropertyName)                                      \
+  new ezAbstractMemberProperty(#PropertyName)
+
+
 
 
 

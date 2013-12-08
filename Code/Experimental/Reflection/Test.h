@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Foundation/Basics.h>
+#include <Foundation/Containers/Deque.h>
 #include "Reflected.h"
 
 // add reflection for some other type
@@ -8,6 +9,7 @@ EZ_DECLARE_STATIC_REFLECTION(float);
 EZ_DECLARE_STATIC_REFLECTION(bool);
 EZ_DECLARE_STATIC_REFLECTION(ezInt32);
 EZ_DECLARE_STATIC_REFLECTION(ezVec3);
+EZ_DECLARE_STATIC_REFLECTION(ezArrayProperty);
 
 class TestBase;
 EZ_DECLARE_STATIC_REFLECTION_WITH_BASE(TestBase, ezReflectedBase);
@@ -108,6 +110,8 @@ namespace stuff
 
     float StructB_Float;
     bool StructB_Bool;
+
+    ezDeque<float, ezStaticAllocatorWrapper> m_Deque;
   };
 
   
