@@ -27,37 +27,37 @@ EZ_CREATE_SIMPLE_TEST(IO, BinaryStreamOperation)
 
     // Read back
     {
-      ezUInt8 uiVal; StreamReader >> uiVal; EZ_TEST(uiVal == (ezUInt8)0x42);
+      ezUInt8 uiVal; StreamReader >> uiVal; EZ_TEST_BOOL(uiVal == (ezUInt8)0x42);
     }
     {
-      ezUInt16 uiVal; StreamReader >> uiVal; EZ_TEST(uiVal == (ezUInt16)0x4223);
+      ezUInt16 uiVal; StreamReader >> uiVal; EZ_TEST_BOOL(uiVal == (ezUInt16)0x4223);
     }
     {
-      ezUInt32 uiVal; StreamReader >> uiVal; EZ_TEST(uiVal == (ezUInt32)0x42232342);
+      ezUInt32 uiVal; StreamReader >> uiVal; EZ_TEST_BOOL(uiVal == (ezUInt32)0x42232342);
     }
     {
-      ezUInt64 uiVal; StreamReader >> uiVal; EZ_TEST(uiVal == (ezUInt64)0x4223234242232342);
-    }
-
-    {
-      float fVal; StreamReader >> fVal; EZ_TEST(fVal == 42.0f);
-    }
-    {
-      double dVal; StreamReader >> dVal; EZ_TEST(dVal == 23.0f);
+      ezUInt64 uiVal; StreamReader >> uiVal; EZ_TEST_BOOL(uiVal == (ezUInt64)0x4223234242232342);
     }
 
+    {
+      float fVal; StreamReader >> fVal; EZ_TEST_BOOL(fVal == 42.0f);
+    }
+    {
+      double dVal; StreamReader >> dVal; EZ_TEST_BOOL(dVal == 23.0f);
+    }
+
 
     {
-      ezInt8 iVal; StreamReader >> iVal; EZ_TEST(iVal == (ezInt8)0x23);
+      ezInt8 iVal; StreamReader >> iVal; EZ_TEST_BOOL(iVal == (ezInt8)0x23);
     }
     {
-      ezInt16 iVal; StreamReader >> iVal; EZ_TEST(iVal == (ezInt16)0x2342);
+      ezInt16 iVal; StreamReader >> iVal; EZ_TEST_BOOL(iVal == (ezInt16)0x2342);
     }
     {
-      ezInt32 iVal; StreamReader >> iVal; EZ_TEST(iVal == (ezInt32)0x23422342);
+      ezInt32 iVal; StreamReader >> iVal; EZ_TEST_BOOL(iVal == (ezInt32)0x23422342);
     }
     {
-      ezInt64 iVal; StreamReader >> iVal; EZ_TEST(iVal == (ezInt64)0x2342234242232342);
+      ezInt64 iVal; StreamReader >> iVal; EZ_TEST_BOOL(iVal == (ezInt64)0x2342234242232342);
     }
   }
 

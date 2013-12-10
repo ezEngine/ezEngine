@@ -17,10 +17,10 @@ ezCVarString  CVar_TestString ("test1_String", "test1", ezCVarFlags::Default, "D
 
 void OnLoadPlugin(bool bReloading)
 {
-  EZ_TEST_MSG(g_iPluginState == -1, "Plugin is in an invalid state.");
+  EZ_TEST_BOOL_MSG(g_iPluginState == -1, "Plugin is in an invalid state.");
   g_iPluginState = 1;
 
-  EZ_TEST(ezPlugin::FindPluginByName("ezFoundationTest_Plugin1") != NULL); // should find itself
+  EZ_TEST_BOOL(ezPlugin::FindPluginByName("ezFoundationTest_Plugin1") != NULL); // should find itself
 
   ezCVarInt* pCVar = (ezCVarInt*) ezCVar::FindCVarByName("TestPlugin1InitCount");
 
@@ -38,13 +38,13 @@ void OnLoadPlugin(bool bReloading)
   ezCVarBool* pCVarPlugin2Inited = (ezCVarBool*) ezCVar::FindCVarByName("test2_Inited");
   if (pCVarPlugin2Inited)
   {
-    EZ_TEST(*pCVarPlugin2Inited == false); // Although Plugin2 is present, it should not yet have been initialized
+    EZ_TEST_BOOL(*pCVarPlugin2Inited == false); // Although Plugin2 is present, it should not yet have been initialized
   }
 }
 
 void OnUnloadPlugin(bool bReloading)
 {
-  EZ_TEST_MSG(g_iPluginState == 1, "Plugin is in an invalid state.");
+  EZ_TEST_BOOL_MSG(g_iPluginState == 1, "Plugin is in an invalid state.");
   g_iPluginState = 2;
 
   ezCVarInt* pCVar = (ezCVarInt*) ezCVar::FindCVarByName("TestPlugin1UninitCount");

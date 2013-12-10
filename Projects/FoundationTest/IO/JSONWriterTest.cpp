@@ -22,7 +22,7 @@ public:
       f.Close();
     }
     else
-      EZ_TEST(*m_szExpectedData == '\0');
+      EZ_TEST_BOOL(*m_szExpectedData == '\0');
   }
 
   ezResult WriteBytes(const void* pWriteBuffer, ezUInt64 uiBytesToWrite)
@@ -31,7 +31,7 @@ public:
       m_sResult.Append((const char*) pWriteBuffer);
     else
     {
-      EZ_TEST(ezStringUtils::IsEqualN((const char*) pWriteBuffer, m_szExpectedData, (ezUInt32) uiBytesToWrite));
+      EZ_TEST_BOOL(ezStringUtils::IsEqualN((const char*) pWriteBuffer, m_szExpectedData, (ezUInt32) uiBytesToWrite));
       m_szExpectedData += uiBytesToWrite;
     }
 

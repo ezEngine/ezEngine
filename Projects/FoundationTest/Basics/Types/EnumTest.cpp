@@ -65,8 +65,8 @@ EZ_CREATE_SIMPLE_TEST(Basics, Enum)
     ezTestEnum e1;
     ezTestEnum e2(ezTestEnum::Yes);
 
-    EZ_TEST(e1 == ezTestEnum::No);
-    EZ_TEST(e2 == ezTestEnum::Yes);
+    EZ_TEST_BOOL(e1 == ezTestEnum::No);
+    EZ_TEST_BOOL(e2 == ezTestEnum::Yes);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Function call tests")
@@ -83,11 +83,11 @@ EZ_CREATE_SIMPLE_TEST(Basics, Enum)
 
     e1 = ezTestEnum::Yes;
     e2 = ezTestEnum::No;
-    EZ_TEST(e1 == ezTestEnum::Yes);
-    EZ_TEST(e2 == ezTestEnum::No);
+    EZ_TEST_BOOL(e1 == ezTestEnum::Yes);
+    EZ_TEST_BOOL(e2 == ezTestEnum::No);
 
     e1 = e2;
-    EZ_TEST(e1 == ezTestEnum::No);
+    EZ_TEST_BOOL(e1 == ezTestEnum::No);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Test the | operator")
@@ -95,7 +95,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, Enum)
     ezTestEnum2 e3(ezTestEnum2::Bit1);
     ezTestEnum2 e4(ezTestEnum2::Bit2);
     ezUInt16 uiBits = (e3 | e4);
-    EZ_TEST(uiBits == (ezTestEnum2::Bit1 | ezTestEnum2::Bit2));
+    EZ_TEST_BOOL(uiBits == (ezTestEnum2::Bit1 | ezTestEnum2::Bit2));
   }
 
 
@@ -104,14 +104,14 @@ EZ_CREATE_SIMPLE_TEST(Basics, Enum)
     ezTestEnum2 e3(ezTestEnum2::Bit1);
     ezTestEnum2 e4(ezTestEnum2::Bit2);
     ezUInt16 uiBits = (e3 | e4) & e4;
-    EZ_TEST(uiBits == ezTestEnum2::Bit2);
+    EZ_TEST_BOOL(uiBits == ezTestEnum2::Bit2);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Test conversion to int")
   {
     ezTestEnum e1;
     int iTest = e1;
-    EZ_TEST(iTest == ezTestEnum::No);
+    EZ_TEST_BOOL(iTest == ezTestEnum::No);
   }
 }
 

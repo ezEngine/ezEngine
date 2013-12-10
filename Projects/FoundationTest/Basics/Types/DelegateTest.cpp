@@ -52,7 +52,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, Delegate)
   TestDelegate d;
 
 #if EZ_ENABLED(EZ_PLATFORM_64BIT)
-  EZ_TEST(sizeof(d) == 32);
+  EZ_TEST_BOOL(sizeof(d) == 32);
 #endif
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Method")

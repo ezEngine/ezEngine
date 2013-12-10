@@ -6,17 +6,17 @@ EZ_CREATE_SIMPLE_TEST(Strings, UnicodeUtils)
   {
     // test all ASCII Characters
     for (ezUInt32 i = 0; i < 128; ++i)
-      EZ_TEST(ezUnicodeUtils::IsASCII(i));
+      EZ_TEST_BOOL(ezUnicodeUtils::IsASCII(i));
 
     for (ezUInt32 i = 128; i < 0xFFFFF; ++i)
-      EZ_TEST(!ezUnicodeUtils::IsASCII(i));
+      EZ_TEST_BOOL(!ezUnicodeUtils::IsASCII(i));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsUtf8ContinuationByte")
   {
     // all ASCII Characters are not continuation bytes
     for (ezUInt32 i = 0; i < 128; ++i)
-      EZ_TEST(!ezUnicodeUtils::IsUtf8ContinuationByte(i));
+      EZ_TEST_BOOL(!ezUnicodeUtils::IsUtf8ContinuationByte(i));
 
     for (ezUInt32 i = 0; i < 255; ++i)
     {
@@ -24,9 +24,9 @@ EZ_CREATE_SIMPLE_TEST(Strings, UnicodeUtils)
       const ezUInt32 uiNoContByte1 = i | 0x40;
       const ezUInt32 uiNoContByte2 = i | 0xC0;
 
-      EZ_TEST(ezUnicodeUtils::IsUtf8ContinuationByte(uiContByte));
-      EZ_TEST(!ezUnicodeUtils::IsUtf8ContinuationByte(uiNoContByte1));
-      EZ_TEST(!ezUnicodeUtils::IsUtf8ContinuationByte(uiNoContByte2));
+      EZ_TEST_BOOL(ezUnicodeUtils::IsUtf8ContinuationByte(uiContByte));
+      EZ_TEST_BOOL(!ezUnicodeUtils::IsUtf8ContinuationByte(uiNoContByte1));
+      EZ_TEST_BOOL(!ezUnicodeUtils::IsUtf8ContinuationByte(uiNoContByte2));
     }
   }
 
@@ -84,9 +84,9 @@ EZ_CREATE_SIMPLE_TEST(Strings, UnicodeUtils)
     ezUnicodeUtils::EncodeUtf32ToUtf16('a', szUtf16);
     ezUnicodeUtils::EncodeUtf32ToWChar('a', szWChar);
 
-    EZ_TEST(utf8[0] == 'a');
-    EZ_TEST(utf16[0] == 'a');
-    EZ_TEST(wchar[0] == 'a');
+    EZ_TEST_BOOL(utf8[0] == 'a');
+    EZ_TEST_BOOL(utf16[0] == 'a');
+    EZ_TEST_BOOL(wchar[0] == 'a');
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "MoveToNextUtf8")
@@ -98,25 +98,25 @@ EZ_CREATE_SIMPLE_TEST(Strings, UnicodeUtils)
     // test how far it skips ahead
 
     ezUnicodeUtils::MoveToNextUtf8(sz);
-    EZ_TEST(sz == &s.GetData()[1]);
+    EZ_TEST_BOOL(sz == &s.GetData()[1]);
 
     ezUnicodeUtils::MoveToNextUtf8(sz);
-    EZ_TEST(sz == &s.GetData()[2]);
+    EZ_TEST_BOOL(sz == &s.GetData()[2]);
 
     ezUnicodeUtils::MoveToNextUtf8(sz);
-    EZ_TEST(sz == &s.GetData()[4]);
+    EZ_TEST_BOOL(sz == &s.GetData()[4]);
 
     ezUnicodeUtils::MoveToNextUtf8(sz);
-    EZ_TEST(sz == &s.GetData()[6]);
+    EZ_TEST_BOOL(sz == &s.GetData()[6]);
 
     ezUnicodeUtils::MoveToNextUtf8(sz);
-    EZ_TEST(sz == &s.GetData()[8]);
+    EZ_TEST_BOOL(sz == &s.GetData()[8]);
 
     ezUnicodeUtils::MoveToNextUtf8(sz);
-    EZ_TEST(sz == &s.GetData()[11]);
+    EZ_TEST_BOOL(sz == &s.GetData()[11]);
 
     ezUnicodeUtils::MoveToNextUtf8(sz);
-    EZ_TEST(sz == &s.GetData()[12]);
+    EZ_TEST_BOOL(sz == &s.GetData()[12]);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "MoveToPriorUtf8")
@@ -128,28 +128,28 @@ EZ_CREATE_SIMPLE_TEST(Strings, UnicodeUtils)
     // test how far it skips ahead
 
     ezUnicodeUtils::MoveToPriorUtf8(sz);
-    EZ_TEST(sz == &s.GetData()[12]);
+    EZ_TEST_BOOL(sz == &s.GetData()[12]);
 
     ezUnicodeUtils::MoveToPriorUtf8(sz);
-    EZ_TEST(sz == &s.GetData()[11]);
+    EZ_TEST_BOOL(sz == &s.GetData()[11]);
 
     ezUnicodeUtils::MoveToPriorUtf8(sz);
-    EZ_TEST(sz == &s.GetData()[8]);
+    EZ_TEST_BOOL(sz == &s.GetData()[8]);
 
     ezUnicodeUtils::MoveToPriorUtf8(sz);
-    EZ_TEST(sz == &s.GetData()[6]);
+    EZ_TEST_BOOL(sz == &s.GetData()[6]);
 
     ezUnicodeUtils::MoveToPriorUtf8(sz);
-    EZ_TEST(sz == &s.GetData()[4]);
+    EZ_TEST_BOOL(sz == &s.GetData()[4]);
 
     ezUnicodeUtils::MoveToPriorUtf8(sz);
-    EZ_TEST(sz == &s.GetData()[2]);
+    EZ_TEST_BOOL(sz == &s.GetData()[2]);
 
     ezUnicodeUtils::MoveToPriorUtf8(sz);
-    EZ_TEST(sz == &s.GetData()[1]);
+    EZ_TEST_BOOL(sz == &s.GetData()[1]);
 
     ezUnicodeUtils::MoveToPriorUtf8(sz);
-    EZ_TEST(sz == &s.GetData()[0]);
+    EZ_TEST_BOOL(sz == &s.GetData()[0]);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "SkipUtf8Bom")
@@ -160,13 +160,13 @@ EZ_CREATE_SIMPLE_TEST(Strings, UnicodeUtils)
     char szNoBom[] = { 'a' };
     const char* pString = szWithBom;
 
-    EZ_TEST(ezUnicodeUtils::SkipUtf8Bom(pString) == true);
-    EZ_TEST(pString == &szWithBom[3]);
+    EZ_TEST_BOOL(ezUnicodeUtils::SkipUtf8Bom(pString) == true);
+    EZ_TEST_BOOL(pString == &szWithBom[3]);
 
     pString = szNoBom;
 
-    EZ_TEST(ezUnicodeUtils::SkipUtf8Bom(pString) == false);
-    EZ_TEST(pString == szNoBom);
+    EZ_TEST_BOOL(ezUnicodeUtils::SkipUtf8Bom(pString) == false);
+    EZ_TEST_BOOL(pString == szNoBom);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "SkipUtf16BomLE")
@@ -176,13 +176,13 @@ EZ_CREATE_SIMPLE_TEST(Strings, UnicodeUtils)
 
     const ezUInt16* pString = szWithBom;
 
-    EZ_TEST(ezUnicodeUtils::SkipUtf16BomLE(pString) == true);
-    EZ_TEST(pString == &szWithBom[1]);
+    EZ_TEST_BOOL(ezUnicodeUtils::SkipUtf16BomLE(pString) == true);
+    EZ_TEST_BOOL(pString == &szWithBom[1]);
 
     pString = szNoBom;
 
-    EZ_TEST(ezUnicodeUtils::SkipUtf16BomLE(pString) == false);
-    EZ_TEST(pString == szNoBom);
+    EZ_TEST_BOOL(ezUnicodeUtils::SkipUtf16BomLE(pString) == false);
+    EZ_TEST_BOOL(pString == szNoBom);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "SkipUtf16BomBE")
@@ -192,13 +192,13 @@ EZ_CREATE_SIMPLE_TEST(Strings, UnicodeUtils)
 
     const ezUInt16* pString = szWithBom;
 
-    EZ_TEST(ezUnicodeUtils::SkipUtf16BomBE(pString) == true);
-    EZ_TEST(pString == &szWithBom[1]);
+    EZ_TEST_BOOL(ezUnicodeUtils::SkipUtf16BomBE(pString) == true);
+    EZ_TEST_BOOL(pString == &szWithBom[1]);
 
     pString = szNoBom;
 
-    EZ_TEST(ezUnicodeUtils::SkipUtf16BomBE(pString) == false);
-    EZ_TEST(pString == szNoBom);
+    EZ_TEST_BOOL(ezUnicodeUtils::SkipUtf16BomBE(pString) == false);
+    EZ_TEST_BOOL(pString == szNoBom);
   }
 }
 

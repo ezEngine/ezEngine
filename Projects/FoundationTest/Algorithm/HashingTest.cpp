@@ -68,5 +68,5 @@ EZ_CREATE_SIMPLE_TEST(Algorithm, HashableStruct)
   AutomaticInst.m_uiTestMember1 = 0x5u;
   uiAutomaticHash = AutomaticInst.CalculateHash();
 
-  EZ_TEST(uiAutomaticHash != uiNonAutomaticHash);
+  EZ_TEST_BOOL(uiAutomaticHash != uiNonAutomaticHash);
 }

@@ -66,22 +66,22 @@ EZ_CREATE_SIMPLE_TEST(Threading, ThreadLocalStorage)
     // Test simply accessing the main thread values first
 
     ezUInt32 uiVarIndex = ezThreadLocalStorage::AllocateSlot();
-    EZ_TEST(ezThreadLocalStorage::IsValidSlot(uiVarIndex));
+    EZ_TEST_BOOL(ezThreadLocalStorage::IsValidSlot(uiVarIndex));
 
     // The initial value should be NULL
-    EZ_TEST(ezThreadLocalStorage::GetValueForSlot(uiVarIndex) == NULL);
+    EZ_TEST_BOOL(ezThreadLocalStorage::GetValueForSlot(uiVarIndex) == NULL);
 
     // Place a pointer there
     void* pBogusPointer = reinterpret_cast<void*>(0xBAADF00D);
     ezThreadLocalStorage::SetValueForSlot(uiVarIndex, pBogusPointer);
 
-    EZ_TEST(ezThreadLocalStorage::GetValueForSlot(uiVarIndex) == pBogusPointer);
+    EZ_TEST_BOOL(ezThreadLocalStorage::GetValueForSlot(uiVarIndex) == pBogusPointer);
 
     // Now allocate another variable (should have another index)
     ezUInt32 uiOtherVarIndex = ezThreadLocalStorage::AllocateSlot();
-    EZ_TEST(ezThreadLocalStorage::IsValidSlot(uiVarIndex));
+    EZ_TEST_BOOL(ezThreadLocalStorage::IsValidSlot(uiVarIndex));
 
-    EZ_TEST(uiOtherVarIndex != uiVarIndex);
+    EZ_TEST_BOOL(uiOtherVarIndex != uiVarIndex);
     
     // And free the slots
     ezThreadLocalStorage::FreeSlot(uiVarIndex);
@@ -101,10 +101,10 @@ EZ_CREATE_SIMPLE_TEST(Threading, ThreadLocalStorage)
     g_TlsValue = &uiMainThreadValue;
 
     ezUInt32* pValueStoredInTLSVar = g_TlsValue;
-    EZ_TEST(pValueStoredInTLSVar != NULL);
-    EZ_TEST(pValueStoredInTLSVar == &uiMainThreadValue);
+    EZ_TEST_BOOL(pValueStoredInTLSVar != NULL);
+    EZ_TEST_BOOL(pValueStoredInTLSVar == &uiMainThreadValue);
 
-    EZ_TEST(*pValueStoredInTLSVar == uiCopyValue);
+    EZ_TEST_BOOL(*pValueStoredInTLSVar == uiCopyValue);
 
     ezStaticArray<TestThread*, EZ_THREAD_LOCAL_STORAGE_SLOT_COUNT * 2> TestThreads;
 
@@ -125,7 +125,7 @@ EZ_CREATE_SIMPLE_TEST(Threading, ThreadLocalStorage)
 
     for (ezUInt32 i = 0; i < EZ_THREAD_LOCAL_STORAGE_SLOT_COUNT * 2; ++i)
     {
-      EZ_TEST(TestThreads[i]->DidTestsCheckOut());
+      EZ_TEST_BOOL(TestThreads[i]->DidTestsCheckOut());
       EZ_DEFAULT_DELETE(TestThreads[i]);
     }
   }

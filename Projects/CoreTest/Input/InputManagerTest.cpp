@@ -87,10 +87,10 @@ EZ_CREATE_SIMPLE_TEST(Input, InputManager)
     ezInputManager::SetInputSlotDisplayName("test_slot_3", "Test Slot 3 Name");
     ezInputManager::SetInputSlotDisplayName("test_slot_4", "Test Slot 4 Name");
 
-    EZ_TEST(ezStringUtils::IsEqual(ezInputManager::GetInputSlotDisplayName("test_slot_1"), "Test Slot 1 Name"));
-    EZ_TEST(ezStringUtils::IsEqual(ezInputManager::GetInputSlotDisplayName("test_slot_2"), "Test Slot 2 Name"));
-    EZ_TEST(ezStringUtils::IsEqual(ezInputManager::GetInputSlotDisplayName("test_slot_3"), "Test Slot 3 Name"));
-    EZ_TEST(ezStringUtils::IsEqual(ezInputManager::GetInputSlotDisplayName("test_slot_4"), "Test Slot 4 Name"));
+    EZ_TEST_BOOL(ezStringUtils::IsEqual(ezInputManager::GetInputSlotDisplayName("test_slot_1"), "Test Slot 1 Name"));
+    EZ_TEST_BOOL(ezStringUtils::IsEqual(ezInputManager::GetInputSlotDisplayName("test_slot_2"), "Test Slot 2 Name"));
+    EZ_TEST_BOOL(ezStringUtils::IsEqual(ezInputManager::GetInputSlotDisplayName("test_slot_3"), "Test Slot 3 Name"));
+    EZ_TEST_BOOL(ezStringUtils::IsEqual(ezInputManager::GetInputSlotDisplayName("test_slot_4"), "Test Slot 4 Name"));
   }
 
   EZ_TEST_BLOCK(true, "SetInputSlotDeadZone / GetInputSlotDisplayName")
@@ -130,24 +130,24 @@ EZ_CREATE_SIMPLE_TEST(Input, InputManager)
     ezInputManager::SetInputActionConfig("test_inputset", "test_action_1", iac1, true);
     ezInputManager::SetInputActionConfig("test_inputset", "test_action_2", iac2, true);
 
-    EZ_TEST(ezInputManager::GetInputActionConfig("test_inputset", "test_action_1") == iac1);
-    EZ_TEST(ezInputManager::GetInputActionConfig("test_inputset", "test_action_2") == iac2);
+    EZ_TEST_BOOL(ezInputManager::GetInputActionConfig("test_inputset", "test_action_1") == iac1);
+    EZ_TEST_BOOL(ezInputManager::GetInputActionConfig("test_inputset", "test_action_2") == iac2);
 
     ezInputManager::SetInputActionConfig("test_inputset", "test_action_3", iac1, false);
     ezInputManager::SetInputActionConfig("test_inputset", "test_action_4", iac2, false);
 
-    EZ_TEST(ezInputManager::GetInputActionConfig("test_inputset", "test_action_1") == iac1);
-    EZ_TEST(ezInputManager::GetInputActionConfig("test_inputset", "test_action_2") == iac2);
-    EZ_TEST(ezInputManager::GetInputActionConfig("test_inputset", "test_action_3") == iac1);
-    EZ_TEST(ezInputManager::GetInputActionConfig("test_inputset", "test_action_4") == iac2);
+    EZ_TEST_BOOL(ezInputManager::GetInputActionConfig("test_inputset", "test_action_1") == iac1);
+    EZ_TEST_BOOL(ezInputManager::GetInputActionConfig("test_inputset", "test_action_2") == iac2);
+    EZ_TEST_BOOL(ezInputManager::GetInputActionConfig("test_inputset", "test_action_3") == iac1);
+    EZ_TEST_BOOL(ezInputManager::GetInputActionConfig("test_inputset", "test_action_4") == iac2);
 
     ezInputManager::SetInputActionConfig("test_inputset", "test_action_3", iac1, true);
     ezInputManager::SetInputActionConfig("test_inputset", "test_action_4", iac2, true);
 
-    EZ_TEST(ezInputManager::GetInputActionConfig("test_inputset", "test_action_1") != iac1);
-    EZ_TEST(ezInputManager::GetInputActionConfig("test_inputset", "test_action_2") != iac2);
-    EZ_TEST(ezInputManager::GetInputActionConfig("test_inputset", "test_action_3") == iac1);
-    EZ_TEST(ezInputManager::GetInputActionConfig("test_inputset", "test_action_4") == iac2);
+    EZ_TEST_BOOL(ezInputManager::GetInputActionConfig("test_inputset", "test_action_1") != iac1);
+    EZ_TEST_BOOL(ezInputManager::GetInputActionConfig("test_inputset", "test_action_2") != iac2);
+    EZ_TEST_BOOL(ezInputManager::GetInputActionConfig("test_inputset", "test_action_3") == iac1);
+    EZ_TEST_BOOL(ezInputManager::GetInputActionConfig("test_inputset", "test_action_4") == iac2);
 
 
     ezInputManager::RemoveInputAction("test_inputset", "test_action_1");
@@ -165,51 +165,51 @@ EZ_CREATE_SIMPLE_TEST(Input, InputManager)
     ezInputManager::SetInputSlotDeadZone("test_slot_1", 0.25f);
 
     // just check the first state
-    EZ_TEST(ezInputManager::GetInputSlotState("test_slot_1", &f) == ezKeyState::Up);
+    EZ_TEST_BOOL(ezInputManager::GetInputSlotState("test_slot_1", &f) == ezKeyState::Up);
     EZ_TEST_FLOAT(f, 0.0f, 0);
 
     // value is not yet propagated
     ezInputManager::InjectInputSlotValue("test_slot_1", 1.0f);
-    EZ_TEST(ezInputManager::GetInputSlotState("test_slot_1", &f) == ezKeyState::Up);
+    EZ_TEST_BOOL(ezInputManager::GetInputSlotState("test_slot_1", &f) == ezKeyState::Up);
     EZ_TEST_FLOAT(f, 0.0f, 0);
 
     ezInputManager::Update(ezTime::Seconds(1.0 / 60.0));
-    EZ_TEST(ezInputManager::GetInputSlotState("test_slot_1", &f) == ezKeyState::Pressed);
+    EZ_TEST_BOOL(ezInputManager::GetInputSlotState("test_slot_1", &f) == ezKeyState::Pressed);
     EZ_TEST_FLOAT(f, 1.0f, 0);
 
     ezInputManager::InjectInputSlotValue("test_slot_1", 0.5f);
 
     ezInputManager::Update(ezTime::Seconds(1.0 / 60.0));
-    EZ_TEST(ezInputManager::GetInputSlotState("test_slot_1", &f) == ezKeyState::Down);
+    EZ_TEST_BOOL(ezInputManager::GetInputSlotState("test_slot_1", &f) == ezKeyState::Down);
     EZ_TEST_FLOAT(f, 0.5f, 0);
 
     ezInputManager::InjectInputSlotValue("test_slot_1", 0.3f);
 
     ezInputManager::Update(ezTime::Seconds(1.0 / 60.0));
-    EZ_TEST(ezInputManager::GetInputSlotState("test_slot_1", &f) == ezKeyState::Down);
+    EZ_TEST_BOOL(ezInputManager::GetInputSlotState("test_slot_1", &f) == ezKeyState::Down);
     EZ_TEST_FLOAT(f, 0.3f, 0);
 
     // below dead zone value
     ezInputManager::InjectInputSlotValue("test_slot_1", 0.2f);
 
     ezInputManager::Update(ezTime::Seconds(1.0 / 60.0));
-    EZ_TEST(ezInputManager::GetInputSlotState("test_slot_1", &f) == ezKeyState::Released);
+    EZ_TEST_BOOL(ezInputManager::GetInputSlotState("test_slot_1", &f) == ezKeyState::Released);
     EZ_TEST_FLOAT(f, 0.0f, 0);
 
     ezInputManager::InjectInputSlotValue("test_slot_1", 0.5f);
 
     ezInputManager::Update(ezTime::Seconds(1.0 / 60.0));
-    EZ_TEST(ezInputManager::GetInputSlotState("test_slot_1", &f) == ezKeyState::Pressed);
+    EZ_TEST_BOOL(ezInputManager::GetInputSlotState("test_slot_1", &f) == ezKeyState::Pressed);
     EZ_TEST_FLOAT(f, 0.5f, 0);
 
     ezInputManager::Update(ezTime::Seconds(1.0 / 60.0));
-    EZ_TEST(ezInputManager::GetInputSlotState("test_slot_1", &f) == ezKeyState::Released);
+    EZ_TEST_BOOL(ezInputManager::GetInputSlotState("test_slot_1", &f) == ezKeyState::Released);
     EZ_TEST_FLOAT(f, 0.0f, 0);
 
     ezInputManager::InjectInputSlotValue("test_slot_1", 0.2f);
 
     ezInputManager::Update(ezTime::Seconds(1.0 / 60.0));
-    EZ_TEST(ezInputManager::GetInputSlotState("test_slot_1", &f) == ezKeyState::Up);
+    EZ_TEST_BOOL(ezInputManager::GetInputSlotState("test_slot_1", &f) == ezKeyState::Up);
     EZ_TEST_FLOAT(f, 0.0f, 0);
   }
 
@@ -220,10 +220,10 @@ EZ_CREATE_SIMPLE_TEST(Input, InputManager)
     ezInputManager::SetActionDisplayName("test_action_3", "Test Action 3 Name");
     ezInputManager::SetActionDisplayName("test_action_4", "Test Action 4 Name");
 
-    EZ_TEST(ezStringUtils::IsEqual(ezInputManager::GetActionDisplayName("test_action_1"), "Test Action 1 Name"));
-    EZ_TEST(ezStringUtils::IsEqual(ezInputManager::GetActionDisplayName("test_action_2"), "Test Action 2 Name"));
-    EZ_TEST(ezStringUtils::IsEqual(ezInputManager::GetActionDisplayName("test_action_3"), "Test Action 3 Name"));
-    EZ_TEST(ezStringUtils::IsEqual(ezInputManager::GetActionDisplayName("test_action_4"), "Test Action 4 Name"));
+    EZ_TEST_BOOL(ezStringUtils::IsEqual(ezInputManager::GetActionDisplayName("test_action_1"), "Test Action 1 Name"));
+    EZ_TEST_BOOL(ezStringUtils::IsEqual(ezInputManager::GetActionDisplayName("test_action_2"), "Test Action 2 Name"));
+    EZ_TEST_BOOL(ezStringUtils::IsEqual(ezInputManager::GetActionDisplayName("test_action_3"), "Test Action 3 Name"));
+    EZ_TEST_BOOL(ezStringUtils::IsEqual(ezInputManager::GetActionDisplayName("test_action_4"), "Test Action 4 Name"));
   }
 
 
@@ -251,7 +251,7 @@ EZ_CREATE_SIMPLE_TEST(Input, InputManager)
 
     ezInputManager::GetAllInputActions("test_inputset_3", InputActions);
 
-    EZ_TEST(InputActions.IsEmpty());
+    EZ_TEST_BOOL(InputActions.IsEmpty());
 
     ezInputActionConfig iac;
     ezInputManager::SetInputActionConfig("test_inputset_3", "test_action_1", iac, true);
@@ -281,7 +281,7 @@ EZ_CREATE_SIMPLE_TEST(Input, InputManager)
 
     ezInputManager::GetAllInputActions("test_inputset_3", InputActions);
 
-    EZ_TEST(InputActions.IsEmpty());
+    EZ_TEST_BOOL(InputActions.IsEmpty());
   }
 
   EZ_TEST_BLOCK(true, "Input Action State Changes")
@@ -304,16 +304,16 @@ EZ_CREATE_SIMPLE_TEST(Input, InputManager)
 
     float f = 0;
     ezInt8 iSlot = 0;
-    EZ_TEST(ezInputManager::GetInputActionState("test_inputset", "test_action", &f, &iSlot) == ezKeyState::Up);
-    EZ_TEST(ezInputManager::GetInputActionState("test_inputset", "test_action_2", &f, &iSlot) == ezKeyState::Up);
+    EZ_TEST_BOOL(ezInputManager::GetInputActionState("test_inputset", "test_action", &f, &iSlot) == ezKeyState::Up);
+    EZ_TEST_BOOL(ezInputManager::GetInputActionState("test_inputset", "test_action_2", &f, &iSlot) == ezKeyState::Up);
 
     ezInputManager::Update(ezTime::Seconds(1.0 / 60.0));
 
-    EZ_TEST(ezInputManager::GetInputActionState("test_inputset", "test_action", &f, &iSlot) == ezKeyState::Pressed);
+    EZ_TEST_BOOL(ezInputManager::GetInputActionState("test_inputset", "test_action", &f, &iSlot) == ezKeyState::Pressed);
     EZ_TEST_INT(iSlot, 1);
     EZ_TEST_FLOAT(f, 1.0f, 0.0f);
 
-    EZ_TEST(ezInputManager::GetInputActionState("test_inputset", "test_action_2", &f, &iSlot) == ezKeyState::Pressed);
+    EZ_TEST_BOOL(ezInputManager::GetInputActionState("test_inputset", "test_action_2", &f, &iSlot) == ezKeyState::Pressed);
     EZ_TEST_INT(iSlot, 1);
     EZ_TEST_FLOAT(f, 1.0f, 0.0f);
 
@@ -324,11 +324,11 @@ EZ_CREATE_SIMPLE_TEST(Input, InputManager)
 
     ezInputManager::Update(ezTime::Seconds(1.0 / 60.0));
 
-    EZ_TEST(ezInputManager::GetInputActionState("test_inputset", "test_action", &f, &iSlot) == ezKeyState::Down);
+    EZ_TEST_BOOL(ezInputManager::GetInputActionState("test_inputset", "test_action", &f, &iSlot) == ezKeyState::Down);
     EZ_TEST_INT(iSlot, 1); // still the same slot that 'triggered' the action
     EZ_TEST_FLOAT(f, 1.0f, 0.0f);
 
-    EZ_TEST(ezInputManager::GetInputActionState("test_inputset", "test_action_2", &f, &iSlot) == ezKeyState::Down);
+    EZ_TEST_BOOL(ezInputManager::GetInputActionState("test_inputset", "test_action_2", &f, &iSlot) == ezKeyState::Down);
     EZ_TEST_INT(iSlot, 1); // still the same slot that 'triggered' the action
     EZ_TEST_FLOAT(f, 1.0f, 0.0f);
 
@@ -337,38 +337,38 @@ EZ_CREATE_SIMPLE_TEST(Input, InputManager)
 
     ezInputManager::Update(ezTime::Seconds(1.0 / 60.0));
 
-    EZ_TEST(ezInputManager::GetInputActionState("test_inputset", "test_action", &f, &iSlot) == ezKeyState::Released);
-    EZ_TEST(ezInputManager::GetInputActionState("test_inputset", "test_action_2", &f, &iSlot) == ezKeyState::Released);
+    EZ_TEST_BOOL(ezInputManager::GetInputActionState("test_inputset", "test_action", &f, &iSlot) == ezKeyState::Released);
+    EZ_TEST_BOOL(ezInputManager::GetInputActionState("test_inputset", "test_action_2", &f, &iSlot) == ezKeyState::Released);
 
     ezInputManager::InjectInputSlotValue("test_input_slot_1", 1.0f);
     ezInputManager::InjectInputSlotValue("test_input_slot_3", 1.0f);
 
     ezInputManager::Update(ezTime::Seconds(1.0 / 60.0));
 
-    EZ_TEST(ezInputManager::GetInputActionState("test_inputset", "test_action", &f, &iSlot) == ezKeyState::Up);
-    EZ_TEST(ezInputManager::GetInputActionState("test_inputset", "test_action_2", &f, &iSlot) == ezKeyState::Up);
+    EZ_TEST_BOOL(ezInputManager::GetInputActionState("test_inputset", "test_action", &f, &iSlot) == ezKeyState::Up);
+    EZ_TEST_BOOL(ezInputManager::GetInputActionState("test_inputset", "test_action_2", &f, &iSlot) == ezKeyState::Up);
 
     ezInputManager::InjectInputSlotValue("test_input_slot_3", 1.0f);
 
     ezInputManager::Update(ezTime::Seconds(1.0 / 60.0));
 
-    EZ_TEST(ezInputManager::GetInputActionState("test_inputset", "test_action", &f, &iSlot) == ezKeyState::Pressed);
+    EZ_TEST_BOOL(ezInputManager::GetInputActionState("test_inputset", "test_action", &f, &iSlot) == ezKeyState::Pressed);
     EZ_TEST_INT(iSlot, 2);
     EZ_TEST_FLOAT(f, 1.0f, 0.0f);
 
-    EZ_TEST(ezInputManager::GetInputActionState("test_inputset", "test_action_2", &f, &iSlot) == ezKeyState::Pressed);
+    EZ_TEST_BOOL(ezInputManager::GetInputActionState("test_inputset", "test_action_2", &f, &iSlot) == ezKeyState::Pressed);
     EZ_TEST_INT(iSlot, 2);
     EZ_TEST_FLOAT(f, 1.0f, 0.0f);
 
     ezInputManager::Update(ezTime::Seconds(1.0 / 60.0));
 
-    EZ_TEST(ezInputManager::GetInputActionState("test_inputset", "test_action", &f, &iSlot) == ezKeyState::Released);
-    EZ_TEST(ezInputManager::GetInputActionState("test_inputset", "test_action_2", &f, &iSlot) == ezKeyState::Released);
+    EZ_TEST_BOOL(ezInputManager::GetInputActionState("test_inputset", "test_action", &f, &iSlot) == ezKeyState::Released);
+    EZ_TEST_BOOL(ezInputManager::GetInputActionState("test_inputset", "test_action_2", &f, &iSlot) == ezKeyState::Released);
 
     ezInputManager::Update(ezTime::Seconds(1.0 / 60.0));
 
-    EZ_TEST(ezInputManager::GetInputActionState("test_inputset", "test_action", &f, &iSlot) == ezKeyState::Up);
-    EZ_TEST(ezInputManager::GetInputActionState("test_inputset", "test_action_2", &f, &iSlot) == ezKeyState::Up);
+    EZ_TEST_BOOL(ezInputManager::GetInputActionState("test_inputset", "test_action", &f, &iSlot) == ezKeyState::Up);
+    EZ_TEST_BOOL(ezInputManager::GetInputActionState("test_inputset", "test_action_2", &f, &iSlot) == ezKeyState::Up);
   }
 
   EZ_TEST_BLOCK(true, "GetPressedInputSlot")
@@ -376,17 +376,17 @@ EZ_CREATE_SIMPLE_TEST(Input, InputManager)
     ezInputManager::Update(ezTime::Seconds(1.0 / 60.0));
 
     const char* szSlot = ezInputManager::GetPressedInputSlot(ezInputSlotFlags::None, ezInputSlotFlags::None);
-    EZ_TEST(ezStringUtils::IsNullOrEmpty(szSlot));
+    EZ_TEST_BOOL(ezStringUtils::IsNullOrEmpty(szSlot));
 
     ezInputManager::InjectInputSlotValue("test_slot", 1.0f);
 
     szSlot = ezInputManager::GetPressedInputSlot(ezInputSlotFlags::None, ezInputSlotFlags::None);
-    EZ_TEST(ezStringUtils::IsEqual(szSlot, ""));
+    EZ_TEST_BOOL(ezStringUtils::IsEqual(szSlot, ""));
 
     ezInputManager::Update(ezTime::Seconds(1.0 / 60.0));
 
     szSlot = ezInputManager::GetPressedInputSlot(ezInputSlotFlags::None, ezInputSlotFlags::None);
-    EZ_TEST(ezStringUtils::IsEqual(szSlot, "test_slot"));
+    EZ_TEST_BOOL(ezStringUtils::IsEqual(szSlot, "test_slot"));
 
 
     {
@@ -398,32 +398,32 @@ EZ_CREATE_SIMPLE_TEST(Input, InputManager)
       ezInputManager::Update(ezTime::Seconds(1.0 / 60.0));
 
       szSlot = ezInputManager::GetPressedInputSlot(ezInputSlotFlags::IsButton, ezInputSlotFlags::None);
-      EZ_TEST(ezStringUtils::IsEqual(szSlot, "testdevice_button"));
+      EZ_TEST_BOOL(ezStringUtils::IsEqual(szSlot, "testdevice_button"));
 
       szSlot = ezInputManager::GetPressedInputSlot(ezInputSlotFlags::IsAnalogStick, ezInputSlotFlags::None);
-      EZ_TEST(ezStringUtils::IsEqual(szSlot, "testdevice_stick"));
+      EZ_TEST_BOOL(ezStringUtils::IsEqual(szSlot, "testdevice_stick"));
 
       szSlot = ezInputManager::GetPressedInputSlot(ezInputSlotFlags::IsMouseWheel, ezInputSlotFlags::None);
-      EZ_TEST(ezStringUtils::IsEqual(szSlot, "testdevice_wheel"));
+      EZ_TEST_BOOL(ezStringUtils::IsEqual(szSlot, "testdevice_wheel"));
 
       szSlot = ezInputManager::GetPressedInputSlot(ezInputSlotFlags::IsTouchPoint, ezInputSlotFlags::None);
-      EZ_TEST(ezStringUtils::IsEqual(szSlot, "testdevice_touchpoint"));
+      EZ_TEST_BOOL(ezStringUtils::IsEqual(szSlot, "testdevice_touchpoint"));
 
       ezInputManager::InjectInputSlotValue("test_slot", 1.0f);
 
       ezInputManager::Update(ezTime::Seconds(1.0 / 60.0));
 
       szSlot = ezInputManager::GetPressedInputSlot(ezInputSlotFlags::IsButton, ezInputSlotFlags::None);
-      EZ_TEST(ezStringUtils::IsEqual(szSlot, ""));
+      EZ_TEST_BOOL(ezStringUtils::IsEqual(szSlot, ""));
 
       szSlot = ezInputManager::GetPressedInputSlot(ezInputSlotFlags::IsAnalogStick, ezInputSlotFlags::None);
-      EZ_TEST(ezStringUtils::IsEqual(szSlot, ""));
+      EZ_TEST_BOOL(ezStringUtils::IsEqual(szSlot, ""));
 
       szSlot = ezInputManager::GetPressedInputSlot(ezInputSlotFlags::IsMouseWheel, ezInputSlotFlags::None);
-      EZ_TEST(ezStringUtils::IsEqual(szSlot, ""));
+      EZ_TEST_BOOL(ezStringUtils::IsEqual(szSlot, ""));
 
       szSlot = ezInputManager::GetPressedInputSlot(ezInputSlotFlags::IsTouchPoint, ezInputSlotFlags::None);
-      EZ_TEST(ezStringUtils::IsEqual(szSlot, ""));
+      EZ_TEST_BOOL(ezStringUtils::IsEqual(szSlot, ""));
     }
   }
 
@@ -432,13 +432,13 @@ EZ_CREATE_SIMPLE_TEST(Input, InputManager)
     ezTestInputDevide dev;
     dev.ActivateAll();
 
-    EZ_TEST(ezInputManager::RetrieveLastCharacter(true) == '\0');
+    EZ_TEST_BOOL(ezInputManager::RetrieveLastCharacter(true) == '\0');
 
     ezInputManager::Update(ezTime::Seconds(1.0 / 60.0));
 
-    EZ_TEST(ezInputManager::RetrieveLastCharacter(false) == '\42');
-    EZ_TEST(ezInputManager::RetrieveLastCharacter(true) == '\42');
-    EZ_TEST(ezInputManager::RetrieveLastCharacter(true) == '\0');
+    EZ_TEST_BOOL(ezInputManager::RetrieveLastCharacter(false) == '\42');
+    EZ_TEST_BOOL(ezInputManager::RetrieveLastCharacter(true) == '\42');
+    EZ_TEST_BOOL(ezInputManager::RetrieveLastCharacter(true) == '\0');
   }
 
   EZ_TEST_BLOCK(true, "Time Scaling")
@@ -492,10 +492,10 @@ EZ_CREATE_SIMPLE_TEST(Input, InputManager)
     ezTestInputDevide dev;
     ezInputManager::Update(ezTime::Seconds(1.0 / 30.0));
 
-    EZ_TEST(ezInputManager::GetInputSlotFlags("testdevice_button") == ezInputSlotFlags::IsButton);
-    EZ_TEST(ezInputManager::GetInputSlotFlags("testdevice_stick") == ezInputSlotFlags::IsAnalogStick);
-    EZ_TEST(ezInputManager::GetInputSlotFlags("testdevice_wheel") == ezInputSlotFlags::IsMouseWheel);
-    EZ_TEST(ezInputManager::GetInputSlotFlags("testdevice_touchpoint") == ezInputSlotFlags::IsTouchPoint);
+    EZ_TEST_BOOL(ezInputManager::GetInputSlotFlags("testdevice_button") == ezInputSlotFlags::IsButton);
+    EZ_TEST_BOOL(ezInputManager::GetInputSlotFlags("testdevice_stick") == ezInputSlotFlags::IsAnalogStick);
+    EZ_TEST_BOOL(ezInputManager::GetInputSlotFlags("testdevice_wheel") == ezInputSlotFlags::IsMouseWheel);
+    EZ_TEST_BOOL(ezInputManager::GetInputSlotFlags("testdevice_touchpoint") == ezInputSlotFlags::IsTouchPoint);
   }
 
   EZ_TEST_BLOCK(true, "ClearInputMapping")

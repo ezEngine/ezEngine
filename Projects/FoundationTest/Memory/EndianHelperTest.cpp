@@ -28,15 +28,15 @@ EZ_CREATE_SIMPLE_TEST(Memory, Endian)
   {
     // Test if the IsBigEndian() delivers the same result as the #define
     #if EZ_ENABLED(EZ_PLATFORM_LITTLE_ENDIAN)
-      EZ_TEST(!ezEndianHelper::IsBigEndian());
+      EZ_TEST_BOOL(!ezEndianHelper::IsBigEndian());
     #elif EZ_ENABLED(EZ_PLATFORM_BIG_ENDIAN)
-      EZ_TEST(ezEndianHelper::IsBigEndian());
+      EZ_TEST_BOOL(ezEndianHelper::IsBigEndian());
     #endif
 
     // Test conversion functions for single elements
-    EZ_TEST(ezEndianHelper::Switch(static_cast<ezUInt16>(0x15FF)) == 0xFF15);
-    EZ_TEST(ezEndianHelper::Switch(static_cast<ezUInt32>(0x34AA12FF)) == 0xFF12AA34);
-    EZ_TEST(ezEndianHelper::Switch(static_cast<ezUInt64>(0x34AA12FFABC3421E)) == 0x1E42C3ABFF12AA34);
+    EZ_TEST_BOOL(ezEndianHelper::Switch(static_cast<ezUInt16>(0x15FF)) == 0xFF15);
+    EZ_TEST_BOOL(ezEndianHelper::Switch(static_cast<ezUInt32>(0x34AA12FF)) == 0xFF12AA34);
+    EZ_TEST_BOOL(ezEndianHelper::Switch(static_cast<ezUInt64>(0x34AA12FFABC3421E)) == 0x1E42C3ABFF12AA34);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Switching Arrays")
@@ -68,19 +68,19 @@ EZ_CREATE_SIMPLE_TEST(Memory, Endian)
 
     for (ezUInt32 i = 0; i < 1024; i++)
     {
-      EZ_TEST(p16BitArray[i] == ezEndianHelper::Switch(p16BitArrayCopy[i]));
-      EZ_TEST(p32BitArray[i] == ezEndianHelper::Switch(p32BitArrayCopy[i]));
-      EZ_TEST(p64BitArray[i] == ezEndianHelper::Switch(p64BitArrayCopy[i]));
+      EZ_TEST_BOOL(p16BitArray[i] == ezEndianHelper::Switch(p16BitArrayCopy[i]));
+      EZ_TEST_BOOL(p32BitArray[i] == ezEndianHelper::Switch(p32BitArrayCopy[i]));
+      EZ_TEST_BOOL(p64BitArray[i] == ezEndianHelper::Switch(p64BitArrayCopy[i]));
 
       // Test in place switcher
       ezEndianHelper::SwitchInPlace(&p16BitArrayCopy[i]);
-      EZ_TEST(p16BitArray[i] == p16BitArrayCopy[i]);
+      EZ_TEST_BOOL(p16BitArray[i] == p16BitArrayCopy[i]);
 
       ezEndianHelper::SwitchInPlace(&p32BitArrayCopy[i]);
-      EZ_TEST(p32BitArray[i] == p32BitArrayCopy[i]);
+      EZ_TEST_BOOL(p32BitArray[i] == p32BitArrayCopy[i]);
 
       ezEndianHelper::SwitchInPlace(&p64BitArrayCopy[i]);
-      EZ_TEST(p64BitArray[i] == p64BitArrayCopy[i]);
+      EZ_TEST_BOOL(p64BitArray[i] == p64BitArrayCopy[i]);
     }
 
 
@@ -106,14 +106,14 @@ EZ_CREATE_SIMPLE_TEST(Memory, Endian)
     ezIntFloatUnion floatHelper2;
     floatHelper2.f = instance.fVal;
 
-    EZ_TEST(floatHelper2.i == ezEndianHelper::Switch(floatHelper.i));
-    EZ_TEST(instance.uiDVal == ezEndianHelper::Switch(static_cast<ezUInt32>(0x34AA12FF)));
-    EZ_TEST(instance.uiWVal1 == ezEndianHelper::Switch(static_cast<ezUInt16>(0x15FF)));
-    EZ_TEST(instance.uiWVal2 == ezEndianHelper::Switch(static_cast<ezUInt16>(0x23FF)));
-    EZ_TEST(instance.pad[0] == 'E');
-    EZ_TEST(instance.pad[1] == 'Z');
-    EZ_TEST(instance.pad[2] == 'F');
-    EZ_TEST(instance.pad[3] == 'T');
+    EZ_TEST_BOOL(floatHelper2.i == ezEndianHelper::Switch(floatHelper.i));
+    EZ_TEST_BOOL(instance.uiDVal == ezEndianHelper::Switch(static_cast<ezUInt32>(0x34AA12FF)));
+    EZ_TEST_BOOL(instance.uiWVal1 == ezEndianHelper::Switch(static_cast<ezUInt16>(0x15FF)));
+    EZ_TEST_BOOL(instance.uiWVal2 == ezEndianHelper::Switch(static_cast<ezUInt16>(0x23FF)));
+    EZ_TEST_BOOL(instance.pad[0] == 'E');
+    EZ_TEST_BOOL(instance.pad[1] == 'Z');
+    EZ_TEST_BOOL(instance.pad[2] == 'F');
+    EZ_TEST_BOOL(instance.pad[3] == 'T');
   }
 }
 

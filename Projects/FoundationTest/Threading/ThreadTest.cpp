@@ -58,8 +58,8 @@ EZ_CREATE_SIMPLE_TEST(Threading, Thread)
     {
     }
 
-    EZ_TEST(pTestThread != NULL);
-    EZ_TEST(pTestThread2 != NULL);
+    EZ_TEST_BOOL(pTestThread != NULL);
+    EZ_TEST_BOOL(pTestThread2 != NULL);
 
     // Both thread will increment the global variable via atomic operations
     pTestThread->Start();
@@ -92,7 +92,7 @@ EZ_CREATE_SIMPLE_TEST(Threading, Thread)
     const ezTime duration = stop - start;
 
     // We test for 0.25 - 0.35 since the threading functions are a bit varying in their precision
-    EZ_TEST(duration.GetSeconds() > 0.25);
-    EZ_TEST_MSG(duration.GetSeconds() < 1.0, "This test can fail when the machine is under too much load and blocks the process for too long.");
+    EZ_TEST_BOOL(duration.GetSeconds() > 0.25);
+    EZ_TEST_BOOL_MSG(duration.GetSeconds() < 1.0, "This test can fail when the machine is under too much load and blocks the process for too long.");
   }
 }

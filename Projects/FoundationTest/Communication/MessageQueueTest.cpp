@@ -78,11 +78,11 @@ EZ_CREATE_SIMPLE_TEST(Communication, MessageQueue)
 
       if (md.receiver == lastMd.receiver)
       {
-        EZ_TEST(pMsg->GetHash() >= pLastMsg->GetHash());
+        EZ_TEST_BOOL(pMsg->GetHash() >= pLastMsg->GetHash());
       }
       else
       {
-        EZ_TEST(md.receiver >= lastMd.receiver);
+        EZ_TEST_BOOL(md.receiver >= lastMd.receiver);
       }
     }
   }

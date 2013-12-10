@@ -99,34 +99,34 @@ EZ_CREATE_SIMPLE_TEST(Utility, CommandLineUtils)
     CmdLn.SetCommandLine(argc, argv);
 
     // case sensitive and wrong
-    EZ_TEST(CmdLn.GetBoolOption("-test1", true)  == true);
-    EZ_TEST(CmdLn.GetBoolOption("-test1", false) == false);
+    EZ_TEST_BOOL(CmdLn.GetBoolOption("-test1", true)  == true);
+    EZ_TEST_BOOL(CmdLn.GetBoolOption("-test1", false) == false);
 
-    EZ_TEST(CmdLn.GetBoolOption("-test2", true)  == true);
-    EZ_TEST(CmdLn.GetBoolOption("-test2", false) == false);
+    EZ_TEST_BOOL(CmdLn.GetBoolOption("-test2", true)  == true);
+    EZ_TEST_BOOL(CmdLn.GetBoolOption("-test2", false) == false);
 
     // case insensitive and wrong
-    EZ_TEST(CmdLn.GetBoolOption("-test1", true, false)  == true);
-    EZ_TEST(CmdLn.GetBoolOption("-test1", false, false) == true);
+    EZ_TEST_BOOL(CmdLn.GetBoolOption("-test1", true, false)  == true);
+    EZ_TEST_BOOL(CmdLn.GetBoolOption("-test1", false, false) == true);
 
-    EZ_TEST(CmdLn.GetBoolOption("-test2", true, false)  == false);
-    EZ_TEST(CmdLn.GetBoolOption("-test2", false, false) == false);
+    EZ_TEST_BOOL(CmdLn.GetBoolOption("-test2", true, false)  == false);
+    EZ_TEST_BOOL(CmdLn.GetBoolOption("-test2", false, false) == false);
 
     // case sensitive and correct
-    EZ_TEST(CmdLn.GetBoolOption("-Test1", true)  == true);
-    EZ_TEST(CmdLn.GetBoolOption("-Test1", false) == true);
+    EZ_TEST_BOOL(CmdLn.GetBoolOption("-Test1", true)  == true);
+    EZ_TEST_BOOL(CmdLn.GetBoolOption("-Test1", false) == true);
 
-    EZ_TEST(CmdLn.GetBoolOption("-Test2", true)  == false);
-    EZ_TEST(CmdLn.GetBoolOption("-Test2", false) == false);
+    EZ_TEST_BOOL(CmdLn.GetBoolOption("-Test2", true)  == false);
+    EZ_TEST_BOOL(CmdLn.GetBoolOption("-Test2", false) == false);
 
-    EZ_TEST(CmdLn.GetBoolOption("-Test3", true)  == true);
-    EZ_TEST(CmdLn.GetBoolOption("-Test3", false) == true);
+    EZ_TEST_BOOL(CmdLn.GetBoolOption("-Test3", true)  == true);
+    EZ_TEST_BOOL(CmdLn.GetBoolOption("-Test3", false) == true);
 
-    EZ_TEST(CmdLn.GetBoolOption("-Test4", true)  == true);
-    EZ_TEST(CmdLn.GetBoolOption("-Test4", false) == true);
+    EZ_TEST_BOOL(CmdLn.GetBoolOption("-Test4", true)  == true);
+    EZ_TEST_BOOL(CmdLn.GetBoolOption("-Test4", false) == true);
 
-    EZ_TEST(CmdLn.GetBoolOption("-Test5", true)  == true);
-    EZ_TEST(CmdLn.GetBoolOption("-Test5", false) == true);
+    EZ_TEST_BOOL(CmdLn.GetBoolOption("-Test5", true)  == true);
+    EZ_TEST_BOOL(CmdLn.GetBoolOption("-Test5", false) == true);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetIntOption")

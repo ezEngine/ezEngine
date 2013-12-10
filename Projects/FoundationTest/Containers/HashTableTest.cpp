@@ -49,8 +49,8 @@ EZ_CREATE_SIMPLE_TEST(Containers, HashTable)
   {
     ezHashTable<ezInt32, st> table1;
 
-    EZ_TEST(table1.GetCount() == 0);
-    EZ_TEST(table1.IsEmpty());
+    EZ_TEST_BOOL(table1.GetCount() == 0);
+    EZ_TEST_BOOL(table1.IsEmpty());
 
     ezUInt32 counter = 0;
     for (ezHashTable<ezInt32, st>::ConstIterator it = table1.GetIterator(); it.IsValid(); ++it)
@@ -93,11 +93,11 @@ EZ_CREATE_SIMPLE_TEST(Containers, HashTable)
     {
       ezConstructionCounter value;
 
-      EZ_TEST(table2.TryGetValue(it.Key(), value));
-      EZ_TEST(it.Value() == value);
+      EZ_TEST_BOOL(table2.TryGetValue(it.Key(), value));
+      EZ_TEST_BOOL(it.Value() == value);
 
-      EZ_TEST(table3.TryGetValue(it.Key(), value));
-      EZ_TEST(it.Value() == value);
+      EZ_TEST_BOOL(table3.TryGetValue(it.Key(), value));
+      EZ_TEST_BOOL(it.Value() == value);
 
       ++uiCounter;
     }
@@ -112,9 +112,9 @@ EZ_CREATE_SIMPLE_TEST(Containers, HashTable)
     {
       ezConstructionCounter value;
 
-      EZ_TEST(table1.TryGetValue(it.Key(), value));
-      EZ_TEST(it.Value() == value);
-      EZ_TEST(value.m_iData == 42);
+      EZ_TEST_BOOL(table1.TryGetValue(it.Key(), value));
+      EZ_TEST_BOOL(it.Value() == value);
+      EZ_TEST_BOOL(value.m_iData == 42);
     }
   }
 
@@ -129,110 +129,110 @@ EZ_CREATE_SIMPLE_TEST(Containers, HashTable)
     map2[Collision(1, 4)] = 4;
     map2[Collision(0, 5)] = 5;
 
-    EZ_TEST(map2[Collision(0, 0)] == 0);
-    EZ_TEST(map2[Collision(1, 1)] == 1);
-    EZ_TEST(map2[Collision(0, 2)] == 2);
-    EZ_TEST(map2[Collision(1, 3)] == 3);
-    EZ_TEST(map2[Collision(1, 4)] == 4);
-    EZ_TEST(map2[Collision(0, 5)] == 5);
+    EZ_TEST_BOOL(map2[Collision(0, 0)] == 0);
+    EZ_TEST_BOOL(map2[Collision(1, 1)] == 1);
+    EZ_TEST_BOOL(map2[Collision(0, 2)] == 2);
+    EZ_TEST_BOOL(map2[Collision(1, 3)] == 3);
+    EZ_TEST_BOOL(map2[Collision(1, 4)] == 4);
+    EZ_TEST_BOOL(map2[Collision(0, 5)] == 5);
 
-    EZ_TEST(map2.KeyExists(Collision(0, 0)));
-    EZ_TEST(map2.KeyExists(Collision(1, 1)));
-    EZ_TEST(map2.KeyExists(Collision(0, 2)));
-    EZ_TEST(map2.KeyExists(Collision(1, 3)));
-    EZ_TEST(map2.KeyExists(Collision(1, 4)));
-    EZ_TEST(map2.KeyExists(Collision(0, 5)));
+    EZ_TEST_BOOL(map2.KeyExists(Collision(0, 0)));
+    EZ_TEST_BOOL(map2.KeyExists(Collision(1, 1)));
+    EZ_TEST_BOOL(map2.KeyExists(Collision(0, 2)));
+    EZ_TEST_BOOL(map2.KeyExists(Collision(1, 3)));
+    EZ_TEST_BOOL(map2.KeyExists(Collision(1, 4)));
+    EZ_TEST_BOOL(map2.KeyExists(Collision(0, 5)));
 
-    EZ_TEST(map2.Remove(Collision(0, 0)));
-    EZ_TEST(map2.Remove(Collision(1, 1)));
+    EZ_TEST_BOOL(map2.Remove(Collision(0, 0)));
+    EZ_TEST_BOOL(map2.Remove(Collision(1, 1)));
 
-    EZ_TEST(map2[Collision(0, 2)] == 2);
-    EZ_TEST(map2[Collision(1, 3)] == 3);
-    EZ_TEST(map2[Collision(1, 4)] == 4);
-    EZ_TEST(map2[Collision(0, 5)] == 5);
+    EZ_TEST_BOOL(map2[Collision(0, 2)] == 2);
+    EZ_TEST_BOOL(map2[Collision(1, 3)] == 3);
+    EZ_TEST_BOOL(map2[Collision(1, 4)] == 4);
+    EZ_TEST_BOOL(map2[Collision(0, 5)] == 5);
 
-    EZ_TEST(!map2.KeyExists(Collision(0, 0)));
-    EZ_TEST(!map2.KeyExists(Collision(1, 1)));
-    EZ_TEST(map2.KeyExists(Collision(0, 2)));
-    EZ_TEST(map2.KeyExists(Collision(1, 3)));
-    EZ_TEST(map2.KeyExists(Collision(1, 4)));
-    EZ_TEST(map2.KeyExists(Collision(0, 5)));
+    EZ_TEST_BOOL(!map2.KeyExists(Collision(0, 0)));
+    EZ_TEST_BOOL(!map2.KeyExists(Collision(1, 1)));
+    EZ_TEST_BOOL(map2.KeyExists(Collision(0, 2)));
+    EZ_TEST_BOOL(map2.KeyExists(Collision(1, 3)));
+    EZ_TEST_BOOL(map2.KeyExists(Collision(1, 4)));
+    EZ_TEST_BOOL(map2.KeyExists(Collision(0, 5)));
 
     map2[Collision(0, 6)] = 6;
     map2[Collision(1, 7)] = 7;
 
-    EZ_TEST(map2[Collision(0, 2)] == 2);
-    EZ_TEST(map2[Collision(1, 3)] == 3);
-    EZ_TEST(map2[Collision(1, 4)] == 4);
-    EZ_TEST(map2[Collision(0, 5)] == 5);
-    EZ_TEST(map2[Collision(0, 6)] == 6);
-    EZ_TEST(map2[Collision(1, 7)] == 7);
+    EZ_TEST_BOOL(map2[Collision(0, 2)] == 2);
+    EZ_TEST_BOOL(map2[Collision(1, 3)] == 3);
+    EZ_TEST_BOOL(map2[Collision(1, 4)] == 4);
+    EZ_TEST_BOOL(map2[Collision(0, 5)] == 5);
+    EZ_TEST_BOOL(map2[Collision(0, 6)] == 6);
+    EZ_TEST_BOOL(map2[Collision(1, 7)] == 7);
 
-    EZ_TEST(map2.KeyExists(Collision(0, 2)));
-    EZ_TEST(map2.KeyExists(Collision(1, 3)));
-    EZ_TEST(map2.KeyExists(Collision(1, 4)));
-    EZ_TEST(map2.KeyExists(Collision(0, 5)));
-    EZ_TEST(map2.KeyExists(Collision(0, 6)));
-    EZ_TEST(map2.KeyExists(Collision(1, 7)));
+    EZ_TEST_BOOL(map2.KeyExists(Collision(0, 2)));
+    EZ_TEST_BOOL(map2.KeyExists(Collision(1, 3)));
+    EZ_TEST_BOOL(map2.KeyExists(Collision(1, 4)));
+    EZ_TEST_BOOL(map2.KeyExists(Collision(0, 5)));
+    EZ_TEST_BOOL(map2.KeyExists(Collision(0, 6)));
+    EZ_TEST_BOOL(map2.KeyExists(Collision(1, 7)));
 
-    EZ_TEST(map2.Remove(Collision(1, 4)));
-    EZ_TEST(map2.Remove(Collision(0, 6)));
+    EZ_TEST_BOOL(map2.Remove(Collision(1, 4)));
+    EZ_TEST_BOOL(map2.Remove(Collision(0, 6)));
 
-    EZ_TEST(map2[Collision(0, 2)] == 2);
-    EZ_TEST(map2[Collision(1, 3)] == 3);
-    EZ_TEST(map2[Collision(0, 5)] == 5);
-    EZ_TEST(map2[Collision(1, 7)] == 7);
+    EZ_TEST_BOOL(map2[Collision(0, 2)] == 2);
+    EZ_TEST_BOOL(map2[Collision(1, 3)] == 3);
+    EZ_TEST_BOOL(map2[Collision(0, 5)] == 5);
+    EZ_TEST_BOOL(map2[Collision(1, 7)] == 7);
 
-    EZ_TEST(!map2.KeyExists(Collision(1, 4)));
-    EZ_TEST(!map2.KeyExists(Collision(0, 6)));
-    EZ_TEST(map2.KeyExists(Collision(0, 2)));
-    EZ_TEST(map2.KeyExists(Collision(1, 3)));
-    EZ_TEST(map2.KeyExists(Collision(0, 5)));
-    EZ_TEST(map2.KeyExists(Collision(1, 7)));
+    EZ_TEST_BOOL(!map2.KeyExists(Collision(1, 4)));
+    EZ_TEST_BOOL(!map2.KeyExists(Collision(0, 6)));
+    EZ_TEST_BOOL(map2.KeyExists(Collision(0, 2)));
+    EZ_TEST_BOOL(map2.KeyExists(Collision(1, 3)));
+    EZ_TEST_BOOL(map2.KeyExists(Collision(0, 5)));
+    EZ_TEST_BOOL(map2.KeyExists(Collision(1, 7)));
 
     map2[Collision(0, 2)] = 3;
     map2[Collision(0, 5)] = 6;
     map2[Collision(1, 3)] = 4;
 
-    EZ_TEST(map2[Collision(0, 2)] == 3);
-    EZ_TEST(map2[Collision(0, 5)] == 6);
-    EZ_TEST(map2[Collision(1, 3)] == 4);
+    EZ_TEST_BOOL(map2[Collision(0, 2)] == 3);
+    EZ_TEST_BOOL(map2[Collision(0, 5)] == 6);
+    EZ_TEST_BOOL(map2[Collision(1, 3)] == 4);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Clear")
   {
-    EZ_TEST(st::HasAllDestructed());
+    EZ_TEST_BOOL(st::HasAllDestructed());
 
     {
       ezHashTable<ezUInt32, st> m1;
       m1[0] = st(1);
-      EZ_TEST(st::HasDone(2, 1)); // for inserting new elements 1 temporary is created (and destroyed)
+      EZ_TEST_BOOL(st::HasDone(2, 1)); // for inserting new elements 1 temporary is created (and destroyed)
 
       m1[1] = st(3);
-      EZ_TEST(st::HasDone(2, 1)); // for inserting new elements 2 temporary is created (and destroyed)
+      EZ_TEST_BOOL(st::HasDone(2, 1)); // for inserting new elements 2 temporary is created (and destroyed)
 
       m1[0] = st(2);
-      EZ_TEST(st::HasDone(1, 1)); // nothing new to create, so only the one temporary is used
+      EZ_TEST_BOOL(st::HasDone(1, 1)); // nothing new to create, so only the one temporary is used
 
       m1.Clear();
-      EZ_TEST(st::HasDone(0, 2));
-      EZ_TEST(st::HasAllDestructed());
+      EZ_TEST_BOOL(st::HasDone(0, 2));
+      EZ_TEST_BOOL(st::HasAllDestructed());
     }
 
     {
       ezHashTable<st, ezUInt32> m1;
       m1[st(0)] = 1;
-      EZ_TEST(st::HasDone(2, 1)); // one temporary
+      EZ_TEST_BOOL(st::HasDone(2, 1)); // one temporary
 
       m1[st(1)] = 3;
-      EZ_TEST(st::HasDone(2, 1)); // one temporary
+      EZ_TEST_BOOL(st::HasDone(2, 1)); // one temporary
 
       m1[st(0)] = 2;
-      EZ_TEST(st::HasDone(1, 1)); // nothing new to create, so only the one temporary is used
+      EZ_TEST_BOOL(st::HasDone(1, 1)); // nothing new to create, so only the one temporary is used
 
       m1.Clear();
-      EZ_TEST(st::HasDone(0, 2));
-      EZ_TEST(st::HasAllDestructed());
+      EZ_TEST_BOOL(st::HasDone(0, 2));
+      EZ_TEST_BOOL(st::HasAllDestructed());
     }
   }
 
@@ -242,25 +242,25 @@ EZ_CREATE_SIMPLE_TEST(Containers, HashTable)
 
     for (ezInt32 i = 0; i < 10; ++i)
     {
-      EZ_TEST(!a1.Insert(i, i - 20));
+      EZ_TEST_BOOL(!a1.Insert(i, i - 20));
     }
 
     for (ezInt32 i = 0; i < 10; ++i)
     {
       st oldValue;
-      EZ_TEST(a1.Insert(i, i, &oldValue));
+      EZ_TEST_BOOL(a1.Insert(i, i, &oldValue));
       EZ_TEST_INT(oldValue.m_iData, i - 20);
     }
 
     st value;
-    EZ_TEST(a1.TryGetValue(9, value));
+    EZ_TEST_BOOL(a1.TryGetValue(9, value));
     EZ_TEST_INT(value.m_iData, 9);
 
-    EZ_TEST(!a1.TryGetValue(11, value));
+    EZ_TEST_BOOL(!a1.TryGetValue(11, value));
     EZ_TEST_INT(value.m_iData, 9);
 
     st* pValue;
-    EZ_TEST(a1.TryGetValue(9, pValue));
+    EZ_TEST_BOOL(a1.TryGetValue(9, pValue));
     EZ_TEST_INT(pValue->m_iData, 9);
 
     pValue->m_iData = 20;
@@ -286,7 +286,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, HashTable)
     for (ezInt32 i = 0; i < 500; ++i)
     {
       st oldValue;
-      EZ_TEST(a.Remove(i, &oldValue));
+      EZ_TEST_BOOL(a.Remove(i, &oldValue));
       EZ_TEST_INT(oldValue.m_iData, i);
     }
     
@@ -333,12 +333,12 @@ EZ_CREATE_SIMPLE_TEST(Containers, HashTable)
       }
     }
 
-    EZ_TEST(t[0] == t[1]);
+    EZ_TEST_BOOL(t[0] == t[1]);
 
     t[0].Insert(32, st(64));
-    EZ_TEST(t[0] != t[1]);
+    EZ_TEST_BOOL(t[0] != t[1]);
 
     t[1].Insert(32, st(47));
-    EZ_TEST(t[0] != t[1]);
+    EZ_TEST_BOOL(t[0] != t[1]);
   }
 }

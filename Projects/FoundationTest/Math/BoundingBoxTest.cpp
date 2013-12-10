@@ -7,8 +7,8 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingBox)
   {
     ezBoundingBoxT b(ezVec3T (-1,-2,-3), ezVec3T(1, 2, 3));
 
-    EZ_TEST(b.m_vMin == ezVec3T(-1,-2,-3));
-    EZ_TEST(b.m_vMax == ezVec3T( 1, 2, 3));
+    EZ_TEST_BOOL(b.m_vMin == ezVec3T(-1,-2,-3));
+    EZ_TEST_BOOL(b.m_vMax == ezVec3T( 1, 2, 3));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetElements")
@@ -16,8 +16,8 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingBox)
     ezBoundingBoxT b;
     b.SetElements(ezVec3T (-1,-2,-3), ezVec3T(1, 2, 3));
 
-    EZ_TEST(b.m_vMin == ezVec3T(-1,-2,-3));
-    EZ_TEST(b.m_vMax == ezVec3T( 1, 2, 3));
+    EZ_TEST_BOOL(b.m_vMin == ezVec3T(-1,-2,-3));
+    EZ_TEST_BOOL(b.m_vMax == ezVec3T( 1, 2, 3));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetFromPoints")
@@ -35,8 +35,8 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingBox)
     ezBoundingBoxT b;
     b.SetFromPoints(p, 6);
 
-    EZ_TEST(b.m_vMin == ezVec3T(-4, -6, -8));
-    EZ_TEST(b.m_vMax == ezVec3T( 5,  7,  9));
+    EZ_TEST_BOOL(b.m_vMin == ezVec3T(-4, -6, -8));
+    EZ_TEST_BOOL(b.m_vMax == ezVec3T( 5,  7,  9));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetInvalid")
@@ -44,7 +44,7 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingBox)
     ezBoundingBoxT b;
     b.SetInvalid();
 
-    EZ_TEST(!b.IsValid());
+    EZ_TEST_BOOL(!b.IsValid());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetCenterAndHalfExtents")
@@ -52,8 +52,8 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingBox)
     ezBoundingBoxT b;
     b.SetCenterAndHalfExtents(ezVec3T(1,2,3), ezVec3T(4,5,6));
 
-    EZ_TEST(b.m_vMin == ezVec3T(-3,-3,-3));
-    EZ_TEST(b.m_vMax == ezVec3T( 5, 7, 9));
+    EZ_TEST_BOOL(b.m_vMin == ezVec3T(-3,-3,-3));
+    EZ_TEST_BOOL(b.m_vMax == ezVec3T( 5, 7, 9));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetCorners")
@@ -64,14 +64,14 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingBox)
     ezVec3T c[8];
     b.GetCorners(c);
 
-    EZ_TEST(c[0] == ezVec3T(-1, -2, -3));
-    EZ_TEST(c[1] == ezVec3T(-1, -2,  3));
-    EZ_TEST(c[2] == ezVec3T(-1,  2, -3));
-    EZ_TEST(c[3] == ezVec3T(-1,  2,  3));
-    EZ_TEST(c[4] == ezVec3T( 1, -2, -3));
-    EZ_TEST(c[5] == ezVec3T( 1, -2,  3));
-    EZ_TEST(c[6] == ezVec3T( 1,  2, -3));
-    EZ_TEST(c[7] == ezVec3T( 1,  2,  3));
+    EZ_TEST_BOOL(c[0] == ezVec3T(-1, -2, -3));
+    EZ_TEST_BOOL(c[1] == ezVec3T(-1, -2,  3));
+    EZ_TEST_BOOL(c[2] == ezVec3T(-1,  2, -3));
+    EZ_TEST_BOOL(c[3] == ezVec3T(-1,  2,  3));
+    EZ_TEST_BOOL(c[4] == ezVec3T( 1, -2, -3));
+    EZ_TEST_BOOL(c[5] == ezVec3T( 1, -2,  3));
+    EZ_TEST_BOOL(c[6] == ezVec3T( 1,  2, -3));
+    EZ_TEST_BOOL(c[7] == ezVec3T( 1,  2,  3));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ExpandToInclue (Point)")
@@ -80,19 +80,19 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingBox)
     b.SetInvalid();
     b.ExpandToInclude(ezVec3T(1,2,3));
 
-    EZ_TEST(b.m_vMin == ezVec3T(1,2,3));
-    EZ_TEST(b.m_vMax == ezVec3T(1,2,3));
+    EZ_TEST_BOOL(b.m_vMin == ezVec3T(1,2,3));
+    EZ_TEST_BOOL(b.m_vMax == ezVec3T(1,2,3));
 
 
     b.ExpandToInclude(ezVec3T(2,3,4));
 
-    EZ_TEST(b.m_vMin == ezVec3T(1,2,3));
-    EZ_TEST(b.m_vMax == ezVec3T(2,3,4));
+    EZ_TEST_BOOL(b.m_vMin == ezVec3T(1,2,3));
+    EZ_TEST_BOOL(b.m_vMax == ezVec3T(2,3,4));
 
     b.ExpandToInclude(ezVec3T(0,1,2));
 
-    EZ_TEST(b.m_vMin == ezVec3T(0,1,2));
-    EZ_TEST(b.m_vMax == ezVec3T(2,3,4));
+    EZ_TEST_BOOL(b.m_vMin == ezVec3T(0,1,2));
+    EZ_TEST_BOOL(b.m_vMax == ezVec3T(2,3,4));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ExpandToInclude (Box)")
@@ -104,15 +104,15 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingBox)
 
     b1.ExpandToInclude(b2);
 
-    EZ_TEST(b1.m_vMin == ezVec3T(-1,-2,-3));
-    EZ_TEST(b1.m_vMax == ezVec3T( 4, 5, 6));
+    EZ_TEST_BOOL(b1.m_vMin == ezVec3T(-1,-2,-3));
+    EZ_TEST_BOOL(b1.m_vMax == ezVec3T( 4, 5, 6));
 
     b2.SetElements(ezVec3T(-4,-5,-6), ezVec3T(0));
 
     b1.ExpandToInclude(b2);
 
-    EZ_TEST(b1.m_vMin == ezVec3T(-4,-5,-6));
-    EZ_TEST(b1.m_vMax == ezVec3T( 4, 5, 6));
+    EZ_TEST_BOOL(b1.m_vMin == ezVec3T(-4,-5,-6));
+    EZ_TEST_BOOL(b1.m_vMax == ezVec3T( 4, 5, 6));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ExpandToInclude (array)")
@@ -129,13 +129,13 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingBox)
     b.SetInvalid();
     b.ExpandToInclude(v, 2, sizeof(ezVec3T) * 2);
 
-    EZ_TEST(b.m_vMin == ezVec3T(1, 1, 1));
-    EZ_TEST(b.m_vMax == ezVec3T(2, 2, 2));
+    EZ_TEST_BOOL(b.m_vMin == ezVec3T(1, 1, 1));
+    EZ_TEST_BOOL(b.m_vMax == ezVec3T(2, 2, 2));
 
     b.ExpandToInclude(v, 4, sizeof(ezVec3T));
 
-    EZ_TEST(b.m_vMin == ezVec3T(-1,-1,-1));
-    EZ_TEST(b.m_vMax == ezVec3T( 4, 4, 4));
+    EZ_TEST_BOOL(b.m_vMin == ezVec3T(-1,-1,-1));
+    EZ_TEST_BOOL(b.m_vMax == ezVec3T( 4, 4, 4));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ExpandToCube")
@@ -154,17 +154,17 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingBox)
     ezBoundingBoxT b(ezVec3T(1,2,3), ezVec3T(4,5,6));
     b.Grow(ezVec3T(2,4,6));
 
-    EZ_TEST(b.m_vMin == ezVec3T(-1,-2,-3));
-    EZ_TEST(b.m_vMax == ezVec3T( 6, 9,12));
+    EZ_TEST_BOOL(b.m_vMin == ezVec3T(-1,-2,-3));
+    EZ_TEST_BOOL(b.m_vMax == ezVec3T( 6, 9,12));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Contains (Point)")
   {
     ezBoundingBoxT b(ezVec3T(0), ezVec3T(0));
 
-    EZ_TEST(b.Contains(ezVec3T(0)));
-    EZ_TEST(!b.Contains(ezVec3T( 1, 0, 0)));
-    EZ_TEST(!b.Contains(ezVec3T(-1, 0, 0)));
+    EZ_TEST_BOOL(b.Contains(ezVec3T(0)));
+    EZ_TEST_BOOL(!b.Contains(ezVec3T( 1, 0, 0)));
+    EZ_TEST_BOOL(!b.Contains(ezVec3T(-1, 0, 0)));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Contains (Box)")
@@ -173,18 +173,18 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingBox)
     ezBoundingBoxT b2(ezVec3T(-1), ezVec3T(1));
     ezBoundingBoxT b3(ezVec3T(-1), ezVec3T(4));
 
-    EZ_TEST(b1.Contains(b1));
-    EZ_TEST(b2.Contains(b2));
-    EZ_TEST(b3.Contains(b3));
+    EZ_TEST_BOOL(b1.Contains(b1));
+    EZ_TEST_BOOL(b2.Contains(b2));
+    EZ_TEST_BOOL(b3.Contains(b3));
 
-    EZ_TEST(b1.Contains(b2));
-    EZ_TEST(!b1.Contains(b3));
+    EZ_TEST_BOOL(b1.Contains(b2));
+    EZ_TEST_BOOL(!b1.Contains(b3));
 
-    EZ_TEST(!b2.Contains(b1));
-    EZ_TEST(!b2.Contains(b3));
+    EZ_TEST_BOOL(!b2.Contains(b1));
+    EZ_TEST_BOOL(!b2.Contains(b3));
 
-    EZ_TEST(!b3.Contains(b1));
-    EZ_TEST(b3.Contains(b2));
+    EZ_TEST_BOOL(!b3.Contains(b1));
+    EZ_TEST_BOOL(b3.Contains(b2));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Contains (Array)")
@@ -199,20 +199,20 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingBox)
       ezVec3T(6)
     };
 
-    EZ_TEST(!b.Contains(&v[0], 4, sizeof(ezVec3T)));
-    EZ_TEST( b.Contains(&v[1], 2, sizeof(ezVec3T)));
-    EZ_TEST( b.Contains(&v[2], 1, sizeof(ezVec3T)));
+    EZ_TEST_BOOL(!b.Contains(&v[0], 4, sizeof(ezVec3T)));
+    EZ_TEST_BOOL( b.Contains(&v[1], 2, sizeof(ezVec3T)));
+    EZ_TEST_BOOL( b.Contains(&v[2], 1, sizeof(ezVec3T)));
 
-    EZ_TEST(!b.Contains(&v[1], 2, sizeof(ezVec3T) * 2));
+    EZ_TEST_BOOL(!b.Contains(&v[1], 2, sizeof(ezVec3T) * 2));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Contains (Sphere)")
   {
     ezBoundingBoxT b(ezVec3T(1), ezVec3T(5));
     
-    EZ_TEST(b.Contains(ezBoundingSphereT(ezVec3T(3), 2)));
-    EZ_TEST(!b.Contains(ezBoundingSphereT(ezVec3T(3), 2.1f)));
-    EZ_TEST(!b.Contains(ezBoundingSphereT(ezVec3T(8), 2)));
+    EZ_TEST_BOOL(b.Contains(ezBoundingSphereT(ezVec3T(3), 2)));
+    EZ_TEST_BOOL(!b.Contains(ezBoundingSphereT(ezVec3T(3), 2.1f)));
+    EZ_TEST_BOOL(!b.Contains(ezBoundingSphereT(ezVec3T(8), 2)));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Overlaps (box)")
@@ -222,19 +222,19 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingBox)
     ezBoundingBoxT b3(ezVec3T(1), ezVec3T(4));
     ezBoundingBoxT b4(ezVec3T(-4, 1, 1), ezVec3T(4, 2, 2));
 
-    EZ_TEST(b1.Overlaps(b1));
-    EZ_TEST(b2.Overlaps(b2));
-    EZ_TEST(b3.Overlaps(b3));
-    EZ_TEST(b4.Overlaps(b4));
+    EZ_TEST_BOOL(b1.Overlaps(b1));
+    EZ_TEST_BOOL(b2.Overlaps(b2));
+    EZ_TEST_BOOL(b3.Overlaps(b3));
+    EZ_TEST_BOOL(b4.Overlaps(b4));
 
-    EZ_TEST(b1.Overlaps(b2));
-    EZ_TEST(b1.Overlaps(b3));
-    EZ_TEST(b1.Overlaps(b4));
+    EZ_TEST_BOOL(b1.Overlaps(b2));
+    EZ_TEST_BOOL(b1.Overlaps(b3));
+    EZ_TEST_BOOL(b1.Overlaps(b4));
 
-    EZ_TEST(!b2.Overlaps(b3));
-    EZ_TEST(!b2.Overlaps(b4));
+    EZ_TEST_BOOL(!b2.Overlaps(b3));
+    EZ_TEST_BOOL(!b2.Overlaps(b4));
 
-    EZ_TEST(b3.Overlaps(b4));
+    EZ_TEST_BOOL(b3.Overlaps(b4));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Overlaps (Array)")
@@ -249,23 +249,23 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingBox)
       ezVec3T(6)
     };
 
-    EZ_TEST(!b.Overlaps(&v[0], 1, sizeof(ezVec3T)));
-    EZ_TEST(!b.Overlaps(&v[3], 1, sizeof(ezVec3T)));
+    EZ_TEST_BOOL(!b.Overlaps(&v[0], 1, sizeof(ezVec3T)));
+    EZ_TEST_BOOL(!b.Overlaps(&v[3], 1, sizeof(ezVec3T)));
 
-    EZ_TEST( b.Overlaps(&v[0], 4, sizeof(ezVec3T)));
-    EZ_TEST( b.Overlaps(&v[1], 2, sizeof(ezVec3T)));
-    EZ_TEST( b.Overlaps(&v[2], 1, sizeof(ezVec3T)));
+    EZ_TEST_BOOL( b.Overlaps(&v[0], 4, sizeof(ezVec3T)));
+    EZ_TEST_BOOL( b.Overlaps(&v[1], 2, sizeof(ezVec3T)));
+    EZ_TEST_BOOL( b.Overlaps(&v[2], 1, sizeof(ezVec3T)));
 
-    EZ_TEST( b.Overlaps(&v[1], 2, sizeof(ezVec3T) * 2));
+    EZ_TEST_BOOL( b.Overlaps(&v[1], 2, sizeof(ezVec3T) * 2));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Overlaps (Sphere)")
   {
     ezBoundingBoxT b(ezVec3T(1), ezVec3T(5));
 
-    EZ_TEST(b.Overlaps(ezBoundingSphereT(ezVec3T(3), 2)));
-    EZ_TEST(b.Overlaps(ezBoundingSphereT(ezVec3T(3), 2.1f)));
-    EZ_TEST(!b.Overlaps(ezBoundingSphereT(ezVec3T(8), 2)));
+    EZ_TEST_BOOL(b.Overlaps(ezBoundingSphereT(ezVec3T(3), 2)));
+    EZ_TEST_BOOL(b.Overlaps(ezBoundingSphereT(ezVec3T(3), 2.1f)));
+    EZ_TEST_BOOL(!b.Overlaps(ezBoundingSphereT(ezVec3T(8), 2)));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsIdentical, ==, !=")
@@ -276,29 +276,29 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingBox)
     b2.SetElements(ezVec3T(1), ezVec3T(2));
     b3.SetElements(ezVec3T(1), ezVec3T(2.01f));
 
-    EZ_TEST(b1.IsIdentical(b1));
-    EZ_TEST(b2.IsIdentical(b2));
-    EZ_TEST(b3.IsIdentical(b3));
+    EZ_TEST_BOOL(b1.IsIdentical(b1));
+    EZ_TEST_BOOL(b2.IsIdentical(b2));
+    EZ_TEST_BOOL(b3.IsIdentical(b3));
 
-    EZ_TEST(b1 == b1);
-    EZ_TEST(b2 == b2);
-    EZ_TEST(b3 == b3);
+    EZ_TEST_BOOL(b1 == b1);
+    EZ_TEST_BOOL(b2 == b2);
+    EZ_TEST_BOOL(b3 == b3);
 
-    EZ_TEST(b1.IsIdentical(b2));
-    EZ_TEST(b2.IsIdentical(b1));
+    EZ_TEST_BOOL(b1.IsIdentical(b2));
+    EZ_TEST_BOOL(b2.IsIdentical(b1));
 
-    EZ_TEST(!b1.IsIdentical(b3));
-    EZ_TEST(!b2.IsIdentical(b3));
-    EZ_TEST(!b3.IsIdentical(b1));
-    EZ_TEST(!b3.IsIdentical(b1));
+    EZ_TEST_BOOL(!b1.IsIdentical(b3));
+    EZ_TEST_BOOL(!b2.IsIdentical(b3));
+    EZ_TEST_BOOL(!b3.IsIdentical(b1));
+    EZ_TEST_BOOL(!b3.IsIdentical(b1));
 
-    EZ_TEST(b1 == b2);
-    EZ_TEST(b2 == b1);
+    EZ_TEST_BOOL(b1 == b2);
+    EZ_TEST_BOOL(b2 == b1);
 
-    EZ_TEST(b1 != b3);
-    EZ_TEST(b2 != b3);
-    EZ_TEST(b3 != b1);
-    EZ_TEST(b3 != b1);
+    EZ_TEST_BOOL(b1 != b3);
+    EZ_TEST_BOOL(b2 != b3);
+    EZ_TEST_BOOL(b3 != b1);
+    EZ_TEST_BOOL(b3 != b1);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsEqual")
@@ -307,31 +307,31 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingBox)
     b1.SetElements(ezVec3T(-1), ezVec3T(1));
     b2.SetElements(ezVec3T(-1), ezVec3T(2));
 
-    EZ_TEST(!b1.IsEqual(b2));
-    EZ_TEST(!b1.IsEqual(b2, 0.5f));
-    EZ_TEST(b1.IsEqual(b2, 1));
-    EZ_TEST(b1.IsEqual(b2, 2));
+    EZ_TEST_BOOL(!b1.IsEqual(b2));
+    EZ_TEST_BOOL(!b1.IsEqual(b2, 0.5f));
+    EZ_TEST_BOOL(b1.IsEqual(b2, 1));
+    EZ_TEST_BOOL(b1.IsEqual(b2, 2));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetCenter")
   {
     ezBoundingBoxT b(ezVec3T(3), ezVec3T(7));
 
-    EZ_TEST(b.GetCenter() == ezVec3T(5));
+    EZ_TEST_BOOL(b.GetCenter() == ezVec3T(5));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetExtents")
   {
     ezBoundingBoxT b(ezVec3T(3), ezVec3T(7));
 
-    EZ_TEST(b.GetExtents() == ezVec3T(4));
+    EZ_TEST_BOOL(b.GetExtents() == ezVec3T(4));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetHalfExtents")
   {
     ezBoundingBoxT b(ezVec3T(3), ezVec3T(7));
 
-    EZ_TEST(b.GetHalfExtents() == ezVec3T(2));
+    EZ_TEST_BOOL(b.GetHalfExtents() == ezVec3T(2));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Translate")
@@ -340,8 +340,8 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingBox)
 
     b.Translate(ezVec3T(1,2,3));
 
-    EZ_TEST(b.m_vMin == ezVec3T(4,5,6));
-    EZ_TEST(b.m_vMax == ezVec3T(6,7,8));
+    EZ_TEST_BOOL(b.m_vMin == ezVec3T(4,5,6));
+    EZ_TEST_BOOL(b.m_vMax == ezVec3T(6,7,8));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ScaleFromCenter")
@@ -350,8 +350,8 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingBox)
 
     b.ScaleFromCenter(ezVec3T(1,2,3));
 
-    EZ_TEST(b.m_vMin == ezVec3T(3,2,1));
-    EZ_TEST(b.m_vMax == ezVec3T(5,6,7));
+    EZ_TEST_BOOL(b.m_vMin == ezVec3T(3,2,1));
+    EZ_TEST_BOOL(b.m_vMax == ezVec3T(5,6,7));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ScaleFromOrigin")
@@ -360,8 +360,8 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingBox)
 
     b.ScaleFromOrigin(ezVec3T(1,2,3));
 
-    EZ_TEST(b.m_vMin == ezVec3T(3,6,9));
-    EZ_TEST(b.m_vMax == ezVec3T(5,10,15));
+    EZ_TEST_BOOL(b.m_vMin == ezVec3T(3,6,9));
+    EZ_TEST_BOOL(b.m_vMax == ezVec3T(5,10,15));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "TransformFromOrigin")
@@ -373,8 +373,8 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingBox)
 
     b.TransformFromOrigin(m);
 
-    EZ_TEST(b.m_vMin == ezVec3T(6,6,6));
-    EZ_TEST(b.m_vMax == ezVec3T(10,10,10));
+    EZ_TEST_BOOL(b.m_vMin == ezVec3T(6,6,6));
+    EZ_TEST_BOOL(b.m_vMax == ezVec3T(10,10,10));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "TransformFromCenter")
@@ -386,44 +386,44 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingBox)
 
     b.TransformFromCenter(m);
 
-    EZ_TEST(b.m_vMin == ezVec3T(2,2,2));
-    EZ_TEST(b.m_vMax == ezVec3T(6,6,6));
+    EZ_TEST_BOOL(b.m_vMin == ezVec3T(2,2,2));
+    EZ_TEST_BOOL(b.m_vMax == ezVec3T(6,6,6));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetClampedPoint")
   {
     ezBoundingBoxT b(ezVec3T(-1,-2,-3), ezVec3T(1,2,3));
 
-    EZ_TEST(b.GetClampedPoint(ezVec3T(-2,0,0)) == ezVec3T(-1,0,0));
-    EZ_TEST(b.GetClampedPoint(ezVec3T( 2,0,0)) == ezVec3T( 1,0,0));
+    EZ_TEST_BOOL(b.GetClampedPoint(ezVec3T(-2,0,0)) == ezVec3T(-1,0,0));
+    EZ_TEST_BOOL(b.GetClampedPoint(ezVec3T( 2,0,0)) == ezVec3T( 1,0,0));
 
-    EZ_TEST(b.GetClampedPoint(ezVec3T(0,-3,0)) == ezVec3T(0,-2,0));
-    EZ_TEST(b.GetClampedPoint(ezVec3T(0, 3,0)) == ezVec3T(0, 2,0));
+    EZ_TEST_BOOL(b.GetClampedPoint(ezVec3T(0,-3,0)) == ezVec3T(0,-2,0));
+    EZ_TEST_BOOL(b.GetClampedPoint(ezVec3T(0, 3,0)) == ezVec3T(0, 2,0));
 
-    EZ_TEST(b.GetClampedPoint(ezVec3T(0,0,-4)) == ezVec3T(0,0,-3));
-    EZ_TEST(b.GetClampedPoint(ezVec3T(0,0, 4)) == ezVec3T(0,0, 3));
+    EZ_TEST_BOOL(b.GetClampedPoint(ezVec3T(0,0,-4)) == ezVec3T(0,0,-3));
+    EZ_TEST_BOOL(b.GetClampedPoint(ezVec3T(0,0, 4)) == ezVec3T(0,0, 3));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetDistanceTo (point)")
   {
     ezBoundingBoxT b(ezVec3T(-1,-2,-3), ezVec3T(1,2,3));
 
-    EZ_TEST(b.GetDistanceTo(ezVec3T(-2,0,0)) == 1);
-    EZ_TEST(b.GetDistanceTo(ezVec3T( 2,0,0)) == 1);
+    EZ_TEST_BOOL(b.GetDistanceTo(ezVec3T(-2,0,0)) == 1);
+    EZ_TEST_BOOL(b.GetDistanceTo(ezVec3T( 2,0,0)) == 1);
 
-    EZ_TEST(b.GetDistanceTo(ezVec3T(0,-4,0)) == 2);
-    EZ_TEST(b.GetDistanceTo(ezVec3T(0, 4,0)) == 2);
+    EZ_TEST_BOOL(b.GetDistanceTo(ezVec3T(0,-4,0)) == 2);
+    EZ_TEST_BOOL(b.GetDistanceTo(ezVec3T(0, 4,0)) == 2);
 
-    EZ_TEST(b.GetDistanceTo(ezVec3T(0,0,-6)) == 3);
-    EZ_TEST(b.GetDistanceTo(ezVec3T(0,0, 6)) == 3);
+    EZ_TEST_BOOL(b.GetDistanceTo(ezVec3T(0,0,-6)) == 3);
+    EZ_TEST_BOOL(b.GetDistanceTo(ezVec3T(0,0, 6)) == 3);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetDistanceTo (Sphere)")
   {
     ezBoundingBoxT b(ezVec3T(1), ezVec3T(5));
 
-    EZ_TEST(b.GetDistanceTo(ezBoundingSphereT(ezVec3T(3), 2)) < 0);
-    EZ_TEST(b.GetDistanceTo(ezBoundingSphereT(ezVec3T(5), 1)) < 0);
+    EZ_TEST_BOOL(b.GetDistanceTo(ezBoundingSphereT(ezVec3T(3), 2)) < 0);
+    EZ_TEST_BOOL(b.GetDistanceTo(ezBoundingSphereT(ezVec3T(5), 1)) < 0);
     EZ_TEST_FLOAT(b.GetDistanceTo(ezBoundingSphereT(ezVec3T(8, 2, 2), 2)), 1, 0.001f);
   }
 
@@ -436,8 +436,8 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingBox)
     b2.SetCenterAndHalfExtents(ezVec3T(5), ezVec3T(1));
     b3.SetCenterAndHalfExtents(ezVec3T(9,2,2), ezVec3T(2));
 
-    EZ_TEST(b.GetDistanceTo(b1) <= 0);
-    EZ_TEST(b.GetDistanceTo(b2) <= 0);
+    EZ_TEST_BOOL(b.GetDistanceTo(b1) <= 0);
+    EZ_TEST_BOOL(b.GetDistanceTo(b2) <= 0);
     EZ_TEST_FLOAT(b.GetDistanceTo(b3), 2, 0.001f);
   }
 
@@ -445,14 +445,14 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingBox)
   {
     ezBoundingBoxT b(ezVec3T(-1,-2,-3), ezVec3T(1,2,3));
 
-    EZ_TEST(b.GetDistanceSquaredTo(ezVec3T(-2,0,0)) == 1);
-    EZ_TEST(b.GetDistanceSquaredTo(ezVec3T( 2,0,0)) == 1);
+    EZ_TEST_BOOL(b.GetDistanceSquaredTo(ezVec3T(-2,0,0)) == 1);
+    EZ_TEST_BOOL(b.GetDistanceSquaredTo(ezVec3T( 2,0,0)) == 1);
 
-    EZ_TEST(b.GetDistanceSquaredTo(ezVec3T(0,-4,0)) == 4);
-    EZ_TEST(b.GetDistanceSquaredTo(ezVec3T(0, 4,0)) == 4);
+    EZ_TEST_BOOL(b.GetDistanceSquaredTo(ezVec3T(0,-4,0)) == 4);
+    EZ_TEST_BOOL(b.GetDistanceSquaredTo(ezVec3T(0, 4,0)) == 4);
 
-    EZ_TEST(b.GetDistanceSquaredTo(ezVec3T(0,0,-6)) == 9);
-    EZ_TEST(b.GetDistanceSquaredTo(ezVec3T(0,0, 6)) == 9);
+    EZ_TEST_BOOL(b.GetDistanceSquaredTo(ezVec3T(0,0,-6)) == 9);
+    EZ_TEST_BOOL(b.GetDistanceSquaredTo(ezVec3T(0,0, 6)) == 9);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetDistanceSquaredTo (box)")
@@ -464,8 +464,8 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingBox)
     b2.SetCenterAndHalfExtents(ezVec3T(5), ezVec3T(1));
     b3.SetCenterAndHalfExtents(ezVec3T(9,2,2), ezVec3T(2));
 
-    EZ_TEST(b.GetDistanceSquaredTo(b1) <= 0);
-    EZ_TEST(b.GetDistanceSquaredTo(b2) <= 0);
+    EZ_TEST_BOOL(b.GetDistanceSquaredTo(b1) <= 0);
+    EZ_TEST_BOOL(b.GetDistanceSquaredTo(b2) <= 0);
     EZ_TEST_FLOAT(b.GetDistanceSquaredTo(b3), 4, 0.001f);
   }
 
@@ -476,7 +476,7 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingBox)
 
     ezBoundingSphereT s = b.GetBoundingSphere();
 
-    EZ_TEST(s.m_vCenter == ezVec3T(5, 4, 2));
+    EZ_TEST_BOOL(s.m_vCenter == ezVec3T(5, 4, 2));
     EZ_TEST_FLOAT(s.m_fRadius, ezVec3T(3).GetLength(), 0.001f);
   }
 
@@ -508,12 +508,12 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingBox)
 
             ezMathTestType f;
             ezVec3T vi;
-            EZ_TEST(b.GetRayIntersection(vSource, -vDir, &f, &vi) == true); // \todo FIX Division by Zero
+            EZ_TEST_BOOL(b.GetRayIntersection(vSource, -vDir, &f, &vi) == true); // \todo FIX Division by Zero
             EZ_TEST_FLOAT(f, 3, 0.001f);
-            EZ_TEST(vi.IsEqual(vTarget, 0.0001f));
+            EZ_TEST_BOOL(vi.IsEqual(vTarget, 0.0001f));
 
-            EZ_TEST(b.GetRayIntersection(vSource, vDir, &f, &vi) == false);
-            EZ_TEST(b.GetRayIntersection(vTarget, vDir, &f, &vi) == false);
+            EZ_TEST_BOOL(b.GetRayIntersection(vSource, vDir, &f, &vi) == false);
+            EZ_TEST_BOOL(b.GetRayIntersection(vTarget, vDir, &f, &vi) == false);
           }
         }
       }
@@ -549,9 +549,9 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingBox)
 
             ezMathTestType f;
             ezVec3T vi;
-            EZ_TEST(b.GetLineSegmentIntersection(vSource, vTarget, &f, &vi) == true);
+            EZ_TEST_BOOL(b.GetLineSegmentIntersection(vSource, vTarget, &f, &vi) == true);
             EZ_TEST_FLOAT(f, 0.75f, 0.001f);
-            EZ_TEST(vi.IsEqual(vTarget0, 0.0001f));
+            EZ_TEST_BOOL(vi.IsEqual(vTarget0, 0.0001f));
           }
         }
       }

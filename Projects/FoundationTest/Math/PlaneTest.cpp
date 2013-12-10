@@ -12,13 +12,13 @@ EZ_CREATE_SIMPLE_TEST(Math, Plane)
       {
         // In debug the default constructor initializes everything with NaN.
         ezPlaneT p;
-        EZ_TEST(ezMath::IsNaN(p.m_vNormal.x) && ezMath::IsNaN(p.m_vNormal.y) && ezMath::IsNaN(p.m_vNormal.z) && ezMath::IsNaN(p.m_fNegDistance));
+        EZ_TEST_BOOL(ezMath::IsNaN(p.m_vNormal.x) && ezMath::IsNaN(p.m_vNormal.y) && ezMath::IsNaN(p.m_vNormal.z) && ezMath::IsNaN(p.m_fNegDistance));
       }
     #else
         // Placement new of the default constructor should not have any effect on the previous data.
         ezPlaneT::ComponentType testBlock[4] = { (ezPlaneT::ComponentType) 1, (ezPlaneT::ComponentType) 2, (ezPlaneT::ComponentType) 3, (ezPlaneT::ComponentType) 4 };
         ezPlaneT* p = ::new ((void*) &testBlock[0]) ezPlaneT;
-        EZ_TEST(p->m_vNormal.x == (ezPlaneT::ComponentType) 1 && 
+        EZ_TEST_BOOL(p->m_vNormal.x == (ezPlaneT::ComponentType) 1 && 
                 p->m_vNormal.y == (ezPlaneT::ComponentType) 2 && 
                 p->m_vNormal.z == (ezPlaneT::ComponentType) 3 && 
                 p->m_fNegDistance == (ezPlaneT::ComponentType) 4);
@@ -29,7 +29,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Plane)
   {
     ezPlaneT p (ezVec3T(1, 0, 0), ezVec3T(5, 3, 1));
 
-    EZ_TEST(p.m_vNormal == ezVec3T(1, 0, 0));
+    EZ_TEST_BOOL(p.m_vNormal == ezVec3T(1, 0, 0));
     EZ_TEST_FLOAT(p.m_fNegDistance, -5.0f, 0.0001f);
   }
 
@@ -66,7 +66,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Plane)
     ezPlaneT p;
     p.SetFromNormalAndPoint(ezVec3T(1, 0, 0), ezVec3T(5, 3, 1));
 
-    EZ_TEST(p.m_vNormal == ezVec3T(1, 0, 0));
+    EZ_TEST_BOOL(p.m_vNormal == ezVec3T(1, 0, 0));
     EZ_TEST_FLOAT(p.m_fNegDistance, -5.0f, 0.0001f);
   }
 
@@ -163,17 +163,17 @@ EZ_CREATE_SIMPLE_TEST(Math, Plane)
   {
     ezPlaneT p(ezVec3T(0, 1, 0), ezVec3T(0, 10, 0));
 
-    EZ_TEST(p.GetPointPosition(ezVec3T(0, 15, 0)) == ezPositionOnPlane::Front);
-    EZ_TEST(p.GetPointPosition(ezVec3T(0, 5, 0)) == ezPositionOnPlane::Back);
+    EZ_TEST_BOOL(p.GetPointPosition(ezVec3T(0, 15, 0)) == ezPositionOnPlane::Front);
+    EZ_TEST_BOOL(p.GetPointPosition(ezVec3T(0, 5, 0)) == ezPositionOnPlane::Back);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetPointPosition(planewidth)")
   {
     ezPlaneT p(ezVec3T(0, 1, 0), ezVec3T(0, 10, 0));
 
-    EZ_TEST(p.GetPointPosition(ezVec3T(0, 15, 0), 0.01f) == ezPositionOnPlane::Front);
-    EZ_TEST(p.GetPointPosition(ezVec3T(0, 5, 0), 0.01f) == ezPositionOnPlane::Back);
-    EZ_TEST(p.GetPointPosition(ezVec3T(0, 10, 0), 0.01f) == ezPositionOnPlane::OnPlane);
+    EZ_TEST_BOOL(p.GetPointPosition(ezVec3T(0, 15, 0), 0.01f) == ezPositionOnPlane::Front);
+    EZ_TEST_BOOL(p.GetPointPosition(ezVec3T(0, 5, 0), 0.01f) == ezPositionOnPlane::Back);
+    EZ_TEST_BOOL(p.GetPointPosition(ezVec3T(0, 10, 0), 0.01f) == ezPositionOnPlane::OnPlane);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetObjectPosition")
@@ -184,9 +184,9 @@ EZ_CREATE_SIMPLE_TEST(Math, Plane)
     ezVec3T v1[3] = { ezVec3T(8, 0, 0), ezVec3T(6, 0, 0), ezVec3T(4, 0, 0) };
     ezVec3T v2[3] = { ezVec3T(12, 0, 0), ezVec3T(6, 0, 0), ezVec3T(4, 0, 0) };
 
-    EZ_TEST(p.GetObjectPosition(v0, 3) == ezPositionOnPlane::Front);
-    EZ_TEST(p.GetObjectPosition(v1, 3) == ezPositionOnPlane::Back);
-    EZ_TEST(p.GetObjectPosition(v2, 3) == ezPositionOnPlane::Spanning);
+    EZ_TEST_BOOL(p.GetObjectPosition(v0, 3) == ezPositionOnPlane::Front);
+    EZ_TEST_BOOL(p.GetObjectPosition(v1, 3) == ezPositionOnPlane::Back);
+    EZ_TEST_BOOL(p.GetObjectPosition(v2, 3) == ezPositionOnPlane::Spanning);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetObjectPosition(fPlaneHalfWidth)")
@@ -198,43 +198,43 @@ EZ_CREATE_SIMPLE_TEST(Math, Plane)
     ezVec3T v2[3] = { ezVec3T(12, 0, 0), ezVec3T(6, 0, 0), ezVec3T(4, 0, 0) };
     ezVec3T v3[3] = { ezVec3T(10, 1, 0), ezVec3T(10, 5, 7), ezVec3T(10, 3, -5) };
 
-    EZ_TEST(p.GetObjectPosition(v0, 3, 0.001f) == ezPositionOnPlane::Front);
-    EZ_TEST(p.GetObjectPosition(v1, 3, 0.001f) == ezPositionOnPlane::Back);
-    EZ_TEST(p.GetObjectPosition(v2, 3, 0.001f) == ezPositionOnPlane::Spanning);
-    EZ_TEST(p.GetObjectPosition(v3, 3, 0.001f) == ezPositionOnPlane::OnPlane);
+    EZ_TEST_BOOL(p.GetObjectPosition(v0, 3, 0.001f) == ezPositionOnPlane::Front);
+    EZ_TEST_BOOL(p.GetObjectPosition(v1, 3, 0.001f) == ezPositionOnPlane::Back);
+    EZ_TEST_BOOL(p.GetObjectPosition(v2, 3, 0.001f) == ezPositionOnPlane::Spanning);
+    EZ_TEST_BOOL(p.GetObjectPosition(v3, 3, 0.001f) == ezPositionOnPlane::OnPlane);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetObjectPosition(sphere)")
   {
     ezPlaneT p(ezVec3T(1, 0, 0), ezVec3T(10, 0, 0));
 
-    EZ_TEST(p.GetObjectPosition(ezBoundingSphereT(ezVec3T(15, 2, 3), 3.0f)) == ezPositionOnPlane::Front);
-    EZ_TEST(p.GetObjectPosition(ezBoundingSphereT(ezVec3T(5, 2, 3), 3.0f)) == ezPositionOnPlane::Back);
-    EZ_TEST(p.GetObjectPosition(ezBoundingSphereT(ezVec3T(15, 2, 4.999f), 3.0f)) == ezPositionOnPlane::Front);
-    EZ_TEST(p.GetObjectPosition(ezBoundingSphereT(ezVec3T(5, 2, 3), 4.999f)) == ezPositionOnPlane::Back);
-    EZ_TEST(p.GetObjectPosition(ezBoundingSphereT(ezVec3T(8, 2, 3), 3.0f)) == ezPositionOnPlane::Spanning);
-    EZ_TEST(p.GetObjectPosition(ezBoundingSphereT(ezVec3T(12, 2, 3), 3.0f)) == ezPositionOnPlane::Spanning);
+    EZ_TEST_BOOL(p.GetObjectPosition(ezBoundingSphereT(ezVec3T(15, 2, 3), 3.0f)) == ezPositionOnPlane::Front);
+    EZ_TEST_BOOL(p.GetObjectPosition(ezBoundingSphereT(ezVec3T(5, 2, 3), 3.0f)) == ezPositionOnPlane::Back);
+    EZ_TEST_BOOL(p.GetObjectPosition(ezBoundingSphereT(ezVec3T(15, 2, 4.999f), 3.0f)) == ezPositionOnPlane::Front);
+    EZ_TEST_BOOL(p.GetObjectPosition(ezBoundingSphereT(ezVec3T(5, 2, 3), 4.999f)) == ezPositionOnPlane::Back);
+    EZ_TEST_BOOL(p.GetObjectPosition(ezBoundingSphereT(ezVec3T(8, 2, 3), 3.0f)) == ezPositionOnPlane::Spanning);
+    EZ_TEST_BOOL(p.GetObjectPosition(ezBoundingSphereT(ezVec3T(12, 2, 3), 3.0f)) == ezPositionOnPlane::Spanning);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetObjectPosition(box)")
   {
     {
       ezPlaneT p(ezVec3T(1, 0, 0), ezVec3T(10, 0, 0));
-      EZ_TEST(p.GetObjectPosition(ezBoundingBoxT(ezVec3T(10.1f), ezVec3T(15))) == ezPositionOnPlane::Front);
-      EZ_TEST(p.GetObjectPosition(ezBoundingBoxT(ezVec3T(7), ezVec3T(9.9f))) == ezPositionOnPlane::Back);
-      EZ_TEST(p.GetObjectPosition(ezBoundingBoxT(ezVec3T(7), ezVec3T(15))) == ezPositionOnPlane::Spanning);
+      EZ_TEST_BOOL(p.GetObjectPosition(ezBoundingBoxT(ezVec3T(10.1f), ezVec3T(15))) == ezPositionOnPlane::Front);
+      EZ_TEST_BOOL(p.GetObjectPosition(ezBoundingBoxT(ezVec3T(7), ezVec3T(9.9f))) == ezPositionOnPlane::Back);
+      EZ_TEST_BOOL(p.GetObjectPosition(ezBoundingBoxT(ezVec3T(7), ezVec3T(15))) == ezPositionOnPlane::Spanning);
     }
     {
       ezPlaneT p(ezVec3T(0, 1, 0), ezVec3T(0, 10, 0));
-      EZ_TEST(p.GetObjectPosition(ezBoundingBoxT(ezVec3T(10.1f), ezVec3T(15))) == ezPositionOnPlane::Front);
-      EZ_TEST(p.GetObjectPosition(ezBoundingBoxT(ezVec3T(7), ezVec3T(9.9f))) == ezPositionOnPlane::Back);
-      EZ_TEST(p.GetObjectPosition(ezBoundingBoxT(ezVec3T(7), ezVec3T(15))) == ezPositionOnPlane::Spanning);
+      EZ_TEST_BOOL(p.GetObjectPosition(ezBoundingBoxT(ezVec3T(10.1f), ezVec3T(15))) == ezPositionOnPlane::Front);
+      EZ_TEST_BOOL(p.GetObjectPosition(ezBoundingBoxT(ezVec3T(7), ezVec3T(9.9f))) == ezPositionOnPlane::Back);
+      EZ_TEST_BOOL(p.GetObjectPosition(ezBoundingBoxT(ezVec3T(7), ezVec3T(15))) == ezPositionOnPlane::Spanning);
     }
     {
       ezPlaneT p(ezVec3T(0, 0, 1), ezVec3T(0, 0, 10));
-      EZ_TEST(p.GetObjectPosition(ezBoundingBoxT(ezVec3T(10.1f), ezVec3T(15))) == ezPositionOnPlane::Front);
-      EZ_TEST(p.GetObjectPosition(ezBoundingBoxT(ezVec3T(7), ezVec3T(9.9f))) == ezPositionOnPlane::Back);
-      EZ_TEST(p.GetObjectPosition(ezBoundingBoxT(ezVec3T(7), ezVec3T(15))) == ezPositionOnPlane::Spanning);
+      EZ_TEST_BOOL(p.GetObjectPosition(ezBoundingBoxT(ezVec3T(10.1f), ezVec3T(15))) == ezPositionOnPlane::Front);
+      EZ_TEST_BOOL(p.GetObjectPosition(ezBoundingBoxT(ezVec3T(7), ezVec3T(9.9f))) == ezPositionOnPlane::Back);
+      EZ_TEST_BOOL(p.GetObjectPosition(ezBoundingBoxT(ezVec3T(7), ezVec3T(15))) == ezPositionOnPlane::Spanning);
     }
   }
 
@@ -271,22 +271,22 @@ EZ_CREATE_SIMPLE_TEST(Math, Plane)
     ezPlaneT p2(ezVec3T(0, 1, 0), ezVec3T(0, 10, 0));
     ezPlaneT p3(ezVec3T(0, 1, 0), ezVec3T(0, 10.00001f, 0));
 
-    EZ_TEST(p1.IsIdentical(p1));
-    EZ_TEST(p2.IsIdentical(p2));
-    EZ_TEST(p3.IsIdentical(p3));
+    EZ_TEST_BOOL(p1.IsIdentical(p1));
+    EZ_TEST_BOOL(p2.IsIdentical(p2));
+    EZ_TEST_BOOL(p3.IsIdentical(p3));
 
-    EZ_TEST(p1.IsIdentical(p2));
-    EZ_TEST(p2.IsIdentical(p1));
+    EZ_TEST_BOOL(p1.IsIdentical(p2));
+    EZ_TEST_BOOL(p2.IsIdentical(p1));
 
-    EZ_TEST(!p1.IsIdentical(p3));
-    EZ_TEST(!p2.IsIdentical(p3));
+    EZ_TEST_BOOL(!p1.IsIdentical(p3));
+    EZ_TEST_BOOL(!p2.IsIdentical(p3));
 
 
-    EZ_TEST(p1 == p2);
-    EZ_TEST(p2 == p1);
+    EZ_TEST_BOOL(p1 == p2);
+    EZ_TEST_BOOL(p2 == p1);
 
-    EZ_TEST(p1 != p3);
-    EZ_TEST(p2 != p3);
+    EZ_TEST_BOOL(p1 != p3);
+    EZ_TEST_BOOL(p2 != p3);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsEqual")
@@ -295,25 +295,25 @@ EZ_CREATE_SIMPLE_TEST(Math, Plane)
     ezPlaneT p2(ezVec3T(0, 1, 0), ezVec3T(0, 10, 0));
     ezPlaneT p3(ezVec3T(0, 1, 0), ezVec3T(0, 10.00001f, 0));
 
-    EZ_TEST(p1.IsEqual(p1));
-    EZ_TEST(p2.IsEqual(p2));
-    EZ_TEST(p3.IsEqual(p3));
+    EZ_TEST_BOOL(p1.IsEqual(p1));
+    EZ_TEST_BOOL(p2.IsEqual(p2));
+    EZ_TEST_BOOL(p3.IsEqual(p3));
 
-    EZ_TEST(p1.IsEqual(p2));
-    EZ_TEST(p2.IsEqual(p1));
+    EZ_TEST_BOOL(p1.IsEqual(p2));
+    EZ_TEST_BOOL(p2.IsEqual(p1));
 
-    EZ_TEST(p1.IsEqual(p3));
-    EZ_TEST(p2.IsEqual(p3));
+    EZ_TEST_BOOL(p1.IsEqual(p3));
+    EZ_TEST_BOOL(p2.IsEqual(p3));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsValid")
   {
     ezPlaneT p1(ezVec3T(0, 1, 0), ezVec3T(0, 10, 0));
 
-    EZ_TEST(p1.IsValid());
+    EZ_TEST_BOOL(p1.IsValid());
 
     p1.SetInvalid();
-    EZ_TEST(!p1.IsValid());
+    EZ_TEST_BOOL(!p1.IsValid());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Transform(Mat3)")
@@ -379,7 +379,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Plane)
       EZ_TEST_VEC3(p.m_vNormal, ezVec3T(0, 1, 0), 0.0001f);
       EZ_TEST_FLOAT(p.m_fNegDistance, -10.0f, 0.0001f);
 
-      EZ_TEST(p.FlipIfNecessary(ezVec3T(0, 11, 0), true) == false);
+      EZ_TEST_BOOL(p.FlipIfNecessary(ezVec3T(0, 11, 0), true) == false);
 
       EZ_TEST_VEC3(p.m_vNormal, ezVec3T(0, 1, 0), 0.0001f);
       EZ_TEST_FLOAT(p.m_fNegDistance, -10.0f, 0.0001f);
@@ -391,7 +391,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Plane)
       EZ_TEST_VEC3(p.m_vNormal, ezVec3T(0, 1, 0), 0.0001f);
       EZ_TEST_FLOAT(p.m_fNegDistance, -10.0f, 0.0001f);
 
-      EZ_TEST(p.FlipIfNecessary(ezVec3T(0, 11, 0), false) == true);
+      EZ_TEST_BOOL(p.FlipIfNecessary(ezVec3T(0, 11, 0), false) == true);
 
       EZ_TEST_VEC3(p.m_vNormal, ezVec3T(0, -1, 0), 0.0001f);
       EZ_TEST_FLOAT(p.m_fNegDistance, 10.0f, 0.0001f);
@@ -405,12 +405,12 @@ EZ_CREATE_SIMPLE_TEST(Math, Plane)
     ezMathTestType f;
     ezVec3T v;
 
-    EZ_TEST(p.GetRayIntersection(ezVec3T(3, 1, 7), ezVec3T(0, 1, 0), &f, &v));
+    EZ_TEST_BOOL(p.GetRayIntersection(ezVec3T(3, 1, 7), ezVec3T(0, 1, 0), &f, &v));
     EZ_TEST_FLOAT(f, 9, 0.0001f);
     EZ_TEST_VEC3(v, ezVec3T(3, 10, 7), 0.0001f);
 
-    EZ_TEST(!p.GetRayIntersection(ezVec3T(3, 1, 7), ezVec3T(1, 0, 0), &f, &v));
-    EZ_TEST(!p.GetRayIntersection(ezVec3T(3, 1, 7), ezVec3T(0, -1, 0), &f, &v));
+    EZ_TEST_BOOL(!p.GetRayIntersection(ezVec3T(3, 1, 7), ezVec3T(1, 0, 0), &f, &v));
+    EZ_TEST_BOOL(!p.GetRayIntersection(ezVec3T(3, 1, 7), ezVec3T(0, -1, 0), &f, &v));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetRayIntersectionBiDirectional")
@@ -420,13 +420,13 @@ EZ_CREATE_SIMPLE_TEST(Math, Plane)
     ezMathTestType f;
     ezVec3T v;
 
-    EZ_TEST(p.GetRayIntersectionBiDirectional(ezVec3T(3, 1, 7), ezVec3T(0, 1, 0), &f, &v));
+    EZ_TEST_BOOL(p.GetRayIntersectionBiDirectional(ezVec3T(3, 1, 7), ezVec3T(0, 1, 0), &f, &v));
     EZ_TEST_FLOAT(f, 9, 0.0001f);
     EZ_TEST_VEC3(v, ezVec3T(3, 10, 7), 0.0001f);
 
-    EZ_TEST(!p.GetRayIntersectionBiDirectional(ezVec3T(3, 1, 7), ezVec3T(1, 0, 0), &f, &v));
+    EZ_TEST_BOOL(!p.GetRayIntersectionBiDirectional(ezVec3T(3, 1, 7), ezVec3T(1, 0, 0), &f, &v));
 
-    EZ_TEST(p.GetRayIntersectionBiDirectional(ezVec3T(3, 1, 7), ezVec3T(0, -1, 0), &f, &v));
+    EZ_TEST_BOOL(p.GetRayIntersectionBiDirectional(ezVec3T(3, 1, 7), ezVec3T(0, -1, 0), &f, &v));
     EZ_TEST_FLOAT(f, -9, 0.0001f);
     EZ_TEST_VEC3(v, ezVec3T(3, 10, 7), 0.0001f);
   }
@@ -438,11 +438,11 @@ EZ_CREATE_SIMPLE_TEST(Math, Plane)
     ezMathTestType f;
     ezVec3T v;
 
-    EZ_TEST(p.GetLineSegmentIntersection(ezVec3T(3, 5, 7), ezVec3T(3, 15, 7), &f, &v));
+    EZ_TEST_BOOL(p.GetLineSegmentIntersection(ezVec3T(3, 5, 7), ezVec3T(3, 15, 7), &f, &v));
     EZ_TEST_FLOAT(f, 0.5f, 0.0001f);
     EZ_TEST_VEC3(v, ezVec3T(3, 10, 7), 0.0001f);
 
-    EZ_TEST(!p.GetLineSegmentIntersection(ezVec3T(3, 5, 7), ezVec3T(13, 5, 7), &f, &v));
+    EZ_TEST_BOOL(!p.GetLineSegmentIntersection(ezVec3T(3, 5, 7), ezVec3T(13, 5, 7), &f, &v));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetPlanesIntersectionPoint")
@@ -453,12 +453,12 @@ EZ_CREATE_SIMPLE_TEST(Math, Plane)
 
     ezVec3T r;
 
-    EZ_TEST(ezPlaneT::GetPlanesIntersectionPoint(p1, p2, p3, r) == EZ_SUCCESS);
+    EZ_TEST_BOOL(ezPlaneT::GetPlanesIntersectionPoint(p1, p2, p3, r) == EZ_SUCCESS);
     EZ_TEST_VEC3(r, ezVec3T(0, 10, 0), 0.0001f);
 
-    EZ_TEST(ezPlaneT::GetPlanesIntersectionPoint(p1, p1, p3, r) == EZ_FAILURE);
-    EZ_TEST(ezPlaneT::GetPlanesIntersectionPoint(p1, p2, p2, r) == EZ_FAILURE);
-    EZ_TEST(ezPlaneT::GetPlanesIntersectionPoint(p3, p2, p3, r) == EZ_FAILURE);
+    EZ_TEST_BOOL(ezPlaneT::GetPlanesIntersectionPoint(p1, p1, p3, r) == EZ_FAILURE);
+    EZ_TEST_BOOL(ezPlaneT::GetPlanesIntersectionPoint(p1, p2, p2, r) == EZ_FAILURE);
+    EZ_TEST_BOOL(ezPlaneT::GetPlanesIntersectionPoint(p3, p2, p3, r) == EZ_FAILURE);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "FindSupportPoints")

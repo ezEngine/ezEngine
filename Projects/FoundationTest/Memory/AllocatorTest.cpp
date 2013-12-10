@@ -45,33 +45,33 @@ template <typename T>
 void TestAlignmentHelper(size_t uiExpectedAlignment)
 {
   ezIAllocator* pAllocator = ezFoundation::GetAlignedAllocator();
-  EZ_TEST(pAllocator != NULL);
+  EZ_TEST_BOOL(pAllocator != NULL);
 
   size_t uiAlignment = EZ_ALIGNMENT_OF(T);
-  EZ_TEST(uiAlignment == uiExpectedAlignment);
+  EZ_TEST_BOOL(uiAlignment == uiExpectedAlignment);
 
   T testOnStack = T();
-  EZ_TEST(ezMemoryUtils::IsAligned(&testOnStack, uiExpectedAlignment));
+  EZ_TEST_BOOL(ezMemoryUtils::IsAligned(&testOnStack, uiExpectedAlignment));
 
   T* pTestBuffer = EZ_NEW_RAW_BUFFER(pAllocator, T, 32);
   ezArrayPtr<T> TestArray = EZ_NEW_ARRAY(pAllocator, T, 32);
 
   // default constructor should be called even if we declare as a pod type
-  EZ_TEST(TestArray[0].x == 5.0f);
-  EZ_TEST(TestArray[0].y == 6.0f);
-  EZ_TEST(TestArray[0].z == 8.0f);
+  EZ_TEST_BOOL(TestArray[0].x == 5.0f);
+  EZ_TEST_BOOL(TestArray[0].y == 6.0f);
+  EZ_TEST_BOOL(TestArray[0].z == 8.0f);
 
-  EZ_TEST(ezMemoryUtils::IsAligned(pTestBuffer, uiExpectedAlignment));
-  EZ_TEST(ezMemoryUtils::IsAligned(TestArray.GetPtr(), uiExpectedAlignment));
+  EZ_TEST_BOOL(ezMemoryUtils::IsAligned(pTestBuffer, uiExpectedAlignment));
+  EZ_TEST_BOOL(ezMemoryUtils::IsAligned(TestArray.GetPtr(), uiExpectedAlignment));
 
 #if EZ_ENABLED(SUPPORTS_MEMSIZE)
   size_t uiExpectedSize = sizeof(T) * 32;
-  EZ_TEST(pAllocator->AllocatedSize(pTestBuffer) == uiExpectedSize);
+  EZ_TEST_BOOL(pAllocator->AllocatedSize(pTestBuffer) == uiExpectedSize);
 
   ezIAllocator::Stats stats;
   pAllocator->GetStats(stats);
-  EZ_TEST(stats.m_uiAllocationSize == uiExpectedSize * 2);
-  EZ_TEST(stats.m_uiNumLiveAllocations == 2);
+  EZ_TEST_BOOL(stats.m_uiAllocationSize == uiExpectedSize * 2);
+  EZ_TEST_BOOL(stats.m_uiNumLiveAllocations == 2);
 #endif
 
   EZ_DELETE_ARRAY(pAllocator, TestArray);
@@ -79,8 +79,8 @@ void TestAlignmentHelper(size_t uiExpectedAlignment)
 
 #if EZ_ENABLED(SUPPORTS_MEMSIZE)
   pAllocator->GetStats(stats);
-  EZ_TEST(stats.m_uiAllocationSize == 0);
-  EZ_TEST(stats.m_uiNumLiveAllocations == 0);
+  EZ_TEST_BOOL(stats.m_uiAllocationSize == 0);
+  EZ_TEST_BOOL(stats.m_uiNumLiveAllocations == 0);
 #endif
 }
 
@@ -122,7 +122,7 @@ EZ_CREATE_SIMPLE_TEST(Memory, Allocator)
     for (ezUInt32 i = 0; i < 17; ++i)
     {
       ezDataBlock<int> block = allocator.AllocateBlock<int>();
-      EZ_TEST(ezMemoryUtils::IsAligned(block.m_pData, BLOCK_SIZE_IN_BYTES)); // test page alignment
+      EZ_TEST_BOOL(ezMemoryUtils::IsAligned(block.m_pData, BLOCK_SIZE_IN_BYTES)); // test page alignment
       EZ_TEST_INT(block.m_uiCount, 0);
 
       blocks.PushBack(block);
@@ -131,11 +131,11 @@ EZ_CREATE_SIMPLE_TEST(Memory, Allocator)
     ezIAllocator::Stats stats;
     allocator.GetStats(stats);
 
-    EZ_TEST(stats.m_uiNumAllocations == 17);
-    EZ_TEST(stats.m_uiNumDeallocations == 0);
-    EZ_TEST(stats.m_uiNumLiveAllocations == 17);
-    EZ_TEST(stats.m_uiAllocationSize == 17 * BLOCK_SIZE_IN_BYTES);
-    EZ_TEST(stats.m_uiUsedMemorySize == 32 * BLOCK_SIZE_IN_BYTES);
+    EZ_TEST_BOOL(stats.m_uiNumAllocations == 17);
+    EZ_TEST_BOOL(stats.m_uiNumDeallocations == 0);
+    EZ_TEST_BOOL(stats.m_uiNumLiveAllocations == 17);
+    EZ_TEST_BOOL(stats.m_uiAllocationSize == 17 * BLOCK_SIZE_IN_BYTES);
+    EZ_TEST_BOOL(stats.m_uiUsedMemorySize == 32 * BLOCK_SIZE_IN_BYTES);
 
     for (ezUInt32 i = 0; i < 200; ++i)
     {
@@ -151,11 +151,11 @@ EZ_CREATE_SIMPLE_TEST(Memory, Allocator)
 
     allocator.GetStats(stats);
 
-    EZ_TEST(stats.m_uiNumAllocations == 217);
-    EZ_TEST(stats.m_uiNumDeallocations == 200);
-    EZ_TEST(stats.m_uiNumLiveAllocations == 17);
-    EZ_TEST(stats.m_uiAllocationSize == 17 * BLOCK_SIZE_IN_BYTES);
-    EZ_TEST(stats.m_uiUsedMemorySize == 6 * 16 * BLOCK_SIZE_IN_BYTES);
+    EZ_TEST_BOOL(stats.m_uiNumAllocations == 217);
+    EZ_TEST_BOOL(stats.m_uiNumDeallocations == 200);
+    EZ_TEST_BOOL(stats.m_uiNumLiveAllocations == 17);
+    EZ_TEST_BOOL(stats.m_uiAllocationSize == 17 * BLOCK_SIZE_IN_BYTES);
+    EZ_TEST_BOOL(stats.m_uiUsedMemorySize == 6 * 16 * BLOCK_SIZE_IN_BYTES);
 
     for (ezUInt32 i = 0; i < 2000; ++i)
     {
@@ -182,8 +182,8 @@ EZ_CREATE_SIMPLE_TEST(Memory, Allocator)
 
     allocator.GetStats(stats);
 
-    EZ_TEST(stats.m_uiNumLiveAllocations == 0);
-    EZ_TEST(stats.m_uiAllocationSize == 0);
-    EZ_TEST(stats.m_uiUsedMemorySize <= 5 * 32 * 4096);
+    EZ_TEST_BOOL(stats.m_uiNumLiveAllocations == 0);
+    EZ_TEST_BOOL(stats.m_uiAllocationSize == 0);
+    EZ_TEST_BOOL(stats.m_uiUsedMemorySize <= 5 * 32 * 4096);
   }
 }

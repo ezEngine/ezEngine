@@ -21,47 +21,47 @@ EZ_CREATE_SIMPLE_TEST(Time, Clock)
   {
     ezClock c; // calls 'Reset' internally
 
-    EZ_TEST(c.GetTimeStepSmoothing() == NULL); // after constructor
+    EZ_TEST_BOOL(c.GetTimeStepSmoothing() == NULL); // after constructor
 
     EZ_TEST_DOUBLE(c.GetAccumulatedTime().GetSeconds(), 0.0, 0.0);
     EZ_TEST_DOUBLE(c.GetFixedTimeStep().GetSeconds(), 0.0, 0.0);
     EZ_TEST_DOUBLE(c.GetSpeed(), 1.0, 0.0);
-    EZ_TEST(c.GetPaused() == false);
+    EZ_TEST_BOOL(c.GetPaused() == false);
     EZ_TEST_DOUBLE(c.GetMinimumTimeStep().GetSeconds(), 0.001, 0.0); // to ensure the tests fail if somebody changes these constants
     EZ_TEST_DOUBLE(c.GetMaximumTimeStep().GetSeconds(), 0.1, 0.0); // to ensure the tests fail if somebody changes these constants
-    EZ_TEST(c.GetTimeDiff() > ezTime::Seconds(0.0));
+    EZ_TEST_BOOL(c.GetTimeDiff() > ezTime::Seconds(0.0));
 
     ezSimpleTimeStepSmoother s;
 
     c.SetTimeStepSmoothing(&s);
 
-    EZ_TEST(c.GetTimeStepSmoothing() == &s);
+    EZ_TEST_BOOL(c.GetTimeStepSmoothing() == &s);
 
     c.Reset(false);
 
     // does NOT reset which time step smoother to use
-    EZ_TEST(c.GetTimeStepSmoothing() == &s);
+    EZ_TEST_BOOL(c.GetTimeStepSmoothing() == &s);
 
     c.Reset(true);
-    EZ_TEST(c.GetTimeStepSmoothing() == NULL); // after constructor
+    EZ_TEST_BOOL(c.GetTimeStepSmoothing() == NULL); // after constructor
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetPaused / GetPaused")
   {
     ezClock c;
-    EZ_TEST(!c.GetPaused());
+    EZ_TEST_BOOL(!c.GetPaused());
 
     c.SetPaused(true);
-    EZ_TEST(c.GetPaused());
+    EZ_TEST_BOOL(c.GetPaused());
 
     c.SetPaused(false);
-    EZ_TEST(!c.GetPaused());
+    EZ_TEST_BOOL(!c.GetPaused());
 
     c.SetPaused(true);
-    EZ_TEST(c.GetPaused());
+    EZ_TEST_BOOL(c.GetPaused());
 
     c.Reset(false);
-    EZ_TEST(!c.GetPaused());
+    EZ_TEST_BOOL(!c.GetPaused());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Updates while Paused / Unpaused")
@@ -76,7 +76,7 @@ EZ_CREATE_SIMPLE_TEST(Time, Clock)
     c.Update();
 
     const ezTime t1 = c.GetAccumulatedTime();
-    EZ_TEST(t0 < t1);
+    EZ_TEST_BOOL(t0 < t1);
 
     c.SetPaused(true);
 
@@ -84,7 +84,7 @@ EZ_CREATE_SIMPLE_TEST(Time, Clock)
     c.Update();
 
     const ezTime t2 = c.GetAccumulatedTime();
-    EZ_TEST(t1 == t2);
+    EZ_TEST_BOOL(t1 == t2);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetFixedTimeStep / GetFixedTimeStep")
@@ -128,7 +128,7 @@ EZ_CREATE_SIMPLE_TEST(Time, Clock)
 
     c.Update(); // by default after a SetAccumulatedTime the time diff should always be > 0
 
-    EZ_TEST(c.GetTimeDiff().GetSeconds() > 0.0);
+    EZ_TEST_BOOL(c.GetTimeDiff().GetSeconds() > 0.0);
 
     const ezTime t0 = c.GetAccumulatedTime();
 
@@ -137,8 +137,8 @@ EZ_CREATE_SIMPLE_TEST(Time, Clock)
 
     const ezTime t1 = c.GetAccumulatedTime();
 
-    EZ_TEST(t1 > t0);
-    EZ_TEST(c.GetTimeDiff().GetSeconds() > 0.0);
+    EZ_TEST_BOOL(t1 > t0);
+    EZ_TEST_BOOL(c.GetTimeDiff().GetSeconds() > 0.0);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetSpeed / GetSpeed / GetTimeDiff")
@@ -213,12 +213,12 @@ EZ_CREATE_SIMPLE_TEST(Time, Clock)
   {
     ezClock c;
 
-    EZ_TEST(c.GetTimeStepSmoothing() == NULL);
+    EZ_TEST_BOOL(c.GetTimeStepSmoothing() == NULL);
     
     ezSimpleTimeStepSmoother s;
     c.SetTimeStepSmoothing(&s);
 
-    EZ_TEST(c.GetTimeStepSmoothing() == &s);
+    EZ_TEST_BOOL(c.GetTimeStepSmoothing() == &s);
 
     c.SetMaximumTimeStep(ezTime::Seconds(10.0)); // this would limit the time step even after smoothing
     c.Update();

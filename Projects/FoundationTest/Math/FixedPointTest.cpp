@@ -66,13 +66,13 @@ EZ_CREATE_SIMPLE_TEST(Math, FixedPoint)
 
     fp3 = fp1;
 
-    EZ_TEST(fp1 == fp1);
-    EZ_TEST(fp2 == fp2);
-    EZ_TEST(fp3 == fp3);
+    EZ_TEST_BOOL(fp1 == fp1);
+    EZ_TEST_BOOL(fp2 == fp2);
+    EZ_TEST_BOOL(fp3 == fp3);
 
-    EZ_TEST(fp1 == fp2);
-    EZ_TEST(fp1 == fp3);
-    EZ_TEST(fp2 == fp3);
+    EZ_TEST_BOOL(fp1 == fp2);
+    EZ_TEST_BOOL(fp1 == fp3);
+    EZ_TEST_BOOL(fp2 == fp3);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Max Value")
@@ -83,10 +83,10 @@ EZ_CREATE_SIMPLE_TEST(Math, FixedPoint)
     ezFixedPoint<12> fp4 (-(1 << 19) - 1);
 
     // 12 Bits for the fraction -> 19 Bits for the integral part and 1 'Sign Bit'
-    EZ_TEST(fp1.ToInt() ==  (1 << 19) - 1); // This maximum value is still representable
-    EZ_TEST(fp2.ToInt() !=  (1 << 19));     // The next value isn't representable anymore
-    EZ_TEST(fp3.ToInt() == -(1 << 19));
-    EZ_TEST(fp4.ToInt() != -(1 << 19) - 1);
+    EZ_TEST_BOOL(fp1.ToInt() ==  (1 << 19) - 1); // This maximum value is still representable
+    EZ_TEST_BOOL(fp2.ToInt() !=  (1 << 19));     // The next value isn't representable anymore
+    EZ_TEST_BOOL(fp3.ToInt() == -(1 << 19));
+    EZ_TEST_BOOL(fp4.ToInt() != -(1 << 19) - 1);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator*(fp, int)")
@@ -166,12 +166,12 @@ EZ_CREATE_SIMPLE_TEST(Math, FixedPoint)
     ezFixedPoint<12> fp3 (3);
     ezFixedPoint<12> fp3b (3.0f);
 
-    EZ_TEST(fp1 < fp2);
-    EZ_TEST(fp3 > fp2);
-    EZ_TEST(fp3 <= fp3b);
-    EZ_TEST(fp3 >= fp3b);
-    EZ_TEST(fp1 != fp2);
-    EZ_TEST(fp3 == fp3b);
+    EZ_TEST_BOOL(fp1 < fp2);
+    EZ_TEST_BOOL(fp3 > fp2);
+    EZ_TEST_BOOL(fp3 <= fp3b);
+    EZ_TEST_BOOL(fp3 >= fp3b);
+    EZ_TEST_BOOL(fp1 != fp2);
+    EZ_TEST_BOOL(fp3 == fp3b);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Assignment Rounding")

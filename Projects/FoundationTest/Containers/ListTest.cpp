@@ -110,23 +110,23 @@ EZ_CREATE_SIMPLE_TEST(Containers, List)
   {
     ezList<ezInt32> l;
 
-    EZ_TEST(l.IsEmpty());
+    EZ_TEST_BOOL(l.IsEmpty());
 
     for (ezUInt32 i = 0; i < 1000; ++i)
       l.PushBack(i);
 
-    EZ_TEST(!l.IsEmpty());
+    EZ_TEST_BOOL(!l.IsEmpty());
 
     l.Clear();
-    EZ_TEST(l.IsEmpty());
+    EZ_TEST_BOOL(l.IsEmpty());
 
     for (ezUInt32 i = 0; i < 1000; ++i)
     {
       l.PushBack(i);
-      EZ_TEST(!l.IsEmpty());
+      EZ_TEST_BOOL(!l.IsEmpty());
 
       l.Clear();
-      EZ_TEST(l.IsEmpty());
+      EZ_TEST_BOOL(l.IsEmpty());
     }
   }
 
@@ -225,7 +225,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, List)
       EZ_TEST_INT(*it, i + 10000);
       ++it;
 
-      EZ_TEST(it.IsValid());
+      EZ_TEST_BOOL(it.IsValid());
       EZ_TEST_INT(*it, i);
 
       ++i;
@@ -282,30 +282,30 @@ EZ_CREATE_SIMPLE_TEST(Containers, List)
       ++i;
     }
 
-    EZ_TEST(!l.GetEndIterator().IsValid());
+    EZ_TEST_BOOL(!l.GetEndIterator().IsValid());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Element Constructions / Destructions")
   {
-    EZ_TEST(st::HasAllDestructed());
+    EZ_TEST_BOOL(st::HasAllDestructed());
 
     ezList<st> l;
 
-    EZ_TEST(st::HasAllDestructed());
+    EZ_TEST_BOOL(st::HasAllDestructed());
 
     l.PushBack();
-    EZ_TEST(st::HasDone(2, 1));
+    EZ_TEST_BOOL(st::HasDone(2, 1));
 
     l.PushBack(st(1));
-    EZ_TEST(st::HasDone(2, 1));
+    EZ_TEST_BOOL(st::HasDone(2, 1));
 
     l.SetCount(4);
-    EZ_TEST(st::HasDone(4, 2)); 
+    EZ_TEST_BOOL(st::HasDone(4, 2)); 
 
     l.Clear();
-    EZ_TEST(st::HasDone(0, 4)); 
+    EZ_TEST_BOOL(st::HasDone(0, 4)); 
 
-    EZ_TEST(st::HasAllDestructed());
+    EZ_TEST_BOOL(st::HasAllDestructed());
   }
 }
 

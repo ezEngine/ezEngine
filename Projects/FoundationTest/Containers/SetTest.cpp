@@ -15,13 +15,13 @@ EZ_CREATE_SIMPLE_TEST(Containers, Set)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsEmpty")
   {
     ezSet<ezUInt32> m;
-    EZ_TEST(m.IsEmpty());
+    EZ_TEST_BOOL(m.IsEmpty());
 
     m.Insert(1);
-    EZ_TEST(!m.IsEmpty());
+    EZ_TEST_BOOL(!m.IsEmpty());
 
     m.Clear();
-    EZ_TEST(m.IsEmpty());
+    EZ_TEST_BOOL(m.IsEmpty());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetCount")
@@ -47,38 +47,38 @@ EZ_CREATE_SIMPLE_TEST(Containers, Set)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Clear")
   {
-    EZ_TEST(st::HasAllDestructed());
+    EZ_TEST_BOOL(st::HasAllDestructed());
 
     {
       ezSet<st> m1;
       m1.Insert(st(1));
-      EZ_TEST(st::HasDone(2, 1));
+      EZ_TEST_BOOL(st::HasDone(2, 1));
 
       m1.Insert(st(3));
-      EZ_TEST(st::HasDone(2, 1));
+      EZ_TEST_BOOL(st::HasDone(2, 1));
 
       m1.Insert(st(1));
-      EZ_TEST(st::HasDone(1, 1)); // nothing new to create, so only the one temporary is used
+      EZ_TEST_BOOL(st::HasDone(1, 1)); // nothing new to create, so only the one temporary is used
 
       m1.Clear();
-      EZ_TEST(st::HasDone(0, 2));
-      EZ_TEST(st::HasAllDestructed());
+      EZ_TEST_BOOL(st::HasDone(0, 2));
+      EZ_TEST_BOOL(st::HasAllDestructed());
     }
 
     {
       ezSet<st> m1;
       m1.Insert(st(0));
-      EZ_TEST(st::HasDone(2, 1)); // one temporary
+      EZ_TEST_BOOL(st::HasDone(2, 1)); // one temporary
 
       m1.Insert(st(1));
-      EZ_TEST(st::HasDone(2, 1)); // one temporary
+      EZ_TEST_BOOL(st::HasDone(2, 1)); // one temporary
 
       m1.Insert(st(0));
-      EZ_TEST(st::HasDone(1, 1)); // nothing new to create, so only the one temporary is used
+      EZ_TEST_BOOL(st::HasDone(1, 1)); // nothing new to create, so only the one temporary is used
 
       m1.Clear();
-      EZ_TEST(st::HasDone(0, 2));
-      EZ_TEST(st::HasAllDestructed());
+      EZ_TEST_BOOL(st::HasDone(0, 2));
+      EZ_TEST_BOOL(st::HasAllDestructed());
     }
   }
 
@@ -95,15 +95,15 @@ EZ_CREATE_SIMPLE_TEST(Containers, Set)
     m.Insert(5);
     m.Insert(6);
 
-    EZ_TEST(m.Find(1).IsValid());
-    EZ_TEST(m.Find(2).IsValid());
-    EZ_TEST(m.Find(3).IsValid());
-    EZ_TEST(m.Find(4).IsValid());
-    EZ_TEST(m.Find(5).IsValid());
-    EZ_TEST(m.Find(6).IsValid());
-    EZ_TEST(m.Find(7).IsValid());
-    EZ_TEST(m.Find(8).IsValid());
-    EZ_TEST(m.Find(9).IsValid());
+    EZ_TEST_BOOL(m.Find(1).IsValid());
+    EZ_TEST_BOOL(m.Find(2).IsValid());
+    EZ_TEST_BOOL(m.Find(3).IsValid());
+    EZ_TEST_BOOL(m.Find(4).IsValid());
+    EZ_TEST_BOOL(m.Find(5).IsValid());
+    EZ_TEST_BOOL(m.Find(6).IsValid());
+    EZ_TEST_BOOL(m.Find(7).IsValid());
+    EZ_TEST_BOOL(m.Find(8).IsValid());
+    EZ_TEST_BOOL(m.Find(9).IsValid());
 
     EZ_TEST_INT(m.GetCount(), 9);
   }
@@ -143,8 +143,8 @@ EZ_CREATE_SIMPLE_TEST(Containers, Set)
     for (ezInt32 i = 0; i < 1000-1; ++i)
     {
       ezSet<ezUInt32>::Iterator itNext = m.Erase(m.Find(i));
-      EZ_TEST(!m.Find(i).IsValid());
-      EZ_TEST(itNext.Key() == i + 1);
+      EZ_TEST_BOOL(!m.Find(i).IsValid());
+      EZ_TEST_BOOL(itNext.Key() == i + 1);
 
       EZ_TEST_INT(m.GetCount(), 1000-1 - i);
     }
@@ -160,7 +160,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, Set)
     for (ezInt32 i = 0; i < 1000; ++i)
     {
       m.Erase(i);
-      EZ_TEST(!m.Find(i).IsValid());
+      EZ_TEST_BOOL(!m.Find(i).IsValid());
 
       EZ_TEST_INT(m.GetCount(), 1000-1 - i);
     }
@@ -176,7 +176,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, Set)
     m2 = m;
 
     for (ezInt32 i = 1000-1; i >= 0; --i)
-      EZ_TEST(m2.Find(i).IsValid());
+      EZ_TEST_BOOL(m2.Find(i).IsValid());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Copy Constructor")
@@ -189,7 +189,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, Set)
     ezSet<ezUInt32> m2 (m);
 
     for (ezInt32 i = 1000-1; i >= 0; --i)
-      EZ_TEST(m2.Find(i).IsValid());
+      EZ_TEST_BOOL(m2.Find(i).IsValid());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetIterator / Forward Iteration")
@@ -281,7 +281,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, Set)
     EZ_TEST_INT(m.LowerBound(8).Key(), 9);
     EZ_TEST_INT(m.LowerBound(9).Key(), 9);
 
-    EZ_TEST(!m.LowerBound(10).IsValid());
+    EZ_TEST_BOOL(!m.LowerBound(10).IsValid());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "UpperBound")
@@ -303,8 +303,8 @@ EZ_CREATE_SIMPLE_TEST(Containers, Set)
     EZ_TEST_INT(m.UpperBound(6).Key(), 7);
     EZ_TEST_INT(m.UpperBound(7).Key(), 9);
     EZ_TEST_INT(m.UpperBound(8).Key(), 9);
-    EZ_TEST(!m.UpperBound(9).IsValid());
-    EZ_TEST(!m.UpperBound(10).IsValid());
+    EZ_TEST_BOOL(!m.UpperBound(9).IsValid());
+    EZ_TEST_BOOL(!m.UpperBound(10).IsValid());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Insert / Erase")
@@ -336,12 +336,12 @@ EZ_CREATE_SIMPLE_TEST(Containers, Set)
       // Erase others
       for (ezUInt32 j = 1; j < 1000; ++j)
       {
-        EZ_TEST(m.Find(20000 * j).IsValid());
+        EZ_TEST_BOOL(m.Find(20000 * j).IsValid());
         m.Erase(20000 * j);
       }
     }
 
-    EZ_TEST(m.IsEmpty());
+    EZ_TEST_BOOL(m.IsEmpty());
   }
 }
 

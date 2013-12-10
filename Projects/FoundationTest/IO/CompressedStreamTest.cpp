@@ -34,7 +34,7 @@ EZ_CREATE_SIMPLE_TEST(IO, CompressedStream)
       if (iWrite == 0)
         break;
 
-      EZ_TEST(CompressedWriter.WriteBytes(&Data[uiStartPos], sizeof(ezUInt32) * iWrite) == EZ_SUCCESS);
+      EZ_TEST_BOOL(CompressedWriter.WriteBytes(&Data[uiStartPos], sizeof(ezUInt32) * iWrite) == EZ_SUCCESS);
 
       uiStartPos += iWrite;
     }
@@ -47,7 +47,7 @@ EZ_CREATE_SIMPLE_TEST(IO, CompressedStream)
 
     EZ_TEST_INT(uiUncompressed, uiItems * sizeof(ezUInt32));
 
-    EZ_TEST((float) uiCompressed <= (float) uiUncompressed / fExpectedCompressionRatio);
+    EZ_TEST_BOOL((float) uiCompressed <= (float) uiUncompressed / fExpectedCompressionRatio);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Uncompress Data")
@@ -74,12 +74,12 @@ EZ_CREATE_SIMPLE_TEST(IO, CompressedStream)
       if (bSkip)
       {
         const ezUInt64 uiReadFromStream = CompressedReader.SkipBytes(sizeof(ezUInt32) * iToRead);
-        EZ_TEST(uiReadFromStream == sizeof(ezUInt32) * iToRead);
+        EZ_TEST_BOOL(uiReadFromStream == sizeof(ezUInt32) * iToRead);
       }
       else
       {
         const ezUInt64 uiReadFromStream = CompressedReader.ReadBytes(&Data[uiStartPos], sizeof(ezUInt32) * iToRead);
-        EZ_TEST(uiReadFromStream == sizeof(ezUInt32) * iToRead);
+        EZ_TEST_BOOL(uiReadFromStream == sizeof(ezUInt32) * iToRead);
       }
 
       bSkip = !bSkip;
@@ -122,7 +122,7 @@ EZ_CREATE_SIMPLE_TEST(IO, CompressedStream)
     for (ezUInt32 i = 0; i < 1000; ++i)
     {
       ezUInt32 uiTemp = 0;
-      EZ_TEST(CompressedReader.ReadBytes(&uiTemp, sizeof(ezUInt32)) == 0);
+      EZ_TEST_BOOL(CompressedReader.ReadBytes(&uiTemp, sizeof(ezUInt32)) == 0);
     }
   }
 }

@@ -40,11 +40,11 @@ EZ_CREATE_SIMPLE_TEST(Basics, Id)
   EZ_TEST_INT(id2.m_InstanceIndex, 1);
   EZ_TEST_INT(id2.m_Generation, 20);
   EZ_TEST_INT(id2.m_SystemIndex, 15);
-  EZ_TEST(id2 == id3);
+  EZ_TEST_BOOL(id2 == id3);
 
   id2.m_InstanceIndex = 2;
   EZ_TEST_INT(id2.m_InstanceIndex, 2);
-  EZ_TEST(id2 != id3);
+  EZ_TEST_BOOL(id2 != id3);
 
   id2.m_Generation = 94; // overflow
   EZ_TEST_INT(id2.m_Generation, 30);

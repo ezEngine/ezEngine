@@ -42,24 +42,24 @@ EZ_CREATE_SIMPLE_TEST(Math, General)
   //EZ_TEST_BLOCK(ezTestBlock::Enabled, "Constants")
   //{
   //  // Macro test
-  //  EZ_TEST(EZ_8BIT(01010101) == 85);
-  //  EZ_TEST(EZ_16BIT(10101010, 01010101) == 43605);
-  //  EZ_TEST(EZ_32BIT(10000000, 11111111, 10101010, 01010101) == 2164238933);
+  //  EZ_TEST_BOOL(EZ_8BIT(01010101) == 85);
+  //  EZ_TEST_BOOL(EZ_16BIT(10101010, 01010101) == 43605);
+  //  EZ_TEST_BOOL(EZ_32BIT(10000000, 11111111, 10101010, 01010101) == 2164238933);
 
   //  // Infinity test
   //  //                           Sign:_
   //  //                       Exponent: _______  _
   //  //                       Fraction:           _______  ________  ________
   //  ezIntFloatUnion uInf = { EZ_32BIT(01111111, 10000000, 00000000, 00000000) };
-  //  EZ_TEST(uInf.f == ezMath::FloatInfinity());
+  //  EZ_TEST_BOOL(uInf.f == ezMath::FloatInfinity());
 
   //  // FloatMax_Pos test
   //  ezIntFloatUnion uMax = { EZ_32BIT(01111111, 01111111, 11111111, 11111111) };
-  //  EZ_TEST(uMax.f == ezMath::FloatMax_Pos());
+  //  EZ_TEST_BOOL(uMax.f == ezMath::FloatMax_Pos());
 
   //  // FloatMax_Neg test
   //  ezIntFloatUnion uMin = { EZ_32BIT(11111111, 01111111, 11111111, 11111111) };
-  //  EZ_TEST(uMin.f == ezMath::FloatMax_Neg());
+  //  EZ_TEST_BOOL(uMin.f == ezMath::FloatMax_Neg());
   //}
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Sin")
@@ -93,8 +93,8 @@ EZ_CREATE_SIMPLE_TEST(Math, General)
     EZ_TEST_FLOAT(ezMath::Tan(ezAngle::Degree(0.0f)), 0.0f, 0.000001f);
     EZ_TEST_FLOAT(ezMath::Tan(ezAngle::Degree(45.0f)), 1.0f, 0.000001f);
     EZ_TEST_FLOAT(ezMath::Tan(ezAngle::Degree(-45.0f)), -1.0f, 0.000001f);
-    EZ_TEST(ezMath::Tan(ezAngle::Degree(90.00001f)) < 1000000.0f);
-    EZ_TEST(ezMath::Tan(ezAngle::Degree(89.99999f)) > 1000000.0f);
+    EZ_TEST_BOOL(ezMath::Tan(ezAngle::Degree(90.00001f)) < 1000000.0f);
+    EZ_TEST_BOOL(ezMath::Tan(ezAngle::Degree(89.99999f)) > 1000000.0f);
 
     // Testing the period of tan(x) centered at 0 and the adjacent ones
     ezAngle angle = ezAngle::Degree(-89.0f);
@@ -178,13 +178,13 @@ EZ_CREATE_SIMPLE_TEST(Math, General)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Log2i")
   {
-    EZ_TEST(ezMath::Log2i(1) == 0);
-    EZ_TEST(ezMath::Log2i(2) == 1);
-    EZ_TEST(ezMath::Log2i(3) == 1);
-    EZ_TEST(ezMath::Log2i(4) == 2);
-    EZ_TEST(ezMath::Log2i(6) == 2);
-    EZ_TEST(ezMath::Log2i(7) == 2);
-    EZ_TEST(ezMath::Log2i(8) == 3);
+    EZ_TEST_BOOL(ezMath::Log2i(1) == 0);
+    EZ_TEST_BOOL(ezMath::Log2i(2) == 1);
+    EZ_TEST_BOOL(ezMath::Log2i(3) == 1);
+    EZ_TEST_BOOL(ezMath::Log2i(4) == 2);
+    EZ_TEST_BOOL(ezMath::Log2i(6) == 2);
+    EZ_TEST_BOOL(ezMath::Log2i(7) == 2);
+    EZ_TEST_BOOL(ezMath::Log2i(8) == 3);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Log10")
@@ -215,9 +215,9 @@ EZ_CREATE_SIMPLE_TEST(Math, General)
     EZ_TEST_FLOAT(2.0f, ezMath::Pow2 (1.0f), 0.000001f);
     EZ_TEST_FLOAT(4.0f, ezMath::Pow2 (2.0f), 0.000001f);
 
-    EZ_TEST(ezMath::Pow2 (0) == 1);
-    EZ_TEST(ezMath::Pow2 (1) == 2);
-    EZ_TEST(ezMath::Pow2 (2) == 4);
+    EZ_TEST_BOOL(ezMath::Pow2 (0) == 1);
+    EZ_TEST_BOOL(ezMath::Pow2 (1) == 2);
+    EZ_TEST_BOOL(ezMath::Pow2 (2) == 4);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Pow")
@@ -226,9 +226,9 @@ EZ_CREATE_SIMPLE_TEST(Math, General)
     EZ_TEST_FLOAT(3.0f, ezMath::Pow (3.0f, 1.0f), 0.000001f);
     EZ_TEST_FLOAT(9.0f, ezMath::Pow (3.0f, 2.0f), 0.000001f);
 
-    EZ_TEST(ezMath::Pow (3, 0) == 1);
-    EZ_TEST(ezMath::Pow (3, 1) == 3);
-    EZ_TEST(ezMath::Pow (3, 2) == 9);
+    EZ_TEST_BOOL(ezMath::Pow (3, 0) == 1);
+    EZ_TEST_BOOL(ezMath::Pow (3, 1) == 3);
+    EZ_TEST_BOOL(ezMath::Pow (3, 2) == 9);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Square")
@@ -272,14 +272,14 @@ EZ_CREATE_SIMPLE_TEST(Math, General)
     EZ_TEST_FLOAT(0.0f, ezMath::Min(0.0f, 23.0f), 0.00000001f);
     EZ_TEST_FLOAT(-23.0f, ezMath::Min(0.0f,-23.0f), 0.00000001f);
 
-    EZ_TEST(ezMath::Min(1, 2, 3) == 1);
-    EZ_TEST(ezMath::Min(4, 2, 3) == 2);
-    EZ_TEST(ezMath::Min(4, 5, 3) == 3);
+    EZ_TEST_BOOL(ezMath::Min(1, 2, 3) == 1);
+    EZ_TEST_BOOL(ezMath::Min(4, 2, 3) == 2);
+    EZ_TEST_BOOL(ezMath::Min(4, 5, 3) == 3);
 
-    EZ_TEST(ezMath::Min(1, 2, 3, 4) == 1);
-    EZ_TEST(ezMath::Min(5, 2, 3, 4) == 2);
-    EZ_TEST(ezMath::Min(5, 6, 3, 4) == 3);
-    EZ_TEST(ezMath::Min(5, 6, 7, 4) == 4);
+    EZ_TEST_BOOL(ezMath::Min(1, 2, 3, 4) == 1);
+    EZ_TEST_BOOL(ezMath::Min(5, 2, 3, 4) == 2);
+    EZ_TEST_BOOL(ezMath::Min(5, 6, 3, 4) == 3);
+    EZ_TEST_BOOL(ezMath::Min(5, 6, 7, 4) == 4);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Max")
@@ -287,14 +287,14 @@ EZ_CREATE_SIMPLE_TEST(Math, General)
     EZ_TEST_FLOAT(23.0f, ezMath::Max(0.0f, 23.0f), 0.00000001f);
     EZ_TEST_FLOAT(0.0f, ezMath::Max(0.0f,-23.0f), 0.00000001f);
 
-    EZ_TEST(ezMath::Max(1, 2, 3) == 3);
-    EZ_TEST(ezMath::Max(1, 2, 0) == 2);
-    EZ_TEST(ezMath::Max(1, 0, 0) == 1);
+    EZ_TEST_BOOL(ezMath::Max(1, 2, 3) == 3);
+    EZ_TEST_BOOL(ezMath::Max(1, 2, 0) == 2);
+    EZ_TEST_BOOL(ezMath::Max(1, 0, 0) == 1);
                    
-    EZ_TEST(ezMath::Max(1, 2, 3, 4) == 4);
-    EZ_TEST(ezMath::Max(1, 2, 3, 0) == 3);
-    EZ_TEST(ezMath::Max(1, 2, 0, 0) == 2);
-    EZ_TEST(ezMath::Max(1, 0, 0, 0) == 1);
+    EZ_TEST_BOOL(ezMath::Max(1, 2, 3, 4) == 4);
+    EZ_TEST_BOOL(ezMath::Max(1, 2, 3, 0) == 3);
+    EZ_TEST_BOOL(ezMath::Max(1, 2, 0, 0) == 2);
+    EZ_TEST_BOOL(ezMath::Max(1, 0, 0, 0) == 1);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Clamp")
@@ -306,14 +306,14 @@ EZ_CREATE_SIMPLE_TEST(Math, General)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Floor")
   {
-    EZ_TEST( 12 == ezMath::Floor(12.34f));
-    EZ_TEST(-13 == ezMath::Floor(-12.34f));
+    EZ_TEST_BOOL( 12 == ezMath::Floor(12.34f));
+    EZ_TEST_BOOL(-13 == ezMath::Floor(-12.34f));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Ceil")
   {
-    EZ_TEST( 13 == ezMath::Ceil(12.34f));
-    EZ_TEST(-12 == ezMath::Ceil(-12.34f));
+    EZ_TEST_BOOL( 13 == ezMath::Ceil(12.34f));
+    EZ_TEST_BOOL(-12 == ezMath::Ceil(-12.34f));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "FloorM")
@@ -330,37 +330,37 @@ EZ_CREATE_SIMPLE_TEST(Math, General)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "FloorIM")
   {
-    EZ_TEST(10 == ezMath::Floor(11, 5));
-    EZ_TEST(10 == ezMath::Floor(10, 5));
-    EZ_TEST(5  == ezMath::Floor(9, 5));
+    EZ_TEST_BOOL(10 == ezMath::Floor(11, 5));
+    EZ_TEST_BOOL(10 == ezMath::Floor(10, 5));
+    EZ_TEST_BOOL(5  == ezMath::Floor(9, 5));
 
-    EZ_TEST(-10== ezMath::Floor(-6, 5));
-    EZ_TEST(-10== ezMath::Floor(-10, 5));
+    EZ_TEST_BOOL(-10== ezMath::Floor(-6, 5));
+    EZ_TEST_BOOL(-10== ezMath::Floor(-10, 5));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "CeilIM")
   {
-    EZ_TEST(15 == ezMath::Ceil(11, 5));
-    EZ_TEST(10 == ezMath::Ceil(10, 5));
-    EZ_TEST(10  == ezMath::Ceil(9, 5));
+    EZ_TEST_BOOL(15 == ezMath::Ceil(11, 5));
+    EZ_TEST_BOOL(10 == ezMath::Ceil(10, 5));
+    EZ_TEST_BOOL(10  == ezMath::Ceil(9, 5));
 
-    EZ_TEST(-5== ezMath::Ceil(-6, 5));
-    EZ_TEST(-10== ezMath::Ceil(-10, 5));
+    EZ_TEST_BOOL(-5== ezMath::Ceil(-6, 5));
+    EZ_TEST_BOOL(-10== ezMath::Ceil(-10, 5));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Trunc")
   {
-    EZ_TEST(ezMath::Trunc (12.34f) == 12);
-    EZ_TEST(ezMath::Trunc (-12.34f) == -12);
+    EZ_TEST_BOOL(ezMath::Trunc (12.34f) == 12);
+    EZ_TEST_BOOL(ezMath::Trunc (-12.34f) == -12);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Round")
   {
-    EZ_TEST(ezMath::Round(12.34f) == 12);
-    EZ_TEST(ezMath::Round(-12.34f) == -12);
+    EZ_TEST_BOOL(ezMath::Round(12.34f) == 12);
+    EZ_TEST_BOOL(ezMath::Round(-12.34f) == -12);
 
-    EZ_TEST(ezMath::Round(12.54f) == 13);
-    EZ_TEST(ezMath::Round(-12.54f) == -13);
+    EZ_TEST_BOOL(ezMath::Round(12.54f) == 13);
+    EZ_TEST_BOOL(ezMath::Round(-12.54f) == -13);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Round_Multiple")
@@ -394,20 +394,20 @@ EZ_CREATE_SIMPLE_TEST(Math, General)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Odd")
   {
-    EZ_TEST(ezMath::IsOdd(0) == false);
-    EZ_TEST(ezMath::IsOdd(1) == true);
-    EZ_TEST(ezMath::IsOdd(2) == false);
-    EZ_TEST(ezMath::IsOdd(-1) == true);
-    EZ_TEST(ezMath::IsOdd(-2) == false);
+    EZ_TEST_BOOL(ezMath::IsOdd(0) == false);
+    EZ_TEST_BOOL(ezMath::IsOdd(1) == true);
+    EZ_TEST_BOOL(ezMath::IsOdd(2) == false);
+    EZ_TEST_BOOL(ezMath::IsOdd(-1) == true);
+    EZ_TEST_BOOL(ezMath::IsOdd(-2) == false);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Even")
   {
-    EZ_TEST(ezMath::IsEven(0) == true);
-    EZ_TEST(ezMath::IsEven(1) == false);
-    EZ_TEST(ezMath::IsEven(2) == true);
-    EZ_TEST(ezMath::IsEven(-1) == false);
-    EZ_TEST(ezMath::IsEven(-2) == true);
+    EZ_TEST_BOOL(ezMath::IsEven(0) == true);
+    EZ_TEST_BOOL(ezMath::IsEven(1) == false);
+    EZ_TEST_BOOL(ezMath::IsEven(2) == true);
+    EZ_TEST_BOOL(ezMath::IsEven(-1) == false);
+    EZ_TEST_BOOL(ezMath::IsEven(-2) == true);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Swap")
@@ -415,7 +415,7 @@ EZ_CREATE_SIMPLE_TEST(Math, General)
     ezInt32 a = 1;
     ezInt32 b = 2;
     ezMath::Swap(a, b);
-    EZ_TEST((a == 2) && (b == 1));
+    EZ_TEST_BOOL((a == 2) && (b == 1));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Lerp")
@@ -458,87 +458,87 @@ EZ_CREATE_SIMPLE_TEST(Math, General)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsPowerOf")
   {
-    EZ_TEST(ezMath::IsPowerOf(4, 2) == true);
-    EZ_TEST(ezMath::IsPowerOf(5, 2) == false);
-    EZ_TEST(ezMath::IsPowerOf(0, 2) == false);
-    EZ_TEST(ezMath::IsPowerOf(1, 2) == true);
+    EZ_TEST_BOOL(ezMath::IsPowerOf(4, 2) == true);
+    EZ_TEST_BOOL(ezMath::IsPowerOf(5, 2) == false);
+    EZ_TEST_BOOL(ezMath::IsPowerOf(0, 2) == false);
+    EZ_TEST_BOOL(ezMath::IsPowerOf(1, 2) == true);
 
-    EZ_TEST(ezMath::IsPowerOf(4, 3) == false);
-    EZ_TEST(ezMath::IsPowerOf(3, 3) == true);
-    EZ_TEST(ezMath::IsPowerOf(1, 3) == true);
-    EZ_TEST(ezMath::IsPowerOf(27, 3) == true);
-    EZ_TEST(ezMath::IsPowerOf(28, 3) == false);
+    EZ_TEST_BOOL(ezMath::IsPowerOf(4, 3) == false);
+    EZ_TEST_BOOL(ezMath::IsPowerOf(3, 3) == true);
+    EZ_TEST_BOOL(ezMath::IsPowerOf(1, 3) == true);
+    EZ_TEST_BOOL(ezMath::IsPowerOf(27, 3) == true);
+    EZ_TEST_BOOL(ezMath::IsPowerOf(28, 3) == false);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsPowerOf2")
   {
-    EZ_TEST(ezMath::IsPowerOf2(4) == true);
-    EZ_TEST(ezMath::IsPowerOf2(5) == false);
-    EZ_TEST(ezMath::IsPowerOf2(0) == false);
-    EZ_TEST(ezMath::IsPowerOf2(1) == true);
+    EZ_TEST_BOOL(ezMath::IsPowerOf2(4) == true);
+    EZ_TEST_BOOL(ezMath::IsPowerOf2(5) == false);
+    EZ_TEST_BOOL(ezMath::IsPowerOf2(0) == false);
+    EZ_TEST_BOOL(ezMath::IsPowerOf2(1) == true);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "PowerOf2_Floor")
   {
-    EZ_TEST(ezMath::PowerOfTwo_Floor(64) == 64);
-    EZ_TEST(ezMath::PowerOfTwo_Floor(33) == 32);
-    EZ_TEST(ezMath::PowerOfTwo_Floor(4) == 4);
-    EZ_TEST(ezMath::PowerOfTwo_Floor(5) == 4);
-    EZ_TEST(ezMath::PowerOfTwo_Floor(1) == 1);
+    EZ_TEST_BOOL(ezMath::PowerOfTwo_Floor(64) == 64);
+    EZ_TEST_BOOL(ezMath::PowerOfTwo_Floor(33) == 32);
+    EZ_TEST_BOOL(ezMath::PowerOfTwo_Floor(4) == 4);
+    EZ_TEST_BOOL(ezMath::PowerOfTwo_Floor(5) == 4);
+    EZ_TEST_BOOL(ezMath::PowerOfTwo_Floor(1) == 1);
     // strange case...
-    EZ_TEST(ezMath::PowerOfTwo_Floor(0) == 1);
+    EZ_TEST_BOOL(ezMath::PowerOfTwo_Floor(0) == 1);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "PowerOf2_Ceil")
   {
-    EZ_TEST(ezMath::PowerOfTwo_Ceil(64) == 64);
-    EZ_TEST(ezMath::PowerOfTwo_Ceil(33) == 64);
-    EZ_TEST(ezMath::PowerOfTwo_Ceil(4) == 4);
-    EZ_TEST(ezMath::PowerOfTwo_Ceil(5) == 8);
-    EZ_TEST(ezMath::PowerOfTwo_Ceil(1) == 1);
-    EZ_TEST(ezMath::PowerOfTwo_Ceil(0) == 1);
+    EZ_TEST_BOOL(ezMath::PowerOfTwo_Ceil(64) == 64);
+    EZ_TEST_BOOL(ezMath::PowerOfTwo_Ceil(33) == 64);
+    EZ_TEST_BOOL(ezMath::PowerOfTwo_Ceil(4) == 4);
+    EZ_TEST_BOOL(ezMath::PowerOfTwo_Ceil(5) == 8);
+    EZ_TEST_BOOL(ezMath::PowerOfTwo_Ceil(1) == 1);
+    EZ_TEST_BOOL(ezMath::PowerOfTwo_Ceil(0) == 1);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsEqual")
   {
-    EZ_TEST(ezMath::IsEqual(1.0f, 0.999f, 0.01f) == true);
-    EZ_TEST(ezMath::IsEqual(1.0f, 1.001f, 0.01f) == true);
-    EZ_TEST(ezMath::IsEqual(1.0f, 0.999f, 0.0001f) == false);
-    EZ_TEST(ezMath::IsEqual(1.0f, 1.001f, 0.0001f) == false);
+    EZ_TEST_BOOL(ezMath::IsEqual(1.0f, 0.999f, 0.01f) == true);
+    EZ_TEST_BOOL(ezMath::IsEqual(1.0f, 1.001f, 0.01f) == true);
+    EZ_TEST_BOOL(ezMath::IsEqual(1.0f, 0.999f, 0.0001f) == false);
+    EZ_TEST_BOOL(ezMath::IsEqual(1.0f, 1.001f, 0.0001f) == false);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "NaN_Infinity")
   {
     if (ezMath::BasicType<ezMathTestType>::SupportsNaN())
     {
-      EZ_TEST(ezMath::IsNaN(ezMath::BasicType<ezMathTestType>::GetNaN()) == true);
+      EZ_TEST_BOOL(ezMath::IsNaN(ezMath::BasicType<ezMathTestType>::GetNaN()) == true);
 
-      EZ_TEST(ezMath::BasicType<ezMathTestType>::GetInfinity() == ezMath::BasicType<ezMathTestType>::GetInfinity() - (ezMathTestType) 1);
-      EZ_TEST(ezMath::BasicType<ezMathTestType>::GetInfinity() == ezMath::BasicType<ezMathTestType>::GetInfinity() + (ezMathTestType) 1);
+      EZ_TEST_BOOL(ezMath::BasicType<ezMathTestType>::GetInfinity() == ezMath::BasicType<ezMathTestType>::GetInfinity() - (ezMathTestType) 1);
+      EZ_TEST_BOOL(ezMath::BasicType<ezMathTestType>::GetInfinity() == ezMath::BasicType<ezMathTestType>::GetInfinity() + (ezMathTestType) 1);
 
-      EZ_TEST(ezMath::IsNaN(ezMath::BasicType<ezMathTestType>::GetInfinity() - ezMath::BasicType<ezMathTestType>::GetInfinity()));
+      EZ_TEST_BOOL(ezMath::IsNaN(ezMath::BasicType<ezMathTestType>::GetInfinity() - ezMath::BasicType<ezMathTestType>::GetInfinity()));
 
-      EZ_TEST(!ezMath::IsFinite( ezMath::BasicType<ezMathTestType>::GetInfinity()));
-      EZ_TEST(!ezMath::IsFinite(-ezMath::BasicType<ezMathTestType>::GetInfinity()));
-      EZ_TEST(!ezMath::IsFinite(ezMath::BasicType<ezMathTestType>::GetNaN()));
-      EZ_TEST(!ezMath::IsNaN(ezMath::BasicType<ezMathTestType>::GetInfinity()));
+      EZ_TEST_BOOL(!ezMath::IsFinite( ezMath::BasicType<ezMathTestType>::GetInfinity()));
+      EZ_TEST_BOOL(!ezMath::IsFinite(-ezMath::BasicType<ezMathTestType>::GetInfinity()));
+      EZ_TEST_BOOL(!ezMath::IsFinite(ezMath::BasicType<ezMathTestType>::GetNaN()));
+      EZ_TEST_BOOL(!ezMath::IsNaN(ezMath::BasicType<ezMathTestType>::GetInfinity()));
     }
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsInRange")
   {
-    EZ_TEST(ezMath::IsInRange(1.0f, 0.0f, 2.0f) == true);
-    EZ_TEST(ezMath::IsInRange(1.0f, 0.0f, 1.0f) == true);
-    EZ_TEST(ezMath::IsInRange(1.0f, 1.0f, 2.0f) == true);
-    EZ_TEST(ezMath::IsInRange(0.0f, 1.0f, 2.0f) == false);
-    EZ_TEST(ezMath::IsInRange(3.0f, 0.0f, 2.0f) == false);
+    EZ_TEST_BOOL(ezMath::IsInRange(1.0f, 0.0f, 2.0f) == true);
+    EZ_TEST_BOOL(ezMath::IsInRange(1.0f, 0.0f, 1.0f) == true);
+    EZ_TEST_BOOL(ezMath::IsInRange(1.0f, 1.0f, 2.0f) == true);
+    EZ_TEST_BOOL(ezMath::IsInRange(0.0f, 1.0f, 2.0f) == false);
+    EZ_TEST_BOOL(ezMath::IsInRange(3.0f, 0.0f, 2.0f) == false);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsZero")
   {
-    EZ_TEST(ezMath::IsZero(0.009f, 0.01f) == true);
-    EZ_TEST(ezMath::IsZero(0.001f, 0.01f) == true);
-    EZ_TEST(ezMath::IsZero(0.009f, 0.0001f) == false);
-    EZ_TEST(ezMath::IsZero(0.001f, 0.0001f) == false);
+    EZ_TEST_BOOL(ezMath::IsZero(0.009f, 0.01f) == true);
+    EZ_TEST_BOOL(ezMath::IsZero(0.001f, 0.01f) == true);
+    EZ_TEST_BOOL(ezMath::IsZero(0.009f, 0.0001f) == false);
+    EZ_TEST_BOOL(ezMath::IsZero(0.001f, 0.0001f) == false);
   }
 }

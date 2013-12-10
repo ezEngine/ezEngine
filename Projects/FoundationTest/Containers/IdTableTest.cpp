@@ -19,8 +19,8 @@ EZ_CREATE_SIMPLE_TEST(Containers, IdTable)
   {
     ezIdTable<Id, ezInt32> table;
 
-    EZ_TEST(table.GetCount() == 0);
-    EZ_TEST(table.IsEmpty());
+    EZ_TEST_BOOL(table.GetCount() == 0);
+    EZ_TEST_BOOL(table.IsEmpty());
 
     ezUInt32 counter = 0;
     for (ezIdTable<Id, ezInt32>::ConstIterator it = table.GetIterator(); it.IsValid(); ++it)
@@ -32,7 +32,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, IdTable)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Copy Constructor/Assignment/Iterator")
   {
-    EZ_TEST(st::HasAllDestructed());
+    EZ_TEST_BOOL(st::HasAllDestructed());
     {
       ezIdTable<Id, st> table1;
 
@@ -41,7 +41,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, IdTable)
         table1.Insert(st(i));
       }
 
-      EZ_TEST(table1.Remove(Id(0, 0)));
+      EZ_TEST_BOOL(table1.Remove(Id(0, 0)));
 
       for (ezInt32 i = 0; i < 99; ++i)
       {
@@ -53,15 +53,15 @@ EZ_CREATE_SIMPLE_TEST(Containers, IdTable)
         }
         while (!table1.Contains(id));
 
-        EZ_TEST(table1.Remove(id));
+        EZ_TEST_BOOL(table1.Remove(id));
       }
 
       ezIdTable<Id, st> table2;
       table2 = table1;
       ezIdTable<Id, st> table3(table1);
 
-      EZ_TEST(table2.IsFreelistValid());
-      EZ_TEST(table3.IsFreelistValid());
+      EZ_TEST_BOOL(table2.IsFreelistValid());
+      EZ_TEST_BOOL(table3.IsFreelistValid());
 
       EZ_TEST_INT(table1.GetCount(), 100);
       EZ_TEST_INT(table2.GetCount(), 100);
@@ -72,11 +72,11 @@ EZ_CREATE_SIMPLE_TEST(Containers, IdTable)
       {
         st value;
 
-        EZ_TEST(table2.TryGetValue(it.Id(), value));
-        EZ_TEST(it.Value() == value);
+        EZ_TEST_BOOL(table2.TryGetValue(it.Id(), value));
+        EZ_TEST_BOOL(it.Value() == value);
 
-        EZ_TEST(table3.TryGetValue(it.Id(), value));
-        EZ_TEST(it.Value() == value);
+        EZ_TEST_BOOL(table3.TryGetValue(it.Id(), value));
+        EZ_TEST_BOOL(it.Value() == value);
 
         ++uiCounter;
       }
@@ -91,12 +91,12 @@ EZ_CREATE_SIMPLE_TEST(Containers, IdTable)
       {
         st value;
 
-        EZ_TEST(table1.TryGetValue(it.Id(), value));
-        EZ_TEST(it.Value() == value);
-        EZ_TEST(value.m_iData == 42);
+        EZ_TEST_BOOL(table1.TryGetValue(it.Id(), value));
+        EZ_TEST_BOOL(it.Value() == value);
+        EZ_TEST_BOOL(value.m_iData == 42);
       }
     }
-    EZ_TEST(st::HasAllDestructed());
+    EZ_TEST_BOOL(st::HasAllDestructed());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Insert/Remove")
@@ -110,11 +110,11 @@ EZ_CREATE_SIMPLE_TEST(Containers, IdTable)
       EZ_TEST_INT(id.m_InstanceIndex, i);
       EZ_TEST_INT(id.m_Generation, 0);
 
-      EZ_TEST(table.Contains(id));
+      EZ_TEST_BOOL(table.Contains(id));
 
       TestObject y = table[id];
       EZ_TEST_INT(x.x, y.x);
-      EZ_TEST(x.s == y.s);
+      EZ_TEST_BOOL(x.s == y.s);
     }
     EZ_TEST_INT(table.GetCount(), 100);
 
@@ -125,8 +125,8 @@ EZ_CREATE_SIMPLE_TEST(Containers, IdTable)
     for (int i = 0; i < 10; i++)
     {
       bool res = table.Remove(ids[i]);
-      EZ_TEST(res);
-      EZ_TEST(!table.Contains(ids[i]));
+      EZ_TEST_BOOL(res);
+      EZ_TEST_BOOL(!table.Contains(ids[i]));
     }
     EZ_TEST_INT(table.GetCount(), 90);
 
@@ -135,15 +135,15 @@ EZ_CREATE_SIMPLE_TEST(Containers, IdTable)
       TestObject x = { 1000, "Bla. This is a very long string which does not fit into 32 byte and will cause memory allocations." };
       Id newId = table.Insert(x);
 
-      EZ_TEST(table.Contains(newId));
+      EZ_TEST_BOOL(table.Contains(newId));
 
       TestObject y = table[newId];
       EZ_TEST_INT(x.x, y.x);
-      EZ_TEST(x.s == y.s);
+      EZ_TEST_BOOL(x.s == y.s);
 
       TestObject* pObj;
-      EZ_TEST(table.TryGetValue(newId, pObj));
-      EZ_TEST(pObj->s == x.s);
+      EZ_TEST_BOOL(table.TryGetValue(newId, pObj));
+      EZ_TEST_BOOL(pObj->s == x.s);
     }
     EZ_TEST_INT(table.GetCount(), 130);
   }
@@ -166,36 +166,36 @@ EZ_CREATE_SIMPLE_TEST(Containers, IdTable)
         if (ids.GetCount() > 0)
         {
           ezUInt32 index = rand() % ids.GetCount();        
-          EZ_TEST(table.Remove(ids[index]));
+          EZ_TEST_BOOL(table.Remove(ids[index]));
           ids.RemoveAtSwap(index);
         }
       }
 
-      EZ_TEST(table.IsFreelistValid());
+      EZ_TEST_BOOL(table.IsFreelistValid());
     }
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Clear")
   {
-    EZ_TEST(st::HasAllDestructed());
+    EZ_TEST_BOOL(st::HasAllDestructed());
 
     ezIdTable<Id, st> m1;
     Id id0 = m1.Insert(st(1));
-    EZ_TEST(st::HasDone(2, 1)); // for inserting new elements 1 temporary is created (and destroyed)
+    EZ_TEST_BOOL(st::HasDone(2, 1)); // for inserting new elements 1 temporary is created (and destroyed)
 
     Id id1 = m1.Insert(st(3));
-    EZ_TEST(st::HasDone(2, 1)); // for inserting new elements 1 temporary is created (and destroyed)
+    EZ_TEST_BOOL(st::HasDone(2, 1)); // for inserting new elements 1 temporary is created (and destroyed)
 
     m1[id0] = st(2);
-    EZ_TEST(st::HasDone(1, 1)); // nothing new to create, so only the one temporary is used
+    EZ_TEST_BOOL(st::HasDone(1, 1)); // nothing new to create, so only the one temporary is used
 
     m1.Clear();
-    EZ_TEST(st::HasDone(0, 2));
-    EZ_TEST(st::HasAllDestructed());
+    EZ_TEST_BOOL(st::HasDone(0, 2));
+    EZ_TEST_BOOL(st::HasAllDestructed());
 
-    EZ_TEST(!m1.Contains(id0));
-    EZ_TEST(!m1.Contains(id1));
-    EZ_TEST(m1.IsFreelistValid());
+    EZ_TEST_BOOL(!m1.Contains(id0));
+    EZ_TEST_BOOL(!m1.Contains(id1));
+    EZ_TEST_BOOL(m1.IsFreelistValid());
   }
 
   /*EZ_TEST_BLOCK(ezTestBlock::Enabled, "Remove/Compact")
@@ -209,7 +209,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, IdTable)
     }
 
     a.Compact();
-    EZ_TEST(a.IsFreelistValid());
+    EZ_TEST_BOOL(a.IsFreelistValid());
 
     {
       ezUInt32 i = 0;
@@ -223,12 +223,12 @@ EZ_CREATE_SIMPLE_TEST(Containers, IdTable)
     for (ezInt32 i = 500; i < 1000; ++i)
     {
       st oldValue;
-      EZ_TEST(a.Remove(Id(i, 0), &oldValue));
+      EZ_TEST_BOOL(a.Remove(Id(i, 0), &oldValue));
       EZ_TEST_INT(oldValue.m_iData, i);
     }
     
     a.Compact();
-    EZ_TEST(a.IsFreelistValid());
+    EZ_TEST_BOOL(a.IsFreelistValid());
 
     {
       ezUInt32 i = 0;

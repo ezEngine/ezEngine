@@ -154,9 +154,9 @@ EZ_CREATE_SIMPLE_TEST(Memory, MemoryUtils)
     ezUInt8 uiRawData2[5] = { 1, 2, 3, 4, 5 };
     ezUInt8 uiRawData3[5] = { 1, 2, 3, 4, 6 };
 
-    EZ_TEST(ezMemoryUtils::IsEqual(uiRawData1, uiRawData2, 5));
-    EZ_TEST(!ezMemoryUtils::IsEqual(uiRawData1, uiRawData3, 5));
-    EZ_TEST(ezMemoryUtils::IsEqual(uiRawData1, uiRawData3, 4));
+    EZ_TEST_BOOL(ezMemoryUtils::IsEqual(uiRawData1, uiRawData2, 5));
+    EZ_TEST_BOOL(!ezMemoryUtils::IsEqual(uiRawData1, uiRawData3, 5));
+    EZ_TEST_BOOL(ezMemoryUtils::IsEqual(uiRawData1, uiRawData3, 4));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ZeroFill")
@@ -190,51 +190,51 @@ EZ_CREATE_SIMPLE_TEST(Memory, MemoryUtils)
     EZ_TEST_INT(uiRawDataB[1], 4);
     EZ_TEST_INT(uiRawDataB[2], 5);
 
-    EZ_TEST(ezMemoryUtils::ByteCompare(uiRawDataA, uiRawDataB, 3) < 0);
-    EZ_TEST(ezMemoryUtils::ByteCompare(uiRawDataA + 2, uiRawDataB, 1) == 0);
-    EZ_TEST(ezMemoryUtils::ByteCompare(uiRawDataB, uiRawDataA, 3) > 0);
+    EZ_TEST_BOOL(ezMemoryUtils::ByteCompare(uiRawDataA, uiRawDataB, 3) < 0);
+    EZ_TEST_BOOL(ezMemoryUtils::ByteCompare(uiRawDataA + 2, uiRawDataB, 1) == 0);
+    EZ_TEST_BOOL(ezMemoryUtils::ByteCompare(uiRawDataB, uiRawDataA, 3) > 0);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "AddByteOffset")
   {
     ezInt32* pData1 = NULL;
     pData1 = ezMemoryUtils::AddByteOffset(pData1, 13);
-    EZ_TEST(pData1 == reinterpret_cast<ezInt32*>(13));
+    EZ_TEST_BOOL(pData1 == reinterpret_cast<ezInt32*>(13));
 
     const ezInt32* pData2 = NULL;
     const ezInt32* pData3 = ezMemoryUtils::AddByteOffsetConst(pData2, 17);
-    EZ_TEST(pData3 == reinterpret_cast<ezInt32*>(17));
+    EZ_TEST_BOOL(pData3 == reinterpret_cast<ezInt32*>(17));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Align / IsAligned")
   {
     {
       ezInt32* pData = (ezInt32*) 1;
-      EZ_TEST(!ezMemoryUtils::IsAligned(pData, 4));
+      EZ_TEST_BOOL(!ezMemoryUtils::IsAligned(pData, 4));
       pData = ezMemoryUtils::Align(pData, 4);
-      EZ_TEST(pData == reinterpret_cast<ezInt32*>(0));
-      EZ_TEST(ezMemoryUtils::IsAligned(pData, 4));
+      EZ_TEST_BOOL(pData == reinterpret_cast<ezInt32*>(0));
+      EZ_TEST_BOOL(ezMemoryUtils::IsAligned(pData, 4));
     }
     {
       ezInt32* pData = (ezInt32*) 2;
-      EZ_TEST(!ezMemoryUtils::IsAligned(pData, 4));
+      EZ_TEST_BOOL(!ezMemoryUtils::IsAligned(pData, 4));
       pData = ezMemoryUtils::Align(pData, 4);
-      EZ_TEST(pData == reinterpret_cast<ezInt32*>(0));
-      EZ_TEST(ezMemoryUtils::IsAligned(pData, 4));
+      EZ_TEST_BOOL(pData == reinterpret_cast<ezInt32*>(0));
+      EZ_TEST_BOOL(ezMemoryUtils::IsAligned(pData, 4));
     }
     {
       ezInt32* pData = (ezInt32*) 3;
-      EZ_TEST(!ezMemoryUtils::IsAligned(pData, 4));
+      EZ_TEST_BOOL(!ezMemoryUtils::IsAligned(pData, 4));
       pData = ezMemoryUtils::Align(pData, 4);
-      EZ_TEST(pData == reinterpret_cast<ezInt32*>(0));
-      EZ_TEST(ezMemoryUtils::IsAligned(pData, 4));
+      EZ_TEST_BOOL(pData == reinterpret_cast<ezInt32*>(0));
+      EZ_TEST_BOOL(ezMemoryUtils::IsAligned(pData, 4));
     }
     {
       ezInt32* pData = (ezInt32*) 4;
-      EZ_TEST(ezMemoryUtils::IsAligned(pData, 4));
+      EZ_TEST_BOOL(ezMemoryUtils::IsAligned(pData, 4));
       pData = ezMemoryUtils::Align(pData, 4);
-      EZ_TEST(pData == reinterpret_cast<ezInt32*>(4));
-      EZ_TEST(ezMemoryUtils::IsAligned(pData, 4));
+      EZ_TEST_BOOL(pData == reinterpret_cast<ezInt32*>(4));
+      EZ_TEST_BOOL(ezMemoryUtils::IsAligned(pData, 4));
     }
   }
 }

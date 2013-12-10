@@ -167,8 +167,8 @@ EZ_CREATE_SIMPLE_TEST(Threading, Atomics)
     {
     }
 
-    EZ_TEST(pTestThread != NULL);
-    EZ_TEST(pTestThread2 != NULL);
+    EZ_TEST_BOOL(pTestThread != NULL);
+    EZ_TEST_BOOL(pTestThread2 != NULL);
 
     // Both thread will increment via atomic operations the global variable
     pTestThread->Start();
@@ -195,9 +195,9 @@ EZ_CREATE_SIMPLE_TEST(Threading, Atomics)
     EZ_TEST_INT(g_iMinVariable, 1);
     EZ_TEST_INT(g_iMaxVariable, 2);
 
-    EZ_TEST(g_iSetVariable > 0);
+    EZ_TEST_BOOL(g_iSetVariable > 0);
 
-    EZ_TEST(g_iCompSwapVariable > 0);
+    EZ_TEST_BOOL(g_iCompSwapVariable > 0);
     EZ_TEST_INT(g_iCompSwapCounter, 1); // only one thread should have set the variable
 
     EZ_TEST_INT(g_iIncVariable64, 2);
@@ -213,12 +213,12 @@ EZ_CREATE_SIMPLE_TEST(Threading, Atomics)
     EZ_TEST_INT(g_iMinVariable64, 1);
     EZ_TEST_INT(g_iMaxVariable64, 2);
 
-    EZ_TEST(g_iSetVariable64 > 0);
+    EZ_TEST_BOOL(g_iSetVariable64 > 0);
 
-    EZ_TEST(g_iCompSwapVariable64 > 0);
+    EZ_TEST_BOOL(g_iCompSwapVariable64 > 0);
     EZ_TEST_INT(g_iCompSwapCounter64, 1); // only one thread should have set the variable
 
-    EZ_TEST(g_pCompSwapPointer != NULL);
+    EZ_TEST_BOOL(g_pCompSwapPointer != NULL);
     EZ_TEST_INT(g_iCompSwapPointerCounter, 1); // only one thread should have set the variable
   }
 }

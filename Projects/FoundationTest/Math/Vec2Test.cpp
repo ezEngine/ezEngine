@@ -14,13 +14,13 @@ EZ_CREATE_SIMPLE_TEST(Math, Vec2)
     {
       // In debug the default constructor initializes everything with NaN.
       ezVec2T vDefCtor;
-      EZ_TEST(ezMath::IsNaN(vDefCtor.x) && ezMath::IsNaN(vDefCtor.y));
+      EZ_TEST_BOOL(ezMath::IsNaN(vDefCtor.x) && ezMath::IsNaN(vDefCtor.y));
     }
 #else
     // Placement new of the default constructor should not have any effect on the previous data.
     ezVec2T::ComponentType testBlock[2] = { (ezVec2T::ComponentType) 1, (ezVec2T::ComponentType) 2 };
     ezVec2T* pDefCtor = ::new ((void*)&testBlock[0]) ezVec2T;
-    EZ_TEST(pDefCtor->x == (ezVec2T::ComponentType) 1 && pDefCtor->y == (ezVec2T::ComponentType) 2);
+    EZ_TEST_BOOL(pDefCtor->x == (ezVec2T::ComponentType) 1 && pDefCtor->y == (ezVec2T::ComponentType) 2);
 #endif
   }
 
@@ -162,15 +162,15 @@ EZ_CREATE_SIMPLE_TEST(Math, Vec2)
     ezVec2T v;
 
     v.Set(10, 0);
-    EZ_TEST(v.NormalizeIfNotZero() == EZ_SUCCESS);
+    EZ_TEST_BOOL(v.NormalizeIfNotZero() == EZ_SUCCESS);
     EZ_TEST_VEC2(v, ezVec2T(1, 0), 0.001f);
 
     v.Set(0, 10);
-    EZ_TEST(v.NormalizeIfNotZero() == EZ_SUCCESS);
+    EZ_TEST_BOOL(v.NormalizeIfNotZero() == EZ_SUCCESS);
     EZ_TEST_VEC2(v, ezVec2T(0, 1), 0.001f);
 
     v.SetZero();
-    EZ_TEST(v.NormalizeIfNotZero() == EZ_FAILURE);
+    EZ_TEST_BOOL(v.NormalizeIfNotZero() == EZ_FAILURE);
     EZ_TEST_VEC2(v, ezVec2T(1, 0), 0.001f);
   }
 
@@ -179,11 +179,11 @@ EZ_CREATE_SIMPLE_TEST(Math, Vec2)
     ezVec2T v;
     
     v.Set(1);
-    EZ_TEST(v.IsZero() == false);
+    EZ_TEST_BOOL(v.IsZero() == false);
 
     v.Set(0.001f);
-    EZ_TEST(v.IsZero() == false);
-    EZ_TEST(v.IsZero(0.01f) == true);
+    EZ_TEST_BOOL(v.IsZero() == false);
+    EZ_TEST_BOOL(v.IsZero(0.01f) == true);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsNormalized")
@@ -191,16 +191,16 @@ EZ_CREATE_SIMPLE_TEST(Math, Vec2)
     ezVec2T v;
 
     v.SetZero();
-    EZ_TEST(v.IsNormalized(ezMath::BasicType<ezMathTestType>::HugeEpsilon()) == false);
+    EZ_TEST_BOOL(v.IsNormalized(ezMath::BasicType<ezMathTestType>::HugeEpsilon()) == false);
 
     v.Set(1, 0);
-    EZ_TEST(v.IsNormalized(ezMath::BasicType<ezMathTestType>::HugeEpsilon()) == true);
+    EZ_TEST_BOOL(v.IsNormalized(ezMath::BasicType<ezMathTestType>::HugeEpsilon()) == true);
 
     v.Set(0, 1);
-    EZ_TEST(v.IsNormalized(ezMath::BasicType<ezMathTestType>::HugeEpsilon()) == true);
+    EZ_TEST_BOOL(v.IsNormalized(ezMath::BasicType<ezMathTestType>::HugeEpsilon()) == true);
 
     v.Set(0.1f, 1);
-    EZ_TEST(v.IsNormalized(ezMath::BasicType<ezMathTestType>::DefaultEpsilon()) == false);
+    EZ_TEST_BOOL(v.IsNormalized(ezMath::BasicType<ezMathTestType>::DefaultEpsilon()) == false);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsNaN")
@@ -209,10 +209,10 @@ EZ_CREATE_SIMPLE_TEST(Math, Vec2)
     {
       ezVec2T v(0);
 
-      EZ_TEST(!v.IsNaN());
+      EZ_TEST_BOOL(!v.IsNaN());
 
       v.x = ezMath::BasicType<ezMathTestType>::GetNaN();
-      EZ_TEST(v.IsNaN());
+      EZ_TEST_BOOL(v.IsNaN());
     }
   }
 
@@ -222,10 +222,10 @@ EZ_CREATE_SIMPLE_TEST(Math, Vec2)
     {
       ezVec2T v(0);
 
-      EZ_TEST(v.IsValid());
+      EZ_TEST_BOOL(v.IsValid());
 
       v.x = ezMath::BasicType<ezMathTestType>::GetNaN();
-      EZ_TEST(!v.IsValid());
+      EZ_TEST_BOOL(!v.IsValid());
     }
   }
 
@@ -273,10 +273,10 @@ EZ_CREATE_SIMPLE_TEST(Math, Vec2)
     ezVec2T v1(1, 2);
     ezVec2T v2 = v1;
 
-    EZ_TEST(v1.IsIdentical(v2));
+    EZ_TEST_BOOL(v1.IsIdentical(v2));
 
     v2.x += ezVec2T::ComponentType(0.001f);
-    EZ_TEST(!v1.IsIdentical(v2));
+    EZ_TEST_BOOL(!v1.IsIdentical(v2));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsEqual")
@@ -284,11 +284,11 @@ EZ_CREATE_SIMPLE_TEST(Math, Vec2)
     ezVec2T v1(1, 2);
     ezVec2T v2 = v1;
 
-    EZ_TEST(v1.IsEqual(v2, 0.00001f));
+    EZ_TEST_BOOL(v1.IsEqual(v2, 0.00001f));
 
     v2.x += ezVec2T::ComponentType(0.001f);
-    EZ_TEST(!v1.IsEqual(v2, 0.0001f));
-    EZ_TEST(v1.IsEqual(v2, 0.01f));
+    EZ_TEST_BOOL(!v1.IsEqual(v2, 0.0001f));
+    EZ_TEST_BOOL(v1.IsEqual(v2, 0.01f));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetAngleBetween")
@@ -417,9 +417,9 @@ EZ_CREATE_SIMPLE_TEST(Math, Vec2)
     ezVec2T v1(1, 2);
     ezVec2T v2 = v1;
 
-    EZ_TEST(v1 == v2);
+    EZ_TEST_BOOL(v1 == v2);
 
     v2.x += ezVec2T::ComponentType(0.001f);
-    EZ_TEST(v1 != v2);
+    EZ_TEST_BOOL(v1 != v2);
   }
 }

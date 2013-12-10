@@ -31,7 +31,7 @@ EZ_CREATE_SIMPLE_TEST(Algorithm, Sorting)
 
   for (ezUInt32 i = 1; i < a1.GetCount(); ++i)
   {
-    EZ_TEST(a1[i-1] >= a1[i]);
+    EZ_TEST_BOOL(a1[i-1] >= a1[i]);
   }
 
   ezArrayPtr<ezInt32> arrayPtr = a2;
@@ -39,6 +39,6 @@ EZ_CREATE_SIMPLE_TEST(Algorithm, Sorting)
 
   for (ezUInt32 i = 1; i < arrayPtr.GetCount(); ++i)
   {
-    EZ_TEST(arrayPtr[i-1] >= arrayPtr[i]);
+    EZ_TEST_BOOL(arrayPtr[i-1] >= arrayPtr[i]);
   }
 }

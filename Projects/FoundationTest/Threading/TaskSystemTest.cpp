@@ -36,7 +36,7 @@ private:
 
     m_bStarted = true;
 
-    EZ_TEST(m_pDependency == NULL || m_pDependency->IsTaskFinished());
+    EZ_TEST_BOOL(m_pDependency == NULL || m_pDependency->IsTaskFinished());
 
     for (ezUInt32 obst = 0; obst < m_uiIterations; ++obst)
     {
@@ -90,9 +90,9 @@ EZ_CREATE_SIMPLE_TEST(Threading, TaskSystem)
     ezTaskSystem::WaitForTask(&t[1]);
     ezTaskSystem::WaitForTask(&t[2]);
 
-    EZ_TEST(t[0].IsDone());
-    EZ_TEST(t[1].IsDone());
-    EZ_TEST(t[2].IsDone());
+    EZ_TEST_BOOL(t[0].IsDone());
+    EZ_TEST_BOOL(t[1].IsDone());
+    EZ_TEST_BOOL(t[2].IsDone());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Single Tasks with Dependencies")
@@ -108,10 +108,10 @@ EZ_CREATE_SIMPLE_TEST(Threading, TaskSystem)
     ezTaskSystem::WaitForTask(&t[2]);
     ezTaskSystem::WaitForTask(&t[3]);
 
-    EZ_TEST(t[0].IsDone());
-    EZ_TEST(t[1].IsDone());
-    EZ_TEST(t[2].IsDone());
-    EZ_TEST(t[3].IsDone());
+    EZ_TEST_BOOL(t[0].IsDone());
+    EZ_TEST_BOOL(t[1].IsDone());
+    EZ_TEST_BOOL(t[2].IsDone());
+    EZ_TEST_BOOL(t[3].IsDone());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Grouped Tasks / TaskFinished Callback / GroupFinished Callback")
@@ -127,7 +127,7 @@ EZ_CREATE_SIMPLE_TEST(Threading, TaskSystem)
     g[3] = ezTaskSystem::CreateTaskGroup(ezTaskPriority::ThisFrame, TaskGroupFinished, &GroupsFinished);
 
     for (int i = 0; i < 4; ++i)
-      EZ_TEST(!ezTaskSystem::IsTaskGroupFinished(g[i]));
+      EZ_TEST_BOOL(!ezTaskSystem::IsTaskGroupFinished(g[i]));
 
     ezTaskSystem::AddTaskGroupDependency(g[1], g[0]);
     ezTaskSystem::AddTaskGroupDependency(g[2], g[0]);
@@ -144,8 +144,8 @@ EZ_CREATE_SIMPLE_TEST(Threading, TaskSystem)
 
     for (int i = 0; i < 8; ++i)
     {
-      EZ_TEST(!t[i].IsTaskFinished());
-      EZ_TEST(!t[i].IsDone());
+      EZ_TEST_BOOL(!t[i].IsTaskFinished());
+      EZ_TEST_BOOL(!t[i].IsDone());
 
       t[i].SetOnTaskFinished(TaskFinished, &TasksFinished);
     }
@@ -160,16 +160,16 @@ EZ_CREATE_SIMPLE_TEST(Threading, TaskSystem)
     ezTaskSystem::WaitForGroup(g[1]);
     ezTaskSystem::WaitForGroup(g[0]);
 
-    EZ_TEST(TasksFinished == 8);
-    EZ_TEST(GroupsFinished == 4);
+    EZ_TEST_BOOL(TasksFinished == 8);
+    EZ_TEST_BOOL(GroupsFinished == 4);
 
     for (int i = 0; i < 4; ++i)
-      EZ_TEST(ezTaskSystem::IsTaskGroupFinished(g[i]));
+      EZ_TEST_BOOL(ezTaskSystem::IsTaskGroupFinished(g[i]));
 
     for (int i = 0; i < 8; ++i)
     {
-      EZ_TEST(t[i].IsTaskFinished());
-      EZ_TEST(t[i].IsDone());
+      EZ_TEST_BOOL(t[i].IsTaskFinished());
+      EZ_TEST_BOOL(t[i].IsDone());
     }
   }
 
@@ -198,30 +198,30 @@ EZ_CREATE_SIMPLE_TEST(Threading, TaskSystem)
     }
 
     // up to the number of worker threads tasks can be still active
-    EZ_TEST(iNotAllThisTasksFinished <= (ezInt32) uiWorkersShort);
+    EZ_TEST_BOOL(iNotAllThisTasksFinished <= (ezInt32) uiWorkersShort);
 
     ezInt32 iNotAllNextTasksFinished = 0;
 
     for (int i = 0; i < Tasks; i += 2)
     {
       //ezTaskSystem::WaitForTask(&t[i]);
-      //EZ_TEST(t[i].IsTaskFinished());
+      //EZ_TEST_BOOL(t[i].IsTaskFinished());
 
       if (!t[i + 1].IsTaskFinished())
         ++iNotAllNextTasksFinished;
     }
 
-    EZ_TEST_MSG(iNotAllNextTasksFinished > 0, "This test CAN fail, if the PC is blocked just right. It does not matter though, it is not really a failure.");
+    EZ_TEST_BOOL_MSG(iNotAllNextTasksFinished > 0, "This test CAN fail, if the PC is blocked just right. It does not matter though, it is not really a failure.");
 
     ezTaskSystem::FinishFrameTasks();
 
     for (int i = 0; i < Tasks; i += 2)
     {
-      EZ_TEST(t[i].IsTaskFinished());
+      EZ_TEST_BOOL(t[i].IsTaskFinished());
 
       ezTaskSystem::WaitForTask(&t[i + 1]);
 
-      EZ_TEST(t[i + 1].IsTaskFinished());
+      EZ_TEST_BOOL(t[i + 1].IsTaskFinished());
     }
   }
 
@@ -241,7 +241,7 @@ EZ_CREATE_SIMPLE_TEST(Threading, TaskSystem)
 
     for (int i = 0; i < Tasks; ++i)
     {
-      EZ_TEST(t[i].IsTaskFinished());
+      EZ_TEST_BOOL(t[i].IsTaskFinished());
     }
   }
 
@@ -273,7 +273,7 @@ EZ_CREATE_SIMPLE_TEST(Threading, TaskSystem)
     for (int i = 0; i < Tasks; ++i)
     {
       ezTaskSystem::WaitForTask(&t[i]);
-      EZ_TEST(t[i].IsTaskFinished());
+      EZ_TEST_BOOL(t[i].IsTaskFinished());
 
       if (t[i].IsDone())
         ++iDone;
@@ -282,11 +282,11 @@ EZ_CREATE_SIMPLE_TEST(Threading, TaskSystem)
     }
 
     // at least one task should have run and thus be 'done'
-    EZ_TEST(iDone > 0);
-    EZ_TEST(iDone < Tasks);
+    EZ_TEST_BOOL(iDone > 0);
+    EZ_TEST_BOOL(iDone < Tasks);
 
-    EZ_TEST(iStarted > 0);
-    EZ_TEST_MSG(iStarted <= 4, "This test can fail when the PC is under heavy load."); // should not have managed to start more tasks than there are threads
+    EZ_TEST_BOOL(iStarted > 0);
+    EZ_TEST_BOOL_MSG(iStarted <= 4, "This test can fail when the PC is under heavy load."); // should not have managed to start more tasks than there are threads
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Canceling Tasks (forcefully)")
@@ -318,7 +318,7 @@ EZ_CREATE_SIMPLE_TEST(Threading, TaskSystem)
     for (int i = 0; i < Tasks; ++i)
     {
       ezTaskSystem::WaitForTask(&t[i]);
-      EZ_TEST(t[i].IsTaskFinished());
+      EZ_TEST_BOOL(t[i].IsTaskFinished());
 
       if (t[i].IsDone())
         ++iDone;
@@ -327,9 +327,9 @@ EZ_CREATE_SIMPLE_TEST(Threading, TaskSystem)
     }
 
     // not a single thread should have finished the execution
-    EZ_TEST(iDone == 0);
-    EZ_TEST(iStarted > 0);
-    EZ_TEST(iStarted <= 4); // should not have managed to start more tasks than there are threads
+    EZ_TEST_BOOL(iDone == 0);
+    EZ_TEST_BOOL(iStarted > 0);
+    EZ_TEST_BOOL(iStarted <= 4); // should not have managed to start more tasks than there are threads
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Canceling Group")
@@ -358,24 +358,24 @@ EZ_CREATE_SIMPLE_TEST(Threading, TaskSystem)
 
     ezThreadUtils::Sleep(10);
 
-    EZ_TEST(ezTaskSystem::CancelGroup(g2, ezOnTaskRunning::WaitTillFinished) == EZ_SUCCESS);
+    EZ_TEST_BOOL(ezTaskSystem::CancelGroup(g2, ezOnTaskRunning::WaitTillFinished) == EZ_SUCCESS);
 
     for (int i = 0; i < Tasks; ++i)
     {
-      EZ_TEST(!t2[i].IsDone());
-      EZ_TEST(t2[i].IsTaskFinished());
+      EZ_TEST_BOOL(!t2[i].IsDone());
+      EZ_TEST_BOOL(t2[i].IsTaskFinished());
     }
 
     ezThreadUtils::Sleep(1);
 
-    EZ_TEST(ezTaskSystem::CancelGroup(g1, ezOnTaskRunning::WaitTillFinished) == EZ_FAILURE);
+    EZ_TEST_BOOL(ezTaskSystem::CancelGroup(g1, ezOnTaskRunning::WaitTillFinished) == EZ_FAILURE);
 
     for (int i = 0; i < Tasks; ++i)
     {
-      EZ_TEST(!t2[i].IsDone());
+      EZ_TEST_BOOL(!t2[i].IsDone());
 
-      EZ_TEST(t1[i].IsTaskFinished());
-      EZ_TEST(t2[i].IsTaskFinished());
+      EZ_TEST_BOOL(t1[i].IsTaskFinished());
+      EZ_TEST_BOOL(t2[i].IsTaskFinished());
     }
 
     ezThreadUtils::Sleep(100);
