@@ -9,3 +9,10 @@
 #include "Implementation/ArrayProperty.h"
 
 #include "Implementation/StandardTypes.h"
+
+// TODO
+// structs
+// Message Handlers
+// Plugin origin
+// Array Properties
+// less macros for dynamic types
