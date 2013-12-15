@@ -4,19 +4,21 @@
 
 #include <Foundation/Basics.h>
 #include <Foundation/Utilities/EnumerableClass.h>
+#include <Foundation/Communication/Message.h>
 
 // *****************************************
 // ***** Runtime Type Information Data *****
 
 struct ezRTTIAllocator;
 class ezAbstractProperty;
+class ezAbstractMessageHandler;
 
 class ezRTTI : public ezEnumerable<ezRTTI>
 {
   EZ_DECLARE_ENUMERABLE_CLASS(ezRTTI);
 
 public:
-  ezRTTI(const char* szName, const ezRTTI* pParentType, ezUInt32 uiTypeSize, ezRTTIAllocator* pAllocator, ezArrayPtr<ezAbstractProperty*> pProperties);
+  ezRTTI(const char* szName, const ezRTTI* pParentType, ezUInt32 uiTypeSize, ezRTTIAllocator* pAllocator, ezArrayPtr<ezAbstractProperty*> pProperties, ezArrayPtr<ezAbstractMessageHandler*> pMessageHandlers);
 
   const char* GetTypeName() const { return m_szTypeName; }
 
@@ -33,9 +35,19 @@ public:
 
   const ezAbstractProperty* GetProperty(ezUInt32 uiIndex) const { return m_Properties[uiIndex]; }
 
+  ezUInt32 GetMessageHandlerCount() const { return m_MessageHandlers.GetCount(); }
+
+  const ezAbstractMessageHandler* GetMessageHandler(ezUInt32 uiIndex) const { return m_MessageHandlers[uiIndex]; }
+
   ezUInt32 GetTypeSize() const { return m_uiTypeSize; }
 
-  /// \todo Store from which Plugin a Type was added
+  template<typename MSG>
+  bool HandleMessageOfType(void* pInstance, MSG* pMsg) const
+  {
+    return HandleMessageOfType(pInstance, MSG::MSG_ID, pMsg);
+  }
+
+  bool HandleMessageOfType(void* pInstance, ezMessageId id, ezMessage* pMsg) const;
 
 private:
   const char* m_szTypeName;
@@ -43,6 +55,7 @@ private:
   ezUInt32 m_uiTypeSize;
   ezRTTIAllocator* m_pAllocator;
   ezArrayPtr<ezAbstractProperty*> m_Properties;
+  ezArrayPtr<ezAbstractMessageHandler*> m_MessageHandlers;
 };
 
 

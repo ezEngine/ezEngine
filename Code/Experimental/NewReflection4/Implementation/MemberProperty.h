@@ -45,8 +45,9 @@ public:
     m_Setter = setter;
   }
 
-  virtual void* GetPropertyPointer() const EZ_OVERRIDE
+  virtual void* GetPropertyPointer(const void* pInstance) const EZ_OVERRIDE
   {
+    // No access to sub-properties, if we have accessors for this property
     return NULL;
   }
 
@@ -90,6 +91,11 @@ struct ezPropertyAccessor
   {
     (*pInstance).*Member = value;
   }
+
+  static void* GetPropertyPointer(const Class* pInstance)
+  {
+    return (void*) &((*pInstance).*Member);
+  }
 };
 
 
@@ -97,21 +103,22 @@ template <typename Class, typename Type>
 class ezMemberProperty : public ezTypedMemberProperty<Type>
 {
 public:
-  typedef Type (*GetterFunc)(const Class* pInstance);
-  typedef void (*SetterFunc)(      Class* pInstance, Type value);
+  typedef Type  (*GetterFunc)(const Class* pInstance);
+  typedef void  (*SetterFunc)(      Class* pInstance, Type value);
+  typedef void* (*PointerFunc)(const Class* pInstance);
 
-  ezMemberProperty(const char* szPropertyName, GetterFunc getter, SetterFunc setter) : ezTypedMemberProperty<Type>(szPropertyName)
+  ezMemberProperty(const char* szPropertyName, GetterFunc getter, SetterFunc setter, PointerFunc pointer) : ezTypedMemberProperty<Type>(szPropertyName)
   {
     EZ_ASSERT(getter != NULL, "The getter of a property cannot be NULL.");
 
     m_Getter = getter;
     m_Setter = setter;
+    m_Pointer = pointer;
   }
 
-  virtual void* GetPropertyPointer() const EZ_OVERRIDE
+  virtual void* GetPropertyPointer(const void* pInstance) const EZ_OVERRIDE
   {
-    /// \todo bla
-    return NULL;
+    return m_Pointer(static_cast<const Class*>(pInstance));
   }
 
   virtual bool IsReadOnly() const EZ_OVERRIDE
@@ -135,4 +142,5 @@ public:
 private:
   GetterFunc m_Getter;
   SetterFunc m_Setter;
+  PointerFunc m_Pointer;
 };

@@ -5,6 +5,9 @@
 
 #include "Main.h"
 
+EZ_IMPLEMENT_MESSAGE_TYPE(ezTestMessage);
+EZ_IMPLEMENT_MESSAGE_TYPE(ezTestMessage2);
+
 EZ_BEGIN_REFLECTED_TYPE(TestBase, ezReflectedClass, ezRTTIDefaultAllocator<TestBase>);
   EZ_BEGIN_PROPERTIES
     EZ_MEMBER_PROPERTY("TestProp1", m_Test),
@@ -13,10 +16,22 @@ EZ_BEGIN_REFLECTED_TYPE(TestBase, ezReflectedClass, ezRTTIDefaultAllocator<TestB
   EZ_END_PROPERTIES
 EZ_END_REFLECTED_TYPE(TestBase);
 
+EZ_BEGIN_REFLECTED_TYPE(MyStruct, ezNoBase, ezRTTINoAllocator);
+  EZ_BEGIN_PROPERTIES
+    EZ_MEMBER_PROPERTY("Int", i2),
+    EZ_MEMBER_PROPERTY("Float", f1),
+  EZ_END_PROPERTIES
+EZ_END_REFLECTED_TYPE(MyStruct);
+
 EZ_BEGIN_REFLECTED_TYPE(TestClassA, TestBase, ezRTTIDefaultAllocator<TestClassA>);
   EZ_BEGIN_PROPERTIES
+    EZ_MEMBER_PROPERTY("MyStruct", m_MyStruct),
     EZ_FUNCTION_PROPERTY("Be Useful", DoSomething)
   EZ_END_PROPERTIES
+  EZ_BEGIN_MESSAGEHANDLERS
+    EZ_MESSAGE_HANDLER(ezTestMessage, HandleMessage),
+    EZ_MESSAGE_HANDLER(const ezTestMessage2, HandleMessage2) // I have no idea how one could get a function pointer to the right version of an overloaded function
+  EZ_END_MESSAGEHANDLERS
 EZ_END_REFLECTED_TYPE(TestClassA);
 
 void PrintTypeInfo(const ezRTTI* pRTTI, bool bAllocate = false, bool bRecursive = true, void* pInstance = NULL)
@@ -35,6 +50,26 @@ void PrintTypeInfo(const ezRTTI* pRTTI, bool bAllocate = false, bool bRecursive 
     {
       void* pObject = pRTTI->GetAllocator()->Allocate();
       pRTTI->GetAllocator()->Deallocate(pObject);
+    }
+  }
+
+  if (pRTTI->GetMessageHandlerCount() > 0)
+  {
+    ezLog::Dev("  Type has Message Handlers:");
+
+    for (ezUInt32 m = 0; m < pRTTI->GetMessageHandlerCount(); ++m)
+    {
+      ezLog::Dev("    MessageID: %i", pRTTI->GetMessageHandler(m)->GetMessageTypeID());
+    }
+
+    if (pInstance)
+    {
+      ezMessage msg;
+
+      for (ezUInt32 m = 0; m < pRTTI->GetMessageHandlerCount(); ++m)
+      {
+        pRTTI->GetMessageHandler(m)->HandleMessage(pInstance, &msg);
+      }
     }
   }
 
@@ -67,6 +102,14 @@ void PrintTypeInfo(const ezRTTI* pRTTI, bool bAllocate = false, bool bRecursive 
           ezTypedMemberProperty<int>* pFinal = (ezTypedMemberProperty<int>*) pMember;
 
           ezLog::Dev("    Value: %i", pFinal->GetValue(pInstance));
+        }
+        else
+        if (pMember->GetPropertyPointer(pInstance) != NULL)
+        {
+          // only if we do not know the specific type, we try to drill down further
+
+          EZ_LOG_BLOCK("Property Struct");
+          PrintTypeInfo(pPropRTTI, false, true, pMember->GetPropertyPointer(pInstance));
         }
       }
     }
@@ -128,6 +171,11 @@ int main()
     TestClassA a;
     PrintTypeInfo(a.GetDynamicRTTI(), false, true, &a);
 
+    ezTestMessage tm;
+    a.GetDynamicRTTI()->HandleMessageOfType(&a, &tm);
+
+    ezTestMessage2 tm2;
+    a.GetDynamicRTTI()->HandleMessageOfType(&a, &tm2);
   }
 
   ezGlobalLog::RemoveLogWriter(ezLogWriter::Console::LogMessageHandler);

@@ -40,7 +40,7 @@ public:
 
   virtual const ezRTTI* GetPropertyType() const = 0;
 
-  virtual void* GetPropertyPointer() const = 0;
+  virtual void* GetPropertyPointer(const void* pInstance) const = 0;
 
   virtual bool IsReadOnly() const = 0;
 };
@@ -70,3 +70,6 @@ public:
   virtual const ezRTTI* GetElementType() const = 0;
 
 };
+
+
+

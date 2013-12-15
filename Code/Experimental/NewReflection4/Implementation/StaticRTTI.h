@@ -101,14 +101,14 @@ const ezRTTI* ezGetStaticRTTI()
     static ezRTTI* GetReflectableTypeRTTI()                                   \
     {                                                                         \
       static AllocatorType Allocator;                                         \
-      static ezArrayPtr<ezAbstractProperty*> Properties                       \
-
+      static ezArrayPtr<ezAbstractProperty*> Properties;                      \
+      static ezArrayPtr<ezAbstractMessageHandler*> MessageHandlers            \
 
 #define EZ_END_REFLECTED_TYPE(Type)                                           \
       static ezRTTI rtti(GetTypeName(),                                       \
         ezGetStaticRTTI<OwnBaseType>(),                                       \
         sizeof(OwnType),                                                      \
-        &Allocator, Properties);                                              \
+        &Allocator, Properties, MessageHandlers);                             \
                                                                               \
       return &rtti;                                                           \
     }                                                                         \
@@ -151,8 +151,21 @@ const ezRTTI* ezGetStaticRTTI()
 #define EZ_MEMBER_PROPERTY(PropertyName, MemberName)                          \
   new ezMemberProperty<OwnType, EZ_MEMBER_TYPE(OwnType, MemberName)>          \
     (PropertyName,                                                            \
-    &ezPropertyAccessor<OwnType, EZ_MEMBER_TYPE(OwnType, MemberName), &OwnType::MemberName>::GetValue, \
-    &ezPropertyAccessor<OwnType, EZ_MEMBER_TYPE(OwnType, MemberName), &OwnType::MemberName>::SetValue) \
+    &ezPropertyAccessor<OwnType, EZ_MEMBER_TYPE(OwnType, MemberName), &OwnType::MemberName>::GetValue,            \
+    &ezPropertyAccessor<OwnType, EZ_MEMBER_TYPE(OwnType, MemberName), &OwnType::MemberName>::SetValue,            \
+    &ezPropertyAccessor<OwnType, EZ_MEMBER_TYPE(OwnType, MemberName), &OwnType::MemberName>::GetPropertyPointer)  \
 
 
+
+#define EZ_BEGIN_MESSAGEHANDLERS                                              \
+    static ezAbstractMessageHandler* HandlerList[] =                          \
+    {                                                                         \
+
+#define EZ_END_MESSAGEHANDLERS                                                \
+    };                                                                        \
+  MessageHandlers = HandlerList;                                              \
+
+
+#define EZ_MESSAGE_HANDLER(MessageType, FunctionName)                         \
+  new ezMessageHandler<OwnType, MessageType>(OwnType::FunctionName)           \
 

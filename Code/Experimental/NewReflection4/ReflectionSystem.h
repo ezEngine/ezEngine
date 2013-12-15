@@ -7,12 +7,10 @@
 #include "Implementation/FunctionProperty.h"
 #include "Implementation/MemberProperty.h"
 #include "Implementation/ArrayProperty.h"
+#include "Implementation/MessageHandler.h"
 
 #include "Implementation/StandardTypes.h"
 
 // TODO
-// structs
-// Message Handlers
 // Plugin origin
 // Array Properties
-// less macros for dynamic types
