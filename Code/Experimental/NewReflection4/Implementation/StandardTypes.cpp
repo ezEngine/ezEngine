@@ -1,4 +1,5 @@
 #include "StandardTypes.h"
+#include "../ReflectionSystem.h"
 
 // *********************************************
 // ***** Standard POD Types for Properties *****
@@ -40,10 +41,25 @@ EZ_BEGIN_REFLECTED_TYPE(ezConstCharPtr, ezNoBase, ezRTTINoAllocator);
 EZ_END_REFLECTED_TYPE(ezConstCharPtr);
 
 EZ_BEGIN_REFLECTED_TYPE(ezVec2, ezNoBase, ezRTTINoAllocator);
+  EZ_BEGIN_PROPERTIES
+    EZ_MEMBER_PROPERTY("x", x),
+    EZ_MEMBER_PROPERTY("y", y)
+  EZ_END_PROPERTIES
 EZ_END_REFLECTED_TYPE(ezVec2);
 
 EZ_BEGIN_REFLECTED_TYPE(ezVec3, ezNoBase, ezRTTINoAllocator);
+  EZ_BEGIN_PROPERTIES
+    EZ_MEMBER_PROPERTY("x", x),
+    EZ_MEMBER_PROPERTY("y", y),
+    EZ_MEMBER_PROPERTY("z", z)
+  EZ_END_PROPERTIES
 EZ_END_REFLECTED_TYPE(ezVec3);
 
 EZ_BEGIN_REFLECTED_TYPE(ezVec4, ezNoBase, ezRTTINoAllocator);
+  EZ_BEGIN_PROPERTIES
+    EZ_MEMBER_PROPERTY("x", x),
+    EZ_MEMBER_PROPERTY("y", y),
+    EZ_MEMBER_PROPERTY("z", z),
+    EZ_MEMBER_PROPERTY("w", w)
+  EZ_END_PROPERTIES
 EZ_END_REFLECTED_TYPE(ezVec4);

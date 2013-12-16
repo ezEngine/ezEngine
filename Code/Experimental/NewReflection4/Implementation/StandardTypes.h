@@ -2,10 +2,14 @@
 
 /// \file
 
-#include "StaticRTTI.h"
+#include "RTTI.h"
+#include "DynamicRTTI.h"
 #include <Foundation/Math/Vec2.h>
 #include <Foundation/Math/Vec3.h>
 #include <Foundation/Math/Vec4.h>
+
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezReflectedClass);
 
 // *********************************************
 // ***** Standard POD Types for Properties *****
