@@ -61,18 +61,34 @@
 #define EZ_CHECK_ALIGNMENT_64(ptr) EZ_CHECK_ALIGNMENT(ptr, 64)
 #define EZ_CHECK_ALIGNMENT_128(ptr) EZ_CHECK_ALIGNMENT(ptr, 128)
 
-/// \brief Embed this in each file (manually or via a tool) to create a reference point that makes sure that during static linking no features will be omitted.
-#define EZ_STATICLINK_REFPOINT(UniqueName) \
-  void ezReferenceFunction_##UniqueName () { }
+#if EZ_ENABLED(EZ_COMPILE_ENGINE_AS_DLL)
+
+  /// \brief Embed this in each file (manually or via a tool) to create a reference point that makes sure that during static linking no features will be omitted.
+  #define EZ_STATICLINK_REFPOINT(UniqueName)
 
 /// \brief Call this with each name used in EZ_STATICLINK_REFPOINT to ensure that all features are linked into a statically linked program.
-#define EZ_STATICLINK_REFERENCE(UniqueName) \
-  void ezReferenceFunction_##UniqueName (); \
-  ezReferenceFunction_##UniqueName ()
+  #define EZ_STATICLINK_REFERENCE(UniqueName)
 
-/// \brief Insert this to create a group refpoint, which references other refpoints.
-#define EZ_STATICLINK_REFPOINT_GROUP(UniqueName) \
-  void ezReferenceFunction_##UniqueName ()
+  /// \brief Insert this to create a group refpoint, which references other refpoints.
+  #define EZ_STATICLINK_REFPOINT_GROUP(UniqueName) \
+    void ezReferenceFunction_##UniqueName()
+
+#else
+
+  /// \brief Embed this in each file (manually or via a tool) to create a reference point that makes sure that during static linking no features will be omitted.
+  #define EZ_STATICLINK_REFPOINT(UniqueName) \
+    void ezReferenceFunction_##UniqueName() { }
+
+  /// \brief Call this with each name used in EZ_STATICLINK_REFPOINT to ensure that all features are linked into a statically linked program.
+  #define EZ_STATICLINK_REFERENCE(UniqueName) \
+    void ezReferenceFunction_##UniqueName(); \
+    ezReferenceFunction_##UniqueName()
+
+  /// \brief Insert this to create a group refpoint, which references other refpoints.
+  #define EZ_STATICLINK_REFPOINT_GROUP(UniqueName) \
+    void ezReferenceFunction_##UniqueName()
+
+#endif
 
 // Template helper which allows to suppress "Unused variable" warnings (e.g. result used in platform specific block, ..)
 template<class T> void EZ_IGNORE_UNUSED(const T&) {}

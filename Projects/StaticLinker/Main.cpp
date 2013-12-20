@@ -202,6 +202,11 @@ public:
       while (*szMarkerEnd != '\0' && *szMarkerEnd != '}')
         ++szMarkerEnd;
 
+      if (*szMarkerEnd == '}')
+        ++szMarkerEnd;
+      if (*szMarkerEnd == '\n')
+        ++szMarkerEnd;
+
       // no ref point allowed in a file that has already a ref point group
       sFileContent.ReplaceSubString(szGroupMarker, szMarkerEnd, sNewGroupMarker.GetData());
     }
