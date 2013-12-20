@@ -528,3 +528,7 @@ void ezFileSystem::Shutdown()
 
   EZ_DEFAULT_DELETE(s_Data);
 }
+
+
+EZ_STATICLINK_REFPOINT(Foundation_IO_FileSystem_Implementation_FileSystem);
+

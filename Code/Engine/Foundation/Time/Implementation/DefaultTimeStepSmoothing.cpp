@@ -68,3 +68,7 @@ ezTime ezDefaultTimeStepSmoothing::GetSmoothedTimeStep(ezTime RawTimeStep, const
 
 
 
+
+
+EZ_STATICLINK_REFPOINT(Foundation_Time_Implementation_DefaultTimeStepSmoothing);
+

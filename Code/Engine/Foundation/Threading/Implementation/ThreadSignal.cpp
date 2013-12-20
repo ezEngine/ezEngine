@@ -10,3 +10,7 @@
   #error "Unsupported Platform."
 #endif
 
+
+
+EZ_STATICLINK_REFPOINT(Foundation_Threading_Implementation_ThreadSignal);
+

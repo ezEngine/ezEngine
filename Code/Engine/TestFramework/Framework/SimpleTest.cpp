@@ -47,3 +47,7 @@ ezResult ezSimpleTestGroup::DeInitializeSubTest(ezInt32 iIdentifier)
   ezStartup::ShutdownBase();
   return EZ_SUCCESS;
 }
+
+
+EZ_STATICLINK_REFPOINT(TestFramework_Framework_SimpleTest);
+

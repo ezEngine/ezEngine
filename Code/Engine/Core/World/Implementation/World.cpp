@@ -491,3 +491,7 @@ void ezWorld::DeleteDeadComponents()
 void ezWorld::UpdateWorldTransforms()
 {
 }
+
+
+EZ_STATICLINK_REFPOINT(Core_World_Implementation_World);
+

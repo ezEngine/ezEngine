@@ -30,3 +30,6 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Core, InputManager)
   }
  
 EZ_END_SUBSYSTEM_DECLARATION
+
+EZ_STATICLINK_REFPOINT(Core_Input_Implementation_Startup);
+

@@ -731,3 +731,6 @@ const char* ezStringUtils::FindLastSubString_NoCase(const char* szSource, const 
 
     return true;
   }
+
+EZ_STATICLINK_REFPOINT(Foundation_Strings_Implementation_StringUtils);
+

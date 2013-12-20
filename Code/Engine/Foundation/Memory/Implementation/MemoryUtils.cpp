@@ -98,3 +98,7 @@ void ezMemoryUtils::ReserveLower4GBAddressSpace()
   OutputDebugStringA(buffer);
 #endif
 }
+
+
+EZ_STATICLINK_REFPOINT(Foundation_Memory_Implementation_MemoryUtils);
+

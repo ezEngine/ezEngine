@@ -122,3 +122,7 @@
 
 
 
+
+
+EZ_STATICLINK_REFPOINT(Foundation_Basics_IncludeAll);
+

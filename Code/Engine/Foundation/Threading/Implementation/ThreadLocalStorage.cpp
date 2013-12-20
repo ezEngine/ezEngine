@@ -77,3 +77,7 @@ void* ezThreadLocalStorage::GetValueForSlot(ezUInt32 uiSlotIndex)
 #else
   #error "Thread local storage functions are not implemented on current platform"
 #endif
+
+
+EZ_STATICLINK_REFPOINT(Foundation_Threading_Implementation_ThreadLocalStorage);
+

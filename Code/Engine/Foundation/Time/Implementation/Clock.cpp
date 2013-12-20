@@ -151,3 +151,7 @@ void ezClock::Load(ezIBinaryStreamReader& Stream)
 
 
 
+
+
+EZ_STATICLINK_REFPOINT(Foundation_Time_Implementation_Clock);
+

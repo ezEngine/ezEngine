@@ -29,3 +29,7 @@ void ezComponent::SendMessageToOwner(ezMessage& msg, ezBitflags<ezObjectMsgRouti
 void ezComponent::OnMessage(ezMessage& msg) 
 {
 }
+
+
+EZ_STATICLINK_REFPOINT(Core_World_Implementation_Component);
+

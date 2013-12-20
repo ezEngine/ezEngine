@@ -153,3 +153,7 @@ void ezGameObject::OnMessage(ezMessage& msg, ezBitflags<ezObjectMsgRouting> rout
     }
   }
 }
+
+
+EZ_STATICLINK_REFPOINT(Core_World_Implementation_GameObject);
+

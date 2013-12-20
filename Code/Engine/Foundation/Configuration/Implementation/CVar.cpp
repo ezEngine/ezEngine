@@ -424,3 +424,7 @@ void ezCVar::LoadCVars(bool bOnlyNewOnes, bool bSetAsCurrentValue)
 
 
 
+
+
+EZ_STATICLINK_REFPOINT(Foundation_Configuration_Implementation_CVar);
+

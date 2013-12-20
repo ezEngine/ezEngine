@@ -33,3 +33,6 @@ void ezQtTestFramework::TestResultImpl(ezInt32 iSubTestIdentifier, bool bSuccess
 }
 
 #endif
+
+EZ_STATICLINK_REFPOINT(TestFramework_Framework_Qt_qtTestFramework);
+

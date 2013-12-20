@@ -107,3 +107,7 @@ ezUInt32 ezMemoryStreamWriter::GetByteCount() const
   return m_pStreamStorage->m_Storage.GetCount();
 }
 
+
+
+EZ_STATICLINK_REFPOINT(Foundation_IO_Implementation_MemoryStream);
+

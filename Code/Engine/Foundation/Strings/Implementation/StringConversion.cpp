@@ -378,3 +378,7 @@ void ezStringUtf32::operator=(const wchar_t* szWChar)
 
 
 
+
+
+EZ_STATICLINK_REFPOINT(Foundation_Strings_Implementation_StringConversion);
+

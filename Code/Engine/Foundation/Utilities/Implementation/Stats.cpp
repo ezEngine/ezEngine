@@ -37,3 +37,7 @@ void ezStats::SetStat(const char* szStatName, const char* szValue)
 
   s_StatsEvents.Broadcast(e);
 }
+
+
+EZ_STATICLINK_REFPOINT(Foundation_Utilities_Implementation_Stats);
+

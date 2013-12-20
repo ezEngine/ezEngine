@@ -409,3 +409,7 @@ void ezStandardJSONWriter::WriteBinaryData(const char* szDataType, const void* p
   OutputString("\" }");
 }
 
+
+
+EZ_STATICLINK_REFPOINT(Foundation_IO_Implementation_StandardJSONWriter);
+

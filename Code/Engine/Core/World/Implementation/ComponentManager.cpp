@@ -70,3 +70,7 @@ void ezComponentManagerBase::DeregisterUpdateFunction(const UpdateFunctionDesc& 
 {
   m_pWorld->DeregisterUpdateFunction(desc);
 }
+
+
+EZ_STATICLINK_REFPOINT(Core_World_Implementation_ComponentManager);
+

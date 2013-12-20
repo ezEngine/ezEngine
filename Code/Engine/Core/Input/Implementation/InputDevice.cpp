@@ -97,3 +97,7 @@ wchar_t ezInputDevice::RetrieveLastCharacterFromAllDevices()
   return '\0';
 }
 
+
+
+EZ_STATICLINK_REFPOINT(Core_Input_Implementation_InputDevice);
+

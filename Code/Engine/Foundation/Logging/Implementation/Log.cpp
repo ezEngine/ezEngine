@@ -269,3 +269,6 @@ void ezLog::Debug(ezLogInterface* pInterface, const char* szFormat, ...)
 }
 
 #endif
+
+EZ_STATICLINK_REFPOINT(Foundation_Logging_Implementation_Log);
+

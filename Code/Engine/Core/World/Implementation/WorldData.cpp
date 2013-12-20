@@ -146,3 +146,7 @@ void WorldData::DeleteTransformationData(const ezBitflags<ezObjectFlags>& object
 }
 
 }
+
+
+EZ_STATICLINK_REFPOINT(Core_World_Implementation_WorldData);
+

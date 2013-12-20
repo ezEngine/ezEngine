@@ -436,3 +436,7 @@ done:
 #else
   #error "Unknown Platform."
 #endif
+
+
+EZ_STATICLINK_REFPOINT(Foundation_IO_Implementation_OSFile);
+

@@ -212,3 +212,7 @@ void ezJSONWriter::WriteVariant(const ezVariant& value)
 }
 
 
+
+
+EZ_STATICLINK_REFPOINT(Foundation_IO_Implementation_JSONWriter);
+

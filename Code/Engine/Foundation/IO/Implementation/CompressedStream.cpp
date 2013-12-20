@@ -230,3 +230,7 @@ ezResult ezCompressedStreamWriter::WriteBytes(const void* pWriteBuffer, ezUInt64
   return EZ_SUCCESS;
 }
 
+
+
+EZ_STATICLINK_REFPOINT(Foundation_IO_Implementation_CompressedStream);
+

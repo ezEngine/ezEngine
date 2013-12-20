@@ -38,3 +38,7 @@ void ezDataDirectoryReaderWriterBase::Close()
   m_pDataDirectory->OnReaderWriterClose(this);
 }
 
+
+
+EZ_STATICLINK_REFPOINT(Foundation_IO_FileSystem_Implementation_DataDirType);
+

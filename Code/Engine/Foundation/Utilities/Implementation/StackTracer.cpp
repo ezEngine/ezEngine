@@ -10,3 +10,7 @@
 #else
   #error "StackTracer is not implemented on current platform"
 #endif
+
+
+EZ_STATICLINK_REFPOINT(Foundation_Utilities_Implementation_StackTracer);
+

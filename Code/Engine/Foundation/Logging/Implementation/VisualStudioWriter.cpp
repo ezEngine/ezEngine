@@ -74,3 +74,7 @@ void ezLogWriter::VisualStudio::LogMessageHandler(const ezLoggingEventData& even
 #endif
 
 
+
+
+EZ_STATICLINK_REFPOINT(Foundation_Logging_Implementation_VisualStudioWriter);
+

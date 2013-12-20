@@ -293,3 +293,7 @@ ezResult ezTaskSystem::CancelTask(ezTask* pTask, ezOnTaskRunning::Enum OnTaskRun
 
   return EZ_FAILURE;
 }
+
+
+EZ_STATICLINK_REFPOINT(Foundation_Threading_Implementation_Tasks);
+

@@ -969,3 +969,7 @@ int ezStringUtils::snprintf (char* szOutputBuffer, unsigned int uiBufferSize, co
 
 
 
+
+
+EZ_STATICLINK_REFPOINT(Foundation_Strings_Implementation_snprintf);
+

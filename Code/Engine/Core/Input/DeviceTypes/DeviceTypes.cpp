@@ -153,3 +153,7 @@ void ezInputDeviceController::UpdateVibration(ezTime tTimeDifference)
       ApplyVibration(c, (Motor::Enum) m, fVibrationToApply[c][m]);
   }
 }
+
+
+EZ_STATICLINK_REFPOINT(Core_Input_DeviceTypes_DeviceTypes);
+

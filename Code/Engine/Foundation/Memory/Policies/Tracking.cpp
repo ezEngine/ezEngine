@@ -75,3 +75,7 @@ void ezStackTracking::DumpMemoryLeaks() const
 }
 
 }
+
+
+EZ_STATICLINK_REFPOINT(Foundation_Memory_Policies_Tracking);
+

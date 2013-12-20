@@ -166,3 +166,7 @@ bool ezPathUtils::IsRelativePath(const char* szPath)
   return !IsAbsolutePath(szPath);
 }
 
+
+
+EZ_STATICLINK_REFPOINT(Foundation_Strings_Implementation_PathUtils);
+

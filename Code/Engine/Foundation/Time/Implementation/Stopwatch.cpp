@@ -57,3 +57,7 @@ ezTime ezStopwatch::Checkpoint()
   return tDiff;
 }
 
+
+
+EZ_STATICLINK_REFPOINT(Foundation_Time_Implementation_Stopwatch);
+

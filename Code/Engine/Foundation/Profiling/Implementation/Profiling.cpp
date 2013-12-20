@@ -141,3 +141,7 @@ void ezProfilingSystem::SetThreadName(const char* szThreadName)
 }
 
 #endif
+
+
+EZ_STATICLINK_REFPOINT(Foundation_Profiling_Implementation_Profiling);
+

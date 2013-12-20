@@ -17,3 +17,6 @@ ezWindow::~ezWindow()
   if (m_bInitialized)
     Destroy();
 }
+
+EZ_STATICLINK_REFPOINT(System_Window_Implementation_Window);
+

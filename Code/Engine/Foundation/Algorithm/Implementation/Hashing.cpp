@@ -139,3 +139,6 @@ ezUInt32 ezHashing::CRC32Hash(const void* pKey, size_t uiSizeInBytes)
 
   return static_cast<ezUInt32>(uiCRC32 ^ 0xFFFFFFFF); 
 }
+
+EZ_STATICLINK_REFPOINT(Foundation_Algorithm_Implementation_Hashing);
+

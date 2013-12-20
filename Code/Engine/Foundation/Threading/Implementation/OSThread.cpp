@@ -13,3 +13,7 @@
 
 
 
+
+
+EZ_STATICLINK_REFPOINT(Foundation_Threading_Implementation_OSThread);
+

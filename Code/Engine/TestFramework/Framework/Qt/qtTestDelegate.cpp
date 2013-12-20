@@ -50,3 +50,6 @@ void ezQtTestDelegate::paint(QPainter* painter, const QStyleOptionViewItem& opti
 }
 
 #endif
+
+EZ_STATICLINK_REFPOINT(TestFramework_Framework_Qt_qtTestDelegate);
+

@@ -59,3 +59,7 @@ bool ezFailedCheck(const char* szSourceFile, ezUInt32 uiLine, const char* szFunc
 }
 
 
+
+
+EZ_STATICLINK_REFPOINT(Foundation_Basics_Assert);
+

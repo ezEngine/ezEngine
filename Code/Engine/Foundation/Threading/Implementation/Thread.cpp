@@ -34,3 +34,7 @@ ezUInt32 RunThread(ezThread* pThread)
 #else
   #error "Runnable thread entry functions are not implemented on current platform"
 #endif
+
+
+EZ_STATICLINK_REFPOINT(Foundation_Threading_Implementation_Thread);
+

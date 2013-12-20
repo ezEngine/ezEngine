@@ -36,3 +36,6 @@ void ezRun(ezApplication* pApplicationInstance)
   // Destructor is called by entry point function
   ezApplication::s_pApplicationInstance = NULL;
 }
+
+EZ_STATICLINK_REFPOINT(Core_Application_Implementation_MainLoop);
+

@@ -316,3 +316,7 @@ const char* ezInputManager::GetPressedInputSlot(ezInputSlotFlags::Enum MustHaveF
 
 
 
+
+
+EZ_STATICLINK_REFPOINT(Core_Input_Implementation_InputManager);
+

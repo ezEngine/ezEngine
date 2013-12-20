@@ -170,3 +170,7 @@ void ezTelemetry::Send(TransmitMode tm, ezTelemetryMessage& msg)
 }
 
 
+
+
+EZ_STATICLINK_REFPOINT(Foundation_Communication_Implementation_TelemetryHelpers);
+

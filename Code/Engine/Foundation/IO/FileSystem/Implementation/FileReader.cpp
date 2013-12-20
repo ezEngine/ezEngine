@@ -76,3 +76,7 @@ ezUInt64 ezFileReader::ReadBytes(void* pReadBuffer, ezUInt64 uiBytesToRead)
   return uiBufferPosition;
 }
 
+
+
+EZ_STATICLINK_REFPOINT(Foundation_IO_FileSystem_Implementation_FileReader);
+

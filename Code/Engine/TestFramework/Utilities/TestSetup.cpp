@@ -80,3 +80,7 @@ void ezTestSetup::DeInitTestFramework()
 #endif
   delete pTestFramework;
 }
+
+
+EZ_STATICLINK_REFPOINT(TestFramework_Utilities_TestSetup);
+

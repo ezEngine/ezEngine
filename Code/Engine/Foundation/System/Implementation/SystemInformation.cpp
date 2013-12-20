@@ -32,3 +32,7 @@ ezSystemInformation ezSystemInformation::s_SystemInformation;
 #else
   #error "System configuration functions are not implemented on current platform"
 #endif
+
+
+EZ_STATICLINK_REFPOINT(Foundation_System_Implementation_SystemInformation);
+

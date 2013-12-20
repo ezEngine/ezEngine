@@ -158,3 +158,7 @@ void ezLargeBlockAllocator::GetStats(Stats& stats) const
   stats.m_uiAllocationSize = stats.m_uiNumLiveAllocations * BLOCK_SIZE_IN_BYTES;
   stats.m_uiUsedMemorySize = m_superBlocks.GetCount() * SuperBlock::SIZE_IN_BYTES;
 }
+
+
+EZ_STATICLINK_REFPOINT(Foundation_Memory_Implementation_LargeBlockAllocator);
+

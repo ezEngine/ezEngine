@@ -136,3 +136,7 @@ void ezLogWriter::HTML::WriteString(const char* szString, ezUInt32 uiColor)
 
   m_File.WriteBytes(sTemp.GetData(), sizeof (char) * sTemp.GetElementCount());
 }
+
+
+EZ_STATICLINK_REFPOINT(Foundation_Logging_Implementation_HTMLWriter);
+

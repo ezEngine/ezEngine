@@ -484,3 +484,7 @@ void ezTestFramework::TestResult(ezInt32 iSubTestIdentifier, bool bSuccess, doub
   GetInstance()->TestResultImpl(iSubTestIdentifier, bSuccess, fDuration);
 }
 
+
+
+EZ_STATICLINK_REFPOINT(TestFramework_Framework_TestFramework);
+

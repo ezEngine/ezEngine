@@ -521,3 +521,7 @@ ezResult ezPlugin::ReloadPlugins(bool bForceReload)
 
   return res;
 }
+
+
+EZ_STATICLINK_REFPOINT(Foundation_Configuration_Implementation_Plugin);
+

@@ -62,3 +62,6 @@ void ezEndianHelper::SwitchStructs(void* pDataPointer, const char* szFormat, ezU
     pDataPointer = ezMemoryUtils::AddByteOffset(pDataPointer, uiStride);
   }
 }
+
+EZ_STATICLINK_REFPOINT(Foundation_Memory_EndianHelper);
+

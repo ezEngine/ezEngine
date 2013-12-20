@@ -109,3 +109,7 @@ double ezTestBaseClass::DoSubTestRun(ezInt32 iIdentifier)
 
   return fDuration;
 }
+
+
+EZ_STATICLINK_REFPOINT(TestFramework_Framework_TestBaseClass);
+
