@@ -5,7 +5,7 @@
 
 ezInputManager::ezEventInput ezInputManager::s_InputEvents;
 ezInputManager::InternalData* ezInputManager::s_pData = NULL;
-wchar_t ezInputManager::s_LastCharacter = '\0';
+ezUInt32 ezInputManager::s_LastCharacter = '\0';
 bool ezInputManager::s_bInputSlotResetRequired = true;
 
 ezInputManager::InternalData& ezInputManager::GetInternals()
@@ -169,6 +169,7 @@ ezKeyState::Enum ezInputManager::GetInputSlotState(const char* szInputSlot, floa
     *pValue = 0.0f;
 
   ezLog::Warning("ezInputManager::GetInputSlotState: Input Slot '%s' does not exist (yet). To ensure all devices are initialized, call ezInputManager::Update before querying device states, or at least call ezInputManager::PollHardware.", szInputSlot);
+  RegisterInputSlot(szInputSlot, szInputSlot, ezInputSlotFlags::None);
 
   return ezKeyState::Up;
 }
@@ -280,12 +281,12 @@ void ezInputManager::RetrieveAllKnownInputSlots(ezDynamicArray<const char*>& out
   }
 }
 
-wchar_t ezInputManager::RetrieveLastCharacter(bool bResetCurrent)
+ezUInt32 ezInputManager::RetrieveLastCharacter(bool bResetCurrent)
 {
   if (!bResetCurrent)
     return s_LastCharacter;
 
-  wchar_t Temp = s_LastCharacter;
+  ezUInt32 Temp = s_LastCharacter;
   s_LastCharacter = L'\0';
   return Temp;
 }

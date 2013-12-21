@@ -25,6 +25,14 @@ static LRESULT CALLBACK ezWindowsMessageFuncTrampoline(HWND hWnd, UINT Msg, WPAR
       pWindow->Destroy();
       return 0;
 
+    case WM_SETFOCUS:
+      pWindow->OnFocusMessage(true);
+      return 0;
+
+    case WM_KILLFOCUS:
+      pWindow->OnFocusMessage(false);
+      return 0;
+
     case WM_SIZE:
       {
         ezSizeU32 size(LOWORD (LParam), HIWORD (LParam));
@@ -178,8 +186,7 @@ ezResult ezWindow::Initialize()
   m_bInitialized = true;
   ezLog::Success("Created window successfully.");
 
-  /// \todo This won't work with more than one window at the moment.
-  m_pInputDevice = EZ_DEFAULT_NEW(ezStandardInputDevice)(0);
+  m_pInputDevice = EZ_DEFAULT_NEW(ezStandardInputDevice)(m_CreationDescription.m_uiWindowNumber);
 
   return CreateGraphicsContext();
 }

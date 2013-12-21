@@ -77,18 +77,18 @@ void ezInputDevice::ResetAllDevices()
   }
 }
 
-wchar_t ezInputDevice::RetrieveLastCharacter()
+ezUInt32 ezInputDevice::RetrieveLastCharacter()
 { 
-  wchar_t Temp = m_LastCharacter;
+  ezUInt32 Temp = m_LastCharacter;
   m_LastCharacter = L'\0';
   return Temp;
 }
 
-wchar_t ezInputDevice::RetrieveLastCharacterFromAllDevices()
+ezUInt32 ezInputDevice::RetrieveLastCharacterFromAllDevices()
 {
   for (ezInputDevice* pDevice = ezInputDevice::GetFirstInstance(); pDevice != NULL; pDevice = pDevice->GetNextInstance())
   {
-    const wchar_t Char = pDevice->RetrieveLastCharacter();
+    const ezUInt32 Char = pDevice->RetrieveLastCharacter();
 
     if (Char != L'\0')
       return Char;

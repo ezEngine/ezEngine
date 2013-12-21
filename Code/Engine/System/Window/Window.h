@@ -63,7 +63,8 @@ struct EZ_SYSTEM_DLL ezWindowCreationDesc
     m_bFullscreenWindow(false),
     m_bResizable(false),
     m_bWindowsUseDevmodeFullscreen(false),
-    m_GraphicsAPI(ezGraphicsAPI::Default)
+    m_GraphicsAPI(ezGraphicsAPI::Default),
+    m_uiWindowNumber(0)
   {
   }
 
@@ -74,6 +75,10 @@ struct EZ_SYSTEM_DLL ezWindowCreationDesc
   ezSizeU32 m_ClientAreaSize;
 
   ezHybridString<64> m_Title;
+
+  /// \brief The number of the window. This is mostly used for setting up the input system, which then reports
+  /// different mouse positions for each window.
+  ezUInt8 m_uiWindowNumber;
 
   bool m_bFullscreenWindow;
 
@@ -168,6 +173,9 @@ public:
   ///   New window size in pixel.
   /// \see OnWindowMessage
   virtual void OnResizeMessage(const ezSizeU32& newWindowSize) {}
+
+  /// \brief Called when the window gets focus or loses focus.
+  virtual void OnFocusMessage(bool bHasFocus) {}
 
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)

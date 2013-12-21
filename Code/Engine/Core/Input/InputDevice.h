@@ -60,7 +60,7 @@ private:
   /// this resulsts in an upper case A in typed text also needs to be handled. An OS usually has a way to compute this, for example
   /// on Windows the WM_CHAR message sends this information. An ezInputDevice derived class should never try to compute this
   /// itself, but instead query this information from the OS, which will also handle localization.
-  wchar_t RetrieveLastCharacter();
+  ezUInt32 RetrieveLastCharacter();
 
   /// \brief Calls UpdateHardwareState() on all devices.
   static void UpdateAllHardwareStates(ezTime tTimeDifference);
@@ -72,7 +72,7 @@ private:
   static void ResetAllDevices();
 
   /// \brief Calls RetrieveLastCharacter() on all devices. Returns the first non-null character that any device returned.
-  static wchar_t RetrieveLastCharacterFromAllDevices();
+  static ezUInt32 RetrieveLastCharacterFromAllDevices();
 
 protected:
   /// \brief Calls RegisterInputSlot() on the ezInputManager and passes the parameters through.
@@ -94,7 +94,7 @@ protected:
 
   /// \brief If this input device type handles character input, it should write the last typed character into this variable.
   /// The ezInputManager calls RetrieveLastCharacter() to query what the user typed last.
-  wchar_t m_LastCharacter; // [tested]
+  ezUInt32 m_LastCharacter; // [tested]
 
 private:
 

@@ -118,7 +118,7 @@ public:
   ///
   /// If \a bResetCurrent is true, the internal last character will be reset to '\0'.
   /// If it is false, the internal state will not be changed. This should only be used, if the calling code does not do anything meaningful with the value.
-  static wchar_t RetrieveLastCharacter(bool bResetCurrent = true); // [tested]
+  static ezUInt32 RetrieveLastCharacter(bool bResetCurrent = true); // [tested]
 
   /// \brief Makes sure that hardware input is processed at this moment, which allows to do this more often than Update() is called.
   ///
@@ -288,7 +288,7 @@ private:
   };
 
   /// \brief The last (unicode) character that was typed by the user, as reported by the OS (on Windows: WM_CHAR).
-  static wchar_t s_LastCharacter;
+  static ezUInt32 s_LastCharacter;
 
   static bool s_bInputSlotResetRequired;
 

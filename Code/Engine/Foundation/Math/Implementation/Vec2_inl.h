@@ -38,7 +38,7 @@ EZ_FORCE_INLINE void ezVec2Template<Type>::Set(Type X, Type Y)
 template<typename Type>
 EZ_FORCE_INLINE void ezVec2Template<Type>::SetZero()
 {
-  x = y = 0.0f;
+  x = y = 0;
 }
 
 template<typename Type>
