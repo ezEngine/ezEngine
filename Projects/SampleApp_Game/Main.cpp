@@ -23,6 +23,8 @@ SampleGameApp::SampleGameApp()
 
 void SampleGameApp::AfterEngineInit()
 {
+  EZ_LOG_BLOCK("SampleGameApp::AfterEngineInit");
+
   ezTelemetry::CreateServer();
 
   if (ezPlugin::LoadPlugin("ezInspectorPlugin") == EZ_SUCCESS)
@@ -30,11 +32,13 @@ void SampleGameApp::AfterEngineInit()
 
   }
 
-  m_pWindow = EZ_DEFAULT_NEW(GameWindow);
-
   // Setup the logging system
   ezGlobalLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);
   ezGlobalLog::AddLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
+
+  m_pWindow = EZ_DEFAULT_NEW(GameWindow);
+
+  ezStartup::StartupEngine();
 
   ezClock::SetNumGlobalClocks();
   ezClock::Get()->SetTimeStepSmoothing(&m_TimeStepSmoother);
@@ -46,13 +50,15 @@ void SampleGameApp::AfterEngineInit()
 
   CreateGameLevel();
 
-  ezStartup::StartupEngine();
+  
 
   m_bActiveRenderLoop = true;
 }
 
 void SampleGameApp::BeforeEngineShutdown()
 {
+  EZ_LOG_BLOCK("SampleGameApp::BeforeEngineShutdown");
+
   ezStartup::ShutdownEngine();
 
   EZ_DEFAULT_DELETE(m_pWindow);
@@ -67,6 +73,8 @@ void SampleGameApp::BeforeEngineShutdown()
 
 ezApplication::ApplicationExecution SampleGameApp::Run()
 {
+  EZ_LOG_BLOCK("SampleGameApp::Run");
+
   m_bActiveRenderLoop = m_bActiveRenderLoop && (m_pWindow->ProcessWindowMessages() == ezWindow::Continue);
 
   if(!m_bActiveRenderLoop)
@@ -75,7 +83,7 @@ ezApplication::ApplicationExecution SampleGameApp::Run()
   ezClock::UpdateAllGlobalClocks();
 
   RenderSingleFrame();
-  m_pWindow->SwapBuffers();
+  m_pWindow->PresentFrame();
   
 
   ezTelemetry::PerFrameUpdate();

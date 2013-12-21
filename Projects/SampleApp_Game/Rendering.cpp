@@ -8,6 +8,7 @@
 #include <Foundation/Math/Size.h>
 #include <Foundation/Configuration/CVar.h>
 #include <Foundation/Math/Color.h>
+#include <Foundation/Logging/Log.h>
 
 const ezColor g_fShipColors[4] =
 {
@@ -163,6 +164,8 @@ ezCVarInt CVarGameSlowDown("CVar_GameSlowDown", 0, ezCVarFlags::Default, "How mu
 
 void SampleGameApp::RenderSingleFrame()
 {
+  EZ_LOG_BLOCK("SampleGameApp::RenderSingleFrame");
+
   // always update the game with a fixed time step of 1/60 seconds
   const ezTime tUpdateInterval = ezTime::Seconds(1.0 / 60.0);
   const ezTime tNow = ezSystemTime::Now();
@@ -181,13 +184,22 @@ void SampleGameApp::RenderSingleFrame()
     }
   }
 
+  bool bPolledInput = false;
+
   while (tNow - s_LastGameUpdate > tUpdateInterval)
   {
+    bPolledInput = true;
+
     UpdateInput(tUpdateInterval);
     m_pLevel->Update();
 
     s_LastGameUpdate += tUpdateInterval;
   }
+
+  // this should be done at least once per frame to ensure that all input devices are actually initialized
+  // otherwise you might see some warnings for a few frames
+  if (!bPolledInput)
+    ezInputManager::PollHardware();
 
   ezSizeU32 resolution = m_pWindow->GetResolution();
   glViewport(0, 0, resolution.width, resolution.height);

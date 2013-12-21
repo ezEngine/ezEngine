@@ -27,8 +27,6 @@ private:
   void RenderAsteroids();
   void RenderPlayerShips();
 
-  void CreateAppWindow();
-  void DestroyAppWindow();
   void GameLoop();
   void SetupInput();
   void CreateGameLevel();

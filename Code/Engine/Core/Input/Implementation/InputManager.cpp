@@ -168,7 +168,7 @@ ezKeyState::Enum ezInputManager::GetInputSlotState(const char* szInputSlot, floa
   if (pValue)
     *pValue = 0.0f;
 
-  ezLog::Warning("ezInputManager::GetInputSlotState: Input Slot '%s' does not exist (yet).", szInputSlot);
+  ezLog::Warning("ezInputManager::GetInputSlotState: Input Slot '%s' does not exist (yet). To ensure all devices are initialized, call ezInputManager::Update before querying device states, or at least call ezInputManager::PollHardware.", szInputSlot);
 
   return ezKeyState::Up;
 }
