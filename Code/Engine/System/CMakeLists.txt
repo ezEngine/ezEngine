@@ -10,22 +10,63 @@
 # *** Modify this file as required ***
 #
 
-# Pass a boolean expression into this macro to build this project only if the expression evaluates to true.
-BUILD_CONDITIONAL(BUILDSYSTEM_PLATFORM_WINDOWS)
-
-# Add all the preprocessor definitions that are needed to configure this library
-# add_definitions (-DMY_PREPROCESS_DEFINITION_1)
-# add_definitions (-DMY_PREPROCESS_DEFINITION_2)
-
-# Add all the libraries that this project needs to link against here
-# SET (LINK_LIBRARIES
-#  Foundation      # Example: Another library build with cmake
-#  OpenGL32.lib    # Example: A library that can be found in any lib path, but was not built with cmake
-# )
-
 SET (LINK_LIBRARIES 
   Foundation
   Core
 )
+
+if (BUILDSYSTEM_COMPILER_MSVC_110 OR BUILDSYSTEM_COMPILER_MSVC_120)
+
+  if (BUILDSYSTEM_PLATFORM_64BIT)
+  
+    SET (LINK_LIBRARIES
+      ${LINK_LIBRARIES}
+      debug ${CMAKE_SOURCE_DIR}/Code/ThirdParty/SFML/libs/vs2012x64/sfml-system-s-d.lib
+      debug ${CMAKE_SOURCE_DIR}/Code/ThirdParty/SFML/libs/vs2012x64/sfml-window-s-d.lib
+      optimized ${CMAKE_SOURCE_DIR}/Code/ThirdParty/SFML/libs/vs2012x64/sfml-system-s.lib
+      optimized ${CMAKE_SOURCE_DIR}/Code/ThirdParty/SFML/libs/vs2012x64/sfml-window-s.lib
+    )
+
+  else()
+
+    SET (LINK_LIBRARIES
+      ${LINK_LIBRARIES}
+      debug ${CMAKE_SOURCE_DIR}/Code/ThirdParty/SFML/libs/vs2012x32/sfml-system-s-d.lib
+      debug ${CMAKE_SOURCE_DIR}/Code/ThirdParty/SFML/libs/vs2012x32/sfml-window-s-d.lib
+      optimized ${CMAKE_SOURCE_DIR}/Code/ThirdParty/SFML/libs/vs2012x32/sfml-system-s.lib
+      optimized ${CMAKE_SOURCE_DIR}/Code/ThirdParty/SFML/libs/vs2012x32/sfml-window-s.lib
+    )
+
+  endif()
+
+endif()
+
+if (BUILDSYSTEM_COMPILER_MSVC_100)
+
+  if (BUILDSYSTEM_PLATFORM_64BIT)
+  
+    SET (LINK_LIBRARIES
+      ${LINK_LIBRARIES}
+      debug ${CMAKE_SOURCE_DIR}/Code/ThirdParty/SFML/libs/vs2010x64/sfml-system-s-d.lib
+      debug ${CMAKE_SOURCE_DIR}/Code/ThirdParty/SFML/libs/vs2010x64/sfml-window-s-d.lib
+      optimized ${CMAKE_SOURCE_DIR}/Code/ThirdParty/SFML/libs/vs2010x64/sfml-system-s.lib
+      optimized ${CMAKE_SOURCE_DIR}/Code/ThirdParty/SFML/libs/vs2010x64/sfml-window-s.lib
+    )
+
+  else()
+
+    SET (LINK_LIBRARIES
+      ${LINK_LIBRARIES}
+      debug ${CMAKE_SOURCE_DIR}/Code/ThirdParty/SFML/libs/vs2010x32/sfml-system-s-d.lib
+      debug ${CMAKE_SOURCE_DIR}/Code/ThirdParty/SFML/libs/vs2010x32/sfml-window-s-d.lib
+      optimized ${CMAKE_SOURCE_DIR}/Code/ThirdParty/SFML/libs/vs2010x32/sfml-system-s.lib
+      optimized ${CMAKE_SOURCE_DIR}/Code/ThirdParty/SFML/libs/vs2010x32/sfml-window-s.lib
+    )
+
+  endif()
+
+endif()
+
+# Someone else finish the MacOS and Linux setup...
 
 include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/CMAKE_Library.txt)
