@@ -349,5 +349,5 @@ void ezInputManager::GetAllInputActions(const char* szInputSetName, ezDynamicArr
 
 
 
-EZ_STATICLINK_REFPOINT(Core_Input_Implementation_Action);
+EZ_STATICLINK_FILE(Core, Core_Input_Implementation_Action);
 

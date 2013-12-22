@@ -486,5 +486,5 @@ void ezTestFramework::TestResult(ezInt32 iSubTestIdentifier, bool bSuccess, doub
 
 
 
-EZ_STATICLINK_REFPOINT(TestFramework_Framework_TestFramework);
+EZ_STATICLINK_FILE(TestFramework, TestFramework_Framework_TestFramework);
 

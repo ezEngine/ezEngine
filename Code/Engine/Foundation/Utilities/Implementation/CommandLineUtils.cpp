@@ -183,5 +183,5 @@ double ezCommandLineUtils::GetFloatOption(const char* szOption, double fDefault,
 
 
 
-EZ_STATICLINK_REFPOINT(Foundation_Utilities_Implementation_CommandLineUtils);
+EZ_STATICLINK_FILE(Foundation, Foundation_Utilities_Implementation_CommandLineUtils);
 

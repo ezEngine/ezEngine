@@ -493,5 +493,5 @@ void ezWorld::UpdateWorldTransforms()
 }
 
 
-EZ_STATICLINK_REFPOINT(Core_World_Implementation_World);
+EZ_STATICLINK_FILE(Core, Core_World_Implementation_World);
 

@@ -51,5 +51,5 @@ void ezReloadableVariableBase::RetrieveVariable(const char* szVarName, ezReloada
 
 
 
-EZ_STATICLINK_REFPOINT(Foundation_Configuration_Implementation_ReloadableVariable);
+EZ_STATICLINK_FILE(Foundation, Foundation_Configuration_Implementation_ReloadableVariable);
 

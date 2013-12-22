@@ -33,5 +33,5 @@ EZ_END_SUBSYSTEM_DECLARATION
 
 
 
-EZ_STATICLINK_REFPOINT(Foundation_Threading_Implementation_ThreadUtils);
+EZ_STATICLINK_FILE(Foundation, Foundation_Threading_Implementation_ThreadUtils);
 

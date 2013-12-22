@@ -14,9 +14,6 @@
 
 SampleGameApp::SampleGameApp()
 {
-  EZ_STATICLINK_REFERENCE(Foundation);
-  EZ_STATICLINK_REFERENCE(Core);
-
   m_bActiveRenderLoop = false;
   m_pWindow = NULL;
 }

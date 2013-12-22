@@ -155,5 +155,5 @@ void ezInputDeviceController::UpdateVibration(ezTime tTimeDifference)
 }
 
 
-EZ_STATICLINK_REFPOINT(Core_Input_DeviceTypes_DeviceTypes);
+EZ_STATICLINK_FILE(Core, Core_Input_DeviceTypes_DeviceTypes);
 

@@ -81,5 +81,5 @@ ezDateTime::ezDateTime(ezTimestamp timestamp)
 
 
 
-EZ_STATICLINK_REFPOINT(Foundation_Time_Implementation_Timestamp);
+EZ_STATICLINK_FILE(Foundation, Foundation_Time_Implementation_Timestamp);
 

@@ -34,5 +34,5 @@ ezSystemInformation ezSystemInformation::s_SystemInformation;
 #endif
 
 
-EZ_STATICLINK_REFPOINT(Foundation_System_Implementation_SystemInformation);
+EZ_STATICLINK_FILE(Foundation, Foundation_System_Implementation_SystemInformation);
 

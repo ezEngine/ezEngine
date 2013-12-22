@@ -111,5 +111,5 @@ double ezTestBaseClass::DoSubTestRun(ezInt32 iIdentifier)
 }
 
 
-EZ_STATICLINK_REFPOINT(TestFramework_Framework_TestBaseClass);
+EZ_STATICLINK_FILE(TestFramework, TestFramework_Framework_TestBaseClass);
 

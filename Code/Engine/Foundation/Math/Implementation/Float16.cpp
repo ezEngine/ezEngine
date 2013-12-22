@@ -95,5 +95,5 @@ ezFloat16::operator float() const
   return *reinterpret_cast<float*>(&uiResult);
 }
 
-EZ_STATICLINK_REFPOINT(Foundation_Math_Implementation_Float16);
+EZ_STATICLINK_FILE(Foundation, Foundation_Math_Implementation_Float16);
 

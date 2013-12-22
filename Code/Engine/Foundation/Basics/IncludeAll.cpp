@@ -124,5 +124,5 @@
 
 
 
-EZ_STATICLINK_REFPOINT(Foundation_Basics_IncludeAll);
+EZ_STATICLINK_FILE(Foundation, Foundation_Basics_IncludeAll);
 

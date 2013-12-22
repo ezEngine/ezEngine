@@ -128,19 +128,21 @@ public:
     if (ReadEntireFile(szFile, sFileContent) == EZ_FAILURE)
       return;
 
-    if (sFileContent.FindSubString("EZ_STATICLINK_REFPOINT_GROUP"))
+    if (sFileContent.FindSubString("EZ_STATICLINK_LIBRARY"))
     {
       m_sRefPointGroupFile = szFile;
       return;
     }
 
+    ezString sLibraryMarker = GetLibraryMarkerName(szFile);
     ezString sFileMarker = GetFileMarkerName(szFile);
+
     ezStringBuilder sNewMarker;
-    sNewMarker.Format("EZ_STATICLINK_REFPOINT(%s);", sFileMarker.GetData());
+    sNewMarker.Format("EZ_STATICLINK_FILE(%s, %s);", sLibraryMarker.GetData(), sFileMarker.GetData());
 
     m_AllRefPoints.Insert(sFileMarker.GetData());
 
-    const char* szMarker = sFileContent.FindSubString("EZ_STATICLINK_REFPOINT");
+    const char* szMarker = sFileContent.FindSubString("EZ_STATICLINK_FILE");
     if (szMarker != NULL)
     {
       const char* szMarkerEnd = szMarker;
@@ -166,7 +168,7 @@ public:
     if (ReadEntireFile(szFile, sFileContent) == EZ_FAILURE)
       return;
 
-    const char* szMarker = sFileContent.FindWholeWord("EZ_STATICLINK_REFPOINT", ezStringUtils::IsIdentifierDelimiter_C_Code);
+    const char* szMarker = sFileContent.FindWholeWord("EZ_STATICLINK_FILE", ezStringUtils::IsIdentifierDelimiter_C_Code);
     if (szMarker != NULL)
     {
       const char* szMarkerEnd = szMarker;
@@ -179,7 +181,7 @@ public:
     }
 
     ezStringBuilder sNewGroupMarker;
-    sNewGroupMarker.Format("EZ_STATICLINK_REFPOINT_GROUP(%s)\n{\n", GetLibraryMarkerName(szFile).GetData());
+    sNewGroupMarker.Format("EZ_STATICLINK_LIBRARY(%s)\n{\nif(bReturn)\n  return;\n\n", GetLibraryMarkerName(szFile).GetData());
 
     {
       auto it = m_AllRefPoints.GetIterator();
@@ -193,7 +195,7 @@ public:
 
     sNewGroupMarker.Append("}\n");
 
-    const char* szGroupMarker = sFileContent.FindSubString("EZ_STATICLINK_REFPOINT_GROUP");
+    const char* szGroupMarker = sFileContent.FindSubString("EZ_STATICLINK_LIBRARY");
 
     if (szGroupMarker != NULL)
     {

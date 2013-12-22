@@ -33,5 +33,5 @@ void operator>> (ezIBinaryStreamReader& Stream, ezTime& Value)
   Value = ezTime::Seconds(d);
 }
 
-EZ_STATICLINK_REFPOINT(Foundation_IO_Implementation_BinaryStreamOperationsOther);
+EZ_STATICLINK_FILE(Foundation, Foundation_IO_Implementation_BinaryStreamOperationsOther);
 

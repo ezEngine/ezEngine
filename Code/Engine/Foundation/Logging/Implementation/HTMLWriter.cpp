@@ -138,5 +138,5 @@ void ezLogWriter::HTML::WriteString(const char* szString, ezUInt32 uiColor)
 }
 
 
-EZ_STATICLINK_REFPOINT(Foundation_Logging_Implementation_HTMLWriter);
+EZ_STATICLINK_FILE(Foundation, Foundation_Logging_Implementation_HTMLWriter);
 

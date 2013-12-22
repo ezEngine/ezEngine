@@ -81,5 +81,5 @@ void ezLogWriter::Console::LogMessageHandler(const ezLoggingEventData& eventData
 
 
 
-EZ_STATICLINK_REFPOINT(Foundation_Logging_Implementation_ConsoleWriter);
+EZ_STATICLINK_FILE(Foundation, Foundation_Logging_Implementation_ConsoleWriter);
 

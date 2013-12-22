@@ -38,17 +38,18 @@
     typedef int EZ_CONCAT(EZ_CompileTimeAssert, __LINE__)[(exp) ? 1 : -1]
 #endif
 
-/// Disallow the copy constructor and the assignment operator for this type. 
+/// \brief Disallow the copy constructor and the assignment operator for this type. 
 #define EZ_DISALLOW_COPY_AND_ASSIGN(type) \
   private: \
     type(const type&); \
     void operator=(const type&)
 
-/// Macro helper to check alignment
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
+  /// \brief Macro helper to check alignment
   #define EZ_CHECK_ALIGNMENT(ptr, alignment) \
     EZ_ASSERT(((size_t)ptr & (alignment - 1)) == 0, "Wrong aligment. Expected %d bytes alignment", alignment)
 #else
+  /// \brief Macro helper to check alignment
   #define EZ_CHECK_ALIGNMENT(ptr, alignment)
 #endif
 
@@ -63,32 +64,51 @@
 
 #if EZ_ENABLED(EZ_COMPILE_ENGINE_AS_DLL)
 
-  /// \brief Embed this in each file (manually or via a tool) to create a reference point that makes sure that during static linking no features will be omitted.
-  #define EZ_STATICLINK_REFPOINT(UniqueName)
+  /// \brief The tool 'StaticLinkUtil' inserts this macro into each file in a library.
+  /// Each library also needs to contain exactly one instance of EZ_STATICLINK_LIBRARY.
+  /// The macros create functions that reference each other, which means the linker is forced to look at all files in the library.
+  /// This in turn will drag all global variables into the visibility of the linker, and since it musn't optimize them away,
+  /// they then end up in the final application, where they will do what they are meant for.
+  #define EZ_STATICLINK_FILE(LibraryName, UniqueName)
 
-/// \brief Call this with each name used in EZ_STATICLINK_REFPOINT to ensure that all features are linked into a statically linked program.
+  /// \brief Used by the tool 'StaticLinkUtil' to generate the block after EZ_STATICLINK_LIBRARY, to create references to all
+  /// files inside a library. \see EZ_STATICLINK_FILE
   #define EZ_STATICLINK_REFERENCE(UniqueName)
 
-  /// \brief Insert this to create a group refpoint, which references other refpoints.
-  #define EZ_STATICLINK_REFPOINT_GROUP(UniqueName) \
-    void ezReferenceFunction_##UniqueName()
+  /// \brief This must occur exactly once in each static library, such that all EZ_STATICLINK_FILE macros can reference it.
+  #define EZ_STATICLINK_LIBRARY(LibraryName) \
+    void ezReferenceFunction_##LibraryName(bool bReturn = true)
 
 #else
 
-  /// \brief Embed this in each file (manually or via a tool) to create a reference point that makes sure that during static linking no features will be omitted.
-  #define EZ_STATICLINK_REFPOINT(UniqueName) \
-    void ezReferenceFunction_##UniqueName() { }
+  struct ezStaticLinkHelper
+  {
+    typedef void(*Func)(bool);
+    ezStaticLinkHelper(Func f) { f(true); }
+  };
 
-  /// \brief Call this with each name used in EZ_STATICLINK_REFPOINT to ensure that all features are linked into a statically linked program.
+  /// \brief The tool 'StaticLinkUtil' inserts this macro into each file in a library.
+  /// Each library also needs to contain exactly one instance of EZ_STATICLINK_LIBRARY.
+  /// The macros create functions that reference each other, which means the linker is forced to look at all files in the library.
+  /// This in turn will drag all global variables into the visibility of the linker, and since it musn't optimize them away,
+  /// they then end up in the final application, where they will do what they are meant for.
+  #define EZ_STATICLINK_FILE(LibraryName, UniqueName) \
+    void ezReferenceFunction_##UniqueName(bool bReturn = true) { } \
+    void ezReferenceFunction_##LibraryName(bool bReturn = true); \
+    static ezStaticLinkHelper StaticLinkHelper(ezReferenceFunction_##LibraryName);
+
+  /// \brief Used by the tool 'StaticLinkUtil' to generate the block after EZ_STATICLINK_LIBRARY, to create references to all
+  /// files inside a library. \see EZ_STATICLINK_FILE
   #define EZ_STATICLINK_REFERENCE(UniqueName) \
-    void ezReferenceFunction_##UniqueName(); \
+    void ezReferenceFunction_##UniqueName(bool bReturn = true); \
     ezReferenceFunction_##UniqueName()
 
-  /// \brief Insert this to create a group refpoint, which references other refpoints.
-  #define EZ_STATICLINK_REFPOINT_GROUP(UniqueName) \
-    void ezReferenceFunction_##UniqueName()
+  /// \brief This must occur exactly once in each static library, such that all EZ_STATICLINK_FILE macros can reference it.
+  #define EZ_STATICLINK_LIBRARY(LibraryName) \
+    void ezReferenceFunction_##LibraryName(bool bReturn = true)
 
 #endif
 
-// Template helper which allows to suppress "Unused variable" warnings (e.g. result used in platform specific block, ..)
-template<class T> void EZ_IGNORE_UNUSED(const T&) {}
+/// \brief Template helper which allows to suppress "Unused variable" warnings (e.g. result used in platform specific block, ..)
+template<class T> 
+void EZ_IGNORE_UNUSED(const T&) {}

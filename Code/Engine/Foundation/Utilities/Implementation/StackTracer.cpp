@@ -12,5 +12,5 @@
 #endif
 
 
-EZ_STATICLINK_REFPOINT(Foundation_Utilities_Implementation_StackTracer);
+EZ_STATICLINK_FILE(Foundation, Foundation_Utilities_Implementation_StackTracer);
 

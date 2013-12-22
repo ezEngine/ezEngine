@@ -160,5 +160,5 @@ void ezLargeBlockAllocator::GetStats(Stats& stats) const
 }
 
 
-EZ_STATICLINK_REFPOINT(Foundation_Memory_Implementation_LargeBlockAllocator);
+EZ_STATICLINK_FILE(Foundation, Foundation_Memory_Implementation_LargeBlockAllocator);
 

@@ -57,5 +57,5 @@ ezResult ezBMPWriter::Write(ezArrayPtr<const ezUInt8> data, ezUInt32 uiWidth, ez
   return EZ_SUCCESS;
 }
 
-EZ_STATICLINK_REFPOINT(CoreUtils_ImageWriters_Implementation_BMPWriter);
+EZ_STATICLINK_FILE(CoreUtils, CoreUtils_ImageWriters_Implementation_BMPWriter);
 

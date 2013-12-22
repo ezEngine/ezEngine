@@ -411,5 +411,5 @@ void ezStandardJSONWriter::WriteBinaryData(const char* szDataType, const void* p
 
 
 
-EZ_STATICLINK_REFPOINT(Foundation_IO_Implementation_StandardJSONWriter);
+EZ_STATICLINK_FILE(Foundation, Foundation_IO_Implementation_StandardJSONWriter);
 

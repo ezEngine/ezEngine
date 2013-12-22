@@ -36,5 +36,5 @@ ezUInt32 RunThread(ezThread* pThread)
 #endif
 
 
-EZ_STATICLINK_REFPOINT(Foundation_Threading_Implementation_Thread);
+EZ_STATICLINK_FILE(Foundation, Foundation_Threading_Implementation_Thread);
 

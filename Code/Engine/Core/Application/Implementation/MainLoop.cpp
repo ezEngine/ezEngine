@@ -37,5 +37,5 @@ void ezRun(ezApplication* pApplicationInstance)
   ezApplication::s_pApplicationInstance = NULL;
 }
 
-EZ_STATICLINK_REFPOINT(Core_Application_Implementation_MainLoop);
+EZ_STATICLINK_FILE(Core, Core_Application_Implementation_MainLoop);
 

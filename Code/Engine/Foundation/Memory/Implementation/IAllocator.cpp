@@ -42,5 +42,5 @@ void ezIAllocator::DumpMemoryLeaks() const
 }
 
 
-EZ_STATICLINK_REFPOINT(Foundation_Memory_Implementation_IAllocator);
+EZ_STATICLINK_FILE(Foundation, Foundation_Memory_Implementation_IAllocator);
 

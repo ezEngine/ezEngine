@@ -74,5 +74,5 @@ ezResult ezFileWriter::WriteBytes(const void* pWriteBuffer, ezUInt64 uiBytesToWr
 
 
 
-EZ_STATICLINK_REFPOINT(Foundation_IO_FileSystem_Implementation_FileWriter);
+EZ_STATICLINK_FILE(Foundation, Foundation_IO_FileSystem_Implementation_FileWriter);
 

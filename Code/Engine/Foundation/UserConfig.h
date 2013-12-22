@@ -15,7 +15,7 @@
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   // Always compile as a DLL on Windows
   #undef EZ_COMPILE_ENGINE_AS_DLL
-  #define EZ_COMPILE_ENGINE_AS_DLL EZ_ON
+  #define EZ_COMPILE_ENGINE_AS_DLL EZ_OFF
 #else
   // Compile as a static library on all other platforms.
   #undef EZ_COMPILE_ENGINE_AS_DLL

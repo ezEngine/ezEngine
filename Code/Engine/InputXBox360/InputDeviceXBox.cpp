@@ -181,5 +181,5 @@ void ezInputDeviceXBox360::ApplyVibration(ezUInt8 uiPhysicalController, Motor::E
 
 
 
-EZ_STATICLINK_REFPOINT(InputXBox360_InputDeviceXBox);
+EZ_STATICLINK_FILE(InputXBox360, InputXBox360_InputDeviceXBox);
 

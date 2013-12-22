@@ -40,5 +40,5 @@ void ezDataDirectoryReaderWriterBase::Close()
 
 
 
-EZ_STATICLINK_REFPOINT(Foundation_IO_FileSystem_Implementation_DataDirType);
+EZ_STATICLINK_FILE(Foundation, Foundation_IO_FileSystem_Implementation_DataDirType);
 

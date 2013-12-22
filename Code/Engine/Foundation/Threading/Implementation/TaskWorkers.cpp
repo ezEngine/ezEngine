@@ -169,5 +169,5 @@ ezUInt32 ezTaskWorkerThread::Run()
 }
 
 
-EZ_STATICLINK_REFPOINT(Foundation_Threading_Implementation_TaskWorkers);
+EZ_STATICLINK_FILE(Foundation, Foundation_Threading_Implementation_TaskWorkers);
 

@@ -18,5 +18,5 @@ ezWindow::~ezWindow()
     Destroy();
 }
 
-EZ_STATICLINK_REFPOINT(System_Window_Implementation_Window);
+EZ_STATICLINK_FILE(System, System_Window_Implementation_Window);
 

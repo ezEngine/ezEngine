@@ -72,5 +72,5 @@ void ezComponentManagerBase::DeregisterUpdateFunction(const UpdateFunctionDesc& 
 }
 
 
-EZ_STATICLINK_REFPOINT(Core_World_Implementation_ComponentManager);
+EZ_STATICLINK_FILE(Core, Core_World_Implementation_ComponentManager);
 

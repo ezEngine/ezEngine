@@ -49,5 +49,5 @@ ezResult ezSimpleTestGroup::DeInitializeSubTest(ezInt32 iIdentifier)
 }
 
 
-EZ_STATICLINK_REFPOINT(TestFramework_Framework_SimpleTest);
+EZ_STATICLINK_FILE(TestFramework, TestFramework_Framework_SimpleTest);
 

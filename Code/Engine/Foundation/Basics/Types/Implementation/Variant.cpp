@@ -175,5 +175,5 @@ void ezVariant::CopyFrom(const ezVariant& other)
 }
 
 
-EZ_STATICLINK_REFPOINT(Foundation_Basics_Types_Implementation_Variant);
+EZ_STATICLINK_FILE(Foundation, Foundation_Basics_Types_Implementation_Variant);
 

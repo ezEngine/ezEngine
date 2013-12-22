@@ -921,5 +921,5 @@ void ezStringBuilder::RemoveDoubleSlashesInPath()
 
 
 
-EZ_STATICLINK_REFPOINT(Foundation_Strings_Implementation_StringBuilder);
+EZ_STATICLINK_FILE(Foundation, Foundation_Strings_Implementation_StringBuilder);
 

@@ -1,7 +1,10 @@
 #include <TestFramework/PCH.h>
 
-EZ_STATICLINK_REFPOINT_GROUP(TestFramework)
+EZ_STATICLINK_LIBRARY(TestFramework)
 {
+if(bReturn)
+  return;
+
   EZ_STATICLINK_REFERENCE(TestFramework_Framework_Qt_qtLogMessageDock);
   EZ_STATICLINK_REFERENCE(TestFramework_Framework_Qt_qtTestDelegate);
   EZ_STATICLINK_REFERENCE(TestFramework_Framework_Qt_qtTestFramework);

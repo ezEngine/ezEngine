@@ -530,5 +530,5 @@ void ezFileSystem::Shutdown()
 }
 
 
-EZ_STATICLINK_REFPOINT(Foundation_IO_FileSystem_Implementation_FileSystem);
+EZ_STATICLINK_FILE(Foundation, Foundation_IO_FileSystem_Implementation_FileSystem);
 

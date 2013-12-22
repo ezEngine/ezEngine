@@ -229,5 +229,5 @@ void ezTaskSystem::FinishFrameTasks(double fSmoothFrameMS)
   ExecuteSomeFrameTasks(uiSomeFrameTasks, fSmoothFrameMS);
 }
 
-EZ_STATICLINK_REFPOINT(Foundation_Threading_Implementation_TaskSystem);
+EZ_STATICLINK_FILE(Foundation, Foundation_Threading_Implementation_TaskSystem);
 

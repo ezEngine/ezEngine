@@ -38,5 +38,5 @@ ezTelemetryMessage::~ezTelemetryMessage()
 
 
 
-EZ_STATICLINK_REFPOINT(Foundation_Communication_Implementation_TelemetryMessage);
+EZ_STATICLINK_FILE(Foundation, Foundation_Communication_Implementation_TelemetryMessage);
 

@@ -1,7 +1,10 @@
 #include <Foundation/PCH.h>
 
-EZ_STATICLINK_REFPOINT_GROUP(Foundation)
+EZ_STATICLINK_LIBRARY(Foundation)
 {
+if(bReturn)
+  return;
+
   EZ_STATICLINK_REFERENCE(Foundation_Algorithm_Implementation_Hashing);
   EZ_STATICLINK_REFERENCE(Foundation_Basics_Assert);
   EZ_STATICLINK_REFERENCE(Foundation_Basics_Basics);

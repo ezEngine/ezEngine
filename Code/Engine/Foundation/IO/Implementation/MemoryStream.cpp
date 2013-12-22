@@ -109,5 +109,5 @@ ezUInt32 ezMemoryStreamWriter::GetByteCount() const
 
 
 
-EZ_STATICLINK_REFPOINT(Foundation_IO_Implementation_MemoryStream);
+EZ_STATICLINK_FILE(Foundation, Foundation_IO_Implementation_MemoryStream);
 

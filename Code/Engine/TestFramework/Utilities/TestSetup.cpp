@@ -82,5 +82,5 @@ void ezTestSetup::DeInitTestFramework()
 }
 
 
-EZ_STATICLINK_REFPOINT(TestFramework_Utilities_TestSetup);
+EZ_STATICLINK_FILE(TestFramework, TestFramework_Utilities_TestSetup);
 

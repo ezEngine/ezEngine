@@ -295,5 +295,5 @@ ezResult ezTaskSystem::CancelTask(ezTask* pTask, ezOnTaskRunning::Enum OnTaskRun
 }
 
 
-EZ_STATICLINK_REFPOINT(Foundation_Threading_Implementation_Tasks);
+EZ_STATICLINK_FILE(Foundation, Foundation_Threading_Implementation_Tasks);
 
