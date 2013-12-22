@@ -2,13 +2,13 @@
 
 /// \file
 
-#include "StaticRTTI.h"
+#include <Foundation/Reflection/Implementation/StaticRTTI.h>
 
 /// \brief All classes that should be dynamically reflectable, need to be derived from this base class.
 ///
 /// The only functionality that this class provides is the virtual GetDynamicRTTI() function, which then needs to be
 /// overridden in each derived class. Use the macro EZ_ADD_DYNAMIC_REFLECTION for this.
-class ezReflectedClass
+class EZ_FOUNDATION_DLL ezReflectedClass
 {
 public:
   virtual const ezRTTI* GetDynamicRTTI()

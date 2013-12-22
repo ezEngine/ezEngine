@@ -1,7 +1,8 @@
-#include "RTTI.h"
-#include "AbstractProperty.h"
-#include "DynamicRTTI.h"
-#include "MessageHandler.h"
+#include <Foundation/PCH.h>
+#include <Foundation/Reflection/Implementation/RTTI.h>
+#include <Foundation/Reflection/Implementation/AbstractProperty.h>
+#include <Foundation/Reflection/Implementation/DynamicRTTI.h>
+#include <Foundation/Reflection/Implementation/MessageHandler.h>
 #include <Foundation/Configuration/Startup.h>
 
 #include <set>
@@ -192,5 +193,3 @@ void ezRTTI::PluginEventHandler(const ezPlugin::PluginEvent& EventData)
   }
 }
 
-EZ_BEGIN_REFLECTED_TYPE(ezReflectedClass, ezNoBase, ezRTTINoAllocator);
-EZ_END_REFLECTED_TYPE(ezReflectedClass);

@@ -6,7 +6,7 @@
 #include <Foundation/Communication/Message.h>
 
 /// \brief The base class for all message handlers that a type provides.
-class ezAbstractMessageHandler
+class EZ_FOUNDATION_DLL ezAbstractMessageHandler
 {
 public:
 

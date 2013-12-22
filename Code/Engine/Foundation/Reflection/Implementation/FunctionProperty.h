@@ -2,7 +2,7 @@
 
 /// \file
 
-#include "AbstractProperty.h"
+#include <Foundation/Reflection/Implementation/AbstractProperty.h>
 
 /// \brief [internal] Implements the functionality that can be accessed through ezAbstractFunctionProperty.
 template<typename CLASS>

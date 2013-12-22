@@ -1,5 +1,9 @@
-#include "StandardTypes.h"
-#include "../ReflectionSystem.h"
+#include <Foundation/PCH.h>
+#include <Foundation/Reflection/Implementation/StandardTypes.h>
+#include <Foundation/Reflection/Reflection.h>
+
+EZ_BEGIN_REFLECTED_TYPE(ezReflectedClass, ezNoBase, ezRTTINoAllocator);
+EZ_END_REFLECTED_TYPE(ezReflectedClass);
 
 // *********************************************
 // ***** Standard POD Types for Properties *****

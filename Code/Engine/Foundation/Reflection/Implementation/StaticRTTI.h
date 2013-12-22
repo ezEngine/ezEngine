@@ -7,10 +7,10 @@
 class ezRTTI;
 
 /// \brief Dummy type to pass to EZ_BEGIN_REFLECTED_TYPE for all types that have no base class.
-class ezNoBase { };
+class EZ_FOUNDATION_DLL ezNoBase { };
 
 /// \brief [internal] Simple helper class to execute code at startup.
-class ezRTTIExecuteAtStartup
+class EZ_FOUNDATION_DLL ezRTTIExecuteAtStartup
 {
 public:
   typedef void (*Function)();
@@ -121,7 +121,7 @@ const ezRTTI* ezGetStaticRTTI()
     ezRTTInfo_##Type::GetReflectableTypeRTTI();                               \
   }                                                                           \
                                                                               \
-  static ezRTTIExecuteAtStartup s_AutoRegister_##Type (Register_##Type);          \
+  static ezRTTIExecuteAtStartup s_AutoRegister_##Type (Register_##Type);      \
                                                                               \
   ezRTTI* ezReflectableTypeRTTI_##Type()                                      \
   {                                                                           \

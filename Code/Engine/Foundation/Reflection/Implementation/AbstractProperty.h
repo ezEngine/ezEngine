@@ -7,7 +7,7 @@
 class ezRTTI;
 
 /// \brief This is the base interface for all properties in the reflection system. It provides enough information to cast to the next better base class.
-class ezAbstractProperty
+class EZ_FOUNDATION_DLL ezAbstractProperty
 {
 public:
 
@@ -36,7 +36,7 @@ private:
 };
 
 /// \brief This is the base class for all properties that are members of a class. It provides more information about the actual type.
-class ezAbstractMemberProperty : public ezAbstractProperty
+class EZ_FOUNDATION_DLL ezAbstractMemberProperty : public ezAbstractProperty
 {
 public:
   
@@ -69,7 +69,7 @@ public:
 };
 
 /// \brief The base class for all function properties.
-class ezAbstractFunctionProperty : public ezAbstractProperty
+class EZ_FOUNDATION_DLL ezAbstractFunctionProperty : public ezAbstractProperty
 {
 public:
 
@@ -88,7 +88,7 @@ public:
 /// \brief The base class for a property that represents an array of values.
 ///
 /// \note Not implemented.
-class ezAbstractArrayProperty : public ezAbstractProperty
+class EZ_FOUNDATION_DLL ezAbstractArrayProperty : public ezAbstractProperty
 {
 public:
   /// \brief Passes the property name through to ezAbstractProperty.

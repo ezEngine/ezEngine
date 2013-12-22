@@ -2,8 +2,8 @@
 
 /// \file
 
-#include "AbstractProperty.h"
-#include "StaticRTTI.h"
+#include <Foundation/Reflection/Implementation/AbstractProperty.h>
+#include <Foundation/Reflection/Implementation/StaticRTTI.h>
 
 // ***********************************************
 // ***** Base class for accessing properties *****

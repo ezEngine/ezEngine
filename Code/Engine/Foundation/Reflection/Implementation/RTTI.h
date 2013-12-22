@@ -6,7 +6,7 @@
 #include <Foundation/Utilities/EnumerableClass.h>
 #include <Foundation/Communication/Message.h>
 #include <Foundation/Configuration/Plugin.h>
-#include "StaticRTTI.h"
+#include <Foundation/Reflection/Implementation/StaticRTTI.h>
 
 // *****************************************
 // ***** Runtime Type Information Data *****
@@ -21,7 +21,7 @@ class ezAbstractMessageHandler;
 /// Each instance represents one type. This class holds information about derivation hierarchies and exposed properties. You can thus find out
 /// whether a type is derived from some base class and what properties of which types are available. Properties can then be read and modified on
 /// instances of this type.
-class ezRTTI : public ezEnumerable<ezRTTI>
+class EZ_FOUNDATION_DLL ezRTTI : public ezEnumerable<ezRTTI>
 {
   EZ_DECLARE_ENUMERABLE_CLASS(ezRTTI);
 
@@ -101,7 +101,7 @@ private:
 
 
 /// \brief The interface for an allocator that creates instances of reflected types.
-struct ezRTTIAllocator
+struct EZ_FOUNDATION_DLL ezRTTIAllocator
 {
   /// \brief Returns whether the type that is represented by this allocator, can be dynamically allocated at runtime.
   /// Every deriving class must implement this and return true.
@@ -115,7 +115,7 @@ struct ezRTTIAllocator
 };
 
 /// \brief Dummy Allocator for types that should not be allocatable through the reflection system.
-struct ezRTTINoAllocator : public ezRTTIAllocator
+struct EZ_FOUNDATION_DLL ezRTTINoAllocator : public ezRTTIAllocator
 {
   /// \brief Returns false, because this type of allocator is used for classes that shall not be allocated dynamically.
   virtual bool CanAllocate() EZ_OVERRIDE { return false; }

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Foundation/Logging/Log.h>
-#include "ReflectionSystem.h"
+#include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Communication/Message.h>
 
 class TestBase : public ezReflectedClass
