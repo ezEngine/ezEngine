@@ -2,8 +2,8 @@
 
 EZ_STATICLINK_LIBRARY(Core)
 {
-if(bReturn)
-  return;
+  if(bReturn)
+    return;
 
   EZ_STATICLINK_REFERENCE(Core_Application_Implementation_Application);
   EZ_STATICLINK_REFERENCE(Core_Application_Implementation_MainLoop);

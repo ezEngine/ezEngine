@@ -2,8 +2,8 @@
 
 EZ_STATICLINK_LIBRARY(Foundation)
 {
-if(bReturn)
-  return;
+  if(bReturn)
+    return;
 
   EZ_STATICLINK_REFERENCE(Foundation_Algorithm_Implementation_Hashing);
   EZ_STATICLINK_REFERENCE(Foundation_Basics_Assert);

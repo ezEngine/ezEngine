@@ -13,6 +13,36 @@
 #include <Foundation/Logging/HTMLWriter.h>
 #include <Core/Application/Application.h>
 
+/* When statically linking libraries into an application the linker will only pull in all the functions and variables that are inside
+   translation units (CPP files) that somehow get referenced.
+
+   In ez a lot of stuff happens automatically (e.g. types register themselves etc.), which is accomplished through global variables
+   that execute code in their constructor during the applications startup phase. This only works when those global variables are actually
+   put into the application by the linker. If the linker does not do that, functionality will not work as intended.
+
+   Contrary to common conception, the linker is NOT ALLOWED to optimize away global variables. The only reason for not including a global
+   variable into the final binary, is when the entire translation unit where a variable is defined in, is never referenced and thus never
+   even looked at by the linker.
+
+   To fix this, this tool inserts macros into each and every file which reference each other. Afterwards every file in a library will
+   have reference every other file in that same library and thus once a library is used in any way in some program, the entire library
+   will be pulled in and will then work as intended.
+
+   These references are accomplished through empty functions that are called in one central location (where EZ_STATICLINK_LIBRARY is defined),
+   though the code actually never really calls those functions, but it is enough to force the linker to look at all the other files.
+
+   Usage of this tool:
+
+   Call this tool with the path to the root folder of some library as the sole command line argument:
+
+   StaticLinkUtil.exe "C:\ezEngine\Trunk\Code\Engine\Foundation"
+
+   This will iterate over all files below that folder and insert the proper macros.
+   Also make sure that exactly one file in each library contains the text 'EZ_STATICLINK_LIBRARY();'
+
+   The parameters and function body will be automatically generated and later updated, you do not need to provide more.
+*/
+
 class ezStaticLinkerApp : public ezApplication
 {
 private:
@@ -26,24 +56,27 @@ public:
 
   virtual void AfterEngineInit() EZ_OVERRIDE
   {
-    // pass the absolute path to the directory that should be scanned as the first parameter to this application
-    if (GetArgumentCount() >= 2)
-      m_szSearchDir = GetArgument(1);
+    EZ_ASSERT_ALWAYS(GetArgumentCount() == 2, "This tool requires exactly one command-line argument: An absolute path to the top-level folder of a library.");
 
-    // Since we want to read/write files through the filesystem, we need to set that up too
-    // First add a Factory that can create data directory types that handle normal folders
+    // pass the absolute path to the directory that should be scanned as the first parameter to this application
+    m_szSearchDir = GetArgument(1);
+
+    EZ_ASSERT_ALWAYS(ezPathUtils::IsAbsolutePath(m_szSearchDir), "The given path is not absolute: '%s'", m_szSearchDir);
+
+    // Add standard folder factory
     ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
 
-    // Then add a folder as a data directory (the previously registered Factory will take care of creating the proper handler)
-    // As we only need access to files through global paths, we add the "empty data directory"
-    // This data dir will manage all accesses through absolute paths, unless any other data directory can handle them
-    // since we don't add any further data dirs, this is it
+    // Add the empty data directory to access files via absolute paths
     ezFileSystem::AddDataDirectory("");
 
-    // The console log writer will pass all log messages to the standard console window
     ezGlobalLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);
-    // The Visual Studio log writer will pass all messages to the output window in VS
     ezGlobalLog::AddLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
+  }
+
+  virtual void BeforeEngineShutdown()
+  {
+    ezGlobalLog::RemoveLogWriter(ezLogWriter::Console::LogMessageHandler);
+    ezGlobalLog::RemoveLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
   }
 
   ezSet<ezHybridString<32, ezStaticAllocatorWrapper>, ezCompareHelper<ezHybridString<32, ezStaticAllocatorWrapper>>, ezStaticAllocatorWrapper> m_AllRefPoints;
@@ -74,7 +107,7 @@ public:
 
     if (FileContent.IsEmpty())
     {
-      ezLog::Dev("File is entirely empty.");
+      ezLog::Dev("File is empty.");
       return EZ_SUCCESS;
     }
 
@@ -128,9 +161,18 @@ public:
     if (ReadEntireFile(szFile, sFileContent) == EZ_FAILURE)
       return;
 
+    // if we find this macro in here, we don't need to insert EZ_STATICLINK_FILE in this file
+    // but once we are done with all files, we want to come back to this file and rewrite the EZ_STATICLINK_LIBRARY
+    // part such that it will reference all the other files
     if (sFileContent.FindSubString("EZ_STATICLINK_LIBRARY"))
     {
-      m_sRefPointGroupFile = szFile;
+      ezLog::Info("Found macro 'EZ_STATICLINK_LIBRARY' in file '%s'.", szFile);
+
+      if (!m_sRefPointGroupFile.IsEmpty())
+        ezLog::Error("The macro 'EZ_STATICLINK_LIBRARY' was already found in file '%s' before. You cannot have this macro twice in the same library!", m_sRefPointGroupFile.GetData());
+      else
+        m_sRefPointGroupFile = szFile;
+
       return;
     }
 
@@ -143,6 +185,8 @@ public:
     m_AllRefPoints.Insert(sFileMarker.GetData());
 
     const char* szMarker = sFileContent.FindSubString("EZ_STATICLINK_FILE");
+
+    // if the marker already exists, replace it with the updated string
     if (szMarker != NULL)
     {
       const char* szMarkerEnd = szMarker;
@@ -154,9 +198,11 @@ public:
     }
     else
     {
+      // otherwise insert it at the end of the file
       sFileContent.AppendFormat("\n\n%s\n\n", sNewMarker.GetData());
     }
 
+    // rewrite the entire file
     OverwriteFile(szFile, sFileContent);
   }
 
@@ -164,13 +210,18 @@ public:
   {
     EZ_LOG_BLOCK("RewriteRefPointGroup", szFile);
 
+    ezLog::Info("Replacing macro EZ_STATICLINK_LIBRARY in file '%s'.", m_sRefPointGroupFile.GetData());
+
     ezStringBuilder sFileContent;
     if (ReadEntireFile(szFile, sFileContent) == EZ_FAILURE)
       return;
 
-    const char* szMarker = sFileContent.FindWholeWord("EZ_STATICLINK_FILE", ezStringUtils::IsIdentifierDelimiter_C_Code);
-    if (szMarker != NULL)
+    // remove all instances of EZ_STATICLINK_FILE from this file, it already contains EZ_STATICLINK_LIBRARY
+    const char* szMarker = sFileContent.FindSubString("EZ_STATICLINK_FILE");
+    while (szMarker != NULL)
     {
+      ezLog::Info("Found macro EZ_STATICLINK_FILE inside the same file where EZ_STATICLINK_LIBRARY is located. Removing it.");
+
       const char* szMarkerEnd = szMarker;
 
       while (*szMarkerEnd != '\0' && *szMarkerEnd != '\n')
@@ -178,12 +229,17 @@ public:
 
       // no ref point allowed in a file that has already a ref point group
       sFileContent.Remove(szMarker, szMarkerEnd);
+
+      szMarker = sFileContent.FindSubString("EZ_STATICLINK_FILE");
     }
 
     ezStringBuilder sNewGroupMarker;
-    sNewGroupMarker.Format("EZ_STATICLINK_LIBRARY(%s)\n{\nif(bReturn)\n  return;\n\n", GetLibraryMarkerName(szFile).GetData());
 
+    // generate the code that should be inserted into this file
+    // this code will reference all the other files in the library
     {
+      sNewGroupMarker.Format("EZ_STATICLINK_LIBRARY(%s)\n{\n  if(bReturn)\n    return;\n\n", GetLibraryMarkerName(szFile).GetData());
+
       auto it = m_AllRefPoints.GetIterator();
 
       while (it.IsValid())
@@ -191,29 +247,44 @@ public:
         sNewGroupMarker.AppendFormat("  EZ_STATICLINK_REFERENCE(%s);\n", it.Key().GetData());
         ++it;
       }
-    }
 
-    sNewGroupMarker.Append("}\n");
+      sNewGroupMarker.Append("}\n");
+    }
 
     const char* szGroupMarker = sFileContent.FindSubString("EZ_STATICLINK_LIBRARY");
 
     if (szGroupMarker != NULL)
     {
+      // if we could find the macro EZ_STATICLINK_LIBRARY, just replace it with the new code
+
       const char* szMarkerEnd = szGroupMarker;
 
+      bool bFoundOpenBraces = false;
+
       while (*szMarkerEnd != '\0' && *szMarkerEnd != '}')
+      {
         ++szMarkerEnd;
 
-      if (*szMarkerEnd == '}')
+        if (*szMarkerEnd == '{')
+          bFoundOpenBraces = true;
+        if (!bFoundOpenBraces && *szMarkerEnd == ';')
+          break;
+      }
+
+      if (*szMarkerEnd == '}' || *szMarkerEnd == ';')
         ++szMarkerEnd;
       if (*szMarkerEnd == '\n')
         ++szMarkerEnd;
 
-      // no ref point allowed in a file that has already a ref point group
+      // now replace the existing EZ_STATICLINK_LIBRARY and its code block with the new block
       sFileContent.ReplaceSubString(szGroupMarker, szMarkerEnd, sNewGroupMarker.GetData());
     }
     else
+    {
+      // if we can't find the macro, append it to the end of the file
+      // this can only happen, if we ever extend this tool such that it picks one file to auto-insert this macro
       sFileContent.AppendFormat("\n\n%s\n\n", sNewGroupMarker.GetData());
+    }
 
     OverwriteFile(szFile, sFileContent);
   }
@@ -250,10 +321,9 @@ public:
       ezLog::Error("Could not search the directory '%s'", m_szSearchDir);
 
     if (!m_sRefPointGroupFile.IsEmpty())
-    {
-      ezLog::Info("Found RefPoint Group File: \"%s\"", m_sRefPointGroupFile.GetData());
       RewriteRefPointGroup(m_sRefPointGroupFile.GetData());
-    }
+    else
+      ezLog::Error("The macro EZ_STATICLINK_LIBRARY was not found in any cpp file in this library. It is required that it exists in exactly one file, otherwise the generated code will not compile.");
 
     return ezApplication::Quit;
   }
