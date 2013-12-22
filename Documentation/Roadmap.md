@@ -7,11 +7,9 @@ This is a list of our planned features for the foreseeable future.
   * JSON reader
   * Game Object basics (Clemens)
   * Rendering Abstraction basics (Marc)
-  * Fixes / Tools for correct static linking
   
   * StringId using hashed string
   * Resource Manager
-  * RTTI
   * Binary Search Algorithm
   * ezMap, ezSet Comparer mit dem Comparer in Algorithm ersetzen; auﬂerdem < und == sinnvoller verwenden (-1, 0, 1 vergleich etc.) (Clemens :-P )
   * Containers: Sorted Array (Requires Binary Search)
@@ -32,9 +30,6 @@ Known Bugs
 
 \bug
   * TestFramework does not like it, when you remove a test -> can crash -> removing settings.txt 'fixes' the problem
-
-\bug
-  * Statically linking libraries into a program does not work properly at the moment. Some code might not get linked in.
 
 \bug
   * Running the FoundationTests three times in a row (or more) will make them fail in the thread local storage system.

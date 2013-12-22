@@ -4,8 +4,10 @@ What's New {#WhatsNew}
 Milestone 4
 -----------
 
-  * Added Linux support. Is now on par with OS X port. Tested with Ubuntu 12.4 and GCC 4.8
+  * Added Linux support, which is on par with OS X port. Tested with Ubuntu 12.4 and GCC 4.8.
   * Removed the InputWindows plugin and merged the functionality into the ezWindow code (System library).
+  * Added an SFML port for Window creation and Input handling to ezWindow, which works on non-Windows platforms.
+  * Added code and a small tool that fixes problems with static linking.
 
 Milestone 3
 -----------

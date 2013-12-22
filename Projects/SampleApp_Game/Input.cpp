@@ -53,6 +53,16 @@ void SampleGameApp::UpdateInput(ezTime UpdateDiff)
     m_pThumbstick->SetEnabled(!m_pThumbstick->IsEnabled());
     m_pThumbstick2->SetEnabled(!m_pThumbstick2->IsEnabled());
   }
+
+  if (ezInputManager::GetInputActionState("Main", "ToggleMouseShow") == ezKeyState::Pressed)
+  {
+    m_pWindow->GetInputDevice()->SetShowMouseCursor(!m_pWindow->GetInputDevice()->GetShowMouseCursor());
+  }
+
+  if (ezInputManager::GetInputActionState("Main", "ToggleMouseClip") == ezKeyState::Pressed)
+  {
+    m_pWindow->GetInputDevice()->SetClipMouseCursor(!m_pWindow->GetInputDevice()->GetClipMouseCursor());
+  }
 }
 
 static void RegisterInputAction(const char* szInputSet, const char* szInputAction, const char* szKey1, const char* szKey2 = NULL, const char* szKey3 = NULL)
@@ -86,6 +96,8 @@ void SampleGameApp::SetupInput()
   RegisterInputAction("Main", "Assert", ezInputSlot_KeyNumpadEnter);
   RegisterInputAction("Main", "CVarDown", ezInputSlot_KeyO);
   RegisterInputAction("Main", "CVarUp", ezInputSlot_KeyP);
+  RegisterInputAction("Main", "ToggleMouseShow", ezInputSlot_KeyM);
+  RegisterInputAction("Main", "ToggleMouseClip", ezInputSlot_KeyN);
 
   // setup all controllers
   for (ezInt32 iPlayer = 0; iPlayer < MaxPlayers; ++iPlayer)
