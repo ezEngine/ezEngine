@@ -13,18 +13,14 @@
 /// This way a game controller type of input is emulated.
 class EZ_CORE_DLL ezVirtualThumbStick : public ezInputDevice
 {
+  EZ_ADD_DYNAMIC_REFLECTION(ezVirtualThumbStick);
+
 public:
   /// \brief Constructor.
   ezVirtualThumbStick();
 
   /// \brief Destructor.
   ~ezVirtualThumbStick();
-
-  /// \brief Returns "Thumbstick"
-  virtual const char* GetDeviceType() const EZ_OVERRIDE { return "Thumbstick"; }
-
-  /// \brief Returns "VirtualThumbstick"
-  virtual const char* GetDeviceName() const EZ_OVERRIDE { return "VirtualThumbstick"; }
 
   /// \brief This enum allows to select either some default input mapping or to select 'Custom'.
   struct Input
@@ -135,3 +131,6 @@ private:
   virtual void UpdateInputSlotValues() EZ_OVERRIDE;
   virtual void RegisterInputSlots() EZ_OVERRIDE;
 };
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezVirtualThumbStick);
+

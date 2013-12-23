@@ -193,3 +193,7 @@ void ezRTTI::PluginEventHandler(const ezPlugin::PluginEvent& EventData)
   }
 }
 
+
+
+EZ_STATICLINK_FILE(Foundation, Foundation_Reflection_Implementation_RTTI);
+

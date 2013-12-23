@@ -116,6 +116,12 @@ public:
     sOut = (const char*) &FileContent[0];
     sOut.ReplaceAll("\r", "");
 
+    if (!sOut.EndsWith("\n"))
+      sOut.Append("\n");
+
+    if (!sOut.EndsWith("\n\n"))
+      sOut.Append("\n");
+
     return EZ_SUCCESS;
   }
 

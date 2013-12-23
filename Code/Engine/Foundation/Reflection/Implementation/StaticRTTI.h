@@ -6,9 +6,6 @@
 
 class ezRTTI;
 
-/// \brief Dummy type to pass to EZ_BEGIN_REFLECTED_TYPE for all types that have no base class.
-class EZ_FOUNDATION_DLL ezNoBase { };
-
 /// \brief [internal] Simple helper class to execute code at startup.
 class EZ_FOUNDATION_DLL ezRTTIExecuteAtStartup
 {

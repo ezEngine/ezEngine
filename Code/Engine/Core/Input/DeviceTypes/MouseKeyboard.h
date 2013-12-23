@@ -8,15 +8,14 @@
 /// This class is derived from ezInputDevice but adds interface functions to handle mouse and keyboard input.
 class EZ_CORE_DLL ezInputDeviceMouseKeyboard : public ezInputDevice
 {
+  EZ_ADD_DYNAMIC_REFLECTION(ezInputDeviceMouseKeyboard);
+
 public:
   ezInputDeviceMouseKeyboard()
   {
     m_vMouseScale.Set(1.0f);
   }
   
-  /// \brief Returns 'MouseKeyboard'.
-  virtual const char* GetDeviceType() const { return "MouseKeyboard"; }
-
   /// \brief Shows or hides the mouse cursor inside the application window.
   virtual void SetShowMouseCursor(bool bShow) = 0;
 
@@ -32,3 +31,6 @@ public:
 private:
   ezVec2 m_vMouseScale;
 };
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezInputDeviceMouseKeyboard);
+

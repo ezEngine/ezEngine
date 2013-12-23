@@ -23,8 +23,8 @@
 ///   EZ_ENUMERABLE_CLASS_IMPLEMENTATION(A);
 ///
 /// That's it, now the class instances can be enumerated with 'GetFirstInstance' and 'GetNextInstance'
-template <typename Derived>
-class ezEnumerable
+template <typename Derived, typename Base = ezNoBase>
+class ezEnumerable : public Base
 {
 public:
   ezEnumerable()
@@ -73,10 +73,17 @@ protected:
 ///
 /// See class ezEnumerable for more details.
 #define EZ_DECLARE_ENUMERABLE_CLASS(self) \
+  EZ_DECLARE_ENUMERABLE_CLASS_WITH_BASE(self, ezNoBase)
+
+/// \brief Insert this macro in a class that is supposed to be enumerable, and pass the class name as the parameter.
+///
+/// See class ezEnumerable for more details.
+#define EZ_DECLARE_ENUMERABLE_CLASS_WITH_BASE(self, base) \
   private: \
-    friend class ezEnumerable<self>; \
-    static ezEnumerable<self>* s_pFirstInstance; \
-    static ezEnumerable<self>* s_pLastInstance; \
+    typedef base ezEnumerableBase; \
+    friend class ezEnumerable<self, base>; \
+    static ezEnumerable<self, base>* s_pFirstInstance; \
+    static ezEnumerable<self, base>* s_pLastInstance; \
     static ezUInt32 s_uiInstances; \
   public: \
     static self* GetFirstInstance() { return (self*) s_pFirstInstance; } \
@@ -87,6 +94,6 @@ protected:
 ///
 /// See class ezEnumerable for more details.
 #define EZ_ENUMERABLE_CLASS_IMPLEMENTATION(self) \
-  ezEnumerable<self>* self::s_pFirstInstance = NULL; \
-  ezEnumerable<self>* self::s_pLastInstance = NULL; \
+  ezEnumerable<self, self::ezEnumerableBase>* self::s_pFirstInstance = NULL; \
+  ezEnumerable<self, self::ezEnumerableBase>* self::s_pLastInstance = NULL; \
   ezUInt32 self::s_uiInstances = 0

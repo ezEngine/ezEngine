@@ -6,6 +6,11 @@
 #include <Foundation/Time/Time.h>
 #include <Xinput.h>
 
+
+EZ_BEGIN_REFLECTED_TYPE(ezInputDeviceXBox360, ezInputDeviceController, ezRTTINoAllocator);
+  // no properties or message handlers
+EZ_END_REFLECTED_TYPE(ezInputDeviceXBox360);
+
 ezInputDeviceXBox360::ezInputDeviceXBox360()
 {
   for (ezInt32 i = 0; i < 4; ++i)

@@ -67,3 +67,6 @@ EZ_BEGIN_REFLECTED_TYPE(ezVec4, ezNoBase, ezRTTINoAllocator);
     EZ_MEMBER_PROPERTY("w", w)
   EZ_END_PROPERTIES
 EZ_END_REFLECTED_TYPE(ezVec4);
+
+EZ_STATICLINK_FILE(Foundation, Foundation_Reflection_Implementation_StandardTypes);
+

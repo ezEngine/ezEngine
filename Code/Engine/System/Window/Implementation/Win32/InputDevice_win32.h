@@ -5,12 +5,11 @@
 
 class EZ_SYSTEM_DLL ezStandardInputDevice : public ezInputDeviceMouseKeyboard
 {
+  EZ_ADD_DYNAMIC_REFLECTION(ezStandardInputDevice);
+
 public:
   ezStandardInputDevice(ezUInt32 uiWindowNumber);
   ~ezStandardInputDevice();
-
-  /// \brief Returns "MouseKeyboardWindows".
-  virtual const char* GetDeviceName() const EZ_OVERRIDE { return "MouseKeyboardWindows"; }
 
   /// \brief This function needs to be called by all Windows functions, to pass the input information through to this input device.
   void WindowMessage(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam);
@@ -46,4 +45,6 @@ private:
   bool m_bShowCursor;
   bool m_bClipCursor;
 };
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_SYSTEM_DLL, ezStandardInputDevice);
 

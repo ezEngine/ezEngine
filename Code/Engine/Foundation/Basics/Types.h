@@ -59,6 +59,11 @@ private:
   ezResultEnum e;
 };
 
+/// \brief Dummy type to pass to templates and macros that expect a base type for a class that has no base.
+class ezNoBase
+{
+};
+
 /// \brief Alignment helper. Derive from this struct if alignment is depending on a template parameter.
 /// If alignment is fixed always use the EZ_ALIGN macro.
 template <size_t Alignment> struct ezAligned;

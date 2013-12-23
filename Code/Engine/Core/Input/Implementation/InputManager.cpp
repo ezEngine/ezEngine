@@ -98,36 +98,6 @@ const char* ezInputManager::GetInputSlotDisplayName(const char* szInputSlot)
   return szInputSlot;
 }
 
-ezInputDevice* ezInputManager::GetInputDeviceByType(const char* szType)
-{
-  ezInputDevice* pDevice = ezInputDevice::GetFirstInstance();
-
-  while (pDevice)
-  {
-    if (ezStringUtils::IsEqual_NoCase(pDevice->GetDeviceType(), szType))
-      return pDevice;
-
-    pDevice = pDevice->GetNextInstance();
-  }
-
-  return NULL;
-}
-
-ezInputDevice* ezInputManager::GetInputDeviceByName(const char* szName)
-{
-  ezInputDevice* pDevice = ezInputDevice::GetFirstInstance();
-
-  while (pDevice)
-  {
-    if (ezStringUtils::IsEqual_NoCase(pDevice->GetDeviceName(), szName))
-      return pDevice;
-
-    pDevice = pDevice->GetNextInstance();
-  }
-
-  return NULL;
-}
-
 void ezInputManager::SetInputSlotDeadZone(const char* szInputSlot, float fDeadZone)
 {
   RegisterInputSlot(szInputSlot, szInputSlot, ezInputSlotFlags::Default);

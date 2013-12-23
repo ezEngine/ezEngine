@@ -19,6 +19,8 @@
 /// Also many special keys are not properly supported by SFML, most notably Numpad Enter is handled like Return.
 class EZ_SYSTEM_DLL ezStandardInputDevice : public ezInputDeviceMouseKeyboard
 {
+  EZ_ADD_DYNAMIC_REFLECTION(ezStandardInputDevice);
+
 public:
   ezStandardInputDevice(sf::Window* pWindow, ezUInt32 uiWindowNumber);
   ~ezStandardInputDevice();
@@ -31,9 +33,6 @@ public:
 
   /// \brief Destroys all devices of this type. Automatically called at engine shutdown.
   static void DestroyAllDevices();
-
-  /// \brief Returns "MouseKeyboardSFML".
-  virtual const char* GetDeviceName() const { return "MouseKeyboardSFML"; }
 
   /// \brief Will trap the mouse inside the application window. Should usually be enabled, to prevent accidental task switches.
   ///
@@ -83,4 +82,4 @@ private:
   void UpdateMouseCursor();
 };
 
-
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_SYSTEM_DLL, ezStandardInputDevice);

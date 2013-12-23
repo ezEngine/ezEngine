@@ -2,6 +2,10 @@
 #include <System/Window/Implementation/SFML/InputDevice_SFML.h>
 #include <SFML/Window.hpp>
 
+EZ_BEGIN_REFLECTED_TYPE(ezStandardInputDevice, ezInputDeviceMouseKeyboard, ezRTTINoAllocator);
+  // no properties or message handlers
+EZ_END_REFLECTED_TYPE(ezStandardInputDevice);
+
 bool ezStandardInputDevice::s_bMainWindowUsed = false;
 
 ezStandardInputDevice::ezStandardInputDevice(sf::Window* pWindow, ezUInt32 uiWindowNumber)

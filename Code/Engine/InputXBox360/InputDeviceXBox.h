@@ -8,6 +8,8 @@
 /// Works on all platforms that provide the XINPUT API.
 class EZ_INPUTXBOX360_DLL ezInputDeviceXBox360 : public ezInputDeviceController
 {
+  EZ_ADD_DYNAMIC_REFLECTION(ezInputDeviceXBox360);
+
 public:
   ezInputDeviceXBox360();
 
@@ -16,9 +18,6 @@ public:
 
   /// \brief Destroys all devices of this type. Automatically called at engine shutdown.
   static void DestroyAllDevices();
-
-  /// \brief Returns "ControllerXBox"
-  virtual const char* GetDeviceName() const { return "ControllerXBox"; }
 
   virtual bool IsControllerConnected(ezUInt8 uiPhysical) const EZ_OVERRIDE;
 
@@ -37,4 +36,6 @@ private:
   static void RegisterControllerButton(const char* szButton, const char* szName, ezBitflags<ezInputSlotFlags> SlotFlags);
   static void SetDeadZone(const char* szButton);
 };
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_INPUTXBOX360_DLL, ezInputDeviceXBox360);
 

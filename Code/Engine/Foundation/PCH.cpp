@@ -47,6 +47,8 @@ EZ_STATICLINK_LIBRARY(Foundation)
   EZ_STATICLINK_REFERENCE(Foundation_Memory_Implementation_MemoryUtils);
   EZ_STATICLINK_REFERENCE(Foundation_Memory_Policies_Tracking);
   EZ_STATICLINK_REFERENCE(Foundation_Profiling_Implementation_Profiling);
+  EZ_STATICLINK_REFERENCE(Foundation_Reflection_Implementation_RTTI);
+  EZ_STATICLINK_REFERENCE(Foundation_Reflection_Implementation_StandardTypes);
   EZ_STATICLINK_REFERENCE(Foundation_Strings_Implementation_PathUtils);
   EZ_STATICLINK_REFERENCE(Foundation_Strings_Implementation_StringBuilder);
   EZ_STATICLINK_REFERENCE(Foundation_Strings_Implementation_StringConversion);

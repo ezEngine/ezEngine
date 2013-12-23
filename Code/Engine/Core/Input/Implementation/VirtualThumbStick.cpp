@@ -3,6 +3,10 @@
 #include <Core/Input/InputManager.h>
 #include <Foundation/Strings/StringBuilder.h>
 
+EZ_BEGIN_REFLECTED_TYPE(ezVirtualThumbStick, ezInputDevice, ezRTTINoAllocator);
+  // no properties or message handlers
+EZ_END_REFLECTED_TYPE(ezVirtualThumbStick);
+
 ezInt32 ezVirtualThumbStick::s_iThumbsticks = 0;
 
 ezVirtualThumbStick::ezVirtualThumbStick()
@@ -26,7 +30,7 @@ ezVirtualThumbStick::ezVirtualThumbStick()
 
 ezVirtualThumbStick::~ezVirtualThumbStick()
 {
-  ezInputManager::RemoveInputAction(GetDeviceName(), m_sName.GetData());
+  ezInputManager::RemoveInputAction(GetDynamicRTTI()->GetTypeName(), m_sName.GetData());
 }
 
 void ezVirtualThumbStick::SetTriggerInputSlot(ezVirtualThumbStick::Input::Enum Input, const ezInputActionConfig* pCustomConfig)
@@ -195,7 +199,7 @@ void ezVirtualThumbStick::UpdateActionMapping()
   m_ActionConfig.m_fFilterYMinValue = m_vLowerLeft.y;
   m_ActionConfig.m_fFilterYMaxValue = m_vUpperRight.y;
 
-  ezInputManager::SetInputActionConfig(GetDeviceName(), m_sName.GetData(), m_ActionConfig, false);
+  ezInputManager::SetInputActionConfig(GetDynamicRTTI()->GetTypeName(), m_sName.GetData(), m_ActionConfig, false);
 
   m_bConfigChanged = false;
 }
@@ -211,7 +215,7 @@ void ezVirtualThumbStick::UpdateInputSlotValues()
 
   if (!m_bEnabled)
   {
-    ezInputManager::RemoveInputAction(GetDeviceName(), m_sName.GetData());
+    ezInputManager::RemoveInputAction(GetDynamicRTTI()->GetTypeName(), m_sName.GetData());
     return;
   }
 
@@ -220,7 +224,7 @@ void ezVirtualThumbStick::UpdateInputSlotValues()
   float fValue;
   ezInt8 iTriggerAlt;
 
-  const ezKeyState::Enum ks = ezInputManager::GetInputActionState(GetDeviceName(), m_sName.GetData(), &fValue, &iTriggerAlt);
+  const ezKeyState::Enum ks = ezInputManager::GetInputActionState(GetDynamicRTTI()->GetTypeName(), m_sName.GetData(), &fValue, &iTriggerAlt);
   
   if (ks != ezKeyState::Up)
   {
@@ -269,9 +273,6 @@ void ezVirtualThumbStick::RegisterInputSlots()
   RegisterInputSlot(ezInputSlot_Controller0_RightStick_NegY,  "Right Stick Down",  ezInputSlotFlags::IsAnalogStick);
   RegisterInputSlot(ezInputSlot_Controller0_RightStick_PosY,  "Right Stick Up",    ezInputSlotFlags::IsAnalogStick);
 }
-
-
-
 
 
 EZ_STATICLINK_FILE(Core, Core_Input_Implementation_VirtualThumbStick);

@@ -5,12 +5,13 @@
 /// \brief This class is the base class for all controller type input devices.
 ///
 /// This class is derived from ezInputDevice but adds some interface functions common to most controllers.
-/// The device type name returned by GetDeviceType() is 'Controller'.
 /// This class adds functions to query and modify the state about controller vibration, about the mapping of
 /// physical controllers to virtual ones (which controller index triggers which controller input slots) and
 /// also allows to query which controller is actually connected.
 class EZ_CORE_DLL ezInputDeviceController : public ezInputDevice
 {
+  EZ_ADD_DYNAMIC_REFLECTION(ezInputDeviceController);
+
 public:
   enum 
   { 
@@ -33,9 +34,6 @@ public:
 
   ezInputDeviceController();
   
-  /// \brief Returns 'Controller'.
-  virtual const char* GetDeviceType() const { return "Controller"; }
-
   /// \brief Enables or disables vibration on the given controller (virtual index).
   /// If it is disabled, the controller will never vibrate, even if vibration profiles are sent to it.
   void EnableVibration(ezUInt8 uiVirtual, bool bEnable);
@@ -113,3 +111,6 @@ private:
   float m_fVibrationStrength[MaxControllers][Motor::ENUM_COUNT];
 
 };
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezInputDeviceController);
+

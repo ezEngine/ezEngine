@@ -14,6 +14,8 @@
 // TODO
 // Array Properties
 // Tests
+// Enum Property Type
+// Property Hints: Editor Only
 
 // Array:
 //   can insert at

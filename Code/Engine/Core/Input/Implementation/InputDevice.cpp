@@ -5,6 +5,10 @@
 
 EZ_ENUMERABLE_CLASS_IMPLEMENTATION(ezInputDevice);
 
+EZ_BEGIN_REFLECTED_TYPE(ezInputDevice, ezReflectedClass, ezRTTINoAllocator);
+  // no properties or message handlers
+EZ_END_REFLECTED_TYPE(ezInputDevice);
+
 ezKeyState::Enum ezKeyState::GetNewKeyState(ezKeyState::Enum PrevState, bool bKeyDown)
 {
   switch (PrevState)
@@ -36,9 +40,9 @@ void ezInputDevice::Initialize()
   if (m_bInitialized)
     return;
 
-  EZ_LOG_BLOCK("Initializing Input Device", GetDeviceName());
+  EZ_LOG_BLOCK("Initializing Input Device", GetDynamicRTTI()->GetTypeName());
 
-  ezLog::Info("Input Device Type: %s, Device Name: %s", GetDeviceType(), GetDeviceName());
+  ezLog::Info("Input Device Type: %s, Device Name: %s", GetDynamicRTTI()->GetParentType()->GetTypeName(), GetDynamicRTTI()->GetTypeName());
 
   m_bInitialized = true;
 

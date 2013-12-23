@@ -5,6 +5,7 @@
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Strings/String.h>
 #include <Foundation/Time/Time.h>
+#include <Foundation/Reflection/Reflection.h>
 #include <Core/Input/Declarations.h>
 
 /// \brief The base class for all input device types.
@@ -36,19 +37,14 @@
 /// the incoming window messages. If such a device specific function is necessary, it also needs to be integrated into the proper
 /// code (e.g. into the window handling code, to be able to get the window messages). In such a case it might not be possible
 /// to add such a device purely through a dynamic plugin, but might also need deeper integration into other engine code.
-class EZ_CORE_DLL ezInputDevice : public ezEnumerable<ezInputDevice>
+class EZ_CORE_DLL ezInputDevice : public ezEnumerable<ezInputDevice, ezReflectedClass>
 {
-  EZ_DECLARE_ENUMERABLE_CLASS(ezInputDevice);
+  EZ_DECLARE_ENUMERABLE_CLASS_WITH_BASE(ezInputDevice, ezReflectedClass);
+  EZ_ADD_DYNAMIC_REFLECTION(ezInputDevice);
 
 public:
   /// \brief Default Constructor.
   ezInputDevice();
-
-  /// \brief Returns the general device type as a string.
-  virtual const char* GetDeviceType() const = 0;
-
-  /// \brief Returns the specific device name as a string.
-  virtual const char* GetDeviceName() const = 0;
 
 private:
   friend class ezInputManager;
@@ -128,4 +124,5 @@ private:
   virtual void UpdateHardwareState(ezTime tTimeDifference) { }
 };
 
-
+// Make the type ezInputDevice reflectable, to be able to traverse the class hierarchy.
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezInputDevice);

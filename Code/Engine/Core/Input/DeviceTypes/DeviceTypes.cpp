@@ -2,6 +2,14 @@
 #include <Core/Input/DeviceTypes/Controller.h>
 #include <Core/Input/DeviceTypes/MouseKeyboard.h>
 
+EZ_BEGIN_REFLECTED_TYPE(ezInputDeviceMouseKeyboard, ezInputDevice, ezRTTINoAllocator);
+  // no properties or message handlers
+EZ_END_REFLECTED_TYPE(ezInputDeviceMouseKeyboard);
+
+EZ_BEGIN_REFLECTED_TYPE(ezInputDeviceController, ezInputDevice, ezRTTINoAllocator);
+  // no properties or message handlers
+EZ_END_REFLECTED_TYPE(ezInputDeviceController);
+
 ezInputDeviceController::ezInputDeviceController()
 {
   m_uiVibrationTrackPos = 0;

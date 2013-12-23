@@ -87,12 +87,6 @@ public:
   /// use frame time scaling and is necessary to update controller vibration tracks.
   static void Update(ezTime tTimeDifference); // [tested]
 
-  /// \brief Will be replaced once we have an RTTI system.
-  static ezInputDevice* GetInputDeviceByType(const char* szType);
-
-  /// \brief Will be replaced once we have an RTTI system.
-  static ezInputDevice* GetInputDeviceByName(const char* szName);
-
   /// \brief Changes the display name of an input slot.
   static void SetInputSlotDisplayName(const char* szInputSlot, const char* szDefaultDisplayName); // [tested]
 
