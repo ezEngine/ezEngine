@@ -66,3 +66,4 @@ namespace ezMemoryPolicies
     void DumpMemoryLeaks() const;
   };
 }
+

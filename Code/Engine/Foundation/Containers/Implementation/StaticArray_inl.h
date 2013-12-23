@@ -73,3 +73,4 @@ void ezStaticArray<T, C>::operator= (const ezArrayPtr<T>& rhs)
 
   ezMemoryUtils::Copy(this->m_pElements, rhs.GetPtr(), this->m_uiCount);
 }
+

@@ -29,3 +29,4 @@ EZ_FORCE_INLINE size_t ezHeapAllocation::UsedMemorySize(const void* ptr)
 {
   return 0;
 }
+

@@ -26,3 +26,4 @@ private:
   /// Raw 16 float data.
   ezUInt16 m_uiData;
 };
+

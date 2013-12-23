@@ -87,3 +87,4 @@ public:
   ///   the height of the data
   static ezResult Write(ezArrayPtr<const ezUInt8> data, ezUInt32 uiWidth, ezUInt32 uiHeight, DataFormat::Enum format, ezIBinaryStreamWriter& outStream);
 };
+

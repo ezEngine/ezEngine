@@ -83,3 +83,4 @@ private:
 };
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_SYSTEM_DLL, ezStandardInputDevice);
+

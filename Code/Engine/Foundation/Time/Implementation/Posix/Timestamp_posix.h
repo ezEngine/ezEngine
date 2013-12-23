@@ -61,3 +61,4 @@ bool ezDateTime::SetTimestamp(ezTimestamp timestamp)
   
   return true;
 }
+

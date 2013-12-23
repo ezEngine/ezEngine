@@ -48,3 +48,4 @@ protected:
 
 #define EZ_IMPLEMENT_MESSAGE_TYPE(messageType) \
   ezMessageId messageType::MSG_ID = ezMessage::GetNextMsgId();
+

@@ -167,3 +167,4 @@ const char* ezOSFile::GetApplicationDirectory()
   #warning Not yet implemented.
   return NULL;
 }
+

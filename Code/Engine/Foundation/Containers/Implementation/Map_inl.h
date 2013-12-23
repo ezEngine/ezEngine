@@ -796,3 +796,4 @@ void ezMap<KeyType, ValueType, Comparer, AllocatorWrapper>::operator=(const ezMa
 {
   ezMapBase<KeyType, ValueType, Comparer>::operator=(rhs);
 }
+

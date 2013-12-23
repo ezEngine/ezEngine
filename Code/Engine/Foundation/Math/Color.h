@@ -71,13 +71,13 @@ public:
 
   /// \brief Converts color part to HSV and returns as ezVec3.
   /// Using this function on non-normalized colors will lead to invalid results.
-  /// Hue value is given by an angle in degree (0°-360°)
+  /// Hue value is given by an angle in degree (0 degree - 360 degree)
   /// \see ezColor32f::IsNormalized
   template<typename Type>
   ezVec3Template<Type> ConvertToHSV() const; // [tested]
 
   /// \brief Sets rgb value converting a HSV color.
-  /// \param hue  Hue in degree (0°-360°).
+  /// \param hue  Hue in degree (0 degree - 360 degree).
   /// \param sat  Saturation from 0-1
   /// \param val  Value from 0-1
   template<typename Type>
@@ -179,3 +179,4 @@ bool operator== (const ezColor& c1, const ezColor& c2); // [tested]
 bool operator!= (const ezColor& c1, const ezColor& c2); // [tested]
 
 #include <Foundation/Math/Implementation/Color_inl.h>
+

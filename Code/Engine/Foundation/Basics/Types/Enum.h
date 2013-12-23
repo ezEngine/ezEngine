@@ -91,3 +91,4 @@ private:
       default: return NULL; \
     } \
   }
+

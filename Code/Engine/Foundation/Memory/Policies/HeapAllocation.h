@@ -30,3 +30,4 @@ namespace ezMemoryPolicies
     #error "ezHeapAllocation is not implemented on current platform"
   #endif
 }
+

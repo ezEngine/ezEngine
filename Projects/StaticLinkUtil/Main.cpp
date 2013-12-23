@@ -113,6 +113,12 @@ public:
 
     FileContent.PushBack(0);
 
+    if (!ezUnicodeUtils::IsValidUtf8((const char*) &FileContent[0]))
+    {
+      ezLog::Error("The file \"%s\" contains characters that are not valid Utf8. This often happens when you type special characters in an editor that does not save the file in Utf8 encoding.");
+      return EZ_FAILURE;
+    }
+
     sOut = (const char*) &FileContent[0];
     sOut.ReplaceAll("\r", "");
 
@@ -137,6 +143,16 @@ public:
     FileOut.WriteBytes(sFileContent.GetData(), sFileContent.GetElementCount());
 
     return EZ_SUCCESS;
+  }
+
+  void FixFileContents(const char* szFile)
+  {
+    ezStringBuilder sFileContent;
+    if (ReadEntireFile(szFile, sFileContent) == EZ_FAILURE)
+      return;
+
+    // rewrite the entire file
+    OverwriteFile(szFile, sFileContent);
   }
 
   ezString GetLibraryMarkerName(const char* szFile)
@@ -313,6 +329,13 @@ public:
 
         // file extensions are always converted to lower-case actually
         sExt = b.GetFileExtension();
+
+        if (sExt.IsEqual_NoCase("h") || sExt.IsEqual_NoCase("inl"))
+        {
+          ezLog::Info("Found Header File \"%s\"", b.GetData());
+          FixFileContents(b.GetData());
+          continue;
+        }
 
         if (!sExt.IsEqual_NoCase("cpp"))
           continue;

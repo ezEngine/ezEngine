@@ -127,3 +127,4 @@ void ezDynamicArray<T, A>::operator=(const ezArrayPtr<T>& rhs)
 {
   ezDynamicArrayBase<T>::operator=(rhs);
 }
+

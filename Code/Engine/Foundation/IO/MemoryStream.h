@@ -114,3 +114,4 @@ private:
 
   ezUInt32 m_uiWritePosition;
 };
+

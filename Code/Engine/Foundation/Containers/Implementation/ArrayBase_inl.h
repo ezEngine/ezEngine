@@ -280,3 +280,4 @@ void ezArrayBase<T, Derived>::Sort()
     ezSorting<ezCompareHelper<T> >::QuickSort(ar);
   }
 }
+

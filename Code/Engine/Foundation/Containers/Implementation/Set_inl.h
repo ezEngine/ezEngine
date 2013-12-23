@@ -663,3 +663,4 @@ void ezSet<KeyType, Comparer, AllocatorWrapper>::operator=(const ezSetBase<KeyTy
 {
   ezSetBase<KeyType, Comparer>::operator=(rhs);
 }
+

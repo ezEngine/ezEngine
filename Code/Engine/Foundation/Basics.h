@@ -163,3 +163,4 @@ private:
 #define EZ_INCLUDE_STATIC_H
   #include <Foundation/Basics/Static.h>
 #undef EZ_INCLUDE_STATIC_H
+

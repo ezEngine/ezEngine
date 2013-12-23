@@ -116,3 +116,4 @@ protected:
 };
 
 #include <Foundation/Containers/Implementation/ArrayBase_inl.h>
+

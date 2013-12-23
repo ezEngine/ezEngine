@@ -133,3 +133,4 @@ ezResult ezWindow::DestroyGraphicsContext()
 
   return EZ_FAILURE;
 }
+

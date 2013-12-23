@@ -63,3 +63,4 @@ EZ_FORCE_INLINE ezUInt32 ezHashing::MurmurHash(StringWrapper str, ezUInt32 uiSee
 {
   return MurmurHash(str.m_str, std::strlen(str.m_str), uiSeed);
 }
+

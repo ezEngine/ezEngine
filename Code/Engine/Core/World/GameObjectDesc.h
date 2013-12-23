@@ -28,3 +28,4 @@ struct ezGameObjectDesc
   ezQuat m_LocalRotation;
   ezVec3 m_LocalScaling;
 };
+

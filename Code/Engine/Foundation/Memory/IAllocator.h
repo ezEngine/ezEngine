@@ -103,3 +103,4 @@ protected:
 
 /// \brief Operator to allow accumulating stats of different allocators.
 ezIAllocator::Stats operator+ (const ezIAllocator::Stats& lhs, const ezIAllocator::Stats& rhs);
+

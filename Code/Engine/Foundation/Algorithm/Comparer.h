@@ -16,3 +16,4 @@ struct ezCompareHelper
     return a == b;
   }
 };
+

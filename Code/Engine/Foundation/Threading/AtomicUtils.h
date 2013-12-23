@@ -85,3 +85,4 @@ struct ezAtomicUtils
 #else
   #error "Atomics are not implemented on current platform"
 #endif
+

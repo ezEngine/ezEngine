@@ -33,3 +33,4 @@ ezTime ezSystemTime::Now()
 
   return ezTime::Seconds((double(temp.QuadPart) / double(g_qpcFrequency.QuadPart)));
 }
+

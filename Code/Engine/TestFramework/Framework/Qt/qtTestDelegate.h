@@ -20,3 +20,4 @@ public: //QStyledItemDelegate interface
 };
 
 #endif
+

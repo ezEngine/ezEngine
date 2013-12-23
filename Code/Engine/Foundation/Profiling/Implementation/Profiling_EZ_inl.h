@@ -27,3 +27,4 @@ ezProfilingScope::~ezProfilingScope()
 void ezProfilingSystem::SetThreadName(const char* szThreadName)
 {
 }
+

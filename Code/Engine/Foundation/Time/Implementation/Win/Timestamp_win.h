@@ -71,3 +71,4 @@ bool ezDateTime::SetTimestamp(ezTimestamp timestamp)
   m_uiMicroseconds = ezUInt32(st.wMilliseconds * 1000);
   return true;
 }
+

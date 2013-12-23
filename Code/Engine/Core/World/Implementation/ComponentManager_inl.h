@@ -183,3 +183,4 @@ void ezComponentManagerSimple<ComponentType>::SimpleUpdate(ezUInt32 uiStartIndex
     }
   }
 }
+

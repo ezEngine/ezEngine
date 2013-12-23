@@ -44,3 +44,4 @@ namespace ezMemoryPolicies
     ezIAllocator* m_pParent;
   };
 }
+

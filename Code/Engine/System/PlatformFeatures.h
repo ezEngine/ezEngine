@@ -23,3 +23,4 @@
 #ifndef EZ_SUPPORTS_SFML
   #error "EZ_SUPPORTS_SFML is not defined."
 #endif
+

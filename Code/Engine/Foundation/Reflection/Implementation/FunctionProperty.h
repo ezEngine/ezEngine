@@ -27,3 +27,4 @@ public:
 private:
   TargetFunction m_Function;
 };
+

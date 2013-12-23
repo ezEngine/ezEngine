@@ -14,3 +14,4 @@ public:
   /// \brief Print a stack trace
   static void DumpStackTrace(const ezArrayPtr<void*>& trace);
 };
+

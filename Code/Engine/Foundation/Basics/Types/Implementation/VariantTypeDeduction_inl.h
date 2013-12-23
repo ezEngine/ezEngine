@@ -292,3 +292,4 @@ struct ezVariant::TypeDeduction<void*>
 
   typedef void* StorageType;
 };
+

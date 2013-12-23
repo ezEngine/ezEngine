@@ -54,3 +54,4 @@ private:
 };
 
 #include <Foundation/Memory/Implementation/BlockStorage_inl.h>
+

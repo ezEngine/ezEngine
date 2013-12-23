@@ -55,3 +55,4 @@ private:
 
   EZ_DISALLOW_COPY_AND_ASSIGN(ezOSThread);
 };
+

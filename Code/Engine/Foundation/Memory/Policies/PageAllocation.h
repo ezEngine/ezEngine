@@ -23,3 +23,4 @@ namespace ezMemoryPolicies
     #error "ezPageAllocation is not implemented on current platform"
   #endif
 }
+

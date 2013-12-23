@@ -115,3 +115,4 @@ typedef ezBoundingSphereTemplate<double> ezBoundingSphered;
 
 template<ezUInt8 DecimalBits>
 class ezFixedPoint;
+

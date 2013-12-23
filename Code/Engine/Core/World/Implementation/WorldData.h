@@ -128,3 +128,4 @@ namespace ezInternal
     void* m_pUserData;
   };
 }
+

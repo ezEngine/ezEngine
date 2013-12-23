@@ -145,3 +145,4 @@ struct ezOutputToHTML
 };
 
 std::ofstream ezOutputToHTML::htmlFile;
+

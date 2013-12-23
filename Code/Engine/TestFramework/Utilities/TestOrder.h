@@ -239,3 +239,4 @@ inline void LoadTestOrder(const char* szFile, std::deque<ezTestEntry>& AllTests,
 
   fclose(pFile);
 }
+

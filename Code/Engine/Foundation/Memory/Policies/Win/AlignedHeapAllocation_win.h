@@ -38,3 +38,4 @@ size_t ezAlignedHeapAllocation<uiAlignment>::UsedMemorySize(const void* ptr)
 {
   return _aligned_msize(const_cast<void*>(ptr), uiAlignment, 0);
 }
+

@@ -103,3 +103,4 @@ private:
 
   ezUInt8 m_CompressedCache[256];
 };
+

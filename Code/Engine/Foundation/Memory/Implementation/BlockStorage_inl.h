@@ -132,3 +132,4 @@ typename ezBlockStorage<T>::Iterator ezBlockStorage<T>::GetIterator(ezUInt32 uiS
 {
   return Iterator(*this, uiStartIndex, uiCount);
 }
+

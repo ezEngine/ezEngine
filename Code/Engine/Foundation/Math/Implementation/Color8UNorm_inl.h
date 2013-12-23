@@ -40,3 +40,4 @@ inline bool operator!= (const ezColor8UNorm& c1, const ezColor8UNorm& c2)
 {
   return !c1.IsIdentical(c2);
 }
+

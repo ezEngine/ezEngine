@@ -177,3 +177,4 @@ private:
     ezString* m_pResult;
   };
 };
+

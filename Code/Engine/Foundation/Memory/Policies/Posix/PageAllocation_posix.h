@@ -22,3 +22,4 @@ inline void ezPageAllocation::PageDeallocate(void* ptr)
   if (ptr != NULL)
     free(ptr);
 }
+

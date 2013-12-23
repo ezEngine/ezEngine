@@ -66,3 +66,4 @@ struct ezHashHelperImpl<T, true>
     return value * 2654435761U;
   }
 };
+

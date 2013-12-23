@@ -129,3 +129,4 @@ private:
 };
 
 #include <Foundation/Strings/Implementation/SharedString_inl.h>
+

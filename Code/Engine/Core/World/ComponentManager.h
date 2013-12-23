@@ -145,3 +145,4 @@ public:
   UpdateFunctionDesc(UpdateFunction(&func, instance), #func)
 
 #include <Core/World/Implementation/ComponentManager_inl.h>
+

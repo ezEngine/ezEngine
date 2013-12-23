@@ -152,3 +152,4 @@ EZ_FORCE_INLINE bool ezAtomicUtils::TestAndSet(void** volatile dest, void* expec
 {
   return InterlockedCompareExchangePointer(dest, value, expected) == expected;
 }
+

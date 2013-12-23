@@ -17,3 +17,4 @@ public:
   /// \brief Deletes the test framework and outputs final test output.
   static void DeInitTestFramework();
 };
+

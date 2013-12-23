@@ -57,3 +57,4 @@ public:
 };
 
 #include <Foundation/Communication/Implementation/Event_inl.h>
+

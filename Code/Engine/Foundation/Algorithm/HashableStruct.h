@@ -24,3 +24,4 @@ public:
 };
 
 #include <Foundation/Algorithm/Implementation/HashableStruct_inl.h>
+

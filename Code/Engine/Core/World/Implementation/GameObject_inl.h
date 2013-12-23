@@ -187,3 +187,4 @@ EZ_FORCE_INLINE ezArrayPtr<ezComponentHandle> ezGameObject::GetComponents() cons
 {
   return m_Components;
 }
+

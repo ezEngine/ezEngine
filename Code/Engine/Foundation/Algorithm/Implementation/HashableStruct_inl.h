@@ -10,3 +10,4 @@ template<typename T> ezUInt32 ezHashableStruct<T>::CalculateHash() const
 {
   return ezHashing::CRC32Hash(this, sizeof(T));
 }
+

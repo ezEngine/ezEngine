@@ -26,3 +26,4 @@
 #define ARG_COUNT 6
 #include <Foundation/Basics/Types/Implementation/DelegateHelper_inl.h>
 #undef ARG_COUNT
+

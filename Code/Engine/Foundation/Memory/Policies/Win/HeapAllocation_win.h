@@ -29,3 +29,4 @@ inline size_t ezHeapAllocation::UsedMemorySize(const void* ptr)
 {
   return _msize(const_cast<void*>(ptr));
 }
+

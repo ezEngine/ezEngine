@@ -45,3 +45,4 @@ struct ezHashHelper
 
 #include <Foundation/Algorithm/Implementation/Hashing_inl.h>
 #include <Foundation/Algorithm/Implementation/HashingMurmur_inl.h>
+

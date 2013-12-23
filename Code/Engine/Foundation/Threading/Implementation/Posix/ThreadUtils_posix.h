@@ -43,3 +43,4 @@ bool ezThreadUtils::IsMainThread()
 {
   return pthread_self() == g_MainThread;
 }
+

@@ -24,3 +24,4 @@ inline void ezMutex::Release()
 {
   LeaveCriticalSection(&m_Handle);
 }
+

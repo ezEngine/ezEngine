@@ -68,3 +68,4 @@ private:
 };
 
 #define EZ_CREATE_TEST(TestClass)
+

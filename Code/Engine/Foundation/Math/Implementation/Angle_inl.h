@@ -52,13 +52,13 @@ EZ_FORCE_INLINE float ezAngle::GetRadian() const
 
 inline void ezAngle::NormalizeRange()
 {
-  if(m_fRadian >= 2.0f * Pi<float>()) // without 360°
+  if(m_fRadian >= 2.0f * Pi<float>()) // without 360 degree
   {
     do {
       m_fRadian -= 2.0f * Pi<float>();
     } while (m_fRadian > 2.0f * Pi<float>());
   }
-  else if(m_fRadian < 0.0f) // with 0°
+  else if(m_fRadian < 0.0f) // with 0 degree
   {
     do {
       m_fRadian += 2.0f * Pi<float>();
@@ -86,7 +86,7 @@ inline bool ezAngle::IsEqualNormalized(ezAngle rhs, ezAngle epsilon)
   if(aNorm.IsEqualSimple(bNorm, epsilon))
     return true;
   
-  // offset with 180°, normalize and check equality again
+  // offset with 180 degree, normalize and check equality again
   ezAngle aNormOffset = ezAngle::Radian(aNorm.m_fRadian + Pi<float>()).GetNormalizedRange();
   ezAngle bNormOffset = ezAngle::Radian(bNorm.m_fRadian + Pi<float>()).GetNormalizedRange();
   return aNormOffset.IsEqualSimple(bNormOffset, epsilon);
@@ -146,3 +146,4 @@ inline ezAngle operator/ (float f, ezAngle a)
 {
   return ezAngle::Radian(a.GetRadian() / f);
 }
+

@@ -116,3 +116,4 @@ struct ezConstructionCounter
   static ezInt32 s_iDestructions;
   static ezInt32 s_iDestructionsLast;
 };
+

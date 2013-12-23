@@ -40,3 +40,4 @@ ezThreadLocalPointerTable* ezThreadLocalStorage::GetPerThreadPointerTable()
   
   return reinterpret_cast<ezThreadLocalPointerTable*>(pthread_getspecific(g_ThreadLocalManagmentTableKey));
 }
+

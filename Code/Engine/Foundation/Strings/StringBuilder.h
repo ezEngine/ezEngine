@@ -296,3 +296,4 @@ private:
 };
 
 #include <Foundation/Strings/Implementation/StringBuilder_inl.h>
+

@@ -112,3 +112,4 @@ private:
   enum { DATA_SIZE = 16 };
   ezUInt8 m_Data[DATA_SIZE];
 };
+

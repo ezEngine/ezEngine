@@ -126,3 +126,4 @@ private:
 
 // Make the type ezInputDevice reflectable, to be able to traverse the class hierarchy.
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezInputDevice);
+

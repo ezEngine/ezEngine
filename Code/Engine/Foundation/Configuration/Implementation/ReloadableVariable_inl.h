@@ -19,3 +19,4 @@ void ezReloadableVariableWrapper<Type>::LoadState(ezIBinaryStreamReader& Stream)
 {
   Stream >> m_Variable;
 }
+

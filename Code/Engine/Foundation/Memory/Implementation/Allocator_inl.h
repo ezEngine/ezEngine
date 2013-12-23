@@ -82,3 +82,4 @@ EZ_FORCE_INLINE const T& ezAllocator<A, T, M>::GetTracker() const
 {
   return m_tracker;
 }
+

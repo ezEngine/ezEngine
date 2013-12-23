@@ -48,3 +48,4 @@ void ezProfilingSystem::SetThreadName(const char* szThreadName)
 
   __itt_thread_set_name(fullName.GetData());
 }
+

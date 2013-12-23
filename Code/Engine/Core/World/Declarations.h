@@ -133,3 +133,4 @@ struct ezObjectMsgRouting
 };
 
 EZ_DECLARE_FLAGS_OPERATORS(ezObjectMsgRouting);
+

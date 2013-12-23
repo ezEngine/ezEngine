@@ -30,3 +30,4 @@ EZ_FORCE_INLINE ezUInt16 ezComponent::TypeId()
 { 
   return TYPE_ID;
 }
+

@@ -112,3 +112,4 @@ private:
   ezDynamicArray<SuperBlock> m_superBlocks;
   ezDynamicArray<ezUInt32> m_freeBlocks;
 };
+

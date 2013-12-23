@@ -116,3 +116,4 @@ EZ_FOUNDATION_DLL bool ezFailedCheck(const char* szSourceFile, ezUInt32 uiLine, 
   #define EZ_ASSERT_API EZ_ASSERT_ALWAYS
 
 #endif
+

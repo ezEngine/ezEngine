@@ -97,3 +97,4 @@ protected:
   ezEnumerable<self, self::ezEnumerableBase>* self::s_pFirstInstance = NULL; \
   ezEnumerable<self, self::ezEnumerableBase>* self::s_pLastInstance = NULL; \
   ezUInt32 self::s_uiInstances = 0
+

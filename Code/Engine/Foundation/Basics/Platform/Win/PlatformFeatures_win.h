@@ -17,3 +17,4 @@
 /// Whether dynamic plugins (through DLLs loaded/unloaded at runtime) are supported
 #undef EZ_SUPPORTS_DYNAMIC_PLUGINS
 #define EZ_SUPPORTS_DYNAMIC_PLUGINS EZ_ON
+

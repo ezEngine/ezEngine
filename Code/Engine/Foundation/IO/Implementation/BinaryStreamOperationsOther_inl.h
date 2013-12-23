@@ -14,3 +14,4 @@ EZ_FOUNDATION_DLL void operator<< (ezIBinaryStreamWriter& Stream, ezTime Value);
 
 /// \brief Operator to serialize ezTime objects.
 EZ_FOUNDATION_DLL void operator>> (ezIBinaryStreamReader& Stream, ezTime& Value);
+

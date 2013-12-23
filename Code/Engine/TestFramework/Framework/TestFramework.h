@@ -257,3 +257,4 @@ inline float ToFloat(double f) { return (float) f; }
   EZ_TEST_FLOAT_MSG(internal_v1.z, internal_v2.z, epsilon, msg); \
   EZ_TEST_FLOAT_MSG(internal_v1.w, internal_v2.w, epsilon, msg); \
 }
+

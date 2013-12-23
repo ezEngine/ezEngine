@@ -52,3 +52,4 @@ private:
 };
 
 #include <Foundation/Containers/Implementation/StaticArray_inl.h>
+

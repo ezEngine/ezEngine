@@ -112,3 +112,4 @@
 /// \brief Template helper which allows to suppress "Unused variable" warnings (e.g. result used in platform specific block, ..)
 template<class T> 
 void EZ_IGNORE_UNUSED(const T&) {}
+

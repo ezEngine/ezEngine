@@ -37,3 +37,4 @@ bool ezThreadUtils::IsMainThread()
 {
   return ::GetCurrentThreadId() == g_uiMainThreadID;
 }
+

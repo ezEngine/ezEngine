@@ -159,3 +159,4 @@ EZ_FORCE_INLINE bool ezAtomicUtils::TestAndSet(void** volatile dest, void* expec
     return __sync_bool_compare_and_swap(puiTemp, reinterpret_cast<ezUInt32>(expected), reinterpret_cast<ezUInt32>(value));
   #endif
 }
+

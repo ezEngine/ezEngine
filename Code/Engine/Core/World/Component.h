@@ -61,3 +61,4 @@ private:
   ezUInt16 componentType::TYPE_ID = ezComponentManagerBase::GetNextTypeId(); \
   ezComponentHandle componentType::GetHandle() const { return managerType::GetHandle(m_InternalId); } \
   managerType* componentType::GetManager() const { return static_cast<managerType*>(m_pManager); }
+

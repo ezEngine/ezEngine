@@ -158,3 +158,4 @@ void ezSorting<Comparer>::InsertionSort(ezArrayPtr<T>& arrayPtr, ezUInt32 uiStar
     }
   }
 }
+

@@ -27,3 +27,4 @@ class ezDelegate : public ezDelegateBase
 };
 
 #include <Foundation/Basics/Types/Implementation/Delegate_inl.h>
+

@@ -255,3 +255,4 @@ struct EZ_FOUNDATION_DLL ezEndianHelper
 
 
 };
+

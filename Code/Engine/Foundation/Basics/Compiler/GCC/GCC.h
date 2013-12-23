@@ -28,3 +28,4 @@
 // declare compiler specific types
 typedef unsigned long long int  ezUInt64;
 typedef long long int           ezInt64;
+

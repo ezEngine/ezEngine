@@ -101,3 +101,4 @@ EZ_FORCE_INLINE ezAtomicInteger<T>::operator T() const
 {
   return m_value;
 }
+

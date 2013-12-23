@@ -176,3 +176,4 @@ void ezMessageQueue<MD, M, SA, QA>::operator=(const ezMessageQueueBase<MD, M>& r
 {
   ezMessageQueueBase<MD, M>::operator=(rhs);
 }
+

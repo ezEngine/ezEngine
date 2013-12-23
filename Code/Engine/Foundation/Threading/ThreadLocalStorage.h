@@ -56,3 +56,4 @@ private:
   /// \brief Cleanup functionality of the thread local storage system (called by foundation shutdown and thus private)
   static void Shutdown();
 };
+

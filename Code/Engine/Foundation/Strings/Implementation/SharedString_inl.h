@@ -182,3 +182,4 @@ inline ezStringIterator ezSharedString::GetLast(ezUInt32 uiNumCharacters) const
   EZ_ASSERT(uiNumCharacters < m_pShared->m_uiCharacterCount, "The string only contains %i characters, cannot return the last %i characters.", m_pShared->m_uiCharacterCount, uiNumCharacters);
   return GetSubString(m_pShared->m_uiCharacterCount - uiNumCharacters, uiNumCharacters);
 }
+

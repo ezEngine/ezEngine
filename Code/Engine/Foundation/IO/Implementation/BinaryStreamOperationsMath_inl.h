@@ -230,3 +230,4 @@ inline ezIBinaryStreamReader& operator >> (ezIBinaryStreamReader& Stream, ezColo
   Stream >> Value.a;
   return Stream;
 }
+

@@ -148,3 +148,4 @@ typedef ezHybridString<128> ezString128;
 typedef ezHybridString<256> ezString256;
 
 #include <Foundation/Strings/Implementation/String_inl.h>
+

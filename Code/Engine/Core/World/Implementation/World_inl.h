@@ -203,3 +203,4 @@ EZ_FORCE_INLINE ezUInt32  ezWorld::GetHandledMessageCounter() const
 {
   return m_Data.m_uiHandledMessageCounter;
 }
+

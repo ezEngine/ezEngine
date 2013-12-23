@@ -24,3 +24,4 @@ EZ_FORCE_INLINE void ezMutex::Release()
 {
   pthread_mutex_unlock(&m_Handle);
 }
+

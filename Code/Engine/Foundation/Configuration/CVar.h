@@ -237,3 +237,4 @@ typedef ezTypedCVar<ezHybridString<32, ezStaticAllocatorWrapper>, ezCVarType::St
 
 
 #include <Foundation/Configuration/Implementation/CVar_inl.h>
+

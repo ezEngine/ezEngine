@@ -21,3 +21,4 @@ void ezSystemInformation::Initialize()
 
   s_SystemInformation.m_szPlatformName = "Posix";
 }
+

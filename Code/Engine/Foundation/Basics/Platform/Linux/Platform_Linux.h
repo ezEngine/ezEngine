@@ -38,3 +38,4 @@ typedef pthread_key_t ezThreadLocalStorageKey;
   #undef EZ_PLATFORM_32BIT
   #define EZ_PLATFORM_32BIT EZ_ON
 #endif
+

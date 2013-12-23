@@ -93,3 +93,4 @@ private:
 };
 
 #include <Foundation/Strings/Implementation/StringIterator_inl.h>
+

@@ -119,3 +119,4 @@ EZ_FORCE_INLINE ezUInt32 ezStringUtils::Copy(char* szDest, ezUInt32 uiDstSize, c
 {
   return ezStringUtils::CopyN(szDest, uiDstSize, szSource, uiDstSize, pSourceEnd);
 }
+

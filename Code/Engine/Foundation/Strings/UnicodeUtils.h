@@ -98,3 +98,4 @@ public:
 
 
 #include <Foundation/Strings/Implementation/UnicodeUtils_inl.h>
+

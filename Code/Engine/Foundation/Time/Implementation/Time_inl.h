@@ -75,3 +75,4 @@ EZ_FORCE_INLINE ezTime operator/ (double f, ezTime t)
 {
   return ezTime::Seconds(t.GetSeconds() / f);
 }
+

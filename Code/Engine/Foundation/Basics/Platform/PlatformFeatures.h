@@ -28,3 +28,4 @@
 #ifndef EZ_SUPPORTS_DYNAMIC_PLUGINS
   #error "EZ_SUPPORTS_DYNAMIC_PLUGINS is not defined."
 #endif
+

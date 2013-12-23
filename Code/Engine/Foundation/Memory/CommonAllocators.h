@@ -17,3 +17,4 @@ typedef ezAllocator<ezMemoryPolicies::ezHeapAllocation, ezMemoryPolicies::ezSimp
 
 /// \brief Proxy allocator with simple tracking
 typedef ezAllocator<ezMemoryPolicies::ezProxyAllocation, ezMemoryPolicies::ezSimpleTracking, ezNoMutex> ezProxyAllocator;
+

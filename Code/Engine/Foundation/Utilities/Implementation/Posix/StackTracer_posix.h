@@ -32,3 +32,4 @@ void ezStackTracer::DumpStackTrace(const ezArrayPtr<void*>& trace)
   }
   
 }
+

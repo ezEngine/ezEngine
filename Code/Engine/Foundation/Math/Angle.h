@@ -4,7 +4,7 @@
 
 /// \brief Float wrapper struct for a safe usage and conversions of angles.
 /// 
-/// Uses radian internally. Will <b>not</b> automatically keep its range between 0°-360° (0-2PI) but you can call NormalizeRange to do so.
+/// Uses radian internally. Will <b>not</b> automatically keep its range between 0 degree - 360 degree (0 - 2PI) but you can call NormalizeRange to do so.
 class ezAngle
 {
 public:
@@ -44,18 +44,18 @@ public:
   /// \brief Returns the radian value. (No need for any conversion)
   float GetRadian() const; // [tested]
 
-  /// \brief Brings the angle into the range of 0°-360°
+  /// \brief Brings the angle into the range of 0 degree - 360 degree
   /// \see GetNormalizedRange()
   void NormalizeRange();
 
-  /// \brief Returns an equivalent angle with range between 0°-360°
+  /// \brief Returns an equivalent angle with range between 0 degree - 360 degree
   /// \see NormalizeRange()
   ezAngle GetNormalizedRange(); // [tested]
 
-  /// \brief Equality check with epsilon. Simple check without normalization, 360° != 0
+  /// \brief Equality check with epsilon. Simple check without normalization, 360 degree != 0
   bool IsEqualSimple(ezAngle rhs, ezAngle epsilon); // [tested]
 
-  /// \brief Equality check with epsilon that uses normalized angles. Will also recognize 360° == 0°
+  /// \brief Equality check with epsilon that uses normalized angles. Will also recognize 360 degree == 0 degree
   bool IsEqualNormalized(ezAngle rhs, ezAngle epsilon); // [tested]
 
   // unary operators
@@ -73,7 +73,7 @@ public:
   bool operator == (const ezAngle& r) const; // [tested]
   bool operator != (const ezAngle& r) const; // [tested]
 
-  // Note: relational operators on angles are not really possible - is 0° smaller or bigger than 359 degree?
+  // Note: relational operators on angles are not really possible - is 0 degree smaller or bigger than 359 degree?
 
 private:
   /// \brief For internal use only.
@@ -100,3 +100,4 @@ ezAngle operator/ (ezAngle a, float f); // [tested]
 ezAngle operator/ (float f, ezAngle a); // [tested]
 
 #include <Foundation/Math/Implementation/Angle_inl.h>
+

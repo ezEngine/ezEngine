@@ -56,3 +56,4 @@ template <typename EventData, typename MutexType, typename AllocatorWrapper>
 ezEvent<EventData, MutexType, AllocatorWrapper>::ezEvent(ezIAllocator* pAllocator) : ezEventBase<EventData, MutexType>(pAllocator)
 {
 }
+

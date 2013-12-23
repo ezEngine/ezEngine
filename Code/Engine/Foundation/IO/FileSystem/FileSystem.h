@@ -237,3 +237,4 @@ struct ezFileSystem::FileEvent
   /// \brief The data-directory, that was involved.
   const ezDataDirectoryType* m_pDataDir;
 };
+

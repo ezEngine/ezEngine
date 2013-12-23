@@ -145,3 +145,4 @@ namespace ezMath
     return fmod(f, div);
   }
 }
+

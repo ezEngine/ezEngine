@@ -149,3 +149,4 @@ ezUInt64 ezIBinaryStreamWriter::WriteQWordValue(const T* pQWordValue)
 }
 
 #endif
+

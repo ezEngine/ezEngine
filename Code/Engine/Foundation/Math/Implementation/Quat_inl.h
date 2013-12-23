@@ -358,3 +358,4 @@ EZ_FORCE_INLINE bool operator!= (const ezQuatTemplate<Type>& q1, const ezQuatTem
 {
   return !(q1 == q2);
 }
+

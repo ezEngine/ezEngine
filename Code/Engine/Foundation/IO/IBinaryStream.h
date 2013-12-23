@@ -107,3 +107,4 @@ public:
 #include <Foundation/IO/Implementation/BinaryStreamOperations_inl.h>
 #include <Foundation/IO/Implementation/BinaryStreamOperationsMath_inl.h>
 #include <Foundation/IO/Implementation/BinaryStreamOperationsOther_inl.h>
+

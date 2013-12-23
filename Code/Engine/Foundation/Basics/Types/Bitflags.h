@@ -252,3 +252,4 @@ struct BitflagsTypeName    \
 #define EZ_DECLARE_FLAGS_BITS(name)       StorageType name : 1;
 
 /// \endcond
+

@@ -23,3 +23,4 @@ private:
 
   T& m_lock;
 };
+

@@ -41,3 +41,4 @@ bool ezDateTime::SetTimestamp(ezTimestamp timestamp)
   m_uiMicroseconds = (ezUInt32)(ezMath::Fraction(gdate.second) * 1000000.0);
   return true;
 }
+

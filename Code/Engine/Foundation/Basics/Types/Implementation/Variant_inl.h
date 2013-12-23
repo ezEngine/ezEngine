@@ -312,3 +312,4 @@ T ezVariant::ConvertNumber() const
   EZ_REPORT_FAILURE("Variant is not a number");
   return T(0);
 }
+
