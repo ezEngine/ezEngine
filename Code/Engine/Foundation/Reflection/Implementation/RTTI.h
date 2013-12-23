@@ -104,8 +104,7 @@ private:
 struct EZ_FOUNDATION_DLL ezRTTIAllocator
 {
   /// \brief Returns whether the type that is represented by this allocator, can be dynamically allocated at runtime.
-  /// Every deriving class must implement this and return true.
-  virtual bool CanAllocate() = 0;
+  virtual bool CanAllocate() const { return true; }
 
   /// \brief Allocates one instance.
   virtual void* Allocate() = 0;
@@ -118,7 +117,7 @@ struct EZ_FOUNDATION_DLL ezRTTIAllocator
 struct EZ_FOUNDATION_DLL ezRTTINoAllocator : public ezRTTIAllocator
 {
   /// \brief Returns false, because this type of allocator is used for classes that shall not be allocated dynamically.
-  virtual bool CanAllocate() EZ_OVERRIDE { return false; }
+  virtual bool CanAllocate() const EZ_OVERRIDE { return false; }
 
   /// \brief Will trigger an assert.
   virtual void* Allocate() EZ_OVERRIDE
@@ -138,9 +137,6 @@ struct EZ_FOUNDATION_DLL ezRTTINoAllocator : public ezRTTIAllocator
 template<typename CLASS>
 struct ezRTTIDefaultAllocator : public ezRTTIAllocator
 {
-  /// \brief Returns true.
-  virtual bool CanAllocate() { return true; }
-
   /// \brief Returns a new instance that was allocated on the default heap.
   virtual void* Allocate() EZ_OVERRIDE
   {

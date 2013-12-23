@@ -2,6 +2,7 @@
 #include <Foundation/Configuration/Plugin.h>
 #include <Foundation/Configuration/CVar.h>
 #include <Foundation/Configuration/Startup.h>
+#include <Foundation/Reflection/Reflection.h>
 
 static ezInt32 g_iPluginState = -1;
 
@@ -86,5 +87,26 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(PluginGroup_Plugin1, TestSubSystem1)
   }
 
 EZ_END_SUBSYSTEM_DECLARATION
+
+
+
+struct ezTestStruct2
+{
+  float m_fFloat2;
+
+  ezTestStruct2()
+  {
+    m_fFloat2 = 42.0f;
+  }
+
+};
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezTestStruct2);
+
+EZ_BEGIN_REFLECTED_TYPE(ezTestStruct2, ezNoBase, ezRTTIDefaultAllocator<ezTestStruct2>);
+  EZ_BEGIN_PROPERTIES
+    EZ_MEMBER_PROPERTY("Float 2", m_fFloat2),
+  EZ_END_PROPERTIES
+EZ_END_REFLECTED_TYPE(ezTestStruct2);
 
 

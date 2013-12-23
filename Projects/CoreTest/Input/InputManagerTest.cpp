@@ -43,9 +43,6 @@ class ezTestInputDevide : public ezInputDevice
 {
 public:
 
-  const char* GetDeviceType() const EZ_OVERRIDE { return "Test"; }
-  const char* GetDeviceName() const EZ_OVERRIDE { return "Test"; }
-
   void ActivateAll()
   {
     m_InputSlotValues["testdevice_button"] = 0.1f;

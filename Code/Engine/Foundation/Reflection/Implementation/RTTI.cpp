@@ -109,11 +109,11 @@ ezAbstractProperty* ezRTTI::FindPropertyByName(const char* szName, bool bSearchB
 
   do
   {
-    for (ezUInt32 p = 0; p < m_Properties.GetCount(); ++p)
+    for (ezUInt32 p = 0; p < pInstance->m_Properties.GetCount(); ++p)
     {
-      if (ezStringUtils::IsEqual(m_Properties[p]->GetPropertyName(), szName))
+      if (ezStringUtils::IsEqual(pInstance->m_Properties[p]->GetPropertyName(), szName))
       {
-        return m_Properties[p];
+        return pInstance->m_Properties[p];
       }
     }
 
@@ -133,11 +133,11 @@ ezAbstractMessageHandler* ezRTTI::FindMessageHandler(ezMessageId id, bool bSearc
 
   do
   {
-    for (ezUInt32 p = 0; p < m_MessageHandlers.GetCount(); ++p)
+    for (ezUInt32 p = 0; p < pInstance->m_MessageHandlers.GetCount(); ++p)
     {
-      if (m_MessageHandlers[p]->GetMessageTypeID() == id)
+      if (pInstance->m_MessageHandlers[p]->GetMessageTypeID() == id)
       {
-        return m_MessageHandlers[p];
+        return pInstance->m_MessageHandlers[p];
       }
     }
 
