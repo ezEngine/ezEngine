@@ -8,6 +8,7 @@ Milestone 4
   * Removed the InputWindows plugin and merged the functionality into the ezWindow code (System library).
   * Added an SFML port for Window creation and Input handling to ezWindow, which works on non-Windows platforms.
   * Added code and a small tool that fixes problems with static linking.
+  * Added ezDynamicOctree and ezDynamicQuadtree to the CoreUtils library, which are data structures to optimize range queries.
 
 Milestone 3
 -----------

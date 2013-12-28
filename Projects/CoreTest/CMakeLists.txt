@@ -19,6 +19,7 @@ SET (LINK_LIBRARIES
   Foundation      # Example: Another library build with cmake
   TestFramework
   Core
+  CoreUtils
 )
 
 include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/CMAKE_Application.txt)

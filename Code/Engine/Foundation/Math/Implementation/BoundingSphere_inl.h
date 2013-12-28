@@ -140,7 +140,7 @@ void ezBoundingSphereTemplate<Type>::TransformFromOrigin (const ezMat4Template<T
   m_vCenter = mTransform.TransformPosition (m_vCenter);
 
   const ezVec3Template<Type> Scale = mTransform.GetScalingFactors ();
-  m_fRadius *= ezMath::Max (Scale.x, Scale.y, Scale.z);
+  m_fRadius *= ezMath::Max(Scale.x, Scale.y, Scale.z);
 }
 
 template<typename Type>
@@ -149,7 +149,7 @@ void ezBoundingSphereTemplate<Type>::TransformFromCenter (const ezMat4Template<T
   m_vCenter += mTransform.GetTranslationVector();
 
   const ezVec3Template<Type> Scale = mTransform.GetScalingFactors ();
-  m_fRadius *= ezMath::Max (Scale.x, Scale.y, Scale.z);
+  m_fRadius *= ezMath::Max(Scale.x, Scale.y, Scale.z);
 }
 
 template<typename Type>

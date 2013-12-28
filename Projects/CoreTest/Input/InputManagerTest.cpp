@@ -77,7 +77,7 @@ static bool operator!= (const ezInputActionConfig& lhs, const ezInputActionConfi
 
 EZ_CREATE_SIMPLE_TEST(Input, InputManager)
 {
-  EZ_TEST_BLOCK(true, "SetInputSlotDisplayName / GetInputSlotDisplayName")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetInputSlotDisplayName / GetInputSlotDisplayName")
   {
     ezInputManager::SetInputSlotDisplayName("test_slot_1", "Test Slot 1 Name");
     ezInputManager::SetInputSlotDisplayName("test_slot_2", "Test Slot 2 Name");
@@ -90,7 +90,7 @@ EZ_CREATE_SIMPLE_TEST(Input, InputManager)
     EZ_TEST_BOOL(ezStringUtils::IsEqual(ezInputManager::GetInputSlotDisplayName("test_slot_4"), "Test Slot 4 Name"));
   }
 
-  EZ_TEST_BLOCK(true, "SetInputSlotDeadZone / GetInputSlotDisplayName")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetInputSlotDeadZone / GetInputSlotDisplayName")
   {
     ezInputManager::SetInputSlotDeadZone("test_slot_1", 0.1f);
     ezInputManager::SetInputSlotDeadZone("test_slot_2", 0.2f);
@@ -103,7 +103,7 @@ EZ_CREATE_SIMPLE_TEST(Input, InputManager)
     EZ_TEST_FLOAT(ezInputManager::GetInputSlotDeadZone("test_slot_4"), 0.4f, 0.0f);
   }
 
-  EZ_TEST_BLOCK(true, "SetInputActionConfig / GetInputActionConfig")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetInputActionConfig / GetInputActionConfig")
   {
     ezInputActionConfig iac1, iac2;
     iac1.m_bApplyTimeScaling = true;
@@ -155,7 +155,7 @@ EZ_CREATE_SIMPLE_TEST(Input, InputManager)
 
   }
 
-  EZ_TEST_BLOCK(true, "Input Slot State Changes / Dead Zones")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Input Slot State Changes / Dead Zones")
   {
     float f = 0;
     ezInputManager::InjectInputSlotValue("test_slot_1", 0.0f);
@@ -210,7 +210,7 @@ EZ_CREATE_SIMPLE_TEST(Input, InputManager)
     EZ_TEST_FLOAT(f, 0.0f, 0);
   }
 
-  EZ_TEST_BLOCK(true, "SetActionDisplayName / GetActionDisplayName")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetActionDisplayName / GetActionDisplayName")
   {
     ezInputManager::SetActionDisplayName("test_action_1", "Test Action 1 Name");
     ezInputManager::SetActionDisplayName("test_action_2", "Test Action 2 Name");
@@ -224,7 +224,7 @@ EZ_CREATE_SIMPLE_TEST(Input, InputManager)
   }
 
 
-  EZ_TEST_BLOCK(true, "Input Sets")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Input Sets")
   {
     ezInputActionConfig iac;
     ezInputManager::SetInputActionConfig("test_inputset", "test_action_1", iac, true);
@@ -242,7 +242,7 @@ EZ_CREATE_SIMPLE_TEST(Input, InputManager)
     ezInputManager::RemoveInputAction("test_inputset2", "test_action_2");
   }
 
-  EZ_TEST_BLOCK(true, "GetAllInputActions / RemoveInputAction")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetAllInputActions / RemoveInputAction")
   {
     ezDynamicArray<ezString> InputActions;
 
@@ -281,7 +281,7 @@ EZ_CREATE_SIMPLE_TEST(Input, InputManager)
     EZ_TEST_BOOL(InputActions.IsEmpty());
   }
 
-  EZ_TEST_BLOCK(true, "Input Action State Changes")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Input Action State Changes")
   {
     ezInputActionConfig iac;
     iac.m_bApplyTimeScaling = false;
@@ -368,7 +368,7 @@ EZ_CREATE_SIMPLE_TEST(Input, InputManager)
     EZ_TEST_BOOL(ezInputManager::GetInputActionState("test_inputset", "test_action_2", &f, &iSlot) == ezKeyState::Up);
   }
 
-  EZ_TEST_BLOCK(true, "GetPressedInputSlot")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetPressedInputSlot")
   {
     ezInputManager::Update(ezTime::Seconds(1.0 / 60.0));
 
@@ -424,7 +424,7 @@ EZ_CREATE_SIMPLE_TEST(Input, InputManager)
     }
   }
 
-  EZ_TEST_BLOCK(true, "LastCharacter")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "LastCharacter")
   {
     ezTestInputDevide dev;
     dev.ActivateAll();
@@ -438,7 +438,7 @@ EZ_CREATE_SIMPLE_TEST(Input, InputManager)
     EZ_TEST_BOOL(ezInputManager::RetrieveLastCharacter(true) == '\0');
   }
 
-  EZ_TEST_BLOCK(true, "Time Scaling")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Time Scaling")
   {
     ezInputManager::Update(ezTime::Seconds(1.0 / 60.0));
 
@@ -484,7 +484,7 @@ EZ_CREATE_SIMPLE_TEST(Input, InputManager)
     EZ_TEST_FLOAT(fVal, 0.1f, 0.0001f);
   }
 
-  EZ_TEST_BLOCK(true, "GetInputSlotFlags")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetInputSlotFlags")
   {
     ezTestInputDevide dev;
     ezInputManager::Update(ezTime::Seconds(1.0 / 30.0));
@@ -495,7 +495,7 @@ EZ_CREATE_SIMPLE_TEST(Input, InputManager)
     EZ_TEST_BOOL(ezInputManager::GetInputSlotFlags("testdevice_touchpoint") == ezInputSlotFlags::IsTouchPoint);
   }
 
-  EZ_TEST_BLOCK(true, "ClearInputMapping")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ClearInputMapping")
   {
     ezInputManager::Update(ezTime::Seconds(1.0 / 60.0));
 
