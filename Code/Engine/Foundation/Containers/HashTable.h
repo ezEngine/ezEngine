@@ -58,6 +58,9 @@ public:
   class Iterator : public ConstIterator
   {
   public:
+    // this is required to pull in the const version of this function
+    using ConstIterator::Value;
+
     /// \brief Returns the 'value' of the element that this iterator points to.
     ValueType& Value(); // [tested]
 

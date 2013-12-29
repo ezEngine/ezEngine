@@ -84,6 +84,9 @@ public:
   /// \brief Forward Iterator to iterate over all elements in sorted order.
   struct Iterator : public ConstIterator
   {
+    // this is required to pull in the const version of this function
+    using ConstIterator::Value;
+
     EZ_DECLARE_POD_TYPE();
 
     /// \brief Constructs an invalid iterator.

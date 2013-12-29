@@ -78,6 +78,10 @@ public:
   /// \brief A forward-iterator. Allows sequential access from front-to-back.
   struct Iterator : public ConstIterator
   {
+    // this is required to pull in the const version of this function
+    using ConstIterator::operator*;
+    using ConstIterator::operator->;
+
     EZ_DECLARE_POD_TYPE();
 
     /// \brief Constructor.
