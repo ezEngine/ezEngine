@@ -10,6 +10,7 @@ Milestone 4
   * Added code and a small tool that fixes problems with static linking.
   * Added ezDynamicOctree and ezDynamicQuadtree to the CoreUtils library, which are data structures to optimize range queries.
   * Added Lua to the ThirdParty library.
+  * Added ezHashedString and ezTempHashedString for storing strings that rarely change but where comparisons should be really fast.
 
 Milestone 3
 -----------
