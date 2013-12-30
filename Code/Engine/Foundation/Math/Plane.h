@@ -92,10 +92,10 @@ public:
   ezPositionOnPlane::Enum GetPointPosition(const ezVec3Template<Type>& vPoint, Type fPlaneHalfWidth) const; // [tested]
 
   /// \brief Returns on which side of the plane the set of points lies. Might be on boths sides.
-  ezPositionOnPlane::Enum GetObjectPosition(const ezVec3Template<Type>* const vPoints, int iVertices) const; // [tested]
+  ezPositionOnPlane::Enum GetObjectPosition(const ezVec3Template<Type>* const vPoints, ezUInt32 iVertices) const; // [tested]
 
   /// \brief Returns on which side of the plane the set of points lies. Might be on boths sides.
-  ezPositionOnPlane::Enum GetObjectPosition(const ezVec3Template<Type>* const vPoints, int iVertices, Type fPlaneHalfWidth) const; // [tested]
+  ezPositionOnPlane::Enum GetObjectPosition(const ezVec3Template<Type>* const vPoints, ezUInt32 iVertices, Type fPlaneHalfWidth) const; // [tested]
 
   /// \brief Returns on which side of the plane the sphere is located.
   ezPositionOnPlane::Enum GetObjectPosition(const ezBoundingSphereTemplate<Type>& Sphere) const; // [tested]

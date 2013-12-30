@@ -4,6 +4,7 @@
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Math/Vec3.h>
 #include <Foundation/Math/BoundingBox.h>
+#include <Foundation/Math/Frustum.h>
 
 struct ezDynamicTree
 {

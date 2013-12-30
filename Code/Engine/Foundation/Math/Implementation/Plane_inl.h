@@ -265,12 +265,12 @@ ezResult ezPlaneTemplate<Type>::FindSupportPoints (const ezVec3Template<Type>* c
 }
 
 template<typename Type>
-ezPositionOnPlane::Enum ezPlaneTemplate<Type>::GetObjectPosition (const ezVec3Template<Type>* const vPoints, int iVertices) const
+ezPositionOnPlane::Enum ezPlaneTemplate<Type>::GetObjectPosition (const ezVec3Template<Type>* const vPoints, ezUInt32 iVertices) const
 {
   bool bFront = false;
   bool bBack = false;
 
-  for (ezInt32 i = 0; i < iVertices; ++i)
+  for (ezUInt32 i = 0; i < iVertices; ++i)
   {
     switch (GetPointPosition (vPoints[i]))
     {
@@ -294,12 +294,12 @@ ezPositionOnPlane::Enum ezPlaneTemplate<Type>::GetObjectPosition (const ezVec3Te
 }
 
 template<typename Type>
-ezPositionOnPlane::Enum ezPlaneTemplate<Type>::GetObjectPosition (const ezVec3Template<Type>* const vPoints, int iVertices, Type fPlaneHalfWidth) const
+ezPositionOnPlane::Enum ezPlaneTemplate<Type>::GetObjectPosition (const ezVec3Template<Type>* const vPoints, ezUInt32 iVertices, Type fPlaneHalfWidth) const
 {
   bool bFront = false;
   bool bBack = false;
 
-  for (ezInt32 i = 0; i < iVertices; ++i)
+  for (ezUInt32 i = 0; i < iVertices; ++i)
   {
     switch (GetPointPosition (vPoints[i], fPlaneHalfWidth))
     {

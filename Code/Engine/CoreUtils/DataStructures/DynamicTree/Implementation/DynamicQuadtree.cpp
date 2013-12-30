@@ -195,94 +195,98 @@ bool ezDynamicQuadtree::InsertObject(const ezVec3& vCenter, const ezVec3& vHalfE
   return true;
 }
 
-//void ezDynamicQuadtree::FindVisibleObjects(const ezViewfrustum& Viewfrustum, EZ_VISIBLE_OBJ_CALLBACK Callback, void* pPassThrough)
-//{
-//	EZ_ASSERT(m_uiMaxTreeDepth > 0, "ezDynamicQuadtree::FindVisibleObjects: You have to first create the tree.");
+void ezDynamicQuadtree::FindVisibleObjects(const ezFrustum& Viewfrustum, EZ_VISIBLE_OBJ_CALLBACK Callback, void* pPassThrough) const
+{
+	EZ_ASSERT(m_uiMaxTreeDepth > 0, "ezDynamicQuadtree::FindVisibleObjects: You have to first create the tree.");
 
-//	if (m_NodeMap.empty())
-//		return;
+  if (m_NodeMap.IsEmpty())
+		return;
 
-//	FindVisibleObjects(Viewfrustum, Callback, pPassThrough, m_BBox.m_vMin.x, m_BBox.m_vMax.x, m_BBox.m_vMin.z, m_BBox.m_vMax.z, 0, m_uiAddIDTopLevel, ezMath::Pow (4, m_uiMaxTreeDepth-1), 0xFFFFFFFF);
-//}
+	FindVisibleObjects(Viewfrustum, Callback, pPassThrough, m_BBox.m_vMin.x, m_BBox.m_vMax.x, m_BBox.m_vMin.z, m_BBox.m_vMax.z, 0, m_uiAddIDTopLevel, ezMath::Pow (4, m_uiMaxTreeDepth-1), 0xFFFFFFFF);
+}
 
-//void ezDynamicQuadtree::FindVisibleObjects(const ezViewfrustum& Viewfrustum, EZ_VISIBLE_OBJ_CALLBACK Callback, void* pPassThrough, float minx, float maxx, float minz, float maxz, ezUInt32 uiNodeID, ezUInt32 uiAddID, ezUInt32 uiSubAddID, ezUInt32 uiNextNodeID)
-//{
-//	// build the bounding box of this node
-//	ezVec3 v[8];
-//	v[0].setVector (minx, m_fMinY, minz);
-//	v[1].setVector (minx, m_fMinY, maxz);
-//	v[2].setVector (minx, m_fMaxY, minz);
-//	v[3].setVector (minx, m_fMaxY, maxz);
-//	v[4].setVector (maxx, m_fMinY, minz);
-//	v[5].setVector (maxx, m_fMinY, maxz);
-//	v[6].setVector (maxx, m_fMaxY, minz);
-//	v[7].setVector (maxx, m_fMaxY, maxz);
+void ezDynamicQuadtree::FindVisibleObjects(const ezFrustum& Viewfrustum, EZ_VISIBLE_OBJ_CALLBACK Callback, void* pPassThrough, float minx, float maxx, float minz, float maxz, ezUInt32 uiNodeID, ezUInt32 uiAddID, ezUInt32 uiSubAddID, ezUInt32 uiNextNodeID) const
+{
+	// build the bounding box of this node
+	ezVec3 v[8];
+  v[0].Set(minx, m_BBox.m_vMin.y, minz);
+	v[1].Set(minx, m_BBox.m_vMin.y, maxz);
+	v[2].Set(minx, m_BBox.m_vMax.y, minz);
+	v[3].Set(minx, m_BBox.m_vMax.y, maxz);
+	v[4].Set(maxx, m_BBox.m_vMin.y, minz);
+	v[5].Set(maxx, m_BBox.m_vMin.y, maxz);
+	v[6].Set(maxx, m_BBox.m_vMax.y, minz);
+	v[7].Set(maxx, m_BBox.m_vMax.y, maxz);
 
-//	ezInt32 iResult = Viewfrustum.isObjectInside (&v[0], 8);
+  const ezVolumePosition::Enum pos = Viewfrustum.GetObjectPosition(&v[0], 8);
 
-//	// stop traversal, if node is outside view-frustum
-//	if (iResult == AE_OBJECT_OUTSIDE_VOLUME)
-//		return;
+	// stop traversal, if node is outside view-frustum
+  if (pos == ezVolumePosition::Outside)
+		return;
 
-//	// get the iterator where the objects stored in this sub-tree start
-//	ezDynamicTreeObject it1 = m_NodeMap.lower_bound(uiNodeID);
-//	const ezDynamicTreeObject itend = m_NodeMap.end();
+  ezDynamicTree::ezMultiMapKey mmk;
+  mmk.m_uiKey = uiNodeID;
 
-//	// if there are no objects AT ALL in the map after the iterator, OR in this subtree there are no objects stored, stop
-//	if ((it1 == itend) || (it1->first >= uiNextNodeID))
-//		return;
+	// get the iterator where the objects stored in this sub-tree start
+  ezDynamicTreeObjectConst it1 = m_NodeMap.LowerBound(mmk);
 
-//	// if the node is COMPLETELY inside the frustum -> no need to recurse further, the whole subtree will be visible
-//	if (iResult == AE_OBJECT_INSIDE_VOLUME)
-//	{
-//		const ezDynamicTreeObject itlast = m_NodeMap.lower_bound(uiNextNodeID);
+	// if there are no objects AT ALL in the map after the iterator, OR in this subtree there are no objects stored, stop
+  if ((!it1.IsValid()) || (it1.Key().m_uiKey >= uiNextNodeID))
+		return;
 
-//		while (it1 != itlast)
-//		{
-//			// first increase the iterator, the user could erase it in the callback
-//			ezDynamicTreeObject temp = it1;
-//			++it1;
+	// if the node is COMPLETELY inside the frustum -> no need to recurse further, the whole subtree will be visible
+  if (pos == ezVolumePosition::Inside)
+	{
+    mmk.m_uiKey = uiNextNodeID;
+    const ezDynamicTreeObjectConst itlast = m_NodeMap.LowerBound(mmk);
 
-//			Callback(pPassThrough, temp);
-//		}
+    while (it1.IsValid())
+		{
+			// first increase the iterator, the user could erase it in the callback
+			ezDynamicTreeObjectConst temp = it1;
+			++it1;
 
-//		return;
-//	}
-//	else
-//	if (iResult == AE_OBJECT_INTERSECTS_VOLUME)
-//	{
-//		// the node is visible, but some parts might be outside, so refine the search
+			Callback(pPassThrough, temp);
+		}
 
-//		const ezDynamicTreeObject itlast = m_NodeMap.lower_bound(uiNodeID+1);
+		return;
+	}
+	else
+	if (pos == ezVolumePosition::Intersecting)
+	{
+		// the node is visible, but some parts might be outside, so refine the search
 
-//		// first return all objects store at this particular node
-//		while (it1 != itlast)
-//		{
-//			// first increase the iterator, the user could erase it in the callback
-//			ezDynamicTreeObject temp = it1;
-//			++it1;
+    mmk.m_uiKey = uiNodeID + 1;
+    const ezDynamicTreeObjectConst itlast = m_NodeMap.LowerBound(mmk);
 
-//			Callback(pPassThrough, temp);
-//		}
+		// first return all objects store at this particular node
+    while (it1.IsValid())
+		{
+			// first increase the iterator, the user could erase it in the callback
+			ezDynamicTreeObjectConst temp = it1;
+			++it1;
 
-//		// if there are additional child nodes
-//		if (uiAddID > 0)
-//		{
-//			const float lx = ((maxx - minx) * 0.5f) * s_LooseOctreeFactor;
-//			const float lz = ((maxz - minz) * 0.5f) * s_LooseOctreeFactor;
+			Callback(pPassThrough, temp);
+		}
 
-//			const ezUInt32 uiNodeIDBase = uiNodeID + 1;
-//			const ezUInt32 uiAddIDChild = uiAddID - uiSubAddID;
-//			const ezUInt32 uiSubAddIDChild = uiSubAddID >> 2;
+		// if there are additional child nodes
+		if (uiAddID > 0)
+		{
+			const float lx = ((maxx - minx) * 0.5f) * s_LooseOctreeFactor;
+			const float lz = ((maxz - minz) * 0.5f) * s_LooseOctreeFactor;
 
-//			// continue the search at each child node
-//			FindVisibleObjects (Viewfrustum, Callback, pPassThrough, minx, minx + lx, minz, minz + lz, uiNodeIDBase + uiAddID * 0, uiAddIDChild, uiSubAddIDChild, uiNodeIDBase + uiAddID * 1);
-//			FindVisibleObjects (Viewfrustum, Callback, pPassThrough, minx, minx + lx, maxz - lz, maxz, uiNodeIDBase + uiAddID * 1, uiAddIDChild, uiSubAddIDChild, uiNodeIDBase + uiAddID * 2);
-//			FindVisibleObjects (Viewfrustum, Callback, pPassThrough, maxx - lx, maxx, minz, minz + lz, uiNodeIDBase + uiAddID * 2, uiAddIDChild, uiSubAddIDChild, uiNodeIDBase + uiAddID * 3);
-//			FindVisibleObjects (Viewfrustum, Callback, pPassThrough, maxx - lx, maxx, maxz - lz, maxz, uiNodeIDBase + uiAddID * 3, uiAddIDChild, uiSubAddIDChild, uiNextNodeID);
-//		}
-//	}
-//}
+			const ezUInt32 uiNodeIDBase = uiNodeID + 1;
+			const ezUInt32 uiAddIDChild = uiAddID - uiSubAddID;
+			const ezUInt32 uiSubAddIDChild = uiSubAddID >> 2;
+
+			// continue the search at each child node
+			FindVisibleObjects (Viewfrustum, Callback, pPassThrough, minx, minx + lx, minz, minz + lz, uiNodeIDBase + uiAddID * 0, uiAddIDChild, uiSubAddIDChild, uiNodeIDBase + uiAddID * 1);
+			FindVisibleObjects (Viewfrustum, Callback, pPassThrough, minx, minx + lx, maxz - lz, maxz, uiNodeIDBase + uiAddID * 1, uiAddIDChild, uiSubAddIDChild, uiNodeIDBase + uiAddID * 2);
+			FindVisibleObjects (Viewfrustum, Callback, pPassThrough, maxx - lx, maxx, minz, minz + lz, uiNodeIDBase + uiAddID * 2, uiAddIDChild, uiSubAddIDChild, uiNodeIDBase + uiAddID * 3);
+			FindVisibleObjects (Viewfrustum, Callback, pPassThrough, maxx - lx, maxx, maxz - lz, maxz, uiNodeIDBase + uiAddID * 3, uiAddIDChild, uiSubAddIDChild, uiNextNodeID);
+		}
+	}
+}
 
 
 void ezDynamicQuadtree::FindObjectsInRange(const ezVec3& vPoint, EZ_VISIBLE_OBJ_CALLBACK Callback, void* pPassThrough) const
