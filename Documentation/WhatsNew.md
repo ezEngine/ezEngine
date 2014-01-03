@@ -12,6 +12,7 @@ Milestone 4
   * Added Lua to the ThirdParty library.
   * Added ezHashedString and ezTempHashedString for storing strings that rarely change but where comparisons should be really fast.
   * Added ezFrustum for object culling.
+  * Added ezLuaWrapper to CoreUtils for easier working with Lua scripts.
 
 Milestone 3
 -----------
