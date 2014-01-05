@@ -97,7 +97,7 @@ public:
   /// \brief Sets this matrix to be a rotation matrix around the given axis.
   void SetRotationMatrix(const ezVec3Template<Type>& vAxis, ezAngle angle); // [tested]
 
-  /// \brief Creates a perspective projection matrix.
+  /// \brief Creates a perspective projection matrix with Left = -fViewWidth/2, Right = +fViewWidth/2, Bottom = -fViewHeight/2, Top = +fViewHeight/2.
   void SetPerspectiveProjectionMatrix(Type fViewWidth, Type fViewHeight, Type fNearZ, Type fFarZ, ezProjectionDepthRange::Enum DepthRange);
 
   /// \brief Creates a perspective projection matrix.
@@ -111,7 +111,7 @@ public:
   /// \param fFieldOfViewY    Vertical field of view.
   void SetPerspectiveProjectionMatrixFromFovY(ezAngle fieldOfViewY, Type fAspectRatioWidthDivHeight, Type fNearZ, Type fFarZ, ezProjectionDepthRange::Enum DepthRange);
 
-  /// \brief Creates an orthographic projection matrix.
+  /// \brief Creates an orthographic projection matrix with Left = -fViewWidth/2, Right = +fViewWidth/2, Bottom = -fViewHeight/2, Top = +fViewHeight/2.
   void SetOrthographicProjectionMatrix(Type fViewWidth, Type fViewHeight, Type fNearZ, Type fFarZ, ezProjectionDepthRange::Enum DepthRange);
 
   /// \brief Creates an orthographic projection matrix.

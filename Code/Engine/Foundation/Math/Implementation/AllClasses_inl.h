@@ -220,21 +220,17 @@ void ezMat3Template<Type>::SetLookInDirectionMatrix (ezVec3Template<Type> vLookD
     vUpDir = vLookDir.GetOrthogonalVector();
 
   // ensure vUpDir is orthogonal to the looking direction
-  const ezVec3Template<Type> vRightDir = vUpDir.Cross(vLookDir).GetNormalized ();
+  const ezVec3Template<Type> vRightDir = vLookDir.Cross(vUpDir).GetNormalized ();
 
   // orthogonalize vUpDir
-  vUpDir = vLookDir.Cross(vRightDir); // vLookDir and vRightDir are normalized and orthogonal, vUpDir will be normalized too
+  vUpDir = vRightDir.Cross(vLookDir); // vLookDir and vRightDir are normalized and orthogonal, vUpDir will be normalized too
 
+  // the matrix needs to be transposed (ie. inverted), so we set the ROWS instead of the columns
   SetRow(0, vRightDir);
   SetRow(1, vUpDir);
-  SetRow(2, vLookDir);
+  SetRow(2, -vLookDir);
 
-  /// \todo At some point we need to define a default coordinate system to use.
-  /// I don't really know whether this code works (or better: how).
-  /// It should probably use an OpenGL or DirectX coordinate system, not sure what exactly.
-  /// The first guy to use it, will find it out.
-  
-  /// Andreas: I'am quite sure everything here is LeftHanded
+  // This code (now) uses a right-handed convention
 }
 
 
@@ -315,54 +311,63 @@ ezResult ezMat4Template<Type>::Invert(Type fEpsilon)
 }
 
 template<typename Type>
-void ezMat4Template<Type>::SetPerspectiveProjectionMatrixFromFovX (ezAngle fieldOfViewX, Type fAspectRatioWidthDivHeight, Type fNearZ, Type fFarZ, ezProjectionDepthRange::Enum DepthRange)
+void ezMat4Template<Type>::SetPerspectiveProjectionMatrixFromFovX(ezAngle fieldOfViewX, Type fAspectRatioWidthDivHeight, Type fNearZ, Type fFarZ, ezProjectionDepthRange::Enum DepthRange)
 {
   const Type xm = fNearZ * ezMath::Tan(fieldOfViewX * 0.5f);
   const Type ym = xm / fAspectRatioWidthDivHeight;
 
-  SetPerspectiveProjectionMatrix (-xm, xm, -ym, ym, fNearZ, fFarZ, DepthRange);
+  SetPerspectiveProjectionMatrix(-xm, xm, -ym, ym, fNearZ, fFarZ, DepthRange);
 }
 
 template<typename Type>
-void ezMat4Template<Type>::SetPerspectiveProjectionMatrixFromFovY (ezAngle fieldOfViewY, Type fAspectRatioWidthDivHeight, Type fNearZ, Type fFarZ, ezProjectionDepthRange::Enum DepthRange)
+void ezMat4Template<Type>::SetPerspectiveProjectionMatrixFromFovY(ezAngle fieldOfViewY, Type fAspectRatioWidthDivHeight, Type fNearZ, Type fFarZ, ezProjectionDepthRange::Enum DepthRange)
 {
   const Type ym = fNearZ * ezMath::Tan(fieldOfViewY * 0.5);
   const Type xm = ym * fAspectRatioWidthDivHeight;
 
-  SetPerspectiveProjectionMatrix (-xm, xm, -ym, ym, fNearZ, fFarZ, DepthRange);
+  SetPerspectiveProjectionMatrix(-xm, xm, -ym, ym, fNearZ, fFarZ, DepthRange);
 }
 
 template<typename Type>
-void ezMat4Template<Type>::SetPerspectiveProjectionMatrix (Type fViewWidth, Type fViewHeight, Type fNearZ, Type fFarZ, ezProjectionDepthRange::Enum DepthRange)
+void ezMat4Template<Type>::SetPerspectiveProjectionMatrix(Type fViewWidth, Type fViewHeight, Type fNearZ, Type fFarZ, ezProjectionDepthRange::Enum DepthRange)
 {
-  SetPerspectiveProjectionMatrix (-fViewWidth * (Type) 0.5, fViewWidth * (Type) 0.5, -fViewHeight * (Type) 0.5, fViewHeight * (Type) 0.5, fNearZ, fFarZ, DepthRange);
+  SetPerspectiveProjectionMatrix(-fViewWidth * (Type) 0.5, fViewWidth * (Type) 0.5, -fViewHeight * (Type) 0.5, fViewHeight * (Type) 0.5, fNearZ, fFarZ, DepthRange);
 }
 
 template<typename Type>
-void ezMat4Template<Type>::SetPerspectiveProjectionMatrix (Type fLeft, Type fRight, Type fBottom, Type fTop, Type fNearZ, Type fFarZ, ezProjectionDepthRange::Enum DepthRange)
+void ezMat4Template<Type>::SetPerspectiveProjectionMatrix(Type fLeft, Type fRight, Type fBottom, Type fTop, Type fNearZ, Type fFarZ, ezProjectionDepthRange::Enum DepthRange)
 {
+  // This is an perspective projection matrix for a right-handed coordinate system
+  // For both OpenGL and D3D we assume a right-handed coordinate system, even though left-handed is the 'default convention' in D3D
+  // In OpenGL clip space goes from -1 to +1 (near plane at -1, far plane at +1)
+  // In Direct3D clip space goes from 0 to +1 (near plane at 0, far plane at +1)
+  // The depth-buffer value, however, will always be between 0 (near plane) and 1 (far plane), in both APIs.
+
   const Type fTwoNearZ = fNearZ + fNearZ;
   const Type fOneDivNearMinusFar = (Type) 1 / (fNearZ - fFarZ);
 
   if (DepthRange == ezProjectionDepthRange::MinusOneToOne)
   {
-    Element(2, 2) = -(fFarZ + fNearZ) * fOneDivNearMinusFar;
-    Element(3, 2) = 2 * fFarZ * fNearZ * fOneDivNearMinusFar;
+    // The OpenGL Way: http://wiki.delphigl.com/index.php/glFrustum
+
+    Element(2, 2) =    (fFarZ + fNearZ) * fOneDivNearMinusFar;
+    Element(3, 2) = 2 * fFarZ * fNearZ  * fOneDivNearMinusFar;
   }
   else
   {
-    Element(2, 2) = -(fFarZ +    0  ) * fOneDivNearMinusFar;
-    Element(3, 2) =    fFarZ * fNearZ * fOneDivNearMinusFar;
+    // The Direct3D Way: http://msdn.microsoft.com/en-us/library/windows/desktop/bb205354%28v=vs.85%29.aspx
+    Element(2, 2) =    (fFarZ +    0  ) * fOneDivNearMinusFar;
+    Element(3, 2) =     fFarZ * fNearZ  * fOneDivNearMinusFar;
   }
 
   Element(0, 0) = fTwoNearZ / (fRight - fLeft);
   Element(1, 0) = (Type) 0;
-  Element(2, 0) = (fLeft + fRight) / (fLeft - fRight);
+  Element(2, 0) = (fRight + fLeft) / (fRight - fLeft);
   Element(3, 0) = (Type) 0;
 
   Element(0, 1) = (Type) 0;
   Element(1, 1) = fTwoNearZ / (fTop - fBottom);
-  Element(2, 1) = (fBottom + fTop) / (fBottom - fTop);
+  Element(2, 1) = (fTop + fBottom) / (fTop - fBottom);
   Element(3, 1) = (Type) 0;
 
   Element(0, 2) = (Type) 0;
@@ -370,7 +375,7 @@ void ezMat4Template<Type>::SetPerspectiveProjectionMatrix (Type fLeft, Type fRig
 
   Element(0, 3) = (Type) 0;
   Element(1, 3) = (Type) 0;
-  Element(2, 3) = (Type) 1;
+  Element(2, 3) = (Type) -1;
   Element(3, 3) = (Type) 0;
 }
 
@@ -383,28 +388,36 @@ void ezMat4Template<Type>::SetOrthographicProjectionMatrix(Type fViewWidth, Type
 template<typename Type>
 void ezMat4Template<Type>::SetOrthographicProjectionMatrix(Type fLeft, Type fRight, Type fBottom, Type fTop, Type fNearZ, Type fFarZ, ezProjectionDepthRange::Enum DepthRange)
 {
+  // This is an orthographic projection matrix for a right-handed coordinate system
+  // For both OpenGL and D3D we assume a right-handed coordinate system, even though left-handed is the 'default convention' in D3D
+  // In OpenGL clip space goes from -1 to +1 (near plane at -1, far plane at +1)
+  // In Direct3D clip space goes from 0 to +1 (near plane at 0, far plane at +1)
+  // The depth-buffer value, however, will always be between 0 (near plane) and 1 (far plane), in both APIs.
+
   const Type fOneDivFarMinusNear = (Type) 1 / (fFarZ - fNearZ);
 
   if (DepthRange == ezProjectionDepthRange::MinusOneToOne)
   {
-    Element(2, 2) =  2 * fOneDivFarMinusNear;
-    Element(3, 2) = (fFarZ + fNearZ) * fOneDivFarMinusNear;
+    // The OpenGL Way: http://wiki.delphigl.com/index.php/glOrtho
+    Element(2, 2) =  -2 * fOneDivFarMinusNear;
+    Element(3, 2) = -(fFarZ + fNearZ) * fOneDivFarMinusNear;
   }
   else
   {
-    Element(2, 2) =      fOneDivFarMinusNear;
+    // The D3D Way: http://msdn.microsoft.com/en-us/library/windows/desktop/bb205348%28v=vs.85%29.aspx
+    Element(2, 2) =      -fOneDivFarMinusNear;
     Element(3, 2) = -(  0   + fNearZ) * fOneDivFarMinusNear;
   }
 
   Element(0, 0) = (Type) 2 / (fRight - fLeft);
   Element(1, 0) = (Type) 0;
   Element(2, 0) = (Type) 0;
-  Element(3, 0) = (fRight + fLeft) / (fRight - fLeft);
+  Element(3, 0) = -(fRight + fLeft) / (fRight - fLeft);
 
   Element(0, 1) = (Type) 0;
   Element(1, 1) = (Type) 2 / (fTop - fBottom);
   Element(2, 1) = (Type) 0;
-  Element(3, 1) = (fTop + fBottom) / (fTop - fBottom);
+  Element(3, 1) = -(fTop + fBottom) / (fTop - fBottom);
 
   Element(0, 2) = (Type) 0;
   Element(1, 2) = (Type) 0;
