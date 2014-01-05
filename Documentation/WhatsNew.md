@@ -13,6 +13,7 @@ Milestone 4
   * Added ezHashedString and ezTempHashedString for storing strings that rarely change but where comparisons should be really fast.
   * Added ezFrustum for object culling.
   * Added ezLuaWrapper to CoreUtils for easier working with Lua scripts.
+  * Added ezGraphicsUtils with functions for mapping points to and from world-space and screen-space.
 
 Milestone 3
 -----------
