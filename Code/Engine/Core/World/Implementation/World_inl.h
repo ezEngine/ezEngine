@@ -133,9 +133,13 @@ inline bool ezWorld::TryGetComponent(const ezComponentHandle& component, Compone
   EZ_CHECK_AT_COMPILETIME_MSG(EZ_IS_DERIVED_FROM_STATIC(ezComponent, ComponentType),
     "Not a valid component type");
 
-  EZ_ASSERT(IsComponentOfType<ComponentType>(component),
-    "The given component handle is not of the expected type. Expected type id %d, got type id %d",
-    ComponentType::TypeId(), component.m_InternalId.m_TypeId);
+  if (!IsComponentOfType<ComponentType>(component))
+    return false;
+
+  /// \todo This is contra-productive, an invalid handle will make this crash.
+  //EZ_ASSERT(IsComponentOfType<ComponentType>(component),
+  //  "The given component handle is not of the expected type. Expected type id %d, got type id %d",
+  //  ComponentType::TypeId(), component.m_InternalId.m_TypeId);
 
   const ezUInt16 uiTypeId = component.m_InternalId.m_TypeId;
 
@@ -187,8 +191,8 @@ EZ_FORCE_INLINE ezWorld* ezWorld::GetWorld(ezUInt32 uiIndex)
 
 EZ_FORCE_INLINE void ezWorld::CheckForMultithreadedAccess() const
 {
-  EZ_ASSERT(!m_Data.m_bIsInAsyncPhase && m_Data.m_ThreadHandle == ezThreadUtils::GetCurrentThreadHandle(), \
-    "World must not be accessed while in async update phase or from another thread than the creation thread.");
+  EZ_ASSERT(!m_Data.m_bIsInAsyncPhase, "World must not be accessed while in async update phase.");
+  EZ_ASSERT(m_Data.m_ThreadHandle == ezThreadUtils::GetCurrentThreadHandle(), "World must not be accessed from another thread than the creation thread.");
 }
 
 EZ_FORCE_INLINE void ezWorld::HandleMessage(ezGameObject* pReceiverObject, ezMessage& msg, ezBitflags<ezObjectMsgRouting> routing)
