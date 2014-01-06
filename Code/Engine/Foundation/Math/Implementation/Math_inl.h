@@ -91,7 +91,7 @@ namespace ezMath
   EZ_FORCE_INLINE T Clamp(T value, T min_val, T max_val) 
   { 
     if (value < min_val) return (min_val); 
-    if (value > max_val) return (max_val);	
+    if (max_val < value) return (max_val);	
     return (value);	
   }
 

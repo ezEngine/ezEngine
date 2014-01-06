@@ -14,6 +14,7 @@ Milestone 4
   * Added ezFrustum for object culling.
   * Added ezLuaWrapper to CoreUtils for easier working with Lua scripts.
   * Added ezGraphicsUtils with functions for mapping points to and from world-space and screen-space.
+  * Added ezCamera, a lightweight class to do standard camera actions (moving, rotating, etc.)
 
 Milestone 3
 -----------
