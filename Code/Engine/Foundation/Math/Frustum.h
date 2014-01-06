@@ -35,6 +35,13 @@ public:
   /// it will be moved closer to that distance.
   void SetFrustum(const ezVec3& vPosition, const ezMat4& ModelViewProjection, float fMaxFarPlaneDist);
 
+  /// \brief Creates a frustum from the given camera position, direction vectors and the field-of-view along X and Y.
+  ///
+  /// The up vector does not need to be exactly orthogonal to the forwards vector, it will get recomputed properly.
+  /// Fov X and Y define the entire field-of-view, so a Fov of 180 degree would mean the entire half-space in front of the camera.
+  /// The near plane will always go through the camera position, to prevent culling objects between it and the camera.
+	void SetFrustum (const ezVec3& vPosition, const ezVec3& vForwards, const ezVec3& vUp, ezAngle FovX, ezAngle FovY, float fFarPlane);
+
   /// \brief Returns the number of planes used in this frustum.
   ezUInt8 GetNumPlanes() const;
 

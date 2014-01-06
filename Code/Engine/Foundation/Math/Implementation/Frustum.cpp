@@ -165,6 +165,8 @@ void ezFrustum::InvertFrustum()
 
 void ezFrustum::SetFrustum(const ezVec3& vPosition, const ezMat4& ModelViewProjection, float fMaxFarPlaneDist)
 {
+  /// \test Not tested yet.
+
   m_vPosition = vPosition;
 
 	float t;
@@ -300,6 +302,63 @@ void ezFrustum::SetFrustum(const ezVec3& vPosition, const ezMat4& ModelViewProje
 	m_uiUsedPlanes = 6;
 }
 
+void ezFrustum::SetFrustum (const ezVec3& vPosition, const ezVec3& vForwards, const ezVec3& vUp, ezAngle FovX, ezAngle FovY, float fFarPlane)
+{
+  /// \test Not tested yet.
+
+  m_vPosition = vPosition;
+  
+  const ezVec3 vForwardsNorm = vForwards.GetNormalized();
+  const ezVec3 vRightNorm = vForwards.Cross(vUp).GetNormalized();
+  const ezVec3 vUpNorm = vRightNorm.Cross(vForwards).GetNormalized();
+
+  m_uiUsedPlanes = 6;
+
+  // Near Plane
+  m_Planes[0].SetFromNormalAndPoint(-vForwardsNorm, m_vPosition);
+
+  // Far Plane
+  m_Planes[5].SetFromNormalAndPoint(vForwardsNorm, m_vPosition + fFarPlane * vForwardsNorm);
+
+  ezMat3 mLocalFrame;
+  mLocalFrame.SetColumn(0, vRightNorm);
+  mLocalFrame.SetColumn(1, vUpNorm);
+  mLocalFrame.SetColumn(2, -vForwardsNorm);
+
+  const float fCosFovX = ezMath::Cos(FovX * 0.5f);
+  const float fSinFovX = ezMath::Sin(FovX * 0.5f);
+
+  const float fCosFovY = ezMath::Cos(FovY * 0.5f);
+  const float fSinFovY = ezMath::Sin(FovY * 0.5f);
+
+  // Left Plane
+  {
+    ezVec3 vPlaneNormal = mLocalFrame * ezVec3(-fCosFovY, 0, fSinFovY);
+
+    m_Planes[1].SetFromNormalAndPoint(vPlaneNormal, m_vPosition);
+  }
+
+  // Right Plane
+  {
+    ezVec3 vPlaneNormal = mLocalFrame * ezVec3( fCosFovY, 0, fSinFovY);
+
+    m_Planes[2].SetFromNormalAndPoint(vPlaneNormal, m_vPosition);
+  }
+
+  // Bottom Plane
+  {
+    ezVec3 vPlaneNormal = mLocalFrame * ezVec3(0, -fCosFovX, fSinFovY);
+
+    m_Planes[3].SetFromNormalAndPoint(vPlaneNormal, m_vPosition);
+  }
+
+  // Top Plane
+  {
+    ezVec3 vPlaneNormal = mLocalFrame * ezVec3(0,  fCosFovX, fSinFovY);
+
+    m_Planes[4].SetFromNormalAndPoint(vPlaneNormal, m_vPosition);
+  }
+}
 
 
 
