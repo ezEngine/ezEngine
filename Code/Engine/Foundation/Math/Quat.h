@@ -35,6 +35,9 @@ public:
   /// \brief For internal use. You should never construct quaternions this way.
   ezQuatTemplate(Type X, Type Y, Type Z, Type W); // [tested]
 
+  /// \brief Static function that returns a quaternion that represents the identity rotation (none).
+  static const ezQuatTemplate<Type> IdentityQuaternion(); // [tested]
+
 // *** Functions to create a quaternion ***
 public:
 

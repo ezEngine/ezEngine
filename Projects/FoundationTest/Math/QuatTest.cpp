@@ -31,6 +31,14 @@ EZ_CREATE_SIMPLE_TEST(Math, Quaternion)
     EZ_TEST_FLOAT(q.w, 4, 0.0001f);
   }
 
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "IdentityQuaternion")
+  {
+    ezQuatT q = ezQuatT::IdentityQuaternion();
+
+    EZ_TEST_VEC3(q.v, ezVec3T(0, 0, 0), 0.0001f);
+    EZ_TEST_FLOAT(q.w, 1, 0.0001f);
+  }
+
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetIdentity")
   {
     ezQuatT q(1, 2, 3, 4);
