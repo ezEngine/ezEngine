@@ -51,6 +51,7 @@ struct ezGenericId
     EZ_FORCE_INLINE bool operator!=(const name other) const { return m_InternalId != other.m_InternalId; } \
     EZ_FORCE_INLINE bool operator<(const name other) const { return m_InternalId < other.m_InternalId; } \
     EZ_FORCE_INLINE void Invalidate() { m_InternalId.Invalidate(); } \
+    EZ_FORCE_INLINE bool IsInvalidated() const { return m_InternalId == idType(); } \
     typedef idType IdType; \
   protected: \
     EZ_FORCE_INLINE name(idType internalId) : m_InternalId(internalId) { } \

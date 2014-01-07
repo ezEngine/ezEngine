@@ -174,6 +174,17 @@ inline ezColor ezColor::ConvertSRGBToLinear() const
     a);
 }
 
+inline ezColor ezColor::GetComplementaryColor() const
+{
+  ezVec3 HSV = ConvertToHSV<float>();
+
+  ezColor Shifted;
+  Shifted.FromHSV(ezMath::Mod(HSV.x + 180.0f, 360.0f), HSV.y, HSV.z);
+  Shifted.a = a;
+
+  return Shifted;
+}
+
 // *****************
 
 inline bool ezColor::IsNaN() const

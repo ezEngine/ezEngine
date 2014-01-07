@@ -16,6 +16,7 @@ class ezIdTableBase
 {
 private:
   typedef typename IdType::StorageType IndexType;
+  typedef IdType TypeOfId;
 
 public:
   /// \brief Const iterator.

@@ -107,6 +107,9 @@ public:
   /// Converts color from sRGB to linear space. Will not touch alpha.
   ezColor ConvertSRGBToLinear() const;
 
+  /// Calculates the complementary color for this color (hue shifted by 180 degrees), complementary color will have the same alpha.
+  ezColor GetComplementaryColor() const;
+
   /// \todo Add nifty interpolation functions: InterpolateLinearInHSV, InterpolateLinearInRGB
 
   // *** Numeric properties ***

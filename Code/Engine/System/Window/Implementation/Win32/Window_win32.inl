@@ -425,18 +425,20 @@ ezResult ezWindow::CreateContextDirect3D11()
 {
   EZ_LOG_BLOCK("ezWindow::CreateContextDirect3D11");
 
-  EZ_ASSERT(m_CreationDescription.m_GraphicsAPI != ezGraphicsAPI::Direct3D11, "Context creation for Direct3D11 is not yet implemented.");
+  // asserts removed since the code will be moved to a renderplugin anyway
+  //EZ_ASSERT(m_CreationDescription.m_GraphicsAPI != ezGraphicsAPI::Direct3D11, "Context creation for Direct3D11 is not yet implemented.");
 
-  return EZ_FAILURE;
+  //return EZ_FAILURE;
+  return EZ_SUCCESS;
 }
 
 ezResult ezWindow::DestroyContextDirect3D11()
 {
   EZ_LOG_BLOCK("ezWindow::DestroyContextDirect3D11");
 
-  EZ_ASSERT(m_CreationDescription.m_GraphicsAPI != ezGraphicsAPI::Direct3D11, "Context creation for Direct3D11 is not yet implemented.");
+  //EZ_ASSERT(m_CreationDescription.m_GraphicsAPI != ezGraphicsAPI::Direct3D11, "Context creation for Direct3D11 is not yet implemented.");
 
-  return EZ_FAILURE;
+  return EZ_SUCCESS;
 }
 
 

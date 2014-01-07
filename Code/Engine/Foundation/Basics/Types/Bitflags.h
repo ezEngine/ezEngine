@@ -109,6 +109,12 @@ public:
     return m_Value != rhs.m_Value;
   }
 
+  /// \brief Clears all flags
+  EZ_FORCE_INLINE void Clear() // [tested]
+  {
+    m_Value = 0;
+  }
+
   /// \brief Checks if certain flags are set within the bitfield.
   EZ_FORCE_INLINE bool IsSet(Enum flag) const // [tested]
   {
