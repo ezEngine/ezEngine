@@ -334,6 +334,7 @@ void ezFrustum::SetFrustum (const ezVec3& vPosition, const ezVec3& vForwards, co
   // Left Plane
   {
     ezVec3 vPlaneNormal = mLocalFrame * ezVec3(-fCosFovY, 0, fSinFovY);
+    vPlaneNormal.Normalize();
 
     m_Planes[1].SetFromNormalAndPoint(vPlaneNormal, m_vPosition);
   }
@@ -341,20 +342,23 @@ void ezFrustum::SetFrustum (const ezVec3& vPosition, const ezVec3& vForwards, co
   // Right Plane
   {
     ezVec3 vPlaneNormal = mLocalFrame * ezVec3( fCosFovY, 0, fSinFovY);
+    vPlaneNormal.Normalize();
 
     m_Planes[2].SetFromNormalAndPoint(vPlaneNormal, m_vPosition);
   }
 
   // Bottom Plane
   {
-    ezVec3 vPlaneNormal = mLocalFrame * ezVec3(0, -fCosFovX, fSinFovY);
+    ezVec3 vPlaneNormal = mLocalFrame * ezVec3(0, -fCosFovX, fSinFovX);
+    vPlaneNormal.Normalize();
 
     m_Planes[3].SetFromNormalAndPoint(vPlaneNormal, m_vPosition);
   }
 
   // Top Plane
   {
-    ezVec3 vPlaneNormal = mLocalFrame * ezVec3(0,  fCosFovX, fSinFovY);
+    ezVec3 vPlaneNormal = mLocalFrame * ezVec3(0,  fCosFovX, fSinFovX);
+    vPlaneNormal.Normalize();
 
     m_Planes[4].SetFromNormalAndPoint(vPlaneNormal, m_vPosition);
   }
