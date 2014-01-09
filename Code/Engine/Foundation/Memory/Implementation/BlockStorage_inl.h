@@ -65,7 +65,11 @@ ezBlockStorage<T>::~ezBlockStorage()
 {
   for (ezUInt32 i = 0; i < m_Blocks.GetCount(); ++i)
   {
-    m_pBlockAllocator->DeallocateBlock(m_Blocks[i]);
+    ezDataBlock<T>& block = m_Blocks[i];
+
+    ezMemoryUtils::Destruct(block.m_pData, block.m_uiCount);
+    
+    m_pBlockAllocator->DeallocateBlock(block);
   }
 
   m_Blocks.Clear();
@@ -128,7 +132,7 @@ void ezBlockStorage<T>::Delete(Entry entry)
 }
 
 template <typename T>
-typename ezBlockStorage<T>::Iterator ezBlockStorage<T>::GetIterator(ezUInt32 uiStartIndex /*= 0*/, ezUInt32 uiCount /*= ezInvalidIndex*/)
+EZ_FORCE_INLINE typename ezBlockStorage<T>::Iterator ezBlockStorage<T>::GetIterator(ezUInt32 uiStartIndex /*= 0*/, ezUInt32 uiCount /*= ezInvalidIndex*/)
 {
   return Iterator(*this, uiStartIndex, uiCount);
 }

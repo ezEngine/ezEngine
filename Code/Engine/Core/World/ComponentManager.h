@@ -121,11 +121,6 @@ class ezComponentManagerNoUpdate : public ezComponentManager<ComponentType>
 {
 public:
   ezComponentManagerNoUpdate(ezWorld* pWorld);
-
-  virtual ezResult Initialize() EZ_OVERRIDE;
-
-  /// \brief This update function does nothing.
-  void NoUpdate(ezUInt32 uiStartIndex, ezUInt32 uiCount) { }
 };
 
 template <typename ComponentType>

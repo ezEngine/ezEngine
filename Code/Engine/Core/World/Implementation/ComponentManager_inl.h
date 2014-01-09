@@ -143,16 +143,6 @@ ezComponentManagerNoUpdate<ComponentType>::ezComponentManagerNoUpdate(ezWorld* p
 {
 }
 
-template <typename ComponentType>
-ezResult ezComponentManagerNoUpdate<ComponentType>::Initialize()
-{
-  ezComponentManagerBase::UpdateFunctionDesc desc = EZ_CREATE_COMPONENT_UPDATE_FUNCTION_DESC(ezComponentManagerNoUpdate<ComponentType>::NoUpdate, this);
-
-  this->RegisterUpdateFunction(desc);
-
-  return EZ_SUCCESS;
-}
-
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
 template <typename ComponentType>

@@ -133,20 +133,16 @@ inline bool ezWorld::TryGetComponent(const ezComponentHandle& component, Compone
   EZ_CHECK_AT_COMPILETIME_MSG(EZ_IS_DERIVED_FROM_STATIC(ezComponent, ComponentType),
     "Not a valid component type");
 
-  if (!IsComponentOfType<ComponentType>(component))
-    return false;
-
-  /// \todo This is contra-productive, an invalid handle will make this crash.
-  //EZ_ASSERT(IsComponentOfType<ComponentType>(component),
-  //  "The given component handle is not of the expected type. Expected type id %d, got type id %d",
-  //  ComponentType::TypeId(), component.m_InternalId.m_TypeId);
-
   const ezUInt16 uiTypeId = component.m_InternalId.m_TypeId;
 
   if (uiTypeId < m_Data.m_ComponentManagers.GetCount())
   {
     if (ezComponentManagerBase* pManager = m_Data.m_ComponentManagers[uiTypeId])
     {
+      EZ_ASSERT(IsComponentOfType<ComponentType>(component),
+        "The given component handle is not of the expected type. Expected type id %d, got type id %d",
+        ComponentType::TypeId(), component.m_InternalId.m_TypeId);
+
       ezComponent* pComponent = NULL;
       bool bResult = pManager->TryGetComponent(component, pComponent);
       out_pComponent = static_cast<ComponentType*>(pComponent);

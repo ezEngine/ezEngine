@@ -60,6 +60,7 @@ struct ezComponentId : public ezGenericComponentId
 {
   EZ_FORCE_INLINE ezComponentId() : ezGenericComponentId()
   {
+    m_TypeId = 0;
   }
 
   EZ_FORCE_INLINE ezComponentId(StorageType instanceIndex, StorageType generation, ezUInt16 typeId = 0) : 
@@ -120,7 +121,7 @@ struct ezObjectMsgRouting
     QueuedForPostAsync = EZ_BIT(2),
     QueuedForNextFrame = EZ_BIT(3),
 
-    Default    = ToChildren | Direct
+    Default    = Direct
   };
 
   struct Bits
