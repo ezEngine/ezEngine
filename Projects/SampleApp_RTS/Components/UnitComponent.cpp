@@ -6,6 +6,7 @@
 #include <SampleApp_RTS/Level.h>
 
 float UnitComponent::g_fSize = 5.0f;
+ezVec3 UnitComponent::g_vTarget(0);
 
 EZ_IMPLEMENT_COMPONENT_TYPE(UnitComponent, UnitComponentManager);
 
@@ -68,8 +69,10 @@ void UnitComponent::Update()
 
     //static ezDynamicArray<ezUInt8> TempArray;
 
+    const ezVec3 vDir = (g_vTarget - GetOwner()->GetLocalPosition()).GetNormalized();
+
     ezStopwatch s;
-    ez2DGridUtils::ComputeVisibleArea(m_GridCoordinate.x, m_GridCoordinate.z, (ezUInt16) (g_fSize * 5.0f), Grid.GetWidth(), Grid.GetDepth(), TagFootprint, &Grid);//, &TempArray);
+    ez2DGridUtils::ComputeVisibleAreaInCone(m_GridCoordinate.x, m_GridCoordinate.z, (ezUInt16) (g_fSize * 5.0f), ezVec2(vDir.x, vDir.z), ezAngle::Degree(45), Grid.GetWidth(), Grid.GetDepth(), TagFootprint, &Grid);//, &TempArray);
 
     //ezLog::Info("Time Taken: %.2ff microsec", s.Checkpoint().GetMicroseconds());
 

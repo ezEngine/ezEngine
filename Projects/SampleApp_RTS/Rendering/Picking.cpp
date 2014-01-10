@@ -16,7 +16,7 @@ bool GameRenderer::GetPickingRay(float fMousePosX, float fMousePosY, ezVec3& out
   return false;
 }
 
-ezGridCoordinate SampleGameApp::GetPickedGridCell() const
+ezGridCoordinate SampleGameApp::GetPickedGridCell(ezVec3* out_vIntersection) const
 {
   float fMouseX, fMouseY;
   ezInputManager::GetInputSlotState(ezInputSlot_MousePositionX, &fMouseX);
@@ -28,6 +28,6 @@ ezGridCoordinate SampleGameApp::GetPickedGridCell() const
   if (!m_pRenderer->GetPickingRay(fMouseX, fMouseY, vWorldPos, vDirToWorldPos))
     return ezGridCoordinate(-1, -1, -1);
 
-  return m_pLevel->GetGrid().PickCell(vWorldPos, vDirToWorldPos, NULL, 0);
+  return m_pLevel->GetGrid().PickCell(vWorldPos, vDirToWorldPos, out_vIntersection, 0);
 }
 

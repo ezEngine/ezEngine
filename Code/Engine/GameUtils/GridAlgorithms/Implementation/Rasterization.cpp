@@ -263,6 +263,8 @@ struct VisibilityLine
   void* m_pUserPassThrough;
   ezUInt32 m_uiWidth;
   ezUInt32 m_uiHeight;
+  ezVec2 m_vDirection;
+  ezAngle m_ConeAngle;
 };
 
 struct CellFlags
@@ -276,7 +278,7 @@ struct CellFlags
   };
 };
 
-static ezCallbackResult::Enum IsPointVisible(ezInt32 x, ezInt32 y, void* pPassThrough)
+static ezCallbackResult::Enum MarkPointsOnLineVisible(ezInt32 x, ezInt32 y, void* pPassThrough)
 {
   VisibilityLine* VisLine = (VisibilityLine*) pPassThrough;
 
@@ -323,11 +325,11 @@ static ezCallbackResult::Enum IsPointVisible(ezInt32 x, ezInt32 y, void* pPassTh
   return ezCallbackResult::Stop;
 }
 
-static ezCallbackResult::Enum MarkPointsOnLineVisible(ezInt32 x, ezInt32 y, void* pPassThrough)
+static ezCallbackResult::Enum MarkPointsInCircleVisible(ezInt32 x, ezInt32 y, void* pPassThrough)
 {
   VisibilityLine* ld = (VisibilityLine*) pPassThrough;
 
-  ez2DGridUtils::ComputePointsOnLineConservative(ld->m_iCenterX, ld->m_iCenterY, x, y, IsPointVisible, pPassThrough, false);
+  ez2DGridUtils::ComputePointsOnLineConservative(ld->m_iCenterX, ld->m_iCenterY, x, y, MarkPointsOnLineVisible, pPassThrough, false);
 
   return ezCallbackResult::Continue;
 }
@@ -343,7 +345,7 @@ void ez2DGridUtils::ComputeVisibleArea(ezInt32 iPosX, ezInt32 iPosY, ezUInt16 ui
     pTempArray = &VisiblityFlags;
 
   pTempArray->Clear();
-  pTempArray->SetCount(ezMath::Square(uiSize));// / 4); // we store only two bits per cell, so we can pack four values into each byte
+  pTempArray->SetCount(ezMath::Square(uiSize) / 4); // we store only two bits per cell, so we can pack four values into each byte
 
   VisibilityLine ld;
   ld.m_uiSize = uiSize;
@@ -360,6 +362,51 @@ void ez2DGridUtils::ComputeVisibleArea(ezInt32 iPosX, ezInt32 iPosY, ezUInt16 ui
   // each line determines for each cell whether it is visible
   // once an invisible cell is encountered, a line will stop further tracing
   // no cell is ever reported twice to the user callback
-  ez2DGridUtils::ComputePointsOnCircle(iPosX, iPosY, uiRadius, MarkPointsOnLineVisible, &ld);
+  ez2DGridUtils::ComputePointsOnCircle(iPosX, iPosY, uiRadius, MarkPointsInCircleVisible, &ld);
+}
+
+static ezCallbackResult::Enum MarkPointsInConeVisible(ezInt32 x, ezInt32 y, void* pPassThrough)
+{
+  VisibilityLine* ld = (VisibilityLine*) pPassThrough;
+
+  const ezVec2 vPos((float) x, (float) y);
+  const ezVec2 vDirToPos = (vPos - ezVec2((float) ld->m_iCenterX, (float) ld->m_iCenterY)).GetNormalized();
+
+  const ezAngle angle = ezMath::ACos(vDirToPos.Dot(ld->m_vDirection));
+
+  if (angle.GetRadian() < ld->m_ConeAngle.GetRadian())
+    ez2DGridUtils::ComputePointsOnLineConservative(ld->m_iCenterX, ld->m_iCenterY, x, y, MarkPointsOnLineVisible, pPassThrough, false);
+
+  return ezCallbackResult::Continue;
+}
+
+void ez2DGridUtils::ComputeVisibleAreaInCone(ezInt32 iPosX, ezInt32 iPosY, ezUInt16 uiRadius, const ezVec2& vDirection, ezAngle ConeAngle, ezUInt32 uiWidth, ezUInt32 uiHeight, EZ_RASTERIZED_POINT_CALLBACK Callback, void* pPassThrough /* = NULL */, ezDynamicArray<ezUInt8>* pTempArray /* = NULL */)
+{
+  const ezUInt32 uiSize = uiRadius * 2 + 1;
+
+  ezDynamicArray<ezUInt8> VisiblityFlags;
+
+  // if we don't get a temp array, use our own array, with blackjack etc.
+  if (pTempArray == NULL)
+    pTempArray = &VisiblityFlags;
+
+  pTempArray->Clear();
+  pTempArray->SetCount(ezMath::Square(uiSize) / 4); // we store only two bits per cell, so we can pack four values into each byte
+
+
+  VisibilityLine ld;
+  ld.m_uiSize = uiSize;
+  ld.m_uiRadius = uiRadius;
+  ld.m_pVisible = pTempArray;
+  ld.m_iCenterX = iPosX;
+  ld.m_iCenterY = iPosY;
+  ld.m_VisCallback = Callback;
+  ld.m_pUserPassThrough = pPassThrough;
+  ld.m_uiWidth = uiWidth;
+  ld.m_uiHeight = uiHeight;
+  ld.m_vDirection = vDirection;
+  ld.m_ConeAngle = ConeAngle;
+
+  ez2DGridUtils::ComputePointsOnCircle(iPosX, iPosY, uiRadius, MarkPointsInConeVisible, &ld);
 }
 

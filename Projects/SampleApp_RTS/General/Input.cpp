@@ -61,6 +61,16 @@ void SampleGameApp::UpdateInput(ezTime UpdateDiff)
 
   if (ezInputManager::GetInputActionState("Game", "UnitSmaller", &f) == ezKeyState::Pressed)
     UnitComponent::g_fSize -= 0.2f;
+
+
+  ezVec3 vTargetPos;
+  ezGridCoordinate iCell = GetPickedGridCell(&vTargetPos);
+
+  if (m_pLevel->GetGrid().IsValidCellCoordinate(iCell))
+  {
+    UnitComponent::g_vTarget = vTargetPos;
+  }
+
 }
 
 void SampleGameApp::SetupInput()

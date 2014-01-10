@@ -23,6 +23,7 @@ public:
   UnitComponent();
 
   static float g_fSize;
+  static ezVec3 g_vTarget;
 
   UnitType::Enum GetUnitType() const { return m_UnitType; }
   void SetUnitType(UnitType::Enum type) { m_UnitType = type; }

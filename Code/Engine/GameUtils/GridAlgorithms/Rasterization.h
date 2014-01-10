@@ -122,5 +122,10 @@ namespace ez2DGridUtils
   /// you can pass in your own array, that can be reused for many queries.
   EZ_GAMEUTILS_DLL void ComputeVisibleArea(ezInt32 iPosX, ezInt32 iPosY, ezUInt16 uiRadius, ezUInt32 uiWidth, ezUInt32 uiHeight, EZ_RASTERIZED_POINT_CALLBACK Callback, void* pPassThrough = NULL, ezDynamicArray<ezUInt8>* pTempArray = NULL);
 
+  /// \brief Computes which points are visible from the start position by tracing lines radially outwards. Limits the computation to a cone.
+  ///
+  /// This function works exactly like ComputeVisibleArea() but limits the computation to a cone that is defined by vDirection and ConeAngle.
+  EZ_GAMEUTILS_DLL void ComputeVisibleAreaInCone(ezInt32 iPosX, ezInt32 iPosY, ezUInt16 uiRadius, const ezVec2& vDirection, ezAngle ConeAngle, ezUInt32 uiWidth, ezUInt32 uiHeight, EZ_RASTERIZED_POINT_CALLBACK Callback, void* pPassThrough = NULL, ezDynamicArray<ezUInt8>* pTempArray = NULL);
+
 }
 
