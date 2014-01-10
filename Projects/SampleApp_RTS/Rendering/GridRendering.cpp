@@ -21,11 +21,12 @@ void GameRenderer::RenderGrid()
           RenderCube(m_pGrid->GetCellOrigin(ezGridCoordinate(x, z, slice)), vCellSize);
         else
         {
-          if (cd.m_hUnit.IsInvalidated())
+          if (cd.m_bOccupied == 0)
+          //if (!cd.m_bOccupied)
             RenderCube(m_pGrid->GetCellOrigin(ezGridCoordinate(x, z, slice)), vCellSize2);
           else
           {
-            glColor3ub(0, 200, 0);
+            glColor3ub(0, cd.m_bOccupied % 255, 0);
             RenderCube(m_pGrid->GetCellOrigin(ezGridCoordinate(x, z, slice)), vCellSize2, false);
           }
         }

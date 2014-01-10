@@ -22,6 +22,8 @@ class UnitComponent : public ezComponent
 public:
   UnitComponent();
 
+  static float g_fSize;
+
   UnitType::Enum GetUnitType() const { return m_UnitType; }
   void SetUnitType(UnitType::Enum type) { m_UnitType = type; }
 

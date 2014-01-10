@@ -30,7 +30,7 @@ void Level::SetupLevel()
     {
       for (ezUInt32 x = 0; x < m_GameGrid.GetWidth(); ++x)
       {
-        if (rand() % 10 == 1)
+        if (rand() % 30 == 1)
           m_GameGrid.GetCell(ezGridCoordinate(x, z, slice)).m_iCellType = 1;
       }
     }
@@ -40,9 +40,9 @@ void Level::SetupLevel()
 
   CreateUnit(UnitType::Default, ezVec3(0, 1, 0));
 
-  CreateUnit(UnitType::Default, ezVec3(5, 1, 0));
+  //CreateUnit(UnitType::Default, ezVec3(5, 1, 0));
 
-  CreateUnit(UnitType::Default, ezVec3(3, 1, 0));
+  //CreateUnit(UnitType::Default, ezVec3(3, 1, 0));
 }
 
 void Level::CreateComponentManagers()
@@ -54,6 +54,12 @@ void Level::CreateComponentManagers()
 
 void Level::Update()
 {
+  for (ezUInt32 i = 0; i < m_GameGrid.GetNumCells(); ++i)
+  {
+    m_GameGrid.GetCellByIndex(i).m_bOccupied = false;
+    //m_GameGrid.GetCellByIndex(i).m_uiVisited = 0;
+  }
+
   m_pWorld->Update();
 
 }

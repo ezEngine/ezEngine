@@ -27,6 +27,12 @@ ezUInt32 ezGameGrid<CellData>::GetCellIndex(const ezGridCoordinate& Coord) const
 }
 
 template<class CellData>
+ezUInt32 ezGameGrid<CellData>::GetNumCells() const
+{
+  return m_uiWidth * m_uiDepth * m_uiSlices;
+}
+
+template<class CellData>
 CellData& ezGameGrid<CellData>::GetCellByIndex(ezUInt32 uiIndex)
 {
   return m_Cells[uiIndex];

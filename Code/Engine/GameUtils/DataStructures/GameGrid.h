@@ -33,6 +33,8 @@ public:
   /// \brief Returns the world-space bounding box of the grid, as specified via SetWorldDimensions.
   ezBoundingBox GetBoundingBox() const;
 
+  ezUInt32 GetNumCells() const;
+
   CellData& GetCellByIndex(ezUInt32 uiIndex);
   const CellData& GetCellByIndex(ezUInt32 uiIndex) const;
 

@@ -9,12 +9,13 @@ struct GameCellData
   GameCellData()
   {
     m_iCellType = 0;
-    m_hUnit.Invalidate();
     m_uiVisited = 0;
+    m_bOccupied = 0;
   }
 
   static ezUInt32 s_uiVisitCounter;
 
+  ezUInt32 m_bOccupied;
   ezUInt32 m_uiVisited;
   ezInt8 m_iCellType;
   ezComponentHandle m_hUnit;

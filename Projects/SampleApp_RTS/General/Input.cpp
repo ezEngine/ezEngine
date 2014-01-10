@@ -55,6 +55,12 @@ void SampleGameApp::UpdateInput(ezTime UpdateDiff)
 
   if (ezInputManager::GetInputActionState("Game", "SendUnit", &f) == ezKeyState::Pressed)
     SendUnit();
+
+  if (ezInputManager::GetInputActionState("Game", "UnitLarger", &f) == ezKeyState::Pressed)
+    UnitComponent::g_fSize += 0.2f;
+
+  if (ezInputManager::GetInputActionState("Game", "UnitSmaller", &f) == ezKeyState::Pressed)
+    UnitComponent::g_fSize -= 0.2f;
 }
 
 void SampleGameApp::SetupInput()
@@ -107,6 +113,13 @@ void SampleGameApp::SetupInput()
 
   cfg.m_sInputSlotTrigger[0] = ezInputSlot_MouseButton1;
   ezInputManager::SetInputActionConfig("Game", "SendUnit", cfg, true);
+
+
+  cfg.m_sInputSlotTrigger[0] = ezInputSlot_MouseWheelUp;
+  ezInputManager::SetInputActionConfig("Game", "UnitLarger", cfg, true);
+
+  cfg.m_sInputSlotTrigger[0] = ezInputSlot_MouseWheelDown;
+  ezInputManager::SetInputActionConfig("Game", "UnitSmaller", cfg, true);
 }
 
 void SampleGameApp::SelectUnit()
@@ -149,8 +162,8 @@ ezCallbackResult::Enum PointOnLine(ezInt32 x, ezInt32 y, void* pPassThrough)
 
   Cell.m_uiVisited = GameCellData::s_uiVisitCounter;
 
-  if (Cell.m_iCellType != 0)
-    return ezCallbackResult::Stop;
+  //if (Cell.m_iCellType != 0)
+    //return ezCallbackResult::Stop;
 
   pUnit->m_Path.PushBack(ezVec3((float) x, 1, (float) y));
 
