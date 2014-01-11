@@ -1,38 +1,8 @@
 #pragma once
 
-ezImage::ezImage() : m_uiRowAlignment(1), m_uiDepthAlignment(1), m_uiSubImageAlignment(1)
+ezImage::ezImage()
 {
 
-}
-
-void ezImage::SetRowAlignment(ezUInt32 uiRowAlignment)
-{
-  m_uiRowAlignment = uiRowAlignment;
-}
-
-ezUInt32 ezImage::GetRowAlignment() const
-{
-  return m_uiRowAlignment;
-}
-
-void ezImage::SetDepthAlignment(ezUInt32 uiDepthAlignment)
-{
-  m_uiDepthAlignment = uiDepthAlignment;
-}
-
-ezUInt32 ezImage::GetDepthAlignment() const
-{
-  return m_uiDepthAlignment;
-}
-
-void ezImage::SetSubImageAlignment(ezUInt32 uiSubImageAlignment)
-{
-  m_uiSubImageAlignment = uiSubImageAlignment;
-}
-
-ezUInt32 ezImage::GetSubImageAlignment() const
-{
-  return m_uiSubImageAlignment;
 }
 
 ezUInt32 ezImage::GetNumBlocksX(ezUInt32 uiMipLevel) const

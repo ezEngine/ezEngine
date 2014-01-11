@@ -2,14 +2,20 @@
 
 #include <ImageConversionMixin.h>
 
-struct ezImageConversion4444_8888 : public ezImageConversionMixinLinear<ezImageConversion4444_8888>
+class ezImageConversion_4444_8888 : public ezImageConversionMixinLinear<ezImageConversion_4444_8888>
 {
+public:
   static const ezUInt32 s_uiSourceBpp = 16;
   static const ezUInt32 s_uiTargetBpp = 32;
   static const ezUInt32 s_uiMultiConversionSize = 8;
 
   typedef ezUInt8 SourceTypeSingle;
   typedef ezUInt8 TargetTypeSingle;
+
+  ezImageConversion_4444_8888()
+  {
+    m_subConversions.PushBack(SubConversion { ezImageFormat::B4G4R4A4_UNORM, ezImageFormat::B8G8R8A8_UNORM, ezImageConversionFlags::None });
+  }
 
   static void ConvertSingle(const SourceTypeSingle* pSource, TargetTypeSingle* pTarget)
   {
@@ -40,8 +46,38 @@ struct ezImageConversion4444_8888 : public ezImageConversionMixinLinear<ezImageC
   }
 };
 
+class ezImageConversion_BGRX_BGRA : public ezImageConversionMixinLinear<ezImageConversion_BGRX_BGRA>
+{
+public:
+  static const ezUInt32 s_uiSourceBpp = 32;
+  static const ezUInt32 s_uiTargetBpp = 32;
+  static const ezUInt32 s_uiMultiConversionSize = 4;
 
-struct ezImageConversionF32_U8 : public ezImageConversionMixinLinear<ezImageConversionF32_U8>
+  typedef ezUInt32 SourceTypeSingle;
+  typedef ezUInt32 TargetTypeSingle;
+
+  ezImageConversion_BGRX_BGRA()
+  {
+    m_subConversions.PushBack(SubConversion {ezImageFormat::B8G8R8X8_UNORM, ezImageFormat::B8G8R8A8_UNORM, ezImageConversionFlags::InPlace});
+  }
+
+  static void ConvertSingle(const SourceTypeSingle* pSource, TargetTypeSingle* pTarget)
+  {
+    pTarget[0] = pSource[0] | 0xFF000000;
+  }
+
+  typedef __m128i SourceTypeMultiple;
+  typedef __m128i TargetTypeMultiple;
+
+  static void ConvertMultiple(const SourceTypeMultiple* pSource, TargetTypeMultiple* pTarget)
+  {
+    __m128i mask = _mm_set1_epi32(0xFF000000);
+
+    pTarget[0] = _mm_or_si128(pSource[0], mask);
+  }
+};
+
+struct ezImageConversion_F32_U8 : public ezImageConversionMixinLinear<ezImageConversion_F32_U8>
 {
   static const ezUInt32 s_uiSourceBpp = 128;
   static const ezUInt32 s_uiTargetBpp = 32;
@@ -49,6 +85,11 @@ struct ezImageConversionF32_U8 : public ezImageConversionMixinLinear<ezImageConv
 
   typedef ezRgbaF SourceTypeSingle;
   typedef ezRgba TargetTypeSingle;
+
+  ezImageConversion_F32_U8()
+  {
+    m_subConversions.PushBack(SubConversion { ezImageFormat::R32G32B32A32_FLOAT, ezImageFormat::R8G8B8A8_UNORM, ezImageConversionFlags::Lossy });
+  }
 
   static void ConvertSingle(const SourceTypeSingle* pSource, TargetTypeSingle* pTarget)
   {
@@ -67,6 +108,38 @@ struct ezImageConversionF32_U8 : public ezImageConversionMixinLinear<ezImageConv
   }
 };
 
+class ezImageConversion_BGR_BGRA : public ezImageConversionMixinLinear<ezImageConversion_BGR_BGRA>
+{
+public:
+  static const ezUInt32 s_uiSourceBpp = 24;
+  static const ezUInt32 s_uiTargetBpp = 32;
+  static const ezUInt32 s_uiMultiConversionSize = 1;
+
+  typedef ezUInt8 SourceTypeSingle;
+  typedef ezUInt8 TargetTypeSingle;
+
+  ezImageConversion_BGR_BGRA()
+  {
+    m_subConversions.PushBack(SubConversion {ezImageFormat::B8G8R8_UNORM, ezImageFormat::B8G8R8A8_UNORM, ezImageConversionFlags::None});
+  }
+
+  static void ConvertSingle(const SourceTypeSingle* pSource, TargetTypeSingle* pTarget)
+  {
+    pTarget[0] = pSource[0];
+    pTarget[1] = pSource[1];
+    pTarget[2] = pSource[2];
+    pTarget[3] = 0xFF;
+  }
+
+  typedef ezUInt8 SourceTypeMultiple;
+  typedef ezUInt8 TargetTypeMultiple;
+
+  static void ConvertMultiple(const SourceTypeMultiple* pSource, TargetTypeMultiple* pTarget)
+  {
+    return ConvertSingle(pSource, pTarget);
+  }
+};
+
 
 ezBgra ezDecompress565(ezUInt16 uiColor)
 {
@@ -78,13 +151,7 @@ ezBgra ezDecompress565(ezUInt16 uiColor)
   return result;
 }
 
-void ezConvertImage4444_8888(const ezImage& source, ezImage& target)
-{
-  return ezImageConversion4444_8888::ConvertImage(source, target);
-}
-
-void ezConvertImageF32_U8(const ezImage& source, ezImage& target)
-{
-  return ezImageConversionF32_U8::ConvertImage(source, target);
-}
-
+static ezImageConversion_4444_8888 g_conversion4444_8888;
+static ezImageConversion_BGRX_BGRA g_conversionBGRX_BGRA;
+static ezImageConversion_BGR_BGRA g_conversionBGR_BGRA;
+static ezImageConversion_F32_U8 g_conversionF32_U32;

@@ -1,23 +1,22 @@
 #include <Image.h>
 
+#include <ImageConversion.h>
+
 /// \brief A template mixin useful as a base for custom image conversion routines.
 template<typename Impl>
-struct ezImageConversionMixinBase
+struct ezImageConversionMixinBase : public ezIImageConversion
 {
   /// \brief Converts an image by iterating over all subimages and calling the implementation.
-  static void ConvertImage(const ezImage& source, ezImage& target)
+  virtual ezResult DoConvert(const ezImage& source, ezImage& target, ezImageFormat::Enum targetFormat) const EZ_OVERRIDE
   {
     EZ_ASSERT(
       ezImageFormat::GetBitsPerPixel(source.GetImageFormat()) == Impl::s_uiSourceBpp &&
-      ezImageFormat::GetBitsPerPixel(target.GetImageFormat()) == Impl::s_uiTargetBpp,
+      ezImageFormat::GetBitsPerPixel(targetFormat) == Impl::s_uiTargetBpp,
       "Image format pixel size not supported by this conversion routine");
 
-    target.SetWidth(source.GetWidth(0));
-    target.SetHeight(source.GetHeight(0));
-    target.SetDepth(source.GetDepth(0));
-    target.SetNumMipLevels(source.GetNumMipLevels());
-    target.SetNumFaces(source.GetNumFaces());
-    target.SetNumArrayIndices(source.GetNumArrayIndices());
+    static_cast<ezImageHeader&>(target) = source;
+
+    target.SetImageFormat(targetFormat);
 
     target.AllocateImageData();
 
@@ -31,6 +30,8 @@ struct ezImageConversionMixinBase
         }
       }
     }
+
+    return EZ_SUCCESS;
   }
 };
 

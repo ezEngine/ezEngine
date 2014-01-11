@@ -25,25 +25,6 @@ public:
   /// \brief Convenience function to save the image to the given file.
   ezResult SaveTo(const char* szFileName);
 
-  /// \brief Sets the alignment to use for each pixel row. The default is 1.
-  inline void SetRowAlignment(ezUInt32 uiRowAlignment);
-
-  /// \brief Returns the alignment to use for each pixel row. The default is 1.
-  inline ezUInt32 GetRowAlignment() const;
-
-  /// \brief Sets the alignment to use for each depth slice. The default is 1.
-  inline void SetDepthAlignment(ezUInt32 uiDepthAlignment);
-
-  /// \brief Returns the alignment to use for each depth slice. The default is 1.
-  inline ezUInt32 GetDepthAlignment() const;
-
-  /// \brief Sets the alignment to use for each subimage. The default is 1.
-  inline void SetSubImageAlignment(ezUInt32 uiSubImageAlignment);
-
-  /// \brief Returns the alignment to use for each subimage. The default is 1.
-  inline ezUInt32 GetSubImageAlignment() const;
-
-
   /// \brief Returns the number of blocks contained in a given mip level in the horizontal direction.
   ///
   /// This method is only valid to call for block-compressed formats.
@@ -104,7 +85,7 @@ public:
   /// \brief Allocates the storage space required for the configured number of subimages.
   ///
   /// When creating an image, call this method after setting the dimensions and number of mip levels, faces and array indices.
-  /// Changing the image dimensions, alignment or number of subimages will not automatically reallocate the data.
+  /// Changing the image dimensions or number of subimages will not automatically reallocate the data.
   void AllocateImageData();
 
   /// \brief Returns the offset in bytes between two subsequent rows of the given mip level.
@@ -133,10 +114,6 @@ private:
   inline SubImage& GetSubImage(ezUInt32 uiMipLevel, ezUInt32 uiFace, ezUInt32 uiArrayIndex);
 
   inline const SubImage& GetSubImage(ezUInt32 uiMipLevel, ezUInt32 uiFace, ezUInt32 uiArrayIndex) const;
-
-  ezUInt32 m_uiRowAlignment;
-  ezUInt32 m_uiDepthAlignment;
-  ezUInt32 m_uiSubImageAlignment;
 
   ezHybridArray<SubImage, 16> m_subImages;
   ezDynamicArray<ezUInt8> m_data;

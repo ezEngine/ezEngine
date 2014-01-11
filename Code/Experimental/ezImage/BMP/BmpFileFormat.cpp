@@ -102,28 +102,32 @@ ezResult ezBmpFileFormat::WriteImage(ezIBinaryStreamWriter& stream, const ezImag
     ezImageFormat::B5G6R5_UNORM,
   };
 
-  // Find a format to convert to, and then write out the raw data directly.
-  ezImageFormat::Enum format = ezImageConversion::FindClosestCompatibleFormat(image.GetImageFormat(), compatibleFormats);
+  // Find a compatible format closest to the one the image currently has
+  ezImageFormat::Enum format = ezIImageConversion::FindClosestCompatibleFormat(image.GetImageFormat(), compatibleFormats);
 
   if(format == ezImageFormat::UNKNOWN)
   {
     errorOut.AppendFormat("No conversion from format '%s' to a format suitable for BMP files known.", ezImageFormat::GetName(image.GetImageFormat()));
     return EZ_FAILURE;
   }
-  
-  ezImage convertedImage;
-  convertedImage.SetImageFormat(format);
-  convertedImage.SetRowAlignment(4); // BMP requires row alignment of 4 bytes
-  if(ezImageConversion::Convert(image, convertedImage) != EZ_SUCCESS)
+
+  // Convert if not already in a compatible format
+  if(format != image.GetImageFormat())
   {
-    // This should never happen
-    EZ_ASSERT(false, "ezImageConversion::Convert failed even though the conversion was to the format returned by FindClosestCompatibleFormat.");
-    return EZ_FAILURE;
+    ezImage convertedImage;
+    if(ezIImageConversion::Convert(image, convertedImage, format) != EZ_SUCCESS)
+    {
+      // This should never happen
+      EZ_ASSERT(false, "ezImageConversion::Convert failed even though the conversion was to the format returned by FindClosestCompatibleFormat.");
+      return EZ_FAILURE;
+    }
+
+    return WriteImage(stream, convertedImage, errorOut);
   }
   
-  ezUInt32 uiRowPitch = convertedImage.GetRowPitch(0);
+  ezUInt32 uiRowPitch = image.GetRowPitch(0);
 
-  ezUInt32 uiHeight = convertedImage.GetHeight(0);
+  ezUInt32 uiHeight = image.GetHeight(0);
 
   int dataSize = uiRowPitch * uiHeight;
 
@@ -133,7 +137,7 @@ ezResult ezBmpFileFormat::WriteImage(ezIBinaryStreamWriter& stream, const ezImag
   fileInfoHeader.m_planes = 1;
   fileInfoHeader.m_bitCount = ezImageFormat::GetBitsPerPixel(format);
 
-  fileInfoHeader.m_sizeImage = convertedImage.GetDataSize();
+  fileInfoHeader.m_sizeImage = 0; // Can be zero unless we store the data compressed
 
   fileInfoHeader.m_xPelsPerMeter = 0;
   fileInfoHeader.m_yPelsPerMeter = 0;
@@ -193,7 +197,7 @@ ezResult ezBmpFileFormat::WriteImage(ezIBinaryStreamWriter& stream, const ezImag
   header.m_offBits = uiHeaderSize;
 
 
-  const void* dataPtr = convertedImage.GetDataPointer<void>();
+  const void* dataPtr = image.GetDataPointer<void>();
   
   // Write all data
   if(stream.WriteBytes(&header, sizeof(header)) != EZ_SUCCESS)
@@ -245,10 +249,11 @@ ezResult ezBmpFileFormat::WriteImage(ezIBinaryStreamWriter& stream, const ezImag
     }
   }
 
+  const ezUInt32 uiPaddedRowPitch = ((uiRowPitch - 1) / 4 + 1) * 4;
   // Write rows in reverse order
   for(ezInt32 iRow = uiHeight - 1; iRow >= 0; iRow--)
   {
-    if(stream.WriteBytes(convertedImage.GetPixelPointer<void>(0, 0, 0, 0, iRow, 0), uiRowPitch) != EZ_SUCCESS)
+    if(stream.WriteBytes(image.GetPixelPointer<void>(0, 0, 0, 0, iRow, 0), uiPaddedRowPitch) != EZ_SUCCESS)
     {
       errorOut.AppendFormat("Failed to write data.");
       return EZ_FAILURE;
@@ -421,9 +426,29 @@ ezResult ezBmpFileFormat::ReadImage(ezIBinaryStreamReader& stream, ezImage& imag
   }
 
   const ezUInt32 uiWidth = fileInfoHeader.m_width;
+
+  if(uiWidth > 65536)
+  {
+    errorOut.AppendFormat("Image specifies width > 65536. Header corrupted?");
+    return EZ_FAILURE;
+  }
+
   const ezUInt32 uiHeight = fileInfoHeader.m_height;
 
+  if(uiHeight > 65536)
+  {
+    errorOut.AppendFormat("Image specifies height > 65536. Header corrupted?");
+    return EZ_FAILURE;
+  }
+
   ezUInt32 uiDataSize = fileInfoHeader.m_sizeImage;
+
+  if(uiDataSize > 1024 * 1024 * 1024)
+  {
+    errorOut.AppendFormat("Image specifies data size > 1GiB. Header corrupted?");
+    return EZ_FAILURE;
+  }
+
   int uiRowPitchIn = (uiWidth * uiBpp + 31) / 32 * 4;
 
   if(uiDataSize == 0)
@@ -446,9 +471,9 @@ ezResult ezBmpFileFormat::ReadImage(ezIBinaryStreamReader& stream, ezImage& imag
   image.SetHeight(uiHeight);
   image.SetDepth(1);
 
-  image.SetRowAlignment(4);
-
   image.AllocateImageData();
+
+  ezUInt32 uiRowPitch = image.GetRowPitch(0);
 
   if(bIndexed)
   {
@@ -627,7 +652,13 @@ ezResult ezBmpFileFormat::ReadImage(ezIBinaryStreamReader& stream, ezImage& imag
         ezBmpBgrxQuad* pOut = image.GetPixelPointer<ezBmpBgrxQuad>(0, 0, 0, 0, uiHeight - uiRow - 1, 0);
         for(ezUInt32 uiCol = 0; uiCol < image.GetWidth(0); uiCol++)
         {
-          pOut[uiCol] = palette[ExtractBits(pIn, uiCol * uiBpp, uiBpp)];
+          ezUInt32 uiIndex = ExtractBits(pIn, uiCol * uiBpp, uiBpp);
+          if(uiIndex >= palette.GetCount())
+          {
+            errorOut.AppendFormat("Image contains invalid palette indices.");
+            return EZ_FAILURE;
+          }
+          pOut[uiCol] = palette[uiIndex];
         }
       }
     }
@@ -642,16 +673,23 @@ ezResult ezBmpFileFormat::ReadImage(ezIBinaryStreamReader& stream, ezImage& imag
       return EZ_FAILURE;
     }
 
-    if(uiDataSize != image.GetDataSize())
+    // Skip palette data. Having a palette here doesn't make sense, but is not explicitly disallowed by the standard.
+    ezUInt32 paletteSize = fileInfoHeader.m_clrUsed * sizeof(ezBmpBgrxQuad);
+    if(stream.SkipBytes(paletteSize) != paletteSize)
     {
-      errorOut.AppendFormat("The data size specified in the header doesn't match the expected size.");
+      errorOut.AppendFormat("Failed to read data.");
       return EZ_FAILURE;
     }
 
     // Read rows in reverse order
     for(ezInt32 iRow = uiHeight - 1; iRow >= 0; iRow--)
     {
-      if(stream.ReadBytes(image.GetPixelPointer<void>(0, 0, 0, 0, iRow, 0), uiRowPitchIn) != uiRowPitchIn)
+      if(stream.ReadBytes(image.GetPixelPointer<void>(0, 0, 0, 0, iRow, 0), uiRowPitch) != uiRowPitch)
+      {
+        errorOut.AppendFormat("Failed to read data.");
+        return EZ_FAILURE;
+      }
+      if(stream.SkipBytes(uiRowPitchIn - uiRowPitch) != uiRowPitchIn - uiRowPitch)
       {
         errorOut.AppendFormat("Failed to read data.");
         return EZ_FAILURE;

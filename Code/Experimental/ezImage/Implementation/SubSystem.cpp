@@ -17,12 +17,10 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Core, Image)
 ON_CORE_STARTUP
 {
   ezImageFormat::Startup();
-  ezImageConversion::Startup();
 }
 
 ON_CORE_SHUTDOWN
 {
-  ezImageConversion::Shutdown();
 }
 
 ON_ENGINE_STARTUP

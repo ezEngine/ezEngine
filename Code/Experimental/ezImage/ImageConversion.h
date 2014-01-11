@@ -1,19 +1,16 @@
 #pragma once
 
+#include <Foundation/Basics/Types/Bitflags.h>
+#include <Foundation/Utilities/EnumerableClass.h>
+
 #include <Image.h>
 
+EZ_DECLARE_FLAGS(ezUInt8, ezImageConversionFlags, None, InPlace, Lossy);
+
 /// \brief Helper class containing utilities to convert between different image formats and layouts.
-class ezImageConversion
+class ezIImageConversion : public ezEnumerable<ezIImageConversion>
 {
 public:
-  /// \brief Prototype for a function converting an image to a different format.
-  typedef void(*ConversionFunction)(const ezImage& source, ezImage& target);
-
-  /// \brief Converts an image to the format and alignment of the target image.
-  ///
-  /// \returns EZ_FAILURE if no suitable conversion function is known.
-  static ezResult Convert(const ezImage& source, ezImage& target);
-
   /// \brief Finds the image format from a given list of formats which is the cheapest to convert to.
   static ezImageFormat::Enum
     FindClosestCompatibleFormat(ezImageFormat::Enum format, const ezImageFormat::Enum* pCompatibleFormats, ezUInt32 uiNumCompatible);
@@ -25,13 +22,25 @@ public:
     return FindClosestCompatibleFormat(format, compatibleFormats, N);
   }
 
-  /// \brief Registers a function which allows conversion between to image formats.
-  static void RegisterConversionFunction(ConversionFunction pFunction, ezImageFormat::Enum sourceFormat, ezImageFormat::Enum targetFormat);
+  static ezResult Convert(const ezImage& source, ezImage& target, ezImageFormat::Enum targetFormat);
 
+  EZ_DECLARE_ENUMERABLE_CLASS(ezIImageConversion);
+
+protected:
+  ezIImageConversion();
+  virtual ~ezIImageConversion();
+
+  virtual ezResult DoConvert(const ezImage& source, ezImage& target, ezImageFormat::Enum targetFormat) const = 0;
+
+  struct SubConversion
+  {
+    ezImageFormat::Enum m_sourceFormat;
+    ezImageFormat::Enum m_targetFormat;
+    ezBitflags<ezImageConversionFlags> m_flags;
+  };
+
+  ezStaticArray<SubConversion, 16> m_subConversions;
 
 private:
-  EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(Core, Image);
-
-  static void Startup();
-  static void Shutdown();
+  static void RebuildConversionTable();
 };

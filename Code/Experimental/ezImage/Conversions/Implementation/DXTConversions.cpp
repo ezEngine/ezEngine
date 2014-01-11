@@ -103,6 +103,11 @@ public:
   typedef ezUInt8 SourceType;
   typedef ezBgra TargetType;
 
+  ezImageConversion_BC1_BGRA()
+  {
+    m_subConversions.PushBack(SubConversion  {ezImageFormat::BC1_UNORM, ezImageFormat::B8G8R8A8_UNORM, ezImageConversionFlags::None});
+  }
+
   static void DecompressBlock(const SourceType* pSource, TargetType* pTarget)
   {
     ezDecompressBlockBC1(pSource, pTarget, false);
@@ -117,6 +122,11 @@ public:
 
   typedef ezUInt8 SourceType;
   typedef ezBgra TargetType;
+
+  ezImageConversion_BC2_BGRA()
+  {
+    m_subConversions.PushBack(SubConversion  {ezImageFormat::BC2_UNORM, ezImageFormat::B8G8R8A8_UNORM, ezImageConversionFlags::None});
+  }
 
   static void DecompressBlock(const SourceType* pSource, TargetType* pTarget)
   {
@@ -141,6 +151,11 @@ public:
   typedef ezUInt8 SourceType;
   typedef ezBgra TargetType;
 
+  ezImageConversion_BC3_BGRA()
+  {
+    m_subConversions.PushBack(SubConversion  {ezImageFormat::BC3_UNORM, ezImageFormat::B8G8R8A8_UNORM, ezImageConversionFlags::None});
+  }
+
   static void DecompressBlock(const SourceType* pSource, TargetType* pTarget)
   {
     ezDecompressBlockBC1(pSource + 8, pTarget, true);
@@ -157,6 +172,11 @@ public:
   typedef ezUInt8 SourceType;
   typedef ezUInt8 TargetType;
 
+  ezImageConversion_BC4_R()
+  {
+    m_subConversions.PushBack(SubConversion  {ezImageFormat::BC4_UNORM, ezImageFormat::R8_UNORM, ezImageConversionFlags::None});
+  }
+
   static void DecompressBlock(const SourceType* pSource, TargetType* pTarget)
   {
     ezDecompressBlockBC4(pSource, pTarget, 1);
@@ -172,6 +192,11 @@ public:
   typedef ezUInt8 SourceType;
   typedef ezUInt8 TargetType;
 
+  ezImageConversion_BC5_RG()
+  {
+    m_subConversions.PushBack(SubConversion  {ezImageFormat::BC5_UNORM, ezImageFormat::R8G8_UNORM, ezImageConversionFlags::None});
+  }
+
   static void DecompressBlock(const SourceType* pSource, TargetType* pTarget)
   {
     ezDecompressBlockBC4(pSource + 0, pTarget + 0, 2);
@@ -179,27 +204,8 @@ public:
   }
 };
 
-void ezDecompressImageBC1(const ezImage& source, ezImage& target)
-{
-  return ezImageConversion_BC1_BGRA::ConvertImage(source, target);
-}
-
-void ezDecompressImageBC2(const ezImage& source, ezImage& target)
-{
-  return ezImageConversion_BC2_BGRA::ConvertImage(source, target);
-}
-
-void ezDecompressImageBC3(const ezImage& source, ezImage& target)
-{
-  return ezImageConversion_BC3_BGRA::ConvertImage(source, target);
-}
-
-void ezDecompressImageBC4(const ezImage& source, ezImage& target)
-{
-  return ezImageConversion_BC4_R::ConvertImage(source, target);
-}
-
-void ezDecompressImageBC5(const ezImage& source, ezImage& target)
-{
-  return ezImageConversion_BC5_RG::ConvertImage(source, target);
-}
+static ezImageConversion_BC1_BGRA g_conversionBC1;
+static ezImageConversion_BC2_BGRA g_conversionBC2;
+static ezImageConversion_BC3_BGRA g_conversionBC3;
+static ezImageConversion_BC4_R g_conversionBC4;
+static ezImageConversion_BC5_RG g_conversionBC5;

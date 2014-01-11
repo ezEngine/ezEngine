@@ -296,29 +296,6 @@ ezResult ezDdsFormat::WriteImage(ezIBinaryStreamWriter& stream, const ezImage& i
   const ezUInt32 uiHeight = image.GetHeight(0);
   const ezUInt32 uiDepth = image.GetDepth(0);
   
-  if(image.GetRowAlignment() != 1 || image.GetDepthAlignment() != 1 || image.GetSubImageAlignment() != 1)
-  {
-    // Copy into new image with default alignment (which matches the DDS layout)
-    ezImage converted;
-
-    converted.SetWidth(uiWidth);
-    converted.SetHeight(uiHeight);
-    converted.SetDepth(uiDepth);
-    converted.SetNumMipLevels(uiNumMipLevels);
-    converted.SetNumFaces(uiNumFaces);
-    converted.SetNumArrayIndices(uiNumArrayIndices);
-
-    converted.SetImageFormat(format);
-
-    if(ezImageConversion::Convert(image, converted) != EZ_SUCCESS)
-    {
-      errorOut.AppendFormat("Failed to convert the image to the required alignment.");
-      return EZ_FAILURE;
-    }
-
-    return WriteImage(stream, converted, errorOut);
-  }
-
   bool bHasMipMaps = uiNumMipLevels > 1;
   bool bVolume = uiDepth > 1;
   bool bCubeMap = uiNumFaces > 1;
