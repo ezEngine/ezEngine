@@ -3,16 +3,18 @@
 
 #include <TestFramework/Framework/Qt/qtLogMessageDock.h>
 #include <TestFramework/Framework/TestFramework.h>
+#include <Foundation/Strings/StringUtils.h>
 #include <QApplication>
+#include <QStringBuilder>
 
 ////////////////////////////////////////////////////////////////////////
 // ezQtLogMessageDock public functions
 ////////////////////////////////////////////////////////////////////////
 
-ezQtLogMessageDock::ezQtLogMessageDock(QObject* pParent)
+ezQtLogMessageDock::ezQtLogMessageDock(QObject* pParent, const ezTestFrameworkResult* pResult)
 {
   setupUi(this);
-  m_pModel = new ezQtLogMessageModel(this);
+  m_pModel = new ezQtLogMessageModel(this, pResult);
   ListView->setModel(m_pModel);
 }
 
@@ -23,16 +25,25 @@ ezQtLogMessageDock::~ezQtLogMessageDock()
   m_pModel = NULL;
 }
 
-void ezQtLogMessageDock::currentTestResultChanged(const ezTestResult* pTestResult)
+void ezQtLogMessageDock::currentTestResultChanged(const ezTestResultData* pTestResult)
 {
   m_pModel->currentTestResultChanged(pTestResult);
+  ListView->scrollToBottom();
+}
+
+void ezQtLogMessageDock::currentTestSelectionChanged(const ezTestResultData* pTestResult)
+{
+  m_pModel->currentTestSelectionChanged(pTestResult);
+  ListView->scrollTo(m_pModel->GetLastIndexOfTestSelection(), QAbstractItemView::EnsureVisible);
+  ListView->scrollTo(m_pModel->GetFirstIndexOfTestSelection(), QAbstractItemView::EnsureVisible);
 }
 
 ////////////////////////////////////////////////////////////////////////
 // ezQtLogMessageModel public functions
 ////////////////////////////////////////////////////////////////////////
 
-ezQtLogMessageModel::ezQtLogMessageModel(QObject* pParent) : QAbstractItemModel(pParent), m_pTestResult(NULL)
+ezQtLogMessageModel::ezQtLogMessageModel(QObject* pParent, const ezTestFrameworkResult* pResult)
+  : QAbstractItemModel(pParent), m_pTestResult(pResult)
 {
 }
 
@@ -40,10 +51,47 @@ ezQtLogMessageModel::~ezQtLogMessageModel()
 {
 }
 
-void ezQtLogMessageModel::currentTestResultChanged(const ezTestResult* pTestResult)
+QModelIndex ezQtLogMessageModel::GetFirstIndexOfTestSelection()
 {
-  m_pTestResult = pTestResult;
+  if (pCurrentTestSelection == NULL || pCurrentTestSelection->m_iFirstOutput == -1)
+    return QModelIndex();
+
+  ezInt32 iEntries = (ezInt32)m_VisibleEntries.size();
+  for (int i = 0; i < iEntries; ++i)
+  {
+    if ((ezInt32)m_VisibleEntries[i] >= pCurrentTestSelection->m_iFirstOutput)
+      return index(i, 0);
+  }
+  return index(rowCount() - 1, 0);
+}
+
+QModelIndex ezQtLogMessageModel::GetLastIndexOfTestSelection()
+{
+  if (pCurrentTestSelection == NULL || pCurrentTestSelection->m_iLastOutput == -1)
+    return QModelIndex();
+
+  ezInt32 iEntries = (ezInt32)m_VisibleEntries.size();
+  for (int i = 0; i < iEntries; ++i)
+  {
+    if ((ezInt32)m_VisibleEntries[i] >= pCurrentTestSelection->m_iLastOutput)
+      return index(i, 0);
+  }
+  return index(rowCount() - 1, 0);
+}
+
+void ezQtLogMessageModel::currentTestResultChanged(const ezTestResultData* pTestResult)
+{
   UpdateVisibleEntries();
+  currentTestSelectionChanged(pTestResult);
+}
+
+void ezQtLogMessageModel::currentTestSelectionChanged(const ezTestResultData* pTestResult)
+{
+  pCurrentTestSelection = pTestResult;
+  if (pCurrentTestSelection != NULL)
+  {
+    dataChanged(index(pCurrentTestSelection->m_iFirstOutput, 0), index(pCurrentTestSelection->m_iLastOutput, 0));
+  }
 }
 
 
@@ -56,18 +104,33 @@ QVariant ezQtLogMessageModel::data(const QModelIndex& index, int role) const
   if (!index.isValid() || m_pTestResult == NULL|| index.column() != 0)
     return QVariant();
 
-  ezInt32 iRow = index.row();
+  const ezInt32 iRow = index.row();
   if (iRow < 0 || iRow >= (ezInt32)m_VisibleEntries.size())
     return QVariant();
 
-  ezUInt32 uiLogIdx = m_VisibleEntries[iRow];
-  const ezTestOutputMessage& Message = m_pTestResult->m_TestOutput[uiLogIdx];
-
+  const ezUInt32 uiLogIdx = m_VisibleEntries[iRow];
+  const ezUInt8 uiIndention = m_VisibleEntriesIndention[iRow];
+  const ezTestOutputMessage& Message = *m_pTestResult->GetOutputMessage(uiLogIdx);
+  const ezTestErrorMessage* pError = (Message.m_iErrorIndex != -1) ? m_pTestResult->GetErrorMessage(Message.m_iErrorIndex) : NULL;
   switch (role)
   {
   case Qt::DisplayRole:
     {
-      return QString(Message.m_sMessage.c_str());
+      if (pError != NULL)
+      {
+        QString sBlockStart = QLatin1String("\n") % QString((uiIndention + 1) * 3, ' ');
+        QString sBlockName = pError->m_sBlock.empty() ? QLatin1String("") : (sBlockStart % QLatin1String("Block: ") + QLatin1String(pError->m_sBlock.c_str()));
+        QString sMessage = pError->m_sMessage.empty() ? QLatin1String("") : (sBlockStart % QLatin1String("Message: ") + QLatin1String(pError->m_sMessage.c_str()));
+        QString sErrorMessage = QString(uiIndention * 3, ' ') % QString(Message.m_sMessage.c_str()) %
+          sBlockName %
+          sBlockStart % QLatin1String("File: ") % QLatin1String(pError->m_sFile.c_str()) %
+          sBlockStart % QLatin1String("Line: ") % QString::number(pError->m_iLine) %
+          sBlockStart % QLatin1String("Function: ") % QLatin1String(pError->m_sFunction.c_str()) %
+          sMessage;
+       
+        return sErrorMessage;
+      }
+      return QString(uiIndention * 3, ' ') + QString(Message.m_sMessage.c_str());
     }
   case Qt::TextColorRole:
     {
@@ -87,7 +150,21 @@ QVariant ezQtLogMessageModel::data(const QModelIndex& index, int role) const
       case ezTestOutput::Duration:
       case ezTestOutput::FinalResult:
         return QVariant();
+      default:
+        return QVariant();
       }
+    }
+  case Qt::BackgroundColorRole:
+    {
+      QPalette palette = QApplication::palette();
+      if (pCurrentTestSelection != NULL && pCurrentTestSelection->m_iFirstOutput != -1)
+      {
+        if (pCurrentTestSelection->m_iFirstOutput <= (ezInt32)uiLogIdx && (ezInt32)uiLogIdx <= pCurrentTestSelection->m_iLastOutput)
+        {
+          return palette.midlight().color();
+        }
+      }
+      return palette.base().color();
     }
   //case Qt::DecorationRole:
   //  {
@@ -168,14 +245,23 @@ int ezQtLogMessageModel::columnCount(const QModelIndex& parent) const
 void ezQtLogMessageModel::UpdateVisibleEntries()
 {
   m_VisibleEntries.clear();
+  m_VisibleEntriesIndention.clear();
   if (m_pTestResult == NULL)
     return;
 
-  ezUInt32 uiEntries = (ezUInt32)m_pTestResult->m_TestOutput.size();
+  ezUInt8 uiIndention = 0;
+  ezUInt32 uiEntries = m_pTestResult->GetOutputMessageCount();
   // TODO: filter out uninteresting messages
   for (ezUInt32 i = 0; i < uiEntries; ++i)
   {
+    ezTestOutput::Enum Type = m_pTestResult->GetOutputMessage(i)->m_Type;
+    if (Type == ezTestOutput::BeginBlock)
+      uiIndention++;
+    if (Type == ezTestOutput::EndBlock)
+      uiIndention--;
+
     m_VisibleEntries.push_back(i);
+    m_VisibleEntriesIndention.push_back(uiIndention);
   }
   beginResetModel();
   endResetModel();

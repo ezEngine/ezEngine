@@ -61,12 +61,12 @@ inline void SaveTestOrder(const char* szFile, const std::deque<ezTestEntry>& All
   // Test order
   for (ezUInt32 t = 0; t < AllTests.size(); ++t)
   {
-    sprintf(szTemp, "%s = %s\n", AllTests[t].m_szTestName, AllTests[t].m_Result.m_bEnableTest ? "on" : "off");
+    sprintf(szTemp, "%s = %s\n", AllTests[t].m_szTestName, AllTests[t].m_bEnableTest ? "on" : "off");
     fwrite(szTemp, sizeof(char), strlen(szTemp), pFile);
 
     for (ezUInt32 st = 0; st < AllTests[t].m_SubTests.size(); ++st)
     {
-      sprintf(szTemp, "  %s = %s\n", AllTests[t].m_SubTests[st].m_szSubTestName, AllTests[t].m_SubTests[st].m_Result.m_bEnableTest ? "on" : "off");
+      sprintf(szTemp, "  %s = %s\n", AllTests[t].m_SubTests[st].m_szSubTestName, AllTests[t].m_SubTests[st].m_bEnableTest ? "on" : "off");
       fwrite(szTemp, sizeof(char), strlen(szTemp), pFile);
     }
   }
@@ -138,7 +138,10 @@ inline void LoadTestOrder(const char* szFile, std::deque<ezTestEntry>& AllTests,
 {
   FILE* pFile = fopen(szFile, "rb");
   if (!pFile)
+  {
+    SortTestsAlphabetically(AllTests);
     return;
+  }
 
   ezInt32 iMainTestPos = 0;
   ezInt32 iSubTestPos = 0;
@@ -182,7 +185,7 @@ inline void LoadTestOrder(const char* szFile, std::deque<ezTestEntry>& AllTests,
             // swap the two tests, to move the currently found test to the front
             ezMath::Swap(AllTests[iMainTestPos], AllTests[t]);
 
-            AllTests[iMainTestPos].m_Result.m_bEnableTest = !bIsOff;
+            AllTests[iMainTestPos].m_bEnableTest = !bIsOff;
 
             iLastMainTest = iMainTestPos;
             ++iMainTestPos;
@@ -227,7 +230,7 @@ inline void LoadTestOrder(const char* szFile, std::deque<ezTestEntry>& AllTests,
               AllTests[iLastMainTest].m_SubTests[iSubTestPos] = AllTests[iLastMainTest].m_SubTests[t];
               AllTests[iLastMainTest].m_SubTests[t] = entry;
 
-              AllTests[iLastMainTest].m_SubTests[iSubTestPos].m_Result.m_bEnableTest = !bIsOff;
+              AllTests[iLastMainTest].m_SubTests[iSubTestPos].m_bEnableTest = !bIsOff;
               break;
             }
           }
@@ -238,5 +241,5 @@ inline void LoadTestOrder(const char* szFile, std::deque<ezTestEntry>& AllTests,
   }
 
   fclose(pFile);
+  SortTestsAlphabetically(AllTests);
 }
-

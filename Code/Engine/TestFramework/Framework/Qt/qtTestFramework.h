@@ -22,7 +22,7 @@ signals:
 
 protected:
   virtual void OutputImpl(ezTestOutput::Enum Type, const char* szMsg) EZ_OVERRIDE;
-  virtual void TestResultImpl(ezInt32 iSubTestIdentifier, bool bSuccess, double fDuration) EZ_OVERRIDE;
+  virtual void TestResultImpl(ezInt32 iSubTestIndex, bool bSuccess, double fDuration) EZ_OVERRIDE;
 };
 
 #endif

@@ -5,6 +5,11 @@
 
 EZ_ENUMERABLE_CLASS_IMPLEMENTATION(ezTestBaseClass);
 
+void ezTestBaseClass::UpdateConfiguration(ezTestConfiguration& config) const
+{
+
+}
+
 void ezTestBaseClass::ClearSubTests()
 {
   m_Entries.clear();

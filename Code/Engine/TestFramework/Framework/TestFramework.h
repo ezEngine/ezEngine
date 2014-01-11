@@ -6,6 +6,8 @@
 #include <TestFramework/Framework/TestBaseClass.h>
 #include <TestFramework/Framework/SimpleTest.h>
 #include <TestFramework/Utilities/TestOrder.h>
+#include <TestFramework/Framework/TestResults.h>
+
 
 class EZ_TEST_DLL ezTestFramework
 {
@@ -34,8 +36,14 @@ public:
   void EndTests();
 
   // Test queries
-  ezUInt32 GetTestCount(ezTestResultQuery::Enum countQuery = ezTestResultQuery::Count) const;
-  ezInt32 SubTestIdentifierToSubTestIndex(ezUInt32 uiSubTestIdentifier) const;
+  ezUInt32 GetTestCount() const;
+  ezUInt32 GetTestEnabledCount() const;
+  ezUInt32 GetSubTestEnabledCount(ezUInt32 uiTestIndex) const;
+  bool IsTestEnabled(ezUInt32 uiTestIndex) const;
+  bool IsSubTestEnabled(ezUInt32 uiTestIndex, ezUInt32 uiSubTestIndex) const;
+  void SetTestEnabled(ezUInt32 uiTestIndex, bool bEnabled);
+  void SetSubTestEnabled(ezUInt32 uiTestIndex, ezUInt32 uiSubTestIndex, bool bEnabled);
+
   ezInt32 GetCurrentTestIndex() {return m_iCurrentTestIndex;}
   ezInt32 GetCurrentSubTestIndex() {return m_iCurrentSubTestIndex;}
   ezTestEntry* GetTest(ezUInt32 uiTestIndex);
@@ -46,14 +54,16 @@ public:
   void SetSettings(const TestSettings& settings);
 
   // Test results
+  ezTestFrameworkResult& GetTestResult();
   ezInt32 GetTotalErrorCount() const;
   ezInt32 GetTestsPassedCount() const;
   ezInt32 GetTestsFailedCount() const;
   double GetTotalTestDuration() const;
 
 protected:
+  virtual void ErrorImpl(const char* szError, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg);
   virtual void OutputImpl(ezTestOutput::Enum Type, const char* szMsg);
-  virtual void TestResultImpl(ezInt32 iSubTestIdentifier, bool bSuccess, double fDuration);
+  virtual void TestResultImpl(ezInt32 iSubTestIndex, bool bSuccess, double fDuration);
 
   // ignore this for now
 public:
@@ -76,7 +86,8 @@ public:
   static void SetAssertOnTestFail(bool m_bAssertOnTestFail) { s_bAssertOnTestFail = m_bAssertOnTestFail; }
   
   static void Output(ezTestOutput::Enum Type, const char* szMsg, ...);
-  static void TestResult(ezInt32 iSubTestIdentifier, bool bSuccess, double fDuration);
+  static void Error(const char* szError, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg);
+  static void TestResult(ezInt32 iSubTestIndex, bool bSuccess, double fDuration);
 
   // static members
 private:
@@ -92,6 +103,7 @@ private:
   TestSettings m_Settings;
   std::deque<OutputHandler> m_OutputHandlers;
   std::deque<ezTestEntry> m_TestEntries;
+  ezTestFrameworkResult m_Result;
 
 protected:
   ezInt32 m_iCurrentTestIndex;
@@ -123,6 +135,11 @@ struct ezTestBlock
     ezTestFramework::Output(ezTestOutput::Message, "Skipped Test Block '%s'", name); \
   } \
   else
+
+#define EZ_TEST_FAILURE(erroroutput, msg) \
+{\
+  ezTestFramework::Error(erroroutput, EZ_SOURCE_FILE, EZ_SOURCE_LINE, EZ_SOURCE_FUNCTION, msg);\
+}
 
 /// \brief Will trigger a debug break, if the test framework is configured to do so on test failure
 #define EZ_TEST_DEBUG_BREAK if (ezTestFramework::GetAssertOnTestFail())\

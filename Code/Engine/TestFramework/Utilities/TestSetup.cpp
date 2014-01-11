@@ -45,11 +45,13 @@ ezInt32 ezTestSetup::RunTests(int argc, char **argv)
   // Setup Qt Application
   ezQtTestGUI::SetDarkTheme();
   QApplication app(argc, argv);
+
   app.setApplicationName(pTestFramework->GetTestName());
   
   // Create main window
   ezQtTestGUI mainWindow(*static_cast<ezQtTestFramework*>(pTestFramework));
   mainWindow.show();
+
   app.exec();
 #else
   // Run all the tests with the given order

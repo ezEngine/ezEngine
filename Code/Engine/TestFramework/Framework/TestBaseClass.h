@@ -4,6 +4,8 @@
 #include <Foundation/Utilities/EnumerableClass.h>
 #include <TestFramework/Framework/Declarations.h>
 
+struct ezTestConfiguration;
+
 class EZ_TEST_DLL ezTestBaseClass : public ezEnumerable<ezTestBaseClass>
 {
   friend class ezTestFramework;
@@ -16,6 +18,9 @@ public:
 
   /// Override this function to give the test a proper name.
   virtual const char* GetTestName() const /*EZ_OVERRIDE*/ = 0;
+
+  /// Override this function to add additional information to the test configuration
+  virtual void UpdateConfiguration(ezTestConfiguration& config) const /*EZ_OVERRIDE*/;
 
 private:
 

@@ -11,18 +11,8 @@
 // ezQtTestModelEntry public functions
 ////////////////////////////////////////////////////////////////////////
 
-ezQtTestModelEntry::ezQtTestModelEntry()
-  : m_pSubTestEntry(NULL), m_pTestEntry(NULL), m_pParentEntry(NULL), m_uiIndexInParent(0)
-{
-}
-
-ezQtTestModelEntry::ezQtTestModelEntry(ezSubTestEntry* pSubTestEntry)
-  : m_pSubTestEntry(pSubTestEntry), m_pTestEntry(NULL), m_pParentEntry(NULL), m_uiIndexInParent(0)
-{
-}
-
-ezQtTestModelEntry::ezQtTestModelEntry(ezTestEntry* pTestEntry)
-  : m_pSubTestEntry(NULL), m_pTestEntry(pTestEntry), m_pParentEntry(NULL), m_uiIndexInParent(0)
+ezQtTestModelEntry::ezQtTestModelEntry(const ezTestFrameworkResult* pResult, ezInt32 iTestIndex, ezInt32 iSubTestIndex)
+  : m_pResult(pResult), m_iTestIndex(iTestIndex), m_iSubTestIndex(iSubTestIndex), m_pParentEntry(NULL), m_uiIndexInParent(0)
 {
 }
 
@@ -62,17 +52,16 @@ void ezQtTestModelEntry::AddSubEntry(ezQtTestModelEntry* pEntry)
 
 ezQtTestModelEntry::ezTestModelEntryType ezQtTestModelEntry::GetNodeType() const
 {
-  return (m_pTestEntry != NULL) ? TestNode : ((m_pSubTestEntry != NULL) ? SubTestNode : RootNode);
+  return (m_iTestIndex == -1) ? RootNode : ((m_iSubTestIndex == -1) ? TestNode : SubTestNode);
 }
 
-ezTestResult* ezQtTestModelEntry::GetTestResult() const
+const ezTestResultData* ezQtTestModelEntry::GetTestResult() const
 {
   switch (GetNodeType())
   {
-  case ezQtTestModelEntry::SubTestNode:
-    return &m_pSubTestEntry->m_Result;
   case ezQtTestModelEntry::TestNode:
-    return &m_pTestEntry->m_Result;
+  case ezQtTestModelEntry::SubTestNode:
+    return &m_pResult->GetTestResultData(m_iTestIndex, m_iSubTestIndex);
   default:
     return NULL;
   }
@@ -92,9 +81,10 @@ static QColor ToneColor(const QColor& inputColor, const QColor& toneColor)
 ////////////////////////////////////////////////////////////////////////
 
 ezQtTestModel::ezQtTestModel(QObject* pParent, ezQtTestFramework* pTestFramework)
-  : QAbstractItemModel(pParent), m_pTestFramework(pTestFramework), m_Root()
+  : QAbstractItemModel(pParent), m_pTestFramework(pTestFramework), m_Root(NULL)
 {
   QPalette palette = QApplication::palette();
+  m_pResult = &pTestFramework->GetTestResult();
 
   // Derive state colors from the current active palette.
   m_SucessColor = ToneColor(palette.text().color(), QColor(Qt::green)).toRgb();
@@ -151,24 +141,21 @@ QVariant ezQtTestModel::data(const QModelIndex& index, int role) const
   const ezQtTestModelEntry* pParentEntry = pEntry->GetParentEntry();
   const ezQtTestModelEntry::ezTestModelEntryType entryType = pEntry->GetNodeType();
   
-  const ezTestEntry* pTestEntry = NULL;
-  const ezSubTestEntry* pSubTestEntry = NULL;
+  bool bTestEnabled = true;
   bool bParentEnabled = true;
   bool bIsSubTest = entryType == ezQtTestModelEntry::SubTestNode;
 
   if (bIsSubTest)
   {
-    pTestEntry = pParentEntry->GetTestEntry();
-    pSubTestEntry = pEntry->GetSubTestEntry();
-    bParentEnabled = pTestEntry->m_Result.m_bEnableTest;
+    bTestEnabled = m_pTestFramework->IsSubTestEnabled(pEntry->GetTestIndex(), pEntry->GetSubTestIndex());
+    bParentEnabled = m_pTestFramework->IsTestEnabled(pParentEntry->GetTestIndex());
   }
   else
   {
-    pTestEntry = pEntry->GetTestEntry();
+    bTestEnabled = m_pTestFramework->IsTestEnabled(pEntry->GetTestIndex());
   }
 
-  const ezTestResult& TestResult = *pEntry->GetTestResult();
-  const char* szTestName = pSubTestEntry ? pSubTestEntry->m_szSubTestName : pTestEntry->m_szTestName;
+  const ezTestResultData& TestResult = *pEntry->GetTestResult();
 
   // Name
   if (index.column() == Columns::Name)
@@ -177,15 +164,15 @@ QVariant ezQtTestModel::data(const QModelIndex& index, int role) const
     {
     case Qt::DisplayRole:
       {
-        return QString(szTestName);
+        return QString(TestResult.m_sName.c_str());
       }
     case Qt::CheckStateRole:
       {
-        return TestResult.m_bEnableTest ? Qt::Checked : Qt::Unchecked;
+        return bTestEnabled ? Qt::Checked : Qt::Unchecked;
       }
     case Qt::DecorationRole:
       {
-        return (TestResult.m_bEnableTest && bParentEnabled) ? m_TestIcon : m_TestIconOff;
+        return (bTestEnabled && bParentEnabled) ? m_TestIcon : m_TestIconOff;
       }
     default:
       return QVariant();
@@ -198,7 +185,7 @@ QVariant ezQtTestModel::data(const QModelIndex& index, int role) const
     {
     case Qt::DisplayRole:
       {
-        if (TestResult.m_bEnableTest && bParentEnabled)
+        if (bTestEnabled && bParentEnabled)
         {
           if (bIsSubTest)
           {
@@ -207,8 +194,8 @@ QVariant ezQtTestModel::data(const QModelIndex& index, int role) const
           else
           {
             // Count sub-test status
-            const ezUInt32 iSubTests = (ezUInt32)pTestEntry->m_SubTests.size();
-            ezUInt32 iEnabled = pTestEntry->GetSubTestCount(ezTestResultQuery::Enabled);
+            const ezUInt32 iSubTests = m_pResult->GetSubTestCount(pEntry->GetTestIndex());
+            const ezUInt32 iEnabled = m_pTestFramework->GetSubTestEnabledCount(pEntry->GetTestIndex());
             return QString("%1 / %2 Enabled").arg(iEnabled).arg(iSubTests);
           }
         }
@@ -232,7 +219,7 @@ QVariant ezQtTestModel::data(const QModelIndex& index, int role) const
     {
     case Qt::DisplayRole:
       {
-        return QString::number(TestResult.m_fTestDuration, 'f', 4);
+        return QLocale(QLocale::English).toString(TestResult.m_fTestDuration, 'f', 4);
       }
     case Qt::TextAlignmentRole:
       {
@@ -245,9 +232,9 @@ QVariant ezQtTestModel::data(const QModelIndex& index, int role) const
       }*/
     case UserRoles::Duration:
       {
-        if (bIsSubTest && pTestEntry->m_Result.m_bExecuted)
+        if (bIsSubTest && TestResult.m_bExecuted)
         {
-          return TestResult.m_fTestDuration / pTestEntry->m_Result.m_fTestDuration;
+          return TestResult.m_fTestDuration / pParentEntry->GetTestResult()->m_fTestDuration;
         }
         else if (TestResult.m_bExecuted)
         {
@@ -274,7 +261,9 @@ QVariant ezQtTestModel::data(const QModelIndex& index, int role) const
     {
     case Qt::DisplayRole:
       {
-        return QString("%1 / %2").arg(TestResult.m_uiErrorCount).arg(TestResult.m_TestOutput.size());
+        return QString("%1 / %2")
+          .arg(m_pResult->GetErrorMessageCount(pEntry->GetTestIndex(), pEntry->GetSubTestIndex()))
+          .arg(m_pResult->GetOutputMessageCount(pEntry->GetTestIndex(), pEntry->GetSubTestIndex()));
       }
     case Qt::BackgroundColorRole:
       {
@@ -285,7 +274,7 @@ QVariant ezQtTestModel::data(const QModelIndex& index, int role) const
       {
         if (TestResult.m_bExecuted)
         {
-          return (TestResult.m_uiErrorCount == 0) ? m_SucessColor : m_FailedColor;
+          return (m_pResult->GetErrorMessageCount(pEntry->GetTestIndex(), pEntry->GetSubTestIndex()) == 0) ? m_SucessColor : m_FailedColor;
         }
         return QVariant();
       }
@@ -305,7 +294,7 @@ QVariant ezQtTestModel::data(const QModelIndex& index, int role) const
     {
     case Qt::DisplayRole:
       {
-        if (TestResult.m_bEnableTest && bParentEnabled)
+        if (bTestEnabled && bParentEnabled)
         {
           if (bIsSubTest)
           {
@@ -322,9 +311,9 @@ QVariant ezQtTestModel::data(const QModelIndex& index, int role) const
           {
             // Count sub-test status
             
-            ezUInt32 iEnabled = pTestEntry->GetSubTestCount(ezTestResultQuery::Enabled);
-            ezUInt32 iExecuted = pTestEntry->GetSubTestCount(ezTestResultQuery::Executed);
-            ezUInt32 iSucceeded = pTestEntry->GetSubTestCount(ezTestResultQuery::Success);
+            const ezUInt32 iEnabled = m_pTestFramework->GetSubTestEnabledCount(pEntry->GetTestIndex());
+            const ezUInt32 iExecuted = m_pResult->GetSubTestCount(pEntry->GetTestIndex(), ezTestResultQuery::Executed);
+            const ezUInt32 iSucceeded = m_pResult->GetSubTestCount(pEntry->GetTestIndex(), ezTestResultQuery::Success);
            
             if (iExecuted == iEnabled)
             {
@@ -456,15 +445,17 @@ bool ezQtTestModel::setData(const QModelIndex& index, const QVariant& value, int
   if (pEntry == NULL || index.column() != Columns::Name || role != Qt::CheckStateRole)
     return false;
 
-  pEntry->GetTestResult()->m_bEnableTest = value.toBool();
   if (pEntry->GetNodeType() == ezQtTestModelEntry::TestNode)
   {
+    m_pTestFramework->SetTestEnabled(pEntry->GetTestIndex(), value.toBool());
     TestDataChanged(pEntry->GetIndexInParent(), -1);
   }
   else
   {
+    m_pTestFramework->SetSubTestEnabled(pEntry->GetTestIndex(), pEntry->GetSubTestIndex(), value.toBool());
     TestDataChanged(pEntry->GetParentEntry()->GetIndexInParent(), pEntry->GetIndexInParent());
   }
+
   return true;
 }
 
@@ -476,18 +467,19 @@ bool ezQtTestModel::setData(const QModelIndex& index, const QVariant& value, int
 void ezQtTestModel::UpdateModel()
 {
   m_Root.ClearEntries();
-  const ezUInt32 uiTestCount = m_pTestFramework->GetTestCount();
+  if (m_pResult == NULL)
+    return;
+
+  const ezUInt32 uiTestCount = m_pResult->GetTestCount();
   for (ezUInt32 uiTestIndex = 0; uiTestIndex < uiTestCount; ++uiTestIndex)
   {
-    ezTestEntry* pTestEntry = m_pTestFramework->GetTest(uiTestIndex);
-    ezQtTestModelEntry* pTestModelEntry = new ezQtTestModelEntry(pTestEntry);
+    ezQtTestModelEntry* pTestModelEntry = new ezQtTestModelEntry(m_pResult, uiTestIndex);
     m_Root.AddSubEntry(pTestModelEntry);
 
-    const ezUInt32 uiSubTestCount = (ezUInt32)pTestEntry->m_SubTests.size();
-    for (ezUInt32 uiSubTest = 0; uiSubTest < uiSubTestCount; ++uiSubTest)
+    const ezUInt32 uiSubTestCount = m_pResult->GetSubTestCount(uiTestIndex);
+    for (ezUInt32 uiSubTestIndex = 0; uiSubTestIndex < uiSubTestCount; ++uiSubTestIndex)
     {
-      ezSubTestEntry* pSubTestEntry = &pTestEntry->m_SubTests[uiSubTest];
-      ezQtTestModelEntry* pSubTestModelEntry = new ezQtTestModelEntry(pSubTestEntry);
+      ezQtTestModelEntry* pSubTestModelEntry = new ezQtTestModelEntry(m_pResult, uiTestIndex, uiSubTestIndex);
       pTestModelEntry->AddSubEntry(pSubTestModelEntry);
     }
   }

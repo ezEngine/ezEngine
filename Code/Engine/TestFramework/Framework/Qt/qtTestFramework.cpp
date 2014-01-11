@@ -26,10 +26,10 @@ void ezQtTestFramework::OutputImpl(ezTestOutput::Enum Type, const char* szMsg)
   ezTestFramework::OutputImpl(Type, szMsg);
 }
 
-void ezQtTestFramework::TestResultImpl(ezInt32 iSubTestIdentifier, bool bSuccess, double fDuration)
+void ezQtTestFramework::TestResultImpl(ezInt32 iSubTestIndex, bool bSuccess, double fDuration)
 {
-  ezTestFramework::TestResultImpl(iSubTestIdentifier, bSuccess, fDuration);
-  emit TestResultReceived(m_iCurrentTestIndex, SubTestIdentifierToSubTestIndex(iSubTestIdentifier));
+  ezTestFramework::TestResultImpl(iSubTestIndex, bSuccess, fDuration);
+  emit TestResultReceived(m_iCurrentTestIndex, iSubTestIndex);
 }
 
 #endif

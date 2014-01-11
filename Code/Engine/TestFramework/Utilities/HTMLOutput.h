@@ -140,6 +140,8 @@ struct ezOutputToHTML
 #endif
       }
       break;
+    default:
+      break;
     }
   }
 };

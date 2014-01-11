@@ -21,6 +21,12 @@ ezQtTestGUI::ezQtTestGUI(ezQtTestFramework& testFramework)
 {
   this->setupUi(this);
   this->setWindowTitle(testFramework.GetTestName());
+
+  QCoreApplication::setOrganizationDomain("www.ezengine.net");
+  QCoreApplication::setOrganizationName("ezEngine Project");
+  QCoreApplication::setApplicationName("ezTestFramework");
+  QCoreApplication::setApplicationVersion("1.0.0");
+
   // Status Bar
   m_pStatusTextWorkState = new QLabel(this);
   testStatusBar->addWidget(m_pStatusTextWorkState);
@@ -51,7 +57,7 @@ ezQtTestGUI::ezQtTestGUI(ezQtTestFramework& testFramework)
   testTreeView->setSelectionBehavior(QAbstractItemView::SelectRows);
 
   // Message Log Dock
-  m_pMessageLogDock = new ezQtLogMessageDock(this);
+  m_pMessageLogDock = new ezQtLogMessageDock(this, &m_pTestFramework->GetTestResult());
   addDockWidget(Qt::RightDockWidgetArea, m_pMessageLogDock);
 
   // connect custom context menu
@@ -71,6 +77,7 @@ ezQtTestGUI::ezQtTestGUI(ezQtTestFramework& testFramework)
   connect(m_pTestFramework, SIGNAL( TestResultReceived(qint32, qint32) ), this, SLOT( onTestFrameworkTestResultReceived(qint32, qint32) ) );
 
   UpdateButtonStates();
+  LoadGUILayout();
 }
 
 ezQtTestGUI::~ezQtTestGUI()
@@ -86,6 +93,7 @@ ezQtTestGUI::~ezQtTestGUI()
 void ezQtTestGUI::closeEvent(QCloseEvent* e)
 {
   m_pTestFramework->SaveTestOrder();
+  SaveGUILayout();
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -144,7 +152,9 @@ void ezQtTestGUI::on_actionRunTests_triggered()
   }
   m_pTestFramework->EndTests();
   UpdateButtonStates();
+  m_pMessageLogDock->currentTestResultChanged(NULL);
 
+  // MessageBox
   if (m_bAbort)
   {
     m_pStatusTextWorkState->setText("<p><span style=\"font-weight:600; color:#ff0000;\">  [Tests Aborted]</span></p>");
@@ -264,11 +274,11 @@ void ezQtTestGUI::onTestFrameworkTestResultReceived(qint32 iTestIndex, qint32 iS
   double fTestDurationInSeconds = m_pTestFramework->GetTotalTestDuration() / 1000.0;
 
   // Get the current test's sub-test completion ratio
-  ezTestEntry* pTest = m_pTestFramework->GetTest(m_pTestFramework->GetCurrentTestIndex());
   float fSubTestPercentage = 0.0f;
-  if (pTest != NULL && iSubTestIndex != -1)
+  if (iTestIndex != -1 && iSubTestIndex != -1)
   {
-    fSubTestPercentage = (float)pTest->GetSubTestCount(ezTestResultQuery::Executed) / (float)pTest->GetSubTestCount(ezTestResultQuery::Enabled);
+    fSubTestPercentage = (float)m_pTestFramework->GetTestResult().GetSubTestCount(m_pTestFramework->GetCurrentTestIndex(), ezTestResultQuery::Executed)
+      / (float)m_pTestFramework->GetSubTestEnabledCount(m_pTestFramework->GetCurrentTestIndex());
   }
 
   float fProgress = 100.0f * (fSubTestPercentage + uiFailed + uiPassed) / uiTestCount;
@@ -277,6 +287,7 @@ void ezQtTestGUI::onTestFrameworkTestResultReceived(qint32 iTestIndex, qint32 iS
     % QString::number(fTestDurationInSeconds, 'f', 2) % QLatin1String(" seconds]");
 
   m_pStatusText->setText(sStatusText);
+  m_pMessageLogDock->currentTestResultChanged(&m_pTestFramework->GetTestResult().GetTestResultData(iTestIndex, iSubTestIndex));
 
   QApplication::processEvents();
 }
@@ -304,13 +315,13 @@ void ezQtTestGUI::onSelectionModelCurrentRowChanged(const QModelIndex& index)
 {
   if (!index.isValid())
   {
-    m_pMessageLogDock->currentTestResultChanged(NULL);
+    m_pMessageLogDock->currentTestSelectionChanged(NULL);
   }
 
   const ezQtTestModelEntry* pEntry = (ezQtTestModelEntry*) index.internalPointer();
-  const ezTestResult* pTestResult = pEntry->GetTestResult();
+  const ezTestResultData* pTestResult = pEntry->GetTestResult();
 
-  m_pMessageLogDock->currentTestResultChanged(pTestResult);
+  m_pMessageLogDock->currentTestSelectionChanged(pTestResult);
 }
 
 
@@ -329,6 +340,41 @@ void ezQtTestGUI::UpdateButtonStates()
   actionQuit->setEnabled(!bTestsRunning);
   actionAbort->setEnabled(bTestsRunning);
   actionRunTests->setEnabled(!bTestsRunning);
+}
+
+void ezQtTestGUI::SaveGUILayout()
+{
+  QSettings Settings;
+
+  Settings.beginGroup("MainWindow");
+
+  Settings.setValue("WindowGeometry", saveGeometry());
+  Settings.setValue("WindowState", saveState());
+  Settings.setValue("IsMaximized", isMaximized());
+
+  if (!isMaximized()) 
+  {
+    Settings.setValue("WindowPosition", pos());
+    Settings.setValue("WindowSize", size());
+  }
+
+  Settings.endGroup();
+}
+
+void ezQtTestGUI::LoadGUILayout()
+{
+  QSettings Settings;
+  Settings.beginGroup("MainWindow");
+
+  restoreGeometry(Settings.value("WindowGeometry", saveGeometry() ).toByteArray());
+  restoreState(Settings.value("WindowState", saveState()).toByteArray());
+  move(Settings.value("WindowPosition", pos()).toPoint());
+  resize(Settings.value("WindowSize", size()).toSize());
+
+  if (Settings.value("IsMaximized", isMaximized()).toBool())
+    showMaximized();
+
+  Settings.endGroup();
 }
 
 void ezQtTestGUI::SetCheckStateRecursive(const QModelIndex& index, bool bChecked)
@@ -373,7 +419,7 @@ void ezQtTestGUI::SetDarkTheme()
   palette.setColor(QPalette::Text, QColor(200, 200, 200, 255));
   palette.setColor(QPalette::BrightText, QColor(37, 37, 37, 255));
   palette.setColor(QPalette::ButtonText, QColor(200, 200, 200, 255));
-  palette.setColor(QPalette::Base, QColor(42, 42, 42, 255));
+  palette.setColor(QPalette::Base, QColor(40, 40, 40, 255));
   palette.setColor(QPalette::Window, QColor(68, 68, 68, 255));
   palette.setColor(QPalette::Shadow, QColor(0, 0, 0, 255));
   palette.setColor(QPalette::Highlight, QColor(103, 141, 178, 255));

@@ -48,6 +48,9 @@ private slots:
 
 private:
   void UpdateButtonStates();
+  void SaveGUILayout();
+  void LoadGUILayout();
+
   void SetCheckStateRecursive(const QModelIndex& index, bool bChecked);
   void EnableAllParents(const QModelIndex& index);
 

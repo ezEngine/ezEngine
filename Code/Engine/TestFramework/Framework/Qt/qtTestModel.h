@@ -13,9 +13,7 @@ class ezQtTestFramework;
 class ezQtTestModelEntry
 {
 public:
-  ezQtTestModelEntry();
-  ezQtTestModelEntry(ezSubTestEntry* pSubTestEntry);
-  ezQtTestModelEntry(ezTestEntry* pTestEntry);
+  ezQtTestModelEntry(const ezTestFrameworkResult* pResult, ezInt32 iTestIndex = -1, ezInt32 iSubTestIndex = -1);
   ~ezQtTestModelEntry();
 
 private:
@@ -37,13 +35,15 @@ public:
   ezQtTestModelEntry* GetParentEntry() const { return m_pParentEntry; }
   ezUInt32 GetIndexInParent() const { return m_uiIndexInParent; }
   ezTestModelEntryType GetNodeType() const;
-  ezTestResult* GetTestResult() const;
-  ezSubTestEntry* GetSubTestEntry() const { return m_pSubTestEntry; }
-  ezTestEntry* GetTestEntry() const { return m_pTestEntry; }
+  const ezTestResultData* GetTestResult() const;
+  ezInt32 GetTestIndex() const { return m_iTestIndex; }
+  ezInt32 GetSubTestIndex() const { return m_iSubTestIndex; }
 
 private:
-  ezSubTestEntry* m_pSubTestEntry;
-  ezTestEntry* m_pTestEntry;
+  const ezTestFrameworkResult* m_pResult;
+  ezInt32 m_iTestIndex;
+  ezInt32 m_iSubTestIndex; 
+
   ezQtTestModelEntry* m_pParentEntry;
   ezUInt32 m_uiIndexInParent;
   std::deque<ezQtTestModelEntry*> m_SubEntries;
@@ -98,6 +98,7 @@ public slots:
 
 private:
   ezQtTestFramework* m_pTestFramework;
+  ezTestFrameworkResult* m_pResult;
   ezQtTestModelEntry m_Root;
   QColor m_SucessColor;
   QColor m_FailedColor;

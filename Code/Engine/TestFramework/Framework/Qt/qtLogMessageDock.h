@@ -8,34 +8,39 @@
 #include <vector>
 
 class ezQtTestFramework;
-struct ezTestResult;
+struct ezTestResultData;
 class ezQtLogMessageModel;
+class ezTestFrameworkResult;
 
-/// \brief Dock widget that lists the output of a given ezTestResult struct.
+/// \brief Dock widget that lists the output of a given ezResult struct.
 class EZ_TEST_DLL ezQtLogMessageDock : public QDockWidget, public Ui_qtLogMessageDock
 {
   Q_OBJECT
 public:
-  ezQtLogMessageDock(QObject* pParent);
+  ezQtLogMessageDock(QObject* pParent, const ezTestFrameworkResult* pResult);
   virtual ~ezQtLogMessageDock();
 
 public slots:
-  void currentTestResultChanged(const ezTestResult* pTestResult);
+  void currentTestResultChanged(const ezTestResultData* pTestResult);
+  void currentTestSelectionChanged(const ezTestResultData* pTestResult);
 
 private:
   ezQtLogMessageModel* m_pModel;
 };
 
-/// \brief Model used by ezQtLogMessageDock to list the output entries in ezTestResult.
+/// \brief Model used by ezQtLogMessageDock to list the output entries in ezResult.
 class EZ_TEST_DLL ezQtLogMessageModel : public QAbstractItemModel
 {
   Q_OBJECT
 public:
-  ezQtLogMessageModel(QObject* pParent);
+  ezQtLogMessageModel(QObject* pParent, const ezTestFrameworkResult* pResult);
   virtual ~ezQtLogMessageModel();
+  QModelIndex GetFirstIndexOfTestSelection();
+  QModelIndex GetLastIndexOfTestSelection();
 
 public slots:
-  void currentTestResultChanged(const ezTestResult* pTestResult);
+  void currentTestResultChanged(const ezTestResultData* pTestResult);
+  void currentTestSelectionChanged(const ezTestResultData* pTestResult);
 
 public: //QAbstractItemModel interface
   virtual QVariant data(const QModelIndex& index, int role) const EZ_OVERRIDE;
@@ -50,8 +55,10 @@ private:
   void UpdateVisibleEntries();
 
 private:
-  const ezTestResult* m_pTestResult;
+  const ezTestResultData* pCurrentTestSelection;
+  const ezTestFrameworkResult* m_pTestResult;
   std::vector<ezUInt32> m_VisibleEntries;
+  std::vector<ezUInt8> m_VisibleEntriesIndention;
 };
 
 #endif
