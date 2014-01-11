@@ -5,7 +5,7 @@
 #include <Core/Input/InputManager.h>
 #include <Foundation/Configuration/CVar.h>
 #include <GameUtils/GridAlgorithms/Rasterization.h>
-#include <GameUtils/PathFinding/PathState.h>
+#include <GameUtils/PathFinding/GraphSearch.h>
 
 void SampleGameApp::UpdateInput(ezTime UpdateDiff)
 {
@@ -193,6 +193,15 @@ public:
   ezInt32 m_iGridHeight;
   GameGrid* m_pGameGrid;
 
+  ezInt32 m_iTargetX;
+  ezInt32 m_iTargetY;
+
+  virtual void StartSearch(ezInt64 iStartNodeIndex, const MyPathState* pStartState, ezInt64 iTargetNodeIndex) EZ_OVERRIDE
+  {
+    m_iTargetX = (ezInt32) iTargetNodeIndex / m_iGridWidth;
+    m_iTargetY = (ezInt32) iTargetNodeIndex % m_iGridWidth;
+  }
+
   virtual void GenerateAdjacentStates(ezInt64 iNodeIndex, const MyPathState& StartState, ezPathSearch<MyPathState>* pPathSearch) EZ_OVERRIDE
   {
     const ezInt32 iGridPosY = (ezInt32) iNodeIndex / m_iGridWidth;
@@ -205,7 +214,7 @@ public:
     const float fCurCost = StartState.m_fCostToNode;
 
     int iAllowedDirections = StartState.m_bWentDiagonal ? 4 : 8;
-    //iAllowedDirections = 8; // disabled
+    iAllowedDirections = 8; // disabled
 
     for (ezInt32 i = 0; i < iAllowedDirections; ++i)
     {
@@ -218,10 +227,13 @@ public:
       if (m_pGameGrid->GetCell(ezGridCoordinate(iNextPosX, iNextPosY)).m_iCellType == 1)
         continue;
 
+      ezVec2 vCurPos((float) iNextPosX, (float) iNextPosY);
+      ezVec2 vTargetPos((float) m_iTargetX, (float) m_iTargetY);
+      float fDistance = (vTargetPos - vCurPos).GetLength();
+
       MyPathState NextState;
       NextState.m_fCostToNode = fCurCost + fCost[i];
-      NextState.m_fEstimatedCostToTarget = NextState.m_fCostToNode;
-      NextState.m_iReachedThroughNode = iNodeIndex;
+      NextState.m_fEstimatedCostToTarget = NextState.m_fCostToNode + fDistance;
 
       // this demonstrates how path-searches can have state along a path
       // the unit may only walk diagonally, if it did not do so in the previous step already
