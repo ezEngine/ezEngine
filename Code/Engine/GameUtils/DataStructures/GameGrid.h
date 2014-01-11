@@ -41,6 +41,8 @@ public:
   CellData& GetCell(const ezGridCoordinate& Coord);
   const CellData& GetCell(const ezGridCoordinate& Coord) const;
 
+  ezGridCoordinate GetCellCoordsByInex(ezUInt32 uiIndex) const;
+
   ezUInt32 GetCellIndex(const ezGridCoordinate& Coord) const;
 
   ezVec3 GetCellOrigin(const ezGridCoordinate& Coord) const;
