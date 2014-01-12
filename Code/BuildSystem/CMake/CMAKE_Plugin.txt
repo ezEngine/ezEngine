@@ -71,3 +71,5 @@ if (LINKER_SETTINGS_RELEASE)
   set_target_properties (${PROJECT_NAME} PROPERTIES LINK_FLAGS_MINSIZEREL     ${LINKER_SETTINGS_RELEASE})
 endif ()
 
+# Add to target list
+ADD_TO_TARGET_LIST()

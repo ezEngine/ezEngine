@@ -18,7 +18,16 @@ if (EZ_ENABLE_QT_SUPPORT AND EZ_QTPROJECT)
   
 	if (NOT QT5_FOUND)
     # now force QT to search in the correct folder
-    set (CMAKE_PREFIX_PATH ${EZ_QT_DIR})
+   	if (BUILDSYSTEM_PLATFORM_WINDOWS)
+	    if (BUILDSYSTEM_PLATFORM_64BIT)
+	      set (CMAKE_PREFIX_PATH ${EZ_QT_DIR} "C:\\Program Files (x86)\\Windows Kits\\8.0\\Lib\\win8\\um\\x64")
+	    else()
+	      set (CMAKE_PREFIX_PATH ${EZ_QT_DIR} "C:\\Program Files (x86)\\Windows Kits\\8.0\\Lib\\win8\\um\\x86")
+	    endif()
+	  else()
+	    set (CMAKE_PREFIX_PATH ${EZ_QT_DIR})
+	  endif()
+  
     # we will need at least widgets (which includes core and gui), so we can run uic, moc and qrc
     # so search for it now so all qt paths are correctly set.
     find_package (Qt5Widgets REQUIRED PATHS ${EZ_QT_DIR})

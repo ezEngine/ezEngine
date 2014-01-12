@@ -117,15 +117,15 @@ if (BUILDSYSTEM_MSVC)
   set (BUILDSYSTEM_COMPILER_MSVC ON)
   
   if (MSVC12)
-    message (STATUS "Compiler is Visual Studio 2013")
+    message (STATUS "Compiler is Visual Studio 2013 (BUILDSYSTEM_COMPILER_MSVC_120)")
     set (BUILDSYSTEM_COMPILER_MSVC_120 ON)
     set (COMPILER_POSTFIX "2013")
   elseif (MSVC11)
-    message (STATUS "Compiler is Visual Studio 2012")
+    message (STATUS "Compiler is Visual Studio 2012 (BUILDSYSTEM_COMPILER_MSVC_110)")
     set (BUILDSYSTEM_COMPILER_MSVC_110 ON)
     set (COMPILER_POSTFIX "2012")
   elseif (MSVC10)
-    message (STATUS "Compiler is Visual Studio 2010")
+    message (STATUS "Compiler is Visual Studio 2010 (BUILDSYSTEM_COMPILER_MSVC_100)")
     set (BUILDSYSTEM_COMPILER_MSVC_100 ON)
     set (COMPILER_POSTFIX "2010") 
   else ()
@@ -169,11 +169,14 @@ if (BUILDSYSTEM_PLATFORM_WINDOWS AND BUILDSYSTEM_COMPILER_MSVC)
   
 elseif (BUILDSYSTEM_PLATFORM_OSX AND BUILDSYSTEM_COMPILER_CLANG)
   # OS X always has 32/64 bit support in the project files and the user switches on demand.
-  # Thus the header files there have to check for the current environment.
-  message (STATUS "Platform uses universal binaries 32-Bit / 64-Bit (BUILDSYSTEM_PLATFORM_32BIT, BUILDSYSTEM_PLATFORM_64BIT)")
-  set (BUILDSYSTEM_PLATFORM_64BIT ON)
-  set (BUILDSYSTEM_PLATFORM_32BIT ON)
-  set (ARCHITECTURE_POSTFIX "")
+  # However, we do not support 32 bit with our current build configuration so we throw an error on 32-bit systems.
+  if (CMAKE_SIZEOF_VOID_P EQUAL 8)
+    message (STATUS "Platform is 64-Bit (BUILDSYSTEM_PLATFORM_64BIT)")
+    set (BUILDSYSTEM_PLATFORM_64BIT ON)
+    set (ARCHITECTURE_POSTFIX "64")
+  else ()
+    message (FATAL_ERROR "32-Bit is not supported on OS X!")
+  endif ()
   
 elseif (BUILDSYSTEM_PLATFORM_LINUX AND BUILDSYSTEM_COMPILER_GCC)
   # Detect 64-bit builds for Linux, no other way than checking CMAKE_SIZEOF_VOID_P.
@@ -191,9 +194,7 @@ else ()
   message (FATAL_ERROR "Architecture could not be determined. Please extend CMAKE_GeneralConfig.txt.")
 endif ()
 
-if (BUILDSYSTEM_PLATFORM_LINUX AND BUILDSYSTEM_MAKEa)
-  Message ("Do2sdfdfgdfgdg!")
-endif()
+
 #########################################################################################
 ## Configuration Variables
 ## Add your variables here, if you need something (general) to configure from the cmake GUI
@@ -247,6 +248,10 @@ set (CMAKE_ARCHIVE_OUTPUT_DIRECTORY_DEBUG           "${OUTPUT_LIB_DEBUG}")
 set (CMAKE_ARCHIVE_OUTPUT_DIRECTORY_RELEASE         "${OUTPUT_LIB_RELEASE}")
 set (CMAKE_ARCHIVE_OUTPUT_DIRECTORY_MINSIZEREL      "${OUTPUT_LIB_MINSIZE}")
 set (CMAKE_ARCHIVE_OUTPUT_DIRECTORY_RELWITHDEBINFO  "${OUTPUT_LIB_RELWITHDEB}")
+
+#Write configuration to file
+file(WRITE ${CMAKE_BINARY_DIR}/Configuration.txt "")
+file(APPEND ${CMAKE_BINARY_DIR}/Configuration.txt "${PLATFORM_PREFIX}${BUILDSYSTEM_PREFIX}${COMPILER_POSTFIX}RelDeb${ARCHITECTURE_POSTFIX}")
 
 
 #########################################################################################
@@ -496,6 +501,40 @@ MACRO(BUILD_CONDITIONAL expression)
     get_filename_component (BUILD_CONDITIONAL_MACRO_FOLDERNAME ${CMAKE_CURRENT_SOURCE_DIR} NAME_WE)
     Message (STATUS "Skipping ${BUILD_CONDITIONAL_MACRO_FOLDERNAME}. Not supported in this configuration.")
     return ()
+  endif ()
+ENDMACRO()
+
+
+#########################################################################################
+## Macro to write the current project into the target list file
+
+MACRO(ADD_TO_TARGET_LIST)
+  file(RELATIVE_PATH ADD_TO_TARGET_LIST_MACRO_FOLDERNAME ${CMAKE_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
+  if(${CMAKE_CURRENT_SOURCE_DIR} MATCHES "Experimental") 
+    file(APPEND ${CMAKE_BINARY_DIR}/Targets.txt "${PROJECT_NAME}|${ADD_TO_TARGET_LIST_MACRO_FOLDERNAME}|1|${LINK_LIBRARIES}\n")
+  else ()
+    file(APPEND ${CMAKE_BINARY_DIR}/Targets.txt "${PROJECT_NAME}|${ADD_TO_TARGET_LIST_MACRO_FOLDERNAME}|0|${LINK_LIBRARIES}\n")
+  endif ()
+ENDMACRO()
+
+
+#########################################################################################
+## Macro to write the current project into the tests list file
+
+MACRO(ADD_TEST needs_hardware_access)
+  set (ADD_TEST_MACRO_HWA 0)
+  if (${needs_hardware_access})
+    set (ADD_TEST_MACRO_HWA 1)
+  else ()
+    set (ADD_TEST_MACRO_HWA 0)
+  endif ()
+  
+  get_filename_component (ADD_TEST_MACRO_FOLDERNAME ${CMAKE_CURRENT_SOURCE_DIR} NAME_WE)
+  
+  if(${CMAKE_CURRENT_SOURCE_DIR} MATCHES "Experimental") 
+    file(APPEND ${CMAKE_BINARY_DIR}/Tests.txt "${ADD_TEST_MACRO_FOLDERNAME}|${ADD_TEST_MACRO_HWA}|1\n")
+  else ()
+    file(APPEND ${CMAKE_BINARY_DIR}/Tests.txt "${ADD_TEST_MACRO_FOLDERNAME}|${ADD_TEST_MACRO_HWA}|0\n")
   endif ()
 ENDMACRO()
 

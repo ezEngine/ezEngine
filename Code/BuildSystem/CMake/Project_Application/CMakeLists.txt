@@ -47,3 +47,6 @@ include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/CMAKE_Application.txt)
 # Define which qt modules are going to be used in this project.
 #qt5_use_modules(${PROJECT_NAME} Widgets)
 
+# Adds this project to 'Tests.txt', notifying the build server to run this as a test.
+# The first parameter sets whether this tests needs direct hardware access to the GPU.
+#ADD_TEST(OFF)
