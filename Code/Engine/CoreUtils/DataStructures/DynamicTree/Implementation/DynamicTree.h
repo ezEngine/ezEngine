@@ -10,8 +10,8 @@ struct ezDynamicTree
 {
   struct ezObjectData
   {
-	  ezInt32 m_iObjectType;
-	  ezInt32 m_iObjectInstance;
+    ezInt32 m_iObjectType;
+    ezInt32 m_iObjectInstance;
   };
 
   struct ezMultiMapKey

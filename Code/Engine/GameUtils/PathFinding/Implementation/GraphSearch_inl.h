@@ -38,15 +38,19 @@ ezInt64 ezPathSearch<PathStateType>::FindBestNodeToExpand(PathStateType*& out_pP
 }
 
 template<typename PathStateType>
-void ezPathSearch<PathStateType>::FillOutPathResult(ezInt64 iEndNodeIndex, ezDeque<ezInt64>& out_Path)
+void ezPathSearch<PathStateType>::FillOutPathResult(ezInt64 iEndNodeIndex, ezDeque<PathResultData>& out_Path)
 {
   out_Path.Clear();
 
   while (true)
   {
-    out_Path.PushFront(iEndNodeIndex);
-
     const PathStateType* pCurState = &m_PathStates[iEndNodeIndex];
+
+    PathResultData r;
+    r.m_iNodeIndex = iEndNodeIndex;
+    r.m_pPathState = pCurState;
+
+    out_Path.PushFront(r);
 
     if (iEndNodeIndex == pCurState->m_iReachedThroughNode)
       return;
@@ -56,11 +60,13 @@ void ezPathSearch<PathStateType>::FillOutPathResult(ezInt64 iEndNodeIndex, ezDeq
 }
 
 template<typename PathStateType>
-ezResult ezPathSearch<PathStateType>::FindPath(ezInt64 iStartNodeIndex, const PathStateType& StartState, ezInt64 iTargetNodeIndex, ezDeque<ezInt64>& out_Path, float fMaxPathCost /* = Infinity */)
+ezResult ezPathSearch<PathStateType>::FindPath(ezInt64 iStartNodeIndex, const PathStateType& StartState, ezInt64 iTargetNodeIndex, ezDeque<PathResultData>& out_Path, float fMaxPathCost /* = Infinity */)
 {
   EZ_ASSERT(m_pStateGenerator != NULL, "No Path State Generator is set.");
 
   ClearPathStates();
+
+  m_PathStates.Reserve(10000);
 
   PathStateType& FirstState = m_PathStates[iStartNodeIndex];
 
@@ -76,7 +82,8 @@ ezResult ezPathSearch<PathStateType>::FindPath(ezInt64 iStartNodeIndex, const Pa
   // while the queue is not empty, expand the next node and see where that gets us
   while (!m_StateQueue.IsEmpty())
   {
-    m_iCurNodeIndex = FindBestNodeToExpand(m_pCurPathState);
+    PathStateType* pCurState;
+    m_iCurNodeIndex = FindBestNodeToExpand(pCurState);
 
     // we have reached the target node, generate the final path result
     if (m_iCurNodeIndex == iTargetNodeIndex)
@@ -89,14 +96,16 @@ ezResult ezPathSearch<PathStateType>::FindPath(ezInt64 iStartNodeIndex, const Pa
     // The heuristic must give a lower bound to what is required to reach the target
     // That means once our heuristic says we can't reach the target within the maximum path costs
     // we can just stop the search, as there is no other possible path that might be shorter (we just picked the shortest estimate above)
-    if (m_pCurPathState->m_fEstimatedCostToTarget >= fMaxPathCost)
+    if (pCurState->m_fEstimatedCostToTarget >= fMaxPathCost)
     {
       m_pStateGenerator->SearchFinished(EZ_FAILURE);
       return EZ_FAILURE;
     }
 
+    m_CurState = *pCurState;
+
     // let the generate append all the nodes that we can reach from here
-    m_pStateGenerator->GenerateAdjacentStates(m_iCurNodeIndex, *m_pCurPathState, this);
+    m_pStateGenerator->GenerateAdjacentStates(m_iCurNodeIndex, m_CurState, this);
   }
 
   m_pStateGenerator->SearchFinished(EZ_FAILURE);
@@ -106,8 +115,8 @@ ezResult ezPathSearch<PathStateType>::FindPath(ezInt64 iStartNodeIndex, const Pa
 template<typename PathStateType>
 void ezPathSearch<PathStateType>::AddPathNode(ezInt64 iNodeIndex, const PathStateType& NewState)
 {
-  EZ_ASSERT(NewState.m_fCostToNode            >   m_pCurPathState->m_fCostToNode, "The costs must grow from one node to the next.\nStart Node Costs: %.2f\nAdjacent Node Costs: %.2f", m_pCurPathState->m_fCostToNode, NewState.m_fCostToNode);
-  EZ_ASSERT(NewState.m_fEstimatedCostToTarget >=  m_pCurPathState->m_fEstimatedCostToTarget, "The estimated path costs cannot go down, the heuristic must be 'optimistic' regarding to the real costs.\nEstimated Costs from Current: %.2f\nEstimated Costs from Adjacent: %.2f", m_pCurPathState->m_fEstimatedCostToTarget, NewState.m_fEstimatedCostToTarget);
+  EZ_ASSERT(NewState.m_fCostToNode            >   m_CurState.m_fCostToNode, "The costs must grow from one node to the next.\nStart Node Costs: %.2f\nAdjacent Node Costs: %.2f", m_CurState.m_fCostToNode, NewState.m_fCostToNode);
+  //EZ_ASSERT(NewState.m_fEstimatedCostToTarget >=  m_CurState.m_fEstimatedCostToTarget, "The estimated path costs cannot go down, the heuristic must be 'optimistic' regarding to the real costs.\nEstimated Costs from Current: %.2f\nEstimated Costs from Adjacent: %.2f", m_pCurPathState->m_fEstimatedCostToTarget, NewState.m_fEstimatedCostToTarget);
   EZ_ASSERT(NewState.m_fEstimatedCostToTarget >=  NewState.m_fCostToNode, "Unrealistic expectations will get you nowhere.");
 
   PathStateType* pExistingState;

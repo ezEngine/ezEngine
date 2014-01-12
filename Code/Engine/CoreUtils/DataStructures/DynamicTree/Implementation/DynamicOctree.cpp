@@ -168,90 +168,89 @@ void ezDynamicOctree::FindObjectsInRange(const ezVec3& vPoint, EZ_VISIBLE_OBJ_CA
 
 void ezDynamicOctree::FindVisibleObjects(const ezFrustum& Viewfrustum, EZ_VISIBLE_OBJ_CALLBACK Callback, void* pPassThrough) const
 {
-	EZ_ASSERT(m_uiMaxTreeDepth > 0, "ezDynamicOctree::FindVisibleObjects: You have to first create the tree.");
+  EZ_ASSERT(m_uiMaxTreeDepth > 0, "ezDynamicOctree::FindVisibleObjects: You have to first create the tree.");
 
   if (m_NodeMap.IsEmpty())
-		return;
+    return;
 
-	FindVisibleObjects(Viewfrustum, Callback, pPassThrough, m_BBox.m_vMin.x, m_BBox.m_vMax.x, m_BBox.m_vMin.y, m_BBox.m_vMax.y, m_BBox.m_vMin.z, m_BBox.m_vMax.z, 0, m_uiAddIDTopLevel, ezMath::Pow (4, m_uiMaxTreeDepth-1), 0xFFFFFFFF);
+  FindVisibleObjects(Viewfrustum, Callback, pPassThrough, m_BBox.m_vMin.x, m_BBox.m_vMax.x, m_BBox.m_vMin.y, m_BBox.m_vMax.y, m_BBox.m_vMin.z, m_BBox.m_vMax.z, 0, m_uiAddIDTopLevel, ezMath::Pow (4, m_uiMaxTreeDepth-1), 0xFFFFFFFF);
 }
 
 void ezDynamicOctree::FindVisibleObjects (const ezFrustum& Viewfrustum, EZ_VISIBLE_OBJ_CALLBACK Callback, void* pPassThrough, float minx, float maxx, float miny, float maxy, float minz, float maxz, ezUInt32 uiNodeID, ezUInt32 uiAddID, ezUInt32 uiSubAddID, ezUInt32 uiNextNodeID) const
 {
-	ezVec3 v[8];
-	v[0].Set(minx, miny, minz);
-	v[1].Set(minx, miny, maxz);
-	v[2].Set(minx, maxy, minz);
-	v[3].Set(minx, maxy, maxz);
-	v[4].Set(maxx, miny, minz);
-	v[5].Set(maxx, miny, maxz);
-	v[6].Set(maxx, maxy, minz);
-	v[7].Set(maxx, maxy, maxz);
+  ezVec3 v[8];
+  v[0].Set(minx, miny, minz);
+  v[1].Set(minx, miny, maxz);
+  v[2].Set(minx, maxy, minz);
+  v[3].Set(minx, maxy, maxz);
+  v[4].Set(maxx, miny, minz);
+  v[5].Set(maxx, miny, maxz);
+  v[6].Set(maxx, maxy, minz);
+  v[7].Set(maxx, maxy, maxz);
 
   ezVolumePosition::Enum pos = Viewfrustum.GetObjectPosition(&v[0], 8);
 
   if (pos == ezVolumePosition::Outside)
-		return;
+    return;
 
   ezDynamicTree::ezMultiMapKey mmk;
   mmk.m_uiKey = uiNodeID;
 
-	ezDynamicTreeObjectConst it1 = m_NodeMap.LowerBound(mmk);
+  ezDynamicTreeObjectConst it1 = m_NodeMap.LowerBound(mmk);
 
   if ((!it1.IsValid()) || (it1.Key().m_uiKey >= uiNextNodeID))
-		return;
+    return;
 
   if (pos == ezVolumePosition::Inside)
-	{
+  {
     mmk.m_uiKey = uiNextNodeID;
-		const ezDynamicTreeObjectConst itlast = m_NodeMap.LowerBound(mmk);
+    const ezDynamicTreeObjectConst itlast = m_NodeMap.LowerBound(mmk);
 
     while (it1.IsValid())
-		{
-			// first increase the iterator, the user could erase it in the callback
-			ezDynamicTreeObjectConst temp = it1;
-			++it1;
+    {
+      // first increase the iterator, the user could erase it in the callback
+      ezDynamicTreeObjectConst temp = it1;
+      ++it1;
 
-			Callback(pPassThrough, temp);
-		}
+      Callback(pPassThrough, temp);
+    }
 
-		return;
-	}
-	else
-  if (pos == ezVolumePosition::Intersecting)
-	{
+    return;
+  }
+  else if (pos == ezVolumePosition::Intersecting)
+  {
     mmk.m_uiKey = uiNodeID + 1;
     const ezDynamicTreeObjectConst itlast = m_NodeMap.LowerBound(mmk);
 
     while  (it1.IsValid())
-		{
-			// first increase the iterator, the user could erase it in the callback
-			ezDynamicTreeObjectConst temp = it1;
-			++it1;
+    {
+      // first increase the iterator, the user could erase it in the callback
+      ezDynamicTreeObjectConst temp = it1;
+      ++it1;
 
-			Callback(pPassThrough, temp);
-		}
+      Callback(pPassThrough, temp);
+    }
 
-		if (uiAddID > 0)
-		{
-			const float lx = ((maxx - minx) * 0.5f) * s_LooseOctreeFactor;
-			const float ly = ((maxy - miny) * 0.5f) * s_LooseOctreeFactor;
-			const float lz = ((maxz - minz) * 0.5f) * s_LooseOctreeFactor;
+    if (uiAddID > 0)
+    {
+      const float lx = ((maxx - minx) * 0.5f) * s_LooseOctreeFactor;
+      const float ly = ((maxy - miny) * 0.5f) * s_LooseOctreeFactor;
+      const float lz = ((maxz - minz) * 0.5f) * s_LooseOctreeFactor;
 
-			const ezUInt32 uiNodeIDBase = uiNodeID + 1;
-			const ezUInt32 uiAddIDChild = uiAddID - uiSubAddID;
-			const ezUInt32 uiSubAddIDChild = uiSubAddID >> 3;
+      const ezUInt32 uiNodeIDBase = uiNodeID + 1;
+      const ezUInt32 uiAddIDChild = uiAddID - uiSubAddID;
+      const ezUInt32 uiSubAddIDChild = uiSubAddID >> 3;
 
-			FindVisibleObjects (Viewfrustum, Callback, pPassThrough, minx, minx + lx, miny, miny + ly, minz, minz + lz, uiNodeIDBase + uiAddID * 0, uiAddIDChild, uiSubAddIDChild, uiNodeIDBase + uiAddID * 1);
-			FindVisibleObjects (Viewfrustum, Callback, pPassThrough, minx, minx + lx, miny, miny + ly, maxz - lz, maxz, uiNodeIDBase + uiAddID * 1, uiAddIDChild, uiSubAddIDChild, uiNodeIDBase + uiAddID * 2);
-			FindVisibleObjects (Viewfrustum, Callback, pPassThrough, minx, minx + lx, maxy - ly, maxy, minz, minz + lz, uiNodeIDBase + uiAddID * 2, uiAddIDChild, uiSubAddIDChild, uiNodeIDBase + uiAddID * 3);
-			FindVisibleObjects (Viewfrustum, Callback, pPassThrough, minx, minx + lx, maxy - ly, maxy, maxz - lz, maxz, uiNodeIDBase + uiAddID * 3, uiAddIDChild, uiSubAddIDChild, uiNodeIDBase + uiAddID * 4);
-			FindVisibleObjects (Viewfrustum, Callback, pPassThrough, maxx - lx, maxx, miny, miny + ly, minz, minz + lz, uiNodeIDBase + uiAddID * 4, uiAddIDChild, uiSubAddIDChild, uiNodeIDBase + uiAddID * 5);
-			FindVisibleObjects (Viewfrustum, Callback, pPassThrough, maxx - lx, maxx, miny, miny + ly, maxz - lz, maxz, uiNodeIDBase + uiAddID * 5, uiAddIDChild, uiSubAddIDChild, uiNodeIDBase + uiAddID * 6);
-			FindVisibleObjects (Viewfrustum, Callback, pPassThrough, maxx - lx, maxx, maxy - ly, maxy, minz, minz + lz, uiNodeIDBase + uiAddID * 6, uiAddIDChild, uiSubAddIDChild, uiNodeIDBase + uiAddID * 7);
-			FindVisibleObjects (Viewfrustum, Callback, pPassThrough, maxx - lx, maxx, maxy - ly, maxy, maxz - lz, maxz, uiNodeIDBase + uiAddID * 7, uiAddIDChild, uiSubAddIDChild, uiNextNodeID);
-		}
-	}
+      FindVisibleObjects (Viewfrustum, Callback, pPassThrough, minx, minx + lx, miny, miny + ly, minz, minz + lz, uiNodeIDBase + uiAddID * 0, uiAddIDChild, uiSubAddIDChild, uiNodeIDBase + uiAddID * 1);
+      FindVisibleObjects (Viewfrustum, Callback, pPassThrough, minx, minx + lx, miny, miny + ly, maxz - lz, maxz, uiNodeIDBase + uiAddID * 1, uiAddIDChild, uiSubAddIDChild, uiNodeIDBase + uiAddID * 2);
+      FindVisibleObjects (Viewfrustum, Callback, pPassThrough, minx, minx + lx, maxy - ly, maxy, minz, minz + lz, uiNodeIDBase + uiAddID * 2, uiAddIDChild, uiSubAddIDChild, uiNodeIDBase + uiAddID * 3);
+      FindVisibleObjects (Viewfrustum, Callback, pPassThrough, minx, minx + lx, maxy - ly, maxy, maxz - lz, maxz, uiNodeIDBase + uiAddID * 3, uiAddIDChild, uiSubAddIDChild, uiNodeIDBase + uiAddID * 4);
+      FindVisibleObjects (Viewfrustum, Callback, pPassThrough, maxx - lx, maxx, miny, miny + ly, minz, minz + lz, uiNodeIDBase + uiAddID * 4, uiAddIDChild, uiSubAddIDChild, uiNodeIDBase + uiAddID * 5);
+      FindVisibleObjects (Viewfrustum, Callback, pPassThrough, maxx - lx, maxx, miny, miny + ly, maxz - lz, maxz, uiNodeIDBase + uiAddID * 5, uiAddIDChild, uiSubAddIDChild, uiNodeIDBase + uiAddID * 6);
+      FindVisibleObjects (Viewfrustum, Callback, pPassThrough, maxx - lx, maxx, maxy - ly, maxy, minz, minz + lz, uiNodeIDBase + uiAddID * 6, uiAddIDChild, uiSubAddIDChild, uiNodeIDBase + uiAddID * 7);
+      FindVisibleObjects (Viewfrustum, Callback, pPassThrough, maxx - lx, maxx, maxy - ly, maxy, maxz - lz, maxz, uiNodeIDBase + uiAddID * 7, uiAddIDChild, uiSubAddIDChild, uiNextNodeID);
+    }
+  }
 }
 
 void ezDynamicOctree::RemoveObject(ezDynamicTreeObject obj)
