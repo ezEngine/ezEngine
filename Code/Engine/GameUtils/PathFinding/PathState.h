@@ -36,6 +36,8 @@ class ezPathStateGenerator
 public:
   virtual void GenerateAdjacentStates(ezInt64 iNodeIndex, const PathStateType& StartState, ezPathSearch<PathStateType>* pPathSearch) = 0;
 
+  virtual void StartSearchForClosest(ezInt64 iStartNodeIndex, const PathStateType* pStartState) { }
+
   virtual void StartSearch(ezInt64 iStartNodeIndex, const PathStateType* pStartState, ezInt64 iTargetNodeIndex) { }
 
   virtual void SearchFinished(ezResult res) { }

@@ -8,6 +8,7 @@ template<typename PathStateType>
 class ezPathSearch
 {
 public:
+  typedef bool (*IsSearchedObjectCallback)(ezInt64 iStartNodeIndex, const PathStateType& StartState);
 
   struct PathResultData
   {
@@ -20,6 +21,8 @@ public:
   void SetPathStateGenerator(ezPathStateGenerator<PathStateType>* pStateGenerator) { m_pStateGenerator = pStateGenerator; }
 
   ezResult FindPath(ezInt64 iStartNodeIndex, const PathStateType& StartState, ezInt64 iTargetNodeIndex, ezDeque<PathResultData>& out_Path, float fMaxPathCost = ezMath::BasicType<float>::GetInfinity());
+
+  ezResult FindClosest(ezInt64 iStartNodeIndex, const PathStateType& StartState, IsSearchedObjectCallback Callback, ezDeque<PathResultData>& out_Path, float fMaxPathCost = ezMath::BasicType<float>::GetInfinity());
 
   void AddPathNode(ezInt64 iNodeIndex, const PathStateType& NewState);
 
