@@ -208,6 +208,22 @@ public:
         if (sInclude.StartsWith(sLibraryName.GetData()))
           continue;
 
+        if (sInclude.FindSubString_NoCase("ThirdParty"))
+        {
+          ezLog::Dev("Skipping ThirdParty Include: '%s'", sInclude.GetData());
+          continue;
+        }
+
+        ezStringBuilder sCanFindInclude = m_szSearchDir;
+        sCanFindInclude.PathParentDirectory();
+        sCanFindInclude.AppendPath(sInclude.GetData());
+
+        if (!ezFileSystem::ExistsFile(sCanFindInclude.GetData()))
+        {
+          ezLog::Dev("Skipping non-Engine Include: '%s'", sInclude.GetData());
+          continue;
+        }
+
         ezLog::Dev("Found Include: '%s'", sInclude.GetData());
 
         m_GlobalIncludes.Insert(sInclude);
@@ -234,6 +250,12 @@ public:
 
   void RewritePrecompiledHeaderIncludes()
   {
+    if (GetLibraryMarkerName() == "Foundation")
+    {
+      ezLog::Dev("Not going to rewrite the PCH for the Foundation library.");
+      return;
+    }
+
     ezStringBuilder sPCHFile = m_szSearchDir;
     sPCHFile.AppendPath("PCH.h");
 

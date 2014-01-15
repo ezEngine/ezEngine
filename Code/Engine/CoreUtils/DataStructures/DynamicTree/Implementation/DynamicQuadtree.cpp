@@ -439,3 +439,7 @@ bool ezDynamicQuadtree::FindObjectsInRange(const ezVec3& vPoint, float fRadius, 
   return true;
 }
 
+
+
+EZ_STATICLINK_FILE(CoreUtils, CoreUtils_DataStructures_DynamicTree_Implementation_DynamicQuadtree);
+

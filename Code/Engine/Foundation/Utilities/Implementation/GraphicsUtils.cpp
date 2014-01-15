@@ -69,3 +69,7 @@ ezResult ezGraphicsUtils::ConvertScreenPosToWorldPos(const ezMat4& InverseModelV
 
 
 
+
+
+EZ_STATICLINK_FILE(Foundation, Foundation_Utilities_Implementation_GraphicsUtils);
+

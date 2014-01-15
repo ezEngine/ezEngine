@@ -258,7 +258,7 @@ void ezFrustum::SetFrustum(const ezVec3& vPosition, const ezMat4& ModelViewProje
 	m_Planes[0].m_vNormal.y = frustum[5][1];
 	m_Planes[0].m_vNormal.z = frustum[5][2];
 
-	// The near-plane has to be at the camera´s position, so that no portals in front of you, get culled away
+	// The near-plane has to be at the camera's position, so that no portals in front of you, get culled away
   m_Planes[0].SetFromNormalAndPoint(m_Planes[0].m_vNormal, m_vPosition);
 
   // Right Plane
@@ -366,4 +366,8 @@ void ezFrustum::SetFrustum (const ezVec3& vPosition, const ezVec3& vForwards, co
 
 
 
+
+
+
+EZ_STATICLINK_FILE(Foundation, Foundation_Math_Implementation_Frustum);
 

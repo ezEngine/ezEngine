@@ -410,3 +410,7 @@ void ez2DGridUtils::ComputeVisibleAreaInCone(ezInt32 iPosX, ezInt32 iPosY, ezUIn
   ez2DGridUtils::ComputePointsOnCircle(iPosX, iPosY, uiRadius, MarkPointsInConeVisible, &ld);
 }
 
+
+
+EZ_STATICLINK_FILE(GameUtils, GameUtils_GridAlgorithms_Implementation_Rasterization);
+

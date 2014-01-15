@@ -60,3 +60,8 @@ void ezObjectSelection::ToggleSelection(ezGameObjectHandle hObject)
   // ensures invalid objects don't get added
   AddObject(hObject);
 }
+
+
+
+EZ_STATICLINK_FILE(GameUtils, GameUtils_DataStructures_Implementation_ObjectSelection);
+

@@ -59,3 +59,8 @@ void ezLuaWrapper::CloseAllTables()
   lua_pop(m_pState, m_States.m_iOpenTables);
   m_States.m_iOpenTables = 0;
 }
+
+
+
+EZ_STATICLINK_FILE(CoreUtils, CoreUtils_Scripting_LuaWrapper_Tables);
+

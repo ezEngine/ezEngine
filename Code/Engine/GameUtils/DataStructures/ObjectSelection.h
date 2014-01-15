@@ -32,3 +32,4 @@ private:
   ezWorld* m_pWorld;
   ezDeque<ezGameObjectHandle> m_Objects;
 };
+

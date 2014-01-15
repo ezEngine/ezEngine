@@ -92,3 +92,7 @@ void* ezLuaWrapper::lua_allocator(void* ud, void* ptr, size_t osize, size_t nsiz
 }
 
 
+
+
+EZ_STATICLINK_FILE(CoreUtils, CoreUtils_Scripting_LuaWrapper_Initialize);
+

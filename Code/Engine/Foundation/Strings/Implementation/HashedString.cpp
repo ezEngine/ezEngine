@@ -90,3 +90,8 @@ void ezHashedString::Assign(const char* szString)
   // this function will already increase the refcount as needed
   m_Data = AddHashedString(szString);
 }
+
+
+
+EZ_STATICLINK_FILE(Foundation, Foundation_Strings_Implementation_HashedString);
+

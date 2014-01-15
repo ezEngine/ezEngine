@@ -37,6 +37,7 @@ EZ_STATICLINK_LIBRARY(Foundation)
   EZ_STATICLINK_REFERENCE(Foundation_Logging_Implementation_Log);
   EZ_STATICLINK_REFERENCE(Foundation_Logging_Implementation_VisualStudioWriter);
   EZ_STATICLINK_REFERENCE(Foundation_Math_Implementation_Float16);
+  EZ_STATICLINK_REFERENCE(Foundation_Math_Implementation_Frustum);
   EZ_STATICLINK_REFERENCE(Foundation_Math_Implementation_Math);
   EZ_STATICLINK_REFERENCE(Foundation_Math_Implementation_Vec2);
   EZ_STATICLINK_REFERENCE(Foundation_Math_Implementation_Vec4);
@@ -49,6 +50,7 @@ EZ_STATICLINK_LIBRARY(Foundation)
   EZ_STATICLINK_REFERENCE(Foundation_Profiling_Implementation_Profiling);
   EZ_STATICLINK_REFERENCE(Foundation_Reflection_Implementation_RTTI);
   EZ_STATICLINK_REFERENCE(Foundation_Reflection_Implementation_StandardTypes);
+  EZ_STATICLINK_REFERENCE(Foundation_Strings_Implementation_HashedString);
   EZ_STATICLINK_REFERENCE(Foundation_Strings_Implementation_PathUtils);
   EZ_STATICLINK_REFERENCE(Foundation_Strings_Implementation_StringBuilder);
   EZ_STATICLINK_REFERENCE(Foundation_Strings_Implementation_StringConversion);
@@ -71,6 +73,7 @@ EZ_STATICLINK_LIBRARY(Foundation)
   EZ_STATICLINK_REFERENCE(Foundation_Time_Implementation_Timestamp);
   EZ_STATICLINK_REFERENCE(Foundation_Utilities_Implementation_CommandLineUtils);
   EZ_STATICLINK_REFERENCE(Foundation_Utilities_Implementation_ConversionUtils);
+  EZ_STATICLINK_REFERENCE(Foundation_Utilities_Implementation_GraphicsUtils);
   EZ_STATICLINK_REFERENCE(Foundation_Utilities_Implementation_StackTracer);
   EZ_STATICLINK_REFERENCE(Foundation_Utilities_Implementation_Stats);
 }
