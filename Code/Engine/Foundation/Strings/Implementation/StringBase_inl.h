@@ -52,19 +52,33 @@ bool ezStringBase<Derived>::EndsWith_NoCase(const char* szEndsWith) const
 }
 
 template <typename Derived>
-const char* ezStringBase<Derived>::FindSubString(const char* szStringToFind) const
+const char* ezStringBase<Derived>::FindSubString(const char* szStringToFind, const char* szStartSearchAt /* = NULL */) const
 {
-  return ezStringUtils::FindSubString(InternalGetData(), szStringToFind, InternalGetDataEnd());
+  if (szStartSearchAt == NULL)
+    szStartSearchAt = InternalGetData();
+
+  EZ_ASSERT((szStartSearchAt >= InternalGetData()) && (szStartSearchAt <= InternalGetDataEnd()), "The given pointer to start searching at is not inside this strings valid range.");
+
+  /// \test The szStartSearchAt parameter is new
+
+  return ezStringUtils::FindSubString(szStartSearchAt, szStringToFind, InternalGetDataEnd());
 }
 
 template <typename Derived>
-const char* ezStringBase<Derived>::FindSubString_NoCase(const char* szStringToFind) const
+const char* ezStringBase<Derived>::FindSubString_NoCase(const char* szStringToFind, const char* szStartSearchAt /* = NULL */) const
 {
-  return ezStringUtils::FindSubString_NoCase(InternalGetData(), szStringToFind, InternalGetDataEnd());
+  if (szStartSearchAt == NULL)
+    szStartSearchAt = InternalGetData();
+
+  EZ_ASSERT((szStartSearchAt >= InternalGetData()) && (szStartSearchAt <= InternalGetDataEnd()), "The given pointer to start searching at is not inside this strings valid range.");
+
+  /// \test The szStartSearchAt parameter is new
+
+  return ezStringUtils::FindSubString_NoCase(szStartSearchAt, szStringToFind, InternalGetDataEnd());
 }
 
 template <typename Derived>
-inline const char* ezStringBase<Derived>::FindLastSubString(const char* szStringToFind, const char* szStartSearchAt) const
+inline const char* ezStringBase<Derived>::FindLastSubString(const char* szStringToFind, const char* szStartSearchAt /* = NULL */) const
 {
   if (szStartSearchAt == NULL)
     szStartSearchAt = InternalGetDataEnd();
@@ -75,7 +89,7 @@ inline const char* ezStringBase<Derived>::FindLastSubString(const char* szString
 }
 
 template <typename Derived>
-inline const char* ezStringBase<Derived>::FindLastSubString_NoCase(const char* szStringToFind, const char* szStartSearchAt) const
+inline const char* ezStringBase<Derived>::FindLastSubString_NoCase(const char* szStringToFind, const char* szStartSearchAt /* = NULL */) const
 {
   if (szStartSearchAt == NULL)
     szStartSearchAt = InternalGetDataEnd();
@@ -86,15 +100,29 @@ inline const char* ezStringBase<Derived>::FindLastSubString_NoCase(const char* s
 }
 
 template <typename Derived>
-inline const char* ezStringBase<Derived>::FindWholeWord(const char* szSearchFor, ezStringUtils::EZ_IS_WORD_DELIMITER IsDelimiterCB)
+inline const char* ezStringBase<Derived>::FindWholeWord(const char* szSearchFor, ezStringUtils::EZ_IS_WORD_DELIMITER IsDelimiterCB, const char* szStartSearchAt /* = NULL */)
 {
-  return ezStringUtils::FindWholeWord(InternalGetData(), szSearchFor, IsDelimiterCB, InternalGetDataEnd());
+  if (szStartSearchAt == NULL)
+    szStartSearchAt = InternalGetData();
+
+  EZ_ASSERT((szStartSearchAt >= InternalGetData()) && (szStartSearchAt <= InternalGetDataEnd()), "The given pointer to start searching at is not inside this strings valid range.");
+
+  /// \test The szStartSearchAt parameter is new
+
+  return ezStringUtils::FindWholeWord(szStartSearchAt, szSearchFor, IsDelimiterCB, InternalGetDataEnd());
 }
 
 template <typename Derived>
-inline const char* ezStringBase<Derived>::FindWholeWord_NoCase(const char* szSearchFor, ezStringUtils::EZ_IS_WORD_DELIMITER IsDelimiterCB)
+inline const char* ezStringBase<Derived>::FindWholeWord_NoCase(const char* szSearchFor, ezStringUtils::EZ_IS_WORD_DELIMITER IsDelimiterCB, const char* szStartSearchAt /* = NULL */)
 {
-  return ezStringUtils::FindWholeWord_NoCase(InternalGetData(), szSearchFor, IsDelimiterCB, InternalGetDataEnd());
+  if (szStartSearchAt == NULL)
+    szStartSearchAt = InternalGetData();
+
+  EZ_ASSERT((szStartSearchAt >= InternalGetData()) && (szStartSearchAt <= InternalGetDataEnd()), "The given pointer to start searching at is not inside this strings valid range.");
+
+  /// \test The szStartSearchAt parameter is new
+
+  return ezStringUtils::FindWholeWord_NoCase(szStartSearchAt, szSearchFor, IsDelimiterCB, InternalGetDataEnd());
 }
 
 template <typename Derived>

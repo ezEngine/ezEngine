@@ -8,13 +8,11 @@ This is a list of our planned features for the foreseeable future.
   * Game Object basics (Clemens)
   * Rendering Abstraction basics (Marc)
   
-  * StringId using hashed string
   * Resource Manager
   * Binary Search Algorithm
   * ezMap, ezSet Comparer mit dem Comparer in Algorithm ersetzen; auﬂerdem < und == sinnvoller verwenden (-1, 0, 1 vergleich etc.) (Clemens :-P )
   * Containers: Sorted Array (Requires Binary Search)
   * Math: Random Number Generators
-  * Math: Frustum
   * Math: Simd (Clemens)
   * Optimize container regarding construction/destruction, unnecessary operations (ask Clemens for more info)
   * Text Streams

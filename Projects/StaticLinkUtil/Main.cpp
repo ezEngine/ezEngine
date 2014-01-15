@@ -79,6 +79,11 @@ public:
     ezGlobalLog::RemoveLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
   }
 
+  ezString GetLibraryMarkerName()
+  {
+    return ezPathUtils::GetFileName(m_szSearchDir).GetData();
+  }
+
   ezSet<ezHybridString<32, ezStaticAllocatorWrapper>, ezCompareHelper<ezHybridString<32, ezStaticAllocatorWrapper>>, ezStaticAllocatorWrapper> m_AllRefPoints;
   ezHybridString<32, ezStaticAllocatorWrapper> m_sRefPointGroupFile;
 
@@ -145,19 +150,143 @@ public:
     return EZ_SUCCESS;
   }
 
+  // I want better allocators!
+  ezSet<ezHybridString<32, ezStaticAllocatorWrapper>, ezCompareHelper<ezHybridString<32, ezStaticAllocatorWrapper>>, ezStaticAllocatorWrapper> m_GlobalIncludes;
+
+  void FindIncludes(ezStringBuilder& sFileContent)
+  {
+    const char* szStartPos = sFileContent.GetData();
+    const ezString sLibraryName = GetLibraryMarkerName();
+
+    while (true)
+    {
+    const char* szI = sFileContent.FindSubString("#i", szStartPos);
+
+    if (szI == NULL)
+      return;
+
+    szStartPos = szI + 1;
+
+      if (ezStringUtils::IsEqualN(szI, "#if", 3))
+      {
+        szStartPos = sFileContent.FindSubString("#endif", szStartPos);
+
+        if (szStartPos == NULL)
+          return;
+
+        ++szStartPos;
+        continue; // next search will be for #i again
+      }
+
+      if (ezStringUtils::IsEqualN(szI, "#include", 8))
+      {
+        szI += 8; // skip the "#include" string
+
+        const char* szLineEnd = ezStringUtils::FindSubString(szI, "\n");
+
+        ezStringIterator si(szI, szLineEnd, szI);
+
+        ezStringBuilder sInclude = si;
+
+        if (sInclude.ReplaceAll("\\", "/") > 0)
+        {
+          ezLog::Info("Replacing backslashes in #include path with front slashes: '%s'", sInclude.GetData());
+          sFileContent.ReplaceSubString(szI, szLineEnd, sInclude.GetData());
+        }
+
+        while (sInclude.StartsWith(" ") || sInclude.StartsWith("\t") || sInclude.StartsWith("<"))
+          sInclude.Shrink(1, 0);
+
+        while (sInclude.EndsWith(" ") || sInclude.EndsWith("\t") || sInclude.EndsWith(">"))
+          sInclude.Shrink(0, 1);
+
+        // ignore relative includes, they will not work as expected from the PCH
+        if (sInclude.StartsWith("\""))
+          continue;
+
+        // ignore includes into the own library
+        if (sInclude.StartsWith(sLibraryName.GetData()))
+          continue;
+
+        ezLog::Dev("Found Include: '%s'", sInclude.GetData());
+
+        m_GlobalIncludes.Insert(sInclude);
+      }
+    }
+  }
+
+  bool ReplaceLine(ezStringBuilder& sFile, const char* szLineStart)
+  {
+    const char* szStart = sFile.FindSubString(szLineStart);
+
+    if (szStart == NULL)
+      return false;
+
+    const char* szEnd = sFile.FindSubString("\n", szStart);
+
+    if (szEnd == NULL)
+      szEnd = sFile.GetData() + sFile.GetElementCount();
+
+    sFile.ReplaceSubString(szStart, szEnd, "");
+
+    return true;
+  }
+
+  void RewritePrecompiledHeaderIncludes()
+  {
+    ezStringBuilder sPCHFile = m_szSearchDir;
+    sPCHFile.AppendPath("PCH.h");
+
+    {
+      ezFileReader File;
+      if (File.Open(sPCHFile.GetData()) == EZ_FAILURE)
+      {
+        ezLog::Warning("This project has no PCH file.");
+        return;
+      }
+    }
+
+    ezLog::Info("Rewriting PCH: '%s'", sPCHFile.GetData());
+
+    ezStringBuilder sFileContent;
+    if (ReadEntireFile(sPCHFile.GetData(), sFileContent) == EZ_FAILURE)
+      return;
+
+    while (ReplaceLine(sFileContent, "#include"))
+    {
+      // do this
+    }
+
+    ezStringBuilder sAllIncludes;
+
+    for (auto it = m_GlobalIncludes.GetIterator(); it.IsValid(); ++it)
+    {
+      sAllIncludes.AppendFormat("#include <%s>\n", it.Key().GetData());
+    }
+
+    sAllIncludes.ReplaceAll("\\", "/");
+
+    sFileContent.Prepend(sAllIncludes.GetData());
+
+    while (sFileContent.EndsWith("\n\n\n\n\n"))
+      sFileContent.Shrink(0, 1);
+
+    OverwriteFile(sPCHFile.GetData(), sFileContent);
+  }
+
   void FixFileContents(const char* szFile)
   {
     ezStringBuilder sFileContent;
     if (ReadEntireFile(szFile, sFileContent) == EZ_FAILURE)
       return;
 
+    if (ezStringUtils::EndsWith(szFile, "/PCH.h"))
+      ezLog::Dev("Skipping PCH for #include search: '%s'", szFile);
+    else
+      FindIncludes(sFileContent);
+
     // rewrite the entire file
     OverwriteFile(szFile, sFileContent);
-  }
-
-  ezString GetLibraryMarkerName(const char* szFile)
-  {
-    return ezPathUtils::GetFileName(m_szSearchDir).GetData();
   }
 
   ezString GetFileMarkerName(const char* szFile)
@@ -188,7 +317,7 @@ public:
     // part such that it will reference all the other files
     if (sFileContent.FindSubString("EZ_STATICLINK_LIBRARY"))
     {
-      ezLog::Info("Found macro 'EZ_STATICLINK_LIBRARY' in file '%s'.", szFile);
+      ezLog::Info("Found macro 'EZ_STATICLINK_LIBRARY' in file '%s'.", &szFile[ezStringUtils::GetStringElementCount(m_szSearchDir) + 1]);
 
       if (!m_sRefPointGroupFile.IsEmpty())
         ezLog::Error("The macro 'EZ_STATICLINK_LIBRARY' was already found in file '%s' before. You cannot have this macro twice in the same library!", m_sRefPointGroupFile.GetData());
@@ -198,7 +327,7 @@ public:
       return;
     }
 
-    ezString sLibraryMarker = GetLibraryMarkerName(szFile);
+    ezString sLibraryMarker = GetLibraryMarkerName();
     ezString sFileMarker = GetFileMarkerName(szFile);
 
     ezStringBuilder sNewMarker;
@@ -260,7 +389,7 @@ public:
     // generate the code that should be inserted into this file
     // this code will reference all the other files in the library
     {
-      sNewGroupMarker.Format("EZ_STATICLINK_LIBRARY(%s)\n{\n  if(bReturn)\n    return;\n\n", GetLibraryMarkerName(szFile).GetData());
+      sNewGroupMarker.Format("EZ_STATICLINK_LIBRARY(%s)\n{\n  if(bReturn)\n    return;\n\n", GetLibraryMarkerName().GetData());
 
       auto it = m_AllRefPoints.GetIterator();
 
@@ -314,6 +443,8 @@ public:
 
   virtual ezApplication::ApplicationExecution Run() EZ_OVERRIDE
   {
+    const ezUInt32 uiSearchDirLength = ezStringUtils::GetStringElementCount(m_szSearchDir) + 1;
+
     // get a directory iterator for the search directory
     ezFileSystemIterator it;
     if (it.StartSearch(m_szSearchDir, true, false) == EZ_SUCCESS)
@@ -332,17 +463,21 @@ public:
 
         if (sExt.IsEqual_NoCase("h") || sExt.IsEqual_NoCase("inl"))
         {
-          ezLog::Info("Found Header File \"%s\"", b.GetData());
+          EZ_LOG_BLOCK("Header", &b.GetData()[uiSearchDirLength]);
+          ezLog::Info("Header: '%s'", &b.GetData()[uiSearchDirLength]);
           FixFileContents(b.GetData());
           continue;
         }
 
-        if (!sExt.IsEqual_NoCase("cpp"))
+        if (sExt.IsEqual_NoCase("cpp"))
+        {
+          EZ_LOG_BLOCK("Source", &b.GetData()[uiSearchDirLength]);
+          ezLog::Info("CPP: '%s'", &b.GetData()[uiSearchDirLength]);
+          FixFileContents(b.GetData());
+
+          InsertRefPoint(b.GetData());
           continue;
-
-        ezLog::Info("Found CPP File \"%s\"", b.GetData());
-
-        InsertRefPoint(b.GetData());
+        }
       }
       while (it.Next() == EZ_SUCCESS);
     }
@@ -354,9 +489,10 @@ public:
     else
       ezLog::Error("The macro EZ_STATICLINK_LIBRARY was not found in any cpp file in this library. It is required that it exists in exactly one file, otherwise the generated code will not compile.");
 
+    RewritePrecompiledHeaderIncludes();
+
     return ezApplication::Quit;
   }
 };
-
 
 EZ_CONSOLEAPP_ENTRY_POINT(ezStaticLinkerApp);
