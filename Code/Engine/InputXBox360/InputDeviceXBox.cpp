@@ -1,4 +1,4 @@
-#include <Core/PCH.h>
+#include <InputXBox360/PCH.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Strings/StringBuilder.h>
 #include <InputXBox360/InputDeviceXBox.h>

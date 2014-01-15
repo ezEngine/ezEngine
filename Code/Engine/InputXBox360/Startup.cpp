@@ -1,4 +1,4 @@
-#include <Core/PCH.h>
+#include <InputXBox360/PCH.h>
 #include <InputXBox360/InputDeviceXBox.h>
 #include <Foundation/Configuration/Startup.h>
 
@@ -52,11 +52,6 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(InputDevices, InputDeviceXBox360)
 EZ_END_SUBSYSTEM_DECLARATION
 
 
-EZ_STATICLINK_LIBRARY(InputXBox360)
-{
-  if(bReturn)
-    return;
 
-  EZ_STATICLINK_REFERENCE(InputXBox360_InputDeviceXBox);
-}
+EZ_STATICLINK_FILE(InputXBox360, InputXBox360_Startup);
 
