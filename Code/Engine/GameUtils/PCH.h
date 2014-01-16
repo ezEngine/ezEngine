@@ -1,3 +1,9 @@
+#pragma once
+
+// <StaticLinkUtil::StartHere>
+// all include's before this will be left alone and not replaced by the StaticLinkUtil
+// all include's AFTER this will be removed by the StaticLinkUtil and updated by what is actually used throughout the library
+
 #include <Core/PCH.h>
 #include <Core/World/GameObject.h>
 #include <Core/World/World.h>
@@ -9,6 +15,5 @@
 #include <Foundation/Math/Math.h>
 #include <Foundation/Math/Vec3.h>
 #include <Foundation/PCH.h>
-
 
 

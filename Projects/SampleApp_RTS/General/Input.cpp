@@ -300,7 +300,7 @@ void SampleGameApp::SendUnit()
 
         const ezInt64 iTargetCell = g_pGrid->GetCellIndex(g_pGrid->GetCellAtPosition(vTarget));
 
-        ezDeque<ezInt64> PathNodeIndices;
+        ezDeque<ezPathSearch<MyPathState>::PathResultData> PathNodeIndices;
 
         if (PathSearch.FindPath(StartState.m_iReachedThroughNode, StartState, iTargetCell, PathNodeIndices) == EZ_SUCCESS)
         {
@@ -309,7 +309,7 @@ void SampleGameApp::SendUnit()
 
           for (ezUInt32 i = 0; i < PathNodeIndices.GetCount(); ++i)
           {
-            const ezGridCoordinate Coord = g_pGrid->GetCellCoordsByInex((ezUInt32) PathNodeIndices[i]);
+            const ezGridCoordinate Coord = g_pGrid->GetCellCoordsByInex((ezUInt32) PathNodeIndices[i].m_iNodeIndex);
 
             pUnit->m_Path.PushBack(g_pGrid->GetCellOrigin(Coord) + g_pGrid->GetCellSize() * 0.5f);
           }

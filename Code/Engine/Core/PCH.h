@@ -1,3 +1,9 @@
+#pragma once
+
+// <StaticLinkUtil::StartHere>
+// all include's before this will be left alone and not replaced by the StaticLinkUtil
+// all include's AFTER this will be removed by the StaticLinkUtil and updated by what is actually used throughout the library
+
 #include <Foundation/Basics.h>
 #include <Foundation/Basics/Types/Bitflags.h>
 #include <Foundation/Basics/Types/Delegate.h>
@@ -27,5 +33,4 @@
 #include <Foundation/Time/Time.h>
 #include <Foundation/Utilities/CommandLineUtils.h>
 #include <Foundation/Utilities/EnumerableClass.h>
-
 
