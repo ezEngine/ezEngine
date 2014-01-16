@@ -54,6 +54,24 @@ public:
     m_szSearchDir = "";
   }
 
+  /// Makes sure the apps return value reflects whether there were any errors or warnings
+  static void LogInspector(const ezLoggingEventData& eventData)
+  {
+    ezApplication* app = ezApplication::GetApplicationInstance();
+
+    switch (eventData.m_EventType)
+    {
+    case ezLogMsgType::ErrorMsg:            // == 1
+    case ezLogMsgType::SeriousWarningMsg:   // == 2
+    case ezLogMsgType::WarningMsg:          // == 3
+      app->SetReturnCode(ezMath::Max(app->GetReturnCode(), 4 - (ezInt32) eventData.m_EventType));
+      break;
+
+    default:
+      break;
+    }
+  }
+
   virtual void AfterEngineInit() EZ_OVERRIDE
   {
     EZ_ASSERT_ALWAYS(GetArgumentCount() == 2, "This tool requires exactly one command-line argument: An absolute path to the top-level folder of a library.");
@@ -71,10 +89,12 @@ public:
 
     ezGlobalLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);
     ezGlobalLog::AddLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
+    ezGlobalLog::AddLogWriter(LogInspector);
   }
 
   virtual void BeforeEngineShutdown()
   {
+    ezGlobalLog::RemoveLogWriter(LogInspector);
     ezGlobalLog::RemoveLogWriter(ezLogWriter::Console::LogMessageHandler);
     ezGlobalLog::RemoveLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
   }
@@ -87,7 +107,7 @@ public:
   ezSet<ezHybridString<32, ezStaticAllocatorWrapper>, ezCompareHelper<ezHybridString<32, ezStaticAllocatorWrapper>>, ezStaticAllocatorWrapper> m_AllRefPoints;
   ezHybridString<32, ezStaticAllocatorWrapper> m_sRefPointGroupFile;
 
-  ezResult ReadEntireFile(const char* szFile, ezStringBuilder& sOut)
+  ezResult ReadEntireFile(const char* szFile, ezStringBuilder& sOut, ezString& out_sOriginal)
   {
     sOut.Clear();
 
@@ -125,6 +145,9 @@ public:
     }
 
     sOut = (const char*) &FileContent[0];
+
+    out_sOriginal = sOut;
+
     sOut.ReplaceAll("\r", "");
 
     if (!sOut.EndsWith("\n"))
@@ -136,18 +159,48 @@ public:
     return EZ_SUCCESS;
   }
 
-  ezResult OverwriteFile(const char* szFile, const ezStringBuilder& sFileContent)
+  ezMap<ezHybridString<32, ezStaticAllocatorWrapper>, ezHybridString<32, ezStaticAllocatorWrapper>, ezCompareHelper<ezHybridString<32, ezStaticAllocatorWrapper>>, ezStaticAllocatorWrapper> m_ModifiedFiles;
+
+  void OverwriteFile(const char* szFile, const ezStringBuilder& sFileContent)
   {
-    ezFileWriter FileOut;
-    if (FileOut.Open(szFile) == EZ_FAILURE)
+    m_ModifiedFiles[szFile] = sFileContent;
+  }
+
+  ezResult OverwriteModifiedFiles()
+  {
+    EZ_LOG_BLOCK("Overwriting modified files");
+
+    if (GetReturnCode() > 1) // 1 == warning
     {
-      ezLog::Error("Could not open the file for writing.");
+      ezLog::Info("There have been errors or warnings previously, no files will be modified.");
       return EZ_FAILURE;
     }
 
-    FileOut.WriteBytes(sFileContent.GetData(), sFileContent.GetElementCount());
+    if (m_ModifiedFiles.IsEmpty())
+    {
+      ezLog::Success("No files needed modification.");
+      return EZ_SUCCESS;
+    }
 
-    return EZ_SUCCESS;
+    ezResult res = EZ_SUCCESS;
+
+    for (auto it = m_ModifiedFiles.GetIterator(); it.IsValid(); ++it)
+    {
+      ezFileWriter FileOut;
+      if (FileOut.Open(it.Key().GetData()) == EZ_FAILURE)
+      {
+        ezLog::Error("Could not open the file for writing: '%s'", it.Key().GetData());
+        res = EZ_FAILURE;
+      }
+      else
+      {
+        FileOut.WriteBytes(it.Value().GetData(), it.Value().GetElementCount());
+
+        ezLog::Success("File has been modified: '%s'", it.Key().GetData());
+      }
+    }
+
+    return res;
   }
 
   // I want better allocators!
@@ -224,6 +277,11 @@ public:
           continue;
         }
 
+        if (sInclude.FindSubString_NoCase("Implementation"))
+        {
+          ezLog::Warning("This file includes an implementation header from another library: '%s'", sInclude.GetData());
+        }
+
         ezLog::Dev("Found Include: '%s'", sInclude.GetData());
 
         m_GlobalIncludes.Insert(sInclude);
@@ -271,7 +329,8 @@ public:
     ezLog::Info("Rewriting PCH: '%s'", sPCHFile.GetData());
 
     ezStringBuilder sFileContent;
-    if (ReadEntireFile(sPCHFile.GetData(), sFileContent) == EZ_FAILURE)
+    ezString sOriginalFileContent;
+    if (ReadEntireFile(sPCHFile.GetData(), sFileContent, sOriginalFileContent) == EZ_FAILURE)
       return;
 
     while (ReplaceLine(sFileContent, "#include"))
@@ -293,13 +352,15 @@ public:
     while (sFileContent.EndsWith("\n\n\n\n\n"))
       sFileContent.Shrink(0, 1);
 
-    OverwriteFile(sPCHFile.GetData(), sFileContent);
+    if (sOriginalFileContent != sFileContent)
+      OverwriteFile(sPCHFile.GetData(), sFileContent);
   }
 
   void FixFileContents(const char* szFile)
   {
     ezStringBuilder sFileContent;
-    if (ReadEntireFile(szFile, sFileContent) == EZ_FAILURE)
+    ezString sOriginalFileContent;
+    if (ReadEntireFile(szFile, sFileContent, sOriginalFileContent) == EZ_FAILURE)
       return;
 
     if (ezStringUtils::EndsWith(szFile, "/PCH.h"))
@@ -308,7 +369,8 @@ public:
       FindIncludes(sFileContent);
 
     // rewrite the entire file
-    OverwriteFile(szFile, sFileContent);
+    if (sFileContent != sOriginalFileContent)
+      OverwriteFile(szFile, sFileContent);
   }
 
   ezString GetFileMarkerName(const char* szFile)
@@ -331,7 +393,8 @@ public:
     EZ_LOG_BLOCK("InsertRefPoint", szFile);
 
     ezStringBuilder sFileContent;
-    if (ReadEntireFile(szFile, sFileContent) == EZ_FAILURE)
+    ezString sOriginalFileContent;
+    if (ReadEntireFile(szFile, sFileContent, sOriginalFileContent) == EZ_FAILURE)
       return;
 
     // if we find this macro in here, we don't need to insert EZ_STATICLINK_FILE in this file
@@ -376,7 +439,8 @@ public:
     }
 
     // rewrite the entire file
-    OverwriteFile(szFile, sFileContent);
+    if (sFileContent != sOriginalFileContent)
+      OverwriteFile(szFile, sFileContent);
   }
 
   void RewriteRefPointGroup(const char* szFile)
@@ -386,7 +450,8 @@ public:
     ezLog::Info("Replacing macro EZ_STATICLINK_LIBRARY in file '%s'.", m_sRefPointGroupFile.GetData());
 
     ezStringBuilder sFileContent;
-    if (ReadEntireFile(szFile, sFileContent) == EZ_FAILURE)
+    ezString sOriginalFileContent;
+    if (ReadEntireFile(szFile, sFileContent, sOriginalFileContent) == EZ_FAILURE)
       return;
 
     // remove all instances of EZ_STATICLINK_FILE from this file, it already contains EZ_STATICLINK_LIBRARY
@@ -459,7 +524,8 @@ public:
       sFileContent.AppendFormat("\n\n%s\n\n", sNewGroupMarker.GetData());
     }
 
-    OverwriteFile(szFile, sFileContent);
+    if (sFileContent != sOriginalFileContent)
+      OverwriteFile(szFile, sFileContent);
   }
 
 
@@ -486,7 +552,6 @@ public:
         if (sExt.IsEqual_NoCase("h") || sExt.IsEqual_NoCase("inl"))
         {
           EZ_LOG_BLOCK("Header", &b.GetData()[uiSearchDirLength]);
-          ezLog::Info("Header: '%s'", &b.GetData()[uiSearchDirLength]);
           FixFileContents(b.GetData());
           continue;
         }
@@ -494,7 +559,6 @@ public:
         if (sExt.IsEqual_NoCase("cpp"))
         {
           EZ_LOG_BLOCK("Source", &b.GetData()[uiSearchDirLength]);
-          ezLog::Info("CPP: '%s'", &b.GetData()[uiSearchDirLength]);
           FixFileContents(b.GetData());
 
           InsertRefPoint(b.GetData());
@@ -512,6 +576,11 @@ public:
       ezLog::Error("The macro EZ_STATICLINK_LIBRARY was not found in any cpp file in this library. It is required that it exists in exactly one file, otherwise the generated code will not compile.");
 
     RewritePrecompiledHeaderIncludes();
+
+    OverwriteModifiedFiles();
+
+    if (GetReturnCode() > 0)
+      ezLog::Warning("There have been errors or warnings, see log for details.");
 
     return ezApplication::Quit;
   }
