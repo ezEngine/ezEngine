@@ -17,7 +17,7 @@
   #include <conio.h>
 #endif
 
-ezTestFramework* ezTestSetup::InitTestFramework(const char* szTestName, const char* szNiceTestName)
+ezTestFramework* ezTestSetup::InitTestFramework(const char* szTestName, const char* szNiceTestName, int argc, const char** argv)
 {
   // without at proper file system the current working directory is pretty much useless
   std::string sTestFolder = std::string(BUILDSYSTEM_OUTPUT_FOLDER);
@@ -26,9 +26,9 @@ ezTestFramework* ezTestSetup::InitTestFramework(const char* szTestName, const ch
   sTestFolder.append(szTestName);
 
 #ifdef EZ_USE_QT
-  ezTestFramework* pTestFramework = new ezQtTestFramework(szNiceTestName, sTestFolder.c_str());
+  ezTestFramework* pTestFramework = new ezQtTestFramework(szNiceTestName, sTestFolder.c_str(), argc, argv);
 #else
-  ezTestFramework* pTestFramework = new ezTestFramework(szNiceTestName, sTestFolder.c_str());
+  ezTestFramework* pTestFramework = new ezTestFramework(szNiceTestName, sTestFolder.c_str(), argc, argv);
 #endif
 
   // Register some output handlers to forward all the messages to the console and to an HTML file

@@ -7,7 +7,7 @@
 // ezQtTestFramework public functions
 ////////////////////////////////////////////////////////////////////////
 
-ezQtTestFramework::ezQtTestFramework(const char* szTestName, const char* szAbsTestDir) : ezTestFramework(szTestName, szAbsTestDir)
+ezQtTestFramework::ezQtTestFramework(const char* szTestName, const char* szAbsTestDir, int argc, const char** argv) : ezTestFramework(szTestName, szAbsTestDir, argc, argv)
 {
   Q_INIT_RESOURCE(resources);
 }

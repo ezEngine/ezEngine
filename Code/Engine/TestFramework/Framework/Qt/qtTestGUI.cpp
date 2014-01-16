@@ -74,10 +74,21 @@ ezQtTestGUI::ezQtTestGUI(ezQtTestFramework& testFramework)
   this->actionKeepConsoleOpen->setChecked(settings.m_bKeepConsoleOpen);
   this->actionShowMessageBox->setChecked(settings.m_bShowMessageBox);
 
+  // Hide the Windows console
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+  if (!settings.m_bKeepConsoleOpen)
+    ShowWindow(GetConsoleWindow(), SW_HIDE);
+#endif
+
   connect(m_pTestFramework, SIGNAL( TestResultReceived(qint32, qint32) ), this, SLOT( onTestFrameworkTestResultReceived(qint32, qint32) ) );
 
   UpdateButtonStates();
   LoadGUILayout();
+
+  if (testFramework.GetSettings().m_bRunTests)
+  {
+    QTimer::singleShot(10, this, SLOT(on_actionRunTests_triggered()));
+  }
 }
 
 ezQtTestGUI::~ezQtTestGUI()
@@ -119,6 +130,14 @@ void ezQtTestGUI::on_actionKeepConsoleOpen_triggered(bool bChecked)
   TestSettings settings = m_pTestFramework->GetSettings();
   settings.m_bKeepConsoleOpen = bChecked;
   m_pTestFramework->SetSettings(settings);
+
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+  if (!settings.m_bKeepConsoleOpen)
+    ShowWindow(GetConsoleWindow(), SW_HIDE);
+  else
+    ShowWindow(GetConsoleWindow(), SW_SHOW);
+#endif
+
 }
 
 void ezQtTestGUI::on_actionShowMessageBox_triggered(bool bChecked)
@@ -179,6 +198,9 @@ void ezQtTestGUI::on_actionRunTests_triggered()
 
       if (m_pTestFramework->GetSettings().m_bShowMessageBox)
         QMessageBox::information(this, "Tests Succeeded", "All tests succeeded.", QMessageBox::Ok, QMessageBox::Ok);
+
+      if (m_pTestFramework->GetSettings().m_bCloseOnSuccess)
+        QTimer::singleShot(100, this, SLOT(on_actionQuit_triggered()));
     }
   }
 }

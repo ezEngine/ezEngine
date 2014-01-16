@@ -12,7 +12,7 @@
 class EZ_TEST_DLL ezTestFramework
 {
 public:
-  ezTestFramework(const char* szTestName, const char* szAbsTestDir);
+  ezTestFramework(const char* szTestName, const char* szAbsTestDir, int argc, const char** argv);
   virtual ~ezTestFramework();
 
   typedef void(*OutputHandler)(ezTestOutput::Enum Type, const char* szMsg);
@@ -26,6 +26,8 @@ public:
   void LoadTestOrder();
   void SaveTestOrder();
   void SetAllTestsEnabledStatus(bool bEnable);
+
+  void GetTestSettingsFromCommandLine(int argc, const char** argv);
 
   // Test execution
   void ResetTests();
@@ -74,17 +76,8 @@ public:
   static ezTestFramework* GetInstance() { return s_pInstance; }
 
   /// \brief Returns whether to asset on test fail, will return false if no debugger is attached to prevent crashing. 
-  static bool GetAssertOnTestFail()
-  {
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-    if (!IsDebuggerPresent())
-      return false;
-#endif
-    return s_bAssertOnTestFail;
-  }
+  static bool GetAssertOnTestFail();
 
-  static void SetAssertOnTestFail(bool m_bAssertOnTestFail) { s_bAssertOnTestFail = m_bAssertOnTestFail; }
-  
   static void Output(ezTestOutput::Enum Type, const char* szMsg, ...);
   static void Error(const char* szError, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg);
   static void TestResult(ezInt32 iSubTestIndex, bool bSuccess, double fDuration);
@@ -92,7 +85,6 @@ public:
   // static members
 private:
   static ezTestFramework* s_pInstance;
-  static bool s_bAssertOnTestFail;
   
 private:
   std::string m_sTestName;  ///< The name of the tests being done

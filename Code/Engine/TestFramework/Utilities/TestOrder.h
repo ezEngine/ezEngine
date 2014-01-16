@@ -6,12 +6,24 @@
 
 struct TestSettings
 {
-  TestSettings() : m_bAssertOnTestFail(true), m_bOpenHtmlOutput(true), m_bKeepConsoleOpen(true), m_bShowMessageBox(true) {}
+  TestSettings()
+  {
+    m_bAssertOnTestFail = true;
+    m_bOpenHtmlOutput = true;
+    m_bKeepConsoleOpen = true;
+    m_bShowMessageBox = true;
+    m_bRunTests = false;
+    m_bNoSaving = false;
+    m_bCloseOnSuccess = false;
+  }
 
   bool m_bAssertOnTestFail;
   bool m_bOpenHtmlOutput;
   bool m_bKeepConsoleOpen;
   bool m_bShowMessageBox;
+  bool m_bRunTests;         /// Only needed for GUI applications, in console mode tests are always run automatically
+  bool m_bNoSaving;         /// Allows to run the test with settings through the command line without saving those settings for later
+  bool m_bCloseOnSuccess;   /// Closes the application upon success immediately
 };
 
 /// Operator to sort tests alphabetically

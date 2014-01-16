@@ -9,7 +9,7 @@ class EZ_TEST_DLL ezTestSetup
 {
 public:
   /// \brief Creates and returns a test framework with the given name.
-  static ezTestFramework* InitTestFramework(const char* szTestName, const char* szNiceTestName);
+  static ezTestFramework* InitTestFramework(const char* szTestName, const char* szNiceTestName, int argc, const char** argv);
 
   /// \brief Runs tests and returns number of errors.
   static ezInt32 RunTests(int argc, char **argv);

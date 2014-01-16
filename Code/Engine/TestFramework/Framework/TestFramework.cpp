@@ -4,9 +4,9 @@
 #include <Foundation/Time/Timestamp.h>
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/IO/OSFile.h>
+#include <Foundation/Utilities/CommandLineUtils.h>
 
 ezTestFramework* ezTestFramework::s_pInstance = NULL;
-bool ezTestFramework::s_bAssertOnTestFail = true;
 
 const char* ezTestFramework::s_szTestBlockName = "";
 
@@ -15,7 +15,7 @@ const char* ezTestFramework::s_szTestBlockName = "";
 // ezTestFramework public functions
 ////////////////////////////////////////////////////////////////////////
 
-ezTestFramework::ezTestFramework(const char* szTestName, const char* szAbsTestDir)
+ezTestFramework::ezTestFramework(const char* szTestName, const char* szAbsTestDir, int argc, const char** argv)
   : m_sTestName(szTestName), m_sAbsTestDir(szAbsTestDir), m_iErrorCount(0), m_iTestsFailed(0), m_iTestsPassed(0), m_iCurrentTestIndex(-1), m_iCurrentSubTestIndex(-1), m_bTestsRunning(false)
 {
   s_pInstance = this;
@@ -25,6 +25,8 @@ ezTestFramework::ezTestFramework(const char* szTestName, const char* szAbsTestDi
 
   // load the test order from file, if that file does not exist, the array is not modified
   LoadTestOrder();
+
+  GetTestSettingsFromCommandLine(argc, argv);
 
   // save the current order back to the same file
   SaveTestOrder();
@@ -58,6 +60,15 @@ void ezTestFramework::RegisterOutputHandler(OutputHandler Handler)
   m_OutputHandlers.push_back(Handler); 
 }
 
+bool ezTestFramework::GetAssertOnTestFail()
+{
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+  if (!IsDebuggerPresent())
+    return false;
+#endif
+
+  return s_pInstance->m_Settings.m_bAssertOnTestFail;
+}
 
 void ezTestFramework::GatherAllTests()
 {
@@ -110,6 +121,28 @@ void ezTestFramework::GatherAllTests()
   m_Result.SetupTests(m_TestEntries, config);
 }
 
+void ezTestFramework::GetTestSettingsFromCommandLine(int argc, const char** argv)
+{
+  ezStartup::StartupBase();
+  
+  ezCommandLineUtils cmd;
+  cmd.SetCommandLine(argc, argv);
+
+  m_Settings.m_bRunTests         = cmd.GetBoolOption("-run", false);
+  m_Settings.m_bNoSaving         = cmd.GetBoolOption("-nosave", false);
+  m_Settings.m_bCloseOnSuccess   = cmd.GetBoolOption("-close", false);
+
+  m_Settings.m_bAssertOnTestFail = cmd.GetBoolOption("-assert", m_Settings.m_bAssertOnTestFail);
+  m_Settings.m_bOpenHtmlOutput   = cmd.GetBoolOption("-html", m_Settings.m_bOpenHtmlOutput);
+  m_Settings.m_bKeepConsoleOpen  = cmd.GetBoolOption("-console", m_Settings.m_bKeepConsoleOpen);
+  m_Settings.m_bShowMessageBox   = cmd.GetBoolOption("-msgbox", m_Settings.m_bShowMessageBox);
+
+  if (cmd.GetBoolOption("-all", false))
+    SetAllTestsEnabledStatus(true);
+
+  ezStartup::ShutdownBase();
+}
+
 void ezTestFramework::LoadTestOrder()
 {
   std::string sTestSettingsFile = m_sAbsTestDir + std::string("/TestSettings.txt");
@@ -125,6 +158,9 @@ void ezTestFramework::CreateOutputFolder()
 
 void ezTestFramework::SaveTestOrder()
 {
+  if (m_Settings.m_bNoSaving)
+    return;
+
   CreateOutputFolder();
 
   std::string sTestSettingsFile = m_sAbsTestDir + std::string("/TestSettings.txt");
@@ -170,9 +206,6 @@ void ezTestFramework::StartTests()
 {
   ResetTests();
   m_bTestsRunning = true;
-  // As this variable is hit a lot during tests we cache it in the static variable
-  // so we don't have to go through the lock at every assert.
-  s_bAssertOnTestFail = m_Settings.m_bAssertOnTestFail;
   
   ezTestFramework::Output(ezTestOutput::StartOutput, "");
 }
