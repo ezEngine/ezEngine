@@ -62,6 +62,16 @@ namespace
 
   static ProfilingData* s_pProfilingData;
 
+  static void InitializeData()
+  {
+    if (s_pProfilingData == NULL)
+    {
+      static ezUInt8 ProfilingDataBuffer[sizeof(ProfilingData)];
+      s_pProfilingData = new (ProfilingDataBuffer) ProfilingData();
+      s_pProfilingData->m_InfoTable.Reserve(EZ_PROFILING_ID_COUNT);
+    }
+  }
+
   ProfilingInfo& GetProfilingInfo(ezProfilingId::InternalId id)
   {
     return s_pProfilingData->m_InfoTable[id];
@@ -71,14 +81,9 @@ namespace
 //static
 void ezProfilingSystem::Initialize()
 {
-  if (s_pProfilingData == NULL)
-  {
-    static ezUInt8 ProfilingDataBuffer[sizeof(ProfilingData)];
-    s_pProfilingData = new (ProfilingDataBuffer) ProfilingData();
-    s_pProfilingData->m_InfoTable.Reserve(EZ_PROFILING_ID_COUNT);
+  InitializeData();
 
-    SetThreadName("Main Thread");
-  }  
+  SetThreadName("Main Thread");
 }
 
 //static
@@ -89,7 +94,7 @@ void ezProfilingSystem::Shutdown()
 //static
 ezProfilingId ezProfilingSystem::CreateId(const char* szName)
 {
-  Initialize();
+  InitializeData();
 
   ezLock<ProfilingData> lock(*s_pProfilingData);
 
