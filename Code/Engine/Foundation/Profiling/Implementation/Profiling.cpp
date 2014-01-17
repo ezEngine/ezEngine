@@ -50,22 +50,35 @@ namespace
     ezAtomicInteger32 m_uiRefCount;
   };
 
-  typedef ezIdTable<ezProfilingId::InternalId, RefCountedProfilingInfo, 
-    ezStaticAllocatorWrapper> ProfilingInfoTable;
+  struct ProfilingData
+  {
+    EZ_FORCE_INLINE void Acquire() { m_Mutex.Acquire(); }
+    EZ_FORCE_INLINE void Release() { m_Mutex.Release(); }
 
-  ProfilingInfoTable* g_pProfilingInfos;
-  ezMutex g_ProfilingInfosMutex;
+    ezMutex m_Mutex;
+
+    ezIdTable<ezProfilingId::InternalId, RefCountedProfilingInfo, ezStaticAllocatorWrapper> m_InfoTable;
+  };
+
+  static ProfilingData* s_pProfilingData;
 
   ProfilingInfo& GetProfilingInfo(ezProfilingId::InternalId id)
   {
-    return (*g_pProfilingInfos)[id];
+    return s_pProfilingData->m_InfoTable[id];
   }
 }
 
 //static
 void ezProfilingSystem::Initialize()
 {
-  SetThreadName("Main Thread");
+  if (s_pProfilingData == NULL)
+  {
+    static ezUInt8 ProfilingDataBuffer[sizeof(ProfilingData)];
+    s_pProfilingData = new (ProfilingDataBuffer) ProfilingData();
+    s_pProfilingData->m_InfoTable.Reserve(EZ_PROFILING_ID_COUNT);
+
+    SetThreadName("Main Thread");
+  }  
 }
 
 //static
@@ -76,33 +89,28 @@ void ezProfilingSystem::Shutdown()
 //static
 ezProfilingId ezProfilingSystem::CreateId(const char* szName)
 {
-  ezLock<ezMutex> lock(g_ProfilingInfosMutex);
+  Initialize();
 
-  if (g_pProfilingInfos == NULL)
-  {
-    static ezUInt8 ProfilingInfosBuffer[sizeof(ProfilingInfoTable)];
-    g_pProfilingInfos = new (ProfilingInfosBuffer) ProfilingInfoTable();
-    g_pProfilingInfos->Reserve(EZ_PROFILING_ID_COUNT);
-  }
+  ezLock<ProfilingData> lock(*s_pProfilingData);
 
-  EZ_ASSERT(g_pProfilingInfos->GetCount() < EZ_PROFILING_ID_COUNT,
+  EZ_ASSERT(s_pProfilingData->m_InfoTable.GetCount() < EZ_PROFILING_ID_COUNT,
     "Max profiling id count (%d) reached. Increase EZ_PROFILING_ID_COUNT.", EZ_PROFILING_ID_COUNT);
-  return ezProfilingId(g_pProfilingInfos->Insert(RefCountedProfilingInfo(szName)));
+  return ezProfilingId(s_pProfilingData->m_InfoTable.Insert(RefCountedProfilingInfo(szName)));
 }
 
 //static
 void ezProfilingSystem::DeleteId(const ezProfilingId& id)
 {
-  ezLock<ezMutex> lock(g_ProfilingInfosMutex);
+  ezLock<ProfilingData> lock(*s_pProfilingData);
 
-  g_pProfilingInfos->Remove(id.m_Id);
+  s_pProfilingData->m_InfoTable.Remove(id.m_Id);
 }
 
 //static
 void ezProfilingSystem::AddReference(const ezProfilingId& id)
 {
   RefCountedProfilingInfo* pInfo;
-  if (g_pProfilingInfos->TryGetValue(id.m_Id, pInfo))
+  if (s_pProfilingData->m_InfoTable.TryGetValue(id.m_Id, pInfo))
   {
     pInfo->m_uiRefCount.Increment();
   }
@@ -111,13 +119,17 @@ void ezProfilingSystem::AddReference(const ezProfilingId& id)
 //static
 void ezProfilingSystem::ReleaseReference(const ezProfilingId& id)
 {
+  // profiling system already de-initialized, nothing to do anymore. Can happen during static de-initialization.
+  if (s_pProfilingData == NULL)
+    return;
+
   RefCountedProfilingInfo* pInfo;
-  if (g_pProfilingInfos->TryGetValue(id.m_Id, pInfo))
+  if (s_pProfilingData->m_InfoTable.TryGetValue(id.m_Id, pInfo))
   {
     if (pInfo->m_uiRefCount.Decrement() == 0)
     {
-      ezLock<ezMutex> lock(g_ProfilingInfosMutex);
-      g_pProfilingInfos->Remove(id.m_Id);
+      ezLock<ProfilingData> lock(*s_pProfilingData);
+      s_pProfilingData->m_InfoTable.Remove(id.m_Id);
     }
   }
 }
