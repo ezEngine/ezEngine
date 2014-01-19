@@ -73,7 +73,8 @@ public:
 
   EZ_FORCE_INLINE ~ezProfilingId()
   {
-    ezProfilingSystem::ReleaseReference(*this);
+    if (m_Id != InternalId())
+      ezProfilingSystem::ReleaseReference(*this);
   }
 
   EZ_FORCE_INLINE void operator=(const ezProfilingId& rhs)
