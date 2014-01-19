@@ -19,7 +19,7 @@ EZ_FORCE_INLINE ezQuatTemplate<Type>::ezQuatTemplate(Type X, Type Y, Type Z, Typ
 }
 
 template<typename Type>
-EZ_FORCE_INLINE typename const ezQuatTemplate<Type> ezQuatTemplate<Type>::IdentityQuaternion()
+EZ_FORCE_INLINE const ezQuatTemplate<Type> ezQuatTemplate<Type>::IdentityQuaternion()
 {
   return ezQuatTemplate(0, 0, 0, 1);
 }

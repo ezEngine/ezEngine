@@ -39,7 +39,6 @@ include_directories (${CMAKE_CURRENT_SOURCE_DIR})
 # Define the Exe Project, add all required sources to it
 add_executable (${PROJECT_NAME} ${APP_CONFIG} ${ALL_SOURCE_FILES})
 
-QT_ADD_MODULES()
 target_link_libraries (${PROJECT_NAME} ${LINK_LIBRARIES} ${QT_LIBRARIES} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY})
 
 SET_PROPERTY(GLOBAL PROPERTY USE_FOLDERS ON)
@@ -76,6 +75,7 @@ if (LINKER_SETTINGS_RELEASE)
   set_target_properties (${PROJECT_NAME} PROPERTIES LINK_FLAGS_MINSIZEREL     ${LINKER_SETTINGS_RELEASE})
 endif ()
 
+QT_ADD_MODULES()
 # Add to target list
 ADD_TO_TARGET_LIST()
 

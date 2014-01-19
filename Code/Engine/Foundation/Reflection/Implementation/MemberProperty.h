@@ -83,7 +83,7 @@ public:
   /// \note Make sure the property is not read-only before calling this, otherwise an assert will fire.
   virtual void SetValue(void* pInstance, Type value) EZ_OVERRIDE
   {
-    EZ_ASSERT(m_Setter != NULL, "The property '%s' has no setter function, thus it is read-only.", GetPropertyName());
+    EZ_ASSERT(m_Setter != NULL, "The property '%s' has no setter function, thus it is read-only.", ezAbstractProperty::GetPropertyName());
 
     if (m_Setter)
       (((Class*) pInstance)->*m_Setter)(value);
@@ -161,7 +161,7 @@ public:
   /// \note Make sure the property is not read-only before calling this, otherwise an assert will fire.
   virtual void SetValue(void* pInstance, Type value) EZ_OVERRIDE
   {
-    EZ_ASSERT(m_Setter != NULL, "The property '%s' has no setter function, thus it is read-only.", GetPropertyName());
+    EZ_ASSERT(m_Setter != NULL, "The property '%s' has no setter function, thus it is read-only.", ezAbstractProperty::GetPropertyName());
 
     if (m_Setter)
       m_Setter(static_cast<Class*>(pInstance), value);

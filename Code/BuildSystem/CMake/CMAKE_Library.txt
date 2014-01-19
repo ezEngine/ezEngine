@@ -40,7 +40,7 @@ add_definitions (-DBUILDSYSTEM_BUILDING_${PROJECT_NAME_UPPER}_LIB)
 if (EZ_COMPILE_ENGINE_AS_DLL)
   # add the project as a shared library
   add_library (${PROJECT_NAME} SHARED ${ALL_SOURCE_FILES})
-  QT_ADD_MODULES()
+
   # for DLLs we need to know what other libraries to link against
   target_link_libraries (${PROJECT_NAME} ${LINK_LIBRARIES})
 
@@ -91,6 +91,7 @@ if (LINKER_SETTINGS_RELEASE)
   set_target_properties (${PROJECT_NAME} PROPERTIES LINK_FLAGS_MINSIZEREL     ${LINKER_SETTINGS_RELEASE})
 endif ()
 
+QT_ADD_MODULES()
 # Add to target list
 ADD_TO_TARGET_LIST()
 

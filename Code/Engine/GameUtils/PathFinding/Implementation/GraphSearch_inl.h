@@ -145,7 +145,7 @@ ezResult ezPathSearch<PathStateType>::FindPath(ezInt64 iStartNodeIndex, const Pa
 
 
 template<typename PathStateType>
-ezResult ezPathSearch<PathStateType>::FindClosest(ezInt64 iStartNodeIndex, const PathStateType& StartState, IsSearchedObjectCallback Callback, ezDeque<PathResultData>& out_Path, float fMaxPathCost = ezMath::BasicType<float>::GetInfinity())
+ezResult ezPathSearch<PathStateType>::FindClosest(ezInt64 iStartNodeIndex, const PathStateType& StartState, IsSearchedObjectCallback Callback, ezDeque<PathResultData>& out_Path, float fMaxPathCost)
 {
   EZ_ASSERT(m_pStateGenerator != NULL, "No Path State Generator is set.");
 

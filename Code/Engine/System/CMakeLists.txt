@@ -10,6 +10,9 @@
 # *** Modify this file as required ***
 #
 
+# Pass a boolean expression into this macro to build this project only if the expression evaluates to true.
+BUILD_CONDITIONAL(BUILDSYSTEM_PLATFORM_WINDOWS)
+
 SET (LINK_LIBRARIES 
   Foundation
   Core
