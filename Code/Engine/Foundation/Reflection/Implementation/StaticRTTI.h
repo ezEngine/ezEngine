@@ -165,12 +165,12 @@ const ezRTTI* ezGetStaticRTTI()
 /// Thus you can for example expose a 'vector' property that is actually stored as a column of a matrix.
 #define EZ_ACCESSOR_PROPERTY(PropertyName, Getter, Setter)                    \
   new ezAccessorProperty<OwnType, EZ_GETTER_TYPE(OwnType, OwnType::Getter)>   \
-    (PropertyName, OwnType::Getter, OwnType::Setter)                          \
+    (PropertyName, &OwnType::Getter, &OwnType::Setter)                        \
 
 /// \brief Same as EZ_ACCESSOR_PROPERTY, but no setter is provided, thus making the property read-only.
 #define EZ_ACCESSOR_PROPERTY_READ_ONLY(PropertyName, Getter)                  \
   new ezAccessorProperty<OwnType, EZ_GETTER_TYPE(OwnType, OwnType::Getter)>   \
-    (PropertyName, OwnType::Getter, NULL)                                     \
+    (PropertyName, &OwnType::Getter, NULL)                                    \
 
 // [internal] Helper macro to get the type of a class member.
 #define EZ_MEMBER_TYPE(Class, Member)                                         \
