@@ -1,6 +1,7 @@
 #cmake
+# disables auto-linking to qtmain (new in Qt 5.1)
+cmake_policy(SET CMP0020 OLD)
 
-# Get the name of this folder
 # Get the name of this folder
 get_filename_component (CUR_FOLDER_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME_WE)
 get_filename_component (PARENT_FOLDER ${CMAKE_CURRENT_SOURCE_DIR} PATH)

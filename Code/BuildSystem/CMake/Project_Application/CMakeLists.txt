@@ -30,8 +30,8 @@ SET (LINK_LIBRARIES
 # Set this to true, if your application is a real win32 app (not a console app)
 #SET (IS_WIN32_APPLICATION true)
 
-# Enables the use of Qt in this project.
-#SET (EZ_QTPROJECT ON)
+# Enables the use of Qt in this project and sets up the required modules.
+#QT_MODULES(Core Gui Widgets)
 
 # Call this in case this project does not function without Qt.
 #BUILD_REQUIRES_QT()
@@ -43,9 +43,6 @@ SET (LINK_LIBRARIES
 
 # execute the "application"-template
 include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/CMAKE_Application.txt)
-
-# Define which qt modules are going to be used in this project.
-#qt5_use_modules(${PROJECT_NAME} Widgets)
 
 # Adds this project to 'Tests.txt', notifying the build server to run this as a test.
 # The first parameter sets whether this tests needs direct hardware access to the GPU.

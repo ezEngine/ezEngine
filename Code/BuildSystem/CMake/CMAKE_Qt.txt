@@ -16,22 +16,58 @@ if (EZ_ENABLE_QT_SUPPORT AND EZ_QTPROJECT)
     set (EZ_QT_DIR_FOUND ${EZ_QT_DIR} CACHE PATH "" FORCE)    
   endif()
   
-	if (NOT QT5_FOUND)
+  if (NOT QT5_FOUND)
     # now force QT to search in the correct folder
-   	if (BUILDSYSTEM_PLATFORM_WINDOWS)
-	    if (BUILDSYSTEM_PLATFORM_64BIT)
-	      set (CMAKE_PREFIX_PATH ${EZ_QT_DIR} "C:\\Program Files (x86)\\Windows Kits\\8.0\\Lib\\win8\\um\\x64")
-	    else()
-	      set (CMAKE_PREFIX_PATH ${EZ_QT_DIR} "C:\\Program Files (x86)\\Windows Kits\\8.0\\Lib\\win8\\um\\x86")
-	    endif()
-	  else()
-	    set (CMAKE_PREFIX_PATH ${EZ_QT_DIR})
-	  endif()
+    if (BUILDSYSTEM_PLATFORM_WINDOWS)
+      if (BUILDSYSTEM_PLATFORM_64BIT)
+        set (CMAKE_PREFIX_PATH ${EZ_QT_DIR} "C:\\Program Files (x86)\\Windows Kits\\8.0\\Lib\\win8\\um\\x64")
+      else()
+        set (CMAKE_PREFIX_PATH ${EZ_QT_DIR} "C:\\Program Files (x86)\\Windows Kits\\8.0\\Lib\\win8\\um\\x86")
+      endif()
+    else()
+      set (CMAKE_PREFIX_PATH ${EZ_QT_DIR})
+    endif()
   
     # we will need at least widgets (which includes core and gui), so we can run uic, moc and qrc
     # so search for it now so all qt paths are correctly set.
     find_package (Qt5Widgets REQUIRED PATHS ${EZ_QT_DIR})
   endif ()
+
 endif ()
 
+MACRO(QT_ADD_MODULES)
+  
+  if (EZ_ENABLE_QT_SUPPORT AND EZ_QTPROJECT)
+    # Add our modules we stored earlier.
+    qt5_use_modules(${PROJECT_NAME} ${EZ_QT_MODULES})
+    
+    # For each module add a post-build command to copy over the corresponding dll.
+    FOREACH(module ${EZ_QT_MODULES})
+      SET(QT_ADD_MODULES_MACRO_MODULE_NAME "Qt5::${module}")
+      # Access debug / release dlls manually for future use. Don't delete this as finding out how to do this took ages.
+      #get_target_property(debug_dll ${QT_ADD_MODULES_MACRO_MODULE_NAME} IMPORTED_LOCATION_DEBUG)
+      #get_target_property(release_dll ${QT_ADD_MODULES_MACRO_MODULE_NAME} IMPORTED_LOCATION_RELEASE)
 
+      # Magically copy the dll into the binary folder for each configuration using generator expressions
+      # as a post-build step for every qt-enabled target:
+      add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        $<TARGET_FILE:${QT_ADD_MODULES_MACRO_MODULE_NAME}>
+        $<TARGET_FILE_DIR:${PROJECT_NAME}>)
+        
+    ENDFOREACH(module)
+    
+    # Copy 'imageformats' into the binary folder.
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E copy_directory
+      "${EZ_QT_DIR}/plugins/imageformats"
+      "$<TARGET_FILE_DIR:${PROJECT_NAME}>/imageformats")
+        
+    # Copy 'platforms' into the binary folder.
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+      COMMAND ${CMAKE_COMMAND} -E copy_directory
+      "${EZ_QT_DIR}/plugins/platforms"
+      "$<TARGET_FILE_DIR:${PROJECT_NAME}>/platforms")
+      
+  endif ()
+ENDMACRO()

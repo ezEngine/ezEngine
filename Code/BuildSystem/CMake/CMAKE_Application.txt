@@ -1,4 +1,6 @@
 #cmake
+# disables auto-linking to qtmain (new in Qt 5.1)
+cmake_policy(SET CMP0020 OLD)
 
 # Get the name of this folder
 get_filename_component (CUR_FOLDER_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME_WE)
@@ -35,6 +37,7 @@ include_directories (${CMAKE_CURRENT_SOURCE_DIR})
 # Define the Exe Project, add all required sources to it
 add_executable (${PROJECT_NAME} ${APP_CONFIG} ${ALL_SOURCE_FILES})
 
+QT_ADD_MODULES()
 target_link_libraries (${PROJECT_NAME} ${LINK_LIBRARIES} ${QT_LIBRARIES} ${OPENGL_gl_LIBRARY} ${OPENGL_glu_LIBRARY})
 
 SET_PROPERTY(GLOBAL PROPERTY USE_FOLDERS ON)

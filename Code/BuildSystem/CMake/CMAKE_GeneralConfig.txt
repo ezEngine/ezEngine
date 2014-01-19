@@ -491,6 +491,15 @@ ENDMACRO()
 
 
 #########################################################################################
+## Macro to enable qt support for this library / project and store the required modules
+
+MACRO(QT_MODULES modules)  
+  SET (EZ_QTPROJECT ON)
+  SET (EZ_QT_MODULES ${ARGV})
+ENDMACRO()
+
+
+#########################################################################################
 ## Macro to skip a project / library if a certain conditional is not met.
 
 MACRO(BUILD_CONDITIONAL expression)

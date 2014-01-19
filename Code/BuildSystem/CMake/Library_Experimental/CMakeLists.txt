@@ -22,8 +22,8 @@
 #  OpenGL32.lib    # Example: A library that can be found in any lib path, but was not built with cmake
 # )
 
-# Enables the use of Qt in this library.
-#SET (EZ_QTPROJECT ON)
+# Enables the use of Qt in this library and sets up the required modules.
+#QT_MODULES(Core Gui Widgets)
 
 # Call this in case this library does not function without Qt.
 #BUILD_REQUIRES_QT()
@@ -35,5 +35,3 @@
 
 include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/CMAKE_LibraryExp.txt)
 
-# Define which qt modules are going to be used in this library.
-#qt5_use_modules(${PROJECT_NAME} Widgets)
