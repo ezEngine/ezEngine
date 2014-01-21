@@ -103,6 +103,9 @@ public:
   static ezBitflags<ezInputSlotFlags> GetInputSlotFlags(const char* szInputSlot); // [tested]
 
   /// \brief Returns the current key state of the given input slot and optionally also returns its full value.
+  ///
+  /// Do not use this function, unless you really, really need the value of exactly this key.
+  /// Prefer to map your key to an action and then use GetInputActionState(). That method is more robust and extensible.
   static ezKeyState::Enum GetInputSlotState(const char* szInputSlot, float* pValue = NULL); // [tested]
 
   /// \brief Returns an array that contains all the names of all currently known input slots.

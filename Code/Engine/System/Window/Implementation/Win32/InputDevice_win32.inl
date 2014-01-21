@@ -299,6 +299,9 @@ void ezStandardInputDevice::SetClipMouseCursor(bool bEnable)
     ClipCursor(NULL);
 }
 
+// WM_INPUT mouse clicks do not work in some VMs.
+// When this is enabled, mouse clicks are retrieved via standard WM_LBUTTONDOWN.
+#define EZ_MOUSEBUTTON_COMPATIBILTY_MODE EZ_ON
 
 void ezStandardInputDevice::WindowMessage(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 {
@@ -335,12 +338,6 @@ void ezStandardInputDevice::WindowMessage(HWND hWnd, UINT Msg, WPARAM wParam, LP
     }
     break;
 
-  case WM_LBUTTONUP:
-    {
-      SetClipRect(m_bClipCursor, hWnd);
-    }
-    break;
-
   case WM_SETFOCUS:
     {
       SetClipRect(m_bClipCursor, hWnd);
@@ -372,6 +369,53 @@ void ezStandardInputDevice::WindowMessage(HWND hWnd, UINT Msg, WPARAM wParam, LP
   case WM_MBUTTONDBLCLK:
     m_InputSlotValues[ezInputSlot_MouseDblClick2] = 1.0f;
     return;
+
+#if EZ_ENABLED(EZ_MOUSEBUTTON_COMPATIBILTY_MODE)
+
+  case WM_LBUTTONDOWN:
+    m_InputSlotValues["mouse_button_0"] = 1.0f;
+    return;
+  case WM_LBUTTONUP:
+    m_InputSlotValues["mouse_button_0"] = 0.0f;
+    SetClipRect(m_bClipCursor, hWnd);
+    return;
+
+  case WM_RBUTTONDOWN:
+    m_InputSlotValues["mouse_button_1"] = 1.0f;
+    return;
+  case WM_RBUTTONUP:
+    m_InputSlotValues["mouse_button_1"] = 0.0f;
+    SetClipRect(m_bClipCursor, hWnd);
+    return;
+
+  case WM_MBUTTONDOWN:
+    m_InputSlotValues["mouse_button_2"] = 1.0f;
+    return;
+  case WM_MBUTTONUP:
+    m_InputSlotValues["mouse_button_2"] = 0.0f;
+    return;
+
+  case WM_XBUTTONDOWN:
+    if (GET_XBUTTON_WPARAM(wParam) == XBUTTON1)
+      m_InputSlotValues["mouse_button_3"] = 1.0f;
+    if (GET_XBUTTON_WPARAM(wParam) == XBUTTON2)
+      m_InputSlotValues["mouse_button_4"] = 1.0f;
+    return;
+
+  case WM_XBUTTONUP:
+    if (GET_XBUTTON_WPARAM(wParam) == XBUTTON1)
+      m_InputSlotValues["mouse_button_3"] = 0.0f;
+    if (GET_XBUTTON_WPARAM(wParam) == XBUTTON2)
+      m_InputSlotValues["mouse_button_4"] = 0.0f;
+    return;
+
+#else
+
+  case WM_LBUTTONUP:
+    SetClipRect(m_bClipCursor, hWnd);
+    return;
+
+#endif
 
   case WM_INPUT:
     {
@@ -456,17 +500,24 @@ void ezStandardInputDevice::WindowMessage(HWND hWnd, UINT Msg, WPARAM wParam, LP
           m_InputSlotValues[ezInputSlot_MouseMoveNegY] += ((raw->data.mouse.lLastY < 0) ? (float) -raw->data.mouse.lLastY : 0.0f) * GetMouseSpeed().y;
           m_InputSlotValues[ezInputSlot_MouseMovePosY] += ((raw->data.mouse.lLastY > 0) ? (float)  raw->data.mouse.lLastY : 0.0f) * GetMouseSpeed().y;
 
-          for (ezInt32 mb = 0; mb < 5; ++mb)
-          {
-            char szTemp[32];
-            ezStringUtils::snprintf(szTemp, 32, "mouse_button_%i", mb);
+          // Mouse input does not always work via WM_INPUT
+          // e.g. some VMs don't send mouse click input via WM_INPUT when the mouse cursor is visible
+          // therefore in 'compatibility mode' it is just queried via standard WM_LBUTTONDOWN etc.
+          // to get 'high performance' mouse clicks, this code would work fine though
+          // but I doubt it makes much difference in latency
+          #if EZ_DISABLED(EZ_MOUSEBUTTON_COMPATIBILTY_MODE)
+            for (ezInt32 mb = 0; mb < 5; ++mb)
+            {
+              char szTemp[32];
+              ezStringUtils::snprintf(szTemp, 32, "mouse_button_%i", mb);
 
-            if ((uiButtons & (RI_MOUSE_BUTTON_1_DOWN << (mb * 2))) != 0)
-              m_InputSlotValues[szTemp] = 1.0f;
+              if ((uiButtons & (RI_MOUSE_BUTTON_1_DOWN << (mb * 2))) != 0)
+                m_InputSlotValues[szTemp] = 1.0f;
           
-            if ((uiButtons & (RI_MOUSE_BUTTON_1_DOWN << (mb * 2 + 1))) != 0)
-              m_InputSlotValues[szTemp] = 0.0f;
-          }
+              if ((uiButtons & (RI_MOUSE_BUTTON_1_DOWN << (mb * 2 + 1))) != 0)
+                m_InputSlotValues[szTemp] = 0.0f;
+            }
+          #endif
         }
         else
         if ((raw->data.mouse.usFlags & MOUSE_MOVE_ABSOLUTE) != 0)
