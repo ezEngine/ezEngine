@@ -49,6 +49,13 @@ public:
   /// \brief Creates the plane-equation from a set of unreliable points lying on the same plane. Some points might be equal or too close to each other for the typical algorithm.
   ezPlaneTemplate(const ezVec3Template<Type>* const pVertices, ezUInt32 iMaxVertices); // [tested]
 
+#if EZ_ENABLED(EZ_MATH_CHECK_FOR_NAN)
+  void AssertNotNaN() const
+  {
+    EZ_ASSERT(!IsNaN(), "This object contains NaN values. This can happen when you forgot to initialize it before using it. Please check that all code-paths properly initialize this object.");
+  }
+#endif
+
   /// \brief Creates the plane-equation from a normal and a point on the plane.
   void SetFromNormalAndPoint(const ezVec3Template<Type> &vNormal, const ezVec3Template<Type>& vPointOnPlane); // [tested]
 
@@ -123,6 +130,9 @@ public:
 
   /// \brief Checks whether the plane has valid values (not NaN, or infinite, normalized normal).
   bool IsValid() const; // [tested]
+
+  /// \brief Checks whether any component is NaN.
+  bool IsNaN() const;
 
 // *** Modifications ***
 public:

@@ -87,6 +87,8 @@ void ezMat4Template<Type>::SetTransformationMatrix(const ezMat3Template<Type>& R
 template<typename Type>
 void ezMat4Template<Type>::GetAsArray(Type* out_pData, ezMatrixLayout::Enum layout) const
 {
+  EZ_NAN_ASSERT(this);
+
   if (layout == ezMatrixLayout::ColumnMajor)
   {
     ezMemoryUtils::Copy(out_pData, m_fElementsCM, 16);
@@ -202,6 +204,8 @@ void ezMat4Template<Type>::Transpose()
 template<typename Type>
 const ezMat4Template<Type> ezMat4Template<Type>::GetTranspose() const
 {
+  EZ_NAN_ASSERT(this);
+
   return ezMat4Template(m_fElementsCM, ezMatrixLayout::RowMajor);
 }
 
@@ -216,6 +220,7 @@ const ezMat4Template<Type> ezMat4Template<Type>::GetInverse() const
 template<typename Type>
 ezVec4Template<Type> ezMat4Template<Type>::GetRow(ezUInt32 uiRow) const
 {
+  EZ_NAN_ASSERT(this);
   EZ_ASSERT(uiRow <= 3, "Invalid Row Index %d", uiRow);
 
   ezVec4Template<Type> r;
@@ -241,6 +246,7 @@ void ezMat4Template<Type>::SetRow(ezUInt32 uiRow, const ezVec4Template<Type>& ro
 template<typename Type>
 ezVec4Template<Type> ezMat4Template<Type>::GetColumn(ezUInt32 uiColumn) const
 {
+  EZ_NAN_ASSERT(this);
   EZ_ASSERT(uiColumn <= 3, "Invalid Column Index %d", uiColumn);
 
   ezVec4Template<Type> r;
@@ -266,6 +272,8 @@ void ezMat4Template<Type>::SetColumn(ezUInt32 uiColumn, const ezVec4Template<Typ
 template<typename Type>
 ezVec4Template<Type> ezMat4Template<Type>::GetDiagonal() const
 {
+  EZ_NAN_ASSERT(this);
+
   return ezVec4Template<Type>(Element(0, 0), Element(1, 1), Element(2, 2), Element(3, 3));
 }
 
@@ -285,6 +293,8 @@ const ezVec3Template<Type> ezMat4Template<Type>::TransformPosition(const ezVec3T
   r.x = Element(0, 0) * v.x + Element(1, 0) * v.y + Element(2, 0) * v.z + Element(3, 0);
   r.y = Element(0, 1) * v.x + Element(1, 1) * v.y + Element(2, 1) * v.z + Element(3, 1);
   r.z = Element(0, 2) * v.x + Element(1, 2) * v.y + Element(2, 2) * v.z + Element(3, 2);
+
+  EZ_NAN_ASSERT(&r);
   return r;
 }
 
@@ -310,6 +320,8 @@ const ezVec3Template<Type> ezMat4Template<Type>::TransformDirection(const ezVec3
   r.x = Element(0, 0) * v.x + Element(1, 0) * v.y + Element(2, 0) * v.z;
   r.y = Element(0, 1) * v.x + Element(1, 1) * v.y + Element(2, 1) * v.z;
   r.z = Element(0, 2) * v.x + Element(1, 2) * v.y + Element(2, 2) * v.z;
+
+  EZ_NAN_ASSERT(&r);
   return r;
 }
 
@@ -336,6 +348,8 @@ const ezVec4Template<Type> ezMat4Template<Type>::Transform(const ezVec4Template<
   r.y = Element(0, 1) * v.x + Element(1, 1) * v.y + Element(2, 1) * v.z + Element(3, 1) * v.w;
   r.z = Element(0, 2) * v.x + Element(1, 2) * v.y + Element(2, 2) * v.z + Element(3, 2) * v.w;
   r.w = Element(0, 3) * v.x + Element(1, 3) * v.y + Element(2, 3) * v.z + Element(3, 3) * v.w;
+
+  EZ_NAN_ASSERT(&r);
   return r;
 }
 
@@ -357,6 +371,8 @@ void ezMat4Template<Type>::Transform(ezVec4Template<Type>* inout_v, ezUInt32 uiN
 template<typename Type>
 EZ_FORCE_INLINE const ezVec3Template<Type> ezMat4Template<Type>::GetTranslationVector() const
 {
+  EZ_NAN_ASSERT(this);
+
   return ezVec3Template<Type>(Element(3, 0), Element(3, 1), Element(3, 2));
 }
 
@@ -393,6 +409,7 @@ const ezMat3Template<Type> ezMat4Template<Type>::GetRotationalPart() const
     }
   }
 
+  EZ_NAN_ASSERT(&r);
   return r;
 }
 
@@ -401,6 +418,8 @@ void ezMat4Template<Type>::operator*= (Type f)
 {
   for (ezInt32 i = 0; i < 16; ++i)
     m_fElementsCM[i] *= f;
+
+  EZ_NAN_ASSERT(this);
 }
 
 template<typename Type>
@@ -422,6 +441,8 @@ const ezMat4Template<Type> operator* (const ezMat4Template<Type>& m1, const ezMa
     r.Element(2, i) = m1.Element(0, i) * m2.Element(2, 0) + m1.Element(1, i) * m2.Element(2, 1) + m1.Element(2, i) * m2.Element(2, 2) + m1.Element(3, i) * m2.Element(2, 3);
     r.Element(3, i) = m1.Element(0, i) * m2.Element(3, 0) + m1.Element(1, i) * m2.Element(3, 1) + m1.Element(2, i) * m2.Element(3, 2) + m1.Element(3, i) * m2.Element(3, 3);
   }
+
+  EZ_NAN_ASSERT(&r);
   return r;
 }
 
@@ -493,6 +514,7 @@ const ezMat4Template<Type> operator* (const ezMat4Template<Type>& m1, Type f)
   for (ezUInt32 i = 0; i < 16; ++i)
     r.m_fElementsCM[i] = m1.m_fElementsCM[i] * f;
 
+  EZ_NAN_ASSERT(&r);
   return r;
 }
 
@@ -510,6 +532,7 @@ const ezMat4Template<Type> operator+ (const ezMat4Template<Type>& m1, const ezMa
   for (ezUInt32 i = 0; i < 16; ++i)
     r.m_fElementsCM[i] = m1.m_fElementsCM[i] + m2.m_fElementsCM[i];
 
+  EZ_NAN_ASSERT(&r);
   return r;
 }
 
@@ -521,12 +544,16 @@ const ezMat4Template<Type> operator- (const ezMat4Template<Type>& m1, const ezMa
   for (ezUInt32 i = 0; i < 16; ++i)
     r.m_fElementsCM[i] = m1.m_fElementsCM[i] - m2.m_fElementsCM[i];
 
+  EZ_NAN_ASSERT(&r);
   return r;
 }
 
 template<typename Type>
 bool ezMat4Template<Type>::IsIdentical(const ezMat4Template<Type>& rhs) const
 {
+  EZ_NAN_ASSERT(this);
+  EZ_NAN_ASSERT(&rhs);
+
   for (ezUInt32 i = 0; i < 16; ++i)
   {
     if (m_fElementsCM[i] != rhs.m_fElementsCM[i])
@@ -539,6 +566,9 @@ bool ezMat4Template<Type>::IsIdentical(const ezMat4Template<Type>& rhs) const
 template<typename Type>
 bool ezMat4Template<Type>::IsEqual(const ezMat4Template<Type>& rhs, Type fEpsilon) const
 {
+  EZ_NAN_ASSERT(this);
+  EZ_NAN_ASSERT(&rhs);
+
   EZ_ASSERT(fEpsilon >= 0.0f, "Epsilon may not be negativ.");
 
   for (ezUInt32 i = 0; i < 16; ++i)
@@ -565,6 +595,8 @@ EZ_FORCE_INLINE bool operator!= (const ezMat4Template<Type>& lhs, const ezMat4Te
 template<typename Type>
 bool ezMat4Template<Type>::IsZero(Type fEpsilon) const
 {
+  EZ_NAN_ASSERT(this);
+
   for (ezUInt32 i = 0; i < 16; ++i)
   {
     if (!ezMath::IsZero(m_fElementsCM[i], fEpsilon))
@@ -577,6 +609,8 @@ bool ezMat4Template<Type>::IsZero(Type fEpsilon) const
 template<typename Type>
 bool ezMat4Template<Type>::IsIdentity(Type fEpsilon) const
 {
+  EZ_NAN_ASSERT(this);
+
   if (!ezMath::IsEqual(Element(0, 0), (Type) 1, fEpsilon)) return false;
   if (!ezMath::IsEqual(Element(0, 1), (Type) 0, fEpsilon)) return false;
   if (!ezMath::IsEqual(Element(0, 2), (Type) 0, fEpsilon)) return false;
@@ -610,7 +644,20 @@ bool ezMat4Template<Type>::IsValid() const
   }
 
   return true;
+}
 
+template<typename Type>
+bool ezMat4Template<Type>::IsNaN() const
+{
+  /// \test Not yet tested.
+
+  for (ezUInt32 i = 0; i < 16; ++i)
+  {
+    if (ezMath::IsNaN(m_fElementsCM[i]))
+      return true;
+  }
+
+  return false;
 }
 
 template<typename Type>
@@ -622,6 +669,7 @@ const ezVec3Template<Type> ezMat4Template<Type>::GetScalingFactors() const
   v.y = ezVec3Template<Type>(Element(1, 0), Element(1, 1), Element(1, 2)).GetLength ();
   v.z = ezVec3Template<Type>(Element(2, 0), Element(2, 1), Element(2, 2)).GetLength ();
 
+  EZ_NAN_ASSERT(&v);
   return v;
 }
 

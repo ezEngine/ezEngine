@@ -47,6 +47,14 @@ bool ezBoundingSphereTemplate<Type>::IsValid() const
 }
 
 template<typename Type>
+bool ezBoundingSphereTemplate<Type>::IsNaN() const
+{
+  /// \test Not yet tested.
+
+  return (m_vCenter.IsNaN() || ezMath::IsNaN(m_fRadius));
+}
+
+template<typename Type>
 EZ_FORCE_INLINE void ezBoundingSphereTemplate<Type>::SetElements(const ezVec3Template<Type>& vCenter, Type fRadius)
 {
   m_vCenter = vCenter;
@@ -118,6 +126,8 @@ EZ_FORCE_INLINE void ezBoundingSphereTemplate<Type>::ScaleFromCenter(Type fScale
   EZ_ASSERT(fScale >= 0.0f, "Cannot invert the sphere.");
 
   m_fRadius *= fScale;
+
+  EZ_NAN_ASSERT(this);
 }
 
 template<typename Type>

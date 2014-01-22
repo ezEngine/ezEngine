@@ -15,6 +15,8 @@ Milestone 4
   * Added ezLuaWrapper to CoreUtils for easier working with Lua scripts.
   * Added ezGraphicsUtils with functions for mapping points to and from world-space and screen-space.
   * Added ezCamera, a lightweight class to do standard camera actions (moving, rotating, etc.)
+  * In debug builds all math classes do NaN checks, to detect the usage of uninitialized data.
+  * Added ezGameUtils library which contains some general purpose functions that might be useful for different types of games.
 
 Milestone 3
 -----------

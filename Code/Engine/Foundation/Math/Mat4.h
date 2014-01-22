@@ -49,6 +49,13 @@ public:
   /// \brief Creates a transformation matrix from a rotation and a translation.
   ezMat4Template(const ezMat3Template<Type>& Rotation, const ezVec3Template<Type>& vTranslation); // [tested]
 
+#if EZ_ENABLED(EZ_MATH_CHECK_FOR_NAN)
+  void AssertNotNaN() const
+  {
+    EZ_ASSERT(!IsNaN(), "This object contains NaN values. This can happen when you forgot to initialize it before using it. Please check that all code-paths properly initialize this object.");
+  }
+#endif
+
   /// \brief Copies 16 values from pData into the matrix. Can handle the data in row-major or column-major order.
   ///
   /// \param pData
@@ -153,6 +160,8 @@ public:
   /// \brief Checks whether all components are finite numbers.
   bool IsValid() const; // [tested]
 
+  /// \brief Checks whether any component is NaN.
+  bool IsNaN() const;
 
 // *** Special Accessors ***
 public:

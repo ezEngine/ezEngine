@@ -113,3 +113,12 @@
 template<class T> 
 void EZ_IGNORE_UNUSED(const T&) {}
 
+
+// Math Debug checks
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+
+  #undef EZ_MATH_CHECK_FOR_NAN
+  #define EZ_MATH_CHECK_FOR_NAN EZ_ON
+
+#endif
+

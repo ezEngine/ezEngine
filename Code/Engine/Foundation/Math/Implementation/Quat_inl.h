@@ -52,6 +52,8 @@ void ezQuatTemplate<Type>::SetFromAxisAndAngle(const ezVec3Template<Type>& vRota
 template<typename Type>
 void ezQuatTemplate<Type>::Normalize()
 {
+  EZ_NAN_ASSERT(this);
+
   Type n = v.x * v.x + v.y * v.y + v.z * v.z + w * w;
     
   n = ezMath::Invert(ezMath::Sqrt(n));
@@ -63,6 +65,8 @@ void ezQuatTemplate<Type>::Normalize()
 template<typename Type>
 ezResult ezQuatTemplate<Type>::GetRotationAxisAndAngle(ezVec3Template<Type>& vAxis, ezAngle& angle) const
 {
+  EZ_NAN_ASSERT(this);
+
   const ezAngle acos = ezMath::ACos(w);
   const float d = ezMath::Sin(acos);
 
@@ -78,6 +82,8 @@ ezResult ezQuatTemplate<Type>::GetRotationAxisAndAngle(ezVec3Template<Type>& vAx
 template<typename Type>
 EZ_FORCE_INLINE const ezQuatTemplate<Type> ezQuatTemplate<Type>::operator-() const
 {
+  EZ_NAN_ASSERT(this);
+
   return (ezQuatTemplate (-v.x, -v.y, -v.z, w));
 }
 
@@ -113,6 +119,14 @@ bool ezQuatTemplate<Type>::IsValid(Type fEpsilon) const
 }
 
 template<typename Type>
+bool ezQuatTemplate<Type>::IsNaN() const
+{
+  /// \test Not yet tested.
+
+  return v.IsNaN() || ezMath::IsNaN(w);
+}
+
+template<typename Type>
 bool ezQuatTemplate<Type>::IsEqualRotation(const ezQuatTemplate<Type>& qOther, float fEpsilon) const
 {
   ezVec3Template<Type> vA1, vA2;
@@ -137,6 +151,8 @@ bool ezQuatTemplate<Type>::IsEqualRotation(const ezQuatTemplate<Type>& qOther, f
 template<typename Type>
 const ezMat3Template<Type> ezQuatTemplate<Type>::GetAsMat3() const
 {
+  EZ_NAN_ASSERT(this);
+
   ezMat3Template<Type> m;
 
   const Type fTx  = (Type) 2 * v.x;
@@ -167,6 +183,8 @@ const ezMat3Template<Type> ezQuatTemplate<Type>::GetAsMat3() const
 template<typename Type>
 const ezMat4Template<Type> ezQuatTemplate<Type>::GetAsMat4() const
 {
+  EZ_NAN_ASSERT(this);
+
   ezMat4Template<Type> m;
 
   const Type fTx  = (Type) 2 * v.x;
@@ -204,6 +222,8 @@ const ezMat4Template<Type> ezQuatTemplate<Type>::GetAsMat4() const
 template<typename Type>
 void ezQuatTemplate<Type>::SetFromMat3(const ezMat3Template<Type>& m)
 {
+  EZ_NAN_ASSERT(&m);
+
   const Type trace = m.Element(0, 0) + m.Element(1, 1) + m.Element(2, 2);
   const Type half = (Type) 0.5;
 

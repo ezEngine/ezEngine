@@ -23,6 +23,13 @@ public:
   /// \brief Constructs the box with the given minimum and maximum values.
   ezBoundingBoxTemplate(const ezVec3Template<Type>& vMin, const ezVec3Template<Type>& vMax); // [tested]
 
+#if EZ_ENABLED(EZ_MATH_CHECK_FOR_NAN)
+  void AssertNotNaN() const
+  {
+    EZ_ASSERT(!IsNaN(), "This object contains NaN values. This can happen when you forgot to initialize it before using it. Please check that all code-paths properly initialize this object.");
+  }
+#endif
+
   /// \brief Resets the box to an invalid state. ExpandToInclude can then be used to make it into a bounding box for objects.
   void SetInvalid(); // [tested]
 
@@ -31,6 +38,9 @@ public:
 
   /// \brief Checks whether the box is in an invalid state.
   bool IsValid() const; // [tested]
+
+  /// \brief Checks whether any component is NaN.
+  bool IsNaN() const;
 
   /// \brief Directly sets the minimum and maximum values.
   void SetElements(const ezVec3Template<Type>& vMin, const ezVec3Template<Type>& vMax); // [tested]

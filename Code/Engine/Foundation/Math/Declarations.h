@@ -4,6 +4,11 @@
 
 #include <Foundation/Basics.h>
 
+#if EZ_ENABLED(EZ_MATH_CHECK_FOR_NAN)
+  #define EZ_NAN_ASSERT(obj) (obj)->AssertNotNaN();
+#else
+  #define EZ_NAN_ASSERT(obj)
+#endif
 
 /// \brief Simple helper union to store ints and floats to modify their bit patterns.
 union ezIntFloatUnion

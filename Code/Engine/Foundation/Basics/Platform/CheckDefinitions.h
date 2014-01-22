@@ -72,3 +72,7 @@
   #error "Endianess is not correctly defined!"
 #endif
 
+#ifndef EZ_MATH_CHECK_FOR_NAN
+  #error "EZ_MATH_CHECK_FOR_NAN is not defined."
+#endif
+

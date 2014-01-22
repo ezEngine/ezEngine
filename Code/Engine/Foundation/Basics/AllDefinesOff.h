@@ -63,3 +63,6 @@
 #define EZ_USE_PROFILING EZ_OFF
 #define EZ_USE_PROFILING_GPA EZ_OFF
 
+
+// Math Debug Checks
+#define EZ_MATH_CHECK_FOR_NAN EZ_OFF

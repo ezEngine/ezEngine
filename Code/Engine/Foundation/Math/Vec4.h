@@ -34,6 +34,13 @@ public:
   /// \brief Static function that returns a zero-vector.
   static const ezVec4Template ZeroVector() { return ezVec4Template(0); }  // [tested]
 
+#if EZ_ENABLED(EZ_MATH_CHECK_FOR_NAN)
+  void AssertNotNaN() const
+  {
+    EZ_ASSERT(!IsNaN(), "This object contains NaN values. This can happen when you forgot to initialize it before using it. Please check that all code-paths properly initialize this object.");
+  }
+#endif
+
 // *** Conversions ***
 public:
 

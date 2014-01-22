@@ -22,6 +22,13 @@ public:
   /// \brief Creates a sphere with the given radius around the given center.
   ezBoundingSphereTemplate(const ezVec3Template<Type>& vCenter, Type fRadius); // [tested]
 
+#if EZ_ENABLED(EZ_MATH_CHECK_FOR_NAN)
+  void AssertNotNaN() const
+  {
+    EZ_ASSERT(!IsNaN(), "This object contains NaN values. This can happen when you forgot to initialize it before using it. Please check that all code-paths properly initialize this object.");
+  }
+#endif
+
   /// \brief Sets all elements to Zero. The sphere is thus 'valid'.
   void SetZero(); // [tested]
 
@@ -33,6 +40,9 @@ public:
 
   /// \brief Returns whether the sphere has valid values.
   bool IsValid() const; // [tested]
+
+  /// \brief Returns whether any value is NaN.
+  bool IsNaN() const;
 
   /// \brief Sets the sphere to the given values.
   void SetElements(const ezVec3Template<Type>& vCenter, Type fRadius); // [tested]

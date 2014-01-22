@@ -43,6 +43,13 @@ public:
                  Type c1r2, Type c2r2, Type c3r2,
                  Type c1r3, Type c2r3, Type c3r3); // [tested]
 
+#if EZ_ENABLED(EZ_MATH_CHECK_FOR_NAN)
+  void AssertNotNaN() const
+  {
+    EZ_ASSERT(!IsNaN(), "This object contains NaN values. This can happen when you forgot to initialize it before using it. Please check that all code-paths properly initialize this object.");
+  }
+#endif
+
   /// \brief Copies 9 values from pData into the matrix. Can handle the data in row-major or column-major order.
   ///
   /// \param pData
@@ -120,6 +127,8 @@ public:
   /// \brief Checks whether all components are finite numbers.
   bool IsValid() const; // [tested]
 
+  /// \brief Checks whether any component is NaN.
+  bool IsNaN() const;
 
 // *** Special Accessors ***
 public:

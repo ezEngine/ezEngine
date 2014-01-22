@@ -32,6 +32,7 @@ void ezBoundingBoxTemplate<Type>::SetFromPoints(const ezVec3Template<Type>* pPoi
 template<typename Type>
 void ezBoundingBoxTemplate<Type>::GetCorners(ezVec3Template<Type>* out_pCorners) const
 {
+  EZ_NAN_ASSERT(this);
   EZ_ASSERT(out_pCorners != NULL, "Out Parameter must not be NULL.");
 
   out_pCorners[0].Set(m_vMin.x, m_vMin.y, m_vMin.z);
@@ -80,6 +81,14 @@ template<typename Type>
 bool ezBoundingBoxTemplate<Type>::IsValid() const
 {
   return (m_vMin.IsValid() && m_vMax.IsValid() && m_vMin.x <= m_vMax.x && m_vMin.y <= m_vMax.y && m_vMin.z <= m_vMax.z);
+}
+
+template<typename Type>
+bool ezBoundingBoxTemplate<Type>::IsNaN() const
+{
+  /// \test Not yet tested.
+
+  return m_vMin.IsNaN() || m_vMax.IsNaN();
 }
 
 template<typename Type>
@@ -138,6 +147,9 @@ EZ_FORCE_INLINE void ezBoundingBoxTemplate<Type>::Grow(const ezVec3Template<Type
 template<typename Type>
 EZ_FORCE_INLINE bool ezBoundingBoxTemplate<Type>::Contains(const ezVec3Template<Type>& vPoint) const
 {
+  EZ_NAN_ASSERT(this);
+  EZ_NAN_ASSERT(&vPoint);
+
   return(ezMath::IsInRange(vPoint.x, m_vMin.x, m_vMax.x) &&
          ezMath::IsInRange(vPoint.y, m_vMin.y, m_vMax.y) &&
          ezMath::IsInRange(vPoint.z, m_vMin.z, m_vMax.z));
@@ -171,6 +183,9 @@ bool ezBoundingBoxTemplate<Type>::Contains(const ezVec3Template<Type>* pPoints, 
 template<typename Type>
 bool ezBoundingBoxTemplate<Type>::Overlaps(const ezBoundingBoxTemplate<Type>& rhs) const
 {
+  EZ_NAN_ASSERT(this);
+  EZ_NAN_ASSERT(&rhs);
+
   if (rhs.m_vMin.x >= m_vMax.x)
     return false;
   if (rhs.m_vMin.y >= m_vMax.y)
@@ -305,6 +320,9 @@ Type ezBoundingBoxTemplate<Type>::GetDistanceSquaredTo(const ezBoundingBoxTempla
 {
   // This will return zero for overlapping boxes
 
+  EZ_NAN_ASSERT(this);
+  EZ_NAN_ASSERT(&rhs);
+
   Type fDistSQR = 0.0f;
 
   {
@@ -358,6 +376,8 @@ bool ezBoundingBoxTemplate<Type>::GetRayIntersection(const ezVec3Template<Type>&
   EZ_ASSERT(ezMath::BasicType<Type>::SupportsInfinity(), "This type does not support infinite values, which is required for this algorithm.");
   EZ_ASSERT(vStartPos.IsValid(), "Ray start position must be valid.");
   EZ_ASSERT(vRayDir.IsValid(), "Ray direction must be valid.");
+
+  EZ_NAN_ASSERT(this);
 
   const ezVec3Template<Type> vDirFrac = ezVec3Template<Type>(1.0f).CompDiv(vRayDir);
 

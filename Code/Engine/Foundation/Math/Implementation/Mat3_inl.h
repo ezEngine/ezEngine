@@ -65,6 +65,8 @@ void ezMat3Template<Type>::SetFromArray(const Type* EZ_RESTRICT const pData, ezM
 template<typename Type>
 void ezMat3Template<Type>::GetAsArray(Type* out_pData, ezMatrixLayout::Enum layout) const
 {
+  EZ_NAN_ASSERT(this);
+
   if (layout == ezMatrixLayout::ColumnMajor)
   {
     ezMemoryUtils::Copy(out_pData, m_fElementsCM, 9);
@@ -180,6 +182,7 @@ ezVec3Template<Type> ezMat3Template<Type>::GetRow(ezUInt32 uiRow) const
   r.y = Element(1, uiRow);
   r.z = Element(2, uiRow);
 
+  EZ_NAN_ASSERT(&r);
   return r;
 }
 
@@ -203,6 +206,7 @@ ezVec3Template<Type> ezMat3Template<Type>::GetColumn(ezUInt32 uiColumn) const
   r.y = Element(uiColumn, 1);
   r.z = Element(uiColumn, 2);
 
+  EZ_NAN_ASSERT(&r);
   return r;
 }
 
@@ -219,6 +223,8 @@ void ezMat3Template<Type>::SetColumn(ezUInt32 uiColumn, const ezVec3Template<Typ
 template<typename Type>
 ezVec3Template<Type> ezMat3Template<Type>::GetDiagonal() const
 {
+  EZ_NAN_ASSERT(this);
+
   return ezVec3Template<Type>(Element(0, 0), Element(1, 1), Element(2, 2));
 }
 
@@ -237,6 +243,8 @@ EZ_FORCE_INLINE const ezVec3Template<Type> ezMat3Template<Type>::TransformDirect
   r.x = Element(0, 0) * v.x + Element(1, 0) * v.y + Element(2, 0) * v.z;
   r.y = Element(0, 1) * v.x + Element(1, 1) * v.y + Element(2, 1) * v.z;
   r.z = Element(0, 2) * v.x + Element(1, 2) * v.y + Element(2, 2) * v.z;
+
+  EZ_NAN_ASSERT(&r);
   return r;
 }
 
@@ -245,6 +253,8 @@ EZ_FORCE_INLINE void ezMat3Template<Type>::operator*= (Type f)
 {
   for (ezInt32 i = 0; i < 9; ++i)
     m_fElementsCM[i] *= f;
+
+  EZ_NAN_ASSERT(this);
 }
 
 template<typename Type>
@@ -265,6 +275,8 @@ const ezMat3Template<Type> operator* (const ezMat3Template<Type>& m1, const ezMa
     r.Element(1, i) = m1.Element(0, i) * m2.Element(1, 0) + m1.Element(1, i) * m2.Element(1, 1) + m1.Element(2, i) * m2.Element(1, 2);
     r.Element(2, i) = m1.Element(0, i) * m2.Element(2, 0) + m1.Element(1, i) * m2.Element(2, 1) + m1.Element(2, i) * m2.Element(2, 2);
   }
+
+  EZ_NAN_ASSERT(&r);
   return r;
 }
 
@@ -292,6 +304,8 @@ const ezMat3Template<Type> operator* (const ezMat3Template<Type>& m1, Type f)
   for (ezUInt32 i = 0; i < 9; ++i)
     r.m_fElementsCM[i] = m1.m_fElementsCM[i] * f;
 
+  EZ_NAN_ASSERT(&r);
+
   return r;
 }
 
@@ -309,6 +323,8 @@ const ezMat3Template<Type> operator+ (const ezMat3Template<Type>& m1, const ezMa
   for (ezUInt32 i = 0; i < 9; ++i)
     r.m_fElementsCM[i] = m1.m_fElementsCM[i] + m2.m_fElementsCM[i];
 
+  EZ_NAN_ASSERT(&r);
+
   return r;
 }
 
@@ -320,12 +336,17 @@ const ezMat3Template<Type> operator- (const ezMat3Template<Type>& m1, const ezMa
   for (ezUInt32 i = 0; i < 9; ++i)
     r.m_fElementsCM[i] = m1.m_fElementsCM[i] - m2.m_fElementsCM[i];
 
+  EZ_NAN_ASSERT(&r);
+
   return r;
 }
 
 template<typename Type>
 bool ezMat3Template<Type>::IsIdentical(const ezMat3Template<Type>& rhs) const
 {
+  EZ_NAN_ASSERT(this);
+  EZ_NAN_ASSERT(&rhs);
+
   for (ezUInt32 i = 0; i < 9; ++i)
   {
     if (m_fElementsCM[i] != rhs.m_fElementsCM[i])
@@ -338,6 +359,9 @@ bool ezMat3Template<Type>::IsIdentical(const ezMat3Template<Type>& rhs) const
 template<typename Type>
 bool ezMat3Template<Type>::IsEqual(const ezMat3Template<Type>& rhs, Type fEpsilon) const
 {
+  EZ_NAN_ASSERT(this);
+  EZ_NAN_ASSERT(&rhs);
+
   EZ_ASSERT(fEpsilon >= 0.0f, "Epsilon may not be negativ.");
 
   for (ezUInt32 i = 0; i < 9; ++i)
@@ -364,6 +388,8 @@ EZ_FORCE_INLINE bool operator!= (const ezMat3Template<Type>& lhs, const ezMat3Te
 template<typename Type>
 bool ezMat3Template<Type>::IsZero(Type fEpsilon) const
 {
+  EZ_NAN_ASSERT(this);
+
   for (ezUInt32 i = 0; i < 9; ++i)
   {
     if (!ezMath::IsZero(m_fElementsCM[i], fEpsilon))
@@ -376,6 +402,8 @@ bool ezMat3Template<Type>::IsZero(Type fEpsilon) const
 template<typename Type>
 bool ezMat3Template<Type>::IsIdentity(Type fEpsilon) const
 {
+  EZ_NAN_ASSERT(this);
+
   if (!ezMath::IsEqual(Element(0, 0), (Type) 1, fEpsilon)) return false;
   if (!ezMath::IsEqual(Element(0, 1), (Type) 0, fEpsilon)) return false;
   if (!ezMath::IsEqual(Element(0, 2), (Type) 0, fEpsilon)) return false;
@@ -402,6 +430,21 @@ bool ezMat3Template<Type>::IsValid() const
 
   return true;
 }
+
+template<typename Type>
+bool ezMat3Template<Type>::IsNaN() const
+{
+  /// \test Not yet tested.
+
+  for (ezUInt32 i = 0; i < 9; ++i)
+  {
+    if (ezMath::IsNaN(m_fElementsCM[i]))
+      return true;
+  }
+
+  return false;
+}
+
 
 #include <Foundation/Math/Implementation/AllClasses_inl.h>
 

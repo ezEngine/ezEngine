@@ -35,6 +35,13 @@ public:
   /// \brief For internal use. You should never construct quaternions this way.
   ezQuatTemplate(Type X, Type Y, Type Z, Type W); // [tested]
 
+#if EZ_ENABLED(EZ_MATH_CHECK_FOR_NAN)
+  void AssertNotNaN() const
+  {
+    EZ_ASSERT(!IsNaN(), "This object contains NaN values. This can happen when you forgot to initialize it before using it. Please check that all code-paths properly initialize this object.");
+  }
+#endif
+
   /// \brief Static function that returns a quaternion that represents the identity rotation (none).
   static const ezQuatTemplate<Type> IdentityQuaternion(); // [tested]
 
@@ -78,6 +85,9 @@ public:
   
   /// \brief Checks whether all components are neither NaN nor infinite and that the quaternion is normalized.
   bool IsValid(Type fEpsilon = ezMath::BasicType<Type>::DefaultEpsilon()) const; // [tested]
+
+  /// \brief Checks whether any component is NaN.
+  bool IsNaN() const;
 
   /// \brief Determines whether \a this and \a qOther represent the same rotation. This is a rather slow operation.
   ///

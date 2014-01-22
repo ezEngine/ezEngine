@@ -197,6 +197,13 @@ bool ezPlaneTemplate<Type>::IsValid() const
   return ezMath::IsFinite(m_fNegDistance) && m_vNormal.IsNormalized(ezMath::BasicType<Type>::DefaultEpsilon());
 }
 
+template<typename Type>
+bool ezPlaneTemplate<Type>::IsNaN() const
+{
+  /// \test Not yet tested.
+
+  return ezMath::IsNaN(m_fNegDistance) || m_vNormal.IsNaN();
+}
 
 
 /*! The given vertices can be partially equal or lie on the same line. The algorithm will try to find 3 vertices, that
