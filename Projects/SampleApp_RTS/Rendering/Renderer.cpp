@@ -23,6 +23,8 @@ void GameRenderer::SetupRenderer(const GameWindow* pWindow, const Level* pLevel,
   m_pWorld = m_pLevel->GetWorld();
   m_pGrid = &m_pLevel->GetGrid();
   m_pCamera = pCamera;
+
+  UpdateState();
 }
 
 void GameRenderer::RenderLevel(const ezObjectSelection* pSelection)
