@@ -93,8 +93,15 @@ void UnitComponent::MoveAlongPath()
 
   while (fDistance > 0.0f && !m_Path.IsEmpty())
   {
-    ezVec3 vDir = m_Path.PeekFront() - vCurPos;
-    const float fLen = vDir.GetLengthAndNormalize();
+    ezVec3 vPathPos = m_Path.PeekFront();
+
+    float fLen = 0.0f;
+    ezVec3 vDir = vPathPos - vCurPos;
+
+    if (vPathPos != vCurPos)
+    {
+      fLen = vDir.GetLengthAndNormalize();
+    }
 
     if (fLen <= fDistance)
     {

@@ -2,6 +2,7 @@
 
 #include <GameUtils/Basics.h>
 #include <Foundation/Containers/DynamicArray.h>
+#include <Foundation/Math/Vec3.h>
 
 struct ezGridCoordinate
 {

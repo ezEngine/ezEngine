@@ -82,7 +82,7 @@ protected:
   /// For devices where you get the input only piece-wise and usually only when something changes (e.g. through messages)
   /// you can also just update the map whenever input arrives. However in such a use-case you sometimes need to manually
   /// reset the state of certain input slots. For example when a mouse-move message arrives that movement delta is accumulated in
-  /// the map. However, when the mouse stops usually no 'mosue stopped' message is sent but the values in the map need to be
+  /// the map. However, when the mouse stops usually no 'mouse stopped' message is sent but the values in the map need to be
   /// reset to zero, to prevent the mouse from keeping moving in the engine.
   /// Do this inside an overridden ResetInputSlotValues() function. You don't need to do this for input slots that
   /// will reset to zero anyway.

@@ -18,7 +18,7 @@ public:
   /// from the OS.
   ///
   /// The OS translation might not always be perfect for all keys. The translation can change when the user changes the keyboard layout.
-  /// So if he switches from and English layout to a German layout, LocalizeButtonDisplayNames() should be called again, to update
+  /// So if he switches from an English layout to a German layout, LocalizeButtonDisplayNames() should be called again, to update
   /// the display names, if that is required.
   static void LocalizeButtonDisplayNames();
 
