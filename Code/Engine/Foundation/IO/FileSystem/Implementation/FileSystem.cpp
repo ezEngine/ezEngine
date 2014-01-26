@@ -178,7 +178,12 @@ const char* ezFileSystem::GetDataDirRelativePath(const char* szPath, ezUInt32 ui
   // if yes, the prefix path is removed and then only the relative path is given to the data directory type
   // otherwise the data directory would prepend its own path and thus create an invalid path to work with
   const ezString128& sDirPath = s_Data->m_DataDirectories[uiDataDir].m_pDataDirectory->GetDataDirectoryPath();
-
+    
+  // If the data dir is empty we return the paths as is or the code below would remove the '/' infront of an
+  // absolute path.
+  if (sDirPath.IsEmpty())
+    return szPath;
+    
   const char* szRelPath = szPath;
 
   if (ezStringUtils::StartsWith_NoCase(szPath, sDirPath.GetData()))

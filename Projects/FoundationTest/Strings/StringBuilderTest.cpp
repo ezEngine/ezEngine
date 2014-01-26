@@ -865,6 +865,11 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     p.AppendPath("orly/nowai");
     EZ_TEST_BOOL(p == "orly/nowai");
   
+    // It should be valid to append an absolute path to an empty string.
+    p = "";
+    p.AppendPath(BUILDSYSTEM_OUTPUT_FOLDER, "File.ext");
+    EZ_TEST_BOOL(p == BUILDSYSTEM_OUTPUT_FOLDER"/File.ext");
+
     p = "bla";
     p.AppendPath("");
     EZ_TEST_BOOL(p == "bla");

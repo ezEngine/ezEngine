@@ -71,6 +71,7 @@ if (BUILDSYSTEM_PLATFORM_WINDOWS)
     message (STATUS "Buildsystem is MSVC (BUILDSYSTEM_MSVC)")
     set (BUILDSYSTEM_MSVC ON)
     set (BUILDSYSTEM_PREFIX "Vs")
+    set (BUILDSYSTEM_CONFIGURATION $<CONFIGURATION>)
   else ()
     message (FATAL_ERROR "Generator '${CMAKE_GENERATOR}' is not supported on Windows! Please extend CMAKE_GeneralConfig.txt.")
   endif ()
@@ -82,11 +83,13 @@ elseif (BUILDSYSTEM_PLATFORM_OSX)
     message (STATUS "Buildsystem is Xcode (BUILDSYSTEM_XCODE)")
     set (BUILDSYSTEM_XCODE ON)
     set (BUILDSYSTEM_PREFIX "Xcode")
+    set (BUILDSYSTEM_CONFIGURATION $<CONFIGURATION>)
   elseif (CMAKE_GENERATOR STREQUAL "Unix Makefiles")
     # Unix Makefiles (for QtCreator etc.)
     message (STATUS "Buildsystem is Make (BUILDSYSTEM_MAKE)")
     set (BUILDSYSTEM_MAKE ON)
     set (BUILDSYSTEM_PREFIX "Make")
+    set (BUILDSYSTEM_CONFIGURATION ${CMAKE_BUILD_TYPE})
   else ()
     message (FATAL_ERROR "Generator '${CMAKE_GENERATOR}' is not supported on OS X! Please extend CMAKE_GeneralConfig.txt.")
   endif ()
@@ -97,6 +100,7 @@ elseif (BUILDSYSTEM_PLATFORM_LINUX)
     message (STATUS "Buildsystem is Make (BUILDSYSTEM_MAKE)")
     set (BUILDSYSTEM_MAKE ON)
     set (BUILDSYSTEM_PREFIX "Make")
+    set (BUILDSYSTEM_CONFIGURATION ${CMAKE_BUILD_TYPE})
   else ()
     message (FATAL_ERROR "Generator '${CMAKE_GENERATOR}' is not supported on Linux! Please extend CMAKE_GeneralConfig.txt.")
   endif ()
@@ -104,7 +108,6 @@ elseif (BUILDSYSTEM_PLATFORM_LINUX)
 else ()
   message (FATAL_ERROR "Platform '${CMAKE_SYSTEM_NAME}' has not setup the supported generators. Please extend CMAKE_GeneralConfig.txt.")
 endif ()
-
 
 #########################################################################################
 ## Detects the current compiler
@@ -249,7 +252,7 @@ set (CMAKE_ARCHIVE_OUTPUT_DIRECTORY_RELEASE         "${OUTPUT_LIB_RELEASE}")
 set (CMAKE_ARCHIVE_OUTPUT_DIRECTORY_MINSIZEREL      "${OUTPUT_LIB_MINSIZE}")
 set (CMAKE_ARCHIVE_OUTPUT_DIRECTORY_RELWITHDEBINFO  "${OUTPUT_LIB_RELWITHDEB}")
 
-#Write configuration to file
+#Write configuration to file, as this is done at configure time we must pin the configuration in place (RelDeb is used because all build machines use this).
 file(WRITE ${CMAKE_BINARY_DIR}/Configuration.txt "")
 file(APPEND ${CMAKE_BINARY_DIR}/Configuration.txt "${PLATFORM_PREFIX}${BUILDSYSTEM_PREFIX}${COMPILER_POSTFIX}RelDeb${ARCHITECTURE_POSTFIX}")
 
@@ -329,6 +332,7 @@ else ()
 endif ()
 
 add_definitions (-DBUILDSYSTEM_OUTPUT_FOLDER="${EZ_OUTPUT_DIRECTORY_DLL}")
+add_definitions (-DBUILDSYSTEM_CONFIGURATION="${BUILDSYSTEM_CONFIGURATION}")
 
 #########################################################################################
 ## additional preprocessor definitions
