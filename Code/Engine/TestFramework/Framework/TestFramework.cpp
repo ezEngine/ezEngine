@@ -20,17 +20,16 @@ ezTestFramework::ezTestFramework(const char* szTestName, const char* szAbsTestDi
 {
   s_pInstance = this;
 
+  GetTestSettingsFromCommandLine(argc, argv);
+
   // figure out which tests exist
   GatherAllTests();
 
   // load the test order from file, if that file does not exist, the array is not modified
   LoadTestOrder();
 
-  GetTestSettingsFromCommandLine(argc, argv);
-
   // save the current order back to the same file
   SaveTestOrder();
-
 }
 
 ezTestFramework::~ezTestFramework()
@@ -131,15 +130,16 @@ void ezTestFramework::GetTestSettingsFromCommandLine(int argc, const char** argv
   m_Settings.m_bRunTests         = cmd.GetBoolOption("-run", false);
   m_Settings.m_bNoSaving         = cmd.GetBoolOption("-nosave", false);
   m_Settings.m_bCloseOnSuccess   = cmd.GetBoolOption("-close", false);
+  m_Settings.m_bNoGUI            = cmd.GetBoolOption("-nogui", false);
 
   m_Settings.m_bAssertOnTestFail = cmd.GetBoolOption("-assert", m_Settings.m_bAssertOnTestFail);
   m_Settings.m_bOpenHtmlOutput   = cmd.GetBoolOption("-html", m_Settings.m_bOpenHtmlOutput);
   m_Settings.m_bKeepConsoleOpen  = cmd.GetBoolOption("-console", m_Settings.m_bKeepConsoleOpen);
   m_Settings.m_bShowMessageBox   = cmd.GetBoolOption("-msgbox", m_Settings.m_bShowMessageBox);
-
-  if (cmd.GetBoolOption("-all", false))
-    SetAllTestsEnabledStatus(true);
-
+  m_Settings.m_iRevision         = cmd.GetIntOption("-rev", -1);
+  m_Settings.m_bEnableAllTests   = cmd.GetBoolOption("-all", false);
+  if (cmd.GetStringOptionArguments("-json") == 1)
+    m_Settings.m_sJsonOutput     = cmd.GetStringOption("-json", 0, "");
   ezStartup::ShutdownBase();
 }
 
@@ -147,6 +147,8 @@ void ezTestFramework::LoadTestOrder()
 {
   std::string sTestSettingsFile = m_sAbsTestDir + std::string("/TestSettings.txt");
   ::LoadTestOrder(sTestSettingsFile.c_str(), m_TestEntries, m_Settings);
+  if (m_Settings.m_bEnableAllTests)
+    SetAllTestsEnabledStatus(true);
 }
 
 void ezTestFramework::CreateOutputFolder()
@@ -317,10 +319,12 @@ void ezTestFramework::EndTests()
   else
     ezTestFramework::Output(ezTestOutput::FinalResult, "Tests failed: %i. Tests passed: %i", GetTestsFailedCount(), GetTestsPassedCount());
 
-  char szTemp[32] = {'\0'};
-  sprintf(szTemp, "/%lld", ezTimestamp::CurrentTimestamp().GetInt64(ezSIUnitOfTime::Second));
-  std::string sTestOutput = m_sAbsTestDir + szTemp + ".TestResults.json";
-  //m_Result.WriteJsonToFile(sTestOutput.c_str());
+  //char szTemp[32] = {'\0'};
+  //sprintf(szTemp, "/%lld", ezTimestamp::CurrentTimestamp().GetInt64(ezSIUnitOfTime::Second));
+  //std::string sTestOutput = m_sAbsTestDir + szTemp + ".TestResults.json";
+
+  if (!m_Settings.m_sJsonOutput.empty())
+    m_Result.WriteJsonToFile(m_Settings.m_sJsonOutput.c_str());
 }
 
 ezUInt32 ezTestFramework::GetTestCount() const

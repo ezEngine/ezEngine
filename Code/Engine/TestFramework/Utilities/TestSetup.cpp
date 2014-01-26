@@ -42,6 +42,13 @@ ezInt32 ezTestSetup::RunTests(int argc, char **argv)
 {
   ezTestFramework* pTestFramework = ezTestFramework::GetInstance();
 #ifdef EZ_USE_QT
+  TestSettings settings = pTestFramework->GetSettings();
+  if (settings.m_bNoGUI)
+  {
+    pTestFramework->ExecuteAllTests();
+    return pTestFramework->GetTestsFailedCount();
+  }
+
   // Setup Qt Application
   ezQtTestGUI::SetDarkTheme();
   QApplication app(argc, argv);

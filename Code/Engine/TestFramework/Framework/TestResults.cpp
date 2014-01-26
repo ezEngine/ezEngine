@@ -62,18 +62,8 @@ void ezTestResultData::AddOutput(ezInt32 iOutputIndex)
 ////////////////////////////////////////////////////////////////////////
 
 ezTestConfiguration::ezTestConfiguration()
-  : m_uiInstalledMainMemory(0), m_uiMemoryPageSize(0), m_uiCPUCoreCount(0), m_b64BitOS(false)
+  : m_uiInstalledMainMemory(0), m_uiMemoryPageSize(0), m_uiCPUCoreCount(0), m_b64BitOS(false), m_b64BitApplication(false), m_iDateTime(0), m_iRCSRevision(-1)
 {
-}
-
-void ezTestConfiguration::Reset()
-{
-  m_uiInstalledMainMemory = 0;
-  m_uiMemoryPageSize = 0;
-  m_uiCPUCoreCount = 0;
-  m_b64BitOS = false;
-  m_sPlatformName = "";
-  m_sBuildConfiguration = "";
 }
 
 
@@ -83,7 +73,6 @@ void ezTestConfiguration::Reset()
 
 void ezTestFrameworkResult::Clear()
 {
-  m_config.Reset();
   m_Tests.clear();
   m_Errors.clear();
   m_TestOutput.clear();
@@ -140,7 +129,16 @@ bool ezTestFrameworkResult::WriteJsonToFile(const char* szAbsFileName) const
     {
       js.BeginObject("configuration");
       {
-        //TODO
+        js.AddVariableUInt64("m_uiInstalledMainMemory", m_config.m_uiInstalledMainMemory);
+        js.AddVariableUInt32("m_uiMemoryPageSize", m_config.m_uiMemoryPageSize);
+        js.AddVariableUInt32("m_uiCPUCoreCount", m_config.m_uiCPUCoreCount);
+        js.AddVariableBool("m_b64BitOS", m_config.m_b64BitOS);
+        js.AddVariableBool("m_b64BitApplication", m_config.m_b64BitApplication);
+        js.AddVariableString("m_sPlatformName", m_config.m_sPlatformName.c_str());
+        js.AddVariableString("m_sBuildConfiguration", m_config.m_sBuildConfiguration.c_str());
+        js.AddVariableInt64("m_iDateTime", m_config.m_iDateTime);
+        js.AddVariableInt32("m_iRCSRevision", m_config.m_iRCSRevision);
+        js.AddVariableString("m_sHostName", m_config.m_sHostName.c_str());
       }
       js.EndObject();
 

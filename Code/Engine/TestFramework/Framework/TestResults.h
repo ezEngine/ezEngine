@@ -83,16 +83,16 @@ struct ezTestResultData
 struct ezTestConfiguration
 {
   ezTestConfiguration();
-  void Reset();
 
   ezUInt64 m_uiInstalledMainMemory;
   ezUInt32 m_uiMemoryPageSize;
   ezUInt32 m_uiCPUCoreCount;
   bool m_b64BitOS;
+  bool m_b64BitApplication;
   std::string m_sPlatformName;
   std::string m_sBuildConfiguration; ///< Debug, Release, etc
-  ezInt64 m_iDateTime;               ///< in microseconds since Linux epoch
-  ezUInt32 m_uiRCSRevision;
+  ezInt64 m_iDateTime;               ///< in seconds since Linux epoch
+  ezInt32 m_iRCSRevision;
   std::string m_sHostName;
 };
 
