@@ -96,6 +96,7 @@ private:
   std::deque<OutputHandler> m_OutputHandlers;
   std::deque<ezTestEntry> m_TestEntries;
   ezTestFrameworkResult m_Result;
+  ezAssertHandler m_PreviousAssertHandler;
 
 protected:
   ezInt32 m_iCurrentTestIndex;

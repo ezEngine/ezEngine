@@ -10,13 +10,18 @@ ezTestFramework* ezTestFramework::s_pInstance = NULL;
 
 const char* ezTestFramework::s_szTestBlockName = "";
 
+static bool TestAssertHandler(const char* szSourceFile, ezUInt32 uiLine, const char* szFunction, const char* szExpression, const char* szAssertMsg)
+{
+  ezTestFramework::Error(szExpression, szSourceFile, (ezInt32)uiLine, szFunction, szAssertMsg);
+  return false;
+}
 
 ////////////////////////////////////////////////////////////////////////
 // ezTestFramework public functions
 ////////////////////////////////////////////////////////////////////////
 
 ezTestFramework::ezTestFramework(const char* szTestName, const char* szAbsTestDir, int argc, const char** argv)
-  : m_sTestName(szTestName), m_sAbsTestDir(szAbsTestDir), m_iErrorCount(0), m_iTestsFailed(0), m_iTestsPassed(0), m_iCurrentTestIndex(-1), m_iCurrentSubTestIndex(-1), m_bTestsRunning(false)
+  : m_sTestName(szTestName), m_sAbsTestDir(szAbsTestDir), m_iErrorCount(0), m_iTestsFailed(0), m_iTestsPassed(0), m_PreviousAssertHandler(NULL), m_iCurrentTestIndex(-1), m_iCurrentSubTestIndex(-1), m_bTestsRunning(false)
 {
   s_pInstance = this;
 
@@ -210,6 +215,9 @@ void ezTestFramework::StartTests()
   m_bTestsRunning = true;
   
   ezTestFramework::Output(ezTestOutput::StartOutput, "");
+
+  m_PreviousAssertHandler = ezGetAssertHandler();
+  ezSetAssertHandler(TestAssertHandler);
 }
 
 // Redirects engine warnings / errors to testframework output
@@ -313,6 +321,9 @@ void ezTestFramework::ExecuteTest(ezUInt32 uiTestIndex)
 
 void ezTestFramework::EndTests()
 {
+  ezSetAssertHandler(m_PreviousAssertHandler);
+  m_PreviousAssertHandler = NULL;
+
   m_bTestsRunning = false;
   if (GetTestsFailedCount() == 0)
     ezTestFramework::Output(ezTestOutput::FinalResult, "All tests passed.");

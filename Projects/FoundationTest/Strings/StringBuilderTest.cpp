@@ -869,10 +869,10 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     {
       #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
         const char* szAbsPath = "C:\\folder";
-        const char* szAbsPathAppendResult = "C:\\folder/file.ext";
+        const char* szAbsPathAppendResult = "C:\\folder/File.ext";
       #elif EZ_ENABLED(EZ_PLATFORM_OSX) || EZ_ENABLED(EZ_PLATFORM_LINUX)
         const char* szAbsPath = "/folder";
-        const char* szAbsPathAppendResult = "/folder/file.ext";
+        const char* szAbsPathAppendResult = "/folder/File.ext";
       #else
         #error "An absolute path example must be defined for the 'AppendPath' test for each platform!"
       #endif

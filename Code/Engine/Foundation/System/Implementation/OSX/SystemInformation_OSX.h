@@ -29,7 +29,11 @@ void ezSystemInformation::Initialize()
 #endif
 
   s_SystemInformation.m_szPlatformName = "OSX";
+#if defined BUILDSYSTEM_CONFIGURATION
   s_SystemInformation.m_szBuildConfiguration = BUILDSYSTEM_CONFIGURATION;
+#else
+  s_SystemInformation.m_szBuildConfiguration = "undefined";
+#endif
 
   //  Get host name
   if (gethostname(s_SystemInformation.m_sHostName, sizeof(s_SystemInformation.m_sHostName)) == -1)
