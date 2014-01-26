@@ -866,9 +866,21 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     EZ_TEST_BOOL(p == "orly/nowai");
   
     // It should be valid to append an absolute path to an empty string.
-    p = "";
-    p.AppendPath(BUILDSYSTEM_OUTPUT_FOLDER, "File.ext");
-    EZ_TEST_BOOL(p == BUILDSYSTEM_OUTPUT_FOLDER"/File.ext");
+    {
+      #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+        const char* szAbsPath = "C:\\folder";
+        const char* szAbsPathAppendResult = "C:\\folder/file.ext";
+      #elif EZ_ENABLED(EZ_PLATFORM_OSX) || EZ_ENABLED(EZ_PLATFORM_LINUX)
+        const char* szAbsPath = "/folder";
+        const char* szAbsPathAppendResult = "/folder/file.ext";
+      #else
+        #error "An absolute path example must be defined for the 'AppendPath' test for each platform!"
+      #endif
+
+      p = "";
+      p.AppendPath(szAbsPath, "File.ext");
+      EZ_TEST_BOOL(p == szAbsPathAppendResult);
+    }
 
     p = "bla";
     p.AppendPath("");

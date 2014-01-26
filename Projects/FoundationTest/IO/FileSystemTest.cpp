@@ -16,6 +16,8 @@ She isn't greeted by faces,\n\
 Only concrete and clocks.\n\
 ...";
 
+  // Don't use 'BUILDSYSTEM_OUTPUT_FOLDER' in any other tests, it's just used here because we are too poor to get
+  // an absolute path from anywhere else.
   ezStringBuilder sOutputFolder1 = BUILDSYSTEM_OUTPUT_FOLDER;
   sOutputFolder1.AppendPath("FoundationTest", "IO", "SubFolder");
 

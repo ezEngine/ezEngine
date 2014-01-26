@@ -19,7 +19,11 @@ void ezSystemInformation::Initialize()
   s_SystemInformation.m_b64BitOS = false;
 #endif
 
+#if defined BUILDSYSTEM_CONFIGURATION
   s_SystemInformation.m_szBuildConfiguration = BUILDSYSTEM_CONFIGURATION;
+#else
+  s_SystemInformation.m_szBuildConfiguration = "undefined";
+#endif
 
   // Each posix system should have its correct name so they can be distinguished.
 #if EZ_ENABLED(EZ_PLATFORM_LINUX)
