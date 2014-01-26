@@ -38,10 +38,19 @@ public:
     return m_szPlatformName;
   }
 
+  inline const char* GetHostName() const
+  {
+    return m_sHostName;
+  }
+
+  inline const char* GetBuildConfiguration() const
+  {
+    return m_szBuildConfiguration;
+  }
 public:
 
   /// \brief Allows access to the current system configuration.
-  static ezSystemInformation& Get()
+  static const ezSystemInformation& Get()
   {
     return s_SystemInformation;
   }
@@ -49,14 +58,12 @@ public:
 private:
 
   ezUInt64 m_uiInstalledMainMemory;
-
   ezUInt32 m_uiMemoryPageSize;
-
   ezUInt32 m_uiCPUCoreCount;
-
-  bool m_b64BitOS; 
-
   const char* m_szPlatformName;
+  const char* m_szBuildConfiguration;
+  char m_sHostName[256];
+  bool m_b64BitOS;
 
 
 

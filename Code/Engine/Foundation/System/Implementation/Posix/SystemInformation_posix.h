@@ -19,6 +19,19 @@ void ezSystemInformation::Initialize()
   s_SystemInformation.m_b64BitOS = false;
 #endif
 
-  s_SystemInformation.m_szPlatformName = "Posix";
+  s_SystemInformation.m_szBuildConfiguration = BUILDSYSTEM_CONFIGURATION;
+
+  // Each posix system should have its correct name so they can be distinguished.
+#if EZ_ENABLED(EZ_PLATFORM_LINUX)
+  s_SystemInformation.m_szPlatformName = "Linux";
+#else
+  #error "Platform name not defined on current posix platform"
+#endif
+
+  //  Get host name
+  if (gethostname(s_SystemInformation.m_sHostName, sizeof(s_SystemInformation.m_sHostName)) == -1)
+  {
+    strcpy(s_SystemInformation.m_sHostName, "");
+  }
 }
 

@@ -21,9 +21,6 @@ void ezSystemInformation::Initialize()
   
   s_SystemInformation.m_uiInstalledMainMemory = iPhysicalMemory;
   
-  
-  
-  
   /// \todo Not correct for 32 bit process on 64 bit system
 #if EZ_ENABLED(EZ_PLATFORM_64BIT)
   s_SystemInformation.m_b64BitOS = true;
@@ -32,5 +29,12 @@ void ezSystemInformation::Initialize()
 #endif
 
   s_SystemInformation.m_szPlatformName = "OSX";
+  s_SystemInformation.m_szBuildConfiguration = BUILDSYSTEM_CONFIGURATION;
+
+  //  Get host name
+  if (gethostname(s_SystemInformation.m_sHostName, sizeof(s_SystemInformation.m_sHostName)) == -1)
+  {
+    strcpy(s_SystemInformation.m_sHostName, "");
+  }
 }
 
