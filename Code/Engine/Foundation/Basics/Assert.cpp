@@ -6,13 +6,25 @@ bool ezDefaultAssertHandler(const char* szSourceFile, ezUInt32 uiLine, const cha
   printf("%s(%u): Expression '%s' failed: %s\n", szSourceFile, uiLine, szExpression, szAssertMsg);
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+
+  // make sure the cursor is definitely shown, since the user must be able to click buttons
+  ezInt32 iHideCursor = 1;
+  while (ShowCursor(true) < 0)
+    ++iHideCursor;
+
   #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
 
     ezInt32 iRes = _CrtDbgReport(_CRT_ASSERT, szSourceFile, uiLine, NULL, "'%s'\nFunction: %s\nMessage: %s", szExpression, szFunction, szAssertMsg);
 
-    // currently we will ALWAYS trigger the breakpoint / crash (except for when the user presses 'cancel'
+    // currently we will ALWAYS trigger the breakpoint / crash (except for when the user presses 'ignore')
     if (iRes == 0)
+    {
+      // when the user ignores the assert, restore the cursor show/hide state to the previous count
+      for (ezInt32 i = 0; i < iHideCursor; ++i)
+        ShowCursor(false);
+
       return false;
+    }
 
   #else
     char szTemp[1024 * 4] = "";
@@ -28,7 +40,7 @@ bool ezDefaultAssertHandler(const char* szSourceFile, ezUInt32 uiLine, const cha
   return true;
 }
 
-ezAssertHandler g_AssertHandler = &ezDefaultAssertHandler;
+static ezAssertHandler g_AssertHandler = &ezDefaultAssertHandler;
 
 ezAssertHandler ezGetAssertHandler()
 {

@@ -209,6 +209,7 @@ EZ_FORCE_INLINE void ezVec3Template<Type>::operator/= (Type f)
   y *= f_inv;
   z *= f_inv;
 
+  // if this assert fires, you might have tried to normalize a zero-length vector
   EZ_NAN_ASSERT(this);
 }
 
