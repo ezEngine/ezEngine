@@ -11,14 +11,10 @@ struct GameCellData
   GameCellData()
   {
     m_iCellType = 0;
-    m_uiVisited = 0;
-    m_bOccupied = 0;
+    m_uiVisibility = 0;
   }
 
-  static ezUInt32 s_uiVisitCounter;
-
-  ezUInt32 m_bOccupied;
-  ezUInt32 m_uiVisited;
+  ezUInt8 m_uiVisibility;
   ezInt8 m_iCellType;
   ezComponentHandle m_hUnit;
 };
@@ -48,6 +44,7 @@ public:
 
 private:
   void CreateComponentManagers();
+  void CreateRandomLevel();
 
   static bool IsSameCellType(ezUInt32 uiCell1, ezUInt32 uiCell2, void* pPassThrough);
   static bool IsCellBlocked(ezUInt32 uiCell, void* pPassThrough);

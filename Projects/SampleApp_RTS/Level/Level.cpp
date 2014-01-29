@@ -1,0 +1,54 @@
+#include <PCH.h>
+#include <SampleApp_RTS/Level.h>
+#include <SampleApp_RTS/General/Application.h>
+#include <SampleApp_RTS/Components/UnitComponent.h>
+#include <Foundation/Logging/Log.h>
+#include <Foundation/Time/Stopwatch.h>
+
+Level::Level()
+{
+  m_pWorld = NULL;
+}
+
+Level::~Level()
+{
+  EZ_DEFAULT_DELETE(m_pWorld);
+}
+
+void Level::SetupLevel()
+{
+  m_pWorld = EZ_DEFAULT_NEW(ezWorld)("Level");
+  m_pWorld->SetUserData(this);
+
+  CreateRandomLevel();
+}
+
+void Level::CreateComponentManagers()
+{
+  UnitComponentManager* pUnitManager = m_pWorld->CreateComponentManager<UnitComponentManager>();
+
+}
+
+
+void Level::Update()
+{
+  static ezTime LastVisUpdate = ezClock::Get()->GetAccumulatedTime();
+
+  const ezTime UpdateInterval = ezTime::Seconds(0.02);
+
+  if (ezClock::Get()->GetAccumulatedTime() - LastVisUpdate > UpdateInterval)
+  {
+    LastVisUpdate += UpdateInterval;
+
+    for (ezUInt32 i = 0; i < m_GameGrid.GetNumCells(); ++i)
+    {
+      if (m_GameGrid.GetCell(i).m_uiVisibility > 1)
+        --m_GameGrid.GetCell(i).m_uiVisibility;
+    }
+  }
+
+  m_pWorld->Update();
+
+}
+
+

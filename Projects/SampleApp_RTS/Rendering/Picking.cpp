@@ -1,3 +1,4 @@
+#include <PCH.h>
 #include <SampleApp_RTS/Rendering/Renderer.h>
 #include <SampleApp_RTS/General/Application.h>
 #include <Foundation/Utilities/GraphicsUtils.h>

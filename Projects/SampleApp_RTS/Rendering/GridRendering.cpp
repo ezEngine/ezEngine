@@ -1,8 +1,9 @@
+#include <PCH.h>
 #include <SampleApp_RTS/Rendering/Renderer.h>
 #include <gl/GL.h>
 #include <gl/glu.h>
 
-void RenderCube(const ezVec3& v, const ezVec3& s, bool bColor = true);
+void RenderCube(const ezVec3& v, const ezVec3& s, bool bColor = true, float fColorScale = 1.0f);
 
 void GameRenderer::RenderGrid()
 {
@@ -15,18 +16,23 @@ void GameRenderer::RenderGrid()
     {
       const GameCellData& cd = m_pGrid->GetCell(ezVec2I32(x, z));
 
-      if (cd.m_iCellType == 1)
-        RenderCube(m_pGrid->GetCellWorldSpaceOrigin(ezVec2I32(x, z)), vCellSize);
-      else
+      if (cd.m_uiVisibility == 0)
       {
-        if (cd.m_bOccupied == 0)
-          RenderCube(m_pGrid->GetCellWorldSpaceOrigin(ezVec2I32(x, z)), vCellSize2);
-        else
-        {
-          glColor3ub(0, cd.m_bOccupied % 255, 0);
-          RenderCube(m_pGrid->GetCellWorldSpaceOrigin(ezVec2I32(x, z)), vCellSize2, false);
-        }
+        glColor3ub(20, 20, 20);
+        RenderCube(m_pGrid->GetCellWorldSpaceOrigin(ezVec2I32(x, z)), vCellSize2, false);
+        continue;
       }
+
+      bool bColor = true;
+      float fFade = 1.0f;
+
+      if (cd.m_uiVisibility <= 150)
+        fFade = (ezMath::Max<ezUInt8>(cd.m_uiVisibility, 50) / 150.0f);
+
+      if (cd.m_iCellType == 1)
+        RenderCube(m_pGrid->GetCellWorldSpaceOrigin(ezVec2I32(x, z)), vCellSize, true, fFade);
+      else
+        RenderCube(m_pGrid->GetCellWorldSpaceOrigin(ezVec2I32(x, z)), vCellSize2, true, fFade);
     }
   }
   
@@ -53,7 +59,7 @@ void GameRenderer::RenderGrid()
     }
   }
 
-  //if (false)
+  if (false)
   {
     ezUInt8 uiGreen = 30;
 

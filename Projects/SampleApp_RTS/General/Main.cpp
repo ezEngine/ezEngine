@@ -1,3 +1,4 @@
+#include <PCH.h>
 #include <SampleApp_RTS/General/Application.h>
 #include <SampleApp_RTS/General/Window.h>
 #include <Foundation/Logging/ConsoleWriter.h>

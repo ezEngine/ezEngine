@@ -1,10 +1,11 @@
+#include <PCH.h>
 #include <SampleApp_RTS/Rendering/Renderer.h>
 #include <Core/Input/InputManager.h>
 #include <Foundation/Utilities/GraphicsUtils.h>
 #include <gl/GL.h>
 #include <gl/glu.h>
 
-void RenderCube(const ezVec3& v, const ezVec3& s, bool bColor = true);
+void RenderCube(const ezVec3& v, const ezVec3& s, bool bColor = true, float fColorScale = 1.0f);
 
 GameRenderer::GameRenderer()
 {

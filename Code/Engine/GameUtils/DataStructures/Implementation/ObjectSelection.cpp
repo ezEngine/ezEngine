@@ -29,13 +29,16 @@ void ezObjectSelection::RemoveDeadObjects()
   }
 }
 
-void ezObjectSelection::AddObject(ezGameObjectHandle hObject)
+void ezObjectSelection::AddObject(ezGameObjectHandle hObject, bool bDontAddTwice)
 {
   EZ_ASSERT(m_pWorld != NULL, "The world has not been set.");
 
   // only insert valid objects
   ezGameObject* pObject;
   if (!m_pWorld->TryGetObject(hObject, pObject))
+    return;
+
+  if (m_Objects.IndexOf(hObject) != ezInvalidIndex)
     return;
 
   m_Objects.PushBack(hObject);

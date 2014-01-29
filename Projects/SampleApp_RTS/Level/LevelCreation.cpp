@@ -1,22 +1,9 @@
+#include <PCH.h>
 #include <SampleApp_RTS/Level.h>
 #include <SampleApp_RTS/General/Application.h>
 #include <SampleApp_RTS/Components/UnitComponent.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Time/Stopwatch.h>
-
-ezUInt32 GameCellData::s_uiVisitCounter = 0;
-
-Level::Level()
-{
-  m_pWorld = NULL;
-}
-
-Level::~Level()
-{
-  //EZ_DEFAULT_DELETE(m_pWorld->GetComponentManager<UnitComponentManager>());
-
-  EZ_DEFAULT_DELETE(m_pWorld);
-}
 
 bool Level::IsSameCellType(ezUInt32 uiCell1, ezUInt32 uiCell2, void* pPassThrough)
 {
@@ -44,11 +31,8 @@ ezCallbackResult::Enum Level::SetPointBlocking(ezInt32 x, ezInt32 y, void* pPass
   return ezCallbackResult::Continue;
 }
 
-void Level::SetupLevel()
+void Level::CreateRandomLevel()
 {
-  m_pWorld = EZ_DEFAULT_NEW(ezWorld)("Level");
-  m_pWorld->SetUserData(this);
-
   m_GameGrid.CreateGrid(250, 250);
   m_GameGrid.SetWorldSpaceDimensions(ezVec3(-25.0f, 0, -25.0f), ezVec3(1.0f, 2.0f, 1.0f));
 
@@ -76,29 +60,6 @@ void Level::SetupLevel()
 
   CreateComponentManagers();
 
-  CreateUnit(UnitType::Default, ezVec3(0, 1, 0));
-
-  //CreateUnit(UnitType::Default, ezVec3(5, 1, 0));
-
-  //CreateUnit(UnitType::Default, ezVec3(3, 1, 0));
+  for (ezUInt32 i = 0; i < 20; ++i)
+    CreateUnit(UnitType::Default, ezVec3(i * 2.0f, 1, i * 3.0f));
 }
-
-void Level::CreateComponentManagers()
-{
-  UnitComponentManager* pUnitManager = m_pWorld->CreateComponentManager<UnitComponentManager>();
-
-}
-
-
-void Level::Update()
-{
-  for (ezUInt32 i = 0; i < m_GameGrid.GetNumCells(); ++i)
-  {
-    m_GameGrid.GetCell(i).m_bOccupied = false;
-  }
-
-  m_pWorld->Update();
-
-}
-
-

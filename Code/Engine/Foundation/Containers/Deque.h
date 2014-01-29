@@ -104,10 +104,10 @@ public:
   /// \brief Checks whether there is any element in the deque with the given value.
   bool Contains(const T& value) const; // [tested]
 
-  /// \brief Returns the first index at which an element with the given value could be found.
+  /// \brief Returns the first index at which an element with the given value could be found or ezInvalidIndex if nothing was found.
   ezUInt32 IndexOf(const T& value, ezUInt32 uiStartIndex = 0) const; // [tested]
 
-  /// \brief Returns the last index at wich an element with the given value could be found.
+  /// \brief Returns the last index at wich an element with the given value could be found or ezInvalidIndex if nothing was found.
   ezUInt32 LastIndexOf(const T& value, ezUInt32 uiStartIndex = ezInvalidIndex) const; // [tested]
 
   /// \brief Removes the element at the given index and fills the gap with the last element in the deque.

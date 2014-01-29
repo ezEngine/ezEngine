@@ -19,7 +19,7 @@
 // However, if you absolutely need a global/static variable and cannot initialize it dynamically, wrap it inside the 'ezStatic'
 // template. This will make sure that the variable uses a different allocator, such that it won't be counted as a memory leak
 // at shutdown.
-ezStatic<ezLogWriter::HTML> g_HtmlLog;
+ezLogWriter::HTML g_HtmlLog;
 
 struct FileStats
 {
@@ -207,14 +207,14 @@ public:
     // The Visual Studio log writer will pass all messages to the output window in VS
     ezGlobalLog::AddLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
     // The HTML log writer will write all log messages to an HTML file
-    g_HtmlLog.GetStatic().BeginLog(sLogPath.GetData(), "Code Statistics");
-    ezGlobalLog::AddLogWriter(ezLoggingEvent::Handler(&ezLogWriter::HTML::LogMessageHandler, &g_HtmlLog.GetStatic()));
+    g_HtmlLog.BeginLog(sLogPath.GetData(), "Code Statistics");
+    ezGlobalLog::AddLogWriter(ezLoggingEvent::Handler(&ezLogWriter::HTML::LogMessageHandler, &g_HtmlLog));
   }
 
   virtual void BeforeEngineShutdown() EZ_OVERRIDE
   {
     // close the HTML log, from now on no more log messages are written to the file
-    g_HtmlLog.GetStatic().EndLog();
+    g_HtmlLog.EndLog();
   }
 
   virtual ezApplication::ApplicationExecution Run() EZ_OVERRIDE
