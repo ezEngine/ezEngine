@@ -51,7 +51,7 @@ void ezComponentManagerBase::DeleteDeadComponent(ComponentStorageEntry storageEn
   --m_uiActiveComponentCount;
 }
 
-ezIAllocator* ezComponentManagerBase::GetAllocator()
+ezAllocatorBase* ezComponentManagerBase::GetAllocator()
 {
   return m_pWorld->GetAllocator();
 }

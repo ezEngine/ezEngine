@@ -1,13 +1,13 @@
 
 template <typename T>
-ezDynamicArrayBase<T>::ezDynamicArrayBase(ezIAllocator* pAllocator)
+ezDynamicArrayBase<T>::ezDynamicArrayBase(ezAllocatorBase* pAllocator)
 {
   this->m_uiCapacity = 0;
   m_pAllocator = pAllocator;
 }
 
 template <typename T>
-ezDynamicArrayBase<T>::ezDynamicArrayBase(const ezDynamicArrayBase<T>& other, ezIAllocator* pAllocator)
+ezDynamicArrayBase<T>::ezDynamicArrayBase(const ezDynamicArrayBase<T>& other, ezAllocatorBase* pAllocator)
 {
   this->m_uiCapacity = 0;
   m_pAllocator = pAllocator;
@@ -16,7 +16,7 @@ ezDynamicArrayBase<T>::ezDynamicArrayBase(const ezDynamicArrayBase<T>& other, ez
 }
 
 template <typename T>
-ezDynamicArrayBase<T>::ezDynamicArrayBase(const ezArrayPtr<T>& other, ezIAllocator* pAllocator)
+ezDynamicArrayBase<T>::ezDynamicArrayBase(const ezArrayPtr<T>& other, ezAllocatorBase* pAllocator)
 {
   this->m_uiCapacity = 0;
   m_pAllocator = pAllocator;
@@ -91,7 +91,7 @@ ezDynamicArray<T, A>::ezDynamicArray() : ezDynamicArrayBase<T>(A::GetAllocator()
 }
 
 template <typename T, typename A>
-ezDynamicArray<T, A>:: ezDynamicArray(ezIAllocator* pAllocator) : ezDynamicArrayBase<T>(pAllocator)
+ezDynamicArray<T, A>:: ezDynamicArray(ezAllocatorBase* pAllocator) : ezDynamicArrayBase<T>(pAllocator)
 {
 }
 

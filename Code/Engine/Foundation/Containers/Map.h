@@ -104,10 +104,10 @@ public:
 protected:
 
   /// \brief Initializes the map to be empty.
-  ezMapBase(ezIAllocator* pAllocator); // [tested]
+  ezMapBase(ezAllocatorBase* pAllocator); // [tested]
 
   /// \brief Copies all key/value pairs from the given map into this one.
-  ezMapBase(const ezMapBase<KeyType, ValueType, Comparer>& cc, ezIAllocator* pAllocator); // [tested]
+  ezMapBase(const ezMapBase<KeyType, ValueType, Comparer>& cc, ezAllocatorBase* pAllocator); // [tested]
 
   /// \brief Destroys all elements from the map.
   ~ezMapBase(); // [tested]
@@ -168,7 +168,7 @@ public:
   ConstIterator UpperBound(const KeyType& key) const; // [tested]
 
   /// \brief Returns the allocator that is used by this instance.
-  ezIAllocator* GetAllocator() const { return m_Elements.GetAllocator(); }
+  ezAllocatorBase* GetAllocator() const { return m_Elements.GetAllocator(); }
 
 private:
   Node* Internal_Find(const KeyType& key) const;
@@ -220,7 +220,7 @@ class ezMap : public ezMapBase<KeyType, ValueType, Comparer>
 {
 public:
   ezMap();
-  ezMap(ezIAllocator* pAllocator);
+  ezMap(ezAllocatorBase* pAllocator);
 
   ezMap(const ezMap<KeyType, ValueType, Comparer, AllocatorWrapper>& other);
   ezMap(const ezMapBase<KeyType, ValueType, Comparer>& other);

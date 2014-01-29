@@ -348,7 +348,7 @@ void ezStandardInputDevice::WindowMessage(HWND hWnd, UINT Msg, WPARAM wParam, LP
     {
       SetClipRect(false, hWnd);
 
-      ezMap<ezString, float, ezCompareHelper<ezString>, ezStaticAllocatorWrapper>::Iterator it = m_InputSlotValues.GetIterator();
+      auto it = m_InputSlotValues.GetIterator();
 
       while (it.IsValid())
       {

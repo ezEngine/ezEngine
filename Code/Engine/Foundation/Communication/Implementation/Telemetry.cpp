@@ -4,10 +4,7 @@
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Threading/ThreadUtils.h>
 #include <Foundation/Threading/Lock.h>
-#include <Foundation/Threading/Mutex.h>
 #include <Foundation/Strings/StringBuilder.h>
-#include <Foundation/Strings/String.h>
-#include <Foundation/Containers/HybridArray.h>
 #include <Foundation/Configuration/CVar.h>
 #include <Foundation/Utilities/Stats.h>
 
@@ -21,15 +18,15 @@ bool ezTelemetry::s_bConnectedToServer = false;
 bool ezTelemetry::s_bConnectedToClient = false;
 bool ezTelemetry::s_bAllowNetworkUpdate = true;
 ezTime ezTelemetry::s_PingToServer;
-ezHybridString<32, ezStaticAllocatorWrapper> ezTelemetry::s_ServerName;
-ezHybridString<32, ezStaticAllocatorWrapper> ezTelemetry::s_ServerIP;
+ezString ezTelemetry::s_ServerName;
+ezString ezTelemetry::s_ServerIP;
 static bool g_bInitialized = false;
 
 static ENetAddress g_pServerAddress;
 static ENetHost* g_pHost = NULL;
 static ENetPeer* g_pConnectionToServer = NULL;
 ezTelemetry::ConnectionMode ezTelemetry::s_ConnectionMode = ezTelemetry::None;
-ezMap<ezUInt64, ezTelemetry::MessageQueue, ezCompareHelper<ezUInt64>, ezStaticAllocatorWrapper > ezTelemetry::s_SystemMessages;
+ezMap<ezUInt64, ezTelemetry::MessageQueue> ezTelemetry::s_SystemMessages;
 
 
 void ezTelemetry::UpdateServerPing()
@@ -448,14 +445,12 @@ void ezTelemetry::CloseConnection()
     g_bInitialized = false;
   }
 
-
-    // if there are any queued messages, throw them away
-  for (ezMap<ezUInt64, ezTelemetry::MessageQueue, ezCompareHelper<ezUInt64>, ezStaticAllocatorWrapper >::Iterator it = s_SystemMessages.GetIterator(); it.IsValid(); ++it)
+  // if there are any queued messages, throw them away
+  for (auto it = s_SystemMessages.GetIterator(); it.IsValid(); ++it)
   {
     it.Value().m_IncomingQueue.Clear();
     it.Value().m_OutgoingQueue.Clear();
   }
-
 }
 
 

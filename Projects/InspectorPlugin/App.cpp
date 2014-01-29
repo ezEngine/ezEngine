@@ -86,12 +86,12 @@ void SetAppStats()
   #endif
   ezStats::SetStat("App/Features/Intel GPA Support", sOut.GetData());
 
-  #if EZ_ENABLED(EZ_USE_TRACE_ALLOCATOR)
+  #if EZ_ENABLED(EZ_USE_ALLOCATION_STACK_TRACING)
     sOut = "Enabled";
   #else
     sOut = "Disabled";
   #endif
-  ezStats::SetStat("App/Features/Trace Allocator", sOut.GetData());
+  ezStats::SetStat("App/Features/Allocation Stack Tracing", sOut.GetData());
 
   #if EZ_ENABLED(EZ_SUPPORTS_CPP11)
     sOut = "Enabled";

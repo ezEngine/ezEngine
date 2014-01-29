@@ -86,7 +86,7 @@ protected:
   /// reset to zero, to prevent the mouse from keeping moving in the engine.
   /// Do this inside an overridden ResetInputSlotValues() function. You don't need to do this for input slots that
   /// will reset to zero anyway.
-  ezMap<ezString, float, ezCompareHelper<ezString>, ezStaticAllocatorWrapper> m_InputSlotValues; // [tested]
+  ezMap<ezString, float> m_InputSlotValues; // [tested]
 
   /// \brief If this input device type handles character input, it should write the last typed character into this variable.
   /// The ezInputManager calls RetrieveLastCharacter() to query what the user typed last.

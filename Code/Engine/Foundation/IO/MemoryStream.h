@@ -17,7 +17,7 @@ class ezMemoryStreamStorage : public ezRefCounted
 {
 public:
   /// \brief Creates the storae object for a memory stream. Use \a uiInitialCapacity to reserve a some memory up front, to reduce reallocations.
-  ezMemoryStreamStorage(ezUInt32 uiInitialCapacity = 0, ezIAllocator* pAllocator = ezFoundation::GetDefaultAllocator())
+  ezMemoryStreamStorage(ezUInt32 uiInitialCapacity = 0, ezAllocatorBase* pAllocator = ezFoundation::GetDefaultAllocator())
     : m_Storage(pAllocator)
   {
     m_Storage.Reserve(uiInitialCapacity);

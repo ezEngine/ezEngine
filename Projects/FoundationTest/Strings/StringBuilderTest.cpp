@@ -316,7 +316,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Reserve")
   {
-    ezHeapAllocator allocator("reserve test allocator", ezFoundation::GetDefaultAllocator());
+    ezHeapAllocator allocator("reserve test allocator");
     ezStringBuilder s(L"abcdefghijklmnopqrstuvwxyzäöü€ß", &allocator);
     ezUInt32 characterCountBefore = s.GetCharacterCount();
 
@@ -324,9 +324,9 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     
     EZ_TEST_BOOL(s.GetCharacterCount() == characterCountBefore);
 
-    ezUInt64 iNumAllocs = allocator.GetTracker().GetNumAllocations();
+    ezUInt64 iNumAllocs = allocator.GetStats().m_uiNumAllocations;
     s.Append("blablablablablablablablablablablablablablablablablablablablablablablablablablablablablabla");
-    EZ_TEST_BOOL(iNumAllocs == allocator.GetTracker().GetNumAllocations())
+    EZ_TEST_BOOL(iNumAllocs == allocator.GetStats().m_uiNumAllocations)
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetIteratorFront")

@@ -318,7 +318,7 @@ void ezInputManager::SetActionDisplayName(const char* szAction, const char* szDi
 
 const char* ezInputManager::GetActionDisplayName(const char* szAction)
 {
-  ezMap<ezString, ezString, ezCompareHelper<ezString>, ezStaticAllocatorWrapper>::Iterator it = GetInternals().s_ActionDisplayNames.Find(szAction);
+  auto it = GetInternals().s_ActionDisplayNames.Find(szAction);
 
   if (it.IsValid())
     return it.Value().GetData();

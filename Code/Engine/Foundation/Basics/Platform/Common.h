@@ -109,6 +109,15 @@
 
 #endif
 
+namespace ezInternal
+{
+  template <typename T, size_t N>
+  char (*ArraySizeHelper(T (&)[N]))[N];
+}
+
+/// \brief Macro to determine the size of a static array
+#define EZ_ARRAY_SIZE(a) (sizeof(*ezInternal::ArraySizeHelper(a))+0)
+
 /// \brief Template helper which allows to suppress "Unused variable" warnings (e.g. result used in platform specific block, ..)
 template<class T> 
 void EZ_IGNORE_UNUSED(const T&) {}

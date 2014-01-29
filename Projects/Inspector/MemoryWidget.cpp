@@ -367,7 +367,7 @@ void ezMemoryWidget::ProcessTelemetry(void* pUnuseed)
   {
     ezString sAllocatorName;
 
-    ezIAllocator::Stats MemStat;
+    ezAllocatorBase::Stats MemStat;
     Msg.GetReader() >> sAllocatorName;
     Msg.GetReader() >> MemStat;
 
@@ -383,9 +383,9 @@ void ezMemoryWidget::ProcessTelemetry(void* pUnuseed)
 
     ad.m_uiAllocs = MemStat.m_uiNumAllocations;
     ad.m_uiDeallocs = MemStat.m_uiNumDeallocations;
-    ad.m_uiLiveAllocs = MemStat.m_uiNumLiveAllocations;
-    ad.m_uiMaxUsedMemoryRecently = ezMath::Max(ad.m_uiMaxUsedMemoryRecently, MemStat.m_uiUsedMemorySize);
-    ad.m_uiMaxUsedMemory = ezMath::Max(ad.m_uiMaxUsedMemory, MemStat.m_uiUsedMemorySize);
+    ad.m_uiLiveAllocs = MemStat.m_uiNumAllocations - MemStat.m_uiNumDeallocations;
+    ad.m_uiMaxUsedMemoryRecently = ezMath::Max(ad.m_uiMaxUsedMemoryRecently, MemStat.m_uiAllocationSize);
+    ad.m_uiMaxUsedMemory = ezMath::Max(ad.m_uiMaxUsedMemory, MemStat.m_uiAllocationSize);
   }
 }
 

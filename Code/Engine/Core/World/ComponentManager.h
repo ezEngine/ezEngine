@@ -71,7 +71,7 @@ protected:
   ezComponentHandle CreateComponent(ComponentStorageEntry storageEntry, ezUInt16 uiTypeId);
   virtual void DeleteDeadComponent(ComponentStorageEntry storageEntry);
 
-  ezIAllocator* GetAllocator();
+  ezAllocatorBase* GetAllocator();
   ezLargeBlockAllocator* GetBlockAllocator();
 
   void RegisterUpdateFunction(const UpdateFunctionDesc& desc);

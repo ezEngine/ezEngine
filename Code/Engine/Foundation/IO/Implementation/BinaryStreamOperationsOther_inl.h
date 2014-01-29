@@ -2,10 +2,10 @@
 #pragma once
 
 /// \brief Operator to serialize ezIAllocator::Stats objects.
-EZ_FOUNDATION_DLL void operator<< (ezIBinaryStreamWriter& Stream, const ezIAllocator::Stats& rhs);
+EZ_FOUNDATION_DLL void operator<< (ezIBinaryStreamWriter& Stream, const ezAllocatorBase::Stats& rhs);
 
 /// \brief Operator to serialize ezIAllocator::Stats objects.
-EZ_FOUNDATION_DLL void operator>> (ezIBinaryStreamReader& Stream, ezIAllocator::Stats& rhs);
+EZ_FOUNDATION_DLL void operator>> (ezIBinaryStreamReader& Stream, ezAllocatorBase::Stats& rhs);
 
 class ezTime;
 

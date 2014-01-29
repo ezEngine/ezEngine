@@ -46,8 +46,7 @@ public:
     ezUInt16 m_uiNumEventHandlersOnce;
   };
 
-  typedef ezHybridString<32, ezStaticAllocatorWrapper> EventKey;
-  typedef ezMap<EventKey, EventData, ezCompareHelper<EventKey>, ezStaticAllocatorWrapper> EventMap;
+  typedef ezMap<ezString, EventData> EventMap;
 
 public:
 

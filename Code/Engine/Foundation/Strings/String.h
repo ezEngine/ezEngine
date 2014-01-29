@@ -26,22 +26,22 @@ class ezHybridStringBase : public ezStringBase<ezHybridStringBase<Size> >
 protected:
 
   /// \brief Creates an empty string.
-  ezHybridStringBase(ezIAllocator* pAllocator); // [tested]
+  ezHybridStringBase(ezAllocatorBase* pAllocator); // [tested]
 
   /// \brief Copies the data from \a rhs.
-  ezHybridStringBase(const ezHybridStringBase& rhs, ezIAllocator* pAllocator); // [tested]
+  ezHybridStringBase(const ezHybridStringBase& rhs, ezAllocatorBase* pAllocator); // [tested]
 
   /// \brief Copies the data from \a rhs.
-  ezHybridStringBase(const char* rhs, ezIAllocator* pAllocator); // [tested]
+  ezHybridStringBase(const char* rhs, ezAllocatorBase* pAllocator); // [tested]
 
   /// \brief Copies the data from \a rhs.
-  ezHybridStringBase(const wchar_t* rhs, ezIAllocator* pAllocator); // [tested]
+  ezHybridStringBase(const wchar_t* rhs, ezAllocatorBase* pAllocator); // [tested]
 
   /// \brief Copies the data from \a rhs.
-  ezHybridStringBase(const ezStringIterator& rhs, ezIAllocator* pAllocator); // [tested]
+  ezHybridStringBase(const ezStringIterator& rhs, ezAllocatorBase* pAllocator); // [tested]
 
   /// \brief Copies the data from \a rhs.
-  ezHybridStringBase(const ezStringBuilder& rhs, ezIAllocator* pAllocator); // [tested]
+  ezHybridStringBase(const ezStringBuilder& rhs, ezAllocatorBase* pAllocator); // [tested]
 
   /// \brief Destructor.
   ~ezHybridStringBase(); // [tested]
@@ -119,7 +119,7 @@ class ezHybridString : public ezHybridStringBase<Size>
 {
 public:
   ezHybridString();
-  ezHybridString(ezIAllocator* pAllocator);
+  ezHybridString(ezAllocatorBase* pAllocator);
 
   ezHybridString(const ezHybridString<Size, AllocatorWrapper>& other);
   ezHybridString(const ezHybridStringBase<Size>& other);

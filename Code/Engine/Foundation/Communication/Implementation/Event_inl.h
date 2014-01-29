@@ -1,7 +1,7 @@
 #pragma once
 
 template <typename EventData, typename MutexType>
-ezEventBase<EventData, MutexType>::ezEventBase(ezIAllocator* pAllocator) : m_EventHandlers(pAllocator)
+ezEventBase<EventData, MutexType>::ezEventBase(ezAllocatorBase* pAllocator) : m_EventHandlers(pAllocator)
 {
   m_bBroadcasting = false;
 }
@@ -53,7 +53,7 @@ ezEvent<EventData, MutexType, AllocatorWrapper>::ezEvent() : ezEventBase<EventDa
 }
 
 template <typename EventData, typename MutexType, typename AllocatorWrapper>
-ezEvent<EventData, MutexType, AllocatorWrapper>::ezEvent(ezIAllocator* pAllocator) : ezEventBase<EventData, MutexType>(pAllocator)
+ezEvent<EventData, MutexType, AllocatorWrapper>::ezEvent(ezAllocatorBase* pAllocator) : ezEventBase<EventData, MutexType>(pAllocator)
 {
 }
 

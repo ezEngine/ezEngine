@@ -1,7 +1,8 @@
 #pragma once
 
 #include <Foundation/Containers/DynamicArray.h>
-#include <Foundation/Memory/Policies/PageAllocation.h>
+#include <Foundation/Memory/PageAllocator.h>
+#include <Foundation/Memory/MemoryTracker.h>
 #include <Foundation/Threading/Lock.h>
 #include <Foundation/Threading/Mutex.h>
 
@@ -57,39 +58,44 @@ struct ezDataBlock
 };
 
 /// \brief A block allocator which can only allocates 4k blocks of memory at once.
-class EZ_FOUNDATION_DLL ezLargeBlockAllocator : public ezIAllocator
+class EZ_FOUNDATION_DLL ezLargeBlockAllocator
 {
 public:
-  ezLargeBlockAllocator(const char* szName, ezIAllocator* pParent);
+  ezLargeBlockAllocator(const char* szName, ezAllocatorBase* pParent, ezBitflags<ezMemoryTrackingFlags> flags = ezMemoryTrackingFlags::Default);
   ~ezLargeBlockAllocator();
 
   template <typename T>
-  ezDataBlock<T> AllocateBlock()
+  EZ_FORCE_INLINE ezDataBlock<T> AllocateBlock()
   {
-    ezDataBlock<T> block(static_cast<T*>(Allocate(ezDataBlock<T>::SIZE_IN_BYTES, EZ_ALIGNMENT_OF(T))), 0);
+    ezDataBlock<T> block(static_cast<T*>(Allocate(EZ_ALIGNMENT_OF(T))), 0);
     return block;
   }
 
   template <typename T>
-  void DeallocateBlock(ezDataBlock<T>& block)
+  EZ_FORCE_INLINE void DeallocateBlock(ezDataBlock<T>& block)
   {
     Deallocate(block.m_pData);
     block.m_pData = NULL;
     block.m_uiCount = 0;
   }
-  
-  size_t AllocatedSize(const void* ptr) EZ_OVERRIDE;
-  size_t UsedMemorySize(const void* ptr) EZ_OVERRIDE;
-  void GetStats(Stats& stats) const EZ_OVERRIDE;
 
+  const char* GetName() const;
+  
+  EZ_FORCE_INLINE ezAllocatorId GetId() const
+  {
+    return m_Id;
+  }
+
+  const ezAllocatorBase::Stats& GetStats() const;
+  
 private:
-  void* Allocate(size_t uiSize, size_t uiAlign) EZ_OVERRIDE;
-  void Deallocate(void* ptr) EZ_OVERRIDE;
+  void* Allocate(size_t uiAlign);
+  void Deallocate(void* ptr);
+
+  ezAllocatorId m_Id;
 
   ezMutex m_mutex;
   ezThreadHandle m_threadHandle;
-
-  ezMemoryPolicies::ezPageAllocation m_allocator;
 
   struct SuperBlock
   {
@@ -105,9 +111,6 @@ private:
 
     ezUInt32 m_uiUsedBlocks;
   };
-
-  ezUInt64 m_uiNumAllocations;
-  ezUInt64 m_uiNumDeallocations;
 
   ezDynamicArray<SuperBlock> m_superBlocks;
   ezDynamicArray<ezUInt32> m_freeBlocks;

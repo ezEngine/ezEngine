@@ -85,7 +85,7 @@ EZ_FORCE_INLINE V& ezHashTableBase<K, V, H>::Iterator::Value()
 // ***** ezHashTableBase *****
 
 template <typename K, typename V, typename H>
-ezHashTableBase<K, V, H>::ezHashTableBase(ezIAllocator* pAllocator)
+ezHashTableBase<K, V, H>::ezHashTableBase(ezAllocatorBase* pAllocator)
 {
   m_pEntries = NULL;
   m_pEntryFlags = NULL;
@@ -95,7 +95,7 @@ ezHashTableBase<K, V, H>::ezHashTableBase(ezIAllocator* pAllocator)
 }
 
 template <typename K, typename V, typename H>
-ezHashTableBase<K, V, H>::ezHashTableBase(const ezHashTableBase<K, V, H>& other, ezIAllocator* pAllocator)
+ezHashTableBase<K, V, H>::ezHashTableBase(const ezHashTableBase<K, V, H>& other, ezAllocatorBase* pAllocator)
 {
   m_pEntries = NULL;
   m_pEntryFlags = NULL;
@@ -347,7 +347,7 @@ EZ_FORCE_INLINE typename ezHashTableBase<K, V, H>::ConstIterator ezHashTableBase
 }
 
 template <typename K, typename V, typename H>
-EZ_FORCE_INLINE ezIAllocator* ezHashTableBase<K, V, H>::GetAllocator() const
+EZ_FORCE_INLINE ezAllocatorBase* ezHashTableBase<K, V, H>::GetAllocator() const
 {
   return m_pAllocator;
 }
@@ -486,7 +486,7 @@ ezHashTable<K, V, H, A>::ezHashTable() : ezHashTableBase<K, V, H>(A::GetAllocato
 }
 
 template <typename K, typename V, typename H, typename A>
-ezHashTable<K, V, H, A>::ezHashTable(ezIAllocator* pAllocator) : ezHashTableBase<K, V, H>(pAllocator)
+ezHashTable<K, V, H, A>::ezHashTable(ezAllocatorBase* pAllocator) : ezHashTableBase<K, V, H>(pAllocator)
 {
 }
 

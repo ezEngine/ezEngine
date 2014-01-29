@@ -27,19 +27,19 @@ class EZ_FOUNDATION_DLL ezStringBuilder : public ezStringBase<ezStringBuilder>
 public:
 
   /// \brief Initializes the string to be empty. No data is allocated, but the ezStringBuilder ALWAYS creates an array on the stack.
-  ezStringBuilder(ezIAllocator* pAllocator = ezFoundation::GetDefaultAllocator()); // [tested]
+  ezStringBuilder(ezAllocatorBase* pAllocator = ezFoundation::GetDefaultAllocator()); // [tested]
 
   /// \brief Copies the given string into this one.
   ezStringBuilder(const ezStringBuilder& rhs); // [tested]
 
   /// \brief Copies the given Utf8 string into this one.
-  /* implicit */ ezStringBuilder(const char* szUTF8, ezIAllocator* pAllocator = ezFoundation::GetDefaultAllocator()); // [tested]
+  /* implicit */ ezStringBuilder(const char* szUTF8, ezAllocatorBase* pAllocator = ezFoundation::GetDefaultAllocator()); // [tested]
 
   /// \brief Copies the given wchar_t string into this one.
-  /* implicit */ ezStringBuilder(const wchar_t* szWChar, ezIAllocator* pAllocator = ezFoundation::GetDefaultAllocator()); // [tested]
+  /* implicit */ ezStringBuilder(const wchar_t* szWChar, ezAllocatorBase* pAllocator = ezFoundation::GetDefaultAllocator()); // [tested]
 
   /// \brief Copies the given substring into this one. The ezStringIterator might actually be a substring of this very string.
-  /* implicit */ ezStringBuilder(const ezStringIterator& rhs, ezIAllocator* pAllocator = ezFoundation::GetDefaultAllocator()); // [tested]
+  /* implicit */ ezStringBuilder(const ezStringIterator& rhs, ezAllocatorBase* pAllocator = ezFoundation::GetDefaultAllocator()); // [tested]
 
   /// \brief Copies the given string into this one.
   void operator=(const ezStringBuilder& rhs); // [tested]
@@ -54,7 +54,7 @@ public:
   void operator=(const ezStringIterator& rhs); // [tested]
 
   /// \brief Returns the allocator that is used by this object.
-  ezIAllocator* GetAllocator() const;
+  ezAllocatorBase* GetAllocator() const;
 
   /// \brief Resets this string to be empty. Does not deallocate any previously allocated data, as it might be reused later again.
   void Clear(); // [tested]

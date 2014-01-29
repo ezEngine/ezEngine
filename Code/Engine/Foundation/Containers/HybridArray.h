@@ -13,13 +13,13 @@ class ezHybridArrayBase : public ezArrayBase<T, ezHybridArrayBase<T, Size> >
 {
 protected:
   /// \brief Creates an empty array. Does not allocate any data yet.
-  ezHybridArrayBase(ezIAllocator* pAllocator); // [tested]
+  ezHybridArrayBase(ezAllocatorBase* pAllocator); // [tested]
   
   /// \brief Creates a copy of the given array.
-  ezHybridArrayBase(const ezHybridArrayBase<T, Size>& other, ezIAllocator* pAllocator); // [tested]
+  ezHybridArrayBase(const ezHybridArrayBase<T, Size>& other, ezAllocatorBase* pAllocator); // [tested]
 
   /// \brief Creates a copy of the given array.
-  ezHybridArrayBase(const ezArrayPtr<T>& other, ezIAllocator* pAllocator); // [tested]
+  ezHybridArrayBase(const ezArrayPtr<T>& other, ezAllocatorBase* pAllocator); // [tested]
 
   /// \brief Destructor.
   ~ezHybridArrayBase(); // [tested]
@@ -39,7 +39,7 @@ public:
   void Compact(); // [tested]
 
   /// \brief Returns the allocator that is used by this instance.
-  ezIAllocator* GetAllocator() const { return m_pAllocator; }
+  ezAllocatorBase* GetAllocator() const { return m_pAllocator; }
 
 private:
   T* GetStaticArray();
@@ -50,7 +50,7 @@ private:
     ezUInt8 m_StaticData[Size * sizeof(T)];
   };
 
-  ezIAllocator* m_pAllocator;
+  ezAllocatorBase* m_pAllocator;
 
   enum { CAPACITY_ALIGNMENT = 16 };
 
@@ -64,7 +64,7 @@ class ezHybridArray : public ezHybridArrayBase<T, Size>
 {
 public:
   ezHybridArray();
-  ezHybridArray(ezIAllocator* pAllocator);
+  ezHybridArray(ezAllocatorBase* pAllocator);
 
   ezHybridArray(const ezHybridArray<T, Size, AllocatorWrapper>& other);
   ezHybridArray(const ezHybridArrayBase<T, Size>& other);

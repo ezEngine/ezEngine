@@ -129,7 +129,7 @@ foundany:
     // otherwise we might execute a main-thread task in a thread that is not the main thread
     for (ezUInt32 i = FirstPriority; i <= (ezUInt32) LastPriority; ++i)
     {
-      ezList<TaskData, ezStaticAllocatorWrapper>::Iterator it = s_Tasks[i].GetIterator();
+      auto it = s_Tasks[i].GetIterator();
 
       // just blindly search the entire list
       while (it.IsValid())
@@ -263,7 +263,7 @@ ezResult ezTaskSystem::CancelTask(ezTask* pTask, ezOnTaskRunning::Enum OnTaskRun
     {
       for (ezUInt32 i = 0; i < ezTaskPriority::ENUM_COUNT; ++i)
       {
-        ezList<TaskData, ezStaticAllocatorWrapper>::Iterator it = s_Tasks[i].GetIterator();
+        auto it = s_Tasks[i].GetIterator();
 
         while (it.IsValid())
         {

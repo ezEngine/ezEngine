@@ -99,7 +99,7 @@ void ezInputDeviceXBox360::UpdateHardwareState(ezTime tTimeDifference)
 void ezInputDeviceXBox360::UpdateInputSlotValues()
 {
   // reset all keys
-  for (ezMap<ezString, float, ezCompareHelper<ezString>, ezStaticAllocatorWrapper>::Iterator it = m_InputSlotValues.GetIterator(); it.IsValid(); ++it)
+  for (auto it = m_InputSlotValues.GetIterator(); it.IsValid(); ++it)
     it.Value() = 0.0f;
 
   XINPUT_STATE State[4];

@@ -2,7 +2,7 @@
 
 #include <Foundation/Strings/StringConversion.h>
 
-inline ezStringBuilder::ezStringBuilder(ezIAllocator* pAllocator) : m_Data(pAllocator)
+inline ezStringBuilder::ezStringBuilder(ezAllocatorBase* pAllocator) : m_Data(pAllocator)
 {
   m_uiCharacterCount = 0;
   AppendTerminator();
@@ -16,7 +16,7 @@ inline ezStringBuilder::ezStringBuilder(const ezStringBuilder& rhs) : m_Data(rhs
   *this = rhs;
 }
 
-inline ezStringBuilder::ezStringBuilder(const char* szUTF8, ezIAllocator* pAllocator) : m_Data(pAllocator)
+inline ezStringBuilder::ezStringBuilder(const char* szUTF8, ezAllocatorBase* pAllocator) : m_Data(pAllocator)
 {
   m_uiCharacterCount = 0;
   AppendTerminator();
@@ -24,7 +24,7 @@ inline ezStringBuilder::ezStringBuilder(const char* szUTF8, ezIAllocator* pAlloc
   *this = szUTF8;
 }
 
-inline ezStringBuilder::ezStringBuilder(const wchar_t* szWChar, ezIAllocator* pAllocator) : m_Data(pAllocator)
+inline ezStringBuilder::ezStringBuilder(const wchar_t* szWChar, ezAllocatorBase* pAllocator) : m_Data(pAllocator)
 {
   m_uiCharacterCount = 0;
   AppendTerminator();
@@ -32,7 +32,7 @@ inline ezStringBuilder::ezStringBuilder(const wchar_t* szWChar, ezIAllocator* pA
   *this = szWChar;
 }
 
-inline ezStringBuilder::ezStringBuilder(const ezStringIterator& rhs, ezIAllocator* pAllocator) : m_Data(pAllocator)
+inline ezStringBuilder::ezStringBuilder(const ezStringIterator& rhs, ezAllocatorBase* pAllocator) : m_Data(pAllocator)
 {
   m_uiCharacterCount = 0;
   AppendTerminator();
@@ -40,7 +40,7 @@ inline ezStringBuilder::ezStringBuilder(const ezStringIterator& rhs, ezIAllocato
   *this = rhs;
 }
 
-inline ezIAllocator* ezStringBuilder::GetAllocator() const
+inline ezAllocatorBase* ezStringBuilder::GetAllocator() const
 {
   return m_Data.GetAllocator();
 }

@@ -20,7 +20,7 @@ class ezEventBase
 {
 protected:
   /// \brief Constructor.
-  ezEventBase(ezIAllocator* pAllocator);
+  ezEventBase(ezAllocatorBase* pAllocator);
 
 public:
   /// \brief Notification callback type for events.
@@ -53,7 +53,7 @@ class ezEvent : public ezEventBase<EventData, MutexType>
 {
 public:
   ezEvent();
-  ezEvent(ezIAllocator* pAllocator);
+  ezEvent(ezAllocatorBase* pAllocator);
 };
 
 #include <Foundation/Communication/Implementation/Event_inl.h>

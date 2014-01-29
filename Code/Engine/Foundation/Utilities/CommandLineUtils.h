@@ -105,7 +105,7 @@ public:
 private:
 
   // This has to work long before the engine is initialized -> ezStaticAllocatorWrapper
-  ezDynamicArray<ezHybridString<32, ezStaticAllocatorWrapper>, ezStaticAllocatorWrapper> m_Commands;
+  ezDynamicArray<ezString> m_Commands;
 };
 
 

@@ -150,10 +150,10 @@ public:
   };
 
   /// \brief Code that needs to be execute whenever a cvar is changed can register itself here to be notified of such events.
-  ezEvent<const CVarEvent&, ezNoMutex, ezStaticAllocatorWrapper> m_CVarEvents; // [tested]
+  ezEvent<const CVarEvent&> m_CVarEvents; // [tested]
 
   /// \brief Broadcasts changes to ANY CVar. Thus code that needs to update when any one of them changes can use this to be notified.
-  static ezEvent<const CVarEvent&, ezNoMutex, ezStaticAllocatorWrapper> s_AllCVarEvents;
+  static ezEvent<const CVarEvent&> s_AllCVarEvents;
 
   /// \brief Returns the name of the plugin which this CVar is declared in.
   const char* GetPluginName() const { return m_szPluginName; }
@@ -178,7 +178,7 @@ private:
   const char* m_szPluginName;
   ezBitflags<ezCVarFlags> m_Flags;
 
-  static ezHybridString<32, ezStaticAllocatorWrapper> s_StorageFolder;
+  static ezString s_StorageFolder;
 };
 
 /// \brief Each CVar stores several values internally. The 'Current' value is the most important one.
@@ -232,7 +232,7 @@ typedef ezTypedCVar<bool, ezCVarType::Bool> ezCVarBool;
 typedef ezTypedCVar<int, ezCVarType::Int> ezCVarInt;
 
 /// \brief A CVar that stores a string.
-typedef ezTypedCVar<ezHybridString<32, ezStaticAllocatorWrapper>, ezCVarType::String> ezCVarString;
+typedef ezTypedCVar<ezHybridString<32>, ezCVarType::String> ezCVarString;
 
 
 

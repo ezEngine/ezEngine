@@ -3,7 +3,7 @@
 #include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/Time/Time.h>
 
-ezHybridString<64, ezStaticAllocatorWrapper> ezOSFile::s_ApplicationPath;
+ezString64 ezOSFile::s_ApplicationPath;
 ezAtomicInteger32 ezOSFile::s_FileCounter;
 ezOSFile::Event ezOSFile::s_FileEvents;
 

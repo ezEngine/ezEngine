@@ -4,7 +4,7 @@
 
 struct ezNullAllocatorWrapper
 {
-  EZ_FORCE_INLINE static ezIAllocator* GetAllocator()
+  EZ_FORCE_INLINE static ezAllocatorBase* GetAllocator()
   {
     EZ_REPORT_FAILURE("This method should never be called");
     return NULL;
@@ -13,23 +13,23 @@ struct ezNullAllocatorWrapper
 
 struct ezDefaultAllocatorWrapper
 {
-  EZ_FORCE_INLINE static ezIAllocator* GetAllocator()
+  EZ_FORCE_INLINE static ezAllocatorBase* GetAllocator()
   {
     return ezFoundation::GetDefaultAllocator();
   }
 };
 
-struct ezStaticAllocatorWrapper
+struct ezAlignedAllocatorWrapper
 {
-  EZ_FORCE_INLINE static ezIAllocator* GetAllocator()
+  EZ_FORCE_INLINE static ezAllocatorBase* GetAllocator()
   {
-    return ezFoundation::GetStaticAllocator();
+    return ezFoundation::GetAlignedAllocator();
   }
 };
 
 struct EZ_FOUNDATION_DLL ezLocalAllocatorWrapper
 {
-  EZ_FORCE_INLINE ezLocalAllocatorWrapper(ezIAllocator* pAllocator)
+  EZ_FORCE_INLINE ezLocalAllocatorWrapper(ezAllocatorBase* pAllocator)
   {
     m_pAllocator = pAllocator;
   }
@@ -39,12 +39,11 @@ struct EZ_FOUNDATION_DLL ezLocalAllocatorWrapper
     m_pAllocator = NULL;
   }
 
-  EZ_FORCE_INLINE static ezIAllocator* GetAllocator()
+  EZ_FORCE_INLINE static ezAllocatorBase* GetAllocator()
   {
     return m_pAllocator;
   }
 
 private:
-  static ezThreadLocalPointer<ezIAllocator> m_pAllocator;
+  static ezThreadLocalPointer<ezAllocatorBase> m_pAllocator;
 };
-

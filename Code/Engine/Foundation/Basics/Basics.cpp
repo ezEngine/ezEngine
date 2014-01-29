@@ -1,87 +1,42 @@
 #include <Foundation/PCH.h>
 #include <Foundation/Memory/CommonAllocators.h>
-#include <Foundation/Memory/Policies/AlignedAllocation.h>
-#include <Foundation/Time/Time.h>
-#include <Foundation/Threading/Thread.h>
-#include <Foundation/Threading/ThreadLocalStorage.h>
-#include <Foundation/Profiling/Profiling.h>
-#include <Foundation/Basics/Types/Variant.h>
 #include <Foundation/Communication/GlobalEvent.h>
 
-#if EZ_ENABLED(EZ_USE_TRACE_ALLOCATOR)
-  typedef ezMemoryPolicies::ezStackTracking DefaultAllocatorTracking;
-#else
-  typedef ezMemoryPolicies::ezSimpleTracking DefaultAllocatorTracking;
-#endif
+enum 
+{ 
+  HEAP_ALLOCATOR_BUFFER_SIZE = sizeof(ezHeapAllocator),
+  ALIGNED_ALLOCATOR_BUFFER_SIZE = sizeof(ezAlignedHeapAllocator)
+};
 
-typedef ezAllocator<ezMemoryPolicies::ezHeapAllocation, ezMemoryPolicies::ezSimpleTracking, ezNoMutex> DebugHeapAllocator;
+static ezUInt8 s_DefaultAllocatorBuffer[HEAP_ALLOCATOR_BUFFER_SIZE];
+static ezUInt8 s_StaticAllocatorBuffer[HEAP_ALLOCATOR_BUFFER_SIZE];
 
-typedef ezAllocator<ezMemoryPolicies::ezHeapAllocation, DefaultAllocatorTracking, ezMutex> DefaultHeapAllocator;
-
-typedef ezAllocator<ezMemoryPolicies::ezAlignedAllocation<ezMemoryPolicies::ezHeapAllocation>, 
-  DefaultAllocatorTracking, ezMutex> AlignedHeapAllocator;
-
-enum { BUFFER_SIZE = sizeof(ezHeapAllocator) };
-static ezUInt8 g_BaseAllocatorBuffer[BUFFER_SIZE];
-static ezUInt8 g_StaticAllocatorBuffer[BUFFER_SIZE];
+static ezUInt8 s_AlignedAllocatorBuffer[ALIGNED_ALLOCATOR_BUFFER_SIZE];
 
 bool ezFoundation::s_bIsInitialized = false;
-bool ezFoundation::s_bOwnsBaseAllocator = false;
-ezIAllocator* ezFoundation::s_pBaseAllocator = NULL;
-ezIAllocator* ezFoundation::s_pDebugAllocator = NULL;
-ezIAllocator* ezFoundation::s_pDefaultAllocator = NULL;
-ezIAllocator* ezFoundation::s_pAlignedAllocator = NULL;
-ezIAllocator* ezFoundation::s_pStaticAllocator = NULL;
-
-ezIAllocator* ezFoundation::s_pBaseAllocatorTemp = NULL;
-ezIAllocator* ezFoundation::s_pDebugAllocatorTemp = NULL;
-ezIAllocator* ezFoundation::s_pDefaultAllocatorTemp = NULL;
-ezIAllocator* ezFoundation::s_pAlignedAllocatorTemp = NULL;
-
-ezFoundation::Config::Config()
-{
-  ezMemoryUtils::ZeroFill(this);
-}
-
-ezFoundation::Config ezFoundation::s_Config;
+ezAllocatorBase* ezFoundation::s_pDefaultAllocator = NULL;
+ezAllocatorBase* ezFoundation::s_pAlignedAllocator = NULL;
 
 void ezFoundation::Initialize()
 {
   if (s_bIsInitialized)
     return;
 
-  const Config& config = s_Config;
-
-  s_bIsInitialized = true;
-
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   ezMemoryUtils::ReserveLower4GBAddressSpace();
 #endif
    
-  if (config.pBaseAllocator == NULL)
+  if (s_pDefaultAllocator == NULL)
   {
-    s_bOwnsBaseAllocator = true;
-    s_pBaseAllocator = new (g_BaseAllocatorBuffer) ezHeapAllocator("Base");
-  }
-  else
-  {
-    s_pBaseAllocator = config.pBaseAllocator;
+    s_pDefaultAllocator = new (s_DefaultAllocatorBuffer) ezHeapAllocator("DefaultHeap");
   }
 
-  if (config.pDebugAllocator == NULL)
-    s_pDebugAllocator = EZ_NEW(s_pBaseAllocator, DebugHeapAllocator)("Debug");
-  else
-    s_pDebugAllocator = config.pDebugAllocator;
+  if (s_pAlignedAllocator == NULL)
+  {
+    s_pAlignedAllocator = new (s_AlignedAllocatorBuffer) ezAlignedHeapAllocator("AlignedHeap");
+  }
 
-  if (config.pDefaultAllocator == NULL)
-    s_pDefaultAllocator = EZ_NEW(s_pBaseAllocator, DefaultHeapAllocator)("DefaultHeap");
-  else
-    s_pDefaultAllocator = config.pDefaultAllocator;
-
-  if (config.pAlignedAllocator == NULL)
-    s_pAlignedAllocator = EZ_NEW(s_pBaseAllocator, AlignedHeapAllocator)("AlignedHeap");
-  else
-    s_pAlignedAllocator = config.pAlignedAllocator;
+  s_bIsInitialized = true;
 }
 
 void ezFoundation::Shutdown()
@@ -91,28 +46,51 @@ void ezFoundation::Shutdown()
 
   ezGlobalEvent::Broadcast("ezFoundation_Shutdown");
 
-  EZ_DELETE(s_pBaseAllocator, s_pAlignedAllocator);
-  EZ_DELETE(s_pBaseAllocator, s_pDefaultAllocator);
-  EZ_DELETE(s_pBaseAllocator, s_pDebugAllocator);
-  // the static Allocator must not be deleted, it might still be used during application shutdown
-  
-  if (s_bOwnsBaseAllocator)
-  {
-    s_pBaseAllocator->~ezIAllocator();
-    s_pBaseAllocator = NULL;
-  }
+  // Allocators must not be deleted, they might still be used during application shutdown
+  // but dump memory leaks instead
+  ezMemoryTracker::DumpMemoryLeaks();
 
   s_bIsInitialized = false;
 }
 
-ezIAllocator* ezFoundation::GetStaticAllocator()
+#if defined(EZ_CUSTOM_STATIC_ALLOCATOR_FUNC)
+  extern ezAllocatorBase* EZ_CUSTOM_STATIC_ALLOCATOR_FUNC();
+#endif
+
+ezAllocatorBase* ezFoundation::GetStaticAllocator()
 {
-  if (s_pStaticAllocator == NULL)
+  static ezAllocatorBase* pStaticAllocator = NULL;
+
+  if (pStaticAllocator == NULL)
   {
-    s_pStaticAllocator = new (g_StaticAllocatorBuffer) ezHeapAllocator("Statics");
+#if defined(EZ_CUSTOM_STATIC_ALLOCATOR_FUNC)
+
+#if EZ_ENABLED(EZ_COMPILE_ENGINE_AS_DLL)
+    
+  #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+    typedef ezAllocatorBase* (*GetStaticAllocatorFunc)();
+
+    HMODULE hThisModule = GetModuleHandle(NULL);
+    GetStaticAllocatorFunc func = (GetStaticAllocatorFunc)GetProcAddress(hThisModule, EZ_CUSTOM_STATIC_ALLOCATOR_FUNC);
+    if (func != NULL)
+    {
+      pStaticAllocator = (*func)();
+      return pStaticAllocator;
+    }
+  #else
+    #error "Customizing static allocator not implemented"
+  #endif
+
+#else
+    return EZ_CUSTOM_STATIC_ALLOCATOR_FUNC();
+#endif
+
+#endif
+
+    pStaticAllocator = new (s_StaticAllocatorBuffer) ezHeapAllocator(EZ_STATIC_ALLOCATOR_NAME);
   }
 
-  return s_pStaticAllocator;
+  return pStaticAllocator;
 }
 
 

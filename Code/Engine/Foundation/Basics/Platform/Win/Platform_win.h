@@ -23,7 +23,6 @@
 #include <Rpc.h>
 
 #include <crtdbg.h>
-#include <DbgHelp.h>
 
 #include <malloc.h>
 

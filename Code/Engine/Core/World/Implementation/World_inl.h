@@ -153,7 +153,7 @@ inline bool ezWorld::TryGetComponent(const ezComponentHandle& component, Compone
   return false;
 }
 
-EZ_FORCE_INLINE ezIAllocator* ezWorld::GetAllocator()
+EZ_FORCE_INLINE ezAllocatorBase* ezWorld::GetAllocator()
 {
   return &m_Data.m_Allocator;
 }

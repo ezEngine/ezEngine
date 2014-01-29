@@ -21,10 +21,10 @@ public:
 protected:
 
   /// \brief No memory is allocated during construction.
-  ezMessageQueueBase(ezIAllocator* pStorageAllocator, ezIAllocator* pQueueAllocator);
+  ezMessageQueueBase(ezAllocatorBase* pStorageAllocator, ezAllocatorBase* pQueueAllocator);
 
   /// \brief No memory is allocated during construction.
-  ezMessageQueueBase(const ezMessageQueueBase& rhs, ezIAllocator* pStorageAllocator, ezIAllocator* pQueueAllocator);
+  ezMessageQueueBase(const ezMessageQueueBase& rhs, ezAllocatorBase* pStorageAllocator, ezAllocatorBase* pQueueAllocator);
 
   /// \brief Destructor.
   ~ezMessageQueueBase();
@@ -51,11 +51,11 @@ public:
   template <typename C>
   void Sort();
 
-  ezIAllocator* GetStorageAllocator() const;
+  ezAllocatorBase* GetStorageAllocator() const;
 
 private:
   ezDeque<Entry, ezNullAllocatorWrapper> m_Queue;
-  ezIAllocator* m_pStorageAllocator;
+  ezAllocatorBase* m_pStorageAllocator;
   MutexType m_mutex;
 };
 
@@ -66,7 +66,7 @@ class ezMessageQueue : public ezMessageQueueBase<MetaDataType, MutexType>
 {
 public:
   ezMessageQueue();
-  ezMessageQueue(ezIAllocator* pStorageAllocator, ezIAllocator* pQueueAllocator);
+  ezMessageQueue(ezAllocatorBase* pStorageAllocator, ezAllocatorBase* pQueueAllocator);
 
   ezMessageQueue(const ezMessageQueue<MetaDataType, MutexType, StorageAllocatorWrapper, QueueAllocatorWrapper>& rhs);
   ezMessageQueue(const ezMessageQueueBase<MetaDataType, MutexType>& rhs);

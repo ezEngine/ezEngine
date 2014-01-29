@@ -48,11 +48,7 @@ See the Return Codes at the end of the BeforeEngineShutdown function.
 class ezStaticLinkerApp : public ezApplication
 {
 private:
-
-  // I want better allocators!
-  typedef ezHybridString<32, ezStaticAllocatorWrapper> StaticString;
-
-  StaticString m_sSearchDir;
+  ezString m_sSearchDir;
   bool m_bHadErrors;
   bool m_bHadSeriousWarnings;
   bool m_bHadWarnings;
@@ -67,15 +63,15 @@ private:
     }
 
     bool m_bFileHasChanged;
-    StaticString m_sFileContent;
+    ezString m_sFileContent;
   };
 
-  ezSet<StaticString, ezCompareHelper<StaticString>, ezStaticAllocatorWrapper> m_AllRefPoints;
-  StaticString m_sRefPointGroupFile;
+  ezSet<ezString> m_AllRefPoints;
+  ezString m_sRefPointGroupFile;
 
-  ezSet<StaticString, ezCompareHelper<StaticString>, ezStaticAllocatorWrapper> m_GlobalIncludes;
+  ezSet<ezString> m_GlobalIncludes;
 
-  ezMap<StaticString, FileContent, ezCompareHelper<StaticString>, ezStaticAllocatorWrapper> m_ModifiedFiles;
+  ezMap<ezString, FileContent> m_ModifiedFiles;
 
 
 public:

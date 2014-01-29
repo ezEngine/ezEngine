@@ -35,16 +35,10 @@ struct EZ_ALIGN_16(AlignedVector)
   float w;
 };
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-  #define SUPPORTS_MEMSIZE EZ_ON
-#else
-  #define SUPPORTS_MEMSIZE EZ_OFF
-#endif
-
 template <typename T>
 void TestAlignmentHelper(size_t uiExpectedAlignment)
 {
-  ezIAllocator* pAllocator = ezFoundation::GetAlignedAllocator();
+  ezAllocatorBase* pAllocator = ezFoundation::GetAlignedAllocator();
   EZ_TEST_BOOL(pAllocator != NULL);
 
   size_t uiAlignment = EZ_ALIGNMENT_OF(T);
@@ -64,24 +58,19 @@ void TestAlignmentHelper(size_t uiExpectedAlignment)
   EZ_TEST_BOOL(ezMemoryUtils::IsAligned(pTestBuffer, uiExpectedAlignment));
   EZ_TEST_BOOL(ezMemoryUtils::IsAligned(TestArray.GetPtr(), uiExpectedAlignment));
 
-#if EZ_ENABLED(SUPPORTS_MEMSIZE)
   size_t uiExpectedSize = sizeof(T) * 32;
   EZ_TEST_BOOL(pAllocator->AllocatedSize(pTestBuffer) == uiExpectedSize);
 
-  ezIAllocator::Stats stats;
-  pAllocator->GetStats(stats);
+  ezAllocatorBase::Stats stats = pAllocator->GetStats();
   EZ_TEST_BOOL(stats.m_uiAllocationSize == uiExpectedSize * 2);
-  EZ_TEST_BOOL(stats.m_uiNumLiveAllocations == 2);
-#endif
+  EZ_TEST_BOOL(stats.m_uiNumAllocations - stats.m_uiNumDeallocations == 2);
 
   EZ_DELETE_ARRAY(pAllocator, TestArray);
   EZ_DELETE_RAW_BUFFER(pAllocator, pTestBuffer);
 
-#if EZ_ENABLED(SUPPORTS_MEMSIZE)
-  pAllocator->GetStats(stats);
+  stats = pAllocator->GetStats();
   EZ_TEST_BOOL(stats.m_uiAllocationSize == 0);
-  EZ_TEST_BOOL(stats.m_uiNumLiveAllocations == 0);
-#endif
+  EZ_TEST_BOOL(stats.m_uiNumAllocations - stats.m_uiNumDeallocations == 0);
 }
 
 EZ_CREATE_SIMPLE_TEST_GROUP(Memory);
@@ -92,22 +81,6 @@ EZ_CREATE_SIMPLE_TEST(Memory, Allocator)
   {
     TestAlignmentHelper<NonAlignedVector>(4);
     TestAlignmentHelper<AlignedVector>(16);
-  }
-
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Tracking")
-  {
-    typedef ezAllocator<ezMemoryPolicies::ezHeapAllocation, ezMemoryPolicies::ezStackTracking, ezMutex> TrackingAllocator;
-
-    ezIAllocator* pAllocator = EZ_NEW(ezFoundation::GetBaseAllocator(), TrackingAllocator)("TrackingAllocator", NULL);
-
-    // memory leak
-    char* szTestBuffer = EZ_NEW_RAW_BUFFER(pAllocator, char, 16);
-
-    static_cast<TrackingAllocator*>(pAllocator)->GetTracker().DumpMemoryLeaks();
-
-    EZ_DELETE_RAW_BUFFER(pAllocator, szTestBuffer);
-
-    EZ_DELETE(ezFoundation::GetBaseAllocator(), pAllocator);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "LargeBlockAllocator")
@@ -128,14 +101,11 @@ EZ_CREATE_SIMPLE_TEST(Memory, Allocator)
       blocks.PushBack(block);
     }
 
-    ezIAllocator::Stats stats;
-    allocator.GetStats(stats);
+    ezAllocatorBase::Stats stats = allocator.GetStats();
 
     EZ_TEST_BOOL(stats.m_uiNumAllocations == 17);
     EZ_TEST_BOOL(stats.m_uiNumDeallocations == 0);
-    EZ_TEST_BOOL(stats.m_uiNumLiveAllocations == 17);
     EZ_TEST_BOOL(stats.m_uiAllocationSize == 17 * BLOCK_SIZE_IN_BYTES);
-    EZ_TEST_BOOL(stats.m_uiUsedMemorySize == 32 * BLOCK_SIZE_IN_BYTES);
 
     for (ezUInt32 i = 0; i < 200; ++i)
     {
@@ -149,13 +119,11 @@ EZ_CREATE_SIMPLE_TEST(Memory, Allocator)
       blocks.PopBack();
     }
 
-    allocator.GetStats(stats);
+    stats = allocator.GetStats();
 
     EZ_TEST_BOOL(stats.m_uiNumAllocations == 217);
     EZ_TEST_BOOL(stats.m_uiNumDeallocations == 200);
-    EZ_TEST_BOOL(stats.m_uiNumLiveAllocations == 17);
     EZ_TEST_BOOL(stats.m_uiAllocationSize == 17 * BLOCK_SIZE_IN_BYTES);
-    EZ_TEST_BOOL(stats.m_uiUsedMemorySize == 6 * 16 * BLOCK_SIZE_IN_BYTES);
 
     for (ezUInt32 i = 0; i < 2000; ++i)
     {
@@ -180,10 +148,9 @@ EZ_CREATE_SIMPLE_TEST(Memory, Allocator)
       allocator.DeallocateBlock(blocks[i]);
     }
 
-    allocator.GetStats(stats);
+    stats = allocator.GetStats();
 
-    EZ_TEST_BOOL(stats.m_uiNumLiveAllocations == 0);
+    EZ_TEST_BOOL(stats.m_uiNumAllocations - stats.m_uiNumDeallocations == 0);
     EZ_TEST_BOOL(stats.m_uiAllocationSize == 0);
-    EZ_TEST_BOOL(stats.m_uiUsedMemorySize <= 5 * 32 * 4096);
   }
 }

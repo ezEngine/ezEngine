@@ -50,7 +50,7 @@ struct EZ_FOUNDATION_DLL ezLoggingEventData
   const char* m_szTag;
 };
 
-typedef ezEvent<const ezLoggingEventData&, ezMutex, ezStaticAllocatorWrapper> ezLoggingEvent;
+typedef ezEvent<const ezLoggingEventData&, ezMutex> ezLoggingEvent;
 
 /// \brief Base class for all logging classes.
 ///

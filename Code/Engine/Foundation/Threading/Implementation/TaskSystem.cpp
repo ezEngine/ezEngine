@@ -8,9 +8,9 @@
 ezMutex ezTaskSystem::s_TaskSystemMutex;
 
 ezThreadSignal ezTaskSystem::s_TasksAvailableSignal[ezWorkerThreadType::ENUM_COUNT];
-ezDynamicArray<ezTaskWorkerThread*, ezStaticAllocatorWrapper> ezTaskSystem::s_WorkerThreads[ezWorkerThreadType::ENUM_COUNT];
-ezDeque<ezTaskGroup, ezStaticAllocatorWrapper> ezTaskSystem::s_TaskGroups;
-ezList<ezTaskSystem::TaskData, ezStaticAllocatorWrapper> ezTaskSystem::s_Tasks[ezTaskPriority::ENUM_COUNT];
+ezDynamicArray<ezTaskWorkerThread*> ezTaskSystem::s_WorkerThreads[ezWorkerThreadType::ENUM_COUNT];
+ezDeque<ezTaskGroup> ezTaskSystem::s_TaskGroups;
+ezList<ezTaskSystem::TaskData> ezTaskSystem::s_Tasks[ezTaskPriority::ENUM_COUNT];
 
 ezProfilingId ezTaskSystem::s_ProfileWaitForTask;
 ezProfilingId ezTaskSystem::s_ProfileWaitForGroup;
@@ -103,7 +103,7 @@ void ezTaskSystem::ReprioritizeFrameTasks()
   // In this case we move them into the highest-priority 'this frame' queue, to ensure they will be executed asap
   for (ezUInt32 i = (ezUInt32) ezTaskPriority::ThisFrame; i < (ezUInt32) ezTaskPriority::LateThisFrame; ++i)
   {
-    ezList<TaskData, ezStaticAllocatorWrapper>::Iterator it = s_Tasks[i].GetIterator();
+    auto it = s_Tasks[i].GetIterator();
 
     // move all 'this frame' tasks into the 'early this frame' queue
     while (it.IsValid())
@@ -119,7 +119,7 @@ void ezTaskSystem::ReprioritizeFrameTasks()
 
   for (ezUInt32 i = (ezUInt32) ezTaskPriority::EarlyNextFrame; i < (ezUInt32) ezTaskPriority::LateNextFrame; ++i)
   {
-    ezList<TaskData, ezStaticAllocatorWrapper>::Iterator it = s_Tasks[i].GetIterator();
+    auto it = s_Tasks[i].GetIterator();
 
     // move all 'next frame' tasks into the 'this frame' queues
     while (it.IsValid())

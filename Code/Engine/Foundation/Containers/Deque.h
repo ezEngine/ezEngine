@@ -23,10 +23,10 @@ class ezDequeBase
 protected:
 
   /// \brief No memory is allocated during construction.
-  ezDequeBase(ezIAllocator* pAllocator); // [tested]
+  ezDequeBase(ezAllocatorBase* pAllocator); // [tested]
 
   /// \brief No memory is allocated during construction.
-  ezDequeBase(const ezDequeBase<T, Construct>& rhs, ezIAllocator* pAllocator); // [tested]
+  ezDequeBase(const ezDequeBase<T, Construct>& rhs, ezAllocatorBase* pAllocator); // [tested]
 
   /// \brief Destructor.
   ~ezDequeBase(); // [tested]
@@ -133,12 +133,12 @@ public:
   void Sort(); // [tested]
 
   /// \brief Returns the allocator that is used by this instance.
-  ezIAllocator* GetAllocator() const { return m_pAllocator; }
+  ezAllocatorBase* GetAllocator() const { return m_pAllocator; }
 
 private:
 
   /// \brief A common constructor function.
-  void Constructor(ezIAllocator* pAllocator);
+  void Constructor(ezAllocatorBase* pAllocator);
 
   /// \brief Reduces the index array to take up less memory.
   void CompactIndexArray(ezUInt32 uiMinChunksToKeep);
@@ -195,7 +195,7 @@ private:
   /// \brief Deallocates all data, resets the deque to the state after construction.
   void DeallocateAll();
 
-  ezIAllocator* m_pAllocator;
+  ezAllocatorBase* m_pAllocator;
   T** m_pChunks;                ///< The chunk index array for redirecting accesses. Not all chunks must be allocated.
   ezUInt32 m_uiChunks;          ///< The size of the m_pChunks array. Determines how many elements could theoretically be stored in the deque.
   ezUInt32 m_uiFirstElement;    ///< Which element (across all chunks) is considered to be the first.
@@ -211,7 +211,7 @@ class ezDeque : public ezDequeBase<T, Construct>
 {
 public:
   ezDeque();
-  ezDeque(ezIAllocator* pAllocator);
+  ezDeque(ezAllocatorBase* pAllocator);
 
   ezDeque(const ezDeque<T, AllocatorWrapper, Construct>& other);
   ezDeque(const ezDequeBase<T, Construct>& other);

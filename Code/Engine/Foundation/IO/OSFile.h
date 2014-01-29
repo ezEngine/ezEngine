@@ -252,7 +252,7 @@ public:
     }
   };
 
-  typedef ezEvent<const EventData&, ezMutex, ezStaticAllocatorWrapper> Event;
+  typedef ezEvent<const EventData&, ezMutex> Event;
 
   /// \brief Allows to register a function as an event receiver. All receivers will be notified in the order that they registered.
   static void AddEventHandler(Event::Handler handler)    { s_FileEvents.AddEventHandler    (handler); }
@@ -297,7 +297,7 @@ private:
   ezOSFileData m_FileData;
 
   /// \brief The application binaries' path.
-  static ezHybridString<64, ezStaticAllocatorWrapper> s_ApplicationPath;
+  static ezString64 s_ApplicationPath;
 
   /// \brief Counts how many different files are touched.225
   static ezAtomicInteger32 s_FileCounter;

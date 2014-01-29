@@ -188,10 +188,8 @@ void ezInputManager::GatherDeviceInputSlotValues()
 {
   for (ezInputDevice* pDevice = ezInputDevice::GetFirstInstance(); pDevice != NULL; pDevice = pDevice->GetNextInstance())
   {
-    ezMap<ezString, float, ezCompareHelper<ezString>, ezStaticAllocatorWrapper>::ConstIterator it = pDevice->m_InputSlotValues.GetIterator();
-
     // iterate over all the input slots that this device provides
-    for ( ; it.IsValid(); it.Next())
+    for (auto it = pDevice->m_InputSlotValues.GetIterator(); it.IsValid(); it.Next())
     {
       if (it.Value() > 0.0f)
       {

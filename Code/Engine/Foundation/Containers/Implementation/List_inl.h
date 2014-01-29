@@ -17,7 +17,7 @@ ezListBase<T>::ListElement::ListElement(const T& data) : m_Data(data)
 // **** ezListBase ****
 
 template <typename T>
-ezListBase<T>::ezListBase(ezIAllocator* pAllocator) : 
+ezListBase<T>::ezListBase(ezAllocatorBase* pAllocator) : 
   m_End(reinterpret_cast<ListElement*>(&m_Last)),
   m_uiCount(0),
   m_Elements(pAllocator),
@@ -28,7 +28,7 @@ ezListBase<T>::ezListBase(ezIAllocator* pAllocator) :
 }
 
 template <typename T>
-ezListBase<T>::ezListBase(const ezListBase<T>& cc, ezIAllocator* pAllocator) : 
+ezListBase<T>::ezListBase(const ezListBase<T>& cc, ezAllocatorBase* pAllocator) : 
   m_End(reinterpret_cast<ListElement*>(&m_Last)),
   m_uiCount(0),
   m_Elements(pAllocator),
@@ -310,7 +310,7 @@ ezList<T, A>::ezList() : ezListBase<T>(A::GetAllocator())
 }
 
 template <typename T, typename A>
-ezList<T, A>::ezList(ezIAllocator* pAllocator) : ezListBase<T>(pAllocator)
+ezList<T, A>::ezList(ezAllocatorBase* pAllocator) : ezListBase<T>(pAllocator)
 {
 }
 

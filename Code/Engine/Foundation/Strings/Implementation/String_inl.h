@@ -1,42 +1,42 @@
 #pragma once
 
 template<ezUInt16 Size>
-ezHybridStringBase<Size>::ezHybridStringBase(ezIAllocator* pAllocator) :
+ezHybridStringBase<Size>::ezHybridStringBase(ezAllocatorBase* pAllocator) :
   m_Data(pAllocator)
 {
   Clear();
 }
 
 template<ezUInt16 Size>
-ezHybridStringBase<Size>::ezHybridStringBase(const ezHybridStringBase& rhs, ezIAllocator* pAllocator) :
+ezHybridStringBase<Size>::ezHybridStringBase(const ezHybridStringBase& rhs, ezAllocatorBase* pAllocator) :
   m_Data(pAllocator)
 {
   *this = rhs;
 }
 
 template<ezUInt16 Size>
-ezHybridStringBase<Size>::ezHybridStringBase(const char* rhs, ezIAllocator* pAllocator) :
+ezHybridStringBase<Size>::ezHybridStringBase(const char* rhs, ezAllocatorBase* pAllocator) :
   m_Data(pAllocator)
 {
   *this = rhs;
 }
 
 template<ezUInt16 Size>
-ezHybridStringBase<Size>::ezHybridStringBase(const wchar_t* rhs, ezIAllocator* pAllocator) :
+ezHybridStringBase<Size>::ezHybridStringBase(const wchar_t* rhs, ezAllocatorBase* pAllocator) :
   m_Data(pAllocator)
 {
   *this = rhs;
 }
 
 template<ezUInt16 Size>
-ezHybridStringBase<Size>::ezHybridStringBase(const ezStringIterator& rhs, ezIAllocator* pAllocator) :
+ezHybridStringBase<Size>::ezHybridStringBase(const ezStringIterator& rhs, ezAllocatorBase* pAllocator) :
   m_Data(pAllocator)
 {
   *this = rhs;
 }
 
 template<ezUInt16 Size>
-ezHybridStringBase<Size>::ezHybridStringBase(const ezStringBuilder& rhs, ezIAllocator* pAllocator) :
+ezHybridStringBase<Size>::ezHybridStringBase(const ezStringBuilder& rhs, ezAllocatorBase* pAllocator) :
   m_Data(pAllocator)
 {
   *this = rhs;
@@ -163,7 +163,7 @@ EZ_FORCE_INLINE ezHybridString<Size, A>::ezHybridString() :
 }
 
 template <ezUInt16 Size, typename A>
-EZ_FORCE_INLINE ezHybridString<Size, A>::ezHybridString(ezIAllocator* pAllocator) : 
+EZ_FORCE_INLINE ezHybridString<Size, A>::ezHybridString(ezAllocatorBase* pAllocator) : 
   ezHybridStringBase<Size>(pAllocator)
 {
 }

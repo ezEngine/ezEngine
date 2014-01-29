@@ -56,7 +56,7 @@
 #define EZ_SUPPORTS_DYNAMIC_PLUGINS EZ_OFF
 
 // Allocators
-#define EZ_USE_TRACE_ALLOCATOR EZ_OFF
+#define EZ_USE_ALLOCATION_STACK_TRACING EZ_OFF
 
 
 // Other Features

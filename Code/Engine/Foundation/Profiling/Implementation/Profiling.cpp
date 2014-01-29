@@ -57,12 +57,12 @@ namespace
 
     ezMutex m_Mutex;
 
-    ezIdTable<ezProfilingId::InternalId, RefCountedProfilingInfo, ezStaticAllocatorWrapper> m_InfoTable;
+    ezIdTable<ezProfilingId::InternalId, RefCountedProfilingInfo> m_InfoTable;
   };
 
   static ProfilingData* s_pProfilingData;
-
-  static void InitializeData()
+  
+  static bool InitializeData()
   {
     if (s_pProfilingData == NULL)
     {
@@ -70,7 +70,11 @@ namespace
       s_pProfilingData = new (ProfilingDataBuffer) ProfilingData();
       s_pProfilingData->m_InfoTable.Reserve(EZ_PROFILING_ID_COUNT);
     }
+    return true;
   }
+
+  // using this static dummy variable we make sure that the profiling info table uses the static allocator
+  static bool s_bDummy = InitializeData();
 
   ProfilingInfo& GetProfilingInfo(ezProfilingId::InternalId id)
   {
@@ -81,7 +85,8 @@ namespace
 //static
 void ezProfilingSystem::Initialize()
 {
-  InitializeData();
+  EZ_ASSERT(s_pProfilingData, "Profiling Data should already be initialized");
+  EZ_ASSERT(s_pProfilingData->m_InfoTable.GetAllocator() != ezFoundation::GetDefaultAllocator(), "Profiling Data must use the static allocator");
 
   SetThreadName("Main Thread");
 }

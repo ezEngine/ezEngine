@@ -12,7 +12,7 @@ namespace ezMemoryPolicies
   class ezAlignedAllocation
   {
   public:
-    ezAlignedAllocation(ezIAllocator* pParent) : 
+    ezAlignedAllocation(ezAllocatorBase* pParent) : 
       m_allocator(pParent)
     {
     }
@@ -59,7 +59,7 @@ namespace ezMemoryPolicies
       return m_allocator.UsedMemorySize(pMemory);
     }
 
-    EZ_FORCE_INLINE ezIAllocator* GetParent() const
+    EZ_FORCE_INLINE ezAllocatorBase* GetParent() const
     { 
       return m_allocator.GetParent(); 
     }

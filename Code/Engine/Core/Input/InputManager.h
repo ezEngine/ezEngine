@@ -226,7 +226,7 @@ public:
     }
   };
 
-  typedef ezEvent<const InputEventData&, ezNoMutex, ezStaticAllocatorWrapper> ezEventInput;
+  typedef ezEvent<const InputEventData&> ezEventInput;
 
   /// \brief Adds an event handler that is called for input events.
   static void AddEventHandler(ezEventInput::Handler handler)    { s_InputEvents.AddEventHandler   (handler);  }

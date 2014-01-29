@@ -72,10 +72,10 @@ public:
 
 protected:
   /// \brief Creates an empty idtable. Does not allocate any data yet.
-  ezIdTableBase(ezIAllocator* pAllocator); // [tested]
+  ezIdTableBase(ezAllocatorBase* pAllocator); // [tested]
   
   /// \brief Creates a copy of the given idtable.
-  ezIdTableBase(const ezIdTableBase<IdType, ValueType>& rhs, ezIAllocator* pAllocator); // [tested]
+  ezIdTableBase(const ezIdTableBase<IdType, ValueType>& rhs, ezAllocatorBase* pAllocator); // [tested]
 
   /// \brief Destructor.
   ~ezIdTableBase(); // [tested]
@@ -124,7 +124,7 @@ public:
   ConstIterator GetIterator() const; // [tested]
 
   /// \brief Returns the allocator that is used by this instance.
-  ezIAllocator* GetAllocator() const;
+  ezAllocatorBase* GetAllocator() const;
 
   /// \brief Returns whether the internal freelist is valid. For testing purpose only.
   bool IsFreelistValid() const;
@@ -146,7 +146,7 @@ private:
   IndexType m_uiFreelistEnqueue;
   IndexType m_uiFreelistDequeue;
   
-  ezIAllocator* m_pAllocator;
+  ezAllocatorBase* m_pAllocator;
 
   void SetCapacity(IndexType uiCapacity);
   void InitializeFreelist(IndexType uiStart, IndexType uiEnd);
@@ -158,7 +158,7 @@ class ezIdTable : public ezIdTableBase<IdType, ValueType>
 {
 public:
   ezIdTable();
-  ezIdTable(ezIAllocator* pAllocator);
+  ezIdTable(ezAllocatorBase* pAllocator);
 
   ezIdTable(const ezIdTable<IdType, ValueType, AllocatorWrapper>& other);
   ezIdTable(const ezIdTableBase<IdType, ValueType>& other);

@@ -83,7 +83,7 @@ EZ_FORCE_INLINE ValueType& ezIdTableBase<IdType, ValueType>::Iterator::Value()
 // ***** ezIdTableBase *****
 
 template <typename IdType, typename ValueType>
-ezIdTableBase<IdType, ValueType>::ezIdTableBase(ezIAllocator* pAllocator)
+ezIdTableBase<IdType, ValueType>::ezIdTableBase(ezAllocatorBase* pAllocator)
 {
   m_pEntries = NULL;
   m_uiCount = 0;
@@ -94,7 +94,7 @@ ezIdTableBase<IdType, ValueType>::ezIdTableBase(ezIAllocator* pAllocator)
 }
 
 template <typename IdType, typename ValueType>
-ezIdTableBase<IdType, ValueType>::ezIdTableBase(const ezIdTableBase<IdType, ValueType>& other, ezIAllocator* pAllocator)
+ezIdTableBase<IdType, ValueType>::ezIdTableBase(const ezIdTableBase<IdType, ValueType>& other, ezAllocatorBase* pAllocator)
 {
   m_pEntries = NULL;
   m_uiCount = 0;
@@ -295,7 +295,7 @@ EZ_FORCE_INLINE typename ezIdTableBase<IdType, ValueType>::ConstIterator ezIdTab
 }
 
 template <typename IdType, typename ValueType>
-EZ_FORCE_INLINE ezIAllocator* ezIdTableBase<IdType, ValueType>::GetAllocator() const
+EZ_FORCE_INLINE ezAllocatorBase* ezIdTableBase<IdType, ValueType>::GetAllocator() const
 {
   return m_pAllocator;
 }
@@ -361,7 +361,7 @@ ezIdTable<IdType, V, A>::ezIdTable() : ezIdTableBase<IdType, V>(A::GetAllocator(
 }
 
 template <typename IdType, typename V, typename A>
-ezIdTable<IdType, V, A>::ezIdTable(ezIAllocator* pAllocator) : ezIdTableBase<IdType, V>(pAllocator)
+ezIdTable<IdType, V, A>::ezIdTable(ezAllocatorBase* pAllocator) : ezIdTableBase<IdType, V>(pAllocator)
 {
 }
 

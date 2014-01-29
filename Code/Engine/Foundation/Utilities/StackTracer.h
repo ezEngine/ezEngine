@@ -11,7 +11,10 @@ public:
   /// The trace will contain not more than trace.GetCount() entries. Returns the actual number of captured entries.
   static ezUInt32 GetStackTrace(ezArrayPtr<void*>& trace);
 
+  /// \brief Callback-function to print a text somewhere
+  typedef void (*PrintFunc)(const char* szText);
+
   /// \brief Print a stack trace
-  static void DumpStackTrace(const ezArrayPtr<void*>& trace);
+  static void ResolveStackTrace(const ezArrayPtr<void*>& trace, PrintFunc printFunc);
 };
 

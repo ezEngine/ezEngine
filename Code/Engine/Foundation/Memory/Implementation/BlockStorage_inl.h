@@ -55,7 +55,7 @@ EZ_FORCE_INLINE bool ezBlockStorage<T>::Entry::operator==(const Entry& rhs) cons
 
 
 template <typename T>
-EZ_FORCE_INLINE ezBlockStorage<T>::ezBlockStorage(ezLargeBlockAllocator* pBlockAllocator, ezIAllocator* pAllocator) : 
+EZ_FORCE_INLINE ezBlockStorage<T>::ezBlockStorage(ezLargeBlockAllocator* pBlockAllocator, ezAllocatorBase* pAllocator) : 
   m_pBlockAllocator(pBlockAllocator), m_Blocks(pAllocator), m_uiCount(0)
 {
 }

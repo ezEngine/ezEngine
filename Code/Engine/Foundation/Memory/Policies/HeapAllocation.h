@@ -10,24 +10,23 @@ namespace ezMemoryPolicies
   class ezHeapAllocation
   {
   public:
-    ezHeapAllocation(ezIAllocator* pParent);
-    ~ezHeapAllocation();    
+    EZ_FORCE_INLINE ezHeapAllocation(ezAllocatorBase* pParent) { }
+    EZ_FORCE_INLINE ~ezHeapAllocation() { }
 
-    void* Allocate(size_t uiSize, size_t uiAlign);
-    void Deallocate(void* ptr);
-    
-    size_t AllocatedSize(const void* ptr);
-    size_t UsedMemorySize(const void* ptr);
-    
-    EZ_FORCE_INLINE ezIAllocator* GetParent() const { return NULL; }
+    EZ_FORCE_INLINE void* Allocate(size_t uiSize, size_t uiAlign)
+    {
+      void* ptr = malloc(uiSize);
+      EZ_CHECK_ALIGNMENT(ptr, uiAlign);
+
+      return ptr;
+    }
+
+    EZ_FORCE_INLINE void Deallocate(void* ptr)
+    {
+      free(ptr);
+    }
+     
+    EZ_FORCE_INLINE ezAllocatorBase* GetParent() const { return NULL; }
   };
-
-  #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-    #include <Foundation/Memory/Policies/Win/HeapAllocation_win.h>
-  #elif EZ_ENABLED(EZ_PLATFORM_OSX) || EZ_ENABLED(EZ_PLATFORM_LINUX)
-    #include <Foundation/Memory/Policies/Posix/HeapAllocation_posix.h>
-  #else
-    #error "ezHeapAllocation is not implemented on current platform"
-  #endif
 }
 

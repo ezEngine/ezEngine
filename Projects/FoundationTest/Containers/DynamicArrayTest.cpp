@@ -24,11 +24,11 @@ namespace
     bool operator==(const Dummy& dummy) const { return a == dummy.a; }
   };
 
-  ezIAllocator* g_pTestAllocator;
+  ezAllocatorBase* g_pTestAllocator;
 
   struct ezTestAllocatorWrapper
   {
-    static ezIAllocator* GetAllocator() { return g_pTestAllocator; }
+    static ezAllocatorBase* GetAllocator() { return g_pTestAllocator; }
   };
 }
 
@@ -42,7 +42,7 @@ EZ_CREATE_SIMPLE_TEST_GROUP(Containers);
 
 EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
 {
-  ezProxyAllocator proxy("DynamicArrayTestAllocator", ezFoundation::GetDefaultAllocator()); 
+  ezProxyAllocator proxy("DynamicArrayTestAllocator", ezFoundation::GetDefaultAllocator());
   g_pTestAllocator = &proxy;
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Constructor")

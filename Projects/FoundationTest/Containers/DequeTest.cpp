@@ -5,14 +5,9 @@ typedef ezConstructionCounter st;
 
 EZ_CREATE_SIMPLE_TEST(Containers, Deque)
 {
-  ezIAllocator::Stats s;
-  ezFoundation::GetDefaultAllocator()->GetStats(s);
-
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Fill / Empty (Sawtooth)")
   {
     ezDeque<ezInt32> d;
-
-    ezFoundation::GetDefaultAllocator()->GetStats(s);
 
     ezUInt32 uiVal = 0;
 
@@ -34,8 +29,6 @@ EZ_CREATE_SIMPLE_TEST(Containers, Deque)
   {
     ezDeque<ezInt32> d;
 
-    ezFoundation::GetDefaultAllocator()->GetStats(s);
-
     for (ezInt32 i = 0; i < 10000; ++i)
       d.PushBack(i);
 
@@ -49,8 +42,6 @@ EZ_CREATE_SIMPLE_TEST(Containers, Deque)
 
     d.PushBack(0);
 
-    ezFoundation::GetDefaultAllocator()->GetStats(s);
-
     for (ezInt32 i = 0; i < 10000; ++i)
     {
       d.PushBack(i);
@@ -66,8 +57,6 @@ EZ_CREATE_SIMPLE_TEST(Containers, Deque)
     }
   }
 
-  ezFoundation::GetDefaultAllocator()->GetStats(s);
-
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Queue Front")
   {
     ezDeque<ezInt32> d;
@@ -78,8 +67,6 @@ EZ_CREATE_SIMPLE_TEST(Containers, Deque)
     {
       d.PushFront(i);
       d.PopBack();
-
-      ezFoundation::GetDefaultAllocator()->GetStats(s);
     }
 
     d.Compact();
@@ -88,11 +75,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, Deque)
     {
       d.PushFront(i);
       d.PopBack();
-
-      ezFoundation::GetDefaultAllocator()->GetStats(s);
     }
-
-    ezFoundation::GetDefaultAllocator()->GetStats(s);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "POD Types")

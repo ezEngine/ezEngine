@@ -11,14 +11,13 @@ namespace
   };
 }
 
-ezLargeBlockAllocator::ezLargeBlockAllocator(const char* szName, ezIAllocator* pParent) : 
-  ezIAllocator(szName),
-  m_threadHandle(ezThreadUtils::GetCurrentThreadHandle()),
-  m_uiNumAllocations(0),
-  m_uiNumDeallocations(0),
+ezLargeBlockAllocator::ezLargeBlockAllocator(const char* szName, ezAllocatorBase* pParent, ezBitflags<ezMemoryTrackingFlags> flags) : 
   m_superBlocks(pParent),
   m_freeBlocks(pParent)
 {
+  m_Id = ezMemoryTracker::RegisterAllocator(szName, flags);
+  m_threadHandle = ezThreadUtils::GetCurrentThreadHandle();
+
   const ezUInt32 uiPageSize = ezSystemInformation::Get().GetMemoryPageSize();
   EZ_ASSERT(uiPageSize <= BLOCK_SIZE_IN_BYTES, "Memory Page size is bigger than block size.");
 }
@@ -26,23 +25,31 @@ ezLargeBlockAllocator::ezLargeBlockAllocator(const char* szName, ezIAllocator* p
 ezLargeBlockAllocator::~ezLargeBlockAllocator()
 {
   EZ_ASSERT_API(m_threadHandle == ezThreadUtils::GetCurrentThreadHandle(), "Allocator is deleted from another thread");
-
-  DumpMemoryLeaks();
+  ezMemoryTracker::DeregisterAllocator(m_Id);
 
   for (ezUInt32 i = 0; i < m_superBlocks.GetCount(); ++i)
   {
-    m_allocator.PageDeallocate(m_superBlocks[i].m_pBasePtr);
+    ezPageAllocator::DeallocatePage(m_superBlocks[i].m_pBasePtr);
   }
 }
 
-void* ezLargeBlockAllocator::Allocate(size_t uiSize, size_t uiAlign)
+const char* ezLargeBlockAllocator::GetName() const
 {
-  EZ_ASSERT_API(uiSize == BLOCK_SIZE_IN_BYTES, "size must be %d. Got %d", BLOCK_SIZE_IN_BYTES, uiSize);
+  return ezMemoryTracker::GetAllocatorName(m_Id);
+}
+
+const ezAllocatorBase::Stats& ezLargeBlockAllocator::GetStats() const
+{
+  return ezMemoryTracker::GetAllocatorStats(m_Id);
+}
+
+void* ezLargeBlockAllocator::Allocate(size_t uiAlign)
+{
   EZ_ASSERT_API(ezMath::IsPowerOf2((ezUInt32)uiAlign), "Alignment must be power of two");
 
   ezLock<ezMutex> lock(m_mutex);
 
-  ++m_uiNumAllocations;
+  void* ptr = NULL;
 
   if (!m_freeBlocks.IsEmpty())
   {
@@ -55,12 +62,12 @@ void* ezLargeBlockAllocator::Allocate(size_t uiSize, size_t uiAlign)
     SuperBlock& superBlock = m_superBlocks[uiSuperBlockIndex];
     ++superBlock.m_uiUsedBlocks;
 
-    return ezMemoryUtils::AddByteOffset(superBlock.m_pBasePtr, uiInnerBlockIndex * BLOCK_SIZE_IN_BYTES);
+    ptr = ezMemoryUtils::AddByteOffset(superBlock.m_pBasePtr, uiInnerBlockIndex * BLOCK_SIZE_IN_BYTES);
   }
   else
   {
     // Allocate a new super block
-    void* pMemory = m_allocator.PageAllocate(SuperBlock::SIZE_IN_BYTES);
+    void* pMemory = ezPageAllocator::AllocatePage(SuperBlock::SIZE_IN_BYTES);
     EZ_CHECK_ALIGNMENT(pMemory, uiAlign);
 
     SuperBlock superBlock;
@@ -75,15 +82,19 @@ void* ezLargeBlockAllocator::Allocate(size_t uiSize, size_t uiAlign)
       m_freeBlocks.PushBack(uiBlockBaseIndex + i);
     }
 
-    return pMemory;
+    ptr = pMemory;
   }
+
+  ezMemoryTracker::AddAllocation(m_Id, ptr, BLOCK_SIZE_IN_BYTES, uiAlign);
+
+  return ptr;
 }
 
 void ezLargeBlockAllocator::Deallocate(void* ptr)
 {
   ezLock<ezMutex> lock(m_mutex);
 
-  ++m_uiNumDeallocations;
+  ezMemoryTracker::RemoveAllocation(m_Id, ptr);
 
   // find super block
   bool bFound = false;
@@ -108,7 +119,7 @@ void ezLargeBlockAllocator::Deallocate(void* ptr)
   if (superBlock.m_uiUsedBlocks == 0 && m_freeBlocks.GetCount() > SuperBlock::NUM_BLOCKS * 4)
   {
     // give memory back
-    m_allocator.PageDeallocate(superBlock.m_pBasePtr);
+    ezPageAllocator::DeallocatePage(superBlock.m_pBasePtr);
 
     m_superBlocks.RemoveAtSwap(uiSuperBlockIndex);
     const ezUInt32 uiLastSuperBlockIndex = m_superBlocks.GetCount();
@@ -138,25 +149,6 @@ void ezLargeBlockAllocator::Deallocate(void* ptr)
     const ezUInt32 uiInnerBlockIndex = (ezUInt32)(diff / BLOCK_SIZE_IN_BYTES);
     m_freeBlocks.PushBack(uiSuperBlockIndex * SuperBlock::NUM_BLOCKS + uiInnerBlockIndex);
   }
-}
-
-size_t ezLargeBlockAllocator::AllocatedSize(const void* ptr)
-{
-  return BLOCK_SIZE_IN_BYTES;
-}
-
-size_t ezLargeBlockAllocator::UsedMemorySize(const void* ptr)
-{
-  return BLOCK_SIZE_IN_BYTES;
-}
-
-void ezLargeBlockAllocator::GetStats(Stats& stats) const
-{
-  stats.m_uiNumAllocations = m_uiNumAllocations;
-  stats.m_uiNumDeallocations = m_uiNumDeallocations;
-  stats.m_uiNumLiveAllocations = m_superBlocks.GetCount() * SuperBlock::NUM_BLOCKS - m_freeBlocks.GetCount();
-  stats.m_uiAllocationSize = stats.m_uiNumLiveAllocations * BLOCK_SIZE_IN_BYTES;
-  stats.m_uiUsedMemorySize = m_superBlocks.GetCount() * SuperBlock::SIZE_IN_BYTES;
 }
 
 

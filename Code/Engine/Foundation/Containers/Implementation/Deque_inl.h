@@ -18,7 +18,7 @@
   //(sizeof(Type) <= 8 ? 256 : (sizeof(Type) <= 16 ? 128 : (sizeof(Type) <= 32 ? 64 : 32))) // although this is Pow(2), this is slower than just having larger chunks
 
 template <typename T, bool Construct>
-void ezDequeBase<T, Construct>::Constructor(ezIAllocator* pAllocator)
+void ezDequeBase<T, Construct>::Constructor(ezAllocatorBase* pAllocator)
 {
   m_pAllocator = pAllocator;
   m_pChunks = NULL;
@@ -31,13 +31,13 @@ void ezDequeBase<T, Construct>::Constructor(ezIAllocator* pAllocator)
 }
 
 template <typename T, bool Construct>
-ezDequeBase<T, Construct>::ezDequeBase(ezIAllocator* pAllocator/*, ezUInt32 uiChunkSize*/)
+ezDequeBase<T, Construct>::ezDequeBase(ezAllocatorBase* pAllocator/*, ezUInt32 uiChunkSize*/)
 {
   Constructor(pAllocator/*, uiChunkSize*/);
 }
 
 template <typename T, bool Construct>
-ezDequeBase<T, Construct>::ezDequeBase(const ezDequeBase<T, Construct>& rhs, ezIAllocator* pAllocator)
+ezDequeBase<T, Construct>::ezDequeBase(const ezDequeBase<T, Construct>& rhs, ezAllocatorBase* pAllocator)
 {
   EZ_CHECK_AT_COMPILETIME_MSG(Construct, "This function is not supported on Deques that do not construct their data.");
 
@@ -797,7 +797,7 @@ ezDeque<T, A, Construct>::ezDeque() : ezDequeBase<T, Construct>(A::GetAllocator(
 }
 
 template <typename T, typename A, bool Construct>
-ezDeque<T, A, Construct>:: ezDeque(ezIAllocator* pAllocator) : ezDequeBase<T, Construct>(pAllocator)
+ezDeque<T, A, Construct>:: ezDeque(ezAllocatorBase* pAllocator) : ezDequeBase<T, Construct>(pAllocator)
 {
 }
 

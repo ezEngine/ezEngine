@@ -13,7 +13,7 @@ static ezHashedString::HashedType AddHashedString(const char* szString)
 {
   ezLock<ezMutex> l(g_HashedStringMutex);
 
-  ezHashedString::StringType s(szString);
+  ezString s(szString);
 
   // try to find the existing string
   auto ret = g_HashedStrings.Find(s);

@@ -43,7 +43,7 @@ void ezTelemetry::FlushOutgoingQueues()
   ezLock<ezMutex> Lock(GetTelemetryMutex());
 
   // go through all system types
-  for (ezMap<ezUInt64, ezTelemetry::MessageQueue, ezCompareHelper<ezUInt64>, ezStaticAllocatorWrapper >::Iterator it = s_SystemMessages.GetIterator(); it.IsValid(); ++it)
+  for (auto it = s_SystemMessages.GetIterator(); it.IsValid(); ++it)
   {
     if (it.Value().m_OutgoingQueue.IsEmpty())
       continue;
@@ -88,7 +88,7 @@ void ezTelemetry::PerFrameUpdate()
   ezLock<ezMutex> Lock(GetTelemetryMutex());
 
   // Call each callback to process the incoming messages
-  for (ezMap<ezUInt64, ezTelemetry::MessageQueue, ezCompareHelper<ezUInt64>, ezStaticAllocatorWrapper >::Iterator it = s_SystemMessages.GetIterator(); it.IsValid(); ++it)
+  for (auto it = s_SystemMessages.GetIterator(); it.IsValid(); ++it)
   {
     if (!it.Value().m_IncomingQueue.IsEmpty() && it.Value().m_Callback)
       it.Value().m_Callback(it.Value().m_pPassThrough);

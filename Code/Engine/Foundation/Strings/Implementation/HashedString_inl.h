@@ -56,7 +56,7 @@ inline bool ezHashedString::operator< (const ezTempHashedString& rhs) const
   return m_Data.Value().m_uiHash < rhs.m_uiHash;
 }
 
-inline const ezHashedString::StringType& ezHashedString::GetString() const
+inline const ezString& ezHashedString::GetString() const
 {
   return m_Data.Key();
 }

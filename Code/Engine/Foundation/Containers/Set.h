@@ -75,10 +75,10 @@ public:
 protected:
 
   /// \brief Initializes the set to be empty.
-  ezSetBase(ezIAllocator* pAllocator); // [tested]
+  ezSetBase(ezAllocatorBase* pAllocator); // [tested]
 
   /// \brief Copies all keys from the given set into this one.
-  ezSetBase(const ezSetBase<KeyType, Comparer>& cc, ezIAllocator* pAllocator); // [tested]
+  ezSetBase(const ezSetBase<KeyType, Comparer>& cc, ezAllocatorBase* pAllocator); // [tested]
 
   /// \brief Destroys all elements in the set.
   ~ezSetBase(); // [tested]
@@ -121,7 +121,7 @@ public:
   Iterator UpperBound(const KeyType& key); // [tested]
 
   /// \brief Returns the allocator that is used by this instance.
-  ezIAllocator* GetAllocator() const { return m_Elements.GetAllocator(); }
+  ezAllocatorBase* GetAllocator() const { return m_Elements.GetAllocator(); }
 
 private:
   Node* Internal_Find(const KeyType& key) const;
@@ -173,7 +173,7 @@ class ezSet : public ezSetBase<KeyType, Comparer>
 {
 public:
   ezSet();
-  ezSet(ezIAllocator* pAllocator);
+  ezSet(ezAllocatorBase* pAllocator);
 
   ezSet(const ezSet<KeyType, Comparer, AllocatorWrapper>& other);
   ezSet(const ezSetBase<KeyType, Comparer>& other);

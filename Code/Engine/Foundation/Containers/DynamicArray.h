@@ -13,13 +13,13 @@ class ezDynamicArrayBase : public ezArrayBase<T, ezDynamicArrayBase<T> >
 {
 protected:
   /// \brief Creates an empty array. Does not allocate any data yet.
-  ezDynamicArrayBase(ezIAllocator* pAllocator); // [tested]
+  ezDynamicArrayBase(ezAllocatorBase* pAllocator); // [tested]
   
   /// \brief Creates a copy of the given array.
-  ezDynamicArrayBase(const ezDynamicArrayBase<T>& other, ezIAllocator* pAllocator); // [tested]
+  ezDynamicArrayBase(const ezDynamicArrayBase<T>& other, ezAllocatorBase* pAllocator); // [tested]
 
   /// \brief Creates a copy of the given array.
-  ezDynamicArrayBase(const ezArrayPtr<T>& other, ezIAllocator* pAllocator); // [tested]
+  ezDynamicArrayBase(const ezArrayPtr<T>& other, ezAllocatorBase* pAllocator); // [tested]
 
   /// \brief Destructor.
   ~ezDynamicArrayBase(); // [tested]
@@ -39,10 +39,10 @@ public:
   void Compact(); // [tested]
 
   /// \brief Returns the allocator that is used by this instance.
-  ezIAllocator* GetAllocator() const { return m_pAllocator; }
+  ezAllocatorBase* GetAllocator() const { return m_pAllocator; }
 
 private:
-  ezIAllocator* m_pAllocator;
+  ezAllocatorBase* m_pAllocator;
 
   enum { CAPACITY_ALIGNMENT = 16 };
 
@@ -56,7 +56,7 @@ class ezDynamicArray : public ezDynamicArrayBase<T>
 {
 public:
   ezDynamicArray();
-  ezDynamicArray(ezIAllocator* pAllocator);
+  ezDynamicArray(ezAllocatorBase* pAllocator);
 
   ezDynamicArray(const ezDynamicArray<T, AllocatorWrapper>& other);
   ezDynamicArray(const ezDynamicArrayBase<T>& other);

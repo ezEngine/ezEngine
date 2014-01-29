@@ -72,10 +72,10 @@ public:
 
 protected:
   /// \brief Creates an empty hashtable. Does not allocate any data yet.
-  ezHashTableBase(ezIAllocator* pAllocator); // [tested]
+  ezHashTableBase(ezAllocatorBase* pAllocator); // [tested]
   
   /// \brief Creates a copy of the given hashtable.
-  ezHashTableBase(const ezHashTableBase<KeyType, ValueType, Hasher>& rhs, ezIAllocator* pAllocator); // [tested]
+  ezHashTableBase(const ezHashTableBase<KeyType, ValueType, Hasher>& rhs, ezAllocatorBase* pAllocator); // [tested]
 
   /// \brief Destructor.
   ~ezHashTableBase(); // [tested]
@@ -136,7 +136,7 @@ public:
   ConstIterator GetIterator() const; // [tested]
 
   /// \brief Returns the allocator that is used by this instance.
-  ezIAllocator* GetAllocator() const;
+  ezAllocatorBase* GetAllocator() const;
 
 private:
 
@@ -152,7 +152,7 @@ private:
   ezUInt32 m_uiCount;
   ezUInt32 m_uiCapacity;
   
-  ezIAllocator* m_pAllocator;
+  ezAllocatorBase* m_pAllocator;
 
   enum 
   { 
@@ -184,7 +184,7 @@ class ezHashTable : public ezHashTableBase<KeyType, ValueType, Hasher>
 {
 public:
   ezHashTable();
-  ezHashTable(ezIAllocator* pAllocator);
+  ezHashTable(ezAllocatorBase* pAllocator);
 
   ezHashTable(const ezHashTable<KeyType, ValueType, Hasher, AllocatorWrapper>& other);
   ezHashTable(const ezHashTableBase<KeyType, ValueType, Hasher>& other);

@@ -1,7 +1,7 @@
 #include <Foundation/PCH.h>
 #include <Foundation/Time/Clock.h>
 
-ezDynamicArray<ezClock, ezStaticAllocatorWrapper> ezClock::s_GlobalClocks;
+ezDynamicArray<ezClock> ezClock::s_GlobalClocks;
 ezClock::Event ezClock::s_TimeEvents;
 ezUInt32 ezClock::s_uiClockCount = 0;
 

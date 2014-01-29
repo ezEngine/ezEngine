@@ -29,8 +29,7 @@ public:
     ezUInt32 m_uiHash;
   };
 
-  typedef ezHybridString<32, ezStaticAllocatorWrapper> StringType;
-  typedef ezMap<StringType, HashedData, ezCompareHelper<StringType>, ezStaticAllocatorWrapper> StringStorage;
+  typedef ezMap<ezString, HashedData> StringStorage;
   typedef StringStorage::Iterator HashedType;
 
   /// \brief This will remove all hashed strings from the central storage, that are not referenced anymore.
@@ -85,7 +84,7 @@ public:
   bool operator< (const ezTempHashedString& rhs) const; // [tested]
 
   /// \brief Gives access to the actual string data, so you can do all the typical (read-only) string operations on it.
-  const StringType& GetString() const; // [tested]
+  const ezString& GetString() const; // [tested]
 
 private:
   HashedType m_Data;
@@ -130,4 +129,3 @@ private:
 
 
 #include <Foundation/Strings/Implementation/HashedString_inl.h>
-

@@ -170,7 +170,7 @@ public:
     EventType m_EventType;
   };
 
-  typedef ezEvent<const TelemetryEventData&, ezMutex, ezStaticAllocatorWrapper> ezEventTelemetry;
+  typedef ezEvent<const TelemetryEventData&, ezMutex> ezEventTelemetry;
 
   /// \brief Adds an event handler that is called for every ezTelemetry event.
   static void AddEventHandler(ezEventTelemetry::Handler handler)    { s_TelemetryEvents.AddEventHandler    (handler); }
@@ -202,8 +202,8 @@ private:
   static ezUInt32 s_uiApplicationID;
   static ezUInt32 s_uiServerID;
 
-  static ezHybridString<32, ezStaticAllocatorWrapper> s_ServerName;
-  static ezHybridString<32, ezStaticAllocatorWrapper> s_ServerIP;
+  static ezString s_ServerName;
+  static ezString s_ServerIP;
 
   static bool s_bConnectedToServer;
   static bool s_bConnectedToClient;
@@ -213,7 +213,7 @@ private:
 
   static ezTime s_PingToServer;
 
-  typedef ezDeque<ezTelemetryMessage, ezStaticAllocatorWrapper> MessageDeque;
+  typedef ezDeque<ezTelemetryMessage> MessageDeque;
 
   struct MessageQueue
   {
@@ -234,8 +234,8 @@ private:
     MessageDeque m_OutgoingQueue;
   };
 
-  static ezMap<ezUInt64, MessageQueue, ezCompareHelper<ezUInt64>, ezStaticAllocatorWrapper > s_SystemMessages;
-
+  static ezMap<ezUInt64, MessageQueue> s_SystemMessages;
+  
   static ezEventTelemetry s_TelemetryEvents;
 
 private:

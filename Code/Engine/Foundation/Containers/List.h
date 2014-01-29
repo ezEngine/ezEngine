@@ -101,10 +101,10 @@ public:
 
 protected:
   /// \brief Initializes the list to be empty.
-  ezListBase(ezIAllocator* pAllocator); // [tested]
+  ezListBase(ezAllocatorBase* pAllocator); // [tested]
 
   /// \brief Initializes the list with a copy from another list.
-  ezListBase(const ezListBase<T>& cc, ezIAllocator* pAllocator); // [tested]
+  ezListBase(const ezListBase<T>& cc, ezAllocatorBase* pAllocator); // [tested]
 
   /// \brief Destroys the list and all its content.
   ~ezListBase(); // [tested]
@@ -186,7 +186,7 @@ public:
   ConstIterator GetEndIterator() const; // [tested]
 
   /// \brief Returns the allocator that is used by this instance.
-  ezIAllocator* GetAllocator() const { return m_Elements.GetAllocator(); }
+  ezAllocatorBase* GetAllocator() const { return m_Elements.GetAllocator(); }
 
 private:
   /// \brief Sentinel node before the first element.
@@ -221,7 +221,7 @@ class ezList : public ezListBase<T>
 {
 public:
   ezList();
-  ezList(ezIAllocator* pAllocator);
+  ezList(ezAllocatorBase* pAllocator);
 
   ezList(const ezList<T, AllocatorWrapper>& other);
   ezList(const ezListBase<T>& other);

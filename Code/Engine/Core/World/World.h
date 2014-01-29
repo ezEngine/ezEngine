@@ -58,7 +58,7 @@ public:
   void Update();
 
   // memory
-  ezIAllocator* GetAllocator();
+  ezAllocatorBase* GetAllocator();
   ezLargeBlockAllocator* GetBlockAllocator();
 
   // user data

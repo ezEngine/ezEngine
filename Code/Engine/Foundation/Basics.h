@@ -55,48 +55,27 @@
 #include <Foundation/Basics/Assert.h>
 #include <Foundation/Basics/TypeTraits.h>
 
-#include <Foundation/Memory/IAllocator.h>
+#include <Foundation/Memory/AllocatorBase.h>
 
 #include <Foundation/Configuration/StaticSubSystem.h>
 
 class EZ_FOUNDATION_DLL ezFoundation
 {
 public:
-  struct EZ_FOUNDATION_DLL Config
-  {
-    Config();
-
-    ezIAllocator* pBaseAllocator;
-    ezIAllocator* pDebugAllocator;
-    ezIAllocator* pDefaultAllocator;
-    ezIAllocator* pAlignedAllocator;    
-  };
-
-  static Config s_Config;
-
-  /// \brief The base allocator should only be used to allocate other allocators
-  EZ_FORCE_INLINE static ezIAllocator* GetBaseAllocator()
-  { 
-    EZ_ASSERT_API(s_pBaseAllocator != NULL, "ezFoundation must have been initialized before this function can be called. This error can occur when you have a global variable or a static member variable that (indirectly) requires an allocator. Check out the documentation for 'ezStatic' for more information about this issue."); 
-    return s_pBaseAllocator;
-  }
-
-  /// \brief The debug allocator should be used to allocate debug information to seperate these from regular memory
-  EZ_FORCE_INLINE static ezIAllocator* GetDebugAllocator()
-  { 
-    EZ_ASSERT_API(s_pDebugAllocator != NULL, "ezFoundation must have been initialized before this function can be called. This error can occur when you have a global variable or a static member variable that (indirectly) requires an allocator. Check out the documentation for 'ezStatic' for more information about this issue."); 
-    return s_pDebugAllocator;
-  }
+  static ezAllocatorBase* s_pDefaultAllocator;
+  static ezAllocatorBase* s_pAlignedAllocator;
 
   /// \brief The default allocator can be used for any kind of allocation if no alignment is required
-  EZ_FORCE_INLINE static ezIAllocator* GetDefaultAllocator()
+  EZ_FORCE_INLINE static ezAllocatorBase* GetDefaultAllocator()
   { 
-    EZ_ASSERT_API(s_pDefaultAllocator != NULL, "ezFoundation must have been initialized before this function can be called. This error can occur when you have a global variable or a static member variable that (indirectly) requires an allocator. Check out the documentation for 'ezStatic' for more information about this issue."); 
-    return s_pDefaultAllocator;
+    if (s_bIsInitialized)
+      return s_pDefaultAllocator;
+    else // the default allocator is not yet set so we return the static allocator instead.
+      return GetStaticAllocator();
   }
 
   /// \brief The aligned allocator should be used for any allocations which need an alignment
-  EZ_FORCE_INLINE static ezIAllocator* GetAlignedAllocator()
+  EZ_FORCE_INLINE static ezAllocatorBase* GetAlignedAllocator()
   { 
     EZ_ASSERT_API(s_pAlignedAllocator != NULL, "ezFoundation must have been initialized before this function can be called. This error can occur when you have a global variable or a static member variable that (indirectly) requires an allocator. Check out the documentation for 'ezStatic' for more information about this issue."); 
     return s_pAlignedAllocator;
@@ -108,59 +87,9 @@ private:
   static void Initialize();
   static void Shutdown();
 
-
-  // ezStatic must be able to call 'PushStaticAllocator' and 'PopStaticAllocator'
-  template <typename T>
-  friend class ezStatic;
-
-  friend struct ezStaticAllocatorWrapper;
-
-  /// \brief Returns the allocator that is used to by global data and static members.
-  static ezIAllocator* GetStaticAllocator();
-
-  /// \brief Temporarily stores the current allocators and sets the static allocator for all of them.
-  static void PushStaticAllocator()
-  {
-    s_pBaseAllocatorTemp    = s_pBaseAllocator;
-    s_pDebugAllocatorTemp   = s_pDebugAllocator;
-    s_pDefaultAllocatorTemp = s_pDefaultAllocator;
-    s_pAlignedAllocatorTemp = s_pAlignedAllocator;
-
-    ezIAllocator* pAllocator = GetStaticAllocator();
-
-    s_pBaseAllocator    = pAllocator;
-    s_pDebugAllocator   = pAllocator;
-    s_pDefaultAllocator = pAllocator;
-    s_pAlignedAllocator = pAllocator;
-  }
-
-  /// \brief Resets all allocators back to their state before PushStaticAllocator was executed.
-  static void PopStaticAllocator()
-  {
-    s_pBaseAllocator    = s_pBaseAllocatorTemp;
-    s_pDebugAllocator   = s_pDebugAllocatorTemp;
-    s_pDefaultAllocator = s_pDefaultAllocatorTemp;
-    s_pAlignedAllocator = s_pAlignedAllocatorTemp;
-  }
+  /// \brief Returns the allocator that is used to by global data and static members before the default allocator is created.
+  static ezAllocatorBase* GetStaticAllocator();
 
   static bool s_bIsInitialized;
-
-  static bool s_bOwnsBaseAllocator;
-
-  static ezIAllocator* s_pStaticAllocator;
-
-  static ezIAllocator* s_pBaseAllocator;
-  static ezIAllocator* s_pDebugAllocator;
-  static ezIAllocator* s_pDefaultAllocator;
-  static ezIAllocator* s_pAlignedAllocator;
-
-  static ezIAllocator* s_pBaseAllocatorTemp;
-  static ezIAllocator* s_pDebugAllocatorTemp;
-  static ezIAllocator* s_pDefaultAllocatorTemp;
-  static ezIAllocator* s_pAlignedAllocatorTemp;
 };
-
-#define EZ_INCLUDE_STATIC_H
-  #include <Foundation/Basics/Static.h>
-#undef EZ_INCLUDE_STATIC_H
 

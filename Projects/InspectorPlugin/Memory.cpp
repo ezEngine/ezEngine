@@ -1,22 +1,16 @@
 #include <PCH.h>
+#include <Foundation/Memory/MemoryTracker.h>
 
 static void BroadcastMemoryStats()
 {
-  ezIAllocator* pAllocator = ezIAllocator::GetFirstInstance();
-
-  while (pAllocator)
+  for (auto it = ezMemoryTracker::GetIterator(); it.IsValid(); ++it)
   {
-    ezIAllocator::Stats s;
-    pAllocator->GetStats(s);
-
     ezTelemetryMessage msg;
     msg.SetMessageID('MEM', 'STAT');
-    msg.GetWriter() << pAllocator->GetName();
-    msg.GetWriter() << s;
+    msg.GetWriter() << it.Name();
+    msg.GetWriter() << it.Stats();
 
     ezTelemetry::Broadcast(ezTelemetry::Unreliable, msg);
-
-    pAllocator = pAllocator->GetNextInstance();
   }
 }
 

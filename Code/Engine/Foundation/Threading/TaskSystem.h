@@ -233,7 +233,7 @@ private:
   };
 
   // The arrays of all the active worker threads.
-  static ezDynamicArray<ezTaskWorkerThread*, ezStaticAllocatorWrapper> s_WorkerThreads[ezWorkerThreadType::ENUM_COUNT];
+  static ezDynamicArray<ezTaskWorkerThread*> s_WorkerThreads[ezWorkerThreadType::ENUM_COUNT];
 
   // Checks that group are valid for configuration.
   static void DebugCheckTaskGroup(ezTaskGroupID Group);
@@ -272,10 +272,10 @@ private:
   static ezMutex s_TaskSystemMutex;
 
   // The deque can grow without relocating existing data, therefore the ezTaskGroupID's can store pointers directly to the data
-  static ezDeque<ezTaskGroup, ezStaticAllocatorWrapper> s_TaskGroups;
+  static ezDeque<ezTaskGroup> s_TaskGroups;
 
   // The lists of all scheduled tasks, for each priority.
-  static ezList<TaskData, ezStaticAllocatorWrapper> s_Tasks[ezTaskPriority::ENUM_COUNT];
+  static ezList<TaskData> s_Tasks[ezTaskPriority::ENUM_COUNT];
 
   // Thread signals to wake up a worker thread of the proper type, whenever new work becomes available.
   static ezThreadSignal s_TasksAvailableSignal[ezWorkerThreadType::ENUM_COUNT];

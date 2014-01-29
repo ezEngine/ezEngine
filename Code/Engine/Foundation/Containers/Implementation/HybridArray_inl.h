@@ -1,6 +1,6 @@
 
 template <typename T, ezUInt32 Size>
-ezHybridArrayBase<T, Size>::ezHybridArrayBase(ezIAllocator* pAllocator)
+ezHybridArrayBase<T, Size>::ezHybridArrayBase(ezAllocatorBase* pAllocator)
 {
   this->m_pElements = GetStaticArray();
   this->m_uiCapacity = Size;
@@ -8,7 +8,7 @@ ezHybridArrayBase<T, Size>::ezHybridArrayBase(ezIAllocator* pAllocator)
 }
 
 template <typename T, ezUInt32 Size>
-ezHybridArrayBase<T, Size>::ezHybridArrayBase(const ezHybridArrayBase<T, Size>& other, ezIAllocator* pAllocator)
+ezHybridArrayBase<T, Size>::ezHybridArrayBase(const ezHybridArrayBase<T, Size>& other, ezAllocatorBase* pAllocator)
 {
   this->m_pElements = GetStaticArray();
   this->m_uiCapacity = Size;
@@ -18,7 +18,7 @@ ezHybridArrayBase<T, Size>::ezHybridArrayBase(const ezHybridArrayBase<T, Size>& 
 }
 
 template <typename T, ezUInt32 Size>
-ezHybridArrayBase<T, Size>::ezHybridArrayBase(const ezArrayPtr<T>& other, ezIAllocator* pAllocator)
+ezHybridArrayBase<T, Size>::ezHybridArrayBase(const ezArrayPtr<T>& other, ezAllocatorBase* pAllocator)
 {
   this->m_pElements = GetStaticArray();
   this->m_uiCapacity = Size;
@@ -130,7 +130,7 @@ ezHybridArray<T, Size, A>::ezHybridArray() : ezHybridArrayBase<T, Size>(A::GetAl
 }
 
 template <typename T, ezUInt32 Size, typename A>
-ezHybridArray<T, Size, A>:: ezHybridArray(ezIAllocator* pAllocator) : ezHybridArrayBase<T, Size>(pAllocator)
+ezHybridArray<T, Size, A>:: ezHybridArray(ezAllocatorBase* pAllocator) : ezHybridArrayBase<T, Size>(pAllocator)
 {
 }
 

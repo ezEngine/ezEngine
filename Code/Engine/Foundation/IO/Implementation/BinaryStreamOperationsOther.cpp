@@ -2,22 +2,18 @@
 #include <Foundation/IO/IBinaryStream.h>
 #include <Foundation/Time/Time.h>
 
-void operator<< (ezIBinaryStreamWriter& Stream, const ezIAllocator::Stats& rhs)
+void operator<< (ezIBinaryStreamWriter& Stream, const ezAllocatorBase::Stats& rhs)
 {
-  Stream << rhs.m_uiAllocationSize;
   Stream << rhs.m_uiNumAllocations;
   Stream << rhs.m_uiNumDeallocations;
-  Stream << rhs.m_uiNumLiveAllocations;
-  Stream << rhs.m_uiUsedMemorySize;
+  Stream << rhs.m_uiAllocationSize;
 }
 
-void operator>> (ezIBinaryStreamReader& Stream, ezIAllocator::Stats& rhs)
+void operator>> (ezIBinaryStreamReader& Stream, ezAllocatorBase::Stats& rhs)
 {
-  Stream >> rhs.m_uiAllocationSize;
   Stream >> rhs.m_uiNumAllocations;
   Stream >> rhs.m_uiNumDeallocations;
-  Stream >> rhs.m_uiNumLiveAllocations;
-  Stream >> rhs.m_uiUsedMemorySize;
+  Stream >> rhs.m_uiAllocationSize;
 }
 
 void operator<< (ezIBinaryStreamWriter& Stream, ezTime Value)

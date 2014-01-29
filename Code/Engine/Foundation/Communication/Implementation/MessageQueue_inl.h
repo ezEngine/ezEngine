@@ -1,13 +1,13 @@
 
 template <typename MetaDataType, typename MutexType>
-ezMessageQueueBase<MetaDataType, MutexType>::ezMessageQueueBase(ezIAllocator* pStorageAllocator, ezIAllocator* pQueueAllocator) :
+ezMessageQueueBase<MetaDataType, MutexType>::ezMessageQueueBase(ezAllocatorBase* pStorageAllocator, ezAllocatorBase* pQueueAllocator) :
   m_Queue(pQueueAllocator)
 {
   m_pStorageAllocator = pStorageAllocator;
 }
 
 template <typename MetaDataType, typename MutexType>
-ezMessageQueueBase<MetaDataType, MutexType>::ezMessageQueueBase(const ezMessageQueueBase& rhs, ezIAllocator* pStorageAllocator, ezIAllocator* pQueueAllocator) :
+ezMessageQueueBase<MetaDataType, MutexType>::ezMessageQueueBase(const ezMessageQueueBase& rhs, ezAllocatorBase* pStorageAllocator, ezAllocatorBase* pQueueAllocator) :
   m_Queue(pQueueAllocator)
 {
   m_Queue = rhs.m_Queue;
@@ -134,7 +134,7 @@ EZ_FORCE_INLINE void ezMessageQueueBase<MetaDataType, MutexType>::Sort()
 }
 
 template <typename MetaDataType, typename MutexType>
-EZ_FORCE_INLINE ezIAllocator* ezMessageQueueBase<MetaDataType, MutexType>::GetStorageAllocator() const
+EZ_FORCE_INLINE ezAllocatorBase* ezMessageQueueBase<MetaDataType, MutexType>::GetStorageAllocator() const
 {
   return m_pStorageAllocator;
 }
@@ -148,7 +148,7 @@ ezMessageQueue<MD, M, SA, QA>::ezMessageQueue() :
 }
 
 template <typename MD, typename M, typename SA, typename QA>
-ezMessageQueue<MD, M, SA, QA>:: ezMessageQueue(ezIAllocator* pStorageAllocator, ezIAllocator* pQueueAllocator) : 
+ezMessageQueue<MD, M, SA, QA>:: ezMessageQueue(ezAllocatorBase* pStorageAllocator, ezAllocatorBase* pQueueAllocator) : 
   ezMessageQueueBase<MD, M>(pStorageAllocator, pQueueAllocator)
 {
 }
