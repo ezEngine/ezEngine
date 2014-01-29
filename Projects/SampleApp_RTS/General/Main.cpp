@@ -49,7 +49,7 @@ void SampleGameApp::AfterEngineInit()
   m_pSelectedUnits = EZ_DEFAULT_NEW(ezObjectSelection);
   m_pSelectedUnits->SetWorld(m_pLevel->GetWorld());
 
-  m_pRenderer->SetupRenderer(m_pWindow, m_pLevel, &m_Camera);
+  m_pRenderer->SetupRenderer(m_pWindow, m_pLevel, &m_Camera, &m_pLevel->GetNavmesh());
 
   m_bActiveRenderLoop = true;
 }

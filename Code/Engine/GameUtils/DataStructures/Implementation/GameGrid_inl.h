@@ -1,125 +1,119 @@
 #pragma once
 
 template<class CellData>
-void ezGameGrid<CellData>::CreateGrid(ezUInt16 uiWidth, ezUInt16 uiDepth, ezUInt8 uiSlices)
+ezGameGrid<CellData>::ezGameGrid()
+{
+  m_uiWidth = 0;
+  m_uiHeight = 0;
+
+  m_RotateToWorldspace.SetIdentity();
+  m_RotateToGridspace.SetIdentity();
+
+  m_vWorldSpaceOrigin.SetZero();
+  m_vWorldSpaceCellSize.Set(1.0f);
+  m_vInverseWorldSpaceCellSize.Set(1.0f);
+}
+
+template<class CellData>
+void ezGameGrid<CellData>::CreateGrid(ezUInt16 uiWidth, ezUInt16 uiHeight)
 {
   m_Cells.Clear();
 
   m_uiWidth = uiWidth;
-  m_uiDepth = uiDepth;
-  m_uiSlices = uiSlices;
+  m_uiHeight = uiHeight;
 
-  m_Cells.SetCount(m_uiWidth * m_uiDepth * uiSlices);
+  m_Cells.SetCount(m_uiWidth * m_uiHeight);
 }
 
 template<class CellData>
-void ezGameGrid<CellData>::SetWorldDimensions(const ezVec3& vLowerLeftCorner, const ezVec3& vCellSize)
+void ezGameGrid<CellData>::SetWorldSpaceDimensions(const ezVec3& vLowerLeftCorner, const ezVec3& vCellSize, Orientation ori)
+{
+  ezMat3 mRot;
+
+  switch (ori)
+  {
+  case InPlaneXY:
+    mRot.SetIdentity();
+    break;
+  case InPlaneXZ:
+    mRot.SetRotationMatrix(ezVec3(1, 0, 0), ezAngle::Degree(90.0f));
+    break;
+  case InPlaneXminusZ:
+    mRot.SetRotationMatrix(ezVec3(1, 0, 0), ezAngle::Degree(-90.0f));
+    break;
+  }
+
+  SetWorldSpaceDimensions(vLowerLeftCorner, vCellSize, mRot);
+}
+
+template<class CellData>
+void ezGameGrid<CellData>::SetWorldSpaceDimensions(const ezVec3& vLowerLeftCorner, const ezVec3& vCellSize, const ezMat3& mRotation)
 {
   m_vWorldSpaceOrigin  = vLowerLeftCorner;
   m_vWorldSpaceCellSize = vCellSize;
   m_vInverseWorldSpaceCellSize = ezVec3(1.0f).CompDiv(vCellSize);
+
+  m_RotateToWorldspace = mRotation;
+  m_RotateToGridspace  = mRotation.GetInverse();
 }
 
 template<class CellData>
-ezUInt32 ezGameGrid<CellData>::GetCellIndex(const ezGridCoordinate& Coord) const
+ezVec2I32 ezGameGrid<CellData>::GetCellAtWorldPosition(const ezVec3& vWorldSpacePos) const
 {
-  return (Coord.Slice * m_uiDepth * m_uiWidth) + (Coord.z * m_uiWidth) + Coord.x;
+  const ezVec3 vCell = m_RotateToGridspace * ((vWorldSpacePos - m_vWorldSpaceOrigin).CompMult(m_vInverseWorldSpaceCellSize));
+
+  return ezVec2I32((ezInt32) vCell.x, (ezInt32) vCell.y);
 }
 
 template<class CellData>
-ezUInt32 ezGameGrid<CellData>::GetNumCells() const
+ezVec3 ezGameGrid<CellData>::GetCellWorldSpaceOrigin(const ezVec2I32& Coord) const
 {
-  return m_uiWidth * m_uiDepth * m_uiSlices;
+  const ezVec3 vPos = m_RotateToWorldspace * ezVec3((float) Coord.x, (float) Coord.y, 0.0f);
+
+  return m_vWorldSpaceOrigin + m_vWorldSpaceCellSize.CompMult(vPos);
 }
 
 template<class CellData>
-ezGridCoordinate ezGameGrid<CellData>::GetCellCoordsByInex(ezUInt32 uiIndex) const
+ezVec3 ezGameGrid<CellData>::GetCellWorldSpaceCenter(const ezVec2I32& Coord) const
 {
-  const ezUInt32 uiCellsPerSlice = m_uiWidth * m_uiDepth;
-
-  ezGridCoordinate c;
-
-  c.Slice = uiIndex / uiCellsPerSlice;
-  uiIndex -= c.Slice * uiCellsPerSlice;
-
-  c.z = uiIndex / m_uiWidth;
-  c.x = uiIndex % m_uiWidth;
-  
-  return c;
+  return GetCellWorldSpaceOrigin(Coord) + m_vWorldSpaceCellSize * 0.5f;
 }
 
+
 template<class CellData>
-CellData& ezGameGrid<CellData>::GetCellByIndex(ezUInt32 uiIndex)
+bool ezGameGrid<CellData>::IsValidCellCoordinate(const ezVec2I32& Coord) const
 {
-  return m_Cells[uiIndex];
+  return (Coord.x >= 0 && Coord.x < m_uiWidth &&
+          Coord.y >= 0 && Coord.y < m_uiHeight);
 }
 
 template<class CellData>
-const CellData& ezGameGrid<CellData>::GetCellByIndex(ezUInt32 uiIndex) const
-{
-  return m_Cells[uiIndex];
-}
-
-template<class CellData>
-CellData& ezGameGrid<CellData>::GetCell(const ezGridCoordinate& Coord)
-{
-  return m_Cells[GetCellIndex(Coord)];
-}
-
-template<class CellData>
-const CellData& ezGameGrid<CellData>::GetCell(const ezGridCoordinate& Coord) const
-{
-  return m_Cells[GetCellIndex(Coord)];
-}
-
-template<class CellData>
-ezGridCoordinate ezGameGrid<CellData>::GetCellAtPosition(const ezVec3& vWorldSpacePos) const
-{
-  const ezVec3 vCell = (vWorldSpacePos - m_vWorldSpaceOrigin).CompMult(m_vInverseWorldSpaceCellSize);
-
-  return ezGridCoordinate((ezInt32) vCell.x, (ezInt32) vCell.z, (ezInt32) vCell.y);
-}
-
-template<class CellData>
-ezVec3 ezGameGrid<CellData>::GetCellOrigin(const ezGridCoordinate& Coord) const
-{
-  return m_vWorldSpaceOrigin + ezVec3((float) Coord.x * m_vWorldSpaceCellSize.x, (float) Coord.Slice * m_vWorldSpaceCellSize.y, (float) Coord.z * m_vWorldSpaceCellSize.z);
-}
-
-template<class CellData>
-ezVec3 ezGameGrid<CellData>::GetCellSize() const
-{
-  return m_vWorldSpaceCellSize;
-}
-
-template<class CellData>
-bool ezGameGrid<CellData>::IsValidCellCoordinate(const ezGridCoordinate& Coord) const
-{
-  return (Coord.x     >= 0 && Coord.x     < m_uiWidth &&
-          Coord.z     >= 0 && Coord.z     < m_uiDepth &&
-          Coord.Slice >= 0 && Coord.Slice < m_uiSlices);
-}
-
-template<class CellData>
-ezGridCoordinate ezGameGrid<CellData>::PickCell(const ezVec3& vRayStartPos, const ezVec3& vRayDirNorm, ezVec3* out_vIntersection, ezUInt8 uiSlice) const
+bool ezGameGrid<CellData>::PickCell(const ezVec3& vRayStartPos, const ezVec3& vRayDirNorm, ezVec2I32* out_CellCoord, ezVec3* out_vIntersection) const
 {
   ezPlane p;
-  p.SetFromNormalAndPoint(ezVec3(0, 1, 0), m_vWorldSpaceOrigin + m_vWorldSpaceCellSize * (float) uiSlice);
+  p.SetFromNormalAndPoint(m_RotateToWorldspace * ezVec3(0, 0, -1), m_vWorldSpaceOrigin);
 
   ezVec3 vPos;
 
   if (!p.GetRayIntersection(vRayStartPos, vRayDirNorm, NULL, &vPos))
-    return ezGridCoordinate(-1, -1, -1);
+    return false;
 
   if (out_vIntersection)
     *out_vIntersection = vPos;
 
-  return GetCellAtPosition(vPos);
+  if (out_CellCoord)
+    *out_CellCoord = GetCellAtWorldPosition(vPos);
+
+  return true;
 }
 
 template<class CellData>
-ezBoundingBox ezGameGrid<CellData>::GetBoundingBox() const
+ezBoundingBox ezGameGrid<CellData>::GetWorldBoundingBox() const
 {
-  return ezBoundingBox(m_vWorldSpaceOrigin, m_vWorldSpaceOrigin + m_vWorldSpaceCellSize.CompMult(ezVec3(m_uiWidth, m_uiSlices, m_uiDepth)));
+  ezVec3 vGridBox(m_uiWidth, m_uiHeight, 1.0f);
+
+  vGridBox = m_RotateToWorldspace * vGridBox;
+
+  return ezBoundingBox(m_vWorldSpaceOrigin, m_vWorldSpaceOrigin + m_vWorldSpaceCellSize.CompMult(vGridBox));
 }
 

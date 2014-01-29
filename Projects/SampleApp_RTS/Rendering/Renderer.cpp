@@ -15,7 +15,7 @@ GameRenderer::GameRenderer()
   m_pCamera = NULL;
 }
 
-void GameRenderer::SetupRenderer(const GameWindow* pWindow, const Level* pLevel, const ezCamera* pCamera)
+void GameRenderer::SetupRenderer(const GameWindow* pWindow, const Level* pLevel, const ezCamera* pCamera, const ezGridNavmesh* pNavmesh)
 {
   // sync these over to the renderer
   m_pWindow = pWindow;
@@ -23,6 +23,7 @@ void GameRenderer::SetupRenderer(const GameWindow* pWindow, const Level* pLevel,
   m_pWorld = m_pLevel->GetWorld();
   m_pGrid = &m_pLevel->GetGrid();
   m_pCamera = pCamera;
+  m_pNavmesh = pNavmesh;
 
   UpdateState();
 }
@@ -139,12 +140,12 @@ void GameRenderer::RenderMousePicking()
       glEnd();
 
       const GameGrid& Grid = m_pLevel->GetGrid();
-      ezGridCoordinate iCell = Grid.GetCellAtPosition(vIntersection);
+      ezVec2I32 iCell = Grid.GetCellAtWorldPosition(vIntersection);
 
       if (Grid.IsValidCellCoordinate(iCell) && Grid.GetCell(iCell).m_iCellType == 1)
       {
         glColor3ub(200, 50, 50);
-        RenderCube(Grid.GetCellOrigin(iCell), Grid.GetCellSize(), false);
+        RenderCube(Grid.GetCellWorldSpaceOrigin(iCell), Grid.GetWorldSpaceCellSize(), false);
       }
     }
   }

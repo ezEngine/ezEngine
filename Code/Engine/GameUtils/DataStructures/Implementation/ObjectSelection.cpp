@@ -41,9 +41,9 @@ void ezObjectSelection::AddObject(ezGameObjectHandle hObject)
   m_Objects.PushBack(hObject);
 }
 
-void ezObjectSelection::RemoveObject(ezGameObjectHandle hObject)
+bool ezObjectSelection::RemoveObject(ezGameObjectHandle hObject)
 {
-  m_Objects.Remove(hObject);
+  return m_Objects.Remove(hObject);
 }
 
 void ezObjectSelection::ToggleSelection(ezGameObjectHandle hObject)

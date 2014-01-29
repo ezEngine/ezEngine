@@ -11,7 +11,7 @@ class GameRenderer
 public:
   GameRenderer();
 
-  void SetupRenderer(const GameWindow* pWindow, const Level* pLevel, const ezCamera* pCamera);
+  void SetupRenderer(const GameWindow* pWindow, const Level* pLevel, const ezCamera* pCamera, const ezGridNavmesh* pNavmesh);
 
   void RenderLevel(const ezObjectSelection* pSelection);
 
@@ -25,6 +25,7 @@ private:
   const ezWorld* m_pWorld;
   const GameGrid* m_pGrid;
   const ezCamera* m_pCamera;
+  const ezGridNavmesh* m_pNavmesh;
 
   ezMat4 m_ProjectionMatrix;
   ezMat4 m_ModelViewMatrix;

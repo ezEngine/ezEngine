@@ -4,6 +4,7 @@
 #include <Foundation/Logging/Log.h>
 #include <Core/Input/InputManager.h>
 #include <Foundation/Configuration/CVar.h>
+#include <Foundation/Time/Stopwatch.h>
 #include <GameUtils/GridAlgorithms/Rasterization.h>
 #include <GameUtils/PathFinding/GraphSearch.h>
 
@@ -65,7 +66,7 @@ void SampleGameApp::UpdateInput(ezTime UpdateDiff)
 
 
   ezVec3 vTargetPos;
-  ezGridCoordinate iCell = GetPickedGridCell(&vTargetPos);
+  ezVec2I32 iCell = GetPickedGridCell(&vTargetPos);
 
   if (m_pLevel->GetGrid().IsValidCellCoordinate(iCell))
   {
@@ -135,7 +136,7 @@ void SampleGameApp::SetupInput()
 
 void SampleGameApp::SelectUnit()
 {
-  ezGridCoordinate iCell = GetPickedGridCell();
+  ezVec2I32 iCell = GetPickedGridCell();
 
   if (!m_pLevel->GetGrid().IsValidCellCoordinate(iCell))
     return;
@@ -158,7 +159,7 @@ ezCallbackResult::Enum PointOnLine(ezInt32 x, ezInt32 y, void* pPassThrough)
 {
   UnitComponent* pUnit = (UnitComponent*) pPassThrough;
 
-  const ezGridCoordinate coord = g_pGrid->GetCellAtPosition(ezVec3((float) x, 1.0f, (float) y));
+  const ezVec2I32 coord = g_pGrid->GetCellAtWorldPosition(ezVec3((float) x, 1.0f, (float) y));
 
   if (!g_pGrid->IsValidCellCoordinate(coord))
     return ezCallbackResult::Stop;
@@ -174,6 +175,7 @@ ezCallbackResult::Enum PointOnLine(ezInt32 x, ezInt32 y, void* pPassThrough)
     //return ezCallbackResult::Stop;
 
   pUnit->m_Path.PushBack(ezVec3((float) x, 1, (float) y));
+  EZ_NAN_ASSERT(&pUnit->m_Path.PeekBack());
 
   return ezCallbackResult::Continue;
 }
@@ -224,7 +226,7 @@ public:
       if (iNextPosX < 0 || iNextPosY < 0 || iNextPosX >= m_iGridWidth || iNextPosY >= m_iGridHeight)
         continue;
 
-      if (m_pGameGrid->GetCell(ezGridCoordinate(iNextPosX, iNextPosY)).m_iCellType == 1)
+      if (m_pGameGrid->GetCell(ezVec2I32(iNextPosX, iNextPosY)).m_iCellType == 1)
         continue;
 
       ezVec2 vCurPos((float) iNextPosX, (float) iNextPosY);
@@ -248,7 +250,7 @@ public:
       // jumping through a large one later)
       NextState.m_bWentDiagonal = i >= 4;
 
-      const ezInt64 iNextNodeIndex = m_pGameGrid->GetCellIndex(ezGridCoordinate(iNextPosX, iNextPosY));
+      const ezInt64 iNextNodeIndex = m_pGameGrid->ConvertCellCoordinateToIndex(ezVec2I32(iNextPosX, iNextPosY));
 
       pPathSearch->AddPathNode(iNextNodeIndex, NextState);
     }
@@ -257,24 +259,64 @@ public:
 
 };
 
+class ezNavmeshPathStateGenerator : public ezPathStateGenerator<MyPathState>
+{
+public:
+  ezGridNavmesh* m_pNavmesh;
+
+  ezVec2 m_vTarget;
+
+  virtual void StartSearch(ezInt64 iStartNodeIndex, const MyPathState* pStartState, ezInt64 iTargetNodeIndex) EZ_OVERRIDE
+  {
+  }
+
+  virtual void GenerateAdjacentStates(ezInt64 iCurArea, const MyPathState& StartState, ezPathSearch<MyPathState>* pPathSearch) EZ_OVERRIDE
+  {
+    const ezGridNavmesh::ConvexArea& Area = m_pNavmesh->GetConvexArea((ezInt32) iCurArea);
+    const ezVec2 vAreaCenter (Area.m_Rect.x + Area.m_Rect.width * 0.5f, Area.m_Rect.y + Area.m_Rect.height * 0.5f);
+
+    for (ezUInt32 e = 0; e < Area.m_uiNumEdges; ++e)
+    {
+      const ezGridNavmesh::AreaEdge& Edge = m_pNavmesh->GetAreaEdge(Area.m_uiFirstEdge + e);
+      const ezGridNavmesh::ConvexArea& NextArea = m_pNavmesh->GetConvexArea(Edge.m_iNeighborArea);
+
+      const ezVec2 vNextAreaCenter (NextArea.m_Rect.x + NextArea.m_Rect.width * 0.5f, NextArea.m_Rect.y + NextArea.m_Rect.height * 0.5f);
+
+      MyPathState NextState;
+      NextState.m_fCostToNode = StartState.m_fCostToNode + (vNextAreaCenter - vAreaCenter).GetLength();
+      NextState.m_fEstimatedCostToTarget = NextState.m_fCostToNode + (m_vTarget - vNextAreaCenter).GetLength();
+
+      const ezInt64 iNextNodeIndex = Edge.m_iNeighborArea;
+
+      pPathSearch->AddPathNode(iNextNodeIndex, NextState);
+    }
+  }
+
+};
+
 void SampleGameApp::SendUnit()
 {
-  ezGridCoordinate iCell = GetPickedGridCell();
+  ezVec2I32 iCell = GetPickedGridCell();
 
   if (!m_pLevel->GetGrid().IsValidCellCoordinate(iCell))
     return;
 
   g_pGrid = &m_pLevel->GetGrid();
 
-  ezGridPathStateGenerator GridStateGenerator;
-  GridStateGenerator.m_pGameGrid   = g_pGrid;
-  GridStateGenerator.m_iGridWidth  = g_pGrid->GetWidth();
-  GridStateGenerator.m_iGridHeight = g_pGrid->GetDepth();
+  ezVec3 vTarget = m_pLevel->GetGrid().GetCellWorldSpaceCenter(iCell);
+
+  //ezGridPathStateGenerator GridStateGenerator;
+  //GridStateGenerator.m_pGameGrid   = g_pGrid;
+  //GridStateGenerator.m_iGridWidth  = g_pGrid->GetWidth();
+  //GridStateGenerator.m_iGridHeight = g_pGrid->GetDepth();
+
+  ezNavmeshPathStateGenerator NavmeshStateGenerator;
+  NavmeshStateGenerator.m_pNavmesh = &m_pLevel->GetNavmesh();
+  NavmeshStateGenerator.m_vTarget = ezVec2(vTarget.x, vTarget.z);
 
   ezPathSearch<MyPathState> PathSearch;
-  PathSearch.SetPathStateGenerator(&GridStateGenerator);
-
-  ezVec3 vTarget = m_pLevel->GetGrid().GetCellOrigin(iCell) + m_pLevel->GetGrid().GetCellSize() * 0.5f;
+  //PathSearch.SetPathStateGenerator(&GridStateGenerator);
+  PathSearch.SetPathStateGenerator(&NavmeshStateGenerator);
 
   for (ezUInt32 i = 0; i < m_pSelectedUnits->GetCount();++i)
   {
@@ -292,28 +334,48 @@ void SampleGameApp::SendUnit()
 
         ++GameCellData::s_uiVisitCounter;
 
+        const ezVec2I32 StartCoord = g_pGrid->GetCellAtWorldPosition(vPos);
+        const ezVec2I32 TargetCoord = g_pGrid->GetCellAtWorldPosition(vTarget);
+
         MyPathState StartState;
         StartState.m_fCostToNode = 0.0f;
         StartState.m_fEstimatedCostToTarget = 0.0f;
-        StartState.m_iReachedThroughNode = g_pGrid->GetCellIndex(g_pGrid->GetCellAtPosition(vPos));
         StartState.m_bWentDiagonal = false;
+        //StartState.m_iReachedThroughNode = g_pGrid->GetCellIndex(StartCoord);
+        StartState.m_iReachedThroughNode = m_pLevel->GetNavmesh().GetAreaAt(StartCoord);
 
-        const ezInt64 iTargetCell = g_pGrid->GetCellIndex(g_pGrid->GetCellAtPosition(vTarget));
+        const ezInt64 iTargetCell = g_pGrid->ConvertCellCoordinateToIndex(TargetCoord);
+        const ezInt64 iTargetArea = m_pLevel->GetNavmesh().GetAreaAt(TargetCoord);
 
         ezDeque<ezPathSearch<MyPathState>::PathResultData> PathNodeIndices;
 
-        if (PathSearch.FindPath(StartState.m_iReachedThroughNode, StartState, iTargetCell, PathNodeIndices) == EZ_SUCCESS)
+        ezStopwatch s;
+
+        //if (PathSearch.FindPath(StartState.m_iReachedThroughNode, StartState, iTargetCell, PathNodeIndices) == EZ_SUCCESS)
+        if (PathSearch.FindPath(StartState.m_iReachedThroughNode, StartState, iTargetArea, PathNodeIndices) == EZ_SUCCESS)
         {
+          ezLog::Info("Found Path: %.2fms", s.Checkpoint().GetMilliseconds());
+
+          s.Checkpoint();
+
           pUnit->m_Path.Clear();
           pUnit->m_Path.Reserve(PathNodeIndices.GetCount());
 
-          for (ezUInt32 i = 0; i < PathNodeIndices.GetCount(); ++i)
+          for (ezInt32 i = 1; i < (ezInt32) PathNodeIndices.GetCount() - 1; ++i)
           {
-            const ezGridCoordinate Coord = g_pGrid->GetCellCoordsByInex((ezUInt32) PathNodeIndices[i].m_iNodeIndex);
+            //const ezVec2I32 Coord = g_pGrid->GetCellCoordsByInex((ezUInt32) PathNodeIndices[i].m_iNodeIndex);
+            const ezGridNavmesh::ConvexArea& Area = m_pLevel->GetNavmesh().GetConvexArea((ezInt32) PathNodeIndices[i].m_iNodeIndex);
+            const ezVec2 vAreaCenter (Area.m_Rect.x + Area.m_Rect.width * 0.5f, Area.m_Rect.y + Area.m_Rect.height * 0.5f);
+            const ezVec2I32 AreaCoord((ezInt32) vAreaCenter.x, (ezInt32) vAreaCenter.y);
 
-            pUnit->m_Path.PushBack(g_pGrid->GetCellOrigin(Coord) + g_pGrid->GetCellSize() * 0.5f);
+            //pUnit->m_Path.PushBack(g_pGrid->GetCellOrigin(Coord) + g_pGrid->GetCellSize() * 0.5f);
+            pUnit->m_Path.PushBack(g_pGrid->GetCellWorldSpaceCenter(AreaCoord));
           }
+
+          pUnit->m_Path.PushBack(vTarget);
         }
+        else
+          ezLog::Info("No Path found: %.2fms", s.Checkpoint().GetMilliseconds());
 
         //ez2DGridUtils::ComputePointsOnLine((ezInt32) vPos.x, (ezInt32) vPos.z, (ezInt32) vTarget.x, (ezInt32) vTarget.z, PointOnLine, pUnit);
         //ez2DGridUtils::ComputePointsOnCircle((ezInt32) vPos.x, (ezInt32) vPos.z, 4, PointOnLine, pUnit);

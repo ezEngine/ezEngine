@@ -37,7 +37,7 @@ private:
   void MoveAlongPath();
 
   UnitType::Enum m_UnitType;
-  ezGridCoordinate m_GridCoordinate;
+  ezVec2I32 m_GridCoordinate;
   
 };
 

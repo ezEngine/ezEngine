@@ -43,6 +43,7 @@ public:
 #include <Foundation/Math/Implementation/Rect_inl.h>
 
 typedef ezRectTemplate<ezUInt32> ezRectU32;
+typedef ezRectTemplate<ezUInt16> ezRectU16;
 typedef ezRectTemplate<float> ezRectFloat;
 typedef ezRectTemplate<double> ezRectDouble;
 

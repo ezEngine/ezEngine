@@ -1,8 +1,10 @@
 #pragma once
 
 #include <GameUtils/DataStructures/GameGrid.h>
+#include <GameUtils/PathFinding/GridNavmesh.h>
 #include <Core/World/World.h>
 #include <SampleApp_RTS/Components/UnitComponent.h>
+#include <GameUtils/GridAlgorithms/Rasterization.h>
 
 struct GameCellData
 {
@@ -38,16 +40,24 @@ public:
   GameGrid& GetGrid() { return m_GameGrid; }
   const GameGrid& GetGrid() const { return m_GameGrid; }
 
+  ezGridNavmesh& GetNavmesh() { return m_Navmesh; }
+  const ezGridNavmesh& GetNavmesh() const { return m_Navmesh; }
+
   /// Our factory that builds all the different unit types (GameObject + components)
   ezGameObjectHandle CreateUnit(UnitType::Enum Type, const ezVec3& vPosition, const ezQuat& qRotation = ezQuat::IdentityQuaternion(), float fScaling = 1.0f);
 
 private:
   void CreateComponentManagers();
 
+  static bool IsSameCellType(ezUInt32 uiCell1, ezUInt32 uiCell2, void* pPassThrough);
+  static bool IsCellBlocked(ezUInt32 uiCell, void* pPassThrough);
+  static ezCallbackResult::Enum SetPointBlocking(ezInt32 x, ezInt32 y, void* pPassThrough);
+
   ezGameObject* CreateGameObject(const ezVec3& vPosition, const ezQuat& qRotation, float fScaling);
   ezGameObjectHandle CreateUnit_Default(const ezVec3& vPosition, const ezQuat& qRotation, float fScaling);
 
   GameGrid m_GameGrid;
+  ezGridNavmesh m_Navmesh;
   ezWorld* m_pWorld;
 };
 

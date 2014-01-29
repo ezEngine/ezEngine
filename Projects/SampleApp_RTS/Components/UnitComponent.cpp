@@ -12,7 +12,7 @@ EZ_IMPLEMENT_COMPONENT_TYPE(UnitComponent, UnitComponentManager);
 
 UnitComponent::UnitComponent()
 {
-  m_GridCoordinate.Slice = -1; // invalid
+  m_GridCoordinate.Set(-1); // invalid
 }
 
 static ezInt32 iVisited = 1;
@@ -21,13 +21,13 @@ ezCallbackResult::Enum TagFootprint(ezInt32 x, ezInt32 y, void* pPassThrough)
 {
   GameGrid* pGrid = (GameGrid*) pPassThrough;
 
-  if (!pGrid->IsValidCellCoordinate(ezGridCoordinate(x, y)))
+  if (!pGrid->IsValidCellCoordinate(ezVec2I32(x, y)))
     return ezCallbackResult::Stop;
 
-  if (pGrid->GetCell(ezGridCoordinate(x, y)).m_iCellType == 1)
+  if (pGrid->GetCell(ezVec2I32(x, y)).m_iCellType == 1)
     return ezCallbackResult::Stop;
 
-  pGrid->GetCell(ezGridCoordinate(x, y)).m_bOccupied = 254;//iVisited;
+  pGrid->GetCell(ezVec2I32(x, y)).m_bOccupied = 254;//iVisited;
   iVisited += 5;
 
   return ezCallbackResult::Continue;
@@ -37,10 +37,10 @@ ezCallbackResult::Enum UntagFootprint(ezInt32 x, ezInt32 y, void* pPassThrough)
 {
   GameGrid* pGrid = (GameGrid*) pPassThrough;
 
-  if (!pGrid->IsValidCellCoordinate(ezGridCoordinate(x, y)))
+  if (!pGrid->IsValidCellCoordinate(ezVec2I32(x, y)))
     return ezCallbackResult::Continue;
 
-  pGrid->GetCell(ezGridCoordinate(x, y)).m_bOccupied = false;
+  pGrid->GetCell(ezVec2I32(x, y)).m_bOccupied = false;
 
   return ezCallbackResult::Continue;
 }
@@ -60,7 +60,7 @@ void UnitComponent::Update()
 
   MoveAlongPath();
 
-  m_GridCoordinate = Grid.GetCellAtPosition(GetOwner()->GetLocalPosition());
+  m_GridCoordinate = Grid.GetCellAtWorldPosition(GetOwner()->GetLocalPosition());
 
   if (Grid.IsValidCellCoordinate(m_GridCoordinate))
   {
@@ -72,7 +72,7 @@ void UnitComponent::Update()
     const ezVec3 vDir = (g_vTarget - GetOwner()->GetLocalPosition()).GetNormalized();
 
     ezStopwatch s;
-    ez2DGridUtils::ComputeVisibleAreaInCone(m_GridCoordinate.x, m_GridCoordinate.z, (ezUInt16) (g_fSize * 5.0f), ezVec2(vDir.x, vDir.z), ezAngle::Degree(45), Grid.GetWidth(), Grid.GetDepth(), TagFootprint, &Grid);//, &TempArray);
+    ez2DGridUtils::ComputeVisibleAreaInCone(m_GridCoordinate.x, m_GridCoordinate.y, (ezUInt16) (g_fSize * 5.0f), ezVec2(vDir.x, vDir.z), ezAngle::Degree(45), Grid.GetGridWidth(), Grid.GetGridHeight(), TagFootprint, &Grid);//, &TempArray);
 
     //ezLog::Info("Time Taken: %.2ff microsec", s.Checkpoint().GetMicroseconds());
 
@@ -86,7 +86,7 @@ void UnitComponent::MoveAlongPath()
   if (m_Path.IsEmpty())
     return;
 
-  const float fSpeed = 10.5f;
+  const float fSpeed = 50.0f;
   float fDistance = fSpeed * (float) ezClock::Get()->GetTimeDiff().GetSeconds();
 
   ezVec3 vCurPos = GetOwner()->GetLocalPosition();
