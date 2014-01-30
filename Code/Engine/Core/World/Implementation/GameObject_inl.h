@@ -161,26 +161,19 @@ bool ezGameObject::TryGetComponentOfType(T*& out_pComponent) const
 }
 
 template <typename T>
-bool ezGameObject::TryGetComponentsOfType(ezArrayPtr<T*> out_components) const
+void ezGameObject::TryGetComponentsOfType(ezHybridArray<T*, 8>& out_components) const
 {
-  /// \todo This function is not that useful:
-  /// It does no bounds check, it will just write into the provided array and crash if it is too small
-  /// It does not return how many components it actually wrote
-  /// Maybe it would make more sense to take a hybrid array as parameter
+  out_components.Clear();
 
-  ezUInt32 uiOutIndex = 0;
   for (ezUInt32 i = 0; i < m_Components.GetCount(); ++i)
   {
     ezComponentHandle component = m_Components[i];
     ezComponent* pComponent = NULL;
     if (ezComponentManagerBase::IsComponentOfType<T>(component) && TryGetComponent(component, pComponent))
     {
-      out_components[uiOutIndex] = static_cast<T*>(pComponent);
-      ++uiOutIndex;
+      out_components.PushBack(static_cast<T*>(pComponent));
     }
   }
-
-  return uiOutIndex > 0;
 }
 
 EZ_FORCE_INLINE ezArrayPtr<ezComponentHandle> ezGameObject::GetComponents() const

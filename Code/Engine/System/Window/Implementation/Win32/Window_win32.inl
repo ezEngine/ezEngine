@@ -10,6 +10,9 @@ static LRESULT CALLBACK ezWindowsMessageFuncTrampoline(HWND hWnd, UINT Msg, WPAR
 
   if (pWindow != NULL && pWindow->IsInitialized())
   {
+    if (pWindow->GetInputDevice())
+      pWindow->GetInputDevice()->WindowMessage(hWnd, Msg, WParam, LParam);
+
     switch (Msg)
     {
       // do this really always by default?
@@ -41,9 +44,6 @@ static LRESULT CALLBACK ezWindowsMessageFuncTrampoline(HWND hWnd, UINT Msg, WPAR
       }
       break;
     }
-
-    if (pWindow->GetInputDevice())
-      pWindow->GetInputDevice()->WindowMessage(hWnd, Msg, WParam, LParam);
 
     pWindow->OnWindowMessage(hWnd, Msg, WParam, LParam);
   } 

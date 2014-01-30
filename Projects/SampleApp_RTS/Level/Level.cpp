@@ -28,6 +28,8 @@ void Level::CreateComponentManagers()
 {
   UnitComponentManager* pUnitManager = m_pWorld->CreateComponentManager<UnitComponentManager>();
   RevealerComponentManager* pRevealerManager = m_pWorld->CreateComponentManager<RevealerComponentManager>();
+  FollowPathSteeringComponentManager* pFollowPathSteeringManager = m_pWorld->CreateComponentManager<FollowPathSteeringComponentManager>();
+  AvoidObstacleSteeringComponentManager* pAvoidObstacleSteeringManager = m_pWorld->CreateComponentManager<AvoidObstacleSteeringComponentManager>();
 
 }
 

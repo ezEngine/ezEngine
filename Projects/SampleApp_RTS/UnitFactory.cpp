@@ -30,16 +30,32 @@ ezGameObjectHandle Level::CreateUnit_Default(const ezVec3& vPosition, const ezQu
 {
   ezGameObject* pObject = CreateGameObject(vPosition, qRotation, fScaling);
 
+  UnitComponent* pUnitComponent;
+
   // Unit component
   {
-    UnitComponent* pComponent = AddComponent<UnitComponent, UnitComponentManager>(m_pWorld, pObject);
+    pUnitComponent = AddComponent<UnitComponent, UnitComponentManager>(m_pWorld, pObject);
 
-    pComponent->SetUnitType(UnitType::Default);
+    pUnitComponent->SetUnitType(UnitType::Default);
   }
 
   // Revealer component
   {
     RevealerComponent* pComponent = AddComponent<RevealerComponent, RevealerComponentManager>(m_pWorld, pObject);
+
+  }
+
+  // Avoid Obstacle Steering Behavior component
+  {
+    AvoidObstacleSteeringComponent* pComponent = AddComponent<AvoidObstacleSteeringComponent, AvoidObstacleSteeringComponentManager>(m_pWorld, pObject);
+
+  }
+
+  // Follow Path Steering Behavior component
+  {
+    FollowPathSteeringComponent* pComponent = AddComponent<FollowPathSteeringComponent, FollowPathSteeringComponentManager>(m_pWorld, pObject);
+
+    pComponent->SetPath(&pUnitComponent->m_Path);
 
   }
 

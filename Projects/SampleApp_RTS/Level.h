@@ -5,6 +5,9 @@
 #include <Core/World/World.h>
 #include <SampleApp_RTS/Components/UnitComponent.h>
 #include <SampleApp_RTS/Components/RevealerComponent.h>
+#include <SampleApp_RTS/Components/SteeringBehaviorComponent.h>
+#include <SampleApp_RTS/Components/FollowPathSteeringComponent.h>
+#include <SampleApp_RTS/Components/AvoidObstacleSteeringComponent.h>
 #include <GameUtils/GridAlgorithms/Rasterization.h>
 
 struct GameCellData

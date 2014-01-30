@@ -122,7 +122,7 @@ public:
   bool TryGetComponentOfType(T*& out_pComponent) const;
 
   template <typename T>
-  bool TryGetComponentsOfType(ezArrayPtr<T*> out_components) const;
+  void TryGetComponentsOfType(ezHybridArray<T*, 8>& out_components) const;
 
   ezArrayPtr<ezComponentHandle> GetComponents() const;
 

@@ -37,38 +37,75 @@ void UnitComponent::Update()
 
 void UnitComponent::MoveAlongPath()
 {
-  if (m_Path.IsEmpty())
+  //if (m_Path.IsEmpty())
+    //return;
+
+  ezHybridArray<SteeringBehaviorComponent*, 8> Steering;
+
+  FollowPathSteeringComponent* pFollowSB;
+  if (GetOwner()->TryGetComponentOfType<FollowPathSteeringComponent>(pFollowSB))
+    Steering.PushBack(pFollowSB);
+
+  AvoidObstacleSteeringComponent* pAvoidSB;
+  if (GetOwner()->TryGetComponentOfType<AvoidObstacleSteeringComponent>(pAvoidSB))
+    Steering.PushBack(pAvoidSB);
+
+  ezVec3 vDesiredDir(0);
+
+  float fDirectionDesire[SteeringBehaviorComponent::g_iSteeringDirections] = { 0 };
+  float fDirectionDanger[SteeringBehaviorComponent::g_iSteeringDirections] = { 0 };
+
+  if (Steering.IsEmpty())
     return;
 
-  const float fSpeed = 50.0f;
+  for (ezUInt32 i = 0; i < Steering.GetCount(); ++i)
+  {
+    for (ezInt32 dd = 0; dd < SteeringBehaviorComponent::g_iSteeringDirections; ++dd)
+    {
+      fDirectionDesire[dd] = ezMath::Max(fDirectionDesire[dd], Steering[i]->GetDirectionDesire()[dd]);
+      fDirectionDanger[dd] = ezMath::Max(fDirectionDanger[dd], Steering[i]->GetDirectionDanger()[dd]);
+    }
+  }
+
+  float fMinDanger = 1000;
+
+  for (ezInt32 dd = 0; dd < SteeringBehaviorComponent::g_iSteeringDirections; ++dd)
+    fMinDanger = ezMath::Min(fMinDanger, ezMath::Max(0.0f, fDirectionDanger[dd]));
+
+  ezInt32 iDesiredDir = -1;
+  float fDesire = 0;
+
+  for (ezInt32 dd = 0; dd < SteeringBehaviorComponent::g_iSteeringDirections; ++dd)
+  {
+    if (fDirectionDanger[dd] <= fMinDanger && fDirectionDesire[dd] > fDesire)
+    {
+      iDesiredDir = dd;
+      fDesire = fDirectionDesire[dd];
+    }
+  }
+
+  if (iDesiredDir == -1)
+    return;
+
+  vDesiredDir = SteeringBehaviorComponent::g_vSteeringDirections[iDesiredDir] * fDesire;
+
+  const float fSpeed = 10.0f;
   float fDistance = fSpeed * (float) ezClock::Get()->GetTimeDiff().GetSeconds();
 
   ezVec3 vCurPos = GetOwner()->GetLocalPosition();
 
-  while (fDistance > 0.0f && !m_Path.IsEmpty())
+  if (fDistance > vDesiredDir.GetLength())
   {
-    ezVec3 vPathPos = m_Path.PeekFront();
+    vCurPos += vDesiredDir;
 
-    float fLen = 0.0f;
-    ezVec3 vDir = vPathPos - vCurPos;
+    if (!m_Path.IsEmpty() && (vCurPos - m_Path.PeekBack()).GetLengthSquared() < 0.1f)
+      m_Path.Clear();
+  }
+  else
+  {
+    vDesiredDir.SetLength(fDistance);
 
-    if (vPathPos != vCurPos)
-    {
-      fLen = vDir.GetLengthAndNormalize();
-    }
-
-    if (fLen <= fDistance)
-    {
-      vCurPos = m_Path.PeekFront();
-      m_Path.PopFront();
-
-      fDistance -= fLen;
-    }
-    else
-    {
-      vCurPos += vDir * fDistance;
-      break;
-    }
+    vCurPos += vDesiredDir;
   }
 
   GetOwner()->SetLocalPosition(vCurPos);

@@ -73,13 +73,16 @@ void SampleGameApp::SendUnit()
         const ezVec2I32 StartCoord  = m_pLevel->GetGrid().GetCellAtWorldPosition(vPos);
         const ezVec2I32 TargetCoord = m_pLevel->GetGrid().GetCellAtWorldPosition(vTarget);
         const ezInt64 iTargetArea = m_pLevel->GetNavmesh().GetAreaAt(TargetCoord);
+        const ezInt64 iStartArea = m_pLevel->GetNavmesh().GetAreaAt(StartCoord);
 
         MyPathState StartState;
         ezDeque<ezPathSearch<MyPathState>::PathResultData> PathNodeIndices;
 
         ezStopwatch s;
 
-        if (PathSearch.FindPath(m_pLevel->GetNavmesh().GetAreaAt(StartCoord), StartState, iTargetArea, PathNodeIndices) == EZ_SUCCESS)
+        
+
+        if (iStartArea >= 0 && iTargetArea >= 0 && PathSearch.FindPath(iStartArea, StartState, iTargetArea, PathNodeIndices) == EZ_SUCCESS)
         {
           ezLog::Info("Found Path: %.2fms", s.Checkpoint().GetMilliseconds());
 
