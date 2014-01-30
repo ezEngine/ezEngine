@@ -22,8 +22,7 @@ class UnitComponent : public ezComponent
 public:
   UnitComponent();
 
-  static float g_fVisConeRadius;
-  static ezVec3 g_vUserPointsAt;
+  
 
   UnitType::Enum GetUnitType() const { return m_UnitType; }
   void SetUnitType(UnitType::Enum type) { m_UnitType = type; }

@@ -4,6 +4,7 @@
 #include <GameUtils/PathFinding/GridNavmesh.h>
 #include <Core/World/World.h>
 #include <SampleApp_RTS/Components/UnitComponent.h>
+#include <SampleApp_RTS/Components/RevealerComponent.h>
 #include <GameUtils/GridAlgorithms/Rasterization.h>
 
 struct GameCellData

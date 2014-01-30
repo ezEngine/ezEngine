@@ -37,6 +37,12 @@ ezGameObjectHandle Level::CreateUnit_Default(const ezVec3& vPosition, const ezQu
     pComponent->SetUnitType(UnitType::Default);
   }
 
+  // Revealer component
+  {
+    RevealerComponent* pComponent = AddComponent<RevealerComponent, RevealerComponentManager>(m_pWorld, pObject);
+
+  }
+
   return pObject->GetHandle();
 }
 

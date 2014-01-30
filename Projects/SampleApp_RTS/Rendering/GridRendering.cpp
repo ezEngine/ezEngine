@@ -26,8 +26,10 @@ void GameRenderer::RenderGrid()
       bool bColor = true;
       float fFade = 1.0f;
 
-      if (cd.m_uiVisibility <= 150)
-        fFade = (ezMath::Max<ezUInt8>(cd.m_uiVisibility, 50) / 150.0f);
+      if (cd.m_uiVisibility <= 100)
+        fFade = cd.m_uiVisibility / 100.0f;
+
+      fFade = ezMath::Max(fFade, 50.0f / 255.0f);
 
       if (cd.m_iCellType == 1)
         RenderCube(m_pGrid->GetCellWorldSpaceOrigin(ezVec2I32(x, z)), vCellSize, true, fFade);

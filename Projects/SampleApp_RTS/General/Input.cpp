@@ -54,19 +54,10 @@ void SampleGameApp::UpdateInput(ezTime UpdateDiff)
     SendUnit();
 
   if (ezInputManager::GetInputActionState("Game", "UnitLarger", &f) == ezKeyState::Pressed)
-    UnitComponent::g_fVisConeRadius += 1.0f;
+    RevealerComponent::g_fDefaultRadius += 1.0f;
 
   if (ezInputManager::GetInputActionState("Game", "UnitSmaller", &f) == ezKeyState::Pressed)
-    UnitComponent::g_fVisConeRadius -= 1.0f;
-
-
-  ezVec3 vTargetPos;
-  ezVec2I32 iCell = GetPickedGridCell(&vTargetPos);
-
-  if (m_pLevel->GetGrid().IsValidCellCoordinate(iCell))
-  {
-    UnitComponent::g_vUserPointsAt = vTargetPos;
-  }
+    RevealerComponent::g_fDefaultRadius -= 1.0f;
 
 }
 

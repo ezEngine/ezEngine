@@ -2,6 +2,7 @@
 #include <SampleApp_RTS/Level.h>
 #include <SampleApp_RTS/General/Application.h>
 #include <SampleApp_RTS/Components/UnitComponent.h>
+#include <SampleApp_RTS/Components/RevealerComponent.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Time/Stopwatch.h>
 
@@ -26,6 +27,7 @@ void Level::SetupLevel()
 void Level::CreateComponentManagers()
 {
   UnitComponentManager* pUnitManager = m_pWorld->CreateComponentManager<UnitComponentManager>();
+  RevealerComponentManager* pRevealerManager = m_pWorld->CreateComponentManager<RevealerComponentManager>();
 
 }
 
@@ -34,7 +36,7 @@ void Level::Update()
 {
   static ezTime LastVisUpdate = ezClock::Get()->GetAccumulatedTime();
 
-  const ezTime UpdateInterval = ezTime::Seconds(0.02);
+  const ezTime UpdateInterval = ezTime::Seconds(1.0 / 20);
 
   if (ezClock::Get()->GetAccumulatedTime() - LastVisUpdate > UpdateInterval)
   {
