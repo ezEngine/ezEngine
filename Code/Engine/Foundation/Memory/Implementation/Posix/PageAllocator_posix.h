@@ -1,25 +1,23 @@
-#include <unistd.h>
 
-inline ezPageAllocation::ezPageAllocation()
+// static
+void* ezPageAllocator::AllocatePage(size_t uiSize)
 {
+  void* ptr = NULL;
+  size_t uiAlign = ezSystemInformation::Get().GetMemoryPageSize();
+  posix_memalign(&ptr, uiAlign, uiSize);
+    
+  EZ_CHECK_ALIGNMENT(ptr, uiAlign);
+    
+  ezMemoryTracker::AddAllocation(GetPageAllocatorId(), ptr, uiSize, uiAlign);
+
+  return ptr;
 }
 
-inline ezPageAllocation::~ezPageAllocation()
+// static
+void ezPageAllocator::DeallocatePage(void* ptr)
 {
-}
-
-inline void* ezPageAllocation::PageAllocate(size_t uiSize)
-{
-  void* pMemory = NULL;
-  
-  posix_memalign(&pMemory, sysconf(_SC_PAGESIZE), uiSize);
-
-  return pMemory;
-}
-
-inline void ezPageAllocation::PageDeallocate(void* ptr)
-{
-  if (ptr != NULL)
-    free(ptr);
+  ezMemoryTracker::RemoveAllocation(GetPageAllocatorId(), ptr);
+    
+  free(ptr);
 }
 

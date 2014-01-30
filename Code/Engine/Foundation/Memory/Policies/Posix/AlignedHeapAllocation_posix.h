@@ -1,45 +1,21 @@
 
-template <size_t uiAlignment>
-ezAlignedHeapAllocation<uiAlignment>::ezAlignedHeapAllocation(ezIAllocator* pParent)
+EZ_FORCE_INLINE void* ezAlignedHeapAllocation::Allocate(size_t uiSize, size_t uiAlign)
 {
-}
-
-template <size_t uiAlignment>
-ezAlignedHeapAllocation<uiAlignment>::~ezAlignedHeapAllocation()
-{
-}
-
-template <size_t uiAlignment>
-void* ezAlignedHeapAllocation<uiAlignment>::Allocate(size_t uiSize, size_t uiAlign)
-{
-  EZ_ASSERT_API(uiAlign <= uiAlignment, "Alignment is too big. Max %d bytes alignment are allowed, but %d bytes alignment requested",
-                uiAlignment, uiAlign);
+  // aligment has to be at least sizeof(void*) otherwise posix_memalign will fail
+  uiAlign = ezMath::Max(uiAlign, sizeof(void*));
   
   void* ptr = NULL;
   
-  if (posix_memalign(&ptr, uiAlignment, uiSize) != 0)
-    return NULL;
-  
+  int res = posix_memalign(&ptr, uiAlign, uiSize);
+  EZ_ASSERT(res == 0, "posix_memalign failed with error: %d", res);
+
   EZ_CHECK_ALIGNMENT(ptr, uiAlign);
   
   return ptr;
 }
 
-template <size_t uiAlignment>
-void ezAlignedHeapAllocation<uiAlignment>::Deallocate(void* ptr)
+EZ_FORCE_INLINE void ezAlignedHeapAllocation::Deallocate(void* ptr)
 {
   free(ptr);
-}
-
-template <size_t uiAlignment>
-size_t ezAlignedHeapAllocation<uiAlignment>::AllocatedSize(const void* ptr)
-{
-  return 0;
-}
-
-template <size_t uiAlignment>
-size_t ezAlignedHeapAllocation<uiAlignment>::UsedMemorySize(const void* ptr)
-{
-  return 0;
 }
 

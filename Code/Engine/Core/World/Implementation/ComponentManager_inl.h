@@ -154,7 +154,7 @@ ezComponentManagerSimple<ComponentType>::ezComponentManagerSimple(ezWorld* pWorl
 template <typename ComponentType>
 ezResult ezComponentManagerSimple<ComponentType>::Initialize()
 {
-  ezComponentManagerBase::UpdateFunctionDesc desc = EZ_CREATE_COMPONENT_UPDATE_FUNCTION_DESC(ezComponentManagerSimple<ComponentType>::SimpleUpdate, this);
+  auto desc = EZ_CREATE_COMPONENT_UPDATE_FUNCTION_DESC(ezComponentManagerSimple<ComponentType>::SimpleUpdate, this);
 
   this->RegisterUpdateFunction(desc);
 

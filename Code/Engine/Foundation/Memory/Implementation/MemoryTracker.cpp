@@ -86,7 +86,7 @@ namespace
   #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
     OutputDebugString(szText);
   #else
-    printf(szText);
+    printf("%s", szText);
   #endif
   };
 
@@ -94,7 +94,8 @@ namespace
   {
     char szBuffer[512];
     ezUInt64 uiSize = info.m_uiSize;
-    sprintf_s(szBuffer, "Leaked %llu bytes allocated by '%s'\n", uiSize, szAllocatorName);
+    ezStringUtils::snprintf(szBuffer, EZ_ARRAY_SIZE(szBuffer), "Leaked %llu bytes allocated by '%s'\n", uiSize, szAllocatorName);
+    
     PrintHelper(szBuffer);
 
     if (info.m_StackTrace.GetPtr() != NULL)
@@ -221,7 +222,7 @@ void ezMemoryTracker::RemoveAllocation(ezAllocatorId allocatorId, const void* pt
   }
   else
   {
-    EZ_REPORT_FAILURE("Invalid Allocation '%p'", ptr);
+    EZ_REPORT_FAILURE("Invalid Allocation '%p'. Memory corruption?", ptr);
   }
 }
 
@@ -351,7 +352,7 @@ void ezMemoryTracker::DumpMemoryLeaks()
   if (uiNumLeaks > 0)
   {
     char szBuffer[512];
-    sprintf_s(szBuffer,
+    ezStringUtils::snprintf(szBuffer, EZ_ARRAY_SIZE(szBuffer),
       "\n--------------------------------------------------------------------\n"
       "Found %llu root memory leak(s)."
       "\n--------------------------------------------------------------------\n\n",
@@ -371,3 +372,4 @@ ezMemoryTracker::Iterator ezMemoryTracker::GetIterator()
 }
 
 
+EZ_STATICLINK_FILE(Foundation, Foundation_Memory_Implementation_MemoryTracker);

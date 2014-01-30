@@ -18,8 +18,12 @@ static ezAllocatorId GetPageAllocatorId()
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   #include <Foundation/Memory/Implementation/Win/PageAllocator_win.h>
 #elif EZ_ENABLED(EZ_PLATFORM_OSX)  || EZ_ENABLED(EZ_PLATFORM_LINUX)
-  #include <Foundation/Memory/Policies/Posix/PageAllocation_posix.h>
+  #include <Foundation/Memory/Implementation/Posix/PageAllocator_posix.h>
 #else
   #error "ezPageAllocator is not implemented on current platform"
 #endif
+
+
+
+EZ_STATICLINK_FILE(Foundation, Foundation_Memory_Implementation_PageAllocator);
 

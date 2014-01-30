@@ -34,19 +34,19 @@ EZ_FORCE_INLINE ezColor::operator ezVec4Template<Type> () const
 template<typename Type>
 EZ_FORCE_INLINE ezVec3Template<Type> ezColor::GetRGB() const
 {
-  ezVec3Template<Type> r(static_cast<Type>(r), static_cast<Type>(g), static_cast<Type>(b));
+  ezVec3Template<Type> v(static_cast<Type>(r), static_cast<Type>(g), static_cast<Type>(b));
 
-  EZ_NAN_ASSERT(&r);
-  return r;
+  EZ_NAN_ASSERT(&v);
+  return v;
 }
 
 template<typename Type>
 EZ_FORCE_INLINE ezVec3Template<Type> ezColor::GetBGR() const
 {
-  ezVec3Template<Type> r(static_cast<Type>(b), static_cast<Type>(g), static_cast<Type>(r));
+  ezVec3Template<Type> v(static_cast<Type>(b), static_cast<Type>(g), static_cast<Type>(r));
 
-  EZ_NAN_ASSERT(&r);
-  return r;
+  EZ_NAN_ASSERT(&v);
+  return v;
 }
 
 template<typename Type>

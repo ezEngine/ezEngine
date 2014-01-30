@@ -39,14 +39,12 @@ EZ_STATICLINK_LIBRARY(Foundation)
   EZ_STATICLINK_REFERENCE(Foundation_Math_Implementation_Float16);
   EZ_STATICLINK_REFERENCE(Foundation_Math_Implementation_Frustum);
   EZ_STATICLINK_REFERENCE(Foundation_Math_Implementation_Math);
-  EZ_STATICLINK_REFERENCE(Foundation_Math_Implementation_Vec2);
-  EZ_STATICLINK_REFERENCE(Foundation_Math_Implementation_Vec4);
-  EZ_STATICLINK_REFERENCE(Foundation_Memory_EndianHelper);
   EZ_STATICLINK_REFERENCE(Foundation_Memory_Implementation_AllocatorWrapper);
-  EZ_STATICLINK_REFERENCE(Foundation_Memory_Implementation_IAllocator);
+  EZ_STATICLINK_REFERENCE(Foundation_Memory_Implementation_EndianHelper);
   EZ_STATICLINK_REFERENCE(Foundation_Memory_Implementation_LargeBlockAllocator);
+  EZ_STATICLINK_REFERENCE(Foundation_Memory_Implementation_MemoryTracker);
   EZ_STATICLINK_REFERENCE(Foundation_Memory_Implementation_MemoryUtils);
-  EZ_STATICLINK_REFERENCE(Foundation_Memory_Policies_Tracking);
+  EZ_STATICLINK_REFERENCE(Foundation_Memory_Implementation_PageAllocator);
   EZ_STATICLINK_REFERENCE(Foundation_Profiling_Implementation_Profiling);
   EZ_STATICLINK_REFERENCE(Foundation_Reflection_Implementation_RTTI);
   EZ_STATICLINK_REFERENCE(Foundation_Reflection_Implementation_StandardTypes);

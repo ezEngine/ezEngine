@@ -137,7 +137,7 @@ public:
 
 /// \brief Helper macro to create an update function description with proper name
 #define EZ_CREATE_COMPONENT_UPDATE_FUNCTION_DESC(func, instance) \
-  UpdateFunctionDesc(UpdateFunction(&func, instance), #func)
+  ezComponentManagerBase::UpdateFunctionDesc(ezComponentManagerBase::UpdateFunction(&func, instance), #func)
 
 #include <Core/World/Implementation/ComponentManager_inl.h>
 
