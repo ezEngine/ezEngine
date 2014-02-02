@@ -14,8 +14,8 @@
    <string>ezInspector</string>
   </property>
   <property name="windowIcon">
-   <iconset>
-    <normaloff>:/Icons/Icon.png</normaloff>:/Icons/Icon.png</iconset>
+   <iconset resource="resources.qrc">
+    <normaloff>:/Icons/Icons/search-icon.png</normaloff>:/Icons/Icons/search-icon.png</iconset>
   </property>
   <property name="documentMode">
    <bool>false</bool>

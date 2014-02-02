@@ -373,37 +373,88 @@ Type ezBoundingBoxTemplate<Type>::GetDistanceTo(const ezBoundingBoxTemplate<Type
 template<typename Type>
 bool ezBoundingBoxTemplate<Type>::GetRayIntersection(const ezVec3Template<Type>& vStartPos, const ezVec3Template<Type>& vRayDir, Type* out_fIntersection, ezVec3Template<Type>* out_vIntersection) const
 {
+  // This code was taken from: http://people.csail.mit.edu/amy/papers/box-jgt.pdf
+  // "An Efficient and Robust Ray-Box Intersection Algorithm"
+  // Contrary to previous implementation, this one actually works with ray/box configurations
+  // that produce division by zero and mulitplication with infinity (which can produce NaNs).
+
   EZ_ASSERT(ezMath::BasicType<Type>::SupportsInfinity(), "This type does not support infinite values, which is required for this algorithm.");
   EZ_ASSERT(vStartPos.IsValid(), "Ray start position must be valid.");
   EZ_ASSERT(vRayDir.IsValid(), "Ray direction must be valid.");
 
   EZ_NAN_ASSERT(this);
 
-  const ezVec3Template<Type> vDirFrac = ezVec3Template<Type>(1.0f).CompDiv(vRayDir);
+  float tMin, tMax;
 
-  const Type t1 = (m_vMin.x - vStartPos.x) * vDirFrac.x;
-  const Type t2 = (m_vMax.x - vStartPos.x) * vDirFrac.x;
-  const Type t3 = (m_vMin.y - vStartPos.y) * vDirFrac.y;
-  const Type t4 = (m_vMax.y - vStartPos.y) * vDirFrac.y;
-  const Type t5 = (m_vMin.z - vStartPos.z) * vDirFrac.z;
-  const Type t6 = (m_vMax.z - vStartPos.z) * vDirFrac.z;
+  // Compare along X and Z axis, find intersection point
+  {
+    float tMinY, tMaxY;
 
-  const Type tmin = ezMath::Max(ezMath::Min(t1, t2), ezMath::Min(t3, t4), ezMath::Min(t5, t6));
-  const Type tmax = ezMath::Min(ezMath::Max(t1, t2), ezMath::Max(t3, t4), ezMath::Max(t5, t6));
+    const float fDivX = 1.0f / vRayDir.x;
+    const float fDivY = 1.0f / vRayDir.y;
 
-  // if tmax < 0, ray (line) is intersecting AABB, but whole AABB is behing us
-  if (tmax <= 0)
-    return false;
+    if (vRayDir.x >= 0.0f)
+    {
+      tMin = (m_vMin.x - vStartPos.x) * fDivX;
+      tMax = (m_vMax.x - vStartPos.x) * fDivX;
+    }
+    else
+    {
+      tMin = (m_vMax.x - vStartPos.x) * fDivX;
+      tMax = (m_vMin.x - vStartPos.x) * fDivX;
+    }
 
-  // if tmin > tmax, ray doesn't intersect AABB
-  if (tmin > tmax)
+    if (vRayDir.y >= 0.0f)
+    {
+      tMinY = (m_vMin.y - vStartPos.y) * fDivY;
+      tMaxY = (m_vMax.y - vStartPos.y) * fDivY;
+    }
+    else
+    {
+      tMinY = (m_vMax.y - vStartPos.y) * fDivY;
+      tMaxY = (m_vMin.y - vStartPos.y) * fDivY;
+    }
+
+    if (tMin > tMaxY || tMinY > tMax)
+      return false;
+
+    if (tMinY > tMin) tMin = tMinY;
+    if (tMaxY < tMax) tMax = tMaxY;
+  }
+
+  // Compare along Z axis and previous result, find intersection point
+  {
+    float tMinZ, tMaxZ;
+
+    const float fDivZ = 1.0f / vRayDir.z;
+
+    if (vRayDir.z >= 0.0f)
+    {
+      tMinZ = (m_vMin.z - vStartPos.z) * fDivZ;
+      tMaxZ = (m_vMax.z - vStartPos.z) * fDivZ;
+    }
+    else
+    {
+      tMinZ = (m_vMax.z - vStartPos.z) * fDivZ;
+      tMaxZ = (m_vMin.z - vStartPos.z) * fDivZ;
+    }
+
+    if (tMin > tMaxZ || tMinZ > tMax)
+      return false;
+
+    if (tMinZ > tMin) tMin = tMinZ;
+    if (tMaxZ < tMax) tMax = tMaxZ;
+  }
+
+  // rays that start inside the box are considered as not hitting the box
+  if (tMax <= 0.0f)
     return false;
 
   if (out_fIntersection)
-    *out_fIntersection = tmin;
+    *out_fIntersection = tMin;
 
   if (out_vIntersection)
-    *out_vIntersection = vStartPos + tmin * vRayDir;
+    *out_vIntersection = vStartPos + tMin * vRayDir;
 
   return true;
 }
