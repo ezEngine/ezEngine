@@ -29,6 +29,8 @@ public:
 
   ezDeque<ezVec3> m_Path;
 
+  ezInt32 m_iCurDirection;
+
 private:
   // Called by UnitComponentManager
   virtual void Update();

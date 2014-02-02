@@ -4,6 +4,7 @@
 #include <Foundation/Time/Stopwatch.h>
 #include <GameUtils/PathFinding/GraphSearch.h>
 
+ezCVarBool CVarLocalSteeringOnly("ai_LocalSteeringOnly", false, ezCVarFlags::Save, "Ignore global path finding and use local steering only.");
 
 struct MyPathState : ezPathStateBase
 {
@@ -89,15 +90,19 @@ void SampleGameApp::SendUnit()
           s.Checkpoint();
 
           pUnit->m_Path.Clear();
-          pUnit->m_Path.Reserve(PathNodeIndices.GetCount());
 
-          for (ezInt32 i = 1; i < (ezInt32) PathNodeIndices.GetCount() - 1; ++i)
+          if (!CVarLocalSteeringOnly)
           {
-            const ezGridNavmesh::ConvexArea& Area = m_pLevel->GetNavmesh().GetConvexArea((ezInt32) PathNodeIndices[i].m_iNodeIndex);
-            const ezVec2 vAreaCenter (Area.m_Rect.x + Area.m_Rect.width * 0.5f, Area.m_Rect.y + Area.m_Rect.height * 0.5f);
-            const ezVec2I32 AreaCoord((ezInt32) vAreaCenter.x, (ezInt32) vAreaCenter.y);
+            pUnit->m_Path.Reserve(PathNodeIndices.GetCount());
 
-            pUnit->m_Path.PushBack(m_pLevel->GetGrid().GetCellWorldSpaceCenter(AreaCoord));
+            for (ezInt32 i = 1; i < (ezInt32) PathNodeIndices.GetCount() - 1; ++i)
+            {
+              const ezGridNavmesh::ConvexArea& Area = m_pLevel->GetNavmesh().GetConvexArea((ezInt32) PathNodeIndices[i].m_iNodeIndex);
+              const ezVec2 vAreaCenter (Area.m_Rect.x + Area.m_Rect.width * 0.5f, Area.m_Rect.y + Area.m_Rect.height * 0.5f);
+              const ezVec2I32 AreaCoord((ezInt32) vAreaCenter.x, (ezInt32) vAreaCenter.y);
+
+              pUnit->m_Path.PushBack(m_pLevel->GetGrid().GetCellWorldSpaceCenter(AreaCoord));
+            }
           }
 
           pUnit->m_Path.PushBack(vTarget);

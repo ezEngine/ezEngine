@@ -14,7 +14,7 @@ void SampleGameApp::SelectUnit()
   UnitComponent* pUnit;
   if (m_pLevel->GetWorld()->TryGetComponent<UnitComponent>(Cell.m_hUnit, pUnit))
   {
-    m_pSelectedUnits->Clear();
+    //m_pSelectedUnits->Clear();
     m_pSelectedUnits->ToggleSelection(pUnit->GetOwner()->GetHandle());
   }
 }

@@ -1,5 +1,5 @@
 #include <PCH.h>
-#include "RevealerComponent.h"
+#include <SampleApp_RTS/Components/RevealerComponent.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Time/Stopwatch.h>
 #include <SampleApp_RTS/Level.h>

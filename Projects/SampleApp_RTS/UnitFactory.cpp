@@ -1,5 +1,5 @@
 #include <PCH.h>
-#include "Level.h"
+#include <SampleApp_RTS/Level.h>
 
 template<typename ComponentType, typename ManagerType>
 ComponentType* AddComponent(ezWorld* pWorld, ezGameObject* pObject)
@@ -45,6 +45,12 @@ ezGameObjectHandle Level::CreateUnit_Default(const ezVec3& vPosition, const ezQu
 
   }
 
+  // Obstacle component
+  {
+    ObstacleComponent* pComponent = AddComponent<ObstacleComponent, ObstacleComponentManager>(m_pWorld, pObject);
+
+  }
+
   // Avoid Obstacle Steering Behavior component
   {
     AvoidObstacleSteeringComponent* pComponent = AddComponent<AvoidObstacleSteeringComponent, AvoidObstacleSteeringComponentManager>(m_pWorld, pObject);
@@ -67,7 +73,7 @@ ezGameObjectHandle Level::CreateUnit(UnitType::Enum Type, const ezVec3& vPositio
   switch (Type)
   {
   case UnitType::Default:
-    return CreateUnit_Default(vPosition, qRotation, fScaling);
+    return CreateUnit_Default(vPosition + ezVec3(0.5f, 0, 0.5f), qRotation, fScaling);
   }
 
   EZ_REPORT_FAILURE("Unknown Unit Type %i", Type);

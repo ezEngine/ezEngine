@@ -1,9 +1,14 @@
 #include <PCH.h>
 #include <SampleApp_RTS/Rendering/Renderer.h>
+#include <SampleApp_RTS/Level.h>
 #include <gl/GL.h>
 #include <gl/glu.h>
 
 void RenderCube(const ezVec3& v, const ezVec3& s, bool bColor = true, float fColorScale = 1.0f);
+void RenderCircleXZ(const ezVec3& v, float fRadius, const ezMat4& mRot = ezMat4::IdentityMatrix());
+
+
+ezCVarBool CVarVisObstacles("ai_VisObstacles", true, ezCVarFlags::None, "Visualize obstacle radii.");
 
 void GameRenderer::RenderAllUnits()
 {
@@ -23,7 +28,7 @@ void GameRenderer::RenderUnit(ezGameObject* pUnit, UnitComponent* pComponent)
 
   glColor3ub(50, 50, 200);
 
-  RenderCube(vPos, ezVec3(0.5f), false);
+  RenderCube(pUnit->GetLocalPosition() - ezVec3(0.3f, 0, 0.3f), ezVec3(0.6f), false);
 
   glColor3ub(200, 0, 200);
 
@@ -40,6 +45,24 @@ void GameRenderer::RenderUnit(ezGameObject* pUnit, UnitComponent* pComponent)
     
     glEnd();
   }
+
+
+
+  if (CVarVisObstacles)
+  {
+    ezHybridArray<ObstacleComponent*, 8> Components;
+    pUnit->TryGetComponentsOfType<ObstacleComponent>(Components);
+
+    ezVec3 vCenter = pUnit ->GetLocalPosition();
+    vCenter.y -= 0.7f;
+
+    glColor3ub(0, 200, 0);
+    for (ezUInt32 c = 0; c < Components.GetCount(); ++c)
+    {
+      RenderCircleXZ(vCenter, Components[c]->m_fRadius > 0 ? Components[c]->m_fRadius : ObstacleComponent::g_fDefaultRadius);
+    }
+  }
 }
+
 
 

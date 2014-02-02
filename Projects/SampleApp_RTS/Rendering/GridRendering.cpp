@@ -1,9 +1,14 @@
 #include <PCH.h>
 #include <SampleApp_RTS/Rendering/Renderer.h>
+#include <Foundation/Configuration/CVar.h>
 #include <gl/GL.h>
 #include <gl/glu.h>
 
 void RenderCube(const ezVec3& v, const ezVec3& s, bool bColor = true, float fColorScale = 1.0f);
+
+ezCVarBool CVarVisNavmeshCells("ai_VisNavMeshCells", false, ezCVarFlags::None, "Visualize the navigation mesh cells.");
+ezCVarBool CVarVisNavmeshEdges("ai_VisNavMeshEdges", false, ezCVarFlags::None, "Visualize the navigation mesh edges.");
+ezCVarBool CVarVisFogOfWar("ai_VisFogOfWar", true, ezCVarFlags::None, "Visualize the fog of war.");
 
 void GameRenderer::RenderGrid()
 {
@@ -16,7 +21,9 @@ void GameRenderer::RenderGrid()
     {
       const GameCellData& cd = m_pGrid->GetCell(ezVec2I32(x, z));
 
-      if (cd.m_uiVisibility == 0)
+      const ezUInt32 uiVisibility = CVarVisFogOfWar ? cd.m_uiVisibility : 255;
+
+      if (uiVisibility == 0)
       {
         glColor3ub(20, 20, 20);
         RenderCube(m_pGrid->GetCellWorldSpaceOrigin(ezVec2I32(x, z)), vCellSize2, false);
@@ -26,19 +33,27 @@ void GameRenderer::RenderGrid()
       bool bColor = true;
       float fFade = 1.0f;
 
-      if (cd.m_uiVisibility <= 100)
-        fFade = cd.m_uiVisibility / 100.0f;
+      if (uiVisibility <= 100)
+        fFade = uiVisibility / 100.0f;
 
       fFade = ezMath::Max(fFade, 50.0f / 255.0f);
 
-      if (cd.m_iCellType == 1)
-        RenderCube(m_pGrid->GetCellWorldSpaceOrigin(ezVec2I32(x, z)), vCellSize, true, fFade);
+      if (!cd.m_hUnit.IsInvalidated())
+      {
+        glColor3ub(0, 100, 0);
+        RenderCube(m_pGrid->GetCellWorldSpaceOrigin(ezVec2I32(x, z)), vCellSize2, false, fFade);
+      }
       else
-        RenderCube(m_pGrid->GetCellWorldSpaceOrigin(ezVec2I32(x, z)), vCellSize2, true, fFade);
+      {
+        if (cd.m_iCellType == 1)
+          RenderCube(m_pGrid->GetCellWorldSpaceOrigin(ezVec2I32(x, z)), vCellSize, true, fFade);
+        else
+          RenderCube(m_pGrid->GetCellWorldSpaceOrigin(ezVec2I32(x, z)), vCellSize2, true, fFade);
+      }
     }
   }
   
-  if (false)
+  if (CVarVisNavmeshCells)
   {
     ezUInt8 uiGreen = 30;
 
@@ -61,7 +76,7 @@ void GameRenderer::RenderGrid()
     }
   }
 
-  if (false)
+  if (CVarVisNavmeshEdges)
   {
     ezUInt8 uiGreen = 30;
 

@@ -19,6 +19,8 @@ SampleGameApp::SampleGameApp()
 
 void SampleGameApp::AfterEngineInit()
 {
+  ShowWindow(GetConsoleWindow(), SW_HIDE);
+
   EZ_LOG_BLOCK("SampleGameApp::AfterEngineInit");
 
   ezTelemetry::CreateServer();

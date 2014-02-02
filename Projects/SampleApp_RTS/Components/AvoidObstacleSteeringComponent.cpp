@@ -29,25 +29,70 @@ ezCallbackResult::Enum AvoidObstacleSteeringComponent::ComputeCellDanger(ezInt32
   const float fLength = vDir.GetLength();
   const ezVec3 vDirNorm = vDir.GetNormalized();
 
-  float fDanger = 0;
+  if (fLength >= 5.0f)
+    return ezCallbackResult::Continue;
+
+  bool bDanger = false;
 
   if (tcd->m_pGrid->GetCell(ezVec2I32(x, y)).m_iCellType == 1)
-    fDanger = ezMath::Max(0.0f, 2.0f - fLength);
-  else
+  {
+    ezBoundingBox bb(vCellPos - tcd->m_pGrid->GetWorldSpaceCellSize() * 0.5f, vCellPos + tcd->m_pGrid->GetWorldSpaceCellSize() * 0.5f);
+
+    for (ezInt32 i = 0; i < g_iSteeringDirections; ++i)
+    {
+      float fIntersection = 0.0f;
+      if (bb.GetRayIntersection(tcd->m_vCenterPos + SteeringBehaviorComponent::g_vSteeringDirections[i] * 0.5f, SteeringBehaviorComponent::g_vSteeringDirections[i], &fIntersection))
+      {
+
+        tcd->m_pComponent->m_fDirectionWhisker[i] = ezMath::Min(tcd->m_pComponent->m_fDirectionWhisker[i], fIntersection);
+      }
+    }
+  }
+  
   {
     ezComponentHandle hUnit = tcd->m_pGrid->GetCell(ezVec2I32(x, y)).m_hUnit;
     if (!hUnit.IsInvalidated() && hUnit != tcd->m_hSelf)
-      fDanger = ezMath::Max(0.0f, 3.0f - fLength);
+    {
+      UnitComponent* pUnit;
+      if (tcd->m_pLevel->GetWorld()->TryGetComponent<UnitComponent>(hUnit, pUnit))
+      {
+        ObstacleComponent* pObstacle;
+        if (pUnit->GetOwner()->TryGetComponentOfType<ObstacleComponent>(pObstacle))
+        {
+          const float fRadius = pObstacle->m_fRadius > 0 ? pObstacle->m_fRadius : ObstacleComponent::g_fDefaultRadius;
+
+          ezBoundingSphere sphere(pObstacle->GetOwner()->GetLocalPosition(), fRadius);
+
+          for (ezInt32 i = 0; i < g_iSteeringDirections; ++i)
+          {
+            float fIntersection = 0.0f;
+
+            ezVec3 vStartPos = tcd->m_vCenterPos + SteeringBehaviorComponent::g_vSteeringDirections[i] * 0.5f;
+
+            if (sphere.Contains(vStartPos) || sphere.GetRayIntersection(vStartPos, SteeringBehaviorComponent::g_vSteeringDirections[i], &fIntersection))
+            {
+              tcd->m_pComponent->m_fDirectionWhisker[i] = ezMath::Min(tcd->m_pComponent->m_fDirectionWhisker[i], fIntersection);
+            }
+          }
+        }
+      }
+    }
   }
 
+  //if (bDanger)
+  //{
+  //  ezBoundingBox bb(vCellPos - tcd->m_pGrid->GetWorldSpaceCellSize() * 0.5f, vCellPos + tcd->m_pGrid->GetWorldSpaceCellSize() * 0.5f);
 
-  for (ezInt32 i = 0; i < g_iSteeringDirections; ++i)
-  {
-    tcd->m_pComponent->m_fDirectionDanger[i] = ezMath::Max(SteeringBehaviorComponent::g_vSteeringDirections[i].Dot(vDirNorm) * fDanger, tcd->m_pComponent->m_fDirectionDanger[i]);
+  //  for (ezInt32 i = 0; i < g_iSteeringDirections; ++i)
+  //  {
+  //    float fIntersection = 0.0f;
+  //    if (bb.GetRayIntersection(tcd->m_vCenterPos, SteeringBehaviorComponent::g_vSteeringDirections[i], &fIntersection))
+  //    {
 
-    if (fDanger > 0.1f)
-      tcd->m_pComponent->m_fDirectionDesire[i] = ezMath::Max(-SteeringBehaviorComponent::g_vSteeringDirections[i].Dot(vDirNorm) * 0.1f, tcd->m_pComponent->m_fDirectionDesire[i]);
-  }
+  //      tcd->m_pComponent->m_fDirectionWhisker[i] = ezMath::Min(tcd->m_pComponent->m_fDirectionWhisker[i], fIntersection);
+  //    }
+  //  }
+  //}
 
   return ezCallbackResult::Continue;
 }
@@ -57,22 +102,27 @@ void AvoidObstacleSteeringComponent::Update()
   for (ezInt32 i = 0; i < g_iSteeringDirections; ++i)
   {
     m_fDirectionDesire[i] = 0;
-    m_fDirectionDanger[i] = 0;
+    m_fDirectionWhisker[i] = 5.0f;
   }
 
   UnitComponent* pUnit;
   if (!GetOwner()->TryGetComponentOfType<UnitComponent>(pUnit))
     return;
 
+  
+
   TagCellData tcd;
   tcd.m_pComponent = this;
   tcd.m_pLevel = (Level*) GetWorld()->GetUserData();
   tcd.m_pGrid = &tcd.m_pLevel->GetGrid();
-  tcd.m_vCenterPos = GetOwner()->GetLocalPosition();
-  tcd.m_hSelf = pUnit->GetHandle();
 
   const ezVec2I32 vPos = tcd.m_pGrid->GetCellAtWorldPosition(GetOwner()->GetLocalPosition());
 
-  ez2DGridUtils::RasterizeCircle(vPos.x, vPos.y, 3.0f, ComputeCellDanger, &tcd);
+  tcd.m_vCenterPos = GetOwner()->GetLocalPosition();//tcd.m_pGrid->GetCellWorldSpaceCenter(vPos);
+  tcd.m_hSelf = pUnit->GetHandle();
+
+  
+
+  ez2DGridUtils::RasterizeCircle(vPos.x, vPos.y, 5.0f, ComputeCellDanger, &tcd);
 }
 

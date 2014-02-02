@@ -11,7 +11,7 @@ SteeringBehaviorComponent::SteeringBehaviorComponent()
   for (ezInt32 i = 0; i < g_iSteeringDirections; ++i)
   {
     m_fDirectionDesire[i] = 0.0f;
-    m_fDirectionDanger[i] = 0.0f;
+    m_fDirectionWhisker[i] = 5.0f;
 
     ezAngle a = ezAngle::Degree(360.0f / g_iSteeringDirections * i);
 

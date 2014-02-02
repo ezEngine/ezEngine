@@ -8,6 +8,7 @@
 #include <SampleApp_RTS/Components/SteeringBehaviorComponent.h>
 #include <SampleApp_RTS/Components/FollowPathSteeringComponent.h>
 #include <SampleApp_RTS/Components/AvoidObstacleSteeringComponent.h>
+#include <SampleApp_RTS/Components/ObstacleComponent.h>
 #include <GameUtils/GridAlgorithms/Rasterization.h>
 
 struct GameCellData

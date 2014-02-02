@@ -14,7 +14,7 @@ void FollowPathSteeringComponent::Update()
   for (ezInt32 i = 0; i < g_iSteeringDirections; ++i)
   {
     m_fDirectionDesire[i] = 0;
-    m_fDirectionDanger[i] = 0;
+    m_fDirectionWhisker[i] = 5.0f;
   }
 
   if (m_pPath == NULL)
@@ -77,7 +77,7 @@ done:
 
   for (ezInt32 i = 0; i < g_iSteeringDirections; ++i)
   {
-    m_fDirectionDesire[i] = SteeringBehaviorComponent::g_vSteeringDirections[i].Dot(vBestDir);
+    m_fDirectionDesire[i] = SteeringBehaviorComponent::g_vSteeringDirections[i].Dot(vBestDirNorm) * ezMath::Min(5.0f, vBestDir.GetLength());
   }
 }
 
