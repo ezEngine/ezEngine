@@ -30,6 +30,7 @@ public:
 
 private:
   void UpdateCVarsTable(bool bRecreate);
+  
 
   struct CVarData
   {
@@ -58,7 +59,11 @@ private:
     }
   };
 
+  void SendCVarUpdateToServer(const char* szName, const CVarData& cvd);
+  void SyncAllCVarsToServer();
+
   ezMap<ezString, CVarData> m_CVars;
+  ezMap<ezString, CVarData> m_CVarsBackup;
 
 };
 

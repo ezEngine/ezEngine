@@ -27,6 +27,8 @@ ezMainWindow::ezMainWindow() : QMainWindow()
   setupUi(this);
 
   QSettings Settings;
+  SetAlwaysOnTop((OnTopMode) Settings.value("AlwaysOnTop", (int) OnTopMode::WhenConnected).toInt());
+
   Settings.beginGroup("MainWindow");
 
   restoreGeometry(Settings.value("WindowGeometry", saveGeometry() ).toByteArray());
@@ -191,12 +193,16 @@ void ezMainWindow::UpdateStats()
     LabelStatus->setText("<p><span style=\" font-weight:600;\">Status: </span><span style=\" font-weight:600; color:#ff0000;\">Not Connected</span></p>");
     LabelServer->setText("<p>Server: N/A</p>");
     LabelPing->setText("<p>Ping: N/A</p>");
+
+    UpdateAlwaysOnTop();
   }
   else
   {
     LabelStatus->setText("<p><span style=\" font-weight:600;\">Status: </span><span style=\" font-weight:600; color:#00aa00;\">Connected</span></p>");
     LabelServer->setText(QString::fromUtf8("<p>Server: %1 (%2:%3)</p>").arg(ezTelemetry::GetServerName()).arg(ezTelemetry::GetServerIP()).arg(ezTelemetry::s_uiPort));
     LabelPing->setText(QString::fromUtf8("<p>Ping: %1ms</p>").arg((ezUInt32) ezTelemetry::GetPingToServer().GetMilliseconds()));
+
+    UpdateAlwaysOnTop();
   }
 }
 
@@ -416,6 +422,45 @@ void ezMainWindow::on_ActionShowWindowFile_triggered()
 void ezMainWindow::on_ActionShowWindowGlobalEvents_triggered()
 {
   ezGlobalEventsWidget::s_pWidget->setVisible(ActionShowWindowGlobalEvents->isChecked());
+}
+
+void ezMainWindow::SetAlwaysOnTop(OnTopMode Mode)
+{
+  m_OnTopMode = Mode;
+
+  QSettings Settings;
+  Settings.setValue("AlwaysOnTop", (int) m_OnTopMode);
+
+  ActionNeverOnTop->setChecked((m_OnTopMode == OnTopMode::Never) ? Qt::Checked : Qt::Unchecked);
+  ActionAlwaysOnTop->setChecked((m_OnTopMode == OnTopMode::Always) ? Qt::Checked : Qt::Unchecked);
+  ActionOnTopWhenConnected->setChecked((m_OnTopMode == OnTopMode::WhenConnected) ? Qt::Checked : Qt::Unchecked);
+
+  UpdateAlwaysOnTop();
+}
+
+void ezMainWindow::UpdateAlwaysOnTop()
+{
+  if (m_OnTopMode == OnTopMode::Always || (m_OnTopMode == OnTopMode::WhenConnected && ezTelemetry::IsConnectedToServer()))
+    setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
+  else
+    setWindowFlags(windowFlags() & ~Qt::WindowStaysOnTopHint | Qt::WindowStaysOnBottomHint);
+
+  show();
+}
+
+void ezMainWindow::on_ActionOnTopWhenConnected_triggered()
+{
+  SetAlwaysOnTop(OnTopMode::WhenConnected);
+}
+
+void ezMainWindow::on_ActionAlwaysOnTop_triggered()
+{
+  SetAlwaysOnTop(OnTopMode::Always);
+}
+
+void ezMainWindow::on_ActionNeverOnTop_triggered()
+{
+  SetAlwaysOnTop(OnTopMode::Never);
 }
 
 void ezMainWindow::ProcessTelemetry(void* pUnuseed)

@@ -232,7 +232,22 @@
     <addaction name="ActionShowWindowGlobalEvents"/>
     <addaction name="ActionShowWindowTime"/>
    </widget>
+   <widget class="QMenu" name="menuWindow">
+    <property name="title">
+     <string>Window</string>
+    </property>
+    <widget class="QMenu" name="menuIn_Foreground">
+     <property name="title">
+      <string>In Foreground</string>
+     </property>
+     <addaction name="ActionOnTopWhenConnected"/>
+     <addaction name="ActionAlwaysOnTop"/>
+     <addaction name="ActionNeverOnTop"/>
+    </widget>
+    <addaction name="menuIn_Foreground"/>
+   </widget>
    <addaction name="menuWindows"/>
+   <addaction name="menuWindow"/>
   </widget>
   <action name="ActionShowWindowLog">
    <property name="checkable">
@@ -307,6 +322,30 @@
    </property>
    <property name="text">
     <string>Time</string>
+   </property>
+  </action>
+  <action name="ActionOnTopWhenConnected">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>When Connected</string>
+   </property>
+  </action>
+  <action name="ActionAlwaysOnTop">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Always</string>
+   </property>
+  </action>
+  <action name="ActionNeverOnTop">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>Never</string>
    </property>
   </action>
  </widget>

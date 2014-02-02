@@ -124,6 +124,11 @@ static void SendAllCVarTelemetry()
 
     pCVar = pCVar->GetNextInstance();
   }
+
+  {
+    ezTelemetryMessage msg;
+    ezTelemetry::Broadcast(ezTelemetry::Reliable, 'CVAR', 'SYNC', NULL, 0);
+  }
 }
 
 

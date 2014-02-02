@@ -19,6 +19,7 @@ ezCVarsWidget::ezCVarsWidget(QWidget* parent) : QDockWidget (parent)
 
 void ezCVarsWidget::ResetStats()
 {
+  m_CVarsBackup = m_CVars;
   m_CVars.Clear();
   TableCVars->clear();
 
@@ -51,6 +52,26 @@ void ezCVarsWidget::ProcessTelemetry(void* pUnuseed)
     if (msg.GetMessageID() == 'CLR')
     {
       s_pWidget->m_CVars.Clear();
+    }
+
+    if (msg.GetMessageID() == 'SYNC')
+    {
+      for (auto it = s_pWidget->m_CVars.GetIterator(); it.IsValid(); ++it)
+      {
+        auto var = s_pWidget->m_CVarsBackup.Find(it.Key());
+
+        if (var.IsValid() && it.Value().m_uiType == var.Value().m_uiType)
+        {
+          it.Value().m_bValue = var.Value().m_bValue;
+          it.Value().m_fValue = var.Value().m_fValue;
+          it.Value().m_sValue = var.Value().m_sValue;
+          it.Value().m_iValue = var.Value().m_iValue;
+        }
+      }
+
+      s_pWidget->UpdateCVarsTable(true);
+
+      s_pWidget->SyncAllCVarsToServer();
     }
 
     if (msg.GetMessageID() == 'DATA')
@@ -228,10 +249,42 @@ void ezCVarsWidget::UpdateCVarsTable(bool bRecreate)
       ++iRow;
     }
   }
-
-  
 }
 
+void ezCVarsWidget::SyncAllCVarsToServer()
+{
+  for (auto it = m_CVars.GetIterator(); it.IsValid(); ++it)
+    SendCVarUpdateToServer(it.Key().GetData(), it.Value());
+}
+
+void ezCVarsWidget::SendCVarUpdateToServer(const char* szName, const CVarData& cvd)
+{
+  ezTelemetryMessage Msg;
+  Msg.SetMessageID('SVAR', 'SET');
+  Msg.GetWriter() << szName;
+  Msg.GetWriter() << cvd.m_uiType;
+
+  switch (cvd.m_uiType)
+  {
+  case ezCVarType::Bool:
+    Msg.GetWriter() << cvd.m_bValue;
+    break;
+
+  case ezCVarType::Float:
+    Msg.GetWriter() << cvd.m_fValue;
+    break;
+
+  case ezCVarType::Int:
+    Msg.GetWriter() << cvd.m_iValue;
+    break;
+
+  case ezCVarType::String:
+    Msg.GetWriter() << cvd.m_sValue;
+    break;
+  }
+
+  ezTelemetry::SendToServer(Msg);
+}
 
 void ezCVarsWidget::BoolChanged(int index)
 {
@@ -249,13 +302,7 @@ void ezCVarsWidget::BoolChanged(int index)
 
     it.Value().m_bValue = (pValue->currentIndex() == 0);
 
-    ezTelemetryMessage Msg;
-    Msg.SetMessageID('SVAR', 'SET');
-    Msg.GetWriter() << it.Key().GetData();
-    Msg.GetWriter() << it.Value().m_uiType;
-    Msg.GetWriter() << it.Value().m_bValue;
-
-    ezTelemetry::SendToServer(Msg);
+    SendCVarUpdateToServer(it.Key().GetData(), it.Value());
   }
 }
 
@@ -273,13 +320,7 @@ void ezCVarsWidget::FloatChanged(double val)
 
     it.Value().m_fValue = (float) pValue->value();
 
-    ezTelemetryMessage Msg;
-    Msg.SetMessageID('SVAR', 'SET');
-    Msg.GetWriter() << it.Key().GetData();
-    Msg.GetWriter() << it.Value().m_uiType;
-    Msg.GetWriter() << it.Value().m_fValue;
-
-    ezTelemetry::SendToServer(Msg);
+    SendCVarUpdateToServer(it.Key().GetData(), it.Value());
   }
 }
 
@@ -297,13 +338,7 @@ void ezCVarsWidget::IntChanged(int val)
 
     it.Value().m_iValue = pValue->value();
 
-    ezTelemetryMessage Msg;
-    Msg.SetMessageID('SVAR', 'SET');
-    Msg.GetWriter() << it.Key().GetData();
-    Msg.GetWriter() << it.Value().m_uiType;
-    Msg.GetWriter() << it.Value().m_iValue;
-
-    ezTelemetry::SendToServer(Msg);
+    SendCVarUpdateToServer(it.Key().GetData(), it.Value());
   }
 }
 
@@ -321,13 +356,7 @@ void ezCVarsWidget::StringChanged(const QString& val)
 
     it.Value().m_sValue = pValue->text().toUtf8().data();
 
-    ezTelemetryMessage Msg;
-    Msg.SetMessageID('SVAR', 'SET');
-    Msg.GetWriter() << it.Key().GetData();
-    Msg.GetWriter() << it.Value().m_uiType;
-    Msg.GetWriter() << it.Value().m_sValue;
-
-    ezTelemetry::SendToServer(Msg);
+    SendCVarUpdateToServer(it.Key().GetData(), it.Value());
   }
 
 }

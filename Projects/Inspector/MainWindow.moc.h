@@ -11,6 +11,13 @@
 
 class ezMainWindow : public QMainWindow, public Ui_MainWindow
 {
+  enum OnTopMode
+  {
+    Never,
+    Always,
+    WhenConnected
+  };
+
 public:
   Q_OBJECT
 
@@ -40,9 +47,15 @@ private slots:
   void on_ActionShowWindowGlobalEvents_triggered();
   void on_ButtonConnect_clicked();
 
+  void on_ActionOnTopWhenConnected_triggered();
+  void on_ActionAlwaysOnTop_triggered();
+  void on_ActionNeverOnTop_triggered();
+
   void on_TreeStats_itemChanged(QTreeWidgetItem* item, int column);
 
 private:
+  void SetAlwaysOnTop(OnTopMode Mode);
+  void UpdateAlwaysOnTop();
   void SetupNetworkTimer();
   void UpdateNetwork();
 
@@ -71,6 +84,7 @@ private:
   ezMap<ezString, StatData> m_Stats;
   ezSet<ezString> m_Favourites;
   QTimer* m_pNetworkTimer;
+  OnTopMode m_OnTopMode;
 };
 
 
