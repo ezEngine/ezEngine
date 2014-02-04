@@ -5,6 +5,8 @@ void OnUnloadPlugin(bool bReloading)  { }
 
 ezPlugin g_Plugin(false, OnLoadPlugin, OnUnloadPlugin);
 
+EZ_DYNAMIC_PLUGIN_IMPLEMENTATION(ezInspectorPlugin);
+
 void AddLogWriter();
 void RemoveLogWriter();
 
@@ -83,4 +85,8 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(InspectorPlugin, Main)
 
 EZ_END_SUBSYSTEM_DECLARATION
 
+
+
+
+EZ_STATICLINK_FILE(InspectorPlugin, InspectorPlugin_Main);
 

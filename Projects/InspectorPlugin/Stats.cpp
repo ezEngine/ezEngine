@@ -98,3 +98,7 @@ void RemoveStatsEventHandler()
   ezStats::RemoveEventHandler(StatsEventHandler);
 }
 
+
+
+EZ_STATICLINK_FILE(InspectorPlugin, InspectorPlugin_Stats);
+

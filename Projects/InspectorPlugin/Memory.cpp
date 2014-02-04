@@ -37,3 +37,8 @@ void RemoveMemoryEventHandler()
 {
   ezTelemetry::RemoveEventHandler(TelemetryEventsHandler);
 }
+
+
+
+EZ_STATICLINK_FILE(InspectorPlugin, InspectorPlugin_Memory);
+

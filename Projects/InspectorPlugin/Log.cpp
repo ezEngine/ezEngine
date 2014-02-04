@@ -32,3 +32,7 @@ void RemoveLogWriter()
   ezGlobalLog::RemoveLogWriter(&ezLogWriter::Telemetry::LogMessageHandler);
 }
 
+
+
+EZ_STATICLINK_FILE(InspectorPlugin, InspectorPlugin_Log);
+

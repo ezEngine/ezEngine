@@ -175,3 +175,7 @@ void RemoveCVarEventHandler()
   ezTelemetry::AcceptMessagesForSystem('SVAR', false);
 }
 
+
+
+EZ_STATICLINK_FILE(InspectorPlugin, InspectorPlugin_CVars);
+

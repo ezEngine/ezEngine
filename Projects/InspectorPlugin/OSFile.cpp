@@ -121,3 +121,7 @@ void RemoveOSFileEventHandler()
   ezOSFile::RemoveEventHandler(OSFileEventHandler);
 }
 
+
+
+EZ_STATICLINK_FILE(InspectorPlugin, InspectorPlugin_OSFile);
+

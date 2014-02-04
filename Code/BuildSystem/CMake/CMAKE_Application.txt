@@ -49,6 +49,9 @@ if (BUILDSYSTEM_MSVC)
 	target_link_libraries (${PROJECT_NAME} winmm)
 endif ()
 
+string(TOUPPER ${PROJECT_NAME} PROJECT_NAME_UPPER)
+add_definitions (-DBUILDSYSTEM_BUILDING_${PROJECT_NAME_UPPER})
+
 # We need to link against X11, pthread and rt last or linker errors will occur.
 if (BUILDSYSTEM_COMPILER_GCC)
 	target_link_libraries (${PROJECT_NAME} X11 pthread rt)

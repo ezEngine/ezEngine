@@ -25,3 +25,7 @@ void RemoveTimeEventHandler()
   ezClock::RemoveEventHandler(TimeEventHandler);
 }
 
+
+
+EZ_STATICLINK_FILE(InspectorPlugin, InspectorPlugin_Time);
+

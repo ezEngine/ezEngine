@@ -104,3 +104,8 @@ void RemoveInputEventHandler()
   ezInputManager::RemoveEventHandler(InputManagerEventHandler);
   ezTelemetry::RemoveEventHandler(TelemetryEventsHandler);
 }
+
+
+
+EZ_STATICLINK_FILE(InspectorPlugin, InspectorPlugin_Input);
+

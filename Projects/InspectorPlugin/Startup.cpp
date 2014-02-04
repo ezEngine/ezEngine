@@ -85,3 +85,7 @@ void RemoveStartupEventHandler()
   ezTelemetry::RemoveEventHandler(TelemetryEventsHandler);
 }
 
+
+
+EZ_STATICLINK_FILE(InspectorPlugin, InspectorPlugin_Startup);
+

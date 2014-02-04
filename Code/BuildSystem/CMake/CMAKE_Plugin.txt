@@ -34,6 +34,9 @@ if (MSVC)
   ADD_MSVC_PRECOMPILED_HEADER_APP ()
 endif ()
 
+string(TOUPPER ${PROJECT_NAME} PROJECT_NAME_UPPER)
+add_definitions (-DBUILDSYSTEM_BUILDING_${PROJECT_NAME_UPPER})
+
 # Add the application source directory as an additional include dir (required to find PCH.h etc.)
 include_directories (${CMAKE_CURRENT_SOURCE_DIR})
 
