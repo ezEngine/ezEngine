@@ -1,4 +1,6 @@
 #include <PCH.h>
+#include <Foundation/Communication/Telemetry.h>
+#include <Foundation/Configuration/Startup.h>
 
 void OnLoadPlugin(bool bReloading)    { }
 void OnUnloadPlugin(bool bReloading)  { }

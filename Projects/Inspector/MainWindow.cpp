@@ -20,6 +20,8 @@
 
 ezMainWindow* ezMainWindow::s_pWidget = NULL;
 
+
+
 ezMainWindow::ezMainWindow() : QMainWindow()
 {
   s_pWidget = this;
@@ -440,12 +442,28 @@ void ezMainWindow::SetAlwaysOnTop(OnTopMode Mode)
 
 void ezMainWindow::UpdateAlwaysOnTop()
 {
-  if (m_OnTopMode == OnTopMode::Always || (m_OnTopMode == OnTopMode::WhenConnected && ezTelemetry::IsConnectedToServer()))
-    setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
-  else
-    setWindowFlags(windowFlags() & ~Qt::WindowStaysOnTopHint | Qt::WindowStaysOnBottomHint);
+  static bool bOnTop = false;
 
-  show();
+  bool bNewState = bOnTop;
+
+  if (m_OnTopMode == OnTopMode::Always || (m_OnTopMode == OnTopMode::WhenConnected && ezTelemetry::IsConnectedToServer()))
+    bNewState = true;
+  else
+    bNewState = false;
+  
+  if (bOnTop != bNewState)
+  {
+    bOnTop = bNewState;
+
+    hide();
+
+    if (bOnTop)
+      setWindowFlags(windowFlags() | Qt::WindowStaysOnTopHint);
+    else
+      setWindowFlags(windowFlags() & ~Qt::WindowStaysOnTopHint | Qt::WindowStaysOnBottomHint);
+
+    show();
+  }
 }
 
 void ezMainWindow::on_ActionOnTopWhenConnected_triggered()

@@ -1,4 +1,5 @@
 #include <PCH.h>
+#include <Foundation/Communication/Telemetry.h>
 #include <Foundation/Configuration/Plugin.h>
 
 static void SendPluginTelemetry()

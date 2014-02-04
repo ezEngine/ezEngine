@@ -1,4 +1,5 @@
 #include <PCH.h>
+#include <Foundation/Communication/Telemetry.h>
 #include <Foundation/Communication/GlobalEvent.h>
 
 static ezGlobalEvent::EventMap s_LastState;

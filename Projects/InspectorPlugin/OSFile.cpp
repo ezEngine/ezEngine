@@ -1,6 +1,8 @@
 #include <PCH.h>
+#include <Foundation/Communication/Telemetry.h>
 #include <Foundation/Threading/ThreadUtils.h>
 #include <Foundation/Threading/TaskSystem.h>
+#include <Foundation/IO/OSFile.h>
 
 static void OSFileEventHandler(const ezOSFile::EventData& e)
 {

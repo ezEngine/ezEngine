@@ -1,5 +1,7 @@
 #include <PCH.h>
+#include <Foundation/Communication/Telemetry.h>
 #include <Foundation/Communication/GlobalEvent.h>
+#include <Foundation/Configuration/Startup.h>
 
 static void SendSubsystemTelemetry();
 static ezInt32 s_iSendSubSystemTelemetry = 0;

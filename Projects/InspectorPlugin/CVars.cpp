@@ -1,4 +1,6 @@
 #include <PCH.h>
+#include <Foundation/Communication/Telemetry.h>
+#include <Foundation/Configuration/CVar.h>
 
 static void TelemetryMessage(void* pPassThrough)
 {

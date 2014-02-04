@@ -1,4 +1,6 @@
 #include <PCH.h>
+#include <Foundation/Communication/Telemetry.h>
+#include <Core/Input/InputManager.h>
 
 static void SendInputSlotData(const char* szInputSlot)
 {

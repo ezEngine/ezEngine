@@ -1,4 +1,6 @@
 #include <PCH.h>
+#include <Foundation/Communication/Telemetry.h>
+#include <Foundation/Utilities/Stats.h>
 
 static void StatsEventHandler(const ezStats::StatsEventData& e)
 {

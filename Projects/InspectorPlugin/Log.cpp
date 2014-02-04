@@ -1,4 +1,6 @@
 #include <PCH.h>
+#include <Foundation/Communication/Telemetry.h>
+#include <Foundation/Logging/Log.h>
 
 namespace ezLogWriter
 {

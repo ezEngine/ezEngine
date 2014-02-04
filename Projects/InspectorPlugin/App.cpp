@@ -1,5 +1,8 @@
 #include <PCH.h>
+#include <Foundation/Communication/Telemetry.h>
 #include <Foundation/Threading/Thread.h>
+#include <Foundation/System/SystemInformation.h>
+#include <Foundation/Utilities/Stats.h>
 
 static ezAssertHandler g_PreviousAssertHandler = NULL;
 

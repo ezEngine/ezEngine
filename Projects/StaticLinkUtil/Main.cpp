@@ -357,8 +357,13 @@ public:
         sCanFindInclude.PathParentDirectory();
         sCanFindInclude.AppendPath(sInclude.GetData());
 
+        ezStringBuilder sCanFindInclude2 = m_sSearchDir.GetData();
+        sCanFindInclude2.PathParentDirectory(2);
+        sCanFindInclude2.AppendPath("Code/Engine");
+        sCanFindInclude2.AppendPath(sInclude.GetData());
+
         // ignore includes to files that cannot be found (ie. they are not part of the ezEngine source tree)
-        if (!ezFileSystem::ExistsFile(sCanFindInclude.GetData()))
+        if (!ezFileSystem::ExistsFile(sCanFindInclude.GetData()) && !ezFileSystem::ExistsFile(sCanFindInclude2.GetData()))
         {
           ezLog::Dev("Skipping non-Engine Include: '%s'", sInclude.GetData());
           continue;

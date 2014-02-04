@@ -1,4 +1,6 @@
 #include <PCH.h>
+#include <Foundation/Communication/Telemetry.h>
+#include <Foundation/Time/Clock.h>
 
 static void TimeEventHandler(const ezClock::EventData& e)
 {
