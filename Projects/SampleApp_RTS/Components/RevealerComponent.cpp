@@ -57,7 +57,9 @@ void RevealerComponent::Update()
     // update what we see
     if (m_bRaycasting)
     {
-      ez2DGridUtils::ComputeVisibleArea(vPos.x, vPos.y, (ezUInt16) fRadius, tcd.m_pGrid->GetGridWidth(), tcd.m_pGrid->GetGridHeight(), TagCellVisible, &tcd);
+      static ezDynamicArray<ezUInt8> Temp;
+
+      ez2DGridUtils::ComputeVisibleArea(vPos.x, vPos.y, (ezUInt16) fRadius, tcd.m_pGrid->GetGridWidth(), tcd.m_pGrid->GetGridHeight(), TagCellVisible, &tcd, &Temp);
     }
     else
     {

@@ -29,7 +29,7 @@ ezMainWindow::ezMainWindow() : QMainWindow()
   setupUi(this);
 
   QSettings Settings;
-  SetAlwaysOnTop((OnTopMode) Settings.value("AlwaysOnTop", (int) OnTopMode::WhenConnected).toInt());
+  SetAlwaysOnTop((OnTopMode) Settings.value("AlwaysOnTop", (int) WhenConnected).toInt());
 
   Settings.beginGroup("MainWindow");
 
@@ -433,9 +433,9 @@ void ezMainWindow::SetAlwaysOnTop(OnTopMode Mode)
   QSettings Settings;
   Settings.setValue("AlwaysOnTop", (int) m_OnTopMode);
 
-  ActionNeverOnTop->setChecked((m_OnTopMode == OnTopMode::Never) ? Qt::Checked : Qt::Unchecked);
-  ActionAlwaysOnTop->setChecked((m_OnTopMode == OnTopMode::Always) ? Qt::Checked : Qt::Unchecked);
-  ActionOnTopWhenConnected->setChecked((m_OnTopMode == OnTopMode::WhenConnected) ? Qt::Checked : Qt::Unchecked);
+  ActionNeverOnTop->setChecked((m_OnTopMode == Never) ? Qt::Checked : Qt::Unchecked);
+  ActionAlwaysOnTop->setChecked((m_OnTopMode == Always) ? Qt::Checked : Qt::Unchecked);
+  ActionOnTopWhenConnected->setChecked((m_OnTopMode == WhenConnected) ? Qt::Checked : Qt::Unchecked);
 
   UpdateAlwaysOnTop();
 }
@@ -446,7 +446,7 @@ void ezMainWindow::UpdateAlwaysOnTop()
 
   bool bNewState = bOnTop;
 
-  if (m_OnTopMode == OnTopMode::Always || (m_OnTopMode == OnTopMode::WhenConnected && ezTelemetry::IsConnectedToServer()))
+  if (m_OnTopMode == Always || (m_OnTopMode == WhenConnected && ezTelemetry::IsConnectedToServer()))
     bNewState = true;
   else
     bNewState = false;
@@ -468,17 +468,17 @@ void ezMainWindow::UpdateAlwaysOnTop()
 
 void ezMainWindow::on_ActionOnTopWhenConnected_triggered()
 {
-  SetAlwaysOnTop(OnTopMode::WhenConnected);
+  SetAlwaysOnTop(WhenConnected);
 }
 
 void ezMainWindow::on_ActionAlwaysOnTop_triggered()
 {
-  SetAlwaysOnTop(OnTopMode::Always);
+  SetAlwaysOnTop(Always);
 }
 
 void ezMainWindow::on_ActionNeverOnTop_triggered()
 {
-  SetAlwaysOnTop(OnTopMode::Never);
+  SetAlwaysOnTop(Never);
 }
 
 void ezMainWindow::ProcessTelemetry(void* pUnuseed)

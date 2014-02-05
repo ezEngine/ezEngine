@@ -7,4 +7,4 @@ You can then find the documentation in:
 ezEngine/Trunk/DoxygenOutput/html/index.htm
 
 Also install the 'Graphviz Dot Tool' for nicer graph visualizations:
-http://www.graphviz.org/Download..php
+http://www.graphviz.org/Download.php

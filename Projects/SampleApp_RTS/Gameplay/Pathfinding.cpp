@@ -56,7 +56,7 @@ void SampleGameApp::SendUnit()
   NavmeshStateGenerator.m_pNavmesh = &m_pLevel->GetNavmesh();
   NavmeshStateGenerator.m_vTarget = ezVec2(vTarget.x, vTarget.z);
 
-  ezPathSearch<MyPathState> PathSearch;
+  static ezPathSearch<MyPathState> PathSearch;
   PathSearch.SetPathStateGenerator(&NavmeshStateGenerator);
 
   for (ezUInt32 i = 0; i < m_pSelectedUnits->GetCount();++i)
@@ -80,8 +80,6 @@ void SampleGameApp::SendUnit()
         ezDeque<ezPathSearch<MyPathState>::PathResultData> PathNodeIndices;
 
         ezStopwatch s;
-
-        
 
         if (iStartArea >= 0 && iTargetArea >= 0 && PathSearch.FindPath(iStartArea, StartState, iTargetArea, PathNodeIndices) == EZ_SUCCESS)
         {
