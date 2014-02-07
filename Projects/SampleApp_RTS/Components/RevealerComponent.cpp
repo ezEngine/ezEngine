@@ -39,6 +39,8 @@ ezCallbackResult::Enum RevealerComponent::TagCellVisible(ezInt32 x, ezInt32 y, v
   return ezCallbackResult::Continue;
 }
 
+static ezDynamicArray<ezUInt8> Temp;
+
 void RevealerComponent::Update()
 {
   TagCellData tcd;
@@ -57,8 +59,6 @@ void RevealerComponent::Update()
     // update what we see
     if (m_bRaycasting)
     {
-      static ezDynamicArray<ezUInt8> Temp;
-
       ez2DGridUtils::ComputeVisibleArea(vPos.x, vPos.y, (ezUInt16) fRadius, tcd.m_pGrid->GetGridWidth(), tcd.m_pGrid->GetGridHeight(), TagCellVisible, &tcd, &Temp);
     }
     else

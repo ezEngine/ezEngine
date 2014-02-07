@@ -59,6 +59,18 @@ static void SendReflectionTelemetry(ezRTTI* pRTTI)
     {
       msg.GetWriter() << Properties[i]->GetPropertyName();
       msg.GetWriter() << (ezInt8) Properties[i]->GetCategory();
+
+      if (Properties[i]->GetCategory() == ezAbstractProperty::Member)
+      {
+        ezAbstractMemberProperty* pProp = (ezAbstractMemberProperty*) Properties[i];
+        msg.GetWriter() << pProp->GetPropertyType()->GetTypeName();
+      }
+
+      if (Properties[i]->GetCategory() == ezAbstractProperty::Array)
+      {
+        ezAbstractArrayProperty* pProp = (ezAbstractArrayProperty*) Properties[i];
+        msg.GetWriter() << pProp->GetElementType()->GetTypeName();
+      }
     }
   }
 

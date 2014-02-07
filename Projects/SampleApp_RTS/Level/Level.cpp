@@ -31,7 +31,7 @@ void Level::CreateComponentManagers()
   FollowPathSteeringComponentManager* pFollowPathSteeringManager = m_pWorld->CreateComponentManager<FollowPathSteeringComponentManager>();
   AvoidObstacleSteeringComponentManager* pAvoidObstacleSteeringManager = m_pWorld->CreateComponentManager<AvoidObstacleSteeringComponentManager>();
   ObstacleComponentManager* pObstacleManager = m_pWorld->CreateComponentManager<ObstacleComponentManager>();
-
+  
 }
 
 
@@ -50,6 +50,11 @@ void Level::Update()
       if (m_GameGrid.GetCell(i).m_uiVisibility > 1)
         --m_GameGrid.GetCell(i).m_uiVisibility;
     }
+  }
+
+  for (ezUInt32 i = 0; i < m_GameGrid.GetNumCells(); ++i)
+  {
+    m_GameGrid.GetCell(i).m_iThreat = 0;
   }
 
   m_pWorld->Update();

@@ -9,6 +9,7 @@ void RenderCube(const ezVec3& v, const ezVec3& s, bool bColor = true, float fCol
 ezCVarBool CVarVisNavmeshCells("ai_VisNavMeshCells", false, ezCVarFlags::None, "Visualize the navigation mesh cells.");
 ezCVarBool CVarVisNavmeshEdges("ai_VisNavMeshEdges", false, ezCVarFlags::None, "Visualize the navigation mesh edges.");
 ezCVarBool CVarVisFogOfWar("ai_VisFogOfWar", true, ezCVarFlags::None, "Visualize the fog of war.");
+ezCVarBool CVarVisThreat("ai_VisThreat", false, ezCVarFlags::None, "Visualize the threat that units project.");
 
 void GameRenderer::RenderGrid()
 {
@@ -38,12 +39,18 @@ void GameRenderer::RenderGrid()
 
       fFade = ezMath::Max(fFade, 50.0f / 255.0f);
 
-      if (!cd.m_hUnit.IsInvalidated())
+      if (CVarVisThreat && cd.m_iThreat > 0)
       {
-        glColor3ub(0, 100, 0);
+        glColor3ub(255, 0, 220);
         RenderCube(m_pGrid->GetCellWorldSpaceOrigin(ezVec2I32(x, z)), vCellSize2, false, fFade);
       }
-      else
+
+      //if (!cd.m_hUnit.IsInvalidated())
+      //{
+      //  glColor3ub(0, 100, 0);
+      //  RenderCube(m_pGrid->GetCellWorldSpaceOrigin(ezVec2I32(x, z)), vCellSize2, false, fFade);
+      //}
+      //else
       {
         if (cd.m_iCellType == 1)
           RenderCube(m_pGrid->GetCellWorldSpaceOrigin(ezVec2I32(x, z)), vCellSize, true, fFade);

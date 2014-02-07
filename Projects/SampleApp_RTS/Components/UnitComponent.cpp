@@ -10,10 +10,14 @@ EZ_IMPLEMENT_COMPONENT_TYPE(UnitComponent, UnitComponentManager);
 
 ezCVarFloat CVarUnitSpeed("ai_UnitSpeed", 10.0f, ezCVarFlags::Save, "How fast units move.");
 
+static ezInt32 g_iThreat = 1;
+
 UnitComponent::UnitComponent()
 {
   m_GridCoordinate.Set(-1); // invalid
   m_iCurDirection = -1;
+  m_fSpeedBias = 0.0f;
+  m_iThreat = g_iThreat++;
 }
 
 void UnitComponent::Update()
@@ -37,6 +41,29 @@ void UnitComponent::Update()
   }
 
 }
+
+struct ThreatCellData
+{
+  Level* m_pLevel;
+  GameGrid* m_pGrid;
+  ezInt32 m_iThreat;
+};
+
+ezCallbackResult::Enum UnitComponent::TagCellThreat(ezInt32 x, ezInt32 y, void* pPassThrough)
+{
+  ThreatCellData* tcd = (ThreatCellData*) pPassThrough;
+
+  if (!tcd->m_pGrid->IsValidCellCoordinate(ezVec2I32(x, y)))
+    return ezCallbackResult::Stop;
+
+  tcd->m_pGrid->GetCell(ezVec2I32(x, y)).m_iThreat = ezMath::Max(tcd->m_pGrid->GetCell(ezVec2I32(x, y)).m_iThreat, tcd->m_iThreat);
+
+  if (tcd->m_pGrid->GetCell(ezVec2I32(x, y)).m_iCellType == 1)
+    return ezCallbackResult::Stop;
+
+  return ezCallbackResult::Continue;
+}
+
 
 void UnitComponent::MoveAlongPath()
 {
@@ -66,6 +93,8 @@ void UnitComponent::MoveAlongPath()
 
   const ezInt32 iPrevDir = m_iCurDirection;
 
+  
+
   m_iCurDirection = -1;
 
   if (Steering.IsEmpty())
@@ -79,6 +108,11 @@ void UnitComponent::MoveAlongPath()
       fDirectionWhisker[dd] = ezMath::Min(fDirectionWhisker[dd], Steering[i]->GetDirectionWhisker()[dd]);
     }
   }
+  ezVec3 vCurPos = GetOwner()->GetLocalPosition();
+
+  Level* pLevel = (Level*) GetWorld()->GetUserData();
+  GameGrid* pGrid = &pLevel->GetGrid();
+  const ezVec2I32 iPos = pGrid->GetCellAtWorldPosition(vCurPos);
 
   if (iPrevDir != -1)
   {
@@ -89,6 +123,20 @@ void UnitComponent::MoveAlongPath()
     fDirectionDesire[(iPrevDir + n - 1) % n] *= 1.1f;
     fDirectionDesire[(iPrevDir + 2) % n] *= 1.3f;
     fDirectionDesire[(iPrevDir + n - 2) % n] *= 1.1f;
+
+    const ezVec3 vDir = SteeringBehaviorComponent::g_vSteeringDirections[iPrevDir];
+
+    ThreatCellData tcd;
+    tcd.m_pLevel = (Level*) GetWorld()->GetUserData();
+    tcd.m_pGrid = &tcd.m_pLevel->GetGrid();
+    tcd.m_iThreat = m_iThreat;
+
+    const ezInt32 iPrevThreat = pGrid->GetCell(iPos).m_iThreat;
+
+    ez2DGridUtils::ComputeVisibleAreaInCone(iPos.x, iPos.y, 4, ezVec2(vDir.x, vDir.z), ezAngle::Degree(30), 
+      pGrid->GetGridWidth(), pGrid->GetGridHeight(), TagCellThreat, &tcd);
+
+    pGrid->GetCell(iPos).m_iThreat = iPrevThreat;
   }
 
   for (ezInt32 dd = 0; dd < SteeringBehaviorComponent::g_iSteeringDirections; ++dd)
@@ -97,24 +145,32 @@ void UnitComponent::MoveAlongPath()
   
   float fDesire = 0;
 
+  const ezInt32 iOffset = 0;//rand();
   for (ezInt32 dd = 0; dd < SteeringBehaviorComponent::g_iSteeringDirections; ++dd)
   {
-    if (fDirectionDesire[dd] > fDesire)
+    const ezInt32 index = (dd + iOffset) % SteeringBehaviorComponent::g_iSteeringDirections;
+
+    if (fDirectionDesire[index] > fDesire)
     {
-      m_iCurDirection = dd;
-      fDesire = fDirectionDesire[dd];
+      m_iCurDirection = index;
+      fDesire = fDirectionDesire[index];
     }
   }
 
   if (m_iCurDirection == -1)
+  {
+    if (!m_Path.IsEmpty())
+      m_iCurDirection = iPrevDir;
+
     return;
+  }
 
   vDesiredDir = SteeringBehaviorComponent::g_vSteeringDirections[m_iCurDirection] * fDesire;
 
-  const float fSpeed = CVarUnitSpeed;
+  const float fSpeed = CVarUnitSpeed + m_fSpeedBias;
   float fDistance = fSpeed * (float) ezClock::Get()->GetTimeDiff().GetSeconds();
 
-  ezVec3 vCurPos = GetOwner()->GetLocalPosition();
+  
 
   if (fDistance > vDesiredDir.GetLength())
   {

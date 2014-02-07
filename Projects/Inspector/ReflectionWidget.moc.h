@@ -27,6 +27,7 @@ public:
 private:
   struct PropertyData
   {
+    ezString m_sType;
     ezString m_sPropertyName;
     ezInt8 m_iCategory;
   };

@@ -12,7 +12,7 @@
   </property>
   <property name="minimumSize">
    <size>
-    <width>326</width>
+    <width>386</width>
     <height>204</height>
    </size>
   </property>
@@ -112,6 +112,16 @@
           <widget class="QLineEdit" name="LineSearch">
            <property name="placeholderText">
             <string>Search</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="label">
+           <property name="text">
+            <string/>
+           </property>
+           <property name="pixmap">
+            <pixmap resource="resources.qrc">:/Icons/Icons/Search.png</pixmap>
            </property>
           </widget>
          </item>

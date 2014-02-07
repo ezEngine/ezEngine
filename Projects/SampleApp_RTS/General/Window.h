@@ -10,8 +10,10 @@ public:
   ~GameWindow();
 
   ezSizeU32 GetResolution() const;
+  bool IsMinimized() const { return m_bMinimized; }
 
 private:
   void OnResizeMessage(const ezSizeU32& newWindowSize) EZ_OVERRIDE;
 
+  bool m_bMinimized;
 };

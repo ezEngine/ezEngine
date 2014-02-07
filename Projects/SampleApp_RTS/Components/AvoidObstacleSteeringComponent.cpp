@@ -15,6 +15,7 @@ struct TagCellData
   GameGrid* m_pGrid;
   ezVec3 m_vCenterPos;
   ezComponentHandle m_hSelf;
+  ezInt32 m_iThreat;
 };
 
 ezCallbackResult::Enum AvoidObstacleSteeringComponent::ComputeCellDanger(ezInt32 x, ezInt32 y, void* pPassThrough)
@@ -34,7 +35,9 @@ ezCallbackResult::Enum AvoidObstacleSteeringComponent::ComputeCellDanger(ezInt32
 
   bool bDanger = false;
 
-  if (tcd->m_pGrid->GetCell(ezVec2I32(x, y)).m_iCellType == 1)
+  const bool bThreat = (tcd->m_pGrid->GetCell(ezVec2I32(x, y)).m_iThreat != tcd->m_iThreat) && (tcd->m_pGrid->GetCell(ezVec2I32(x, y)).m_iThreat != 0);
+
+  if (tcd->m_pGrid->GetCell(ezVec2I32(x, y)).m_iCellType == 1 || bThreat)
   {
     ezBoundingBox bb(vCellPos - tcd->m_pGrid->GetWorldSpaceCellSize() * 0.5f, vCellPos + tcd->m_pGrid->GetWorldSpaceCellSize() * 0.5f);
 
@@ -43,8 +46,11 @@ ezCallbackResult::Enum AvoidObstacleSteeringComponent::ComputeCellDanger(ezInt32
       float fIntersection = 0.0f;
       if (bb.GetRayIntersection(tcd->m_vCenterPos + SteeringBehaviorComponent::g_vSteeringDirections[i] * 0.5f, SteeringBehaviorComponent::g_vSteeringDirections[i], &fIntersection))
       {
+        if (tcd->m_pGrid->GetCell(ezVec2I32(x, y)).m_iCellType == 1)
+          tcd->m_pComponent->m_fDirectionWhisker[i] = ezMath::Min(tcd->m_pComponent->m_fDirectionWhisker[i], fIntersection);
 
-        tcd->m_pComponent->m_fDirectionWhisker[i] = ezMath::Min(tcd->m_pComponent->m_fDirectionWhisker[i], fIntersection);
+        if (bThreat)
+          tcd->m_pComponent->m_fDirectionDesire[i] = ezMath::Min(tcd->m_pComponent->m_fDirectionDesire[i], fIntersection);
       }
     }
   }
@@ -79,21 +85,6 @@ ezCallbackResult::Enum AvoidObstacleSteeringComponent::ComputeCellDanger(ezInt32
     }
   }
 
-  //if (bDanger)
-  //{
-  //  ezBoundingBox bb(vCellPos - tcd->m_pGrid->GetWorldSpaceCellSize() * 0.5f, vCellPos + tcd->m_pGrid->GetWorldSpaceCellSize() * 0.5f);
-
-  //  for (ezInt32 i = 0; i < g_iSteeringDirections; ++i)
-  //  {
-  //    float fIntersection = 0.0f;
-  //    if (bb.GetRayIntersection(tcd->m_vCenterPos, SteeringBehaviorComponent::g_vSteeringDirections[i], &fIntersection))
-  //    {
-
-  //      tcd->m_pComponent->m_fDirectionWhisker[i] = ezMath::Min(tcd->m_pComponent->m_fDirectionWhisker[i], fIntersection);
-  //    }
-  //  }
-  //}
-
   return ezCallbackResult::Continue;
 }
 
@@ -115,14 +106,23 @@ void AvoidObstacleSteeringComponent::Update()
   tcd.m_pComponent = this;
   tcd.m_pLevel = (Level*) GetWorld()->GetUserData();
   tcd.m_pGrid = &tcd.m_pLevel->GetGrid();
+  tcd.m_iThreat = pUnit->m_iThreat;
 
-  const ezVec2I32 vPos = tcd.m_pGrid->GetCellAtWorldPosition(GetOwner()->GetLocalPosition());
+  const ezVec2I32 iPos = tcd.m_pGrid->GetCellAtWorldPosition(GetOwner()->GetLocalPosition());
 
   tcd.m_vCenterPos = GetOwner()->GetLocalPosition();//tcd.m_pGrid->GetCellWorldSpaceCenter(vPos);
   tcd.m_hSelf = pUnit->GetHandle();
 
-  
+  if ((pUnit->m_Path.IsEmpty()) &&
+      (tcd.m_pGrid->GetCell(iPos).m_iThreat != 0) &&
+      (tcd.m_pGrid->GetCell(iPos).m_iThreat != pUnit->m_iThreat))
+  {
+    for (ezInt32 i = 0; i < g_iSteeringDirections; ++i)
+    {
+      m_fDirectionDesire[i] = 5.0f;
+    }
+  }
 
-  ez2DGridUtils::RasterizeCircle(vPos.x, vPos.y, 5.0f, ComputeCellDanger, &tcd);
+  ez2DGridUtils::RasterizeCircle(iPos.x, iPos.y, 5.0f, ComputeCellDanger, &tcd);
 }
 

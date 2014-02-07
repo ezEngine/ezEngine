@@ -43,6 +43,8 @@ public:
 
 };
 
+ezPathSearch<MyPathState> PathSearch;
+
 void SampleGameApp::SendUnit()
 {
   const ezVec2I32 iCell = GetPickedGridCell();
@@ -56,7 +58,6 @@ void SampleGameApp::SendUnit()
   NavmeshStateGenerator.m_pNavmesh = &m_pLevel->GetNavmesh();
   NavmeshStateGenerator.m_vTarget = ezVec2(vTarget.x, vTarget.z);
 
-  static ezPathSearch<MyPathState> PathSearch;
   PathSearch.SetPathStateGenerator(&NavmeshStateGenerator);
 
   for (ezUInt32 i = 0; i < m_pSelectedUnits->GetCount();++i)

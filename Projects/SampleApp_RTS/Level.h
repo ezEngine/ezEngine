@@ -17,11 +17,13 @@ struct GameCellData
   {
     m_iCellType = 0;
     m_uiVisibility = 0;
+    m_iThreat = 0;
   }
 
   ezUInt8 m_uiVisibility;
   ezInt8 m_iCellType;
   ezComponentHandle m_hUnit;
+  ezInt32 m_iThreat;
 };
 
 typedef ezGameGrid<GameCellData> GameGrid;

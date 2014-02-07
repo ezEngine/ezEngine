@@ -9,6 +9,7 @@ void RenderCircleXZ(const ezVec3& v, float fRadius, const ezMat4& mRot = ezMat4:
 
 
 ezCVarBool CVarVisObstacles("ai_VisObstacles", true, ezCVarFlags::None, "Visualize obstacle radii.");
+ezCVarBool CVarVisPath("ai_VisPath", false, ezCVarFlags::None, "Visualize the units path.");
 
 void GameRenderer::RenderAllUnits()
 {
@@ -32,7 +33,7 @@ void GameRenderer::RenderUnit(ezGameObject* pUnit, UnitComponent* pComponent)
 
   glColor3ub(200, 0, 200);
 
-  if (!pComponent->m_Path.IsEmpty())
+  if (!pComponent->m_Path.IsEmpty() && CVarVisPath)
   {
     glBegin(GL_LINE_STRIP);
     glVertex3f(vPos.x, vPos.y, vPos.z);

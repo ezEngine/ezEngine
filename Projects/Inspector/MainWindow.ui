@@ -15,7 +15,7 @@
   </property>
   <property name="windowIcon">
    <iconset resource="resources.qrc">
-    <normaloff>:/Icons/Icons/search-icon.png</normaloff>:/Icons/Icons/search-icon.png</iconset>
+    <normaloff>:/Icons/Icons/Search.png</normaloff>:/Icons/Icons/Search.png</iconset>
   </property>
   <property name="documentMode">
    <bool>false</bool>
@@ -84,9 +84,25 @@
           </widget>
          </item>
          <item>
-          <widget class="QToolButton" name="ButtonConnect">
+          <widget class="QPushButton" name="ButtonConnect">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>150</width>
+             <height>0</height>
+            </size>
+           </property>
            <property name="text">
-            <string>...</string>
+            <string>Connect To...</string>
+           </property>
+           <property name="icon">
+            <iconset resource="resources.qrc">
+             <normaloff>:/Icons/Icons/Server.png</normaloff>:/Icons/Icons/Server.png</iconset>
            </property>
           </widget>
          </item>

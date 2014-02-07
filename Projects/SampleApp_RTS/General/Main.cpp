@@ -61,6 +61,11 @@ void SampleGameApp::BeforeEngineShutdown()
 {
   EZ_LOG_BLOCK("SampleGameApp::BeforeEngineShutdown");
 
+  if (ezPlugin::UnloadPlugin("ezInspectorPlugin") == EZ_SUCCESS)
+  {
+
+  }
+
   EZ_DEFAULT_DELETE(m_pSelectedUnits);
   EZ_DEFAULT_DELETE(m_pLevel);
   EZ_DEFAULT_DELETE(m_pRenderer);
@@ -94,11 +99,12 @@ ezApplication::ApplicationExecution SampleGameApp::Run()
 
     s_LastGameUpdate = tNow;
 
-    m_pRenderer->RenderLevel(m_pSelectedUnits);
+    if (!m_pWindow->IsMinimized())
+    {
+      m_pRenderer->RenderLevel(m_pSelectedUnits);
+      m_pWindow->PresentFrame();
+    }
   }
-
-  m_pWindow->PresentFrame();
-  
 
   ezTelemetry::PerFrameUpdate();
 

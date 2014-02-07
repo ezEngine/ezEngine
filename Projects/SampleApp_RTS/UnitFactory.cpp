@@ -37,6 +37,10 @@ ezGameObjectHandle Level::CreateUnit_Default(const ezVec3& vPosition, const ezQu
     pUnitComponent = AddComponent<UnitComponent, UnitComponentManager>(m_pWorld, pObject);
 
     pUnitComponent->SetUnitType(UnitType::Default);
+
+    static float fBias = 0.0f;
+    pUnitComponent->m_fSpeedBias = fBias;
+    fBias += 0.1f;
   }
 
   // Revealer component
