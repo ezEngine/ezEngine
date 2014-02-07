@@ -6,6 +6,7 @@
 #include <Inspector/TimeWidget.moc.h>
 #include <Inspector/InputWidget.moc.h>
 #include <Inspector/CVarsWidget.moc.h>
+#include <Inspector/ReflectionWidget.moc.h>
 #include <Inspector/SubsystemsWidget.moc.h>
 #include <Inspector/FileWidget.moc.h>
 #include <Inspector/PluginsWidget.moc.h>
@@ -17,21 +18,6 @@
 class ezInspectorApp : public ezApplication
 {
 public:
-  virtual void BeforeEngineInit() EZ_OVERRIDE
-  {
-  }
-
-  virtual void AfterEngineInit() EZ_OVERRIDE
-  {
-  }
-
-  virtual void BeforeEngineShutdown() EZ_OVERRIDE
-  {
-  }
-
-  virtual void AfterEngineShutdown() EZ_OVERRIDE
-  {
-  }
 
   void SetStyleSheet()
   {
@@ -96,6 +82,7 @@ public:
     ezTelemetry::AcceptMessagesForSystem('STAT', true, ezMainWindow::ProcessTelemetry, NULL);
     ezTelemetry::AcceptMessagesForSystem('PLUG', true, ezPluginsWidget::ProcessTelemetry, NULL);
     ezTelemetry::AcceptMessagesForSystem('EVNT', true, ezGlobalEventsWidget::ProcessTelemetry, NULL);
+    ezTelemetry::AcceptMessagesForSystem('RFLC', true, ezReflectionWidget::ProcessTelemetry, NULL);
     
     QSettings Settings;
     const QString sServer = Settings.value("LastConnection", QLatin1String("localhost:1040")).toString();

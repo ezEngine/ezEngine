@@ -26,9 +26,10 @@ void ezInputWidget::ClearSlots()
   TableInputSlots->clear();
 
   {
-    TableInputSlots->setColumnCount(5);
+    TableInputSlots->setColumnCount(6);
 
     QStringList Headers;
+    Headers.append("");
     Headers.append(" Slot ");
     Headers.append(" State ");
     Headers.append(" Value ");
@@ -46,9 +47,10 @@ void ezInputWidget::ClearActions()
   TableInputActions->clear();
 
   {
-    TableInputActions->setColumnCount(3 + ezInputActionConfig::MaxInputSlotAlternatives);
+    TableInputActions->setColumnCount(4 + ezInputActionConfig::MaxInputSlotAlternatives);
 
     QStringList Headers;
+    Headers.append("");
     Headers.append(" Action ");
     Headers.append(" State ");
     Headers.append(" Value ");
@@ -151,9 +153,10 @@ void ezInputWidget::UpdateSlotTable(bool bRecreate)
   {
     TableInputSlots->clear();
     TableInputSlots->setRowCount(m_InputSlots.GetCount());
-    TableInputSlots->setColumnCount(5);
+    TableInputSlots->setColumnCount(6);
 
     QStringList Headers;
+    Headers.append("");
     Headers.append(" Slot ");
     Headers.append(" State ");
     Headers.append(" Value ");
@@ -172,11 +175,16 @@ void ezInputWidget::UpdateSlotTable(bool bRecreate)
 
       sTemp.Format("  %s  ", it.Key().GetData());
 
-      TableInputSlots->setCellWidget(iRow, 0, new QLabel(sTemp.GetData()));
-      TableInputSlots->setCellWidget(iRow, 1, new QLabel("????????????"));
-      TableInputSlots->setCellWidget(iRow, 2, new QLabel("????????"));
+      QLabel* pIcon = new QLabel();
+      pIcon->setPixmap(QPixmap(":/Icons/Icons/InputSlots.png"));
+      pIcon->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+      TableInputSlots->setCellWidget(iRow, 0, pIcon);
+
+      TableInputSlots->setCellWidget(iRow, 1, new QLabel(sTemp.GetData()));
+      TableInputSlots->setCellWidget(iRow, 2, new QLabel("????????????"));
       TableInputSlots->setCellWidget(iRow, 3, new QLabel("????????"));
-      TableInputSlots->setCellWidget(iRow, 4, new QLabel("????????????????"));
+      TableInputSlots->setCellWidget(iRow, 4, new QLabel("????????"));
+      TableInputSlots->setCellWidget(iRow, 5, new QLabel("????????????????"));
 
       const ezUInt32 uiFlags = it.Value().m_uiSlotFlags;
 
@@ -185,7 +193,7 @@ void ezInputWidget::UpdateSlotTable(bool bRecreate)
         ezStringBuilder sFlags;
         sFlags.Format("  %16b  ", uiFlags);
 
-        QLabel* pFlags = (QLabel*) TableInputSlots->cellWidget(iRow, 4);
+        QLabel* pFlags = (QLabel*) TableInputSlots->cellWidget(iRow, 5);
         pFlags->setAlignment(Qt::AlignRight);
         pFlags->setText(sFlags.GetData());
       }
@@ -211,7 +219,7 @@ void ezInputWidget::UpdateSlotTable(bool bRecreate)
         tt.AppendFormat("NeverTimeScale: %s<br>",             (uiFlags & ezInputSlotFlags::NeverTimeScale)            ? szYes : szNo);
         tt.Append("</p>");
 
-        TableInputSlots->cellWidget(iRow, 4)->setToolTip(tt.GetData());
+        TableInputSlots->cellWidget(iRow, 5)->setToolTip(tt.GetData());
       }
 
       ++iRow;
@@ -226,7 +234,7 @@ void ezInputWidget::UpdateSlotTable(bool bRecreate)
     ezInt32 iRow = 0;
     for (ezMap<ezString, SlotData>::Iterator it = m_InputSlots.GetIterator(); it.IsValid(); ++it)
     {
-      QLabel* pState = (QLabel*) TableInputSlots->cellWidget(iRow, 1);
+      QLabel* pState = (QLabel*) TableInputSlots->cellWidget(iRow, 2);
       pState->setAlignment(Qt::AlignHCenter);
 
       switch (it.Value().m_KeyState)
@@ -247,7 +255,7 @@ void ezInputWidget::UpdateSlotTable(bool bRecreate)
 
       // Value
       {
-        QLabel* pValue = (QLabel*) TableInputSlots->cellWidget(iRow, 2);
+        QLabel* pValue = (QLabel*) TableInputSlots->cellWidget(iRow, 3);
         pValue->setAlignment(Qt::AlignHCenter);
 
         if (it.Value().m_fValue == 0.0f)
@@ -261,7 +269,7 @@ void ezInputWidget::UpdateSlotTable(bool bRecreate)
 
       // Deadzone
       {
-        QLabel* pDeadZone = (QLabel*) TableInputSlots->cellWidget(iRow, 3);
+        QLabel* pDeadZone = (QLabel*) TableInputSlots->cellWidget(iRow, 4);
         pDeadZone->setAlignment(Qt::AlignHCenter);
 
         if (it.Value().m_fDeadZone == 0.0f)
@@ -285,9 +293,10 @@ void ezInputWidget::UpdateActionTable(bool bRecreate)
   {
     TableInputActions->clear();
     TableInputActions->setRowCount(m_InputActions.GetCount());
-    TableInputActions->setColumnCount(3 + ezInputActionConfig::MaxInputSlotAlternatives);
+    TableInputActions->setColumnCount(4 + ezInputActionConfig::MaxInputSlotAlternatives);
 
     QStringList Headers;
+    Headers.append("");
     Headers.append(" Action ");
     Headers.append(" State ");
     Headers.append(" Value ");
@@ -307,12 +316,17 @@ void ezInputWidget::UpdateActionTable(bool bRecreate)
 
       sTemp.Format("  %s  ", it.Key().GetData());
 
-      TableInputActions->setCellWidget(iRow, 0, new QLabel(sTemp.GetData()));
-      TableInputActions->setCellWidget(iRow, 1, new QLabel("????????????"));
-      TableInputActions->setCellWidget(iRow, 2, new QLabel("????????????????????????"));
-      TableInputActions->setCellWidget(iRow, 3, new QLabel(""));
+      QLabel* pIcon = new QLabel();
+      pIcon->setPixmap(QPixmap(":/Icons/Icons/InputActions.png"));
+      pIcon->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+      TableInputActions->setCellWidget(iRow, 0, pIcon);
+
+      TableInputActions->setCellWidget(iRow, 1, new QLabel(sTemp.GetData()));
+      TableInputActions->setCellWidget(iRow, 2, new QLabel("????????????"));
+      TableInputActions->setCellWidget(iRow, 3, new QLabel("????????????????????????"));
       TableInputActions->setCellWidget(iRow, 4, new QLabel(""));
       TableInputActions->setCellWidget(iRow, 5, new QLabel(""));
+      TableInputActions->setCellWidget(iRow, 6, new QLabel(""));
 
       // Trigger Slots
 
@@ -323,7 +337,7 @@ void ezInputWidget::UpdateActionTable(bool bRecreate)
         else
           sTemp.Format("  [Scale: %.2f] %s  ", it.Value().m_fTriggerScaling[slot], it.Value().m_sTrigger[slot].GetData());
 
-        QLabel* pValue = (QLabel*) TableInputActions->cellWidget(iRow, 3 + slot);
+        QLabel* pValue = (QLabel*) TableInputActions->cellWidget(iRow, 4 + slot);
         pValue->setText(sTemp.GetData());
       }
 
@@ -339,7 +353,7 @@ void ezInputWidget::UpdateActionTable(bool bRecreate)
     ezInt32 iRow = 0;
     for (ezMap<ezString, ActionData>::Iterator it = m_InputActions.GetIterator(); it.IsValid(); ++it)
     {
-      QLabel* pState = (QLabel*) TableInputActions->cellWidget(iRow, 1);
+      QLabel* pState = (QLabel*) TableInputActions->cellWidget(iRow, 2);
       pState->setAlignment(Qt::AlignHCenter);
 
       switch (it.Value().m_KeyState)
@@ -360,7 +374,7 @@ void ezInputWidget::UpdateActionTable(bool bRecreate)
 
       // Value
       {
-        QLabel* pValue = (QLabel*) TableInputActions->cellWidget(iRow, 2);
+        QLabel* pValue = (QLabel*) TableInputActions->cellWidget(iRow, 3);
         pValue->setAlignment(Qt::AlignHCenter);
 
         if (it.Value().m_fValue == 0.0f)

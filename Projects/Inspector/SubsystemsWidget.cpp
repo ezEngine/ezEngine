@@ -36,9 +36,10 @@ void ezSubsystemsWidget::UpdateSubSystems()
   TableSubsystems->clear();
 
   TableSubsystems->setRowCount(m_Subsystems.GetCount());
-  TableSubsystems->setColumnCount(4);
+  TableSubsystems->setColumnCount(5);
 
   QStringList Headers;
+  Headers.append("");
   Headers.append(" SubSystem ");
   Headers.append(" Plugin ");
   Headers.append(" Startup Done ");
@@ -54,25 +55,30 @@ void ezSubsystemsWidget::UpdateSubSystems()
     {
       const SubsystemData& ssd = it.Value();
 
-      sTemp.Format("  %s  ", it.Key().GetData());
-      TableSubsystems->setCellWidget(iRow, 0, new QLabel(sTemp.GetData()));
+      QLabel* pIcon = new QLabel();
+      pIcon->setPixmap(QPixmap(":/Icons/Icons/Subsystem.png"));
+      pIcon->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+      TableSubsystems->setCellWidget(iRow, 0, pIcon);
 
-      sTemp.Format("  %s  ", ssd.m_sPlugin.GetData());
+      sTemp.Format("  %s  ", it.Key().GetData());
       TableSubsystems->setCellWidget(iRow, 1, new QLabel(sTemp.GetData()));
 
-      if (ssd.m_bStartupDone[ezStartupStage::Engine])
-        TableSubsystems->setCellWidget(iRow, 2, new QLabel("<p><span style=\"font-weight:600; color:#00aa00;\">  Engine  </span></p>"));
-      else if (ssd.m_bStartupDone[ezStartupStage::Core])
-        TableSubsystems->setCellWidget(iRow, 2, new QLabel("<p><span style=\"font-weight:600; color:#5555ff;\">  Core  </span></p>"));
-      else if (ssd.m_bStartupDone[ezStartupStage::Base])
-        TableSubsystems->setCellWidget(iRow, 2, new QLabel("<p><span style=\"font-weight:600; color:#cece00;\">  Base  </span></p>"));
-      else
-        TableSubsystems->setCellWidget(iRow, 2, new QLabel("<p><span style=\"font-weight:600; color:#ff0000;\">Not Initialized</span></p>"));
+      sTemp.Format("  %s  ", ssd.m_sPlugin.GetData());
+      TableSubsystems->setCellWidget(iRow, 2, new QLabel(sTemp.GetData()));
 
-      ((QLabel*) TableSubsystems->cellWidget(iRow, 2))->setAlignment(Qt::AlignHCenter);
+      if (ssd.m_bStartupDone[ezStartupStage::Engine])
+        TableSubsystems->setCellWidget(iRow, 3, new QLabel("<p><span style=\"font-weight:600; color:#00aa00;\">  Engine  </span></p>"));
+      else if (ssd.m_bStartupDone[ezStartupStage::Core])
+        TableSubsystems->setCellWidget(iRow, 3, new QLabel("<p><span style=\"font-weight:600; color:#5555ff;\">  Core  </span></p>"));
+      else if (ssd.m_bStartupDone[ezStartupStage::Base])
+        TableSubsystems->setCellWidget(iRow, 3, new QLabel("<p><span style=\"font-weight:600; color:#cece00;\">  Base  </span></p>"));
+      else
+        TableSubsystems->setCellWidget(iRow, 3, new QLabel("<p><span style=\"font-weight:600; color:#ff0000;\">Not Initialized</span></p>"));
+
+      ((QLabel*) TableSubsystems->cellWidget(iRow, 3))->setAlignment(Qt::AlignHCenter);
 
       sTemp.Format("  %s  ", ssd.m_sDependencies.GetData());
-      TableSubsystems->setCellWidget(iRow, 3, new QLabel(sTemp.GetData()));
+      TableSubsystems->setCellWidget(iRow, 4, new QLabel(sTemp.GetData()));
 
       ++iRow;
     }

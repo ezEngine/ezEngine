@@ -133,6 +133,10 @@
            <property name="text">
             <string>Clear Log</string>
            </property>
+           <property name="icon">
+            <iconset resource="resources.qrc">
+             <normaloff>:/Icons/Icons/ClearList.png</normaloff>:/Icons/Icons/ClearList.png</iconset>
+           </property>
           </widget>
          </item>
         </layout>
@@ -156,6 +160,8 @@
    </layout>
   </widget>
  </widget>
- <resources/>
+ <resources>
+  <include location="resources.qrc"/>
+ </resources>
  <connections/>
 </ui>

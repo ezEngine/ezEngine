@@ -41,6 +41,7 @@ private slots:
   void on_ActionShowWindowTime_triggered();
   void on_ActionShowWindowInput_triggered();
   void on_ActionShowWindowCVar_triggered();
+  void on_ActionShowWindowReflection_triggered();
   void on_ActionShowWindowSubsystems_triggered();
   void on_ActionShowWindowPlugins_triggered();
   void on_ActionShowWindowFile_triggered();

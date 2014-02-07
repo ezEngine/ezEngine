@@ -152,9 +152,17 @@ static void CVarEventHandler(const ezCVar::CVarEvent& e)
   switch (e.m_EventType)
   {
   case ezCVar::CVarEvent::ValueChanged:
-    {
-      SendCVarTelemetry(e.m_pCVar);
-    }
+    SendCVarTelemetry(e.m_pCVar);
+    break;
+  }
+}
+
+static void PluginEventHandler(const ezPlugin::PluginEvent& e)
+{
+  switch (e.m_EventType)
+  {
+  case ezPlugin::PluginEvent::AfterPluginChanges:
+    SendAllCVarTelemetry();
     break;
   }
 }
@@ -162,18 +170,18 @@ static void CVarEventHandler(const ezCVar::CVarEvent& e)
 void AddCVarEventHandler()
 {
   ezTelemetry::AddEventHandler(TelemetryEventsHandler);
-
   ezTelemetry::AcceptMessagesForSystem('SVAR', true, TelemetryMessage, NULL);
 
   ezCVar::s_AllCVarEvents.AddEventHandler(CVarEventHandler);
+  ezPlugin::s_PluginEvents.AddEventHandler(PluginEventHandler);
 }
 
 void RemoveCVarEventHandler()
 {
+  ezPlugin::s_PluginEvents.RemoveEventHandler(PluginEventHandler);
   ezCVar::s_AllCVarEvents.RemoveEventHandler(CVarEventHandler);
 
   ezTelemetry::RemoveEventHandler(TelemetryEventsHandler);
-
   ezTelemetry::AcceptMessagesForSystem('SVAR', false);
 }
 

@@ -12,7 +12,7 @@
   </property>
   <property name="minimumSize">
    <size>
-    <width>462</width>
+    <width>522</width>
     <height>200</height>
    </size>
   </property>
@@ -59,6 +59,16 @@
       <layout class="QVBoxLayout" name="verticalLayout">
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout">
+         <item>
+          <widget class="QLabel" name="label_3">
+           <property name="text">
+            <string/>
+           </property>
+           <property name="pixmap">
+            <pixmap resource="resources.qrc">:/Icons/Icons/File.png</pixmap>
+           </property>
+          </widget>
+         </item>
          <item>
           <widget class="QLabel" name="label_2">
            <property name="toolTip">
@@ -132,20 +142,36 @@
             <property name="text">
              <string>All Threads</string>
             </property>
+            <property name="icon">
+             <iconset resource="resources.qrc">
+              <normaloff>:/Icons/Icons/AllThreads.png</normaloff>:/Icons/Icons/AllThreads.png</iconset>
+            </property>
            </item>
            <item>
             <property name="text">
              <string>Main Thread</string>
+            </property>
+            <property name="icon">
+             <iconset resource="resources.qrc">
+              <normaloff>:/Icons/Icons/MainThread.png</normaloff>:/Icons/Icons/MainThread.png</iconset>
             </property>
            </item>
            <item>
             <property name="text">
              <string>Loading Thread</string>
             </property>
+            <property name="icon">
+             <iconset resource="resources.qrc">
+              <normaloff>:/Icons/Icons/LoadingThread.png</normaloff>:/Icons/Icons/LoadingThread.png</iconset>
+            </property>
            </item>
            <item>
             <property name="text">
              <string>Other Thread</string>
+            </property>
+            <property name="icon">
+             <iconset resource="resources.qrc">
+              <normaloff>:/Icons/Icons/OtherThread.png</normaloff>:/Icons/Icons/OtherThread.png</iconset>
             </property>
            </item>
           </widget>
@@ -206,6 +232,8 @@
    </layout>
   </widget>
  </widget>
- <resources/>
+ <resources>
+  <include location="resources.qrc"/>
+ </resources>
  <connections/>
 </ui>

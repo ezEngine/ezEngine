@@ -3,6 +3,7 @@
 #include <Inspector/TimeWidget.moc.h>
 #include <Inspector/InputWidget.moc.h>
 #include <Inspector/CVarsWidget.moc.h>
+#include <Inspector/ReflectionWidget.moc.h>
 #include <Inspector/LogWidget.moc.h>
 #include <Inspector/SubsystemsWidget.moc.h>
 #include <Inspector/FileWidget.moc.h>
@@ -44,12 +45,14 @@ ezMainWindow::ezMainWindow() : QMainWindow()
   ezFileWidget*         pFileWidget           = new ezFileWidget(this);
   ezPluginsWidget*      pPluginsWidget        = new ezPluginsWidget(this);
   ezGlobalEventsWidget* pGlobalEventesWidget  = new ezGlobalEventsWidget(this);
+  ezReflectionWidget*   pReflectionWidget     = new ezReflectionWidget(this);
 
   EZ_VERIFY(QWidget::connect(pLogWidget,            SIGNAL(visibilityChanged(bool)), this, SLOT(DockWidgetVisibilityChanged(bool))), "");
   EZ_VERIFY(QWidget::connect(pTimeWidget,           SIGNAL(visibilityChanged(bool)), this, SLOT(DockWidgetVisibilityChanged(bool))), "");
   EZ_VERIFY(QWidget::connect(pMemoryWidget,         SIGNAL(visibilityChanged(bool)), this, SLOT(DockWidgetVisibilityChanged(bool))), "");
   EZ_VERIFY(QWidget::connect(pInputWidget,          SIGNAL(visibilityChanged(bool)), this, SLOT(DockWidgetVisibilityChanged(bool))), "");
   EZ_VERIFY(QWidget::connect(pCVarsWidget,          SIGNAL(visibilityChanged(bool)), this, SLOT(DockWidgetVisibilityChanged(bool))), "");
+  EZ_VERIFY(QWidget::connect(pReflectionWidget,     SIGNAL(visibilityChanged(bool)), this, SLOT(DockWidgetVisibilityChanged(bool))), "");
   EZ_VERIFY(QWidget::connect(pSubsystemsWidget,     SIGNAL(visibilityChanged(bool)), this, SLOT(DockWidgetVisibilityChanged(bool))), "");
   EZ_VERIFY(QWidget::connect(pFileWidget,           SIGNAL(visibilityChanged(bool)), this, SLOT(DockWidgetVisibilityChanged(bool))), "");
   EZ_VERIFY(QWidget::connect(pPluginsWidget,        SIGNAL(visibilityChanged(bool)), this, SLOT(DockWidgetVisibilityChanged(bool))), "");
@@ -76,6 +79,9 @@ ezMainWindow::ezMainWindow() : QMainWindow()
 
   addDockWidget(Qt::RightDockWidgetArea, pGlobalEventesWidget);
   tabifyDockWidget(pLogWidget, pGlobalEventesWidget);
+
+  addDockWidget(Qt::RightDockWidgetArea, pReflectionWidget);
+  tabifyDockWidget(pLogWidget, pReflectionWidget);
 
   pLogWidget->raise();
 
@@ -267,50 +273,25 @@ void ezMainWindow::UpdateNetwork()
   {
     ResetStats();
 
-    if (ezLogWidget::s_pWidget)
-      ezLogWidget::s_pWidget->ResetStats();
-
-    if (ezMemoryWidget::s_pWidget)
-      ezMemoryWidget::s_pWidget->ResetStats();
-
-    if (ezTimeWidget::s_pWidget)
-      ezTimeWidget::s_pWidget->ResetStats();
-
-    if (ezInputWidget::s_pWidget)
-      ezInputWidget::s_pWidget->ResetStats();
-
-    if (ezCVarsWidget::s_pWidget)
-      ezCVarsWidget::s_pWidget->ResetStats();
-
-    if (ezFileWidget::s_pWidget)
-      ezFileWidget::s_pWidget->ResetStats();
-
-    if (ezPluginsWidget::s_pWidget)
-      ezPluginsWidget::s_pWidget->ResetStats();
-
-    if (ezSubsystemsWidget::s_pWidget)
-      ezSubsystemsWidget::s_pWidget->ResetStats();
-
-    if (ezGlobalEventsWidget::s_pWidget)
-      ezGlobalEventsWidget::s_pWidget->ResetStats();
+    ezLogWidget::s_pWidget->ResetStats();
+    ezMemoryWidget::s_pWidget->ResetStats();
+    ezTimeWidget::s_pWidget->ResetStats();
+    ezInputWidget::s_pWidget->ResetStats();
+    ezCVarsWidget::s_pWidget->ResetStats();
+    ezReflectionWidget::s_pWidget->ResetStats();
+    ezFileWidget::s_pWidget->ResetStats();
+    ezPluginsWidget::s_pWidget->ResetStats();
+    ezSubsystemsWidget::s_pWidget->ResetStats();
+    ezGlobalEventsWidget::s_pWidget->ResetStats();
   }
   
   UpdateStats();
 
-  if (ezPluginsWidget::s_pWidget)
-    ezPluginsWidget::s_pWidget->UpdateStats();
-
-  if (ezSubsystemsWidget::s_pWidget)
-    ezSubsystemsWidget::s_pWidget->UpdateStats();
-
-  if (ezMemoryWidget::s_pWidget)
-    ezMemoryWidget::s_pWidget->UpdateStats();
-
-  if (ezTimeWidget::s_pWidget)
-    ezTimeWidget::s_pWidget->UpdateStats();
-
-  if (ezFileWidget::s_pWidget)
-    ezFileWidget::s_pWidget->UpdateStats();
+  ezPluginsWidget::s_pWidget->UpdateStats();
+  ezSubsystemsWidget::s_pWidget->UpdateStats();
+  ezMemoryWidget::s_pWidget->UpdateStats();
+  ezTimeWidget::s_pWidget->UpdateStats();
+  ezFileWidget::s_pWidget->UpdateStats();
 
   ezTelemetry::PerFrameUpdate();
 }
@@ -337,6 +318,11 @@ QTreeWidgetItem* ezMainWindow::CreateStat(const char* szPath, bool bParent)
     sd.m_pItem = new QTreeWidgetItem();
     sd.m_pItem->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable | (bParent ? Qt::NoItemFlags : Qt::ItemIsUserCheckable));
     sd.m_pItem->setData(0, Qt::UserRole, QString(sCleanPath.GetData()));
+
+    if (bParent)
+      sd.m_pItem->setIcon(0, QIcon(":/Icons/Icons/StatGroup.png"));
+    else
+      sd.m_pItem->setIcon(0, QIcon(":/Icons/Icons/Stat.png"));
 
     if (!bParent)
       sd.m_pItem->setCheckState(0, Qt::Unchecked);
@@ -375,6 +361,7 @@ void ezMainWindow::DockWidgetVisibilityChanged(bool bVisible)
   ActionShowWindowTime->setChecked(ezTimeWidget::s_pWidget->isVisible());
   ActionShowWindowInput->setChecked(ezInputWidget::s_pWidget->isVisible());
   ActionShowWindowCVar->setChecked(ezCVarsWidget::s_pWidget->isVisible());
+  ActionShowWindowReflection->setChecked(ezReflectionWidget::s_pWidget->isVisible());
   ActionShowWindowSubsystems->setChecked(ezSubsystemsWidget::s_pWidget->isVisible());
   ActionShowWindowFile->setChecked(ezFileWidget::s_pWidget->isVisible());
   ActionShowWindowPlugins->setChecked(ezPluginsWidget::s_pWidget->isVisible());
@@ -384,46 +371,61 @@ void ezMainWindow::DockWidgetVisibilityChanged(bool bVisible)
 void ezMainWindow::on_ActionShowWindowLog_triggered()
 {
   ezLogWidget::s_pWidget->setVisible(ActionShowWindowLog->isChecked());
+  ezLogWidget::s_pWidget->raise();
 }
 
 void ezMainWindow::on_ActionShowWindowMemory_triggered()
 {
   ezMemoryWidget::s_pWidget->setVisible(ActionShowWindowMemory->isChecked());
+  ezMemoryWidget::s_pWidget->raise();
 }
 
 void ezMainWindow::on_ActionShowWindowTime_triggered()
 {
   ezTimeWidget::s_pWidget->setVisible(ActionShowWindowTime->isChecked());
+  ezTimeWidget::s_pWidget->raise();
 }
 
 void ezMainWindow::on_ActionShowWindowInput_triggered()
 {
   ezInputWidget::s_pWidget->setVisible(ActionShowWindowInput->isChecked());
+  ezInputWidget::s_pWidget->raise();
 }
 
 void ezMainWindow::on_ActionShowWindowCVar_triggered()
 {
   ezCVarsWidget::s_pWidget->setVisible(ActionShowWindowCVar->isChecked());
+  ezCVarsWidget::s_pWidget->raise();
+}
+
+void ezMainWindow::on_ActionShowWindowReflection_triggered()
+{
+  ezReflectionWidget::s_pWidget->setVisible(ActionShowWindowReflection->isChecked());
+  ezReflectionWidget::s_pWidget->raise();
 }
 
 void ezMainWindow::on_ActionShowWindowSubsystems_triggered()
 {
   ezSubsystemsWidget::s_pWidget->setVisible(ActionShowWindowSubsystems->isChecked());
+  ezSubsystemsWidget::s_pWidget->raise();
 }
 
 void ezMainWindow::on_ActionShowWindowPlugins_triggered()
 {
   ezPluginsWidget::s_pWidget->setVisible(ActionShowWindowPlugins->isChecked());
+  ezPluginsWidget::s_pWidget->raise();
 }
 
 void ezMainWindow::on_ActionShowWindowFile_triggered()
 {
   ezFileWidget::s_pWidget->setVisible(ActionShowWindowFile->isChecked());
+  ezFileWidget::s_pWidget->raise();
 }
 
 void ezMainWindow::on_ActionShowWindowGlobalEvents_triggered()
 {
   ezGlobalEventsWidget::s_pWidget->setVisible(ActionShowWindowGlobalEvents->isChecked());
+  ezGlobalEventsWidget::s_pWidget->raise();
 }
 
 void ezMainWindow::SetAlwaysOnTop(OnTopMode Mode)
@@ -610,6 +612,7 @@ void ezMainWindow::SetFavourite(const ezString& sStat, bool bFavourite)
       TreeFavourites->addTopLevelItem(sd.m_pItemFavourite);
       sd.m_pItemFavourite->setData(0, Qt::DisplayRole, sStat.GetData());
       sd.m_pItemFavourite->setData(1, Qt::DisplayRole, sd.m_sValue.GetData());
+      sd.m_pItemFavourite->setIcon(0, QIcon(":/Icons/Icons/StatFavourite.png"));
 
       TreeFavourites->resizeColumnToContents(0);
     }

@@ -12,7 +12,7 @@
   </property>
   <property name="minimumSize">
    <size>
-    <width>229</width>
+    <width>277</width>
     <height>250</height>
    </size>
   </property>
@@ -75,6 +75,10 @@
           <bool>false</bool>
          </property>
          <widget class="QWidget" name="tab_2">
+          <attribute name="icon">
+           <iconset resource="resources.qrc">
+            <normaloff>:/Icons/Icons/InputActions.png</normaloff>:/Icons/Icons/InputActions.png</iconset>
+          </attribute>
           <attribute name="title">
            <string>Input Actions</string>
           </attribute>
@@ -112,7 +116,7 @@
               <number>100</number>
              </attribute>
              <attribute name="horizontalHeaderMinimumSectionSize">
-              <number>80</number>
+              <number>40</number>
              </attribute>
              <attribute name="horizontalHeaderShowSortIndicator" stdset="0">
               <bool>false</bool>
@@ -160,6 +164,10 @@
                <property name="text">
                 <string>Clear List</string>
                </property>
+               <property name="icon">
+                <iconset resource="resources.qrc">
+                 <normaloff>:/Icons/Icons/ClearList.png</normaloff>:/Icons/Icons/ClearList.png</iconset>
+               </property>
               </widget>
              </item>
             </layout>
@@ -167,6 +175,10 @@
           </layout>
          </widget>
          <widget class="QWidget" name="tab">
+          <attribute name="icon">
+           <iconset resource="resources.qrc">
+            <normaloff>:/Icons/Icons/InputSlots.png</normaloff>:/Icons/Icons/InputSlots.png</iconset>
+          </attribute>
           <attribute name="title">
            <string>Input Slots</string>
           </attribute>
@@ -204,7 +216,7 @@
               <number>100</number>
              </attribute>
              <attribute name="horizontalHeaderMinimumSectionSize">
-              <number>80</number>
+              <number>40</number>
              </attribute>
              <attribute name="horizontalHeaderShowSortIndicator" stdset="0">
               <bool>false</bool>
@@ -266,6 +278,10 @@
                <property name="text">
                 <string>Clear List</string>
                </property>
+               <property name="icon">
+                <iconset resource="resources.qrc">
+                 <normaloff>:/Icons/Icons/ClearList.png</normaloff>:/Icons/Icons/ClearList.png</iconset>
+               </property>
               </widget>
              </item>
             </layout>
@@ -280,6 +296,8 @@
    </layout>
   </widget>
  </widget>
- <resources/>
+ <resources>
+  <include location="resources.qrc"/>
+ </resources>
  <connections/>
 </ui>

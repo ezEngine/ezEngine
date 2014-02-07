@@ -87,6 +87,7 @@ void ezGlobalEventsWidget::UpdateTable(bool bRecreate)
     TableEvents->setRowCount(m_Events.GetCount());
 
     QStringList Headers;
+    Headers.append(" ");
     Headers.append(" Event ");
     Headers.append(" Times Fired ");
     Headers.append(" # Handlers ");
@@ -102,17 +103,22 @@ void ezGlobalEventsWidget::UpdateTable(bool bRecreate)
     {
       it.Value().m_iTableRow = iRow;
 
+      QLabel* pIcon = new QLabel();
+      pIcon->setPixmap(QPixmap(":/Icons/Icons/GlobalEvent.png"));
+      pIcon->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+      TableEvents->setCellWidget(iRow, 0, pIcon);
+
       sTemp.Format("  %s  ", it.Key().GetData());
-      TableEvents->setCellWidget(iRow, 0, new QLabel(sTemp.GetData())); // Event
+      TableEvents->setCellWidget(iRow, 1, new QLabel(sTemp.GetData())); // Event
 
       sTemp.Format("  %i  ", it.Value().m_uiTimesFired);
-      TableEvents->setCellWidget(iRow, 1, new QLabel(sTemp.GetData()));
-
-      sTemp.Format("  %i  ", it.Value().m_uiNumHandlers);
       TableEvents->setCellWidget(iRow, 2, new QLabel(sTemp.GetData()));
 
-      sTemp.Format("  %i  ", it.Value().m_uiNumHandlersOnce);
+      sTemp.Format("  %i  ", it.Value().m_uiNumHandlers);
       TableEvents->setCellWidget(iRow, 3, new QLabel(sTemp.GetData()));
+
+      sTemp.Format("  %i  ", it.Value().m_uiNumHandlersOnce);
+      TableEvents->setCellWidget(iRow, 4, new QLabel(sTemp.GetData()));
 
       ++iRow;
     }
@@ -127,13 +133,13 @@ void ezGlobalEventsWidget::UpdateTable(bool bRecreate)
     for (ezMap<ezString, GlobalEventsData>::Iterator it = m_Events.GetIterator(); it.IsValid(); ++it)
     {
       sTemp.Format("  %i  ", it.Value().m_uiTimesFired);
-      ((QLabel*) TableEvents->cellWidget(iRow, 1))->setText(sTemp.GetData());
-
-      sTemp.Format("  %i  ", it.Value().m_uiNumHandlers);
       ((QLabel*) TableEvents->cellWidget(iRow, 2))->setText(sTemp.GetData());
 
-      sTemp.Format("  %i  ", it.Value().m_uiNumHandlersOnce);
+      sTemp.Format("  %i  ", it.Value().m_uiNumHandlers);
       ((QLabel*) TableEvents->cellWidget(iRow, 3))->setText(sTemp.GetData());
+
+      sTemp.Format("  %i  ", it.Value().m_uiNumHandlersOnce);
+      ((QLabel*) TableEvents->cellWidget(iRow, 4))->setText(sTemp.GetData());
 
       ++iRow;
     }

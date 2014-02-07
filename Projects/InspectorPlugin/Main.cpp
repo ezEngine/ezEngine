@@ -39,6 +39,9 @@ void RemoveOSFileEventHandler();
 void AddTimeEventHandler();
 void RemoveTimeEventHandler();
 
+void AddReflectionEventHandler();
+void RemoveReflectionEventHandler();
+
 void AddTelemetryAssertHandler();
 void RemoveTelemetryAssertHandler();
 
@@ -58,6 +61,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(InspectorPlugin, Main)
     AddStatsEventHandler();
     AddStartupEventHandler();
     AddCVarEventHandler();
+    AddReflectionEventHandler();
     AddMemoryEventHandler();
     AddInputEventHandler();
     AddPluginEventHandler();
@@ -76,6 +80,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(InspectorPlugin, Main)
     RemovePluginEventHandler();
     RemoveInputEventHandler();
     RemoveMemoryEventHandler();
+    RemoveReflectionEventHandler();
     RemoveCVarEventHandler();
     RemoveStartupEventHandler();
     RemoveStatsEventHandler();

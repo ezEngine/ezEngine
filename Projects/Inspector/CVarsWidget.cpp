@@ -24,9 +24,10 @@ void ezCVarsWidget::ResetStats()
   TableCVars->clear();
 
   {
-    TableCVars->setColumnCount(4);
+    TableCVars->setColumnCount(5);
 
     QStringList Headers;
+    Headers.append("");
     Headers.append(" Plugin ");
     Headers.append(" CVar ");
     Headers.append(" Value ");
@@ -124,10 +125,11 @@ void ezCVarsWidget::UpdateCVarsTable(bool bRecreate)
   if (bRecreate)
   {
     TableCVars->clear();
-    TableCVars->setColumnCount(4);
+    TableCVars->setColumnCount(5);
     TableCVars->setRowCount(m_CVars.GetCount());
 
     QStringList Headers;
+    Headers.append("");
     Headers.append(" Plugin ");
     Headers.append(" CVar ");
     Headers.append(" Value ");
@@ -143,13 +145,18 @@ void ezCVarsWidget::UpdateCVarsTable(bool bRecreate)
     {
       it.Value().m_iTableRow = iRow;
 
+      QLabel* pIcon = new QLabel();
+      pIcon->setPixmap(QPixmap(":/Icons/Icons/CVar.png"));
+      pIcon->setAlignment(Qt::AlignHCenter | Qt::AlignVCenter);
+      TableCVars->setCellWidget(iRow, 0, pIcon);
+
       sTemp.Format("  %s  ", it.Value().m_sPlugin.GetData());
-      TableCVars->setCellWidget(iRow, 0, new QLabel(sTemp.GetData())); // Plugin
+      TableCVars->setCellWidget(iRow, 1, new QLabel(sTemp.GetData())); // Plugin
 
       sTemp.Format("  %s  ", it.Key().GetData());
-      TableCVars->setCellWidget(iRow, 1, new QLabel(sTemp.GetData())); // Name
+      TableCVars->setCellWidget(iRow, 2, new QLabel(sTemp.GetData())); // Name
 
-      TableCVars->setCellWidget(iRow, 3, new QLabel(it.Value().m_sDescription.GetData())); // Description
+      TableCVars->setCellWidget(iRow, 4, new QLabel(it.Value().m_sDescription.GetData())); // Description
 
       switch (it.Value().m_uiType)
       {
@@ -158,7 +165,7 @@ void ezCVarsWidget::UpdateCVarsTable(bool bRecreate)
           QComboBox* pValue = new QComboBox;
           pValue->addItem("true");
           pValue->addItem("false");
-          TableCVars->setCellWidget(iRow, 2, pValue); // Value
+          TableCVars->setCellWidget(iRow, 3, pValue); // Value
 
           QWidget::connect(pValue, SIGNAL(currentIndexChanged(int)), this, SLOT(BoolChanged(int)));
         }
@@ -170,7 +177,7 @@ void ezCVarsWidget::UpdateCVarsTable(bool bRecreate)
           pValue->setMaximum( (1 << 30));
           pValue->setDecimals(4);
           pValue->setSingleStep(1.0);
-          TableCVars->setCellWidget(iRow, 2, pValue); // Value        
+          TableCVars->setCellWidget(iRow, 3, pValue); // Value        
 
           QWidget::connect(pValue, SIGNAL(valueChanged(double)), this, SLOT(FloatChanged(double)));
         }
@@ -180,7 +187,7 @@ void ezCVarsWidget::UpdateCVarsTable(bool bRecreate)
           QSpinBox* pValue = new QSpinBox;
           pValue->setMinimum(-(1 << 30));
           pValue->setMaximum( (1 << 30));
-          TableCVars->setCellWidget(iRow, 2, pValue); // Value
+          TableCVars->setCellWidget(iRow, 3, pValue); // Value
 
           QWidget::connect(pValue, SIGNAL(valueChanged(int)), this, SLOT(IntChanged(int)));
         }
@@ -188,7 +195,7 @@ void ezCVarsWidget::UpdateCVarsTable(bool bRecreate)
       case ezCVarType::String:
         {
           QLineEdit* pValue = new QLineEdit;
-          TableCVars->setCellWidget(iRow, 2, pValue); // Value
+          TableCVars->setCellWidget(iRow, 3, pValue); // Value
 
           QWidget::connect(pValue, SIGNAL(textChanged (const QString&)), this, SLOT(StringChanged(const QString&)));
         }
@@ -213,7 +220,7 @@ void ezCVarsWidget::UpdateCVarsTable(bool bRecreate)
         {
         case ezCVarType::Bool:
           {
-            QComboBox* pValue = (QComboBox*) TableCVars->cellWidget(iRow, 2);
+            QComboBox* pValue = (QComboBox*) TableCVars->cellWidget(iRow, 3);
             pValue->blockSignals(true);
             pValue->setCurrentIndex(it.Value().m_bValue ? 0 : 1);
             pValue->blockSignals(false);
@@ -221,7 +228,7 @@ void ezCVarsWidget::UpdateCVarsTable(bool bRecreate)
           break;
         case ezCVarType::Float:
           {
-            QDoubleSpinBox* pValue = (QDoubleSpinBox*) TableCVars->cellWidget(iRow, 2);
+            QDoubleSpinBox* pValue = (QDoubleSpinBox*) TableCVars->cellWidget(iRow, 3);
             pValue->blockSignals(true);
             pValue->setValue(it.Value().m_fValue);
             pValue->blockSignals(false);
@@ -229,7 +236,7 @@ void ezCVarsWidget::UpdateCVarsTable(bool bRecreate)
           break;
         case ezCVarType::Int:
           {
-            QSpinBox* pValue = (QSpinBox*) TableCVars->cellWidget(iRow, 2);
+            QSpinBox* pValue = (QSpinBox*) TableCVars->cellWidget(iRow, 3);
             pValue->blockSignals(true);
             pValue->setValue(it.Value().m_iValue);
             pValue->blockSignals(false);
@@ -237,7 +244,7 @@ void ezCVarsWidget::UpdateCVarsTable(bool bRecreate)
           break;
         case ezCVarType::String:
           {
-            QLineEdit* pValue = (QLineEdit*) TableCVars->cellWidget(iRow, 2);
+            QLineEdit* pValue = (QLineEdit*) TableCVars->cellWidget(iRow, 3);
             pValue->blockSignals(true);
             pValue->setText(it.Value().m_sValue.GetData());
             pValue->blockSignals(false);
@@ -293,7 +300,7 @@ void ezCVarsWidget::BoolChanged(int index)
     if (it.Value().m_uiType != ezCVarType::Bool)
       continue;
 
-    QComboBox* pValue = (QComboBox*) TableCVars->cellWidget(it.Value().m_iTableRow, 2);
+    QComboBox* pValue = (QComboBox*) TableCVars->cellWidget(it.Value().m_iTableRow, 3);
 
     const ezInt32 iValue = it.Value().m_bValue ? 0 : 1;
 
@@ -313,7 +320,7 @@ void ezCVarsWidget::FloatChanged(double val)
     if (it.Value().m_uiType != ezCVarType::Float)
       continue;
 
-    QDoubleSpinBox* pValue = (QDoubleSpinBox*) TableCVars->cellWidget(it.Value().m_iTableRow, 2);
+    QDoubleSpinBox* pValue = (QDoubleSpinBox*) TableCVars->cellWidget(it.Value().m_iTableRow, 3);
 
     if (pValue->value() == it.Value().m_fValue)
       continue;
@@ -331,7 +338,7 @@ void ezCVarsWidget::IntChanged(int val)
     if (it.Value().m_uiType != ezCVarType::Int)
       continue;
 
-    QSpinBox* pValue = (QSpinBox*) TableCVars->cellWidget(it.Value().m_iTableRow, 2);
+    QSpinBox* pValue = (QSpinBox*) TableCVars->cellWidget(it.Value().m_iTableRow, 3);
 
     if (pValue->value() == it.Value().m_iValue)
       continue;
@@ -349,7 +356,7 @@ void ezCVarsWidget::StringChanged(const QString& val)
     if (it.Value().m_uiType != ezCVarType::String)
       continue;
 
-    QLineEdit* pValue = (QLineEdit*) TableCVars->cellWidget(it.Value().m_iTableRow, 2);
+    QLineEdit* pValue = (QLineEdit*) TableCVars->cellWidget(it.Value().m_iTableRow, 3);
 
     if (pValue->text().toUtf8().data() == it.Value().m_sValue)
       continue;

@@ -17,6 +17,11 @@ Milestone 4
   * Added ezCamera, a lightweight class to do standard camera actions (moving, rotating, etc.)
   * In debug builds all math classes do NaN checks, to detect the usage of uninitialized data.
   * Added ezGameUtils library which contains some general purpose functions that might be useful for different types of games.
+  * Added ezRTTI etc. which implements a reflection system for runtime type information.
+  * ezInspector can show some information about reflected types.
+  * ezInspector will now stay in the foreground while active.
+  * Allocators are now implemented in such a way that ezStaticAllocatorWrapper etc. are not needed anymore. Global variables can now be created without any workarounds.
+  * Added a new sample that implements some of the basics for an RTS-style game. Work in progress.
 
 Milestone 3
 -----------
