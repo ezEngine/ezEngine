@@ -24,8 +24,8 @@ static const char* GenerateThreadName(ezWorkerThreadType::Enum ThreadType, ezUIn
     else
       sTemp = "Resource Loading";
     break;
-  default:
-    /// \todo: not reached macro
+  case ezWorkerThreadType::ENUM_COUNT:
+    EZ_REPORT_FAILURE("Invalid Thread Type");
     break;
   }
 

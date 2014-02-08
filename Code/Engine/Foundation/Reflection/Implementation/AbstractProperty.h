@@ -29,7 +29,7 @@ public:
   const char* GetPropertyName() const { return m_szPropertyName; }
 
   /// \brief Returns the category of this property. Cast this propererty to the next higher type for more information.
-  virtual PropertyCategory GetCategory() const = 0;
+  virtual PropertyCategory GetCategory() const = 0; // [tested]
 
 private:
   const char* m_szPropertyName;
@@ -49,7 +49,7 @@ public:
   virtual ezAbstractProperty::PropertyCategory GetCategory() const EZ_OVERRIDE { return ezAbstractProperty::Member; }
 
   /// \brief Returns the type information of the member property. Use this to cast this property to a specific version of ezTypedMemberProperty.
-  virtual const ezRTTI* GetPropertyType() const = 0;
+  virtual const ezRTTI* GetPropertyType() const = 0; // [tested]
 
   /// \brief Returns a pointer to the property data or NULL. If a valid pointer is returned, that pointer and the information from GetPropertyType() can
   /// be used to step deeper into the type (if required).
@@ -65,7 +65,7 @@ public:
   virtual void* GetPropertyPointer(const void* pInstance) const = 0;
 
   /// \brief When this returns true, the property can be read, but not modified.
-  virtual bool IsReadOnly() const = 0;
+  virtual bool IsReadOnly() const = 0; // [tested]
 };
 
 /// \brief The base class for all function properties.

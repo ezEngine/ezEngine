@@ -90,8 +90,8 @@ public:
 
 private:
   /// \brief This function is called whenever the camera position or rotation changed.
-  /// Override this function to implement restrictions or etc.
-  virtual void CameraOrientationChanged(bool bPosition, bool bRotation);
+  /// Override this function to implement restrictions on the camera position or rotation.
+  virtual void CameraOrientationChanged(bool bPosition, bool bRotation) { }
 
   /// \brief This function is called when the camera mode changes (e.g. SetCameraMode was called).
   /// Override this to do sanity checks or restrict certains values.

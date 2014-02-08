@@ -67,9 +67,18 @@ void ezStandardJSONWriter::OutputString(const char* sz)
 
 void ezStandardJSONWriter::OutputEscapedString(const char* sz)
 {
-  /// \todo Escape String
+  ezStringBuilder sEscaped = sz;
+  sEscaped.ReplaceAll("\\", "\\\\");
+  sEscaped.ReplaceAll("/", "\\/");
+  sEscaped.ReplaceAll("\"", "\\\"");
+  sEscaped.ReplaceAll("\b", "\\b");
+  sEscaped.ReplaceAll("\r", "\\r");
+  sEscaped.ReplaceAll("\f", "\\f");
+  sEscaped.ReplaceAll("\n", "\\n");
+  sEscaped.ReplaceAll("\t", "\\t");
+
   OutputString("\"");
-  OutputString(sz);
+  OutputString(sEscaped.GetData());
   OutputString("\"");
 }
 
@@ -169,6 +178,19 @@ void ezStandardJSONWriter::WriteNULL()
 void ezStandardJSONWriter::WriteTime(ezTime value)
 {
   WriteDouble(value.GetSeconds());
+}
+
+void ezStandardJSONWriter::WriteColor(const ezColor& value)
+{
+  ezVec4 temp = value;
+
+  ezEndianHelper::NativeToLittleEndian((ezUInt32*) &temp, sizeof(temp) / sizeof(float));
+
+  ezStringBuilder s;
+  s.Format("(%.8f, %.8f, %.8f, %.8f)", value.r, value.g, value.b, value.a);
+
+  WriteBinaryData("color", &temp, sizeof(temp), s.GetData());
+
 }
 
 void ezStandardJSONWriter::WriteVec2(const ezVec2& value)

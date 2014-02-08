@@ -24,18 +24,18 @@ public:
   }
 
   /// \brief Returns the actual type of the property. You can then compare that with known types, eg. compare it to ezGetStaticRTTI<int>() to see whether this is an int property.
-  virtual const ezRTTI* GetPropertyType() const EZ_OVERRIDE
+  virtual const ezRTTI* GetPropertyType() const EZ_OVERRIDE // [tested]
   {
     return ezGetStaticRTTI<Type>();
   }
 
   /// \brief Returns the value of the property. Pass the instance pointer to the surrounding class along.
-  virtual Type GetValue(const void* pInstance) const = 0;
+  virtual Type GetValue(const void* pInstance) const = 0; // [tested]
 
   /// \brief Modifies the value of the property. Pass the instance pointer to the surrounding class along.
   ///
   /// \note Make sure the property is not read-only before calling this, otherwise an assert will fire.
-  virtual void SetValue(void* pInstance, Type value) = 0;
+  virtual void SetValue(void* pInstance, Type value) = 0; // [tested]
 };
 
 
@@ -67,13 +67,13 @@ public:
   }
 
   /// \brief Returns whether the property can be modified or is read-only.
-  virtual bool IsReadOnly() const EZ_OVERRIDE
+  virtual bool IsReadOnly() const EZ_OVERRIDE // [tested]
   {
     return m_Setter == NULL;
   }
 
     /// \brief Returns the value of the property. Pass the instance pointer to the surrounding class along.
-  virtual Type GetValue(const void* pInstance) const EZ_OVERRIDE
+  virtual Type GetValue(const void* pInstance) const EZ_OVERRIDE // [tested]
   {
     return (((Class*) pInstance)->*m_Getter)();
   }
@@ -81,7 +81,7 @@ public:
   /// \brief Modifies the value of the property. Pass the instance pointer to the surrounding class along.
   ///
   /// \note Make sure the property is not read-only before calling this, otherwise an assert will fire.
-  virtual void SetValue(void* pInstance, Type value) EZ_OVERRIDE
+  virtual void SetValue(void* pInstance, Type value) EZ_OVERRIDE // [tested]
   {
     EZ_ASSERT(m_Setter != NULL, "The property '%s' has no setter function, thus it is read-only.", ezAbstractProperty::GetPropertyName());
 

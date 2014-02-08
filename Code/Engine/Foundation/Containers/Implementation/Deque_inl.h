@@ -629,7 +629,7 @@ void ezDequeBase<T, Construct>::ReduceSize(ezInt32 iReduction)
   // thus m_uiMaxCount might be reduced over time
   m_uiMaxCount = ezMath::Max(m_uiCount, (m_uiMaxCount / 2) + (m_uiCount / 2));
 
-  /// \todo Adjust the size of the index array (?)
+  // Should we really adjust the size of the index array here?
   CompactIndexArray(uiMaxChunks);
 }
 

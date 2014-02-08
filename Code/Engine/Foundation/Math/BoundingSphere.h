@@ -42,7 +42,7 @@ public:
   bool IsValid() const; // [tested]
 
   /// \brief Returns whether any value is NaN.
-  bool IsNaN() const;
+  bool IsNaN() const; // [tested]
 
   /// \brief Sets the sphere to the given values.
   void SetElements(const ezVec3Template<Type>& vCenter, Type fRadius); // [tested]

@@ -474,5 +474,31 @@ EZ_CREATE_SIMPLE_TEST(Math, Plane)
     EZ_TEST_INT(i3, 4);  
   }
 
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsNaN")
+  {
+    if (ezMath::BasicType<ezMathTestType>::SupportsNaN())
+    {
+      ezPlaneT p;
+
+      p.SetInvalid();
+      EZ_TEST_BOOL(!p.IsNaN());
+
+      p.SetInvalid();
+      p.m_fNegDistance = ezMath::BasicType<ezMathTestType>::GetNaN();
+      EZ_TEST_BOOL(p.IsNaN());
+
+      p.SetInvalid();
+      p.m_vNormal.x = ezMath::BasicType<ezMathTestType>::GetNaN();
+      EZ_TEST_BOOL(p.IsNaN());
+
+      p.SetInvalid();
+      p.m_vNormal.y = ezMath::BasicType<ezMathTestType>::GetNaN();
+      EZ_TEST_BOOL(p.IsNaN());
+
+      p.SetInvalid();
+      p.m_vNormal.z = ezMath::BasicType<ezMathTestType>::GetNaN();
+      EZ_TEST_BOOL(p.IsNaN());
+    }
+  }
 }
 

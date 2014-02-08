@@ -40,7 +40,7 @@ public:
   bool IsValid() const; // [tested]
 
   /// \brief Checks whether any component is NaN.
-  bool IsNaN() const;
+  bool IsNaN() const; // [tested]
 
   /// \brief Directly sets the minimum and maximum values.
   void SetElements(const ezVec3Template<Type>& vMin, const ezVec3Template<Type>& vMax); // [tested]

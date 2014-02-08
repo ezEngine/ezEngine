@@ -508,7 +508,7 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingBox)
 
             ezMathTestType f;
             ezVec3T vi;
-            EZ_TEST_BOOL(b.GetRayIntersection(vSource, -vDir, &f, &vi) == true); // \todo FIX Division by Zero
+            EZ_TEST_BOOL(b.GetRayIntersection(vSource, -vDir, &f, &vi) == true);
             EZ_TEST_FLOAT(f, 3, 0.001f);
             EZ_TEST_BOOL(vi.IsEqual(vTarget, 0.0001f));
 
@@ -555,6 +555,41 @@ EZ_CREATE_SIMPLE_TEST(Math, BoundingBox)
           }
         }
       }
+    }
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsNaN")
+  {
+    if (ezMath::BasicType<ezMathTestType>::SupportsNaN())
+    {
+      ezBoundingBoxT b;
+
+      b.SetInvalid();
+      EZ_TEST_BOOL(!b.IsNaN());
+
+      b.SetInvalid();
+      b.m_vMin.x = ezMath::BasicType<ezMathTestType>::GetNaN();
+      EZ_TEST_BOOL(b.IsNaN());
+
+      b.SetInvalid();
+      b.m_vMin.y = ezMath::BasicType<ezMathTestType>::GetNaN();
+      EZ_TEST_BOOL(b.IsNaN());
+
+      b.SetInvalid();
+      b.m_vMin.z = ezMath::BasicType<ezMathTestType>::GetNaN();
+      EZ_TEST_BOOL(b.IsNaN());
+
+      b.SetInvalid();
+      b.m_vMax.x = ezMath::BasicType<ezMathTestType>::GetNaN();
+      EZ_TEST_BOOL(b.IsNaN());
+
+      b.SetInvalid();
+      b.m_vMax.y = ezMath::BasicType<ezMathTestType>::GetNaN();
+      EZ_TEST_BOOL(b.IsNaN());
+
+      b.SetInvalid();
+      b.m_vMax.z = ezMath::BasicType<ezMathTestType>::GetNaN();
+      EZ_TEST_BOOL(b.IsNaN());
     }
   }
 }

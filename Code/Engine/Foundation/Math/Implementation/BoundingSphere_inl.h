@@ -49,8 +49,6 @@ bool ezBoundingSphereTemplate<Type>::IsValid() const
 template<typename Type>
 bool ezBoundingSphereTemplate<Type>::IsNaN() const
 {
-  /// \test Not yet tested.
-
   return (m_vCenter.IsNaN() || ezMath::IsNaN(m_fRadius));
 }
 

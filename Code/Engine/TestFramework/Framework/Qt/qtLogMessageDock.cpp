@@ -251,7 +251,7 @@ void ezQtLogMessageModel::UpdateVisibleEntries()
 
   ezUInt8 uiIndention = 0;
   ezUInt32 uiEntries = m_pTestResult->GetOutputMessageCount();
-  // TODO: filter out uninteresting messages
+  /// \todo filter out uninteresting messages
   for (ezUInt32 i = 0; i < uiEntries; ++i)
   {
     ezTestOutput::Enum Type = m_pTestResult->GetOutputMessage(i)->m_Type;

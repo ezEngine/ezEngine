@@ -627,6 +627,23 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat3)
     EZ_TEST_BOOL(m != m2);
   }
 
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsNaN")
+  {
+    if (ezMath::BasicType<ezMathTestType>::SupportsNaN())
+    {
+      ezMat3T m;
 
+      m.SetIdentity();
+      EZ_TEST_BOOL(!m.IsNaN());
+
+      for (ezUInt32 i = 0; i < 9; ++i)
+      {
+        m.SetIdentity();
+        m.m_fElementsCM[i] = ezMath::BasicType<ezMathTestType>::GetNaN();
+
+        EZ_TEST_BOOL(m.IsNaN());
+      }
+    }
+  }
 }
 

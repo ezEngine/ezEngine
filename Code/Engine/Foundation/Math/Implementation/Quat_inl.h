@@ -121,8 +121,6 @@ bool ezQuatTemplate<Type>::IsValid(Type fEpsilon) const
 template<typename Type>
 bool ezQuatTemplate<Type>::IsNaN() const
 {
-  /// \test Not yet tested.
-
   return v.IsNaN() || ezMath::IsNaN(w);
 }
 

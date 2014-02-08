@@ -128,7 +128,7 @@ public:
   bool IsValid() const; // [tested]
 
   /// \brief Checks whether any component is NaN.
-  bool IsNaN() const;
+  bool IsNaN() const; // [tested]
 
 // *** Special Accessors ***
 public:

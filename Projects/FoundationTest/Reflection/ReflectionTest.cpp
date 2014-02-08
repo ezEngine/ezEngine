@@ -3,6 +3,10 @@
 
 EZ_CREATE_SIMPLE_TEST_GROUP(Reflection);
 
+/// \todo Test Message Handlers (once the messaging stuff is final)
+/// \todo Test Array Properties (once they are implemented)
+/// \todo Test Enum Property Type (when implemented)
+
 struct ezTestStruct
 {
   EZ_ALLOW_PRIVATE_PROPERTIES(ezTestStruct);
@@ -140,11 +144,60 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Types)
     EZ_TEST_BOOL(bFoundClass2);
   }
 
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "FindTypeByName")
+  {
+    ezRTTI* pFloat = ezRTTI::FindTypeByName("float");
+    EZ_TEST_BOOL(pFloat != NULL);
+    EZ_TEST_STRING(pFloat->GetTypeName(), "float");
+
+    ezRTTI* pStruct = ezRTTI::FindTypeByName("ezTestStruct");
+    EZ_TEST_BOOL(pStruct != NULL);
+    EZ_TEST_STRING(pStruct->GetTypeName(), "ezTestStruct");
+
+    ezRTTI* pClass2 = ezRTTI::FindTypeByName("ezTestClass2");
+    EZ_TEST_BOOL(pClass2 != NULL);
+    EZ_TEST_STRING(pClass2->GetTypeName(), "ezTestClass2");
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetProperties")
+  {
+    {
+      ezRTTI* pType = ezRTTI::FindTypeByName("ezTestStruct");
+
+      auto Props = pType->GetProperties();
+      EZ_TEST_INT(Props.GetCount(), 3);
+      EZ_TEST_STRING(Props[0]->GetPropertyName(), "Float");
+      EZ_TEST_STRING(Props[1]->GetPropertyName(), "Vector");
+      EZ_TEST_STRING(Props[2]->GetPropertyName(), "Int");
+    }
+
+    {
+      ezRTTI* pType = ezRTTI::FindTypeByName("ezTestClass2");
+
+      auto Props = pType->GetProperties();
+      EZ_TEST_INT(Props.GetCount(), 1);
+      EZ_TEST_STRING(Props[0]->GetPropertyName(), "Text");
+
+      ezHybridArray<ezAbstractProperty*, 32> AllProps;
+      pType->GetAllProperties(AllProps);
+
+      EZ_TEST_INT(AllProps.GetCount(), 3);
+      EZ_TEST_STRING(AllProps[0]->GetPropertyName(), "Text");
+      EZ_TEST_STRING(AllProps[1]->GetPropertyName(), "Sub Struct");
+      EZ_TEST_STRING(AllProps[2]->GetPropertyName(), "Sub Vector");
+    }
+  }
+
 #if EZ_ENABLED(EZ_SUPPORTS_DYNAMIC_PLUGINS)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Types From Plugin")
   {
     EZ_TEST_BOOL(ezPlugin::LoadPlugin("ezFoundationTest_Plugin1") == EZ_SUCCESS);
+
+    ezRTTI* pStruct2 = ezRTTI::FindTypeByName("ezTestStruct2");
+    EZ_TEST_BOOL(pStruct2 != NULL);
+    EZ_TEST_STRING(pStruct2->GetTypeName(), "ezTestStruct2");
+
 
     bool bFoundStruct2 = false;
 

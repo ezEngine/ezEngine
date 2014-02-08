@@ -30,29 +30,32 @@ public:
   ezRTTI(const char* szName, const ezRTTI* pParentType, ezUInt32 uiTypeSize, ezRTTIAllocator* pAllocator, ezArrayPtr<ezAbstractProperty*> pProperties, ezArrayPtr<ezAbstractMessageHandler*> pMessageHandlers);
 
   /// \brief Returns the name of this type.
-  const char* GetTypeName() const { return m_szTypeName; }
+  const char* GetTypeName() const { return m_szTypeName; } // [tested]
 
   /// \brief Returns the type that is the base class of this type. May be NULL if this type has no base class.
-  const ezRTTI* GetParentType() const { return m_pParentType; }
+  const ezRTTI* GetParentType() const { return m_pParentType; } // [tested]
 
   /// \brief Returns true if this type is derived from the given type.
-  bool IsDerivedFrom(const ezRTTI* pBaseType) const;
+  bool IsDerivedFrom(const ezRTTI* pBaseType) const; // [tested]
 
   /// \brief Returns true if this type is derived from the given type.
   template<typename BASE>
-  bool IsDerivedFrom() const { return IsDerivedFrom(ezGetStaticRTTI<BASE>()); }
+  bool IsDerivedFrom() const { return IsDerivedFrom(ezGetStaticRTTI<BASE>()); } // [tested]
 
   /// \brief Returns the object through which instances of this type can be allocated.
-  ezRTTIAllocator* GetAllocator() const { return m_pAllocator; }
+  ezRTTIAllocator* GetAllocator() const { return m_pAllocator; } // [tested]
 
-  /// \brief Returns the array of properties that this type has.
-  const ezArrayPtr<ezAbstractProperty*>& GetProperties() const { return m_Properties; }
+  /// \brief Returns the array of properties that this type has. Does NOT include properties from base classes.
+  const ezArrayPtr<ezAbstractProperty*>& GetProperties() const { return m_Properties; } // [tested]
+
+  /// \brief Returns the list of properties that this type has, including derived properties from all base classes.
+  void GetAllProperties(ezHybridArray<ezAbstractProperty*, 32>& out_Properties) const; // [tested]
 
   /// \brief Returns the array of message handlers that this type has.
   const ezArrayPtr<ezAbstractMessageHandler*>& GetMessageHandlers() const { return m_MessageHandlers; }
 
   /// \brief Returns the size (in bytes) of an instance of this type.
-  ezUInt32 GetTypeSize() const { return m_uiTypeSize; }
+  ezUInt32 GetTypeSize() const { return m_uiTypeSize; } // [tested]
 
   /// \brief Dispatches the given message to the proper message handler, if there is one available. Returns true if so, false if no message handler for this type exists.
   template<typename MSG>
@@ -65,16 +68,16 @@ public:
   bool HandleMessageOfType(void* pInstance, ezMessageId id, ezMessage* pMsg, bool bSearchBaseTypes = true) const;
 
   /// \brief Iterates over all ezRTTI instances and returns the one with the given name, or NULL of no such type exists.
-  static ezRTTI* FindTypeByName(const char* szName);
+  static ezRTTI* FindTypeByName(const char* szName); // [tested]
 
   /// \brief Will iterate over all properties of this type and (optionally) the base types to search for a property with the given name.
-  ezAbstractProperty* FindPropertyByName(const char* szName, bool bSearchBaseTypes = true) const;
+  ezAbstractProperty* FindPropertyByName(const char* szName, bool bSearchBaseTypes = true) const; // [tested]
 
   /// \brief Iterates over all message handlers of this type and (optionally) the base types to search for a message handler for the given message type.
   ezAbstractMessageHandler* FindMessageHandler(ezMessageId id, bool bSearchBaseTypes = true) const;
 
   /// \brief Returns the name of the plugin which this type is declared in.
-  const char* GetPluginName() const { return m_szPluginName; }
+  const char* GetPluginName() const { return m_szPluginName; } // [tested]
 
 private:
   const char* m_szPluginName;
@@ -104,30 +107,30 @@ private:
 struct EZ_FOUNDATION_DLL ezRTTIAllocator
 {
   /// \brief Returns whether the type that is represented by this allocator, can be dynamically allocated at runtime.
-  virtual bool CanAllocate() const { return true; }
+  virtual bool CanAllocate() const { return true; } // [tested]
 
   /// \brief Allocates one instance.
-  virtual void* Allocate() = 0;
+  virtual void* Allocate() = 0; // [tested]
 
   /// \brief Deallocates the given instance.
-  virtual void Deallocate(void* pObject) = 0;
+  virtual void Deallocate(void* pObject) = 0; // [tested]
 };
 
 /// \brief Dummy Allocator for types that should not be allocatable through the reflection system.
 struct EZ_FOUNDATION_DLL ezRTTINoAllocator : public ezRTTIAllocator
 {
   /// \brief Returns false, because this type of allocator is used for classes that shall not be allocated dynamically.
-  virtual bool CanAllocate() const EZ_OVERRIDE { return false; }
+  virtual bool CanAllocate() const EZ_OVERRIDE { return false; } // [tested]
 
   /// \brief Will trigger an assert.
-  virtual void* Allocate() EZ_OVERRIDE
+  virtual void* Allocate() EZ_OVERRIDE // [tested]
   {
     EZ_REPORT_FAILURE("This function should never be called.");
     return NULL;
   }
 
   /// \brief Will trigger an assert.
-  virtual void Deallocate(void* pObject) EZ_OVERRIDE
+  virtual void Deallocate(void* pObject) EZ_OVERRIDE // [tested]
   {
     EZ_REPORT_FAILURE("This function should never be called.");
   }
@@ -138,13 +141,13 @@ template<typename CLASS>
 struct ezRTTIDefaultAllocator : public ezRTTIAllocator
 {
   /// \brief Returns a new instance that was allocated on the default heap.
-  virtual void* Allocate() EZ_OVERRIDE
+  virtual void* Allocate() EZ_OVERRIDE // [tested]
   {
     return EZ_DEFAULT_NEW(CLASS);
   }
 
   /// \brief Deletes the given instance from the default heap.
-  virtual void Deallocate(void* pObject) EZ_OVERRIDE
+  virtual void Deallocate(void* pObject) EZ_OVERRIDE // [tested]
   {
     CLASS* pPointer = (CLASS*) pObject;
     EZ_DEFAULT_DELETE(pPointer);

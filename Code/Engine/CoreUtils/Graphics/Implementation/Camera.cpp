@@ -67,11 +67,6 @@ void ezCamera::CameraSettingsChanged()
   EZ_ASSERT(m_fFovOrDim > 0.0f, "FOV or Camera Dimension is invalid.");
 }
 
-void ezCamera::CameraOrientationChanged(bool bPosition, bool bRotation)
-{
-  /// \todo Clamp camera rotation
-}
-
 void ezCamera::MoveLocally (const ezVec3& vMove)
 {
   m_vPosition += vMove.x * m_vDirRight;

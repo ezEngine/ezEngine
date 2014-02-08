@@ -144,7 +144,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Color)
     }
   }
 
-  // Still missing. Problem: Find good reference values
+  /// \todo Missing ezColor Tests: Problem: Find good reference values
   //float GetSaturation() const;
   //float GetLuminance() const;
   //ezColor GetInvertedColor() const;

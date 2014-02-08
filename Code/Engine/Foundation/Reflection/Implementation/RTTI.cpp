@@ -127,6 +127,20 @@ ezAbstractProperty* ezRTTI::FindPropertyByName(const char* szName, bool bSearchB
   return NULL;
 }
 
+void ezRTTI::GetAllProperties(ezHybridArray<ezAbstractProperty*, 32>& out_Properties) const
+{
+  out_Properties.Clear();
+
+  const ezRTTI* pThis = this;
+
+  while (pThis)
+  {
+    out_Properties.PushBackRange(pThis->GetProperties());
+
+    pThis = pThis->m_pParentType;
+  }
+}
+
 ezAbstractMessageHandler* ezRTTI::FindMessageHandler(ezMessageId id, bool bSearchBaseTypes /* = true */) const
 {
   const ezRTTI* pInstance = this;

@@ -200,8 +200,6 @@ bool ezPlaneTemplate<Type>::IsValid() const
 template<typename Type>
 bool ezPlaneTemplate<Type>::IsNaN() const
 {
-  /// \test Not yet tested.
-
   return ezMath::IsNaN(m_fNegDistance) || m_vNormal.IsNaN();
 }
 

@@ -86,8 +86,6 @@ bool ezBoundingBoxTemplate<Type>::IsValid() const
 template<typename Type>
 bool ezBoundingBoxTemplate<Type>::IsNaN() const
 {
-  /// \test Not yet tested.
-
   return m_vMin.IsNaN() || m_vMax.IsNaN();
 }
 

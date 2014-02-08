@@ -649,8 +649,6 @@ bool ezMat4Template<Type>::IsValid() const
 template<typename Type>
 bool ezMat4Template<Type>::IsNaN() const
 {
-  /// \test Not yet tested.
-
   for (ezUInt32 i = 0; i < 16; ++i)
   {
     if (ezMath::IsNaN(m_fElementsCM[i]))

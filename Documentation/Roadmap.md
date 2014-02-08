@@ -3,22 +3,28 @@ ezEngine Roadmap {#EngineRoadmap}
 
 This is a list of our planned features for the foreseeable future.
 
-  * Refactor Allocators / Memory tracking
+Soon:
+  * Per Object Type Memory Tracking (Clemens)
   * JSON reader
-  * Game Object basics (Clemens)
-  * Rendering Abstraction basics (Marc)
-  
-  * Resource Manager
+  * Game Objects (Clemens)
+  * Rendering Abstraction (Marc)
+  * Resource Manager (Jan)
+  * ezInspector Improvements: Task System Thread utilization
+
+One of the next releases:
+  * Math: Simd
+  * Simple Text Rendering
+  * In Game Console
+
+Unknown:
   * Binary Search Algorithm
   * ezMap, ezSet Comparer mit dem Comparer in Algorithm ersetzen; auﬂerdem < und == sinnvoller verwenden (-1, 0, 1 vergleich etc.) (Clemens :-P )
   * Containers: Sorted Array (Requires Binary Search)
   * Math: Random Number Generators
-  * Math: Simd (Clemens)
   * Optimize container regarding construction/destruction, unnecessary operations (ask Clemens for more info)
   * Text Streams
   * Type-safe printf
-  * Simple Text Rendering
-  * In Game Console
+
 
 Known Bugs
 ----------

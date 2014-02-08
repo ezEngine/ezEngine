@@ -155,13 +155,15 @@ EZ_CREATE_SIMPLE_TEST(IO, StandardJSONWriter)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "AddVariableString")
   {
-    StreamComparer sc("\"var1\" : \"bla\",\n\"var2\" : \"blub\"");
+    StreamComparer sc("\"var1\" : \"bla\",\n\"var2\" : \"blub\",\n\"special\" : \"I\\\\m\\t\\\"s\\bec\\/al\\\" \\f\\n\\/\\/\\\\\\r\"");
 
     ezStandardJSONWriter js;
     js.SetOutputStream(&sc);
 
     js.AddVariableString("var1", "bla");
     js.AddVariableString("var2", "blub");
+
+    js.AddVariableString("special", "I\\m\t\"s\bec/al\" \f\n//\\\r");
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "AddVariableNULL")
@@ -183,6 +185,16 @@ EZ_CREATE_SIMPLE_TEST(IO, StandardJSONWriter)
 
     js.AddVariableTime("var1", ezTime::Seconds(0.5));
     js.AddVariableTime("var2", ezTime::Seconds(2.25));
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "AddVariableColor")
+  {
+    StreamComparer sc("\"var1\" : { \"$t\" : \"color\", \"$v\" : \"(1.00000000, 2.00000000, 3.00000000, 4.00000000)\", \"$b\" : \"0x0000803F000000400000404000008040\" }");
+
+    ezStandardJSONWriter js;
+    js.SetOutputStream(&sc);
+
+    js.AddVariableColor("var1", ezColor(1, 2, 3, 4));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "AddVariableVec2")

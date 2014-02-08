@@ -42,6 +42,9 @@ public:
   /// \brief Shorthand for "BeginVariable(szName); WriteTime(value); EndVariable(); "
   void AddVariableTime(const char* szName, ezTime value); // [tested]
 
+  /// \brief Shorthand for "BeginVariable(szName); WriteColor(value); EndVariable(); "
+  void AddVariableColor(const char* szName, const ezColor& value); // [tested]
+
   /// \brief Shorthand for "BeginVariable(szName); WriteVec2(value); EndVariable(); "
   void AddVariableVec2(const char* szName, const ezVec2& value); // [tested]
 
@@ -93,6 +96,11 @@ public:
 
   /// \brief Writes a time value to the JSON file. Can only be called between BeginVariable() / EndVariable() or BeginArray() / EndArray().
   virtual void WriteTime(ezTime value) = 0;
+
+  /// \brief Writes an ezColor to the JSON file. Can only be called between BeginVariable() / EndVariable() or BeginArray() / EndArray().
+  ///
+  /// \note Standard JSON does not have a suitable type for this. A derived class might turn this into an object or output it via WriteBinaryData().
+  virtual void WriteColor(const ezColor& value) = 0;
 
   /// \brief Writes an ezVec2 to the JSON file. Can only be called between BeginVariable() / EndVariable() or BeginArray() / EndArray().
   ///
@@ -215,6 +223,9 @@ public:
 
   /// \brief Writes the time value as a double (ie. redirects to WriteDouble()).
   virtual void WriteTime(ezTime value) EZ_OVERRIDE; // [tested]
+
+  /// \brief Outputs the value via WriteVec4().
+  virtual void WriteColor(const ezColor& value) EZ_OVERRIDE; // [tested]
 
   /// \brief Outputs the value via WriteBinaryData().
   virtual void WriteVec2(const ezVec2& value) EZ_OVERRIDE; // [tested]

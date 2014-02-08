@@ -87,7 +87,7 @@ public:
   bool IsValid(Type fEpsilon = ezMath::BasicType<Type>::DefaultEpsilon()) const; // [tested]
 
   /// \brief Checks whether any component is NaN.
-  bool IsNaN() const;
+  bool IsNaN() const; // [tested]
 
   /// \brief Determines whether \a this and \a qOther represent the same rotation. This is a rather slow operation.
   ///

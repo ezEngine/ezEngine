@@ -213,5 +213,33 @@ EZ_CREATE_SIMPLE_TEST(Math, Quaternion)
     q2.SetFromAxisAndAngle(ezVec3T(0, 0, 1), ezAngle::Degree(60));
     EZ_TEST_BOOL(q1 == q2);
   }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsNaN")
+  {
+    if (ezMath::BasicType<ezMathTestType>::SupportsNaN())
+    {
+      ezQuatT q;
+
+      q.SetIdentity();
+      EZ_TEST_BOOL(!q.IsNaN());
+
+      q.SetIdentity();
+      q.w = ezMath::BasicType<ezMathTestType>::GetNaN();
+      EZ_TEST_BOOL(q.IsNaN());
+
+      q.SetIdentity();
+      q.v.x = ezMath::BasicType<ezMathTestType>::GetNaN();
+      EZ_TEST_BOOL(q.IsNaN());
+
+      q.SetIdentity();
+      q.v.y = ezMath::BasicType<ezMathTestType>::GetNaN();
+      EZ_TEST_BOOL(q.IsNaN());
+
+      q.SetIdentity();
+      q.v.z = ezMath::BasicType<ezMathTestType>::GetNaN();
+      EZ_TEST_BOOL(q.IsNaN());
+    }
+  }
+
 }
 

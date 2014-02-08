@@ -1,5 +1,7 @@
 #pragma once
 
+/// \file
+
 #include <Foundation/Basics.h>
 #include <Foundation/Reflection/Implementation/StaticRTTI.h>
 #include <Foundation/Reflection/Implementation/RTTI.h>
@@ -11,11 +13,9 @@
 
 #include <Foundation/Reflection/Implementation/StandardTypes.h>
 
-// TODO
-// Array Properties
-// Tests
-// Enum Property Type
-// Property Hints: Editor Only
+/// \todo Reflection: Array Properties
+/// \todo Reflection: Enum Property Type
+/// \todo Reflection: Property Hints: Editor Only
 
 // Array:
 //   can insert at

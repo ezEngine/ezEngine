@@ -71,6 +71,13 @@ void ezJSONWriter::AddVariableTime(const char* szName, ezTime value)
   EndVariable();
 }
 
+void ezJSONWriter::AddVariableColor(const char* szName, const ezColor& value)
+{
+  BeginVariable(szName);
+  WriteColor(value);
+  EndVariable();
+}
+
 void ezJSONWriter::AddVariableVec2(const char* szName, const ezVec2& value)
 {
   BeginVariable(szName);
@@ -118,6 +125,11 @@ void ezJSONWriter::AddVariableVariant(const char* szName, const ezVariant& value
   BeginVariable(szName);
   WriteVariant(value);
   EndVariable();
+}
+
+void ezJSONWriter::WriteColor(const ezColor& value)
+{
+  EZ_REPORT_FAILURE("The complex data type ezColor is not supported by this JSON writer.");
 }
 
 void ezJSONWriter::WriteVec2(const ezVec2& value)
@@ -178,7 +190,9 @@ void ezJSONWriter::WriteVariant(const ezVariant& value)
   case ezVariant::Type::Double:
     WriteDouble(value.Get<double>());
     return;
-  //case ezVariant::Type:://Color, /// \todo Implement ezColor type.
+  case ezVariant::Type::Color:
+    WriteColor(value.Get<ezColor>());
+    return;
   case ezVariant::Type::Vector2:
     WriteVec2(value.Get<ezVec2>());
     return;

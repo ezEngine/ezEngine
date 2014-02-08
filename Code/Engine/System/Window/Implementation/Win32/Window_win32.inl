@@ -72,7 +72,7 @@ ezResult ezWindow::Initialize()
   windowClass.lpszClassName  = L"ezWin32Window";
   windowClass.lpfnWndProc    = ezWindowsMessageFuncTrampoline;
 
-  if (!RegisterClassExW(&windowClass)) // \todo test & support for multiple windows
+  if (!RegisterClassExW(&windowClass)) /// \todo test & support for multiple windows
   {
     ezLog::Error("Failed to create ezWindow window class!");
     return EZ_FAILURE;
