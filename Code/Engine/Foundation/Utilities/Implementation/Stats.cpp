@@ -23,6 +23,10 @@ void ezStats::RemoveStat(const char* szStatName)
 
 void ezStats::SetStat(const char* szStatName, const char* szValue)
 {
+  /// \todo Stats are transmitted unreliably, should be transmitted reliable when they are new.
+  // Otherwise it can happen that some stat never appears, because the packet got lost at startup and then it never changed
+
+
   ezString& sValue = s_Stats[szStatName];
   
   if (sValue == szValue)

@@ -140,9 +140,9 @@ void ezMemoryWidget::UpdateStats()
   }
 
   // once a second update the display of the allocators in the list
-  if (ezSystemTime::Now() - m_LastUpdatedAllocatorList > ezTime::Seconds(1))
+  if (ezTime::Now() - m_LastUpdatedAllocatorList > ezTime::Seconds(1))
   {
-    m_LastUpdatedAllocatorList = ezSystemTime::Now();
+    m_LastUpdatedAllocatorList = ezTime::Now();
 
     for (ezMap<ezString, ezMemoryWidget::AllocatorData>::Iterator it = m_AllocatorData.GetIterator(); it.IsValid(); ++it)
     {
@@ -186,9 +186,9 @@ void ezMemoryWidget::UpdateStats()
     }
   }
 
-  if (ezSystemTime::Now() - s_pWidget->m_LastUsedMemoryStored > ezTime::Milliseconds(200))
+  if (ezTime::Now() - s_pWidget->m_LastUsedMemoryStored > ezTime::Milliseconds(200))
   {
-    m_LastUsedMemoryStored = ezSystemTime::Now();
+    m_LastUsedMemoryStored = ezTime::Now();
 
     ezUInt64 uiSumMemory = 0;
 

@@ -114,12 +114,12 @@ EZ_CREATE_SIMPLE_TEST(Performance, Basics)
     for (ezUInt32 i = 0; i < iNumObjects; ++i)
       iResult += Objects[i]->Virtual();
 
-    ezTime t0 = ezSystemTime::Now();
+    ezTime t0 = ezTime::Now();
 
     for (ezUInt32 i = 0; i < iNumObjects; ++i)
       iResult += Objects[i]->Virtual();
 
-    ezTime t1 = ezSystemTime::Now();
+    ezTime t1 = ezTime::Now();
 
     EZ_TEST_INT(iResult, iNumObjects * 1 + iNumObjects * 2);
 
@@ -140,7 +140,7 @@ EZ_CREATE_SIMPLE_TEST(Performance, Basics)
       iResult += ((Derived2*) Objects[i])->NonVirtual();
     }
 
-    ezTime t0 = ezSystemTime::Now();
+    ezTime t0 = ezTime::Now();
 
     for (ezUInt32 i = 0; i < iNumObjects; i += 2)
     {
@@ -148,7 +148,7 @@ EZ_CREATE_SIMPLE_TEST(Performance, Basics)
       iResult += ((Derived2*) Objects[i])->NonVirtual();
     }
 
-    ezTime t1 = ezSystemTime::Now();
+    ezTime t1 = ezTime::Now();
 
     EZ_TEST_INT(iResult, iNumObjects * 1 + iNumObjects * 2);
 
@@ -169,7 +169,7 @@ EZ_CREATE_SIMPLE_TEST(Performance, Basics)
       iResult += ((Derived2*) Objects[i])->FastCall();
     }
 
-    ezTime t0 = ezSystemTime::Now();
+    ezTime t0 = ezTime::Now();
 
     for (ezUInt32 i = 0; i < iNumObjects; i += 2)
     {
@@ -177,7 +177,7 @@ EZ_CREATE_SIMPLE_TEST(Performance, Basics)
       iResult += ((Derived2*) Objects[i])->FastCall();
     }
 
-    ezTime t1 = ezSystemTime::Now();
+    ezTime t1 = ezTime::Now();
 
     EZ_TEST_INT(iResult, iNumObjects * 1 + iNumObjects * 2);
 
@@ -195,14 +195,14 @@ EZ_CREATE_SIMPLE_TEST(Performance, Basics)
     for (ezInt32 i = 0; i < iNumObjects; i += 1)
       Ints[i] = i * 100;
 
-    ezTime t0 = ezSystemTime::Now();
+    ezTime t0 = ezTime::Now();
 
     ezInt32 iResult = 0;
 
     for (ezInt32 i = 1; i < iNumObjects; i += 1)
       iResult += Ints[i] / i;
 
-    ezTime t1 = ezSystemTime::Now();
+    ezTime t1 = ezTime::Now();
 
     ezTime tdiff = t1 - t0;
     double t = tdiff.GetNanoseconds() / (double) (iNumObjects-1);
@@ -218,14 +218,14 @@ EZ_CREATE_SIMPLE_TEST(Performance, Basics)
     for (ezInt32 i = 0; i < iNumObjects; i += 1)
       Ints[i] = iNumObjects - i;
 
-    ezTime t0 = ezSystemTime::Now();
+    ezTime t0 = ezTime::Now();
 
     ezInt32 iResult = 0;
 
     for (ezInt32 i = 0; i < iNumObjects; i += 1)
       iResult += Ints[i] * i;
 
-    ezTime t1 = ezSystemTime::Now();
+    ezTime t1 = ezTime::Now();
 
     ezTime tdiff = t1 - t0;
     double t = tdiff.GetNanoseconds() / (double) (iNumObjects);
@@ -241,14 +241,14 @@ EZ_CREATE_SIMPLE_TEST(Performance, Basics)
     for (ezInt32 i = 0; i < iNumObjects; i += 1)
       Ints[i] = (ezInt64) i * (ezInt64) 100;
 
-    ezTime t0 = ezSystemTime::Now();
+    ezTime t0 = ezTime::Now();
 
     ezInt64 iResult = 0;
 
     for (ezInt32 i = 1; i < iNumObjects; i += 1)
       iResult += Ints[i] / (ezInt64) i;
 
-    ezTime t1 = ezSystemTime::Now();
+    ezTime t1 = ezTime::Now();
 
     ezTime tdiff = t1 - t0;
     double t = tdiff.GetNanoseconds() / (double) (iNumObjects-1);
@@ -264,14 +264,14 @@ EZ_CREATE_SIMPLE_TEST(Performance, Basics)
     for (ezInt32 i = 0; i < iNumObjects; i += 1)
       Ints[i] = iNumObjects - i;
 
-    ezTime t0 = ezSystemTime::Now();
+    ezTime t0 = ezTime::Now();
 
     ezInt64 iResult = 0;
 
     for (ezInt32 i = 0; i < iNumObjects; i += 1)
       iResult += Ints[i] * (ezInt64) i;
 
-    ezTime t1 = ezSystemTime::Now();
+    ezTime t1 = ezTime::Now();
 
     ezTime tdiff = t1 - t0;
     double t = tdiff.GetNanoseconds() / (double) (iNumObjects);
@@ -287,7 +287,7 @@ EZ_CREATE_SIMPLE_TEST(Performance, Basics)
     for (ezInt32 i = 0; i < iNumObjects; i += 1)
       Ints[i] = i * 100.0f;
 
-    ezTime t0 = ezSystemTime::Now();
+    ezTime t0 = ezTime::Now();
 
     float fResult = 0;
 
@@ -295,7 +295,7 @@ EZ_CREATE_SIMPLE_TEST(Performance, Basics)
     for (ezInt32 i = 0; i < iNumObjects; i++, d += 1.0f)
       fResult += Ints[i] / d;
 
-    ezTime t1 = ezSystemTime::Now();
+    ezTime t1 = ezTime::Now();
 
     ezTime tdiff = t1 - t0;
     double t = tdiff.GetNanoseconds() / (double) (iNumObjects);
@@ -311,7 +311,7 @@ EZ_CREATE_SIMPLE_TEST(Performance, Basics)
     for (ezInt32 i = 0; i < iNumObjects; i++)
       Ints[i] = (float) (fNumObjects) - (float) (i);
 
-    ezTime t0 = ezSystemTime::Now();
+    ezTime t0 = ezTime::Now();
 
     float iResult = 0;
 
@@ -319,7 +319,7 @@ EZ_CREATE_SIMPLE_TEST(Performance, Basics)
     for (ezInt32 i = 0; i < iNumObjects; i++, d += 1.0f)
       iResult += Ints[i] * d;
 
-    ezTime t1 = ezSystemTime::Now();
+    ezTime t1 = ezTime::Now();
 
     ezTime tdiff = t1 - t0;
     double t = tdiff.GetNanoseconds() / (double) (iNumObjects);
@@ -335,7 +335,7 @@ EZ_CREATE_SIMPLE_TEST(Performance, Basics)
     for (ezInt32 i = 0; i < iNumObjects; i += 1)
       Ints[i] = i * 100.0;
 
-    ezTime t0 = ezSystemTime::Now();
+    ezTime t0 = ezTime::Now();
 
     double fResult = 0;
 
@@ -343,7 +343,7 @@ EZ_CREATE_SIMPLE_TEST(Performance, Basics)
     for (ezInt32 i = 0; i < iNumObjects; i++, d += 1.0f)
       fResult += Ints[i] / d;
 
-    ezTime t1 = ezSystemTime::Now();
+    ezTime t1 = ezTime::Now();
 
     ezTime tdiff = t1 - t0;
     double t = tdiff.GetNanoseconds() / (double) (iNumObjects);
@@ -359,7 +359,7 @@ EZ_CREATE_SIMPLE_TEST(Performance, Basics)
     for (ezInt32 i = 0; i < iNumObjects; i++)
       Ints[i] = (double) (fNumObjects) - (double) (i);
 
-    ezTime t0 = ezSystemTime::Now();
+    ezTime t0 = ezTime::Now();
 
     double iResult = 0;
 
@@ -367,7 +367,7 @@ EZ_CREATE_SIMPLE_TEST(Performance, Basics)
     for (ezInt32 i = 0; i < iNumObjects; i++, d += 1.0)
       iResult += Ints[i] * d;
 
-    ezTime t1 = ezSystemTime::Now();
+    ezTime t1 = ezTime::Now();
 
     ezTime tdiff = t1 - t0;
     double t = tdiff.GetNanoseconds() / (double) (iNumObjects);

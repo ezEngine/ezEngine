@@ -11,6 +11,9 @@ class EZ_FOUNDATION_DLL ezTime
 {
 public:
 
+  /// \brief Gets the current time
+  static ezTime Now();
+
   /// \brief Creates an instance of ezTime that was initialized from nanoseconds.
   static ezTime Nanoseconds(double fNanoseconds)    { return ezTime(fNanoseconds * 0.000000001); }
 
@@ -75,6 +78,12 @@ private:
 
   /// \brief The time is stored in seconds
   double m_fTime;
+
+private:
+
+  EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(Foundation, Time);
+
+  static void Initialize();
 };
 
 ezTime operator* (ezTime t, double f);
@@ -82,24 +91,6 @@ ezTime operator* (double f, ezTime t);
 
 ezTime operator/ (ezTime t, double f);
 ezTime operator/ (double f, ezTime t);
-
-
-/// \brief Encapsulation of functions in relation to system handling of the time.
-struct EZ_FOUNDATION_DLL ezSystemTime
-{
-public:
-  
-  /// \brief Gets the current time
-  static ezTime Now();
-
-private:
-
-  EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(Foundation, Time);
-
-  static void Initialize();
-
-  static void Shutdown();
-};
 
 
 #include <Foundation/Time/Implementation/Time_inl.h>

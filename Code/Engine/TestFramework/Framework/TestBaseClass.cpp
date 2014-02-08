@@ -125,11 +125,11 @@ double ezTestBaseClass::DoSubTestRun(ezInt32 iIdentifier)
 
   try
   {
-    ezTime StartTime = ezSystemTime::Now();
+    ezTime StartTime = ezTime::Now();
 
     RunSubTest(iIdentifier);
 
-    fDuration = (ezSystemTime::Now() - StartTime).GetMilliseconds();
+    fDuration = (ezTime::Now() - StartTime).GetMilliseconds();
 
   }
   catch(...)

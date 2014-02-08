@@ -155,7 +155,7 @@ void ezTaskSystem::ExecuteSomeFrameTasks(ezUInt32 uiSomeFrameTasks, double fSmoo
 
   static ezTime s_LastFrame; // initializes to zero -> very large frame time difference at first
 
-  ezTime CurTime = ezSystemTime::Now();
+  ezTime CurTime = ezTime::Now();
   ezTime LastTime = s_LastFrame;
   s_LastFrame = CurTime;
 
@@ -168,7 +168,7 @@ void ezTaskSystem::ExecuteSomeFrameTasks(ezUInt32 uiSomeFrameTasks, double fSmoo
     if (!ExecuteTask(ezTaskPriority::SomeFrameMainThread, ezTaskPriority::SomeFrameMainThread))
       return; // nothing left to do
 
-    CurTime = ezSystemTime::Now();
+    CurTime = ezTime::Now();
     --uiSomeFrameTasks;
   }
 
@@ -227,6 +227,27 @@ void ezTaskSystem::FinishFrameTasks(double fSmoothFrameMS)
   }
 
   ExecuteSomeFrameTasks(uiSomeFrameTasks, fSmoothFrameMS);
+
+  // Update the thread utilization
+  {
+    const ezTime tNow = ezTime::Now();
+    static ezTime s_LastFrameUpdate = tNow;
+    const ezTime tDiff = tNow - s_LastFrameUpdate;
+
+    // prevent division by zero (inside ComputeThreadUtilization)
+    if (tDiff > ezTime::Seconds(0.0))
+    {
+      s_LastFrameUpdate = tNow;
+
+      for (ezUInt32 type = 0; type < ezWorkerThreadType::ENUM_COUNT; ++type)
+      {
+        for (ezUInt32 t = 0; t < s_WorkerThreads[type].GetCount(); ++t)
+        {
+          s_WorkerThreads[type][t]->ComputeThreadUtilization(tDiff);
+        }
+      }
+    }
+  }
 }
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Threading_Implementation_TaskSystem);

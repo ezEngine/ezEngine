@@ -10,7 +10,7 @@ static void TimeEventHandler(const ezClock::EventData& e)
   ezTelemetryMessage Msg;
   Msg.SetMessageID('TIME', 'UPDT');
   Msg.GetWriter() << e.m_szClockName;
-  Msg.GetWriter() << ezSystemTime::Now();
+  Msg.GetWriter() << ezTime::Now();
   Msg.GetWriter() << e.m_RawTimeStep;
   Msg.GetWriter() << e.m_SmoothedTimeStep;
 

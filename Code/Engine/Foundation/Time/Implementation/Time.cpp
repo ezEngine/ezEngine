@@ -9,12 +9,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, Time)
 
   ON_BASE_STARTUP
   {
-    ezSystemTime::Initialize();
-  }
-
-  ON_BASE_SHUTDOWN
-  {
-    ezSystemTime::Shutdown();
+    ezTime::Initialize();
   }
 
 EZ_END_SUBSYSTEM_DECLARATION

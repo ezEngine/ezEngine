@@ -22,6 +22,8 @@ Milestone 4
   * ezInspector will now stay in the foreground while active.
   * Allocators are now implemented in such a way that ezStaticAllocatorWrapper etc. are not needed anymore. Global variables can now be created without any workarounds.
   * Added a new sample that implements some of the basics for an RTS-style game. Work in progress.
+  * Moved ezSystemTime::Now() into ezTime.
+  * The ezTaskSystem now computes the worker thread utilization, which can be queried manually and is also transmitted to ezInspector.
 
 Milestone 3
 -----------

@@ -56,7 +56,7 @@ void ezClock::Reset(bool bEverything)
 
   // this is to prevent having a time diff of zero (which might not work with some code)
   // in case the next Update() call is done right after this
-  m_LastTimeUpdate = ezSystemTime::Now() - m_MinTimeStep;
+  m_LastTimeUpdate = ezTime::Now() - m_MinTimeStep;
   m_LastTimeDiff = m_MinTimeStep;
 
   if (m_pTimeStepSmoother)
@@ -65,7 +65,7 @@ void ezClock::Reset(bool bEverything)
 
 void ezClock::Update()
 {
-  const ezTime tNow = ezSystemTime::Now();
+  const ezTime tNow = ezTime::Now();
   const ezTime tDiff = tNow - m_LastTimeUpdate;
   m_LastTimeUpdate = tNow;
 
@@ -108,7 +108,7 @@ void ezClock::SetAccumulatedTime(ezTime t)
 
   // this is to prevent having a time diff of zero (which might not work with some code)
   // in case the next Update() call is done right after this
-  m_LastTimeUpdate = ezSystemTime::Now() - ezTime::Seconds(0.01);
+  m_LastTimeUpdate = ezTime::Now() - ezTime::Seconds(0.01);
   m_LastTimeDiff = ezTime::Seconds(0.01);
 }
 
@@ -142,7 +142,7 @@ void ezClock::Load(ezIBinaryStreamReader& Stream)
   Stream >> m_bPaused;
 
   // make sure we continue properly
-  m_LastTimeUpdate = ezSystemTime::Now() - m_MinTimeStep;
+  m_LastTimeUpdate = ezTime::Now() - m_MinTimeStep;
 
   if (m_pTimeStepSmoother)
     m_pTimeStepSmoother->Reset(this);

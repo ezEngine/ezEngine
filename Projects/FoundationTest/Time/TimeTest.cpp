@@ -7,7 +7,7 @@ EZ_CREATE_SIMPLE_TEST(Time, Timer)
 {
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Basics")
   {
-    ezTime TestTime = ezSystemTime::Now();
+    ezTime TestTime = ezTime::Now();
     
     EZ_TEST_BOOL(TestTime.GetMicroseconds() > 0.0);
     
@@ -17,7 +17,7 @@ EZ_CREATE_SIMPLE_TEST(Time, Timer)
       testValue += 23;
     }
     
-    ezTime TestTime2 = ezSystemTime::Now();
+    ezTime TestTime2 = ezTime::Now();
     
     EZ_TEST_BOOL(TestTime2.GetMicroseconds() > 0.0);
     

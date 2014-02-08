@@ -90,7 +90,7 @@ ezApplication::ApplicationExecution SampleGameApp::Run()
   ezClock::UpdateAllGlobalClocks();
 
   {
-    const ezTime tNow = ezSystemTime::Now();
+    const ezTime tNow = ezTime::Now();
 
     static ezTime s_LastGameUpdate = tNow;
 
@@ -104,6 +104,8 @@ ezApplication::ApplicationExecution SampleGameApp::Run()
       m_pRenderer->RenderLevel(m_pSelectedUnits);
       m_pWindow->PresentFrame();
     }
+
+    ezTaskSystem::FinishFrameTasks();
   }
 
   ezTelemetry::PerFrameUpdate();

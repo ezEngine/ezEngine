@@ -119,6 +119,9 @@ public:
   /// it is a good idea to just use the default settings.
   static void SetWorkThreadCount(ezInt8 iShortTasks = -1, ezInt8 iLongTasks = -1);
 
+  /// \brief Returns the number of threads that are allocated to work on the given type of task.
+  static ezUInt32 GetWorkerThreadCount(ezWorkerThreadType::Enum Type) { return s_WorkerThreads[Type].GetCount(); }
+
   /// \brief A helper function to insert a single task into the system and start it right away. Returns ID of the Group into which the task has been put.
   static ezTaskGroupID StartSingleTask(ezTask* pTask, ezTaskPriority::Enum Priority);
 
@@ -218,6 +221,9 @@ public:
   /// \brief Returns true when the thread that this function is executed on is the file loading thread.
   static bool IsLoadingThread();
 
+  /// \brief Returns the utilization (0.0 to 1.0) of the given thread. Note: This will only be valid, if FinishFrameTasks() is called once per frame.
+  static double GetThreadUtilization(ezWorkerThreadType::Enum Type, ezUInt32 iThread) { return s_WorkerThreads[Type][iThread]->m_ThreadUtilization; }
+
 private:
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(Foundation, TaskSystem);
   friend class ezTaskWorkerThread;
@@ -288,5 +294,6 @@ private:
   static ezProfilingId s_ProfileMainThreadTasks;
   static ezProfilingId s_ProfileSomeFrameTasks;
 };
+
 
 

@@ -55,9 +55,10 @@ static void TelemetryEventsHandler(const ezTelemetry::TelemetryEventData& e)
   case ezTelemetry::TelemetryEventData::ConnectedToClient:
     SendAllStatsTelemetry();
     break;
+
   case ezTelemetry::TelemetryEventData::PerFrameUpdate:
     {
-      const ezTime Now = ezSystemTime::Now();
+      const ezTime Now = ezTime::Now();
 
       static ezTime LastTime = Now;
       static ezTime LastFPS = Now;
@@ -66,7 +67,7 @@ static void TelemetryEventsHandler(const ezTelemetry::TelemetryEventData& e)
 
       const ezTime TimeDiff = Now - LastTime;
 
-      ezStringBuilder s;
+      ezStringBuilder s, s2;
       s.Format("%.2fms", TimeDiff.GetMilliseconds());
       ezStats::SetStat("App/FrameTime", s.GetData());
 
@@ -79,6 +80,42 @@ static void TelemetryEventsHandler(const ezTelemetry::TelemetryEventData& e)
 
         LastFPS = Now;
         uiFPS = 0;
+      }
+
+      s.Format("%i", ezOSThread::GetThreadCount());
+      ezStats::SetStat("App/Active Threads", s.GetData());
+
+      // Tasksystem Thread Utilization
+      {
+        for (ezUInt32 t = 0; t < ezTaskSystem::GetWorkerThreadCount(ezWorkerThreadType::ShortTasks); ++t)
+        {
+          const double Utilization = ezTaskSystem::GetThreadUtilization(ezWorkerThreadType::ShortTasks, t);
+
+          s.Format("Utilization/ShortTasks_%i", t, uiFPS);
+          s2.Format("%.2f%%", Utilization * 100.0);
+
+          ezStats::SetStat(s.GetData(), s2.GetData());
+        }
+
+        for (ezUInt32 t = 0; t < ezTaskSystem::GetWorkerThreadCount(ezWorkerThreadType::LongTasks); ++t)
+        {
+          const double Utilization = ezTaskSystem::GetThreadUtilization(ezWorkerThreadType::LongTasks, t);
+
+          s.Format("Utilization/LongTasks_%i", t, uiFPS);
+          s2.Format("%.2f%%", Utilization * 100.0);
+
+          ezStats::SetStat(s.GetData(), s2.GetData());
+        }
+
+        for (ezUInt32 t = 0; t < ezTaskSystem::GetWorkerThreadCount(ezWorkerThreadType::FileAccess); ++t)
+        {
+          const double Utilization = ezTaskSystem::GetThreadUtilization(ezWorkerThreadType::FileAccess, t);
+
+          s.Format("Utilization/FileTasks_%i", t, uiFPS);
+          s2.Format("%.2f%%", Utilization * 100.0);
+
+          ezStats::SetStat(s.GetData(), s2.GetData());
+        }
       }
     }
     break;

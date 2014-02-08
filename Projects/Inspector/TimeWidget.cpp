@@ -171,9 +171,9 @@ void ezTimeWidget::UpdateStats()
   }
 
   // once a second update the display of the clocks in the list
-  if (ezSystemTime::Now() - m_LastUpdatedClockList > ezTime::Seconds(1))
+  if (ezTime::Now() - m_LastUpdatedClockList > ezTime::Seconds(1))
   {
-    m_LastUpdatedClockList = ezSystemTime::Now();
+    m_LastUpdatedClockList = ezTime::Now();
 
     ezStringBuilder s;
     s.Format("Max: %.0fms", tShowMax.GetMilliseconds());

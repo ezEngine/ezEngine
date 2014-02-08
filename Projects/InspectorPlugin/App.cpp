@@ -60,9 +60,6 @@ void SetAppStats()
   sOut.Format("%.1f GB", info.GetInstalledMainMemory() / 1024.0f / 1024.0f / 1024.0f);
   ezStats::SetStat("Hardware/RAM", sOut.GetData());
 
-  sOut.Format("%i", ezOSThread::GetThreadCount());
-  ezStats::SetStat("App/Active Threads", sOut.GetData());
-
   sOut = info.Is64BitOS() ? "64 Bit" : "32 Bit";
   ezStats::SetStat("Platform/Architecture", sOut.GetData());
 

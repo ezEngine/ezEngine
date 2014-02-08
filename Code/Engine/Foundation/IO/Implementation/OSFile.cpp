@@ -32,7 +32,7 @@ ezResult ezOSFile::Open(const char* szFile, ezFileMode::Enum OpenMode)
   EZ_ASSERT(OpenMode >= ezFileMode::Read && OpenMode <= ezFileMode::Append, "Invalid Mode");
   EZ_ASSERT(!IsOpen(), "The file has already been opened.");
 
-  const ezTime t0 = ezSystemTime::Now();
+  const ezTime t0 = ezTime::Now();
 
   m_sFileName = szFile;
   m_sFileName.MakeCleanPath();
@@ -62,7 +62,7 @@ ezResult ezOSFile::Open(const char* szFile, ezFileMode::Enum OpenMode)
   goto done;
 
 done:
-  const ezTime t1 = ezSystemTime::Now();
+  const ezTime t1 = ezTime::Now();
   const ezTime tdiff = t1 - t0;
 
   EventData e;
@@ -88,11 +88,11 @@ void ezOSFile::Close()
   if (!IsOpen())
     return;
 
-  const ezTime t0 = ezSystemTime::Now();
+  const ezTime t0 = ezTime::Now();
 
   InternalClose();
 
-  const ezTime t1 = ezSystemTime::Now();
+  const ezTime t1 = ezTime::Now();
   const ezTime tdiff = t1 - t0;
 
   EventData e;
@@ -113,11 +113,11 @@ ezResult ezOSFile::Write(const void* pBuffer, ezUInt64 uiBytes)
   EZ_ASSERT((m_FileMode == ezFileMode::Write) || (m_FileMode == ezFileMode::Append), "The file is not opened for writing.");
   EZ_ASSERT(pBuffer != NULL, "pBuffer must not be NULL.");
 
-  const ezTime t0 = ezSystemTime::Now();
+  const ezTime t0 = ezTime::Now();
 
   const ezResult Res = InternalWrite(pBuffer, uiBytes);
 
-  const ezTime t1 = ezSystemTime::Now();
+  const ezTime t1 = ezTime::Now();
   const ezTime tdiff = t1 - t0;
 
   EventData e;
@@ -138,11 +138,11 @@ ezUInt64 ezOSFile::Read(void* pBuffer, ezUInt64 uiBytes)
   EZ_ASSERT(m_FileMode == ezFileMode::Read, "The file is not opened for reading.");
   EZ_ASSERT(pBuffer != NULL, "pBuffer must not be NULL.");
 
-  const ezTime t0 = ezSystemTime::Now();
+  const ezTime t0 = ezTime::Now();
 
   const ezUInt64 Res = InternalRead(pBuffer, uiBytes);
 
-  const ezTime t1 = ezSystemTime::Now();
+  const ezTime t1 = ezTime::Now();
   const ezTime tdiff = t1 - t0;
 
   EventData e;
@@ -192,7 +192,7 @@ ezUInt64 ezOSFile::GetFileSize() const
 
 bool ezOSFile::Exists(const char* szFile)
 {
-  const ezTime t0 = ezSystemTime::Now();
+  const ezTime t0 = ezTime::Now();
 
   ezStringBuilder s(szFile);
   s.MakeCleanPath();
@@ -200,7 +200,7 @@ bool ezOSFile::Exists(const char* szFile)
 
   const bool bRes = InternalExists(szFile);
 
-  const ezTime t1 = ezSystemTime::Now();
+  const ezTime t1 = ezTime::Now();
   const ezTime tdiff = t1 - t0;
 
 
@@ -218,7 +218,7 @@ bool ezOSFile::Exists(const char* szFile)
 
 ezResult ezOSFile::DeleteFile(const char* szFile)
 {
-  const ezTime t0 = ezSystemTime::Now();
+  const ezTime t0 = ezTime::Now();
 
   ezStringBuilder s(szFile);
   s.MakeCleanPath();
@@ -226,7 +226,7 @@ ezResult ezOSFile::DeleteFile(const char* szFile)
 
   const ezResult Res = InternalDeleteFile(s.GetData());
 
-  const ezTime t1 = ezSystemTime::Now();
+  const ezTime t1 = ezTime::Now();
   const ezTime tdiff = t1 - t0;
 
   EventData e;
@@ -243,7 +243,7 @@ ezResult ezOSFile::DeleteFile(const char* szFile)
 
 ezResult ezOSFile::CreateDirectoryStructure(const char* szDirectory)
 {
-  const ezTime t0 = ezSystemTime::Now();
+  const ezTime t0 = ezTime::Now();
 
   ezStringBuilder s(szDirectory);
   s.MakeCleanPath();
@@ -275,7 +275,7 @@ ezResult ezOSFile::CreateDirectoryStructure(const char* szDirectory)
     }
   }
 
-  const ezTime t1 = ezSystemTime::Now();
+  const ezTime t1 = ezTime::Now();
   const ezTime tdiff = t1 - t0;
 
   EventData e;
@@ -292,7 +292,7 @@ ezResult ezOSFile::CreateDirectoryStructure(const char* szDirectory)
 
 ezResult ezOSFile::CopyFile(const char* szSource, const char* szDestination)
 {
-  const ezTime t0 = ezSystemTime::Now();
+  const ezTime t0 = ezTime::Now();
 
   ezOSFile SrcFile, DstFile;
 
@@ -327,7 +327,7 @@ ezResult ezOSFile::CopyFile(const char* szSource, const char* szDestination)
 
 done:
 
-  const ezTime t1 = ezSystemTime::Now();
+  const ezTime t1 = ezTime::Now();
   const ezTime tdiff = t1 - t0;
 
   EventData e;
@@ -347,7 +347,7 @@ done:
 
   ezResult ezOSFile::GetFileStats(const char* szFileOrFolder, ezFileStats& out_Stats)
   {
-    const ezTime t0 = ezSystemTime::Now();
+    const ezTime t0 = ezTime::Now();
 
     ezStringBuilder s = szFileOrFolder;
     s.MakeCleanPath();
@@ -357,7 +357,7 @@ done:
 
     const ezResult Res = InternalGetFileStats(s.GetData(), out_Stats);
 
-    const ezTime t1 = ezSystemTime::Now();
+    const ezTime t1 = ezTime::Now();
     const ezTime tdiff = t1 - t0;
 
     EventData e;
@@ -374,7 +374,7 @@ done:
 
   ezResult ezOSFile::GetFileCasing(const char* szFileOrFolder, ezStringBuilder& out_sCorrectSpelling)
   {
-    const ezTime t0 = ezSystemTime::Now();
+    const ezTime t0 = ezTime::Now();
 
     ezStringBuilder s(szFileOrFolder);
     s.MakeCleanPath();
@@ -411,7 +411,7 @@ done:
       ++it;
     }
 
-    const ezTime t1 = ezSystemTime::Now();
+    const ezTime t1 = ezTime::Now();
     const ezTime tdiff = t1 - t0;
 
     EventData e;

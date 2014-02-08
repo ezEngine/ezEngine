@@ -286,7 +286,7 @@ ezResult ezTelemetry::OpenConnection(ConnectionMode Mode, const char* szConnectT
     g_bInitialized = true;
   }
 
-  s_uiApplicationID = (ezUInt32) ezSystemTime::Now().GetSeconds();
+  s_uiApplicationID = (ezUInt32) ezTime::Now().GetSeconds();
 
   switch (Mode)
   {

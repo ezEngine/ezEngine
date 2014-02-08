@@ -61,7 +61,7 @@ void ezFileWidget::ProcessTelemetry(void* pUnuseed)
     FileOpData& data = s_pWidget->m_FileOps[iFileID];
 
     if (data.m_StartTime.GetSeconds() == 0.0)
-      data.m_StartTime = ezSystemTime::Now();
+      data.m_StartTime = ezTime::Now();
 
     switch (Msg.GetMessageID())
     {
@@ -316,7 +316,7 @@ void ezFileWidget::UpdateTable()
   if (!m_bUpdateTable)
     return;
 
-  if (ezSystemTime::Now() - m_LastTableUpdate < ezTime::Seconds(0.3))
+  if (ezTime::Now() - m_LastTableUpdate < ezTime::Seconds(0.3))
     return;
 
   m_bUpdateTable = false;

@@ -45,12 +45,12 @@ static void SendChangedGlobalEventTelemetry()
   if (!ezTelemetry::IsConnectedToClient())
     return;
 
-  static ezTime LastUpdate = ezSystemTime::Now();
+  static ezTime LastUpdate = ezTime::Now();
 
-  if ((ezSystemTime::Now() - LastUpdate).GetSeconds() < 0.5)
+  if ((ezTime::Now() - LastUpdate).GetSeconds() < 0.5)
     return;
 
-  LastUpdate = ezSystemTime::Now();
+  LastUpdate = ezTime::Now();
 
   ezGlobalEvent::UpdateGlobalEventStatistics();
 

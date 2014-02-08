@@ -168,7 +168,7 @@ void SampleGameApp::RenderSingleFrame()
 
   // always update the game with a fixed time step of 1/60 seconds
   const ezTime tUpdateInterval = ezTime::Seconds(1.0 / 60.0);
-  const ezTime tNow = ezSystemTime::Now();
+  const ezTime tNow = ezTime::Now();
 
   static ezTime s_LastGameUpdate = tNow;
 

@@ -43,7 +43,7 @@ void SampleGameApp::AfterEngineInit()
   // Map the input keys to actions
   SetupInput();
 
-  srand((ezUInt32) ezSystemTime::Now().GetMicroseconds());
+  srand((ezUInt32) ezTime::Now().GetMicroseconds());
 
   CreateGameLevel();
 

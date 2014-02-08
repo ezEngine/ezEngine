@@ -3,7 +3,7 @@
 
 ezStopwatch::ezStopwatch()
 {
-  m_LastCheckpoint = ezSystemTime::Now();
+  m_LastCheckpoint = ezTime::Now();
 
   StopAndReset();
   Resume();
@@ -21,7 +21,7 @@ void ezStopwatch::Resume()
     return;
   
   m_bRunning = true;
-  m_LastUpdate = ezSystemTime::Now();
+  m_LastUpdate = ezTime::Now();
 }
 
 void ezStopwatch::Pause()
@@ -31,14 +31,14 @@ void ezStopwatch::Pause()
 
   m_bRunning = false;
 
-  m_TotalDuration += ezSystemTime::Now() - m_LastUpdate;
+  m_TotalDuration += ezTime::Now() - m_LastUpdate;
 }
 
 ezTime ezStopwatch::GetRunningTotal()
 {
   if (m_bRunning)
   {
-    const ezTime tNow = ezSystemTime::Now();
+    const ezTime tNow = ezTime::Now();
 
     m_TotalDuration += tNow - m_LastUpdate;
     m_LastUpdate = tNow;
@@ -49,7 +49,7 @@ ezTime ezStopwatch::GetRunningTotal()
 
 ezTime ezStopwatch::Checkpoint()
 {
-  const ezTime tNow = ezSystemTime::Now();
+  const ezTime tNow = ezTime::Now();
 
   const ezTime tDiff = tNow - m_LastCheckpoint;
   m_LastCheckpoint = tNow;

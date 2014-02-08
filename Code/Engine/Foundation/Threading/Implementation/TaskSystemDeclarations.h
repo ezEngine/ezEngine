@@ -7,6 +7,8 @@
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Strings/StringBuilder.h>
 #include <Foundation/Threading/ThreadSignal.h>
+#include <Foundation/Time/Time.h>
+
 
 class ezTaskGroup;
 class ezTask;
@@ -94,6 +96,17 @@ private:
   ezUInt8 m_uiWorkerThreadNumber;
 
   virtual ezUInt32 Run() EZ_OVERRIDE;
+
+  // Computes the thread utilization by dividing the thread active time by the time that has passed since the last update.
+  void ComputeThreadUtilization(ezTime TimePassed);
+
+  // The thread keeps track of how much time it spends executing tasks. This function retrieves that time and resets it to zero.
+  ezTime GetAndResetThreadActiveTime();
+
+  bool m_bExecutingTask;
+  ezTime m_StartedWorking;
+  ezTime m_ThreadActiveTime;
+  double m_ThreadUtilization;
 };
 
 /// \brief Given out by ezTaskSystem::CreateTaskGroup to identify a task group.

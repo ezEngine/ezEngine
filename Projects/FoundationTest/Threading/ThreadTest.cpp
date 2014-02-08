@@ -26,9 +26,9 @@ namespace
       {
         ezAtomicUtils::Increment(g_iCrossThreadVariable);
 
-        ezSystemTime::Now();
+        ezTime::Now();
         ezThreadUtils::YieldTimeSlice();
-        ezSystemTime::Now();
+        ezTime::Now();
       }
 
       return 0;
@@ -81,13 +81,13 @@ EZ_CREATE_SIMPLE_TEST(Threading, Thread)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Thread Sleeping")
   {
-    const ezTime start = ezSystemTime::Now();
+    const ezTime start = ezTime::Now();
 
     ezTime sleepTime(ezTime::Seconds(0.3));
 
     ezThreadUtils::Sleep((ezUInt32)sleepTime.GetMilliseconds());
 
-    const ezTime stop = ezSystemTime::Now();
+    const ezTime stop = ezTime::Now();
 
     const ezTime duration = stop - start;
 
