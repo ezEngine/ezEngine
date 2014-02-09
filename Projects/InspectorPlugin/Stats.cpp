@@ -20,6 +20,7 @@ static void StatsEventHandler(const ezStats::StatsEventData& e)
       msg.SetMessageID('STAT', 'SET');
       msg.GetWriter() << e.m_szStatName;
       msg.GetWriter() << e.m_szNewStatValue;
+      msg.GetWriter() << ezTime::Now();
 
       ezTelemetry::Broadcast(Mode, msg);
     }
@@ -29,6 +30,7 @@ static void StatsEventHandler(const ezStats::StatsEventData& e)
       ezTelemetryMessage msg;
       msg.SetMessageID('STAT', 'DEL');
       msg.GetWriter() << e.m_szStatName;
+      msg.GetWriter() << ezTime::Now();
 
       ezTelemetry::Broadcast(ezTelemetry::Reliable, msg);
     }

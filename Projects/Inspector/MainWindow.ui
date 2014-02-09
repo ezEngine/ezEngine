@@ -416,6 +416,11 @@
     <string>Reflection</string>
    </property>
   </action>
+  <action name="ActionShowWindowStatHistory">
+   <property name="text">
+    <string>Stat Histories</string>
+   </property>
+  </action>
  </widget>
  <resources>
   <include location="resources.qrc"/>

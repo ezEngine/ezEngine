@@ -1,3 +1,4 @@
+#include <PCH.h>
 #include <Inspector/TimeWidget.moc.h>
 #include <Foundation/Communication/Telemetry.h>
 #include <QGraphicsView>

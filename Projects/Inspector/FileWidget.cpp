@@ -1,3 +1,4 @@
+#include <PCH.h>
 #include <Inspector/FileWidget.moc.h>
 #include <Foundation/Communication/Telemetry.h>
 #include <MainWindow.moc.h>

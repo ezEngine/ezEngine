@@ -7,7 +7,9 @@
 #include <Projects/Inspector/ui_MainWindow.h>
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Containers/Set.h>
+#include <Foundation/Time/Time.h>
 #include <qtreewidget.h>
+#include <Inspector/StatVisWidget.moc.h>
 
 class ezMainWindow : public QMainWindow, public Ui_MainWindow
 {
@@ -33,6 +35,7 @@ public:
 
 public slots:
   void DockWidgetVisibilityChanged(bool bVisible);
+  void ShowStatIn();
   void UpdateNetworkTimeOut();
 
 private slots:
@@ -53,6 +56,7 @@ private slots:
   void on_ActionNeverOnTop_triggered();
 
   void on_TreeStats_itemChanged(QTreeWidgetItem* item, int column);
+  void on_TreeStats_customContextMenuRequested(const QPoint& p);
 
 private:
   void SetAlwaysOnTop(OnTopMode Mode);
@@ -69,8 +73,19 @@ private:
   QTreeWidgetItem* CreateStat(const char* szPath, bool bParent);
   void SetFavourite(const ezString& sStat, bool bFavourite);
 
+  ezUInt32 m_uiMaxStatSamples;
+  ezTime m_MaxGlobalTime;
+
+  struct StatSample
+  {
+    ezTime m_AtGlobalTime;
+    double m_Value;
+  };
+
   struct StatData
   {
+    ezDeque<StatSample> m_History;
+
     ezString m_sValue;
     QTreeWidgetItem* m_pItem;
     QTreeWidgetItem* m_pItemFavourite;
@@ -82,10 +97,17 @@ private:
     }
   };
 
+  friend class ezStatVisWidget;
+
   ezMap<ezString, StatData> m_Stats;
   ezSet<ezString> m_Favourites;
   QTimer* m_pNetworkTimer;
   OnTopMode m_OnTopMode;
+
+  ezStatVisWidget* m_pStatHistoryWidgets[10];
+
+  QAction* m_pActionShowStatIn[10];
+  
 };
 
 

@@ -1,3 +1,4 @@
+#include <PCH.h>
 #include <Inspector/MainWindow.moc.h>
 #include <Inspector/MemoryWidget.moc.h>
 #include <Inspector/TimeWidget.moc.h>
@@ -9,6 +10,7 @@
 #include <Inspector/FileWidget.moc.h>
 #include <Inspector/PluginsWidget.moc.h>
 #include <Inspector/GlobalEventsWidget.moc.h>
+#include <Inspector/StatVisWidget.moc.h>
 #include <Foundation/Communication/Telemetry.h>
 #include <Foundation/Threading/ThreadUtils.h>
 #include <qlistwidget.h>
@@ -26,6 +28,8 @@ ezMainWindow* ezMainWindow::s_pWidget = NULL;
 ezMainWindow::ezMainWindow() : QMainWindow()
 {
   s_pWidget = this;
+
+  m_uiMaxStatSamples = 20000; // should be enough for 5 minutes of history at 60 Hz
 
   setupUi(this);
 
@@ -63,6 +67,35 @@ ezMainWindow::ezMainWindow() : QMainWindow()
   addDockWidget(Qt::BottomDockWidgetArea, pTimeWidget);
   tabifyDockWidget(pMemoryWidget, pFileWidget);
   tabifyDockWidget(pMemoryWidget, pTimeWidget);
+
+  QMenu* pHistoryMenu = new QMenu;
+  pHistoryMenu->setTearOffEnabled(true);
+  pHistoryMenu->setTitle(QLatin1String("Stat Histories"));
+  pHistoryMenu->setIcon(QIcon(":/Icons/Icons/StatHistory.png"));
+
+  for (ezUInt32 i = 0; i < 10; ++i)
+  {
+    m_pStatHistoryWidgets[i] = new ezStatVisWidget(this, i);
+    addDockWidget(Qt::BottomDockWidgetArea, m_pStatHistoryWidgets[i]);
+    tabifyDockWidget(pMemoryWidget, m_pStatHistoryWidgets[i]);
+
+    EZ_VERIFY(QWidget::connect(m_pStatHistoryWidgets[i],  SIGNAL(visibilityChanged(bool)), this, SLOT(DockWidgetVisibilityChanged(bool))), "");
+
+    pHistoryMenu->addAction(&m_pStatHistoryWidgets[i]->m_ShowWindowAction);
+
+    m_pStatHistoryWidgets[i]->hide();
+
+    m_pActionShowStatIn[i] = new QAction(this);
+
+    EZ_VERIFY(QWidget::connect(m_pActionShowStatIn[i],  SIGNAL(triggered()), this, SLOT(ShowStatIn())), "");
+  }
+
+  setContextMenuPolicy(Qt::NoContextMenu);
+
+  TreeStats->setContextMenuPolicy(Qt::CustomContextMenu);
+
+  menuWindows->addMenu(pHistoryMenu);
+
   pMemoryWidget->raise();
 
   addDockWidget(Qt::RightDockWidgetArea, pCVarsWidget);
@@ -85,14 +118,15 @@ ezMainWindow::ezMainWindow() : QMainWindow()
 
   pLogWidget->raise();
 
-  splitter->restoreState(Settings.value("SplitterState", splitter->saveState()).toByteArray());
-  splitter->restoreGeometry(Settings.value("SplitterSize", splitter->saveGeometry()).toByteArray());
-
-  restoreState(Settings.value("WindowState", saveState()).toByteArray());
   move(Settings.value("WindowPosition", pos()).toPoint());
   resize(Settings.value("WindowSize", size()).toSize());
   if (Settings.value("IsMaximized", isMaximized()).toBool())
     showMaximized();
+
+  splitter->restoreState(Settings.value("SplitterState", splitter->saveState()).toByteArray());
+  splitter->restoreGeometry(Settings.value("SplitterSize", splitter->saveGeometry()).toByteArray());
+
+  restoreState(Settings.value("WindowState", saveState()).toByteArray());
 
   Settings.endGroup();
 
@@ -100,126 +134,47 @@ ezMainWindow::ezMainWindow() : QMainWindow()
 
   LoadFavourites();
 
+  for (ezInt32 i = 0; i < 10; ++i)
+    m_pStatHistoryWidgets[i]->Load();
+
   SetupNetworkTimer();
 }
 
 ezMainWindow::~ezMainWindow()
 {
   SaveFavourites();
+
+  for (ezInt32 i = 0; i < 10; ++i)
+  {
+    m_pStatHistoryWidgets[i]->Save();
+    delete m_pStatHistoryWidgets[i];
+  }
 }
 
 void ezMainWindow::closeEvent(QCloseEvent* event) 
 {
+  const bool bMaximized = isMaximized();
+
+  if (bMaximized)
+    showNormal();
+
   QSettings Settings;
 
   Settings.beginGroup("MainWindow");
 
   Settings.setValue("WindowGeometry", saveGeometry());
   Settings.setValue("WindowState", saveState());
-  Settings.setValue("IsMaximized", isMaximized());
+  Settings.setValue("IsMaximized", bMaximized);
 
   Settings.setValue("SplitterState", splitter->saveState());
   Settings.setValue("SplitterGeometry", splitter->saveGeometry());
 
-  if (!isMaximized()) 
-  {
-    Settings.setValue("WindowPosition", pos());
+  Settings.setValue("WindowPosition", pos());
+
+  if (!bMaximized)
     Settings.setValue("WindowSize", size());
-  }
 
   Settings.endGroup();
-}
-
-void ezMainWindow::SaveFavourites()
-{
-  QString sFile = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
-  QDir d; d.mkpath(sFile);
-
-  sFile.append("/Favourites.stats");
-
-  QFile f(sFile);
-  if (!f.open(QIODevice::WriteOnly))
-    return;
-
-  QDataStream data(&f);
-
-  const ezUInt32 uiNumFavourites = m_Favourites.GetCount();
-  data << uiNumFavourites;
-
-  for (ezSet<ezString>::Iterator it = m_Favourites.GetIterator(); it.IsValid(); ++it)
-  {
-    const QString s = it.Key().GetData();
-    data << s;
-  }
-
-  f.close();
-}
-
-void ezMainWindow::LoadFavourites()
-{
-  QString sFile = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
-  QDir d; d.mkpath(sFile);
-  sFile.append("/Favourites.stats");
-
-  ezString s = sFile.toUtf8().data();
-
-  QFile f(sFile);
-  if (!f.open(QIODevice::ReadOnly))
-    return;
-
-  m_Favourites.Clear();
-
-  QDataStream data(&f);
-
-  ezUInt32 uiNumFavourites = 0;
-  data >> uiNumFavourites;
-
-  for (ezUInt32 i = 0; i < uiNumFavourites; ++i)
-  {
-    QString s;
-    data >> s;
-
-    ezString ezs = s.toUtf8().data();
-
-    m_Favourites.Insert(ezs);
-  }
-
-  f.close();
-}
-
-void ezMainWindow::ResetStats()
-{
-  m_Stats.Clear();
-  TreeStats->clear();
-  TreeFavourites->clear();
-}
-
-void ezMainWindow::UpdateStats()
-{
-  static bool bWasConnected = true;
-
-  if (!ezTelemetry::IsConnectedToServer())
-    LabelPing->setText("<p>Ping: N/A</p>");
-  else
-    LabelPing->setText(QString::fromUtf8("<p>Ping: %1ms</p>").arg((ezUInt32) ezTelemetry::GetPingToServer().GetMilliseconds()));
-
-  if (bWasConnected == ezTelemetry::IsConnectedToServer())
-    return;
-
-  bWasConnected = ezTelemetry::IsConnectedToServer();
-
-  if (!ezTelemetry::IsConnectedToServer())
-  {
-    LabelStatus->setText("<p><span style=\" font-weight:600;\">Status: </span><span style=\" font-weight:600; color:#ff0000;\">Not Connected</span></p>");
-    LabelServer->setText("<p>Server: N/A</p>");
-  }
-  else
-  {
-    LabelStatus->setText("<p><span style=\" font-weight:600;\">Status: </span><span style=\" font-weight:600; color:#00aa00;\">Connected</span></p>");
-    LabelServer->setText(QString::fromUtf8("<p>Server: %1 (%2:%3)</p>").arg(ezTelemetry::GetServerName()).arg(ezTelemetry::GetServerIP()).arg(ezTelemetry::s_uiPort));
-  }
-
-  UpdateAlwaysOnTop();
 }
 
 void ezMainWindow::SetupNetworkTimer()
@@ -301,65 +256,10 @@ void ezMainWindow::UpdateNetwork()
   ezTimeWidget::s_pWidget->UpdateStats();
   ezFileWidget::s_pWidget->UpdateStats();
 
+  for (ezInt32 i = 0; i < 10; ++i)
+    m_pStatHistoryWidgets[i]->UpdateStats();
+
   ezTelemetry::PerFrameUpdate();
-}
-
-
-QTreeWidgetItem* ezMainWindow::CreateStat(const char* szPath, bool bParent)
-{
-  ezStringBuilder sCleanPath = szPath;
-  if (sCleanPath.EndsWith("/"))
-    sCleanPath.Shrink(0, 1);
-
-  ezMap<ezString, StatData>::Iterator it = m_Stats.Find(sCleanPath.GetData());
-
-  if (it.IsValid() && it.Value().m_pItem != NULL)
-    return it.Value().m_pItem;
-
-  QTreeWidgetItem* pParent = NULL;
-  StatData& sd = m_Stats[sCleanPath.GetData()];
-
-  {
-    ezStringBuilder sParentPath = sCleanPath.GetData();
-    sParentPath.PathParentDirectory(1);
-
-    sd.m_pItem = new QTreeWidgetItem();
-    sd.m_pItem->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable | (bParent ? Qt::NoItemFlags : Qt::ItemIsUserCheckable));
-    sd.m_pItem->setData(0, Qt::UserRole, QString(sCleanPath.GetData()));
-
-    if (bParent)
-      sd.m_pItem->setIcon(0, QIcon(":/Icons/Icons/StatGroup.png"));
-    else
-      sd.m_pItem->setIcon(0, QIcon(":/Icons/Icons/Stat.png"));
-
-    if (!bParent)
-      sd.m_pItem->setCheckState(0, Qt::Unchecked);
-
-    if (!sParentPath.IsEmpty())
-    {
-      pParent = CreateStat(sParentPath.GetData(), true);
-      pParent->addChild(sd.m_pItem);
-      pParent->setExpanded(false);
-    }
-    else
-    {
-      TreeStats->addTopLevelItem(sd.m_pItem);
-    }
-  }
-
-  {
-    ezString sFileName = sCleanPath.GetFileName();
-    sd.m_pItem->setData(0, Qt::DisplayRole, sFileName.GetData());
-
-    if (pParent)
-      pParent->sortChildren(0, Qt::AscendingOrder);
-    else
-      TreeStats->sortByColumn(0, Qt::AscendingOrder);
-
-    TreeStats->resizeColumnToContents(0);
-  }
-
-  return sd.m_pItem;
 }
 
 void ezMainWindow::DockWidgetVisibilityChanged(bool bVisible)
@@ -374,67 +274,11 @@ void ezMainWindow::DockWidgetVisibilityChanged(bool bVisible)
   ActionShowWindowFile->setChecked(ezFileWidget::s_pWidget->isVisible());
   ActionShowWindowPlugins->setChecked(ezPluginsWidget::s_pWidget->isVisible());
   ActionShowWindowGlobalEvents->setChecked(ezGlobalEventsWidget::s_pWidget->isVisible());
+
+  for (ezInt32 i = 0; i < 10; ++i)
+    m_pStatHistoryWidgets[i]->m_ShowWindowAction.setChecked(m_pStatHistoryWidgets[i]->isVisible());
 }
 
-void ezMainWindow::on_ActionShowWindowLog_triggered()
-{
-  ezLogWidget::s_pWidget->setVisible(ActionShowWindowLog->isChecked());
-  ezLogWidget::s_pWidget->raise();
-}
-
-void ezMainWindow::on_ActionShowWindowMemory_triggered()
-{
-  ezMemoryWidget::s_pWidget->setVisible(ActionShowWindowMemory->isChecked());
-  ezMemoryWidget::s_pWidget->raise();
-}
-
-void ezMainWindow::on_ActionShowWindowTime_triggered()
-{
-  ezTimeWidget::s_pWidget->setVisible(ActionShowWindowTime->isChecked());
-  ezTimeWidget::s_pWidget->raise();
-}
-
-void ezMainWindow::on_ActionShowWindowInput_triggered()
-{
-  ezInputWidget::s_pWidget->setVisible(ActionShowWindowInput->isChecked());
-  ezInputWidget::s_pWidget->raise();
-}
-
-void ezMainWindow::on_ActionShowWindowCVar_triggered()
-{
-  ezCVarsWidget::s_pWidget->setVisible(ActionShowWindowCVar->isChecked());
-  ezCVarsWidget::s_pWidget->raise();
-}
-
-void ezMainWindow::on_ActionShowWindowReflection_triggered()
-{
-  ezReflectionWidget::s_pWidget->setVisible(ActionShowWindowReflection->isChecked());
-  ezReflectionWidget::s_pWidget->raise();
-}
-
-void ezMainWindow::on_ActionShowWindowSubsystems_triggered()
-{
-  ezSubsystemsWidget::s_pWidget->setVisible(ActionShowWindowSubsystems->isChecked());
-  ezSubsystemsWidget::s_pWidget->raise();
-}
-
-void ezMainWindow::on_ActionShowWindowPlugins_triggered()
-{
-  ezPluginsWidget::s_pWidget->setVisible(ActionShowWindowPlugins->isChecked());
-  ezPluginsWidget::s_pWidget->raise();
-}
-
-void ezMainWindow::on_ActionShowWindowFile_triggered()
-{
-  ezFileWidget::s_pWidget->setVisible(ActionShowWindowFile->isChecked());
-  ezFileWidget::s_pWidget->raise();
-}
-
-void ezMainWindow::on_ActionShowWindowGlobalEvents_triggered()
-{
-  ezGlobalEventsWidget::s_pWidget->setVisible(ActionShowWindowGlobalEvents->isChecked());
-  ezGlobalEventsWidget::s_pWidget->raise();
-}
 
 void ezMainWindow::SetAlwaysOnTop(OnTopMode Mode)
 {
@@ -476,20 +320,7 @@ void ezMainWindow::UpdateAlwaysOnTop()
   }
 }
 
-void ezMainWindow::on_ActionOnTopWhenConnected_triggered()
-{
-  SetAlwaysOnTop(WhenConnected);
-}
-
-void ezMainWindow::on_ActionAlwaysOnTop_triggered()
-{
-  SetAlwaysOnTop(Always);
-}
-
-void ezMainWindow::on_ActionNeverOnTop_triggered()
-{
-  SetAlwaysOnTop(Never);
-}
+double ExtractValue(const char* szString);
 
 void ezMainWindow::ProcessTelemetry(void* pUnuseed)
 {
@@ -521,6 +352,7 @@ void ezMainWindow::ProcessTelemetry(void* pUnuseed)
         s_pWidget->m_Stats.Erase(it);
       }
       break;
+
     case 'SET':
       {
         ezString sStatName;
@@ -529,6 +361,18 @@ void ezMainWindow::ProcessTelemetry(void* pUnuseed)
         StatData& sd = s_pWidget->m_Stats[sStatName];
 
         Msg.GetReader() >> sd.m_sValue;
+
+        StatSample ss;
+        ss.m_Value = ExtractValue(sd.m_sValue.GetData());
+        Msg.GetReader() >> ss.m_AtGlobalTime;
+
+        sd.m_History.PushBack(ss);
+
+        s_pWidget->m_MaxGlobalTime = ezMath::Max(s_pWidget->m_MaxGlobalTime, ss.m_AtGlobalTime);
+
+        // remove excess samples
+        if (sd.m_History.GetCount() > s_pWidget->m_uiMaxStatSamples)
+          sd.m_History.PopFront(sd.m_History.GetCount() - s_pWidget->m_uiMaxStatSamples);
 
         if (sd.m_pItem == NULL)
         {
@@ -588,64 +432,3 @@ void ezMainWindow::ProcessTelemetry(void* pUnuseed)
   }
 }
 
-void ezMainWindow::on_ButtonConnect_clicked()
-{
-  QSettings Settings;
-  const QString sServer = Settings.value("LastConnection", QLatin1String("localhost:1040")).toString();
-
-  bool bOk = false;
-  QString sRes = QInputDialog::getText(this, "Host", "Host Name or IP Address:\nDefault is 'localhost:1040'", QLineEdit::Normal, sServer, &bOk);
-
-  if (!bOk)
-    return;
-
-  Settings.setValue("LastConnection", sRes);
-
-  if (ezTelemetry::ConnectToServer(sRes.toUtf8().data()) == EZ_SUCCESS)
-  {
-  }
-}
-
-void ezMainWindow::SetFavourite(const ezString& sStat, bool bFavourite)
-{
-  StatData& sd = m_Stats[sStat];
-
-  if (bFavourite)
-  {
-    m_Favourites.Insert(sStat);
-
-    if (!sd.m_pItemFavourite)
-    {
-      sd.m_pItemFavourite = new QTreeWidgetItem();
-      TreeFavourites->addTopLevelItem(sd.m_pItemFavourite);
-      sd.m_pItemFavourite->setData(0, Qt::DisplayRole, sStat.GetData());
-      sd.m_pItemFavourite->setData(1, Qt::DisplayRole, sd.m_sValue.GetData());
-      sd.m_pItemFavourite->setIcon(0, QIcon(":/Icons/Icons/StatFavourite.png"));
-
-      TreeFavourites->resizeColumnToContents(0);
-    }
-  }
-  else
-  {
-    if (sd.m_pItemFavourite)
-    {
-      m_Favourites.Erase(sStat);
-
-      delete sd.m_pItemFavourite;
-      sd.m_pItemFavourite = NULL;
-    }
-  }
-}
-
-void ezMainWindow::on_TreeStats_itemChanged(QTreeWidgetItem* item, int column)
-{
-  if (column == 0)
-  {
-    int i = 0;
-
-    ezString sPath = item->data(0, Qt::UserRole).toString().toUtf8().data();
-
-    SetFavourite(sPath, (item->checkState(0) == Qt::Checked));
-
-  }
-}

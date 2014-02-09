@@ -1,3 +1,4 @@
+#include <PCH.h>
 #include <Inspector/MemoryWidget.moc.h>
 #include <Foundation/Communication/Telemetry.h>
 #include <QGraphicsView>

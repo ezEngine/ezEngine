@@ -24,6 +24,7 @@ Milestone 4
   * Added a new sample that implements some of the basics for an RTS-style game. Work in progress.
   * Moved ezSystemTime::Now() into ezTime.
   * The ezTaskSystem now computes the worker thread utilization, which can be queried manually and is also transmitted to ezInspector.
+  * ezInspector can now display the history (up to 10 minutes) of every stat variable, as long as it contains a number.
 
 Milestone 3
 -----------

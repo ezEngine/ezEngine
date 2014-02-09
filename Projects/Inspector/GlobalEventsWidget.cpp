@@ -1,3 +1,4 @@
+#include <PCH.h>
 #include <Inspector/GlobalEventsWidget.moc.h>
 #include <qlistwidget.h>
 #include <Foundation/Communication/Telemetry.h>

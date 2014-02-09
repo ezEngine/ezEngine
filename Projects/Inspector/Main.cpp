@@ -1,3 +1,4 @@
+#include <PCH.h>
 #include <Core/Application/Application.h>
 #include <Foundation/Communication/Telemetry.h>
 #include <Inspector/MainWindow.moc.h>

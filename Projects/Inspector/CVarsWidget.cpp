@@ -1,3 +1,4 @@
+#include <PCH.h>
 #include <Inspector/CVarsWidget.moc.h>
 #include <qlistwidget.h>
 #include <Foundation/Communication/Telemetry.h>
