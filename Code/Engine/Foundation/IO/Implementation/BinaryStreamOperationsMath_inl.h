@@ -11,7 +11,7 @@
 #include <Foundation/Math/BoundingBox.h>
 #include <Foundation/Math/BoundingSphere.h>
 #include <Foundation/Math/Color.h>
-#include <Foundation/Math/Color8Unorm.h>
+#include <Foundation/Math/Color8UNorm.h>
 
 // ezVec2Template
 
