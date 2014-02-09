@@ -23,19 +23,16 @@ void ezStats::RemoveStat(const char* szStatName)
 
 void ezStats::SetStat(const char* szStatName, const char* szValue)
 {
-  /// \todo Stats are transmitted unreliably, should be transmitted reliable when they are new.
-  // Otherwise it can happen that some stat never appears, because the packet got lost at startup and then it never changed
+  bool bExisted = false;
+  auto it = s_Stats.FindOrAdd(szStatName, &bExisted);
 
-
-  ezString& sValue = s_Stats[szStatName];
-  
-  if (sValue == szValue)
+  if (it.Value() == szValue)
     return;
 
-  sValue = szValue;
+  it.Value() = szValue;
 
   StatsEventData e;
-  e.m_EventType = StatsEventData::Set;
+  e.m_EventType = bExisted ? StatsEventData::Set : StatsEventData::Add;
   e.m_szStatName = szStatName;
   e.m_szNewStatValue = szValue;
 

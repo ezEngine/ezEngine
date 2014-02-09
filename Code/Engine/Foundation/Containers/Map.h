@@ -146,6 +146,9 @@ public:
   /// \brief Erases the key/value pair at the given Iterator. O(1) operation(nearly).
   Iterator Erase(const Iterator& pos); // [tested]
 
+  /// \brief Searches for the given key and returns an iterator to it. If it did not exist yet, it is default-created. \a bExisted is set to true, if the key was found, false if it needed to be created.
+  Iterator FindOrAdd(const KeyType& key, bool* bExisted = NULL); // [tested]
+
   /// \brief Allows read/write access to the value stored under the given key. If there is no such key, a new element is default-constructed.
   ValueType& operator[](const KeyType& key); // [tested]
 

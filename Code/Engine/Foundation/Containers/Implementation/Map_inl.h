@@ -359,6 +359,12 @@ EZ_FORCE_INLINE typename ezMapBase<KeyType, ValueType, Comparer>::ConstIterator 
 template <typename KeyType, typename ValueType, typename Comparer>
 ValueType& ezMapBase<KeyType, ValueType, Comparer>::operator[] (const KeyType& key)
 {
+  return FindOrAdd(key).Value();
+}
+
+template <typename KeyType, typename ValueType, typename Comparer>
+typename ezMapBase<KeyType, ValueType, Comparer>::Iterator ezMapBase<KeyType, ValueType, Comparer>::FindOrAdd(const KeyType& key, bool* bExisted)
+{
   Node* pNilNode = reinterpret_cast<Node*>(&m_NilNode);
   Node* pInsertedNode = NULL;
 
@@ -376,7 +382,12 @@ ValueType& ezMapBase<KeyType, ValueType, Comparer>::operator[] (const KeyType& k
       while (true) 
       {
         if (Comparer::Equal(it->m_Key, key))
-          return it->m_Value;
+        {
+          if (bExisted)
+            *bExisted = true;
+
+          return Iterator(it);
+        }
 
         dir = Comparer::Less(it->m_Key, key) ? 1 : 0;
 
@@ -422,7 +433,10 @@ ValueType& ezMapBase<KeyType, ValueType, Comparer>::operator[] (const KeyType& k
 
   EZ_ASSERT(pInsertedNode != NULL, "Implementation Error.");
 
-  return pInsertedNode->m_Value;
+  if (bExisted)
+    *bExisted = false;
+
+  return Iterator(pInsertedNode);
 }
 
 template <typename KeyType, typename ValueType, typename Comparer>

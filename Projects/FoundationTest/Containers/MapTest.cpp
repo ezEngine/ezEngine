@@ -122,6 +122,24 @@ EZ_CREATE_SIMPLE_TEST(Containers, Map)
       EZ_TEST_INT(m.Find(i).Value(), i * 10);
   }
 
+    EZ_TEST_BLOCK(ezTestBlock::Enabled, "FindOrAdd")
+  {
+    ezMap<ezUInt32, ezUInt32> m;
+
+    for (ezInt32 i = 0; i < 1000; ++i)
+    {
+      bool bExisted = true;
+      m.FindOrAdd(i, &bExisted).Value() = i * 10;
+      EZ_TEST_BOOL(!bExisted);
+    }
+
+    for (ezInt32 i = 1000-1; i >= 0; --i)
+    {
+      bool bExisted = false;
+      EZ_TEST_INT(m.FindOrAdd(i, &bExisted).Value(), i * 10);
+      EZ_TEST_BOOL(bExisted);
+    }
+  }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator[]")
   {

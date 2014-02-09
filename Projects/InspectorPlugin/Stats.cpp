@@ -7,16 +7,21 @@ static void StatsEventHandler(const ezStats::StatsEventData& e)
   if (!ezTelemetry::IsConnectedToClient())
     return;
 
+  ezTelemetry::TransmitMode Mode = ezTelemetry::Reliable;
+
   switch (e.m_EventType)
   {
   case ezStats::StatsEventData::Set:
+    Mode = ezTelemetry::Unreliable;
+    // fallthrough
+  case ezStats::StatsEventData::Add:
     {
       ezTelemetryMessage msg;
       msg.SetMessageID('STAT', 'SET');
       msg.GetWriter() << e.m_szStatName;
       msg.GetWriter() << e.m_szNewStatValue;
 
-      ezTelemetry::Broadcast(ezTelemetry::Unreliable, msg);
+      ezTelemetry::Broadcast(Mode, msg);
     }
     break;
   case ezStats::StatsEventData::Remove:

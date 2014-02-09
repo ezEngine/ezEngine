@@ -40,7 +40,8 @@ public:
     /// \brief Which type of event this is.
     enum EventType
     {
-      Set,    ///< A variable has been added or changed.
+      Add,    ///< A variable has been set for the first time.
+      Set,    ///< A variable has been changed.
       Remove  ///< A variable that existed has been removed.
     };
 
