@@ -12,9 +12,10 @@ The current version allows to monitor the following data:
   * __Plugins__: Shows which plugins are loaded, which other plugins they depend on and whether they can be reloaded dynamically.
   * __Global Events__: Shows which global events are registered and how often they occur.
   * __File Operations__: This panel shows which files get accessed by the engine, whether they occur on the main thread, how much data is read or written per operation, how much time that takes (and thus why an application might be blocking or stuttering). Allows to sort and filter by different criteria to get a better grasp at what and how data is accessed.
-  * __Cvars__: This panel displays all CVars that are available. You can not only see their current values, but also modify them, such that you can change the behavior of the application without restarting it. This allows to quickly change parameters of things that you are trying out, such that you can see the effects immediately.
-  * __Stats__: Using ezStats a game can display the status of certain internals. This allows to make it easy to inspect what a game object is doing or what state some component is in. So instead of printing this debug information on screen inside the game, you can watch it with ezInspector. Additionally ezInspector allows to mark stats as 'favorites' which means you can output hundreds of stats in your game, but easily only display the subset that you are currently interested in inside ezInspector.
+  * __CVars__: This panel displays all CVars that are available. You can not only see their current values, but also modify them, such that you can change the behavior of the application without restarting it. This allows to quickly change parameters of things that you are trying out, such that you can see the effects immediately.
+  * __Stats__: Using ezStats a game can display the status of certain internals. This allows to make it easy to inspect what a game object is doing or what state some component is in. So instead of printing this debug information on screen inside the game, you can watch it with ezInspector. Additionally ezInspector allows to mark stats as 'favorites' which means you can output hundreds of stats in your game, but easily only display the subset that you are currently interested in inside ezInspector. Additionally, it is now possible to display the history of a stat variable in a separate panel as a graph. This makes it easy to observe how some stats behave over time (such as frame time, frames-per-second, etc.).
   * __Time__: Displays all ezClock instances that are active. Shows the raw time step and the filtered time step, which allows to see hiccups and general performance characteristics of the application.
+  * __Reflection__: Shows all reflected types and their class hierarchy. Also shows which properties each reflected type provides.
 
 
 Setting up your game to support ezInspector
@@ -35,7 +36,11 @@ Addtionally the ezInspectorPlugin uses ezTelemetry to phone home, so you need to
     ezPlugin::LoadPlugin("ezInspectorPlugin");
 
 You should insert this code somewhere in the engine initialization. When you are using ezApplication, put this into the AfterEngineInit function.
+Additionally you need to make sure that ezTelemetry is updated once per frame, to ensure that all changes are sent to ezInspector regularly:
 
+    // Call this once per frame to make sure all changes are transmitted
+    ezTelemetry::PerFrameUpdate();
+    
 And that's it! The rest is done automatically.
 
 

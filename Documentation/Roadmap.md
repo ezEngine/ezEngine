@@ -9,7 +9,6 @@ Soon:
   * Game Objects (Clemens)
   * Rendering Abstraction (Marc)
   * Resource Manager (Jan)
-  * ezInspector Improvements: Task System Thread utilization
 
 One of the next releases:
   * Math: Simd
