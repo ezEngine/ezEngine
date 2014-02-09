@@ -228,7 +228,7 @@ bool ezTestFrameworkResult::WriteJsonToFile(const char* szAbsFileName) const
     js.EndObject();
   }
   ezStartup::ShutdownBase();
-return true;
+  return true;
 }
 
 ezUInt32 ezTestFrameworkResult::GetTestCount(ezTestResultQuery::Enum countQuery) const

@@ -128,23 +128,24 @@ void ezTestFramework::GatherAllTests()
 void ezTestFramework::GetTestSettingsFromCommandLine(int argc, const char** argv)
 {
   ezStartup::StartupBase();
-  
-  ezCommandLineUtils cmd;
-  cmd.SetCommandLine(argc, argv);
+  {
+    ezCommandLineUtils cmd;
+    cmd.SetCommandLine(argc, argv);
 
-  m_Settings.m_bRunTests         = cmd.GetBoolOption("-run", false);
-  m_Settings.m_bNoSaving         = cmd.GetBoolOption("-nosave", false);
-  m_Settings.m_bCloseOnSuccess   = cmd.GetBoolOption("-close", false);
-  m_Settings.m_bNoGUI            = cmd.GetBoolOption("-nogui", false);
+    m_Settings.m_bRunTests         = cmd.GetBoolOption("-run", false);
+    m_Settings.m_bNoSaving         = cmd.GetBoolOption("-nosave", false);
+    m_Settings.m_bCloseOnSuccess   = cmd.GetBoolOption("-close", false);
+    m_Settings.m_bNoGUI            = cmd.GetBoolOption("-nogui", false);
 
-  m_Settings.m_bAssertOnTestFail = cmd.GetBoolOption("-assert", m_Settings.m_bAssertOnTestFail);
-  m_Settings.m_bOpenHtmlOutput   = cmd.GetBoolOption("-html", m_Settings.m_bOpenHtmlOutput);
-  m_Settings.m_bKeepConsoleOpen  = cmd.GetBoolOption("-console", m_Settings.m_bKeepConsoleOpen);
-  m_Settings.m_bShowMessageBox   = cmd.GetBoolOption("-msgbox", m_Settings.m_bShowMessageBox);
-  m_Settings.m_iRevision         = cmd.GetIntOption("-rev", -1);
-  m_Settings.m_bEnableAllTests   = cmd.GetBoolOption("-all", false);
-  if (cmd.GetStringOptionArguments("-json") == 1)
-    m_Settings.m_sJsonOutput     = cmd.GetStringOption("-json", 0, "");
+    m_Settings.m_bAssertOnTestFail = cmd.GetBoolOption("-assert", m_Settings.m_bAssertOnTestFail);
+    m_Settings.m_bOpenHtmlOutput   = cmd.GetBoolOption("-html", m_Settings.m_bOpenHtmlOutput);
+    m_Settings.m_bKeepConsoleOpen  = cmd.GetBoolOption("-console", m_Settings.m_bKeepConsoleOpen);
+    m_Settings.m_bShowMessageBox   = cmd.GetBoolOption("-msgbox", m_Settings.m_bShowMessageBox);
+    m_Settings.m_iRevision         = cmd.GetIntOption("-rev", -1);
+    m_Settings.m_bEnableAllTests   = cmd.GetBoolOption("-all", false);
+    if (cmd.GetStringOptionArguments("-json") == 1)
+      m_Settings.m_sJsonOutput     = cmd.GetStringOption("-json", 0, "");
+  }
   ezStartup::ShutdownBase();
 }
 
