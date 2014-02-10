@@ -38,16 +38,16 @@ public:
   /// \brief Copies the string from szSource into the given buffer, which can hold at least uiDstSize bytes.
   ///
   /// The string will always be \0 terminated.
-  /// Multi-byte UTF-8 characters will only be copied, if the can fit completely into szDest. 
-  /// Ie. they will be truncated at a character boundary.
+  /// Multi-byte UTF-8 characters will only be copied, if they can fit completely into szDest. 
+  /// I.e. they will be truncated at a character boundary.
   /// Returns the number of bytes that were copied into szDest, excluding the terminating \0
   static ezUInt32 Copy(char* szDest, ezUInt32 uiDstSize, const char* szSource, const char* pSourceEnd = ezMaxStringEnd); // [tested]
 
   /// \brief Copies up to uiCharsToCopy characters into the given buffer, which can hold at least uiDstSize bytes.
   ///
   /// The string will always be \0 terminated.
-  /// Multi-byte UTF-8 characters will only be copied, if the can fit completely into szDest.
-  ///  Ie. they will be truncated at a character boundary.
+  /// Multi-byte UTF-8 characters will only be copied, if they can fit completely into szDest.
+  ///  I.e. they will be truncated at a character boundary.
   /// Returns the number of bytes that were copied into szDest, excluding the terminating \0
   static ezUInt32 CopyN(char* szDest, ezUInt32 uiDstSize, const char* szSource, ezUInt32 uiCharsToCopy, const char* pSourceEnd = ezMaxStringEnd); // [tested]
 

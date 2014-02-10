@@ -7,6 +7,7 @@
 
 
 #include <execinfo.h>
+#include <Foundation/Math/Math.h>
 
 //static
 ezUInt32 ezStackTracer::GetStackTrace(ezArrayPtr<void*>& trace)
@@ -27,8 +28,10 @@ void ezStackTracer::ResolveStackTrace(const ezArrayPtr<void*>& trace, PrintFunc 
   {
     for (ezUInt32 i = 0; i < trace.GetCount(); i++)
     {
-      strlcpy(szBuffer, ppSymbols[i], EZ_ARRAY_SIZE(szBuffer));
-      strlcat(szBuffer, "\n", EZ_ARRAY_SIZE(szBuffer));
+      int iLen = ezMath::Min(strlen(ppSymbols[i]), (size_t)EZ_ARRAY_SIZE(szBuffer) - 2);
+      memcpy(szBuffer, ppSymbols[i], iLen);
+      szBuffer[iLen] = '\n';
+      szBuffer[iLen + 1] = '\0';
       
       (*printFunc)(szBuffer);
     }

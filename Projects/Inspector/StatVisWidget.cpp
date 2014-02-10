@@ -4,7 +4,7 @@
 #include <Foundation/Communication/Telemetry.h>
 #include <QGraphicsView>
 #include <QGraphicsPathItem>
-#include <qsettings>
+#include <QSettings>
 
 ezStatVisWidget* ezStatVisWidget::s_pWidget = NULL;
 ezInt32 ezStatVisWidget::s_iCurColor = 0;
