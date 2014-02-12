@@ -12,6 +12,7 @@
 #include <Inspector/FileWidget.moc.h>
 #include <Inspector/PluginsWidget.moc.h>
 #include <Inspector/GlobalEventsWidget.moc.h>
+#include <Inspector/DataTransferWidget.moc.h>
 #include <QApplication>
 #include <qstylefactory.h>
 #include <QSettings>
@@ -84,6 +85,7 @@ public:
     ezTelemetry::AcceptMessagesForSystem('PLUG', true, ezPluginsWidget::ProcessTelemetry, NULL);
     ezTelemetry::AcceptMessagesForSystem('EVNT', true, ezGlobalEventsWidget::ProcessTelemetry, NULL);
     ezTelemetry::AcceptMessagesForSystem('RFLC', true, ezReflectionWidget::ProcessTelemetry, NULL);
+    ezTelemetry::AcceptMessagesForSystem('TRAN', true, ezDataWidget::ProcessTelemetry, NULL);
     
     QSettings Settings;
     const QString sServer = Settings.value("LastConnection", QLatin1String("localhost:1040")).toString();

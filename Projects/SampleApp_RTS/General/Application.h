@@ -8,6 +8,7 @@
 #include <SampleApp_RTS/Rendering/Renderer.h>
 #include <SampleApp_RTS/General/Window.h>
 #include <GameUtils/DataStructures/ObjectSelection.h>
+#include <CoreUtils/Debugging/DataTransfer.h>
 
 class SampleGameApp : public ezApplication
 {
@@ -34,6 +35,8 @@ private:
   Level* m_pLevel;
   GameRenderer* m_pRenderer;
   GameWindow* m_pWindow;
+  ezDataTransfer m_ScreenshotTransfer;
+  ezDataTransfer m_ScreenshotTransfer2;
 
   ezCamera m_Camera;
   ezObjectSelection* m_pSelectedUnits;

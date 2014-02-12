@@ -27,8 +27,6 @@ void ezInputWidget::ClearSlots()
   TableInputSlots->clear();
 
   {
-    TableInputSlots->setColumnCount(6);
-
     QStringList Headers;
     Headers.append("");
     Headers.append(" Slot ");
@@ -36,6 +34,8 @@ void ezInputWidget::ClearSlots()
     Headers.append(" Value ");
     Headers.append(" Dead Zone ");
     Headers.append(" Flags (Binary) ");
+
+    TableInputSlots->setColumnCount(Headers.size());
 
     TableInputSlots->setHorizontalHeaderLabels(Headers);
     TableInputSlots->horizontalHeader()->show();
@@ -48,8 +48,6 @@ void ezInputWidget::ClearActions()
   TableInputActions->clear();
 
   {
-    TableInputActions->setColumnCount(4 + ezInputActionConfig::MaxInputSlotAlternatives);
-
     QStringList Headers;
     Headers.append("");
     Headers.append(" Action ");
@@ -58,6 +56,8 @@ void ezInputWidget::ClearActions()
 
     for (ezInt32 slot = 0; slot < ezInputActionConfig::MaxInputSlotAlternatives; ++slot)
       Headers.append(QString(" Slot %1 ").arg(slot + 1));
+
+    TableInputActions->setColumnCount(Headers.size());
 
     TableInputActions->setHorizontalHeaderLabels(Headers);
     TableInputActions->horizontalHeader()->show();
@@ -154,7 +154,6 @@ void ezInputWidget::UpdateSlotTable(bool bRecreate)
   {
     TableInputSlots->clear();
     TableInputSlots->setRowCount(m_InputSlots.GetCount());
-    TableInputSlots->setColumnCount(6);
 
     QStringList Headers;
     Headers.append("");
@@ -163,6 +162,8 @@ void ezInputWidget::UpdateSlotTable(bool bRecreate)
     Headers.append(" Value ");
     Headers.append(" Dead Zone ");
     Headers.append(" Flags (Binary) ");
+
+    TableInputSlots->setColumnCount(Headers.size());
 
     TableInputSlots->setHorizontalHeaderLabels(Headers);
     TableInputSlots->horizontalHeader()->show();
@@ -294,7 +295,6 @@ void ezInputWidget::UpdateActionTable(bool bRecreate)
   {
     TableInputActions->clear();
     TableInputActions->setRowCount(m_InputActions.GetCount());
-    TableInputActions->setColumnCount(4 + ezInputActionConfig::MaxInputSlotAlternatives);
 
     QStringList Headers;
     Headers.append("");
@@ -304,6 +304,8 @@ void ezInputWidget::UpdateActionTable(bool bRecreate)
 
     for (ezInt32 slot = 0; slot < ezInputActionConfig::MaxInputSlotAlternatives; ++slot)
       Headers.append(QString(" Slot %1 ").arg(slot + 1));
+
+    TableInputActions->setColumnCount(Headers.size());
 
     TableInputActions->setHorizontalHeaderLabels(Headers);
     TableInputActions->horizontalHeader()->show();

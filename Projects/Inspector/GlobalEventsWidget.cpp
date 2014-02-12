@@ -21,13 +21,13 @@ void ezGlobalEventsWidget::ResetStats()
   TableEvents->clear();
 
   {
-    TableEvents->setColumnCount(4);
-
     QStringList Headers;
     Headers.append(" Event ");
     Headers.append(" Times Fired ");
     Headers.append(" # Handlers ");
     Headers.append(" # Handlers Once ");
+
+    TableEvents->setColumnCount(Headers.size());
 
     TableEvents->setHorizontalHeaderLabels(Headers);
     TableEvents->horizontalHeader()->show();
@@ -84,7 +84,6 @@ void ezGlobalEventsWidget::UpdateTable(bool bRecreate)
   if (bRecreate)
   {
     TableEvents->clear();
-    TableEvents->setColumnCount(4);
     TableEvents->setRowCount(m_Events.GetCount());
 
     QStringList Headers;
@@ -93,6 +92,8 @@ void ezGlobalEventsWidget::UpdateTable(bool bRecreate)
     Headers.append(" Times Fired ");
     Headers.append(" # Handlers ");
     Headers.append(" # Handlers Once ");
+
+    TableEvents->setColumnCount(Headers.size());
 
     TableEvents->setHorizontalHeaderLabels(Headers);
     TableEvents->horizontalHeader()->show();

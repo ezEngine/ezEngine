@@ -10,6 +10,7 @@
 #include <Inspector/FileWidget.moc.h>
 #include <Inspector/PluginsWidget.moc.h>
 #include <Inspector/GlobalEventsWidget.moc.h>
+#include <Inspector/DataTransferWidget.moc.h>
 #include <Foundation/Communication/Telemetry.h>
 #include <qinputdialog.h>
 #include <QSettings>
@@ -73,6 +74,13 @@ void ezMainWindow::on_ActionShowWindowGlobalEvents_triggered()
   ezGlobalEventsWidget::s_pWidget->setVisible(ActionShowWindowGlobalEvents->isChecked());
   ezGlobalEventsWidget::s_pWidget->raise();
 }
+
+void ezMainWindow::on_ActionShowWindowData_triggered()
+{
+  ezDataWidget::s_pWidget->setVisible(ActionShowWindowData->isChecked());
+  ezDataWidget::s_pWidget->raise();
+}
+
 
 void ezMainWindow::on_ActionOnTopWhenConnected_triggered()
 {

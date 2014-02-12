@@ -49,6 +49,7 @@ private slots:
   void on_ActionShowWindowPlugins_triggered();
   void on_ActionShowWindowFile_triggered();
   void on_ActionShowWindowGlobalEvents_triggered();
+  void on_ActionShowWindowData_triggered();
   void on_ButtonConnect_clicked();
 
   void on_ActionOnTopWhenConnected_triggered();

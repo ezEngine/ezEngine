@@ -23,7 +23,7 @@ public:
 
   static ezStatVisWidget* s_pWidget;
 
-  void AddStat(const ezString& sStatPath, bool bEnabled = true);
+  void AddStat(const ezString& sStatPath, bool bEnabled = true, bool bRaiseWindow = true);
 
   void Save();
   void Load();

@@ -210,16 +210,19 @@ void ezStatVisWidget::Load()
 
     ezString ezs = s.toUtf8().data();
 
-    AddStat(ezs, bChecked);
+    AddStat(ezs, bChecked, false);
   }
 
   f.close();
 }
 
-void ezStatVisWidget::AddStat(const ezString& sStatPath, bool bEnabled)
+void ezStatVisWidget::AddStat(const ezString& sStatPath, bool bEnabled, bool bRaiseWindow)
 {
-  setVisible(true);
-  raise();
+  if (bRaiseWindow)
+  {
+    setVisible(true);
+    raise();
+  }
 
   StatsData& Stat = m_Stats[sStatPath];
 

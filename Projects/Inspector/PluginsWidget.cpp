@@ -37,13 +37,14 @@ void ezPluginsWidget::UpdatePlugins()
   TablePlugins->clear();
 
   TablePlugins->setRowCount(m_Plugins.GetCount());
-  TablePlugins->setColumnCount(4);
 
   QStringList Headers;
   Headers.append("");
   Headers.append(" Plugin ");
   Headers.append(" Reloadable ");
   Headers.append(" Dependencies ");
+
+  TablePlugins->setColumnCount(Headers.size());
 
   TablePlugins->setHorizontalHeaderLabels(Headers);
 

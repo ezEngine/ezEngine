@@ -8,6 +8,7 @@
 #include <Foundation/Communication/Telemetry.h>
 #include <Foundation/Configuration/Plugin.h>
 #include <Foundation/Time/Clock.h>
+#include <gl/GL.h>
 
 SampleGameApp::SampleGameApp()
 {
@@ -55,6 +56,9 @@ void SampleGameApp::AfterEngineInit()
   m_pRenderer->SetupRenderer(m_pWindow, m_pLevel, &m_Camera, &m_pLevel->GetNavmesh());
 
   m_bActiveRenderLoop = true;
+
+  m_ScreenshotTransfer.EnableDataTransfer("Screenshot");
+  m_ScreenshotTransfer2.EnableDataTransfer("Screenshot2");
 }
 
 void SampleGameApp::BeforeEngineShutdown()
@@ -109,6 +113,48 @@ ezApplication::ApplicationExecution SampleGameApp::Run()
   }
 
   ezTelemetry::PerFrameUpdate();
+
+  if (m_ScreenshotTransfer.IsTransferRequested())
+  {
+    ezLog::Info("Requested Screenshot Update");
+  }
+
+  if (m_ScreenshotTransfer2.IsTransferRequested())
+  {
+    ezLog::Info("Requested Screenshot2 Update");
+
+    ezDataTransferObject dto(m_ScreenshotTransfer2, "info", "text/text");
+    dto.GetWriter() << "pups";
+
+    ezUInt32 uiWidth = m_pWindow->GetResolution().width;
+    ezUInt32 uiHeight = m_pWindow->GetResolution().height;
+
+    ezDynamicArray<ezUInt8> Image;
+    Image.SetCount(uiWidth * uiHeight * 4);
+
+    glReadPixels(0, 0, uiWidth, uiHeight, GL_RGBA, GL_UNSIGNED_BYTE, &Image[0]);
+
+    ezDynamicArray<ezUInt8> ImageCorrect;
+    ImageCorrect.SetCount(Image.GetCount());
+
+    for (ezUInt32 h = 0; h < uiHeight; ++h)
+    {
+      for (ezUInt32 w = 0; w < uiWidth; ++w)
+      {
+        ImageCorrect[((uiHeight - h - 1) * uiWidth + w) * 4 + 0] = Image[(h * uiWidth + w) * 4 + 2];
+        ImageCorrect[((uiHeight - h - 1) * uiWidth + w) * 4 + 1] = Image[(h * uiWidth + w) * 4 + 1];
+        ImageCorrect[((uiHeight - h - 1) * uiWidth + w) * 4 + 2] = Image[(h * uiWidth + w) * 4 + 0];
+        ImageCorrect[((uiHeight - h - 1) * uiWidth + w) * 4 + 3] = 255;
+      }
+    }
+
+    dto.GetWriter() << uiWidth;
+    dto.GetWriter() << uiHeight;
+    dto.GetWriter() << 4;
+    dto.GetWriter().WriteBytes(&ImageCorrect[0], ImageCorrect.GetCount());
+
+    m_ScreenshotTransfer2.Transfer(dto);
+  }
 
   return ezApplication::Continue;
 }

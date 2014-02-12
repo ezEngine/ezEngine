@@ -239,6 +239,7 @@
      <string>Panels</string>
     </property>
     <addaction name="ActionShowWindowCVar"/>
+    <addaction name="ActionShowWindowData"/>
     <addaction name="ActionShowWindowFile"/>
     <addaction name="ActionShowWindowGlobalEvents"/>
     <addaction name="ActionShowWindowInput"/>
@@ -416,9 +417,12 @@
     <string>Reflection</string>
    </property>
   </action>
-  <action name="ActionShowWindowStatHistory">
+  <action name="ActionShowWindowData">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="text">
-    <string>Stat Histories</string>
+    <string>Data</string>
    </property>
   </action>
  </widget>

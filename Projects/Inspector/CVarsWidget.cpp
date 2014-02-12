@@ -25,14 +25,14 @@ void ezCVarsWidget::ResetStats()
   TableCVars->clear();
 
   {
-    TableCVars->setColumnCount(5);
-
     QStringList Headers;
     Headers.append("");
     Headers.append(" Plugin ");
     Headers.append(" CVar ");
     Headers.append(" Value ");
     Headers.append(" Description ");
+
+    TableCVars->setColumnCount(Headers.size());
 
     TableCVars->setHorizontalHeaderLabels(Headers);
     TableCVars->horizontalHeader()->show();
@@ -126,7 +126,6 @@ void ezCVarsWidget::UpdateCVarsTable(bool bRecreate)
   if (bRecreate)
   {
     TableCVars->clear();
-    TableCVars->setColumnCount(5);
     TableCVars->setRowCount(m_CVars.GetCount());
 
     QStringList Headers;
@@ -135,6 +134,8 @@ void ezCVarsWidget::UpdateCVarsTable(bool bRecreate)
     Headers.append(" CVar ");
     Headers.append(" Value ");
     Headers.append(" Description ");
+
+    TableCVars->setColumnCount(Headers.size());
 
     TableCVars->setHorizontalHeaderLabels(Headers);
     TableCVars->horizontalHeader()->show();

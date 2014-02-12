@@ -37,7 +37,6 @@ void ezSubsystemsWidget::UpdateSubSystems()
   TableSubsystems->clear();
 
   TableSubsystems->setRowCount(m_Subsystems.GetCount());
-  TableSubsystems->setColumnCount(5);
 
   QStringList Headers;
   Headers.append("");
@@ -45,6 +44,8 @@ void ezSubsystemsWidget::UpdateSubSystems()
   Headers.append(" Plugin ");
   Headers.append(" Startup Done ");
   Headers.append(" Dependencies ");
+
+  TableSubsystems->setColumnCount(Headers.size());
 
   TableSubsystems->setHorizontalHeaderLabels(Headers);
 
