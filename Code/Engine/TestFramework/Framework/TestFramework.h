@@ -129,14 +129,15 @@ struct ezTestBlock
   } \
   else
 
-#define EZ_TEST_FAILURE(erroroutput, msg) \
-{\
-  ezTestFramework::Error(erroroutput, EZ_SOURCE_FILE, EZ_SOURCE_LINE, EZ_SOURCE_FUNCTION, msg);\
-}
-
 /// \brief Will trigger a debug break, if the test framework is configured to do so on test failure
 #define EZ_TEST_DEBUG_BREAK if (ezTestFramework::GetAssertOnTestFail())\
   EZ_DEBUG_BREAK
+
+#define EZ_TEST_FAILURE(erroroutput, msg) \
+{\
+  ezTestFramework::Error(erroroutput, EZ_SOURCE_FILE, EZ_SOURCE_LINE, EZ_SOURCE_FUNCTION, msg);\
+  EZ_TEST_DEBUG_BREAK \
+}
 
 /// \brief Tests for a boolean condition, does not output an extra message.
 #define EZ_TEST_BOOL(condition) EZ_TEST_BOOL_MSG(condition, "")
@@ -145,7 +146,6 @@ struct ezTestBlock
 #define EZ_TEST_BOOL_MSG(condition, msg) if (!(condition)) \
 { \
   EZ_TEST_FAILURE("Test failed: " EZ_STRINGIZE(condition), msg) \
-  EZ_TEST_DEBUG_BREAK \
 }
 
 inline float ToFloat(int f) { return (float) f; }
@@ -167,7 +167,6 @@ inline float ToFloat(double f) { return (float) f; }
     char szLocal_TestMacro[256]; \
     sprintf (szLocal_TestMacro, "Failure: '%s' (%.8f) does not equal '%s' (%.8f) within an epsilon of %.8f", EZ_STRINGIZE(f1), internal_r1, EZ_STRINGIZE(f2), internal_r2, internal_fEps); \
     EZ_TEST_FAILURE(szLocal_TestMacro, msg); \
-    EZ_TEST_DEBUG_BREAK \
   } \
 }
 
@@ -186,7 +185,6 @@ inline float ToFloat(double f) { return (float) f; }
     char szLocal_TestMacro[256]; \
     sprintf (szLocal_TestMacro, "Failure: '%s' (%.8f) does not equal '%s' (%.8f) within an epsilon of %.8f", EZ_STRINGIZE(f1), internal_r1, EZ_STRINGIZE(f2), internal_r2, internal_fEps); \
     EZ_TEST_FAILURE(szLocal_TestMacro, msg); \
-    EZ_TEST_DEBUG_BREAK \
   } \
 }
 
@@ -204,7 +202,6 @@ inline float ToFloat(double f) { return (float) f; }
     char szLocal_TestMacro[256]; \
     sprintf (szLocal_TestMacro, "Failure: '%s' (%i) does not equal '%s' (%i)", EZ_STRINGIZE(i1), internal_r1, EZ_STRINGIZE(i2), internal_r2); \
     EZ_TEST_FAILURE(szLocal_TestMacro, msg); \
-    EZ_TEST_DEBUG_BREAK \
   } \
 }
 
@@ -222,7 +219,6 @@ inline float ToFloat(double f) { return (float) f; }
     char szLocal_TestMacro[512]; \
     sprintf (szLocal_TestMacro, "Failure: '%s' (%s) does not equal '%s' (%s)", EZ_STRINGIZE(internal_s1), internal_sz1, EZ_STRINGIZE(internal_s2), internal_sz2); \
     EZ_TEST_FAILURE(szLocal_TestMacro, msg); \
-    EZ_TEST_DEBUG_BREAK \
   } \
 }
 

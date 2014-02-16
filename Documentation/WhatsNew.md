@@ -1,6 +1,11 @@
 What's New {#WhatsNew}
 ==========
 
+Milestone 5
+-----------
+
+  * Added ezJSONParser which is a low level parser that reads JSON incrementally.
+
 Milestone 4
 -----------
 

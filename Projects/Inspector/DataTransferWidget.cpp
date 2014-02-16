@@ -149,7 +149,7 @@ void ezDataWidget::on_DataTable_itemSelectionChanged()
 
   if (!Image.IsEmpty())
   {
-    QImage i(&Image[0], Data.m_uiWidth, Data.m_uiHeight, QImage::Format::Format_ARGB32);
+    QImage i(&Image[0], Data.m_uiWidth, Data.m_uiHeight, QImage::Format_ARGB32);
 
     LabelImage->setPixmap(QPixmap::fromImage(i));
   }
