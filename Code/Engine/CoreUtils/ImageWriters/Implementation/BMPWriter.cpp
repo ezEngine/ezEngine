@@ -1,8 +1,8 @@
 #include <CoreUtils/PCH.h>
 #include <CoreUtils/ImageWriters/BMPWriter.h>
-#include <Foundation/IO/IBinaryStream.h>
+#include <Foundation/IO/Stream.h>
 
-ezResult ezBMPWriter::Write(ezArrayPtr<const ezUInt8> data, ezUInt32 uiWidth, ezUInt32 uiHeight, DataFormat::Enum format, ezIBinaryStreamWriter& outStream)
+ezResult ezBMPWriter::Write(ezArrayPtr<const ezUInt8> data, ezUInt32 uiWidth, ezUInt32 uiHeight, DataFormat::Enum format, ezStreamWriterBase& outStream)
 {
   BMPHeader header;
   BitmapInfoHeader infoHeader;

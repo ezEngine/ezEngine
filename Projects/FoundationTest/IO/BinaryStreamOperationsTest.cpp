@@ -1,8 +1,8 @@
 #include <PCH.h>
-#include <Foundation/IO/IBinaryStream.h>
+#include <Foundation/IO/Stream.h>
 #include <Foundation/IO/MemoryStream.h>
 
-EZ_CREATE_SIMPLE_TEST(IO, BinaryStreamOperation)
+EZ_CREATE_SIMPLE_TEST(IO, StreamOperation)
 {
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Binary Stream Basic Operations (built-in types)")
   {

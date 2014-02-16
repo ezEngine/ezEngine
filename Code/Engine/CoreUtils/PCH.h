@@ -7,7 +7,7 @@
 #include <Foundation/Basics.h>
 #include <Foundation/Containers/Map.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
-#include <Foundation/IO/IBinaryStream.h>
+#include <Foundation/IO/Stream.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Math/BoundingBox.h>
 #include <Foundation/Math/Frustum.h>

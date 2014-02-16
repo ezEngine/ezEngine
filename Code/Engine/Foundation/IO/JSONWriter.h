@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Foundation/Basics.h>
-#include <Foundation/IO/IBinaryStream.h>
+#include <Foundation/IO/Stream.h>
 #include <Foundation/Containers/HybridArray.h>
 #include <Foundation/Basics/Types/Variant.h>
 
@@ -192,7 +192,7 @@ public:
   ~ezStandardJSONWriter(); // [tested]
 
   /// \brief All output is written to this binary stream.
-  void SetOutputStream(ezIBinaryStreamWriter* pOutput); // [tested]
+  void SetOutputStream(ezStreamWriterBase* pOutput); // [tested]
 
   /// \brief \copydoc ezJSONWriter::WriteBool()
   virtual void WriteBool(bool value) EZ_OVERRIDE; // [tested]
@@ -303,7 +303,7 @@ protected:
   void OutputIndentation();
 
   ezInt32 m_iIndentation;
-  ezIBinaryStreamWriter* m_pOutput;
+  ezStreamWriterBase* m_pOutput;
 
   ezHybridArray<JSONState, 16> m_StateStack;
 };

@@ -2,7 +2,7 @@
 #pragma once
 
 #include <Foundation/Basics.h>
-#include <Foundation/IO/IBinaryStream.h>
+#include <Foundation/IO/Stream.h>
 #include <Foundation/Containers/DynamicArray.h>
 
 struct z_stream_s;
@@ -12,11 +12,11 @@ struct z_stream_s;
 /// The reader takes another reader as its data source (e.g. a file or a memory stream). The compressed reader
 /// uses a cache of 256 Bytes internally to prevent excessive reads from its source and to improve decompression speed.
 /// Note that currently neither ezCompressedStreamReader nor ezCompressedStreamWriter are able to handle streams that are larger than 4 GB.
-class EZ_FOUNDATION_DLL ezCompressedStreamReader : public ezIBinaryStreamReader
+class EZ_FOUNDATION_DLL ezCompressedStreamReader : public ezStreamReaderBase
 {
 public:
   /// \brief Takes an input stream as the source from which to read the compressed data.
-  ezCompressedStreamReader(ezIBinaryStreamReader& InputStream); // [tested]
+  ezCompressedStreamReader(ezStreamReaderBase& InputStream); // [tested]
 
   ~ezCompressedStreamReader(); // [tested]
 
@@ -29,7 +29,7 @@ public:
 private:
   bool m_bReachedEnd;
   ezUInt8 m_CompressedCache[256];
-  ezIBinaryStreamReader& m_InputStream;
+  ezStreamReaderBase& m_InputStream;
   z_stream_s* m_pZLibStream;
 };
 
@@ -42,7 +42,7 @@ private:
 /// stream will be readable from the output stream, after calling Flush(). In fact, it is quite likely that a large amount of data has still
 /// not been written to it, because it is still inside the compressor.
 /// Note that currently neither ezCompressedStreamReader nor ezCompressedStreamWriter are able to handle streams that are larger than 4 GB.
-class EZ_FOUNDATION_DLL ezCompressedStreamWriter : public ezIBinaryStreamWriter
+class EZ_FOUNDATION_DLL ezCompressedStreamWriter : public ezStreamWriterBase
 {
 public:
 
@@ -59,7 +59,7 @@ public:
   };
 
   /// \brief The constructor takes another stream writer to pass the output into, and a compression level.
-  ezCompressedStreamWriter(ezIBinaryStreamWriter& OutputStream, Compression Ratio); // [tested]
+  ezCompressedStreamWriter(ezStreamWriterBase& OutputStream, Compression Ratio); // [tested]
 
   /// \brief Calls CloseStream() internally.
   ~ezCompressedStreamWriter(); // [tested]
@@ -98,7 +98,7 @@ private:
   ezUInt32 m_uiUncompressedSize;
   ezUInt32 m_uiCompressedSize;
 
-  ezIBinaryStreamWriter& m_OutputStream;
+  ezStreamWriterBase& m_OutputStream;
   z_stream_s* m_pZLibStream;
 
   ezUInt8 m_CompressedCache[256];

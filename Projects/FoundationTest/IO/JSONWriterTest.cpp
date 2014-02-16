@@ -3,7 +3,7 @@
 #include <Foundation/IO/JSONWriter.h>
 #include <Foundation/IO/ExtendedJSONWriter.h>
 
-class StreamComparer : public ezIBinaryStreamWriter
+class StreamComparer : public ezStreamWriterBase
 {
 public:
   StreamComparer(const char* szExpectedData, bool bOnlyWriteResult = false)

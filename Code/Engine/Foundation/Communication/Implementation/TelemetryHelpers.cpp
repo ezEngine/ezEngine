@@ -124,7 +124,7 @@ void ezTelemetry::Broadcast(TransmitMode tm, ezUInt64 uiSystemID, ezUInt32 uiMsg
   Send(tm, uiSystemID, uiMsgID, pData, uiDataBytes);
 }
 
-void ezTelemetry::Broadcast(TransmitMode tm, ezUInt64 uiSystemID, ezUInt32 uiMsgID, ezIBinaryStreamReader& Stream, ezInt32 iDataBytes)
+void ezTelemetry::Broadcast(TransmitMode tm, ezUInt64 uiSystemID, ezUInt32 uiMsgID, ezStreamReaderBase& Stream, ezInt32 iDataBytes)
 {
   if (s_ConnectionMode != ezTelemetry::Server)
     return;
@@ -148,7 +148,7 @@ void ezTelemetry::SendToServer(ezUInt64 uiSystemID, ezUInt32 uiMsgID, const void
   Send(ezTelemetry::Reliable, uiSystemID, uiMsgID, pData, uiDataBytes);
 }
 
-void ezTelemetry::SendToServer(ezUInt64 uiSystemID, ezUInt32 uiMsgID, ezIBinaryStreamReader& Stream, ezInt32 iDataBytes)
+void ezTelemetry::SendToServer(ezUInt64 uiSystemID, ezUInt32 uiMsgID, ezStreamReaderBase& Stream, ezInt32 iDataBytes)
 {
   if (s_ConnectionMode != ezTelemetry::Client)
     return;

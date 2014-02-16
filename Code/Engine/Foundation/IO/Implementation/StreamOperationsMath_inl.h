@@ -16,7 +16,7 @@
 // ezVec2Template
 
 template<typename Type>
-inline ezIBinaryStreamWriter& operator << (ezIBinaryStreamWriter& Stream, const ezVec2Template<Type>& Value)
+inline ezStreamWriterBase& operator << (ezStreamWriterBase& Stream, const ezVec2Template<Type>& Value)
 {
   Stream << Value.x;
   Stream << Value.y;
@@ -24,7 +24,7 @@ inline ezIBinaryStreamWriter& operator << (ezIBinaryStreamWriter& Stream, const 
 }
 
 template<typename Type>
-inline ezIBinaryStreamReader& operator >> (ezIBinaryStreamReader& Stream, ezVec2Template<Type>& Value)
+inline ezStreamReaderBase& operator >> (ezStreamReaderBase& Stream, ezVec2Template<Type>& Value)
 {
   Stream >> Value.x;
   Stream >> Value.y;
@@ -34,7 +34,7 @@ inline ezIBinaryStreamReader& operator >> (ezIBinaryStreamReader& Stream, ezVec2
 // ezVec3Template
 
 template<typename Type>
-inline ezIBinaryStreamWriter& operator << (ezIBinaryStreamWriter& Stream, const ezVec3Template<Type>& Value)
+inline ezStreamWriterBase& operator << (ezStreamWriterBase& Stream, const ezVec3Template<Type>& Value)
 {
   Stream << Value.x;
   Stream << Value.y;
@@ -43,7 +43,7 @@ inline ezIBinaryStreamWriter& operator << (ezIBinaryStreamWriter& Stream, const 
 }
 
 template<typename Type>
-inline ezIBinaryStreamReader& operator >> (ezIBinaryStreamReader& Stream, ezVec3Template<Type>& Value)
+inline ezStreamReaderBase& operator >> (ezStreamReaderBase& Stream, ezVec3Template<Type>& Value)
 {
   Stream >> Value.x;
   Stream >> Value.y;
@@ -54,7 +54,7 @@ inline ezIBinaryStreamReader& operator >> (ezIBinaryStreamReader& Stream, ezVec3
 // ezVec4Template
 
 template<typename Type>
-inline ezIBinaryStreamWriter& operator << (ezIBinaryStreamWriter& Stream, const ezVec4Template<Type>& Value)
+inline ezStreamWriterBase& operator << (ezStreamWriterBase& Stream, const ezVec4Template<Type>& Value)
 {
   Stream << Value.x;
   Stream << Value.y;
@@ -64,7 +64,7 @@ inline ezIBinaryStreamWriter& operator << (ezIBinaryStreamWriter& Stream, const 
 }
 
 template<typename Type>
-inline ezIBinaryStreamReader& operator >> (ezIBinaryStreamReader& Stream, ezVec4Template<Type>& Value)
+inline ezStreamReaderBase& operator >> (ezStreamReaderBase& Stream, ezVec4Template<Type>& Value)
 {
   Stream >> Value.x;
   Stream >> Value.y;
@@ -76,7 +76,7 @@ inline ezIBinaryStreamReader& operator >> (ezIBinaryStreamReader& Stream, ezVec4
 // ezMat3Template
 
 template<typename Type>
-inline ezIBinaryStreamWriter& operator << (ezIBinaryStreamWriter& Stream, const ezMat3Template<Type>& Value)
+inline ezStreamWriterBase& operator << (ezStreamWriterBase& Stream, const ezMat3Template<Type>& Value)
 {
   for (ezUInt32 i = 0; i < 9; ++i)
     Stream << Value.m_fElementsCM[i];
@@ -85,7 +85,7 @@ inline ezIBinaryStreamWriter& operator << (ezIBinaryStreamWriter& Stream, const 
 }
 
 template<typename Type>
-inline ezIBinaryStreamReader& operator >> (ezIBinaryStreamReader& Stream, ezMat3Template<Type>& Value)
+inline ezStreamReaderBase& operator >> (ezStreamReaderBase& Stream, ezMat3Template<Type>& Value)
 {
   for (ezUInt32 i = 0; i < 9; ++i)
     Stream >> Value.m_fElementsCM[i];
@@ -96,7 +96,7 @@ inline ezIBinaryStreamReader& operator >> (ezIBinaryStreamReader& Stream, ezMat3
 // ezMat4Template
 
 template<typename Type>
-inline ezIBinaryStreamWriter& operator << (ezIBinaryStreamWriter& Stream, const ezMat4Template<Type>& Value)
+inline ezStreamWriterBase& operator << (ezStreamWriterBase& Stream, const ezMat4Template<Type>& Value)
 {
   for (ezUInt32 i = 0; i < 16; ++i)
     Stream << Value.m_fElementsCM[i];
@@ -105,7 +105,7 @@ inline ezIBinaryStreamWriter& operator << (ezIBinaryStreamWriter& Stream, const 
 }
 
 template<typename Type>
-inline ezIBinaryStreamReader& operator >> (ezIBinaryStreamReader& Stream, ezMat4Template<Type>& Value)
+inline ezStreamReaderBase& operator >> (ezStreamReaderBase& Stream, ezMat4Template<Type>& Value)
 {
   for (ezUInt32 i = 0; i < 16; ++i)
     Stream >> Value.m_fElementsCM[i];
@@ -116,7 +116,7 @@ inline ezIBinaryStreamReader& operator >> (ezIBinaryStreamReader& Stream, ezMat4
 // ezPlaneTemplate
 
 template<typename Type>
-inline ezIBinaryStreamWriter& operator << (ezIBinaryStreamWriter& Stream, const ezPlaneTemplate<Type>& Value)
+inline ezStreamWriterBase& operator << (ezStreamWriterBase& Stream, const ezPlaneTemplate<Type>& Value)
 {
   Stream << Value.m_vNormal.x;
   Stream << Value.m_vNormal.y;
@@ -126,7 +126,7 @@ inline ezIBinaryStreamWriter& operator << (ezIBinaryStreamWriter& Stream, const 
 }
 
 template<typename Type>
-inline ezIBinaryStreamReader& operator >> (ezIBinaryStreamReader& Stream, ezPlaneTemplate<Type>& Value)
+inline ezStreamReaderBase& operator >> (ezStreamReaderBase& Stream, ezPlaneTemplate<Type>& Value)
 {
   Stream >> Value.m_vNormal.x;
   Stream >> Value.m_vNormal.y;
@@ -138,7 +138,7 @@ inline ezIBinaryStreamReader& operator >> (ezIBinaryStreamReader& Stream, ezPlan
 // ezQuatTemplate
 
 template<typename Type>
-inline ezIBinaryStreamWriter& operator << (ezIBinaryStreamWriter& Stream, const ezQuatTemplate<Type>& Value)
+inline ezStreamWriterBase& operator << (ezStreamWriterBase& Stream, const ezQuatTemplate<Type>& Value)
 {
   Stream << Value.v.x;
   Stream << Value.v.y;
@@ -148,7 +148,7 @@ inline ezIBinaryStreamWriter& operator << (ezIBinaryStreamWriter& Stream, const 
 }
 
 template<typename Type>
-inline ezIBinaryStreamReader& operator >> (ezIBinaryStreamReader& Stream, ezQuatTemplate<Type>& Value)
+inline ezStreamReaderBase& operator >> (ezStreamReaderBase& Stream, ezQuatTemplate<Type>& Value)
 {
   Stream >> Value.v.x;
   Stream >> Value.v.y;
@@ -160,7 +160,7 @@ inline ezIBinaryStreamReader& operator >> (ezIBinaryStreamReader& Stream, ezQuat
 // ezBoundingBoxTemplate
 
 template<typename Type>
-inline ezIBinaryStreamWriter& operator << (ezIBinaryStreamWriter& Stream, const ezBoundingBoxTemplate<Type>& Value)
+inline ezStreamWriterBase& operator << (ezStreamWriterBase& Stream, const ezBoundingBoxTemplate<Type>& Value)
 {
   Stream << Value.m_vMax;
   Stream << Value.m_vMin;
@@ -168,7 +168,7 @@ inline ezIBinaryStreamWriter& operator << (ezIBinaryStreamWriter& Stream, const 
 }
 
 template<typename Type>
-inline ezIBinaryStreamReader& operator >> (ezIBinaryStreamReader& Stream, ezBoundingBoxTemplate<Type>& Value)
+inline ezStreamReaderBase& operator >> (ezStreamReaderBase& Stream, ezBoundingBoxTemplate<Type>& Value)
 {
   Stream >> Value.m_vMax;
   Stream >> Value.m_vMin;
@@ -178,7 +178,7 @@ inline ezIBinaryStreamReader& operator >> (ezIBinaryStreamReader& Stream, ezBoun
 // ezBoundingSphereTemplate
 
 template<typename Type>
-inline ezIBinaryStreamWriter& operator << (ezIBinaryStreamWriter& Stream, const ezBoundingSphereTemplate<Type>& Value)
+inline ezStreamWriterBase& operator << (ezStreamWriterBase& Stream, const ezBoundingSphereTemplate<Type>& Value)
 {
   Stream << Value.m_vCenter;
   Stream << Value.m_fRadius;
@@ -186,7 +186,7 @@ inline ezIBinaryStreamWriter& operator << (ezIBinaryStreamWriter& Stream, const 
 }
 
 template<typename Type>
-inline ezIBinaryStreamReader& operator >> (ezIBinaryStreamReader& Stream, ezBoundingSphereTemplate<Type>& Value)
+inline ezStreamReaderBase& operator >> (ezStreamReaderBase& Stream, ezBoundingSphereTemplate<Type>& Value)
 {
   Stream >> Value.m_vCenter;
   Stream >> Value.m_fRadius;
@@ -194,7 +194,7 @@ inline ezIBinaryStreamReader& operator >> (ezIBinaryStreamReader& Stream, ezBoun
 }
 
 // ezColor
-inline ezIBinaryStreamWriter& operator << (ezIBinaryStreamWriter& Stream, ezColor& Value)
+inline ezStreamWriterBase& operator << (ezStreamWriterBase& Stream, ezColor& Value)
 {
   Stream << Value.r;
   Stream << Value.g;
@@ -203,7 +203,7 @@ inline ezIBinaryStreamWriter& operator << (ezIBinaryStreamWriter& Stream, ezColo
   return Stream;
 }
 
-inline ezIBinaryStreamReader& operator >> (ezIBinaryStreamReader& Stream, ezColor& Value)
+inline ezStreamReaderBase& operator >> (ezStreamReaderBase& Stream, ezColor& Value)
 {
   Stream >> Value.r;
   Stream >> Value.g;
@@ -213,7 +213,7 @@ inline ezIBinaryStreamReader& operator >> (ezIBinaryStreamReader& Stream, ezColo
 }
 
 // ezColor8Unorm
-inline ezIBinaryStreamWriter& operator << (ezIBinaryStreamWriter& Stream, ezColor8UNorm& Value)
+inline ezStreamWriterBase& operator << (ezStreamWriterBase& Stream, ezColor8UNorm& Value)
 {
   Stream << Value.r;
   Stream << Value.g;
@@ -222,7 +222,7 @@ inline ezIBinaryStreamWriter& operator << (ezIBinaryStreamWriter& Stream, ezColo
   return Stream;
 }
 
-inline ezIBinaryStreamReader& operator >> (ezIBinaryStreamReader& Stream, ezColor8UNorm& Value)
+inline ezStreamReaderBase& operator >> (ezStreamReaderBase& Stream, ezColor8UNorm& Value)
 {
   Stream >> Value.r;
   Stream >> Value.g;

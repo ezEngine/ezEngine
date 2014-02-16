@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Foundation/IO/IBinaryStream.h>
+#include <Foundation/IO/Stream.h>
 #include <Foundation/IO/FileSystem/Implementation/DataDirType.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
 
@@ -9,7 +9,7 @@
 /// ezDataDirectoryType's provide.
 /// Derive from this class if you want to implement different policies on how to read files.
 /// E.g. the default reader (ezFileReader) implements a buffered read policy (using an internal cache).
-class EZ_FOUNDATION_DLL ezFileReaderBase : public ezIBinaryStreamReader
+class EZ_FOUNDATION_DLL ezFileReaderBase : public ezStreamReaderBase
 {
   EZ_DISALLOW_COPY_AND_ASSIGN(ezFileReaderBase);
 
@@ -51,7 +51,7 @@ protected:
 /// ezDataDirectoryType's provide.
 /// Derive from this class if you want to implement different policies on how to write files.
 /// E.g. the default writer (ezFileWriter) implements a buffered write policy (using an internal cache).
-class EZ_FOUNDATION_DLL ezFileWriterBase : public ezIBinaryStreamWriter
+class EZ_FOUNDATION_DLL ezFileWriterBase : public ezStreamWriterBase
 {
   EZ_DISALLOW_COPY_AND_ASSIGN(ezFileWriterBase);
 

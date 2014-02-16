@@ -14,7 +14,7 @@ class EZ_COREUTILS_DLL ezDataTransferObject
 public:
   ezDataTransferObject(const ezDataTransfer& BelongsTo, const char* szObjectName, const char* szMimeType);
 
-  ezIBinaryStreamWriter& GetWriter() { return m_Msg.GetWriter(); }
+  ezStreamWriterBase& GetWriter() { return m_Msg.GetWriter(); }
 
 private:
   friend class ezDataTransfer;

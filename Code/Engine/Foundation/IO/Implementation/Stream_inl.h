@@ -4,7 +4,7 @@
 #if EZ_ENABLED(EZ_PLATFORM_BIG_ENDIAN)
 
 template <typename T> 
-ezUInt64 ezIBinaryStreamReader::ReadWordValue(T* pWordValue)
+ezUInt64 ezStreamReaderBase::ReadWordValue(T* pWordValue)
 {
   EZ_CHECK_AT_COMPILETIME(sizeof(T) == sizeof(ezUInt16));
 
@@ -18,7 +18,7 @@ ezUInt64 ezIBinaryStreamReader::ReadWordValue(T* pWordValue)
 }
 
 template <typename T> 
-ezUInt64 ezIBinaryStreamReader::ReadDWordValue(T* pDWordValue)
+ezUInt64 ezStreamReaderBase::ReadDWordValue(T* pDWordValue)
 {
   EZ_CHECK_AT_COMPILETIME(sizeof(T) == sizeof(ezUInt32));
 
@@ -32,7 +32,7 @@ ezUInt64 ezIBinaryStreamReader::ReadDWordValue(T* pDWordValue)
 }
 
 template <typename T> 
-ezUInt64 ezIBinaryStreamReader::ReadQWordValue(T* pQWordValue)
+ezUInt64 ezStreamReaderBase::ReadQWordValue(T* pQWordValue)
 {
   EZ_CHECK_AT_COMPILETIME(sizeof(T) == sizeof(ezUInt64));
 
@@ -48,7 +48,7 @@ ezUInt64 ezIBinaryStreamReader::ReadQWordValue(T* pQWordValue)
 
 
 template <typename T> 
-ezUInt64 ezIBinaryStreamWriter::WriteWordValue(const T* pWordValue)
+ezUInt64 ezStreamWriterBase::WriteWordValue(const T* pWordValue)
 {
   EZ_CHECK_AT_COMPILETIME(sizeof(T) == sizeof(ezUInt16));
 
@@ -61,7 +61,7 @@ ezUInt64 ezIBinaryStreamWriter::WriteWordValue(const T* pWordValue)
 }
 
 template <typename T> 
-ezUInt64 ezIBinaryStreamWriter::WriteDWordValue(const T* pDWordValue)
+ezUInt64 ezStreamWriterBase::WriteDWordValue(const T* pDWordValue)
 {
   EZ_CHECK_AT_COMPILETIME(sizeof(T) == sizeof(ezUInt32));
 
@@ -74,7 +74,7 @@ ezUInt64 ezIBinaryStreamWriter::WriteDWordValue(const T* pDWordValue)
 }
 
 template <typename T> 
-ezUInt64 ezIBinaryStreamWriter::WriteQWordValue(const T* pQWordValue)
+ezUInt64 ezStreamWriterBase::WriteQWordValue(const T* pQWordValue)
 {
   EZ_CHECK_AT_COMPILETIME(sizeof(T) == sizeof(ezUInt64));
 
@@ -89,7 +89,7 @@ ezUInt64 ezIBinaryStreamWriter::WriteQWordValue(const T* pQWordValue)
 #else
 
 template <typename T> 
-ezUInt64 ezIBinaryStreamReader::ReadWordValue(T* pWordValue)
+ezUInt64 ezStreamReaderBase::ReadWordValue(T* pWordValue)
 {
   EZ_CHECK_AT_COMPILETIME(sizeof(T) == sizeof(ezUInt16));
 
@@ -99,7 +99,7 @@ ezUInt64 ezIBinaryStreamReader::ReadWordValue(T* pWordValue)
 }
 
 template <typename T> 
-ezUInt64 ezIBinaryStreamReader::ReadDWordValue(T* pDWordValue)
+ezUInt64 ezStreamReaderBase::ReadDWordValue(T* pDWordValue)
 {
   EZ_CHECK_AT_COMPILETIME(sizeof(T) == sizeof(ezUInt32));
 
@@ -109,7 +109,7 @@ ezUInt64 ezIBinaryStreamReader::ReadDWordValue(T* pDWordValue)
 }
 
 template <typename T> 
-ezUInt64 ezIBinaryStreamReader::ReadQWordValue(T* pQWordValue)
+ezUInt64 ezStreamReaderBase::ReadQWordValue(T* pQWordValue)
 {
   EZ_CHECK_AT_COMPILETIME(sizeof(T) == sizeof(ezUInt64));
 
@@ -119,7 +119,7 @@ ezUInt64 ezIBinaryStreamReader::ReadQWordValue(T* pQWordValue)
 }
 
 template <typename T> 
-ezUInt64 ezIBinaryStreamWriter::WriteWordValue(const T* pWordValue)
+ezUInt64 ezStreamWriterBase::WriteWordValue(const T* pWordValue)
 {
   EZ_CHECK_AT_COMPILETIME(sizeof(T) == sizeof(ezUInt16));
 
@@ -129,7 +129,7 @@ ezUInt64 ezIBinaryStreamWriter::WriteWordValue(const T* pWordValue)
 }
 
 template <typename T> 
-ezUInt64 ezIBinaryStreamWriter::WriteDWordValue(const T* pDWordValue)
+ezUInt64 ezStreamWriterBase::WriteDWordValue(const T* pDWordValue)
 {
   EZ_CHECK_AT_COMPILETIME(sizeof(T) == sizeof(ezUInt32));
 
@@ -139,7 +139,7 @@ ezUInt64 ezIBinaryStreamWriter::WriteDWordValue(const T* pDWordValue)
 }
 
 template <typename T> 
-ezUInt64 ezIBinaryStreamWriter::WriteQWordValue(const T* pQWordValue)
+ezUInt64 ezStreamWriterBase::WriteQWordValue(const T* pQWordValue)
 {
   EZ_CHECK_AT_COMPILETIME(sizeof(T) == sizeof(ezUInt64));
 

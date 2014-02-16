@@ -2,7 +2,7 @@
 #pragma once
 
 #include <Foundation/Basics.h>
-#include <Foundation/IO/IBinaryStream.h>
+#include <Foundation/IO/Stream.h>
 #include <Foundation/Containers/HybridArray.h>
 #include <Foundation/Basics/Types/RefCounted.h>
 
@@ -42,7 +42,7 @@ private:
 ///
 /// Please note that the functions exposed by this object are not thread safe! If access to the same ezMemoryStreamStorage object from
 /// multiple threads is desired please create one instance of ezMemoryStreamReader per thread.
-class EZ_FOUNDATION_DLL ezMemoryStreamReader : public ezIBinaryStreamReader
+class EZ_FOUNDATION_DLL ezMemoryStreamReader : public ezStreamReaderBase
 {
 public:
   /// \brief Pass the memory storage object from which to read from.
@@ -79,7 +79,7 @@ private:
 /// \brief A writer which can access a memory stream
 ///
 /// Please note that the functions exposed by this object are not thread safe!
-class EZ_FOUNDATION_DLL ezMemoryStreamWriter : public ezIBinaryStreamWriter
+class EZ_FOUNDATION_DLL ezMemoryStreamWriter : public ezStreamWriterBase
 {
 public:
   /// \brief Pass the memory storage object to which to write to.

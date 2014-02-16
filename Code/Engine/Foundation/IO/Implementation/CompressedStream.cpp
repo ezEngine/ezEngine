@@ -16,7 +16,7 @@ static void zLibFree OF((voidpf opaque, voidpf address))
 
 EZ_DEFINE_AS_POD_TYPE(z_stream_s);
 
-ezCompressedStreamReader::ezCompressedStreamReader(ezIBinaryStreamReader& InputStream) : m_InputStream(InputStream)
+ezCompressedStreamReader::ezCompressedStreamReader(ezStreamReaderBase& InputStream) : m_InputStream(InputStream)
 {
   m_bReachedEnd = false;
   m_pZLibStream = NULL;
@@ -123,7 +123,7 @@ ezUInt64 ezCompressedStreamReader::ReadBytes(void* pReadBuffer, ezUInt64 uiBytes
 }
 
 
-ezCompressedStreamWriter::ezCompressedStreamWriter(ezIBinaryStreamWriter& OutputStream, Compression Ratio) : m_OutputStream(OutputStream)
+ezCompressedStreamWriter::ezCompressedStreamWriter(ezStreamWriterBase& OutputStream, Compression Ratio) : m_OutputStream(OutputStream)
 {
   m_uiUncompressedSize = 0;
   m_uiCompressedSize = 0;

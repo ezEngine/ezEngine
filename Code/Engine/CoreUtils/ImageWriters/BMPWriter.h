@@ -3,7 +3,7 @@
 #include <CoreUtils/Basics.h>
 
 // forward declarations
-class ezIBinaryStreamWriter;
+class ezStreamWriterBase;
 
 /// \brief utility class for writing bmp images
 class EZ_COREUTILS_DLL ezBMPWriter
@@ -85,6 +85,6 @@ public:
   ///
   /// \param uiHeight
   ///   the height of the data
-  static ezResult Write(ezArrayPtr<const ezUInt8> data, ezUInt32 uiWidth, ezUInt32 uiHeight, DataFormat::Enum format, ezIBinaryStreamWriter& outStream);
+  static ezResult Write(ezArrayPtr<const ezUInt8> data, ezUInt32 uiWidth, ezUInt32 uiHeight, DataFormat::Enum format, ezStreamWriterBase& outStream);
 };
 

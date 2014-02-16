@@ -5,19 +5,19 @@
 #include <Foundation/Math/Math.h>
 #include <Foundation/Memory/EndianHelper.h>
 
-/// \brief Interface for binary in (read) streams
-class EZ_FOUNDATION_DLL ezIBinaryStreamReader 
+/// \brief Interface for binary in (read) streams.
+class EZ_FOUNDATION_DLL ezStreamReaderBase 
 {
 
 public:
 
   /// \brief Constructor
-  ezIBinaryStreamReader()
+  ezStreamReaderBase()
   {
   }
 
   /// \brief Virtual destructor to ensure correct cleanup
-  virtual ~ezIBinaryStreamReader()
+  virtual ~ezStreamReaderBase()
   {
   }
 
@@ -61,19 +61,19 @@ public:
 
 };
 
-/// \brief Interface for binary out (write) streams
-class EZ_FOUNDATION_DLL ezIBinaryStreamWriter
+/// \brief Interface for binary out (write) streams.
+class EZ_FOUNDATION_DLL ezStreamWriterBase
 {
 
 public:
 
   /// \brief Constructor
-  ezIBinaryStreamWriter()
+  ezStreamWriterBase()
   {
   }
 
   /// \brief Virtual destructor to ensure correct cleanup
-  virtual ~ezIBinaryStreamWriter()
+  virtual ~ezStreamWriterBase()
   {
   }
 
@@ -101,10 +101,10 @@ public:
 };
 
 // Contains the helper methods of both interfaces
-#include <Foundation/IO/Implementation/IBinaryStream_inl.h>
+#include <Foundation/IO/Implementation/Stream_inl.h>
 
 // Standard operators for overloads of common data types
-#include <Foundation/IO/Implementation/BinaryStreamOperations_inl.h>
-#include <Foundation/IO/Implementation/BinaryStreamOperationsMath_inl.h>
-#include <Foundation/IO/Implementation/BinaryStreamOperationsOther_inl.h>
+#include <Foundation/IO/Implementation/StreamOperations_inl.h>
+#include <Foundation/IO/Implementation/StreamOperationsMath_inl.h>
+#include <Foundation/IO/Implementation/StreamOperationsOther_inl.h>
 

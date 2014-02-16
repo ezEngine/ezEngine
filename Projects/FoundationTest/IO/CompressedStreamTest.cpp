@@ -1,5 +1,5 @@
 #include <PCH.h>
-#include <Foundation/IO/IBinaryStream.h>
+#include <Foundation/IO/Stream.h>
 #include <Foundation/IO/CompressedStream.h>
 #include <Foundation/IO/MemoryStream.h>
 
