@@ -2,8 +2,8 @@
 #include <Inspector/DataTransferWidget.moc.h>
 #include <Foundation/Communication/Telemetry.h>
 #include <MainWindow.moc.h>
-#include <qtablewidget>
-#include <qlabel>
+#include <QTableWidget>
+#include <QLabel>
 
 ezDataWidget* ezDataWidget::s_pWidget = NULL;
 
