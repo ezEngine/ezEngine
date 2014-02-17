@@ -34,9 +34,31 @@ void Level::CreateComponentManagers()
   
 }
 
+class DummyTask : public ezTask
+{
+private:
+  virtual void Execute() EZ_OVERRIDE
+  {
+    ezThreadUtils::Sleep(1);
+  }
+
+public:
+  static void OnTaskFinished(ezTask* pTask, void* pPassThrough)
+  {
+    EZ_DEFAULT_DELETE(pTask);
+  }
+};
 
 void Level::Update()
 {
+  for (ezUInt32 i = 0; i < 50 + (ezUInt32) rand() % 300; ++i)
+  {
+    DummyTask* pTask = EZ_DEFAULT_NEW(DummyTask);
+    pTask->SetOnTaskFinished(DummyTask::OnTaskFinished);
+
+    ezTaskSystem::StartSingleTask(pTask, ezTaskPriority::ThisFrame);
+  }
+
   static ezTime LastVisUpdate = ezClock::Get()->GetAccumulatedTime();
 
   const ezTime UpdateInterval = ezTime::Seconds(1.0 / 20);
