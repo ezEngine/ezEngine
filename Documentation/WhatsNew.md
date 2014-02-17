@@ -5,6 +5,7 @@ Milestone 5
 -----------
 
   * Added ezJSONParser which is a low level parser that reads JSON incrementally.
+  * Added ezJSONReader which generates a high level representation of a JSON document, that can be used to lookup data easily.
 
 Milestone 4
 -----------

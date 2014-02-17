@@ -1,9 +1,7 @@
 #include <PCH.h>
-#include <Foundation/IO/OSFile.h>
 #include <Foundation/IO/JSONParser.h>
 #include <Foundation/Containers/Deque.h>
 #include <Foundation/Strings/StringUtils.h>
-#include <Foundation/Logging/Log.h>
 
 class StringStream : public ezStreamReaderBase
 {
@@ -208,7 +206,7 @@ public:
 
 EZ_CREATE_SIMPLE_TEST(IO, JSONParser)
 {
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Test1")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "All Features")
   {
     const char* szTestData =
 "{\n\

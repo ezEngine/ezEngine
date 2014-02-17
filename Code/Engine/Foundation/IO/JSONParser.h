@@ -3,7 +3,6 @@
 #include <Foundation/Basics.h>
 #include <Foundation/IO/Stream.h>
 #include <Foundation/Containers/HybridArray.h>
-#include <Foundation/Basics/Types/Variant.h>
 
 /// \brief A low level JSON parser that can incrementally parse the structure of a JSON document.
 ///
@@ -28,6 +27,8 @@ public:
   /// \brief Calls ContinueParsing() in a loop until it returns false.
   void ParseAll();
 
+protected:
+
   /// \brief Skips the rest of the currently open object. No OnEndArray() and OnEndObject() calls will be done for this object,
   /// cleanup must be done manually.
   void SkipObject();
@@ -35,6 +36,8 @@ public:
   /// \brief Skips the rest of the currently open array. No OnEndArray() and OnEndObject() calls will be done for this object,
   /// cleanup must be done manually.
   void SkipArray();
+
+private:
 
   /// \brief Called whenever a new variable is encountered. The variable name is passed along.
   /// At this point the type of the variable (simple, array, object) is not yet determined.

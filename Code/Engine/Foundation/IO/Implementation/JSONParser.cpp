@@ -1,5 +1,6 @@
 #include <Foundation/PCH.h>
 #include <Foundation/IO/JSONParser.h>
+#include <Foundation/Utilities/ConversionUtils.h>
 
 static inline bool IsWhitespace(ezUInt8 c)
 {
