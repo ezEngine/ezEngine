@@ -170,6 +170,8 @@ void ezStandardJSONWriter::WriteString(const char* value)
 
 void ezStandardJSONWriter::WriteNULL()
 {
+  /// \test
+
   CommaWriter cw(this);
 
   OutputString("null");
@@ -182,12 +184,14 @@ void ezStandardJSONWriter::WriteTime(ezTime value)
 
 void ezStandardJSONWriter::WriteColor(const ezColor& value)
 {
+  /// \test
+
   ezVec4 temp = value;
 
   ezEndianHelper::NativeToLittleEndian((ezUInt32*) &temp, sizeof(temp) / sizeof(float));
 
   ezStringBuilder s;
-  s.Format("(%.8f, %.8f, %.8f, %.8f)", value.r, value.g, value.b, value.a);
+  s.Format("(%.4f, %.4f, %.4f, %.4f)", value.r, value.g, value.b, value.a);
 
   WriteBinaryData("color", &temp, sizeof(temp), s.GetData());
 
@@ -200,7 +204,7 @@ void ezStandardJSONWriter::WriteVec2(const ezVec2& value)
   ezEndianHelper::NativeToLittleEndian((ezUInt32*) &temp, sizeof(temp) / sizeof(float));
 
   ezStringBuilder s;
-  s.Format("(%.8f, %.8f)", value.x, value.y);
+  s.Format("(%.4f, %.4f)", value.x, value.y);
 
   WriteBinaryData("vec2", &temp, sizeof(temp), s.GetData());
 }
@@ -212,7 +216,7 @@ void ezStandardJSONWriter::WriteVec3(const ezVec3& value)
   ezEndianHelper::NativeToLittleEndian((ezUInt32*) &temp, sizeof(temp) / sizeof(float));
 
   ezStringBuilder s;
-  s.Format("(%.8f, %.8f, %.8f)", value.x, value.y, value.z);
+  s.Format("(%.4f, %.4f, %.4f)", value.x, value.y, value.z);
 
   WriteBinaryData("vec3", &temp, sizeof(temp), s.GetData());
 }
@@ -224,7 +228,7 @@ void ezStandardJSONWriter::WriteVec4(const ezVec4& value)
   ezEndianHelper::NativeToLittleEndian((ezUInt32*) &temp, sizeof(temp) / sizeof(float));
 
   ezStringBuilder s;
-  s.Format("(%.8f, %.8f, %.8f, %.8f)", value.x, value.y, value.z, value.w);
+  s.Format("(%.4f, %.4f, %.4f, %.4f)", value.x, value.y, value.z, value.w);
 
   WriteBinaryData("vec4", &temp, sizeof(temp), s.GetData());
 }
@@ -235,10 +239,7 @@ void ezStandardJSONWriter::WriteQuat(const ezQuat& value)
 
   ezEndianHelper::NativeToLittleEndian((ezUInt32*) &temp, sizeof(temp) / sizeof(float));
 
-  ezStringBuilder s;
-  s.Format("(%.8f, %.8f, %.8f, %.8f)", value.v.x, value.v.y, value.v.z, value.w);
-
-  WriteBinaryData("quat", &temp, sizeof(temp), s.GetData());
+  WriteBinaryData("quat", &temp, sizeof(temp));
 }
 
 void ezStandardJSONWriter::WriteMat3(const ezMat3& value)

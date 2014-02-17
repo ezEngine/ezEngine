@@ -57,7 +57,7 @@ void ezExtendedJSONWriter::WriteFloat(float value)
   ezEndianHelper::NativeToLittleEndian((ezUInt32*) &value, 1);
 
   ezStringBuilder s;
-  s.Format("%.8f", value);
+  s.Format("%.4f", value);
 
   WriteBinaryData("float", &value, sizeof(value), s.GetData());
 }
@@ -81,7 +81,7 @@ void ezExtendedJSONWriter::WriteTime(ezTime value)
   ezEndianHelper::NativeToLittleEndian((ezUInt64*) &value, 1);
 
   ezStringBuilder s;
-  s.Format("%.8f", value.GetSeconds());
+  s.Format("%.4f", value.GetSeconds());
 
   WriteBinaryData("time", &value, sizeof(value), s.GetData());
 }

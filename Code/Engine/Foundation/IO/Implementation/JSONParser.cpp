@@ -354,6 +354,8 @@ void ezJSONParser::ContinueValue()
     }
     return;
 
+  /// \todo Handle 'null' value type
+
   case '[':
     {
       // remove ReadingValue from the stack

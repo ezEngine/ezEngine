@@ -23,35 +23,35 @@ public:
     return m_Stack.PeekBack().m_Dictionary;
   }
 
-private:
+protected:
 
   /// \brief This function can be overridden to skip certain variables, however the overriding function must still call this.
   virtual bool OnVariable(const char* szVarName) EZ_OVERRIDE;
 
-  /// \brief [internal] Do not call override further.
+  /// \brief [internal] Do not override further.
   virtual void OnReadValue(const char* szValue) EZ_OVERRIDE;
 
-  /// \brief [internal] Do not call override further.
+  /// \brief [internal] Do not override further.
   virtual void OnReadValue(double fValue) EZ_OVERRIDE;
 
-  /// \brief [internal] Do not call override further.
+  /// \brief [internal] Do not override further.
   virtual void OnReadValue(bool bValue) EZ_OVERRIDE;
 
-  /// \brief [internal] Do not call override further.
+  /// \brief [internal] Do not override further.
   virtual void OnBeginObject() EZ_OVERRIDE;
 
-  /// \brief [internal] Do not call override further.
+  /// \brief [internal] Do not override further.
   virtual void OnEndObject() EZ_OVERRIDE;
 
-  /// \brief [internal] Do not call override further.
+  /// \brief [internal] Do not override further.
   virtual void OnBeginArray() EZ_OVERRIDE;
 
-  /// \brief [internal] Do not call override further.
+  /// \brief [internal] Do not override further.
   virtual void OnEndArray() EZ_OVERRIDE;
 
   virtual void OnParsingError(const char* szMessage, bool bFatal) { m_bParsingError = true;  }
 
-private:
+protected:
   struct Element
   {
     ezString m_sName;

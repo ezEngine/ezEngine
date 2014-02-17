@@ -6,37 +6,9 @@
 class StreamComparer : public ezStreamWriterBase
 {
 public:
-  StreamComparer(const char* szExpectedData, bool bOnlyWriteResult = false)
-  {
-    m_bOnlyWriteResult = bOnlyWriteResult;
-    m_szExpectedData = szExpectedData;
-  }
-
-  ~StreamComparer()
-  {
-    if (m_bOnlyWriteResult)
-    {
-      ezOSFile f;
-      f.Open("C:\\Code\\JSON.txt", ezFileMode::Write);
-      f.Write(m_sResult.GetData(), m_sResult.GetElementCount());
-      f.Close();
-    }
-    else
-      EZ_TEST_BOOL(*m_szExpectedData == '\0');
-  }
-
-  ezResult WriteBytes(const void* pWriteBuffer, ezUInt64 uiBytesToWrite)
-  {
-    if (m_bOnlyWriteResult)
-      m_sResult.Append((const char*) pWriteBuffer);
-    else
-    {
-      EZ_TEST_BOOL(ezStringUtils::IsEqualN((const char*) pWriteBuffer, m_szExpectedData, (ezUInt32) uiBytesToWrite));
-      m_szExpectedData += uiBytesToWrite;
-    }
-
-    return EZ_SUCCESS;
-  }
+  StreamComparer(const char* szExpectedData, bool bOnlyWriteResult = false);
+  ~StreamComparer();
+  ezResult WriteBytes(const void* pWriteBuffer, ezUInt64 uiBytesToWrite);
 
 private:
   bool m_bOnlyWriteResult;
@@ -44,7 +16,7 @@ private:
   const char* m_szExpectedData;
 };
 
-EZ_CREATE_SIMPLE_TEST(IO, StandardJSONWriter)
+EZ_CREATE_SIMPLE_TEST(IO, ExtendedJSONWriter)
 {
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Object")
   {
@@ -54,7 +26,7 @@ EZ_CREATE_SIMPLE_TEST(IO, StandardJSONWriter)
   \n\
 }");
 
-    ezStandardJSONWriter js;
+    ezExtendedJSONWriter js;
     js.SetOutputStream(&sc);
 
     js.BeginObject("TestObject");
@@ -69,7 +41,7 @@ EZ_CREATE_SIMPLE_TEST(IO, StandardJSONWriter)
   \n\
 }");
 
-    ezStandardJSONWriter js;
+    ezExtendedJSONWriter js;
     js.SetOutputStream(&sc);
 
     js.BeginObject();
@@ -80,7 +52,7 @@ EZ_CREATE_SIMPLE_TEST(IO, StandardJSONWriter)
   {
     StreamComparer sc("\"var1\" : true,\n\"var2\" : false");
 
-    ezStandardJSONWriter js;
+    ezExtendedJSONWriter js;
     js.SetOutputStream(&sc);
 
     js.AddVariableBool("var1", true);
@@ -89,9 +61,11 @@ EZ_CREATE_SIMPLE_TEST(IO, StandardJSONWriter)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "AddVariableInt32")
   {
-    StreamComparer sc("\"var1\" : 23,\n\"var2\" : -42");
+    StreamComparer sc("\
+\"var1\" : { \"$t\" : \"int32\", \"$v\" : \"23\", \"$b\" : \"0x17000000\" },\n\
+\"var2\" : { \"$t\" : \"int32\", \"$v\" : \"-42\", \"$b\" : \"0xD6FFFFFF\" }");
 
-    ezStandardJSONWriter js;
+    ezExtendedJSONWriter js;
     js.SetOutputStream(&sc);
 
     js.AddVariableInt32("var1", 23);
@@ -100,9 +74,11 @@ EZ_CREATE_SIMPLE_TEST(IO, StandardJSONWriter)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "AddVariableUInt32")
   {
-    StreamComparer sc("\"var1\" : 23,\n\"var2\" : 42");
+    StreamComparer sc("\
+\"var1\" : { \"$t\" : \"uint32\", \"$v\" : \"23\", \"$b\" : \"0x17000000\" },\n\
+\"var2\" : { \"$t\" : \"uint32\", \"$v\" : \"42\", \"$b\" : \"0x2A000000\" }");
 
-    ezStandardJSONWriter js;
+    ezExtendedJSONWriter js;
     js.SetOutputStream(&sc);
 
     js.AddVariableUInt32("var1", 23);
@@ -111,9 +87,11 @@ EZ_CREATE_SIMPLE_TEST(IO, StandardJSONWriter)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "AddVariableInt64")
   {
-    StreamComparer sc("\"var1\" : 23,\n\"var2\" : -42");
+    StreamComparer sc("\
+\"var1\" : { \"$t\" : \"int64\", \"$v\" : \"23\", \"$b\" : \"0x1700000000000000\" },\n\
+\"var2\" : { \"$t\" : \"int64\", \"$v\" : \"-42\", \"$b\" : \"0xD6FFFFFFFFFFFFFF\" }");
 
-    ezStandardJSONWriter js;
+    ezExtendedJSONWriter js;
     js.SetOutputStream(&sc);
 
     js.AddVariableInt64("var1", 23);
@@ -122,9 +100,11 @@ EZ_CREATE_SIMPLE_TEST(IO, StandardJSONWriter)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "AddVariableUInt64")
   {
-    StreamComparer sc("\"var1\" : 23,\n\"var2\" : 42");
+    StreamComparer sc("\
+\"var1\" : { \"$t\" : \"uint64\", \"$v\" : \"23\", \"$b\" : \"0x1700000000000000\" },\n\
+\"var2\" : { \"$t\" : \"uint64\", \"$v\" : \"42\", \"$b\" : \"0x2A00000000000000\" }");
 
-    ezStandardJSONWriter js;
+    ezExtendedJSONWriter js;
     js.SetOutputStream(&sc);
 
     js.AddVariableUInt64("var1", 23);
@@ -133,9 +113,11 @@ EZ_CREATE_SIMPLE_TEST(IO, StandardJSONWriter)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "AddVariableFloat")
   {
-    StreamComparer sc("\"var1\" : -65.5,\n\"var2\" : 2621.25");
+    StreamComparer sc("\
+\"var1\" : { \"$t\" : \"float\", \"$v\" : \"-65.5000\", \"$b\" : \"0x000083C2\" },\n\
+\"var2\" : { \"$t\" : \"float\", \"$v\" : \"2621.2500\", \"$b\" : \"0x00D42345\" }");
 
-    ezStandardJSONWriter js;
+    ezExtendedJSONWriter js;
     js.SetOutputStream(&sc);
 
     js.AddVariableFloat("var1", -65.5f);
@@ -144,9 +126,11 @@ EZ_CREATE_SIMPLE_TEST(IO, StandardJSONWriter)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "AddVariableDouble")
   {
-    StreamComparer sc("\"var1\" : -65.125,\n\"var2\" : 2621.0625");
+    StreamComparer sc("\
+\"var1\" : { \"$t\" : \"double\", \"$v\" : \"-65.12500000\", \"$b\" : \"0x00000000004850C0\" },\n\
+\"var2\" : { \"$t\" : \"double\", \"$v\" : \"2621.06250000\", \"$b\" : \"0x00000000207AA440\" }");
 
-    ezStandardJSONWriter js;
+    ezExtendedJSONWriter js;
     js.SetOutputStream(&sc);
 
     js.AddVariableDouble("var1", -65.125f);
@@ -155,22 +139,20 @@ EZ_CREATE_SIMPLE_TEST(IO, StandardJSONWriter)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "AddVariableString")
   {
-    StreamComparer sc("\"var1\" : \"bla\",\n\"var2\" : \"blub\",\n\"special\" : \"I\\\\m\\t\\\"s\\bec\\/al\\\" \\f\\n\\/\\/\\\\\\r\"");
+    StreamComparer sc("\"var1\" : \"bla\",\n\"var2\" : \"blub\"");
 
-    ezStandardJSONWriter js;
+    ezExtendedJSONWriter js;
     js.SetOutputStream(&sc);
 
     js.AddVariableString("var1", "bla");
     js.AddVariableString("var2", "blub");
-
-    js.AddVariableString("special", "I\\m\t\"s\bec/al\" \f\n//\\\r");
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "AddVariableNULL")
   {
     StreamComparer sc("\"var1\" : null");
 
-    ezStandardJSONWriter js;
+    ezExtendedJSONWriter js;
     js.SetOutputStream(&sc);
 
     js.AddVariableNULL("var1");
@@ -178,30 +160,23 @@ EZ_CREATE_SIMPLE_TEST(IO, StandardJSONWriter)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "AddVariableTime")
   {
-    StreamComparer sc("\"var1\" : 0.5,\n\"var2\" : 2.25");
+    StreamComparer sc("\
+\"var1\" : { \"$t\" : \"time\", \"$v\" : \"0.5000\", \"$b\" : \"0x000000000000E03F\" },\n\
+\"var2\" : { \"$t\" : \"time\", \"$v\" : \"2.2500\", \"$b\" : \"0x0000000000000240\" }");
 
-    ezStandardJSONWriter js;
+
+    ezExtendedJSONWriter js;
     js.SetOutputStream(&sc);
 
     js.AddVariableTime("var1", ezTime::Seconds(0.5));
     js.AddVariableTime("var2", ezTime::Seconds(2.25));
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "AddVariableColor")
-  {
-    StreamComparer sc("\"var1\" : { \"$t\" : \"color\", \"$v\" : \"(1.0000, 2.0000, 3.0000, 4.0000)\", \"$b\" : \"0x0000803F000000400000404000008040\" }");
-
-    ezStandardJSONWriter js;
-    js.SetOutputStream(&sc);
-
-    js.AddVariableColor("var1", ezColor(1, 2, 3, 4));
-  }
-
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "AddVariableVec2")
   {
     StreamComparer sc("\"var1\" : { \"$t\" : \"vec2\", \"$v\" : \"(1.0000, 2.0000)\", \"$b\" : \"0x0000803F00000040\" }");
 
-    ezStandardJSONWriter js;
+    ezExtendedJSONWriter js;
     js.SetOutputStream(&sc);
 
     js.AddVariableVec2("var1", ezVec2(1, 2));
@@ -211,7 +186,7 @@ EZ_CREATE_SIMPLE_TEST(IO, StandardJSONWriter)
   {
     StreamComparer sc("\"var1\" : { \"$t\" : \"vec3\", \"$v\" : \"(1.0000, 2.0000, 3.0000)\", \"$b\" : \"0x0000803F0000004000004040\" }");
 
-    ezStandardJSONWriter js;
+    ezExtendedJSONWriter js;
     js.SetOutputStream(&sc);
 
     js.AddVariableVec3("var1", ezVec3(1, 2, 3));
@@ -221,7 +196,7 @@ EZ_CREATE_SIMPLE_TEST(IO, StandardJSONWriter)
   {
     StreamComparer sc("\"var1\" : { \"$t\" : \"vec4\", \"$v\" : \"(1.0000, 2.0000, 3.0000, 4.0000)\", \"$b\" : \"0x0000803F000000400000404000008040\" }");
 
-    ezStandardJSONWriter js;
+    ezExtendedJSONWriter js;
     js.SetOutputStream(&sc);
 
     js.AddVariableVec4("var1", ezVec4(1, 2, 3, 4));
@@ -231,7 +206,7 @@ EZ_CREATE_SIMPLE_TEST(IO, StandardJSONWriter)
   {
     StreamComparer sc("\"var1\" : { \"$t\" : \"quat\", \"$b\" : \"0x0000803F000000400000404000008040\" }");
 
-    ezStandardJSONWriter js;
+    ezExtendedJSONWriter js;
     js.SetOutputStream(&sc);
 
     js.AddVariableQuat("var1", ezQuat(1, 2, 3, 4));
@@ -241,7 +216,7 @@ EZ_CREATE_SIMPLE_TEST(IO, StandardJSONWriter)
   {
     StreamComparer sc("\"var1\" : { \"$t\" : \"mat3\", \"$b\" : \"0x0000803F000080400000E040000000400000A04000000041000040400000C04000001041\" }");
 
-    ezStandardJSONWriter js;
+    ezExtendedJSONWriter js;
     js.SetOutputStream(&sc);
 
     js.AddVariableMat3("var1", ezMat3(1, 2, 3, 4, 5, 6, 7, 8, 9));
@@ -251,22 +226,26 @@ EZ_CREATE_SIMPLE_TEST(IO, StandardJSONWriter)
   {
     StreamComparer sc("\"var1\" : { \"$t\" : \"mat4\", \"$b\" : \"0x0000803F0000A0400000104100005041000000400000C0400000204100006041000040400000E040000030410000704100008040000000410000404100008041\" }");
 
-    ezStandardJSONWriter js;
+    ezExtendedJSONWriter js;
     js.SetOutputStream(&sc);
 
     js.AddVariableMat4("var1", ezMat4(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16));
   }
 
+
+  /// \todo Color
+
+
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "AddVariableVariant")
   {
     StreamComparer sc("\
-\"var1\" : 23,\n\
-\"var2\" : 42.5,\n\
-\"var3\" : 21.25,\n\
+\"var1\" : { \"$t\" : \"int32\", \"$v\" : \"23\", \"$b\" : \"0x17000000\" },\n\
+\"var2\" : { \"$t\" : \"float\", \"$v\" : \"42.5000\", \"$b\" : \"0x00002A42\" },\n\
+\"var3\" : { \"$t\" : \"double\", \"$v\" : \"21.25000000\", \"$b\" : \"0x0000000000403540\" },\n\
 \"var4\" : true,\n\
 \"var5\" : \"pups\"");
 
-    ezStandardJSONWriter js;
+    ezExtendedJSONWriter js;
     js.SetOutputStream(&sc);
 
     js.AddVariableVariant("var1", ezVariant(23));
@@ -282,12 +261,12 @@ EZ_CREATE_SIMPLE_TEST(IO, StandardJSONWriter)
 \n\
 {\n\
   \"EmptyArray\" : [  ],\n\
-  \"NamedArray\" : [ 13 ],\n\
-  \"NamedArray2\" : [ 1337, -4996 ],\n\
-  \"Nested\" : [ null, [ 1, 2, 3 ], [ 4, 5, 6 ], [  ], \"That was an empty array\" ]\n\
+  \"NamedArray\" : [ { \"$t\" : \"int32\", \"$v\" : \"13\", \"$b\" : \"0x0D000000\" } ],\n\
+  \"NamedArray2\" : [ { \"$t\" : \"int32\", \"$v\" : \"1337\", \"$b\" : \"0x39050000\" }, { \"$t\" : \"int32\", \"$v\" : \"-4996\", \"$b\" : \"0x7CECFFFF\" } ],\n\
+  \"Nested\" : [ null, [ { \"$t\" : \"int32\", \"$v\" : \"1\", \"$b\" : \"0x01000000\" }, { \"$t\" : \"int32\", \"$v\" : \"2\", \"$b\" : \"0x02000000\" }, { \"$t\" : \"int32\", \"$v\" : \"3\", \"$b\" : \"0x03000000\" } ], [ { \"$t\" : \"int32\", \"$v\" : \"4\", \"$b\" : \"0x04000000\" }, { \"$t\" : \"int32\", \"$v\" : \"5\", \"$b\" : \"0x05000000\" }, { \"$t\" : \"int32\", \"$v\" : \"6\", \"$b\" : \"0x06000000\" } ], [  ], \"That was an empty array\" ]\n\
 }");
 
-    ezStandardJSONWriter js;
+    ezExtendedJSONWriter js;
     js.SetOutputStream(&sc);
 
     js.BeginObject();
@@ -335,11 +314,11 @@ EZ_CREATE_SIMPLE_TEST(IO, StandardJSONWriter)
 \n\
 {\n\
   \"String\" : \"testvalue\",\n\
-  \"double\" : 43.56,\n\
-  \"float\" : 64.720001,\n\
+  \"double\" : { \"$t\" : \"double\", \"$v\" : \"43.56000000\", \"$b\" : \"0x48E17A14AEC74540\" },\n\
+  \"float\" : { \"$t\" : \"float\", \"$v\" : \"64.7200\", \"$b\" : \"0xA4708142\" },\n\
   \"bool\" : true,\n\
-  \"int\" : 23,\n\
-  \"myarray\" : [ 1, 2.2, 3.3, false, \"ende\" ],\n\
+  \"int\" : { \"$t\" : \"int32\", \"$v\" : \"23\", \"$b\" : \"0x17000000\" },\n\
+  \"myarray\" : [ { \"$t\" : \"int32\", \"$v\" : \"1\", \"$b\" : \"0x01000000\" }, { \"$t\" : \"float\", \"$v\" : \"2.2000\", \"$b\" : \"0xCDCC0C40\" }, { \"$t\" : \"double\", \"$v\" : \"3.30000000\", \"$b\" : \"0x6666666666660A40\" }, false, \"ende\" ],\n\
   \"object\" : \n\
   {\n\
     \"variable in object\" : \"bla\",\n\
@@ -348,17 +327,17 @@ EZ_CREATE_SIMPLE_TEST(IO, StandardJSONWriter)
       \"variable in subobject\" : \"bla\",\n\
       \"array in sub\" : [ \n\
         {\n\
-          \"obj var\" : 234\n\
+          \"obj var\" : { \"$t\" : \"uint64\", \"$v\" : \"234\", \"$b\" : \"0xEA00000000000000\" }\n\
         },\n\
         {\n\
-          \"obj var 2\" : -235\n\
-        }, true, 4, false ]\n\
+          \"obj var 2\" : { \"$t\" : \"int64\", \"$v\" : \"-235\", \"$b\" : \"0x15FFFFFFFFFFFFFF\" }\n\
+        }, true, { \"$t\" : \"int32\", \"$v\" : \"4\", \"$b\" : \"0x04000000\" }, false ]\n\
     }\n\
   },\n\
   \"test\" : \"text\"\n\
 }");
 
-    ezStandardJSONWriter js;
+    ezExtendedJSONWriter js;
     js.SetOutputStream(&sc);
 
     js.BeginObject();
@@ -401,5 +380,3 @@ EZ_CREATE_SIMPLE_TEST(IO, StandardJSONWriter)
     js.EndObject();
   }
 }
-
-
