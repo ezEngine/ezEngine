@@ -2,47 +2,8 @@
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/IO/JSONWriter.h>
 #include <Foundation/IO/ExtendedJSONWriter.h>
+#include <FoundationTest/IO/JSONTestHelpers.h>
 
-class StreamComparer : public ezStreamWriterBase
-{
-public:
-  StreamComparer(const char* szExpectedData, bool bOnlyWriteResult = false)
-  {
-    m_bOnlyWriteResult = bOnlyWriteResult;
-    m_szExpectedData = szExpectedData;
-  }
-
-  ~StreamComparer()
-  {
-    if (m_bOnlyWriteResult)
-    {
-      ezOSFile f;
-      f.Open("C:\\Code\\JSON.txt", ezFileMode::Write);
-      f.Write(m_sResult.GetData(), m_sResult.GetElementCount());
-      f.Close();
-    }
-    else
-      EZ_TEST_BOOL(*m_szExpectedData == '\0');
-  }
-
-  ezResult WriteBytes(const void* pWriteBuffer, ezUInt64 uiBytesToWrite)
-  {
-    if (m_bOnlyWriteResult)
-      m_sResult.Append((const char*) pWriteBuffer);
-    else
-    {
-      EZ_TEST_BOOL(ezStringUtils::IsEqualN((const char*) pWriteBuffer, m_szExpectedData, (ezUInt32) uiBytesToWrite));
-      m_szExpectedData += uiBytesToWrite;
-    }
-
-    return EZ_SUCCESS;
-  }
-
-private:
-  bool m_bOnlyWriteResult;
-  ezStringBuilder m_sResult;
-  const char* m_szExpectedData;
-};
 
 EZ_CREATE_SIMPLE_TEST(IO, StandardJSONWriter)
 {

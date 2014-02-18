@@ -17,11 +17,11 @@ public:
   {
     if(bSigned)
     {
-      m_subConversions.PushBack(SubConversion  {ezImageFormat::BC6H_SF16, ezImageFormat::R32G32B32A32_FLOAT, ezImageConversionFlags::None});
+      m_subConversions.PushBack(SubConversion(ezImageFormat::BC6H_SF16, ezImageFormat::R32G32B32A32_FLOAT, ezImageConversionFlags::None));
     }
     else
     {
-      m_subConversions.PushBack(SubConversion  {ezImageFormat::BC6H_UF16, ezImageFormat::R32G32B32A32_FLOAT, ezImageConversionFlags::None});
+      m_subConversions.PushBack(SubConversion(ezImageFormat::BC6H_UF16, ezImageFormat::R32G32B32A32_FLOAT, ezImageConversionFlags::None));
     }
   }
 

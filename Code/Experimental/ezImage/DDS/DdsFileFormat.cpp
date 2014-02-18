@@ -1,7 +1,7 @@
 #include <DDS/DdsFileFormat.h>
 
 #include <Foundation/Containers/DynamicArray.h>
-#include <Foundation/IO/IBinaryStream.h>
+#include <Foundation/IO/Stream.h>
 
 #include <Image.h>
 #include <ImageConversion.h>
@@ -114,7 +114,7 @@ struct ezDdsCaps2
 static const ezUInt32 ezDdsMagic = 0x20534444;
 static const ezUInt32 ezDdsDxt10FourCc = 0x30315844;
 
-ezResult ezDdsFormat::ReadImage(ezIBinaryStreamReader& stream, ezImage& image, ezStringBuilder& errorOut) const
+ezResult ezDdsFormat::ReadImage(ezStreamReaderBase& stream, ezImage& image, ezStringBuilder& errorOut) const
 {
   ezDdsHeader fileHeader;
   if(stream.ReadBytes(&fileHeader, sizeof(ezDdsHeader)) != sizeof(ezDdsHeader))
@@ -284,7 +284,7 @@ ezResult ezDdsFormat::ReadImage(ezIBinaryStreamReader& stream, ezImage& image, e
   return EZ_SUCCESS;
 }
 
-ezResult ezDdsFormat::WriteImage(ezIBinaryStreamWriter& stream, const ezImage& image, ezStringBuilder& errorOut) const
+ezResult ezDdsFormat::WriteImage(ezStreamWriterBase& stream, const ezImage& image, ezStringBuilder& errorOut) const
 {
   const ezImageFormat::Enum format = image.GetImageFormat();
 

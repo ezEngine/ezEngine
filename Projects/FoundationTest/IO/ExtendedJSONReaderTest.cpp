@@ -1,17 +1,6 @@
 #include <PCH.h>
 #include <Foundation/IO/ExtendedJSONReader.h>
-
-class StringStream : public ezStreamReaderBase
-{
-public:
-
-  StringStream(const void* pData);
-  virtual ezUInt64 ReadBytes(void* pReadBuffer, ezUInt64 uiBytesToRead);
-
-private:
-  const void* m_pData;
-  ezUInt64 m_uiLength;
-};
+#include <FoundationTest/IO/JSONTestHelpers.h>
 
 void TraverseTree(const ezVariant& var, ezDeque<ezString>& Compare);
 

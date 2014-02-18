@@ -2,35 +2,7 @@
 #include <Foundation/IO/JSONParser.h>
 #include <Foundation/Containers/Deque.h>
 #include <Foundation/Strings/StringUtils.h>
-
-class StringStream : public ezStreamReaderBase
-{
-public:
-
-  StringStream(const void* pData)
-  {
-    m_pData = pData;
-    m_uiLength = ezStringUtils::GetStringElementCount((const char*) pData);
-  }
-
-  virtual ezUInt64 ReadBytes(void* pReadBuffer, ezUInt64 uiBytesToRead)
-  {
-    uiBytesToRead = ezMath::Min(uiBytesToRead, m_uiLength);
-    m_uiLength -= uiBytesToRead;
-
-    if (uiBytesToRead > 0)
-    {
-      ezMemoryUtils::Copy((ezUInt8*) pReadBuffer, (ezUInt8*) m_pData, (size_t) uiBytesToRead);
-      m_pData = ezMemoryUtils::AddByteOffsetConst(m_pData, (ptrdiff_t) uiBytesToRead);
-    }
-
-    return uiBytesToRead;
-  }
-
-private:
-  const void* m_pData;
-  ezUInt64 m_uiLength;
-};
+#include <FoundationTest/IO/JSONTestHelpers.h>
 
 enum ParseFunction
 {

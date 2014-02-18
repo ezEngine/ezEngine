@@ -34,6 +34,13 @@ protected:
 
   struct SubConversion
   {
+    SubConversion(ezImageFormat::Enum source, ezImageFormat::Enum target, const ezBitflags<ezImageConversionFlags>& flags)
+    {
+      m_sourceFormat = source;
+      m_targetFormat = target;
+      m_flags = flags;
+    }
+
     ezImageFormat::Enum m_sourceFormat;
     ezImageFormat::Enum m_targetFormat;
     ezBitflags<ezImageConversionFlags> m_flags;

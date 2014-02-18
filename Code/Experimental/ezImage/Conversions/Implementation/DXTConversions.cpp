@@ -105,7 +105,7 @@ public:
 
   ezImageConversion_BC1_BGRA()
   {
-    m_subConversions.PushBack(SubConversion  {ezImageFormat::BC1_UNORM, ezImageFormat::B8G8R8A8_UNORM, ezImageConversionFlags::None});
+    m_subConversions.PushBack(SubConversion(ezImageFormat::BC1_UNORM, ezImageFormat::B8G8R8A8_UNORM, ezImageConversionFlags::None));
   }
 
   static void DecompressBlock(const SourceType* pSource, TargetType* pTarget)
@@ -125,7 +125,7 @@ public:
 
   ezImageConversion_BC2_BGRA()
   {
-    m_subConversions.PushBack(SubConversion  {ezImageFormat::BC2_UNORM, ezImageFormat::B8G8R8A8_UNORM, ezImageConversionFlags::None});
+    m_subConversions.PushBack(SubConversion(ezImageFormat::BC2_UNORM, ezImageFormat::B8G8R8A8_UNORM, ezImageConversionFlags::None));
   }
 
   static void DecompressBlock(const SourceType* pSource, TargetType* pTarget)
@@ -153,7 +153,7 @@ public:
 
   ezImageConversion_BC3_BGRA()
   {
-    m_subConversions.PushBack(SubConversion  {ezImageFormat::BC3_UNORM, ezImageFormat::B8G8R8A8_UNORM, ezImageConversionFlags::None});
+    m_subConversions.PushBack(SubConversion(ezImageFormat::BC3_UNORM, ezImageFormat::B8G8R8A8_UNORM, ezImageConversionFlags::None));
   }
 
   static void DecompressBlock(const SourceType* pSource, TargetType* pTarget)
@@ -174,7 +174,7 @@ public:
 
   ezImageConversion_BC4_R()
   {
-    m_subConversions.PushBack(SubConversion  {ezImageFormat::BC4_UNORM, ezImageFormat::R8_UNORM, ezImageConversionFlags::None});
+    m_subConversions.PushBack(SubConversion(ezImageFormat::BC4_UNORM, ezImageFormat::R8_UNORM, ezImageConversionFlags::None));
   }
 
   static void DecompressBlock(const SourceType* pSource, TargetType* pTarget)
@@ -194,7 +194,7 @@ public:
 
   ezImageConversion_BC5_RG()
   {
-    m_subConversions.PushBack(SubConversion  {ezImageFormat::BC5_UNORM, ezImageFormat::R8G8_UNORM, ezImageConversionFlags::None});
+    m_subConversions.PushBack(SubConversion(ezImageFormat::BC5_UNORM, ezImageFormat::R8G8_UNORM, ezImageConversionFlags::None));
   }
 
   static void DecompressBlock(const SourceType* pSource, TargetType* pTarget)

@@ -14,7 +14,7 @@ public:
 
   ezImageConversion_4444_8888()
   {
-    m_subConversions.PushBack(SubConversion { ezImageFormat::B4G4R4A4_UNORM, ezImageFormat::B8G8R8A8_UNORM, ezImageConversionFlags::None });
+    m_subConversions.PushBack(SubConversion(ezImageFormat::B4G4R4A4_UNORM, ezImageFormat::B8G8R8A8_UNORM, ezImageConversionFlags::None));
   }
 
   static void ConvertSingle(const SourceTypeSingle* pSource, TargetTypeSingle* pTarget)
@@ -58,7 +58,7 @@ public:
 
   ezImageConversion_BGRX_BGRA()
   {
-    m_subConversions.PushBack(SubConversion {ezImageFormat::B8G8R8X8_UNORM, ezImageFormat::B8G8R8A8_UNORM, ezImageConversionFlags::InPlace});
+    m_subConversions.PushBack(SubConversion(ezImageFormat::B8G8R8X8_UNORM, ezImageFormat::B8G8R8A8_UNORM, ezImageConversionFlags::InPlace));
   }
 
   static void ConvertSingle(const SourceTypeSingle* pSource, TargetTypeSingle* pTarget)
@@ -88,7 +88,7 @@ struct ezImageConversion_F32_U8 : public ezImageConversionMixinLinear<ezImageCon
 
   ezImageConversion_F32_U8()
   {
-    m_subConversions.PushBack(SubConversion { ezImageFormat::R32G32B32A32_FLOAT, ezImageFormat::R8G8B8A8_UNORM, ezImageConversionFlags::Lossy });
+    m_subConversions.PushBack(SubConversion(ezImageFormat::R32G32B32A32_FLOAT, ezImageFormat::R8G8B8A8_UNORM, ezImageConversionFlags::Lossy));
   }
 
   static void ConvertSingle(const SourceTypeSingle* pSource, TargetTypeSingle* pTarget)
@@ -120,7 +120,7 @@ public:
 
   ezImageConversion_BGR_BGRA()
   {
-    m_subConversions.PushBack(SubConversion {ezImageFormat::B8G8R8_UNORM, ezImageFormat::B8G8R8A8_UNORM, ezImageConversionFlags::None});
+    m_subConversions.PushBack(SubConversion(ezImageFormat::B8G8R8_UNORM, ezImageFormat::B8G8R8A8_UNORM, ezImageConversionFlags::None));
   }
 
   static void ConvertSingle(const SourceTypeSingle* pSource, TargetTypeSingle* pTarget)

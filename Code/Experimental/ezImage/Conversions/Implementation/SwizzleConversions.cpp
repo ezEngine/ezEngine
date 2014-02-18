@@ -13,12 +13,12 @@ struct ezImageSwizzleConversion32_2103_SSE2 : public ezImageConversionMixinLinea
 
   ezImageSwizzleConversion32_2103_SSE2()
   {
-    m_subConversions.PushBack(SubConversion  {ezImageFormat::B8G8R8A8_TYPELESS, ezImageFormat::R8G8B8A8_TYPELESS, ezImageConversionFlags::InPlace});
-    m_subConversions.PushBack(SubConversion  {ezImageFormat::R8G8B8A8_TYPELESS, ezImageFormat::B8G8R8A8_TYPELESS, ezImageConversionFlags::InPlace});
-    m_subConversions.PushBack(SubConversion  {ezImageFormat::R8G8B8A8_UNORM, ezImageFormat::B8G8R8A8_UNORM, ezImageConversionFlags::InPlace});
-    m_subConversions.PushBack(SubConversion  {ezImageFormat::R8G8B8A8_UNORM, ezImageFormat::B8G8R8A8_UNORM, ezImageConversionFlags::InPlace});
-    m_subConversions.PushBack(SubConversion  {ezImageFormat::R8G8B8A8_UNORM_SRGB, ezImageFormat::B8G8R8A8_UNORM_SRGB, ezImageConversionFlags::InPlace});
-    m_subConversions.PushBack(SubConversion  {ezImageFormat::R8G8B8A8_UNORM_SRGB, ezImageFormat::B8G8R8A8_UNORM_SRGB, ezImageConversionFlags::InPlace});
+    m_subConversions.PushBack(SubConversion(ezImageFormat::B8G8R8A8_TYPELESS, ezImageFormat::R8G8B8A8_TYPELESS, ezImageConversionFlags::InPlace));
+    m_subConversions.PushBack(SubConversion(ezImageFormat::R8G8B8A8_TYPELESS, ezImageFormat::B8G8R8A8_TYPELESS, ezImageConversionFlags::InPlace));
+    m_subConversions.PushBack(SubConversion(ezImageFormat::R8G8B8A8_UNORM, ezImageFormat::B8G8R8A8_UNORM, ezImageConversionFlags::InPlace));
+    m_subConversions.PushBack(SubConversion(ezImageFormat::R8G8B8A8_UNORM, ezImageFormat::B8G8R8A8_UNORM, ezImageConversionFlags::InPlace));
+    m_subConversions.PushBack(SubConversion(ezImageFormat::R8G8B8A8_UNORM_SRGB, ezImageFormat::B8G8R8A8_UNORM_SRGB, ezImageConversionFlags::InPlace));
+    m_subConversions.PushBack(SubConversion(ezImageFormat::R8G8B8A8_UNORM_SRGB, ezImageFormat::B8G8R8A8_UNORM_SRGB, ezImageConversionFlags::InPlace));
   }
 
   static void ConvertSingle(const SourceTypeSingle* pSource, TargetTypeSingle* pTarget)
@@ -56,12 +56,12 @@ struct ezImageSwizzleConversion32_2103_SSSE3 : public ezImageConversionMixinLine
 
   ezImageSwizzleConversion32_2103_SSSE3()
   {
-    m_subConversions.PushBack(SubConversion  {ezImageFormat::B8G8R8A8_TYPELESS, ezImageFormat::R8G8B8A8_TYPELESS, ezImageConversionFlags::InPlace});
-    m_subConversions.PushBack(SubConversion  {ezImageFormat::R8G8B8A8_TYPELESS, ezImageFormat::B8G8R8A8_TYPELESS, ezImageConversionFlags::InPlace});
-    m_subConversions.PushBack(SubConversion  {ezImageFormat::B8G8R8A8_UNORM, ezImageFormat::R8G8B8A8_UNORM, ezImageConversionFlags::InPlace});
-    m_subConversions.PushBack(SubConversion  {ezImageFormat::R8G8B8A8_UNORM, ezImageFormat::B8G8R8A8_UNORM, ezImageConversionFlags::InPlace});
-    m_subConversions.PushBack(SubConversion  {ezImageFormat::B8G8R8A8_UNORM_SRGB, ezImageFormat::R8G8B8A8_UNORM_SRGB, ezImageConversionFlags::InPlace});
-    m_subConversions.PushBack(SubConversion  {ezImageFormat::R8G8B8A8_UNORM_SRGB, ezImageFormat::B8G8R8A8_UNORM_SRGB, ezImageConversionFlags::InPlace});
+    m_subConversions.PushBack(SubConversion(ezImageFormat::B8G8R8A8_TYPELESS, ezImageFormat::R8G8B8A8_TYPELESS, ezImageConversionFlags::InPlace));
+    m_subConversions.PushBack(SubConversion(ezImageFormat::R8G8B8A8_TYPELESS, ezImageFormat::B8G8R8A8_TYPELESS, ezImageConversionFlags::InPlace));
+    m_subConversions.PushBack(SubConversion(ezImageFormat::B8G8R8A8_UNORM, ezImageFormat::R8G8B8A8_UNORM, ezImageConversionFlags::InPlace));
+    m_subConversions.PushBack(SubConversion(ezImageFormat::R8G8B8A8_UNORM, ezImageFormat::B8G8R8A8_UNORM, ezImageConversionFlags::InPlace));
+    m_subConversions.PushBack(SubConversion(ezImageFormat::B8G8R8A8_UNORM_SRGB, ezImageFormat::R8G8B8A8_UNORM_SRGB, ezImageConversionFlags::InPlace));
+    m_subConversions.PushBack(SubConversion(ezImageFormat::R8G8B8A8_UNORM_SRGB, ezImageFormat::B8G8R8A8_UNORM_SRGB, ezImageConversionFlags::InPlace));
   }
 
   static void ConvertSingle(const SourceTypeSingle* pSource, TargetTypeSingle* pTarget)

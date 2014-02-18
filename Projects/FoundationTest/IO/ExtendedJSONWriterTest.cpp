@@ -2,19 +2,7 @@
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/IO/JSONWriter.h>
 #include <Foundation/IO/ExtendedJSONWriter.h>
-
-class StreamComparer : public ezStreamWriterBase
-{
-public:
-  StreamComparer(const char* szExpectedData, bool bOnlyWriteResult = false);
-  ~StreamComparer();
-  ezResult WriteBytes(const void* pWriteBuffer, ezUInt64 uiBytesToWrite);
-
-private:
-  bool m_bOnlyWriteResult;
-  ezStringBuilder m_sResult;
-  const char* m_szExpectedData;
-};
+#include <FoundationTest/IO/JSONTestHelpers.h>
 
 EZ_CREATE_SIMPLE_TEST(IO, ExtendedJSONWriter)
 {

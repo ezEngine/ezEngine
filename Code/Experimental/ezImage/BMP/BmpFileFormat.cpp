@@ -4,7 +4,7 @@
 #include <ImageConversion.h>
 
 #include <Foundation/Containers/DynamicArray.h>
-#include <Foundation/IO/IBinaryStream.h>
+#include <Foundation/IO/Stream.h>
 
 ezBmpFileFormat g_bmpFormat;
 
@@ -90,7 +90,7 @@ struct ezBmpBgrxQuad {
   ezUInt8 m_reserved;
 };
 
-ezResult ezBmpFileFormat::WriteImage(ezIBinaryStreamWriter& stream, const ezImage& image, ezStringBuilder& errorOut) const
+ezResult ezBmpFileFormat::WriteImage(ezStreamWriterBase& stream, const ezImage& image, ezStringBuilder& errorOut) const
 {
   // Technically almost arbitrary formats are supported, but we only use the common ones.
   ezImageFormat::Enum compatibleFormats[] =
@@ -275,7 +275,7 @@ namespace
   }
 }
 
-ezResult ezBmpFileFormat::ReadImage(ezIBinaryStreamReader& stream, ezImage& image, ezStringBuilder& errorOut) const
+ezResult ezBmpFileFormat::ReadImage(ezStreamReaderBase& stream, ezImage& image, ezStringBuilder& errorOut) const
 {
   ezBmpFileHeader fileHeader;
   if(stream.ReadBytes(&fileHeader, sizeof(ezBmpFileHeader)) != sizeof(ezBmpFileHeader))
