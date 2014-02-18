@@ -5,7 +5,6 @@ This is a list of our planned features for the foreseeable future.
 
 Soon:
   * Per Object Type Memory Tracking (Clemens)
-  * JSON reader
   * Game Objects (Clemens)
   * Rendering Abstraction (Marc)
   * Resource Manager (Jan)

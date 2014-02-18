@@ -183,6 +183,15 @@ void TraverseTree(const ezVariant& var, ezDeque<ezString>& Compare)
     }
     break;
 
+  case ezVariant::Type::Color:
+    {
+      ezStringBuilder sTemp;
+      sTemp.Format("color (%.4f, %.4f, %.4f, %.4f)", var.Get<ezColor>().r, var.Get<ezColor>().g, var.Get<ezColor>().b, var.Get<ezColor>().a);
+      EZ_TEST_STRING(Compare.PeekFront().GetData(), sTemp.GetData());
+      Compare.PopFront();
+    }
+    break;
+
   case ezVariant::Type::Quaternion:
     {
       ezStringBuilder sTemp;

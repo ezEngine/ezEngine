@@ -232,10 +232,6 @@ EZ_CREATE_SIMPLE_TEST(IO, ExtendedJSONWriter)
     js.AddVariableMat4("var1", ezMat4(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16));
   }
 
-
-  /// \todo Color
-
-
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "AddVariableVariant")
   {
     StreamComparer sc("\
