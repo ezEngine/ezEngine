@@ -83,6 +83,11 @@ void TraverseTree(const ezVariant& var, ezDeque<ezString>& Compare)
     }
     break;
 
+  case ezVariant::Type::Invalid:
+    EZ_TEST_STRING(Compare.PeekFront().GetData(), "null");
+    Compare.PopFront();
+    break;
+
   case ezVariant::Type::Bool:
     EZ_TEST_STRING(Compare.PeekFront().GetData(), var.Get<bool>() ? "bool true" : "bool false");
     Compare.PopFront();
@@ -238,6 +243,7 @@ EZ_CREATE_SIMPLE_TEST(IO, JSONReader)
 \"float\" :/**//*a*/ 64.720001,\n\
 \"bool\" : true,\n\
 \"int\" : 23,\n\
+\"MyNull\" : null,\n\
 \"object\" :\n\
 /* totally \n weird \t stuff \n\n\n going on here // thats a line comment \n */ \
 // more line comments \n\n\n\n\
@@ -331,6 +337,9 @@ EZ_CREATE_SIMPLE_TEST(IO, JSONReader)
 
       sCompare.PushBack("double");
       sCompare.PushBack("double 43.5600");
+
+      sCompare.PushBack("MyNull");
+      sCompare.PushBack("null");
 
       sCompare.PushBack("myarray2");
       sCompare.PushBack("<array>");

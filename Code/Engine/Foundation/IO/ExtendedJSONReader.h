@@ -3,12 +3,11 @@
 #include <Foundation/Basics.h>
 #include <Foundation/IO/JSONReader.h>
 
-/// \brief This JSON reader will read an entire JSON document into a hierarchical structure of ezVariants.
+/// \brief This JSON reader works mostly like its base type ezJSONReader, but also converts 'extended' types back into strongly typed ezVariant's.
 ///
-/// The reader will parse the entire document and create a data structure of ezVariants, which can then be traversed easily.
-/// Note that this class is much less efficient at reading large JSON documents, as it will dynamically allocate and copy objects around
-/// quite a bit. For small to medium sized documents that might be good enough, for large files one should prefer to write a dedicated
-/// class derived from ezJSONParser.
+/// This reader reads files written with ezExtendedJSONWriter and converts the extended type information and data back into a 
+/// strongly typed ezVariant. Thus this format can store ints, floats, doubles, vectors, matrices, etc. without losing precision,
+/// whereas standard JSON will always use doubles for all value types.
 class EZ_FOUNDATION_DLL ezExtendedJSONReader : public ezJSONReader
 {
 protected:

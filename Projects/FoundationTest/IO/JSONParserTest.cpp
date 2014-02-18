@@ -35,6 +35,7 @@ private:
 enum ParseFunction
 {
   Variable,
+  ValueNULL,
   ValueString,
   ValueDouble,
   ValueBool,
@@ -150,6 +151,14 @@ public:
     m_Results.PopFront();
   }
 
+  virtual void OnReadValueNULL() EZ_OVERRIDE
+  {
+    EZ_TEST_BOOL(!m_Results.IsEmpty());
+    EZ_TEST_BOOL(m_Results.PeekFront().m_Function == ValueNULL);
+
+    m_Results.PopFront();
+  }
+
   virtual void OnBeginObject() EZ_OVERRIDE
   {
     EZ_TEST_BOOL(!m_Results.IsEmpty());
@@ -217,6 +226,7 @@ EZ_CREATE_SIMPLE_TEST(IO, JSONParser)
 \"float\" :/**//*a*/ 64.720001,\n\
 \"bool\" : true,\n\
 \"int\" : 23,\n\
+\"MyNull\" : null,\n\
 \"object\" :\n\
 /* totally \n weird \t stuff \n\n\n going on here // thats a line comment \n */ \
 // more line comments \n\n\n\n\
@@ -273,6 +283,9 @@ EZ_CREATE_SIMPLE_TEST(IO, JSONParser)
 
       reader.Add(ParseResult(Variable, "int"));
       reader.Add(ParseResult(23.0));
+
+      reader.Add(ParseResult(Variable, "MyNull"));
+      reader.Add(ParseResult(ValueNULL));
 
       reader.Add(ParseResult(Variable, "object"));
       reader.Add(ParseResult(BeginObject));

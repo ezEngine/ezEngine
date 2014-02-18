@@ -354,7 +354,31 @@ void ezJSONParser::ContinueValue()
     }
     return;
 
-  /// \todo Handle 'null' value type
+  case 'n':
+  case 'N':
+    {
+      // remove ReadingValue from the stack
+      m_StateStack.PopBack();
+
+      ReadWord();
+
+      bool bIsNull = false;
+
+      // if it's 'null' but with the wrong casing, output an error, but it is not fatal
+      if (ezStringUtils::IsEqual_NoCase((const char*) &m_TempString[0], "null"))
+        bIsNull = true;
+
+      if (!ezStringUtils::IsEqual((const char*) &m_TempString[0], "null"))
+      {
+        ezStringBuilder s;
+        s.Format("Parsing value: Expected 'null', Got '%s' instead.", (const char*) &m_TempString[0]);
+        ParsingError(s.GetData(), !bIsNull);
+      }
+
+      if (!m_bSkippingMode)
+        OnReadValueNULL();
+    }
+    return;
 
   case '[':
     {

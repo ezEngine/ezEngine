@@ -3,7 +3,10 @@
 #include <Foundation/Basics.h>
 #include <Foundation/IO/JSONWriter.h>
 
-/// \brief This class will redirect all calls to WriteInt32, etc. to WriteBinaryData(), meaning it will output all data using the MongoDB syntax for binary data.
+/// \brief This class will redirect all calls to WriteInt32, etc. to WriteBinaryData(), meaning it will output all data using a syntax
+/// similar to the MongoDB syntax for binary data.
+///
+/// See http://docs.mongodb.org/manual/reference/mongodb-extended-json/ for some information about the extended syntax.
 ///
 /// Writing all values through WriteBinaryData() means that all values can be written with a type and their exact bit representation.
 /// Thus JSON files written with ezExtendedJSONWriter will not lose precision and contain more information about the data types.

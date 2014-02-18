@@ -38,6 +38,9 @@ protected:
   virtual void OnReadValue(bool bValue) EZ_OVERRIDE;
 
   /// \brief [internal] Do not override further.
+  virtual void OnReadValueNULL() EZ_OVERRIDE;
+
+  /// \brief [internal] Do not override further.
   virtual void OnBeginObject() EZ_OVERRIDE;
 
   /// \brief [internal] Do not override further.

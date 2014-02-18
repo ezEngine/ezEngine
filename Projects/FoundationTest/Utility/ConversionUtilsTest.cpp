@@ -396,6 +396,77 @@ EZ_CREATE_SIMPLE_TEST(Utility, ConversionUtils)
     EZ_TEST_BOOL(szResultPos == NULL);
 
   }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "HexCharacterToIntValue")
+  {
+    EZ_TEST_INT(ezConversionUtils::HexCharacterToIntValue('0'), 0);
+    EZ_TEST_INT(ezConversionUtils::HexCharacterToIntValue('1'), 1);
+    EZ_TEST_INT(ezConversionUtils::HexCharacterToIntValue('2'), 2);
+    EZ_TEST_INT(ezConversionUtils::HexCharacterToIntValue('3'), 3);
+    EZ_TEST_INT(ezConversionUtils::HexCharacterToIntValue('4'), 4);
+    EZ_TEST_INT(ezConversionUtils::HexCharacterToIntValue('5'), 5);
+    EZ_TEST_INT(ezConversionUtils::HexCharacterToIntValue('6'), 6);
+    EZ_TEST_INT(ezConversionUtils::HexCharacterToIntValue('7'), 7);
+    EZ_TEST_INT(ezConversionUtils::HexCharacterToIntValue('8'), 8);
+    EZ_TEST_INT(ezConversionUtils::HexCharacterToIntValue('9'), 9);
+
+    EZ_TEST_INT(ezConversionUtils::HexCharacterToIntValue('a'), 10);
+    EZ_TEST_INT(ezConversionUtils::HexCharacterToIntValue('b'), 11);
+    EZ_TEST_INT(ezConversionUtils::HexCharacterToIntValue('c'), 12);
+    EZ_TEST_INT(ezConversionUtils::HexCharacterToIntValue('d'), 13);
+    EZ_TEST_INT(ezConversionUtils::HexCharacterToIntValue('e'), 14);
+    EZ_TEST_INT(ezConversionUtils::HexCharacterToIntValue('f'), 15);
+
+    EZ_TEST_INT(ezConversionUtils::HexCharacterToIntValue('A'), 10);
+    EZ_TEST_INT(ezConversionUtils::HexCharacterToIntValue('B'), 11);
+    EZ_TEST_INT(ezConversionUtils::HexCharacterToIntValue('C'), 12);
+    EZ_TEST_INT(ezConversionUtils::HexCharacterToIntValue('D'), 13);
+    EZ_TEST_INT(ezConversionUtils::HexCharacterToIntValue('E'), 14);
+    EZ_TEST_INT(ezConversionUtils::HexCharacterToIntValue('F'), 15);
+
+    EZ_TEST_INT(ezConversionUtils::HexCharacterToIntValue('g'), -1);
+    EZ_TEST_INT(ezConversionUtils::HexCharacterToIntValue('h'), -1);
+    EZ_TEST_INT(ezConversionUtils::HexCharacterToIntValue('i'), -1);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ExtractFloatsFromString")
+  {
+    float v[16];
+
+    const char* szText = "This 1 is 2.3 or 3.141 tests in 1.2 strings, maybe 4.5,6.78or9.101!";
+
+    ezMemoryUtils::ZeroFill(v, 16);
+    EZ_TEST_INT(ezConversionUtils::ExtractFloatsFromString(szText, 0, v), 0);
+    EZ_TEST_FLOAT(v[0], 0.0f, 0.0f);
+
+    ezMemoryUtils::ZeroFill(v, 16);
+    EZ_TEST_INT(ezConversionUtils::ExtractFloatsFromString(szText, 3, v), 3);
+    EZ_TEST_FLOAT(v[0], 1.0f,  0.0001f);
+    EZ_TEST_FLOAT(v[1], 2.3f,  0.0001f);
+    EZ_TEST_FLOAT(v[2], 3.141f, 0.0001f);
+    EZ_TEST_FLOAT(v[3], 0.0f, 0.0f);
+
+    ezMemoryUtils::ZeroFill(v, 16);
+    EZ_TEST_INT(ezConversionUtils::ExtractFloatsFromString(szText, 6, v), 6);
+    EZ_TEST_FLOAT(v[0], 1.0f, 0.0001f);
+    EZ_TEST_FLOAT(v[1], 2.3f, 0.0001f);
+    EZ_TEST_FLOAT(v[2], 3.141f, 0.0001f);
+    EZ_TEST_FLOAT(v[3], 1.2f, 0.0001f);
+    EZ_TEST_FLOAT(v[4], 4.5f, 0.0001f);
+    EZ_TEST_FLOAT(v[5], 6.78f, 0.0001f);
+    EZ_TEST_FLOAT(v[6], 0.0f, 0.0f);
+
+    ezMemoryUtils::ZeroFill(v, 16);
+    EZ_TEST_INT(ezConversionUtils::ExtractFloatsFromString(szText, 10, v), 7);
+    EZ_TEST_FLOAT(v[0], 1.0f, 0.0001f);
+    EZ_TEST_FLOAT(v[1], 2.3f, 0.0001f);
+    EZ_TEST_FLOAT(v[2], 3.141f, 0.0001f);
+    EZ_TEST_FLOAT(v[3], 1.2f, 0.0001f);
+    EZ_TEST_FLOAT(v[4], 4.5f, 0.0001f);
+    EZ_TEST_FLOAT(v[5], 6.78f, 0.0001f);
+    EZ_TEST_FLOAT(v[6], 9.101f, 0.0001f);
+    EZ_TEST_FLOAT(v[7], 0.0f, 0.0f);
+  }
 }
 
 

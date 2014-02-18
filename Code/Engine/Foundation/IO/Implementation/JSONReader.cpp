@@ -65,6 +65,16 @@ void ezJSONReader::OnReadValue(bool bValue)
   m_sLastName.Clear();
 }
 
+void ezJSONReader::OnReadValueNULL()
+{
+  if (m_Stack.PeekBack().m_iMode == 0)
+    m_Stack.PeekBack().m_Array.PushBack(ezVariant());
+  else
+    m_Stack.PeekBack().m_Dictionary[m_sLastName] = ezVariant();
+
+  m_sLastName.Clear();
+}
+
 void ezJSONReader::OnBeginObject()
 {
   m_Stack.PushBack(Element());

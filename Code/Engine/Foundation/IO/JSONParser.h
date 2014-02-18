@@ -37,6 +37,9 @@ protected:
   /// cleanup must be done manually.
   void SkipArray();
 
+  /// \brief Outputs that a parsing error was detected (via OnParsingError) and stops further parsing, if bFatal is set to true.
+  void ParsingError(const char* szMessage, bool bFatal);
+
 private:
 
   /// \brief Called whenever a new variable is encountered. The variable name is passed along.
@@ -44,37 +47,40 @@ private:
   ///
   /// The entire variable (independent of whether it is a simple value, an array or an object) can
   /// be skipped by returning false.
-  virtual bool OnVariable(const char* szVarName) { return true; }
+  virtual bool OnVariable(const char* szVarName) = 0;
 
   /// \brief Called whenever a new value is read.
   ///
   /// Directly following a call to OnVariable(), this means that the variable is a simple variable.
   /// In between calls to OnBeginArray() and OnEndArray() it is another value in the array.
-  virtual void OnReadValue(const char* szValue) { }
+  virtual void OnReadValue(const char* szValue) = 0;
 
   /// \brief \copydoc ezJSONParser::OnReadValue()
-  virtual void OnReadValue(double fValue) { }
+  virtual void OnReadValue(double fValue) = 0;
 
   /// \brief \copydoc ezJSONParser::OnReadValue()
-  virtual void OnReadValue(bool bValue) { }
+  virtual void OnReadValue(bool bValue) = 0;
+
+  /// \brief \copydoc ezJSONParser::OnReadValue()
+  virtual void OnReadValueNULL() = 0;
 
   /// \brief Called when a new object is encountered.
   ///
   /// Directly following a call to OnVariable(), this means the variable is of type 'object' (and has a name).
   /// In between calls to OnBeginArray() and OnEndArray() it is another value in the array.
-  virtual void OnBeginObject() { }
+  virtual void OnBeginObject() = 0;
 
   /// \brief Called when the end of an object is encountered.
-  virtual void OnEndObject() { }
+  virtual void OnEndObject() = 0;
 
   /// \brief Called when a new array is encountered.
   ///
   /// Directly following a call to OnVariable(), this means the variable is of type 'array' (and has a name).
   /// In between calls to OnBeginArray() and OnEndArray() it is another value in the array.
-  virtual void OnBeginArray() { }
+  virtual void OnBeginArray() = 0;
 
   /// \brief Called when the end of an array is encountered.
-  virtual void OnEndArray() { }
+  virtual void OnEndArray() = 0;
 
   /// \brief Called when something unexpected is encountered in the JSON document.
   /// 
@@ -121,10 +127,6 @@ private:
   bool ReadCharacter();
 
   void SkipStack(State s);
-
-  void ParsingError(const char* szMessage, bool bFatal);
-
-
 
   ezUInt8 m_uiCurByte;
   ezUInt8 m_uiNextByte;
