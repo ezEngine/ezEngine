@@ -36,7 +36,7 @@ private:
   GameRenderer* m_pRenderer;
   GameWindow* m_pWindow;
   ezDataTransfer m_ScreenshotTransfer;
-  ezDataTransfer m_ScreenshotTransfer2;
+  ezDataTransfer m_StatsTransfer;
 
   ezCamera m_Camera;
   ezObjectSelection* m_pSelectedUnits;

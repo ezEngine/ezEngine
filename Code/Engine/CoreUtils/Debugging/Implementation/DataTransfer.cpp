@@ -103,6 +103,9 @@ bool ezDataTransfer::IsTransferRequested(bool bReset)
 
 void ezDataTransfer::Transfer(ezDataTransferObject& Object)
 {
+  if (!m_bEnabled)
+    return;
+
   ezTelemetry::Broadcast(ezTelemetry::Reliable, Object.m_Msg);
 }
 

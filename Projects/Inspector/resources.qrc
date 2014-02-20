@@ -1,5 +1,6 @@
 <RCC>
   <qresource prefix="Icons">
+    <file>Icons/database_refresh.png</file>
     <file>Icons/StatHistory.png</file>
     <file>Icons/Server.png</file>
     <file>Icons/Search.png</file>

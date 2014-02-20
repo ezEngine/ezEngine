@@ -8,6 +8,7 @@
 #include <Foundation/Communication/Telemetry.h>
 #include <Foundation/Configuration/Plugin.h>
 #include <Foundation/Time/Clock.h>
+#include <Foundation/IO/JSONWriter.h>
 #include <gl/GL.h>
 
 SampleGameApp::SampleGameApp()
@@ -58,7 +59,7 @@ void SampleGameApp::AfterEngineInit()
   m_bActiveRenderLoop = true;
 
   m_ScreenshotTransfer.EnableDataTransfer("Screenshot");
-  m_ScreenshotTransfer2.EnableDataTransfer("Screenshot2");
+  m_StatsTransfer.EnableDataTransfer("Stats");
 }
 
 void SampleGameApp::BeforeEngineShutdown()
@@ -116,15 +117,7 @@ ezApplication::ApplicationExecution SampleGameApp::Run()
 
   if (m_ScreenshotTransfer.IsTransferRequested())
   {
-    ezLog::Info("Requested Screenshot Update");
-  }
-
-  if (m_ScreenshotTransfer2.IsTransferRequested())
-  {
-    ezLog::Info("Requested Screenshot2 Update");
-
-    ezDataTransferObject dto(m_ScreenshotTransfer2, "info", "text/text");
-    dto.GetWriter() << "pups";
+    
 
     ezUInt32 uiWidth = m_pWindow->GetResolution().width;
     ezUInt32 uiHeight = m_pWindow->GetResolution().height;
@@ -148,12 +141,30 @@ ezApplication::ApplicationExecution SampleGameApp::Run()
       }
     }
 
+    ezDataTransferObject dto(m_ScreenshotTransfer, "Result", "image/rgba8");
     dto.GetWriter() << uiWidth;
     dto.GetWriter() << uiHeight;
-    dto.GetWriter() << 4;
     dto.GetWriter().WriteBytes(&ImageCorrect[0], ImageCorrect.GetCount());
+    m_ScreenshotTransfer.Transfer(dto);
 
-    m_ScreenshotTransfer2.Transfer(dto);
+    ezDataTransferObject dto2(m_ScreenshotTransfer, "Result_Original", "image/rgba8");
+    dto2.GetWriter() << uiWidth;
+    dto2.GetWriter() << uiHeight;
+    dto2.GetWriter().WriteBytes(&Image[0], Image.GetCount());
+    m_ScreenshotTransfer.Transfer(dto2);
+  }
+
+  if (m_StatsTransfer.IsTransferRequested())
+  {
+    ezDataTransferObject dto(m_StatsTransfer, "Result", "text/xml");
+
+    ezStandardJSONWriter jw;
+    jw.SetOutputStream(&dto.GetWriter());
+      jw.BeginObject();
+    jw.AddVariableString("SomeString", "absolutely");
+    jw.EndObject();
+
+    m_StatsTransfer.Transfer(dto);
   }
 
   return ezApplication::Continue;

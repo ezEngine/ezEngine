@@ -18,22 +18,9 @@ ezDataWidget::ezDataWidget(QWidget* parent) : QDockWidget(parent)
 
 void ezDataWidget::ResetStats()
 {
-  for (auto it = m_Data.GetIterator(); it.IsValid(); ++it)
-    delete it.Value().m_pItem;
-
-  m_Data.Clear();
-  DataTable->clear();
-  DataTable->setRowCount(0);
-
-  {
-    QStringList Headers;
-    Headers.append("Transfer");
-
-    DataTable->setColumnCount(Headers.size());
-
-    DataTable->setHorizontalHeaderLabels(Headers);
-    DataTable->horizontalHeader()->show();
-  }
+  m_Transfers.Clear();
+  ComboTransfers->clear();
+  ComboItems->clear();
 }
 
 void ezDataWidget::ProcessTelemetry(void* pUnuseed)
@@ -55,23 +42,9 @@ void ezDataWidget::ProcessTelemetry(void* pUnuseed)
       ezString sName;
       msg.GetReader() >> sName;
 
-      TransferData& td = s_pWidget->m_Data[sName];
+      TransferData& td = s_pWidget->m_Transfers[sName];
 
-      if (td.m_iRow == -1)
-      {
-        const ezInt32 iRows = s_pWidget->DataTable->rowCount();
-
-        td.m_iRow = iRows;
-
-        s_pWidget->DataTable->setRowCount(iRows + 1);
-
-        if (s_pWidget->DataTable->item(iRows, 0) == NULL)
-        {
-          td.m_pItem = new QTableWidgetItem(sName.GetData());
-
-          s_pWidget->DataTable->setItem(iRows, 0, td.m_pItem);
-        }
-      }
+      s_pWidget->ComboTransfers->addItem(sName.GetData());
     }
 
     if (msg.GetMessageID() == 'DSBL')
@@ -79,14 +52,14 @@ void ezDataWidget::ProcessTelemetry(void* pUnuseed)
       ezString sName;
       msg.GetReader() >> sName;
 
-      auto it = s_pWidget->m_Data.Find(sName);
+      auto it = s_pWidget->m_Transfers.Find(sName);
 
       if (it.IsValid())
       {
-        if (it.Value().m_iRow != -1)
-          s_pWidget->DataTable->removeRow(it.Value().m_iRow);
+        ezInt32 iIndex = s_pWidget->ComboTransfers->findText(sName.GetData());
 
-        s_pWidget->m_Data.Erase(it);
+        if (iIndex >= 0)
+          s_pWidget->ComboTransfers->removeItem(iIndex);
       }
     }
 
@@ -98,71 +71,41 @@ void ezDataWidget::ProcessTelemetry(void* pUnuseed)
       msg.GetReader() >> sName;
       msg.GetReader() >> sMimeType;
 
-      auto Transfer = s_pWidget->m_Data.Find(sBelongsTo);
+      auto Transfer = s_pWidget->m_Transfers.Find(sBelongsTo);
 
       if (Transfer.IsValid())
       {
-        TransferDataObject& tdo = Transfer.Value().m_Objects[sName];
+        TransferDataObject& tdo = Transfer.Value().m_Items[sName];
         tdo.m_sMimeType = sMimeType;
-        msg.GetReader() >> tdo.m_sText;
 
-        ezInt32 iBits;
-        msg.GetReader() >> tdo.m_uiWidth;
-        msg.GetReader() >> tdo.m_uiHeight;
-        msg.GetReader() >> iBits;
+        ezMemoryStreamWriter Writer(&tdo.m_Storage);
 
-        ezStringBuilder s;
-        s.Format("Text: '%s', Image: %i * %i * %i", tdo.m_sText.GetData(), tdo.m_uiWidth, tdo.m_uiHeight, iBits);
-        tdo.m_sText = s.GetData();
-        
-        tdo.m_Image.SetCount(tdo.m_uiWidth * tdo.m_uiHeight * iBits);
-        msg.GetReader().ReadBytes(&tdo.m_Image[0], tdo.m_Image.GetCount());
+        // copy the entire memory stream over and store it for later
+        while (true)
+        {
+          ezUInt8 uiTemp[1024];
+          const ezUInt32 uiRead = msg.GetReader().ReadBytes(uiTemp, 1024);
+
+          if (uiRead == 0)
+            break;
+
+          Writer.WriteBytes(uiTemp, uiRead);
+        }
+
+        s_pWidget->on_ComboTransfers_currentIndexChanged(s_pWidget->ComboTransfers->currentIndex());
       }
-
-      s_pWidget->on_DataTable_itemSelectionChanged();
     }
-  }
-}
-
-void ezDataWidget::on_DataTable_itemSelectionChanged()
-{
-  if (DataTable->currentRow() < 0)
-    return;
-
-  if (DataTable->item(DataTable->currentRow(), 0) == NULL)
-    return;
-
-  const ezString sName = DataTable->item(DataTable->currentRow(), 0)->text().toUtf8().data();
-
-  auto it = m_Data.Find(sName);
-
-  if (!it.IsValid())
-    return;
-
-  if (it.Value().m_Objects.IsEmpty())
-    return;
-
-  const auto& Data = it.Value().m_Objects.GetIterator().Value();
-  LabelData->setText(Data.m_sText.GetData());
-
-  const ezDynamicArray<ezUInt8>& Image = Data.m_Image;
-
-  if (!Image.IsEmpty())
-  {
-    QImage i(&Image[0], Data.m_uiWidth, Data.m_uiHeight, QImage::Format_ARGB32);
-
-    LabelImage->setPixmap(QPixmap::fromImage(i));
   }
 }
 
 void ezDataWidget::on_ButtonRefresh_clicked()
 {
-  if (DataTable->currentRow() < 0)
+  if (ComboTransfers->currentIndex() < 0)
     return;
 
-  const ezString sName = DataTable->item(DataTable->currentRow(), 0)->text().toUtf8().data();
+  const ezString sName = ComboTransfers->currentText().toUtf8().data();
 
-  auto it = m_Data.Find(sName);
+  auto it = m_Transfers.Find(sName);
 
   if (!it.IsValid())
     return;
@@ -172,3 +115,81 @@ void ezDataWidget::on_ButtonRefresh_clicked()
   msg.GetWriter() << it.Key();
   ezTelemetry::SendToServer(msg);
 }
+
+void ezDataWidget::on_ComboTransfers_currentIndexChanged(int index)
+{
+  ComboItems->clear();
+
+  if (index < 0)
+    return;
+
+  ezString sName = ComboTransfers->currentText().toUtf8().data();
+
+  auto itTransfer = m_Transfers.Find(sName);
+
+  if (!itTransfer.IsValid())
+    return;
+
+  ComboItems->blockSignals(true);
+
+  for (auto itItem = itTransfer.Value().m_Items.GetIterator(); itItem.IsValid(); ++itItem)
+  {
+    ComboItems->addItem(itItem.Key().GetData());
+  }
+
+  ComboItems->setCurrentIndex(0);
+  ComboItems->blockSignals(false);
+  
+  on_ComboItems_currentIndexChanged(ComboItems->currentIndex());
+}
+
+void ezDataWidget::on_ComboItems_currentIndexChanged(int index)
+{
+  if (index < 0)
+    return;
+
+  ezString sTransfer = ComboTransfers->currentText().toUtf8().data();
+
+  auto itTransfer = m_Transfers.Find(sTransfer);
+  if (!itTransfer.IsValid())
+    return;
+
+  ezString sItem = ComboItems->currentText().toUtf8().data();
+
+  auto itItem = itTransfer.Value().m_Items.Find(sItem);
+  if (!itItem.IsValid())
+    return;
+
+  const ezString sMime = itItem.Value().m_sMimeType;
+  auto& Stream = itItem.Value().m_Storage;
+
+  ezMemoryStreamReader Reader(&Stream);
+
+  if (sMime == "image/rgba8")
+  {
+    ezUInt32 uiWidth, uiHeight;
+    Reader >> uiWidth;
+    Reader >> uiHeight;
+
+    ezDynamicArray<ezUInt8> Image;
+    Image.SetCount(uiWidth * uiHeight * 4);
+
+    Reader.ReadBytes(&Image[0], Image.GetCount());
+
+    QImage i(&Image[0], uiWidth, uiHeight, QImage::Format_ARGB32);
+
+    LabelImage->setPixmap(QPixmap::fromImage(i));
+  }
+
+  if (sMime == "text/xml")
+  {
+    ezHybridArray<ezUInt8, 1024> Temp;
+    Temp.SetCount(Reader.GetByteCount() + 1);
+
+    Reader.ReadBytes(&Temp[0], Reader.GetByteCount());
+    Temp[Reader.GetByteCount()] = '\0';
+
+    LabelImage->setText((const char*) &Temp[0]);
+  }
+}
+

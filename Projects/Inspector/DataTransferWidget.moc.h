@@ -4,6 +4,7 @@
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Strings/String.h>
 #include <Foundation/Containers/DynamicArray.h>
+#include <Foundation/IO/MemoryStream.h>
 #include <QDockWidget>
 #include <Projects/Inspector/ui_DataTransferWidget.h>
 
@@ -19,7 +20,8 @@ public:
 
 private slots:
   virtual void on_ButtonRefresh_clicked();
-  virtual void on_DataTable_itemSelectionChanged();
+  virtual void on_ComboTransfers_currentIndexChanged(int index);
+  virtual void on_ComboItems_currentIndexChanged(int index);
 
 public:
   static void ProcessTelemetry(void* pUnuseed);
@@ -30,29 +32,17 @@ private:
   struct TransferDataObject
   {
     ezString m_sMimeType;
-    ezString m_sText;
-    ezUInt32 m_uiWidth;
-    ezUInt32 m_uiHeight;
-    ezDynamicArray<ezUInt8> m_Image;
+    ezMemoryStreamStorage m_Storage;
   };
 
   struct TransferData
   {
-    TransferData()
-    {
-      m_iRow = -1;
-      m_pItem = NULL;
-    }
-
-    ezInt32 m_iRow;
-    QTableWidgetItem* m_pItem;
-
-    ezMap<ezString, TransferDataObject> m_Objects;
+    ezMap<ezString, TransferDataObject> m_Items;
   };
 
 
 
-  ezMap<ezString, TransferData> m_Data;
+  ezMap<ezString, TransferData> m_Transfers;
 };
 
 
