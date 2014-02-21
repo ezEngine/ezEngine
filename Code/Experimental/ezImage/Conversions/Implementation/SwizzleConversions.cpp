@@ -1,6 +1,4 @@
-#include <Conversions/SwizzleConversions.h>
-
-#include <ImageDefinitions.h>
+#include <ImageConversionMixin.h>
 
 struct ezImageSwizzleConversion32_2103_SSE2 : public ezImageConversionMixinLinear<ezImageSwizzleConversion32_2103_SSE2>
 {

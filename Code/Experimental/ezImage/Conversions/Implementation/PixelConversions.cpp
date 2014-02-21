@@ -83,8 +83,8 @@ struct ezImageConversion_F32_U8 : public ezImageConversionMixinLinear<ezImageCon
   static const ezUInt32 s_uiTargetBpp = 32;
   static const ezUInt32 s_uiMultiConversionSize = 1;
 
-  typedef ezRgbaF SourceTypeSingle;
-  typedef ezRgba TargetTypeSingle;
+  typedef ezColor SourceTypeSingle;
+  typedef ezColor8UNorm TargetTypeSingle;
 
   ezImageConversion_F32_U8()
   {
@@ -99,8 +99,8 @@ struct ezImageConversion_F32_U8 : public ezImageConversionMixinLinear<ezImageCon
     pTarget[0].a = static_cast<ezUInt8>(ezMath::Clamp(floor(pSource[0].a * 0xFF + 0.5f), 0.0f, 255.0f));
   }
 
-  typedef ezRgbaF SourceTypeMultiple;
-  typedef ezRgba TargetTypeMultiple;
+  typedef ezColor SourceTypeMultiple;
+  typedef ezColor8UNorm TargetTypeMultiple;
 
   static void ConvertMultiple(const SourceTypeMultiple* pSource, TargetTypeMultiple* pTarget)
   {
@@ -141,9 +141,9 @@ public:
 };
 
 
-ezBgra ezDecompress565(ezUInt16 uiColor)
+ezColorBgra8UNorm ezDecompress565(ezUInt16 uiColor)
 {
-  ezBgra result;
+  ezColorBgra8UNorm result;
   result.b = (uiColor & 0x001Fu) * 255 / 31;
   result.g = (uiColor & 0x07E0u) * 255 / 2016;
   result.r = (uiColor & 0xF800u) * 255 / 63488;

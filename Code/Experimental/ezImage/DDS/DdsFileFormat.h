@@ -2,7 +2,7 @@
 
 #include <ImageFileFormat.h>
 
-class ezDdsFormat : public ezIImageFileFormat
+class ezDdsFormat : public ezImageFileFormatBase
 {
 public:
   virtual ezResult ReadImage(ezStreamReaderBase& stream, ezImage& image, ezStringBuilder& errorOut) const EZ_OVERRIDE;

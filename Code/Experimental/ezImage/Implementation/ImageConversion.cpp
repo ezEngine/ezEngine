@@ -1,10 +1,10 @@
 #include <ImageConversion.h>
 
-EZ_ENUMERABLE_CLASS_IMPLEMENTATION(ezIImageConversion);
+EZ_ENUMERABLE_CLASS_IMPLEMENTATION(ezImageConversionBase);
 
 namespace
 {
-  ezStaticArray<const ezIImageConversion*, ezImageFormat::NUM_FORMATS * ezImageFormat::NUM_FORMATS> s_conversionTable;
+  ezStaticArray<const ezImageConversionBase*, ezImageFormat::NUM_FORMATS * ezImageFormat::NUM_FORMATS> s_conversionTable;
   ezStaticArray<ezUInt32, ezImageFormat::NUM_FORMATS * ezImageFormat::NUM_FORMATS> s_subConversionTable;
   ezStaticArray<float, ezImageFormat::NUM_FORMATS * ezImageFormat::NUM_FORMATS> s_costTable;
   bool s_bConversionTableValid = false;
@@ -35,7 +35,7 @@ namespace
   }
 }
 
-void ezIImageConversion::RebuildConversionTable()
+void ezImageConversionBase::RebuildConversionTable()
 {
   s_conversionTable.SetCount(ezImageFormat::NUM_FORMATS * ezImageFormat::NUM_FORMATS);
   s_subConversionTable.SetCount(ezImageFormat::NUM_FORMATS * ezImageFormat::NUM_FORMATS);
@@ -48,7 +48,7 @@ void ezIImageConversion::RebuildConversionTable()
   }
 
   // Prime conversion table with known conversions
-  for(ezIImageConversion* pConversion = ezIImageConversion::GetFirstInstance(); pConversion; pConversion = pConversion->GetNextInstance())
+  for(ezImageConversionBase* pConversion = ezImageConversionBase::GetFirstInstance(); pConversion; pConversion = pConversion->GetNextInstance())
   {
     for(ezUInt32 uiSubConversion = 0; uiSubConversion < pConversion->m_subConversions.GetCount(); uiSubConversion++)
     {
@@ -94,7 +94,7 @@ void ezIImageConversion::RebuildConversionTable()
         {
           s_costTable[uiTableIndexIJ] = s_costTable[uiTableIndexIK] + s_costTable[uiTableIndexKJ];
 
-          const ezIImageConversion* pConversion = s_conversionTable[uiTableIndexIK];
+          const ezImageConversionBase* pConversion = s_conversionTable[uiTableIndexIK];
 
           // To convert from format I to format J, first convert from I to K
           s_conversionTable[uiTableIndexIJ] = pConversion;
@@ -108,7 +108,7 @@ void ezIImageConversion::RebuildConversionTable()
 }
 
 
-ezResult ezIImageConversion::Convert(const ezImage& source, ezImage& target, ezImageFormat::Enum targetFormat)
+ezResult ezImageConversionBase::Convert(const ezImage& source, ezImage& target, ezImageFormat::Enum targetFormat)
 {
   ezImageFormat::Enum sourceFormat = source.GetImageFormat();
 
@@ -132,7 +132,7 @@ ezResult ezIImageConversion::Convert(const ezImage& source, ezImage& target, ezI
     return EZ_FAILURE;
   }
 
-  const ezIImageConversion* pConversion = s_conversionTable[uiCurrentTableIndex];
+  const ezImageConversionBase* pConversion = s_conversionTable[uiCurrentTableIndex];
   const SubConversion& subConversion = pConversion->m_subConversions[s_subConversionTable[uiCurrentTableIndex]];
 
   if(subConversion.m_targetFormat == targetFormat)
@@ -159,17 +159,17 @@ ezResult ezIImageConversion::Convert(const ezImage& source, ezImage& target, ezI
   }
 }
 
-ezIImageConversion::ezIImageConversion()
+ezImageConversionBase::ezImageConversionBase()
 {
   s_bConversionTableValid = false;
 }
 
-ezIImageConversion::~ezIImageConversion()
+ezImageConversionBase::~ezImageConversionBase()
 {
   s_bConversionTableValid = false;
 }
 
-ezImageFormat::Enum ezIImageConversion::FindClosestCompatibleFormat(ezImageFormat::Enum format, const ezImageFormat::Enum* pCompatibleFormats, ezUInt32 uiNumCompatible)
+ezImageFormat::Enum ezImageConversionBase::FindClosestCompatibleFormat(ezImageFormat::Enum format, const ezImageFormat::Enum* pCompatibleFormats, ezUInt32 uiNumCompatible)
 {
   if(!s_bConversionTableValid)
   {

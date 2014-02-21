@@ -103,7 +103,7 @@ ezResult ezBmpFileFormat::WriteImage(ezStreamWriterBase& stream, const ezImage& 
   };
 
   // Find a compatible format closest to the one the image currently has
-  ezImageFormat::Enum format = ezIImageConversion::FindClosestCompatibleFormat(image.GetImageFormat(), compatibleFormats);
+  ezImageFormat::Enum format = ezImageConversionBase::FindClosestCompatibleFormat(image.GetImageFormat(), compatibleFormats);
 
   if(format == ezImageFormat::UNKNOWN)
   {
@@ -115,7 +115,7 @@ ezResult ezBmpFileFormat::WriteImage(ezStreamWriterBase& stream, const ezImage& 
   if(format != image.GetImageFormat())
   {
     ezImage convertedImage;
-    if(ezIImageConversion::Convert(image, convertedImage, format) != EZ_SUCCESS)
+    if(ezImageConversionBase::Convert(image, convertedImage, format) != EZ_SUCCESS)
     {
       // This should never happen
       EZ_ASSERT(false, "ezImageConversion::Convert failed even though the conversion was to the format returned by FindClosestCompatibleFormat.");

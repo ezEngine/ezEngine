@@ -3,7 +3,6 @@
 #include <Foundation/Basics/Types.h>
 #include <Foundation/Containers/DynamicArray.h>
 
-#include "ImageDefinitions.h"
 #include "Image.h"
 #include "Foundation/Configuration/Startup.h"
 #include "ImageConversion.h"
@@ -21,9 +20,6 @@
 int main()
 {
   ezStartup::StartupCore();
-  // Does this now work by default?
-  // ezImageConversion::Startup();
-  // ezImageFormat::Initialize();
 
   ezStringBuilder dataDir = BUILDSYSTEM_OUTPUT_FOLDER;
 
@@ -32,7 +28,7 @@ int main()
   ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
   ezFileSystem::AddDataDirectory(dataDir.GetData());
 
-  ezIImageFileFormat* bmpFormat = new ezBmpFileFormat;
+  ezImageFileFormatBase* bmpFormat = new ezBmpFileFormat;
 
   const char* testImagesGood[] =
   {
@@ -85,8 +81,5 @@ int main()
     }
   }
 
-  // Does this now work by default?
-  // ezImageConversion::Shutdown();
   ezStartup::ShutdownBase();
-  ezStartup::ShutdownCore();
 }

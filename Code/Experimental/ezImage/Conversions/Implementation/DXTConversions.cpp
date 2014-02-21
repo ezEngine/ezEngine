@@ -2,28 +2,27 @@
 
 #include <Foundation/Basics.h>
 
-#include <ImageDefinitions.h>
 #include <ImageConversionMixin.h>
 #include <Conversions/PixelConversions.h>
 
-void ezDecompressBlockBC1(const ezUInt8* pSource, ezBgra* pTarget, bool bForceFourColorMode)
+void ezDecompressBlockBC1(const ezUInt8* pSource, ezColorBgra8UNorm* pTarget, bool bForceFourColorMode)
 {
   ezUInt16 uiColor0 = pSource[0] | (pSource[1] << 8);
   ezUInt16 uiColor1 = pSource[2] | (pSource[3] << 8);
 
-  ezBgra colors[4];
+  ezColorBgra8UNorm colors[4];
 
   colors[0] = ezDecompress565(pSource[0] | (pSource[1] << 8));
   colors[1] = ezDecompress565(pSource[2] | (pSource[3] << 8));
 
   if(uiColor0 > uiColor1 || bForceFourColorMode)
   {
-    colors[2] = ezBgra(
+    colors[2] = ezColorBgra8UNorm(
       (2 * colors[0].b + colors[1].b + 1) / 3,
       (2 * colors[0].g + colors[1].g + 1) / 3,
       (2 * colors[0].r + colors[1].r + 1) / 3,
       0xFF);
-    colors[3] = ezBgra(
+    colors[3] = ezColorBgra8UNorm(
       (colors[0].b + 2 * colors[1].b + 1) / 3,
       (colors[0].g + 2 * colors[1].g + 1) / 3,
       (colors[0].r + 2 * colors[1].r + 1) / 3,
@@ -31,12 +30,12 @@ void ezDecompressBlockBC1(const ezUInt8* pSource, ezBgra* pTarget, bool bForceFo
   }
   else
   {
-    colors[2] = ezBgra(
+    colors[2] = ezColorBgra8UNorm(
       (colors[0].b + colors[1].b) / 2,
       (colors[0].g + colors[1].g) / 2,
       (colors[0].r + colors[1].r) / 2,
       0xFF);
-    colors[3] = ezBgra(0, 0, 0, 0);
+    colors[3] = ezColorBgra8UNorm(0, 0, 0, 0);
   }
 
   for(ezUInt32 uiByteIdx = 0; uiByteIdx < 4; uiByteIdx++)
@@ -101,7 +100,7 @@ public:
   static const ezUInt32 s_uiTargetBpp = 32;
 
   typedef ezUInt8 SourceType;
-  typedef ezBgra TargetType;
+  typedef ezColorBgra8UNorm TargetType;
 
   ezImageConversion_BC1_BGRA()
   {
@@ -121,7 +120,7 @@ public:
   static const ezUInt32 s_uiTargetBpp = 32;
 
   typedef ezUInt8 SourceType;
-  typedef ezBgra TargetType;
+  typedef ezColorBgra8UNorm TargetType;
 
   ezImageConversion_BC2_BGRA()
   {
@@ -149,7 +148,7 @@ public:
   static const ezUInt32 s_uiTargetBpp = 32;
 
   typedef ezUInt8 SourceType;
-  typedef ezBgra TargetType;
+  typedef ezColorBgra8UNorm TargetType;
 
   ezImageConversion_BC3_BGRA()
   {

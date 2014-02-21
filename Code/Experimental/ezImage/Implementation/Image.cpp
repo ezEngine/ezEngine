@@ -63,7 +63,7 @@ ezResult ezImage::LoadFrom(const char* szFileName)
 
   ezStringIterator it = ezPathUtils::GetFileExtension(szFileName);
   
-  for(ezIImageFileFormat* pFormat = ezIImageFileFormat::GetFirstInstance(); pFormat; pFormat = pFormat->GetNextInstance())
+  for(ezImageFileFormatBase* pFormat = ezImageFileFormatBase::GetFirstInstance(); pFormat; pFormat = pFormat->GetNextInstance())
   {
     if(pFormat->IsKnownExtension(it.GetData()))
     {
@@ -94,7 +94,7 @@ ezResult ezImage::SaveTo(const char* szFileName)
 
   ezStringIterator it = ezPathUtils::GetFileExtension(szFileName);
 
-  for(ezIImageFileFormat* pFormat = ezIImageFileFormat::GetFirstInstance(); pFormat; pFormat = pFormat->GetNextInstance())
+  for(ezImageFileFormatBase* pFormat = ezImageFileFormatBase::GetFirstInstance(); pFormat; pFormat = pFormat->GetNextInstance())
   {
     if(pFormat->IsKnownExtension(it.GetData()))
     {

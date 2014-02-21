@@ -1,7 +1,6 @@
 #include <Conversions/BC6Conversions.h>
 
 #include <ImageConversionMixin.h>
-#include <ImageDefinitions.h>
 
 template<bool bSigned>
 class ezImageConversion_BC6_RGBA : public ezImageConversionMixinBlockDecompression<ezImageConversion_BC6_RGBA<bSigned> >
@@ -11,7 +10,7 @@ public:
   static const ezUInt32 s_uiTargetBpp = 128;
 
   typedef ezUInt8 SourceType;
-  typedef ezRgbaF TargetType;
+  typedef ezColor TargetType;
   
   ezImageConversion_BC6_RGBA()
   {

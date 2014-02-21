@@ -9,7 +9,7 @@ class ezStreamWriterBase;
 class ezImage;
 class ezStringBuilder;
 
-class ezIImageFileFormat : public ezEnumerable<ezIImageFileFormat>
+class ezImageFileFormatBase : public ezEnumerable<ezImageFileFormatBase>
 {
 public:
   virtual ezResult ReadImage(ezStreamReaderBase& stream, ezImage& image, ezStringBuilder& errorOut) const = 0;
@@ -17,5 +17,5 @@ public:
 
   virtual bool IsKnownExtension(const char* szExtension) const = 0;
 
-  EZ_DECLARE_ENUMERABLE_CLASS(ezIImageFileFormat);
+  EZ_DECLARE_ENUMERABLE_CLASS(ezImageFileFormatBase);
 };
