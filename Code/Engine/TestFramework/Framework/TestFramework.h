@@ -2,6 +2,7 @@
 
 #include <TestFramework/Basics.h>
 #include <Foundation/Profiling/Profiling.h>
+#include <Foundation/Strings/StringUtils.h>
 #include <TestFramework/Framework/Declarations.h>
 #include <TestFramework/Framework/TestBaseClass.h>
 #include <TestFramework/Framework/SimpleTest.h>
@@ -133,9 +134,11 @@ struct ezTestBlock
 #define EZ_TEST_DEBUG_BREAK if (ezTestFramework::GetAssertOnTestFail())\
   EZ_DEBUG_BREAK
 
-#define EZ_TEST_FAILURE(erroroutput, msg) \
+#define EZ_TEST_FAILURE(erroroutput, msg, ...) \
 {\
-  ezTestFramework::Error(erroroutput, EZ_SOURCE_FILE, EZ_SOURCE_LINE, EZ_SOURCE_FUNCTION, msg);\
+  char szTemp[1024]; \
+  ezStringUtils::snprintf(szTemp, 1024, msg, __VA_ARGS__); \
+  ezTestFramework::Error(erroroutput, EZ_SOURCE_FILE, EZ_SOURCE_LINE, EZ_SOURCE_FUNCTION, szTemp);\
   EZ_TEST_DEBUG_BREAK \
 }
 
@@ -143,9 +146,9 @@ struct ezTestBlock
 #define EZ_TEST_BOOL(condition) EZ_TEST_BOOL_MSG(condition, "")
 
 /// \brief Tests for a boolean condition, outputs a custom message on failure.
-#define EZ_TEST_BOOL_MSG(condition, msg) if (!(condition)) \
+#define EZ_TEST_BOOL_MSG(condition, msg, ...) if (!(condition)) \
 { \
-  EZ_TEST_FAILURE("Test failed: " EZ_STRINGIZE(condition), msg) \
+  EZ_TEST_FAILURE("Test failed: " EZ_STRINGIZE(condition), msg, __VA_ARGS__) \
 }
 
 inline float ToFloat(int f) { return (float) f; }
@@ -156,7 +159,7 @@ inline float ToFloat(double f) { return (float) f; }
 #define EZ_TEST_FLOAT(f1, f2, epsilon) EZ_TEST_FLOAT_MSG(f1, f2, epsilon, "")
 
 /// \brief Tests two floats for equality, within a given epsilon. On failure both actual and expected values are output, also a custom message is printed.
-#define EZ_TEST_FLOAT_MSG(f1, f2, epsilon, msg) \
+#define EZ_TEST_FLOAT_MSG(f1, f2, epsilon, msg, ...) \
 { \
   const float internal_r1 = ToFloat(f1); \
   const float internal_r2 = ToFloat(f2); \
@@ -166,7 +169,7 @@ inline float ToFloat(double f) { return (float) f; }
   { \
     char szLocal_TestMacro[256]; \
     sprintf (szLocal_TestMacro, "Failure: '%s' (%.8f) does not equal '%s' (%.8f) within an epsilon of %.8f", EZ_STRINGIZE(f1), internal_r1, EZ_STRINGIZE(f2), internal_r2, internal_fEps); \
-    EZ_TEST_FAILURE(szLocal_TestMacro, msg); \
+    EZ_TEST_FAILURE(szLocal_TestMacro, msg, __VA_ARGS__); \
   } \
 }
 
@@ -174,7 +177,7 @@ inline float ToFloat(double f) { return (float) f; }
 #define EZ_TEST_DOUBLE(f1, f2, epsilon) EZ_TEST_DOUBLE_MSG(f1, f2, epsilon, "")
 
 /// \brief Tests two doubles for equality, within a given epsilon. On failure both actual and expected values are output, also a custom message is printed.
-#define EZ_TEST_DOUBLE_MSG(f1, f2, epsilon, msg) \
+#define EZ_TEST_DOUBLE_MSG(f1, f2, epsilon, msg, ...) \
 { \
   const double internal_r1 = (f1); \
   const double internal_r2 = (f2); \
@@ -184,7 +187,7 @@ inline float ToFloat(double f) { return (float) f; }
   { \
     char szLocal_TestMacro[256]; \
     sprintf (szLocal_TestMacro, "Failure: '%s' (%.8f) does not equal '%s' (%.8f) within an epsilon of %.8f", EZ_STRINGIZE(f1), internal_r1, EZ_STRINGIZE(f2), internal_r2, internal_fEps); \
-    EZ_TEST_FAILURE(szLocal_TestMacro, msg); \
+    EZ_TEST_FAILURE(szLocal_TestMacro, msg, __VA_ARGS__); \
   } \
 }
 
@@ -192,7 +195,7 @@ inline float ToFloat(double f) { return (float) f; }
 #define EZ_TEST_INT(i1, i2) EZ_TEST_INT_MSG(i1, i2, "")
 
 /// \brief Tests two ints for equality. On failure both actual and expected values are output, also a custom message is printed.
-#define EZ_TEST_INT_MSG(i1, i2, msg) \
+#define EZ_TEST_INT_MSG(i1, i2, msg, ...) \
 { \
   const ezInt32 internal_r1 = (ezInt32) (i1); \
   const ezInt32 internal_r2 = (ezInt32) (i2); \
@@ -201,7 +204,7 @@ inline float ToFloat(double f) { return (float) f; }
   { \
     char szLocal_TestMacro[256]; \
     sprintf (szLocal_TestMacro, "Failure: '%s' (%i) does not equal '%s' (%i)", EZ_STRINGIZE(i1), internal_r1, EZ_STRINGIZE(i2), internal_r2); \
-    EZ_TEST_FAILURE(szLocal_TestMacro, msg); \
+    EZ_TEST_FAILURE(szLocal_TestMacro, msg, __VA_ARGS__); \
   } \
 }
 
@@ -209,7 +212,7 @@ inline float ToFloat(double f) { return (float) f; }
 #define EZ_TEST_STRING(i1, i2) EZ_TEST_STRING_MSG(i1, i2, "")
 
 /// \brief Tests two strings for equality. On failure both actual and expected values are output, also a custom message is printed.
-#define EZ_TEST_STRING_MSG(s1, s2, msg) \
+#define EZ_TEST_STRING_MSG(s1, s2, msg, ...) \
 { \
   const char* internal_sz1 = s1; \
   const char* internal_sz2 = s2; \
@@ -218,7 +221,7 @@ inline float ToFloat(double f) { return (float) f; }
   { \
     char szLocal_TestMacro[512]; \
     sprintf (szLocal_TestMacro, "Failure: '%s' (%s) does not equal '%s' (%s)", EZ_STRINGIZE(internal_s1), internal_sz1, EZ_STRINGIZE(internal_s2), internal_sz2); \
-    EZ_TEST_FAILURE(szLocal_TestMacro, msg); \
+    EZ_TEST_FAILURE(szLocal_TestMacro, msg, __VA_ARGS__); \
   } \
 }
 
@@ -226,41 +229,41 @@ inline float ToFloat(double f) { return (float) f; }
 #define EZ_TEST_VEC2(i1, i2, epsilon) EZ_TEST_VEC2_MSG(i1, i2, epsilon, "")
 
 /// \brief Tests two ezVec2's for equality. On failure both actual and expected values are output, also a custom message is printed.
-#define EZ_TEST_VEC2_MSG(r1, r2, epsilon, msg) \
+#define EZ_TEST_VEC2_MSG(r1, r2, epsilon, msg, ...) \
 { \
   const ezVec2T internal_v1 = (ezVec2T) (r1); \
   const ezVec2T internal_v2 = (ezVec2T) (r2); \
   \
-  EZ_TEST_FLOAT_MSG(internal_v1.x, internal_v2.x, epsilon, msg); \
-  EZ_TEST_FLOAT_MSG(internal_v1.y, internal_v2.y, epsilon, msg); \
+  EZ_TEST_FLOAT_MSG(internal_v1.x, internal_v2.x, epsilon, msg, __VA_ARGS__); \
+  EZ_TEST_FLOAT_MSG(internal_v1.y, internal_v2.y, epsilon, msg, __VA_ARGS__); \
 }
 
 /// \brief Tests two ezVec3's for equality, using some epsilon. On failure both actual and expected values are output.
 #define EZ_TEST_VEC3(i1, i2, epsilon) EZ_TEST_VEC3_MSG(i1, i2, epsilon, "")
 
 /// \brief Tests two ezVec3's for equality. On failure both actual and expected values are output, also a custom message is printed.
-#define EZ_TEST_VEC3_MSG(r1, r2, epsilon, msg) \
+#define EZ_TEST_VEC3_MSG(r1, r2, epsilon, msg, ...) \
 { \
   const ezVec3T internal_v1 = (ezVec3T) (r1); \
   const ezVec3T internal_v2 = (ezVec3T) (r2); \
   \
-  EZ_TEST_FLOAT_MSG(internal_v1.x, internal_v2.x, epsilon, msg); \
-  EZ_TEST_FLOAT_MSG(internal_v1.y, internal_v2.y, epsilon, msg); \
-  EZ_TEST_FLOAT_MSG(internal_v1.z, internal_v2.z, epsilon, msg); \
+  EZ_TEST_FLOAT_MSG(internal_v1.x, internal_v2.x, epsilon, msg, __VA_ARGS__); \
+  EZ_TEST_FLOAT_MSG(internal_v1.y, internal_v2.y, epsilon, msg, __VA_ARGS__); \
+  EZ_TEST_FLOAT_MSG(internal_v1.z, internal_v2.z, epsilon, msg, __VA_ARGS__); \
 }
 
 /// \brief Tests two ezVec4's for equality, using some epsilon. On failure both actual and expected values are output.
 #define EZ_TEST_VEC4(i1, i2, epsilon) EZ_TEST_VEC4_MSG(i1, i2, epsilon, "")
 
 /// \brief Tests two ezVec4's for equality. On failure both actual and expected values are output, also a custom message is printed.
-#define EZ_TEST_VEC4_MSG(r1, r2, epsilon, msg) \
+#define EZ_TEST_VEC4_MSG(r1, r2, epsilon, msg, ...) \
 { \
   const ezVec4T internal_v1 = (ezVec4T) (r1); \
   const ezVec4T internal_v2 = (ezVec4T) (r2); \
   \
-  EZ_TEST_FLOAT_MSG(internal_v1.x, internal_v2.x, epsilon, msg); \
-  EZ_TEST_FLOAT_MSG(internal_v1.y, internal_v2.y, epsilon, msg); \
-  EZ_TEST_FLOAT_MSG(internal_v1.z, internal_v2.z, epsilon, msg); \
-  EZ_TEST_FLOAT_MSG(internal_v1.w, internal_v2.w, epsilon, msg); \
+  EZ_TEST_FLOAT_MSG(internal_v1.x, internal_v2.x, epsilon, msg, __VA_ARGS__); \
+  EZ_TEST_FLOAT_MSG(internal_v1.y, internal_v2.y, epsilon, msg, __VA_ARGS__); \
+  EZ_TEST_FLOAT_MSG(internal_v1.z, internal_v2.z, epsilon, msg, __VA_ARGS__); \
+  EZ_TEST_FLOAT_MSG(internal_v1.w, internal_v2.w, epsilon, msg, __VA_ARGS__); \
 }
 
