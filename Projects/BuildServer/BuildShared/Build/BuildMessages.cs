@@ -1,0 +1,45 @@
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Text;
+using System.Web.Script.Serialization;
+using Newtonsoft.Json.Linq;
+
+namespace BuildShared
+{
+  /// <summary>
+  /// Supported http request codes by the CNC tool.
+  /// Passed as "type=%d" parameter to the server.
+  /// </summary>
+  public enum ezBuildRequestMessageType
+  {
+    POSTConfiguration = 0,
+    GETPing = 1,
+    GETWork = 2,
+    POSTBuildResult = 3,
+    GETStatus = 4,
+    INVALID_REQUEST
+  }
+
+  /// <summary>
+  /// Response to the GETWork http request.
+  /// </summary>
+  public class ezGETWorkResponse
+  {
+    public ezGETWorkResponse()
+    {
+      Response = WorkResponse.Idle;
+      Revision = -1;
+    }
+    public enum WorkResponse
+    {
+      Idle,
+      RunBuild
+    }
+
+    public int Revision { get; set; }
+    public WorkResponse Response { get; set; }
+  }
+}
+
