@@ -556,7 +556,10 @@ ENDMACRO()
 ## Include directories
 
 include_directories ("${CMAKE_CURRENT_LIST_DIR}/../../Engine")   # this way it will also work for applications
-include_directories ("${CMAKE_CURRENT_LIST_DIR}/../../../Projects")      # different projects may need to include from each other
+include_directories ("${CMAKE_CURRENT_LIST_DIR}/../../../Projects")
+include_directories ("${CMAKE_CURRENT_LIST_DIR}/../../../Tools")
+include_directories ("${CMAKE_CURRENT_LIST_DIR}/../../../Samples")
+include_directories ("${CMAKE_CURRENT_LIST_DIR}/../../../UnitTests")
 include_directories ("${CMAKE_CURRENT_LIST_DIR}/../../ThirdParty")
 
 if (EZ_BUILD_EXPERIMENTAL)
