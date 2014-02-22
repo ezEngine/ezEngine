@@ -177,10 +177,10 @@ void ezImageFormat::Shutdown()
 
 ezImageFormat::Enum ezImageFormat::FromPixelMask(ezUInt32 uiRedMask, ezUInt32 uiGreenMask, ezUInt32 uiBlueMask, ezUInt32 uiAlphaMask)
 {
-  for(ezUInt32 uiFormat = 0; uiFormat < NUM_FORMATS; uiFormat++)
+  for (ezUInt32 uiFormat = 0; uiFormat < NUM_FORMATS; uiFormat++)
   {
     Enum format = static_cast<Enum>(uiFormat);
-    if(GetRedMask(format) == uiRedMask && GetGreenMask(format) == uiGreenMask && GetBlueMask(format) == uiBlueMask && GetAlphaMask(format) == uiAlphaMask)
+    if (GetRedMask(format) == uiRedMask && GetGreenMask(format) == uiGreenMask && GetBlueMask(format) == uiBlueMask && GetAlphaMask(format) == uiAlphaMask)
     {
       return format;
     }
@@ -220,3 +220,8 @@ ezImageFormatType::Enum ezImageFormat::GetType(Enum format)
 {
   return s_formatMetaData[format].m_formatType;
 }
+
+
+
+EZ_STATICLINK_FILE(CoreUtils, CoreUtils_Image_Implementation_ImageFormat);
+

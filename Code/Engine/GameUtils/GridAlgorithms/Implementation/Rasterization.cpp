@@ -120,7 +120,7 @@ ezRasterizationResult::Enum ez2DGridUtils::ComputePointsOnCircle(ezInt32 iStartX
   // the loop iterates over an eighth of the circle (a 45 degree segment) and then mirrors each point 8 times to fill the entire circle
   while (x < y)
   {
-    if(f >= 0) 
+    if (f >= 0) 
     {
       y--;
       ddF_y += 2;

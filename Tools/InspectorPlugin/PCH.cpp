@@ -2,7 +2,7 @@
 
 EZ_STATICLINK_LIBRARY(InspectorPlugin)
 {
-  if(bReturn)
+  if (bReturn)
     return;
 
   EZ_STATICLINK_REFERENCE(InspectorPlugin_App);

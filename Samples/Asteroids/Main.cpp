@@ -74,7 +74,7 @@ ezApplication::ApplicationExecution SampleGameApp::Run()
 
   m_bActiveRenderLoop = m_bActiveRenderLoop && (m_pWindow->ProcessWindowMessages() == ezWindow::Continue);
 
-  if(!m_bActiveRenderLoop)
+  if (!m_bActiveRenderLoop)
     return ezApplication::Quit;
 
   ezClock::UpdateAllGlobalClocks();

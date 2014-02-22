@@ -13,7 +13,7 @@ void ezDecompressBlockBC1(const ezUInt8* pSource, ezColorBgra8UNorm* pTarget, bo
   colors[0] = ezDecompress565(pSource[0] | (pSource[1] << 8));
   colors[1] = ezDecompress565(pSource[2] | (pSource[3] << 8));
 
-  if(uiColor0 > uiColor1 || bForceFourColorMode)
+  if (uiColor0 > uiColor1 || bForceFourColorMode)
   {
     colors[2] = ezColorBgra8UNorm(
       (2 * colors[0].b + colors[1].b + 1) / 3,
@@ -36,7 +36,7 @@ void ezDecompressBlockBC1(const ezUInt8* pSource, ezColorBgra8UNorm* pTarget, bo
     colors[3] = ezColorBgra8UNorm(0, 0, 0, 0);
   }
 
-  for(ezUInt32 uiByteIdx = 0; uiByteIdx < 4; uiByteIdx++)
+  for (ezUInt32 uiByteIdx = 0; uiByteIdx < 4; uiByteIdx++)
   {
     ezUInt8 uiIndices = pSource[4 + uiByteIdx];
 
@@ -54,7 +54,7 @@ void ezDecompressBlockBC4(const ezUInt8* pSource, ezUInt8* pTarget, ezUInt32 uiS
   uiAlphas[0] = pSource[0];
   uiAlphas[1] = pSource[1];
 
-  if(uiAlphas[0] > uiAlphas[1])
+  if (uiAlphas[0] > uiAlphas[1])
   {
     uiAlphas[2] = (6 * uiAlphas[0] + 1 * uiAlphas[1] + 3) / 7;
     uiAlphas[3] = (5 * uiAlphas[0] + 2 * uiAlphas[1] + 3) / 7;
@@ -73,7 +73,7 @@ void ezDecompressBlockBC4(const ezUInt8* pSource, ezUInt8* pTarget, ezUInt32 uiS
     uiAlphas[7] = 0xFF;
   }
 
-  for(ezUInt32 uiTripleIdx = 0; uiTripleIdx < 2; uiTripleIdx++)
+  for (ezUInt32 uiTripleIdx = 0; uiTripleIdx < 2; uiTripleIdx++)
   {
     ezUInt32 uiIndices =
       pSource[2 + uiTripleIdx * 3 + 0] << 0 |
@@ -129,7 +129,7 @@ public:
   {
     ezDecompressBlockBC1(pSource + 8, pTarget, true);
 
-    for(ezUInt32 uiByteIdx = 0; uiByteIdx < 8; uiByteIdx++)
+    for (ezUInt32 uiByteIdx = 0; uiByteIdx < 8; uiByteIdx++)
     {
       ezUInt8 uiIndices = pSource[uiByteIdx];
 
@@ -206,3 +206,8 @@ static ezImageConversion_BC2_BGRA g_conversionBC2;
 static ezImageConversion_BC3_BGRA g_conversionBC3;
 static ezImageConversion_BC4_R g_conversionBC4;
 static ezImageConversion_BC5_RG g_conversionBC5;
+
+
+
+EZ_STATICLINK_FILE(CoreUtils, CoreUtils_Image_Conversions_DXTConversions);
+

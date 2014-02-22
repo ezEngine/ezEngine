@@ -171,3 +171,7 @@ void ezDataTransfer::SendAllDataTransfers()
   }
 }
 
+
+
+EZ_STATICLINK_FILE(CoreUtils, CoreUtils_Debugging_Implementation_DataTransfer);
+

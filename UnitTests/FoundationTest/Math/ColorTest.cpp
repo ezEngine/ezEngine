@@ -131,7 +131,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Color)
     // hsv test - took some samples from http://www.javascripter.net/faq/rgb2hsv.htm
     ezVec3 rgb[] = { ezVec3(1,1,1), ezVec3(0,0,0), ezVec3(123, 12, 1) / 255.0f, ezVec3(31, 112, 153) / 255.0f };
     ezVec3 hsv[] = { ezVec3(0,0,1), ezVec3(0,0,0), ezVec3(5.4f, 0.991f, 0.48f), ezVec3(200.2f, 0.797f, 0.600f)};
-    for(int i=0; i<4; ++i)
+    for (int i=0; i<4; ++i)
     {
       ezColor color;
       color.SetRGB(rgb[i]);

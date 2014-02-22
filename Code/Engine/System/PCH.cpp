@@ -4,7 +4,7 @@
 
 EZ_STATICLINK_LIBRARY(System)
 {
-  if(bReturn)
+  if (bReturn)
     return;
 
   EZ_STATICLINK_REFERENCE(System_Window_Implementation_Window);

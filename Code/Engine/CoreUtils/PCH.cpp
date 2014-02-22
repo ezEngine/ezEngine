@@ -3,13 +3,26 @@
 
 EZ_STATICLINK_LIBRARY(CoreUtils)
 {
-  if(bReturn)
+  if (bReturn)
     return;
 
   EZ_STATICLINK_REFERENCE(CoreUtils_DataStructures_DynamicTree_Implementation_DynamicOctree);
   EZ_STATICLINK_REFERENCE(CoreUtils_DataStructures_DynamicTree_Implementation_DynamicQuadtree);
+  EZ_STATICLINK_REFERENCE(CoreUtils_Debugging_Implementation_DataTransfer);
   EZ_STATICLINK_REFERENCE(CoreUtils_Graphics_Implementation_Camera);
-  EZ_STATICLINK_REFERENCE(CoreUtils_ImageWriters_Implementation_BMPWriter);
+  EZ_STATICLINK_REFERENCE(CoreUtils_Image_Conversions_BC6Conversions);
+  EZ_STATICLINK_REFERENCE(CoreUtils_Image_Conversions_DXTConversions);
+  EZ_STATICLINK_REFERENCE(CoreUtils_Image_Conversions_PixelConversions);
+  EZ_STATICLINK_REFERENCE(CoreUtils_Image_Conversions_SwizzleConversions);
+  EZ_STATICLINK_REFERENCE(CoreUtils_Image_Formats_BmpFileFormat);
+  EZ_STATICLINK_REFERENCE(CoreUtils_Image_Formats_DdsFileFormat);
+  EZ_STATICLINK_REFERENCE(CoreUtils_Image_Formats_TgaFileFormat);
+  EZ_STATICLINK_REFERENCE(CoreUtils_Image_Implementation_Image);
+  EZ_STATICLINK_REFERENCE(CoreUtils_Image_Implementation_ImageConversion);
+  EZ_STATICLINK_REFERENCE(CoreUtils_Image_Implementation_ImageFileFormat);
+  EZ_STATICLINK_REFERENCE(CoreUtils_Image_Implementation_ImageFormat);
+  EZ_STATICLINK_REFERENCE(CoreUtils_Image_Implementation_ImageFormatMappings);
+  EZ_STATICLINK_REFERENCE(CoreUtils_Image_Implementation_SubSystem);
   EZ_STATICLINK_REFERENCE(CoreUtils_Scripting_LuaWrapper_CFunctions);
   EZ_STATICLINK_REFERENCE(CoreUtils_Scripting_LuaWrapper_Initialize);
   EZ_STATICLINK_REFERENCE(CoreUtils_Scripting_LuaWrapper_Tables);

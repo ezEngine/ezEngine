@@ -2,7 +2,7 @@
 
 EZ_STATICLINK_LIBRARY(TestFramework)
 {
-  if(bReturn)
+  if (bReturn)
     return;
 
   EZ_STATICLINK_REFERENCE(TestFramework_Framework_Qt_qtLogMessageDock);

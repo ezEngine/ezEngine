@@ -6,7 +6,7 @@
 
 EZ_STATICLINK_LIBRARY(GameUtils)
 {
-  if(bReturn)
+  if (bReturn)
     return;
 
   EZ_STATICLINK_REFERENCE(GameUtils_DataStructures_Implementation_ObjectSelection);

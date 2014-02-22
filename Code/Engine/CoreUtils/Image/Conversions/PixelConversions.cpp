@@ -155,3 +155,8 @@ static ezImageConversion_4444_8888 g_conversion4444_8888;
 static ezImageConversion_BGRX_BGRA g_conversionBGRX_BGRA;
 static ezImageConversion_BGR_BGRA g_conversionBGR_BGRA;
 static ezImageConversion_F32_U8 g_conversionF32_U32;
+
+
+
+EZ_STATICLINK_FILE(CoreUtils, CoreUtils_Image_Conversions_PixelConversions);
+

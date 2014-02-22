@@ -8,7 +8,7 @@
 #include <CoreUtils/Image/Conversions/ImageConversion.h>
 #include <CoreUtils/Image/Formats/ImageFormatMappings.h>
 
-ezDdsFormat g_ddsFormat;
+ezDdsFileFormat g_ddsFormat;
 
 struct ezDdsPixelFormat {
   ezUInt32 m_uiSize;
@@ -115,22 +115,22 @@ struct ezDdsCaps2
 static const ezUInt32 ezDdsMagic = 0x20534444;
 static const ezUInt32 ezDdsDxt10FourCc = 0x30315844;
 
-ezResult ezDdsFormat::ReadImage(ezStreamReaderBase& stream, ezImage& image, ezLogInterface* pLog) const
+ezResult ezDdsFileFormat::ReadImage(ezStreamReaderBase& stream, ezImage& image, ezLogInterface* pLog) const
 {
   ezDdsHeader fileHeader;
-  if(stream.ReadBytes(&fileHeader, sizeof(ezDdsHeader)) != sizeof(ezDdsHeader))
+  if (stream.ReadBytes(&fileHeader, sizeof(ezDdsHeader)) != sizeof(ezDdsHeader))
   {
     ezLog::Error(pLog, "Failed to read file header.");
     return EZ_FAILURE;
   }
 
-  if(fileHeader.m_uiMagic != ezDdsMagic)
+  if (fileHeader.m_uiMagic != ezDdsMagic)
   {
     ezLog::Error(pLog, "The file is not a recognized DDS file.");
     return EZ_FAILURE;
   }
 
-  if(fileHeader.m_uiSize != 124)
+  if (fileHeader.m_uiSize != 124)
   {
     ezLog::Error(pLog, "The file header size %u doesn't match the expected size of 124.", fileHeader.m_uiSize);
     return EZ_FAILURE;
@@ -138,7 +138,7 @@ ezResult ezDdsFormat::ReadImage(ezStreamReaderBase& stream, ezImage& image, ezLo
 
   // Required in every .dds file. According to the spec, CAPS and PIXELFORMAT are also required, but D3DX outputs
   // files not conforming to this.
-  if(
+  if (
     (fileHeader.m_uiFlags & ezDdsdFlags::WIDTH) == 0 ||
     (fileHeader.m_uiFlags & ezDdsdFlags::HEIGHT) == 0)
   {
@@ -146,7 +146,7 @@ ezResult ezDdsFormat::ReadImage(ezStreamReaderBase& stream, ezImage& image, ezLo
     return EZ_FAILURE;
   }
 
-  if((fileHeader.m_uiCaps & ezDdsCaps::TEXTURE) == 0)
+  if ((fileHeader.m_uiCaps & ezDdsCaps::TEXTURE) == 0)
   {
     ezLog::Error(pLog, "The file header doesn't specify the mandatory TEXTURE flag.");
     return EZ_FAILURE;
@@ -157,7 +157,7 @@ ezResult ezDdsFormat::ReadImage(ezStreamReaderBase& stream, ezImage& image, ezLo
   image.SetWidth(fileHeader.m_uiWidth);
   image.SetHeight(fileHeader.m_uiHeight);
  
-  if(fileHeader.m_ddspf.m_uiSize != 32)
+  if (fileHeader.m_ddspf.m_uiSize != 32)
   {
     ezLog::Error(pLog, "The pixel format size %u doesn't match the expected value of 32.", fileHeader.m_ddspf.m_uiSize);
     return EZ_FAILURE;
@@ -169,13 +169,13 @@ ezResult ezDdsFormat::ReadImage(ezStreamReaderBase& stream, ezImage& image, ezLo
   ezImageFormat::Enum format = ezImageFormat::UNKNOWN;
 
   // Data format specified in RGBA masks
-  if((fileHeader.m_ddspf.m_uiFlags & ezDdpfFlags::ALPHAPIXELS) != 0 || (fileHeader.m_ddspf.m_uiFlags & ezDdpfFlags::RGB) != 0)
+  if ((fileHeader.m_ddspf.m_uiFlags & ezDdpfFlags::ALPHAPIXELS) != 0 || (fileHeader.m_ddspf.m_uiFlags & ezDdpfFlags::RGB) != 0)
   {
     format = ezImageFormat::FromPixelMask(
       fileHeader.m_ddspf.m_uiRBitMask, fileHeader.m_ddspf.m_uiGBitMask,
       fileHeader.m_ddspf.m_uiBBitMask, fileHeader.m_ddspf.m_uiABitMask);
 
-    if(format == ezImageFormat::UNKNOWN)
+    if (format == ezImageFormat::UNKNOWN)
     {
       ezLog::Error(pLog, "The pixel mask specified was not recognized (R: %x, G: %x, B: %x, A: %x).",
         fileHeader.m_ddspf.m_uiRBitMask, fileHeader.m_ddspf.m_uiGBitMask, fileHeader.m_ddspf.m_uiBBitMask, fileHeader.m_ddspf.m_uiABitMask);
@@ -183,18 +183,18 @@ ezResult ezDdsFormat::ReadImage(ezStreamReaderBase& stream, ezImage& image, ezLo
     }
 
     // Verify that the format we found is correct
-    if(ezImageFormat::GetBitsPerPixel(format) != fileHeader.m_ddspf.m_uiRGBBitCount)
+    if (ezImageFormat::GetBitsPerPixel(format) != fileHeader.m_ddspf.m_uiRGBBitCount)
     {
       ezLog::Error(pLog, "The number of bits per pixel specified in the file (%d) does not match the expected value of %d for the format '%s'.",
         fileHeader.m_ddspf.m_uiRGBBitCount, ezImageFormat::GetBitsPerPixel(format), ezImageFormat::GetName(format));
       return EZ_FAILURE;
     }
   }
-  else if((fileHeader.m_ddspf.m_uiFlags & ezDdpfFlags::FOURCC) != 0)
+  else if ((fileHeader.m_ddspf.m_uiFlags & ezDdpfFlags::FOURCC) != 0)
   { 
-    if(fileHeader.m_ddspf.m_uiFourCC == ezDdsDxt10FourCc)
+    if (fileHeader.m_ddspf.m_uiFourCC == ezDdsDxt10FourCc)
     {
-      if(stream.ReadBytes(&headerDxt10, sizeof(ezDdsHeaderDxt10)) != sizeof(ezDdsHeaderDxt10))
+      if (stream.ReadBytes(&headerDxt10, sizeof(ezDdsHeaderDxt10)) != sizeof(ezDdsHeaderDxt10))
       {
         ezLog::Error(pLog, "Failed to read file header.");
         return EZ_FAILURE;
@@ -203,7 +203,7 @@ ezResult ezDdsFormat::ReadImage(ezStreamReaderBase& stream, ezImage& image, ezLo
 
       format = ezImageFormatMappings::FromDxgiFormat(headerDxt10.m_uiDxgiFormat);
 
-      if(format == ezImageFormat::UNKNOWN)
+      if (format == ezImageFormat::UNKNOWN)
       {
         ezLog::Error(pLog, "The DXGI format %u has no equivalent image format.", headerDxt10.m_uiDxgiFormat);
         return EZ_FAILURE;
@@ -213,7 +213,7 @@ ezResult ezDdsFormat::ReadImage(ezStreamReaderBase& stream, ezImage& image, ezLo
     {
       format = ezImageFormatMappings::FromFourCc(fileHeader.m_ddspf.m_uiFourCC);
 
-      if(format == ezImageFormat::UNKNOWN)
+      if (format == ezImageFormat::UNKNOWN)
       {
         ezLog::Error(pLog, "The FourCC code '%c%c%c%c' was not recognized.",
           (fileHeader.m_ddspf.m_uiFourCC >> 0) & 0xFF,
@@ -238,29 +238,29 @@ ezResult ezDdsFormat::ReadImage(ezStreamReaderBase& stream, ezImage& image, ezLo
   bool bVolume = (fileHeader.m_uiCaps2 & ezDdsCaps2::VOLUME) != 0;
 
   // Complex flag must match cubemap or volume flag
-  if(bComplex != (bCubeMap || bVolume || bHasMipMaps))
+  if (bComplex != (bCubeMap || bVolume || bHasMipMaps))
   {
     ezLog::Error(pLog, "The header specifies the COMPLEX flag, but has neither mip levels, cubemap faces or depth slices.");
     return EZ_FAILURE;
   }
 
-  if(bHasMipMaps)
+  if (bHasMipMaps)
   {
     image.SetNumMipLevels(fileHeader.m_uiMipMapCount);
   }
 
   // Cubemap and volume texture are mutually exclusive
-  if(bVolume && bCubeMap)
+  if (bVolume && bCubeMap)
   {
     ezLog::Error(pLog, "The header specifies both the VOLUME and CUBEMAP flags.");
     return EZ_FAILURE;
   }
 
-  if(bCubeMap)
+  if (bCubeMap)
   {
     image.SetNumFaces(6);
   }
-  else if(bVolume)
+  else if (bVolume)
   {
     image.SetDepth(fileHeader.m_uiDepth);
   }
@@ -268,7 +268,7 @@ ezResult ezDdsFormat::ReadImage(ezStreamReaderBase& stream, ezImage& image, ezLo
   image.AllocateImageData();
 
   // If pitch is specified, it must match the computed value
-  if(bPitch && image.GetRowPitch(0) != fileHeader.m_uiPitchOrLinearSize)
+  if (bPitch && image.GetRowPitch(0) != fileHeader.m_uiPitchOrLinearSize)
   {
     ezLog::Error(pLog, "The row pitch specified in the header doesn't match the expected pitch.");
     return EZ_FAILURE;
@@ -276,7 +276,7 @@ ezResult ezDdsFormat::ReadImage(ezStreamReaderBase& stream, ezImage& image, ezLo
 
   ezUInt32 uiDataSize = image.GetDataSize();
 
-  if(stream.ReadBytes(image.GetDataPointer<void>(), uiDataSize) != uiDataSize)
+  if (stream.ReadBytes(image.GetDataPointer<void>(), uiDataSize) != uiDataSize)
   {
     ezLog::Error(pLog, "Failed to read image data.");
     return EZ_FAILURE;
@@ -285,7 +285,7 @@ ezResult ezDdsFormat::ReadImage(ezStreamReaderBase& stream, ezImage& image, ezLo
   return EZ_SUCCESS;
 }
 
-ezResult ezDdsFormat::WriteImage(ezStreamWriterBase& stream, const ezImage& image, ezLogInterface* pLog) const
+ezResult ezDdsFileFormat::WriteImage(ezStreamWriterBase& stream, const ezImage& image, ezLogInterface* pLog) const
 {
   const ezImageFormat::Enum format = image.GetImageFormat();
 
@@ -318,16 +318,16 @@ ezResult ezDdsFormat::WriteImage(ezStreamWriterBase& stream, const ezImage& imag
   // Required in every .dds file.
   fileHeader.m_uiFlags = ezDdsdFlags::WIDTH | ezDdsdFlags::HEIGHT | ezDdsdFlags::CAPS | ezDdsdFlags::PIXELFORMAT;
 
-  if(bHasMipMaps)
+  if (bHasMipMaps)
   {
     fileHeader.m_uiFlags |= ezDdsdFlags::MIPMAPCOUNT;
     fileHeader.m_uiMipMapCount = uiNumMipLevels;
   }
 
-  if(bVolume)
+  if (bVolume)
   {
     // Volume and array are incompatible
-    if(bArray)
+    if (bArray)
     {
       ezLog::Error(pLog, "The image is both an array and volume texture. This is not supported.");
       return EZ_FAILURE;
@@ -337,7 +337,7 @@ ezResult ezDdsFormat::WriteImage(ezStreamWriterBase& stream, const ezImage& imag
     fileHeader.m_uiDepth = uiDepth;
   }
 
-  switch(ezImageFormat::GetType(image.GetImageFormat()))
+  switch (ezImageFormat::GetType(image.GetImageFormat()))
   {
   case ezImageFormatType::LINEAR:
     fileHeader.m_uiFlags |= ezDdsdFlags::PITCH;
@@ -356,15 +356,15 @@ ezResult ezDdsFormat::WriteImage(ezStreamWriterBase& stream, const ezImage& imag
 
   fileHeader.m_uiCaps = ezDdsCaps::TEXTURE;
 
-  if(bCubeMap)
+  if (bCubeMap)
   {
-    if(uiNumFaces != 6)
+    if (uiNumFaces != 6)
     {
       ezLog::Error(pLog, "The image is a cubemap, but has %u faces instead of the expected 6.", uiNumFaces);
       return EZ_FAILURE;
     }
 
-    if(bVolume)
+    if (bVolume)
     {
       ezLog::Error(pLog, "The image is both a cubemap and volume texture. This is not supported.");
       return EZ_FAILURE;
@@ -377,7 +377,7 @@ ezResult ezDdsFormat::WriteImage(ezStreamWriterBase& stream, const ezImage& imag
       ezDdsCaps2::CUBEMAP_POSITIVEZ | ezDdsCaps2::CUBEMAP_NEGATIVEZ;
   }
 
-  if(bArray)
+  if (bArray)
   {
     fileHeader.m_uiCaps |= ezDdsCaps::COMPLEX;
 
@@ -385,13 +385,13 @@ ezResult ezDdsFormat::WriteImage(ezStreamWriterBase& stream, const ezImage& imag
     bDxt10 = true;
   }
 
-  if(bVolume)
+  if (bVolume)
   {
     fileHeader.m_uiCaps |= ezDdsCaps::COMPLEX;
     fileHeader.m_uiCaps2 |= ezDdsCaps2::VOLUME;
   }
 
-  if(bHasMipMaps)
+  if (bHasMipMaps)
   {
     fileHeader.m_uiCaps |= ezDdsCaps::MIPMAP | ezDdsCaps::COMPLEX;
   }
@@ -407,10 +407,10 @@ ezResult ezDdsFormat::WriteImage(ezStreamWriterBase& stream, const ezImage& imag
   ezUInt32 uiDxgiFormat = ezImageFormatMappings::ToDxgiFormat(format);
 
   // When not required to use a DXT10 texture, try to write a legacy DDS by specifying FourCC or pixel masks
-  if(!bDxt10)
+  if (!bDxt10)
   {
     // The format has a known mask and we would also recognize it as the same when reading back in, since multiple formats may have the same pixel masks
-    if((uiRedMask | uiGreenMask | uiBlueMask | uiAlphaMask) && format == ezImageFormat::FromPixelMask(uiRedMask, uiGreenMask, uiBlueMask, uiAlphaMask))
+    if ((uiRedMask | uiGreenMask | uiBlueMask | uiAlphaMask) && format == ezImageFormat::FromPixelMask(uiRedMask, uiGreenMask, uiBlueMask, uiAlphaMask))
     {
       fileHeader.m_ddspf.m_uiFlags = ezDdpfFlags::ALPHAPIXELS | ezDdpfFlags::RGB;
       fileHeader.m_ddspf.m_uiRBitMask = uiRedMask;
@@ -420,7 +420,7 @@ ezResult ezDdsFormat::WriteImage(ezStreamWriterBase& stream, const ezImage& imag
       fileHeader.m_ddspf.m_uiRGBBitCount = ezImageFormat::GetBitsPerPixel(format);
     }
     // The format has a known FourCC
-    else if(uiFourCc != 0)
+    else if (uiFourCc != 0)
     {
       fileHeader.m_ddspf.m_uiFlags = ezDdpfFlags::FOURCC;
       fileHeader.m_ddspf.m_uiFourCC = uiFourCc;
@@ -432,10 +432,10 @@ ezResult ezDdsFormat::WriteImage(ezStreamWriterBase& stream, const ezImage& imag
     }
   }
 
-  if(bDxt10)
+  if (bDxt10)
   {
     // We must write a DXT10 file, but there is no matching DXGI_FORMAT - we could also try converting, but that is rarely intended when writing .dds
-    if(uiDxgiFormat == 0)
+    if (uiDxgiFormat == 0)
     {
       ezLog::Error(pLog, "The image needs to be written as a DXT10 file, but no matching DXGI format was found for '%s'.",
         ezImageFormat::GetName(format));
@@ -447,11 +447,11 @@ ezResult ezDdsFormat::WriteImage(ezStreamWriterBase& stream, const ezImage& imag
 
     headerDxt10.m_uiDxgiFormat = uiDxgiFormat;
 
-    if(bVolume)
+    if (bVolume)
     {
       headerDxt10.m_uiResourceDimension = ezDdsResourceDimension::TEXTURE3D;
     }
-    else if(uiHeight > 1)
+    else if (uiHeight > 1)
     {
       headerDxt10.m_uiResourceDimension = ezDdsResourceDimension::TEXTURE2D;
     }
@@ -460,7 +460,7 @@ ezResult ezDdsFormat::WriteImage(ezStreamWriterBase& stream, const ezImage& imag
       headerDxt10.m_uiResourceDimension = ezDdsResourceDimension::TEXTURE1D;
     }
 
-    if(bCubeMap)
+    if (bCubeMap)
     {
       headerDxt10.m_uiMiscFlag = ezDdsResourceMiscFlags::TEXTURECUBE;
     }
@@ -472,21 +472,21 @@ ezResult ezDdsFormat::WriteImage(ezStreamWriterBase& stream, const ezImage& imag
     headerDxt10.m_uiMiscFlags2 = 0;
   }
 
-  if(stream.WriteBytes(&fileHeader, sizeof(fileHeader)) != EZ_SUCCESS)
+  if (stream.WriteBytes(&fileHeader, sizeof(fileHeader)) != EZ_SUCCESS)
   {
     ezLog::Error(pLog, "Failed to write image header.");
     return EZ_FAILURE;
   }
 
-  /// \todo Muesste das nicht sein 'if(bDxt10 && stream.WriteBytes(&headerDxt10, sizeof(headerDxt10)) != EZ_SUCCESS)' -> Error ?
+  /// \todo Muesste das nicht sein 'if (bDxt10 && stream.WriteBytes(&headerDxt10, sizeof(headerDxt10)) != EZ_SUCCESS)' -> Error ?
 
-  if(!bDxt10 || stream.WriteBytes(&headerDxt10, sizeof(headerDxt10)) != EZ_SUCCESS)
+  if (!bDxt10 || stream.WriteBytes(&headerDxt10, sizeof(headerDxt10)) != EZ_SUCCESS)
   {
     ezLog::Error(pLog, "Failed to write image DX10 header.");
     return EZ_FAILURE;
   }
 
-  if(stream.WriteBytes(image.GetDataPointer<void>(), image.GetDataSize()) != EZ_SUCCESS)
+  if (stream.WriteBytes(image.GetDataPointer<void>(), image.GetDataSize()) != EZ_SUCCESS)
   {
     ezLog::Error(pLog, "Failed to write image data.");
     return EZ_FAILURE;
@@ -495,7 +495,12 @@ ezResult ezDdsFormat::WriteImage(ezStreamWriterBase& stream, const ezImage& imag
   return EZ_SUCCESS;
 }
 
-bool ezDdsFormat::IsKnownExtension(const char* szExtension) const
+bool ezDdsFileFormat::IsKnownExtension(const char* szExtension) const
 {
-  return ezStringUtils::Compare_NoCase(szExtension, "dds") == 0;
+  return ezStringUtils::IsEqual_NoCase(szExtension, "dds");
 }
+
+
+
+EZ_STATICLINK_FILE(CoreUtils, CoreUtils_Image_Formats_DdsFileFormat);
+

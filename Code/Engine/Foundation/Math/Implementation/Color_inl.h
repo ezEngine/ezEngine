@@ -81,7 +81,7 @@ inline ezVec3Template<Type> ezColor::ConvertToHSV() const
 {
   ezVec3Template<Type> hsv;
   hsv.z = static_cast<Type>(ezMath::Max(r, g, b)); // Value
-  if(hsv.z < ezMath::BasicType<Type>::SmallEpsilon())
+  if (hsv.z < ezMath::BasicType<Type>::SmallEpsilon())
   {
     hsv.y = hsv.x = 0.0f;
     return hsv;
@@ -109,10 +109,10 @@ inline ezVec3Template<Type> ezColor::ConvertToHSV() const
   rgb_max = ezMath::Max(norm_r, norm_g, norm_b);
 
   // hue
-  if(rgb_max == norm_r)
+  if (rgb_max == norm_r)
   {
     hsv.x = static_cast<Type>(60.0) * (norm_g - norm_b);
-    if(hsv.x < 0.0)
+    if (hsv.x < 0.0)
       hsv.x += static_cast<Type>(360.0);
   }
   else if (rgb_max == norm_g)
@@ -135,15 +135,15 @@ inline ezColor ezColor::FromHSV(Type hue, Type sat, Type val)
   float x = c * (1.0f - ezMath::Abs(ezMath::Mod(hue / 60.0f, 2) - 1.0f));
   float m = static_cast<float>(val - c);
   
-  if(hue < 60)
+  if (hue < 60)
     return ezColor(c + m, x + m, 0 + m);
-  else if(hue < 120)
+  else if (hue < 120)
     return ezColor(x + m, c + m, 0 + m);
-  else if(hue < 180)
+  else if (hue < 180)
     return ezColor(0 + m, c + m, x + m);
-  else if(hue < 240)
+  else if (hue < 240)
     return ezColor(0 + m, x + m, c + m);
-  else if(hue < 300)
+  else if (hue < 300)
     return ezColor(x + m, 0 + m, c + m);
   else
     return ezColor(c + m, 0 + m, x + m);

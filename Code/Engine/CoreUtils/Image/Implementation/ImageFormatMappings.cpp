@@ -127,7 +127,7 @@ ezUInt32 ezImageFormatMappings::ToDxgiFormat(ezImageFormat::Enum format)
 {
 
 #define CASE_EZ2DXGI(ez) case ezImageFormat::ez: return DXGI_FORMAT_##ez
-  switch(format)
+  switch (format)
   {
   default:
     return DXGI_FORMAT_UNKNOWN;
@@ -236,7 +236,7 @@ ezUInt32 ezImageFormatMappings::ToDxgiFormat(ezImageFormat::Enum format)
 ezImageFormat::Enum ezImageFormatMappings::FromDxgiFormat(ezUInt32 uiDxgiFormat)
 {
 #define CASE_DXGI2EZ(ez) case DXGI_FORMAT_##ez: return ezImageFormat::ez
-  switch(uiDxgiFormat)
+  switch (uiDxgiFormat)
   {
   default:
     return ezImageFormat::UNKNOWN;
@@ -344,7 +344,7 @@ ezImageFormat::Enum ezImageFormatMappings::FromDxgiFormat(ezUInt32 uiDxgiFormat)
 
 ezUInt32 ezImageFormatMappings::ToFourCc(ezImageFormat::Enum format)
 {
-  switch(format)
+  switch (format)
   {
   case ezImageFormat::BC1_UNORM:
     return MAKE_FOURCC('D', 'X', 'T', '1');
@@ -368,7 +368,7 @@ ezUInt32 ezImageFormatMappings::ToFourCc(ezImageFormat::Enum format)
 
 ezImageFormat::Enum ezImageFormatMappings::FromFourCc(ezUInt32 uiFourCc)
 {
-  switch(uiFourCc)
+  switch (uiFourCc)
   {
   case MAKE_FOURCC('D', 'X', 'T', '1'):
     return ezImageFormat::BC1_UNORM;
@@ -391,3 +391,8 @@ ezImageFormat::Enum ezImageFormatMappings::FromFourCc(ezUInt32 uiFourCc)
     return ezImageFormat::UNKNOWN;
   }
 }
+
+
+
+EZ_STATICLINK_FILE(CoreUtils, CoreUtils_Image_Implementation_ImageFormatMappings);
+

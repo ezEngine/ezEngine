@@ -21,13 +21,13 @@ namespace
     float fCost = 1.0f;
 
     // Penalty for conversions that can't be performed in-place
-    if(!flags.IsSet(ezImageConversionFlags::InPlace))
+    if (!flags.IsSet(ezImageConversionFlags::InPlace))
     {
       fCost *= 2;
     }
 
     // Penalty for conversions that are lossy
-    if(flags.IsSet(ezImageConversionFlags::Lossy))
+    if (flags.IsSet(ezImageConversionFlags::Lossy))
     {
       fCost *= 4;
     }
@@ -42,20 +42,20 @@ void ezImageConversionBase::RebuildConversionTable()
   s_subConversionTable.SetCount(ezImageFormat::NUM_FORMATS * ezImageFormat::NUM_FORMATS);
   s_costTable.SetCount(ezImageFormat::NUM_FORMATS * ezImageFormat::NUM_FORMATS);
 
-  for(ezUInt32 tableIdx = 0; tableIdx < s_conversionTable.GetCount(); tableIdx++)
+  for (ezUInt32 tableIdx = 0; tableIdx < s_conversionTable.GetCount(); tableIdx++)
   {
     s_conversionTable[tableIdx] = NULL;
     s_costTable[tableIdx] = ezMath::BasicType<float>::GetInfinity();
   }
 
   // Prime conversion table with known conversions
-  for(ezImageConversionBase* pConversion = ezImageConversionBase::GetFirstInstance(); pConversion; pConversion = pConversion->GetNextInstance())
+  for (ezImageConversionBase* pConversion = ezImageConversionBase::GetFirstInstance(); pConversion; pConversion = pConversion->GetNextInstance())
   {
-    for(ezUInt32 uiSubConversion = 0; uiSubConversion < pConversion->m_subConversions.GetCount(); uiSubConversion++)
+    for (ezUInt32 uiSubConversion = 0; uiSubConversion < pConversion->m_subConversions.GetCount(); uiSubConversion++)
     {
       const SubConversion& subConversion = pConversion->m_subConversions[uiSubConversion];
 
-      if(subConversion.m_flags.IsSet(ezImageConversionFlags::InPlace))
+      if (subConversion.m_flags.IsSet(ezImageConversionFlags::InPlace))
       {
         EZ_ASSERT(ezImageFormat::GetBitsPerPixel(subConversion.m_sourceFormat) == ezImageFormat::GetBitsPerPixel(subConversion.m_targetFormat),
           "In-place conversions are only allowed between formats of the same number of bits per pixel");
@@ -66,7 +66,7 @@ void ezImageConversionBase::RebuildConversionTable()
       ezUInt32 uiTableIndex = GetTableIndex(subConversion.m_sourceFormat, subConversion.m_targetFormat);
 
       // Use the cheapest known conversion for each combination in case there are multiple ones
-      if(s_costTable[uiTableIndex] > GetConversionCost(subConversion.m_flags))
+      if (s_costTable[uiTableIndex] > GetConversionCost(subConversion.m_flags))
       {
         s_conversionTable[uiTableIndex] = pConversion;
         s_subConversionTable[uiTableIndex] = uiSubConversion;
@@ -75,23 +75,23 @@ void ezImageConversionBase::RebuildConversionTable()
     }
   }
 
-  for(ezUInt32 i = 0; i < ezImageFormat::NUM_FORMATS; i++)
+  for (ezUInt32 i = 0; i < ezImageFormat::NUM_FORMATS; i++)
   {
     // Add copy-conversion (from and to same format)
     s_costTable[GetTableIndex(i, i)] = GetConversionCost(ezImageConversionFlags::InPlace);
   }
 
   // Straight from http://en.wikipedia.org/wiki/Floyd-Warshall_algorithm
-  for(ezUInt32 k = 0; k < ezImageFormat::NUM_FORMATS; k++)
+  for (ezUInt32 k = 0; k < ezImageFormat::NUM_FORMATS; k++)
   {
-    for(ezUInt32 i = 0; i < ezImageFormat::NUM_FORMATS; i++)
+    for (ezUInt32 i = 0; i < ezImageFormat::NUM_FORMATS; i++)
     {
       ezUInt32 uiTableIndexIK = GetTableIndex(i, k);
-      for(ezUInt32 j = 0; j < ezImageFormat::NUM_FORMATS; j++)
+      for (ezUInt32 j = 0; j < ezImageFormat::NUM_FORMATS; j++)
       {
         ezUInt32 uiTableIndexIJ = GetTableIndex(i, j);
         ezUInt32 uiTableIndexKJ = GetTableIndex(k, j);
-        if(s_costTable[uiTableIndexIK] + s_costTable[uiTableIndexKJ] < s_costTable[uiTableIndexIJ])
+        if (s_costTable[uiTableIndexIK] + s_costTable[uiTableIndexKJ] < s_costTable[uiTableIndexIJ])
         {
           s_costTable[uiTableIndexIJ] = s_costTable[uiTableIndexIK] + s_costTable[uiTableIndexKJ];
 
@@ -114,13 +114,13 @@ ezResult ezImageConversionBase::Convert(const ezImage& source, ezImage& target, 
   ezImageFormat::Enum sourceFormat = source.GetImageFormat();
 
   // Trivial copy
-  if(sourceFormat == targetFormat)
+  if (sourceFormat == targetFormat)
   {
     target = source;
     return EZ_SUCCESS;
   }
 
-  if(!s_bConversionTableValid)
+  if (!s_bConversionTableValid)
   {
     RebuildConversionTable();
   }
@@ -128,7 +128,7 @@ ezResult ezImageConversionBase::Convert(const ezImage& source, ezImage& target, 
   ezUInt32 uiCurrentTableIndex = GetTableIndex(sourceFormat, targetFormat);
 
   // No conversion known
-  if(s_conversionTable[uiCurrentTableIndex] == NULL)
+  if (s_conversionTable[uiCurrentTableIndex] == NULL)
   {
     return EZ_FAILURE;
   }
@@ -136,9 +136,9 @@ ezResult ezImageConversionBase::Convert(const ezImage& source, ezImage& target, 
   const ezImageConversionBase* pConversion = s_conversionTable[uiCurrentTableIndex];
   const SubConversion& subConversion = pConversion->m_subConversions[s_subConversionTable[uiCurrentTableIndex]];
 
-  if(subConversion.m_targetFormat == targetFormat)
+  if (subConversion.m_targetFormat == targetFormat)
   {
-    if(&source == &target && !subConversion.m_flags.IsSet(ezImageConversionFlags::InPlace))
+    if (&source == &target && !subConversion.m_flags.IsSet(ezImageConversionFlags::InPlace))
     {
       ezImage copy = source;
       return pConversion->DoConvert(copy, target, subConversion.m_targetFormat);
@@ -151,7 +151,7 @@ ezResult ezImageConversionBase::Convert(const ezImage& source, ezImage& target, 
   else
   {
     ezImage intermediate;
-    if(pConversion->DoConvert(source, intermediate, subConversion.m_targetFormat) == EZ_FAILURE)
+    if (pConversion->DoConvert(source, intermediate, subConversion.m_targetFormat) == EZ_FAILURE)
     {
       return EZ_FAILURE;
     }
@@ -172,7 +172,7 @@ ezImageConversionBase::~ezImageConversionBase()
 
 ezImageFormat::Enum ezImageConversionBase::FindClosestCompatibleFormat(ezImageFormat::Enum format, const ezImageFormat::Enum* pCompatibleFormats, ezUInt32 uiNumCompatible)
 {
-  if(!s_bConversionTableValid)
+  if (!s_bConversionTableValid)
   {
     RebuildConversionTable();
   }
@@ -180,9 +180,9 @@ ezImageFormat::Enum ezImageConversionBase::FindClosestCompatibleFormat(ezImageFo
   float fBestCost = ezMath::BasicType<float>::GetInfinity();
   ezImageFormat::Enum bestFormat = ezImageFormat::UNKNOWN;
 
-  for(ezUInt32 uiTargetIndex = 0; uiTargetIndex < uiNumCompatible; uiTargetIndex++)
+  for (ezUInt32 uiTargetIndex = 0; uiTargetIndex < uiNumCompatible; uiTargetIndex++)
   {
-    if(s_costTable[GetTableIndex(format, pCompatibleFormats[uiTargetIndex])] < fBestCost)
+    if (s_costTable[GetTableIndex(format, pCompatibleFormats[uiTargetIndex])] < fBestCost)
     {
       bestFormat = pCompatibleFormats[uiTargetIndex];
     }
@@ -190,3 +190,8 @@ ezImageFormat::Enum ezImageConversionBase::FindClosestCompatibleFormat(ezImageFo
 
   return bestFormat;
 }
+
+
+
+EZ_STATICLINK_FILE(CoreUtils, CoreUtils_Image_Implementation_ImageConversion);
+

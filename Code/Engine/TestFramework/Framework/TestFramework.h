@@ -277,3 +277,57 @@ inline float ToFloat(double f) { return (float) f; }
   EZ_TEST_FLOAT_MSG(internal_v1.w, internal_v2.w, epsilon, msg, __VA_ARGS__); \
 }
 
+#define EZ_TEST_FILES(szFile1, szFile2, msg, ...) \
+{ \
+  char szLocal_TestMacro[512]; \
+  ezFileReader ReadFile1; \
+  ezFileReader ReadFile2; \
+  \
+  if (ReadFile1.Open(szFile1) == EZ_FAILURE) \
+  { \
+    sprintf(szLocal_TestMacro, "Failure: File '%s' could not be read.", szFile1); \
+    EZ_TEST_FAILURE(szLocal_TestMacro, msg, __VA_ARGS__); \
+  } \
+  else \
+  if (ReadFile2.Open(szFile2) == EZ_FAILURE) \
+  { \
+    sprintf(szLocal_TestMacro, "Failure: File '%s' could not be read.", szFile2); \
+    EZ_TEST_FAILURE(szLocal_TestMacro, msg, __VA_ARGS__); \
+  } \
+  \
+  else \
+  if (ReadFile1.GetFileSize() != ReadFile2.GetFileSize()) \
+  { \
+    sprintf(szLocal_TestMacro, "Failure: File sizes do not match: '%s' and '%s'", szFile1, szFile2); \
+    EZ_TEST_FAILURE(szLocal_TestMacro, msg, __VA_ARGS__); \
+  } \
+  else \
+  { \
+    while (true) \
+    { \
+      ezUInt8 uiTemp1[512]; \
+      ezUInt8 uiTemp2[512]; \
+      const ezUInt64 uiRead1 = ReadFile1.ReadBytes(uiTemp1, 512); \
+      const ezUInt64 uiRead2 = ReadFile2.ReadBytes(uiTemp2, 512); \
+      \
+      if (uiRead1 != uiRead2) \
+      { \
+        sprintf(szLocal_TestMacro, "Failure: Files could not read same amount of data: '%s' and '%s'", szFile1, szFile2); \
+        EZ_TEST_FAILURE(szLocal_TestMacro, msg, __VA_ARGS__); \
+        break; \
+      } \
+      else \
+      { \
+        if (uiRead1 == 0) \
+          break; \
+        \
+        if (memcmp(uiTemp1, uiTemp2, (size_t) uiRead1) != 0) \
+        { \
+          sprintf(szLocal_TestMacro, "Failure: Files contents do not match: '%s' and '%s'", szFile1, szFile2); \
+          EZ_TEST_FAILURE(szLocal_TestMacro, msg, __VA_ARGS__); \
+          break; \
+        } \
+      } \
+    } \
+  } \
+}

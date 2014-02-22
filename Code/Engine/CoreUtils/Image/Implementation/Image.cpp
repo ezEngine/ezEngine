@@ -21,17 +21,17 @@ void ezImage::AllocateImageData()
   bool bCompressed = ezImageFormat::GetType(m_format) == ezImageFormatType::BLOCK_COMPRESSED;
   ezUInt32 uiBitsPerPixel = ezImageFormat::GetBitsPerPixel(m_format);
 
-  for(ezUInt32 uiArrayIndex = 0; uiArrayIndex < m_uiNumArrayIndices; uiArrayIndex++)
+  for (ezUInt32 uiArrayIndex = 0; uiArrayIndex < m_uiNumArrayIndices; uiArrayIndex++)
   {
-    for(ezUInt32 uiFace = 0; uiFace < m_uiNumFaces; uiFace++)
+    for (ezUInt32 uiFace = 0; uiFace < m_uiNumFaces; uiFace++)
     {
-      for(ezUInt32 uiMipLevel = 0; uiMipLevel < m_uiNumMipLevels; uiMipLevel++)
+      for (ezUInt32 uiMipLevel = 0; uiMipLevel < m_uiNumMipLevels; uiMipLevel++)
       {
         SubImage& subImage = GetSubImage(uiMipLevel, uiFace, uiArrayIndex);
 
         subImage.m_uiDataOffset = uiDataSize;
 
-        if(bCompressed)
+        if (bCompressed)
         {
           ezUInt32 uiBlockSize = 4;
           subImage.m_uiRowPitch = 0;
@@ -56,7 +56,7 @@ ezResult ezImage::LoadFrom(const char* szFileName, ezLogInterface* pLog)
   EZ_LOG_BLOCK(pLog, "Loading Image", szFileName);
 
   ezFileReader reader;
-  if(reader.Open(szFileName) == EZ_FAILURE)
+  if (reader.Open(szFileName) == EZ_FAILURE)
   {
     ezLog::Warning(pLog, "Failed to open image file '%s'", szFileName);
     return EZ_FAILURE;
@@ -64,9 +64,9 @@ ezResult ezImage::LoadFrom(const char* szFileName, ezLogInterface* pLog)
 
   ezStringIterator it = ezPathUtils::GetFileExtension(szFileName);
   
-  for(ezImageFileFormatBase* pFormat = ezImageFileFormatBase::GetFirstInstance(); pFormat; pFormat = pFormat->GetNextInstance())
+  for (ezImageFileFormatBase* pFormat = ezImageFileFormatBase::GetFirstInstance(); pFormat; pFormat = pFormat->GetNextInstance())
   {
-    if(pFormat->IsKnownExtension(it.GetData()))
+    if (pFormat->IsKnownExtension(it.GetData()))
     {
       if (pFormat->ReadImage(reader, *this, pLog) != EZ_SUCCESS)
       {
@@ -88,7 +88,7 @@ ezResult ezImage::SaveTo(const char* szFileName, ezLogInterface* pLog)
   EZ_LOG_BLOCK(pLog, "Writing Image", szFileName);
 
   ezFileWriter writer;
-  if(writer.Open(szFileName) == EZ_FAILURE)
+  if (writer.Open(szFileName) == EZ_FAILURE)
   {
     ezLog::Warning(pLog, "Failed to open image file '%s'", szFileName);
     return EZ_FAILURE;
@@ -96,9 +96,9 @@ ezResult ezImage::SaveTo(const char* szFileName, ezLogInterface* pLog)
 
   ezStringIterator it = ezPathUtils::GetFileExtension(szFileName);
 
-  for(ezImageFileFormatBase* pFormat = ezImageFileFormatBase::GetFirstInstance(); pFormat; pFormat = pFormat->GetNextInstance())
+  for (ezImageFileFormatBase* pFormat = ezImageFileFormatBase::GetFirstInstance(); pFormat; pFormat = pFormat->GetNextInstance())
   {
-    if(pFormat->IsKnownExtension(it.GetData()))
+    if (pFormat->IsKnownExtension(it.GetData()))
     {
       if (pFormat->WriteImage(writer, *this, pLog) != EZ_SUCCESS)
       {
@@ -114,4 +114,8 @@ ezResult ezImage::SaveTo(const char* szFileName, ezLogInterface* pLog)
 
   return EZ_FAILURE;
 }
+
+
+
+EZ_STATICLINK_FILE(CoreUtils, CoreUtils_Image_Implementation_Image);
 

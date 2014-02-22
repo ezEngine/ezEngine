@@ -16,3 +16,8 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Core, Image)
   }
 
 EZ_END_SUBSYSTEM_DECLARATION
+
+
+
+EZ_STATICLINK_FILE(CoreUtils, CoreUtils_Image_Implementation_SubSystem);
+

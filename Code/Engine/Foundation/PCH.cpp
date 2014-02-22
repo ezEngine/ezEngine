@@ -2,7 +2,7 @@
 
 EZ_STATICLINK_LIBRARY(Foundation)
 {
-  if(bReturn)
+  if (bReturn)
     return;
 
   EZ_STATICLINK_REFERENCE(Foundation_Algorithm_Implementation_Hashing);

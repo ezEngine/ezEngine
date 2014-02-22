@@ -86,3 +86,8 @@ struct ezImageSwizzleConversion32_2103_SSSE3 : public ezImageConversionMixinLine
 };
 
 static  ezImageSwizzleConversion32_2103_SSSE3 g_swizzle2103;
+
+
+
+EZ_STATICLINK_FILE(CoreUtils, CoreUtils_Image_Conversions_SwizzleConversions);
+

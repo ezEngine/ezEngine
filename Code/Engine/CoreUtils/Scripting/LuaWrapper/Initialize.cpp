@@ -27,7 +27,7 @@ void ezLuaWrapper::Clear()
 {
   EZ_ASSERT(m_bReleaseOnExit, "Cannot clear a script that did not create the Lua state itself.");
 
-  if(m_pState)
+  if (m_pState)
     lua_close(m_pState);
 
   m_pState = lua_newstate(lua_allocator, NULL);

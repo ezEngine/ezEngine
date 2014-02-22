@@ -115,7 +115,7 @@ ezResult ezWindow::Initialize()
     dwWindowStyle |= WS_POPUP;
   }
 
-  if(m_CreationDescription.m_bResizable)
+  if (m_CreationDescription.m_bResizable)
   {
     ezLog::Dev("Window is resizable.");
     dwWindowStyle |= WS_MAXIMIZEBOX | WS_THICKFRAME;

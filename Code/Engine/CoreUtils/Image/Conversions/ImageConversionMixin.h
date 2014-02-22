@@ -20,11 +20,11 @@ struct ezImageConversionMixinBase : public ezImageConversionBase
 
     target.AllocateImageData();
 
-    for(ezUInt32 uiArrayIndex = 0; uiArrayIndex < source.GetNumArrayIndices(); uiArrayIndex++)
+    for (ezUInt32 uiArrayIndex = 0; uiArrayIndex < source.GetNumArrayIndices(); uiArrayIndex++)
     {
-      for(ezUInt32 uiFace = 0; uiFace < source.GetNumFaces(); uiFace++)
+      for (ezUInt32 uiFace = 0; uiFace < source.GetNumFaces(); uiFace++)
       {
-        for(ezUInt32 uiMipLevel = 0; uiMipLevel < source.GetNumMipLevels(); uiMipLevel++)
+        for (ezUInt32 uiMipLevel = 0; uiMipLevel < source.GetNumMipLevels(); uiMipLevel++)
         {
           Impl::ConvertSubImage(source, target, uiFace, uiMipLevel, uiArrayIndex);
         }
@@ -64,11 +64,11 @@ struct ezImageConversionMixinBlockDecompression : ezImageConversionMixinBase<Imp
 
     ezUInt32 uiBytesPerBlock = uiBlockSize * uiBlockSize * uiSourceBytesPerPixel;
 
-    for(ezUInt32 uiSlice = 0; uiSlice < source.GetDepth(uiMipLevel); uiSlice++)
+    for (ezUInt32 uiSlice = 0; uiSlice < source.GetDepth(uiMipLevel); uiSlice++)
     {
-      for(ezUInt32 uiBlockY = 0; uiBlockY < uiNumBlocksY; uiBlockY++)
+      for (ezUInt32 uiBlockY = 0; uiBlockY < uiNumBlocksY; uiBlockY++)
       {
-        for(ezUInt32 uiBlockX = 0; uiBlockX < uiNumBlocksX; uiBlockX++)
+        for (ezUInt32 uiBlockX = 0; uiBlockX < uiNumBlocksX; uiBlockX++)
         {
           const ezUInt8* pSource = source.GetBlockPointer<ezUInt8>(uiMipLevel, uiFace, uiArrayIndex, uiBlockX, uiBlockY, uiSlice);
 
@@ -84,7 +84,7 @@ struct ezImageConversionMixinBlockDecompression : ezImageConversionMixinBase<Imp
           // Copy into actual target, clamping to image dimensions
           ezUInt32 uiCopyWidth = ezMath::Min(uiBlockSize, uiWidth - uiBlockX * uiBlockSize);
           ezUInt32 uiCopyHeight= ezMath::Min(uiBlockSize, uiHeight - uiBlockY * uiBlockSize);
-          for(ezUInt32 uiRow = 0; uiRow < uiCopyHeight; uiRow++)
+          for (ezUInt32 uiRow = 0; uiRow < uiCopyHeight; uiRow++)
           {
             memcpy(pTarget, &tempBuffer[uiRow * uiBlockSize * uiTargetBytesPerPixel], uiCopyWidth * uiTargetBytesPerPixel);
             pTarget += uiTargetRowPitch;
@@ -122,14 +122,14 @@ struct ezImageConversionMixinLinear : ezImageConversionMixinBase<Impl>
       (uiSourceRowPitch % uiSourceBytesPerPixel != 0) ||
       (uiTargetRowPitch % uiTargetBytesPerPixel != 0);
 
-    for(ezUInt32 uiSlice = 0; uiSlice < source.GetDepth(uiMipLevel); uiSlice++)
+    for (ezUInt32 uiSlice = 0; uiSlice < source.GetDepth(uiMipLevel); uiSlice++)
     {
       const ezUInt8* pSource = source.GetPixelPointer<ezUInt8>(uiMipLevel, uiFace, uiArrayIndex, 0, 0, uiSlice);
       ezUInt8* pTarget = target.GetPixelPointer<ezUInt8>(uiMipLevel, uiFace, uiArrayIndex, 0, 0, uiSlice);
 
-      if(bConvertRowWise)
+      if (bConvertRowWise)
       {
-        for(ezUInt32 uiRow = 0; uiRow < uiHeight; uiRow++)
+        for (ezUInt32 uiRow = 0; uiRow < uiHeight; uiRow++)
         {
           ConvertBatch(pSource, pTarget, uiWidth);
           pSource += uiSourceRowPitch;
@@ -162,11 +162,11 @@ struct ezImageConversionMixinLinear : ezImageConversionMixinBase<Impl>
       (uiLeadInTarget % uiTargetBytesPerPixel == 0) &&
       (uiLeadInSource / uiSourceBytesPerPixel == uiLeadInTarget / uiTargetBytesPerPixel);
 
-    if(bAlignmentMatches)
+    if (bAlignmentMatches)
     {
       // Convert element-wise until we reach alignment
       const ezUInt32 uiLeadInElements = uiLeadInSource / uiSourceBytesPerPixel;
-      for(ezUInt32 uiElement = 0; uiElement < uiLeadInElements; uiElement++)
+      for (ezUInt32 uiElement = 0; uiElement < uiLeadInElements; uiElement++)
       {
         Impl::ConvertSingle(
           reinterpret_cast<const Impl::SourceTypeSingle*>(pSource),
@@ -178,7 +178,7 @@ struct ezImageConversionMixinLinear : ezImageConversionMixinBase<Impl>
       // Convert multiple elements for as long as possible
       const ezUInt32 uiMiddleElements =
         (uiElements / Impl::s_uiMultiConversionSize) * Impl::s_uiMultiConversionSize;
-      for(ezUInt32 uiElement = 0; uiElement < uiMiddleElements; uiElement += Impl::s_uiMultiConversionSize)
+      for (ezUInt32 uiElement = 0; uiElement < uiMiddleElements; uiElement += Impl::s_uiMultiConversionSize)
       {
         Impl::ConvertMultiple(
           reinterpret_cast<const Impl::SourceTypeMultiple*>(pSource),
@@ -199,7 +199,7 @@ struct ezImageConversionMixinLinear : ezImageConversionMixinBase<Impl>
 
       EZ_ASSERT(uiLeadOutElements < 4000000000U, "Something got corrupted");
 
-      for(ezUInt32 uiElement = 0; uiElement < uiLeadOutElements; uiElement++)
+      for (ezUInt32 uiElement = 0; uiElement < uiLeadOutElements; uiElement++)
       {
         Impl::ConvertSingle(
           reinterpret_cast<const Impl::SourceTypeSingle*>(pSource),
@@ -211,7 +211,7 @@ struct ezImageConversionMixinLinear : ezImageConversionMixinBase<Impl>
     else
     {
       // Slow path: convert each element by itself
-      for(ezUInt32 uiElement = 0; uiElement < uiElements; uiElement++)
+      for (ezUInt32 uiElement = 0; uiElement < uiElements; uiElement++)
       {
         Impl::ConvertSingle(
           reinterpret_cast<const Impl::SourceTypeSingle*>(pSource),

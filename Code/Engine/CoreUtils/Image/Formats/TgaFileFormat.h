@@ -2,7 +2,7 @@
 
 #include <CoreUtils/Image/Formats/ImageFileFormat.h>
 
-class EZ_COREUTILS_DLL ezDdsFileFormat : public ezImageFileFormatBase
+class EZ_COREUTILS_DLL ezTgaFileFormat : public ezImageFileFormatBase
 {
 public:
   virtual ezResult ReadImage(ezStreamReaderBase& stream, ezImage& image, ezLogInterface* pLog) const EZ_OVERRIDE;

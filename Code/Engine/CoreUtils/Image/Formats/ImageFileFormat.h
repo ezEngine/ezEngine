@@ -9,6 +9,8 @@ class ezStreamWriterBase;
 class ezImage;
 class ezStringBuilder;
 
+/// \todo Statt enumerable classes, reflection verwenden
+
 class EZ_COREUTILS_DLL ezImageFileFormatBase : public ezEnumerable<ezImageFileFormatBase>
 {
 public:
