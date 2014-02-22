@@ -67,14 +67,16 @@ protected:
   virtual void ErrorImpl(const char* szError, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg);
   virtual void OutputImpl(ezTestOutput::Enum Type, const char* szMsg);
   virtual void TestResultImpl(ezInt32 iSubTestIndex, bool bSuccess, double fDuration);
+  void FlushAsserts();
 
   // ignore this for now
 public:
   static const char* s_szTestBlockName;
+  static int s_iAssertCounter;
 
   // static functions
 public:
-  static ezTestFramework* GetInstance() { return s_pInstance; }
+  static EZ_FORCE_INLINE ezTestFramework* GetInstance() { return s_pInstance; }
 
   /// \brief Returns whether to asset on test fail, will return false if no debugger is attached to prevent crashing. 
   static bool GetAssertOnTestFail();
@@ -111,7 +113,7 @@ struct ezTestBlock
   /// \brief Enum for usage in EZ_TEST_BLOCK to enable or disable the block.
   enum Enum
   {
-    Disabled, ///< The test block will be skipped. The testframework will print a warning message, that some block is deactivated.
+    Disabled, ///< The test block will be skipped. The test framework will print a warning message, that some block is deactivated.
     Enabled   ///< The test block is enabled.
   };
 };
@@ -146,9 +148,13 @@ struct ezTestBlock
 #define EZ_TEST_BOOL(condition) EZ_TEST_BOOL_MSG(condition, "")
 
 /// \brief Tests for a boolean condition, outputs a custom message on failure.
-#define EZ_TEST_BOOL_MSG(condition, msg, ...) if (!(condition)) \
-{ \
-  EZ_TEST_FAILURE("Test failed: " EZ_STRINGIZE(condition), msg, __VA_ARGS__) \
+#define EZ_TEST_BOOL_MSG(condition, msg, ...) \
+{\
+  ezTestFramework::s_iAssertCounter++; \
+  if (!(condition)) \
+  { \
+    EZ_TEST_FAILURE("Test failed: " EZ_STRINGIZE(condition), msg, __VA_ARGS__) \
+  } \
 }
 
 inline float ToFloat(int f) { return (float) f; }
@@ -161,6 +167,7 @@ inline float ToFloat(double f) { return (float) f; }
 /// \brief Tests two floats for equality, within a given epsilon. On failure both actual and expected values are output, also a custom message is printed.
 #define EZ_TEST_FLOAT_MSG(f1, f2, epsilon, msg, ...) \
 { \
+  ezTestFramework::s_iAssertCounter++; \
   const float internal_r1 = ToFloat(f1); \
   const float internal_r2 = ToFloat(f2); \
   const float internal_fD = internal_r1 - internal_r2; \
@@ -179,6 +186,7 @@ inline float ToFloat(double f) { return (float) f; }
 /// \brief Tests two doubles for equality, within a given epsilon. On failure both actual and expected values are output, also a custom message is printed.
 #define EZ_TEST_DOUBLE_MSG(f1, f2, epsilon, msg, ...) \
 { \
+  ezTestFramework::s_iAssertCounter++; \
   const double internal_r1 = (f1); \
   const double internal_r2 = (f2); \
   const double internal_fD = internal_r1 - internal_r2; \
@@ -197,6 +205,7 @@ inline float ToFloat(double f) { return (float) f; }
 /// \brief Tests two ints for equality. On failure both actual and expected values are output, also a custom message is printed.
 #define EZ_TEST_INT_MSG(i1, i2, msg, ...) \
 { \
+  ezTestFramework::s_iAssertCounter++; \
   const ezInt32 internal_r1 = (ezInt32) (i1); \
   const ezInt32 internal_r2 = (ezInt32) (i2); \
   \
@@ -214,6 +223,7 @@ inline float ToFloat(double f) { return (float) f; }
 /// \brief Tests two strings for equality. On failure both actual and expected values are output, also a custom message is printed.
 #define EZ_TEST_STRING_MSG(s1, s2, msg, ...) \
 { \
+  ezTestFramework::s_iAssertCounter++; \
   const char* internal_sz1 = s1; \
   const char* internal_sz2 = s2; \
   \

@@ -68,16 +68,17 @@ struct ezTestResultQuery
 /// \brief Stores the results of a test run. Used by both ezTestEntry and ezSubTestEntry.
 struct ezTestResultData
 {
-  ezTestResultData() : m_bExecuted(false), m_bSuccess(false), m_fTestDuration(0.0), m_iFirstOutput(-1), m_iLastOutput(-1) { }
+  ezTestResultData() : m_bExecuted(false), m_bSuccess(false), m_iTestAsserts(0), m_fTestDuration(0.0), m_iFirstOutput(-1), m_iLastOutput(-1) { }
   void Reset();
   void AddOutput(ezInt32 iOutputIndex);
 
   std::string m_sName;
-  bool m_bExecuted;
-  bool m_bSuccess;
-  double m_fTestDuration;
-  ezInt32 m_iFirstOutput;
-  ezInt32 m_iLastOutput;
+  bool m_bExecuted;       ///< Whether the test was executed. If false, the test was either deactivated or the test process crashed before executing it.
+  bool m_bSuccess;        ///< Whether the test succeeded or not.
+  int m_iTestAsserts;     ///< Asserts that were checked. For tests this includes the count of all of their sub-tests as well.
+  double m_fTestDuration; ///< Duration of the test/sub-test. For tests, this includes the duration of all their sub-tests as well.
+  ezInt32 m_iFirstOutput; ///< First output message. For tests, this range includes all messages of their sub-tests as well.
+  ezInt32 m_iLastOutput;  ///< Last output message. For tests, this range includes all messages of their sub-tests as well.
 };
 
 struct ezTestConfiguration
@@ -120,6 +121,7 @@ public:
   void TestError(ezUInt32 uiTestIndex, ezInt32 iSubTestIndex,
                  const char* szError, const char* szBlock, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg);
   void TestResult(ezUInt32 uiTestIndex, ezInt32 iSubTestIndex, bool bSuccess, double fDuration);
+  void AddAsserts(ezUInt32 uiTestIndex, ezInt32 iSubTestIndex, int iCount);
 
   // Messages / Errors
   ezUInt32 GetOutputMessageCount(ezInt32 iTestIndex = -1, ezInt32 iSubTestIndex = -1, ezTestOutput::Enum Type = ezTestOutput::AllOutputTypes) const;

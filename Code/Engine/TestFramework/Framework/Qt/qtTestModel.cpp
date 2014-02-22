@@ -287,6 +287,29 @@ QVariant ezQtTestModel::data(const QModelIndex& index, int role) const
       return QVariant();
     }
   }
+  // Assert Count
+  else if (index.column() == Columns::Asserts)
+  {
+    switch (role)
+    {
+    case Qt::DisplayRole:
+      {
+        return QString("%1").arg(TestResult.m_iTestAsserts);
+      }
+    case Qt::BackgroundColorRole:
+      {
+        QPalette palette = QApplication::palette();
+        return palette.alternateBase().color();
+      }
+    case Qt::TextAlignmentRole:
+      {
+        return Qt::AlignRight;
+      }
+
+    default:
+      return QVariant();
+    }
+  }
   // Progress
   else if (index.column() == Columns::Progress)
   {
@@ -382,6 +405,8 @@ QVariant ezQtTestModel::headerData(int section, Qt::Orientation orientation, int
       return QString("Duration (ms)");
     case Columns::Errors:
       return QString("Errors / Output");
+    case Columns::Asserts:
+      return QString("Asserts");
     case Columns::Progress:
       return QString("Progress");
     }

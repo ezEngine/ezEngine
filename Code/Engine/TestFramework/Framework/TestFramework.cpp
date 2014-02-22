@@ -9,6 +9,7 @@
 ezTestFramework* ezTestFramework::s_pInstance = NULL;
 
 const char* ezTestFramework::s_szTestBlockName = "";
+int ezTestFramework::s_iAssertCounter = 0;
 
 static bool TestAssertHandler(const char* szSourceFile, ezUInt32 uiLine, const char* szFunction, const char* szExpression, const char* szAssertMsg)
 {
@@ -262,6 +263,8 @@ void ezTestFramework::ExecuteTest(ezUInt32 uiTestIndex)
 
   // Execute test
   {
+    // Reset assert counter. This variable is used to reduce the overhead of counting millions of asserts.
+    s_iAssertCounter = 0;
     m_iCurrentTestIndex = (ezInt32)uiTestIndex;
     // Log writer translates engine warnings / errors into test framework error messages.
     ezGlobalLog::AddLogWriter(LogWriter);
@@ -285,6 +288,8 @@ void ezTestFramework::ExecuteTest(ezUInt32 uiTestIndex)
           continue;
         }
     
+        // First flush of assert counter, these are all asserts during test init.
+        FlushAsserts();
         m_iCurrentSubTestIndex = st;
         ezTestFramework::Output(ezTestOutput::BeginBlock, "Executing Sub-Test: '%s'", subTest.m_szSubTestName);
     
@@ -302,7 +307,13 @@ void ezTestFramework::ExecuteTest(ezUInt32 uiTestIndex)
        
           fTotalTestDuration += fDuration;
         }
+        else
+        {
+          ezTestFramework::TestResult(st, false, 0.0);
+        }
 
+        // Second flush of assert counter, these are all asserts for the current subtest.
+        FlushAsserts();
         ezTestFramework::Output(ezTestOutput::EndBlock, "");
         m_iCurrentSubTestIndex = -1;
       }
@@ -310,6 +321,8 @@ void ezTestFramework::ExecuteTest(ezUInt32 uiTestIndex)
 
     // *** Test De-Initialization ***
     pTestClass->DoTestDeInitialization();
+    // Third and last flush of assert counter, these are all asserts for the test de-init.
+    FlushAsserts();
 
     ezGlobalLog::RemoveLogWriter(LogWriter);
 
@@ -530,6 +543,12 @@ void ezTestFramework::TestResultImpl(ezInt32 iSubTestIndex, bool bSuccess, doubl
       ezTestFramework::Output(ezTestOutput::Error, "Sub-Test '%s' failed: %i Errors.", szSubTestName, (ezUInt32)m_Result.GetErrorMessageCount(m_iCurrentTestIndex, iSubTestIndex));
     }
   }
+}
+
+void ezTestFramework::FlushAsserts()
+{
+  m_Result.AddAsserts(m_iCurrentTestIndex, m_iCurrentSubTestIndex, s_iAssertCounter);
+  s_iAssertCounter = 0;
 }
 
 

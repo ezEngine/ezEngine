@@ -78,6 +78,7 @@ public:
       Status,
       Duration,
       Errors,
+      Asserts,
       Progress,
       ColumnCount,
     };
