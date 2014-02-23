@@ -4,6 +4,11 @@
 #include <MainWindow.moc.h>
 #include <QTableWidget>
 #include <QLabel>
+#include <QFileDialog>
+#include <QMessageBox>
+#include <QTemporaryFile>
+#include <qdesktopservices.h>
+#include <QUrl>
 
 ezDataWidget* ezDataWidget::s_pWidget = NULL;
 
@@ -65,11 +70,12 @@ void ezDataWidget::ProcessTelemetry(void* pUnuseed)
 
     if (msg.GetMessageID() == 'DATA')
     {
-      ezString sBelongsTo, sName, sMimeType;
+      ezString sBelongsTo, sName, sMimeType, sExtension;
 
       msg.GetReader() >> sBelongsTo;
       msg.GetReader() >> sName;
       msg.GetReader() >> sMimeType;
+      msg.GetReader() >> sExtension;
 
       auto Transfer = s_pWidget->m_Transfers.Find(sBelongsTo);
 
@@ -77,6 +83,7 @@ void ezDataWidget::ProcessTelemetry(void* pUnuseed)
       {
         TransferDataObject& tdo = Transfer.Value().m_Items[sName];
         tdo.m_sMimeType = sMimeType;
+        tdo.m_sExtension = sExtension;
 
         ezMemoryStreamWriter Writer(&tdo.m_Storage);
 
@@ -143,25 +150,45 @@ void ezDataWidget::on_ComboTransfers_currentIndexChanged(int index)
   on_ComboItems_currentIndexChanged(ComboItems->currentIndex());
 }
 
+ezDataWidget::TransferDataObject* ezDataWidget::GetCurrentItem()
+{
+  auto Transfer = GetCurrentTransfer();
+
+  if (Transfer == NULL)
+    return NULL;
+
+  ezString sItem = ComboItems->currentText().toUtf8().data();
+
+  auto itItem = Transfer->m_Items.Find(sItem);
+  if (!itItem.IsValid())
+    return NULL;
+
+  return &itItem.Value();
+}
+
+ezDataWidget::TransferData* ezDataWidget::GetCurrentTransfer()
+{
+  ezString sTransfer = ComboTransfers->currentText().toUtf8().data();
+
+  auto itTransfer = m_Transfers.Find(sTransfer);
+  if (!itTransfer.IsValid())
+    return NULL;
+
+  return &itTransfer.Value();
+}
+
 void ezDataWidget::on_ComboItems_currentIndexChanged(int index)
 {
   if (index < 0)
     return;
 
-  ezString sTransfer = ComboTransfers->currentText().toUtf8().data();
+  auto pItem = GetCurrentItem();
 
-  auto itTransfer = m_Transfers.Find(sTransfer);
-  if (!itTransfer.IsValid())
+  if (!pItem)
     return;
 
-  ezString sItem = ComboItems->currentText().toUtf8().data();
-
-  auto itItem = itTransfer.Value().m_Items.Find(sItem);
-  if (!itItem.IsValid())
-    return;
-
-  const ezString sMime = itItem.Value().m_sMimeType;
-  auto& Stream = itItem.Value().m_Storage;
+  const ezString sMime = pItem->m_sMimeType;
+  auto& Stream = pItem->m_Storage;
 
   ezMemoryStreamReader Reader(&Stream);
 
@@ -180,8 +207,7 @@ void ezDataWidget::on_ComboItems_currentIndexChanged(int index)
 
     LabelImage->setPixmap(QPixmap::fromImage(i));
   }
-
-  if (sMime == "text/xml")
+  else if (sMime == "text/xml")
   {
     ezHybridArray<ezUInt8, 1024> Temp;
     Temp.SetCount(Reader.GetByteCount() + 1);
@@ -191,5 +217,91 @@ void ezDataWidget::on_ComboItems_currentIndexChanged(int index)
 
     LabelImage->setText((const char*) &Temp[0]);
   }
+  else
+  {
+    ezStringBuilder sText;
+    sText.Format("Unknown Mime-Type '%s'", sMime.GetData());
+
+    LabelImage->setText(sText.GetData());
+  }
 }
+
+bool ezDataWidget::SaveToFile(TransferDataObject& item, const char* szFile)
+{
+  auto& Stream = item.m_Storage;
+  ezMemoryStreamReader Reader(&Stream);
+
+  QFile FileOut(szFile);
+  if (!FileOut.open(QIODevice::WriteOnly))
+  {
+    QMessageBox::warning(this, QLatin1String("Error writing to file"), QLatin1String("Could not open the specified file for writing."), QMessageBox::Ok, QMessageBox::Ok);
+    return false;
+  }
+
+  ezHybridArray<ezUInt8, 1024> Temp;
+  Temp.SetCount(Reader.GetByteCount());
+
+  Reader.ReadBytes(&Temp[0], Reader.GetByteCount());
+
+  if (!Temp.IsEmpty())
+    FileOut.write((const char*) &Temp[0], Temp.GetCount());
+
+  FileOut.close();
+  return true;
+}
+
+void ezDataWidget::on_ButtonSave_clicked()
+{
+  auto pItem = GetCurrentItem();
+
+  if (!pItem)
+  {
+    QMessageBox::information(this, QLatin1String("ezInspector"), QLatin1String("No valid item selected."), QMessageBox::Ok, QMessageBox::Ok);
+    return;
+  }
+
+  QString sFilter;
+  
+  if (!pItem->m_sExtension.IsEmpty())
+  {
+    sFilter = "Default (*.";
+    sFilter.append(pItem->m_sExtension.GetData());
+    sFilter.append(");;");
+  }
+
+  sFilter.append("All Files (*.*)");
+
+  QString sResult = QFileDialog::getSaveFileName(this, QLatin1String("Save Data"), pItem->m_sFileName.GetData(), sFilter);
+
+  if (sResult.isEmpty())
+    return;
+
+  pItem->m_sFileName = sResult.toUtf8().data();
+
+  SaveToFile(*pItem, pItem->m_sFileName.GetData());
+}
+
+void ezDataWidget::on_ButtonOpen_clicked()
+{
+  auto pItem = GetCurrentItem();
+
+  if (!pItem)
+  {
+    QMessageBox::information(this, QLatin1String("ezInspector"), QLatin1String("No valid item selected."), QMessageBox::Ok, QMessageBox::Ok);
+    return;
+  }
+
+  if (pItem->m_sFileName.IsEmpty())
+    on_ButtonSave_clicked();
+
+  if (pItem->m_sFileName.IsEmpty())
+    return;
+
+  SaveToFile(*pItem, pItem->m_sFileName.GetData());
+
+  if (!QDesktopServices::openUrl(QUrl(pItem->m_sFileName.GetData())))
+    QMessageBox::information(this, QLatin1String("ezInspector"), QLatin1String("Could not open the file. There is probably no application registered to handle this file type."), QMessageBox::Ok, QMessageBox::Ok);
+}
+
+
 

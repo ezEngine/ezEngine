@@ -12,7 +12,7 @@ class EZ_COREUTILS_DLL ezDataTransferObject
   EZ_DISALLOW_COPY_AND_ASSIGN(ezDataTransferObject);
 
 public:
-  ezDataTransferObject(const ezDataTransfer& BelongsTo, const char* szObjectName, const char* szMimeType);
+  ezDataTransferObject(const ezDataTransfer& BelongsTo, const char* szObjectName, const char* szMimeType, const char* szFileExtension);
 
   ezStreamWriterBase& GetWriter() { return m_Msg.GetWriter(); }
 

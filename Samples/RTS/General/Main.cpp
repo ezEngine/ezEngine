@@ -9,6 +9,8 @@
 #include <Foundation/Configuration/Plugin.h>
 #include <Foundation/Time/Clock.h>
 #include <Foundation/IO/JSONWriter.h>
+#include <CoreUtils/Image/Image.h>
+#include <CoreUtils/Image/Formats/TgaFileFormat.h>
 #include <gl/GL.h>
 
 SampleGameApp::SampleGameApp()
@@ -117,8 +119,6 @@ ezApplication::ApplicationExecution SampleGameApp::Run()
 
   if (m_ScreenshotTransfer.IsTransferRequested())
   {
-    
-
     ezUInt32 uiWidth = m_pWindow->GetResolution().width;
     ezUInt32 uiHeight = m_pWindow->GetResolution().height;
 
@@ -127,6 +127,12 @@ ezApplication::ApplicationExecution SampleGameApp::Run()
 
     glReadPixels(0, 0, uiWidth, uiHeight, GL_RGBA, GL_UNSIGNED_BYTE, &Image[0]);
 
+    ezImage img;
+    img.SetWidth(uiWidth);
+    img.SetHeight(uiHeight);
+    img.SetImageFormat(ezImageFormat::R8G8B8A8_UNORM);
+    img.AllocateImageData();
+
     ezDynamicArray<ezUInt8> ImageCorrect;
     ImageCorrect.SetCount(Image.GetCount());
 
@@ -134,6 +140,12 @@ ezApplication::ApplicationExecution SampleGameApp::Run()
     {
       for (ezUInt32 w = 0; w < uiWidth; ++w)
       {
+        auto ptr = img.GetPixelPointer<ezUInt8>(0, 0, 0, w, uiHeight - h - 1, 0);
+        ptr[0] = Image[(h * uiWidth + w) * 4 + 0];
+        ptr[1] = Image[(h * uiWidth + w) * 4 + 1];
+        ptr[2] = Image[(h * uiWidth + w) * 4 + 2];
+        ptr[3] = Image[(h * uiWidth + w) * 4 + 3];
+
         ImageCorrect[((uiHeight - h - 1) * uiWidth + w) * 4 + 0] = Image[(h * uiWidth + w) * 4 + 2];
         ImageCorrect[((uiHeight - h - 1) * uiWidth + w) * 4 + 1] = Image[(h * uiWidth + w) * 4 + 1];
         ImageCorrect[((uiHeight - h - 1) * uiWidth + w) * 4 + 2] = Image[(h * uiWidth + w) * 4 + 0];
@@ -141,22 +153,23 @@ ezApplication::ApplicationExecution SampleGameApp::Run()
       }
     }
 
-    ezDataTransferObject dto(m_ScreenshotTransfer, "Result", "image/rgba8");
+    ezDataTransferObject dto(m_ScreenshotTransfer, "Result", "image/rgba8", "rgba");
     dto.GetWriter() << uiWidth;
     dto.GetWriter() << uiHeight;
     dto.GetWriter().WriteBytes(&ImageCorrect[0], ImageCorrect.GetCount());
     m_ScreenshotTransfer.Transfer(dto);
 
-    ezDataTransferObject dto2(m_ScreenshotTransfer, "Result_Original", "image/rgba8");
-    dto2.GetWriter() << uiWidth;
-    dto2.GetWriter() << uiHeight;
-    dto2.GetWriter().WriteBytes(&Image[0], Image.GetCount());
-    m_ScreenshotTransfer.Transfer(dto2);
+    ezDataTransferObject dto3(m_ScreenshotTransfer, "ResultTGA", "image/x-tga", "tga");
+
+    ezTgaFileFormat tga;
+    tga.WriteImage(dto3.GetWriter(), img, ezGlobalLog::GetInstance());
+
+    m_ScreenshotTransfer.Transfer(dto3);
   }
 
   if (m_StatsTransfer.IsTransferRequested())
   {
-    ezDataTransferObject dto(m_StatsTransfer, "Result", "text/xml");
+    ezDataTransferObject dto(m_StatsTransfer, "Result", "text/xml", "xml");
 
     ezStandardJSONWriter jw;
     jw.SetOutputStream(&dto.GetWriter());

@@ -12,7 +12,7 @@
   </property>
   <property name="minimumSize">
    <size>
-    <width>447</width>
+    <width>510</width>
     <height>264</height>
    </size>
   </property>
@@ -103,6 +103,34 @@
               </spacer>
              </item>
              <item>
+              <widget class="QPushButton" name="ButtonOpen">
+               <property name="toolTip">
+                <string>Open the saved data in the default program.</string>
+               </property>
+               <property name="text">
+                <string/>
+               </property>
+               <property name="icon">
+                <iconset resource="resources.qrc">
+                 <normaloff>:/Icons/Icons/monitor.png</normaloff>:/Icons/Icons/monitor.png</iconset>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="ButtonSave">
+               <property name="toolTip">
+                <string>Save the data to disk.</string>
+               </property>
+               <property name="text">
+                <string/>
+               </property>
+               <property name="icon">
+                <iconset resource="resources.qrc">
+                 <normaloff>:/Icons/Icons/Save.png</normaloff>:/Icons/Icons/Save.png</iconset>
+               </property>
+              </widget>
+             </item>
+             <item>
               <widget class="QPushButton" name="ButtonRefresh">
                <property name="text">
                 <string>Update</string>
@@ -136,7 +164,7 @@
                   <enum>QFrame::NoFrame</enum>
                  </property>
                  <property name="text">
-                  <string>Image</string>
+                  <string/>
                  </property>
                 </widget>
                </item>
