@@ -699,7 +699,7 @@ ezResult ezBmpFileFormat::ReadImage(ezStreamReaderBase& stream, ezImage& image, 
   return EZ_SUCCESS;
 }
 
-bool ezBmpFileFormat::IsKnownExtension(const char* szExtension) const
+bool ezBmpFileFormat::CanReadFileType(const char* szExtension) const
 {
   return
     ezStringUtils::IsEqual_NoCase(szExtension, "bmp") ||
@@ -707,6 +707,10 @@ bool ezBmpFileFormat::IsKnownExtension(const char* szExtension) const
     ezStringUtils::IsEqual_NoCase(szExtension, "rle");
 }
 
+bool ezBmpFileFormat::CanWriteFileType(const char* szExtension) const
+{
+  return CanReadFileType(szExtension);
+}
 
 
 EZ_STATICLINK_FILE(CoreUtils, CoreUtils_Image_Formats_BmpFileFormat);

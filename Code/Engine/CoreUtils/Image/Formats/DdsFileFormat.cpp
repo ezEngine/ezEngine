@@ -495,11 +495,15 @@ ezResult ezDdsFileFormat::WriteImage(ezStreamWriterBase& stream, const ezImage& 
   return EZ_SUCCESS;
 }
 
-bool ezDdsFileFormat::IsKnownExtension(const char* szExtension) const
+bool ezDdsFileFormat::CanReadFileType(const char* szExtension) const
 {
   return ezStringUtils::IsEqual_NoCase(szExtension, "dds");
 }
 
+bool ezDdsFileFormat::CanWriteFileType(const char* szExtension) const
+{
+  return CanReadFileType(szExtension);
+}
 
 
 EZ_STATICLINK_FILE(CoreUtils, CoreUtils_Image_Formats_DdsFileFormat);

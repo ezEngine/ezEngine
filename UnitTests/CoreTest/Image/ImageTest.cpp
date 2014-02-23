@@ -113,7 +113,20 @@ EZ_CREATE_SIMPLE_TEST(Image, Image)
         EZ_TEST_BOOL_MSG(image.SaveTo(fileName.GetData()) == EZ_SUCCESS, "Writing image failed: '%s'", fileName.GetData());
         EZ_TEST_BOOL_MSG(ezFileSystem::ExistsFile(fileName.GetData()), "Output image file is missing: '%s'", fileName.GetData());
 
-        EZ_TEST_FILES(fileName.GetData(), fileNameExpected.GetData(), "bla");
+        EZ_TEST_FILES(fileName.GetData(), fileNameExpected.GetData(), "");
+      }
+
+      {
+        ezStringBuilder fileName;
+        fileName.Format("%s_out.tga", testImagesGood[i]);
+
+        ezStringBuilder fileNameExpected;
+        fileNameExpected.Format("%s_expected.tga", testImagesGood[i]);
+
+        EZ_TEST_BOOL_MSG(image.SaveTo(fileName.GetData()) == EZ_SUCCESS, "Writing image failed: '%s'", fileName.GetData());
+        EZ_TEST_BOOL_MSG(ezFileSystem::ExistsFile(fileName.GetData()), "Output image file is missing: '%s'", fileName.GetData());
+
+        EZ_TEST_FILES(fileName.GetData(), fileNameExpected.GetData(), "");
       }
     }
   }

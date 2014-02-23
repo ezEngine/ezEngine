@@ -25,6 +25,36 @@ struct TgaHeader
 
 EZ_CHECK_AT_COMPILETIME(sizeof(TgaHeader) == 18);
 
+
+static inline ezColorBgra8UNorm GetPixelColor(const ezImage& image, ezUInt32 x, ezUInt32 y, const ezUInt32 uiHeight)
+{
+  ezColorBgra8UNorm c(255, 255, 255, 255);
+
+  const ezUInt8* pPixel = image.GetPixelPointer<ezUInt8>(0, 0, 0, x, uiHeight - y - 1, 0);
+
+  switch (image.GetImageFormat())
+  {
+  case ezImageFormat::R8G8B8A8_UNORM:
+    c.r = pPixel[0];
+    c.g = pPixel[1];
+    c.b = pPixel[2];
+    c.a = pPixel[3];
+    break;
+  case ezImageFormat::B8G8R8A8_UNORM:
+    c.a = pPixel[3];
+    // fall through
+  case ezImageFormat::B8G8R8_UNORM:
+  case ezImageFormat::B8G8R8X8_UNORM:
+    c.r = pPixel[2];
+    c.g = pPixel[1];
+    c.b = pPixel[0];
+    break;
+  }
+
+  return c;
+}
+
+
 ezResult ezTgaFileFormat::WriteImage(ezStreamWriterBase& stream, const ezImage& image, ezLogInterface* pLog) const
 {
   // Technically almost arbitrary formats are supported, but we only use the common ones.
@@ -58,11 +88,190 @@ ezResult ezTgaFileFormat::WriteImage(ezStreamWriterBase& stream, const ezImage& 
 
     return WriteImage(stream, convertedImage, pLog);
   }
-  
 
-  EZ_ASSERT(false, "not implemented");
-  
-  return EZ_FAILURE;
+  const bool bCompress = true;
+
+  // Write the header
+  {
+    ezUInt8 uiHeader[18];
+    ezMemoryUtils::ZeroFill(uiHeader, 18);
+
+    if (!bCompress)
+    {
+      // uncompressed TGA
+      uiHeader[2] = 2;
+    }
+    else
+    {
+      // compressed TGA
+      uiHeader[2] = 10;
+    }
+
+    uiHeader[13] = image.GetWidth(0) / 256;
+    uiHeader[15] = image.GetHeight(0) / 256;
+    uiHeader[12] = image.GetWidth(0) % 256;
+    uiHeader[14] = image.GetHeight(0) % 256;
+    uiHeader[16] = ezImageFormat::GetBitsPerPixel(image.GetImageFormat());
+
+    stream.WriteBytes(uiHeader, 18);
+  }
+
+  const bool bAlpha = image.GetImageFormat() != ezImageFormat::B8G8R8_UNORM;
+
+  const ezUInt32 uiWidth = image.GetWidth(0);
+  const ezUInt32 uiHeight = image.GetHeight(0);
+
+  if (!bCompress)
+  {
+    // Write image uncompressed
+
+    for (ezUInt32 y = 0; y < uiWidth; ++y)
+    {
+      for (ezUInt32 x = 0; x < uiHeight; ++x)
+      {
+        const ezColorBgra8UNorm c = GetPixelColor(image, x, y, uiHeight);
+
+        stream << c.b;
+        stream << c.g;
+        stream << c.r;
+
+        if (bAlpha)
+          stream << c.a;
+      }
+    }
+  }
+  else
+  {
+    // write image RLE compressed
+
+    ezInt32 iRLE = 0;
+
+    ezColorBgra8UNorm pc;
+    ezStaticArray<ezColorBgra8UNorm, 129> unequal;
+    ezInt32 iEqual = 0;
+
+    for (ezUInt32 y = 0; y < uiHeight; ++y)
+    {
+      for (ezUInt32 x = 0; x < uiWidth; ++x)
+      {
+        const ezColorBgra8UNorm c = GetPixelColor(image, x, y, uiHeight);
+
+        if (iRLE == 0) // no comparison possible yet
+        {
+          pc = c;
+          iRLE = 1;
+          unequal.PushBack(c);
+        }
+        else if (iRLE == 1) // has one value gathered for comparison
+        {
+          if (c == pc)
+          {
+            iRLE = 2; // two values were equal
+            iEqual = 2; // go into equal-mode
+          }
+          else
+          {
+            iRLE = 3; // two values were unequal
+            pc = c; // go into unequal-mode
+            unequal.PushBack(c);
+          }
+        }
+        else if (iRLE == 2) // equal values
+        {
+          if ((c == pc) && (iEqual < 128))
+            ++iEqual;
+          else
+          {
+            ezUInt8 uiRepeat = iEqual + 127;
+
+            stream << uiRepeat;
+            stream << pc.b;
+            stream << pc.g;
+            stream << pc.r;
+
+            if (bAlpha)
+              stream << pc.a;
+
+            pc = c;
+            iRLE = 1;
+            unequal.Clear();
+            unequal.PushBack(c);
+          }
+        }
+        else if (iRLE == 3)
+        {
+          if ((c != pc) && (unequal.GetCount() < 128))
+          {
+            unequal.PushBack(c);
+            pc = c;
+          }
+          else
+          {
+            ezUInt8 uiRepeat = (unsigned char) (unequal.GetCount()) - 1;
+            stream << uiRepeat;
+
+            for (ezUInt32 i = 0; i < unequal.GetCount(); ++i)
+            {
+              stream << unequal[i].b;
+              stream << unequal[i].g;
+              stream << unequal[i].r;
+
+              if (bAlpha)
+                stream << unequal[i].a;
+            }
+
+            pc = c;
+            iRLE = 1;
+            unequal.Clear();
+            unequal.PushBack(c);
+          }
+        }
+      }
+    }
+
+
+    if (iRLE == 1) // has one value gathered for comparison
+    {
+      ezUInt8 uiRepeat = 0;
+
+      stream << uiRepeat;
+      stream << pc.b;
+      stream << pc.g;
+      stream << pc.r;
+
+      if (bAlpha)
+        stream << pc.a;
+    }
+    else if (iRLE == 2) // equal values
+    {
+      ezUInt8 uiRepeat = iEqual + 127;
+
+      stream << uiRepeat;
+      stream << pc.b;
+      stream << pc.g;
+      stream << pc.r;
+
+      if (bAlpha)
+        stream << pc.a;
+    }
+    else if (iRLE == 3)
+    {
+      ezUInt8 uiRepeat = (ezUInt8) (unequal.GetCount()) - 1;
+      stream << uiRepeat;
+
+      for (ezUInt32 i = 0; i < unequal.GetCount(); ++i)
+      {
+        stream << unequal[i].b;
+        stream << unequal[i].g;
+        stream << unequal[i].r;
+
+        if (bAlpha)
+          stream << unequal[i].a;
+      }
+    }
+  }
+
+  return EZ_SUCCESS;
 }
 
 
@@ -108,7 +317,7 @@ ezResult ezTgaFileFormat::ReadImage(ezStreamReaderBase& stream, ezImage& image, 
 
   ezUInt32 uiRowPitch = image.GetRowPitch(0);
 
-  
+
 
   if (Header.m_ImageType == 2)
   {
@@ -190,11 +399,15 @@ ezResult ezTgaFileFormat::ReadImage(ezStreamReaderBase& stream, ezImage& image, 
   return EZ_SUCCESS;
 }
 
-bool ezTgaFileFormat::IsKnownExtension(const char* szExtension) const
+bool ezTgaFileFormat::CanReadFileType(const char* szExtension) const
 {
   return ezStringUtils::IsEqual_NoCase(szExtension, "tga");
 }
 
+bool ezTgaFileFormat::CanWriteFileType(const char* szExtension) const
+{
+  return CanReadFileType(szExtension);
+}
 
 
 EZ_STATICLINK_FILE(CoreUtils, CoreUtils_Image_Formats_TgaFileFormat);

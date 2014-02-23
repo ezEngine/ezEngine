@@ -279,6 +279,7 @@ inline float ToFloat(double f) { return (float) f; }
 
 #define EZ_TEST_FILES(szFile1, szFile2, msg, ...) \
 { \
+  ezTestFramework::s_iAssertCounter++; \
   char szLocal_TestMacro[512]; \
   ezFileReader ReadFile1; \
   ezFileReader ReadFile2; \

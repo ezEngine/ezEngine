@@ -66,7 +66,7 @@ ezResult ezImage::LoadFrom(const char* szFileName, ezLogInterface* pLog)
   
   for (ezImageFileFormatBase* pFormat = ezImageFileFormatBase::GetFirstInstance(); pFormat; pFormat = pFormat->GetNextInstance())
   {
-    if (pFormat->IsKnownExtension(it.GetData()))
+    if (pFormat->CanReadFileType(it.GetData()))
     {
       if (pFormat->ReadImage(reader, *this, pLog) != EZ_SUCCESS)
       {
@@ -98,7 +98,7 @@ ezResult ezImage::SaveTo(const char* szFileName, ezLogInterface* pLog)
 
   for (ezImageFileFormatBase* pFormat = ezImageFileFormatBase::GetFirstInstance(); pFormat; pFormat = pFormat->GetNextInstance())
   {
-    if (pFormat->IsKnownExtension(it.GetData()))
+    if (pFormat->CanWriteFileType(it.GetData()))
     {
       if (pFormat->WriteImage(writer, *this, pLog) != EZ_SUCCESS)
       {
