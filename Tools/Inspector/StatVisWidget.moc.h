@@ -5,7 +5,7 @@
 #include <Foundation/Strings/String.h>
 #include <Foundation/Containers/Map.h>
 #include <QDockWidget>
-#include <Projects/Inspector/ui_StatVisWidget.h>
+#include <Tools/Inspector/ui_StatVisWidget.h>
 #include <QGraphicsView>
 #include <QListWidgetItem>
 

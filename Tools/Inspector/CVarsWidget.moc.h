@@ -2,7 +2,7 @@
 
 #include <Foundation/Basics.h>
 #include <QDockWidget>
-#include <Projects/Inspector/ui_CVarsWidget.h>
+#include <Tools/Inspector/ui_CVarsWidget.h>
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Strings/String.h>
 #include <Foundation/Configuration/CVar.h>

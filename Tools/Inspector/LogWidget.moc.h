@@ -2,7 +2,7 @@
 
 #include <Foundation/Basics.h>
 #include <QDockWidget>
-#include <Projects/Inspector/ui_LogWidget.h>
+#include <Tools/Inspector/ui_LogWidget.h>
 #include <Foundation/Containers/Deque.h>
 #include <Foundation/Strings/String.h>
 #include <Foundation/Logging/Log.h>

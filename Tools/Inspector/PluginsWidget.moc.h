@@ -2,7 +2,7 @@
 
 #include <Foundation/Basics.h>
 #include <QDockWidget>
-#include <Projects/Inspector/ui_PluginsWidget.h>
+#include <Tools/Inspector/ui_PluginsWidget.h>
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Strings/String.h>
 

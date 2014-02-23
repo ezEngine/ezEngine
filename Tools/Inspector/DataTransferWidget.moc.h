@@ -6,7 +6,7 @@
 #include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/IO/MemoryStream.h>
 #include <QDockWidget>
-#include <Projects/Inspector/ui_DataTransferWidget.h>
+#include <Tools/Inspector/ui_DataTransferWidget.h>
 
 class ezDataWidget : public QDockWidget, public Ui_DataTransferWidget
 {

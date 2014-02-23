@@ -2,7 +2,7 @@
 
 #include <Foundation/Basics.h>
 #include <QDockWidget>
-#include <Projects/Inspector/ui_InputWidget.h>
+#include <Tools/Inspector/ui_InputWidget.h>
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Strings/String.h>
 #include <Core/Input/InputManager.h>

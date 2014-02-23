@@ -4,7 +4,7 @@
 #include <Foundation/Containers/Deque.h>
 #include <Foundation/Strings/String.h>
 #include <QMainWindow>
-#include <Projects/Inspector/ui_MainWindow.h>
+#include <Tools/Inspector/ui_MainWindow.h>
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Containers/Set.h>
 #include <Foundation/Time/Time.h>
