@@ -97,6 +97,12 @@ EZ_FORCE_INLINE T* ezMemoryUtils::Align(T* ptr, size_t uiAlignment)
 }
 
 template <typename T>
+EZ_FORCE_INLINE T ezMemoryUtils::AlignSize(T uiSize, T uiAlignment)
+{
+  return ((uiSize + (uiAlignment - 1)) & ~(uiAlignment - 1));
+}
+
+template <typename T>
 EZ_FORCE_INLINE bool ezMemoryUtils::IsAligned(const T* ptr, size_t uiAlignment)
 {
   return (reinterpret_cast<size_t>(ptr) & (uiAlignment - 1)) == 0;

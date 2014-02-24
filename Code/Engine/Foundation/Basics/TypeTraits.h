@@ -61,10 +61,18 @@ struct ezConversionTest<T, T>
 };
 
 
+#ifdef __INTELLISENSE__
+
+#define EZ_DECLARE_POD_TYPE()
+
+#else
+
 /// \brief Embed this into a class to mark it as a POD type.
 /// POD types will get special treatment from allocators and container classes, such that they are faster to construct and copy.
 #define EZ_DECLARE_POD_TYPE() \
   ezCompileTimeTrueType operator%(const ezTypeIsPod&) const
+
+#endif
 
 /// \brief Defines a type T as Pod.
 /// POD types will get special treatment from allocators and container classes, such that they are faster to construct and copy.

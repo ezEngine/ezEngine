@@ -58,6 +58,11 @@ public:
   bool IsSuccess() const { return e == EZ_SUCCESS; }
   bool IsFailure() const { return e == EZ_FAILURE; }
 
+  operator bool () const
+  {
+    return e == EZ_SUCCESS;
+  }
+
 private:
   ezResultEnum e;
 };
