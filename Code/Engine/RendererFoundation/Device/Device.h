@@ -130,7 +130,7 @@ public:
 
   EZ_FORCE_INLINE ezGALContext* GetPrimaryContext() const;
 
-  template<typename T = ezGALContext> EZ_FORCE_INLINE T* GetPrimaryContext() const;
+  template<typename T> EZ_FORCE_INLINE T* GetPrimaryContext() const;
 
 
 
