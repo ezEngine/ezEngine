@@ -18,10 +18,6 @@
 
 #include <d3d11.h>
 
-#if EZ_ENABLED(EZ_COMPILER_MSVC) && _MSC_VER < 1700
-#warning "You need to setup the DirectX SDK paths to compile the renderer DX11 plugin currently!"
-#endif
-
 ezGALDeviceDX11::ezGALDeviceDX11(const ezGALDeviceCreationDescription& Description)
   : ezGALDevice(Description),
     m_pDevice(NULL),

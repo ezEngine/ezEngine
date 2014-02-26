@@ -28,6 +28,8 @@ IF(NOT CMAKE_BUILD_TYPE)
       FORCE)
 ENDIF(NOT CMAKE_BUILD_TYPE)
 
+# Required to find cmake modules like 'FindDirectX.cmake'
+set (CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_LIST_DIR})
 
 #########################################################################################
 ## Detects the current platform
@@ -478,6 +480,24 @@ MACRO(BUILD_APPLICATION_PROJECT)
    
   if (NOT EZ_BUILD_APPLICATION_${PROJECT_NAME_UPPER})
     return ()
+  endif ()
+ENDMACRO()
+
+
+#########################################################################################
+## Macro to include directX dependencies
+
+MACRO(BUILD_REQUIRES_DX11)
+  if (${BUILDSYSTEM_PLATFORM_WINDOWS})
+    find_package (DirectX11)
+    SET (LINK_LIBRARIES ${LINK_LIBRARIES} ${DirectX11_D3D11_LIBRARIES})
+    # VS 2012 and up get the Direct X includes via the windows SDK which is always present so this is only required for VS 2010 (I.e. v100).
+    if (${BUILDSYSTEM_COMPILER_MSVC_100})
+      include_directories (${DirectX11_INCLUDE_DIR})
+    endif ()
+  else ()
+    get_filename_component (BUILD_REQUIRES_DX11_MACRO_FOLDERNAME ${CMAKE_CURRENT_SOURCE_DIR} NAME_WE)
+    message (FATAL_ERROR "Platform '${CMAKE_SYSTEM_NAME}' does not support DirectX. Exclude the project '${BUILD_REQUIRES_DX11_MACRO_FOLDERNAME}' with 'BUILD_CONDITIONAL'!")
   endif ()
 ENDMACRO()
 

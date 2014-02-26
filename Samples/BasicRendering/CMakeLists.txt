@@ -18,14 +18,15 @@ BUILD_CONDITIONAL(BUILDSYSTEM_PLATFORM_WINDOWS)
 
 # Add all the libraries that this project needs to link against here
 SET (LINK_LIBRARIES
-  Foundation      # Example: Another library build with cmake
+  Foundation
   Core
   System
   RendererFoundation
   RendererDX11
   InputXBox360
   CoreUtils
-  d3dcompiler.lib
 )
+
+BUILD_REQUIRES_DX11()
 
 include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/CMAKE_Application.txt)

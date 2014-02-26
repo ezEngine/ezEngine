@@ -17,18 +17,12 @@ BUILD_CONDITIONAL(BUILDSYSTEM_PLATFORM_WINDOWS)
 # add_definitions (-DMY_PREPROCESS_DEFINITION_2)
 
 # Add all the libraries that this project needs to link against here
-# SET (LINK_LIBRARIES
-#  Foundation      # Example: Another library build with cmake
-#  OpenGL32.lib    # Example: A library that can be found in any lib path, but was not built with cmake
-# )
-
 SET (LINK_LIBRARIES 
   Foundation 
   RendererFoundation
   System
-  d3d11.lib
-  dxgi.lib
-  dxguid.lib
 )
+
+BUILD_REQUIRES_DX11()
 
 include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/CMAKE_Library.txt)

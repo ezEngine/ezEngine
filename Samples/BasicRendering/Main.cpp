@@ -67,7 +67,7 @@ public:
     sReadDir.AppendPath("../../Shared/FreeContent/Basic Rendering/");
 
     ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
-    ezFileSystem::AddDataDirectory(sReadDir.GetData(), ezFileSystem::DataDirUsage::ReadOnly, "Basic Rendering Content");
+    ezFileSystem::AddDataDirectory(sReadDir.GetData(), ezFileSystem::ReadOnly, "Basic Rendering Content");
 
     ezGlobalLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);
 
