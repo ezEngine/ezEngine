@@ -118,7 +118,7 @@ ezGALRasterizerState* ezGALDeviceDX11::CreateRasterizerStatePlatform(const ezGAL
 {
   ezGALRasterizerStateDX11* pDX11RasterizerState = EZ_DEFAULT_NEW(ezGALRasterizerStateDX11)(Description);
 
-  if(pDX11RasterizerState->InitPlatform(this))
+  if(pDX11RasterizerState->InitPlatform(this).IsSuccess())
   {
     return pDX11RasterizerState;
   }
@@ -140,7 +140,7 @@ ezGALSamplerState* ezGALDeviceDX11::CreateSamplerStatePlatform(const ezGALSample
 {
   ezGALSamplerStateDX11* pDX11SamplerState = EZ_DEFAULT_NEW(ezGALSamplerStateDX11)(Description);
 
-  if (pDX11SamplerState->InitPlatform(this))
+  if (pDX11SamplerState->InitPlatform(this).IsSuccess())
   {
     return pDX11SamplerState;
   }
