@@ -28,10 +28,12 @@ SET (LINK_LIBRARIES
   Core
 )
 
-if (MSVC11)
+if (MSVC10)
+  SET (LINK_LIBRARIES ${LINK_LIBRARIES} XInput)
+elseif (MSVC11 OR MSVC12)
   SET (LINK_LIBRARIES ${LINK_LIBRARIES} XINPUT9_1_0)
 else()
-  SET (LINK_LIBRARIES ${LINK_LIBRARIES} XInput)
+  message (SEND_ERROR "Unknown MSVC compiler version.")
 endif()
 
 include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/CMAKE_Library.txt)
