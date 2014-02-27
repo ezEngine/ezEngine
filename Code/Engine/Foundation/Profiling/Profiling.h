@@ -39,7 +39,6 @@ private:
   friend ezUInt32 RunThread(ezThread* pThread);
 
   static void Initialize();
-  static void Shutdown();
 
   static void AddReference(const ezProfilingId& id);
   static void ReleaseReference(const ezProfilingId& id);

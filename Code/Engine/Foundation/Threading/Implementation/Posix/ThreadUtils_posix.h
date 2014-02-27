@@ -17,10 +17,6 @@ void ezThreadUtils::Initialize()
   g_MainThread = pthread_self();
 }
 
-void ezThreadUtils::Shutdown()
-{
-}
-
 void ezThreadUtils::YieldTimeSlice()
 {
   sched_yield();

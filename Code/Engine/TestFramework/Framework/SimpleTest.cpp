@@ -44,7 +44,7 @@ ezResult ezSimpleTestGroup::InitializeSubTest(ezInt32 iIdentifier)
 ezResult ezSimpleTestGroup::DeInitializeSubTest(ezInt32 iIdentifier)
 {
   // shut down completely
-  ezStartup::ShutdownBase();
+  ezStartup::ShutdownCore();
   return EZ_SUCCESS;
 }
 

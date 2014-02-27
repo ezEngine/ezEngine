@@ -25,8 +25,5 @@ private:
 
   /// \brief Initialization functionality of the threading system (called by foundation startup and thus private)
   static void Initialize();
-
-  /// \brief Cleanup functionality of the threading system (called by foundation shutdown and thus private)
-  static void Shutdown();
 };
 

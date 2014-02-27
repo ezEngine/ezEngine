@@ -28,7 +28,7 @@ void ezRun(ezApplication* pApplicationInstance)
 
   pApplicationInstance->BeforeEngineShutdown();
 
-  ezStartup::ShutdownBase();
+  ezStartup::ShutdownCore();
 
   pApplicationInstance->AfterEngineShutdown();
 

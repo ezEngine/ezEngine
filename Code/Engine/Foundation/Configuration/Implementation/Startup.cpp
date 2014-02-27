@@ -363,10 +363,6 @@ void ezStartup::Shutdown(ezStartupStage::Enum stage)
 
         switch (stage)
         {
-        case ezStartupStage::Base:
-          Order[i]->OnBaseShutdown();
-          break;
-            
         case ezStartupStage::Core:
           Order[i]->OnCoreShutdown();
           break;
@@ -386,9 +382,6 @@ void ezStartup::Shutdown(ezStartupStage::Enum stage)
 
   switch (stage)
   {
-  case ezStartupStage::Base:
-    break;
-      
   case ezStartupStage::Core:
     ezGlobalEvent::Broadcast(EZ_GLOBALEVENT_SHUTDOWN_CORE_END);
     break;
@@ -472,15 +465,6 @@ void ezStartup::UnloadPluginSubSystems(const char* szPluginName)
     }
   }
 
-  for (ezInt32 i = (ezInt32) Order.GetCount() - 1; i >= 0; --i)
-  {
-    if (Order[i]->m_bStartupDone[ezStartupStage::Base] && HasDependencyOnPlugin(Order[i], szPluginName))
-    {
-      ezLog::Info("Base shutdown of SubSystem '%s::%s', because it depends on Plugin '%s'.", Order[i]->GetGroupName(), Order[i]->GetSubSystemName(), szPluginName);
-      Order[i]->OnBaseShutdown();
-      Order[i]->m_bStartupDone[ezStartupStage::Base] = false;
-    }
-  }
 
   ezGlobalEvent::Broadcast(EZ_GLOBALEVENT_UNLOAD_PLUGIN_END, ezVariant(szPluginName));
 }

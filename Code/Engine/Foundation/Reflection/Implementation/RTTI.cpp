@@ -4,9 +4,8 @@
 #include <Foundation/Reflection/Implementation/DynamicRTTI.h>
 #include <Foundation/Reflection/Implementation/MessageHandler.h>
 #include <Foundation/Configuration/Startup.h>
-
-#include <set>
-#include <string>
+#include <Foundation/Containers/Set.h>
+#include <Foundation/Strings/String.h>
 
 EZ_ENUMERABLE_CLASS_IMPLEMENTATION(ezRTTI);
 
@@ -16,13 +15,13 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, Reflection)
   //  "FileSystem"
   //END_SUBSYSTEM_DEPENDENCIES
 
-  ON_BASE_STARTUP
+  ON_CORE_STARTUP
   {
     ezPlugin::s_PluginEvents.AddEventHandler(ezRTTI::PluginEventHandler);
     ezRTTI::AssignPlugin("Static");
   }
 
-  ON_BASE_SHUTDOWN
+  ON_CORE_SHUTDOWN
   {
     ezPlugin::s_PluginEvents.RemoveEventHandler(ezRTTI::PluginEventHandler);
   }
@@ -42,7 +41,7 @@ ezRTTI::ezRTTI(const char* szName, const ezRTTI* pParentType, ezUInt32 uiTypeSiz
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   {
     // cannot use ezSet etc. this runs at startup, before allocators are initialized
-    std::set<std::string> Known;
+    ezSet<ezString> Known;
 
     const ezRTTI* pInstance = this;
 
@@ -50,7 +49,9 @@ ezRTTI::ezRTTI(const char* szName, const ezRTTI* pParentType, ezUInt32 uiTypeSiz
     {
       for (ezUInt32 i = 0; i < pInstance->m_Properties.GetCount(); ++i)
       {
-        const bool bNewProperty = Known.insert(pInstance->m_Properties[i]->GetPropertyName()).second;
+        const bool bNewProperty = !Known.Find(pInstance->m_Properties[i]->GetPropertyName()).IsValid();
+        Known.Insert(pInstance->m_Properties[i]->GetPropertyName());
+
         EZ_ASSERT(bNewProperty, "%s: The property with name '%s' is already defined in type '%s'.", szName, pInstance->m_Properties[i]->GetPropertyName(), pInstance->GetTypeName());
       }
 

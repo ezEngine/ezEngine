@@ -48,7 +48,7 @@ void ezTelemetry::FlushOutgoingQueues()
     if (it.Value().m_OutgoingQueue.IsEmpty())
       continue;
 
-    const ezUInt32 uiCurCount = it.Value().m_OutgoingQueue.GetCount(); 
+    const ezUInt32 uiCurCount = it.Value().m_OutgoingQueue.GetCount();
 
     // send all messages that are queued for this system
     for (ezUInt32 i = 0; i < uiCurCount; ++i)

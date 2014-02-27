@@ -8,17 +8,13 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Core, InputManager)
     "Foundation"
   END_SUBSYSTEM_DEPENDENCIES
 
-  ON_BASE_SHUTDOWN
-  {
-    ezInputManager::DeallocateInternals();
-  }
- 
   ON_CORE_STARTUP
   {
   }
  
   ON_CORE_SHUTDOWN
   {
+    ezInputManager::DeallocateInternals();
   }
 
   ON_ENGINE_STARTUP

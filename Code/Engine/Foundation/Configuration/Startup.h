@@ -78,34 +78,41 @@ public:
   // 'Base Startup' happens even before 'Core Startup', but only really low level stuff should  be done there
   // and those subsystems should not have any dependencies on each other.
   // 'Base Startup' is automatically done right before 'Core Startup'
+  // There is actually no 'Base Shutdown', everything that is initialized in 'Base Startup' should not require
+  // any explicit shutdown.
 
   /// \brief Runs the 'base' startup sequence of all subsystems in the proper order.
-  static void StartupBase() { Startup(ezStartupStage::Base); }
-
-  /// \brief Runs the 'base' shutdown sequence of all subsystems in the proper order (reversed startup order).
   ///
-  /// Makes sure that the 'core' shutdown has been run first.
-  static void ShutdownBase() { Shutdown(ezStartupStage::Base); }
+  /// Run this, if you only require very low level systems to be initialized. Otherwise prefer StartupCore.
+  /// There is NO ShutdownBase, everything that gets initialized during the 'Base Startup' should not need any deinitialization.
+  /// This function is automatically called by StartupCore, if it hasn't been called before already.
+  static void StartupBase() { Startup(ezStartupStage::Base); }
 
   /// \brief Runs the 'core' startup sequence of all subsystems in the proper order.
   ///
+  /// Run this BEFORE any window and graphics context have been created.
   /// Broadcasts the global event EZ_GLOBALEVENT_STARTUP_CORE_BEGIN and EZ_GLOBALEVENT_STARTUP_CORE_END
   static void StartupCore() { Startup(ezStartupStage::Core); }
 
   /// \brief Runs the 'core' shutdown sequence of all subsystems in the proper order (reversed startup order).
   ///
+  /// Call this AFTER window and graphics context have been destroyed already, shortly before application exit.
   /// Makes sure that the 'engine' shutdown has been run first.
   /// Broadcasts the global event EZ_GLOBALEVENT_SHUTDOWN_CORE_BEGIN and EZ_GLOBALEVENT_SHUTDOWN_CORE_END
   static void ShutdownCore() { Shutdown(ezStartupStage::Core); }
 
   /// \brief Runs the 'engine' startup sequence of all subsystems in the proper order.
   ///
+  /// Run this AFTER a window and graphics context have been created, such that anything that depends on that
+  /// can now do its initialization.
   /// Makes sure that the 'core' initialization has been run first.
   /// Broadcasts the global event EZ_GLOBALEVENT_STARTUP_ENGINE_BEGIN and EZ_GLOBALEVENT_STARTUP_ENGINE_END
   static void StartupEngine() { Startup(ezStartupStage::Engine); }
 
   /// \brief Runs the 'core' shutdown sequence of all subsystems in the proper order (reversed startup order).
   ///
+  /// Run this BEFORE the window and graphics context have been destroyed, such that code that requires those
+  /// can do its deinitialization first.
   /// Broadcasts the global event EZ_GLOBALEVENT_SHUTDOWN_ENGINE_BEGIN and EZ_GLOBALEVENT_SHUTDOWN_ENGINE_END
   static void ShutdownEngine() { Shutdown(ezStartupStage::Engine); }
 

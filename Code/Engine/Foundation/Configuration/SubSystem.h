@@ -9,7 +9,7 @@ struct ezStartupStage
   enum Enum
   {
     None = -1,
-    Base,       ///< In this stage the absolute base functionality is started / shut down. This should only be used by the Foundation library.
+    Base,       ///< In this stage the absolute base functionality is started. This should only be used by the Foundation library.
     Core,       ///< In this stage the core functionality is being started / shut down
     Engine,     ///< In this stage the higher level functionality, which depends on a rendering context, is being started / shut down
 
@@ -41,7 +41,7 @@ public:
 
   virtual ~ezSubSystem()
   {
-    for (ezInt32 i = 0; i < ezStartupStage::ENUM_COUNT; ++i)
+    for (ezInt32 i = ezStartupStage::Core; i < ezStartupStage::ENUM_COUNT; ++i)
     {
       // Can't call GetSubSystemName and GetGroupName, because they are pure virtual and the destructor is called
       // after the derived destructor has already run, thus those virtual functions are potentially not available anymore.
@@ -71,9 +71,6 @@ private:
 
   /// \brief This will be called to initialize the subsystems base components. Can be overridden to handle this event.
   virtual void OnBaseStartup() { }
-
-  /// \brief This will be called to shut down the subsystems base components. Can be overridden to handle this event.
-  virtual void OnBaseShutdown() { }
 
   /// \brief This will be called to initialize the subsystems core components. Can be overridden to handle this event.
   virtual void OnCoreStartup() { }

@@ -14,10 +14,6 @@ void ezThreadUtils::Initialize()
   g_uiMainThreadID = GetCurrentThreadId();
 }
 
-void ezThreadUtils::Shutdown()
-{
-}
-
 void ezThreadUtils::YieldTimeSlice()
 {
   ::Sleep(0);

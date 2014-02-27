@@ -12,11 +12,6 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, ThreadUtils)
     ezThreadUtils::Initialize();
   }
 
-  ON_BASE_SHUTDOWN
-  {
-    ezThreadUtils::Shutdown();
-  }
-
 EZ_END_SUBSYSTEM_DECLARATION
 
 

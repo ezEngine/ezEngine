@@ -16,11 +16,6 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, ProfilingSystem)
     ezProfilingSystem::Initialize();
   }
 
-  ON_BASE_SHUTDOWN
-  {
-    ezProfilingSystem::Shutdown();
-  }
-
 EZ_END_SUBSYSTEM_DECLARATION
 
 namespace
@@ -89,11 +84,6 @@ void ezProfilingSystem::Initialize()
   EZ_ASSERT(s_pProfilingData->m_InfoTable.GetAllocator() != ezFoundation::GetDefaultAllocator(), "Profiling Data must use the static allocator");
 
   SetThreadName("Main Thread");
-}
-
-//static
-void ezProfilingSystem::Shutdown()
-{
 }
 
 //static

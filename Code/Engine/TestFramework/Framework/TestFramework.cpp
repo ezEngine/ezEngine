@@ -147,7 +147,6 @@ void ezTestFramework::GetTestSettingsFromCommandLine(int argc, const char** argv
     if (cmd.GetStringOptionArguments("-json") == 1)
       m_Settings.m_sJsonOutput     = cmd.GetStringOption("-json", 0, "");
   }
-  ezStartup::ShutdownBase();
 }
 
 void ezTestFramework::LoadTestOrder()
@@ -162,7 +161,6 @@ void ezTestFramework::CreateOutputFolder()
 {
   ezStartup::StartupBase();
   ezOSFile::CreateDirectoryStructure(m_sAbsTestDir.c_str());
-  ezStartup::ShutdownBase();
 }
 
 void ezTestFramework::SaveTestOrder()

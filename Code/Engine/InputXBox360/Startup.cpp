@@ -25,11 +25,6 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(InputDevices, InputDeviceXBox360)
     
   END_SUBSYSTEM_DEPENDENCIES
 
-  ON_BASE_SHUTDOWN
-  {
-    ezInputDeviceXBox360::DestroyAllDevices();
-  }
- 
   ON_CORE_STARTUP
   {
   }

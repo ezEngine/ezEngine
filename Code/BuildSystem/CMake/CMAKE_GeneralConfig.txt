@@ -209,6 +209,7 @@ if (BUILDSYSTEM_PLATFORM_WINDOWS)
   set (EZ_COMPILE_ENGINE_AS_DLL ON CACHE BOOL "Whether to compile the code as a shared libraries (DLL).")
 endif()
 
+set (EZ_STRICT_WARNINGS OFF CACHE BOOL "Whether to compile the code with highest warning level. Good luck with that.")
 set (EZ_ENABLE_QT_SUPPORT OFF CACHE BOOL "Whether to add Qt support.")
 set (EZ_QT_DIR $ENV{QTDIR} CACHE PATH "Directory of qt installation")
 set (EZ_QT_DIR_FOUND "NOT_FOUND" CACHE PATH "Last found directory of qt installation")
@@ -275,7 +276,9 @@ if (BUILDSYSTEM_COMPILER_MSVC)
   #set (COMPILER_SETTINGS_ALL "${COMPILER_SETTINGS_ALL} /fp:except")
 
 	# enable strict warnings
-	#set (COMPILER_SETTINGS_ALL "${COMPILER_SETTINGS_ALL} /W4")
+  if (EZ_STRICT_WARNINGS)
+    set (COMPILER_SETTINGS_ALL "${COMPILER_SETTINGS_ALL} /W4")
+  endif()
 	# treat warnings as errors
 	set (COMPILER_SETTINGS_ALL "${COMPILER_SETTINGS_ALL} /WX")
 
