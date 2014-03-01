@@ -492,15 +492,32 @@ ENDMACRO()
 
 MACRO(BUILD_REQUIRES_DX11)
   if (${BUILDSYSTEM_PLATFORM_WINDOWS})
+    set (EZ_REQUIRES_DX11 ON)
     find_package (DirectX11)
-    SET (LINK_LIBRARIES ${LINK_LIBRARIES} ${DirectX11_D3D11_LIBRARIES})
+    set (LINK_LIBRARIES ${LINK_LIBRARIES} ${DirectX11_D3D11_LIBRARIES})
     # VS 2012 and up get the Direct X includes via the windows SDK which is always present so this is only required for VS 2010 (I.e. v100).
     if (${BUILDSYSTEM_COMPILER_MSVC_100})
       include_directories (${DirectX11_INCLUDE_DIR})
-    endif ()
+    endif () 
   else ()
     get_filename_component (BUILD_REQUIRES_DX11_MACRO_FOLDERNAME ${CMAKE_CURRENT_SOURCE_DIR} NAME_WE)
     message (FATAL_ERROR "Platform '${CMAKE_SYSTEM_NAME}' does not support DirectX. Exclude the project '${BUILD_REQUIRES_DX11_MACRO_FOLDERNAME}' with 'BUILD_CONDITIONAL'!")
+  endif ()
+ENDMACRO()
+
+MACRO(DX11_COPY_DLLS)
+  if (${EZ_REQUIRES_DX11})
+    if (${BUILDSYSTEM_PLATFORM_64BIT})
+      add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+          COMMAND ${CMAKE_COMMAND} -E copy_if_different
+          "C:/Program Files (x86)/Windows Kits/8.0/Redist/D3D/x64/d3dcompiler_46.dll"
+          $<TARGET_FILE_DIR:${PROJECT_NAME}>)
+    else ()
+      add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+          COMMAND ${CMAKE_COMMAND} -E copy_if_different
+          "C:/Program Files (x86)/Windows Kits/8.0/Redist/D3D/x86/d3dcompiler_46.dll"
+          $<TARGET_FILE_DIR:${PROJECT_NAME}>)
+    endif ()
   endif ()
 ENDMACRO()
 

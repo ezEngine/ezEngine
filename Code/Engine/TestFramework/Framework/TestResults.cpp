@@ -119,8 +119,10 @@ bool ezTestFrameworkResult::WriteJsonToFile(const char* szAbsFileName) const
   {
     ezFileWriter file;
     if (file.Open(szAbsFileName) == EZ_FAILURE)
+    {
+      ezStartup::ShutdownCore();
       return false;
-
+    }
     ezStandardJSONWriter js;
     js.SetOutputStream(&file);
 
@@ -229,6 +231,7 @@ bool ezTestFrameworkResult::WriteJsonToFile(const char* szAbsFileName) const
     js.EndObject();
   }
 
+  ezStartup::ShutdownCore();
   return true;
 }
 
