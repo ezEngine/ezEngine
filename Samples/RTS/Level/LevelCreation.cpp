@@ -33,7 +33,7 @@ ezCallbackResult::Enum Level::SetPointBlocking(ezInt32 x, ezInt32 y, void* pPass
 
 void Level::CreateRandomLevel()
 {
-  m_GameGrid.CreateGrid(250, 250);
+  m_GameGrid.CreateGrid(100, 100);
   m_GameGrid.SetWorldSpaceDimensions(ezVec3(-25.0f, 0, -25.0f), ezVec3(1.0f, 2.0f, 1.0f));
 
   for (ezUInt32 z = 0; z < m_GameGrid.GetGridHeight(); ++z)
