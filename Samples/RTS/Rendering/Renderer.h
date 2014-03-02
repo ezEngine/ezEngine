@@ -5,6 +5,7 @@
 #include <GameUtils/DataStructures/GameGrid.h>
 #include <RTS/General/Window.h>
 #include <GameUtils/DataStructures/ObjectSelection.h>
+#include <Foundation/Math/Frustum.h>
 
 class GameRenderer
 {
@@ -33,6 +34,7 @@ private:
   ezMat4 m_InverseProjectionMatrix;
   ezMat4 m_InverseModelViewMatrix;
   ezMat4 m_InverseModelViewProjectionMatrix;
+  ezFrustum m_Frustum;
 
   void Render3D(const ezObjectSelection* pSelection);
   void Render2DOverlays();

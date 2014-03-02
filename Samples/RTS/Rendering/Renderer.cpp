@@ -50,6 +50,10 @@ void GameRenderer::UpdateState()
   m_InverseProjectionMatrix = m_ProjectionMatrix.GetInverse();
   m_InverseModelViewMatrix = m_ModelViewMatrix.GetInverse();
   m_InverseModelViewProjectionMatrix = m_ModelViewProjectionMatrix.GetInverse();
+
+  // both of these work fine:
+  m_Frustum.SetFrustum(m_pCamera->GetPosition(), m_ModelViewProjectionMatrix, m_pCamera->GetFarPlane());
+  //m_Frustum.SetFrustum(m_pCamera->GetPosition(), m_pCamera->GetDirForwards(), m_pCamera->GetDirUp(), m_pCamera->GetFovX(fAspectRatio), m_pCamera->GetFovY(fAspectRatio), m_pCamera->GetFarPlane());
 }
 
 void GameRenderer::Render3D(const ezObjectSelection* pSelection)

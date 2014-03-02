@@ -1,6 +1,7 @@
 #include <PCH.h>
 #include <RTS/Rendering/Renderer.h>
 #include <Foundation/Configuration/CVar.h>
+#include <Foundation/Utilities/Stats.h>
 #include <gl/GL.h>
 #include <gl/glu.h>
 
@@ -16,10 +17,33 @@ void GameRenderer::RenderGrid()
   const ezVec3 vCellSize = m_pGrid->GetWorldSpaceCellSize();
   const ezVec3 vCellSize2 (vCellSize.x, 0.1f, vCellSize.z);
 
+  ezUInt32 uiCellsRendered = 0;
+
   for (ezUInt32 z = 0; z < m_pGrid->GetGridHeight(); ++z)
   {
+    // Quick test to reject the entire line, this speeds things up considerably
+    {
+      ezVec3 vCellPos = m_pGrid->GetCellWorldSpaceOrigin(ezVec2I32(0, z));
+      ezVec3 vCellPos2 = m_pGrid->GetCellWorldSpaceOrigin(ezVec2I32(m_pGrid->GetGridWidth(), z));
+
+      if (m_Frustum.GetObjectPosition(ezBoundingBox(vCellPos, vCellPos2)) == ezVolumePosition::Outside)
+        continue;
+    }
+
     for (ezUInt32 x = 0; x < m_pGrid->GetGridWidth(); ++x)
     {
+      // this test works, but is damned slow
+      if (false)
+      {
+        ezVec3 vCellPos = m_pGrid->GetCellWorldSpaceOrigin(ezVec2I32(x, z));
+        ezVec3 vCellPos2 = vCellPos + m_pGrid->GetWorldSpaceCellSize();
+
+        if (m_Frustum.GetObjectPosition(ezBoundingBox(vCellPos, vCellPos2)) == ezVolumePosition::Outside)
+          continue;
+      }
+
+      ++uiCellsRendered;
+
       const GameCellData& cd = m_pGrid->GetCell(ezVec2I32(x, z));
 
       const ezUInt32 uiVisibility = CVarVisFogOfWar ? cd.m_uiVisibility : 255;
@@ -59,6 +83,10 @@ void GameRenderer::RenderGrid()
       }
     }
   }
+
+  ezStringBuilder s;
+  s.Format("%u", uiCellsRendered);
+  ezStats::SetStat("RenderedCells", s.GetData());
   
   if (CVarVisNavmeshCells)
   {
