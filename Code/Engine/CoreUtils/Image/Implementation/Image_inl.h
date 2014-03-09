@@ -48,7 +48,7 @@ const T* ezImage::GetSubImagePointer(ezUInt32 uiMipLevel, ezUInt32 uiFace, ezUIn
 template<typename T>
 T* ezImage::GetSubImagePointer(ezUInt32 uiMipLevel, ezUInt32 uiFace, ezUInt32 uiArrayIndex)
 {
-  return const_cast<T*>(static_cast<const ezImage*>(this)->GetSubImagePointer(uiMipLevel, uiFace, uiArrayIndex));
+  return const_cast<T*>(static_cast<const ezImage*>(this)->GetSubImagePointer<T>(uiMipLevel, uiFace, uiArrayIndex));
 }
 
 template<typename T>
@@ -96,7 +96,7 @@ const T* ezImage::GetBlockPointer(ezUInt32 uiMipLevel, ezUInt32 uiFace, ezUInt32
 template<typename T>
 T* ezImage::GetBlockPointer(ezUInt32 uiMipLevel, ezUInt32 uiFace, ezUInt32 uiArrayIndex, ezUInt32 uiBlockX, ezUInt32 uiBlockY, ezUInt32 z)
 {
-  return const_cast<T*>(static_cast<const ezImage*>(this)->GetBlockPointer(uiMipLevel, uiFace, uiArrayIndex, uiBlockX, uiBlockY, z));
+  return const_cast<T*>(static_cast<const ezImage*>(this)->GetBlockPointer<T>(uiMipLevel, uiFace, uiArrayIndex, uiBlockX, uiBlockY, z));
 }
 
 

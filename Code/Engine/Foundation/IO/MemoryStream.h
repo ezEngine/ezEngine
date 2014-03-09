@@ -31,6 +31,9 @@ public:
   /// \brief Returns the number of bytes that is currently stored.
   ezUInt32 GetStorageSize() const { return m_Storage.GetCount(); }
 
+  /// \brief Clears the entire storage. All readers and writers must be reset to start from the beginning again.
+  void Clear() { m_Storage.Clear(); }
+
 private:
   friend class ezMemoryStreamReader;
   friend class ezMemoryStreamWriter;
@@ -51,7 +54,7 @@ public:
 
   ~ezMemoryStreamReader();
 
-  /// \brief Sets the storage object upon which to operate. Resests the read position to zero.
+  /// \brief Sets the storage object upon which to operate. Resets the read position to zero.
   /// Pass NULL if you want to detach from any previous storage stream, for example to ensure its reference count gets properly reduced.
   void SetStorage(ezMemoryStreamStorage* pStreamStorage) { m_pStreamStorage = pStreamStorage; m_uiReadPosition = 0; }
 

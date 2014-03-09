@@ -139,7 +139,7 @@ struct ezTestBlock
 #define EZ_TEST_FAILURE(erroroutput, msg, ...) \
 {\
   char szTemp[1024]; \
-  ezStringUtils::snprintf(szTemp, 1024, msg, __VA_ARGS__); \
+  ezStringUtils::snprintf(szTemp, 1024, msg, ##__VA_ARGS__); \
   ezTestFramework::Error(erroroutput, EZ_SOURCE_FILE, EZ_SOURCE_LINE, EZ_SOURCE_FUNCTION, szTemp);\
   EZ_TEST_DEBUG_BREAK \
 }
@@ -153,7 +153,7 @@ struct ezTestBlock
   ezTestFramework::s_iAssertCounter++; \
   if (!(condition)) \
   { \
-    EZ_TEST_FAILURE("Test failed: " EZ_STRINGIZE(condition), msg, __VA_ARGS__) \
+    EZ_TEST_FAILURE("Test failed: " EZ_STRINGIZE(condition), msg, ##__VA_ARGS__) \
   } \
 }
 
@@ -176,7 +176,7 @@ inline float ToFloat(double f) { return (float) f; }
   { \
     char szLocal_TestMacro[256]; \
     sprintf (szLocal_TestMacro, "Failure: '%s' (%.8f) does not equal '%s' (%.8f) within an epsilon of %.8f", EZ_STRINGIZE(f1), internal_r1, EZ_STRINGIZE(f2), internal_r2, internal_fEps); \
-    EZ_TEST_FAILURE(szLocal_TestMacro, msg, __VA_ARGS__); \
+    EZ_TEST_FAILURE(szLocal_TestMacro, msg, ##__VA_ARGS__); \
   } \
 }
 
@@ -195,7 +195,7 @@ inline float ToFloat(double f) { return (float) f; }
   { \
     char szLocal_TestMacro[256]; \
     sprintf (szLocal_TestMacro, "Failure: '%s' (%.8f) does not equal '%s' (%.8f) within an epsilon of %.8f", EZ_STRINGIZE(f1), internal_r1, EZ_STRINGIZE(f2), internal_r2, internal_fEps); \
-    EZ_TEST_FAILURE(szLocal_TestMacro, msg, __VA_ARGS__); \
+    EZ_TEST_FAILURE(szLocal_TestMacro, msg, ##__VA_ARGS__); \
   } \
 }
 
@@ -213,7 +213,7 @@ inline float ToFloat(double f) { return (float) f; }
   { \
     char szLocal_TestMacro[256]; \
     sprintf (szLocal_TestMacro, "Failure: '%s' (%i) does not equal '%s' (%i)", EZ_STRINGIZE(i1), internal_r1, EZ_STRINGIZE(i2), internal_r2); \
-    EZ_TEST_FAILURE(szLocal_TestMacro, msg, __VA_ARGS__); \
+    EZ_TEST_FAILURE(szLocal_TestMacro, msg, ##__VA_ARGS__); \
   } \
 }
 
@@ -231,7 +231,7 @@ inline float ToFloat(double f) { return (float) f; }
   { \
     char szLocal_TestMacro[512]; \
     sprintf (szLocal_TestMacro, "Failure: '%s' (%s) does not equal '%s' (%s)", EZ_STRINGIZE(internal_s1), internal_sz1, EZ_STRINGIZE(internal_s2), internal_sz2); \
-    EZ_TEST_FAILURE(szLocal_TestMacro, msg, __VA_ARGS__); \
+    EZ_TEST_FAILURE(szLocal_TestMacro, msg, ##__VA_ARGS__); \
   } \
 }
 
@@ -244,8 +244,8 @@ inline float ToFloat(double f) { return (float) f; }
   const ezVec2T internal_v1 = (ezVec2T) (r1); \
   const ezVec2T internal_v2 = (ezVec2T) (r2); \
   \
-  EZ_TEST_FLOAT_MSG(internal_v1.x, internal_v2.x, epsilon, msg, __VA_ARGS__); \
-  EZ_TEST_FLOAT_MSG(internal_v1.y, internal_v2.y, epsilon, msg, __VA_ARGS__); \
+  EZ_TEST_FLOAT_MSG(internal_v1.x, internal_v2.x, epsilon, msg, ##__VA_ARGS__); \
+  EZ_TEST_FLOAT_MSG(internal_v1.y, internal_v2.y, epsilon, msg, ##__VA_ARGS__); \
 }
 
 /// \brief Tests two ezVec3's for equality, using some epsilon. On failure both actual and expected values are output.
@@ -257,9 +257,9 @@ inline float ToFloat(double f) { return (float) f; }
   const ezVec3T internal_v1 = (ezVec3T) (r1); \
   const ezVec3T internal_v2 = (ezVec3T) (r2); \
   \
-  EZ_TEST_FLOAT_MSG(internal_v1.x, internal_v2.x, epsilon, msg, __VA_ARGS__); \
-  EZ_TEST_FLOAT_MSG(internal_v1.y, internal_v2.y, epsilon, msg, __VA_ARGS__); \
-  EZ_TEST_FLOAT_MSG(internal_v1.z, internal_v2.z, epsilon, msg, __VA_ARGS__); \
+  EZ_TEST_FLOAT_MSG(internal_v1.x, internal_v2.x, epsilon, msg, ##__VA_ARGS__); \
+  EZ_TEST_FLOAT_MSG(internal_v1.y, internal_v2.y, epsilon, msg, ##__VA_ARGS__); \
+  EZ_TEST_FLOAT_MSG(internal_v1.z, internal_v2.z, epsilon, msg, ##__VA_ARGS__); \
 }
 
 /// \brief Tests two ezVec4's for equality, using some epsilon. On failure both actual and expected values are output.
@@ -271,10 +271,10 @@ inline float ToFloat(double f) { return (float) f; }
   const ezVec4T internal_v1 = (ezVec4T) (r1); \
   const ezVec4T internal_v2 = (ezVec4T) (r2); \
   \
-  EZ_TEST_FLOAT_MSG(internal_v1.x, internal_v2.x, epsilon, msg, __VA_ARGS__); \
-  EZ_TEST_FLOAT_MSG(internal_v1.y, internal_v2.y, epsilon, msg, __VA_ARGS__); \
-  EZ_TEST_FLOAT_MSG(internal_v1.z, internal_v2.z, epsilon, msg, __VA_ARGS__); \
-  EZ_TEST_FLOAT_MSG(internal_v1.w, internal_v2.w, epsilon, msg, __VA_ARGS__); \
+  EZ_TEST_FLOAT_MSG(internal_v1.x, internal_v2.x, epsilon, msg, ##__VA_ARGS__); \
+  EZ_TEST_FLOAT_MSG(internal_v1.y, internal_v2.y, epsilon, msg, ##__VA_ARGS__); \
+  EZ_TEST_FLOAT_MSG(internal_v1.z, internal_v2.z, epsilon, msg, ##__VA_ARGS__); \
+  EZ_TEST_FLOAT_MSG(internal_v1.w, internal_v2.w, epsilon, msg, ##__VA_ARGS__); \
 }
 
 #define EZ_TEST_FILES(szFile1, szFile2, msg, ...) \
@@ -287,20 +287,20 @@ inline float ToFloat(double f) { return (float) f; }
   if (ReadFile1.Open(szFile1) == EZ_FAILURE) \
   { \
     sprintf(szLocal_TestMacro, "Failure: File '%s' could not be read.", szFile1); \
-    EZ_TEST_FAILURE(szLocal_TestMacro, msg, __VA_ARGS__); \
+    EZ_TEST_FAILURE(szLocal_TestMacro, msg, ##__VA_ARGS__); \
   } \
   else \
   if (ReadFile2.Open(szFile2) == EZ_FAILURE) \
   { \
     sprintf(szLocal_TestMacro, "Failure: File '%s' could not be read.", szFile2); \
-    EZ_TEST_FAILURE(szLocal_TestMacro, msg, __VA_ARGS__); \
+    EZ_TEST_FAILURE(szLocal_TestMacro, msg, ##__VA_ARGS__); \
   } \
   \
   else \
   if (ReadFile1.GetFileSize() != ReadFile2.GetFileSize()) \
   { \
     sprintf(szLocal_TestMacro, "Failure: File sizes do not match: '%s' and '%s'", szFile1, szFile2); \
-    EZ_TEST_FAILURE(szLocal_TestMacro, msg, __VA_ARGS__); \
+    EZ_TEST_FAILURE(szLocal_TestMacro, msg, ##__VA_ARGS__); \
   } \
   else \
   { \
@@ -314,7 +314,7 @@ inline float ToFloat(double f) { return (float) f; }
       if (uiRead1 != uiRead2) \
       { \
         sprintf(szLocal_TestMacro, "Failure: Files could not read same amount of data: '%s' and '%s'", szFile1, szFile2); \
-        EZ_TEST_FAILURE(szLocal_TestMacro, msg, __VA_ARGS__); \
+        EZ_TEST_FAILURE(szLocal_TestMacro, msg, ##__VA_ARGS__); \
         break; \
       } \
       else \
@@ -325,10 +325,12 @@ inline float ToFloat(double f) { return (float) f; }
         if (memcmp(uiTemp1, uiTemp2, (size_t) uiRead1) != 0) \
         { \
           sprintf(szLocal_TestMacro, "Failure: Files contents do not match: '%s' and '%s'", szFile1, szFile2); \
-          EZ_TEST_FAILURE(szLocal_TestMacro, msg, __VA_ARGS__); \
+          EZ_TEST_FAILURE(szLocal_TestMacro, msg, ##__VA_ARGS__); \
           break; \
         } \
       } \
     } \
   } \
 }
+
+

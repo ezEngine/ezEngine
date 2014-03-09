@@ -155,7 +155,7 @@ void ezDataTransfer::TelemetryEventsHandler(const ezTelemetry::TelemetryEventDat
     SendAllDataTransfers();
     break;
 
-  case ezTelemetry::TelemetryEventData::PerFrameUpdate:
+  default:
     break;
   }
 }

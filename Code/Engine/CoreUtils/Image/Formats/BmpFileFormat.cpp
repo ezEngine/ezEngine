@@ -49,13 +49,27 @@ struct ezBmpFileInfoHeader {
 
 static const char* ezBmpFileInfoHeaderFormat = "dddwwdddddd";
 
+struct ezCIEXYZ
+{
+  long int ciexyzX;
+  long int ciexyzY;
+  long int ciexyzZ;
+};
+
+struct ezCIEXYZTRIPLE
+{
+  ezCIEXYZ ciexyzRed;
+  ezCIEXYZ ciexyzGreen;
+  ezCIEXYZ ciexyzBlue;
+};
+
 struct ezBmpFileInfoHeaderV4 {
   ezUInt32        m_redMask;
   ezUInt32        m_greenMask;
   ezUInt32        m_blueMask;
   ezUInt32        m_alphaMask;
   ezUInt32        m_csType;
-  CIEXYZTRIPLE    m_endpoints;
+  ezCIEXYZTRIPLE  m_endpoints;
   ezUInt32        m_gammaRed;
   ezUInt32        m_gammaGreen;
   ezUInt32        m_gammaBlue;

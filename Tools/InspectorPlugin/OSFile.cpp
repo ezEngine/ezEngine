@@ -105,8 +105,6 @@ static void OSFileEventHandler(const ezOSFile::EventData& e)
   else
     uiThreadType = 1 << 2;
 
-  EZ_ASSERT(uiThreadType == 1, "Send");
-
   Msg.GetWriter() << e.m_Duration.GetSeconds();
   Msg.GetWriter() << uiThreadType;
 
