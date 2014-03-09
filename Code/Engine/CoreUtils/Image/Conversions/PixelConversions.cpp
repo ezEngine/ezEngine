@@ -93,10 +93,10 @@ struct ezImageConversion_F32_U8 : public ezImageConversionMixinLinear<ezImageCon
 
   static void ConvertSingle(const SourceTypeSingle* pSource, TargetTypeSingle* pTarget)
   {
-    pTarget[0].r = static_cast<ezUInt8>(ezMath::Clamp(floor(pSource[0].r * 0xFF + 0.5f), 0.0f, 255.0f));
-    pTarget[0].b = static_cast<ezUInt8>(ezMath::Clamp(floor(pSource[0].b * 0xFF + 0.5f), 0.0f, 255.0f));
-    pTarget[0].g = static_cast<ezUInt8>(ezMath::Clamp(floor(pSource[0].g * 0xFF + 0.5f), 0.0f, 255.0f));
-    pTarget[0].a = static_cast<ezUInt8>(ezMath::Clamp(floor(pSource[0].a * 0xFF + 0.5f), 0.0f, 255.0f));
+    pTarget[0].r = static_cast<ezUInt8>(ezMath::Clamp(ezMath::Floor(pSource[0].r * 255.0f + 0.5f), 0.0f, 255.0f));
+    pTarget[0].b = static_cast<ezUInt8>(ezMath::Clamp(ezMath::Floor(pSource[0].b * 255.0f + 0.5f), 0.0f, 255.0f));
+    pTarget[0].g = static_cast<ezUInt8>(ezMath::Clamp(ezMath::Floor(pSource[0].g * 255.0f + 0.5f), 0.0f, 255.0f));
+    pTarget[0].a = static_cast<ezUInt8>(ezMath::Clamp(ezMath::Floor(pSource[0].a * 255.0f + 0.5f), 0.0f, 255.0f));
   }
 
   typedef ezColor SourceTypeMultiple;

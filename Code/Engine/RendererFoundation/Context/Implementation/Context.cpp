@@ -2,6 +2,7 @@
 
 #include <RendererFoundation/PCH.h>
 #include <RendererFoundation/Context/Context.h>
+#include <RendererFoundation/Device/SwapChain.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Shader/Shader.h>
 #include <RendererFoundation/Resources/Buffer.h>
