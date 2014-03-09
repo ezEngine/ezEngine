@@ -3,7 +3,9 @@
 
 #include <RendererFoundation/Basics.h>
 #include <RendererFoundation/Context/ContextState.h>
+
 class ezColor;
+class ezGALDevice;
 
 class EZ_RENDERERFOUNDATION_DLL ezGALContext
 {

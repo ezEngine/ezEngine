@@ -14,11 +14,10 @@
 template <typename IdType, typename ValueType>
 class ezIdTableBase
 {
-private:
+public:
   typedef typename IdType::StorageType IndexType;
   typedef IdType TypeOfId;
 
-public:
   /// \brief Const iterator.
   class ConstIterator
   {

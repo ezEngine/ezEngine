@@ -24,13 +24,13 @@ void ezGALContextState::Invalidate()
 
   m_hVertexDeclaration = ezGALVertexDeclarationHandle();
 
-  m_ScissorRect = ezRectU32(UINT_MAX, UINT_MAX, 0, 0);
+  m_ScissorRect = ezRectU32(0xFFFFFFFF, 0xFFFFFFFF, 0, 0);
 
-  m_ViewPortRect = ezRectFloat(FLT_MAX, FLT_MAX, 0.0f, 0.0f);
+  m_ViewPortRect = ezRectFloat(ezMath::BasicType<float>::MaxValue(), ezMath::BasicType<float>::MaxValue(), 0.0f, 0.0f);
 
-  m_fViewPortMinDepth = FLT_MAX;
+  m_fViewPortMinDepth = ezMath::BasicType<float>::MaxValue();
 
-  m_fViewPortMaxDepth = -FLT_MAX;
+  m_fViewPortMaxDepth = -ezMath::BasicType<float>::MaxValue();
 
   m_Topology = ezGALPrimitiveTopology::ENUM_COUNT;
 }
