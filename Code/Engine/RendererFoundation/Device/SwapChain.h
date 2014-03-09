@@ -3,7 +3,7 @@
 
 #include <RendererFoundation/Basics.h>
 
-class ezGALSwapChain : public ezGALObjectBase<ezGALSwapChainCreationDescription>
+class EZ_RENDERERFOUNDATION_DLL ezGALSwapChain : public ezGALObjectBase<ezGALSwapChainCreationDescription>
 {
 public:
 
@@ -19,14 +19,15 @@ public:
 
 protected:
 
-  ezGALSwapChain(const ezGALSwapChainCreationDescription& Description, ezGALTextureHandle hBackBufferTexture, ezGALRenderTargetViewHandle hBackbBufferRenderTargetView)
-    : ezGALObjectBase(Description), m_hBackBufferTexture(hBackBufferTexture), m_hBackbBufferRenderTargetView(hBackbBufferRenderTargetView)
-  {
-  }
+  ezGALSwapChain(const ezGALSwapChainCreationDescription& Description);
 
-  virtual ~ezGALSwapChain()
-  {
-  }
+  virtual ~ezGALSwapChain();
+
+  virtual ezResult InitPlatform(ezGALDevice* pDevice) = 0;
+
+  virtual ezResult DeInitPlatform(ezGALDevice* pDevice);
+
+  void SetBackBufferObjects(ezGALTextureHandle hBackBufferTexture, ezGALRenderTargetViewHandle hBackbBufferRenderTargetView);
 
   ezGALTextureHandle m_hBackBufferTexture;
 

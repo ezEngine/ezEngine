@@ -16,10 +16,16 @@ public:
 protected:
 
   friend class ezGALDeviceDX11;
+  friend class ezMemoryUtils;
 
-  ezGALSwapChainDX11(const ezGALSwapChainCreationDescription& Description, ezGALTextureHandle hBackBufferTexture, ezGALRenderTargetViewHandle hBackBufferRenderTargetView, IDXGISwapChain* pDXSwapChain);
+  ezGALSwapChainDX11(const ezGALSwapChainCreationDescription& Description);
 
   virtual ~ezGALSwapChainDX11();
+
+  virtual ezResult InitPlatform(ezGALDevice* pDevice) EZ_OVERRIDE;
+
+  virtual ezResult DeInitPlatform(ezGALDevice* pDevice) EZ_OVERRIDE;
+
 
   IDXGISwapChain* m_pDXSwapChain;
 };

@@ -267,73 +267,15 @@ void ezGALDeviceDX11::DestroyRenderTargetViewPlatform(ezGALRenderTargetView* pRe
 // TODO: Move the real code creating things to the implementation files (all?)
 ezGALSwapChain* ezGALDeviceDX11::CreateSwapChainPlatform(const ezGALSwapChainCreationDescription& Description)
 {
-  DXGI_SWAP_CHAIN_DESC SwapChainDesc;
-  SwapChainDesc.BufferCount = Description.m_bDoubleBuffered ? 2 : 1;
-  SwapChainDesc.BufferUsage = DXGI_USAGE_BACK_BUFFER | DXGI_USAGE_RENDER_TARGET_OUTPUT;
-  SwapChainDesc.OutputWindow = Description.m_pWindow->GetNativeWindowHandle();
-  SwapChainDesc.SampleDesc.Count = Description.m_SampleCount; SwapChainDesc.SampleDesc.Quality = 0; // TODO: Get from MSAA value of the description
-  SwapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
-  SwapChainDesc.Windowed = Description.m_bFullscreen ? FALSE : TRUE;
-  SwapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH; // TODO: The mode switch needs to be handled (ResizeBuffers + communication with engine)
+  ezGALSwapChainDX11* pSwapChain = EZ_DEFAULT_NEW(ezGALSwapChainDX11)(Description);
 
-  // TODO: Get from enumeration of available modes
-  // TODO: (Find via format table)
-  SwapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
-  SwapChainDesc.BufferDesc.Width = Description.m_pWindow->GetCreationDescription().m_ClientAreaSize.width;
-  SwapChainDesc.BufferDesc.Height = Description.m_pWindow->GetCreationDescription().m_ClientAreaSize.height;
-  SwapChainDesc.BufferDesc.RefreshRate.Numerator = 60; SwapChainDesc.BufferDesc.RefreshRate.Denominator = 1;
-  SwapChainDesc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
-  SwapChainDesc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
-
-  IDXGISwapChain* pSwapChain = NULL;
-
-  if(FAILED(m_pDXGIFactory->CreateSwapChain(m_pDevice, &SwapChainDesc, &pSwapChain)))
+  if (!pSwapChain->InitPlatform(this).IsSuccess())
   {
+    EZ_DEFAULT_DELETE(pSwapChain);
     return NULL;
   }
-  else
-  {
-    // Get texture of the swap chain
-    ID3D11Texture2D* pNativeBackBufferTexture = NULL;
-    if(FAILED(pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(&pNativeBackBufferTexture))))
-    {
-      ezLog::Error("Couldn't access backbuffer texture of swapchain!");
-      EZ_GAL_DX11_RELEASE(pSwapChain);
 
-      return NULL;
-    }
-
-    ezGALTextureCreationDescription TexDesc;
-    TexDesc.m_uiWidth = SwapChainDesc.BufferDesc.Width;
-    TexDesc.m_uiHeight = SwapChainDesc.BufferDesc.Height;
-    TexDesc.m_Format = Description.m_BackBufferFormat;
-    TexDesc.m_SampleCount = Description.m_SampleCount;
-    TexDesc.m_pExisitingNativeObject = pNativeBackBufferTexture;
-    TexDesc.m_bCreateRenderTarget = true;
-
-    if (Description.m_bAllowScreenshots)
-      TexDesc.m_ResourceAccess.m_bReadBack = true;
-
-    // And create the ez texture object wrapping the backbuffer texture
-    ezGALTextureHandle hBackBufferTexture = CreateTexture(TexDesc, NULL);
-    EZ_ASSERT(!hBackBufferTexture.IsInvalidated(), "Couldn't create backbuffer texture object!");
-
-
-    // Create rendertarget view
-    ezGALRenderTargetViewCreationDescription RTViewDesc;
-    RTViewDesc.m_bReadOnly = true;
-    RTViewDesc.m_hTexture = hBackBufferTexture;
-    RTViewDesc.m_RenderTargetType = ezGALRenderTargetType::Color;
-    RTViewDesc.m_uiFirstSlice = 0;
-    RTViewDesc.m_uiMipSlice = 0;
-    RTViewDesc.m_uiSliceCount = 1;
-
-    ezGALRenderTargetViewHandle hBackBufferRenderTargetView = CreateRenderTargetView(RTViewDesc);
-    EZ_ASSERT(!hBackBufferRenderTargetView.IsInvalidated(), "Couldn't create backbuffer rendertarget view!");
-
-    ezGALSwapChain* pRetValue = new ezGALSwapChainDX11(Description, hBackBufferTexture, hBackBufferRenderTargetView, pSwapChain);
-    return pRetValue;
-  }
+  return pSwapChain;
 }
 
 void ezGALDeviceDX11::DestroySwapChainPlatform(ezGALSwapChain* pSwapChain)

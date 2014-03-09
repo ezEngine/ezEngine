@@ -92,7 +92,7 @@ public:
     DeviceInit.m_PrimarySwapChainDescription.m_bAllowScreenshots = true;
 
     m_pDevice = EZ_DEFAULT_NEW(ezGALDeviceDX11)(DeviceInit);
-    EZ_ASSERT(m_pDevice->Init() == EZ_SUCCESS, "Device init failed!");
+    EZ_VERIFY(m_pDevice->Init() == EZ_SUCCESS, "Device init failed!");
 
     // Get the primary swapchain (this one will always be created by device init except if the user instructs no swap chain creation explicitely)
     ezGALSwapChainHandle hPrimarySwapChain = m_pDevice->GetPrimarySwapChain();
