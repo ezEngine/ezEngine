@@ -96,30 +96,48 @@ static void TelemetryEventsHandler(const ezTelemetry::TelemetryEventData& e)
       {
         for (ezUInt32 t = 0; t < ezTaskSystem::GetWorkerThreadCount(ezWorkerThreadType::ShortTasks); ++t)
         {
-          const double Utilization = ezTaskSystem::GetThreadUtilization(ezWorkerThreadType::ShortTasks, t);
+          ezUInt32 uiNumTasks = 0;
+          const double Utilization = ezTaskSystem::GetThreadUtilization(ezWorkerThreadType::ShortTasks, t, &uiNumTasks);
 
-          s.Format("Utilization/ShortTasks_%i", t, uiFPS);
+          s.Format("Utilization/Short%02i_Load", t);
           s2.Format("%.2f%%", Utilization * 100.0);
+
+          ezStats::SetStat(s.GetData(), s2.GetData());
+
+          s.Format("Utilization/Short%02i_Tasks", t);
+          s2.Format("%u", uiNumTasks);
 
           ezStats::SetStat(s.GetData(), s2.GetData());
         }
 
         for (ezUInt32 t = 0; t < ezTaskSystem::GetWorkerThreadCount(ezWorkerThreadType::LongTasks); ++t)
         {
-          const double Utilization = ezTaskSystem::GetThreadUtilization(ezWorkerThreadType::LongTasks, t);
+          ezUInt32 uiNumTasks = 0;
+          const double Utilization = ezTaskSystem::GetThreadUtilization(ezWorkerThreadType::LongTasks, t, &uiNumTasks);
 
-          s.Format("Utilization/LongTasks_%i", t, uiFPS);
+          s.Format("Utilization/Long%02i_Load", t);
           s2.Format("%.2f%%", Utilization * 100.0);
+
+          ezStats::SetStat(s.GetData(), s2.GetData());
+
+          s.Format("Utilization/Long%02i_Tasks", t);
+          s2.Format("%u", uiNumTasks);
 
           ezStats::SetStat(s.GetData(), s2.GetData());
         }
 
         for (ezUInt32 t = 0; t < ezTaskSystem::GetWorkerThreadCount(ezWorkerThreadType::FileAccess); ++t)
         {
-          const double Utilization = ezTaskSystem::GetThreadUtilization(ezWorkerThreadType::FileAccess, t);
+          ezUInt32 uiNumTasks = 0;
+          const double Utilization = ezTaskSystem::GetThreadUtilization(ezWorkerThreadType::FileAccess, t, &uiNumTasks);
 
-          s.Format("Utilization/FileTasks_%i", t, uiFPS);
+          s.Format("Utilization/File%02i_Load", t);
           s2.Format("%.2f%%", Utilization * 100.0);
+
+          ezStats::SetStat(s.GetData(), s2.GetData());
+
+          s.Format("Utilization/File%02i_Tasks", t);
+          s2.Format("%u", uiNumTasks);
 
           ezStats::SetStat(s.GetData(), s2.GetData());
         }

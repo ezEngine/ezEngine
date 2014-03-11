@@ -222,7 +222,9 @@ public:
   static bool IsLoadingThread();
 
   /// \brief Returns the utilization (0.0 to 1.0) of the given thread. Note: This will only be valid, if FinishFrameTasks() is called once per frame.
-  static double GetThreadUtilization(ezWorkerThreadType::Enum Type, ezUInt32 iThread) { return s_WorkerThreads[Type][iThread]->m_ThreadUtilization; }
+  ///
+  /// Also optionally returns the number of tasks that were finished during the last frame.
+  static double GetThreadUtilization(ezWorkerThreadType::Enum Type, ezUInt32 iThread, ezUInt32* pNumTasksExecuted = NULL) { if (pNumTasksExecuted) *pNumTasksExecuted = s_WorkerThreads[Type][iThread]->m_uiNumTasksExecuted; return s_WorkerThreads[Type][iThread]->m_ThreadUtilization; }
 
 private:
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(Foundation, TaskSystem);

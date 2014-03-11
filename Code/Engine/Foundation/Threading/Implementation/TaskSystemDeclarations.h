@@ -107,6 +107,8 @@ private:
   ezTime m_StartedWorking;
   ezTime m_ThreadActiveTime;
   double m_ThreadUtilization;
+  ezAtomicInteger32 m_iTasksExecutionCounter;
+  ezUInt32 m_uiNumTasksExecuted;
 };
 
 /// \brief Given out by ezTaskSystem::CreateTaskGroup to identify a task group.
