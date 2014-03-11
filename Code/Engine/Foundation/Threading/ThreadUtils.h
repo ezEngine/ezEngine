@@ -18,7 +18,7 @@ public:
   static bool IsMainThread();
 
   /// \brief Returns an identifier for the currently running thread.
-  static ezThreadID ezThreadUtils::GetCurrentThreadID();
+  static ezThreadID GetCurrentThreadID();
 
 private:
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(Foundation, ThreadUtils);

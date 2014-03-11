@@ -31,4 +31,4 @@ protected:
   ezArrayPtr<ezUInt8> m_pSource;
 };
 
-#include <RendererFoundation/Shader/Implementation/ShaderBytecode_inl.h>
+#include <RendererFoundation/Shader/Implementation/ShaderByteCode_inl.h>
