@@ -510,12 +510,12 @@ MACRO(DX11_COPY_DLLS)
     if (${BUILDSYSTEM_PLATFORM_64BIT})
       add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
           COMMAND ${CMAKE_COMMAND} -E copy_if_different
-          "C:/Program Files (x86)/Windows Kits/8.0/Redist/D3D/x64/d3dcompiler_46.dll"
+          "%ProgramFiles(x86)%/Windows Kits/8.0/Redist/D3D/x64/d3dcompiler_46.dll"
           $<TARGET_FILE_DIR:${PROJECT_NAME}>)
     else ()
       add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
           COMMAND ${CMAKE_COMMAND} -E copy_if_different
-          "C:/Program Files (x86)/Windows Kits/8.0/Redist/D3D/x86/d3dcompiler_46.dll"
+          "%ProgramFiles(x86)%/Windows Kits/8.0/Redist/D3D/x86/d3dcompiler_46.dll"
           $<TARGET_FILE_DIR:${PROJECT_NAME}>)
     endif ()
   endif ()

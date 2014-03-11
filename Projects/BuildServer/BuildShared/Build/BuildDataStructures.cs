@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Web.Script.Serialization;
 using System.Xml.Serialization;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 
 namespace BuildShared
 {
@@ -20,6 +22,39 @@ namespace BuildShared
     }
   }
 
+
+  [System.AttributeUsage(System.AttributeTargets.Property)]
+  public class ezPrivateAttribute : System.Attribute
+  {
+  }
+
+  [System.AttributeUsage(System.AttributeTargets.Property)]
+  public class ezUserDefinedAttribute : System.Attribute
+  {
+  }
+
+  /// <summary>
+  /// Using this ContractResolver, all properties marked with ezPrivateAttribute are omitted by the json serializer.
+  /// </summary>
+  public class ezPrivateContractResolver : DefaultContractResolver
+  {
+    protected override JsonProperty CreateProperty(MemberInfo member, MemberSerialization memberSerialization)
+    {
+      var attributes = member.GetCustomAttributes(typeof(ezPrivateAttribute), true);
+      JsonProperty property = base.CreateProperty(member, memberSerialization);
+      if (attributes.Count() != 0)
+      {
+        property.ShouldSerialize =
+          instance =>
+          {
+            return false;
+          };
+      }
+
+      return property;
+    }
+  }
+
   /// <summary>
   /// Hold the settings of a build machine instance. Stored in 'settings.json'
   /// in the CMake build folder.
@@ -30,16 +65,25 @@ namespace BuildShared
     {
     }
 
+    [ezPrivateAttribute, ezUserDefinedAttribute]
     public string AbsCMakeWorkspace { get; set; }
+    [ezPrivateAttribute]
     public string AbsCodePath { get; set; }
+    [ezPrivateAttribute]
     public string AbsBinPath { get; set; }
+    [ezPrivateAttribute, ezUserDefinedAttribute]
     public string AbsOutputFolder { get; set; }
-    public string Configuration { get; set; }
-    public string ConfigurationName { get; set; }
-    public bool DirectHardwareAccess { get; set; }
+    [ezPrivateAttribute, ezUserDefinedAttribute]
+    public string SVNUsername { get; set; }
+    [ezPrivateAttribute, ezUserDefinedAttribute]
+    public string SVNPassword { get; set; }
+    [ezPrivateAttribute, ezUserDefinedAttribute]
     public string ServerAddress { get; set; }
 
-    [JsonIgnoreAttribute]
+    public string Configuration { get; set; }
+    [ezUserDefinedAttribute]
+    public string ConfigurationName { get; set; }
+    public bool DirectHardwareAccess { get; set; }
     public int Revision { get; set; }
   }
 

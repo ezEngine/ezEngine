@@ -19,6 +19,8 @@ namespace BuildShared
     GETWork = 2,
     POSTBuildResult = 3,
     GETStatus = 4,
+    GETCheckHEADRevision = 5,
+    GETPostToAddress = 6,
     INVALID_REQUEST
   }
 

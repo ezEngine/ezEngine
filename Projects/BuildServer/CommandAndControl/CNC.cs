@@ -150,6 +150,21 @@ namespace CommandAndControl
               sResponseMessage = HandleGetStatus();
             }
             break;
+          case ezBuildRequestMessageType.GETCheckHEADRevision:
+            {
+              _iLastSVNCheckTimeStamp = 0;
+              sResponseMessage = "Checking SVN Request received.";
+            }
+            break;
+          case ezBuildRequestMessageType.GETPostToAddress:
+            {
+              string sAddress = request.QueryString["TO"];
+              int iStartRevision = 0;
+              if (request.QueryString.AllKeys.Contains("StartRevision"))
+                iStartRevision = Convert.ToInt32(request.QueryString["StartRevision"]);
+              sResponseMessage = HandleGetPostToAddress(sAddress, iStartRevision);
+            }
+            break;
           default:
             Console.WriteLine("HandleRequest: invalid message type: '{0}'!", eType);
             break;
@@ -254,7 +269,16 @@ namespace CommandAndControl
             Console.WriteLine("POSTBuildResult: Unknown machine '{0}' tried to POST build result!", sID);
             return null;
           }
-          // TODO: POST to web site.
+
+          try
+          {
+            if (!String.IsNullOrEmpty(_Settings.WebsiteServer))
+              PostToAddress(sMessage, _Settings.WebsiteServer + String.Format("?rev={0}", _NextMachine.Settings.Revision));
+          }
+          catch (Exception ex)
+          {
+            Console.WriteLine("POSTBuildResult:PostToAddress failed: {0}.", ex.Message);
+          }
 
           // Reset current build machine.
           Debug.Assert(_Machines[sID] == _NextMachine, "We got a build result but not from the machine that is supposed to be building!");
@@ -282,9 +306,65 @@ namespace CommandAndControl
       }
     }
 
+    string HandleGetPostToAddress(string sAddress, int iStartRevision)
+    {
+      try
+      {
+        //string sDataTemp = System.IO.File.ReadAllText("E:\\Code\\ezengine\\Trunk\\Output\\CNC\\WinVs2013RelDeb64_399.json", Encoding.UTF8);
+        //PostToAddress(sDataTemp, sAddress + "?rev=399");
+        //return String.Format("POST to address '{0}' successful", sAddress);
+
+        string[] allFiles = System.IO.Directory.EnumerateFiles(_Settings.AbsOutputFolder, "*_*.json", SearchOption.AllDirectories).ToArray();
+        Array.Sort<string>(allFiles);
+        foreach (string sFile in allFiles)
+        {
+          int iRev = -1;
+          string[] parts = Path.GetFileNameWithoutExtension(sFile).Split('_');
+          if (parts.Count() == 2)
+          {
+            try
+            {
+              iRev = Convert.ToInt32(parts[1]);
+            }
+            catch (FormatException)
+            {
+              continue;
+            }
+          }
+
+          if (iRev < iStartRevision)
+            continue;
+
+          string sData = System.IO.File.ReadAllText(sFile, Encoding.UTF8);
+          PostToAddress(sData, sAddress + String.Format("?rev={0}", iRev));
+          Console.WriteLine("{0} posted.", Path.GetFileNameWithoutExtension(sFile));
+        }
+        return String.Format("POST to address '{0}' successful", sAddress);
+      }
+      catch (Exception ex)
+      {
+        return String.Format("POST to address '{0}' failed:\n{1}!", sAddress, ex.Message);
+      }
+    }
+
     #endregion Message Handler
 
     #region Private Functions
+
+    void PostToAddress(string sData, string sAddress)
+    {
+      HttpHelper.ResponseResult response = HttpHelper.POST(sAddress, sData);
+
+      if (response == null)
+      {
+        throw new System.Exception(String.Format("Server not responding at URL '{0}'", sAddress));
+      }
+
+      if (response.StatusCode != HttpStatusCode.OK)
+      {
+        throw new System.Exception(String.Format("Server '{0}' returned statusCode '{1}'", sAddress, response.StatusCode));
+      }
+    }
 
     bool CheckForNewRevision()
     {
@@ -521,6 +601,7 @@ namespace CommandAndControl
       public string SVNUsername { get; set; }
       public string SVNPassword { get; set; }
       public string SVNServer { get; set; }
+      public string WebsiteServer { get; set; }
     }
 
     #region Member Variables

@@ -52,7 +52,7 @@ namespace BuildMachine
       try
       {
         // Run SVN update
-        string sParams = string.Format("update -r {0} --accept postpone" /*tf"*/, iRevision);
+        string sParams = string.Format("update -r {0} --username {1} --password {2}" /*tf"*/, iRevision, _Settings.SVNUsername, _Settings.SVNPassword);
         for (int iTry = 0; iTry < 2; ++iTry)
         {
           _Result.ProcessRes = ezProcessHelper.RunExternalExe("svn", sParams, _Settings.AbsCodePath, _Result);
@@ -68,7 +68,8 @@ namespace BuildMachine
             else
             {
               _Result.Error("SVN failed: SVN returned ErrorCode: {0}!", _Result.ProcessRes.ExitCode);
-              break;
+              _Result.Success = false;
+              return _Result;
             }
           }
           else

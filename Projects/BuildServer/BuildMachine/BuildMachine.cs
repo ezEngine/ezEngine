@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using BuildShared;
+using Newtonsoft.Json;
 
 namespace BuildMachine
 {
@@ -132,7 +133,8 @@ namespace BuildMachine
     {
       try
       {
-        string sSettings = Newtonsoft.Json.JsonConvert.SerializeObject(_process.Settings);
+        string sSettings = Newtonsoft.Json.JsonConvert.SerializeObject(_process.Settings, Formatting.None,
+          new JsonSerializerSettings { ContractResolver = new ezPrivateContractResolver() });
         string url = ServerUrl(ezBuildRequestMessageType.POSTConfiguration);
         HttpHelper.ResponseResult response = HttpHelper.POST(url, sSettings);
 
@@ -178,7 +180,7 @@ namespace BuildMachine
           sResults = System.IO.File.ReadAllText(sResultPath, Encoding.UTF8);
         }
       }
-      catch(Exception ex)
+      catch(Exception)
       {
       }
 

@@ -127,7 +127,7 @@ namespace BuildMachine
         string sAbsErrorsPath = System.IO.Path.Combine(sAbsWorkingDir, "errors.txt");
         if (System.IO.File.Exists(sAbsErrorsPath))
         {
-          string sErrors = System.IO.File.ReadAllText(sAbsErrorsPath);
+          string sErrors = System.IO.File.ReadAllText(sAbsErrorsPath, Encoding.UTF8);
           res.ProcessRes.ErrorOut += sErrors;
         }
       }
@@ -141,7 +141,7 @@ namespace BuildMachine
         string sAbsWarningsPath = System.IO.Path.Combine(sAbsWorkingDir, "warnings.txt");
         if (System.IO.File.Exists(sAbsWarningsPath))
         {
-          string sWarnings = System.IO.File.ReadAllText(sAbsWarningsPath);
+          string sWarnings = System.IO.File.ReadAllText(sAbsWarningsPath, Encoding.UTF8);
           res.ProcessRes.ErrorOut += sWarnings;
         }
       }

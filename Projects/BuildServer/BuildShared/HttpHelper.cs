@@ -39,6 +39,7 @@ namespace BuildShared
       {
         HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
         request.Method = "POST";
+        request.ContentType = "application/json";
         byte[] bytes = System.Text.Encoding.UTF8.GetBytes(sMessage);
         request.ContentLength = bytes.Length;
         System.IO.Stream os = request.GetRequestStream();

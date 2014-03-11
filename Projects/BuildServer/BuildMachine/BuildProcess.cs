@@ -98,7 +98,8 @@ namespace BuildMachine
       //serializer.MaxJsonLength = 10 * 1024 * 1024;
       try
       {
-        string sSerializedResult = JsonConvert.SerializeObject(_Result, Formatting.None /*Formatting.Indented*/);
+        string sSerializedResult = JsonConvert.SerializeObject(_Result, Formatting.None /*Formatting.Indented*/,
+          new JsonSerializerSettings { ContractResolver = new ezPrivateContractResolver() });
         //string serializedResult = serializer.Serialize(_Result);
         return sSerializedResult;
       }
@@ -147,6 +148,30 @@ namespace BuildMachine
 
     #region Private Functions
 
+    bool CheckSettings()
+    {
+      Type settingsType = _Result.Settings.GetType();
+      var properties = settingsType.GetProperties();
+      foreach (var property in properties)
+      {
+        object[] attributes = property.GetCustomAttributes(typeof(ezUserDefinedAttribute), true);
+        if (attributes.Count() != 0)
+        {
+          if (property.PropertyType == typeof(string))
+          {
+            string value = (string)property.GetValue(_Result.Settings, null);
+            if (string.IsNullOrEmpty(value))
+            {
+              Console.WriteLine("'{0}' needs to be specified in the settings.json, change it and restart this application.", property.Name);
+              SaveSettings();
+              return false;
+            }
+          }
+        }
+      }
+      return true;
+    }
+
     bool LoadSettings()
     {
       try
@@ -167,24 +192,8 @@ namespace BuildMachine
         settings.AbsCMakeWorkspace = _Result.Settings.AbsCMakeWorkspace;
         _Result.Settings = settings;
 
-        if (string.IsNullOrEmpty(settings.ConfigurationName))
-        {
-          Console.WriteLine("'ConfigurationName' needs to be specified in the settings.json, change it and restart this application.");
-          SaveSettings();
+        if (!CheckSettings())
           return false;
-        }
-        if (string.IsNullOrEmpty(settings.AbsOutputFolder))
-        {
-          Console.WriteLine("'AbsOutputFolder' needs to be specified in the settings.json, change it and restart this application.");
-          SaveSettings();
-          return false;
-        }
-        if (string.IsNullOrEmpty(settings.ServerAddress))
-        {
-          Console.WriteLine("'ServerAddress' needs to be specified in the settings.json, change it and restart this application.");
-          SaveSettings();
-          return false;
-        }
       }
       catch (Exception ex)
       {
