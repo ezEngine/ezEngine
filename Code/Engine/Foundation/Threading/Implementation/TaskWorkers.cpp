@@ -51,7 +51,7 @@ bool ezTaskSystem::IsLoadingThread()
 
   /// \todo This function does not work, since the thread handle is a pseudo handle and thus the comparison will always fail.
 
-  return ezThreadUtils::GetCurrentThreadHandle() == s_WorkerThreads[ezWorkerThreadType::FileAccess][0]->GetThreadHandle();
+  return ezThreadUtils::GetCurrentThreadID() == s_WorkerThreads[ezWorkerThreadType::FileAccess][0]->GetThreadID();
 }
 
 void ezTaskSystem::StopWorkerThreads()

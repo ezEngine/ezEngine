@@ -122,7 +122,7 @@ namespace ezInternal
 
     ezUInt32 m_uiHandledMessageCounter;
 
-    ezThreadHandle m_ThreadHandle;
+    ezThreadID m_ThreadID;
     bool m_bIsInAsyncPhase;
 
     void* m_pUserData;

@@ -188,7 +188,7 @@ EZ_FORCE_INLINE ezWorld* ezWorld::GetWorld(ezUInt32 uiIndex)
 EZ_FORCE_INLINE void ezWorld::CheckForMultithreadedAccess() const
 {
   EZ_ASSERT(!m_Data.m_bIsInAsyncPhase, "World must not be accessed while in async update phase.");
-  EZ_ASSERT(m_Data.m_ThreadHandle == ezThreadUtils::GetCurrentThreadHandle(), "World must not be accessed from another thread than the creation thread.");
+  EZ_ASSERT(m_Data.m_ThreadID == ezThreadUtils::GetCurrentThreadID(), "World must not be accessed from another thread than the creation thread.");
 }
 
 EZ_FORCE_INLINE void ezWorld::HandleMessage(ezGameObject* pReceiverObject, ezMessage& msg, ezBitflags<ezObjectMsgRouting> routing)

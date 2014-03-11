@@ -16,7 +16,7 @@ ezLargeBlockAllocator::ezLargeBlockAllocator(const char* szName, ezAllocatorBase
   m_freeBlocks(pParent)
 {
   m_Id = ezMemoryTracker::RegisterAllocator(szName, flags);
-  m_threadHandle = ezThreadUtils::GetCurrentThreadHandle();
+  m_ThreadID = ezThreadUtils::GetCurrentThreadID();
 
   const ezUInt32 uiPageSize = ezSystemInformation::Get().GetMemoryPageSize();
   EZ_ASSERT(uiPageSize <= BLOCK_SIZE_IN_BYTES, "Memory Page size is bigger than block size.");
@@ -24,7 +24,7 @@ ezLargeBlockAllocator::ezLargeBlockAllocator(const char* szName, ezAllocatorBase
 
 ezLargeBlockAllocator::~ezLargeBlockAllocator()
 {
-  EZ_ASSERT_API(m_threadHandle == ezThreadUtils::GetCurrentThreadHandle(), "Allocator is deleted from another thread");
+  EZ_ASSERT_API(m_ThreadID == ezThreadUtils::GetCurrentThreadID(), "Allocator is deleted from another thread");
   ezMemoryTracker::DeregisterAllocator(m_Id);
 
   for (ezUInt32 i = 0; i < m_superBlocks.GetCount(); ++i)

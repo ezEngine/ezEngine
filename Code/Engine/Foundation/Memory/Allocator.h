@@ -28,7 +28,7 @@ private:
   AllocationPolicy m_allocator;
   
   ezAllocatorId m_Id;
-  ezThreadHandle m_threadHandle;
+  ezThreadID m_ThreadID;
 };
 
 #include <Foundation/Memory/Implementation/Allocator_inl.h>

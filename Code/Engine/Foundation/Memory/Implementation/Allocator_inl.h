@@ -2,7 +2,7 @@
 template <typename A, ezUInt32 TrackingFlags>
 EZ_FORCE_INLINE ezAllocator<A, TrackingFlags>::ezAllocator(const char* szName, ezAllocatorBase* pParent /* = NULL */) : 
   m_allocator(pParent),
-  m_threadHandle(ezThreadUtils::GetCurrentThreadHandle())
+  m_ThreadID(ezThreadUtils::GetCurrentThreadID())
 {
   if ((TrackingFlags & ezMemoryTrackingFlags::EnableTracking) != 0)
   {
@@ -16,7 +16,7 @@ EZ_FORCE_INLINE ezAllocator<A, TrackingFlags>::ezAllocator(const char* szName, e
 template <typename A, ezUInt32 TrackingFlags>
 ezAllocator<A, TrackingFlags>::~ezAllocator()
 {
-  EZ_ASSERT_API(m_threadHandle == ezThreadUtils::GetCurrentThreadHandle(), "Allocator is deleted from another thread");
+  EZ_ASSERT_API(m_ThreadID == ezThreadUtils::GetCurrentThreadID(), "Allocator is deleted from another thread");
 
   if ((TrackingFlags & ezMemoryTrackingFlags::EnableTracking) != 0)
   {

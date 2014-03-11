@@ -26,10 +26,10 @@ public:
   /// \brief Waits in the calling thread until the thread has finished execution (e.g. returned from the thread function)
   void Join(); // [tested]
 
-  /// \brief Returns the thread handle of the thread object, may be used in comparison operations with ezThreadUtils::GetCurrentThreadHandle() for example.
-  const ezThreadHandle& GetThreadHandle() const
+  /// \brief Returns the thread ID of the thread object, may be used in comparison operations with ezThreadUtils::GetCurrentThreadID() for example.
+  const ezThreadID& GetThreadID() const
   {
-    return m_Handle;
+    return m_ThreadID;
   }
 
   /// \brief Returns how many ezOSThreads are currently active.
@@ -38,6 +38,7 @@ public:
 protected:
 
   ezThreadHandle m_Handle;
+  ezThreadID m_ThreadID;
 
   ezOSThreadEntryPoint m_EntryPoint;
   

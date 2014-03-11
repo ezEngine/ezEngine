@@ -35,6 +35,11 @@ ezThreadHandle ezThreadUtils::GetCurrentThreadHandle()
   return pthread_self();
 }
 
+ezThreadID ezThreadUtils::GetCurrentThreadID()
+{
+  return pthread_self();
+}
+
 bool ezThreadUtils::IsMainThread()
 {
   return pthread_self() == g_MainThread;

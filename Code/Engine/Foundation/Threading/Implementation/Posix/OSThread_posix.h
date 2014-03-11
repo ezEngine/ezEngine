@@ -36,6 +36,8 @@ void ezOSThread::Start()
   
   int iReturnCode = pthread_create(&m_Handle, &ThreadAttributes, m_EntryPoint, m_pUserData);
   EZ_ASSERT(iReturnCode == 0, "Thread creation failed!");
+
+  m_ThreadID = m_Handle;
   
   pthread_attr_destroy(&ThreadAttributes);
 }

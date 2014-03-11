@@ -95,7 +95,7 @@ private:
   ezAllocatorId m_Id;
 
   ezMutex m_mutex;
-  ezThreadHandle m_threadHandle;
+  ezThreadID m_ThreadID;
 
   struct SuperBlock
   {
