@@ -182,7 +182,7 @@ ezResult StringToFloat(const char* szString, double& out_Res, const char** out_L
         continue;
       }
 
-      if (c == 'e')
+      if ((c == 'e') || (c == 'E'))
       {
         Part = Exponent;
         ++szString;
@@ -207,7 +207,7 @@ ezResult StringToFloat(const char* szString, double& out_Res, const char** out_L
         continue;
       }
 
-      if (c == 'e')
+      if ((c == 'e') || (c == 'E'))
       {
         Part = Exponent;
         ++szString;
@@ -230,12 +230,6 @@ ezResult StringToFloat(const char* szString, double& out_Res, const char** out_L
         ++szString;
         continue;
       }
-    }
-
-    if ((c == 'f') || (c == 'd'))
-    {
-      // if we find an 'f', skip it as well, then stop parsing
-      ++szString;
     }
 
     // found something that is not part of a float value -> stop parsing here

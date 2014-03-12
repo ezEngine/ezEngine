@@ -184,13 +184,13 @@ EZ_CREATE_SIMPLE_TEST(Utility, ConversionUtils)
     const char* szResultPos = NULL;
 
     double fRes = 42;
-    szString =  "23.45f";
+    szString =  "23.45";
     EZ_TEST_BOOL(ezConversionUtils::StringToFloat(szString, fRes, &szResultPos) == EZ_SUCCESS);
     EZ_TEST_DOUBLE(fRes, 23.45, 0.00001);
     EZ_TEST_BOOL(szResultPos == szString + ezStringUtils::GetStringElementCount(szString));
 
     fRes = 42;
-    szString =  "-2345f";
+    szString =  "-2345";
     EZ_TEST_BOOL(ezConversionUtils::StringToFloat(szString, fRes, &szResultPos) == EZ_SUCCESS);
     EZ_TEST_DOUBLE(fRes, -2345.0, 0.00001);
     EZ_TEST_BOOL(szResultPos == szString + ezStringUtils::GetStringElementCount(szString));
@@ -202,7 +202,7 @@ EZ_CREATE_SIMPLE_TEST(Utility, ConversionUtils)
     EZ_TEST_BOOL(szResultPos == szString + ezStringUtils::GetStringElementCount(szString));  
 
     fRes = 42;
-    szString =  "00000.000000f";
+    szString =  "00000.000000";
     EZ_TEST_BOOL(ezConversionUtils::StringToFloat(szString, fRes, &szResultPos) == EZ_SUCCESS);
     EZ_TEST_DOUBLE(fRes, 0.0, 0.00001);
     EZ_TEST_BOOL(szResultPos == szString + ezStringUtils::GetStringElementCount(szString));  
@@ -214,7 +214,7 @@ EZ_CREATE_SIMPLE_TEST(Utility, ConversionUtils)
     EZ_TEST_BOOL(szResultPos == szString + ezStringUtils::GetStringElementCount(szString));  
 
     fRes = 42;
-    szString =  "+123e1";
+    szString =  "+123E1";
     EZ_TEST_BOOL(ezConversionUtils::StringToFloat(szString, fRes, &szResultPos) == EZ_SUCCESS);
     EZ_TEST_DOUBLE(fRes, 1230.0, 0.00001);
     EZ_TEST_BOOL(szResultPos == szString + ezStringUtils::GetStringElementCount(szString));  
@@ -232,13 +232,13 @@ EZ_CREATE_SIMPLE_TEST(Utility, ConversionUtils)
     EZ_TEST_BOOL(szResultPos == szString + ezStringUtils::GetStringElementCount(szString));  
 
     fRes = 42;
-    szString =  "  123e-6f";
+    szString =  "  123E-6";
     EZ_TEST_BOOL(ezConversionUtils::StringToFloat(szString, fRes, &szResultPos) == EZ_SUCCESS);
     EZ_TEST_DOUBLE(fRes, 0.000123, 0.00001);
     EZ_TEST_BOOL(szResultPos == szString + ezStringUtils::GetStringElementCount(szString));  
 
     fRes = 42;
-    szString =  " + - -+-123.45e-10f";
+    szString =  " + - -+-123.45e-10";
     EZ_TEST_BOOL(ezConversionUtils::StringToFloat(szString, fRes, &szResultPos) == EZ_SUCCESS);
     EZ_TEST_DOUBLE(fRes, -0.000000012345, 0.0000001);
     EZ_TEST_BOOL(szResultPos == szString + ezStringUtils::GetStringElementCount(szString));  
@@ -274,7 +274,7 @@ EZ_CREATE_SIMPLE_TEST(Utility, ConversionUtils)
     szString =  " \n \r \t + - 2314565.345789ff xabc";
     EZ_TEST_BOOL(ezConversionUtils::StringToFloat(szString, fRes, &szResultPos) == EZ_SUCCESS);
     EZ_TEST_DOUBLE(fRes, -2314565.345789, 0.000001);
-    EZ_TEST_BOOL(szResultPos == szString + 26);  
+    EZ_TEST_BOOL(szResultPos == szString + 25);  
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "StringToBool")
