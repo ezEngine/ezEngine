@@ -52,14 +52,14 @@ EZ_FORCE_INLINE ezColorBgra8UNorm::ezColorBgra8UNorm()
 }
 
 EZ_FORCE_INLINE ezColorBgra8UNorm::ezColorBgra8UNorm(ezUInt8 B, ezUInt8 G, ezUInt8 R, ezUInt8 A /* = 255*/) :
-r(R), g(G), b(B), a(A)
+b(B), g(G), r(R), a(A)
 {
 }
 
 inline ezColorBgra8UNorm::ezColorBgra8UNorm(const ezColor& color) :
-r(static_cast<ezUInt8>(color.r * 255)),
-g(static_cast<ezUInt8>(color.g * 255)),
 b(static_cast<ezUInt8>(color.b * 255)),
+g(static_cast<ezUInt8>(color.g * 255)),
+r(static_cast<ezUInt8>(color.r * 255)),
 a(static_cast<ezUInt8>(color.a * 255))
 {
 }

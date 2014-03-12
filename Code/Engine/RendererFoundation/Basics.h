@@ -55,6 +55,8 @@ class ezGALQuery;
 class ezGALSamplerState;
 class ezGALResourceView;
 class ezGALRenderTargetView;
+class ezGALDevice;
+class ezGALContext;
 
 // Basic enums
 struct ezGALPrimitiveTopology
