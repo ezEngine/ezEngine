@@ -273,7 +273,7 @@ namespace CommandAndControl
           try
           {
             if (!String.IsNullOrEmpty(_Settings.WebsiteServer))
-              PostToAddress(sMessage, _Settings.WebsiteServer + String.Format("?rev={0}", _NextMachine.Settings.Revision));
+              PostToAddress(sMessage, _Settings.WebsiteServer + String.Format("?rev={0}", _NextMachine.Settings.Revision + 1));
           }
           catch (Exception ex)
           {
