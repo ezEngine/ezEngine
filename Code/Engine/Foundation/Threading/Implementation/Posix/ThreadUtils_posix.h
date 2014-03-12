@@ -30,10 +30,10 @@ void ezThreadUtils::Sleep(ezUInt32 uiMilliSeconds)
   nanosleep(&SleepTime, NULL);
 }
 
-ezThreadHandle ezThreadUtils::GetCurrentThreadHandle()
-{
-  return pthread_self();
-}
+//ezThreadHandle ezThreadUtils::GetCurrentThreadHandle()
+//{
+//  return pthread_self();
+//}
 
 ezThreadID ezThreadUtils::GetCurrentThreadID()
 {
