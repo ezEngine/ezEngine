@@ -103,16 +103,22 @@ namespace BuildMachine
         }
         catch (Exception ex)
         {
-          Console.WriteLine("Error deleting test output file ({0}): {1}", sAbsOutputPath, ex.Message);
+          res.Error("Error deleting test output file ({0}): {1}", sAbsOutputPath, ex.Message);
+          return res;
         }
       }
 
       res.ProcessRes = ezProcessHelper.RunExternalExe(sAbsBinFilename, string.Format("-json \"{0}\" -rev {1} -nogui -all", sAbsOutputPath, _Settings.Revision), sAbsBinDir, res);
       res.Success = (res.ProcessRes.ExitCode == 0);
+      res.Duration = res.ProcessRes.Duration;
 
       if (System.IO.File.Exists(sAbsOutputPath))
       {
         res.TestResultJSON = System.IO.File.ReadAllText(sAbsOutputPath, Encoding.UTF8);
+      }
+      else
+      {
+        res.Error("No output file present!");
       }
 
       if (!res.Success && !res.Experimental)
