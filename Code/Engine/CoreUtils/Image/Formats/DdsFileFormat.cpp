@@ -5,7 +5,7 @@
 #include <Foundation/IO/Stream.h>
 
 #include <CoreUtils/Image/Image.h>
-#include <CoreUtils/Image/Conversions/ImageConversion.h>
+#include <CoreUtils/Image/ImageConversion.h>
 #include <CoreUtils/Image/Formats/ImageFormatMappings.h>
 
 ezDdsFileFormat g_ddsFormat;

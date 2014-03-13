@@ -2,7 +2,7 @@
 #include <CoreUtils/Image/Formats/BmpFileFormat.h>
 
 #include <CoreUtils/Image/Image.h>
-#include <CoreUtils/Image/Conversions/ImageConversion.h>
+#include <CoreUtils/Image/ImageConversion.h>
 
 #include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/IO/Stream.h>
@@ -51,9 +51,9 @@ static const char* ezBmpFileInfoHeaderFormat = "dddwwdddddd";
 
 struct ezCIEXYZ
 {
-  long int ciexyzX;
-  long int ciexyzY;
-  long int ciexyzZ;
+  int ciexyzX;
+  int ciexyzY;
+  int ciexyzZ;
 };
 
 struct ezCIEXYZTRIPLE
@@ -74,6 +74,13 @@ struct ezBmpFileInfoHeaderV4 {
   ezUInt32        m_gammaGreen;
   ezUInt32        m_gammaBlue;
 };
+
+EZ_CHECK_AT_COMPILETIME(sizeof(ezCIEXYZTRIPLE) == 3 * 3 * 4);
+
+// just to be on the safe side
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+  EZ_CHECK_AT_COMPILETIME(sizeof(ezCIEXYZTRIPLE) == sizeof(CIEXYZTRIPLE));
+#endif
 
 static const char* ezBmpFileInfoHeaderV4Format = "dddwwdddddd";
 

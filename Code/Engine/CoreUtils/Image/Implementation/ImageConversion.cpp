@@ -1,5 +1,5 @@
 #include <CoreUtils/PCH.h>
-#include <CoreUtils/Image/Conversions/ImageConversion.h>
+#include <CoreUtils/Image/ImageConversion.h>
 
 EZ_ENUMERABLE_CLASS_IMPLEMENTATION(ezImageConversionBase);
 

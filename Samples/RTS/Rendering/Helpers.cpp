@@ -15,49 +15,73 @@ void RenderCube(const ezVec3& v, const ezVec3& s, bool bColor = true, float fCol
     if (bColor)
       SetColor(200, fColorScale);
 
+    glTexCoord2f(0, 0);
     glVertex3f(v.x      , v.y      , v.z + s.z);
+    glTexCoord2f(1, 0);
     glVertex3f(v.x + s.x, v.y      , v.z + s.z);
+    glTexCoord2f(1, 1);
     glVertex3f(v.x + s.x, v.y + s.y, v.z + s.z);
+    glTexCoord2f(0, 1);
     glVertex3f(v.x      , v.y + s.y, v.z + s.z);
 
     if (bColor)
       SetColor(180, fColorScale);
 
+    glTexCoord2f(1, 0);
     glVertex3f(v.x + s.x, v.y      , v.z      );
+    glTexCoord2f(0, 0);
     glVertex3f(v.x      , v.y      , v.z      );
+    glTexCoord2f(0, 1);
     glVertex3f(v.x      , v.y + s.y, v.z      );
+    glTexCoord2f(1, 1);
     glVertex3f(v.x + s.x, v.y + s.y, v.z      );
 
     if (bColor)
       SetColor(200, fColorScale);
 
+    glTexCoord2f(0, 0);
     glVertex3f(v.x      , v.y      , v.z      );
+    glTexCoord2f(0, 1);
     glVertex3f(v.x      , v.y      , v.z + s.z);
+    glTexCoord2f(1, 1);
     glVertex3f(v.x      , v.y + s.y, v.z + s.z);
+    glTexCoord2f(1, 0);
     glVertex3f(v.x      , v.y + s.y, v.z      );
 
     if (bColor)
       SetColor(180, fColorScale);
 
+    glTexCoord2f(0, 1);
     glVertex3f(v.x + s.x, v.y      , v.z + s.z);
+    glTexCoord2f(0, 0);
     glVertex3f(v.x + s.x, v.y      , v.z      );
+    glTexCoord2f(1, 0);
     glVertex3f(v.x + s.x, v.y + s.y, v.z      );
+    glTexCoord2f(1, 1);
     glVertex3f(v.x + s.x, v.y + s.y, v.z + s.z);
 
     if (bColor)
       SetColor(220, fColorScale);
 
+    glTexCoord2f(0, 1);
     glVertex3f(v.x      , v.y + s.y, v.z + s.z);
+    glTexCoord2f(1, 1);
     glVertex3f(v.x + s.x, v.y + s.y, v.z + s.z);
+    glTexCoord2f(1, 0);
     glVertex3f(v.x + s.x, v.y + s.y, v.z      );
+    glTexCoord2f(0, 0);
     glVertex3f(v.x      , v.y + s.y, v.z      );
 
     if (bColor)
       SetColor(220, fColorScale);
 
+    glTexCoord2f(0, 0);
     glVertex3f(v.x      , v.y      , v.z      );
+    glTexCoord2f(1, 0);
     glVertex3f(v.x + s.x, v.y      , v.z      );
+    glTexCoord2f(1, 1);
     glVertex3f(v.x + s.x, v.y      , v.z + s.z);
+    glTexCoord2f(0, 1);
     glVertex3f(v.x      , v.y      , v.z + s.z);
 
   glEnd();
