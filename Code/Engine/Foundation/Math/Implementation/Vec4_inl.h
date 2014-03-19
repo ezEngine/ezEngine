@@ -7,7 +7,7 @@
 // Cannot put this into the Vec3_inl.h file, that would result in circular dependencies
 
 template<typename Type>
-EZ_FORCE_INLINE const ezVec3Template<Type> ezVec2Template<Type>::GetAsVec3(Type z)
+EZ_FORCE_INLINE const ezVec3Template<Type> ezVec2Template<Type>::GetAsVec3(Type z) const
 {
   EZ_NAN_ASSERT(this);
 
@@ -15,7 +15,7 @@ EZ_FORCE_INLINE const ezVec3Template<Type> ezVec2Template<Type>::GetAsVec3(Type 
 }
 
 template<typename Type>
-EZ_FORCE_INLINE const ezVec4Template<Type> ezVec2Template<Type>::GetAsVec4(Type z, Type w)
+EZ_FORCE_INLINE const ezVec4Template<Type> ezVec2Template<Type>::GetAsVec4(Type z, Type w) const
 {
   EZ_NAN_ASSERT(this);
 

@@ -32,6 +32,9 @@ namespace ezIntersectionUtils
 
   /// \brief Returns point on the line segment that is closest to \a vStartPoint. Optionally also returns the fraction along the segment, where that point is located.
   EZ_FOUNDATION_DLL ezVec3 ClosestPoint_PointLineSegment(const ezVec3& vStartPoint, const ezVec3& vLineSegmentPos0, const ezVec3& vLineSegmentPos1, float* out_fFractionAlongSegment = NULL); // [tested]
+
+  /// \brief Computes the intersection point and time of the 2D ray with the 2D line segment. Returns true, if there is an intersection.
+  EZ_FOUNDATION_DLL bool Ray2DLine2D(const ezVec2& vRayStartPos, const ezVec2& vRayDir, const ezVec2& vLineSegmentPos0, const ezVec2& vLineSegmentPos1, float* out_fIntersectionTime = NULL, ezVec2* out_vIntersectionPoint = NULL); // [tested]
 }
 
 

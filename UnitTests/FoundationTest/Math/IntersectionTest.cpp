@@ -87,5 +87,38 @@ EZ_CREATE_SIMPLE_TEST(Math, Intersection)
     }
   }
 
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Ray2DLine2D")
+  {
+    for (ezUInt32 i = 0; i < 100; ++i)
+    {
+      ezMat4 m;
+      m.SetRotationMatrixZ(ezAngle::Degree((float) i));
+      m.SetTranslationVector(ezVec3((float) i, i * 2.0f, i * 3.0f));
+
+      const ezVec2 vSegment0 = m.TransformPosition(ezVec3(23, 42, 0)).GetAsVec2();
+      const ezVec2 vSegmentDir= m.TransformDirection(ezVec3(13, 15, 0)).GetAsVec2();
+
+      const ezVec2 vSegment1 = vSegment0 + vSegmentDir;
+
+      for (float f = -1.1f; f < 2.0f; f += 0.2f)
+      {
+        const bool bIntersection = (f >= 0.0f && f <= 1.0f);
+        const ezVec2 vSegmentPos = vSegment0 + f * vSegmentDir;
+
+        const ezVec2 vRayDir = ezVec2(2.0f, f);
+        const ezVec2 vRayStart = vSegmentPos - vRayDir * 5.0f;
+
+        float fIntersection;
+        ezVec2 vIntersection;
+        EZ_TEST_BOOL(ezIntersectionUtils::Ray2DLine2D(vRayStart, vRayDir, vSegment0, vSegment1, &fIntersection, &vIntersection) == bIntersection);
+
+        if (bIntersection)
+        {
+          EZ_TEST_FLOAT(fIntersection, 5.0f, 0.0001f);
+          EZ_TEST_VEC2(vIntersection, vSegmentPos, 0.0001f);
+        }
+      };
+    }
+  }
 }
 

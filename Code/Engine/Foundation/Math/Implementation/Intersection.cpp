@@ -74,3 +74,49 @@ ezVec3 ezIntersectionUtils::ClosestPoint_PointLineSegment(const ezVec3& vStartPo
   return vLineSegmentPos0 + fPosAlongSegment * vLineDir;
 }
 
+bool ezIntersectionUtils::Ray2DLine2D(const ezVec2& vRayStartPos, const ezVec2& vRayDir, const ezVec2& vLineSegmentPos0, const ezVec2& vLineSegmentPos1, float* out_fIntersectionTime, ezVec2* out_vIntersectionPoint)
+{
+  const ezVec2 vLineDir = vLineSegmentPos1 - vLineSegmentPos0;
+
+  // 2D Plane
+  const ezVec2 vPlaneNormal = vLineDir.GetOrthogonalVector();
+  const float fPlaneNegDist = -vPlaneNormal.Dot(vLineSegmentPos0);
+
+  ezVec2 vIntersection;
+  float fIntersectionTime;
+
+  // 2D Plane ray intersection test
+  {
+    const float fPlaneSide = vPlaneNormal.Dot(vRayStartPos) + fPlaneNegDist;
+    const float fCosAlpha = vPlaneNormal.Dot(vRayDir);
+
+    if (fCosAlpha == 0)  // ray is orthogonal to plane
+      return false;
+
+    if (ezMath::Sign(fPlaneSide) == ezMath::Sign(fCosAlpha)) // ray points away from the plane
+      return false;
+
+    fIntersectionTime = -fPlaneSide / fCosAlpha;
+
+    vIntersection = vRayStartPos + fIntersectionTime * vRayDir;
+  }
+
+  const ezVec2 vToIntersection = vIntersection - vLineSegmentPos0;
+
+  const float fProjected = vLineDir.Dot(vToIntersection);
+
+  if (fProjected < 0.0f)
+    return false;
+
+  if (fProjected > vLineDir.GetLengthSquared())
+    return false;
+
+  if (out_fIntersectionTime)
+    *out_fIntersectionTime = fIntersectionTime;
+
+  if (out_vIntersectionPoint)
+    *out_vIntersectionPoint = vIntersection;
+
+  return true;
+}
+
