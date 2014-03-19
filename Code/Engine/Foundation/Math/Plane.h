@@ -153,6 +153,13 @@ public:
 public:
 
   /// \brief Returns true, if the ray hit the plane. The intersection time describes at which multiple of the ray direction the ray hit the plane.
+  ///
+  /// An intersection will be reported regardless of whether the ray starts 'behind' or 'in front of' the plane, as long as it points at it.
+  /// \a vRayDir does not need to be normalized.\n
+  /// out_vIntersection = vRayStartPos + out_fIntersection * vRayDir
+  ///
+  /// Intersections with \a out_fIntersection less than zero will be discarded and not reported as intersections.
+  /// If such intersections are desired, use GetRayIntersectionBiDirectional instead.
   bool GetRayIntersection(const ezVec3Template<Type>& vRayStartPos, const ezVec3Template<Type>& vRayDir, Type* out_fIntersection = NULL, ezVec3Template<Type>* out_vIntersection = NULL) const; // [tested]
 
   /// \brief Returns true, if the ray intersects the plane. Intersection time and point are stored in the out-parameters. Allows for intersections at negative times (shooting into the opposite direction).

@@ -409,6 +409,10 @@ EZ_CREATE_SIMPLE_TEST(Math, Plane)
     EZ_TEST_FLOAT(f, 9, 0.0001f);
     EZ_TEST_VEC3(v, ezVec3T(3, 10, 7), 0.0001f);
 
+    EZ_TEST_BOOL(p.GetRayIntersection(ezVec3T(3, 20, 7), ezVec3T(0, -1, 0), &f, &v));
+    EZ_TEST_FLOAT(f, 10, 0.0001f);
+    EZ_TEST_VEC3(v, ezVec3T(3, 10, 7), 0.0001f);
+
     EZ_TEST_BOOL(!p.GetRayIntersection(ezVec3T(3, 1, 7), ezVec3T(1, 0, 0), &f, &v));
     EZ_TEST_BOOL(!p.GetRayIntersection(ezVec3T(3, 1, 7), ezVec3T(0, -1, 0), &f, &v));
   }

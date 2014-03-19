@@ -9,6 +9,7 @@ Milestone 5
   * Added ezExtendedJSONReader which generates a high level representation of a JSON document, but also uses the extended JSON syntax for more precise type information and values.
   * Added ezImage to the CoreUtils library, which allows to easily read / convert / write images of different file types.
   * Supported image file types: BMP, DDS, TGA
+  * Added namespace ezIntersectionUtils with functions to do intersection tests.
 
 Milestone 4
 -----------
