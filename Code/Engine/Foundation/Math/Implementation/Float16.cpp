@@ -3,6 +3,11 @@
 
 ezFloat16::ezFloat16(float f)
 {
+  operator=(f);
+}
+
+void ezFloat16::operator=(float f)
+{
   // source: http://www.ogre3d.org/docs/api/html/OgreBitwise_8h_source.html
 
   const ezUInt32 i = *reinterpret_cast<ezUInt32*>(&f);

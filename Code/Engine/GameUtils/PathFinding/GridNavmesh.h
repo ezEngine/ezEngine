@@ -56,7 +56,7 @@ public:
   ezUInt32 GetNumAreaEdges() const { return m_GraphEdges.GetCount(); }
 
   /// \brief Returns the given area edge by index.
-  const AreaEdge& GetAreaEdge(ezInt32 iArea) const { return m_GraphEdges[iArea]; }
+  const AreaEdge& GetAreaEdge(ezInt32 iAreaEdge) const { return m_GraphEdges[iAreaEdge]; }
 
 private:
   void UpdateRegion(ezRectU32 region, CellComparator IsSameCellType, void* pPassThrough1, CellBlocked IsCellBlocked, void* pPassThrough2);

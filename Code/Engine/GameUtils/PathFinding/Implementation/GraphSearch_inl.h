@@ -97,6 +97,22 @@ ezResult ezPathSearch<PathStateType>::FindPath(ezInt64 iStartNodeIndex, const Pa
 
   ClearPathStates();
 
+  if (iStartNodeIndex == iTargetNodeIndex)
+  {
+    m_PathStates.Reserve(1);
+
+    m_PathStates[iTargetNodeIndex] = StartState;
+
+    PathResultData r;
+    r.m_iNodeIndex = iTargetNodeIndex;
+    r.m_pPathState = &m_PathStates[iTargetNodeIndex];
+
+    out_Path.Clear();
+    out_Path.PushBack(r);
+
+    return EZ_SUCCESS;
+  }
+
   m_PathStates.Reserve(10000);
 
   PathStateType& FirstState = m_PathStates[iStartNodeIndex];

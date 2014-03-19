@@ -6,11 +6,14 @@ EZ_CREATE_SIMPLE_TEST(Math, Float16)
 {
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "From float and back")
   {
+    // default constructor
+    EZ_TEST_BOOL(static_cast<float>(ezFloat16()) == 0.0f);
+
     // Border cases - exact matching needed.
-    EZ_TEST_BOOL(static_cast<float>(ezFloat16(1.0f)) == 1.0f);
-    EZ_TEST_BOOL(static_cast<float>(ezFloat16(-1.0f)) == -1.0f);
-    EZ_TEST_BOOL(static_cast<float>(ezFloat16(0.0f)) == 0.0f);
-    EZ_TEST_BOOL(static_cast<float>(ezFloat16(-0.0f)) == -0.0f);
+    EZ_TEST_FLOAT(static_cast<float>(ezFloat16(1.0f)), 1.0f, 0);
+    EZ_TEST_FLOAT(static_cast<float>(ezFloat16(-1.0f)), -1.0f, 0);
+    EZ_TEST_FLOAT(static_cast<float>(ezFloat16(0.0f)), 0.0f, 0);
+    EZ_TEST_FLOAT(static_cast<float>(ezFloat16(-0.0f)), -0.0f, 0);
     EZ_TEST_BOOL(static_cast<float>(ezFloat16(ezMath::BasicType<float>::GetInfinity())) == ezMath::BasicType<float>::GetInfinity());
     EZ_TEST_BOOL(static_cast<float>(ezFloat16(-ezMath::BasicType<float>::GetInfinity())) == -ezMath::BasicType<float>::GetInfinity());
     EZ_TEST_BOOL(ezMath::IsNaN(static_cast<float>(ezFloat16(ezMath::BasicType<float>::GetNaN()))));
@@ -42,5 +45,13 @@ EZ_CREATE_SIMPLE_TEST(Math, Float16)
   {
     EZ_TEST_BOOL(ezFloat16(1.0f) != ezFloat16(-1.0f));
     EZ_TEST_BOOL(ezFloat16(10000000.0f) != ezFloat16(10000.0f));
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetRawData / SetRawData")
+  {
+    ezFloat16 f;
+    f.SetRawData(23);
+
+    EZ_TEST_INT(f.GetRawData(), 23);
   }
 }
