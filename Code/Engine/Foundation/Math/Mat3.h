@@ -151,6 +151,12 @@ public:
   /// \brief Sets all 3 components on the diagonal of the matrix.
   void SetDiagonal(const ezVec3Template<Type>& diag); // [tested]
 
+  /// \brief Returns the 3 scaling factors that are encoded in the matrix.
+  const ezVec3Template<Type> GetScalingFactors() const; // [tested]
+
+  /// \brief Tries to set the three scaling factors in the matrix. Returns EZ_FAILURE if the matrix columns cannot be normalized and thus no rescaling is possible.
+  ezResult SetScalingFactors(const ezVec3Template<Type>& vXYZ, Type fEpsilon = ezMath::BasicType<Type>::DefaultEpsilon()); // [tested]
+
 
 // *** Operators ***
 public:

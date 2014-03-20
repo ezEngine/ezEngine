@@ -54,10 +54,16 @@
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Logging/VisualStudioWriter.h>
 
+#include <Foundation/Math/Angle.h>
 #include <Foundation/Math/BoundingBox.h>
 #include <Foundation/Math/BoundingSphere.h>
+#include <Foundation/Math/Color.h>
+#include <Foundation/Math/Color8UNorm.h>
+#include <Foundation/Math/Color16f.h>
 #include <Foundation/Math/Declarations.h>
 #include <Foundation/Math/FixedPoint.h>
+#include <Foundation/Math/Float16.h>
+#include <Foundation/Math/Intersection.h>
 #include <Foundation/Math/Mat3.h>
 #include <Foundation/Math/Mat4.h>
 #include <Foundation/Math/Math.h>
@@ -65,13 +71,9 @@
 #include <Foundation/Math/Quat.h>
 #include <Foundation/Math/Rect.h>
 #include <Foundation/Math/Size.h>
+#include <Foundation/Math/Transform.h>
 #include <Foundation/Math/Vec2.h>
 #include <Foundation/Math/Vec3.h>
-#include <Foundation/Math/Color.h>
-#include <Foundation/Math/Color8UNorm.h>
-#include <Foundation/Math/Color16f.h>
-#include <Foundation/Math/Float16.h>
-#include <Foundation/Math/Angle.h>
 
 #include <Foundation/Memory/Allocator.h>
 #include <Foundation/Memory/AllocatorBase.h>

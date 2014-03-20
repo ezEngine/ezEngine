@@ -10,6 +10,7 @@ Milestone 5
   * Added ezImage to the CoreUtils library, which allows to easily read / convert / write images of different file types.
   * Supported image file types: BMP, DDS, TGA
   * Added namespace ezIntersectionUtils with functions to do intersection tests.
+  * Added ezTransform, a 4x3 matrix that can be used for object transformations that don't require a full 4x4 matrix.
 
 Milestone 4
 -----------

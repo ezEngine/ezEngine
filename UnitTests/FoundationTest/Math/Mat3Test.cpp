@@ -470,6 +470,29 @@ EZ_CREATE_SIMPLE_TEST(Math, Mat3)
     EZ_TEST_VEC3(m.GetColumn(2), ezVec3T(0, 0, 3), 0.0f);
   }
 
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetScalingFactors")
+  {
+    ezMat3T m(1, 2, 3,
+             5, 6, 7,
+             9,10,11);
+
+    ezVec3T s = m.GetScalingFactors();
+    EZ_TEST_VEC3(s, ezVec3T(ezMath::Sqrt((ezMathTestType) (1*1 + 5*5 + 9*9)), ezMath::Sqrt((ezMathTestType) (2*2 + 6*6 + 10*10)), ezMath::Sqrt((ezMathTestType) (3*3 + 7*7 + 11*11))), 0.0001f);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetScalingFactors")
+  {
+    ezMat3T m(1, 2, 3,
+             5, 6, 7,
+             9,10,11);
+
+    EZ_TEST_BOOL(m.SetScalingFactors(ezVec3T(1, 2, 3)) == EZ_SUCCESS);
+
+    ezVec3T s = m.GetScalingFactors();
+    EZ_TEST_VEC3(s, ezVec3T(1, 2, 3), 0.0001f);
+  }
+
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "TransformDirection")
   {
     ezMat3T m(1, 2, 3,
