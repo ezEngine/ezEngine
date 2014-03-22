@@ -256,6 +256,62 @@ EZ_CREATE_SIMPLE_TEST(Math, Transform)
 
     EZ_TEST_BOOL(tParent.IsEqual(tParentFromChild, 0.0001f));
   }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetAsArray")
+  {
+    ezTransform t;
+    t.m_Rotation.SetElements(1, 2, 3,
+                             4, 5, 6,
+                             7, 8, 9);
+    t.m_vPosition.Set(10, 11, 12);
+
+    {
+      float f[13] = { 0 };
+
+      t.GetAsArray(f, ezMatrixLayout::ColumnMajor);
+
+      EZ_TEST_FLOAT(f[0], 1, 0);
+      EZ_TEST_FLOAT(f[1], 4, 0);
+      EZ_TEST_FLOAT(f[2], 7, 0);
+
+      EZ_TEST_FLOAT(f[3], 2, 0);
+      EZ_TEST_FLOAT(f[4], 5, 0);
+      EZ_TEST_FLOAT(f[5], 8, 0);
+
+      EZ_TEST_FLOAT(f[6], 3, 0);
+      EZ_TEST_FLOAT(f[7], 6, 0);
+      EZ_TEST_FLOAT(f[8], 9, 0);
+
+      EZ_TEST_FLOAT(f[9], 10, 0);
+      EZ_TEST_FLOAT(f[10],11, 0);
+      EZ_TEST_FLOAT(f[11],12, 0);
+
+      EZ_TEST_FLOAT(f[12], 0, 0);
+    }
+
+    {
+      float f[13] = { 0 };
+
+      t.GetAsArray(f, ezMatrixLayout::RowMajor);
+
+      EZ_TEST_FLOAT(f[0], 1, 0);
+      EZ_TEST_FLOAT(f[1], 2, 0);
+      EZ_TEST_FLOAT(f[2], 3, 0);
+      EZ_TEST_FLOAT(f[3],10, 0);
+
+      EZ_TEST_FLOAT(f[4], 4, 0);
+      EZ_TEST_FLOAT(f[5], 5, 0);
+      EZ_TEST_FLOAT(f[6], 6, 0);
+      EZ_TEST_FLOAT(f[7],11, 0);
+
+      EZ_TEST_FLOAT(f[8], 7, 0);
+      EZ_TEST_FLOAT(f[9], 8, 0);
+      EZ_TEST_FLOAT(f[10],9, 0);
+      EZ_TEST_FLOAT(f[11],12, 0);
+
+      EZ_TEST_FLOAT(f[12], 0, 0);
+    }
+  }
 }
 
 

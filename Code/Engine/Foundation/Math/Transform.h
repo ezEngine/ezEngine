@@ -23,9 +23,11 @@ class ezTransform
   // *** Data ***
 public:
 
-  ezVec3 m_vPosition;
   ezMat3 m_Rotation;
+  ezVec3 m_vPosition;
 
+  /// \brief Copies the 12 values of this matrix into the given array. 'layout' defines whether the data should end up in column-major or row-major format.
+  void GetAsArray(float* out_pData, ezMatrixLayout::Enum layout) const; // [tested]
 
   // *** Constructors ***
 public:

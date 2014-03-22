@@ -109,5 +109,27 @@ inline const ezTransform ezTransform::GetInverse() const
   return Inverse;
 }
 
+void ezTransform::GetAsArray(float* out_pData, ezMatrixLayout::Enum layout) const
+{
+  if (layout == ezMatrixLayout::ColumnMajor)
+  {
+    ezMemoryUtils::Copy(out_pData, &m_Rotation.m_fElementsCM[0], 12);
+  }
+  else
+  {
+    out_pData[0] = m_Rotation.Element(0, 0);
+    out_pData[1] = m_Rotation.Element(1, 0);
+    out_pData[2] = m_Rotation.Element(2, 0);
+    out_pData[3] = m_vPosition.x;
 
+    out_pData[4] = m_Rotation.Element(0, 1);
+    out_pData[5] = m_Rotation.Element(1, 1);
+    out_pData[6] = m_Rotation.Element(2, 1);
+    out_pData[7] = m_vPosition.y;
 
+    out_pData[8] = m_Rotation.Element(0, 2);
+    out_pData[9] = m_Rotation.Element(1, 2);
+    out_pData[10]= m_Rotation.Element(2, 2);
+    out_pData[11]= m_vPosition.z;
+  }
+}
