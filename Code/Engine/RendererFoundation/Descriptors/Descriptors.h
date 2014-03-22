@@ -211,7 +211,9 @@ struct ezGALBufferType
     Storage = 0,
     VertexBuffer,
     IndexBuffer,
-    ConstantBuffer
+    ConstantBuffer,
+
+    ENUM_COUNT
   };
 };
 

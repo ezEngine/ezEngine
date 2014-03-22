@@ -1,6 +1,8 @@
 
 #pragma once
 
+#include <RendererFoundation/Basics.h>
+
 struct ezGALResourceFormat
 {
   enum Enum
@@ -94,6 +96,25 @@ struct ezGALResourceFormat
     ENUM_COUNT
   };
 
+
+  // General format Meta-Informations:
+
+  /// \brief The size in bytes of a single element of the given resource format.
+  ///
+  /// Note that for compressed formats an "element" can contain more than one pixel.
+  EZ_RENDERERFOUNDATION_DLL static ezUInt8 GetSize(ezGALResourceFormat::Enum format)          { return Size[format]; }
+
+  /// \brief The number of color channels this format contains.
+  EZ_RENDERERFOUNDATION_DLL static ezUInt8 GetChannelCount(ezGALResourceFormat::Enum format)  { return ChannelCount[format]; }
+
+  // TODO: A combination of propertyflags, something like srgb, normalized, ...
+  // Would be very useful for some GL stuff and Testing.
+
+private:
+  
+  static const ezUInt8 Size[ezGALResourceFormat::ENUM_COUNT];
+
+  static const ezUInt8 ChannelCount[ezGALResourceFormat::ENUM_COUNT];
 };
 
 

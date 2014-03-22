@@ -1,5 +1,3 @@
-
-
 #pragma once
 
 #include <RendererFoundation/Resources/Texture.h>
@@ -11,26 +9,26 @@ class ezGALTextureDX11 : public ezGALTexture
 {
 public:
 
-	EZ_FORCE_INLINE ID3D11Resource* GetDXTexture() const;
+  EZ_FORCE_INLINE ID3D11Resource* GetDXTexture() const;
 
   EZ_FORCE_INLINE ID3D11Resource* GetDXStagingTexture() const;
 
 protected:
 
-	friend class ezGALDeviceDX11;
-	friend class ezMemoryUtils;
+  friend class ezGALDeviceDX11;
+  friend class ezMemoryUtils;
 
-	ezGALTextureDX11(const ezGALTextureCreationDescription& Description);
+  ezGALTextureDX11(const ezGALTextureCreationDescription& Description);
 
-	~ezGALTextureDX11();
+  ~ezGALTextureDX11();
 
-	virtual ezResult InitPlatform(ezGALDevice* pDevice, const ezArrayPtr<ezGALSystemMemoryDescription>* pInitialData) EZ_OVERRIDE;
+  virtual ezResult InitPlatform(ezGALDevice* pDevice, const ezArrayPtr<ezGALSystemMemoryDescription>* pInitialData) EZ_OVERRIDE;
 
-	virtual ezResult DeInitPlatform(ezGALDevice* pDevice) EZ_OVERRIDE;
+  virtual ezResult DeInitPlatform(ezGALDevice* pDevice) EZ_OVERRIDE;
 
   ezResult CreateStagingTexture(ezGALDeviceDX11* pDevice);
 
-	ID3D11Resource* m_pDXTexture;
+  ID3D11Resource* m_pDXTexture;
 
   ID3D11Resource* m_pDXStagingTexture;
 

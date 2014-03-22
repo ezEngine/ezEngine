@@ -10,7 +10,7 @@ class ezGALRenderTargetConfigDX11 : public ezGALRenderTargetConfig
 {
 public:
 
-private:
+protected:
 
   friend class ezGALDeviceDX11;
   friend class ezGALContextDX11;

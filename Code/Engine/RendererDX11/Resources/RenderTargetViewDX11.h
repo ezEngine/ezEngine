@@ -18,7 +18,7 @@ public:
 
   EZ_FORCE_INLINE ID3D11UnorderedAccessView* GetUnorderedAccessView() const;
 
-private:
+protected:
 
   friend class ezGALDeviceDX11;
   friend class ezMemoryUtils;

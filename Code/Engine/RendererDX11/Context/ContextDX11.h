@@ -38,7 +38,7 @@ protected:
 
   // Draw functions
 
-  virtual void ClearPlatform(const ezColor& ClearColor, ezUInt32 uiRenderTargetClearMask, bool bClearDepth, bool bClearStencil) EZ_OVERRIDE;
+  virtual void ClearPlatform(const ezColor& ClearColor, ezUInt32 uiRenderTargetClearMask, bool bClearDepth, bool bClearStencil, float fDepthClear, ezUInt8 uiStencilClear) EZ_OVERRIDE;
 
   virtual void DrawPlatform(ezUInt32 uiVertexCount) EZ_OVERRIDE;
 

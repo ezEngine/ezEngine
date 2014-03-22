@@ -137,6 +137,27 @@ ezGALRasterizerStateCreationDescription::ezGALRasterizerStateCreationDescription
 {
 }
 
+ezGALStencilOpDescription::ezGALStencilOpDescription()
+  : m_FailOp(ezGALStencilOp::Keep),
+    m_DepthFailOp(ezGALStencilOp::Keep),
+    m_PassOp(ezGALStencilOp::Keep),
+    m_StencilFunc(ezGALCompareFunc::Always)
+{
+}
+
+ezGALDepthStencilStateCreationDescription::ezGALDepthStencilStateCreationDescription()
+  : m_FrontFaceStencilOp(),
+    m_BackFaceStencilOp(),
+    m_DepthTestFunc(ezGALCompareFunc::Greater),
+    m_bSeparateFrontAndBack(false),
+    m_bDepthTest(true),
+    m_bDepthWrite(true),
+    m_bStencilTest(false),
+    m_uiStencilReadMask(0xFF),
+    m_uiStencilWriteMask(0xFF)
+{
+}
+
 ezGALSamplerStateCreationDescription::ezGALSamplerStateCreationDescription()
   : m_MinFilter(ezGALTextureFilterMode::Linear),
     m_MagFilter(ezGALTextureFilterMode::Linear),

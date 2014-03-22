@@ -15,7 +15,7 @@ public:
 
   ezGALRenderTargetViewHandle GetRenderTargetView() const
   {
-    return m_hBackbBufferRenderTargetView;
+    return m_hBackBufferRenderTargetView;
   }
 
 protected:
@@ -28,9 +28,9 @@ protected:
 
   virtual ezResult DeInitPlatform(ezGALDevice* pDevice);
 
-  void SetBackBufferObjects(ezGALTextureHandle hBackBufferTexture, ezGALRenderTargetViewHandle hBackbBufferRenderTargetView);
+  void SetBackBufferObjects(ezGALTextureHandle hBackBufferTexture, ezGALRenderTargetViewHandle hBackBufferRenderTargetView);
 
   ezGALTextureHandle m_hBackBufferTexture;
 
-  ezGALRenderTargetViewHandle m_hBackbBufferRenderTargetView;
+  ezGALRenderTargetViewHandle m_hBackBufferRenderTargetView;
 };

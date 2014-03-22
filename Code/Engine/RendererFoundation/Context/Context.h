@@ -13,7 +13,12 @@ public:
 
   // Draw functions
 
-  void Clear(const ezColor& ClearColor, ezUInt32 uiRenderTargetClearMask = 0xFFFFFFFFu, bool bClearDepth = true, bool bClearStencil = true);
+  /// \brief Clears active rendertargets.
+  ///
+  /// \param uiRenderTargetClearMask
+  ///   Each bit represents a bound color target. If all bits are set, all bound color targets will be cleared.
+  void Clear(const ezColor& ClearColor, ezUInt32 uiRenderTargetClearMask = 0xFFFFFFFFu, bool bClearDepth = true, bool bClearStencil = true,
+              float fDepthClear = 1.0f, ezUInt8 uiStencilClear = 0x0u);
 
   void Draw(ezUInt32 uiVertexCount);
 
@@ -126,7 +131,7 @@ protected:
 
   // Draw functions
 
-  virtual void ClearPlatform(const ezColor& ClearColor, ezUInt32 uiRenderTargetClearMask, bool bClearDepth, bool bClearStencil) = 0;
+  virtual void ClearPlatform(const ezColor& ClearColor, ezUInt32 uiRenderTargetClearMask, bool bClearDepth, bool bClearStencil, float fDepthClear, ezUInt8 uiStencilClear) = 0;
 
   virtual void DrawPlatform(ezUInt32 uiVertexCount) = 0;
 

@@ -26,11 +26,12 @@ ezGALContext::~ezGALContext()
 {
 }
 
-void ezGALContext::Clear(const ezColor& ClearColor, ezUInt32 uiRenderTargetClearMask /*= 0xFFFFFFFFu*/, bool bClearDepth /*= true*/, bool bClearStencil /*= true*/)
+void ezGALContext::Clear(const ezColor& ClearColor, ezUInt32 uiRenderTargetClearMask /*= 0xFFFFFFFFu*/, bool bClearDepth /*= true*/, bool bClearStencil /*= true*/,
+                          float fDepthClear /*= 1.0f*/, ezUInt8 uiStencilClear /*= 0x0u*/)
 {
   AssertRenderingThread();
 
-  ClearPlatform(ClearColor, uiRenderTargetClearMask, bClearDepth, bClearStencil);
+  ClearPlatform(ClearColor, uiRenderTargetClearMask, bClearDepth, bClearStencil, fDepthClear, uiStencilClear);
 }
 
 void ezGALContext::Draw(ezUInt32 uiVertexCount)
@@ -192,6 +193,7 @@ void ezGALContext::SetIndexBuffer(ezGALBufferHandle hIndexBuffer)
   ezGALBuffer* pBuffer = NULL;
   m_pDevice->m_Buffers.TryGetValue(hIndexBuffer, pBuffer);
   // TODO: Assert on index buffer type (if non NULL)
+  // Note that GL4 can bind arbitrary buffer to arbitrary binding points (index/vertex/transformfeedback/indirect-draw/...)
 
   SetIndexBufferPlatform(pBuffer);
 
@@ -210,6 +212,7 @@ void ezGALContext::SetVertexBuffer(ezUInt32 uiSlot, ezGALBufferHandle hVertexBuf
   ezGALBuffer* pBuffer = NULL;
   m_pDevice->m_Buffers.TryGetValue(hVertexBuffer, pBuffer);
   // Assert on vertex buffer type (if non-zero)
+  // Note that GL4 can bind arbitrary buffer to arbitrary binding points (index/vertex/transformfeedback/indirect-draw/...)
 
   SetVertexBufferPlatform(uiSlot, pBuffer);
 
@@ -269,6 +272,7 @@ void ezGALContext::SetConstantBuffer(ezUInt32 uiSlot, ezGALBufferHandle hBuffer)
   ezGALBuffer* pBuffer = NULL;
   m_pDevice->m_Buffers.TryGetValue(hBuffer, pBuffer);
   // Assert on constant buffer type (if non-zero)
+  // Note that GL4 can bind arbitrary buffer to arbitrary binding points (index/vertex/transformfeedback/indirect-draw/...)
 
   // TODO: Get buffer by handle
   SetConstantBufferPlatform(uiSlot, pBuffer);

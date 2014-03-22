@@ -107,7 +107,17 @@ void ezGALDeviceDX11::DestroyBlendStatePlatform(ezGALBlendState* pBlendState)
 
 ezGALDepthStencilState* ezGALDeviceDX11::CreateDepthStencilStatePlatform(const ezGALDepthStencilStateCreationDescription& Description)
 {
-  return NULL;
+  ezGALDepthStencilStateDX11* pDX11DepthStencilState = EZ_DEFAULT_NEW(ezGALDepthStencilStateDX11)(Description);
+
+  if (pDX11DepthStencilState->InitPlatform(this).IsSuccess())
+  {
+    return pDX11DepthStencilState;
+  }
+  else
+  {
+    EZ_DEFAULT_DELETE(pDX11DepthStencilState);
+    return NULL;
+  }
 }
 
 void ezGALDeviceDX11::DestroyDepthStencilStatePlatform(ezGALDepthStencilState* pDepthStencilState)
@@ -280,7 +290,9 @@ ezGALSwapChain* ezGALDeviceDX11::CreateSwapChainPlatform(const ezGALSwapChainCre
 
 void ezGALDeviceDX11::DestroySwapChainPlatform(ezGALSwapChain* pSwapChain)
 {
-  delete static_cast<ezGALSwapChainDX11*>(pSwapChain);
+  ezGALSwapChainDX11* pSwapChainDX11 = static_cast<ezGALSwapChainDX11*>(pSwapChain);
+  pSwapChainDX11->DeInitPlatform(this);
+  EZ_DEFAULT_DELETE(pSwapChainDX11);
 }
 
 ezGALFence* ezGALDeviceDX11::CreateFencePlatform()
@@ -318,7 +330,9 @@ ezGALRenderTargetConfig* ezGALDeviceDX11::CreateRenderTargetConfigPlatform(const
 
 void ezGALDeviceDX11::DestroyRenderTargetConfigPlatform(ezGALRenderTargetConfig* pRenderTargetConfig)
 {
-  delete static_cast<ezGALRenderTargetConfigDX11*>(pRenderTargetConfig);
+  ezGALRenderTargetConfigDX11* pRenderTargetConfigDX11 = static_cast<ezGALRenderTargetConfigDX11*>(pRenderTargetConfig);
+  pRenderTargetConfigDX11->DeInitPlatform(this);
+  EZ_DEFAULT_DELETE(pRenderTargetConfigDX11);
 }
 
 ezGALVertexDeclaration* ezGALDeviceDX11::CreateVertexDeclarationPlatform(const ezGALVertexDeclarationCreationDescription& Description)

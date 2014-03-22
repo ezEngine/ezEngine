@@ -15,14 +15,14 @@ ezGALSwapChain::~ezGALSwapChain()
 
 ezResult ezGALSwapChain::DeInitPlatform(ezGALDevice* pDevice)
 {
-  pDevice->DestroyRenderTargetView(m_hBackbBufferRenderTargetView);
+  pDevice->DestroyRenderTargetView(m_hBackBufferRenderTargetView);
   pDevice->DestroyTexture(m_hBackBufferTexture);
 
   return EZ_SUCCESS;
 }
 
-void ezGALSwapChain::SetBackBufferObjects(ezGALTextureHandle hBackBufferTexture, ezGALRenderTargetViewHandle hBackbBufferRenderTargetView)
+void ezGALSwapChain::SetBackBufferObjects(ezGALTextureHandle hBackBufferTexture, ezGALRenderTargetViewHandle hBackBufferRenderTargetView)
 {
   m_hBackBufferTexture = hBackBufferTexture;
-  m_hBackbBufferRenderTargetView = hBackbBufferRenderTargetView;
+  m_hBackBufferRenderTargetView = hBackBufferRenderTargetView;
 }

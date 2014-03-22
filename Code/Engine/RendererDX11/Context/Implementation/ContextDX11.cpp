@@ -55,7 +55,7 @@ ezGALContextDX11::~ezGALContextDX11()
 
 // Draw functions
 
-void ezGALContextDX11::ClearPlatform(const ezColor& ClearColor, ezUInt32 uiRenderTargetClearMask, bool bClearDepth, bool bClearStencil)
+void ezGALContextDX11::ClearPlatform(const ezColor& ClearColor, ezUInt32 uiRenderTargetClearMask, bool bClearDepth, bool bClearStencil, float fDepthClear, ezUInt8 uiStencilClear)
 {
   for (ezUInt32 i = 0; i < m_uiBoundRenderTargetCount; i++)
   {
@@ -68,7 +68,7 @@ void ezGALContextDX11::ClearPlatform(const ezColor& ClearColor, ezUInt32 uiRende
   if ((bClearDepth || bClearStencil) && m_pBoundDepthStencilTarget)
   {
     // TODO: Parameters
-    m_pDXContext->ClearDepthStencilView(m_pBoundDepthStencilTarget, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0x0u);
+    m_pDXContext->ClearDepthStencilView(m_pBoundDepthStencilTarget, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, fDepthClear, uiStencilClear);
   }
 }
 
