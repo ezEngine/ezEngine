@@ -1,35 +1,11 @@
 #include <Foundation/Configuration/Startup.h>
-#include <Foundation/IO/FileSystem/FileSystem.h>
-#include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
-#include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Containers/HashTable.h>
 
 #include <Helper/MayaObj.h>
+#include <Helper/Misc.h>
 #include <RendererFoundation/Device/Device.h>
 
-
-static ezResult ReadCompleteFile(const char* szFile, ezDynamicArray<ezUInt8>& out_FileContent)
-{
-  out_FileContent.Clear();
-
-  ezFileReader File;
-  if (File.Open(szFile) == EZ_FAILURE)
-    return EZ_FAILURE;
-
-  ezUInt8 uiTemp[1024];
-  while(true)
-  {
-    const ezUInt64 uiRead = File.ReadBytes(uiTemp, 1023);
-
-    if (uiRead == 0)
-      return EZ_SUCCESS; // file is automatically closed here
-
-    out_FileContent.PushBackRange(ezArrayPtr<ezUInt8>(uiTemp, (ezUInt32) uiRead));
-  }
-
-  return EZ_SUCCESS; // file is automatically closed here
-}
 
 EZ_FORCE_INLINE ezUInt64 FaceIndicesToKey(ezUInt32 PosIndex, ezUInt32 TexCoordIndex, ezUInt32 NormIndex)
 {

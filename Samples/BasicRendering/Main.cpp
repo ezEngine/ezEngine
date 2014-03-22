@@ -19,12 +19,21 @@
 
 #include <System/Window/Window.h>
 
-#include <RendererDX11/Device/DeviceDX11.h>
+#define DEMO_GL EZ_OFF
+#define DEMO_DX11 EZ_ON
+
+#if EZ_ENABLED(DEMO_GL)
+  #include <RendererGL/Device/DeviceGL.h>
+#else
+  #include <RendererDX11/Device/DeviceDX11.h>
+#endif
+
 #include <RendererFoundation/Device/SwapChain.h>
 #include <RendererFoundation/Context/Context.h>
 
 #include <Helper/MayaObj.h>
 #include <Helper/Shader.h>
+#include <Helper/Misc.h>
 
 #include <CoreUtils/Debugging/DataTransfer.h>
 
@@ -80,8 +89,10 @@ public:
     ezWindowCreationDesc WindowCreationDesc;
     WindowCreationDesc.m_ClientAreaSize.width = g_uiWindowWidth;
     WindowCreationDesc.m_ClientAreaSize.height = g_uiWindowHeight;
+    WindowCreationDesc.m_GraphicsAPI = ezGraphicsAPI::OpenGL;
     m_pWindow = EZ_DEFAULT_NEW(TestWindow)();
     m_pWindow->Initialize(WindowCreationDesc);
+
 
     // Create a device
     ezGALDeviceCreationDescription DeviceInit;
@@ -91,10 +102,14 @@ public:
     DeviceInit.m_PrimarySwapChainDescription.m_SampleCount = g_bMSAA ? ezGALMSAASampleCount::FourSamples : ezGALMSAASampleCount::None;
     DeviceInit.m_PrimarySwapChainDescription.m_bAllowScreenshots = true;
 
+#if EZ_ENABLED(DEMO_GL)
+    m_pDevice = EZ_DEFAULT_NEW(ezGALDeviceGL)(DeviceInit);
+#else
     m_pDevice = EZ_DEFAULT_NEW(ezGALDeviceDX11)(DeviceInit);
+#endif
     EZ_VERIFY(m_pDevice->Init() == EZ_SUCCESS, "Device init failed!");
 
-    // Get the primary swapchain (this one will always be created by device init except if the user instructs no swap chain creation explicitely)
+    // Get the primary swapchain (this one will always be created by device init except if the user instructs no swap chain creation explicitly)
     ezGALSwapChainHandle hPrimarySwapChain = m_pDevice->GetPrimarySwapChain();
 
     // Create depth stencil buffer
@@ -136,7 +151,17 @@ public:
 
     // Create a shader (uses a quick hacky implementation to compile the HLSL shaders)
     ezGALShaderCreationDescription ShaderDesc;
+#if EZ_ENABLED(DEMO_GL)
+    ezDynamicArray<ezUInt8> pixelShader, vertexShader;
+    DontUse::ReadCompleteFile("ez_vert.glsl", vertexShader);
+    vertexShader.PushBack('\0');
+    DontUse::ReadCompleteFile("ez_frag.glsl", pixelShader);
+    pixelShader.PushBack('\0');
+    ShaderDesc.m_ByteCodes[ezGALShaderStage::VertexShader] = new ezGALShaderByteCode(&vertexShader[0], vertexShader.GetCount());
+    ShaderDesc.m_ByteCodes[ezGALShaderStage::PixelShader] = new ezGALShaderByteCode(&pixelShader[0], pixelShader.GetCount());
+#else
     DontUse::ShaderCompiler::Compile("ez.hlsl", ShaderDesc);
+#endif
 
     m_hShader = m_pDevice->CreateShader(ShaderDesc);
     EZ_ASSERT(!m_hShader.IsInvalidated(), "Couldn't create shader!");
@@ -157,6 +182,12 @@ public:
     m_hRasterizerState = m_pDevice->CreateRasterizerState(RasterStateDesc);
     EZ_ASSERT(!m_hRasterizerState.IsInvalidated(), "Couldn't create rasterizer state!");
 
+ 
+    ezGALDepthStencilStateCreationDescription DepthStencilStateDesc;
+    DepthStencilStateDesc.m_bDepthTest = true;
+    DepthStencilStateDesc.m_bDepthWrite = true;
+    m_hDepthStencilState = m_pDevice->CreateDepthStencilState(DepthStencilStateDesc);
+    EZ_ASSERT(!m_hDepthStencilState.IsInvalidated(), "Couldn't create depth-stencil state!");
 
     // Create texture (not used on the mesh)
     ezGALTextureCreationDescription TexDesc;
@@ -239,6 +270,7 @@ public:
     pContext->SetVertexDeclaration(m_hVertexDeclaration);
     pContext->SetPrimitiveTopology(ezGALPrimitiveTopology::Triangles);
     pContext->SetRasterizerState(m_hRasterizerState);
+    pContext->SetDepthStencilState(m_hDepthStencilState);
     pContext->SetResourceView(ezGALShaderStage::PixelShader, 0, m_hTexView);
     pContext->SetSamplerState(ezGALShaderStage::PixelShader, 0, m_hSamplerState);
 
@@ -259,7 +291,13 @@ public:
 
     ezMat4 Proj;
     Proj.SetIdentity();
-    Proj.SetPerspectiveProjectionMatrixFromFovY(ezAngle::Degree(80.0f), (float)g_uiWindowWidth / (float)g_uiWindowHeight, 0.1f, 1000.0f, ezProjectionDepthRange::ZeroToOne);
+    Proj.SetPerspectiveProjectionMatrixFromFovY(ezAngle::Degree(80.0f), (float)g_uiWindowWidth / (float)g_uiWindowHeight, 0.1f, 1000.0f, 
+#if EZ_ENABLED(DEMO_GL)
+      ezProjectionDepthRange::MinusOneToOne
+#else
+      ezProjectionDepthRange::ZeroToOne
+#endif
+    );
 
     TestCB ObjectData;
 
@@ -333,6 +371,8 @@ private:
   ezGALVertexDeclarationHandle m_hVertexDeclaration;
 
   ezGALRasterizerStateHandle m_hRasterizerState;
+
+  ezGALDepthStencilStateHandle m_hDepthStencilState;
 
   ezGALTextureHandle m_hDepthBuffer;
 
