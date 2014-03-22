@@ -1,0 +1,38 @@
+
+const ezGALFormatLookupTableGL& ezGALDeviceGL::GetFormatLookupTable() const
+{
+  return m_FormatLookupTable;
+}
+
+template<typename ResourceType, typename DescriptionType> ResourceType* ezGALDeviceGL::DefaultCreate(const DescriptionType& Description)
+{
+  ResourceType* pResource = EZ_DEFAULT_NEW(ResourceType)(Description);
+
+  if (!pResource->InitPlatform(this).IsSuccess())
+  {
+    EZ_DEFAULT_DELETE(pResource);
+    return NULL;
+  }
+
+  return pResource;
+}
+
+template<typename ResourceType, typename DescriptionType, typename DataPtr> ResourceType* ezGALDeviceGL::DefaultCreate(const DescriptionType& Description, DataPtr pInitialData)
+{
+  ResourceType* pResource = EZ_DEFAULT_NEW(ResourceType)(Description);
+
+  if (!pResource->InitPlatform(this, pInitialData).IsSuccess())
+  {
+    EZ_DEFAULT_DELETE(pResource);
+    return NULL;
+  }
+
+  return pResource;
+}
+
+template<typename ResourceType, typename ResourceTypeBaseClass> void ezGALDeviceGL::DefaultDestroy(ResourceTypeBaseClass* pResource)
+{
+  ResourceType* pResourceGL = static_cast<ResourceType*>(pResource);
+  pResourceGL->DeInitPlatform(this);
+  EZ_DEFAULT_DELETE(pResourceGL);
+}
