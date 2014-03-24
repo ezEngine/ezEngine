@@ -19,6 +19,7 @@ SET (LINK_LIBRARIES
   Foundation 
   RendererFoundation
   System
+  OpenGL32
 )
 
 BUILD_REQUIRES_DX11()

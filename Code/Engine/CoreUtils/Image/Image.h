@@ -29,12 +29,12 @@ public:
   /// \brief Returns the number of blocks contained in a given mip level in the horizontal direction.
   ///
   /// This method is only valid to call for block-compressed formats.
-  inline ezUInt32 GetNumBlocksX(ezUInt32 uiMipLevel) const;
+  inline ezUInt32 GetNumBlocksX(ezUInt32 uiMipLevel = 0) const;
 
   /// \brief Returns the number of blocks contained in a given mip level in the vertical direction.
   ///
   /// This method is only valid to call for block-compressed formats.
-  inline ezUInt32 GetNumBlocksY(ezUInt32 uiMipLevel) const;
+  inline ezUInt32 GetNumBlocksY(ezUInt32 uiMipLevel = 0) const;
 
 
   /// \brief Returns the size of the allocated image data.
@@ -53,35 +53,35 @@ public:
 
   /// \brief Returns a pointer to the beginning of a given subimage.
   template<typename T>
-  const T* GetSubImagePointer(ezUInt32 uiMipLevel, ezUInt32 uiFace, ezUInt32 uiArrayIndex) const;
+  const T* GetSubImagePointer(ezUInt32 uiMipLevel = 0, ezUInt32 uiFace = 0, ezUInt32 uiArrayIndex = 0) const;
 
   /// \brief Returns a pointer to the beginning of a given subimage.
   template<typename T>
-  T* GetSubImagePointer(ezUInt32 uiMipLevel, ezUInt32 uiFace, ezUInt32 uiArrayIndex);
+  T* GetSubImagePointer(ezUInt32 uiMipLevel = 0, ezUInt32 uiFace = 0, ezUInt32 uiArrayIndex = 0);
 
   /// \brief Returns a pointer to a given pixel contained in a subimage.
   ///
   /// This method is only valid to use when the image format is a linear pixel format.
   template<typename T>
-  const T* GetPixelPointer(ezUInt32 uiMipLevel, ezUInt32 uiFace, ezUInt32 uiArrayIndex, ezUInt32 x, ezUInt32 y, ezUInt32 z) const;
+  const T* GetPixelPointer(ezUInt32 uiMipLevel = 0, ezUInt32 uiFace = 0, ezUInt32 uiArrayIndex = 0, ezUInt32 x = 0, ezUInt32 y = 0, ezUInt32 z = 0) const;
 
   /// \brief Returns a pointer to a given pixel contained in a subimage.
   ///
   /// This method is only valid to use when the image format is a linear pixel format.
   template<typename T>
-  T* GetPixelPointer(ezUInt32 uiMipLevel, ezUInt32 uiFace, ezUInt32 uiArrayIndex, ezUInt32 x, ezUInt32 y, ezUInt32 z);
+  T* GetPixelPointer(ezUInt32 uiMipLevel = 0, ezUInt32 uiFace = 0, ezUInt32 uiArrayIndex = 0, ezUInt32 x = 0, ezUInt32 y = 0, ezUInt32 z = 0);
 
   /// \brief Returns a pointer to a given block contained in a subimage.
   ///
   /// This method is only valid to use when the image format is a block compressed format.
   template<typename T>
-  const T* GetBlockPointer(ezUInt32 uiMipLevel, ezUInt32 uiFace, ezUInt32 uiArrayIndex, ezUInt32 uiBlockX, ezUInt32 uiBlockY, ezUInt32 z) const;
+  const T* GetBlockPointer(ezUInt32 uiMipLevel = 0, ezUInt32 uiFace = 0, ezUInt32 uiArrayIndex = 0, ezUInt32 uiBlockX = 0, ezUInt32 uiBlockY = 0, ezUInt32 z = 0) const;
 
   /// \brief Returns a pointer to a given block contained in a subimage.
   ///
   /// This method is only valid to use when the image format is a block compressed format.
   template<typename T>
-  T* GetBlockPointer(ezUInt32 uiMipLevel, ezUInt32 uiFace, ezUInt32 uiArrayIndex, ezUInt32 uiBlockX, ezUInt32 uiBlockY, ezUInt32 z);
+  T* GetBlockPointer(ezUInt32 uiMipLevel = 0, ezUInt32 uiFace = 0, ezUInt32 uiArrayIndex = 0, ezUInt32 uiBlockX = 0, ezUInt32 uiBlockY = 0, ezUInt32 z = 0);
 
   /// \brief Allocates the storage space required for the configured number of subimages.
   ///
@@ -92,13 +92,13 @@ public:
   /// \brief Returns the offset in bytes between two subsequent rows of the given mip level.
   ///
   /// This method is only valid to use when the image format is a linear pixel format.
-  inline ezUInt32 GetRowPitch(ezUInt32 uiMipLevel) const;
+  inline ezUInt32 GetRowPitch(ezUInt32 uiMipLevel = 0) const;
 
   /// \brief Returns the offset in bytes between two subsequent depth slices of the given mip level.
-  inline ezUInt32 GetDepthPitch(ezUInt32 uiMipLevel) const;
+  inline ezUInt32 GetDepthPitch(ezUInt32 uiMipLevel = 0) const;
 
   /// \brief Returns the position in bytes in the data array of the given subimage.
-  inline ezUInt32 GetDataOffSet(ezUInt32 uiMipLevel, ezUInt32 uiFace, ezUInt32 uiArrayIndex) const;
+  inline ezUInt32 GetDataOffSet(ezUInt32 uiMipLevel = 0, ezUInt32 uiFace = 0, ezUInt32 uiArrayIndex = 0) const;
  
 private:
   struct SubImage
