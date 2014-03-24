@@ -366,7 +366,7 @@ ezGALBufferHandle ezGALDevice::CreateVertexBuffer(ezUInt32 uiVertexSize, ezUInt3
 ezGALBufferHandle ezGALDevice::CreateIndexBuffer(ezGALIndexType::Enum IndexType, ezUInt32 uiIndexCount, const void* pInitialData /*= NULL*/)
 {
   ezGALBufferCreationDescription Desc;
-  Desc.m_uiStructSize = ezGALIndexType::Sizeof[IndexType];
+  Desc.m_uiStructSize = ezGALIndexType::GetSize(IndexType);
   Desc.m_uiTotalSize = Desc.m_uiStructSize * uiIndexCount;
   Desc.m_BufferType = ezGALBufferType::IndexBuffer;
   Desc.m_ResourceAccess.m_bImmutable = pInitialData != NULL;

@@ -81,8 +81,13 @@ struct ezGALIndexType
     ENUM_COUNT
   };
 
-  /// The size in bytes of a given ezGALIndexType::Enum.
-  EZ_RENDERERFOUNDATION_DLL static const ezUInt32 Sizeof[ENUM_COUNT];
+
+  /// \brief The size in bytes of a single element of the given index format.
+  EZ_RENDERERFOUNDATION_DLL static ezUInt8 GetSize(ezGALIndexType::Enum format)          { return Size[format]; }
+
+private:
+
+  static const ezUInt8 Size[ezGALIndexType::ENUM_COUNT];
 };
 
 

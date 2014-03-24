@@ -261,7 +261,7 @@ void ezGALContextGL::DrawIndexedPlatform(ezUInt32 uiIndexCount, ezUInt32 uiStart
   FlushDeferredStateChanges();
   
   EZ_GL_CALL(glDrawElements, s_GALTopologyToGL[m_PrimitiveTopology], uiIndexCount, s_GALIndexTypeToGL[m_IndexType],
-                  reinterpret_cast<GLvoid*>(ezGALIndexType::Sizeof[m_IndexType] * uiStartIndex));
+                  reinterpret_cast<GLvoid*>(ezGALIndexType::GetSize(m_IndexType) * uiStartIndex));
 }
 
 void ezGALContextGL::DrawIndexedInstancedPlatform(ezUInt32 uiIndexCountPerInstance, ezUInt32 uiInstanceCount, ezUInt32 uiStartIndex)
@@ -269,7 +269,7 @@ void ezGALContextGL::DrawIndexedInstancedPlatform(ezUInt32 uiIndexCountPerInstan
   FlushDeferredStateChanges();
 
   EZ_GL_CALL(glDrawElementsInstanced, s_GALTopologyToGL[m_PrimitiveTopology], uiIndexCountPerInstance, s_GALIndexTypeToGL[m_IndexType],
-                  reinterpret_cast<GLvoid*>(ezGALIndexType::Sizeof[m_IndexType] * uiStartIndex), uiInstanceCount);
+                  reinterpret_cast<GLvoid*>(ezGALIndexType::GetSize(m_IndexType) * uiStartIndex), uiInstanceCount);
 }
 
 void ezGALContextGL::DrawIndexedInstancedIndirectPlatform(ezGALBuffer* pIndirectArgumentBuffer, ezUInt32 uiArgumentOffsetInBytes)
@@ -388,7 +388,7 @@ void ezGALContextGL::SetIndexBufferPlatform(ezGALBuffer* pIndexBuffer)
   ezUInt32 uiIndexSize = pIndexBuffer->GetDescription().m_uiStructSize;
   for (unsigned int i = 0; i < ezGALIndexType::ENUM_COUNT; ++i)
   {
-    if (uiIndexSize == ezGALIndexType::Sizeof[i])
+    if (uiIndexSize == ezGALIndexType::GetSize(static_cast<ezGALIndexType::Enum>(i)))
     {
       m_IndexType = static_cast<ezGALIndexType::Enum>(i);
       break;
