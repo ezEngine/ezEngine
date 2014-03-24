@@ -4,7 +4,16 @@
 #include <Foundation/Logging/Log.h>
 #include <RendererFoundation/Basics.h>
 
-// Configure the DLL Import/Export Define
+// Different configuration possibilities:
+//#define EZ_RENDERERGL_GL4
+//#define EZ_RENDERERGL_GL3
+//#define EZ_RENDERERGL_GLES3
+
+// DLL/lib setup.
+#if defined(BUILDSYSTEM_BUILDING_RENDERERGL4_LIB) || defined(BUILDSYSTEM_BUILDING_RENDERERGL3_LIB) || defined(BUILDSYSTEM_BUILDING_RENDERERGLES3_LIB)
+  #define BUILDSYSTEM_BUILDING_RENDERERGL_LIB
+#endif
+
 #if EZ_ENABLED(EZ_COMPILE_ENGINE_AS_DLL)
   #ifdef BUILDSYSTEM_BUILDING_RENDERERGL_LIB
     #define EZ_RENDERERGL_DLL __declspec(dllexport)
@@ -20,11 +29,6 @@
   #define GLEW_STATIC
 #endif
 
-// Different configuration possibilities.
-// TODO: A Project for each of them (this is also the reason why EZ_ON is not used - we want to have those in the preprocessor settings)
-//#define EZ_RENDERERGL_GL4
-#define EZ_RENDERERGL_GL3
-//#define EZ_RENDERERGL_GLES3
 
 // Performs OpenGL error handling via glGetError and outputs results into ezLog.
 extern ezResult ezGALShaderGLCheckError(const char* szOperationName);

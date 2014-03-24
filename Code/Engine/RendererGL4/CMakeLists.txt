@@ -11,8 +11,7 @@
 #
 
 # Add all the preprocessor definitions that are needed to configure this library
-# add_definitions (-DMY_PREPROCESS_DEFINITION_1)
-# add_definitions (-DMY_PREPROCESS_DEFINITION_2)
+add_definitions (-DEZ_RENDERERGL_GL4)
 
 # Add all the libraries that this project needs to link against here
 SET (LINK_LIBRARIES 
@@ -21,7 +20,5 @@ SET (LINK_LIBRARIES
   System
   OpenGL32
 )
-
-BUILD_REQUIRES_DX11()
 
 include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/CMAKE_Library.txt)
