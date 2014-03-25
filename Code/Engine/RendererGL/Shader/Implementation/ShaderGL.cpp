@@ -49,20 +49,23 @@ ezResult ezGALShaderGL::CompileShader(glProgramId& dstProgram, glShaderId& dstSh
 
     if (EZ_GL_CALL(glGetShaderiv, dstShader, GL_INFO_LOG_LENGTH, &infologLength) != EZ_SUCCESS)
       return EZ_FAILURE;
-    ezArrayPtr<char> pInfoLog = EZ_DEFAULT_NEW_ARRAY(char, infologLength);
 
-    if (EZ_GL_CALL(glGetShaderInfoLog, dstShader, infologLength, &charsWritten, pInfoLog.GetPtr()) != EZ_SUCCESS)
-      return EZ_FAILURE;
-
-    pInfoLog[charsWritten] = '\0';
-
-    if (strlen(pInfoLog.GetPtr()) > 0)
+    if (infologLength > 0)
     {
-      // TODO: We need a name for the shader, otherwise this log message is not very useful!
-      ezLog::Error("Shader compile failed! Output:\n", pInfoLog.GetPtr());
-    }
+      ezArrayPtr<char> pInfoLog = EZ_DEFAULT_NEW_ARRAY(char, infologLength);
+      if (EZ_GL_CALL(glGetShaderInfoLog, dstShader, infologLength, &charsWritten, pInfoLog.GetPtr()) != EZ_SUCCESS)
+        return EZ_FAILURE;
 
-    EZ_DEFAULT_DELETE_ARRAY(pInfoLog);
+      pInfoLog[charsWritten] = '\0';
+
+      if (strlen(pInfoLog.GetPtr()) > 0)
+      {
+        // TODO: We need a name for the shader, otherwise this log message is not very useful!
+        ezLog::Error("Shader compile failed! Output:\n", pInfoLog.GetPtr());
+      }
+
+      EZ_DEFAULT_DELETE_ARRAY(pInfoLog);
+    }
   }
 
   // Attach to 
@@ -132,17 +135,20 @@ ezResult ezGALShaderGL::InitPlatform(ezGALDevice* pDevice)
 
     if (EZ_GL_CALL(glGetProgramiv, m_Program, GL_INFO_LOG_LENGTH, &infologLength) != EZ_SUCCESS)
       return EZ_FAILURE;
-
-    ezArrayPtr<char> pInfoLog = EZ_DEFAULT_NEW_ARRAY(char, infologLength);
-    if (EZ_GL_CALL(glGetProgramInfoLog, m_Program, infologLength, &charsWritten, pInfoLog.GetPtr()) != EZ_SUCCESS)
-      return EZ_FAILURE;
-
-    pInfoLog[charsWritten] = '\0';
-
-    if (strlen(pInfoLog.GetPtr()) > 0)
+    
+    if (infologLength > 0)
     {
-      // TODO: We need a name for the shader, otherwise this log message is not very useful!
-      ezLog::Error("Shader program linking failed! Output:\n", pInfoLog.GetPtr());
+      ezArrayPtr<char> pInfoLog = EZ_DEFAULT_NEW_ARRAY(char, infologLength);
+      if (EZ_GL_CALL(glGetProgramInfoLog, m_Program, infologLength, &charsWritten, pInfoLog.GetPtr()) != EZ_SUCCESS)
+        return EZ_FAILURE;
+
+      pInfoLog[charsWritten] = '\0';
+
+      if (strlen(pInfoLog.GetPtr()) > 0)
+      {
+        // TODO: We need a name for the shader, otherwise this log message is not very useful!
+        ezLog::Error("Shader program linking failed! Output:\n", pInfoLog.GetPtr());
+      }
     }
 
     return EZ_FAILURE;
