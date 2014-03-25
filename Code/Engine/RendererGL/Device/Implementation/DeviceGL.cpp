@@ -35,12 +35,12 @@ ezGALDeviceGL::~ezGALDeviceGL()
 
 // Debug output function used for ezGALDeviceGL::SetupDebugOutput.
 static void APIENTRY DebugOutput(GLenum Source,
-                                 GLenum Type,
-                                 GLuint uiId,
-                                 GLenum Severity,
-                                 GLsizei iLength,
-                                 const GLchar* szMessage,
-                                 GLvoid* pUserParam)
+                                  GLenum Type,
+                                  GLuint uiId,
+                                  GLenum Severity,
+                                  GLsizei iLength,
+                                  const GLchar* szMessage,
+                                  const void* pUserParam)
 {
   ezLogMsgType::Enum eventType = ezLogMsgType::Enum::InfoMsg;
   ezString debSource, debType, debSev;
