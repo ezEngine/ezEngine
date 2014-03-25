@@ -9,9 +9,7 @@ static const char* a = "\
       o   \
   /oooo   \
   o   o   \
-  /oooo   \
-          \
-          ";
+  /oooo";
 
 static const char* b = "\
   o       \
@@ -21,9 +19,7 @@ static const char* b = "\
   o  -+   \
   o   o   \
   o  -+   \
-  ooo+-   \
-          \
-          ";
+  ooo+-";
 
 static const char* c = "\
           \
@@ -33,9 +29,7 @@ static const char* c = "\
   +-      \
   o       \
   +-      \
-  -+ooo   \
-          \
-          ";
+  -+ooo";
 
 static const char* d = "\
       o   \
@@ -45,9 +39,7 @@ static const char* d = "\
   +-  o   \
   o   o   \
   +-  o   \
-  -+ooo   \
-          \
-          ";
+  -+ooo";
 
 static const char* e = "\
           \
@@ -57,9 +49,7 @@ static const char* e = "\
   o   o   \
   ooooo   \
   o       \
-  -oooo   \
-          \
-          ";
+  -oooo";
 
 static const char* f = "\
           \
@@ -70,8 +60,7 @@ static const char* f = "\
     o     \
     o     \
     o     \
-    /     \
-          ";
+    /";
 
 static const char* g = "\
           \
@@ -93,9 +82,7 @@ static const char* h = "\
   o  -+   \
   o   o   \
   o   o   \
-  o   o   \
-          \
-          ";
+  o   o";
 
 static const char* i = "\
           \
@@ -105,9 +92,7 @@ static const char* i = "\
     o     \
     o     \
     o     \
-    o     \
-          \
-          ";
+    o";
 
 static const char* j = "\
           \
@@ -118,8 +103,7 @@ static const char* j = "\
     o     \
     o     \
    -+     \
-  o+-     \
-          ";
+  o+-";
 
 static const char* k = "\
           \
@@ -129,9 +113,7 @@ static const char* k = "\
   o -o-   \
   oo+-    \
   o -o-   \
-  o  -o-  \
-          \
-          ";
+  o  -o-";
 
 static const char* l = "\
           \
@@ -141,9 +123,7 @@ static const char* l = "\
     o     \
     o     \
     +-    \
-    -+    \
-          \
-          ";
+    -+";
 
 static const char* m = "\
           \
@@ -153,9 +133,7 @@ static const char* m = "\
  o  o  o  \
  o  o  o  \
  o  o  o  \
- o  o  o  \
-          \
-          ";
+ o  o  o";
 
 static const char* n = "\
           \
@@ -165,9 +143,7 @@ static const char* n = "\
   +- -+   \
   o   o   \
   o   o   \
-  o   o   \
-          \
-          ";
+  o   o";
 
 static const char* o = "\
           \
@@ -177,9 +153,7 @@ static const char* o = "\
   +- -+   \
   o   o   \
   +- -+   \
-  -+o+-   \
-          \
-          ";
+  -+o+-";
 
 static const char* p = "\
           \
@@ -213,9 +187,7 @@ static const char* r = "\
   +- -+   \
   o       \
   o       \
-  o       \
-          \
-          ";
+  o";
 
 static const char* s = "\
           \
@@ -225,9 +197,7 @@ static const char* s = "\
   +-      \
   -+o+-   \
      -+   \
-  ooo+-   \
-          \
-          ";
+  ooo+-";
 
 static const char* t = "\
     +     \
@@ -237,9 +207,7 @@ static const char* t = "\
     o     \
     o     \
     o     \
-    o     \
-          \
-          ";
+    o";
 
 static const char* u = "\
           \
@@ -249,9 +217,7 @@ static const char* u = "\
   o   o   \
   o   o   \
   +-  o   \
-  -+ooo   \
-          \
-          ";
+  -+ooo";
 
 static const char* v = "\
           \
@@ -261,9 +227,7 @@ static const char* v = "\
   o   o   \
   o- -o   \
   -+-+-   \
-   -+-    \
-          \
-          ";
+   -+-";
 
 static const char* w = "\
           \
@@ -273,9 +237,7 @@ static const char* w = "\
  o  o  o  \
  o  o  o  \
  o  o  o  \
- -oo-oo-  \
-          \
-          ";
+ -oo-oo-";
 
 static const char* x = "\
           \
@@ -285,9 +247,7 @@ static const char* x = "\
   -o-o-   \
    -o-    \
   -o-o-   \
-  o- -o   \
-          \
-          ";
+  o- -o";
 
 static const char* y = "\
           \
@@ -309,9 +269,7 @@ static const char* z = "\
     -+-   \
    -+-    \
   -+-     \
-  +oooo   \
-          \
-          ";
+  +oooo";
 
 static const char* A = "\
   -+o+-   \
@@ -321,9 +279,7 @@ static const char* A = "\
   ooooo   \
   o   o   \
   o   o   \
-  o   o   \
-          \
-          ";
+  o   o";
 
 static const char* B = "\
   ooo+-   \
@@ -333,9 +289,7 @@ static const char* B = "\
   o  -+   \
   o   o   \
   o  -+   \
-  ooo+-   \
-          \
-          ";
+  ooo+-";
 
 static const char* C = "\
   -ooo-   \
@@ -345,9 +299,7 @@ static const char* C = "\
   o       \
   o   -   \
   o   o   \
-  -ooo-   \
-          \
-          ";
+  -ooo-";
 
 static const char* D = "\
   ooo+-   \
@@ -357,9 +309,7 @@ static const char* D = "\
   o   o   \
   o   o   \
   o  -+   \
-  ooo+-   \
-          \
-          ";
+  ooo+-";
 
 static const char* E = "\
   ooooo   \
@@ -369,9 +319,7 @@ static const char* E = "\
   o       \
   o       \
   o       \
-  ooooo   \
-          \
-          ";
+  ooooo";
 
 static const char* F = "\
   ooooo   \
@@ -381,9 +329,7 @@ static const char* F = "\
   o       \
   o       \
   o       \
-  o       \
-          \
-          ";
+  o";
 
 static const char* G = "\
   -+o+-   \
@@ -393,9 +339,7 @@ static const char* G = "\
   o +oo   \
   o   o   \
   +- -+   \
-  -+o+-   \
-          \
-          ";
+  -+o+-";
 
 static const char* H = "\
   o   o   \
@@ -405,9 +349,7 @@ static const char* H = "\
   o   o   \
   o   o   \
   o   o   \
-  o   o   \
-          \
-          ";
+  o   o";
 
 static const char* I = "\
    ooo    \
@@ -417,9 +359,7 @@ static const char* I = "\
     o     \
     o     \
     o     \
-   ooo    \
-          \
-          ";
+   ooo";
 
 static const char* J = "\
   ooooo   \
@@ -429,9 +369,7 @@ static const char* J = "\
       o   \
   o   o   \
   +- -+   \
-  -+o+-   \
-          \
-          ";
+  -+o+-";
 
 static const char* K = "\
   o    o- \
@@ -441,9 +379,7 @@ static const char* K = "\
   o+o-    \
   o  o-   \
   o   o-  \
-  o    o- \
-          \
-          ";
+  o    o-";
 
 static const char* L = "\
   o       \
@@ -453,9 +389,7 @@ static const char* L = "\
   o       \
   o       \
   o       \
-  oooooo  \
-          \
-          ";
+  oooooo";
 
 static const char* M = "\
 o/     /o \
@@ -465,9 +399,7 @@ o -o/o- o \
 o  -o-  o \
 o       o \
 o       o \
-o       o \
-          \
-          ";
+o       o";
 
 static const char* N = "\
   o/   o  \
@@ -477,9 +409,7 @@ static const char* N = "\
   o -+-o  \
   o  //o  \
   o  -+o  \
-  o   /o  \
-          \
-          ";
+  o   /o";
 
 static const char* O = "\
   -+oo+-  \
@@ -489,9 +419,7 @@ static const char* O = "\
   o    o  \
   o    o  \
   +-  -+  \
-  -+oo+-  \
-          \
-          ";
+  -+oo+-";
 
 static const char* P = "\
   oooo+-  \
@@ -501,9 +429,7 @@ static const char* P = "\
   oooo+-  \
   o       \
   o       \
-  o       \
-          \
-          ";
+  o";
 
 static const char* Q = "\
   -+oo+-  \
@@ -513,9 +439,7 @@ static const char* Q = "\
   o    o  \
   o  +-o  \
   +- -+o  \
-  -+oooo  \
-          \
-          ";
+  -+oooo";
 
 static const char* R = "\
   oooo+-  \
@@ -525,9 +449,7 @@ static const char* R = "\
   oooo+-  \
   o -o-   \
   o  -o-  \
-  o   -o- \
-          \
-          ";
+  o   -o-";
 
 static const char* S = "\
   -+ooo+  \
@@ -537,9 +459,7 @@ static const char* S = "\
       -+  \
        o  \
       -+  \
-  +ooo+-  \
-          \
-          ";
+  +ooo+-";
 
 static const char* T = "\
  +oooooo+ \
@@ -549,9 +469,7 @@ static const char* T = "\
     o     \
     o     \
     o     \
-    o     \
-          \
-          ";
+    o";
 
 static const char* U = "\
   o    o  \
@@ -561,9 +479,7 @@ static const char* U = "\
   o    o  \
   o    o  \
   +-  -+  \
-  -+oo+-  \
-          \
-          ";
+  -+oo+-";
 
 static const char* V = "\
   o    o  \
@@ -573,9 +489,7 @@ static const char* V = "\
   //  //  \
    o  o   \
    o--o   \
-    oo    \
-          \
-          ";
+    oo";
 
 static const char* W = "\
 o   o   o \
@@ -585,9 +499,7 @@ o   o   o \
 +-  o  -+ \
 -o -o- o- \
  +-o-o-+  \
- -o- -o-  \
-          \
-          ";
+ -o- -o-";
 
 static const char* X = "\
   o    o  \
@@ -597,9 +509,7 @@ static const char* X = "\
    -++-   \
   -o  o-  \
   +-  -+  \
-  o    o  \
-          \
-          ";
+  o    o";
 
 static const char* Y = "\
   o   o   \
@@ -609,9 +519,7 @@ static const char* Y = "\
    -+-    \
     o     \
     o     \
-    o     \
-          \
-          ";
+    o";
 
 static const char* Z = "\
  ooooooo+ \
@@ -621,9 +529,7 @@ static const char* Z = "\
    -+-    \
   -+-     \
  -+-      \
- +ooooooo \
-          \
-          ";
+ +ooooooo";
 
 static const char* _0 = "\
   -oooo-  \
@@ -633,9 +539,7 @@ static const char* _0 = "\
   o -o o  \
   o  o-o  \
   o- -oo  \
-  -oooo-  \
-          \
-          ";
+  -oooo-";
 
 static const char* _1 = "\
     -o    \
@@ -645,9 +549,7 @@ static const char* _1 = "\
      o    \
      o    \
      o    \
-     o    \
-          \
-          ";
+     o";
 
 static const char* _2 = "\
   -+oo+-  \
@@ -657,9 +559,7 @@ static const char* _2 = "\
     -+-   \
    -+-    \
   -+-     \
-  oooooo  \
-          \
-          ";
+  oooooo";
 
 static const char* _3 = "\
   +ooo+-  \
@@ -669,9 +569,7 @@ static const char* _3 = "\
       -+  \
        o  \
       -+  \
-  +ooo+-  \
-          \
-          ";
+  +ooo+-";
 
 static const char* _4 = "\
   o    o  \
@@ -681,9 +579,7 @@ static const char* _4 = "\
   -+oooo  \
        o  \
        o  \
-       o  \
-          \
-          ";
+       o";
 
 static const char* _5 = "\
   oooooo  \
@@ -693,9 +589,7 @@ static const char* _5 = "\
       -+  \
        o  \
       -+  \
-  +ooo+-  \
-          \
-          ";
+  +ooo+-";
 
 static const char* _6 = "\
   -+ooo+  \
@@ -705,9 +599,7 @@ static const char* _6 = "\
   o   -+  \
   o    o  \
   +-  -+  \
-  -+oo+-  \
-          \
-          ";
+  -+oo+-";
 
 static const char* _7 = "\
    ooooo  \
@@ -717,9 +609,7 @@ static const char* _7 = "\
      -+   \
      +-   \
      o    \
-     o    \
-          \
-          ";
+     o";
 
 static const char* _8 = "\
   /oooo/  \
@@ -729,9 +619,7 @@ static const char* _8 = "\
   o    o  \
   o    o  \
   o    o  \
-  /oooo/  \
-          \
-          ";
+  /oooo/";
 
 static const char* _9 = "\
   /oooo/  \
@@ -741,9 +629,7 @@ static const char* _9 = "\
   /ooooo  \
        o  \
        o  \
-  /oooo/  \
-          \
-          ";
+  /oooo/";
 
 static const char* excl = "\
     o     \
@@ -753,33 +639,17 @@ static const char* excl = "\
     o     \
           \
     o     \
-    o     \
-          \
-          ";
+    o";
 
 static const char* dqu = "\
    o o    \
    o o    \
-   o o    \
-          \
-          \
-          \
-          \
-          \
-          \
-          ";
+   o o";
 
 static const char* squ = "\
     o     \
     o     \
-    o     \
-          \
-          \
-          \
-          \
-          \
-          \
-          ";
+    o";
 
 static const char* hash = "\
           \
@@ -789,9 +659,7 @@ static const char* hash = "\
    ooooo  \
     o o   \
    ooooo  \
-    o o   \
-          \
-          ";
+    o o";
 
 static const char* dollar = "\
      o    \
@@ -802,8 +670,7 @@ static const char* dollar = "\
      o -+ \
      o -+ \
   +oooo+- \
-     o    \
-          ";
+     o";
 
 static const char* percent = "\
           \
@@ -813,9 +680,7 @@ static const char* percent = "\
     -o-   \
    -o-    \
   -o- +o  \
-  o-  o+  \
-          \
-          ";
+  o-  o+";
 
 static const char* and = "\
           \
@@ -825,9 +690,7 @@ static const char* and = "\
    -oo-   \
    o  +o- \
    o  o   \
-   -oo-o- \
-          \
-          ";
+   -oo-o-";
 
 static const char* po = "\
     -+o   \
@@ -837,9 +700,7 @@ static const char* po = "\
     o     \
     o     \
     +-    \
-    -+o   \
-          \
-          ";
+    -+o";
 
 static const char* pc = "\
     o+-   \
@@ -849,9 +710,7 @@ static const char* pc = "\
       o   \
       o   \
      -+   \
-    o+-   \
-          \
-          ";
+    o+-";
 
 static const char* star = "\
           \
@@ -859,11 +718,7 @@ static const char* star = "\
      o    \
    o/o/o  \
     o/o   \
-   o/ /o  \
-          \
-          \
-          \
-          ";
+   o/ /o";
 
 static const char* plus = "\
           \
@@ -871,23 +726,13 @@ static const char* plus = "\
      o    \
    ooooo  \
      o    \
-     o    \
-          \
-          \
-          \
-          ";
+     o";
 
 static const char* minus = "\
           \
           \
           \
-   ooooo  \
-          \
-          \
-          \
-          \
-          \
-          ";
+   ooooo";
 
 static const char* comma = "\
           \
@@ -898,8 +743,7 @@ static const char* comma = "\
           \
   o       \
  -+       \
- +-       \
-          ";
+ +-";
 
 static const char* dot = "\
           \
@@ -909,21 +753,14 @@ static const char* dot = "\
           \
           \
    +-     \
-   +-     \
-          \
-          ";
+   +-";
 
 static const char* equal = "\
           \
           \
   ooooooo \
           \
-  ooooooo \
-          \
-          \
-          \
-          \
-          ";
+  ooooooo";
 
 static const char* slash = "\
      o    \
@@ -933,9 +770,7 @@ static const char* slash = "\
    -+     \
    +-     \
    o      \
-   o      \
-          \
-          ";
+   o";
 
 static const char* backslash = "\
    o      \
@@ -945,9 +780,7 @@ static const char* backslash = "\
     +-    \
     -+    \
      o    \
-     o    \
-          \
-          ";
+     o";
 
 static const char* colon = "\
           \
@@ -957,9 +790,7 @@ static const char* colon = "\
           \
           \
   +-      \
-  +-      \
-          \
-          ";
+  +-";
 
 static const char* semicolon = "\
           \
@@ -970,8 +801,7 @@ static const char* semicolon = "\
           \
   +-      \
  -+       \
- +-       \
-          ";
+ +-";
 
 static const char* less = "\
           \
@@ -981,9 +811,7 @@ static const char* less = "\
    -o-    \
     -o-   \
      -o-  \
-      -o- \
-          \
-          ";
+      -o-";
 
 static const char* more = "\
           \
@@ -993,9 +821,7 @@ static const char* more = "\
     -o-   \
    -o-    \
   -o-     \
- -o-      \
-          \
-          ";
+ -o-";
 
 static const char* abo = "\
     ooo   \
@@ -1006,8 +832,7 @@ static const char* abo = "\
     o     \
     o     \
     o     \
-    ooo   \
-          ";
+    ooo";
 
 static const char* abc = "\
    ooo    \
@@ -1018,8 +843,7 @@ static const char* abc = "\
      o    \
      o    \
      o    \
-   ooo    \
-          ";
+   ooo";
 
 static const char* underscore = "\
           \
@@ -1029,9 +853,7 @@ static const char* underscore = "\
           \
           \
           \
- /oooooo/ \
-          \
-          ";
+ /oooooo/";
 
 static const char* pipe = "\
     o     \
@@ -1048,14 +870,7 @@ static const char* pipe = "\
 static const char* dach = "\
    -o-    \
   -o-o-   \
- -o- -o-  \
-          \
-          \
-          \
-          \
-          \
-          \
-          ";
+ -o- -o-";
 
 static const char* cbo = "\
      -+o  \
@@ -1066,8 +881,7 @@ static const char* cbo = "\
     -+    \
      o    \
      +-   \
-     -+o  \
-          ";
+     -+o";
 
 static const char* cbc = "\
   o+-     \
@@ -1078,32 +892,19 @@ static const char* cbc = "\
     +-    \
     o     \
    -+     \
-  o+-     \
-          ";
+  o+-";
 
 static const char* tilde = "\
           \
           \
   -++-  + \
   +--+--+ \
-  +  -++- \
-          \
-          \
-          \
-          \
-          ";
+  +  -++-";
 
 static const char* apostrophe = "\
     +-    \
     -+    \
-     +-   \
-          \
-          \
-          \
-          \
-          \
-          \
-          ";
+     +-";
 
 static const char* question = "\
   -ooo-   \
@@ -1114,8 +915,7 @@ static const char* question = "\
     o     \
           \
     o     \
-    +     \
-          ";
+    +";
 
 static const char* unknown = "\
           \
@@ -1137,9 +937,7 @@ static const char* at = "\
  o o  o-+ \
  o -ooo+- \
  +-       \
- -+ooooo+ \
-          \
-          ";
+ -+ooooo+";
 
 // copies one 10x10 character into the 16x16 cell at offset x,y, adding the 3 pixel boundary and converting the bitmap into greyscale values
 static void CopyCharacter(ezUInt32* pImage, ezInt32 c, const char* szChar)
