@@ -1,7 +1,10 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <RTS/Rendering/Renderer.h>
 #include <Core/Input/InputManager.h>
 #include <Foundation/Utilities/GraphicsUtils.h>
+#include <CoreUtils/Image/Image.h>
+#include <CoreUtils/Image/ImageConversion.h>
+#include <CoreUtils/Graphics/SimpleASCIIFont.h>
 #include <gl/GL.h>
 #include <gl/glu.h>
 
@@ -25,12 +28,52 @@ void GameRenderer::SetupRenderer(const GameWindow* pWindow, const Level* pLevel,
   m_pGrid = &m_pLevel->GetGrid();
   m_pCamera = pCamera;
   m_pNavmesh = pNavmesh;
+  m_uiFontTextureID = 0;
+  m_uiFramesPerSecond = 0;
+
+  ezImage FontImg;
+  ezGraphicsUtils::CreateSimpleASCIIFontTexture(FontImg);
+
+  {
+    ezImage FontRGBA;
+    EZ_VERIFY(ezImageConversionBase::Convert(FontImg, FontRGBA, ezImageFormat::R8G8B8A8_UNORM).IsSuccess(), "Could not convert image to BGRA8 format.");
+
+    glGenTextures(1, &m_uiFontTextureID);
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, m_uiFontTextureID);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
+
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, FontRGBA.GetWidth(0), FontRGBA.GetHeight(0), 0, GL_RGBA, GL_UNSIGNED_BYTE, FontRGBA.GetPixelPointer<void>(0, 0, 0, 0, 0, 0));
+
+    glDisable(GL_TEXTURE_2D);
+  }
 
   UpdateState();
 }
 
+void GameRenderer::ComputeFPS()
+{
+  const ezTime Now = ezTime::Now();
+  static ezTime LastFPS = Now;
+  static ezUInt32 uiCurFrame = 0;
+  
+  ++uiCurFrame;
+
+  if ((Now - LastFPS).GetSeconds() >= 1.0)
+  {
+    LastFPS = Now;
+    m_uiFramesPerSecond = uiCurFrame;
+    uiCurFrame = 0;
+  }
+}
+
 void GameRenderer::RenderLevel(const ezObjectSelection* pSelection)
 {
+  ComputeFPS();
   UpdateState();
   Render3D(pSelection);
   Render2DOverlays();
@@ -90,18 +133,15 @@ void GameRenderer::Render3D(const ezObjectSelection* pSelection)
 
 void GameRenderer::Render2DOverlays()
 {
+  glMatrixMode(GL_MODELVIEW);
+  glLoadIdentity();
+
   // Mouse
   {
     ezMat4 mOrtho;
     mOrtho.SetOrthographicProjectionMatrix(40, 40, -1, 10, ezProjectionDepthRange::MinusOneToOne);
 
     glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    glOrtho(-20, 20, -20, 20, -1, 10);
-
-    float fOrtho[16];
-    glGetFloatv(GL_PROJECTION_MATRIX, fOrtho);
-
     glLoadMatrixf(mOrtho.m_fElementsCM);
 
     {
@@ -117,6 +157,38 @@ void GameRenderer::Render2DOverlays()
 
       glEnd();
     }
+  }
+
+  // Console
+  {
+    ezMat4 mOrtho;
+    mOrtho.SetOrthographicProjectionMatrix(0, 800, 800, 0, -1, 10, ezProjectionDepthRange::MinusOneToOne);
+
+    glMatrixMode(GL_PROJECTION);
+    glLoadMatrixf(mOrtho.m_fElementsCM);
+
+    RenderText(40, ALIGN_LEFT, ezColor::GetWhite(), 10, 0, "FPS: %u", m_uiFramesPerSecond);
+
+/*
+    RenderText(40, ALIGN_LEFT, ezColor::GetWhite(), 10, 40, "abcdefghijklmnopqrstuvwxyz");
+    RenderText(40, ALIGN_LEFT, ezColor::GetWhite(), 10, 80, "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+    RenderText(40, ALIGN_LEFT, ezColor::GetWhite(), 10, 120, "0123456789");
+    RenderText(40, ALIGN_LEFT, ezColor::GetWhite(), 10, 160, "!@#$%%^&*()_+-=");
+    RenderText(40, ALIGN_LEFT, ezColor::GetWhite(), 10, 200, "\\|,<.>/?;:'\"]}[{`~");
+
+    RenderText(20, ALIGN_LEFT, ezColor::GetWhite(), 10, 240, "abcdefghijklmnopqrstuvwxyz");
+    RenderText(20, ALIGN_LEFT, ezColor::GetWhite(), 10, 260, "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+    RenderText(20, ALIGN_LEFT, ezColor::GetWhite(), 10, 280, "0123456789");
+    RenderText(20, ALIGN_LEFT, ezColor::GetWhite(), 10, 300, "!@#$%%^&*()_+-=");
+    RenderText(20, ALIGN_LEFT, ezColor::GetWhite(), 10, 320, "\\|,<.>/?;:'\"]}[{`~");
+
+    RenderText(30, ALIGN_LEFT, ezColor::GetWhite(), 50, 370, "#include <Some/Other|blub\\File_Name.h>");
+    RenderText(30, ALIGN_LEFT, ezColor::GetWhite(), 50, 400, "5-3=2, 01+6=7, 4*8!=9?");
+    RenderText(30, ALIGN_LEFT, ezColor::GetWhite(), 50, 430, "[Test]: eins;\"zwem\",'dren'. 0:1;2,3.");
+    RenderText(30, ALIGN_LEFT, ezColor::GetWhite(), 50, 460, "x|y|z: a^b -> {new} ~5 `X` ");
+
+    RenderText(30, ALIGN_LEFT, ezColor::GetWhite(), 50, 490, ezStringUtf8(L"Unknown: öäüß, jippy good, font@ezEngine.net").GetData());
+    RenderText(30, ALIGN_LEFT, ezColor::GetWhite(), 50, 520, "cheers, okidoki lama news");*/
   }
 }
 

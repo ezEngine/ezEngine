@@ -118,3 +118,93 @@ void RenderCircleXZ(const ezVec3& v, float fRadius, const ezMat4& mRot)
 
   glEnd();
 }
+
+void GameRenderer::RenderText(float fTextSize, TextAlignment Align, ezColor Color, ezInt32 x, ezInt32 y, const char* szText, ...)
+{
+  if (m_uiFontTextureID == 0)
+    return;
+
+  glDepthMask(false);
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); 
+
+  const ezInt32 iCharsPerRow = 16;
+  const ezInt32 iCharsPerColumn = 8;
+
+  va_list args;
+  va_start(args, szText);
+  ezStringBuilder sText;
+  sText.Format(szText, args);
+  va_end(args);
+
+  const float fCharWidth = fTextSize / 2.0f;
+  float fMoveX = sText.GetElementCount() * fCharWidth;
+
+  switch (Align)
+  {
+  case ALIGN_CENTER:
+    fMoveX = -fMoveX / 2;
+    break;
+  case ALIGN_RIGHT:
+    fMoveX = -fMoveX;
+    break;
+  case ALIGN_LEFT:
+  default:
+    fMoveX = 0;
+    break;
+  }
+
+  ezVec3 vTranslation(0.0f);
+  vTranslation += ezVec3((float) x + fMoveX, (float) y, 0);
+
+  ezStringIterator it = sText.GetIteratorFront();
+
+  glEnable(GL_TEXTURE_2D);
+  glBindTexture(GL_TEXTURE_2D, m_uiFontTextureID);
+
+  glColor4f(Color.r, Color.g, Color.b, Color.a);
+  glBegin(GL_QUADS);
+
+  while (it.IsValid())
+  {
+    ezUInt32 uiChar = it.GetCharacter();
+
+    if (!ezUnicodeUtils::IsASCII(uiChar))
+      uiChar = 0;
+
+    {
+      const int px = uiChar % iCharsPerRow;
+      const int py = uiChar / iCharsPerRow;
+
+      const float f8r = (1.0f / iCharsPerRow);
+      const float f8c = (1.0f / iCharsPerColumn);
+      const float cx = f8r * px;
+      const float cy = f8c * py;
+      const float cx2 = cx + f8r;
+      const float cy2 = cy + f8c;
+
+      const ezVec3 v = vTranslation;
+
+      glTexCoord2f(cx, cy2);
+      glVertex2f(v.x, v.y + fTextSize);
+
+      glTexCoord2f(cx2, cy2);
+      glVertex2f(v.x + fTextSize, v.y + fTextSize);
+
+      glTexCoord2f(cx2, cy);
+      glVertex2f(v.x + fTextSize, v.y);
+
+      glTexCoord2f(cx, cy);
+      glVertex2f(v.x, v.y);
+    }
+
+    vTranslation += ezVec3(fCharWidth, 0, 0);
+    ++it;
+  }
+
+  glEnd();
+
+  glDisable(GL_TEXTURE_2D);
+  glDisable(GL_BLEND);
+  glDepthMask(true);
+}

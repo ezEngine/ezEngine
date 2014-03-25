@@ -19,12 +19,15 @@ void GameRenderer::RenderGrid()
 
   ezUInt32 uiCellsRendered = 0;
 
+  const ezVec3 vCamPos = m_pCamera->GetPosition();
+
   for (ezUInt32 z = 0; z < m_pGrid->GetGridHeight(); ++z)
   {
+
     // Quick test to reject the entire line, this speeds things up considerably
     {
-      ezVec3 vCellPos = m_pGrid->GetCellWorldSpaceOrigin(ezVec2I32(0, z));
-      ezVec3 vCellPos2 = m_pGrid->GetCellWorldSpaceOrigin(ezVec2I32(m_pGrid->GetGridWidth(), z));
+      const ezVec3 vCellPos = m_pGrid->GetCellWorldSpaceOrigin(ezVec2I32(0, z));
+      const ezVec3 vCellPos2 = m_pGrid->GetCellWorldSpaceOrigin(ezVec2I32(m_pGrid->GetGridWidth(), z)) + m_pGrid->GetWorldSpaceCellSize();
 
       if (m_Frustum.GetObjectPosition(ezBoundingBox(vCellPos, vCellPos2)) == ezVolumePosition::Outside)
         continue;
@@ -32,11 +35,13 @@ void GameRenderer::RenderGrid()
 
     for (ezUInt32 x = 0; x < m_pGrid->GetGridWidth(); ++x)
     {
+      const ezVec3 vCellPos = m_pGrid->GetCellWorldSpaceOrigin(ezVec2I32(x, z));
+
       // this test works, but is damned slow
-      if (false)
+      //if (false)
       {
-        ezVec3 vCellPos = m_pGrid->GetCellWorldSpaceOrigin(ezVec2I32(x, z));
-        ezVec3 vCellPos2 = vCellPos + m_pGrid->GetWorldSpaceCellSize();
+        
+        const ezVec3 vCellPos2 = vCellPos + m_pGrid->GetWorldSpaceCellSize();
 
         if (m_Frustum.GetObjectPosition(ezBoundingBox(vCellPos, vCellPos2)) == ezVolumePosition::Outside)
           continue;

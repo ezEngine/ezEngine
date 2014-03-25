@@ -9,6 +9,8 @@
 #include <Foundation/Configuration/Plugin.h>
 #include <Foundation/Time/Clock.h>
 #include <Foundation/IO/JSONWriter.h>
+#include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
+#include <Foundation/IO/FileSystem/FileSystem.h>
 #include <CoreUtils/Image/Image.h>
 #include <CoreUtils/Image/Formats/TgaFileFormat.h>
 #include <gl/GL.h>
@@ -37,6 +39,12 @@ void SampleGameApp::AfterEngineInit()
   // Setup the logging system
   ezGlobalLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);
   ezGlobalLog::AddLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
+
+  ezStringBuilder sPath = ezOSFile::GetApplicationDirectory();
+  sPath.AppendPath("../../../Shared/FreeContent");
+
+  ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
+  EZ_VERIFY(ezFileSystem::AddDataDirectory(sPath.GetData()) == EZ_SUCCESS, "Failed to add data directory: '%s'", sPath.GetData());
 
   m_pWindow = EZ_DEFAULT_NEW(GameWindow);
 

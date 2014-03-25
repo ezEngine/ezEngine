@@ -11,7 +11,9 @@ Milestone 5
   * Supported image file types: BMP, DDS, TGA
   * Added namespace ezIntersectionUtils with functions to do intersection tests.
   * Added ezTransform, a 4x3 matrix that can be used for object transformations that don't require a full 4x4 matrix.
-
+  * Added a function to create a simple embedded ASCII font from code, so no file loading is required to get some simple text on screen.
+  
+  
 Milestone 4
 -----------
 

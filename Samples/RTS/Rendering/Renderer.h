@@ -18,6 +18,8 @@ public:
 
   bool GetPickingRay(float fMousePosX, float fMousePosY, ezVec3& out_RayPos, ezVec3& out_RayDir);
 
+
+
 private:
   void UpdateState();
 
@@ -47,5 +49,19 @@ private:
   void RenderGrid();
   void RenderMousePicking();
 
+  void ComputeFPS();
+
+  enum TextAlignment
+  {
+    ALIGN_LEFT,
+    ALIGN_CENTER,
+    ALIGN_RIGHT,
+  };
+
+  void RenderText(float fSize, TextAlignment Align, ezColor Color, ezInt32 x, ezInt32 y, const char* szText, ...);
+
+  ezUInt32 m_uiFontTextureID;
+
+  ezUInt32 m_uiFramesPerSecond;
 };
 
