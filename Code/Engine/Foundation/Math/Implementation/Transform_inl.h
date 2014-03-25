@@ -109,7 +109,7 @@ inline const ezTransform ezTransform::GetInverse() const
   return Inverse;
 }
 
-void ezTransform::GetAsArray(float* out_pData, ezMatrixLayout::Enum layout) const
+inline void ezTransform::GetAsArray(float* out_pData, ezMatrixLayout::Enum layout) const
 {
   if (layout == ezMatrixLayout::ColumnMajor)
   {

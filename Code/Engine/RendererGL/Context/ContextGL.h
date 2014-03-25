@@ -13,6 +13,8 @@ namespace ezGALGL
   EZ_DECLARE_FLAGS(ezUInt16, DeferredStateChanged, VertexBuffer, VertexDeclaration, SamplerState);
 }
 
+class ezGALDeviceGL;
+
 /// \brief The GL implementation of the graphics context.
 class EZ_RENDERERGL_DLL ezGALContextGL : public ezGALContext
 {
