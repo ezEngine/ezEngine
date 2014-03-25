@@ -111,6 +111,11 @@ void ezStringBuilder::AppendFormat(const char* szUtf8Format, va_list args0)
   char szTemp[TempBuffer];
   const ezInt32 iCount = ezStringUtils::vsnprintf(szTemp, TempBuffer - 1, szUtf8Format, args);
 
+  EZ_ASSERT(iCount != -1, "There was an error while formatting the string. Probably and unescaped usage of the %% sign.");
+
+  if (iCount == -1)
+    return;
+
   if (iCount > TempBuffer - 1)
   {
     ezDynamicArray<char> Temp;
@@ -137,6 +142,11 @@ void ezStringBuilder::PrependFormat(const char* szUtf8Format, va_list args0)
 
   char szTemp[TempBuffer];
   const ezInt32 iCount = ezStringUtils::vsnprintf(szTemp, TempBuffer - 1, szUtf8Format, args);
+
+  EZ_ASSERT(iCount != -1, "There was an error while formatting the string. Probably and unescaped usage of the %% sign.");
+
+  if (iCount == -1)
+    return;
 
   if (iCount > TempBuffer - 1)
   {

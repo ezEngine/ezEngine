@@ -24,6 +24,8 @@ protected:
 template <typename T>
 class ezDelegate : public ezDelegateBase
 {
+  /// \todo Some more documentation, please ?
+
 };
 
 #include <Foundation/Basics/Types/Implementation/Delegate_inl.h>

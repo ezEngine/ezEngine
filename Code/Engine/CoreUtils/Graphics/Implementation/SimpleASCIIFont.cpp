@@ -682,7 +682,7 @@ static const char* percent = "\
   -o- +o  \
   o-  o+";
 
-static const char* and = "\
+static const char* andsign = "\
           \
    -oo-   \
    o  o   \
@@ -855,7 +855,7 @@ static const char* underscore = "\
           \
  /oooooo/";
 
-static const char* pipe = "\
+static const char* pipesign = "\
     o     \
     o     \
     o     \
@@ -1103,7 +1103,7 @@ void ezGraphicsUtils::CreateSimpleASCIIFontTexture(ezImage& Img, bool bSetEmptyT
     CopyCharacter(pPixelData, '#', hash);
     CopyCharacter(pPixelData, '$', dollar);
     CopyCharacter(pPixelData, '%', percent);
-    CopyCharacter(pPixelData, '&', and);
+    CopyCharacter(pPixelData, '&', andsign);
     CopyCharacter(pPixelData, '\'', squ);
     CopyCharacter(pPixelData, '(', po);
     CopyCharacter(pPixelData, ')', pc);
@@ -1131,7 +1131,7 @@ void ezGraphicsUtils::CreateSimpleASCIIFontTexture(ezImage& Img, bool bSetEmptyT
     CopyCharacter(pPixelData, '`', apostrophe);
 
     CopyCharacter(pPixelData, '{', cbo);
-    CopyCharacter(pPixelData, '|', pipe);
+    CopyCharacter(pPixelData, '|', pipesign);
     CopyCharacter(pPixelData, '}', cbc);
     CopyCharacter(pPixelData, '~', tilde);
   }
