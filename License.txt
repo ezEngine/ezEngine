@@ -1,0 +1,7 @@
+ezEngine is licensed under a Creative Commons Attribution 3.0 Unported License.
+
+http://creativecommons.org/licenses/by/3.0/deed.en_US
+
+Feel free to use the code of ezEngine for your projects, may they be spare time projects or of commercial nature. Please attribute us when using ezEngine ;) 
+
+Website: http://ezengine.net
