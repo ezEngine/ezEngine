@@ -50,7 +50,7 @@ protected:
 
   virtual ezResult DeInitPlatform(ezGALDevice* pDevice) EZ_OVERRIDE;
 
-  static const ezUInt32 s_GALCullModeToGL[ezGALCullMode::Enum::ENUM_COUNT];
+  static const ezUInt32 s_GALCullModeToGL[ezGALCullMode::ENUM_COUNT];
 };
 
 class EZ_RENDERERGL_DLL ezGALSamplerStateGL : public ezGALSamplerState
@@ -74,7 +74,7 @@ protected:
 
   glSamplerId m_SamplerStateID;
 
-  static const ezUInt32 s_GALAdressModeToGL[ezGALTextureAddressMode::Enum::ENUM_COUNT];
+  static const ezUInt32 s_GALAdressModeToGL[ezGALTextureAddressMode::ENUM_COUNT];
 };
 
 

@@ -58,13 +58,13 @@ struct EZ_SYSTEM_DLL ezWindowCreationDesc
 {
 
   ezWindowCreationDesc()
-    : m_ClientAreaSize(1280, 720),
+    : m_GraphicsAPI(ezGraphicsAPI::Default),
+    m_ClientAreaSize(1280, 720),
     m_Title("ezWindow"),
+    m_uiWindowNumber(0),
     m_bFullscreenWindow(false),
     m_bResizable(false),
-    m_bWindowsUseDevmodeFullscreen(false),
-    m_GraphicsAPI(ezGraphicsAPI::Default),
-    m_uiWindowNumber(0)
+    m_bWindowsUseDevmodeFullscreen(false)
   {
   }
 

@@ -4,6 +4,7 @@
 #include <RendererFoundation/Resources/RenderTargetConfig.h>
 
 class ezGALRenderTargetViewGL;
+class ezGALDeviceGL;
 
 /// \brief Every render target config maps to a OpenGL framebuffer-object.
 class ezGALRenderTargetConfigGL : public ezGALRenderTargetConfig

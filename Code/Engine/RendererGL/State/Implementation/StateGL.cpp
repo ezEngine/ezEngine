@@ -75,7 +75,7 @@ ezResult ezGALRasterizerStateGL::DeInitPlatform(ezGALDevice* pDevice)
 
 // Sampler state
 
-const ezUInt32 ezGALSamplerStateGL::s_GALAdressModeToGL[ezGALTextureAddressMode::Enum::ENUM_COUNT] =
+const ezUInt32 ezGALSamplerStateGL::s_GALAdressModeToGL[ezGALTextureAddressMode::ENUM_COUNT] =
 {
   GL_REPEAT,              // Wrap
   GL_MIRRORED_REPEAT,     // Mirror

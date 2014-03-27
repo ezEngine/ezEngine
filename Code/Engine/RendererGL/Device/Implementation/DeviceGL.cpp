@@ -42,7 +42,7 @@ static void APIENTRY DebugOutput(GLenum Source,
                                   const GLchar* szMessage,
                                   const void* pUserParam)
 {
-  ezLogMsgType::Enum eventType = ezLogMsgType::Enum::InfoMsg;
+  ezLogMsgType::Enum eventType = ezLogMsgType::InfoMsg;
   ezString debSource, debType, debSev;
 
   if (Source == GL_DEBUG_SOURCE_API_ARB)
@@ -60,27 +60,27 @@ static void APIENTRY DebugOutput(GLenum Source,
 
   if (Type == GL_DEBUG_TYPE_ERROR_ARB)
   {
-    eventType = ezLogMsgType::Enum::ErrorMsg;
+    eventType = ezLogMsgType::ErrorMsg;
     debType = "error";
   }
   else if (Type == GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR_ARB)
   {
-    eventType = ezLogMsgType::Enum::WarningMsg;
+    eventType = ezLogMsgType::WarningMsg;
     debType = "deprecated behavior";
   }
   else if (Type == GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR_ARB)
   {
-    eventType = ezLogMsgType::Enum::SeriousWarningMsg;
+    eventType = ezLogMsgType::SeriousWarningMsg;
     debType = "undefined behavior";
   }
   else if (Type == GL_DEBUG_TYPE_PORTABILITY_ARB)
   {
-    eventType = ezLogMsgType::Enum::WarningMsg;
+    eventType = ezLogMsgType::WarningMsg;
     debType = "portability";
   }
   else if (Type == GL_DEBUG_TYPE_PERFORMANCE_ARB)
   {
-    eventType = ezLogMsgType::Enum::WarningMsg;
+    eventType = ezLogMsgType::WarningMsg;
     debType = "performance";
   }
   else if (Type == GL_DEBUG_TYPE_OTHER_ARB)
@@ -97,13 +97,13 @@ static void APIENTRY DebugOutput(GLenum Source,
 
   switch (eventType)
   {
-  case ezLogMsgType::Enum::WarningMsg:
+  case ezLogMsgType::WarningMsg:
     ezLog::Warning("%s: %s(%s) %d: %s\n", debSource.GetData(), debType.GetData(), debSev.GetData(), uiId, szMessage);
     break;
-  case ezLogMsgType::Enum::SeriousWarningMsg:
+  case ezLogMsgType::SeriousWarningMsg:
     ezLog::SeriousWarning("%s: %s(%s) %d: %s\n", debSource.GetData(), debType.GetData(), debSev.GetData(), uiId, szMessage);
     break;
-  case ezLogMsgType::Enum::InfoMsg:
+  case ezLogMsgType::InfoMsg:
     ezLog::Info("%s: %s(%s) %d: %s\n", debSource.GetData(), debType.GetData(), debSev.GetData(), uiId, szMessage);
     break;
   }
