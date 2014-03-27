@@ -1,0 +1,30 @@
+<RCC>
+  <qresource prefix="Icons">
+    <file>Icons/StatHistory.png</file>
+    <file>Icons/Server.png</file>
+    <file>Icons/Search.png</file>
+    <file>Icons/CVar.png</file>
+    <file>Icons/Log.png</file>
+    <file>Icons/Plugin.png</file>
+    <file>Icons/ClearList.png</file>
+    <file>Icons/InputActions.png</file>
+    <file>Icons/InputSlots.png</file>
+    <file>Icons/Subsystem.png</file>
+    <file>Icons/File.png</file>
+    <file>Icons/AllThreads.png</file>
+    <file>Icons/LoadingThread.png</file>
+    <file>Icons/MainThread.png</file>
+    <file>Icons/OtherThread.png</file>
+    <file>Icons/GlobalEvent.png</file>
+    <file>Icons/Time.png</file>
+    <file>Icons/StatFavourite.png</file>
+    <file>Icons/Stat.png</file>
+    <file>Icons/StatGroup.png</file>
+    <file>Icons/Message.png</file>
+    <file>Icons/Memory.png</file>
+    <file>Icons/Array.png</file>
+    <file>Icons/Function.png</file>
+    <file>Icons/Member.png</file>
+    <file>Icons/Type.png</file>
+  </qresource>
+</RCC>

@@ -1,0 +1,49 @@
+#pragma once
+
+#include <Foundation/Threading/ThreadLocalPointer.h>
+
+struct ezNullAllocatorWrapper
+{
+  EZ_FORCE_INLINE static ezAllocatorBase* GetAllocator()
+  {
+    EZ_REPORT_FAILURE("This method should never be called");
+    return NULL;
+  }
+};
+
+struct ezDefaultAllocatorWrapper
+{
+  EZ_FORCE_INLINE static ezAllocatorBase* GetAllocator()
+  {
+    return ezFoundation::GetDefaultAllocator();
+  }
+};
+
+struct ezAlignedAllocatorWrapper
+{
+  EZ_FORCE_INLINE static ezAllocatorBase* GetAllocator()
+  {
+    return ezFoundation::GetAlignedAllocator();
+  }
+};
+
+struct EZ_FOUNDATION_DLL ezLocalAllocatorWrapper
+{
+  EZ_FORCE_INLINE ezLocalAllocatorWrapper(ezAllocatorBase* pAllocator)
+  {
+    m_pAllocator = pAllocator;
+  }
+
+  EZ_FORCE_INLINE void Reset()
+  {
+    m_pAllocator = NULL;
+  }
+
+  EZ_FORCE_INLINE static ezAllocatorBase* GetAllocator()
+  {
+    return m_pAllocator;
+  }
+
+private:
+  static ezThreadLocalPointer<ezAllocatorBase> m_pAllocator;
+};

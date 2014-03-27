@@ -1,0 +1,104 @@
+#cmake
+# disables auto-linking to qtmain (new in Qt 5.1)
+if (POLICY CMP0020)
+  cmake_policy(SET CMP0020 OLD)
+endif ()
+
+# Get the name of this folder
+get_filename_component (CUR_FOLDER_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME_WE)
+get_filename_component (PARENT_FOLDER ${CMAKE_CURRENT_SOURCE_DIR} PATH)
+get_filename_component (PARENT_FOLDER_NAME ${PARENT_FOLDER} NAME_WE)
+
+# the library name
+set (PROJECT_NAME "${CUR_FOLDER_NAME}")
+set (PROJECT_FOLDER_NAME ${CUR_FOLDER_NAME})
+
+message (STATUS "Adding Library: ${PROJECT_NAME}")
+
+set (LIST_SOURCE_GROUP_FOLDER "")
+set (LIST_CURRENT_FOLDER ${CMAKE_CURRENT_SOURCE_DIR})
+set (ALL_SOURCE_FILES "")
+
+include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/CMAKE_Qt.txt)
+include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/CMAKE_LibraryFolder.txt)
+
+# Get the name of this folder
+get_filename_component (CUR_FOLDER_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME_WE)
+
+# add the name of the library to the list of libs to be exported
+set_property (GLOBAL APPEND PROPERTY ALL_KNOWN_PROJECTS ${PROJECT_NAME})
+
+# if this library uses a precompile header
+if (MSVC)
+  ADD_MSVC_PRECOMPILED_HEADER ()
+endif ()
+
+string(TOUPPER ${PROJECT_NAME} PROJECT_NAME_UPPER)
+add_definitions (-DBUILDSYSTEM_BUILDING_${PROJECT_NAME_UPPER}_LIB)
+
+# add the library to the solution
+if (EZ_COMPILE_ENGINE_AS_DLL)
+  # add the project as a shared library
+  add_library (${PROJECT_NAME} SHARED ${ALL_SOURCE_FILES})
+
+  # for DLLs we need to know what other libraries to link against
+  target_link_libraries (${PROJECT_NAME} ${LINK_LIBRARIES})
+
+  # This sets which linker dependencies are passed through to other libraries.
+  # Ie. agains which libraries other libraries are supposed to link, as well.
+  # Setting this to empty, means that other libraries will NOT link against
+  # any additional libraries, which should not be required anyway, since this
+  # is a shared library which should already contain everything.
+  set_target_properties(${PROJECT_NAME} PROPERTIES LINK_INTERFACE_LIBRARIES "")  
+else ()
+  # add the project as a static library
+  add_library (${PROJECT_NAME} ${ALL_SOURCE_FILES})
+
+  target_link_libraries (${PROJECT_NAME} ${LINK_LIBRARIES})
+endif ()
+
+set_target_properties(${PROJECT_NAME} PROPERTIES IMPORT_PREFIX "ez")
+set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "ez")
+
+SET_PROPERTY(GLOBAL PROPERTY USE_FOLDERS ON)
+file(RELATIVE_PATH RELATIVE_PARENT_FOLDER ${CMAKE_SOURCE_DIR} ${PARENT_FOLDER})
+SET_PROPERTY(TARGET ${PROJECT_NAME} PROPERTY FOLDER ${RELATIVE_PARENT_FOLDER})
+
+# if there are additional compiler settings, add them now
+if (COMPILER_SETTINGS_ALL)
+  set (COMPILER_SETTINGS_COPY ${COMPILER_SETTINGS_ALL})
+  
+  if (BUILDSYSTEM_PREVENT_STATIC_CODE_ANALYSIS)
+    STRING(REGEX REPLACE "/analyze" "" COMPILER_SETTINGS_COPY ${COMPILER_SETTINGS_ALL})
+  endif()
+
+  set_target_properties (${PROJECT_NAME} PROPERTIES COMPILE_FLAGS ${COMPILER_SETTINGS_COPY})
+endif ()
+
+if (LINKER_SETTINGS_ALL)
+  set_target_properties (${PROJECT_NAME} PROPERTIES LINK_FLAGS_DEBUG          ${LINKER_SETTINGS_ALL})
+  set_target_properties (${PROJECT_NAME} PROPERTIES LINK_FLAGS_RELWITHDEBINFO ${LINKER_SETTINGS_ALL})
+  set_target_properties (${PROJECT_NAME} PROPERTIES LINK_FLAGS_RELEASE        ${LINKER_SETTINGS_ALL})
+  set_target_properties (${PROJECT_NAME} PROPERTIES LINK_FLAGS_MINSIZEREL     ${LINKER_SETTINGS_ALL})
+endif ()
+if (LINKER_SETTINGS_DEBUG)
+  set_target_properties (${PROJECT_NAME} PROPERTIES LINK_FLAGS_DEBUG          ${LINKER_SETTINGS_DEBUG})
+  set_target_properties (${PROJECT_NAME} PROPERTIES LINK_FLAGS_RELWITHDEBINFO ${LINKER_SETTINGS_DEBUG})
+
+endif ()
+if (LINKER_SETTINGS_RELEASE)
+  set_target_properties (${PROJECT_NAME} PROPERTIES LINK_FLAGS_RELEASE        ${LINKER_SETTINGS_RELEASE})
+  set_target_properties (${PROJECT_NAME} PROPERTIES LINK_FLAGS_MINSIZEREL     ${LINKER_SETTINGS_RELEASE})
+endif ()
+
+QT_ADD_MODULES()
+# Add to target list
+ADD_TO_TARGET_LIST()
+
+#########################################################################################
+## Libraries that everyone should be able to link to
+
+#include ("${CMAKE_SOURCE_DIR}/ThirdParty/exports.cmake")
+
+
+

@@ -1,0 +1,74 @@
+#cmake
+
+# Get the name of this folder
+list (GET LIST_CURRENT_FOLDER -1 CURRENT_FOLDER)
+
+file (GLOB HEADER_FILES "${CURRENT_FOLDER}/*.h" "${CURRENT_FOLDER}/*.hpp")
+file (GLOB INLINE_FILES "${CURRENT_FOLDER}/*.inl")
+file (GLOB SOURCE_FILES "${CURRENT_FOLDER}/*.cpp" "${CURRENT_FOLDER}/*.c")
+file (GLOB RESOURCE_FILES "${CURRENT_FOLDER}/*.rc")
+
+if (EZ_ENABLE_QT_SUPPORT AND EZ_QTPROJECT)
+  file (GLOB     UI_FILES "${CURRENT_FOLDER}/*.ui")
+  file (GLOB    QRC_FILES "${CURRENT_FOLDER}/*.qrc")
+  file (GLOB  MOC_HEADERS "${CURRENT_FOLDER}/*.moc.h")
+  
+  # Add user defined headers to the list
+  if (EZ_MOC_HEADERS)
+    set(MOC_HEADERS ${MOC_HEADERS} ${EZ_MOC_HEADERS})
+    set(EZ_MOC_HEADERS false)
+  endif()
+endif ()
+
+set (ALL_SOURCE_FILES ${ALL_SOURCE_FILES} ${HEADER_FILES})
+set (ALL_SOURCE_FILES ${ALL_SOURCE_FILES} ${INLINE_FILES})
+set (ALL_SOURCE_FILES ${ALL_SOURCE_FILES} ${SOURCE_FILES})
+set (ALL_SOURCE_FILES ${ALL_SOURCE_FILES} ${RESOURCE_FILES})
+
+if (EZ_ENABLE_QT_SUPPORT AND EZ_QTPROJECT)
+  set (ALL_SOURCE_FILES ${ALL_SOURCE_FILES} ${UI_FILES})
+  set (ALL_SOURCE_FILES ${ALL_SOURCE_FILES} ${QRC_FILES})
+  #set (ALL_SOURCE_FILES ${ALL_SOURCE_FILES} ${MOC_HEADERS})
+
+  if (UI_FILES)
+    QT5_WRAP_UI (UI_HEADERS ${UI_FILES})
+
+    set (ALL_SOURCE_FILES ${ALL_SOURCE_FILES} ${UI_HEADERS})
+    source_group (QT\\UI FILES ${UI_FILES} ${UI_HEADERS})
+  endif ()
+
+  if (MOC_HEADERS)
+    QT5_WRAP_CPP (MOC_FILES ${MOC_HEADERS})
+
+    set (ALL_SOURCE_FILES ${ALL_SOURCE_FILES} ${MOC_FILES})
+    source_group (QT\\MOC FILES ${MOC_FILES})
+  endif ()
+
+  if (QRC_FILES)
+    QT5_ADD_RESOURCES (QRC_OUTPUT ${QRC_FILES})
+
+    set (ALL_SOURCE_FILES ${ALL_SOURCE_FILES} ${QRC_OUTPUT})
+    source_group (QT\\QRC FILES ${QRC_FILES} ${QRC_OUTPUT})
+  endif ()
+endif ()
+
+set (SOURCE_GROUP_FOLDER "")
+
+# put all the files in an identically named folder in the visual studio solution, to mimic the file system
+foreach (VAR ${LIST_SOURCE_GROUP_FOLDER})
+	set (SOURCE_GROUP_FOLDER "${SOURCE_GROUP_FOLDER}\\${VAR}")
+endforeach ()
+
+source_group ("${SOURCE_GROUP_FOLDER}" FILES ${HEADER_FILES} ${INLINE_FILES} ${SOURCE_FILES} ${UI_FILES} ${QRC_FILES} ${MOC_HEADERS})
+
+# find all cmake files below this directory
+file (GLOB DIRS "${CURRENT_FOLDER}/*/CMakeLists.txt")
+
+# add all those directories to the to-be-processed queue
+foreach (VAR ${DIRS})
+
+	# add directory to the queue
+	include (${VAR})
+
+endforeach ()
+

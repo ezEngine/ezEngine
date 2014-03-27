@@ -1,0 +1,11 @@
+utf8 cpp library
+Release 2.3.2
+
+A bug fix release plus minor performance improvements. Thanks to all who reported bugs. 
+
+Changes from version 2.3.1
+- Bug fix [3506114]: potential crash in replace_invalid
+- Bug fix [3426789]: documentation typo
+- Bug fix [3215839]: name clash with std::next
+
+Files included in the release: utf8.h, core.h, checked.h, unchecked.h, utf8cpp.html, ReleaseNotes
