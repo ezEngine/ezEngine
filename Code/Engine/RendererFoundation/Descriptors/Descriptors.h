@@ -20,8 +20,10 @@ struct ezGALSwapChainCreationDescription : public ezHashableStruct<ezGALSwapChai
 
   ezGALMSAASampleCount::Enum m_SampleCount;
   ezGALResourceFormat::Enum m_BackBufferFormat;
+  ezGALResourceFormat::Enum m_DepthStencilBufferFormat;
 
   bool m_bDoubleBuffered;
+  bool m_bCreateDepthStencilBuffer;
   bool m_bFullscreen;
   bool m_bAllowScreenshots;
 };
@@ -144,9 +146,13 @@ struct ezGALRenderTargetConfigCreationDescription : public ezHashableStruct<ezGA
 
   ezUInt32 m_uiColorTargetCount;
 
+  /// Set this flag to true for render target configurations that are used for swap chain backbuffer.
+  /// This is important for render APIs that treat the hardware backbuffer differently. All other parameters may be ignored then.
+  bool m_bHardwareBackBuffer;
+
   inline bool IsValid() const
   {
-    return m_uiColorTargetCount > 0 || !m_hDepthStencilTarget.IsInvalidated();
+    return m_bHardwareBackBuffer || m_uiColorTargetCount > 0 || !m_hDepthStencilTarget.IsInvalidated();
   }
 };
 

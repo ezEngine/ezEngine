@@ -21,6 +21,14 @@ ezGALRenderTargetConfigGL::~ezGALRenderTargetConfigGL()
 
 ezResult ezGALRenderTargetConfigGL::InitPlatform(ezGALDevice* pDevice)
 {
+  // Special case: Hardware Backbuffer?
+  if (m_Description.m_bHardwareBackBuffer)
+  {
+    m_FramebufferHandle = 0;
+    return EZ_SUCCESS;
+  }
+
+
   ezGALDeviceGL* pDeviceGL = static_cast<ezGALDeviceGL*>(pDevice);
   ezArrayPtr<GLuint> drawBuffers;
 
@@ -28,6 +36,7 @@ ezResult ezGALRenderTargetConfigGL::InitPlatform(ezGALDevice* pDevice)
     return EZ_FAILURE;
 
   // To ensure that the buffer will be reset, create object to reset the state when the stackframe is left.
+  // TODO: State handling by primary context. REMOVE ALL glGetIntegerv ANYWHERE!
   struct BufferReset
   {
     BufferReset()

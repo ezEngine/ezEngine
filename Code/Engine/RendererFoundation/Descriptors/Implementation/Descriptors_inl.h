@@ -4,7 +4,9 @@ ezGALSwapChainCreationDescription::ezGALSwapChainCreationDescription()
     m_pWindow(NULL),
     m_SampleCount(ezGALMSAASampleCount::None),
     m_BackBufferFormat(ezGALResourceFormat::RGBAUByteNormalizedsRGB),
+    m_DepthStencilBufferFormat(ezGALResourceFormat::D24S8),
     m_bDoubleBuffered(true),
+    m_bCreateDepthStencilBuffer(true),
     m_bFullscreen(false),
     m_bAllowScreenshots(false)
 {

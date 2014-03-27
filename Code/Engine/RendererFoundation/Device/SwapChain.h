@@ -8,15 +8,19 @@ class EZ_RENDERERFOUNDATION_DLL ezGALSwapChain : public ezGALObjectBase<ezGALSwa
 {
 public:
 
-  ezGALTextureHandle GetTexture() const
-  {
-    return m_hBackBufferTexture;
-  }
+  /// Returns the render target view configuration.
+  ezGALRenderTargetConfigHandle GetRenderTargetViewConfig() const;
 
-  ezGALRenderTargetViewHandle GetRenderTargetView() const
-  {
-    return m_hBackBufferRenderTargetView;
-  }
+  /// \brief Returns a handle to the back buffer texture.
+  ///
+  /// \attention Some RenderSystems do not support reading the swap chain's back buffer texture. Those will return an invalid handle.
+  ezGALTextureHandle GetBackBufferTexture() const;
+
+  /// \brief Returns a handle to the swap chain's depth buffer texture.
+  ///
+  /// \attention Some RenderSystems do not support reading the swap chain's back buffer depth buffer texture. Those will return an invalid handle.
+  ezGALTextureHandle GetDepthStencilBufferTexture() const;
+
 
 protected:
 
@@ -28,9 +32,13 @@ protected:
 
   virtual ezResult DeInitPlatform(ezGALDevice* pDevice);
 
-  void SetBackBufferObjects(ezGALTextureHandle hBackBufferTexture, ezGALRenderTargetViewHandle hBackBufferRenderTargetView);
+  void SetBackBufferObjects(ezGALRenderTargetConfigHandle hRenderTargetConfig, ezGALTextureHandle hBackBufferTexture, ezGALTextureHandle hDepthStencilBufferTexture);
 
   ezGALTextureHandle m_hBackBufferTexture;
 
-  ezGALRenderTargetViewHandle m_hBackBufferRenderTargetView;
+  ezGALTextureHandle m_hDepthStencilBufferTexture;
+
+  ezGALRenderTargetConfigHandle m_hRenderTargetConfig;
 };
+
+#include <RendererFoundation/Device/Implementation/SwapChain_inl.h>

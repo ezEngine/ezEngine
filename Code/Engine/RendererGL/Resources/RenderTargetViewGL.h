@@ -4,8 +4,8 @@
 
 /// \brief OpenGL has no concept of render-target-views. Thus this class just contains configuration for bindings.
 ///
-/// However, it could perform some checks and determines the GL bindings to be used.
-/// Framebuffer objects are represented by ezGALRenderTargetConfigGL
+/// If a invalid texture handle is given, it is assumed that this represents the hardware backbuffer.
+/// Framebuffer objects are represented by ezGALRenderTargetConfigGL.
 class ezGALRenderTargetViewGL : public ezGALRenderTargetView
 {
 public:

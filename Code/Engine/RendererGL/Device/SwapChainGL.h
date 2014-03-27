@@ -29,8 +29,6 @@ protected:
 
   /// \brief Copies backbuffer texture to actual backbuffer and performs OS dependent swap.
   void SwapBuffers(ezGALDevice* pDevice);
-
-  ezGALRenderTargetConfigHandle m_BackBufferRTConfig;
 };
 
 #include <RendererGL/Device/Implementation/SwapChainGL_inl.h>
