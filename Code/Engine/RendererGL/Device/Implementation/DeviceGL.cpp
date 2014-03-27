@@ -34,7 +34,7 @@ ezGALDeviceGL::~ezGALDeviceGL()
 // OpenGL specific functions.
 
 // Debug output function used for ezGALDeviceGL::SetupDebugOutput.
-static void APIENTRY DebugOutput(GLenum Source,
+static void GLEWAPIENTRY DebugOutput(GLenum Source,
                                   GLenum Type,
                                   GLuint uiId,
                                   GLenum Severity,
