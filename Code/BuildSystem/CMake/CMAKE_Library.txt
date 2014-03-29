@@ -1,8 +1,16 @@
 #cmake
+
+#########################################################################################
+## CMAKE Policies
+
 # disables auto-linking to qtmain (new in Qt 5.1)
 if (POLICY CMP0020)
   cmake_policy(SET CMP0020 OLD)
 endif ()
+
+if (POLICY CMP0022)
+  cmake_policy(SET CMP0022 NEW)
+endif()
 
 # Get the name of this folder
 get_filename_component (CUR_FOLDER_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME_WE)
@@ -49,7 +57,7 @@ if (EZ_COMPILE_ENGINE_AS_DLL)
   # Setting this to empty, means that other libraries will NOT link against
   # any additional libraries, which should not be required anyway, since this
   # is a shared library which should already contain everything.
-  set_target_properties(${PROJECT_NAME} PROPERTIES LINK_INTERFACE_LIBRARIES "")  
+  set_target_properties(${PROJECT_NAME} PROPERTIES INTERFACE_LINK_LIBRARIES "")  
 else ()
   # add the project as a static library
   add_library (${PROJECT_NAME} ${ALL_SOURCE_FILES})

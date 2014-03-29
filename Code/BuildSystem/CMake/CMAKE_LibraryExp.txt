@@ -43,7 +43,7 @@ if (EZ_COMPILE_ENGINE_AS_DLL)
   # Setting this to empty, means that other libraries will NOT link against
   # any additional libraries, which should not be required anyway, since this
   # is a shared library which should already contain everything.
-  set_target_properties(${PROJECT_NAME} PROPERTIES LINK_INTERFACE_LIBRARIES "")  
+  set_target_properties(${PROJECT_NAME} PROPERTIES INTERFACE_LINK_LIBRARIES "")  
 else ()
   # add the project as a static library
   add_library (${PROJECT_NAME} ${ALL_SOURCE_FILES})

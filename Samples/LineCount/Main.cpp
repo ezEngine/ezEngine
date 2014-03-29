@@ -146,7 +146,7 @@ FileStats GetFileStats(const char* szFile)
         bool bIsInWord = false;
         while (!LineIt.IsEmpty())
         {
-          const bool bNewWord = ezStringUtils::IsIdentifierDelimiter_C_Code(LineIt.GetCharacter(), !bIsInWord);
+          const bool bNewWord = ezStringUtils::IsIdentifierDelimiter_C_Code(LineIt.GetCharacter());
 
           if (bIsInWord != bNewWord)
           {
