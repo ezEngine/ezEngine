@@ -245,7 +245,10 @@ bool ezHashTableBase<K, V, H>::Insert(const K& key, const V& value, V* out_oldVa
       m_pEntries[uiIndex].value = value;
       return true;
     }
-    uiIndex = (uiIndex + 1) % m_uiCapacity;
+    ++uiIndex;
+    if (uiIndex == m_uiCapacity)
+      uiIndex = 0;
+
     ++uiCounter;
   }
   
@@ -271,7 +274,35 @@ bool ezHashTableBase<K, V, H>::Remove(const K& key, V* out_oldValue /*= NULL*/)
 
     ezMemoryUtils::Destruct(&m_pEntries[uiIndex].key, 1);
     ezMemoryUtils::Destruct(&m_pEntries[uiIndex].value, 1);
-    MarkEntryAsDeleted(uiIndex);
+
+    ezUInt32 uiNextIndex = uiIndex + 1;
+    if (uiNextIndex == m_uiCapacity)
+      uiNextIndex = 0;
+
+    // if the next entry is free we are at the end of a chain and
+    // can immediately mark this entry as free as well
+    if (IsFreeEntry(uiNextIndex))
+    {
+      MarkEntryAsFree(uiIndex);
+
+      // run backwards and free all deleted entries in this chain
+      ezUInt32 uiPrevIndex = (uiIndex != 0) ? uiIndex : m_uiCapacity;
+      --uiPrevIndex;
+
+      while (IsDeletedEntry(uiPrevIndex))
+      {
+        MarkEntryAsFree(uiPrevIndex);
+
+        if (uiPrevIndex == 0)
+          uiPrevIndex = m_uiCapacity;
+        --uiPrevIndex;
+      }
+    }
+    else
+    {
+      MarkEntryAsDeleted(uiIndex);
+    }
+
     --m_uiCount;
     return true;
   }
@@ -319,7 +350,9 @@ inline V& ezHashTableBase<K, V, H>::operator[](const K& key)
     uiIndex = uiHash % m_uiCapacity;   
     while (IsValidEntry(uiIndex))
     {
-      uiIndex = (uiIndex + 1) % m_uiCapacity;
+      ++uiIndex;
+      if (uiIndex == m_uiCapacity)
+        uiIndex = 0;
     }
   
     // new entry
@@ -404,7 +437,10 @@ inline ezUInt32 ezHashTableBase<K, V, H>::FindEntry(ezUInt32 uiHash, const K& ke
       if (IsValidEntry(uiIndex) && m_pEntries[uiIndex].key == key)
         return uiIndex;
 
-      uiIndex = (uiIndex + 1) % m_uiCapacity;
+      ++uiIndex;
+      if (uiIndex == m_uiCapacity)
+        uiIndex = 0;
+
       ++uiCounter;
     }
   }
@@ -437,6 +473,21 @@ ezUInt32 ezHashTableBase<K, V, H>::GetFlags(ezUInt32* pFlags, ezUInt32 uiEntryIn
 }
 
 template <typename K, typename V, typename H>
+void ezHashTableBase<K, V, H>::SetFlags(ezUInt32 uiEntryIndex, ezUInt32 uiFlags)
+{
+#if EZ_ENABLED(EZ_HASHTABLE_USE_BITFLAGS)
+  const ezUInt32 uiIndex = uiEntryIndex / 16;
+  const ezUInt32 uiSubIndex = (uiEntryIndex & 15) * 2;
+  EZ_ASSERT(uiIndex < GetFlagsCapacity(), "Out of bounds access");
+  m_pEntryFlags[uiIndex] &= ~(FLAGS_MASK << uiSubIndex);
+  m_pEntryFlags[uiIndex] |= (uiFlags << uiSubIndex);  
+#else
+  EZ_ASSERT(uiEntryIndex < GetFlagsCapacity(), "Out of bounds access");
+  m_pEntryFlags[uiEntryIndex] = uiFlags;
+#endif
+}
+
+template <typename K, typename V, typename H>
 EZ_FORCE_INLINE bool ezHashTableBase<K, V, H>::IsFreeEntry(ezUInt32 uiEntryIndex) const
 {
   return GetFlags(m_pEntryFlags, uiEntryIndex) == FREE_ENTRY;
@@ -455,33 +506,21 @@ EZ_FORCE_INLINE bool ezHashTableBase<K, V, H>::IsDeletedEntry(ezUInt32 uiEntryIn
 }
 
 template <typename K, typename V, typename H>
-void ezHashTableBase<K, V, H>::MarkEntryAsValid(ezUInt32 uiEntryIndex)
+EZ_FORCE_INLINE void ezHashTableBase<K, V, H>::MarkEntryAsFree(ezUInt32 uiEntryIndex)
 {
-#if EZ_ENABLED(EZ_HASHTABLE_USE_BITFLAGS)
-  const ezUInt32 uiIndex = uiEntryIndex / 16;
-  const ezUInt32 uiSubIndex = (uiEntryIndex & 15) * 2;
-  EZ_ASSERT(uiIndex < GetFlagsCapacity(), "Out of bounds access");
-  m_pEntryFlags[uiIndex] |= (VALID_ENTRY << uiSubIndex);
-  m_pEntryFlags[uiIndex] &= ~(DELETED_ENTRY << uiSubIndex);
-#else
-  EZ_ASSERT(uiEntryIndex < GetFlagsCapacity(), "Out of bounds access");
-  m_pEntryFlags[uiEntryIndex] = VALID_ENTRY;
-#endif
+  SetFlags(uiEntryIndex, FREE_ENTRY);
 }
 
 template <typename K, typename V, typename H>
-void ezHashTableBase<K, V, H>::MarkEntryAsDeleted(ezUInt32 uiEntryIndex)
+EZ_FORCE_INLINE void ezHashTableBase<K, V, H>::MarkEntryAsValid(ezUInt32 uiEntryIndex)
 {
-#if EZ_ENABLED(EZ_HASHTABLE_USE_BITFLAGS)
-  const ezUInt32 uiIndex = uiEntryIndex / 16;
-  const ezUInt32 uiSubIndex = (uiEntryIndex & 15) * 2;
-  EZ_ASSERT(uiIndex < GetFlagsCapacity(), "Out of bounds access");
-  m_pEntryFlags[uiIndex] |= (DELETED_ENTRY << uiSubIndex);
-  m_pEntryFlags[uiIndex] &= ~(VALID_ENTRY << uiSubIndex);
-#else
-  EZ_ASSERT(uiEntryIndex < GetFlagsCapacity(), "Out of bounds access");
-  m_pEntryFlags[uiEntryIndex] = DELETED_ENTRY;
-#endif
+  SetFlags(uiEntryIndex, VALID_ENTRY);
+}
+
+template <typename K, typename V, typename H>
+EZ_FORCE_INLINE void ezHashTableBase<K, V, H>::MarkEntryAsDeleted(ezUInt32 uiEntryIndex)
+{
+  SetFlags(uiEntryIndex, DELETED_ENTRY);
 }
 
 

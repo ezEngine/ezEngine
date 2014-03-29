@@ -169,11 +169,13 @@ private:
 
   ezUInt32 GetFlagsCapacity() const;
   ezUInt32 GetFlags(ezUInt32* pFlags, ezUInt32 uiEntryIndex) const;
+  void SetFlags(ezUInt32 uiEntryIndex, ezUInt32 uiFlags);
 
   bool IsFreeEntry(ezUInt32 uiEntryIndex) const;
   bool IsValidEntry(ezUInt32 uiEntryIndex) const;
   bool IsDeletedEntry(ezUInt32 uiEntryIndex) const;
 
+  void MarkEntryAsFree(ezUInt32 uiEntryIndex);
   void MarkEntryAsValid(ezUInt32 uiEntryIndex);
   void MarkEntryAsDeleted(ezUInt32 uiEntryIndex);
 };
