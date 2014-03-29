@@ -1115,7 +1115,7 @@ void ezGraphicsUtils::CreateSimpleASCIIFontTexture(ezImage& Img, bool bSetEmptyT
     CopyCharacter(pPixelData, '/', slash);
 
     CopyCharacter(pPixelData, ':', colon);
-    CopyCharacter(pPixelData, ',', semicolon);
+    CopyCharacter(pPixelData, ';', semicolon);
     CopyCharacter(pPixelData, '<', less);
     CopyCharacter(pPixelData, '=', equal);
     CopyCharacter(pPixelData, '>', more);

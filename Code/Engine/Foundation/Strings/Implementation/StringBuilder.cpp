@@ -507,7 +507,7 @@ ezUInt32 ezStringBuilder::ReplaceAll_NoCase(const char* szSearchFor, const char*
   return uiReplacements;
 }
 
-const char* ezStringBuilder::ReplaceWholeWord(const char* szSearchFor, const char* szReplaceWith, ezStringUtils::EZ_IS_WORD_DELIMITER IsDelimiterCB)
+const char* ezStringBuilder::ReplaceWholeWord(const char* szSearchFor, const char* szReplaceWith, ezStringUtils::EZ_CHARACTER_FILTER IsDelimiterCB)
 {
   const char* szPos = FindWholeWord(szSearchFor, IsDelimiterCB);
 
@@ -520,7 +520,7 @@ const char* ezStringBuilder::ReplaceWholeWord(const char* szSearchFor, const cha
   return GetData() + uiOffset;
 }
 
-const char* ezStringBuilder::ReplaceWholeWord_NoCase(const char* szSearchFor, const char* szReplaceWith, ezStringUtils::EZ_IS_WORD_DELIMITER IsDelimiterCB)
+const char* ezStringBuilder::ReplaceWholeWord_NoCase(const char* szSearchFor, const char* szReplaceWith, ezStringUtils::EZ_CHARACTER_FILTER IsDelimiterCB)
 {
   const char* szPos = FindWholeWord_NoCase(szSearchFor, IsDelimiterCB);
 
@@ -534,7 +534,7 @@ const char* ezStringBuilder::ReplaceWholeWord_NoCase(const char* szSearchFor, co
 }
 
 
-ezUInt32 ezStringBuilder::ReplaceWholeWordAll(const char* szSearchFor, const char* szReplaceWith, ezStringUtils::EZ_IS_WORD_DELIMITER IsDelimiterCB)
+ezUInt32 ezStringBuilder::ReplaceWholeWordAll(const char* szSearchFor, const char* szReplaceWith, ezStringUtils::EZ_CHARACTER_FILTER IsDelimiterCB)
 {
   const ezUInt32 uiSearchBytes = ezStringUtils::GetStringElementCount(szSearchFor);
   const ezUInt32 uiWordBytes = ezStringUtils::GetStringElementCount(szReplaceWith);
@@ -562,7 +562,7 @@ ezUInt32 ezStringBuilder::ReplaceWholeWordAll(const char* szSearchFor, const cha
   return uiReplacements;
 }
 
-ezUInt32 ezStringBuilder::ReplaceWholeWordAll_NoCase(const char* szSearchFor, const char* szReplaceWith, ezStringUtils::EZ_IS_WORD_DELIMITER IsDelimiterCB)
+ezUInt32 ezStringBuilder::ReplaceWholeWordAll_NoCase(const char* szSearchFor, const char* szReplaceWith, ezStringUtils::EZ_CHARACTER_FILTER IsDelimiterCB)
 {
   const ezUInt32 uiSearchBytes = ezStringUtils::GetStringElementCount(szSearchFor);
   const ezUInt32 uiWordBytes = ezStringUtils::GetStringElementCount(szReplaceWith);

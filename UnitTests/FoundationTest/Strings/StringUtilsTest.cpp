@@ -702,4 +702,29 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringUtils)
     EZ_TEST_BOOL(ezStringUtils::FindWholeWord_NoCase(s.GetData(), "ABC", ezStringUtils::IsWordDelimiter_English, s.GetData() + 37) == &s.GetData()[34]);
     EZ_TEST_BOOL(ezStringUtils::FindWholeWord_NoCase(s.GetData(), "ABC", ezStringUtils::IsWordDelimiter_English, s.GetData() + 36) == NULL);
   }
-}
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SkipCharacters")
+  {
+    ezStringUtf8 s(L"mompf   hüßß ßßß öäü abcdef abc def");
+    const char* szEmpty = "";
+
+    EZ_TEST_BOOL(ezStringUtils::SkipCharacters(s.GetData(), ezStringUtils::IsWhiteSpace, false) == &s.GetData()[0]);
+    EZ_TEST_BOOL(ezStringUtils::SkipCharacters(s.GetData(), ezStringUtils::IsWhiteSpace, true ) == &s.GetData()[1]);
+    EZ_TEST_BOOL(ezStringUtils::SkipCharacters(&s.GetData()[5], ezStringUtils::IsWhiteSpace, false) == &s.GetData()[8]);
+    EZ_TEST_BOOL(ezStringUtils::SkipCharacters(&s.GetData()[5], ezStringUtils::IsWhiteSpace, true ) == &s.GetData()[8]);
+    EZ_TEST_BOOL(ezStringUtils::SkipCharacters(szEmpty, ezStringUtils::IsWhiteSpace, false) == szEmpty);
+    EZ_TEST_BOOL(ezStringUtils::SkipCharacters(szEmpty, ezStringUtils::IsWhiteSpace, true) == szEmpty);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "FindWordEnd")
+  {
+    ezStringUtf8 s(L"mompf   hüßß ßßß öäü abcdef abc def");
+    const char* szEmpty = "";
+
+    EZ_TEST_BOOL(ezStringUtils::FindWordEnd(s.GetData(), ezStringUtils::IsWhiteSpace, true ) == &s.GetData()[5]);
+    EZ_TEST_BOOL(ezStringUtils::FindWordEnd(s.GetData(), ezStringUtils::IsWhiteSpace, false) == &s.GetData()[5]);
+    EZ_TEST_BOOL(ezStringUtils::FindWordEnd(&s.GetData()[5], ezStringUtils::IsWhiteSpace, true ) == &s.GetData()[6]);
+    EZ_TEST_BOOL(ezStringUtils::FindWordEnd(&s.GetData()[5], ezStringUtils::IsWhiteSpace, false) == &s.GetData()[5]);
+    EZ_TEST_BOOL(ezStringUtils::FindWordEnd(szEmpty, ezStringUtils::IsWhiteSpace, true ) == szEmpty);
+    EZ_TEST_BOOL(ezStringUtils::FindWordEnd(szEmpty, ezStringUtils::IsWhiteSpace, false) == szEmpty);
+  }}

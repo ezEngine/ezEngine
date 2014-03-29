@@ -2,11 +2,6 @@
 #include <Foundation/IO/JSONParser.h>
 #include <Foundation/Utilities/ConversionUtils.h>
 
-static inline bool IsWhitespace(ezUInt8 c)
-{
-  return (c == ' ' || c == '\t' || c == '\r' || c == '\n' || c == '\v');
-}
-
 ezJSONParser::ezJSONParser()
 {
   m_uiCurByte = '\0';
@@ -425,7 +420,7 @@ void ezJSONParser::ContinueValue()
 
 void ezJSONParser::ContinueSeparator()
 {
-  if (IsWhitespace(m_uiCurByte))
+  if (ezStringUtils::IsWhiteSpace(m_uiCurByte))
     SkipWhitespace();
 
   // remove ExpectSeparator from the stack
@@ -510,7 +505,7 @@ void ezJSONParser::SkipWhitespace()
     if (!ReadCharacter())
       return; // stop when end of stream is encountered
   }
-  while (IsWhitespace(m_uiCurByte));
+  while (ezStringUtils::IsWhiteSpace(m_uiCurByte));
 }
 
 void ezJSONParser::SkipString()
@@ -587,7 +582,7 @@ void ezJSONParser::ReadWord()
     if (!ReadCharacter())
       break; // stop when end of stream is encountered
   }
-  while (!IsWhitespace(m_uiCurByte) && m_uiCurByte != ',' && m_uiCurByte != ']' && m_uiCurByte != '}');
+  while (!ezStringUtils::IsWhiteSpace(m_uiCurByte) && m_uiCurByte != ',' && m_uiCurByte != ']' && m_uiCurByte != '}');
 
   m_TempString.PushBack('\0');
 }

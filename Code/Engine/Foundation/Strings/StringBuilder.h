@@ -172,16 +172,16 @@ public:
   ezUInt32 ReplaceAll_NoCase(const char* szSearchFor, const char* szReplacement); // [tested]
 
   /// \brief Replaces the first occurrence of szSearchFor by szReplaceWith, if szSearchFor was found to be a 'whole word', as indicated by the delimiter function IsDelimiterCB.
-  const char* ReplaceWholeWord(const char* szSearchFor, const char* szReplaceWith, ezStringUtils::EZ_IS_WORD_DELIMITER IsDelimiterCB); // [tested]
+  const char* ReplaceWholeWord(const char* szSearchFor, const char* szReplaceWith, ezStringUtils::EZ_CHARACTER_FILTER IsDelimiterCB); // [tested]
 
   /// \brief Case-insensitive version of ReplaceWholeWord.
-  const char* ReplaceWholeWord_NoCase(const char* szSearchFor, const char* szReplaceWith, ezStringUtils::EZ_IS_WORD_DELIMITER IsDelimiterCB); // [tested]
+  const char* ReplaceWholeWord_NoCase(const char* szSearchFor, const char* szReplaceWith, ezStringUtils::EZ_CHARACTER_FILTER IsDelimiterCB); // [tested]
 
   /// \brief Replaces all occurrences of szSearchFor by szReplaceWith, if szSearchFor was found to be a 'whole word', as indicated by the delimiter function IsDelimiterCB.
-  ezUInt32 ReplaceWholeWordAll(const char* szSearchFor, const char* szReplaceWith, ezStringUtils::EZ_IS_WORD_DELIMITER IsDelimiterCB); // [tested]
+  ezUInt32 ReplaceWholeWordAll(const char* szSearchFor, const char* szReplaceWith, ezStringUtils::EZ_CHARACTER_FILTER IsDelimiterCB); // [tested]
 
   /// \brief Case-insensitive version of ReplaceWholeWordAll.
-  ezUInt32 ReplaceWholeWordAll_NoCase(const char* szSearchFor, const char* szReplaceWith, ezStringUtils::EZ_IS_WORD_DELIMITER IsDelimiterCB); // [tested]
+  ezUInt32 ReplaceWholeWordAll_NoCase(const char* szSearchFor, const char* szReplaceWith, ezStringUtils::EZ_CHARACTER_FILTER IsDelimiterCB); // [tested]
 
   /// \brief Fills the given container with ezStringIterator's which represent each found substring.
   /// If bReturnEmptyStrings is true, even empty strings between separators are returned.

@@ -645,7 +645,7 @@ const char* ezStringUtils::FindLastSubString_NoCase(const char* szSource, const 
 }
 
 
-  const char* ezStringUtils::FindWholeWord(const char* szString, const char* szSearchFor, EZ_IS_WORD_DELIMITER IsDelimiterCB, const char* pStringEnd)
+  const char* ezStringUtils::FindWholeWord(const char* szString, const char* szSearchFor, EZ_CHARACTER_FILTER IsDelimiterCB, const char* pStringEnd)
   {
     // Handle NULL-pointer strings
     if ((IsNullOrEmpty (szString)) || (IsNullOrEmpty (szSearchFor)))
@@ -661,9 +661,9 @@ const char* ezStringUtils::FindLastSubString_NoCase(const char* szSource, const 
       if (StartsWith(pCurPos, szSearchFor, pStringEnd)) // yay, we found a substring, now make sure it is a 'whole word'
       {
         if (((szString == pCurPos) || // the start of the string is always a word delimiter
-          (IsDelimiterCB (ezUnicodeUtils::ConvertUtf8ToUtf32(pPrevPos), true))) && // make sure the character before this substring is a word delimiter
+          (IsDelimiterCB(ezUnicodeUtils::ConvertUtf8ToUtf32(pPrevPos)/* front */))) && // make sure the character before this substring is a word delimiter
           ((pCurPos + uiSearchedWordLength >= pStringEnd) || // the end of the string is also always a delimiter
-          (IsDelimiterCB (ezUnicodeUtils::ConvertUtf8ToUtf32(pCurPos + uiSearchedWordLength), false)))) // and the character after it, as well
+          (IsDelimiterCB(ezUnicodeUtils::ConvertUtf8ToUtf32(pCurPos + uiSearchedWordLength)/* back */)))) // and the character after it, as well
           return pCurPos;
       }
 
@@ -674,7 +674,7 @@ const char* ezStringUtils::FindLastSubString_NoCase(const char* szSource, const 
     return NULL;
   }
 
-  const char* ezStringUtils::FindWholeWord_NoCase(const char* szString, const char* szSearchFor, EZ_IS_WORD_DELIMITER IsDelimiterCB, const char* pStringEnd)
+  const char* ezStringUtils::FindWholeWord_NoCase(const char* szString, const char* szSearchFor, EZ_CHARACTER_FILTER IsDelimiterCB, const char* pStringEnd)
   {
     // Handle NULL-pointer strings
     if ((IsNullOrEmpty (szString)) || (IsNullOrEmpty (szSearchFor)))
@@ -690,8 +690,8 @@ const char* ezStringUtils::FindLastSubString_NoCase(const char* szSource, const 
       if (StartsWith_NoCase(pCurPos, szSearchFor, pStringEnd)) // yay, we found a substring, now make sure it is a 'whole word'
       {
         if (((szString == pCurPos) || // the start of the string is always a word delimiter
-          (IsDelimiterCB (ezUnicodeUtils::ConvertUtf8ToUtf32(pPrevPos), true))) && // make sure the character before this substring is a word delimiter
-          (IsDelimiterCB (ezUnicodeUtils::ConvertUtf8ToUtf32(pCurPos + uiSearchedWordLength), false))) // and the character after it, as well
+          (IsDelimiterCB(ezUnicodeUtils::ConvertUtf8ToUtf32(pPrevPos)/* front */))) && // make sure the character before this substring is a word delimiter
+          (IsDelimiterCB(ezUnicodeUtils::ConvertUtf8ToUtf32(pCurPos + uiSearchedWordLength)/* back */))) // and the character after it, as well
           return pCurPos;
       }
 
@@ -702,7 +702,44 @@ const char* ezStringUtils::FindLastSubString_NoCase(const char* szSource, const 
     return NULL;
   }
 
-  bool ezStringUtils::IsWordDelimiter_English (ezUInt32 uiChar, bool bFront)
+  const char* ezStringUtils::SkipCharacters(const char* szString, EZ_CHARACTER_FILTER SkipCharacterCB, bool bAlwaysSkipFirst)
+  {
+    EZ_ASSERT(szString != NULL, "Invalid string");
+
+    while (*szString != '\0')
+    {
+      if (!bAlwaysSkipFirst && !SkipCharacterCB(ezUnicodeUtils::ConvertUtf8ToUtf32(szString)))
+        break;
+
+      bAlwaysSkipFirst = false;
+      ezUnicodeUtils::MoveToNextUtf8(szString);
+    }
+
+    return szString;
+  }
+
+  const char* ezStringUtils::FindWordEnd(const char* szString, EZ_CHARACTER_FILTER IsDelimiterCB, bool bAlwaysSkipFirst)
+  {
+    EZ_ASSERT(szString != NULL, "Invalid string");
+
+    while (*szString != '\0')
+    {
+      if (!bAlwaysSkipFirst && IsDelimiterCB(ezUnicodeUtils::ConvertUtf8ToUtf32(szString)))
+        break;
+
+      bAlwaysSkipFirst = false;
+      ezUnicodeUtils::MoveToNextUtf8(szString);
+    }
+
+    return szString;
+  }
+
+  bool ezStringUtils::IsWhiteSpace(ezUInt32 c)
+  {
+    return (c == ' ' || c == '\t' || c == '\r' || c == '\n' || c == '\v');
+  }
+
+  bool ezStringUtils::IsWordDelimiter_English(ezUInt32 uiChar)
   {
     if ((uiChar >= 'a') && (uiChar <= 'z'))
       return false;
@@ -718,7 +755,7 @@ const char* ezStringUtils::FindLastSubString_NoCase(const char* szSource, const 
     return true;
   }
 
-  bool ezStringUtils::IsIdentifierDelimiter_C_Code (ezUInt32 uiChar, bool bFront)
+  bool ezStringUtils::IsIdentifierDelimiter_C_Code(ezUInt32 uiChar)
   {
     if ((uiChar >= 'a') && (uiChar <= 'z'))
       return false;

@@ -189,21 +189,37 @@ public:
   /// \brief Searches for the last occurrence of szStringToFind in szSource before uiFirstCharacter. Ignores case.
   static const char* FindLastSubString_NoCase(const char* szSource, const char* szStringToFind, const char* szStartSearchAt = NULL, const char* pSourceEnd = ezMaxStringEnd); // [tested]
 
+  /// \brief Function Definition for a function that determines whether a (Utf32) character belongs to a certain category of characters.
+  typedef bool (*EZ_CHARACTER_FILTER)(ezUInt32 uiChar);
 
-  /// \brief Function Definition for a function that determines whether a (Utf32) character delimits a word, when it is at the front or back of it.
-  typedef bool (*EZ_IS_WORD_DELIMITER)(ezUInt32 uiChar, bool bFront);
+  /// \brief Starts at szString and advances to the next character for which SkipCharacterCB returns false;
+  ///
+  /// If \a bAlwaysSkipFirst is false and szString points to a character that does not fulfill the filter, this function will
+  /// return immediately and nothing will change.
+  /// If \a bAlwaysSkipFirst is true, the first character will always be skipped, regardless what it is (unless it is the zero terminator).
+  /// The latter is useful to skip an entire word and get to the next word in a string.\n
+  static const char* SkipCharacters(const char* szString, EZ_CHARACTER_FILTER SkipCharacterCB, bool bAlwaysSkipFirst = false);
+
+  /// \brief Returns the position in szString at which \a IsDelimiterCB returns true.
+  ///
+  /// This is basically the inverse of SkipCharacters. SkipCharacters advances over all characters that fulfill the filter, 
+  /// FindWordEnd advances over all characters that do not fulfill it.
+  static const char* FindWordEnd(const char* szString, EZ_CHARACTER_FILTER IsDelimiterCB, bool bAlwaysSkipFirst = true);
+
+  /// \brief A default word delimiter function that returns true for ' ' (space), '\r' (carriage return), '\n' (newline), '\t' (tab) and '\v' (vertical tab)
+  static bool IsWhiteSpace(ezUInt32 uiChar);
 
   /// \brief A default word delimiter function for english text.
-  static bool IsWordDelimiter_English(ezUInt32 uiChar, bool bFront);
+  static bool IsWordDelimiter_English(ezUInt32 uiChar);
 
   /// \brief A default word delimiter function for identifiers in C code. 
-  static bool IsIdentifierDelimiter_C_Code(ezUInt32 uiChar, bool bFront);
+  static bool IsIdentifierDelimiter_C_Code(ezUInt32 uiChar);
 
-  /// \brief Searches szString after position uiStartPos for the word szSearchFor. If IsDelimiterCB returns true for both characters in front and back of the word, the position is returned. Otherwise -1.
-  static const char* FindWholeWord(const char* szString, const char* szSearchFor, EZ_IS_WORD_DELIMITER IsDelimiterCB, const char* pStringEnd = ezMaxStringEnd); // [tested]
+  /// \brief Searches szString for the word szSearchFor. If IsDelimiterCB returns true for both characters in front and back of the word, the position is returned. Otherwise NULL.
+  static const char* FindWholeWord(const char* szString, const char* szSearchFor, EZ_CHARACTER_FILTER IsDelimiterCB, const char* pStringEnd = ezMaxStringEnd); // [tested]
 
-  /// \brief Searches szString after position uiStartPos for the word szSearchFor. If IsDelimiterCB returns true for both characters in front and back of the word, the position is returned. Otherwise -1. Ignores case.
-  static const char* FindWholeWord_NoCase(const char* szString, const char* szSearchFor, EZ_IS_WORD_DELIMITER IsDelimiterCB, const char* pStringEnd = ezMaxStringEnd); // [tested]
+  /// \brief Searches szString for the word szSearchFor. If IsDelimiterCB returns true for both characters in front and back of the word, the position is returned. Otherwise NULL. Ignores case.
+  static const char* FindWholeWord_NoCase(const char* szString, const char* szSearchFor, EZ_CHARACTER_FILTER IsDelimiterCB, const char* pStringEnd = ezMaxStringEnd); // [tested]
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   static void AddUsedStringLength(ezUInt32 uiLength);

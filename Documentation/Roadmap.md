@@ -11,8 +11,6 @@ Soon:
 
 One of the next releases:
   * Math: Simd
-  * Simple Text Rendering
-  * In Game Console
 
 Unknown:
   * Binary Search Algorithm
