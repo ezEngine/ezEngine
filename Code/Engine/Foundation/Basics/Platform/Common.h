@@ -15,6 +15,14 @@
 
 #include <Foundation/Basics/Compiler/RestoreWarning.h>
 
+// redifine NULL to nullptr if available
+#undef NULL
+#if EZ_ENABLED(EZ_SUPPORTS_CPP11)
+  #define NULL nullptr    
+#else
+  #define NULL 0
+#endif
+
 // include c++11 specific header if the compiler supports it
 #if EZ_ENABLED(EZ_SUPPORTS_CPP11)
   #include <type_traits>

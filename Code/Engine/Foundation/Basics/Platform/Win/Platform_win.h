@@ -66,13 +66,6 @@
 
   #include <Foundation/Basics/Compiler/RestoreWarning.h>
 
-  #undef NULL
-  #if (_MSC_VER >= 1600) // visual studio 2010 and later
-    #define NULL nullptr    
-  #else
-    #define NULL 0
-  #endif
-
   #define EZ_FORCE_INLINE __forceinline
   #define EZ_RESTRICT __restrict
 
