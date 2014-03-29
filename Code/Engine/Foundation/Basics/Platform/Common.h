@@ -33,10 +33,10 @@
 // EZ_CHECK_AT_COMPILETIME_MSG(exp, msg) : checks exp and displays msg
 #if EZ_ENABLED(EZ_SUPPORTS_CPP11)
   #define EZ_CHECK_AT_COMPILETIME(exp) \
-  static_assert(exp, EZ_CONCAT(EZ_STRINGIZE(exp), " is false."));
+  static_assert(exp, EZ_STRINGIZE(exp) " is false.");
   
   #define EZ_CHECK_AT_COMPILETIME_MSG(exp, msg) \
-  static_assert(exp, EZ_CONCAT(EZ_CONCAT(EZ_STRINGIZE(exp), " is false. Message: "), msg));
+  static_assert(exp, EZ_STRINGIZE(exp) " is false. Message: " msg);
 #else
   // Declares an array with an invalid size, if the expression is invalid -> generates a compile-time error
   #define EZ_CHECK_AT_COMPILETIME(exp) \
