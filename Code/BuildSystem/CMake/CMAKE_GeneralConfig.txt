@@ -407,10 +407,15 @@ MACRO(ADD_MSVC_PRECOMPILED_HEADER)
       
 	  # Remove CMAKE's increase of the max pre-compiled header size (/Zm1000)
 	  # as this will cause C1027 errors during compiling due to ASLR.
-	  string(REGEX REPLACE "/Zm[0-9]+ *" "" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
-	  # Force the above change into the cache.
+	  if (NOT CMAKE_CXX_FLAGS)
+	    message (FATAL_ERROR "CMAKE_CXX_FLAGS is empty! Cause unknown but clear cache and rerun configure solves the problem.")  
+	  endif ()
+	  
+      string(REGEX REPLACE "/Zm[0-9]+ *" "" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
+      # Force the above change into the cache.
       set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}" CACHE STRING "" FORCE)
 
+	  
       foreach (src_file ${ALL_SOURCE_FILES})
         GET_FILENAME_COMPONENT(RawFilename ${src_file} NAME)
         GET_FILENAME_COMPONENT(Extension ${src_file} EXT)
@@ -525,15 +530,22 @@ ENDMACRO()
 MACRO(DX11_COPY_DLLS)
   if (${EZ_REQUIRES_DX11})
     if (${BUILDSYSTEM_PLATFORM_64BIT})
-      add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-          COMMAND ${CMAKE_COMMAND} -E copy_if_different
-          "%ProgramFiles(x86)%/Windows Kits/8.0/Redist/D3D/x64/d3dcompiler_46.dll"
-          $<TARGET_FILE_DIR:${PROJECT_NAME}>)
+       set (DX11_COPY_DLLS_BIT "x64")
     else ()
+       set (DX11_COPY_DLLS_BIT "x86")
+    endif ()
+    
+    if( ${DirectX11_LIBRARY} MATCHES "/8\\.0/")
+       set (DX11_COPY_DLLS_WINSDKVERSION "8.0")
+    elseif( ${DirectX11_LIBRARY} MATCHES "/8\\.1/")
+       set (DX11_COPY_DLLS_WINSDKVERSION "8.1")
+    endif ()
+
+    if (${DX11_COPY_DLLS_WINSDKVERSION})
       add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-          COMMAND ${CMAKE_COMMAND} -E copy_if_different
-          "%ProgramFiles(x86)%/Windows Kits/8.0/Redist/D3D/x86/d3dcompiler_46.dll"
-          $<TARGET_FILE_DIR:${PROJECT_NAME}>)
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "%ProgramFiles(x86)%/Windows Kits/${DX11_COPY_DLLS_WINSDKVERSION}/Redist/D3D/${DX11_COPY_DLLS_BIT}/d3dcompiler_46.dll"
+        $<TARGET_FILE_DIR:${PROJECT_NAME}>)
     endif ()
   endif ()
 ENDMACRO()

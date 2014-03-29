@@ -38,18 +38,24 @@ if(WIN32) # The only platform it makes sense to check for DirectX11 SDK
 	"$ENV{ProgramFiles}/Microsoft DirectX SDK*"
 	)
 
-	if(WIN32)
-		# Windows 8 SDK has custom layout
-		set(DirectX11_INC_SEARCH_PATH 
-		"C:/Program Files (x86)/Windows Kits/8.0/Include/shared"
-		"C:/Program Files (x86)/Windows Kits/8.0/Include/um"
-		)
-		set(DirectX11_LIB_SEARCH_PATH 
-		"C:/Program Files (x86)/Windows Kits/8.0/Lib/win8/um"
-		)
-	endif()
 
+	# Windows 8 SDK has custom layout
+	set(DirectX11_INC_SEARCH_PATH
+	"C:/Program Files (x86)/Windows Kits/8.1/Include/shared"
+	"C:/Program Files (x86)/Windows Kits/8.1/Include/um"
+	"C:/Program Files (x86)/Windows Kits/8.0/Include/shared"
+	"C:/Program Files (x86)/Windows Kits/8.0/Include/um"
+
+	)
+	set(DirectX11_LIB_SEARCH_PATH
+	"C:/Program Files (x86)/Windows Kits/8.1/Lib/winv6.3/um"
+	"C:/Program Files (x86)/Windows Kits/8.0/Lib/win8/um"
+	)
+
+
+	# Generate candidate paths from DirectX11_PREFIX_PATH
 	create_search_paths(DirectX11)
+	
 	# redo search if prefix path changed
 	clear_if_changed(DirectX11_PREFIX_PATH
 		DirectX11_LIBRARY
@@ -77,8 +83,10 @@ if(WIN32) # The only platform it makes sense to check for DirectX11 SDK
 	  set(DirectX11_D3D11_FOUND TRUE)
 	  set(DirectX11_INCLUDE_DIR ${DirectX11_INCLUDE_DIR})
 	  # Need to add 'shared' directory for windows 8 systems:
-	  if( ${CMAKE_SYSTEM_VERSION} EQUAL 6.2 )
+	  if( ${DirectX11_INCLUDE_DIR} MATCHES "/8\\.0/")
         set(DirectX11_INCLUDE_DIR ${DirectX11_INCLUDE_DIR} "C:/Program Files (x86)/Windows Kits/8.0/Include/shared")
+	  elseif( ${DirectX11_INCLUDE_DIR} MATCHES "/8\\.1/")
+        set(DirectX11_INCLUDE_DIR ${DirectX11_INCLUDE_DIR} "C:/Program Files (x86)/Windows Kits/8.1/Include/shared")
 	  endif ()
 	  set(DirectX11_D3D11_LIBRARIES ${DirectX11_D3D11_LIBRARIES}
 	    ${DirectX11_LIBRARY}
