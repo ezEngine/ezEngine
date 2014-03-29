@@ -124,14 +124,14 @@ void ezGALDeviceGL::SetupDebugOutput(ezGALDeviceGL::DebugMessageSeverity::Enum m
   {
   // Fall-through is intended since every severity level needs to be activated separately!
   case DebugMessageSeverity::LOW:
-    EZ_GL_CALL(glDebugMessageControl, GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_LOW, 0, NULL, GL_TRUE);
+    EZ_GL_CALL(glDebugMessageControl, GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_LOW, 0, nullptr, GL_TRUE);
   case DebugMessageSeverity::MEDIUM:
-    EZ_GL_CALL(glDebugMessageControl, GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_MEDIUM, 0, NULL, GL_TRUE);
+    EZ_GL_CALL(glDebugMessageControl, GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_MEDIUM, 0, nullptr, GL_TRUE);
   case DebugMessageSeverity::HIGH:
-    EZ_GL_CALL(glDebugMessageControl, GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_HIGH, 0, NULL, GL_TRUE);
+    EZ_GL_CALL(glDebugMessageControl, GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_HIGH, 0, nullptr, GL_TRUE);
   }
 
-  EZ_GL_CALL(glDebugMessageCallback, &DebugOutput, NULL);
+  EZ_GL_CALL(glDebugMessageCallback, &DebugOutput, (const void*) NULL);
 }
 
 
