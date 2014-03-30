@@ -463,6 +463,35 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringUtils)
     ezStringUtf8 sC(L"Abc ASCII äöü ß 42 ÄÖÜ 23.3142"); // notice the correct float rounding ;-)
 
     EZ_TEST_STRING(sz, sC.GetData());
+
+
+    // NaN and Infinity
+    ezStringUtils::snprintf(sz, 256, "NaN Value: %.2f", ezMath::BasicType<float>::GetNaN());
+    EZ_TEST_STRING(sz, "NaN Value: NaN");
+
+    ezStringUtils::snprintf(sz, 256, "Inf Value: %.2f", +ezMath::BasicType<float>::GetInfinity());
+    EZ_TEST_STRING(sz, "Inf Value: Infinity");
+
+    ezStringUtils::snprintf(sz, 256, "Inf Value: %.2f", -ezMath::BasicType<float>::GetInfinity());
+    EZ_TEST_STRING(sz, "Inf Value: -Infinity");
+
+    ezStringUtils::snprintf(sz, 256, "NaN Value: %.2e", ezMath::BasicType<float>::GetNaN());
+    EZ_TEST_STRING(sz, "NaN Value: NaN");
+
+    ezStringUtils::snprintf(sz, 256, "Inf Value: %.2e", +ezMath::BasicType<float>::GetInfinity());
+    EZ_TEST_STRING(sz, "Inf Value: Infinity");
+
+    ezStringUtils::snprintf(sz, 256, "Inf Value: %.2e", -ezMath::BasicType<float>::GetInfinity());
+    EZ_TEST_STRING(sz, "Inf Value: -Infinity");
+
+    ezStringUtils::snprintf(sz, 256, "NaN Value: %+10.2f", ezMath::BasicType<float>::GetNaN());
+    EZ_TEST_STRING(sz, "NaN Value:       +NaN");
+
+    ezStringUtils::snprintf(sz, 256, "Inf Value: %+10.2f", +ezMath::BasicType<float>::GetInfinity());
+    EZ_TEST_STRING(sz, "Inf Value:  +Infinity");
+
+    ezStringUtils::snprintf(sz, 256, "Inf Value: %+10.2f", -ezMath::BasicType<float>::GetInfinity());
+    EZ_TEST_STRING(sz, "Inf Value:  -Infinity");
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "StartsWith")

@@ -249,6 +249,26 @@ static void OutputNullPtr (char* szOutputBuffer, unsigned int uiBufferSize, unsi
   OutputChar (szOutputBuffer, uiBufferSize, uiWritePos, ')');
 }
 
+static void OutputNaN (char* szOutputBuffer, unsigned int uiBufferSize, unsigned int& uiWritePos)
+{
+  OutputChar (szOutputBuffer, uiBufferSize, uiWritePos, 'N');
+  OutputChar (szOutputBuffer, uiBufferSize, uiWritePos, 'a');
+  OutputChar (szOutputBuffer, uiBufferSize, uiWritePos, 'N');
+}
+
+static void OutputInf (char* szOutputBuffer, unsigned int uiBufferSize, unsigned int& uiWritePos)
+{
+  OutputChar (szOutputBuffer, uiBufferSize, uiWritePos, 'I');
+  OutputChar (szOutputBuffer, uiBufferSize, uiWritePos, 'n');
+  OutputChar (szOutputBuffer, uiBufferSize, uiWritePos, 'f');
+  OutputChar (szOutputBuffer, uiBufferSize, uiWritePos, 'i');
+  OutputChar (szOutputBuffer, uiBufferSize, uiWritePos, 'n');
+  OutputChar (szOutputBuffer, uiBufferSize, uiWritePos, 'i');
+  OutputChar (szOutputBuffer, uiBufferSize, uiWritePos, 't');
+  OutputChar (szOutputBuffer, uiBufferSize, uiWritePos, 'y');
+}
+
+
 static void OutputString (char* szOutputBuffer, unsigned int uiBufferSize, unsigned int& uiWritePos, const char* szString, unsigned int Flags, int iMinSize, int iMaxSize)
 {
   if (!szString)
@@ -517,8 +537,49 @@ static void RemoveTrailingZeros (char* szBuffer, int& iWritePos)
   }
 }
 
-static bool FormatUFloat (char* szOutputBuffer, unsigned int uiBufferSize, unsigned int& uiWritePos, double value, int iPrecision, unsigned int Flags, bool bRemoveZeroes)
+union Int64DoubleUnion
 {
+  unsigned long long int i;
+  double f;
+};
+
+static bool IsFinite(double value)
+{
+  // Check the 11 exponent bits.
+  // NAN -> (exponent = all 1, mantissa = non-zero)
+  // INF -> (exponent = all 1, mantissa = zero)
+
+  Int64DoubleUnion i2f;
+  i2f.f = value;
+  return ((i2f.i & 0x7FF0000000000000LL) != 0x7FF0000000000000LL);
+}
+
+static bool IsNaN(double value)
+{
+  // Check the 11 exponent bits.
+  // NAN -> (exponent = all 1, mantissa = non-zero)
+  // INF -> (exponent = all 1, mantissa = zero)
+
+  Int64DoubleUnion i2f;
+  i2f.f = value;
+
+  return (((i2f.i & 0x7FF0000000000000LL) == 0x7FF0000000000000LL) && ((i2f.i & 0xFFFFFFFFFFFFFLL) != 0));
+}
+
+static bool FormatUFloat (char* szOutputBuffer, unsigned int uiBufferSize, unsigned int& uiWritePos, double& value, int iPrecision, unsigned int Flags, bool bRemoveZeroes)
+{
+  if (IsNaN (value))
+  {
+    value = 0;
+    OutputNaN (szOutputBuffer, uiBufferSize, uiWritePos);
+    return false;
+  }
+  else if (!IsFinite (value))
+  {
+    OutputInf (szOutputBuffer, uiBufferSize, uiWritePos);
+    return false;
+  }
+
   if (value < 0)
     value = - value;
 
@@ -651,8 +712,20 @@ static bool WouldRoundToTen (double value, int iPrecision)
 }
 
 
-static void FormatUFloatScientific (char* szOutputBuffer, unsigned int uiBufferSize, unsigned int& uiWritePos, double value, int iPrecision, unsigned int Flags, bool bUpperCase, bool bRemoveZeroes)
+static void FormatUFloatScientific (char* szOutputBuffer, unsigned int uiBufferSize, unsigned int& uiWritePos, double& value, int iPrecision, unsigned int Flags, bool bUpperCase, bool bRemoveZeroes)
 {
+  if (IsNaN (value))
+  {
+    value = 0;
+    OutputNaN (szOutputBuffer, uiBufferSize, uiWritePos);
+    return;
+  }
+  else if (!IsFinite (value))
+  {
+    OutputInf (szOutputBuffer, uiBufferSize, uiWritePos);
+    return;
+  }
+
   double dSci = value > 0.0 ? value : -value;
   int exp = 0;
 

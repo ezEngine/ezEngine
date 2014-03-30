@@ -151,7 +151,8 @@ public:
   /// szDst may be NULL.\n
   /// uiDstSize may be zero.\n
   /// This can be used to query how much storage is required, then allocate it and call snprintf again to fill it.\n
-  /// Formatting works exactly like printf.
+  /// Formatting works exactly like printf, except that it additionally supports outputting binary with the 'b' modifier and it will
+  /// output float NaN and Infinity as proper text.
   static ezInt32 snprintf(char* szDst, ezUInt32 uiDstSize, const char* szFormat, ...); // [tested]
 
   /// \brief Creates a formated string in szDst. uiDstSize defines how many bytes szDst can hold. 
@@ -161,7 +162,8 @@ public:
   /// szDst may be NULL.\n
   /// uiDstSize may be zero.\n
   /// This can be used to query how much storage is required, then allocate it and call snprintf again to fill it.\n
-  /// Formatting works exactly like printf.
+  /// Formatting works exactly like printf, except that it additionally supports outputting binary with the 'b' modifier and it will
+  /// output float NaN and Infinity as proper text.
   static ezInt32 vsnprintf(char* szDst, ezUInt32 uiDstSize, const char* szFormat, va_list ap); // [tested]
 
   /// \brief Returns true if szString starts with the string given in szStartsWith.
