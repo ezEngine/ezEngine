@@ -29,7 +29,7 @@ void GameRenderer::SetupRenderer(const GameWindow* pWindow, const Level* pLevel,
   m_pCamera = pCamera;
   m_pNavmesh = pNavmesh;
   m_uiFontTextureID = 0;
-  m_uiFramesPerSecond = 0;
+  m_fFramesPerSecond = 0;
 
   ezImage FontImg;
   ezGraphicsUtils::CreateSimpleASCIIFontTexture(FontImg);
@@ -65,8 +65,8 @@ void GameRenderer::ComputeFPS()
 
   if ((Now - LastFPS).GetSeconds() >= 1.0)
   {
+    m_fFramesPerSecond = (uiCurFrame * 1000.0) / (Now - LastFPS).GetMilliseconds();
     LastFPS = Now;
-    m_uiFramesPerSecond = uiCurFrame;
     uiCurFrame = 0;
   }
 }
@@ -167,9 +167,9 @@ void GameRenderer::Render2DOverlays()
     glMatrixMode(GL_PROJECTION);
     glLoadMatrixf(mOrtho.m_fElementsCM);
 
-    RenderText(40, ALIGN_LEFT, ezColor::GetWhite(), 10, 0, "FPS: %u", m_uiFramesPerSecond);
+    RenderFormattedText(30, ALIGN_RIGHT, ezColor::GetWhite(), 780, 0, "FPS: %.0f", m_fFramesPerSecond);
 
-/*
+    /*
     RenderText(40, ALIGN_LEFT, ezColor::GetWhite(), 10, 40, "abcdefghijklmnopqrstuvwxyz");
     RenderText(40, ALIGN_LEFT, ezColor::GetWhite(), 10, 80, "ABCDEFGHIJKLMNOPQRSTUVWXYZ");
     RenderText(40, ALIGN_LEFT, ezColor::GetWhite(), 10, 120, "0123456789");
@@ -189,6 +189,93 @@ void GameRenderer::Render2DOverlays()
 
     RenderText(30, ALIGN_LEFT, ezColor::GetWhite(), 50, 490, ezStringUtf8(L"Unknown: öäüß, jippy good, font@ezEngine.net").GetData());
     RenderText(30, ALIGN_LEFT, ezColor::GetWhite(), 50, 520, "cheers, okidoki lama news");*/
+  }
+}
+
+void GameRenderer::RenderConsole(ezConsole* pConsole, bool bConsoleOpen)
+{
+  ezMat4 mOrtho;
+  mOrtho.SetOrthographicProjectionMatrix(0, 800, 800, 0, -1, 10, ezProjectionDepthRange::MinusOneToOne);
+
+  glMatrixMode(GL_PROJECTION);
+  glLoadMatrixf(mOrtho.m_fElementsCM);
+
+  if (bConsoleOpen)
+  {
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glColor4ub(10, 10, 30, 240);
+    glBegin(GL_QUADS);
+      glVertex3f(0, 400, -1);
+      glVertex3f(800, 400, -1);
+      glVertex3f(800, 0, -1);
+      glVertex3f(0, 0, -1);
+    glEnd();
+  }
+
+  const ezDeque<ezConsole::ConsoleString>& Strings = pConsole->GetConsoleStrings();
+
+  const ezInt32 iTextSize = 20;
+  ezInt32 iOffset = 400 - iTextSize;
+
+  if (bConsoleOpen)
+  {
+    RenderFormattedText((float) iTextSize, ALIGN_LEFT, ezColor(1.0f, 0.7f, 0), 0, iOffset, ">%s", pConsole->GetInputLine());
+
+    if (ezMath::Mod(ezTime::Now().GetMilliseconds(), 1000.0) < 500.0)
+      RenderText((float) iTextSize, ALIGN_LEFT, ezColor::GetGreen(), 5 + pConsole->GetCaretPosition() * (iTextSize / 2), iOffset, "|");
+
+    iOffset -= iTextSize;
+  }
+  else
+    iOffset = 100;
+
+  if (bConsoleOpen)
+  {
+    for (ezUInt32 i = pConsole->GetScrollPosition(); i < Strings.GetCount(); ++i)
+    {
+      if (iOffset <= -30)
+        break;
+
+      RenderText((float) iTextSize, ALIGN_LEFT, Strings[i].m_TextColor, iTextSize / 2, iOffset, Strings[i].m_sText.GetData());
+
+      iOffset -= iTextSize;
+    }
+  }
+  else
+  {
+    const ezTime tShowMessage = ezTime::Now() - ezTime::Seconds(5.0);
+
+    ezInt32 iShowMessages = 0;
+
+    for (ezUInt32 i = 0; i < Strings.GetCount(); ++i)
+    {
+      if (iShowMessages >= 5)
+        break;
+
+      if (Strings[i].m_TimeStamp < tShowMessage)
+        break;
+
+      if (!Strings[i].m_bShowOnScreen)
+        continue;
+
+      ++iShowMessages;
+      iOffset -= iTextSize;
+    }
+
+    iOffset = iShowMessages * iTextSize - iTextSize;
+
+    for (ezUInt32 i = 0; i < Strings.GetCount(); ++i)
+    {
+      if (Strings[i].m_TimeStamp < tShowMessage)
+        break;
+
+      if (!Strings[i].m_bShowOnScreen)
+        continue;
+
+      RenderText((float) iTextSize, ALIGN_LEFT, Strings[i].m_TextColor, iTextSize / 2, iOffset, Strings[i].m_sText.GetData());
+      iOffset -= iTextSize;
+    }
   }
 }
 

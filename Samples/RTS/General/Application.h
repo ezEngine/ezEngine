@@ -9,6 +9,7 @@
 #include <RTS/General/Window.h>
 #include <GameUtils/DataStructures/ObjectSelection.h>
 #include <CoreUtils/Debugging/DataTransfer.h>
+#include <CoreUtils/Console/Console.h>
 
 class SampleGameApp : public ezApplication
 {
@@ -37,6 +38,8 @@ private:
   GameWindow* m_pWindow;
   ezDataTransfer m_ScreenshotTransfer;
   ezDataTransfer m_StatsTransfer;
+  ezConsole m_Console;
+  bool m_bConsoleActive;
 
   ezCamera m_Camera;
   ezObjectSelection* m_pSelectedUnits;

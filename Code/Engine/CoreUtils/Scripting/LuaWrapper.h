@@ -140,7 +140,7 @@ public:
   /// @{ 
 
   /// Registers a C-Function to the Script under a certain Name.
-  void RegisterCFunction(const char* szFunctionName, lua_CFunction pFunction) const; // [tested]
+  void RegisterCFunction(const char* szFunctionName, lua_CFunction pFunction, void* pLightUserData = NULL) const; // [tested]
 
   /// Prepares a function to be called. After that the parameters can be pushed. Returns false if no function with the given name exists in the scope.
   bool PrepareFunctionCall(const char* szFunctionName); // [tested]
@@ -202,6 +202,9 @@ public:
 
   /// \name Inspecting Function Parameters
   /// @{ 
+
+  /// \brief Returns the currently executed function light user data that was passed to RegisterCFunction.
+  void* GetFunctionLightUserData() const;
 
   /// Returns how many Parameters were passed to the called C-Function.
   ezUInt32 GetNumberOfFunctionParameters() const; // [tested]

@@ -12,6 +12,7 @@ Milestone 5
   * Added namespace ezIntersectionUtils with functions to do intersection tests.
   * Added ezTransform, a 4x3 matrix that can be used for object transformations that don't require a full 4x4 matrix.
   * Added a function to create a simple embedded ASCII font from code, so no file loading is required to get some simple text on screen.
+  * Added ezConsole, a Quake-style ingame console for inspecting the log, modifying cvars and calling exposed functions.
   
   
 Milestone 4

@@ -7,8 +7,61 @@ void SampleGameApp::UpdateInput(ezTime UpdateDiff)
 {
   ezInputManager::Update(UpdateDiff);
 
+  if (ezInputManager::GetInputActionState("Main", "ToggleConsole") == ezKeyState::Pressed)
+    m_bConsoleActive = !m_bConsoleActive;
+
+  if (m_bConsoleActive)
+  {
+    if (ezInputManager::GetInputActionState("Console", "MoveCaretLeft") == ezKeyState::Pressed)
+      m_Console.MoveCaret(-1);
+    if (ezInputManager::GetInputActionState("Console", "MoveCaretRight") == ezKeyState::Pressed)
+      m_Console.MoveCaret(1);
+    if (ezInputManager::GetInputActionState("Console", "MoveCaretStart") == ezKeyState::Pressed)
+      m_Console.MoveCaret(-1000);
+    if (ezInputManager::GetInputActionState("Console", "MoveCaretEnd") == ezKeyState::Pressed)
+      m_Console.MoveCaret(1000);
+    if (ezInputManager::GetInputActionState("Console", "DeleteCharacter") == ezKeyState::Pressed)
+      m_Console.DeleteNextCharacter();
+    if (ezInputManager::GetInputActionState("Console", "ScrollUp") == ezKeyState::Pressed)
+      m_Console.Scroll(10);
+    if (ezInputManager::GetInputActionState("Console", "ScrollDown") == ezKeyState::Pressed)
+      m_Console.Scroll(-10);
+    if (ezInputManager::GetInputActionState("Console", "HistoryUp") == ezKeyState::Pressed)
+      m_Console.SearchInputHistory(1);
+    if (ezInputManager::GetInputActionState("Console", "HistoryDown") == ezKeyState::Pressed)
+      m_Console.SearchInputHistory(-1);
+    if (ezInputManager::GetInputActionState("Console", "RepeatLast") == ezKeyState::Pressed)
+    {
+      if (m_Console.GetInputHistory().GetCount() >= 1)
+        m_Console.ProcessCommand(m_Console.GetInputHistory()[0].GetData());
+    }
+    if (ezInputManager::GetInputActionState("Console", "RepeatSecondLast") == ezKeyState::Pressed)
+    {
+      if (m_Console.GetInputHistory().GetCount() >= 2)
+        m_Console.ProcessCommand(m_Console.GetInputHistory()[1].GetData());
+    }
+
+    const ezUInt32 uiChar = ezInputManager::RetrieveLastCharacter();
+
+    if (uiChar != '\0')
+      m_Console.AddInputCharacter(uiChar);
+
+    return;
+  }
+  else
+  {
+    const ezUInt32 uiChar = ezInputManager::RetrieveLastCharacter(false);
+
+    char szCmd[16] = "";
+    char* szIterator = szCmd;
+    ezUnicodeUtils::EncodeUtf32ToUtf8(uiChar, szIterator);
+    *szIterator = '\0';
+    m_Console.ExecuteBoundKey(szCmd);
+  }
+
   if (ezInputManager::GetInputActionState("Main", "CloseApp") == ezKeyState::Pressed)
     m_bActiveRenderLoop = false;
+
 
   float f;
   float fCamSpeed = 15.0f;
@@ -72,6 +125,43 @@ void SampleGameApp::SetupInput()
 
   cfg.m_sInputSlotTrigger[0] = ezInputSlot_KeyEscape;
   ezInputManager::SetInputActionConfig("Main", "CloseApp", cfg, true);
+
+  cfg.m_sInputSlotTrigger[0] = ezInputSlot_KeyF1;
+  ezInputManager::SetInputActionConfig("Main", "ToggleConsole", cfg, true);
+
+  cfg.m_sInputSlotTrigger[0] = ezInputSlot_KeyLeft;
+  ezInputManager::SetInputActionConfig("Console", "MoveCaretLeft", cfg, true);
+
+  cfg.m_sInputSlotTrigger[0] = ezInputSlot_KeyRight;
+  ezInputManager::SetInputActionConfig("Console", "MoveCaretRight", cfg, true);
+
+  cfg.m_sInputSlotTrigger[0] = ezInputSlot_KeyHome;
+  ezInputManager::SetInputActionConfig("Console", "MoveCaretStart", cfg, true);
+
+  cfg.m_sInputSlotTrigger[0] = ezInputSlot_KeyEnd;
+  ezInputManager::SetInputActionConfig("Console", "MoveCaretEnd", cfg, true);
+
+  cfg.m_sInputSlotTrigger[0] = ezInputSlot_KeyDelete;
+  ezInputManager::SetInputActionConfig("Console", "DeleteCharacter", cfg, true);
+
+  cfg.m_sInputSlotTrigger[0] = ezInputSlot_KeyPageUp;
+  ezInputManager::SetInputActionConfig("Console", "ScrollUp", cfg, true);
+
+  cfg.m_sInputSlotTrigger[0] = ezInputSlot_KeyPageDown;
+  ezInputManager::SetInputActionConfig("Console", "ScrollDown", cfg, true);
+
+  cfg.m_sInputSlotTrigger[0] = ezInputSlot_KeyUp;
+  ezInputManager::SetInputActionConfig("Console", "HistoryUp", cfg, true);
+
+  cfg.m_sInputSlotTrigger[0] = ezInputSlot_KeyDown;
+  ezInputManager::SetInputActionConfig("Console", "HistoryDown", cfg, true);
+
+  cfg.m_sInputSlotTrigger[0] = ezInputSlot_KeyF2;
+  ezInputManager::SetInputActionConfig("Console", "RepeatLast", cfg, true);
+
+  cfg.m_sInputSlotTrigger[0] = ezInputSlot_KeyF3;
+  ezInputManager::SetInputActionConfig("Console", "RepeatSecondLast", cfg, true);
+
 
   cfg.m_sInputSlotTrigger[0] = ezInputSlot_KeyLeftShift;
   ezInputManager::SetInputActionConfig("Game", "CamMoveFast", cfg, true);

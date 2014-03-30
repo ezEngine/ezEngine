@@ -1,6 +1,7 @@
 #pragma once
 
 #include <CoreUtils/Graphics/Camera.h>
+#include <CoreUtils/Console/Console.h>
 #include <RTS/Level.h>
 #include <GameUtils/DataStructures/GameGrid.h>
 #include <RTS/General/Window.h>
@@ -18,7 +19,7 @@ public:
 
   bool GetPickingRay(float fMousePosX, float fMousePosY, ezVec3& out_RayPos, ezVec3& out_RayDir);
 
-
+  void RenderConsole(ezConsole* pConsole, bool bConsoleOpen);
 
 private:
   void UpdateState();
@@ -58,10 +59,12 @@ private:
     ALIGN_RIGHT,
   };
 
-  void RenderText(float fSize, TextAlignment Align, ezColor Color, ezInt32 x, ezInt32 y, const char* szText, ...);
+  void RenderFormattedText(float fTextSize, TextAlignment Align, ezColor Color, ezInt32 x, ezInt32 y, const char* szText, ...);
+
+  void RenderText(float fTextSize, TextAlignment Align, ezColor Color, ezInt32 x, ezInt32 y, const char* szText);
 
   ezUInt32 m_uiFontTextureID;
 
-  ezUInt32 m_uiFramesPerSecond;
+  double m_fFramesPerSecond;
 };
 

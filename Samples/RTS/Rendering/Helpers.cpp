@@ -119,10 +119,23 @@ void RenderCircleXZ(const ezVec3& v, float fRadius, const ezMat4& mRot)
   glEnd();
 }
 
-void GameRenderer::RenderText(float fTextSize, TextAlignment Align, ezColor Color, ezInt32 x, ezInt32 y, const char* szText, ...)
+void GameRenderer::RenderFormattedText(float fTextSize, TextAlignment Align, ezColor Color, ezInt32 x, ezInt32 y, const char* szText, ...)
+{
+  va_list args;
+  va_start(args, szText);
+  ezStringBuilder sText;
+  sText.Format(szText, args);
+  va_end(args);
+
+  RenderText(fTextSize, Align, Color, x, y, sText.GetData());
+}
+
+void GameRenderer::RenderText(float fTextSize, TextAlignment Align, ezColor Color, ezInt32 x, ezInt32 y, const char* szText)
 {
   if (m_uiFontTextureID == 0)
     return;
+
+  ezStringBuilder sText = szText;
 
   glDepthMask(false);
   glEnable(GL_BLEND);
@@ -131,14 +144,8 @@ void GameRenderer::RenderText(float fTextSize, TextAlignment Align, ezColor Colo
   const ezInt32 iCharsPerRow = 16;
   const ezInt32 iCharsPerColumn = 8;
 
-  va_list args;
-  va_start(args, szText);
-  ezStringBuilder sText;
-  sText.Format(szText, args);
-  va_end(args);
-
   const float fCharWidth = fTextSize / 2.0f;
-  float fMoveX = sText.GetElementCount() * fCharWidth;
+  float fMoveX = sText.GetCharacterCount() * fCharWidth;
 
   switch (Align)
   {

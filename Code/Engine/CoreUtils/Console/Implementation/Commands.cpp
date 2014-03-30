@@ -1,0 +1,115 @@
+#include <CoreUtils/PCH.h>
+#include <CoreUtils/Console/Console.h>
+#include <Foundation/Configuration/CVar.h>
+#include <Foundation/Logging/Log.h>
+#include <CoreUtils/Console/ConsoleFunction.h>
+
+EZ_ENUMERABLE_CLASS_IMPLEMENTATION(ezConsoleFunctionBase);
+
+void ezConsole::ProcessCommand(const char* szCmd)
+{
+  if (ezStringUtils::IsNullOrEmpty(szCmd))
+    return;
+
+  const bool bBind = ezStringUtils::StartsWith_NoCase(szCmd, "bind ");
+  const bool bUnbind = ezStringUtils::StartsWith_NoCase(szCmd, "unbind ");
+
+  if (bBind || bUnbind)
+  {
+    const char* szAfterCmd = ezStringUtils::FindWordEnd(szCmd, ezStringUtils::IsWhiteSpace); // skip the word 'bind' or 'unbind'
+
+    const char* szKeyNameStart = ezStringUtils::SkipCharacters(szAfterCmd, ezStringUtils::IsWhiteSpace); // go to the next word
+    const char* szKeyNameEnd = ezStringUtils::FindWordEnd(szKeyNameStart, ezStringUtils::IsIdentifierDelimiter_C_Code); // find its end
+    
+    ezStringIterator sKey(szKeyNameStart, szKeyNameEnd, szKeyNameStart);
+    ezStringBuilder sKeyName = sKey; // copy the word into a zero terminated string
+
+    const char* szCommandToBind = ezStringUtils::SkipCharacters(szKeyNameEnd, ezStringUtils::IsWhiteSpace);
+
+    if (bUnbind || ezStringUtils::IsNullOrEmpty(szCommandToBind))
+    {
+      UnbindKey(sKeyName.GetData());
+      return;
+    }
+
+    BindKey(sKeyName.GetData(), szCommandToBind);
+    return;
+  }
+
+  // Broadcast that we are about to process some command
+  {
+    ConsoleEvent e;
+    e.m_EventType = ConsoleEvent::BeforeProcessCommand;
+    e.m_szCommand = szCmd;
+
+    m_Events.Broadcast(e);
+  }
+
+  ezResult res = EZ_FAILURE;
+
+  /// \todo Only call this, if it is safe!
+  //if (m_CommandProcessor.GetInstance() != NULL)
+    res = m_CommandProcessor(szCmd, this);
+  //else
+    //AddConsoleString(szCmd, ezColor::GetWhite(), true);
+
+  // Broadcast that we have processed a command
+  {
+    ConsoleEvent e;
+    e.m_EventType = res.IsSuccess() ? ConsoleEvent::ProcessCommandSuccess : ConsoleEvent::ProcessCommandFailure;
+    e.m_szCommand = szCmd;
+
+    m_Events.Broadcast(e);
+  }
+}
+
+void ezConsole::BindKey(const char* szKey, const char* szCommand)
+{
+  ezStringBuilder s;
+  s.Format("Binding key '%s' to command '%s'", szKey, szCommand);
+  AddConsoleString(s.GetData(), ezColor(50 / 255.0f, 1, 50 / 255.0f));
+
+  m_BoundKeys[szKey] = szCommand;
+}
+
+void ezConsole::UnbindKey(const char* szKey)
+{
+  ezStringBuilder s;
+  s.Format("Unbinding key '%s'", szKey);
+  AddConsoleString(s.GetData(), ezColor(50 / 255.0f, 1, 50 / 255.0f));
+
+  m_BoundKeys.Erase(szKey);
+}
+
+void ezConsole::ExecuteBoundKey(const char* szKey)
+{
+  auto it = m_BoundKeys.Find(szKey);
+
+  if (it.IsValid())
+    ProcessCommand(it.Value().GetData());
+}
+
+/* Example Console Functions:
+
+void TestFunc0()
+{
+  ezLog::Info("Called TestFunc0");
+}
+
+int TestFunc1(int a, float b, ezString s)
+{
+  ezLog::Info("Called TestFunc1 with %i and %.2f and '%s'", a, b, s.GetData());
+  return 0;
+}
+
+void TestFunc2(float a, float b)
+{
+  ezLog::Info("Called TestFunc2 with %.2f and %.2f", a, b);
+  return;
+}
+
+ezConsoleFunction<void ()> cf0("TestFunc0", "()", TestFunc0);
+ezConsoleFunction<int (int, float, ezString)> cf1("TestFunc1", "(int a, float b, string c)", TestFunc1);
+ezConsoleFunction<void (float, float)> cf2("TestFunc2", "(float a, float b)", TestFunc2);
+
+*/
