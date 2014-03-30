@@ -566,19 +566,21 @@ static bool IsNaN(double value)
   return (((i2f.i & 0x7FF0000000000000LL) == 0x7FF0000000000000LL) && ((i2f.i & 0xFFFFFFFFFFFFFLL) != 0));
 }
 
-static bool FormatUFloat (char* szOutputBuffer, unsigned int uiBufferSize, unsigned int& uiWritePos, double& value, int iPrecision, unsigned int Flags, bool bRemoveZeroes)
+static bool FormatUFloat (char* szOutputBuffer, unsigned int uiBufferSize, unsigned int& uiWritePos, double& value0, int iPrecision, unsigned int Flags, bool bRemoveZeroes)
 {
-  if (IsNaN (value))
+  if (IsNaN (value0))
   {
-    value = 0;
+    value0 = 0;
     OutputNaN (szOutputBuffer, uiBufferSize, uiWritePos);
     return false;
   }
-  else if (!IsFinite (value))
+  else if (!IsFinite (value0))
   {
     OutputInf (szOutputBuffer, uiBufferSize, uiWritePos);
     return false;
   }
+
+  double value = value0;
 
   if (value < 0)
     value = - value;
@@ -712,19 +714,21 @@ static bool WouldRoundToTen (double value, int iPrecision)
 }
 
 
-static void FormatUFloatScientific (char* szOutputBuffer, unsigned int uiBufferSize, unsigned int& uiWritePos, double& value, int iPrecision, unsigned int Flags, bool bUpperCase, bool bRemoveZeroes)
+static void FormatUFloatScientific (char* szOutputBuffer, unsigned int uiBufferSize, unsigned int& uiWritePos, double& value0, int iPrecision, unsigned int Flags, bool bUpperCase, bool bRemoveZeroes)
 {
-  if (IsNaN (value))
+  if (IsNaN (value0))
   {
-    value = 0;
+    value0 = 0;
     OutputNaN (szOutputBuffer, uiBufferSize, uiWritePos);
     return;
   }
-  else if (!IsFinite (value))
+  else if (!IsFinite (value0))
   {
     OutputInf (szOutputBuffer, uiBufferSize, uiWritePos);
     return;
   }
+
+  double value = value0;
 
   double dSci = value > 0.0 ? value : -value;
   int exp = 0;
