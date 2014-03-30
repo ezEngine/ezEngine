@@ -33,7 +33,7 @@ bool ezGALShaderCreationDescription::HasByteCodeForStage(ezGALShaderStage::Enum 
 
 
 ezGALResourceAccess::ezGALResourceAccess()
-  : m_bImmutable(true), m_bReadBack(false)
+  : m_bReadBack(false), m_bImmutable(true)
 {
 }
 

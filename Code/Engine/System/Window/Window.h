@@ -197,6 +197,10 @@ public:
     HGLRC GetOpenGLRC() const { return m_hRC; }
   #endif
 
+#elif EZ_ENABLED(EZ_PLATFORM_OSX)
+  /// \todo Do we really need to do anything here on other platforms?
+#elif EZ_ENABLED(EZ_PLATFORM_LINUX)
+
 #else
   #error "Missing code for ezWindow on this platform!"
 #endif

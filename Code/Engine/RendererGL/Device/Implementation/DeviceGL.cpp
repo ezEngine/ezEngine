@@ -106,6 +106,8 @@ static void GLEWAPIENTRY DebugOutput(GLenum Source,
   case ezLogMsgType::InfoMsg:
     ezLog::Info("%s: %s(%s) %d: %s\n", debSource.GetData(), debType.GetData(), debSev.GetData(), uiId, szMessage);
     break;
+  default:
+    break;
   }
 }
 
