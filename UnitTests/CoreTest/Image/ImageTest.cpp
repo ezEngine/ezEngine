@@ -33,7 +33,7 @@ EZ_CREATE_SIMPLE_TEST(Image, Image)
   EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sReadDir.GetData(), ezFileSystem::ReadOnly, "ImageTest") == EZ_SUCCESS);
   EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sWriteDir.GetData(), ezFileSystem::AllowWrites, "ImageTest") == EZ_SUCCESS);
 
-  EZ_TEST_BLOCK(ezTestBlock::Disabled, "BMP - Good")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "BMP - Good")
   {
     const char* testImagesGood[] =
     {
@@ -63,7 +63,7 @@ EZ_CREATE_SIMPLE_TEST(Image, Image)
     }
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Disabled, "BMP - Bad")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "BMP - Bad")
   {
     const char* testImagesBad[] =
     {

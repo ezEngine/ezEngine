@@ -145,8 +145,6 @@ struct ezImageConversionMixinLinear : ezImageConversionMixinBase<Impl>
 
   static void ConvertBatch(const ezUInt8* pSource, ezUInt8* pTarget, const ezUInt32 uiElements)
   {
-    /// \todo Changed how the pointer-diff is computed, needs review.
-
     const ezUInt8* pSource16 = ezMemoryUtils::Align(pSource, 16);
     const ezUInt8* pTarget16 = ezMemoryUtils::Align(pTarget, 16);
 
@@ -177,7 +175,7 @@ struct ezImageConversionMixinLinear : ezImageConversionMixinBase<Impl>
 
       // Convert multiple elements for as long as possible
       const ezUInt32 uiMiddleElements =
-        (uiElements / Impl::s_uiMultiConversionSize) * Impl::s_uiMultiConversionSize;
+        ((uiElements - uiLeadInElements) / Impl::s_uiMultiConversionSize) * Impl::s_uiMultiConversionSize;
       for (ezUInt32 uiElement = 0; uiElement < uiMiddleElements; uiElement += Impl::s_uiMultiConversionSize)
       {
         Impl::ConvertMultiple(
@@ -189,15 +187,8 @@ struct ezImageConversionMixinLinear : ezImageConversionMixinBase<Impl>
 
       EZ_ASSERT(uiLeadInElements + uiMiddleElements <= uiElements, "This will result in a memory access violation due to a variable underflow.");
 
-      /// \todo The lines below crash every once in a while (but not always), with a memory access violation
-
-      /// \todo I think there is a bug in the idea below, when uiLeadInElements != 0, this code will crash.
-      /// Tested in VS 2013 in 32 Bit Debug, happens around ~40% of the time, depends on where in memory the data gets allocated.
-
       // Convert element-wise until the end
       const ezUInt32 uiLeadOutElements = uiElements - (uiLeadInElements + uiMiddleElements);
-
-      EZ_ASSERT(uiLeadOutElements < 4000000000U, "Something got corrupted");
 
       for (ezUInt32 uiElement = 0; uiElement < uiLeadOutElements; uiElement++)
       {

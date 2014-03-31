@@ -503,6 +503,11 @@ ezResult ezBmpFileFormat::ReadImage(ezStreamReaderBase& stream, ezImage& image, 
     {
       paletteSize = 1U << uiBpp;
     }
+    else if(paletteSize > 65536)
+    {
+      ezLog::Error(pLog, "Palette size > 65536.");
+      return EZ_FAILURE;
+    }
 
     ezDynamicArray<ezBmpBgrxQuad> palette;
     palette.SetCount(paletteSize);
