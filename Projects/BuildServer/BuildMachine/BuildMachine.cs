@@ -122,6 +122,11 @@ namespace BuildMachine
           HandleRunRequest(workResponse.Revision);
           return;
         }
+        else if (workResponse.Response == ezGETWorkResponse.WorkResponse.RunBuildAndClean)
+        {
+          HandleRunRequest(workResponse.Revision, true);
+          return;
+        }
       }
       catch (Exception ex)
       {
@@ -162,7 +167,7 @@ namespace BuildMachine
       }
     }
 
-    void HandleRunRequest(int iRevision)
+    void HandleRunRequest(int iRevision, bool bClean = false)
     {
       lock (_Lock)
       {
@@ -187,7 +192,7 @@ namespace BuildMachine
       // Run build process as we don't have the result for this revision.
       if (sResults == null)
       {
-        bool bRes = _process.Run(iRevision);
+        bool bRes = _process.Run(iRevision, bClean);
         sResults = _process.GetJSON();
       }
 

@@ -25,5 +25,11 @@ namespace BuildMachine
       res.Success = (res.ProcessRes.ExitCode == 0);
       return res;
     }
+
+    public bool CleanSolution(string sAbsWorkingDir)
+    {
+      ezProcessHelper.ProcessResult res = ezProcessHelper.RunExternalExe("xcodebuild", "-alltargets clean", sAbsWorkingDir, null);
+      return res.ExitCode == 0;
+    }
   }
 }

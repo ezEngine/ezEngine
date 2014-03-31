@@ -20,6 +20,15 @@ namespace BuildShared
       var timeSpan = (DateTime.UtcNow - new DateTime(1970, 1, 1, 0, 0, 0));
       return (long)timeSpan.TotalSeconds;
     }
+
+    /// <summary>
+    /// Returns the passed DateTime as seconds since unix epoch.
+    /// </summary>
+    public static long DateTimeToTimestamp(DateTime dateTime)
+    {
+      var timeSpan = (dateTime - new DateTime(1970, 1, 1, 0, 0, 0));
+      return (long)timeSpan.TotalSeconds;
+    }
   }
 
 
@@ -85,6 +94,7 @@ namespace BuildShared
     public string ConfigurationName { get; set; }
     public bool DirectHardwareAccess { get; set; }
     public int Revision { get; set; }
+    public long Timestamp { get; set; }
   }
 
   public class BuildStepResults

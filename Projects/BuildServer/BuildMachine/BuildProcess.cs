@@ -60,9 +60,10 @@ namespace BuildMachine
     /// Runs the build process for the given SVN revision.
     /// </summary>
     /// <param name="iRevision">The SVN revision to which should be updated before building.</param>
+    /// <param name="bClean">Whether the builds should be cleaned instead of incremental compiles.</param>
     /// <returns>If false is returned, SVN update failed and the build machine is now in fatal error state
     /// and should not accept any more requests until an admin fixed the issue.</returns>
-    public bool Run(int iRevision)
+    public bool Run(int iRevision, bool bClean)
     {
       _Result.Clean();
       _Result.Settings.Revision = iRevision;
@@ -73,14 +74,14 @@ namespace BuildMachine
 
       _Result.SVNResult = _SVN.Run(iRevision);
       _Result.CMakeResult = _CMake.Run(_Result.SVNResult);
-      _Result.BuildResult = _Build.Run(_Result.CMakeResult);
+      _Result.BuildResult = _Build.Run(_Result.CMakeResult, bClean);
       _Result.TestResult = _Test.Run(_Result.CMakeResult, _Result.BuildResult);
 
       sw.Stop();
       _Result.Duration = sw.Elapsed.TotalSeconds;
       _Result.Success = _Result.SVNResult.Success && _Result.CMakeResult.Success
         && _Result.BuildResult.Success && _Result.TestResult.Success;
-
+      _Result.Settings.Timestamp = LinuxDateTime.Now();
       if (!WriteResultToFile())
       {
         Console.WriteLine("Writing result to file failed!");
@@ -117,7 +118,8 @@ namespace BuildMachine
     /// <returns></returns>
     public string GetResultFilename(int iRevision)
     {
-      return string.Format("{0}_{1}.json", _Result.Settings.Configuration, iRevision);
+      string sSafeConfigurationName = _Result.Settings.ConfigurationName.Replace("_", "");
+      return string.Format("{0}_{1}.json", sSafeConfigurationName, iRevision);
     }
 
     #region Properties

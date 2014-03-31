@@ -21,6 +21,11 @@ namespace BuildShared
     GETStatus = 4,
     GETCheckHEADRevision = 5,
     GETPostToAddress = 6,
+    GETPause = 7,
+    GETResume = 8,
+    GETEnableHibernateOnIdle = 9,
+    GETDisableHibernateOnIdle = 10,
+    GETCleanBuild = 11,
     INVALID_REQUEST
   }
 
@@ -37,7 +42,8 @@ namespace BuildShared
     public enum WorkResponse
     {
       Idle,
-      RunBuild
+      RunBuild,
+      RunBuildAndClean,
     }
 
     public int Revision { get; set; }

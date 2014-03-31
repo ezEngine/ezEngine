@@ -81,12 +81,53 @@ namespace CommandAndControl
       CheckBuildMachineAliveStatus();
 
       // Check SVN server every 60 seconds for a new HEAD revision.
-      if (_iLastSVNCheckTimeStamp + iSVNRevisionCheckInterval < LinuxDateTime.Now())
+      if (_iLastSVNCheckTimestamp + iSVNRevisionCheckInterval < LinuxDateTime.Now())
       {
         CheckForNewRevision();
       }
+
+      lock (_Lock)
+      {
+        if (IsHibernationPossible())
+        {
+          // Conditions for hibernation are met - increase hibernation timer
+          _iHibernationTime += iTimerInterval;
+          if (_iHibernationTime > iHibernationDelay)
+          {
+            _iHibernationTime = 0;
+            // We have been idle for 15min (iHibernationDelay), thus we now go into hibernation. 
+            ezProcessHelper.RunExternalExe("shutdown", "-h", _Settings.AbsOutputFolder, null);
+          }
+        }
+        else
+        {
+          // Reset hibernation timer
+          _iHibernationTime = 0;
+        }
+      }
     }
 
+    private bool IsHibernationPossible()
+    {
+      if (_bHibernateOnIdle && !_bIsPaused)
+      {
+        // If we have no working machine and no machine is not at head we hibernate the PC.
+        if (_NextMachine != null)
+          return false;
+
+        foreach (KeyValuePair<string, BuildMachine> entry in _Machines)
+        {
+          BuildMachine machine = entry.Value;
+          if (machine.State != BuildMachine.BuildMachineState.Idle)
+            return false;
+
+          if (machine.Settings.Revision != _HeadRevision)
+            return false;
+        }
+        return true;
+      }
+      return false;
+    }
     private void HandleRequest(object state)
     {
       HttpListenerContext context = (HttpListenerContext)state;
@@ -99,75 +140,109 @@ namespace CommandAndControl
         {
           sMessageText = reader.ReadToEnd();
         }
-        
-        // Retrieve type of message.
-        ezBuildRequestMessageType eType = ezBuildRequestMessageType.INVALID_REQUEST;
-        try
-        {
-          if (request.QueryString.AllKeys.Contains("type"))
-            eType = (ezBuildRequestMessageType)Convert.ToInt32(request.QueryString["type"]);
-        }
-        catch (FormatException)
-        {
-          eType = ezBuildRequestMessageType.INVALID_REQUEST;
-          Console.WriteLine("'type' of request invalid or not present!");
-          context.Response.StatusCode = 400; // Bad Request
-          context.Response.OutputStream.Close();
-          return;
-        }
 
-        // Handle message
         string sResponseMessage = null;
-        switch (eType)
+        // If no query was given, show help page
+        if (request.QueryString.AllKeys.Count() == 0)
         {
-          case ezBuildRequestMessageType.POSTConfiguration:
-            {
-              BuildMachineSettings settings = Newtonsoft.Json.JsonConvert.DeserializeObject<BuildMachineSettings>(sMessageText);
-              sResponseMessage = HandlePOSTConfiguration(settings);
-            }
-            break;
-          case ezBuildRequestMessageType.GETPing:
-            {
-              string sID = request.QueryString["ID"];
-              sResponseMessage = HandleGETPing(sID);
-            }
-            break;
-          case ezBuildRequestMessageType.GETWork:
-            {
-              string sID = request.QueryString["ID"];
-              sResponseMessage = HandleGETWork(sID);
-            }
-            break;
-          case ezBuildRequestMessageType.POSTBuildResult:
-            {
-              string sID = request.QueryString["ID"];
-              string sFilename = request.QueryString["File"];
-              sResponseMessage = POSTBuildResult(sID, sFilename, sMessageText);
-            }
-            break;
-          case ezBuildRequestMessageType.GETStatus:
-            {
-              sResponseMessage = HandleGetStatus();
-            }
-            break;
-          case ezBuildRequestMessageType.GETCheckHEADRevision:
-            {
-              _iLastSVNCheckTimeStamp = 0;
-              sResponseMessage = "Checking SVN Request received.";
-            }
-            break;
-          case ezBuildRequestMessageType.GETPostToAddress:
-            {
-              string sAddress = request.QueryString["TO"];
-              int iStartRevision = 0;
-              if (request.QueryString.AllKeys.Contains("StartRevision"))
-                iStartRevision = Convert.ToInt32(request.QueryString["StartRevision"]);
-              sResponseMessage = HandleGetPostToAddress(sAddress, iStartRevision);
-            }
-            break;
-          default:
-            Console.WriteLine("HandleRequest: invalid message type: '{0}'!", eType);
-            break;
+          sResponseMessage = ShowHelpPage();
+        }
+        else
+        {
+          // Retrieve type of message.
+          ezBuildRequestMessageType eType = ezBuildRequestMessageType.INVALID_REQUEST;
+          try
+          {
+            if (request.QueryString.AllKeys.Contains("type"))
+              eType = (ezBuildRequestMessageType)Convert.ToInt32(request.QueryString["type"]);
+          }
+          catch (FormatException)
+          {
+            eType = ezBuildRequestMessageType.INVALID_REQUEST;
+            Console.WriteLine("'type' of request invalid or not present!");
+            context.Response.StatusCode = 400; // Bad Request
+            context.Response.OutputStream.Close();
+            return;
+          }
+
+          // Handle message
+          switch (eType)
+          {
+            case ezBuildRequestMessageType.POSTConfiguration:
+              {
+                BuildMachineSettings settings = Newtonsoft.Json.JsonConvert.DeserializeObject<BuildMachineSettings>(sMessageText);
+                sResponseMessage = HandlePOSTConfiguration(settings);
+              }
+              break;
+            case ezBuildRequestMessageType.GETPing:
+              {
+                string sID = request.QueryString["ID"];
+                sResponseMessage = HandleGETPing(sID);
+              }
+              break;
+            case ezBuildRequestMessageType.GETWork:
+              {
+                string sID = request.QueryString["ID"];
+                sResponseMessage = HandleGETWork(sID);
+              }
+              break;
+            case ezBuildRequestMessageType.POSTBuildResult:
+              {
+                string sID = request.QueryString["ID"];
+                string sFilename = request.QueryString["File"];
+                sResponseMessage = POSTBuildResult(sID, sFilename, sMessageText);
+              }
+              break;
+            case ezBuildRequestMessageType.GETStatus:
+              {
+                sResponseMessage = HandleGetStatus();
+              }
+              break;
+            case ezBuildRequestMessageType.GETCheckHEADRevision:
+              {
+                _iLastSVNCheckTimestamp = 0;
+                sResponseMessage = "Checking SVN Request received.";
+              }
+              break;
+            case ezBuildRequestMessageType.GETPostToAddress:
+              {
+                string sAddress = request.QueryString["TO"];
+                int iStartRevision = 0;
+                if (request.QueryString.AllKeys.Contains("StartRevision"))
+                  iStartRevision = Convert.ToInt32(request.QueryString["StartRevision"]);
+                sResponseMessage = HandleGetPostToAddress(sAddress, iStartRevision);
+              }
+              break;
+            case ezBuildRequestMessageType.GETPause:
+              {
+                sResponseMessage = HandleGetPause(true);
+              }
+              break;
+            case ezBuildRequestMessageType.GETResume:
+              {
+                sResponseMessage = HandleGetPause(false);
+              }
+              break;
+            case ezBuildRequestMessageType.GETEnableHibernateOnIdle:
+              {
+                sResponseMessage = HandleGetHibernate(true);
+              }
+              break;
+            case ezBuildRequestMessageType.GETDisableHibernateOnIdle:
+              {
+                sResponseMessage = HandleGetHibernate(false);
+              }
+              break;
+            case ezBuildRequestMessageType.GETCleanBuild:
+              {
+                string sID = request.QueryString["ID"];
+                sResponseMessage = HandleGetCleanBuild(sID);
+              }
+              break;
+            default:
+              Console.WriteLine("HandleRequest: invalid message type: '{0}'!", eType);
+              break;
+          }
         }
 
         // Send response
@@ -197,15 +272,56 @@ namespace CommandAndControl
 
     #region Message Handler
 
+    private string ShowHelpPage()
+    {
+      lock (_Lock)
+      {
+        // Returns a very simple web page that shows all non-buildMachine related commands to the CNC tool.
+        string sHeader =  "<!DOCTYPE html PUBLIC \"-//W3C//DTD HTML 4.01//EN\" \"http://www.w3.org/TR/html4/strict.dtd\">\n" +
+                          "<html>\n<head>\n" +
+                            "<meta content=\"text/html; charset=ISO-8859-1\"\n" +
+                            "http-equiv=\"content-type\">\n" +
+                            "<title></title>\n" +
+                          "</head>\n<body>\n";
+
+        string sFooter = "</body>\n</html>\n";
+
+        string sHelpPage = sHeader;
+        sHelpPage += string.Format("<br>HEAD: {0}<br>", _HeadRevision);
+        sHelpPage += string.Format("<a href=\"/?type={0}\">Check HEAD revision</a><br>", (int)ezBuildRequestMessageType.GETCheckHEADRevision);
+
+        sHelpPage += string.Format("<a href=\"/?type={0}&TO={1}&StartRevision={2}\">Repost last 5 revisions</a><br>",
+          (int)ezBuildRequestMessageType.GETPostToAddress, _Settings.WebsiteServer, (_HeadRevision - 5).ToString());
+        sHelpPage += string.Format("<a href=\"/?type={0}\">Machine Status</a><br><br>", (int)ezBuildRequestMessageType.GETStatus);
+
+        sHelpPage += string.Format("<br>Paused: {0}<br>", _bIsPaused ? "yes" : "no");
+        sHelpPage += string.Format("<a href=\"/?type={0}\">Pause</a><br>", (int)ezBuildRequestMessageType.GETPause);
+        sHelpPage += string.Format("<a href=\"/?type={0}\">Resume</a><br><br>", (int)ezBuildRequestMessageType.GETResume);
+
+        sHelpPage += string.Format("<br>Hibernate on idle: {0}<br>", _bHibernateOnIdle ? "yes" : "no");
+        sHelpPage += string.Format("<a href=\"/?type={0}\">Enable Hibernate on Idle</a><br>", (int)ezBuildRequestMessageType.GETEnableHibernateOnIdle);
+        sHelpPage += string.Format("<a href=\"/?type={0}\">Disable Hibernate on Idle</a><br><br>", (int)ezBuildRequestMessageType.GETEnableHibernateOnIdle);
+
+        foreach (KeyValuePair<string, BuildMachine> entry in _Machines)
+        {
+          BuildMachine machine = entry.Value;
+          sHelpPage += string.Format("<a href=\"/?type={0}&ID={1}\">Clean {1}</a><br>", (int)ezBuildRequestMessageType.GETCleanBuild, machine.Settings.ConfigurationName);
+        }
+
+        sHelpPage += sFooter;
+        return sHelpPage;
+      }
+    }
+
     private string HandlePOSTConfiguration(BuildMachineSettings settings)
     {
       lock (_Lock)
       {
-        // We got a new build machine! We use it's configuration as it's ID for the time being.
-        _Machines[settings.Configuration] = new BuildMachine(settings);
-        DetermineCurrentRevisionOfBuildMachine(_Machines[settings.Configuration]);
-        Console.WriteLine("HandlePOSTConfiguration: New machine '{0}' connected!", settings.Configuration);
-        return settings.Configuration;
+        // We got a new build machine! We use it's configurationName as it's ID as it should be chosen unique by the admin.
+        _Machines[settings.ConfigurationName] = new BuildMachine(settings);
+        DetermineCurrentRevisionOfBuildMachine(_Machines[settings.ConfigurationName]);
+        Console.WriteLine("HandlePOSTConfiguration: New machine '{0}' connected!", settings.ConfigurationName);
+        return settings.ConfigurationName;
       }
     }
 
@@ -241,13 +357,13 @@ namespace CommandAndControl
 
         ezGETWorkResponse response = new ezGETWorkResponse();
         // If the currently querying build machine is the 'chosen one' we allow it to build the next revision.
-        if (_Machines[sID] == _NextMachine && _NextMachine.State != BuildMachine.BuildMachineState.RunBuild)
+        if (_Machines[sID] == _NextMachine && _NextMachine.State == BuildMachine.BuildMachineState.Idle)
         {
           BuildMachine machine = _Machines[sID];
           machine.CurrentTimeout = 0;
-          machine.State = BuildMachine.BuildMachineState.RunBuild;
+          machine.State = machine.NeedClean ? BuildMachine.BuildMachineState.RunBuildAndClean : BuildMachine.BuildMachineState.RunBuild;
           response.Revision = machine.Settings.Revision + 1; // Build next revision in line.
-          response.Response = ezGETWorkResponse.WorkResponse.RunBuild;
+          response.Response = machine.NeedClean ? ezGETWorkResponse.WorkResponse.RunBuildAndClean : ezGETWorkResponse.WorkResponse.RunBuild;
           Console.WriteLine("HandleGETWork: Machine '{0}' is now building!", sID);
         }
 
@@ -285,6 +401,8 @@ namespace CommandAndControl
           _NextMachine.CurrentTimeout = 0;
           _NextMachine.Settings.Revision += 1; // The build machine is now one revision higher!
           Debug.Assert(_NextMachine.Settings.Revision <= _HeadRevision);
+          if (_NextMachine.State == BuildMachine.BuildMachineState.RunBuildAndClean)
+            _NextMachine.NeedClean = false;
           _NextMachine.State = BuildMachine.BuildMachineState.Idle;
           _NextMachine = null;
           Console.WriteLine("POSTBuildResult: Build results written to file: '{0}'.", sResultPath);
@@ -310,7 +428,7 @@ namespace CommandAndControl
     {
       try
       {
-        //string sDataTemp = System.IO.File.ReadAllText("E:\\Code\\ezengine\\Trunk\\Output\\CNC\\WinVs2013RelDeb64_399.json", Encoding.UTF8);
+        //string sDataTemp = System.IO.File.ReadAllText("E:\\Code\\ezengine\\Trunk\\Output\\CNC\\LinuxMakeGccRelDeb64_401.json", Encoding.UTF8);
         //PostToAddress(sDataTemp, sAddress + "?rev=399");
         //return String.Format("POST to address '{0}' successful", sAddress);
 
@@ -347,6 +465,41 @@ namespace CommandAndControl
       }
     }
 
+    string HandleGetPause(bool bPause)
+    {
+      lock (_Lock)
+      {
+        _bIsPaused = bPause;
+        return String.Format("Server is paused: {0}", _bIsPaused ? "yes" : "no");
+      }
+    }
+
+    string HandleGetHibernate(bool bHibernateOnIdle)
+    {
+      lock (_Lock)
+      {
+        _bHibernateOnIdle = bHibernateOnIdle;
+        return String.Format("Hibernating on idle is {0}", bHibernateOnIdle ? "on" : "off");
+      }
+    }
+
+    string HandleGetCleanBuild(string sID)
+    {
+      string sSafeConfigurationName = sID.Replace("_", "");
+      lock (_Lock)
+      {
+        if (!_Machines.ContainsKey(sSafeConfigurationName))
+        {
+          Console.WriteLine("HandleGetCleanBuild: Unknown machine '{0}' requested to be cleaned!", sSafeConfigurationName);
+          return String.Format("Unknown machine '{0}' requested to be cleaned!", sSafeConfigurationName);
+        }
+
+        _Machines[sSafeConfigurationName].NeedClean = true;
+        return String.Format("Machine '{0}' will be cleaned on the next build!", sSafeConfigurationName);
+      }
+    }
+
+
     #endregion Message Handler
 
     #region Private Functions
@@ -368,7 +521,7 @@ namespace CommandAndControl
 
     bool CheckForNewRevision()
     {
-      _iLastSVNCheckTimeStamp = LinuxDateTime.Now();
+      _iLastSVNCheckTimestamp = LinuxDateTime.Now();
 
       // Call 'svn info' on the server and extract the HEAD revision from the stdout stream.
       const string sRevisionToken = "Revision: ";
@@ -456,6 +609,12 @@ namespace CommandAndControl
           return;
         }
 
+        if (_bIsPaused)
+        {
+          // Machine is paused. Don't start any builds.
+          return;
+        }
+
         // Need to find a new chosen one among our build machines. As they are
         // currently all on one physical machine we don't want them to build in parallel.
         foreach (KeyValuePair<string, BuildMachine> entry in _Machines)
@@ -475,7 +634,8 @@ namespace CommandAndControl
     void DetermineCurrentRevisionOfBuildMachine(BuildMachine machine)
     {
       int iHighestRev = -1;
-      string sSeachCritera = String.Format("{0}_*.*", machine.Settings.Configuration);
+      string sSafeConfigurationName = machine.Settings.ConfigurationName.Replace("_", "");
+      string sSeachCritera = String.Format("{0}_*.*", sSafeConfigurationName);
       // Iterate through all exiting build results and search for the last build revision.
       // If non exists, we start to build at HEAD revision, otherwise we continue to build in order.
       foreach (string file in System.IO.Directory.EnumerateFiles(_Settings.AbsOutputFolder, sSeachCritera, SearchOption.AllDirectories))
@@ -577,18 +737,21 @@ namespace CommandAndControl
         Settings = settings;
         State = BuildMachineState.Idle;
         CurrentTimeout = 0;
+        NeedClean = false;
       }
 
       public enum BuildMachineState
       {
         Idle,
         RunBuild,
+        RunBuildAndClean,
         FatalError,
       }
 
       public int CurrentTimeout { get; set; }
       public BuildMachineSettings Settings { get; set; }
       public BuildMachineState State { get; set; }
+      public bool NeedClean { get; set; }
     }
 
     /// <summary>
@@ -613,10 +776,13 @@ namespace CommandAndControl
     CNCSettings _Settings = new CNCSettings();
     System.Timers.Timer _Timer = new System.Timers.Timer();
     BuildMachine _NextMachine = null;
-    long _iLastSVNCheckTimeStamp = 0;
-
+    long _iLastSVNCheckTimestamp = 0;
+    long _iHibernationTime = 0;
+    bool _bIsPaused = false;
+    bool _bHibernateOnIdle = false;
     const int iSVNRevisionCheckInterval = 60;
     const int iBuildMachineTimeout = 60;
+    const int iHibernationDelay = 15 * 60;
     const int iTimerInterval = 5;
 
     #endregion Member Variables

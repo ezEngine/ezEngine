@@ -63,5 +63,6 @@ namespace BuildMachine
   public interface ezBuildTemplate
   {
     ezBuild.BuildTargetResult BuildTarget(ezCMake.BuildTarget target, string sAbsWorkingDir);
+    bool CleanSolution(string sAbsWorkingDir);
   }
 }

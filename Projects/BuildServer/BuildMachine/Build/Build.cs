@@ -22,7 +22,7 @@ namespace BuildMachine
       return true;
     }
 
-    public BuildResult Run(ezCMake.CMakeResult cmakeResults)
+    public BuildResult Run(ezCMake.CMakeResult cmakeResults, bool bClean)
     {
       _Result.Clean();
 
@@ -45,6 +45,13 @@ namespace BuildMachine
 
       Stopwatch sw = new Stopwatch();
       sw.Start();
+
+      if (bClean)
+      {
+        Console.WriteLine("** Cleaning Solution **");
+        if (!buildTemplate.CleanSolution(_Settings.AbsCMakeWorkspace))
+          _Result.Error("Build clean: failed.");
+      }
 
       List<string> successfulTargets = new List<string>();
       int iFailedTargets = 0;

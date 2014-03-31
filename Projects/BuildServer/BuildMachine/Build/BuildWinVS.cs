@@ -43,36 +43,64 @@ namespace BuildMachine
       return res;
     }
 
+    public bool CleanSolution(string sAbsWorkingDir)
+    {
+      if (!WriteBatFileCleanSolution(sAbsWorkingDir))
+        return false;
+
+      ezProcessHelper.ProcessResult res = ezProcessHelper.RunExternalExe("cmd", "/c build.bat", sAbsWorkingDir, null);
+      return res.ExitCode == 0;
+    }
+
     #region Private Functions
+
+    string GetVisualStudioCommandlineInit()
+    {
+      switch (_Version)
+      {
+        case VSVersion.VS2010:
+          if (_bIs64Bit)
+            return "call \"C:\\Program Files (x86)\\Microsoft Visual Studio 10.0\\VC\\vcvarsall.bat\" amd64\r\n";
+          else
+            return "call \"C:\\Program Files (x86)\\Microsoft Visual Studio 10.0\\VC\\vcvarsall.bat\" x86\r\n";
+        case VSVersion.VS2012:
+          if (_bIs64Bit)
+            return "call \"C:\\Program Files (x86)\\Microsoft Visual Studio 11.0\\VC\\vcvarsall.bat\" amd64\r\n";
+          else
+            return "call \"C:\\Program Files (x86)\\Microsoft Visual Studio 11.0\\VC\\vcvarsall.bat\" x86\r\n";
+        case VSVersion.VS2013:
+          if (_bIs64Bit)
+            return "call \"C:\\Program Files (x86)\\Microsoft Visual Studio 12.0\\VC\\vcvarsall.bat\" amd64\r\n";
+          else
+            return "call \"C:\\Program Files (x86)\\Microsoft Visual Studio 12.0\\VC\\vcvarsall.bat\" x86\r\n";
+        default:
+          return "";
+      }
+    }
+
+    bool WriteBatFileCleanSolution(string sAbsWorkingDir)
+    {
+      try
+      {
+        string sBatFileContent = GetVisualStudioCommandlineInit();
+        sBatFileContent += string.Format("msbuild \"ezEngine.sln\" /p:Configuration=RelWithDebInfo /t:clean");
+
+        string sAbsFilePath = System.IO.Path.Combine(sAbsWorkingDir, "build.bat");
+        System.IO.File.WriteAllText(sAbsFilePath, sBatFileContent, Encoding.ASCII);
+      }
+      catch (Exception ex)
+      {
+        Console.WriteLine("Writing bat file failed: {0}", ex.Message);
+        return false;
+      }
+      return true;
+    }
 
     bool WriteBatFile(ezCMake.BuildTarget target, string sAbsWorkingDir)
     {
       try
       {
-        string sBatFileContent = "";
-        switch (_Version)
-        {
-          case VSVersion.VS2010:
-            if (_bIs64Bit)
-              sBatFileContent += "call \"C:\\Program Files (x86)\\Microsoft Visual Studio 10.0\\VC\\vcvarsall.bat\" amd64\r\n";
-            else
-              sBatFileContent += "call \"C:\\Program Files (x86)\\Microsoft Visual Studio 10.0\\VC\\vcvarsall.bat\" x86\r\n";
-            break;
-          case VSVersion.VS2012:
-            if (_bIs64Bit)
-              sBatFileContent += "call \"C:\\Program Files (x86)\\Microsoft Visual Studio 11.0\\VC\\vcvarsall.bat\" amd64\r\n";
-            else
-              sBatFileContent += "call \"C:\\Program Files (x86)\\Microsoft Visual Studio 11.0\\VC\\vcvarsall.bat\" x86\r\n";
-            break;
-          case VSVersion.VS2013:
-            if (_bIs64Bit)
-              sBatFileContent += "call \"C:\\Program Files (x86)\\Microsoft Visual Studio 12.0\\VC\\vcvarsall.bat\" amd64\r\n";
-            else
-              sBatFileContent += "call \"C:\\Program Files (x86)\\Microsoft Visual Studio 12.0\\VC\\vcvarsall.bat\" x86\r\n";
-            break;
-          default:
-            return false;
-        }
+        string sBatFileContent = GetVisualStudioCommandlineInit();
 
         string sProjectDirectory = System.IO.Path.Combine(target.RelativePath, target.Name + ".vcxproj");
         sBatFileContent += string.Format("msbuild /p:Configuration=RelWithDebInfo;BuildProjectReferences=false /t:build {0} /flp1:logfile=errors.txt;errorsonly /flp2:logfile=warnings.txt;warningsonly /verbosity:m /clp:NoSummary\n", sProjectDirectory);
