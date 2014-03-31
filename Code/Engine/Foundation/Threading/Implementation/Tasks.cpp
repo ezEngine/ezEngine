@@ -62,6 +62,10 @@ const ezProfilingId& ezTask::GetProfilingID()
 
 void ezTaskSystem::TaskHasFinished(ezTask* pTask, ezTaskGroup* pGroup)
 {
+  // this might deallocate the task, make sure not to reference it later anymore
+  if (pTask && pTask->m_OnTaskFinished)
+    pTask->m_OnTaskFinished(pTask, pTask->m_pCallbackPassThrough);
+
   if (pGroup->m_iRemainingTasks.Decrement() == 0)
   {
     // If this was the last task that had to be finished from this group, make sure all dependent groups are started
@@ -76,18 +80,13 @@ void ezTaskSystem::TaskHasFinished(ezTask* pTask, ezTaskGroup* pGroup)
       }
     }
 
+    if (pGroup->m_OnFinishedCallback)
+      pGroup->m_OnFinishedCallback(pGroup->m_pCallbackPassThrough);
+
     // set this task group to be finished and available for reuse
     pGroup->m_uiGroupCounter += 2;
     pGroup->m_bInUse = false;
-
-    if (pGroup->m_OnFinishedCallback)
-      pGroup->m_OnFinishedCallback(pGroup->m_pCallbackPassThrough);
   }
-
-  // call the callback after everything else is done
-  // this might be used to deallocate a task, so it must not be referenced anywhere anymore
-  if (pTask && pTask->m_OnTaskFinished)
-    pTask->m_OnTaskFinished(pTask, pTask->m_pCallbackPassThrough);
 }
 
 ezTaskSystem::TaskData ezTaskSystem::GetNextTask(ezTaskPriority::Enum FirstPriority, ezTaskPriority::Enum LastPriority, ezTask* pPrioritizeThis)

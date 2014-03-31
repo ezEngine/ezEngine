@@ -160,8 +160,8 @@ EZ_CREATE_SIMPLE_TEST(Threading, TaskSystem)
     ezTaskSystem::WaitForGroup(g[1]);
     ezTaskSystem::WaitForGroup(g[0]);
 
-    EZ_TEST_BOOL(TasksFinished == 8);
-    EZ_TEST_BOOL(GroupsFinished == 4);
+    EZ_TEST_INT(TasksFinished, 8);
+    EZ_TEST_INT(GroupsFinished, 4);
 
     for (int i = 0; i < 4; ++i)
       EZ_TEST_BOOL(ezTaskSystem::IsTaskGroupFinished(g[i]));
