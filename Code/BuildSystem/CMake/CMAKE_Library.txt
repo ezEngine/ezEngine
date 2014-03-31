@@ -65,6 +65,12 @@ else ()
   target_link_libraries (${PROJECT_NAME} ${LINK_LIBRARIES})
 endif ()
 
+if (BUILDSYSTEM_PLATFORM_OSX OR BUILDSYSTEM_PLATFORM_LINUX)
+  find_package(X11 REQUIRED)
+  include_directories (${X11_X11_INCLUDE_PATH})
+  target_link_libraries (${PROJECT_NAME} ${X11_X11_LIB})
+endif ()
+
 set_target_properties(${PROJECT_NAME} PROPERTIES IMPORT_PREFIX "ez")
 set_target_properties(${PROJECT_NAME} PROPERTIES PREFIX "ez")
 

@@ -300,7 +300,7 @@ namespace CommandAndControl
 
         sHelpPage += string.Format("<br>Hibernate on idle: {0}<br>", _bHibernateOnIdle ? "yes" : "no");
         sHelpPage += string.Format("<a href=\"/?type={0}\">Enable Hibernate on Idle</a><br>", (int)ezBuildRequestMessageType.GETEnableHibernateOnIdle);
-        sHelpPage += string.Format("<a href=\"/?type={0}\">Disable Hibernate on Idle</a><br><br>", (int)ezBuildRequestMessageType.GETEnableHibernateOnIdle);
+        sHelpPage += string.Format("<a href=\"/?type={0}\">Disable Hibernate on Idle</a><br><br><br>", (int)ezBuildRequestMessageType.GETDisableHibernateOnIdle);
 
         foreach (KeyValuePair<string, BuildMachine> entry in _Machines)
         {

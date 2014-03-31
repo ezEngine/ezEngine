@@ -60,7 +60,7 @@ ezResult ezGALSwapChainGL::DeInitPlatform(ezGALDevice* pDevice)
 
 void ezGALSwapChainGL::SwapBuffers(ezGALDevice* pDevice)
 {
-#ifdef EZ_PLATFORM_WINDOWS
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   if (!::SwapBuffers(m_Description.m_pWindow->GetWindowDC()))
   {
     ezLog::Error("Failed to swap buffers for the windows with number \"%i\".", m_Description.m_pWindow->GetCreationDescription().m_uiWindowNumber);

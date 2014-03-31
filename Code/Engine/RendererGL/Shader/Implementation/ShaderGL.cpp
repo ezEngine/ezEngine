@@ -30,7 +30,7 @@ ezResult ezGALShaderGL::CompileShader(glProgramId& dstProgram, glShaderId& dstSh
 {
   dstShader = glCreateShader(glShaderType);
 
-  if (EZ_GL_CALL(glShaderSource, dstShader, 1, reinterpret_cast<const GLchar**>(&szRawSource), NULL) != EZ_SUCCESS)
+  if (EZ_GL_CALL(glShaderSource, dstShader, 1, reinterpret_cast<const GLchar**>(&szRawSource), (const int*)NULL) != EZ_SUCCESS)
     return EZ_FAILURE;
 
   if (EZ_GL_CALL(glCompileShader, dstShader) != EZ_SUCCESS)
@@ -79,10 +79,12 @@ ezResult ezGALShaderGL::InitPlatform(ezGALDevice* pDevice)
 {
   // TODO: Maybe it would be a good idea to check if incoming shaders were already compiled
   // This way a "screenTri VS" wouldn't need to be compiled again and again.
-
-  // Create program.
-  m_Program = EZ_GL_RET_CALL(glCreateProgram);
-
+  
+  // Create program. 
+  // TODO: This won't work as the macro always calls the version that uses vargs.
+  //m_Program = EZ_GL_RET_CALL(glCreateProgram);
+  m_Program = ezGLIsCall("glCreateProgram", glCreateProgram);
+    
   // Create and compile shaders.
   if (m_Description.HasByteCodeForStage(ezGALShaderStage::VertexShader))
   {
