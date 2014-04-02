@@ -47,11 +47,10 @@ void ezConsole::ProcessCommand(const char* szCmd)
 
   ezResult res = EZ_FAILURE;
 
-  /// \todo Only call this, if it is safe!
-  //if (m_CommandProcessor.GetInstance() != NULL)
+  if (m_CommandProcessor.IsValid())
     res = m_CommandProcessor(szCmd, this);
-  //else
-    //AddConsoleString(szCmd, ezColor::GetWhite(), true);
+  else
+    AddConsoleString(szCmd, ezColor::GetWhite(), true);
 
   // Broadcast that we have processed a command
   {

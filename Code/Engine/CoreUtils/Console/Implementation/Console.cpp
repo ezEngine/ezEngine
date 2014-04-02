@@ -7,6 +7,7 @@ ezConsole::ezConsole()
   ClearInputLine();
 
   m_bLogOutputEnabled = false;
+  m_bDefaultInputHandlingInitialized = false;
   m_uiMaxConsoleStrings = 1000;
 
   EnableLogOutput(true);

@@ -164,6 +164,19 @@ public:
   /// The console will always use all CVars for auto-completion already.
   virtual void AutoCompleteInputLine();
 
+  /// \brief This function implements input handling (via ezInputManager) for the console.
+  ///
+  /// If the console is 'open' (ie. has full focus), it will handle more input for caret movement etc.
+  /// However, in the 'closed' state, it will still execute bound keys and commands from the history.
+  /// It is not required to call this function, you can implement input handling entirely outside the console.
+  ///
+  /// If this function is used, it should be called once per frame and if the console is considered 'open', 
+  /// no further keyboard input should be processed, as that might lead to confusing behavior when the user types
+  /// text into the console.
+  ///
+  /// The state whether the console is considered open has to be managed by the application.
+  virtual void DoDefaultInputHandling(bool bConsoleOpen);
+
   /// @}
 
   /// \name Console Content
@@ -234,6 +247,7 @@ private:
   ezInt32 m_iScrollPosition;
   ezInt32 m_iCurrentInputHistoryElement;
   bool m_bLogOutputEnabled;
+  bool m_bDefaultInputHandlingInitialized;
 
   ezStaticArray<ezString, 16> m_InputHistory;
   ezMap<ezString, ezString> m_BoundKeys;
