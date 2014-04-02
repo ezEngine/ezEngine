@@ -43,7 +43,7 @@ EZ_FORCE_INLINE void ezMemoryUtils::DefaultConstruct(T* pDestination, size_t uiC
 {
   for (size_t i = 0; i < uiCount; i++)
   {
-    new (pDestination + i) T();
+    ::new (pDestination + i) T();
   }
 }
 
@@ -126,7 +126,7 @@ EZ_FORCE_INLINE void ezMemoryUtils::Construct(T* pDestination, size_t uiCount, e
 
   for (size_t i = 0; i < uiCount; i++)
   {
-    new (pDestination + i) T();
+    ::new (pDestination + i) T();
   }
 }
 
@@ -146,7 +146,7 @@ EZ_FORCE_INLINE void ezMemoryUtils::Construct(T* pDestination, const T& copy, si
 
   for (size_t i = 0; i < uiCount; i++)
   {
-    new (pDestination + i) T(copy);
+    ::new (pDestination + i) T(copy);
   }
 }
 
@@ -163,7 +163,7 @@ EZ_FORCE_INLINE void ezMemoryUtils::Construct(T* pDestination, const T* pSource,
 
   for (size_t i = 0; i < uiCount; i++)
   {
-    new (pDestination + i) T(pSource[i]);
+    ::new (pDestination + i) T(pSource[i]);
   }
 }
 

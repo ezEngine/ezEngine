@@ -16,9 +16,9 @@ public:
   enum 
   { 
     MaxControllers = 4,
-    VibrationSamplesPerSecond = 10,
+    VibrationSamplesPerSecond = 16,
     VibrationTrackSeconds = 2,
-    MaxVibrationSamples = VibrationSamplesPerSecond * VibrationTrackSeconds,
+    MaxVibrationSamples = VibrationSamplesPerSecond * VibrationTrackSeconds, // With constant power-of-two samples some code should get more efficient
   };
 
   /// \brief Describes which vibration motor to configure.
