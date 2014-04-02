@@ -77,6 +77,11 @@ public:
     return !(*this == other);
   }
 
+  EZ_FORCE_INLINE bool IsValid() const
+  {
+    return m_pDispatchFunction != NULL;
+  }
+
   EZ_FORCE_INLINE void* GetInstance() const
   {
     return m_pInstance.m_Ptr;
