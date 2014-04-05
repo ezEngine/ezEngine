@@ -3,7 +3,7 @@
 #include <Foundation/Threading/Lock.h>
 #include <Foundation/Threading/Mutex.h>
 
-void ezTelemetry::QueueOutgoingMessage(TransmitMode tm, ezUInt64 uiSystemID, ezUInt32 uiMsgID, const void* pData, ezUInt32 uiDataBytes)
+void ezTelemetry::QueueOutgoingMessage(TransmitMode tm, ezUInt32 uiSystemID, ezUInt32 uiMsgID, const void* pData, ezUInt32 uiDataBytes)
 {
   // unreliable packages can just be dropped
   if (tm == ezTelemetry::Unreliable)
@@ -74,7 +74,7 @@ void ezTelemetry::CreateServer()
   EZ_VERIFY(OpenConnection(Server) == EZ_SUCCESS, "Opening a connection as a server should not be possible to fail.");
 }
 
-void ezTelemetry::AcceptMessagesForSystem(ezUInt64 uiSystemID, bool bAccept, ProcessMessagesCallback Callback, void* pPassThrough)
+void ezTelemetry::AcceptMessagesForSystem(ezUInt32 uiSystemID, bool bAccept, ProcessMessagesCallback Callback, void* pPassThrough)
 {
   ezLock<ezMutex> Lock(GetTelemetryMutex());
 
@@ -103,7 +103,7 @@ void ezTelemetry::PerFrameUpdate()
   s_bAllowNetworkUpdate = bAllowUpdate;
 }
 
-void ezTelemetry::SetOutgoingQueueSize(ezUInt64 uiSystemID, ezUInt16 uiMaxQueued)
+void ezTelemetry::SetOutgoingQueueSize(ezUInt32 uiSystemID, ezUInt16 uiMaxQueued)
 {
   ezLock<ezMutex> Lock(GetTelemetryMutex());
 
@@ -116,7 +116,7 @@ bool ezTelemetry::IsConnectedToOther()
   return ((s_ConnectionMode == Client && IsConnectedToServer()) || (s_ConnectionMode == Server && IsConnectedToClient()));
 }
 
-void ezTelemetry::Broadcast(TransmitMode tm, ezUInt64 uiSystemID, ezUInt32 uiMsgID, const void* pData, ezUInt32 uiDataBytes)
+void ezTelemetry::Broadcast(TransmitMode tm, ezUInt32 uiSystemID, ezUInt32 uiMsgID, const void* pData, ezUInt32 uiDataBytes)
 {
   if (s_ConnectionMode != ezTelemetry::Server)
     return;
@@ -124,7 +124,7 @@ void ezTelemetry::Broadcast(TransmitMode tm, ezUInt64 uiSystemID, ezUInt32 uiMsg
   Send(tm, uiSystemID, uiMsgID, pData, uiDataBytes);
 }
 
-void ezTelemetry::Broadcast(TransmitMode tm, ezUInt64 uiSystemID, ezUInt32 uiMsgID, ezStreamReaderBase& Stream, ezInt32 iDataBytes)
+void ezTelemetry::Broadcast(TransmitMode tm, ezUInt32 uiSystemID, ezUInt32 uiMsgID, ezStreamReaderBase& Stream, ezInt32 iDataBytes)
 {
   if (s_ConnectionMode != ezTelemetry::Server)
     return;
@@ -140,7 +140,7 @@ void ezTelemetry::Broadcast(TransmitMode tm, ezTelemetryMessage& Msg)
   Send(tm, Msg);
 }
 
-void ezTelemetry::SendToServer(ezUInt64 uiSystemID, ezUInt32 uiMsgID, const void* pData, ezUInt32 uiDataBytes)
+void ezTelemetry::SendToServer(ezUInt32 uiSystemID, ezUInt32 uiMsgID, const void* pData, ezUInt32 uiDataBytes)
 {
   if (s_ConnectionMode != ezTelemetry::Client)
     return;
@@ -148,7 +148,7 @@ void ezTelemetry::SendToServer(ezUInt64 uiSystemID, ezUInt32 uiMsgID, const void
   Send(ezTelemetry::Reliable, uiSystemID, uiMsgID, pData, uiDataBytes);
 }
 
-void ezTelemetry::SendToServer(ezUInt64 uiSystemID, ezUInt32 uiMsgID, ezStreamReaderBase& Stream, ezInt32 iDataBytes)
+void ezTelemetry::SendToServer(ezUInt32 uiSystemID, ezUInt32 uiMsgID, ezStreamReaderBase& Stream, ezInt32 iDataBytes)
 {
   if (s_ConnectionMode != ezTelemetry::Client)
     return;
