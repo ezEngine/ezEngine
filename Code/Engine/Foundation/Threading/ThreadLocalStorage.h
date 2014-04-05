@@ -48,6 +48,8 @@ public:
 
 private:
 
+  friend class FoundationThreadUtilsSubSystem;
+
   static bool s_bInitialized;
 
   /// \brief Initialization functionality of the thread local storage system (called by foundation startup and thus private)
