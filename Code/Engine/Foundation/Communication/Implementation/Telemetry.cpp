@@ -184,7 +184,10 @@ void ezTelemetry::UpdateNetwork()
             ezTelemetryMessage& Msg = Queue.m_IncomingQueue.PeekBack();
             
             Msg.SetMessageID(uiSystemID, uiMsgID);
-            Msg.GetWriter().WriteBytes(pData, NetworkEvent.packet->dataLength - 8);
+
+            EZ_ASSERT((ezUInt32) NetworkEvent.packet->dataLength >= 12, "Message Length Invalid: %u", (ezUInt32) NetworkEvent.packet->dataLength);
+
+            Msg.GetWriter().WriteBytes(pData, NetworkEvent.packet->dataLength - 12);
           }
         }
 
@@ -282,7 +285,7 @@ ezResult ezTelemetry::OpenConnection(ConnectionMode Mode, const char* szConnectT
 
   if (!g_bInitialized)
   {
-    enet_initialize();
+    EZ_VERIFY(enet_initialize() == 0, "Enet could not be initialized.");
     g_bInitialized = true;
   }
 
