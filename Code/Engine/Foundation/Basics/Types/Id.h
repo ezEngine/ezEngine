@@ -16,7 +16,7 @@
   EZ_FORCE_INLINE void Invalidate() { m_Data = INVALID_INSTANCE_INDEX; }
 
 
-/// \brief A generic id class that holds an id combined of an intance index and a generation counter. 
+/// \brief A generic id class that holds an id combined of an instance index and a generation counter. 
 template <ezUInt32 InstanceIndexBits, ezUInt32 GenerationBits>
 struct ezGenericId
 {
