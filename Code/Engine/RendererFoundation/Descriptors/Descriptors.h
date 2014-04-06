@@ -23,6 +23,7 @@ struct ezGALSwapChainCreationDescription : public ezHashableStruct<ezGALSwapChai
   ezGALResourceFormat::Enum m_DepthStencilBufferFormat;
 
   bool m_bDoubleBuffered;
+  bool m_bVerticalSynchronization;
   bool m_bCreateDepthStencilBuffer;
   bool m_bFullscreen;
   bool m_bAllowScreenshots;

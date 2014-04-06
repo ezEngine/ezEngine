@@ -375,7 +375,7 @@ void ezGALDeviceDX11::PresentPlatform(ezGALSwapChain* pSwapChain)
 {
   IDXGISwapChain* pDXGISwapChain = static_cast<ezGALSwapChainDX11*>(pSwapChain)->GetDXSwapChain();
 
-  pDXGISwapChain->Present(0, 0); // TODO: VSync control?
+  pDXGISwapChain->Present(pSwapChain->GetDescription().m_bVerticalSynchronization ? 1 : 0, 0);
 }
 
 // Misc functions

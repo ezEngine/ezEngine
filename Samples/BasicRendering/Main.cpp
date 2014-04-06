@@ -100,7 +100,10 @@ public:
     DeviceInit.m_bDebugDevice = true;
     DeviceInit.m_PrimarySwapChainDescription.m_pWindow = m_pWindow;
     DeviceInit.m_PrimarySwapChainDescription.m_SampleCount = g_bMSAA ? ezGALMSAASampleCount::FourSamples : ezGALMSAASampleCount::None;
+    DeviceInit.m_PrimarySwapChainDescription.m_bCreateDepthStencilBuffer = true;
+    DeviceInit.m_PrimarySwapChainDescription.m_DepthStencilBufferFormat = ezGALResourceFormat::D24S8;
     DeviceInit.m_PrimarySwapChainDescription.m_bAllowScreenshots = true;
+    DeviceInit.m_PrimarySwapChainDescription.m_bVerticalSynchronization = true;
 
 #if EZ_ENABLED(DEMO_GL)
     m_pDevice = EZ_DEFAULT_NEW(ezGALDeviceGL)(DeviceInit);
@@ -111,38 +114,10 @@ public:
 
     // Get the primary swapchain (this one will always be created by device init except if the user instructs no swap chain creation explicitly)
     ezGALSwapChainHandle hPrimarySwapChain = m_pDevice->GetPrimarySwapChain();
-
-    // Create depth stencil buffer
-    ezGALTextureCreationDescription DSTexDesc;
-    DSTexDesc.m_bCreateRenderTarget = true;
-    DSTexDesc.m_bAllowShaderResourceView = false;
-    DSTexDesc.m_Format = ezGALResourceFormat::D24S8;
-    DSTexDesc.m_uiWidth = g_uiWindowWidth;
-    DSTexDesc.m_uiHeight = 720;
-    DSTexDesc.m_SampleCount = DeviceInit.m_PrimarySwapChainDescription.m_SampleCount;
-
-    m_hDepthBuffer = m_pDevice->CreateTexture(DSTexDesc, NULL);
-
-    EZ_ASSERT(!m_hDepthBuffer.IsInvalidated(), "Couldn't create depth buffer texture!");
-
-    // Create depth stencil view
-    ezGALRenderTargetViewCreationDescription DSViewDesc;
-    DSViewDesc.m_hTexture = m_hDepthBuffer;
-    DSViewDesc.m_RenderTargetType = ezGALRenderTargetType::DepthStencil;
-
-    m_hDSView = m_pDevice->CreateRenderTargetView(DSViewDesc);
-    EZ_ASSERT(!m_hDSView.IsInvalidated(), "Couldn't create depth buffer view!");
-
-    ezGALRenderTargetViewHandle hBackBuffer = m_pDevice->GetSwapChain(hPrimarySwapChain)->GetRenderTargetView();
-
-    // Build a rendertarget setup containing the backbuffer texture and the just created depth stencil buffer
-    ezGALRenderTargetConfigCreationDescription BackBufferInit;
-    BackBufferInit.m_hColorTargets[0] = hBackBuffer;
-    BackBufferInit.m_hDepthStencilTarget = m_hDSView;
-    BackBufferInit.m_uiColorTargetCount = 1;
-
-    m_hBBRT = m_pDevice->CreateRenderTargetConfig(BackBufferInit);
-    EZ_ASSERT(!m_hBBRT.IsInvalidated(), "Couldn't create backbuffer rendertarget config!");
+    const ezGALSwapChain* pPrimarySwapChain = m_pDevice->GetSwapChain(hPrimarySwapChain);
+    
+    m_hBBRT = pPrimarySwapChain->GetRenderTargetViewConfig();
+    
 
     // Create a constant buffer for matrix upload
     m_hCB = m_pDevice->CreateConstantBuffer(sizeof(TestCB));
@@ -235,15 +210,11 @@ public:
     m_DebugBackBufferDT.EnableDataTransfer("Back Buffer");
   }
 
+
   ApplicationExecution Run() EZ_OVERRIDE
   {
-    MSG Msg;
-
-    while(PeekMessage(&Msg, NULL, 0, 0, PM_REMOVE))
-    {
-      TranslateMessage(&Msg);
-      DispatchMessage(&Msg);
-    }
+    if (m_pWindow->ProcessWindowMessages() != ezWindow::Continue)
+      return ezApplication::Quit;
 
     ezClock::UpdateAllGlobalClocks();
 
@@ -313,7 +284,7 @@ public:
     // Readback: Currently not supported for MSAA since Resolve() is not implemented
     if (m_DebugBackBufferDT.IsTransferRequested() && !g_bMSAA)
     {
-      ezGALTextureHandle hBBTexture = m_pDevice->GetSwapChain(m_pDevice->GetPrimarySwapChain())->GetTexture();
+      ezGALTextureHandle hBBTexture = m_pDevice->GetSwapChain(m_pDevice->GetPrimarySwapChain())->GetBackBufferTexture();
       pContext->ReadbackTexture(hBBTexture);
 
       ezArrayPtr<ezUInt8> pImageContent = EZ_DEFAULT_NEW_ARRAY(ezUInt8, 4 * g_uiWindowWidth * g_uiWindowHeight);
@@ -373,10 +344,6 @@ private:
   ezGALRasterizerStateHandle m_hRasterizerState;
 
   ezGALDepthStencilStateHandle m_hDepthStencilState;
-
-  ezGALTextureHandle m_hDepthBuffer;
-
-  ezGALRenderTargetViewHandle m_hDSView;
 
   ezGALTextureHandle m_hTexture;
 
