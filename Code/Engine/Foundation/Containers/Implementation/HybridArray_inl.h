@@ -71,11 +71,11 @@ EZ_FORCE_INLINE void ezHybridArrayBase<T, Size>::operator= (ezHybridArrayBase<T,
     // We cannot do this when the allocators of this and rhs are different,
     // because the memory will be freed by this and not by rhs anymore.
 
-    Clear();
+    this->Clear();
 
-    m_pElements = rhs.m_pElements;
-    m_uiCapacity = rhs.m_uiCapacity;
-    m_uiCount = rhs.m_uiCount;
+    this->m_pElements = rhs.m_pElements;
+    this->m_uiCapacity = rhs.m_uiCapacity;
+    this->m_uiCount = rhs.m_uiCount;
 
     rhs.m_uiCount = 0;
     rhs.m_pElements = rhs.GetStaticArray();

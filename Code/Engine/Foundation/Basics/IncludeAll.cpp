@@ -105,8 +105,6 @@
 #include <Foundation/Threading/Lock.h>
 #include <Foundation/Threading/Mutex.h>
 #include <Foundation/Threading/Thread.h>
-#include <Foundation/Threading/ThreadLocalPointer.h>
-#include <Foundation/Threading/ThreadLocalStorage.h>
 #include <Foundation/Threading/ThreadUtils.h>
 
 #include <Foundation/Time/Clock.h>

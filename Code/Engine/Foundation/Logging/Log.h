@@ -2,7 +2,6 @@
 
 #include <Foundation/Communication/Event.h>
 #include <Foundation/Threading/AtomicInteger.h>
-#include <Foundation/Threading/ThreadLocalPointer.h>
 #include <Foundation/Strings/StringUtils.h>
 
 /// \brief Use this helper macro to easily create a scoped logging group. Will generate unique variable names to make the static code analysis happy.

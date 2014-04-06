@@ -38,8 +38,10 @@
 #define EZ_PLATFORM_LITTLE_ENDIAN EZ_OFF
 #define EZ_PLATFORM_BIG_ENDIAN EZ_OFF
 
-// Windows Compiler
+// Different Compilers
 #define EZ_COMPILER_MSVC EZ_OFF
+#define EZ_COMPILER_CLANG EZ_OFF
+#define EZ_COMPILER_GCC EZ_OFF
 
 // How to compile the engine
 #define EZ_COMPILE_ENGINE_AS_DLL EZ_OFF

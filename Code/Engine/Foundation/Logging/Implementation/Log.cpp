@@ -17,12 +17,6 @@ ezGlobalLog* ezGlobalLog::GetInstance()
 
   static ezGlobalLog s_Log;
   return &s_Log;
-
-  // Could have one global log per thread, but I don't think it's worth it atm.
-  //static ezThreadLocalPointer<ezGlobalLog> s_Log;
-  //if (s_Log == NULL)
-  //  s_Log = new ezGlobalLog;
-  //return s_Log;
 }
 
 void ezGlobalLog::HandleLogMessage(const ezLoggingEventData& le)

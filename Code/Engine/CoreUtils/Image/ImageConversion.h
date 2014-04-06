@@ -2,6 +2,7 @@
 
 #include <Foundation/Basics/Types/Bitflags.h>
 #include <Foundation/Utilities/EnumerableClass.h>
+#include <Foundation/Containers/StaticArray.h>
 
 #include <CoreUtils/Image/Image.h>
 
