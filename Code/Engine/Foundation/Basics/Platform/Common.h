@@ -15,36 +15,21 @@
 
 #include <Foundation/Basics/Compiler/RestoreWarning.h>
 
-// redifine NULL to nullptr if available
+// redifine NULL to nullptr
 #undef NULL
-#if EZ_ENABLED(EZ_SUPPORTS_CPP11)
-  #define NULL nullptr    
-#else
-  #define NULL 0
-#endif
+#define NULL nullptr
 
-// include c++11 specific header if the compiler supports it
-#if EZ_ENABLED(EZ_SUPPORTS_CPP11)
-  #include <type_traits>
-#endif
+// include c++11 specific header
+#include <type_traits>
 
 // Macros to do compile-time checks, such as to ensure sizes of types
 // EZ_CHECK_AT_COMPILETIME(exp) : only checks exp
 // EZ_CHECK_AT_COMPILETIME_MSG(exp, msg) : checks exp and displays msg
-#if EZ_ENABLED(EZ_SUPPORTS_CPP11)
-  #define EZ_CHECK_AT_COMPILETIME(exp) \
+#define EZ_CHECK_AT_COMPILETIME(exp) \
   static_assert(exp, EZ_STRINGIZE(exp) " is false.");
   
-  #define EZ_CHECK_AT_COMPILETIME_MSG(exp, msg) \
+#define EZ_CHECK_AT_COMPILETIME_MSG(exp, msg) \
   static_assert(exp, EZ_STRINGIZE(exp) " is false. Message: " msg);
-#else
-  // Declares an array with an invalid size, if the expression is invalid -> generates a compile-time error
-  #define EZ_CHECK_AT_COMPILETIME(exp) \
-    typedef int EZ_CONCAT(EZ_CompileTimeAssert, __LINE__)[(exp) ? 1 : -1]
-
-  #define EZ_CHECK_AT_COMPILETIME_MSG(exp, msg) \
-    typedef int EZ_CONCAT(EZ_CompileTimeAssert, __LINE__)[(exp) ? 1 : -1]
-#endif
 
 /// \brief Disallow the copy constructor and the assignment operator for this type. 
 #define EZ_DISALLOW_COPY_AND_ASSIGN(type) \

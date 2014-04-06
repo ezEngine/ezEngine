@@ -93,13 +93,6 @@ void SetAppStats()
   #endif
   ezStats::SetStat("Features/Allocation Stack Tracing", sOut.GetData());
 
-  #if EZ_ENABLED(EZ_SUPPORTS_CPP11)
-    sOut = "Enabled";
-  #else
-    sOut = "Disabled";
-  #endif
-  ezStats::SetStat("Platform/C++ 11 Feature Set", sOut.GetData());
-
   #if EZ_ENABLED(EZ_PLATFORM_LITTLE_ENDIAN)
     sOut = "Little";
   #else

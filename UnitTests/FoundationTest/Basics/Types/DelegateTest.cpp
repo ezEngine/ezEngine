@@ -93,8 +93,6 @@ EZ_CREATE_SIMPLE_TEST(Basics, Delegate)
     EZ_TEST_INT(d(4), 6);
   }
 
-#if EZ_ENABLED(EZ_SUPPORTS_CPP11)
-
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Lambda - no capture")
   {
     d = [](ezInt32 i) { return i * 4; };
@@ -130,6 +128,4 @@ EZ_CREATE_SIMPLE_TEST(Basics, Delegate)
     EZ_TEST_INT(d(3), 3);
     EZ_TEST_INT(c, 5);
   }
-
-#endif
 }

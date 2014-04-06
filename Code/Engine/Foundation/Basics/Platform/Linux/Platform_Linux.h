@@ -22,9 +22,6 @@
 /// \todo Detect / differentiate between GCC / CLANG?
 #include <Foundation/Basics/Compiler/GCC/GCC.h>
 
-#undef EZ_SUPPORTS_CPP11
-#define EZ_SUPPORTS_CPP11 EZ_ON
-
 #undef EZ_PLATFORM_LITTLE_ENDIAN
 #define EZ_PLATFORM_LITTLE_ENDIAN EZ_ON
 

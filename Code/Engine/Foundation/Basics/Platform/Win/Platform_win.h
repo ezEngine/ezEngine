@@ -92,11 +92,6 @@
   #define EZ_SOURCE_LINE __LINE__
   #define EZ_SOURCE_FILE __FILE__
 
-  #if (_MSC_VER >= 1600) //Visual Studio 2010
-    #undef EZ_SUPPORTS_CPP11
-    #define EZ_SUPPORTS_CPP11 EZ_ON
-  #endif
-
   // declare platform specific types
   typedef unsigned __int64  ezUInt64;
   typedef __int64           ezInt64;

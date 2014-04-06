@@ -38,9 +38,6 @@
 #define EZ_PLATFORM_LITTLE_ENDIAN EZ_OFF
 #define EZ_PLATFORM_BIG_ENDIAN EZ_OFF
 
-// C++ Version
-#define EZ_SUPPORTS_CPP11 EZ_OFF
-
 // Windows Compiler
 #define EZ_COMPILER_MSVC EZ_OFF
 
