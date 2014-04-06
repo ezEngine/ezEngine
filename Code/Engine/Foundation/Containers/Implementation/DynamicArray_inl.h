@@ -16,6 +16,15 @@ ezDynamicArrayBase<T>::ezDynamicArrayBase(const ezDynamicArrayBase<T>& other, ez
 }
 
 template <typename T>
+ezDynamicArrayBase<T>::ezDynamicArrayBase(ezDynamicArrayBase<T>&& other, ezAllocatorBase* pAllocator)
+{
+  this->m_uiCapacity = 0;
+  m_pAllocator = pAllocator;
+
+  *this = std::move(other);
+}
+
+template <typename T>
 ezDynamicArrayBase<T>::ezDynamicArrayBase(const ezArrayPtr<T>& other, ezAllocatorBase* pAllocator)
 {
   this->m_uiCapacity = 0;
@@ -37,6 +46,24 @@ EZ_FORCE_INLINE void ezDynamicArrayBase<T>::operator= (const ezDynamicArrayBase<
 {
   *this = (ezArrayPtr<T>) rhs; // redirect this to the ezArrayPtr version
 }
+
+template <typename T>
+EZ_FORCE_INLINE void ezDynamicArrayBase<T>::operator= (ezDynamicArrayBase<T>&& rhs)
+{
+  if (this->m_pAllocator == rhs.m_pAllocator)
+  {
+    this->m_uiCount = rhs.m_uiCount;
+    this->m_uiCapacity = rhs.m_uiCapacity;
+    this->m_pElements = rhs.m_pElements;
+
+    rhs.m_pElements = NULL;
+    rhs.m_uiCount = 0;
+    rhs.m_uiCapacity = 0;
+  }
+  else
+    *this = (ezArrayPtr<T>) rhs; // redirect this to the ezArrayPtr version
+}
+
 
 template <typename T>
 void ezDynamicArrayBase<T>::operator= (const ezArrayPtr<T>& rhs)
@@ -101,7 +128,17 @@ ezDynamicArray<T, A>::ezDynamicArray(const ezDynamicArray<T, A>& other) : ezDyna
 }
 
 template <typename T, typename A>
+ezDynamicArray<T, A>::ezDynamicArray(ezDynamicArray<T, A>&& other) : ezDynamicArrayBase<T>(std::move(other), A::GetAllocator())
+{
+}
+
+template <typename T, typename A>
 ezDynamicArray<T, A>:: ezDynamicArray(const ezDynamicArrayBase<T>& other) : ezDynamicArrayBase<T>(other, A::GetAllocator())
+{
+}
+
+template <typename T, typename A>
+ezDynamicArray<T, A>:: ezDynamicArray(ezDynamicArrayBase<T>&& other) : ezDynamicArrayBase<T>(std::move(other), A::GetAllocator())
 {
 }
 
@@ -117,9 +154,21 @@ void ezDynamicArray<T, A>::operator=(const ezDynamicArray<T, A>& rhs)
 }
 
 template <typename T, typename A>
+void ezDynamicArray<T, A>::operator=(ezDynamicArray<T, A>&& rhs)
+{
+  ezDynamicArrayBase<T>::operator=(std::move(rhs));
+}
+
+template <typename T, typename A>
 void ezDynamicArray<T, A>::operator=(const ezDynamicArrayBase<T>& rhs)
 {
   ezDynamicArrayBase<T>::operator=(rhs);
+}
+
+template <typename T, typename A>
+void ezDynamicArray<T, A>::operator=(ezDynamicArrayBase<T>&& rhs)
+{
+  ezDynamicArrayBase<T>::operator=(std::move(rhs));
 }
 
 template <typename T, typename A>

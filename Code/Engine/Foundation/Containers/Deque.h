@@ -25,14 +25,20 @@ protected:
   /// \brief No memory is allocated during construction.
   ezDequeBase(ezAllocatorBase* pAllocator); // [tested]
 
-  /// \brief No memory is allocated during construction.
+  /// \brief Constructs this deque by copying from rhs.
   ezDequeBase(const ezDequeBase<T, Construct>& rhs, ezAllocatorBase* pAllocator); // [tested]
+
+  /// \brief Constructs this deque by moving from rhs.
+  ezDequeBase(ezDequeBase<T, Construct>&& rhs, ezAllocatorBase* pAllocator);
 
   /// \brief Destructor.
   ~ezDequeBase(); // [tested]
 
   /// \brief Assignment operator.
-  void operator= (const ezDequeBase<T, Construct>& rhs); // [tested]
+  void operator=(const ezDequeBase<T, Construct>& rhs); // [tested]
+
+  /// \brief Move operator.
+  void operator=(ezDequeBase<T, Construct>&& rhs);
 
 public:
   /// \brief Destructs all elements and sets the count to zero. Does not deallocate any data.
@@ -216,8 +222,14 @@ public:
   ezDeque(const ezDeque<T, AllocatorWrapper, Construct>& other);
   ezDeque(const ezDequeBase<T, Construct>& other);
 
+  ezDeque(ezDeque<T, AllocatorWrapper, Construct>&& other);
+  ezDeque(ezDequeBase<T, Construct>&& other);
+
   void operator=(const ezDeque<T, AllocatorWrapper, Construct>& rhs);
   void operator=(const ezDequeBase<T, Construct>& rhs);
+
+  void operator=(ezDeque<T, AllocatorWrapper, Construct>&& rhs);
+  void operator=(ezDequeBase<T, Construct>&& rhs);
 };
 
 #include <Foundation/Containers/Implementation/Deque_inl.h>
