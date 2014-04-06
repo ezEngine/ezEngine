@@ -1,9 +1,6 @@
 #include <Foundation/PCH.h>
 #include <Foundation/Strings/StringUtils.h>
 #include <Foundation/Math/Math.h>
-#include <Foundation/Strings/SharedString.h>
-
-ezInternal::ezSharedStringBase ezSharedString::s_EmptyString;
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   #include <Foundation/Logging/Log.h>
