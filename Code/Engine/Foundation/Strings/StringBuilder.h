@@ -8,6 +8,12 @@
 #include <Foundation/Strings/StringIterator.h>
 #include <Foundation/Strings/PathUtils.h>
 
+template <ezUInt16 Size>
+class ezHybridStringBase;
+
+template <ezUInt16 Size, typename AllocatorWrapper>
+class ezHybridString;
+
 /// \brief ezStringBuilder is a class that is meant for creating and modifying strings.
 ///
 /// It is not meant to store strings for a longer duration.
@@ -21,7 +27,7 @@
 /// a second ezStringBuilder, and iterate over the first while rebuilding the desired result in the second.
 /// For very convenient string creation, printf functionality is also available via the 'Format', 'AppendFormat' 
 /// and 'PrependFormat' functions.
-/// Once a string is built and should only be stored for read access, it should be stored in an ezSharedString instance.
+/// Once a string is built and should only be stored for read access, it should be stored in an ezString instance.
 class EZ_FOUNDATION_DLL ezStringBuilder : public ezStringBase<ezStringBuilder>
 {
 public:
@@ -31,6 +37,25 @@ public:
 
   /// \brief Copies the given string into this one.
   ezStringBuilder(const ezStringBuilder& rhs); // [tested]
+
+  /// \brief Moves the given string into this one.
+  ezStringBuilder(ezStringBuilder&& rhs);
+
+  /// \brief Copies the given string into this one.
+  template <ezUInt16 Size>
+  ezStringBuilder(const ezHybridStringBase<Size>& rhs);
+
+  /// \brief Copies the given string into this one.
+  template <ezUInt16 Size, typename A>
+  ezStringBuilder(const ezHybridString<Size, A>& rhs);
+
+  /// \brief Moves the given string into this one.
+  template <ezUInt16 Size>
+  ezStringBuilder(ezHybridStringBase<Size>&& rhs);
+
+  /// \brief Moves the given string into this one.
+  template <ezUInt16 Size, typename A>
+  ezStringBuilder(ezHybridString<Size, A>&& rhs);
 
   /// \brief Copies the given Utf8 string into this one.
   /* implicit */ ezStringBuilder(const char* szUTF8, ezAllocatorBase* pAllocator = ezFoundation::GetDefaultAllocator()); // [tested]
@@ -44,6 +69,9 @@ public:
   /// \brief Copies the given string into this one.
   void operator=(const ezStringBuilder& rhs); // [tested]
 
+  /// \brief Moves the given string into this one.
+  void operator=(ezStringBuilder&& rhs);
+
   /// \brief Copies the given Utf8 string into this one.
   void operator=(const char* szUTF8); // [tested]
 
@@ -52,6 +80,22 @@ public:
 
   /// \brief Copies the given substring into this one. The ezStringIterator might actually be a substring of this very string.
   void operator=(const ezStringIterator& rhs); // [tested]
+
+  /// \brief Copies the given string into this one.
+  template <ezUInt16 Size>
+  void operator=(const ezHybridStringBase<Size>& rhs);
+
+  /// \brief Copies the given string into this one.
+  template <ezUInt16 Size, typename A>
+  void operator=(const ezHybridString<Size, A>& rhs);
+
+  /// \brief Moves the given string into this one.
+  template <ezUInt16 Size>
+  void operator=(ezHybridStringBase<Size>&& rhs);
+
+  /// \brief Moves the given string into this one.
+  template <ezUInt16 Size, typename A>
+  void operator=(ezHybridString<Size, A>&& rhs);
 
   /// \brief Returns the allocator that is used by this object.
   ezAllocatorBase* GetAllocator() const;
@@ -290,6 +334,10 @@ public:
 private:
   void ChangeCharacterNonASCII(ezStringIterator& Pos, ezUInt32 uiCharacter);
   void AppendTerminator();
+
+  // needed for better copy construction
+  template<ezUInt16 T>
+  friend class ezHybridStringBase;
 
   ezUInt32 m_uiCharacterCount;
   ezHybridArray<char, 256> m_Data;

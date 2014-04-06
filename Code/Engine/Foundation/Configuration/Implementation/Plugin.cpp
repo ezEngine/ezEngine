@@ -198,7 +198,7 @@ ezResult ezPlugin::LoadPluginInternal(const char* szPluginFile, bool bLoadCopy, 
     // create a copy of the original plugin file
     if (ezOSFile::CopyFile(sOldPlugin.GetData(), sNewPlugin.GetData()) == EZ_FAILURE)
     {
-      g_LoadedPlugins.Erase(sNewPlugin.GetData());
+      g_LoadedPlugins.Erase(sNewPlugin);
       return EZ_FAILURE;
     }
   }
@@ -356,7 +356,7 @@ void ezPlugin::SortPluginReloadOrder(ezHybridArray<ezString, 16>& PluginsToReloa
   // convert the plugin names to pointers
   for (ezUInt32 i = 0; i < PluginsToReload.GetCount(); ++i)
   {
-    NotYetSorted.Insert(PluginsToReload[i].GetData());
+    NotYetSorted.Insert(PluginsToReload[i]);
     PluginsToSort.PushBack(FindPluginByName(PluginsToReload[i].GetData()));
   }
 
@@ -446,7 +446,7 @@ ezResult ezPlugin::ReloadPlugins(bool bForceReload)
               ezFileStats stat;
               if (ezOSFile::GetFileStats(sOldPlugin.GetData(), stat) == EZ_SUCCESS)
               {
-                if (g_LoadedPlugins[pPlugin->m_sLoadedFromFile.GetData()].m_LastModificationTime.IsEqual(stat.m_LastModificationTime, ezTimestamp::CompareMode::FileTime))
+                if (g_LoadedPlugins[pPlugin->m_sLoadedFromFile].m_LastModificationTime.IsEqual(stat.m_LastModificationTime, ezTimestamp::CompareMode::FileTime))
                 {
                   ezLog::Dev("Plugin '%s' is not modified.", pPlugin->GetPluginName());
                   bModified = false;

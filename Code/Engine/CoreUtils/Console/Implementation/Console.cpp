@@ -82,7 +82,7 @@ void ezConsole::SearchInputHistory(ezInt32 iHistoryUp)
   m_iCurrentInputHistoryElement = ezMath::Clamp<ezInt32>(m_iCurrentInputHistoryElement + iHistoryUp, 0, m_InputHistory.GetCount() - 1);
 
   if (!m_InputHistory[m_iCurrentInputHistoryElement].IsEmpty())
-    m_sInputLine = m_InputHistory[m_iCurrentInputHistoryElement].GetData();
+    m_sInputLine = m_InputHistory[m_iCurrentInputHistoryElement];
 
   m_iCaretPosition = m_sInputLine.GetCharacterCount();
 }

@@ -88,27 +88,3 @@ void ezConsole::ExecuteBoundKey(const char* szKey)
     ProcessCommand(it.Value().GetData());
 }
 
-/* Example Console Functions:
-
-void TestFunc0()
-{
-  ezLog::Info("Called TestFunc0");
-}
-
-int TestFunc1(int a, float b, ezString s)
-{
-  ezLog::Info("Called TestFunc1 with %i and %.2f and '%s'", a, b, s.GetData());
-  return 0;
-}
-
-void TestFunc2(float a, float b)
-{
-  ezLog::Info("Called TestFunc2 with %.2f and %.2f", a, b);
-  return;
-}
-
-ezConsoleFunction<void ()> cf0("TestFunc0", "()", TestFunc0);
-ezConsoleFunction<int (int, float, ezString)> cf1("TestFunc1", "(int a, float b, string c)", TestFunc1);
-ezConsoleFunction<void (float, float)> cf2("TestFunc2", "(float a, float b)", TestFunc2);
-
-*/

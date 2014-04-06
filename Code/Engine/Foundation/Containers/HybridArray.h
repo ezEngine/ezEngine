@@ -18,6 +18,9 @@ protected:
   /// \brief Creates a copy of the given array.
   ezHybridArrayBase(const ezHybridArrayBase<T, Size>& other, ezAllocatorBase* pAllocator); // [tested]
 
+  /// \brief Moves the given array.
+  ezHybridArrayBase(ezHybridArrayBase<T, Size>&& other, ezAllocatorBase* pAllocator);
+
   /// \brief Creates a copy of the given array.
   ezHybridArrayBase(const ezArrayPtr<T>& other, ezAllocatorBase* pAllocator); // [tested]
 
@@ -26,6 +29,9 @@ protected:
 
   /// \brief Copies the data from some other contiguous array into this one.
   void operator= (const ezHybridArrayBase<T, Size>& rhs); // [tested]
+
+  /// \brief Moves the data from some other contiguous array into this one.
+  void operator= (ezHybridArrayBase<T, Size>&& rhs);
 
   /// \brief Copies the data from some other contiguous array into this one.
   void operator= (const ezArrayPtr<T>& rhs); // [tested]
@@ -70,9 +76,16 @@ public:
   ezHybridArray(const ezHybridArrayBase<T, Size>& other);
   explicit ezHybridArray(const ezArrayPtr<T>& other);
 
+  ezHybridArray(ezHybridArray<T, Size, AllocatorWrapper>&& other);
+  ezHybridArray(ezHybridArrayBase<T, Size>&& other);
+
   void operator=(const ezHybridArray<T, Size, AllocatorWrapper>& rhs);
   void operator=(const ezHybridArrayBase<T, Size>& rhs);
   void operator=(const ezArrayPtr<T>& rhs);
+
+  void operator=(ezHybridArray<T, Size, AllocatorWrapper>&& rhs);
+  void operator=(ezHybridArrayBase<T, Size>&& rhs);
+
 };
 
 #include <Foundation/Containers/Implementation/HybridArray_inl.h>

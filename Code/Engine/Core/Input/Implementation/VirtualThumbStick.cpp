@@ -19,7 +19,7 @@ ezVirtualThumbStick::ezVirtualThumbStick()
 
   ezStringBuilder s;
   s.Format("Thumbstick_%i", s_iThumbsticks);
-  m_sName = s.GetData();
+  m_sName = s;
 
   ++s_iThumbsticks;
 

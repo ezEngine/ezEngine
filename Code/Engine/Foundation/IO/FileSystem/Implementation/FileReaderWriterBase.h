@@ -19,9 +19,9 @@ public:
   /// Returns the absolute path with which the file was opened (including the prefix of the data directory).
   ezString128 GetFilePathAbsolute() const
   { 
-    ezStringBuilder sAbs = m_pDataDirReader->GetDataDirectory()->GetDataDirectoryPath().GetData();
+    ezStringBuilder sAbs = m_pDataDirReader->GetDataDirectory()->GetDataDirectoryPath();
     sAbs.AppendPath(m_pDataDirReader->GetFilePath().GetData());
-    return sAbs.GetData();
+    return sAbs;
   }
 
   /// Returns the relative path of the file within its data directory (excluding the prefix of the data directory).
@@ -61,9 +61,9 @@ public:
   /// Returns the absolute path with which the file was opened (including the prefix of the data directory).
   ezString128 GetFilePathAbsolute() const
   { 
-    ezStringBuilder sAbs = m_pDataDirWriter->GetDataDirectory()->GetDataDirectoryPath().GetData();
+    ezStringBuilder sAbs = m_pDataDirWriter->GetDataDirectory()->GetDataDirectoryPath();
     sAbs.AppendPath(m_pDataDirWriter->GetFilePath().GetData());
-    return sAbs.GetData();
+    return sAbs;
   }
 
   /// Returns the relative path of the file within its data directory (excluding the prefix of the data directory).

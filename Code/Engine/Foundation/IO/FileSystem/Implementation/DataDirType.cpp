@@ -9,14 +9,14 @@ ezResult ezDataDirectoryType::InitializeDataDirectory(const char* szDataDirPath)
 {
   ezStringBuilder sPath = szDataDirPath;
   sPath.MakeCleanPath();
-  m_sDataDirectoryPath = sPath.GetData();
+  m_sDataDirectoryPath = sPath;
 
   return InternalInitializeDataDirectory(m_sDataDirectoryPath.GetData());
 }
 
 bool ezDataDirectoryType::ExistsFile(const char* szFile)
 {
-  ezStringBuilder sPath = m_sDataDirectoryPath.GetData();
+  ezStringBuilder sPath = m_sDataDirectoryPath;
   sPath.AppendPath(szFile);
   return ezOSFile::Exists(sPath.GetData());
 }

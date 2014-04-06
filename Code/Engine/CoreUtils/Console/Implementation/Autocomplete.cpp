@@ -5,7 +5,7 @@
 void ezConsole::AutoCompleteInputLine()
 {
   int iPos = 0;
-  ezString sVarName = m_sInputLine.GetData();
+  ezString sVarName = m_sInputLine;
 
   ezStringIterator it = m_sInputLine.GetIteratorBack();
 
@@ -155,9 +155,7 @@ const ezString ezConsole::GetValueAsString(ezCVar* pCVar)
 
 ezString ezConsole::GetFullInfoAsString(ezCVar* pCVar)
 {
-  ezStringBuilder s;
-
-  s = GetValueAsString(pCVar).GetData();
+  ezStringBuilder s = GetValueAsString(pCVar);
 
   const bool bAnyFlags = pCVar->GetFlags().IsAnySet(ezCVarFlags::RequiresRestart | ezCVarFlags::Save);
 
@@ -173,7 +171,7 @@ ezString ezConsole::GetFullInfoAsString(ezCVar* pCVar)
   if (bAnyFlags)
     s.Append("]");
 
-  return s.GetData();
+  return s;
 }
 
 const ezString ezConsole::FindCommonString(const ezDeque<ezString>& vStrings)

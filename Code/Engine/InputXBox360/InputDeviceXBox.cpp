@@ -102,7 +102,7 @@ void ezInputDeviceXBox360::SetValue(ezInt32 iController, const char* szButton, f
 {
   ezStringBuilder s = szControllerName[iController];
   s.Append(szButton);
-  float& fVal = m_InputSlotValues[s.GetData()];
+  float& fVal = m_InputSlotValues[s];
   fVal = ezMath::Max(fVal, fValue);
 }
 

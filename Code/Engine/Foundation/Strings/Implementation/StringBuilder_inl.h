@@ -16,6 +16,14 @@ inline ezStringBuilder::ezStringBuilder(const ezStringBuilder& rhs) : m_Data(rhs
   *this = rhs;
 }
 
+inline ezStringBuilder::ezStringBuilder(ezStringBuilder&& rhs) : m_Data(rhs.GetAllocator())
+{
+  m_uiCharacterCount = 0;
+  AppendTerminator();
+
+  *this = std::move(rhs);
+}
+
 inline ezStringBuilder::ezStringBuilder(const char* szUTF8, ezAllocatorBase* pAllocator) : m_Data(pAllocator)
 {
   m_uiCharacterCount = 0;
@@ -61,8 +69,14 @@ inline void ezStringBuilder::operator=(const wchar_t* szWChar)
 
 inline void ezStringBuilder::operator=(const ezStringBuilder& rhs)
 {
-  m_Data = rhs.m_Data;
   m_uiCharacterCount = rhs.m_uiCharacterCount;
+  m_Data = rhs.m_Data;
+}
+
+inline void ezStringBuilder::operator=(ezStringBuilder&& rhs)
+{
+  m_uiCharacterCount = rhs.m_uiCharacterCount;
+  m_Data = std::move(rhs.m_Data);
 }
 
 inline ezUInt32 ezStringBuilder::GetElementCount() const
@@ -346,4 +360,6 @@ inline bool ezStringBuilder::IsRelativePath() const
 {
   return ezPathUtils::IsRelativePath(GetData());
 }
+
+#include <Foundation/Strings/Implementation/AllStrings_inl.h>
 

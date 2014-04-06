@@ -283,7 +283,7 @@ const char* ezFileSystem::ExtractDataDirsToSearch(const char* szPath, ezHybridAr
   {
     if (it.GetCharacter() == '|')
     {
-      SearchDirs.PushBack(sCur.GetData());
+      SearchDirs.PushBack(sCur);
       sCur.Clear();
     }
     else
@@ -294,7 +294,7 @@ const char* ezFileSystem::ExtractDataDirsToSearch(const char* szPath, ezHybridAr
 
   EZ_ASSERT(!it.IsEmpty(), "Cannot parse the path \"%s\". The data-dir filter starts with a '<' but does not end with '>'.", szPath);
 
-  SearchDirs.PushBack(sCur.GetData());
+  SearchDirs.PushBack(sCur);
   ++it;
 
   return it.GetData(); // return the string after the data-dir filter declaration
@@ -455,10 +455,10 @@ ezResult ezFileSystem::ResolvePath(const char* szPath, bool bForWriting, ezStrin
     {
       if (out_sAbsolutePath)
       {
-        ezStringBuilder sAbs = pReader->GetDataDirectory()->GetDataDirectoryPath().GetData();
+        ezStringBuilder sAbs = pReader->GetDataDirectory()->GetDataDirectoryPath();
         sAbs.AppendPath(pReader->GetFilePath().GetData());
 
-        *out_sAbsolutePath = sAbs.GetData();
+        *out_sAbsolutePath = sAbs;
       }
 
       if (out_sDataDirRelativePath)
@@ -493,10 +493,10 @@ ezResult ezFileSystem::ResolvePath(const char* szPath, bool bForWriting, ezStrin
 
     if (pWriter)
     {
-      ezStringBuilder sRelativePath = pWriter->GetFilePath().GetData();    // get the path of the actually opened file
+      ezStringBuilder sRelativePath = pWriter->GetFilePath();    // get the path of the actually opened file
       pWriter->Close();
 
-      ezStringBuilder sAbsPath = pWriter->GetDataDirectory()->GetDataDirectoryPath().GetData();
+      ezStringBuilder sAbsPath = pWriter->GetDataDirectory()->GetDataDirectoryPath();
       sAbsPath.AppendPath(sRelativePath.GetData());
 
       ezFileSystem::DeleteFile(sAbsPath.GetData()); // we use the absolute path here, so this will delete exactly the one file
@@ -504,13 +504,13 @@ ezResult ezFileSystem::ResolvePath(const char* szPath, bool bForWriting, ezStrin
       if (out_sAbsolutePath)
       {
         sAbsPath.ChangeFileNameAndExtension(sFileNameAndExt.GetData()); // change the filename back to the original filename
-        *out_sAbsolutePath = sAbsPath.GetData();
+        *out_sAbsolutePath = sAbsPath;
       }
 
       if (out_sDataDirRelativePath)
       {
         sRelativePath.ChangeFileNameAndExtension(sFileNameAndExt.GetData()); // change the filename back to the original filename
-        *out_sDataDirRelativePath = sRelativePath.GetData();
+        *out_sDataDirRelativePath = sRelativePath;
       }
 
       bRet = EZ_SUCCESS;

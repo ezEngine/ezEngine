@@ -18,6 +18,16 @@ ezHybridArrayBase<T, Size>::ezHybridArrayBase(const ezHybridArrayBase<T, Size>& 
 }
 
 template <typename T, ezUInt32 Size>
+ezHybridArrayBase<T, Size>::ezHybridArrayBase(ezHybridArrayBase<T, Size>&& other, ezAllocatorBase* pAllocator)
+{
+  this->m_pElements = GetStaticArray();
+  this->m_uiCapacity = Size;
+  this->m_pAllocator = pAllocator;
+
+  *this = std::move(other);
+}
+
+template <typename T, ezUInt32 Size>
 ezHybridArrayBase<T, Size>::ezHybridArrayBase(const ezArrayPtr<T>& other, ezAllocatorBase* pAllocator)
 {
   this->m_pElements = GetStaticArray();
@@ -48,6 +58,28 @@ template <typename T, ezUInt32 Size>
 EZ_FORCE_INLINE void ezHybridArrayBase<T, Size>::operator= (const ezHybridArrayBase<T, Size>& rhs)
 {
   *this = (ezArrayPtr<T>) rhs; // redirect this to the ezArrayPtr version
+}
+
+template <typename T, ezUInt32 Size>
+EZ_FORCE_INLINE void ezHybridArrayBase<T, Size>::operator= (ezHybridArrayBase<T, Size>&& rhs)
+{
+  if (rhs.m_pElements == rhs.GetStaticArray() || (m_pAllocator != rhs.m_pAllocator))
+    *this = (ezArrayPtr<T>) rhs; // redirect this to the ezArrayPtr version
+  else
+  {
+    // Move semantics !
+    // We cannot do this when the allocators of this and rhs are different,
+    // because the memory will be freed by this and not by rhs anymore.
+
+    Clear();
+
+    m_pElements = rhs.m_pElements;
+    m_uiCapacity = rhs.m_uiCapacity;
+    m_uiCount = rhs.m_uiCount;
+
+    rhs.m_uiCount = 0;
+    rhs.m_pElements = rhs.GetStaticArray();
+  }
 }
 
 template <typename T, ezUInt32 Size>
@@ -145,6 +177,16 @@ ezHybridArray<T, Size, A>:: ezHybridArray(const ezHybridArrayBase<T, Size>& othe
 }
 
 template <typename T, ezUInt32 Size, typename A>
+ezHybridArray<T, Size, A>::ezHybridArray(ezHybridArray<T, Size, A>&& other) : ezHybridArrayBase<T, Size>(std::move(other), A::GetAllocator())
+{
+}
+
+template <typename T, ezUInt32 Size, typename A>
+ezHybridArray<T, Size, A>:: ezHybridArray(ezHybridArrayBase<T, Size>&& other) : ezHybridArrayBase<T, Size>(std::move(other), A::GetAllocator())
+{
+}
+
+template <typename T, ezUInt32 Size, typename A>
 ezHybridArray<T, Size, A>::ezHybridArray(const ezArrayPtr<T>& other) : ezHybridArrayBase<T, Size>(other, A::GetAllocator())
 {
 }
@@ -160,6 +202,19 @@ void ezHybridArray<T, Size, A>::operator=(const ezHybridArrayBase<T, Size>& rhs)
 {
   ezHybridArrayBase<T, Size>::operator=(rhs);
 }
+
+template <typename T, ezUInt32 Size, typename A>
+void ezHybridArray<T, Size, A>::operator=(ezHybridArray<T, Size, A>&& rhs)
+{
+  ezHybridArrayBase<T, Size>::operator=(std::move(rhs));
+}
+
+template <typename T, ezUInt32 Size, typename A>
+void ezHybridArray<T, Size, A>::operator=(ezHybridArrayBase<T, Size>&& rhs)
+{
+  ezHybridArrayBase<T, Size>::operator=(std::move(rhs));
+}
+
 
 template <typename T, ezUInt32 Size, typename A>
 void ezHybridArray<T, Size, A>::operator=(const ezArrayPtr<T>& rhs)

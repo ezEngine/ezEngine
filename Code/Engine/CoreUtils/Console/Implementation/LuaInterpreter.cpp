@@ -87,7 +87,7 @@ ezResult ezConsoleInterpreter::Lua(const char* szCommand, ezConsole* pConsole)
   const ezString sVarName = GetNextWord(sCommandIt);
   const ezString sFunctionParam = GetRestWords(sCommandIt);
   const ezString sMiddle = GetNextWord(sCommandIt);
-  ezStringBuilder sValue = GetRestWords(sCommandIt).GetData();
+  ezStringBuilder sValue = GetRestWords(sCommandIt);
   bool bValueEmpty = sValue.IsEmpty();
 
   const bool bSetValue = (sMiddle == "=");

@@ -6,7 +6,7 @@ namespace ezDataDirectory
 
   ezResult FolderReader::InternalOpen()
   {
-    ezStringBuilder sPath = GetDataDirectory()->GetDataDirectoryPath().GetData();
+    ezStringBuilder sPath = GetDataDirectory()->GetDataDirectoryPath();
     sPath.AppendPath(GetFilePath().GetData());
 
     return m_File.Open(sPath.GetData(), ezFileMode::Read);
@@ -29,7 +29,7 @@ namespace ezDataDirectory
 
   ezResult FolderWriter::InternalOpen()
   {
-    ezStringBuilder sPath = GetDataDirectory()->GetDataDirectoryPath().GetData();
+    ezStringBuilder sPath = GetDataDirectory()->GetDataDirectoryPath();
     sPath.AppendPath(GetFilePath().GetData());
 
     return m_File.Open(sPath.GetData(), ezFileMode::Write);
@@ -79,7 +79,7 @@ namespace ezDataDirectory
 
   void FolderType::DeleteFile(const char* szFile)
   {
-    ezStringBuilder sPath = GetDataDirectoryPath().GetData();
+    ezStringBuilder sPath = GetDataDirectoryPath();
     sPath.AppendPath(szFile);
 
     ezOSFile::DeleteFile(sPath.GetData());

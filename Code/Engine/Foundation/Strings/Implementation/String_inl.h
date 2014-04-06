@@ -15,6 +15,13 @@ ezHybridStringBase<Size>::ezHybridStringBase(const ezHybridStringBase& rhs, ezAl
 }
 
 template<ezUInt16 Size>
+ezHybridStringBase<Size>::ezHybridStringBase(ezHybridStringBase&& rhs, ezAllocatorBase* pAllocator) :
+  m_Data(pAllocator)
+{
+  operator=(std::move(rhs));
+}
+
+template<ezUInt16 Size>
 ezHybridStringBase<Size>::ezHybridStringBase(const char* rhs, ezAllocatorBase* pAllocator) :
   m_Data(pAllocator)
 {
@@ -30,13 +37,6 @@ ezHybridStringBase<Size>::ezHybridStringBase(const wchar_t* rhs, ezAllocatorBase
 
 template<ezUInt16 Size>
 ezHybridStringBase<Size>::ezHybridStringBase(const ezStringIterator& rhs, ezAllocatorBase* pAllocator) :
-  m_Data(pAllocator)
-{
-  *this = rhs;
-}
-
-template<ezUInt16 Size>
-ezHybridStringBase<Size>::ezHybridStringBase(const ezStringBuilder& rhs, ezAllocatorBase* pAllocator) :
   m_Data(pAllocator)
 {
   *this = rhs;
@@ -93,6 +93,16 @@ void ezHybridStringBase<Size>::operator=(const ezHybridStringBase& rhs)
 }
 
 template<ezUInt16 Size>
+void ezHybridStringBase<Size>::operator=(ezHybridStringBase&& rhs)
+{
+  if (this == &rhs)
+    return;
+
+  m_uiCharacterCount = rhs.m_uiCharacterCount;
+  m_Data = std::move(rhs.m_Data);
+}
+
+template<ezUInt16 Size>
 void ezHybridStringBase<Size>::operator=(const wchar_t* szString)
 {
   ezStringUtf8 sConversion(szString, m_Data.GetAllocator());
@@ -105,12 +115,6 @@ void ezHybridStringBase<Size>::operator=(const ezStringIterator& rhs)
   m_Data.SetCount(rhs.GetElementCount() + 1);
   ezStringUtils::Copy(&m_Data[0], m_Data.GetCount() + 1, rhs.GetData(), rhs.GetEnd());
   m_uiCharacterCount = ezStringUtils::GetCharacterCount(GetData());
-}
-
-template<ezUInt16 Size>
-void ezHybridStringBase<Size>::operator=(const ezStringBuilder& rhs)
-{
-  *this = rhs.GetData();
 }
 
 template<ezUInt16 Size>
@@ -181,6 +185,18 @@ EZ_FORCE_INLINE ezHybridString<Size, A>::ezHybridString(const ezHybridStringBase
 }
 
 template <ezUInt16 Size, typename A>
+EZ_FORCE_INLINE ezHybridString<Size, A>::ezHybridString(ezHybridString<Size, A>&& other) :
+  ezHybridStringBase<Size>(std::move(other), A::GetAllocator())
+{
+}
+
+template <ezUInt16 Size, typename A>
+EZ_FORCE_INLINE ezHybridString<Size, A>::ezHybridString(ezHybridStringBase<Size>&& other) :
+  ezHybridStringBase<Size>(std::move(other), A::GetAllocator())
+{
+}
+
+template <ezUInt16 Size, typename A>
 EZ_FORCE_INLINE ezHybridString<Size, A>::ezHybridString(const char* rhs) :
   ezHybridStringBase<Size>(rhs, A::GetAllocator())
 {
@@ -199,12 +215,6 @@ EZ_FORCE_INLINE ezHybridString<Size, A>::ezHybridString(const ezStringIterator& 
 }
 
 template <ezUInt16 Size, typename A>
-EZ_FORCE_INLINE ezHybridString<Size, A>::ezHybridString(const ezStringBuilder& rhs) :
-  ezHybridStringBase<Size>(rhs, A::GetAllocator())
-{
-}
-
-template <ezUInt16 Size, typename A>
 EZ_FORCE_INLINE void ezHybridString<Size, A>::operator=(const ezHybridString<Size, A>& rhs)
 {
   ezHybridStringBase<Size>::operator=(rhs);
@@ -214,6 +224,18 @@ template <ezUInt16 Size, typename A>
 EZ_FORCE_INLINE void ezHybridString<Size, A>::operator=(const ezHybridStringBase<Size>& rhs)
 {
   ezHybridStringBase<Size>::operator=(rhs);
+}
+
+template <ezUInt16 Size, typename A>
+EZ_FORCE_INLINE void ezHybridString<Size, A>::operator=(ezHybridString<Size, A>&& rhs)
+{
+  ezHybridStringBase<Size>::operator=(std::move(rhs));
+}
+
+template <ezUInt16 Size, typename A>
+EZ_FORCE_INLINE void ezHybridString<Size, A>::operator=(ezHybridStringBase<Size>&& rhs)
+{
+  ezHybridStringBase<Size>::operator=(std::move(rhs));
 }
 
 template <ezUInt16 Size, typename A>
@@ -234,9 +256,5 @@ EZ_FORCE_INLINE void ezHybridString<Size, A>::operator=(const ezStringIterator& 
   ezHybridStringBase<Size>::operator=(rhs);
 }
 
-template <ezUInt16 Size, typename A>
-EZ_FORCE_INLINE void ezHybridString<Size, A>::operator=(const ezStringBuilder& rhs)
-{
-  ezHybridStringBase<Size>::operator=(rhs);
-}
+#include <Foundation/Strings/Implementation/AllStrings_inl.h>
 
