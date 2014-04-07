@@ -35,7 +35,7 @@ ezStaticArray<T, C>::~ezStaticArray()
 {
   this->Clear();
 
-  this->m_pElements = NULL;
+  this->m_pElements = nullptr;
 }
 
 template <typename T, ezUInt32 C>

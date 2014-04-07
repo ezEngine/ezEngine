@@ -4,7 +4,7 @@
 #include <Foundation/Communication/Telemetry.h>
 #include <MainWindow.moc.h>
 
-ezInputWidget* ezInputWidget::s_pWidget = NULL;
+ezInputWidget* ezInputWidget::s_pWidget = nullptr;
 
 ezInputWidget::ezInputWidget(QWidget* parent) : QDockWidget (parent)
 {

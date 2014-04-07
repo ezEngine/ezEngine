@@ -45,8 +45,8 @@ EZ_CREATE_SIMPLE_TEST(Threading, Thread)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Thread")
   {
-    TestThread* pTestThread = NULL;
-    TestThread* pTestThread2 = NULL;
+    TestThread* pTestThread = nullptr;
+    TestThread* pTestThread2 = nullptr;
 
     /// the try-catch is necessary to quiet the static code analysis
     try
@@ -58,8 +58,8 @@ EZ_CREATE_SIMPLE_TEST(Threading, Thread)
     {
     }
 
-    EZ_TEST_BOOL(pTestThread != NULL);
-    EZ_TEST_BOOL(pTestThread2 != NULL);
+    EZ_TEST_BOOL(pTestThread != nullptr);
+    EZ_TEST_BOOL(pTestThread2 != nullptr);
 
     // Both thread will increment the global variable via atomic operations
     pTestThread->Start();

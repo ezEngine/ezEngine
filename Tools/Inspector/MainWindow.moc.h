@@ -93,8 +93,8 @@ private:
 
     StatData()
     {
-      m_pItem = NULL;
-      m_pItemFavourite = NULL;
+      m_pItem = nullptr;
+      m_pItemFavourite = nullptr;
     }
   };
 

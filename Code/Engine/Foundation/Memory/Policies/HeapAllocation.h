@@ -26,7 +26,7 @@ namespace ezMemoryPolicies
       free(ptr);
     }
      
-    EZ_FORCE_INLINE ezAllocatorBase* GetParent() const { return NULL; }
+    EZ_FORCE_INLINE ezAllocatorBase* GetParent() const { return nullptr; }
   };
 }
 

@@ -12,7 +12,7 @@ template<typename PathStateType>
 ezInt64 ezPathSearch<PathStateType>::FindBestNodeToExpand(PathStateType*& out_pPathState)
 {
   float fLowestEstimation = ezMath::BasicType<float>::GetInfinity();
-  out_pPathState = NULL;
+  out_pPathState = nullptr;
   ezUInt32 iBestInQueue = 0;
 
   for (ezUInt32 i = 0; i < m_StateQueue.GetCount(); ++i)
@@ -29,7 +29,7 @@ ezInt64 ezPathSearch<PathStateType>::FindBestNodeToExpand(PathStateType*& out_pP
     }
   }
 
-  EZ_ASSERT(out_pPathState != NULL, "Implementation Error");
+  EZ_ASSERT(out_pPathState != nullptr, "Implementation Error");
 
   const ezInt64 iBestNodeIndex = m_StateQueue[iBestInQueue];
   m_StateQueue.RemoveAtSwap(iBestInQueue);
@@ -93,7 +93,7 @@ void ezPathSearch<PathStateType>::AddPathNode(ezInt64 iNodeIndex, const PathStat
 template<typename PathStateType>
 ezResult ezPathSearch<PathStateType>::FindPath(ezInt64 iStartNodeIndex, const PathStateType& StartState, ezInt64 iTargetNodeIndex, ezDeque<PathResultData>& out_Path, float fMaxPathCost /* = Infinity */)
 {
-  EZ_ASSERT(m_pStateGenerator != NULL, "No Path State Generator is set.");
+  EZ_ASSERT(m_pStateGenerator != nullptr, "No Path State Generator is set.");
 
   ClearPathStates();
 
@@ -163,7 +163,7 @@ ezResult ezPathSearch<PathStateType>::FindPath(ezInt64 iStartNodeIndex, const Pa
 template<typename PathStateType>
 ezResult ezPathSearch<PathStateType>::FindClosest(ezInt64 iStartNodeIndex, const PathStateType& StartState, IsSearchedObjectCallback Callback, ezDeque<PathResultData>& out_Path, float fMaxPathCost)
 {
-  EZ_ASSERT(m_pStateGenerator != NULL, "No Path State Generator is set.");
+  EZ_ASSERT(m_pStateGenerator != nullptr, "No Path State Generator is set.");
 
   ClearPathStates();
 

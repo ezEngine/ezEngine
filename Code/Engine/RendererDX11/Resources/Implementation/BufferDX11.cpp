@@ -8,7 +8,7 @@
 
 ezGALBufferDX11::ezGALBufferDX11(const ezGALBufferCreationDescription& Description)
   : ezGALBuffer(Description),
-    m_pDXBuffer(NULL),
+    m_pDXBuffer(nullptr),
     m_IndexFormat(DXGI_FORMAT_UNKNOWN)
 {
 }
@@ -69,7 +69,7 @@ ezResult ezGALBufferDX11::InitPlatform(ezGALDevice* pDevice, const void* pInitia
     BufferDesc.MiscFlags |= D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
 
   BufferDesc.StructureByteStride = m_Description.m_uiStructSize;
-  BufferDesc.Usage = pInitialData != NULL ? D3D11_USAGE_IMMUTABLE : D3D11_USAGE_DEFAULT; // TODO: See above
+  BufferDesc.Usage = pInitialData != nullptr ? D3D11_USAGE_IMMUTABLE : D3D11_USAGE_DEFAULT; // TODO: See above
 
   // Hack for constant buffers
   if(m_Description.m_BufferType == ezGALBufferType::ConstantBuffer)
@@ -89,7 +89,7 @@ ezResult ezGALBufferDX11::InitPlatform(ezGALDevice* pDevice, const void* pInitia
   DXInitialData.pSysMem = pInitialData;
   DXInitialData.SysMemPitch = DXInitialData.SysMemSlicePitch = 0;
 
-  if(SUCCEEDED(pDXDevice->GetDXDevice()->CreateBuffer(&BufferDesc, pInitialData != NULL ? &DXInitialData : NULL, &m_pDXBuffer)))
+  if(SUCCEEDED(pDXDevice->GetDXDevice()->CreateBuffer(&BufferDesc, pInitialData != nullptr ? &DXInitialData : nullptr, &m_pDXBuffer)))
   {
     return EZ_SUCCESS;
   }

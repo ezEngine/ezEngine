@@ -6,7 +6,7 @@
 
 ezTaskGroupID::ezTaskGroupID()
 {
-  m_pTaskGroup = NULL;
+  m_pTaskGroup = nullptr;
   m_uiGroupCounter = 0;
 }
 
@@ -16,8 +16,8 @@ ezTaskGroup::ezTaskGroup()
   m_bIsActive = false;
   m_uiGroupCounter = 1;
   m_Priority = ezTaskPriority::ThisFrame;
-  m_OnFinishedCallback = NULL;
-  m_pCallbackPassThrough = NULL;
+  m_OnFinishedCallback = nullptr;
+  m_pCallbackPassThrough = nullptr;
 }
 
 ezTaskGroupID ezTaskSystem::CreateTaskGroup(ezTaskPriority::Enum Priority, ezTaskGroup::OnTaskGroupFinished Callback, void* pPassThrough)
@@ -59,7 +59,7 @@ void ezTaskSystem::DebugCheckTaskGroup(ezTaskGroupID Group)
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   ezLock<ezMutex> Lock(s_TaskSystemMutex);
 
-  EZ_ASSERT(Group.m_pTaskGroup != NULL, "TaskGroupID is invalid.");
+  EZ_ASSERT(Group.m_pTaskGroup != nullptr, "TaskGroupID is invalid.");
   EZ_ASSERT(Group.m_pTaskGroup->m_uiGroupCounter == Group.m_uiGroupCounter, "The given TaskGroupID is not valid anymore.");
   EZ_ASSERT(!Group.m_pTaskGroup->m_bIsActive, "The given TaskGroupID is already started, you cannot modify it anymore.");
 #endif
@@ -67,7 +67,7 @@ void ezTaskSystem::DebugCheckTaskGroup(ezTaskGroupID Group)
 
 void ezTaskSystem::AddTaskToGroup(ezTaskGroupID Group, ezTask* pTask)
 {
-  EZ_ASSERT(pTask != NULL, "Cannot add NULL tasks.");
+  EZ_ASSERT(pTask != nullptr, "Cannot add nullptr tasks.");
   EZ_ASSERT(pTask->IsTaskFinished(), "The task that is not finished! Cannot reuse a task before it is done.");
 
   DebugCheckTaskGroup(Group);
@@ -143,7 +143,7 @@ void ezTaskSystem::ScheduleGroupTasks(ezTaskGroup* pGroup)
     pGroup->m_iRemainingTasks = 1;
 
     // "finish" one task -> will finish the task group and kick off dependent groups
-    TaskHasFinished(NULL, pGroup);
+    TaskHasFinished(nullptr, pGroup);
     return;
   }
 

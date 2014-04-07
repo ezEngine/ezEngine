@@ -59,7 +59,7 @@ namespace
   
   static bool InitializeData()
   {
-    if (s_pProfilingData == NULL)
+    if (s_pProfilingData == nullptr)
     {
       static ezUInt8 ProfilingDataBuffer[sizeof(ProfilingData)];
       s_pProfilingData = new (ProfilingDataBuffer) ProfilingData();
@@ -120,7 +120,7 @@ void ezProfilingSystem::AddReference(const ezProfilingId& id)
 void ezProfilingSystem::ReleaseReference(const ezProfilingId& id)
 {
   // profiling system already de-initialized, nothing to do anymore. Can happen during static de-initialization.
-  if (s_pProfilingData == NULL)
+  if (s_pProfilingData == nullptr)
     return;
 
   RefCountedProfilingInfo* pInfo;

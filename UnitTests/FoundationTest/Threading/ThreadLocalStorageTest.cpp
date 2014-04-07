@@ -31,7 +31,7 @@ namespace
       
       ezUInt32* pValueStoredInTLSVar = g_TlsValue;
 
-      if (pValueStoredInTLSVar == NULL)
+      if (pValueStoredInTLSVar == nullptr)
         return 0;
 
       if (pValueStoredInTLSVar != &m_uiThreadLocalVariable)
@@ -68,8 +68,8 @@ EZ_CREATE_SIMPLE_TEST(Threading, ThreadLocalStorage)
     ezUInt32 uiVarIndex = ezThreadLocalStorage::AllocateSlot();
     EZ_TEST_BOOL(ezThreadLocalStorage::IsValidSlot(uiVarIndex));
 
-    // The initial value should be NULL
-    EZ_TEST_BOOL(ezThreadLocalStorage::GetValueForSlot(uiVarIndex) == NULL);
+    // The initial value should be nullptr
+    EZ_TEST_BOOL(ezThreadLocalStorage::GetValueForSlot(uiVarIndex) == nullptr);
 
     // Place a pointer there
     void* pBogusPointer = reinterpret_cast<void*>(0xBAADF00D);
@@ -101,7 +101,7 @@ EZ_CREATE_SIMPLE_TEST(Threading, ThreadLocalStorage)
     g_TlsValue = &uiMainThreadValue;
 
     ezUInt32* pValueStoredInTLSVar = g_TlsValue;
-    EZ_TEST_BOOL(pValueStoredInTLSVar != NULL);
+    EZ_TEST_BOOL(pValueStoredInTLSVar != nullptr);
     EZ_TEST_BOOL(pValueStoredInTLSVar == &uiMainThreadValue);
 
     EZ_TEST_BOOL(*pValueStoredInTLSVar == uiCopyValue);

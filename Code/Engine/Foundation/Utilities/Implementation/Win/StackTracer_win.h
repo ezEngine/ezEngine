@@ -51,30 +51,30 @@ namespace
       ezMemoryUtils::ZeroFill(this);
 
       kernel32Dll = LoadLibraryW(L"kernel32.dll");
-      EZ_ASSERT(kernel32Dll != NULL, "StackTracer could not load kernel32.dll");
-      if (kernel32Dll != NULL)
+      EZ_ASSERT(kernel32Dll != nullptr, "StackTracer could not load kernel32.dll");
+      if (kernel32Dll != nullptr)
       {
         captureStackBackTrace = (CaptureStackBackTraceFunc)GetProcAddress(kernel32Dll, 
           "RtlCaptureStackBackTrace");
       }
 
       dbgHelpDll = LoadLibraryW(L"dbghelp.dll");
-      EZ_ASSERT(dbgHelpDll != NULL, "StackTracer could not load dbghelp.dll");
-      if (dbgHelpDll != NULL)
+      EZ_ASSERT(dbgHelpDll != nullptr, "StackTracer could not load dbghelp.dll");
+      if (dbgHelpDll != nullptr)
       {
         symbolInitialize = (SymbolInitializeFunc)GetProcAddress(dbgHelpDll, "SymInitializeW");
         symbolLoadModule = (SymbolLoadModuleFunc)GetProcAddress(dbgHelpDll, "SymLoadModuleExW");
         getModuleInfo = (SymbolGetModuleInfoFunc)GetProcAddress(dbgHelpDll, "SymGetModuleInfoW64");
-        if (symbolInitialize == NULL || symbolLoadModule == NULL || getModuleInfo == NULL)
+        if (symbolInitialize == nullptr || symbolLoadModule == nullptr || getModuleInfo == nullptr)
           return;
 
-        if (!(*symbolInitialize)(GetCurrentProcess(), NULL, TRUE))
+        if (!(*symbolInitialize)(GetCurrentProcess(), nullptr, TRUE))
         {
           DWORD err = GetLastError();
-          LPVOID lpMsgBuf = NULL;
+          LPVOID lpMsgBuf = nullptr;
 
-          FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL,
-            err, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR)&lpMsgBuf, 0, NULL);
+          FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, nullptr,
+            err, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR)&lpMsgBuf, 0, nullptr);
 
           char errStr[1024];
           sprintf_s(errStr, "StackTracer could not initialize symbols. Error-Code %u (\"%s\")", err, lpMsgBuf);
@@ -94,7 +94,7 @@ namespace
 
   static void OnPluginEvent(const ezPlugin::PluginEvent& e)
   {
-    if (s_pImplementation->symbolLoadModule == NULL || s_pImplementation->getModuleInfo == NULL)
+    if (s_pImplementation->symbolLoadModule == nullptr || s_pImplementation->getModuleInfo == nullptr)
       return;
 
     if (e.m_EventType == ezPlugin::PluginEvent::AfterLoading)
@@ -112,16 +112,16 @@ namespace
 
       HANDLE currentProcess = GetCurrentProcess();
       
-      DWORD64 moduleAddress = (*s_pImplementation->symbolLoadModule)(currentProcess, NULL, szPluginPath, szPluginName, 0, 0, NULL, 0);
+      DWORD64 moduleAddress = (*s_pImplementation->symbolLoadModule)(currentProcess, nullptr, szPluginPath, szPluginName, 0, 0, nullptr, 0);
       if (moduleAddress == 0)
       {
         DWORD err = GetLastError();
         if (err != ERROR_SUCCESS)
         {
-          LPVOID lpMsgBuf = NULL;
+          LPVOID lpMsgBuf = nullptr;
 
-          FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL,
-            err, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR)&lpMsgBuf, 0, NULL);
+          FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, nullptr,
+            err, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR)&lpMsgBuf, 0, nullptr);
 
           char errStr[1024];
           sprintf_s(errStr, "StackTracer could not load symbols for '%s'. Error-Code %u (\"%s\")", e.m_szPluginFile, err, lpMsgBuf);
@@ -140,10 +140,10 @@ namespace
       if (!(*s_pImplementation->getModuleInfo)(currentProcess, moduleAddress, &moduleInfo))
       {
         DWORD err = GetLastError();
-        LPVOID lpMsgBuf = NULL;
+        LPVOID lpMsgBuf = nullptr;
 
-        FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL,
-            err, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR)&lpMsgBuf, 0, NULL);
+        FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, nullptr,
+            err, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR)&lpMsgBuf, 0, nullptr);
 
         char errStr[1024];
         sprintf_s(errStr, "StackTracer could not get module info for '%s'. Error-Code %u (\"%s\")", e.m_szPluginFile, err, lpMsgBuf);
@@ -156,11 +156,11 @@ namespace
 
   static void Initialize()
   {
-    if (s_pImplementation == NULL)
+    if (s_pImplementation == nullptr)
     {
       static ezUInt8 ImplementationBuffer[sizeof(StackTracerImplementation)];
       s_pImplementation = new (ImplementationBuffer) StackTracerImplementation();
-      EZ_ASSERT(s_pImplementation != NULL, "StackTracer initialization failed");
+      EZ_ASSERT(s_pImplementation != nullptr, "StackTracer initialization failed");
 
       ezPlugin::s_PluginEvents.AddEventHandler(OnPluginEvent);
     }
@@ -172,11 +172,11 @@ ezUInt32 ezStackTracer::GetStackTrace(ezArrayPtr<void*>& trace)
 {
   Initialize();
 
-  if (s_pImplementation->captureStackBackTrace != NULL)
+  if (s_pImplementation->captureStackBackTrace != nullptr)
   {
     const ezUInt32 uiSkip = 1;
     const ezUInt32 uiMaxNumTrace = ezMath::Min(62U, trace.GetCount() - uiSkip);
-    ezInt32 iNumTraces = (*s_pImplementation->captureStackBackTrace)(uiSkip, uiMaxNumTrace, trace.GetPtr(), NULL);
+    ezInt32 iNumTraces = (*s_pImplementation->captureStackBackTrace)(uiSkip, uiMaxNumTrace, trace.GetPtr(), nullptr);
 
     // skip the last three stackframes since they are useless
     return ezMath::Max(iNumTraces - 3, 0);
@@ -189,7 +189,7 @@ void ezStackTracer::ResolveStackTrace(const ezArrayPtr<void*>& trace, PrintFunc 
 {
   Initialize();
 
-  if (s_pImplementation->symbolFromAddress != NULL && s_pImplementation->lineFromAdress != NULL)
+  if (s_pImplementation->symbolFromAddress != nullptr && s_pImplementation->lineFromAdress != nullptr)
   {
     char buffer[1024];
     HANDLE currentProcess = GetCurrentProcess();

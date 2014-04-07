@@ -6,7 +6,7 @@ ezJSONParser::ezJSONParser()
 {
   m_uiCurByte = '\0';
   m_uiNextByte = '\0';
-  m_pInput = NULL;
+  m_pInput = nullptr;
   m_bSkippingMode = false;
 }
 
@@ -22,7 +22,7 @@ void ezJSONParser::SetInputStream(ezStreamReaderBase* pInput)
   m_uiNextByte = ' ';
   ReadCharacter();
 
-  if (m_pInput == NULL)
+  if (m_pInput == nullptr)
     return;
 
   // go to the start of the document
@@ -496,7 +496,7 @@ bool ezJSONParser::ReadCharacter()
 
 void ezJSONParser::SkipWhitespace()
 {
-  EZ_ASSERT(m_pInput != NULL, "Input Stream is not set up.");
+  EZ_ASSERT(m_pInput != nullptr, "Input Stream is not set up.");
 
   do
   {
@@ -510,7 +510,7 @@ void ezJSONParser::SkipWhitespace()
 
 void ezJSONParser::SkipString()
 {
-  EZ_ASSERT(m_pInput != NULL, "Input Stream is not set up.");
+  EZ_ASSERT(m_pInput != nullptr, "Input Stream is not set up.");
 
   m_TempString.Clear();
   m_TempString.PushBack('\0');
@@ -536,7 +536,7 @@ void ezJSONParser::SkipString()
 
 void ezJSONParser::ReadString()
 {
-  EZ_ASSERT(m_pInput != NULL, "Input Stream is not set up.");
+  EZ_ASSERT(m_pInput != nullptr, "Input Stream is not set up.");
 
   m_TempString.Clear();
 
@@ -569,7 +569,7 @@ void ezJSONParser::ReadString()
 
 void ezJSONParser::ReadWord()
 {
-  EZ_ASSERT(m_pInput != NULL, "Input Stream is not set up.");
+  EZ_ASSERT(m_pInput != nullptr, "Input Stream is not set up.");
 
   m_TempString.Clear();
 
@@ -589,7 +589,7 @@ void ezJSONParser::ReadWord()
 
 double ezJSONParser::ReadNumber()
 {
-  EZ_ASSERT(m_pInput != NULL, "Input Stream is not set up.");
+  EZ_ASSERT(m_pInput != nullptr, "Input Stream is not set up.");
 
   m_TempString.Clear();
 

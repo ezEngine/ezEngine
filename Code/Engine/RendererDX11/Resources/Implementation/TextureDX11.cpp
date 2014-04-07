@@ -7,7 +7,7 @@
 #include <d3d11.h>
 
 ezGALTextureDX11::ezGALTextureDX11(const ezGALTextureCreationDescription& Description)
-  : ezGALTexture(Description), m_pDXTexture(NULL), m_pDXStagingTexture(NULL)
+  : ezGALTexture(Description), m_pDXTexture(nullptr), m_pDXStagingTexture(nullptr)
 {
 
 }
@@ -23,7 +23,7 @@ ezResult ezGALTextureDX11::InitPlatform(ezGALDevice* pDevice, const ezArrayPtr<e
 {
   ezGALDeviceDX11* pDXDevice = static_cast<ezGALDeviceDX11*>(pDevice);
 
-  if(m_Description.m_pExisitingNativeObject != NULL)
+  if(m_Description.m_pExisitingNativeObject != nullptr)
   {
     // TODO: Validation if interface of corresponding texture object exists
     m_pDXTexture = static_cast<ID3D11Resource*>(m_Description.m_pExisitingNativeObject);
@@ -78,7 +78,7 @@ ezResult ezGALTextureDX11::InitPlatform(ezGALDevice* pDevice, const ezArrayPtr<e
         Tex2DDesc.SampleDesc.Quality = 0;
 
         ezHybridArray<D3D11_SUBRESOURCE_DATA, 16> InitialData;
-        if(pInitialData != NULL)
+        if(pInitialData != nullptr)
         {
           const ezUInt32 uiInitialDataCount = (m_Description.m_uiMipSliceCount * (m_Description.m_Type  == ezGALTextureType::Texture2D ? 1 : 6));
           EZ_ASSERT(pInitialData->GetCount() == uiInitialDataCount, "The array of initial data values is not equal to the amount of mip levels!");
@@ -93,7 +93,7 @@ ezResult ezGALTextureDX11::InitPlatform(ezGALDevice* pDevice, const ezArrayPtr<e
           }
         }
 
-        if(FAILED(pDXDevice->GetDXDevice()->CreateTexture2D(&Tex2DDesc, pInitialData != NULL ? &InitialData[0] : NULL, reinterpret_cast<ID3D11Texture2D**>(&m_pDXTexture))))
+        if(FAILED(pDXDevice->GetDXDevice()->CreateTexture2D(&Tex2DDesc, pInitialData != nullptr ? &InitialData[0] : nullptr, reinterpret_cast<ID3D11Texture2D**>(&m_pDXTexture))))
         {
           if (!m_Description.m_ResourceAccess.IsImmutable() || m_Description.m_ResourceAccess.m_bReadBack)
             return CreateStagingTexture(pDXDevice);
@@ -147,7 +147,7 @@ ezResult ezGALTextureDX11::CreateStagingTexture(ezGALDeviceDX11* pDevice)
         if (!m_Description.m_ResourceAccess.IsImmutable())
           Desc.CPUAccessFlags |= D3D11_CPU_ACCESS_WRITE;
 
-        if (FAILED(pDevice->GetDXDevice()->CreateTexture2D(&Desc, NULL, reinterpret_cast<ID3D11Texture2D**>(&m_pDXStagingTexture))))
+        if (FAILED(pDevice->GetDXDevice()->CreateTexture2D(&Desc, nullptr, reinterpret_cast<ID3D11Texture2D**>(&m_pDXStagingTexture))))
         {
           ezLog::Error("Couldn't create staging resource for data upload and/or read back!");
           return EZ_FAILURE;

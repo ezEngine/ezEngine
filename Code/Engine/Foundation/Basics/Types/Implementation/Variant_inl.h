@@ -102,11 +102,11 @@ EZ_FORCE_INLINE bool ezVariant::CanConvertTo() const
 }
 
 template <typename T>
-T ezVariant::ConvertTo(ezResult* out_pConversionStatus /* = NULL*/) const
+T ezVariant::ConvertTo(ezResult* out_pConversionStatus /* = nullptr*/) const
 {
   if (!CanConvertTo<T>())
   {
-    if (out_pConversionStatus != NULL)
+    if (out_pConversionStatus != nullptr)
       *out_pConversionStatus = EZ_FAILURE;
 
     return T();
@@ -114,7 +114,7 @@ T ezVariant::ConvertTo(ezResult* out_pConversionStatus /* = NULL*/) const
 
   if (m_Type == TypeDeduction<T>::value)
   {
-    if (out_pConversionStatus != NULL)
+    if (out_pConversionStatus != nullptr)
       *out_pConversionStatus = EZ_SUCCESS;
 
     return Cast<T>();
@@ -124,7 +124,7 @@ T ezVariant::ConvertTo(ezResult* out_pConversionStatus /* = NULL*/) const
   bool bSuccessful = true;
   ezVariantHelper::To(*this, result, bSuccessful);
 
-  if (out_pConversionStatus != NULL)
+  if (out_pConversionStatus != nullptr)
     *out_pConversionStatus = bSuccessful ? EZ_SUCCESS : EZ_FAILURE;
 
   return result;

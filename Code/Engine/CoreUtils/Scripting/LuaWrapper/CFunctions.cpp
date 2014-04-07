@@ -45,7 +45,7 @@ ezResult ezLuaWrapper::CallPreparedFunction(ezUInt32 iExpectedReturnValues, ezLo
   const ezScriptStates StackedStates = m_States;
   m_States = ezScriptStates();
 
-  if (pLogInterface == NULL)
+  if (pLogInterface == nullptr)
     pLogInterface = ezGlobalLog::GetInstance();
 
   if (lua_pcall(m_pState, StackedStates.m_iParametersPushed, iExpectedReturnValues, 0) != 0)

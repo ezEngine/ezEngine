@@ -31,7 +31,7 @@ static void SendSubsystemTelemetry()
   if (s_iSendSubSystemTelemetry <= 0)
     return;
 
-  ezTelemetry::Broadcast(ezTelemetry::Reliable, 'STRT', 'CLR', NULL, 0);
+  ezTelemetry::Broadcast(ezTelemetry::Reliable, 'STRT', 'CLR', nullptr, 0);
 
   ezSubSystem* pSub = ezSubSystem::GetFirstInstance();
 
@@ -47,7 +47,7 @@ static void SendSubsystemTelemetry()
       msg.GetWriter() << pSub->IsStartupPhaseDone((ezStartupStage::Enum) i);
 
     ezUInt8 uiDependencies = 0;
-    while (pSub->GetDependency(uiDependencies) != NULL)
+    while (pSub->GetDependency(uiDependencies) != nullptr)
       ++uiDependencies;
 
     msg.GetWriter() << uiDependencies;

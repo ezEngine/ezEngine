@@ -8,7 +8,7 @@
 
 ezUInt32 RunThread(ezThread* pThread)
 {
-  if (pThread == NULL)
+  if (pThread == nullptr)
     return 0;
 
   ezThreadLocalStorage::SetPerThreadPointerTable(&(pThread->m_ThreadLocalPointerTable));

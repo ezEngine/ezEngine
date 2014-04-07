@@ -251,7 +251,7 @@ struct ezGALTextureSubresource
 struct ezGALSystemMemoryDescription
 {
   EZ_FORCE_INLINE ezGALSystemMemoryDescription()
-    : m_pData(NULL),
+    : m_pData(nullptr),
       m_uiRowPitch(0),
       m_uiSlicePitch(0)
   {

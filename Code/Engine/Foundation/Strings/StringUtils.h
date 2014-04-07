@@ -13,7 +13,7 @@ class EZ_FOUNDATION_DLL ezStringUtils
 {
 public:
 
-  /// \brief Returns true, if the given string is a NULL pointer or a string that immediately terminates with a '\0' character.
+  /// \brief Returns true, if the given string is a nullptr pointer or a string that immediately terminates with a '\0' character.
   template <typename T>
   static bool IsNullOrEmpty(const T* pString); // [tested]
 
@@ -148,7 +148,7 @@ public:
   ///
   /// Returns the number of bytes that would have been required to output the entire string (excluding the 0 terminator).\n
   /// Returns -1 if an error occurred. In this case it might also write a more detailed error message to the destination string itself.
-  /// szDst may be NULL.\n
+  /// szDst may be nullptr.\n
   /// uiDstSize may be zero.\n
   /// This can be used to query how much storage is required, then allocate it and call snprintf again to fill it.\n
   /// Formatting works exactly like printf, except that it additionally supports outputting binary with the 'b' modifier and it will
@@ -159,7 +159,7 @@ public:
   ///
   /// Returns the number of bytes that would have been required to output the entire string (excluding the 0 terminator).\n
   /// Returns -1 if an error occurred. In this case it might also write a more detailed error message to the destination string itself.
-  /// szDst may be NULL.\n
+  /// szDst may be nullptr.\n
   /// uiDstSize may be zero.\n
   /// This can be used to query how much storage is required, then allocate it and call snprintf again to fill it.\n
   /// Formatting works exactly like printf, except that it additionally supports outputting binary with the 'b' modifier and it will
@@ -186,10 +186,10 @@ public:
   static const char* FindSubString_NoCase(const char* szSource, const char* szStringToFind, const char* pSourceEnd = ezMaxStringEnd); // [tested]
 
   /// \brief Searches for the last occurrence of szStringToFind in szSource before uiFirstCharacter.
-  static const char* FindLastSubString(const char* szSource, const char* szStringToFind, const char* szStartSearchAt = NULL, const char* pSourceEnd = ezMaxStringEnd); // [tested]
+  static const char* FindLastSubString(const char* szSource, const char* szStringToFind, const char* szStartSearchAt = nullptr, const char* pSourceEnd = ezMaxStringEnd); // [tested]
 
   /// \brief Searches for the last occurrence of szStringToFind in szSource before uiFirstCharacter. Ignores case.
-  static const char* FindLastSubString_NoCase(const char* szSource, const char* szStringToFind, const char* szStartSearchAt = NULL, const char* pSourceEnd = ezMaxStringEnd); // [tested]
+  static const char* FindLastSubString_NoCase(const char* szSource, const char* szStringToFind, const char* szStartSearchAt = nullptr, const char* pSourceEnd = ezMaxStringEnd); // [tested]
 
   /// \brief Function Definition for a function that determines whether a (Utf32) character belongs to a certain category of characters.
   typedef bool (*EZ_CHARACTER_FILTER)(ezUInt32 uiChar);
@@ -217,10 +217,10 @@ public:
   /// \brief A default word delimiter function for identifiers in C code. 
   static bool IsIdentifierDelimiter_C_Code(ezUInt32 uiChar);
 
-  /// \brief Searches szString for the word szSearchFor. If IsDelimiterCB returns true for both characters in front and back of the word, the position is returned. Otherwise NULL.
+  /// \brief Searches szString for the word szSearchFor. If IsDelimiterCB returns true for both characters in front and back of the word, the position is returned. Otherwise nullptr.
   static const char* FindWholeWord(const char* szString, const char* szSearchFor, EZ_CHARACTER_FILTER IsDelimiterCB, const char* pStringEnd = ezMaxStringEnd); // [tested]
 
-  /// \brief Searches szString for the word szSearchFor. If IsDelimiterCB returns true for both characters in front and back of the word, the position is returned. Otherwise NULL. Ignores case.
+  /// \brief Searches szString for the word szSearchFor. If IsDelimiterCB returns true for both characters in front and back of the word, the position is returned. Otherwise nullptr. Ignores case.
   static const char* FindWholeWord_NoCase(const char* szString, const char* szSearchFor, EZ_CHARACTER_FILTER IsDelimiterCB, const char* pStringEnd = ezMaxStringEnd); // [tested]
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)

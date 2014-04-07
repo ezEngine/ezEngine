@@ -49,18 +49,18 @@ class EZ_FOUNDATION_DLL ezMemoryStreamReader : public ezStreamReaderBase
 {
 public:
   /// \brief Pass the memory storage object from which to read from.
-  /// Pass NULL if you are going to set the storage stream later via SetStorage().
-  ezMemoryStreamReader(ezMemoryStreamStorage* pStreamStorage = NULL);
+  /// Pass nullptr if you are going to set the storage stream later via SetStorage().
+  ezMemoryStreamReader(ezMemoryStreamStorage* pStreamStorage = nullptr);
 
   ~ezMemoryStreamReader();
 
   /// \brief Sets the storage object upon which to operate. Resets the read position to zero.
-  /// Pass NULL if you want to detach from any previous storage stream, for example to ensure its reference count gets properly reduced.
+  /// Pass nullptr if you want to detach from any previous storage stream, for example to ensure its reference count gets properly reduced.
   void SetStorage(ezMemoryStreamStorage* pStreamStorage) { m_pStreamStorage = pStreamStorage; m_uiReadPosition = 0; }
 
   /// \brief Reads either uiBytesToRead or the amount of remaining bytes in the stream into pReadBuffer.
   ///
-  /// It is valid to pass NULL for pReadBuffer, in this case the memory stream position is only advanced by the given number of bytes.
+  /// It is valid to pass nullptr for pReadBuffer, in this case the memory stream position is only advanced by the given number of bytes.
   virtual ezUInt64 ReadBytes(void* pReadBuffer, ezUInt64 uiBytesToRead) EZ_OVERRIDE; // [tested]
 
   /// \brief Skips bytes in the stream (e.g. for skipping objects which can't be serialized due to missing information etc.)
@@ -86,12 +86,12 @@ class EZ_FOUNDATION_DLL ezMemoryStreamWriter : public ezStreamWriterBase
 {
 public:
   /// \brief Pass the memory storage object to which to write to.
-  ezMemoryStreamWriter(ezMemoryStreamStorage* pStreamStorage = NULL);
+  ezMemoryStreamWriter(ezMemoryStreamStorage* pStreamStorage = nullptr);
 
   ~ezMemoryStreamWriter();
 
   /// \brief Sets the storage object upon which to operate. Resests the write position to the end of the storage stream.
-  /// Pass NULL if you want to detach from any previous storage stream, for example to ensure its reference count gets properly reduced.
+  /// Pass nullptr if you want to detach from any previous storage stream, for example to ensure its reference count gets properly reduced.
   void SetStorage(ezMemoryStreamStorage* pStreamStorage)
   { 
     m_pStreamStorage = pStreamStorage; 

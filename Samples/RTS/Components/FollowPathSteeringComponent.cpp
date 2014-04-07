@@ -6,7 +6,7 @@ EZ_IMPLEMENT_COMPONENT_TYPE(FollowPathSteeringComponent, FollowPathSteeringCompo
 
 FollowPathSteeringComponent::FollowPathSteeringComponent()
 {
-  m_pPath = NULL;
+  m_pPath = nullptr;
 }
 
 void FollowPathSteeringComponent::Update()
@@ -17,7 +17,7 @@ void FollowPathSteeringComponent::Update()
     m_fDirectionWhisker[i] = 5.0f;
   }
 
-  if (m_pPath == NULL)
+  if (m_pPath == nullptr)
   {
     return;
   }

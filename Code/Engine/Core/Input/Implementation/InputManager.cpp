@@ -4,13 +4,13 @@
 #include <Foundation/Configuration/Startup.h>
 
 ezInputManager::ezEventInput ezInputManager::s_InputEvents;
-ezInputManager::InternalData* ezInputManager::s_pData = NULL;
+ezInputManager::InternalData* ezInputManager::s_pData = nullptr;
 ezUInt32 ezInputManager::s_LastCharacter = '\0';
 bool ezInputManager::s_bInputSlotResetRequired = true;
 
 ezInputManager::InternalData& ezInputManager::GetInternals()
 {
-  if (s_pData == NULL)
+  if (s_pData == nullptr)
     s_pData = EZ_DEFAULT_NEW(InternalData);
 
   return *s_pData;
@@ -186,7 +186,7 @@ void ezInputManager::ResetInputSlotValues()
 
 void ezInputManager::GatherDeviceInputSlotValues()
 {
-  for (ezInputDevice* pDevice = ezInputDevice::GetFirstInstance(); pDevice != NULL; pDevice = pDevice->GetNextInstance())
+  for (ezInputDevice* pDevice = ezInputDevice::GetFirstInstance(); pDevice != nullptr; pDevice = pDevice->GetNextInstance())
   {
     // iterate over all the input slots that this device provides
     for (auto it = pDevice->m_InputSlotValues.GetIterator(); it.IsValid(); it.Next())

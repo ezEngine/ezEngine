@@ -8,7 +8,7 @@ private:
 public:
   EZ_DECLARE_POD_TYPE();
 
-  EZ_FORCE_INLINE ezDelegate() : m_pDispatchFunction(NULL)
+  EZ_FORCE_INLINE ezDelegate() : m_pDispatchFunction(nullptr)
   {
   }
 
@@ -50,7 +50,7 @@ public:
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
   EZ_FORCE_INLINE ~ezDelegate()
   {
-    m_pDispatchFunction = NULL;
+    m_pDispatchFunction = nullptr;
   }
 #endif
 
@@ -63,7 +63,7 @@ public:
 
   EZ_FORCE_INLINE R operator()(EZ_PAIR_LIST(ARG, arg, ARG_COUNT))
   {
-    EZ_ASSERT(m_pDispatchFunction != NULL, "Delegate is not bound.");
+    EZ_ASSERT(m_pDispatchFunction != nullptr, "Delegate is not bound.");
     return (*m_pDispatchFunction)(*this EZ_COMMA_IF(ARG_COUNT) EZ_LIST(arg, ARG_COUNT));
   }
 
@@ -79,7 +79,7 @@ public:
 
   EZ_FORCE_INLINE bool IsValid() const
   {
-    return m_pDispatchFunction != NULL;
+    return m_pDispatchFunction != nullptr;
   }
 
   EZ_FORCE_INLINE void* GetInstance() const
@@ -91,7 +91,7 @@ private:
   template <typename Method, typename Class>
   static EZ_FORCE_INLINE R DispatchToMethod(SelfType& self EZ_COMMA_IF(ARG_COUNT) EZ_PAIR_LIST(ARG, arg, ARG_COUNT))
   {
-    EZ_ASSERT(self.m_pInstance.m_Ptr != NULL, "Instance must not be null.");
+    EZ_ASSERT(self.m_pInstance.m_Ptr != nullptr, "Instance must not be null.");
     Method method = *reinterpret_cast<Method*>(&self.m_Data);
     return (static_cast<Class*>(self.m_pInstance.m_Ptr)->*method)(EZ_LIST(arg, ARG_COUNT));
   }
@@ -99,7 +99,7 @@ private:
   template <typename Method, typename Class>
   static EZ_FORCE_INLINE R DispatchToConstMethod(SelfType& self EZ_COMMA_IF(ARG_COUNT) EZ_PAIR_LIST(ARG, arg, ARG_COUNT))
   {
-    EZ_ASSERT(self.m_pInstance.m_ConstPtr != NULL, "Instance must not be null.");
+    EZ_ASSERT(self.m_pInstance.m_ConstPtr != nullptr, "Instance must not be null.");
     Method method = *reinterpret_cast<Method*>(&self.m_Data);
     return (static_cast<const Class*>(self.m_pInstance.m_ConstPtr)->*method)(EZ_LIST(arg, ARG_COUNT));
   }

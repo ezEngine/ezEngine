@@ -12,9 +12,9 @@ void ezMapBase<KeyType, ValueType, Comparer>::ConstIterator::Next()
   const ezInt32 dir0 = 0;
   const ezInt32 dir1 = 1;
 
-  if (m_pElement == NULL)
+  if (m_pElement == nullptr)
   {
-    EZ_ASSERT(m_pElement != NULL, "The Iterator is invalid (end).");
+    EZ_ASSERT(m_pElement != nullptr, "The Iterator is invalid (end).");
     return;
   }
 
@@ -46,9 +46,9 @@ void ezMapBase<KeyType, ValueType, Comparer>::ConstIterator::Next()
 
     // if we are at the root node..
     if ((m_pElement->m_pParent == m_pElement->m_pParent->m_pParent) ||
-      (m_pElement->m_pParent == NULL))
+      (m_pElement->m_pParent == nullptr))
     {
-      m_pElement = NULL;
+      m_pElement = nullptr;
       return;
     }
 
@@ -56,7 +56,7 @@ void ezMapBase<KeyType, ValueType, Comparer>::ConstIterator::Next()
     return;
   }
 
-  m_pElement = NULL;
+  m_pElement = nullptr;
   return;
 }
 
@@ -66,9 +66,9 @@ void ezMapBase<KeyType, ValueType, Comparer>::ConstIterator::Prev()
   const ezInt32 dir0 = 1;
   const ezInt32 dir1 = 0;
 
-  if (m_pElement == NULL)
+  if (m_pElement == nullptr)
   {
-    EZ_ASSERT(m_pElement != NULL, "The Iterator is invalid (end).");
+    EZ_ASSERT(m_pElement != nullptr, "The Iterator is invalid (end).");
     return;
   }
 
@@ -100,9 +100,9 @@ void ezMapBase<KeyType, ValueType, Comparer>::ConstIterator::Prev()
 
     // if we are at the root node..
     if ((m_pElement->m_pParent == m_pElement->m_pParent->m_pParent) ||
-      (m_pElement->m_pParent == NULL))
+      (m_pElement->m_pParent == nullptr))
     {
-      m_pElement = NULL;
+      m_pElement = nullptr;
       return;
     }
 
@@ -110,14 +110,14 @@ void ezMapBase<KeyType, ValueType, Comparer>::ConstIterator::Prev()
     return;
   }
 
-  m_pElement = NULL;
+  m_pElement = nullptr;
   return;
 }
 
 // ***** ezMapBase *****
 
 template <typename KeyType, typename ValueType, typename Comparer>
-EZ_FORCE_INLINE ezMapBase<KeyType, ValueType, Comparer>::NilNode::NilNode() : m_pParent(NULL), m_uiLevel(0)
+EZ_FORCE_INLINE ezMapBase<KeyType, ValueType, Comparer>::NilNode::NilNode() : m_pParent(nullptr), m_uiLevel(0)
 {
 }
 
@@ -131,7 +131,7 @@ void ezMapBase<KeyType, ValueType, Comparer>::Constructor()
   m_NilNode.m_pLink[1] = reinterpret_cast<Node*>(&m_NilNode);
   m_NilNode.m_pParent  = reinterpret_cast<Node*>(&m_NilNode);
 
-  m_pFreeElementStack = NULL;
+  m_pFreeElementStack = nullptr;
   m_pRoot = reinterpret_cast<Node*>(&m_NilNode);
 }
 
@@ -170,7 +170,7 @@ void ezMapBase<KeyType, ValueType, Comparer>::Clear()
   for (Iterator it = GetIterator(); it.IsValid(); ++it)
     ezMemoryUtils::Destruct<Node>(it.m_pElement, 1);
 
-  m_pFreeElementStack = NULL;
+  m_pFreeElementStack = nullptr;
   m_Elements.Clear();
 
   m_uiCount = 0;
@@ -224,7 +224,7 @@ template <typename KeyType, typename ValueType, typename Comparer>
 typename ezMapBase<KeyType, ValueType, Comparer>::Node* ezMapBase<KeyType, ValueType, Comparer>::GetLeftMost() const
 {
   if (IsEmpty())
-    return NULL;
+    return nullptr;
 
   Node* pNode = m_pRoot;
 
@@ -238,7 +238,7 @@ template <typename KeyType, typename ValueType, typename Comparer>
 typename ezMapBase<KeyType, ValueType, Comparer>::Node* ezMapBase<KeyType, ValueType, Comparer>::GetRightMost() const
 {
   if (IsEmpty())
-    return NULL;
+    return nullptr;
 
   Node* pNode = m_pRoot;
 
@@ -265,7 +265,7 @@ typename ezMapBase<KeyType, ValueType, Comparer>::Node* ezMapBase<KeyType, Value
   }
 
   if (pNode == &m_NilNode)
-    return NULL;
+    return nullptr;
 
   return pNode;
 }
@@ -286,7 +286,7 @@ template <typename KeyType, typename ValueType, typename Comparer>
 typename ezMapBase<KeyType, ValueType, Comparer>::Node* ezMapBase<KeyType, ValueType, Comparer>::Internal_LowerBound (const KeyType& key) const
 {
   Node* pNode = m_pRoot;
-  Node* pNodeSmaller = NULL;
+  Node* pNodeSmaller = nullptr;
 
   while (pNode != &m_NilNode)
   {
@@ -321,7 +321,7 @@ template <typename KeyType, typename ValueType, typename Comparer>
 typename ezMapBase<KeyType, ValueType, Comparer>::Node* ezMapBase<KeyType, ValueType, Comparer>::Internal_UpperBound (const KeyType& key) const
 {
   Node* pNode = m_pRoot;
-  Node* pNodeSmaller = NULL;
+  Node* pNodeSmaller = nullptr;
 
   while (pNode != &m_NilNode)
   {
@@ -366,7 +366,7 @@ template <typename KeyType, typename ValueType, typename Comparer>
 typename ezMapBase<KeyType, ValueType, Comparer>::Iterator ezMapBase<KeyType, ValueType, Comparer>::FindOrAdd(const KeyType& key, bool* bExisted)
 {
   Node* pNilNode = reinterpret_cast<Node*>(&m_NilNode);
-  Node* pInsertedNode = NULL;
+  Node* pInsertedNode = nullptr;
 
   {
     Node* root = m_pRoot;
@@ -431,7 +431,7 @@ typename ezMapBase<KeyType, ValueType, Comparer>::Iterator ezMapBase<KeyType, Va
     m_NilNode.m_pParent = pNilNode;
   }
 
-  EZ_ASSERT(pInsertedNode != NULL, "Implementation Error.");
+  EZ_ASSERT(pInsertedNode != nullptr, "Implementation Error.");
 
   if (bExisted)
     *bExisted = false;
@@ -442,7 +442,7 @@ typename ezMapBase<KeyType, ValueType, Comparer>::Iterator ezMapBase<KeyType, Va
 template <typename KeyType, typename ValueType, typename Comparer>
 typename ezMapBase<KeyType, ValueType, Comparer>::Iterator ezMapBase<KeyType, ValueType, Comparer>::Insert(const KeyType& key, const ValueType& value)
 {
-  Node* pInsertedNode = NULL;
+  Node* pInsertedNode = nullptr;
 
   Insert(key, value, pInsertedNode);
 
@@ -462,7 +462,7 @@ typename ezMapBase<KeyType, ValueType, Comparer>::Node* ezMapBase<KeyType, Value
 {
   Node* pNode;
 
-  if (m_pFreeElementStack == NULL)
+  if (m_pFreeElementStack == nullptr)
   {
     m_Elements.PushBack();
     pNode = &m_Elements.PeekBack();
@@ -490,7 +490,7 @@ typename ezMapBase<KeyType, ValueType, Comparer>::Node* ezMapBase<KeyType, Value
 template <typename KeyType, typename ValueType, typename Comparer>
 void ezMapBase<KeyType, ValueType, Comparer>::ReleaseNode(Node* pNode)
 {
-  EZ_ASSERT(pNode != NULL, "pNode is invalid.");
+  EZ_ASSERT(pNode != nullptr, "pNode is invalid.");
   EZ_ASSERT(pNode != &m_NilNode, "pNode is invalid.");
 
   ezMemoryUtils::Destruct<Node>(pNode, 1);
@@ -768,7 +768,7 @@ typename ezMapBase<KeyType, ValueType, Comparer>::Node* ezMapBase<KeyType, Value
 template <typename KeyType, typename ValueType, typename Comparer>
 typename ezMapBase<KeyType, ValueType, Comparer>::Iterator ezMapBase<KeyType, ValueType, Comparer>::Erase(const Iterator& pos)
 {
-  EZ_ASSERT(pos.m_pElement != NULL, "The Iterator (pos) is invalid.");
+  EZ_ASSERT(pos.m_pElement != nullptr, "The Iterator (pos) is invalid.");
 
   Iterator temp(pos);
   ++temp;

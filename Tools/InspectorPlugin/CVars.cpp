@@ -115,7 +115,7 @@ static void SendAllCVarTelemetry()
   // clear
   {
     ezTelemetryMessage msg;
-    ezTelemetry::Broadcast(ezTelemetry::Reliable, 'CVAR', 'CLR', NULL, 0);
+    ezTelemetry::Broadcast(ezTelemetry::Reliable, 'CVAR', 'CLR', nullptr, 0);
   }
 
   ezCVar* pCVar = ezCVar::GetFirstInstance();
@@ -129,7 +129,7 @@ static void SendAllCVarTelemetry()
 
   {
     ezTelemetryMessage msg;
-    ezTelemetry::Broadcast(ezTelemetry::Reliable, 'CVAR', 'SYNC', NULL, 0);
+    ezTelemetry::Broadcast(ezTelemetry::Reliable, 'CVAR', 'SYNC', nullptr, 0);
   }
 }
 
@@ -170,7 +170,7 @@ static void PluginEventHandler(const ezPlugin::PluginEvent& e)
 void AddCVarEventHandler()
 {
   ezTelemetry::AddEventHandler(TelemetryEventsHandler);
-  ezTelemetry::AcceptMessagesForSystem('SVAR', true, TelemetryMessage, NULL);
+  ezTelemetry::AcceptMessagesForSystem('SVAR', true, TelemetryMessage, nullptr);
 
   ezCVar::s_AllCVarEvents.AddEventHandler(CVarEventHandler);
   ezPlugin::s_PluginEvents.AddEventHandler(PluginEventHandler);

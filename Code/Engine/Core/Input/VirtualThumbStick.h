@@ -82,13 +82,13 @@ public:
   ///
   /// If \a Input is 'Custom' the remaining parameters define the filter axes and up to three input slots that trigger the thumbstick.
   /// Otherwise the remaining parameters are ignored.
-  void SetTriggerInputSlot(Input::Enum Input, const ezInputActionConfig* pCustomConfig = NULL);
+  void SetTriggerInputSlot(Input::Enum Input, const ezInputActionConfig* pCustomConfig = nullptr);
 
   /// \brief Specifies which output the thumbstick generates.
   ///
   /// If \a Output is 'Custom' the remaining parameters define which input slots the thumbstick triggers for which direction.
   /// Otherwise the remaining parameters are ignored.
-  void SetThumbstickOutput(Output::Enum Output, const char* szOutputLeft = NULL, const char* szOutputRight = NULL, const char* szOutputUp = NULL, const char* szOutputDown = NULL);
+  void SetThumbstickOutput(Output::Enum Output, const char* szOutputLeft = nullptr, const char* szOutputRight = nullptr, const char* szOutputUp = nullptr, const char* szOutputDown = nullptr);
 
   /// \brief Specifies what happens when the input slots that trigger the thumbstick are active while entering or leaving the input area.
   void SetAreaFocusMode(ezInputActionConfig::OnEnterArea OnEnter, ezInputActionConfig::OnLeaveArea OnLeave);

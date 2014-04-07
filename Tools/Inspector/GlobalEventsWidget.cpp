@@ -4,7 +4,7 @@
 #include <Foundation/Communication/Telemetry.h>
 #include <MainWindow.moc.h>
 
-ezGlobalEventsWidget* ezGlobalEventsWidget::s_pWidget = NULL;
+ezGlobalEventsWidget* ezGlobalEventsWidget::s_pWidget = nullptr;
 
 ezGlobalEventsWidget::ezGlobalEventsWidget(QWidget* parent) : QDockWidget (parent)
 {

@@ -57,9 +57,9 @@ public:
   /// The time difference will then be scaled and clamped according to the clock speed and minimum and maximum time step.
   void Update(); // [tested]
 
-  /// \brief Sets a time step smoother for this clock. Pass NULL to deactivate time step smoothing.
+  /// \brief Sets a time step smoother for this clock. Pass nullptr to deactivate time step smoothing.
   ///
-  /// Also calls ezTimeStepSmoothing::Reset() on any non-NULL pSmoother.
+  /// Also calls ezTimeStepSmoothing::Reset() on any non-nullptr pSmoother.
   void SetTimeStepSmoothing(ezTimeStepSmoothing* pSmoother);
 
   /// \brief Returns the object used for time step smoothing (if any).

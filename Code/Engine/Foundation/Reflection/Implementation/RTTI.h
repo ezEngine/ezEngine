@@ -35,7 +35,7 @@ public:
   /// \brief Returns the name of this type.
   EZ_FORCE_INLINE const char* GetTypeName() const { return m_szTypeName; } // [tested]
 
-  /// \brief Returns the type that is the base class of this type. May be NULL if this type has no base class.
+  /// \brief Returns the type that is the base class of this type. May be nullptr if this type has no base class.
   EZ_FORCE_INLINE const ezRTTI* GetParentType() const { return m_pParentType; } // [tested]
 
   /// \brief Returns true if this type is derived from the given type.
@@ -57,7 +57,7 @@ public:
   /// \brief Returns the size (in bytes) of an instance of this type.
   EZ_FORCE_INLINE ezUInt32 GetTypeSize() const { return m_uiTypeSize; } // [tested]
 
-  /// \brief Iterates over all ezRTTI instances and returns the one with the given name, or NULL of no such type exists.
+  /// \brief Iterates over all ezRTTI instances and returns the one with the given name, or nullptr of no such type exists.
   static ezRTTI* FindTypeByName(const char* szName); // [tested]
 
   /// \brief Will iterate over all properties of this type and (optionally) the base types to search for a property with the given name.
@@ -83,7 +83,7 @@ public:
   EZ_FORCE_INLINE bool CanHandleMessage(ezMessageId id) const
   {
     const ezUInt32 uiIndex = id - m_uiMsgIdOffset;
-    return uiIndex < m_DynamicMessageHandlers.GetCount() && m_DynamicMessageHandlers[uiIndex] != NULL;
+    return uiIndex < m_DynamicMessageHandlers.GetCount() && m_DynamicMessageHandlers[uiIndex] != nullptr;
   }
 
 private:
@@ -138,7 +138,7 @@ struct EZ_FOUNDATION_DLL ezRTTINoAllocator : public ezRTTIAllocator
   virtual void* Allocate() EZ_OVERRIDE // [tested]
   {
     EZ_REPORT_FAILURE("This function should never be called.");
-    return NULL;
+    return nullptr;
   }
 
   /// \brief Will trigger an assert.

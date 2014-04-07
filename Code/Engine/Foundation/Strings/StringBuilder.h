@@ -141,10 +141,10 @@ public:
   void Append(ezUInt32 uiChar); // [tested]
 
   /// \brief Appends all the given strings at the back of this string in one operation.
-  void Append(const wchar_t* pData1, const wchar_t* pData2 = NULL, const wchar_t* pData3 = NULL, const wchar_t* pData4 = NULL, const wchar_t* pData5 = NULL, const wchar_t* pData6 = NULL); // [tested]
+  void Append(const wchar_t* pData1, const wchar_t* pData2 = nullptr, const wchar_t* pData3 = nullptr, const wchar_t* pData4 = nullptr, const wchar_t* pData5 = nullptr, const wchar_t* pData6 = nullptr); // [tested]
 
   /// \brief Appends all the given strings at the back of this string in one operation.
-  void Append(const char* pData1, const char* pData2 = NULL, const char* pData3 = NULL, const char* pData4 = NULL, const char* pData5 = NULL, const char* pData6 = NULL); // [tested]
+  void Append(const char* pData1, const char* pData2 = nullptr, const char* pData3 = nullptr, const char* pData4 = nullptr, const char* pData5 = nullptr, const char* pData6 = nullptr); // [tested]
 
   /// \brief Appends the formatted string.
   void AppendFormat(const char* szUtf8Format, ...); // [tested]
@@ -156,10 +156,10 @@ public:
   void Prepend(ezUInt32 uiChar); // [tested]
 
   /// \brief Prepends all the given strings to the front of this string in one operation.
-  void Prepend(const wchar_t* pData1, const wchar_t* pData2 = NULL, const wchar_t* pData3 = NULL, const wchar_t* pData4 = NULL, const wchar_t* pData5 = NULL, const wchar_t* pData6 = NULL); // [tested]
+  void Prepend(const wchar_t* pData1, const wchar_t* pData2 = nullptr, const wchar_t* pData3 = nullptr, const wchar_t* pData4 = nullptr, const wchar_t* pData5 = nullptr, const wchar_t* pData6 = nullptr); // [tested]
 
   /// \brief Prepends all the given strings to the front of this string in one operation.
-  void Prepend(const char* pData1, const char* pData2 = NULL, const char* pData3 = NULL, const char* pData4 = NULL, const char* pData5 = NULL, const char* pData6 = NULL); // [tested]
+  void Prepend(const char* pData1, const char* pData2 = nullptr, const char* pData3 = nullptr, const char* pData4 = nullptr, const char* pData5 = nullptr, const char* pData6 = nullptr); // [tested]
 
   /// \brief Prepends the formatted string.
   void PrependFormat(const char* szUtf8Format, ...); // [tested]
@@ -195,19 +195,19 @@ public:
 
   /// \brief Replaces the first occurrence of szSearchFor by szReplacement. Optionally starts searching at szStartSearchAt (or the beginning).
   ///
-  /// Returns the first position where szSearchFor was found, or NULL if nothing was found (and replaced).
-  const char* ReplaceFirst(const char* szSearchFor, const char* szReplacement, const char* szStartSearchAt = NULL); // [tested]
+  /// Returns the first position where szSearchFor was found, or nullptr if nothing was found (and replaced).
+  const char* ReplaceFirst(const char* szSearchFor, const char* szReplacement, const char* szStartSearchAt = nullptr); // [tested]
 
   /// \brief Case-insensitive version of ReplaceFirst.
-  const char* ReplaceFirst_NoCase(const char* szSearchFor, const char* szReplacement, const char* szStartSearchAt = NULL); // [tested]
+  const char* ReplaceFirst_NoCase(const char* szSearchFor, const char* szReplacement, const char* szStartSearchAt = nullptr); // [tested]
 
   /// \brief Replaces the last occurrence of szSearchFor by szReplacement. Optionally starts searching at szStartSearchAt (or the end).
   ///
-  /// Returns the last position where szSearchFor was found, or NULL if nothing was found (and replaced).
-  const char* ReplaceLast(const char* szSearchFor, const char* szReplacement, const char* szStartSearchAt = NULL); // [tested]
+  /// Returns the last position where szSearchFor was found, or nullptr if nothing was found (and replaced).
+  const char* ReplaceLast(const char* szSearchFor, const char* szReplacement, const char* szStartSearchAt = nullptr); // [tested]
 
   /// \brief Case-insensitive version of ReplaceLast.
-  const char* ReplaceLast_NoCase(const char* szSearchFor, const char* szReplacement, const char* szStartSearchAt = NULL); // [tested]
+  const char* ReplaceLast_NoCase(const char* szSearchFor, const char* szReplacement, const char* szStartSearchAt = nullptr); // [tested]
 
   /// \brief Replaces all occurrences of szSearchFor by szReplacement. Returns the number of replacements.
   ezUInt32 ReplaceAll(const char* szSearchFor, const char* szReplacement); // [tested]
@@ -233,7 +233,7 @@ public:
   /// szSeparator1 to szSeparator6 are strings which act as separators and indicate where to split the string.
   /// This string itself will not be modified.
   template <typename Container>
-  void Split(bool bReturnEmptyStrings, Container& Output, const char* szSeparator1, const char* szSeparator2 = NULL, const char* szSeparator3 = NULL, const char* szSeparator4 = NULL, const char* szSeparator5 = NULL, const char* szSeparator6 = NULL) const; // [tested]
+  void Split(bool bReturnEmptyStrings, Container& Output, const char* szSeparator1, const char* szSeparator2 = nullptr, const char* szSeparator3 = nullptr, const char* szSeparator4 = nullptr, const char* szSeparator5 = nullptr, const char* szSeparator6 = nullptr) const; // [tested]
 
 
 
@@ -296,7 +296,7 @@ public:
   /// \brief Appends several path pieces. Makes sure they are always properly separated by a slash.
   ///
   /// Will call 'MakeCleanPath' internally, so the representation of the path might change.
-  void AppendPath(const char* szPath1, const char* szPath2 = NULL, const char* szPath3 = NULL, const char* szPath4 = NULL); // [tested]
+  void AppendPath(const char* szPath1, const char* szPath2 = nullptr, const char* szPath3 = nullptr, const char* szPath4 = nullptr); // [tested]
 
   /// \brief Changes the file name part of the path, keeps the extension intact (if there is any).
   void ChangeFileName(const char* szNewFileName); // [tested]

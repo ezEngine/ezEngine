@@ -93,7 +93,7 @@ ezResult ezGALTextureGL::InitPlatform(ezGALDevice* pDevice, const ezArrayPtr<ezG
       for (ezUInt32 level = 0; level < m_Description.m_uiMipSliceCount; ++level)
       {
         // TODO: Assert for pInitialData[level] sizes? Or is this the job of ezGALDevice::CreateTexture
-        void* pData = pInitialData == NULL ? NULL : (*pInitialData)[level].m_pData;
+        void* pData = pInitialData == nullptr ? nullptr : (*pInitialData)[level].m_pData;
         if (bUseTextureStorage)
         {
           if (!pData)

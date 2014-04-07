@@ -24,25 +24,25 @@ ezGALContextDX11::ezGALContextDX11(ezGALDevice* pDevice, ID3D11DeviceContext* pD
   m_pDXContext(pDXContext),
   m_uiBoundRenderTargetCount(0)
 {
-  EZ_ASSERT(pDXContext != NULL, "Invalid DX context!");
+  EZ_ASSERT(pDXContext != nullptr, "Invalid DX context!");
 
   for (ezUInt32 i = 0; i < EZ_GAL_MAX_VERTEX_BUFFER_COUNT; i++)
   {
-    m_pBoundVertexBuffers[i] = NULL;
+    m_pBoundVertexBuffers[i] = nullptr;
     m_VertexBufferOffsets[i] = 0;
   }
 
   for (ezUInt32 i = 0; i < EZ_GAL_MAX_CONSTANT_BUFFER_COUNT; i++)
   {
-    m_pBoundConstantBuffers[i] = NULL;
+    m_pBoundConstantBuffers[i] = nullptr;
   }
 
   for (ezUInt32 s = 0; s < ezGALShaderStage::ENUM_COUNT; s++)
   {
     for (ezUInt32 i = 0; i < EZ_GAL_MAX_SHADER_RESOURCE_VIEW_COUNT; i++)
     {
-      m_pBoundShaderResourceViews[s][i] = NULL;
-      m_pBoundSamplerStates[s][i] = NULL;
+      m_pBoundShaderResourceViews[s][i] = nullptr;
+      m_pBoundSamplerStates[s][i] = nullptr;
     }
   }
 }
@@ -181,52 +181,52 @@ void ezGALContextDX11::DispatchIndirectPlatform(ezGALBuffer* pIndirectArgumentBu
 void ezGALContextDX11::SetShaderPlatform(ezGALShader* pShader)
 {
   // TODO: Optimize (change only shaders which need to be set)
-  if (pShader != NULL)
+  if (pShader != nullptr)
   {
     ezGALShaderDX11* pDXShader = static_cast<ezGALShaderDX11*>(pShader);
 
-    m_pDXContext->VSSetShader(pDXShader->GetDXVertexShader(), NULL, 0);
-    m_pDXContext->HSSetShader(pDXShader->GetDXHullShader(), NULL, 0);
-    m_pDXContext->DSSetShader(pDXShader->GetDXDomainShader(), NULL, 0);
-    m_pDXContext->GSSetShader(pDXShader->GetDXGeometryShader(), NULL, 0);
-    m_pDXContext->PSSetShader(pDXShader->GetDXPixelShader(), NULL, 0);
-    m_pDXContext->CSSetShader(pDXShader->GetDXComputeShader(), NULL, 0);
+    m_pDXContext->VSSetShader(pDXShader->GetDXVertexShader(), nullptr, 0);
+    m_pDXContext->HSSetShader(pDXShader->GetDXHullShader(), nullptr, 0);
+    m_pDXContext->DSSetShader(pDXShader->GetDXDomainShader(), nullptr, 0);
+    m_pDXContext->GSSetShader(pDXShader->GetDXGeometryShader(), nullptr, 0);
+    m_pDXContext->PSSetShader(pDXShader->GetDXPixelShader(), nullptr, 0);
+    m_pDXContext->CSSetShader(pDXShader->GetDXComputeShader(), nullptr, 0);
   }
   else
   {
-    m_pDXContext->VSSetShader(NULL, NULL, 0);
-    m_pDXContext->HSSetShader(NULL, NULL, 0);
-    m_pDXContext->DSSetShader(NULL, NULL, 0);
-    m_pDXContext->GSSetShader(NULL, NULL, 0);
-    m_pDXContext->PSSetShader(NULL, NULL, 0);
-    m_pDXContext->CSSetShader(NULL, NULL, 0);
+    m_pDXContext->VSSetShader(nullptr, nullptr, 0);
+    m_pDXContext->HSSetShader(nullptr, nullptr, 0);
+    m_pDXContext->DSSetShader(nullptr, nullptr, 0);
+    m_pDXContext->GSSetShader(nullptr, nullptr, 0);
+    m_pDXContext->PSSetShader(nullptr, nullptr, 0);
+    m_pDXContext->CSSetShader(nullptr, nullptr, 0);
   }
 
 }
 
 void ezGALContextDX11::SetIndexBufferPlatform(ezGALBuffer* pIndexBuffer)
 {
-  if (pIndexBuffer != NULL)
+  if (pIndexBuffer != nullptr)
   {
     ezGALBufferDX11* pDX11Buffer = static_cast<ezGALBufferDX11*>(pIndexBuffer);
     m_pDXContext->IASetIndexBuffer(pDX11Buffer->GetDXBuffer(), pDX11Buffer->GetIndexFormat(), 0 /* TODO: Expose */);
   }
   else
   {
-    m_pDXContext->IASetIndexBuffer(NULL, DXGI_FORMAT_R16_UINT, 0);
+    m_pDXContext->IASetIndexBuffer(nullptr, DXGI_FORMAT_R16_UINT, 0);
   }
 }
 
 void ezGALContextDX11::SetVertexBufferPlatform(ezUInt32 uiSlot, ezGALBuffer* pVertexBuffer)
 {
-  m_pBoundVertexBuffers[uiSlot] = pVertexBuffer != NULL ? static_cast<ezGALBufferDX11*>(pVertexBuffer)->GetDXBuffer() : NULL;
-  m_VertexBufferStrides[uiSlot] = pVertexBuffer != NULL ? pVertexBuffer->GetDescription().m_uiStructSize : 0;
+  m_pBoundVertexBuffers[uiSlot] = pVertexBuffer != nullptr ? static_cast<ezGALBufferDX11*>(pVertexBuffer)->GetDXBuffer() : nullptr;
+  m_VertexBufferStrides[uiSlot] = pVertexBuffer != nullptr ? pVertexBuffer->GetDescription().m_uiStructSize : 0;
   m_DeferredStateChanged.Add(ezGALDX11::DeferredStateChanged::VertexBuffer);
 }
 
 void ezGALContextDX11::SetVertexDeclarationPlatform(ezGALVertexDeclaration* pVertexDeclaration)
 {
-  m_pDXContext->IASetInputLayout(pVertexDeclaration != NULL ? static_cast<ezGALVertexDeclarationDX11*>(pVertexDeclaration)->GetDXInputLayout() : NULL);
+  m_pDXContext->IASetInputLayout(pVertexDeclaration != nullptr ? static_cast<ezGALVertexDeclarationDX11*>(pVertexDeclaration)->GetDXInputLayout() : nullptr);
 }
 
 
@@ -245,21 +245,21 @@ void ezGALContextDX11::SetPrimitiveTopologyPlatform(ezGALPrimitiveTopology::Enum
 void ezGALContextDX11::SetConstantBufferPlatform(ezUInt32 uiSlot, ezGALBuffer* pBuffer)
 {
   // TODO: Check if the device supports the slot index?
-  m_pBoundConstantBuffers[uiSlot] = pBuffer != NULL ? static_cast<ezGALBufferDX11*>(pBuffer)->GetDXBuffer() : NULL;
+  m_pBoundConstantBuffers[uiSlot] = pBuffer != nullptr ? static_cast<ezGALBufferDX11*>(pBuffer)->GetDXBuffer() : nullptr;
   m_DeferredStateChanged.Add(ezGALDX11::DeferredStateChanged::ConstantBuffer);
 }
 
 void ezGALContextDX11::SetSamplerStatePlatform(ezGALShaderStage::Enum Stage, ezUInt32 uiSlot, ezGALSamplerState* pSamplerState)
 {
   // TODO: Check if the device supports the stage / the slot index
-  m_pBoundSamplerStates[Stage][uiSlot] = pSamplerState != NULL ? static_cast<ezGALSamplerStateDX11*>(pSamplerState)->GetDXSamplerState() : NULL;
+  m_pBoundSamplerStates[Stage][uiSlot] = pSamplerState != nullptr ? static_cast<ezGALSamplerStateDX11*>(pSamplerState)->GetDXSamplerState() : nullptr;
   m_DeferredStateChanged.Add(ezGALDX11::DeferredStateChanged::SamplerState);
 }
 
 void ezGALContextDX11::SetResourceViewPlatform(ezGALShaderStage::Enum Stage, ezUInt32 uiSlot, ezGALResourceView* pResourceView)
 {
   // TODO: Check if the device supports the stage / the slot index
-  m_pBoundShaderResourceViews[Stage][uiSlot] = pResourceView != NULL ? static_cast<ezGALResourceViewDX11*>(pResourceView)->GetDXResourceView() : NULL;
+  m_pBoundShaderResourceViews[Stage][uiSlot] = pResourceView != nullptr ? static_cast<ezGALResourceViewDX11*>(pResourceView)->GetDXResourceView() : nullptr;
   m_DeferredStateChanged.Add(ezGALDX11::DeferredStateChanged::ShaderResourceView);
 }
 
@@ -269,9 +269,9 @@ void ezGALContextDX11::SetRenderTargetConfigPlatform(ezGALRenderTargetConfig* pR
 
   for (ezUInt32 i = 0; i < EZ_GAL_MAX_RENDERTARGET_COUNT; i++)
   {
-    m_pBoundRenderTargets[i] = NULL;
+    m_pBoundRenderTargets[i] = nullptr;
   }
-  m_pBoundDepthStencilTarget = NULL;
+  m_pBoundDepthStencilTarget = nullptr;
 
   if (pRenderTargetConfig)
   {
@@ -291,8 +291,8 @@ void ezGALContextDX11::SetRenderTargetConfigPlatform(ezGALRenderTargetConfig* pR
   }
   else
   {
-    m_pBoundDepthStencilTarget = NULL;
-    m_pDXContext->OMSetRenderTargets(0, NULL, NULL);
+    m_pBoundDepthStencilTarget = nullptr;
+    m_pDXContext->OMSetRenderTargets(0, nullptr, nullptr);
   }
 
 }
@@ -311,7 +311,7 @@ void ezGALContextDX11::SetDepthStencilStatePlatform(ezGALDepthStencilState* pDep
 
 void ezGALContextDX11::SetRasterizerStatePlatform(ezGALRasterizerState* pRasterizerState)
 {
-  m_pDXContext->RSSetState(pRasterizerState != NULL ? static_cast<ezGALRasterizerStateDX11*>(pRasterizerState)->GetDXRasterizerState() : NULL);
+  m_pDXContext->RSSetState(pRasterizerState != nullptr ? static_cast<ezGALRasterizerStateDX11*>(pRasterizerState)->GetDXRasterizerState() : nullptr);
 }
 
 void ezGALContextDX11::SetViewportPlatform(float fX, float fY, float fWidth, float fHeight, float fMinDepth, float fMaxDepth)

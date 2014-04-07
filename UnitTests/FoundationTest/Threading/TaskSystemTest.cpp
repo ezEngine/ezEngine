@@ -14,7 +14,7 @@ public:
   ezTestTask()
   {
     m_uiIterations = 50;
-    m_pDependency = NULL;
+    m_pDependency = nullptr;
     m_bStarted = false;
     m_bDone = false;
     m_bSupportCancel = false;
@@ -36,7 +36,7 @@ private:
 
     m_bStarted = true;
 
-    EZ_TEST_BOOL(m_pDependency == NULL || m_pDependency->IsTaskFinished());
+    EZ_TEST_BOOL(m_pDependency == nullptr || m_pDependency->IsTaskFinished());
 
     for (ezUInt32 obst = 0; obst < m_uiIterations; ++obst)
     {

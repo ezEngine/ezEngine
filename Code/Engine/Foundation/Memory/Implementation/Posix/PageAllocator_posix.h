@@ -2,7 +2,7 @@
 // static
 void* ezPageAllocator::AllocatePage(size_t uiSize)
 {
-  void* ptr = NULL;
+  void* ptr = nullptr;
   size_t uiAlign = ezSystemInformation::Get().GetMemoryPageSize();
   posix_memalign(&ptr, uiAlign, uiSize);
     

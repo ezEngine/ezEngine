@@ -26,7 +26,7 @@ ezGALShaderByteCode::~ezGALShaderByteCode()
 
 void ezGALShaderByteCode::CopyFrom(const ezArrayPtr<ezUInt8>& pByteCode)
 {
-  EZ_ASSERT(pByteCode.GetPtr() != NULL && pByteCode.GetCount() != 0, "Byte code is invalid!");
+  EZ_ASSERT(pByteCode.GetPtr() != nullptr && pByteCode.GetCount() != 0, "Byte code is invalid!");
 
   Free();
 
@@ -37,7 +37,7 @@ void ezGALShaderByteCode::CopyFrom(const ezArrayPtr<ezUInt8>& pByteCode)
 
 void ezGALShaderByteCode::Free()
 {
-  if(m_pSource.GetPtr() != NULL)
+  if(m_pSource.GetPtr() != nullptr)
   {
     EZ_DEFAULT_DELETE_ARRAY(m_pSource);
   }

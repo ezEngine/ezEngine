@@ -7,7 +7,7 @@
 
 Level::Level()
 {
-  m_pWorld = NULL;
+  m_pWorld = nullptr;
 }
 
 Level::~Level()
@@ -43,11 +43,11 @@ void Level::CreatePlayerShip(ezInt32 iPlayer)
   ezGameObjectDesc desc;
   desc.m_LocalPosition.x = -15 + iPlayer * 5.0f;
 
-  ezGameObject* pGameObject = NULL;
+  ezGameObject* pGameObject = nullptr;
   m_hPlayerShips[iPlayer] = m_pWorld->CreateObject(desc, pGameObject);
 
   {
-    ShipComponent* pShipComponent = NULL;
+    ShipComponent* pShipComponent = nullptr;
     ezComponentHandle hShipComponent = pShipManager->CreateComponent(pShipComponent);
   
     pShipComponent->m_iPlayerIndex = iPlayer;
@@ -55,7 +55,7 @@ void Level::CreatePlayerShip(ezInt32 iPlayer)
     pGameObject->AddComponent(hShipComponent);
   }
   {
-    CollidableComponent* pCollidableComponent = NULL;
+    CollidableComponent* pCollidableComponent = nullptr;
     ezComponentHandle hCollidableomponent = pCollidableManager->CreateComponent(pCollidableComponent);
 
     pCollidableComponent->m_fCollisionRadius = 1.0f;
@@ -75,11 +75,11 @@ void Level::CreateAsteroid()
 
   const float fRadius = 1.0f + ((rand() % 1000) / 999.0f);
 
-  ezGameObject* pGameObject = NULL;
+  ezGameObject* pGameObject = nullptr;
   ezGameObjectHandle hAsteroid = m_pWorld->CreateObject(desc, pGameObject);
 
   {
-    AsteroidComponent* pAsteroidComponent = NULL;
+    AsteroidComponent* pAsteroidComponent = nullptr;
     ezComponentHandle hAsteroidComponent = pAsteroidManager->CreateComponent(pAsteroidComponent);
 
     pAsteroidComponent->m_fRadius = fRadius;
@@ -87,7 +87,7 @@ void Level::CreateAsteroid()
     pGameObject->AddComponent(hAsteroidComponent);
   }
   {
-    CollidableComponent* pCollidableComponent = NULL;
+    CollidableComponent* pCollidableComponent = nullptr;
     ezComponentHandle hCollidableomponent = pCollidableManager->CreateComponent(pCollidableComponent);
   
     pCollidableComponent->m_fCollisionRadius = fRadius;

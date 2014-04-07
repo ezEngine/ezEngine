@@ -31,7 +31,7 @@ EZ_END_SUBSYSTEM_DECLARATION
 ezRTTI::ezRTTI(const char* szName, const ezRTTI* pParentType, ezUInt32 uiTypeSize, ezRTTIAllocator* pAllocator, 
   ezArrayPtr<ezAbstractProperty*> properties, ezArrayPtr<ezAbstractMessageHandler*> messageHandlers)
 {
-  m_szPluginName = NULL;
+  m_szPluginName = nullptr;
   m_szTypeName = szName;
   m_pParentType = pParentType;
   m_pAllocator = pAllocator;
@@ -46,7 +46,7 @@ ezRTTI::ezRTTI(const char* szName, const ezRTTI* pParentType, ezUInt32 uiTypeSiz
 
     const ezRTTI* pInstance = this;
 
-    while (pInstance != NULL)
+    while (pInstance != nullptr)
     {
       for (ezUInt32 i = 0; i < pInstance->m_Properties.GetCount(); ++i)
       {
@@ -66,7 +66,7 @@ ezRTTI::ezRTTI(const char* szName, const ezRTTI* pParentType, ezUInt32 uiTypeSiz
     ezUInt32 uiMaxMsgId = 0;
 
     const ezRTTI* pInstance = this;
-    while (pInstance != NULL)
+    while (pInstance != nullptr)
     {
       for (ezUInt32 i = 0; i < pInstance->m_MessageHandlers.GetCount(); ++i)
       {
@@ -86,14 +86,14 @@ ezRTTI::ezRTTI(const char* szName, const ezRTTI* pParentType, ezUInt32 uiTypeSiz
       m_DynamicMessageHandlers.SetCount(uiNeededCapacity);
 
       pInstance = this;
-      while (pInstance != NULL)
+      while (pInstance != nullptr)
       {
         for (ezUInt32 i = 0; i < pInstance->m_MessageHandlers.GetCount(); ++i)
         {
           ezAbstractMessageHandler* pHandler = pInstance->m_MessageHandlers[i];
           ezUInt32 uiIndex = pHandler->GetMessageId() - m_uiMsgIdOffset;
           
-          if (m_DynamicMessageHandlers[uiIndex] == NULL)
+          if (m_DynamicMessageHandlers[uiIndex] == nullptr)
           {
             m_DynamicMessageHandlers[uiIndex] = pHandler;
           }
@@ -113,7 +113,7 @@ bool ezRTTI::IsDerivedFrom(const ezRTTI* pBaseType) const
 {
   const ezRTTI* pThis = this;
 
-  while (pThis != NULL)
+  while (pThis != nullptr)
   {
     if (pThis == pBaseType)
       return true;
@@ -150,7 +150,7 @@ ezRTTI* ezRTTI::FindTypeByName(const char* szName)
     pInstance = pInstance->GetNextInstance();
   }
 
-  return NULL;
+  return nullptr;
 }
 
 ezAbstractProperty* ezRTTI::FindPropertyByName(const char* szName, bool bSearchBaseTypes /* = true */) const
@@ -168,13 +168,13 @@ ezAbstractProperty* ezRTTI::FindPropertyByName(const char* szName, bool bSearchB
     }
 
     if (!bSearchBaseTypes)
-      return NULL;
+      return nullptr;
 
     pInstance = pInstance->m_pParentType;
   }
-  while (pInstance != NULL);
+  while (pInstance != nullptr);
 
-  return NULL;
+  return nullptr;
 }
 
 bool ezRTTI::DispatchMessage(void* pInstance, ezMessage& msg) const
@@ -184,7 +184,7 @@ bool ezRTTI::DispatchMessage(void* pInstance, ezMessage& msg) const
   if (uiIndex < m_DynamicMessageHandlers.GetCount())
   {
     ezAbstractMessageHandler* pHandler = m_DynamicMessageHandlers[uiIndex];
-    if (pHandler != NULL)
+    if (pHandler != nullptr)
     {
       (*pHandler)(pInstance, msg);
       return true;
@@ -202,7 +202,7 @@ void ezRTTI::AssignPlugin(const char* szPluginName)
 
   while (pInstance)
   {
-    if (pInstance->m_szPluginName == NULL)
+    if (pInstance->m_szPluginName == nullptr)
       pInstance->m_szPluginName = szPluginName;
 
     pInstance = pInstance->GetNextInstance();

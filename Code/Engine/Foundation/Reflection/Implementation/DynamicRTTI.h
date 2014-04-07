@@ -47,13 +47,13 @@ class EZ_FOUNDATION_DLL ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezReflectedClass);
 public:
-  EZ_FORCE_INLINE ezReflectedClass() : m_pRTTI(NULL)
+  EZ_FORCE_INLINE ezReflectedClass() : m_pRTTI(nullptr)
   {
   }
 
   EZ_FORCE_INLINE const ezRTTI* GetDynamicRTTI()
   {
-    if (m_pRTTI == NULL)
+    if (m_pRTTI == nullptr)
     {
       m_pRTTI = GetDynamicRTTIImpl();
     }

@@ -22,11 +22,11 @@ void ezStartup::PrintAllSubsystems()
   {
     ezLog::Info("Subsystem: '%s::%s'", pSub->GetGroupName(), pSub->GetSubSystemName());
 
-    if (pSub->GetDependency(0) == NULL)
+    if (pSub->GetDependency(0) == nullptr)
       ezLog::Info("  <no dependencies>");
     else
     {
-      for (ezInt32 i = 0; pSub->GetDependency(i) != NULL; ++i)
+      for (ezInt32 i = 0; pSub->GetDependency(i) != nullptr; ++i)
         ezLog::Info("  -> '%s'", pSub->GetDependency(i));
     }
 
@@ -45,7 +45,7 @@ void ezStartup::AssignSubSystemPlugin(const char* szPluginName)
 
   while (pSub)
   {
-    if (pSub->m_szPluginName == NULL)
+    if (pSub->m_szPluginName == nullptr)
       pSub->m_szPluginName = szPluginName;
 
     pSub = pSub->GetNextInstance();
@@ -131,7 +131,7 @@ static const char* GetGroupSubSystems(const char* szGroup, ezInt32 iSubSystem)
     pSub = pSub->GetNextInstance();
   }
 
-  return NULL;
+  return nullptr;
 }
 
 void ezStartup::ComputeOrder(ezDeque<ezSubSystem*>& Order)
@@ -154,7 +154,7 @@ void ezStartup::ComputeOrder(ezDeque<ezSubSystem*>& Order)
         bool bAllDependsFulfilled = true;
         ezInt32 iDep = 0;
 
-        while (pSub->GetDependency(iDep) != NULL)
+        while (pSub->GetDependency(iDep) != nullptr)
         {
           if (IsGroupName(pSub->GetDependency(iDep)))
           {
@@ -282,7 +282,7 @@ void ezStartup::Startup(ezStartupStage::Enum stage)
       {
         ezInt32 iDep = 0;
 
-        while (pSub->GetDependency(iDep) != NULL)
+        while (pSub->GetDependency(iDep) != nullptr)
         {
           if (!sSystemsFound.Find(pSub->GetDependency(iDep)).IsValid())
           {
@@ -415,7 +415,7 @@ bool ezStartup::HasDependencyOnPlugin(ezSubSystem* pSubSystem, const char* szMod
   if (ezStringUtils::IsEqual(pSubSystem->m_szPluginName, szModule))
     return true;
 
-  for (ezUInt32 i = 0; pSubSystem->GetDependency(i) != NULL; ++i)
+  for (ezUInt32 i = 0; pSubSystem->GetDependency(i) != nullptr; ++i)
   {
     ezSubSystem* pSub = ezSubSystem::GetFirstInstance();
     while (pSub)

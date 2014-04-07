@@ -4,7 +4,7 @@
 #include <Foundation/Communication/Telemetry.h>
 #include <MainWindow.moc.h>
 
-ezLogWidget* ezLogWidget::s_pWidget = NULL;
+ezLogWidget* ezLogWidget::s_pWidget = nullptr;
 
 ezLogWidget::ezLogWidget(QWidget* parent) : QDockWidget (parent)
 {

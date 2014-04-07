@@ -15,7 +15,7 @@
 SampleGameApp::SampleGameApp()
 {
   m_bActiveRenderLoop = false;
-  m_pWindow = NULL;
+  m_pWindow = nullptr;
 }
 
 void SampleGameApp::AfterEngineInit()

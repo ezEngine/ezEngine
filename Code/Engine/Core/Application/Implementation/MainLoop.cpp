@@ -6,8 +6,8 @@
 
 void ezRun(ezApplication* pApplicationInstance)
 {
-  EZ_ASSERT_ALWAYS(pApplicationInstance != NULL, "ezRun() requires a valid non-null application instance pointer.");
-  EZ_ASSERT_ALWAYS(ezApplication::s_pApplicationInstance == NULL, "There can only be one ezApplication.");
+  EZ_ASSERT_ALWAYS(pApplicationInstance != nullptr, "ezRun() requires a valid non-null application instance pointer.");
+  EZ_ASSERT_ALWAYS(ezApplication::s_pApplicationInstance == nullptr, "There can only be one ezApplication.");
 
   // Set application instance pointer to the supplied instance
   ezApplication::s_pApplicationInstance = pApplicationInstance;
@@ -34,7 +34,7 @@ void ezRun(ezApplication* pApplicationInstance)
 
   // Reset application instance so code running after the app will trigger asserts etc. to be cleaned up
   // Destructor is called by entry point function
-  ezApplication::s_pApplicationInstance = NULL;
+  ezApplication::s_pApplicationInstance = nullptr;
 }
 
 EZ_STATICLINK_FILE(Core, Core_Application_Implementation_MainLoop);

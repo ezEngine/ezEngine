@@ -63,7 +63,7 @@ static int LUAFUNC_ConsoleFunc(lua_State* state)
   if (!m_Params.IsEmpty())
     pFunc->Call(ezArrayPtr<ezVariant>(&m_Params[0], m_Params.GetCount()));
   else
-    pFunc->Call(ezArrayPtr<ezVariant>(NULL, 0));
+    pFunc->Call(ezArrayPtr<ezVariant>(nullptr, 0));
 
   //ezLog::Info("Called Console Function: '%s'", pFunc->GetName());
 
@@ -114,7 +114,7 @@ ezResult ezConsoleInterpreter::Lua(const char* szCommand, ezConsole* pConsole)
 
 
   ezCVar* pCVAR = ezCVar::FindCVarByName(sVarName.GetData());
-  if (pCVAR != NULL)
+  if (pCVAR != nullptr)
   {
     if ((bSetValue) && (sValue == "") && (pCVAR->GetType() == ezCVarType::Bool))
     {
@@ -177,7 +177,7 @@ static int LUAFUNC_ReadCVAR(lua_State* state)
 
   ezCVar* pCVar = ezCVar::FindCVarByName(s.GetStringParameter(0));
 
-  if (pCVar == NULL)
+  if (pCVar == nullptr)
   {
     s.PushReturnValueNil();
     return s.ReturnToScript();
@@ -221,7 +221,7 @@ static int LUAFUNC_WriteCVAR(lua_State* state)
 
   ezCVar* pCVar = ezCVar::FindCVarByName(s.GetStringParameter(0));
 
-  if (pCVar == NULL)
+  if (pCVar == nullptr)
   {
     s.PushReturnValue(false);
     return s.ReturnToScript();

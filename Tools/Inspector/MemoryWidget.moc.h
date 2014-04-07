@@ -72,7 +72,7 @@ private:
       m_uiLiveAllocs = 0;
       m_uiMaxUsedMemoryRecently = 0;
       m_uiMaxUsedMemory = 0;
-      m_pListItem = NULL;
+      m_pListItem = nullptr;
     }
   };
 

@@ -1277,7 +1277,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::VariantDictionary) == false);
     EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::VoidPointer));
 
-    EZ_TEST_BOOL(v.ConvertTo<void*>() == NULL);
-    EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::VoidPointer).Get<void*>() == NULL);
+    EZ_TEST_BOOL(v.ConvertTo<void*>() == nullptr);
+    EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::VoidPointer).Get<void*>() == nullptr);
   }
 }

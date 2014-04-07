@@ -57,7 +57,7 @@ private:
   {
     StatsData()
     {
-      m_pListItem = NULL;
+      m_pListItem = nullptr;
     }
 
     QListWidgetItem* m_pListItem;

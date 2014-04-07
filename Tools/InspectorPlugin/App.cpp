@@ -4,7 +4,7 @@
 #include <Foundation/System/SystemInformation.h>
 #include <Foundation/Utilities/Stats.h>
 
-static ezAssertHandler g_PreviousAssertHandler = NULL;
+static ezAssertHandler g_PreviousAssertHandler = nullptr;
 
 static bool TelemetryAssertHandler(const char* szSourceFile, ezUInt32 uiLine, const char* szFunction, const char* szExpression, const char* szAssertMsg)
 {
@@ -44,7 +44,7 @@ void AddTelemetryAssertHandler()
 void RemoveTelemetryAssertHandler()
 {
   ezSetAssertHandler(g_PreviousAssertHandler);
-  g_PreviousAssertHandler = NULL;
+  g_PreviousAssertHandler = nullptr;
 }
 
 void SetAppStats()

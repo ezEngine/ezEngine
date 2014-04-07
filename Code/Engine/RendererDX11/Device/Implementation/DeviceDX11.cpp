@@ -20,10 +20,10 @@
 
 ezGALDeviceDX11::ezGALDeviceDX11(const ezGALDeviceCreationDescription& Description)
   : ezGALDevice(Description),
-    m_pDevice(NULL),
-    m_pDXGIFactory(NULL),
-    m_pDXGIAdapter(NULL),
-    m_pDXGIDevice(NULL)
+    m_pDevice(nullptr),
+    m_pDXGIFactory(nullptr),
+    m_pDXGIAdapter(nullptr),
+    m_pDXGIDevice(nullptr)
 {
 }
 
@@ -45,9 +45,9 @@ ezResult ezGALDeviceDX11::InitPlatform()
 
   D3D_FEATURE_LEVEL FeatureLevel = D3D_FEATURE_LEVEL_11_0; // TODO
 
-  ID3D11DeviceContext* pImmediateContext = NULL;
+  ID3D11DeviceContext* pImmediateContext = nullptr;
 
-  if(FAILED(D3D11CreateDevice(NULL, D3D_DRIVER_TYPE_HARDWARE, NULL, dwFlags, &FeatureLevel, 1, D3D11_SDK_VERSION, &m_pDevice, NULL, &pImmediateContext)))
+  if(FAILED(D3D11CreateDevice(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, dwFlags, &FeatureLevel, 1, D3D11_SDK_VERSION, &m_pDevice, nullptr, &pImmediateContext)))
   {
     ezLog::Error("D3D11CreateDevice() failed!");
     return EZ_FAILURE;
@@ -55,7 +55,7 @@ ezResult ezGALDeviceDX11::InitPlatform()
 
   // Create primary context object
   m_pPrimaryContext = EZ_DEFAULT_NEW(ezGALContextDX11)(this, pImmediateContext);
-  EZ_ASSERT(m_pPrimaryContext != NULL, "Couldn't create primary context!");
+  EZ_ASSERT(m_pPrimaryContext != nullptr, "Couldn't create primary context!");
 
   if(FAILED(m_pDevice->QueryInterface(__uuidof(IDXGIDevice1), (void **)&m_pDXGIDevice)))
   {
@@ -98,7 +98,7 @@ ezResult ezGALDeviceDX11::ShutdownPlatform()
 
 ezGALBlendState* ezGALDeviceDX11::CreateBlendStatePlatform(const ezGALBlendStateCreationDescription& Description)
 {
-  return NULL;
+  return nullptr;
 }
 
 void ezGALDeviceDX11::DestroyBlendStatePlatform(ezGALBlendState* pBlendState)
@@ -116,7 +116,7 @@ ezGALDepthStencilState* ezGALDeviceDX11::CreateDepthStencilStatePlatform(const e
   else
   {
     EZ_DEFAULT_DELETE(pDX11DepthStencilState);
-    return NULL;
+    return nullptr;
   }
 }
 
@@ -135,7 +135,7 @@ ezGALRasterizerState* ezGALDeviceDX11::CreateRasterizerStatePlatform(const ezGAL
   else
   {
     EZ_DEFAULT_DELETE(pDX11RasterizerState);
-    return NULL;
+    return nullptr;
   }
 }
 
@@ -157,7 +157,7 @@ ezGALSamplerState* ezGALDeviceDX11::CreateSamplerStatePlatform(const ezGALSample
   else
   {
     EZ_DEFAULT_DELETE(pDX11SamplerState);
-    return NULL;
+    return nullptr;
   }
 }
 
@@ -178,7 +178,7 @@ ezGALShader* ezGALDeviceDX11::CreateShaderPlatform(const ezGALShaderCreationDesc
   if(!pShader->InitPlatform(this).IsSuccess())
   {
     EZ_DEFAULT_DELETE(pShader);
-    return NULL;
+    return nullptr;
   }
 
   return pShader;
@@ -198,7 +198,7 @@ ezGALBuffer* ezGALDeviceDX11::CreateBufferPlatform(const ezGALBufferCreationDesc
   if(!pBuffer->InitPlatform(this, pInitialData).IsSuccess())
   {
     EZ_DEFAULT_DELETE(pBuffer);
-    return NULL;
+    return nullptr;
   }
 
   return pBuffer;
@@ -218,7 +218,7 @@ ezGALTexture* ezGALDeviceDX11::CreateTexturePlatform(const ezGALTextureCreationD
   if(!pTexture->InitPlatform(this, pInitialData).IsSuccess())
   {
     EZ_DEFAULT_DELETE(pTexture);
-    return NULL;
+    return nullptr;
   }
 
   return pTexture;
@@ -238,7 +238,7 @@ ezGALResourceView* ezGALDeviceDX11::CreateResourceViewPlatform(const ezGALResour
   if(!pResourceView->InitPlatform(this).IsSuccess())
   {
     EZ_DEFAULT_DELETE(pResourceView);
-    return NULL;
+    return nullptr;
   }
 
   return pResourceView;
@@ -258,7 +258,7 @@ ezGALRenderTargetView* ezGALDeviceDX11::CreateRenderTargetViewPlatform(const ezG
   if(!pRTView->InitPlatform(this).IsSuccess())
   {
     EZ_DEFAULT_DELETE(pRTView);
-    return NULL;
+    return nullptr;
   }
 
   return pRTView;
@@ -282,7 +282,7 @@ ezGALSwapChain* ezGALDeviceDX11::CreateSwapChainPlatform(const ezGALSwapChainCre
   if (!pSwapChain->InitPlatform(this).IsSuccess())
   {
     EZ_DEFAULT_DELETE(pSwapChain);
-    return NULL;
+    return nullptr;
   }
 
   return pSwapChain;
@@ -297,7 +297,7 @@ void ezGALDeviceDX11::DestroySwapChainPlatform(ezGALSwapChain* pSwapChain)
 
 ezGALFence* ezGALDeviceDX11::CreateFencePlatform()
 {
-  return NULL;
+  return nullptr;
 }
 
 void ezGALDeviceDX11::DestroyFencePlatform(ezGALFence* pFence)
@@ -306,7 +306,7 @@ void ezGALDeviceDX11::DestroyFencePlatform(ezGALFence* pFence)
 
 ezGALQuery* ezGALDeviceDX11::CreateQueryPlatform(const ezGALQueryCreationDescription& Description)
 {
-  return NULL;
+  return nullptr;
 }
 
 void ezGALDeviceDX11::DestroyQueryPlatform(ezGALQuery* pQuery)
@@ -324,7 +324,7 @@ ezGALRenderTargetConfig* ezGALDeviceDX11::CreateRenderTargetConfigPlatform(const
   else
   {
     EZ_DEFAULT_DELETE(pRenderTargetConfig);
-    return NULL;
+    return nullptr;
   }
 }
 
@@ -346,7 +346,7 @@ ezGALVertexDeclaration* ezGALDeviceDX11::CreateVertexDeclarationPlatform(const e
   else
   {
     EZ_DEFAULT_DELETE(pVertexDeclaration);
-    return NULL;
+    return nullptr;
   }
 }
 

@@ -3,7 +3,7 @@
 #include <Foundation/Communication/Telemetry.h>
 #include <MainWindow.moc.h>
 
-ezSubsystemsWidget* ezSubsystemsWidget::s_pWidget = NULL;
+ezSubsystemsWidget* ezSubsystemsWidget::s_pWidget = nullptr;
 
 ezSubsystemsWidget::ezSubsystemsWidget(QWidget* parent) : QDockWidget (parent)
 {

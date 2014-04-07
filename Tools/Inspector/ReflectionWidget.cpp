@@ -4,7 +4,7 @@
 #include <Foundation/Communication/Telemetry.h>
 #include <MainWindow.moc.h>
 
-ezReflectionWidget* ezReflectionWidget::s_pWidget = NULL;
+ezReflectionWidget* ezReflectionWidget::s_pWidget = nullptr;
 
 ezReflectionWidget::ezReflectionWidget(QWidget* parent) : QDockWidget (parent)
 {
@@ -111,13 +111,13 @@ bool ezReflectionWidget::UpdateTree()
 
   for (auto it = m_Types.GetIterator(); it.IsValid(); ++it)
   {
-    if (it.Value().m_pTreeItem == NULL)
+    if (it.Value().m_pTreeItem == nullptr)
     {
       // has parent type, but parent type has not been inserted into tree yet
-      if (!it.Value().m_sParentType.IsEmpty() && m_Types[it.Value().m_sParentType].m_pTreeItem == NULL)
+      if (!it.Value().m_sParentType.IsEmpty() && m_Types[it.Value().m_sParentType].m_pTreeItem == nullptr)
         continue;
 
-      QTreeWidgetItem* pParent = (it.Value().m_sParentType.IsEmpty()) ? NULL : m_Types[it.Value().m_sParentType].m_pTreeItem;
+      QTreeWidgetItem* pParent = (it.Value().m_sParentType.IsEmpty()) ? nullptr : m_Types[it.Value().m_sParentType].m_pTreeItem;
 
       QTreeWidgetItem* pItem = new QTreeWidgetItem();
       it.Value().m_pTreeItem = pItem;

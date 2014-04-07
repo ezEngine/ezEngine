@@ -96,7 +96,7 @@ static void SendAllReflectionTelemetry()
   // clear
   {
     ezTelemetryMessage msg;
-    ezTelemetry::Broadcast(ezTelemetry::Reliable, 'RFLC', 'CLR', NULL, 0);
+    ezTelemetry::Broadcast(ezTelemetry::Reliable, 'RFLC', 'CLR', nullptr, 0);
   }
 
   SendBasicTypesGroup();

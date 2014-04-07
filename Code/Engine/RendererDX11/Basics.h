@@ -18,4 +18,4 @@
 #endif
 
 
-#define EZ_GAL_DX11_RELEASE(d3dobj) do { if((d3dobj) != NULL) { (d3dobj)->Release(); (d3dobj) = NULL; } } while(0);
+#define EZ_GAL_DX11_RELEASE(d3dobj) do { if((d3dobj) != nullptr) { (d3dobj)->Release(); (d3dobj) = nullptr; } } while(0);

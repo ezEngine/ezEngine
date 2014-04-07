@@ -5,7 +5,7 @@
 #include <Foundation/IO/OSFile.h>
 #include <qgraphicsitem.h>
 
-ezFileWidget* ezFileWidget::s_pWidget = NULL;
+ezFileWidget* ezFileWidget::s_pWidget = nullptr;
 
 ezFileWidget::ezFileWidget(QWidget* parent) : QDockWidget (parent)
 {
@@ -359,7 +359,7 @@ void ezFileWidget::UpdateTable()
     if ((uiMMaxElements > 0) && (m_iMaxID - it.Key() > uiMMaxElements))
       continue;
 
-    if (!sFilter.IsEmpty() && (it.Value().m_sFile.FindSubString_NoCase(sFilter.GetData()) == NULL))
+    if (!sFilter.IsEmpty() && (it.Value().m_sFile.FindSubString_NoCase(sFilter.GetData()) == nullptr))
       continue;
     
     if (uiRow >= (ezUInt32) Table->rowCount())

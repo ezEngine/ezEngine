@@ -14,7 +14,7 @@ bool ezDefaultAssertHandler(const char* szSourceFile, ezUInt32 uiLine, const cha
 
   #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
 
-    ezInt32 iRes = _CrtDbgReport(_CRT_ASSERT, szSourceFile, uiLine, NULL, "'%s'\nFunction: %s\nMessage: %s", szExpression, szFunction, szAssertMsg);
+    ezInt32 iRes = _CrtDbgReport(_CRT_ASSERT, szSourceFile, uiLine, nullptr, "'%s'\nFunction: %s\nMessage: %s", szExpression, szFunction, szAssertMsg);
 
     // currently we will ALWAYS trigger the breakpoint / crash (except for when the user presses 'ignore')
     if (iRes == 0)
@@ -30,7 +30,7 @@ bool ezDefaultAssertHandler(const char* szSourceFile, ezUInt32 uiLine, const cha
     char szTemp[1024 * 4] = "";
     sprintf(szTemp, " *** Assertion ***\n\nExpression: \"%s\"\nFunction: \"%s\"\nFile: \"%s\"\nLine: %u\nMessage: \"%s\"", szExpression, szFunction, szSourceFile, uiLine, szAssertMsg);
     szTemp[1024 * 4 - 1] = '\0';
-    MessageBox(NULL, szTemp, "Assertion", MB_ICONERROR);
+    MessageBox(nullptr, szTemp, "Assertion", MB_ICONERROR);
   #endif
 
 #endif
@@ -55,7 +55,7 @@ void ezSetAssertHandler(ezAssertHandler handler)
 bool ezFailedCheck(const char* szSourceFile, ezUInt32 uiLine, const char* szFunction, const char* szExpression, const char* szErrorMsg, ...)
 {
   // always do a debug-break if no assert handler is installed
-  if (g_AssertHandler == NULL)
+  if (g_AssertHandler == nullptr)
     return true;
 
   va_list ap;

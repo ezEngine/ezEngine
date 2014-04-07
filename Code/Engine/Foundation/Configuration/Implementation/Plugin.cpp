@@ -25,7 +25,7 @@ struct PluginData
 {
   PluginData()
   {
-    m_pPluginObject = NULL;
+    m_pPluginObject = nullptr;
     m_iReferenceCount = 0;
     m_LastModificationTime.Invalidate();
   }
@@ -107,8 +107,8 @@ void ezPlugin::BeginPluginChanges()
   {
     PluginEvent e;
     e.m_EventType = PluginEvent::BeforePluginChanges;
-    e.m_pPluginObject = NULL;
-    e.m_szPluginFile = NULL;
+    e.m_pPluginObject = nullptr;
+    e.m_szPluginFile = nullptr;
     s_PluginEvents.Broadcast(e);
 
     ezReloadableVariableBase::StoreVariables();
@@ -125,8 +125,8 @@ void ezPlugin::EndPluginChanges()
   {
     PluginEvent e;
     e.m_EventType = PluginEvent::AfterPluginChanges;
-    e.m_pPluginObject = NULL;
-    e.m_szPluginFile = NULL;
+    e.m_pPluginObject = nullptr;
+    e.m_szPluginFile = nullptr;
     s_PluginEvents.Broadcast(e);
   }
 }
@@ -176,7 +176,7 @@ ezResult ezPlugin::UnloadPluginInternal(const char* szPluginFile, bool bReloadin
   {
     PluginEvent e;
     e.m_EventType = PluginEvent::AfterUnloading;
-    e.m_pPluginObject = NULL;
+    e.m_pPluginObject = nullptr;
     e.m_szPluginFile = szPluginFile;
     s_PluginEvents.Broadcast(e);
   }
@@ -213,7 +213,7 @@ ezResult ezPlugin::LoadPluginInternal(const char* szPluginFile, bool bLoadCopy, 
   {
     PluginEvent e;
     e.m_EventType = PluginEvent::BeforeLoading;
-    e.m_pPluginObject = NULL;
+    e.m_pPluginObject = nullptr;
     e.m_szPluginFile = szPluginFile;
     s_PluginEvents.Broadcast(e);
   }
@@ -340,7 +340,7 @@ ezPlugin* ezPlugin::FindPluginByName(const char* szPluginName)
     pPlugin = pPlugin->GetNextInstance();
   }
 
-  return NULL;
+  return nullptr;
 }
 
 void ezPlugin::SortPluginReloadOrder(ezHybridArray<ezString, 16>& PluginsToReload)
@@ -370,7 +370,7 @@ void ezPlugin::SortPluginReloadOrder(ezHybridArray<ezString, 16>& PluginsToReloa
     // find the next plugin that has no dependency anymore
     for (ezUInt32 iPlugin = 0; iPlugin < PluginsToSort.GetCount(); ++iPlugin)
     {
-      if (PluginsToSort[iPlugin] == NULL) // plugins that have been inserted are removed this way from the array
+      if (PluginsToSort[iPlugin] == nullptr) // plugins that have been inserted are removed this way from the array
         continue;
 
       bool bHasDependency = false;
@@ -393,7 +393,7 @@ void ezPlugin::SortPluginReloadOrder(ezHybridArray<ezString, 16>& PluginsToReloa
       {
         PluginsToReload.PushBack(PluginsToSort[iPlugin]->GetPluginName());
         NotYetSorted.Erase(PluginsToSort[iPlugin]->GetPluginName());
-        PluginsToSort[iPlugin] = NULL;
+        PluginsToSort[iPlugin] = nullptr;
 
         bFoundAny = true;
 

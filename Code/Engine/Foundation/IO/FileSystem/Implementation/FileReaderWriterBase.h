@@ -14,7 +14,7 @@ class EZ_FOUNDATION_DLL ezFileReaderBase : public ezStreamReaderBase
   EZ_DISALLOW_COPY_AND_ASSIGN(ezFileReaderBase);
 
 public:
-  ezFileReaderBase() { m_pDataDirReader = NULL; }
+  ezFileReaderBase() { m_pDataDirReader = nullptr; }
 
   /// Returns the absolute path with which the file was opened (including the prefix of the data directory).
   ezString128 GetFilePathAbsolute() const
@@ -31,7 +31,7 @@ public:
   ezDataDirectoryType* GetDataDirectory() const { return m_pDataDirReader->GetDataDirectory(); }
 
   /// Returns true, if the file is currently open.
-  bool IsOpen() const { return m_pDataDirReader != NULL; }
+  bool IsOpen() const { return m_pDataDirReader != nullptr; }
 
   /// \brief Returns the current total size of the file.
   ezUInt64 GetFileSize() const { return m_pDataDirReader->GetFileSize(); }
@@ -56,7 +56,7 @@ class EZ_FOUNDATION_DLL ezFileWriterBase : public ezStreamWriterBase
   EZ_DISALLOW_COPY_AND_ASSIGN(ezFileWriterBase);
 
 public:
-  ezFileWriterBase() { m_pDataDirWriter = NULL; }
+  ezFileWriterBase() { m_pDataDirWriter = nullptr; }
 
   /// Returns the absolute path with which the file was opened (including the prefix of the data directory).
   ezString128 GetFilePathAbsolute() const
@@ -73,7 +73,7 @@ public:
   ezDataDirectoryType* GetDataDirectory() const { return m_pDataDirWriter->GetDataDirectory(); }
 
   /// Returns true, if the file is currently open.
-  bool IsOpen() const { return m_pDataDirWriter != NULL; }
+  bool IsOpen() const { return m_pDataDirWriter != nullptr; }
 
   /// \brief Returns the current total size of the file.
   ezUInt64 GetFileSize() const { return m_pDataDirWriter->GetFileSize(); }  // [tested]

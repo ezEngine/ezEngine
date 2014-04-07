@@ -31,13 +31,13 @@ protected:
   /// \brief Tries to setup the data directory. Can fail, if the type is incorrect (e.g. a ZIP file data directory type cannot handle a simple folder and vice versa)
   ezResult InitializeDataDirectory(const char* szDataDirPath);
 
-  /// \brief Must be implemented to create a ezDataDirectoryReader for accessing the given file. Returns NULL if the file could not be opened.
+  /// \brief Must be implemented to create a ezDataDirectoryReader for accessing the given file. Returns nullptr if the file could not be opened.
   virtual ezDataDirectoryReader* OpenFileToRead(const char* szFile) = 0;
 
-  /// \brief Must be implemented to create a ezDataDirectoryWriter for accessing the given file. Returns NULL if the file could not be opened. 
+  /// \brief Must be implemented to create a ezDataDirectoryWriter for accessing the given file. Returns nullptr if the file could not be opened. 
   ///
-  /// If it always returns NULL (default) the data directory is read-only (at least through this type).
-  virtual ezDataDirectoryWriter* OpenFileToWrite(const char* szFile) { return NULL; }
+  /// If it always returns nullptr (default) the data directory is read-only (at least through this type).
+  virtual ezDataDirectoryWriter* OpenFileToWrite(const char* szFile) { return nullptr; }
 
   /// \brief This function is called by the filesystem when a data directory is removed.
   ///

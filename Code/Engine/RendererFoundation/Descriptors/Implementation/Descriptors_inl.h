@@ -1,7 +1,7 @@
 
 ezGALSwapChainCreationDescription::ezGALSwapChainCreationDescription()
   : ezHashableStruct(),
-    m_pWindow(NULL),
+    m_pWindow(nullptr),
     m_SampleCount(ezGALMSAASampleCount::None),
     m_BackBufferFormat(ezGALResourceFormat::RGBAUByteNormalizedsRGB),
     m_DepthStencilBufferFormat(ezGALResourceFormat::D24S8),
@@ -29,7 +29,7 @@ ezGALShaderCreationDescription::ezGALShaderCreationDescription()
 
 bool ezGALShaderCreationDescription::HasByteCodeForStage(ezGALShaderStage::Enum Stage) const
 {
-  return m_ByteCodes[Stage] != NULL && m_ByteCodes[Stage]->IsValid();
+  return m_ByteCodes[Stage] != nullptr && m_ByteCodes[Stage]->IsValid();
 }
 
 
@@ -75,7 +75,7 @@ ezGALTextureCreationDescription::ezGALTextureCreationDescription()
     m_bCreateRenderTarget(false),
     m_bAllowDynamicMipGeneration(false),
     m_ResourceAccess(),
-    m_pExisitingNativeObject(NULL)
+    m_pExisitingNativeObject(nullptr)
 {
 }
 

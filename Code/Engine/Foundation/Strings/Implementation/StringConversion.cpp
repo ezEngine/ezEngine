@@ -9,7 +9,7 @@ void ezStringWChar::operator=(const char* szUtf8)
 
   m_Data.Clear();
 
-  if (szUtf8 != NULL)
+  if (szUtf8 != nullptr)
   {
 
     // skip any Utf8 Byte Order Mark
@@ -34,7 +34,7 @@ void ezStringWChar::operator=(const ezUInt16* szUtf16)
 {
   m_Data.Clear();
 
-  if (szUtf16 != NULL)
+  if (szUtf16 != nullptr)
   {
     // skip any Utf16 little endian Byte Order Mark
     ezUnicodeUtils::SkipUtf16BomLE(szUtf16);
@@ -59,7 +59,7 @@ void ezStringWChar::operator=(const ezUInt32* szUtf32)
 {
   m_Data.Clear();
 
-  if (szUtf32 != NULL)
+  if (szUtf32 != nullptr)
   {
 
     while (*szUtf32 != '\0')
@@ -82,7 +82,7 @@ void ezStringWChar::operator=(const wchar_t* szWChar)
 {
   m_Data.Clear();
 
-  if (szWChar != NULL)
+  if (szWChar != nullptr)
   {
 
     while (*szWChar != '\0')
@@ -106,7 +106,7 @@ void ezStringUtf8::operator=(const char* szUtf8)
 
   m_Data.Clear();
 
-  if (szUtf8 != NULL)
+  if (szUtf8 != nullptr)
   {
     // skip any Utf8 Byte Order Mark
     ezUnicodeUtils::SkipUtf8Bom(szUtf8);
@@ -127,7 +127,7 @@ void ezStringUtf8::operator=(const ezUInt16* szUtf16)
 {
   m_Data.Clear();
 
-  if (szUtf16 != NULL)
+  if (szUtf16 != nullptr)
   {
     // skip any Utf16 little endian Byte Order Mark
     ezUnicodeUtils::SkipUtf16BomLE(szUtf16);
@@ -153,7 +153,7 @@ void ezStringUtf8::operator=(const ezUInt32* szUtf32)
 {
   m_Data.Clear();
 
-  if (szUtf32 != NULL)
+  if (szUtf32 != nullptr)
   {
     while (*szUtf32 != '\0')
     {
@@ -175,7 +175,7 @@ void ezStringUtf8::operator=(const wchar_t* szWChar)
 {
   m_Data.Clear();
 
-  if (szWChar != NULL)
+  if (szWChar != nullptr)
   {
     while (*szWChar != '\0')
     {
@@ -203,7 +203,7 @@ void ezStringUtf16::operator=(const char* szUtf8)
 
   m_Data.Clear();
 
-  if (szUtf8 != NULL)
+  if (szUtf8 != nullptr)
   {
     // skip any Utf8 Byte Order Mark
     ezUnicodeUtils::SkipUtf8Bom(szUtf8);
@@ -228,7 +228,7 @@ void ezStringUtf16::operator=(const ezUInt16* szUtf16)
 {
   m_Data.Clear();
 
-  if (szUtf16 != NULL)
+  if (szUtf16 != nullptr)
   {
     // skip any Utf16 little endian Byte Order Mark
     ezUnicodeUtils::SkipUtf16BomLE(szUtf16);
@@ -250,7 +250,7 @@ void ezStringUtf16::operator=(const ezUInt32* szUtf32)
 {
   m_Data.Clear();
 
-  if (szUtf32 != NULL)
+  if (szUtf32 != nullptr)
   {
     while (*szUtf32 != '\0')
     {
@@ -272,7 +272,7 @@ void ezStringUtf16::operator=(const wchar_t* szWChar)
 {
   m_Data.Clear();
 
-  if (szWChar != NULL)
+  if (szWChar != nullptr)
   {
     while (*szWChar != '\0')
     {
@@ -302,7 +302,7 @@ void ezStringUtf32::operator=(const char* szUtf8)
 
   m_Data.Clear();
 
-  if (szUtf8 != NULL)
+  if (szUtf8 != nullptr)
   {
     // skip any Utf8 Byte Order Mark
     ezUnicodeUtils::SkipUtf8Bom(szUtf8);
@@ -323,7 +323,7 @@ void ezStringUtf32::operator=(const ezUInt16* szUtf16)
 {
   m_Data.Clear();
 
-  if (szUtf16 != NULL)
+  if (szUtf16 != nullptr)
   {
     // skip any Utf16 little endian Byte Order Mark
     ezUnicodeUtils::SkipUtf16BomLE(szUtf16);
@@ -345,7 +345,7 @@ void ezStringUtf32::operator=(const ezUInt32* szUtf32)
 {
   m_Data.Clear();
 
-  if (szUtf32 != NULL)
+  if (szUtf32 != nullptr)
   {
     while (*szUtf32 != '\0')
     {
@@ -362,7 +362,7 @@ void ezStringUtf32::operator=(const wchar_t* szWChar)
 {
   m_Data.Clear();
 
-  if (szWChar != NULL)
+  if (szWChar != nullptr)
   {
     while (*szWChar != '\0')
     {

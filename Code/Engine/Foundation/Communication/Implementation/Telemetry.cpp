@@ -23,8 +23,8 @@ ezString ezTelemetry::s_ServerIP;
 static bool g_bInitialized = false;
 
 static ENetAddress g_pServerAddress;
-static ENetHost* g_pHost = NULL;
-static ENetPeer* g_pConnectionToServer = NULL;
+static ENetHost* g_pHost = nullptr;
+static ENetPeer* g_pConnectionToServer = nullptr;
 ezTelemetry::ConnectionMode ezTelemetry::s_ConnectionMode = ezTelemetry::None;
 ezMap<ezUInt64, ezTelemetry::MessageQueue> ezTelemetry::s_SystemMessages;
 
@@ -145,7 +145,7 @@ void ezTelemetry::UpdateNetwork()
               s_bConnectedToServer = true;
 
               // acknowledge that the ID has been received
-              SendToServer('EZBC', 'AKID', NULL, 0);
+              SendToServer('EZBC', 'AKID', nullptr, 0);
 
               // go tell the others about it
               TelemetryEventData e;
@@ -232,12 +232,12 @@ void ezTelemetry::InitializeAsServer()
 
 ezResult ezTelemetry::InitializeAsClient(const char* szConnectTo)
 {
-  g_pHost = enet_host_create(NULL, 1, 2, 0, 0);
+  g_pHost = enet_host_create(nullptr, 1, 2, 0, 0);
 
   ezStringBuilder sConnectTo = szConnectTo;
 
   const char* szColon = sConnectTo.FindLastSubString(":");
-  if (szColon != NULL)
+  if (szColon != nullptr)
   {
     sConnectTo.Shrink(0, ezStringUtils::GetStringElementCount(szColon));
 
@@ -248,7 +248,7 @@ ezResult ezTelemetry::InitializeAsClient(const char* szConnectTo)
   if (sConnectTo.IsEmpty() || sConnectTo.IsEqual_NoCase("localhost"))
     enet_address_set_host(&g_pServerAddress, "localhost");
   else
-  if (sConnectTo.FindSubString(".") != NULL)
+  if (sConnectTo.FindSubString(".") != nullptr)
   {
     ezHybridArray<ezString, 8> IP;
     sConnectTo.Split(false, IP, ".");
@@ -270,7 +270,7 @@ ezResult ezTelemetry::InitializeAsClient(const char* szConnectTo)
 
   g_pServerAddress.port = s_uiPort;
 
-  g_pConnectionToServer = NULL;
+  g_pConnectionToServer = nullptr;
   g_pConnectionToServer = enet_host_connect(g_pHost, &g_pServerAddress, 2, 'EZBC');
 
   if (g_pConnectionToServer)
@@ -399,7 +399,7 @@ void ezTelemetry::Send(TransmitMode tm, ezUInt32 uiSystemID, ezUInt32 uiMsgID, e
     if (TempData.GetCount() > 8)
       QueueOutgoingMessage(tm, uiSystemID, uiMsgID, &TempData[8], TempData.GetCount() - 8);
     else
-      QueueOutgoingMessage(tm, uiSystemID, uiMsgID, NULL, 0);
+      QueueOutgoingMessage(tm, uiSystemID, uiMsgID, nullptr, 0);
   }
   else
   {
@@ -414,7 +414,7 @@ void ezTelemetry::CloseConnection()
   s_bConnectedToClient = false;
   s_ConnectionMode = None;
   s_uiServerID = 0;
-  g_pConnectionToServer = NULL;
+  g_pConnectionToServer = nullptr;
 
   StopTelemetryThread();
 
@@ -439,7 +439,7 @@ void ezTelemetry::CloseConnection()
   if (g_pHost)
   {
     enet_host_destroy(g_pHost);
-    g_pHost = NULL;
+    g_pHost = nullptr;
   }
 
   if (g_bInitialized)

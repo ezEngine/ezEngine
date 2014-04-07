@@ -17,7 +17,7 @@ public:
   /// \brief Returns whether c is any known path separator.
   static bool IsPathSeparator (ezUInt32 c); // [tested]
 
-  /// \brief Searches for the previous path separator before szStartSearchAt. Will return NULL if it reaches szPathStart before finding any separator.
+  /// \brief Searches for the previous path separator before szStartSearchAt. Will return nullptr if it reaches szPathStart before finding any separator.
   static const char* FindPreviousSeparator(const char* szPathStart, const char* szStartSearchAt); // [tested]
 
   /// \brief Checks whether the given path has any file extension

@@ -127,10 +127,10 @@ public:
 
   /// \brief Computes the intersection of a ray with this sphere. Returns true if there was an intersection. May optionally return the intersection time and position. The ray's direction must be normalized.
   /// The function will also return true, if the ray already starts inside the sphere, but it will still compute the intersection with the surface of the sphere.
-  bool GetRayIntersection(const ezVec3Template<Type>& vRayStartPos, const ezVec3Template<Type>& vRayDir, Type* out_fIntersection = NULL, ezVec3Template<Type>* out_vIntersection = NULL) const; // [tested]
+  bool GetRayIntersection(const ezVec3Template<Type>& vRayStartPos, const ezVec3Template<Type>& vRayDir, Type* out_fIntersection = nullptr, ezVec3Template<Type>* out_vIntersection = nullptr) const; // [tested]
 
   /// \brief Returns true if the line segment intersects the spere.
-  bool GetLineSegmentIntersection(const ezVec3Template<Type>& vLineStartPos, const ezVec3Template<Type>& vLineEndPos, Type* out_fHitFraction = NULL, ezVec3Template<Type>* out_vIntersection = NULL) const; // [tested]
+  bool GetLineSegmentIntersection(const ezVec3Template<Type>& vLineStartPos, const ezVec3Template<Type>& vLineEndPos, Type* out_fHitFraction = nullptr, ezVec3Template<Type>* out_vIntersection = nullptr) const; // [tested]
 
 
 public:

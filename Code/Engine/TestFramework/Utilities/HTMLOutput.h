@@ -135,7 +135,7 @@ struct ezOutputToHTML
         if (settings.m_bOpenHtmlOutput)
         {
           // opens the html file in a browser
-          ShellExecuteA(NULL, "open", sOutputFile.c_str(), NULL, NULL, SW_SHOW);
+          ShellExecuteA(nullptr, "open", sOutputFile.c_str(), nullptr, nullptr, SW_SHOW);
         }
 #endif
       }

@@ -54,14 +54,14 @@ public:
 
 
   // Helper functions for buffers (for common, simple use cases)
-  ezGALBufferHandle CreateVertexBuffer(ezUInt32 uiVertexSize, ezUInt32 uiVertexCount, const void* pInitialData = NULL);
+  ezGALBufferHandle CreateVertexBuffer(ezUInt32 uiVertexSize, ezUInt32 uiVertexCount, const void* pInitialData = nullptr);
 
-  ezGALBufferHandle CreateIndexBuffer(ezGALIndexType::Enum IndexType, ezUInt32 uiIndexCount, const void* pInitialData = NULL);
+  ezGALBufferHandle CreateIndexBuffer(ezGALIndexType::Enum IndexType, ezUInt32 uiIndexCount, const void* pInitialData = nullptr);
 
   ezGALBufferHandle CreateConstantBuffer(ezUInt32 uiBufferSize);
 
 
-  ezGALTextureHandle CreateTexture(const ezGALTextureCreationDescription& Description, const ezArrayPtr<ezGALSystemMemoryDescription>* pInitialData = NULL);
+  ezGALTextureHandle CreateTexture(const ezGALTextureCreationDescription& Description, const ezArrayPtr<ezGALSystemMemoryDescription>* pInitialData = nullptr);
 
   void DestroyTexture(ezGALTextureHandle hTexture);
 

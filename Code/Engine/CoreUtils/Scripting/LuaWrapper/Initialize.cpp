@@ -6,7 +6,7 @@
 ezLuaWrapper::ezLuaWrapper()
 {
   m_bReleaseOnExit = true;
-  m_pState = NULL;
+  m_pState = nullptr;
 
   Clear();
 }
@@ -30,7 +30,7 @@ void ezLuaWrapper::Clear()
   if (m_pState)
     lua_close(m_pState);
 
-  m_pState = lua_newstate(lua_allocator, NULL);
+  m_pState = lua_newstate(lua_allocator, nullptr);
 
   luaL_openlibs(m_pState);
 }
@@ -76,12 +76,12 @@ void* ezLuaWrapper::lua_allocator(void* ud, void* ptr, size_t osize, size_t nsiz
   if (nsize == 0)
   {
     delete[] (ezUInt8*) ptr;
-    return (NULL);
+    return (nullptr);
   }
 
   ezUInt8* ucPtr = new ezUInt8[nsize];
 
-  if (ptr != NULL)
+  if (ptr != nullptr)
   {
     ezMemoryUtils::Copy(ucPtr, (ezUInt8*) ptr, ezUInt32 (osize < nsize ? osize : nsize));
 

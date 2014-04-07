@@ -24,7 +24,7 @@ template<typename T> T* ezGALDevice::GetPrimaryContext() const
 
 template<typename IdTableType, typename ReturnType> ReturnType* ezGALDevice::Get(typename IdTableType::TypeOfId hHandle, const IdTableType& IdTable) const
 {
-  ReturnType* pObject = NULL;
+  ReturnType* pObject = nullptr;
 
   if(IdTable.TryGetValue(hHandle, pObject))
   {
@@ -35,7 +35,7 @@ template<typename IdTableType, typename ReturnType> ReturnType* ezGALDevice::Get
     ezLog::Warning("ezGALDevice::Get() for invalid handle!");
     // TODO: typeid of incomplete types not allowed. Fix includes or move this away from the inline file.
     //ezLog::Warning("ezGALDevice::Get() for invalid handle for object type %s", typeid(ReturnType).name());
-    return NULL;
+    return nullptr;
   }
 }
 

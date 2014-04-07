@@ -125,7 +125,7 @@ inline bool ezUnicodeUtils::IsValidUtf8(const char* szString)
 
 inline bool ezUnicodeUtils::SkipUtf8Bom(const char*& szUtf8)
 {
-  EZ_ASSERT(szUtf8 != NULL, "This function expects non NULL pointers");
+  EZ_ASSERT(szUtf8 != nullptr, "This function expects non nullptr pointers");
 
   if (utf8::starts_with_bom(szUtf8, szUtf8 + 4))
   {
@@ -138,7 +138,7 @@ inline bool ezUnicodeUtils::SkipUtf8Bom(const char*& szUtf8)
 
 inline bool ezUnicodeUtils::SkipUtf16BomLE(const ezUInt16*& szUtf16)
 {
-  EZ_ASSERT(szUtf16 != NULL, "This function expects non NULL pointers");
+  EZ_ASSERT(szUtf16 != nullptr, "This function expects non nullptr pointers");
 
   if (*szUtf16 == ezUnicodeUtils::Utf16BomLE)
   {
@@ -151,7 +151,7 @@ inline bool ezUnicodeUtils::SkipUtf16BomLE(const ezUInt16*& szUtf16)
 
 inline bool ezUnicodeUtils::SkipUtf16BomBE(const ezUInt16*& szUtf16)
 {
-  EZ_ASSERT(szUtf16 != NULL, "This function expects non NULL pointers");
+  EZ_ASSERT(szUtf16 != nullptr, "This function expects non nullptr pointers");
 
   if (*szUtf16 == ezUnicodeUtils::Utf16BomBE)
   {
@@ -164,7 +164,7 @@ inline bool ezUnicodeUtils::SkipUtf16BomBE(const ezUInt16*& szUtf16)
 
 inline void ezUnicodeUtils::MoveToNextUtf8(const char*& szUtf8, ezUInt32 uiNumCharacters)
 {
-  EZ_ASSERT(szUtf8 != NULL, "Bad programmer!");
+  EZ_ASSERT(szUtf8 != nullptr, "Bad programmer!");
 
   while (uiNumCharacters > 0)
   {
@@ -182,7 +182,7 @@ inline void ezUnicodeUtils::MoveToNextUtf8(const char*& szUtf8, ezUInt32 uiNumCh
 
 inline void ezUnicodeUtils::MoveToPriorUtf8(const char*& szUtf8, ezUInt32 uiNumCharacters)
 {
-  EZ_ASSERT(szUtf8 != NULL, "Bad programmer!");
+  EZ_ASSERT(szUtf8 != nullptr, "Bad programmer!");
 
   while (uiNumCharacters > 0)
   {

@@ -17,7 +17,7 @@ void ezSystemInformation::Initialize()
   size_t uiLength = sizeof(iPhysicalMemory);
   
   mib[0] = CTL_HW; mib[1] = HW_MEMSIZE;
-  sysctl(mib, 2, &iPhysicalMemory, &uiLength, NULL, 0);
+  sysctl(mib, 2, &iPhysicalMemory, &uiLength, nullptr, 0);
   
   s_SystemInformation.m_uiInstalledMainMemory = iPhysicalMemory;
   

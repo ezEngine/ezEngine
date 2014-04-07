@@ -3,17 +3,17 @@
 #include <Foundation/Threading/ThreadUtils.h>
 
 
-ezGlobalLog* ezGlobalLog::s_pInstance = NULL;
+ezGlobalLog* ezGlobalLog::s_pInstance = nullptr;
 ezLogMsgType::Enum ezGlobalLog::s_LogLevel = ezLogMsgType::All;
 ezAtomicInteger32 ezGlobalLog::s_uiMessageCount[ezLogMsgType::ENUM_COUNT];
 ezLoggingEvent ezGlobalLog::s_LoggingEvent;
 
-ezLogInterface* ezLog::s_DefaultLogSystem = NULL;
+ezLogInterface* ezLog::s_DefaultLogSystem = nullptr;
 
 ezGlobalLog* ezGlobalLog::GetInstance()
 {
   if (!ezThreadUtils::IsMainThread())
-    return NULL;
+    return nullptr;
 
   static ezGlobalLog s_Log;
   return &s_Log;
@@ -163,21 +163,21 @@ void ezLog::BroadcastLoggingEvent(ezLogInterface* pInterface, ezLogMsgType::Enum
 
 void ezLog::SetDefaultLogSystem(ezLogInterface* pInterface)
 {
-  EZ_ASSERT(pInterface != NULL, "You cannot set a NULL logging system. If you want to discard all log information, set a dummy system that does not do anything.");
+  EZ_ASSERT(pInterface != nullptr, "You cannot set a nullptr logging system. If you want to discard all log information, set a dummy system that does not do anything.");
 
   s_DefaultLogSystem = pInterface;
 }
 
 ezLogInterface* ezLog::GetDefaultLogSystem()
 {
-  if (s_DefaultLogSystem == NULL)
+  if (s_DefaultLogSystem == nullptr)
     s_DefaultLogSystem = ezGlobalLog::GetInstance();
 
   return s_DefaultLogSystem;
 }
 
 #define LOG_IMPL(ThisType, pInterface) \
-  if (pInterface == NULL) \
+  if (pInterface == nullptr) \
     return; \
   char szString[4096]; \
   va_list args; \

@@ -63,7 +63,7 @@ class ezScopedRefPointer
 public:
 
   /// \brief Constructor.
-  ezScopedRefPointer() : m_pReferencedObject(NULL)
+  ezScopedRefPointer() : m_pReferencedObject(nullptr)
   {
   }
 
@@ -112,47 +112,47 @@ public:
     AddReferenceIfValid();
   }
 
-  /// \brief Returns the referenced object (may be NULL).
+  /// \brief Returns the referenced object (may be nullptr).
   operator const T*() const
   {
     return m_pReferencedObject;
   }
 
-  /// \brief Returns the referenced object (may be NULL).
+  /// \brief Returns the referenced object (may be nullptr).
   operator T*()
   {
     return m_pReferencedObject;
   }
 
-  /// \brief Returns the referenced object (may be NULL).
+  /// \brief Returns the referenced object (may be nullptr).
   const T* operator ->() const
   {
-    EZ_ASSERT(m_pReferencedObject != NULL, "Pointer is NULL.");
+    EZ_ASSERT(m_pReferencedObject != nullptr, "Pointer is nullptr.");
     return m_pReferencedObject;
   }
 
-  /// \brief Returns the referenced object (may be NULL)
+  /// \brief Returns the referenced object (may be nullptr)
   T* operator -> ()
   {
-    EZ_ASSERT(m_pReferencedObject != NULL, "Pointer is NULL.");
+    EZ_ASSERT(m_pReferencedObject != nullptr, "Pointer is nullptr.");
     return m_pReferencedObject;
   }
 
 private:
 
-  /// \brief Internal helper function to add a reference on the current object (if != NULL)
+  /// \brief Internal helper function to add a reference on the current object (if != nullptr)
   inline void AddReferenceIfValid()
   {
-    if (m_pReferencedObject != NULL)
+    if (m_pReferencedObject != nullptr)
     {
       m_pReferencedObject->AddRef();
     }
   }
 
-  /// \brief Internal helper function to release a reference on the current object (if != NULL)
+  /// \brief Internal helper function to release a reference on the current object (if != nullptr)
   inline void ReleaseReferenceIfValid()
   {
-    if (m_pReferencedObject != NULL)
+    if (m_pReferencedObject != nullptr)
     {
       m_pReferencedObject->ReleaseRef();
     }

@@ -68,7 +68,7 @@ void ezVirtualThumbStick::SetTriggerInputSlot(ezVirtualThumbStick::Input::Enum I
     break;
   case ezVirtualThumbStick::Input::Custom:
     {
-      EZ_ASSERT(pCustomConfig != NULL, "Must pass a custom config, if you want to have a custom config.");
+      EZ_ASSERT(pCustomConfig != nullptr, "Must pass a custom config, if you want to have a custom config.");
 
       for (ezInt32 i = 0; i < ezInputActionConfig::MaxInputSlotAlternatives; ++i)
       {

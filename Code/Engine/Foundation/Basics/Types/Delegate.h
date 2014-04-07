@@ -13,7 +13,7 @@ public:
 
   EZ_FORCE_INLINE ezDelegateBase()
   {
-    m_pInstance.m_Ptr = NULL;
+    m_pInstance.m_Ptr = nullptr;
   }
 
 protected:

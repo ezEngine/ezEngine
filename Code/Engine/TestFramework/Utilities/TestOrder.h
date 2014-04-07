@@ -175,7 +175,7 @@ inline void LoadTestOrder(const char* szFile, std::deque<ezTestEntry>& AllTests,
     char szOtherName[256] = "";
 
     const bool bIndented = ReadLine(pFile, szTestName, 256);
-    const bool bIsOff = strstr(szTestName, "=off") != NULL;
+    const bool bIsOff = strstr(szTestName, "=off") != nullptr;
 
     const char* pEnd = strstr(szTestName, "=");
     if (pEnd)

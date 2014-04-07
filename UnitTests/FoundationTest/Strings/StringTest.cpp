@@ -57,7 +57,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, String)
     s.Clear();
     EZ_TEST_BOOL(s.IsEmpty());
     EZ_TEST_BOOL(s == "");
-    EZ_TEST_BOOL(s == NULL);
+    EZ_TEST_BOOL(s == nullptr);
     
   }
 

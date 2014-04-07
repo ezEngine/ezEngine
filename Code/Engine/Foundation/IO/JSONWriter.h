@@ -141,7 +141,7 @@ public:
   ///
   /// How exactly the raw data is represented in JSON is up to the derived class. \a szDataType allows to additionally output a string
   /// that identifies the type of data.
-  virtual void WriteBinaryData(const char* szDataType, const void* pData, ezUInt32 uiBytes, const char* szValueString = NULL) = 0;
+  virtual void WriteBinaryData(const char* szDataType, const void* pData, ezUInt32 uiBytes, const char* szValueString = nullptr) = 0;
 
   /// \brief Begins outputting a variable. \a szName is the variable name.
   ///
@@ -154,20 +154,20 @@ public:
 
   /// \brief Begins outputting an array variable.
   ///
-  /// If szName is NULL this will create an anonymous array, which is necessary when you want to put an array as a value into another array.
-  /// BeginArray() with a non-NULL value for \a szName is identical to calling BeginVariable() first. In this case EndArray() will also
+  /// If szName is nullptr this will create an anonymous array, which is necessary when you want to put an array as a value into another array.
+  /// BeginArray() with a non-nullptr value for \a szName is identical to calling BeginVariable() first. In this case EndArray() will also
   /// end the variable definition, so no additional call to EndVariable() is required.
-  virtual void BeginArray(const char* szName = NULL) = 0;
+  virtual void BeginArray(const char* szName = nullptr) = 0;
 
   /// \brief Ends outputting an array variable.
   virtual void EndArray() = 0;
 
   /// \brief Begins outputting an object variable.
   ///
-  /// If szName is NULL this will create an anonymous object, which is necessary when you want to put an object as a value into an array.
-  /// BeginObject() with a non-NULL value for \a szName is identical to calling BeginVariable() first. In this case EndObject() will also
+  /// If szName is nullptr this will create an anonymous object, which is necessary when you want to put an object as a value into an array.
+  /// BeginObject() with a non-nullptr value for \a szName is identical to calling BeginVariable() first. In this case EndObject() will also
   /// end the variable definition, so no additional call to EndVariable() is required.
-  virtual void BeginObject(const char* szName = NULL) = 0;
+  virtual void BeginObject(const char* szName = nullptr) = 0;
 
   /// \brief Ends outputting an object variable.
   virtual void EndObject() = 0;
@@ -246,7 +246,7 @@ public:
   virtual void WriteMat4(const ezMat4& value) EZ_OVERRIDE; // [tested]
 
   /// \brief Implements the MongoDB way of writing binary data. First writes a "$type" variable, then a "$binary" variable that represents the raw data (Hex encoded, little endian).
-  virtual void WriteBinaryData(const char* szDataType, const void* pData, ezUInt32 uiBytes, const char* szValueString = NULL) EZ_OVERRIDE; // [tested]
+  virtual void WriteBinaryData(const char* szDataType, const void* pData, ezUInt32 uiBytes, const char* szValueString = nullptr) EZ_OVERRIDE; // [tested]
 
   /// \brief \copydoc ezJSONWriter::BeginVariable()
   virtual void BeginVariable(const char* szName) EZ_OVERRIDE; // [tested]
@@ -255,13 +255,13 @@ public:
   virtual void EndVariable() EZ_OVERRIDE; // [tested]
 
   /// \brief \copydoc ezJSONWriter::BeginArray()
-  virtual void BeginArray(const char* szName = NULL) EZ_OVERRIDE; // [tested]
+  virtual void BeginArray(const char* szName = nullptr) EZ_OVERRIDE; // [tested]
 
   /// \brief \copydoc ezJSONWriter::EndArray()
   virtual void EndArray() EZ_OVERRIDE; // [tested]
 
   /// \brief \copydoc ezJSONWriter::BeginObject()
-  virtual void BeginObject(const char* szName = NULL) EZ_OVERRIDE; // [tested]
+  virtual void BeginObject(const char* szName = nullptr) EZ_OVERRIDE; // [tested]
 
   /// \brief \copydoc ezJSONWriter::EndObject()
   virtual void EndObject() EZ_OVERRIDE; // [tested]

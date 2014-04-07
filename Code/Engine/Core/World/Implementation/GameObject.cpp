@@ -30,7 +30,7 @@ void ezGameObject::operator=(const ezGameObject& other)
   m_Components = other.m_Components;
   for (ezUInt32 i = 0; i < m_Components.GetCount(); ++i)
   {
-    ezComponent* pComponent = NULL;
+    ezComponent* pComponent = nullptr;
     if (m_pWorld->TryGetComponent(m_Components[i], pComponent))
     {
       EZ_ASSERT(pComponent->m_pOwner == &other, "");
@@ -51,14 +51,14 @@ const char* ezGameObject::GetName() const
 
 ezGameObject::ChildIterator ezGameObject::GetChildren() const
 {
-  ezGameObject* pFirstChild = NULL;
+  ezGameObject* pFirstChild = nullptr;
   m_pWorld->TryGetObject(m_FirstChild, pFirstChild);
   return ChildIterator(pFirstChild);
 }
 
 ezResult ezGameObject::AddComponent(const ezComponentHandle& component)
 {
-  ezComponent* pComponent = NULL;
+  ezComponent* pComponent = nullptr;
   if (m_pWorld->TryGetComponent(component, pComponent))
   {
     EZ_ASSERT(pComponent->m_pOwner != this, "Component must not be added twice.");
@@ -85,11 +85,11 @@ ezResult ezGameObject::RemoveComponent(const ezComponentHandle& component)
 
   ezResult result = EZ_FAILURE;
   
-  ezComponent* pComponent = NULL;
+  ezComponent* pComponent = nullptr;
   if (m_pWorld->TryGetComponent(component, pComponent))
   {
     result = pComponent->Deinitialize();
-    pComponent->m_pOwner = NULL;
+    pComponent->m_pOwner = nullptr;
   }
 
   m_Components.RemoveAtSwap(uiIndex);
@@ -129,7 +129,7 @@ void ezGameObject::OnMessage(ezMessage& msg, ezBitflags<ezObjectMsgRouting> rout
   // always send message to all components
   for (ezUInt32 i = 0; i < m_Components.GetCount(); ++i)
   {
-    ezComponent* pComponent = NULL;
+    ezComponent* pComponent = nullptr;
     if (m_pWorld->TryGetComponent(m_Components[i], pComponent))
     {
       pComponent->OnMessage(msg);
@@ -139,7 +139,7 @@ void ezGameObject::OnMessage(ezMessage& msg, ezBitflags<ezObjectMsgRouting> rout
   // route message to parent and/or children
   if (routing.IsSet(ezObjectMsgRouting::ToParent))
   {
-    ezGameObject* pParent = NULL;
+    ezGameObject* pParent = nullptr;
     if (m_pWorld->TryGetObject(m_Parent, pParent))
     {
       pParent->OnMessage(msg, routing);

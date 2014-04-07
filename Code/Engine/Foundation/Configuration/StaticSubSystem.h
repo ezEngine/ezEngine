@@ -87,7 +87,7 @@
 
 /// \brief Ends the list of subsystems, on which the currently declared system depends on.
 #define END_SUBSYSTEM_DEPENDENCIES \
-      , NULL }; \
+      , nullptr }; \
     return szDeps[iDep]; \
   }
 

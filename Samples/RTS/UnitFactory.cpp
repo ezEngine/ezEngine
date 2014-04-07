@@ -6,7 +6,7 @@ ComponentType* AddComponent(ezWorld* pWorld, ezGameObject* pObject)
 {
   ManagerType* pManager = pWorld->GetComponentManager<ManagerType>();
 
-  ComponentType* pComponent = NULL;
+  ComponentType* pComponent = nullptr;
   ezComponentHandle hComponent = pManager->CreateComponent(pComponent);
   
   pObject->AddComponent(hComponent);
@@ -20,7 +20,7 @@ ezGameObject* Level::CreateGameObject(const ezVec3& vPosition, const ezQuat& qRo
   desc.m_LocalRotation = qRotation;
   desc.m_LocalScaling.Set(fScaling);
 
-  ezGameObject* pObject = NULL;
+  ezGameObject* pObject = nullptr;
   m_pWorld->CreateObject(desc, pObject);
 
   return pObject;

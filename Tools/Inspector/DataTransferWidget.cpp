@@ -10,7 +10,7 @@
 #include <qdesktopservices.h>
 #include <QUrl>
 
-ezDataWidget* ezDataWidget::s_pWidget = NULL;
+ezDataWidget* ezDataWidget::s_pWidget = nullptr;
 
 ezDataWidget::ezDataWidget(QWidget* parent) : QDockWidget(parent)
 {
@@ -154,14 +154,14 @@ ezDataWidget::TransferDataObject* ezDataWidget::GetCurrentItem()
 {
   auto Transfer = GetCurrentTransfer();
 
-  if (Transfer == NULL)
-    return NULL;
+  if (Transfer == nullptr)
+    return nullptr;
 
   ezString sItem = ComboItems->currentText().toUtf8().data();
 
   auto itItem = Transfer->m_Items.Find(sItem);
   if (!itItem.IsValid())
-    return NULL;
+    return nullptr;
 
   return &itItem.Value();
 }
@@ -172,7 +172,7 @@ ezDataWidget::TransferData* ezDataWidget::GetCurrentTransfer()
 
   auto itTransfer = m_Transfers.Find(sTransfer);
   if (!itTransfer.IsValid())
-    return NULL;
+    return nullptr;
 
   return &itTransfer.Value();
 }

@@ -19,7 +19,7 @@ EZ_FORCE_INLINE bool ezComponentManagerBase::IsComponentOfType(const ezComponent
 
 EZ_FORCE_INLINE bool ezComponentManagerBase::TryGetComponent(const ezComponentHandle& component, ezComponent*& out_pComponent) const
 {
-  ComponentStorageEntry storageEntry = { NULL };
+  ComponentStorageEntry storageEntry = { nullptr };
   bool res = m_Components.TryGetValue(component, storageEntry);
   out_pComponent = storageEntry.m_Ptr;
   return res;
@@ -72,7 +72,7 @@ ezComponentManager<ComponentType>::~ezComponentManager()
 template <typename ComponentType>
 EZ_FORCE_INLINE ezComponentHandle ezComponentManager<ComponentType>::CreateComponent()
 {
-  ComponentType* pNewComponent = NULL;
+  ComponentType* pNewComponent = nullptr;
   return CreateComponent(pNewComponent);
 }
 
@@ -92,7 +92,7 @@ EZ_FORCE_INLINE bool ezComponentManager<ComponentType>::TryGetComponent(const ez
     "The given component handle is not of the expected type. Expected type id %d, got type id %d",
     ComponentType::TypeId(), GetIdFromHandle(component).m_TypeId);
 
-  ezComponent* pComponent = NULL;
+  ezComponent* pComponent = nullptr;
   bool bResult = ezComponentManagerBase::TryGetComponent(component, pComponent);
   out_pComponent = static_cast<ComponentType*>(pComponent);
   return bResult;

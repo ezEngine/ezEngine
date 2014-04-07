@@ -6,7 +6,7 @@
 #include <QGraphicsPathItem>
 #include <QSettings>
 
-ezStatVisWidget* ezStatVisWidget::s_pWidget = NULL;
+ezStatVisWidget* ezStatVisWidget::s_pWidget = nullptr;
 ezInt32 ezStatVisWidget::s_iCurColor = 0;
 
 static QColor s_Colors[ezStatVisWidget::s_uiMaxColors] =
@@ -131,12 +131,12 @@ void ezStatVisWidget::on_ToggleVisible()
 
 void ezStatVisWidget::on_ListStats_currentItemChanged(QListWidgetItem* current, QListWidgetItem* previous)
 {
-  ButtonRemove->setEnabled(current != NULL);
+  ButtonRemove->setEnabled(current != nullptr);
 }
 
 void ezStatVisWidget::on_ButtonRemove_clicked()
 {
-  if (ListStats->currentItem() == NULL)
+  if (ListStats->currentItem() == nullptr)
     return;
 
   for (auto it = m_Stats.GetIterator(); it.IsValid(); ++it)
@@ -226,7 +226,7 @@ void ezStatVisWidget::AddStat(const ezString& sStatPath, bool bEnabled, bool bRa
 
   StatsData& Stat = m_Stats[sStatPath];
 
-  if (Stat.m_pListItem == NULL)
+  if (Stat.m_pListItem == nullptr)
   {
     Stat.m_uiColor = s_iCurColor % ezStatVisWidget::s_uiMaxColors;
     ++s_iCurColor;

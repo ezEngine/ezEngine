@@ -11,8 +11,8 @@ EZ_CREATE_SIMPLE_TEST_GROUP(Configuration);
 
 // Interestingly using 'ezCVarValue::Default' directly inside a macro does not work. (?!)
 #define CHECK_CVAR(var, Current, Default, Stored, Restart) \
-  EZ_TEST_BOOL(var != NULL); \
-  if (var != NULL) \
+  EZ_TEST_BOOL(var != nullptr); \
+  if (var != nullptr) \
   { \
     EZ_TEST_BOOL(var->GetValue() == Current); \
     EZ_TEST_BOOL(var->GetValue(ezCVarValueDefault) == Default); \
@@ -78,15 +78,15 @@ EZ_CREATE_SIMPLE_TEST(Configuration, CVars)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "No Plugin Loaded")
   {
-    EZ_TEST_BOOL(ezCVar::FindCVarByName("test1_Int") == NULL);
-    EZ_TEST_BOOL(ezCVar::FindCVarByName("test1_Float") == NULL);
-    EZ_TEST_BOOL(ezCVar::FindCVarByName("test1_Bool") == NULL);
-    EZ_TEST_BOOL(ezCVar::FindCVarByName("test1_String") == NULL);
+    EZ_TEST_BOOL(ezCVar::FindCVarByName("test1_Int") == nullptr);
+    EZ_TEST_BOOL(ezCVar::FindCVarByName("test1_Float") == nullptr);
+    EZ_TEST_BOOL(ezCVar::FindCVarByName("test1_Bool") == nullptr);
+    EZ_TEST_BOOL(ezCVar::FindCVarByName("test1_String") == nullptr);
 
-    EZ_TEST_BOOL(ezCVar::FindCVarByName("test2_Int") == NULL);
-    EZ_TEST_BOOL(ezCVar::FindCVarByName("test2_Float") == NULL);
-    EZ_TEST_BOOL(ezCVar::FindCVarByName("test2_Bool") == NULL);
-    EZ_TEST_BOOL(ezCVar::FindCVarByName("test2_String") == NULL);
+    EZ_TEST_BOOL(ezCVar::FindCVarByName("test2_Int") == nullptr);
+    EZ_TEST_BOOL(ezCVar::FindCVarByName("test2_Float") == nullptr);
+    EZ_TEST_BOOL(ezCVar::FindCVarByName("test2_Bool") == nullptr);
+    EZ_TEST_BOOL(ezCVar::FindCVarByName("test2_String") == nullptr);
   }
 
 #if EZ_ENABLED(EZ_SUPPORTS_DYNAMIC_PLUGINS)
@@ -95,15 +95,15 @@ EZ_CREATE_SIMPLE_TEST(Configuration, CVars)
   {
     EZ_TEST_BOOL(ezPlugin::LoadPlugin("ezFoundationTest_Plugin1") == EZ_SUCCESS);
 
-    EZ_TEST_BOOL(ezCVar::FindCVarByName("test1_Int") != NULL);
-    EZ_TEST_BOOL(ezCVar::FindCVarByName("test1_Float") != NULL);
-    EZ_TEST_BOOL(ezCVar::FindCVarByName("test1_Bool") != NULL);
-    EZ_TEST_BOOL(ezCVar::FindCVarByName("test1_String") != NULL);
+    EZ_TEST_BOOL(ezCVar::FindCVarByName("test1_Int") != nullptr);
+    EZ_TEST_BOOL(ezCVar::FindCVarByName("test1_Float") != nullptr);
+    EZ_TEST_BOOL(ezCVar::FindCVarByName("test1_Bool") != nullptr);
+    EZ_TEST_BOOL(ezCVar::FindCVarByName("test1_String") != nullptr);
 
-    EZ_TEST_BOOL(ezCVar::FindCVarByName("test2_Int") == NULL);
-    EZ_TEST_BOOL(ezCVar::FindCVarByName("test2_Float") == NULL);
-    EZ_TEST_BOOL(ezCVar::FindCVarByName("test2_Bool") == NULL);
-    EZ_TEST_BOOL(ezCVar::FindCVarByName("test2_String") == NULL);
+    EZ_TEST_BOOL(ezCVar::FindCVarByName("test2_Int") == nullptr);
+    EZ_TEST_BOOL(ezCVar::FindCVarByName("test2_Float") == nullptr);
+    EZ_TEST_BOOL(ezCVar::FindCVarByName("test2_Bool") == nullptr);
+    EZ_TEST_BOOL(ezCVar::FindCVarByName("test2_String") == nullptr);
 
     EZ_TEST_BOOL(ezPlugin::UnloadPlugin("ezFoundationTest_Plugin1") == EZ_SUCCESS);
   }
@@ -112,15 +112,15 @@ EZ_CREATE_SIMPLE_TEST(Configuration, CVars)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "No Plugin Loaded (2)")
   {
-    EZ_TEST_BOOL(ezCVar::FindCVarByName("test1_Int") == NULL);
-    EZ_TEST_BOOL(ezCVar::FindCVarByName("test1_Float") == NULL);
-    EZ_TEST_BOOL(ezCVar::FindCVarByName("test1_Bool") == NULL);
-    EZ_TEST_BOOL(ezCVar::FindCVarByName("test1_String") == NULL);
+    EZ_TEST_BOOL(ezCVar::FindCVarByName("test1_Int") == nullptr);
+    EZ_TEST_BOOL(ezCVar::FindCVarByName("test1_Float") == nullptr);
+    EZ_TEST_BOOL(ezCVar::FindCVarByName("test1_Bool") == nullptr);
+    EZ_TEST_BOOL(ezCVar::FindCVarByName("test1_String") == nullptr);
 
-    EZ_TEST_BOOL(ezCVar::FindCVarByName("test2_Int") == NULL);
-    EZ_TEST_BOOL(ezCVar::FindCVarByName("test2_Float") == NULL);
-    EZ_TEST_BOOL(ezCVar::FindCVarByName("test2_Bool") == NULL);
-    EZ_TEST_BOOL(ezCVar::FindCVarByName("test2_String") == NULL);
+    EZ_TEST_BOOL(ezCVar::FindCVarByName("test2_Int") == nullptr);
+    EZ_TEST_BOOL(ezCVar::FindCVarByName("test2_Float") == nullptr);
+    EZ_TEST_BOOL(ezCVar::FindCVarByName("test2_Bool") == nullptr);
+    EZ_TEST_BOOL(ezCVar::FindCVarByName("test2_String") == nullptr);
   }
 
 #if EZ_ENABLED(EZ_SUPPORTS_DYNAMIC_PLUGINS)
@@ -131,15 +131,15 @@ EZ_CREATE_SIMPLE_TEST(Configuration, CVars)
 
     EZ_TEST_BOOL(ezPlugin::LoadPlugin("ezFoundationTest_Plugin2") == EZ_SUCCESS);
 
-    EZ_TEST_BOOL(ezCVar::FindCVarByName("test1_Int") != NULL);
-    EZ_TEST_BOOL(ezCVar::FindCVarByName("test1_Float") != NULL);
-    EZ_TEST_BOOL(ezCVar::FindCVarByName("test1_Bool") != NULL);
-    EZ_TEST_BOOL(ezCVar::FindCVarByName("test1_String") != NULL);
+    EZ_TEST_BOOL(ezCVar::FindCVarByName("test1_Int") != nullptr);
+    EZ_TEST_BOOL(ezCVar::FindCVarByName("test1_Float") != nullptr);
+    EZ_TEST_BOOL(ezCVar::FindCVarByName("test1_Bool") != nullptr);
+    EZ_TEST_BOOL(ezCVar::FindCVarByName("test1_String") != nullptr);
 
-    EZ_TEST_BOOL(ezCVar::FindCVarByName("test2_Int") != NULL);
-    EZ_TEST_BOOL(ezCVar::FindCVarByName("test2_Float") != NULL);
-    EZ_TEST_BOOL(ezCVar::FindCVarByName("test2_Bool") != NULL);
-    EZ_TEST_BOOL(ezCVar::FindCVarByName("test2_String") != NULL);
+    EZ_TEST_BOOL(ezCVar::FindCVarByName("test2_Int") != nullptr);
+    EZ_TEST_BOOL(ezCVar::FindCVarByName("test2_Float") != nullptr);
+    EZ_TEST_BOOL(ezCVar::FindCVarByName("test2_Bool") != nullptr);
+    EZ_TEST_BOOL(ezCVar::FindCVarByName("test2_String") != nullptr);
 
     EZ_TEST_BOOL(ezPlugin::UnloadPlugin("ezFoundationTest_Plugin2") == EZ_SUCCESS);
   }
@@ -148,15 +148,15 @@ EZ_CREATE_SIMPLE_TEST(Configuration, CVars)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "No Plugin Loaded (2)")
   {
-    EZ_TEST_BOOL(ezCVar::FindCVarByName("test1_Int") == NULL);
-    EZ_TEST_BOOL(ezCVar::FindCVarByName("test1_Float") == NULL);
-    EZ_TEST_BOOL(ezCVar::FindCVarByName("test1_Bool") == NULL);
-    EZ_TEST_BOOL(ezCVar::FindCVarByName("test1_String") == NULL);
+    EZ_TEST_BOOL(ezCVar::FindCVarByName("test1_Int") == nullptr);
+    EZ_TEST_BOOL(ezCVar::FindCVarByName("test1_Float") == nullptr);
+    EZ_TEST_BOOL(ezCVar::FindCVarByName("test1_Bool") == nullptr);
+    EZ_TEST_BOOL(ezCVar::FindCVarByName("test1_String") == nullptr);
 
-    EZ_TEST_BOOL(ezCVar::FindCVarByName("test2_Int") == NULL);
-    EZ_TEST_BOOL(ezCVar::FindCVarByName("test2_Float") == NULL);
-    EZ_TEST_BOOL(ezCVar::FindCVarByName("test2_Bool") == NULL);
-    EZ_TEST_BOOL(ezCVar::FindCVarByName("test2_String") == NULL);
+    EZ_TEST_BOOL(ezCVar::FindCVarByName("test2_Int") == nullptr);
+    EZ_TEST_BOOL(ezCVar::FindCVarByName("test2_Float") == nullptr);
+    EZ_TEST_BOOL(ezCVar::FindCVarByName("test2_Bool") == nullptr);
+    EZ_TEST_BOOL(ezCVar::FindCVarByName("test2_String") == nullptr);
   }
 
 #if EZ_ENABLED(EZ_SUPPORTS_DYNAMIC_PLUGINS)

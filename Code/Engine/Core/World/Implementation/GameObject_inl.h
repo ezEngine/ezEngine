@@ -1,5 +1,5 @@
 
-EZ_FORCE_INLINE ezGameObject::ChildIterator::ChildIterator() : m_pObject(NULL)
+EZ_FORCE_INLINE ezGameObject::ChildIterator::ChildIterator() : m_pObject(nullptr)
 {
 }
 
@@ -19,7 +19,7 @@ EZ_FORCE_INLINE ezGameObject* ezGameObject::ChildIterator::operator->() const
 
 EZ_FORCE_INLINE bool ezGameObject::ChildIterator::IsValid() const
 {
-  return m_pObject != NULL;
+  return m_pObject != nullptr;
 }
 
 EZ_FORCE_INLINE void ezGameObject::ChildIterator::operator++()
@@ -149,7 +149,7 @@ bool ezGameObject::TryGetComponentOfType(T*& out_pComponent) const
   for (ezUInt32 i = 0; i < m_Components.GetCount(); ++i)
   {
     ezComponentHandle component = m_Components[i];
-    ezComponent* pComponent = NULL;
+    ezComponent* pComponent = nullptr;
     if (ezComponentManagerBase::IsComponentOfType<T>(component) && TryGetComponent(component, pComponent))
     {
       out_pComponent = static_cast<T*>(pComponent);
@@ -168,7 +168,7 @@ void ezGameObject::TryGetComponentsOfType(ezHybridArray<T*, 8>& out_components) 
   for (ezUInt32 i = 0; i < m_Components.GetCount(); ++i)
   {
     ezComponentHandle component = m_Components[i];
-    ezComponent* pComponent = NULL;
+    ezComponent* pComponent = nullptr;
     if (ezComponentManagerBase::IsComponentOfType<T>(component) && TryGetComponent(component, pComponent))
     {
       out_components.PushBack(static_cast<T*>(pComponent));

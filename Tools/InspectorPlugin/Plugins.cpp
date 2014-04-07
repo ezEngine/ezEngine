@@ -7,7 +7,7 @@ static void SendPluginTelemetry()
   if (!ezTelemetry::IsConnectedToClient())
     return;
 
-  ezTelemetry::Broadcast(ezTelemetry::Reliable, 'PLUG', 'CLR', NULL, 0);
+  ezTelemetry::Broadcast(ezTelemetry::Reliable, 'PLUG', 'CLR', nullptr, 0);
 
   ezPlugin* pSub = ezPlugin::GetFirstInstance();
 
@@ -21,7 +21,7 @@ static void SendPluginTelemetry()
     ezStringBuilder s;
 
     ezInt32 iDep = 0;
-    while (pSub->GetPluginDependency(iDep) != NULL)
+    while (pSub->GetPluginDependency(iDep) != nullptr)
     {
       if (!s.IsEmpty())
         s.Append(" | ");

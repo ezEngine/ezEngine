@@ -12,5 +12,5 @@ ezUInt32 ezGALShaderByteCode::GetSize() const
 
 bool ezGALShaderByteCode::IsValid() const
 {
-  return GetByteCode() != NULL && GetSize() != 0;
+  return GetByteCode() != nullptr && GetSize() != 0;
 }

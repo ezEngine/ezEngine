@@ -73,19 +73,19 @@ public:
 
     ezMainWindow MainWindow;
 
-    ezTelemetry::AcceptMessagesForSystem('CVAR', true, ezCVarsWidget::ProcessTelemetry, NULL);
-    ezTelemetry::AcceptMessagesForSystem('LOG', true, ezLogWidget::ProcessTelemetry, NULL);
-    ezTelemetry::AcceptMessagesForSystem('MEM', true, ezMemoryWidget::ProcessTelemetry, NULL);
-    ezTelemetry::AcceptMessagesForSystem('TIME', true, ezTimeWidget::ProcessTelemetry, NULL);
-    ezTelemetry::AcceptMessagesForSystem('APP', true, ezMainWindow::ProcessTelemetry, NULL);
-    ezTelemetry::AcceptMessagesForSystem('FILE', true, ezFileWidget::ProcessTelemetry, NULL);
-    ezTelemetry::AcceptMessagesForSystem('INPT', true, ezInputWidget::ProcessTelemetry, NULL);
-    ezTelemetry::AcceptMessagesForSystem('STRT', true, ezSubsystemsWidget::ProcessTelemetry, NULL);
-    ezTelemetry::AcceptMessagesForSystem('STAT', true, ezMainWindow::ProcessTelemetry, NULL);
-    ezTelemetry::AcceptMessagesForSystem('PLUG', true, ezPluginsWidget::ProcessTelemetry, NULL);
-    ezTelemetry::AcceptMessagesForSystem('EVNT', true, ezGlobalEventsWidget::ProcessTelemetry, NULL);
-    ezTelemetry::AcceptMessagesForSystem('RFLC', true, ezReflectionWidget::ProcessTelemetry, NULL);
-    ezTelemetry::AcceptMessagesForSystem('TRAN', true, ezDataWidget::ProcessTelemetry, NULL);
+    ezTelemetry::AcceptMessagesForSystem('CVAR', true, ezCVarsWidget::ProcessTelemetry, nullptr);
+    ezTelemetry::AcceptMessagesForSystem('LOG', true, ezLogWidget::ProcessTelemetry, nullptr);
+    ezTelemetry::AcceptMessagesForSystem('MEM', true, ezMemoryWidget::ProcessTelemetry, nullptr);
+    ezTelemetry::AcceptMessagesForSystem('TIME', true, ezTimeWidget::ProcessTelemetry, nullptr);
+    ezTelemetry::AcceptMessagesForSystem('APP', true, ezMainWindow::ProcessTelemetry, nullptr);
+    ezTelemetry::AcceptMessagesForSystem('FILE', true, ezFileWidget::ProcessTelemetry, nullptr);
+    ezTelemetry::AcceptMessagesForSystem('INPT', true, ezInputWidget::ProcessTelemetry, nullptr);
+    ezTelemetry::AcceptMessagesForSystem('STRT', true, ezSubsystemsWidget::ProcessTelemetry, nullptr);
+    ezTelemetry::AcceptMessagesForSystem('STAT', true, ezMainWindow::ProcessTelemetry, nullptr);
+    ezTelemetry::AcceptMessagesForSystem('PLUG', true, ezPluginsWidget::ProcessTelemetry, nullptr);
+    ezTelemetry::AcceptMessagesForSystem('EVNT', true, ezGlobalEventsWidget::ProcessTelemetry, nullptr);
+    ezTelemetry::AcceptMessagesForSystem('RFLC', true, ezReflectionWidget::ProcessTelemetry, nullptr);
+    ezTelemetry::AcceptMessagesForSystem('TRAN', true, ezDataWidget::ProcessTelemetry, nullptr);
     
     QSettings Settings;
     const QString sServer = Settings.value("LastConnection", QLatin1String("localhost:1040")).toString();

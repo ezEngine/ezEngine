@@ -19,7 +19,7 @@ EZ_DEFINE_AS_POD_TYPE(z_stream_s);
 ezCompressedStreamReader::ezCompressedStreamReader(ezStreamReaderBase& InputStream) : m_InputStream(InputStream)
 {
   m_bReachedEnd = false;
-  m_pZLibStream = NULL;
+  m_pZLibStream = nullptr;
 }
 
 ezCompressedStreamReader::~ezCompressedStreamReader()
@@ -35,13 +35,13 @@ ezUInt64 ezCompressedStreamReader::ReadBytes(void* pReadBuffer, ezUInt64 uiBytes
     return 0;
 
   // if we have not read from the stream before, initialize everything
-  if (m_pZLibStream == NULL)
+  if (m_pZLibStream == nullptr)
   {
     m_pZLibStream = EZ_DEFAULT_NEW(z_stream_s);
-    EZ_ANALYSIS_ASSUME(m_pZLibStream != NULL);
+    EZ_ANALYSIS_ASSUME(m_pZLibStream != nullptr);
     ezMemoryUtils::ZeroFill(m_pZLibStream);
 
-    m_pZLibStream->opaque = NULL;
+    m_pZLibStream->opaque = nullptr;
     m_pZLibStream->zalloc = zLibAlloc;
     m_pZLibStream->zfree = zLibFree;
 
@@ -49,7 +49,7 @@ ezUInt64 ezCompressedStreamReader::ReadBytes(void* pReadBuffer, ezUInt64 uiBytes
   }
 
   // Implement the 'skip n bytes' feature with a temp cache
-  if (pReadBuffer == NULL)
+  if (pReadBuffer == nullptr)
   {
     ezUInt64 uiBytesRead = 0;
     ezUInt8 uiTemp[1024];
@@ -129,11 +129,11 @@ ezCompressedStreamWriter::ezCompressedStreamWriter(ezStreamWriterBase& OutputStr
   m_uiCompressedSize = 0;
 
   m_pZLibStream = EZ_DEFAULT_NEW(z_stream_s);
-  EZ_ANALYSIS_ASSUME(m_pZLibStream != NULL);
+  EZ_ANALYSIS_ASSUME(m_pZLibStream != nullptr);
 
   ezMemoryUtils::ZeroFill(m_pZLibStream);
 
-  m_pZLibStream->opaque = NULL;
+  m_pZLibStream->opaque = nullptr;
   m_pZLibStream->zalloc = zLibAlloc;
   m_pZLibStream->zfree = zLibFree;
   m_pZLibStream->next_out = m_CompressedCache;
@@ -150,7 +150,7 @@ ezCompressedStreamWriter::~ezCompressedStreamWriter()
 
 ezResult ezCompressedStreamWriter::CloseStream()
 {
-  if (m_pZLibStream == NULL)
+  if (m_pZLibStream == nullptr)
     return EZ_SUCCESS;
 
   ezInt32 iRes = Z_OK;
@@ -183,7 +183,7 @@ ezResult ezCompressedStreamWriter::CloseStream()
 
 ezResult ezCompressedStreamWriter::Flush()
 {
-  if (m_pZLibStream == NULL)
+  if (m_pZLibStream == nullptr)
     return EZ_SUCCESS;
 
   const ezUInt8 uiUsedCache = static_cast<ezUInt8>(m_pZLibStream->total_out);
@@ -208,7 +208,7 @@ ezResult ezCompressedStreamWriter::Flush()
 
 ezResult ezCompressedStreamWriter::WriteBytes(const void* pWriteBuffer, ezUInt64 uiBytesToWrite)
 {
-  EZ_ASSERT(m_pZLibStream != NULL, "The stream is already closed, you cannot write more data to it.");
+  EZ_ASSERT(m_pZLibStream != nullptr, "The stream is already closed, you cannot write more data to it.");
 
   m_uiUncompressedSize += static_cast<ezUInt32>(uiBytesToWrite);
 

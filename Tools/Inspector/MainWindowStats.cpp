@@ -103,10 +103,10 @@ QTreeWidgetItem* ezMainWindow::CreateStat(const char* szPath, bool bParent)
 
   ezMap<ezString, StatData>::Iterator it = m_Stats.Find(sCleanPath.GetData());
 
-  if (it.IsValid() && it.Value().m_pItem != NULL)
+  if (it.IsValid() && it.Value().m_pItem != nullptr)
     return it.Value().m_pItem;
 
-  QTreeWidgetItem* pParent = NULL;
+  QTreeWidgetItem* pParent = nullptr;
   StatData& sd = m_Stats[sCleanPath.GetData()];
 
   {
@@ -221,7 +221,7 @@ void ezMainWindow::SetFavourite(const ezString& sStat, bool bFavourite)
       m_Favourites.Erase(sStat);
 
       delete sd.m_pItemFavourite;
-      sd.m_pItemFavourite = NULL;
+      sd.m_pItemFavourite = nullptr;
     }
   }
 }

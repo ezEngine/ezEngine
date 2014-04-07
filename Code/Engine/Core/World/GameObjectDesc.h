@@ -10,7 +10,7 @@ struct ezGameObjectDesc
   {
     m_Flags.Add(ezObjectFlags::Default);
     m_uiPersistentId = -1;
-    m_szName = NULL;
+    m_szName = nullptr;
 
     m_LocalPosition.SetZero();
     m_LocalRotation.SetIdentity();

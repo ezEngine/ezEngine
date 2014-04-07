@@ -104,11 +104,11 @@ bool ezVariant::CanConvertTo(Type::Enum type) const
   return false;
 }
 
-ezVariant ezVariant::ConvertTo(Type::Enum type, ezResult* out_pConversionStatus /* = NULL*/) const
+ezVariant ezVariant::ConvertTo(Type::Enum type, ezResult* out_pConversionStatus /* = nullptr*/) const
 {
   if (!CanConvertTo(type))
   {
-    if (out_pConversionStatus != NULL)
+    if (out_pConversionStatus != nullptr)
       *out_pConversionStatus = EZ_FAILURE;
 
     return ezVariant(); // creates an invalid variant
@@ -116,7 +116,7 @@ ezVariant ezVariant::ConvertTo(Type::Enum type, ezResult* out_pConversionStatus 
 
   if (m_Type == type)
   {
-    if (out_pConversionStatus != NULL)
+    if (out_pConversionStatus != nullptr)
       *out_pConversionStatus = EZ_SUCCESS;
 
     return *this;
@@ -128,7 +128,7 @@ ezVariant ezVariant::ConvertTo(Type::Enum type, ezResult* out_pConversionStatus 
 
   DispatchTo(convertFunc, type);
 
-  if (out_pConversionStatus != NULL)
+  if (out_pConversionStatus != nullptr)
     *out_pConversionStatus = convertFunc.m_bSuccessful ? EZ_SUCCESS : EZ_FAILURE;
 
   return convertFunc.m_Result;

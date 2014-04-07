@@ -18,7 +18,7 @@
 SampleGameApp::SampleGameApp()
 {
   m_bActiveRenderLoop = false;
-  m_pWindow = NULL;
+  m_pWindow = nullptr;
   m_Camera.SetCameraMode(ezCamera::PerspectiveFixedFovY, 90.0f, 0.1f, 1000.0f);
   m_Camera.LookAt(ezVec3(0, 10, 0), ezVec3(0, 0, -20));
   m_bConsoleActive = false;

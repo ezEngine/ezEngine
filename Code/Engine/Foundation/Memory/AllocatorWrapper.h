@@ -7,7 +7,7 @@ struct ezNullAllocatorWrapper
   EZ_FORCE_INLINE static ezAllocatorBase* GetAllocator()
   {
     EZ_REPORT_FAILURE("This method should never be called");
-    return NULL;
+    return nullptr;
   }
 };
 
@@ -36,7 +36,7 @@ struct EZ_FOUNDATION_DLL ezLocalAllocatorWrapper
 
   EZ_FORCE_INLINE void Reset()
   {
-    m_pAllocator = NULL;
+    m_pAllocator = nullptr;
   }
 
   EZ_FORCE_INLINE static ezAllocatorBase* GetAllocator()

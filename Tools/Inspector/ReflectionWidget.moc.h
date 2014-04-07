@@ -36,7 +36,7 @@ private:
   {
     TypeData()
     {
-      m_pTreeItem = NULL;
+      m_pTreeItem = nullptr;
     }
 
     QTreeWidgetItem* m_pTreeItem;

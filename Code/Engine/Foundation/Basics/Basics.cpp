@@ -14,8 +14,8 @@ static ezUInt8 s_StaticAllocatorBuffer[HEAP_ALLOCATOR_BUFFER_SIZE];
 static ezUInt8 s_AlignedAllocatorBuffer[ALIGNED_ALLOCATOR_BUFFER_SIZE];
 
 bool ezFoundation::s_bIsInitialized = false;
-ezAllocatorBase* ezFoundation::s_pDefaultAllocator = NULL;
-ezAllocatorBase* ezFoundation::s_pAlignedAllocator = NULL;
+ezAllocatorBase* ezFoundation::s_pDefaultAllocator = nullptr;
+ezAllocatorBase* ezFoundation::s_pAlignedAllocator = nullptr;
 
 void ezFoundation::Initialize()
 {
@@ -26,12 +26,12 @@ void ezFoundation::Initialize()
   ezMemoryUtils::ReserveLower4GBAddressSpace();
 #endif
    
-  if (s_pDefaultAllocator == NULL)
+  if (s_pDefaultAllocator == nullptr)
   {
     s_pDefaultAllocator = new (s_DefaultAllocatorBuffer) ezHeapAllocator("DefaultHeap");
   }
 
-  if (s_pAlignedAllocator == NULL)
+  if (s_pAlignedAllocator == nullptr)
   {
     s_pAlignedAllocator = new (s_AlignedAllocatorBuffer) ezAlignedHeapAllocator("AlignedHeap");
   }
@@ -59,9 +59,9 @@ void ezFoundation::Shutdown()
 
 ezAllocatorBase* ezFoundation::GetStaticAllocator()
 {
-  static ezAllocatorBase* pStaticAllocator = NULL;
+  static ezAllocatorBase* pStaticAllocator = nullptr;
 
-  if (pStaticAllocator == NULL)
+  if (pStaticAllocator == nullptr)
   {
 #if defined(EZ_CUSTOM_STATIC_ALLOCATOR_FUNC)
 
@@ -70,9 +70,9 @@ ezAllocatorBase* ezFoundation::GetStaticAllocator()
   #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
     typedef ezAllocatorBase* (*GetStaticAllocatorFunc)();
 
-    HMODULE hThisModule = GetModuleHandle(NULL);
+    HMODULE hThisModule = GetModuleHandle(nullptr);
     GetStaticAllocatorFunc func = (GetStaticAllocatorFunc)GetProcAddress(hThisModule, EZ_CUSTOM_STATIC_ALLOCATOR_FUNC);
-    if (func != NULL)
+    if (func != nullptr)
     {
       pStaticAllocator = (*func)();
       return pStaticAllocator;

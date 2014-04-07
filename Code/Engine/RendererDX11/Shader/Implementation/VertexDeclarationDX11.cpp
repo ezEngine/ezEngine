@@ -9,7 +9,7 @@
 
 ezGALVertexDeclarationDX11::ezGALVertexDeclarationDX11(const ezGALVertexDeclarationCreationDescription& Description)
   : ezGALVertexDeclaration(Description),
-    m_pDXInputLayout(NULL)
+    m_pDXInputLayout(nullptr)
 {
 }
 
@@ -64,7 +64,7 @@ ezResult ezGALVertexDeclarationDX11::InitPlatform(ezGALDevice* pDevice)
 
   const ezGALShader* pShader = pDevice->GetShader(m_Description.m_hShader);
 
-  if(pShader == NULL || !pShader->GetDescription().HasByteCodeForStage(ezGALShaderStage::VertexShader))
+  if(pShader == nullptr || !pShader->GetDescription().HasByteCodeForStage(ezGALShaderStage::VertexShader))
   {
     return EZ_FAILURE;
   }

@@ -157,7 +157,7 @@ inline ezStreamWriterBase& operator << (ezStreamWriterBase& Stream, const char* 
 {
   ezUInt32 uiLength = 0;
 
-  if (szValue != NULL)
+  if (szValue != nullptr)
     uiLength = static_cast<ezUInt32>(strlen(szValue));
 
   Stream << uiLength;

@@ -12,9 +12,9 @@
 
 ezGALRenderTargetViewDX11::ezGALRenderTargetViewDX11(const ezGALRenderTargetViewCreationDescription& Description)
   : ezGALRenderTargetView(Description),
-    m_pRenderTargetView(NULL),
-    m_pDepthStencilView(NULL),
-    m_pUnorderedAccessView(NULL)
+    m_pRenderTargetView(nullptr),
+    m_pDepthStencilView(nullptr),
+    m_pUnorderedAccessView(nullptr)
 {
 }
 
@@ -24,15 +24,15 @@ ezGALRenderTargetViewDX11::~ezGALRenderTargetViewDX11()
 
 ezResult ezGALRenderTargetViewDX11::InitPlatform(ezGALDevice* pDevice)
 {
-  const ezGALTextureDX11* pTexture = NULL;
+  const ezGALTextureDX11* pTexture = nullptr;
   if(!m_Description.m_hTexture.IsInvalidated())
     pTexture =  static_cast<const ezGALTextureDX11*>(pDevice->GetTexture(m_Description.m_hTexture));
 
-  const ezGALBufferDX11* pBuffer = NULL;
+  const ezGALBufferDX11* pBuffer = nullptr;
   if(!m_Description.m_hBuffer.IsInvalidated())
     pBuffer = static_cast<const ezGALBufferDX11*>(pDevice->GetBuffer(m_Description.m_hBuffer));
 
-  if(pTexture == NULL && pBuffer == NULL)
+  if(pTexture == nullptr && pBuffer == nullptr)
   {
     ezLog::Error("No valid texture handle or buffer handle given for rendertarget view creation!");
     return EZ_FAILURE;

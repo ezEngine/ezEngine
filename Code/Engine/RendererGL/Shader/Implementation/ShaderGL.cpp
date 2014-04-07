@@ -30,7 +30,7 @@ ezResult ezGALShaderGL::CompileShader(glProgramId& dstProgram, glShaderId& dstSh
 {
   dstShader = glCreateShader(glShaderType);
 
-  if (EZ_GL_CALL(glShaderSource, dstShader, 1, reinterpret_cast<const GLchar**>(&szRawSource), (const int*)NULL) != EZ_SUCCESS)
+  if (EZ_GL_CALL(glShaderSource, dstShader, 1, reinterpret_cast<const GLchar**>(&szRawSource), (const int*)nullptr) != EZ_SUCCESS)
     return EZ_FAILURE;
 
   if (EZ_GL_CALL(glCompileShader, dstShader) != EZ_SUCCESS)

@@ -106,7 +106,7 @@ public:
   ///
   /// Do not use this function, unless you really, really need the value of exactly this key.
   /// Prefer to map your key to an action and then use GetInputActionState(). That method is more robust and extensible.
-  static ezKeyState::Enum GetInputSlotState(const char* szInputSlot, float* pValue = NULL); // [tested]
+  static ezKeyState::Enum GetInputSlotState(const char* szInputSlot, float* pValue = nullptr); // [tested]
 
   /// \brief Returns an array that contains all the names of all currently known input slots.
   static void RetrieveAllKnownInputSlots(ezDynamicArray<const char*>& out_InputSlots);
@@ -171,7 +171,7 @@ public:
   ///
   /// This is the one function that is called repeatedly at runtime to figure out which actions are active and thus which gameplay functions
   /// to execute. You can (and should) use the /a pValue to scale gameplay features (e.g. how fast to drive).
-  static ezKeyState::Enum GetInputActionState(const char* szInputSet, const char* szAction, float* pValue = NULL, ezInt8* iTriggeredSlot = NULL); // [tested]
+  static ezKeyState::Enum GetInputActionState(const char* szInputSet, const char* szAction, float* pValue = nullptr, ezInt8* iTriggeredSlot = nullptr); // [tested]
 
   /// \brief Sets the display name for the given action.
   static void SetActionDisplayName(const char* szAction, const char* szDisplayName); // [tested]
@@ -220,9 +220,9 @@ public:
 
     InputEventData()
     {
-      m_szInputSlot = NULL;
-      m_szInputSet = NULL;
-      m_szInputAction = NULL;
+      m_szInputSlot = nullptr;
+      m_szInputSet = nullptr;
+      m_szInputAction = nullptr;
     }
   };
 

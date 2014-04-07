@@ -21,7 +21,7 @@ ezGALRenderTargetViewGL::~ezGALRenderTargetViewGL()
 ezResult ezGALRenderTargetViewGL::InitPlatform(ezGALDevice* pDevice)
 {
   const ezGALTexture* pTexture = pDevice->GetTexture(m_Description.m_hTexture);
-  if (pTexture == NULL)
+  if (pTexture == nullptr)
   {
     ezLog::Error("Invalid texture handle in RenderTargetView!");
     return EZ_FAILURE;

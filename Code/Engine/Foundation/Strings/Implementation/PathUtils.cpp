@@ -5,7 +5,7 @@
 const char* ezPathUtils::FindPreviousSeparator(const char* szPathStart, const char* szStartSearchAt)
 {
   if (ezStringUtils::IsNullOrEmpty(szPathStart))
-    return NULL;
+    return nullptr;
 
   while (szStartSearchAt > szPathStart)
   {
@@ -15,16 +15,16 @@ const char* ezPathUtils::FindPreviousSeparator(const char* szPathStart, const ch
       return szStartSearchAt;
   }
 
-  return NULL;
+  return nullptr;
 }
 
 bool ezPathUtils::HasAnyExtension(const char* szPath, const char* szPathEnd)
 {
   ezStringUtils::UpdateStringEnd(szPath, szPathEnd);
 
-  const char* szDot = ezStringUtils::FindLastSubString(szPath, ".", NULL, szPathEnd);
+  const char* szDot = ezStringUtils::FindLastSubString(szPath, ".", nullptr, szPathEnd);
 
-  if (szDot == NULL)
+  if (szDot == nullptr)
     return false;
 
   // find the last separator in the string
@@ -48,16 +48,16 @@ ezStringIterator ezPathUtils::GetFileExtension(const char* szPath, const char* s
 {
   ezStringUtils::UpdateStringEnd(szPath, szPathEnd);
 
-  const char* szDot = ezStringUtils::FindLastSubString(szPath, ".", NULL, szPathEnd);
+  const char* szDot = ezStringUtils::FindLastSubString(szPath, ".", nullptr, szPathEnd);
 
-  if (szDot == NULL)
-    return ezStringIterator(NULL);
+  if (szDot == nullptr)
+    return ezStringIterator(nullptr);
 
   // find the last separator in the string
   const char* szSeparator = FindPreviousSeparator(szPath, szPathEnd);
 
   if (szSeparator > szDot)
-    return ezStringIterator(NULL);
+    return ezStringIterator(nullptr);
 
   return ezStringIterator(szDot + 1, szPathEnd, szDot + 1);
 }
@@ -68,7 +68,7 @@ ezStringIterator ezPathUtils::GetFileNameAndExtension(const char* szPath, const 
 
   const char* szSeparator = FindPreviousSeparator(szPath, szPathEnd);
 
-  if (szSeparator == NULL)
+  if (szSeparator == nullptr)
     return ezStringIterator(szPath, szPathEnd, szPath);
 
   return ezStringIterator(szSeparator + 1, szPathEnd, szSeparator + 1);
@@ -83,14 +83,14 @@ ezStringIterator ezPathUtils::GetFileName(const char* szPath, const char* szPath
 
   const char* szDot = ezStringUtils::FindLastSubString(szPath, ".", szPathEnd);
 
-  if (szDot < szSeparator) // includes (szDot == NULL), szSeparator will never be NULL here -> no extension
+  if (szDot < szSeparator) // includes (szDot == nullptr), szSeparator will never be nullptr here -> no extension
   {
     return ezStringIterator(szSeparator + 1, szPathEnd, szSeparator + 1);
   }
 
-  if (szSeparator == NULL)
+  if (szSeparator == nullptr)
   {
-    if (szDot == NULL) // no folder, no extension -> the entire thing is just a name
+    if (szDot == nullptr) // no folder, no extension -> the entire thing is just a name
       return ezStringIterator(szPath, szPathEnd, szPath);
 
     return ezStringIterator(szPath, szDot, szPath); // no folder, but an extension -> remove the extension
@@ -117,8 +117,8 @@ ezStringIterator ezPathUtils::GetFileDirectory(const char* szPath, const char* s
   const char* szSeparator = FindPreviousSeparator(szPath, szPathEnd);
 
   // no path separator -> root dir -> return the empty path
-  if (szSeparator == NULL)
-    return ezStringIterator(NULL);
+  if (szSeparator == nullptr)
+    return ezStringIterator(nullptr);
 
   return ezStringIterator(szPath, szSeparator + 1, szPath);
 }

@@ -56,7 +56,7 @@ EZ_FORCE_INLINE void ezDynamicArrayBase<T>::operator= (ezDynamicArrayBase<T>&& r
     this->m_uiCapacity = rhs.m_uiCapacity;
     this->m_pElements = rhs.m_pElements;
 
-    rhs.m_pElements = NULL;
+    rhs.m_pElements = nullptr;
     rhs.m_uiCount = 0;
     rhs.m_uiCapacity = 0;
   }

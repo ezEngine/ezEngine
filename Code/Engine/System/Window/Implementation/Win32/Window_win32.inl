@@ -8,7 +8,7 @@ static LRESULT CALLBACK ezWindowsMessageFuncTrampoline(HWND hWnd, UINT Msg, WPAR
 {
   ezWindow* pWindow = reinterpret_cast<ezWindow*>(GetWindowLongPtrW(hWnd, GWLP_USERDATA));
 
-  if (pWindow != NULL && pWindow->IsInitialized())
+  if (pWindow != nullptr && pWindow->IsInitialized())
   {
     if (pWindow->GetInputDevice())
       pWindow->GetInputDevice()->WindowMessage(hWnd, Msg, WParam, LParam);
@@ -65,9 +65,9 @@ ezResult ezWindow::Initialize()
   ezMemoryUtils::ZeroFill(&windowClass);
   windowClass.cbSize         = sizeof(WNDCLASSEXW);
   windowClass.style          = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
-  windowClass.hInstance      = GetModuleHandleW(NULL);
-  windowClass.hIcon          = LoadIcon(NULL, IDI_APPLICATION); /// \todo Expose icon functionality somehow
-  windowClass.hCursor        = LoadCursor(NULL, IDC_ARROW);
+  windowClass.hInstance      = GetModuleHandleW(nullptr);
+  windowClass.hIcon          = LoadIcon(nullptr, IDI_APPLICATION); /// \todo Expose icon functionality somehow
+  windowClass.hCursor        = LoadCursor(nullptr, IDC_ARROW);
   windowClass.hbrBackground  = static_cast<HBRUSH>(GetStockObject(BLACK_BRUSH));
   windowClass.lpszClassName  = L"ezWin32Window";
   windowClass.lpfnWndProc    = ezWindowsMessageFuncTrampoline;
@@ -167,7 +167,7 @@ ezResult ezWindow::Initialize()
   const wchar_t* sTitelWCharRaw = sTitelWChar.GetData();
   m_WindowHandle = CreateWindowExW(dwExStyle, windowClass.lpszClassName, sTitelWCharRaw, dwWindowStyle, 
                                   iLeft, iTop, iWidth, iHeight, 
-                                  NULL, NULL, windowClass.hInstance, NULL);
+                                  nullptr, nullptr, windowClass.hInstance, nullptr);
   if (m_WindowHandle == INVALID_HANDLE_VALUE)
   {
     ezLog::Error("Failed to create window.");
@@ -206,7 +206,7 @@ ezResult ezWindow::Destroy()
   EZ_DEFAULT_DELETE(m_pInputDevice);
 
   if (m_CreationDescription.m_bFullscreenWindow && m_CreationDescription.m_bWindowsUseDevmodeFullscreen)
-    ChangeDisplaySettingsW(NULL, 0);
+    ChangeDisplaySettingsW(nullptr, 0);
 
   HWND hWindow = GetNativeWindowHandle();
   if (!DestroyWindow(hWindow))
@@ -215,11 +215,11 @@ ezResult ezWindow::Destroy()
     Res = EZ_FAILURE;
   }
 
-  // the following line of code is a work around, because 'LONG_PTR pNull = reinterpret_cast<LONG_PTR>(NULL)' crashes the VS 2010 32 Bit compiler :-(
+  // the following line of code is a work around, because 'LONG_PTR pNull = reinterpret_cast<LONG_PTR>(nullptr)' crashes the VS 2010 32 Bit compiler :-(
   LONG_PTR pNull = 0;
   SetWindowLongPtrW(hWindow, GWLP_USERDATA, pNull);
 
-  if (!UnregisterClassW(L"ezWin32Window", GetModuleHandleW(NULL)))
+  if (!UnregisterClassW(L"ezWin32Window", GetModuleHandleW(nullptr)))
   {
     ezLog::SeriousWarning("UnregisterClassW failed.");
     Res = EZ_FAILURE;
@@ -346,7 +346,7 @@ ezResult ezWindow::CreateContextOpenGL()
 
   m_hDC = GetDC(hWnd);
 
-  if (m_hDC == NULL)
+  if (m_hDC == nullptr)
   {
     ezLog::Error("Could not retrieve the Window DC");
     goto failure;
@@ -366,7 +366,7 @@ ezResult ezWindow::CreateContextOpenGL()
   }
 
   m_hRC = wglCreateContext(m_hDC);
-  if (m_hRC == NULL)
+  if (m_hRC == nullptr)
   {
     ezLog::Error("wglCreateContext failed.");
     goto failure;
@@ -403,9 +403,9 @@ ezResult ezWindow::DestroyContextOpenGL()
   {
     ezLog::Dev("Destroying the RC.");
 
-    wglMakeCurrent(NULL, NULL);
+    wglMakeCurrent(nullptr, nullptr);
     wglDeleteContext(m_hRC);
-    m_hRC = NULL;
+    m_hRC = nullptr;
   }
 
   if (m_hDC)
@@ -413,7 +413,7 @@ ezResult ezWindow::DestroyContextOpenGL()
     ezLog::Dev("Destroying the DC.");
 
     ReleaseDC(GetNativeWindowHandle(), m_hDC);
-    m_hDC = NULL;
+    m_hDC = nullptr;
   }
 
   ezLog::Success("OpenGL graphics context is destroyed.");

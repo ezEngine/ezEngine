@@ -4,7 +4,7 @@
 #include <QGraphicsView>
 #include <QGraphicsPathItem>
 
-ezMemoryWidget* ezMemoryWidget::s_pWidget = NULL;
+ezMemoryWidget* ezMemoryWidget::s_pWidget = nullptr;
 
 static QColor s_Colors[ezMemoryWidget::s_uiMaxColors] =
 {
@@ -359,7 +359,7 @@ void ezMemoryWidget::UpdateStats()
 
 void ezMemoryWidget::ProcessTelemetry(void* pUnuseed)
 {
-  if (s_pWidget == NULL)
+  if (s_pWidget == nullptr)
     return;
 
   ezTelemetryMessage Msg;

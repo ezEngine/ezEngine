@@ -33,7 +33,7 @@ template<typename Type>
 void ezBoundingBoxTemplate<Type>::GetCorners(ezVec3Template<Type>* out_pCorners) const
 {
   EZ_NAN_ASSERT(this);
-  EZ_ASSERT(out_pCorners != NULL, "Out Parameter must not be NULL.");
+  EZ_ASSERT(out_pCorners != nullptr, "Out Parameter must not be nullptr.");
 
   out_pCorners[0].Set(m_vMin.x, m_vMin.y, m_vMin.z);
   out_pCorners[1].Set(m_vMin.x, m_vMin.y, m_vMax.z);
@@ -106,7 +106,7 @@ EZ_FORCE_INLINE void ezBoundingBoxTemplate<Type>::ExpandToInclude(const ezBoundi
 template<typename Type>
 void ezBoundingBoxTemplate<Type>::ExpandToInclude(const ezVec3Template<Type>* pPoints, ezUInt32 uiNumPoints, ezUInt32 uiStride)
 {
-  EZ_ASSERT(pPoints != NULL, "Array may not be NULL.");
+  EZ_ASSERT(pPoints != nullptr, "Array may not be nullptr.");
   EZ_ASSERT(uiStride >= sizeof(ezVec3Template<Type>), "Data may not overlap.");
 
   const ezVec3Template<Type>* pCur = &pPoints[0];
@@ -162,7 +162,7 @@ EZ_FORCE_INLINE bool ezBoundingBoxTemplate<Type>::Contains(const ezBoundingBoxTe
 template<typename Type>
 bool ezBoundingBoxTemplate<Type>::Contains(const ezVec3Template<Type>* pPoints, ezUInt32 uiNumPoints, ezUInt32 uiStride /* = sizeof(ezVec3Template<Type>) */) const
 {
-  EZ_ASSERT(pPoints != NULL, "Array must not be NuLL.");
+  EZ_ASSERT(pPoints != nullptr, "Array must not be NuLL.");
   EZ_ASSERT(uiStride >= sizeof(ezVec3Template<Type>), "Data must not overlap.");
 
   const ezVec3Template<Type>* pCur = &pPoints[0];
@@ -204,7 +204,7 @@ bool ezBoundingBoxTemplate<Type>::Overlaps(const ezBoundingBoxTemplate<Type>& rh
 template<typename Type>
 bool ezBoundingBoxTemplate<Type>::Overlaps(const ezVec3Template<Type>* pPoints, ezUInt32 uiNumPoints, ezUInt32 uiStride /* = sizeof(ezVec3Template<Type>) */) const
 {
-  EZ_ASSERT(pPoints != NULL, "Array must not be NuLL.");
+  EZ_ASSERT(pPoints != nullptr, "Array must not be NuLL.");
   EZ_ASSERT(uiStride >= sizeof(ezVec3Template<Type>), "Data must not overlap.");
 
   const ezVec3Template<Type>* pCur = &pPoints[0];

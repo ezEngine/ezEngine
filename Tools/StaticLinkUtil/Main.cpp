@@ -300,7 +300,7 @@ public:
     {
       const char* szI = sFileContent.FindSubString("#i", szStartPos);
 
-      if (szI == NULL)
+      if (szI == nullptr)
         return;
 
       szStartPos = szI + 1;
@@ -309,7 +309,7 @@ public:
       {
         szStartPos = sFileContent.FindSubString("#endif", szStartPos);
 
-        if (szStartPos == NULL)
+        if (szStartPos == nullptr)
           return;
 
         ++szStartPos;
@@ -388,12 +388,12 @@ public:
 
     const char* szStart = sFile.FindSubString(szLineStart, szSkipAhead);
 
-    if (szStart == NULL)
+    if (szStart == nullptr)
       return false;
 
     const char* szEnd = sFile.FindSubString("\n", szStart);
 
-    if (szEnd == NULL)
+    if (szEnd == nullptr)
       szEnd = sFile.GetData() + sFile.GetElementCount();
 
     sFile.ReplaceSubString(szStart, szEnd, "");
@@ -501,7 +501,7 @@ public:
     const char* szMarker = sFileContent.FindSubString("EZ_STATICLINK_FILE");
 
     // if the marker already exists, replace it with the updated string
-    if (szMarker != NULL)
+    if (szMarker != nullptr)
     {
       const char* szMarkerEnd = szMarker;
 
@@ -537,7 +537,7 @@ public:
 
     // remove all instances of EZ_STATICLINK_FILE from this file, it already contains EZ_STATICLINK_LIBRARY
     const char* szMarker = sFileContent.FindSubString("EZ_STATICLINK_FILE");
-    while (szMarker != NULL)
+    while (szMarker != nullptr)
     {
       ezLog::Warning("Found macro EZ_STATICLINK_FILE inside the same file where EZ_STATICLINK_LIBRARY is located. Removing it.");
 
@@ -572,7 +572,7 @@ public:
 
     const char* szGroupMarker = sFileContent.FindSubString("EZ_STATICLINK_LIBRARY");
 
-    if (szGroupMarker != NULL)
+    if (szGroupMarker != nullptr)
     {
       // if we could find the macro EZ_STATICLINK_LIBRARY, just replace it with the new code
 

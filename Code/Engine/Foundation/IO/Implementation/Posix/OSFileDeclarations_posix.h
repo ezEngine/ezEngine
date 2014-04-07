@@ -9,7 +9,7 @@ struct ezOSFileData
 {
   ezOSFileData()
   {
-    m_pFileHandle = NULL;
+    m_pFileHandle = nullptr;
   }
 
   FILE* m_pFileHandle;

@@ -44,7 +44,7 @@ public:
   /// Connections to invalid IP addresses will however always fail.
   ///
   /// This function will set the ezTelemetry connection mode to 'Client'. This is mutually exclusive with CreateServer().
-  static ezResult ConnectToServer(const char* szConnectTo = NULL);
+  static ezResult ConnectToServer(const char* szConnectTo = nullptr);
 
   /// \brief Opens a connection as a server.
   ///
@@ -67,7 +67,7 @@ public:
   static void Broadcast(TransmitMode tm, ezUInt32 uiSystemID, ezUInt32 uiMsgID, ezStreamReaderBase& Stream, ezInt32 iDataBytes = -1);
   static void Broadcast(TransmitMode tm, ezTelemetryMessage& Msg);
 
-  static void SendToServer(ezUInt32 uiSystemID, ezUInt32 uiMsgID, const void* pData = NULL, ezUInt32 uiDataBytes = 0);
+  static void SendToServer(ezUInt32 uiSystemID, ezUInt32 uiMsgID, const void* pData = nullptr, ezUInt32 uiDataBytes = 0);
   static void SendToServer(ezUInt32 uiSystemID, ezUInt32 uiMsgID, ezStreamReaderBase& Stream, ezInt32 iDataBytes = -1);
   static void SendToServer(ezTelemetryMessage& Msg);
 
@@ -137,7 +137,7 @@ public:
 
   typedef void(*ProcessMessagesCallback)(void* pPassThrough);
 
-  static void AcceptMessagesForSystem(ezUInt32 uiSystemID, bool bAccept, ProcessMessagesCallback Callback = NULL, void* pPassThrough = NULL);
+  static void AcceptMessagesForSystem(ezUInt32 uiSystemID, bool bAccept, ProcessMessagesCallback Callback = nullptr, void* pPassThrough = nullptr);
 
   /// \brief Call this once per frame to process queued messages and to send the PerFrameUpdate event.
   static void PerFrameUpdate();
@@ -183,7 +183,7 @@ public:
 private:
   static void UpdateServerPing();
 
-  static ezResult OpenConnection(ConnectionMode Mode, const char* szConnectTo = NULL);
+  static ezResult OpenConnection(ConnectionMode Mode, const char* szConnectTo = nullptr);
 
   static void Transmit(TransmitMode tm, const void* pData, ezUInt32 uiDataBytes);
 
@@ -221,8 +221,8 @@ private:
     { 
       m_bAcceptMessages = false; 
       m_uiMaxQueuedOutgoing = 1000; 
-      m_Callback = NULL;
-      m_pPassThrough = NULL;
+      m_Callback = nullptr;
+      m_pPassThrough = nullptr;
     }
 
     bool m_bAcceptMessages;

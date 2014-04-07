@@ -17,7 +17,7 @@
 ////////////////////////////////////////////////////////////////////////
 
 ezQtTestGUI::ezQtTestGUI(ezQtTestFramework& testFramework)
-  : QMainWindow(), m_pTestFramework(&testFramework), m_pModel(NULL), m_bExpandedCurrentTest(false), m_bAbort(false)
+  : QMainWindow(), m_pTestFramework(&testFramework), m_pModel(nullptr), m_bExpandedCurrentTest(false), m_bAbort(false)
 {
   this->setupUi(this);
   this->setWindowTitle(testFramework.GetTestName());
@@ -93,12 +93,12 @@ ezQtTestGUI::ezQtTestGUI(ezQtTestFramework& testFramework)
 
 ezQtTestGUI::~ezQtTestGUI()
 {
-  testTreeView->setModel(NULL);
-  testTreeView->setItemDelegate(NULL);
+  testTreeView->setModel(nullptr);
+  testTreeView->setItemDelegate(nullptr);
   delete m_pModel;
-  m_pModel = NULL;
+  m_pModel = nullptr;
   delete m_pDelegate;
-  m_pDelegate = NULL;
+  m_pDelegate = nullptr;
 }
 
 void ezQtTestGUI::closeEvent(QCloseEvent* e)
@@ -154,7 +154,7 @@ void ezQtTestGUI::on_actionRunTests_triggered()
   m_pModel->InvalidateAll();
   m_bExpandedCurrentTest = false;
   m_bAbort = false;
-  m_pMessageLogDock->currentTestResultChanged(NULL);
+  m_pMessageLogDock->currentTestResultChanged(nullptr);
   UpdateButtonStates();
 
   m_pStatusTextWorkState->setText("<p><span style=\"font-weight:600; color:#ff5500;\" >  [Working...]</span></p>");
@@ -171,7 +171,7 @@ void ezQtTestGUI::on_actionRunTests_triggered()
   }
   m_pTestFramework->EndTests();
   UpdateButtonStates();
-  m_pMessageLogDock->currentTestResultChanged(NULL);
+  m_pMessageLogDock->currentTestResultChanged(nullptr);
 
   // MessageBox
   if (m_bAbort)
@@ -337,7 +337,7 @@ void ezQtTestGUI::onSelectionModelCurrentRowChanged(const QModelIndex& index)
 {
   if (!index.isValid())
   {
-    m_pMessageLogDock->currentTestSelectionChanged(NULL);
+    m_pMessageLogDock->currentTestSelectionChanged(nullptr);
   }
 
   const ezQtTestModelEntry* pEntry = (ezQtTestModelEntry*) index.internalPointer();

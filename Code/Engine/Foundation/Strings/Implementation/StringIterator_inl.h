@@ -3,7 +3,7 @@
 inline ezStringIterator::ezStringIterator(const char* pCurrent, bool bIsPureASCII)
 {
   m_pFirst = pCurrent;
-  m_pEnd = (pCurrent == NULL) ? NULL : (pCurrent + ezStringUtils::GetStringElementCount(pCurrent));
+  m_pEnd = (pCurrent == nullptr) ? nullptr : (pCurrent + ezStringUtils::GetStringElementCount(pCurrent));
   m_pCurrent = pCurrent;
   m_bValid = (pCurrent < m_pEnd);
   m_bIsPureASCII = bIsPureASCII;

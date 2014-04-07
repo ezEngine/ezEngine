@@ -12,11 +12,11 @@ void ezConsole::AutoCompleteInputLine()
   while (it.IsValid() && !ezStringUtils::IsIdentifierDelimiter_C_Code(it.GetCharacter()))
     --it;
 
-  const char* szLastWordDelimiter = NULL;
+  const char* szLastWordDelimiter = nullptr;
   if (it.IsValid() && ezStringUtils::IsIdentifierDelimiter_C_Code(it.GetCharacter()))
     szLastWordDelimiter = it.GetData();
 
-  if (szLastWordDelimiter != NULL)
+  if (szLastWordDelimiter != nullptr)
     sVarName = szLastWordDelimiter + 1;
 
   ezDeque<ezString> AutoCompleteOptions;
@@ -50,7 +50,7 @@ void ezConsole::AutoCompleteInputLine()
 
   if (AutoCompleteOptions.GetCount() > 0)
   {
-    if (szLastWordDelimiter != NULL)
+    if (szLastWordDelimiter != nullptr)
       m_sInputLine = ezStringIterator(m_sInputLine.GetData(), szLastWordDelimiter + 1, m_sInputLine.GetData());
     else
       m_sInputLine.Clear();

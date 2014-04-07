@@ -21,7 +21,7 @@ EZ_CREATE_SIMPLE_TEST(Time, Clock)
   {
     ezClock c; // calls 'Reset' internally
 
-    EZ_TEST_BOOL(c.GetTimeStepSmoothing() == NULL); // after constructor
+    EZ_TEST_BOOL(c.GetTimeStepSmoothing() == nullptr); // after constructor
 
     EZ_TEST_DOUBLE(c.GetAccumulatedTime().GetSeconds(), 0.0, 0.0);
     EZ_TEST_DOUBLE(c.GetFixedTimeStep().GetSeconds(), 0.0, 0.0);
@@ -43,7 +43,7 @@ EZ_CREATE_SIMPLE_TEST(Time, Clock)
     EZ_TEST_BOOL(c.GetTimeStepSmoothing() == &s);
 
     c.Reset(true);
-    EZ_TEST_BOOL(c.GetTimeStepSmoothing() == NULL); // after constructor
+    EZ_TEST_BOOL(c.GetTimeStepSmoothing() == nullptr); // after constructor
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetPaused / GetPaused")
@@ -213,7 +213,7 @@ EZ_CREATE_SIMPLE_TEST(Time, Clock)
   {
     ezClock c;
 
-    EZ_TEST_BOOL(c.GetTimeStepSmoothing() == NULL);
+    EZ_TEST_BOOL(c.GetTimeStepSmoothing() == nullptr);
     
     ezSimpleTimeStepSmoother s;
     c.SetTimeStepSmoothing(&s);

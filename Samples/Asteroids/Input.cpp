@@ -65,16 +65,16 @@ void SampleGameApp::UpdateInput(ezTime UpdateDiff)
   }
 }
 
-static void RegisterInputAction(const char* szInputSet, const char* szInputAction, const char* szKey1, const char* szKey2 = NULL, const char* szKey3 = NULL)
+static void RegisterInputAction(const char* szInputSet, const char* szInputAction, const char* szKey1, const char* szKey2 = nullptr, const char* szKey3 = nullptr)
 {
   ezInputActionConfig cfg;
 
   cfg = ezInputManager::GetInputActionConfig(szInputSet, szInputAction);
   cfg.m_bApplyTimeScaling = true;
 
-  if (szKey1 != NULL)     cfg.m_sInputSlotTrigger[0] = szKey1;
-  if (szKey2 != NULL)     cfg.m_sInputSlotTrigger[1] = szKey2;
-  if (szKey3 != NULL)     cfg.m_sInputSlotTrigger[2] = szKey3;
+  if (szKey1 != nullptr)     cfg.m_sInputSlotTrigger[0] = szKey1;
+  if (szKey2 != nullptr)     cfg.m_sInputSlotTrigger[1] = szKey2;
+  if (szKey3 != nullptr)     cfg.m_sInputSlotTrigger[2] = szKey3;
 
   ezInputManager::SetInputActionConfig(szInputSet, szInputAction, cfg, true);
 }
@@ -118,21 +118,21 @@ void SampleGameApp::SetupInput()
 
   // some more keyboard key bindings
 
-  RegisterInputAction("Game", "Player1_Forwards",   NULL, ezInputSlot_KeyW);
-  RegisterInputAction("Game", "Player1_Backwards",  NULL, ezInputSlot_KeyS);
-  RegisterInputAction("Game", "Player1_Left",       NULL, ezInputSlot_KeyA);
-  RegisterInputAction("Game", "Player1_Right",      NULL, ezInputSlot_KeyD);
-  RegisterInputAction("Game", "Player1_Shoot",      NULL, ezInputSlot_KeySpace);
-  RegisterInputAction("Game", "Player1_RotLeft",    NULL, ezInputSlot_KeyLeft,  ezInputSlot_MouseMoveNegX);
-  RegisterInputAction("Game", "Player1_RotRight",   NULL, ezInputSlot_KeyRight, ezInputSlot_MouseMovePosX);
+  RegisterInputAction("Game", "Player1_Forwards",   nullptr, ezInputSlot_KeyW);
+  RegisterInputAction("Game", "Player1_Backwards",  nullptr, ezInputSlot_KeyS);
+  RegisterInputAction("Game", "Player1_Left",       nullptr, ezInputSlot_KeyA);
+  RegisterInputAction("Game", "Player1_Right",      nullptr, ezInputSlot_KeyD);
+  RegisterInputAction("Game", "Player1_Shoot",      nullptr, ezInputSlot_KeySpace);
+  RegisterInputAction("Game", "Player1_RotLeft",    nullptr, ezInputSlot_KeyLeft,  ezInputSlot_MouseMoveNegX);
+  RegisterInputAction("Game", "Player1_RotRight",   nullptr, ezInputSlot_KeyRight, ezInputSlot_MouseMovePosX);
 
-  //RegisterInputAction("Game", "Player3_Forwards",   NULL, ezInputSlot_MouseMoveNegY);
-  //RegisterInputAction("Game", "Player3_Backwards",  NULL, ezInputSlot_MouseMovePosY);
-  //RegisterInputAction("Game", "Player3_Left",       NULL, ezInputSlot_MouseMoveNegX);
-  //RegisterInputAction("Game", "Player3_Right",      NULL, ezInputSlot_MouseMovePosX);
-  //RegisterInputAction("Game", "Player3_Shoot",      NULL, ezInputSlot_MouseButton2);
-  //RegisterInputAction("Game", "Player3_RotLeft",    NULL, ezInputSlot_MouseButton0);
-  //RegisterInputAction("Game", "Player3_RotRight",   NULL, ezInputSlot_MouseButton1);
+  //RegisterInputAction("Game", "Player3_Forwards",   nullptr, ezInputSlot_MouseMoveNegY);
+  //RegisterInputAction("Game", "Player3_Backwards",  nullptr, ezInputSlot_MouseMovePosY);
+  //RegisterInputAction("Game", "Player3_Left",       nullptr, ezInputSlot_MouseMoveNegX);
+  //RegisterInputAction("Game", "Player3_Right",      nullptr, ezInputSlot_MouseMovePosX);
+  //RegisterInputAction("Game", "Player3_Shoot",      nullptr, ezInputSlot_MouseButton2);
+  //RegisterInputAction("Game", "Player3_RotLeft",    nullptr, ezInputSlot_MouseButton0);
+  //RegisterInputAction("Game", "Player3_RotRight",   nullptr, ezInputSlot_MouseButton1);
 
   m_pThumbstick = EZ_DEFAULT_NEW(ezVirtualThumbStick);
   m_pThumbstick->SetInputArea(ezVec2(0.1f, 0.1f), ezVec2(0.3f, 0.3f), 0.1f, 0.0f);
@@ -152,11 +152,11 @@ void Level::UpdatePlayerInput(ezInt32 iPlayer)
 {
   float fVal = 0.0f;
 
-  ezGameObject* pShip = NULL;
+  ezGameObject* pShip = nullptr;
   if (!m_pWorld->TryGetObject(m_hPlayerShips[iPlayer], pShip))
     return;
 
-  ShipComponent* pShipComponent = NULL;
+  ShipComponent* pShipComponent = nullptr;
   if (!pShip->TryGetComponentOfType(pShipComponent))
     return;
 

@@ -21,7 +21,7 @@ template <typename T, bool Construct>
 void ezDequeBase<T, Construct>::Constructor(ezAllocatorBase* pAllocator)
 {
   m_pAllocator = pAllocator;
-  m_pChunks = NULL;
+  m_pChunks = nullptr;
   m_uiChunks = 0;
   m_uiFirstElement = 0;
   m_uiCount = 0;
@@ -97,7 +97,7 @@ void ezDequeBase<T, Construct>::operator= (ezDequeBase<T, Construct>&& rhs)
     m_uiMaxCount = rhs.m_uiMaxCount;
 
     rhs.m_uiCount = 0;
-    rhs.m_pChunks = NULL;
+    rhs.m_pChunks = nullptr;
     rhs.m_uiAllocatedChunks = 0;
     rhs.m_uiChunks = 0;
     rhs.m_uiFirstElement = 0;
@@ -267,7 +267,7 @@ void ezDequeBase<T, Construct>::CompactIndexArray(ezUInt32 uiMinChunksToKeep)
   for (ezUInt32 i = 0; i < uiRequiredChunks; ++i)
   {
     pNewChunkArray[16 + i] = m_pChunks[uiFirstChunk + i];
-    m_pChunks[uiFirstChunk + i] = NULL;
+    m_pChunks[uiFirstChunk + i] = nullptr;
   }
 
   // copy all still allocated chunks over to the new index array
@@ -281,7 +281,7 @@ void ezDequeBase<T, Construct>::CompactIndexArray(ezUInt32 uiMinChunksToKeep)
         EZ_ASSERT(iPos < 16 || ((iPos >= 16 + uiRequiredChunks) && (iPos < uiChunksToKeep)), "Implementation error.");
 
         pNewChunkArray[iPos] = m_pChunks[i];
-        m_pChunks[i] = NULL;
+        m_pChunks[i] = nullptr;
         ++iPos;
 
         if (iPos == 16)
@@ -296,7 +296,7 @@ void ezDequeBase<T, Construct>::CompactIndexArray(ezUInt32 uiMinChunksToKeep)
         EZ_ASSERT(iPos < 16 || ((iPos >= 16 + uiRequiredChunks) && (iPos < uiChunksToKeep)), "Implementation error.");
 
         pNewChunkArray[iPos] = m_pChunks[i];
-        m_pChunks[i] = NULL;
+        m_pChunks[i] = nullptr;
         ++iPos;
 
         if (iPos == 16)
@@ -690,7 +690,7 @@ EZ_FORCE_INLINE T* ezDequeBase<T, Construct>::GetUnusedChunk()
     if (m_pChunks[i])
     {
       T* pChunk = m_pChunks[i];
-      m_pChunks[i] = NULL;
+      m_pChunks[i] = nullptr;
       return pChunk;
     }
   }
@@ -703,7 +703,7 @@ EZ_FORCE_INLINE T* ezDequeBase<T, Construct>::GetUnusedChunk()
     if (m_pChunks[i])
     {
       T* pChunk = m_pChunks[i];
-      m_pChunks[i] = NULL;
+      m_pChunks[i] = nullptr;
       return pChunk;
     }
   }
@@ -726,7 +726,7 @@ T& ezDequeBase<T, Construct>::ElementAt(ezUInt32 uiIndex)
 
   EZ_ASSERT(uiChunkIndex < m_uiChunks, "");
 
-  if (m_pChunks[uiChunkIndex] == NULL)
+  if (m_pChunks[uiChunkIndex] == nullptr)
     m_pChunks[uiChunkIndex] = GetUnusedChunk();
 
   return m_pChunks[uiChunkIndex][uiChunkOffset];

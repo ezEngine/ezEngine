@@ -6,7 +6,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, ArrayPtr)
   {
     ezArrayPtr<ezInt32> Empty;
 
-    EZ_TEST_BOOL(Empty.GetPtr() == NULL);
+    EZ_TEST_BOOL(Empty.GetPtr() == nullptr);
     EZ_TEST_BOOL(Empty.GetCount() == 0);
   }
 
@@ -19,7 +19,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, ArrayPtr)
     EZ_TEST_BOOL(ap.GetCount() == 3);
 
     ezArrayPtr<ezInt32> ap2(pIntData, 0);
-    EZ_TEST_BOOL(ap2.GetPtr() == NULL);
+    EZ_TEST_BOOL(ap2.GetPtr() == nullptr);
     EZ_TEST_BOOL(ap2.GetCount() == 0);
 
     ezArrayPtr<ezInt32> ap3(pIntData);
@@ -56,7 +56,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, ArrayPtr)
 
     ap.Reset();
 
-    EZ_TEST_BOOL(ap.GetPtr() == NULL);
+    EZ_TEST_BOOL(ap.GetPtr() == nullptr);
     EZ_TEST_BOOL(ap.GetCount() == 0);
   }
 
@@ -138,7 +138,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, ArrayPtr)
   {
     ezArrayPtr<const ezInt32> Empty;
 
-    EZ_TEST_BOOL(Empty.GetPtr() == NULL);
+    EZ_TEST_BOOL(Empty.GetPtr() == nullptr);
     EZ_TEST_BOOL(Empty.GetCount() == 0);
   }
 
@@ -151,7 +151,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, ArrayPtr)
     EZ_TEST_BOOL(ap.GetCount() == 3);
 
     ezArrayPtr<const ezInt32> ap2(pIntData, 0);
-    EZ_TEST_BOOL(ap2.GetPtr() == NULL);
+    EZ_TEST_BOOL(ap2.GetPtr() == nullptr);
     EZ_TEST_BOOL(ap2.GetCount() == 0);
 
     ezArrayPtr<const ezInt32> ap3(pIntData);
@@ -188,7 +188,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, ArrayPtr)
 
     ap.Reset();
 
-    EZ_TEST_BOOL(ap.GetPtr() == NULL);
+    EZ_TEST_BOOL(ap.GetPtr() == nullptr);
     EZ_TEST_BOOL(ap.GetCount() == 0);
   }
 

@@ -45,7 +45,7 @@ ezHybridArrayBase<T, Size>::~ezHybridArrayBase()
   if (this->m_pElements != GetStaticArray())
     EZ_DELETE_RAW_BUFFER(this->m_pAllocator, this->m_pElements);
 
-  this->m_pElements = NULL;
+  this->m_pElements = nullptr;
 }
 
 template <typename T, ezUInt32 Size>
@@ -92,7 +92,7 @@ void ezHybridArrayBase<T, Size>::operator= (const ezArrayPtr<T>& rhs)
 template <typename T, ezUInt32 Size>
 void ezHybridArrayBase<T, Size>::SetCapacity(ezUInt32 uiCapacity)
 {
-  T* pNewData = NULL;
+  T* pNewData = nullptr;
 
   // if the static buffer is sufficient, use that
   if (uiCapacity <= Size)

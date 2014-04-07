@@ -15,16 +15,16 @@ namespace DontUse
 {
   ezGALShaderByteCode* CompileDXShader(const char* source, const char* profile, const char* entryPoint)
   {
-    ID3DBlob* ResultBlob = NULL;
-    ID3DBlob* ErrorBlob = NULL;
+    ID3DBlob* ResultBlob = nullptr;
+    ID3DBlob* ErrorBlob = nullptr;
 
-    if(FAILED(D3DCompile(source, strlen(source), "<file>", NULL, NULL, entryPoint, profile, 0, 0, &ResultBlob, &ErrorBlob)))
+    if(FAILED(D3DCompile(source, strlen(source), "<file>", nullptr, nullptr, entryPoint, profile, 0, 0, &ResultBlob, &ErrorBlob)))
     {
       const char* szError = (const char*)ErrorBlob->GetBufferPointer();
 
       EZ_ASSERT(false, "Shader compilation failed for profile %s: %s", profile, szError);
 
-      return NULL;
+      return nullptr;
     }
 
 

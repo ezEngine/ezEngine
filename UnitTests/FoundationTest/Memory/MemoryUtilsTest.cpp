@@ -197,11 +197,11 @@ EZ_CREATE_SIMPLE_TEST(Memory, MemoryUtils)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "AddByteOffset")
   {
-    ezInt32* pData1 = NULL;
+    ezInt32* pData1 = nullptr;
     pData1 = ezMemoryUtils::AddByteOffset(pData1, 13);
     EZ_TEST_BOOL(pData1 == reinterpret_cast<ezInt32*>(13));
 
-    const ezInt32* pData2 = NULL;
+    const ezInt32* pData2 = nullptr;
     const ezInt32* pData3 = ezMemoryUtils::AddByteOffsetConst(pData2, 17);
     EZ_TEST_BOOL(pData3 == reinterpret_cast<ezInt32*>(17));
   }

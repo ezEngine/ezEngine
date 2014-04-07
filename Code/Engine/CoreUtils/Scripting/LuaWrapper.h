@@ -56,8 +56,8 @@ public:
   /// \param szDebugChunkName
   ///   An optional name for the lua code, to ease debugging when errors occur.
   /// \param pLogInterface
-  ///   An optional log interface where error messages are written to. If NULL is passed in, error messages are written to the global log.
-  ezResult ExecuteString(const char* szString, const char* szDebugChunkName = "chunk", ezLogInterface* pLogInterface = NULL) const; // [tested]
+  ///   An optional log interface where error messages are written to. If nullptr is passed in, error messages are written to the global log.
+  ezResult ExecuteString(const char* szString, const char* szDebugChunkName = "chunk", ezLogInterface* pLogInterface = nullptr) const; // [tested]
 
   /// @}
 
@@ -140,7 +140,7 @@ public:
   /// @{ 
 
   /// Registers a C-Function to the Script under a certain Name.
-  void RegisterCFunction(const char* szFunctionName, lua_CFunction pFunction, void* pLightUserData = NULL) const; // [tested]
+  void RegisterCFunction(const char* szFunctionName, lua_CFunction pFunction, void* pLightUserData = nullptr) const; // [tested]
 
   /// Prepares a function to be called. After that the parameters can be pushed. Returns false if no function with the given name exists in the scope.
   bool PrepareFunctionCall(const char* szFunctionName); // [tested]
@@ -151,7 +151,7 @@ public:
   /// After you are finished inspecting the return values, you need to call DiscardReturnValues() to clean them up.
   ///
   /// Returns EZ_FAILURE if anything went wrong during function execution. Reports errors via \a pLogInterface.
-  ezResult CallPreparedFunction(ezUInt32 iExpectedReturnValues = 0, ezLogInterface* pLogInterface = NULL); // [tested]
+  ezResult CallPreparedFunction(ezUInt32 iExpectedReturnValues = 0, ezLogInterface* pLogInterface = nullptr); // [tested]
 
   /// Call this after you called a prepared Lua-function, that returned some values. If zero values were returned, this function is optional.
   void DiscardReturnValues(); // [tested]

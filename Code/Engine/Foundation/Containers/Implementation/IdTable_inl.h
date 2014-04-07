@@ -85,7 +85,7 @@ EZ_FORCE_INLINE ValueType& ezIdTableBase<IdType, ValueType>::Iterator::Value()
 template <typename IdType, typename ValueType>
 ezIdTableBase<IdType, ValueType>::ezIdTableBase(ezAllocatorBase* pAllocator)
 {
-  m_pEntries = NULL;
+  m_pEntries = nullptr;
   m_uiCount = 0;
   m_uiCapacity = 0;
   m_uiFreelistEnqueue = -1;
@@ -96,7 +96,7 @@ ezIdTableBase<IdType, ValueType>::ezIdTableBase(ezAllocatorBase* pAllocator)
 template <typename IdType, typename ValueType>
 ezIdTableBase<IdType, ValueType>::ezIdTableBase(const ezIdTableBase<IdType, ValueType>& other, ezAllocatorBase* pAllocator)
 {
-  m_pEntries = NULL;
+  m_pEntries = nullptr;
   m_uiCount = 0;
   m_uiCapacity = 0;
   m_uiFreelistEnqueue = -1;
@@ -204,7 +204,7 @@ IdType ezIdTableBase<IdType, ValueType>::Insert(const ValueType& value)
 }
 
 template <typename IdType, typename ValueType>
-bool ezIdTableBase<IdType, ValueType>::Remove(const IdType id, ValueType* out_oldValue /*= NULL*/)
+bool ezIdTableBase<IdType, ValueType>::Remove(const IdType id, ValueType* out_oldValue /*= nullptr*/)
 {
   if (m_uiCapacity <= id.m_InstanceIndex)
     return false;
@@ -214,7 +214,7 @@ bool ezIdTableBase<IdType, ValueType>::Remove(const IdType id, ValueType* out_ol
   if (entry.id != id)
     return false;
 
-  if (out_oldValue != NULL)
+  if (out_oldValue != nullptr)
     *out_oldValue = m_pEntries[uiIndex].value;
 
   ezMemoryUtils::Destruct(&entry.value, 1);
@@ -303,7 +303,7 @@ EZ_FORCE_INLINE ezAllocatorBase* ezIdTableBase<IdType, ValueType>::GetAllocator(
 template <typename IdType, typename ValueType>
 bool ezIdTableBase<IdType, ValueType>::IsFreelistValid() const
 {
-  if (m_pEntries == NULL)
+  if (m_pEntries == nullptr)
     return true;
 
   IndexType uiIndex = m_uiFreelistDequeue;

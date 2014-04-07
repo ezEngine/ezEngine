@@ -64,7 +64,7 @@ public:
 
   /// \brief Constructor.
   ezApplication()
-    : m_iReturnCode(0), m_uiArgumentCount(0), m_ppArguments(NULL)
+    : m_iReturnCode(0), m_uiArgumentCount(0), m_ppArguments(nullptr)
   {
   }
 

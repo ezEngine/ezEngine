@@ -22,7 +22,7 @@ WorldData::WorldData(const char* szWorldName) :
   m_uiHandledMessageCounter(0),
   m_ThreadID(ezThreadUtils::GetCurrentThreadID()),
   m_bIsInAsyncPhase(false),
-  m_pUserData(NULL)
+  m_pUserData(nullptr)
 {
   m_AllocatorWrapper.Reset();
 

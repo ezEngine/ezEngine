@@ -7,7 +7,7 @@
 #include <qcombobox.h>
 #include <qspinbox.h>
 
-ezCVarsWidget* ezCVarsWidget::s_pWidget = NULL;
+ezCVarsWidget* ezCVarsWidget::s_pWidget = nullptr;
 
 ezCVarsWidget::ezCVarsWidget(QWidget* parent) : QDockWidget (parent)
 {

@@ -18,7 +18,7 @@ ezResult ezOSFile::InternalOpen(const char* szFile, ezFileMode::Enum OpenMode)
     m_FileData.m_pFileHandle = fopen(szFile, "ab");
 
     // in append mode we need to set the file pointer to the end explicitly, otherwise GetFilePosition might return 0 the first time
-    if (m_FileData.m_pFileHandle != NULL)
+    if (m_FileData.m_pFileHandle != nullptr)
       InternalSetFilePosition(0, ezFilePos::FromEnd);
 
     break;
@@ -26,7 +26,7 @@ ezResult ezOSFile::InternalOpen(const char* szFile, ezFileMode::Enum OpenMode)
     break;
   }
 
-  return m_FileData.m_pFileHandle != NULL ? EZ_SUCCESS : EZ_FAILURE;
+  return m_FileData.m_pFileHandle != nullptr ? EZ_SUCCESS : EZ_FAILURE;
 }
 
 void ezOSFile::InternalClose()
@@ -113,7 +113,7 @@ bool ezOSFile::InternalExists(const char* szFile)
 {
   FILE* pFile = fopen(szFile, "r");
 
-  if (pFile == NULL)
+  if (pFile == nullptr)
     return false;
 
   fclose(pFile);
@@ -165,6 +165,6 @@ ezResult ezOSFile::InternalGetFileStats(const char* szFileOrFolder, ezFileStats&
 const char* ezOSFile::GetApplicationDirectory()
 {
   #warning Not yet implemented.
-  return NULL;
+  return nullptr;
 }
 

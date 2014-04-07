@@ -13,7 +13,7 @@ template <typename AllocationPolicy, ezUInt32 TrackingFlags = ezMemoryTrackingFl
 class ezAllocator : public ezAllocatorBase
 {
 public:
-  ezAllocator(const char* szName, ezAllocatorBase* pParent = NULL);
+  ezAllocator(const char* szName, ezAllocatorBase* pParent = nullptr);
   ~ezAllocator();
 
   // ezAllocatorBase implementation

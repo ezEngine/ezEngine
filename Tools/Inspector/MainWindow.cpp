@@ -22,7 +22,7 @@
 #include <QSettings>
 #include <qtimer.h>
 
-ezMainWindow* ezMainWindow::s_pWidget = NULL;
+ezMainWindow* ezMainWindow::s_pWidget = nullptr;
 
 
 
@@ -187,7 +187,7 @@ void ezMainWindow::closeEvent(QCloseEvent* event)
 void ezMainWindow::SetupNetworkTimer()
 {
   // reset the timer to fire again
-  if (m_pNetworkTimer == NULL)
+  if (m_pNetworkTimer == nullptr)
     m_pNetworkTimer = new QTimer(this);
 
   m_pNetworkTimer->singleShot(40, this, SLOT(UpdateNetworkTimeOut()));
@@ -384,7 +384,7 @@ void ezMainWindow::ProcessTelemetry(void* pUnuseed)
         if (sd.m_History.GetCount() > s_pWidget->m_uiMaxStatSamples)
           sd.m_History.PopFront(sd.m_History.GetCount() - s_pWidget->m_uiMaxStatSamples);
 
-        if (sd.m_pItem == NULL)
+        if (sd.m_pItem == nullptr)
         {
           sd.m_pItem = s_pWidget->CreateStat(sStatName.GetData(), false);
 

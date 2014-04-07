@@ -17,7 +17,7 @@ ezGALSwapChain::~ezGALSwapChain()
 ezResult ezGALSwapChain::DeInitPlatform(ezGALDevice* pDevice)
 {
   const ezGALRenderTargetConfig* pRenderTargetConfig = pDevice->GetRenderTargetConfig(m_hRenderTargetConfig);
-  if (pRenderTargetConfig != NULL)
+  if (pRenderTargetConfig != nullptr)
   {
     for (ezUInt32 i = 0; i < pRenderTargetConfig->GetDescription().m_uiColorTargetCount; ++i)
       pDevice->DestroyRenderTargetView(pRenderTargetConfig->GetDescription().m_hColorTargets[i]);

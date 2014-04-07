@@ -360,7 +360,7 @@ void ezStringBuilder::ReplaceSubString(const char* szStartPos, const char* szEnd
 
 const char* ezStringBuilder::ReplaceFirst(const char* szSearchFor, const char* szReplacement, const char* szStartSearchAt)
 {
-  if (szStartSearchAt == NULL)
+  if (szStartSearchAt == nullptr)
     szStartSearchAt = GetData();
   else
   {
@@ -369,8 +369,8 @@ const char* ezStringBuilder::ReplaceFirst(const char* szSearchFor, const char* s
 
   const char* szFoundAt = ezStringUtils::FindSubString(szStartSearchAt, szSearchFor);
 
-  if (szFoundAt == NULL)
-    return NULL;
+  if (szFoundAt == nullptr)
+    return nullptr;
 
   const ezUInt32 uiOffset = (ezUInt32) (szFoundAt - GetData());
 
@@ -383,7 +383,7 @@ const char* ezStringBuilder::ReplaceFirst(const char* szSearchFor, const char* s
 
 const char* ezStringBuilder::ReplaceLast(const char* szSearchFor, const char* szReplacement, const char* szStartSearchAt)
 {
-  if (szStartSearchAt == NULL)
+  if (szStartSearchAt == nullptr)
     szStartSearchAt = GetData() + m_Data.GetCount() - 1;
   else
   {
@@ -392,8 +392,8 @@ const char* ezStringBuilder::ReplaceLast(const char* szSearchFor, const char* sz
 
   const char* szFoundAt = ezStringUtils::FindLastSubString(GetData(), szSearchFor, szStartSearchAt);
 
-  if (szFoundAt == NULL)
-    return NULL;
+  if (szFoundAt == nullptr)
+    return nullptr;
 
   const ezUInt32 uiOffset = (ezUInt32) (szFoundAt - GetData());
 
@@ -418,7 +418,7 @@ ezUInt32 ezStringBuilder::ReplaceAll(const char* szSearchFor, const char* szRepl
     // so we need to work with offsets and recompute the pointers every time
     const char* szFoundAt = ezStringUtils::FindSubString(GetData() + uiOffset, szSearchFor, GetData() + m_Data.GetCount() - 1);
 
-    if (szFoundAt == NULL)
+    if (szFoundAt == nullptr)
       return uiReplacements;
 
     // do not search withing the replaced part, otherwise we get recursive replacement which will not end
@@ -435,7 +435,7 @@ ezUInt32 ezStringBuilder::ReplaceAll(const char* szSearchFor, const char* szRepl
 
 const char* ezStringBuilder::ReplaceFirst_NoCase(const char* szSearchFor, const char* szReplacement, const char* szStartSearchAt)
 {
-  if (szStartSearchAt == NULL)
+  if (szStartSearchAt == nullptr)
     szStartSearchAt = GetData();
   else
   {
@@ -444,8 +444,8 @@ const char* ezStringBuilder::ReplaceFirst_NoCase(const char* szSearchFor, const 
 
   const char* szFoundAt = ezStringUtils::FindSubString_NoCase(szStartSearchAt, szSearchFor);
 
-  if (szFoundAt == NULL)
-    return NULL;
+  if (szFoundAt == nullptr)
+    return nullptr;
 
   const ezUInt32 uiOffset = (ezUInt32) (szFoundAt - GetData());
 
@@ -458,7 +458,7 @@ const char* ezStringBuilder::ReplaceFirst_NoCase(const char* szSearchFor, const 
 
 const char* ezStringBuilder::ReplaceLast_NoCase(const char* szSearchFor, const char* szReplacement, const char* szStartSearchAt)
 {
-  if (szStartSearchAt == NULL)
+  if (szStartSearchAt == nullptr)
     szStartSearchAt = GetData() + m_Data.GetCount() - 1;
   else
   {
@@ -467,8 +467,8 @@ const char* ezStringBuilder::ReplaceLast_NoCase(const char* szSearchFor, const c
 
   const char* szFoundAt = ezStringUtils::FindLastSubString_NoCase(GetData(), szSearchFor, szStartSearchAt);
 
-  if (szFoundAt == NULL)
-    return NULL;
+  if (szFoundAt == nullptr)
+    return nullptr;
 
   const ezUInt32 uiOffset = (ezUInt32) (szFoundAt - GetData());
 
@@ -493,7 +493,7 @@ ezUInt32 ezStringBuilder::ReplaceAll_NoCase(const char* szSearchFor, const char*
     // so we need to work with offsets and recompute the pointers every time
     const char* szFoundAt = ezStringUtils::FindSubString_NoCase(GetData() + uiOffset, szSearchFor, GetData() + m_Data.GetCount() - 1);
 
-    if (szFoundAt == NULL)
+    if (szFoundAt == nullptr)
       return uiReplacements;
 
     // do not search withing the replaced part, otherwise we get recursive replacement which will not end
@@ -511,8 +511,8 @@ const char* ezStringBuilder::ReplaceWholeWord(const char* szSearchFor, const cha
 {
   const char* szPos = FindWholeWord(szSearchFor, IsDelimiterCB);
 
-  if (szPos == NULL)
-    return NULL;
+  if (szPos == nullptr)
+    return nullptr;
 
   const ezUInt32 uiOffset = static_cast<ezUInt32>(szPos - GetData());
 
@@ -524,8 +524,8 @@ const char* ezStringBuilder::ReplaceWholeWord_NoCase(const char* szSearchFor, co
 {
   const char* szPos = FindWholeWord_NoCase(szSearchFor, IsDelimiterCB);
 
-  if (szPos == NULL)
-    return NULL;
+  if (szPos == nullptr)
+    return nullptr;
 
   const ezUInt32 uiOffset = static_cast<ezUInt32>(szPos - GetData());
 
@@ -548,7 +548,7 @@ ezUInt32 ezStringBuilder::ReplaceWholeWordAll(const char* szSearchFor, const cha
     // so we need to work with offsets and recompute the pointers every time
     const char* szFoundAt = ezStringUtils::FindWholeWord(GetData() + uiOffset, szSearchFor, IsDelimiterCB, GetData() + m_Data.GetCount() - 1);
 
-    if (szFoundAt == NULL)
+    if (szFoundAt == nullptr)
       return uiReplacements;
 
     // do not search withing the replaced part, otherwise we get recursive replacement which will not end
@@ -576,7 +576,7 @@ ezUInt32 ezStringBuilder::ReplaceWholeWordAll_NoCase(const char* szSearchFor, co
     // so we need to work with offsets and recompute the pointers every time
     const char* szFoundAt = ezStringUtils::FindWholeWord_NoCase(GetData() + uiOffset, szSearchFor, IsDelimiterCB, GetData() + m_Data.GetCount() - 1);
 
-    if (szFoundAt == NULL)
+    if (szFoundAt == nullptr)
       return uiReplacements;
 
     // do not search withing the replaced part, otherwise we get recursive replacement which will not end

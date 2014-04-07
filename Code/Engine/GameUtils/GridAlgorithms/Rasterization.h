@@ -39,7 +39,7 @@ namespace ez2DGridUtils
   /// It returns ezRasterizationResult::Finished if the entire line was rasterized.
   ///
   /// This function does not do any dynamic memory allocations internally.
-  EZ_GAMEUTILS_DLL ezRasterizationResult::Enum ComputePointsOnLine(ezInt32 iStartX, ezInt32 iStartY, ezInt32 iEndX, ezInt32 iEndY, EZ_RASTERIZED_POINT_CALLBACK Callback, void* pPassThrough = NULL);
+  EZ_GAMEUTILS_DLL ezRasterizationResult::Enum ComputePointsOnLine(ezInt32 iStartX, ezInt32 iStartY, ezInt32 iEndX, ezInt32 iEndY, EZ_RASTERIZED_POINT_CALLBACK Callback, void* pPassThrough = nullptr);
 
   /// \brief Computes all the points on a 2D line and calls a function to report every point.
   ///
@@ -51,7 +51,7 @@ namespace ez2DGridUtils
   /// If bVisitBothNeighbors is false, the line will continue with the diagonal cell if the first tried neighbor cell is free.
   /// However, if bVisitBothNeighbors is true, the second alternative cell is also reported to the callback, even though its return value
   /// has no effect on whether the line continues or aborts.
-  EZ_GAMEUTILS_DLL ezRasterizationResult::Enum ComputePointsOnLineConservative(ezInt32 iStartX, ezInt32 iStartY, ezInt32 iEndX, ezInt32 iEndY, EZ_RASTERIZED_POINT_CALLBACK Callback, void* pPassThrough = NULL, bool bVisitBothNeighbors = false);
+  EZ_GAMEUTILS_DLL ezRasterizationResult::Enum ComputePointsOnLineConservative(ezInt32 iStartX, ezInt32 iStartY, ezInt32 iEndX, ezInt32 iEndY, EZ_RASTERIZED_POINT_CALLBACK Callback, void* pPassThrough = nullptr, bool bVisitBothNeighbors = false);
 
   /// \brief Computes all the points on a 2D circle and calls a function to report every point.
   ///
@@ -59,7 +59,7 @@ namespace ez2DGridUtils
   /// The callback may abort the operation by returning ezCallbackResult::Stop.
   ///
   /// This function does not do any dynamic memory allocations internally.
-  EZ_GAMEUTILS_DLL ezRasterizationResult::Enum ComputePointsOnCircle(ezInt32 iStartX, ezInt32 iStartY, ezUInt32 uiRadius, EZ_RASTERIZED_POINT_CALLBACK Callback, void* pPassThrough = NULL);
+  EZ_GAMEUTILS_DLL ezRasterizationResult::Enum ComputePointsOnCircle(ezInt32 iStartX, ezInt32 iStartY, ezUInt32 uiRadius, EZ_RASTERIZED_POINT_CALLBACK Callback, void* pPassThrough = nullptr);
 
   /// \brief Starts at the given point and then fills all surrounding cells until a border is detected.
   ///
@@ -74,7 +74,7 @@ namespace ez2DGridUtils
   /// Note that the FloodFill function requires an internal queue to store which cells still need to be visited, as such it will do
   /// dynamic memory allocations. You can pass in a queue that will be used as the temp buffer, thus you can reuse the same container for
   /// several operations, which will reduce the amount of memory allocations that need to be done.
-  EZ_GAMEUTILS_DLL ezUInt32 FloodFill(ezInt32 iStartX, ezInt32 iStartY, EZ_RASTERIZED_POINT_CALLBACK Callback, void* pPassThrough = NULL, ezDeque<ezVec2I32>* pTempArray = NULL);
+  EZ_GAMEUTILS_DLL ezUInt32 FloodFill(ezInt32 iStartX, ezInt32 iStartY, EZ_RASTERIZED_POINT_CALLBACK Callback, void* pPassThrough = nullptr, ezDeque<ezVec2I32>* pTempArray = nullptr);
 
   /// \brief Describes the different circle types that can be rasterized
   enum ezBlobType
@@ -99,7 +99,7 @@ namespace ez2DGridUtils
   /// the surrounding cells as well. Using RasterizeBlob() you can compute the units footprint easily.
   ///
   /// RasterizeBlob() will stop immediately and return ezRasterizationResult::Aborted when the callback function returns ezCallbackResult::Stop.
-  EZ_GAMEUTILS_DLL ezRasterizationResult::Enum RasterizeBlob(ezInt32 iPosX, ezInt32 iPosY, ezBlobType eType, EZ_RASTERIZED_POINT_CALLBACK Callback, void* pPassThrough = NULL);
+  EZ_GAMEUTILS_DLL ezRasterizationResult::Enum RasterizeBlob(ezInt32 iPosX, ezInt32 iPosY, ezBlobType eType, EZ_RASTERIZED_POINT_CALLBACK Callback, void* pPassThrough = nullptr);
 
   /// \brief Rasterizes a circle of any size (unlike RasterizeBlob()), though finding the right radius values for nice looking small circles can be more difficult.
   ///
@@ -107,7 +107,7 @@ namespace ez2DGridUtils
   /// bit by bit.
   ///
   /// RasterizeCircle() will stop immediately and return ezRasterizationResult::Aborted when the callback function returns ezCallbackResult::Stop.
-  EZ_GAMEUTILS_DLL ezRasterizationResult::Enum RasterizeCircle(ezInt32 iPosX, ezInt32 iPosY, float fRadius, EZ_RASTERIZED_POINT_CALLBACK Callback, void* pPassThrough = NULL);
+  EZ_GAMEUTILS_DLL ezRasterizationResult::Enum RasterizeCircle(ezInt32 iPosX, ezInt32 iPosY, float fRadius, EZ_RASTERIZED_POINT_CALLBACK Callback, void* pPassThrough = nullptr);
 
 
   /// \brief Computes which points are visible from the start position by tracing lines radially outwards.
@@ -120,12 +120,12 @@ namespace ez2DGridUtils
   /// 
   /// The algorithm requires internal state and thus needs to do dynamic memory allocations. If you want to reduce the number of allocations, 
   /// you can pass in your own array, that can be reused for many queries.
-  EZ_GAMEUTILS_DLL void ComputeVisibleArea(ezInt32 iPosX, ezInt32 iPosY, ezUInt16 uiRadius, ezUInt32 uiWidth, ezUInt32 uiHeight, EZ_RASTERIZED_POINT_CALLBACK Callback, void* pPassThrough = NULL, ezDynamicArray<ezUInt8>* pTempArray = NULL);
+  EZ_GAMEUTILS_DLL void ComputeVisibleArea(ezInt32 iPosX, ezInt32 iPosY, ezUInt16 uiRadius, ezUInt32 uiWidth, ezUInt32 uiHeight, EZ_RASTERIZED_POINT_CALLBACK Callback, void* pPassThrough = nullptr, ezDynamicArray<ezUInt8>* pTempArray = nullptr);
 
   /// \brief Computes which points are visible from the start position by tracing lines radially outwards. Limits the computation to a cone.
   ///
   /// This function works exactly like ComputeVisibleArea() but limits the computation to a cone that is defined by vDirection and ConeAngle.
-  EZ_GAMEUTILS_DLL void ComputeVisibleAreaInCone(ezInt32 iPosX, ezInt32 iPosY, ezUInt16 uiRadius, const ezVec2& vDirection, ezAngle ConeAngle, ezUInt32 uiWidth, ezUInt32 uiHeight, EZ_RASTERIZED_POINT_CALLBACK Callback, void* pPassThrough = NULL, ezDynamicArray<ezUInt8>* pTempArray = NULL);
+  EZ_GAMEUTILS_DLL void ComputeVisibleAreaInCone(ezInt32 iPosX, ezInt32 iPosY, ezUInt16 uiRadius, const ezVec2& vDirection, ezAngle ConeAngle, ezUInt32 uiWidth, ezUInt32 uiHeight, EZ_RASTERIZED_POINT_CALLBACK Callback, void* pPassThrough = nullptr, ezDynamicArray<ezUInt8>* pTempArray = nullptr);
 
 }
 

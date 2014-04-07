@@ -31,9 +31,9 @@ EZ_CREATE_SIMPLE_TEST(Strings, PathUtils)
     EZ_TEST_BOOL(ezPathUtils::FindPreviousSeparator(szPath, szPath + 11) == szPath + 10);
     EZ_TEST_BOOL(ezPathUtils::FindPreviousSeparator(szPath, szPath + 10) == szPath + 7);
     EZ_TEST_BOOL(ezPathUtils::FindPreviousSeparator(szPath, szPath + 7)  == szPath + 4);
-    EZ_TEST_BOOL(ezPathUtils::FindPreviousSeparator(szPath, szPath + 4)  == NULL);
-    EZ_TEST_BOOL(ezPathUtils::FindPreviousSeparator(szPath, szPath)  == NULL);
-    EZ_TEST_BOOL(ezPathUtils::FindPreviousSeparator(NULL, NULL)  == NULL);
+    EZ_TEST_BOOL(ezPathUtils::FindPreviousSeparator(szPath, szPath + 4)  == nullptr);
+    EZ_TEST_BOOL(ezPathUtils::FindPreviousSeparator(szPath, szPath)  == nullptr);
+    EZ_TEST_BOOL(ezPathUtils::FindPreviousSeparator(nullptr, nullptr)  == nullptr);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "HasAnyExtension")

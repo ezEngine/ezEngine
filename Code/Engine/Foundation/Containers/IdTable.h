@@ -99,7 +99,7 @@ public:
   IdType Insert(const ValueType& value); // [tested]
 
   /// \brief Removes the entry with the given id. Returns if an entry was removed and optionally writes out the old value to out_oldValue.
-  bool Remove(const IdType id, ValueType* out_oldValue = NULL); // [tested]
+  bool Remove(const IdType id, ValueType* out_oldValue = nullptr); // [tested]
 
   /// \brief Returns if an entry with the given id was found and if found writes out the corresponding value to out_value.
   bool TryGetValue(const IdType id, ValueType& out_value) const; // [tested]

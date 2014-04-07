@@ -11,8 +11,8 @@ ezTask::ezTask()
   m_bIsFinished = true;
   m_bProfilingIDGenerated = false; 
   m_sTaskName = "Unnamed Task";
-  m_OnTaskFinished = NULL;
-  m_pCallbackPassThrough = NULL;
+  m_OnTaskFinished = nullptr;
+  m_pCallbackPassThrough = nullptr;
 }
 
 void ezTask::Reset()
@@ -110,8 +110,8 @@ ezTaskSystem::TaskData ezTaskSystem::GetNextTask(ezTaskPriority::Enum FirstPrior
 
   {
     TaskData td;
-    td.m_pTask = NULL;
-    td.m_pBelongsToGroup = NULL;
+    td.m_pTask = nullptr;
+    td.m_pBelongsToGroup = nullptr;
     return td;
   }
 
@@ -122,7 +122,7 @@ foundany:
   ezLock<ezMutex> Lock(s_TaskSystemMutex);
 
   // if there is a task that should be prioritized, check if it exists in any of the task lists
-  if (pPrioritizeThis != NULL)
+  if (pPrioritizeThis != nullptr)
   {
     // only search for the task in the lists that this thread is willing to work on
     // otherwise we might execute a main-thread task in a thread that is not the main thread
@@ -164,8 +164,8 @@ foundany:
 
   {
     TaskData td;
-    td.m_pTask = NULL;
-    td.m_pBelongsToGroup = NULL;
+    td.m_pTask = nullptr;
+    td.m_pBelongsToGroup = nullptr;
     return td;
   }
 }
@@ -174,7 +174,7 @@ bool ezTaskSystem::ExecuteTask(ezTaskPriority::Enum FirstPriority, ezTaskPriorit
 {
   ezTaskSystem::TaskData td = GetNextTask(FirstPriority, LastPriority, pPrioritizeThis);
 
-  if (td.m_pTask == NULL)
+  if (td.m_pTask == nullptr)
     return false;
 
   {

@@ -12,7 +12,7 @@ ezWorld::ezWorld(const char* szWorldName) :
   // find a free world slot
   for (ezUInt32 i = 0; i < s_Worlds.GetCount(); i++)
   {
-    if (s_Worlds[i] == NULL)
+    if (s_Worlds[i] == nullptr)
     {
       s_Worlds[i] = this;
       m_uiIndex = i;
@@ -30,7 +30,7 @@ ezWorld::~ezWorld()
 {
   CheckForMultithreadedAccess();
 
-  s_Worlds[m_uiIndex] = NULL;
+  s_Worlds[m_uiIndex] = nullptr;
   m_uiIndex = ezInvalidIndex;
 }
 
@@ -43,8 +43,8 @@ void ezWorld::CreateObjects(const ezArrayPtr<const ezGameObjectDesc>& descs, ezA
   const ezUInt32 uiCount = descs.GetCount();
 
   ezGameObjectHandle parent = descs[0].m_Parent;
-  ezGameObject* pParentObject = NULL;
-  ezGameObject::TransformationData* pParentData = NULL;
+  ezGameObject* pParentObject = nullptr;
+  ezGameObject::TransformationData* pParentData = nullptr;
   ezUInt32 uiHierarchyLevel = 0;
   ezBitflags<ezObjectFlags> flags = descs[0].m_Flags;
 
@@ -191,7 +191,7 @@ void ezWorld::SendMessage(const ezGameObjectHandle& receiverObject, ezMessage& m
   }
   else
   {
-    ezGameObject* pReceiverObject = NULL;
+    ezGameObject* pReceiverObject = nullptr;
     if (TryGetObject(receiverObject, pReceiverObject))
     {
       HandleMessage(pReceiverObject, msg, routing);
@@ -240,7 +240,7 @@ const char* ezWorld::GetObjectName(ezGameObjectId internalId) const
   {
     return name.GetData();
   }
-  return NULL;
+  return nullptr;
 }
 
 void ezWorld::QueueMessage(const ezGameObjectHandle& receiverObject, ezMessage& msg, ezBitflags<ezObjectMsgRouting> routing)
@@ -281,7 +281,7 @@ void ezWorld::ProcessQueuedMessages(MessageQueueType::Enum queueType)
   {
     const ezInternal::WorldData::MessageQueue::Entry& entry = queue[i];
 
-    ezGameObject* pReceiverObject = NULL;
+    ezGameObject* pReceiverObject = nullptr;
     if (TryGetObject(entry.m_MetaData.m_ReceiverObject, pReceiverObject))
     {
       HandleMessage(pReceiverObject, *entry.m_pMessage, entry.m_MetaData.m_Routing);

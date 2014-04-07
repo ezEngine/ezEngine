@@ -206,7 +206,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     EZ_TEST_BOOL(s == ezStringUtf8(L"abcdefghiöäjkü€").GetData());
 
     s = "pups";
-    s.Append(NULL, "b", NULL, "d", NULL, ezStringUtf8(L"ü€").GetData());
+    s.Append(nullptr, "b", nullptr, "d", nullptr, ezStringUtf8(L"ü€").GetData());
     EZ_TEST_BOOL(s == ezStringUtf8(L"pupsbdü€").GetData());
   }
 
@@ -218,7 +218,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     EZ_TEST_BOOL(s == ezStringUtf8(L"abcdefghiöäjkü€").GetData());
 
     s = "pups";
-    s.Append(NULL, L"b", NULL, L"d", NULL, L"ü€");
+    s.Append(nullptr, L"b", nullptr, L"d", nullptr, L"ü€");
     EZ_TEST_BOOL(s == ezStringUtf8(L"pupsbdü€").GetData());
   }
 
@@ -238,7 +238,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     EZ_TEST_BOOL(s == ezStringUtf8(L"defghiöäjkü€abc").GetData());
 
     s = "pups";
-    s.Prepend(NULL, "b", NULL, "d", NULL, ezStringUtf8(L"ü€").GetData());
+    s.Prepend(nullptr, "b", nullptr, "d", nullptr, ezStringUtf8(L"ü€").GetData());
     EZ_TEST_BOOL(s == ezStringUtf8(L"bdü€pups").GetData());
   }
 
@@ -250,7 +250,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     EZ_TEST_BOOL(s == ezStringUtf8(L"defghiöäjkü€abc").GetData());
 
     s = "pups";
-    s.Prepend(NULL, L"b", NULL, L"d", NULL, L"ü€");
+    s.Prepend(nullptr, L"b", nullptr, L"d", nullptr, L"ü€");
     EZ_TEST_BOOL(s == ezStringUtf8(L"bdü€pups").GetData());
   }
 
@@ -400,17 +400,17 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     EZ_TEST_INT(s.GetCharacterCount(), 32);
     EZ_TEST_INT(s.GetElementCount(), 38);
 
-    s.ReplaceSubString(s.GetData(), s.GetData() + 10, NULL); // remove at front
+    s.ReplaceSubString(s.GetData(), s.GetData() + 10, nullptr); // remove at front
     EZ_TEST_BOOL(s == ezStringUtf8(L"stuvwxyblablmääh!ubü€ß").GetData());
     EZ_TEST_INT(s.GetCharacterCount(), 22);
     EZ_TEST_INT(s.GetElementCount(), 28);
 
-    s.ReplaceSubString(s.GetData() + 18, s.GetData() + 28, NULL); // remove at back
+    s.ReplaceSubString(s.GetData() + 18, s.GetData() + 28, nullptr); // remove at back
     EZ_TEST_BOOL(s == ezStringUtf8(L"stuvwxyblablmääh").GetData());
     EZ_TEST_INT(s.GetCharacterCount(), 16);
     EZ_TEST_INT(s.GetElementCount(), 18);
 
-    s.ReplaceSubString(s.GetData(), s.GetData() + 18, NULL); // clear
+    s.ReplaceSubString(s.GetData(), s.GetData() + 18, nullptr); // clear
     EZ_TEST_BOOL(s == ezStringUtf8(L"").GetData());
     EZ_TEST_INT(s.GetCharacterCount(), 0);
     EZ_TEST_INT(s.GetElementCount(), 0);
@@ -500,7 +500,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     s.ReplaceFirst("BLOED BLOED BLOEDE OEDE LAANGWEILIG BLOED LAANGWEILIG", "weg");
     EZ_TEST_BOOL(s == "weg");
 
-    s.ReplaceFirst("weg", NULL);
+    s.ReplaceFirst("weg", nullptr);
     EZ_TEST_BOOL(s == "");
   }
 
@@ -584,7 +584,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     s.ReplaceFirst_NoCase("BLOED BLOED BLOEDE OEDE LAANGWEILIG BLOED LAANGWEILIG", "weg");
     EZ_TEST_BOOL(s == "weg");
 
-    s.ReplaceFirst_NoCase("WEG", NULL);
+    s.ReplaceFirst_NoCase("WEG", nullptr);
     EZ_TEST_BOOL(s == "");
   }
 
@@ -644,25 +644,25 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
   {
     ezStringBuilder s = "abcd abc abcd abc dabc abc";
 
-    EZ_TEST_BOOL(s.ReplaceWholeWord("abc", "def", ezStringUtils::IsWordDelimiter_English) != NULL);
+    EZ_TEST_BOOL(s.ReplaceWholeWord("abc", "def", ezStringUtils::IsWordDelimiter_English) != nullptr);
     EZ_TEST_BOOL(s == "abcd def abcd abc dabc abc");
 
-    EZ_TEST_BOOL(s.ReplaceWholeWord("abc", "def", ezStringUtils::IsWordDelimiter_English) != NULL);
+    EZ_TEST_BOOL(s.ReplaceWholeWord("abc", "def", ezStringUtils::IsWordDelimiter_English) != nullptr);
     EZ_TEST_BOOL(s == "abcd def abcd def dabc abc");
 
-    EZ_TEST_BOOL(s.ReplaceWholeWord("abc", "def", ezStringUtils::IsWordDelimiter_English) != NULL);
+    EZ_TEST_BOOL(s.ReplaceWholeWord("abc", "def", ezStringUtils::IsWordDelimiter_English) != nullptr);
     EZ_TEST_BOOL(s == "abcd def abcd def dabc def");
 
-    EZ_TEST_BOOL(s.ReplaceWholeWord("abc", "def", ezStringUtils::IsWordDelimiter_English) == NULL);
+    EZ_TEST_BOOL(s.ReplaceWholeWord("abc", "def", ezStringUtils::IsWordDelimiter_English) == nullptr);
     EZ_TEST_BOOL(s == "abcd def abcd def dabc def");
 
-    EZ_TEST_BOOL(s.ReplaceWholeWord("abcd", "def", ezStringUtils::IsWordDelimiter_English) != NULL);
+    EZ_TEST_BOOL(s.ReplaceWholeWord("abcd", "def", ezStringUtils::IsWordDelimiter_English) != nullptr);
     EZ_TEST_BOOL(s == "def def abcd def dabc def");
 
-    EZ_TEST_BOOL(s.ReplaceWholeWord("abcd", "def", ezStringUtils::IsWordDelimiter_English) != NULL);
+    EZ_TEST_BOOL(s.ReplaceWholeWord("abcd", "def", ezStringUtils::IsWordDelimiter_English) != nullptr);
     EZ_TEST_BOOL(s == "def def def def dabc def");
 
-    EZ_TEST_BOOL(s.ReplaceWholeWord("abcd", "def", ezStringUtils::IsWordDelimiter_English) == NULL);
+    EZ_TEST_BOOL(s.ReplaceWholeWord("abcd", "def", ezStringUtils::IsWordDelimiter_English) == nullptr);
     EZ_TEST_BOOL(s == "def def def def dabc def");
   }
 
@@ -670,25 +670,25 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
   {
     ezStringBuilder s = "abcd abc abcd abc dabc abc";
 
-    EZ_TEST_BOOL(s.ReplaceWholeWord_NoCase("ABC", "def", ezStringUtils::IsWordDelimiter_English) != NULL);
+    EZ_TEST_BOOL(s.ReplaceWholeWord_NoCase("ABC", "def", ezStringUtils::IsWordDelimiter_English) != nullptr);
     EZ_TEST_BOOL(s == "abcd def abcd abc dabc abc");
 
-    EZ_TEST_BOOL(s.ReplaceWholeWord_NoCase("ABC", "def", ezStringUtils::IsWordDelimiter_English) != NULL);
+    EZ_TEST_BOOL(s.ReplaceWholeWord_NoCase("ABC", "def", ezStringUtils::IsWordDelimiter_English) != nullptr);
     EZ_TEST_BOOL(s == "abcd def abcd def dabc abc");
 
-    EZ_TEST_BOOL(s.ReplaceWholeWord_NoCase("ABC", "def", ezStringUtils::IsWordDelimiter_English) != NULL);
+    EZ_TEST_BOOL(s.ReplaceWholeWord_NoCase("ABC", "def", ezStringUtils::IsWordDelimiter_English) != nullptr);
     EZ_TEST_BOOL(s == "abcd def abcd def dabc def");
 
-    EZ_TEST_BOOL(s.ReplaceWholeWord_NoCase("ABC", "def", ezStringUtils::IsWordDelimiter_English) == NULL);
+    EZ_TEST_BOOL(s.ReplaceWholeWord_NoCase("ABC", "def", ezStringUtils::IsWordDelimiter_English) == nullptr);
     EZ_TEST_BOOL(s == "abcd def abcd def dabc def");
 
-    EZ_TEST_BOOL(s.ReplaceWholeWord_NoCase("ABCd", "def", ezStringUtils::IsWordDelimiter_English) != NULL);
+    EZ_TEST_BOOL(s.ReplaceWholeWord_NoCase("ABCd", "def", ezStringUtils::IsWordDelimiter_English) != nullptr);
     EZ_TEST_BOOL(s == "def def abcd def dabc def");
 
-    EZ_TEST_BOOL(s.ReplaceWholeWord_NoCase("aBCD", "def", ezStringUtils::IsWordDelimiter_English) != NULL);
+    EZ_TEST_BOOL(s.ReplaceWholeWord_NoCase("aBCD", "def", ezStringUtils::IsWordDelimiter_English) != nullptr);
     EZ_TEST_BOOL(s == "def def def def dabc def");
 
-    EZ_TEST_BOOL(s.ReplaceWholeWord_NoCase("ABcd", "def", ezStringUtils::IsWordDelimiter_English) == NULL);
+    EZ_TEST_BOOL(s.ReplaceWholeWord_NoCase("ABcd", "def", ezStringUtils::IsWordDelimiter_English) == nullptr);
     EZ_TEST_BOOL(s == "def def def def dabc def");
   }
 

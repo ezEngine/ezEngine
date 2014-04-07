@@ -44,7 +44,7 @@ void ezImageConversionBase::RebuildConversionTable()
 
   for (ezUInt32 tableIdx = 0; tableIdx < s_conversionTable.GetCount(); tableIdx++)
   {
-    s_conversionTable[tableIdx] = NULL;
+    s_conversionTable[tableIdx] = nullptr;
     s_costTable[tableIdx] = ezMath::BasicType<float>::GetInfinity();
   }
 
@@ -128,7 +128,7 @@ ezResult ezImageConversionBase::Convert(const ezImage& source, ezImage& target, 
   ezUInt32 uiCurrentTableIndex = GetTableIndex(sourceFormat, targetFormat);
 
   // No conversion known
-  if (s_conversionTable[uiCurrentTableIndex] == NULL)
+  if (s_conversionTable[uiCurrentTableIndex] == nullptr)
   {
     return EZ_FAILURE;
   }

@@ -3,7 +3,7 @@
 #include <Foundation/Communication/Telemetry.h>
 #include <MainWindow.moc.h>
 
-ezPluginsWidget* ezPluginsWidget::s_pWidget = NULL;
+ezPluginsWidget* ezPluginsWidget::s_pWidget = nullptr;
 
 ezPluginsWidget::ezPluginsWidget(QWidget* parent) : QDockWidget (parent)
 {

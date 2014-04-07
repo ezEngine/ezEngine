@@ -11,7 +11,7 @@ template<typename ResourceType, typename DescriptionType> ResourceType* ezGALDev
   if (!pResource->InitPlatform(this).IsSuccess())
   {
     EZ_DEFAULT_DELETE(pResource);
-    return NULL;
+    return nullptr;
   }
 
   return pResource;
@@ -24,7 +24,7 @@ template<typename ResourceType, typename DescriptionType, typename DataPtr> Reso
   if (!pResource->InitPlatform(this, pInitialData).IsSuccess())
   {
     EZ_DEFAULT_DELETE(pResource);
-    return NULL;
+    return nullptr;
   }
 
   return pResource;

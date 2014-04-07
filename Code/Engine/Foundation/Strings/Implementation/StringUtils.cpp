@@ -244,23 +244,23 @@ ezUInt32 ezStringUtils::ToLowerString(char* pString)
   return uiNewStringLength;
 }
 
-// Macro to Handle NULL-pointer strings
+// Macro to Handle nullptr-pointer strings
 #define EZ_STRINGCOMPARE_HANDLE_NULL_PTRS(szString1, szString2, ret_equal, ret_str2_larger, ret_str1_larger, szString1End, szString2End)\
-  if (szString1 == szString2) /* Handles the case that both are NULL and that both are actually the same string */ \
+  if (szString1 == szString2) /* Handles the case that both are nullptr and that both are actually the same string */ \
   {\
-    if ((szString1 == NULL) || (szString1End == szString2End)) /* if both are NULL, ignore the end pointer, otherwise the strings are equal, if both end pointers are also the same */ \
+    if ((szString1 == nullptr) || (szString1End == szString2End)) /* if both are nullptr, ignore the end pointer, otherwise the strings are equal, if both end pointers are also the same */ \
       return (ret_equal);\
   }\
-  if (szString1 == NULL)\
+  if (szString1 == nullptr)\
   {\
-    if (szString2[0] == '\0') /* if String1 is NULL, String2 is never NULL, otherwise the previous IF would have returned already */ \
+    if (szString2[0] == '\0') /* if String1 is nullptr, String2 is never nullptr, otherwise the previous IF would have returned already */ \
       return (ret_equal);\
     else\
       return (ret_str2_larger);\
   }\
-  if (szString2 == NULL) \
+  if (szString2 == nullptr) \
   {\
-    if (szString1[0] == '\0') /* if String2 is NULL, String1 is never NULL, otherwise the previous IF would have returned already */ \
+    if (szString1[0] == '\0') /* if String2 is nullptr, String1 is never nullptr, otherwise the previous IF would have returned already */ \
       return (ret_equal);\
     else\
       return (ret_str1_larger);\
@@ -410,7 +410,7 @@ ezInt32 ezStringUtils::CompareN_NoCase(const char* pString1, const char* pString
 
 ezUInt32 ezStringUtils::CopyN(char* szDest, ezUInt32 uiDstSize, const char* szSource, ezUInt32 uiCharsToCopy, const char* pSourceEnd)
 {
-  EZ_ASSERT(szDest != NULL && uiDstSize > 0, "Invalid output buffer.");
+  EZ_ASSERT(szDest != nullptr && uiDstSize > 0, "Invalid output buffer.");
 
   if (IsNullOrEmpty(szSource))
   {
@@ -562,9 +562,9 @@ bool ezStringUtils::EndsWith_NoCase(const char* szString, const char* szEndsWith
 
 const char* ezStringUtils::FindSubString(const char* szSource, const char* szStringToFind, const char* pSourceEnd)
 {
-  // Handle NULL-pointer strings
+  // Handle nullptr-pointer strings
   if ((IsNullOrEmpty (szSource)) || (IsNullOrEmpty (szStringToFind)))
-    return NULL;
+    return nullptr;
 
   const char* pCurPos = &szSource[0];
 
@@ -576,14 +576,14 @@ const char* ezStringUtils::FindSubString(const char* szSource, const char* szStr
     ezUnicodeUtils::MoveToNextUtf8(pCurPos);
   }
 
-  return NULL;
+  return nullptr;
 }
 
 const char* ezStringUtils::FindSubString_NoCase(const char* szSource, const char* szStringToFind, const char* pSourceEnd)
 {
-  // Handle NULL-pointer strings
+  // Handle nullptr-pointer strings
   if ((IsNullOrEmpty (szSource)) || (IsNullOrEmpty (szStringToFind)))
-    return NULL;
+    return nullptr;
 
   const char* pCurPos = &szSource[0];
 
@@ -595,18 +595,18 @@ const char* ezStringUtils::FindSubString_NoCase(const char* szSource, const char
     ezUnicodeUtils::MoveToNextUtf8(pCurPos);
   }
 
-  return NULL;
+  return nullptr;
 }
 
 
 const char* ezStringUtils::FindLastSubString(const char* szSource, const char* szStringToFind, const char* szStartSearchAt, const char* pSourceEnd)
 {
-  // Handle NULL-pointer strings
+  // Handle nullptr-pointer strings
   if ((IsNullOrEmpty (szSource)) || (IsNullOrEmpty (szStringToFind)))
-    return NULL;
+    return nullptr;
 
   // get the last element (actually the \0 terminator)
-  if (szStartSearchAt == NULL)
+  if (szStartSearchAt == nullptr)
     szStartSearchAt = szSource + ezStringUtils::GetStringElementCount(szSource, pSourceEnd);
 
   // while we haven't reached the stars .. erm, start
@@ -618,16 +618,16 @@ const char* ezStringUtils::FindLastSubString(const char* szSource, const char* s
       return szStartSearchAt;
   }
 
-  return NULL;
+  return nullptr;
 }
 
 const char* ezStringUtils::FindLastSubString_NoCase(const char* szSource, const char* szStringToFind, const char* szStartSearchAt, const char* pSourceEnd)
 {
-  // Handle NULL-pointer strings
+  // Handle nullptr-pointer strings
   if ((IsNullOrEmpty (szSource)) || (IsNullOrEmpty (szStringToFind)))
-    return NULL;
+    return nullptr;
 
-  if (szStartSearchAt == NULL)
+  if (szStartSearchAt == nullptr)
     szStartSearchAt = szSource + ezStringUtils::GetStringElementCount(szSource, pSourceEnd);
 
   while (szStartSearchAt > szSource)
@@ -638,19 +638,19 @@ const char* ezStringUtils::FindLastSubString_NoCase(const char* szSource, const 
       return szStartSearchAt;
   }
 
-  return NULL;
+  return nullptr;
 }
 
 
   const char* ezStringUtils::FindWholeWord(const char* szString, const char* szSearchFor, EZ_CHARACTER_FILTER IsDelimiterCB, const char* pStringEnd)
   {
-    // Handle NULL-pointer strings
+    // Handle nullptr-pointer strings
     if ((IsNullOrEmpty (szString)) || (IsNullOrEmpty (szSearchFor)))
-      return NULL;
+      return nullptr;
 
     const ezUInt32 uiSearchedWordLength = GetStringElementCount(szSearchFor);
 
-    const char* pPrevPos = NULL;
+    const char* pPrevPos = nullptr;
     const char* pCurPos = szString;
 
     while ((*pCurPos != '\0') && (pCurPos < pStringEnd))
@@ -668,18 +668,18 @@ const char* ezStringUtils::FindLastSubString_NoCase(const char* szSource, const 
       ezUnicodeUtils::MoveToNextUtf8(pCurPos);
     }
 
-    return NULL;
+    return nullptr;
   }
 
   const char* ezStringUtils::FindWholeWord_NoCase(const char* szString, const char* szSearchFor, EZ_CHARACTER_FILTER IsDelimiterCB, const char* pStringEnd)
   {
-    // Handle NULL-pointer strings
+    // Handle nullptr-pointer strings
     if ((IsNullOrEmpty (szString)) || (IsNullOrEmpty (szSearchFor)))
-      return NULL;
+      return nullptr;
 
     const ezUInt32 uiSearchedWordLength = GetStringElementCount(szSearchFor);
 
-    const char* pPrevPos = NULL;
+    const char* pPrevPos = nullptr;
     const char* pCurPos = szString;
 
     while ((*pCurPos != '\0') && (pCurPos < pStringEnd))
@@ -696,12 +696,12 @@ const char* ezStringUtils::FindLastSubString_NoCase(const char* szSource, const 
       ezUnicodeUtils::MoveToNextUtf8(pCurPos);
     }
 
-    return NULL;
+    return nullptr;
   }
 
   const char* ezStringUtils::SkipCharacters(const char* szString, EZ_CHARACTER_FILTER SkipCharacterCB, bool bAlwaysSkipFirst)
   {
-    EZ_ASSERT(szString != NULL, "Invalid string");
+    EZ_ASSERT(szString != nullptr, "Invalid string");
 
     while (*szString != '\0')
     {
@@ -717,7 +717,7 @@ const char* ezStringUtils::FindLastSubString_NoCase(const char* szSource, const 
 
   const char* ezStringUtils::FindWordEnd(const char* szString, EZ_CHARACTER_FILTER IsDelimiterCB, bool bAlwaysSkipFirst)
   {
-    EZ_ASSERT(szString != NULL, "Invalid string");
+    EZ_ASSERT(szString != nullptr, "Invalid string");
 
     while (*szString != '\0')
     {

@@ -78,14 +78,14 @@ ezBlockStorage<T>::~ezBlockStorage()
 template <typename T>
 typename ezBlockStorage<T>::Entry ezBlockStorage<T>::Create()
 {
-  ezDataBlock<T>* pBlock = NULL;
+  ezDataBlock<T>* pBlock = nullptr;
 
   if (m_Blocks.GetCount() > 0)
   {
     pBlock = &m_Blocks.PeekBack();
   }
 
-  if (pBlock == NULL || pBlock->IsFull())
+  if (pBlock == nullptr || pBlock->IsFull())
   {
     m_Blocks.PushBack(m_pBlockAllocator->AllocateBlock<T>());
     pBlock = &m_Blocks.PeekBack();

@@ -33,7 +33,7 @@ class EZ_FOUNDATION_DLL ezSubSystem : public ezEnumerable<ezSubSystem>
 public:
   ezSubSystem()
   {
-    m_szPluginName = NULL;
+    m_szPluginName = nullptr;
 
     for (ezInt32 i = 0; i < ezStartupStage::ENUM_COUNT; ++i)
       m_bStartupDone[i] = false;
@@ -56,8 +56,8 @@ public:
   /// \brief Returns the name of the group to which this subsystem belongs. Must be overridden.
   virtual const char* GetGroupName() const = 0;
 
-  /// \brief Returns a series of strings with the names of the subsystem, which this subsystem depends on. NULL indicates the last entry. Must be overridden.
-  virtual const char* GetDependency(ezInt32 iDep) { return NULL; }
+  /// \brief Returns a series of strings with the names of the subsystem, which this subsystem depends on. nullptr indicates the last entry. Must be overridden.
+  virtual const char* GetDependency(ezInt32 iDep) { return nullptr; }
 
   /// \brief Returns the plugin name to which this subsystem belongs.
   const char* GetPluginName() const { return m_szPluginName; }

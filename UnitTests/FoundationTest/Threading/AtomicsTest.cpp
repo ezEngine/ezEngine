@@ -39,7 +39,7 @@ namespace
   ezAtomicInteger64 g_iCompSwapVariable64 = 0;
   ezInt32 g_iCompSwapCounter64 = 0;
 
-  void* g_pCompSwapPointer = NULL;
+  void* g_pCompSwapPointer = nullptr;
   ezInt32 g_iCompSwapPointerCounter = 0;
 
 
@@ -94,7 +94,7 @@ namespace
         ++g_iCompSwapCounter64;
       }
 
-      if (ezAtomicUtils::TestAndSet(&g_pCompSwapPointer, NULL, this))
+      if (ezAtomicUtils::TestAndSet(&g_pCompSwapPointer, nullptr, this))
       {
         ++g_iCompSwapPointerCounter;
       }
@@ -147,15 +147,15 @@ EZ_CREATE_SIMPLE_TEST(Threading, Atomics)
     g_iCompSwapVariable64 = 0;
     g_iCompSwapCounter64 = 0;
 
-    g_pCompSwapPointer = NULL;
+    g_pCompSwapPointer = nullptr;
     g_iCompSwapPointerCounter = 0;
   }
 
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Thread")
   {
-    TestThread* pTestThread = NULL;
-    TestThread* pTestThread2 = NULL;
+    TestThread* pTestThread = nullptr;
+    TestThread* pTestThread2 = nullptr;
 
     /// the try-catch is necessary to quiet the static code analysis
     try
@@ -167,8 +167,8 @@ EZ_CREATE_SIMPLE_TEST(Threading, Atomics)
     {
     }
 
-    EZ_TEST_BOOL(pTestThread != NULL);
-    EZ_TEST_BOOL(pTestThread2 != NULL);
+    EZ_TEST_BOOL(pTestThread != nullptr);
+    EZ_TEST_BOOL(pTestThread2 != nullptr);
 
     // Both thread will increment via atomic operations the global variable
     pTestThread->Start();
@@ -218,7 +218,7 @@ EZ_CREATE_SIMPLE_TEST(Threading, Atomics)
     EZ_TEST_BOOL(g_iCompSwapVariable64 > 0);
     EZ_TEST_INT(g_iCompSwapCounter64, 1); // only one thread should have set the variable
 
-    EZ_TEST_BOOL(g_pCompSwapPointer != NULL);
+    EZ_TEST_BOOL(g_pCompSwapPointer != nullptr);
     EZ_TEST_INT(g_iCompSwapPointerCounter, 1); // only one thread should have set the variable
   }
 }

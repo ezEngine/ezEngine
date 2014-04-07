@@ -47,7 +47,7 @@ ezResult ezGALSwapChainDX11::InitPlatform(ezGALDevice* pDevice)
   else
   {
     // Get texture of the swap chain
-    ID3D11Texture2D* pNativeBackBufferTexture = NULL;
+    ID3D11Texture2D* pNativeBackBufferTexture = nullptr;
     if (FAILED(m_pDXSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), reinterpret_cast<void**>(&pNativeBackBufferTexture))))
     {
       ezLog::Error("Couldn't access backbuffer texture of swapchain!");
@@ -68,7 +68,7 @@ ezResult ezGALSwapChainDX11::InitPlatform(ezGALDevice* pDevice)
       TexDesc.m_ResourceAccess.m_bReadBack = true;
 
     // And create the ez texture object wrapping the backbuffer texture
-    ezGALTextureHandle hBackBufferTexture = pDXDevice->CreateTexture(TexDesc, NULL);
+    ezGALTextureHandle hBackBufferTexture = pDXDevice->CreateTexture(TexDesc, nullptr);
     EZ_ASSERT(!hBackBufferTexture.IsInvalidated(), "Couldn't create backbuffer texture object!");
 
 
@@ -94,7 +94,7 @@ ezResult ezGALSwapChainDX11::InitPlatform(ezGALDevice* pDevice)
       DepthStencilTexDesc.m_Format = m_Description.m_DepthStencilBufferFormat;
       DepthStencilTexDesc.m_SampleCount = m_Description.m_SampleCount;
       DepthStencilTexDesc.m_bCreateRenderTarget = true;
-      hDepthStencilBufferTexture = pDXDevice->CreateTexture(DepthStencilTexDesc, NULL);
+      hDepthStencilBufferTexture = pDXDevice->CreateTexture(DepthStencilTexDesc, nullptr);
       EZ_ASSERT(!hDepthStencilBufferTexture.IsInvalidated(), "Couldn't create depth-stencil texture object!");
 
       ezGALRenderTargetViewCreationDescription DepthStencilRTViewDesc;

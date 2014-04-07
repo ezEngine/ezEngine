@@ -4,7 +4,7 @@
 
 EZ_ENUMERABLE_CLASS_IMPLEMENTATION(ezReloadableVariableBase);
 
-ezMap<ezString, ezMemoryStreamStorage>* ezReloadableVariableBase::s_StoredVariables = NULL;
+ezMap<ezString, ezMemoryStreamStorage>* ezReloadableVariableBase::s_StoredVariables = nullptr;
 
 EZ_ON_GLOBAL_EVENT(ezFoundation_Shutdown)
 {
@@ -15,14 +15,14 @@ EZ_ON_GLOBAL_EVENT(ezFoundation_Shutdown)
 void ezReloadableVariableBase::Shutdown()
 {
   EZ_DEFAULT_DELETE(s_StoredVariables);
-  s_StoredVariables = NULL;
+  s_StoredVariables = nullptr;
 }
 
 typedef ezMap<ezString, ezMemoryStreamStorage> MemStreamMap;
 
 void ezReloadableVariableBase::StoreVariables()
 {
-  if (s_StoredVariables == NULL)
+  if (s_StoredVariables == nullptr)
     s_StoredVariables = EZ_DEFAULT_NEW(MemStreamMap);
 
   ezReloadableVariableBase* pVar = GetFirstInstance();

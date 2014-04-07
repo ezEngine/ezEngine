@@ -12,7 +12,7 @@ static bool IsWhitespace(char c)
 
 static void SkipWhitespace(const char*& szString)
 {
-  if (szString == NULL)
+  if (szString == nullptr)
     return;
 
   while (*szString != '\0' && IsWhitespace(*szString))
@@ -126,7 +126,7 @@ ezResult StringToInt64(const char* szString, ezInt64& out_Res, const char** out_
 
   out_Res = iCurRes;
 
-  if (out_LastParsePosition != NULL)
+  if (out_LastParsePosition != nullptr)
     *out_LastParsePosition = szString;
 
   return EZ_SUCCESS;
@@ -392,7 +392,7 @@ ezUInt32 ExtractFloatsFromString(const char* szText, ezUInt32 uiNumFloats, float
       ++szText;
   }
 
-  if (out_LastParsePosition != NULL)
+  if (out_LastParsePosition != nullptr)
     *out_LastParsePosition = szText;
 
   return uiFloatsFound;

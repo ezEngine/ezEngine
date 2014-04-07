@@ -2,7 +2,7 @@
 template <typename T, typename Derived>
 ezArrayBase<T, Derived>::ezArrayBase()
 {
-  m_pElements = NULL;
+  m_pElements = nullptr;
   m_uiCount = 0;
 }
 
@@ -10,7 +10,7 @@ template <typename T, typename Derived>
 ezArrayBase<T, Derived>::~ezArrayBase()
 {
   EZ_ASSERT(m_uiCount == 0, "The derived class did not destruct all objects. Count is %i.", m_uiCount);
-  EZ_ASSERT(m_pElements == NULL, "The derived class did not free its memory.");
+  EZ_ASSERT(m_pElements == nullptr, "The derived class did not free its memory.");
 }
 
 template <typename T, typename Derived>

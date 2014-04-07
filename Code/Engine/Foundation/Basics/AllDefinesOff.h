@@ -3,8 +3,8 @@
 /// \file
 
 // This should be defined by the compiler specific header
-#ifdef NULL
-  #undef NULL
+#ifdef nullptr
+  #undef nullptr
 #endif
 
 /// \brief Used in conjunction with EZ_ENABLED and EZ_DISABLED for safe checks. Define something to EZ_ON or EZ_OFF to work with those macros.

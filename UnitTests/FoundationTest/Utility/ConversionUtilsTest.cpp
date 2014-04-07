@@ -8,7 +8,7 @@ EZ_CREATE_SIMPLE_TEST(Utility, ConversionUtils)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "StringToInt")
   {
     const char* szString = "1a";
-    const char* szResultPos = NULL;
+    const char* szResultPos = nullptr;
 
     ezInt32 iRes = 42;
     szString = "01234";
@@ -78,7 +78,7 @@ EZ_CREATE_SIMPLE_TEST(Utility, ConversionUtils)
 
 
     iRes = 42;
-    EZ_TEST_BOOL(ezConversionUtils::StringToInt(NULL, iRes) == EZ_FAILURE);
+    EZ_TEST_BOOL(ezConversionUtils::StringToInt(nullptr, iRes) == EZ_FAILURE);
     EZ_TEST_INT(iRes, 42);
 
     iRes = 42;
@@ -143,7 +143,7 @@ EZ_CREATE_SIMPLE_TEST(Utility, ConversionUtils)
     // overflow check
     ezInt64 iRes = 42;
     const char* szString = "0002147483639"; // valid
-    const char* szResultPos = NULL;
+    const char* szResultPos = nullptr;
 
     EZ_TEST_BOOL(ezConversionUtils::StringToInt64(szString, iRes, &szResultPos) == EZ_SUCCESS);
     EZ_TEST_INT(iRes, 2147483639);
@@ -180,8 +180,8 @@ EZ_CREATE_SIMPLE_TEST(Utility, ConversionUtils)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "StringToFloat")
   {
-    const char* szString = NULL;
-    const char* szResultPos = NULL;
+    const char* szString = nullptr;
+    const char* szResultPos = nullptr;
 
     double fRes = 42;
     szString =  "23.45";
@@ -244,7 +244,7 @@ EZ_CREATE_SIMPLE_TEST(Utility, ConversionUtils)
     EZ_TEST_BOOL(szResultPos == szString + ezStringUtils::GetStringElementCount(szString));  
 
     fRes = 42;
-    szString =  NULL;
+    szString =  nullptr;
     EZ_TEST_BOOL(ezConversionUtils::StringToFloat(szString, fRes, &szResultPos) == EZ_FAILURE);
     EZ_TEST_DOUBLE(fRes, 42.0, 0.00001);
 
@@ -280,21 +280,21 @@ EZ_CREATE_SIMPLE_TEST(Utility, ConversionUtils)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "StringToBool")
   {
     const char* szString = "";
-    const char* szResultPos = NULL;
+    const char* szResultPos = nullptr;
     bool bRes = false;
 
     // true / false
     {
       bRes = false;
       szString = "true,";
-      szResultPos = NULL;
+      szResultPos = nullptr;
       EZ_TEST_BOOL(ezConversionUtils::StringToBool(szString, bRes, &szResultPos) == EZ_SUCCESS);
       EZ_TEST_BOOL(bRes);
       EZ_TEST_BOOL(*szResultPos == ',');
 
       bRes = true;
       szString = "FALSe,";
-      szResultPos = NULL;
+      szResultPos = nullptr;
       EZ_TEST_BOOL(ezConversionUtils::StringToBool(szString, bRes, &szResultPos) == EZ_SUCCESS);
       EZ_TEST_BOOL(!bRes);
       EZ_TEST_BOOL(*szResultPos == ',');
@@ -304,14 +304,14 @@ EZ_CREATE_SIMPLE_TEST(Utility, ConversionUtils)
     {
       bRes = false;
       szString = "\n on,";
-      szResultPos = NULL;
+      szResultPos = nullptr;
       EZ_TEST_BOOL(ezConversionUtils::StringToBool(szString, bRes, &szResultPos) == EZ_SUCCESS);
       EZ_TEST_BOOL(bRes);
       EZ_TEST_BOOL(*szResultPos == ',');
 
       bRes = true;
       szString = "\t\t \toFf,";
-      szResultPos = NULL;
+      szResultPos = nullptr;
       EZ_TEST_BOOL(ezConversionUtils::StringToBool(szString, bRes, &szResultPos) == EZ_SUCCESS);
       EZ_TEST_BOOL(!bRes);
       EZ_TEST_BOOL(*szResultPos == ',');
@@ -321,14 +321,14 @@ EZ_CREATE_SIMPLE_TEST(Utility, ConversionUtils)
     {
       bRes = false;
       szString = "\r1,";
-      szResultPos = NULL;
+      szResultPos = nullptr;
       EZ_TEST_BOOL(ezConversionUtils::StringToBool(szString, bRes, &szResultPos) == EZ_SUCCESS);
       EZ_TEST_BOOL(bRes);
       EZ_TEST_BOOL(*szResultPos == ',');
 
       bRes = true;
       szString = "0,";
-      szResultPos = NULL;
+      szResultPos = nullptr;
       EZ_TEST_BOOL(ezConversionUtils::StringToBool(szString, bRes, &szResultPos) == EZ_SUCCESS);
       EZ_TEST_BOOL(!bRes);
       EZ_TEST_BOOL(*szResultPos == ',');
@@ -338,14 +338,14 @@ EZ_CREATE_SIMPLE_TEST(Utility, ConversionUtils)
     {
       bRes = false;
       szString = "yes,";
-      szResultPos = NULL;
+      szResultPos = nullptr;
       EZ_TEST_BOOL(ezConversionUtils::StringToBool(szString, bRes, &szResultPos) == EZ_SUCCESS);
       EZ_TEST_BOOL(bRes);
       EZ_TEST_BOOL(*szResultPos == ',');
 
       bRes = true;
       szString = "NO,";
-      szResultPos = NULL;
+      szResultPos = nullptr;
       EZ_TEST_BOOL(ezConversionUtils::StringToBool(szString, bRes, &szResultPos) == EZ_SUCCESS);
       EZ_TEST_BOOL(!bRes);
       EZ_TEST_BOOL(*szResultPos == ',');
@@ -355,14 +355,14 @@ EZ_CREATE_SIMPLE_TEST(Utility, ConversionUtils)
     {
       bRes = false;
       szString = "enable,";
-      szResultPos = NULL;
+      szResultPos = nullptr;
       EZ_TEST_BOOL(ezConversionUtils::StringToBool(szString, bRes, &szResultPos) == EZ_SUCCESS);
       EZ_TEST_BOOL(bRes);
       EZ_TEST_BOOL(*szResultPos == ',');
 
       bRes = true;
       szString = "disABle,";
-      szResultPos = NULL;
+      szResultPos = nullptr;
       EZ_TEST_BOOL(ezConversionUtils::StringToBool(szString, bRes, &szResultPos) == EZ_SUCCESS);
       EZ_TEST_BOOL(!bRes);
       EZ_TEST_BOOL(*szResultPos == ',');
@@ -371,29 +371,29 @@ EZ_CREATE_SIMPLE_TEST(Utility, ConversionUtils)
     bRes = false;
 
     szString = "of,";
-    szResultPos = NULL;
+    szResultPos = nullptr;
     EZ_TEST_BOOL(ezConversionUtils::StringToBool(szString, bRes, &szResultPos) == EZ_FAILURE);
-    EZ_TEST_BOOL(szResultPos == NULL);
+    EZ_TEST_BOOL(szResultPos == nullptr);
 
     szString = "aon";
-    szResultPos = NULL;
+    szResultPos = nullptr;
     EZ_TEST_BOOL(ezConversionUtils::StringToBool(szString, bRes, &szResultPos) == EZ_FAILURE);
-    EZ_TEST_BOOL(szResultPos == NULL);
+    EZ_TEST_BOOL(szResultPos == nullptr);
 
     szString = "";
-    szResultPos = NULL;
+    szResultPos = nullptr;
     EZ_TEST_BOOL(ezConversionUtils::StringToBool(szString, bRes, &szResultPos) == EZ_FAILURE);
-    EZ_TEST_BOOL(szResultPos == NULL);
+    EZ_TEST_BOOL(szResultPos == nullptr);
 
-    szString = NULL;
-    szResultPos = NULL;
+    szString = nullptr;
+    szResultPos = nullptr;
     EZ_TEST_BOOL(ezConversionUtils::StringToBool(szString, bRes, &szResultPos) == EZ_FAILURE);
-    EZ_TEST_BOOL(szResultPos == NULL);
+    EZ_TEST_BOOL(szResultPos == nullptr);
 
     szString = "tut";
-    szResultPos = NULL;
+    szResultPos = nullptr;
     EZ_TEST_BOOL(ezConversionUtils::StringToBool(szString, bRes, &szResultPos) == EZ_FAILURE);
-    EZ_TEST_BOOL(szResultPos == NULL);
+    EZ_TEST_BOOL(szResultPos == nullptr);
 
   }
 

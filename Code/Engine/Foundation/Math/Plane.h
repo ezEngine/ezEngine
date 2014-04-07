@@ -160,13 +160,13 @@ public:
   ///
   /// Intersections with \a out_fIntersection less than zero will be discarded and not reported as intersections.
   /// If such intersections are desired, use GetRayIntersectionBiDirectional instead.
-  bool GetRayIntersection(const ezVec3Template<Type>& vRayStartPos, const ezVec3Template<Type>& vRayDir, Type* out_fIntersection = NULL, ezVec3Template<Type>* out_vIntersection = NULL) const; // [tested]
+  bool GetRayIntersection(const ezVec3Template<Type>& vRayStartPos, const ezVec3Template<Type>& vRayDir, Type* out_fIntersection = nullptr, ezVec3Template<Type>* out_vIntersection = nullptr) const; // [tested]
 
   /// \brief Returns true, if the ray intersects the plane. Intersection time and point are stored in the out-parameters. Allows for intersections at negative times (shooting into the opposite direction).
-  bool GetRayIntersectionBiDirectional(const ezVec3Template<Type>& vRayStartPos, const ezVec3Template<Type>& vRayDir, Type* out_fIntersection = NULL, ezVec3Template<Type>* out_vIntersection = NULL) const; // [tested]
+  bool GetRayIntersectionBiDirectional(const ezVec3Template<Type>& vRayStartPos, const ezVec3Template<Type>& vRayDir, Type* out_fIntersection = nullptr, ezVec3Template<Type>* out_vIntersection = nullptr) const; // [tested]
 
   /// \brief Returns true, if there is any intersection with the plane between the line's start and end position. Returns the fraction along the line and the actual intersection point.
-  bool GetLineSegmentIntersection(const ezVec3Template<Type>& vLineStartPos, const ezVec3Template<Type>& vLineEndPos, Type* out_fHitFraction = NULL, ezVec3Template<Type>* out_vIntersection = NULL) const; // [tested]
+  bool GetLineSegmentIntersection(const ezVec3Template<Type>& vLineStartPos, const ezVec3Template<Type>& vLineEndPos, Type* out_fHitFraction = nullptr, ezVec3Template<Type>* out_vIntersection = nullptr) const; // [tested]
 
   /// \brief Computes the one point where all three planes intersect. Returns EZ_FAILURE if no such point exists.
   static ezResult GetPlanesIntersectionPoint(const ezPlaneTemplate<Type>& p0, const ezPlaneTemplate<Type>& p1, const ezPlaneTemplate<Type>& p2, ezVec3Template<Type>& out_Result); // [tested]

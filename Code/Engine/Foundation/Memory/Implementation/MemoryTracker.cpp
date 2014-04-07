@@ -63,18 +63,18 @@ namespace
     EZ_ASSERT(!s_bIsInitializing, "MemoryTracker initialization entered recursively");
     s_bIsInitializing = true;
 
-    if (s_pTrackerDataAllocator == NULL)
+    if (s_pTrackerDataAllocator == nullptr)
     {
       static ezUInt8 TrackerDataAllocatorBuffer[sizeof(TrackerDataAllocator)];
       s_pTrackerDataAllocator = new (TrackerDataAllocatorBuffer) TrackerDataAllocator("MemoryTracker");
-      EZ_ASSERT(s_pTrackerDataAllocator != NULL, "MemoryTracker initialization failed");
+      EZ_ASSERT(s_pTrackerDataAllocator != nullptr, "MemoryTracker initialization failed");
     }
 
-    if (s_pTrackerData == NULL)
+    if (s_pTrackerData == nullptr)
     {
       static ezUInt8 TrackerDataBuffer[sizeof(TrackerData)];
       s_pTrackerData = new (TrackerDataBuffer) TrackerData();
-      EZ_ASSERT(s_pTrackerData != NULL, "MemoryTracker initialization failed");
+      EZ_ASSERT(s_pTrackerData != nullptr, "MemoryTracker initialization failed");
     }
 
     s_bIsInitialized = true;
@@ -98,7 +98,7 @@ namespace
     
     PrintHelper(szBuffer);
 
-    if (info.m_StackTrace.GetPtr() != NULL)
+    if (info.m_StackTrace.GetPtr() != nullptr)
     {
       ezStackTracer::ResolveStackTrace(info.m_StackTrace, &PrintHelper);
     }
@@ -134,7 +134,7 @@ ezMemoryTracker::Iterator::~Iterator()
 {
   auto it = CAST_ITER(m_pData);
   EZ_DELETE(s_pTrackerDataAllocator, it);
-  m_pData = NULL;
+  m_pData = nullptr;
 }
 
 
@@ -248,7 +248,7 @@ const ezMemoryTracker::AllocationInfo& ezMemoryTracker::GetAllocationInfo(ezAllo
   ezLock<TrackerData> lock(*s_pTrackerData);
 
   const AllocatorData& data = s_pTrackerData->m_AllocatorData[allocatorId];
-  AllocationInfo* info = NULL;
+  AllocationInfo* info = nullptr;
   if (data.m_Allocations.TryGetValue(ptr, info))
   {
     return *info;
@@ -271,7 +271,7 @@ struct LeakInfo
 
   EZ_FORCE_INLINE bool IsRootLeak() const
   {
-    return m_pParentLeak == NULL && m_AllocatorId != s_pTrackerData->m_StaticAllocatorId;
+    return m_pParentLeak == nullptr && m_AllocatorId != s_pTrackerData->m_StaticAllocatorId;
   }
 };
 
@@ -292,7 +292,7 @@ void ezMemoryTracker::DumpMemoryLeaks()
       LeakInfo leak;
       leak.m_AllocatorId = it.Id();
       leak.m_uiSize = it2.Value().m_uiSize;
-      leak.m_pParentLeak = NULL;
+      leak.m_pParentLeak = nullptr;
 
       leakTable.Insert(it2.Key(), leak);
     }
@@ -311,7 +311,7 @@ void ezMemoryTracker::DumpMemoryLeaks()
     {
       const void* testPtr = *reinterpret_cast<const void* const*>(curPtr);
 
-      LeakInfo* dependentLeak = NULL;
+      LeakInfo* dependentLeak = nullptr;
       if (leakTable.TryGetValue(testPtr, dependentLeak))
       {
         dependentLeak->m_pParentLeak = ptr;

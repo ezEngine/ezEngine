@@ -20,7 +20,7 @@ struct ezSubTestEntry
 /// \brief Stores the identification of a test.
 struct ezTestEntry
 {
-  ezTestEntry() : m_pTest(NULL), m_szTestName("") { }
+  ezTestEntry() : m_pTest(nullptr), m_szTestName("") { }
 
   ezTestBaseClass* m_pTest;
   const char* m_szTestName;

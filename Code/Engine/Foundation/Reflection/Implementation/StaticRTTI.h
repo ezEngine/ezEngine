@@ -24,7 +24,7 @@ namespace ezInternal
   {
     static const ezRTTI* GetRTTI()
     {
-      return NULL;
+      return nullptr;
     }
   };
 
@@ -158,7 +158,7 @@ EZ_FORCE_INLINE const ezRTTI* ezGetStaticRTTI()
 
 // [internal] Helper macro to get the return type of a getter function.
 #define EZ_GETTER_TYPE(Class, GetterFunc)                                     \
-  decltype(((Class*) NULL)->GetterFunc())
+  decltype(((Class*) nullptr)->GetterFunc())
 
 /// \brief Within a EZ_BEGIN_PROPERTIES / EZ_END_PROPERTIES block, this adds a property that uses custom getter / setter functions.
 ///
@@ -178,11 +178,11 @@ EZ_FORCE_INLINE const ezRTTI* ezGetStaticRTTI()
 /// \brief Same as EZ_ACCESSOR_PROPERTY, but no setter is provided, thus making the property read-only.
 #define EZ_ACCESSOR_PROPERTY_READ_ONLY(PropertyName, Getter)                  \
   new ezAccessorProperty<OwnType, EZ_GETTER_TYPE(OwnType, OwnType::Getter)>   \
-    (PropertyName, &OwnType::Getter, NULL)                                    \
+    (PropertyName, &OwnType::Getter, nullptr)                                    \
 
 // [internal] Helper macro to get the type of a class member.
 #define EZ_MEMBER_TYPE(Class, Member)                                         \
-  decltype(((Class*) NULL)->Member)
+  decltype(((Class*) nullptr)->Member)
 
 /// \brief Within a EZ_BEGIN_PROPERTIES / EZ_END_PROPERTIES block, this adds a property that actually exists as a member.
 ///
@@ -206,7 +206,7 @@ EZ_FORCE_INLINE const ezRTTI* ezGetStaticRTTI()
   new ezMemberProperty<OwnType, EZ_MEMBER_TYPE(OwnType, MemberName)>          \
     (PropertyName,                                                            \
     &ezPropertyAccessor<OwnType, EZ_MEMBER_TYPE(OwnType, MemberName), &OwnType::MemberName>::GetValue,            \
-    NULL,                                                                     \
+    nullptr,                                                                     \
     &ezPropertyAccessor<OwnType, EZ_MEMBER_TYPE(OwnType, MemberName), &OwnType::MemberName>::GetPropertyPointer)  \
 
 /// \brief Within an EZ_BEGIN_REFLECTED_TYPE / EZ_END_REFLECTED_TYPE block, use this to start the block that declares all the message handlers.

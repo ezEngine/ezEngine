@@ -44,7 +44,7 @@ void ezClock::Reset(bool bEverything)
 {
   if (bEverything)
   {
-    m_pTimeStepSmoother = NULL;
+    m_pTimeStepSmoother = nullptr;
     m_MinTimeStep = ezTime::Seconds(0.001); // 1000 FPS
     m_MaxTimeStep = ezTime::Seconds(0.1);   //   10 FPS, many simulations will be instable at that rate already
     m_FixedTimeStep = ezTime::Seconds(0.0);

@@ -17,7 +17,7 @@ namespace ezConversionUtils
   /// \brief Parses szString and converts it to an integer value. Returns EZ_FAILURE if the string contains no parsable integer value.
   ///
   /// \param szString
-  ///   If szString is NULL or an empty string or starts with an some non-whitespace and non-sign character, EZ_FAILURE is returned.
+  ///   If szString is nullptr or an empty string or starts with an some non-whitespace and non-sign character, EZ_FAILURE is returned.
   ///   All whitespaces at the start of the string are skipped. Each minus sign flips the sign of the output value, so --3 will return 3.
   ///   Plus signs are skipped and have no effect, so -+3 will still return -3.
   /// \param out_Res
@@ -33,15 +33,15 @@ namespace ezConversionUtils
   ///   EZ_SUCCESS if any integer value could get properly extracted from szString (including 0). This includes that only some part of the
   ///   string was parsed until a non-digit character was encountered.
   ///   EZ_FAILURE if the string starts with something that can not be interpreted as an integer.
-  EZ_FOUNDATION_DLL ezResult StringToInt(const char* szString, ezInt32& out_Res, const char** out_LastParsePosition = NULL); // [tested]
+  EZ_FOUNDATION_DLL ezResult StringToInt(const char* szString, ezInt32& out_Res, const char** out_LastParsePosition = nullptr); // [tested]
 
   /// \brief Same as StringToInt but converts to a 64bit integer value instead.
-  EZ_FOUNDATION_DLL ezResult StringToInt64(const char* szString, ezInt64& out_Res, const char** out_LastParsePosition = NULL); // [tested]
+  EZ_FOUNDATION_DLL ezResult StringToInt64(const char* szString, ezInt64& out_Res, const char** out_LastParsePosition = nullptr); // [tested]
 
   /// \brief Pases szString and converts it to a double value. Returns EZ_FAILURE if the string contains no parsable floating point value.
   ///
   /// \param szString
-  ///   If szString is NULL or an empty string or starts with an some non-whitespace and non-sign character, EZ_FAILURE is returned.
+  ///   If szString is nullptr or an empty string or starts with an some non-whitespace and non-sign character, EZ_FAILURE is returned.
   ///   All whitespaces at the start of the string are skipped. Each minus sign flips the sign of the output value, so --3 will return 3.
   ///   Plus signs are skipped and have no effect, so -+3 will still return -3.
   ///   The value string may contain one '.' to separate integer and fractional part. It may also contain an 'e' for scientific notation
@@ -71,7 +71,7 @@ namespace ezConversionUtils
   ///   On the down-side StringToFloat() is probably not as precise as atof(), because of a very simplistic conversion algorithm.
   ///   If you require the features of StringToFloat() and the precision of atof(), you can let StringToFloat() handle the cases for detecting
   ///   the validity, the sign and where the value ends and then use atof to parse only that substring with maximum precision.
-  EZ_FOUNDATION_DLL ezResult StringToFloat(const char* szString, double& out_Res, const char** out_LastParsePosition = NULL); // [tested]
+  EZ_FOUNDATION_DLL ezResult StringToFloat(const char* szString, double& out_Res, const char** out_LastParsePosition = nullptr); // [tested]
 
   /// \brief Parses szString and checks that the first word it finds stats with a phrase that can be interpreted as a boolean value.
   ///
@@ -93,7 +93,7 @@ namespace ezConversionUtils
   /// \return
   ///   EZ_SUCCESS if any phrase was encountered that can be interpreted as a boolean value.
   ///   EZ_FAILURE otherwise.
-  EZ_FOUNDATION_DLL ezResult StringToBool(const char* szString, bool& out_Res, const char** out_LastParsePosition = NULL); // [tested]
+  EZ_FOUNDATION_DLL ezResult StringToBool(const char* szString, bool& out_Res, const char** out_LastParsePosition = nullptr); // [tested]
 
 
   /// \brief Parses \a szText and tries to find up to \a uiNumFloats float values to extract. Skips all characters that cannot be interpreted as numbers.
@@ -113,7 +113,7 @@ namespace ezConversionUtils
   ///   or uiNumFloats values were successfully extracted.
   /// \return
   ///   The number of successfully extracted values (and thus valid values in out_pFloats).
-  EZ_FOUNDATION_DLL ezUInt32 ExtractFloatsFromString(const char* szText, ezUInt32 uiNumFloats, float* out_pFloats, const char** out_LastParsePosition = NULL); // [tested]
+  EZ_FOUNDATION_DLL ezUInt32 ExtractFloatsFromString(const char* szText, ezUInt32 uiNumFloats, float* out_pFloats, const char** out_LastParsePosition = nullptr); // [tested]
 
   /// \brief Converts a hex character ('0', '1', ... '9', 'A'/'a', ... 'F'/'f') to the corresponding int value 0 - 15.
   ///

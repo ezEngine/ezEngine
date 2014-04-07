@@ -58,7 +58,7 @@ typedef ezEvent<const ezLoggingEventData&, ezMutex> ezLoggingEvent;
 class EZ_FOUNDATION_DLL ezLogInterface
 {
 public:
-  ezLogInterface() { m_pCurrentBlock = NULL; }
+  ezLogInterface() { m_pCurrentBlock = nullptr; }
 
   /// \brief Override this function to handle logging events.
   virtual void HandleLogMessage(const ezLoggingEventData& le) = 0;

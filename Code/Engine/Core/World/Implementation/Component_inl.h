@@ -5,8 +5,8 @@ EZ_FORCE_INLINE ezComponent::ezComponent() : m_Flags(ezObjectFlags::Default)
 
 EZ_FORCE_INLINE ezComponent::~ezComponent() 
 {
-  m_pManager = NULL;
-  m_pOwner = NULL;
+  m_pManager = nullptr;
+  m_pOwner = nullptr;
   m_InternalId.Invalidate();
 }
 

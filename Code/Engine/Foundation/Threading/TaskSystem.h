@@ -29,7 +29,7 @@ public:
 
   /// \brief Sets an additional callback function to execute when the task is finished (or canceled).
   /// The most common use case for this is to deallocate the task at this time.
-  void SetOnTaskFinished(OnTaskFinished Callback, void* pPassThrough = NULL);
+  void SetOnTaskFinished(OnTaskFinished Callback, void* pPassThrough = nullptr);
 
   /// \brief Returns whether the task has been finished. This includes being canceled.
   ///
@@ -134,7 +134,7 @@ public:
   ///
   /// All tasks that are added to this group will be run with the same given \a Priority.
   /// Once all tasks in the group are finished and thus the group is finished, an optional \a Callback can be executed.
-  static ezTaskGroupID CreateTaskGroup(ezTaskPriority::Enum Priority, ezTaskGroup::OnTaskGroupFinished Callback = NULL, void* pPassThrough = NULL);
+  static ezTaskGroupID CreateTaskGroup(ezTaskPriority::Enum Priority, ezTaskGroup::OnTaskGroupFinished Callback = nullptr, void* pPassThrough = nullptr);
 
   /// \brief Adds a task to the given task group. The group must not yet have been started.
   static void AddTaskToGroup(ezTaskGroupID Group, ezTask* pTask);
@@ -224,7 +224,7 @@ public:
   /// \brief Returns the utilization (0.0 to 1.0) of the given thread. Note: This will only be valid, if FinishFrameTasks() is called once per frame.
   ///
   /// Also optionally returns the number of tasks that were finished during the last frame.
-  static double GetThreadUtilization(ezWorkerThreadType::Enum Type, ezUInt32 iThread, ezUInt32* pNumTasksExecuted = NULL) { if (pNumTasksExecuted) *pNumTasksExecuted = s_WorkerThreads[Type][iThread]->m_uiNumTasksExecuted; return s_WorkerThreads[Type][iThread]->m_ThreadUtilization; }
+  static double GetThreadUtilization(ezWorkerThreadType::Enum Type, ezUInt32 iThread, ezUInt32* pNumTasksExecuted = nullptr) { if (pNumTasksExecuted) *pNumTasksExecuted = s_WorkerThreads[Type][iThread]->m_uiNumTasksExecuted; return s_WorkerThreads[Type][iThread]->m_ThreadUtilization; }
 
 private:
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(Foundation, TaskSystem);
@@ -259,10 +259,10 @@ private:
   static void StopWorkerThreads();
 
   // Searches for a task of priority between \a FirstPriority and \a LastPriority (inclusive).
-  static TaskData GetNextTask(ezTaskPriority::Enum FirstPriority, ezTaskPriority::Enum LastPriority, ezTask* pPrioritizeThis = NULL);
+  static TaskData GetNextTask(ezTaskPriority::Enum FirstPriority, ezTaskPriority::Enum LastPriority, ezTask* pPrioritizeThis = nullptr);
 
   // Executes some task of priority between \a FirstPriority and \a LastPriority (inclusive). Returns true, if any such task was available.
-  static bool ExecuteTask(ezTaskPriority::Enum FirstPriority, ezTaskPriority::Enum LastPriority, ezTask* pPrioritizeThis = NULL);
+  static bool ExecuteTask(ezTaskPriority::Enum FirstPriority, ezTaskPriority::Enum LastPriority, ezTask* pPrioritizeThis = nullptr);
 
   // Ensures all 'main thread' tasks for this frame are finished ('ThisFrameMainThread').
   static void FinishMainThreadTasks();

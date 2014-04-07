@@ -22,8 +22,8 @@ void OnLoadPlugin(bool bReloading)
   EZ_TEST_BOOL_MSG(g_iPluginState == -1, "Plugin is in an invalid state.");
   g_iPluginState = 1;
 
-  EZ_TEST_BOOL(ezPlugin::FindPluginByName("ezFoundationTest_Plugin1") != NULL); // dependency is already loaded
-  EZ_TEST_BOOL(ezPlugin::FindPluginByName("ezFoundationTest_Plugin2") != NULL); // should find itself
+  EZ_TEST_BOOL(ezPlugin::FindPluginByName("ezFoundationTest_Plugin1") != nullptr); // dependency is already loaded
+  EZ_TEST_BOOL(ezPlugin::FindPluginByName("ezFoundationTest_Plugin2") != nullptr); // should find itself
 
   ezCVarInt* pCVar = (ezCVarInt*) ezCVar::FindCVarByName("TestPlugin2InitCount");
 
@@ -45,10 +45,10 @@ void OnLoadPlugin(bool bReloading)
     *pCVarDep = true;
 
     // check that all CVars from plugin1 are available (ie. plugin1 is already loaded)
-    *pCVarDep = *pCVarDep && (ezCVar::FindCVarByName("test1_Int") != NULL);
-    *pCVarDep = *pCVarDep && (ezCVar::FindCVarByName("test1_Float") != NULL);
-    *pCVarDep = *pCVarDep && (ezCVar::FindCVarByName("test1_Bool") != NULL);
-    *pCVarDep = *pCVarDep && (ezCVar::FindCVarByName("test1_String") != NULL);
+    *pCVarDep = *pCVarDep && (ezCVar::FindCVarByName("test1_Int") != nullptr);
+    *pCVarDep = *pCVarDep && (ezCVar::FindCVarByName("test1_Float") != nullptr);
+    *pCVarDep = *pCVarDep && (ezCVar::FindCVarByName("test1_Bool") != nullptr);
+    *pCVarDep = *pCVarDep && (ezCVar::FindCVarByName("test1_String") != nullptr);
   }
 
   CVar_TestInited = true;
@@ -79,10 +79,10 @@ void OnUnloadPlugin(bool bReloading)
     *pCVarDep = true;
 
     // check that all CVars from plugin1 are STILL available (ie. plugin1 is not yet unloaded)
-    *pCVarDep = *pCVarDep && (ezCVar::FindCVarByName("test1_Int") != NULL);
-    *pCVarDep = *pCVarDep && (ezCVar::FindCVarByName("test1_Float") != NULL);
-    *pCVarDep = *pCVarDep && (ezCVar::FindCVarByName("test1_Bool") != NULL);
-    *pCVarDep = *pCVarDep && (ezCVar::FindCVarByName("test1_String") != NULL);
+    *pCVarDep = *pCVarDep && (ezCVar::FindCVarByName("test1_Int") != nullptr);
+    *pCVarDep = *pCVarDep && (ezCVar::FindCVarByName("test1_Float") != nullptr);
+    *pCVarDep = *pCVarDep && (ezCVar::FindCVarByName("test1_Bool") != nullptr);
+    *pCVarDep = *pCVarDep && (ezCVar::FindCVarByName("test1_String") != nullptr);
   }
 
   CVar_TestInited = false;

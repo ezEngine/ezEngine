@@ -133,7 +133,7 @@ void ezGALDeviceGL::SetupDebugOutput(ezGALDeviceGL::DebugMessageSeverity::Enum m
     EZ_GL_CALL(glDebugMessageControl, GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_HIGH, 0, nullptr, GL_TRUE);
   }
 
-  EZ_GL_CALL(glDebugMessageCallback, &DebugOutput, (const void*) NULL);
+  EZ_GL_CALL(glDebugMessageCallback, &DebugOutput, (const void*) nullptr);
 }
 
 
@@ -364,7 +364,7 @@ void ezGALDeviceGL::DestroySwapChainPlatform(ezGALSwapChain* pSwapChain)
 ezGALFence* ezGALDeviceGL::CreateFencePlatform()
 {
   EZ_ASSERT_NOT_IMPLEMENTED;
-  return NULL;
+  return nullptr;
 }
 
 void ezGALDeviceGL::DestroyFencePlatform(ezGALFence* pFence)
@@ -375,7 +375,7 @@ void ezGALDeviceGL::DestroyFencePlatform(ezGALFence* pFence)
 ezGALQuery* ezGALDeviceGL::CreateQueryPlatform(const ezGALQueryCreationDescription& Description)
 {
   EZ_ASSERT_NOT_IMPLEMENTED;
-  return NULL;
+  return nullptr;
 }
 
 void ezGALDeviceGL::DestroyQueryPlatform(ezGALQuery* pQuery)

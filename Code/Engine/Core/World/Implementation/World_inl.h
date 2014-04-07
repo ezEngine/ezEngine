@@ -49,7 +49,7 @@ EZ_FORCE_INLINE bool ezWorld::TryGetObject(const ezGameObjectHandle& object, ezG
   EZ_ASSERT(object.m_InternalId.m_WorldIndex == m_uiIndex, 
     "Object does not belong to this world. Expected world id %d got id %d", m_uiIndex, object.m_InternalId.m_WorldIndex);
 
-  ObjectStorageEntry storageEntry = { NULL };
+  ObjectStorageEntry storageEntry = { nullptr };
   bool bResult = m_Data.m_Objects.TryGetValue(object, storageEntry);
   out_pObject = storageEntry.m_Ptr;
   return bResult;
@@ -74,7 +74,7 @@ ManagerType* ezWorld::CreateComponentManager()
   }
 
   ManagerType* pManager = static_cast<ManagerType*>(m_Data.m_ComponentManagers[uiTypeId]);
-  if (pManager == NULL)
+  if (pManager == nullptr)
   {
     pManager = EZ_NEW(&m_Data.m_Allocator, ManagerType)(this);
     pManager->Initialize();
@@ -93,13 +93,13 @@ EZ_FORCE_INLINE ManagerType* ezWorld::GetComponentManager() const
     "Not a valid component manager type");
 
   const ezUInt16 uiTypeId = ManagerType::TypeId();
-  ManagerType* pManager = NULL;
+  ManagerType* pManager = nullptr;
   if (uiTypeId < m_Data.m_ComponentManagers.GetCount())
   {
     pManager = static_cast<ManagerType*>(m_Data.m_ComponentManagers[uiTypeId]);
   }
 
-  EZ_ASSERT(pManager != NULL, "Component Manager (id: %u) does not exists.", uiTypeId); /// \todo use RTTI to print a useful name
+  EZ_ASSERT(pManager != nullptr, "Component Manager (id: %u) does not exists.", uiTypeId); /// \todo use RTTI to print a useful name
   return pManager;
 }
 
@@ -143,7 +143,7 @@ inline bool ezWorld::TryGetComponent(const ezComponentHandle& component, Compone
         "The given component handle is not of the expected type. Expected type id %d, got type id %d",
         ComponentType::TypeId(), component.m_InternalId.m_TypeId);
 
-      ezComponent* pComponent = NULL;
+      ezComponent* pComponent = nullptr;
       bool bResult = pManager->TryGetComponent(component, pComponent);
       out_pComponent = static_cast<ComponentType*>(pComponent);
       return bResult;

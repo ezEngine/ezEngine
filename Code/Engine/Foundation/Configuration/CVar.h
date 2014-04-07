@@ -87,7 +87,7 @@ public:
   /// After setting the storage folder, one should immediately load all CVars via LoadCVars.
   static void SetStorageFolder(const char* szFolder); // [tested]
 
-  /// \brief Searches all CVars for one with the given name. Returns NULL if no CVar could be found. The name is case-sensitive.
+  /// \brief Searches all CVars for one with the given name. Returns nullptr if no CVar could be found. The name is case-sensitive.
   static ezCVar* FindCVarByName(const char* szName); // [tested]
 
   /// \brief Stores all CVar values in files in the storage folder, that must have been set via 'SetStorageFolder'.

@@ -9,13 +9,13 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBase)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsEmpty")
   {
-    ezStringIterator it (NULL);
+    ezStringIterator it (nullptr);
     EZ_TEST_BOOL(it.IsEmpty());
 
     ezStringIterator it2("");
     EZ_TEST_BOOL(it2.IsEmpty());
 
-    ezStringIterator it3(NULL, NULL, NULL);
+    ezStringIterator it3(nullptr, nullptr, nullptr);
     EZ_TEST_BOOL(it3.IsEmpty());
 
     const char* sz = "abcdef";
@@ -116,26 +116,26 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBase)
     EZ_TEST_BOOL(it.FindSubString("abc") == sz);
     EZ_TEST_BOOL(it.FindSubString("def") == sz + 3);
     EZ_TEST_BOOL(it.FindSubString("cd") == sz + 2);
-    EZ_TEST_BOOL(it.FindSubString("") == NULL);
-    EZ_TEST_BOOL(it.FindSubString(NULL) == NULL);
-    EZ_TEST_BOOL(it.FindSubString("g") == NULL);
+    EZ_TEST_BOOL(it.FindSubString("") == nullptr);
+    EZ_TEST_BOOL(it.FindSubString(nullptr) == nullptr);
+    EZ_TEST_BOOL(it.FindSubString("g") == nullptr);
 
     EZ_TEST_BOOL(it.FindSubString("abcdef", sz) == sz);
-    EZ_TEST_BOOL(it.FindSubString("abcdef", sz + 1) == NULL);
+    EZ_TEST_BOOL(it.FindSubString("abcdef", sz + 1) == nullptr);
     EZ_TEST_BOOL(it.FindSubString("def", sz + 2) == sz + 3);
     EZ_TEST_BOOL(it.FindSubString("def", sz + 3) == sz + 3);
-    EZ_TEST_BOOL(it.FindSubString("def", sz + 4) == NULL);
-    EZ_TEST_BOOL(it.FindSubString("", sz + 3) == NULL);
+    EZ_TEST_BOOL(it.FindSubString("def", sz + 4) == nullptr);
+    EZ_TEST_BOOL(it.FindSubString("", sz + 3) == nullptr);
 
     ezStringIterator it2(sz + 1, sz + 5, sz + 2);
 
-    EZ_TEST_BOOL(it2.FindSubString("abcdef") == NULL);
-    EZ_TEST_BOOL(it2.FindSubString("abc") == NULL);
+    EZ_TEST_BOOL(it2.FindSubString("abcdef") == nullptr);
+    EZ_TEST_BOOL(it2.FindSubString("abc") == nullptr);
     EZ_TEST_BOOL(it2.FindSubString("de") == sz + 3);
     EZ_TEST_BOOL(it2.FindSubString("cd") == sz + 2);
-    EZ_TEST_BOOL(it2.FindSubString("") == NULL);
-    EZ_TEST_BOOL(it2.FindSubString(NULL) == NULL);
-    EZ_TEST_BOOL(it2.FindSubString("g") == NULL);
+    EZ_TEST_BOOL(it2.FindSubString("") == nullptr);
+    EZ_TEST_BOOL(it2.FindSubString(nullptr) == nullptr);
+    EZ_TEST_BOOL(it2.FindSubString("g") == nullptr);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "FindSubString_NoCase")
@@ -147,27 +147,27 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBase)
     EZ_TEST_BOOL(it.FindSubString_NoCase("abc") == sz);
     EZ_TEST_BOOL(it.FindSubString_NoCase("def") == sz + 3);
     EZ_TEST_BOOL(it.FindSubString_NoCase("cd") == sz + 2);
-    EZ_TEST_BOOL(it.FindSubString_NoCase("") == NULL);
-    EZ_TEST_BOOL(it.FindSubString_NoCase(NULL) == NULL);
-    EZ_TEST_BOOL(it.FindSubString_NoCase("g") == NULL);
+    EZ_TEST_BOOL(it.FindSubString_NoCase("") == nullptr);
+    EZ_TEST_BOOL(it.FindSubString_NoCase(nullptr) == nullptr);
+    EZ_TEST_BOOL(it.FindSubString_NoCase("g") == nullptr);
 
     EZ_TEST_BOOL(it.FindSubString_NoCase("abcdef", sz) == sz);
-    EZ_TEST_BOOL(it.FindSubString_NoCase("abcdef", sz + 1) == NULL);
+    EZ_TEST_BOOL(it.FindSubString_NoCase("abcdef", sz + 1) == nullptr);
     EZ_TEST_BOOL(it.FindSubString_NoCase("def", sz + 2) == sz + 3);
     EZ_TEST_BOOL(it.FindSubString_NoCase("def", sz + 3) == sz + 3);
-    EZ_TEST_BOOL(it.FindSubString_NoCase("def", sz + 4) == NULL);
-    EZ_TEST_BOOL(it.FindSubString_NoCase("", sz + 3) == NULL);
+    EZ_TEST_BOOL(it.FindSubString_NoCase("def", sz + 4) == nullptr);
+    EZ_TEST_BOOL(it.FindSubString_NoCase("", sz + 3) == nullptr);
 
 
     ezStringIterator it2(sz + 1, sz + 5, sz + 2);
 
-    EZ_TEST_BOOL(it2.FindSubString_NoCase("abcdef") == NULL);
-    EZ_TEST_BOOL(it2.FindSubString_NoCase("abc") == NULL);
+    EZ_TEST_BOOL(it2.FindSubString_NoCase("abcdef") == nullptr);
+    EZ_TEST_BOOL(it2.FindSubString_NoCase("abc") == nullptr);
     EZ_TEST_BOOL(it2.FindSubString_NoCase("de") == sz + 3);
     EZ_TEST_BOOL(it2.FindSubString_NoCase("cd") == sz + 2);
-    EZ_TEST_BOOL(it2.FindSubString_NoCase("") == NULL);
-    EZ_TEST_BOOL(it2.FindSubString_NoCase(NULL) == NULL);
-    EZ_TEST_BOOL(it2.FindSubString_NoCase("g") == NULL);
+    EZ_TEST_BOOL(it2.FindSubString_NoCase("") == nullptr);
+    EZ_TEST_BOOL(it2.FindSubString_NoCase(nullptr) == nullptr);
+    EZ_TEST_BOOL(it2.FindSubString_NoCase("g") == nullptr);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "FindLastSubString")
@@ -179,19 +179,19 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBase)
     EZ_TEST_BOOL(it.FindLastSubString("abc") == sz);
     EZ_TEST_BOOL(it.FindLastSubString("def") == sz + 3);
     EZ_TEST_BOOL(it.FindLastSubString("cd") == sz + 2);
-    EZ_TEST_BOOL(it.FindLastSubString("") == NULL);
-    EZ_TEST_BOOL(it.FindLastSubString(NULL) == NULL);
-    EZ_TEST_BOOL(it.FindLastSubString("g") == NULL);
+    EZ_TEST_BOOL(it.FindLastSubString("") == nullptr);
+    EZ_TEST_BOOL(it.FindLastSubString(nullptr) == nullptr);
+    EZ_TEST_BOOL(it.FindLastSubString("g") == nullptr);
 
     ezStringIterator it2(sz + 1, sz + 5, sz + 2);
 
-    EZ_TEST_BOOL(it2.FindLastSubString("abcdef") == NULL);
-    EZ_TEST_BOOL(it2.FindLastSubString("abc") == NULL);
+    EZ_TEST_BOOL(it2.FindLastSubString("abcdef") == nullptr);
+    EZ_TEST_BOOL(it2.FindLastSubString("abc") == nullptr);
     EZ_TEST_BOOL(it2.FindLastSubString("de") == sz + 3);
     EZ_TEST_BOOL(it2.FindLastSubString("cd") == sz + 2);
-    EZ_TEST_BOOL(it2.FindLastSubString("") == NULL);
-    EZ_TEST_BOOL(it2.FindLastSubString(NULL) == NULL);
-    EZ_TEST_BOOL(it2.FindLastSubString("g") == NULL);
+    EZ_TEST_BOOL(it2.FindLastSubString("") == nullptr);
+    EZ_TEST_BOOL(it2.FindLastSubString(nullptr) == nullptr);
+    EZ_TEST_BOOL(it2.FindLastSubString("g") == nullptr);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "FindLastSubString_NoCase")
@@ -203,19 +203,19 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBase)
     EZ_TEST_BOOL(it.FindLastSubString_NoCase("abc") == sz);
     EZ_TEST_BOOL(it.FindLastSubString_NoCase("def") == sz + 3);
     EZ_TEST_BOOL(it.FindLastSubString_NoCase("cd") == sz + 2);
-    EZ_TEST_BOOL(it.FindLastSubString_NoCase("") == NULL);
-    EZ_TEST_BOOL(it.FindLastSubString_NoCase(NULL) == NULL);
-    EZ_TEST_BOOL(it.FindLastSubString_NoCase("g") == NULL);
+    EZ_TEST_BOOL(it.FindLastSubString_NoCase("") == nullptr);
+    EZ_TEST_BOOL(it.FindLastSubString_NoCase(nullptr) == nullptr);
+    EZ_TEST_BOOL(it.FindLastSubString_NoCase("g") == nullptr);
 
     ezStringIterator it2(sz + 1, sz + 5, sz + 2);
 
-    EZ_TEST_BOOL(it2.FindLastSubString_NoCase("abcdef") == NULL);
-    EZ_TEST_BOOL(it2.FindLastSubString_NoCase("abc") == NULL);
+    EZ_TEST_BOOL(it2.FindLastSubString_NoCase("abcdef") == nullptr);
+    EZ_TEST_BOOL(it2.FindLastSubString_NoCase("abc") == nullptr);
     EZ_TEST_BOOL(it2.FindLastSubString_NoCase("de") == sz + 3);
     EZ_TEST_BOOL(it2.FindLastSubString_NoCase("cd") == sz + 2);
-    EZ_TEST_BOOL(it2.FindLastSubString_NoCase("") == NULL);
-    EZ_TEST_BOOL(it2.FindLastSubString_NoCase(NULL) == NULL);
-    EZ_TEST_BOOL(it2.FindLastSubString_NoCase("g") == NULL);
+    EZ_TEST_BOOL(it2.FindLastSubString_NoCase("") == nullptr);
+    EZ_TEST_BOOL(it2.FindLastSubString_NoCase(nullptr) == nullptr);
+    EZ_TEST_BOOL(it2.FindLastSubString_NoCase("g") == nullptr);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Compare")
@@ -420,7 +420,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBase)
     EZ_TEST_BOOL(it.FindWholeWord("mompfh", ezStringUtils::IsWordDelimiter_English) == &it.GetData()[0]); // ü is not english (thus a delimiter)
 
     EZ_TEST_BOOL(it.FindWholeWord("abc", ezStringUtils::IsWordDelimiter_English, it.GetData() + 34) == &it.GetData()[34]);
-    EZ_TEST_BOOL(it.FindWholeWord("abc", ezStringUtils::IsWordDelimiter_English, it.GetData() + 35) == NULL);
+    EZ_TEST_BOOL(it.FindWholeWord("abc", ezStringUtils::IsWordDelimiter_English, it.GetData() + 35) == nullptr);
 
     EZ_TEST_BOOL(it2.FindWholeWord("abc", ezStringUtils::IsWordDelimiter_English, it.GetData() + 34) == &it.GetData()[34]);
     EZ_TEST_BOOL(it2.FindWholeWord("abc", ezStringUtils::IsWordDelimiter_English, it.GetData() + 35) == &it.GetData()[42]);
@@ -437,7 +437,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBase)
     EZ_TEST_BOOL(it.FindWholeWord_NoCase("momPFH", ezStringUtils::IsWordDelimiter_English) == &it.GetData()[0]);
 
     EZ_TEST_BOOL(it.FindWholeWord_NoCase("ABc", ezStringUtils::IsWordDelimiter_English, it.GetData() + 34) == &it.GetData()[34]);
-    EZ_TEST_BOOL(it.FindWholeWord_NoCase("ABc", ezStringUtils::IsWordDelimiter_English, it.GetData() + 35) == NULL);
+    EZ_TEST_BOOL(it.FindWholeWord_NoCase("ABc", ezStringUtils::IsWordDelimiter_English, it.GetData() + 35) == nullptr);
 
     EZ_TEST_BOOL(it2.FindWholeWord_NoCase("ABc", ezStringUtils::IsWordDelimiter_English, it.GetData() + 34) == &it.GetData()[34]);
     EZ_TEST_BOOL(it2.FindWholeWord_NoCase("ABc", ezStringUtils::IsWordDelimiter_English, it.GetData() + 35) == &it.GetData()[42]);

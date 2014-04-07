@@ -49,7 +49,7 @@ void* ezLargeBlockAllocator::Allocate(size_t uiAlign)
 
   ezLock<ezMutex> lock(m_mutex);
 
-  void* ptr = NULL;
+  void* ptr = nullptr;
 
   if (!m_freeBlocks.IsEmpty())
   {

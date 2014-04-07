@@ -8,7 +8,7 @@
 
 Level::Level()
 {
-  m_pWorld = NULL;
+  m_pWorld = nullptr;
 }
 
 Level::~Level()

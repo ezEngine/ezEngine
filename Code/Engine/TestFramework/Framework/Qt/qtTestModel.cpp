@@ -12,7 +12,7 @@
 ////////////////////////////////////////////////////////////////////////
 
 ezQtTestModelEntry::ezQtTestModelEntry(const ezTestFrameworkResult* pResult, ezInt32 iTestIndex, ezInt32 iSubTestIndex)
-  : m_pResult(pResult), m_iTestIndex(iTestIndex), m_iSubTestIndex(iSubTestIndex), m_pParentEntry(NULL), m_uiIndexInParent(0)
+  : m_pResult(pResult), m_iTestIndex(iTestIndex), m_iSubTestIndex(iSubTestIndex), m_pParentEntry(nullptr), m_uiIndexInParent(0)
 {
 }
 
@@ -38,7 +38,7 @@ ezUInt32 ezQtTestModelEntry::GetNumSubEntries() const
 ezQtTestModelEntry* ezQtTestModelEntry::GetSubEntry(ezUInt32 uiIndex) const
 {
   if (uiIndex >= GetNumSubEntries())
-    return NULL;
+    return nullptr;
 
   return m_SubEntries[uiIndex];
 }
@@ -63,7 +63,7 @@ const ezTestResultData* ezQtTestModelEntry::GetTestResult() const
   case ezQtTestModelEntry::SubTestNode:
     return &m_pResult->GetTestResultData(m_iTestIndex, m_iSubTestIndex);
   default:
-    return NULL;
+    return nullptr;
   }
 }
 
@@ -81,7 +81,7 @@ static QColor ToneColor(const QColor& inputColor, const QColor& toneColor)
 ////////////////////////////////////////////////////////////////////////
 
 ezQtTestModel::ezQtTestModel(QObject* pParent, ezQtTestFramework* pTestFramework)
-  : QAbstractItemModel(pParent), m_pTestFramework(pTestFramework), m_Root(NULL)
+  : QAbstractItemModel(pParent), m_pTestFramework(pTestFramework), m_Root(nullptr)
 {
   QPalette palette = QApplication::palette();
   m_pResult = &pTestFramework->GetTestResult();
@@ -419,7 +419,7 @@ QModelIndex ezQtTestModel::index(int row, int column, const QModelIndex& parent)
   if (!hasIndex(row, column, parent))
     return QModelIndex();
 
-  const ezQtTestModelEntry* pParent = NULL;
+  const ezQtTestModelEntry* pParent = nullptr;
 
   if (!parent.isValid())
     pParent = &m_Root;
@@ -449,7 +449,7 @@ int ezQtTestModel::rowCount(const QModelIndex& parent) const
   if (parent.column() > 0)
     return 0;
 
-  const ezQtTestModelEntry* pParent = NULL;
+  const ezQtTestModelEntry* pParent = nullptr;
 
   if (!parent.isValid())
     pParent = &m_Root;
@@ -467,7 +467,7 @@ int ezQtTestModel::columnCount(const QModelIndex& parent) const
 bool ezQtTestModel::setData(const QModelIndex& index, const QVariant& value, int role)
 {
   ezQtTestModelEntry* pEntry = static_cast<ezQtTestModelEntry*>(index.internalPointer());
-  if (pEntry == NULL || index.column() != Columns::Name || role != Qt::CheckStateRole)
+  if (pEntry == nullptr || index.column() != Columns::Name || role != Qt::CheckStateRole)
     return false;
 
   if (pEntry->GetNodeType() == ezQtTestModelEntry::TestNode)
@@ -492,7 +492,7 @@ bool ezQtTestModel::setData(const QModelIndex& index, const QVariant& value, int
 void ezQtTestModel::UpdateModel()
 {
   m_Root.ClearEntries();
-  if (m_pResult == NULL)
+  if (m_pResult == nullptr)
     return;
 
   const ezUInt32 uiTestCount = m_pResult->GetTestCount();

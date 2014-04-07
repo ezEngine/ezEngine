@@ -37,7 +37,7 @@ namespace ezGraphicsUtils
   /// The z value of vScreenPos is always expected to be in [0; 1] range (meaning 0 is at the near plane, 1 at the far plane),
   /// even on platforms that use [-1; +1] range for clipspace z values. The DepthRange parameter needs to be correct to handle this case
   /// properly.
-  EZ_FOUNDATION_DLL ezResult ConvertScreenPosToWorldPos(const ezMat4& InverseModelViewProjection, ezProjectionDepthRange::Enum DepthRange, const ezUInt32 uiViewportX, const ezUInt32 uiViewportY, const ezUInt32 uiViewportWidth, const ezUInt32 uiViewportHeight, const ezVec3& vScreenPos, ezVec3& out_vPoint, ezVec3* out_vDirection = NULL);
+  EZ_FOUNDATION_DLL ezResult ConvertScreenPosToWorldPos(const ezMat4& InverseModelViewProjection, ezProjectionDepthRange::Enum DepthRange, const ezUInt32 uiViewportX, const ezUInt32 uiViewportY, const ezUInt32 uiViewportWidth, const ezUInt32 uiViewportHeight, const ezVec3& vScreenPos, ezVec3& out_vPoint, ezVec3* out_vDirection = nullptr);
 }
 
 

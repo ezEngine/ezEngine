@@ -4,7 +4,7 @@
 
 inline ezDataDirectoryReaderWriterBase::ezDataDirectoryReaderWriterBase(bool bIsReader)
 {
-  m_pDataDirectory = NULL;
+  m_pDataDirectory = nullptr;
   m_bIsReader = bIsReader; 
 }
 

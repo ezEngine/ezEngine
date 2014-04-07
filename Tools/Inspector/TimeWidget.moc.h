@@ -69,7 +69,7 @@ private:
       m_bDisplay = true;
       m_iColor = -1;
       m_MinTimestep = ezTime::Seconds(60.0);
-      m_pListItem = NULL;
+      m_pListItem = nullptr;
     }
   };
 

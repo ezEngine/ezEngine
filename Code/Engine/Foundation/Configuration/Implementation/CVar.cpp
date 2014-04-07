@@ -56,7 +56,7 @@ void ezCVar::AssignSubSystemPlugin(const char* szPluginName)
 
   while (pCVar)
   {
-    if (pCVar->m_szPluginName == NULL)
+    if (pCVar->m_szPluginName == nullptr)
       pCVar->m_szPluginName = szPluginName;
 
     pCVar = pCVar->GetNextInstance();
@@ -101,7 +101,7 @@ void ezCVar::PluginEventHandler(const ezPlugin::PluginEvent& EventData)
 
 ezCVar::ezCVar(const char* szName, ezBitflags<ezCVarFlags> Flags, const char* szDescription)
 {
-  m_szPluginName = NULL; // will be filled out when plugins are loaded
+  m_szPluginName = nullptr; // will be filled out when plugins are loaded
   m_bHasNeverBeenLoaded = true; // next time 'LoadCVars' is called, its state will be changed
 
   m_szName = szName;
@@ -125,7 +125,7 @@ ezCVar* ezCVar::FindCVarByName(const char* szName)
     pCVar = pCVar->GetNextInstance();
   }
 
-  return NULL;
+  return nullptr;
 }
 
 void ezCVar::SetStorageFolder(const char* szFolder)
@@ -148,7 +148,7 @@ void ezCVar::SaveCVars()
       // only store cvars that should be saved
       if (pCVar->GetFlags().IsAnySet(ezCVarFlags::Save))
       {
-        if (pCVar->m_szPluginName != NULL)
+        if (pCVar->m_szPluginName != nullptr)
           PluginCVars[pCVar->m_szPluginName].PushBack(pCVar);
         else
           PluginCVars["Static"].PushBack(pCVar);
@@ -263,7 +263,7 @@ static ezResult ParseLine(const ezStringBuilder& sLine, ezStringBuilder& VarName
 
   const char* szSign = sLine.FindSubString("=");
 
-  if (szSign == NULL)
+  if (szSign == nullptr)
     return EZ_FAILURE;
 
   {
@@ -319,7 +319,7 @@ void ezCVar::LoadCVars(bool bOnlyNewOnes, bool bSetAsCurrentValue)
       {
         if (!bOnlyNewOnes || pCVar->m_bHasNeverBeenLoaded)
         {
-          if (pCVar->m_szPluginName != NULL)
+          if (pCVar->m_szPluginName != nullptr)
             PluginCVars[pCVar->m_szPluginName].PushBack(pCVar);
           else
             PluginCVars["Static"].PushBack(pCVar);

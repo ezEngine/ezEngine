@@ -64,7 +64,7 @@ ezGALContextGL::ezGALContextGL(ezGALDeviceGL* pDevice)
   m_PrimitiveTopology(ezGALPrimitiveTopology::Triangles),
   m_IndexType(ezGALIndexType::UShort),
   m_uiNumColorTarget(1),
-  m_pBoundVertexAttributes(NULL),
+  m_pBoundVertexAttributes(nullptr),
   m_uiNumGLVertexAttributesBound(0),
 
   m_DepthWriteMask(GL_TRUE),
@@ -122,7 +122,7 @@ ezGALContextGL::~ezGALContextGL()
 
 ezResult ezGALContextGL::SetGLState(ezUInt32 uiStateIdentifier, bool on)
 {
-  bool* pbStateEntry = NULL;
+  bool* pbStateEntry = nullptr;
   if (m_EnableStates.TryGetValue(uiStateIdentifier, pbStateEntry))
   {
     if (*pbStateEntry == on)
@@ -178,7 +178,7 @@ ezGALContextGL::ScopedBufferBinding::ScopedBufferBinding(ezGALContextGL* pContex
   m_pContext(pContext),
   m_binding(binding)
 {
-  EZ_ASSERT(pContext != NULL, "Context is NULL!");
+  EZ_ASSERT(pContext != nullptr, "Context is nullptr!");
   m_bufferBefore = pContext->m_BufferBindings[binding];
   m_pContext->BindBuffer(binding, buffer);
 }
@@ -210,7 +210,7 @@ ezGALContextGL::ScopedTextureBinding::ScopedTextureBinding(ezGALContextGL* pCont
   m_pContext(pContext),
   m_textureType(textureType) 
 {
-  EZ_ASSERT(pContext != NULL, "Context is NULL!");
+  EZ_ASSERT(pContext != nullptr, "Context is nullptr!");
 
   m_uiUsedSlot = pContext->m_uiActiveTextureUnit;
   m_textureBefore = pContext->m_TextureBindings[m_textureType][m_uiUsedSlot];
@@ -317,10 +317,10 @@ void ezGALContextGL::FlushDeferredStateChanges()
 {
   if (m_DeferredStateChanged.IsSet(ezGALGL::DeferredStateChanged::VertexBuffer) || m_DeferredStateChanged.IsSet(ezGALGL::DeferredStateChanged::VertexDeclaration))
   {
-    EZ_ASSERT(m_pBoundVertexAttributes != NULL, "No vertex declaration is set!");
+    EZ_ASSERT(m_pBoundVertexAttributes != nullptr, "No vertex declaration is set!");
 
     // TODO: GL4 Together with glVertexAttribPointer
-    //glBindVertexBuffers(0, EZ_GAL_MAX_VERTEX_BUFFER_COUNT, m_BoundVertexBuffers, NULL, m_VertexBufferStrides);
+    //glBindVertexBuffers(0, EZ_GAL_MAX_VERTEX_BUFFER_COUNT, m_BoundVertexBuffers, nullptr, m_VertexBufferStrides);
     //EZ_RENDERERGL_CHECK_GL_ERROR("glBindVertexBuffers");
 
     ezInt32 iCurrentBufferIndex = -1;
@@ -404,8 +404,8 @@ void ezGALContextGL::SetVertexBufferPlatform(ezUInt32 uiSlot, ezGALBuffer* pVert
 {
   ezGALBufferGL* pVertexBufferGL = static_cast<ezGALBufferGL*>(pVertexBuffer);
 
-  m_BoundVertexBuffers[uiSlot] = pVertexBuffer != NULL ? pVertexBufferGL->GetGLBufferHandle() : 0;
-  m_VertexBufferStrides[uiSlot] = pVertexBuffer != NULL ? pVertexBuffer->GetDescription().m_uiStructSize : 0;
+  m_BoundVertexBuffers[uiSlot] = pVertexBuffer != nullptr ? pVertexBufferGL->GetGLBufferHandle() : 0;
+  m_VertexBufferStrides[uiSlot] = pVertexBuffer != nullptr ? pVertexBuffer->GetDescription().m_uiStructSize : 0;
 
   m_DeferredStateChanged.Add(ezGALGL::DeferredStateChanged::VertexBuffer);
 }
@@ -424,7 +424,7 @@ void ezGALContextGL::SetPrimitiveTopologyPlatform(ezGALPrimitiveTopology::Enum T
 void ezGALContextGL::SetConstantBufferPlatform(ezUInt32 uiSlot, ezGALBuffer* pBuffer)
 {
   glBufferId bufferHandle = 0;
-  if (pBuffer != NULL)
+  if (pBuffer != nullptr)
     bufferHandle = static_cast<ezGALBufferGL*>(pBuffer)->GetGLBufferHandle();
   
   EZ_GL_CALL(glBindBufferBase, GL_UNIFORM_BUFFER, uiSlot, bufferHandle);
@@ -433,7 +433,7 @@ void ezGALContextGL::SetConstantBufferPlatform(ezUInt32 uiSlot, ezGALBuffer* pBu
 
 void ezGALContextGL::SetSamplerStatePlatform(ezGALShaderStage::Enum Stage, ezUInt32 uiSlot, ezGALSamplerState* pSamplerState)
 {
-  m_BoundSamplerStates[uiSlot] = pSamplerState != NULL ? static_cast<ezGALSamplerStateGL*>(pSamplerState)->GetGLSamplerState() : 0;
+  m_BoundSamplerStates[uiSlot] = pSamplerState != nullptr ? static_cast<ezGALSamplerStateGL*>(pSamplerState)->GetGLSamplerState() : 0;
   m_DeferredStateChanged.Add(ezGALGL::DeferredStateChanged::SamplerState);
 }
 
@@ -445,7 +445,7 @@ void ezGALContextGL::SetResourceViewPlatform(ezGALShaderStage::Enum Stage, ezUIn
 
 void ezGALContextGL::SetRenderTargetConfigPlatform(ezGALRenderTargetConfig* pRenderTargetConfig)
 {
- /* if (pRenderTargetConfig != NULL)
+ /* if (pRenderTargetConfig != nullptr)
   {
     ezGALRenderTargetConfigGL* pRenderTargetConfigGL = static_cast<ezGALRenderTargetConfigGL*>(pRenderTargetConfig);
     EZ_GL_CALL(glBindFramebuffer, GL_DRAW_FRAMEBUFFER, pRenderTargetConfigGL->GetGLBufferHandle());

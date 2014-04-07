@@ -9,7 +9,7 @@ ezAtomicInteger32 ezOSThread::s_iThreadCount;
 
 // Posix specific implementation of the thread class
 
-ezOSThread::ezOSThread(ezOSThreadEntryPoint pThreadEntryPoint, void* pUserData /*= NULL*/, const char* szName /*= "ezThread"*/, ezUInt32 uiStackSize /*= 128 * 1024*/)
+ezOSThread::ezOSThread(ezOSThreadEntryPoint pThreadEntryPoint, void* pUserData /*= nullptr*/, const char* szName /*= "ezThread"*/, ezUInt32 uiStackSize /*= 128 * 1024*/)
 {
   s_iThreadCount.Increment();
 
@@ -45,6 +45,6 @@ void ezOSThread::Start()
 /// Joins with the thread (waits for termination)
 void ezOSThread::Join()
 {
-  pthread_join(m_Handle, NULL);
+  pthread_join(m_Handle, nullptr);
 }
 

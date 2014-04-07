@@ -21,7 +21,7 @@ public:
 
   virtual ezApplication::ApplicationExecution Run() EZ_OVERRIDE;
 
-  ezVec2I32 GetPickedGridCell(ezVec3* out_vIntersection = NULL) const;
+  ezVec2I32 GetPickedGridCell(ezVec3* out_vIntersection = nullptr) const;
 
 private:
   friend LRESULT CALLBACK WndProc (HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);

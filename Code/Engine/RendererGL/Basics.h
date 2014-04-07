@@ -38,7 +38,7 @@ extern ezResult ezGALShaderGLCheckError(const char* szOperationName);
   // Internal macro that defines what happens on an OpenGL call.
   #define __EZ_GL_CALL_HANDLING(szOpenGLFunctionName, pOpenGLFunction, ...) \
   { \
-    if ((pOpenGLFunction) == NULL) \
+    if ((pOpenGLFunction) == nullptr) \
     { \
       ezLog::Error("OpenGL function \"%s\" is not available!", szOpenGLFunctionName); \
       return EZ_FAILURE; \
@@ -49,7 +49,7 @@ extern ezResult ezGALShaderGLCheckError(const char* szOperationName);
 
   #define __EZ_GL_CALL_HANDLING_RET(szOpenGLFunctionName, pOpenGLFunction, ...) \
   { \
-    if ((pOpenGLFunction) == NULL) \
+    if ((pOpenGLFunction) == nullptr) \
     { \
       ezLog::Error("OpenGL function \"%s\" is not available!", szOpenGLFunctionName); \
       return EZ_FAILURE; \

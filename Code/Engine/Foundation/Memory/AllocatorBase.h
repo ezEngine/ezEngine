@@ -48,9 +48,9 @@ private:
 #define EZ_NEW(allocator, type) \
   new ((allocator)->Allocate(sizeof(type), EZ_ALIGNMENT_OF(type))) type
 
-/// \brief deletes the instance stored in ptr using the given allocator and sets ptr to NULL
+/// \brief deletes the instance stored in ptr using the given allocator and sets ptr to nullptr
 #define EZ_DELETE(allocator, ptr) \
-  { ezInternal::Delete(allocator, ptr); ptr = NULL; }
+  { ezInternal::Delete(allocator, ptr); ptr = nullptr; }
 
 /// \brief creates a new array of type using the given allocator with count elements, calls default constructor for non-POD types
 #define EZ_NEW_ARRAY(allocator, type, count) \
@@ -66,14 +66,14 @@ private:
 
 /// \brief deletes a raw buffer stored in ptr using the given allocator, but does NOT call destructor
 #define EZ_DELETE_RAW_BUFFER(allocator, ptr) \
-  { ezInternal::DeleteRawBuffer(allocator, ptr); ptr = NULL; }
+  { ezInternal::DeleteRawBuffer(allocator, ptr); ptr = nullptr; }
 
 
 
 /// \brief creates a new instance of type using the default allocator
 #define EZ_DEFAULT_NEW(type) EZ_NEW(ezFoundation::GetDefaultAllocator(), type)
 
-/// \brief deletes the instance stored in ptr using the default allocator and sets ptr to NULL
+/// \brief deletes the instance stored in ptr using the default allocator and sets ptr to nullptr
 #define EZ_DEFAULT_DELETE(ptr) EZ_DELETE(ezFoundation::GetDefaultAllocator(), ptr)
 
 /// \brief creates a new array of type using the default allocator with count elements, calls default constructor for non-POD types

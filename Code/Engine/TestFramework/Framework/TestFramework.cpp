@@ -6,7 +6,7 @@
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/Utilities/CommandLineUtils.h>
 
-ezTestFramework* ezTestFramework::s_pInstance = NULL;
+ezTestFramework* ezTestFramework::s_pInstance = nullptr;
 
 const char* ezTestFramework::s_szTestBlockName = "";
 int ezTestFramework::s_iAssertCounter = 0;
@@ -22,7 +22,7 @@ static bool TestAssertHandler(const char* szSourceFile, ezUInt32 uiLine, const c
 ////////////////////////////////////////////////////////////////////////
 
 ezTestFramework::ezTestFramework(const char* szTestName, const char* szAbsTestDir, int argc, const char** argv)
-  : m_sTestName(szTestName), m_sAbsTestDir(szAbsTestDir), m_iErrorCount(0), m_iTestsFailed(0), m_iTestsPassed(0), m_PreviousAssertHandler(NULL), m_iCurrentTestIndex(-1), m_iCurrentSubTestIndex(-1), m_bTestsRunning(false)
+  : m_sTestName(szTestName), m_sAbsTestDir(szAbsTestDir), m_iErrorCount(0), m_iTestsFailed(0), m_iTestsPassed(0), m_PreviousAssertHandler(nullptr), m_iCurrentTestIndex(-1), m_iCurrentSubTestIndex(-1), m_bTestsRunning(false)
 {
   s_pInstance = this;
 
@@ -40,7 +40,7 @@ ezTestFramework::ezTestFramework(const char* szTestName, const char* szAbsTestDi
 
 ezTestFramework::~ezTestFramework()
 {
-  s_pInstance = NULL;
+  s_pInstance = nullptr;
 }
 
 const char* ezTestFramework::GetTestName() const
@@ -334,7 +334,7 @@ void ezTestFramework::ExecuteTest(ezUInt32 uiTestIndex)
 void ezTestFramework::EndTests()
 {
   ezSetAssertHandler(m_PreviousAssertHandler);
-  m_PreviousAssertHandler = NULL;
+  m_PreviousAssertHandler = nullptr;
 
   m_bTestsRunning = false;
   if (GetTestsFailedCount() == 0)
@@ -423,7 +423,7 @@ void ezTestFramework::SetSubTestEnabled(ezUInt32 uiTestIndex, ezUInt32 uiSubTest
 ezTestEntry* ezTestFramework::GetTest(ezUInt32 uiTestIndex)
 {
   if (uiTestIndex >= GetTestCount())
-    return NULL;
+    return nullptr;
 
   return &m_TestEntries[uiTestIndex];
 }
@@ -491,12 +491,12 @@ void ezTestFramework::ErrorImpl(const char* szError, const char* szFile, ezInt32
   ezTestFramework::Output(ezTestOutput::Error, szError);
   ezTestFramework::Output(ezTestOutput::BeginBlock, "");
   {
-    if ((ezTestFramework::s_szTestBlockName != NULL) && (ezTestFramework::s_szTestBlockName[0] != '\0'))
+    if ((ezTestFramework::s_szTestBlockName != nullptr) && (ezTestFramework::s_szTestBlockName[0] != '\0'))
       ezTestFramework::Output(ezTestOutput::Message, "Block: '%s'", ezTestFramework::s_szTestBlockName);
     ezTestFramework::Output(ezTestOutput::ImportantInfo, "File: %s", szFile);
     ezTestFramework::Output(ezTestOutput::ImportantInfo, "Line: %i", iLine);
     ezTestFramework::Output(ezTestOutput::ImportantInfo, "Function: %s", szFunction);
-    if ((szMsg != NULL) && (szMsg[0] != '\0'))\
+    if ((szMsg != nullptr) && (szMsg[0] != '\0'))\
       ezTestFramework::Output(ezTestOutput::Message, "Message: %s", szMsg);
   }
   ezTestFramework::Output(ezTestOutput::EndBlock, "");

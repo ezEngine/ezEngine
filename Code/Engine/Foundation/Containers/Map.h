@@ -44,10 +44,10 @@ public:
     EZ_DECLARE_POD_TYPE();
 
     /// \brief Constructs an invalid iterator.
-    EZ_FORCE_INLINE ConstIterator() : m_pElement(NULL) { } // [tested]
+    EZ_FORCE_INLINE ConstIterator() : m_pElement(nullptr) { } // [tested]
 
     /// \brief Checks whether this iterator points to a valid element.
-    EZ_FORCE_INLINE bool IsValid() const { return (m_pElement != NULL); } // [tested]
+    EZ_FORCE_INLINE bool IsValid() const { return (m_pElement != nullptr); } // [tested]
 
     /// \brief Checks whether the two iterators point to the same element.
     EZ_FORCE_INLINE bool operator==(const typename ezMapBase<KeyType, ValueType, Comparer>::ConstIterator& it2) const { return (m_pElement == it2.m_pElement); }
@@ -147,7 +147,7 @@ public:
   Iterator Erase(const Iterator& pos); // [tested]
 
   /// \brief Searches for the given key and returns an iterator to it. If it did not exist yet, it is default-created. \a bExisted is set to true, if the key was found, false if it needed to be created.
-  Iterator FindOrAdd(const KeyType& key, bool* bExisted = NULL); // [tested]
+  Iterator FindOrAdd(const KeyType& key, bool* bExisted = nullptr); // [tested]
 
   /// \brief Allows read/write access to the value stored under the given key. If there is no such key, a new element is default-constructed.
   ValueType& operator[](const KeyType& key); // [tested]

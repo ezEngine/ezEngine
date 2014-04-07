@@ -89,7 +89,7 @@ EZ_CREATE_SIMPLE_TEST(Communication, MessageQueue)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Dequeue")
   {
-    ezMessage* pMsg = NULL;
+    ezMessage* pMsg = nullptr;
     MetaData md;
 
     for (ezUInt32 i = 0; i < 10; ++i)

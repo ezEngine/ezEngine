@@ -49,7 +49,7 @@ void ProjectileComponent::Update()
   {
     CollidableComponent& Collider = *it;
     ezGameObject* pColliderObject = Collider.GetOwner();
-    ShipComponent* pShipComponent = NULL;
+    ShipComponent* pShipComponent = nullptr;
 
     if (pColliderObject->TryGetComponentOfType(pShipComponent))
     {
@@ -95,10 +95,10 @@ void ProjectileComponent::Update()
             ezGameObjectDesc desc;
             desc.m_LocalPosition = m_pOwner->GetLocalPosition();
 
-            ezGameObject* pProjectile = NULL;
+            ezGameObject* pProjectile = nullptr;
             ezGameObjectHandle hProjectile = GetWorld()->CreateObject(desc, pProjectile);
 
-            ProjectileComponent* pProjectileComponent = NULL;
+            ProjectileComponent* pProjectileComponent = nullptr;
             ezComponentHandle hProjectileComponent = GetWorld()->GetComponentManager<ProjectileComponentManager>()->CreateComponent(pProjectileComponent);
 
             pProjectileComponent->m_iBelongsToPlayer = pShipComponent->m_iPlayerIndex;

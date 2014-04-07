@@ -40,13 +40,13 @@ void ezStandardInputDevice::InitializeDevice()
     Rid[0].usUsagePage = 0x01; 
     Rid[0].usUsage = 0x06; 
     Rid[0].dwFlags = RIDEV_NOHOTKEYS; // Disables Windows-Key and Application-Key
-    Rid[0].hwndTarget = NULL;
+    Rid[0].hwndTarget = nullptr;
 
     // mouse
     Rid[1].usUsagePage = 0x01; 
     Rid[1].usUsage = 0x02; 
     Rid[1].dwFlags = 0;
-    Rid[1].hwndTarget = NULL;
+    Rid[1].hwndTarget = nullptr;
 
     if (RegisterRawInputDevices(&Rid[0], (UINT) 2, sizeof(RAWINPUTDEVICE)) == FALSE) 
     {
@@ -288,7 +288,7 @@ void SetClipRect(bool bClip, HWND hWnd)
     ClipCursor(&r);
   }
   else
-    ClipCursor(NULL);
+    ClipCursor(nullptr);
 }
 
 void ezStandardInputDevice::SetClipMouseCursor(bool bEnable)
@@ -296,7 +296,7 @@ void ezStandardInputDevice::SetClipMouseCursor(bool bEnable)
   m_bClipCursor = bEnable;
 
   if (!bEnable)
-    ClipCursor(NULL);
+    ClipCursor(nullptr);
 }
 
 // WM_INPUT mouse clicks do not work in some VMs.
@@ -421,7 +421,7 @@ void ezStandardInputDevice::WindowMessage(HWND hWnd, UINT Msg, WPARAM wParam, LP
     {
       ezUInt32 uiSize = 0;
 
-      GetRawInputData((HRAWINPUT) lParam, RID_INPUT, NULL, &uiSize, sizeof(RAWINPUTHEADER));
+      GetRawInputData((HRAWINPUT) lParam, RID_INPUT, nullptr, &uiSize, sizeof(RAWINPUTHEADER));
 
       if (uiSize == 0)
         return;

@@ -39,7 +39,7 @@ template <typename T>
 void TestAlignmentHelper(size_t uiExpectedAlignment)
 {
   ezAllocatorBase* pAllocator = ezFoundation::GetAlignedAllocator();
-  EZ_TEST_BOOL(pAllocator != NULL);
+  EZ_TEST_BOOL(pAllocator != nullptr);
 
   size_t uiAlignment = EZ_ALIGNMENT_OF(T);
   EZ_TEST_BOOL(uiAlignment == uiExpectedAlignment);

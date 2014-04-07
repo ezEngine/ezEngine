@@ -12,11 +12,11 @@ void RenderCube(const ezVec3& v, const ezVec3& s, bool bColor = true, float fCol
 
 GameRenderer::GameRenderer()
 {
-  m_pWindow = NULL;
-  m_pLevel = NULL;
-  m_pWorld = NULL;
-  m_pGrid = NULL;
-  m_pCamera = NULL;
+  m_pWindow = nullptr;
+  m_pLevel = nullptr;
+  m_pWorld = nullptr;
+  m_pGrid = nullptr;
+  m_pCamera = nullptr;
 }
 
 void GameRenderer::SetupRenderer(const GameWindow* pWindow, const Level* pLevel, const ezCamera* pCamera, const ezGridNavmesh* pNavmesh)

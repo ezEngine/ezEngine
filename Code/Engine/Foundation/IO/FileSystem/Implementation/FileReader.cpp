@@ -25,12 +25,12 @@ void ezFileReader::Close()
   if (m_pDataDirReader)
     m_pDataDirReader->Close();
 
-  m_pDataDirReader = NULL;
+  m_pDataDirReader = nullptr;
 }
 
 ezUInt64 ezFileReader::ReadBytes(void* pReadBuffer, ezUInt64 uiBytesToRead)
 {
-  EZ_ASSERT(m_pDataDirReader != NULL, "The file has not been opened (successfully).");
+  EZ_ASSERT(m_pDataDirReader != nullptr, "The file has not been opened (successfully).");
 
   ezUInt64 uiBufferPosition = 0; //how much was read, yet
   ezUInt8* pBuffer = (ezUInt8*) pReadBuffer;

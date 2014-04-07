@@ -24,7 +24,7 @@ void ezStackTracer::ResolveStackTrace(const ezArrayPtr<void*>& trace, PrintFunc 
   
   char** ppSymbols = backtrace_symbols(trace.GetPtr(), trace.GetCount());
   
-  if (ppSymbols != NULL)
+  if (ppSymbols != nullptr)
   {
     for (ezUInt32 i = 0; i < trace.GetCount(); i++)
     {

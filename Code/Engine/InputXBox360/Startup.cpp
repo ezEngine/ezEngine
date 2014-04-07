@@ -2,11 +2,11 @@
 #include <InputXBox360/InputDeviceXBox.h>
 #include <Foundation/Configuration/Startup.h>
 
-static ezInputDeviceXBox360* g_InputDeviceXBox360 = NULL;
+static ezInputDeviceXBox360* g_InputDeviceXBox360 = nullptr;
 
 ezInputDeviceXBox360* ezInputDeviceXBox360::GetDevice()
 {
-  if (g_InputDeviceXBox360 == NULL)
+  if (g_InputDeviceXBox360 == nullptr)
     g_InputDeviceXBox360 = EZ_DEFAULT_NEW(ezInputDeviceXBox360);
 
   return g_InputDeviceXBox360;

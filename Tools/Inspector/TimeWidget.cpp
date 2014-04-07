@@ -4,7 +4,7 @@
 #include <QGraphicsView>
 #include <QGraphicsPathItem>
 
-ezTimeWidget* ezTimeWidget::s_pWidget = NULL;
+ezTimeWidget* ezTimeWidget::s_pWidget = nullptr;
 
 static QColor s_Colors[ezTimeWidget::s_uiMaxColors] =
 {
@@ -198,7 +198,7 @@ void ezTimeWidget::UpdateStats()
 
 void ezTimeWidget::ProcessTelemetry(void* pUnuseed)
 {
-  if (s_pWidget == NULL)
+  if (s_pWidget == nullptr)
     return;
 
   ezTelemetryMessage Msg;

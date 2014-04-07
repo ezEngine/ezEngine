@@ -38,10 +38,10 @@ public:
     EZ_DECLARE_POD_TYPE();
 
     /// \brief Constructs an invalid iterator.
-    EZ_FORCE_INLINE Iterator() : m_pElement(NULL) { } // [tested]
+    EZ_FORCE_INLINE Iterator() : m_pElement(nullptr) { } // [tested]
 
     /// \brief Checks whether this iterator points to a valid element.
-    EZ_FORCE_INLINE bool IsValid() const { return (m_pElement != NULL); } // [tested]
+    EZ_FORCE_INLINE bool IsValid() const { return (m_pElement != nullptr); } // [tested]
 
     /// \brief Checks whether the two iterators point to the same element.
     EZ_FORCE_INLINE bool operator==(const typename ezSetBase<KeyType, Comparer>::Iterator& it2) const { return (m_pElement == it2.m_pElement); }

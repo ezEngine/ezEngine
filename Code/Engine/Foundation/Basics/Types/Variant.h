@@ -153,10 +153,10 @@ public:
   /// ConvertTo() will succeed. Conversion between numbers and to strings will generally succeed. However, converting from a string to another type
   /// can fail or succeed, depending on the exact string value.
   template <typename T>
-  T ConvertTo(ezResult* out_pConversionStatus = NULL) const; // [tested]
+  T ConvertTo(ezResult* out_pConversionStatus = nullptr) const; // [tested]
 
   /// \brief Same as the templated function.
-  ezVariant ConvertTo(Type::Enum type, ezResult* out_pConversionStatus = NULL) const; // [tested]
+  ezVariant ConvertTo(Type::Enum type, ezResult* out_pConversionStatus = nullptr) const; // [tested]
 
   /// \brief This will call the overloaded operator() (function call operator) of the provided functor.
   ///

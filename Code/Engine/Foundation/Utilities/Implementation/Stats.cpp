@@ -16,7 +16,7 @@ void ezStats::RemoveStat(const char* szStatName)
   StatsEventData e;
   e.m_EventType = StatsEventData::Remove;
   e.m_szStatName = szStatName;
-  e.m_szNewStatValue = NULL;
+  e.m_szNewStatValue = nullptr;
 
   s_StatsEvents.Broadcast(e);
 }

@@ -87,8 +87,8 @@ EZ_FORCE_INLINE V& ezHashTableBase<K, V, H>::Iterator::Value()
 template <typename K, typename V, typename H>
 ezHashTableBase<K, V, H>::ezHashTableBase(ezAllocatorBase* pAllocator)
 {
-  m_pEntries = NULL;
-  m_pEntryFlags = NULL;
+  m_pEntries = nullptr;
+  m_pEntryFlags = nullptr;
   m_uiCount = 0;
   m_uiCapacity = 0;
   m_pAllocator = pAllocator;
@@ -97,8 +97,8 @@ ezHashTableBase<K, V, H>::ezHashTableBase(ezAllocatorBase* pAllocator)
 template <typename K, typename V, typename H>
 ezHashTableBase<K, V, H>::ezHashTableBase(const ezHashTableBase<K, V, H>& other, ezAllocatorBase* pAllocator)
 {
-  m_pEntries = NULL;
-  m_pEntryFlags = NULL;
+  m_pEntries = nullptr;
+  m_pEntryFlags = nullptr;
   m_uiCount = 0;
   m_uiCapacity = 0;
   m_pAllocator = pAllocator;
@@ -143,7 +143,7 @@ bool ezHashTableBase<K, V, H>::operator== (const ezHashTableBase<K, V, H>& rhs) 
   {
     if (IsValidEntry(i))
     {
-      V* pRhsValue = NULL;
+      V* pRhsValue = nullptr;
       if (!rhs.TryGetValue(m_pEntries[i].key, pRhsValue))
         return false;
 
@@ -221,7 +221,7 @@ void ezHashTableBase<K, V, H>::Clear()
 }
 
 template <typename K, typename V, typename H>
-bool ezHashTableBase<K, V, H>::Insert(const K& key, const V& value, V* out_oldValue /*= NULL*/)
+bool ezHashTableBase<K, V, H>::Insert(const K& key, const V& value, V* out_oldValue /*= nullptr*/)
 {
   Reserve(m_uiCount + 1);
 
@@ -238,7 +238,7 @@ bool ezHashTableBase<K, V, H>::Insert(const K& key, const V& value, V* out_oldVa
     }
     else if (m_pEntries[uiIndex].key == key)
     {
-      if (out_oldValue != NULL)
+      if (out_oldValue != nullptr)
         *out_oldValue = m_pEntries[uiIndex].value;
 
       m_pEntries[uiIndex].value = value;
@@ -263,12 +263,12 @@ bool ezHashTableBase<K, V, H>::Insert(const K& key, const V& value, V* out_oldVa
 }
 
 template <typename K, typename V, typename H>
-bool ezHashTableBase<K, V, H>::Remove(const K& key, V* out_oldValue /*= NULL*/)
+bool ezHashTableBase<K, V, H>::Remove(const K& key, V* out_oldValue /*= nullptr*/)
 {
   ezUInt32 uiIndex = FindEntry(key);
   if (uiIndex != ezInvalidIndex)
   {
-    if (out_oldValue != NULL)
+    if (out_oldValue != nullptr)
       *out_oldValue = m_pEntries[uiIndex].value;
 
     ezMemoryUtils::Destruct(&m_pEntries[uiIndex].key, 1);

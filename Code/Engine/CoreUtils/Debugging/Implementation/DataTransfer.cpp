@@ -118,7 +118,7 @@ void ezDataTransfer::Initialize()
   s_bInitialized = true;
 
   ezTelemetry::AddEventHandler(TelemetryEventsHandler);
-  ezTelemetry::AcceptMessagesForSystem('DTRA', true, TelemetryMessage, NULL);
+  ezTelemetry::AcceptMessagesForSystem('DTRA', true, TelemetryMessage, nullptr);
 }
 
 void ezDataTransfer::TelemetryMessage(void* pPassThrough)

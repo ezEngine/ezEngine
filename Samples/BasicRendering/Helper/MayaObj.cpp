@@ -20,7 +20,7 @@ namespace DontUse
     ezDynamicArray<ezUInt8> FileContent;
 
     if(!ReadCompleteFile(szPath, FileContent).IsSuccess())
-      return NULL;
+      return nullptr;
 
     FileContent.PushBack('\0');
 
@@ -104,7 +104,7 @@ namespace DontUse
             Vertices.PushBack(Temp);
             FaceIndices[Index] = Vertices.GetCount() - 1;
 
-            FaceIndicesToVertexIndex.Insert(Key, FaceIndices[Index], NULL);
+            FaceIndicesToVertexIndex.Insert(Key, FaceIndices[Index], nullptr);
           }
         }
 
@@ -121,7 +121,7 @@ namespace DontUse
       return Obj;
     }
 
-    return NULL;
+    return nullptr;
   }
 
   MayaObj::MayaObj(const ezArrayPtr<MayaObj::Vertex>& pVertices, const ezArrayPtr<ezUInt16>& pIndices, ezGALDevice* pDevice)

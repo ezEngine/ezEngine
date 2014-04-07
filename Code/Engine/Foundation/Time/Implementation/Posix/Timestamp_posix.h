@@ -3,7 +3,7 @@
 const ezTimestamp ezTimestamp::CurrentTimestamp()
 {
   timeval currentTime;
-  gettimeofday(&currentTime, NULL);
+  gettimeofday(&currentTime, nullptr);
   
   return ezTimestamp(currentTime.tv_sec * 1000000LL + currentTime.tv_usec, ezSIUnitOfTime::Microsecond);
 }
@@ -62,7 +62,7 @@ bool ezDateTime::SetTimestamp(ezTimestamp timestamp)
 {
   tm timeinfo = {0};
   time_t iTime = (time_t)timestamp.GetInt64(ezSIUnitOfTime::Second);
-  if (gmtime_r(&iTime, &timeinfo) == NULL)
+  if (gmtime_r(&iTime, &timeinfo) == nullptr)
     return false;
 
   m_iYear = timeinfo.tm_year + 1900;
