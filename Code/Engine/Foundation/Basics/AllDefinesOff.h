@@ -46,7 +46,7 @@
 // How to compile the engine
 #define EZ_COMPILE_ENGINE_AS_DLL EZ_OFF
 #define EZ_COMPILE_FOR_DEBUG EZ_OFF
-#define EZ_COMPILE_FOR_DEVELOPMENT OFF
+#define EZ_COMPILE_FOR_DEVELOPMENT EZ_OFF
 
 // Platform Features
 #define EZ_USE_POSIX_FILE_API EZ_OFF

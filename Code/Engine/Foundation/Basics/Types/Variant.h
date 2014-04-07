@@ -5,6 +5,8 @@
 #include <Foundation/Threading/AtomicInteger.h>
 #include <Foundation/Utilities/ConversionUtils.h>
 
+class ezReflectedClass;
+
 /// \brief ezVariant is a class that can store different types of variables, which is useful in situations where it is not clear up front, which type of data will be passed around.
 ///
 /// The variant supports a fixed list of types that it can store (\see ezVariant::Type). All types of 16 bytes or less in size can be stored without
@@ -40,12 +42,12 @@ public:
       Time,               ///< The variant stores an ezTime value.
       VariantArray,       ///< The variant stores an array of ezVariant's. A heap allocation is required to store this data type.
       VariantDictionary,  ///< The variant stores a dictionary (hashmap) of ezVariant's. A heap allocation is required to store this data type.
-      VoidPointer         ///< The variant stores a void pointer.
-      //ObjectPointer,
+      ReflectedPointer,   ///< The variant stores a pointer to a dynamically reflected object.
+      VoidPointer         ///< The variant stores a void pointer.      
     };
   };
 
-  // A helper struct to convert the C++ type, which is passed as the template argument, into one of the ezVariant::Type enum values.
+  /// \brief A helper struct to convert the C++ type, which is passed as the template argument, into one of the ezVariant::Type enum values.
   template <typename T>
   struct TypeDeduction
   {
@@ -202,10 +204,10 @@ private:
   void Init(const T& value);
 
   template <typename StorageType, typename T>
-  void Store(const T& value, ezTraitInt<0>);
+  void Store(const T& value, ezTraitInt<0>); // in-place storage
 
   template <typename StorageType, typename T>
-  void Store(const T& value, ezTraitInt<1>);
+  void Store(const T& value, ezTraitInt<1>); // shared storage
 
   void Release();
   void CopyFrom(const ezVariant& other);

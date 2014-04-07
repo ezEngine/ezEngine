@@ -43,10 +43,15 @@ public:
   void Reserve(ezUInt32 uiCount);
   void Compact();
 
+  // thread safe
   void Enqueue(const ezMessage& message, const MetaDataType& metaData);
 
+  // thread safe
   bool TryDequeue(ezMessage*& out_pMessage, MetaDataType& out_metaData);
   bool TryPeek(ezMessage*& out_pMessage, MetaDataType& out_metaData);
+
+  Entry& Peek();
+  void Dequeue();
 
   template <typename C>
   void Sort();

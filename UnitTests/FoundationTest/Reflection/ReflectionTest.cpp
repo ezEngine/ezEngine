@@ -3,7 +3,6 @@
 
 EZ_CREATE_SIMPLE_TEST_GROUP(Reflection);
 
-/// \todo Test Message Handlers (once the messaging stuff is final)
 /// \todo Test Array Properties (once they are implemented)
 /// \todo Test Enum Property Type (when implemented)
 
@@ -31,13 +30,13 @@ private:
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezTestStruct);
 
-EZ_BEGIN_REFLECTED_TYPE(ezTestStruct, ezNoBase, ezRTTINoAllocator);
+EZ_BEGIN_STATIC_REFLECTED_TYPE(ezTestStruct, ezNoBase, ezRTTINoAllocator);
   EZ_BEGIN_PROPERTIES
     EZ_MEMBER_PROPERTY("Float", m_fFloat1),
     EZ_MEMBER_PROPERTY_READ_ONLY("Vector", m_vProperty3),
     EZ_ACCESSOR_PROPERTY("Int", GetInt, SetInt)
   EZ_END_PROPERTIES
-EZ_END_REFLECTED_TYPE(ezTestStruct);
+EZ_END_REFLECTED_TYPE();
 
 class ezTestClass1 : public ezReflectedClass
 {
@@ -57,14 +56,12 @@ public:
   ezVec3 m_MyVector;
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezTestClass1);
-
-EZ_BEGIN_REFLECTED_TYPE(ezTestClass1, ezReflectedClass, ezRTTIDefaultAllocator<ezTestClass1>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTestClass1, ezReflectedClass, ezRTTIDefaultAllocator<ezTestClass1>);
   EZ_BEGIN_PROPERTIES
     EZ_MEMBER_PROPERTY("Sub Struct", m_Struct),
     EZ_ACCESSOR_PROPERTY_READ_ONLY("Sub Vector", GetVector)
   EZ_END_PROPERTIES
-EZ_END_REFLECTED_TYPE(ezTestClass1);
+EZ_END_REFLECTED_TYPE();
 
 class ezTestClass2 : public ezTestClass1
 {
@@ -107,13 +104,11 @@ struct ezTestClass2Allocator : public ezRTTIAllocator
 ezInt32 ezTestClass2Allocator::m_iAllocs = 0;
 ezInt32 ezTestClass2Allocator::m_iDeallocs = 0;
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezTestClass2);
-
-EZ_BEGIN_REFLECTED_TYPE(ezTestClass2, ezTestClass1, ezTestClass2Allocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTestClass2, ezTestClass1, ezTestClass2Allocator);
   EZ_BEGIN_PROPERTIES
     EZ_ACCESSOR_PROPERTY("Text", GetText, SetText)
   EZ_END_PROPERTIES
-EZ_END_REFLECTED_TYPE(ezTestClass2);
+EZ_END_REFLECTED_TYPE();
 
 EZ_CREATE_SIMPLE_TEST(Reflection, Types)
 {

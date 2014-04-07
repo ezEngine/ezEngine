@@ -127,6 +127,18 @@ bool ezMessageQueueBase<MetaDataType, MutexType>::TryPeek(ezMessage*& out_pMessa
 }
 
 template <typename MetaDataType, typename MutexType>
+EZ_FORCE_INLINE typename ezMessageQueueBase<MetaDataType, MutexType>::Entry& ezMessageQueueBase<MetaDataType, MutexType>::Peek()
+{
+  return m_Queue.PeekFront();
+}
+
+template <typename MetaDataType, typename MutexType>
+EZ_FORCE_INLINE void ezMessageQueueBase<MetaDataType, MutexType>::Dequeue()
+{
+  m_Queue.PopFront();
+}
+
+template <typename MetaDataType, typename MutexType>
 template <typename C>
 EZ_FORCE_INLINE void ezMessageQueueBase<MetaDataType, MutexType>::Sort()
 {

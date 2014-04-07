@@ -214,9 +214,9 @@ void ezVariant::DispatchTo(Functor& functor, Type::Enum type)
     CALL_FUNCTOR(functor, ezVariantDictionary);
     break;
 
-  /*case Type::ObjectPointer:
-    CALL_FUNCTOR(functor, ezObject*);
-    break;*/
+  case Type::ReflectedPointer:
+    CALL_FUNCTOR(functor, ezReflectedClass*);
+    break;
 
   case Type::VoidPointer:
     CALL_FUNCTOR(functor, void*);

@@ -9,47 +9,39 @@
 class EZ_FOUNDATION_DLL ezAbstractMessageHandler
 {
 public:
+  EZ_FORCE_INLINE void operator()(void* pInstance, ezMessage& msg)
+  {
+    (*m_DispatchFunc)(pInstance, msg);
+  }
 
-  /// \brief Call this function to let an instance handle the given message.
-  ///
-  /// \note There is NO additional type check, the system will probably cast the given message to the expected message type
-  /// and then try to handle that. You need to make sure the type is identical.
-  virtual void HandleMessage(void* pInstance, ezMessage* msg) const = 0;
+  EZ_FORCE_INLINE ezMessageId GetMessageId() const
+  {
+    return m_Id;
+  }
 
-  /// \brief Returns the Message type ID of the type that is handled.
-  virtual ezMessageId GetMessageTypeID() const = 0;
+protected:
+  typedef void (*DispatchFunc)(void*, ezMessage&);
+  DispatchFunc m_DispatchFunc;
+  ezMessageId m_Id;
 };
 
 
 /// \brief [internal] Implements the functionality of ezAbstractMessageHandler.
-template<typename CLASS, typename MESSAGETYPE>
+template <typename Class, typename MessageType, void(Class::*Method)(MessageType&)>
 class ezMessageHandler : public ezAbstractMessageHandler
 {
 public:
-  typedef void (CLASS::*TargetFunction)(MESSAGETYPE* msg);
-
   /// \brief Constructor.
-  ezMessageHandler(TargetFunction func)
+  ezMessageHandler()
   {
-    m_Function = func;
+    m_DispatchFunc = &Dispatch;
+    m_Id = MessageType::MSG_ID;
   }
 
   /// \brief Casts the given message to the type of this message handler, then passes that to the class instance.
-  virtual void HandleMessage(void* pInstance, ezMessage* msg) const EZ_OVERRIDE
+  static void Dispatch(void* pInstance, ezMessage& msg)
   {
-    CLASS* pTargetInstance = (CLASS*) pInstance;
-    (pTargetInstance->*m_Function)((MESSAGETYPE*) msg);
+    Class* pTargetInstance = static_cast<Class*>(pInstance);
+    (pTargetInstance->*Method)(static_cast<MessageType&>(msg));
   }
-
-  /// \brief Returns the message type that this handler handles.
-  virtual ezMessageId GetMessageTypeID() const EZ_OVERRIDE
-  {
-    return MESSAGETYPE::MSG_ID;
-  }
-
-private:
-  TargetFunction m_Function;
 };
-
-
-

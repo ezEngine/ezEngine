@@ -1,4 +1,5 @@
 #include <PCH.h>
+#include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Time/Time.h>
 #include <Foundation/Logging/Log.h>
 
@@ -53,13 +54,26 @@
 
 EZ_CREATE_SIMPLE_TEST_GROUP(Performance);
 
-class Base
+struct GetValueMessage : public ezMessage
 {
+  EZ_DECLARE_MESSAGE_TYPE(GetValueMessage);
+
+  ezInt32 m_iValue;
+};
+EZ_IMPLEMENT_MESSAGE_TYPE(GetValueMessage);
+
+
+class Base : public ezReflectedClass
+{
+  EZ_ADD_DYNAMIC_REFLECTION(Base);
 public:
   virtual ~Base() {}
 
   virtual ezInt32 Virtual() = 0;
 };
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(Base, ezReflectedClass, ezRTTINoAllocator);
+EZ_END_REFLECTED_TYPE();
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   #define EZ_FASTCALL __fastcall
@@ -79,19 +93,35 @@ public:
 
 class Derived1 : public Base
 {
+  EZ_ADD_DYNAMIC_REFLECTION(Derived1);
 public:
   EZ_NO_INLINE ezInt32 EZ_FASTCALL FastCall() { return 1; }
   EZ_NO_INLINE ezInt32 NonVirtual() { return 1; }
-  EZ_NO_INLINE virtual ezInt32 Virtual() { return 1; }
+  EZ_NO_INLINE virtual ezInt32 Virtual() EZ_OVERRIDE { return 1; }
+  EZ_NO_INLINE void OnGetValueMessage(GetValueMessage& msg) { msg.m_iValue = 1; }
 };
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(Derived1, Base, ezRTTINoAllocator);
+  EZ_BEGIN_MESSAGEHANDLERS
+    EZ_MESSAGE_HANDLER(GetValueMessage, OnGetValueMessage)
+  EZ_END_MESSAGEHANDLERS
+EZ_END_REFLECTED_TYPE();
 
 class Derived2 : public Base
 {
+  EZ_ADD_DYNAMIC_REFLECTION(Derived2);
 public:
   EZ_NO_INLINE ezInt32 EZ_FASTCALL FastCall() { return 2; }
   EZ_NO_INLINE ezInt32 NonVirtual() { return 2; }
-  EZ_NO_INLINE virtual ezInt32 Virtual() { return 2; }
+  EZ_NO_INLINE virtual ezInt32 Virtual() EZ_OVERRIDE { return 2; }
+  EZ_NO_INLINE void OnGetValueMessage(GetValueMessage& msg) { msg.m_iValue = 2; }
 };
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(Derived2, Base, ezRTTINoAllocator);
+  EZ_BEGIN_MESSAGEHANDLERS
+    EZ_MESSAGE_HANDLER(GetValueMessage, OnGetValueMessage)
+  EZ_END_MESSAGEHANDLERS
+EZ_END_REFLECTED_TYPE();
 
 EZ_CREATE_SIMPLE_TEST(Performance, Basics)
 {
@@ -105,6 +135,37 @@ EZ_CREATE_SIMPLE_TEST(Performance, Basics)
     Objects[i] = new Derived1();
   for (ezInt32 i = 1; i < iNumObjects; i += 2)
     Objects[i] = new Derived2();
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Dispatch Message")
+  {
+    ezInt32 iResult = 0;
+
+    // warm up
+    for (ezUInt32 i = 0; i < iNumObjects; ++i)
+    {
+      GetValueMessage msg;
+      Objects[i]->GetDynamicRTTI()->DispatchMessage(Objects[i], msg);
+      iResult += msg.m_iValue;
+    }
+
+    ezTime t0 = ezTime::Now();
+
+    for (ezUInt32 i = 0; i < iNumObjects; ++i)
+    {
+      GetValueMessage msg;
+      Objects[i]->GetDynamicRTTI()->DispatchMessage(Objects[i], msg);
+      iResult += msg.m_iValue;
+    }
+
+    ezTime t1 = ezTime::Now();
+
+    EZ_TEST_INT(iResult, iNumObjects * 1 + iNumObjects * 2);
+
+    ezTime tdiff = t1 - t0;
+    double tFC = tdiff.GetNanoseconds() / (double) iNumObjects;
+
+    ezLog::Info("[test]Dispatch Message: %.2fns", tFC, iResult);
+  }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Virtual")
   {

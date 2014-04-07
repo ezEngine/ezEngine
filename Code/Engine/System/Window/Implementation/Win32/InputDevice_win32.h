@@ -46,5 +46,3 @@ private:
   bool m_bClipCursor;
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_SYSTEM_DLL, ezStandardInputDevice);
-

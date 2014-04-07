@@ -132,5 +132,3 @@ private:
   virtual void RegisterInputSlots() EZ_OVERRIDE;
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezVirtualThumbStick);
-

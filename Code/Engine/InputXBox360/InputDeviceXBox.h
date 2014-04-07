@@ -37,5 +37,3 @@ private:
   static void SetDeadZone(const char* szButton);
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_INPUTXBOX360_DLL, ezInputDeviceXBox360);
-

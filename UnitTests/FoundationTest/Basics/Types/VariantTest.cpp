@@ -1,5 +1,17 @@
 ﻿#include <PCH.h>
 #include <Foundation/Basics/Types/Variant.h>
+#include <Foundation/Reflection/Reflection.h>
+
+class Blubb : public ezReflectedClass
+{
+  EZ_ADD_DYNAMIC_REFLECTION(Blubb);
+public:
+  float u;
+  float v;
+};
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(Blubb, ezReflectedClass, ezRTTINoAllocator);
+EZ_END_REFLECTED_TYPE();
 
 EZ_CREATE_SIMPLE_TEST(Basics, Variant)
 {
@@ -443,12 +455,25 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     EZ_TEST_BOOL(va != a2);
   }
 
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezReflectedClass*")
+  {
+    Blubb blubb;
+    Blubb blubb2;
+
+    ezVariant v(&blubb);
+    EZ_TEST_BOOL(v.IsValid());
+    EZ_TEST_BOOL(v.GetType() == ezVariant::Type::ReflectedPointer);
+    EZ_TEST_BOOL(v.IsA<ezReflectedClass*>());
+    EZ_TEST_BOOL(v.Get<ezReflectedClass*>() == &blubb);
+    EZ_TEST_BOOL(v.Get<ezReflectedClass*>() != &blubb2);
+  }
+
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "void*")
   {
     struct bla { bool pups; };
     bla blub, blub2;
 
-    ezVariant v((void*) &blub);
+    ezVariant v(&blub);
     EZ_TEST_BOOL(v.IsValid());
     EZ_TEST_BOOL(v.GetType() == ezVariant::Type::VoidPointer);
     EZ_TEST_BOOL(v.IsA<void*>());

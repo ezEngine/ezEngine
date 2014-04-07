@@ -90,6 +90,7 @@ template <> struct EZ_ALIGN(ezAligned<8192>, 8192) { };
 
 /// \brief Helper struct to get a storage type from a size in byte.
 template <size_t SizeInByte> struct ezSizeToType;
+/// \cond
 template <> struct ezSizeToType<1> { typedef ezUInt8 Type; };
 template <> struct ezSizeToType<2> { typedef ezUInt16 Type; };
 template <> struct ezSizeToType<3> { typedef ezUInt32 Type; };
@@ -98,4 +99,4 @@ template <> struct ezSizeToType<5> { typedef ezUInt64 Type; };
 template <> struct ezSizeToType<6> { typedef ezUInt64 Type; };
 template <> struct ezSizeToType<7> { typedef ezUInt64 Type; };
 template <> struct ezSizeToType<8> { typedef ezUInt64 Type; };
-
+/// \endcond

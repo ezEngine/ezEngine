@@ -81,7 +81,7 @@ static void SendReflectionTelemetry(ezRTTI* pRTTI)
 
     for (ezUInt32 i = 0; i < Messages.GetCount(); ++i)
     {
-      msg.GetWriter() << Messages[i]->GetMessageTypeID();
+      msg.GetWriter() << Messages[i]->GetMessageId();
     }
   }
 

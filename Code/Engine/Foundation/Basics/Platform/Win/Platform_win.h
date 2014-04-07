@@ -36,8 +36,9 @@
 #undef DeleteFile
 #undef CreateDirectory
 #undef CopyFile
+#undef DispatchMessage
+#undef PostMessage
 #undef SendMessage
-
 
 #if defined(_MSC_VER)
 

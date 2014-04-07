@@ -1,4 +1,6 @@
 
+/// \cond
+
 template <>
 struct ezVariant::TypeDeduction<bool>
 {
@@ -276,20 +278,37 @@ struct ezVariant::TypeDeduction<ezVariantDictionary>
   typedef ezVariantDictionary StorageType;
 };
 
-//template <>
-//struct ezVariant::TypeDeduction<ezObject*>
-//{
-//};
+namespace ezInternal
+{
+  template <int v>
+  struct PointerDeductionHelper
+  {
+  };
 
-template <>
-struct ezVariant::TypeDeduction<void*>
+  template <>
+  struct PointerDeductionHelper<0>
+  {
+    typedef void* StorageType;
+  };
+
+  template <>
+  struct PointerDeductionHelper<1>
+  {
+    typedef ezReflectedClass* StorageType;
+  };
+}
+
+template <typename T>
+struct ezVariant::TypeDeduction<T*>
 {
   enum
   {
-    value = Type::VoidPointer,
+    value = EZ_IS_DERIVED_FROM_STATIC(ezReflectedClass, T) ? Type::ReflectedPointer : Type::VoidPointer,
     forceSharing = false
   };
 
-  typedef void* StorageType;
+  typedef typename ezInternal::PointerDeductionHelper<EZ_IS_DERIVED_FROM_STATIC(ezReflectedClass, T)>::StorageType StorageType;
 };
+
+/// \endcond
 

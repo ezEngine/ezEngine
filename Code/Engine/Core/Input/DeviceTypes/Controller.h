@@ -112,5 +112,3 @@ private:
 
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezInputDeviceController);
-

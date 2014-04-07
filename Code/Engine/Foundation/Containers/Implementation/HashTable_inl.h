@@ -228,7 +228,6 @@ bool ezHashTableBase<K, V, H>::Insert(const K& key, const V& value, V* out_oldVa
   ezUInt32 uiIndex = H::Hash(key) % m_uiCapacity;
   ezUInt32 uiDeletedIndex = ezInvalidIndex;
 
-  /// \todo optimize this by getting rid of the marking deleted entries
   ezUInt32 uiCounter = 0;
   while (!IsFreeEntry(uiIndex) && uiCounter < m_uiCapacity)
   {

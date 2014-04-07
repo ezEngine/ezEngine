@@ -3,9 +3,9 @@
 #include <Core/Input/InputManager.h>
 #include <Foundation/Strings/StringBuilder.h>
 
-EZ_BEGIN_REFLECTED_TYPE(ezVirtualThumbStick, ezInputDevice, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVirtualThumbStick, ezInputDevice, ezRTTINoAllocator);
   // no properties or message handlers
-EZ_END_REFLECTED_TYPE(ezVirtualThumbStick);
+EZ_END_REFLECTED_TYPE();
 
 ezInt32 ezVirtualThumbStick::s_iThumbsticks = 0;
 
