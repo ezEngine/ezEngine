@@ -24,7 +24,7 @@ if (MSVC)
 
   SET (LINK_LIBRARIES
     ${LINK_LIBRARIES}
-    ${CMAKE_SOURCE_DIR}/Code/ThirdParty/gpa_ITT/libs/$(PlatformName)/gpasdk_d.lib
+    ${CMAKE_SOURCE_DIR}/Code/ThirdParty/gpa_ITT/libs/$(PlatformName)/libittnotify.lib
   )
 endif()
 
