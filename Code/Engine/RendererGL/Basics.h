@@ -68,6 +68,11 @@ extern ezResult ezGALShaderGLCheckError(const char* szOperationName);
     return EZ_SUCCESS; \
   }
 
+  #define __EZ_GL_CALL_HANDLING_RET(szOpenGLFunctionName, pOpenGLFunction, ...) \
+  { \
+    return pOpenGLFunction(__VA_ARGS__); \
+  }
+
 #endif
 
 // GL call helper. The advantage of template function instead of a mere macro is that it can also be used in conditions!
