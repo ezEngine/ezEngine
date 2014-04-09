@@ -9,7 +9,7 @@
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezInputDeviceXBox360, ezInputDeviceController, ezRTTINoAllocator);
   // no properties or message handlers
-EZ_END_REFLECTED_TYPE();
+EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 ezInputDeviceXBox360::ezInputDeviceXBox360()
 {
