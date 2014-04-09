@@ -5,6 +5,7 @@
 #include <Foundation/Basics.h>
 
 class ezRTTI;
+class ezReflectedClass;
 
 // ****************************************************
 // ***** Templates for accessing static RTTI data *****
@@ -124,8 +125,8 @@ EZ_FORCE_INLINE const ezRTTI* ezGetStaticRTTI()
   EZ_RTTIINFO_GETRTTI_IMPL_BEGIN(Type, AllocatorType)
     
 
-/// \brief Ends the reflection code block that was opened with EZ_BEGIN_STATIC_REFLECTED_TYPE or EZ_BEGIN_DYNAMIC_REFLECTED_TYPE.
-#define EZ_END_REFLECTED_TYPE()                                     \
+/// \brief Ends the reflection code block that was opened with EZ_BEGIN_STATIC_REFLECTED_TYPE.
+#define EZ_END_STATIC_REFLECTED_TYPE()                              \
     return ezRTTI(GetTypeName(),                                    \
       ezGetStaticRTTI<OwnBaseType>(),                               \
       sizeof(OwnType),                                              \

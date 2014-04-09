@@ -39,6 +39,8 @@
   ezRTTI Type::s_RTTI = ezRTTInfo_##Type::GetRTTI();                    \
   EZ_RTTIINFO_GETRTTI_IMPL_BEGIN(Type, AllocatorType)
 
+/// \brief Ends the reflection code block that was opened with EZ_BEGIN_DYNAMIC_REFLECTED_TYPE.
+#define EZ_END_DYNAMIC_REFLECTED_TYPE EZ_END_STATIC_REFLECTED_TYPE
 
 /// \brief All classes that should be dynamically reflectable, need to be derived from this base class.
 ///

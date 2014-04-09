@@ -106,14 +106,26 @@ template <typename T>
 struct ezTypeTraits
 {
 private:
-  template<typename U>
+  template <typename U>
   struct RemoveConst
   {
     typedef U type;
   };
 
-  template<typename U>
+  template <typename U>
   struct RemoveConst<const U>
+  {
+    typedef U type;
+  };
+
+  template <typename U>
+  struct RemoveReference
+  {
+    typedef U type;
+  };
+
+  template <typename U>
+  struct RemoveReference<U&>
   {
     typedef U type;
   };
@@ -121,5 +133,11 @@ private:
 public:
   /// \brief removes const qualifier
   typedef typename RemoveConst<T>::type NonConstType;
+
+  /// \brief removes reference
+  typedef typename RemoveReference<T>::type NonReferenceType;
+
+  /// \brief removes reference and const qualifier
+  typedef typename RemoveConst<typename RemoveReference<T>::type>::type NonConstReferenceType;
 };
 

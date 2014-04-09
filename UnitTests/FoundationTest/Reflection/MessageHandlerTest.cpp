@@ -52,7 +52,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(BaseHandler, ezReflectedClass, ezRTTINoAllocator
     EZ_MESSAGE_HANDLER(AddMessage, OnAddMessage),
     EZ_MESSAGE_HANDLER(MulMessage, OnMulMessage)
   EZ_END_MESSAGEHANDLERS
-EZ_END_REFLECTED_TYPE();
+EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 class DerivedHandler : public BaseHandler
 {
@@ -75,7 +75,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(DerivedHandler, BaseHandler, ezRTTINoAllocator);
     EZ_MESSAGE_HANDLER(AddMessage, OnAddMessage),
     EZ_MESSAGE_HANDLER(SubMessage, OnSubMessage)
   EZ_END_MESSAGEHANDLERS
-EZ_END_REFLECTED_TYPE();
+EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 
 EZ_CREATE_SIMPLE_TEST(Reflection, MessageHandler)

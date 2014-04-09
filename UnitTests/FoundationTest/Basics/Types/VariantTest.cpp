@@ -11,7 +11,7 @@ public:
 };
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(Blubb, ezReflectedClass, ezRTTINoAllocator);
-EZ_END_REFLECTED_TYPE();
+EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 EZ_CREATE_SIMPLE_TEST(Basics, Variant)
 {

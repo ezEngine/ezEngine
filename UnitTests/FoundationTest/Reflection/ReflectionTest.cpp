@@ -36,7 +36,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezTestStruct, ezNoBase, ezRTTINoAllocator);
     EZ_MEMBER_PROPERTY_READ_ONLY("Vector", m_vProperty3),
     EZ_ACCESSOR_PROPERTY("Int", GetInt, SetInt)
   EZ_END_PROPERTIES
-EZ_END_REFLECTED_TYPE();
+EZ_END_STATIC_REFLECTED_TYPE();
 
 class ezTestClass1 : public ezReflectedClass
 {
@@ -61,7 +61,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTestClass1, ezReflectedClass, ezRTTIDefaultAll
     EZ_MEMBER_PROPERTY("Sub Struct", m_Struct),
     EZ_ACCESSOR_PROPERTY_READ_ONLY("Sub Vector", GetVector)
   EZ_END_PROPERTIES
-EZ_END_REFLECTED_TYPE();
+EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 class ezTestClass2 : public ezTestClass1
 {
@@ -108,7 +108,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTestClass2, ezTestClass1, ezTestClass2Allocato
   EZ_BEGIN_PROPERTIES
     EZ_ACCESSOR_PROPERTY("Text", GetText, SetText)
   EZ_END_PROPERTIES
-EZ_END_REFLECTED_TYPE();
+EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 EZ_CREATE_SIMPLE_TEST(Reflection, Types)
 {

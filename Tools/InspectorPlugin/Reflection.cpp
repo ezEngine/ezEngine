@@ -35,7 +35,8 @@ const char* GetParentType(ezRTTI* pRTTI)
       (ezStringUtils::IsEqual(pRTTI->GetTypeName(), "ezConstCharPtr")) ||
       (ezStringUtils::IsEqual(pRTTI->GetTypeName(), "ezVec2")) ||
       (ezStringUtils::IsEqual(pRTTI->GetTypeName(), "ezVec3")) ||
-      (ezStringUtils::IsEqual(pRTTI->GetTypeName(), "ezVec4")))
+      (ezStringUtils::IsEqual(pRTTI->GetTypeName(), "ezVec4")) ||
+      (ezStringUtils::IsEqual(pRTTI->GetTypeName(), "ezQuat")))
     return "Basic Types";
 
   return "";

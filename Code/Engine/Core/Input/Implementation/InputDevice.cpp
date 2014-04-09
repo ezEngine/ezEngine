@@ -7,7 +7,7 @@ EZ_ENUMERABLE_CLASS_IMPLEMENTATION(ezInputDevice);
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezInputDevice, ezReflectedClass, ezRTTINoAllocator);
   // no properties or message handlers
-EZ_END_REFLECTED_TYPE();
+EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 ezKeyState::Enum ezKeyState::GetNewKeyState(ezKeyState::Enum PrevState, bool bKeyDown)
 {

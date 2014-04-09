@@ -113,6 +113,8 @@ bool ezReflectionWidget::UpdateTree()
   {
     if (it.Value().m_pTreeItem == nullptr)
     {
+      bAddedAny = true;
+
       // has parent type, but parent type has not been inserted into tree yet
       if (!it.Value().m_sParentType.IsEmpty() && m_Types[it.Value().m_sParentType].m_pTreeItem == nullptr)
         continue;

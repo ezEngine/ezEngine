@@ -4,11 +4,11 @@
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezInputDeviceMouseKeyboard, ezInputDevice, ezRTTINoAllocator);
   // no properties or message handlers
-EZ_END_REFLECTED_TYPE();
+EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezInputDeviceController, ezInputDevice, ezRTTINoAllocator);
   // no properties or message handlers
-EZ_END_REFLECTED_TYPE();
+EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 ezInputDeviceController::ezInputDeviceController()
 {
