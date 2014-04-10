@@ -10,21 +10,23 @@ Windows
 Versions:
   * Windows Vista (not tested)
   * Windows 7
-  * Windows 8 (desktop, not tested)
-  * Windows 8.1 (desktop, not tested)
+  * Windows 8 (desktop)
+  * Windows 8.1 (desktop)
 
 Compilers:
-  * Visual Studio 2010 32 Bit
-  * Visual Studio 2010 64 Bit
   * Visual Studio 2012 32 Bit
   * Visual Studio 2012 64 Bit
-  * Visual Studio 2013 (generally supported, not yet tested)
+  * Visual Studio 2013 32 Bit
+  * Visual Studio 2013 64 Bit
+
+Not supported anymore, but might still work:
+  * Visual Studio 2010 32 Bit
+  * Visual Studio 2010 64 Bit
 
 Not Supported (and never will be):
   * Windows XP and below
   * Visual Studio 2008 and below
   * Other IDEs than VS
-
 
 MacOS
 -----

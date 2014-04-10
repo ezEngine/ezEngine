@@ -14,7 +14,10 @@ Milestone 5
   * Added a function to create a simple embedded ASCII font from code, so no file loading is required to get some simple text on screen.
   * Added ezConsole, a Quake-style ingame console for inspecting the log, modifying cvars and calling exposed functions.
   * Removed ezSharedString. Use ezString or ezHashedString instead.
-  
+  * Removed official support for Visual Studio 2010. Might still compile, but we won't ensure that anymore.
+  * Move extensive usage of C++ 11:
+    * ez now uses nullptr directly, instead of a redefined NULL, which solves issues on platforms that already redefined NULL to some compiler specific intrinsic
+    * Some container and string classes now support move semantics for improved performance when they are copied around. Note that it is still more efficient to NOT copy such objects around, at all, though.  
   
 Milestone 4
 -----------

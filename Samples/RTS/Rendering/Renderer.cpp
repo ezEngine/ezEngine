@@ -1,4 +1,4 @@
-ï»¿#include <PCH.h>
+#include <PCH.h>
 #include <RTS/Rendering/Renderer.h>
 #include <Core/Input/InputManager.h>
 #include <Foundation/Utilities/GraphicsUtils.h>
@@ -8,7 +8,66 @@
 #include <gl/GL.h>
 #include <gl/glu.h>
 
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ColorResource, ezResourceBase, ezRTTIDefaultAllocator<ColorResource>);
+EZ_END_DYNAMIC_REFLECTED_TYPE();
+
 void RenderCube(const ezVec3& v, const ezVec3& s, bool bColor = true, float fColorScale = 1.0f);
+
+class ColorResourceLoader : public ezResourceTypeLoader
+{
+public:
+
+  struct Data
+  {
+    Data() : m_Reader(&m_Storage) { }
+
+    ezMemoryStreamStorage m_Storage;
+    ezMemoryStreamReader m_Reader;
+  };
+
+  virtual ezResourceLoadData OpenDataStream(const ezResourceBase* pResource) EZ_OVERRIDE
+  {
+    ezFileReader File;
+
+    ezStringBuilder sFile;
+    sFile.Format("Textures/Streaming%i.tga", ezMath::Pow2(pResource->GetLoadedQualityLevel()));
+    EZ_VERIFY(File.Open(sFile.GetData()).IsSuccess(), "Failed to load image '%s'", sFile.GetData());
+
+    Data* pData = EZ_DEFAULT_NEW(Data);
+
+    ezMemoryStreamWriter w(&pData->m_Storage);
+    w << (ezInt32) (pResource->GetLoadedQualityLevel() + 1);
+    w << ezColor(ezVec4(1, 1, (float) pResource->GetLoadedQualityLevel() + 1.0f / (float) pResource->GetMaxQualityLevel(), 0));
+
+    while (true)
+    {
+      ezUInt8 uiTemp[1024];
+      const ezUInt64 uiRead = File.ReadBytes(uiTemp, 1024);
+      w.WriteBytes(uiTemp, uiRead);
+
+      if (uiRead < 1024)
+        break;
+    }
+
+    ezResourceLoadData LoaderData;
+    LoaderData.m_pDataStream = &pData->m_Reader;
+    LoaderData.m_pCustomLoaderData = pData;
+
+    return LoaderData;
+  }
+
+  virtual void CloseDataStream(const ezResourceBase* pResource, const ezResourceLoadData& LoaderData) EZ_OVERRIDE
+  {
+    Data* pData = (Data*) LoaderData.m_pCustomLoaderData;
+
+    EZ_DEFAULT_DELETE(pData);
+  }
+
+};
+
+ColorResourceLoader g_ColorLoader;
+ColorResourceHandle g_hColorFallback;
+ColorResource* g_pColorFallback;
 
 GameRenderer::GameRenderer()
 {
@@ -52,6 +111,18 @@ void GameRenderer::SetupRenderer(const GameWindow* pWindow, const Level* pLevel,
     glDisable(GL_TEXTURE_2D);
   }
 
+  ezResourceManager::SetResourceTypeLoader<ColorResource>(&g_ColorLoader);
+
+  g_hColorFallback = ezResourceManager::GetResourceHandle<ColorResource>("ColorFallback");
+
+  ColorResourceDescriptor crd;
+  crd.m_Color.SetRGB(ezVec3(0, 0, 1));
+
+  ezResourceManager::CreateResource(g_hColorFallback, crd);
+  g_pColorFallback = ezResourceManager::BeginAcquireResource(g_hColorFallback, ezResourceAcquireMode::LoadedNoFallback);
+  g_pColorFallback->m_Color.SetRGB(ezVec3(1, 0, 0));
+  ezResourceManager::EndAcquireResource(g_pColorFallback);
+
   UpdateState();
 }
 
@@ -60,7 +131,7 @@ void GameRenderer::ComputeFPS()
   const ezTime Now = ezTime::Now();
   static ezTime LastFPS = Now;
   static ezUInt32 uiCurFrame = 0;
-  
+
   ++uiCurFrame;
 
   if ((Now - LastFPS).GetSeconds() >= 1.0)
@@ -135,7 +206,6 @@ void GameRenderer::Render2DOverlays()
 {
   glMatrixMode(GL_MODELVIEW);
   glLoadIdentity();
-
   // Mouse
   {
     ezMat4 mOrtho;
@@ -187,7 +257,7 @@ void GameRenderer::Render2DOverlays()
     RenderText(30, ALIGN_LEFT, ezColor::GetWhite(), 50, 430, "[Test]: eins;\"zwem\",'dren'. 0:1;2,3.");
     RenderText(30, ALIGN_LEFT, ezColor::GetWhite(), 50, 460, "x|y|z: a^b -> {new} ~5 `X` ");
 
-    RenderText(30, ALIGN_LEFT, ezColor::GetWhite(), 50, 490, ezStringUtf8(L"Unknown: Ã¶Ã¤Ã¼ÃŸ, jippy good, font@ezEngine.net").GetData());
+    RenderText(30, ALIGN_LEFT, ezColor::GetWhite(), 50, 490, ezStringUtf8(L"Unknown: öäüß, jippy good, font@ezEngine.net").GetData());
     RenderText(30, ALIGN_LEFT, ezColor::GetWhite(), 50, 520, "cheers, okidoki lama news");*/
   }
 }

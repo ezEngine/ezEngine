@@ -42,7 +42,7 @@ void SampleGameApp::AfterEngineInit()
   ezGlobalLog::AddLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
 
   ezStringBuilder sPath = ezOSFile::GetApplicationDirectory();
-  sPath.AppendPath("../../../Shared/FreeContent");
+  sPath.AppendPath("../../../Shared/Samples/RTS");
 
   ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
   EZ_VERIFY(ezFileSystem::AddDataDirectory(sPath.GetData()) == EZ_SUCCESS, "Failed to add data directory: '%s'", sPath.GetData());
@@ -76,6 +76,8 @@ void SampleGameApp::AfterEngineInit()
 void SampleGameApp::BeforeEngineShutdown()
 {
   EZ_LOG_BLOCK("SampleGameApp::BeforeEngineShutdown");
+
+  ezResourceManager::Shutdown();
 
   if (ezPlugin::UnloadPlugin("ezInspectorPlugin") == EZ_SUCCESS)
   {
@@ -126,7 +128,10 @@ ezApplication::ApplicationExecution SampleGameApp::Run()
     ezTaskSystem::FinishFrameTasks();
   }
 
+  ezResourceManager::CleanUpResources();
+
   ezTelemetry::PerFrameUpdate();
+
 
   if (m_ScreenshotTransfer.IsTransferRequested())
   {

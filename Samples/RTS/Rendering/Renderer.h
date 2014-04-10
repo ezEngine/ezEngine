@@ -7,6 +7,8 @@
 #include <RTS/General/Window.h>
 #include <GameUtils/DataStructures/ObjectSelection.h>
 #include <Foundation/Math/Frustum.h>
+#include <Core/ResourceManager/ResourceManager.h>
+
 
 class GameRenderer
 {

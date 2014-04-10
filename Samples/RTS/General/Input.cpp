@@ -18,7 +18,6 @@ void SampleGameApp::UpdateInput(ezTime UpdateDiff)
   if (ezInputManager::GetInputActionState("Main", "CloseApp") == ezKeyState::Pressed)
     m_bActiveRenderLoop = false;
 
-
   float f;
   float fCamSpeed = 15.0f;
   const float fCamRotSpeed = 140.0f;

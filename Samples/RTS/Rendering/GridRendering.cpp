@@ -5,6 +5,8 @@
 #include <gl/GL.h>
 #include <gl/glu.h>
 
+extern ColorResource* g_pColorFallback;
+
 void RenderCube(const ezVec3& v, const ezVec3& s, bool bColor = true, float fColorScale = 1.0f);
 
 ezCVarBool CVarVisNavmeshCells("ai_VisNavMeshCells", false, ezCVarFlags::None, "Visualize the navigation mesh cells.");
@@ -18,6 +20,8 @@ void GameRenderer::RenderGrid()
   const ezVec3 vCellSize2 (vCellSize.x, 0.1f, vCellSize.z);
 
   ezUInt32 uiCellsRendered = 0;
+
+  ezStringBuilder sColorResource;
 
   const ezVec3 vCamPos = m_pCamera->GetPosition();
 
@@ -60,6 +64,23 @@ void GameRenderer::RenderGrid()
         continue;
       }
 
+      ColorResource* pColor = NULL;
+
+      if (!cd.m_hColorResource.IsValid())
+      {
+        sColorResource.Format("Color%i%i", x, z);
+
+        ezResourcePriority::Enum iPriority = ezMath::Clamp((ezResourcePriority::Enum) (ezInt32) ((vCellPos - vCamPos).GetLength() / 10.0f), ezResourcePriority::Highest, ezResourcePriority::Lowest);
+
+        const_cast<GameCellData&>(cd).m_hColorResource = ezResourceManager::GetResourceHandle<ColorResource>(sColorResource.GetData());
+        pColor = ezResourceManager::BeginAcquireResource(cd.m_hColorResource, ezResourceAcquireMode::PointerOnly, iPriority);
+        pColor->SetFallbackResource(g_pColorFallback);
+
+        ezResourceManager::EndAcquireResource(pColor);
+      }
+
+      
+
       bool bColor = true;
       float fFade = 1.0f;
 
@@ -84,7 +105,23 @@ void GameRenderer::RenderGrid()
         if (cd.m_iCellType == 1)
           RenderCube(m_pGrid->GetCellWorldSpaceOrigin(ezVec2I32(x, z)), vCellSize, true, fFade);
         else
-          RenderCube(m_pGrid->GetCellWorldSpaceOrigin(ezVec2I32(x, z)), vCellSize2, true, fFade);
+        {
+          ezResourcePriority::Enum iPriority = ezMath::Clamp((ezResourcePriority::Enum) (ezInt32) ((vCellPos - vCamPos).GetLength() / 10.0f), ezResourcePriority::Highest, ezResourcePriority::Lowest);
+
+          ColorResource* pColorRes = ezResourceManager::BeginAcquireResource(cd.m_hColorResource, ezResourceAcquireMode::Loaded, iPriority);
+          const ezColor c = pColorRes->m_Color;
+
+          glColor3f(c.r, c.g, c.b);
+
+          glEnable(GL_TEXTURE_2D);
+          glBindTexture(GL_TEXTURE_2D, pColorRes->GetTextureID());
+
+          RenderCube(m_pGrid->GetCellWorldSpaceOrigin(ezVec2I32(x, z)), vCellSize2, false, fFade);
+
+          glDisable(GL_TEXTURE_2D);
+
+          ezResourceManager::EndAcquireResource(pColorRes);
+        }
       }
     }
   }

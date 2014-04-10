@@ -60,6 +60,6 @@ void Level::CreateRandomLevel()
 
   CreateComponentManagers();
 
-  for (ezUInt32 i = 0; i < 20; ++i)
+  for (ezUInt32 i = 0; i < 2; ++i)
     CreateUnit(UnitType::Default, ezVec3(i * 2.0f, 1, i * 3.0f));
 }
