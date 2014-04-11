@@ -1,7 +1,7 @@
 #include <Core/PCH.h>
 #include <Core/ResourceManager/ResourceManager.h>
 
-ezHashTable<ezResourceID, ezResourceBase*> ezResourceManager::m_LoadedResources;
+ezHashTable<ezTempHashedString, ezResourceBase*> ezResourceManager::m_LoadedResources;
 ezMap<ezString, ezResourceTypeLoader*> ezResourceManager::m_ResourceTypeLoader;
 ezDeque<ezResourceManager::LoadingInfo> ezResourceManager::m_RequireLoading;
 bool ezResourceManager::m_bTaskRunning = false;
@@ -19,7 +19,7 @@ ezResourceTypeLoader* ezResourceManager::GetResourceTypeLoader(const ezRTTI* pRT
 
 ezMutex ResourceMutex;
 
-void ezResourceManager::PreloadResource(ezResourceBase* pResource, bool bHighestPriority)
+void ezResourceManager::InternalPreloadResource(ezResourceBase* pResource, bool bHighestPriority)
 {
   // TODO: Make this publicly available
 
@@ -33,7 +33,6 @@ void ezResourceManager::PreloadResource(ezResourceBase* pResource, bool bHighest
 
   EZ_ASSERT(!pResource->m_bIsPreloading, "");
   pResource->m_bIsPreloading = true;
-  EZ_ASSERT(pResource->m_bIsPreloading, "");
 
   LoadingInfo li;
   li.m_pResource = pResource;
@@ -103,6 +102,10 @@ void ezResourceManager::UpdateLoadingDeadlines()
 void ezResourceManagerWorkerGPU::Execute()
 {
   m_pResourceToLoad->UpdateContent(*m_LoaderData.m_pDataStream);
+
+  EZ_ASSERT(m_pResourceToLoad->GetLoadingState() != ezResourceLoadState::Uninitialized, "The resource should have changed its loading state.");
+  EZ_ASSERT(m_pResourceToLoad->GetMaxQualityLevel() > 0, "The resource should have changed its max quality level (at least to 1).");
+
   m_pResourceToLoad->UpdateMemoryUsage();
 
   m_pLoader->CloseDataStream(m_pResourceToLoad, m_LoaderData);
@@ -151,7 +154,7 @@ void ezResourceManagerWorker::Execute()
 
   bool bResourceIsPreloading = false;
 
-  if (pResourceToLoad->GetResourceFlags().IsAnySet(ezResourceFlags::UpdateOnMainThread))
+  if (pResourceToLoad->GetBaseResourceFlags().IsAnySet(ezResourceFlags::UpdateOnMainThread))
   {
     bResourceIsPreloading = true;
 
@@ -169,6 +172,10 @@ void ezResourceManagerWorker::Execute()
   else
   {
     pResourceToLoad->UpdateContent(*LoaderData.m_pDataStream);
+
+    EZ_ASSERT(pResourceToLoad->GetLoadingState() != ezResourceLoadState::Uninitialized, "The resource should have changed its loading state.");
+    EZ_ASSERT(pResourceToLoad->GetMaxQualityLevel() > 0, "The resource should have changed its max quality level (at least to 1).");
+
     pResourceToLoad->UpdateMemoryUsage();
 
     /// \todo Proper cleanup
@@ -192,6 +199,43 @@ void ezResourceManagerWorker::Execute()
   }
 }
 
+ezUInt32 ezResourceManager::FreeUnusedResources()
+{
+  ezLock<ezMutex> l(ResourceMutex);
+
+  ezUInt32 uiUnloaded = 0;
+
+  for (auto it = m_LoadedResources.GetIterator(); it.IsValid(); /* empty */)
+  {
+    ezResourceBase* pReference = it.Value();
+
+    if (pReference->m_iReferenceCount > 0)
+    {
+      ++it;
+      continue;
+    }
+
+    const auto& CurKey = it.Key();
+
+    EZ_ASSERT(pReference->m_iLockCount == 0, "Resource '%s' has a refcount of zero, but is still in an acquired state.", pReference->GetResourceID().GetData());
+
+    ++uiUnloaded;
+    pReference->UnloadData(true);
+
+    EZ_ASSERT(pReference->GetLoadingState() <= ezResourceLoadState::MetaInfoAvailable, "Resource '%s' should be in an unloaded state now.", pReference->GetResourceID().GetData());
+
+    // delete the resource via the RTTI provided allocator
+    pReference->GetDynamicRTTI()->GetAllocator()->Deallocate(pReference);
+
+    ++it;
+
+    m_LoadedResources.Remove(CurKey);
+  }
+
+  return uiUnloaded;
+}
+
+/* Not yet good enough for prime time
 void ezResourceManager::CleanUpResources()
 {
   // TODO: Parameter to tweak cleanup time
@@ -220,7 +264,9 @@ void ezResourceManager::CleanUpResources()
       const auto& CurKey = it.Key();
 
       pReference->UnloadData(true);
-      EZ_DEFAULT_DELETE(pReference);
+      const ezRTTI* pRtti = pReference->GetDynamicRTTI();
+
+      pRtti->GetAllocator()->Deallocate(pReference);
 
       ++it;
 
@@ -245,7 +291,7 @@ void ezResourceManager::CleanUpResources()
       if (LastAccess < tNow)
       {
           if ((pReference->m_uiLoadedQualityLevel > 1) ||
-              (pReference->m_uiLoadedQualityLevel > 0 && pReference->m_bHasFallback))
+              (pReference->m_uiLoadedQualityLevel > 0 && pReference->GetBaseResourceFlags().IsAnySet(ezResourceFlags::ResourceHasFallback)))
           {
             pReference->UnloadData(false);
             pReference->UpdateMemoryUsage();
@@ -260,6 +306,7 @@ void ezResourceManager::CleanUpResources()
     }
   }
 }
+*/
 
 void ezResourceManager::Shutdown()
 {
@@ -278,6 +325,23 @@ void ezResourceManager::Shutdown()
   for (int i = 0; i < 2; ++i)
   {
     ezTaskSystem::CancelTask(&m_WorkerTask[i]);
+  }
+
+  // unload all resources until there are no more that can be unloaded
+  while (FreeUnusedResources() > 0) { /* empty */ }
+
+  if (!m_LoadedResources.IsEmpty())
+  {
+    EZ_LOG_BLOCK("Referenced Resources");
+
+    ezLog::Error("There are %i resource still referenced.", m_LoadedResources.GetCount());
+
+    for (auto it = m_LoadedResources.GetIterator(); it.IsValid(); ++it)
+    {
+      ezResourceBase* pReference = it.Value();
+
+      ezLog::Info("Refcount = %i, Type = '%s', ResourceID = '%s'", pReference->GetReferenceCount(), pReference->GetDynamicRTTI()->GetTypeName(), pReference->GetResourceID().GetData());
+    }
   }
 }
 

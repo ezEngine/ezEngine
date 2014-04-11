@@ -61,7 +61,10 @@ inline const ezString& ezHashedString::GetString() const
   return m_Data.Key();
 }
 
-
+inline ezUInt32 ezHashedString::GetStringHash() const
+{
+  return m_Data.Value().m_uiHash;
+}
 
 inline ezTempHashedString::ezTempHashedString(const char* szString)
 {
@@ -73,9 +76,21 @@ inline ezTempHashedString::ezTempHashedString(const ezTempHashedString& rhs)
   m_uiHash = rhs.m_uiHash;
 }
 
+inline ezTempHashedString::ezTempHashedString(const ezHashedString& rhs)
+{
+  /// \test this is new
+  m_uiHash = rhs.GetStringHash();
+}
+
 inline void ezTempHashedString::operator= (const ezTempHashedString& rhs)
 {
   m_uiHash = rhs.m_uiHash;
+}
+
+inline void ezTempHashedString::operator= (const ezHashedString& rhs)
+{
+  /// \test this is new
+  m_uiHash = rhs.GetStringHash();
 }
 
 inline bool ezTempHashedString::operator==  (const ezTempHashedString& rhs) const

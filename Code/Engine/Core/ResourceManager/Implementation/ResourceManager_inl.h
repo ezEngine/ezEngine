@@ -1,18 +1,23 @@
 #pragma once
 
 template<typename ResourceType>
-typename ezResourceHandle<ResourceType> ezResourceManager::GetResourceHandle(const ezResourceID& ResourceID)
+typename ezResourceHandle<ResourceType> ezResourceManager::GetResourceHandle(const char* szResourceID)
 {
   ezResourceBase* pResource = NULL;
 
-  if (m_LoadedResources.TryGetValue(ResourceID, pResource))
+  const ezTempHashedString sResourceHash(szResourceID);
+
+  if (m_LoadedResources.TryGetValue(sResourceHash, pResource))
     return ezResourceHandle<ResourceType>((ResourceType*) pResource);
 
-  /// \todo Use reflection allocator here
-  ResourceType* pNewResource = EZ_DEFAULT_NEW(ResourceType);
-  pNewResource->SetUniqueID(ResourceID);
+  const ezRTTI* pRtti = ezGetStaticRTTI<ResourceType>();
+  EZ_ASSERT(pRtti != NULL, "There is no RTTI information available for the given resource type '%s'", EZ_STRINGIZE(ResourceType));
+  EZ_ASSERT(pRtti->GetAllocator() != NULL, "There is no RTTI allocator available for the given resource type '%s'", EZ_STRINGIZE(ResourceType));
 
-  m_LoadedResources.Insert(ResourceID, pNewResource);
+  ResourceType* pNewResource = static_cast<ResourceType*>(pRtti->GetAllocator()->Allocate());
+  pNewResource->SetUniqueID(szResourceID);
+
+  m_LoadedResources.Insert(sResourceHash, pNewResource);
 
   return ezResourceHandle<ResourceType>(pNewResource);
 }
@@ -23,7 +28,11 @@ void ezResourceManager::CreateResource(const ezResourceHandle<ResourceType>& hRe
   ResourceType* pResource = BeginAcquireResource(hResource, ezResourceAcquireMode::PointerOnly);
 
   // If this does not compile, you have forgotten to make ezResourceManager a friend of your resource class.
+  // which probably means that you did not derive from ezResource, which you should do!
   pResource->CreateResource(descriptor);
+
+  EZ_ASSERT(pResource->GetLoadingState() != ezResourceLoadState::Uninitialized, "CreateResource did not set the loading state properly.");
+  EZ_ASSERT(pResource->GetMaxQualityLevel() > 0, "CreateResource did not set the max quality level properly.");
 
   EndAcquireResource(pResource);
 }
@@ -33,14 +42,13 @@ ResourceType* ezResourceManager::BeginAcquireResource(const ezResourceHandle<Res
 {
   EZ_ASSERT(hResource.IsValid(), "Cannot acquire a resource through an invalid handle!");
 
-  /// \todo Debug check through RTTI -> is of type
-
   ResourceType* pResource = (ResourceType*) hResource.m_pResource;
 
-  if (Priority != ezResourcePriority::Unchanged)
-    pResource->SetPriority(Priority);
+  EZ_ASSERT(pResource->m_iLockCount < 20, "You probably forgot somewhere to call 'EndAcquireResource' in sync with 'BeginAcquireResource'.");
+  EZ_ASSERT(pResource->GetDynamicRTTI() == ezGetStaticRTTI<ResourceType>(), "The requested resource does not have the same type ('%s') as the resource handle ('%s').", pResource->GetDynamicRTTI()->GetTypeName(), ezGetStaticRTTI<ResourceType>()->GetTypeName());
 
-  if (mode == ezResourceAcquireMode::PointerOnly)
+  if (mode == ezResourceAcquireMode::PointerOnly ||
+     (mode == ezResourceAcquireMode::MetaInfo && pResource->GetLoadingState() >= ezResourceLoadState::MetaInfoAvailable))
   {
     pResource->m_iLockCount.Increment();
     return pResource;
@@ -51,18 +59,24 @@ ResourceType* ezResourceManager::BeginAcquireResource(const ezResourceHandle<Res
 
   if (pResource->GetLoadingState() != ezResourceLoadState::Loaded)
   {
+    // only modify the priority, if the resource is not yet loaded
+    if (Priority != ezResourcePriority::Unchanged)
+      pResource->SetPriority(Priority);
+
     // will append this at the preload array, thus will be loaded immediately
     // even after recalculating priorities, it will end up as top priority
-    PreloadResource(pResource, true);
+    InternalPreloadResource(pResource, true);
 
-    if (mode != ezResourceAcquireMode::LoadedNoFallback && pResource->m_hFallback.IsValid())
+    if (mode == ezResourceAcquireMode::AllowFallback && pResource->m_hFallback.IsValid())
     {
       // return the fallback resource for now, if there is one
       return (ResourceType*) BeginAcquireResource(pResource->m_hFallback);
     }
 
+    const ezResourceLoadState::Enum RequestedState = (mode == ezResourceAcquireMode::MetaInfo) ? ezResourceLoadState::MetaInfoAvailable : ezResourceLoadState::Loaded;
+
     // help loading until the requested resource is available
-    while (pResource->GetLoadingState() != ezResourceLoadState::Loaded)
+    while (pResource->GetLoadingState() < RequestedState)
     {
       if (!m_WorkerTask[m_iCurrentWorker].IsTaskFinished())
         ezTaskSystem::WaitForTask(&m_WorkerTask[m_iCurrentWorker]);
@@ -70,10 +84,13 @@ ResourceType* ezResourceManager::BeginAcquireResource(const ezResourceHandle<Res
       {
         for (ezInt32 i = 0; i < 16; ++i)
         {
-          if (!m_WorkerGPU[i].IsTaskFinished())
+          // get the 'oldest' GPU task in the queue and try to finish that first
+          const ezInt32 iWorkerGPU = (ezResourceManager::m_iCurrentWorkerGPU + i) % 16;
+
+          if (!m_WorkerGPU[iWorkerGPU].IsTaskFinished())
           {
             ezTaskSystem::WaitForTask(&m_WorkerGPU[i]);
-            break;
+            break; // we waited for one of them, that's enough for this round
           }
         }
       }
@@ -81,8 +98,9 @@ ResourceType* ezResourceManager::BeginAcquireResource(const ezResourceHandle<Res
   }
   else
   {
+    // as long as there are more quality levels available, schedule the resource for more loading
     if (pResource->m_bIsPreloading == false && pResource->m_uiLoadedQualityLevel < pResource->m_uiMaxQualityLevel)
-      PreloadResource(pResource, false);
+      InternalPreloadResource(pResource, false);
   }
 
   pResource->m_iLockCount.Increment();
@@ -103,8 +121,8 @@ void ezResourceManager::PreloadResource(const ezResourceHandle<ResourceType>& hR
 {
   ResourceType* pResource = BeginAcquireResource(hResource, ezResourceAcquireMode::PointerOnly);
 
-  pResource->SetDueDate(ezTime::Now() + tShouldBeAvailableIn);
-  PreloadResource(pResource, false);
+  pResource->SetDueDate(ezMath::Min(ezTime::Now() + tShouldBeAvailableIn, pResource->GetDueDate()));
+  InternalPreloadResource(pResource, tShouldBeAvailableIn <= ezTime::Seconds(0.0)); // if the user set the timeout to zero or below, it will be scheduled immediately
 
   EndAcquireResource(pResource);
 }

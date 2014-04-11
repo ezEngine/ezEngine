@@ -2,32 +2,36 @@
 
 #include <Core/Basics.h>
 #include <Core/ResourceManager/Resource.h>
+#include <Core/ResourceManager/ResourceTypeLoader.h>
 #include <Foundation/Containers/HashTable.h>
-#include <Foundation/Containers/Set.h>
 #include <Foundation/Threading/TaskSystem.h>
 
-struct ezResourceLoadData
-{
-  ezStreamReaderBase* m_pDataStream;
-  void* m_pCustomLoaderData;
-};
+/// \todo Do not unload resources while they are acquired
+/// \todo Fallback resource for one type
+/// \todo Missing resource for one type
+/// \todo Events: Resource loaded / unloaded etc.
 
-class ezResourceTypeLoader
-{
-public:
-  ezResourceTypeLoader() { }
-  virtual ~ezResourceTypeLoader () { }
+// Resource Flags:
+// Category / Group (Texture Sets)
+//  Max Loaded Quality (adjustable at runtime)
 
-  virtual ezResourceLoadData OpenDataStream(const ezResourceBase* pResource) = 0;
-  virtual void CloseDataStream(const ezResourceBase* pResource, const ezResourceLoadData& LoaderData) = 0;
-};
+// Resource Loader
+//   Requires No File Access -> on non-File Thread
+//   reload resource (if necessary)
+//   
 
+/// \brief [internal] Worker thread/task for loading resources from disk.
 class EZ_CORE_DLL ezResourceManagerWorker : public ezTask
 {
 private:
+  friend class ezResourceManager;
+
+  ezResourceManagerWorker() { };
+
   virtual void Execute() EZ_OVERRIDE;
 };
 
+/// \brief [internal] Worker thread/task for loading into the GPU.
 class EZ_CORE_DLL ezResourceManagerWorkerGPU : public ezTask
 {
 public:
@@ -36,18 +40,10 @@ public:
   ezResourceTypeLoader* m_pLoader;
 
 private:
+  friend class ezResourceManager;
+  ezResourceManagerWorkerGPU() { };
+
   virtual void Execute() EZ_OVERRIDE;
-};
-
-
-struct EZ_CORE_DLL ezResourceAcquireMode
-{
-  enum Enum
-  {
-    PointerOnly,
-    Loaded,
-    LoadedNoFallback
-  };
 };
 
 
@@ -59,13 +55,13 @@ public:
   ~ezResourceManager();
 
   template<typename ResourceType>
-  static ezResourceHandle<ResourceType> GetResourceHandle(const ezResourceID& ResourceID);
+  static ezResourceHandle<ResourceType> GetResourceHandle(const char* szResourceID);
 
   template<typename ResourceType>
   static void CreateResource(const ezResourceHandle<ResourceType>& hResource, const typename ResourceType::DescriptorType& descriptor);
 
   template<typename ResourceType>
-  static ResourceType* BeginAcquireResource(const ezResourceHandle<ResourceType>& hResource, ezResourceAcquireMode::Enum mode = ezResourceAcquireMode::Loaded, ezResourcePriority::Enum Priority = ezResourcePriority::Unchanged);
+  static ResourceType* BeginAcquireResource(const ezResourceHandle<ResourceType>& hResource, ezResourceAcquireMode::Enum mode = ezResourceAcquireMode::AllowFallback, ezResourcePriority::Enum Priority = ezResourcePriority::Unchanged);
 
   template<typename ResourceType>
   static void EndAcquireResource(ResourceType* pResource);
@@ -78,15 +74,17 @@ public:
   template<typename ResourceType>
   static void PreloadResource(const ezResourceHandle<ResourceType>& hResource, ezTime tShouldBeAvailableIn);
 
-  // FreeUnused
+  static ezUInt32 FreeUnusedResources();
 
-  static void CleanUpResources();
+  /// \todo ReloadResources of type / one / all (if necessary)
+
+  //static void CleanUpResources();
   
 private:
   friend class ezResourceManagerWorker;
   friend class ezResourceManagerWorkerGPU;
 
-  static void PreloadResource(ezResourceBase* pResource, bool bHighestPriority);
+  static void InternalPreloadResource(ezResourceBase* pResource, bool bHighestPriority);
 
   static void RunWorkerTask();
 
@@ -94,7 +92,7 @@ private:
 
   static ezResourceTypeLoader* GetResourceTypeLoader(const ezRTTI* pRTTI);
 
-  static ezHashTable<ezResourceID, ezResourceBase*> m_LoadedResources;
+  static ezHashTable<ezTempHashedString, ezResourceBase*> m_LoadedResources;
   static ezMap<ezString, ezResourceTypeLoader*> m_ResourceTypeLoader;
 
   struct LoadingInfo

@@ -77,13 +77,6 @@ void SampleGameApp::BeforeEngineShutdown()
 {
   EZ_LOG_BLOCK("SampleGameApp::BeforeEngineShutdown");
 
-  ezResourceManager::Shutdown();
-
-  if (ezPlugin::UnloadPlugin("ezInspectorPlugin") == EZ_SUCCESS)
-  {
-
-  }
-
   EZ_DEFAULT_DELETE(m_pSelectedUnits);
   EZ_DEFAULT_DELETE(m_pLevel);
   EZ_DEFAULT_DELETE(m_pRenderer);
@@ -92,6 +85,12 @@ void SampleGameApp::BeforeEngineShutdown()
 
   EZ_DEFAULT_DELETE(m_pWindow);
   
+  ezResourceManager::Shutdown();
+
+  if (ezPlugin::UnloadPlugin("ezInspectorPlugin") == EZ_SUCCESS)
+  {
+
+  }
 
   ezTelemetry::CloseConnection();
 }
@@ -128,7 +127,7 @@ ezApplication::ApplicationExecution SampleGameApp::Run()
     ezTaskSystem::FinishFrameTasks();
   }
 
-  ezResourceManager::CleanUpResources();
+  ezResourceManager::FreeUnusedResources();
 
   ezTelemetry::PerFrameUpdate();
 

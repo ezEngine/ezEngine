@@ -108,7 +108,7 @@ void GameRenderer::RenderGrid()
         {
           ezResourcePriority::Enum iPriority = ezMath::Clamp((ezResourcePriority::Enum) (ezInt32) ((vCellPos - vCamPos).GetLength() / 10.0f), ezResourcePriority::Highest, ezResourcePriority::Lowest);
 
-          ColorResource* pColorRes = ezResourceManager::BeginAcquireResource(cd.m_hColorResource, ezResourceAcquireMode::Loaded, iPriority);
+          ColorResource* pColorRes = ezResourceManager::BeginAcquireResource(cd.m_hColorResource, ezResourceAcquireMode::AllowFallback, iPriority);
           const ezColor c = pColorRes->m_Color;
 
           glColor3f(c.r, c.g, c.b);

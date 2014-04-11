@@ -86,6 +86,9 @@ public:
   /// \brief Gives access to the actual string data, so you can do all the typical (read-only) string operations on it.
   const ezString& GetString() const; // [tested]
 
+  /// \brief Returns the hash of the stored string.
+  ezUInt32 GetStringHash() const;
+
 private:
   HashedType m_Data;
 };
@@ -111,8 +114,14 @@ public:
   /// \brief Copies the hash from rhs.
   ezTempHashedString(const ezTempHashedString& rhs); // [tested]
 
+  /// \brief Copies the hash from the ezHashedString.
+  ezTempHashedString(const ezHashedString& rhs);
+
   /// \brief Copies the hash from rhs.
   void operator= (const ezTempHashedString& rhs); // [tested]
+
+  /// \brief Copies the hash from the ezHashedString.
+  void operator= (const ezHashedString& rhs);
 
   /// \brief Compares the two objects by their hash value. Might report incorrect equality, if two strings have the same hash value.
   bool operator== (const ezTempHashedString& rhs) const; // [tested]

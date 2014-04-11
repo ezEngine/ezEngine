@@ -144,7 +144,7 @@ private:
     if (bFullUnload || m_uiLoadedQualityLevel == 1)
     {
       m_Color.SetRGB(ezVec3(1, 0, 0));
-      m_LoadingState = ezResourceLoadState::Unloaded;
+      m_LoadingState = ezResourceLoadState::Uninitialized;
       m_uiLoadedQualityLevel = 0;
     }
     else
