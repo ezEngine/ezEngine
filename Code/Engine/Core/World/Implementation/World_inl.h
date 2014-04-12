@@ -6,32 +6,8 @@ EZ_FORCE_INLINE const char* ezWorld::GetName() const
 
 EZ_FORCE_INLINE ezGameObjectHandle ezWorld::CreateObject(const ezGameObjectDesc& desc)
 {
-  ezGameObjectHandle newObject;
-  CreateObjects(ezArrayPtr<const ezGameObjectDesc>(&desc, 1), ezArrayPtr<ezGameObjectHandle>(&newObject, 1));
-  return newObject;
-}
-
-EZ_FORCE_INLINE ezGameObjectHandle ezWorld::CreateObject(const ezGameObjectDesc& desc, ezGameObject*& out_pObject)
-{
-  ezGameObjectHandle newObject;
-  CreateObjects(ezArrayPtr<const ezGameObjectDesc>(&desc, 1), ezArrayPtr<ezGameObjectHandle>(&newObject, 1));
-  out_pObject = m_Data.m_Objects[newObject].m_Ptr;
-  return newObject;
-}
-
-inline void ezWorld::CreateObjects(const ezArrayPtr<const ezGameObjectDesc>& descs, ezArrayPtr<ezGameObjectHandle> out_objects, 
-  ezArrayPtr<ezGameObject*> out_pObjects)
-{
-  CreateObjects(descs, out_objects);
-  for (ezUInt32 i = 0; i < out_objects.GetCount(); ++i)
-  {
-    out_pObjects[i] = m_Data.m_Objects[out_objects[i]].m_Ptr;
-  }
-}
-
-EZ_FORCE_INLINE void ezWorld::DeleteObject(const ezGameObjectHandle& object)
-{
-  DeleteObjects(ezArrayPtr<const ezGameObjectHandle>(&object, 1));
+  ezGameObject* pNewObject;
+  return CreateObject(desc, pNewObject);
 }
 
 EZ_FORCE_INLINE bool ezWorld::IsValidObject(const ezGameObjectHandle& object) const
@@ -57,7 +33,12 @@ EZ_FORCE_INLINE bool ezWorld::TryGetObject(const ezGameObjectHandle& object, ezG
 
 EZ_FORCE_INLINE ezUInt32 ezWorld::GetObjectCount() const
 {
-  return m_Data.m_Objects.GetCount();
+  return m_Data.m_ObjectStorage.GetCount();
+}
+
+EZ_FORCE_INLINE ezBlockStorage<ezGameObject>::Iterator ezWorld::GetObjects() const
+{
+  return m_Data.m_ObjectStorage.GetIterator(0);
 }
 
 template <typename ManagerType>
@@ -99,7 +80,8 @@ EZ_FORCE_INLINE ManagerType* ezWorld::GetComponentManager() const
     pManager = static_cast<ManagerType*>(m_Data.m_ComponentManagers[uiTypeId]);
   }
 
-  EZ_ASSERT(pManager != nullptr, "Component Manager (id: %u) does not exists.", uiTypeId); /// \todo use RTTI to print a useful name
+  EZ_ASSERT(pManager != nullptr, "Component Manager '%s' (id: %u) does not exists. Call 'CreateComponentManager' first.", 
+    ezGetStaticRTTI<ManagerType::ComponentType>()->GetTypeName(), uiTypeId);
   return pManager;
 }
 
@@ -119,13 +101,6 @@ inline bool ezWorld::IsValidComponent(const ezComponentHandle& component) const
   return false;
 }
 
-//static
-template <typename ComponentType>
-EZ_FORCE_INLINE bool ezWorld::IsComponentOfType(const ezComponentHandle& component)
-{
-  return ezComponentManagerBase::IsComponentOfType<ComponentType>(component);
-}
-
 template <typename ComponentType>
 inline bool ezWorld::TryGetComponent(const ezComponentHandle& component, ComponentType*& out_pComponent) const
 {
@@ -139,10 +114,6 @@ inline bool ezWorld::TryGetComponent(const ezComponentHandle& component, Compone
   {
     if (ezComponentManagerBase* pManager = m_Data.m_ComponentManagers[uiTypeId])
     {
-      EZ_ASSERT(IsComponentOfType<ComponentType>(component),
-        "The given component handle is not of the expected type. Expected type id %d, got type id %d",
-        ComponentType::TypeId(), component.m_InternalId.m_TypeId);
-
       ezComponent* pComponent = nullptr;
       bool bResult = pManager->TryGetComponent(component, pComponent);
       out_pComponent = static_cast<ComponentType*>(pComponent);
@@ -151,6 +122,29 @@ inline bool ezWorld::TryGetComponent(const ezComponentHandle& component, Compone
   }
 
   return false;
+}
+
+EZ_FORCE_INLINE void ezWorld::SendMessage(const ezGameObjectHandle& receiverObject, ezMessage& msg,
+  ezBitflags<ezObjectMsgRouting> routing /*= ezObjectMsgRouting::Default*/)
+{
+  CheckForMultithreadedAccess();
+
+  ezGameObject* pReceiverObject = NULL;
+  if (TryGetObject(receiverObject, pReceiverObject))
+  {
+    HandleMessage(pReceiverObject, msg, routing);
+  }
+}
+
+EZ_FORCE_INLINE void ezWorld::PostMessage(const ezGameObjectHandle& receiverObject, ezMessage& msg, 
+  ezBitflags<ezObjectMsgRouting> routing, ezObjectMsgQueueType::Enum queueType, float fDelay /*= 0.0f*/)
+{
+  QueuedMsgMetaData metaData;
+  metaData.m_ReceiverObject = receiverObject;
+  metaData.m_Routing = routing;
+  metaData.m_fDelay = fDelay;
+
+  m_Data.m_MessageQueues[queueType].Enqueue(msg, metaData);
 }
 
 EZ_FORCE_INLINE ezAllocatorBase* ezWorld::GetAllocator()
@@ -191,6 +185,11 @@ EZ_FORCE_INLINE void ezWorld::CheckForMultithreadedAccess() const
   EZ_ASSERT(m_Data.m_ThreadID == ezThreadUtils::GetCurrentThreadID(), "World must not be accessed from another thread than the creation thread.");
 }
 
+EZ_FORCE_INLINE ezGameObject* ezWorld::GetObjectUnchecked(ezUInt32 uiIndex) const
+{
+  return m_Data.m_Objects.GetValueUnchecked(uiIndex).m_Ptr;
+}
+
 EZ_FORCE_INLINE void ezWorld::HandleMessage(ezGameObject* pReceiverObject, ezMessage& msg, ezBitflags<ezObjectMsgRouting> routing)
 {
   CheckForMultithreadedAccess();
@@ -199,8 +198,7 @@ EZ_FORCE_INLINE void ezWorld::HandleMessage(ezGameObject* pReceiverObject, ezMes
   pReceiverObject->OnMessage(msg, routing);
 }
 
-EZ_FORCE_INLINE ezUInt32  ezWorld::GetHandledMessageCounter() const
+EZ_FORCE_INLINE ezUInt32 ezWorld::GetHandledMessageCounter() const
 {
   return m_Data.m_uiHandledMessageCounter;
 }
-

@@ -1,6 +1,9 @@
 #pragma once
 
 #include <Foundation/Containers/HybridArray.h>
+#include <Foundation/Math/Mat4.h>
+#include <Foundation/Math/Quat.h>
+#include <Foundation/Math/Transform.h>
 
 #include <Core/World/ComponentManager.h>
 #include <Core/World/GameObjectDesc.h>
@@ -33,15 +36,12 @@ private:
     ezQuat m_localRotation;
     ezVec4 m_localScaling;
 
-    /// \todo simd struct
-    ezMat3 m_worldRotation;
-    ezVec3 m_worldPosition;
-
+    ezTransform m_worldTransform;
     ezVec4 m_velocity;
   };
 
 public:
-  class ChildIterator
+  class EZ_CORE_DLL ChildIterator
   {
   public:
     ChildIterator();
@@ -73,13 +73,14 @@ public:
   void Deactivate();
   bool IsActive() const;
 
-  ezUInt64 GetPersistentId() const;
+  /// \todo
+  //ezUInt64 GetUniqueId() const;
 
   void SetName(const char* szName);
   const char* GetName() const;
 
   void SetParent(const ezGameObjectHandle& parent);
-  ezGameObjectHandle GetParent() const;
+  ezGameObject* GetParent() const;
 
   void AddChild(const ezGameObjectHandle& child);
   void AddChildren(const ezArrayPtr<const ezGameObjectHandle>& children);
@@ -87,6 +88,7 @@ public:
   void DetachChild(const ezGameObjectHandle& child);
   void DetachChildren(const ezArrayPtr<const ezGameObjectHandle>& children);
 
+  ezUInt32 GetChildCount() const;
   ChildIterator GetChildren() const;
 
   ezWorld* GetWorld() const;
@@ -104,30 +106,33 @@ public:
   const ezVec3& GetWorldPosition() const;
 
   void SetWorldRotation(const ezQuat& rotation);
-  const ezQuat& GetWorldRotation() const;
+  const ezQuat GetWorldRotation() const;
 
   void SetWorldScaling(const ezVec3& scaling);
-  const ezVec3& GetWorldScaling() const;
+  const ezVec3 GetWorldScaling() const;
 
-  ezMat4 GetWorldTransform() const;
+  void SetWorldTransform(const ezTransform& transform);
+  const ezTransform& GetWorldTransform() const;
 
-  const ezVec3& GetVelocity() const;
   void SetVelocity(const ezVec3& vVelocity);
+  const ezVec3& GetVelocity() const;  
 
   // components
   ezResult AddComponent(const ezComponentHandle& component);
   ezResult RemoveComponent(const ezComponentHandle& component);
 
   template <typename T>
-  bool TryGetComponentOfType(T*& out_pComponent) const;
+  bool TryGetComponentOfBaseType(T*& out_pComponent) const;
 
   template <typename T>
-  void TryGetComponentsOfType(ezHybridArray<T*, 8>& out_components) const;
+  void TryGetComponentsOfBaseType(ezHybridArray<T*, 8>& out_components) const;
 
   ezArrayPtr<ezComponentHandle> GetComponents() const;
 
   // messaging
   void SendMessage(ezMessage& msg, ezBitflags<ezObjectMsgRouting> routing = ezObjectMsgRouting::Default);
+  void PostMessage(ezMessage& msg, ezBitflags<ezObjectMsgRouting> routing, 
+    ezObjectMsgQueueType::Enum queueType, float fDelay = 0.0f);
   
 private:
   bool TryGetComponent(const ezComponentHandle& component, ezComponent*& out_pComponent) const;
@@ -135,16 +140,27 @@ private:
 
   ezGameObjectId m_InternalId;
   ezBitflags<ezObjectFlags> m_Flags;
-  ezUInt64 m_uiPersistentId;
-  
-  ezGameObjectHandle m_Parent;
-  ezGameObjectHandle m_FirstChild;
-  ezGameObjectHandle m_NextSibling;
+
+  struct
+  {
+    ezUInt64 m_ParentIndex : 20;
+    ezUInt64 m_FirstChildIndex : 20;
+    ezUInt64 m_LastChildIndex : 20;
+  };
+
+  struct
+  {
+    ezUInt64 m_NextSiblingIndex : 20;
+    ezUInt64 m_PrevSiblingIndex : 20;
+    ezUInt64 m_ChildCount : 20;
+  };
+
+  ezUInt32 m_uiHandledMessageCounter;
 
   struct
   {
     ezUInt32 m_uiHierarchyLevel : 12;
-    ezUInt32 m_uiTransformationDataIndex : 20;    
+    ezUInt32 m_uiTransformationDataIndex : 20;
   };
   TransformationData* m_pTransformationData;
 
@@ -155,15 +171,15 @@ private:
 #endif
 
   /// \todo small array class to reduce memory overhead
-  ezHybridArray<ezComponentHandle, 6> m_Components;
+  /// \todo save pointer to component instead?
+  ezHybridArray<ezComponentHandle, 7> m_Components;
 
 #if EZ_ENABLED(EZ_PLATFORM_32BIT)
   ezUInt64 m_uiPadding2;
 #endif
-
-  ezUInt32 m_uiHandledMessageCounter;
-  ezUInt32 m_uiReserved;
 };
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezGameObject);
 
 #include <Core/World/Implementation/GameObject_inl.h>
 

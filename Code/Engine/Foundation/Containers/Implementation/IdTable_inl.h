@@ -276,6 +276,20 @@ EZ_FORCE_INLINE ValueType& ezIdTableBase<IdType, ValueType>::operator[](const Id
 }
 
 template <typename IdType, typename ValueType>
+EZ_FORCE_INLINE const ValueType& ezIdTableBase<IdType, ValueType>::GetValueUnchecked(const IndexType index) const
+{
+  EZ_ASSERT(index < m_uiCapacity, "Out of bounds access. Table has %i elements, trying to access element at index %i.", m_uiCapacity, index);
+  return m_pEntries[index].value;
+}
+
+template <typename IdType, typename ValueType>
+EZ_FORCE_INLINE ValueType& ezIdTableBase<IdType, ValueType>::GetValueUnchecked(const IndexType index)
+{
+  EZ_ASSERT(index < m_uiCapacity, "Out of bounds access. Table has %i elements, trying to access element at index %i.", m_uiCapacity, index);
+  return m_pEntries[index].value;
+}
+
+template <typename IdType, typename ValueType>
 EZ_FORCE_INLINE bool ezIdTableBase<IdType, ValueType>::Contains(const IdType id) const
 {
   const IndexType index = id.m_InstanceIndex;

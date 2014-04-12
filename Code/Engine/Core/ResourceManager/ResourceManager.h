@@ -2,6 +2,7 @@
 
 #include <Core/Basics.h>
 #include <Core/ResourceManager/Resource.h>
+#include <Core/ResourceManager/ResourceHandle.h>
 #include <Core/ResourceManager/ResourceTypeLoader.h>
 #include <Foundation/Containers/HashTable.h>
 #include <Foundation/Threading/TaskSystem.h>

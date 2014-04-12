@@ -62,6 +62,17 @@ public:
     return m_pRTTI;
   }
 
+  EZ_FORCE_INLINE bool IsInstanceOf(const ezRTTI* pType)
+  {
+    return GetDynamicRTTI()->IsDerivedFrom(pType);
+  }
+
+  template<typename T>
+  EZ_FORCE_INLINE bool IsInstanceOf()
+  {
+    return GetDynamicRTTI()->IsDerivedFrom<T>();
+  }
+
 private:
   const ezRTTI* m_pRTTI;
 };

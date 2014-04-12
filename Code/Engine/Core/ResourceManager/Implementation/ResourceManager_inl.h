@@ -1,7 +1,7 @@
 #pragma once
 
 template<typename ResourceType>
-typename ezResourceHandle<ResourceType> ezResourceManager::GetResourceHandle(const char* szResourceID)
+ezResourceHandle<ResourceType> ezResourceManager::GetResourceHandle(const char* szResourceID)
 {
   ezResourceBase* pResource = NULL;
 

@@ -1,5 +1,8 @@
 
-EZ_FORCE_INLINE ezComponent::ezComponent() : m_Flags(ezObjectFlags::Default) 
+EZ_FORCE_INLINE ezComponent::ezComponent() : 
+  m_pManager(nullptr),
+  m_pOwner(nullptr),
+  m_Flags(ezObjectFlags::Default) 
 { 
 }
 
@@ -29,5 +32,16 @@ EZ_FORCE_INLINE  ezGameObject* ezComponent::GetOwner() const
 EZ_FORCE_INLINE ezUInt16 ezComponent::TypeId()
 { 
   return TYPE_ID;
+}
+
+template <typename T>
+EZ_FORCE_INLINE ezComponentHandle ezComponent::GetHandle() const
+{
+  return ezComponentHandle(ezComponentId(m_InternalId, T::TypeId()));
+}
+
+EZ_FORCE_INLINE void ezComponent::OnMessage(ezMessage& msg) 
+{
+  GetDynamicRTTI()->DispatchMessage(this, msg);
 }
 

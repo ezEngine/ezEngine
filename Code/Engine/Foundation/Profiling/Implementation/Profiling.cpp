@@ -80,7 +80,7 @@ namespace
 //static
 void ezProfilingSystem::Initialize()
 {
-  EZ_ASSERT(s_pProfilingData, "Profiling Data should already be initialized");
+  EZ_ASSERT(s_pProfilingData != nullptr, "Profiling Data should already be initialized");
   EZ_ASSERT(s_pProfilingData->m_InfoTable.GetAllocator() != ezFoundation::GetDefaultAllocator(), "Profiling Data must use the static allocator");
 
   SetThreadName("Main Thread");

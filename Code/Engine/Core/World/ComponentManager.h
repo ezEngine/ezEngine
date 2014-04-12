@@ -23,9 +23,6 @@ public:
 
   bool IsValidComponent(const ezComponentHandle& component) const;
 
-  template <typename ComponentType>
-  static bool IsComponentOfType(const ezComponentHandle& component);
-
   bool TryGetComponent(const ezComponentHandle& component, ezComponent*& out_pComponent) const;
   ezUInt32 GetComponentCount() const;
   ezUInt32 GetActiveComponentCount() const;
@@ -48,6 +45,7 @@ protected:
       PreAsync,
       Async,
       PostAsync,
+      PostTransform,
       PHASE_COUNT
     };
 
@@ -69,6 +67,7 @@ protected:
   typedef ezBlockStorage<ezComponent>::Entry ComponentStorageEntry;
 
   ezComponentHandle CreateComponent(ComponentStorageEntry storageEntry, ezUInt16 uiTypeId);
+  void DeleteComponent(ComponentStorageEntry storageEntry);
   virtual void DeleteDeadComponent(ComponentStorageEntry storageEntry);
 
   ezAllocatorBase* GetAllocator();
@@ -89,10 +88,12 @@ private:
   static ezUInt16 s_uiNextTypeId;
 };
 
-template <typename ComponentType>
+template <typename T>
 class ezComponentManager : public ezComponentManagerBase
 {
 public:
+  typedef T ComponentType;
+
   ezComponentManager(ezWorld* pWorld);
   virtual ~ezComponentManager();
 
@@ -110,8 +111,6 @@ protected:
   virtual void DeleteDeadComponent(ComponentStorageEntry storageEntry) EZ_OVERRIDE;
 
   void RegisterUpdateFunction(UpdateFunctionDesc& desc);
-
-  static ezComponentHandle GetHandle(ezGenericComponentId internalId);
 
   ezBlockStorage<ComponentType> m_ComponentStorage;
 };

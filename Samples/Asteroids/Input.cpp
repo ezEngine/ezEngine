@@ -157,7 +157,7 @@ void Level::UpdatePlayerInput(ezInt32 iPlayer)
     return;
 
   ShipComponent* pShipComponent = nullptr;
-  if (!pShip->TryGetComponentOfType(pShipComponent))
+  if (!pShip->TryGetComponentOfBaseType(pShipComponent))
     return;
 
   ezVec3 vVelocity(0.0f);

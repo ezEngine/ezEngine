@@ -20,13 +20,16 @@ void ezComponentManagerBase::DeleteComponent(const ezComponentHandle& component)
   ComponentStorageEntry storageEntry;
   if (m_Components.TryGetValue(component, storageEntry))
   {
-    ezComponent* pComponent = storageEntry.m_Ptr;
-    pComponent->m_InternalId.Invalidate();
-    pComponent->m_Flags.Remove(ezObjectFlags::Active);
-    m_pWorld->m_Data.m_DeadComponents.PushBack(storageEntry);
-    m_Components.Remove(component);
+    if (ezGameObject* pOwner = storageEntry.m_Ptr->GetOwner())
+    {
+      pOwner->RemoveComponent(component);
+    }
+
+    DeleteComponent(storageEntry);
   }
 }
+
+// protected methods
 
 ezComponentHandle ezComponentManagerBase::CreateComponent(ComponentStorageEntry storageEntry, ezUInt16 uiTypeId)
 {
@@ -40,6 +43,16 @@ ezComponentHandle ezComponentManagerBase::CreateComponent(ComponentStorageEntry 
     ++m_uiActiveComponentCount;
   
   return GetHandle(newId, uiTypeId);
+}
+
+void ezComponentManagerBase::DeleteComponent(ComponentStorageEntry storageEntry)
+{
+  ezComponent* pComponent = storageEntry.m_Ptr;
+  pComponent->m_InternalId.Invalidate();
+  pComponent->m_Flags.Remove(ezObjectFlags::Active);
+    
+  m_pWorld->m_Data.m_DeadComponents.PushBack(storageEntry);
+  m_Components.Remove(pComponent->m_InternalId);
 }
 
 void ezComponentManagerBase::DeleteDeadComponent(ComponentStorageEntry storageEntry)

@@ -5,7 +5,8 @@
 #include <InputXBox360/InputDeviceXBox.h>
 #include <Foundation/Utilities/Stats.h>
 
-EZ_IMPLEMENT_COMPONENT_TYPE(ShipComponent, ShipComponentManager);
+EZ_BEGIN_COMPONENT_TYPE(ShipComponent, ezComponent, ShipComponentManager);
+EZ_END_COMPONENT_TYPE();
 
 ShipComponent::ShipComponent()
 {
@@ -64,7 +65,7 @@ void ShipComponent::Update()
       ezGameObject* pColliderObject = Collider.GetOwner();
       ShipComponent* pShipComponent = nullptr;
 
-      if (pColliderObject->TryGetComponentOfType(pShipComponent))
+      if (pColliderObject->TryGetComponentOfBaseType(pShipComponent))
       {
         if (pShipComponent->m_iPlayerIndex == m_iPlayerIndex)
           continue;

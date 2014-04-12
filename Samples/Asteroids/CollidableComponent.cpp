@@ -1,7 +1,8 @@
 #include "Level.h"
 #include "CollidableComponent.h"
 
-EZ_IMPLEMENT_COMPONENT_TYPE(CollidableComponent, CollidableComponentManager);
+EZ_BEGIN_COMPONENT_TYPE(CollidableComponent, ezComponent, CollidableComponentManager);
+EZ_END_COMPONENT_TYPE();
 
 CollidableComponent::CollidableComponent()
 {

@@ -45,8 +45,6 @@ void ezQuatTemplate<Type>::SetFromAxisAndAngle(const ezVec3Template<Type>& vRota
 
   v = ezMath::Sin(halfAngle) * vRotationAxis;
   w = ezMath::Cos(halfAngle);
-
-  Normalize ();
 }
 
 template<typename Type>
@@ -153,9 +151,9 @@ const ezMat3Template<Type> ezQuatTemplate<Type>::GetAsMat3() const
 
   ezMat3Template<Type> m;
 
-  const Type fTx  = (Type) 2 * v.x;
-  const Type fTy  = (Type) 2 * v.y;
-  const Type fTz  = (Type) 2 * v.z;
+  const Type fTx  = v.x + v.x;
+  const Type fTy  = v.y + v.y;
+  const Type fTz  = v.z + v.z;
   const Type fTwx = fTx * w;
   const Type fTwy = fTy * w;
   const Type fTwz = fTz * w;
@@ -185,9 +183,9 @@ const ezMat4Template<Type> ezQuatTemplate<Type>::GetAsMat4() const
 
   ezMat4Template<Type> m;
 
-  const Type fTx  = (Type) 2 * v.x;
-  const Type fTy  = (Type) 2 * v.y;
-  const Type fTz  = (Type) 2 * v.z;
+  const Type fTx  = v.x + v.x;
+  const Type fTy  = v.y + v.y;
+  const Type fTz  = v.z + v.z;
   const Type fTwx = fTx * w;
   const Type fTwy = fTy * w;
   const Type fTwz = fTz * w;

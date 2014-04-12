@@ -1,9 +1,18 @@
 #include <Core/PCH.h>
 #include <Core/World/World.h>
 
+EZ_BEGIN_STATIC_REFLECTED_TYPE(ezGameObject, ezNoBase, ezRTTINoAllocator);
+  EZ_BEGIN_PROPERTIES
+    EZ_ACCESSOR_PROPERTY("Name", GetName, SetName),
+    EZ_ACCESSOR_PROPERTY("Position", GetLocalPosition, SetLocalPosition),
+    EZ_ACCESSOR_PROPERTY("Rotation", GetLocalRotation, SetLocalRotation),
+    EZ_ACCESSOR_PROPERTY("Scaling", GetLocalScaling, SetLocalScaling),
+  EZ_END_PROPERTIES
+EZ_END_STATIC_REFLECTED_TYPE();
+
 void ezGameObject::ChildIterator::Next()
 {
-  m_pObject->m_pWorld->TryGetObject(m_pObject->m_NextSibling, m_pObject);
+  m_pObject = m_pObject->m_pWorld->GetObjectUnchecked(m_pObject->m_NextSiblingIndex);
 }
 
 void ezGameObject::operator=(const ezGameObject& other)
@@ -12,11 +21,16 @@ void ezGameObject::operator=(const ezGameObject& other)
 
   m_InternalId = other.m_InternalId;
   m_Flags = other.m_Flags;
-  m_uiPersistentId = other.m_uiPersistentId;
 
-  m_Parent = other.m_Parent;
-  m_FirstChild = other.m_FirstChild;
-  m_NextSibling = other.m_NextSibling;
+  m_ParentIndex = other.m_ParentIndex;
+  m_FirstChildIndex = other.m_FirstChildIndex;
+  m_LastChildIndex = other.m_LastChildIndex;
+ 
+  m_NextSiblingIndex = other.m_NextSiblingIndex;
+  m_PrevSiblingIndex = other.m_PrevSiblingIndex;
+  m_ChildCount = other.m_ChildCount;
+
+  m_uiHandledMessageCounter = other.m_uiHandledMessageCounter;
 
   if (m_pTransformationData != other.m_pTransformationData)
   {
@@ -49,11 +63,19 @@ const char* ezGameObject::GetName() const
   return m_pWorld->GetObjectName(m_InternalId);
 }
 
+void ezGameObject::SetParent(const ezGameObjectHandle& parent)
+{
+  EZ_ASSERT_NOT_IMPLEMENTED;
+}
+
+ezGameObject* ezGameObject::GetParent() const
+{
+  return m_pWorld->GetObjectUnchecked(m_ParentIndex);
+}
+
 ezGameObject::ChildIterator ezGameObject::GetChildren() const
 {
-  ezGameObject* pFirstChild = nullptr;
-  m_pWorld->TryGetObject(m_FirstChild, pFirstChild);
-  return ChildIterator(pFirstChild);
+  return ChildIterator(m_pWorld->GetObjectUnchecked(m_FirstChildIndex));
 }
 
 ezResult ezGameObject::AddComponent(const ezComponentHandle& component)
@@ -61,7 +83,7 @@ ezResult ezGameObject::AddComponent(const ezComponentHandle& component)
   ezComponent* pComponent = nullptr;
   if (m_pWorld->TryGetComponent(component, pComponent))
   {
-    EZ_ASSERT(pComponent->m_pOwner != this, "Component must not be added twice.");
+    EZ_ASSERT(pComponent->m_pOwner == nullptr, "Component must not be added twice.");
 
     pComponent->m_pOwner = this;
     if (pComponent->Initialize() == EZ_SUCCESS)
@@ -104,21 +126,17 @@ bool ezGameObject::TryGetComponent(const ezComponentHandle& component, ezCompone
 
 void ezGameObject::SendMessage(ezMessage& msg, ezBitflags<ezObjectMsgRouting> routing /*= MsgRouting::Default*/)
 {
-  if (routing.IsAnySet(ezObjectMsgRouting::QueuedForPostAsync | ezObjectMsgRouting::QueuedForNextFrame))
-  {
-    m_pWorld->QueueMessage(GetHandle(), msg, routing);
-  }
-  else
-  {
-    m_pWorld->HandleMessage(this, msg, routing);
-  }
+  m_pWorld->HandleMessage(this, msg, routing);
+}
+
+void ezGameObject::PostMessage(ezMessage& msg, ezBitflags<ezObjectMsgRouting> routing, 
+  ezObjectMsgQueueType::Enum queueType, float fDelay /*= 0.0f*/)
+{
+  m_pWorld->PostMessage(GetHandle(), msg, routing, queueType, fDelay);
 }
 
 void ezGameObject::OnMessage(ezMessage& msg, ezBitflags<ezObjectMsgRouting> routing)
 {
-  EZ_ASSERT(!routing.IsAnySet(ezObjectMsgRouting::QueuedForPostAsync | ezObjectMsgRouting::QueuedForNextFrame),
-    "Queued message is handled directly");
-
   // prevent double message handling when sending to parent and children
   const ezUInt32 uiHandledMessageCounter = m_pWorld->GetHandledMessageCounter();
   if (m_uiHandledMessageCounter == uiHandledMessageCounter)
@@ -139,8 +157,7 @@ void ezGameObject::OnMessage(ezMessage& msg, ezBitflags<ezObjectMsgRouting> rout
   // route message to parent and/or children
   if (routing.IsSet(ezObjectMsgRouting::ToParent))
   {
-    ezGameObject* pParent = nullptr;
-    if (m_pWorld->TryGetObject(m_Parent, pParent))
+    if (ezGameObject* pParent = GetParent())
     {
       pParent->OnMessage(msg, routing);
     }

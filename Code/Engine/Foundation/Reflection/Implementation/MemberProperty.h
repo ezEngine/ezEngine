@@ -26,7 +26,7 @@ public:
   /// \brief Returns the actual type of the property. You can then compare that with known types, eg. compare it to ezGetStaticRTTI<int>() to see whether this is an int property.
   virtual const ezRTTI* GetPropertyType() const EZ_OVERRIDE // [tested]
   {
-    return ezGetStaticRTTI<Type>();
+    return ezGetStaticRTTI<typename ezTypeTraits<Type>::NonConstReferenceType>();
   }
 
   /// \brief Returns the value of the property. Pass the instance pointer to the surrounding class along.
@@ -75,7 +75,7 @@ public:
     /// \brief Returns the value of the property. Pass the instance pointer to the surrounding class along.
   virtual Type GetValue(const void* pInstance) const EZ_OVERRIDE // [tested]
   {
-    return (((Class*) pInstance)->*m_Getter)();
+    return (static_cast<const Class*>(pInstance)->*m_Getter)();
   }
 
   /// \brief Modifies the value of the property. Pass the instance pointer to the surrounding class along.
@@ -86,7 +86,7 @@ public:
     EZ_ASSERT(m_Setter != nullptr, "The property '%s' has no setter function, thus it is read-only.", ezAbstractProperty::GetPropertyName());
 
     if (m_Setter)
-      (((Class*) pInstance)->*m_Setter)(value);
+      (static_cast<Class*>(pInstance)->*m_Setter)(value);
   }
 
 private:

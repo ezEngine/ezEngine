@@ -19,9 +19,9 @@ public:
   private:
     friend class ezBlockStorage<T>;
 
-    Iterator(ezBlockStorage<T>& storage, ezUInt32 uiStartIndex, ezUInt32 uiCount);
+    Iterator(const ezBlockStorage<T>& storage, ezUInt32 uiStartIndex, ezUInt32 uiCount);
     
-    ezBlockStorage<T>& m_Storage;
+    const ezBlockStorage<T>& m_Storage;
     ezUInt32 m_uiCurrentIndex;
     ezUInt32 m_uiEndIndex;
   };
@@ -44,7 +44,8 @@ public:
   Entry Create();
   void Delete(Entry entry);
   
-  Iterator GetIterator(ezUInt32 uiStartIndex = 0, ezUInt32 uiCount = ezInvalidIndex);
+  ezUInt32 GetCount() const;
+  Iterator GetIterator(ezUInt32 uiStartIndex = 0, ezUInt32 uiCount = ezInvalidIndex) const;
   
 private:
   ezLargeBlockAllocator* m_pBlockAllocator;

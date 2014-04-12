@@ -26,6 +26,12 @@ WorldData::WorldData(const char* szWorldName) :
 {
   m_AllocatorWrapper.Reset();
 
+  m_UpdateProfilingID = ezProfilingSystem::CreateId(m_Name.GetData());
+
+  // insert dummy entry to save some checks
+  ObjectStorage::Entry entry = { nullptr };
+  m_Objects.Insert(entry);
+
   EZ_CHECK_AT_COMPILETIME(sizeof(ezGameObject::TransformationData) == 128);
   EZ_CHECK_AT_COMPILETIME(sizeof(ezGameObject) == 128);
 }
@@ -62,7 +68,7 @@ static EZ_FORCE_INLINE WorldData::HierarchyType::Enum GetHierarchyType(const ezB
 }
 
 ezUInt32 WorldData::CreateTransformationData(const ezBitflags<ezObjectFlags>& objectFlags, ezUInt32 uiHierarchyLevel,
-  ezArrayPtr<ezGameObject::TransformationData*> out_data)
+  ezGameObject::TransformationData*& out_pData)
 {
   HierarchyType::Enum hierarchyType = GetHierarchyType(objectFlags);
   Hierarchy& hierarchy = m_Hierarchies[hierarchyType];
@@ -73,45 +79,23 @@ ezUInt32 WorldData::CreateTransformationData(const ezBitflags<ezObjectFlags>& ob
   }
 
   Hierarchy::DataBlockArray& blocks = *hierarchy.m_Data[uiHierarchyLevel];
-  ezUInt32 uiCount = out_data.GetCount();
-  ezUInt32 uiStartIndex = 0;
-  ezUInt32 uiOutIndex = 0;
+  Hierarchy::DataBlock* pBlock = NULL;
 
   if (!blocks.IsEmpty())
   {
-    Hierarchy::DataBlock& lastBlock = blocks.PeekBack();
-    const ezUInt32 uiDataCountInLastBlock = lastBlock.m_uiCount;
-
-    uiStartIndex = uiDataCountInLastBlock + (blocks.GetCount() - 1) * TRANSFORMATION_DATA_PER_BLOCK;
-
-    const ezUInt32 uiCurrentCount = ezMath::Min<ezUInt32>(uiCount, TRANSFORMATION_DATA_PER_BLOCK - uiDataCountInLastBlock);      
-    for (ezUInt32 i = 0; i < uiCurrentCount; ++i)
-    {
-      out_data[uiOutIndex] = lastBlock.ReserveBack();
-      ++uiOutIndex;
-    }
+    pBlock = &blocks.PeekBack();
   }
 
-  uiCount -= uiOutIndex;
-  const ezUInt32 uiBlockCount = (uiCount + TRANSFORMATION_DATA_PER_BLOCK - 1) / TRANSFORMATION_DATA_PER_BLOCK;
-
-  for (ezUInt32 uiBlock = 0; uiBlock < uiBlockCount; ++uiBlock)
+  if (pBlock == NULL || pBlock->IsFull())
   {
-    const ezUInt32 uiCurrentCount = ezMath::Min<ezUInt32>(uiCount, TRANSFORMATION_DATA_PER_BLOCK);
-
     blocks.PushBack(m_BlockAllocator.AllocateBlock<ezGameObject::TransformationData>());
-    Hierarchy::DataBlock& block = blocks.PeekBack();
-
-    uiCount -= TRANSFORMATION_DATA_PER_BLOCK;
-
-    for (ezUInt32 i = 0; i < uiCurrentCount; ++i)
-    {
-      out_data[uiOutIndex] = block.ReserveBack();
-      ++uiOutIndex;
-    }
+    pBlock = &blocks.PeekBack();
   }
 
-  return uiStartIndex;
+  ezUInt32 uiInnerIndex = pBlock->m_uiCount;
+  out_pData = pBlock->ReserveBack();
+
+  return uiInnerIndex + (blocks.GetCount() - 1) * TRANSFORMATION_DATA_PER_BLOCK;
 }
 
 void WorldData::DeleteTransformationData(const ezBitflags<ezObjectFlags>& objectFlags, ezUInt32 uiHierarchyLevel, 
@@ -142,6 +126,33 @@ void WorldData::DeleteTransformationData(const ezBitflags<ezObjectFlags>& object
   {
     m_BlockAllocator.DeallocateBlock(lastBlock);
     blocks.PopBack();
+  }
+}
+
+void WorldData::UpdateWorldTransforms()
+{
+  struct RootLevel
+  {
+    EZ_FORCE_INLINE static void Update(ezGameObject::TransformationData* pData)
+    {
+      WorldData::UpdateWorldTransform(pData);
+    }
+  };
+
+  struct WithParent
+  {
+    EZ_FORCE_INLINE static void Update(ezGameObject::TransformationData* pData)
+    {
+      WorldData::UpdateWorldTransformWithParent(pData);
+    }
+  };
+
+  Hierarchy& hierarchy = m_Hierarchies[WorldData::HierarchyType::Dynamic];
+  UpdateHierarchyLevel<RootLevel>(*hierarchy.m_Data[0]);
+
+  for (ezUInt32 i = 1; i < hierarchy.m_Data.GetCount(); ++i)
+  {
+    UpdateHierarchyLevel<WithParent>(*hierarchy.m_Data[i]);
   }
 }
 

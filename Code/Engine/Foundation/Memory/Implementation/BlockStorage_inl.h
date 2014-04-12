@@ -1,6 +1,6 @@
 
 template <typename T>
-EZ_FORCE_INLINE ezBlockStorage<T>::Iterator::Iterator(ezBlockStorage<T>& storage, ezUInt32 uiStartIndex, ezUInt32 uiCount) : 
+EZ_FORCE_INLINE ezBlockStorage<T>::Iterator::Iterator(const ezBlockStorage<T>& storage, ezUInt32 uiStartIndex, ezUInt32 uiCount) : 
   m_Storage(storage)
 {
   m_uiCurrentIndex = uiStartIndex;
@@ -132,7 +132,13 @@ void ezBlockStorage<T>::Delete(Entry entry)
 }
 
 template <typename T>
-EZ_FORCE_INLINE typename ezBlockStorage<T>::Iterator ezBlockStorage<T>::GetIterator(ezUInt32 uiStartIndex /*= 0*/, ezUInt32 uiCount /*= ezInvalidIndex*/)
+EZ_FORCE_INLINE ezUInt32 ezBlockStorage<T>::GetCount() const
+{
+  return m_uiCount;
+}
+
+template <typename T>
+EZ_FORCE_INLINE typename ezBlockStorage<T>::Iterator ezBlockStorage<T>::GetIterator(ezUInt32 uiStartIndex /*= 0*/, ezUInt32 uiCount /*= ezInvalidIndex*/) const
 {
   return Iterator(*this, uiStartIndex, uiCount);
 }

@@ -9,14 +9,6 @@ EZ_FORCE_INLINE bool ezComponentManagerBase::IsValidComponent(const ezComponentH
   return m_Components.Contains(component);
 }
 
-//static
-template <typename ComponentType>
-EZ_FORCE_INLINE bool ezComponentManagerBase::IsComponentOfType(const ezComponentHandle& component)
-{
-  /// \todo Use RTTI
-  return component.m_InternalId.m_TypeId == ComponentType::TypeId() || ComponentType::TypeId() == ezComponent::TypeId();
-}
-
 EZ_FORCE_INLINE bool ezComponentManagerBase::TryGetComponent(const ezComponentHandle& component, ezComponent*& out_pComponent) const
 {
   ComponentStorageEntry storageEntry = { nullptr };
@@ -55,8 +47,8 @@ EZ_FORCE_INLINE ezComponentHandle ezComponentManagerBase::GetHandle(ezGenericCom
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////
 
-template <typename ComponentType>
-ezComponentManager<ComponentType>::ezComponentManager(ezWorld* pWorld) : 
+template <typename T>
+ezComponentManager<T>::ezComponentManager(ezWorld* pWorld) : 
   ezComponentManagerBase(pWorld),
   m_ComponentStorage(GetBlockAllocator(), GetAllocator())
 {
@@ -64,20 +56,20 @@ ezComponentManager<ComponentType>::ezComponentManager(ezWorld* pWorld) :
     "Not a valid component type");
 }
 
-template <typename ComponentType>
-ezComponentManager<ComponentType>::~ezComponentManager()
+template <typename T>
+ezComponentManager<T>::~ezComponentManager()
 {
 }
 
-template <typename ComponentType>
-EZ_FORCE_INLINE ezComponentHandle ezComponentManager<ComponentType>::CreateComponent()
+template <typename T>
+EZ_FORCE_INLINE ezComponentHandle ezComponentManager<T>::CreateComponent()
 {
   ComponentType* pNewComponent = nullptr;
   return CreateComponent(pNewComponent);
 }
 
-template <typename ComponentType>
-EZ_FORCE_INLINE ezComponentHandle ezComponentManager<ComponentType>::CreateComponent(ComponentType*& out_pComponent)
+template <typename T>
+EZ_FORCE_INLINE ezComponentHandle ezComponentManager<T>::CreateComponent(ComponentType*& out_pComponent)
 {
   typename ezBlockStorage<ComponentType>::Entry storageEntry = m_ComponentStorage.Create();
   out_pComponent = storageEntry.m_Ptr;
@@ -85,8 +77,8 @@ EZ_FORCE_INLINE ezComponentHandle ezComponentManager<ComponentType>::CreateCompo
   return ezComponentManagerBase::CreateComponent(*reinterpret_cast<ComponentStorageEntry*>(&storageEntry), ComponentType::TypeId());
 }
 
-template <typename ComponentType>
-EZ_FORCE_INLINE bool ezComponentManager<ComponentType>::TryGetComponent(const ezComponentHandle& component, ComponentType*& out_pComponent) const
+template <typename T>
+EZ_FORCE_INLINE bool ezComponentManager<T>::TryGetComponent(const ezComponentHandle& component, ComponentType*& out_pComponent) const
 {
   EZ_ASSERT(ComponentType::TypeId() == GetIdFromHandle(component).m_TypeId, 
     "The given component handle is not of the expected type. Expected type id %d, got type id %d",
@@ -98,41 +90,34 @@ EZ_FORCE_INLINE bool ezComponentManager<ComponentType>::TryGetComponent(const ez
   return bResult;
 }
 
-template <typename ComponentType>
-EZ_FORCE_INLINE typename ezBlockStorage<ComponentType>::Iterator ezComponentManager<ComponentType>::GetComponents()
+template <typename T>
+EZ_FORCE_INLINE typename ezBlockStorage<T>::Iterator ezComponentManager<T>::GetComponents()
 {
   return m_ComponentStorage.GetIterator();
 }
 
 //static
-template <typename ComponentType>
-ezUInt16 ezComponentManager<ComponentType>::TypeId()
+template <typename T>
+ezUInt16 ezComponentManager<T>::TypeId()
 {
-  return ComponentType::TypeId();
+  return T::TypeId();
 }
 
-template <typename ComponentType>
-EZ_FORCE_INLINE void ezComponentManager<ComponentType>::DeleteDeadComponent(ComponentStorageEntry storageEntry)
+template <typename T>
+EZ_FORCE_INLINE void ezComponentManager<T>::DeleteDeadComponent(ComponentStorageEntry storageEntry)
 {
   m_ComponentStorage.Delete(*reinterpret_cast<typename ezBlockStorage<ComponentType>::Entry*>(&storageEntry));
   ezComponentManagerBase::DeleteDeadComponent(storageEntry);
 }
 
-template <typename ComponentType>
-EZ_FORCE_INLINE void ezComponentManager<ComponentType>::RegisterUpdateFunction(UpdateFunctionDesc& desc)
+template <typename T>
+EZ_FORCE_INLINE void ezComponentManager<T>::RegisterUpdateFunction(UpdateFunctionDesc& desc)
 {
   // round up to multiple of data block capacity so tasks only have to deal with complete data blocks
   if (desc.m_uiGranularity != 0)
     desc.m_uiGranularity = ezMath::Ceil((ezInt32)desc.m_uiGranularity, ezDataBlock<ComponentType>::CAPACITY);
 
   ezComponentManagerBase::RegisterUpdateFunction(desc);
-}
-
-//static
-template <typename ComponentType>
-EZ_FORCE_INLINE ezComponentHandle ezComponentManager<ComponentType>::GetHandle(ezGenericComponentId internalId)
-{
-  return ezComponentManagerBase::GetHandle(internalId, ComponentType::TypeId());
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////

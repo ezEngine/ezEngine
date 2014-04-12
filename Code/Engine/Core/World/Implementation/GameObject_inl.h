@@ -32,6 +32,21 @@ EZ_FORCE_INLINE void ezGameObject::ChildIterator::operator++()
 
 EZ_FORCE_INLINE ezGameObject::ezGameObject()
 {
+  m_ParentIndex = 0;
+  m_FirstChildIndex = 0;
+  m_LastChildIndex = 0;
+
+  m_NextSiblingIndex = 0;
+  m_PrevSiblingIndex = 0;
+  m_ChildCount = 0;
+
+  m_uiHandledMessageCounter = 0;
+
+  m_uiHierarchyLevel = 0;
+  m_uiTransformationDataIndex = 0;
+
+  m_pTransformationData = nullptr;
+  m_pWorld = nullptr;
 }
 
 EZ_FORCE_INLINE ezGameObject::ezGameObject(const ezGameObject& other)
@@ -58,21 +73,6 @@ EZ_FORCE_INLINE bool ezGameObject::IsActive() const
   return m_Flags.IsSet(ezObjectFlags::Active);
 }
 
-EZ_FORCE_INLINE ezUInt64 ezGameObject::GetPersistentId() const
-{
-  return m_uiPersistentId;
-}
-
-EZ_FORCE_INLINE void ezGameObject::SetParent(const ezGameObjectHandle& parent)
-{
-  EZ_ASSERT_NOT_IMPLEMENTED;
-}
-
-EZ_FORCE_INLINE ezGameObjectHandle ezGameObject::GetParent() const
-{
-  return m_Parent;
-}
-
 EZ_FORCE_INLINE void ezGameObject::AddChild(const ezGameObjectHandle& child)
 {
   AddChildren(ezArrayPtr<const ezGameObjectHandle>(&child, 1));
@@ -91,6 +91,11 @@ EZ_FORCE_INLINE void ezGameObject::DetachChild(const ezGameObjectHandle& child)
 EZ_FORCE_INLINE void ezGameObject::DetachChildren(const ezArrayPtr<const ezGameObjectHandle>& children)
 {
   EZ_ASSERT_NOT_IMPLEMENTED;
+}
+
+EZ_FORCE_INLINE ezUInt32 ezGameObject::GetChildCount() const
+{
+  return m_ChildCount;
 }
 
 EZ_FORCE_INLINE ezWorld* ezGameObject::GetWorld() const
@@ -128,9 +133,28 @@ EZ_FORCE_INLINE const ezVec3& ezGameObject::GetLocalScaling() const
   return *reinterpret_cast<const ezVec3*>(&m_pTransformationData->m_localScaling);
 }
 
-EZ_FORCE_INLINE ezMat4 ezGameObject::GetWorldTransform() const
+EZ_FORCE_INLINE const ezVec3& ezGameObject::GetWorldPosition() const
 {
-  return ezMat4(m_pTransformationData->m_worldRotation, m_pTransformationData->m_worldPosition);
+  return m_pTransformationData->m_worldTransform.m_vPosition;
+}
+
+EZ_FORCE_INLINE const ezQuat ezGameObject::GetWorldRotation() const
+{
+  ezMat3 mat = m_pTransformationData->m_worldTransform.m_Rotation;
+  mat.SetScalingFactors(ezVec3(1.0f));
+
+  ezQuat q; q.SetFromMat3(mat);
+  return q;
+}
+
+EZ_FORCE_INLINE const ezVec3 ezGameObject::GetWorldScaling() const
+{
+  return m_pTransformationData->m_worldTransform.m_Rotation.GetScalingFactors();
+}
+
+EZ_FORCE_INLINE const ezTransform& ezGameObject::GetWorldTransform() const
+{
+  return m_pTransformationData->m_worldTransform;
 }
 
 EZ_FORCE_INLINE void ezGameObject::SetVelocity(const ezVec3& vVelocity)
@@ -144,13 +168,13 @@ EZ_FORCE_INLINE const ezVec3& ezGameObject::GetVelocity() const
 }
 
 template <typename T>
-bool ezGameObject::TryGetComponentOfType(T*& out_pComponent) const
+bool ezGameObject::TryGetComponentOfBaseType(T*& out_pComponent) const
 {
   for (ezUInt32 i = 0; i < m_Components.GetCount(); ++i)
   {
     ezComponentHandle component = m_Components[i];
     ezComponent* pComponent = nullptr;
-    if (ezComponentManagerBase::IsComponentOfType<T>(component) && TryGetComponent(component, pComponent))
+    if (TryGetComponent(component, pComponent) && pComponent->IsInstanceOf<T>())
     {
       out_pComponent = static_cast<T*>(pComponent);
       return true;
@@ -161,7 +185,7 @@ bool ezGameObject::TryGetComponentOfType(T*& out_pComponent) const
 }
 
 template <typename T>
-void ezGameObject::TryGetComponentsOfType(ezHybridArray<T*, 8>& out_components) const
+void ezGameObject::TryGetComponentsOfBaseType(ezHybridArray<T*, 8>& out_components) const
 {
   out_components.Clear();
 
@@ -169,7 +193,7 @@ void ezGameObject::TryGetComponentsOfType(ezHybridArray<T*, 8>& out_components) 
   {
     ezComponentHandle component = m_Components[i];
     ezComponent* pComponent = nullptr;
-    if (ezComponentManagerBase::IsComponentOfType<T>(component) && TryGetComponent(component, pComponent))
+    if (TryGetComponent(component, pComponent) && pComponent->IsInstanceOf<T>())
     {
       out_components.PushBack(static_cast<T*>(pComponent));
     }

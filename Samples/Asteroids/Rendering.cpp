@@ -21,7 +21,7 @@ const ezColor g_fShipColors[4] =
 static void RenderShip(ezGameObject* pShip, ezInt32 iPlayer)
 {
   ShipComponent* pShipComponent = nullptr;
-  if (!pShip->TryGetComponentOfType(pShipComponent))
+  if (!pShip->TryGetComponentOfBaseType(pShipComponent))
     return;
 
   const ezVec3 vPos = pShip->GetLocalPosition();

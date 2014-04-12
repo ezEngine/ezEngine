@@ -9,6 +9,7 @@
 #include <Foundation/Memory/BlockStorage.h>
 #include <Foundation/Memory/CommonAllocators.h>
 #include <Foundation/Memory/LargeBlockAllocator.h>
+#include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Strings/String.h>
 #include <Foundation/Threading/TaskSystem.h>
 
@@ -61,10 +62,18 @@ namespace ezInternal
     Hierarchy m_Hierarchies[HierarchyType::COUNT];
 
     ezUInt32 CreateTransformationData(const ezBitflags<ezObjectFlags>& objectFlags, ezUInt32 uiHierarchyLevel,
-      ezArrayPtr<ezGameObject::TransformationData*> out_data);
+      ezGameObject::TransformationData*& out_pData);
 
     void DeleteTransformationData(const ezBitflags<ezObjectFlags>& objectFlags, ezUInt32 uiHierarchyLevel, 
         ezUInt32 uiIndex);
+
+    static void UpdateWorldTransform(ezGameObject::TransformationData* pData);
+    static void UpdateWorldTransformWithParent(ezGameObject::TransformationData* pData);
+
+    template <typename UPDATER>
+    static void UpdateHierarchyLevel(Hierarchy::DataBlockArray& blocks);
+
+    void UpdateWorldTransforms();
 
     // game object lookups
     ezHashTable<ezUInt64, ezGameObjectId, ezHashHelper<ezUInt64>, ezLocalAllocatorWrapper> m_PersistentToInternalTable;
@@ -95,30 +104,23 @@ namespace ezInternal
       ezUInt32 m_uiCount;
     };
 
+    ezProfilingId m_UpdateProfilingID;
+
     ezDynamicArray<RegisteredUpdateFunction, ezLocalAllocatorWrapper> m_UpdateFunctions[ezComponentManagerBase::UpdateFunctionDesc::PHASE_COUNT];
     ezDynamicArray<ezComponentManagerBase::UpdateFunctionDesc, ezLocalAllocatorWrapper> m_UnresolvedUpdateFunctions;
 
     ezDynamicArray<UpdateTask*, ezLocalAllocatorWrapper> m_UpdateTasks;
 
-    struct MessageQueueType
-    {
-      enum Enum
-      {
-        PostAsync,
-        NextFrame,
-        COUNT
-      };
-    };
-
     struct QueuedMsgMetaData
     {
       ezGameObjectHandle m_ReceiverObject;
       ezBitflags<ezObjectMsgRouting> m_Routing;
+      float m_fDelay;
     };
 
     /// \todo temp allocator
     typedef ezMessageQueue<QueuedMsgMetaData, ezMutex, ezLocalAllocatorWrapper, ezLocalAllocatorWrapper> MessageQueue;
-    MessageQueue m_MessageQueues[MessageQueueType::COUNT];
+    MessageQueue m_MessageQueues[ezObjectMsgQueueType::COUNT];
 
     ezUInt32 m_uiHandledMessageCounter;
 
@@ -128,4 +130,6 @@ namespace ezInternal
     void* m_pUserData;
   };
 }
+
+#include <Core/World/Implementation/WorldData_inl.h>
 

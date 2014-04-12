@@ -2,8 +2,6 @@
 
 #include <Foundation/Basics/Types/Bitflags.h>
 #include <Foundation/Basics/Types/Id.h>
-#include <Foundation/Math/Mat4.h>
-#include <Foundation/Math/Quat.h>
 
 #include <Core/Basics.h>
 
@@ -117,21 +115,26 @@ struct ezObjectMsgRouting
     ToParent   = EZ_BIT(0),
     ToChildren = EZ_BIT(1),
 
-    Direct     = 0,
-    QueuedForPostAsync = EZ_BIT(2),
-    QueuedForNextFrame = EZ_BIT(3),
-
-    Default    = Direct
+    Default    = 0
   };
 
   struct Bits
   {
     StorageType ToParent : 1;
     StorageType ToChildren : 1;
-    StorageType QueuedForPostAsync : 1;
-    StorageType QueuedForNextFrame : 1;
   };
 };
 
 EZ_DECLARE_FLAGS_OPERATORS(ezObjectMsgRouting);
+
+struct ezObjectMsgQueueType
+{
+  enum Enum
+  {
+    PostAsync,
+    PostTransform,
+    NextFrame,
+    COUNT
+  };
+};
 

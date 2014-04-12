@@ -14,13 +14,7 @@ public:
   ezGameObjectHandle CreateObject(const ezGameObjectDesc& desc);
   ezGameObjectHandle CreateObject(const ezGameObjectDesc& desc, ezGameObject*& out_pObject);
 
-  void CreateObjects(const ezArrayPtr<const ezGameObjectDesc>& descs, ezArrayPtr<ezGameObjectHandle> out_objects);
-  void CreateObjects(const ezArrayPtr<const ezGameObjectDesc>& descs, ezArrayPtr<ezGameObjectHandle> out_objects, 
-    ezArrayPtr<ezGameObject*> out_pObjects);
-
   void DeleteObject(const ezGameObjectHandle& object);
-
-  void DeleteObjects(const ezArrayPtr<const ezGameObjectHandle>& objects);
 
   bool IsValidObject(const ezGameObjectHandle& object) const;
   
@@ -31,6 +25,7 @@ public:
   bool TryGetObject(const char* szObjectName, ezGameObject*& out_pObject) const;
 
   ezUInt32 GetObjectCount() const;
+  ezBlockStorage<ezGameObject>::Iterator GetObjects() const;
 
   // component management
   template <typename ManagerType>
@@ -45,14 +40,14 @@ public:
   bool IsValidComponent(const ezComponentHandle& component) const;
   
   template <typename ComponentType>
-  static bool IsComponentOfType(const ezComponentHandle& component);
-
-  template <typename ComponentType>
   bool TryGetComponent(const ezComponentHandle& component, ComponentType*& out_pComponent) const;
 
   // messaging
   void SendMessage(const ezGameObjectHandle& receiverObject, ezMessage& msg, 
     ezBitflags<ezObjectMsgRouting> routing = ezObjectMsgRouting::Default);
+
+  void PostMessage(const ezGameObjectHandle& receiverObject, ezMessage& msg, 
+    ezBitflags<ezObjectMsgRouting> routing, ezObjectMsgQueueType::Enum queueType, float fDelay = 0.0f);
 
   // update
   void Update();
@@ -75,17 +70,18 @@ private:
 
   void CheckForMultithreadedAccess() const;
 
+  ezGameObject* GetObjectUnchecked(ezUInt32 uiIndex) const;
+
   void SetObjectName(ezGameObjectId internalId, const char* szName);
   const char* GetObjectName(ezGameObjectId internalId) const;
 
   void SetParent(ezGameObject* pObject, const ezGameObjectHandle& parent);
 
-  void QueueMessage(const ezGameObjectHandle& receiverObject, ezMessage& msg, ezBitflags<ezObjectMsgRouting> routing);
   void HandleMessage(ezGameObject* pReceiverObject, ezMessage& msg, ezBitflags<ezObjectMsgRouting> routing);
   ezUInt32 GetHandledMessageCounter() const;
 
-  typedef ezInternal::WorldData::MessageQueueType MessageQueueType;
-  void ProcessQueuedMessages(MessageQueueType::Enum queueType);
+  typedef ezObjectMsgQueueType MessageQueueType;
+  void ProcessQueuedMessages(ezObjectMsgQueueType::Enum queueType);
 
   ezResult RegisterUpdateFunction(const ezComponentManagerBase::UpdateFunctionDesc& desc);
   ezResult RegisterUpdateFunctionWithDependency(const ezComponentManagerBase::UpdateFunctionDesc& desc, bool bInsertAsUnresolved);
@@ -95,7 +91,6 @@ private:
   void UpdateAsynchronous();
   void DeleteDeadObjects();
   void DeleteDeadComponents();
-  void UpdateWorldTransforms();
 
   ezInternal::WorldData m_Data;
   typedef ezInternal::WorldData::ObjectStorage::Entry ObjectStorageEntry;
