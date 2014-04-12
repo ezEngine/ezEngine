@@ -24,7 +24,7 @@ void GameRenderer::RenderSelection(const ezObjectSelection* pSelection)
 
     UnitComponent* pComponent;
 
-    if (!pUnit->TryGetComponentOfType<UnitComponent>(pComponent))
+    if (!pUnit->TryGetComponentOfBaseType<UnitComponent>(pComponent))
       continue;
 
     if (CVarVisSteering)
@@ -32,11 +32,11 @@ void GameRenderer::RenderSelection(const ezObjectSelection* pSelection)
       ezHybridArray<SteeringBehaviorComponent*, 8> Steering;
 
       FollowPathSteeringComponent* pFollowSB;
-      if (pUnit->TryGetComponentOfType<FollowPathSteeringComponent>(pFollowSB))
+      if (pUnit->TryGetComponentOfBaseType<FollowPathSteeringComponent>(pFollowSB))
         Steering.PushBack(pFollowSB);
 
       AvoidObstacleSteeringComponent* pAvoidSB;
-      if (pUnit->TryGetComponentOfType<AvoidObstacleSteeringComponent>(pAvoidSB))
+      if (pUnit->TryGetComponentOfBaseType<AvoidObstacleSteeringComponent>(pAvoidSB))
         Steering.PushBack(pAvoidSB);
 
       float fDirectionDesire[SteeringBehaviorComponent::g_iSteeringDirections];

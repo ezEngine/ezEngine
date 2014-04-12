@@ -6,7 +6,8 @@
 #include <Foundation/Time/Stopwatch.h>
 #include <RTS/Level.h>
 
-EZ_IMPLEMENT_COMPONENT_TYPE(UnitComponent, UnitComponentManager);
+EZ_BEGIN_COMPONENT_TYPE(UnitComponent, ezComponent, UnitComponentManager);
+EZ_END_COMPONENT_TYPE();
 
 ezCVarFloat CVarUnitSpeed("ai_UnitSpeed", 10.0f, ezCVarFlags::Save, "How fast units move.");
 
@@ -73,11 +74,11 @@ void UnitComponent::MoveAlongPath()
   ezHybridArray<SteeringBehaviorComponent*, 8> Steering;
 
   FollowPathSteeringComponent* pFollowSB;
-  if (GetOwner()->TryGetComponentOfType<FollowPathSteeringComponent>(pFollowSB))
+  if (GetOwner()->TryGetComponentOfBaseType<FollowPathSteeringComponent>(pFollowSB))
     Steering.PushBack(pFollowSB);
 
   AvoidObstacleSteeringComponent* pAvoidSB;
-  if (GetOwner()->TryGetComponentOfType<AvoidObstacleSteeringComponent>(pAvoidSB))
+  if (GetOwner()->TryGetComponentOfBaseType<AvoidObstacleSteeringComponent>(pAvoidSB))
     Steering.PushBack(pAvoidSB);
 
   ezVec3 vDesiredDir(0);

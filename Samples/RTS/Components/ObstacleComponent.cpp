@@ -1,7 +1,8 @@
 #include <PCH.h>
 #include <RTS/Components/ObstacleComponent.h>
 
-EZ_IMPLEMENT_COMPONENT_TYPE(ObstacleComponent, ObstacleComponentManager);
+EZ_BEGIN_COMPONENT_TYPE(ObstacleComponent, ezComponent, ObstacleComponentManager);
+EZ_END_COMPONENT_TYPE();
 
 float ObstacleComponent::g_fDefaultRadius = 1.5f;
 

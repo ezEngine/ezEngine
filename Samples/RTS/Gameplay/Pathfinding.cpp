@@ -70,7 +70,7 @@ void SampleGameApp::SendUnit()
       const ezVec3 vPos = pObject->GetLocalPosition();
 
       UnitComponent* pUnit;
-      if (pObject->TryGetComponentOfType<UnitComponent>(pUnit))
+      if (pObject->TryGetComponentOfBaseType<UnitComponent>(pUnit))
       {
         const ezVec2I32 StartCoord  = m_pLevel->GetGrid().GetCellAtWorldPosition(vPos);
         const ezVec2I32 TargetCoord = m_pLevel->GetGrid().GetCellAtWorldPosition(vTarget);

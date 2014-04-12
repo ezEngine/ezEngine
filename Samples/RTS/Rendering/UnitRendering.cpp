@@ -52,7 +52,7 @@ void GameRenderer::RenderUnit(ezGameObject* pUnit, UnitComponent* pComponent)
   if (CVarVisObstacles)
   {
     ezHybridArray<ObstacleComponent*, 8> Components;
-    pUnit->TryGetComponentsOfType<ObstacleComponent>(Components);
+    pUnit->TryGetComponentsOfBaseType<ObstacleComponent>(Components);
 
     ezVec3 vCenter = pUnit ->GetLocalPosition();
     vCenter.y -= 0.7f;

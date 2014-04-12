@@ -2,7 +2,8 @@
 #include <RTS/Components/AvoidObstacleSteeringComponent.h>
 #include <RTS/Level.h>
 
-EZ_IMPLEMENT_COMPONENT_TYPE(AvoidObstacleSteeringComponent, AvoidObstacleSteeringComponentManager);
+EZ_BEGIN_COMPONENT_TYPE(AvoidObstacleSteeringComponent, SteeringBehaviorComponent, AvoidObstacleSteeringComponentManager);
+EZ_END_COMPONENT_TYPE();
 
 AvoidObstacleSteeringComponent::AvoidObstacleSteeringComponent()
 {
@@ -63,7 +64,7 @@ ezCallbackResult::Enum AvoidObstacleSteeringComponent::ComputeCellDanger(ezInt32
       if (tcd->m_pLevel->GetWorld()->TryGetComponent<UnitComponent>(hUnit, pUnit))
       {
         ObstacleComponent* pObstacle;
-        if (pUnit->GetOwner()->TryGetComponentOfType<ObstacleComponent>(pObstacle))
+        if (pUnit->GetOwner()->TryGetComponentOfBaseType<ObstacleComponent>(pObstacle))
         {
           const float fRadius = pObstacle->m_fRadius > 0 ? pObstacle->m_fRadius : ObstacleComponent::g_fDefaultRadius;
 
@@ -97,7 +98,7 @@ void AvoidObstacleSteeringComponent::Update()
   }
 
   UnitComponent* pUnit;
-  if (!GetOwner()->TryGetComponentOfType<UnitComponent>(pUnit))
+  if (!GetOwner()->TryGetComponentOfBaseType<UnitComponent>(pUnit))
     return;
 
   

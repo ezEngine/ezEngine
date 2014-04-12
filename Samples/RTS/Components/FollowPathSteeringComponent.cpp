@@ -2,7 +2,8 @@
 #include <RTS/Components/FollowPathSteeringComponent.h>
 #include <RTS/Level.h>
 
-EZ_IMPLEMENT_COMPONENT_TYPE(FollowPathSteeringComponent, FollowPathSteeringComponentManager);
+EZ_BEGIN_COMPONENT_TYPE(FollowPathSteeringComponent, SteeringBehaviorComponent, FollowPathSteeringComponentManager);
+EZ_END_COMPONENT_TYPE();
 
 FollowPathSteeringComponent::FollowPathSteeringComponent()
 {
