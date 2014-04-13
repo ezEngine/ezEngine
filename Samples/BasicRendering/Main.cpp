@@ -16,6 +16,7 @@
 
 #include <Core/Basics.h>
 #include <Core/Application/Application.h>
+#include <Core/Input/InputManager.h>
 
 #include <System/Window/Window.h>
 
@@ -87,6 +88,14 @@ public:
     ezPlugin::LoadPlugin("ezInspectorPlugin");
 
     ezClock::SetNumGlobalClocks();
+
+    // Register escape key
+    ezInputActionConfig cfg;
+
+    cfg = ezInputManager::GetInputActionConfig("Main", "CloseApp");
+    cfg.m_sInputSlotTrigger[0] = ezInputSlot_KeyEscape;
+
+    ezInputManager::SetInputActionConfig("Main", "CloseApp", cfg, true);
 
     // Create a window for rendering
     ezWindowCreationDesc WindowCreationDesc;
@@ -220,7 +229,12 @@ public:
     if (m_pWindow->m_bCloseRequested)
       return ApplicationExecution::Quit;
 
+    if (ezInputManager::GetInputActionState("Main", "CloseApp") == ezKeyState::Pressed)
+      return ApplicationExecution::Quit;
+
     ezClock::UpdateAllGlobalClocks();
+
+    ezInputManager::Update(ezClock::Get()->GetTimeDiff());
 
     ezTelemetry::PerFrameUpdate();
 
