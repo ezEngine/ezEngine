@@ -1,0 +1,46 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{18425fa3-6d0c-4afb-8e91-71b75a7793a6}</ProjectGuid>
+    <ProjectHome />
+    <StartupFile>main.py</StartupFile>
+    <SearchPath />
+    <WorkingDirectory>.</WorkingDirectory>
+    <OutputPath>.</OutputPath>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
+    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
+    <IsWindowsApplication>False</IsWindowsApplication>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'" />
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'" />
+  <ItemGroup>
+    <Compile Include="DBAccess.py" />
+    <Compile Include="DBReader.py" />
+    <Compile Include="DBWriter.py" />
+    <Compile Include="main.py" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="templates\" />
+    <Folder Include="static\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="schema.sql" />
+    <Content Include="static\failure.png" />
+    <Content Include="static\green.png" />
+    <Content Include="static\linux.png" />
+    <Content Include="static\osx.png" />
+    <Content Include="static\red.png" />
+    <Content Include="static\style.css" />
+    <Content Include="static\success.png" />
+    <Content Include="static\windows.png" />
+    <Content Include="templates\BuildMachines.html" />
+    <Content Include="templates\BuildProcessResult.html" />
+    <Content Include="templates\BuildProcessResultMissing.html" />
+    <Content Include="templates\NavigationBar.html" />
+    <Content Include="templates\index.html" />
+    <Content Include="templates\layout.html" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.Common.targets" />
+</Project>

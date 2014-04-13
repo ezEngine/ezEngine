@@ -1,0 +1,58 @@
+{% extends "layout.html" %}
+{% block body %}
+
+<table style="text-align: left; width: 100%;" border="0" cellpadding="2" cellspacing="2">
+    <tbody>
+        <tr>
+            <td style="width: 400px; vertical-align: top", rowspan="2">
+                {{buildMachinesBlock|safe}}
+            </td>
+            <td style="vertical-align: top; height: 1px">
+                {{navigationBarBlock|safe}}
+            </td>
+        </tr>
+        <tr>
+            <td style="vertical-align: top">
+                {{buildProcessResultBlock|safe}}
+            </td>
+        </tr>
+    </tbody>
+</table>
+
+<script type=text/javascript>
+    $('.toggleClosed').click(function () {
+        $(this).find('span').text(function (_, value) { return value == '-' ? '+' : '-' });
+        $(this).next().nextUntil('tr.toggleClosed').slideToggle(0, function () {
+        });
+    });
+</script>
+
+<script type=text/javascript>
+    $('.toggleOpen').click(function () {
+        $(this).find('span').text(function (_, value) { return value == '-' ? '+' : '-' });
+        $(this).next().nextUntil('tr.toggleOpen').slideToggle(0, function () {
+        });
+    });
+</script>
+
+<script type="text/javascript">
+    $(document).ready(function ()
+    {
+        $('.toggleClosed').click();
+        //bla = $('.header');
+        //for (index = 0; index < bla.length; ++index) {
+        //    var $single = bla[index];
+        //    var $test1 = $single.cells[0];
+        //    var $test2 = $test1.children[0];
+        //    //var $blub = $single.find('span');
+        //    if ($test2.textContent == '-') {
+        //        bla[index].click();
+        //    }
+        //}
+       // 
+       //     $('.header').click();
+       // }
+});
+</script>
+
+{% endblock %}

@@ -1,0 +1,14 @@
+<!doctype html>
+<title>BuildSite</title>
+<script type=text/javascript
+  src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+<script type=text/javascript>
+    var $SCRIPT_ROOT = {{ request.script_root|tojson|safe }};
+</script>
+<link rel=stylesheet type=text/css href="{{ url_for('static', filename='style.css') }}">
+<div class=page>
+  <h1>ezBuildMachine</h1>
+  <div class=metanav>
+  </div>
+  {% block body %}{% endblock %}
+</div>

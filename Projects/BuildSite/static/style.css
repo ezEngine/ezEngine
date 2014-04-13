@@ -1,0 +1,207 @@
+body            { font-family: sans-serif; background: #CCC; }
+a, h1, h2       { color: #377ba8; }
+h1, h2          { font-family: 'Georgia', serif; margin: 0; }
+h1              { border-bottom: 2px solid #CCCCCC; }
+h2              { font-size: 1.2em; }
+
+.page           { margin: 2em auto;
+                  /*  border: 5px solid #ccc;*/
+                  padding: 0.8em; background: white; }
+/*.entries        { list-style: none; margin: 0; padding: 0; }
+.entries li     { margin: 0.8em 1.2em; }
+.entries li h2  { margin-left: -1em; }*/
+.metanav        { text-align: right; font-size: 0.8em; padding: 0.3em;
+                  margin-bottom: 1em; background: #fafafa; }
+.flash          { background: #cee5F5; padding: 0.5em;
+                  border: 1px solid #aacbe2; }
+.error          { background: #f0d6d6; padding: 0.5em; }
+.success
+{
+    color: #006700;
+}
+.failure
+{
+    color: #870000;
+}
+
+.blue
+{
+    font-family: 'Georgia' , serif;
+    color: #377ba8;
+    font-weight: bold;
+}
+
+.machine
+{
+    background: #CCCCCC;
+}
+
+.machineHighlight
+{
+    background: #66FFFF;
+}
+
+.machineDetails
+{
+    background: #EEEEEE;
+    font-size: small;
+}
+
+.machineOS
+{
+    background-color: #CCCCCC;
+    width: 40px;
+    text-align: center;
+}
+
+.machineOSHighlight
+{
+    background-color: #66FFFF;
+    width: 40px;
+    text-align: center;
+}
+
+.stepResult
+{
+    background: #CCCCCC;
+    width: 16px;
+}
+
+.stepResultAlt
+{
+    background: #BBBBBB;
+    width: 16px;
+}
+
+.revisionInfoChangedFiles
+{
+    font-size: small;
+}
+
+
+.nearRevTableHeader
+{
+    text-align: left;
+    background: #EEEEEE;
+    font-size: small;
+    width: auto;
+}
+
+.nearRevTableSpacer
+{
+    text-align: left;
+    width: 5px;
+    white-space: nowrap;
+}
+
+.nearRevTableDescription
+{
+    text-align: left;
+    background: #EEEEEE;
+    font-size: small;
+    width: 16px;
+    border: 1px solid #CCCCCC;
+}
+
+.nearRevTableDescriptionHightlight
+{
+    text-align: left;
+    background: #66FFFF;
+    font-size: small;
+    width: 16px;
+    /*border: 1px solid #CCCCCC;*/
+}
+
+.nearRevTableEntry
+{
+    text-align: center;
+    background: #CCCCCC;
+    width: 16px;
+    vertical-align: middle;
+}
+
+.nearRevTableHightlight
+{
+    text-align: center;
+    background: #66FFFF;
+    width: 16px;
+    vertical-align: middle;
+}
+
+.nearRevTableEntryAlt
+{
+    text-align: center;
+    background: #BBBBBB;
+    width: 16px;
+    vertical-align: middle;
+}
+
+
+
+.buildProcessResult
+{
+    width: 100%;
+}
+
+.buildProcessSubResult
+{
+    background: #CCCCCC;
+}
+
+.buildStepIcon
+{
+    background-color: #CCCCCC;
+    width: 40px;
+    height: 40px;
+    text-align: center;
+}
+
+.buildStepHeader
+{
+    background-color: #CCCCCC;
+    font-weight: bold;
+}
+
+.buildStepDetails
+{
+    background: #EEEEEE;
+    font-size: small;
+}
+
+.buildStepErrorOut
+{
+    background: #EEEEEE;
+    font-size: small;
+    font-family: 'Courier New' , Courier, monospace;
+}
+
+.buildStepSpacer
+{
+    background-color: #FFFFFF;
+    text-align: left;
+    width: 40px;
+    white-space: nowrap;
+}
+
+.buildStepSubTable
+{
+    width: 100%;
+}
+
+pre {
+ white-space: pre-wrap;       /* css-3 */
+ white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
+ white-space: -pre-wrap;      /* Opera 4-6 */
+ white-space: -o-pre-wrap;    /* Opera 7 */
+ word-wrap: break-word;       /* Internet Explorer 5.5+ */
+}
+
+.toggleOpen
+{
+    cursor:pointer;
+}
+
+.toggleClosed
+{
+    cursor:pointer;
+}

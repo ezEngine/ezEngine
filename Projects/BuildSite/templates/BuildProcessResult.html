@@ -1,0 +1,191 @@
+
+{% macro resultImage(success) -%}
+    {% if success %}
+    <img src="{{url_for('static', filename='success.png')}}"/>
+    {% else %}
+    <img src="{{url_for('static', filename='failure.png')}}"/>
+    {% endif %}
+{%- endmacro %}
+
+{% macro toggleClass(Success) -%}
+    {% if Success %}
+    class="toggleClosed"
+    {% else %}
+    class="toggleOpen"
+    {% endif %}
+{%- endmacro %}
+
+{% macro stepHeader(Name, Result) -%}
+<tr {{toggleClass(Result.Success)}}>
+    <td colspan="1" rowspan="2" class="buildStepIcon">{{resultImage(Result.Success)}}</td>
+    <td class="buildStepHeader">{{Name}} <span>-</span></td>
+</tr>
+<tr>
+    <td class="buildStepDetails">
+        Success: {{Result.Success|truefalse|safe}},
+        Duration: {{Result.Duration|duration}},
+        {% if Result.Errors %}
+        Errors: <span class="failure">{{Result.Errors}}</span>
+        {% endif %}
+    </td>
+</tr>
+{%- endmacro %}
+
+{% macro buildTarget(Result, ProcessResult) -%}
+<table style="width: 100%;" border="0" cellpadding="2" cellspacing="0">
+    <tr {{toggleClass(Result.Success)}}>
+        <td colspan="1" rowspan="2" class="buildStepIcon">{{resultImage(Result.Success)}}</td>
+        <td class="buildStepHeader">{{Result.Name}} <span>-</span></td>
+    </tr>
+    <tr>
+        <td class="buildStepDetails">
+            Success: {{Result.Success|truefalse|safe}},
+            Duration: {{Result.Duration|duration}},
+            Experimental: {{Result.Experimental|yesno}},
+            {% if Result.Errors %}
+            Errors: <span class="failure">{{Result.Errors}}</span>,
+            {% endif %}
+            {% if ProcessResult %}
+            ExitCode: {{ProcessResult.ExitCode}},
+            {% else %}
+            Errors: <span class="failure">Build skipped, dependencies failed to build!</span>,
+            {% endif %}
+
+        </td>
+    </tr>
+    {% if ProcessResult.ErrorOut %}
+    <tr>
+        <td class="buildStepErrorOut" colspan="2">
+<PRE>
+{{ProcessResult.ErrorOut|safe}}
+</PRE>
+        </td>
+    </tr>
+    {% endif %}
+    {% if ProcessResult.StdOut %}
+    <tr>
+        <td class="buildStepErrorOut" colspan="2">
+<PRE>
+{{ProcessResult.StdOut|safe}}
+</PRE>
+        </td>
+    </tr>
+    {% endif %}
+</table>
+{%- endmacro %}
+
+{% macro testTarget(Result, ProcessResult) -%}
+<table style="width: 100%;" border="0" cellpadding="2" cellspacing="0">
+    <tr {{toggleClass(Result.Success)}}>
+        <td colspan="1" rowspan="2" class="buildStepIcon">{{resultImage(Result.Success)}}</td>
+        <td class="buildStepHeader">{{Result.Name}} <span>-</span></td>
+    </tr>
+    <tr>
+        <td class="buildStepDetails">
+            Success: {{Result.Success|truefalse|safe}},
+            Duration: {{Result.Duration|duration}},
+            Experimental: {{Result.Experimental|yesno}},
+            NeedsHardwareAccess: {{Result.NeedsHardwareAccess|yesno}},
+            {% if Result.Errors %}
+            Errors: <span class="failure">{{Result.Errors}}</span>,
+            {% endif %}
+            {% if ProcessResult %}
+            ExitCode: {{ProcessResult.ExitCode}},
+            {% endif %}
+        </td>
+    </tr>
+    {% if ProcessResult.StdOut %}
+    <tr>
+        <td class="buildStepErrorOut" colspan="2">
+<PRE>
+{{ProcessResult.StdOut|safe}}
+</PRE>
+        </td>
+    </tr>
+    {% endif %}
+</table>
+{%- endmacro %}
+
+
+<table class="buildProcessResult">
+    <tr>
+        <td>
+            <h1>{{machine.ConfigurationName}} #{{rev}}</h1><br>
+            <colspan class="blue">Config:</colspan> {{machine.Configuration}},
+            <colspan class="blue">GPU:</colspan> {{machine.DirectHardwareAccess|yesno}},
+            <colspan class="blue">Duration:</colspan> {{buildProcessResult.Duration|duration}},
+            <colspan class="blue">Finished:</colspan> {{buildProcessResult.Timestamp|linuxTime}},
+            <colspan class="blue">Success:</colspan> {{buildProcessResult.Success|truefalse|safe}}
+        </td>
+        </td>
+    </tr>
+    <tr>
+        <td class="buildProcessSubResult">
+            <table style="width: 100%;" border="0" cellpadding="2" cellspacing="0">
+            {{stepHeader('SVN Result', buildProcessResult.SVNResult)}}
+            </table>
+        </td>
+    </tr>
+    <tr><td></td></tr>
+    <tr>
+        <td class="buildProcessSubResult">
+            <table style="width: 100%;" border="0" cellpadding="2" cellspacing="0">
+            {{stepHeader('CMake Result', buildProcessResult.CMakeResult)}}
+            </table>
+        </td>
+    </tr>
+    <tr><td></td></tr>
+    <tr>
+        <td class="buildProcessSubResult">
+            <table style="width: 100%;" border="0" cellpadding="2" cellspacing="0">
+            {{stepHeader('Build Result', buildProcessResult.BuildResult)}}
+            <tr>
+                <td colspan="2">
+                    <table class="buildStepSubTable" border="0" cellpadding="2" cellspacing="0">
+                        {% for entry in buildProcessResult.BuildTargetResults %}
+                        <tr>
+                            <td class="buildStepSpacer">
+                            </td>
+                            <td>
+                                {{buildTarget(entry.BuildTargetResult, entry.ProcessResult)}}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="buildStepSpacer" colspan="2">
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </table>
+                </td>
+            </tr>
+            </table>
+        </td>
+    </tr>
+    <tr><td></td></tr>
+    <tr>
+        <td class="buildProcessSubResult">
+            <table style="width: 100%;" border="0" cellpadding="2" cellspacing="0">
+            {{stepHeader('Test Result', buildProcessResult.TestResult)}}
+            <tr>
+                <td colspan="2">
+                    <table class="buildStepSubTable" border="0" cellpadding="2" cellspacing="0">
+                        {% for entry in buildProcessResult.TestTargetResults %}
+                        <tr>
+                            <td class="buildStepSpacer">
+                            </td>
+                            <td>
+                                {{testTarget(entry.TestTargetResult, entry.ProcessResult)}}
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="buildStepSpacer" colspan="2">
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </table>
+                </td>
+            </tr>
+            </table>
+        </td>
+    </tr>
+</table>

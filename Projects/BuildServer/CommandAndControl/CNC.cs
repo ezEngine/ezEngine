@@ -432,7 +432,7 @@ namespace CommandAndControl
         //PostToAddress(sDataTemp, sAddress + "?rev=399");
         //return String.Format("POST to address '{0}' successful", sAddress);
 
-        string[] allFiles = System.IO.Directory.EnumerateFiles(_Settings.AbsOutputFolder, "*_*.json", SearchOption.AllDirectories).ToArray();
+        string[] allFiles = System.IO.Directory.EnumerateFiles(_Settings.AbsOutputFolder, "*_*.json", SearchOption.TopDirectoryOnly).ToArray();
         Array.Sort<string>(allFiles);
         foreach (string sFile in allFiles)
         {
@@ -454,7 +454,7 @@ namespace CommandAndControl
             continue;
 
           string sData = System.IO.File.ReadAllText(sFile, Encoding.UTF8);
-          PostToAddress(sData, sAddress + String.Format("?rev={0}", iRev));
+          PostToAddress(sData, sAddress);
           Console.WriteLine("{0} posted.", Path.GetFileNameWithoutExtension(sFile));
         }
         return String.Format("POST to address '{0}' successful", sAddress);

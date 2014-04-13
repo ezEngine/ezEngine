@@ -1,0 +1,115 @@
+<!--<link rel=stylesheet type=text/css href="static/style.css">
+<html>
+<body>-->
+
+{% macro resultImage(success) -%}
+    {% if success == 1 %}
+    <img src="{{url_for('static', filename='success.png')}}"/>
+    {% elif success == 0 %}
+    <img src="{{url_for('static', filename='failure.png')}}"/>
+    {% else %}
+    <img src="{{url_for('static', filename='unknown.png')}}"/>
+    {% endif %}
+{%- endmacro %}
+
+{% macro nearRevTableClass(revision) -%}
+    {% if rev == revision %}
+    class="nearRevTableHightlight"
+    {% else %}
+    class="nearRevTableEntry"
+    {% endif %}
+{%- endmacro %}
+
+{% macro nearRevTableAltClass(revision) -%}
+    {% if rev == revision %}
+    class="nearRevTableHightlight"
+    {% else %}
+    class="nearRevTableEntryAlt"
+    {% endif %}
+{%- endmacro %}
+
+{% macro nearRevTableDescClass(revision) -%}
+    {% if rev == revision %}
+    class="nearRevTableDescriptionHightlight"
+    {% else %}
+    class="nearRevTableDescription"
+    {% endif %}
+{%- endmacro %}
+
+<h1>Revision history:</h1>
+
+<table style="border-spacing: 0px 0px;" border="0" cellpadding="0" cellspacing="0">
+    <tr>
+        <td class ="nearRevTableHeader">Current:
+        </td>
+        <td class="nearRevTableEntry">
+            {{resultImage(farLeftRev['CurrentMachine'])}}
+        </td>
+        <td class="nearRevTableEntry">...
+        </td>
+        {% for entry in nearRevisions %}
+        <td {{nearRevTableClass(entry['Revision'])}}>
+            {{resultImage(entry['CurrentMachine'])}}
+        </td>
+        {% endfor %}
+        <td class="nearRevTableEntry">...
+        </td>
+        <td class="nearRevTableEntry">
+            {{resultImage(farRightRev['CurrentMachine'])}}
+        </td>
+        <td class="nearRevTableSpacer"></td>
+        <td class="nearRevTableEntry">
+            {{resultImage(headRev['CurrentMachine'])}}
+        </td>
+    </tr>
+    <tr>
+        <td class ="nearRevTableHeader">All:
+        </td>
+        <td class="nearRevTableEntryAlt">
+            {{resultImage(farLeftRev['AllMachines'])}}
+        </td>
+        <td class="nearRevTableEntryAlt">...
+        </td>
+        {% for entry in nearRevisions %}
+        <td {{nearRevTableAltClass(entry['Revision'])}}>
+            {{resultImage(entry['AllMachines'])}}
+            
+        </td>
+        {% endfor %}
+        <td class="nearRevTableEntryAlt">...
+        </td>
+        <td class="nearRevTableEntryAlt">
+            {{resultImage(farRightRev['AllMachines'])}}
+        </td>
+        <td class="nearRevTableSpacer"></td>
+        <td class="nearRevTableEntryAlt">
+            {{resultImage(headRev['AllMachines'])}}
+        </td>
+    </tr>
+    <tr>
+        <td class ="nearRevTableHeader">Revision:
+        </td>
+        <td class="nearRevTableDescription">
+            <a href="/{{ machineID }}/{{ farLeftRev['Revision'] }}"> &lt&lt </a>
+        </td>
+        <td class="nearRevTableDescription">...
+        </td>
+        {% for entry in nearRevisions %}
+        <td {{nearRevTableDescClass(entry['Revision'])}}>
+            <a href="/{{ machineID }}/{{ entry['Revision'] }}">{{ entry['Revision'] }}</a>
+        </td>
+        {% endfor %}
+        <td class="nearRevTableDescription">...
+        </td>
+        <td class="nearRevTableDescription">
+            <a href="/{{ machineID }}/{{ farRightRev['Revision'] }}"> &gt;&gt; </a>
+        </td>
+        <td class="nearRevTableSpacer"></td>
+        <td class="nearRevTableDescription">
+            <a href="/{{ machineID }}">HEAD</a>
+        </td>
+    </tr>
+</table>
+
+<!--</body>
+</html>-->
