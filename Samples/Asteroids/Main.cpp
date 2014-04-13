@@ -72,7 +72,7 @@ ezApplication::ApplicationExecution SampleGameApp::Run()
 {
   EZ_LOG_BLOCK("SampleGameApp::Run");
 
-  m_bActiveRenderLoop = m_bActiveRenderLoop && (m_pWindow->ProcessWindowMessages() == ezWindow::Continue);
+  m_pWindow->ProcessWindowMessages();
 
   if (!m_bActiveRenderLoop)
     return ezApplication::Quit;

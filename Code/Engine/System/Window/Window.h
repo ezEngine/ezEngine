@@ -155,17 +155,10 @@ public:
   /// \brief Destroys the window.
   ezResult Destroy();
 
-  /// \brief Possible results for window message processing
-  enum WindowMessageResult
-  {
-    Continue,
-    Quit
-  };
-
   /// \brief Runs the platform specific message pump.
   ///
   /// You should call ProcessWindowMessages every frame to keep the window responsive.
-  WindowMessageResult ProcessWindowMessages();
+  void ProcessWindowMessages();
 
   /// \brief Called on window resize messages.
   ///
@@ -176,6 +169,9 @@ public:
 
   /// \brief Called when the window gets focus or loses focus.
   virtual void OnFocusMessage(bool bHasFocus) {}
+
+  /// \brief Called when the close button of the window is clicked. Does nothing by default.
+  virtual void OnClickCloseMessage() { }
 
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)

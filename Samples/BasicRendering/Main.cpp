@@ -46,12 +46,15 @@ class TestWindow : public ezWindow
     TestWindow()
       : ezWindow()
     {
+      m_bCloseRequested = false;
     }
 
-    virtual LRESULT WindowsMessageFunction(HWND hWnd, UINT Msg, WPARAM WParam, LPARAM LParam)
+    virtual void OnClickCloseMessage() EZ_OVERRIDE
     {
-      return DefWindowProc(hWnd, Msg, WParam, LParam);
+      m_bCloseRequested = true;
     }
+
+    bool m_bCloseRequested;
 };
 
 struct TestCB
@@ -213,8 +216,10 @@ public:
 
   ApplicationExecution Run() EZ_OVERRIDE
   {
-    if (m_pWindow->ProcessWindowMessages() != ezWindow::Continue)
-      return ezApplication::Quit;
+    m_pWindow->ProcessWindowMessages();
+
+    if (m_pWindow->m_bCloseRequested)
+      return ApplicationExecution::Quit;
 
     ezClock::UpdateAllGlobalClocks();
 
@@ -329,7 +334,7 @@ public:
 
 private:
 
-  ezWindow* m_pWindow;
+  TestWindow* m_pWindow;
 
   ezGALDevice* m_pDevice;
 

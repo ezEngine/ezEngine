@@ -68,10 +68,10 @@ ezResult ezWindow::Destroy()
 
 }
 
-ezWindow::WindowMessageResult ezWindow::ProcessWindowMessages()
+void ezWindow::ProcessWindowMessages()
 {
   if (!m_bInitialized)
-    return Quit;
+    return;
 
   sf::Event event;
   while (m_WindowHandle->pollEvent(event))
@@ -79,8 +79,8 @@ ezWindow::WindowMessageResult ezWindow::ProcessWindowMessages()
     switch (event.type)
     {
     case sf::Event::Closed:
-      Destroy();
-      return Quit;
+      OnClickCloseMessage();
+      break;
 
     case sf::Event::Resized:
       OnResizeMessage(ezSizeU32(event.size.width, event.size.height));
@@ -97,8 +97,6 @@ ezWindow::WindowMessageResult ezWindow::ProcessWindowMessages()
 
     m_pInputDevice->WindowMessage(event);
   }
-
-  return Continue;
 }
 
 void ezWindow::PresentFrame()

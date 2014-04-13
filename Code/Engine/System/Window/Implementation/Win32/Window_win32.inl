@@ -25,7 +25,7 @@ static LRESULT CALLBACK ezWindowsMessageFuncTrampoline(HWND hWnd, UINT Msg, WPAR
       return 0;
       
     case WM_CLOSE:
-      pWindow->Destroy();
+      pWindow->OnClickCloseMessage();
       return 0;
 
     case WM_SETFOCUS:
@@ -193,6 +193,9 @@ ezResult ezWindow::Initialize()
 
 ezResult ezWindow::Destroy()
 {
+  if (!m_bInitialized)
+    return EZ_SUCCESS;
+
   EZ_LOG_BLOCK("ezWindow::Destroy");
 
   ezResult Res = EZ_SUCCESS;
@@ -236,10 +239,10 @@ ezResult ezWindow::Destroy()
   return Res;
 }
 
-ezWindow::WindowMessageResult ezWindow::ProcessWindowMessages()
+void ezWindow::ProcessWindowMessages()
 {
   if (!m_bInitialized)
-    return Quit;
+    return;
 
   MSG msg = {0};
   while (PeekMessageW(&msg, m_WindowHandle, 0, 0, PM_REMOVE))	
@@ -247,14 +250,12 @@ ezWindow::WindowMessageResult ezWindow::ProcessWindowMessages()
     if (msg.message == WM_QUIT)
     {
       Destroy();
-      return Quit;
+      return;
     }
 
     TranslateMessage(&msg);
     DispatchMessageW(&msg);
   }
-
-  return Continue;
 }
 
 void ezWindow::PresentFrame()
