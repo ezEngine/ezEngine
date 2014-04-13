@@ -38,6 +38,7 @@ namespace BuildShared
       try
       {
         HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
+        request.Proxy = null;
         request.Method = "POST";
         request.ContentType = "application/json";
         byte[] bytes = System.Text.Encoding.UTF8.GetBytes(sMessage);
@@ -45,16 +46,18 @@ namespace BuildShared
         System.IO.Stream os = request.GetRequestStream();
         os.Write(bytes, 0, bytes.Length);
         os.Close();
-        HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-        if (response == null)
-          return null;
-
-        res.StatusCode = response.StatusCode;
-        using (var reader = new System.IO.StreamReader(response.GetResponseStream(), UTF8Encoding.UTF8))
+        using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
         {
-          res.Message = reader.ReadToEnd();
+          if (response == null)
+            return null;
+
+          res.StatusCode = response.StatusCode;
+          using (var reader = new System.IO.StreamReader(response.GetResponseStream(), UTF8Encoding.UTF8))
+          {
+            res.Message = reader.ReadToEnd();
+          }
+          return res;
         }
-        return res;
       }
       catch (System.Net.WebException ex)
       {
@@ -87,16 +90,19 @@ namespace BuildShared
       try
       {
         HttpWebRequest request = (HttpWebRequest)WebRequest.Create(url);
-        HttpWebResponse response = (HttpWebResponse)request.GetResponse();
-        if (response == null)
-          return null;
-
-        res.StatusCode = response.StatusCode;
-        using (var reader = new System.IO.StreamReader(response.GetResponseStream(), UTF8Encoding.UTF8))
+        request.Proxy = null;
+        using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
         {
-          res.Message = reader.ReadToEnd();
+          if (response == null)
+            return null;
+
+          res.StatusCode = response.StatusCode;
+          using (var reader = new System.IO.StreamReader(response.GetResponseStream(), UTF8Encoding.UTF8))
+          {
+            res.Message = reader.ReadToEnd();
+          }
+          return res;
         }
-        return res;
       }
       catch (System.Net.WebException ex)
       {

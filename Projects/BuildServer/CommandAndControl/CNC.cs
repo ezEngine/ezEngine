@@ -357,7 +357,7 @@ namespace CommandAndControl
 
         ezGETWorkResponse response = new ezGETWorkResponse();
         // If the currently querying build machine is the 'chosen one' we allow it to build the next revision.
-        if (_Machines[sID] == _NextMachine && _NextMachine.State == BuildMachine.BuildMachineState.Idle)
+       if (_Machines[sID] == _NextMachine && _NextMachine.State == BuildMachine.BuildMachineState.Idle)
         {
           BuildMachine machine = _Machines[sID];
           machine.CurrentTimeout = 0;
@@ -781,7 +781,7 @@ namespace CommandAndControl
     bool _bIsPaused = false;
     bool _bHibernateOnIdle = false;
     const int iSVNRevisionCheckInterval = 60;
-    const int iBuildMachineTimeout = 60;
+    const int iBuildMachineTimeout = 120;
     const int iHibernationDelay = 15 * 60;
     const int iTimerInterval = 5;
 
