@@ -19,8 +19,8 @@
 
 #include <System/Window/Window.h>
 
-#define DEMO_GL EZ_OFF
-#define DEMO_DX11 EZ_ON
+#define DEMO_GL EZ_ON
+#define DEMO_DX11 EZ_OFF
 
 #if EZ_ENABLED(DEMO_GL)
   #include <RendererGL/Device/DeviceGL.h>
@@ -92,7 +92,6 @@ public:
     ezWindowCreationDesc WindowCreationDesc;
     WindowCreationDesc.m_ClientAreaSize.width = g_uiWindowWidth;
     WindowCreationDesc.m_ClientAreaSize.height = g_uiWindowHeight;
-    WindowCreationDesc.m_GraphicsAPI = ezGraphicsAPI::OpenGL;
     m_pWindow = EZ_DEFAULT_NEW(TestWindow)();
     m_pWindow->Initialize(WindowCreationDesc);
 

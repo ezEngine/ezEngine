@@ -6,6 +6,8 @@
 #include <Foundation/Time/Time.h>
 #include <Foundation/Time/DefaultTimeStepSmoothing.h>
 
+class ezGALDeviceGL;
+
 class SampleGameApp : public ezApplication
 {
 public:
@@ -20,6 +22,8 @@ public:
 
 private:
   friend LRESULT CALLBACK WndProc (HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
+
+  void InitRendering();
 
   void RenderSingleFrame();
   void UpdateInput(ezTime UpdateDiff);
@@ -39,4 +43,6 @@ private:
   ezDefaultTimeStepSmoothing m_TimeStepSmoother;
   ezVirtualThumbStick* m_pThumbstick;
   ezVirtualThumbStick* m_pThumbstick2;
+
+  ezGALDeviceGL* m_pDevice;
 };

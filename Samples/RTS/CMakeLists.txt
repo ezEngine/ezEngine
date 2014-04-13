@@ -28,6 +28,8 @@ SET (LINK_LIBRARIES
   ThirdParty
   CoreUtils
   GameUtils
+  RendererFoundation
+  RendererGL3
 )
 
 include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/CMAKE_Application.txt)

@@ -21,34 +21,10 @@
   typedef sf::Window* ezWindowHandle;
   #define INVALID_WINDOW_HANDLE_VALUE (sf::Window*)(0)
 
-  /// \brief This struct defines which graphics API should be initialized on a window
-  struct ezGraphicsAPI
-  {
-    /// \brief This struct defines which graphics API should be initialized on a window
-    enum Enum
-    {
-      OpenGL,           ///< SFML always creates a window with an OpenGL context, no way around that
-      Default = OpenGL
-    };
-  };
-
 #elif EZ_ENABLED(EZ_PLATFORM_WINDOWS)
 
   typedef HWND ezWindowHandle;
   #define INVALID_WINDOW_HANDLE_VALUE (ezWindowHandle)(0)
-
-  /// \brief This struct defines which graphics API should be initialized on a window
-  struct ezGraphicsAPI
-  {
-    /// \brief This struct defines which graphics API should be initialized on a window
-    enum Enum
-    {
-      None,                 ///< Creates a window that has no graphics context, allows for custom context creation
-      Direct3D11,           ///< Initializes a Direct3D 11 context on the window
-      OpenGL,               ///< Initializes an OpenGL context on the window
-      Default = Direct3D11
-    };
-  };
 
 #else
   #error "Missing Platform Code!"
@@ -58,8 +34,7 @@ struct EZ_SYSTEM_DLL ezWindowCreationDesc
 {
 
   ezWindowCreationDesc()
-    : m_GraphicsAPI(ezGraphicsAPI::Default),
-    m_ClientAreaSize(1280, 720),
+    : m_ClientAreaSize(1280, 720),
     m_Title("ezWindow"),
     m_uiWindowNumber(0),
     m_bFullscreenWindow(false),
@@ -67,9 +42,6 @@ struct EZ_SYSTEM_DLL ezWindowCreationDesc
     m_bWindowsUseDevmodeFullscreen(false)
   {
   }
-
-  /// \brief Which Graphics API to use. Note that not different platforms support different APIs.
-  ezGraphicsAPI::Enum m_GraphicsAPI;
 
   ezVec2U32 m_WindowPosition;
   ezSizeU32 m_ClientAreaSize;
@@ -96,7 +68,7 @@ struct EZ_SYSTEM_DLL ezWindowCreationDesc
 ///
 /// Will handle basic message looping. Notable events can be listened to by overriding the corresponding callbacks.
 /// You should call ProcessWindowMessages every frame to keep the window responsive.
-/// Input messages will not be forwared automatically. You can do so by overriding the OnWindowMessage function.
+/// Input messages will not be forwarded automatically. You can do so by overriding the OnWindowMessage function.
 class EZ_SYSTEM_DLL ezWindow
 {
 public:
@@ -185,14 +157,6 @@ public:
   /// \see OnResizeMessage
   virtual void OnWindowMessage(HWND hWnd, UINT Msg, WPARAM WParam, LPARAM LParam) {}
 
-  #if EZ_DISABLED(EZ_SUPPORTS_SFML)
-    /// \brief Returns the window's device context.
-    HDC GetWindowDC() const { return m_hDC; }
-
-    /// \brief Returns the window's OpenGL context. This might not be initialized, if the window was set up with a Direct3D context.
-    HGLRC GetOpenGLRC() const { return m_hRC; }
-  #endif
-
 #elif EZ_ENABLED(EZ_PLATFORM_OSX)
   /// \todo Do we really need to do anything here on other platforms?
 #elif EZ_ENABLED(EZ_PLATFORM_LINUX)
@@ -204,34 +168,11 @@ public:
   /// \brief Returns the input device that is attached to this window and typically provides mouse / keyboard input.
   ezStandardInputDevice* GetInputDevice() const { return m_pInputDevice; }
 
-  /// \brief Swaps the back buffer of the graphics API to the front.
-  virtual void PresentFrame();
-
 protected:
 
   /// Description at creation time. ezWindow will not update this in any method other than Initialize.
   /// \remarks That means that messages like Resize will also have no effect on this variable.
   ezWindowCreationDesc m_CreationDescription;
-
-  /// \brief Called by 'Initialize' to set up the graphics context.
-  virtual ezResult CreateGraphicsContext();
-
-  /// \brief Called by 'Destroy' to clean up the graphics context.
-  virtual ezResult DestroyGraphicsContext();
-  
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-  #if EZ_DISABLED(EZ_SUPPORTS_SFML)
-
-    ezResult CreateContextOpenGL();
-    ezResult DestroyContextOpenGL();
-
-    ezResult CreateContextDirect3D11();
-    ezResult DestroyContextDirect3D11();
-
-    HDC m_hDC;
-    HGLRC m_hRC;
-  #endif
-#endif
 
 private:
 

@@ -11,6 +11,7 @@
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ColorResource, ezResourceBase, ezRTTIDefaultAllocator<ColorResource>);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
+#include <RendererGL/Device/DeviceGL.h>
 void RenderCube(const ezVec3& v, const ezVec3& s, bool bColor = true, float fColorScale = 1.0f);
 
 class ColorResourceLoader : public ezResourceTypeLoader
@@ -78,7 +79,7 @@ GameRenderer::GameRenderer()
   m_pCamera = nullptr;
 }
 
-void GameRenderer::SetupRenderer(const GameWindow* pWindow, const Level* pLevel, const ezCamera* pCamera, const ezGridNavmesh* pNavmesh)
+void GameRenderer::SetupRenderer(GameWindow* pWindow, const Level* pLevel, const ezCamera* pCamera, const ezGridNavmesh* pNavmesh)
 {
   // sync these over to the renderer
   m_pWindow = pWindow;
@@ -89,6 +90,21 @@ void GameRenderer::SetupRenderer(const GameWindow* pWindow, const Level* pLevel,
   m_pNavmesh = pNavmesh;
   m_uiFontTextureID = 0;
   m_fFramesPerSecond = 0;
+
+
+  ezGALDeviceCreationDescription DeviceInit;
+  DeviceInit.m_bCreatePrimarySwapChain = true;
+  DeviceInit.m_bDebugDevice = true;
+  DeviceInit.m_PrimarySwapChainDescription.m_pWindow = pWindow;
+  DeviceInit.m_PrimarySwapChainDescription.m_SampleCount = ezGALMSAASampleCount::None;
+  DeviceInit.m_PrimarySwapChainDescription.m_bCreateDepthStencilBuffer = true;
+  DeviceInit.m_PrimarySwapChainDescription.m_DepthStencilBufferFormat = ezGALResourceFormat::D24S8;
+  DeviceInit.m_PrimarySwapChainDescription.m_bAllowScreenshots = true;
+  DeviceInit.m_PrimarySwapChainDescription.m_bVerticalSynchronization = true;
+
+  m_pDevice = EZ_DEFAULT_NEW(ezGALDeviceGL)(DeviceInit);
+  EZ_VERIFY(m_pDevice->Init() == EZ_SUCCESS, "Device init failed!");
+
 
   ezImage FontImg;
   ezGraphicsUtils::CreateSimpleASCIIFontTexture(FontImg);
@@ -385,3 +401,7 @@ void GameRenderer::RenderMousePicking()
   }
 }
 
+void GameRenderer::Present()
+{
+  m_pDevice->Present(m_pDevice->GetPrimarySwapChain());
+}

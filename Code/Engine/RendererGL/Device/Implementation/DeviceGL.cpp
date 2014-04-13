@@ -20,10 +20,9 @@
 #include <Foundation/Basics/Types/ArrayPtr.h>
 
 
-
-
 ezGALDeviceGL::ezGALDeviceGL(const ezGALDeviceCreationDescription& Description)
-  : ezGALDevice(Description)
+  : ezGALDevice(Description),
+  m_bGLInitialized(false)
 {
 }
 
@@ -185,15 +184,23 @@ void ezGALDeviceGL::EnsureGLTexturePoolSize(ezUInt32 uiPoolSize)
 
 // Init & shutdown functions.
 
+
 ezResult ezGALDeviceGL::InitPlatform() 
 {
   EZ_LOG_BLOCK("ezGALDeviceGL::InitPlatform() ");
 
+  // Can't do anything OpenGL related here since glewInit will be called in the primary swap chain
+
+  return EZ_SUCCESS;
+}
+
+ezResult ezGALDeviceGL::EnsureInternOpenGLInit()
+{
+  if (m_bGLInitialized)
+    return EZ_SUCCESS;
+
   // Fill lookup table.
   FillFormatLookupTable();
-
-  // Create primary swap context.
-  m_pPrimaryContext = EZ_DEFAULT_NEW(ezGALContextGL)(this);
 
   // Load OpenGL functions.
   GLenum glewErrorCode = glewInit();
@@ -202,6 +209,9 @@ ezResult ezGALDeviceGL::InitPlatform()
     ezLog::Error("glewInit failed with: %s", glewGetErrorString(glewErrorCode));
     return EZ_FAILURE;
   }
+
+  // Create primary swap context.
+  m_pPrimaryContext = EZ_DEFAULT_NEW(ezGALContextGL)(this);
 
   // Check OpenGL version support.
 #if defined(EZ_RENDERERGL_GL4)
@@ -231,6 +241,8 @@ ezResult ezGALDeviceGL::InitPlatform()
   }
 
   // TODO: Get features of the device (depending on feature level, CheckFormat* functions etc.)
+
+  m_bGLInitialized = true;
 
   return EZ_SUCCESS;
 }
@@ -443,6 +455,10 @@ void ezGALDeviceGL::FinishPlatform()
 
 void ezGALDeviceGL::SetPrimarySwapChainPlatform(ezGALSwapChain* pSwapChain)
 {
+  ezGALSwapChainGL* pSwapChainGL = static_cast<ezGALSwapChainGL*>(pSwapChain);
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+  wglMakeCurrent(pSwapChainGL->GetWindowDC(), pSwapChainGL->GetOpenGLRC());
+#endif
 }
 
 void ezGALDeviceGL::FillCapabilitiesPlatform()

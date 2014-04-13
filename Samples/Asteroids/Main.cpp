@@ -10,12 +10,13 @@
 #include <Foundation/Configuration/Plugin.h>
 #include <Foundation/Time/Clock.h>
 
-
+#include <RendererGL/Device/DeviceGL.h>
 
 SampleGameApp::SampleGameApp()
 {
   m_bActiveRenderLoop = false;
   m_pWindow = nullptr;
+  m_pDevice = NULL;
 }
 
 void SampleGameApp::AfterEngineInit()
@@ -34,6 +35,8 @@ void SampleGameApp::AfterEngineInit()
   ezGlobalLog::AddLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
 
   m_pWindow = EZ_DEFAULT_NEW(GameWindow);
+
+  InitRendering();
 
   ezStartup::StartupEngine();
 
@@ -58,6 +61,8 @@ void SampleGameApp::BeforeEngineShutdown()
 
   ezStartup::ShutdownEngine();
 
+  EZ_DEFAULT_DELETE(m_pDevice);
+
   EZ_DEFAULT_DELETE(m_pWindow);
 
   EZ_DEFAULT_DELETE(m_pThumbstick);
@@ -80,7 +85,6 @@ ezApplication::ApplicationExecution SampleGameApp::Run()
   ezClock::UpdateAllGlobalClocks();
 
   RenderSingleFrame();
-  m_pWindow->PresentFrame();
   
 
   ezTelemetry::PerFrameUpdate();

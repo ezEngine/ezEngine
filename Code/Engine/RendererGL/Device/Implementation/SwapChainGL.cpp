@@ -23,23 +23,36 @@ ezGALSwapChainGL::~ezGALSwapChainGL()
 {
 }
 
+void ezGALSwapChainGL::SetVSync(bool active)
+{
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+  if (WGL_EXT_swap_control)
+  {
+    EZ_GL_CALL(wglSwapIntervalEXT, active ? 1 : 0);
+  }
+#else
+  EZ_ASSERT_NOT_IMPLEMENTED;
+#endif
+}
 
 ezResult ezGALSwapChainGL::InitPlatform(ezGALDevice* pDevice)
 {
-  // \todo: Currently the init is done by the ezWindow.
-  // This needs to be moved here. Also it has to be investigated how to create multiple "swapchains" and do initialization on linux.
-  // Workarounds needs to be found for the framebuffer access limitations: At least in wGL it is usually not possible to access the default framebuffer like a texture (both depth and color)
+  ezGALDeviceGL* pDeviceGL = static_cast<ezGALDeviceGL*>(pDevice);
 
-  // V-Sync stuff can be done using WGL_EXT_swap_control/GLX_EXT_swap_control http://www.opengl.org/wiki/Swap_Interval 
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+  CreateContextWindows();
+#else
+  EZ_ASSERT_NOT_IMPLEMENTED;
+#endif
 
-  // Windows V-Sync off:
-  // wglSwapIntervalEXT(0);
-  // Windows V-Sync on:
-  // wglSwapIntervalEXT(1);
+  // Device needs a context to be fully initialized.
+  if (pDeviceGL->EnsureInternOpenGLInit() != EZ_SUCCESS)
+    return EZ_FAILURE;
+
+  SetVSync(m_Description.m_bVerticalSynchronization);
 
 
   // It is not possible to use back or depth/stencil buffer as texture. Therefore the texture handles will stay invalid to signalize that the hardware back buffer is meant.
-
   ezGALRenderTargetConfigCreationDescription RTConfigDesc;
   RTConfigDesc.m_bHardwareBackBuffer = true;
   ezGALRenderTargetConfigHandle hRenderTargetConfig = pDevice->CreateRenderTargetConfig(RTConfigDesc);
@@ -55,13 +68,17 @@ ezResult ezGALSwapChainGL::DeInitPlatform(ezGALDevice* pDevice)
 {
   ezGALSwapChain::DeInitPlatform(pDevice);
 
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+  DestroyContextWindows();
+#endif
+
   return EZ_SUCCESS;
 }
 
 void ezGALSwapChainGL::SwapBuffers(ezGALDevice* pDevice)
 {
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-  if (!::SwapBuffers(m_Description.m_pWindow->GetWindowDC()))
+  if (!::SwapBuffers(GetWindowDC()))
   {
     ezLog::Error("Failed to swap buffers for the windows with number \"%i\".", m_Description.m_pWindow->GetCreationDescription().m_uiWindowNumber);
   }
@@ -71,3 +88,104 @@ void ezGALSwapChainGL::SwapBuffers(ezGALDevice* pDevice)
 #endif
 }
 
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+
+ezResult ezGALSwapChainGL::CreateContextWindows()
+{
+  EZ_LOG_BLOCK("ezGALSwapChainGL::CreateContextWindows");
+
+  int iColorBits = 24;
+  int iDepthBits = 24;
+  int iBPC = 8;
+
+  HWND hWnd = m_Description.m_pWindow->GetNativeWindowHandle();
+
+  PIXELFORMATDESCRIPTOR pfd =
+  {
+    sizeof (PIXELFORMATDESCRIPTOR),
+    1, // Version
+    PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER | PFD_SWAP_EXCHANGE, // Flags
+    PFD_TYPE_RGBA, // Pixeltype
+    iColorBits, // Color Bits
+    iBPC, 0, iBPC, 0, iBPC, 0, iBPC, 0,// Red Bits / Red Shift, Green Bits / Shift, Blue Bits / Shift, Alpha Bits / Shift
+    0, 0, 0, 0, 0, // Accum Bits (total), Accum Bits Red, Green, Blue, Alpha
+    iDepthBits, 8, // Depth, Stencil Bits
+    0, // Aux Buffers
+    PFD_MAIN_PLANE, // Layer Type (ignored)
+    0, 0, 0, 0 // ignored deprecated flags
+  };
+
+  m_hDC = GetDC(hWnd);
+
+  if (m_hDC == NULL)
+  {
+    ezLog::Error("Could not retrieve the Window DC");
+    goto failure;
+  }
+
+  int iPixelformat = ChoosePixelFormat(m_hDC, &pfd);
+  if (iPixelformat == 0)
+  {
+    ezLog::Error("ChoosePixelFormat failed.");
+    goto failure;
+  }
+
+  if (!SetPixelFormat(m_hDC, iPixelformat, &pfd))
+  {
+    ezLog::Error("SetPixelFormat failed.");
+    goto failure;
+  }
+
+  m_hRC = wglCreateContext(m_hDC);
+  if (m_hRC == NULL)
+  {
+    ezLog::Error("wglCreateContext failed.");
+    goto failure;
+  }
+
+  wglMakeCurrent(m_hDC, m_hRC);
+
+  SetFocus(hWnd);
+  SetForegroundWindow(hWnd);
+
+  ezLog::Success("OpenGL graphics context is initialized.");
+
+  return EZ_SUCCESS;
+
+failure:
+  ezLog::Error("Failed to initialize the graphics context.");
+
+  DestroyContextWindows();
+  return EZ_FAILURE;
+}
+
+ezResult ezGALSwapChainGL::DestroyContextWindows()
+{
+  EZ_LOG_BLOCK("ezWindow::DestroyContextOpenGL");
+
+  if (!m_hRC && !m_hDC)
+    return EZ_SUCCESS;
+
+  if (m_hRC)
+  {
+    ezLog::Dev("Destroying the RC.");
+
+    wglMakeCurrent(NULL, NULL);
+    wglDeleteContext(m_hRC);
+    m_hRC = NULL;
+  }
+
+  if (m_hDC)
+  {
+    ezLog::Dev("Destroying the DC.");
+
+    ReleaseDC(m_Description.m_pWindow->GetNativeWindowHandle(), m_hDC);
+    m_hDC = NULL;
+  }
+
+  ezLog::Success("OpenGL graphics context is destroyed.");
+
+  return EZ_SUCCESS;
+}
+
+#endif

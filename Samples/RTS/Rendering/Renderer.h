@@ -9,19 +9,22 @@
 #include <Foundation/Math/Frustum.h>
 #include <Core/ResourceManager/ResourceManager.h>
 
+class ezGALDeviceGL;
 
 class GameRenderer
 {
 public:
   GameRenderer();
 
-  void SetupRenderer(const GameWindow* pWindow, const Level* pLevel, const ezCamera* pCamera, const ezGridNavmesh* pNavmesh);
+  void SetupRenderer(GameWindow* pWindow, const Level* pLevel, const ezCamera* pCamera, const ezGridNavmesh* pNavmesh);
 
   void RenderLevel(const ezObjectSelection* pSelection);
 
   bool GetPickingRay(float fMousePosX, float fMousePosY, ezVec3& out_RayPos, ezVec3& out_RayDir);
 
   void RenderConsole(ezConsole* pConsole, bool bConsoleOpen);
+
+  void Present();
 
 private:
   void UpdateState();
@@ -32,6 +35,8 @@ private:
   const GameGrid* m_pGrid;
   const ezCamera* m_pCamera;
   const ezGridNavmesh* m_pNavmesh;
+
+  ezGALDeviceGL* m_pDevice;
 
   ezMat4 m_ProjectionMatrix;
   ezMat4 m_ModelViewMatrix;

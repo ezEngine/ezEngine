@@ -69,7 +69,6 @@ public:
   /// \see GetUnusedGLTextureId
   void EnsureGLTexturePoolSize(ezUInt32 uiPoolSize = 128);
 
-
 protected:
 
   // Init & shutdown functions
@@ -173,6 +172,11 @@ protected:
 
 private:
 
+  friend class ezGALSwapChainGL;
+
+  /// Intern init method which should be called by the first ezGALSwapChainGL since a RenderContext is needed to init glew and the like.
+  ezResult EnsureInternOpenGLInit();
+
   void FillFormatLookupTable();
 
   /// \brief Default method for resource/state-object creation.
@@ -191,6 +195,10 @@ private:
 
   /// \see EnsureGLTexturePoolSize, GetUnusedGLTextureId
   ezDynamicArray<glTextureId> m_TextureHandlePool;
+
+
+  /// \see EnsureInternOpenGLInit
+  bool m_bGLInitialized;
 };
 
 #include <RendererGL/Device/Implementation/DeviceGL_inl.h>

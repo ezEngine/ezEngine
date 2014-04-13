@@ -120,8 +120,7 @@ ezApplication::ApplicationExecution SampleGameApp::Run()
     {
       m_pRenderer->RenderLevel(m_pSelectedUnits);
       m_pRenderer->RenderConsole(&m_Console, m_bConsoleActive);
-
-      m_pWindow->PresentFrame();
+      m_pRenderer->Present();
     }
 
     ezTaskSystem::FinishFrameTasks();

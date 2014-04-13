@@ -10,6 +10,8 @@
 #include <Foundation/Math/Color.h>
 #include <Foundation/Logging/Log.h>
 
+#include <RendererGL/Device/DeviceGL.h>
+
 const ezColor g_fShipColors[4] =
 {
   ezColor::GetRed(),
@@ -56,6 +58,22 @@ static void RenderShip(ezGameObject* pShip, ezInt32 iPlayer)
       glVertex3f(vCorners[i].x, vCorners[i].y, vCorners[i].z);
 
   glEnd();
+}
+
+void SampleGameApp::InitRendering()
+{
+  ezGALDeviceCreationDescription DeviceInit;
+  DeviceInit.m_bCreatePrimarySwapChain = true;
+  DeviceInit.m_bDebugDevice = true;
+  DeviceInit.m_PrimarySwapChainDescription.m_pWindow = m_pWindow;
+  DeviceInit.m_PrimarySwapChainDescription.m_SampleCount = ezGALMSAASampleCount::None;
+  DeviceInit.m_PrimarySwapChainDescription.m_bCreateDepthStencilBuffer = true;
+  DeviceInit.m_PrimarySwapChainDescription.m_DepthStencilBufferFormat = ezGALResourceFormat::D24S8;
+  DeviceInit.m_PrimarySwapChainDescription.m_bAllowScreenshots = true;
+  DeviceInit.m_PrimarySwapChainDescription.m_bVerticalSynchronization = true;
+
+  m_pDevice = EZ_DEFAULT_NEW(ezGALDeviceGL)(DeviceInit);
+  EZ_VERIFY(m_pDevice->Init() == EZ_SUCCESS, "Device init failed!");
 }
 
 void SampleGameApp::RenderPlayerShips()
@@ -165,6 +183,8 @@ ezCVarInt CVarGameSlowDown("CVar_GameSlowDown", 0, ezCVarFlags::Default, "How mu
 void SampleGameApp::RenderSingleFrame()
 {
   EZ_LOG_BLOCK("SampleGameApp::RenderSingleFrame");
+
+  m_pDevice->BeginFrame();
 
   // always update the game with a fixed time step of 1/60 seconds
   const ezTime tUpdateInterval = ezTime::Seconds(1.0 / 60.0);
@@ -356,6 +376,9 @@ void SampleGameApp::RenderSingleFrame()
 
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
   }
+
+  m_pDevice->EndFrame();
+  m_pDevice->Present(m_pDevice->GetPrimarySwapChain());
 }
 
 

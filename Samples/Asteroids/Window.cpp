@@ -7,7 +7,6 @@ GameWindow::GameWindow()
   m_CreationDescription.m_ClientAreaSize.width = 500;
   m_CreationDescription.m_ClientAreaSize.height = 500;
   m_CreationDescription.m_Title = "SampleApp_Game";
-  m_CreationDescription.m_GraphicsAPI = ezGraphicsAPI::OpenGL;
   m_CreationDescription.m_bFullscreenWindow = false;
   m_CreationDescription.m_bResizable = true;
   Initialize();
