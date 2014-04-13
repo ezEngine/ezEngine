@@ -11,6 +11,7 @@ struct IDXGIFactory1;
 struct IDXGIAdapter1;
 struct IDXGIDevice1;
 enum DXGI_FORMAT;
+enum D3D_FEATURE_LEVEL;
 
 typedef ezGALFormatLookupEntry<DXGI_FORMAT, (DXGI_FORMAT)0> ezGALFormatLookupEntryDX11;
 typedef ezGALFormatLookupTable<ezGALFormatLookupEntryDX11> ezGALFormatLookupTableDX11;
@@ -134,6 +135,8 @@ protected:
 
   virtual void SetPrimarySwapChainPlatform(ezGALSwapChain* pSwapChain) EZ_OVERRIDE;
 
+  virtual void FillCapabilitiesPlatform() EZ_OVERRIDE;
+
   /// \endcond
 
 private:
@@ -149,6 +152,8 @@ private:
   IDXGIDevice1* m_pDXGIDevice;
 
   ezGALFormatLookupTableDX11 m_FormatLookupTable;
+
+  D3D_FEATURE_LEVEL m_FeatureLevel;
 };
 
 #include <RendererDX11/Device/Implementation/DeviceDX11_inl.h>

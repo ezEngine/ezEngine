@@ -73,6 +73,9 @@ ezResult ezGALDevice::Init()
     return EZ_FAILURE;
   }
 
+  // Fill the capabilities
+  FillCapabilitiesPlatform();
+
   // Create primary swapchain if requested
   if(m_Description.m_bCreatePrimarySwapChain)
   {
@@ -744,3 +747,8 @@ void ezGALDevice::SetPrimarySwapChain(ezGALSwapChainHandle hSwapChain)
   }
 }
 
+
+const ezGALDeviceCapabilities& ezGALDevice::GetCapabilities() const
+{
+  return m_Capabilities;
+}

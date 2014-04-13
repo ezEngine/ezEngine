@@ -167,6 +167,8 @@ protected:
 
   virtual void SetPrimarySwapChainPlatform(ezGALSwapChain* pSwapChain) EZ_OVERRIDE;
 
+  virtual void FillCapabilitiesPlatform() EZ_OVERRIDE;
+
   /// \endcond
 
 private:

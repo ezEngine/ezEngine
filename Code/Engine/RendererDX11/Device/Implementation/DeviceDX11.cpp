@@ -23,7 +23,8 @@ ezGALDeviceDX11::ezGALDeviceDX11(const ezGALDeviceCreationDescription& Descripti
     m_pDevice(nullptr),
     m_pDXGIFactory(nullptr),
     m_pDXGIAdapter(nullptr),
-    m_pDXGIDevice(nullptr)
+    m_pDXGIDevice(nullptr),
+    m_FeatureLevel(D3D_FEATURE_LEVEL_9_1)
 {
 }
 
@@ -43,15 +44,51 @@ ezResult ezGALDeviceDX11::InitPlatform()
   if(m_Description.m_bDebugDevice)
     dwFlags |= D3D11_CREATE_DEVICE_DEBUG;
 
-  D3D_FEATURE_LEVEL FeatureLevel = D3D_FEATURE_LEVEL_11_0; // TODO
+  D3D_FEATURE_LEVEL FeatureLevels[] =
+  {
+    D3D_FEATURE_LEVEL_11_1,
+    D3D_FEATURE_LEVEL_11_0,
+    D3D_FEATURE_LEVEL_10_1,
+    D3D_FEATURE_LEVEL_10_0,
+    D3D_FEATURE_LEVEL_9_3
+  };
 
   ID3D11DeviceContext* pImmediateContext = nullptr;
 
-  if(FAILED(D3D11CreateDevice(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, dwFlags, &FeatureLevel, 1, D3D11_SDK_VERSION, &m_pDevice, nullptr, &pImmediateContext)))
+  // Manually step through feature levels - if a Win 7 system doesn't have the 11.1 runtime installed
+  // The create device call will fail even though the 11.0 (or lower) level could've been
+  // intialized successfully
+  int FeatureLevelIdx = 0;
+  for (FeatureLevelIdx = 0; FeatureLevelIdx < EZ_ARRAY_SIZE(FeatureLevels); FeatureLevelIdx++)
   {
-    ezLog::Error("D3D11CreateDevice() failed!");
+    if (SUCCEEDED(D3D11CreateDevice(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, dwFlags, &FeatureLevels[FeatureLevelIdx], 1, D3D11_SDK_VERSION, &m_pDevice, &m_FeatureLevel, &pImmediateContext)))
+    {
+      break;
+    }
+  }
+
+  // Nothing could be initialized:
+  if (pImmediateContext == nullptr)
+  {
+    ezLog::Error("Couldn't initialize D3D11 device!");
     return EZ_FAILURE;
   }
+  else
+  {
+    const char* FeatureLevelNames[] =
+    {
+      "11.1",
+      "11.0",
+      "10.1",
+      "10",
+      "9.3"
+    };
+
+    EZ_CHECK_AT_COMPILETIME(EZ_ARRAY_SIZE(FeatureLevels) == EZ_ARRAY_SIZE(FeatureLevelNames));
+
+    ezLog::Info("Initialized D3D11 device with feature level %s.", FeatureLevelNames[FeatureLevelIdx]);
+  }
+  
 
   // Create primary context object
   m_pPrimaryContext = EZ_DEFAULT_NEW(ezGALContextDX11)(this, pImmediateContext);
@@ -403,6 +440,85 @@ void ezGALDeviceDX11::SetPrimarySwapChainPlatform(ezGALSwapChain* pSwapChain)
   m_pDXGIFactory->MakeWindowAssociation(pSwapChain->GetDescription().m_pWindow->GetNativeWindowHandle(), 0);
 }
 
+
+void ezGALDeviceDX11::FillCapabilitiesPlatform()
+{
+  switch (m_FeatureLevel)
+  {
+  case D3D_FEATURE_LEVEL_11_1:
+  case D3D_FEATURE_LEVEL_11_0:
+    m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::VertexShader] = true;
+    m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::HullShader] = true;
+    m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::DomainShader] = true;
+    m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::GeometryShader] = true;
+    m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::PixelShader] = true;
+    m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::ComputeShader] = true;
+    m_Capabilities.m_bInstancing = true;
+    m_Capabilities.m_b32BitIndices = true;
+    m_Capabilities.m_bIndirectDraw = true;
+    m_Capabilities.m_bStreamOut = true;
+    m_Capabilities.m_uiMaxConstantBuffers = D3D11_COMMONSHADER_CONSTANT_BUFFER_HW_SLOT_COUNT;
+    m_Capabilities.m_bTextureArrays = true;
+    m_Capabilities.m_bCubemapArrays = true;
+    m_Capabilities.m_uiMaxTextureDimension = D3D11_REQ_TEXTURE2D_U_OR_V_DIMENSION;
+    m_Capabilities.m_uiMaxCubemapDimension = D3D11_REQ_TEXTURECUBE_DIMENSION;
+    m_Capabilities.m_uiMax3DTextureDimension = D3D11_REQ_TEXTURE3D_U_V_OR_W_DIMENSION;
+    m_Capabilities.m_uiMaxAnisotropy = D3D11_REQ_MAXANISOTROPY;
+    m_Capabilities.m_uiMaxRendertargets = D3D11_SIMULTANEOUS_RENDER_TARGET_COUNT;
+    m_Capabilities.m_uiUAVCount = (m_FeatureLevel == D3D_FEATURE_LEVEL_11_1 ? 64 : 8);
+    m_Capabilities.m_bAlphaToCoverage = true;
+    break;
+
+  case D3D_FEATURE_LEVEL_10_1:
+  case D3D_FEATURE_LEVEL_10_0:
+    m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::VertexShader] = true;
+    m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::HullShader] = false;
+    m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::DomainShader] = false;
+    m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::GeometryShader] = true;
+    m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::PixelShader] = true;
+    m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::ComputeShader] = false;
+    m_Capabilities.m_bInstancing = true;
+    m_Capabilities.m_b32BitIndices = true;
+    m_Capabilities.m_bIndirectDraw = false;
+    m_Capabilities.m_bStreamOut = true;
+    m_Capabilities.m_uiMaxConstantBuffers = D3D11_COMMONSHADER_CONSTANT_BUFFER_HW_SLOT_COUNT;
+    m_Capabilities.m_bTextureArrays = true;
+    m_Capabilities.m_bCubemapArrays = (m_FeatureLevel == D3D_FEATURE_LEVEL_10_1 ? true : false);
+    m_Capabilities.m_uiMaxTextureDimension = D3D10_REQ_TEXTURE2D_U_OR_V_DIMENSION;
+    m_Capabilities.m_uiMaxCubemapDimension = D3D10_REQ_TEXTURECUBE_DIMENSION;
+    m_Capabilities.m_uiMax3DTextureDimension = D3D10_REQ_TEXTURE3D_U_V_OR_W_DIMENSION;
+    m_Capabilities.m_uiMaxAnisotropy = D3D10_REQ_MAXANISOTROPY;
+    m_Capabilities.m_uiMaxRendertargets = D3D10_SIMULTANEOUS_RENDER_TARGET_COUNT;
+    m_Capabilities.m_uiUAVCount = 0;
+    m_Capabilities.m_bAlphaToCoverage = true;
+    break;
+
+  case D3D_FEATURE_LEVEL_9_3:
+    m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::VertexShader] = true;
+    m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::HullShader] = false;
+    m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::DomainShader] = false;
+    m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::GeometryShader] = false;
+    m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::PixelShader] = true;
+    m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::ComputeShader] = false;
+    m_Capabilities.m_bInstancing = true;
+    m_Capabilities.m_b32BitIndices = true;
+    m_Capabilities.m_bIndirectDraw = false;
+    m_Capabilities.m_bStreamOut = false;
+    m_Capabilities.m_uiMaxConstantBuffers = D3D11_COMMONSHADER_CONSTANT_BUFFER_HW_SLOT_COUNT;
+    m_Capabilities.m_bTextureArrays = false;
+    m_Capabilities.m_bCubemapArrays = false;
+    m_Capabilities.m_uiMaxTextureDimension = D3D_FL9_3_REQ_TEXTURE1D_U_DIMENSION;
+    m_Capabilities.m_uiMaxCubemapDimension = D3D_FL9_3_REQ_TEXTURECUBE_DIMENSION;
+    m_Capabilities.m_uiMax3DTextureDimension = 0;
+    m_Capabilities.m_uiMaxAnisotropy = 16;
+    m_Capabilities.m_uiMaxRendertargets = D3D_FL9_3_SIMULTANEOUS_RENDER_TARGET_COUNT;
+    m_Capabilities.m_uiUAVCount = 0;
+    m_Capabilities.m_bAlphaToCoverage = false;
+    break;
+
+  }
+
+}
 
 
 void ezGALDeviceDX11::FillFormatLookupTable()

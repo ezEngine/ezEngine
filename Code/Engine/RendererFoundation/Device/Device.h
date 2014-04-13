@@ -5,6 +5,7 @@
 #include <Foundation/Containers/IdTable.h>
 #include <Foundation/Containers/Map.h>
 #include <RendererFoundation/Descriptors/Descriptors.h>
+#include <RendererFoundation/Device/DeviceCapabilities.h>
 
 class ezColor;
 
@@ -153,6 +154,8 @@ public:
   EZ_FORCE_INLINE const ezGALRenderTargetView* GetRenderTargetView(ezGALRenderTargetViewHandle hRenderTargetView) const;
 
   
+  const ezGALDeviceCapabilities& GetCapabilities() const;
+
 protected:
 
   friend class ezGALContext;
@@ -238,6 +241,8 @@ protected:
   ezGALSwapChainHandle m_hPrimarySwapChain;
 
   ezGALContext* m_pPrimaryContext;
+
+  ezGALDeviceCapabilities m_Capabilities;
 
 
   // Deactivate Doxygen document generation for the following block. (API abstraction only)
@@ -345,6 +350,8 @@ protected:
   virtual void FinishPlatform() = 0;
 
   virtual void SetPrimarySwapChainPlatform(ezGALSwapChain* pSwapChain) = 0;
+
+  virtual void FillCapabilitiesPlatform() = 0;
 
   /// \endcond
 };

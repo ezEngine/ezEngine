@@ -445,6 +445,11 @@ void ezGALDeviceGL::SetPrimarySwapChainPlatform(ezGALSwapChain* pSwapChain)
 {
 }
 
+void ezGALDeviceGL::FillCapabilitiesPlatform()
+{
+  ezLog::Warning("Not implemented!");
+}
+
 
 
 void ezGALDeviceGL::FillFormatLookupTable()
