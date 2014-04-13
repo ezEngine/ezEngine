@@ -75,7 +75,7 @@ ezStatVisWidget::ezStatVisWidget(QWidget* parent, ezInt32 iWindowNumber) : QDock
   SpinMax->setValue(Settings.value(QLatin1String("Max"), 1.0).toDouble());
   Settings.endGroup();
 
-  EZ_VERIFY(QWidget::connect(&m_ShowWindowAction,  SIGNAL(triggered()), this, SLOT(on_ToggleVisible())), "");
+  EZ_VERIFY(nullptr != QWidget::connect(&m_ShowWindowAction,  SIGNAL(triggered()), this, SLOT(on_ToggleVisible())), "");
 
   
 }

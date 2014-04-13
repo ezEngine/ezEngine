@@ -53,17 +53,17 @@ ezMainWindow::ezMainWindow() : QMainWindow()
   ezReflectionWidget*   pReflectionWidget     = new ezReflectionWidget(this);
   ezDataWidget*         pDataWidget           = new ezDataWidget(this);
 
-  EZ_VERIFY(QWidget::connect(pLogWidget,            SIGNAL(visibilityChanged(bool)), this, SLOT(DockWidgetVisibilityChanged(bool))), "");
-  EZ_VERIFY(QWidget::connect(pTimeWidget,           SIGNAL(visibilityChanged(bool)), this, SLOT(DockWidgetVisibilityChanged(bool))), "");
-  EZ_VERIFY(QWidget::connect(pMemoryWidget,         SIGNAL(visibilityChanged(bool)), this, SLOT(DockWidgetVisibilityChanged(bool))), "");
-  EZ_VERIFY(QWidget::connect(pInputWidget,          SIGNAL(visibilityChanged(bool)), this, SLOT(DockWidgetVisibilityChanged(bool))), "");
-  EZ_VERIFY(QWidget::connect(pCVarsWidget,          SIGNAL(visibilityChanged(bool)), this, SLOT(DockWidgetVisibilityChanged(bool))), "");
-  EZ_VERIFY(QWidget::connect(pReflectionWidget,     SIGNAL(visibilityChanged(bool)), this, SLOT(DockWidgetVisibilityChanged(bool))), "");
-  EZ_VERIFY(QWidget::connect(pSubsystemsWidget,     SIGNAL(visibilityChanged(bool)), this, SLOT(DockWidgetVisibilityChanged(bool))), "");
-  EZ_VERIFY(QWidget::connect(pFileWidget,           SIGNAL(visibilityChanged(bool)), this, SLOT(DockWidgetVisibilityChanged(bool))), "");
-  EZ_VERIFY(QWidget::connect(pPluginsWidget,        SIGNAL(visibilityChanged(bool)), this, SLOT(DockWidgetVisibilityChanged(bool))), "");
-  EZ_VERIFY(QWidget::connect(pGlobalEventesWidget,  SIGNAL(visibilityChanged(bool)), this, SLOT(DockWidgetVisibilityChanged(bool))), "");
-  EZ_VERIFY(QWidget::connect(pDataWidget,           SIGNAL(visibilityChanged(bool)), this, SLOT(DockWidgetVisibilityChanged(bool))), "");
+  EZ_VERIFY(nullptr != QWidget::connect(pLogWidget,            SIGNAL(visibilityChanged(bool)), this, SLOT(DockWidgetVisibilityChanged(bool))), "");
+  EZ_VERIFY(nullptr != QWidget::connect(pTimeWidget,           SIGNAL(visibilityChanged(bool)), this, SLOT(DockWidgetVisibilityChanged(bool))), "");
+  EZ_VERIFY(nullptr != QWidget::connect(pMemoryWidget,         SIGNAL(visibilityChanged(bool)), this, SLOT(DockWidgetVisibilityChanged(bool))), "");
+  EZ_VERIFY(nullptr != QWidget::connect(pInputWidget,          SIGNAL(visibilityChanged(bool)), this, SLOT(DockWidgetVisibilityChanged(bool))), "");
+  EZ_VERIFY(nullptr != QWidget::connect(pCVarsWidget,          SIGNAL(visibilityChanged(bool)), this, SLOT(DockWidgetVisibilityChanged(bool))), "");
+  EZ_VERIFY(nullptr != QWidget::connect(pReflectionWidget,     SIGNAL(visibilityChanged(bool)), this, SLOT(DockWidgetVisibilityChanged(bool))), "");
+  EZ_VERIFY(nullptr != QWidget::connect(pSubsystemsWidget,     SIGNAL(visibilityChanged(bool)), this, SLOT(DockWidgetVisibilityChanged(bool))), "");
+  EZ_VERIFY(nullptr != QWidget::connect(pFileWidget,           SIGNAL(visibilityChanged(bool)), this, SLOT(DockWidgetVisibilityChanged(bool))), "");
+  EZ_VERIFY(nullptr != QWidget::connect(pPluginsWidget,        SIGNAL(visibilityChanged(bool)), this, SLOT(DockWidgetVisibilityChanged(bool))), "");
+  EZ_VERIFY(nullptr != QWidget::connect(pGlobalEventesWidget,  SIGNAL(visibilityChanged(bool)), this, SLOT(DockWidgetVisibilityChanged(bool))), "");
+  EZ_VERIFY(nullptr != QWidget::connect(pDataWidget,           SIGNAL(visibilityChanged(bool)), this, SLOT(DockWidgetVisibilityChanged(bool))), "");
 
   addDockWidget(Qt::BottomDockWidgetArea, pMemoryWidget);
   addDockWidget(Qt::BottomDockWidgetArea, pFileWidget);
@@ -82,7 +82,7 @@ ezMainWindow::ezMainWindow() : QMainWindow()
     addDockWidget(Qt::BottomDockWidgetArea, m_pStatHistoryWidgets[i]);
     tabifyDockWidget(pMemoryWidget, m_pStatHistoryWidgets[i]);
 
-    EZ_VERIFY(QWidget::connect(m_pStatHistoryWidgets[i],  SIGNAL(visibilityChanged(bool)), this, SLOT(DockWidgetVisibilityChanged(bool))), "");
+    EZ_VERIFY(nullptr != QWidget::connect(m_pStatHistoryWidgets[i],  SIGNAL(visibilityChanged(bool)), this, SLOT(DockWidgetVisibilityChanged(bool))), "");
 
     pHistoryMenu->addAction(&m_pStatHistoryWidgets[i]->m_ShowWindowAction);
 
@@ -90,7 +90,7 @@ ezMainWindow::ezMainWindow() : QMainWindow()
 
     m_pActionShowStatIn[i] = new QAction(this);
 
-    EZ_VERIFY(QWidget::connect(m_pActionShowStatIn[i],  SIGNAL(triggered()), this, SLOT(ShowStatIn())), "");
+    EZ_VERIFY(nullptr != QWidget::connect(m_pActionShowStatIn[i],  SIGNAL(triggered()), this, SLOT(ShowStatIn())), "");
   }
 
   setContextMenuPolicy(Qt::NoContextMenu);
