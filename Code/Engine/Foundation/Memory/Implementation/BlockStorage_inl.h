@@ -16,6 +16,14 @@ EZ_FORCE_INLINE T& ezBlockStorage<T>::Iterator::operator*() const
 }
 
 template <typename T>
+EZ_FORCE_INLINE T* ezBlockStorage<T>::Iterator::operator->() const
+{
+  const ezUInt32 uiBlockIndex = m_uiCurrentIndex / ezDataBlock<T>::CAPACITY;
+  const ezUInt32 uiInnerIndex = m_uiCurrentIndex - uiBlockIndex * ezDataBlock<T>::CAPACITY;  
+  return m_Storage.m_Blocks[uiBlockIndex].m_pData + uiInnerIndex;
+}
+
+template <typename T>
 EZ_FORCE_INLINE void ezBlockStorage<T>::Iterator::Next()
 {
   ++m_uiCurrentIndex;

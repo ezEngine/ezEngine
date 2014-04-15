@@ -44,6 +44,12 @@ WorldData::~WorldData()
     EZ_DELETE(&m_Allocator, m_ComponentManagers[i]);
   }
 
+  // delete task storage
+  for (ezUInt32 i = 0; i < m_UpdateTasks.GetCount(); ++i)
+  {
+    EZ_DELETE(&m_Allocator, m_UpdateTasks[i]);
+  }
+
   // delete all transformation data
   for (ezUInt32 uiHierarchyIndex = 0; uiHierarchyIndex < HierarchyType::COUNT; ++uiHierarchyIndex)
   {
@@ -148,11 +154,14 @@ void WorldData::UpdateWorldTransforms()
   };
 
   Hierarchy& hierarchy = m_Hierarchies[WorldData::HierarchyType::Dynamic];
-  UpdateHierarchyLevel<RootLevel>(*hierarchy.m_Data[0]);
-
-  for (ezUInt32 i = 1; i < hierarchy.m_Data.GetCount(); ++i)
+  if (!hierarchy.m_Data.IsEmpty())
   {
-    UpdateHierarchyLevel<WithParent>(*hierarchy.m_Data[i]);
+    UpdateHierarchyLevel<RootLevel>(*hierarchy.m_Data[0]);
+
+    for (ezUInt32 i = 1; i < hierarchy.m_Data.GetCount(); ++i)
+    {
+      UpdateHierarchyLevel<WithParent>(*hierarchy.m_Data[i]);
+    }
   }
 }
 

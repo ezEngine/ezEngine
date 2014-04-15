@@ -10,6 +10,7 @@ public:
   {
   public:
     T& operator*() const;
+    T* operator->() const;
     
     void Next();
     bool IsValid() const;

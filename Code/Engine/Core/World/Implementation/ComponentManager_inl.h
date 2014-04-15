@@ -149,13 +149,10 @@ ezResult ezComponentManagerSimple<ComponentType>::Initialize()
 template <typename ComponentType>
 void ezComponentManagerSimple<ComponentType>::SimpleUpdate(ezUInt32 uiStartIndex, ezUInt32 uiCount)
 {
-  for (typename ezBlockStorage<ComponentType>::Iterator it = this->m_ComponentStorage.GetIterator(uiStartIndex, uiCount); it.IsValid(); ++it)
+  for (auto it = this->m_ComponentStorage.GetIterator(uiStartIndex, uiCount); it.IsValid(); ++it)
   {
-    ComponentType& component = *it;
-    if (component.IsActive())
-    {
-      component.Update();
-    }
+    if (it->IsActive())
+      it->Update();
   }
 }
 

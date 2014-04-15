@@ -130,19 +130,40 @@ void ezWorld::DeleteObject(const ezGameObjectHandle& object)
 {
   CheckForMultithreadedAccess();
 
-  ObjectStorageEntry* pStorageEntry;
-  if (!m_Data.m_Objects.TryGetValue(object, pStorageEntry))
+  ObjectStorageEntry storageEntry;
+  if (!m_Data.m_Objects.TryGetValue(object, storageEntry))
     return;
 
-  ezGameObject* pObject = pStorageEntry->m_Ptr;
+  ezGameObject* pObject = storageEntry.m_Ptr;
+
+  // delete children
+  for (ezGameObject::ChildIterator it = pObject->GetChildren(); it.IsValid(); ++it)
+  {
+    DeleteObject(it->GetHandle());
+  }
+
+  // delete attached components
+  const ezArrayPtr<ezComponentHandle> components = pObject->m_Components;
+  for (ezUInt32 c = 0; c < components.GetCount(); ++c)
+  {
+    const ezComponentHandle& component = components[c];
+    const ezUInt16 uiTypeId = component.m_InternalId.m_TypeId;
+
+    EZ_ASSERT(uiTypeId < m_Data.m_ComponentManagers.GetCount(), "Implementation error or memory corruption.");  
+    if (ezComponentManagerBase* pManager = m_Data.m_ComponentManagers[uiTypeId])
+    {
+      ezComponentManagerBase::ComponentStorageEntry storageEntry;
+      EZ_VERIFY(pManager->m_Components.TryGetValue(component, storageEntry), "Implementation error or memory corruption.");
+      pManager->DeleteComponent(storageEntry);
+    }
+  }
+  pObject->m_Components.Clear();
+
+  // invalidate and remove from id table
   pObject->m_InternalId.Invalidate();
   pObject->m_Flags.Remove(ezObjectFlags::Active);
-  m_Data.m_DeadObjects.PushBack(*pStorageEntry);
+  m_Data.m_DeadObjects.PushBack(storageEntry);
   m_Data.m_Objects.Remove(object);
-
-  // object can't be accessed through id table anymore
-  pStorageEntry->m_Ptr = nullptr;
-  pStorageEntry->m_uiIndex = 0;
 
   // fix parent and siblings
   if (ezGameObject* pParentObject = pObject->GetParent())
@@ -163,31 +184,6 @@ void ezWorld::DeleteObject(const ezGameObjectHandle& object)
 
     pParentObject->m_ChildCount--;
     pObject->m_ParentIndex = 0;
-    pObject->m_NextSiblingIndex = 0;
-    pObject->m_PrevSiblingIndex = 0;
-  }
-
-  // delete attached components
-  const ezArrayPtr<ezComponentHandle> components = pObject->m_Components;
-  for (ezUInt32 c = 0; c < components.GetCount(); ++c)
-  {
-    const ezComponentHandle& component = components[c];
-    const ezUInt16 uiTypeId = component.m_InternalId.m_TypeId;
-
-    EZ_ASSERT(uiTypeId < m_Data.m_ComponentManagers.GetCount(), "Implementation error or memory corruption.");  
-    if (ezComponentManagerBase* pManager = m_Data.m_ComponentManagers[uiTypeId])
-    {
-      ezComponentManagerBase::ComponentStorageEntry storageEntry;
-      EZ_VERIFY(pManager->m_Components.TryGetValue(component, storageEntry), "Implementation error or memory corruption.");
-      pManager->DeleteComponent(storageEntry);
-    }
-  }
-  pObject->m_Components.Clear();
-
-  // delete children
-  for (ezGameObject::ChildIterator it = pObject->GetChildren(); it.IsValid(); ++it)
-  {
-    DeleteObject(it->GetHandle());
   }
 }
 
@@ -355,9 +351,10 @@ ezResult ezWorld::RegisterUpdateFunction(const ezComponentManagerBase::UpdateFun
   }
 
   // new function was registered successfully, try to insert unresolved functions
-  for (ezUInt32 i = 0; i < m_Data.m_UnresolvedUpdateFunctions.GetCount(); ++i)
+  for (ezUInt32 i = m_Data.m_UnresolvedUpdateFunctions.GetCount(); i-- > 0;)
   {
-    RegisterUpdateFunctionWithDependency(m_Data.m_UnresolvedUpdateFunctions[i], false);
+    if (RegisterUpdateFunctionWithDependency(m_Data.m_UnresolvedUpdateFunctions[i], false) == EZ_SUCCESS)
+      m_Data.m_UnresolvedUpdateFunctions.RemoveAt(i);
   }
 
   return EZ_SUCCESS;
@@ -390,7 +387,7 @@ ezResult ezWorld::RegisterUpdateFunctionWithDependency(const ezComponentManagerB
     }
     else
     {
-      uiInsertionIndex = ezMath::Max(uiInsertionIndex, uiDependencyIndex);
+      uiInsertionIndex = ezMath::Max(uiInsertionIndex, uiDependencyIndex + 1);
     }
   }
 
@@ -432,7 +429,7 @@ void ezWorld::UpdateSynchronous(const ezArrayPtr<ezInternal::WorldData::Register
     ezInternal::WorldData::RegisteredUpdateFunction& updateFunction = updateFunctions[i];
     ezComponentManagerBase* pManager = static_cast<ezComponentManagerBase*>(updateFunction.m_Function.GetInstance());
 
-    updateFunction.m_Function(0, pManager->GetActiveComponentCount());
+    updateFunction.m_Function(0, ezInvalidIndex);
   }
 }
 
@@ -473,6 +470,7 @@ void ezWorld::UpdateAsynchronous()
       pTask->m_Function = updateFunction.m_Function;
       pTask->m_uiStartIndex = uiStartIndex;
       pTask->m_uiCount = (uiStartIndex + uiGranularity < uiTotalCount) ? uiGranularity : ezInvalidIndex;
+      ezTaskSystem::AddTaskToGroup(taskGroupId, pTask);
 
       ++uiCurrentTaskIndex;
       uiStartIndex += uiGranularity;
