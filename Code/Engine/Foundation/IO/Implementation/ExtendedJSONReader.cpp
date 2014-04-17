@@ -61,7 +61,7 @@ T BuildTypedVariant_number(const ezVariant& Value, const ezVariant& Binary, T fE
     ezResult Status(EZ_FAILURE);
     tValue = Value.ConvertTo<T>(&Status);
 
-    bText = Status.IsSuccess();
+    bText = Status.Succeeded();
   }
 
   if (Binary.IsValid() && Binary.CanConvertTo<ezString>())
@@ -73,7 +73,7 @@ T BuildTypedVariant_number(const ezVariant& Value, const ezVariant& Binary, T fE
 
     bValue = *((T*) &Data[0]);
 
-    bBinary = Status.IsSuccess();
+    bBinary = Status.Succeeded();
   }
 
   out_Result = (bText || bBinary) ? EZ_SUCCESS : EZ_FAILURE;
@@ -111,7 +111,7 @@ T BuildTypedVariant_vector(const ezVariant& Value, const ezVariant& Binary, floa
     ezResult Status(EZ_FAILURE);
     ezConversionUtils::ExtractFloatsFromString(Value.ConvertTo<ezString>(&Status).GetData(), iNumFloats, ptValueFloats);
 
-    bText = Status.IsSuccess();
+    bText = Status.Succeeded();
   }
 
   if (Binary.IsValid() && Binary.CanConvertTo<ezString>())
@@ -123,7 +123,7 @@ T BuildTypedVariant_vector(const ezVariant& Value, const ezVariant& Binary, floa
 
     bValue = *((T*) &Data[0]);
 
-    bBinary = Status.IsSuccess();
+    bBinary = Status.Succeeded();
   }
 
   if (bText && bBinary)
@@ -213,7 +213,7 @@ void ezExtendedJSONReader::OnEndObject()
     ezResult result = EZ_FAILURE;
     ezVariant v = BuildTypedVariant(Type.ConvertTo<ezString>().GetData(), Value, Binary, result);
 
-    if (result.IsFailure())
+    if (result.Failed())
     {
       ezStringBuilder s;
       s.Format("The extended type variable '%s' could not be read converted. $t = '%s', $v = '%s', $b = '%s'", Child.m_sName.GetData(), Type.ConvertTo<ezString>().GetData(), Value.ConvertTo<ezString>().GetData(), Binary.ConvertTo<ezString>().GetData());

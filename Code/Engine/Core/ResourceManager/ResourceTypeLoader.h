@@ -5,6 +5,12 @@
 
 struct ezResourceLoadData
 {
+  ezResourceLoadData()
+  {
+    m_pDataStream = nullptr;
+    m_pCustomLoaderData = nullptr;
+  }
+
   ezStreamReaderBase* m_pDataStream;
   void* m_pCustomLoaderData;
 };
@@ -17,5 +23,14 @@ public:
 
   virtual ezResourceLoadData OpenDataStream(const ezResourceBase* pResource) = 0;
   virtual void CloseDataStream(const ezResourceBase* pResource, const ezResourceLoadData& LoaderData) = 0;
+};
+
+class ezResourceLoaderFromFile : public ezResourceTypeLoader
+{
+public:
+
+  virtual ezResourceLoadData OpenDataStream(const ezResourceBase* pResource) EZ_OVERRIDE;
+  virtual void CloseDataStream(const ezResourceBase* pResource, const ezResourceLoadData& LoaderData) EZ_OVERRIDE;
+
 };
 

@@ -55,7 +55,7 @@ void ezConsole::ProcessCommand(const char* szCmd)
   // Broadcast that we have processed a command
   {
     ConsoleEvent e;
-    e.m_EventType = res.IsSuccess() ? ConsoleEvent::ProcessCommandSuccess : ConsoleEvent::ProcessCommandFailure;
+    e.m_EventType = res.Succeeded() ? ConsoleEvent::ProcessCommandSuccess : ConsoleEvent::ProcessCommandFailure;
     e.m_szCommand = szCmd;
 
     m_Events.Broadcast(e);

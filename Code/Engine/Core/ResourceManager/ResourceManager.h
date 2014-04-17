@@ -11,6 +11,7 @@
 /// \todo Fallback resource for one type
 /// \todo Missing resource for one type
 /// \todo Events: Resource loaded / unloaded etc.
+/// \todo Prevent loading of resource that should get created
 
 // Resource Flags:
 // Category / Group (Texture Sets)
@@ -70,6 +71,10 @@ public:
   template<typename ResourceType>
   static void SetResourceTypeLoader(ezResourceTypeLoader* pCreator);
 
+  static void ezResourceManager::SetDefaultResourceLoader(ezResourceTypeLoader* pDefaultLoader);
+
+  static ezResourceTypeLoader* ezResourceManager::GetDefaultResourceLoader() { return m_pDefaultResourceLoader; }
+
   static void Shutdown();
 
   template<typename ResourceType>
@@ -95,6 +100,10 @@ private:
 
   static ezHashTable<ezTempHashedString, ezResourceBase*> m_LoadedResources;
   static ezMap<ezString, ezResourceTypeLoader*> m_ResourceTypeLoader;
+
+  static ezResourceLoaderFromFile m_FileResourceLoader;
+
+  static ezResourceTypeLoader* m_pDefaultResourceLoader;
 
   struct LoadingInfo
   {

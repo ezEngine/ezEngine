@@ -47,6 +47,8 @@ public:
 
   ezGALShaderHandle CreateShader(const ezGALShaderCreationDescription& Description);
 
+
+
   void DestroyShader(ezGALShaderHandle hShader);
 
   ezGALBufferHandle CreateBuffer(const ezGALBufferCreationDescription& Description, const void* pInitialData);

@@ -59,42 +59,42 @@ public:
 #if (ARG_COUNT > 0)
     P0 param0 = params[0].ConvertTo<P0>(&r);
 
-    if (r.IsFailure())
+    if (r.Failed())
       return EZ_FAILURE;
 #endif
 
 #if (ARG_COUNT > 1)
     P1 param1 = params[1].ConvertTo<P1>(&r);
 
-    if (r.IsFailure())
+    if (r.Failed())
       return EZ_FAILURE;
 #endif
 
 #if (ARG_COUNT > 2)
     P2 param2 = params[2].ConvertTo<P2>(&r);
 
-    if (r.IsFailure())
+    if (r.Failed())
       return EZ_FAILURE;
 #endif
 
 #if (ARG_COUNT > 3)
     P3 param3 = params[3].ConvertTo<P3>(&r);
 
-    if (r.IsFailure())
+    if (r.Failed())
       return EZ_FAILURE;
 #endif
 
 #if (ARG_COUNT > 4)
     P4 param4 = params[4].ConvertTo<P4>(&r);
 
-    if (r.IsFailure())
+    if (r.Failed())
       return EZ_FAILURE;
 #endif
 
 #if (ARG_COUNT > 5)
     P5 param5 = params[5].ConvertTo<P5>(&r);
 
-    if (r.IsFailure())
+    if (r.Failed())
       return EZ_FAILURE;
 #endif
 

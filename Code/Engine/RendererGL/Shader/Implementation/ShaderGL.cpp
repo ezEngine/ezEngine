@@ -61,7 +61,7 @@ ezResult ezGALShaderGL::CompileShader(glProgramId& dstProgram, glShaderId& dstSh
       if (strlen(pInfoLog.GetPtr()) > 0)
       {
         // TODO: We need a name for the shader, otherwise this log message is not very useful!
-        ezLog::Error("Shader compile failed! Output:\n", pInfoLog.GetPtr());
+        ezLog::Error("Shader compile failed! Output: %s", pInfoLog.GetPtr());
       }
 
       EZ_DEFAULT_DELETE_ARRAY(pInfoLog);
@@ -149,7 +149,7 @@ ezResult ezGALShaderGL::InitPlatform(ezGALDevice* pDevice)
       if (strlen(pInfoLog.GetPtr()) > 0)
       {
         // TODO: We need a name for the shader, otherwise this log message is not very useful!
-        ezLog::Error("Shader program linking failed! Output:\n", pInfoLog.GetPtr());
+        ezLog::Error("Shader program linking failed! Output: %s", pInfoLog.GetPtr());
       }
     }
 

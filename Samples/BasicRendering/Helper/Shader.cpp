@@ -28,7 +28,7 @@ namespace DontUse
     }
 
 
-    ezGALShaderByteCode* pByteCode = new ezGALShaderByteCode(ResultBlob->GetBufferPointer(), (ezUInt32)ResultBlob->GetBufferSize());
+    ezGALShaderByteCode* pByteCode = EZ_DEFAULT_NEW(ezGALShaderByteCode)(ResultBlob->GetBufferPointer(), (ezUInt32)ResultBlob->GetBufferSize());
 
     return pByteCode;
   }

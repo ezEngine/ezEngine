@@ -29,7 +29,7 @@ void ezResourceManager::CreateResource(const ezResourceHandle<ResourceType>& hRe
 
   // If this does not compile, you have forgotten to make ezResourceManager a friend of your resource class.
   // which probably means that you did not derive from ezResource, which you should do!
-  pResource->CreateResource(descriptor);
+  static_cast<ezResource<ResourceType, ResourceType::DescriptorType>*>(pResource)->CreateResource(descriptor);
 
   EZ_ASSERT(pResource->GetLoadingState() != ezResourceLoadState::Uninitialized, "CreateResource did not set the loading state properly.");
   EZ_ASSERT(pResource->GetMaxQualityLevel() > 0, "CreateResource did not set the max quality level properly.");
@@ -132,4 +132,9 @@ template<typename ResourceType>
 void ezResourceManager::SetResourceTypeLoader(ezResourceTypeLoader* creator)
 {
   m_ResourceTypeLoader[ezGetStaticRTTI<ResourceType>()->GetTypeName()] = creator;
+}
+
+inline void ezResourceManager::SetDefaultResourceLoader(ezResourceTypeLoader* pDefaultLoader)
+{
+  m_pDefaultResourceLoader = pDefaultLoader;
 }

@@ -146,7 +146,7 @@ ezGALDepthStencilState* ezGALDeviceDX11::CreateDepthStencilStatePlatform(const e
 {
   ezGALDepthStencilStateDX11* pDX11DepthStencilState = EZ_DEFAULT_NEW(ezGALDepthStencilStateDX11)(Description);
 
-  if (pDX11DepthStencilState->InitPlatform(this).IsSuccess())
+  if (pDX11DepthStencilState->InitPlatform(this).Succeeded())
   {
     return pDX11DepthStencilState;
   }
@@ -165,7 +165,7 @@ ezGALRasterizerState* ezGALDeviceDX11::CreateRasterizerStatePlatform(const ezGAL
 {
   ezGALRasterizerStateDX11* pDX11RasterizerState = EZ_DEFAULT_NEW(ezGALRasterizerStateDX11)(Description);
 
-  if(pDX11RasterizerState->InitPlatform(this).IsSuccess())
+  if(pDX11RasterizerState->InitPlatform(this).Succeeded())
   {
     return pDX11RasterizerState;
   }
@@ -187,7 +187,7 @@ ezGALSamplerState* ezGALDeviceDX11::CreateSamplerStatePlatform(const ezGALSample
 {
   ezGALSamplerStateDX11* pDX11SamplerState = EZ_DEFAULT_NEW(ezGALSamplerStateDX11)(Description);
 
-  if (pDX11SamplerState->InitPlatform(this).IsSuccess())
+  if (pDX11SamplerState->InitPlatform(this).Succeeded())
   {
     return pDX11SamplerState;
   }
@@ -212,7 +212,7 @@ ezGALShader* ezGALDeviceDX11::CreateShaderPlatform(const ezGALShaderCreationDesc
 {
   ezGALShaderDX11* pShader = EZ_DEFAULT_NEW(ezGALShaderDX11)(Description);
 
-  if(!pShader->InitPlatform(this).IsSuccess())
+  if(!pShader->InitPlatform(this).Succeeded())
   {
     EZ_DEFAULT_DELETE(pShader);
     return nullptr;
@@ -232,7 +232,7 @@ ezGALBuffer* ezGALDeviceDX11::CreateBufferPlatform(const ezGALBufferCreationDesc
 {
   ezGALBufferDX11* pBuffer = EZ_DEFAULT_NEW(ezGALBufferDX11)(Description);
 
-  if(!pBuffer->InitPlatform(this, pInitialData).IsSuccess())
+  if(!pBuffer->InitPlatform(this, pInitialData).Succeeded())
   {
     EZ_DEFAULT_DELETE(pBuffer);
     return nullptr;
@@ -252,7 +252,7 @@ ezGALTexture* ezGALDeviceDX11::CreateTexturePlatform(const ezGALTextureCreationD
 {
   ezGALTextureDX11* pTexture = EZ_DEFAULT_NEW(ezGALTextureDX11)(Description);
 
-  if(!pTexture->InitPlatform(this, pInitialData).IsSuccess())
+  if(!pTexture->InitPlatform(this, pInitialData).Succeeded())
   {
     EZ_DEFAULT_DELETE(pTexture);
     return nullptr;
@@ -272,7 +272,7 @@ ezGALResourceView* ezGALDeviceDX11::CreateResourceViewPlatform(const ezGALResour
 {
   ezGALResourceViewDX11* pResourceView = EZ_DEFAULT_NEW(ezGALResourceViewDX11)(Description);
 
-  if(!pResourceView->InitPlatform(this).IsSuccess())
+  if(!pResourceView->InitPlatform(this).Succeeded())
   {
     EZ_DEFAULT_DELETE(pResourceView);
     return nullptr;
@@ -292,7 +292,7 @@ ezGALRenderTargetView* ezGALDeviceDX11::CreateRenderTargetViewPlatform(const ezG
 {
   ezGALRenderTargetViewDX11* pRTView = EZ_DEFAULT_NEW(ezGALRenderTargetViewDX11)(Description);
 
-  if(!pRTView->InitPlatform(this).IsSuccess())
+  if(!pRTView->InitPlatform(this).Succeeded())
   {
     EZ_DEFAULT_DELETE(pRTView);
     return nullptr;
@@ -316,7 +316,7 @@ ezGALSwapChain* ezGALDeviceDX11::CreateSwapChainPlatform(const ezGALSwapChainCre
 {
   ezGALSwapChainDX11* pSwapChain = EZ_DEFAULT_NEW(ezGALSwapChainDX11)(Description);
 
-  if (!pSwapChain->InitPlatform(this).IsSuccess())
+  if (!pSwapChain->InitPlatform(this).Succeeded())
   {
     EZ_DEFAULT_DELETE(pSwapChain);
     return nullptr;
@@ -354,7 +354,7 @@ ezGALRenderTargetConfig* ezGALDeviceDX11::CreateRenderTargetConfigPlatform(const
 {
   ezGALRenderTargetConfigDX11* pRenderTargetConfig = EZ_DEFAULT_NEW(ezGALRenderTargetConfigDX11)(Description);
 
-  if(pRenderTargetConfig->InitPlatform(this).IsSuccess())
+  if(pRenderTargetConfig->InitPlatform(this).Succeeded())
   {
     return pRenderTargetConfig;
   }
@@ -376,7 +376,7 @@ ezGALVertexDeclaration* ezGALDeviceDX11::CreateVertexDeclarationPlatform(const e
 {
   ezGALVertexDeclarationDX11* pVertexDeclaration = EZ_DEFAULT_NEW(ezGALVertexDeclarationDX11)(Description);
 
-  if(pVertexDeclaration->InitPlatform(this).IsSuccess())
+  if(pVertexDeclaration->InitPlatform(this).Succeeded())
   {
     return pVertexDeclaration;
   }

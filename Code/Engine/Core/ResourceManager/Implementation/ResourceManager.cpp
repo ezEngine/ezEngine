@@ -3,6 +3,8 @@
 
 ezHashTable<ezTempHashedString, ezResourceBase*> ezResourceManager::m_LoadedResources;
 ezMap<ezString, ezResourceTypeLoader*> ezResourceManager::m_ResourceTypeLoader;
+ezResourceLoaderFromFile ezResourceManager::m_FileResourceLoader;
+ezResourceTypeLoader* ezResourceManager::m_pDefaultResourceLoader = &m_FileResourceLoader;
 ezDeque<ezResourceManager::LoadingInfo> ezResourceManager::m_RequireLoading;
 bool ezResourceManager::m_bTaskRunning = false;
 bool ezResourceManager::m_bStop = false;
@@ -144,6 +146,9 @@ void ezResourceManagerWorker::Execute()
   const ezResourceLoadState::Enum CurState = pResourceToLoad->GetLoadingState();
 
   ezResourceTypeLoader* pLoader = ezResourceManager::GetResourceTypeLoader(pResourceToLoad->GetDynamicRTTI());
+
+  if (pLoader == NULL)
+    pLoader = ezResourceManager::GetDefaultResourceLoader();
 
   EZ_ASSERT(pLoader != NULL, "No Loader function available for Resource Type '%s'", pResourceToLoad->GetDynamicRTTI()->GetTypeName());
 

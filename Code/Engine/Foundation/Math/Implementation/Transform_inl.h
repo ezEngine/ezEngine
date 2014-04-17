@@ -94,7 +94,7 @@ inline const ezTransform operator*(const ezTransform& t1, const ezTransform& t2)
 
 inline ezResult ezTransform::Invert(float fEpsilon)
 {
-  if (m_Rotation.Invert(fEpsilon).IsFailure())
+  if (m_Rotation.Invert(fEpsilon).Failed())
     return EZ_FAILURE;
 
   m_vPosition = m_Rotation * -m_vPosition;
