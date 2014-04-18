@@ -2,14 +2,14 @@
 #include <Foundation/Strings/HashedString.h>
 #include <Foundation/Threading/Mutex.h>
 #include <Foundation/Threading/Lock.h>
-#include <Foundation/Algorithm/Hashing.h>
 
 static ezHashedString::StringStorage g_HashedStrings;
 static bool g_bHashedStringsInitialized = false;
 static ezHashedString::HashedType g_hsEmpty;
 static ezMutex g_HashedStringMutex;
 
-static ezHashedString::HashedType AddHashedString(const char* szString)
+// static
+ezHashedString::HashedType ezHashedString::AddHashedString(const char* szString, ezUInt32 uiHash)
 {
   ezLock<ezMutex> l(g_HashedStringMutex);
 
@@ -25,7 +25,7 @@ static ezHashedString::HashedType AddHashedString(const char* szString)
   {
     ezHashedString::HashedData d;
     d.m_iRefCount = 1;
-    d.m_uiHash = ezHashing::MurmurHash((void*) szString, ezStringUtils::GetStringElementCount(szString));
+    d.m_uiHash = uiHash;
 
     ret = g_HashedStrings.Insert(s, d); // otherwise insert it with a refcount of 1
   }
@@ -33,7 +33,8 @@ static ezHashedString::HashedType AddHashedString(const char* szString)
   return ret;
 }
 
-static void InitHashedString()
+// static
+void ezHashedString::InitHashedString()
 {
   // makes sure the empty string exists for the default constructor to use
 
@@ -44,7 +45,7 @@ static void InitHashedString()
 
   g_bHashedStringsInitialized = true;
 
-  g_hsEmpty = AddHashedString("");
+  g_hsEmpty = AddHashedString("", ezHashing::MurmurHash(""));
 
   // this one should never get deleted, so make sure its refcount is 2
   g_hsEmpty.Value().m_iRefCount.Increment();
@@ -80,15 +81,6 @@ ezHashedString::ezHashedString()
     InitHashedString();
 
   m_Data = g_hsEmpty;
-}
-
-void ezHashedString::Assign(const char* szString)
-{
-  // just decrease the refcount of the object that we are set to, it might reach refcount zero, but we don't care about that here
-  m_Data.Value().m_iRefCount.Decrement();
-
-  // this function will already increase the refcount as needed
-  m_Data = AddHashedString(szString);
 }
 
 

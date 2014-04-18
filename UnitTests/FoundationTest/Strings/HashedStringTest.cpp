@@ -10,17 +10,24 @@ EZ_CREATE_SIMPLE_TEST(Strings, HashedString)
     EZ_TEST_STRING(s.GetString().GetData(), "");
     EZ_TEST_BOOL(s.GetString().IsEmpty());
 
-    ezTempHashedString ts("test");
+    ezTempHashedString ts("test"); // compile time hashing
+    EZ_TEST_INT(ts.GetHash(), 0x1812752e);
+
+    ezStringBuilder sb = "test2";
+    ezTempHashedString ts2(sb.GetData()); // runtime hashing
+    EZ_TEST_INT(ts2.GetHash(), 0x77e1287c);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Assign")
   {
     ezHashedString s;
-    s.Assign("Test");
+    s.Assign("Test"); // compile time hashing
 
     EZ_TEST_STRING(s.GetString().GetData(), "Test");
+    EZ_TEST_INT(s.GetHash(), 0x949e89d1);
 
-    s.Assign("Test2");
+    ezStringBuilder sb = "Test2";
+    s.Assign(sb.GetData()); // runtime hashing
     EZ_TEST_STRING(s.GetString().GetData(), "Test2");
   }
 
