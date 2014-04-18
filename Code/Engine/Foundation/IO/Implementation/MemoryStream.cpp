@@ -76,6 +76,7 @@ ezResult ezMemoryStreamWriter::WriteBytes(const void* pWriteBuffer, ezUInt64 uiB
   EZ_ASSERT(pWriteBuffer != nullptr, "No valid buffer containing data given!");
   
   ezUInt64 uiNewSizeInBytes = m_uiWritePosition + uiBytesToWrite;
+  EZ_IGNORE_UNUSED(uiNewSizeInBytes);
   EZ_ASSERT(uiNewSizeInBytes < ezInvalidIndex, "Memory stream only supports up to 4GB of data");
 
   const ezUInt32 uiBytesToWrite32 = static_cast<ezUInt32>(uiBytesToWrite);

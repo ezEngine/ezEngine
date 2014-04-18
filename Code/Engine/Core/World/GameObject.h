@@ -4,6 +4,7 @@
 #include <Foundation/Math/Mat4.h>
 #include <Foundation/Math/Quat.h>
 #include <Foundation/Math/Transform.h>
+#include <Foundation/Time/Time.h>
 
 #include <Core/World/ComponentManager.h>
 #include <Core/World/GameObjectDesc.h>
@@ -131,8 +132,10 @@ public:
 
   // messaging
   void SendMessage(ezMessage& msg, ezBitflags<ezObjectMsgRouting> routing = ezObjectMsgRouting::Default);
-  void PostMessage(ezMessage& msg, ezBitflags<ezObjectMsgRouting> routing, 
-    ezObjectMsgQueueType::Enum queueType, float fDelay = 0.0f);
+  void PostMessage(ezMessage& msg, ezObjectMsgQueueType::Enum queueType, 
+    ezBitflags<ezObjectMsgRouting> routing = ezObjectMsgRouting::Default);
+  void PostMessage(ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay,
+    ezBitflags<ezObjectMsgRouting> routing = ezObjectMsgRouting::Default);
   
 private:
   bool TryGetComponent(const ezComponentHandle& component, ezComponent*& out_pComponent) const;
@@ -140,6 +143,11 @@ private:
 
   ezGameObjectId m_InternalId;
   ezBitflags<ezObjectFlags> m_Flags;
+  ezHashedString m_sName;
+
+#if EZ_ENABLED(EZ_PLATFORM_32BIT)
+  ezUInt32 m_uiNamePadding;
+#endif
 
   struct
   {
@@ -155,7 +163,7 @@ private:
     ezUInt64 m_ChildCount : 20;
   };
 
-  ezUInt32 m_uiHandledMessageCounter;
+  ezUInt32 m_uiReserved;
 
   struct
   {
@@ -172,7 +180,7 @@ private:
 
   /// \todo small array class to reduce memory overhead
   /// \todo save pointer to component instead?
-  ezHybridArray<ezComponentHandle, 7> m_Components;
+  ezHybridArray<ezComponentHandle, 6> m_Components;
 
 #if EZ_ENABLED(EZ_PLATFORM_32BIT)
   ezUInt64 m_uiPadding2;

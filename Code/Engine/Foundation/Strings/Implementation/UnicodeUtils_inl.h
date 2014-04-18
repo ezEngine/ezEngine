@@ -28,6 +28,7 @@ inline ezUInt32 ezUnicodeUtils::GetUtf8SequenceLength(char uiFirstByte)
   if (uiBit7 == 0) // ASCII character '0xxxxxxx'
     return 1;
 
+  EZ_IGNORE_UNUSED(uiBit6);
   EZ_ASSERT(uiBit6 != 0, "Invalid Leading UTF-8 Byte.");
 
   if (uiBit5 == 0) // '110xxxxx'

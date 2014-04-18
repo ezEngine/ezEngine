@@ -1,7 +1,7 @@
 
 EZ_FORCE_INLINE const char* ezWorld::GetName() const
 { 
-  return m_Data.m_Name.GetData(); 
+  return m_Data.m_sName.GetString().GetData(); 
 }
 
 EZ_FORCE_INLINE ezGameObjectHandle ezWorld::CreateObject(const ezGameObjectDesc& desc)
@@ -81,7 +81,7 @@ EZ_FORCE_INLINE ManagerType* ezWorld::GetComponentManager() const
   }
 
   EZ_ASSERT(pManager != nullptr, "Component Manager '%s' (id: %u) does not exists. Call 'CreateComponentManager' first.", 
-    ezGetStaticRTTI<ManagerType::ComponentType>()->GetTypeName(), uiTypeId);
+    ezGetStaticRTTI<typename ManagerType::ComponentType>()->GetTypeName(), uiTypeId);
   return pManager;
 }
 
@@ -132,19 +132,8 @@ EZ_FORCE_INLINE void ezWorld::SendMessage(const ezGameObjectHandle& receiverObje
   ezGameObject* pReceiverObject = NULL;
   if (TryGetObject(receiverObject, pReceiverObject))
   {
-    HandleMessage(pReceiverObject, msg, routing);
+    pReceiverObject->OnMessage(msg, routing);
   }
-}
-
-EZ_FORCE_INLINE void ezWorld::PostMessage(const ezGameObjectHandle& receiverObject, ezMessage& msg, 
-  ezBitflags<ezObjectMsgRouting> routing, ezObjectMsgQueueType::Enum queueType, float fDelay /*= 0.0f*/)
-{
-  QueuedMsgMetaData metaData;
-  metaData.m_ReceiverObject = receiverObject;
-  metaData.m_Routing = routing;
-  metaData.m_fDelay = fDelay;
-
-  m_Data.m_MessageQueues[queueType].Enqueue(msg, metaData);
 }
 
 EZ_FORCE_INLINE ezAllocatorBase* ezWorld::GetAllocator()
@@ -188,17 +177,4 @@ EZ_FORCE_INLINE void ezWorld::CheckForMultithreadedAccess() const
 EZ_FORCE_INLINE ezGameObject* ezWorld::GetObjectUnchecked(ezUInt32 uiIndex) const
 {
   return m_Data.m_Objects.GetValueUnchecked(uiIndex).m_Ptr;
-}
-
-EZ_FORCE_INLINE void ezWorld::HandleMessage(ezGameObject* pReceiverObject, ezMessage& msg, ezBitflags<ezObjectMsgRouting> routing)
-{
-  CheckForMultithreadedAccess();
-
-  ++m_Data.m_uiHandledMessageCounter;
-  pReceiverObject->OnMessage(msg, routing);
-}
-
-EZ_FORCE_INLINE ezUInt32 ezWorld::GetHandledMessageCounter() const
-{
-  return m_Data.m_uiHandledMessageCounter;
 }

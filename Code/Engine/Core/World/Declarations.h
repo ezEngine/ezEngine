@@ -114,6 +114,7 @@ struct ezObjectMsgRouting
   {
     ToParent   = EZ_BIT(0),
     ToChildren = EZ_BIT(1),
+    ToSubTree  = EZ_BIT(2),
 
     Default    = 0
   };
@@ -122,6 +123,7 @@ struct ezObjectMsgRouting
   {
     StorageType ToParent : 1;
     StorageType ToChildren : 1;
+    StorageType ToSubTree : 1;
   };
 };
 

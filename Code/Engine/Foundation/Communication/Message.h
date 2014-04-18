@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Foundation/Algorithm/Hashing.h>
+#include <Foundation/IO/Stream.h>
 
 typedef ezUInt16 ezMessageId;
 
@@ -8,7 +9,13 @@ typedef ezUInt16 ezMessageId;
 class EZ_FOUNDATION_DLL ezMessage
 {
 public:
-  EZ_DECLARE_POD_TYPE();
+  virtual ~ezMessage() {}
+
+  virtual ezMessage* Clone(ezAllocatorBase* pAllocator) const = 0;
+
+  /// \todo
+  //virtual void Serialize(ezStreamWriterBase& stream) const;
+  //virtual ezResult Deserialize(ezStreamReaderBase& stream);
 
   EZ_FORCE_INLINE ezMessageId GetId() const
   {
@@ -33,17 +40,22 @@ public:
 protected:
   ezMessageId m_Id;
   ezUInt16 m_uiSize;
+
   static ezMessageId s_uiNextMsgId;
 };
 
 #define EZ_DECLARE_MESSAGE_TYPE(messageType) \
   public: \
     static ezMessageId MSG_ID; \
-    EZ_DECLARE_POD_TYPE(); \
-    EZ_FORCE_INLINE messageType() { \
-      ezMemoryUtils::ZeroFill(this); \
+    EZ_FORCE_INLINE messageType() \
+    { \
       m_Id = messageType::MSG_ID; \
       m_uiSize = sizeof(messageType); \
+    } \
+    \
+    virtual ezMessage* Clone(ezAllocatorBase* pAllocator) const EZ_OVERRIDE \
+    { \
+      return EZ_NEW(pAllocator, messageType)(*static_cast<const messageType*>(this)); \
     }
 
 #define EZ_IMPLEMENT_MESSAGE_TYPE(messageType) \

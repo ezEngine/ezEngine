@@ -7,6 +7,7 @@ EZ_FORCE_INLINE void* ezAlignedHeapAllocation::Allocate(size_t uiSize, size_t ui
   void* ptr = nullptr;
   
   int res = posix_memalign(&ptr, uiAlign, uiSize);
+  EZ_IGNORE_UNUSED(res);
   EZ_ASSERT(res == 0, "posix_memalign failed with error: %d", res);
 
   EZ_CHECK_ALIGNMENT(ptr, uiAlign);

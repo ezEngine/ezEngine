@@ -23,7 +23,8 @@ void ezEventBase<EventData, MutexType>::RemoveEventHandler(Handler handler)
 {
   ezLock<MutexType> lock(m_Mutex);
 
-  bool bResult = m_EventHandlers.Remove(handler);  
+  bool bResult = m_EventHandlers.Remove(handler);
+  EZ_IGNORE_UNUSED(bResult);
   EZ_ASSERT(bResult, "ezEvent::RemoveEventHandler: Handler %p has not been registered or already been unregistered.", &handler);
 }
 

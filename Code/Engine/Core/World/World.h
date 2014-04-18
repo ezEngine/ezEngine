@@ -20,9 +20,9 @@ public:
   
   bool TryGetObject(const ezGameObjectHandle& object, ezGameObject*& out_pObject) const;
   
-  // slow access
-  bool TryGetObject(ezUInt64 uiPersistentId, ezGameObject*& out_pObject) const;
-  bool TryGetObject(const char* szObjectName, ezGameObject*& out_pObject) const;
+  /// \todo
+  //bool TryGetObjectWithUniqueId(ezUInt64 uiPersistentId, ezGameObject*& out_pObject) const;
+  
 
   ezUInt32 GetObjectCount() const;
   ezBlockStorage<ezGameObject>::Iterator GetObjects() const;
@@ -47,7 +47,9 @@ public:
     ezBitflags<ezObjectMsgRouting> routing = ezObjectMsgRouting::Default);
 
   void PostMessage(const ezGameObjectHandle& receiverObject, ezMessage& msg, 
-    ezBitflags<ezObjectMsgRouting> routing, ezObjectMsgQueueType::Enum queueType, float fDelay = 0.0f);
+    ezObjectMsgQueueType::Enum queueType, ezBitflags<ezObjectMsgRouting> routing = ezObjectMsgRouting::Default);
+  void PostMessage(const ezGameObjectHandle& receiverObject, ezMessage& msg, 
+    ezObjectMsgQueueType::Enum queueType, ezTime delay, ezBitflags<ezObjectMsgRouting> routing = ezObjectMsgRouting::Default);
 
   // update
   void Update();
@@ -72,15 +74,8 @@ private:
 
   ezGameObject* GetObjectUnchecked(ezUInt32 uiIndex) const;
 
-  void SetObjectName(ezGameObjectId internalId, const char* szName);
-  const char* GetObjectName(ezGameObjectId internalId) const;
+  void SetParent(ezGameObject* pObject, ezGameObject* pParent);
 
-  void SetParent(ezGameObject* pObject, const ezGameObjectHandle& parent);
-
-  void HandleMessage(ezGameObject* pReceiverObject, ezMessage& msg, ezBitflags<ezObjectMsgRouting> routing);
-  ezUInt32 GetHandledMessageCounter() const;
-
-  typedef ezObjectMsgQueueType MessageQueueType;
   void ProcessQueuedMessages(ezObjectMsgQueueType::Enum queueType);
 
   ezResult RegisterUpdateFunction(const ezComponentManagerBase::UpdateFunctionDesc& desc);

@@ -11,6 +11,7 @@ ezStandardJSONWriter::JSONState::JSONState()
 ezStandardJSONWriter::CommaWriter::CommaWriter(ezStandardJSONWriter* pWriter)
 {
   const ezStandardJSONWriter::State state = pWriter->m_StateStack.PeekBack().m_State;
+  EZ_IGNORE_UNUSED(state);
   EZ_ASSERT(state == ezStandardJSONWriter::Array      ||
             state == ezStandardJSONWriter::NamedArray ||
             state == ezStandardJSONWriter::Variable,  "Values can only be written inside BeginVariable() / EndVariable() and BeginArray() / EndArray().");

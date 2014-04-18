@@ -22,7 +22,7 @@ namespace ezInternal
     WorldData(const char* szWorldName);
     ~WorldData();
 
-    ezString m_Name;
+    ezHashedString m_sName;
     ezProxyAllocator m_Allocator;
     ezLocalAllocatorWrapper m_AllocatorWrapper;
     ezLargeBlockAllocator m_BlockAllocator;
@@ -76,9 +76,8 @@ namespace ezInternal
     void UpdateWorldTransforms();
 
     // game object lookups
-    ezHashTable<ezUInt64, ezGameObjectId, ezHashHelper<ezUInt64>, ezLocalAllocatorWrapper> m_PersistentToInternalTable;
-    ezHashTable<ezGameObjectId, ezString, ezHashHelper<ezGameObjectId>, ezLocalAllocatorWrapper> m_InternalToNameTable;
-    ezHashTable<const char*, ezGameObjectId, ezHashHelper<const char*>, ezLocalAllocatorWrapper> m_NameToInternalTable;
+    /// \todo
+    //ezHashTable<ezUInt64, ezGameObjectId, ezHashHelper<ezUInt64>, ezLocalAllocatorWrapper> m_PersistentToInternalTable;
 
     // component manager
     ezDynamicArray<ezComponentManagerBase*, ezLocalAllocatorWrapper> m_ComponentManagers;
@@ -115,14 +114,11 @@ namespace ezInternal
     {
       ezGameObjectHandle m_ReceiverObject;
       ezBitflags<ezObjectMsgRouting> m_Routing;
-      float m_fDelay;
+      ezTime m_Due;
     };
 
-    /// \todo temp allocator
-    typedef ezMessageQueue<QueuedMsgMetaData, ezMutex, ezLocalAllocatorWrapper, ezLocalAllocatorWrapper> MessageQueue;
+    typedef ezMessageQueue<QueuedMsgMetaData, ezMutex, ezLocalAllocatorWrapper> MessageQueue;
     MessageQueue m_MessageQueues[ezObjectMsgQueueType::COUNT];
-
-    ezUInt32 m_uiHandledMessageCounter;
 
     ezThreadID m_ThreadID;
     bool m_bIsInAsyncPhase;

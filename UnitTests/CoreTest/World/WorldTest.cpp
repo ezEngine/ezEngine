@@ -1,10 +1,12 @@
 #include <PCH.h>
+#include <Foundation/Time/Clock.h>
 #include <Core/World/World.h>
 
 EZ_CREATE_SIMPLE_TEST_GROUP(World);
 
 EZ_CREATE_SIMPLE_TEST(World, World)
 {
+  ezClock::SetNumGlobalClocks();
   ezWorld world("Test");
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GameObject parenting")
@@ -16,7 +18,7 @@ EZ_CREATE_SIMPLE_TEST(World, World)
     desc.m_LocalPosition = ezVec3(100.0f, 0.0f, 0.0f);
     desc.m_LocalRotation = q;
     desc.m_LocalScaling = ezVec3(1.5f, 1.5f, 1.5f);
-    desc.m_szName = "Parent";
+    desc.m_sName.Assign("Parent");
 
     ezGameObject* pParentObject;
     ezGameObjectHandle parentObject = world.CreateObject(desc, pParentObject);
@@ -29,7 +31,7 @@ EZ_CREATE_SIMPLE_TEST(World, World)
     EZ_TEST_BOOL(pParentObject->GetWorldRotation().IsEqualRotation(desc.m_LocalRotation, eps));
     EZ_TEST_BOOL(pParentObject->GetWorldScaling() == desc.m_LocalScaling);
 
-    EZ_TEST_STRING(pParentObject->GetName(), desc.m_szName);
+    EZ_TEST_STRING(pParentObject->GetName(), desc.m_sName.GetString().GetData());
 
     desc.m_LocalRotation.SetIdentity();
     desc.m_LocalScaling.Set(1.0f);
@@ -40,7 +42,7 @@ EZ_CREATE_SIMPLE_TEST(World, World)
     {
       ezStringBuilder sb;
       sb.AppendFormat("Child_%d", i);
-      desc.m_szName = sb.GetData();
+      desc.m_sName.Assign(sb.GetData());
 
       desc.m_LocalPosition = ezVec3(i * 10.0f, 0.0f, 0.0f);      
       

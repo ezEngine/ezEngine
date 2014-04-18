@@ -14,19 +14,21 @@ void WorldData::UpdateTask::Execute()
 ////////////////////////////////////////////////////////////////////////////////////////////////////
   
 WorldData::WorldData(const char* szWorldName) :
-  m_Name(szWorldName),
-  m_Allocator(m_Name.GetData(), ezFoundation::GetDefaultAllocator()),
+  m_Allocator(szWorldName, ezFoundation::GetDefaultAllocator()),
   m_AllocatorWrapper(&m_Allocator),
-  m_BlockAllocator(m_Name.GetData(), &m_Allocator),
+  m_BlockAllocator(szWorldName, &m_Allocator),
   m_ObjectStorage(&m_BlockAllocator, &m_Allocator),
-  m_uiHandledMessageCounter(0),
   m_ThreadID(ezThreadUtils::GetCurrentThreadID()),
   m_bIsInAsyncPhase(false),
   m_pUserData(nullptr)
 {
   m_AllocatorWrapper.Reset();
 
-  m_UpdateProfilingID = ezProfilingSystem::CreateId(m_Name.GetData());
+  m_sName.Assign(szWorldName);
+
+  ezStringBuilder sb = szWorldName;
+  sb.Append(".Update");
+  m_UpdateProfilingID = ezProfilingSystem::CreateId(sb.GetData());
 
   // insert dummy entry to save some checks
   ObjectStorage::Entry entry = { nullptr };
@@ -38,18 +40,6 @@ WorldData::WorldData(const char* szWorldName) :
 
 WorldData::~WorldData()
 {
-  // delete all component manager
-  for (ezUInt32 i = 0; i < m_ComponentManagers.GetCount(); ++i)
-  {
-    EZ_DELETE(&m_Allocator, m_ComponentManagers[i]);
-  }
-
-  // delete task storage
-  for (ezUInt32 i = 0; i < m_UpdateTasks.GetCount(); ++i)
-  {
-    EZ_DELETE(&m_Allocator, m_UpdateTasks[i]);
-  }
-
   // delete all transformation data
   for (ezUInt32 uiHierarchyIndex = 0; uiHierarchyIndex < HierarchyType::COUNT; ++uiHierarchyIndex)
   {
@@ -63,6 +53,31 @@ WorldData::~WorldData()
         m_BlockAllocator.DeallocateBlock((*blocks)[j]);
       }
       EZ_DELETE(&m_Allocator, blocks);
+    }
+  }
+
+  // delete all component manager
+  for (ezUInt32 i = 0; i < m_ComponentManagers.GetCount(); ++i)
+  {
+    EZ_DELETE(&m_Allocator, m_ComponentManagers[i]);
+  }
+
+  // delete task storage
+  for (ezUInt32 i = 0; i < m_UpdateTasks.GetCount(); ++i)
+  {
+    EZ_DELETE(&m_Allocator, m_UpdateTasks[i]);
+  }
+
+  // delete queued messages
+  for (ezUInt32 i = 0; i < ezObjectMsgQueueType::COUNT; ++i)
+  {
+    MessageQueue& queue = m_MessageQueues[i];
+    while (!queue.IsEmpty())
+    {
+      MessageQueue::Entry& entry = queue.Peek();
+      EZ_DELETE(&m_Allocator, entry.m_pMessage);
+
+      queue.Dequeue();
     }
   }
 }

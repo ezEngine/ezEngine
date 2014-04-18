@@ -53,6 +53,8 @@ public:
   {
   }
 
+  virtual ~ezReflectedClass() {}
+
   EZ_FORCE_INLINE const ezRTTI* GetDynamicRTTI()
   {
     if (m_pRTTI == nullptr)

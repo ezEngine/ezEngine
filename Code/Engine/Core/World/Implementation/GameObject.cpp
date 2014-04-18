@@ -30,8 +30,6 @@ void ezGameObject::operator=(const ezGameObject& other)
   m_PrevSiblingIndex = other.m_PrevSiblingIndex;
   m_ChildCount = other.m_ChildCount;
 
-  m_uiHandledMessageCounter = other.m_uiHandledMessageCounter;
-
   if (m_pTransformationData != other.m_pTransformationData)
   {
     m_uiHierarchyLevel = other.m_uiHierarchyLevel;
@@ -51,16 +49,6 @@ void ezGameObject::operator=(const ezGameObject& other)
       pComponent->m_pOwner = this;
     }
   }
-}
-
-void ezGameObject::SetName(const char* szName)
-{
-  m_pWorld->SetObjectName(m_InternalId, szName);
-}
-
-const char* ezGameObject::GetName() const
-{
-  return m_pWorld->GetObjectName(m_InternalId);
 }
 
 void ezGameObject::SetParent(const ezGameObjectHandle& parent)
@@ -124,25 +112,34 @@ bool ezGameObject::TryGetComponent(const ezComponentHandle& component, ezCompone
   return m_pWorld->TryGetComponent(component, out_pComponent);
 }
 
-void ezGameObject::SendMessage(ezMessage& msg, ezBitflags<ezObjectMsgRouting> routing /*= MsgRouting::Default*/)
+void ezGameObject::PostMessage(ezMessage& msg, ezObjectMsgQueueType::Enum queueType,
+  ezBitflags<ezObjectMsgRouting> routing)
 {
-  m_pWorld->HandleMessage(this, msg, routing);
+  m_pWorld->PostMessage(GetHandle(), msg, queueType, routing);
 }
 
-void ezGameObject::PostMessage(ezMessage& msg, ezBitflags<ezObjectMsgRouting> routing, 
-  ezObjectMsgQueueType::Enum queueType, float fDelay /*= 0.0f*/)
+void ezGameObject::PostMessage(ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay,
+  ezBitflags<ezObjectMsgRouting> routing)
 {
-  m_pWorld->PostMessage(GetHandle(), msg, routing, queueType, fDelay);
+  m_pWorld->PostMessage(GetHandle(), msg, queueType, delay, routing);
 }
 
 void ezGameObject::OnMessage(ezMessage& msg, ezBitflags<ezObjectMsgRouting> routing)
 {
-  // prevent double message handling when sending to parent and children
-  const ezUInt32 uiHandledMessageCounter = m_pWorld->GetHandledMessageCounter();
-  if (m_uiHandledMessageCounter == uiHandledMessageCounter)
-    return;
+  if (routing.IsSet(ezObjectMsgRouting::ToSubTree))
+  {
+    // walk up the sub tree and send to children form there to prevent double handling
+    ezGameObject* pCurrent = this;
+    ezGameObject* pParent = GetParent();
+    while (pParent != nullptr)
+    {
+      pCurrent = pParent;
+      pParent = pCurrent->GetParent();
+    }
 
-  m_uiHandledMessageCounter = uiHandledMessageCounter;
+    pCurrent->OnMessage(msg, ezObjectMsgRouting::ToChildren);
+    return;
+  }
 
   // always send message to all components
   for (ezUInt32 i = 0; i < m_Components.GetCount(); ++i)
@@ -159,14 +156,14 @@ void ezGameObject::OnMessage(ezMessage& msg, ezBitflags<ezObjectMsgRouting> rout
   {
     if (ezGameObject* pParent = GetParent())
     {
-      pParent->OnMessage(msg, routing);
+      pParent->OnMessage(msg, ezObjectMsgRouting::ToParent);
     }
   }
   if (routing.IsSet(ezObjectMsgRouting::ToChildren))
   {
     for (ChildIterator it = GetChildren(); it.IsValid(); ++it)
     {
-      it->OnMessage(msg, routing);
+      it->OnMessage(msg, ezObjectMsgRouting::ToChildren);
     }
   }
 }

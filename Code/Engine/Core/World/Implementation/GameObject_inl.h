@@ -40,8 +40,6 @@ EZ_FORCE_INLINE ezGameObject::ezGameObject()
   m_PrevSiblingIndex = 0;
   m_ChildCount = 0;
 
-  m_uiHandledMessageCounter = 0;
-
   m_uiHierarchyLevel = 0;
   m_uiTransformationDataIndex = 0;
 
@@ -71,6 +69,16 @@ EZ_FORCE_INLINE bool ezGameObject::IsDynamic() const
 EZ_FORCE_INLINE bool ezGameObject::IsActive() const
 {
   return m_Flags.IsSet(ezObjectFlags::Active);
+}
+
+EZ_FORCE_INLINE void ezGameObject::SetName(const char* szName)
+{
+  m_sName.Assign(szName);
+}
+
+EZ_FORCE_INLINE const char* ezGameObject::GetName() const
+{
+  return m_sName.GetString().GetData();
 }
 
 EZ_FORCE_INLINE void ezGameObject::AddChild(const ezGameObjectHandle& child)
@@ -203,5 +211,10 @@ void ezGameObject::TryGetComponentsOfBaseType(ezHybridArray<T*, 8>& out_componen
 EZ_FORCE_INLINE ezArrayPtr<ezComponentHandle> ezGameObject::GetComponents() const
 {
   return m_Components;
+}
+
+EZ_FORCE_INLINE void ezGameObject::SendMessage(ezMessage& msg, ezBitflags<ezObjectMsgRouting> routing /*= MsgRouting::Default*/)
+{
+  OnMessage(msg, routing);
 }
 

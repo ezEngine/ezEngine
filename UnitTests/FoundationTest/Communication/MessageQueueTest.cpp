@@ -24,13 +24,11 @@ namespace
 
 EZ_CREATE_SIMPLE_TEST(Communication, MessageQueue)
 {
-  EZ_CHECK_AT_COMPILETIME(ezIsPodType<TestMessage>::value);
-
   {
     TestMessage msg;
     EZ_TEST_INT(msg.GetSize(), sizeof(TestMessage));
-    EZ_TEST_INT(msg.x, 0);
-    EZ_TEST_INT(msg.y, 0);
+    /*EZ_TEST_INT(msg.x, 0);
+    EZ_TEST_INT(msg.y, 0);*/
   }
 
   TestMessageQueue q;
@@ -39,14 +37,14 @@ EZ_CREATE_SIMPLE_TEST(Communication, MessageQueue)
   {
     for (ezUInt32 i = 0; i < 100; ++i)
     {
-      TestMessage msg;
-      msg.x = rand();
-      msg.y = rand();
+      TestMessage* pMsg = EZ_DEFAULT_NEW(TestMessage);
+      pMsg->x = rand();
+      pMsg->y = rand();
 
       MetaData md;
       md.receiver = rand() % 10;
 
-      q.Enqueue(msg, md);
+      q.Enqueue(pMsg, md);
     }
   }
 
@@ -96,7 +94,7 @@ EZ_CREATE_SIMPLE_TEST(Communication, MessageQueue)
     {
       if (q.TryDequeue(pMsg, md))
       {
-        EZ_DELETE(q.GetStorageAllocator(), pMsg);
+        EZ_DEFAULT_DELETE(pMsg);
       }
     }
   }

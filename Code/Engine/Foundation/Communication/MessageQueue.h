@@ -21,10 +21,10 @@ public:
 protected:
 
   /// \brief No memory is allocated during construction.
-  ezMessageQueueBase(ezAllocatorBase* pStorageAllocator, ezAllocatorBase* pQueueAllocator);
+  ezMessageQueueBase(ezAllocatorBase* pAllocator);
 
   /// \brief No memory is allocated during construction.
-  ezMessageQueueBase(const ezMessageQueueBase& rhs, ezAllocatorBase* pStorageAllocator, ezAllocatorBase* pQueueAllocator);
+  ezMessageQueueBase(const ezMessageQueueBase& rhs, ezAllocatorBase* pAllocator);
 
   /// \brief Destructor.
   ~ezMessageQueueBase();
@@ -44,7 +44,7 @@ public:
   void Compact();
 
   // thread safe
-  void Enqueue(const ezMessage& message, const MetaDataType& metaData);
+  void Enqueue(ezMessage* pMessage, const MetaDataType& metaData);
 
   // thread safe
   bool TryDequeue(ezMessage*& out_pMessage, MetaDataType& out_metaData);
@@ -56,27 +56,23 @@ public:
   template <typename C>
   void Sort();
 
-  ezAllocatorBase* GetStorageAllocator() const;
-
 private:
   ezDeque<Entry, ezNullAllocatorWrapper> m_Queue;
-  ezAllocatorBase* m_pStorageAllocator;
   MutexType m_mutex;
 };
 
 template <typename MetaDataType, typename MutexType, 
-  typename StorageAllocatorWrapper = ezDefaultAllocatorWrapper, 
-  typename QueueAllocatorWrapper = ezDefaultAllocatorWrapper>
+  typename AllocatorWrapper = ezDefaultAllocatorWrapper>
 class ezMessageQueue : public ezMessageQueueBase<MetaDataType, MutexType>
 {
 public:
   ezMessageQueue();
-  ezMessageQueue(ezAllocatorBase* pStorageAllocator, ezAllocatorBase* pQueueAllocator);
+  ezMessageQueue(ezAllocatorBase* pAllocator);
 
-  ezMessageQueue(const ezMessageQueue<MetaDataType, MutexType, StorageAllocatorWrapper, QueueAllocatorWrapper>& rhs);
+  ezMessageQueue(const ezMessageQueue<MetaDataType, MutexType, AllocatorWrapper>& rhs);
   ezMessageQueue(const ezMessageQueueBase<MetaDataType, MutexType>& rhs);
 
-  void operator=(const ezMessageQueue<MetaDataType, MutexType, StorageAllocatorWrapper, QueueAllocatorWrapper>& rhs);
+  void operator=(const ezMessageQueue<MetaDataType, MutexType, AllocatorWrapper>& rhs);
   void operator=(const ezMessageQueueBase<MetaDataType, MutexType>& rhs);
 };
 

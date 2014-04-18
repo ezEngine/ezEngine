@@ -19,6 +19,7 @@ ezLargeBlockAllocator::ezLargeBlockAllocator(const char* szName, ezAllocatorBase
   m_ThreadID = ezThreadUtils::GetCurrentThreadID();
 
   const ezUInt32 uiPageSize = ezSystemInformation::Get().GetMemoryPageSize();
+  EZ_IGNORE_UNUSED(uiPageSize);
   EZ_ASSERT(uiPageSize <= BLOCK_SIZE_IN_BYTES, "Memory Page size is bigger than block size.");
 }
 

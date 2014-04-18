@@ -1,17 +1,15 @@
 
 template <typename MetaDataType, typename MutexType>
-ezMessageQueueBase<MetaDataType, MutexType>::ezMessageQueueBase(ezAllocatorBase* pStorageAllocator, ezAllocatorBase* pQueueAllocator) :
-  m_Queue(pQueueAllocator)
+ezMessageQueueBase<MetaDataType, MutexType>::ezMessageQueueBase(ezAllocatorBase* pAllocator) :
+  m_Queue(pAllocator)
 {
-  m_pStorageAllocator = pStorageAllocator;
 }
 
 template <typename MetaDataType, typename MutexType>
-ezMessageQueueBase<MetaDataType, MutexType>::ezMessageQueueBase(const ezMessageQueueBase& rhs, ezAllocatorBase* pStorageAllocator, ezAllocatorBase* pQueueAllocator) :
-  m_Queue(pQueueAllocator)
+ezMessageQueueBase<MetaDataType, MutexType>::ezMessageQueueBase(const ezMessageQueueBase& rhs, ezAllocatorBase* pAllocator) :
+  m_Queue(pAllocator)
 {
   m_Queue = rhs.m_Queue;
-  m_pStorageAllocator = pStorageAllocator;
 }
 
 template <typename MetaDataType, typename MutexType>
@@ -24,7 +22,6 @@ template <typename MetaDataType, typename MutexType>
 void ezMessageQueueBase<MetaDataType, MutexType>::operator=(const ezMessageQueueBase& rhs)
 {
   m_Queue = rhs.m_Queue;
-  m_pStorageAllocator = rhs.m_pStorageAllocator;
 }
 
 template <typename MetaDataType, typename MutexType>
@@ -54,11 +51,6 @@ EZ_FORCE_INLINE bool ezMessageQueueBase<MetaDataType, MutexType>::IsEmpty() cons
 template <typename MetaDataType, typename MutexType>
 void ezMessageQueueBase<MetaDataType, MutexType>::Clear()
 {
-  for (ezUInt32 i = 0; i < m_Queue.GetCount(); ++i)
-  {
-    EZ_DELETE_RAW_BUFFER(m_pStorageAllocator, m_Queue[i].m_pMessage);
-  }
-
   m_Queue.Clear();
 }
 
@@ -75,13 +67,10 @@ EZ_FORCE_INLINE void ezMessageQueueBase<MetaDataType, MutexType>::Compact()
 }
 
 template <typename MetaDataType, typename MutexType>
-void ezMessageQueueBase<MetaDataType, MutexType>::Enqueue(const ezMessage& message, const MetaDataType& metaData)
+void ezMessageQueueBase<MetaDataType, MutexType>::Enqueue(ezMessage* pMessage, const MetaDataType& metaData)
 {
-  ezUInt8* pMessageStorage = EZ_NEW_RAW_BUFFER(m_pStorageAllocator, ezUInt8, message.GetSize());
-  ezMemoryUtils::Copy(pMessageStorage, reinterpret_cast<const ezUInt8*>(&message), message.GetSize());
-
   Entry entry;
-  entry.m_pMessage = reinterpret_cast<ezMessage*>(pMessageStorage);
+  entry.m_pMessage = pMessage;
   entry.m_MetaData = metaData;
 
   {
@@ -145,46 +134,40 @@ EZ_FORCE_INLINE void ezMessageQueueBase<MetaDataType, MutexType>::Sort()
   m_Queue.template Sort<C>();
 }
 
-template <typename MetaDataType, typename MutexType>
-EZ_FORCE_INLINE ezAllocatorBase* ezMessageQueueBase<MetaDataType, MutexType>::GetStorageAllocator() const
-{
-  return m_pStorageAllocator;
-}
 
 
-
-template <typename MD, typename M, typename SA, typename QA>
-ezMessageQueue<MD, M, SA, QA>::ezMessageQueue() : 
-  ezMessageQueueBase<MD, M>(SA::GetAllocator(), QA::GetAllocator())
+template <typename MD, typename M, typename A>
+ezMessageQueue<MD, M, A>::ezMessageQueue() : 
+  ezMessageQueueBase<MD, M>(A::GetAllocator())
 {
 }
 
-template <typename MD, typename M, typename SA, typename QA>
-ezMessageQueue<MD, M, SA, QA>:: ezMessageQueue(ezAllocatorBase* pStorageAllocator, ezAllocatorBase* pQueueAllocator) : 
-  ezMessageQueueBase<MD, M>(pStorageAllocator, pQueueAllocator)
+template <typename MD, typename M, typename A>
+ezMessageQueue<MD, M, A>:: ezMessageQueue(ezAllocatorBase* pQueueAllocator) : 
+  ezMessageQueueBase<MD, M>(pQueueAllocator)
 {
 }
 
-template <typename MD, typename M, typename SA, typename QA>
-ezMessageQueue<MD, M, SA, QA>::ezMessageQueue(const ezMessageQueue<MD, M, SA, QA>& rhs) : 
-  ezMessageQueueBase<MD, M>(rhs, SA::GetAllocator(), QA::GetAllocator())
+template <typename MD, typename M, typename A>
+ezMessageQueue<MD, M, A>::ezMessageQueue(const ezMessageQueue<MD, M, A>& rhs) : 
+  ezMessageQueueBase<MD, M>(rhs, A::GetAllocator())
 {
 }
 
-template <typename MD, typename M, typename SA, typename QA>
-ezMessageQueue<MD, M, SA, QA>:: ezMessageQueue(const ezMessageQueueBase<MD, M>& rhs) : 
-  ezMessageQueueBase<MD, M>(rhs, SA::GetAllocator(), QA::GetAllocator())
+template <typename MD, typename M, typename A>
+ezMessageQueue<MD, M, A>:: ezMessageQueue(const ezMessageQueueBase<MD, M>& rhs) : 
+  ezMessageQueueBase<MD, M>(rhs, A::GetAllocator())
 {
 }
 
-template <typename MD, typename M, typename SA, typename QA>
-void ezMessageQueue<MD, M, SA, QA>::operator=(const ezMessageQueue<MD, M, SA, QA>& rhs)
+template <typename MD, typename M, typename A>
+void ezMessageQueue<MD, M, A>::operator=(const ezMessageQueue<MD, M, A>& rhs)
 {
   ezMessageQueueBase<MD, M>::operator=(rhs);
 }
 
-template <typename MD, typename M, typename SA, typename QA>
-void ezMessageQueue<MD, M, SA, QA>::operator=(const ezMessageQueueBase<MD, M>& rhs)
+template <typename MD, typename M, typename A>
+void ezMessageQueue<MD, M, A>::operator=(const ezMessageQueueBase<MD, M>& rhs)
 {
   ezMessageQueueBase<MD, M>::operator=(rhs);
 }

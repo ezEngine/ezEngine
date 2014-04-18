@@ -76,6 +76,7 @@ ezGameObjectHandle ezWorld::CreateObject(const ezGameObjectDesc& desc, ezGameObj
   // fill out some data
   pNewObject->m_InternalId = newId;
   pNewObject->m_Flags = desc.m_Flags;
+  pNewObject->m_sName = desc.m_sName;
   pNewObject->m_ParentIndex = uiParentIndex;
   
   // fix links
@@ -116,11 +117,6 @@ ezGameObjectHandle ezWorld::CreateObject(const ezGameObjectDesc& desc, ezGameObj
 
   // fill out the rest
   pNewObject->m_pWorld = this;
-
-  if (!ezStringUtils::IsNullOrEmpty(desc.m_szName))
-  {
-    SetObjectName(newId, desc.m_szName);
-  }
   
   out_pObject = pNewObject;
   return newId;
@@ -187,30 +183,29 @@ void ezWorld::DeleteObject(const ezGameObjectHandle& object)
   }
 }
 
-bool ezWorld::TryGetObject(ezUInt64 uiPersistentId, ezGameObject*& out_pObject) const
+void ezWorld::PostMessage(const ezGameObjectHandle& receiverObject, ezMessage& msg, 
+  ezObjectMsgQueueType::Enum queueType, ezBitflags<ezObjectMsgRouting> routing)
 {
-  CheckForMultithreadedAccess();
+  QueuedMsgMetaData metaData;
+  metaData.m_ReceiverObject = receiverObject;
+  metaData.m_Routing = routing;
 
-  ezGameObjectId internalId;
-  if (m_Data.m_PersistentToInternalTable.TryGetValue(uiPersistentId, internalId))
-  {
-    out_pObject = m_Data.m_Objects[internalId].m_Ptr;
-    return true;
-  }
-  return false;
+  /// \todo temp allocator
+  ezMessage* pMsgCopy = msg.Clone(&m_Data.m_Allocator);
+  m_Data.m_MessageQueues[queueType].Enqueue(pMsgCopy, metaData);
 }
 
-bool ezWorld::TryGetObject(const char* szObjectName, ezGameObject*& out_pObject) const
+void ezWorld::PostMessage(const ezGameObjectHandle& receiverObject, ezMessage& msg, 
+  ezObjectMsgQueueType::Enum queueType, ezTime delay, ezBitflags<ezObjectMsgRouting> routing)
 {
-  CheckForMultithreadedAccess();
+  QueuedMsgMetaData metaData;
+  metaData.m_ReceiverObject = receiverObject;
+  metaData.m_Routing = routing;
+  metaData.m_Due = ezClock::Get(ezGlobalClock_GameLogic)->GetAccumulatedTime() + delay;
 
-  ezGameObjectId internalId;
-  if (m_Data.m_NameToInternalTable.TryGetValue(szObjectName, internalId))
-  {
-    out_pObject = m_Data.m_Objects[internalId].m_Ptr;
-    return true;
-  }
-  return false;
+  /// \todo separate queues
+  ezMessage* pMsgCopy = msg.Clone(&m_Data.m_Allocator);
+  m_Data.m_MessageQueues[queueType].Enqueue(pMsgCopy, metaData);
 }
 
 void ezWorld::Update()
@@ -224,7 +219,7 @@ void ezWorld::Update()
   // pre-async phase
   {
     EZ_PROFILE(s_PreAsyncProfilingID);
-    ProcessQueuedMessages(MessageQueueType::NextFrame);  
+    ProcessQueuedMessages(ezObjectMsgQueueType::NextFrame);  
     UpdateSynchronous(m_Data.m_UpdateFunctions[ezComponentManagerBase::UpdateFunctionDesc::PreAsync]);
   }
 
@@ -237,7 +232,7 @@ void ezWorld::Update()
   // post-async phase
   {
     EZ_PROFILE(s_PostAsyncProfilingID);
-    ProcessQueuedMessages(MessageQueueType::PostAsync);
+    ProcessQueuedMessages(ezObjectMsgQueueType::PostAsync);
     UpdateSynchronous(m_Data.m_UpdateFunctions[ezComponentManagerBase::UpdateFunctionDesc::PostAsync]);
   }
 
@@ -257,40 +252,21 @@ void ezWorld::Update()
   // post-transform phase
   {
     EZ_PROFILE(s_PostTransformProfilingID);
-    ProcessQueuedMessages(MessageQueueType::PostTransform);
+    ProcessQueuedMessages(ezObjectMsgQueueType::PostTransform);
     UpdateSynchronous(m_Data.m_UpdateFunctions[ezComponentManagerBase::UpdateFunctionDesc::PostTransform]);
   }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void ezWorld::SetObjectName(ezGameObjectId internalId, const char* szName)
-{
-  CheckForMultithreadedAccess();
-
-  m_Data.m_InternalToNameTable.Insert(internalId, szName);
-  const char* szInsertedName = m_Data.m_InternalToNameTable[internalId].GetData();
-  m_Data.m_NameToInternalTable.Insert(szInsertedName, internalId);
-}
-
-const char* ezWorld::GetObjectName(ezGameObjectId internalId) const
-{
-  ezString* pName;
-  if (m_Data.m_InternalToNameTable.TryGetValue(internalId, pName))
-  {
-    return pName->GetData();
-  }
-  return nullptr;
-}
-
-void ezWorld::ProcessQueuedMessages(MessageQueueType::Enum queueType)
+void ezWorld::ProcessQueuedMessages(ezObjectMsgQueueType::Enum queueType)
 {
   struct MessageComparer
   {
     EZ_FORCE_INLINE static bool Less(const ezInternal::WorldData::MessageQueue::Entry& a, const ezInternal::WorldData::MessageQueue::Entry& b)
     {
-      if (a.m_MetaData.m_fDelay != b.m_MetaData.m_fDelay)
-        return a.m_MetaData.m_fDelay < b.m_MetaData.m_fDelay;
+      if (a.m_MetaData.m_Due != b.m_MetaData.m_Due)
+        return a.m_MetaData.m_Due < b.m_MetaData.m_Due;
 
       if (a.m_pMessage->GetId() != b.m_pMessage->GetId())
         return a.m_pMessage->GetId() < b.m_pMessage->GetId();
@@ -305,19 +281,21 @@ void ezWorld::ProcessQueuedMessages(MessageQueueType::Enum queueType)
   ezInternal::WorldData::MessageQueue& queue = m_Data.m_MessageQueues[queueType];
   queue.Sort<MessageComparer>();
 
+  ezTime now = ezClock::Get(ezGlobalClock_GameLogic)->GetAccumulatedTime();
+
   while (!queue.IsEmpty())
   {
     ezInternal::WorldData::MessageQueue::Entry& entry = queue.Peek();
-    entry.m_MetaData.m_fDelay -= (float)ezClock::Get(ezGlobalClock_GameLogic)->GetTimeDiff().GetSeconds();
-
-    if (entry.m_MetaData.m_fDelay > 0.0f)
+    if (entry.m_MetaData.m_Due > now)
       break;
 
     ezGameObject* pReceiverObject = nullptr;
     if (TryGetObject(entry.m_MetaData.m_ReceiverObject, pReceiverObject))
     {
-      HandleMessage(pReceiverObject, *entry.m_pMessage, entry.m_MetaData.m_Routing);
+      pReceiverObject->OnMessage(*entry.m_pMessage, entry.m_MetaData.m_Routing);
     }
+
+    EZ_DELETE(&m_Data.m_Allocator, entry.m_pMessage);
 
     queue.Dequeue();
   }
@@ -426,10 +404,7 @@ void ezWorld::UpdateSynchronous(const ezArrayPtr<ezInternal::WorldData::Register
 {
   for (ezUInt32 i = 0; i < updateFunctions.GetCount(); ++i)
   {
-    ezInternal::WorldData::RegisteredUpdateFunction& updateFunction = updateFunctions[i];
-    ezComponentManagerBase* pManager = static_cast<ezComponentManagerBase*>(updateFunction.m_Function.GetInstance());
-
-    updateFunction.m_Function(0, ezInvalidIndex);
+    updateFunctions[i].m_Function(0, ezInvalidIndex);
   }
 }
 
