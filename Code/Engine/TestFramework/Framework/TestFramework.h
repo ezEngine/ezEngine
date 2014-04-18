@@ -299,7 +299,7 @@ inline float ToFloat(double f) { return (float) f; }
   else \
   if (ReadFile1.GetFileSize() != ReadFile2.GetFileSize()) \
   { \
-    sprintf(szLocal_TestMacro, "Failure: File sizes do not match: '%s' (%u Bytes) and '%s' (%u Bytes)", szFile1, ReadFile1.GetFileSize(), szFile2, ReadFile2.GetFileSize()); \
+    sprintf(szLocal_TestMacro, "Failure: File sizes do not match: '%s' (%llu Bytes) and '%s' (%llu Bytes)", szFile1, ReadFile1.GetFileSize(), szFile2, ReadFile2.GetFileSize()); \
     EZ_TEST_FAILURE(szLocal_TestMacro, msg, ##__VA_ARGS__); \
   } \
   else \
