@@ -46,7 +46,7 @@ class DBReader:
         db = self.DB.getDB()
         cur = db.execute('SELECT MAX(Revision) FROM BuildProcessResults')
         entries = cur.fetchall()
-        return entries[0][0];
+        return entries[0][0]
 
 
     def BuildProcessResultSummary(self, rev, BuildMachineID):

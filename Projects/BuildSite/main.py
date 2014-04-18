@@ -11,10 +11,12 @@ from DBAccess import DBAccess
 from DBWriter import DBWriter
 from DBReader import DBReader
 from flask import Flask, request, session, g, redirect, url_for, abort, render_template, flash
+from flask.ext.mail import Mail, Message
 from jinja2 import evalcontextfilter, Markup, escape
 from werkzeug.contrib.profiler import ProfilerMiddleware
 import pysvn
 import threading
+import sys
 
 ########################################################################
 ## App config
@@ -25,22 +27,32 @@ app.config.from_object(__name__)
 # Load default config and override config from an environment variable
 app.config.update(dict(
     DATABASE=os.path.join(app.root_path, 'buildSite.db'),
-    SECRET_KEY='',
-    USERNAME='',
-    PASSWORD='',
-    SVN_USER='',
-    SVN_PASS='',
-    SVN_ROOT='',
-    WAKE_UP_COMMAND=''
+    SECRET_KEY='',                          # No idea what this is used for, was in the tutorial.
+    USERNAME='',                            # No idea what this is used for, was in the tutorial.
+    PASSWORD='',                            # No idea what this is used for, was in the tutorial.
+    SVN_USER='',                            # SVN user used to query the HEAD revision.
+    SVN_PASS='',                            # Password for SVN_USER
+    SVN_ROOT='',                            # Root address of the SVN repository.
+    SVN_USER_TO_MAIL_REQUEST_ADDRESS='',    # Server address used to resolve SVN usernames to email addresses.
+    WAKE_UP_COMMAND='',                     # Command line that is executed whenever a new revision comes in that need to be built.
+    MAIL_SERVER = '',                       # SMTP server for sending mails.
+    MAIL_PORT = 465,                        # Port for MAIL_SERVER.
+    MAIL_USE_TLS = False,                   # Use TLS for MAIL_SERVER.
+    MAIL_USE_SSL = True,                    # Use SSL for MAIL_SERVER.
+    MAIL_USERNAME = '',                     # Username, i.e. mail address of the build nanny used for MAIL_SERVER.
+    MAIL_PASSWORD = '',                     # Password for sending over MAIL_SERVER.
+    SITE_ROOT = '',                         # Used to make the img src address absolute in the html mail.
+    DEBUG = False                           # Determines whether we are deployed on the site or debugging locally.
 ))
 app.config.from_envvar('BUILDSITE_SETTINGS', silent=False)
-app.config['PROFILE'] = True
-app.wsgi_app = ProfilerMiddleware(app.wsgi_app, restrictions = [2])
+app.config['PROFILE'] = False
+#app.wsgi_app = ProfilerMiddleware(app.wsgi_app, restrictions = [2])
 
+mail = Mail(app)
 
 ########################################################################
 ## Global DB helper class instances
-######################################################################## 
+########################################################################
 DB = DBAccess(app)
 DBRead = DBReader(DB)
 DBWrite = DBWriter(DB, app)
@@ -48,7 +60,7 @@ DBWrite = DBWriter(DB, app)
 
 ########################################################################
 ## Jinja template filters and helper functions
-######################################################################## 
+########################################################################
 def headrevision(ref):
     head = DBRead.HeadRevision()
     return ref == head
@@ -113,17 +125,19 @@ def determineOSIcons(machines):
 
 ########################################################################
 ## Flask app routing and web-site entry points
-######################################################################## 
+########################################################################
 @app.route('/<int:machineID>/<int:revision>')
 def show_entriesRev(machineID, revision):
     """Actual template execution for the given machine and revision."""
+    #DBWrite.CheckToSendMail(481)
+
     head = DBRead.HeadRevision()
     # Build Machines
     machines = DBRead.BuildMachines(revision)
     determineOSIcons(machines)
     # Revision Info
     revInfo = DBRead.RevisionInfo(revision)
-    buildMachinesBlock = render_template('BuildMachines.html', machines=machines, rev=revision, machineID=machineID, revInfo=revInfo)
+    buildMachinesBlock = render_template('BuildMachines.html', root='', machines=machines, rev=revision, machineID=machineID, revInfo=revInfo)
 
 
     # Navigation Bar (Near Revisions)
@@ -181,6 +195,46 @@ def close_db(error):
 
 
 ########################################################################
+## Mail Sender
+######################################################################## 
+def SendMail(rev, mailAddress):
+    try:
+        if (not app.config['MAIL_USERNAME']):
+            return
+
+        if (not mailAddress):
+            return
+
+        # Build Machines
+        machines = DBRead.BuildMachines(rev)
+        determineOSIcons(machines)
+        revisionResult = 'Success'
+        for entry in machines:
+            if (entry['BuildProcessResult']['Success'] == 0):
+                revisionResult = 'FAILURE'
+                break
+
+        # Revision Info
+        revInfo = DBRead.RevisionInfo(rev)
+        buildMachinesBlock = render_template('BuildMachines.html', root=app.config['SITE_ROOT'], machines=machines, rev=rev, machineID=-1, revInfo=revInfo)
+
+        # Style CSS Block
+        styleCSSBlock = ''
+        with app.open_resource('static/style.css', mode='r') as f:
+            styleCSSBlock = f.read()
+
+        # Composite Mail
+        MailPage = render_template('Mail.html', buildMachinesBlock=buildMachinesBlock, styleCSSBlock=styleCSSBlock)
+
+        subject = '[ez - BuildResult #%d] %s' % (rev, revisionResult)
+        msg = Message(subject, sender = app.config['MAIL_USERNAME'], recipients = [mailAddress])
+        msg.html = MailPage
+        mail.send(msg)
+    except:
+        app.logger.debug('*** SendMail: Unexpected error: %s', sys.exc_info()[0])
+
+
+########################################################################
 ## SVN revision check
 ######################################################################## 
 def ssl_server_trust_prompt(trust_dict):
@@ -190,20 +244,31 @@ def svn_get_login(realm, username, may_save):
     return True, app.config['SVN_USER'], app.config['SVN_PASS'], False
 
 def WakeUpBuildMachine():
-    os.system(app.config['WAKE_UP_COMMAND'])
+    app.logger.debug('*** WakeUpBuildMachine ***')
+    returnCode = os.system(app.config['WAKE_UP_COMMAND'])
+    if (returnCode != 0):
+        app.logger.debug('*** WakeUpBuildMachine FAILED: Return Code %d', returnCode)
 
 def CheckSVN():
-    with app.app_context():
-        # SVN setup
-        svn_api = pysvn.Client()
-        svn_api.callback_ssl_server_trust_prompt = ssl_server_trust_prompt
-        svn_api.callback_get_login = svn_get_login
-        revHead = pysvn.Revision( pysvn.opt_revision_kind.head )
-        revlog = svn_api.log(app.config['SVN_ROOT'], revision_start=revHead, revision_end=revHead, discover_changed_paths=False)
-        if (revlog):
-            rev = revlog[0].data['revision'].number
-            if (DBRead.HeadRevision() < rev):
-                WakeUpBuildMachine()
+    try:
+        with app.app_context():
+            app.logger.debug('*** CheckSVN ***')
+            # SVN setup
+            svn_api = pysvn.Client()
+            svn_api.callback_ssl_server_trust_prompt = ssl_server_trust_prompt
+            svn_api.callback_get_login = svn_get_login
+            revHead = pysvn.Revision( pysvn.opt_revision_kind.head )
+            revlog = svn_api.log(app.config['SVN_ROOT'], revision_start=revHead, revision_end=revHead, discover_changed_paths=False)
+            if (revlog):
+                rev = revlog[0].data['revision'].number
+                if (DBRead.HeadRevision() < rev):
+                    WakeUpBuildMachine()
+                else:
+                    app.logger.debug('*** CheckSVN: at HEAD %d', rev)
+            else:
+                app.logger.debug('*** CheckSVN FAILED: revlog is empty')
+    except:
+        app.logger.debug('*** CheckSVN: Unexpected error: %s', sys.exc_info()[0])
 
     threading.Timer(60, CheckSVN).start()
 
@@ -215,12 +280,14 @@ if __name__ == '__main__':
     #DB.init(app)
     DB.close("")
     
+    DBWrite.callback_SendMail = SendMail
     # Start SVN check timer
     threading.Timer(5, CheckSVN).start()
 
-    # Used for debugging
-    #app.run(use_debugger=False, debug=True, use_reloader=False)
-
-    # Used by deployed website
-    app.run(host='0.0.0.0', port=8080) 
+    if (app.config['DEBUG'] == True):
+        # Used for debugging
+        app.run(use_debugger=False, debug=True, use_reloader=False)
+    else:
+        # Used by deployed website
+        app.run(host='0.0.0.0', port=8080) 
 

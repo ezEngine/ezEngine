@@ -38,6 +38,7 @@
     <Content Include="templates\BuildMachines.html" />
     <Content Include="templates\BuildProcessResult.html" />
     <Content Include="templates\BuildProcessResultMissing.html" />
+    <Content Include="templates\Mail.html" />
     <Content Include="templates\NavigationBar.html" />
     <Content Include="templates\index.html" />
     <Content Include="templates\layout.html" />

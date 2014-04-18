@@ -20,11 +20,11 @@
 
 {% macro resultImage(success) -%}
     {% if success == 1 %}
-    <img src="{{url_for('static', filename='success.png')}}"/>
+    <img alt="Y" src="{{root}}{{url_for('static', filename='success.png')}}"/>
     {% elif success == 0 %}
-    <img src="{{url_for('static', filename='failure.png')}}"/>
+    <img alt="N" src="{{root}}{{url_for('static', filename='failure.png')}}"/>
     {% else %}
-    <img src="{{url_for('static', filename='unknown.png')}}"/>
+    <img alt="?" src="{{root}}{{url_for('static', filename='unknown.png')}}"/>
     {% endif %}
 {%- endmacro %}
 
@@ -51,8 +51,8 @@
     </tr>
     {% for entry in machines %}
     <tr>
-        <td {{machineOSClass(entry.BuildMachine.id)}} rowspan="2"><img src="{{url_for('static', filename=entry.icon)}}"/></td>
-        <td {{machineClass(entry.BuildMachine.id)}}><a href="/{{ entry.BuildMachine.id }}/{{rev}}">{{entry.BuildMachine.ConfigurationName}}</a></td>
+        <td {{machineOSClass(entry.BuildMachine.id)}} rowspan="2"><img src="{{root}}{{url_for('static', filename=entry.icon)}}"/></td>
+        <td {{machineClass(entry.BuildMachine.id)}}><a href="{{root}}/{{ entry.BuildMachine.id }}/{{rev}}">{{entry.BuildMachine.ConfigurationName}}</a></td>
         <td rowspan="2" class="stepResultAlt">{{resultImage(entry.BuildProcessResult.SVNResult)}}</td>
         <td rowspan="2" class="stepResult">{{resultImage(entry.BuildProcessResult.CMakeResult)}}</td>
         <td rowspan="2" class="stepResultAlt">{{resultImage(entry.BuildProcessResult.BuildResult)}}</td>
@@ -71,7 +71,7 @@
             <h1>SVN Commit</h1>
             <colspan class="blue">Author:</colspan> {{revInfo.Author}}<br>
             <colspan class="blue">Commit Date:</colspan> {{revInfo.Date|linuxTime}}<br>
-            <colspan class="blue">Commit Message:</colspan> {{revInfo.Message}}<br><br>
+            <colspan class="blue">Commit Message:</colspan><br>{{revInfo.Message|nl2br|safe}}<br><br>
             <colspan class="blue">Changed Files:</colspan><br>
             <colspan class="revisionInfoChangedFiles">{{revInfo.ChangedPaths|nl2br|safe}}</colspan><br>
         </td>

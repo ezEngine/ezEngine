@@ -47,7 +47,7 @@ namespace BuildMachine
         if ((i + 3 < iLineCount) &&
           lines[i + 0].StartsWith("CompileC") &&
           lines[i + 1].StartsWith("    cd") &&
-          lines[i + 2].StartsWith("    setenv") &&
+          lines[i + 2].StartsWith("    ") &&
           lines[i + 3].StartsWith("    /"))
         {
           newLines.Add(lines[i]);

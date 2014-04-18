@@ -1,7 +1,7 @@
 from DBAccess import DBAccess
 import pysvn
-
-
+import requests
+from flask import Flask, json
 
 class DBWriter:
     """Class that encapsulates the conversion of json build results into database records.
@@ -12,6 +12,7 @@ class DBWriter:
     def __init__(self, dbAccess, app):
         self.DB = dbAccess
         self.config = app.config
+        self.callback_SendMail = None
 
 
     ########################################################################
@@ -57,12 +58,51 @@ class DBWriter:
 
         # Commit to DB, this should be the only commit in the entire class as all other functions are called from here.
         db.commit()
+
+        self.CheckToSendMail(revision)
         return buildProcessId
 
 
     ########################################################################
     ## DBWriter private functions
     ########################################################################
+    def CheckToSendMail(self, rev):
+        if (not self.callback_SendMail):
+            return
+
+        db = self.DB.getDB()
+        cur = db.execute('SELECT COUNT(*) FROM BuildProcessResults WHERE Revision=?', (rev,))
+        buildResultCount = cur.fetchall()[0][0]
+
+        cur = db.execute('SELECT COUNT(*) FROM BuildMachines')
+        buildMachineCount = cur.fetchall()[0][0]
+
+        if (buildResultCount == buildMachineCount):
+            # Sanity check: we do not send an email if the current revision is more than 10
+            # revisions behind the head revision. Just to be sure this doesn't end in an
+            # unfortunate mail spam meltdown.
+            cur = db.execute('SELECT MAX(id) FROM Revisions')
+            entries = cur.fetchall()
+            if (rev + 10 < entries[0][0]):
+                return
+
+            cur = db.execute('SELECT Author FROM Revisions WHERE id=?', (rev,))
+            AuthorEntry = cur.fetchall()
+            if (not AuthorEntry):
+                return
+
+            try:
+                # Get the email address of the author and call the send mail callback.
+                Author = AuthorEntry[0][0]
+                response = requests.get(self.config['SVN_USER_TO_MAIL_REQUEST_ADDRESS'] + Author)
+                responseJson = json.loads(response.content)
+                AuthorMail = responseJson[Author]
+                self.callback_SendMail(rev, AuthorMail)
+            except:
+                app.logger.debug('*** CheckToSendMail: Unexpected error: %s', sys.exc_info()[0])
+        return
+
+
     def UpdateSVNRevisions(self):
         """Updates the 'Revisions' table to have an entry for every revision that we have build data for."""
         # SVN setup
@@ -204,3 +244,5 @@ class DBWriter:
     ## DBWriter private fields
     ########################################################################
     DB = None
+    config = None
+    callback_SendMail = None
