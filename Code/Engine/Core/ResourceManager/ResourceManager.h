@@ -71,9 +71,9 @@ public:
   template<typename ResourceType>
   static void SetResourceTypeLoader(ezResourceTypeLoader* pCreator);
 
-  static void ezResourceManager::SetDefaultResourceLoader(ezResourceTypeLoader* pDefaultLoader);
+  static void SetDefaultResourceLoader(ezResourceTypeLoader* pDefaultLoader);
 
-  static ezResourceTypeLoader* ezResourceManager::GetDefaultResourceLoader() { return m_pDefaultResourceLoader; }
+  static ezResourceTypeLoader* GetDefaultResourceLoader() { return m_pDefaultResourceLoader; }
 
   static void Shutdown();
 

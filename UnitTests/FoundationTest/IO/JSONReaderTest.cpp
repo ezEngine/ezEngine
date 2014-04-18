@@ -272,7 +272,7 @@ EZ_CREATE_SIMPLE_TEST(IO, JSONReader)
     StringStream stream(szTestData);
 
     ezJSONReader reader;
-    EZ_TEST_BOOL(reader.Parse(stream).IsSuccess());
+    EZ_TEST_BOOL(reader.Parse(stream).Succeeded());
 
     ezDeque<ezString> sCompare;
     sCompare.PushBack("<object>");

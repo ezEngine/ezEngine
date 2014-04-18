@@ -32,7 +32,7 @@ public:
 
     ezStringBuilder sFile;
     sFile.Format("Textures/Streaming%i.tga", ezMath::Pow2(pResource->GetLoadedQualityLevel()));
-    EZ_VERIFY(File.Open(sFile.GetData()).IsSuccess(), "Failed to load image '%s'", sFile.GetData());
+    EZ_VERIFY(File.Open(sFile.GetData()).Succeeded(), "Failed to load image '%s'", sFile.GetData());
 
     Data* pData = EZ_DEFAULT_NEW(Data);
 
@@ -111,7 +111,7 @@ void GameRenderer::SetupRenderer(GameWindow* pWindow, const Level* pLevel, const
 
   {
     ezImage FontRGBA;
-    EZ_VERIFY(ezImageConversionBase::Convert(FontImg, FontRGBA, ezImageFormat::R8G8B8A8_UNORM).IsSuccess(), "Could not convert image to BGRA8 format.");
+    EZ_VERIFY(ezImageConversionBase::Convert(FontImg, FontRGBA, ezImageFormat::R8G8B8A8_UNORM).Succeeded(), "Could not convert image to BGRA8 format.");
 
     glGenTextures(1, &m_uiFontTextureID);
     glEnable(GL_TEXTURE_2D);

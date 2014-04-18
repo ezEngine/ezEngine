@@ -19,7 +19,7 @@ namespace DontUse
 
     ezDynamicArray<ezUInt8> FileContent;
 
-    if(!ReadCompleteFile(szPath, FileContent).IsSuccess())
+    if(!ReadCompleteFile(szPath, FileContent).Succeeded())
       return nullptr;
 
     FileContent.PushBack('\0');

@@ -39,12 +39,12 @@ EZ_CREATE_SIMPLE_TEST(IO, ExtendedJSONReader)
     ezResult r(EZ_FAILURE);
     ezTime t2 = vt.ConvertTo<ezTime>(&r);
 
-    EZ_TEST_BOOL(r.IsSuccess());
+    EZ_TEST_BOOL(r.Succeeded());
 
     StringStream stream(szTestData);
 
     ezExtendedJSONReader reader;
-    EZ_TEST_BOOL(reader.Parse(stream).IsSuccess());
+    EZ_TEST_BOOL(reader.Parse(stream).Succeeded());
 
     ezDeque<ezString> sCompare;
     sCompare.PushBack("<object>");

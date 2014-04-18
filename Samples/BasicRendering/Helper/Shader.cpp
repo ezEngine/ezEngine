@@ -39,7 +39,7 @@ namespace DontUse
     ezDynamicArray<ezUInt8> FileContent;
     FileContent.Reserve(64 * 1024);
 
-    if(!ReadCompleteFile(szPath, FileContent).IsSuccess())
+    if(!ReadCompleteFile(szPath, FileContent).Succeeded())
       return false;
 
     FileContent.PushBack('\0');

@@ -246,8 +246,8 @@ EZ_CREATE_SIMPLE_TEST(Math, Transform)
     tChild.SetGlobalTransform(tParent, tToChild);
 
     // negate twice -> get back original
-    EZ_TEST_BOOL(tToChild.Invert().IsSuccess());
-    EZ_TEST_BOOL(tToChild.Invert().IsSuccess());
+    EZ_TEST_BOOL(tToChild.Invert().Succeeded());
+    EZ_TEST_BOOL(tToChild.Invert().Succeeded());
 
     ezTransform tInvToChild = tToChild.GetInverse();
 

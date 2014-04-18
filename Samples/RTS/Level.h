@@ -75,10 +75,10 @@ private:
     ezImage img0;
 
     ezTgaFileFormat Format;
-    EZ_VERIFY(Format.ReadImage(Stream, img0, ezGlobalLog::GetInstance()).IsSuccess(), "Could not read TGA from stream.");
+    EZ_VERIFY(Format.ReadImage(Stream, img0, ezGlobalLog::GetInstance()).Succeeded(), "Could not read TGA from stream.");
 
     ezImage img;
-    EZ_VERIFY(ezImageConversionBase::Convert(img0, img, ezImageFormat::B8G8R8A8_UNORM).IsSuccess(), "Could not convert image to BGRA8 format.");
+    EZ_VERIFY(ezImageConversionBase::Convert(img0, img, ezImageFormat::B8G8R8A8_UNORM).Succeeded(), "Could not convert image to BGRA8 format.");
 
     //return;
 
