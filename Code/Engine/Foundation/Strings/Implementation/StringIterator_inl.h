@@ -1,5 +1,14 @@
 #pragma once
 
+inline ezStringIterator::ezStringIterator()
+{
+  m_pFirst = nullptr;
+  m_pEnd = nullptr;
+  m_pCurrent = nullptr;
+  m_bValid = false;
+  m_bIsPureASCII = true;
+}
+
 inline ezStringIterator::ezStringIterator(const char* pCurrent, bool bIsPureASCII)
 {
   m_pFirst = pCurrent;
