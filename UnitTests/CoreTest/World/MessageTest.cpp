@@ -11,39 +11,55 @@ namespace
     int m_iValue;
   };
 
-  EZ_IMPLEMENT_MESSAGE_TYPE(TestMessage);
-
-  class TestComponent;
-  typedef ezComponentManagerNoUpdate<TestComponent> TestComponentManager;
-
-  class TestComponent : public ezComponent
+  class TestMessage2 : public ezMessage
   {
-    EZ_DECLARE_COMPONENT_TYPE(TestComponent, TestComponentManager);
+    EZ_DECLARE_MESSAGE_TYPE(TestMessage2);
+
+    int m_iValue;
+  };
+
+  EZ_IMPLEMENT_MESSAGE_TYPE(TestMessage);
+  EZ_IMPLEMENT_MESSAGE_TYPE(TestMessage2);
+
+  class TestComponentMsg;
+  typedef ezComponentManagerNoUpdate<TestComponentMsg> TestComponentMsgManager;
+
+  class TestComponentMsg : public ezComponent
+  {
+    EZ_DECLARE_COMPONENT_TYPE(TestComponentMsg, TestComponentMsgManager);
 
   public:
-    TestComponent() : m_iSomeData(1) {}
-    ~TestComponent() {}
+    TestComponentMsg() : m_iSomeData(1), m_iSomeData2(2) {}
+    ~TestComponentMsg() {}
 
     void OnTestMessage(TestMessage& msg)
     {
       m_iSomeData += msg.m_iValue;
     }
 
+    void OnTestMessage2(TestMessage2& msg)
+    {
+      m_iSomeData2 += 2 * msg.m_iValue;
+    }
+
     ezInt32 m_iSomeData;
+    ezInt32 m_iSomeData2;
   };
 
-  EZ_BEGIN_COMPONENT_TYPE(TestComponent, ezComponent, TestComponentManager);
+  EZ_BEGIN_COMPONENT_TYPE(TestComponentMsg, ezComponent, TestComponentMsgManager);
     EZ_BEGIN_MESSAGEHANDLERS
-      EZ_MESSAGE_HANDLER(TestMessage, OnTestMessage)
+      EZ_MESSAGE_HANDLER(TestMessage, OnTestMessage),
+      EZ_MESSAGE_HANDLER(TestMessage2, OnTestMessage2)
     EZ_END_MESSAGEHANDLERS
   EZ_END_COMPONENT_TYPE();
 
   void ResetComponents(ezGameObject& object)
   {
-    TestComponent* pComponent = nullptr;
+    TestComponentMsg* pComponent = nullptr;
     if (object.TryGetComponentOfBaseType(pComponent))
     {
       pComponent->m_iSomeData = 1;
+      pComponent->m_iSomeData2 = 2;
     }
 
     for (auto it = object.GetChildren(); it.IsValid(); ++it)
@@ -57,7 +73,7 @@ EZ_CREATE_SIMPLE_TEST(World, Messaging)
 {
   ezClock::SetNumGlobalClocks();
   ezWorld world("Test");
-  TestComponentManager* pManager = world.CreateComponentManager<TestComponentManager>();
+  TestComponentMsgManager* pManager = world.CreateComponentManager<TestComponentMsgManager>();
 
   ezGameObjectDesc desc;
   desc.m_sName.Assign("Root");
@@ -98,21 +114,29 @@ EZ_CREATE_SIMPLE_TEST(World, Messaging)
     msg.m_iValue = 4;
     pParents[0]->SendMessage(msg);
 
-    TestComponent* pComponent = nullptr;
+    TestMessage2 msg2;
+    msg2.m_iValue = 4;
+    pParents[0]->SendMessage(msg2);
+
+    TestComponentMsg* pComponent = nullptr;
     pParents[0]->TryGetComponentOfBaseType(pComponent);
     EZ_TEST_INT(pComponent->m_iSomeData, 5);
+    EZ_TEST_INT(pComponent->m_iSomeData2, 10);
 
     // siblings, parent and children should not be affected
     pParents[1]->TryGetComponentOfBaseType(pComponent);
     EZ_TEST_INT(pComponent->m_iSomeData, 1);
+    EZ_TEST_INT(pComponent->m_iSomeData2, 2);
 
     pRoot->TryGetComponentOfBaseType(pComponent);
     EZ_TEST_INT(pComponent->m_iSomeData, 1);
+    EZ_TEST_INT(pComponent->m_iSomeData2, 2);
 
     for (auto it = pParents[0]->GetChildren(); it.IsValid(); ++it)
     {
       it->TryGetComponentOfBaseType(pComponent);
       EZ_TEST_INT(pComponent->m_iSomeData, 1);
+      EZ_TEST_INT(pComponent->m_iSomeData2, 2);
     }
   }
 
@@ -124,21 +148,29 @@ EZ_CREATE_SIMPLE_TEST(World, Messaging)
     msg.m_iValue = 4;
     pParents[0]->SendMessage(msg, ezObjectMsgRouting::ToParent);
 
-    TestComponent* pComponent = nullptr;
+    TestMessage2 msg2;
+    msg2.m_iValue = 4;
+    pParents[0]->SendMessage(msg2, ezObjectMsgRouting::ToParent);
+
+    TestComponentMsg* pComponent = nullptr;
     pParents[0]->TryGetComponentOfBaseType(pComponent);
     EZ_TEST_INT(pComponent->m_iSomeData, 5);
+    EZ_TEST_INT(pComponent->m_iSomeData2, 10);
 
     pRoot->TryGetComponentOfBaseType(pComponent);
     EZ_TEST_INT(pComponent->m_iSomeData, 5);
+    EZ_TEST_INT(pComponent->m_iSomeData2, 10);
 
     // siblings and children should not be affected
     pParents[1]->TryGetComponentOfBaseType(pComponent);
     EZ_TEST_INT(pComponent->m_iSomeData, 1);
+    EZ_TEST_INT(pComponent->m_iSomeData2, 2);
 
     for (auto it = pParents[0]->GetChildren(); it.IsValid(); ++it)
     {
       it->TryGetComponentOfBaseType(pComponent);
       EZ_TEST_INT(pComponent->m_iSomeData, 1);
+      EZ_TEST_INT(pComponent->m_iSomeData2, 2);
     }
   }
 
@@ -150,22 +182,30 @@ EZ_CREATE_SIMPLE_TEST(World, Messaging)
     msg.m_iValue = 4;
     pParents[0]->SendMessage(msg, ezObjectMsgRouting::ToChildren);
 
-    TestComponent* pComponent = nullptr;
+    TestMessage2 msg2;
+    msg2.m_iValue = 4;
+    pParents[0]->SendMessage(msg2, ezObjectMsgRouting::ToChildren);
+
+    TestComponentMsg* pComponent = nullptr;
     pParents[0]->TryGetComponentOfBaseType(pComponent);
     EZ_TEST_INT(pComponent->m_iSomeData, 5);
+    EZ_TEST_INT(pComponent->m_iSomeData2, 10);
 
     for (auto it = pParents[0]->GetChildren(); it.IsValid(); ++it)
     {
       it->TryGetComponentOfBaseType(pComponent);
       EZ_TEST_INT(pComponent->m_iSomeData, 5);
+      EZ_TEST_INT(pComponent->m_iSomeData2, 10);
     }
 
     // siblings and parent should not be affected
     pParents[1]->TryGetComponentOfBaseType(pComponent);
     EZ_TEST_INT(pComponent->m_iSomeData, 1);
+    EZ_TEST_INT(pComponent->m_iSomeData2, 2);
 
     pRoot->TryGetComponentOfBaseType(pComponent);
     EZ_TEST_INT(pComponent->m_iSomeData, 1);
+    EZ_TEST_INT(pComponent->m_iSomeData2, 2);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Routing to parent and children")
@@ -176,22 +216,30 @@ EZ_CREATE_SIMPLE_TEST(World, Messaging)
     msg.m_iValue = 4;
     pParents[0]->SendMessage(msg, ezObjectMsgRouting::ToParent | ezObjectMsgRouting::ToChildren);
 
-    TestComponent* pComponent = nullptr;
+    TestMessage2 msg2;
+    msg2.m_iValue = 4;
+    pParents[0]->SendMessage(msg2, ezObjectMsgRouting::ToParent | ezObjectMsgRouting::ToChildren);
+
+    TestComponentMsg* pComponent = nullptr;
     pParents[0]->TryGetComponentOfBaseType(pComponent);
     EZ_TEST_INT(pComponent->m_iSomeData, 5);
+    EZ_TEST_INT(pComponent->m_iSomeData2, 10);
 
     pRoot->TryGetComponentOfBaseType(pComponent);
     EZ_TEST_INT(pComponent->m_iSomeData, 5);
+    EZ_TEST_INT(pComponent->m_iSomeData2, 10);
 
     for (auto it = pParents[0]->GetChildren(); it.IsValid(); ++it)
     {
       it->TryGetComponentOfBaseType(pComponent);
       EZ_TEST_INT(pComponent->m_iSomeData, 5);
+      EZ_TEST_INT(pComponent->m_iSomeData2, 10);
     }
 
     // siblings should not be affected
     pParents[1]->TryGetComponentOfBaseType(pComponent);
     EZ_TEST_INT(pComponent->m_iSomeData, 1);    
+    EZ_TEST_INT(pComponent->m_iSomeData2, 2);    
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Routing to sub-tree")
@@ -202,20 +250,28 @@ EZ_CREATE_SIMPLE_TEST(World, Messaging)
     msg.m_iValue = 4;
     pParents[0]->SendMessage(msg, ezObjectMsgRouting::ToSubTree);
 
-    TestComponent* pComponent = nullptr;
+    TestMessage2 msg2;
+    msg2.m_iValue = 4;
+    pParents[0]->SendMessage(msg2, ezObjectMsgRouting::ToSubTree);
+
+    TestComponentMsg* pComponent = nullptr;
     pParents[0]->TryGetComponentOfBaseType(pComponent);
     EZ_TEST_INT(pComponent->m_iSomeData, 5);
+    EZ_TEST_INT(pComponent->m_iSomeData2, 10);
 
     pParents[1]->TryGetComponentOfBaseType(pComponent);
     EZ_TEST_INT(pComponent->m_iSomeData, 5);
+    EZ_TEST_INT(pComponent->m_iSomeData2, 10);
 
     pRoot->TryGetComponentOfBaseType(pComponent);
     EZ_TEST_INT(pComponent->m_iSomeData, 5);
+    EZ_TEST_INT(pComponent->m_iSomeData2, 10);
 
     for (auto it = pParents[0]->GetChildren(); it.IsValid(); ++it)
     {
       it->TryGetComponentOfBaseType(pComponent);
       EZ_TEST_INT(pComponent->m_iSomeData, 5);
+      EZ_TEST_INT(pComponent->m_iSomeData2, 10);
     }
   }
 
@@ -228,14 +284,19 @@ EZ_CREATE_SIMPLE_TEST(World, Messaging)
       TestMessage msg;
       msg.m_iValue = i;
       pRoot->PostMessage(msg, ezObjectMsgQueueType::NextFrame);
+
+      TestMessage2 msg2;
+      msg2.m_iValue = i;
+      pRoot->PostMessage(msg2, ezObjectMsgQueueType::NextFrame);
     }
 
     ezClock::UpdateAllGlobalClocks();
     world.Update();
 
-    TestComponent* pComponent = nullptr;
+    TestComponentMsg* pComponent = nullptr;
     pRoot->TryGetComponentOfBaseType(pComponent);
     EZ_TEST_INT(pComponent->m_iSomeData, 46);
+    EZ_TEST_INT(pComponent->m_iSomeData2, 92);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Queuing with delay")
@@ -247,22 +308,29 @@ EZ_CREATE_SIMPLE_TEST(World, Messaging)
       TestMessage msg;
       msg.m_iValue = i;
       pRoot->PostMessage(msg, ezObjectMsgQueueType::NextFrame, ezTime::Seconds(i+1));
+
+      TestMessage2 msg2;
+      msg2.m_iValue = i;
+      pRoot->PostMessage(msg2, ezObjectMsgQueueType::NextFrame, ezTime::Seconds(i+1));
     }
 
     ezClock::Get(ezGlobalClock_GameLogic)->SetFixedTimeStep(ezTime::Seconds(1.0f));
 
     int iDesiredValue = 1;
+    int iDesiredValue2 = 2;
 
     for (ezUInt32 i = 0; i < 10; ++i)
     {
       iDesiredValue += i;
+      iDesiredValue2 += i * 2;
 
       ezClock::UpdateAllGlobalClocks();
       world.Update();
 
-      TestComponent* pComponent = nullptr;
+      TestComponentMsg* pComponent = nullptr;
       pRoot->TryGetComponentOfBaseType(pComponent);
       EZ_TEST_INT(pComponent->m_iSomeData, iDesiredValue);
+      EZ_TEST_INT(pComponent->m_iSomeData2, iDesiredValue2);
     }
   }
 }
