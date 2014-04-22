@@ -35,7 +35,7 @@ public:
   ezMessageHandler()
   {
     m_DispatchFunc = &Dispatch;
-    m_Id = MessageType::MSG_ID;
+    m_Id = MessageType::GetMsgId();
   }
 
   /// \brief Casts the given message to the type of this message handler, then passes that to the class instance.

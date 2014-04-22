@@ -76,7 +76,7 @@ public:
   template <typename MessageType>
   EZ_FORCE_INLINE bool CanHandleMessage() const
   {
-    return CanHandleMessage(MessageType::MSG_ID);
+    return CanHandleMessage(MessageType::GetMsgId());
   }
 
   /// \brief Returns whether this type can handle the message type with the given id.

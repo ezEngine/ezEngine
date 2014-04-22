@@ -45,8 +45,14 @@ protected:
 };
 
 #define EZ_DECLARE_MESSAGE_TYPE(messageType) \
-  public: \
+  private: \
     static ezMessageId MSG_ID; \
+  public: \
+    static ezMessageId GetMsgId() \
+    { \
+      static ezMessageId id = ezMessage::GetNextMsgId(); \
+      return id; \
+    } \
     EZ_FORCE_INLINE messageType() \
     { \
       m_Id = messageType::MSG_ID; \
@@ -59,5 +65,5 @@ protected:
     }
 
 #define EZ_IMPLEMENT_MESSAGE_TYPE(messageType) \
-  ezMessageId messageType::MSG_ID = ezMessage::GetNextMsgId();
+  ezMessageId messageType::MSG_ID = messageType::GetMsgId();
 
