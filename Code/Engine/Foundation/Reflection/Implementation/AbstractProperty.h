@@ -28,7 +28,7 @@ public:
   /// \brief Returns the name of the propery.
   const char* GetPropertyName() const { return m_szPropertyName; }
 
-  /// \brief Returns the category of this property. Cast this propererty to the next higher type for more information.
+  /// \brief Returns the category of this property. Cast this property to the next higher type for more information.
   virtual PropertyCategory GetCategory() const = 0; // [tested]
 
 private:
