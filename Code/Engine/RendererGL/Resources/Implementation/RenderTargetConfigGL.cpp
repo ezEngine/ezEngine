@@ -36,7 +36,7 @@ ezResult ezGALRenderTargetConfigGL::InitPlatform(ezGALDevice* pDevice)
     return EZ_FAILURE;
 
   // To ensure that the buffer will be reset, create object to reset the state when the stackframe is left.
-  // TODO: State handling by primary context. REMOVE ALL glGetIntegerv ANYWHERE!
+  /// \todo State handling by primary context. REMOVE ALL glGetIntegerv ANYWHERE!
   struct BufferReset
   {
     BufferReset()

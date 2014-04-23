@@ -86,7 +86,7 @@ ezResult ezGALVertexDeclarationDX11::InitPlatform(ezGALDevice* pDevice)
 
     DXDesc.InputSlot = Current.m_uiVertexBufferSlot;
     DXDesc.InputSlotClass = Current.m_bInstanceData ? D3D11_INPUT_PER_INSTANCE_DATA : D3D11_INPUT_PER_VERTEX_DATA;
-    DXDesc.InstanceDataStepRate = Current.m_bInstanceData ? 1 : 0; // TODO: Expose step rate?
+    DXDesc.InstanceDataStepRate = Current.m_bInstanceData ? 1 : 0; /// \todo Expose step rate?
     DXDesc.SemanticIndex = GALSemanticToIndexDX11[Current.m_eSemantic];
     DXDesc.SemanticName = GALSemanticToDX11[Current.m_eSemantic];
 

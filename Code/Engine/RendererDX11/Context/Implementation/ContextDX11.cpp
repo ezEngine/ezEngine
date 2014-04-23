@@ -67,7 +67,7 @@ void ezGALContextDX11::ClearPlatform(const ezColor& ClearColor, ezUInt32 uiRende
 
   if ((bClearDepth || bClearStencil) && m_pBoundDepthStencilTarget)
   {
-    // TODO: Parameters
+    /// \todo Parameters
     m_pDXContext->ClearDepthStencilView(m_pBoundDepthStencilTarget, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, fDepthClear, uiStencilClear);
   }
 }
@@ -146,13 +146,13 @@ void ezGALContextDX11::FlushDeferredStateChanges()
 
   if (m_DeferredStateChanged.IsSet(ezGALDX11::DeferredStateChanged::ShaderResourceView))
   {
-    // TODO: Optimize / add other stages
+    /// \todo Optimize / add other stages
     m_pDXContext->PSSetShaderResources(0, EZ_GAL_MAX_SHADER_RESOURCE_VIEW_COUNT, m_pBoundShaderResourceViews[ezGALShaderStage::PixelShader]);
   }
 
   if (m_DeferredStateChanged.IsSet(ezGALDX11::DeferredStateChanged::SamplerState))
   {
-    // TODO: Optimize / add other stages
+    /// \todo Optimize / add other stages
     m_pDXContext->PSSetSamplers(0, EZ_GAL_MAX_SHADER_RESOURCE_VIEW_COUNT, m_pBoundSamplerStates[ezGALShaderStage::PixelShader]);
   }
 
@@ -180,7 +180,7 @@ void ezGALContextDX11::DispatchIndirectPlatform(ezGALBuffer* pIndirectArgumentBu
 
 void ezGALContextDX11::SetShaderPlatform(ezGALShader* pShader)
 {
-  // TODO: Optimize (change only shaders which need to be set)
+  /// \todo Optimize (change only shaders which need to be set)
   if (pShader != nullptr)
   {
     ezGALShaderDX11* pDXShader = static_cast<ezGALShaderDX11*>(pShader);
@@ -234,7 +234,7 @@ static const D3D11_PRIMITIVE_TOPOLOGY GALTopologyToDX11[ezGALPrimitiveTopology::
 {
   D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST
 
-  // TODO: Add other primitive types (when adding to ez enum)
+  /// \todo Add other primitive types (when adding to ez enum)
 };
 
 void ezGALContextDX11::SetPrimitiveTopologyPlatform(ezGALPrimitiveTopology::Enum Topology)
@@ -244,21 +244,21 @@ void ezGALContextDX11::SetPrimitiveTopologyPlatform(ezGALPrimitiveTopology::Enum
 
 void ezGALContextDX11::SetConstantBufferPlatform(ezUInt32 uiSlot, ezGALBuffer* pBuffer)
 {
-  // TODO: Check if the device supports the slot index?
+  /// \todo Check if the device supports the slot index?
   m_pBoundConstantBuffers[uiSlot] = pBuffer != nullptr ? static_cast<ezGALBufferDX11*>(pBuffer)->GetDXBuffer() : nullptr;
   m_DeferredStateChanged.Add(ezGALDX11::DeferredStateChanged::ConstantBuffer);
 }
 
 void ezGALContextDX11::SetSamplerStatePlatform(ezGALShaderStage::Enum Stage, ezUInt32 uiSlot, ezGALSamplerState* pSamplerState)
 {
-  // TODO: Check if the device supports the stage / the slot index
+  /// \todo Check if the device supports the stage / the slot index
   m_pBoundSamplerStates[Stage][uiSlot] = pSamplerState != nullptr ? static_cast<ezGALSamplerStateDX11*>(pSamplerState)->GetDXSamplerState() : nullptr;
   m_DeferredStateChanged.Add(ezGALDX11::DeferredStateChanged::SamplerState);
 }
 
 void ezGALContextDX11::SetResourceViewPlatform(ezGALShaderStage::Enum Stage, ezUInt32 uiSlot, ezGALResourceView* pResourceView)
 {
-  // TODO: Check if the device supports the stage / the slot index
+  /// \todo Check if the device supports the stage / the slot index
   m_pBoundShaderResourceViews[Stage][uiSlot] = pResourceView != nullptr ? static_cast<ezGALResourceViewDX11*>(pResourceView)->GetDXResourceView() : nullptr;
   m_DeferredStateChanged.Add(ezGALDX11::DeferredStateChanged::ShaderResourceView);
 }
@@ -412,7 +412,7 @@ void ezGALContextDX11::ReadbackTexturePlatform(ezGALTexture* pTexture)
 
   if (bMSAASourceTexture)
   {
-    // TODO: Other mip levels etc?
+    /// \todo Other mip levels etc?
     m_pDXContext->ResolveSubresource(pDXTexture->GetDXStagingTexture(), 0, pDXTexture->GetDXTexture(), 0, DXGI_FORMAT_R8G8B8A8_UNORM_SRGB);
   }
   else
@@ -433,7 +433,7 @@ void ezGALContextDX11::CopyTextureReadbackResultPlatform(ezGALTexture* pTexture,
 
     if (Mapped.RowPitch == (*pData)[0].m_uiRowPitch)
     {
-      // TODO: This needs access to format information like bits per pixel etc.!
+      /// \todo This needs access to format information like bits per pixel etc.!
       const ezUInt32 uiMemorySize = 4 * pDXTexture->GetDescription().m_uiWidth * pDXTexture->GetDescription().m_uiHeight;
       memcpy((*pData)[0].m_pData, Mapped.pData, uiMemorySize);
     }
@@ -445,7 +445,7 @@ void ezGALContextDX11::CopyTextureReadbackResultPlatform(ezGALTexture* pTexture,
         const void* pSource = ezMemoryUtils::AddByteOffset(Mapped.pData, y * Mapped.RowPitch);
         void* pDest = ezMemoryUtils::AddByteOffset((*pData)[0].m_pData, y * (*pData)[0].m_uiRowPitch);
 
-        // TODO: This needs access to format information like bits per pixel etc.!
+        /// \todo This needs access to format information like bits per pixel etc.!
         memcpy(pDest, pSource, 4 * pDXTexture->GetDescription().m_uiWidth);
       }
     }

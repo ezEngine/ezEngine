@@ -49,8 +49,6 @@ bool ezTaskSystem::IsLoadingThread()
   if (s_WorkerThreads[ezWorkerThreadType::FileAccess].IsEmpty())
     return false;
 
-  /// \todo This function does not work, since the thread handle is a pseudo handle and thus the comparison will always fail.
-
   return ezThreadUtils::GetCurrentThreadID() == s_WorkerThreads[ezWorkerThreadType::FileAccess][0]->GetThreadID();
 }
 

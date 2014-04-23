@@ -21,7 +21,7 @@ typedef ezGALFormatLookupTable<ezGALFormatLookupEntryDX11> ezGALFormatLookupTabl
 class EZ_RENDERERDX11_DLL ezGALDeviceDX11 : public ezGALDevice
 {
 
-  // TODO: This shouldn't be accessible, there should be a factory instantiating the correct renderer class via RTTI for example
+  /// \todo This shouldn't be accessible, there should be a factory instantiating the correct renderer class via RTTI for example
 public:
 
   ezGALDeviceDX11(const ezGALDeviceCreationDescription& Description);

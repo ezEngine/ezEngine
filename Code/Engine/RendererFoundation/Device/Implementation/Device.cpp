@@ -108,7 +108,7 @@ ezResult ezGALDevice::Shutdown()
   return ShutdownPlatform();
 }
 
-// TODO: State / resource creation needs to check if multithreaded resource creation is allowed and if not if it is in the render thread
+/// \todo State / resource creation needs to check if multithreaded resource creation is allowed and if not if it is in the render thread
 // There may also be the need for a mutex protecting the various creation / destroy functions since they access non-threadsafe data structures
 
 ezGALBlendStateHandle ezGALDevice::CreateBlendState(const ezGALBlendStateCreationDescription& Description)
@@ -163,7 +163,7 @@ void ezGALDevice::DestroyBlendState(ezGALBlendStateHandle hBlendState)
 
 ezGALDepthStencilStateHandle ezGALDevice::CreateDepthStencilState(const ezGALDepthStencilStateCreationDescription& Description)
 {
-  // TODO: Hash description and return potential existing one (including inc. refcount)
+  /// \todo Hash description and return potential existing one (including inc. refcount)
 
   ezGALDepthStencilState* pDepthStencilState = CreateDepthStencilStatePlatform(Description);
 
@@ -184,7 +184,7 @@ void ezGALDevice::DestroyDepthStencilState(ezGALDepthStencilStateHandle hDepthSt
 {
   ezGALDepthStencilState* pDepthStencilState = nullptr;
 
-  // TODO: Only remove if refcount = 0
+  /// \todo Only remove if refcount = 0
 
   if(m_DepthStencilStates.Remove(hDepthStencilState, &pDepthStencilState))
   {
@@ -198,7 +198,7 @@ void ezGALDevice::DestroyDepthStencilState(ezGALDepthStencilStateHandle hDepthSt
 
 ezGALRasterizerStateHandle ezGALDevice::CreateRasterizerState(const ezGALRasterizerStateCreationDescription& Description)
 {
-  // TODO: Hash description and return potential existing one (including inc. refcount)
+  /// \todo Hash description and return potential existing one (including inc. refcount)
 
   ezGALRasterizerState* pRasterizerState = CreateRasterizerStatePlatform(Description);
   
@@ -218,7 +218,7 @@ void ezGALDevice::DestroyRasterizerState(ezGALRasterizerStateHandle hRasterizerS
 {
   ezGALRasterizerState* pRasterizerState = nullptr;
 
-  // TODO: Only remove if refcount = 0
+  /// \todo Only remove if refcount = 0
 
   if(m_RasterizerStates.Remove(hRasterizerState, &pRasterizerState))
   {
@@ -232,8 +232,8 @@ void ezGALDevice::DestroyRasterizerState(ezGALRasterizerStateHandle hRasterizerS
 
 ezGALSamplerStateHandle ezGALDevice::CreateSamplerState(const ezGALSamplerStateCreationDescription& Description)
 {
-  // TODO: Platform independent validation
-  // TODO: Hash description and return potential existing one (including inc. refcount)
+  /// \todo Platform independent validation
+  /// \todo Hash description and return potential existing one (including inc. refcount)
 
   ezGALSamplerState* pSamplerState = CreateSamplerStatePlatform(Description);
   
@@ -251,7 +251,7 @@ void ezGALDevice::DestroySamplerState(ezGALSamplerStateHandle hSamplerState)
 {
   ezGALSamplerState* pSamplerState = nullptr;
 
-  // TODO: Only remove if refcount = 0
+  /// \todo Only remove if refcount = 0
 
   if(m_SamplerStates.Remove(hSamplerState, &pSamplerState))
   {
@@ -325,7 +325,7 @@ ezGALBufferHandle ezGALDevice::CreateBuffer(const ezGALBufferCreationDescription
     return ezGALBufferHandle();
   }
 
-  // TODO: Platform independent validation (buffer type supported)
+  /// \todo Platform independent validation (buffer type supported)
 
   ezGALBuffer* pBuffer = CreateBufferPlatform(Description, pInitialData);
   
@@ -392,7 +392,7 @@ ezGALBufferHandle ezGALDevice::CreateConstantBuffer(ezUInt32 uiBufferSize)
 
 ezGALTextureHandle ezGALDevice::CreateTexture(const ezGALTextureCreationDescription& Description, const ezArrayPtr<ezGALSystemMemoryDescription>* pInitialData)
 {
-  // TODO: Platform independent validation (desc width & height < platform maximum, format, etc.)
+  /// \todo Platform independent validation (desc width & height < platform maximum, format, etc.)
 
   if (Description.m_ResourceAccess.IsImmutable() && (pInitialData == nullptr || pInitialData->GetCount() < Description.m_uiMipSliceCount) && !Description.m_bCreateRenderTarget)
   {
@@ -434,8 +434,8 @@ void ezGALDevice::DestroyTexture(ezGALTextureHandle hTexture)
 
 ezGALResourceViewHandle ezGALDevice::CreateResourceView(const ezGALResourceViewCreationDescription& Description)
 {
-  // TODO: Platform independent validation
-  // TODO: Hash description and return potential existing one (including inc. refcount)
+  /// \todo Platform independent validation
+  /// \todo Hash description and return potential existing one (including inc. refcount)
 
   ezGALResourceView* pResourceView = CreateResourceViewPlatform(Description);
   
@@ -453,7 +453,7 @@ void ezGALDevice::DestroyResourceView(ezGALResourceViewHandle hResourceView)
 {
   ezGALResourceView* pResourceView = nullptr;
 
-  // TODO: Only remove if refcount = 0
+  /// \todo Only remove if refcount = 0
 
   if(m_ResourceViews.Remove(hResourceView, &pResourceView))
   {
@@ -474,8 +474,8 @@ ezGALRenderTargetViewHandle ezGALDevice::CreateRenderTargetView(const ezGALRende
     return ezGALRenderTargetViewHandle();
   }
 
-  // TODO: Platform independent validation
-  // TODO: Hash description and return potential existing one (including inc. refcount)
+  /// \todo Platform independent validation
+  /// \todo Hash description and return potential existing one (including inc. refcount)
 
   ezGALRenderTargetView* pRenderTargetView = CreateRenderTargetViewPlatform(Description);
   
@@ -493,7 +493,7 @@ void ezGALDevice::DestroyRenderTargetView(ezGALRenderTargetViewHandle hRenderTar
 {
   ezGALRenderTargetView* pRenderTargetView = nullptr;
 
-  // TODO: Only remove if refcount = 0
+  /// \todo Only remove if refcount = 0
 
   if(m_RenderTargetViews.Remove(hRenderTargetView, &pRenderTargetView))
   {
@@ -509,7 +509,7 @@ void ezGALDevice::DestroyRenderTargetView(ezGALRenderTargetViewHandle hRenderTar
 
 ezGALSwapChainHandle ezGALDevice::CreateSwapChain(const ezGALSwapChainCreationDescription& Description)
 {
-  // TODO: Platform independent validation
+  /// \todo Platform independent validation
   if(Description.m_pWindow == nullptr)
   {
     ezLog::Error("The description for the swap chain creation contained an invalid (nullptr) window handle!");
@@ -545,7 +545,7 @@ void ezGALDevice::DestroySwapChain(ezGALSwapChainHandle hSwapChain)
 
 ezGALFenceHandle ezGALDevice::CreateFence()
 {
-  // TODO: Platform independent validation
+  /// \todo Platform independent validation
 
   ezGALFence* pFence = CreateFencePlatform();
   
@@ -575,7 +575,7 @@ void ezGALDevice::DestroyFence(ezGALFenceHandle& hFence)
 
 ezGALQueryHandle ezGALDevice::CreateQuery(const ezGALQueryCreationDescription& Description)
 {
-  // TODO: Platform independent validation
+  /// \todo Platform independent validation
 
   ezGALQuery* pQuery = CreateQueryPlatform(Description);
   
@@ -611,7 +611,7 @@ ezGALRenderTargetConfigHandle ezGALDevice::CreateRenderTargetConfig(const ezGALR
     return ezGALRenderTargetConfigHandle();
   }
 
-  // TODO: Hash description and return potential existing one (including inc. refcount)
+  /// \todo Hash description and return potential existing one (including inc. refcount)
 
   ezGALRenderTargetConfig* pRenderTargetConfig = CreateRenderTargetConfigPlatform(Description);
   
@@ -630,7 +630,7 @@ void ezGALDevice::DestroyRenderTargetConfig(ezGALRenderTargetConfigHandle hRende
 {
   ezGALRenderTargetConfig* pRenderTargetConfig = nullptr;
 
-  // TODO: Only remove if refcount = 0
+  /// \todo Only remove if refcount = 0
 
   if(m_RenderTargetConfigs.Remove(hRenderTargetConfig, &pRenderTargetConfig))
   {
@@ -644,8 +644,8 @@ void ezGALDevice::DestroyRenderTargetConfig(ezGALRenderTargetConfigHandle hRende
 
 ezGALVertexDeclarationHandle ezGALDevice::CreateVertexDeclaration(const ezGALVertexDeclarationCreationDescription& Description)
 {
-  // TODO: Platform independent validation
-  // TODO: Hash description and return potential existing one (including inc. refcount)
+  /// \todo Platform independent validation
+  /// \todo Hash description and return potential existing one (including inc. refcount)
 
   ezGALVertexDeclaration* pVertexDeclaration = CreateVertexDeclarationPlatform(Description);
   
@@ -678,7 +678,7 @@ void ezGALDevice::DestroyVertexDeclaration(ezGALVertexDeclarationHandle hVertexD
 
 void ezGALDevice::GetQueryData(ezGALQueryHandle hQuery, ezUInt64* puiRendererdPixels)
 {
-  // TODO: Assert on query support?
+  /// \todo Assert on query support?
 
   GetQueryDataPlatform(m_Queries[hQuery], puiRendererdPixels);
 }

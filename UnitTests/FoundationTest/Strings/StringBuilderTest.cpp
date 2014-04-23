@@ -771,13 +771,13 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
   {
     ezStringBuilder p;
 
-    p = "C:\\test/test//tut";
+    p = "C:\\temp/temp//tut";
     p.MakeCleanPath();
-    EZ_TEST_BOOL(p == "C:/test/test//tut");
+    EZ_TEST_BOOL(p == "C:/temp/temp//tut");
 
-    p = "\\test/test//tut\\\\";
+    p = "\\temp/temp//tut\\\\";
     p.MakeCleanPath();
-    EZ_TEST_BOOL(p == "/test/test//tut//");
+    EZ_TEST_BOOL(p == "/temp/temp//tut//");
 
     p = "\\";
     p.MakeCleanPath();
@@ -787,21 +787,21 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     p.MakeCleanPath();
     EZ_TEST_BOOL(p == "file");
 
-    p = "C:\\test/..//tut";
+    p = "C:\\temp/..//tut";
     p.MakeCleanPath();
     EZ_TEST_BOOL(p == "C://tut");
 
-    p = "C:\\test/..";
+    p = "C:\\temp/..";
     p.MakeCleanPath();
-    EZ_TEST_BOOL(p == "C:/test/..");
+    EZ_TEST_BOOL(p == "C:/temp/..");
 
-    p = "C:\\test/..\\";
+    p = "C:\\temp/..\\";
     p.MakeCleanPath();
     EZ_TEST_BOOL(p == "C:/");
 
-    p = "\\//test/../bla\\\\blub///..\\test//tut/tat/..\\\\..\\//ploep";
+    p = "\\//temp/../bla\\\\blub///..\\temp//tut/tat/..\\\\..\\//ploep";
     p.MakeCleanPath();
-    EZ_TEST_BOOL(p == "///bla//blub//test//tut///ploep");
+    EZ_TEST_BOOL(p == "///bla//blub//temp//tut///ploep");
 
     p = "a/b/c/../../../../e/f";
     p.MakeCleanPath();
@@ -824,13 +824,13 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
   {
     ezStringBuilder p;
 
-    p = "C:\\test/test//tut";
+    p = "C:\\temp/temp//tut";
     p.PathParentDirectory();
-    EZ_TEST_BOOL(p == "C:/test/test//");
+    EZ_TEST_BOOL(p == "C:/temp/temp//");
 
-    p = "C:\\test/test//tut\\\\";
+    p = "C:\\temp/temp//tut\\\\";
     p.PathParentDirectory();
-    EZ_TEST_BOOL(p == "C:/test/test//tut/");
+    EZ_TEST_BOOL(p == "C:/temp/temp//tut/");
 
     p = "file";
     p.PathParentDirectory();
@@ -840,7 +840,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     p.PathParentDirectory();
     EZ_TEST_BOOL(p == "/");
 
-    p = "C:\\test/..//tut";
+    p = "C:\\temp/..//tut";
     p.PathParentDirectory();
     EZ_TEST_BOOL(p == "C://");
 
@@ -1116,61 +1116,61 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     ezStringBuilder p;
 
     #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-      p = "C:\\test.stuff";
+      p = "C:\\temp.stuff";
       EZ_TEST_BOOL(p.IsAbsolutePath());
       EZ_TEST_BOOL(!p.IsRelativePath());
 
-      p = "C:/test.stuff";
+      p = "C:/temp.stuff";
       EZ_TEST_BOOL(p.IsAbsolutePath());
       EZ_TEST_BOOL(!p.IsRelativePath());
 
-      p = "\\\\myserver\\test.stuff";
+      p = "\\\\myserver\\temp.stuff";
       EZ_TEST_BOOL(p.IsAbsolutePath());
       EZ_TEST_BOOL(!p.IsRelativePath());
 
-      p = "\\myserver\\test.stuff";
+      p = "\\myserver\\temp.stuff";
       EZ_TEST_BOOL(!p.IsAbsolutePath());
       EZ_TEST_BOOL(!p.IsRelativePath()); // neither absolute nor relativ, just stupid
 
-      p = "test.stuff";
+      p = "temp.stuff";
       EZ_TEST_BOOL(!p.IsAbsolutePath());
       EZ_TEST_BOOL(p.IsRelativePath());
 
-      p = "/test.stuff";
+      p = "/temp.stuff";
       EZ_TEST_BOOL(!p.IsAbsolutePath());
       EZ_TEST_BOOL(!p.IsRelativePath()); // bloed
 
-      p = "\\test.stuff";
+      p = "\\temp.stuff";
       EZ_TEST_BOOL(!p.IsAbsolutePath());
       EZ_TEST_BOOL(!p.IsRelativePath()); // bloed
 
-      p = "..\\test.stuff";
+      p = "..\\temp.stuff";
       EZ_TEST_BOOL(!p.IsAbsolutePath());
       EZ_TEST_BOOL(p.IsRelativePath());
 
-      p = ".\\test.stuff";
+      p = ".\\temp.stuff";
       EZ_TEST_BOOL(!p.IsAbsolutePath());
       EZ_TEST_BOOL(p.IsRelativePath());
 
     #elif EZ_ENABLED(EZ_PLATFORM_OSX) || EZ_ENABLED(EZ_PLATFORM_LINUX)
   
-      p = "C:\\test.stuff";
+      p = "C:\\temp.stuff";
       EZ_TEST_BOOL(!p.IsAbsolutePath());
       EZ_TEST_BOOL(p.IsRelativePath());
   
-      p = "test.stuff";
+      p = "temp.stuff";
       EZ_TEST_BOOL(!p.IsAbsolutePath());
       EZ_TEST_BOOL(p.IsRelativePath());
   
-      p = "/test.stuff";
+      p = "/temp.stuff";
       EZ_TEST_BOOL(p.IsAbsolutePath());
       EZ_TEST_BOOL(!p.IsRelativePath());
   
-      p = "..\\test.stuff";
+      p = "..\\temp.stuff";
       EZ_TEST_BOOL(!p.IsAbsolutePath());
       EZ_TEST_BOOL(p.IsRelativePath());
   
-      p = ".\\test.stuff";
+      p = ".\\temp.stuff";
       EZ_TEST_BOOL(!p.IsAbsolutePath());
       EZ_TEST_BOOL(p.IsRelativePath());
 
@@ -1242,54 +1242,54 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
   {
     ezStringBuilder p;
 
-    p = "C:\\\\test.stuff";
+    p = "C:\\\\temp.stuff";
     p.RemoveDoubleSlashesInPath();
-    EZ_TEST_BOOL(p == "C:/test.stuff");
+    EZ_TEST_BOOL(p == "C:/temp.stuff");
 
-    p = "C://test.stuff";
+    p = "C://temp.stuff";
     p.RemoveDoubleSlashesInPath();
-    EZ_TEST_BOOL(p == "C:/test.stuff");
+    EZ_TEST_BOOL(p == "C:/temp.stuff");
 
-    p = "\\\\myserver\\test.stuff";
+    p = "\\\\myserver\\temp.stuff";
     p.RemoveDoubleSlashesInPath();
-    EZ_TEST_BOOL(p == "//myserver/test.stuff");
+    EZ_TEST_BOOL(p == "//myserver/temp.stuff");
 
-    p = "\\myserver/\\test.stuff";
+    p = "\\myserver/\\temp.stuff";
     p.RemoveDoubleSlashesInPath();
-    EZ_TEST_BOOL(p == "/myserver/test.stuff");
+    EZ_TEST_BOOL(p == "/myserver/temp.stuff");
 
-    p = "test.stuff";
+    p = "temp.stuff";
     p.RemoveDoubleSlashesInPath();
-    EZ_TEST_BOOL(p == "test.stuff");
+    EZ_TEST_BOOL(p == "temp.stuff");
 
     p = "/test.stuff";
     p.RemoveDoubleSlashesInPath();
     EZ_TEST_BOOL(p == "/test.stuff");
 
-    p = "\\/test.stuff";
+    p = "\\/temp.stuff";
     p.RemoveDoubleSlashesInPath();
-    EZ_TEST_BOOL(p == "//test.stuff");
+    EZ_TEST_BOOL(p == "//temp.stuff");
 
-    p = "..\\//test.stuff";
+    p = "..\\//temp.stuff";
     p.RemoveDoubleSlashesInPath();
-    EZ_TEST_BOOL(p == "../test.stuff");
+    EZ_TEST_BOOL(p == "../temp.stuff");
 
-    p = ".\\\\test.stuff";
+    p = ".\\\\temp.stuff";
     p.RemoveDoubleSlashesInPath();
-    EZ_TEST_BOOL(p == "./test.stuff");
+    EZ_TEST_BOOL(p == "./temp.stuff");
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "MakePathOsSpecific")
   {
     ezStringBuilder p;
-    p = "This/is\\a/test\\\\path//to/my///file";
+    p = "This/is\\a/temp\\\\path//to/my///file";
 
     p.MakePathOsSpecific();
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-    EZ_TEST_STRING(p.GetData(), "This\\is\\a\\test\\\\path\\\\to\\my\\\\\\file");
+    EZ_TEST_STRING(p.GetData(), "This\\is\\a\\temp\\\\path\\\\to\\my\\\\\\file");
 #else
-    EZ_TEST_STRING(p.GetData(), "This/is/a/test//path//to/my///file");
+    EZ_TEST_STRING(p.GetData(), "This/is/a/temp//path//to/my///file");
 #endif
 
   }

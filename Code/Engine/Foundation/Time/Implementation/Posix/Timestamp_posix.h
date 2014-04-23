@@ -22,10 +22,10 @@ bool operator!= (const tm& lhs, const tm& rhs)
   }
   else
   {
-    // TODO: check whether the times are equal if one is in dst and the other not.
-    // mktime totally ignores your settings and overwrites them, there is no easy way
-    // to check whether the times are equal when dst is involved.
-    // mktime's dst *fixup* will change hour, dst, day, month and year in the worst case.
+    /// \todo check whether the times are equal if one is in dst and the other not.
+    /// mktime totally ignores your settings and overwrites them, there is no easy way
+    /// to check whether the times are equal when dst is involved.
+    /// mktime's dst *fixup* will change hour, dst, day, month and year in the worst case.
     return false;
   }
 }

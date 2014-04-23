@@ -240,7 +240,7 @@ ezResult ezGALDeviceGL::EnsureInternOpenGLInit()
     SetupDebugOutput();
   }
 
-  // TODO: Get features of the device (depending on feature level, CheckFormat* functions etc.)
+  /// \todo Get features of the device (depending on feature level, CheckFormat* functions etc.)
 
   m_bGLInitialized = true;
 
@@ -486,7 +486,7 @@ void ezGALDeviceGL::FillFormatLookupTable()
   m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::D24S8,
         ezGALFormatLookupEntryGL(GL_DEPTH24_STENCIL8).DS(GL_DEPTH24_STENCIL8));
 
-  // Todo: glEnable(GL_FRAMEBUFFER_SRGB) should be called to guarantee that all writes to framebuffers with sRGB formats are handled properly
+  /// \todo glEnable(GL_FRAMEBUFFER_SRGB) should be called to guarantee that all writes to framebuffers with sRGB formats are handled properly
   // However, atm I'am not sure what happens to the backbuffer since it is not possible to specify a format for it.
 
   m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RGBAUByteNormalizedsRGB,
@@ -503,6 +503,6 @@ void ezGALDeviceGL::FillFormatLookupTable()
   m_FormatLookupTable.SetFormatInfo(ezGALResourceFormat::RGBAUByteNormalized,
     ezGALFormatLookupEntryGL(GL_RGBA8).RT(GL_RGBA8).RV(GL_RGBA8).VA(GL_UNSIGNED_BYTE));
 
-  // TODO fill out formats.
+  /// \todo fill out formats.
   // Can we do parts of that automatically?
 }

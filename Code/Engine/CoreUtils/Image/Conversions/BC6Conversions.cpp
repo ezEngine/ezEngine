@@ -828,7 +828,8 @@ private:
 
   static ezUInt32 ReadBits(const ezUInt8* pSource, ezUInt32 uiNumBits, ezUInt32 uiBitPosition)
   {
-    // Rely on endianness and reading 32bit at unaligned addresses... TODO: Implement for non-x86
+    // Rely on endianness and reading 32bit at unaligned addresses... 
+    /// \todo Implement for non-x86
     return (*reinterpret_cast<const ezUInt32*>(pSource + (uiBitPosition >> 3)) >> (uiBitPosition & 7)) & ((1U << uiNumBits) - 1);
 
     // Slow but platform independent version:

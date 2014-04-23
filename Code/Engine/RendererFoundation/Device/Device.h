@@ -107,7 +107,7 @@ public:
 
 
 
-  // TODO: Map functions to save on memcpys
+  /// \todo Map functions to save on memcpys
 
   // Swap chain functions
 

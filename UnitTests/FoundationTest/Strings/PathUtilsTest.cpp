@@ -99,15 +99,15 @@ EZ_CREATE_SIMPLE_TEST(Strings, PathUtils)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsAbsolutePath")
   {
     #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-      EZ_TEST_BOOL(ezPathUtils::IsAbsolutePath("C:\\test.stuff"));
-      EZ_TEST_BOOL(ezPathUtils::IsAbsolutePath("C:/test.stuff"));
-      EZ_TEST_BOOL(ezPathUtils::IsAbsolutePath("\\\\myserver\\test.stuff"));
-      EZ_TEST_BOOL(!ezPathUtils::IsAbsolutePath("\\myserver\\test.stuff"));
-      EZ_TEST_BOOL(!ezPathUtils::IsAbsolutePath("test.stuff"));
-      EZ_TEST_BOOL(!ezPathUtils::IsAbsolutePath("/test.stuff"));
-      EZ_TEST_BOOL(!ezPathUtils::IsAbsolutePath("\\test.stuff"));
-      EZ_TEST_BOOL(!ezPathUtils::IsAbsolutePath("..\\test.stuff"));
-      EZ_TEST_BOOL(!ezPathUtils::IsAbsolutePath(".\\test.stuff"));
+      EZ_TEST_BOOL(ezPathUtils::IsAbsolutePath("C:\\temp.stuff"));
+      EZ_TEST_BOOL(ezPathUtils::IsAbsolutePath("C:/temp.stuff"));
+      EZ_TEST_BOOL(ezPathUtils::IsAbsolutePath("\\\\myserver\\temp.stuff"));
+      EZ_TEST_BOOL(!ezPathUtils::IsAbsolutePath("\\myserver\\temp.stuff"));
+      EZ_TEST_BOOL(!ezPathUtils::IsAbsolutePath("temp.stuff"));
+      EZ_TEST_BOOL(!ezPathUtils::IsAbsolutePath("/temp.stuff"));
+      EZ_TEST_BOOL(!ezPathUtils::IsAbsolutePath("\\temp.stuff"));
+      EZ_TEST_BOOL(!ezPathUtils::IsAbsolutePath("..\\temp.stuff"));
+      EZ_TEST_BOOL(!ezPathUtils::IsAbsolutePath(".\\temp.stuff"));
     #elif EZ_ENABLED(EZ_PLATFORM_OSX) || EZ_ENABLED(EZ_PLATFORM_LINUX)
       EZ_TEST_BOOL(ezPathUtils::IsAbsolutePath("/usr/local/.stuff"));
       EZ_TEST_BOOL(ezPathUtils::IsAbsolutePath("/file.test"));

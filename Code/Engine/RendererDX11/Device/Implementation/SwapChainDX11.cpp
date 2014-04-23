@@ -23,13 +23,13 @@ ezResult ezGALSwapChainDX11::InitPlatform(ezGALDevice* pDevice)
   SwapChainDesc.BufferCount = m_Description.m_bDoubleBuffered ? 2 : 1;
   SwapChainDesc.BufferUsage = DXGI_USAGE_BACK_BUFFER | DXGI_USAGE_RENDER_TARGET_OUTPUT;
   SwapChainDesc.OutputWindow = m_Description.m_pWindow->GetNativeWindowHandle();
-  SwapChainDesc.SampleDesc.Count = m_Description.m_SampleCount; SwapChainDesc.SampleDesc.Quality = 0; // TODO: Get from MSAA value of the m_Description
+  SwapChainDesc.SampleDesc.Count = m_Description.m_SampleCount; SwapChainDesc.SampleDesc.Quality = 0; /// \todo Get from MSAA value of the m_Description
   SwapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
   SwapChainDesc.Windowed = m_Description.m_bFullscreen ? FALSE : TRUE;
-  SwapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH; // TODO: The mode switch needs to be handled (ResizeBuffers + communication with engine)
+  SwapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH; /// \todo The mode switch needs to be handled (ResizeBuffers + communication with engine)
 
-  // TODO: Get from enumeration of available modes
-  // TODO: (Find via format table)
+  /// \todo Get from enumeration of available modes
+  /// \todo (Find via format table)
   SwapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
   SwapChainDesc.BufferDesc.Width = m_Description.m_pWindow->GetCreationDescription().m_ClientAreaSize.width;
   SwapChainDesc.BufferDesc.Height = m_Description.m_pWindow->GetCreationDescription().m_ClientAreaSize.height;

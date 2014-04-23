@@ -21,5 +21,5 @@ inline void ezGALContext::CountRedundantStateChange()
 
 inline void ezGALContext::AssertRenderingThread()
 {
-  // TODO
+  /// \todo
 }

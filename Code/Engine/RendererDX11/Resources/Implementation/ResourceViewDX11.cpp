@@ -148,7 +148,7 @@ ezResult ezGALResourceViewDX11::InitPlatform(ezGALDevice* pDevice)
   }
   else if(pBuffer)
   {
-    // TODO:
+    /// \todo
     EZ_ASSERT_NOT_IMPLEMENTED;
   }
 

@@ -50,8 +50,8 @@ ezResult ezGALTextureGL::InitPlatform(ezGALDevice* pDevice, const ezArrayPtr<ezG
 #ifdef EZ_RENDERERGL_GL4
       bUseTextureStorage = true;
 #endif
-      ezUInt32 baseInternalFormat = GL_RGBA; // TODO
-      ezUInt32 formatType = GL_UNSIGNED_BYTE; // TODO
+      ezUInt32 baseInternalFormat = GL_RGBA; /// \todo
+      ezUInt32 formatType = GL_UNSIGNED_BYTE; /// \todo
 
       if(bUseTextureStorage)
       {
@@ -92,7 +92,7 @@ ezResult ezGALTextureGL::InitPlatform(ezGALDevice* pDevice, const ezArrayPtr<ezG
       unsigned int currentHeight = m_Description.m_uiHeight;
       for (ezUInt32 level = 0; level < m_Description.m_uiMipSliceCount; ++level)
       {
-        // TODO: Assert for pInitialData[level] sizes? Or is this the job of ezGALDevice::CreateTexture
+        /// \todo Assert for pInitialData[level] sizes? Or is this the job of ezGALDevice::CreateTexture
         void* pData = pInitialData == nullptr ? nullptr : (*pInitialData)[level].m_pData;
         if (bUseTextureStorage)
         {

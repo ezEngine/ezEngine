@@ -69,7 +69,7 @@ ezResult ezGALBufferGL::InitPlatform(ezGALDevice* pDevice, const void* pInitialD
     // Note that glCopyBufferSubData and glClearBufferSubData will always work.
     accessFlags |= GL_DYNAMIC_STORAGE_BIT;
 
-    // TODO: Allow also CPU write since there is currently no resource flag to determine if it should be illegal.
+    /// \todo Allow also CPU write since there is currently no resource flag to determine if it should be illegal.
     accessFlags |= GL_MAP_WRITE_BIT;
 
     if (m_Description.m_BufferType == ezGALBufferType::ConstantBuffer)
@@ -89,7 +89,7 @@ ezResult ezGALBufferGL::InitPlatform(ezGALDevice* pDevice, const void* pInitialD
   // For older OpenGL implementations fall back to glBufferData.
 
   // Determine access.  
-  GLenum accessFlags = GL_STATIC_DRAW; // TODO: Introduce helper-function that maps resource access to OpenGL usage.
+  GLenum accessFlags = GL_STATIC_DRAW; /// \todo Introduce helper-function that maps resource access to OpenGL usage.
   
   if (EZ_GL_CALL(glBufferData, ezGALContextGL::s_GALBufferBindingToGL[bindingTarget], m_Description.m_uiTotalSize, pInitialData, accessFlags) != EZ_SUCCESS)
     return EZ_FAILURE;

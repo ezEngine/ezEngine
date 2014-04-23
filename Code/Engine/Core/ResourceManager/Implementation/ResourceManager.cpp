@@ -23,7 +23,7 @@ ezMutex ResourceMutex;
 
 void ezResourceManager::InternalPreloadResource(ezResourceBase* pResource, bool bHighestPriority)
 {
-  // TODO: Make this publicly available
+  /// \todo Make this publicly available
 
   if (m_bStop)
     return;
@@ -66,7 +66,7 @@ void ezResourceManager::RunWorkerTask()
 
 void ezResourceManager::UpdateLoadingDeadlines()
 {
-  // TODO: don't do this too often
+  /// \todo don't do this too often
 
   const ezTime tNow = ezTime::Now();
 
@@ -75,8 +75,8 @@ void ezResourceManager::UpdateLoadingDeadlines()
 
   m_LastDeadLineUpdate = tNow;
 
-  // TODO: Allow to tweak kick out time
-  // TODO: Make sure resources that are queued here don't get deleted
+  /// \todo Allow to tweak kick out time
+  /// \todo Make sure resources that are queued here don't get deleted
 
   const ezTime tKickOut = tNow + ezTime::Seconds(30.0);
 
@@ -243,11 +243,11 @@ ezUInt32 ezResourceManager::FreeUnusedResources()
 /* Not yet good enough for prime time
 void ezResourceManager::CleanUpResources()
 {
-  // TODO: Parameter to tweak cleanup time
+  /// \todo Parameter to tweak cleanup time
 
   const ezTime tNow = ezTime::Now();
 
-  // TODO: Not so often
+  /// \todo Not so often
   {
     static ezTime tLastCleanup;
 
@@ -257,7 +257,7 @@ void ezResourceManager::CleanUpResources()
     tLastCleanup = tNow;
   }
 
-  // TODO: Lock ?
+  /// \todo Lock ?
   ezLock<ezMutex> l(ResourceMutex);
 
   for (auto it = m_LoadedResources.GetIterator(); it.IsValid();)
@@ -279,8 +279,8 @@ void ezResourceManager::CleanUpResources()
     }
     else
     {
-      // TODO: Don't remove resources unless memory threshold is reached
-      // TODO: virtual method on resource to query unload time
+      /// \todo Don't remove resources unless memory threshold is reached
+      /// \todo virtual method on resource to query unload time
 
       ezTime LastAccess = pReference->m_LastAcquire;
 

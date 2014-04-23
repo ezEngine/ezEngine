@@ -38,7 +38,7 @@ void ezGALContext::Draw(ezUInt32 uiVertexCount)
 {
   AssertRenderingThread();
 
-  // TODO: If platform indicates that non-indexed rendering is not possible bind a helper index buffer which contains continous indices (0, 1, 2, ..)
+  /// \todo If platform indicates that non-indexed rendering is not possible bind a helper index buffer which contains continous indices (0, 1, 2, ..)
 
   DrawPlatform(uiVertexCount);
 
@@ -57,7 +57,7 @@ void ezGALContext::DrawIndexed(ezUInt32 uiIndexCount, ezUInt32 uiStartIndex)
 void ezGALContext::DrawIndexedInstanced(ezUInt32 uiIndexCountPerInstance, ezUInt32 uiInstanceCount, ezUInt32 uiStartIndex)
 {
   AssertRenderingThread();
-  // TODO: Assert for instancing
+  /// \todo Assert for instancing
 
   DrawIndexedInstancedPlatform(uiIndexCountPerInstance, uiInstanceCount, uiStartIndex);
 
@@ -67,14 +67,14 @@ void ezGALContext::DrawIndexedInstanced(ezUInt32 uiIndexCountPerInstance, ezUInt
 void ezGALContext::DrawIndexedInstancedIndirect(ezGALBufferHandle hIndirectArgumentBuffer, ezUInt32 uiArgumentOffsetInBytes)
 {
   AssertRenderingThread();
-  // TODO: Assert for instancing
-  // TODO: Assert for indirect draw
-  // TODO: Assert offset < buffer size
+  /// \todo Assert for instancing
+  /// \todo Assert for indirect draw
+  /// \todo Assert offset < buffer size
 
   ezGALBuffer* pBuffer = m_pDevice->m_Buffers[hIndirectArgumentBuffer];
   EZ_ASSERT(pBuffer != nullptr, "Invalid buffer handle for indirect arguments!");
 
-  // TODO: Assert that the buffer can be used for indirect arguments (flag in desc)
+  /// \todo Assert that the buffer can be used for indirect arguments (flag in desc)
   DrawIndexedInstancedIndirectPlatform(pBuffer, uiArgumentOffsetInBytes);
 
   CountDrawCall();
@@ -83,9 +83,9 @@ void ezGALContext::DrawIndexedInstancedIndirect(ezGALBufferHandle hIndirectArgum
 void ezGALContext::DrawInstanced(ezUInt32 uiVertexCountPerInstance, ezUInt32 uiInstanceCount)
 {
   AssertRenderingThread();
-  // TODO: Assert for instancing
+  /// \todo Assert for instancing
 
-  // TODO: If platform indicates that non-indexed rendering is not possible bind a helper index buffer which contains continous indices (0, 1, 2, ..)
+  /// \todo If platform indicates that non-indexed rendering is not possible bind a helper index buffer which contains continous indices (0, 1, 2, ..)
 
   DrawInstancedPlatform(uiVertexCountPerInstance, uiInstanceCount);
 
@@ -95,14 +95,14 @@ void ezGALContext::DrawInstanced(ezUInt32 uiVertexCountPerInstance, ezUInt32 uiI
 void ezGALContext::DrawInstancedIndirect(ezGALBufferHandle hIndirectArgumentBuffer, ezUInt32 uiArgumentOffsetInBytes)
 {
   AssertRenderingThread();
-  // TODO: Assert for instancing
-  // TODO: Assert for indirect draw
-  // TODO: Assert offset < buffer size
+  /// \todo Assert for instancing
+  /// \todo Assert for indirect draw
+  /// \todo Assert offset < buffer size
 
   ezGALBuffer* pBuffer = m_pDevice->m_Buffers[hIndirectArgumentBuffer];
   EZ_ASSERT(pBuffer != nullptr, "Invalid buffer handle for indirect arguments!");
 
-  // TODO: Assert that the buffer can be used for indirect arguments (flag in desc)
+  /// \todo Assert that the buffer can be used for indirect arguments (flag in desc)
   DrawInstancedIndirectPlatform(pBuffer, uiArgumentOffsetInBytes);
 
   CountDrawCall();
@@ -111,7 +111,7 @@ void ezGALContext::DrawInstancedIndirect(ezGALBufferHandle hIndirectArgumentBuff
 void ezGALContext::DrawAuto()
 {
   AssertRenderingThread();
-  // TODO: Assert for draw auto support
+  /// \todo Assert for draw auto support
 
   DrawAutoPlatform();
 
@@ -121,7 +121,7 @@ void ezGALContext::DrawAuto()
 void ezGALContext::BeginStreamOut()
 {
   AssertRenderingThread();
-  // TODO: Assert for streamout support
+  /// \todo Assert for streamout support
 
   BeginStreamOutPlatform();
 }
@@ -138,7 +138,7 @@ void ezGALContext::EndStreamOut()
 void ezGALContext::Dispatch(ezUInt32 uiThreadGroupCountX, ezUInt32 uiThreadGroupCountY, ezUInt32 uiThreadGroupCountZ)
 {
   AssertRenderingThread();
-  // TODO: Assert for compute
+  /// \todo Assert for compute
 
   DispatchPlatform(uiThreadGroupCountX, uiThreadGroupCountY, uiThreadGroupCountZ);
 
@@ -148,14 +148,14 @@ void ezGALContext::Dispatch(ezUInt32 uiThreadGroupCountX, ezUInt32 uiThreadGroup
 void ezGALContext::DispatchIndirect(ezGALBufferHandle hIndirectArgumentBuffer, ezUInt32 uiArgumentOffsetInBytes)
 {
   AssertRenderingThread();
-  // TODO: Assert for compute
-  // TODO: Assert for indirect dispatch
-  // TODO: Assert offset < buffer size
+  /// \todo Assert for compute
+  /// \todo Assert for indirect dispatch
+  /// \todo Assert offset < buffer size
 
   ezGALBuffer* pBuffer = m_pDevice->m_Buffers[hIndirectArgumentBuffer];
   EZ_ASSERT(pBuffer != nullptr, "Invalid buffer handle for indirect arguments!");
 
-  // TODO: Assert that the buffer can be used for indirect arguments (flag in desc)
+  /// \todo Assert that the buffer can be used for indirect arguments (flag in desc)
   DispatchIndirectPlatform(pBuffer, uiArgumentOffsetInBytes);
 
   CountDispatchCall();
@@ -165,7 +165,7 @@ void ezGALContext::DispatchIndirect(ezGALBufferHandle hIndirectArgumentBuffer, e
 void ezGALContext::SetShader(ezGALShaderHandle hShader)
 {
   AssertRenderingThread();
-  // TODO: Assert for shader capabilities (supported shader stages etc.)
+  /// \todo Assert for shader capabilities (supported shader stages etc.)
 
   if (m_State.m_hShader == hShader)
   {
@@ -192,7 +192,7 @@ void ezGALContext::SetIndexBuffer(ezGALBufferHandle hIndexBuffer)
 
   ezGALBuffer* pBuffer = nullptr;
   m_pDevice->m_Buffers.TryGetValue(hIndexBuffer, pBuffer);
-  // TODO: Assert on index buffer type (if non nullptr)
+  /// \todo Assert on index buffer type (if non nullptr)
   // Note that GL4 can bind arbitrary buffer to arbitrary binding points (index/vertex/transformfeedback/indirect-draw/...)
 
   SetIndexBufferPlatform(pBuffer);
@@ -274,7 +274,7 @@ void ezGALContext::SetConstantBuffer(ezUInt32 uiSlot, ezGALBufferHandle hBuffer)
   // Assert on constant buffer type (if non-zero)
   // Note that GL4 can bind arbitrary buffer to arbitrary binding points (index/vertex/transformfeedback/indirect-draw/...)
 
-  // TODO: Get buffer by handle
+  /// \todo Get buffer by handle
   SetConstantBufferPlatform(uiSlot, pBuffer);
 
   m_State.m_hConstantBuffers[uiSlot] = hBuffer;
@@ -346,7 +346,7 @@ void ezGALContext::SetRenderTargetConfig(ezGALRenderTargetConfigHandle hRenderTa
 void ezGALContext::SetUnorderedAccessView(ezUInt32 uiSlot, ezGALResourceViewHandle hResourceView)
 {
   AssertRenderingThread();
-  // TODO
+  /// \todo
   EZ_REPORT_FAILURE("not implemented");
 }
 
@@ -477,20 +477,20 @@ void ezGALContext::WaitForFence(ezGALFenceHandle hFence)
 {
   AssertRenderingThread();
 
-  m_pDevice->Flush(); // TODO - make this toggleable
+  m_pDevice->Flush(); /// \todo - make this toggleable
 
   ezGALFence* pPlatformSpecificFence = m_pDevice->m_Fences[hFence];
 
   while (!IsFenceReachedPlatform(pPlatformSpecificFence))
   {
-    ezThreadUtils::YieldTimeSlice(); // TODO: Spin lock count perhaps?
+    ezThreadUtils::YieldTimeSlice(); /// \todo Spin lock count perhaps?
   }
 }
 
 void ezGALContext::BeginQuery(ezGALQueryHandle hQuery)
 {
   AssertRenderingThread();
-  // TODO: Assert on query support?
+  /// \todo Assert on query support?
 
   BeginQueryPlatform(m_pDevice->m_Queries[hQuery]);
 }
@@ -498,8 +498,8 @@ void ezGALContext::BeginQuery(ezGALQueryHandle hQuery)
 void ezGALContext::EndQuery(ezGALQueryHandle hQuery)
 {
   AssertRenderingThread();
-  // TODO: Assert on query support?
-  // TODO: Assert on query started
+  /// \todo Assert on query support?
+  /// \todo Assert on query started
 
   EndQueryPlatform(m_pDevice->m_Queries[hQuery]);
 }
@@ -584,7 +584,7 @@ void ezGALContext::CopyTextureRegion(ezGALTextureHandle hDest, const ezGALTextur
 {
   AssertRenderingThread();
 
-  // TODO
+  /// \todo
   EZ_REPORT_FAILURE("Not implemented!");
 }
 

@@ -45,13 +45,13 @@ ezResult ezGALVertexDeclarationGL::InitPlatform(ezGALDevice* pDevice)
       return EZ_FAILURE;
     }
 
-    // TODO: How to handle exotic formats like GL_INT_2_10_10_10_REV? They need channel count 1!
+    /// \todo How to handle exotic formats like GL_INT_2_10_10_10_REV? They need channel count 1!
 
     m_AttributesGL[i].uiBufferIndex = vertexAttrib.m_uiVertexBufferSlot;
     m_AttributesGL[i].uiStride = uiStrides[vertexAttrib.m_uiVertexBufferSlot];
     m_AttributesGL[i].uiOffset = vertexAttrib.m_uiOffset;
     m_AttributesGL[i].uiChannelCount = ezGALResourceFormat::GetChannelCount(vertexAttrib.m_eFormat);
-    m_AttributesGL[i].bNormalized = true; // TODO
+    m_AttributesGL[i].bNormalized = true; /// \todo
     m_AttributesGL[i].uiDivisor = vertexAttrib.m_bInstanceData ? 0 : 1;
     m_AttributesGL[i].uiFormat = formatInfo.m_eVertexAttributeType;
   }

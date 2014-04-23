@@ -171,7 +171,7 @@ void ezStandardJSONWriter::WriteString(const char* value)
 
 void ezStandardJSONWriter::WriteNULL()
 {
-  /// \test
+  /// \test this is new
 
   CommaWriter cw(this);
 
@@ -185,7 +185,7 @@ void ezStandardJSONWriter::WriteTime(ezTime value)
 
 void ezStandardJSONWriter::WriteColor(const ezColor& value)
 {
-  /// \test
+  /// \test this is new
 
   ezVec4 temp = value;
 

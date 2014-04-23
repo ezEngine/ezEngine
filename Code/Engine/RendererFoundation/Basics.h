@@ -65,7 +65,7 @@ struct ezGALPrimitiveTopology
   {
     Triangles,
 
-    // TODO
+    /// \todo
 
     ENUM_COUNT
   };

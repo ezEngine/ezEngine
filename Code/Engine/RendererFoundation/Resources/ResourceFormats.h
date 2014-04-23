@@ -107,7 +107,7 @@ struct ezGALResourceFormat
   /// \brief The number of color channels this format contains.
   EZ_RENDERERFOUNDATION_DLL static ezUInt8 GetChannelCount(ezGALResourceFormat::Enum format)  { return ChannelCount[format]; }
 
-  // TODO: A combination of propertyflags, something like srgb, normalized, ...
+  /// \todo A combination of propertyflags, something like srgb, normalized, ...
   // Would be very useful for some GL stuff and Testing.
 
 private:

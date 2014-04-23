@@ -12,7 +12,7 @@ typedef ezGALFormatLookupTable<ezGALFormatLookupEntryGL> ezGALFormatLookupTableG
 class EZ_RENDERERGL_DLL ezGALDeviceGL : public ezGALDevice
 {
 
-  // TODO: This shouldn't be accessible, there should be a factory instantiating the correct renderer class via RTTI for example
+  /// \todo This shouldn't be accessible, there should be a factory instantiating the correct renderer class via RTTI for example
 public:
 
   ezGALDeviceGL(const ezGALDeviceCreationDescription& Description);

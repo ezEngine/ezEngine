@@ -60,7 +60,7 @@ ezResult ezGALShaderGL::CompileShader(glProgramId& dstProgram, glShaderId& dstSh
 
       if (strlen(pInfoLog.GetPtr()) > 0)
       {
-        // TODO: We need a name for the shader, otherwise this log message is not very useful!
+        /// \todo We need a name for the shader, otherwise this log message is not very useful!
         ezLog::Error("Shader compile failed! Output: %s", pInfoLog.GetPtr());
       }
 
@@ -77,11 +77,11 @@ ezResult ezGALShaderGL::CompileShader(glProgramId& dstProgram, glShaderId& dstSh
 
 ezResult ezGALShaderGL::InitPlatform(ezGALDevice* pDevice)
 {
-  // TODO: Maybe it would be a good idea to check if incoming shaders were already compiled
+  /// \todo Maybe it would be a good idea to check if incoming shaders were already compiled
   // This way a "screenTri VS" wouldn't need to be compiled again and again.
   
   // Create program. 
-  // TODO: This won't work as the macro always calls the version that uses vargs.
+  /// \todo This won't work as the macro always calls the version that uses vargs.
   //m_Program = EZ_GL_RET_CALL(glCreateProgram);
   m_Program = ezGLIsCall("glCreateProgram", glCreateProgram);
     
@@ -148,7 +148,7 @@ ezResult ezGALShaderGL::InitPlatform(ezGALDevice* pDevice)
 
       if (strlen(pInfoLog.GetPtr()) > 0)
       {
-        // TODO: We need a name for the shader, otherwise this log message is not very useful!
+        /// \todo We need a name for the shader, otherwise this log message is not very useful!
         ezLog::Error("Shader program linking failed! Output: %s", pInfoLog.GetPtr());
       }
     }

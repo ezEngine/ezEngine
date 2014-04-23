@@ -113,7 +113,7 @@ ezResult ezGALDeviceDX11::InitPlatform()
   // Fill lookup table
   FillFormatLookupTable();
 
-  // TODO: Get features of the device (depending on feature level, CheckFormat* functions etc.)
+  /// \todo Get features of the device (depending on feature level, CheckFormat* functions etc.)
 
   return EZ_SUCCESS;
 }
@@ -311,7 +311,7 @@ void ezGALDeviceDX11::DestroyRenderTargetViewPlatform(ezGALRenderTargetView* pRe
 
 // Other rendering creation functions
 
-// TODO: Move the real code creating things to the implementation files (all?)
+/// \todo Move the real code creating things to the implementation files (all?)
 ezGALSwapChain* ezGALDeviceDX11::CreateSwapChainPlatform(const ezGALSwapChainCreationDescription& Description)
 {
   ezGALSwapChainDX11* pSwapChain = EZ_DEFAULT_NEW(ezGALSwapChainDX11)(Description);

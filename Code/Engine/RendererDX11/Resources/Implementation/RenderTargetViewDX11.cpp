@@ -50,7 +50,7 @@ ezResult ezGALRenderTargetViewDX11::InitPlatform(ezGALDevice* pDevice)
   }
   else if(pBuffer)
   {
-    // TODO
+    /// \todo
   }
 
   ezGALDeviceDX11* pDXDevice = static_cast<ezGALDeviceDX11*>(pDevice);

@@ -46,7 +46,7 @@ void ezImageFormat::Startup()
 #define DEFINE_FORMAT(format, bpp, redmask, greenmask, bluemask, alphamask, type) \
   s_formatMetaData[format] = ezImageFormatMetaData(#format, bpp, redmask, greenmask, bluemask, alphamask, ezImageFormatType::type)
 
-  //TODO: RGBA masks for all formats
+  /// \todo RGBA masks for all formats
 	DEFINE_FORMAT(UNKNOWN, 0, 0, 0, 0, 0, UNKNOWN);
 
   DEFINE_FORMAT(R32G32B32A32_TYPELESS, 128, 0, 0, 0, 0, LINEAR);

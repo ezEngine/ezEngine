@@ -21,7 +21,7 @@ const ezUInt32 ezGALContextGL::s_GALTopologyToGL[ezGALPrimitiveTopology::ENUM_CO
 {
   GL_TRIANGLES
 
-  // TODO: Add other primitive types (when adding to ez enum)
+  /// \todo Add other primitive types (when adding to ez enum)
 };
 /*
 GL_POINTS,
@@ -319,7 +319,7 @@ void ezGALContextGL::FlushDeferredStateChanges()
   {
     EZ_ASSERT(m_pBoundVertexAttributes != nullptr, "No vertex declaration is set!");
 
-    // TODO: GL4 Together with glVertexAttribPointer
+    /// \todo GL4 Together with glVertexAttribPointer
     //glBindVertexBuffers(0, EZ_GAL_MAX_VERTEX_BUFFER_COUNT, m_BoundVertexBuffers, nullptr, m_VertexBufferStrides);
     //EZ_RENDERERGL_CHECK_GL_ERROR("glBindVertexBuffers");
 
@@ -439,7 +439,7 @@ void ezGALContextGL::SetSamplerStatePlatform(ezGALShaderStage::Enum Stage, ezUIn
 
 void ezGALContextGL::SetResourceViewPlatform(ezGALShaderStage::Enum Stage, ezUInt32 uiSlot, ezGALResourceView* pResourceView)
 {
-  // TODO: GL4 TextureViews
+  /// \todo GL4 TextureViews
   // For every other GL version there should be nothing left to do.
 }
 
@@ -564,7 +564,7 @@ void ezGALContextGL::SetRasterizerStatePlatform(ezGALRasterizerState* pRasterize
     SetGLState(GL_MULTISAMPLE, false);
   }
 
-  // TODO:
+  /// \todo
     /*
   ezInt32 m_iDepthBias;
   float m_fDepthBiasClamp;
@@ -636,7 +636,7 @@ void ezGALContextGL::UpdateBufferPlatform(ezGALBuffer* pDestination, ezUInt32 ui
 {
   ezGALBufferGL* pBufferGL = static_cast<ezGALBufferGL*>(pDestination);
 
-  // TODO: All those glGetIntegerv should be avoided! Need to store gl state somewhere
+  /// \todo All those glGetIntegerv should be avoided! Need to store gl state somewhere
   glBufferId bufferBoundBefore = EZ_RENDERERGL_INVALID_ID;
   EZ_GL_CALL(glGetIntegerv, GL_UNIFORM_BUFFER_BINDING, reinterpret_cast<GLint*>(&bufferBoundBefore));
   

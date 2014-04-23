@@ -25,7 +25,7 @@ ezResult ezGALTextureDX11::InitPlatform(ezGALDevice* pDevice, const ezArrayPtr<e
 
   if(m_Description.m_pExisitingNativeObject != nullptr)
   {
-    // TODO: Validation if interface of corresponding texture object exists
+    /// \todo Validation if interface of corresponding texture object exists
     m_pDXTexture = static_cast<ID3D11Resource*>(m_Description.m_pExisitingNativeObject);
 
     if (!m_Description.m_ResourceAccess.IsImmutable() || m_Description.m_ResourceAccess.m_bReadBack)
@@ -49,7 +49,7 @@ ezResult ezGALTextureDX11::InitPlatform(ezGALDevice* pDevice, const ezArrayPtr<e
         if(m_Description.m_bAllowUAV)
           Tex2DDesc.BindFlags |= D3D11_BIND_UNORDERED_ACCESS;
         if(m_Description.m_bCreateRenderTarget)
-          Tex2DDesc.BindFlags |= (m_Description.m_Format == ezGALResourceFormat::D24S8 ? D3D11_BIND_DEPTH_STENCIL : D3D11_BIND_RENDER_TARGET); // TODO: Get format info!
+          Tex2DDesc.BindFlags |= (m_Description.m_Format == ezGALResourceFormat::D24S8 ? D3D11_BIND_DEPTH_STENCIL : D3D11_BIND_RENDER_TARGET); /// \todo Get format info!
 
         Tex2DDesc.CPUAccessFlags = 0; // We always use staging textures to update the data
         Tex2DDesc.Usage = m_Description.m_ResourceAccess.IsImmutable() ? D3D11_USAGE_IMMUTABLE : D3D11_USAGE_DEFAULT;

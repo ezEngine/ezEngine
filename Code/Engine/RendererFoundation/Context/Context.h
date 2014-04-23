@@ -220,7 +220,7 @@ protected:
 
   virtual void ReadbackTexturePlatform(ezGALTexture* pTexture) = 0;
 
-  // TODO: add parameters for mip level & count selection?
+  /// \todo add parameters for mip level & count selection?
   virtual void CopyTextureReadbackResultPlatform(ezGALTexture* pTexture, const ezArrayPtr<ezGALSystemMemoryDescription>* pData) = 0;
 
   // Debug helper functions

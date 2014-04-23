@@ -130,7 +130,7 @@ ezResult ezGALSamplerStateGL::InitPlatform(ezGALDevice* pDevice)
   }
 
 
-  // TODO:
+  /// \todo
   /*
 
     ezGALCompareFunc::Enum m_SampleCompareFunc;
