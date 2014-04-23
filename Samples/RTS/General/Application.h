@@ -16,10 +16,10 @@ class SampleGameApp : public ezApplication
 public:
   SampleGameApp();
 
-  virtual void AfterEngineInit() EZ_OVERRIDE;
-  virtual void BeforeEngineShutdown() EZ_OVERRIDE;
+  virtual void AfterEngineInit() override;
+  virtual void BeforeEngineShutdown() override;
 
-  virtual ezApplication::ApplicationExecution Run() EZ_OVERRIDE;
+  virtual ezApplication::ApplicationExecution Run() override;
 
   ezVec2I32 GetPickedGridCell(ezVec3* out_vIntersection = nullptr) const;
 

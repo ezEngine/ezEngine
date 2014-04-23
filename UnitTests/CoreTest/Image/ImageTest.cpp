@@ -12,7 +12,7 @@ EZ_CREATE_SIMPLE_TEST_GROUP(Image);
 
 class ezLogIgnore : public ezLogInterface
 {
-  virtual void HandleLogMessage(const ezLoggingEventData& le) EZ_OVERRIDE
+  virtual void HandleLogMessage(const ezLoggingEventData& le) override
   {
   }
 };

@@ -78,7 +78,7 @@ class EZ_FOUNDATION_DLL ezGlobalLog : public ezLogInterface
 public:
   static ezGlobalLog* GetInstance();
 
-  virtual void HandleLogMessage(const ezLoggingEventData& le) EZ_OVERRIDE;
+  virtual void HandleLogMessage(const ezLoggingEventData& le) override;
 
   /// \brief LogLevel is between ezLogEventType::None and ezLogEventType::All and defines which messages will be logged and which will be filtered out.
   static void SetLogLevel(ezLogMsgType::Enum LogLevel);

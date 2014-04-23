@@ -36,9 +36,9 @@ protected:
 
   virtual ~ezGALSwapChainGL();
 
-  virtual ezResult InitPlatform(ezGALDevice* pDevice) EZ_OVERRIDE;
+  virtual ezResult InitPlatform(ezGALDevice* pDevice) override;
 
-  virtual ezResult DeInitPlatform(ezGALDevice* pDevice) EZ_OVERRIDE;
+  virtual ezResult DeInitPlatform(ezGALDevice* pDevice) override;
 
   /// \brief Copies backbuffer texture to actual backbuffer and performs OS dependent swap.
   void SwapBuffers(ezGALDevice* pDevice);

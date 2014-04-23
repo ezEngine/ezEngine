@@ -26,7 +26,7 @@ public:
     ezMemoryStreamReader m_Reader;
   };
 
-  virtual ezResourceLoadData OpenDataStream(const ezResourceBase* pResource) EZ_OVERRIDE
+  virtual ezResourceLoadData OpenDataStream(const ezResourceBase* pResource) override
   {
     ezFileReader File;
 
@@ -57,7 +57,7 @@ public:
     return LoaderData;
   }
 
-  virtual void CloseDataStream(const ezResourceBase* pResource, const ezResourceLoadData& LoaderData) EZ_OVERRIDE
+  virtual void CloseDataStream(const ezResourceBase* pResource, const ezResourceLoadData& LoaderData) override
   {
     Data* pData = (Data*) LoaderData.m_pCustomLoaderData;
 

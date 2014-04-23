@@ -97,7 +97,7 @@ class Derived1 : public Base
 public:
   EZ_NO_INLINE ezInt32 EZ_FASTCALL FastCall() { return 1; }
   EZ_NO_INLINE ezInt32 NonVirtual() { return 1; }
-  EZ_NO_INLINE virtual ezInt32 Virtual() EZ_OVERRIDE { return 1; }
+  EZ_NO_INLINE virtual ezInt32 Virtual() override { return 1; }
   EZ_NO_INLINE void OnGetValueMessage(GetValueMessage& msg) { msg.m_iValue = 1; }
 };
 
@@ -113,7 +113,7 @@ class Derived2 : public Base
 public:
   EZ_NO_INLINE ezInt32 EZ_FASTCALL FastCall() { return 2; }
   EZ_NO_INLINE ezInt32 NonVirtual() { return 2; }
-  EZ_NO_INLINE virtual ezInt32 Virtual() EZ_OVERRIDE { return 2; }
+  EZ_NO_INLINE virtual ezInt32 Virtual() override { return 2; }
   EZ_NO_INLINE void OnGetValueMessage(GetValueMessage& msg) { msg.m_iValue = 2; }
 };
 

@@ -24,7 +24,7 @@ public:
   ///
   /// It is valid to pass nullptr for pReadBuffer, in this case the memory stream position is only advanced by the given number of bytes.
   /// However, since this is a compressed stream, the decompression still needs to be done, so this won't save any time.
-  virtual ezUInt64 ReadBytes(void* pReadBuffer, ezUInt64 uiBytesToRead) EZ_OVERRIDE; // [tested]
+  virtual ezUInt64 ReadBytes(void* pReadBuffer, ezUInt64 uiBytesToRead) override; // [tested]
 
 private:
   bool m_bReachedEnd;
@@ -67,7 +67,7 @@ public:
   /// \brief Compresses \a uiBytesToWrite from \a pWriteBuffer.
   ///
   /// Will output bursts of 256 bytes to the output stream every once in a while.
-  virtual ezResult WriteBytes(const void* pWriteBuffer, ezUInt64 uiBytesToWrite) EZ_OVERRIDE; // [tested]
+  virtual ezResult WriteBytes(const void* pWriteBuffer, ezUInt64 uiBytesToWrite) override; // [tested]
 
   /// \brief Finishes the stream and writes all remaining data to the output stream.
   ///

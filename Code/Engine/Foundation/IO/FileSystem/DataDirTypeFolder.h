@@ -23,17 +23,17 @@ namespace ezDataDirectory
   protected:
     // The implementations of the abstract functions.
 
-    virtual ezDataDirectoryReader* OpenFileToRead(const char* szFile) EZ_OVERRIDE;
-    virtual ezDataDirectoryWriter* OpenFileToWrite(const char* szFile) EZ_OVERRIDE;
-    virtual void RemoveDataDirectory() EZ_OVERRIDE;
-    virtual void DeleteFile(const char* szFile) EZ_OVERRIDE;
+    virtual ezDataDirectoryReader* OpenFileToRead(const char* szFile) override;
+    virtual ezDataDirectoryWriter* OpenFileToWrite(const char* szFile) override;
+    virtual void RemoveDataDirectory() override;
+    virtual void DeleteFile(const char* szFile) override;
 
   private:
     /// \brief Called by 'ezDataDirectoryType_Folder::Factory'
-    virtual ezResult InternalInitializeDataDirectory(const char* szDirectory) EZ_OVERRIDE;
+    virtual ezResult InternalInitializeDataDirectory(const char* szDirectory) override;
 
     /// \brief Marks the given reader/writer as reusable.
-    virtual void OnReaderWriterClose(ezDataDirectoryReaderWriterBase* pClosed) EZ_OVERRIDE;
+    virtual void OnReaderWriterClose(ezDataDirectoryReaderWriterBase* pClosed) override;
 
     ezHybridArray<ezDataDirectory::FolderReader*, 4> m_Readers;
     ezHybridArray<ezDataDirectory::FolderWriter*, 4> m_Writers;
@@ -47,12 +47,12 @@ namespace ezDataDirectory
 
   public:
     FolderReader() { m_bIsInUse = false; } 
-    virtual ezUInt64 Read(void* pBuffer, ezUInt64 uiBytes) EZ_OVERRIDE;
-    virtual ezUInt64 GetFileSize() const EZ_OVERRIDE;
+    virtual ezUInt64 Read(void* pBuffer, ezUInt64 uiBytes) override;
+    virtual ezUInt64 GetFileSize() const override;
 
   private:
-    virtual ezResult InternalOpen() EZ_OVERRIDE;
-    virtual void InternalClose() EZ_OVERRIDE;
+    virtual ezResult InternalOpen() override;
+    virtual void InternalClose() override;
 
     friend class FolderType;
 
@@ -67,12 +67,12 @@ namespace ezDataDirectory
 
   public:
     FolderWriter() { m_bIsInUse = false; }
-    virtual ezResult Write(const void* pBuffer, ezUInt64 uiBytes) EZ_OVERRIDE;
-    virtual ezUInt64 GetFileSize() const EZ_OVERRIDE;
+    virtual ezResult Write(const void* pBuffer, ezUInt64 uiBytes) override;
+    virtual ezUInt64 GetFileSize() const override;
 
   private:
-    virtual ezResult InternalOpen() EZ_OVERRIDE;
-    virtual void InternalClose() EZ_OVERRIDE;
+    virtual ezResult InternalOpen() override;
+    virtual void InternalClose() override;
 
     friend class FolderType;
 

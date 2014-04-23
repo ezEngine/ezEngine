@@ -12,7 +12,7 @@ namespace
     {
     }
 
-    virtual ezResult Initialize() EZ_OVERRIDE
+    virtual ezResult Initialize() override
     {
       auto desc = EZ_CREATE_COMPONENT_UPDATE_FUNCTION_DESC(TestComponentManager::Update, this);
       auto desc2 = EZ_CREATE_COMPONENT_UPDATE_FUNCTION_DESC(TestComponentManager::Update2, this);

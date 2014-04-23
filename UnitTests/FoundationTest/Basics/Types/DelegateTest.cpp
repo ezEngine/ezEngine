@@ -34,7 +34,7 @@ namespace
       return b + 4;
     }
 
-    virtual ezInt32 VirtualMethod(ezInt32 b) EZ_OVERRIDE
+    virtual ezInt32 VirtualMethod(ezInt32 b) override
     {
       return b + 43;
     }

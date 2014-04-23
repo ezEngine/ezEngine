@@ -85,14 +85,14 @@ public:
   };
 
 public: //QAbstractItemModel interface
-  virtual QVariant data(const QModelIndex& index, int role) const EZ_OVERRIDE;
-  virtual Qt::ItemFlags flags(const QModelIndex& index) const EZ_OVERRIDE;
-  virtual QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const EZ_OVERRIDE;
-  virtual QModelIndex index(int row, int column, const QModelIndex& parent = QModelIndex()) const EZ_OVERRIDE;
-  virtual QModelIndex parent(const QModelIndex& index) const EZ_OVERRIDE;
-  virtual int rowCount(const QModelIndex& parent = QModelIndex()) const EZ_OVERRIDE;
-  virtual int columnCount(const QModelIndex& parent = QModelIndex()) const EZ_OVERRIDE;
-  virtual bool setData(const QModelIndex& index, const QVariant& value, int role = Qt::EditRole) EZ_OVERRIDE;
+  virtual QVariant data(const QModelIndex& index, int role) const override;
+  virtual Qt::ItemFlags flags(const QModelIndex& index) const override;
+  virtual QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
+  virtual QModelIndex index(int row, int column, const QModelIndex& parent = QModelIndex()) const override;
+  virtual QModelIndex parent(const QModelIndex& index) const override;
+  virtual int rowCount(const QModelIndex& parent = QModelIndex()) const override;
+  virtual int columnCount(const QModelIndex& parent = QModelIndex()) const override;
+  virtual bool setData(const QModelIndex& index, const QVariant& value, int role = Qt::EditRole) override;
 
 public slots:
   void UpdateModel();

@@ -7,7 +7,7 @@ template<typename Impl>
 struct ezImageConversionMixinBase : public ezImageConversionBase
 {
   /// \brief Converts an image by iterating over all subimages and calling the implementation.
-  virtual ezResult DoConvert(const ezImage& source, ezImage& target, ezImageFormat::Enum targetFormat) const EZ_OVERRIDE
+  virtual ezResult DoConvert(const ezImage& source, ezImage& target, ezImageFormat::Enum targetFormat) const override
   {
     EZ_ASSERT(
       ezImageFormat::GetBitsPerPixel(source.GetImageFormat()) == Impl::s_uiSourceBpp &&

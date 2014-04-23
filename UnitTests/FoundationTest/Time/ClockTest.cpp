@@ -5,12 +5,12 @@
 class ezSimpleTimeStepSmoother : public ezTimeStepSmoothing
 {
 public:
-  virtual ezTime GetSmoothedTimeStep(ezTime RawTimeStep, const ezClock* pClock) EZ_OVERRIDE
+  virtual ezTime GetSmoothedTimeStep(ezTime RawTimeStep, const ezClock* pClock) override
   {
     return ezTime::Seconds(0.42);
   }
 
-  virtual void Reset(const ezClock* pClock) EZ_OVERRIDE
+  virtual void Reset(const ezClock* pClock) override
   {
   }
 };

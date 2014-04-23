@@ -95,7 +95,7 @@ private:
   // For display purposes.
   ezUInt8 m_uiWorkerThreadNumber;
 
-  virtual ezUInt32 Run() EZ_OVERRIDE;
+  virtual ezUInt32 Run() override;
 
   // Computes the thread utilization by dividing the thread active time by the time that has passed since the last update.
   void ComputeThreadUtilization(ezTime TimePassed);

@@ -96,7 +96,7 @@ namespace ezInternal
   
     struct UpdateTask : public ezTask
     {
-      virtual void Execute() EZ_OVERRIDE;
+      virtual void Execute() override;
 
       UpdateFunction m_Function;
       ezUInt32 m_uiStartIndex;

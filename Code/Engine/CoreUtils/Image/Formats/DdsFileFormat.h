@@ -5,10 +5,10 @@
 class EZ_COREUTILS_DLL ezDdsFileFormat : public ezImageFileFormatBase
 {
 public:
-  virtual ezResult ReadImage(ezStreamReaderBase& stream, ezImage& image, ezLogInterface* pLog) const EZ_OVERRIDE;
-  virtual ezResult WriteImage(ezStreamWriterBase& stream, const ezImage& image, ezLogInterface* pLog) const EZ_OVERRIDE;
+  virtual ezResult ReadImage(ezStreamReaderBase& stream, ezImage& image, ezLogInterface* pLog) const override;
+  virtual ezResult WriteImage(ezStreamWriterBase& stream, const ezImage& image, ezLogInterface* pLog) const override;
 
-  virtual bool CanReadFileType (const char* szExtension) const EZ_OVERRIDE;
-  virtual bool CanWriteFileType(const char* szExtension) const EZ_OVERRIDE;
+  virtual bool CanReadFileType (const char* szExtension) const override;
+  virtual bool CanWriteFileType(const char* szExtension) const override;
 
 };

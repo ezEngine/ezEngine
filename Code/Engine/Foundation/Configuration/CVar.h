@@ -213,8 +213,8 @@ public:
   /// In that case only the 'Restart' value is modified.
   void operator= (const Type& value); // [tested]
 
-  virtual ezCVarType::Enum GetType() const EZ_OVERRIDE;
-  virtual void SetToRestartValue() EZ_OVERRIDE;
+  virtual ezCVarType::Enum GetType() const override;
+  virtual void SetToRestartValue() override;
 
 private:
   friend class ezCVar;

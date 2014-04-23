@@ -50,7 +50,7 @@ class TestWindow : public ezWindow
       m_bCloseRequested = false;
     }
 
-    virtual void OnClickCloseMessage() EZ_OVERRIDE
+    virtual void OnClickCloseMessage() override
     {
       m_bCloseRequested = true;
     }
@@ -71,7 +71,7 @@ class BasicRendering : public ezApplication
 {
 public:
 
-  void AfterEngineInit() EZ_OVERRIDE
+  void AfterEngineInit() override
   {
     ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
     ezFileSystem::AddDataDirectory("");
@@ -222,7 +222,7 @@ public:
   }
 
 
-  ApplicationExecution Run() EZ_OVERRIDE
+  ApplicationExecution Run() override
   {
     m_pWindow->ProcessWindowMessages();
 
@@ -333,7 +333,7 @@ public:
     return ezApplication::Continue;
   }
 
-  void BeforeEngineShutdown() EZ_OVERRIDE
+  void BeforeEngineShutdown() override
   {
     EZ_DEFAULT_DELETE(m_pObj);
 

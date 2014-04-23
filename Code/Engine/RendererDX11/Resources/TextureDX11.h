@@ -22,9 +22,9 @@ protected:
 
   ~ezGALTextureDX11();
 
-  virtual ezResult InitPlatform(ezGALDevice* pDevice, const ezArrayPtr<ezGALSystemMemoryDescription>* pInitialData) EZ_OVERRIDE;
+  virtual ezResult InitPlatform(ezGALDevice* pDevice, const ezArrayPtr<ezGALSystemMemoryDescription>* pInitialData) override;
 
-  virtual ezResult DeInitPlatform(ezGALDevice* pDevice) EZ_OVERRIDE;
+  virtual ezResult DeInitPlatform(ezGALDevice* pDevice) override;
 
   ezResult CreateStagingTexture(ezGALDeviceDX11* pDevice);
 

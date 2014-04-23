@@ -13,9 +13,9 @@ public:
     m_Func = f;
   }
 
-  ezUInt32 GetNumParameters() const EZ_OVERRIDE { return ARG_COUNT; }
+  ezUInt32 GetNumParameters() const override { return ARG_COUNT; }
 
-  virtual ezVariant::Type::Enum GetParameterType(ezUInt32 uiParam) const EZ_OVERRIDE
+  virtual ezVariant::Type::Enum GetParameterType(ezUInt32 uiParam) const override
   {
     EZ_ASSERT(uiParam < GetNumParameters(), "Invalid Parameter Index %d", uiParam);
 
@@ -52,7 +52,7 @@ public:
     return ezVariant::Type::Invalid;
   }
 
-  virtual ezResult Call(ezArrayPtr<ezVariant> params) EZ_OVERRIDE
+  virtual ezResult Call(ezArrayPtr<ezVariant> params) override
   {
     ezResult r = EZ_FAILURE;
 

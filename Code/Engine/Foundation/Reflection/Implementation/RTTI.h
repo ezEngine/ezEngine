@@ -132,17 +132,17 @@ struct EZ_FOUNDATION_DLL ezRTTIAllocator
 struct EZ_FOUNDATION_DLL ezRTTINoAllocator : public ezRTTIAllocator
 {
   /// \brief Returns false, because this type of allocator is used for classes that shall not be allocated dynamically.
-  virtual bool CanAllocate() const EZ_OVERRIDE { return false; } // [tested]
+  virtual bool CanAllocate() const override { return false; } // [tested]
 
   /// \brief Will trigger an assert.
-  virtual void* Allocate() EZ_OVERRIDE // [tested]
+  virtual void* Allocate() override // [tested]
   {
     EZ_REPORT_FAILURE("This function should never be called.");
     return nullptr;
   }
 
   /// \brief Will trigger an assert.
-  virtual void Deallocate(void* pObject) EZ_OVERRIDE // [tested]
+  virtual void Deallocate(void* pObject) override // [tested]
   {
     EZ_REPORT_FAILURE("This function should never be called.");
   }
@@ -153,13 +153,13 @@ template<typename CLASS>
 struct ezRTTIDefaultAllocator : public ezRTTIAllocator
 {
   /// \brief Returns a new instance that was allocated on the default heap.
-  virtual void* Allocate() EZ_OVERRIDE // [tested]
+  virtual void* Allocate() override // [tested]
   {
     return EZ_DEFAULT_NEW(CLASS);
   }
 
   /// \brief Deletes the given instance from the default heap.
-  virtual void Deallocate(void* pObject) EZ_OVERRIDE // [tested]
+  virtual void Deallocate(void* pObject) override // [tested]
   {
     CLASS* pPointer = static_cast<CLASS*>(pObject);
     EZ_DEFAULT_DELETE(pPointer);

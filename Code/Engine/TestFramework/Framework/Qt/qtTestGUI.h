@@ -58,7 +58,7 @@ public:
   static void SetDarkTheme();
 
 protected:
-  virtual void closeEvent(QCloseEvent* e) EZ_OVERRIDE;
+  virtual void closeEvent(QCloseEvent* e) override;
 
 private:
   ezQtTestFramework* m_pTestFramework;

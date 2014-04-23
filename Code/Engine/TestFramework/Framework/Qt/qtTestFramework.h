@@ -21,8 +21,8 @@ signals:
   void TestResultReceived(qint32 iTestIndex, qint32 iSubTestIndex);
 
 protected:
-  virtual void OutputImpl(ezTestOutput::Enum Type, const char* szMsg) EZ_OVERRIDE;
-  virtual void TestResultImpl(ezInt32 iSubTestIndex, bool bSuccess, double fDuration) EZ_OVERRIDE;
+  virtual void OutputImpl(ezTestOutput::Enum Type, const char* szMsg) override;
+  virtual void TestResultImpl(ezInt32 iSubTestIndex, bool bSuccess, double fDuration) override;
 };
 
 #endif

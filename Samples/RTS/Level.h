@@ -60,7 +60,7 @@ public:
 private:
   friend class ezResourceManager;
 
-  virtual void UpdateContent(ezStreamReaderBase& Stream) EZ_OVERRIDE 
+  virtual void UpdateContent(ezStreamReaderBase& Stream) override 
   {
     ezColor c;
     ezInt32 state;
@@ -116,7 +116,7 @@ private:
     glDisable(GL_TEXTURE_2D);
   }
 
-  virtual void CreateResource(const ColorResourceDescriptor& descriptor) EZ_OVERRIDE
+  virtual void CreateResource(const ColorResourceDescriptor& descriptor) override
   {
     m_Color = descriptor.m_Color;
     m_uiMaxQualityLevel = 1;
@@ -124,7 +124,7 @@ private:
     m_LoadingState = ezResourceLoadState::Loaded;
   }
 
-  virtual void UpdateMemoryUsage() EZ_OVERRIDE
+  virtual void UpdateMemoryUsage() override
   {
     ezUInt32 uiMemory = 0;
     ezUInt32 uiFactor = 4; // Lowest Mipmap is 1 pixel with 4 bytes
@@ -139,7 +139,7 @@ private:
     SetMemoryUsageGPU(uiMemory);
   }
 
-  virtual void UnloadData(bool bFullUnload) EZ_OVERRIDE
+  virtual void UnloadData(bool bFullUnload) override
   {
     if (bFullUnload || m_uiLoadedQualityLevel == 1)
     {

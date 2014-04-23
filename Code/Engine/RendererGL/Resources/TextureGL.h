@@ -22,9 +22,9 @@ protected:
 
   ~ezGALTextureGL();
 
-  virtual ezResult InitPlatform(ezGALDevice* pDevice, const ezArrayPtr<ezGALSystemMemoryDescription>* pInitialData) EZ_OVERRIDE;
+  virtual ezResult InitPlatform(ezGALDevice* pDevice, const ezArrayPtr<ezGALSystemMemoryDescription>* pInitialData) override;
 
-  virtual ezResult DeInitPlatform(ezGALDevice* pDevice) EZ_OVERRIDE;
+  virtual ezResult DeInitPlatform(ezGALDevice* pDevice) override;
 
   glTextureId m_TextureHandle;
 };

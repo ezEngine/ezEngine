@@ -41,9 +41,9 @@ protected:
 
   virtual ~ezGALShaderGL();
 
-  virtual ezResult InitPlatform(ezGALDevice* pDevice) EZ_OVERRIDE;
+  virtual ezResult InitPlatform(ezGALDevice* pDevice) override;
 
-  virtual ezResult DeInitPlatform(ezGALDevice* pDevice) EZ_OVERRIDE;
+  virtual ezResult DeInitPlatform(ezGALDevice* pDevice) override;
 
   /// Intern helper function to compile and attach a shader.
   static ezResult CompileShader(glProgramId& dstProgram, glShaderId& dstShader, ezUInt32 glShaderType, const void* szRawSource);

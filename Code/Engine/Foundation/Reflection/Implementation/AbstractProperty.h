@@ -46,7 +46,7 @@ public:
   }
 
   /// \brief Returns ezAbstractProperty::Member.
-  virtual ezAbstractProperty::PropertyCategory GetCategory() const EZ_OVERRIDE { return ezAbstractProperty::Member; }
+  virtual ezAbstractProperty::PropertyCategory GetCategory() const override { return ezAbstractProperty::Member; }
 
   /// \brief Returns the type information of the member property. Use this to cast this property to a specific version of ezTypedMemberProperty.
   virtual const ezRTTI* GetPropertyType() const = 0; // [tested]
@@ -79,7 +79,7 @@ public:
   }
 
   /// \brief Returns ezAbstractProperty::Function.
-  virtual ezAbstractProperty::PropertyCategory GetCategory() const EZ_OVERRIDE { return ezAbstractProperty::Function; }
+  virtual ezAbstractProperty::PropertyCategory GetCategory() const override { return ezAbstractProperty::Function; }
 
   /// \brief Calls the function. Provide the instance on which the function is supposed to be called.
   virtual void Execute(void* pInstance) const = 0;
@@ -97,7 +97,7 @@ public:
   }
 
   /// \brief Returns ezAbstractProperty::Array.
-  virtual ezAbstractProperty::PropertyCategory GetCategory() const EZ_OVERRIDE { return ezAbstractProperty::Array; }
+  virtual ezAbstractProperty::PropertyCategory GetCategory() const override { return ezAbstractProperty::Array; }
 
   /// \brief Returns the type of the elements in the array.
   virtual const ezRTTI* GetElementType() const = 0;

@@ -10,6 +10,6 @@ public:
   ezSizeU32 GetResolution() const;
 
 private:
-  void OnResizeMessage(const ezSizeU32& newWindowSize) EZ_OVERRIDE;
+  void OnResizeMessage(const ezSizeU32& newWindowSize) override;
 
 };

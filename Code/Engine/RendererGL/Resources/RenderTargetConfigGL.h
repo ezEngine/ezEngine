@@ -23,9 +23,9 @@ protected:
 
   virtual ~ezGALRenderTargetConfigGL();
 
-  virtual ezResult InitPlatform(ezGALDevice* pDevice) EZ_OVERRIDE;
+  virtual ezResult InitPlatform(ezGALDevice* pDevice) override;
 
-  virtual ezResult DeInitPlatform(ezGALDevice* pDevice) EZ_OVERRIDE;
+  virtual ezResult DeInitPlatform(ezGALDevice* pDevice) override;
 
 
   /// Intern helper function to attach a texture to the bound framebuffer.

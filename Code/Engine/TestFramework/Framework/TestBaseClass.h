@@ -17,28 +17,28 @@ public:
   // *** Override these functions to implement the required test functionality ***
 
   /// Override this function to give the test a proper name.
-  virtual const char* GetTestName() const /*EZ_OVERRIDE*/ = 0;
+  virtual const char* GetTestName() const /*override*/ = 0;
 
   /// Override this function to add additional information to the test configuration
-  virtual void UpdateConfiguration(ezTestConfiguration& config) const /*EZ_OVERRIDE*/;
+  virtual void UpdateConfiguration(ezTestConfiguration& config) const /*override*/;
 
 private:
 
   /// Called at startup to setup all tests. Should use 'AddSubTest' to register all the sub-tests to the test framework.
-  virtual void SetupSubTests() /*EZ_OVERRIDE*/ = 0;
+  virtual void SetupSubTests() /*override*/ = 0;
   /// Called to run the test that was registered with the given identifier.
-  virtual void RunSubTest(ezInt32 iIdentifier) /*EZ_OVERRIDE*/ = 0;
+  virtual void RunSubTest(ezInt32 iIdentifier) /*override*/ = 0;
 
   // *** Override these functions to implement optional (de-)initialization ***
 
   /// Called to initialize the whole test.
-  virtual ezResult InitializeTest()                         /*EZ_OVERRIDE*/ { return EZ_SUCCESS; }
+  virtual ezResult InitializeTest()                         /*override*/ { return EZ_SUCCESS; }
   /// Called to deinitialize the whole test.
-  virtual ezResult DeInitializeTest()                       /*EZ_OVERRIDE*/ { return EZ_SUCCESS; }
+  virtual ezResult DeInitializeTest()                       /*override*/ { return EZ_SUCCESS; }
   /// Called before running a sub-test to do additional initialization specifically for that test.
-  virtual ezResult InitializeSubTest(ezInt32 iIdentifier)    /*EZ_OVERRIDE*/ { return EZ_SUCCESS; }
+  virtual ezResult InitializeSubTest(ezInt32 iIdentifier)    /*override*/ { return EZ_SUCCESS; }
   /// Called after running a sub-test to do additional deinitialization specifically for that test.
-  virtual ezResult DeInitializeSubTest(ezInt32 iIdentifier)  /*EZ_OVERRIDE*/ { return EZ_SUCCESS; }
+  virtual ezResult DeInitializeSubTest(ezInt32 iIdentifier)  /*override*/ { return EZ_SUCCESS; }
 
 protected:
   /// Adds a sub-test to the test suite. The index is used to identify it when running the sub-tests.

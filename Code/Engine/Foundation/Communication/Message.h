@@ -59,7 +59,7 @@ protected:
       m_uiSize = sizeof(messageType); \
     } \
     \
-    virtual ezMessage* Clone(ezAllocatorBase* pAllocator) const EZ_OVERRIDE \
+    virtual ezMessage* Clone(ezAllocatorBase* pAllocator) const override \
     { \
       return EZ_NEW(pAllocator, messageType)(*static_cast<const messageType*>(this)); \
     }

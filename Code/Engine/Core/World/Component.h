@@ -56,7 +56,7 @@ private:
     ezComponentHandle GetHandle() const; \
     managerType* GetManager() const; \
     EZ_FORCE_INLINE ezWorld* GetWorld() const { return m_pManager->GetWorld(); } \
-    virtual ezUInt16 GetTypeId() const EZ_OVERRIDE { return TYPE_ID; } \
+    virtual ezUInt16 GetTypeId() const override { return TYPE_ID; } \
     static EZ_FORCE_INLINE ezUInt16 TypeId() { return TYPE_ID; } \
   private: \
     friend managerType; \

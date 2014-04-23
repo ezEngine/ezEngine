@@ -22,9 +22,9 @@ protected:
 
   virtual ~ezGALSwapChainDX11();
 
-  virtual ezResult InitPlatform(ezGALDevice* pDevice) EZ_OVERRIDE;
+  virtual ezResult InitPlatform(ezGALDevice* pDevice) override;
 
-  virtual ezResult DeInitPlatform(ezGALDevice* pDevice) EZ_OVERRIDE;
+  virtual ezResult DeInitPlatform(ezGALDevice* pDevice) override;
 
 
   IDXGISwapChain* m_pDXSwapChain;

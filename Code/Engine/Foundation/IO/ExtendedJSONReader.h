@@ -13,7 +13,7 @@ class EZ_FOUNDATION_DLL ezExtendedJSONReader : public ezJSONReader
 protected:
 
   /// \brief [internal] Do not override further.
-  virtual void OnEndObject() EZ_OVERRIDE;
+  virtual void OnEndObject() override;
 
 
 };

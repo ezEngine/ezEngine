@@ -29,8 +29,8 @@ class ezResourceLoaderFromFile : public ezResourceTypeLoader
 {
 public:
 
-  virtual ezResourceLoadData OpenDataStream(const ezResourceBase* pResource) EZ_OVERRIDE;
-  virtual void CloseDataStream(const ezResourceBase* pResource, const ezResourceLoadData& LoaderData) EZ_OVERRIDE;
+  virtual ezResourceLoadData OpenDataStream(const ezResourceBase* pResource) override;
+  virtual void CloseDataStream(const ezResourceBase* pResource, const ezResourceLoadData& LoaderData) override;
 
 };
 

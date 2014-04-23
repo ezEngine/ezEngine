@@ -29,7 +29,7 @@ private:
   bool m_bStarted;
   bool m_bDone;
   
-  virtual void Execute() EZ_OVERRIDE
+  virtual void Execute() override
   {
     if (m_iTaskID >= 0)
       printf("Starting Task %i at %.4f\n", m_iTaskID, ezTime::Now().GetSeconds());

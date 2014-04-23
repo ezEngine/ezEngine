@@ -75,8 +75,8 @@ public:
 private:
   EZ_DISALLOW_COPY_AND_ASSIGN(ezReloadableVariableWrapper);
 
-  virtual void SaveState(ezStreamWriterBase& Stream) EZ_OVERRIDE;
-  virtual void LoadState(ezStreamReaderBase& Stream) EZ_OVERRIDE;
+  virtual void SaveState(ezStreamWriterBase& Stream) override;
+  virtual void LoadState(ezStreamReaderBase& Stream) override;
 
   Type& m_Variable;
 };

@@ -56,7 +56,7 @@ class ScriptLog : public ezLogInterface
 {
 public:
 
-  virtual void HandleLogMessage(const ezLoggingEventData& le) EZ_OVERRIDE
+  virtual void HandleLogMessage(const ezLoggingEventData& le) override
   {
     EZ_TEST_FAILURE("Script Error", le.m_szText);
     EZ_TEST_DEBUG_BREAK;
@@ -68,7 +68,7 @@ class ScriptLogIgnore : public ezLogInterface
 public:
   static ezInt32 g_iErrors;
 
-  virtual void HandleLogMessage(const ezLoggingEventData& le) EZ_OVERRIDE
+  virtual void HandleLogMessage(const ezLoggingEventData& le) override
   {
     switch (le.m_EventType)
     {

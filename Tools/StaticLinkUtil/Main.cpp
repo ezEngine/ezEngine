@@ -106,7 +106,7 @@ public:
     }
   }
 
-  virtual void AfterEngineInit() EZ_OVERRIDE
+  virtual void AfterEngineInit() override
   {
     ezGlobalLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);
     ezGlobalLog::AddLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
@@ -736,7 +736,7 @@ public:
     MakeSureStaticLinkLibraryMacroExists();
   }
 
-  virtual ezApplication::ApplicationExecution Run() EZ_OVERRIDE
+  virtual ezApplication::ApplicationExecution Run() override
   {
     // something basic has gone wrong
     if (m_bHadSeriousWarnings || m_bHadErrors)

@@ -54,9 +54,9 @@ public:
 
 private:
 
-  void InitializeDevice() EZ_OVERRIDE { }
-  void UpdateInputSlotValues() EZ_OVERRIDE { }
-  void RegisterInputSlots() EZ_OVERRIDE
+  void InitializeDevice() override { }
+  void UpdateInputSlotValues() override { }
+  void RegisterInputSlots() override
   {
     RegisterInputSlot("testdevice_button", "", ezInputSlotFlags::IsButton);
     RegisterInputSlot("testdevice_stick", "", ezInputSlotFlags::IsAnalogStick);

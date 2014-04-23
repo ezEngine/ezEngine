@@ -97,7 +97,7 @@ public:
   ezComponentManager(ezWorld* pWorld);
   virtual ~ezComponentManager();
 
-  virtual ezComponentHandle CreateComponent() EZ_OVERRIDE;
+  virtual ezComponentHandle CreateComponent() override;
   ezComponentHandle CreateComponent(ComponentType*& out_pComponent);
 
   bool TryGetComponent(const ezComponentHandle& component, ComponentType*& out_pComponent) const;
@@ -108,7 +108,7 @@ public:
 protected:
   friend ComponentType;
 
-  virtual void DeleteDeadComponent(ComponentStorageEntry storageEntry) EZ_OVERRIDE;
+  virtual void DeleteDeadComponent(ComponentStorageEntry storageEntry) override;
 
   void RegisterUpdateFunction(UpdateFunctionDesc& desc);
 
@@ -128,7 +128,7 @@ class ezComponentManagerSimple : public ezComponentManager<ComponentType>
 public:
   ezComponentManagerSimple(ezWorld* pWorld);
 
-  virtual ezResult Initialize() EZ_OVERRIDE;
+  virtual ezResult Initialize() override;
 
   // simple update function that iterates over all components and calls update
   void SimpleUpdate(ezUInt32 uiStartIndex, ezUInt32 uiCount);

@@ -14,9 +14,9 @@ protected:
 
   ~ezGALBlendStateGL();
 
-  virtual ezResult InitPlatform(ezGALDevice* pDevice) EZ_OVERRIDE;
+  virtual ezResult InitPlatform(ezGALDevice* pDevice) override;
 
-  virtual ezResult DeInitPlatform(ezGALDevice* pDevice) EZ_OVERRIDE;
+  virtual ezResult DeInitPlatform(ezGALDevice* pDevice) override;
 };
 
 class EZ_RENDERERGL_DLL ezGALDepthStencilStateGL : public ezGALDepthStencilState
@@ -30,9 +30,9 @@ protected:
 
   ~ezGALDepthStencilStateGL();
 
-  virtual ezResult InitPlatform(ezGALDevice* pDevice) EZ_OVERRIDE;
+  virtual ezResult InitPlatform(ezGALDevice* pDevice) override;
 
-  virtual ezResult DeInitPlatform(ezGALDevice* pDevice) EZ_OVERRIDE;
+  virtual ezResult DeInitPlatform(ezGALDevice* pDevice) override;
 };
 
 class EZ_RENDERERGL_DLL ezGALRasterizerStateGL : public ezGALRasterizerState
@@ -46,9 +46,9 @@ protected:
 
   ~ezGALRasterizerStateGL();
 
-  virtual ezResult InitPlatform(ezGALDevice* pDevice) EZ_OVERRIDE;
+  virtual ezResult InitPlatform(ezGALDevice* pDevice) override;
 
-  virtual ezResult DeInitPlatform(ezGALDevice* pDevice) EZ_OVERRIDE;
+  virtual ezResult DeInitPlatform(ezGALDevice* pDevice) override;
 
   static const ezUInt32 s_GALCullModeToGL[ezGALCullMode::ENUM_COUNT];
 };
@@ -68,9 +68,9 @@ protected:
 
   ~ezGALSamplerStateGL();
 
-  virtual ezResult InitPlatform(ezGALDevice* pDevice) EZ_OVERRIDE;
+  virtual ezResult InitPlatform(ezGALDevice* pDevice) override;
 
-  virtual ezResult DeInitPlatform(ezGALDevice* pDevice) EZ_OVERRIDE;
+  virtual ezResult DeInitPlatform(ezGALDevice* pDevice) override;
 
   glSamplerId m_SamplerStateID;
 

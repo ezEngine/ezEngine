@@ -61,7 +61,7 @@ public:
   /// \brief Reads either uiBytesToRead or the amount of remaining bytes in the stream into pReadBuffer.
   ///
   /// It is valid to pass nullptr for pReadBuffer, in this case the memory stream position is only advanced by the given number of bytes.
-  virtual ezUInt64 ReadBytes(void* pReadBuffer, ezUInt64 uiBytesToRead) EZ_OVERRIDE; // [tested]
+  virtual ezUInt64 ReadBytes(void* pReadBuffer, ezUInt64 uiBytesToRead) override; // [tested]
 
   /// \brief Skips bytes in the stream (e.g. for skipping objects which can't be serialized due to missing information etc.)
   virtual ezUInt64 SkipBytes(ezUInt64 uiBytesToSkip); // [tested]
@@ -103,7 +103,7 @@ public:
   /// \brief Copies uiBytesToWrite from pWriteBuffer into the memory stream.
   ///
   /// pWriteBuffer must be a valid buffer and must hold that much data.
-  virtual ezResult WriteBytes(const void* pWriteBuffer, ezUInt64 uiBytesToWrite) EZ_OVERRIDE; // [tested]
+  virtual ezResult WriteBytes(const void* pWriteBuffer, ezUInt64 uiBytesToWrite) override; // [tested]
 
   /// \brief Sets the write position to be used
   void SetWritePosition(ezUInt32 uiReadPosition); // [tested]

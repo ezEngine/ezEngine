@@ -30,7 +30,7 @@ private:
 
   ezResourceManagerWorker() { };
 
-  virtual void Execute() EZ_OVERRIDE;
+  virtual void Execute() override;
 };
 
 /// \brief [internal] Worker thread/task for loading into the GPU.
@@ -45,7 +45,7 @@ private:
   friend class ezResourceManager;
   ezResourceManagerWorkerGPU() { };
 
-  virtual void Execute() EZ_OVERRIDE;
+  virtual void Execute() override;
 };
 
 

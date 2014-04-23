@@ -71,13 +71,6 @@
   #define EZ_RESTRICT __restrict
 
 
-  
-  #if (_MSC_VER >= 1500) // visual studio 2008 and later
-    #define EZ_OVERRIDE override
-  #else
-    #define EZ_OVERRIDE
-  #endif
-
   #ifdef __INTELLISENSE__
     #define EZ_ALIGN(decl, alignment) decl
   #else

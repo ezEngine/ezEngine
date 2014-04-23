@@ -38,9 +38,9 @@ protected:
 
   virtual ~ezGALShaderDX11();
 
-  virtual ezResult InitPlatform(ezGALDevice* pDevice) EZ_OVERRIDE;
+  virtual ezResult InitPlatform(ezGALDevice* pDevice) override;
 
-  virtual ezResult DeInitPlatform(ezGALDevice* pDevice) EZ_OVERRIDE;
+  virtual ezResult DeInitPlatform(ezGALDevice* pDevice) override;
 
   ID3D11VertexShader* m_pVertexShader;
   ID3D11HullShader* m_pHullShader;

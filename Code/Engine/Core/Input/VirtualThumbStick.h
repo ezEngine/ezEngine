@@ -127,8 +127,8 @@ protected:
 
 private:
 
-  virtual void InitializeDevice() EZ_OVERRIDE { }
-  virtual void UpdateInputSlotValues() EZ_OVERRIDE;
-  virtual void RegisterInputSlots() EZ_OVERRIDE;
+  virtual void InitializeDevice() override { }
+  virtual void UpdateInputSlotValues() override;
+  virtual void RegisterInputSlots() override;
 };
 

@@ -82,7 +82,7 @@ public:
     m_Results.PushBack(pr);
   }
 
-  virtual bool OnVariable(const char* szVarName) EZ_OVERRIDE
+  virtual bool OnVariable(const char* szVarName) override
   {
     EZ_TEST_BOOL(!m_Results.IsEmpty());
     EZ_TEST_BOOL(m_Results.PeekFront().m_Function == Variable);
@@ -96,7 +96,7 @@ public:
     return !ezStringUtils::IsEqual(szVarName, "skip_var");
   }
 
-  virtual void OnReadValue(const char* szValue) EZ_OVERRIDE
+  virtual void OnReadValue(const char* szValue) override
   {
     EZ_TEST_BOOL(!m_Results.IsEmpty());
     EZ_TEST_BOOL(m_Results.PeekFront().m_Function == ValueString);
@@ -105,7 +105,7 @@ public:
     m_Results.PopFront();
   }
 
-  virtual void OnReadValue(double fValue) EZ_OVERRIDE
+  virtual void OnReadValue(double fValue) override
   {
     EZ_TEST_BOOL(!m_Results.IsEmpty());
     EZ_TEST_BOOL(m_Results.PeekFront().m_Function == ValueDouble);
@@ -114,7 +114,7 @@ public:
     m_Results.PopFront();
   }
 
-  virtual void OnReadValue(bool bValue) EZ_OVERRIDE
+  virtual void OnReadValue(bool bValue) override
   {
     EZ_TEST_BOOL(!m_Results.IsEmpty());
     EZ_TEST_BOOL(m_Results.PeekFront().m_Function == ValueBool);
@@ -123,7 +123,7 @@ public:
     m_Results.PopFront();
   }
 
-  virtual void OnReadValueNULL() EZ_OVERRIDE
+  virtual void OnReadValueNULL() override
   {
     EZ_TEST_BOOL(!m_Results.IsEmpty());
     EZ_TEST_BOOL(m_Results.PeekFront().m_Function == ValueNULL);
@@ -131,7 +131,7 @@ public:
     m_Results.PopFront();
   }
 
-  virtual void OnBeginObject() EZ_OVERRIDE
+  virtual void OnBeginObject() override
   {
     EZ_TEST_BOOL(!m_Results.IsEmpty());
     EZ_TEST_BOOL(m_Results.PeekFront().m_Function == BeginObject);
@@ -142,7 +142,7 @@ public:
       SkipObject();
   }
 
-  virtual void OnEndObject() EZ_OVERRIDE
+  virtual void OnEndObject() override
   {
     EZ_TEST_BOOL(!m_Results.IsEmpty());
     EZ_TEST_BOOL(m_Results.PeekFront().m_Function == EndObject);
@@ -150,7 +150,7 @@ public:
     m_Results.PopFront();
   }
 
-  virtual void OnBeginArray() EZ_OVERRIDE
+  virtual void OnBeginArray() override
   {
     EZ_TEST_BOOL(!m_Results.IsEmpty());
     EZ_TEST_BOOL(m_Results.PeekFront().m_Function == BeginArray);
@@ -161,7 +161,7 @@ public:
       SkipArray();
   }
 
-  virtual void OnEndArray() EZ_OVERRIDE
+  virtual void OnEndArray() override
   {
     EZ_TEST_BOOL(!m_Results.IsEmpty());
     EZ_TEST_BOOL(m_Results.PeekFront().m_Function == EndArray);
@@ -171,7 +171,7 @@ public:
 
   ezInt32 m_iExpectedParsingErrors;
 
-  virtual void OnParsingError(const char* szMessage, bool bFatal) EZ_OVERRIDE
+  virtual void OnParsingError(const char* szMessage, bool bFatal) override
   {
     --m_iExpectedParsingErrors;
 

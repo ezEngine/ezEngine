@@ -23,9 +23,9 @@ protected:
 
   virtual ~ezGALBufferDX11();
 
-  virtual ezResult InitPlatform(ezGALDevice* pDevice, const void* pInitialData) EZ_OVERRIDE;
+  virtual ezResult InitPlatform(ezGALDevice* pDevice, const void* pInitialData) override;
 
-  virtual ezResult DeInitPlatform(ezGALDevice* pDevice) EZ_OVERRIDE;
+  virtual ezResult DeInitPlatform(ezGALDevice* pDevice) override;
 
   ID3D11Buffer* m_pDXBuffer;
 

@@ -195,76 +195,76 @@ public:
   void SetOutputStream(ezStreamWriterBase* pOutput); // [tested]
 
   /// \brief \copydoc ezJSONWriter::WriteBool()
-  virtual void WriteBool(bool value) EZ_OVERRIDE; // [tested]
+  virtual void WriteBool(bool value) override; // [tested]
 
   /// \brief \copydoc ezJSONWriter::WriteInt32()
-  virtual void WriteInt32(ezInt32 value) EZ_OVERRIDE; // [tested]
+  virtual void WriteInt32(ezInt32 value) override; // [tested]
 
   /// \brief \copydoc ezJSONWriter::WriteUInt32()
-  virtual void WriteUInt32(ezUInt32 value) EZ_OVERRIDE; // [tested]
+  virtual void WriteUInt32(ezUInt32 value) override; // [tested]
 
   /// \brief \copydoc ezJSONWriter::WriteInt64()
-  virtual void WriteInt64(ezInt64 value) EZ_OVERRIDE; // [tested]
+  virtual void WriteInt64(ezInt64 value) override; // [tested]
 
   /// \brief \copydoc ezJSONWriter::WriteUInt64()
-  virtual void WriteUInt64(ezUInt64 value) EZ_OVERRIDE; // [tested]
+  virtual void WriteUInt64(ezUInt64 value) override; // [tested]
 
   /// \brief \copydoc ezJSONWriter::WriteFloat()
-  virtual void WriteFloat(float value) EZ_OVERRIDE; // [tested]
+  virtual void WriteFloat(float value) override; // [tested]
 
   /// \brief \copydoc ezJSONWriter::WriteDouble()
-  virtual void WriteDouble(double value) EZ_OVERRIDE; // [tested]
+  virtual void WriteDouble(double value) override; // [tested]
 
   /// \brief \copydoc ezJSONWriter::WriteString()
-  virtual void WriteString(const char* value) EZ_OVERRIDE; // [tested]
+  virtual void WriteString(const char* value) override; // [tested]
 
   /// \brief \copydoc ezJSONWriter::WriteNULL()
-  virtual void WriteNULL() EZ_OVERRIDE; // [tested]
+  virtual void WriteNULL() override; // [tested]
 
   /// \brief Writes the time value as a double (ie. redirects to WriteDouble()).
-  virtual void WriteTime(ezTime value) EZ_OVERRIDE; // [tested]
+  virtual void WriteTime(ezTime value) override; // [tested]
 
   /// \brief Outputs the value via WriteVec4().
-  virtual void WriteColor(const ezColor& value) EZ_OVERRIDE; // [tested]
+  virtual void WriteColor(const ezColor& value) override; // [tested]
 
   /// \brief Outputs the value via WriteBinaryData().
-  virtual void WriteVec2(const ezVec2& value) EZ_OVERRIDE; // [tested]
+  virtual void WriteVec2(const ezVec2& value) override; // [tested]
 
   /// \brief Outputs the value via WriteBinaryData().
-  virtual void WriteVec3(const ezVec3& value) EZ_OVERRIDE; // [tested]
+  virtual void WriteVec3(const ezVec3& value) override; // [tested]
 
   /// \brief Outputs the value via WriteBinaryData().
-  virtual void WriteVec4(const ezVec4& value) EZ_OVERRIDE; // [tested]
+  virtual void WriteVec4(const ezVec4& value) override; // [tested]
 
   /// \brief Outputs the value via WriteBinaryData().
-  virtual void WriteQuat(const ezQuat& value) EZ_OVERRIDE; // [tested]
+  virtual void WriteQuat(const ezQuat& value) override; // [tested]
 
   /// \brief Outputs the value via WriteBinaryData().
-  virtual void WriteMat3(const ezMat3& value) EZ_OVERRIDE; // [tested]
+  virtual void WriteMat3(const ezMat3& value) override; // [tested]
 
   /// \brief Outputs the value via WriteBinaryData().
-  virtual void WriteMat4(const ezMat4& value) EZ_OVERRIDE; // [tested]
+  virtual void WriteMat4(const ezMat4& value) override; // [tested]
 
   /// \brief Implements the MongoDB way of writing binary data. First writes a "$type" variable, then a "$binary" variable that represents the raw data (Hex encoded, little endian).
-  virtual void WriteBinaryData(const char* szDataType, const void* pData, ezUInt32 uiBytes, const char* szValueString = nullptr) EZ_OVERRIDE; // [tested]
+  virtual void WriteBinaryData(const char* szDataType, const void* pData, ezUInt32 uiBytes, const char* szValueString = nullptr) override; // [tested]
 
   /// \brief \copydoc ezJSONWriter::BeginVariable()
-  virtual void BeginVariable(const char* szName) EZ_OVERRIDE; // [tested]
+  virtual void BeginVariable(const char* szName) override; // [tested]
 
   /// \brief \copydoc ezJSONWriter::EndVariable()
-  virtual void EndVariable() EZ_OVERRIDE; // [tested]
+  virtual void EndVariable() override; // [tested]
 
   /// \brief \copydoc ezJSONWriter::BeginArray()
-  virtual void BeginArray(const char* szName = nullptr) EZ_OVERRIDE; // [tested]
+  virtual void BeginArray(const char* szName = nullptr) override; // [tested]
 
   /// \brief \copydoc ezJSONWriter::EndArray()
-  virtual void EndArray() EZ_OVERRIDE; // [tested]
+  virtual void EndArray() override; // [tested]
 
   /// \brief \copydoc ezJSONWriter::BeginObject()
-  virtual void BeginObject(const char* szName = nullptr) EZ_OVERRIDE; // [tested]
+  virtual void BeginObject(const char* szName = nullptr) override; // [tested]
 
   /// \brief \copydoc ezJSONWriter::EndObject()
-  virtual void EndObject() EZ_OVERRIDE; // [tested]
+  virtual void EndObject() override; // [tested]
 
 protected:
 

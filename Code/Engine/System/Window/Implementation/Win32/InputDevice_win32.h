@@ -31,14 +31,14 @@ public:
   /// \brief Returns whether the mouse is confined to the application window or not.
   bool GetClipMouseCursor() const { return m_bClipCursor; }
 
-  virtual void SetShowMouseCursor(bool bShow) EZ_OVERRIDE;
-  virtual bool GetShowMouseCursor() const EZ_OVERRIDE;
+  virtual void SetShowMouseCursor(bool bShow) override;
+  virtual bool GetShowMouseCursor() const override;
 
 private:
-  virtual void InitializeDevice() EZ_OVERRIDE;
-  virtual void UpdateInputSlotValues() EZ_OVERRIDE { }
-  virtual void RegisterInputSlots() EZ_OVERRIDE;
-  virtual void ResetInputSlotValues() EZ_OVERRIDE;
+  virtual void InitializeDevice() override;
+  virtual void UpdateInputSlotValues() override { }
+  virtual void RegisterInputSlots() override;
+  virtual void ResetInputSlotValues() override;
 
   static bool s_bMainWindowUsed;
   ezUInt32 m_uiWindowNumber;

@@ -58,7 +58,7 @@ public:
     QApplication::setPalette(palette);
   }
 
-  virtual ApplicationExecution Run() EZ_OVERRIDE
+  virtual ApplicationExecution Run() override
   {
     int iArgs = GetArgumentCount();
     char** cArgs = (char**) GetArgumentsArray();

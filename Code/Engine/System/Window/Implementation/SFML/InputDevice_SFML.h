@@ -63,10 +63,10 @@ public:
   virtual bool GetShowMouseCursor() const { return m_bShowCursor; }
 
 private:
-  virtual void InitializeDevice() EZ_OVERRIDE { }
-  virtual void UpdateInputSlotValues() EZ_OVERRIDE;
-  virtual void RegisterInputSlots() EZ_OVERRIDE;
-  virtual void ResetInputSlotValues() EZ_OVERRIDE;
+  virtual void InitializeDevice() override { }
+  virtual void UpdateInputSlotValues() override;
+  virtual void RegisterInputSlots() override;
+  virtual void ResetInputSlotValues() override;
 
   static bool s_bMainWindowUsed;
 

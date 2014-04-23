@@ -14,13 +14,13 @@ public:
 
   void AddSimpleTest(const char* szName, SimpleTestFunc TestFunc);
 
-  virtual const char* GetTestName() const EZ_OVERRIDE { return m_szTestName; }
+  virtual const char* GetTestName() const override { return m_szTestName; }
 
 private:
-  virtual void SetupSubTests() EZ_OVERRIDE;
-  virtual void RunSubTest(ezInt32 iIdentifier) EZ_OVERRIDE;
-  virtual ezResult InitializeSubTest(ezInt32 iIdentifier) EZ_OVERRIDE;
-  virtual ezResult DeInitializeSubTest(ezInt32 iIdentifier) EZ_OVERRIDE;
+  virtual void SetupSubTests() override;
+  virtual void RunSubTest(ezInt32 iIdentifier) override;
+  virtual ezResult InitializeSubTest(ezInt32 iIdentifier) override;
+  virtual ezResult DeInitializeSubTest(ezInt32 iIdentifier) override;
 
 private:
   struct SimpleTestEntry

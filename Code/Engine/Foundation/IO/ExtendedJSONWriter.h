@@ -15,25 +15,25 @@ class EZ_FOUNDATION_DLL ezExtendedJSONWriter : public ezStandardJSONWriter
 public:
 
   /// \brief Redirects to WriteBinaryData().
-  virtual void WriteInt32(ezInt32 value) EZ_OVERRIDE; // [tested]
+  virtual void WriteInt32(ezInt32 value) override; // [tested]
 
   /// \brief Redirects to WriteBinaryData().
-  virtual void WriteUInt32(ezUInt32 value) EZ_OVERRIDE; // [tested]
+  virtual void WriteUInt32(ezUInt32 value) override; // [tested]
 
   /// \brief Redirects to WriteBinaryData().
-  virtual void WriteInt64(ezInt64 value) EZ_OVERRIDE; // [tested]
+  virtual void WriteInt64(ezInt64 value) override; // [tested]
 
   /// \brief Redirects to WriteBinaryData().
-  virtual void WriteUInt64(ezUInt64 value) EZ_OVERRIDE; // [tested]
+  virtual void WriteUInt64(ezUInt64 value) override; // [tested]
 
   /// \brief Redirects to WriteBinaryData().
-  virtual void WriteFloat(float value) EZ_OVERRIDE; // [tested]
+  virtual void WriteFloat(float value) override; // [tested]
 
   /// \brief Redirects to WriteBinaryData().
-  virtual void WriteDouble(double value) EZ_OVERRIDE; // [tested]
+  virtual void WriteDouble(double value) override; // [tested]
 
   /// \brief Redirects to WriteBinaryData().
-  virtual void WriteTime(ezTime value) EZ_OVERRIDE; // [tested]
+  virtual void WriteTime(ezTime value) override; // [tested]
 
 };
 

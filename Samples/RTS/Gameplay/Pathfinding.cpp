@@ -19,7 +19,7 @@ public:
 
   ezVec2 m_vTarget;
   
-  virtual void GenerateAdjacentStates(ezInt64 iCurArea, const MyPathState& StartState, ezPathSearch<MyPathState>* pPathSearch) EZ_OVERRIDE
+  virtual void GenerateAdjacentStates(ezInt64 iCurArea, const MyPathState& StartState, ezPathSearch<MyPathState>* pPathSearch) override
   {
     const ezGridNavmesh::ConvexArea& Area = m_pNavmesh->GetConvexArea((ezInt32) iCurArea);
     const ezVec2 vAreaCenter (Area.m_Rect.x + Area.m_Rect.width * 0.5f, Area.m_Rect.y + Area.m_Rect.height * 0.5f);

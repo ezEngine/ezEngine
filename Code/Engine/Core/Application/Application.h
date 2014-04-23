@@ -30,17 +30,17 @@ EZ_CORE_DLL void ezRun(ezApplication* pApplicationInstance);
 ///   {
 ///   public:
 ///   
-///     virtual void AfterEngineInit() EZ_OVERRIDE
+///     virtual void AfterEngineInit() override
 ///     {
 ///       // Setup Filesystem, Logging, etc.
 ///     }
 ///   
-///     virtual void BeforeEngineShutdown() EZ_OVERRIDE
+///     virtual void BeforeEngineShutdown() override
 ///     {
 ///       // Close log file, etc.
 ///     }
 ///   
-///     virtual ezApplication::ApplicationExecution Run() EZ_OVERRIDE
+///     virtual ezApplication::ApplicationExecution Run() override
 ///     {
 ///       // Either run a one-time application (e.g. console script) and return ezApplication::Quit
 ///       // Or run one update (frame) of your game loop and return ezApplication::Continue

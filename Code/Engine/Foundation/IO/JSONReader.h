@@ -26,31 +26,31 @@ public:
 protected:
 
   /// \brief This function can be overridden to skip certain variables, however the overriding function must still call this.
-  virtual bool OnVariable(const char* szVarName) EZ_OVERRIDE;
+  virtual bool OnVariable(const char* szVarName) override;
 
   /// \brief [internal] Do not override further.
-  virtual void OnReadValue(const char* szValue) EZ_OVERRIDE;
+  virtual void OnReadValue(const char* szValue) override;
 
   /// \brief [internal] Do not override further.
-  virtual void OnReadValue(double fValue) EZ_OVERRIDE;
+  virtual void OnReadValue(double fValue) override;
 
   /// \brief [internal] Do not override further.
-  virtual void OnReadValue(bool bValue) EZ_OVERRIDE;
+  virtual void OnReadValue(bool bValue) override;
 
   /// \brief [internal] Do not override further.
-  virtual void OnReadValueNULL() EZ_OVERRIDE;
+  virtual void OnReadValueNULL() override;
 
   /// \brief [internal] Do not override further.
-  virtual void OnBeginObject() EZ_OVERRIDE;
+  virtual void OnBeginObject() override;
 
   /// \brief [internal] Do not override further.
-  virtual void OnEndObject() EZ_OVERRIDE;
+  virtual void OnEndObject() override;
 
   /// \brief [internal] Do not override further.
-  virtual void OnBeginArray() EZ_OVERRIDE;
+  virtual void OnBeginArray() override;
 
   /// \brief [internal] Do not override further.
-  virtual void OnEndArray() EZ_OVERRIDE;
+  virtual void OnEndArray() override;
 
   virtual void OnParsingError(const char* szMessage, bool bFatal) { m_bParsingError = true;  }
 

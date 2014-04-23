@@ -13,10 +13,10 @@ class SampleGameApp : public ezApplication
 public:
   SampleGameApp();
 
-  virtual void AfterEngineInit() EZ_OVERRIDE;
-  virtual void BeforeEngineShutdown() EZ_OVERRIDE;
+  virtual void AfterEngineInit() override;
+  virtual void BeforeEngineShutdown() override;
 
-  virtual ezApplication::ApplicationExecution Run() EZ_OVERRIDE;
+  virtual ezApplication::ApplicationExecution Run() override;
 
 
 

@@ -17,10 +17,10 @@ public:
   ~ezAllocator();
 
   // ezAllocatorBase implementation
-  virtual void* Allocate(size_t uiSize, size_t uiAlign) EZ_OVERRIDE;
-  virtual void Deallocate(void* ptr) EZ_OVERRIDE;
-  virtual size_t AllocatedSize(const void* ptr) EZ_OVERRIDE;
-  virtual Stats GetStats() const EZ_OVERRIDE;
+  virtual void* Allocate(size_t uiSize, size_t uiAlign) override;
+  virtual void Deallocate(void* ptr) override;
+  virtual size_t AllocatedSize(const void* ptr) override;
+  virtual Stats GetStats() const override;
 
   ezAllocatorBase* GetParent() const;
 

@@ -21,9 +21,9 @@ protected:
 
   virtual ~ezGALBufferGL();
 
-  virtual ezResult InitPlatform(ezGALDevice* pDevice, const void* pInitialData) EZ_OVERRIDE;
+  virtual ezResult InitPlatform(ezGALDevice* pDevice, const void* pInitialData) override;
 
-  virtual ezResult DeInitPlatform(ezGALDevice* pDevice) EZ_OVERRIDE;
+  virtual ezResult DeInitPlatform(ezGALDevice* pDevice) override;
 
 
   /// Internal OpenGL buffer handle. Either a VertexArray or a VertexBuffer (aka ArrayObject).

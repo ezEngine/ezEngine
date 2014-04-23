@@ -82,14 +82,14 @@ private:
 
 struct ezTestClass2Allocator : public ezRTTIAllocator
 {
-  virtual void* Allocate() EZ_OVERRIDE
+  virtual void* Allocate() override
   {
     ++m_iAllocs;
 
     return EZ_DEFAULT_NEW(ezTestClass2);
   }
 
-  virtual void Deallocate(void* pObject) EZ_OVERRIDE
+  virtual void Deallocate(void* pObject) override
   {
     ++m_iDeallocs;
 

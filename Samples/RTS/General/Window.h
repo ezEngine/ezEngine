@@ -13,7 +13,7 @@ public:
   bool IsMinimized() const { return m_bMinimized; }
 
 private:
-  void OnResizeMessage(const ezSizeU32& newWindowSize) EZ_OVERRIDE;
+  void OnResizeMessage(const ezSizeU32& newWindowSize) override;
 
   bool m_bMinimized;
 };
