@@ -26,9 +26,17 @@ EZ_CREATE_SIMPLE_TEST(Strings, HashedString)
     EZ_TEST_STRING(s.GetString().GetData(), "Test");
     EZ_TEST_INT(s.GetHash(), 0x949e89d1);
 
-    ezStringBuilder sb = "Test2";
+    ezStringBuilder sb = "test2";
     s.Assign(sb.GetData()); // runtime hashing
-    EZ_TEST_STRING(s.GetString().GetData(), "Test2");
+    EZ_TEST_STRING(s.GetString().GetData(), "test2");
+    EZ_TEST_INT(s.GetHash(), 0x77e1287c);
+    
+    ezTempHashedString ts("dummy");
+    ts = "test"; // compile time hashing
+    EZ_TEST_INT(ts.GetHash(), 0x1812752e);
+    
+    ts = sb.GetData(); // runtime hashing
+    EZ_TEST_INT(ts.GetHash(), 0x77e1287c);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator== / operator!=")

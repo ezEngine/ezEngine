@@ -42,7 +42,7 @@ EZ_CREATE_SIMPLE_TEST(Algorithm, Hashing)
     uiHash = ezHashHelper<ezHashedString>::Hash(hs);
     EZ_TEST_INT(uiHash, 0xb999d6c4);
 
-    ezTempHashedString ths = szTest;
+    ezTempHashedString ths(szTest);
     uiHash = ezHashHelper<ezHashedString>::Hash(ths);
     EZ_TEST_INT(uiHash, 0xb999d6c4);
     EZ_TEST_BOOL(ezHashHelper<ezHashedString>::Equal(hs, ths));

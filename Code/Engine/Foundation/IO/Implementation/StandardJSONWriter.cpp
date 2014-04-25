@@ -264,6 +264,7 @@ void ezStandardJSONWriter::WriteMat4(const ezMat4& value)
 void ezStandardJSONWriter::BeginVariable(const char* szName)
 {
   const ezStandardJSONWriter::State state = m_StateStack.PeekBack().m_State;
+  EZ_IGNORE_UNUSED(state);
   EZ_ASSERT(state == ezStandardJSONWriter::Empty ||
             state == ezStandardJSONWriter::Object ||
             state == ezStandardJSONWriter::NamedObject, "Variables can only be written inside objects.");
@@ -293,6 +294,7 @@ void ezStandardJSONWriter::EndVariable()
 void ezStandardJSONWriter::BeginArray(const char* szName)
 {
   const ezStandardJSONWriter::State state = m_StateStack.PeekBack().m_State;
+  EZ_IGNORE_UNUSED(state);
   EZ_ASSERT((state == ezStandardJSONWriter::Object || state == ezStandardJSONWriter::NamedObject) && !ezStringUtils::IsNullOrEmpty(szName) ||
             (state == ezStandardJSONWriter::Array  || state == ezStandardJSONWriter::NamedArray) && szName == nullptr ||
             (state == ezStandardJSONWriter::Variable && szName == nullptr),
@@ -321,6 +323,7 @@ void ezStandardJSONWriter::BeginArray(const char* szName)
 void ezStandardJSONWriter::EndArray()
 {
   const ezStandardJSONWriter::State state = m_StateStack.PeekBack().m_State;
+  EZ_IGNORE_UNUSED(state);
   EZ_ASSERT(state == ezStandardJSONWriter::Array  || state == ezStandardJSONWriter::NamedArray, "EndArray() must be called in sync with BeginArray().");
 
 
@@ -335,6 +338,7 @@ void ezStandardJSONWriter::EndArray()
 void ezStandardJSONWriter::BeginObject(const char* szName)
 {
   const ezStandardJSONWriter::State state = m_StateStack.PeekBack().m_State;
+  EZ_IGNORE_UNUSED(state);
   EZ_ASSERT((state == ezStandardJSONWriter::Empty) ||
             (state == ezStandardJSONWriter::Object || state == ezStandardJSONWriter::NamedObject) && !ezStringUtils::IsNullOrEmpty(szName) ||
             (state == ezStandardJSONWriter::Array  || state == ezStandardJSONWriter::NamedArray) && szName == nullptr ||
@@ -368,6 +372,7 @@ void ezStandardJSONWriter::BeginObject(const char* szName)
 void ezStandardJSONWriter::EndObject()
 {
   const ezStandardJSONWriter::State state = m_StateStack.PeekBack().m_State;
+  EZ_IGNORE_UNUSED(state);
   EZ_ASSERT(state == ezStandardJSONWriter::Object || state == ezStandardJSONWriter::NamedObject, "EndObject() must be called in sync with BeginObject().");
 
   const State CurState = m_StateStack.PeekBack().m_State;

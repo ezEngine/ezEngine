@@ -21,7 +21,7 @@ namespace ezInternal
   template <typename T, bool isString>
   EZ_FORCE_INLINE ezUInt32 HashHelperImpl<T, isString>::Hash(const T& value)
   {
-    EZ_CHECK_AT_COMPILETIME_MSG(false, "ezHashHelper is not implemented for the given type.");
+    EZ_CHECK_AT_COMPILETIME_MSG(isString, "ezHashHelper is not implemented for the given type.");
     return 0;
   }
 }

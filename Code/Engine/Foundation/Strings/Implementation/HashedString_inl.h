@@ -107,6 +107,17 @@ inline ezTempHashedString::ezTempHashedString(const ezHashedString& rhs)
   m_uiHash = rhs.GetHash();
 }
 
+template <size_t N>
+inline void ezTempHashedString::operator= (const char(&szString)[N])
+{
+  m_uiHash = ezHashing::MurmurHash(szString);
+}
+
+inline void ezTempHashedString::operator= (ezHashing::StringWrapper szString)
+{
+  m_uiHash = ezHashing::MurmurHash(szString);
+}
+
 inline void ezTempHashedString::operator= (const ezTempHashedString& rhs)
 {
   m_uiHash = rhs.m_uiHash;
