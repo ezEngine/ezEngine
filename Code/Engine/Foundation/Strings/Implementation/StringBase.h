@@ -2,6 +2,12 @@
 
 #include <Foundation/Strings/StringUtils.h>
 
+namespace ezInternal
+{
+  template <typename T, bool isString>
+  struct HashHelperImpl;
+}
+
 /// Base class which marks a class as containing string data
 class ezThisIsAString
 {
@@ -98,8 +104,8 @@ private: // friends
   template <typename DerivedLhs, typename DerivedRhs>
   friend bool operator>= (const ezStringBase<DerivedLhs>& lhs, const ezStringBase<DerivedRhs>& rhs);
 
-  template <typename D, bool isString>
-  friend struct ezHashHelperImpl;
+  template <typename T, bool isString>
+  friend struct ezInternal::HashHelperImpl;
 };
 
 

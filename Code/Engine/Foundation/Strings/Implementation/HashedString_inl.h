@@ -139,4 +139,42 @@ EZ_FORCE_INLINE ezUInt32 ezTempHashedString::GetHash() const
 }
 
 
+template <>
+struct ezHashHelper<ezHashedString>
+{
+  EZ_FORCE_INLINE static ezUInt32 Hash(const ezHashedString& value)
+  {
+    return value.GetHash();
+  }
+
+  EZ_FORCE_INLINE static ezUInt32 Hash(const ezTempHashedString& value)
+  {
+    return value.GetHash();
+  }
+
+  EZ_FORCE_INLINE static bool Equal(const ezHashedString& a, const ezHashedString& b)
+  {
+    return a == b;
+  }
+
+  EZ_FORCE_INLINE static bool Equal(const ezHashedString& a, const ezTempHashedString& b)
+  {
+    return a == b;
+  }
+};
+
+template <>
+struct ezHashHelper<ezTempHashedString>
+{
+  EZ_FORCE_INLINE static ezUInt32 Hash(const ezTempHashedString& value)
+  {
+    return value.GetHash();
+  }
+
+  EZ_FORCE_INLINE static bool Equal(const ezTempHashedString& a, const ezTempHashedString& b)
+  {
+    return a == b;
+  }
+};
+
 

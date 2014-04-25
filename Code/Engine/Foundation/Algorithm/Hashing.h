@@ -41,6 +41,7 @@ template <typename T>
 struct ezHashHelper
 {
   static ezUInt32 Hash(const T& value);
+  static bool Equal(const T& a, const T& b);
 };
 
 #include <Foundation/Algorithm/Implementation/Hashing_inl.h>

@@ -33,6 +33,11 @@ struct ezHashHelper<Collision>
   {
     return value.hash;
   }
+
+  EZ_FORCE_INLINE static bool Equal(const Collision& a, const Collision& b)
+  {
+    return a == b;
+  }
 };
 
 template <>
@@ -41,6 +46,11 @@ struct ezHashHelper<st>
   EZ_FORCE_INLINE static ezUInt32 Hash(const st& value)
   {
     return ezHashHelper<ezInt32>::Hash(value.m_iData);
+  }
+
+  EZ_FORCE_INLINE static bool Equal(const st& a, const st& b)
+  {
+    return a == b;
   }
 };
 

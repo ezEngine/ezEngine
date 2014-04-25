@@ -236,7 +236,7 @@ bool ezHashTableBase<K, V, H>::Insert(const K& key, const V& value, V* out_oldVa
       if (uiDeletedIndex == ezInvalidIndex)
         uiDeletedIndex = uiIndex;
     }
-    else if (m_pEntries[uiIndex].key == key)
+    else if (H::Equal(m_pEntries[uiIndex].key, key))
     {
       if (out_oldValue != nullptr)
         *out_oldValue = m_pEntries[uiIndex].value;
@@ -433,7 +433,7 @@ inline ezUInt32 ezHashTableBase<K, V, H>::FindEntry(ezUInt32 uiHash, const K& ke
     ezUInt32 uiCounter = 0;
     while (!IsFreeEntry(uiIndex) && uiCounter < m_uiCapacity)
     {
-      if (IsValidEntry(uiIndex) && m_pEntries[uiIndex].key == key)
+      if (IsValidEntry(uiIndex) && H::Equal(m_pEntries[uiIndex].key, key))
         return uiIndex;
 
       ++uiIndex;
