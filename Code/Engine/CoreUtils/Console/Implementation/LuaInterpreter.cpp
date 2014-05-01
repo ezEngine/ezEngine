@@ -41,8 +41,12 @@ static int LUAFUNC_ConsoleFunc(lua_State* state)
     case ezVariant::Type::Bool:
       m_Params[p] = s.GetBoolParameter(p);
       break;
+    case ezVariant::Type::Int8:
+    case ezVariant::Type::Int16:
     case ezVariant::Type::Int32:
     case ezVariant::Type::Int64:
+    case ezVariant::Type::UInt8:
+    case ezVariant::Type::UInt16:
     case ezVariant::Type::UInt32:
     case ezVariant::Type::UInt64:
       m_Params[p] = s.GetIntParameter(p);

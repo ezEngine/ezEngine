@@ -412,6 +412,34 @@ ezInt8 HexCharacterToIntValue(char Character)
   return -1;
 }
 
+ezString ToString(ezInt8 value)
+{
+  ezStringBuilder sb;
+  sb.Format("%i", (ezInt32)value);
+  return sb;
+}
+
+ezString ToString(ezUInt8 value)
+{
+  ezStringBuilder sb;
+  sb.Format("%u", (ezUInt32)value);
+  return sb;
+}
+
+ezString ToString(ezInt16 value)
+{
+  ezStringBuilder sb;
+  sb.Format("%i", (ezInt32)value);
+  return sb;
+}
+
+ezString ToString(ezUInt16 value)
+{
+  ezStringBuilder sb;
+  sb.Format("%u", (ezUInt32)value);
+  return sb;
+}
+
 ezString ToString(ezInt32 value)
 {
   ezStringBuilder sb;

@@ -1,5 +1,7 @@
 #include <PCH.h>
 #include <Foundation/Containers/Bitfield.h>
+#include <Foundation/Containers/Deque.h>
+#include <Foundation/Strings/String.h>
 
 EZ_CREATE_SIMPLE_TEST(Containers, Bitfield)
 {

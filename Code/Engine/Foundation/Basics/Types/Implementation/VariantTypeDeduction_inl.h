@@ -14,6 +14,54 @@ struct ezVariant::TypeDeduction<bool>
 };
 
 template <>
+struct ezVariant::TypeDeduction<ezInt8>
+{
+  enum
+  {
+    value = Type::Int8,
+    forceSharing = false
+  };
+
+  typedef ezInt8 StorageType;
+};
+
+template <>
+struct ezVariant::TypeDeduction<ezUInt8>
+{
+  enum
+  {
+    value = Type::UInt8,
+    forceSharing = false
+  };
+
+  typedef ezUInt8 StorageType;
+};
+
+template <>
+struct ezVariant::TypeDeduction<ezInt16>
+{
+  enum
+  {
+    value = Type::Int16,
+    forceSharing = false
+  };
+
+  typedef ezInt16 StorageType;
+};
+
+template <>
+struct ezVariant::TypeDeduction<ezUInt16>
+{
+  enum
+  {
+    value = Type::UInt16,
+    forceSharing = false
+  };
+
+  typedef ezUInt16 StorageType;
+};
+
+template <>
 struct ezVariant::TypeDeduction<ezInt32>
 {
   enum

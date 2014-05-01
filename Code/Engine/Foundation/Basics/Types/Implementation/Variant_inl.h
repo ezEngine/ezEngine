@@ -146,6 +146,22 @@ void ezVariant::DispatchTo(Functor& functor, Type::Enum type)
     CALL_FUNCTOR(functor, bool);
     break;
 
+  case Type::Int8:
+    CALL_FUNCTOR(functor, ezInt8);
+    break;
+
+  case Type::UInt8:
+    CALL_FUNCTOR(functor, ezUInt8);
+    break;
+
+  case Type::Int16:
+    CALL_FUNCTOR(functor, ezInt16);
+    break;
+
+  case Type::UInt16:
+    CALL_FUNCTOR(functor, ezUInt16);
+    break;
+
   case Type::Int32:
     CALL_FUNCTOR(functor, ezInt32);
     break;
@@ -295,6 +311,14 @@ T ezVariant::ConvertNumber() const
   {
   case Type::Bool:
     return static_cast<T>(Cast<bool>());
+  case Type::Int8:
+    return static_cast<T>(Cast<ezInt8>());
+  case Type::UInt8:
+    return static_cast<T>(Cast<ezUInt8>());
+  case Type::Int16:
+    return static_cast<T>(Cast<ezInt16>());
+  case Type::UInt16:
+    return static_cast<T>(Cast<ezUInt16>());
   case Type::Int32:
     return static_cast<T>(Cast<ezInt32>());
   case Type::UInt32:

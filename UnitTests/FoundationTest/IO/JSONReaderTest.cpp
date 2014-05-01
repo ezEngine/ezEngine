@@ -1,5 +1,6 @@
 #include <PCH.h>
 #include <Foundation/IO/JSONReader.h>
+#include <Foundation/Containers/Deque.h>
 
 class StringStream : public ezStreamReaderBase
 {
@@ -91,6 +92,42 @@ void TraverseTree(const ezVariant& var, ezDeque<ezString>& Compare)
   case ezVariant::Type::Bool:
     EZ_TEST_STRING(Compare.PeekFront().GetData(), var.Get<bool>() ? "bool true" : "bool false");
     Compare.PopFront();
+    break;
+
+  case ezVariant::Type::Int8:
+    {
+      ezStringBuilder sTemp;
+      sTemp.Format("int8 %i", var.Get<ezInt8>());
+      EZ_TEST_STRING(Compare.PeekFront().GetData(), sTemp.GetData());
+      Compare.PopFront();
+    }
+    break;
+
+  case ezVariant::Type::UInt8:
+    {
+      ezStringBuilder sTemp;
+      sTemp.Format("uint8 %i", var.Get<ezUInt8>());
+      EZ_TEST_STRING(Compare.PeekFront().GetData(), sTemp.GetData());
+      Compare.PopFront();
+    }
+    break;
+
+  case ezVariant::Type::Int16:
+    {
+      ezStringBuilder sTemp;
+      sTemp.Format("int16 %i", var.Get<ezInt16>());
+      EZ_TEST_STRING(Compare.PeekFront().GetData(), sTemp.GetData());
+      Compare.PopFront();
+    }
+    break;
+
+  case ezVariant::Type::UInt16:
+    {
+      ezStringBuilder sTemp;
+      sTemp.Format("uint16 %i", var.Get<ezUInt16>());
+      EZ_TEST_STRING(Compare.PeekFront().GetData(), sTemp.GetData());
+      Compare.PopFront();
+    }
     break;
 
   case ezVariant::Type::Int32:

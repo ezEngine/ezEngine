@@ -2,11 +2,9 @@
 
 #include <TestFramework/Basics.h>
 #include <Foundation/Profiling/Profiling.h>
-#include <Foundation/Strings/StringUtils.h>
 #include <TestFramework/Framework/Declarations.h>
 #include <TestFramework/Framework/TestBaseClass.h>
 #include <TestFramework/Framework/SimpleTest.h>
-#include <TestFramework/Utilities/TestOrder.h>
 #include <TestFramework/Framework/TestResults.h>
 
 
@@ -82,7 +80,7 @@ public:
   static bool GetAssertOnTestFail();
 
   static void Output(ezTestOutput::Enum Type, const char* szMsg, ...);
-  static void Error(const char* szError, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg);
+  static void Error(const char* szError, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg, ...);
   static void TestResult(ezInt32 iSubTestIndex, bool bSuccess, double fDuration);
 
   // static members
@@ -118,6 +116,12 @@ struct ezTestBlock
   };
 };
 
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+  #define safeprintf sprintf_s
+#else
+  #define safeprintf snprintf
+#endif
+
 /// \brief Starts a small test block inside a larger test. 
 ///
 /// First parameter allows to quickly disable a block depending on a condition (e.g. platform). 
@@ -138,9 +142,7 @@ struct ezTestBlock
 
 #define EZ_TEST_FAILURE(erroroutput, msg, ...) \
 {\
-  char szTemp[1024]; \
-  ezStringUtils::snprintf(szTemp, 1024, msg, ##__VA_ARGS__); \
-  ezTestFramework::Error(erroroutput, EZ_SOURCE_FILE, EZ_SOURCE_LINE, EZ_SOURCE_FUNCTION, szTemp);\
+  ezTestFramework::Error(erroroutput, EZ_SOURCE_FILE, EZ_SOURCE_LINE, EZ_SOURCE_FUNCTION, msg, ##__VA_ARGS__);\
   EZ_TEST_DEBUG_BREAK \
 }
 
@@ -175,7 +177,7 @@ inline float ToFloat(double f) { return (float) f; }
   if (internal_fD < -internal_fEps || internal_fD > +internal_fEps) \
   { \
     char szLocal_TestMacro[256]; \
-    sprintf (szLocal_TestMacro, "Failure: '%s' (%.8f) does not equal '%s' (%.8f) within an epsilon of %.8f", EZ_STRINGIZE(f1), internal_r1, EZ_STRINGIZE(f2), internal_r2, internal_fEps); \
+    safeprintf(szLocal_TestMacro, 256, "Failure: '%s' (%.8f) does not equal '%s' (%.8f) within an epsilon of %.8f", EZ_STRINGIZE(f1), internal_r1, EZ_STRINGIZE(f2), internal_r2, internal_fEps); \
     EZ_TEST_FAILURE(szLocal_TestMacro, msg, ##__VA_ARGS__); \
   } \
 }
@@ -194,7 +196,7 @@ inline float ToFloat(double f) { return (float) f; }
   if (internal_fD < -internal_fEps || internal_fD > +internal_fEps) \
   { \
     char szLocal_TestMacro[256]; \
-    sprintf (szLocal_TestMacro, "Failure: '%s' (%.8f) does not equal '%s' (%.8f) within an epsilon of %.8f", EZ_STRINGIZE(f1), internal_r1, EZ_STRINGIZE(f2), internal_r2, internal_fEps); \
+    safeprintf(szLocal_TestMacro, 256, "Failure: '%s' (%.8f) does not equal '%s' (%.8f) within an epsilon of %.8f", EZ_STRINGIZE(f1), internal_r1, EZ_STRINGIZE(f2), internal_r2, internal_fEps); \
     EZ_TEST_FAILURE(szLocal_TestMacro, msg, ##__VA_ARGS__); \
   } \
 }
@@ -212,7 +214,7 @@ inline float ToFloat(double f) { return (float) f; }
   if (internal_r1 != internal_r2) \
   { \
     char szLocal_TestMacro[256]; \
-    sprintf (szLocal_TestMacro, "Failure: '%s' (%i) does not equal '%s' (%i)", EZ_STRINGIZE(i1), internal_r1, EZ_STRINGIZE(i2), internal_r2); \
+    safeprintf(szLocal_TestMacro, 256, "Failure: '%s' (%i) does not equal '%s' (%i)", EZ_STRINGIZE(i1), internal_r1, EZ_STRINGIZE(i2), internal_r2); \
     EZ_TEST_FAILURE(szLocal_TestMacro, msg, ##__VA_ARGS__); \
   } \
 }
@@ -230,7 +232,7 @@ inline float ToFloat(double f) { return (float) f; }
   if (strcmp(internal_sz1, internal_sz2) != 0) \
   { \
     char szLocal_TestMacro[512]; \
-    sprintf (szLocal_TestMacro, "Failure: '%s' (%s) does not equal '%s' (%s)", EZ_STRINGIZE(internal_s1), internal_sz1, EZ_STRINGIZE(internal_s2), internal_sz2); \
+    safeprintf(szLocal_TestMacro, 512, "Failure: '%s' (%s) does not equal '%s' (%s)", EZ_STRINGIZE(internal_s1), internal_sz1, EZ_STRINGIZE(internal_s2), internal_sz2); \
     EZ_TEST_FAILURE(szLocal_TestMacro, msg, ##__VA_ARGS__); \
   } \
 }
@@ -286,20 +288,20 @@ inline float ToFloat(double f) { return (float) f; }
   \
   if (ReadFile1.Open(szFile1) == EZ_FAILURE) \
   { \
-    sprintf(szLocal_TestMacro, "Failure: File '%s' could not be read.", szFile1); \
+    safeprintf(szLocal_TestMacro, 512, "Failure: File '%s' could not be read.", szFile1); \
     EZ_TEST_FAILURE(szLocal_TestMacro, msg, ##__VA_ARGS__); \
   } \
   else \
   if (ReadFile2.Open(szFile2) == EZ_FAILURE) \
   { \
-    sprintf(szLocal_TestMacro, "Failure: File '%s' could not be read.", szFile2); \
+    safeprintf(szLocal_TestMacro, 512, "Failure: File '%s' could not be read.", szFile2); \
     EZ_TEST_FAILURE(szLocal_TestMacro, msg, ##__VA_ARGS__); \
   } \
   \
   else \
   if (ReadFile1.GetFileSize() != ReadFile2.GetFileSize()) \
   { \
-    sprintf(szLocal_TestMacro, "Failure: File sizes do not match: '%s' (%llu Bytes) and '%s' (%llu Bytes)", szFile1, ReadFile1.GetFileSize(), szFile2, ReadFile2.GetFileSize()); \
+    safeprintf(szLocal_TestMacro, 512, "Failure: File sizes do not match: '%s' (%llu Bytes) and '%s' (%llu Bytes)", szFile1, ReadFile1.GetFileSize(), szFile2, ReadFile2.GetFileSize()); \
     EZ_TEST_FAILURE(szLocal_TestMacro, msg, ##__VA_ARGS__); \
   } \
   else \
@@ -313,7 +315,7 @@ inline float ToFloat(double f) { return (float) f; }
       \
       if (uiRead1 != uiRead2) \
       { \
-        sprintf(szLocal_TestMacro, "Failure: Files could not read same amount of data: '%s' and '%s'", szFile1, szFile2); \
+        safeprintf(szLocal_TestMacro, 512, "Failure: Files could not read same amount of data: '%s' and '%s'", szFile1, szFile2); \
         EZ_TEST_FAILURE(szLocal_TestMacro, msg, ##__VA_ARGS__); \
         break; \
       } \
@@ -324,7 +326,7 @@ inline float ToFloat(double f) { return (float) f; }
         \
         if (memcmp(uiTemp1, uiTemp2, (size_t) uiRead1) != 0) \
         { \
-          sprintf(szLocal_TestMacro, "Failure: Files contents do not match: '%s' and '%s'", szFile1, szFile2); \
+          safeprintf(szLocal_TestMacro, 512, "Failure: Files contents do not match: '%s' and '%s'", szFile1, szFile2); \
           EZ_TEST_FAILURE(szLocal_TestMacro, msg, ##__VA_ARGS__); \
           break; \
         } \

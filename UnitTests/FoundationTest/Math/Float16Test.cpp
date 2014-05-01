@@ -1,6 +1,6 @@
 #include <PCH.h>
 #include <Foundation/Math/Float16.h>
-
+#include <Foundation/Strings/String.h>
 
 EZ_CREATE_SIMPLE_TEST(Math, Float16)
 {

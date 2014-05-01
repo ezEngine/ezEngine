@@ -1,5 +1,6 @@
 #include <PCH.h>
 #include <Foundation/IO/ExtendedJSONReader.h>
+#include <Foundation/Containers/Deque.h>
 #include <FoundationTest/IO/JSONTestHelpers.h>
 
 void TraverseTree(const ezVariant& var, ezDeque<ezString>& Compare);

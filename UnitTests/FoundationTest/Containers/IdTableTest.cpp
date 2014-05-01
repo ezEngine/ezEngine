@@ -1,5 +1,7 @@
 #include <PCH.h>
 #include <Foundation/Containers/IdTable.h>
+#include <Foundation/Containers/DynamicArray.h>
+#include <Foundation/Strings/String.h>
 
 namespace
 {

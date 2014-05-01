@@ -1,4 +1,5 @@
 ﻿#include <PCH.h>
+#include <Foundation/Strings/String.h>
 
 EZ_CREATE_SIMPLE_TEST_GROUP(Strings);
 

@@ -1,4 +1,6 @@
 #include <PCH.h>
+#include <Foundation/Containers/HybridArray.h>
+#include <Foundation/Strings/String.h>
 
 typedef ezConstructionCounter st;
 

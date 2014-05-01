@@ -1,5 +1,6 @@
 #include <TestFramework/PCH.h>
 #include <TestFramework/Framework/TestFramework.h>
+#include <TestFramework/Utilities/TestOrder.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Time/Timestamp.h>
 #include <Foundation/Configuration/Startup.h>
@@ -561,15 +562,23 @@ void ezTestFramework::Output(ezTestOutput::Enum Type, const char* szMsg, ...)
   va_start (args, szMsg);
 
   char szBuffer[1024 * 10];
-  vsprintf (szBuffer, szMsg, args);
+  ezStringUtils::vsnprintf(szBuffer, EZ_ARRAY_SIZE(szBuffer), szMsg, args);
   va_end (args);
 
   GetInstance()->OutputImpl(Type, szBuffer);
 }
 
-void ezTestFramework::Error(const char* szError, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg)
+void ezTestFramework::Error(const char* szError, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg, ...)
 {
-  GetInstance()->ErrorImpl(szError, szFile, iLine, szFunction, szMsg);
+  // format the output text
+  va_list args;
+  va_start (args, szMsg);
+
+  char szBuffer[1024 * 10];
+  ezStringUtils::vsnprintf(szBuffer, EZ_ARRAY_SIZE(szBuffer), szMsg, args);
+  va_end (args);
+
+  GetInstance()->ErrorImpl(szError, szFile, iLine, szFunction, szBuffer);
 }
 
 void ezTestFramework::TestResult(ezInt32 iSubTestIndex, bool bSuccess, double fDuration)

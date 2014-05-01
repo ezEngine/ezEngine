@@ -7,14 +7,6 @@
 #include <Foundation/Basics/TypeTraits.h>
 #include <Foundation/Basics/Types/Bitflags.h>
 
-#include <Foundation/Algorithm/Hashing.h>
-#include <Foundation/Containers/Deque.h>
-#include <Foundation/Containers/DynamicArray.h>
-#include <Foundation/Containers/HybridArray.h>
-
-#include <Foundation/Strings/String.h>
-#include <Foundation/Strings/StringBuilder.h>
-
 #include <Foundation/Math/Declarations.h>
 
 typedef float ezMathTestType;

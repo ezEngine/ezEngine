@@ -127,6 +127,18 @@ namespace ezConversionUtils
   }
 
   /// \brief Converts a 32bit signed integer to a string
+  EZ_FOUNDATION_DLL ezString ToString(ezInt8 value); // [tested]
+  
+  /// \brief Converts a 32bit unsigned integer to a string
+  EZ_FOUNDATION_DLL ezString ToString(ezUInt8 value); // [tested]
+
+  /// \brief Converts a 32bit signed integer to a string
+  EZ_FOUNDATION_DLL ezString ToString(ezInt16 value); // [tested]
+  
+  /// \brief Converts a 32bit unsigned integer to a string
+  EZ_FOUNDATION_DLL ezString ToString(ezUInt16 value); // [tested]
+
+  /// \brief Converts a 32bit signed integer to a string
   EZ_FOUNDATION_DLL ezString ToString(ezInt32 value); // [tested]
   
   /// \brief Converts a 32bit unsigned integer to a string

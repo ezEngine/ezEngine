@@ -28,5 +28,34 @@ struct ezTestEntry
   bool m_bEnableTest;
 };
 
+struct TestSettings
+{
+  TestSettings()
+  {
+    m_bAssertOnTestFail = false;
+    m_bOpenHtmlOutput = false;
+    m_bKeepConsoleOpen = false;
+    m_bShowMessageBox = true;
+    m_bRunTests = false;
+    m_bNoSaving = false;
+    m_bCloseOnSuccess = false;
+    m_bNoGUI = false;
+    m_iRevision = -1;
+    m_bEnableAllTests = false;
+  }
 
-
+  // The following settings are stored in the settings file.
+  bool m_bAssertOnTestFail;
+  bool m_bOpenHtmlOutput;
+  bool m_bKeepConsoleOpen;
+  bool m_bShowMessageBox;
+  
+  // The following settings are only set via command-line.
+  bool m_bRunTests;         /// Only needed for GUI applications, in console mode tests are always run automatically.
+  bool m_bNoSaving;         /// Allows to run the test with settings through the command line without saving those settings for later.
+  bool m_bCloseOnSuccess;   /// Closes the application upon success immediately.
+  bool m_bNoGUI;            /// Starts the tests in console mode, test are started automatically.
+  int m_iRevision;          /// Revision in the RCS of this test run. Will be written into the test results json file for later reference.
+  std::string m_sJsonOutput;/// Absolute path to the json file the results should be written to.
+  bool m_bEnableAllTests;   /// Enables all test.
+};

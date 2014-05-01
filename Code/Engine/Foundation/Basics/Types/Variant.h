@@ -25,6 +25,10 @@ public:
     {
       Invalid,            ///< The variant stores no (valid) data at the moment.
       Bool,               ///< The variant stores a bool.
+      Int8,               ///< The variant stores an ezInt8.
+      UInt8,              ///< The variant stores an ezUInt8.
+      Int16,              ///< The variant stores an ezInt16.
+      UInt16,             ///< The variant stores an ezUInt16.
       Int32,              ///< The variant stores an ezInt32.
       UInt32,             ///< The variant stores an ezUInt32.
       Int64,              ///< The variant stores an ezInt64.

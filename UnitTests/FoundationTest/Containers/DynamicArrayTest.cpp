@@ -1,5 +1,6 @@
 #include <PCH.h>
 #include <Foundation/Memory/CommonAllocators.h>
+#include <Foundation/Containers/DynamicArray.h>
 
 typedef ezConstructionCounter st;
 
