@@ -62,7 +62,7 @@ void ezTokenizer::AddToken()
   ezToken t;
   t.m_uiLine = m_uiLastLine;
   t.m_uiColumn = m_uiLastColumn;
-  t.m_Type = m_CurMode;
+  t.m_iType = m_CurMode;
   t.m_DataView = ezStringIterator(m_szTokenStart, szEnd, m_szTokenStart);
 
   m_uiLastLine = m_uiCurLine;
@@ -73,7 +73,7 @@ void ezTokenizer::AddToken()
   m_szTokenStart = szEnd;
 
   ezStringBuilder s = t.m_DataView;
-  ezLog::Info("Line %u:%u, Token '%s': '%s'", t.m_uiLine, t.m_uiColumn, ezTokenType::EnumNames[t.m_Type], s.GetData());
+  ezLog::Info("Line %u:%u, Token '%s': '%s'", t.m_uiLine, t.m_uiColumn, ezTokenType::EnumNames[t.m_iType], s.GetData());
 
   m_CurMode = ezTokenType::Unknown;
 }
@@ -109,7 +109,7 @@ void ezTokenizer::Tokenize(const ezDynamicArray<ezUInt8>& Data, ezLogInterface* 
   {
     ezToken t;
     t.m_uiLine = 1;
-    t.m_Type = ezTokenType::EndOfFile;
+    t.m_iType = ezTokenType::EndOfFile;
     m_Tokens.PushBack(t);
     return;
   }
@@ -159,7 +159,7 @@ void ezTokenizer::Tokenize(const ezDynamicArray<ezUInt8>& Data, ezLogInterface* 
 
   ezToken t;
   t.m_uiLine = m_uiCurLine;
-  t.m_Type = ezTokenType::EndOfFile;
+  t.m_iType = ezTokenType::EndOfFile;
   m_Tokens.PushBack(t);
 }
 
@@ -369,12 +369,12 @@ ezResult ezTokenizer::GetNextLine(ezUInt32& uiFirstToken, ezHybridArray<const ez
     const ezToken& tCur = m_Tokens[uiFirstToken];
 
     // found a backslash
-    if (tCur.m_Type == ezTokenType::NonIdentifier && tCur.m_DataView == "\\")
+    if (tCur.m_iType == ezTokenType::NonIdentifier && tCur.m_DataView == "\\")
     {
       const ezToken& tNext = m_Tokens[uiFirstToken + 1];
 
       // and a newline!
-      if (tNext.m_Type == ezTokenType::Newline)
+      if (tNext.m_iType == ezTokenType::Newline)
       {
         /// \todo Theoretically, if the line ends with an identifier, and the next directly starts with one again,
         // we would need to merge the two into one identifier name, because the \ \n combo means it is not a
@@ -382,8 +382,8 @@ ezResult ezTokenizer::GetNextLine(ezUInt32& uiFirstToken, ezHybridArray<const ez
         // for now we ignore this and assume there is a 'whitespace' between such identifiers
 
         // we could maybe at least output a warning, if we detect it
-        if (uiFirstToken > 0 && m_Tokens[uiFirstToken - 1].m_Type == ezTokenType::Identifier &&
-            uiFirstToken + 2 < uiMaxTokens && m_Tokens[uiFirstToken + 2].m_Type == ezTokenType::Identifier)
+        if (uiFirstToken > 0 && m_Tokens[uiFirstToken - 1].m_iType == ezTokenType::Identifier &&
+            uiFirstToken + 2 < uiMaxTokens && m_Tokens[uiFirstToken + 2].m_iType == ezTokenType::Identifier)
         {
           ezStringBuilder s1 = m_Tokens[uiFirstToken - 1].m_DataView;
           ezStringBuilder s2 = m_Tokens[uiFirstToken + 2].m_DataView;
@@ -398,7 +398,7 @@ ezResult ezTokenizer::GetNextLine(ezUInt32& uiFirstToken, ezHybridArray<const ez
 
     Tokens.PushBack(&tCur);
 
-    if (m_Tokens[uiFirstToken].m_Type == ezTokenType::Newline)
+    if (m_Tokens[uiFirstToken].m_iType == ezTokenType::Newline)
     {
       ++uiFirstToken;
       return EZ_SUCCESS;

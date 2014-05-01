@@ -28,12 +28,13 @@ struct EZ_COREUTILS_DLL ezToken
 {
   ezToken()
   {
-    m_Type = ezTokenType::Unknown;
+    m_iType = ezTokenType::Unknown;
     m_uiLine = 0;
     m_uiColumn = 0;
   }
 
-  ezTokenType::Enum m_Type;
+  /// Typically of type ezTokenType, but users can put anything in there, that they like
+  ezInt32 m_iType;
 
   /// The line in which the token appeared
   ezUInt32 m_uiLine;

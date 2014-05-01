@@ -128,13 +128,20 @@ EZ_CREATE_SIMPLE_TEST(Performance, Basics)
   const ezInt32 iNumObjects = 1000000;
   const float fNumObjects = (float) iNumObjects;
 
+  ezDynamicArray<Derived1> Der1;
+  Der1.SetCount(iNumObjects / 2);
+
+  ezDynamicArray<Derived2> Der2;
+  Der2.SetCount(iNumObjects / 2);
+
   ezDynamicArray<Base*> Objects;
   Objects.SetCount(iNumObjects);
 
   for (ezInt32 i = 0; i < iNumObjects; i += 2)
-    Objects[i] = new Derived1();
-  for (ezInt32 i = 1; i < iNumObjects; i += 2)
-    Objects[i] = new Derived2();
+  {
+    Objects[i] = &Der1[i / 2];
+    Objects[i + 1] = &Der2[i / 2];
+  }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Dispatch Message")
   {
@@ -435,7 +442,6 @@ EZ_CREATE_SIMPLE_TEST(Performance, Basics)
 
     ezLog::Info("[test]64 Bit Double Multiplication: %.2fns", t, iResult);
   }
-
 }
 
 
