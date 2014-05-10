@@ -4,6 +4,10 @@
 #include <RendererFoundation/Basics.h>
 #include <Foundation/Basics/Types/RefCounted.h>
 
+/// \brief This class wraps shader byte code storage.
+/// Since byte code can have different requirements for alignment, padding etc. this class manages it.
+/// Also since byte code is shared between multiple shaders (e.g. same vertex shaders for different pixel shaders)
+/// the instances of the byte codes are reference counted.
 class EZ_RENDERERFOUNDATION_DLL ezGALShaderByteCode : public ezRefCounted
 {
 public:
