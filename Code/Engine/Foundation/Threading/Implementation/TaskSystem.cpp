@@ -44,8 +44,8 @@ void ezTaskSystem::Startup()
   s_ProfileWaitForGroup = ezProfilingSystem::CreateId("WaitForGroup");
   s_ProfileCancelTask = ezProfilingSystem::CreateId("CancelTask");
   s_ProfileCancelGroup = ezProfilingSystem::CreateId("CancelGroup");
-  s_ProfileMainThreadTasks = ezProfilingSystem::CreateId("MainThreadTasks");
-  s_ProfileSomeFrameTasks = ezProfilingSystem::CreateId("MainThreadTasks2");
+  s_ProfileMainThreadTasks = ezProfilingSystem::CreateId("ThisFrameMainThreadTasks");
+  s_ProfileSomeFrameTasks = ezProfilingSystem::CreateId("SomeFrameMainThreadTasks");
 }
 
 void ezTaskSystem::Shutdown()

@@ -56,6 +56,23 @@ void ezResourceManager::RunWorkerTask()
 
   ezLock<ezMutex> l(ResourceMutex);
 
+  static bool bTaskNamesInitialized = false;
+
+  if (!bTaskNamesInitialized)
+  {
+    bTaskNamesInitialized = true;
+
+    m_WorkerTask[0].SetTaskName("Resource Loader 1");
+    m_WorkerTask[1].SetTaskName("Resource Loader 2");
+
+    ezStringBuilder s;
+    for (ezUInt32 i = 0; i < 16; ++i)
+    {
+      s.Format("GPU Resource Loader %u", i);
+      m_WorkerGPU[i].SetTaskName(s.GetData());
+    }
+  }
+
   if (!m_bTaskRunning && !ezResourceManager::m_RequireLoading.IsEmpty())
   {
     m_bTaskRunning = true;

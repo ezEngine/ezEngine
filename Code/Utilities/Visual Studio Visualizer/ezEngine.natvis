@@ -8,6 +8,23 @@
 		<StringView>m_Data.m_pElements,s8</StringView>
 	</Type>
 	
+
+	<Type Name="ezStringIterator">
+		<DisplayString>{m_pCurrent,s8}</DisplayString>
+		<StringView>m_pCurrent,s8</StringView>
+		
+		<Expand>
+			<Item Name="Length">m_pEnd - m_pFirst</Item>
+			<Item Name="Start">m_pFirst,s8</Item>
+			<Item Name="End">m_pEnd,s8</Item>
+			<Item Name="Current">m_pCurrent,s8</Item>
+			<Item Name="Valid">m_bValid</Item>
+			<Item Name="ASCII">m_bIsPureASCII</Item>
+		</Expand>
+	</Type>	
+	
+
+	
 	<Type Name="ezHashedString">
 		<DisplayString>{m_Data.m_pElement->m_Key}</DisplayString>
 		<Expand>

@@ -53,9 +53,6 @@ private:
 class EZ_CORE_DLL ezResourceManager
 {
 public:
-  ezResourceManager();
-  ~ezResourceManager();
-
   template<typename ResourceType>
   static ezResourceHandle<ResourceType> GetResourceHandle(const char* szResourceID);
 
