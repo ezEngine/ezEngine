@@ -38,9 +38,6 @@ class EZ_FOUNDATION_DLL ezReloadableVariableBase : public ezEnumerable<ezReloada
 public:
   virtual ~ezReloadableVariableBase() { }
 
-  /// \brief Automatically called via the global event 'ezFoundation_Shutdown' to free the internal memory.
-  static void Shutdown();
-
   /// \brief Automatically called by ezPlugin whenever a plugin is unloaded, to preserve the current state of all reloadable global variables.
   static void StoreVariables();
 
@@ -62,7 +59,7 @@ private:
   virtual void LoadState(ezStreamReaderBase& Stream) = 0;
 
   /// \brief This map stores the last state of all known reloadable variables, to allow reading it back again on demand.
-  static ezMap<ezString, ezMemoryStreamStorage>* s_StoredVariables;
+  static ezMap<ezString, ezMemoryStreamStorage> s_StoredVariables;
 };
 
 /// \brief [internal] Helper class, derived from ezReloadableVariableBase, to implement type specific reloading of global variables.

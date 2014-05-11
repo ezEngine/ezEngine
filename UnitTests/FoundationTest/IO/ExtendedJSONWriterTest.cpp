@@ -9,8 +9,7 @@ EZ_CREATE_SIMPLE_TEST(IO, ExtendedJSONWriter)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Object")
   {
     StreamComparer sc(
-"\"TestObject\" : \n\
-{\n\
+"\"TestObject\" : {\n\
   \n\
 }");
 
@@ -24,8 +23,7 @@ EZ_CREATE_SIMPLE_TEST(IO, ExtendedJSONWriter)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Anonymous Object")
   {
     StreamComparer sc(
-"\n\
-{\n\
+"{\n\
   \n\
 }");
 
@@ -242,7 +240,6 @@ EZ_CREATE_SIMPLE_TEST(IO, ExtendedJSONWriter)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Arrays")
   {
     StreamComparer sc("\
-\n\
 {\n\
   \"EmptyArray\" : [  ],\n\
   \"NamedArray\" : [ { \"$t\" : \"int32\", \"$v\" : \"13\", \"$b\" : \"0x0D000000\" } ],\n\
@@ -295,7 +292,6 @@ EZ_CREATE_SIMPLE_TEST(IO, ExtendedJSONWriter)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Complex Objects")
   {
     StreamComparer sc("\
-\n\
 {\n\
   \"String\" : \"testvalue\",\n\
   \"double\" : { \"$t\" : \"double\", \"$v\" : \"43.56000000\", \"$b\" : \"0x48E17A14AEC74540\" },\n\
@@ -303,14 +299,11 @@ EZ_CREATE_SIMPLE_TEST(IO, ExtendedJSONWriter)
   \"bool\" : true,\n\
   \"int\" : { \"$t\" : \"int32\", \"$v\" : \"23\", \"$b\" : \"0x17000000\" },\n\
   \"myarray\" : [ { \"$t\" : \"int32\", \"$v\" : \"1\", \"$b\" : \"0x01000000\" }, { \"$t\" : \"float\", \"$v\" : \"2.2000\", \"$b\" : \"0xCDCC0C40\" }, { \"$t\" : \"double\", \"$v\" : \"3.30000000\", \"$b\" : \"0x6666666666660A40\" }, false, \"ende\" ],\n\
-  \"object\" : \n\
-  {\n\
+  \"object\" : {\n\
     \"variable in object\" : \"bla\",\n\
-    \"Subobject\" : \n\
-    {\n\
+    \"Subobject\" : {\n\
       \"variable in subobject\" : \"bla\",\n\
-      \"array in sub\" : [ \n\
-        {\n\
+      \"array in sub\" : [ {\n\
           \"obj var\" : { \"$t\" : \"uint64\", \"$v\" : \"234\", \"$b\" : \"0xEA00000000000000\" }\n\
         },\n\
         {\n\

@@ -10,8 +10,7 @@ EZ_CREATE_SIMPLE_TEST(IO, StandardJSONWriter)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Object")
   {
     StreamComparer sc(
-"\"TestObject\" : \n\
-{\n\
+"\"TestObject\" : {\n\
   \n\
 }");
 
@@ -25,8 +24,7 @@ EZ_CREATE_SIMPLE_TEST(IO, StandardJSONWriter)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Anonymous Object")
   {
     StreamComparer sc(
-"\n\
-{\n\
+"{\n\
   \n\
 }");
 
@@ -240,7 +238,6 @@ EZ_CREATE_SIMPLE_TEST(IO, StandardJSONWriter)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Arrays")
   {
     StreamComparer sc("\
-\n\
 {\n\
   \"EmptyArray\" : [  ],\n\
   \"NamedArray\" : [ 13 ],\n\
@@ -293,7 +290,6 @@ EZ_CREATE_SIMPLE_TEST(IO, StandardJSONWriter)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Complex Objects")
   {
     StreamComparer sc("\
-\n\
 {\n\
   \"String\" : \"testvalue\",\n\
   \"double\" : 43.56,\n\
@@ -301,14 +297,11 @@ EZ_CREATE_SIMPLE_TEST(IO, StandardJSONWriter)
   \"bool\" : true,\n\
   \"int\" : 23,\n\
   \"myarray\" : [ 1, 2.2, 3.3, false, \"ende\" ],\n\
-  \"object\" : \n\
-  {\n\
+  \"object\" : {\n\
     \"variable in object\" : \"bla\",\n\
-    \"Subobject\" : \n\
-    {\n\
+    \"Subobject\" : {\n\
       \"variable in subobject\" : \"bla\",\n\
-      \"array in sub\" : [ \n\
-        {\n\
+      \"array in sub\" : [ {\n\
           \"obj var\" : 234\n\
         },\n\
         {\n\

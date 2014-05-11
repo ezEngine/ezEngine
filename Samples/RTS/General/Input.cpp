@@ -18,6 +18,15 @@ void SampleGameApp::UpdateInput(ezTime UpdateDiff)
   if (ezInputManager::GetInputActionState("Main", "CloseApp") == ezKeyState::Pressed)
     m_bActiveRenderLoop = false;
 
+  if (ezInputManager::GetInputActionState("Main", "CaptureProfiling") == ezKeyState::Pressed)
+  {
+    ezFileWriter fileWriter;
+    if (fileWriter.Open("profiling.json") == EZ_SUCCESS)
+    {
+      ezProfilingSystem::Capture(fileWriter);
+    }
+  }
+
   float f;
   float fCamSpeed = 15.0f;
   const float fCamRotSpeed = 140.0f;
@@ -66,7 +75,6 @@ void SampleGameApp::UpdateInput(ezTime UpdateDiff)
 
   if (ezInputManager::GetInputActionState("Game", "UnitSmaller", &f) == ezKeyState::Pressed)
     RevealerComponent::g_fDefaultRadius -= 1.0f;
-
 }
 
 void SampleGameApp::SetupInput()
@@ -83,6 +91,9 @@ void SampleGameApp::SetupInput()
 
   cfg.m_sInputSlotTrigger[0] = ezInputSlot_KeyF1;
   ezInputManager::SetInputActionConfig("Main", "ToggleConsole", cfg, true);
+
+  cfg.m_sInputSlotTrigger[0] = ezInputSlot_KeyF12;
+  ezInputManager::SetInputActionConfig("Main", "CaptureProfiling", cfg, true);
 
   cfg.m_sInputSlotTrigger[0] = ezInputSlot_KeyLeftShift;
   ezInputManager::SetInputActionConfig("Game", "CamMoveFast", cfg, true);

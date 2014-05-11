@@ -4,6 +4,8 @@
 #include "Window.h"
 #include <Foundation/Logging/ConsoleWriter.h>
 #include <Foundation/Logging/VisualStudioWriter.h>
+#include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
+#include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/Time/Time.h>
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Communication/Telemetry.h>
@@ -22,6 +24,9 @@ SampleGameApp::SampleGameApp()
 void SampleGameApp::AfterEngineInit()
 {
   EZ_LOG_BLOCK("SampleGameApp::AfterEngineInit");
+
+  ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
+  ezFileSystem::AddDataDirectory(ezOSFile::GetApplicationDirectory());
 
   ezTelemetry::CreateServer();
 
@@ -61,6 +66,7 @@ void SampleGameApp::BeforeEngineShutdown()
 
   ezStartup::ShutdownEngine();
 
+  m_pDevice->Shutdown();
   EZ_DEFAULT_DELETE(m_pDevice);
 
   EZ_DEFAULT_DELETE(m_pWindow);

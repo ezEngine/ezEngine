@@ -354,11 +354,10 @@ void ezStandardJSONWriter::BeginObject(const char* szName)
 
   if (m_StateStack.PeekBack().m_bRequireComma)
   {
-    OutputString(",");
+    OutputString(",\n");
+    OutputIndentation();
   }
 
-  OutputString("\n");
-  OutputIndentation();
   OutputString("{\n");
 
   JSONState s;

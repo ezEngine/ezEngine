@@ -45,7 +45,8 @@ void SampleGameApp::AfterEngineInit()
   sPath.AppendPath("../../../Shared/Samples/RTS");
 
   ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
-  EZ_VERIFY(ezFileSystem::AddDataDirectory(sPath.GetData()) == EZ_SUCCESS, "Failed to add data directory: '%s'", sPath.GetData());
+  EZ_VERIFY(ezFileSystem::AddDataDirectory(ezOSFile::GetApplicationDirectory()) == EZ_SUCCESS, "Failed to add data directory: '%s'", ezOSFile::GetApplicationDirectory());
+  EZ_VERIFY(ezFileSystem::AddDataDirectory(sPath.GetData(), ezFileSystem::ReadOnly) == EZ_SUCCESS, "Failed to add data directory: '%s'", sPath.GetData());
 
   m_pWindow = EZ_DEFAULT_NEW(GameWindow);
 

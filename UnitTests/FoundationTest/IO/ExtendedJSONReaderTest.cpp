@@ -39,6 +39,7 @@ EZ_CREATE_SIMPLE_TEST(IO, ExtendedJSONReader)
 
     ezResult r(EZ_FAILURE);
     ezTime t2 = vt.ConvertTo<ezTime>(&r);
+    EZ_IGNORE_UNUSED(t2);
 
     EZ_TEST_BOOL(r.Succeeded());
 

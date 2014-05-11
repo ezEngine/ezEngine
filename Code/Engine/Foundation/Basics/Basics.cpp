@@ -39,20 +39,6 @@ void ezFoundation::Initialize()
   s_bIsInitialized = true;
 }
 
-void ezFoundation::Shutdown()
-{
-  if (!s_bIsInitialized)
-    return;
-
-  ezGlobalEvent::Broadcast("ezFoundation_Shutdown");
-
-  // Allocators must not be deleted, they might still be used during application shutdown
-  // but dump memory leaks instead
-  ezMemoryTracker::DumpMemoryLeaks();
-
-  s_bIsInitialized = false;
-}
-
 #if defined(EZ_CUSTOM_STATIC_ALLOCATOR_FUNC)
   extern ezAllocatorBase* EZ_CUSTOM_STATIC_ALLOCATOR_FUNC();
 #endif

@@ -3,6 +3,7 @@
 #include "Window.h"
 
 #include <Foundation/Logging/Log.h>
+#include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Core/Input/InputManager.h>
 #include <InputXBox360/InputDeviceXBox.h>
 #include <Foundation/Configuration/CVar.h>
@@ -63,6 +64,15 @@ void SampleGameApp::UpdateInput(ezTime UpdateDiff)
   {
     m_pWindow->GetInputDevice()->SetClipMouseCursor(!m_pWindow->GetInputDevice()->GetClipMouseCursor());
   }
+
+  if (ezInputManager::GetInputActionState("Main", "CaptureProfiling") == ezKeyState::Pressed)
+  {
+    ezFileWriter fileWriter;
+    if (fileWriter.Open("profiling.json") == EZ_SUCCESS)
+    {
+      ezProfilingSystem::Capture(fileWriter);
+    }
+  }
 }
 
 static void RegisterInputAction(const char* szInputSet, const char* szInputAction, const char* szKey1, const char* szKey2 = nullptr, const char* szKey3 = nullptr)
@@ -98,6 +108,7 @@ void SampleGameApp::SetupInput()
   RegisterInputAction("Main", "CVarUp", ezInputSlot_KeyP);
   RegisterInputAction("Main", "ToggleMouseShow", ezInputSlot_KeyM);
   RegisterInputAction("Main", "ToggleMouseClip", ezInputSlot_KeyN);
+  RegisterInputAction("Main", "CaptureProfiling", ezInputSlot_KeyF12);
 
   // setup all controllers
   for (ezInt32 iPlayer = 0; iPlayer < MaxPlayers; ++iPlayer)

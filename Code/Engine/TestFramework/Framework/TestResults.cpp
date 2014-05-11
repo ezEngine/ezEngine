@@ -88,7 +88,6 @@ void ezTestFrameworkResult::SetupTests(const std::deque<ezTestEntry>& tests, con
   for (ezUInt32 uiTestIdx = 0; uiTestIdx < uiTestCount; ++uiTestIdx)
   {
     m_Tests.push_back(ezTestResult(tests[uiTestIdx].m_szTestName));
-    ezTestResult& testResult = *m_Tests.rbegin();
 
     const ezUInt32 uiSubTestCount = (ezUInt32)tests[uiTestIdx].m_SubTests.size();
     for (ezUInt32 uiSubTestIdx = 0; uiSubTestIdx < uiSubTestCount; ++uiSubTestIdx)

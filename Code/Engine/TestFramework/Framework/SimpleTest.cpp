@@ -1,6 +1,7 @@
 #include <TestFramework/PCH.h>
 #include <TestFramework/Framework/TestFramework.h>
 #include <Foundation/Configuration/Startup.h>
+#include <Foundation/Memory/MemoryTracker.h>
 
 EZ_ENUMERABLE_CLASS_IMPLEMENTATION(ezRegisterSimpleTestHelper);
 
@@ -45,6 +46,7 @@ ezResult ezSimpleTestGroup::DeInitializeSubTest(ezInt32 iIdentifier)
 {
   // shut down completely
   ezStartup::ShutdownCore();
+  ezMemoryTracker::DumpMemoryLeaks();
   return EZ_SUCCESS;
 }
 

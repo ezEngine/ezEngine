@@ -85,7 +85,6 @@ private:
   friend class ezStartup;
 
   static void Initialize();
-  static void Shutdown();
 
   /// \brief Returns the allocator that is used to by global data and static members before the default allocator is created.
   static ezAllocatorBase* GetStaticAllocator();

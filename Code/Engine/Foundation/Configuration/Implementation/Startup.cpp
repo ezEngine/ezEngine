@@ -394,11 +394,6 @@ void ezStartup::Shutdown(ezStartupStage::Enum stage)
     break;
   }
 
-  if (stage == ezStartupStage::Base)
-  {
-    ezFoundation::Shutdown();
-  }
-
   if (s_CurrentState != ezStartupStage::None)
   {
     s_CurrentState = (ezStartupStage::Enum) (((ezInt32) stage) - 1);

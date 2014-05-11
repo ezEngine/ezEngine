@@ -4,8 +4,8 @@
 #undef EZ_USE_PROFILING
 #define EZ_USE_PROFILING EZ_ON
 
-#undef EZ_USE_PROFILING_GPA
-#define EZ_USE_PROFILING_GPA EZ_ON
+//#undef EZ_USE_PROFILING_GPA
+//#define EZ_USE_PROFILING_GPA EZ_ON
 
 // Enables some basic checks, even in release builds.
 #undef EZ_COMPILE_FOR_DEVELOPMENT

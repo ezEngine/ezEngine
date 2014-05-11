@@ -90,12 +90,9 @@ EZ_CREATE_SIMPLE_TEST(Communication, MessageQueue)
     ezMessage* pMsg = nullptr;
     MetaData md;
 
-    for (ezUInt32 i = 0; i < 10; ++i)
+    while (q.TryDequeue(pMsg, md))
     {
-      if (q.TryDequeue(pMsg, md))
-      {
-        EZ_DEFAULT_DELETE(pMsg);
-      }
+      EZ_DEFAULT_DELETE(pMsg);
     }
   }
 }

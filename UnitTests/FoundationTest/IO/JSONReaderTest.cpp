@@ -264,6 +264,10 @@ void TraverseTree(const ezVariant& var, ezDeque<ezString>& Compare)
       Compare.PopFront();
     }
     break;
+      
+  default:
+    EZ_ASSERT_NOT_IMPLEMENTED;
+    break;
   }
 }
 

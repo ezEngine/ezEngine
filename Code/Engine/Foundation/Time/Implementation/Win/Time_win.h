@@ -1,9 +1,12 @@
 
-static LARGE_INTEGER g_qpcFrequency = {0};
+static double g_fInvQpcFrequency;
 
 void ezTime::Initialize()
 {
-  QueryPerformanceFrequency(&g_qpcFrequency);
+  LARGE_INTEGER frequency;
+  QueryPerformanceFrequency(&frequency);
+
+  g_fInvQpcFrequency = 1.0 / double(frequency.QuadPart);
 }
 
 //#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
@@ -27,6 +30,6 @@ ezTime ezTime::Now()
 //  s_LastTime = temp;
 //#endif
 
-  return ezTime::Seconds((double(temp.QuadPart) / double(g_qpcFrequency.QuadPart)));
+  return ezTime::Seconds(double(temp.QuadPart) * g_fInvQpcFrequency);
 }
 

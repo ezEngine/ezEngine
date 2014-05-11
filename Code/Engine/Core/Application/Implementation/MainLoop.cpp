@@ -35,6 +35,8 @@ void ezRun(ezApplication* pApplicationInstance)
   // Reset application instance so code running after the app will trigger asserts etc. to be cleaned up
   // Destructor is called by entry point function
   ezApplication::s_pApplicationInstance = nullptr;
+
+  ezMemoryTracker::DumpMemoryLeaks();
 }
 
 EZ_STATICLINK_FILE(Core, Core_Application_Implementation_MainLoop);

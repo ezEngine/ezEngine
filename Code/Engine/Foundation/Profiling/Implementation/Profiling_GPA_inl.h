@@ -41,6 +41,7 @@ ezProfilingScope::~ezProfilingScope()
   __itt_task_end(g_pIttDomain);
 }
 
+//static
 void ezProfilingSystem::SetThreadName(const char* szThreadName)
 {
   ezStringBuilder fullName(szThreadName);
@@ -49,3 +50,7 @@ void ezProfilingSystem::SetThreadName(const char* szThreadName)
   __itt_thread_set_name(fullName.GetData());
 }
 
+//static
+void ezProfilingSystem::Capture(ezStreamWriterBase& outputStream)
+{
+}

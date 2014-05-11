@@ -35,8 +35,6 @@ namespace
 {
   struct RefCountedProfilingInfo : public ProfilingInfo
   {
-    EZ_DECLARE_POD_TYPE();
-
     RefCountedProfilingInfo(const char* szName) : ProfilingInfo(szName)
     {
       m_uiRefCount = 1;
