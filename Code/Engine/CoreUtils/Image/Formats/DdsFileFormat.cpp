@@ -478,12 +478,13 @@ ezResult ezDdsFileFormat::WriteImage(ezStreamWriterBase& stream, const ezImage& 
     return EZ_FAILURE;
   }
 
-  /// \todo Muesste das nicht sein 'if (bDxt10 && stream.WriteBytes(&headerDxt10, sizeof(headerDxt10)) != EZ_SUCCESS)' -> Error ?
-
-  if (!bDxt10 || stream.WriteBytes(&headerDxt10, sizeof(headerDxt10)) != EZ_SUCCESS)
+  if (bDxt10)
   {
-    ezLog::Error(pLog, "Failed to write image DX10 header.");
-    return EZ_FAILURE;
+    if (stream.WriteBytes(&headerDxt10, sizeof(headerDxt10)) != EZ_SUCCESS)
+    {
+      ezLog::Error(pLog, "Failed to write image DX10 header.");
+      return EZ_FAILURE;
+    }
   }
 
   if (stream.WriteBytes(image.GetDataPointer<void>(), image.GetDataSize()) != EZ_SUCCESS)
