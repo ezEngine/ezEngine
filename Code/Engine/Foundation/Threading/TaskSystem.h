@@ -25,11 +25,11 @@ public:
   /// \brief Changes the name of the task, which it will be displayed in profiling tools.
   ///
   /// This will only have an effect if it is called before the task is added to a task group.
-  void SetTaskName(const char* szName);
+  void SetTaskName(const char* szName); // [tested]
 
   /// \brief Sets an additional callback function to execute when the task is finished (or canceled).
   /// The most common use case for this is to deallocate the task at this time.
-  void SetOnTaskFinished(OnTaskFinished Callback, void* pPassThrough = nullptr);
+  void SetOnTaskFinished(OnTaskFinished Callback, void* pPassThrough = nullptr); // [tested]
 
   /// \brief Returns whether the task has been finished. This includes being canceled.
   ///
@@ -39,10 +39,10 @@ public:
   /// If other code needs to be able to check whether a task is finished, you should give it
   /// the ezTaskGroupID of the task's group. That one can be used to query whether the group
   /// has finished, even minutes later.
-  bool IsTaskFinished() const { return m_bIsFinished; }
+  bool IsTaskFinished() const { return m_bIsFinished; } // [tested]
 
   /// \brief Can be used inside an overridden 'Execute' function to terminate execution prematurely.
-  bool HasBeenCanceled() const { return m_bCancelExecution; }
+  bool HasBeenCanceled() const { return m_bCancelExecution; } // [tested]
 
 public:
   /// \brief Allocates and returns a profiling ID for this task. Called by ezTaskSystem.
@@ -117,27 +117,27 @@ public:
   /// this default configuration.
   /// Unless you have a good idea how to set up the number of worker threads to make good use of the available cores,
   /// it is a good idea to just use the default settings.
-  static void SetWorkThreadCount(ezInt8 iShortTasks = -1, ezInt8 iLongTasks = -1);
+  static void SetWorkThreadCount(ezInt8 iShortTasks = -1, ezInt8 iLongTasks = -1); // [tested]
 
   /// \brief Returns the number of threads that are allocated to work on the given type of task.
   static ezUInt32 GetWorkerThreadCount(ezWorkerThreadType::Enum Type) { return s_WorkerThreads[Type].GetCount(); }
 
   /// \brief A helper function to insert a single task into the system and start it right away. Returns ID of the Group into which the task has been put.
-  static ezTaskGroupID StartSingleTask(ezTask* pTask, ezTaskPriority::Enum Priority);
+  static ezTaskGroupID StartSingleTask(ezTask* pTask, ezTaskPriority::Enum Priority); // [tested]
 
   /// \brief A helper function to insert a single task into the system and start it right away. Returns ID of the Group into which the task has been put.
   /// This overload allows to additionally specify a single dependency.
-  static ezTaskGroupID StartSingleTask(ezTask* pTask, ezTaskPriority::Enum Priority, ezTaskGroupID Dependency);
+  static ezTaskGroupID StartSingleTask(ezTask* pTask, ezTaskPriority::Enum Priority, ezTaskGroupID Dependency); // [tested]
 
 
   /// \brief Creates a new task group for one-time use. Groups need to be recreated every time a task is supposed to be inserted into the system.
   ///
   /// All tasks that are added to this group will be run with the same given \a Priority.
   /// Once all tasks in the group are finished and thus the group is finished, an optional \a Callback can be executed.
-  static ezTaskGroupID CreateTaskGroup(ezTaskPriority::Enum Priority, ezTaskGroup::OnTaskGroupFinished Callback = nullptr, void* pPassThrough = nullptr);
+  static ezTaskGroupID CreateTaskGroup(ezTaskPriority::Enum Priority, ezTaskGroup::OnTaskGroupFinished Callback = nullptr, void* pPassThrough = nullptr); // [tested]
 
   /// \brief Adds a task to the given task group. The group must not yet have been started.
-  static void AddTaskToGroup(ezTaskGroupID Group, ezTask* pTask);
+  static void AddTaskToGroup(ezTaskGroupID Group, ezTask* pTask); // [tested]
 
   /// \brief Adds a dependency on another group to \a Group. This means \a Group will not be execute before \a DependsOn has finished.
   ///
@@ -147,16 +147,16 @@ public:
   /// its dependencies are fulfilled. So you might add a long running task and a short task which depends on it, but the system will
   /// not block at the end of the frame, to wait for the long running task (to finish the short task thereafter), as that short task
   /// won't get scheduled for execution, at all, until all its dependencies are actually finished.
-  static void AddTaskGroupDependency(ezTaskGroupID Group, ezTaskGroupID DependsOn);
+  static void AddTaskGroupDependency(ezTaskGroupID Group, ezTaskGroupID DependsOn); // [tested]
 
   /// \brief Starts the task group. After this no further modifications on the group (new tasks or dependencies) are allowed.
-  static void StartTaskGroup(ezTaskGroupID Group);
+  static void StartTaskGroup(ezTaskGroupID Group); // [tested]
 
   /// \brief Returns whether the given \a Group id refers to a task group that has been finished already.
   ///
   /// There is no time frame in which group IDs are valid. You may call this function at any time, even 10 minutes later,
   /// and it will correctly determine the results.
-  static bool IsTaskGroupFinished(ezTaskGroupID Group);
+  static bool IsTaskGroupFinished(ezTaskGroupID Group); // [tested]
 
   /// \brief Call this function once at the end of a frame. It will ensure that all tasks for 'this frame' get finished properly.
   ///
@@ -174,7 +174,7 @@ public:
   /// \note After this function returns all tasks of priority 'ThisFrameMainThread' are finished. All tasks of priority 
   /// 'EarlyThisFrame' up to 'LateThisFrame' are either finished or currently running on some thread, so they will be finished soon.
   /// There is however no guarantee that they are indeed all finished, as that would introduce unnecessary stalls.
-  static void FinishFrameTasks(double fSmoothFrameMS = 1000.0 / 40.0 /* 40 FPS -> 25 ms */);
+  static void FinishFrameTasks(double fSmoothFrameMS = 1000.0 / 40.0 /* 40 FPS -> 25 ms */); // [tested]
 
   /// \brief This function will block until the given task has finished.
   ///
@@ -187,10 +187,10 @@ public:
   /// task is finished, since this thread might be busy running some other task.
   /// This function is only meant to synchronize code, it is not meant to be efficient and should therefore not be
   /// called in regular scenarios.
-  static void WaitForTask(ezTask* pTask);
+  static void WaitForTask(ezTask* pTask); // [tested]
 
   /// \brief Blocks until all tasks in the given group have finished. Similar to 'WaitForTask'.
-  static void WaitForGroup(ezTaskGroupID Group);
+  static void WaitForGroup(ezTaskGroupID Group); // [tested]
 
   /// \brief This function will try to remove the given task from the work queue, to prevent it from being executed.
   ///
@@ -208,7 +208,7 @@ public:
   /// Therefore when bWaitForIt is true, this function might block for a very long time.
   /// It is advised to implement tasks that need to be canceled regularly (e.g. path searches for units that might die)
   /// in a way that allows for quick canceling.
-  static ezResult CancelTask(ezTask* pTask, ezOnTaskRunning::Enum OnTaskRunning = ezOnTaskRunning::WaitTillFinished);
+  static ezResult CancelTask(ezTask* pTask, ezOnTaskRunning::Enum OnTaskRunning = ezOnTaskRunning::WaitTillFinished); // [tested]
 
   /// \brief Cancels all the tasks in the given group.
   ///
@@ -216,7 +216,7 @@ public:
   /// EZ_FAILURE is returned, if at least one task was being processed by another thread and could not be removed without waiting.
   /// If bWaitForIt is false, the function cancels all tasks, but returns without blocking, even if not all tasks have been finished.
   /// If bWaitForIt is true, the function returns only after it is guaranteed that all tasks are properly terminated.
-  static ezResult CancelGroup(ezTaskGroupID Group, ezOnTaskRunning::Enum OnTaskRunning = ezOnTaskRunning::WaitTillFinished);
+  static ezResult CancelGroup(ezTaskGroupID Group, ezOnTaskRunning::Enum OnTaskRunning = ezOnTaskRunning::WaitTillFinished); // [tested]
 
   /// \brief Returns true when the thread that this function is executed on is the file loading thread.
   static bool IsLoadingThread();

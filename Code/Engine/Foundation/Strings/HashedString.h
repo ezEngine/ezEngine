@@ -129,7 +129,7 @@ public:
   ezTempHashedString(const ezTempHashedString& rhs); // [tested]
 
   /// \brief Copies the hash from the ezHashedString.
-  ezTempHashedString(const ezHashedString& rhs);
+  ezTempHashedString(const ezHashedString& rhs); // [tested]
   
   /// \brief The hash of the given string can be computed at compile time.
   template <size_t N>
@@ -142,7 +142,7 @@ public:
   void operator= (const ezTempHashedString& rhs); // [tested]
 
   /// \brief Copies the hash from the ezHashedString.
-  void operator= (const ezHashedString& rhs);
+  void operator= (const ezHashedString& rhs); // [tested]
 
   /// \brief Compares the two objects by their hash value. Might report incorrect equality, if two strings have the same hash value.
   bool operator== (const ezTempHashedString& rhs) const; // [tested]

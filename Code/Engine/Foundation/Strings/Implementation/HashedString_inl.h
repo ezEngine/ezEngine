@@ -103,7 +103,6 @@ inline ezTempHashedString::ezTempHashedString(const ezTempHashedString& rhs)
 
 inline ezTempHashedString::ezTempHashedString(const ezHashedString& rhs)
 {
-  /// \test this is new
   m_uiHash = rhs.GetHash();
 }
 
@@ -125,7 +124,6 @@ inline void ezTempHashedString::operator= (const ezTempHashedString& rhs)
 
 inline void ezTempHashedString::operator= (const ezHashedString& rhs)
 {
-  /// \test this is new
   m_uiHash = rhs.GetHash();
 }
 

@@ -4,13 +4,32 @@
 bool ezDataTransfer::s_bInitialized = false;
 ezSet<ezDataTransfer*> ezDataTransfer::s_AllTransfers;
 
-ezDataTransferObject::ezDataTransferObject(const ezDataTransfer& BelongsTo, const char* szObjectName, const char* szMimeType, const char* szFileExtension)
+ezDataTransferObject::ezDataTransferObject(ezDataTransfer& BelongsTo, const char* szObjectName, const char* szMimeType, const char* szFileExtension) : m_BelongsTo(BelongsTo)
 {
+  m_bHasBeenTransferred = false;
+
   m_Msg.SetMessageID('TRAN', 'DATA');
   m_Msg.GetWriter() << BelongsTo.m_sDataName;
   m_Msg.GetWriter() << szObjectName;
   m_Msg.GetWriter() << szMimeType;
   m_Msg.GetWriter() << szFileExtension;
+}
+
+ezDataTransferObject::~ezDataTransferObject()
+{
+  EZ_ASSERT(m_bHasBeenTransferred, "The data transfer object has never been transmitted.");
+}
+
+void ezDataTransferObject::Transmit()
+{
+  EZ_ASSERT(!m_bHasBeenTransferred, "The data transfer object has been transmitted already.");
+
+  if (m_bHasBeenTransferred)
+    return;
+
+  m_bHasBeenTransferred = true;
+
+  m_BelongsTo.Transfer(*this);
 }
 
 ezDataTransfer::ezDataTransfer()

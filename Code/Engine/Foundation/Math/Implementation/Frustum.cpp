@@ -5,6 +5,7 @@
 ezFrustum::ezFrustum()
 {
   m_uiUsedPlanes = 0;
+  m_vPosition.SetZero();
 }
 
 void ezFrustum::SetFrustum(const ezVec3& vPosition, ezUInt8 uiNumPlanes, const ezPlane* pPlanes)
@@ -29,6 +30,8 @@ void ezFrustum::TransformFrustum(const ezMat4& mTransform)
 
 ezVolumePosition::Enum ezFrustum::GetObjectPosition(const ezVec3* pVertices, ezUInt32 uiNumVertices) const
 {
+  /// \test Not yet tested
+
   bool bOnSomePlane = false;
 
   for (ezUInt32 i = 0; i < m_uiUsedPlanes; ++i)
@@ -88,7 +91,7 @@ static ezPositionOnPlane::Enum GetPlaneObjectPosition(const ezPlane& p, const ez
 
 ezVolumePosition::Enum ezFrustum::GetObjectPosition(const ezVec3* pVertices, ezUInt32 uiNumVertices, const ezMat4& mObjectTransform) const
 {
-  /// \todo This can be optimized to only transform each vertex once and then check against all planes.
+  /// \test Not yet tested
 
   bool bOnSomePlane = false;
 
@@ -113,6 +116,8 @@ ezVolumePosition::Enum ezFrustum::GetObjectPosition(const ezVec3* pVertices, ezU
 
 ezVolumePosition::Enum ezFrustum::GetObjectPosition(const ezBoundingSphere& Sphere) const
 {
+  /// \test Not yet tested
+
   bool bOnSomePlane = false;
 
   for (ezUInt32 i = 0; i < m_uiUsedPlanes; ++i)
@@ -136,6 +141,8 @@ ezVolumePosition::Enum ezFrustum::GetObjectPosition(const ezBoundingSphere& Sphe
 
 ezVolumePosition::Enum ezFrustum::GetObjectPosition(const ezBoundingBox& Box) const
 {
+  /// \test Not yet tested
+
   bool bOnSomePlane = false;
 
   for (ezUInt32 i = 0; i < m_uiUsedPlanes; ++i)
@@ -236,7 +243,7 @@ void ezFrustum::SetFrustum(const ezVec3& vPosition, const ezMat4& ModelViewProje
   m_uiUsedPlanes = 6;
 }
 
-void ezFrustum::SetFrustum (const ezVec3& vPosition, const ezVec3& vForwards, const ezVec3& vUp, ezAngle FovX, ezAngle FovY, float fFarPlane)
+void ezFrustum::SetFrustum(const ezVec3& vPosition, const ezVec3& vForwards, const ezVec3& vUp, ezAngle FovX, ezAngle FovY, float fFarPlane)
 {
   /// \test Tested manually, works as expected, but no automatic tests yet.
 

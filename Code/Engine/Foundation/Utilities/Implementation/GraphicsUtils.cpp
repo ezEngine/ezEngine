@@ -4,8 +4,6 @@
 
 ezResult ezGraphicsUtils::ConvertWorldPosToScreenPos(const ezMat4& ModelViewProjection, ezProjectionDepthRange::Enum DepthRange, const ezUInt32 uiViewportX, const ezUInt32 uiViewportY, const ezUInt32 uiViewportWidth, const ezUInt32 uiViewportHeight, const ezVec3& vPoint, ezVec3& out_vScreenPos)
 {
-  /// \test this is new
-
   const ezVec4 vToProject = vPoint.GetAsVec4(1.0f);
 
   ezVec4 vClipSpace = ModelViewProjection * vToProject;
@@ -30,8 +28,6 @@ ezResult ezGraphicsUtils::ConvertWorldPosToScreenPos(const ezMat4& ModelViewProj
 
 ezResult ezGraphicsUtils::ConvertScreenPosToWorldPos(const ezMat4& InverseModelViewProjection, ezProjectionDepthRange::Enum DepthRange, const ezUInt32 uiViewportX, const ezUInt32 uiViewportY, const ezUInt32 uiViewportWidth, const ezUInt32 uiViewportHeight, const ezVec3& vScreenPos, ezVec3& out_vPoint, ezVec3* out_vDirection)
 {
-  /// \test this is new
-
   ezVec3 vClipSpace = vScreenPos;
 
   // From window coordinates to [0; 1] range

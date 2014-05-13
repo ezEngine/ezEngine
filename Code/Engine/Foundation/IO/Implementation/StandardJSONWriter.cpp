@@ -171,8 +171,6 @@ void ezStandardJSONWriter::WriteString(const char* value)
 
 void ezStandardJSONWriter::WriteNULL()
 {
-  /// \test this is new
-
   CommaWriter cw(this);
 
   OutputString("null");
@@ -185,8 +183,6 @@ void ezStandardJSONWriter::WriteTime(ezTime value)
 
 void ezStandardJSONWriter::WriteColor(const ezColor& value)
 {
-  /// \test this is new
-
   ezVec4 temp = value;
 
   ezEndianHelper::NativeToLittleEndian((ezUInt32*) &temp, sizeof(temp) / sizeof(float));

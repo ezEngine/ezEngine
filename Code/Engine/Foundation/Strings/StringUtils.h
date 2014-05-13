@@ -200,22 +200,22 @@ public:
   /// return immediately and nothing will change.
   /// If \a bAlwaysSkipFirst is true, the first character will always be skipped, regardless what it is (unless it is the zero terminator).
   /// The latter is useful to skip an entire word and get to the next word in a string.\n
-  static const char* SkipCharacters(const char* szString, EZ_CHARACTER_FILTER SkipCharacterCB, bool bAlwaysSkipFirst = false);
+  static const char* SkipCharacters(const char* szString, EZ_CHARACTER_FILTER SkipCharacterCB, bool bAlwaysSkipFirst = false); // [tested]
 
   /// \brief Returns the position in szString at which \a IsDelimiterCB returns true.
   ///
   /// This is basically the inverse of SkipCharacters. SkipCharacters advances over all characters that fulfill the filter, 
   /// FindWordEnd advances over all characters that do not fulfill it.
-  static const char* FindWordEnd(const char* szString, EZ_CHARACTER_FILTER IsDelimiterCB, bool bAlwaysSkipFirst = true);
+  static const char* FindWordEnd(const char* szString, EZ_CHARACTER_FILTER IsDelimiterCB, bool bAlwaysSkipFirst = true); // [tested]
 
   /// \brief A default word delimiter function that returns true for ' ' (space), '\r' (carriage return), '\n' (newline), '\t' (tab) and '\v' (vertical tab)
-  static bool IsWhiteSpace(ezUInt32 uiChar);
+  static bool IsWhiteSpace(ezUInt32 uiChar); // [tested]
 
   /// \brief A default word delimiter function for english text.
-  static bool IsWordDelimiter_English(ezUInt32 uiChar);
+  static bool IsWordDelimiter_English(ezUInt32 uiChar); // [tested]
 
   /// \brief A default word delimiter function for identifiers in C code. 
-  static bool IsIdentifierDelimiter_C_Code(ezUInt32 uiChar);
+  static bool IsIdentifierDelimiter_C_Code(ezUInt32 uiChar); // [tested]
 
   /// \brief Searches szString for the word szSearchFor. If IsDelimiterCB returns true for both characters in front and back of the word, the position is returned. Otherwise nullptr.
   static const char* FindWholeWord(const char* szString, const char* szSearchFor, EZ_CHARACTER_FILTER IsDelimiterCB, const char* pStringEnd = ezMaxStringEnd); // [tested]

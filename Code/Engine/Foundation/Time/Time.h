@@ -12,7 +12,7 @@ class EZ_FOUNDATION_DLL ezTime
 public:
 
   /// \brief Gets the current time
-  static ezTime Now();
+  static ezTime Now(); // [tested]
 
   /// \brief Creates an instance of ezTime that was initialized from nanoseconds.
   static ezTime Nanoseconds(double fNanoseconds)    { return ezTime(fNanoseconds * 0.000000001); }

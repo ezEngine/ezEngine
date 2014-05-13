@@ -701,8 +701,6 @@ const char* ezStringUtils::FindLastSubString_NoCase(const char* szSource, const 
 
   const char* ezStringUtils::SkipCharacters(const char* szString, EZ_CHARACTER_FILTER SkipCharacterCB, bool bAlwaysSkipFirst)
   {
-    /// \test this is new
-
     EZ_ASSERT(szString != nullptr, "Invalid string");
 
     while (*szString != '\0')
@@ -719,8 +717,6 @@ const char* ezStringUtils::FindLastSubString_NoCase(const char* szSource, const 
 
   const char* ezStringUtils::FindWordEnd(const char* szString, EZ_CHARACTER_FILTER IsDelimiterCB, bool bAlwaysSkipFirst)
   {
-    /// \test this is new
-
     EZ_ASSERT(szString != nullptr, "Invalid string");
 
     while (*szString != '\0')
@@ -737,15 +733,11 @@ const char* ezStringUtils::FindLastSubString_NoCase(const char* szSource, const 
 
   bool ezStringUtils::IsWhiteSpace(ezUInt32 c)
   {
-    /// \test for completeness
-
     return (c == ' ' || c == '\t' || c == '\r' || c == '\n' || c == '\v');
   }
 
   bool ezStringUtils::IsWordDelimiter_English(ezUInt32 uiChar)
   {
-    /// \test for completeness
-
     if ((uiChar >= 'a') && (uiChar <= 'z'))
       return false;
     if ((uiChar >= 'A') && (uiChar <= 'Z'))
@@ -762,8 +754,6 @@ const char* ezStringUtils::FindLastSubString_NoCase(const char* szSource, const 
 
   bool ezStringUtils::IsIdentifierDelimiter_C_Code(ezUInt32 uiChar)
   {
-    /// \test for completeness
-
     if ((uiChar >= 'a') && (uiChar <= 'z'))
       return false;
     if ((uiChar >= 'A') && (uiChar <= 'Z'))

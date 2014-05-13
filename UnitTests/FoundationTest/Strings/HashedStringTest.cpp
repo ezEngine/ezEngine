@@ -6,6 +6,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, HashedString)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Constructor")
   {
     ezHashedString s;
+    ezHashedString s2; s2.Assign("test"); // compile time hashing
 
     EZ_TEST_STRING(s.GetString().GetData(), "");
     EZ_TEST_BOOL(s.GetString().IsEmpty());
@@ -16,6 +17,9 @@ EZ_CREATE_SIMPLE_TEST(Strings, HashedString)
     ezStringBuilder sb = "test2";
     ezTempHashedString ts2(sb.GetData()); // runtime hashing
     EZ_TEST_INT(ts2.GetHash(), 0x77e1287c);
+
+    ezTempHashedString ts3(s2);
+    EZ_TEST_INT(ts3.GetHash(), 0x1812752e);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Assign")
@@ -99,6 +103,9 @@ EZ_CREATE_SIMPLE_TEST(Strings, HashedString)
 
     EZ_TEST_BOOL(t1 == t2);
     EZ_TEST_BOOL(t1 == t3);
+
+    t3 = s1;
+    EZ_TEST_INT(t3.GetHash(), s1.GetHash());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator<")

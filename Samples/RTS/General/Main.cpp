@@ -172,14 +172,14 @@ ezApplication::ApplicationExecution SampleGameApp::Run()
     dto.GetWriter() << uiWidth;
     dto.GetWriter() << uiHeight;
     dto.GetWriter().WriteBytes(&ImageCorrect[0], ImageCorrect.GetCount());
-    m_ScreenshotTransfer.Transfer(dto);
+    dto.Transmit();
 
     ezDataTransferObject dto3(m_ScreenshotTransfer, "ResultTGA", "image/x-tga", "tga");
 
     ezTgaFileFormat tga;
     tga.WriteImage(dto3.GetWriter(), img, ezGlobalLog::GetInstance());
 
-    m_ScreenshotTransfer.Transfer(dto3);
+    dto3.Transmit();
   }
 
   if (m_StatsTransfer.IsTransferRequested())
@@ -192,7 +192,7 @@ ezApplication::ApplicationExecution SampleGameApp::Run()
     jw.AddVariableString("SomeString", "absolutely");
     jw.EndObject();
 
-    m_StatsTransfer.Transfer(dto);
+    dto.Transmit();
   }
 
   return ezApplication::Continue;

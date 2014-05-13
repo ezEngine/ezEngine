@@ -757,4 +757,47 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringUtils)
     EZ_TEST_BOOL(ezStringUtils::FindWordEnd(&s.GetData()[5], ezStringUtils::IsWhiteSpace, false) == &s.GetData()[5]);
     EZ_TEST_BOOL(ezStringUtils::FindWordEnd(szEmpty, ezStringUtils::IsWhiteSpace, true ) == szEmpty);
     EZ_TEST_BOOL(ezStringUtils::FindWordEnd(szEmpty, ezStringUtils::IsWhiteSpace, false) == szEmpty);
-  }}
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsWhitespace")
+  {
+    EZ_TEST_BOOL(ezStringUtils::IsWhiteSpace(' '));
+    EZ_TEST_BOOL(ezStringUtils::IsWhiteSpace('\t'));
+    EZ_TEST_BOOL(ezStringUtils::IsWhiteSpace('\n'));
+    EZ_TEST_BOOL(ezStringUtils::IsWhiteSpace('\r'));
+    EZ_TEST_BOOL(ezStringUtils::IsWhiteSpace('\v'));
+
+    for (ezUInt32 i = 0; i < 256; ++i)
+    {
+      if (i == ' ' ||
+          i == '\t' ||
+          i == '\v' ||
+          i == '\n' ||
+          i == '\r')
+          continue;
+
+      EZ_TEST_BOOL(ezStringUtils::IsWhiteSpace(i) == false);
+    }
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsWordDelimiter_English / IsIdentifierDelimiter_C_Code")
+  {
+    for (ezUInt32 i = 0; i < 256; ++i)
+    {
+      const bool alpha = (i >= 'a' && i <= 'z');
+      const bool alpha2 = (i >= 'A' && i <= 'Z');
+      const bool num = (i >= '0' && i <= '9');
+      const bool dash = i == '-';
+      const bool underscore = i == '_';
+
+      const bool bCode = alpha || alpha2 || num || underscore;
+      const bool bWord = bCode || dash;
+      
+
+      EZ_TEST_BOOL(ezStringUtils::IsWordDelimiter_English(i) == !bWord);
+      EZ_TEST_BOOL(ezStringUtils::IsIdentifierDelimiter_C_Code(i) == !bCode);
+    }
+  }
+}
+
+

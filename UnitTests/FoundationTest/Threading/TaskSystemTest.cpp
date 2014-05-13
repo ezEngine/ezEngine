@@ -81,6 +81,10 @@ EZ_CREATE_SIMPLE_TEST(Threading, TaskSystem)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Single Tasks")
   {
     ezTestTask t[3];
+
+    t[0].SetTaskName("Task 0");
+    t[1].SetTaskName("Task 1");
+    t[2].SetTaskName("Task 2");
    
     ezTaskSystem::StartSingleTask(&t[0], ezTaskPriority::LateThisFrame);
     ezTaskSystem::StartSingleTask(&t[1], ezTaskPriority::ThisFrame);
