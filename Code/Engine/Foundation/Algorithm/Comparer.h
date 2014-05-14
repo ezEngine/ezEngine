@@ -1,6 +1,7 @@
 
 #pragma once
 
+/// \brief A comparer object is used in sorting algorithms to compare to objects of the same type.
 template <typename T>
 struct ezCompareHelper
 {

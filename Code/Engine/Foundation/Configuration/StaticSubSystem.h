@@ -1,7 +1,7 @@
 #pragma once
 
 /// \file
-///
+
 /// *** Example Subsystem declarations ***
 ///
 ///EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, ExampleSubSystem)

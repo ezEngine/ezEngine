@@ -24,6 +24,7 @@ struct EZ_COREUTILS_DLL ezTokenType
   static const char* EnumNames[ENUM_COUNT];
 };
 
+/// \brief Represents one piece of tokenized text in a document.
 struct EZ_COREUTILS_DLL ezToken
 {
   ezToken()

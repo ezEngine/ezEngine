@@ -104,6 +104,12 @@ const ezTransform operator-(const ezTransform& t, const ezVec3& v); // [tested]
 /// \brief Concatenates the two transforms. This is the same as a matrix multiplication, thus not commutative.
 const ezTransform operator*(const ezTransform& t1, const ezTransform& t2); // [tested]
 
+/// \brief Concatenates the two transforms. This is the same as a matrix multiplication, thus not commutative.
+const ezTransform operator*(const ezTransform& t1, const ezMat4& t2); // [tested]
+
+/// \brief Concatenates the two transforms. This is the same as a matrix multiplication, thus not commutative.
+const ezTransform operator*(const ezMat4& t1, const ezTransform& t2); // [tested]
+
 #include <Foundation/Math/Implementation/Transform_inl.h>
 
 

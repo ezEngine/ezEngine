@@ -232,6 +232,56 @@ EZ_CREATE_SIMPLE_TEST(Math, Transform)
     EZ_TEST_BOOL(mChild.IsEqual(tChild.GetAsMat4(), 0.0001f));
   }
 
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator*(ezTransform, ezMat4)")
+  {
+    ezTransform tParent(ezVec3(1, 2, 3));
+    tParent.m_Rotation.SetRotationMatrix(ezVec3(0, 1, 0), ezAngle::Degree(90));
+    tParent.m_Rotation.SetScalingFactors(ezVec3(2));
+
+    ezTransform tToChild(ezVec3(4, 5, 6));
+    tToChild.m_Rotation.SetRotationMatrix(ezVec3(0, 0, 1), ezAngle::Degree(90));
+    tToChild.m_Rotation.SetScalingFactors(ezVec3(4));
+
+    // this is exactly the same as SetGlobalTransform
+    ezTransform tChild;
+    tChild  = tParent * tToChild.GetAsMat4();
+
+    EZ_TEST_VEC3(tChild.m_vPosition, ezVec3(13, 12, -5), 0.0001f);
+    EZ_TEST_BOOL(tChild.m_Rotation.IsEqual(ezMat3(0, 0, 8, 8, 0, 0, 0, 8, 0), 0.0001f));
+
+    // verify that it works exactly like a 4x4 matrix
+    const ezMat4 mParent = tParent.GetAsMat4();
+    const ezMat4 mToChild = tToChild.GetAsMat4();
+    const ezMat4 mChild = mParent * mToChild;
+
+    EZ_TEST_BOOL(mChild.IsEqual(tChild.GetAsMat4(), 0.0001f));
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator*(ezMat4, ezTransform)")
+  {
+    ezTransform tParent(ezVec3(1, 2, 3));
+    tParent.m_Rotation.SetRotationMatrix(ezVec3(0, 1, 0), ezAngle::Degree(90));
+    tParent.m_Rotation.SetScalingFactors(ezVec3(2));
+
+    ezTransform tToChild(ezVec3(4, 5, 6));
+    tToChild.m_Rotation.SetRotationMatrix(ezVec3(0, 0, 1), ezAngle::Degree(90));
+    tToChild.m_Rotation.SetScalingFactors(ezVec3(4));
+
+    // this is exactly the same as SetGlobalTransform
+    ezTransform tChild;
+    tChild  = tParent.GetAsMat4() * tToChild;
+
+    EZ_TEST_VEC3(tChild.m_vPosition, ezVec3(13, 12, -5), 0.0001f);
+    EZ_TEST_BOOL(tChild.m_Rotation.IsEqual(ezMat3(0, 0, 8, 8, 0, 0, 0, 8, 0), 0.0001f));
+
+    // verify that it works exactly like a 4x4 matrix
+    const ezMat4 mParent = tParent.GetAsMat4();
+    const ezMat4 mToChild = tToChild.GetAsMat4();
+    const ezMat4 mChild = mParent * mToChild;
+
+    EZ_TEST_BOOL(mChild.IsEqual(tChild.GetAsMat4(), 0.0001f));
+  }
+
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Invert / GetInverse")
   {
     ezTransform tParent(ezVec3(1, 2, 3));

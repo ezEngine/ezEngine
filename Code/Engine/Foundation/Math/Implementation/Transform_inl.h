@@ -92,6 +92,24 @@ inline const ezTransform operator*(const ezTransform& t1, const ezTransform& t2)
   return r;
 }
 
+inline const ezTransform operator*(const ezTransform& t1, const ezMat4& t2)
+{
+  ezTransform r;
+  r.m_Rotation = t1.m_Rotation * t2.GetRotationalPart();
+  r.m_vPosition = t1.m_Rotation * t2.GetTranslationVector() + t1.m_vPosition;
+
+  return r;
+}
+
+inline const ezTransform operator*(const ezMat4& t1, const ezTransform& t2)
+{
+  ezTransform r;
+  r.m_Rotation = t1.GetRotationalPart() * t2.m_Rotation;
+  r.m_vPosition = t1.GetRotationalPart() * t2.m_vPosition + t1.GetTranslationVector();
+
+  return r;
+}
+
 inline ezResult ezTransform::Invert(float fEpsilon)
 {
   if (m_Rotation.Invert(fEpsilon).Failed())

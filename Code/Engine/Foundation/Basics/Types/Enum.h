@@ -1,5 +1,7 @@
 #pragma once
 
+/// \file
+
 /// \brief A custom enum implementation that allows to define the underlying storage type to control its memory footprint.
 ///
 /// Advantages over a simple C++ enum:

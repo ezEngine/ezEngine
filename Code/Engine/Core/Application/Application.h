@@ -182,6 +182,7 @@ public:
     return m_ppArguments;
   }
 
+  /// \brief Returns the ezCommandLineUtils object. Only useful if the command line parameters were passed to the application object at the start.
   const ezCommandLineUtils& GetCommandLine() const
   {
     return m_CommandLine;

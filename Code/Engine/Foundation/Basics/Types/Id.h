@@ -17,6 +17,8 @@
 
 
 /// \brief A generic id class that holds an id combined of an instance index and a generation counter. 
+///
+/// \todo Document this better.
 template <ezUInt32 InstanceIndexBits, ezUInt32 GenerationBits>
 struct ezGenericId
 {
