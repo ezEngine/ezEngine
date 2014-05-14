@@ -18,11 +18,17 @@ Milestone 5
   * More extensive usage of C++ 11:
     * ez now uses nullptr directly, instead of a redefined NULL, which solves issues on platforms that already redefined NULL to some compiler specific intrinsic
     * Some container and string classes now support move semantics for improved performance when they are copied around. Note that it is still more efficient to NOT copy such objects around, at all, though.
-  * CoreUtils: Added ezDataTransfer, which allows ezInspector to pull arbitrary (custom) data from the connected application. This can be used to make screenshots, etc.
-    
-add details:
-  * GameObject improvements: ezGameObject, ezComponent etc.
-  * Better message passing / message handlers
+  * Added ezDataTransfer, which allows ezInspector to pull arbitrary (custom) data from the connected application. This can be used to make screenshots, etc.
+  * Improved the profiling system: When GPA is not used, it can now store the profiling history in a ringbuffer in memory and dump it on request. We are currently supporting a JSON file format that can be displayed by Google Chrome using chrome://tracing
+  * Added ezTokenizer, a class that allows to easily tokenize a C language like piece of text.
+  * The natvis Visual Studio Visualizer now also supports ezStringIterator, ezHashedString and ezHashTable.
+  * GameObject improvements:
+    * Parenting works now
+    * Transformation propagation to child objects has been implemented
+    * Message routing has been improved
+    * The different update phases have been fixed
+  * Changed some of the macros of the reflection system to be easier to use.
+  * Fixed some issues compiling ez on Windows 8 and Windows 8.1
 
   
 Milestone 4
