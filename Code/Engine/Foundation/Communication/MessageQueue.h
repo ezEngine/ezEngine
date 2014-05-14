@@ -53,8 +53,8 @@ public:
   Entry& Peek();
   void Dequeue();
 
-  template <typename C>
-  void Sort();
+  template <typename Comparer>
+  void Sort(const Comparer& comparer);
 
 private:
   ezDeque<Entry, ezNullAllocatorWrapper> m_Queue;

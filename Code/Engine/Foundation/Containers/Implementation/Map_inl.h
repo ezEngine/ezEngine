@@ -136,7 +136,7 @@ void ezMapBase<KeyType, ValueType, Comparer>::Constructor()
 }
 
 template <typename KeyType, typename ValueType, typename Comparer>
-ezMapBase<KeyType, ValueType, Comparer>::ezMapBase(ezAllocatorBase* pAllocator) : m_Elements(pAllocator)
+ezMapBase<KeyType, ValueType, Comparer>::ezMapBase(const Comparer& comparer, ezAllocatorBase* pAllocator) : m_Elements(pAllocator), m_Comparer(comparer)
 {
   Constructor();
 }
@@ -255,8 +255,8 @@ typename ezMapBase<KeyType, ValueType, Comparer>::Node* ezMapBase<KeyType, Value
 
   while (pNode != &m_NilNode)// && (pNode->m_Key != key))
   {
-    const ezInt32 dir = (ezInt32) Comparer::Less(pNode->m_Key, key);
-    const ezInt32 dir2= (ezInt32) Comparer::Less(key, pNode->m_Key);
+    const ezInt32 dir = (ezInt32) m_Comparer.Less(pNode->m_Key, key);
+    const ezInt32 dir2= (ezInt32) m_Comparer.Less(key, pNode->m_Key);
 
     if (dir == dir2)
       break;
@@ -290,8 +290,8 @@ typename ezMapBase<KeyType, ValueType, Comparer>::Node* ezMapBase<KeyType, Value
 
   while (pNode != &m_NilNode)
   {
-    const ezInt32 dir = (ezInt32) Comparer::Less(pNode->m_Key, key);
-    const ezInt32 dir2= (ezInt32) Comparer::Less(key, pNode->m_Key);
+    const ezInt32 dir = (ezInt32) m_Comparer.Less(pNode->m_Key, key);
+    const ezInt32 dir2= (ezInt32) m_Comparer.Less(key, pNode->m_Key);
 
     if (dir == dir2)
       return pNode;
@@ -325,8 +325,8 @@ typename ezMapBase<KeyType, ValueType, Comparer>::Node* ezMapBase<KeyType, Value
 
   while (pNode != &m_NilNode)
   {
-    const ezInt32 dir = (ezInt32) Comparer::Less(pNode->m_Key, key);
-    const ezInt32 dir2= (ezInt32) Comparer::Less(key, pNode->m_Key);
+    const ezInt32 dir = (ezInt32) m_Comparer.Less(pNode->m_Key, key);
+    const ezInt32 dir2= (ezInt32) m_Comparer.Less(key, pNode->m_Key);
 
     if (dir == dir2)
     {
@@ -381,7 +381,7 @@ typename ezMapBase<KeyType, ValueType, Comparer>::Iterator ezMapBase<KeyType, Va
 
       while (true) 
       {
-        if (Comparer::Equal(it->m_Key, key))
+        if (m_Comparer.Equal(it->m_Key, key))
         {
           if (bExisted)
             *bExisted = true;
@@ -389,7 +389,7 @@ typename ezMapBase<KeyType, ValueType, Comparer>::Iterator ezMapBase<KeyType, Va
           return Iterator(it);
         }
 
-        dir = Comparer::Less(it->m_Key, key) ? 1 : 0;
+        dir = m_Comparer.Less(it->m_Key, key) ? 1 : 0;
 
         EZ_ASSERT(top < STACK_SIZE, "ezMapBase's internal stack is not large enough to be able to sort %i elements.", GetCount());
         up[top++] = it;
@@ -569,10 +569,10 @@ void ezMapBase<KeyType, ValueType, Comparer>::Insert(const KeyType& key, const V
     {
       EZ_ASSERT(top >= 0 && top < STACK_SIZE, "Boese");
       up[top++] = it;
-      dir = Comparer::Less(it->m_Key, key) ? 1 : 0;
+      dir = m_Comparer.Less(it->m_Key, key) ? 1 : 0;
 
       // element is identical => do not insert
-      const ezInt32 iOtherDir = (ezInt32) Comparer::Less(key, it->m_Key);
+      const ezInt32 iOtherDir = (ezInt32) m_Comparer.Less(key, it->m_Key);
 
       if (iOtherDir == dir)
       {
@@ -644,10 +644,10 @@ typename ezMapBase<KeyType, ValueType, Comparer>::Node* ezMapBase<KeyType, Value
       if (it == &m_NilNode)
         return root;
 
-      if (Comparer::Equal(it->m_Key, key))
+      if (m_Comparer.Equal(it->m_Key, key))
         break;
 
-      dir = Comparer::Less(it->m_Key, key) ? 1 : 0;
+      dir = m_Comparer.Less(it->m_Key, key) ? 1 : 0;
 
       it = it->m_pLink[dir];
     }
@@ -780,12 +780,12 @@ typename ezMapBase<KeyType, ValueType, Comparer>::Iterator ezMapBase<KeyType, Va
 
 
 template <typename KeyType, typename ValueType, typename Comparer, typename AllocatorWrapper>
-ezMap<KeyType, ValueType, Comparer, AllocatorWrapper>::ezMap() : ezMapBase<KeyType, ValueType, Comparer>(AllocatorWrapper::GetAllocator())
+ezMap<KeyType, ValueType, Comparer, AllocatorWrapper>::ezMap() : ezMapBase<KeyType, ValueType, Comparer>(Comparer(), AllocatorWrapper::GetAllocator())
 {
 }
 
 template <typename KeyType, typename ValueType, typename Comparer, typename AllocatorWrapper>
-ezMap<KeyType, ValueType, Comparer, AllocatorWrapper>::ezMap(ezAllocatorBase* pAllocator) : ezMapBase<KeyType, ValueType, Comparer>(pAllocator)
+ezMap<KeyType, ValueType, Comparer, AllocatorWrapper>::ezMap(const Comparer& comparer, ezAllocatorBase* pAllocator) : ezMapBase<KeyType, ValueType, Comparer>(comparer, pAllocator)
 {
 }
 

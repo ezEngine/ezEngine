@@ -52,7 +52,7 @@ EZ_CREATE_SIMPLE_TEST(Communication, MessageQueue)
   {
     struct MessageComparer
     {
-      static bool Less(const TestMessageQueue::Entry& a, const TestMessageQueue::Entry& b)
+      bool Less(const TestMessageQueue::Entry& a, const TestMessageQueue::Entry& b) const
       {
         if (a.m_MetaData.receiver != b.m_MetaData.receiver)
           return a.m_MetaData.receiver < b.m_MetaData.receiver;
@@ -61,7 +61,7 @@ EZ_CREATE_SIMPLE_TEST(Communication, MessageQueue)
       }
     };
 
-    q.Sort<MessageComparer>();
+    q.Sort(MessageComparer());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator[]")

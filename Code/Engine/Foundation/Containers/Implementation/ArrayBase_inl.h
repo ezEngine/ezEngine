@@ -261,13 +261,13 @@ EZ_FORCE_INLINE const T& ezArrayBase<T, Derived>::PeekBack() const
 }
 
 template <typename T, typename Derived>
-template <typename C>
-void ezArrayBase<T, Derived>::Sort()
+template <typename Comparer>
+void ezArrayBase<T, Derived>::Sort(const Comparer& comparer)
 {
   if (m_uiCount > 1)
   {
     ezArrayPtr<T> ar = *this;
-    ezSorting<C>::QuickSort(ar);
+    ezSorting::QuickSort(ar, comparer);
   }
 }
 
@@ -277,7 +277,7 @@ void ezArrayBase<T, Derived>::Sort()
   if (m_uiCount > 1)
   {
     ezArrayPtr<T> ar = *this;
-    ezSorting<ezCompareHelper<T> >::QuickSort(ar);
+    ezSorting::QuickSort(ar, ezCompareHelper<T>());
   }
 }
 

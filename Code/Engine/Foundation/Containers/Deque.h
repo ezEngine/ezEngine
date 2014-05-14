@@ -132,8 +132,8 @@ public:
   void Insert(const T& value, ezUInt32 uiIndex); // [tested]
 
   /// \brief Sort with explicit comparer
-  template <typename C>
-  void Sort(); // [tested]
+  template <typename Comparer>
+  void Sort(const Comparer& comparer); // [tested]
 
   /// \brief Sort with default comparer
   void Sort(); // [tested]

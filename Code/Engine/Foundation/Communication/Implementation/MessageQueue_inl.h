@@ -128,10 +128,10 @@ EZ_FORCE_INLINE void ezMessageQueueBase<MetaDataType, MutexType>::Dequeue()
 }
 
 template <typename MetaDataType, typename MutexType>
-template <typename C>
-EZ_FORCE_INLINE void ezMessageQueueBase<MetaDataType, MutexType>::Sort()
+template <typename Comparer>
+EZ_FORCE_INLINE void ezMessageQueueBase<MetaDataType, MutexType>::Sort(const Comparer& comparer)
 {
-  m_Queue.template Sort<C>();
+  m_Queue.Sort(comparer);
 }
 
 

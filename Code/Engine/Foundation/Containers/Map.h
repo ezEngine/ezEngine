@@ -104,7 +104,7 @@ public:
 protected:
 
   /// \brief Initializes the map to be empty.
-  ezMapBase(ezAllocatorBase* pAllocator); // [tested]
+  ezMapBase(const Comparer& comparer, ezAllocatorBase* pAllocator); // [tested]
 
   /// \brief Copies all key/value pairs from the given map into this one.
   ezMapBase(const ezMapBase<KeyType, ValueType, Comparer>& cc, ezAllocatorBase* pAllocator); // [tested]
@@ -214,6 +214,9 @@ private:
 
   /// \brief Stack of recently discarded nodes to quickly acquire new nodes.
   Node* m_pFreeElementStack;
+
+  /// \brief Comparer object
+  Comparer m_Comparer;
 };
 
 
@@ -223,7 +226,7 @@ class ezMap : public ezMapBase<KeyType, ValueType, Comparer>
 {
 public:
   ezMap();
-  ezMap(ezAllocatorBase* pAllocator);
+  ezMap(const Comparer& comparer, ezAllocatorBase* pAllocator);
 
   ezMap(const ezMap<KeyType, ValueType, Comparer, AllocatorWrapper>& other);
   ezMap(const ezMapBase<KeyType, ValueType, Comparer>& other);

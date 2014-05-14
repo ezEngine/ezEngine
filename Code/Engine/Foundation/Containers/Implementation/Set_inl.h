@@ -134,7 +134,7 @@ void ezSetBase<KeyType, Comparer>::Constructor()
 }
 
 template <typename KeyType, typename Comparer>
-ezSetBase<KeyType, Comparer>::ezSetBase(ezAllocatorBase* pAllocator) : m_Elements(pAllocator)
+ezSetBase<KeyType, Comparer>::ezSetBase(const Comparer& comparer, ezAllocatorBase* pAllocator) : m_Elements(pAllocator), m_Comparer(comparer)
 {
   Constructor();
 }
@@ -241,8 +241,8 @@ typename ezSetBase<KeyType, Comparer>::Node* ezSetBase<KeyType, Comparer>::Inter
 
   while (pNode != &m_NilNode)// && (pNode->m_Key != key))
   {
-    const ezInt32 dir = (ezInt32) Comparer::Less(pNode->m_Key, key);
-    const ezInt32 dir2= (ezInt32) Comparer::Less(key, pNode->m_Key);
+    const ezInt32 dir = (ezInt32) m_Comparer.Less(pNode->m_Key, key);
+    const ezInt32 dir2= (ezInt32) m_Comparer.Less(key, pNode->m_Key);
 
     if (dir == dir2)
       break;
@@ -270,8 +270,8 @@ typename ezSetBase<KeyType, Comparer>::Node* ezSetBase<KeyType, Comparer>::Inter
 
   while (pNode != &m_NilNode)
   {
-    const ezInt32 dir = (ezInt32) Comparer::Less(pNode->m_Key, key);
-    const ezInt32 dir2= (ezInt32) Comparer::Less(key, pNode->m_Key);
+    const ezInt32 dir = (ezInt32) m_Comparer.Less(pNode->m_Key, key);
+    const ezInt32 dir2= (ezInt32) m_Comparer.Less(key, pNode->m_Key);
 
     if (dir == dir2)
       return pNode;
@@ -299,8 +299,8 @@ typename ezSetBase<KeyType, Comparer>::Node* ezSetBase<KeyType, Comparer>::Inter
 
   while (pNode != &m_NilNode)
   {
-    const ezInt32 dir = (ezInt32) Comparer::Less(pNode->m_Key, key);
-    const ezInt32 dir2= (ezInt32) Comparer::Less(key, pNode->m_Key);
+    const ezInt32 dir = (ezInt32) m_Comparer.Less(pNode->m_Key, key);
+    const ezInt32 dir2= (ezInt32) m_Comparer.Less(key, pNode->m_Key);
 
     if (dir == dir2)
     {
@@ -451,10 +451,10 @@ typename ezSetBase<KeyType, Comparer>::Node* ezSetBase<KeyType, Comparer>::Inser
     while (true) 
     {
       up[top++] = it;
-      dir = Comparer::Less(it->m_Key, key) ? 1 : 0;
+      dir = m_Comparer.Less(it->m_Key, key) ? 1 : 0;
 
       // element is identical => do not insert
-      if ((ezInt32) Comparer::Less(key, it->m_Key) == dir)
+      if ((ezInt32) m_Comparer.Less(key, it->m_Key) == dir)
       {
         return root;
       }
@@ -509,9 +509,9 @@ typename ezSetBase<KeyType, Comparer>::Node* ezSetBase<KeyType, Comparer>::Erase
       if (it == &m_NilNode)
         return root;
 
-      ezInt32 newdir = (ezInt32) (Comparer::Less(it->m_Key, key));
+      ezInt32 newdir = (ezInt32) (m_Comparer.Less(it->m_Key, key));
 
-      if (newdir == (ezInt32) (Comparer::Less(key, it->m_Key)))
+      if (newdir == (ezInt32) (m_Comparer.Less(key, it->m_Key)))
         break;
 
       dir = newdir;
@@ -633,12 +633,12 @@ typename ezSetBase<KeyType, Comparer>::Iterator ezSetBase<KeyType, Comparer>::Er
 
 
 template <typename KeyType, typename Comparer, typename AllocatorWrapper>
-ezSet<KeyType, Comparer, AllocatorWrapper>::ezSet() : ezSetBase<KeyType, Comparer>(AllocatorWrapper::GetAllocator())
+ezSet<KeyType, Comparer, AllocatorWrapper>::ezSet() : ezSetBase<KeyType, Comparer>(Comparer(), AllocatorWrapper::GetAllocator())
 {
 }
 
 template <typename KeyType, typename Comparer, typename AllocatorWrapper>
-ezSet<KeyType, Comparer, AllocatorWrapper>::ezSet(ezAllocatorBase* pAllocator) : ezSetBase<KeyType, Comparer>(pAllocator)
+ezSet<KeyType, Comparer, AllocatorWrapper>::ezSet(const Comparer& comparer, ezAllocatorBase* pAllocator) : ezSetBase<KeyType, Comparer>(comparer, pAllocator)
 {
 }
 

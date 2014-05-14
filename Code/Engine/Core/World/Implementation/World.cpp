@@ -263,7 +263,7 @@ void ezWorld::ProcessQueuedMessages(ezObjectMsgQueueType::Enum queueType)
 {
   struct MessageComparer
   {
-    EZ_FORCE_INLINE static bool Less(const ezInternal::WorldData::MessageQueue::Entry& a, const ezInternal::WorldData::MessageQueue::Entry& b)
+    EZ_FORCE_INLINE bool Less(const ezInternal::WorldData::MessageQueue::Entry& a, const ezInternal::WorldData::MessageQueue::Entry& b) const
     {
       if (a.m_MetaData.m_Due != b.m_MetaData.m_Due)
         return a.m_MetaData.m_Due < b.m_MetaData.m_Due;
@@ -279,7 +279,7 @@ void ezWorld::ProcessQueuedMessages(ezObjectMsgQueueType::Enum queueType)
   };
 
   ezInternal::WorldData::MessageQueue& queue = m_Data.m_MessageQueues[queueType];
-  queue.Sort<MessageComparer>();
+  queue.Sort(MessageComparer());
 
   ezTime now = ezClock::Get(ezGlobalClock_GameLogic)->GetAccumulatedTime();
 

@@ -812,18 +812,18 @@ void ezDequeBase<T, Construct>::Insert(const T& value, ezUInt32 uiIndex)
 }
 
 template <typename T, bool Construct>
-template <typename C>
-void ezDequeBase<T, Construct>::Sort()
+template <typename Comparer>
+void ezDequeBase<T, Construct>::Sort(const Comparer& comparer)
 {
   if (m_uiCount > 1)
-    ezSorting<C>::QuickSort(*this);
+    ezSorting::QuickSort(*this, comparer);
 }
 
 template <typename T, bool Construct>
 void ezDequeBase<T, Construct>::Sort()
 {
   if (m_uiCount > 1)
-    ezSorting<ezCompareHelper<T> >::QuickSort(*this);
+    ezSorting::QuickSort(*this, ezCompareHelper<T>());
 }
 
 #undef REDUCE_SIZE
