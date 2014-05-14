@@ -320,7 +320,7 @@ public:
       DataObject.GetWriter() << g_uiWindowWidth;
       DataObject.GetWriter() << g_uiWindowHeight;
       DataObject.GetWriter().WriteBytes(pImageContent.GetPtr(), 4 * g_uiWindowWidth * g_uiWindowHeight);
-      m_DebugBackBufferDT.Transfer(DataObject);
+      DataObject.Transmit();
 
       EZ_DEFAULT_DELETE_ARRAY(pImageContent);
     }
