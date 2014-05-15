@@ -73,6 +73,9 @@ EZ_FORCE_INLINE void ezHybridArrayBase<T, Size>::operator= (ezHybridArrayBase<T,
 
     this->Clear();
 
+    if (this->m_pElements != GetStaticArray())
+      EZ_DELETE_RAW_BUFFER(this->m_pAllocator, this->m_pElements);
+
     this->m_pElements = rhs.m_pElements;
     this->m_uiCapacity = rhs.m_uiCapacity;
     this->m_uiCount = rhs.m_uiCount;

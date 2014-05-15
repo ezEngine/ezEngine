@@ -52,10 +52,16 @@ EZ_FORCE_INLINE void ezDynamicArrayBase<T>::operator= (ezDynamicArrayBase<T>&& r
 {
   if (this->m_pAllocator == rhs.m_pAllocator)
   {
+    // clear any existing data
+    Clear();
+    EZ_DELETE_RAW_BUFFER(this->m_pAllocator, this->m_pElements);
+
+    // move the data over from the other array
     this->m_uiCount = rhs.m_uiCount;
     this->m_uiCapacity = rhs.m_uiCapacity;
     this->m_pElements = rhs.m_pElements;
 
+    // reset the other array to not reference the data anymore
     rhs.m_pElements = nullptr;
     rhs.m_uiCount = 0;
     rhs.m_uiCapacity = 0;

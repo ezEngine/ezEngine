@@ -39,7 +39,7 @@ void ezHybridStringBase<Size>::operator=(const ezStringBuilder& rhs)
 template<ezUInt16 Size>
 void ezHybridStringBase<Size>::operator=(ezStringBuilder&& rhs)
 {
-  m_uiCharacterCount= rhs.m_uiCharacterCount;
+  m_uiCharacterCount = rhs.m_uiCharacterCount;
   m_Data = std::move(rhs.m_Data);
 }
 

@@ -86,7 +86,7 @@ void ezDequeBase<T, Construct>::operator= (ezDequeBase<T, Construct>&& rhs)
     operator=(static_cast<ezDequeBase<T, Construct>&>(rhs));
   else
   {
-    Clear();
+    DeallocateAll();
 
     m_uiCount = rhs.m_uiCount;
     m_iReduceSizeTimer = rhs.m_iReduceSizeTimer;
