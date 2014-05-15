@@ -53,7 +53,7 @@ EZ_FORCE_INLINE void ezDynamicArrayBase<T>::operator= (ezDynamicArrayBase<T>&& r
   if (this->m_pAllocator == rhs.m_pAllocator)
   {
     // clear any existing data
-    Clear();
+    this->Clear();
     EZ_DELETE_RAW_BUFFER(this->m_pAllocator, this->m_pElements);
 
     // move the data over from the other array

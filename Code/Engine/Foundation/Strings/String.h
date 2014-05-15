@@ -33,7 +33,7 @@ protected:
   ezHybridStringBase(const ezHybridStringBase& rhs, ezAllocatorBase* pAllocator); // [tested]
 
   /// \brief Moves the data from \a rhs.
-  ezHybridStringBase(ezHybridStringBase&& rhs, ezAllocatorBase* pAllocator);
+  ezHybridStringBase(ezHybridStringBase&& rhs, ezAllocatorBase* pAllocator); // [tested]
 
   /// \brief Copies the data from \a rhs.
   ezHybridStringBase(const char* rhs, ezAllocatorBase* pAllocator); // [tested]
@@ -48,7 +48,7 @@ protected:
   ezHybridStringBase(const ezStringBuilder& rhs, ezAllocatorBase* pAllocator); // [tested]
 
   /// \brief Moves the data from \a rhs.
-  ezHybridStringBase(ezStringBuilder&& rhs, ezAllocatorBase* pAllocator);
+  ezHybridStringBase(ezStringBuilder&& rhs, ezAllocatorBase* pAllocator); // [tested]
 
   /// \brief Destructor.
   ~ezHybridStringBase(); // [tested]
@@ -57,7 +57,7 @@ protected:
   void operator=(const ezHybridStringBase& rhs); // [tested]
 
   /// \brief Moves the data from \a rhs.
-  void operator=(ezHybridStringBase&& rhs);
+  void operator=(ezHybridStringBase&& rhs); // [tested]
 
   /// \brief Copies the data from \a rhs.
   void operator=(const char* rhs); // [tested]

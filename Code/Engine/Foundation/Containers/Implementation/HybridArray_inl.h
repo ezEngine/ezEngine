@@ -82,6 +82,7 @@ EZ_FORCE_INLINE void ezHybridArrayBase<T, Size>::operator= (ezHybridArrayBase<T,
 
     rhs.m_uiCount = 0;
     rhs.m_pElements = rhs.GetStaticArray();
+    rhs.m_uiCapacity = Size;
   }
 }
 

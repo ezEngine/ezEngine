@@ -29,7 +29,7 @@ protected:
   ezDequeBase(const ezDequeBase<T, Construct>& rhs, ezAllocatorBase* pAllocator); // [tested]
 
   /// \brief Constructs this deque by moving from rhs.
-  ezDequeBase(ezDequeBase<T, Construct>&& rhs, ezAllocatorBase* pAllocator);
+  ezDequeBase(ezDequeBase<T, Construct>&& rhs, ezAllocatorBase* pAllocator); // [tested]
 
   /// \brief Destructor.
   ~ezDequeBase(); // [tested]
@@ -38,7 +38,7 @@ protected:
   void operator=(const ezDequeBase<T, Construct>& rhs); // [tested]
 
   /// \brief Move operator.
-  void operator=(ezDequeBase<T, Construct>&& rhs);
+  void operator=(ezDequeBase<T, Construct>&& rhs); // [tested]
 
 public:
   /// \brief Destructs all elements and sets the count to zero. Does not deallocate any data.

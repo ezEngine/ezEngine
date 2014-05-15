@@ -38,6 +38,16 @@ namespace
   EZ_CHECK_AT_COMPILETIME(sizeof(ezHybridArray<ezInt32, 1>) == 20);
 #endif
 
+static ezHybridArray<st, 16> CreateArray(ezUInt32 uiSize, ezUInt32 uiOffset)
+{
+  ezHybridArray<st, 16> a;
+  a.SetCount(uiSize);
+
+  for (ezUInt32 i = 0; i < uiSize; ++i)
+    a[i] = uiOffset + i;
+
+  return a;
+}
 
 EZ_CREATE_SIMPLE_TEST(Containers, HybridArray)
 {
@@ -65,6 +75,47 @@ EZ_CREATE_SIMPLE_TEST(Containers, HybridArray)
     EZ_TEST_BOOL(a1 == a2);
     EZ_TEST_BOOL(a1 == a3);
     EZ_TEST_BOOL(a2 == a3);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Move Constructor / Operator")
+  {
+    EZ_TEST_BOOL(st::HasAllDestructed());
+
+    {
+      // move constructor
+      ezHybridArray<st, 16> a1 (CreateArray(100, 20));
+
+      EZ_TEST_INT(a1.GetCount(), 100);
+      for (ezUInt32 i = 0; i < a1.GetCount(); ++i)
+        EZ_TEST_INT(a1[i].m_iData, 20 + i);
+
+      // move operator
+      a1 = CreateArray(200, 50);
+
+      EZ_TEST_INT(a1.GetCount(), 200);
+      for (ezUInt32 i = 0; i < a1.GetCount(); ++i)
+        EZ_TEST_INT(a1[i].m_iData, 50 + i);
+    }
+
+    EZ_TEST_BOOL(st::HasAllDestructed());
+
+    {
+      // move constructor
+      ezHybridArray<st, 16> a2 (CreateArray(10, 30));
+
+      EZ_TEST_INT(a2.GetCount(), 10);
+      for (ezUInt32 i = 0; i < a2.GetCount(); ++i)
+        EZ_TEST_INT(a2[i].m_iData, 30 + i);
+
+      // move operator
+      a2 = CreateArray(8, 70);
+
+      EZ_TEST_INT(a2.GetCount(), 8);
+      for (ezUInt32 i = 0; i < a2.GetCount(); ++i)
+        EZ_TEST_INT(a2[i].m_iData, 70 + i);
+    }
+
+    EZ_TEST_BOOL(st::HasAllDestructed());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Convert to ArrayPtr")

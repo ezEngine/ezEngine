@@ -1,6 +1,23 @@
 ﻿#include <PCH.h>
 #include <Foundation/Strings/String.h>
 
+static ezString GetString(const char* sz)
+{
+  ezString s;
+  s = sz;
+  return s;
+}
+
+static ezStringBuilder GetStringBuilder(const char* sz)
+{
+  ezStringBuilder s;
+
+  for (ezUInt32 i = 0; i < 10; ++i)
+    s.Append(sz);
+
+  return s;
+}
+
 EZ_CREATE_SIMPLE_TEST(Strings, String)
 {
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Constructor")
@@ -48,6 +65,45 @@ EZ_CREATE_SIMPLE_TEST(Strings, String)
     ezStringBuilder strB("wobwob");
     s6 = strB;
     EZ_TEST_BOOL(s6 == "wobwob");
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Move constructor / operator")
+  {
+    ezString s1 (GetString("move me"));
+    EZ_TEST_STRING(s1.GetData(), "move me");
+
+    s1 = GetString("move move move move move move move move ");
+    EZ_TEST_STRING(s1.GetData(), "move move move move move move move move ");
+
+    ezString s2 (GetString("move move move move move move move move "));
+    EZ_TEST_STRING(s2.GetData(), "move move move move move move move move ");
+
+    s2 = GetString("move me");
+    EZ_TEST_STRING(s2.GetData(), "move me");
+
+    s1 = s2;
+    EZ_TEST_STRING(s1.GetData(), "move me");
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Move constructor / operator (StringBuilder)")
+  {
+    const ezString s1 (GetStringBuilder("move me"));
+    const ezString s2 (GetStringBuilder("move move move move move move move move "));
+
+    ezString s3 (GetStringBuilder("move me"));
+    EZ_TEST_BOOL(s3 == s1);
+
+    s3 = GetStringBuilder("move move move move move move move move ");
+    EZ_TEST_BOOL(s3 == s2);
+
+    ezString s4 (GetStringBuilder("move move move move move move move move "));
+    EZ_TEST_BOOL(s4 == s2);
+
+    s4 = GetStringBuilder("move me");
+    EZ_TEST_BOOL(s4 == s1);
+
+    s3 = s4;
+    EZ_TEST_BOOL(s3 == s1);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Clear")

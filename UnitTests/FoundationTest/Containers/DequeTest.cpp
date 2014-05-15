@@ -3,6 +3,17 @@
 
 typedef ezConstructionCounter st;
 
+static ezDeque<st> CreateArray(ezUInt32 uiSize, ezUInt32 uiOffset)
+{
+  ezDeque<st> a;
+  a.SetCount(uiSize);
+
+  for (ezUInt32 i = 0; i < uiSize; ++i)
+    a[i] = uiOffset + i;
+
+  return a;
+}
+
 EZ_CREATE_SIMPLE_TEST(Containers, Deque)
 {
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Fill / Empty (Sawtooth)")
@@ -287,6 +298,28 @@ EZ_CREATE_SIMPLE_TEST(Containers, Deque)
     }
   }
 
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Move Constructor / Operator")
+  {
+    EZ_TEST_BOOL(st::HasAllDestructed());
+
+    {
+      // move constructor
+      ezDeque<st> a1 (CreateArray(100, 20));
+
+      EZ_TEST_INT(a1.GetCount(), 100);
+      for (ezUInt32 i = 0; i < a1.GetCount(); ++i)
+        EZ_TEST_INT(a1[i].m_iData, 20 + i);
+
+      // move operator
+      a1 = CreateArray(200, 50);
+
+      EZ_TEST_INT(a1.GetCount(), 200);
+      for (ezUInt32 i = 0; i < a1.GetCount(); ++i)
+        EZ_TEST_INT(a1[i].m_iData, 50 + i);
+    }
+
+    EZ_TEST_BOOL(st::HasAllDestructed());
+  }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator =")
   {

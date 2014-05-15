@@ -19,7 +19,7 @@ protected:
   ezDynamicArrayBase(const ezDynamicArrayBase<T>& other, ezAllocatorBase* pAllocator); // [tested]
 
   /// \brief Moves the given array into this one.
-  ezDynamicArrayBase(ezDynamicArrayBase<T>&& other, ezAllocatorBase* pAllocator);
+  ezDynamicArrayBase(ezDynamicArrayBase<T>&& other, ezAllocatorBase* pAllocator); // [tested]
 
   /// \brief Creates a copy of the given array.
   ezDynamicArrayBase(const ezArrayPtr<T>& other, ezAllocatorBase* pAllocator); // [tested]
@@ -31,7 +31,7 @@ protected:
   void operator= (const ezDynamicArrayBase<T>& rhs); // [tested]
 
   /// \brief Moves the data from some other contiguous array into this one.
-  void operator= (ezDynamicArrayBase<T>&& rhs);
+  void operator= (ezDynamicArrayBase<T>&& rhs); // [tested]
 
   /// \brief Copies the data from some other contiguous array into this one.
   void operator= (const ezArrayPtr<T>& rhs); // [tested]
