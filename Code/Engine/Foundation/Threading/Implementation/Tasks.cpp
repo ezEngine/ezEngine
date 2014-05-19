@@ -43,7 +43,12 @@ void ezTask::Run()
     return;
   }
 
-  Execute (); 
+  {
+    EZ_ASSERT(m_bProfilingIDGenerated, "Profiling id must be valid at this point.");
+    EZ_PROFILE(m_ProfilingID);
+
+    Execute();
+  }
 
   m_bIsFinished = true;
 }
@@ -177,12 +182,8 @@ bool ezTaskSystem::ExecuteTask(ezTaskPriority::Enum FirstPriority, ezTaskPriorit
   if (td.m_pTask == nullptr)
     return false;
 
-  {
-    EZ_PROFILE(td.m_pTask->GetProfilingID());
-
-    td.m_pTask->Run();
-  }
-
+  td.m_pTask->Run();
+  
   // notify the group, that a task is finished, which might trigger other tasks to be executed
   TaskHasFinished(td.m_pTask, td.m_pBelongsToGroup);
 

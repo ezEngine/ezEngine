@@ -1,4 +1,6 @@
 #include <PCH.h>
+#include <Foundation/IO/FileSystem/FileWriter.h>
+#include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
 #include <Foundation/Threading/TaskSystem.h>
 #include <Foundation/Time/Time.h>
 
@@ -384,4 +386,17 @@ EZ_CREATE_SIMPLE_TEST(Threading, TaskSystem)
 
     ezThreadUtils::Sleep(100);
   }
+
+  // capture profiling info for testing
+  /*ezStringBuilder sOutputPath = BUILDSYSTEM_OUTPUT_FOLDER;
+  sOutputPath.AppendPath("FoundationTest");
+
+  ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
+  ezFileSystem::AddDataDirectory(sOutputPath.GetData());
+
+  ezFileWriter fileWriter;
+  if (fileWriter.Open("profiling.json") == EZ_SUCCESS)
+  {
+    ezProfilingSystem::Capture(fileWriter);
+  }*/
 }
