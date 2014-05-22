@@ -28,16 +28,17 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, Reflection)
 
 EZ_END_SUBSYSTEM_DECLARATION
 
-ezRTTI::ezRTTI(const char* szName, const ezRTTI* pParentType, ezUInt32 uiTypeSize, ezRTTIAllocator* pAllocator, 
-  ezArrayPtr<ezAbstractProperty*> properties, ezArrayPtr<ezAbstractMessageHandler*> messageHandlers)
+ezRTTI::ezRTTI(const char* szName, const ezRTTI* pParentType, ezUInt32 uiTypeSize, ezUInt32 uiVariantType,
+  ezRTTIAllocator* pAllocator, ezArrayPtr<ezAbstractProperty*> properties, ezArrayPtr<ezAbstractMessageHandler*> messageHandlers)
 {
   m_szPluginName = nullptr;
   m_szTypeName = szName;
   m_pParentType = pParentType;
+  m_uiVariantType = uiVariantType;
+  m_uiTypeSize = uiTypeSize;
   m_pAllocator = pAllocator;
   m_Properties = properties;
-  m_MessageHandlers = messageHandlers;
-  m_uiTypeSize = uiTypeSize;
+  m_MessageHandlers = messageHandlers;  
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   {

@@ -11,6 +11,10 @@ public:
 };
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(Blubb, ezReflectedClass, ezRTTINoAllocator);
+  EZ_BEGIN_PROPERTIES
+    EZ_MEMBER_PROPERTY("u", u),
+    EZ_MEMBER_PROPERTY("v", v)
+  EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 template <typename T>
@@ -133,7 +137,11 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
   {
     ezVariant b;
     EZ_TEST_BOOL(b.GetType() == ezVariant::Type::Invalid);
+    EZ_TEST_BOOL(b == ezVariant());
+    EZ_TEST_BOOL(b != ezVariant(0));
     EZ_TEST_BOOL(!b.IsValid());
+    EZ_TEST_BOOL(!b[0].IsValid());
+    EZ_TEST_BOOL(!b["x"].IsValid());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "bool")
@@ -155,6 +163,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
 
     b = ezVariant(true);
     EZ_TEST_BOOL(b == true);
+    EZ_TEST_BOOL(!b[0].IsValid());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezInt8")
@@ -274,6 +283,18 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
 
     v = ezVariant(ezColor(7, 9, 4));
     EZ_TEST_BOOL(v == ezColor(7, 9, 4));
+    EZ_TEST_BOOL(v[0] == 7);
+    EZ_TEST_BOOL(v[1] == 9);
+    EZ_TEST_BOOL(v[2] == 4);
+    EZ_TEST_BOOL(v[3] == 1);
+    EZ_TEST_BOOL(v[4] == ezVariant());
+    EZ_TEST_BOOL(!v[4].IsValid());
+    EZ_TEST_BOOL(v["r"] == 7);
+    EZ_TEST_BOOL(v["g"] == 9);
+    EZ_TEST_BOOL(v["b"] == 4);
+    EZ_TEST_BOOL(v["a"] == 1);
+    EZ_TEST_BOOL(v["x"] == ezVariant());
+    EZ_TEST_BOOL(!v["x"].IsValid());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezVec2")
@@ -295,6 +316,10 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
 
     v = ezVariant(ezVec2(7, 9));
     EZ_TEST_BOOL(v == ezVec2(7, 9));
+    EZ_TEST_BOOL(v[0] == 7);
+    EZ_TEST_BOOL(v[1] == 9);
+    EZ_TEST_BOOL(v["x"] == 7);
+    EZ_TEST_BOOL(v["y"] == 9);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezVec3")
@@ -316,6 +341,12 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
 
     v = ezVariant(ezVec3(7, 9, 8));
     EZ_TEST_BOOL(v == ezVec3(7, 9, 8));
+    EZ_TEST_BOOL(v[0] == 7);
+    EZ_TEST_BOOL(v[1] == 9);
+    EZ_TEST_BOOL(v[2] == 8);
+    EZ_TEST_BOOL(v["x"] == 7);
+    EZ_TEST_BOOL(v["y"] == 9);
+    EZ_TEST_BOOL(v["z"] == 8);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezVec4")
@@ -337,6 +368,14 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
 
     v = ezVariant(ezVec4(7, 9, 8, 4));
     EZ_TEST_BOOL(v == ezVec4(7, 9, 8, 4));
+    EZ_TEST_BOOL(v[0] == 7);
+    EZ_TEST_BOOL(v[1] == 9);
+    EZ_TEST_BOOL(v[2] == 8);
+    EZ_TEST_BOOL(v[3] == 4);
+    EZ_TEST_BOOL(v["x"] == 7);
+    EZ_TEST_BOOL(v["y"] == 9);
+    EZ_TEST_BOOL(v["z"] == 8);
+    EZ_TEST_BOOL(v["w"] == 4);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezQuat")
@@ -358,6 +397,14 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
 
     v = ezVariant(ezQuat(7, 9, 8, 4));
     EZ_TEST_BOOL(v == ezQuat(7, 9, 8, 4));
+    EZ_TEST_BOOL(v[0][0] == 7);
+    EZ_TEST_BOOL(v[0][1] == 9);
+    EZ_TEST_BOOL(v[0][2] == 8);
+    EZ_TEST_BOOL(v[1] == 4);
+    EZ_TEST_BOOL(v["v"]["x"] == 7);
+    EZ_TEST_BOOL(v["v"]["y"] == 9);
+    EZ_TEST_BOOL(v["v"]["z"] == 8);
+    EZ_TEST_BOOL(v["w"] == 4);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezMat3")
@@ -488,6 +535,12 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
 
     EZ_TEST_BOOL(va == a);
     EZ_TEST_BOOL(va != a2);
+
+    EZ_TEST_BOOL(va[0] == ezString("This"));
+    EZ_TEST_BOOL(va[1] == ezString("is a"));
+    EZ_TEST_BOOL(va[2] == ezString("test"));
+    EZ_TEST_BOOL(va[4] == ezVariant());
+    EZ_TEST_BOOL(!va[4].IsValid());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezVariantDictionary")
@@ -511,11 +564,20 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
 
     EZ_TEST_BOOL(va == a);
     EZ_TEST_BOOL(va != a2);
+
+    EZ_TEST_BOOL(va["my"] == true);
+    EZ_TEST_BOOL(va["luv"] == 4);
+    EZ_TEST_BOOL(va["pon"] == ezString("ies"));
+    EZ_TEST_BOOL(va["x"] == ezVariant());
+    EZ_TEST_BOOL(!va["x"].IsValid());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezReflectedClass*")
   {
     Blubb blubb;
+    blubb.u = 1.0f;
+    blubb.v = 2.0f;
+
     Blubb blubb2;
 
     ezVariant v(&blubb);
@@ -524,6 +586,11 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     EZ_TEST_BOOL(v.IsA<ezReflectedClass*>());
     EZ_TEST_BOOL(v.Get<ezReflectedClass*>() == &blubb);
     EZ_TEST_BOOL(v.Get<ezReflectedClass*>() != &blubb2);
+
+    EZ_TEST_BOOL(v[0] == 1.0f);
+    EZ_TEST_BOOL(v[1] == 2.0f);
+    EZ_TEST_BOOL(v["u"] == 1.0f);
+    EZ_TEST_BOOL(v["v"] == 2.0f);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "void*")

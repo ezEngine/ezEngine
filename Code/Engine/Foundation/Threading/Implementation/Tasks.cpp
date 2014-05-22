@@ -53,7 +53,7 @@ void ezTask::Run()
   m_bIsFinished = true;
 }
 
-const ezProfilingId& ezTask::GetProfilingID()
+const ezProfilingId& ezTask::CreateProfilingID()
 {
   if (!m_bProfilingIDGenerated)
   {

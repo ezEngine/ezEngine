@@ -10,6 +10,11 @@ EZ_FORCE_INLINE ezVariant::ezVariant(const ezVariant& other)
   CopyFrom(other);
 }
 
+EZ_FORCE_INLINE ezVariant::ezVariant(ezVariant&& other)
+{
+  MoveFrom(std::move(other));
+}
+
 template <typename T>
 EZ_FORCE_INLINE ezVariant::ezVariant(const T& value)
 {
@@ -27,6 +32,15 @@ EZ_FORCE_INLINE void ezVariant::operator=(const ezVariant& other)
   {
     Release();
     CopyFrom(other);
+  }
+}
+
+EZ_FORCE_INLINE void ezVariant::operator=(ezVariant&& other)
+{
+  if (this != &other)
+  {
+    Release();
+    MoveFrom(std::move(other));
   }
 }
 
@@ -93,6 +107,16 @@ EZ_FORCE_INLINE const T& ezVariant::Get() const
 {
   EZ_ASSERT(IsA<T>(), "Stored type '%d' does not match requested type '%d'", m_Type, TypeDeduction<T>::value);
   return Cast<T>();
+}
+
+EZ_FORCE_INLINE void* ezVariant::GetData()
+{
+  return m_bIsShared ? m_Data.shared->m_Ptr : &m_Data;
+}
+
+EZ_FORCE_INLINE const void* ezVariant::GetData() const
+{
+  return m_bIsShared ? m_Data.shared->m_Ptr : &m_Data;
 }
 
 template <typename T>
@@ -261,6 +285,7 @@ EZ_FORCE_INLINE void ezVariant::Init(const T& value)
 template <typename StorageType, typename T>
 EZ_FORCE_INLINE void ezVariant::Store(const T& value, ezTraitInt<0>)
 {
+  EZ_CHECK_AT_COMPILETIME_MSG(ezIsPodType<T>::value, "in place data needs to be POD");
   ezMemoryUtils::Construct(reinterpret_cast<T*>(&m_Data), value, 1);
   m_bIsShared = false;
 }
@@ -270,6 +295,44 @@ EZ_FORCE_INLINE void ezVariant::Store(const T& value, ezTraitInt<1>)
 {
   m_Data.shared = EZ_DEFAULT_NEW(TypedSharedData<StorageType>)(value);
   m_bIsShared = true;
+}
+
+inline void ezVariant::Release()
+{
+  if (m_bIsShared)
+  {
+    if (m_Data.shared->m_uiRef.Decrement() == 0)
+    {
+      EZ_DEFAULT_DELETE(m_Data.shared);
+    }
+  }
+}
+
+inline void ezVariant::CopyFrom(const ezVariant& other)
+{
+  m_Type = other.m_Type;
+  m_bIsShared = other.m_bIsShared;
+  
+  if (m_bIsShared)
+  {
+    m_Data.shared = other.m_Data.shared;
+    m_Data.shared->m_uiRef.Increment();
+  }
+  else if (other.IsValid())
+  {
+    m_Data = other.m_Data;
+  }
+}
+
+EZ_FORCE_INLINE void ezVariant::MoveFrom(ezVariant&& other)
+{
+  m_Type = other.m_Type;
+  m_bIsShared = other.m_bIsShared;
+  m_Data = other.m_Data;
+
+  other.m_Type = Type::Invalid;
+  other.m_bIsShared = false;
+  other.m_Data.shared = nullptr;
 }
 
 template <typename T>

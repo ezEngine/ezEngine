@@ -16,11 +16,11 @@
     {                                                                 \
       return &SELF::s_RTTI;                                           \
     }                                                                 \
-  private:                                                            \
-    virtual const ezRTTI* GetDynamicRTTIImpl()                        \
+    virtual const ezRTTI* GetDynamicRTTI()                            \
     {                                                                 \
       return &SELF::s_RTTI;                                           \
     }                                                                 \
+  private:                                                            \
     static ezRTTI s_RTTI;
 
 /// \brief Implements the necessary functionality for a type to be dynamically reflectable.
@@ -40,7 +40,13 @@
   EZ_RTTIINFO_GETRTTI_IMPL_BEGIN(Type, AllocatorType)
 
 /// \brief Ends the reflection code block that was opened with EZ_BEGIN_DYNAMIC_REFLECTED_TYPE.
-#define EZ_END_DYNAMIC_REFLECTED_TYPE EZ_END_STATIC_REFLECTED_TYPE
+#define EZ_END_DYNAMIC_REFLECTED_TYPE()                             \
+    return ezRTTI(GetTypeName(),                                    \
+      ezGetStaticRTTI<OwnBaseType>(),                               \
+      sizeof(OwnType),                                              \
+      ezVariant::TypeDeduction<ezReflectedClass*>::value,           \
+      &Allocator, Properties, MessageHandlers);                     \
+  }
 
 /// \brief All classes that should be dynamically reflectable, need to be derived from this base class.
 ///
@@ -49,20 +55,11 @@ class EZ_FOUNDATION_DLL ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezReflectedClass);
 public:
-  EZ_FORCE_INLINE ezReflectedClass() : m_pRTTI(nullptr)
+  EZ_FORCE_INLINE ezReflectedClass()
   {
   }
 
   virtual ~ezReflectedClass() {}
-
-  EZ_FORCE_INLINE const ezRTTI* GetDynamicRTTI()
-  {
-    if (m_pRTTI == nullptr)
-    {
-      m_pRTTI = GetDynamicRTTIImpl();
-    }
-    return m_pRTTI;
-  }
 
   EZ_FORCE_INLINE bool IsInstanceOf(const ezRTTI* pType)
   {
@@ -74,8 +71,5 @@ public:
   {
     return GetDynamicRTTI()->IsDerivedFrom<T>();
   }
-
-private:
-  const ezRTTI* m_pRTTI;
 };
 

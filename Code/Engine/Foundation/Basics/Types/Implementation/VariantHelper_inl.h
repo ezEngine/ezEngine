@@ -1,7 +1,9 @@
 
 class ezVariantHelper
 {
-public:
+  friend class ezVariant;
+  friend struct ConvertFunc;
+
   template <typename T>
   EZ_FORCE_INLINE static bool CompareFloat(const ezVariant& v, const T& other, ezTraitInt<1>)
   {
@@ -192,7 +194,6 @@ public:
     bSuccessful = false;
   }
 
-private:
   struct ToStringFunc
   {
     template <typename T>

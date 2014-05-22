@@ -252,6 +252,7 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Hierarchies)
 
     EZ_TEST_STRING(pRtti->GetTypeName(), "ezTestStruct");
     EZ_TEST_INT(pRtti->GetTypeSize(), sizeof(ezTestStruct));
+    EZ_TEST_BOOL(pRtti->GetVariantType() == ezVariant::Type::Invalid);
 
     EZ_TEST_BOOL(pRtti->GetParentType() == nullptr);
 
@@ -264,6 +265,7 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Hierarchies)
 
     EZ_TEST_STRING(pRtti->GetTypeName(), "ezTestClass1");
     EZ_TEST_INT(pRtti->GetTypeSize(), sizeof(ezTestClass1));
+    EZ_TEST_BOOL(pRtti->GetVariantType() == ezVariant::Type::ReflectedPointer);
 
     EZ_TEST_BOOL(pRtti->GetParentType() == ezGetStaticRTTI<ezReflectedClass>());
 
@@ -291,6 +293,7 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Hierarchies)
 
     EZ_TEST_STRING(pRtti->GetTypeName(), "ezTestClass2");
     EZ_TEST_INT(pRtti->GetTypeSize(), sizeof(ezTestClass2));
+    EZ_TEST_BOOL(pRtti->GetVariantType() == ezVariant::Type::ReflectedPointer);
 
     EZ_TEST_BOOL(pRtti->GetParentType() == ezGetStaticRTTI<ezTestClass1>());
 

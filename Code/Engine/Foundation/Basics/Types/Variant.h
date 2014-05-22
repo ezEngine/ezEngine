@@ -58,7 +58,8 @@ public:
     enum
     {
       value = Type::Invalid,
-      forceSharing = false
+      forceSharing = false,
+      hasReflectedMembers = false
     };
 
     typedef T StorageType;
@@ -72,7 +73,10 @@ public:
   /// \note If the data of the variant needed to be allocated on the heap, it will be shared among variants.
   /// Thus, once you have stored such a type inside a variant, you can copy it to other variants, without introducing
   /// additional memory allocations.
-  ezVariant(const ezVariant& other);
+  ezVariant(const ezVariant& other); // [tested]
+
+  /// \brief Moves the data from the other variant.
+  ezVariant(ezVariant&& other); // [tested]
 
   /// \brief Deduces the type of the passed argument and stores that type in the variant.
   ///
@@ -85,6 +89,9 @@ public:
 
   /// \brief Copies the data from the \a other variant into this one.
   void operator=(const ezVariant& other); // [tested]
+
+  /// \brief Moves the data from the \a other variant into this one.
+  void operator=(ezVariant&& other); // [tested]
 
   /// \brief Deduces the type of \a T and stores \a value.
   ///
@@ -134,6 +141,22 @@ public:
   template <typename T>
   const T& Get() const; // [tested]
 
+  /// \brief Returns a void* to the internal data.
+  void* GetData(); // [tested]
+
+  /// \brief Returns a void* to the internal data.
+  const void* GetData() const; // [tested]
+
+  /// \brief Returns the sub value at iIndex. This could be an element in an array or a member property inside a reflected type.
+  ///
+  /// Out of bounds access is handled gracefully and will return an invalid variant.
+  ezVariant operator[](ezUInt32 uiIndex) const; // [tested]
+
+  /// \brief Returns the sub value with szKey. This could be a value in a dictionary or a member property inside a reflected type.
+  ///
+  /// This function will return an invalid variant if no corresponding sub value is found.
+  ezVariant operator[](ezHashing::StringWrapper szKey) const; // [tested]
+
   /// \brief Returns whether the stored type can generally be converted to the desired type.
   ///
   /// This function will return true for all number conversions, as float / double / int / etc. can generally be converted into each
@@ -175,8 +198,6 @@ private:
 
   friend class ezVariantHelper;
   friend struct CompareFunc;
-  friend struct DestructFunc;
-  friend struct CopyFunc;
 
   struct SharedData
   {
@@ -215,6 +236,7 @@ private:
 
   void Release();
   void CopyFrom(const ezVariant& other);
+  void MoveFrom(ezVariant&& other);
 
   template <typename T>
   T& Cast();

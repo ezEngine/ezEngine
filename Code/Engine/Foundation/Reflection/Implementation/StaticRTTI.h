@@ -3,6 +3,7 @@
 /// \file
 
 #include <Foundation/Basics.h>
+#include <Foundation/Basics/Types/Variant.h>
 
 class ezRTTI;
 class ezReflectedClass;
@@ -130,9 +131,9 @@ EZ_FORCE_INLINE const ezRTTI* ezGetStaticRTTI()
     return ezRTTI(GetTypeName(),                                    \
       ezGetStaticRTTI<OwnBaseType>(),                               \
       sizeof(OwnType),                                              \
+      ezVariant::TypeDeduction<OwnType>::value,                     \
       &Allocator, Properties, MessageHandlers);                     \
-  }                                                                         
-                                                                              
+  }
 
 
 /// \brief Within a EZ_BEGIN_REFLECTED_TYPE / EZ_END_REFLECTED_TYPE block, use this to start the block that declares all the properties.

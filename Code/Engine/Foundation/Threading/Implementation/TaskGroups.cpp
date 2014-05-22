@@ -76,7 +76,7 @@ void ezTaskSystem::AddTaskToGroup(ezTaskGroupID Group, ezTask* pTask)
   pTask->m_BelongsToGroup = Group;
   Group.m_pTaskGroup->m_Tasks.PushBack(pTask);
 
-  pTask->GetProfilingID();
+  pTask->CreateProfilingID();
 }
 
 void ezTaskSystem::AddTaskGroupDependency(ezTaskGroupID Group, ezTaskGroupID DependsOn)

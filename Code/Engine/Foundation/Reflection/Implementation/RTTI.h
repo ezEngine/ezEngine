@@ -27,8 +27,8 @@ class EZ_FOUNDATION_DLL ezRTTI : public ezEnumerable<ezRTTI>
 
 public:
   /// \brief The constructor requires all the information about the type that this object represents.
-  ezRTTI(const char* szName, const ezRTTI* pParentType, ezUInt32 uiTypeSize, ezRTTIAllocator* pAllocator, 
-    ezArrayPtr<ezAbstractProperty*> properties, ezArrayPtr<ezAbstractMessageHandler*> messageHandlers);
+  ezRTTI(const char* szName, const ezRTTI* pParentType, ezUInt32 uiTypeSize, ezUInt32 uiVariantType,
+    ezRTTIAllocator* pAllocator, ezArrayPtr<ezAbstractProperty*> properties, ezArrayPtr<ezAbstractMessageHandler*> messageHandlers);
 
   ~ezRTTI();
 
@@ -37,6 +37,9 @@ public:
 
   /// \brief Returns the type that is the base class of this type. May be nullptr if this type has no base class.
   EZ_FORCE_INLINE const ezRTTI* GetParentType() const { return m_pParentType; } // [tested]
+
+  /// \brief Returns the corresponding variant type for this type or Invalid if there is none.
+  EZ_FORCE_INLINE ezVariant::Type::Enum GetVariantType() const { return static_cast<ezVariant::Type::Enum>(m_uiVariantType); }
 
   /// \brief Returns true if this type is derived from the given type.
   bool IsDerivedFrom(const ezRTTI* pBaseType) const; // [tested]
@@ -90,6 +93,7 @@ private:
   const char* m_szPluginName;
   const char* m_szTypeName;
   const ezRTTI* m_pParentType;
+  ezUInt32 m_uiVariantType;
   ezUInt32 m_uiTypeSize;
   ezUInt32 m_uiMsgIdOffset;
   ezRTTIAllocator* m_pAllocator;

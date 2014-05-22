@@ -44,10 +44,6 @@ public:
   /// \brief Can be used inside an overridden 'Execute' function to terminate execution prematurely.
   bool HasBeenCanceled() const { return m_bCancelExecution; } // [tested]
 
-public:
-  /// \brief Allocates and returns a profiling ID for this task. Called by ezTaskSystem.
-  const ezProfilingId& GetProfilingID();
-
 private:
   /// \brief Override this to implement the task's supposed functionality.
   virtual void Execute() = 0;
@@ -62,6 +58,9 @@ private:
 
   /// \brief Called by ezTaskSystem to execute the task. Calls 'Execute' internally.
   void Run();
+
+  /// \brief Allocates and returns a profiling ID for this task. Called by ezTaskSystem.
+  const ezProfilingId& CreateProfilingID();
 
   /// \brief Set to true once the task is finished or properly canceled.
   volatile bool m_bIsFinished;

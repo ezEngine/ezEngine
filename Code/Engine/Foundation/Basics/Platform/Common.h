@@ -40,7 +40,7 @@
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   /// \brief Macro helper to check alignment
   #define EZ_CHECK_ALIGNMENT(ptr, alignment) \
-    EZ_ASSERT(((size_t)ptr & (alignment - 1)) == 0, "Wrong aligment. Expected %d bytes alignment", alignment)
+    EZ_ASSERT(((size_t)ptr & (alignment - 1)) == 0, "Wrong alignment. Expected %d bytes alignment", alignment)
 #else
   /// \brief Macro helper to check alignment
   #define EZ_CHECK_ALIGNMENT(ptr, alignment)
