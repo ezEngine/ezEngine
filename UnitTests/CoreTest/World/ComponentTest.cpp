@@ -125,5 +125,7 @@ EZ_CREATE_SIMPLE_TEST(World, Components)
     }
 
     EZ_TEST_INT(uiCounter, 100);
+
+    world.DeleteComponentManager<TestComponentManager>();
   }
 }

@@ -86,6 +86,7 @@ private:
   void UpdateAsynchronous();
   void DeleteDeadObjects();
   void DeleteDeadComponents();
+  void UpdateHierarchy();
 
   ezInternal::WorldData m_Data;
   typedef ezInternal::WorldData::ObjectStorage::Entry ObjectStorageEntry;

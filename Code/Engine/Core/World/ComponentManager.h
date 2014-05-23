@@ -25,7 +25,6 @@ public:
 
   bool TryGetComponent(const ezComponentHandle& component, ezComponent*& out_pComponent) const;
   ezUInt32 GetComponentCount() const;
-  ezUInt32 GetActiveComponentCount() const;
 
   virtual ezComponentHandle CreateComponent() = 0;
   void DeleteComponent(const ezComponentHandle& component);
@@ -80,7 +79,6 @@ protected:
   static ezComponentHandle GetHandle(ezGenericComponentId internalId, ezUInt16 uiTypeId);
 
   ezIdTable<ezGenericComponentId, ComponentStorageEntry> m_Components;
-  ezUInt32 m_uiActiveComponentCount;
 
 private:
   ezWorld* m_pWorld;

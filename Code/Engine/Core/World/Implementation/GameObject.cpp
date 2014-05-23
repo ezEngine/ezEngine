@@ -51,14 +51,64 @@ void ezGameObject::operator=(const ezGameObject& other)
   }
 }
 
+void ezGameObject::Activate()
+{
+  m_Flags.Add(ezObjectFlags::Active);
+
+  for (ezUInt32 i = 0; i < m_Components.GetCount(); ++i)
+  {
+    ezComponent* pComponent = nullptr;
+    if (m_pWorld->TryGetComponent(m_Components[i], pComponent))
+    {
+      pComponent->Activate();
+    }
+  }
+}
+
+void ezGameObject::Deactivate()
+{
+  m_Flags.Remove(ezObjectFlags::Active);
+
+  for (ezUInt32 i = 0; i < m_Components.GetCount(); ++i)
+  {
+    ezComponent* pComponent = nullptr;
+    if (m_pWorld->TryGetComponent(m_Components[i], pComponent))
+    {
+      pComponent->Deactivate();
+    }
+  }
+}
+
 void ezGameObject::SetParent(const ezGameObjectHandle& parent)
 {
-  EZ_ASSERT_NOT_IMPLEMENTED;
+  ezGameObject* pParent = nullptr;
+  if (m_pWorld->TryGetObject(parent, pParent))
+  {
+    m_pWorld->SetParent(this, pParent);
+  }
 }
 
 ezGameObject* ezGameObject::GetParent() const
 {
   return m_pWorld->GetObjectUnchecked(m_ParentIndex);
+}
+
+void ezGameObject::AddChild(const ezGameObjectHandle& child)
+{
+  ezGameObject* pChild = nullptr;
+  if (m_pWorld->TryGetObject(child, pChild))
+  {
+    m_pWorld->SetParent(pChild, this);
+  }
+}
+
+void ezGameObject::DetachChild(const ezGameObjectHandle& child)
+{
+  ezGameObject* pChild = nullptr;
+  if (m_pWorld->TryGetObject(child, pChild))
+  {
+    m_pWorld->SetParent(pChild, nullptr);
+  }
 }
 
 ezGameObject::ChildIterator ezGameObject::GetChildren() const

@@ -7,7 +7,6 @@ ezUInt16 ezComponentManagerBase::s_uiNextTypeId;
 ezComponentManagerBase::ezComponentManagerBase(ezWorld* pWorld) : 
   m_Components(pWorld->GetAllocator())
 {
-  m_uiActiveComponentCount = 0;
   m_pWorld = pWorld;
 }
 
@@ -39,9 +38,6 @@ ezComponentHandle ezComponentManagerBase::CreateComponent(ComponentStorageEntry 
   pComponent->m_pManager = this;
   pComponent->m_InternalId = newId;
 
-  if (pComponent->IsActive())
-    ++m_uiActiveComponentCount;
-  
   return GetHandle(newId, uiTypeId);
 }
 
@@ -60,8 +56,6 @@ void ezComponentManagerBase::DeleteDeadComponent(ComponentStorageEntry storageEn
   ezGenericComponentId id = storageEntry.m_Ptr->m_InternalId;
   if (id.m_InstanceIndex != ezGenericComponentId::INVALID_INSTANCE_INDEX)
     m_Components[id] = storageEntry;
-
-  --m_uiActiveComponentCount;
 }
 
 ezAllocatorBase* ezComponentManagerBase::GetAllocator()

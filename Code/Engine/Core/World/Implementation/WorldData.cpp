@@ -59,7 +59,11 @@ WorldData::~WorldData()
   // delete all component manager
   for (ezUInt32 i = 0; i < m_ComponentManagers.GetCount(); ++i)
   {
-    EZ_DELETE(&m_Allocator, m_ComponentManagers[i]);
+    if (ezComponentManagerBase* pManager = m_ComponentManagers[i])
+    {
+      pManager->Deinitialize();
+      EZ_DELETE(&m_Allocator, pManager);
+    }    
   }
 
   // delete task storage

@@ -8,10 +8,12 @@ ezUInt16 ezComponent::TYPE_ID = ezComponentManagerBase::GetNextTypeId();
 
 void ezComponent::Activate()
 {
+  m_Flags.Add(ezObjectFlags::Active);
 }
 
 void ezComponent::Deactivate()
 {
+  m_Flags.Remove(ezObjectFlags::Active);
 }
 
 ezResult ezComponent::Initialize() 

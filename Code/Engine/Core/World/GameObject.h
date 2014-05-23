@@ -65,10 +65,14 @@ public:
 
   ezGameObjectHandle GetHandle() const;
   
-  ezGameObjectHandle Clone() const;
+  /// \todo
+  //ezGameObjectHandle Clone() const;
 
-  void MakeDynamic();
+  /// \todo
+  //void MakeDynamic();
+  //void MakeStatic();
   bool IsDynamic() const;
+  bool IsStatic() const;
 
   void Activate();
   void Deactivate();

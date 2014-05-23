@@ -236,11 +236,12 @@ void ezWorld::Update()
     UpdateSynchronous(m_Data.m_UpdateFunctions[ezComponentManagerBase::UpdateFunctionDesc::PostAsync]);
   }
 
-  // delete dead objects
+  // delete dead objects and update the object hierarchy
   {
     EZ_PROFILE(s_DeleteDeadObjectsProfilingID);
     DeleteDeadObjects();
     DeleteDeadComponents();
+    UpdateHierarchy();
   }
 
   // update transforms
@@ -258,6 +259,17 @@ void ezWorld::Update()
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
+
+void ezWorld::SetParent(ezGameObject* pObject, ezGameObject* pParent)
+{
+  CheckForMultithreadedAccess();
+
+  if (GetObjectUnchecked(pObject->m_ParentIndex) == pParent)
+    return;
+
+  /// \todo
+  EZ_ASSERT_NOT_IMPLEMENTED;
+}
 
 void ezWorld::ProcessQueuedMessages(ezObjectMsgQueueType::Enum queueType)
 {
@@ -424,7 +436,7 @@ void ezWorld::UpdateAsynchronous()
     ezInternal::WorldData::RegisteredUpdateFunction& updateFunction = updateFunctions[i];
     ezComponentManagerBase* pManager = static_cast<ezComponentManagerBase*>(updateFunction.m_Function.GetInstance());
 
-    const ezUInt32 uiTotalCount = pManager->GetActiveComponentCount();
+    const ezUInt32 uiTotalCount = pManager->GetComponentCount();
     ezUInt32 uiStartIndex = 0;
     ezUInt32 uiGranularity = (updateFunction.m_uiGranularity != 0) ? updateFunction.m_uiGranularity : uiTotalCount;
 
@@ -495,6 +507,10 @@ void ezWorld::DeleteDeadComponents()
   }
 
   m_Data.m_DeadComponents.Clear();
+}
+
+void ezWorld::UpdateHierarchy()
+{
 }
 
 

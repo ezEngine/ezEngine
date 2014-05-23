@@ -65,6 +65,11 @@ EZ_FORCE_INLINE bool ezGameObject::IsDynamic() const
 {
   return m_Flags.IsSet(ezObjectFlags::Dynamic);
 }
+
+EZ_FORCE_INLINE bool ezGameObject::IsStatic() const
+{
+  return !m_Flags.IsSet(ezObjectFlags::Dynamic);
+}
   
 EZ_FORCE_INLINE bool ezGameObject::IsActive() const
 {
@@ -81,24 +86,20 @@ EZ_FORCE_INLINE const char* ezGameObject::GetName() const
   return m_sName.GetString().GetData();
 }
 
-EZ_FORCE_INLINE void ezGameObject::AddChild(const ezGameObjectHandle& child)
-{
-  AddChildren(ezArrayPtr<const ezGameObjectHandle>(&child, 1));
-}
-
 EZ_FORCE_INLINE void ezGameObject::AddChildren(const ezArrayPtr<const ezGameObjectHandle>& children)
 {
-  EZ_ASSERT_NOT_IMPLEMENTED;
-}
-
-EZ_FORCE_INLINE void ezGameObject::DetachChild(const ezGameObjectHandle& child)
-{
-  DetachChildren(ezArrayPtr<const ezGameObjectHandle>(&child, 1));
+  for (ezUInt32 i = 0; i < children.GetCount(); ++i)
+  {
+    AddChild(children[i]);
+  }
 }
 
 EZ_FORCE_INLINE void ezGameObject::DetachChildren(const ezArrayPtr<const ezGameObjectHandle>& children)
 {
-  EZ_ASSERT_NOT_IMPLEMENTED;
+  for (ezUInt32 i = 0; i < children.GetCount(); ++i)
+  {
+    DetachChild(children[i]);
+  }
 }
 
 EZ_FORCE_INLINE ezUInt32 ezGameObject::GetChildCount() const

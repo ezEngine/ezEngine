@@ -67,6 +67,22 @@ ManagerType* ezWorld::CreateComponentManager()
 }
 
 template <typename ManagerType>
+void ezWorld::DeleteComponentManager()
+{
+  const ezUInt16 uiTypeId = ManagerType::TypeId();
+  if (uiTypeId < m_Data.m_ComponentManagers.GetCount())
+  {
+    if (ManagerType* pManager = static_cast<ManagerType*>(m_Data.m_ComponentManagers[uiTypeId]))
+    {
+      m_Data.m_ComponentManagers[uiTypeId] = nullptr;
+
+      pManager->Deinitialize();
+      EZ_DELETE(&m_Data.m_Allocator, pManager);
+    }
+  }
+}
+
+template <typename ManagerType>
 EZ_FORCE_INLINE ManagerType* ezWorld::GetComponentManager() const
 {
   CheckForMultithreadedAccess();

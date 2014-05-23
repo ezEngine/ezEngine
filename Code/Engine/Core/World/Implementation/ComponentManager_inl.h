@@ -22,11 +22,6 @@ EZ_FORCE_INLINE ezUInt32 ezComponentManagerBase::GetComponentCount() const
   return m_Components.GetCount();
 }
 
-EZ_FORCE_INLINE ezUInt32 ezComponentManagerBase::GetActiveComponentCount() const
-{
-  return m_uiActiveComponentCount;
-}
-
 //static 
 EZ_FORCE_INLINE ezUInt16 ezComponentManagerBase::GetNextTypeId()
 {
@@ -59,6 +54,10 @@ ezComponentManager<T>::ezComponentManager(ezWorld* pWorld) :
 template <typename T>
 ezComponentManager<T>::~ezComponentManager()
 {
+  for (auto it = this->m_ComponentStorage.GetIterator(); it.IsValid(); ++it)
+  {
+    it->Deinitialize();
+  }
 }
 
 template <typename T>
