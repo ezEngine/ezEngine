@@ -20,8 +20,6 @@
 
 #include <System/Window/Window.h>
 
-#include <CoreUtils/Debugging/DGMLWriter.h>
-
 #define DEMO_GL EZ_ON
 #define DEMO_DX11 EZ_OFF
 
@@ -221,26 +219,6 @@ public:
     m_hSamplerState = m_pDevice->CreateSamplerState(SamplerDesc);
 
     m_DebugBackBufferDT.EnableDataTransfer("Back Buffer");
-
-    char buf[64];
-    sprintf(buf, "%2X", 0);
-
-    ezDGMLGraph Graph;
-    ezDGMLGraph::NodeId First = Graph.AddNode("Test Node\nWith Line Breaks!", ezColor::GetRed());
-    ezDGMLGraph::NodeId Second = Graph.AddNode("Test Node 2", ezColor::GetBlue(), ezDGMLGraph::RoundedRectangle);
-    ezDGMLGraph::NodeId Third = Graph.AddNode("Test Node 3", ezColor::GetGreen(), ezDGMLGraph::Button);
-    ezDGMLGraph::NodeId Fourth = Graph.AddNode("Test Node 4", ezColor::GetGreen(), ezDGMLGraph::None);
-    ezDGMLGraph::NodeId Fifth = Graph.AddNode("Test & Node \"5\"", ezColor::GetPink(), ezDGMLGraph::Button);
-
-    Graph.AddConnection(First, Second);
-    Graph.AddConnection(Second, Third);
-    Graph.AddConnection(Fourth, Fifth);
-
-    Graph.AddConnection(First, Fifth);
-    Graph.AddConnection(Fourth, Third);
-
-    ezDGMLGraphWriter::WriteGraphToFile("D:\\temp\\graph.dgml", Graph);
-
   }
 
 
