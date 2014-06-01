@@ -47,7 +47,11 @@ void ezThreadLocalStorage::FreeSlot(ezUInt32 uiSlotIndex)
 
   // Special handling for the main thread pointer table since it may live longer
   // than other thread pointer tables - e.g. the foundation tests don't reinitialize the TLS
-  g_MainThreadLocalPointerTable[uiSlotIndex] = nullptr;
+  // But only when the system is still initialized, otherwise the static destruction order may have cleaned the table
+  // already.
+  if (s_bInitialized)
+    g_MainThreadLocalPointerTable[uiSlotIndex] = nullptr;
+
   g_bThreadLocalStorageAllocationTable[uiSlotIndex] = false;
 }
 
