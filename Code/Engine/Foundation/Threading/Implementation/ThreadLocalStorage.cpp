@@ -45,6 +45,9 @@ void ezThreadLocalStorage::FreeSlot(ezUInt32 uiSlotIndex)
 
   ezConditionalLock<ezMutex> Lock(g_TableManagementMutex, s_bInitialized);
 
+  // Special handling for the main thread pointer table since it may live longer
+  // than other thread pointer tables - e.g. the foundation tests don't reinitialize the TLS
+  g_MainThreadLocalPointerTable[uiSlotIndex] = nullptr;
   g_bThreadLocalStorageAllocationTable[uiSlotIndex] = false;
 }
 

@@ -48,6 +48,6 @@ ezThreadLocalPointerTable* ezThreadLocalStorage::GetPerThreadPointerTable()
 {
   EZ_ASSERT(g_ThreadLocalManagmentTableKey != TLS_OUT_OF_INDEXES, "Invalid internal tls index");
 
-  return reinterpret_cast<ezThreadLocalPointerTable*>(TlsGetValue(g_ThreadLocalManagmentTableKey));
+  return static_cast<ezThreadLocalPointerTable*>(TlsGetValue(g_ThreadLocalManagmentTableKey));
 }
 

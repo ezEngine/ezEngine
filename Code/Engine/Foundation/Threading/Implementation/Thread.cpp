@@ -21,6 +21,8 @@ ezUInt32 RunThread(ezThread* pThread)
 
   pThread->m_ThreadStatus = ezThread::Finished;
 
+  ezThreadLocalStorage::SetPerThreadPointerTable(nullptr);
+
   return uiReturnCode;
 }
 
