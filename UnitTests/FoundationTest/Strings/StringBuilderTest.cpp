@@ -819,6 +819,27 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     p = "/../../a/../../e/f/..";
     p.MakeCleanPath();
     EZ_TEST_BOOL(p == "../../e/f/..");
+
+    p = "\\//temp/./bla\\\\blub///.\\temp//tut/tat/..\\.\\.\\//ploep";
+    p.MakeCleanPath();
+    EZ_TEST_STRING(p.GetData(), "///temp/bla//blub///temp//tut///ploep");
+
+    p = "./";
+    p.MakeCleanPath();
+    EZ_TEST_STRING(p.GetData(), "");
+
+    p = "/./././";
+    p.MakeCleanPath();
+    EZ_TEST_STRING(p.GetData(), "/");
+
+    p = "./.././";
+    p.MakeCleanPath();
+    EZ_TEST_STRING(p.GetData(), "../");
+
+    // more than two dots are invalid, so the should be kept as is
+    p = "./..././abc/...\\def";
+    p.MakeCleanPath();
+    EZ_TEST_STRING(p.GetData(), ".../abc/.../def");
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "PathParentDirectory")
@@ -973,6 +994,12 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     ezStringBuilder p = "../../d/..\\f";
     p.MakeAbsolutePath("C:\\a/b/c/");
     EZ_TEST_BOOL(p == "C:/a/f");
+
+    p = ".\\file.txt";
+    p.MakeAbsolutePath("c:\\rootpath");
+
+    EZ_TEST_STRING(p.GetData(), "c:/rootpath/file.txt");
+
     #elif EZ_ENABLED(EZ_PLATFORM_OSX) || EZ_ENABLED(EZ_PLATFORM_LINUX)
     ezStringBuilder p = "../../d/..\\f";
     p.MakeAbsolutePath("/a/b/c/");

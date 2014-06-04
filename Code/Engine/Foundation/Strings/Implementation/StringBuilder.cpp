@@ -654,6 +654,12 @@ void ezStringBuilder::MakeCleanPath()
     {
       CurChar = '/';
 
+      if (FoundPathUp == OneDot)
+      {
+        szCurWritePos -= 2; // go back, skip two dots, one slash
+        FoundPathUp = NotStarted;
+      }
+      else
       if (FoundPathUp == TwoDots)
         FoundPathUp = FoundIt;
       else
@@ -677,7 +683,8 @@ void ezStringBuilder::MakeCleanPath()
       }
       else
       {
-        *szCurWritePos = '/'; ++szCurWritePos;
+        *szCurWritePos = '/';
+        ++szCurWritePos;
       }
 
       FoundPathUp = NotStarted;

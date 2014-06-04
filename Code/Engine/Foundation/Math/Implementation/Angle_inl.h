@@ -52,11 +52,13 @@ EZ_FORCE_INLINE float ezAngle::GetRadian() const
 
 inline void ezAngle::NormalizeRange()
 {
+  /// \test This is inefficient and possibly wrong
+
   if (m_fRadian >= 2.0f * Pi<float>()) // without 360 degree
   {
     do {
       m_fRadian -= 2.0f * Pi<float>();
-    } while (m_fRadian > 2.0f * Pi<float>());
+    } while (m_fRadian >= 2.0f * Pi<float>());
   }
   else if (m_fRadian < 0.0f) // with 0 degree
   {
@@ -85,6 +87,8 @@ inline bool ezAngle::IsEqualNormalized(ezAngle rhs, ezAngle epsilon)
   ezAngle bNorm = rhs.GetNormalizedRange();
   if (aNorm.IsEqualSimple(bNorm, epsilon))
     return true;
+
+  /// \test Not sure why the code below should be necessary
   
   // offset with 180 degree, normalize and check equality again
   ezAngle aNormOffset = ezAngle::Radian(aNorm.m_fRadian + Pi<float>()).GetNormalizedRange();
