@@ -56,7 +56,7 @@ ezComponentManager<T>::~ezComponentManager()
 {
   for (auto it = this->m_ComponentStorage.GetIterator(); it.IsValid(); ++it)
   {
-    it->Deinitialize();
+    DeinitializeComponent(it);
   }
 }
 
@@ -103,10 +103,13 @@ ezUInt16 ezComponentManager<T>::TypeId()
 }
 
 template <typename T>
-EZ_FORCE_INLINE void ezComponentManager<T>::DeleteDeadComponent(ComponentStorageEntry storageEntry)
+EZ_FORCE_INLINE void ezComponentManager<T>::DeleteDeadComponent(ComponentStorageEntry storageEntry, ezComponent*& out_pMovedComponent)
 {
-  m_ComponentStorage.Delete(*reinterpret_cast<typename ezBlockStorage<ComponentType>::Entry*>(&storageEntry));
-  ezComponentManagerBase::DeleteDeadComponent(storageEntry);
+  T* pMovedComponent = nullptr;
+  m_ComponentStorage.Delete(*reinterpret_cast<typename ezBlockStorage<ComponentType>::Entry*>(&storageEntry), pMovedComponent);
+  out_pMovedComponent = pMovedComponent;
+
+  ezComponentManagerBase::DeleteDeadComponent(storageEntry, out_pMovedComponent);
 }
 
 template <typename T>

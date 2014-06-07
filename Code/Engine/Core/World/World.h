@@ -74,7 +74,9 @@ private:
 
   ezGameObject* GetObjectUnchecked(ezUInt32 uiIndex) const;
 
-  void SetParent(ezGameObject* pObject, ezGameObject* pParent);
+  void SetParent(ezGameObject* pObject, ezGameObject* pNewParent);
+  void LinkToParent(ezGameObject* pObject);
+  void UnlinkFromParent(ezGameObject* pObject);
 
   void ProcessQueuedMessages(ezObjectMsgQueueType::Enum queueType);
 
@@ -86,6 +88,8 @@ private:
   void UpdateAsynchronous();
   void DeleteDeadObjects();
   void DeleteDeadComponents();
+
+  void PatchHierarchyData(ezGameObject* pObject);
   void UpdateHierarchy();
 
   ezInternal::WorldData m_Data;

@@ -33,7 +33,7 @@ public:
 
 protected:
   friend class ezWorld;
-  friend struct ezInternal::WorldData;
+  friend class ezInternal::WorldData;
 
   typedef ezDelegate<void (ezUInt32, ezUInt32)> UpdateFunction;
 
@@ -66,8 +66,9 @@ protected:
   typedef ezBlockStorage<ezComponent>::Entry ComponentStorageEntry;
 
   ezComponentHandle CreateComponent(ComponentStorageEntry storageEntry, ezUInt16 uiTypeId);
+  void DeinitializeComponent(ezComponent* pComponent);
   void DeleteComponent(ComponentStorageEntry storageEntry);
-  virtual void DeleteDeadComponent(ComponentStorageEntry storageEntry);
+  virtual void DeleteDeadComponent(ComponentStorageEntry storageEntry, ezComponent*& out_pMovedComponent);
 
   ezAllocatorBase* GetAllocator();
   ezLargeBlockAllocator* GetBlockAllocator();
@@ -106,7 +107,7 @@ public:
 protected:
   friend ComponentType;
 
-  virtual void DeleteDeadComponent(ComponentStorageEntry storageEntry) override;
+  virtual void DeleteDeadComponent(ComponentStorageEntry storageEntry, ezComponent*& out_pMovedComponent) override;
 
   void RegisterUpdateFunction(UpdateFunctionDesc& desc);
 

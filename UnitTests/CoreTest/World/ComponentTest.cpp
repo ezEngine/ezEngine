@@ -42,6 +42,30 @@ namespace
     TestComponent() : m_iSomeData(1) {}
     ~TestComponent() {}
 
+    virtual ezResult Initialize() override
+    {
+      ++s_iInitCounter;
+      return EZ_SUCCESS;
+    }
+
+    virtual ezResult Deinitialize() override
+    {
+      --s_iInitCounter;
+      return EZ_SUCCESS;
+    }
+
+    virtual ezResult OnAttachedToObject() override
+    {
+      ++s_iAttachCounter;
+      return EZ_SUCCESS;
+    }
+
+    virtual ezResult OnDetachedFromObject() override
+    {
+      --s_iAttachCounter;
+      return EZ_SUCCESS;
+    }
+
     void Update()
     {
       m_iSomeData *= 5;
@@ -53,7 +77,13 @@ namespace
     }
 
     ezInt32 m_iSomeData;
+
+    static ezInt32 s_iInitCounter;
+    static ezInt32 s_iAttachCounter;
   };
+
+  ezInt32 TestComponent::s_iInitCounter = 0;
+  ezInt32 TestComponent::s_iAttachCounter = 0;
 
   EZ_BEGIN_COMPONENT_TYPE(TestComponent, ezComponent, TestComponentManager);
   EZ_END_COMPONENT_TYPE();
@@ -91,16 +121,18 @@ EZ_CREATE_SIMPLE_TEST(World, Components)
 {
   ezClock::SetNumGlobalClocks();
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Component Update")
-  {
-    ezWorld world("TestComp");
-    world.CreateComponentManager<TestComponentManager>();
+  ezWorld world("TestComp");
+  world.CreateComponentManager<TestComponentManager>();
+  TestComponentManager* pManager = world.GetComponentManager<TestComponentManager>();
 
+  TestComponent* pComponent = nullptr;
+  ezGameObject* pObject = nullptr;
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Component Init")
+  {
     ezComponentHandle handle;
-    TestComponent* pComponent = nullptr;
     EZ_TEST_BOOL(!world.TryGetComponent(handle, pComponent));
 
-    TestComponentManager* pManager = world.GetComponentManager<TestComponentManager>();
     handle = pManager->CreateComponent(pComponent);
     TestComponent* pTest = nullptr;
     EZ_TEST_BOOL(world.TryGetComponent(handle, pTest));
@@ -108,6 +140,7 @@ EZ_CREATE_SIMPLE_TEST(World, Components)
     EZ_TEST_BOOL(pComponent->GetHandle() == handle);
 
     EZ_TEST_INT(pComponent->m_iSomeData, 1);
+    EZ_TEST_INT(TestComponent::s_iInitCounter, 1);
 
     for (ezUInt32 i = 1; i < 100; ++i)
     {
@@ -115,6 +148,12 @@ EZ_CREATE_SIMPLE_TEST(World, Components)
       pComponent->m_iSomeData = i + 1;
     }
 
+    EZ_TEST_INT(pManager->GetComponentCount(), 100);
+    EZ_TEST_INT(TestComponent::s_iInitCounter, 100);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Component Update")
+  {
     world.Update();
 
     ezUInt32 uiCounter = 0;
@@ -125,7 +164,51 @@ EZ_CREATE_SIMPLE_TEST(World, Components)
     }
 
     EZ_TEST_INT(uiCounter, 100);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Attach to objects")
+  {
+    world.CreateObject(ezGameObjectDesc(), pObject);
+
+    EZ_TEST_INT(TestComponent::s_iAttachCounter, 0);
+
+    for (auto it = pManager->GetComponents(); it.IsValid(); ++it)
+    {
+      pObject->AddComponent(it);
+      EZ_TEST_BOOL(it->GetOwner() != nullptr);
+    }
+
+    EZ_TEST_INT(TestComponent::s_iAttachCounter, 100);
+    EZ_TEST_INT(pObject->GetComponents().GetCount(), 100);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Detach from objects")
+  {
+    ezComponent* pFirstComponent = pObject->GetComponents()[0];
+    pObject->RemoveComponent(pFirstComponent);
+
+    EZ_TEST_INT(TestComponent::s_iInitCounter, 100);
+    EZ_TEST_INT(TestComponent::s_iAttachCounter, 99);
+    EZ_TEST_INT(pObject->GetComponents().GetCount(), 99);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Delete Component")
+  {
+    pManager->DeleteComponent(pComponent->GetHandle());
+    EZ_TEST_INT(pManager->GetComponentCount(), 99);
+    EZ_TEST_INT(TestComponent::s_iInitCounter, 99);
+    EZ_TEST_INT(TestComponent::s_iAttachCounter, 98);
+
+    // component should also be removed from the game object
+    EZ_TEST_INT(pObject->GetComponents().GetCount(), 98);
+
+    world.DeleteObject(pObject->GetHandle());
+    world.Update();
+
+    EZ_TEST_INT(TestComponent::s_iInitCounter, 1);
+    EZ_TEST_INT(TestComponent::s_iAttachCounter, 0);
 
     world.DeleteComponentManager<TestComponentManager>();
+    EZ_TEST_INT(TestComponent::s_iInitCounter, 0);
   }
 }

@@ -17,6 +17,11 @@ EZ_FORCE_INLINE ezGameObject* ezGameObject::ChildIterator::operator->() const
   return m_pObject;
 }
 
+EZ_FORCE_INLINE ezGameObject::ChildIterator::operator ezGameObject*() const
+{
+  return m_pObject;
+}
+
 EZ_FORCE_INLINE bool ezGameObject::ChildIterator::IsValid() const
 {
   return m_pObject != nullptr;
@@ -181,9 +186,8 @@ bool ezGameObject::TryGetComponentOfBaseType(T*& out_pComponent) const
 {
   for (ezUInt32 i = 0; i < m_Components.GetCount(); ++i)
   {
-    ezComponentHandle component = m_Components[i];
-    ezComponent* pComponent = nullptr;
-    if (TryGetComponent(component, pComponent) && pComponent->IsInstanceOf<T>())
+    ezComponent* pComponent = m_Components[i];
+    if (pComponent->IsInstanceOf<T>())
     {
       out_pComponent = static_cast<T*>(pComponent);
       return true;
@@ -200,16 +204,15 @@ void ezGameObject::TryGetComponentsOfBaseType(ezHybridArray<T*, 8>& out_componen
 
   for (ezUInt32 i = 0; i < m_Components.GetCount(); ++i)
   {
-    ezComponentHandle component = m_Components[i];
-    ezComponent* pComponent = nullptr;
-    if (TryGetComponent(component, pComponent) && pComponent->IsInstanceOf<T>())
+    ezComponent* pComponent = m_Components[i];
+    if (pComponent->IsInstanceOf<T>())
     {
       out_components.PushBack(static_cast<T*>(pComponent));
     }
   }
 }
 
-EZ_FORCE_INLINE ezArrayPtr<ezComponentHandle> ezGameObject::GetComponents() const
+EZ_FORCE_INLINE ezArrayPtr<ezComponent*> ezGameObject::GetComponents() const
 {
   return m_Components;
 }

@@ -1,9 +1,12 @@
 #pragma once
 
+/// \file
+
 #include <Foundation/Communication/Message.h>
 #include <Foundation/Reflection/Reflection.h>
 
 #include <Core/World/Declarations.h>
+
 
 class EZ_CORE_DLL ezComponent : public ezReflectedClass
 {
@@ -22,10 +25,10 @@ public:
   void Deactivate();
   bool IsActive() const;
 
-  virtual ezResult Initialize();
-  virtual ezResult Deinitialize();
-
+  ezComponentManagerBase* GetManager() const;
   ezGameObject* GetOwner() const;
+
+  ezComponentHandle GetHandle() const;
 
   static ezUInt16 TypeId();
 
@@ -40,6 +43,13 @@ protected:
   ezComponentHandle GetHandle() const;
 
 private:
+  virtual ezResult Initialize();
+  virtual ezResult Deinitialize();
+  bool IsInitialized() const;
+
+  virtual ezResult OnAttachedToObject();
+  virtual ezResult OnDetachedFromObject();
+
   void OnMessage(ezMessage& msg);
 
   ezGenericComponentId m_InternalId;

@@ -13,7 +13,7 @@ class EZ_CORE_DLL ezGameObject
 {
 private:
   friend class ezWorld;
-  friend struct ezInternal::WorldData;
+  friend class ezInternal::WorldData;
   friend class ezMemoryUtils;
 
   ezGameObject();
@@ -21,25 +21,6 @@ private:
   ~ezGameObject();
   
   void operator=(const ezGameObject& other);
-
-  struct EZ_ALIGN_16(TransformationData)
-  {
-    EZ_DECLARE_POD_TYPE();
-
-    ezGameObject* m_pObject;
-    TransformationData* m_pParentData;
-    
-  #if EZ_ENABLED(EZ_PLATFORM_32BIT)
-    ezUInt64 m_uiPadding;
-  #endif
-
-    ezVec4 m_localPosition;
-    ezQuat m_localRotation;
-    ezVec4 m_localScaling;
-
-    ezTransform m_worldTransform;
-    ezVec4 m_velocity;
-  };
 
 public:
   class EZ_CORE_DLL ChildIterator
@@ -49,6 +30,8 @@ public:
 
     ezGameObject& operator*() const;
     ezGameObject* operator->() const;
+
+    operator ezGameObject*() const;
 
     void Next();
     bool IsValid() const;
@@ -65,10 +48,10 @@ public:
 
   ezGameObjectHandle GetHandle() const;
   
-  /// \todo
+  /// \todo Implement Clone
   //ezGameObjectHandle Clone() const;
 
-  /// \todo
+  /// \todo Implement switching dynamic and static
   //void MakeDynamic();
   //void MakeStatic();
   bool IsDynamic() const;
@@ -78,7 +61,7 @@ public:
   void Deactivate();
   bool IsActive() const;
 
-  /// \todo
+  /// \todo Implement unique ids
   //ezUInt64 GetUniqueId() const;
 
   void SetName(const char* szName);
@@ -124,7 +107,10 @@ public:
 
   // components
   ezResult AddComponent(const ezComponentHandle& component);
+  ezResult AddComponent(ezComponent* pComponent);
+
   ezResult RemoveComponent(const ezComponentHandle& component);
+  ezResult RemoveComponent(ezComponent* pComponent);
 
   template <typename T>
   bool TryGetComponentOfBaseType(T*& out_pComponent) const;
@@ -132,7 +118,7 @@ public:
   template <typename T>
   void TryGetComponentsOfBaseType(ezHybridArray<T*, 8>& out_components) const;
 
-  ezArrayPtr<ezComponentHandle> GetComponents() const;
+  ezArrayPtr<ezComponent*> GetComponents() const;
 
   // messaging
   void SendMessage(ezMessage& msg, ezBitflags<ezObjectMsgRouting> routing = ezObjectMsgRouting::Default);
@@ -142,8 +128,29 @@ public:
     ezBitflags<ezObjectMsgRouting> routing = ezObjectMsgRouting::Default);
   
 private:
-  bool TryGetComponent(const ezComponentHandle& component, ezComponent*& out_pComponent) const;
+  friend class ezGameObjectTest;
+
+  void FixComponentPointer(ezComponent* pOldPtr, ezComponent* pNewPtr);
   void OnMessage(ezMessage& msg, ezBitflags<ezObjectMsgRouting> routing);
+
+  struct EZ_ALIGN_16(TransformationData)
+  {
+    EZ_DECLARE_POD_TYPE();
+
+    ezGameObject* m_pObject;
+    TransformationData* m_pParentData;
+
+#if EZ_ENABLED(EZ_PLATFORM_32BIT)
+    ezUInt64 m_uiPadding;
+#endif
+
+    ezVec4 m_localPosition;
+    ezQuat m_localRotation;
+    ezVec4 m_localScaling;
+
+    ezTransform m_worldTransform;
+    ezVec4 m_velocity;
+  };
 
   ezGameObjectId m_InternalId;
   ezBitflags<ezObjectFlags> m_Flags;
@@ -182,9 +189,17 @@ private:
   ezUInt64 m_uiPadding;
 #endif
 
+  enum
+  {
+#if EZ_ENABLED(EZ_PLATFORM_32BIT)
+    NUM_INPLACE_COMPONENTS = 12
+#else
+    NUM_INPLACE_COMPONENTS = 6
+#endif
+  };
+
   /// \todo small array class to reduce memory overhead
-  /// \todo save pointer to component instead?
-  ezHybridArray<ezComponentHandle, 6> m_Components;
+  ezHybridArray<ezComponent*, NUM_INPLACE_COMPONENTS> m_Components;
 
 #if EZ_ENABLED(EZ_PLATFORM_32BIT)
   ezUInt64 m_uiPadding2;

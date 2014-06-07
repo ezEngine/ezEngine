@@ -42,12 +42,9 @@ void ezGameObject::operator=(const ezGameObject& other)
   m_Components = other.m_Components;
   for (ezUInt32 i = 0; i < m_Components.GetCount(); ++i)
   {
-    ezComponent* pComponent = nullptr;
-    if (m_pWorld->TryGetComponent(m_Components[i], pComponent))
-    {
-      EZ_ASSERT(pComponent->m_pOwner == &other, "");
-      pComponent->m_pOwner = this;
-    }
+    ezComponent* pComponent = m_Components[i];
+    EZ_ASSERT(pComponent->m_pOwner == &other, "");
+    pComponent->m_pOwner = this;
   }
 }
 
@@ -57,11 +54,7 @@ void ezGameObject::Activate()
 
   for (ezUInt32 i = 0; i < m_Components.GetCount(); ++i)
   {
-    ezComponent* pComponent = nullptr;
-    if (m_pWorld->TryGetComponent(m_Components[i], pComponent))
-    {
-      pComponent->Activate();
-    }
+    m_Components[i]->Activate();
   }
 }
 
@@ -71,21 +64,15 @@ void ezGameObject::Deactivate()
 
   for (ezUInt32 i = 0; i < m_Components.GetCount(); ++i)
   {
-    ezComponent* pComponent = nullptr;
-    if (m_pWorld->TryGetComponent(m_Components[i], pComponent))
-    {
-      pComponent->Deactivate();
-    }
+    m_Components[i]->Deactivate();
   }
 }
 
 void ezGameObject::SetParent(const ezGameObjectHandle& parent)
 {
   ezGameObject* pParent = nullptr;
-  if (m_pWorld->TryGetObject(parent, pParent))
-  {
-    m_pWorld->SetParent(this, pParent);
-  }
+  m_pWorld->TryGetObject(parent, pParent);
+  m_pWorld->SetParent(this, pParent);
 }
 
 ezGameObject* ezGameObject::GetParent() const
@@ -121,17 +108,24 @@ ezResult ezGameObject::AddComponent(const ezComponentHandle& component)
   ezComponent* pComponent = nullptr;
   if (m_pWorld->TryGetComponent(component, pComponent))
   {
-    EZ_ASSERT(pComponent->m_pOwner == nullptr, "Component must not be added twice.");
+    return AddComponent(pComponent);
+  }
 
-    pComponent->m_pOwner = this;
-    if (pComponent->Initialize() == EZ_SUCCESS)
-    {
-      EZ_ASSERT(IsDynamic() || !pComponent->IsDynamic(), 
-        "Cannot attach a dynamic component to a static object. Call MakeDynamic() first.");
+  return EZ_FAILURE;
+}
 
-      m_Components.PushBack(component);
-      return EZ_SUCCESS;
-    }
+ezResult ezGameObject::AddComponent(ezComponent* pComponent)
+{
+  EZ_ASSERT(pComponent->IsInitialized(), "Component must be initialized.");
+  EZ_ASSERT(pComponent->m_pOwner == nullptr, "Component must not be added twice.");
+  EZ_ASSERT(IsDynamic() || !pComponent->IsDynamic(),
+    "Cannot attach a dynamic component to a static object. Call MakeDynamic() first.");
+
+  pComponent->m_pOwner = this;
+  if (pComponent->OnAttachedToObject() == EZ_SUCCESS)
+  {
+    m_Components.PushBack(pComponent);
+    return EZ_SUCCESS;
   }
 
   return EZ_FAILURE;
@@ -139,27 +133,39 @@ ezResult ezGameObject::AddComponent(const ezComponentHandle& component)
 
 ezResult ezGameObject::RemoveComponent(const ezComponentHandle& component)
 {
-  ezUInt32 uiIndex = m_Components.IndexOf(component);
-  if (uiIndex == ezInvalidIndex)
-    return EZ_FAILURE;
-
-  ezResult result = EZ_FAILURE;
-  
   ezComponent* pComponent = nullptr;
   if (m_pWorld->TryGetComponent(component, pComponent))
   {
-    result = pComponent->Deinitialize();
-    pComponent->m_pOwner = nullptr;
-  }
-
-  m_Components.RemoveAtSwap(uiIndex);
+    return RemoveComponent(pComponent);
+  }  
   
-  return result;
+  return EZ_FAILURE;
 }
 
-bool ezGameObject::TryGetComponent(const ezComponentHandle& component, ezComponent*& out_pComponent) const
+ezResult ezGameObject::RemoveComponent(ezComponent* pComponent)
 {
-  return m_pWorld->TryGetComponent(component, out_pComponent);
+  EZ_ASSERT(pComponent->IsInitialized(), "Component must be initialized.");
+
+  ezUInt32 uiIndex = m_Components.IndexOf(pComponent);
+  if (uiIndex == ezInvalidIndex)
+    return EZ_FAILURE;
+
+  if (pComponent->OnDetachedFromObject() == EZ_SUCCESS)
+  {
+    pComponent->m_pOwner = nullptr;
+
+    m_Components.RemoveAtSwap(uiIndex);
+    return EZ_SUCCESS;
+  }
+
+  return EZ_FAILURE;
+}
+
+void ezGameObject::FixComponentPointer(ezComponent* pOldPtr, ezComponent* pNewPtr)
+{
+  ezUInt32 uiIndex = m_Components.IndexOf(pOldPtr);
+  EZ_ASSERT(uiIndex != ezInvalidIndex, "Memory corruption?");
+  m_Components[uiIndex] = pNewPtr;
 }
 
 void ezGameObject::PostMessage(ezMessage& msg, ezObjectMsgQueueType::Enum queueType,
@@ -194,11 +200,7 @@ void ezGameObject::OnMessage(ezMessage& msg, ezBitflags<ezObjectMsgRouting> rout
   // always send message to all components
   for (ezUInt32 i = 0; i < m_Components.GetCount(); ++i)
   {
-    ezComponent* pComponent = nullptr;
-    if (m_pWorld->TryGetComponent(m_Components[i], pComponent))
-    {
-      pComponent->OnMessage(msg);
-    }
+    m_Components[i]->OnMessage(msg);
   }
 
   // route message to parent and/or children

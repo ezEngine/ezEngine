@@ -8,7 +8,7 @@
 class ezWorld;
 namespace ezInternal
 {
-  struct WorldData;
+  class WorldData;
 }
 
 class ezGameObject;
@@ -93,6 +93,7 @@ struct ezObjectFlags
   {
     Dynamic = EZ_BIT(0),
     Active  = EZ_BIT(1),
+    Initialized = EZ_BIT(2),
 
     Default = Dynamic | Active
   };
@@ -101,6 +102,7 @@ struct ezObjectFlags
   {
     StorageType Dynamic : 1;
     StorageType Active : 1;
+    StorageType Initialized : 1;
   };
 };
 

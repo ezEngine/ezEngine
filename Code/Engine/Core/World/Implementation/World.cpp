@@ -77,24 +77,11 @@ ezGameObjectHandle ezWorld::CreateObject(const ezGameObjectDesc& desc, ezGameObj
   pNewObject->m_InternalId = newId;
   pNewObject->m_Flags = desc.m_Flags;
   pNewObject->m_sName = desc.m_sName;
-  pNewObject->m_ParentIndex = uiParentIndex;
+  pNewObject->m_pWorld = this;
+  pNewObject->m_ParentIndex = uiParentIndex; 
   
   // fix links
-  if (pParentObject != nullptr)
-  {
-    if (pParentObject->m_FirstChildIndex != 0)
-    {
-      pNewObject->m_PrevSiblingIndex = pParentObject->m_LastChildIndex;
-      GetObjectUnchecked(pParentObject->m_LastChildIndex)->m_NextSiblingIndex = newId.m_InstanceIndex;
-    }
-    else
-    {
-      pParentObject->m_FirstChildIndex = newId.m_InstanceIndex;
-    }
-
-    pParentObject->m_LastChildIndex = newId.m_InstanceIndex;
-    pParentObject->m_ChildCount++;
-  }
+  LinkToParent(pNewObject);
 
   pNewObject->m_uiHierarchyLevel = uiHierarchyLevel;
   pNewObject->m_uiTransformationDataIndex = uiTransformationDataIndex;
@@ -105,19 +92,17 @@ ezGameObjectHandle ezWorld::CreateObject(const ezGameObjectDesc& desc, ezGameObj
   pTransformationData->m_localPosition = desc.m_LocalPosition.GetAsPositionVec4();
   pTransformationData->m_localRotation = desc.m_LocalRotation;
   pTransformationData->m_localScaling = desc.m_LocalScaling.GetAsDirectionVec4();
+  pTransformationData->m_worldTransform.SetIdentity();
   pTransformationData->m_velocity.SetZero();
 
   if (pParentData != nullptr)
-    ezInternal::WorldData::UpdateWorldTransformWithParent(pTransformationData);
+    ezInternal::WorldData::UpdateWorldTransformWithParent(pTransformationData, 0.0f);
   else
-    ezInternal::WorldData::UpdateWorldTransform(pTransformationData);
+    ezInternal::WorldData::UpdateWorldTransform(pTransformationData, 0.0f);
     
   // link the transformation data to the game object
   pNewObject->m_pTransformationData = pTransformationData;
 
-  // fill out the rest
-  pNewObject->m_pWorld = this;
-  
   out_pObject = pNewObject;
   return newId;
 }
@@ -133,54 +118,28 @@ void ezWorld::DeleteObject(const ezGameObjectHandle& object)
   ezGameObject* pObject = storageEntry.m_Ptr;
 
   // delete children
-  for (ezGameObject::ChildIterator it = pObject->GetChildren(); it.IsValid(); ++it)
+  for (auto it = pObject->GetChildren(); it.IsValid(); ++it)
   {
     DeleteObject(it->GetHandle());
   }
 
   // delete attached components
-  const ezArrayPtr<ezComponentHandle> components = pObject->m_Components;
+  const ezArrayPtr<ezComponent*> components = pObject->m_Components;
   for (ezUInt32 c = 0; c < components.GetCount(); ++c)
   {
-    const ezComponentHandle& component = components[c];
-    const ezUInt16 uiTypeId = component.m_InternalId.m_TypeId;
-
-    EZ_ASSERT(uiTypeId < m_Data.m_ComponentManagers.GetCount(), "Implementation error or memory corruption.");  
-    if (ezComponentManagerBase* pManager = m_Data.m_ComponentManagers[uiTypeId])
-    {
-      ezComponentManagerBase::ComponentStorageEntry storageEntry;
-      EZ_VERIFY(pManager->m_Components.TryGetValue(component, storageEntry), "Implementation error or memory corruption.");
-      pManager->DeleteComponent(storageEntry);
-    }
+    ezComponent* pComponent = components[c];
+    pComponent->GetManager()->DeleteComponent(pComponent->GetHandle());
   }
-  pObject->m_Components.Clear();
+  EZ_ASSERT(pObject->m_Components.GetCount() == 0, "Components should already be removed");
+
+  // fix parent and siblings
+  UnlinkFromParent(pObject);
 
   // invalidate and remove from id table
   pObject->m_InternalId.Invalidate();
   pObject->m_Flags.Remove(ezObjectFlags::Active);
   m_Data.m_DeadObjects.PushBack(storageEntry);
-  m_Data.m_Objects.Remove(object);
-
-  // fix parent and siblings
-  if (ezGameObject* pParentObject = pObject->GetParent())
-  {
-    const ezUInt32 uiIndex = object.m_InternalId.m_InstanceIndex;
-
-    if (uiIndex == pParentObject->m_FirstChildIndex)
-      pParentObject->m_FirstChildIndex = pObject->m_NextSiblingIndex;
-    
-    if (uiIndex == pParentObject->m_LastChildIndex)
-      pParentObject->m_LastChildIndex = pObject->m_PrevSiblingIndex;
-
-    if (ezGameObject* pNextObject = GetObjectUnchecked(pObject->m_NextSiblingIndex))
-      pNextObject->m_PrevSiblingIndex = pObject->m_PrevSiblingIndex;
-
-    if (ezGameObject* pPrevObject = GetObjectUnchecked(pObject->m_PrevSiblingIndex))
-      pPrevObject->m_NextSiblingIndex = pObject->m_NextSiblingIndex;
-
-    pParentObject->m_ChildCount--;
-    pObject->m_ParentIndex = 0;
-  }
+  m_Data.m_Objects.Remove(object);  
 }
 
 void ezWorld::PostMessage(const ezGameObjectHandle& receiverObject, ezMessage& msg, 
@@ -260,15 +219,64 @@ void ezWorld::Update()
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void ezWorld::SetParent(ezGameObject* pObject, ezGameObject* pParent)
+void ezWorld::SetParent(ezGameObject* pObject, ezGameObject* pNewParent)
 {
   CheckForMultithreadedAccess();
 
-  if (GetObjectUnchecked(pObject->m_ParentIndex) == pParent)
+  if (GetObjectUnchecked(pObject->m_ParentIndex) == pNewParent)
     return;
 
-  /// \todo
-  EZ_ASSERT_NOT_IMPLEMENTED;
+  // we cannot store pointers here since objects might be deleted when we actually update the hierarchy.
+  ezInternal::WorldData::SetParentRequest request;
+  request.m_Object = pObject->GetHandle();
+  if (pNewParent != nullptr)
+    request.m_NewParent = pNewParent->GetHandle();
+
+  m_Data.m_SetParentRequests.PushBack(request);
+}
+
+void ezWorld::LinkToParent(ezGameObject* pObject)
+{
+  if (ezGameObject* pParentObject = pObject->GetParent())
+  {
+    const ezUInt32 uiIndex = pObject->m_InternalId.m_InstanceIndex;
+
+    if (pParentObject->m_FirstChildIndex != 0)
+    {
+      pObject->m_PrevSiblingIndex = pParentObject->m_LastChildIndex;
+      GetObjectUnchecked(pParentObject->m_LastChildIndex)->m_NextSiblingIndex = uiIndex;
+    }
+    else
+    {
+      pParentObject->m_FirstChildIndex = uiIndex;
+    }
+
+    pParentObject->m_LastChildIndex = uiIndex;
+    pParentObject->m_ChildCount++;
+  }
+}
+
+void ezWorld::UnlinkFromParent(ezGameObject* pObject)
+{
+  if (ezGameObject* pParentObject = pObject->GetParent())
+  {
+    const ezUInt32 uiIndex = pObject->m_InternalId.m_InstanceIndex;
+
+    if (uiIndex == pParentObject->m_FirstChildIndex)
+      pParentObject->m_FirstChildIndex = pObject->m_NextSiblingIndex;
+
+    if (uiIndex == pParentObject->m_LastChildIndex)
+      pParentObject->m_LastChildIndex = pObject->m_PrevSiblingIndex;
+
+    if (ezGameObject* pNextObject = GetObjectUnchecked(pObject->m_NextSiblingIndex))
+      pNextObject->m_PrevSiblingIndex = pObject->m_PrevSiblingIndex;
+
+    if (ezGameObject* pPrevObject = GetObjectUnchecked(pObject->m_PrevSiblingIndex))
+      pPrevObject->m_NextSiblingIndex = pObject->m_NextSiblingIndex;
+
+    pParentObject->m_ChildCount--;
+    pObject->m_ParentIndex = 0;
+  }
 }
 
 void ezWorld::ProcessQueuedMessages(ezObjectMsgQueueType::Enum queueType)
@@ -503,14 +511,99 @@ void ezWorld::DeleteDeadComponents()
   {
     ezComponentManagerBase::ComponentStorageEntry entry = m_Data.m_DeadComponents[i];
     ezComponentManagerBase* pManager = m_Data.m_ComponentManagers[entry.m_Ptr->GetTypeId()];
-    pManager->DeleteDeadComponent(entry);
+    ezComponent* pMovedComponent = nullptr;
+    pManager->DeleteDeadComponent(entry, pMovedComponent);
+    
+    // another component has been moved to the deleted component location
+    if (entry.m_Ptr != pMovedComponent)
+    {
+      if (ezGameObject* pOwner = entry.m_Ptr->GetOwner())
+      {
+        pOwner->FixComponentPointer(pMovedComponent, entry.m_Ptr);
+      }
+    }    
   }
 
   m_Data.m_DeadComponents.Clear();
 }
 
+void ezWorld::PatchHierarchyData(ezGameObject* pObject)
+{
+  ezGameObject* pParent = pObject->GetParent();
+
+  ezUInt32 uiNewHierarchyLevel = pParent != nullptr ? pParent->m_uiHierarchyLevel + 1 : 0;
+
+  if (uiNewHierarchyLevel != pObject->m_uiHierarchyLevel)
+  {
+    ezGameObject::TransformationData* pNewTransformationData = nullptr;
+    ezUInt32 uiTransformationDataIndex = m_Data.CreateTransformationData(pObject->m_Flags, uiNewHierarchyLevel, pNewTransformationData);
+
+    pNewTransformationData->m_pObject = pObject;
+    pNewTransformationData->m_localPosition = pObject->m_pTransformationData->m_localPosition;
+    pNewTransformationData->m_localRotation = pObject->m_pTransformationData->m_localRotation;
+    pNewTransformationData->m_localScaling = pObject->m_pTransformationData->m_localScaling;
+    pNewTransformationData->m_worldTransform.SetIdentity();
+    pNewTransformationData->m_velocity.SetZero();
+
+    m_Data.DeleteTransformationData(pObject->m_Flags, pObject->m_uiHierarchyLevel,
+      pObject->m_uiTransformationDataIndex);
+
+    pObject->m_uiHierarchyLevel = uiNewHierarchyLevel;
+    pObject->m_uiTransformationDataIndex = uiTransformationDataIndex;
+    pObject->m_pTransformationData = pNewTransformationData;
+  }
+
+  pObject->m_pTransformationData->m_pParentData = pParent != nullptr ? pParent->m_pTransformationData : nullptr;
+
+  for (auto it = pObject->GetChildren(); it.IsValid(); ++it)
+  {
+    PatchHierarchyData(it);
+  }
+}
+
 void ezWorld::UpdateHierarchy()
 {
+  ezUInt32 uiNumObjectsToPatch = 0;
+
+  for (ezUInt32 i = 0; i < m_Data.m_SetParentRequests.GetCount(); ++i)
+  {
+    ezInternal::WorldData::SetParentRequest& request = m_Data.m_SetParentRequests[i];
+
+    ezGameObject* pObject = nullptr;
+    ezGameObject* pNewParent = nullptr;
+
+    // object has already been deleted so nothing to do here
+    if (!TryGetObject(request.m_Object, pObject))
+      continue;
+
+    // might fail which means we want no parent for the object anymore thus it will become top level
+    TryGetObject(request.m_NewParent, pNewParent);
+
+    // check again if parent is already set which can happen if we have multiple requests leading to the same result
+    if (pObject->GetParent() == pNewParent)
+      continue;
+
+    UnlinkFromParent(pObject);
+
+    if (pNewParent != nullptr)
+    {
+      pObject->m_ParentIndex = pNewParent->m_InternalId.m_InstanceIndex;
+      LinkToParent(pObject);
+    }
+
+    // we need to patch all changed hierarchy data in a second round so we save the pointer to the object in the request data
+    ezGameObject** pRequestData = reinterpret_cast<ezGameObject**>(&m_Data.m_SetParentRequests[uiNumObjectsToPatch]);
+    *pRequestData = pObject;
+    uiNumObjectsToPatch++;
+  }
+
+  for (ezUInt32 i = 0; i < uiNumObjectsToPatch; ++i)
+  {
+    ezGameObject* pObject = *reinterpret_cast<ezGameObject**>(&m_Data.m_SetParentRequests[i]);
+    PatchHierarchyData(pObject);
+  }
+
+  m_Data.m_SetParentRequests.Clear();
 }
 
 

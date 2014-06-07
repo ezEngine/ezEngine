@@ -4,13 +4,83 @@
 
 EZ_CREATE_SIMPLE_TEST_GROUP(World);
 
+namespace
+{
+  union TestWorldObjects
+  {
+    struct
+    {
+      ezGameObject* pParent1;
+      ezGameObject* pParent2;
+      ezGameObject* pChild11;
+      ezGameObject* pChild21;
+    };
+    ezGameObject* pObjects[4];
+  };
+
+  TestWorldObjects CreateTestWorld(ezWorld& world)
+  {
+    TestWorldObjects testWorldObjects;
+    ezMemoryUtils::ZeroFill(&testWorldObjects);
+
+    ezQuat q; q.SetFromAxisAndAngle(ezVec3(0.0f, 0.0f, 1.0f), ezAngle::Degree(90.0f));
+
+    ezGameObjectDesc desc;
+    desc.m_LocalPosition = ezVec3(100.0f, 0.0f, 0.0f);
+    desc.m_LocalRotation = q;
+    desc.m_LocalScaling = ezVec3(1.5f, 1.5f, 1.5f);
+    desc.m_sName.Assign("Parent1");
+
+    world.CreateObject(desc, testWorldObjects.pParent1);
+
+    desc.m_sName.Assign("Parent2");
+    world.CreateObject(desc, testWorldObjects.pParent2);
+
+    desc.m_Parent = testWorldObjects.pParent1->GetHandle();
+    desc.m_sName.Assign("Child11");
+    world.CreateObject(desc, testWorldObjects.pChild11);
+
+    desc.m_Parent = testWorldObjects.pParent2->GetHandle();
+    desc.m_sName.Assign("Child21");
+    world.CreateObject(desc, testWorldObjects.pChild21);
+
+    return testWorldObjects;
+  }
+
+  void TestTransforms(const TestWorldObjects& o)
+  {
+    ezQuat q; q.SetFromAxisAndAngle(ezVec3(0.0f, 0.0f, 1.0f), ezAngle::Degree(90.0f));
+
+    for (ezUInt32 i = 0; i < sizeof(TestWorldObjects) / sizeof(ezGameObject*); ++i)
+    {
+      EZ_TEST_BOOL(o.pObjects[i]->GetLocalPosition() == ezVec3(100.0f, 0.0f, 0.0f));
+      EZ_TEST_BOOL(o.pObjects[i]->GetLocalRotation() == q);
+      EZ_TEST_BOOL(o.pObjects[i]->GetLocalScaling() == ezVec3(1.5f, 1.5f, 1.5f));
+    }
+  }
+}
+
+class ezGameObjectTest
+{
+public:
+  static void TestInternals(ezGameObject* pObject, ezGameObject* pParent, ezUInt32 uiHierarchyLevel, ezUInt32 uiTransformationDataIndex)
+  {
+    EZ_TEST_INT(pObject->m_uiHierarchyLevel, uiHierarchyLevel);
+    EZ_TEST_INT(pObject->m_uiTransformationDataIndex, uiTransformationDataIndex);
+    EZ_TEST_BOOL(pObject->m_pTransformationData->m_pObject == pObject);
+    EZ_TEST_BOOL(pObject->m_pTransformationData->m_pParentData == (pParent != nullptr ? pParent->m_pTransformationData : nullptr));
+    EZ_TEST_BOOL(pObject->GetParent() == pParent);
+  }
+};
+
 EZ_CREATE_SIMPLE_TEST(World, World)
 {
   ezClock::SetNumGlobalClocks();
-  ezWorld world("Test");
-
+  
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GameObject parenting")
   {
+    ezWorld world("Test");
+
     const float eps = ezMath::BasicType<float>::DefaultEpsilon();
     ezQuat q; q.SetFromAxisAndAngle(ezVec3(0.0f, 0.0f, 1.0f), ezAngle::Degree(90.0f));
 
@@ -103,5 +173,62 @@ EZ_CREATE_SIMPLE_TEST(World, World)
     world.Update();
 
     EZ_TEST_INT(world.GetObjectCount(), 0);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Re-parenting 1")
+  {
+    ezWorld world("Test");
+    TestWorldObjects o = CreateTestWorld(world);
+
+    o.pParent1->AddChild(o.pParent2->GetHandle());
+    o.pParent2->SetParent(o.pParent1->GetHandle());
+
+    world.Update();
+
+    TestTransforms(o);
+
+    ezGameObjectTest::TestInternals(o.pParent1, nullptr, 0, 0);
+    ezGameObjectTest::TestInternals(o.pParent2, o.pParent1, 1, 1);
+    ezGameObjectTest::TestInternals(o.pChild11, o.pParent1, 1, 0);
+    ezGameObjectTest::TestInternals(o.pChild21, o.pParent2, 2, 0);
+
+    EZ_TEST_INT(o.pParent1->GetChildCount(), 2);
+    auto it = o.pParent1->GetChildren();
+    EZ_TEST_BOOL(o.pChild11 == it);
+    ++it;
+    EZ_TEST_BOOL(o.pParent2 == it);
+    ++it;
+    EZ_TEST_BOOL(!it.IsValid());
+
+    it = o.pParent2->GetChildren();
+    EZ_TEST_BOOL(o.pChild21 == it);
+    ++it;
+    EZ_TEST_BOOL(!it.IsValid());
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Re-parenting 2")
+  {
+    ezWorld world("Test");
+    TestWorldObjects o = CreateTestWorld(world);
+
+    o.pChild21->SetParent(ezGameObjectHandle());
+
+    world.Update();
+
+    TestTransforms(o);
+
+    ezGameObjectTest::TestInternals(o.pParent1, nullptr, 0, 0);
+    ezGameObjectTest::TestInternals(o.pParent2, nullptr, 0, 1);
+    ezGameObjectTest::TestInternals(o.pChild11, o.pParent1, 1, 0);
+    ezGameObjectTest::TestInternals(o.pChild21, nullptr, 0, 2);
+
+    auto it = o.pParent1->GetChildren();
+    EZ_TEST_BOOL(o.pChild11 == it);
+    ++it;
+    EZ_TEST_BOOL(!it.IsValid());
+
+    EZ_TEST_INT(o.pParent2->GetChildCount(), 0);
+    it = o.pParent2->GetChildren();
+    EZ_TEST_BOOL(!it.IsValid());
   }
 }

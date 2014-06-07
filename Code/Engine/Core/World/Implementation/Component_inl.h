@@ -14,18 +14,28 @@ EZ_FORCE_INLINE ezComponent::~ezComponent()
 }
 
 EZ_FORCE_INLINE bool ezComponent::IsDynamic() const
-{ 
+{
   return m_Flags.IsSet(ezObjectFlags::Dynamic);
 }
 
 EZ_FORCE_INLINE bool ezComponent::IsActive() const
-{ 
+{
   return m_Flags.IsSet(ezObjectFlags::Active);
 }
 
-EZ_FORCE_INLINE  ezGameObject* ezComponent::GetOwner() const
+EZ_FORCE_INLINE ezComponentManagerBase* ezComponent::GetManager() const
+{
+  return m_pManager;
+}
+
+EZ_FORCE_INLINE ezGameObject* ezComponent::GetOwner() const
 {
   return m_pOwner;
+}
+
+EZ_FORCE_INLINE ezComponentHandle ezComponent::GetHandle() const
+{
+  return ezComponentHandle(ezComponentId(m_InternalId, GetTypeId()));
 }
 
 // static 
@@ -38,6 +48,11 @@ template <typename T>
 EZ_FORCE_INLINE ezComponentHandle ezComponent::GetHandle() const
 {
   return ezComponentHandle(ezComponentId(m_InternalId, T::TypeId()));
+}
+
+EZ_FORCE_INLINE bool ezComponent::IsInitialized() const
+{
+  return m_Flags.IsSet(ezObjectFlags::Initialized);
 }
 
 EZ_FORCE_INLINE void ezComponent::OnMessage(ezMessage& msg) 

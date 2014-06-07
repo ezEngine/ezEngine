@@ -19,11 +19,6 @@ void ezComponentManagerBase::DeleteComponent(const ezComponentHandle& component)
   ComponentStorageEntry storageEntry;
   if (m_Components.TryGetValue(component, storageEntry))
   {
-    if (ezGameObject* pOwner = storageEntry.m_Ptr->GetOwner())
-    {
-      pOwner->RemoveComponent(component);
-    }
-
     DeleteComponent(storageEntry);
   }
 }
@@ -37,21 +32,40 @@ ezComponentHandle ezComponentManagerBase::CreateComponent(ComponentStorageEntry 
   ezComponent* pComponent = storageEntry.m_Ptr;
   pComponent->m_pManager = this;
   pComponent->m_InternalId = newId;
+  pComponent->Initialize();
+  pComponent->m_Flags.Add(ezObjectFlags::Initialized);
 
   return GetHandle(newId, uiTypeId);
+}
+
+void ezComponentManagerBase::DeinitializeComponent(ezComponent* pComponent)
+{
+  if (ezGameObject* pOwner = pComponent->GetOwner())
+  {
+    pOwner->RemoveComponent(pComponent);
+  }
+
+  if (pComponent->IsInitialized())
+  {
+    pComponent->Deinitialize();
+    pComponent->m_Flags.Remove(ezObjectFlags::Initialized);
+  }
 }
 
 void ezComponentManagerBase::DeleteComponent(ComponentStorageEntry storageEntry)
 {
   ezComponent* pComponent = storageEntry.m_Ptr;
+  DeinitializeComponent(pComponent);
+
+  m_Components.Remove(pComponent->m_InternalId);
+
   pComponent->m_InternalId.Invalidate();
   pComponent->m_Flags.Remove(ezObjectFlags::Active);
     
-  m_pWorld->m_Data.m_DeadComponents.PushBack(storageEntry);
-  m_Components.Remove(pComponent->m_InternalId);
+  m_pWorld->m_Data.m_DeadComponents.PushBack(storageEntry);  
 }
 
-void ezComponentManagerBase::DeleteDeadComponent(ComponentStorageEntry storageEntry)
+void ezComponentManagerBase::DeleteDeadComponent(ComponentStorageEntry storageEntry, ezComponent*& out_pMovedComponent)
 {
   ezGenericComponentId id = storageEntry.m_Ptr->m_InternalId;
   if (id.m_InstanceIndex != ezGenericComponentId::INVALID_INSTANCE_INDEX)

@@ -1,24 +1,22 @@
 #pragma once
 
 #include <Foundation/Communication/MessageQueue.h>
-#include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/Containers/HashTable.h>
 #include <Foundation/Containers/IdTable.h>
-#include <Foundation/Containers/StaticArray.h>
 
 #include <Foundation/Memory/BlockStorage.h>
 #include <Foundation/Memory/CommonAllocators.h>
-#include <Foundation/Memory/LargeBlockAllocator.h>
-#include <Foundation/Profiling/Profiling.h>
-#include <Foundation/Strings/String.h>
 #include <Foundation/Threading/TaskSystem.h>
 
 #include <Core/World/GameObject.h>
 
 namespace ezInternal
 {
-  struct WorldData
+  class WorldData
   {
+    friend class ::ezWorld;
+    friend class ::ezComponentManagerBase;
+
     WorldData(const char* szWorldName);
     ~WorldData();
 
@@ -39,6 +37,14 @@ namespace ezInternal
     ObjectStorage m_ObjectStorage;
 
     ezDynamicArray<ObjectStorage::Entry, ezLocalAllocatorWrapper> m_DeadObjects;
+
+    struct SetParentRequest
+    {
+      ezGameObjectHandle m_Object;
+      ezGameObjectHandle m_NewParent;
+    };
+
+    ezDynamicArray<SetParentRequest, ezLocalAllocatorWrapper> m_SetParentRequests;
 
     // hierarchy structures
     struct Hierarchy
@@ -67,11 +73,11 @@ namespace ezInternal
     void DeleteTransformationData(const ezBitflags<ezObjectFlags>& objectFlags, ezUInt32 uiHierarchyLevel, 
         ezUInt32 uiIndex);
 
-    static void UpdateWorldTransform(ezGameObject::TransformationData* pData);
-    static void UpdateWorldTransformWithParent(ezGameObject::TransformationData* pData);
+    static void UpdateWorldTransform(ezGameObject::TransformationData* pData, float fInvDeltaSeconds);
+    static void UpdateWorldTransformWithParent(ezGameObject::TransformationData* pData, float fInvDeltaSeconds);
 
     template <typename UPDATER>
-    static void UpdateHierarchyLevel(Hierarchy::DataBlockArray& blocks);
+    static void UpdateHierarchyLevel(Hierarchy::DataBlockArray& blocks, float fInvDeltaSeconds);
 
     void UpdateWorldTransforms();
 

@@ -1,5 +1,9 @@
 #include <Core/PCH.h>
+
+#include <Foundation/Time/Clock.h>
+
 #include <Core/World/World.h>
+
 
 namespace ezInternal
 {
@@ -86,16 +90,11 @@ WorldData::~WorldData()
   }
 }
 
-//static
-static EZ_FORCE_INLINE WorldData::HierarchyType::Enum GetHierarchyType(const ezBitflags<ezObjectFlags>& objectFlags)
-{
-  return objectFlags.IsSet(ezObjectFlags::Dynamic) ? WorldData::HierarchyType::Dynamic : WorldData::HierarchyType::Static;
-}
-
 ezUInt32 WorldData::CreateTransformationData(const ezBitflags<ezObjectFlags>& objectFlags, ezUInt32 uiHierarchyLevel,
   ezGameObject::TransformationData*& out_pData)
 {
-  HierarchyType::Enum hierarchyType = GetHierarchyType(objectFlags);
+  HierarchyType::Enum hierarchyType = objectFlags.IsSet(ezObjectFlags::Dynamic) ? 
+    WorldData::HierarchyType::Dynamic : WorldData::HierarchyType::Static;
   Hierarchy& hierarchy = m_Hierarchies[hierarchyType];
   
   if (uiHierarchyLevel >= hierarchy.m_Data.GetCount())
@@ -126,7 +125,8 @@ ezUInt32 WorldData::CreateTransformationData(const ezBitflags<ezObjectFlags>& ob
 void WorldData::DeleteTransformationData(const ezBitflags<ezObjectFlags>& objectFlags, ezUInt32 uiHierarchyLevel, 
   ezUInt32 uiIndex)
 {
-  HierarchyType::Enum hierarchyType = GetHierarchyType(objectFlags);
+  HierarchyType::Enum hierarchyType = objectFlags.IsSet(ezObjectFlags::Dynamic) ? 
+    WorldData::HierarchyType::Dynamic : WorldData::HierarchyType::Static;
   Hierarchy& hierarchy = m_Hierarchies[hierarchyType];
   Hierarchy::DataBlockArray& blocks = *hierarchy.m_Data[uiHierarchyLevel];
 
@@ -158,28 +158,30 @@ void WorldData::UpdateWorldTransforms()
 {
   struct RootLevel
   {
-    EZ_FORCE_INLINE static void Update(ezGameObject::TransformationData* pData)
+    EZ_FORCE_INLINE static void Update(ezGameObject::TransformationData* pData, float fInvDeltaSeconds)
     {
-      WorldData::UpdateWorldTransform(pData);
+      WorldData::UpdateWorldTransform(pData, fInvDeltaSeconds);
     }
   };
 
   struct WithParent
   {
-    EZ_FORCE_INLINE static void Update(ezGameObject::TransformationData* pData)
+    EZ_FORCE_INLINE static void Update(ezGameObject::TransformationData* pData, float fInvDeltaSeconds)
     {
-      WorldData::UpdateWorldTransformWithParent(pData);
+      WorldData::UpdateWorldTransformWithParent(pData, fInvDeltaSeconds);
     }
   };
+
+  float fInvDeltaSeconds = 1.0f / (float)ezClock::Get(ezGlobalClock_GameLogic)->GetTimeDiff().GetSeconds();
 
   Hierarchy& hierarchy = m_Hierarchies[WorldData::HierarchyType::Dynamic];
   if (!hierarchy.m_Data.IsEmpty())
   {
-    UpdateHierarchyLevel<RootLevel>(*hierarchy.m_Data[0]);
+    UpdateHierarchyLevel<RootLevel>(*hierarchy.m_Data[0], fInvDeltaSeconds);
 
     for (ezUInt32 i = 1; i < hierarchy.m_Data.GetCount(); ++i)
     {
-      UpdateHierarchyLevel<WithParent>(*hierarchy.m_Data[i]);
+      UpdateHierarchyLevel<WithParent>(*hierarchy.m_Data[i], fInvDeltaSeconds);
     }
   }
 }

@@ -11,6 +11,8 @@ public:
   public:
     T& operator*() const;
     T* operator->() const;
+
+    operator T*() const;
     
     void Next();
     bool IsValid() const;
@@ -44,6 +46,7 @@ public:
   
   Entry Create();
   void Delete(Entry entry);
+  void Delete(Entry entry, T*& out_pMovedObject);
   
   ezUInt32 GetCount() const;
   Iterator GetIterator(ezUInt32 uiStartIndex = 0, ezUInt32 uiCount = ezInvalidIndex) const;
