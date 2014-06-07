@@ -49,7 +49,7 @@ void ezTelemetry::UpdateNetwork()
 
   while (true) 
   {
-    ezLock<ezMutex> Lock(GetTelemetryMutex());
+    EZ_LOCK(GetTelemetryMutex());
 
     const ezInt32 iStatus = enet_host_service(g_pHost, &NetworkEvent, 0);
 
@@ -209,7 +209,7 @@ ezResult ezTelemetry::RetrieveMessage(ezUInt32 uiSystemID, ezTelemetryMessage& o
   if (s_SystemMessages[uiSystemID].m_IncomingQueue.IsEmpty())
     return EZ_FAILURE;
 
-  ezLock<ezMutex> Lock(GetTelemetryMutex());
+  EZ_LOCK(GetTelemetryMutex());
 
   // check again while inside the lock
   if (s_SystemMessages[uiSystemID].m_IncomingQueue.IsEmpty())
@@ -321,7 +321,7 @@ void ezTelemetry::Transmit(TransmitMode tm, const void* pData, ezUInt32 uiDataBy
   if (!g_pHost)
     return;
 
-  ezLock<ezMutex> Lock(GetTelemetryMutex());
+  EZ_LOCK(GetTelemetryMutex());
 
   ENetPacket* pPacket = enet_packet_create(pData, uiDataBytes, (tm == Reliable) ? ENET_PACKET_FLAG_RELIABLE : 0);
   enet_host_broadcast(g_pHost, 0, pPacket);
@@ -419,7 +419,7 @@ void ezTelemetry::CloseConnection()
   StopTelemetryThread();
 
   // prevent other threads from interfering
-  ezLock<ezMutex> Lock(GetTelemetryMutex());
+  EZ_LOCK(GetTelemetryMutex());
 
   UpdateNetwork();
   ezThreadUtils::Sleep(10);

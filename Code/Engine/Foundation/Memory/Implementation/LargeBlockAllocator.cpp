@@ -48,7 +48,7 @@ void* ezLargeBlockAllocator::Allocate(size_t uiAlign)
 {
   EZ_ASSERT_API(ezMath::IsPowerOf2((ezUInt32)uiAlign), "Alignment must be power of two");
 
-  ezLock<ezMutex> lock(m_mutex);
+  EZ_LOCK(m_mutex);
 
   void* ptr = nullptr;
 
@@ -93,7 +93,7 @@ void* ezLargeBlockAllocator::Allocate(size_t uiAlign)
 
 void ezLargeBlockAllocator::Deallocate(void* ptr)
 {
-  ezLock<ezMutex> lock(m_mutex);
+  EZ_LOCK(m_mutex);
 
   ezMemoryTracker::RemoveAllocation(m_Id, ptr);
 

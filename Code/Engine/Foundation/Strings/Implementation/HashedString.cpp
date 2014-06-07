@@ -11,7 +11,7 @@ static ezMutex g_HashedStringMutex;
 // static
 ezHashedString::HashedType ezHashedString::AddHashedString(const char* szString, ezUInt32 uiHash)
 {
-  ezLock<ezMutex> l(g_HashedStringMutex);
+  EZ_LOCK(g_HashedStringMutex);
 
   ezString s(szString);
 
@@ -38,7 +38,7 @@ void ezHashedString::InitHashedString()
 {
   // makes sure the empty string exists for the default constructor to use
 
-  ezLock<ezMutex> l(g_HashedStringMutex);
+  EZ_LOCK(g_HashedStringMutex);
 
   if (g_bHashedStringsInitialized)
     return;
@@ -53,7 +53,7 @@ void ezHashedString::InitHashedString()
 
 ezUInt32 ezHashedString::ClearUnusedStrings()
 {
-  ezLock<ezMutex> l(g_HashedStringMutex);
+  EZ_LOCK(g_HashedStringMutex);
 
   ezUInt32 uiDeleted = 0;
 

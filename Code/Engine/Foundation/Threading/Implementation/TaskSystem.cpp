@@ -218,7 +218,7 @@ void ezTaskSystem::FinishFrameTasks(double fSmoothFrameMS)
   // now all the important tasks for this frame should be finished
   // so now we reprioritize the tasks for the next frame
   {
-    ezLock<ezMutex> Lock(s_TaskSystemMutex);
+    EZ_LOCK(s_TaskSystemMutex);
 
     // get this info once, it won't shrink (but might grow) while we are outside the lock
     uiSomeFrameTasks = s_Tasks[ezTaskPriority::SomeFrameMainThread].GetCount();

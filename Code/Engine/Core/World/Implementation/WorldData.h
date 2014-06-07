@@ -123,7 +123,7 @@ namespace ezInternal
       ezTime m_Due;
     };
 
-    typedef ezMessageQueue<QueuedMsgMetaData, ezMutex, ezLocalAllocatorWrapper> MessageQueue;
+    typedef ezMessageQueue<QueuedMsgMetaData, ezLocalAllocatorWrapper> MessageQueue;
     MessageQueue m_MessageQueues[ezObjectMsgQueueType::COUNT];
 
     ezThreadID m_ThreadID;

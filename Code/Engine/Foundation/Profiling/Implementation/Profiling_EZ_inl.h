@@ -53,7 +53,7 @@ ezProfilingScope::ezProfilingScope(const ezProfilingId& id, const char* szFileNa
   const char* szFunctionName, ezUInt32 uiLineNumber) :
   m_Id(id)
 {
-  ezLock<ezMutex> lock(g_CaptureMutex);
+  EZ_LOCK(g_CaptureMutex);
 
   if (!g_CapturedEvents.CanAppend())
     g_CapturedEvents.PopFront();
@@ -72,7 +72,7 @@ ezProfilingScope::ezProfilingScope(const ezProfilingId& id, const char* szFileNa
 
 ezProfilingScope::~ezProfilingScope()
 {
-  ezLock<ezMutex> lock(g_CaptureMutex);
+  EZ_LOCK(g_CaptureMutex);
 
   if (!g_CapturedEvents.CanAppend())
     g_CapturedEvents.PopFront();
@@ -92,7 +92,7 @@ ezProfilingScope::~ezProfilingScope()
 //static 
 void ezProfilingSystem::SetThreadName(const char* szThreadName)
 {
-  ezLock<ezMutex> lock(g_CaptureMutex);
+  EZ_LOCK(g_CaptureMutex);
 
   ThreadInfo info;
   info.m_uiThreadId = (ezUInt64)ezThreadUtils::GetCurrentThreadID();
@@ -104,7 +104,7 @@ void ezProfilingSystem::SetThreadName(const char* szThreadName)
 //static
 void ezProfilingSystem::Capture(ezStreamWriterBase& outputStream)
 {
-  ezLock<ezMutex> lock(g_CaptureMutex);
+  EZ_LOCK(g_CaptureMutex);
 
   ezStandardJSONWriter writer;
   writer.SetOutputStream(&outputStream);

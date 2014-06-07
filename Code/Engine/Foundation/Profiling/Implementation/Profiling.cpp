@@ -89,7 +89,7 @@ ezProfilingId ezProfilingSystem::CreateId(const char* szName)
 {
   InitializeData();
 
-  ezLock<ProfilingData> lock(*s_pProfilingData);
+  EZ_LOCK(*s_pProfilingData);
 
   EZ_ASSERT(s_pProfilingData->m_InfoTable.GetCount() < EZ_PROFILING_ID_COUNT,
     "Max profiling id count (%d) reached. Increase EZ_PROFILING_ID_COUNT.", EZ_PROFILING_ID_COUNT);
@@ -99,7 +99,7 @@ ezProfilingId ezProfilingSystem::CreateId(const char* szName)
 //static
 void ezProfilingSystem::DeleteId(const ezProfilingId& id)
 {
-  ezLock<ProfilingData> lock(*s_pProfilingData);
+  EZ_LOCK(*s_pProfilingData);
 
   s_pProfilingData->m_InfoTable.Remove(id.m_Id);
 }
@@ -126,7 +126,7 @@ void ezProfilingSystem::ReleaseReference(const ezProfilingId& id)
   {
     if (pInfo->m_uiRefCount.Decrement() == 0)
     {
-      ezLock<ProfilingData> lock(*s_pProfilingData);
+      EZ_LOCK(*s_pProfilingData);
       s_pProfilingData->m_InfoTable.Remove(id.m_Id);
     }
   }

@@ -8,7 +8,7 @@
 void ezLogWriter::VisualStudio::LogMessageHandler(const ezLoggingEventData& eventData)
 {
   static ezMutex WriterLock; // will only be created if this writer is used at all
-  ezLock<ezMutex> lock(WriterLock);
+  EZ_LOCK(WriterLock);
 
   if (eventData.m_EventType == ezLogMsgType::BeginGroup)
     OutputDebugString ("\n");

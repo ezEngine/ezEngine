@@ -28,7 +28,7 @@ void ezResourceManager::InternalPreloadResource(ezResourceBase* pResource, bool 
   if (m_bStop)
     return;
 
-  ezLock<ezMutex> l(ResourceMutex);
+  EZ_LOCK(ResourceMutex);
 
   if (pResource->m_bIsPreloading)
     return;
@@ -54,7 +54,7 @@ void ezResourceManager::RunWorkerTask()
   if (m_bStop)
     return;
 
-  ezLock<ezMutex> l(ResourceMutex);
+  EZ_LOCK(ResourceMutex);
 
   static bool bTaskNamesInitialized = false;
 
@@ -130,7 +130,7 @@ void ezResourceManagerWorkerGPU::Execute()
   m_pLoader->CloseDataStream(m_pResourceToLoad, m_LoaderData);
 
   {
-    ezLock<ezMutex> l(ResourceMutex);
+    EZ_LOCK(ResourceMutex);
     EZ_ASSERT(m_pResourceToLoad->m_bIsPreloading == true, "");
     m_pResourceToLoad->m_bIsPreloading = false;
     EZ_ASSERT(m_pResourceToLoad->m_bIsPreloading == false, "");
@@ -145,7 +145,7 @@ void ezResourceManagerWorker::Execute()
   ezResourceBase* pResourceToLoad = NULL;
 
   {
-    ezLock<ezMutex> l(ResourceMutex);
+    EZ_LOCK(ResourceMutex);
 
     ezResourceManager::UpdateLoadingDeadlines();
 
@@ -207,7 +207,7 @@ void ezResourceManagerWorker::Execute()
 
 
   {
-    ezLock<ezMutex> l(ResourceMutex);
+    EZ_LOCK(ResourceMutex);
 
     if (!bResourceIsPreloading)
     {
@@ -223,7 +223,7 @@ void ezResourceManagerWorker::Execute()
 
 ezUInt32 ezResourceManager::FreeUnusedResources()
 {
-  ezLock<ezMutex> l(ResourceMutex);
+  EZ_LOCK(ResourceMutex);
 
   ezUInt32 uiUnloaded = 0;
 
@@ -275,7 +275,7 @@ void ezResourceManager::CleanUpResources()
   }
 
   /// \todo Lock ?
-  ezLock<ezMutex> l(ResourceMutex);
+  EZ_LOCK(ResourceMutex);
 
   for (auto it = m_LoadedResources.GetIterator(); it.IsValid();)
   {
@@ -333,7 +333,7 @@ void ezResourceManager::CleanUpResources()
 void ezResourceManager::Shutdown()
 {
   {
-    ezLock<ezMutex> l(ResourceMutex);
+    EZ_LOCK(ResourceMutex);
     m_RequireLoading.Clear();
     m_bTaskRunning = true;
     m_bStop = true;

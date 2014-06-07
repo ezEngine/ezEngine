@@ -24,7 +24,7 @@ bool ezDataDirectoryType::ExistsFile(const char* szFile)
 void ezDataDirectoryReaderWriterBase::Close()
 {
   // without this Mutex at least the event broadcasting might fail when doing this multithreaded
-  ezLock<ezMutex> Lock(ezFileSystem::GetFileSystemMutex());
+  EZ_LOCK(ezFileSystem::GetFileSystemMutex());
 
   InternalClose();
 

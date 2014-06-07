@@ -77,7 +77,7 @@ void ezTaskSystem::TaskHasFinished(ezTask* pTask, ezTaskGroup* pGroup)
 
     if (!pGroup->m_OthersDependingOnMe.IsEmpty())
     {
-      ezLock<ezMutex> Lock(s_TaskSystemMutex);
+      EZ_LOCK(s_TaskSystemMutex);
 
       for (ezUInt32 dep = 0; dep < pGroup->m_OthersDependingOnMe.GetCount(); ++dep)
       {
@@ -124,7 +124,7 @@ ezTaskSystem::TaskData ezTaskSystem::GetNextTask(ezTaskPriority::Enum FirstPrior
 foundany:
   // we have detected that there MIGHT be work
 
-  ezLock<ezMutex> Lock(s_TaskSystemMutex);
+  EZ_LOCK(s_TaskSystemMutex);
 
   // if there is a task that should be prioritized, check if it exists in any of the task lists
   if (pPrioritizeThis != nullptr)
@@ -248,7 +248,7 @@ ezResult ezTaskSystem::CancelTask(ezTask* pTask, ezOnTaskRunning::Enum OnTaskRun
   pTask->m_bCancelExecution = true;
 
   {
-    ezLock<ezMutex> Lock(s_TaskSystemMutex);
+    EZ_LOCK(s_TaskSystemMutex);
 
     // if the task is still in the queue of its group, it had not yet been scheduled
     if (!pTask->m_bTaskIsScheduled && pTask->m_BelongsToGroup.m_pTaskGroup->m_Tasks.RemoveSwap(pTask))

@@ -9,7 +9,7 @@ void ezTelemetry::QueueOutgoingMessage(TransmitMode tm, ezUInt32 uiSystemID, ezU
   if (tm == ezTelemetry::Unreliable)
     return;
 
-  ezLock<ezMutex> Lock(GetTelemetryMutex());
+  EZ_LOCK(GetTelemetryMutex());
 
   // add a new message to the queue
   MessageQueue& Queue = s_SystemMessages[uiSystemID];
@@ -40,7 +40,7 @@ void ezTelemetry::FlushOutgoingQueues()
 
   bRecursion = true;
 
-  ezLock<ezMutex> Lock(GetTelemetryMutex());
+  EZ_LOCK(GetTelemetryMutex());
 
   // go through all system types
   for (auto it = s_SystemMessages.GetIterator(); it.IsValid(); ++it)
@@ -76,7 +76,7 @@ void ezTelemetry::CreateServer()
 
 void ezTelemetry::AcceptMessagesForSystem(ezUInt32 uiSystemID, bool bAccept, ProcessMessagesCallback Callback, void* pPassThrough)
 {
-  ezLock<ezMutex> Lock(GetTelemetryMutex());
+  EZ_LOCK(GetTelemetryMutex());
 
   s_SystemMessages[uiSystemID].m_bAcceptMessages = bAccept;
   s_SystemMessages[uiSystemID].m_Callback = Callback;
@@ -85,7 +85,7 @@ void ezTelemetry::AcceptMessagesForSystem(ezUInt32 uiSystemID, bool bAccept, Pro
 
 void ezTelemetry::PerFrameUpdate()
 {
-  ezLock<ezMutex> Lock(GetTelemetryMutex());
+  EZ_LOCK(GetTelemetryMutex());
 
   // Call each callback to process the incoming messages
   for (auto it = s_SystemMessages.GetIterator(); it.IsValid(); ++it)
@@ -105,7 +105,7 @@ void ezTelemetry::PerFrameUpdate()
 
 void ezTelemetry::SetOutgoingQueueSize(ezUInt32 uiSystemID, ezUInt16 uiMaxQueued)
 {
-  ezLock<ezMutex> Lock(GetTelemetryMutex());
+  EZ_LOCK(GetTelemetryMutex());
 
   s_SystemMessages[uiSystemID].m_uiMaxQueuedOutgoing = uiMaxQueued;
 }

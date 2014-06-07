@@ -1,6 +1,5 @@
 #include <PCH.h>
 #include <Foundation/Communication/MessageQueue.h>
-#include <Foundation/Threading/Mutex.h>
 
 namespace
 {
@@ -17,7 +16,7 @@ namespace
     int receiver;
   };
 
-  typedef ezMessageQueue<MetaData, ezNoMutex> TestMessageQueue;
+  typedef ezMessageQueue<MetaData> TestMessageQueue;
 
   EZ_IMPLEMENT_MESSAGE_TYPE(TestMessage);
 }
@@ -27,8 +26,6 @@ EZ_CREATE_SIMPLE_TEST(Communication, MessageQueue)
   {
     TestMessage msg;
     EZ_TEST_INT(msg.GetSize(), sizeof(TestMessage));
-    /*EZ_TEST_INT(msg.x, 0);
-    EZ_TEST_INT(msg.y, 0);*/
   }
 
   TestMessageQueue q;
@@ -66,6 +63,8 @@ EZ_CREATE_SIMPLE_TEST(Communication, MessageQueue)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator[]")
   {
+    EZ_LOCK(q);
+
     ezMessage* pLastMsg = q[0].m_pMessage;
     MetaData lastMd = q[0].m_MetaData;
 

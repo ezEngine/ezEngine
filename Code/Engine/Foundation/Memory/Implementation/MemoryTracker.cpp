@@ -143,7 +143,7 @@ ezAllocatorId ezMemoryTracker::RegisterAllocator(const char* szName, ezBitflags<
 {
   Initialize();
 
-  ezLock<TrackerData> lock(*s_pTrackerData);
+  EZ_LOCK(*s_pTrackerData);
 
   AllocatorData data;
   data.m_sName = szName;
@@ -162,7 +162,7 @@ ezAllocatorId ezMemoryTracker::RegisterAllocator(const char* szName, ezBitflags<
 //static
 void ezMemoryTracker::DeregisterAllocator(ezAllocatorId allocatorId)
 {
-  ezLock<TrackerData> lock(*s_pTrackerData);
+  EZ_LOCK(*s_pTrackerData);
 
   const AllocatorData& data = s_pTrackerData->m_AllocatorData[allocatorId];
   ezUInt64 uiLiveAllocations = data.m_Stats.m_uiNumAllocations - data.m_Stats.m_uiNumDeallocations;
@@ -182,7 +182,7 @@ void ezMemoryTracker::DeregisterAllocator(ezAllocatorId allocatorId)
 //static
 void ezMemoryTracker::AddAllocation(ezAllocatorId allocatorId, const void* ptr, size_t uiSize, size_t uiAlign)
 {
-  ezLock<TrackerData> lock(*s_pTrackerData);
+  EZ_LOCK(*s_pTrackerData);
 
   AllocatorData& data = s_pTrackerData->m_AllocatorData[allocatorId];
   data.m_Stats.m_uiNumAllocations++;
@@ -208,7 +208,7 @@ void ezMemoryTracker::AddAllocation(ezAllocatorId allocatorId, const void* ptr, 
 //static 
 void ezMemoryTracker::RemoveAllocation(ezAllocatorId allocatorId, const void* ptr)
 {
-  ezLock<TrackerData> lock(*s_pTrackerData);
+  EZ_LOCK(*s_pTrackerData);
 
   AllocatorData& data = s_pTrackerData->m_AllocatorData[allocatorId];
   
@@ -229,7 +229,7 @@ void ezMemoryTracker::RemoveAllocation(ezAllocatorId allocatorId, const void* pt
 //static
 const char* ezMemoryTracker::GetAllocatorName(ezAllocatorId allocatorId)
 {
-  ezLock<TrackerData> lock(*s_pTrackerData);
+  EZ_LOCK(*s_pTrackerData);
 
   return s_pTrackerData->m_AllocatorData[allocatorId].m_sName.GetData();
 }
@@ -237,7 +237,7 @@ const char* ezMemoryTracker::GetAllocatorName(ezAllocatorId allocatorId)
 //static 
 const ezAllocatorBase::Stats& ezMemoryTracker::GetAllocatorStats(ezAllocatorId allocatorId)
 {
-  ezLock<TrackerData> lock(*s_pTrackerData);
+  EZ_LOCK(*s_pTrackerData);
 
   return s_pTrackerData->m_AllocatorData[allocatorId].m_Stats;
 }
@@ -245,7 +245,7 @@ const ezAllocatorBase::Stats& ezMemoryTracker::GetAllocatorStats(ezAllocatorId a
 //static 
 const ezMemoryTracker::AllocationInfo& ezMemoryTracker::GetAllocationInfo(ezAllocatorId allocatorId, const void* ptr)
 {
-  ezLock<TrackerData> lock(*s_pTrackerData);
+  EZ_LOCK(*s_pTrackerData);
 
   const AllocatorData& data = s_pTrackerData->m_AllocatorData[allocatorId];
   AllocationInfo* info = nullptr;
@@ -278,7 +278,7 @@ struct LeakInfo
 //static
 void ezMemoryTracker::DumpMemoryLeaks()
 {
-  ezLock<TrackerData> lock(*s_pTrackerData);
+  EZ_LOCK(*s_pTrackerData);
 
   static ezHashTable<const void*, LeakInfo, ezHashHelper<const void*>, TrackerDataAllocatorWrapper> leakTable;
   leakTable.Clear();
