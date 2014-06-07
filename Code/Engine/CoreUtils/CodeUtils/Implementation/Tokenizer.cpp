@@ -72,9 +72,6 @@ void ezTokenizer::AddToken()
 
   m_szTokenStart = szEnd;
 
-  ezStringBuilder s = t.m_DataView;
-  ezLog::Info("Line %u:%u, Token '%s': '%s'", t.m_uiLine, t.m_uiColumn, ezTokenType::EnumNames[t.m_iType], s.GetData());
-
   m_CurMode = ezTokenType::Unknown;
 }
 

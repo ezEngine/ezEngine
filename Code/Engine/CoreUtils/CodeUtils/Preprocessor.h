@@ -3,11 +3,19 @@
 #include <Foundation/IO/Stream.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Containers/Map.h>
+#include <Foundation/Containers/Set.h>
 
 class EZ_COREUTILS_DLL ezPreprocessor
 {
 public:
-  typedef ezResult (*FileOpenCB)(const char* szFile, ezDynamicArray<ezUInt8>& FileContent);
+  enum IncludeType
+  {
+    MainFile,
+    RelativeInclude,
+    GlobalInclude
+  };
+  typedef ezResult (*FileOpenCB)(const char* szAbsoluteFile, ezDynamicArray<ezUInt8>& FileContent);
+  typedef ezResult (*FileLocatorCB)(const char* szCurAbsoluteFile, const char* szIncludeFile, IncludeType IncType, ezString& out_sAbsoluteFilePath);
   typedef ezHybridArray<const ezToken*, 32> TokenStream;
   typedef ezDeque<TokenStream> MacroParameters;
 
@@ -16,10 +24,16 @@ public: // *** General ***
 
   void SetLogInterface(ezLogInterface* pLog);
 
-  ezResult ProcessFile(const char* szFile, ezStringBuilder& sOutput);
+  ezResult Process(const char* szMainFile, ezStringBuilder& sOutput);
+
+  ezResult Process(const char* szMainFile, TokenStream& TokenOutput);
 
 public: // *** File Handling ***
-  void SetFileOpenCallback(FileOpenCB cb);
+  void SetFileCallbacks(FileOpenCB OpenAbsFileCB, FileLocatorCB LocateAbsFileCB);
+
+  ezResult ProcessFile(const char* szFile, TokenStream& TokenOutput);
+
+  ezDeque<ezString> m_sCurrentFileStack;
 
 public: // *** Macro Definition ***
 
@@ -39,13 +53,15 @@ private: // *** General ***
 
   ezDeque<ezInt32> m_IfdefActiveStack;
 
-  ezResult ProcessCmd(const TokenStream& Tokens, ezStringBuilder& sOutput);
+  ezResult ProcessCmd(const TokenStream& Tokens, TokenStream& TokenOutput);
 
 private: // *** File Handling ***
   ezResult OpenFile(const char* szFile, ezTokenizer** pTokenizer);
 
   FileOpenCB m_FileOpenCallback;
+  FileLocatorCB m_FileLocatorCallback;
   ezMap<ezString, ezTokenizer> m_FileCache;
+  ezSet<ezString> m_PragmaOnce;
 
 private: // *** Macro Definition ***
 
@@ -105,6 +121,7 @@ private: // *** Parsing ***
   void CopyTokensReplaceParams(const TokenStream& Source, ezUInt32 uiFirstSourceToken, TokenStream& Destination, const ezHybridArray<ezString, 16>& parameters);
   ezResult ValidCodeCheck(const TokenStream& Tokens);
   void CombineTokensToString(const TokenStream& Tokens, ezUInt32 uiCurToken, ezStringBuilder& sResult);
+  void CombineRelevantTokensToString(const TokenStream& Tokens, ezUInt32 uiCurToken, ezStringBuilder& sResult);
 
 private: // *** Macro Expansion ***
   ezResult Expand(const TokenStream& Tokens, TokenStream& Output);
@@ -135,10 +152,22 @@ private: // *** Macro Expansion ***
   ezDeque<const MacroParameters*> m_MacroParamStack;
   ezDeque<const MacroParameters*> m_MacroParamStackExpanded;
   ezDeque<CustomToken> m_CustomTokens;
+
+private: // *** Other ***
+  ezResult HandleErrorDirective(const TokenStream& Tokens, ezUInt32 uiCurToken, ezUInt32 uiDirectiveToken);
+  ezResult HandleWarningDirective(const TokenStream& Tokens, ezUInt32 uiCurToken, ezUInt32 uiDirectiveToken);
+  ezResult HandleUndef(const TokenStream& Tokens, ezUInt32 uiCurToken, ezUInt32 uiDirectiveToken);
+
+  ezResult HandleEndif(const TokenStream& Tokens, ezUInt32 uiCurToken, ezUInt32 uiDirectiveToken);
+  ezResult HandleElif(const TokenStream& Tokens, ezUInt32 uiCurToken, ezUInt32 uiDirectiveToken);
+  ezResult HandleIf(const TokenStream& Tokens, ezUInt32 uiCurToken, ezUInt32 uiDirectiveToken);
+  ezResult HandleElse(const TokenStream& Tokens, ezUInt32 uiCurToken, ezUInt32 uiDirectiveToken);
+  ezResult HandleIfdef(const TokenStream& Tokens, ezUInt32 uiCurToken, ezUInt32 uiDirectiveToken, bool bIsIfdef);
+  ezResult HandleInclude(const TokenStream& Tokens, ezUInt32 uiCurToken, ezUInt32 uiDirectiveToken, TokenStream& TokenOutput);
 };
 
 #define PP_LOG0(Type, FormatStr, ErrorToken) \
-  ezLog::Type(m_pLog, "Line %u (%u): "FormatStr, ErrorToken->m_uiLine, ErrorToken->m_uiColumn);
+  ezLog::Type(m_pLog, "Line %u (%u): " FormatStr, ErrorToken->m_uiLine, ErrorToken->m_uiColumn);
 
 #define PP_LOG(Type, FormatStr, ErrorToken, ...) \
-  ezLog::Type(m_pLog, "Line %u (%u): "FormatStr, ErrorToken->m_uiLine, ErrorToken->m_uiColumn, __VA_ARGS__);
+  ezLog::Type(m_pLog, "Line %u (%u): " FormatStr, ErrorToken->m_uiLine, ErrorToken->m_uiColumn, __VA_ARGS__);

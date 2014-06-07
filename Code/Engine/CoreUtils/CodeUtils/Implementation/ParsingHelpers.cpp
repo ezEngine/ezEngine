@@ -37,8 +37,7 @@ bool ezPreprocessor::IsEndOfLine(const TokenStream& Tokens, ezUInt32 uiCurToken,
 
 void ezPreprocessor::CopyRelevantTokens(const TokenStream& Source, ezUInt32 uiFirstSourceToken, TokenStream& Destination)
 {
-  Destination.Clear();
-  Destination.Reserve(Source.GetCount() - uiFirstSourceToken);
+  Destination.Reserve(Destination.GetCount() + Source.GetCount() - uiFirstSourceToken);
 
   {
     // skip all whitespace at the start of the replacement string
@@ -194,7 +193,7 @@ ezResult ezPreprocessor::Expect(const TokenStream& Tokens, ezUInt32& uiCurToken,
   return EZ_FAILURE;
 }
 
-ezResult ezPreprocessor::ExpectEndOfLine(const ezHybridArray<const ezToken*, 32>& Tokens, ezUInt32& uiCurToken)
+ezResult ezPreprocessor::ExpectEndOfLine(const TokenStream& Tokens, ezUInt32& uiCurToken)
 {
   if (!IsEndOfLine(Tokens, uiCurToken, true))
   {
@@ -220,7 +219,7 @@ ezResult ezPreprocessor::ValidCodeCheck(const TokenStream& Tokens)
   return EZ_SUCCESS;
 }
 
-void ezPreprocessor::CombineTokensToString(const ezHybridArray<const ezToken*, 32>& Tokens, ezUInt32 uiCurToken, ezStringBuilder& sResult)
+void ezPreprocessor::CombineRelevantTokensToString(const TokenStream& Tokens, ezUInt32 uiCurToken, ezStringBuilder& sResult)
 {
   sResult.Clear();
   ezStringBuilder sTemp;
@@ -229,9 +228,24 @@ void ezPreprocessor::CombineTokensToString(const ezHybridArray<const ezToken*, 3
   {
     if ((Tokens[t]->m_iType == ezTokenType::LineComment) ||
         (Tokens[t]->m_iType == ezTokenType::BlockComment) ||
-        //(Tokens[t]->m_iType == ezTokenType::Newline) ||
+        (Tokens[t]->m_iType == ezTokenType::Newline) ||
         (Tokens[t]->m_iType == ezTokenType::EndOfFile))
         continue;
+
+    sTemp = Tokens[t]->m_DataView;
+    sResult.Append(sTemp.GetData());
+  }
+}
+
+void ezPreprocessor::CombineTokensToString(const TokenStream& Tokens, ezUInt32 uiCurToken, ezStringBuilder& sResult)
+{
+  sResult.Clear();
+  ezStringBuilder sTemp;
+
+  for (ezUInt32 t = uiCurToken; t < Tokens.GetCount(); ++t)
+  {
+    if (Tokens[t]->m_iType == ezTokenType::EndOfFile)
+        return;
 
     sTemp = Tokens[t]->m_DataView;
     sResult.Append(sTemp.GetData());

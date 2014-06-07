@@ -2,11 +2,9 @@
 #include <CoreUtils/CodeUtils/Preprocessor.h>
 
 // TODO:
-// #include
 // stringification
 // concatenation
 // varargs
-// #pragma once
 // __LINE__
 // __FILE__
 
@@ -15,6 +13,7 @@ ezString ezPreprocessor::s_ParamNames[32];
 ezPreprocessor::ezPreprocessor()
 {
   m_FileOpenCallback = nullptr;
+  m_FileLocatorCallback = nullptr;
   m_pLog = nullptr;
 
   ezStringBuilder s;
@@ -48,22 +47,18 @@ ezToken* ezPreprocessor::AddCustomToken(const ezToken* pPrevious, const char* sz
   return &pToken->m_Token;
 }
 
-ezResult ezPreprocessor::ProcessFile(const char* szFile, ezStringBuilder& sOutput)
+ezResult ezPreprocessor::ProcessFile(const char* szFile, TokenStream& TokenOutput)
 {
-  sOutput.Clear();
-
   ezTokenizer* pTokenizer = nullptr;
-
-  m_IfdefActiveStack.Clear();
-  m_IfdefActiveStack.PushBack(IfDefActivity::IsActive);
 
   if (OpenFile(szFile, &pTokenizer).Failed())
     return EZ_FAILURE;
 
+  m_sCurrentFileStack.PushBack(szFile);
+
   ezUInt32 uiNextToken = 0;
-  ezHybridArray<const ezToken*, 32> TokensLine;
-  ezHybridArray<const ezToken*, 32> TokensCode;
-  ezHybridArray<const ezToken*, 32> TokenOutput;
+  TokenStream TokensLine;
+  TokenStream TokensCode;
 
   while (pTokenizer->GetNextLine(uiNextToken, TokensLine).Succeeded())
   {
@@ -82,7 +77,7 @@ ezResult ezPreprocessor::ProcessFile(const char* szFile, ezStringBuilder& sOutpu
       }
 
       // process the command
-      if (ProcessCmd(TokensLine, sOutput).Failed())
+      if (ProcessCmd(TokensLine, TokenOutput).Failed())
         return EZ_FAILURE;
     }
     else
@@ -108,17 +103,52 @@ ezResult ezPreprocessor::ProcessFile(const char* szFile, ezStringBuilder& sOutpu
     TokensCode.Clear();
   }
 
+  m_sCurrentFileStack.PopBack();
+
+  return EZ_SUCCESS;
+}
+
+ezResult ezPreprocessor::Process(const char* szMainFile, TokenStream& TokenOutput)
+{
+  TokenOutput.Clear();
+
+  m_IfdefActiveStack.Clear();
+  m_IfdefActiveStack.PushBack(IfDefActivity::IsActive);
+
+  ezString sFileToOpen;
+  if (m_FileLocatorCallback("", szMainFile, IncludeType::MainFile, sFileToOpen).Failed())
+  {
+    ezLog::Error(m_pLog, "Could not locate file '%s'", szMainFile);
+    return EZ_FAILURE;
+  }
+
+  if (ProcessFile(sFileToOpen.GetData(), TokenOutput).Failed())
+    return EZ_FAILURE;
+
+  return EZ_SUCCESS;
+}
+
+ezResult ezPreprocessor::Process(const char* szMainFile, ezStringBuilder& sOutput)
+{
+  sOutput.Clear();
+
+  TokenStream TokenOutput;
+  if (Process(szMainFile, TokenOutput).Failed())
+    return EZ_FAILURE;
+
   // generate the final text output
   CombineTokensToString(TokenOutput, 0, sOutput);
 
   return EZ_SUCCESS;
 }
 
-ezResult ezPreprocessor::ProcessCmd(const ezHybridArray<const ezToken*, 32>& Tokens, ezStringBuilder& sOutput)
+ezResult ezPreprocessor::ProcessCmd(const TokenStream& Tokens, TokenStream& TokenOutput)
 {
   ezUInt32 uiCurToken = 0;
 
-  if (Expect(Tokens, uiCurToken, "#").Failed())
+  ezUInt32 uiHashToken = 0;
+
+  if (Expect(Tokens, uiCurToken, "#", &uiHashToken).Failed())
     return EZ_FAILURE;
 
   // just a single hash sign is a valid preprocessor line
@@ -126,160 +156,62 @@ ezResult ezPreprocessor::ProcessCmd(const ezHybridArray<const ezToken*, 32>& Tok
     return EZ_SUCCESS;
 
   ezUInt32 uiAccepted = uiCurToken;
-  if (Accept(Tokens, uiCurToken,  "ifdef", &uiAccepted) || Accept(Tokens, uiCurToken,  "ifndef", &uiAccepted))
+
+  // if there is a #pragma once anywhere in the file (not only the active part), it will be flagged to not be included again
+  // this is actually more efficient than include guards, because the file is never even looked at again, thus macro expansion
+  // does not take place each and every time (which is unfortunately necessary with include guards)
   {
-    if (m_IfdefActiveStack.PeekBack() != IfDefActivity::IsActive)
+    ezUInt32 uiTempPos = uiCurToken;
+    if (Accept(Tokens, uiTempPos, "pragma") && Accept(Tokens, uiTempPos, "once"))
     {
-      m_IfdefActiveStack.PushBack(IfDefActivity::IsInactive);
-      return EZ_SUCCESS;
+      uiCurToken = uiTempPos;
+      m_PragmaOnce.Insert(m_sCurrentFileStack.PeekBack());
+
+      return ExpectEndOfLine(Tokens, uiCurToken);
     }
-
-    ezUInt32 uiIdentifier = uiCurToken;
-    if (Expect(Tokens, uiCurToken, ezTokenType::Identifier, &uiIdentifier).Failed())
-      return EZ_FAILURE;
-
-    const ezString sIdentifier = Tokens[uiIdentifier]->m_DataView;
-
-    const bool bDefined = m_Macros.Find(sIdentifier).IsValid();
-    const bool bIsIfdef = Tokens[uiAccepted]->m_DataView == "ifdef";
-
-    m_IfdefActiveStack.PushBack(bIsIfdef == bDefined ? IfDefActivity::IsActive : IfDefActivity::IsInactive);
-
-    return EZ_SUCCESS;
   }
 
-  if (Accept(Tokens, uiCurToken, "else"))
-  {
-    if (m_IfdefActiveStack.IsEmpty())
-    {
-      PP_LOG0(Error, "Wrong usage of #else", Tokens[uiCurToken - 1]);
-      return EZ_FAILURE;
-    }
+  if (Accept(Tokens, uiCurToken,  "ifdef", &uiAccepted))
+    return HandleIfdef(Tokens, uiCurToken, uiAccepted, true);
 
-    const IfDefActivity bCur = (IfDefActivity) m_IfdefActiveStack.PeekBack();
-    m_IfdefActiveStack.PopBack();
+  if (Accept(Tokens, uiCurToken,  "ifndef", &uiAccepted))
+    return HandleIfdef(Tokens, uiCurToken, uiAccepted, false);
 
-    if (m_IfdefActiveStack.PeekBack() != IfDefActivity::IsActive)
-    {
-      m_IfdefActiveStack.PushBack(IfDefActivity::IsInactive);
-      return EZ_SUCCESS;
-    }
-    
-    if (bCur == IfDefActivity::WasActive || bCur == IfDefActivity::IsActive)
-      m_IfdefActiveStack.PushBack(IfDefActivity::WasActive);
-    else
-      m_IfdefActiveStack.PushBack(IfDefActivity::IsActive);
+  if (Accept(Tokens, uiCurToken, "else", &uiAccepted))
+    return HandleElse(Tokens, uiCurToken, uiAccepted);
 
-    return EZ_SUCCESS;
-  }
+  if (Accept(Tokens, uiCurToken, "if", &uiAccepted))
+    return HandleIf(Tokens, uiCurToken, uiAccepted);
 
-  if (Accept(Tokens, uiCurToken, "if"))
-  {
-    if (m_IfdefActiveStack.PeekBack() != IfDefActivity::IsActive)
-    {
-      m_IfdefActiveStack.PushBack(IfDefActivity::IsInactive);
-      return EZ_SUCCESS;
-    }
+  if (Accept(Tokens, uiCurToken, "elif", &uiAccepted))
+    return HandleElif(Tokens, uiCurToken, uiAccepted);
 
-    ezInt64 iResult = 0;
-
-    if (EvaluateCondition(Tokens, uiCurToken, iResult).Failed())
-      return EZ_FAILURE;
-
-    m_IfdefActiveStack.PushBack(iResult != 0 ? IfDefActivity::IsActive : IfDefActivity::IsInactive);
-    return EZ_SUCCESS;
-  }
-
-  if (Accept(Tokens, uiCurToken, "elif"))
-  {
-    const IfDefActivity Cur = (IfDefActivity) m_IfdefActiveStack.PeekBack();
-    m_IfdefActiveStack.PopBack();
-
-    if (m_IfdefActiveStack.PeekBack() != IfDefActivity::IsActive)
-    {
-      m_IfdefActiveStack.PushBack(IfDefActivity::IsInactive);
-      return EZ_SUCCESS;
-    }
-
-    ezInt64 iResult = 0;
-    if (EvaluateCondition(Tokens, uiCurToken, iResult).Failed())
-      return EZ_FAILURE;
-
-    if (Cur != IfDefActivity::IsInactive)
-    {
-      m_IfdefActiveStack.PushBack(IfDefActivity::WasActive);
-      return EZ_SUCCESS;
-    }
-
-    m_IfdefActiveStack.PushBack(iResult != 0 ? IfDefActivity::IsActive : IfDefActivity::IsInactive);
-    return EZ_SUCCESS;
-  }
-
-  if (Accept(Tokens, uiCurToken, "endif"))
-  {
-    SkipWhitespace(Tokens, uiCurToken);
-
-    ExpectEndOfLine(Tokens, uiCurToken);
-
-    m_IfdefActiveStack.PopBack();
-
-    if (m_IfdefActiveStack.IsEmpty())
-    {
-      PP_LOG0(Error, "Unexpected '#endif'", Tokens[0]);
-      return EZ_FAILURE;
-    }
-
-    return EZ_SUCCESS;
-  }
+  if (Accept(Tokens, uiCurToken, "endif", &uiAccepted))
+    return HandleEndif(Tokens, uiCurToken, uiAccepted);
 
   // we are currently inside an inactive text block, so skip all the following commands
   if (m_IfdefActiveStack.PeekBack() != IfDefActivity::IsActive)
     return EZ_SUCCESS;
 
+  if (Accept(Tokens, uiCurToken, "include"))
+    return HandleInclude(Tokens, uiCurToken, uiAccepted, TokenOutput);
 
   if (Accept(Tokens, uiCurToken, "define"))
     return AddDefine(Tokens, uiCurToken);
 
-  if (Accept(Tokens, uiCurToken, "undef"))
-  {
-    if (Expect(Tokens, uiCurToken, ezTokenType::Identifier).Failed())
-      return EZ_FAILURE;
+  if (Accept(Tokens, uiCurToken, "undef", &uiAccepted))
+    return HandleUndef(Tokens, uiCurToken, uiAccepted);
 
-    const ezString sUndef = Tokens[uiCurToken - 1]->m_DataView;
-    RemoveDefine(sUndef.GetData());
+  if (Accept(Tokens, uiCurToken, "error", &uiAccepted))
+    return HandleErrorDirective(Tokens, uiCurToken, uiAccepted);
 
-    // this is an error, but not one that will cause it to fail
-    ExpectEndOfLine(Tokens, uiCurToken);
-
-    return EZ_SUCCESS;
-  }
-
-  if (Accept(Tokens, uiCurToken, "error", &uiAccepted) || Accept(Tokens, uiCurToken, "warning", &uiAccepted))
-  {
-    SkipWhitespace(Tokens, uiCurToken);
-
-    ezStringBuilder sTemp;
-    CombineTokensToString(Tokens, uiCurToken, sTemp);
-
-    if (Tokens[uiAccepted]->m_DataView == "error")
-    {
-      PP_LOG(Error, "#error '%s'", Tokens[uiAccepted], sTemp.GetData());
-      return EZ_FAILURE;
-    }
-    else
-      PP_LOG(Warning, "#warning '%s'", Tokens[uiAccepted], sTemp.GetData());
-
-    return EZ_SUCCESS;
-  }
+  if (Accept(Tokens, uiCurToken, "warning", &uiAccepted))
+    return HandleWarningDirective(Tokens, uiCurToken, uiAccepted);
 
   // Pass #line and #pragma commands through unmodified, the user expects them to arrive in the final output properly
   if (Accept(Tokens, uiCurToken, "line") || Accept(Tokens, uiCurToken, "pragma"))
   {
-    ezStringBuilder sTemp;
-    CombineTokensToString(Tokens, 0, sTemp);
-
-    // TODO: Append at token output instead
-    sOutput.Append(sTemp.GetData());
+    CopyRelevantTokens(Tokens, uiHashToken, TokenOutput);
     return EZ_SUCCESS;
   }
 
@@ -287,4 +219,152 @@ ezResult ezPreprocessor::ProcessCmd(const ezHybridArray<const ezToken*, 32>& Tok
   return EZ_FAILURE;
 }
 
+ezResult ezPreprocessor::HandleIfdef(const TokenStream& Tokens, ezUInt32 uiCurToken, ezUInt32 uiDirectiveToken, bool bIsIfdef)
+{
+  if (m_IfdefActiveStack.PeekBack() != IfDefActivity::IsActive)
+  {
+    m_IfdefActiveStack.PushBack(IfDefActivity::IsInactive);
+    return EZ_SUCCESS;
+  }
 
+  ezUInt32 uiIdentifier = uiCurToken;
+  if (Expect(Tokens, uiCurToken, ezTokenType::Identifier, &uiIdentifier).Failed())
+    return EZ_FAILURE;
+
+  const ezString sIdentifier = Tokens[uiIdentifier]->m_DataView;
+
+  const bool bDefined = m_Macros.Find(sIdentifier).IsValid();
+
+  m_IfdefActiveStack.PushBack(bIsIfdef == bDefined ? IfDefActivity::IsActive : IfDefActivity::IsInactive);
+
+  return EZ_SUCCESS;
+}
+
+ezResult ezPreprocessor::HandleElse(const TokenStream& Tokens, ezUInt32 uiCurToken, ezUInt32 uiDirectiveToken)
+{
+  const IfDefActivity bCur = (IfDefActivity) m_IfdefActiveStack.PeekBack();
+  m_IfdefActiveStack.PopBack();
+
+  if (m_IfdefActiveStack.IsEmpty())
+  {
+    PP_LOG0(Error, "Unexpected '#else'", Tokens[uiDirectiveToken]);
+    return EZ_FAILURE;
+  }
+
+  if (m_IfdefActiveStack.PeekBack() != IfDefActivity::IsActive)
+  {
+    m_IfdefActiveStack.PushBack(IfDefActivity::IsInactive);
+    return EZ_SUCCESS;
+  }
+    
+  if (bCur == IfDefActivity::WasActive || bCur == IfDefActivity::IsActive)
+    m_IfdefActiveStack.PushBack(IfDefActivity::WasActive);
+  else
+    m_IfdefActiveStack.PushBack(IfDefActivity::IsActive);
+
+  return EZ_SUCCESS;
+}
+
+ezResult ezPreprocessor::HandleIf(const TokenStream& Tokens, ezUInt32 uiCurToken, ezUInt32 uiDirectiveToken)
+{
+  if (m_IfdefActiveStack.PeekBack() != IfDefActivity::IsActive)
+  {
+    m_IfdefActiveStack.PushBack(IfDefActivity::IsInactive);
+    return EZ_SUCCESS;
+  }
+
+  ezInt64 iResult = 0;
+
+  if (EvaluateCondition(Tokens, uiCurToken, iResult).Failed())
+    return EZ_FAILURE;
+
+  m_IfdefActiveStack.PushBack(iResult != 0 ? IfDefActivity::IsActive : IfDefActivity::IsInactive);
+  return EZ_SUCCESS;
+}
+
+ezResult ezPreprocessor::HandleElif(const TokenStream& Tokens, ezUInt32 uiCurToken, ezUInt32 uiDirectiveToken)
+{
+  const IfDefActivity Cur = (IfDefActivity) m_IfdefActiveStack.PeekBack();
+  m_IfdefActiveStack.PopBack();
+
+  if (m_IfdefActiveStack.IsEmpty())
+  {
+    PP_LOG0(Error, "Unexpected '#elif'", Tokens[uiDirectiveToken]);
+    return EZ_FAILURE;
+  }
+
+  if (m_IfdefActiveStack.PeekBack() != IfDefActivity::IsActive)
+  {
+    m_IfdefActiveStack.PushBack(IfDefActivity::IsInactive);
+    return EZ_SUCCESS;
+  }
+
+  ezInt64 iResult = 0;
+  if (EvaluateCondition(Tokens, uiCurToken, iResult).Failed())
+    return EZ_FAILURE;
+
+  if (Cur != IfDefActivity::IsInactive)
+  {
+    m_IfdefActiveStack.PushBack(IfDefActivity::WasActive);
+    return EZ_SUCCESS;
+  }
+
+  m_IfdefActiveStack.PushBack(iResult != 0 ? IfDefActivity::IsActive : IfDefActivity::IsInactive);
+  return EZ_SUCCESS;
+
+}
+
+ezResult ezPreprocessor::HandleEndif(const TokenStream& Tokens, ezUInt32 uiCurToken, ezUInt32 uiDirectiveToken)
+{
+  SkipWhitespace(Tokens, uiCurToken);
+
+  ExpectEndOfLine(Tokens, uiCurToken);
+
+  m_IfdefActiveStack.PopBack();
+
+  if (m_IfdefActiveStack.IsEmpty())
+  {
+    PP_LOG0(Error, "Unexpected '#endif'", Tokens[uiDirectiveToken]);
+    return EZ_FAILURE;
+  }
+
+  return EZ_SUCCESS;
+}
+
+ezResult ezPreprocessor::HandleUndef(const TokenStream& Tokens, ezUInt32 uiCurToken, ezUInt32 uiDirectiveToken)
+{
+  if (Expect(Tokens, uiCurToken, ezTokenType::Identifier).Failed())
+    return EZ_FAILURE;
+
+  const ezString sUndef = Tokens[uiDirectiveToken]->m_DataView;
+  RemoveDefine(sUndef.GetData());
+
+  // this is an error, but not one that will cause it to fail
+  ExpectEndOfLine(Tokens, uiCurToken);
+
+  return EZ_SUCCESS;
+}
+
+ezResult ezPreprocessor::HandleErrorDirective(const TokenStream& Tokens, ezUInt32 uiCurToken, ezUInt32 uiDirectiveToken)
+{
+  SkipWhitespace(Tokens, uiCurToken);
+
+  ezStringBuilder sTemp;
+  CombineTokensToString(Tokens, uiCurToken, sTemp);
+
+  PP_LOG(Error, "#error '%s'", Tokens[uiDirectiveToken], sTemp.GetData());
+
+  return EZ_SUCCESS;
+}
+
+ezResult ezPreprocessor::HandleWarningDirective(const TokenStream& Tokens, ezUInt32 uiCurToken, ezUInt32 uiDirectiveToken)
+{
+  SkipWhitespace(Tokens, uiCurToken);
+
+  ezStringBuilder sTemp;
+  CombineTokensToString(Tokens, uiCurToken, sTemp);
+
+  PP_LOG(Warning, "#warning '%s'", Tokens[uiDirectiveToken], sTemp.GetData());
+
+  return EZ_SUCCESS;
+}
