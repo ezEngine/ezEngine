@@ -29,7 +29,15 @@ public: // *** Macro Definition ***
 
 private: // *** General ***
   ezLogInterface* m_pLog;
-  ezDeque<bool> m_IfdefActiveStack;
+
+  enum IfDefActivity
+  {
+    IsActive,
+    IsInactive,
+    WasActive,
+  };
+
+  ezDeque<ezInt32> m_IfdefActiveStack;
 
   ezResult ProcessCmd(const TokenStream& Tokens, ezStringBuilder& sOutput);
 
@@ -64,14 +72,17 @@ private: // *** Macro Definition ***
 
 private: // *** #if condition parsing ***
 
-  ezResult EvaluateCondition(const TokenStream& Tokens, ezUInt32& uiCurToken, ezInt32& iResult);
-  ezResult ParseCondition(const TokenStream& Tokens, ezUInt32& uiCurToken, ezInt32& iResult);
-  ezResult ParseFactor(const TokenStream& Tokens, ezUInt32& uiCurToken, ezInt32& iResult);
-  ezResult ParseExpressionMul(const TokenStream& Tokens, ezUInt32& uiCurToken, ezInt32& iResult);
-  ezResult ParseExpressionOr(const TokenStream& Tokens, ezUInt32& uiCurToken, ezInt32& iResult);
-  ezResult ParseExpressionAnd(const TokenStream& Tokens, ezUInt32& uiCurToken, ezInt32& iResult);
-  ezResult ParseExpressionPlus(const TokenStream& Tokens, ezUInt32& uiCurToken, ezInt32& iResult);
-  ezResult ParseExpressionShift(const TokenStream& Tokens, ezUInt32& uiCurToken, ezInt32& iResult);
+  ezResult EvaluateCondition(const TokenStream& Tokens, ezUInt32& uiCurToken, ezInt64& iResult);
+  ezResult ParseCondition(const TokenStream& Tokens, ezUInt32& uiCurToken, ezInt64& iResult);
+  ezResult ParseFactor(const TokenStream& Tokens, ezUInt32& uiCurToken, ezInt64& iResult);
+  ezResult ParseExpressionMul(const TokenStream& Tokens, ezUInt32& uiCurToken, ezInt64& iResult);
+  ezResult ParseExpressionOr(const TokenStream& Tokens, ezUInt32& uiCurToken, ezInt64& iResult);
+  ezResult ParseExpressionAnd(const TokenStream& Tokens, ezUInt32& uiCurToken, ezInt64& iResult);
+  ezResult ParseExpressionPlus(const TokenStream& Tokens, ezUInt32& uiCurToken, ezInt64& iResult);
+  ezResult ParseExpressionShift(const TokenStream& Tokens, ezUInt32& uiCurToken, ezInt64& iResult);
+  ezResult ParseExpressionBitOr(const TokenStream& Tokens, ezUInt32& uiCurToken, ezInt64& iResult);
+  ezResult ParseExpressionBitAnd(const TokenStream& Tokens, ezUInt32& uiCurToken, ezInt64& iResult);
+  ezResult ParseExpressionBitXor(const TokenStream& Tokens, ezUInt32& uiCurToken, ezInt64& iResult);
 
 
 private: // *** Parsing ***
@@ -125,6 +136,9 @@ private: // *** Macro Expansion ***
   ezDeque<const MacroParameters*> m_MacroParamStackExpanded;
   ezDeque<CustomToken> m_CustomTokens;
 };
+
+#define PP_LOG0(Type, FormatStr, ErrorToken) \
+  ezLog::Type(m_pLog, "Line %u (%u): "FormatStr, ErrorToken->m_uiLine, ErrorToken->m_uiColumn);
 
 #define PP_LOG(Type, FormatStr, ErrorToken, ...) \
   ezLog::Type(m_pLog, "Line %u (%u): "FormatStr, ErrorToken->m_uiLine, ErrorToken->m_uiColumn, __VA_ARGS__);

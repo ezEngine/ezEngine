@@ -114,7 +114,7 @@ ezResult ezPreprocessor::AddDefine(const TokenStream& Tokens, ezUInt32& uiCurTok
 
       if (bVarArgsFounds)
       {
-        PP_LOG(Error, "No additional parameters are allowed after '...'", Tokens[uiCurParamToken]);
+        PP_LOG0(Error, "No additional parameters are allowed after '...'", Tokens[uiCurParamToken]);
         return EZ_FAILURE;
       }
 

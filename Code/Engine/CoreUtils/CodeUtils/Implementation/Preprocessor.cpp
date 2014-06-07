@@ -9,9 +9,6 @@
 // #pragma once
 // __LINE__
 // __FILE__
-// bit operators | & ^ 
-// #ifdef / #ifndef
-// #elif
 
 ezString ezPreprocessor::s_ParamNames[32];
 
@@ -58,7 +55,7 @@ ezResult ezPreprocessor::ProcessFile(const char* szFile, ezStringBuilder& sOutpu
   ezTokenizer* pTokenizer = nullptr;
 
   m_IfdefActiveStack.Clear();
-  m_IfdefActiveStack.PushBack(true);
+  m_IfdefActiveStack.PushBack(IfDefActivity::IsActive);
 
   if (OpenFile(szFile, &pTokenizer).Failed())
     return EZ_FAILURE;
@@ -91,7 +88,7 @@ ezResult ezPreprocessor::ProcessFile(const char* szFile, ezStringBuilder& sOutpu
     else
     {
       // we are currently inside an inactive text block
-      if (m_IfdefActiveStack.PeekBack() == false)
+      if (m_IfdefActiveStack.PeekBack() != IfDefActivity::IsActive)
         continue;
 
       if (ValidCodeCheck(TokensLine).Failed())
@@ -131,22 +128,22 @@ ezResult ezPreprocessor::ProcessCmd(const ezHybridArray<const ezToken*, 32>& Tok
   ezUInt32 uiAccepted = uiCurToken;
   if (Accept(Tokens, uiCurToken,  "ifdef", &uiAccepted) || Accept(Tokens, uiCurToken,  "ifndef", &uiAccepted))
   {
-    if (m_IfdefActiveStack.PeekBack() == false)
+    if (m_IfdefActiveStack.PeekBack() != IfDefActivity::IsActive)
     {
-      m_IfdefActiveStack.PushBack(false);
+      m_IfdefActiveStack.PushBack(IfDefActivity::IsInactive);
       return EZ_SUCCESS;
     }
 
-    ezInt32 iResult = 1;
+    ezUInt32 uiIdentifier = uiCurToken;
+    if (Expect(Tokens, uiCurToken, ezTokenType::Identifier, &uiIdentifier).Failed())
+      return EZ_FAILURE;
 
-    // TODO
-    //if (CheckDefinedness(Tokens, uiCurToken, iResult).Failed())
-      //return EZ_FAILURE;
+    const ezString sIdentifier = Tokens[uiIdentifier]->m_DataView;
 
-    if (Tokens[uiAccepted]->m_DataView == "ifdef")
-      m_IfdefActiveStack.PushBack(iResult != 0);
-    else
-      m_IfdefActiveStack.PushBack(iResult == 0);
+    const bool bDefined = m_Macros.Find(sIdentifier).IsValid();
+    const bool bIsIfdef = Tokens[uiAccepted]->m_DataView == "ifdef";
+
+    m_IfdefActiveStack.PushBack(bIsIfdef == bDefined ? IfDefActivity::IsActive : IfDefActivity::IsInactive);
 
     return EZ_SUCCESS;
   }
@@ -155,41 +152,68 @@ ezResult ezPreprocessor::ProcessCmd(const ezHybridArray<const ezToken*, 32>& Tok
   {
     if (m_IfdefActiveStack.IsEmpty())
     {
-      PP_LOG(Error, "Wrong usage of #else", Tokens[uiCurToken - 1]);
+      PP_LOG0(Error, "Wrong usage of #else", Tokens[uiCurToken - 1]);
       return EZ_FAILURE;
     }
 
-    const bool bCur = m_IfdefActiveStack.PeekBack();
+    const IfDefActivity bCur = (IfDefActivity) m_IfdefActiveStack.PeekBack();
     m_IfdefActiveStack.PopBack();
-    m_IfdefActiveStack.PushBack(m_IfdefActiveStack.PeekBack() && !bCur);
+
+    if (m_IfdefActiveStack.PeekBack() != IfDefActivity::IsActive)
+    {
+      m_IfdefActiveStack.PushBack(IfDefActivity::IsInactive);
+      return EZ_SUCCESS;
+    }
+    
+    if (bCur == IfDefActivity::WasActive || bCur == IfDefActivity::IsActive)
+      m_IfdefActiveStack.PushBack(IfDefActivity::WasActive);
+    else
+      m_IfdefActiveStack.PushBack(IfDefActivity::IsActive);
 
     return EZ_SUCCESS;
   }
 
   if (Accept(Tokens, uiCurToken, "if"))
   {
-    if (m_IfdefActiveStack.PeekBack() == false)
+    if (m_IfdefActiveStack.PeekBack() != IfDefActivity::IsActive)
     {
-      m_IfdefActiveStack.PushBack(false);
+      m_IfdefActiveStack.PushBack(IfDefActivity::IsInactive);
       return EZ_SUCCESS;
     }
 
-    ezInt32 iResult = 1;
+    ezInt64 iResult = 0;
 
     if (EvaluateCondition(Tokens, uiCurToken, iResult).Failed())
       return EZ_FAILURE;
 
-    m_IfdefActiveStack.PushBack(iResult != 0);
+    m_IfdefActiveStack.PushBack(iResult != 0 ? IfDefActivity::IsActive : IfDefActivity::IsInactive);
     return EZ_SUCCESS;
   }
 
-  //if (Tokens[uiCurToken]->m_DataView == "elif")
-  //{
-  //  ezStringBuilder sCmd = Tokens[uiCurToken]->m_DataView;
-  //  ezLog::Info("Line %u (%u): #%s", Tokens[uiCurToken]->m_uiLine, Tokens[uiCurToken]->m_uiColumn, sCmd.GetData());
+  if (Accept(Tokens, uiCurToken, "elif"))
+  {
+    const IfDefActivity Cur = (IfDefActivity) m_IfdefActiveStack.PeekBack();
+    m_IfdefActiveStack.PopBack();
 
-  //  return EZ_SUCCESS;
-  //}
+    if (m_IfdefActiveStack.PeekBack() != IfDefActivity::IsActive)
+    {
+      m_IfdefActiveStack.PushBack(IfDefActivity::IsInactive);
+      return EZ_SUCCESS;
+    }
+
+    ezInt64 iResult = 0;
+    if (EvaluateCondition(Tokens, uiCurToken, iResult).Failed())
+      return EZ_FAILURE;
+
+    if (Cur != IfDefActivity::IsInactive)
+    {
+      m_IfdefActiveStack.PushBack(IfDefActivity::WasActive);
+      return EZ_SUCCESS;
+    }
+
+    m_IfdefActiveStack.PushBack(iResult != 0 ? IfDefActivity::IsActive : IfDefActivity::IsInactive);
+    return EZ_SUCCESS;
+  }
 
   if (Accept(Tokens, uiCurToken, "endif"))
   {
@@ -201,7 +225,7 @@ ezResult ezPreprocessor::ProcessCmd(const ezHybridArray<const ezToken*, 32>& Tok
 
     if (m_IfdefActiveStack.IsEmpty())
     {
-      PP_LOG(Error, "Unexpected '#endif'", Tokens[0]);
+      PP_LOG0(Error, "Unexpected '#endif'", Tokens[0]);
       return EZ_FAILURE;
     }
 
@@ -209,7 +233,7 @@ ezResult ezPreprocessor::ProcessCmd(const ezHybridArray<const ezToken*, 32>& Tok
   }
 
   // we are currently inside an inactive text block, so skip all the following commands
-  if (m_IfdefActiveStack.PeekBack() == false)
+  if (m_IfdefActiveStack.PeekBack() != IfDefActivity::IsActive)
     return EZ_SUCCESS;
 
 
@@ -259,7 +283,7 @@ ezResult ezPreprocessor::ProcessCmd(const ezHybridArray<const ezToken*, 32>& Tok
     return EZ_SUCCESS;
   }
 
-  PP_LOG(Error, "Expected a preprocessor command", Tokens[0]);
+  PP_LOG0(Error, "Expected a preprocessor command", Tokens[0]);
   return EZ_FAILURE;
 }
 

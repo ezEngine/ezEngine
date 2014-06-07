@@ -212,7 +212,7 @@ ezResult ezPreprocessor::ValidCodeCheck(const TokenStream& Tokens)
   {
     if (Tokens[i]->m_DataView == "#")
     {
-      PP_LOG(Error, "Preprocessor command must start as first non-whitespace", Tokens[i]);
+      PP_LOG0(Error, "Preprocessor command must start as first non-whitespace", Tokens[i]);
       return EZ_FAILURE;
     }
   }

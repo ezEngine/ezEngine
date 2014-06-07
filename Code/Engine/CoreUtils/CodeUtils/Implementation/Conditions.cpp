@@ -66,7 +66,7 @@ ezResult ezPreprocessor::CopyTokensAndEvaluateDefined(const TokenStream& Source,
   return EZ_SUCCESS;
 }
 
-ezResult ezPreprocessor::EvaluateCondition(const TokenStream& Tokens, ezUInt32& uiCurToken, ezInt32& iResult)
+ezResult ezPreprocessor::EvaluateCondition(const TokenStream& Tokens, ezUInt32& uiCurToken, ezInt64& iResult)
 {
   iResult = 0;
 
@@ -83,7 +83,7 @@ ezResult ezPreprocessor::EvaluateCondition(const TokenStream& Tokens, ezUInt32& 
   return ParseExpressionOr(Expanded, uiCurToken2, iResult);
 }
 
-ezResult ezPreprocessor::ParseFactor(const ezHybridArray<const ezToken*, 32>& Tokens, ezUInt32& uiCurToken, ezInt32& iResult)
+ezResult ezPreprocessor::ParseFactor(const ezHybridArray<const ezToken*, 32>& Tokens, ezUInt32& uiCurToken, ezInt64& iResult)
 {
   while (Accept(Tokens, uiCurToken, "+"))
   {
@@ -116,26 +116,18 @@ ezResult ezPreprocessor::ParseFactor(const ezHybridArray<const ezToken*, 32>& To
     return EZ_SUCCESS;
   }
 
-  //if (Accept(Tokens, uiCurToken, "defined"))
-  //{
-  //  ezUInt32 uiIdentifier = uiCurToken;
-  //  if (Expect(Tokens, uiCurToken, ezTokenType::Identifier, &uiIdentifier).Failed())
-  //    return EZ_FAILURE;
-
-  //  iResult = m_Macros.Find(Tokens[uiIdentifier]->m_DataView).IsValid() ? 1 : 0;
-
-  //  return EZ_SUCCESS;
-  //}
-  //else
   if (Accept(Tokens, uiCurToken, ezTokenType::Identifier))
   {
     const ezString sVal = Tokens[uiCurToken - 1]->m_DataView;
 
-    if (ezConversionUtils::StringToInt(sVal.GetData(), iResult).Failed())
+    ezInt32 iResult32 = 0;
+
+    if (ezConversionUtils::StringToInt(sVal.GetData(), iResult32).Failed())
     {
-      PP_LOG(Error, "Identifier '%s' could not be converted to an integer value", Tokens[uiCurToken], sVal.GetData());
-      return EZ_FAILURE;
+      // this is not an error, all unknown identifiers are assumed to be zero
     }
+
+    iResult = (ezInt64) iResult32;
 
     return EZ_SUCCESS;
   }
@@ -147,12 +139,12 @@ ezResult ezPreprocessor::ParseFactor(const ezHybridArray<const ezToken*, 32>& To
     return Expect(Tokens, uiCurToken, ")");
   }
 
-  PP_LOG(Error, "Syntax error, expected identifier, number or '('", Tokens[uiCurToken]);
+  PP_LOG0(Error, "Syntax error, expected identifier, number or '('", Tokens[uiCurToken]);
 
   return EZ_FAILURE;
 }
 
-ezResult ezPreprocessor::ParseExpressionPlus(const ezHybridArray<const ezToken*, 32>& Tokens, ezUInt32& uiCurToken, ezInt32& iResult)
+ezResult ezPreprocessor::ParseExpressionPlus(const ezHybridArray<const ezToken*, 32>& Tokens, ezUInt32& uiCurToken, ezInt64& iResult)
 {
   if (ParseExpressionMul(Tokens, uiCurToken, iResult).Failed())
     return EZ_FAILURE;
@@ -161,7 +153,7 @@ ezResult ezPreprocessor::ParseExpressionPlus(const ezHybridArray<const ezToken*,
   {
     if (Accept(Tokens, uiCurToken, "+"))
     {
-      ezInt32 iNextValue = 0;
+      ezInt64 iNextValue = 0;
       if (ParseExpressionMul(Tokens, uiCurToken, iNextValue).Failed())
         return EZ_FAILURE;
 
@@ -169,7 +161,7 @@ ezResult ezPreprocessor::ParseExpressionPlus(const ezHybridArray<const ezToken*,
     }
     else if (Accept(Tokens, uiCurToken, "-"))
     {
-      ezInt32 iNextValue = 0;
+      ezInt64 iNextValue = 0;
       if (ParseExpressionMul(Tokens, uiCurToken, iNextValue).Failed())
         return EZ_FAILURE;
 
@@ -182,7 +174,7 @@ ezResult ezPreprocessor::ParseExpressionPlus(const ezHybridArray<const ezToken*,
   return EZ_SUCCESS;
 }
 
-ezResult ezPreprocessor::ParseExpressionShift(const ezHybridArray<const ezToken*, 32>& Tokens, ezUInt32& uiCurToken, ezInt32& iResult)
+ezResult ezPreprocessor::ParseExpressionShift(const ezHybridArray<const ezToken*, 32>& Tokens, ezUInt32& uiCurToken, ezInt64& iResult)
 {
   if (ParseExpressionPlus(Tokens, uiCurToken, iResult).Failed())
     return EZ_FAILURE;
@@ -191,7 +183,7 @@ ezResult ezPreprocessor::ParseExpressionShift(const ezHybridArray<const ezToken*
   {
     if (Accept(Tokens, uiCurToken, ">", ">"))
     {
-      ezInt32 iNextValue = 0;
+      ezInt64 iNextValue = 0;
       if (ParseExpressionPlus(Tokens, uiCurToken, iNextValue).Failed())
         return EZ_FAILURE;
 
@@ -199,7 +191,7 @@ ezResult ezPreprocessor::ParseExpressionShift(const ezHybridArray<const ezToken*
     }
     else if (Accept(Tokens, uiCurToken, "<", "<"))
     {
-      ezInt32 iNextValue = 0;
+      ezInt64 iNextValue = 0;
       if (ParseExpressionPlus(Tokens, uiCurToken, iNextValue).Failed())
         return EZ_FAILURE;
 
@@ -212,14 +204,14 @@ ezResult ezPreprocessor::ParseExpressionShift(const ezHybridArray<const ezToken*
   return EZ_SUCCESS;
 }
 
-ezResult ezPreprocessor::ParseExpressionOr(const ezHybridArray<const ezToken*, 32>& Tokens, ezUInt32& uiCurToken, ezInt32& iResult)
+ezResult ezPreprocessor::ParseExpressionOr(const ezHybridArray<const ezToken*, 32>& Tokens, ezUInt32& uiCurToken, ezInt64& iResult)
 {
   if (ParseExpressionAnd(Tokens, uiCurToken, iResult).Failed())
     return EZ_FAILURE;
 
   while (Accept(Tokens, uiCurToken, "|", "|"))
   {
-    ezInt32 iNextValue = 0;
+    ezInt64 iNextValue = 0;
     if (ParseExpressionAnd(Tokens, uiCurToken, iNextValue).Failed())
       return EZ_FAILURE;
 
@@ -229,15 +221,15 @@ ezResult ezPreprocessor::ParseExpressionOr(const ezHybridArray<const ezToken*, 3
   return EZ_SUCCESS;
 }
 
-ezResult ezPreprocessor::ParseExpressionAnd(const ezHybridArray<const ezToken*, 32>& Tokens, ezUInt32& uiCurToken, ezInt32& iResult)
+ezResult ezPreprocessor::ParseExpressionAnd(const ezHybridArray<const ezToken*, 32>& Tokens, ezUInt32& uiCurToken, ezInt64& iResult)
 {
-  if (ParseCondition(Tokens, uiCurToken, iResult).Failed())
+  if (ParseExpressionBitOr(Tokens, uiCurToken, iResult).Failed())
     return EZ_FAILURE;
 
   while (Accept(Tokens, uiCurToken, "&", "&"))
   {
-    ezInt32 iNextValue = 0;
-    if (ParseCondition(Tokens, uiCurToken, iNextValue).Failed())
+    ezInt64 iNextValue = 0;
+    if (ParseExpressionBitOr(Tokens, uiCurToken, iNextValue).Failed())
       return EZ_FAILURE;
 
     iResult = (iResult != 0 && iNextValue != 0) ? 1 : 0;
@@ -246,7 +238,57 @@ ezResult ezPreprocessor::ParseExpressionAnd(const ezHybridArray<const ezToken*, 
   return EZ_SUCCESS;
 }
 
-ezResult ezPreprocessor::ParseExpressionMul(const ezHybridArray<const ezToken*, 32>& Tokens, ezUInt32& uiCurToken, ezInt32& iResult)
+ezResult ezPreprocessor::ParseExpressionBitOr(const ezHybridArray<const ezToken*, 32>& Tokens, ezUInt32& uiCurToken, ezInt64& iResult)
+{
+  if (ParseExpressionBitXor(Tokens, uiCurToken, iResult).Failed())
+    return EZ_FAILURE;
+
+  while (AcceptUnless(Tokens, uiCurToken, "|", "|"))
+  {
+    ezInt64 iNextValue = 0;
+    if (ParseExpressionBitXor(Tokens, uiCurToken, iNextValue).Failed())
+      return EZ_FAILURE;
+
+    iResult |= iNextValue;
+  }
+
+  return EZ_SUCCESS;
+}
+
+ezResult ezPreprocessor::ParseExpressionBitAnd(const ezHybridArray<const ezToken*, 32>& Tokens, ezUInt32& uiCurToken, ezInt64& iResult)
+{
+  if (ParseCondition(Tokens, uiCurToken, iResult).Failed())
+    return EZ_FAILURE;
+
+  while (AcceptUnless(Tokens, uiCurToken, "&", "&"))
+  {
+    ezInt64 iNextValue = 0;
+    if (ParseCondition(Tokens, uiCurToken, iNextValue).Failed())
+      return EZ_FAILURE;
+
+    iResult &= iNextValue;
+  }
+
+  return EZ_SUCCESS;
+}
+
+ezResult ezPreprocessor::ParseExpressionBitXor(const ezHybridArray<const ezToken*, 32>& Tokens, ezUInt32& uiCurToken, ezInt64& iResult)
+{
+  if (ParseExpressionBitAnd(Tokens, uiCurToken, iResult).Failed())
+    return EZ_FAILURE;
+
+  while (Accept(Tokens, uiCurToken, "^"))
+  {
+    ezInt64 iNextValue = 0;
+    if (ParseExpressionBitAnd(Tokens, uiCurToken, iNextValue).Failed())
+      return EZ_FAILURE;
+
+    iResult ^= iNextValue;
+  }
+
+  return EZ_SUCCESS;
+}
+ezResult ezPreprocessor::ParseExpressionMul(const ezHybridArray<const ezToken*, 32>& Tokens, ezUInt32& uiCurToken, ezInt64& iResult)
 {
   if (ParseFactor(Tokens, uiCurToken, iResult).Failed())
     return EZ_FAILURE;
@@ -255,7 +297,7 @@ ezResult ezPreprocessor::ParseExpressionMul(const ezHybridArray<const ezToken*, 
   {
     if (Accept(Tokens, uiCurToken, "*"))
     {
-      ezInt32 iNextValue = 0;
+      ezInt64 iNextValue = 0;
       if (ParseFactor(Tokens, uiCurToken, iNextValue).Failed())
         return EZ_FAILURE;
 
@@ -263,7 +305,7 @@ ezResult ezPreprocessor::ParseExpressionMul(const ezHybridArray<const ezToken*, 
     }
     else if (Accept(Tokens, uiCurToken, "/"))
     {
-      ezInt32 iNextValue = 0;
+      ezInt64 iNextValue = 0;
       if (ParseFactor(Tokens, uiCurToken, iNextValue).Failed())
         return EZ_FAILURE;
 
@@ -271,7 +313,7 @@ ezResult ezPreprocessor::ParseExpressionMul(const ezHybridArray<const ezToken*, 
     }
     else if (Accept(Tokens, uiCurToken, "%"))
     {
-      ezInt32 iNextValue = 0;
+      ezInt64 iNextValue = 0;
       if (ParseFactor(Tokens, uiCurToken, iNextValue).Failed())
         return EZ_FAILURE;
 
@@ -295,9 +337,9 @@ enum class Comparison
   GreaterThanEqual
 };
 
-ezResult ezPreprocessor::ParseCondition(const ezHybridArray<const ezToken*, 32>& Tokens, ezUInt32& uiCurToken, ezInt32& iResult)
+ezResult ezPreprocessor::ParseCondition(const ezHybridArray<const ezToken*, 32>& Tokens, ezUInt32& uiCurToken, ezInt64& iResult)
 {
-  ezInt32 iResult1 = 0;
+  ezInt64 iResult1 = 0;
   if (ParseExpressionShift(Tokens, uiCurToken, iResult1).Failed())
     return EZ_FAILURE;
 
@@ -321,7 +363,7 @@ ezResult ezPreprocessor::ParseCondition(const ezHybridArray<const ezToken*, 32>&
     return EZ_SUCCESS;
   }
 
-  ezInt32 iResult2 = 0;
+  ezInt64 iResult2 = 0;
   if (ParseExpressionShift(Tokens, uiCurToken, iResult2).Failed())
     return EZ_FAILURE;
 

@@ -148,7 +148,7 @@ ezResult ezPreprocessor::ExtractParameterValue(const TokenStream& Tokens, ezUInt
   }
 
   // reached the end of the stream without encountering the closing parenthesis first
-  PP_LOG(Error, "Unexpected end of file during macro parameter extraction", Tokens[uiFirstToken]);
+  PP_LOG0(Error, "Unexpected end of file during macro parameter extraction", Tokens[uiFirstToken]);
   return EZ_FAILURE;
 }
 
