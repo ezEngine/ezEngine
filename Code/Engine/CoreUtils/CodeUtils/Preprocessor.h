@@ -119,20 +119,23 @@ private: // *** Parsing ***
   ezResult ExpectEndOfLine(const TokenStream& Tokens, ezUInt32& uiCurToken);
 
   void CopyTokensReplaceParams(const TokenStream& Source, ezUInt32 uiFirstSourceToken, TokenStream& Destination, const ezHybridArray<ezString, 16>& parameters);
-  ezResult ValidCodeCheck(const TokenStream& Tokens);
+  //ezResult ValidCodeCheck(const TokenStream& Tokens);
   void CombineTokensToString(const TokenStream& Tokens, ezUInt32 uiCurToken, ezStringBuilder& sResult);
   void CombineRelevantTokensToString(const TokenStream& Tokens, ezUInt32 uiCurToken, ezStringBuilder& sResult);
 
 private: // *** Macro Expansion ***
   ezResult Expand(const TokenStream& Tokens, TokenStream& Output);
+  ezResult ExpandOnce(const TokenStream& Tokens, TokenStream& Output);
   ezResult ExpandObjectMacro(MacroDefinition& Macro, TokenStream& Output);
   ezResult ExpandFunctionMacro(MacroDefinition& Macro, const MacroParameters& Parameters, TokenStream& Output);
-  ezResult ExpandMacroParam(const ezToken& MacroToken, ezUInt32 uiParam, TokenStream& Output);
+  ezResult ExpandMacroParam(const ezToken& MacroToken, ezUInt32 uiParam, TokenStream& Output, const MacroDefinition& Macro);
   void PassThroughFunctionMacro(MacroDefinition& Macro, const MacroParameters& Parameters, TokenStream& Output);
   ezToken* AddCustomToken(const ezToken* pPrevious, const char* szNewText);
   void OutputNotExpandableMacro(MacroDefinition& Macro, TokenStream& Output);
   ezResult ExtractAllMacroParameters(const TokenStream& Tokens, ezUInt32& uiCurToken, ezDeque< TokenStream >& AllParameters);
   ezResult ExtractParameterValue(const TokenStream& Tokens, ezUInt32& uiCurToken, TokenStream& ParamTokens);
+
+  ezResult InsertParameters(const TokenStream& Tokens, TokenStream& Output, const MacroDefinition& Macro);
 
   struct CustomToken
   {
@@ -154,6 +157,9 @@ private: // *** Macro Expansion ***
   ezDeque<CustomToken> m_CustomTokens;
 
 private: // *** Other ***
+  static void StringifyTokens(const TokenStream& Tokens, ezStringBuilder& sResult, bool bSurroundWithQuotes);
+  ezToken* CreateStringifiedParameter(ezUInt32 uiParam, const ezToken* pParamToken, const MacroDefinition& Macro);
+
   ezResult HandleErrorDirective(const TokenStream& Tokens, ezUInt32 uiCurToken, ezUInt32 uiDirectiveToken);
   ezResult HandleWarningDirective(const TokenStream& Tokens, ezUInt32 uiCurToken, ezUInt32 uiDirectiveToken);
   ezResult HandleUndef(const TokenStream& Tokens, ezUInt32 uiCurToken, ezUInt32 uiDirectiveToken);

@@ -2,9 +2,7 @@
 #include <CoreUtils/CodeUtils/Preprocessor.h>
 
 // TODO:
-// stringification
 // concatenation
-// varargs
 // __LINE__
 // __FILE__
 
@@ -86,8 +84,8 @@ ezResult ezPreprocessor::ProcessFile(const char* szFile, TokenStream& TokenOutpu
       if (m_IfdefActiveStack.PeekBack() != IfDefActivity::IsActive)
         continue;
 
-      if (ValidCodeCheck(TokensLine).Failed())
-        return EZ_FAILURE;
+      //if (ValidCodeCheck(TokensLine).Failed())
+      //  return EZ_FAILURE;
 
       // store for later expansion
       TokensCode.PushBackRange(TokensLine);

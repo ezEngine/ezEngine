@@ -152,4 +152,58 @@ ezResult ezPreprocessor::ExtractParameterValue(const TokenStream& Tokens, ezUInt
   return EZ_FAILURE;
 }
 
+void ezPreprocessor::StringifyTokens(const TokenStream& Tokens, ezStringBuilder& sResult, bool bSurroundWithQuotes)
+{
+  ezUInt32 uiCurToken = 0;
 
+  sResult.Clear();
+
+  if (bSurroundWithQuotes)
+    sResult = "\"";
+
+  ezStringBuilder sTemp;
+
+  SkipWhitespace(Tokens, uiCurToken);
+
+  ezUInt32 uiLastNonWhitespace = Tokens.GetCount();
+
+  while (uiLastNonWhitespace > 0)
+  {
+    if (Tokens[uiLastNonWhitespace - 1]->m_iType != ezTokenType::Whitespace &&
+        Tokens[uiLastNonWhitespace - 1]->m_iType != ezTokenType::Newline &&
+        Tokens[uiLastNonWhitespace - 1]->m_iType != ezTokenType::BlockComment &&
+        Tokens[uiLastNonWhitespace - 1]->m_iType != ezTokenType::LineComment)
+        break;
+
+    --uiLastNonWhitespace;
+  }
+
+  for (ezUInt32 t = uiCurToken; t < uiLastNonWhitespace; ++t)
+  {
+    // comments, newlines etc. are stripped out
+    if ((Tokens[t]->m_iType == ezTokenType::LineComment) ||
+        (Tokens[t]->m_iType == ezTokenType::BlockComment) ||
+        (Tokens[t]->m_iType == ezTokenType::Newline) ||
+        (Tokens[t]->m_iType == ezTokenType::EndOfFile))
+        continue;
+
+    sTemp = Tokens[t]->m_DataView;
+
+    // all whitespace becomes a single white space
+    if (Tokens[t]->m_iType == ezTokenType::Whitespace)
+      sTemp = " ";
+
+    // inside strings, all backslashes and double quotes are escaped
+    if ((Tokens[t]->m_iType == ezTokenType::String1) ||
+        (Tokens[t]->m_iType == ezTokenType::String2))
+    {
+      sTemp.ReplaceAll("\\", "\\\\");
+      sTemp.ReplaceAll("\"", "\\\"");
+    }
+
+    sResult.Append(sTemp.GetData());
+  }
+
+  if (bSurroundWithQuotes)
+    sResult.Append("\"");
+}

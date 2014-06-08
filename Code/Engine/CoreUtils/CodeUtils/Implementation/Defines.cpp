@@ -124,8 +124,6 @@ ezResult ezPreprocessor::AddDefine(const TokenStream& Tokens, ezUInt32& uiCurTok
       {
         bVarArgsFounds = true;
         sParam = "__VA_ARGS__";
-
-        PP_LOG(Dev, "Macro parameter %u is varargs", Tokens[uiCurParamToken], parameters.GetCount());
       }
 
       parameters.PushBack(sParam);
