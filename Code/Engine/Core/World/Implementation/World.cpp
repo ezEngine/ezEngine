@@ -143,7 +143,7 @@ void ezWorld::DeleteObject(const ezGameObjectHandle& object)
 }
 
 void ezWorld::PostMessage(const ezGameObjectHandle& receiverObject, ezMessage& msg, 
-  ezObjectMsgQueueType::Enum queueType, ezBitflags<ezObjectMsgRouting> routing)
+  ezObjectMsgQueueType::Enum queueType, ezObjectMsgRouting::Enum routing)
 {
   QueuedMsgMetaData metaData;
   metaData.m_ReceiverObject = receiverObject;
@@ -155,7 +155,7 @@ void ezWorld::PostMessage(const ezGameObjectHandle& receiverObject, ezMessage& m
 }
 
 void ezWorld::PostMessage(const ezGameObjectHandle& receiverObject, ezMessage& msg, 
-  ezObjectMsgQueueType::Enum queueType, ezTime delay, ezBitflags<ezObjectMsgRouting> routing)
+  ezObjectMsgQueueType::Enum queueType, ezTime delay, ezObjectMsgRouting::Enum routing)
 {
   QueuedMsgMetaData metaData;
   metaData.m_ReceiverObject = receiverObject;

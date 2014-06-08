@@ -141,7 +141,7 @@ inline bool ezWorld::TryGetComponent(const ezComponentHandle& component, Compone
 }
 
 EZ_FORCE_INLINE void ezWorld::SendMessage(const ezGameObjectHandle& receiverObject, ezMessage& msg,
-  ezBitflags<ezObjectMsgRouting> routing /*= ezObjectMsgRouting::Default*/)
+  ezObjectMsgRouting::Enum routing /*= ezObjectMsgRouting::Default*/)
 {
   CheckForMultithreadedAccess();
 

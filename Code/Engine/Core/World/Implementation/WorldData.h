@@ -119,7 +119,7 @@ namespace ezInternal
     struct QueuedMsgMetaData
     {
       ezGameObjectHandle m_ReceiverObject;
-      ezBitflags<ezObjectMsgRouting> m_Routing;
+      ezObjectMsgRouting::Enum m_Routing;
       ezTime m_Due;
     };
 

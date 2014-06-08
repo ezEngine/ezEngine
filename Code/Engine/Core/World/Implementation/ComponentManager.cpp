@@ -2,8 +2,6 @@
 #include <Core/World/ComponentManager.h>
 #include <Core/World/World.h>
 
-ezUInt16 ezComponentManagerBase::s_uiNextTypeId;
-
 ezComponentManagerBase::ezComponentManagerBase(ezWorld* pWorld) : 
   m_Components(pWorld->GetAllocator())
 {
@@ -24,6 +22,16 @@ void ezComponentManagerBase::DeleteComponent(const ezComponentHandle& component)
 }
 
 // protected methods
+
+void ezComponentManagerBase::RegisterUpdateFunction(const UpdateFunctionDesc& desc)
+{
+  m_pWorld->RegisterUpdateFunction(desc);
+}
+
+void ezComponentManagerBase::DeregisterUpdateFunction(const UpdateFunctionDesc& desc)
+{
+  m_pWorld->DeregisterUpdateFunction(desc);
+}
 
 ezComponentHandle ezComponentManagerBase::CreateComponent(ComponentStorageEntry storageEntry, ezUInt16 uiTypeId)
 {
@@ -81,17 +89,6 @@ ezLargeBlockAllocator* ezComponentManagerBase::GetBlockAllocator()
 {
   return m_pWorld->GetBlockAllocator();
 }
-
-void ezComponentManagerBase::RegisterUpdateFunction(const UpdateFunctionDesc& desc)
-{
-  m_pWorld->RegisterUpdateFunction(desc);
-}
-
-void ezComponentManagerBase::DeregisterUpdateFunction(const UpdateFunctionDesc& desc)
-{
-  m_pWorld->DeregisterUpdateFunction(desc);
-}
-
 
 EZ_STATICLINK_FILE(Core, Core_World_Implementation_ComponentManager);
 

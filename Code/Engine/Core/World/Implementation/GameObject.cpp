@@ -94,7 +94,10 @@ void ezGameObject::DetachChild(const ezGameObjectHandle& child)
   ezGameObject* pChild = nullptr;
   if (m_pWorld->TryGetObject(child, pChild))
   {
-    m_pWorld->SetParent(pChild, nullptr);
+    if (pChild->GetParent() == this)
+    {
+      m_pWorld->SetParent(pChild, nullptr);
+    }
   }
 }
 
@@ -128,6 +131,7 @@ ezResult ezGameObject::AddComponent(ezComponent* pComponent)
     return EZ_SUCCESS;
   }
 
+  pComponent->m_pOwner = nullptr;
   return EZ_FAILURE;
 }
 
@@ -169,20 +173,20 @@ void ezGameObject::FixComponentPointer(ezComponent* pOldPtr, ezComponent* pNewPt
 }
 
 void ezGameObject::PostMessage(ezMessage& msg, ezObjectMsgQueueType::Enum queueType,
-  ezBitflags<ezObjectMsgRouting> routing)
+  ezObjectMsgRouting::Enum routing)
 {
   m_pWorld->PostMessage(GetHandle(), msg, queueType, routing);
 }
 
 void ezGameObject::PostMessage(ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay,
-  ezBitflags<ezObjectMsgRouting> routing)
+  ezObjectMsgRouting::Enum routing)
 {
   m_pWorld->PostMessage(GetHandle(), msg, queueType, delay, routing);
 }
 
-void ezGameObject::OnMessage(ezMessage& msg, ezBitflags<ezObjectMsgRouting> routing)
+void ezGameObject::OnMessage(ezMessage& msg, ezObjectMsgRouting::Enum routing)
 {
-  if (routing.IsSet(ezObjectMsgRouting::ToSubTree))
+  if (routing == ezObjectMsgRouting::ToSubTree)
   {
     // walk up the sub tree and send to children form there to prevent double handling
     ezGameObject* pCurrent = this;
@@ -203,19 +207,19 @@ void ezGameObject::OnMessage(ezMessage& msg, ezBitflags<ezObjectMsgRouting> rout
     m_Components[i]->OnMessage(msg);
   }
 
-  // route message to parent and/or children
-  if (routing.IsSet(ezObjectMsgRouting::ToParent))
+  // route message to parent or children
+  if (routing == ezObjectMsgRouting::ToParent)
   {
     if (ezGameObject* pParent = GetParent())
     {
-      pParent->OnMessage(msg, ezObjectMsgRouting::ToParent);
+      pParent->OnMessage(msg, routing);
     }
   }
-  if (routing.IsSet(ezObjectMsgRouting::ToChildren))
+  else if (routing == ezObjectMsgRouting::ToChildren)
   {
     for (ChildIterator it = GetChildren(); it.IsValid(); ++it)
     {
-      it->OnMessage(msg, ezObjectMsgRouting::ToChildren);
+      it->OnMessage(msg, routing);
     }
   }
 }

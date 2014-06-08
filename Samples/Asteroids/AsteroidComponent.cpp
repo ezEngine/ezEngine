@@ -21,9 +21,9 @@ void AsteroidComponent::Update()
   ezQuat qRot;
   qRot.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(m_fRotationSpeed));
   
-  m_pOwner->SetLocalRotation(qRot * m_pOwner->GetLocalRotation());
+  GetOwner()->SetLocalRotation(qRot * GetOwner()->GetLocalRotation());
 
-  const ezVec3 vOwnPos = m_pOwner->GetLocalPosition();
+  const ezVec3 vOwnPos = GetOwner()->GetLocalPosition();
 
   ShipComponentManager* pShipManager = GetWorld()->GetComponentManager<ShipComponentManager>();
 

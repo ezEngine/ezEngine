@@ -6,7 +6,7 @@
 #include <GameUtils/GridAlgorithms/Rasterization.h>
 
 class ObstacleComponent;
-typedef ezComponentManagerNoUpdate<ObstacleComponent> ObstacleComponentManager;
+typedef ezComponentManager<ObstacleComponent> ObstacleComponentManager;
 
 class ObstacleComponent : public ezComponent
 {

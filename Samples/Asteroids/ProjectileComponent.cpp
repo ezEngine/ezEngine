@@ -26,7 +26,7 @@ void ProjectileComponent::Update()
 {
   if (m_iTimeToLive <= 0)
   {
-    GetWorld()->DeleteObject(m_pOwner->GetHandle());
+    GetWorld()->DeleteObject(GetOwner()->GetHandle());
     return;
   }
 
@@ -40,7 +40,7 @@ void ProjectileComponent::Update()
 
   m_vDrawDir = m_vVelocity;
 
-  m_pOwner->SetLocalPosition(m_pOwner->GetLocalPosition() + m_vVelocity);
+  GetOwner()->SetLocalPosition(GetOwner()->GetLocalPosition() + m_vVelocity);
 
   CollidableComponentManager* pCollidableManager = GetWorld()->GetComponentManager<CollidableComponentManager>();
 
@@ -63,7 +63,7 @@ void ProjectileComponent::Update()
 
     ezBoundingSphere bs(pColliderObject->GetLocalPosition(), Collider.m_fCollisionRadius);
 
-    const ezVec3 vPos = m_pOwner->GetLocalPosition();
+    const ezVec3 vPos = GetOwner()->GetLocalPosition();
 
     if (!m_vVelocity.IsZero(0.001f) && bs.GetLineSegmentIntersection(vPos, vPos + m_vVelocity))
     {
@@ -94,7 +94,7 @@ void ProjectileComponent::Update()
 
           {
             ezGameObjectDesc desc;
-            desc.m_LocalPosition = m_pOwner->GetLocalPosition();
+            desc.m_LocalPosition = GetOwner()->GetLocalPosition();
 
             ezGameObject* pProjectile = nullptr;
             ezGameObjectHandle hProjectile = GetWorld()->CreateObject(desc, pProjectile);

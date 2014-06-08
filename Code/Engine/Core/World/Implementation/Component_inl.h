@@ -38,6 +38,12 @@ EZ_FORCE_INLINE ezComponentHandle ezComponent::GetHandle() const
   return ezComponentHandle(ezComponentId(m_InternalId, GetTypeId()));
 }
 
+//static 
+EZ_FORCE_INLINE ezUInt16 ezComponent::GetNextTypeId()
+{
+  return s_uiNextTypeId++;
+}
+
 // static 
 EZ_FORCE_INLINE ezUInt16 ezComponent::TypeId()
 { 

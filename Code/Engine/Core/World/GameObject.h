@@ -9,6 +9,18 @@
 #include <Core/World/ComponentManager.h>
 #include <Core/World/GameObjectDesc.h>
 
+/// \brief This class represents an object inside the world.
+///
+/// Game objects only consists of hierarchical data like transformation and a list of components. 
+/// You cannot derive from the game object class. To add functionality to an object you have to attach components to it.
+/// To create an object instance call CreateObject on the world. Never store a direct pointer to an object but store an 
+/// object handle instead.
+/// \see ezWorld
+/// \see ezComponent
+///
+/// \todo Implement Clone
+/// \todo Implement switching dynamic and static
+/// \todo Implement unique ids
 class EZ_CORE_DLL ezGameObject
 {
 private:
@@ -23,6 +35,7 @@ private:
   void operator=(const ezGameObject& other);
 
 public:
+  /// \brief Iterates over all children of one object.
   class EZ_CORE_DLL ChildIterator
   {
   public:
@@ -33,9 +46,13 @@ public:
 
     operator ezGameObject*() const;
 
+    /// \brief Advances the iterator to the next child object. The iterator will not be valid anymore, if the last child is reached.
     void Next();
+
+    /// \brief Checks whether this iterator points to a valid object.
     bool IsValid() const;
 
+    /// \brief Shorthand for 'Next'
     void operator++();
 
   private:
@@ -46,38 +63,60 @@ public:
     ezGameObject* m_pObject;
   };
 
+  /// \brief Returns a handle to this object.
   ezGameObjectHandle GetHandle() const;
   
-  /// \todo Implement Clone
   //ezGameObjectHandle Clone() const;
 
-  /// \todo Implement switching dynamic and static
   //void MakeDynamic();
   //void MakeStatic();
+  /// \brief Returns whether this object is dynamic.
   bool IsDynamic() const;
+
+  /// \brief Returns whether this object is static.
   bool IsStatic() const;
 
+
+  /// \brief Activates the object and all its components.
   void Activate();
+
+  /// \brief Deactivates the object and all its components.
   void Deactivate();
+
+  /// \brief Returns whether this object is active.
   bool IsActive() const;
 
-  /// \todo Implement unique ids
+
   //ezUInt64 GetUniqueId() const;
 
   void SetName(const char* szName);
   const char* GetName() const;
 
+
+  /// \brief Sets the parent of this object to the given. Note that the actual re-parenting is postponed.
   void SetParent(const ezGameObjectHandle& parent);
+
+  /// \brief Gets the parent of this object or nullptr if this is a toplevel object.
   ezGameObject* GetParent() const;
 
+  /// \brief Adds the given object as a child object. Note that the actual re-parenting is postponed.
   void AddChild(const ezGameObjectHandle& child);
+
+  /// \brief Adds the given objects as child objects. Note that the actual re-parenting is postponed.
   void AddChildren(const ezArrayPtr<const ezGameObjectHandle>& children);
 
+  /// \brief Removes the given child object from this object and makes it a toplevel object. Note that the actual re-parenting is postponed.
   void DetachChild(const ezGameObjectHandle& child);
+
+  /// \brief Removes the given child objects from this object and makes them toplevel objects. Note that the actual re-parenting is postponed.
   void DetachChildren(const ezArrayPtr<const ezGameObjectHandle>& children);
 
+  /// \brief Returns the number of children.
   ezUInt32 GetChildCount() const;
+
+  /// \brief Returns an iterator over all children of this object.
   ChildIterator GetChildren() const;
+
 
   ezWorld* GetWorld() const;
 
@@ -103,35 +142,49 @@ public:
   const ezTransform& GetWorldTransform() const;
 
   void SetVelocity(const ezVec3& vVelocity);
-  const ezVec3& GetVelocity() const;  
+  const ezVec3& GetVelocity() const;
 
-  // components
+
+  /// \brief Attaches the component to the object. Calls the OnAttachedToObject method on the component.
   ezResult AddComponent(const ezComponentHandle& component);
+
+  /// \brief Attaches the component to the object. Calls the OnAttachedToObject method on the component.
   ezResult AddComponent(ezComponent* pComponent);
 
+  /// \brief Removes the component from this object. Calls the OnDetachedFromObject method on the component. The component is still valid afterwards.
   ezResult RemoveComponent(const ezComponentHandle& component);
+
+  /// \brief Removes the component from this object. Calls the OnDetachedFromObject method on the component. The component is still valid afterwards.
   ezResult RemoveComponent(ezComponent* pComponent);
 
+  /// \brief Tries to find a component of the given base type in the objects components list and returns the first match.
   template <typename T>
   bool TryGetComponentOfBaseType(T*& out_pComponent) const;
 
+  /// \brief Tries to find components of the given base type in the objects components list and returns all matches.
   template <typename T>
   void TryGetComponentsOfBaseType(ezHybridArray<T*, 8>& out_components) const;
 
+  /// \brief Returns a list of all components attached to this object.
   ezArrayPtr<ezComponent*> GetComponents() const;
 
-  // messaging
-  void SendMessage(ezMessage& msg, ezBitflags<ezObjectMsgRouting> routing = ezObjectMsgRouting::Default);
+
+  /// \brief Sends a message to all components of this object. Depending on the routing options the message is also send to parents or children.
+  void SendMessage(ezMessage& msg, ezObjectMsgRouting::Enum routing = ezObjectMsgRouting::Default);
+
+  /// \brief Queues the message for the given phase and processes it later in that phase.
   void PostMessage(ezMessage& msg, ezObjectMsgQueueType::Enum queueType, 
-    ezBitflags<ezObjectMsgRouting> routing = ezObjectMsgRouting::Default);
+    ezObjectMsgRouting::Enum routing = ezObjectMsgRouting::Default);
+
+  /// \brief Queues the message for the given phase. The message is processed after the given delay in the corresponding phase.
   void PostMessage(ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay,
-    ezBitflags<ezObjectMsgRouting> routing = ezObjectMsgRouting::Default);
+    ezObjectMsgRouting::Enum routing = ezObjectMsgRouting::Default);
   
 private:
   friend class ezGameObjectTest;
 
   void FixComponentPointer(ezComponent* pOldPtr, ezComponent* pNewPtr);
-  void OnMessage(ezMessage& msg, ezBitflags<ezObjectMsgRouting> routing);
+  void OnMessage(ezMessage& msg, ezObjectMsgRouting::Enum routing);
 
   struct EZ_ALIGN_16(TransformationData)
   {

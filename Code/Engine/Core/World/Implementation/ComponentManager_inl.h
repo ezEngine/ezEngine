@@ -22,12 +22,6 @@ EZ_FORCE_INLINE ezUInt32 ezComponentManagerBase::GetComponentCount() const
   return m_Components.GetCount();
 }
 
-//static 
-EZ_FORCE_INLINE ezUInt16 ezComponentManagerBase::GetNextTypeId()
-{
-  return s_uiNextTypeId++;
-}
-
 //static
 EZ_FORCE_INLINE ezComponentId ezComponentManagerBase::GetIdFromHandle(const ezComponentHandle& component)
 {
@@ -120,14 +114,6 @@ EZ_FORCE_INLINE void ezComponentManager<T>::RegisterUpdateFunction(UpdateFunctio
     desc.m_uiGranularity = ezMath::Ceil((ezInt32)desc.m_uiGranularity, ezDataBlock<ComponentType>::CAPACITY);
 
   ezComponentManagerBase::RegisterUpdateFunction(desc);
-}
-
-///////////////////////////////////////////////////////////////////////////////////////////////////////
-
-template <typename ComponentType>
-ezComponentManagerNoUpdate<ComponentType>::ezComponentManagerNoUpdate(ezWorld* pWorld) : 
-  ezComponentManager<ComponentType>(pWorld)
-{
 }
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////

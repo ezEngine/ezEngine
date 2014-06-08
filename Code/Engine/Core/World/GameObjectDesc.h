@@ -4,6 +4,7 @@
 
 #include <Core/World/Declarations.h>
 
+/// \brief Describes the initial state of a game object.
 struct ezGameObjectDesc
 {
   EZ_DECLARE_POD_TYPE();

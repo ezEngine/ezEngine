@@ -51,7 +51,7 @@ void ShipComponent::Update()
   if (m_iHealth <= 0)
     return;
 
-  const ezVec3 vShipDir = m_pOwner->GetLocalRotation() * ezVec3(0, 1, 0);
+  const ezVec3 vShipDir = GetOwner()->GetLocalRotation() * ezVec3(0, 1, 0);
 
   if (!m_vVelocity.IsZero(0.001f))
   {
@@ -76,7 +76,7 @@ void ShipComponent::Update()
 
       ezBoundingSphere bs(pColliderObject->GetLocalPosition(), Collider.m_fCollisionRadius);
 
-      const ezVec3 vPos = m_pOwner->GetLocalPosition();
+      const ezVec3 vPos = GetOwner()->GetLocalPosition();
 
       if (!bs.Contains(vPos) && bs.GetLineSegmentIntersection(vPos, vPos + m_vVelocity))
       {
@@ -85,7 +85,7 @@ void ShipComponent::Update()
     }
   }
 
-  m_pOwner->SetLocalPosition(m_pOwner->GetLocalPosition() + m_vVelocity);
+  GetOwner()->SetLocalPosition(GetOwner()->GetLocalPosition() + m_vVelocity);
   m_vVelocity *= 0.97f;
 
   if (m_iCurShootCooldown > 0)
@@ -97,7 +97,7 @@ void ShipComponent::Update()
     m_iCurShootCooldown = m_iShootDelay;
 
     ezGameObjectDesc desc;
-    desc.m_LocalPosition = m_pOwner->GetLocalPosition();
+    desc.m_LocalPosition = GetOwner()->GetLocalPosition();
 
     ezGameObject* pProjectile = nullptr;
     ezGameObjectHandle hProjectile = GetWorld()->CreateObject(desc, pProjectile);
@@ -126,11 +126,11 @@ void ShipComponent::Update()
   m_iHealth = ezMath::Clamp(m_iHealth + 1, 0, 1000);
 
 
-  ezVec3 vCurPos = m_pOwner->GetLocalPosition();
+  ezVec3 vCurPos = GetOwner()->GetLocalPosition();
   vCurPos = vCurPos.CompMax(ezVec3(-20.0f));
   vCurPos = vCurPos.CompMin(ezVec3(20.0f));
 
-  m_pOwner->SetLocalPosition(vCurPos);
+  GetOwner()->SetLocalPosition(vCurPos);
 
 
   ezStringBuilder s, v;

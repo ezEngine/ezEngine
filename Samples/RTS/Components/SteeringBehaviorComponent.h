@@ -4,7 +4,7 @@
 #include <Core/World/GameObject.h>
 
 class SteeringBehaviorComponent;
-typedef ezComponentManagerNoUpdate<SteeringBehaviorComponent> SteeringBehaviorComponentManager;
+typedef ezComponentManager<SteeringBehaviorComponent> SteeringBehaviorComponentManager;
 
 class SteeringBehaviorComponent : public ezComponent
 {

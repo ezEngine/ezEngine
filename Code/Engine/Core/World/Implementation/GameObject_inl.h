@@ -217,7 +217,7 @@ EZ_FORCE_INLINE ezArrayPtr<ezComponent*> ezGameObject::GetComponents() const
   return m_Components;
 }
 
-EZ_FORCE_INLINE void ezGameObject::SendMessage(ezMessage& msg, ezBitflags<ezObjectMsgRouting> routing /*= MsgRouting::Default*/)
+EZ_FORCE_INLINE void ezGameObject::SendMessage(ezMessage& msg, ezObjectMsgRouting::Enum routing /*= ezObjectMsgRouting::Default*/)
 {
   OnMessage(msg, routing);
 }

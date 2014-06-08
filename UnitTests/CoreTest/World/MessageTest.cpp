@@ -22,7 +22,7 @@ namespace
   EZ_IMPLEMENT_MESSAGE_TYPE(TestMessage2);
 
   class TestComponentMsg;
-  typedef ezComponentManagerNoUpdate<TestComponentMsg> TestComponentMsgManager;
+  typedef ezComponentManager<TestComponentMsg> TestComponentMsgManager;
 
   class TestComponentMsg : public ezComponent
   {
@@ -206,40 +206,6 @@ EZ_CREATE_SIMPLE_TEST(World, Messaging)
     pRoot->TryGetComponentOfBaseType(pComponent);
     EZ_TEST_INT(pComponent->m_iSomeData, 1);
     EZ_TEST_INT(pComponent->m_iSomeData2, 2);
-  }
-
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Routing to parent and children")
-  {
-    ResetComponents(*pRoot);
-
-    TestMessage msg;
-    msg.m_iValue = 4;
-    pParents[0]->SendMessage(msg, ezObjectMsgRouting::ToParent | ezObjectMsgRouting::ToChildren);
-
-    TestMessage2 msg2;
-    msg2.m_iValue = 4;
-    pParents[0]->SendMessage(msg2, ezObjectMsgRouting::ToParent | ezObjectMsgRouting::ToChildren);
-
-    TestComponentMsg* pComponent = nullptr;
-    pParents[0]->TryGetComponentOfBaseType(pComponent);
-    EZ_TEST_INT(pComponent->m_iSomeData, 5);
-    EZ_TEST_INT(pComponent->m_iSomeData2, 10);
-
-    pRoot->TryGetComponentOfBaseType(pComponent);
-    EZ_TEST_INT(pComponent->m_iSomeData, 5);
-    EZ_TEST_INT(pComponent->m_iSomeData2, 10);
-
-    for (auto it = pParents[0]->GetChildren(); it.IsValid(); ++it)
-    {
-      it->TryGetComponentOfBaseType(pComponent);
-      EZ_TEST_INT(pComponent->m_iSomeData, 5);
-      EZ_TEST_INT(pComponent->m_iSomeData2, 10);
-    }
-
-    // siblings should not be affected
-    pParents[1]->TryGetComponentOfBaseType(pComponent);
-    EZ_TEST_INT(pComponent->m_iSomeData, 1);    
-    EZ_TEST_INT(pComponent->m_iSomeData2, 2);    
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Routing to sub-tree")

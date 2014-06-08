@@ -4,7 +4,8 @@
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezComponent, ezReflectedClass, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
-ezUInt16 ezComponent::TYPE_ID = ezComponentManagerBase::GetNextTypeId();
+ezUInt16 ezComponent::TYPE_ID = ezComponent::GetNextTypeId();
+ezUInt16 ezComponent::s_uiNextTypeId;
 
 void ezComponent::Activate()
 {
