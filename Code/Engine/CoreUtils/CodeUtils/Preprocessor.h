@@ -137,6 +137,10 @@ private: // *** Macro Expansion ***
 
   ezResult InsertParameters(const TokenStream& Tokens, TokenStream& Output, const MacroDefinition& Macro);
 
+  ezResult InsertStringifiedParameters(const TokenStream& Tokens, TokenStream& Output, const MacroDefinition& Macro);
+  ezResult ConcatenateParameters(const TokenStream& Tokens, TokenStream& Output, const MacroDefinition& Macro);
+  void MergeTokens(const ezToken* pFirst, const ezToken* pSecond, TokenStream& Output, const MacroDefinition& Macro);
+
   struct CustomToken
   {
     ezToken m_Token;

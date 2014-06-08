@@ -2,7 +2,6 @@
 #include <CoreUtils/CodeUtils/Preprocessor.h>
 
 // TODO:
-// concatenation
 // __LINE__
 // __FILE__
 
