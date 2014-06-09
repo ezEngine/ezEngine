@@ -29,6 +29,7 @@ Milestone 5
     * The different update phases have been fixed
   * Changed some of the macros of the reflection system to be easier to use.
   * Fixed some issues compiling ez on Windows 8 and Windows 8.1
+  * Added ezPreprocessor, a class that allows to run a C preprocessor on text and get the result, it supports all the standard features
 
   
 Milestone 4

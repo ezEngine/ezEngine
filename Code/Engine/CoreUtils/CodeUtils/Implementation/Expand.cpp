@@ -51,9 +51,17 @@ ezResult ezPreprocessor::Expand(const TokenStream& Tokens, TokenStream& Output)
 
 ezResult ezPreprocessor::ExpandOnce(const TokenStream& Tokens, TokenStream& Output)
 {
+  const bool bIsOutermost = m_sCurrentFileStack.PeekBack().m_iExpandDepth == 0;
+
+  ++m_sCurrentFileStack.PeekBack().m_iExpandDepth;
+
   for (ezUInt32 uiCurToken = 0; uiCurToken < Tokens.GetCount();)
   {
     EZ_ASSERT(Tokens[uiCurToken]->m_iType < s_MacroParameter0, "Implementation error");
+
+    // if we are not inside some macro expansion, but on the top level, adjust the line counter
+    if (bIsOutermost)
+      m_sCurrentFileStack.PeekBack().m_iCurrentLine = (ezInt32) Tokens[uiCurToken]->m_uiLine;
 
     // if it is no identifier, it cannot be a macro -> just pass it through
     if (Tokens[uiCurToken]->m_iType != ezTokenType::Identifier)
@@ -80,7 +88,7 @@ ezResult ezPreprocessor::ExpandOnce(const TokenStream& Tokens, TokenStream& Outp
 
     if (!itMacro.Value().m_bIsFunction)
     {
-      ExpandObjectMacro(itMacro.Value(), Output);
+      ExpandObjectMacro(itMacro.Value(), Output, Tokens[uiIdentifierToken]);
       ++uiCurToken; // move uiCurToken after the object macro token
       continue;
     }
@@ -119,6 +127,7 @@ ezResult ezPreprocessor::ExpandOnce(const TokenStream& Tokens, TokenStream& Outp
     EZ_REPORT_FAILURE("The loop body's end should never be reached.");
   }
 
+  --m_sCurrentFileStack.PeekBack().m_iExpandDepth;
   return EZ_SUCCESS;
 }
 
@@ -134,12 +143,40 @@ void ezPreprocessor::OutputNotExpandableMacro(MacroDefinition& Macro, TokenStrea
   Output.PushBack(pNewToken);
 }
 
-ezResult ezPreprocessor::ExpandObjectMacro(MacroDefinition& Macro, TokenStream& Output)
+ezResult ezPreprocessor::ExpandObjectMacro(MacroDefinition& Macro, TokenStream& Output, const ezToken* pMacroToken)
 {
   // when the macro is already being expanded, just pass the macro name through, but flag it as not to be expanded further
   if (Macro.m_bCurrentlyExpanding)
   {
     OutputNotExpandableMacro(Macro, Output);
+    return EZ_SUCCESS;
+  }
+
+  const ezString sMacroName = pMacroToken->m_DataView;
+
+  if (sMacroName == "__FILE__")
+  {
+    EZ_ASSERT(!m_sCurrentFileStack.IsEmpty(), "Implementation error");
+
+    ezStringBuilder sName = "\"";
+    sName.Append(m_sCurrentFileStack.PeekBack().m_sFileName.GetData(), "\"");
+
+    ezToken* pNewToken = AddCustomToken(pMacroToken, sName.GetData());
+    pNewToken->m_iType = ezTokenType::String1;
+
+    Output.PushBack(pNewToken);
+    return EZ_SUCCESS;
+  }
+
+  if (sMacroName == "__LINE__")
+  {
+    ezStringBuilder sLine;
+    sLine.Format("%i", m_sCurrentFileStack.PeekBack().m_iCurrentLine + m_sCurrentFileStack.PeekBack().m_iLineOffset);
+
+    ezToken* pNewToken = AddCustomToken(pMacroToken, sLine.GetData());
+    pNewToken->m_iType = ezTokenType::Identifier;
+
+    Output.PushBack(pNewToken);
     return EZ_SUCCESS;
   }
 

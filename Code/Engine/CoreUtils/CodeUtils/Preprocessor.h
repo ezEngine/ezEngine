@@ -33,7 +33,24 @@ public: // *** File Handling ***
 
   ezResult ProcessFile(const char* szFile, TokenStream& TokenOutput);
 
-  ezDeque<ezString> m_sCurrentFileStack;
+private:
+
+  struct FileData
+  {
+    FileData()
+    {
+      m_iCurrentLine = 1;
+      m_iExpandDepth = 0;
+      m_iLineOffset = 0;
+    }
+
+    ezString m_sFileName;
+    ezInt32 m_iCurrentLine;
+    ezInt32 m_iExpandDepth;
+    ezInt32 m_iLineOffset;
+  };
+
+  ezDeque<FileData> m_sCurrentFileStack;
 
 public: // *** Macro Definition ***
 
@@ -126,7 +143,7 @@ private: // *** Parsing ***
 private: // *** Macro Expansion ***
   ezResult Expand(const TokenStream& Tokens, TokenStream& Output);
   ezResult ExpandOnce(const TokenStream& Tokens, TokenStream& Output);
-  ezResult ExpandObjectMacro(MacroDefinition& Macro, TokenStream& Output);
+  ezResult ExpandObjectMacro(MacroDefinition& Macro, TokenStream& Output, const ezToken* pMacroToken);
   ezResult ExpandFunctionMacro(MacroDefinition& Macro, const MacroParameters& Parameters, TokenStream& Output);
   ezResult ExpandMacroParam(const ezToken& MacroToken, ezUInt32 uiParam, TokenStream& Output, const MacroDefinition& Macro);
   void PassThroughFunctionMacro(MacroDefinition& Macro, const MacroParameters& Parameters, TokenStream& Output);
@@ -174,6 +191,7 @@ private: // *** Other ***
   ezResult HandleElse(const TokenStream& Tokens, ezUInt32 uiCurToken, ezUInt32 uiDirectiveToken);
   ezResult HandleIfdef(const TokenStream& Tokens, ezUInt32 uiCurToken, ezUInt32 uiDirectiveToken, bool bIsIfdef);
   ezResult HandleInclude(const TokenStream& Tokens, ezUInt32 uiCurToken, ezUInt32 uiDirectiveToken, TokenStream& TokenOutput);
+  ezResult HandleLine(const TokenStream& Tokens, ezUInt32 uiCurToken, ezUInt32 uiDirectiveToken);
 };
 
 #define PP_LOG0(Type, FormatStr, ErrorToken) \

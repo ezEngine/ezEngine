@@ -1,9 +1,9 @@
 #include <CoreUtils/PCH.h>
 #include <CoreUtils/CodeUtils/Preprocessor.h>
+#include <Foundation/Utilities/ConversionUtils.h>
 
 // TODO:
-// __LINE__
-// __FILE__
+// setting defines via public interface
 
 ezString ezPreprocessor::s_ParamNames[32];
 
@@ -51,7 +51,10 @@ ezResult ezPreprocessor::ProcessFile(const char* szFile, TokenStream& TokenOutpu
   if (OpenFile(szFile, &pTokenizer).Failed())
     return EZ_FAILURE;
 
-  m_sCurrentFileStack.PushBack(szFile);
+  FileData fd;
+  fd.m_sFileName = szFile;
+
+  m_sCurrentFileStack.PushBack(fd);
 
   ezUInt32 uiNextToken = 0;
   TokenStream TokensLine;
@@ -109,6 +112,36 @@ ezResult ezPreprocessor::Process(const char* szMainFile, TokenStream& TokenOutpu
 {
   TokenOutput.Clear();
 
+  ezToken TokenFile, TokenLine;
+
+  // Add a custom define for the __FILE__ macro
+  {
+    TokenFile.m_DataView = ezStringIterator("__FILE__");
+    TokenFile.m_iType = ezTokenType::Identifier;
+  
+    MacroDefinition md;
+    md.m_MacroIdentifier = &TokenFile;
+    md.m_bIsFunction = false;
+    md.m_iNumParameters = 0;
+    md.m_bHasVarArgs = false;
+
+    m_Macros.Insert("__FILE__", md);
+  }
+
+  // Add a custom define for the __LINE__ macro
+  {
+    TokenLine.m_DataView = ezStringIterator("__LINE__");
+    TokenLine.m_iType = ezTokenType::Identifier;
+  
+    MacroDefinition md;
+    md.m_MacroIdentifier = &TokenLine;
+    md.m_bIsFunction = false;
+    md.m_iNumParameters = 0;
+    md.m_bHasVarArgs = false;
+
+    m_Macros.Insert("__LINE__", md);
+  }
+
   m_IfdefActiveStack.Clear();
   m_IfdefActiveStack.PushBack(IfDefActivity::IsActive);
 
@@ -162,7 +195,7 @@ ezResult ezPreprocessor::ProcessCmd(const TokenStream& Tokens, TokenStream& Toke
     if (Accept(Tokens, uiTempPos, "pragma") && Accept(Tokens, uiTempPos, "once"))
     {
       uiCurToken = uiTempPos;
-      m_PragmaOnce.Insert(m_sCurrentFileStack.PeekBack());
+      m_PragmaOnce.Insert(m_sCurrentFileStack.PeekBack().m_sFileName);
 
       return ExpectEndOfLine(Tokens, uiCurToken);
     }
@@ -190,6 +223,9 @@ ezResult ezPreprocessor::ProcessCmd(const TokenStream& Tokens, TokenStream& Toke
   if (m_IfdefActiveStack.PeekBack() != IfDefActivity::IsActive)
     return EZ_SUCCESS;
 
+  if (Accept(Tokens, uiCurToken, "line"))
+    return HandleLine(Tokens, uiCurToken, uiAccepted);
+
   if (Accept(Tokens, uiCurToken, "include"))
     return HandleInclude(Tokens, uiCurToken, uiAccepted, TokenOutput);
 
@@ -214,6 +250,44 @@ ezResult ezPreprocessor::ProcessCmd(const TokenStream& Tokens, TokenStream& Toke
 
   PP_LOG0(Error, "Expected a preprocessor command", Tokens[0]);
   return EZ_FAILURE;
+}
+
+ezResult ezPreprocessor::HandleLine(const TokenStream& Tokens, ezUInt32 uiCurToken, ezUInt32 uiDirectiveToken)
+{
+  ezUInt32 uiNumberToken = 0;
+  if (Expect(Tokens, uiCurToken, ezTokenType::Identifier, &uiNumberToken).Failed())
+    return EZ_FAILURE;
+
+  ezInt32 iNextLine = 0;
+
+  const ezString sNumber = Tokens[uiNumberToken]->m_DataView;
+  if (ezConversionUtils::StringToInt(sNumber.GetData(), iNextLine).Failed())
+  {
+    PP_LOG(Error, "Could not parse '%s' as a line number", Tokens[uiNumberToken], sNumber.GetData());
+    return EZ_FAILURE;
+  }
+
+  m_sCurrentFileStack.PeekBack().m_iLineOffset = (iNextLine - Tokens[uiNumberToken]->m_uiLine) - 1;
+
+  ezUInt32 uiFileNameToken = 0;
+  if (Accept(Tokens, uiCurToken, ezTokenType::String1, &uiFileNameToken))
+  {
+    ezStringBuilder sFileName = Tokens[uiFileNameToken]->m_DataView;
+    sFileName.Shrink(1, 1); // remove surrounding "
+    m_sCurrentFileStack.PeekBack().m_sFileName = sFileName;
+  }
+  else
+  {
+    if (ExpectEndOfLine(Tokens, uiCurToken).Failed())
+      return EZ_FAILURE;
+  }
+
+  // there is one case that is not handled here:
+  // when the #line directive appears other than '#line number [file]', then the other parameters should be expanded
+  // and then checked again for the above form
+  // since this is probably not in common use, we ignore this case
+
+  return EZ_SUCCESS;
 }
 
 ezResult ezPreprocessor::HandleIfdef(const TokenStream& Tokens, ezUInt32 uiCurToken, ezUInt32 uiDirectiveToken, bool bIsIfdef)

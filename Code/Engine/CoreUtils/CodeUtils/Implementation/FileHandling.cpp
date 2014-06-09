@@ -108,7 +108,7 @@ ezResult ezPreprocessor::HandleInclude(const TokenStream& Tokens, ezUInt32 uiCur
 
   ezString sOtherFile;
 
-  if (m_FileLocatorCallback(m_sCurrentFileStack.PeekBack().GetData(), sPath.GetData(), IncType, sOtherFile).Failed())
+  if (m_FileLocatorCallback(m_sCurrentFileStack.PeekBack().m_sFileName.GetData(), sPath.GetData(), IncType, sOtherFile).Failed())
   {
     PP_LOG(Error, "#include file '%s' could not be located", Tokens[uiAccepted], sPath.GetData());
     return EZ_FAILURE;
