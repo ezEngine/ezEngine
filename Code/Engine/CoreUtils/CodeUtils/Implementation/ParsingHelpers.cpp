@@ -236,7 +236,7 @@ void ezPreprocessor::CombineRelevantTokensToString(const TokenStream& Tokens, ez
   }
 }
 
-void ezPreprocessor::CombineTokensToString(const TokenStream& Tokens, ezUInt32 uiCurToken, ezStringBuilder& sResult)
+void ezPreprocessor::CombineTokensToString(const TokenStream& Tokens, ezUInt32 uiCurToken, ezStringBuilder& sResult, bool bKeepComments)
 {
   sResult.Clear();
   ezStringBuilder sTemp;
@@ -245,6 +245,12 @@ void ezPreprocessor::CombineTokensToString(const TokenStream& Tokens, ezUInt32 u
   {
     if (Tokens[t]->m_iType == ezTokenType::EndOfFile)
         return;
+
+    // skip all comments, if not desired
+    if ((Tokens[t]->m_iType == ezTokenType::BlockComment ||
+        Tokens[t]->m_iType == ezTokenType::LineComment) &&
+        !bKeepComments)
+        continue;
 
     sTemp = Tokens[t]->m_DataView;
     sResult.Append(sTemp.GetData());

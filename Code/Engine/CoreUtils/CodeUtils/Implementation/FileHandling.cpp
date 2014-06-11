@@ -1,5 +1,108 @@
 #include <CoreUtils/PCH.h>
 #include <CoreUtils/CodeUtils/Preprocessor.h>
+#include <Foundation/Utilities/ConversionUtils.h>
+
+ezMap<ezString, ezTokenizer>::ConstIterator ezTokenizedFileCache::Lookup(const ezString& sFileName) const
+{
+  EZ_LOCK(m_Mutex);
+  auto it = m_Cache.Find(sFileName);
+  return it;
+}
+
+void ezTokenizedFileCache::Remove(const ezString& sFileName)
+{
+  EZ_LOCK(m_Mutex);
+  m_Cache.Erase(sFileName);
+}
+
+void ezTokenizedFileCache::Clear()
+{
+  EZ_LOCK(m_Mutex);
+  m_Cache.Clear();
+}
+
+static void SkipWhitespace(ezDeque<ezToken>& Tokens, ezUInt32& uiCurToken)
+{
+  while (uiCurToken < Tokens.GetCount() && 
+          (Tokens[uiCurToken].m_iType == ezTokenType::BlockComment ||
+           Tokens[uiCurToken].m_iType == ezTokenType::LineComment ||
+           Tokens[uiCurToken].m_iType == ezTokenType::Newline ||
+           Tokens[uiCurToken].m_iType == ezTokenType::Whitespace))
+    ++uiCurToken;
+}
+
+const ezTokenizer* ezTokenizedFileCache::Tokenize(const ezString& sFileName, const ezDynamicArray<ezUInt8>& FileContent, ezLogInterface* pLog)
+{
+  EZ_LOCK(m_Mutex);
+  ezTokenizer* pTokenizer = &m_Cache[sFileName];
+  pTokenizer->Tokenize(FileContent, pLog);
+
+  ezDeque<ezToken>& Tokens = pTokenizer->GetTokens();
+
+  ezHashedString sFile;
+  sFile.Assign(sFileName.GetData());
+
+  ezInt32 iLineOffset = 0;
+
+  for (ezUInt32 i = 0; i + 1 < Tokens.GetCount(); ++i)
+  {
+    const ezUInt32 uiCurLine = Tokens[i].m_uiLine;
+
+    Tokens[i].m_File = sFile;
+    Tokens[i].m_uiLine += iLineOffset;
+
+    if (Tokens[i].m_iType == ezTokenType::NonIdentifier &&
+        ezString(Tokens[i].m_DataView) == "#")
+    {
+      ezUInt32 uiNext = i + 1;
+
+      SkipWhitespace(Tokens, uiNext);
+
+      if (uiNext < Tokens.GetCount() && 
+          Tokens[uiNext].m_iType == ezTokenType::Identifier &&
+          ezString(Tokens[uiNext].m_DataView) == "line")
+      {
+        ++uiNext;
+        SkipWhitespace(Tokens, uiNext);
+
+        if (uiNext < Tokens.GetCount() && 
+            Tokens[uiNext].m_iType == ezTokenType::Identifier)
+        {
+          ezInt32 iNextLine = 0;
+
+          const ezString sNumber = Tokens[uiNext].m_DataView;
+          if (ezConversionUtils::StringToInt(sNumber.GetData(), iNextLine).Succeeded())
+          {
+            iLineOffset = (iNextLine - uiCurLine) - 1;
+
+            ++uiNext;
+            SkipWhitespace(Tokens, uiNext);
+
+            if (uiNext < Tokens.GetCount())
+            {
+              if (Tokens[uiNext].m_iType == ezTokenType::String1)
+              {
+                ezStringBuilder sFileName = Tokens[uiNext].m_DataView;
+                sFileName.Shrink(1, 1); // remove surrounding "
+
+                sFile.Assign(sFileName.GetData());
+              }
+              else
+                { /* TODO: ERROR */ }
+            }
+          }
+          else
+            { /* TODO: ERROR */ }
+        }
+        else
+          { /* TODO: ERROR */ }
+      }
+    }
+  }
+
+  return pTokenizer;
+}
+
 
 void ezPreprocessor::SetLogInterface(ezLogInterface* pLog)
 {
@@ -12,14 +115,14 @@ void ezPreprocessor::SetFileCallbacks(FileOpenCB OpenAbsFileCB, FileLocatorCB Lo
   m_FileLocatorCallback = LocateAbsFileCB;
 }
 
-ezResult ezPreprocessor::OpenFile(const char* szFile, ezTokenizer** pTokenizer)
+ezResult ezPreprocessor::OpenFile(const char* szFile, const ezTokenizer** pTokenizer)
 {
   EZ_ASSERT(m_FileOpenCallback != nullptr, "OpenFile callback has not been set");
   EZ_ASSERT(m_FileLocatorCallback != nullptr, "File locator callback has not been set");
 
   *pTokenizer = nullptr;
 
-  auto it = m_FileCache.Find(szFile);
+  auto it = m_pUsedFileCache->Lookup(szFile);
 
   if (it.IsValid())
   {
@@ -34,8 +137,8 @@ ezResult ezPreprocessor::OpenFile(const char* szFile, ezTokenizer** pTokenizer)
     return EZ_FAILURE;
   }
 
-  *pTokenizer = &m_FileCache[szFile];
-  (*pTokenizer)->Tokenize(Content, ezGlobalLog::GetInstance());
+  *pTokenizer = m_pUsedFileCache->Tokenize(szFile, Content, m_pLog);
+
 
   return EZ_SUCCESS;
 }

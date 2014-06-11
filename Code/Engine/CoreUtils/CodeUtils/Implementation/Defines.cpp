@@ -1,11 +1,6 @@
 #include <CoreUtils/PCH.h>
 #include <CoreUtils/CodeUtils/Preprocessor.h>
 
-void ezPreprocessor::ClearDefines()
-{
-  m_Macros.Clear();
-}
-
 bool ezPreprocessor::RemoveDefine(const char* szName)
 {
   auto it = m_Macros.Find(szName);
@@ -59,7 +54,7 @@ ezResult ezPreprocessor::StoreDefine(const ezToken* pMacroNameToken, const Token
   return EZ_SUCCESS;
 }
 
-ezResult ezPreprocessor::AddDefine(const TokenStream& Tokens, ezUInt32& uiCurToken)
+ezResult ezPreprocessor::HandleDefine(const TokenStream& Tokens, ezUInt32& uiCurToken)
 {
   SkipWhitespace(Tokens, uiCurToken);
 
@@ -73,7 +68,6 @@ ezResult ezPreprocessor::AddDefine(const TokenStream& Tokens, ezUInt32& uiCurTok
   {
     ezStringBuilder sDefine = Tokens[uiNameToken]->m_DataView;
 
-    PP_LOG(Dev, "Empty Macro definition: '%s'", Tokens[uiNameToken], sDefine.GetData());
     StoreDefine(Tokens[uiNameToken], nullptr, 0, -1, false);
     return EZ_SUCCESS;
   }
@@ -136,5 +130,22 @@ ezResult ezPreprocessor::AddDefine(const TokenStream& Tokens, ezUInt32& uiCurTok
   }
 
   return EZ_SUCCESS;
+}
+
+ezResult ezPreprocessor::AddCustomDefine(const char* szDefinition)
+{
+  m_CustomDefines.PushBack();
+  m_CustomDefines.PeekBack().m_Content.SetCount(ezStringUtils::GetStringElementCount(szDefinition));
+  ezMemoryUtils::Copy(&m_CustomDefines.PeekBack().m_Content[0], (ezUInt8*) szDefinition, m_CustomDefines.PeekBack().m_Content.GetCount());
+  m_CustomDefines.PeekBack().m_Tokenized.Tokenize(m_CustomDefines.PeekBack().m_Content, m_pLog);
+
+  ezUInt32 uiFirstToken = 0;
+  ezHybridArray<const ezToken*, 32> Tokens;
+
+  if (m_CustomDefines.PeekBack().m_Tokenized.GetNextLine(uiFirstToken, Tokens).Failed())
+    return EZ_FAILURE;
+
+  ezUInt32 uiCurToken = 0;
+  return HandleDefine(Tokens, uiCurToken);
 }
 

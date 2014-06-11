@@ -116,7 +116,7 @@ ezResult ezPreprocessor::ExtractAllMacroParameters(const TokenStream& Tokens, ez
 ezResult ezPreprocessor::ExtractParameterValue(const TokenStream& Tokens, ezUInt32& uiCurToken, TokenStream& ParamTokens)
 {
   SkipWhitespaceAndNewline(Tokens, uiCurToken);
-  const ezUInt32 uiFirstToken = uiCurToken;
+  const ezUInt32 uiFirstToken = ezMath::Min(uiCurToken, Tokens.GetCount() - 1);
 
   ezInt32 iParenthesis = 0;
 
@@ -146,7 +146,7 @@ ezResult ezPreprocessor::ExtractParameterValue(const TokenStream& Tokens, ezUInt
 
     ParamTokens.PushBack(Tokens[uiCurToken]);
   }
-
+  
   // reached the end of the stream without encountering the closing parenthesis first
   PP_LOG0(Error, "Unexpected end of file during macro parameter extraction", Tokens[uiFirstToken]);
   return EZ_FAILURE;

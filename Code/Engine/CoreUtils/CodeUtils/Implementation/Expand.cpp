@@ -109,7 +109,7 @@ ezResult ezPreprocessor::ExpandOnce(const TokenStream& Tokens, TokenStream& Outp
 
       // uiCurToken is now after the )
 
-      if (ExpandFunctionMacro(itMacro.Value(), AllParameters, Output).Failed())
+      if (ExpandFunctionMacro(itMacro.Value(), AllParameters, Output, Tokens[uiIdentifierToken]).Failed())
         return EZ_FAILURE;
 
       continue;
@@ -154,29 +154,40 @@ ezResult ezPreprocessor::ExpandObjectMacro(MacroDefinition& Macro, TokenStream& 
 
   const ezString sMacroName = pMacroToken->m_DataView;
 
+  ProcessingEvent pe;
+  pe.m_pToken = pMacroToken;
+  pe.m_Type = ProcessingEvent::BeginExpansion;
+  m_ProcessingEvents.Broadcast(pe);
+
+  pe.m_Type = ProcessingEvent::EndExpansion;
+
   if (sMacroName == "__FILE__")
   {
     EZ_ASSERT(!m_sCurrentFileStack.IsEmpty(), "Implementation error");
 
     ezStringBuilder sName = "\"";
-    sName.Append(m_sCurrentFileStack.PeekBack().m_sFileName.GetData(), "\"");
+    sName.Append(m_sCurrentFileStack.PeekBack().m_sVirtualFileName.GetData(), "\"");
 
     ezToken* pNewToken = AddCustomToken(pMacroToken, sName.GetData());
     pNewToken->m_iType = ezTokenType::String1;
 
     Output.PushBack(pNewToken);
+
+    m_ProcessingEvents.Broadcast(pe);
     return EZ_SUCCESS;
   }
 
   if (sMacroName == "__LINE__")
   {
     ezStringBuilder sLine;
-    sLine.Format("%i", m_sCurrentFileStack.PeekBack().m_iCurrentLine + m_sCurrentFileStack.PeekBack().m_iLineOffset);
+    sLine.Format("%i", m_sCurrentFileStack.PeekBack().m_iCurrentLine);
 
     ezToken* pNewToken = AddCustomToken(pMacroToken, sLine.GetData());
     pNewToken->m_iType = ezTokenType::Identifier;
 
     Output.PushBack(pNewToken);
+
+    m_ProcessingEvents.Broadcast(pe);
     return EZ_SUCCESS;
   }
 
@@ -187,6 +198,7 @@ ezResult ezPreprocessor::ExpandObjectMacro(MacroDefinition& Macro, TokenStream& 
 
   Macro.m_bCurrentlyExpanding = false;
 
+  m_ProcessingEvents.Broadcast(pe);
   return EZ_SUCCESS;
 }
 
@@ -499,7 +511,7 @@ ezResult ezPreprocessor::InsertParameters(const TokenStream& Tokens, TokenStream
   return EZ_SUCCESS;
 }
 
-ezResult ezPreprocessor::ExpandFunctionMacro(MacroDefinition& Macro, const MacroParameters& Parameters, TokenStream& Output)
+ezResult ezPreprocessor::ExpandFunctionMacro(MacroDefinition& Macro, const MacroParameters& Parameters, TokenStream& Output, const ezToken* pMacroToken)
 {
   // when the macro is already being expanded, just pass the macro name through, but flag it as not to be expanded further
   if (Macro.m_bCurrentlyExpanding)
@@ -508,6 +520,14 @@ ezResult ezPreprocessor::ExpandFunctionMacro(MacroDefinition& Macro, const Macro
     PassThroughFunctionMacro(Macro, Parameters, Output);
     return EZ_SUCCESS;
   }
+
+  ProcessingEvent pe;
+  pe.m_pToken = pMacroToken;
+  pe.m_Type = ProcessingEvent::BeginExpansion;
+  m_ProcessingEvents.Broadcast(pe);
+
+  pe.m_Type = ProcessingEvent::EndExpansion;
+
 
   MacroParameters ExpandedParameters;
   ExpandedParameters.SetCount(Parameters.GetCount());
@@ -534,6 +554,8 @@ ezResult ezPreprocessor::ExpandFunctionMacro(MacroDefinition& Macro, const Macro
 
   m_MacroParamStack.PopBack();
   m_MacroParamStackExpanded.PopBack();
+
+  m_ProcessingEvents.Broadcast(pe);
 
   return EZ_SUCCESS;
 }

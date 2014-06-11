@@ -3,15 +3,21 @@
 #include <Foundation/Utilities/ConversionUtils.h>
 
 // TODO:
-// setting defines via public interface
+// documentation
+// cleanup
+// tests
 
 ezString ezPreprocessor::s_ParamNames[32];
 
 ezPreprocessor::ezPreprocessor()
 {
+  SetCustomFileCache();
   m_FileOpenCallback = nullptr;
   m_FileLocatorCallback = nullptr;
   m_pLog = nullptr;
+
+  m_bPassThroughPragma = false;
+  m_bPassThroughLine = false;
 
   ezStringBuilder s;
   for (ezUInt32 i = 0; i < 32; ++i)
@@ -29,7 +35,14 @@ ezPreprocessor::ezPreprocessor()
   m_TokenOpenParenthesis    = AddCustomToken(&dummy, "(");
   m_TokenClosedParenthesis  = AddCustomToken(&dummy, ")");
   m_TokenComma              = AddCustomToken(&dummy, ",");
+}
 
+void ezPreprocessor::SetCustomFileCache(ezTokenizedFileCache* pFileCache)
+{
+  m_pUsedFileCache = &m_InternalFileCache;
+
+  if (pFileCache != nullptr)
+    m_pUsedFileCache = pFileCache;
 }
 
 ezToken* ezPreprocessor::AddCustomToken(const ezToken* pPrevious, const char* szNewText)
@@ -46,13 +59,14 @@ ezToken* ezPreprocessor::AddCustomToken(const ezToken* pPrevious, const char* sz
 
 ezResult ezPreprocessor::ProcessFile(const char* szFile, TokenStream& TokenOutput)
 {
-  ezTokenizer* pTokenizer = nullptr;
+  const ezTokenizer* pTokenizer = nullptr;
 
   if (OpenFile(szFile, &pTokenizer).Failed())
     return EZ_FAILURE;
 
   FileData fd;
   fd.m_sFileName = szFile;
+  fd.m_sVirtualFileName = szFile;
 
   m_sCurrentFileStack.PushBack(fd);
 
@@ -112,15 +126,13 @@ ezResult ezPreprocessor::Process(const char* szMainFile, TokenStream& TokenOutpu
 {
   TokenOutput.Clear();
 
-  ezToken TokenFile, TokenLine;
-
   // Add a custom define for the __FILE__ macro
   {
-    TokenFile.m_DataView = ezStringIterator("__FILE__");
-    TokenFile.m_iType = ezTokenType::Identifier;
+    m_TokenFile.m_DataView = ezStringIterator("__FILE__");
+    m_TokenFile.m_iType = ezTokenType::Identifier;
   
     MacroDefinition md;
-    md.m_MacroIdentifier = &TokenFile;
+    md.m_MacroIdentifier = &m_TokenFile;
     md.m_bIsFunction = false;
     md.m_iNumParameters = 0;
     md.m_bHasVarArgs = false;
@@ -130,11 +142,11 @@ ezResult ezPreprocessor::Process(const char* szMainFile, TokenStream& TokenOutpu
 
   // Add a custom define for the __LINE__ macro
   {
-    TokenLine.m_DataView = ezStringIterator("__LINE__");
-    TokenLine.m_iType = ezTokenType::Identifier;
+    m_TokenLine.m_DataView = ezStringIterator("__LINE__");
+    m_TokenLine.m_iType = ezTokenType::Identifier;
   
     MacroDefinition md;
-    md.m_MacroIdentifier = &TokenLine;
+    md.m_MacroIdentifier = &m_TokenLine;
     md.m_bIsFunction = false;
     md.m_iNumParameters = 0;
     md.m_bHasVarArgs = false;
@@ -158,7 +170,7 @@ ezResult ezPreprocessor::Process(const char* szMainFile, TokenStream& TokenOutpu
   return EZ_SUCCESS;
 }
 
-ezResult ezPreprocessor::Process(const char* szMainFile, ezStringBuilder& sOutput)
+ezResult ezPreprocessor::Process(const char* szMainFile, ezStringBuilder& sOutput, bool bKeepComments)
 {
   sOutput.Clear();
 
@@ -167,7 +179,7 @@ ezResult ezPreprocessor::Process(const char* szMainFile, ezStringBuilder& sOutpu
     return EZ_FAILURE;
 
   // generate the final text output
-  CombineTokensToString(TokenOutput, 0, sOutput);
+  CombineTokensToString(TokenOutput, 0, sOutput, bKeepComments);
 
   return EZ_SUCCESS;
 }
@@ -197,6 +209,10 @@ ezResult ezPreprocessor::ProcessCmd(const TokenStream& Tokens, TokenStream& Toke
       uiCurToken = uiTempPos;
       m_PragmaOnce.Insert(m_sCurrentFileStack.PeekBack().m_sFileName);
 
+      // rather pointless to pass this through, as the output ends up as one big file
+      //if (m_bPassThroughPragma)
+      //  CopyRelevantTokens(Tokens, uiHashToken, TokenOutput);
+
       return ExpectEndOfLine(Tokens, uiCurToken);
     }
   }
@@ -223,14 +239,14 @@ ezResult ezPreprocessor::ProcessCmd(const TokenStream& Tokens, TokenStream& Toke
   if (m_IfdefActiveStack.PeekBack() != IfDefActivity::IsActive)
     return EZ_SUCCESS;
 
-  if (Accept(Tokens, uiCurToken, "line"))
-    return HandleLine(Tokens, uiCurToken, uiAccepted);
+  if (Accept(Tokens, uiCurToken, "line", &uiAccepted))
+    return HandleLine(Tokens, uiCurToken, uiHashToken, TokenOutput);
 
-  if (Accept(Tokens, uiCurToken, "include"))
+  if (Accept(Tokens, uiCurToken, "include", &uiAccepted))
     return HandleInclude(Tokens, uiCurToken, uiAccepted, TokenOutput);
 
   if (Accept(Tokens, uiCurToken, "define"))
-    return AddDefine(Tokens, uiCurToken);
+    return HandleDefine(Tokens, uiCurToken);
 
   if (Accept(Tokens, uiCurToken, "undef", &uiAccepted))
     return HandleUndef(Tokens, uiCurToken, uiAccepted);
@@ -242,9 +258,11 @@ ezResult ezPreprocessor::ProcessCmd(const TokenStream& Tokens, TokenStream& Toke
     return HandleWarningDirective(Tokens, uiCurToken, uiAccepted);
 
   // Pass #line and #pragma commands through unmodified, the user expects them to arrive in the final output properly
-  if (Accept(Tokens, uiCurToken, "line") || Accept(Tokens, uiCurToken, "pragma"))
+  if (Accept(Tokens, uiCurToken, "pragma"))
   {
-    CopyRelevantTokens(Tokens, uiHashToken, TokenOutput);
+    if (m_bPassThroughPragma)
+      CopyRelevantTokens(Tokens, uiHashToken, TokenOutput);
+
     return EZ_SUCCESS;
   }
 
@@ -252,8 +270,14 @@ ezResult ezPreprocessor::ProcessCmd(const TokenStream& Tokens, TokenStream& Toke
   return EZ_FAILURE;
 }
 
-ezResult ezPreprocessor::HandleLine(const TokenStream& Tokens, ezUInt32 uiCurToken, ezUInt32 uiDirectiveToken)
+ezResult ezPreprocessor::HandleLine(const TokenStream& Tokens, ezUInt32 uiCurToken, ezUInt32 uiHashToken, TokenStream& TokenOutput)
 {
+  // #line directives are just passed through
+  // however we check them for validity here
+
+  if (m_bPassThroughLine)
+    CopyRelevantTokens(Tokens, uiHashToken, TokenOutput);
+  
   ezUInt32 uiNumberToken = 0;
   if (Expect(Tokens, uiCurToken, ezTokenType::Identifier, &uiNumberToken).Failed())
     return EZ_FAILURE;
@@ -267,14 +291,12 @@ ezResult ezPreprocessor::HandleLine(const TokenStream& Tokens, ezUInt32 uiCurTok
     return EZ_FAILURE;
   }
 
-  m_sCurrentFileStack.PeekBack().m_iLineOffset = (iNextLine - Tokens[uiNumberToken]->m_uiLine) - 1;
-
   ezUInt32 uiFileNameToken = 0;
   if (Accept(Tokens, uiCurToken, ezTokenType::String1, &uiFileNameToken))
   {
     ezStringBuilder sFileName = Tokens[uiFileNameToken]->m_DataView;
     sFileName.Shrink(1, 1); // remove surrounding "
-    m_sCurrentFileStack.PeekBack().m_sFileName = sFileName;
+    m_sCurrentFileStack.PeekBack().m_sVirtualFileName = sFileName;
   }
   else
   {

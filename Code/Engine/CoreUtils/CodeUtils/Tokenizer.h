@@ -2,6 +2,7 @@
 #include <Foundation/IO/Stream.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Containers/Deque.h>
+#include <Foundation/Strings/HashedString.h>
 
 /// \brief Describes which kind of token an ezToken is.
 struct EZ_COREUTILS_DLL ezTokenType
@@ -50,6 +51,9 @@ struct EZ_COREUTILS_DLL ezToken
 
   /// For users to be able to store additional info for a token.
   ezUInt32 m_uiCustomFlags;
+
+  /// The file in which the token appeared.
+  ezHashedString m_File;
 };
 
 /// \brief Takes text and splits it up into ezToken objects. The result can be used for easier parsing.
@@ -76,6 +80,9 @@ public:
   /// \brief Gives read access to the token stream.
   const ezDeque<ezToken>& GetTokens() const { return m_Tokens; }
 
+  /// \brief Gives read and write access to the token stream.
+  ezDeque<ezToken>& GetTokens() { return m_Tokens; }
+
   /// \brief Returns an array of tokens that represent the next line in the file.
   ///
   /// Returns EZ_SUCCESS when there was more data to return, EZ_FAILURE if the end of the file was reached already.
@@ -86,7 +93,9 @@ public:
   /// That means all such sequences will be ignored. Therefore the tokens that are returned as one line might not
   /// contain all tokens that are actually in the stream. Also the tokens might have different line numbers, when
   /// two or more lines from the file are merged into one logical line.
-  ezResult GetNextLine(ezUInt32& uiFirstToken, ezHybridArray<const ezToken*, 32>& Tokens);
+  ezResult GetNextLine(ezUInt32& uiFirstToken, ezHybridArray<const ezToken*, 32>& Tokens) const;
+
+  ezResult GetNextLine(ezUInt32& uiFirstToken, ezHybridArray<ezToken*, 32>& Tokens);
 
 private:
   void NextChar();
