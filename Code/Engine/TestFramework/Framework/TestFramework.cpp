@@ -15,7 +15,7 @@ int ezTestFramework::s_iAssertCounter = 0;
 static bool TestAssertHandler(const char* szSourceFile, ezUInt32 uiLine, const char* szFunction, const char* szExpression, const char* szAssertMsg)
 {
   ezTestFramework::Error(szExpression, szSourceFile, (ezInt32)uiLine, szFunction, szAssertMsg);
-  return false;
+  return ezTestFramework::GetAssertOnTestFail();
 }
 
 ////////////////////////////////////////////////////////////////////////

@@ -1,0 +1,11 @@
+// Line comment
+#define OBJECT
+  // Line comment2
+
+ /* 
+  Block
+  Comment
+  */
+#define FUNCTION(a, b)
+
+OBJECT

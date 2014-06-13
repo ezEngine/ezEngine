@@ -3,8 +3,6 @@
 #include <Foundation/Utilities/ConversionUtils.h>
 
 // TODO:
-// documentation
-// cleanup
 // tests
 
 ezString ezPreprocessor::s_ParamNames[32];
@@ -124,6 +122,8 @@ ezResult ezPreprocessor::ProcessFile(const char* szFile, TokenStream& TokenOutpu
 
 ezResult ezPreprocessor::Process(const char* szMainFile, TokenStream& TokenOutput)
 {
+  EZ_ASSERT(m_FileLocatorCallback != nullptr, "No file locator callback has been set.");
+
   TokenOutput.Clear();
 
   // Add a custom define for the __FILE__ macro

@@ -87,15 +87,9 @@ const ezTokenizer* ezTokenizedFileCache::Tokenize(const ezString& sFileName, con
 
                 sFile.Assign(sFileName.GetData());
               }
-              else
-                { /* TODO: ERROR */ }
             }
           }
-          else
-            { /* TODO: ERROR */ }
         }
-        else
-          { /* TODO: ERROR */ }
       }
     }
   }
