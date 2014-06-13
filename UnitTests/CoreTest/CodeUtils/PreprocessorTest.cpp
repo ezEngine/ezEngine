@@ -36,18 +36,77 @@ ezResult FileLocator(const char* szCurAbsoluteFile, const char* szIncludeFile, e
   if (IncType == ezPreprocessor::RelativeInclude)
   {
     s = szCurAbsoluteFile;
+    s.PathParentDirectory();
+    s.AppendPath(szIncludeFile);
+    s.MakeCleanPath();
+  }
+  else if (IncType == ezPreprocessor::GlobalInclude)
+  {
+    s = "Preprocessor";
     s.AppendPath(szIncludeFile);
     s.MakeCleanPath();
   }
   else
-  {
     s = szIncludeFile;
-    s.MakeCleanPath();
-  }
 
   out_sAbsoluteFilePath = s;
   return EZ_SUCCESS;
 }
+
+class Logger : public ezLogInterface
+{
+public:
+  virtual void HandleLogMessage(const ezLoggingEventData& le) override
+  {
+    m_sOutput.AppendFormat("Log: '%s'\n", le.m_szText);
+  }
+
+  void EventHandler(const ezPreprocessor::ProcessingEvent& ed)
+  {
+    switch (ed.m_Type)
+    {
+    case ezPreprocessor::ProcessingEvent::Error:
+    case ezPreprocessor::ProcessingEvent::Warning:
+      m_EventStack.PushBack(ed);
+      break;
+    case ezPreprocessor::ProcessingEvent::BeginExpansion:
+      m_EventStack.PushBack(ed);
+      return;
+    case ezPreprocessor::ProcessingEvent::EndExpansion:
+      m_EventStack.PopBack();
+      return;
+    }
+
+    for (ezUInt32 i = 0; i < m_EventStack.GetCount(); ++i)
+    {
+      const ezPreprocessor::ProcessingEvent& event = m_EventStack[i];
+
+      if (event.m_pToken != nullptr)
+        m_sOutput.AppendFormat("%s: Line %u [%u]: ", event.m_pToken->m_File.GetString().GetData(), event.m_pToken->m_uiLine, event.m_pToken->m_uiColumn);
+
+      switch (event.m_Type)
+      {
+      case ezPreprocessor::ProcessingEvent::Error:
+        m_sOutput.Append("Error: ");
+        break;
+      case ezPreprocessor::ProcessingEvent::Warning:
+        m_sOutput.Append("Warning: ");
+        break;
+      case ezPreprocessor::ProcessingEvent::BeginExpansion:
+        m_sOutput.AppendFormat("In Macro: '%s'", ezString(event.m_pToken->m_DataView).GetData());
+        break;
+      case ezPreprocessor::ProcessingEvent::EndExpansion:
+        break;
+      }
+
+      m_sOutput.AppendFormat("%s\n", event.m_szInfo);
+    }
+  }
+
+  ezDeque<ezPreprocessor::ProcessingEvent> m_EventStack;
+  ezStringBuilder m_sOutput;
+};
+
 
 EZ_CREATE_SIMPLE_TEST(CodeUtils, Preprocessor)
 {
@@ -64,12 +123,15 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, Preprocessor)
   EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sWriteDir.GetData(), ezFileSystem::AllowWrites, "PreprocessorTest") == EZ_SUCCESS);
 
   ezTokenizedFileCache SharedCache;
-
+  
   {
     const char* szTestFiles[] =
     {
+      "BuildFlags",
       "Empty",
       "Test1", 
+      "FailedInclude",
+      
     };
 
     ezStringBuilder sOutput;
@@ -81,28 +143,33 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, Preprocessor)
     {
       EZ_TEST_BLOCK(ezTestBlock::Enabled, szTestFiles[i])
       {
+        Logger log;
+
         ezPreprocessor pp;
-        pp.SetLogInterface(ezGlobalLog::GetInstance());
+        pp.SetLogInterface(&log);
         pp.SetPassThroughLine(false);
         pp.SetPassThroughPragma(true);
         pp.SetFileCallbacks(FileOpen, FileLocator);
         pp.SetCustomFileCache(&SharedCache);
+        pp.m_ProcessingEvents.AddEventHandler(ezDelegate<void (const ezPreprocessor::ProcessingEvent&)>(&Logger::EventHandler, &log));
 
         {
           fileName.Format("Preprocessor/%s.txt", szTestFiles[i]);
           fileNameExp.Format("Preprocessor/%s - Expected.txt", szTestFiles[i]);
-
-          EZ_TEST_BOOL_MSG(ezFileSystem::ExistsFile(fileName.GetData()), "File does not exist: '%s'", fileName.GetData());
-          EZ_TEST_BOOL_MSG(pp.Process(fileName.GetData(), sOutput) == EZ_SUCCESS, "Processing failed: '%s'", fileName.GetData());
-        }
-
-        {
           fileNameOut.Format("Preprocessor/%s - Result.txt", szTestFiles[i]);
 
+          EZ_TEST_BOOL_MSG(ezFileSystem::ExistsFile(fileName.GetData()), "File does not exist: '%s'", fileName.GetData());
+
+          ezFileWriter fout;
+          EZ_VERIFY(fout.Open(fileNameOut.GetData()).Succeeded(), "Could not create output file '%s'", fileNameOut.GetData());
+
+          if (pp.Process(fileName.GetData(), sOutput) == EZ_SUCCESS)
           {
-            ezFileWriter fout;
-            if (fout.Open(fileNameOut.GetData()).Succeeded())
-              fout.WriteBytes(sOutput.GetData(), sOutput.GetElementCount());
+            fout.WriteBytes(sOutput.GetData(), sOutput.GetElementCount());
+          }
+          else
+          {
+            fout.WriteBytes(log.m_sOutput.GetData(), log.m_sOutput.GetElementCount());
           }
 
           EZ_TEST_BOOL_MSG(ezFileSystem::ExistsFile(fileNameOut.GetData()), "Output file is missing: '%s'", fileNameOut.GetData());

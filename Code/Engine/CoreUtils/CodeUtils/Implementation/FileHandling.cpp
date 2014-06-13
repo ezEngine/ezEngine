@@ -212,10 +212,10 @@ ezResult ezPreprocessor::HandleInclude(const TokenStream& Tokens, ezUInt32 uiCur
   }
 
   // if this has been included before, and contains a #pragma once, do not include it again
-  if (m_PragmaOnce.Find(sPath.GetData()).IsValid())
+  if (m_PragmaOnce.Find(sOtherFile.GetData()).IsValid())
     return EZ_SUCCESS;
 
-  if (ProcessFile(sPath.GetData(), TokenOutput).Failed())
+  if (ProcessFile(sOtherFile.GetData(), TokenOutput).Failed())
     return EZ_FAILURE;
 
   return EZ_SUCCESS;

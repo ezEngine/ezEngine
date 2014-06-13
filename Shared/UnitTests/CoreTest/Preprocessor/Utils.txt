@@ -1,0 +1,9 @@
+#define EZ_CONCAT(x,y) EZ_CONCAT_HELPER(x,y)
+#define EZ_CONCAT_HELPER(x,y) EZ_CONCAT_HELPER2(x,y)
+#define EZ_CONCAT_HELPER2(x,y) x##y
+#define EZ_STRINGIZE(str) EZ_STRINGIZE_HELPER(str)
+#define EZ_STRINGIZE_HELPER(x) #x
+#define EZ_COMPILE_TIME_MAX(a, b) ((a) > (b) ? (a) : (b))
+#define EZ_COMPILE_TIME_MIN(a, b) ((a) < (b) ? (a) : (b))
+#define EZ_BIT(n) (1U << (n))
+#pragma once
