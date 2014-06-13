@@ -1,0 +1,3 @@
+Processing failed
+FileTest: Line 42 [13]: Error: Macro name '__FILE__' is reserved
+Log: 'File 'FileTest', Line 42 (13): Macro name '__FILE__' is reserved'

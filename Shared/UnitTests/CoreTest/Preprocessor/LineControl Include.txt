@@ -1,0 +1,8 @@
+#line 100
+__FILE__:__LINE__: aa
+
+#line 200 "lc inc 1"
+__FILE__:__LINE__: bb
+
+#line 100 "lc inc 2"
+__FILE__:__LINE__: cc

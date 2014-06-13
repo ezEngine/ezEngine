@@ -1,0 +1,10 @@
+# /* comment */
+#//comment
+#
+
+__FILE__:__LINE__
+
+#line 40 "FileTest"
+
+#define\
+            __FILE__ file

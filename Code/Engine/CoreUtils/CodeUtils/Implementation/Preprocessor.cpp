@@ -2,9 +2,6 @@
 #include <CoreUtils/CodeUtils/Preprocessor.h>
 #include <Foundation/Utilities/ConversionUtils.h>
 
-// TODO:
-// tests
-
 ezString ezPreprocessor::s_ParamNames[32];
 
 ezPreprocessor::ezPreprocessor()

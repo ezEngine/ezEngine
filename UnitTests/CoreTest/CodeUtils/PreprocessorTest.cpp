@@ -58,7 +58,7 @@ class Logger : public ezLogInterface
 public:
   virtual void HandleLogMessage(const ezLoggingEventData& le) override
   {
-    m_sOutput.AppendFormat("Log: '%s'\n", le.m_szText);
+    m_sOutput.AppendFormat("Log: '%s'\r\n", le.m_szText);
   }
 
   void EventHandler(const ezPreprocessor::ProcessingEvent& ed)
@@ -99,7 +99,7 @@ public:
         break;
       }
 
-      m_sOutput.AppendFormat("%s\n", event.m_szInfo);
+      m_sOutput.AppendFormat("%s\r\n", event.m_szInfo);
     }
   }
 
@@ -123,14 +123,62 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, Preprocessor)
   EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sWriteDir.GetData(), ezFileSystem::AllowWrites, "PreprocessorTest") == EZ_SUCCESS);
 
   ezTokenizedFileCache SharedCache;
+
+  /* Stuff to test:
+    #ifdef, #if etc.
+      macro expansion
+      mathematical expressions
+    #error
+    #warning
+    __VA_ARGS__
+    too few, too many parameters
+    custom defines from outside
+    expand to self (with, without parameters, with parameters to expand)
+    expansion that needs several iterations
+    stringify invalid token
+    concatenate invalid tokens, tokens that yield valid macro
+    broken function macros (missing parenthesis etc.)
+    stringification of strings and special characters (\n)
+    errors after #line directive
+    errors in
+      #line directive
+      #define
+      #ifdef
+      etc.
+    commas in macro parameters
+    unlocateable include file
+    pass through #pragma
+    pass through #line
+    invalid #if, #else, #elif, #endif nesting
+    #undef
+
+
+    Done:
+    #pragma once
+    #include "" and <>
+    #define defined / __LINE__ / __FILE__
+    #line, __LINE__, __FILE__
+    stringification with comments, newlines and spaces
+    concatenation (maybe more?)
+    bad #include
+    comments
+    newlines in some weird places
+
+
+  */
   
   {
     const char* szTestFiles[] =
     {
+      "LineControl", /// \todo Newline after #include ?
+      "DefineFile",
+      "DefineLine",
+      "DefineDefined",
+      "Stringify",
       "BuildFlags",
       "Empty",
       "Test1", 
-      "FailedInclude",
+      "FailedInclude", /// \todo Better error message
       
     };
 
@@ -165,12 +213,17 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, Preprocessor)
 
           if (pp.Process(fileName.GetData(), sOutput) == EZ_SUCCESS)
           {
+            ezString sError = "Processing succeeded\r\n";
+            fout.WriteBytes(sError.GetData(), sError.GetElementCount());
             fout.WriteBytes(sOutput.GetData(), sOutput.GetElementCount());
           }
           else
           {
-            fout.WriteBytes(log.m_sOutput.GetData(), log.m_sOutput.GetElementCount());
+            ezString sError = "Processing failed\r\n";
+            fout.WriteBytes(sError.GetData(), sError.GetElementCount());
           }
+
+          fout.WriteBytes(log.m_sOutput.GetData(), log.m_sOutput.GetElementCount());
 
           EZ_TEST_BOOL_MSG(ezFileSystem::ExistsFile(fileNameOut.GetData()), "Output file is missing: '%s'", fileNameOut.GetData());
         }

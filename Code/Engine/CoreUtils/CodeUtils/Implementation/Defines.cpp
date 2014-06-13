@@ -21,7 +21,7 @@ ezResult ezPreprocessor::StoreDefine(const ezToken* pMacroNameToken, const Token
 
   if ((sMacroName == "defined") || (sMacroName == "__FILE__") || (sMacroName == "__LINE__"))
   {
-    PP_LOG(Error, "Macro name '%s' is reserved, '#define' ignored", pMacroNameToken, sMacroName.GetData());
+    PP_LOG(Error, "Macro name '%s' is reserved", pMacroNameToken, sMacroName.GetData());
     return EZ_FAILURE;
   }
 
@@ -68,8 +68,7 @@ ezResult ezPreprocessor::HandleDefine(const TokenStream& Tokens, ezUInt32& uiCur
   {
     ezStringBuilder sDefine = Tokens[uiNameToken]->m_DataView;
 
-    StoreDefine(Tokens[uiNameToken], nullptr, 0, -1, false);
-    return EZ_SUCCESS;
+    return StoreDefine(Tokens[uiNameToken], nullptr, 0, -1, false);
   }
 
   // first determine whether this is a function macro (before skipping whitespace)
