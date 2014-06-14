@@ -139,6 +139,7 @@ ezResult ezPreprocessor::ParseFactor(const TokenStream& Tokens, ezUInt32& uiCurT
     return Expect(Tokens, uiCurToken, ")");
   }
 
+  uiCurToken = ezMath::Min(uiCurToken, Tokens.GetCount() - 1);
   PP_LOG0(Error, "Syntax error, expected identifier, number or '('", Tokens[uiCurToken]);
 
   return EZ_FAILURE;

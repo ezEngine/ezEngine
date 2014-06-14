@@ -423,11 +423,18 @@ ezResult ezPreprocessor::HandleEndif(const TokenStream& Tokens, ezUInt32 uiCurTo
 
 ezResult ezPreprocessor::HandleUndef(const TokenStream& Tokens, ezUInt32 uiCurToken, ezUInt32 uiDirectiveToken)
 {
-  if (Expect(Tokens, uiCurToken, ezTokenType::Identifier).Failed())
+  ezUInt32 uiIdentifierToken = uiCurToken;
+
+  if (Expect(Tokens, uiCurToken, ezTokenType::Identifier, &uiIdentifierToken).Failed())
     return EZ_FAILURE;
 
-  const ezString sUndef = Tokens[uiDirectiveToken]->m_DataView;
-  RemoveDefine(sUndef.GetData());
+  const ezString sUndef = Tokens[uiIdentifierToken]->m_DataView;
+  if (!RemoveDefine(sUndef.GetData()))
+  {
+    PP_LOG(Warning, "'#undef' of undefined macro '%s'", Tokens[uiIdentifierToken], sUndef.GetData());
+    return EZ_SUCCESS;
+  }
+
 
   // this is an error, but not one that will cause it to fail
   ExpectEndOfLine(Tokens, uiCurToken);
@@ -442,9 +449,12 @@ ezResult ezPreprocessor::HandleErrorDirective(const TokenStream& Tokens, ezUInt3
   ezStringBuilder sTemp;
   CombineTokensToString(Tokens, uiCurToken, sTemp);
 
+  while (sTemp.EndsWith("\n") || sTemp.EndsWith("\r"))
+    sTemp.Shrink(0, 1);
+
   PP_LOG(Error, "#error '%s'", Tokens[uiDirectiveToken], sTemp.GetData());
 
-  return EZ_SUCCESS;
+  return EZ_FAILURE;
 }
 
 ezResult ezPreprocessor::HandleWarningDirective(const TokenStream& Tokens, ezUInt32 uiCurToken, ezUInt32 uiDirectiveToken)
@@ -453,6 +463,9 @@ ezResult ezPreprocessor::HandleWarningDirective(const TokenStream& Tokens, ezUIn
 
   ezStringBuilder sTemp;
   CombineTokensToString(Tokens, uiCurToken, sTemp);
+
+  while (sTemp.EndsWith("\n") || sTemp.EndsWith("\r"))
+    sTemp.Shrink(0, 1);
 
   PP_LOG(Warning, "#warning '%s'", Tokens[uiDirectiveToken], sTemp.GetData());
 

@@ -218,6 +218,9 @@ ezResult ezPreprocessor::HandleInclude(const TokenStream& Tokens, ezUInt32 uiCur
   if (ProcessFile(sOtherFile.GetData(), TokenOutput).Failed())
     return EZ_FAILURE;
 
+  if (uiCurToken < Tokens.GetCount() && (Tokens[uiCurToken]->m_iType == ezTokenType::Newline || Tokens[uiCurToken]->m_iType == ezTokenType::EndOfFile))
+    TokenOutput.PushBack(Tokens[uiCurToken]);
+
   return EZ_SUCCESS;
 }
 

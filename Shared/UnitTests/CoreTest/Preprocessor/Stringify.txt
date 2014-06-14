@@ -5,7 +5,7 @@
 #define VARIABLE strvar
 #define VARIABLE2 str var 2
 
-#include "../Preprocessor/Utils.txt"
+#include "../Preprocessor/Includes/Utils.txt"
 
 #define CONCAT(a, b) a##b
 #define VARIABLE3(a) CONCAT(var,a)
@@ -49,3 +49,7 @@ TOSTR(VARIABLE3(str1)// comment1
 )
 TOSTR2(VARIABLE3(str1) /*comment2 */  ,EZ_STRINGIZE ( /*comment3*/VARIABLE3(str2) )  )
 EZ_STRINGIZE(VARIABLE3(str3/*comment4*/)/*comment5*/)
+
+EZ_STRINGIZE("a string")
+EZ_STRINGIZE("a newline
+in a string, \n not that")

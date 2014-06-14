@@ -1,0 +1,63 @@
+Processing succeeded
+
+  Nothing to do!
+    Stuff not defined.
+
+
+noparam
+noparam
+noparam
+
+
+oneparam: 
+oneparam: p1
+oneparam: p1
+
+
+twoparam: , 
+twoparam: p1, 
+twoparam: p1, p2
+
+
+
+
+
+
+nparam: 
+nparam: p1
+nparam: p1,p2
+nparam: p1,p2,p3
+
+nparam2: twoparam: , 
+nparam2: twoparam: p1, 
+nparam2: twoparam: p1, p2
+nparam2: twoparam: p1, p2
+
+pop front: p2,p3,p4
+
+// this does not work, but it doesn't work in MSVC either
+//pop front2: POPFRONT(POPFRONT(p1, p2, p3, p4))
+
+// this works because the evaluation of the first POPFRONT is delayed (by the missing parenthesis) until the second POPFRONT has already been expanded
+pop front2 trick: p3,p4
+
+return first two: p1, p2
+return second two: p3, p4
+
+twoparam: p1(,with(a, comma))p1end, p2(((,))(,))p2end
+
+
+Preprocessor/Parameters.txt: Line 33 [1]: In Macro: 'TWOPARAM'
+Preprocessor/Parameters.txt: Line 31 [37]: Warning: Trying to access parameter 1, but only 1 parameters were passed along
+Log: 'File 'Preprocessor/Parameters.txt', Line 31 (37): Trying to access parameter 1, but only 1 parameters were passed along'
+Preprocessor/Parameters.txt: Line 34 [1]: In Macro: 'TWOPARAM'
+Preprocessor/Parameters.txt: Line 31 [37]: Warning: Trying to access parameter 1, but only 1 parameters were passed along
+Log: 'File 'Preprocessor/Parameters.txt', Line 31 (37): Trying to access parameter 1, but only 1 parameters were passed along'
+Preprocessor/Parameters.txt: Line 55 [1]: In Macro: 'NPARAM2'
+Preprocessor/Parameters.txt: Line 48 [31]: In Macro: 'TWOPARAM'
+Preprocessor/Parameters.txt: Line 31 [37]: Warning: Trying to access parameter 1, but only 1 parameters were passed along
+Log: 'File 'Preprocessor/Parameters.txt', Line 31 (37): Trying to access parameter 1, but only 1 parameters were passed along'
+Preprocessor/Parameters.txt: Line 56 [1]: In Macro: 'NPARAM2'
+Preprocessor/Parameters.txt: Line 48 [31]: In Macro: 'TWOPARAM'
+Preprocessor/Parameters.txt: Line 31 [37]: Warning: Trying to access parameter 1, but only 1 parameters were passed along
+Log: 'File 'Preprocessor/Parameters.txt', Line 31 (37): Trying to access parameter 1, but only 1 parameters were passed along'

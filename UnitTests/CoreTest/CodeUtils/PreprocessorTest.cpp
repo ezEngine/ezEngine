@@ -101,15 +101,17 @@ public:
 
       m_sOutput.AppendFormat("%s\r\n", event.m_szInfo);
     }
+
+    m_EventStack.PopBack();
   }
 
   ezDeque<ezPreprocessor::ProcessingEvent> m_EventStack;
   ezStringBuilder m_sOutput;
 };
 
-
 EZ_CREATE_SIMPLE_TEST(CodeUtils, Preprocessor)
 {
+  
   ezStringBuilder sReadDir = BUILDSYSTEM_OUTPUT_FOLDER;
   sReadDir.AppendPath("../../Shared/UnitTests/CoreTest");
 
@@ -130,28 +132,21 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, Preprocessor)
       mathematical expressions
     #error
     #warning
-    __VA_ARGS__
-    too few, too many parameters
     custom defines from outside
     expand to self (with, without parameters, with parameters to expand)
-    expansion that needs several iterations
     stringify invalid token
     concatenate invalid tokens, tokens that yield valid macro
     broken function macros (missing parenthesis etc.)
-    stringification of strings and special characters (\n)
     errors after #line directive
     errors in
       #line directive
       #define
       #ifdef
       etc.
-    commas in macro parameters
     unlocateable include file
     pass through #pragma
     pass through #line
     invalid #if, #else, #elif, #endif nesting
-    #undef
-
 
     Done:
     #pragma once
@@ -163,14 +158,21 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, Preprocessor)
     bad #include
     comments
     newlines in some weird places
-
-
+    too few, too many parameters
+    __VA_ARGS__
+    expansion that needs several iterations
+    stringification of strings and special characters (\n)
+    commas in macro parameters
+    #undef
   */
   
   {
     const char* szTestFiles[] =
     {
-      "LineControl", /// \todo Newline after #include ?
+      "Undef",
+      "InvalidIf1",
+      "Parameters",
+      "LineControl",
       "DefineFile",
       "DefineLine",
       "DefineDefined",
@@ -200,6 +202,8 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, Preprocessor)
         pp.SetFileCallbacks(FileOpen, FileLocator);
         pp.SetCustomFileCache(&SharedCache);
         pp.m_ProcessingEvents.AddEventHandler(ezDelegate<void (const ezPreprocessor::ProcessingEvent&)>(&Logger::EventHandler, &log));
+        pp.AddCustomDefine("PP_OBJ");
+        pp.AddCustomDefine("PP_FUNC(a) a");
 
         {
           fileName.Format("Preprocessor/%s.txt", szTestFiles[i]);
@@ -216,6 +220,9 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, Preprocessor)
             ezString sError = "Processing succeeded\r\n";
             fout.WriteBytes(sError.GetData(), sError.GetElementCount());
             fout.WriteBytes(sOutput.GetData(), sOutput.GetElementCount());
+
+            if (!log.m_sOutput.IsEmpty())
+              fout.WriteBytes("\r\n", 2);
           }
           else
           {

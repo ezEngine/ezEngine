@@ -1,0 +1,3 @@
+Processing failed
+Preprocessor/InvalidIf1.txt: Line 3 [21]: Error: Syntax error, expected identifier, number or '('
+Log: 'File 'Preprocessor/InvalidIf1.txt', Line 3 (21): Syntax error, expected identifier, number or '(''

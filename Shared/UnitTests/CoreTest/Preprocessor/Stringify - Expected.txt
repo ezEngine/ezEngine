@@ -4,6 +4,7 @@ Processing succeeded
 
 
 
+
 // Block 1
 "str1"
 "str1""str2"
@@ -31,3 +32,7 @@ Processing succeeded
 "VARIABLE3(str1)"
 "VARIABLE3(str1)""EZ_STRINGIZE ( VARIABLE3(str2) )"
 "varstr3"
+
+"\"a string\""
+"\"a newline
+in a string, \\n not that\""

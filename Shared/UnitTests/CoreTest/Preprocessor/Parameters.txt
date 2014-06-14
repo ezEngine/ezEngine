@@ -1,0 +1,72 @@
+#ifdef DOWARNING
+  #include "Includes\Warning.txt"
+#elif defined DOERROR
+  #include "Includes\Error.txt"
+#elif defined(DOERROR2)
+  #include "Includes\Error2.txt"
+#elif defined (DOSOMETHING)
+  #error "Something"
+#else
+
+  Nothing to do!
+  #if !defined(STUFF)
+    Stuff not defined.
+  #else
+    #error Stuff defined.
+  #endif
+#endif
+
+#define NOPARAM() noparam
+
+NOPARAM()
+NOPARAM(p1)
+NOPARAM(p1, p2)
+
+#define ONEPARAM(a) oneparam: a
+
+ONEPARAM()
+ONEPARAM(p1)
+ONEPARAM(p1, p2)
+
+#define TWOPARAM(a, b) twoparam: a, b
+
+TWOPARAM()
+TWOPARAM(p1)
+TWOPARAM(p1, p2)
+
+#define PAREN (
+
+#define POPFRONT(a, ...) __VA_ARGS__
+#define POPFRONT2(a, b, ...) __VA_ARGS__
+
+#define CALLMACRO(m, ...) m(__VA_ARGS__)
+
+#define RETF2(a, b, ...) a, b
+#define RETS2(...) CALLMACRO(RETF2, CALLMACRO(POPFRONT, CALLMACRO(POPFRONT, __VA_ARGS__)))
+
+#define NPARAM(...) nparam: __VA_ARGS__
+#define NPARAM2(...) nparam2: TWOPARAM(__VA_ARGS__)
+
+NPARAM()
+NPARAM(p1)
+NPARAM(p1, p2)
+NPARAM(p1, p2, p3)
+
+NPARAM2()
+NPARAM2(p1)
+NPARAM2(p1, p2)
+NPARAM2(p1, p2, p3)
+
+pop front: POPFRONT(p1, p2, p3, p4)
+
+// this does not work, but it doesn't work in MSVC either
+//pop front2: POPFRONT(POPFRONT(p1, p2, p3, p4))
+
+// this works because the evaluation of the first POPFRONT is delayed (by the missing parenthesis) until the second POPFRONT has already been expanded
+pop front2 trick: POPFRONT PAREN POPFRONT(p1, p2, p3, p4))
+
+return first two: RETF2(p1, p2, p3, p4)
+return second two: RETS2(p1, p2, p3, p4)
+
+TWOPARAM(p1(,with(a, comma))p1end, p2(((,))(,))p2end)
+

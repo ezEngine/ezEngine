@@ -1,0 +1,15 @@
+Processing succeeded
+  valid
+
+
+  valid
+
+
+  valid
+
+
+
+Preprocessor/Undef.txt: Line 23 [8]: Warning: '#undef' of undefined macro 'A'
+Log: 'File 'Preprocessor/Undef.txt', Line 23 (8): '#undef' of undefined macro 'A''
+Preprocessor/Undef.txt: Line 26 [9]: Warning: Expected end-of-line, found token ' '
+Log: 'File 'Preprocessor/Undef.txt', Line 26 (9): Expected end-of-line, found token ' ''

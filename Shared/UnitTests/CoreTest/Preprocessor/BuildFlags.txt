@@ -1,4 +1,4 @@
-#include "BlackMagic.txt"
+#include "Includes\BlackMagic.txt"
 
 #define EZ_ENUM_VALUE_TO_STRING(name) \
   case name: return EZ_STRINGIZE(name);
