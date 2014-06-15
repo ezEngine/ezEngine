@@ -126,7 +126,8 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, Preprocessor)
 
   ezTokenizedFileCache SharedCache;
 
-  /* Stuff to test:
+  /// \todo Add tests for the following:
+  /* 
     #ifdef, #if etc.
       macro expansion
       mathematical expressions

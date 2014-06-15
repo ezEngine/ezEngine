@@ -264,7 +264,6 @@ private: // *** Parsing ***
   ezResult ExpectEndOfLine(const TokenStream& Tokens, ezUInt32& uiCurToken);
 
   void CopyTokensReplaceParams(const TokenStream& Source, ezUInt32 uiFirstSourceToken, TokenStream& Destination, const ezHybridArray<ezString, 16>& parameters);
-  //ezResult ValidCodeCheck(const TokenStream& Tokens);
   void CombineTokensToString(const TokenStream& Tokens, ezUInt32 uiCurToken, ezStringBuilder& sResult, bool bKeepComments = true);
   void CombineRelevantTokensToString(const TokenStream& Tokens, ezUInt32 uiCurToken, ezStringBuilder& sResult);
 

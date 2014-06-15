@@ -201,23 +201,6 @@ ezResult ezPreprocessor::ExpectEndOfLine(const TokenStream& Tokens, ezUInt32& ui
   return EZ_SUCCESS;
 }
 
-//ezResult ezPreprocessor::ValidCodeCheck(const TokenStream& Tokens)
-//{
-//  for (ezUInt32 i = 0; i < Tokens.GetCount(); ++i)
-//  {
-//    if (Tokens[i]->m_DataView == "#")
-//    {
-//      // TODO: It is valid to have # and ## in macro parameters
-//      // we could just leave this error check to the compiler (instead of the preprocessor)
-//
-//      //PP_LOG0(Warning, "Preprocessor command must start as first non-whitespace, command ignored", Tokens[i]);
-//      //return EZ_FAILURE;
-//    }
-//  }
-//
-//  return EZ_SUCCESS;
-//}
-
 void ezPreprocessor::CombineRelevantTokensToString(const TokenStream& Tokens, ezUInt32 uiCurToken, ezStringBuilder& sResult)
 {
   sResult.Clear();

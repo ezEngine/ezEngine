@@ -209,7 +209,7 @@ void ezGALContextDX11::SetIndexBufferPlatform(ezGALBuffer* pIndexBuffer)
   if (pIndexBuffer != nullptr)
   {
     ezGALBufferDX11* pDX11Buffer = static_cast<ezGALBufferDX11*>(pIndexBuffer);
-    m_pDXContext->IASetIndexBuffer(pDX11Buffer->GetDXBuffer(), pDX11Buffer->GetIndexFormat(), 0 /* TODO: Expose */);
+    m_pDXContext->IASetIndexBuffer(pDX11Buffer->GetDXBuffer(), pDX11Buffer->GetIndexFormat(), 0 /* \todo: Expose */);
   }
   else
   {

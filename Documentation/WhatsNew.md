@@ -30,6 +30,7 @@ Milestone 5
   * Changed some of the macros of the reflection system to be easier to use.
   * Fixed some issues compiling ez on Windows 8 and Windows 8.1
   * Added ezPreprocessor, a class that allows to run a C preprocessor on text and get the result, it supports all the standard features
+  * ezVariant now supports more basic types and is more efficient by using move semantics when possible.
 
   
 Milestone 4

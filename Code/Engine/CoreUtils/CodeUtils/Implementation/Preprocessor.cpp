@@ -95,9 +95,6 @@ ezResult ezPreprocessor::ProcessFile(const char* szFile, TokenStream& TokenOutpu
       if (m_IfdefActiveStack.PeekBack() != IfDefActivity::IsActive)
         continue;
 
-      //if (ValidCodeCheck(TokensLine).Failed())
-      //  return EZ_FAILURE;
-
       // store for later expansion
       TokensCode.PushBackRange(TokensLine);
     }

@@ -86,8 +86,6 @@ EZ_CREATE_SIMPLE_TEST(Threading, ThreadLocalStorage)
     // And free the slots
     ezThreadLocalStorage::FreeSlot(uiVarIndex);
     ezThreadLocalStorage::FreeSlot(uiOtherVarIndex);
-
-    /// \todo Doing this test 3 times will fail because TLS values are not reset to zero on all threads before they are reused.
   }
 
   

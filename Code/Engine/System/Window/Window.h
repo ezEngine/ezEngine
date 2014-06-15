@@ -158,7 +158,7 @@ public:
   virtual void OnWindowMessage(HWND hWnd, UINT Msg, WPARAM WParam, LPARAM LParam) {}
 
 #elif EZ_ENABLED(EZ_PLATFORM_OSX)
-  /// \todo Do we really need to do anything here on other platforms?
+
 #elif EZ_ENABLED(EZ_PLATFORM_LINUX)
 
 #else

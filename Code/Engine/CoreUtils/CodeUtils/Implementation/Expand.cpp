@@ -36,7 +36,7 @@ ezResult ezPreprocessor::Expand(const TokenStream& Tokens, TokenStream& Output)
       return EZ_FAILURE;
   }
 
-  // TODO: Generally 2 iterations should be sufficient to handle most (all?) cases
+  // Generally 2 iterations should be sufficient to handle most (all?) cases
   // the limit is currently very strict to detect whether there are macros that could require more expansions
   // if we can construct a macro that needs more iterations, this limit can easily be raised
   if (iIterations > 2)
@@ -210,7 +210,7 @@ void ezPreprocessor::PassThroughFunctionMacro(MacroDefinition& Macro, const Macr
 
   for (ezUInt32 p = 0; p < Parameters.GetCount(); ++p)
   {
-    // TODO: Maybe the passed through parameters need expansion
+    /// \todo Maybe the passed through parameters need expansion
 
     Output.PushBackRange(Parameters[p]);
 
@@ -482,8 +482,6 @@ ezResult ezPreprocessor::ConcatenateParameters(const TokenStream& Tokens, TokenS
 
 ezResult ezPreprocessor::InsertParameters(const TokenStream& Tokens, TokenStream& Output, const MacroDefinition& Macro)
 {
-  // todo: handle stringification and concatenation here
-
   TokenStream Stringified;
   if (InsertStringifiedParameters(Tokens, Stringified, Macro).Failed())
     return EZ_FAILURE;
