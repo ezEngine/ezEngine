@@ -1,0 +1,47 @@
+[VERTEXSHADER]
+
+#version 430
+
+layout(binding = 0, shared) uniform PerFrame
+{
+  float time;
+};
+
+layout(binding = 1, shared) uniform PerObject
+{
+  mat4 mvp;
+};
+
+layout(location = 0) in vec3 inPos;
+layout(location = 1) in vec3 inNorm;
+layout(location = 2) in vec2 inTex0;
+
+layout(location = 0) out vec3 outNorm;
+layout(location = 1) out vec2 outTex0;
+
+void main()
+{
+  gl_Position = mvp * vec4(inPos, 1.0);
+  outNorm = inNorm;
+  outTex0 = inTex0 * 2.5;
+}
+
+
+[PIXELSHADER]
+
+#version 430
+
+layout(location = 0) in vec3 inNorm;
+layout(location = 1) in vec2 inTex0;
+
+
+layout(location = 0, index = 0) out vec4 outFragColor;
+
+void main()
+{
+#ifdef COLORED
+  outFragColor = vec4(0.0, 1.0, 0.0, 1.0);
+#else
+  outFragColor = vec4(inTex0, 0.0, 1.0);
+#endif
+}

@@ -21,7 +21,7 @@ void ezTokenizedFileCache::Clear()
   m_Cache.Clear();
 }
 
-static void SkipWhitespace(ezDeque<ezToken>& Tokens, ezUInt32& uiCurToken)
+void ezTokenizedFileCache::SkipWhitespace(ezDeque<ezToken>& Tokens, ezUInt32& uiCurToken)
 {
   while (uiCurToken < Tokens.GetCount() && 
           (Tokens[uiCurToken].m_iType == ezTokenType::BlockComment ||

@@ -75,6 +75,8 @@ public:
     case ezPreprocessor::ProcessingEvent::EndExpansion:
       m_EventStack.PopBack();
       return;
+    default:
+      return;
     }
 
     for (ezUInt32 i = 0; i < m_EventStack.GetCount(); ++i)
@@ -182,7 +184,7 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, Preprocessor)
       "Empty",
       "Test1", 
       "FailedInclude", /// \todo Better error message
-      
+      "PassThroughUnknown",
     };
 
     ezStringBuilder sOutput;
@@ -205,6 +207,10 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, Preprocessor)
         pp.m_ProcessingEvents.AddEventHandler(ezDelegate<void (const ezPreprocessor::ProcessingEvent&)>(&Logger::EventHandler, &log));
         pp.AddCustomDefine("PP_OBJ");
         pp.AddCustomDefine("PP_FUNC(a) a");
+
+        if (ezStringUtils::StartsWith(szTestFiles[i], "PassThroughUnknown"))
+          pp.SetPassThroughUnknownCmds(true);
+
 
         {
           fileName.Format("Preprocessor/%s.txt", szTestFiles[i]);

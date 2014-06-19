@@ -38,10 +38,18 @@ ezResult ezPreprocessor::CopyTokensAndEvaluateDefined(const TokenStream& Source,
 
         const ezString sIdentifier = Source[uiIdentifier]->m_DataView;
 
-        if (m_Macros.Find(sIdentifier).IsValid())
-          pReplacement = AddCustomToken(Source[uiIdentifier], "1");
-        else
-          pReplacement = AddCustomToken(Source[uiIdentifier], "0");
+        const bool bDefined = m_Macros.Find(sIdentifier).IsValid();
+
+        // broadcast that 'defined' is being evaluated
+        {
+          ProcessingEvent pe;
+          pe.m_pToken = Source[uiIdentifier];
+          pe.m_Type = ProcessingEvent::CheckDefined;
+          pe.m_szInfo = bDefined ? "defined" : "undefined";
+          m_ProcessingEvents.Broadcast(pe);
+        }
+
+        pReplacement = AddCustomToken(Source[uiIdentifier], bDefined ? "1" : "0");
 
         Destination.PushBack(pReplacement);
 
@@ -116,15 +124,22 @@ ezResult ezPreprocessor::ParseFactor(const TokenStream& Tokens, ezUInt32& uiCurT
     return EZ_SUCCESS;
   }
 
-  if (Accept(Tokens, uiCurToken, ezTokenType::Identifier))
+  ezUInt32 uiValueToken = uiCurToken;
+  if (Accept(Tokens, uiCurToken, ezTokenType::Identifier, &uiValueToken))
   {
-    const ezString sVal = Tokens[uiCurToken - 1]->m_DataView;
+    const ezString sVal = Tokens[uiValueToken]->m_DataView;
 
     ezInt32 iResult32 = 0;
 
     if (ezConversionUtils::StringToInt(sVal.GetData(), iResult32).Failed())
     {
       // this is not an error, all unknown identifiers are assumed to be zero
+
+      // broadcast that we encountered this unknown identifier
+      ProcessingEvent pe;
+      pe.m_pToken = Tokens[uiValueToken];
+      pe.m_Type = ProcessingEvent::EvaluateUnknown;
+      m_ProcessingEvents.Broadcast(pe);
     }
 
     iResult = (ezInt64) iResult32;

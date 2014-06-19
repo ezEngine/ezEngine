@@ -26,6 +26,8 @@ public:
   const ezTokenizer* Tokenize(const ezString& sFileName, const ezDynamicArray<ezUInt8>& FileContent, ezLogInterface* pLog);
 
 private:
+  void SkipWhitespace(ezDeque<ezToken>& Tokens, ezUInt32& uiCurToken);
+
   mutable ezMutex m_Mutex;
   ezMap<ezString, ezTokenizer> m_Cache;
 };
@@ -83,6 +85,9 @@ public:
       EndExpansion,     ///< A macro is finished being expanded
       Error,            ///< An error was encountered
       Warning,          ///< A warning has been output.
+      CheckDefined,     ///< A 'defined(X)' is being evaluated
+      CheckIfdef,       ///< A '#ifdef X' is being evaluated
+      EvaluateUnknown,  ///< Inside an #if an unknown identifier has been encountered, it will be evaluated as zero
     };
 
     ProcessingEvent()
@@ -123,6 +128,9 @@ public:
 
   /// \brief If set to true, all #line commands are passed through to the output, otherwise they are removed.
   void SetPassThroughLine(bool bPassThrough) { m_bPassThroughLine = bPassThrough; }
+
+  /// \brief If set to true, all #xyz commands that are unknown are passed through to the output, otherwise an error is generated
+  void SetPassThroughUnknownCmds(bool bPassThrough) { m_bPassThroughUnknownCmd = bPassThrough; }
 
   /// \brief Sets the callbacks that are needed to locate and read the input data.
   ///
@@ -181,6 +189,7 @@ private:
 
   bool m_bPassThroughPragma;
   bool m_bPassThroughLine;
+  bool m_bPassThroughUnknownCmd;
 
   // this file cache is used as long as the user does not provide his own
   ezTokenizedFileCache m_InternalFileCache;

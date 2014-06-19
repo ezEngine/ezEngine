@@ -13,6 +13,7 @@ ezPreprocessor::ezPreprocessor()
 
   m_bPassThroughPragma = false;
   m_bPassThroughLine = false;
+  m_bPassThroughUnknownCmd = false;
 
   ezStringBuilder s;
   for (ezUInt32 i = 0; i < 32; ++i)
@@ -260,6 +261,12 @@ ezResult ezPreprocessor::ProcessCmd(const TokenStream& Tokens, TokenStream& Toke
     return EZ_SUCCESS;
   }
 
+  if (m_bPassThroughUnknownCmd)
+  {
+    TokenOutput.PushBackRange(Tokens);
+    return EZ_SUCCESS;
+  }
+
   PP_LOG0(Error, "Expected a preprocessor command", Tokens[0]);
   return EZ_FAILURE;
 }
@@ -321,6 +328,15 @@ ezResult ezPreprocessor::HandleIfdef(const TokenStream& Tokens, ezUInt32 uiCurTo
   const ezString sIdentifier = Tokens[uiIdentifier]->m_DataView;
 
   const bool bDefined = m_Macros.Find(sIdentifier).IsValid();
+
+  // broadcast that '#ifdef' is being evaluated
+  {
+    ProcessingEvent pe;
+    pe.m_pToken = Tokens[uiIdentifier];
+    pe.m_Type = ProcessingEvent::CheckIfdef;
+    pe.m_szInfo = bDefined ? "defined" : "undefined";
+    m_ProcessingEvents.Broadcast(pe);
+  }
 
   m_IfdefActiveStack.PushBack(bIsIfdef == bDefined ? IfDefActivity::IsActive : IfDefActivity::IsInactive);
 
