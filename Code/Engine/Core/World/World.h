@@ -44,11 +44,25 @@ public:
   
   //bool TryGetObjectWithUniqueId(ezUInt64 uiPersistentId, ezGameObject*& out_pObject) const;  
 
+
   /// \brief Returns the total number of objects in this world.
   ezUInt32 GetObjectCount() const;
 
   /// \brief Returns an iterator over all objects in this world in no specific order.
-  ezBlockStorage<ezGameObject>::Iterator GetObjects() const;
+  ezBlockStorage<ezGameObject>::Iterator GetObjects();
+
+  /// \brief Defines a visitor function that is called for every gameobject when using the traverse method. 
+  /// The function takes a pointer to the game object as argument and returns a bool which indicates whether to continue (true) or abort (false) traversal.
+  typedef ezInternal::WorldData::VisitorFunc VisitorFunc;
+
+  enum TraversalMethod
+  {
+    BreadthFirst,
+    DepthFirst
+  };
+
+  /// \brief Traverses the game object tree starting at the top level objects and then recursively all children. The given callback function is called for every object.
+  void Traverse(VisitorFunc visitorFunc, TraversalMethod method = DepthFirst);
 
 
   /// \brief Creates an instance of the given component manager type or returns a pointer to an already existing instance.

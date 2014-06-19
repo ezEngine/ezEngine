@@ -2,56 +2,56 @@
 
 #include <Foundation/Basics.h>
 
-inline ezTime::ezTime(double fTime) : m_fTime(fTime)
+EZ_FORCE_INLINE ezTime::ezTime(double fTime) : m_fTime(fTime)
 {
 }
 
-inline void ezTime::SetZero()
+EZ_FORCE_INLINE void ezTime::SetZero()
 {
   m_fTime = 0.0;
 }
 
-inline float ezTime::AsFloat() const
+EZ_FORCE_INLINE float ezTime::AsFloat() const
 {
   return static_cast<float>(m_fTime);
 }
 
-inline double ezTime::GetNanoseconds() const
+EZ_FORCE_INLINE double ezTime::GetNanoseconds() const
 {
   return m_fTime * 1000000000.0;
 }
 
-inline double ezTime::GetMicroseconds() const
+EZ_FORCE_INLINE double ezTime::GetMicroseconds() const
 {
   return m_fTime * 1000000.0;
 }
 
-inline double ezTime::GetMilliseconds() const
+EZ_FORCE_INLINE double ezTime::GetMilliseconds() const
 {
   return m_fTime * 1000.0;
 }
 
-inline double ezTime::GetSeconds() const
+EZ_FORCE_INLINE double ezTime::GetSeconds() const
 {
   return m_fTime;
 }
 
-inline void ezTime::operator -= (const ezTime& other)
+EZ_FORCE_INLINE void ezTime::operator -= (const ezTime& other)
 {
   m_fTime -= other.m_fTime;
 }
 
-inline void ezTime::operator += (const ezTime& other)
+EZ_FORCE_INLINE void ezTime::operator += (const ezTime& other)
 {
   m_fTime += other.m_fTime;
 }
 
-inline ezTime ezTime::operator - (const ezTime& other) const
+EZ_FORCE_INLINE ezTime ezTime::operator - (const ezTime& other) const
 {
   return ezTime(m_fTime - other.m_fTime);
 }
 
-inline ezTime ezTime::operator + (const ezTime& other) const
+EZ_FORCE_INLINE ezTime ezTime::operator + (const ezTime& other) const
 {
   return ezTime(m_fTime + other.m_fTime);
 }

@@ -36,9 +36,21 @@ EZ_FORCE_INLINE ezUInt32 ezWorld::GetObjectCount() const
   return m_Data.m_ObjectStorage.GetCount();
 }
 
-EZ_FORCE_INLINE ezBlockStorage<ezGameObject>::Iterator ezWorld::GetObjects() const
+EZ_FORCE_INLINE ezBlockStorage<ezGameObject>::Iterator ezWorld::GetObjects()
 {
   return m_Data.m_ObjectStorage.GetIterator(0);
+}
+
+EZ_FORCE_INLINE void ezWorld::Traverse(VisitorFunc visitorFunc, TraversalMethod method /*= DepthFirst*/)
+{
+  if (method == DepthFirst)
+  {
+    m_Data.TraverseDepthFirst(visitorFunc);
+  }
+  else // method == BreadthFirst
+  {
+    m_Data.TraverseBreadthFirst(visitorFunc);
+  }
 }
 
 template <typename ManagerType>
