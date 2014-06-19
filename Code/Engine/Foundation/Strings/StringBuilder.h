@@ -14,6 +14,8 @@ class ezHybridStringBase;
 template <ezUInt16 Size, typename AllocatorWrapper>
 class ezHybridString;
 
+class ezStreamReaderBase;
+
 /// \brief ezStringBuilder is a class that is meant for creating and modifying strings.
 ///
 /// It is not meant to store strings for a longer duration.
@@ -235,7 +237,8 @@ public:
   template <typename Container>
   void Split(bool bReturnEmptyStrings, Container& Output, const char* szSeparator1, const char* szSeparator2 = nullptr, const char* szSeparator3 = nullptr, const char* szSeparator4 = nullptr, const char* szSeparator5 = nullptr, const char* szSeparator6 = nullptr) const; // [tested]
 
-
+  /// \brief Replaces the current string with the content from the stream. Reads the stream to its end.
+  void ReadAll(ezStreamReaderBase& Stream);
 
   // ******* Path Functions ********
 

@@ -2,6 +2,7 @@
 
 #include <Foundation/Strings/String.h>
 #include <Foundation/Strings/StringBuilder.h>
+#include <Foundation/IO/Stream.h>
 
 template<ezUInt16 Size>
 ezHybridStringBase<Size>::ezHybridStringBase(const ezStringBuilder& rhs, ezAllocatorBase* pAllocator) :
@@ -55,6 +56,31 @@ EZ_FORCE_INLINE void ezHybridString<Size, A>::operator=(ezStringBuilder&& rhs)
   ezHybridStringBase<Size>::operator=(std::move(rhs));
 }
 
+template<ezUInt16 Size>
+void ezHybridStringBase<Size>::ReadAll(ezStreamReaderBase& Stream)
+{
+  /// \test This is new
+
+  Clear();
+
+  ezHybridArray<ezUInt8, 1024 * 4> Bytes(m_Data.GetAllocator());
+  ezUInt8 Temp[1024];
+  
+  while (true)
+  {
+    const ezUInt32 uiRead = (ezUInt32) Stream.ReadBytes(Temp, 1024);
+
+    if (uiRead == 0)
+      break;
+
+    Bytes.PushBackRange(ezArrayPtr<ezUInt8>(Temp, uiRead));
+  }
+
+  Bytes.PushBack('\0');
+
+  *this = (const char*) &Bytes[0];
+}
+
 template <ezUInt16 Size>
 ezStringBuilder::ezStringBuilder(const ezHybridStringBase<Size>& rhs) : m_uiCharacterCount(rhs.m_uiCharacterCount), m_Data(rhs.m_Data)
 {
@@ -102,4 +128,5 @@ void ezStringBuilder::operator=(ezHybridString<Size, A>&& rhs)
   m_uiCharacterCount = rhs.m_uiCharacterCount;
   m_Data = std::move(rhs.m_Data);
 }
+
 

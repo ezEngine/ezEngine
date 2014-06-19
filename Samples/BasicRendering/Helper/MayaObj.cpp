@@ -17,14 +17,9 @@ namespace DontUse
   MayaObj* MayaObj::LoadFromFile(const char* szPath, ezGALDevice* pDevice)
   {
 
-    ezDynamicArray<ezUInt8> FileContent;
-
-    if(!ReadCompleteFile(szPath, FileContent).Succeeded())
+    ezStringBuilder sContent;
+    if(!ReadCompleteFile(szPath, sContent).Succeeded())
       return nullptr;
-
-    FileContent.PushBack('\0');
-
-    ezStringBuilder sContent = (const char*) &FileContent[0];
 
     ezDynamicArray<ezString> Lines;
     Lines.Reserve(2048);

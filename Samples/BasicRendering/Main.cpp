@@ -138,13 +138,11 @@ public:
     // Create a shader (uses a quick hacky implementation to compile the HLSL shaders)
     ezGALShaderCreationDescription ShaderDesc;
 #if EZ_ENABLED(DEMO_GL)
-    ezDynamicArray<ezUInt8> pixelShader, vertexShader;
+    ezStringBuilder pixelShader, vertexShader;
     DontUse::ReadCompleteFile("ez_vert.glsl", vertexShader);
-    vertexShader.PushBack('\0');
     DontUse::ReadCompleteFile("ez_frag.glsl", pixelShader);
-    pixelShader.PushBack('\0');
-    ShaderDesc.m_ByteCodes[ezGALShaderStage::VertexShader] = new ezGALShaderByteCode(&vertexShader[0], vertexShader.GetCount());
-    ShaderDesc.m_ByteCodes[ezGALShaderStage::PixelShader] = new ezGALShaderByteCode(&pixelShader[0], pixelShader.GetCount());
+    ShaderDesc.m_ByteCodes[ezGALShaderStage::VertexShader] = new ezGALShaderByteCode(vertexShader.GetData(), vertexShader.GetElementCount());
+    ShaderDesc.m_ByteCodes[ezGALShaderStage::PixelShader] = new ezGALShaderByteCode(pixelShader.GetData(), pixelShader.GetElementCount());
 #else
     DontUse::ShaderCompiler::Compile("ez.hlsl", ShaderDesc);
 #endif

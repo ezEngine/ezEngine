@@ -36,15 +36,9 @@ namespace DontUse
 
   bool ShaderCompiler::Compile(const char* szPath, ezGALShaderCreationDescription& Result)
   {
-    ezDynamicArray<ezUInt8> FileContent;
-    FileContent.Reserve(64 * 1024);
-
-    if(!ReadCompleteFile(szPath, FileContent).Succeeded())
+    ezStringBuilder sContent;
+    if(!ReadCompleteFile(szPath, sContent).Succeeded())
       return false;
-
-    FileContent.PushBack('\0');
-
-    ezStringBuilder sContent = (const char*) &FileContent[0];
 
     Result.m_ByteCodes[ezGALShaderStage::VertexShader] = CompileDXShader(sContent.GetData(), "vs_5_0", "vs_main");
     Result.m_ByteCodes[ezGALShaderStage::PixelShader] = CompileDXShader(sContent.GetData(), "ps_5_0", "ps_main");

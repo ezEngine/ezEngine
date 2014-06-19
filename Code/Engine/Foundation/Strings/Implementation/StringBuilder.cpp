@@ -932,6 +932,29 @@ void ezStringBuilder::RemoveDoubleSlashesInPath()
 }
 
 
+void ezStringBuilder::ReadAll(ezStreamReaderBase& Stream)
+{
+  /// \test This is new
+
+  Clear();
+
+  ezHybridArray<ezUInt8, 1024 * 4> Bytes(m_Data.GetAllocator());
+  ezUInt8 Temp[1024];
+  
+  while (true)
+  {
+    const ezUInt32 uiRead = (ezUInt32) Stream.ReadBytes(Temp, 1024);
+
+    if (uiRead == 0)
+      break;
+
+    Bytes.PushBackRange(ezArrayPtr<ezUInt8>(Temp, uiRead));
+  }
+
+  Bytes.PushBack('\0');
+
+  *this = (const char*) &Bytes[0];
+}
 
 
 

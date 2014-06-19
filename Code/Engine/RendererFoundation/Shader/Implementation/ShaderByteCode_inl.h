@@ -2,15 +2,18 @@
 
 const void* ezGALShaderByteCode::GetByteCode() const
 {
-  return m_pSource.GetPtr();
+  if (m_Source.IsEmpty())
+    return nullptr;
+
+  return &m_Source[0];
 }
 
 ezUInt32 ezGALShaderByteCode::GetSize() const
 {
-  return m_pSource.GetCount();
+  return m_Source.GetCount();
 }
 
 bool ezGALShaderByteCode::IsValid() const
 {
-  return GetByteCode() != nullptr && GetSize() != 0;
+  return !m_Source.IsEmpty();
 }

@@ -3,6 +3,7 @@
 
 #include <RendererFoundation/Basics.h>
 #include <Foundation/Basics/Types/RefCounted.h>
+#include <Foundation/Containers/DynamicArray.h>
 
 /// \brief This class wraps shader byte code storage.
 /// Since byte code can have different requirements for alignment, padding etc. this class manages it.
@@ -14,9 +15,9 @@ public:
 
   ezGALShaderByteCode();
 
-  ezGALShaderByteCode(const ezArrayPtr<ezUInt8>& pByteCode);
+  ezGALShaderByteCode(const ezArrayPtr<const ezUInt8>& pByteCode);
 
-  ezGALShaderByteCode(void* pSource, ezUInt32 uiSize);
+  ezGALShaderByteCode(const void* pSource, ezUInt32 uiSize);
 
   ~ezGALShaderByteCode();
 
@@ -28,11 +29,11 @@ public:
 
 protected:
 
-  void CopyFrom(const ezArrayPtr<ezUInt8>& pByteCode);
+  void CopyFrom(const ezArrayPtr<const ezUInt8>& pByteCode);
 
   void Free();
 
-  ezArrayPtr<ezUInt8> m_pSource;
+  ezDynamicArray<ezUInt8> m_Source;
 };
 
 #include <RendererFoundation/Shader/Implementation/ShaderByteCode_inl.h>

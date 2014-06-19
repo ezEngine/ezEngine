@@ -7,6 +7,7 @@
 #include <Foundation/Containers/HybridArray.h>
 
 class ezStringBuilder;
+class ezStreamReaderBase;
 
 /// \brief A string class for storing and passing around strings.
 ///
@@ -119,6 +120,9 @@ public:
   /// Note that this iterator will only be valid as long as this ezHybridString lives.
   /// Once the original string is destroyed, all iterators to them will point into invalid memory.
   ezStringIterator GetLast(ezUInt32 uiNumCharacters) const; // [tested]
+
+  /// \brief Replaces the current string with the content from the stream. Reads the stream to its end.
+  void ReadAll(ezStreamReaderBase& Stream);
 
 private:
   friend class ezStringBuilder;
