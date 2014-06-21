@@ -151,7 +151,12 @@ public:
     //ezShaderCompiler sc;
     //sc.CompileShader("ez.shader", Generator, "GL3");
 
-    ezShaderManager::SetPlatform("GL3", m_pDevice);
+#if EZ_ENABLED(DEMO_GL)
+      ezShaderManager::SetPlatform("GL3", m_pDevice);
+#else
+      ezShaderManager::SetPlatform("DX11_SM40", m_pDevice);
+#endif
+
     ezShaderManager::BindShader("ez.shader");
 
     // Create a shader (uses a quick hacky implementation to compile the HLSL shaders)
