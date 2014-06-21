@@ -38,6 +38,9 @@
 
 #include <CoreUtils/Debugging/DataTransfer.h>
 
+#include <Graphics/ShaderCompiler/ShaderCompiler.h>
+#include <Graphics/ShaderCompiler/ShaderManager.h>
+
 // This sample is a really simple low-level rendering demo showing how the high level renderer will interact with the GPU abstraction layer
 
 class TestWindow : public ezWindow
@@ -80,12 +83,14 @@ public:
     sReadDir.AppendPath("../../Shared/FreeContent/Basic Rendering/");
 
     ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
-    ezFileSystem::AddDataDirectory(sReadDir.GetData(), ezFileSystem::ReadOnly, "Basic Rendering Content");
+    ezFileSystem::AddDataDirectory(sReadDir.GetData(), ezFileSystem::AllowWrites, "Basic Rendering Content");
 
     ezGlobalLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);
 
     ezTelemetry::CreateServer();
     ezPlugin::LoadPlugin("ezInspectorPlugin");
+    ezPlugin::LoadPlugin("ezShaderCompilerGLSL");
+    ezPlugin::LoadPlugin("ezShaderCompilerHLSL");
 
     ezClock::SetNumGlobalClocks();
 
@@ -96,6 +101,11 @@ public:
     cfg.m_sInputSlotTrigger[0] = ezInputSlot_KeyEscape;
 
     ezInputManager::SetInputActionConfig("Main", "CloseApp", cfg, true);
+
+    cfg = ezInputManager::GetInputActionConfig("Main", "ToggleShader");
+    cfg.m_sInputSlotTrigger[0] = ezInputSlot_KeySpace;
+
+    ezInputManager::SetInputActionConfig("Main", "ToggleShader", cfg, true);
 
     // Create a window for rendering
     ezWindowCreationDesc WindowCreationDesc;
@@ -135,30 +145,39 @@ public:
 
     m_pObj = DontUse::MayaObj::LoadFromFile("ez.obj", m_pDevice);
 
-    // Create a shader (uses a quick hacky implementation to compile the HLSL shaders)
-    ezGALShaderCreationDescription ShaderDesc;
-#if EZ_ENABLED(DEMO_GL)
-    ezStringBuilder pixelShader, vertexShader;
-    DontUse::ReadCompleteFile("ez_vert.glsl", vertexShader);
-    DontUse::ReadCompleteFile("ez_frag.glsl", pixelShader);
-    ShaderDesc.m_ByteCodes[ezGALShaderStage::VertexShader] = new ezGALShaderByteCode(vertexShader.GetData(), vertexShader.GetElementCount());
-    ShaderDesc.m_ByteCodes[ezGALShaderStage::PixelShader] = new ezGALShaderByteCode(pixelShader.GetData(), pixelShader.GetElementCount());
-#else
-    DontUse::ShaderCompiler::Compile("ez.hlsl", ShaderDesc);
-#endif
+    //ezPermutationGenerator Generator;
+    //Generator.ReadFromFile("ShaderPermutations.txt", "GL3");
 
-    m_hShader = m_pDevice->CreateShader(ShaderDesc);
-    EZ_ASSERT(!m_hShader.IsInvalidated(), "Couldn't create shader!");
+    //ezShaderCompiler sc;
+    //sc.CompileShader("ez.shader", Generator, "GL3");
+
+    ezShaderManager::SetPlatform("GL3", m_pDevice);
+    ezShaderManager::BindShader("ez.shader");
+
+    // Create a shader (uses a quick hacky implementation to compile the HLSL shaders)
+//    ezGALShaderCreationDescription ShaderDesc;
+//#if EZ_ENABLED(DEMO_GL)
+//    ezStringBuilder pixelShader, vertexShader;
+//    DontUse::ReadCompleteFile("ez_vert.glsl", vertexShader);
+//    DontUse::ReadCompleteFile("ez_frag.glsl", pixelShader);
+//    ShaderDesc.m_ByteCodes[ezGALShaderStage::VertexShader] = new ezGALShaderByteCode(vertexShader.GetData(), vertexShader.GetElementCount() + 1);
+//    ShaderDesc.m_ByteCodes[ezGALShaderStage::PixelShader] = new ezGALShaderByteCode(pixelShader.GetData(), pixelShader.GetElementCount() + 1);
+//#else
+//    DontUse::ShaderCompiler::Compile("ez.hlsl", ShaderDesc);
+//#endif
+//
+//    m_hShader = m_pDevice->CreateShader(ShaderDesc);
+//    EZ_ASSERT(!m_hShader.IsInvalidated(), "Couldn't create shader!");
 
     // Now the vertex declaration needs to be built
-    ezGALVertexDeclarationCreationDescription VertDeclDesc;
-    VertDeclDesc.m_hShader = m_hShader;
-    VertDeclDesc.m_VertexAttributes.PushBack(ezGALVertexAttribute(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat, 0, 0, false));
-    VertDeclDesc.m_VertexAttributes.PushBack(ezGALVertexAttribute(ezGALVertexAttributeSemantic::Normal, ezGALResourceFormat::XYZFloat, 12, 0, false));
-    VertDeclDesc.m_VertexAttributes.PushBack(ezGALVertexAttribute(ezGALVertexAttributeSemantic::TexCoord0, ezGALResourceFormat::UVFloat, 24, 0, false));
+    //ezGALVertexDeclarationCreationDescription VertDeclDesc;
+    //VertDeclDesc.m_hShader = m_hShader;
+    //VertDeclDesc.m_VertexAttributes.PushBack(ezGALVertexAttribute(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat, 0, 0, false));
+    //VertDeclDesc.m_VertexAttributes.PushBack(ezGALVertexAttribute(ezGALVertexAttributeSemantic::Normal, ezGALResourceFormat::XYZFloat, 12, 0, false));
+    //VertDeclDesc.m_VertexAttributes.PushBack(ezGALVertexAttribute(ezGALVertexAttributeSemantic::TexCoord0, ezGALResourceFormat::UVFloat, 24, 0, false));
 
-    m_hVertexDeclaration = m_pDevice->CreateVertexDeclaration(VertDeclDesc);
-    EZ_ASSERT(!m_hVertexDeclaration.IsInvalidated(), "Couldn't create input layout!");
+    //m_hVertexDeclaration = m_pDevice->CreateVertexDeclaration(VertDeclDesc);
+    //EZ_ASSERT(!m_hVertexDeclaration.IsInvalidated(), "Couldn't create input layout!");
 
     ezGALRasterizerStateCreationDescription RasterStateDesc;
     //RasterStateDesc.m_bWireFrame = true;
@@ -230,6 +249,27 @@ public:
     if (ezInputManager::GetInputActionState("Main", "CloseApp") == ezKeyState::Pressed)
       return ApplicationExecution::Quit;
 
+    if (ezInputManager::GetInputActionState("Main", "ToggleShader") == ezKeyState::Pressed)
+    {
+      static int iPerm = 1;
+
+      switch (iPerm)
+      {
+      case 0:
+        ezShaderManager::SetPermutationVariable("COLORED", "0");
+        break;
+      case 1:
+        ezShaderManager::SetPermutationVariable("COLORED", "1");
+        break;
+      default:
+        iPerm = 0;
+        break;
+      }
+
+      ++iPerm;
+      iPerm %= 2;
+    }
+
     ezClock::UpdateAllGlobalClocks();
 
     ezInputManager::Update(ezClock::Get()->GetTimeDiff());
@@ -252,9 +292,10 @@ public:
     pContext->SetVertexBuffer(0, m_pObj->GetVB());
     pContext->SetIndexBuffer(m_pObj->GetIB());
 
-    pContext->SetShader(m_hShader);
+    ezShaderManager::BindShader("ez.shader");
+    //pContext->SetShader(m_hShader);
+    //pContext->SetVertexDeclaration(m_hVertexDeclaration);
 
-    pContext->SetVertexDeclaration(m_hVertexDeclaration);
     pContext->SetPrimitiveTopology(ezGALPrimitiveTopology::Triangles);
     pContext->SetRasterizerState(m_hRasterizerState);
     pContext->SetDepthStencilState(m_hDepthStencilState);
@@ -353,9 +394,9 @@ private:
 
   ezGALBufferHandle m_hCB;
 
-  ezGALShaderHandle m_hShader;
+  //ezGALShaderHandle m_hShader;
 
-  ezGALVertexDeclarationHandle m_hVertexDeclaration;
+  //ezGALVertexDeclarationHandle m_hVertexDeclaration;
 
   ezGALRasterizerStateHandle m_hRasterizerState;
 

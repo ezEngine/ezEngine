@@ -10,8 +10,6 @@
 # *** Modify this file as required ***
 #
 
-BUILD_CONDITIONAL(BUILDSYSTEM_PLATFORM_WINDOWS)
-
 # Add all the preprocessor definitions that are needed to configure this library
 # add_definitions (-DMY_PREPROCESS_DEFINITION_1)
 # add_definitions (-DMY_PREPROCESS_DEFINITION_2)
@@ -19,17 +17,10 @@ BUILD_CONDITIONAL(BUILDSYSTEM_PLATFORM_WINDOWS)
 # Add all the libraries that this project needs to link against here
 SET (LINK_LIBRARIES
   Foundation
-  Core
-  System
-  RendererFoundation
-  RendererDX11
-  RendererGL3
-  # RendererGL4 Use of GL4 cancels out use of GL3 since most class/function names are identical
-  InputXBox360
-  CoreUtils
   Graphics
+  RendererFoundation
 )
 
 BUILD_REQUIRES_DX11()
 
-include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/CMAKE_Application.txt)
+include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/CMAKE_Plugin.txt)

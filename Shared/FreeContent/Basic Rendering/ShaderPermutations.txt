@@ -1,0 +1,13 @@
+
+add("COLORED", "0")
+add("COLORED", "1")
+
+add("STUFF", "0")
+add("STUFF", "1")
+
+#if DX11_SM50
+
+  add("COLORED", "2")
+  add("STUFF", "2")
+
+#endif
