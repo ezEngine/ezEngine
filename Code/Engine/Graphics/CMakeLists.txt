@@ -25,6 +25,7 @@ SET (LINK_LIBRARIES
   CoreUtils
   Core
   RendererFoundation
+  ThirdParty
 )
 
 include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/CMAKE_Library.txt)
