@@ -7,13 +7,14 @@ ezString ezPreprocessor::s_ParamNames[32];
 ezPreprocessor::ezPreprocessor()
 {
   SetCustomFileCache();
-  m_FileOpenCallback = nullptr;
-  m_FileLocatorCallback = nullptr;
   m_pLog = nullptr;
 
   m_bPassThroughPragma = false;
   m_bPassThroughLine = false;
   m_bPassThroughUnknownCmd = false;
+
+  m_FileLocatorCallback = DefaultFileLocator;
+  m_FileOpenCallback = DefaultFileOpen;
 
   ezStringBuilder s;
   for (ezUInt32 i = 0; i < 32; ++i)
@@ -117,7 +118,7 @@ ezResult ezPreprocessor::ProcessFile(const char* szFile, TokenStream& TokenOutpu
 
 ezResult ezPreprocessor::Process(const char* szMainFile, TokenStream& TokenOutput)
 {
-  EZ_ASSERT(m_FileLocatorCallback != nullptr, "No file locator callback has been set.");
+  EZ_ASSERT(m_FileLocatorCallback.IsValid(), "No file locator callback has been set.");
 
   TokenOutput.Clear();
 

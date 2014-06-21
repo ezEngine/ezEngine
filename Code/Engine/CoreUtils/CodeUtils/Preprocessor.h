@@ -60,14 +60,14 @@ public:
   };
 
   /// \brief This type of callback is used to read an #include file. \a szAbsoluteFile is the path that the FileLocatorCB reported, the result needs to be stored in \a FileContent.
-  typedef ezResult (*FileOpenCB)(const char* szAbsoluteFile, ezDynamicArray<ezUInt8>& FileContent);
+  typedef ezDelegate<ezResult (const char* szAbsoluteFile, ezDynamicArray<ezUInt8>& FileContent)> FileOpenCB;
 
   /// \brief This type of callback is used to retrieve the absolute path of the \a szIncludeFile when #included inside \a szCurAbsoluteFile.
   ///
   /// Note that you should ensure that \a out_sAbsoluteFilePath is always identical (including casing and path slashes) when it is supposed to point
   /// to the same file, as this exact name is used for file lookup (and therefore also file caching).
   /// If it is not identical, file caching will not work, and on different OSes the file may be found or not.
-  typedef ezResult (*FileLocatorCB)(const char* szCurAbsoluteFile, const char* szIncludeFile, IncludeType IncType, ezString& out_sAbsoluteFilePath);
+  typedef ezDelegate<ezResult (const char* szCurAbsoluteFile, const char* szIncludeFile, IncludeType IncType, ezString& out_sAbsoluteFilePath)> FileLocatorCB;
 
   typedef ezHybridArray<const ezToken*, 32> TokenStream;
   typedef ezDeque<TokenStream> MacroParameters;
@@ -132,10 +132,16 @@ public:
   /// \brief If set to true, all #xyz commands that are unknown are passed through to the output, otherwise an error is generated
   void SetPassThroughUnknownCmds(bool bPassThrough) { m_bPassThroughUnknownCmd = bPassThrough; }
 
-  /// \brief Sets the callbacks that are needed to locate and read the input data.
+  /// \brief Sets the callback that is needed to read input data.
   ///
-  /// These callbacks must be set, otherwise the processing will crash.
-  void SetFileCallbacks(FileOpenCB OpenAbsFileCB, FileLocatorCB LocateAbsFileCB);
+  /// The default file open function will just try to open files via ezFileReader.
+  void SetFileOpenFunction(FileOpenCB OpenAbsFileCB);
+
+  /// \brief Sets the callback that is needed to locate an input file
+  ///
+  /// The default file locator will assume that the main source file and all files #included in angle brackets can be opened without modification.
+  /// Files #included in "" will be appended as relative paths to the path of the file they appeared in.
+  void SetFileLocatorFunction(FileLocatorCB LocateAbsFileCB);
 
   /// \brief Adds a #define to the preprocessor, even before any file is processed.
   ///
@@ -209,6 +215,8 @@ private:
 
 private: // *** File Handling ***
   ezResult OpenFile(const char* szFile, const ezTokenizer** pTokenizer);
+  static ezResult DefaultFileLocator(const char* szCurAbsoluteFile, const char* szIncludeFile, ezPreprocessor::IncludeType IncType, ezString& out_sAbsoluteFilePath);
+  static ezResult DefaultFileOpen(const char* szAbsoluteFile, ezDynamicArray<ezUInt8>& FileContent);
 
   FileOpenCB m_FileOpenCallback;
   FileLocatorCB m_FileLocatorCallback;

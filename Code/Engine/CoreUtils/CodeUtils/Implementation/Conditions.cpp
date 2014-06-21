@@ -87,6 +87,12 @@ ezResult ezPreprocessor::EvaluateCondition(const TokenStream& Tokens, ezUInt32& 
   if (Expand(Copied, Expanded).Failed())
     return EZ_FAILURE;
 
+  if (Expanded.IsEmpty())
+  {
+    PP_LOG0(Error, "After expansion the condition is empty", Tokens[uiCurToken]);
+    return EZ_FAILURE;
+  }
+
   ezUInt32 uiCurToken2 = 0;
   return ParseExpressionOr(Expanded, uiCurToken2, iResult);
 }

@@ -3,7 +3,7 @@
 
 #include <Foundation/Math/Rect.h>
 
-struct ezGALContextState
+struct EZ_RENDERERFOUNDATION_DLL ezGALContextState
 {
   ezGALShaderHandle m_hShader;
 

@@ -17,15 +17,12 @@
 #if EZ_ENABLED(EZ_COMPILE_ENGINE_AS_DLL)
   #ifdef BUILDSYSTEM_BUILDING_RENDERERGL_LIB
     #define EZ_RENDERERGL_DLL __declspec(dllexport)
-    #define EZ_RENDERERGL_TEMPLATE
     #define GLEW_BUILD
   #else
     #define EZ_RENDERERGL_DLL __declspec(dllimport)
-    #define EZ_RENDERERGL_TEMPLATE extern
   #endif
 #else
   #define EZ_RENDERERGL_DLL
-  #define EZ_RENDERERGL_TEMPLATE
   #define GLEW_STATIC
 #endif
 

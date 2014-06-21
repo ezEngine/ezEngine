@@ -3,7 +3,7 @@
 
 /// \brief This struct holds information about the rendering device capabilities (e.g. what shader stages are supported and more)
 /// To get the device capabilities you need to call the GetCapabilities() function on an ezGALDevice object.
-struct ezGALDeviceCapabilities
+struct EZ_RENDERERFOUNDATION_DLL ezGALDeviceCapabilities
 {
   ezGALDeviceCapabilities();
 

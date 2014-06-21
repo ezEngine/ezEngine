@@ -103,16 +103,57 @@ void ezPreprocessor::SetLogInterface(ezLogInterface* pLog)
   m_pLog = pLog;
 }
 
-void ezPreprocessor::SetFileCallbacks(FileOpenCB OpenAbsFileCB, FileLocatorCB LocateAbsFileCB)
+void ezPreprocessor::SetFileOpenFunction(FileOpenCB OpenAbsFileCB)
 {
   m_FileOpenCallback = OpenAbsFileCB;
+}
+
+void ezPreprocessor::SetFileLocatorFunction(FileLocatorCB LocateAbsFileCB)
+{
   m_FileLocatorCallback = LocateAbsFileCB;
+}
+
+ezResult ezPreprocessor::DefaultFileLocator(const char* szCurAbsoluteFile, const char* szIncludeFile, ezPreprocessor::IncludeType IncType, ezString& out_sAbsoluteFilePath)
+{
+  ezStringBuilder s;
+
+  if (IncType == ezPreprocessor::RelativeInclude)
+  {
+    s = szCurAbsoluteFile;
+    s.PathParentDirectory();
+    s.AppendPath(szIncludeFile);
+    s.MakeCleanPath();
+  }
+  else
+  {
+    s = szIncludeFile;
+    s.MakeCleanPath();
+  }
+
+  out_sAbsoluteFilePath = s;
+  return EZ_SUCCESS;
+}
+
+ezResult ezPreprocessor::DefaultFileOpen(const char* szAbsoluteFile, ezDynamicArray<ezUInt8>& FileContent)
+{
+  ezFileReader r;
+  if (r.Open(szAbsoluteFile).Failed())
+    return EZ_FAILURE;
+
+  ezUInt8 Temp[4096];
+
+  while (ezUInt64 uiRead = r.ReadBytes(Temp, 4096))
+  {
+    FileContent.PushBackRange(ezArrayPtr<ezUInt8>(Temp, (ezUInt32) uiRead));
+  }
+
+  return EZ_SUCCESS;
 }
 
 ezResult ezPreprocessor::OpenFile(const char* szFile, const ezTokenizer** pTokenizer)
 {
-  EZ_ASSERT(m_FileOpenCallback != nullptr, "OpenFile callback has not been set");
-  EZ_ASSERT(m_FileLocatorCallback != nullptr, "File locator callback has not been set");
+  EZ_ASSERT(m_FileOpenCallback.IsValid(), "OpenFile callback has not been set");
+  EZ_ASSERT(m_FileLocatorCallback.IsValid(), "File locator callback has not been set");
 
   *pTokenizer = nullptr;
 
@@ -140,7 +181,7 @@ ezResult ezPreprocessor::OpenFile(const char* szFile, const ezTokenizer** pToken
 
 ezResult ezPreprocessor::HandleInclude(const TokenStream& Tokens, ezUInt32 uiCurToken, ezUInt32 uiDirectiveToken, TokenStream& TokenOutput)
 {
-  EZ_ASSERT(m_FileLocatorCallback != nullptr, "File locator callback has not been set");
+  EZ_ASSERT(m_FileLocatorCallback.IsValid(), "File locator callback has not been set");
 
   SkipWhitespace(Tokens, uiCurToken);
 

@@ -194,7 +194,7 @@ struct ezGALVertexAttribute
   bool m_bInstanceData;
 };
 
-struct ezGALVertexDeclarationCreationDescription : public ezHashableStruct<ezGALVertexDeclarationCreationDescription>
+struct EZ_RENDERERFOUNDATION_DLL ezGALVertexDeclarationCreationDescription : public ezHashableStruct<ezGALVertexDeclarationCreationDescription>
 {
   ezGALShaderHandle m_hShader;
   ezHybridArray<ezGALVertexAttribute, 8> m_VertexAttributes;

@@ -5,29 +5,7 @@
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
 
-
 EZ_CREATE_SIMPLE_TEST_GROUP(CodeUtils);
-
-static void Test(const char* szFile)
-{
-
-}
-
-ezResult FileOpen(const char* szAbsoluteFile, ezDynamicArray<ezUInt8>& FileContent)
-{
-  ezFileReader r;
-  if (r.Open(szAbsoluteFile).Failed())
-    return EZ_FAILURE;
-
-  ezUInt8 Temp[4096];
-
-  while (ezUInt64 uiRead = r.ReadBytes(Temp, 4096))
-  {
-    FileContent.PushBackRange(ezArrayPtr<ezUInt8>(Temp, (ezUInt32) uiRead));
-  }
-
-  return EZ_SUCCESS;
-}
 
 ezResult FileLocator(const char* szCurAbsoluteFile, const char* szIncludeFile, ezPreprocessor::IncludeType IncType, ezString& out_sAbsoluteFilePath)
 {
@@ -202,7 +180,7 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, Preprocessor)
         pp.SetLogInterface(&log);
         pp.SetPassThroughLine(false);
         pp.SetPassThroughPragma(true);
-        pp.SetFileCallbacks(FileOpen, FileLocator);
+        pp.SetFileLocatorFunction(FileLocator);
         pp.SetCustomFileCache(&SharedCache);
         pp.m_ProcessingEvents.AddEventHandler(ezDelegate<void (const ezPreprocessor::ProcessingEvent&)>(&Logger::EventHandler, &log));
         pp.AddCustomDefine("PP_OBJ");

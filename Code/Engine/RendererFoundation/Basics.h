@@ -8,14 +8,11 @@
 #if EZ_ENABLED(EZ_COMPILE_ENGINE_AS_DLL)
   #ifdef BUILDSYSTEM_BUILDING_RENDERERFOUNDATION_LIB
     #define EZ_RENDERERFOUNDATION_DLL __declspec(dllexport)
-    #define EZ_RENDERERFOUNDATION_TEMPLATE
   #else
     #define EZ_RENDERERFOUNDATION_DLL __declspec(dllimport)
-    #define EZ_RENDERERFOUNDATION_TEMPLATE extern
   #endif
 #else
   #define EZ_RENDERERFOUNDATION_DLL
-  #define EZ_RENDERERFOUNDATION_TEMPLATE
 #endif
 
 // Necessary array sizes
@@ -71,7 +68,7 @@ struct ezGALPrimitiveTopology
   };
 };
 
-struct ezGALIndexType
+struct EZ_RENDERERFOUNDATION_DLL ezGALIndexType
 {
   enum Enum
   {
@@ -83,7 +80,7 @@ struct ezGALIndexType
 
 
   /// \brief The size in bytes of a single element of the given index format.
-  EZ_RENDERERFOUNDATION_DLL static ezUInt8 GetSize(ezGALIndexType::Enum format)          { return Size[format]; }
+  static ezUInt8 GetSize(ezGALIndexType::Enum format)          { return Size[format]; }
 
 private:
 

@@ -96,7 +96,7 @@ inline const char* ezStringBase<Derived>::FindLastSubString_NoCase(const char* s
 }
 
 template <typename Derived>
-inline const char* ezStringBase<Derived>::FindWholeWord(const char* szSearchFor, ezStringUtils::EZ_CHARACTER_FILTER IsDelimiterCB, const char* szStartSearchAt /* = nullptr */)
+inline const char* ezStringBase<Derived>::FindWholeWord(const char* szSearchFor, ezStringUtils::EZ_CHARACTER_FILTER IsDelimiterCB, const char* szStartSearchAt /* = nullptr */) const
 {
   if (szStartSearchAt == nullptr)
     szStartSearchAt = InternalGetData();
@@ -107,7 +107,7 @@ inline const char* ezStringBase<Derived>::FindWholeWord(const char* szSearchFor,
 }
 
 template <typename Derived>
-inline const char* ezStringBase<Derived>::FindWholeWord_NoCase(const char* szSearchFor, ezStringUtils::EZ_CHARACTER_FILTER IsDelimiterCB, const char* szStartSearchAt /* = nullptr */)
+inline const char* ezStringBase<Derived>::FindWholeWord_NoCase(const char* szSearchFor, ezStringUtils::EZ_CHARACTER_FILTER IsDelimiterCB, const char* szStartSearchAt /* = nullptr */) const
 {
   if (szStartSearchAt == nullptr)
     szStartSearchAt = InternalGetData();
