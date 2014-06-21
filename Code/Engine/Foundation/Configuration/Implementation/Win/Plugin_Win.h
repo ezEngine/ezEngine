@@ -28,10 +28,10 @@
     {
       DWORD err = GetLastError();
 
-      LPVOID lpMsgBuf = NULL;
+      LPVOID lpMsgBuf = nullptr;
 
-      FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL,
-          err, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR) &lpMsgBuf, 0, NULL);
+      FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, nullptr,
+          err, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR) &lpMsgBuf, 0, nullptr);
 
       ezLog::Error("Could not unload plugin '%s'. Error-Code %u (\"%s\")", szPluginFile, err, lpMsgBuf);
 
@@ -40,7 +40,7 @@
       return EZ_FAILURE;
     }
 
-    Module = NULL;
+    Module = nullptr;
     return EZ_SUCCESS;
   }
 
@@ -51,14 +51,14 @@
 
     Module = LoadLibraryW(ezStringWChar(szFileToLoad).GetData());
 
-    if (Module == NULL)
+    if (Module == nullptr)
     {
       DWORD err = GetLastError();
 
-      LPVOID lpMsgBuf = NULL;
+      LPVOID lpMsgBuf = nullptr;
 
-      FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL,
-          err, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR) &lpMsgBuf, 0, NULL);
+      FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, nullptr,
+          err, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR) &lpMsgBuf, 0, nullptr);
 
       ezLog::Error("Could not load plugin '%s'. Error-Code %u (\"%s\")", szPluginFile, err, lpMsgBuf);
 

@@ -12,21 +12,21 @@ public:
   EZ_DECLARE_POD_TYPE();
 
   /// \brief Initializes the ezArrayPtr to be empty.
-  EZ_FORCE_INLINE ezArrayPtr() : m_ptr(NULL), m_uiCount(0) // [tested]
+  EZ_FORCE_INLINE ezArrayPtr() : m_ptr(nullptr), m_uiCount(0) // [tested]
   {
   }
 
   /// \brief Initializes the ezArrayPtr with the given pointer and number of elements. No memory is allocated or copied.
   inline ezArrayPtr(T* ptr, ezUInt32 uiCount) // [tested]
   {
-    if (ptr != NULL && uiCount != 0)
+    if (ptr != nullptr && uiCount != 0)
     {
       m_ptr = ptr;
       m_uiCount = uiCount;
     }
     else
     {
-      m_ptr = NULL;
+      m_ptr = nullptr;
       m_uiCount = 0;
     }
   }
@@ -125,7 +125,7 @@ public:
   /// \brief Resets the ezArray to be empty. 
   EZ_FORCE_INLINE void Reset() // [tested]
   {
-    m_ptr = NULL;
+    m_ptr = nullptr;
     m_uiCount = 0;
   }
 

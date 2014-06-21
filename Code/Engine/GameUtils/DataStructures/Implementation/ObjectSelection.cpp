@@ -3,19 +3,19 @@
 
 ezObjectSelection::ezObjectSelection()
 {
-  m_pWorld = NULL;
+  m_pWorld = nullptr;
 }
 
 void ezObjectSelection::SetWorld(ezWorld* pWorld)
 {
-  EZ_ASSERT((m_pWorld == NULL) || (m_pWorld == pWorld) || m_Objects.IsEmpty(), "You cannot change the world for this selection.");
+  EZ_ASSERT((m_pWorld == nullptr) || (m_pWorld == pWorld) || m_Objects.IsEmpty(), "You cannot change the world for this selection.");
 
   m_pWorld = pWorld;
 }
 
 void ezObjectSelection::RemoveDeadObjects()
 {
-  EZ_ASSERT(m_pWorld != NULL, "The world has not been set.");
+  EZ_ASSERT(m_pWorld != nullptr, "The world has not been set.");
 
   for (ezUInt32 i = m_Objects.GetCount(); i > 0; )
   {
@@ -31,7 +31,7 @@ void ezObjectSelection::RemoveDeadObjects()
 
 void ezObjectSelection::AddObject(ezGameObjectHandle hObject, bool bDontAddTwice)
 {
-  EZ_ASSERT(m_pWorld != NULL, "The world has not been set.");
+  EZ_ASSERT(m_pWorld != nullptr, "The world has not been set.");
 
   // only insert valid objects
   ezGameObject* pObject;

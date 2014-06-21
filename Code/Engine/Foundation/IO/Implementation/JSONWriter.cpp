@@ -172,6 +172,18 @@ void ezJSONWriter::WriteVariant(const ezVariant& value)
   case ezVariant::Type::Bool:
     WriteBool(value.Get<bool>());
     return;
+  case ezVariant::Type::Int8:
+    WriteInt32(value.Get<ezInt8>());
+    return;
+  case ezVariant::Type::UInt8:
+    WriteUInt32(value.Get<ezUInt8>());
+    return;
+  case ezVariant::Type::Int16:
+    WriteInt32(value.Get<ezInt16>());
+    return;
+  case ezVariant::Type::UInt16:
+    WriteUInt32(value.Get<ezUInt16>());
+    return;
   case ezVariant::Type::Int32:
     WriteInt32(value.Get<ezInt32>());
     return;

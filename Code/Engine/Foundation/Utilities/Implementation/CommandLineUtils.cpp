@@ -24,7 +24,7 @@ void ezCommandLineUtils::SetCommandLine()
 
  LPWSTR* argvw = CommandLineToArgvW(GetCommandLineW(), &argc);
 
- EZ_ASSERT(argvw != NULL, "CommandLineToArgvW failed");
+ EZ_ASSERT(argvw != nullptr, "CommandLineToArgvW failed");
 
  ezArrayPtr<ezStringUtf8> ArgvUtf8 = EZ_DEFAULT_NEW_ARRAY(ezStringUtf8, argc);
  ezArrayPtr<const char*> argv = EZ_DEFAULT_NEW_ARRAY(const char*, argc);

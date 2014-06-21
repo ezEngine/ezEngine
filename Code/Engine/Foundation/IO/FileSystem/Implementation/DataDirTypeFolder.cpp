@@ -6,7 +6,7 @@ namespace ezDataDirectory
 
   ezResult FolderReader::InternalOpen()
   {
-    ezStringBuilder sPath = GetDataDirectory()->GetDataDirectoryPath().GetData();
+    ezStringBuilder sPath = GetDataDirectory()->GetDataDirectoryPath();
     sPath.AppendPath(GetFilePath().GetData());
 
     return m_File.Open(sPath.GetData(), ezFileMode::Read);
@@ -29,7 +29,7 @@ namespace ezDataDirectory
 
   ezResult FolderWriter::InternalOpen()
   {
-    ezStringBuilder sPath = GetDataDirectory()->GetDataDirectoryPath().GetData();
+    ezStringBuilder sPath = GetDataDirectory()->GetDataDirectoryPath();
     sPath.AppendPath(GetFilePath().GetData());
 
     return m_File.Open(sPath.GetData(), ezFileMode::Write);
@@ -58,7 +58,7 @@ namespace ezDataDirectory
       return pDataDir;
 
     EZ_DEFAULT_DELETE(pDataDir);
-    return NULL;
+    return nullptr;
   }
 
   void FolderType::RemoveDataDirectory()
@@ -79,7 +79,7 @@ namespace ezDataDirectory
 
   void FolderType::DeleteFile(const char* szFile)
   {
-    ezStringBuilder sPath = GetDataDirectoryPath().GetData();
+    ezStringBuilder sPath = GetDataDirectoryPath();
     sPath.AppendPath(szFile);
 
     ezOSFile::DeleteFile(sPath.GetData());
@@ -131,7 +131,7 @@ namespace ezDataDirectory
 
   ezDataDirectoryReader* FolderType::OpenFileToRead(const char* szFile)
   {
-    FolderReader* pReader = NULL;
+    FolderReader* pReader = nullptr;
 
     for (ezUInt32 i = 0; i < m_Readers.GetCount(); ++i)
     {
@@ -139,7 +139,7 @@ namespace ezDataDirectory
         pReader = m_Readers[i];
     }
 
-    if (pReader == NULL)
+    if (pReader == nullptr)
     {
       m_Readers.PushBack(EZ_DEFAULT_NEW(FolderReader));
       pReader = m_Readers.PeekBack();
@@ -147,7 +147,7 @@ namespace ezDataDirectory
 
     // if opening the file fails, the reader state is never set to 'used', so nothing else needs to be done
     if (pReader->Open(szFile, this) == EZ_FAILURE)
-      return NULL;
+      return nullptr;
 
     // if it succeeds, we return the reader
     pReader->m_bIsInUse = true;
@@ -156,7 +156,7 @@ namespace ezDataDirectory
 
   ezDataDirectoryWriter* FolderType::OpenFileToWrite(const char* szFile)
   {
-    FolderWriter* pWriter = NULL;
+    FolderWriter* pWriter = nullptr;
 
     for (ezUInt32 i = 0; i < m_Writers.GetCount(); ++i)
     {
@@ -164,7 +164,7 @@ namespace ezDataDirectory
         pWriter = m_Writers[i];
     }
 
-    if (pWriter == NULL)
+    if (pWriter == nullptr)
     {
       m_Writers.PushBack(EZ_DEFAULT_NEW(FolderWriter));
       pWriter = m_Writers.PeekBack();
@@ -172,7 +172,7 @@ namespace ezDataDirectory
 
     // if opening the file fails, the writer state is never set to 'used', so nothing else needs to be done
     if (pWriter->Open(szFile, this) == EZ_FAILURE)
-      return NULL;
+      return nullptr;
 
     // if it succeeds, we return the reader
     pWriter->m_bIsInUse = true;

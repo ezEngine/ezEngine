@@ -4,7 +4,7 @@
 
 #include <Foundation/Basics.h>
 #include <Foundation/Time/Time.h>
-#include <Foundation/IO/IBinaryStream.h>
+#include <Foundation/IO/Stream.h>
 #include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/Communication/Event.h>
 
@@ -57,9 +57,9 @@ public:
   /// The time difference will then be scaled and clamped according to the clock speed and minimum and maximum time step.
   void Update(); // [tested]
 
-  /// \brief Sets a time step smoother for this clock. Pass NULL to deactivate time step smoothing.
+  /// \brief Sets a time step smoother for this clock. Pass nullptr to deactivate time step smoothing.
   ///
-  /// Also calls ezTimeStepSmoothing::Reset() on any non-NULL pSmoother.
+  /// Also calls ezTimeStepSmoothing::Reset() on any non-nullptr pSmoother.
   void SetTimeStepSmoothing(ezTimeStepSmoothing* pSmoother);
 
   /// \brief Returns the object used for time step smoothing (if any).
@@ -136,10 +136,10 @@ public:
   ezTime GetMaximumTimeStep() const; // [tested]
 
   /// \brief Serializes the current clock state to a stream.
-  void Save(ezIBinaryStreamWriter& Stream) const;
+  void Save(ezStreamWriterBase& Stream) const;
 
   /// \brief Deserializes the current clock state from a stream.
-  void Load(ezIBinaryStreamReader& Stream);
+  void Load(ezStreamReaderBase& Stream);
 
   /// \brief Sets the name of the clock. Useful to identify the clock in tools such as ezInspector.
   void SetClockName(const char* szName);

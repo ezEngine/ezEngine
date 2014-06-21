@@ -443,6 +443,37 @@ bool ezMat3Template<Type>::IsNaN() const
   return false;
 }
 
+template<typename Type>
+const ezVec3Template<Type> ezMat3Template<Type>::GetScalingFactors() const
+{
+  ezVec3Template<Type> v;
+
+  v.x = ezVec3Template<Type>(Element(0, 0), Element(0, 1), Element(0, 2)).GetLength ();
+  v.y = ezVec3Template<Type>(Element(1, 0), Element(1, 1), Element(1, 2)).GetLength ();
+  v.z = ezVec3Template<Type>(Element(2, 0), Element(2, 1), Element(2, 2)).GetLength ();
+
+  EZ_NAN_ASSERT(&v);
+  return v;
+}
+
+template<typename Type>
+ezResult ezMat3Template<Type>::SetScalingFactors(const ezVec3Template<Type>& vXYZ, Type fEpsilon /* = ezMath::BasicType<Type>::DefaultEpsilon() */)
+{
+  ezVec3Template<Type> tx (Element(0, 0), Element(0, 1), Element(0, 2));
+  ezVec3Template<Type> ty (Element(1, 0), Element(1, 1), Element(1, 2));
+  ezVec3Template<Type> tz (Element(2, 0), Element(2, 1), Element(2, 2));
+
+  if (tx.SetLength (vXYZ.x, fEpsilon) == EZ_FAILURE) return EZ_FAILURE;
+  if (ty.SetLength (vXYZ.y, fEpsilon) == EZ_FAILURE) return EZ_FAILURE;
+  if (tz.SetLength (vXYZ.z, fEpsilon) == EZ_FAILURE) return EZ_FAILURE;
+
+
+  Element(0, 0) = tx.x; Element(0, 1) = tx.y; Element(0, 2) = tx.z;
+  Element(1, 0) = ty.x; Element(1, 1) = ty.y; Element(1, 2) = ty.z;
+  Element(2, 0) = tz.x; Element(2, 1) = tz.y; Element(2, 2) = tz.z;
+
+  return EZ_SUCCESS;
+}
 
 #include <Foundation/Math/Implementation/AllClasses_inl.h>
 

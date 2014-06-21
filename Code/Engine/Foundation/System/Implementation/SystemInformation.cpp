@@ -12,10 +12,6 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, SystemInformation)
     ezSystemInformation::Initialize();
   }
 
-  ON_BASE_SHUTDOWN
-  {
-  }
-
 EZ_END_SUBSYSTEM_DECLARATION
 
 

@@ -16,7 +16,7 @@ public:
   virtual ~ezQtTestDelegate();
 
 public: //QStyledItemDelegate interface
-  virtual void paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const EZ_OVERRIDE;
+  virtual void paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
 };
 
 #endif

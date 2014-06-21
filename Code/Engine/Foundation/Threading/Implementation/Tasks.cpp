@@ -11,8 +11,8 @@ ezTask::ezTask()
   m_bIsFinished = true;
   m_bProfilingIDGenerated = false; 
   m_sTaskName = "Unnamed Task";
-  m_OnTaskFinished = NULL;
-  m_pCallbackPassThrough = NULL;
+  m_OnTaskFinished = nullptr;
+  m_pCallbackPassThrough = nullptr;
 }
 
 void ezTask::Reset()
@@ -43,12 +43,17 @@ void ezTask::Run()
     return;
   }
 
-  Execute (); 
+  {
+    EZ_ASSERT(m_bProfilingIDGenerated, "Profiling id must be valid at this point.");
+    EZ_PROFILE(m_ProfilingID);
+
+    Execute();
+  }
 
   m_bIsFinished = true;
 }
 
-const ezProfilingId& ezTask::GetProfilingID()
+const ezProfilingId& ezTask::CreateProfilingID()
 {
   if (!m_bProfilingIDGenerated)
   {
@@ -62,13 +67,17 @@ const ezProfilingId& ezTask::GetProfilingID()
 
 void ezTaskSystem::TaskHasFinished(ezTask* pTask, ezTaskGroup* pGroup)
 {
+  // this might deallocate the task, make sure not to reference it later anymore
+  if (pTask && pTask->m_OnTaskFinished)
+    pTask->m_OnTaskFinished(pTask, pTask->m_pCallbackPassThrough);
+
   if (pGroup->m_iRemainingTasks.Decrement() == 0)
   {
     // If this was the last task that had to be finished from this group, make sure all dependent groups are started
 
     if (!pGroup->m_OthersDependingOnMe.IsEmpty())
     {
-      ezLock<ezMutex> Lock(s_TaskSystemMutex);
+      EZ_LOCK(s_TaskSystemMutex);
 
       for (ezUInt32 dep = 0; dep < pGroup->m_OthersDependingOnMe.GetCount(); ++dep)
       {
@@ -76,18 +85,13 @@ void ezTaskSystem::TaskHasFinished(ezTask* pTask, ezTaskGroup* pGroup)
       }
     }
 
+    if (pGroup->m_OnFinishedCallback)
+      pGroup->m_OnFinishedCallback(pGroup->m_pCallbackPassThrough);
+
     // set this task group to be finished and available for reuse
     pGroup->m_uiGroupCounter += 2;
     pGroup->m_bInUse = false;
-
-    if (pGroup->m_OnFinishedCallback)
-      pGroup->m_OnFinishedCallback(pGroup->m_pCallbackPassThrough);
   }
-
-  // call the callback after everything else is done
-  // this might be used to deallocate a task, so it must not be referenced anywhere anymore
-  if (pTask && pTask->m_OnTaskFinished)
-    pTask->m_OnTaskFinished(pTask, pTask->m_pCallbackPassThrough);
 }
 
 ezTaskSystem::TaskData ezTaskSystem::GetNextTask(ezTaskPriority::Enum FirstPriority, ezTaskPriority::Enum LastPriority, ezTask* pPrioritizeThis)
@@ -111,8 +115,8 @@ ezTaskSystem::TaskData ezTaskSystem::GetNextTask(ezTaskPriority::Enum FirstPrior
 
   {
     TaskData td;
-    td.m_pTask = NULL;
-    td.m_pBelongsToGroup = NULL;
+    td.m_pTask = nullptr;
+    td.m_pBelongsToGroup = nullptr;
     return td;
   }
 
@@ -120,10 +124,10 @@ ezTaskSystem::TaskData ezTaskSystem::GetNextTask(ezTaskPriority::Enum FirstPrior
 foundany:
   // we have detected that there MIGHT be work
 
-  ezLock<ezMutex> Lock(s_TaskSystemMutex);
+  EZ_LOCK(s_TaskSystemMutex);
 
   // if there is a task that should be prioritized, check if it exists in any of the task lists
-  if (pPrioritizeThis != NULL)
+  if (pPrioritizeThis != nullptr)
   {
     // only search for the task in the lists that this thread is willing to work on
     // otherwise we might execute a main-thread task in a thread that is not the main thread
@@ -165,8 +169,8 @@ foundany:
 
   {
     TaskData td;
-    td.m_pTask = NULL;
-    td.m_pBelongsToGroup = NULL;
+    td.m_pTask = nullptr;
+    td.m_pBelongsToGroup = nullptr;
     return td;
   }
 }
@@ -175,15 +179,11 @@ bool ezTaskSystem::ExecuteTask(ezTaskPriority::Enum FirstPriority, ezTaskPriorit
 {
   ezTaskSystem::TaskData td = GetNextTask(FirstPriority, LastPriority, pPrioritizeThis);
 
-  if (td.m_pTask == NULL)
+  if (td.m_pTask == nullptr)
     return false;
 
-  {
-    EZ_PROFILE(td.m_pTask->GetProfilingID());
-
-    td.m_pTask->Run();
-  }
-
+  td.m_pTask->Run();
+  
   // notify the group, that a task is finished, which might trigger other tasks to be executed
   TaskHasFinished(td.m_pTask, td.m_pBelongsToGroup);
 
@@ -248,7 +248,7 @@ ezResult ezTaskSystem::CancelTask(ezTask* pTask, ezOnTaskRunning::Enum OnTaskRun
   pTask->m_bCancelExecution = true;
 
   {
-    ezLock<ezMutex> Lock(s_TaskSystemMutex);
+    EZ_LOCK(s_TaskSystemMutex);
 
     // if the task is still in the queue of its group, it had not yet been scheduled
     if (!pTask->m_bTaskIsScheduled && pTask->m_BelongsToGroup.m_pTaskGroup->m_Tasks.RemoveSwap(pTask))

@@ -8,7 +8,7 @@ static LRESULT CALLBACK ezWindowsMessageFuncTrampoline(HWND hWnd, UINT Msg, WPAR
 {
   ezWindow* pWindow = reinterpret_cast<ezWindow*>(GetWindowLongPtrW(hWnd, GWLP_USERDATA));
 
-  if (pWindow != NULL && pWindow->IsInitialized())
+  if (pWindow != nullptr && pWindow->IsInitialized())
   {
     if (pWindow->GetInputDevice())
       pWindow->GetInputDevice()->WindowMessage(hWnd, Msg, WParam, LParam);
@@ -25,7 +25,7 @@ static LRESULT CALLBACK ezWindowsMessageFuncTrampoline(HWND hWnd, UINT Msg, WPAR
       return 0;
       
     case WM_CLOSE:
-      pWindow->Destroy();
+      pWindow->OnClickCloseMessage();
       return 0;
 
     case WM_SETFOCUS:
@@ -65,9 +65,9 @@ ezResult ezWindow::Initialize()
   ezMemoryUtils::ZeroFill(&windowClass);
   windowClass.cbSize         = sizeof(WNDCLASSEXW);
   windowClass.style          = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
-  windowClass.hInstance      = GetModuleHandleW(NULL);
-  windowClass.hIcon          = LoadIcon(NULL, IDI_APPLICATION); /// \todo Expose icon functionality somehow
-  windowClass.hCursor        = LoadCursor(NULL, IDC_ARROW);
+  windowClass.hInstance      = GetModuleHandleW(nullptr);
+  windowClass.hIcon          = LoadIcon(nullptr, IDI_APPLICATION); /// \todo Expose icon functionality somehow
+  windowClass.hCursor        = LoadCursor(nullptr, IDC_ARROW);
   windowClass.hbrBackground  = static_cast<HBRUSH>(GetStockObject(BLACK_BRUSH));
   windowClass.lpszClassName  = L"ezWin32Window";
   windowClass.lpfnWndProc    = ezWindowsMessageFuncTrampoline;
@@ -115,7 +115,7 @@ ezResult ezWindow::Initialize()
     dwWindowStyle |= WS_POPUP;
   }
 
-  if(m_CreationDescription.m_bResizable)
+  if (m_CreationDescription.m_bResizable)
   {
     ezLog::Dev("Window is resizable.");
     dwWindowStyle |= WS_MAXIMIZEBOX | WS_THICKFRAME;
@@ -167,7 +167,7 @@ ezResult ezWindow::Initialize()
   const wchar_t* sTitelWCharRaw = sTitelWChar.GetData();
   m_WindowHandle = CreateWindowExW(dwExStyle, windowClass.lpszClassName, sTitelWCharRaw, dwWindowStyle, 
                                   iLeft, iTop, iWidth, iHeight, 
-                                  NULL, NULL, windowClass.hInstance, NULL);
+                                  nullptr, nullptr, windowClass.hInstance, nullptr);
   if (m_WindowHandle == INVALID_HANDLE_VALUE)
   {
     ezLog::Error("Failed to create window.");
@@ -188,25 +188,22 @@ ezResult ezWindow::Initialize()
 
   m_pInputDevice = EZ_DEFAULT_NEW(ezStandardInputDevice)(m_CreationDescription.m_uiWindowNumber);
 
-  return CreateGraphicsContext();
+  return EZ_SUCCESS;
 }
 
 ezResult ezWindow::Destroy()
 {
+  if (!m_bInitialized)
+    return EZ_SUCCESS;
+
   EZ_LOG_BLOCK("ezWindow::Destroy");
 
   ezResult Res = EZ_SUCCESS;
 
-  if (DestroyGraphicsContext() == EZ_FAILURE)
-  {
-    ezLog::SeriousWarning("DestroyGraphicsContext failed.");
-    Res = EZ_FAILURE;
-  }
-
   EZ_DEFAULT_DELETE(m_pInputDevice);
 
   if (m_CreationDescription.m_bFullscreenWindow && m_CreationDescription.m_bWindowsUseDevmodeFullscreen)
-    ChangeDisplaySettingsW(NULL, 0);
+    ChangeDisplaySettingsW(nullptr, 0);
 
   HWND hWindow = GetNativeWindowHandle();
   if (!DestroyWindow(hWindow))
@@ -215,11 +212,11 @@ ezResult ezWindow::Destroy()
     Res = EZ_FAILURE;
   }
 
-  // the following line of code is a work around, because 'LONG_PTR pNull = reinterpret_cast<LONG_PTR>(NULL)' crashes the VS 2010 32 Bit compiler :-(
+  // the following line of code is a work around, because 'LONG_PTR pNull = reinterpret_cast<LONG_PTR>(nullptr)' crashes the VS 2010 32 Bit compiler :-(
   LONG_PTR pNull = 0;
   SetWindowLongPtrW(hWindow, GWLP_USERDATA, pNull);
 
-  if (!UnregisterClassW(L"ezWin32Window", GetModuleHandleW(NULL)))
+  if (!UnregisterClassW(L"ezWin32Window", GetModuleHandleW(nullptr)))
   {
     ezLog::SeriousWarning("UnregisterClassW failed.");
     Res = EZ_FAILURE;
@@ -236,10 +233,10 @@ ezResult ezWindow::Destroy()
   return Res;
 }
 
-ezWindow::WindowMessageResult ezWindow::ProcessWindowMessages()
+void ezWindow::ProcessWindowMessages()
 {
   if (!m_bInitialized)
-    return Quit;
+    return;
 
   MSG msg = {0};
   while (PeekMessageW(&msg, m_WindowHandle, 0, 0, PM_REMOVE))	
@@ -247,201 +244,10 @@ ezWindow::WindowMessageResult ezWindow::ProcessWindowMessages()
     if (msg.message == WM_QUIT)
     {
       Destroy();
-      return Quit;
+      return;
     }
 
     TranslateMessage(&msg);
     DispatchMessageW(&msg);
   }
-
-  return Continue;
 }
-
-void ezWindow::PresentFrame()
-{
-  switch (m_CreationDescription.m_GraphicsAPI)
-  {
-  case ezGraphicsAPI::None:
-    EZ_REPORT_FAILURE("Cannot present a frame when no graphics API is initialized.");
-    return;
-
-  case ezGraphicsAPI::Direct3D11:
-    {
-      EZ_REPORT_FAILURE("Not implemented.");
-    }
-    break;
-
-  case ezGraphicsAPI::OpenGL:
-    {
-      ::SwapBuffers(m_hDC);
-    }
-    break;
-  }
-}
-
-ezResult ezWindow::CreateGraphicsContext()
-{
-  switch (m_CreationDescription.m_GraphicsAPI)
-  {
-  case ezGraphicsAPI::None:
-    return EZ_SUCCESS;
-
-  case ezGraphicsAPI::Direct3D11:
-    return CreateContextDirect3D11();
-
-  case ezGraphicsAPI::OpenGL:
-    return CreateContextOpenGL();
-
-  default:
-    EZ_REPORT_FAILURE("Unknown Graphics API selected.");
-  }
-
-  return EZ_FAILURE;
-}
-
-ezResult ezWindow::DestroyGraphicsContext()
-{
-  switch (m_CreationDescription.m_GraphicsAPI)
-  {
-  case ezGraphicsAPI::None:
-    return EZ_SUCCESS;
-
-  case ezGraphicsAPI::Direct3D11:
-    return DestroyContextDirect3D11();
-
-  case ezGraphicsAPI::OpenGL:
-    return DestroyContextOpenGL();
-
-  default:
-    EZ_REPORT_FAILURE("Unknown Graphics API selected.");
-  }
-
-  return EZ_FAILURE;
-}
-
-ezResult ezWindow::CreateContextOpenGL()
-{
-  EZ_LOG_BLOCK("ezWindow::CreateContextOpenGL");
-
-  int iColorBits = 24;
-  int iDepthBits = 24;
-  int iBPC = 8;
-
-  HWND hWnd = GetNativeWindowHandle();
-
-  PIXELFORMATDESCRIPTOR pfd =
-  {
-    sizeof (PIXELFORMATDESCRIPTOR),
-    1, // Version
-    PFD_DRAW_TO_WINDOW | PFD_SUPPORT_OPENGL | PFD_DOUBLEBUFFER | PFD_SWAP_EXCHANGE, // Flags
-    PFD_TYPE_RGBA, // Pixeltype
-    iColorBits, // Color Bits
-    iBPC, 0, iBPC, 0, iBPC, 0, iBPC, 0,// Red Bits / Red Shift, Green Bits / Shift, Blue Bits / Shift, Alpha Bits / Shift
-    0, 0, 0, 0, 0, // Accum Bits (total), Accum Bits Red, Green, Blue, Alpha
-    iDepthBits, 8, // Depth, Stencil Bits
-    0, // Aux Buffers
-    PFD_MAIN_PLANE, // Layer Type (ignored)
-    0, 0, 0, 0 // ignored deprecated flags
-  };
-
-  m_hDC = GetDC(hWnd);
-
-  if (m_hDC == NULL)
-  {
-    ezLog::Error("Could not retrieve the Window DC");
-    goto failure;
-  }
-
-  int iPixelformat = ChoosePixelFormat(m_hDC, &pfd);
-  if (iPixelformat == 0)
-  {
-    ezLog::Error("ChoosePixelFormat failed.");
-    goto failure;
-  }
-
-  if (!SetPixelFormat(m_hDC, iPixelformat, &pfd))
-  {
-    ezLog::Error("SetPixelFormat failed.");
-    goto failure;
-  }
-
-  m_hRC = wglCreateContext(m_hDC);
-  if (m_hRC == NULL)
-  {
-    ezLog::Error("wglCreateContext failed.");
-    goto failure;
-  }
-
-  if (!wglMakeCurrent(m_hDC, m_hRC))
-  {
-    ezLog::Error("wglMakeCurrent failed.");
-    goto failure;
-  }
-
-  SetFocus(hWnd);
-  SetForegroundWindow(hWnd);
-
-  ezLog::Success("OpenGL graphics context is initialized.");
-
-  return EZ_SUCCESS;
-
-failure:
-  ezLog::Error("Failed to initialize the graphics context.");
-
-  DestroyContextOpenGL();
-  return EZ_FAILURE;
-}
-
-ezResult ezWindow::DestroyContextOpenGL()
-{
-  EZ_LOG_BLOCK("ezWindow::DestroyContextOpenGL");
-
-  if (!m_hRC && !m_hDC)
-    return EZ_SUCCESS;
-
-  if (m_hRC)
-  {
-    ezLog::Dev("Destroying the RC.");
-
-    wglMakeCurrent(NULL, NULL);
-    wglDeleteContext(m_hRC);
-    m_hRC = NULL;
-  }
-
-  if (m_hDC)
-  {
-    ezLog::Dev("Destroying the DC.");
-
-    ReleaseDC(GetNativeWindowHandle(), m_hDC);
-    m_hDC = NULL;
-  }
-
-  ezLog::Success("OpenGL graphics context is destroyed.");
-
-  return EZ_SUCCESS;
-}
-
-ezResult ezWindow::CreateContextDirect3D11()
-{
-  EZ_LOG_BLOCK("ezWindow::CreateContextDirect3D11");
-
-  // asserts removed since the code will be moved to a renderplugin anyway
-  //EZ_ASSERT(m_CreationDescription.m_GraphicsAPI != ezGraphicsAPI::Direct3D11, "Context creation for Direct3D11 is not yet implemented.");
-
-  //return EZ_FAILURE;
-  return EZ_SUCCESS;
-}
-
-ezResult ezWindow::DestroyContextDirect3D11()
-{
-  EZ_LOG_BLOCK("ezWindow::DestroyContextDirect3D11");
-
-  //EZ_ASSERT(m_CreationDescription.m_GraphicsAPI != ezGraphicsAPI::Direct3D11, "Context creation for Direct3D11 is not yet implemented.");
-
-  return EZ_SUCCESS;
-}
-
-
-
-
-

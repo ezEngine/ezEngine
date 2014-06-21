@@ -8,7 +8,7 @@
 
 ezUInt32 RunThread(ezThread* pThread)
 {
-  if (pThread == NULL)
+  if (pThread == nullptr)
     return 0;
 
   ezThreadLocalStorage::SetPerThreadPointerTable(&(pThread->m_ThreadLocalPointerTable));
@@ -20,6 +20,8 @@ ezUInt32 RunThread(ezThread* pThread)
   ezUInt32 uiReturnCode = pThread->Run();
 
   pThread->m_ThreadStatus = ezThread::Finished;
+
+  ezThreadLocalStorage::SetPerThreadPointerTable(nullptr);
 
   return uiReturnCode;
 }

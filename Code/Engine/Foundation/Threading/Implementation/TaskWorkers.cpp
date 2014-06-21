@@ -40,6 +40,8 @@ ezTaskWorkerThread::ezTaskWorkerThread(ezWorkerThreadType::Enum ThreadType, ezUI
 
   m_bExecutingTask = false;
   m_ThreadUtilization = 0.0;
+  m_iTasksExecutionCounter = 0;
+  m_uiNumTasksExecuted = 0;
 }
 
 bool ezTaskSystem::IsLoadingThread()
@@ -47,7 +49,7 @@ bool ezTaskSystem::IsLoadingThread()
   if (s_WorkerThreads[ezWorkerThreadType::FileAccess].IsEmpty())
     return false;
 
-  return ezThreadUtils::GetCurrentThreadHandle() == s_WorkerThreads[ezWorkerThreadType::FileAccess][0]->GetThreadHandle();
+  return ezThreadUtils::GetCurrentThreadID() == s_WorkerThreads[ezWorkerThreadType::FileAccess][0]->GetThreadID();
 }
 
 void ezTaskSystem::StopWorkerThreads()
@@ -176,6 +178,8 @@ ezUInt32 ezTaskWorkerThread::Run()
       m_bExecutingTask = false;
       ezTaskSystem::s_TasksAvailableSignal[m_WorkerType].WaitForSignal();
     }
+    else
+      m_iTasksExecutionCounter.Increment();
   }
 
   return 0;
@@ -186,6 +190,7 @@ void ezTaskWorkerThread::ComputeThreadUtilization(ezTime TimePassed)
   const ezTime tActive = GetAndResetThreadActiveTime();
 
   m_ThreadUtilization = tActive.GetSeconds() / TimePassed.GetSeconds();
+  m_uiNumTasksExecuted = m_iTasksExecutionCounter.Set(0);
 }
 
 ezTime ezTaskWorkerThread::GetAndResetThreadActiveTime()

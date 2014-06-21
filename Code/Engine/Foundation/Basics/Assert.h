@@ -1,9 +1,9 @@
 #pragma once
 
+/// \file
+
 #include <Foundation/Basics.h>
 
-/// \file
-///
 /// ***** Assert Usage Guidelines *****
 ///
 /// For your typical code, use EZ_ASSERT to check that vital preconditions are met.

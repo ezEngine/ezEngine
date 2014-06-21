@@ -95,7 +95,7 @@ bool ezGameGrid<CellData>::PickCell(const ezVec3& vRayStartPos, const ezVec3& vR
 
   ezVec3 vPos;
 
-  if (!p.GetRayIntersection(vRayStartPos, vRayDirNorm, NULL, &vPos))
+  if (!p.GetRayIntersection(vRayStartPos, vRayDirNorm, nullptr, &vPos))
     return false;
 
   if (out_vIntersection)

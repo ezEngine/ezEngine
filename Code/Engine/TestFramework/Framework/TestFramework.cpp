@@ -1,19 +1,21 @@
 #include <TestFramework/PCH.h>
 #include <TestFramework/Framework/TestFramework.h>
+#include <TestFramework/Utilities/TestOrder.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Time/Timestamp.h>
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/Utilities/CommandLineUtils.h>
 
-ezTestFramework* ezTestFramework::s_pInstance = NULL;
+ezTestFramework* ezTestFramework::s_pInstance = nullptr;
 
 const char* ezTestFramework::s_szTestBlockName = "";
+int ezTestFramework::s_iAssertCounter = 0;
 
 static bool TestAssertHandler(const char* szSourceFile, ezUInt32 uiLine, const char* szFunction, const char* szExpression, const char* szAssertMsg)
 {
   ezTestFramework::Error(szExpression, szSourceFile, (ezInt32)uiLine, szFunction, szAssertMsg);
-  return false;
+  return ezTestFramework::GetAssertOnTestFail();
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -21,7 +23,7 @@ static bool TestAssertHandler(const char* szSourceFile, ezUInt32 uiLine, const c
 ////////////////////////////////////////////////////////////////////////
 
 ezTestFramework::ezTestFramework(const char* szTestName, const char* szAbsTestDir, int argc, const char** argv)
-  : m_sTestName(szTestName), m_sAbsTestDir(szAbsTestDir), m_iErrorCount(0), m_iTestsFailed(0), m_iTestsPassed(0), m_PreviousAssertHandler(NULL), m_iCurrentTestIndex(-1), m_iCurrentSubTestIndex(-1), m_bTestsRunning(false)
+  : m_sTestName(szTestName), m_sAbsTestDir(szAbsTestDir), m_iErrorCount(0), m_iTestsFailed(0), m_iTestsPassed(0), m_PreviousAssertHandler(nullptr), m_iCurrentTestIndex(-1), m_iCurrentSubTestIndex(-1), m_bTestsRunning(false)
 {
   s_pInstance = this;
 
@@ -39,7 +41,7 @@ ezTestFramework::ezTestFramework(const char* szTestName, const char* szAbsTestDi
 
 ezTestFramework::~ezTestFramework()
 {
-  s_pInstance = NULL;
+  s_pInstance = nullptr;
 }
 
 const char* ezTestFramework::GetTestName() const
@@ -146,7 +148,6 @@ void ezTestFramework::GetTestSettingsFromCommandLine(int argc, const char** argv
     if (cmd.GetStringOptionArguments("-json") == 1)
       m_Settings.m_sJsonOutput     = cmd.GetStringOption("-json", 0, "");
   }
-  ezStartup::ShutdownBase();
 }
 
 void ezTestFramework::LoadTestOrder()
@@ -161,7 +162,6 @@ void ezTestFramework::CreateOutputFolder()
 {
   ezStartup::StartupBase();
   ezOSFile::CreateDirectoryStructure(m_sAbsTestDir.c_str());
-  ezStartup::ShutdownBase();
 }
 
 void ezTestFramework::SaveTestOrder()
@@ -262,6 +262,8 @@ void ezTestFramework::ExecuteTest(ezUInt32 uiTestIndex)
 
   // Execute test
   {
+    // Reset assert counter. This variable is used to reduce the overhead of counting millions of asserts.
+    s_iAssertCounter = 0;
     m_iCurrentTestIndex = (ezInt32)uiTestIndex;
     // Log writer translates engine warnings / errors into test framework error messages.
     ezGlobalLog::AddLogWriter(LogWriter);
@@ -285,6 +287,8 @@ void ezTestFramework::ExecuteTest(ezUInt32 uiTestIndex)
           continue;
         }
     
+        // First flush of assert counter, these are all asserts during test init.
+        FlushAsserts();
         m_iCurrentSubTestIndex = st;
         ezTestFramework::Output(ezTestOutput::BeginBlock, "Executing Sub-Test: '%s'", subTest.m_szSubTestName);
     
@@ -302,7 +306,13 @@ void ezTestFramework::ExecuteTest(ezUInt32 uiTestIndex)
        
           fTotalTestDuration += fDuration;
         }
+        else
+        {
+          ezTestFramework::TestResult(st, false, 0.0);
+        }
 
+        // Second flush of assert counter, these are all asserts for the current subtest.
+        FlushAsserts();
         ezTestFramework::Output(ezTestOutput::EndBlock, "");
         m_iCurrentSubTestIndex = -1;
       }
@@ -310,6 +320,8 @@ void ezTestFramework::ExecuteTest(ezUInt32 uiTestIndex)
 
     // *** Test De-Initialization ***
     pTestClass->DoTestDeInitialization();
+    // Third and last flush of assert counter, these are all asserts for the test de-init.
+    FlushAsserts();
 
     ezGlobalLog::RemoveLogWriter(LogWriter);
 
@@ -323,7 +335,7 @@ void ezTestFramework::ExecuteTest(ezUInt32 uiTestIndex)
 void ezTestFramework::EndTests()
 {
   ezSetAssertHandler(m_PreviousAssertHandler);
-  m_PreviousAssertHandler = NULL;
+  m_PreviousAssertHandler = nullptr;
 
   m_bTestsRunning = false;
   if (GetTestsFailedCount() == 0)
@@ -412,7 +424,7 @@ void ezTestFramework::SetSubTestEnabled(ezUInt32 uiTestIndex, ezUInt32 uiSubTest
 ezTestEntry* ezTestFramework::GetTest(ezUInt32 uiTestIndex)
 {
   if (uiTestIndex >= GetTestCount())
-    return NULL;
+    return nullptr;
 
   return &m_TestEntries[uiTestIndex];
 }
@@ -480,12 +492,12 @@ void ezTestFramework::ErrorImpl(const char* szError, const char* szFile, ezInt32
   ezTestFramework::Output(ezTestOutput::Error, szError);
   ezTestFramework::Output(ezTestOutput::BeginBlock, "");
   {
-    if ((ezTestFramework::s_szTestBlockName != NULL) && (ezTestFramework::s_szTestBlockName[0] != '\0'))
+    if ((ezTestFramework::s_szTestBlockName != nullptr) && (ezTestFramework::s_szTestBlockName[0] != '\0'))
       ezTestFramework::Output(ezTestOutput::Message, "Block: '%s'", ezTestFramework::s_szTestBlockName);
     ezTestFramework::Output(ezTestOutput::ImportantInfo, "File: %s", szFile);
     ezTestFramework::Output(ezTestOutput::ImportantInfo, "Line: %i", iLine);
     ezTestFramework::Output(ezTestOutput::ImportantInfo, "Function: %s", szFunction);
-    if ((szMsg != NULL) && (szMsg[0] != '\0'))\
+    if ((szMsg != nullptr) && (szMsg[0] != '\0'))\
       ezTestFramework::Output(ezTestOutput::Message, "Message: %s", szMsg);
   }
   ezTestFramework::Output(ezTestOutput::EndBlock, "");
@@ -532,6 +544,12 @@ void ezTestFramework::TestResultImpl(ezInt32 iSubTestIndex, bool bSuccess, doubl
   }
 }
 
+void ezTestFramework::FlushAsserts()
+{
+  m_Result.AddAsserts(m_iCurrentTestIndex, m_iCurrentSubTestIndex, s_iAssertCounter);
+  s_iAssertCounter = 0;
+}
+
 
 ////////////////////////////////////////////////////////////////////////
 // ezTestFramework static functions
@@ -544,15 +562,23 @@ void ezTestFramework::Output(ezTestOutput::Enum Type, const char* szMsg, ...)
   va_start (args, szMsg);
 
   char szBuffer[1024 * 10];
-  vsprintf (szBuffer, szMsg, args);
+  ezStringUtils::vsnprintf(szBuffer, EZ_ARRAY_SIZE(szBuffer), szMsg, args);
   va_end (args);
 
   GetInstance()->OutputImpl(Type, szBuffer);
 }
 
-void ezTestFramework::Error(const char* szError, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg)
+void ezTestFramework::Error(const char* szError, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg, ...)
 {
-  GetInstance()->ErrorImpl(szError, szFile, iLine, szFunction, szMsg);
+  // format the output text
+  va_list args;
+  va_start (args, szMsg);
+
+  char szBuffer[1024 * 10];
+  ezStringUtils::vsnprintf(szBuffer, EZ_ARRAY_SIZE(szBuffer), szMsg, args);
+  va_end (args);
+
+  GetInstance()->ErrorImpl(szError, szFile, iLine, szFunction, szBuffer);
 }
 
 void ezTestFramework::TestResult(ezInt32 iSubTestIndex, bool bSuccess, double fDuration)

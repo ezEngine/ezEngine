@@ -13,14 +13,14 @@ template <typename AllocationPolicy, ezUInt32 TrackingFlags = ezMemoryTrackingFl
 class ezAllocator : public ezAllocatorBase
 {
 public:
-  ezAllocator(const char* szName, ezAllocatorBase* pParent = NULL);
+  ezAllocator(const char* szName, ezAllocatorBase* pParent = nullptr);
   ~ezAllocator();
 
   // ezAllocatorBase implementation
-  virtual void* Allocate(size_t uiSize, size_t uiAlign) EZ_OVERRIDE;
-  virtual void Deallocate(void* ptr) EZ_OVERRIDE;
-  virtual size_t AllocatedSize(const void* ptr) EZ_OVERRIDE;
-  virtual Stats GetStats() const EZ_OVERRIDE;
+  virtual void* Allocate(size_t uiSize, size_t uiAlign) override;
+  virtual void Deallocate(void* ptr) override;
+  virtual size_t AllocatedSize(const void* ptr) override;
+  virtual Stats GetStats() const override;
 
   ezAllocatorBase* GetParent() const;
 
@@ -28,7 +28,7 @@ private:
   AllocationPolicy m_allocator;
   
   ezAllocatorId m_Id;
-  ezThreadHandle m_threadHandle;
+  ezThreadID m_ThreadID;
 };
 
 #include <Foundation/Memory/Implementation/Allocator_inl.h>

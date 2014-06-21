@@ -111,7 +111,7 @@ void ezOSFile::Close()
 ezResult ezOSFile::Write(const void* pBuffer, ezUInt64 uiBytes)
 {
   EZ_ASSERT((m_FileMode == ezFileMode::Write) || (m_FileMode == ezFileMode::Append), "The file is not opened for writing.");
-  EZ_ASSERT(pBuffer != NULL, "pBuffer must not be NULL.");
+  EZ_ASSERT(pBuffer != nullptr, "pBuffer must not be nullptr.");
 
   const ezTime t0 = ezTime::Now();
 
@@ -136,7 +136,7 @@ ezResult ezOSFile::Write(const void* pBuffer, ezUInt64 uiBytes)
 ezUInt64 ezOSFile::Read(void* pBuffer, ezUInt64 uiBytes)
 {
   EZ_ASSERT(m_FileMode == ezFileMode::Read, "The file is not opened for reading.");
-  EZ_ASSERT(pBuffer != NULL, "pBuffer must not be NULL.");
+  EZ_ASSERT(pBuffer != nullptr, "pBuffer must not be nullptr.");
 
   const ezTime t0 = ezTime::Now();
 

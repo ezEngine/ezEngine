@@ -36,8 +36,9 @@
 #undef DeleteFile
 #undef CreateDirectory
 #undef CopyFile
+#undef DispatchMessage
+#undef PostMessage
 #undef SendMessage
-
 
 #if defined(_MSC_VER)
 
@@ -66,23 +67,9 @@
 
   #include <Foundation/Basics/Compiler/RestoreWarning.h>
 
-  #undef NULL
-  #if (_MSC_VER >= 1600) // visual studio 2010 and later
-    #define NULL nullptr    
-  #else
-    #define NULL 0
-  #endif
-
   #define EZ_FORCE_INLINE __forceinline
   #define EZ_RESTRICT __restrict
 
-
-  
-  #if (_MSC_VER >= 1500) // visual studio 2008 and later
-    #define EZ_OVERRIDE override
-  #else
-    #define EZ_OVERRIDE
-  #endif
 
   #ifdef __INTELLISENSE__
     #define EZ_ALIGN(decl, alignment) decl
@@ -98,11 +85,6 @@
   #define EZ_SOURCE_FUNCTION __FUNCTION__
   #define EZ_SOURCE_LINE __LINE__
   #define EZ_SOURCE_FILE __FILE__
-
-  #if (_MSC_VER >= 1600) //Visual Studio 2010
-    #undef EZ_SUPPORTS_CPP11
-    #define EZ_SUPPORTS_CPP11 EZ_ON
-  #endif
 
   // declare platform specific types
   typedef unsigned __int64  ezUInt64;

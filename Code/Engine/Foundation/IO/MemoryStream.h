@@ -2,7 +2,7 @@
 #pragma once
 
 #include <Foundation/Basics.h>
-#include <Foundation/IO/IBinaryStream.h>
+#include <Foundation/IO/Stream.h>
 #include <Foundation/Containers/HybridArray.h>
 #include <Foundation/Basics/Types/RefCounted.h>
 
@@ -31,6 +31,9 @@ public:
   /// \brief Returns the number of bytes that is currently stored.
   ezUInt32 GetStorageSize() const { return m_Storage.GetCount(); }
 
+  /// \brief Clears the entire storage. All readers and writers must be reset to start from the beginning again.
+  void Clear() { m_Storage.Clear(); }
+
 private:
   friend class ezMemoryStreamReader;
   friend class ezMemoryStreamWriter;
@@ -42,23 +45,23 @@ private:
 ///
 /// Please note that the functions exposed by this object are not thread safe! If access to the same ezMemoryStreamStorage object from
 /// multiple threads is desired please create one instance of ezMemoryStreamReader per thread.
-class EZ_FOUNDATION_DLL ezMemoryStreamReader : public ezIBinaryStreamReader
+class EZ_FOUNDATION_DLL ezMemoryStreamReader : public ezStreamReaderBase
 {
 public:
   /// \brief Pass the memory storage object from which to read from.
-  /// Pass NULL if you are going to set the storage stream later via SetStorage().
-  ezMemoryStreamReader(ezMemoryStreamStorage* pStreamStorage = NULL);
+  /// Pass nullptr if you are going to set the storage stream later via SetStorage().
+  ezMemoryStreamReader(ezMemoryStreamStorage* pStreamStorage = nullptr);
 
   ~ezMemoryStreamReader();
 
-  /// \brief Sets the storage object upon which to operate. Resests the read position to zero.
-  /// Pass NULL if you want to detach from any previous storage stream, for example to ensure its reference count gets properly reduced.
+  /// \brief Sets the storage object upon which to operate. Resets the read position to zero.
+  /// Pass nullptr if you want to detach from any previous storage stream, for example to ensure its reference count gets properly reduced.
   void SetStorage(ezMemoryStreamStorage* pStreamStorage) { m_pStreamStorage = pStreamStorage; m_uiReadPosition = 0; }
 
   /// \brief Reads either uiBytesToRead or the amount of remaining bytes in the stream into pReadBuffer.
   ///
-  /// It is valid to pass NULL for pReadBuffer, in this case the memory stream position is only advanced by the given number of bytes.
-  virtual ezUInt64 ReadBytes(void* pReadBuffer, ezUInt64 uiBytesToRead) EZ_OVERRIDE; // [tested]
+  /// It is valid to pass nullptr for pReadBuffer, in this case the memory stream position is only advanced by the given number of bytes.
+  virtual ezUInt64 ReadBytes(void* pReadBuffer, ezUInt64 uiBytesToRead) override; // [tested]
 
   /// \brief Skips bytes in the stream (e.g. for skipping objects which can't be serialized due to missing information etc.)
   virtual ezUInt64 SkipBytes(ezUInt64 uiBytesToSkip); // [tested]
@@ -79,16 +82,16 @@ private:
 /// \brief A writer which can access a memory stream
 ///
 /// Please note that the functions exposed by this object are not thread safe!
-class EZ_FOUNDATION_DLL ezMemoryStreamWriter : public ezIBinaryStreamWriter
+class EZ_FOUNDATION_DLL ezMemoryStreamWriter : public ezStreamWriterBase
 {
 public:
   /// \brief Pass the memory storage object to which to write to.
-  ezMemoryStreamWriter(ezMemoryStreamStorage* pStreamStorage = NULL);
+  ezMemoryStreamWriter(ezMemoryStreamStorage* pStreamStorage = nullptr);
 
   ~ezMemoryStreamWriter();
 
   /// \brief Sets the storage object upon which to operate. Resests the write position to the end of the storage stream.
-  /// Pass NULL if you want to detach from any previous storage stream, for example to ensure its reference count gets properly reduced.
+  /// Pass nullptr if you want to detach from any previous storage stream, for example to ensure its reference count gets properly reduced.
   void SetStorage(ezMemoryStreamStorage* pStreamStorage)
   { 
     m_pStreamStorage = pStreamStorage; 
@@ -100,7 +103,7 @@ public:
   /// \brief Copies uiBytesToWrite from pWriteBuffer into the memory stream.
   ///
   /// pWriteBuffer must be a valid buffer and must hold that much data.
-  virtual ezResult WriteBytes(const void* pWriteBuffer, ezUInt64 uiBytesToWrite) EZ_OVERRIDE; // [tested]
+  virtual ezResult WriteBytes(const void* pWriteBuffer, ezUInt64 uiBytesToWrite) override; // [tested]
 
   /// \brief Sets the write position to be used
   void SetWritePosition(ezUInt32 uiReadPosition); // [tested]

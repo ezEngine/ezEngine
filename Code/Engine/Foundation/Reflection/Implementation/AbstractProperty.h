@@ -28,7 +28,7 @@ public:
   /// \brief Returns the name of the propery.
   const char* GetPropertyName() const { return m_szPropertyName; }
 
-  /// \brief Returns the category of this property. Cast this propererty to the next higher type for more information.
+  /// \brief Returns the category of this property. Cast this property to the next higher type for more information.
   virtual PropertyCategory GetCategory() const = 0; // [tested]
 
 private:
@@ -46,12 +46,12 @@ public:
   }
 
   /// \brief Returns ezAbstractProperty::Member.
-  virtual ezAbstractProperty::PropertyCategory GetCategory() const EZ_OVERRIDE { return ezAbstractProperty::Member; }
+  virtual ezAbstractProperty::PropertyCategory GetCategory() const override { return ezAbstractProperty::Member; }
 
   /// \brief Returns the type information of the member property. Use this to cast this property to a specific version of ezTypedMemberProperty.
   virtual const ezRTTI* GetPropertyType() const = 0; // [tested]
 
-  /// \brief Returns a pointer to the property data or NULL. If a valid pointer is returned, that pointer and the information from GetPropertyType() can
+  /// \brief Returns a pointer to the property data or nullptr. If a valid pointer is returned, that pointer and the information from GetPropertyType() can
   /// be used to step deeper into the type (if required).
   ///
   /// You need to pass the pointer to an object on which you are operating. This function is mostly of interest when the property itself is a compound
@@ -60,7 +60,7 @@ public:
   /// For example GetPropertyType() might return that a property is of type ezVec3. In that case one might either stop and just use the code to handle
   /// ezVec3 types, or one might continue and enumerate all sub-properties (x, y and z) as well.
   ///
-  /// \note There is no guarantee that this function returns a non-NULL pointer, independent of the type. When a property uses custom 'accessors' 
+  /// \note There is no guarantee that this function returns a non-nullptr pointer, independent of the type. When a property uses custom 'accessors' 
   /// (functions to get / set the property value), it is not possible (or useful) to get the property pointer.
   virtual void* GetPropertyPointer(const void* pInstance) const = 0;
 
@@ -79,7 +79,7 @@ public:
   }
 
   /// \brief Returns ezAbstractProperty::Function.
-  virtual ezAbstractProperty::PropertyCategory GetCategory() const EZ_OVERRIDE { return ezAbstractProperty::Function; }
+  virtual ezAbstractProperty::PropertyCategory GetCategory() const override { return ezAbstractProperty::Function; }
 
   /// \brief Calls the function. Provide the instance on which the function is supposed to be called.
   virtual void Execute(void* pInstance) const = 0;
@@ -97,7 +97,7 @@ public:
   }
 
   /// \brief Returns ezAbstractProperty::Array.
-  virtual ezAbstractProperty::PropertyCategory GetCategory() const EZ_OVERRIDE { return ezAbstractProperty::Array; }
+  virtual ezAbstractProperty::PropertyCategory GetCategory() const override { return ezAbstractProperty::Array; }
 
   /// \brief Returns the type of the elements in the array.
   virtual const ezRTTI* GetElementType() const = 0;

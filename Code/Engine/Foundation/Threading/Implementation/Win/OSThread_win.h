@@ -53,13 +53,15 @@ void SetThreadName(DWORD dwThreadID, LPCSTR szThreadName)
 
 // Windows specific implementation of the thread class
 
-ezOSThread::ezOSThread(ezOSThreadEntryPoint pThreadEntryPoint, void* pUserData /*= NULL*/, const char* szName /*= "ezThread"*/, ezUInt32 uiStackSize /*= 128 * 1024*/)
+ezOSThread::ezOSThread(ezOSThreadEntryPoint pThreadEntryPoint, void* pUserData /*= nullptr*/, const char* szName /*= "ezThread"*/, ezUInt32 uiStackSize /*= 128 * 1024*/)
 {
   s_iThreadCount.Increment();
 
-  m_Handle = CreateThread(NULL, uiStackSize, pThreadEntryPoint, pUserData, CREATE_SUSPENDED, NULL);
+  m_Handle = CreateThread(nullptr, uiStackSize, pThreadEntryPoint, pUserData, CREATE_SUSPENDED, nullptr);
   EZ_ASSERT(m_Handle != INVALID_HANDLE_VALUE, "Thread creation failed!");
-  EZ_ASSERT(m_Handle != NULL, "Thread creation failed!"); // makes the static code analysis happy
+  EZ_ASSERT(m_Handle != nullptr, "Thread creation failed!"); // makes the static code analysis happy
+
+  m_ThreadID = GetThreadId(m_Handle);
   
   m_EntryPoint = pThreadEntryPoint;
   m_pUserData = pUserData;
@@ -67,7 +69,7 @@ ezOSThread::ezOSThread(ezOSThreadEntryPoint pThreadEntryPoint, void* pUserData /
   m_uiStackSize = uiStackSize;
 
   // If a name is given, assign it here
-  if (szName != NULL)
+  if (szName != nullptr)
   {
     SetThreadName(GetThreadId(m_Handle), szName);
   }

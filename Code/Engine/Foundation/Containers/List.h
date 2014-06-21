@@ -37,7 +37,7 @@ private:
     EZ_DECLARE_POD_TYPE();
 
     /// \brief Constructor.
-    ConstIterator() : m_pElement (NULL)  {} // [tested]
+    ConstIterator() : m_pElement (nullptr)  {} // [tested]
 
     /// \brief Equality comparison operator.
     bool operator== (typename ezListBase<T>::ConstIterator it2) const { return (m_pElement == it2.m_pElement); } // [tested]
@@ -58,7 +58,7 @@ private:
     void Prev() { m_pElement = m_pElement->m_pPrev; } // [tested]
 
     /// \brief Checks whether this iterator points to a valid element (and not the start/end of the list)
-    bool IsValid() const { return ((m_pElement != NULL) && (m_pElement->m_pPrev != NULL) && (m_pElement->m_pNext != NULL)); } // [tested]
+    bool IsValid() const { return ((m_pElement != nullptr) && (m_pElement->m_pPrev != nullptr) && (m_pElement->m_pNext != nullptr)); } // [tested]
 
     /// \brief Moves the iterator to the next element in the list.
     void operator++ () { Next();  } // [tested]

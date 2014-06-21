@@ -7,13 +7,13 @@
 #include <Xinput.h>
 
 
-EZ_BEGIN_REFLECTED_TYPE(ezInputDeviceXBox360, ezInputDeviceController, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezInputDeviceXBox360, ezInputDeviceController, ezRTTINoAllocator);
   // no properties or message handlers
-EZ_END_REFLECTED_TYPE(ezInputDeviceXBox360);
+EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 ezInputDeviceXBox360::ezInputDeviceXBox360()
 {
-  for (ezInt32 i = 0; i < 4; ++i)
+  for (ezInt32 i = 0; i < MaxControllers; ++i)
     m_bControllerConnected[i] = false;
 }
 
@@ -21,7 +21,7 @@ void ezInputDeviceXBox360::RegisterControllerButton(const char* szButton, const 
 {
   ezStringBuilder s, s2;
 
-  for (ezInt32 i = 0; i < 4; ++i)
+  for (ezInt32 i = 0; i < MaxControllers; ++i)
   {
     s.Format("controller%i_%s", i, szButton);
     s2.Format("Cont %i: %s", i + 1, szName);
@@ -33,7 +33,7 @@ void ezInputDeviceXBox360::SetDeadZone(const char* szButton)
 {
   ezStringBuilder s;
 
-  for (ezInt32 i = 0; i < 4; ++i)
+  for (ezInt32 i = 0; i < MaxControllers; ++i)
   {
     s.Format("controller%i_%s", i, szButton);
     ezInputManager::SetInputSlotDeadZone(s.GetData(), 0.23f);
@@ -83,11 +83,26 @@ void ezInputDeviceXBox360::RegisterInputSlots()
   ezLog::Success("Initialized XBox 360 Controller.");
 }
 
+const char* szControllerName[] = 
+{
+  "controller0_",
+  "controller1_",
+  "controller2_",
+  "controller3_",
+
+  "controller4_",
+  "controller5_",
+  "controller6_",
+  "controller7_",
+};
+
+EZ_CHECK_AT_COMPILETIME(EZ_ARRAY_SIZE(szControllerName) >= ezInputDeviceXBox360::MaxControllers);
+
 void ezInputDeviceXBox360::SetValue(ezInt32 iController, const char* szButton, float fValue)
 {
-  ezStringBuilder s;
-  s.Format("controller%i_%s", iController, szButton);
-  float& fVal = m_InputSlotValues[s.GetData()];
+  ezStringBuilder s = szControllerName[iController];
+  s.Append(szButton);
+  float& fVal = m_InputSlotValues[s];
   fVal = ezMath::Max(fVal, fValue);
 }
 
@@ -102,30 +117,51 @@ void ezInputDeviceXBox360::UpdateInputSlotValues()
   for (auto it = m_InputSlotValues.GetIterator(); it.IsValid(); ++it)
     it.Value() = 0.0f;
 
-  XINPUT_STATE State[4];
+  XINPUT_STATE State[MaxControllers];
+  bool bIsAvailable[MaxControllers];
+
+  // update not connected controllers only every few milliseconds, apparently it takes quite some time to do this
+  // even on not connected controllers
+  static ezTime tLastControllerSearch;
+  const ezTime tNow = ezTime::Now();
+  const bool bSearchControllers = tNow - tLastControllerSearch > ezTime::Seconds(0.5);
+
+  if (bSearchControllers)
+    tLastControllerSearch = tNow;
 
   // get the data from all physical devices
-  for (ezInt32 iPhysical = 0; iPhysical < 4; ++iPhysical)
+  for (ezInt32 iPhysical = 0; iPhysical < MaxControllers; ++iPhysical)
   {
-    ezMemoryUtils::ZeroFill(&State[iPhysical]);
-    const bool bIsAvailable = (XInputGetState(iPhysical, &State[iPhysical]) == ERROR_SUCCESS);
-
-    if (m_bControllerConnected[iPhysical] != bIsAvailable)
+    if (bSearchControllers || m_bControllerConnected[iPhysical])
     {
-      ezLog::Info("XBox Controller %i has been %s.", iPhysical, bIsAvailable ? "connected" : "disconnected");
+      bIsAvailable[iPhysical] = (XInputGetState(iPhysical, &State[iPhysical]) == ERROR_SUCCESS);
 
-      m_bControllerConnected[iPhysical] = bIsAvailable;
+      if (m_bControllerConnected[iPhysical] != bIsAvailable[iPhysical])
+      {
+        ezLog::Info("XBox Controller %i has been %s.", iPhysical, bIsAvailable ? "connected" : "disconnected");
+
+        // this makes sure to reset all values below
+        if (!bIsAvailable)
+          ezMemoryUtils::ZeroFill(&State[iPhysical]);
+      }
     }
+    else
+      bIsAvailable[iPhysical] = m_bControllerConnected[iPhysical];
   }
 
   // now update all virtual controllers
-  for (ezInt32 iVirtual = 0; iVirtual < 4; ++iVirtual)
+  for (ezInt32 iVirtual = 0; iVirtual < MaxControllers; ++iVirtual)
   {
     // check from which physical device to take the input data
     const ezInt32 iPhysical = GetControllerMapping(iVirtual);
 
     // if the mapping is negative (which means 'deactivated'), ignore this controller
-    if ((iPhysical < 0) || (iPhysical > 3))
+    if ((iPhysical < 0) || (iPhysical >= MaxControllers))
+      continue;
+
+    // if the controller is not active, no point in updating it
+    // if it just got inactive, this will reset it once, because the state is only passed on after this loop
+    if (!m_bControllerConnected[iPhysical])
       continue;
 
     SetValue(iVirtual, "pad_up"                , ((State[iPhysical].Gamepad.wButtons & XINPUT_GAMEPAD_DPAD_UP)        != 0) ? 1.0f : 0.0f);
@@ -159,17 +195,23 @@ void ezInputDeviceXBox360::UpdateInputSlotValues()
     SetValue(iVirtual, "rightstick_negy", (State[iPhysical].Gamepad.sThumbRY < 0) ? (-State[iPhysical].Gamepad.sThumbRY / 32767.0f) : 0.0f);
     SetValue(iVirtual, "rightstick_posy", (State[iPhysical].Gamepad.sThumbRY > 0) ? ( State[iPhysical].Gamepad.sThumbRY / 32767.0f) : 0.0f);
   }
+
+  for (ezInt32 iPhysical = 0; iPhysical < MaxControllers; ++iPhysical)
+    m_bControllerConnected[iPhysical] = bIsAvailable[iPhysical];
 }
 
 bool ezInputDeviceXBox360::IsControllerConnected(ezUInt8 uiPhysical) const
 { 
-  EZ_ASSERT(uiPhysical < 4, "Invalid Controller Index %i", uiPhysical);
+  EZ_ASSERT(uiPhysical < MaxControllers, "Invalid Controller Index %i", uiPhysical);
   
   return m_bControllerConnected[uiPhysical];
 }
 
 void ezInputDeviceXBox360::ApplyVibration(ezUInt8 uiPhysicalController, Motor::Enum eMotor, float fStrength)
 {
+  if (!m_bControllerConnected[uiPhysicalController])
+    return;
+
   static XINPUT_VIBRATION v[MaxControllers];
 
   if (eMotor == Motor::LeftMotor)

@@ -2,10 +2,16 @@
 #include <CoreUtils/Scripting/LuaWrapper.h>
 #include <Foundation/Logging/Log.h>
 
-void ezLuaWrapper::RegisterCFunction(const char* szFunctionName, lua_CFunction pFunction) const
+void ezLuaWrapper::RegisterCFunction(const char* szFunctionName, lua_CFunction pFunction, void* pLightUserData) const
 {
-  lua_pushcfunction(m_pState, pFunction);
+  lua_pushlightuserdata(m_pState, pLightUserData);
+  lua_pushcclosure(m_pState, pFunction, 1);
   lua_setglobal(m_pState, szFunctionName);
+}
+
+void* ezLuaWrapper::GetFunctionLightUserData() const
+{
+  return lua_touserdata(m_pState, lua_upvalueindex(1));
 }
 
 bool ezLuaWrapper::PrepareFunctionCall(const char* szFunctionName)
@@ -39,7 +45,7 @@ ezResult ezLuaWrapper::CallPreparedFunction(ezUInt32 iExpectedReturnValues, ezLo
   const ezScriptStates StackedStates = m_States;
   m_States = ezScriptStates();
 
-  if (pLogInterface == NULL)
+  if (pLogInterface == nullptr)
     pLogInterface = ezGlobalLog::GetInstance();
 
   if (lua_pcall(m_pState, StackedStates.m_iParametersPushed, iExpectedReturnValues, 0) != 0)

@@ -1,0 +1,6 @@
+
+#line 100
+#warning "This is a warning"
+
+#line 200
+#warning Another warning

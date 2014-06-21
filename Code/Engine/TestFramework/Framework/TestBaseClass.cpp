@@ -30,8 +30,6 @@ void ezTestBaseClass::UpdateConfiguration(ezTestConfiguration& config) const
     config.m_iDateTime = ezTimestamp::CurrentTimestamp().GetInt64(ezSIUnitOfTime::Second);
     config.m_iRCSRevision = ezTestFramework::GetInstance()->GetSettings().m_iRevision;
     config.m_sHostName = pSysInfo.GetHostName();
-
-    ezStartup::ShutdownBase();
   }
 }
 

@@ -1,0 +1,43 @@
+#include "Includes\BlackMagic.txt"
+
+#define EZ_ENUM_VALUE_TO_STRING(name) \
+  case name: return EZ_STRINGIZE(name);
+#define EZ_ENUM_TO_STRING(...) \
+  const char* ToString(ezUInt32 value) \
+  { \
+    switch (value) \
+    { \
+      EZ_EXPAND_ARGS(EZ_ENUM_VALUE_TO_STRING, ##__VA_ARGS__) \
+      default: return nullptr; \
+    } \
+  }
+#define EZ_DECLARE_FLAGS_OPERATORS(FlagsType) \
+  inline ezBitflags<FlagsType> operator|(FlagsType::Enum lhs, FlagsType::Enum rhs)    \
+  {    \
+    return (ezBitflags<FlagsType>(lhs) | ezBitflags<FlagsType>(rhs));    \
+  } \
+  \
+  inline ezBitflags<FlagsType> operator&(FlagsType::Enum lhs, FlagsType::Enum rhs)    \
+  {    \
+    return (ezBitflags<FlagsType>(lhs) & ezBitflags<FlagsType>(rhs));    \
+  }
+#define EZ_DECLARE_FLAGS(InternalStorageType, BitflagsTypeName, ...)    \
+struct BitflagsTypeName    \
+  {    \
+    static const ezUInt32 Count = EZ_VA_NUM_ARGS(__VA_ARGS__);    \
+    typedef InternalStorageType StorageType; \
+    enum Enum    \
+    {    \
+      EZ_EXPAND_ARGS_WITH_INDEX(EZ_DECLARE_FLAGS_ENUM, ##__VA_ARGS__)    \
+    };    \
+    struct Bits    \
+    {    \
+      EZ_EXPAND_ARGS(EZ_DECLARE_FLAGS_BITS, ##__VA_ARGS__)    \
+    };    \
+    EZ_ENUM_TO_STRING(__VA_ARGS__) \
+  };    \
+  EZ_DECLARE_FLAGS_OPERATORS(BitflagsTypeName)
+#define EZ_DECLARE_FLAGS_ENUM(name, n)    name = EZ_BIT(n),
+#define EZ_DECLARE_FLAGS_BITS(name)       StorageType name : 1;  
+
+EZ_DECLARE_FLAGS(ezUInt8, ezImageConversionFlags, None, InPlace, Lossy);

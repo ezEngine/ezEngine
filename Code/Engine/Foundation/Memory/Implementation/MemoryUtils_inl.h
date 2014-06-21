@@ -1,10 +1,6 @@
 
-#if EZ_ENABLED(EZ_SUPPORTS_CPP11)
-  #define EZ_CHECK_CLASS(T) \
-    EZ_CHECK_AT_COMPILETIME_MSG(!std::is_trivial<T>::value, "Pod type is treated as class, did you forget EZ_DECLARE_POD_TYPE?")
-#else
-  #define EZ_CHECK_CLASS(T)
-#endif
+#define EZ_CHECK_CLASS(T) \
+  EZ_CHECK_AT_COMPILETIME_MSG(!std::is_trivial<T>::value, "Pod type is treated as class, did you forget EZ_DECLARE_POD_TYPE?")
 
 // public methods: redirect to implementation
 template <typename T>
@@ -12,12 +8,8 @@ EZ_FORCE_INLINE void ezMemoryUtils::Construct(T* pDestination, size_t uiCount)
 {
   // Default constructor is always called, so that debug helper initializations (e.g. ezVec3 initializes to NaN) take place. 
   // Note that destructor is ONLY called for class types.
-#if EZ_ENABLED(EZ_SUPPORTS_CPP11)
   // Special case for c++11 to prevent default construction of "real" Pod types, also avoids warnings on msvc
   Construct(pDestination, uiCount, ezTraitInt<ezIsPodType<T>::value && std::is_trivial<T>::value>());
-#else
-  Construct(pDestination, uiCount, ezTypeIsClass());
-#endif
 }
 
 template <typename T>
@@ -43,7 +35,7 @@ EZ_FORCE_INLINE void ezMemoryUtils::DefaultConstruct(T* pDestination, size_t uiC
 {
   for (size_t i = 0; i < uiCount; i++)
   {
-    new (pDestination + i) T();
+    ::new (pDestination + i) T();
   }
 }
 
@@ -97,6 +89,12 @@ EZ_FORCE_INLINE T* ezMemoryUtils::Align(T* ptr, size_t uiAlignment)
 }
 
 template <typename T>
+EZ_FORCE_INLINE T ezMemoryUtils::AlignSize(T uiSize, T uiAlignment)
+{
+  return ((uiSize + (uiAlignment - 1)) & ~(uiAlignment - 1));
+}
+
+template <typename T>
 EZ_FORCE_INLINE bool ezMemoryUtils::IsAligned(const T* ptr, size_t uiAlignment)
 {
   return (reinterpret_cast<size_t>(ptr) & (uiAlignment - 1)) == 0;
@@ -105,13 +103,11 @@ EZ_FORCE_INLINE bool ezMemoryUtils::IsAligned(const T* ptr, size_t uiAlignment)
 
 // private methods
 
-#if EZ_ENABLED(EZ_SUPPORTS_CPP11)
-  template <typename T>
-  EZ_FORCE_INLINE void ezMemoryUtils::Construct(T* pDestination, size_t uiCount, ezTypeIsPod)
-  {
-    EZ_CHECK_AT_COMPILETIME_MSG(std::is_trivial<T>::value, "This method should only be called for 'real' pod types");
-  }
-#endif
+template <typename T>
+EZ_FORCE_INLINE void ezMemoryUtils::Construct(T* pDestination, size_t uiCount, ezTypeIsPod)
+{
+  EZ_CHECK_AT_COMPILETIME_MSG(std::is_trivial<T>::value, "This method should only be called for 'real' pod types");
+}
 
 template <typename T>
 EZ_FORCE_INLINE void ezMemoryUtils::Construct(T* pDestination, size_t uiCount, ezTypeIsClass)
@@ -120,7 +116,7 @@ EZ_FORCE_INLINE void ezMemoryUtils::Construct(T* pDestination, size_t uiCount, e
 
   for (size_t i = 0; i < uiCount; i++)
   {
-    new (pDestination + i) T();
+    ::new (pDestination + i) T();
   }
 }
 
@@ -140,7 +136,7 @@ EZ_FORCE_INLINE void ezMemoryUtils::Construct(T* pDestination, const T& copy, si
 
   for (size_t i = 0; i < uiCount; i++)
   {
-    new (pDestination + i) T(copy);
+    ::new (pDestination + i) T(copy);
   }
 }
 
@@ -157,7 +153,7 @@ EZ_FORCE_INLINE void ezMemoryUtils::Construct(T* pDestination, const T* pSource,
 
   for (size_t i = 0; i < uiCount; i++)
   {
-    new (pDestination + i) T(pSource[i]);
+    ::new (pDestination + i) T(pSource[i]);
   }
 }
 

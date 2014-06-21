@@ -9,13 +9,13 @@ ezReloadableVariableWrapper<Type>::ezReloadableVariableWrapper(Type& Variable, c
 }
 
 template<typename Type>
-void ezReloadableVariableWrapper<Type>::SaveState(ezIBinaryStreamWriter& Stream)
+void ezReloadableVariableWrapper<Type>::SaveState(ezStreamWriterBase& Stream)
 {
   Stream << m_Variable;
 }
 
 template<typename Type>
-void ezReloadableVariableWrapper<Type>::LoadState(ezIBinaryStreamReader& Stream)
+void ezReloadableVariableWrapper<Type>::LoadState(ezStreamReaderBase& Stream)
 {
   Stream >> m_Variable;
 }

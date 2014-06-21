@@ -1,7 +1,8 @@
 #pragma once
 
-#include <Foundation/Strings/String.h>
+#include <Foundation/Algorithm/Hashing.h>
 #include <Foundation/Containers/Map.h>
+#include <Foundation/Strings/String.h>
 #include <Foundation/Threading/AtomicInteger.h>
 
 class ezTempHashedString;
@@ -55,11 +56,18 @@ public:
   /// \brief Copies the given ezHashedString.
   void operator= (const ezHashedString& rhs); // [tested]
 
+  /// \brief Assigning a new string from a string constant is a slow operation, but the hash computation can happen at compile time.
+  ///
+  /// If you need to create an object to compare ezHashedString objects against, prefer to use ezTempHashedString. It will only compute
+  /// the strings hash value, but does not require any thread synchronization.
+  template <size_t N>
+  void Assign(const char(&szString)[N]); // [tested]
+
   /// \brief Assigning a new string from a non-hashed string is a very slow operation, this should be used rarely.
   ///
   /// If you need to create an object to compare ezHashedString objects against, prefer to use ezTempHashedString. It will only compute
   /// the strings hash value, but does not require any thread synchronization.
-  void Assign(const char* szString); // [tested]
+  void Assign(ezHashing::StringWrapper szString); // [tested]
 
   /// \brief Comparing whether two hashed strings are identical is just a pointer comparison. This operation is what ezHashedString is optimized for.
   ///
@@ -86,7 +94,13 @@ public:
   /// \brief Gives access to the actual string data, so you can do all the typical (read-only) string operations on it.
   const ezString& GetString() const; // [tested]
 
+  /// \brief Returns the hash of the stored string.
+  ezUInt32 GetHash() const; // [tested]
+
 private:
+  static void InitHashedString();
+  static HashedType AddHashedString(const char* szString, ezUInt32 uiHash);
+
   HashedType m_Data;
 };
 
@@ -104,15 +118,31 @@ class EZ_FOUNDATION_DLL ezTempHashedString
   ezTempHashedString();
 
 public:
+  /// \brief Creates an ezTempHashedString object from the given string constant. The hash can be computed at compile time.
+  template <size_t N>
+  ezTempHashedString(const char(&szString)[N]); // [tested]
 
-  /// \brief Creates an ezTempHashedString object from the given string. Computes the hash of the given string, which might be slow.
-  ezTempHashedString(const char* szString); // [tested]
+  /// \brief Creates an ezTempHashedString object from the given string. Computes the hash of the given string during runtime, which might be slow.
+  ezTempHashedString(ezHashing::StringWrapper szString); // [tested]
 
   /// \brief Copies the hash from rhs.
   ezTempHashedString(const ezTempHashedString& rhs); // [tested]
 
+  /// \brief Copies the hash from the ezHashedString.
+  ezTempHashedString(const ezHashedString& rhs); // [tested]
+  
+  /// \brief The hash of the given string can be computed at compile time.
+  template <size_t N>
+  void operator= (const char(&szString)[N]); // [tested]
+  
+  /// \brief Computes and stores the hash of the given string during runtime, which might be slow.
+  void operator= (ezHashing::StringWrapper szString); // [tested]
+
   /// \brief Copies the hash from rhs.
   void operator= (const ezTempHashedString& rhs); // [tested]
+
+  /// \brief Copies the hash from the ezHashedString.
+  void operator= (const ezHashedString& rhs); // [tested]
 
   /// \brief Compares the two objects by their hash value. Might report incorrect equality, if two strings have the same hash value.
   bool operator== (const ezTempHashedString& rhs) const; // [tested]
@@ -122,6 +152,9 @@ public:
 
   /// \brief This operator allows soring objects by hash value, not by alphabetical order.
   bool operator< (const ezTempHashedString& rhs) const; // [tested]
+
+  /// \brief Returns the hash of the stored string.
+  ezUInt32 GetHash() const; // [tested]
 
 private:
   ezUInt32 m_uiHash;

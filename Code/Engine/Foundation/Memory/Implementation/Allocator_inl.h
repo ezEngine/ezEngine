@@ -1,8 +1,8 @@
 
 template <typename A, ezUInt32 TrackingFlags>
-EZ_FORCE_INLINE ezAllocator<A, TrackingFlags>::ezAllocator(const char* szName, ezAllocatorBase* pParent /* = NULL */) : 
+EZ_FORCE_INLINE ezAllocator<A, TrackingFlags>::ezAllocator(const char* szName, ezAllocatorBase* pParent /* = nullptr */) : 
   m_allocator(pParent),
-  m_threadHandle(ezThreadUtils::GetCurrentThreadHandle())
+  m_ThreadID(ezThreadUtils::GetCurrentThreadID())
 {
   if ((TrackingFlags & ezMemoryTrackingFlags::EnableTracking) != 0)
   {
@@ -16,7 +16,7 @@ EZ_FORCE_INLINE ezAllocator<A, TrackingFlags>::ezAllocator(const char* szName, e
 template <typename A, ezUInt32 TrackingFlags>
 ezAllocator<A, TrackingFlags>::~ezAllocator()
 {
-  EZ_ASSERT_API(m_threadHandle == ezThreadUtils::GetCurrentThreadHandle(), "Allocator is deleted from another thread");
+  EZ_ASSERT_API(m_ThreadID == ezThreadUtils::GetCurrentThreadID(), "Allocator is deleted from another thread");
 
   if ((TrackingFlags & ezMemoryTrackingFlags::EnableTracking) != 0)
   {
@@ -27,14 +27,14 @@ ezAllocator<A, TrackingFlags>::~ezAllocator()
 template <typename A, ezUInt32 TrackingFlags>
 void* ezAllocator<A, TrackingFlags>::Allocate(size_t uiSize, size_t uiAlign)
 {
-  // zero size allocations always return NULL without tracking (since deallocate NULL is ignored)
+  // zero size allocations always return nullptr without tracking (since deallocate nullptr is ignored)
   if (uiSize == 0)
-    return NULL;
+    return nullptr;
 
   EZ_ASSERT_API(ezMath::IsPowerOf2((ezUInt32)uiAlign), "Alignment must be power of two");
 
   void* ptr = m_allocator.Allocate(uiSize, uiAlign);
-  EZ_ASSERT(ptr != NULL, "Could not allocate %d bytes. Out of memory?", uiSize);
+  EZ_ASSERT(ptr != nullptr, "Could not allocate %d bytes. Out of memory?", uiSize);
 
   if ((TrackingFlags & ezMemoryTrackingFlags::EnableTracking) != 0)
   {

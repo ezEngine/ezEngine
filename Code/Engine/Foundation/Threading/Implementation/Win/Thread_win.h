@@ -11,7 +11,7 @@
 // Thread entry point used to launch ezRunnable instances
 DWORD __stdcall ezThreadClassEntryPoint(LPVOID lpThreadParameter)
 {
-  EZ_ASSERT(lpThreadParameter != NULL, "thread parameter in thread entry point must not be NULL!");
+  EZ_ASSERT(lpThreadParameter != nullptr, "thread parameter in thread entry point must not be nullptr!");
 
   ezThread* pThread = reinterpret_cast<ezThread*>(lpThreadParameter);
   

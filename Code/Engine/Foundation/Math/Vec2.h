@@ -53,10 +53,10 @@ public:
 public:
 
   /// \brief Returns an ezVec3Template with x,y from this vector and z set by the parameter.
-  const ezVec3Template<Type> GetAsVec3(Type z); // [tested]
+  const ezVec3Template<Type> GetAsVec3(Type z) const; // [tested]
 
   /// \brief Returns an ezVec4Template with x,y from this vector and z and w set by the parameters.
-  const ezVec4Template<Type> GetAsVec4(Type z, Type w); // [tested]
+  const ezVec4Template<Type> GetAsVec4(Type z, Type w) const; // [tested]
 
 // *** Functions to set the vector to specific values ***
 public:

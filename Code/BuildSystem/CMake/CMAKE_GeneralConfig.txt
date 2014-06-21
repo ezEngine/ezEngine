@@ -7,6 +7,18 @@
 #endforeach()
 
 #########################################################################################
+## CMAKE Policies
+
+# disables auto-linking to qtmain (new in Qt 5.1)
+if (POLICY CMP0020)
+  cmake_policy(SET CMP0020 OLD)
+endif ()
+
+if (POLICY CMP0022)
+  cmake_policy(SET CMP0022 NEW)
+endif()
+
+#########################################################################################
 ## Other configurations
 
 set (COMPILER_SETTINGS_ALL "")
@@ -28,6 +40,8 @@ IF(NOT CMAKE_BUILD_TYPE)
       FORCE)
 ENDIF(NOT CMAKE_BUILD_TYPE)
 
+# Required to find cmake modules like 'FindDirectX.cmake'
+set (CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${CMAKE_CURRENT_LIST_DIR})
 
 #########################################################################################
 ## Detects the current platform
@@ -207,6 +221,7 @@ if (BUILDSYSTEM_PLATFORM_WINDOWS)
   set (EZ_COMPILE_ENGINE_AS_DLL ON CACHE BOOL "Whether to compile the code as a shared libraries (DLL).")
 endif()
 
+set (EZ_STRICT_WARNINGS OFF CACHE BOOL "Whether to compile the code with highest warning level. Good luck with that.")
 set (EZ_ENABLE_QT_SUPPORT OFF CACHE BOOL "Whether to add Qt support.")
 set (EZ_QT_DIR $ENV{QTDIR} CACHE PATH "Directory of qt installation")
 set (EZ_QT_DIR_FOUND "NOT_FOUND" CACHE PATH "Last found directory of qt installation")
@@ -273,7 +288,9 @@ if (BUILDSYSTEM_COMPILER_MSVC)
   #set (COMPILER_SETTINGS_ALL "${COMPILER_SETTINGS_ALL} /fp:except")
 
 	# enable strict warnings
-	#set (COMPILER_SETTINGS_ALL "${COMPILER_SETTINGS_ALL} /W4")
+  if (EZ_STRICT_WARNINGS)
+    set (COMPILER_SETTINGS_ALL "${COMPILER_SETTINGS_ALL} /W4")
+  endif()
 	# treat warnings as errors
 	set (COMPILER_SETTINGS_ALL "${COMPILER_SETTINGS_ALL} /WX")
 
@@ -291,8 +308,13 @@ if (BUILDSYSTEM_COMPILER_MSVC)
   
   if(MSVC11)
     #set (COMPILER_SETTINGS_ALL "${COMPILER_SETTINGS_ALL} /analyze")
+	set (CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} /d2Zi+")
+	set (CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /d2Zi+")
   endif()
 
+  set (CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} /Ox /Ob2 /Oi")
+  set (CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /Ox /Ob2 /Oi")
+  
   set (LINKER_SETTINGS_RELEASE "${LINKER_SETTINGS_RELEASE} /INCREMENTAL:NO") 
   # Remove unreferenced data (does not work together with incremental build)
   set (LINKER_SETTINGS_RELEASE "${LINKER_SETTINGS_RELEASE} /OPT:REF") 
@@ -313,8 +335,9 @@ elseif (BUILDSYSTEM_COMPILER_GCC)
   # dynamic linking will fail without fPIC (plugins)
   # Wno-enum-compare removes all annoying enum cast warnings
   # std=c++11 is - well needed for c++11.
-  set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -Wno-enum-compare -std=c++11")
-  set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC")
+  # gdwarf-3 will use the old debug info which is compatible with older gdb versions.
+  set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC -Wno-enum-compare -std=c++11 -mssse3 -mfpmath=sse -gdwarf-3")
+  set (CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC -gdwarf-3")
   
 else ()
   message (FATAL_ERROR "Not settings are defined for the selected compiler. Please extend CMAKE_GeneralConfig.txt.")
@@ -385,10 +408,15 @@ MACRO(ADD_MSVC_PRECOMPILED_HEADER)
       
 	  # Remove CMAKE's increase of the max pre-compiled header size (/Zm1000)
 	  # as this will cause C1027 errors during compiling due to ASLR.
-	  string(REGEX REPLACE "/Zm[0-9]+ *" "" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
-	  # Force the above change into the cache.
+	  if (NOT CMAKE_CXX_FLAGS)
+	    message (FATAL_ERROR "CMAKE_CXX_FLAGS is empty! Cause unknown but clear cache and rerun configure solves the problem.")  
+	  endif ()
+	  
+      string(REGEX REPLACE "/Zm[0-9]+ *" "" CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS})
+      # Force the above change into the cache.
       set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}" CACHE STRING "" FORCE)
 
+	  
       foreach (src_file ${ALL_SOURCE_FILES})
         GET_FILENAME_COMPONENT(RawFilename ${src_file} NAME)
         GET_FILENAME_COMPONENT(Extension ${src_file} EXT)
@@ -483,6 +511,50 @@ ENDMACRO()
 
 
 #########################################################################################
+## Macro to include directX dependencies
+
+MACRO(BUILD_REQUIRES_DX11)
+  if (${BUILDSYSTEM_PLATFORM_WINDOWS})
+    set (EZ_REQUIRES_DX11 ON)
+    find_package (DirectX11)
+    set (LINK_LIBRARIES ${LINK_LIBRARIES} ${DirectX11_D3D11_LIBRARIES})
+    # VS 2012 and up get the Direct X includes via the windows SDK which is always present so this is only required for VS 2010 (I.e. v100).
+    if (${BUILDSYSTEM_COMPILER_MSVC_100})
+      include_directories (${DirectX11_INCLUDE_DIR})
+    endif () 
+  else ()
+    get_filename_component (BUILD_REQUIRES_DX11_MACRO_FOLDERNAME ${CMAKE_CURRENT_SOURCE_DIR} NAME_WE)
+    message (FATAL_ERROR "Platform '${CMAKE_SYSTEM_NAME}' does not support DirectX. Exclude the project '${BUILD_REQUIRES_DX11_MACRO_FOLDERNAME}' with 'BUILD_CONDITIONAL'!")
+  endif ()
+ENDMACRO()
+
+MACRO(DX11_COPY_DLLS)
+  if (${EZ_REQUIRES_DX11})
+    if (${BUILDSYSTEM_PLATFORM_64BIT})
+       set (DX11_COPY_DLLS_BIT "x64")
+    else ()
+       set (DX11_COPY_DLLS_BIT "x86")
+    endif ()
+    
+    if( ${DirectX11_LIBRARY} MATCHES "/8\\.0/")
+       set (DX11_COPY_DLLS_WINSDKVERSION "8.0")
+       set (DX11_COPY_DLLS_DLL_VERSION "46")
+    elseif( ${DirectX11_LIBRARY} MATCHES "/8\\.1/")
+       set (DX11_COPY_DLLS_WINSDKVERSION "8.1")
+       set (DX11_COPY_DLLS_DLL_VERSION "47")
+    endif ()
+
+    if (${DX11_COPY_DLLS_WINSDKVERSION})
+      add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "%ProgramFiles(x86)%/Windows Kits/${DX11_COPY_DLLS_WINSDKVERSION}/Redist/D3D/${DX11_COPY_DLLS_BIT}/d3dcompiler_${DX11_COPY_DLLS_DLL_VERSION}.dll"
+        $<TARGET_FILE_DIR:${PROJECT_NAME}>)
+    endif ()
+  endif ()
+ENDMACRO()
+
+
+#########################################################################################
 ## Macro to skip a Qt-only project if EZ_ENABLE_QT_SUPPORT is not enabled globally
 
 MACRO(BUILD_REQUIRES_QT)
@@ -555,13 +627,16 @@ ENDMACRO()
 #########################################################################################
 ## Include directories
 
-include_directories ("${CMAKE_SOURCE_DIR}/Code/Engine")   # this way it will also work for applications
-include_directories ("${CMAKE_SOURCE_DIR}/Projects")      # different projects may need to include from each other
-include_directories ("${CMAKE_SOURCE_DIR}/Code/ThirdParty")
+include_directories ("${CMAKE_CURRENT_LIST_DIR}/../../Engine")   # this way it will also work for applications
+include_directories ("${CMAKE_CURRENT_LIST_DIR}/../../../Projects")
+include_directories ("${CMAKE_CURRENT_LIST_DIR}/../../../Tools")
+include_directories ("${CMAKE_CURRENT_LIST_DIR}/../../../Samples")
+include_directories ("${CMAKE_CURRENT_LIST_DIR}/../../../UnitTests")
+include_directories ("${CMAKE_CURRENT_LIST_DIR}/../../ThirdParty")
 
 if (EZ_BUILD_EXPERIMENTAL)
-  include_directories ("${CMAKE_SOURCE_DIR}/Code/Experimental")   # this way it will also work for applications
-  include_directories ("${CMAKE_SOURCE_DIR}/Projects/Experimental")      # different projects may need to include from each other
+  include_directories ("${CMAKE_CURRENT_LIST_DIR}/../../Experimental")   # this way it will also work for applications
+  include_directories ("${CMAKE_CURRENT_LIST_DIR}/../../../Projects/Experimental")      # different projects may need to include from each other
 endif()
 
 

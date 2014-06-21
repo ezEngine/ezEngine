@@ -1,10 +1,10 @@
 #pragma once
 
-#include <Foundation/IO/IBinaryStream.h>
+#include <Foundation/IO/Stream.h>
 #include <Foundation/IO/FileSystem/Implementation/FileReaderWriterBase.h>
 #include <Foundation/Containers/DynamicArray.h>
 
-/// \brief The default class to use to read data from a file, implements the ezIBinaryStreamReader interface.
+/// \brief The default class to use to read data from a file, implements the ezStreamReaderBase interface.
 ///
 /// This file reader buffers reads up to a certain amount of bytes (configurable).
 /// It closes the file automatically once it goes out of scope.
@@ -30,7 +30,7 @@ public:
   void Close();
 
   /// \brief Attempts to read the given number of bytes into the buffer. Returns the actual number of bytes read.
-  virtual ezUInt64 ReadBytes(void* pReadBuffer, ezUInt64 uiBytesToRead) EZ_OVERRIDE;
+  virtual ezUInt64 ReadBytes(void* pReadBuffer, ezUInt64 uiBytesToRead) override;
 
 private:
   ezUInt64 m_uiBytesCached;

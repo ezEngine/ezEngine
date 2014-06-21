@@ -16,7 +16,7 @@ ezThreadSignal::ezThreadSignal()
 
   EZ_VERIFY(pthread_mutex_init(&m_Data.m_Mutex, &MutexAttributes) == 0, "Failed to initialize mutex for thread signal.");
 
-  EZ_VERIFY(pthread_cond_init(&m_Data.m_ConditionVariable, NULL) == 0, "Failed to initialize the condition variable for thread signal.");
+  EZ_VERIFY(pthread_cond_init(&m_Data.m_ConditionVariable, nullptr) == 0, "Failed to initialize the condition variable for thread signal.");
 }
 
 ezThreadSignal::~ezThreadSignal()

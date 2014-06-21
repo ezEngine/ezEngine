@@ -1,10 +1,9 @@
 Usage Agreement {#UsageAgreement}
 ===============
 
-The code in this repository is in the *public domain* (unless specified otherwise). That means that everyone may use it for whatever he whishes. 
-That explicitely includes closed source, commercial applications.
-You may copy, modify, redistribute and even sell it.
-You do not need to include a license or other note, to state that you used this code, although it would be nice.
+ezEngine is licensed under a Creative Commons Attribution 3.0 Unported License.
+That means that everyone may use it for whatever he whishes. That explicitely includes closed source, commercial applications.
+You may copy, modify, redistribute and even sell it. Please attribute us when using ezEngine.
 
 By committing into this repository you explicitely give up any ownership over all committed data, and grant all the above mentioned usage rights to everybody else.
 

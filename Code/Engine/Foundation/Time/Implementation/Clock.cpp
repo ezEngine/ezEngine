@@ -44,7 +44,7 @@ void ezClock::Reset(bool bEverything)
 {
   if (bEverything)
   {
-    m_pTimeStepSmoother = NULL;
+    m_pTimeStepSmoother = nullptr;
     m_MinTimeStep = ezTime::Seconds(0.001); // 1000 FPS
     m_MaxTimeStep = ezTime::Seconds(0.1);   //   10 FPS, many simulations will be instable at that rate already
     m_FixedTimeStep = ezTime::Seconds(0.0);
@@ -112,7 +112,7 @@ void ezClock::SetAccumulatedTime(ezTime t)
   m_LastTimeDiff = ezTime::Seconds(0.01);
 }
 
-void ezClock::Save(ezIBinaryStreamWriter& Stream) const
+void ezClock::Save(ezStreamWriterBase& Stream) const
 {
   const ezUInt8 uiVersion = 1;
 
@@ -126,7 +126,7 @@ void ezClock::Save(ezIBinaryStreamWriter& Stream) const
   Stream << m_bPaused;
 }
 
-void ezClock::Load(ezIBinaryStreamReader& Stream)
+void ezClock::Load(ezStreamReaderBase& Stream)
 {
   ezUInt8 uiVersion = 0;
   Stream >> uiVersion;

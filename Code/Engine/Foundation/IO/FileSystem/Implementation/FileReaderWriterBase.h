@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Foundation/IO/IBinaryStream.h>
+#include <Foundation/IO/Stream.h>
 #include <Foundation/IO/FileSystem/Implementation/DataDirType.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
 
@@ -9,19 +9,19 @@
 /// ezDataDirectoryType's provide.
 /// Derive from this class if you want to implement different policies on how to read files.
 /// E.g. the default reader (ezFileReader) implements a buffered read policy (using an internal cache).
-class EZ_FOUNDATION_DLL ezFileReaderBase : public ezIBinaryStreamReader
+class EZ_FOUNDATION_DLL ezFileReaderBase : public ezStreamReaderBase
 {
   EZ_DISALLOW_COPY_AND_ASSIGN(ezFileReaderBase);
 
 public:
-  ezFileReaderBase() { m_pDataDirReader = NULL; }
+  ezFileReaderBase() { m_pDataDirReader = nullptr; }
 
   /// Returns the absolute path with which the file was opened (including the prefix of the data directory).
   ezString128 GetFilePathAbsolute() const
   { 
-    ezStringBuilder sAbs = m_pDataDirReader->GetDataDirectory()->GetDataDirectoryPath().GetData();
+    ezStringBuilder sAbs = m_pDataDirReader->GetDataDirectory()->GetDataDirectoryPath();
     sAbs.AppendPath(m_pDataDirReader->GetFilePath().GetData());
-    return sAbs.GetData();
+    return sAbs;
   }
 
   /// Returns the relative path of the file within its data directory (excluding the prefix of the data directory).
@@ -31,7 +31,7 @@ public:
   ezDataDirectoryType* GetDataDirectory() const { return m_pDataDirReader->GetDataDirectory(); }
 
   /// Returns true, if the file is currently open.
-  bool IsOpen() const { return m_pDataDirReader != NULL; }
+  bool IsOpen() const { return m_pDataDirReader != nullptr; }
 
   /// \brief Returns the current total size of the file.
   ezUInt64 GetFileSize() const { return m_pDataDirReader->GetFileSize(); }
@@ -51,19 +51,19 @@ protected:
 /// ezDataDirectoryType's provide.
 /// Derive from this class if you want to implement different policies on how to write files.
 /// E.g. the default writer (ezFileWriter) implements a buffered write policy (using an internal cache).
-class EZ_FOUNDATION_DLL ezFileWriterBase : public ezIBinaryStreamWriter
+class EZ_FOUNDATION_DLL ezFileWriterBase : public ezStreamWriterBase
 {
   EZ_DISALLOW_COPY_AND_ASSIGN(ezFileWriterBase);
 
 public:
-  ezFileWriterBase() { m_pDataDirWriter = NULL; }
+  ezFileWriterBase() { m_pDataDirWriter = nullptr; }
 
   /// Returns the absolute path with which the file was opened (including the prefix of the data directory).
   ezString128 GetFilePathAbsolute() const
   { 
-    ezStringBuilder sAbs = m_pDataDirWriter->GetDataDirectory()->GetDataDirectoryPath().GetData();
+    ezStringBuilder sAbs = m_pDataDirWriter->GetDataDirectory()->GetDataDirectoryPath();
     sAbs.AppendPath(m_pDataDirWriter->GetFilePath().GetData());
-    return sAbs.GetData();
+    return sAbs;
   }
 
   /// Returns the relative path of the file within its data directory (excluding the prefix of the data directory).
@@ -73,7 +73,7 @@ public:
   ezDataDirectoryType* GetDataDirectory() const { return m_pDataDirWriter->GetDataDirectory(); }
 
   /// Returns true, if the file is currently open.
-  bool IsOpen() const { return m_pDataDirWriter != NULL; }
+  bool IsOpen() const { return m_pDataDirWriter != nullptr; }
 
   /// \brief Returns the current total size of the file.
   ezUInt64 GetFileSize() const { return m_pDataDirWriter->GetFileSize(); }  // [tested]

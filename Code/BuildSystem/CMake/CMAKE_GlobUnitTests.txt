@@ -1,0 +1,31 @@
+#cmake
+
+# Get the name of this folder
+#get_filename_component (PROJ_NAME ${CMAKE_SOURCE_DIR} NAME_WE)
+
+# Just override the project name for now
+set (PROJ_NAME "EZ Applications")
+
+# Name of the Project
+#project (${PROJ_NAME})
+#message (STATUS "Project: " ${PROJ_NAME})
+
+
+include (${CMAKE_CURRENT_LIST_DIR}/CMAKE_GeneralConfig.txt)
+
+
+# find all cmake files below this directory
+file (GLOB DIRS "${CMAKE_SOURCE_DIR}/UnitTests/*/CMakeLists.txt")
+
+# setup the variable where all project-names are stored, that should be exported
+set_property (GLOBAL PROPERTY ALL_KNOWN_PROJECTS "")
+
+# add all those directories to the to-be-processed queue
+foreach (VAR ${DIRS})
+	get_filename_component (RES ${VAR} PATH)
+
+	# add directory to the queue
+	add_subdirectory (${RES})
+endforeach ()
+
+get_property (KNOWN_LIBS GLOBAL PROPERTY ALL_KNOWN_PROJECTS)

@@ -2,11 +2,6 @@
 
 /// \file
 
-// This should be defined by the compiler specific header
-#ifdef NULL
-  #undef NULL
-#endif
-
 /// \brief Used in conjunction with EZ_ENABLED and EZ_DISABLED for safe checks. Define something to EZ_ON or EZ_OFF to work with those macros.
 #define EZ_ON =
 
@@ -38,16 +33,15 @@
 #define EZ_PLATFORM_LITTLE_ENDIAN EZ_OFF
 #define EZ_PLATFORM_BIG_ENDIAN EZ_OFF
 
-// C++ Version
-#define EZ_SUPPORTS_CPP11 EZ_OFF
-
-// Windows Compiler
+// Different Compilers
 #define EZ_COMPILER_MSVC EZ_OFF
+#define EZ_COMPILER_CLANG EZ_OFF
+#define EZ_COMPILER_GCC EZ_OFF
 
 // How to compile the engine
 #define EZ_COMPILE_ENGINE_AS_DLL EZ_OFF
 #define EZ_COMPILE_FOR_DEBUG EZ_OFF
-#define EZ_COMPILE_FOR_DEVELOPMENT OFF
+#define EZ_COMPILE_FOR_DEVELOPMENT EZ_OFF
 
 // Platform Features
 #define EZ_USE_POSIX_FILE_API EZ_OFF

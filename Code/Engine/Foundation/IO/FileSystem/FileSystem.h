@@ -56,7 +56,7 @@ public:
   static ezMutex& GetFileSystemMutex();
 
 public:
-  /// \brief This factory creates a data directory type, if it can handle the given data directory. Otherwise it returns NULL.
+  /// \brief This factory creates a data directory type, if it can handle the given data directory. Otherwise it returns nullptr.
   ///
   /// Every time a data directory is supposed to be added, the file system will query its data dir factories, which one
   /// can successfully create an ezDataDirectoryType. In this process the last factory added has the highest priority.
@@ -133,8 +133,8 @@ public:
   /// Depending on how data directories are mounted (with read/write access), and which files are already existing,
   /// the file for write output might end up in a place where it has higher or lower open-for-read priority than an identically
   /// named file in another data directory.
-  /// out_sAbsolutePath will contain the absolute path to the file. Might be NULL.
-  /// out_sDataDirRelativePath will contain the relative path to the file (from the data directory in which it might end up in). Might be NULL.
+  /// out_sAbsolutePath will contain the absolute path to the file. Might be nullptr.
+  /// out_sDataDirRelativePath will contain the relative path to the file (from the data directory in which it might end up in). Might be nullptr.
   /// szPath can be an absolute path. This can also be used to find the relative location to the data directory that would handle it.
   /// The function will return EZ_FAILURE if it was not able to determine any location where the file could be read from or written to.
   static ezResult ResolvePath(const char* szPath, bool bForWriting, ezString* out_sAbsolutePath, ezString* out_sDataDirRelativePath);

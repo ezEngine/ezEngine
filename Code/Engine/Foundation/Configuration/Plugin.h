@@ -6,7 +6,6 @@
 #include <Foundation/Strings/String.h>
 #include <Foundation/Strings/StringBuilder.h>
 #include <Foundation/Communication/Event.h>
-#include <Foundation/Configuration/ReloadableVariable.h>
 
 /// \brief ezPlugin allows to manage all dynamically loadable plugins. Each plugin DLL must contain one global instance of ezPlugin.
 ///
@@ -41,8 +40,8 @@ public:
   ///   Will be called shortly before the DLL is finally unloaded. All other code has already been notified that the plugin is being unloaded.
   /// \param szPluginDependency1
   ///   Allows to specify other modules that this plugin depends on. These will be automatically loaded and unloaded together with this plugin.
-  ezPlugin(bool bIsReloadable, OnPluginLoadedFunction OnLoadPlugin = NULL, OnPluginUnloadedFunction OnUnloadPlugin = NULL, 
-    const char* szPluginDependency1 = NULL, const char* szPluginDependency2 = NULL, const char* szPluginDependency3 = NULL, const char* szPluginDependency4 = NULL, const char* szPluginDependency5 = NULL);
+  ezPlugin(bool bIsReloadable, OnPluginLoadedFunction OnLoadPlugin = nullptr, OnPluginUnloadedFunction OnUnloadPlugin = nullptr, 
+    const char* szPluginDependency1 = nullptr, const char* szPluginDependency2 = nullptr, const char* szPluginDependency3 = nullptr, const char* szPluginDependency4 = nullptr, const char* szPluginDependency5 = nullptr);
 
   /// \brief Returns the name that was used to load the plugin from disk.
   const char* GetPluginName() const { return m_sLoadedFromFile.GetData(); } // [tested]
@@ -80,7 +79,7 @@ public:
   /// to recover from it. So 'failure' means that not all reloadable code has been updated.
   static ezResult ReloadPlugins(bool bForceReload = false); // [tested]
 
-  /// \brief Tries to find an ezPlugin instance by the given name. Returns NULL if there is no such plugin.
+  /// \brief Tries to find an ezPlugin instance by the given name. Returns nullptr if there is no such plugin.
   /// Can be used to check whether a certain plugin is loaded.
   static ezPlugin* FindPluginByName(const char* szPluginName); // [tested]
 
@@ -106,8 +105,8 @@ public:
   /// \brief Code that needs to be execute whenever a plugin is loaded or unloaded can register itself here to be notified of such events.
   static ezEvent<const PluginEvent&> s_PluginEvents;
 
-  /// \brief Returns the n-th plugin that this one is dependent on, or NULL if there is no further dependency.
-  const char* GetPluginDependency(ezUInt8 uiDependency) const { return (uiDependency < 5) ? m_szPluginDependencies[uiDependency] : NULL; }
+  /// \brief Returns the n-th plugin that this one is dependent on, or nullptr if there is no further dependency.
+  const char* GetPluginDependency(ezUInt8 uiDependency) const { return (uiDependency < 5) ? m_szPluginDependencies[uiDependency] : nullptr; }
 
 private:
   static void GetPluginPaths(const char* szPluginName, ezStringBuilder& sOldPath, ezStringBuilder& sNewPath);

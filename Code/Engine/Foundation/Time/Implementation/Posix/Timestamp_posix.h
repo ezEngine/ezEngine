@@ -3,20 +3,31 @@
 const ezTimestamp ezTimestamp::CurrentTimestamp()
 {
   timeval currentTime;
-  gettimeofday(&currentTime, NULL);
+  gettimeofday(&currentTime, nullptr);
   
   return ezTimestamp(currentTime.tv_sec * 1000000LL + currentTime.tv_usec, ezSIUnitOfTime::Microsecond);
 }
 
 bool operator!= (const tm& lhs, const tm& rhs)
 {
-  return !((lhs.tm_sec == rhs.tm_sec) &&
-          (lhs.tm_min == rhs.tm_min) &&
-          (lhs.tm_hour == rhs.tm_hour) &&
-          (lhs.tm_mday == rhs.tm_mday) &&
-          (lhs.tm_mon == rhs.tm_mon) &&
-          (lhs.tm_year == rhs.tm_year) &&
-          (lhs.tm_isdst == rhs.tm_isdst));
+  if (lhs.tm_isdst == rhs.tm_isdst)
+  {
+    return !((lhs.tm_sec == rhs.tm_sec) &&
+            (lhs.tm_min == rhs.tm_min) &&
+            (lhs.tm_hour == rhs.tm_hour) &&
+            (lhs.tm_mday == rhs.tm_mday) &&
+            (lhs.tm_mon == rhs.tm_mon) &&
+            (lhs.tm_year == rhs.tm_year) &&
+            (lhs.tm_isdst == rhs.tm_isdst));
+  }
+  else
+  {
+    /// \todo check whether the times are equal if one is in dst and the other not.
+    /// mktime totally ignores your settings and overwrites them, there is no easy way
+    /// to check whether the times are equal when dst is involved.
+    /// mktime's dst *fixup* will change hour, dst, day, month and year in the worst case.
+    return false;
+  }
 }
 
 
@@ -41,6 +52,9 @@ const ezTimestamp ezDateTime::GetTimestamp() const
     return ezTimestamp();
 
   iTimeStamp += timeinfo.tm_gmtoff;
+  // Substract one hour if daylight saving time was activated by mktime.
+  if (timeinfo.tm_isdst == 1)
+    iTimeStamp -= 3600;
   return ezTimestamp(iTimeStamp, ezSIUnitOfTime::Second);
 }
 
@@ -48,7 +62,7 @@ bool ezDateTime::SetTimestamp(ezTimestamp timestamp)
 {
   tm timeinfo = {0};
   time_t iTime = (time_t)timestamp.GetInt64(ezSIUnitOfTime::Second);
-  if (gmtime_r(&iTime, &timeinfo) == NULL)
+  if (gmtime_r(&iTime, &timeinfo) == nullptr)
     return false;
 
   m_iYear = timeinfo.tm_year + 1900;

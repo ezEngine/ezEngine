@@ -16,6 +16,7 @@ The current version allows to monitor the following data:
   * __Stats__: Using ezStats a game can display the status of certain internals. This allows to make it easy to inspect what a game object is doing or what state some component is in. So instead of printing this debug information on screen inside the game, you can watch it with ezInspector. Additionally ezInspector allows to mark stats as 'favorites' which means you can output hundreds of stats in your game, but easily only display the subset that you are currently interested in inside ezInspector. Additionally, it is now possible to display the history of a stat variable in a separate panel as a graph. This makes it easy to observe how some stats behave over time (such as frame time, frames-per-second, etc.).
   * __Time__: Displays all ezClock instances that are active. Shows the raw time step and the filtered time step, which allows to see hiccups and general performance characteristics of the application.
   * __Reflection__: Shows all reflected types and their class hierarchy. Also shows which properties each reflected type provides.
+  * __Data Transfer__: This panel allows to pull data from an application. What data can be pulled is determined by what the application provides. For example an application might provide the G-Buffer as a set of images to be pulled. See ezDataTransfer for further details.
 
 
 Setting up your game to support ezInspector

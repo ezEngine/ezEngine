@@ -60,6 +60,9 @@ public:
   };
 
   /// \brief Specifies the mode and the basic settings that this camera uses.
+  ///
+  /// \param fFovOrDim
+  ///   Fov X/Y in degree or width/height (depending on Mode)
   void SetCameraMode(CameraMode Mode, float fFovOrDim, float fNearPlane, float fFarPlane);
 
   /// \brief Sets the camera position and rotation from the given look at matrix.

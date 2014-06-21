@@ -32,8 +32,8 @@ ezTelemetryMessage::~ezTelemetryMessage()
 {
   EZ_ASSERT(m_Storage.GetRefCount() == 2, "Implementation Error");
 
-  m_Reader.SetStorage(NULL);
-  m_Writer.SetStorage(NULL);
+  m_Reader.SetStorage(nullptr);
+  m_Writer.SetStorage(nullptr);
 }
 
 

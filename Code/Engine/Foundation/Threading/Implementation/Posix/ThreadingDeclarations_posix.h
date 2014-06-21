@@ -7,6 +7,7 @@
 #include <semaphore.h>
 
 typedef pthread_t ezThreadHandle;
+typedef pthread_t ezThreadID;
 typedef pthread_mutex_t ezMutexHandle;
 typedef void* (*ezOSThreadEntryPoint)(void* pThreadParameter);
 typedef pthread_key_t ezThreadLocalStorageKey;

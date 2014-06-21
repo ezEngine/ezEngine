@@ -21,19 +21,20 @@ template <typename T, bool Construct>
 void ezDequeBase<T, Construct>::Constructor(ezAllocatorBase* pAllocator)
 {
   m_pAllocator = pAllocator;
-  m_pChunks = NULL;
+  m_pChunks = nullptr;
   m_uiChunks = 0;
   m_uiFirstElement = 0;
   m_uiCount = 0;
   m_uiAllocatedChunks = 0;
+  m_uiMaxCount = 0;
 
   ResetReduceSizeCounter();
 }
 
 template <typename T, bool Construct>
-ezDequeBase<T, Construct>::ezDequeBase(ezAllocatorBase* pAllocator/*, ezUInt32 uiChunkSize*/)
+ezDequeBase<T, Construct>::ezDequeBase(ezAllocatorBase* pAllocator)
 {
-  Constructor(pAllocator/*, uiChunkSize*/);
+  Constructor(pAllocator);
 }
 
 template <typename T, bool Construct>
@@ -41,9 +42,19 @@ ezDequeBase<T, Construct>::ezDequeBase(const ezDequeBase<T, Construct>& rhs, ezA
 {
   EZ_CHECK_AT_COMPILETIME_MSG(Construct, "This function is not supported on Deques that do not construct their data.");
 
-  Constructor(pAllocator/*, rhs.m_uiChunkSize*/);
+  Constructor(pAllocator);
 
   *this = rhs;
+}
+
+template <typename T, bool Construct>
+ezDequeBase<T, Construct>::ezDequeBase(ezDequeBase<T, Construct>&& rhs, ezAllocatorBase* pAllocator)
+{
+  EZ_CHECK_AT_COMPILETIME_MSG(Construct, "This function is not supported on Deques that do not construct their data.");
+
+  Constructor(pAllocator);
+
+  *this = std::move(rhs);
 }
 
 template <typename T, bool Construct>
@@ -64,6 +75,34 @@ void ezDequeBase<T, Construct>::operator= (const ezDequeBase<T, Construct>& rhs)
   // copy construct all the elements
   for (ezUInt32 i = 0; i < rhs.m_uiCount; ++i)
     ezMemoryUtils::Construct(&ElementAt(i), &rhs[i], 1);
+}
+
+template <typename T, bool Construct>
+void ezDequeBase<T, Construct>::operator= (ezDequeBase<T, Construct>&& rhs)
+{
+  EZ_CHECK_AT_COMPILETIME_MSG(Construct, "This function is not supported on Deques that do not construct their data.");
+
+  if (m_pAllocator != rhs.m_pAllocator)
+    operator=(static_cast<ezDequeBase<T, Construct>&>(rhs));
+  else
+  {
+    DeallocateAll();
+
+    m_uiCount = rhs.m_uiCount;
+    m_iReduceSizeTimer = rhs.m_iReduceSizeTimer;
+    m_pChunks = rhs.m_pChunks;
+    m_uiAllocatedChunks = rhs.m_uiAllocatedChunks;
+    m_uiChunks= rhs.m_uiChunks;
+    m_uiFirstElement = rhs.m_uiFirstElement;
+    m_uiMaxCount = rhs.m_uiMaxCount;
+
+    rhs.m_uiCount = 0;
+    rhs.m_pChunks = nullptr;
+    rhs.m_uiAllocatedChunks = 0;
+    rhs.m_uiChunks = 0;
+    rhs.m_uiFirstElement = 0;
+    rhs.m_uiMaxCount = 0;
+  }
 }
 
 template <typename T, bool Construct>
@@ -228,7 +267,7 @@ void ezDequeBase<T, Construct>::CompactIndexArray(ezUInt32 uiMinChunksToKeep)
   for (ezUInt32 i = 0; i < uiRequiredChunks; ++i)
   {
     pNewChunkArray[16 + i] = m_pChunks[uiFirstChunk + i];
-    m_pChunks[uiFirstChunk + i] = NULL;
+    m_pChunks[uiFirstChunk + i] = nullptr;
   }
 
   // copy all still allocated chunks over to the new index array
@@ -242,7 +281,7 @@ void ezDequeBase<T, Construct>::CompactIndexArray(ezUInt32 uiMinChunksToKeep)
         EZ_ASSERT(iPos < 16 || ((iPos >= 16 + uiRequiredChunks) && (iPos < uiChunksToKeep)), "Implementation error.");
 
         pNewChunkArray[iPos] = m_pChunks[i];
-        m_pChunks[i] = NULL;
+        m_pChunks[i] = nullptr;
         ++iPos;
 
         if (iPos == 16)
@@ -257,7 +296,7 @@ void ezDequeBase<T, Construct>::CompactIndexArray(ezUInt32 uiMinChunksToKeep)
         EZ_ASSERT(iPos < 16 || ((iPos >= 16 + uiRequiredChunks) && (iPos < uiChunksToKeep)), "Implementation error.");
 
         pNewChunkArray[iPos] = m_pChunks[i];
-        m_pChunks[i] = NULL;
+        m_pChunks[i] = nullptr;
         ++iPos;
 
         if (iPos == 16)
@@ -651,7 +690,7 @@ EZ_FORCE_INLINE T* ezDequeBase<T, Construct>::GetUnusedChunk()
     if (m_pChunks[i])
     {
       T* pChunk = m_pChunks[i];
-      m_pChunks[i] = NULL;
+      m_pChunks[i] = nullptr;
       return pChunk;
     }
   }
@@ -664,7 +703,7 @@ EZ_FORCE_INLINE T* ezDequeBase<T, Construct>::GetUnusedChunk()
     if (m_pChunks[i])
     {
       T* pChunk = m_pChunks[i];
-      m_pChunks[i] = NULL;
+      m_pChunks[i] = nullptr;
       return pChunk;
     }
   }
@@ -687,7 +726,7 @@ T& ezDequeBase<T, Construct>::ElementAt(ezUInt32 uiIndex)
 
   EZ_ASSERT(uiChunkIndex < m_uiChunks, "");
 
-  if (m_pChunks[uiChunkIndex] == NULL)
+  if (m_pChunks[uiChunkIndex] == nullptr)
     m_pChunks[uiChunkIndex] = GetUnusedChunk();
 
   return m_pChunks[uiChunkIndex][uiChunkOffset];
@@ -773,18 +812,18 @@ void ezDequeBase<T, Construct>::Insert(const T& value, ezUInt32 uiIndex)
 }
 
 template <typename T, bool Construct>
-template <typename C>
-void ezDequeBase<T, Construct>::Sort()
+template <typename Comparer>
+void ezDequeBase<T, Construct>::Sort(const Comparer& comparer)
 {
   if (m_uiCount > 1)
-    ezSorting<C>::QuickSort(*this);
+    ezSorting::QuickSort(*this, comparer);
 }
 
 template <typename T, bool Construct>
 void ezDequeBase<T, Construct>::Sort()
 {
   if (m_uiCount > 1)
-    ezSorting<ezCompareHelper<T> >::QuickSort(*this);
+    ezSorting::QuickSort(*this, ezCompareHelper<T>());
 }
 
 #undef REDUCE_SIZE
@@ -797,7 +836,7 @@ ezDeque<T, A, Construct>::ezDeque() : ezDequeBase<T, Construct>(A::GetAllocator(
 }
 
 template <typename T, typename A, bool Construct>
-ezDeque<T, A, Construct>:: ezDeque(ezAllocatorBase* pAllocator) : ezDequeBase<T, Construct>(pAllocator)
+ezDeque<T, A, Construct>::ezDeque(ezAllocatorBase* pAllocator) : ezDequeBase<T, Construct>(pAllocator)
 {
 }
 
@@ -807,7 +846,17 @@ ezDeque<T, A, Construct>::ezDeque(const ezDeque<T, A, Construct>& other) : ezDeq
 }
 
 template <typename T, typename A, bool Construct>
-ezDeque<T, A, Construct>:: ezDeque(const ezDequeBase<T, Construct>& other) : ezDequeBase<T, Construct>(other, A::GetAllocator())
+ezDeque<T, A, Construct>::ezDeque(ezDeque<T, A, Construct>&& other) : ezDequeBase<T, Construct>(std::move(other), A::GetAllocator())
+{
+}
+
+template <typename T, typename A, bool Construct>
+ezDeque<T, A, Construct>::ezDeque(const ezDequeBase<T, Construct>& other) : ezDequeBase<T, Construct>(other, A::GetAllocator())
+{
+}
+
+template <typename T, typename A, bool Construct>
+ezDeque<T, A, Construct>::ezDeque(ezDequeBase<T, Construct>&& other) : ezDequeBase<T, Construct>(std::move(other), A::GetAllocator())
 {
 }
 
@@ -818,9 +867,21 @@ void ezDeque<T, A, Construct>::operator=(const ezDeque<T, A, Construct>& rhs)
 }
 
 template <typename T, typename A, bool Construct>
+void ezDeque<T, A, Construct>::operator=(ezDeque<T, A, Construct>&& rhs)
+{
+  ezDequeBase<T, Construct>::operator=(std::move(rhs));
+}
+
+template <typename T, typename A, bool Construct>
 void ezDeque<T, A, Construct>::operator=(const ezDequeBase<T, Construct>& rhs)
 {
   ezDequeBase<T, Construct>::operator=(rhs);
+}
+
+template <typename T, typename A, bool Construct>
+void ezDeque<T, A, Construct>::operator=(ezDequeBase<T, Construct>&& rhs)
+{
+  ezDequeBase<T, Construct>::operator=(std::move(rhs));
 }
 
 

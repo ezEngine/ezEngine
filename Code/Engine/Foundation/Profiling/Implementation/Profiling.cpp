@@ -16,11 +16,6 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, ProfilingSystem)
     ezProfilingSystem::Initialize();
   }
 
-  ON_BASE_SHUTDOWN
-  {
-    ezProfilingSystem::Shutdown();
-  }
-
 EZ_END_SUBSYSTEM_DECLARATION
 
 namespace
@@ -40,8 +35,6 @@ namespace
 {
   struct RefCountedProfilingInfo : public ProfilingInfo
   {
-    EZ_DECLARE_POD_TYPE();
-
     RefCountedProfilingInfo(const char* szName) : ProfilingInfo(szName)
     {
       m_uiRefCount = 1;
@@ -64,7 +57,7 @@ namespace
   
   static bool InitializeData()
   {
-    if (s_pProfilingData == NULL)
+    if (s_pProfilingData == nullptr)
     {
       static ezUInt8 ProfilingDataBuffer[sizeof(ProfilingData)];
       s_pProfilingData = new (ProfilingDataBuffer) ProfilingData();
@@ -85,15 +78,10 @@ namespace
 //static
 void ezProfilingSystem::Initialize()
 {
-  EZ_ASSERT(s_pProfilingData, "Profiling Data should already be initialized");
+  EZ_ASSERT(s_pProfilingData != nullptr, "Profiling Data should already be initialized");
   EZ_ASSERT(s_pProfilingData->m_InfoTable.GetAllocator() != ezFoundation::GetDefaultAllocator(), "Profiling Data must use the static allocator");
 
   SetThreadName("Main Thread");
-}
-
-//static
-void ezProfilingSystem::Shutdown()
-{
 }
 
 //static
@@ -101,7 +89,7 @@ ezProfilingId ezProfilingSystem::CreateId(const char* szName)
 {
   InitializeData();
 
-  ezLock<ProfilingData> lock(*s_pProfilingData);
+  EZ_LOCK(*s_pProfilingData);
 
   EZ_ASSERT(s_pProfilingData->m_InfoTable.GetCount() < EZ_PROFILING_ID_COUNT,
     "Max profiling id count (%d) reached. Increase EZ_PROFILING_ID_COUNT.", EZ_PROFILING_ID_COUNT);
@@ -111,7 +99,7 @@ ezProfilingId ezProfilingSystem::CreateId(const char* szName)
 //static
 void ezProfilingSystem::DeleteId(const ezProfilingId& id)
 {
-  ezLock<ProfilingData> lock(*s_pProfilingData);
+  EZ_LOCK(*s_pProfilingData);
 
   s_pProfilingData->m_InfoTable.Remove(id.m_Id);
 }
@@ -130,7 +118,7 @@ void ezProfilingSystem::AddReference(const ezProfilingId& id)
 void ezProfilingSystem::ReleaseReference(const ezProfilingId& id)
 {
   // profiling system already de-initialized, nothing to do anymore. Can happen during static de-initialization.
-  if (s_pProfilingData == NULL)
+  if (s_pProfilingData == nullptr)
     return;
 
   RefCountedProfilingInfo* pInfo;
@@ -138,7 +126,7 @@ void ezProfilingSystem::ReleaseReference(const ezProfilingId& id)
   {
     if (pInfo->m_uiRefCount.Decrement() == 0)
     {
-      ezLock<ProfilingData> lock(*s_pProfilingData);
+      EZ_LOCK(*s_pProfilingData);
       s_pProfilingData->m_InfoTable.Remove(id.m_Id);
     }
   }

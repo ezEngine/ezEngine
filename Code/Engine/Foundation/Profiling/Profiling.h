@@ -2,6 +2,7 @@
 
 #include <Foundation/Basics/Types/Id.h>
 
+class ezStreamWriterBase;
 class ezThread;
 class ezProfilingId;
 
@@ -33,13 +34,15 @@ public:
   /// \brief Frees the storage for an id so it can be reused.
   static void DeleteId(const ezProfilingId& id);
 
+  /// \brief This is implementation specific. The default profiling captures the current data and writes it as json to the output stream. GPA does nothing.
+  static void Capture(ezStreamWriterBase& outputStream);
+
 private:
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(Foundation, ProfilingSystem);
   friend class ezProfilingId;
   friend ezUInt32 RunThread(ezThread* pThread);
 
   static void Initialize();
-  static void Shutdown();
 
   static void AddReference(const ezProfilingId& id);
   static void ReleaseReference(const ezProfilingId& id);

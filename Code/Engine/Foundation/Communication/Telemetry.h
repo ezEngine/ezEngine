@@ -44,7 +44,7 @@ public:
   /// Connections to invalid IP addresses will however always fail.
   ///
   /// This function will set the ezTelemetry connection mode to 'Client'. This is mutually exclusive with CreateServer().
-  static ezResult ConnectToServer(const char* szConnectTo = NULL);
+  static ezResult ConnectToServer(const char* szConnectTo = nullptr);
 
   /// \brief Opens a connection as a server.
   ///
@@ -63,12 +63,12 @@ public:
   /// \name Sending Data
   /// @{ 
 
-  static void Broadcast(TransmitMode tm, ezUInt64 uiSystemID, ezUInt32 uiMsgID, const void* pData, ezUInt32 uiDataBytes);
-  static void Broadcast(TransmitMode tm, ezUInt64 uiSystemID, ezUInt32 uiMsgID, ezIBinaryStreamReader& Stream, ezInt32 iDataBytes = -1);
+  static void Broadcast(TransmitMode tm, ezUInt32 uiSystemID, ezUInt32 uiMsgID, const void* pData, ezUInt32 uiDataBytes);
+  static void Broadcast(TransmitMode tm, ezUInt32 uiSystemID, ezUInt32 uiMsgID, ezStreamReaderBase& Stream, ezInt32 iDataBytes = -1);
   static void Broadcast(TransmitMode tm, ezTelemetryMessage& Msg);
 
-  static void SendToServer(ezUInt64 uiSystemID, ezUInt32 uiMsgID, const void* pData = NULL, ezUInt32 uiDataBytes = 0);
-  static void SendToServer(ezUInt64 uiSystemID, ezUInt32 uiMsgID, ezIBinaryStreamReader& Stream, ezInt32 iDataBytes = -1);
+  static void SendToServer(ezUInt32 uiSystemID, ezUInt32 uiMsgID, const void* pData = nullptr, ezUInt32 uiDataBytes = 0);
+  static void SendToServer(ezUInt32 uiSystemID, ezUInt32 uiMsgID, ezStreamReaderBase& Stream, ezInt32 iDataBytes = -1);
   static void SendToServer(ezTelemetryMessage& Msg);
 
   /// @}
@@ -125,7 +125,7 @@ public:
   /// to continuously update the network state and check whether the desired message has arrived.
   /// However, if you do so, you will be able to deadlock your application, if such a message never arrives.
   /// Also it might fill up other message queues which might lead to messages getting discarded.
-  static ezResult RetrieveMessage(ezUInt64 uiSystemID, ezTelemetryMessage& out_Message);
+  static ezResult RetrieveMessage(ezUInt32 uiSystemID, ezTelemetryMessage& out_Message);
 
   /// \brief Polls the network for new incoming messages and ensures outgoing messages are sent.
   ///
@@ -137,7 +137,7 @@ public:
 
   typedef void(*ProcessMessagesCallback)(void* pPassThrough);
 
-  static void AcceptMessagesForSystem(ezUInt64 uiSystemID, bool bAccept, ProcessMessagesCallback Callback = NULL, void* pPassThrough = NULL);
+  static void AcceptMessagesForSystem(ezUInt32 uiSystemID, bool bAccept, ProcessMessagesCallback Callback = nullptr, void* pPassThrough = nullptr);
 
   /// \brief Call this once per frame to process queued messages and to send the PerFrameUpdate event.
   static void PerFrameUpdate();
@@ -149,7 +149,7 @@ public:
   ///        a proper receipient is available. Set this to zero to discard all messages from a system, when no receipient is available.
   ///
   /// The default queue size is 1000. When a connection to a suitable receipient is made, all queued messages are delivered in one burst.
-  static void SetOutgoingQueueSize(ezUInt64 uiSystemID, ezUInt16 uiMaxQueued);
+  static void SetOutgoingQueueSize(ezUInt32 uiSystemID, ezUInt16 uiMaxQueued);
 
   /// @}
 
@@ -183,12 +183,12 @@ public:
 private:
   static void UpdateServerPing();
 
-  static ezResult OpenConnection(ConnectionMode Mode, const char* szConnectTo = NULL);
+  static ezResult OpenConnection(ConnectionMode Mode, const char* szConnectTo = nullptr);
 
   static void Transmit(TransmitMode tm, const void* pData, ezUInt32 uiDataBytes);
 
-  static void Send(TransmitMode tm, ezUInt64 uiSystemID, ezUInt32 uiMsgID, const void* pData, ezUInt32 uiDataBytes);
-  static void Send(TransmitMode tm, ezUInt64 uiSystemID, ezUInt32 uiMsgID, ezIBinaryStreamReader& Stream, ezInt32 iDataBytes = -1);
+  static void Send(TransmitMode tm, ezUInt32 uiSystemID, ezUInt32 uiMsgID, const void* pData, ezUInt32 uiDataBytes);
+  static void Send(TransmitMode tm, ezUInt32 uiSystemID, ezUInt32 uiMsgID, ezStreamReaderBase& Stream, ezInt32 iDataBytes = -1);
   static void Send(TransmitMode tm, ezTelemetryMessage& msg);
 
   friend class ezTelemetryThread;
@@ -209,7 +209,7 @@ private:
   static bool s_bConnectedToClient;
   static bool s_bAllowNetworkUpdate;
 
-  static void QueueOutgoingMessage(TransmitMode tm, ezUInt64 uiSystemID, ezUInt32 uiMsgID, const void* pData, ezUInt32 uiDataBytes);
+  static void QueueOutgoingMessage(TransmitMode tm, ezUInt32 uiSystemID, ezUInt32 uiMsgID, const void* pData, ezUInt32 uiDataBytes);
 
   static ezTime s_PingToServer;
 
@@ -221,8 +221,8 @@ private:
     { 
       m_bAcceptMessages = false; 
       m_uiMaxQueuedOutgoing = 1000; 
-      m_Callback = NULL;
-      m_pPassThrough = NULL;
+      m_Callback = nullptr;
+      m_pPassThrough = nullptr;
     }
 
     bool m_bAcceptMessages;

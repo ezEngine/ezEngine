@@ -18,14 +18,14 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, FileSystem)
 
 EZ_END_SUBSYSTEM_DECLARATION
 
-ezFileSystem::FileSystemData* ezFileSystem::s_Data = NULL;
+ezFileSystem::FileSystemData* ezFileSystem::s_Data = nullptr;
 
 ezFileSystem::FileEvent::FileEvent()
 {
   m_EventType = FileEventType::None;
-  m_szFileOrDirectory = NULL;
-  m_szOther = NULL;
-  m_pDataDir = NULL;
+  m_szFileOrDirectory = nullptr;
+  m_szOther = nullptr;
+  m_pDataDir = nullptr;
 }
 
 ezMutex& ezFileSystem::GetFileSystemMutex()
@@ -35,27 +35,27 @@ ezMutex& ezFileSystem::GetFileSystemMutex()
 
 void ezFileSystem::RegisterEventHandler(ezEvent<const FileEvent&>::Handler handler)
 {
-  EZ_ASSERT(s_Data != NULL, "FileSystem is not initialized.");
+  EZ_ASSERT(s_Data != nullptr, "FileSystem is not initialized.");
 
-  ezLock<ezMutex> lock(s_Data->m_Mutex);
+  EZ_LOCK(s_Data->m_Mutex);
 
   s_Data->m_Event.AddEventHandler(handler);
 }
 
 void ezFileSystem::UnregisterEventHandler(ezEvent<const FileEvent&>::Handler handler)
 {
-  EZ_ASSERT(s_Data != NULL, "FileSystem is not initialized.");
+  EZ_ASSERT(s_Data != nullptr, "FileSystem is not initialized.");
 
-  ezLock<ezMutex> lock(s_Data->m_Mutex);
+  EZ_LOCK(s_Data->m_Mutex);
 
   s_Data->m_Event.RemoveEventHandler(handler);
 }
 
 ezResult ezFileSystem::AddDataDirectory(const char* szDataDirectory, DataDirUsage Usage, const char* szGroup, const char* szCategory)
 {
-  EZ_ASSERT(s_Data != NULL, "FileSystem is not initialized.");
+  EZ_ASSERT(s_Data != nullptr, "FileSystem is not initialized.");
 
-  ezLock<ezMutex> lock(s_Data->m_Mutex);
+  EZ_LOCK(s_Data->m_Mutex);
 
   ezStringBuilder sPath = szDataDirectory;
   sPath.MakeCleanPath();
@@ -65,7 +65,7 @@ ezResult ezFileSystem::AddDataDirectory(const char* szDataDirectory, DataDirUsag
   {
     ezDataDirectoryType* pDataDir = s_Data->m_DataDirFactories[i](sPath.GetData());
 
-    if (pDataDir != NULL)
+    if (pDataDir != nullptr)
     {
       DataDirectory dd;
       dd.m_Usage = Usage;
@@ -104,9 +104,9 @@ ezResult ezFileSystem::AddDataDirectory(const char* szDataDirectory, DataDirUsag
 
 ezUInt32 ezFileSystem::RemoveDataDirectoryGroup(const char* szGroup)
 {
-  EZ_ASSERT(s_Data != NULL, "FileSystem is not initialized.");
+  EZ_ASSERT(s_Data != nullptr, "FileSystem is not initialized.");
 
-  ezLock<ezMutex> lock(s_Data->m_Mutex);
+  EZ_LOCK(s_Data->m_Mutex);
 
   ezUInt32 uiRemoved = 0;
 
@@ -137,9 +137,9 @@ ezUInt32 ezFileSystem::RemoveDataDirectoryGroup(const char* szGroup)
 
 void ezFileSystem::ClearAllDataDirectories()
 {
-  EZ_ASSERT(s_Data != NULL, "FileSystem is not initialized.");
+  EZ_ASSERT(s_Data != nullptr, "FileSystem is not initialized.");
 
-  ezLock<ezMutex> lock(s_Data->m_Mutex);
+  EZ_LOCK(s_Data->m_Mutex);
 
   for (ezInt32 i = s_Data->m_DataDirectories.GetCount() - 1; i >= 0; --i)
   {
@@ -160,14 +160,14 @@ void ezFileSystem::ClearAllDataDirectories()
 
 ezUInt32 ezFileSystem::GetNumDataDirectories()
 {
-  EZ_ASSERT(s_Data != NULL, "FileSystem is not initialized.");
+  EZ_ASSERT(s_Data != nullptr, "FileSystem is not initialized.");
 
   return s_Data->m_DataDirectories.GetCount();
 }
 
 ezDataDirectoryType* ezFileSystem::GetDataDirectory(ezUInt32 uiDataDirIndex)
 {
-  EZ_ASSERT(s_Data != NULL, "FileSystem is not initialized.");
+  EZ_ASSERT(s_Data != nullptr, "FileSystem is not initialized.");
 
   return s_Data->m_DataDirectories[uiDataDirIndex].m_pDataDirectory;
 }
@@ -198,9 +198,9 @@ const char* ezFileSystem::GetDataDirRelativePath(const char* szPath, ezUInt32 ui
 
 void ezFileSystem::DeleteFile(const char* szFile)
 {
-  EZ_ASSERT(s_Data != NULL, "FileSystem is not initialized.");
+  EZ_ASSERT(s_Data != nullptr, "FileSystem is not initialized.");
 
-  ezLock<ezMutex> lock(s_Data->m_Mutex);
+  EZ_LOCK(s_Data->m_Mutex);
 
   ezHybridArray<ezString, 4> SearchDirs;
   szFile = ExtractDataDirsToSearch(szFile, SearchDirs);
@@ -235,9 +235,9 @@ void ezFileSystem::DeleteFile(const char* szFile)
 
 bool ezFileSystem::ExistsFile(const char* szFile)
 {
-  EZ_ASSERT(s_Data != NULL, "FileSystem is not initialized.");
+  EZ_ASSERT(s_Data != nullptr, "FileSystem is not initialized.");
 
-  ezLock<ezMutex> lock(s_Data->m_Mutex);
+  EZ_LOCK(s_Data->m_Mutex);
 
   ezHybridArray<ezString, 4> SearchDirs;
   szFile = ExtractDataDirsToSearch(szFile, SearchDirs);
@@ -283,7 +283,7 @@ const char* ezFileSystem::ExtractDataDirsToSearch(const char* szPath, ezHybridAr
   {
     if (it.GetCharacter() == '|')
     {
-      SearchDirs.PushBack(sCur.GetData());
+      SearchDirs.PushBack(sCur);
       sCur.Clear();
     }
     else
@@ -294,7 +294,7 @@ const char* ezFileSystem::ExtractDataDirsToSearch(const char* szPath, ezHybridAr
 
   EZ_ASSERT(!it.IsEmpty(), "Cannot parse the path \"%s\". The data-dir filter starts with a '<' but does not end with '>'.", szPath);
 
-  SearchDirs.PushBack(sCur.GetData());
+  SearchDirs.PushBack(sCur);
   ++it;
 
   return it.GetData(); // return the string after the data-dir filter declaration
@@ -302,9 +302,9 @@ const char* ezFileSystem::ExtractDataDirsToSearch(const char* szPath, ezHybridAr
 
 ezDataDirectoryReader* ezFileSystem::GetFileReader(const char* szFile, bool bAllowFileEvents)
 {
-  EZ_ASSERT(s_Data != NULL, "FileSystem is not initialized.");
+  EZ_ASSERT(s_Data != nullptr, "FileSystem is not initialized.");
 
-  ezLock<ezMutex> lock(s_Data->m_Mutex);
+  EZ_LOCK(s_Data->m_Mutex);
 
   ezHybridArray<ezString, 4> SearchDirs;
   szFile = ExtractDataDirsToSearch(szFile, SearchDirs);
@@ -340,7 +340,7 @@ ezDataDirectoryReader* ezFileSystem::GetFileReader(const char* szFile, bool bAll
       // Let the data directory try to open the file.
       ezDataDirectoryReader* pReader = s_Data->m_DataDirectories[i].m_pDataDirectory->OpenFileToRead(szRelPath);
 
-      if (bAllowFileEvents && pReader != NULL)
+      if (bAllowFileEvents && pReader != nullptr)
       {
         // Broadcast that this file has been opened.
         FileEvent fe;
@@ -364,14 +364,14 @@ ezDataDirectoryReader* ezFileSystem::GetFileReader(const char* szFile, bool bAll
     s_Data->m_Event.Broadcast(fe);
   }
 
-  return NULL;
+  return nullptr;
 }
 
 ezDataDirectoryWriter* ezFileSystem::GetFileWriter(const char* szFile, bool bAllowFileEvents)
 {
-  EZ_ASSERT(s_Data != NULL, "FileSystem is not initialized.");
+  EZ_ASSERT(s_Data != nullptr, "FileSystem is not initialized.");
 
-  ezLock<ezMutex> lock(s_Data->m_Mutex);
+  EZ_LOCK(s_Data->m_Mutex);
 
   ezHybridArray<ezString, 4> SearchDirs;
   szFile = ExtractDataDirsToSearch(szFile, SearchDirs);
@@ -409,7 +409,7 @@ ezDataDirectoryWriter* ezFileSystem::GetFileWriter(const char* szFile, bool bAll
 
       ezDataDirectoryWriter* pWriter = s_Data->m_DataDirectories[i].m_pDataDirectory->OpenFileToWrite(szRelPath);
 
-      if (bAllowFileEvents && pWriter != NULL)
+      if (bAllowFileEvents && pWriter != nullptr)
       {
         // Broadcast that this file has been created.
         FileEvent fe;
@@ -433,14 +433,14 @@ ezDataDirectoryWriter* ezFileSystem::GetFileWriter(const char* szFile, bool bAll
     s_Data->m_Event.Broadcast(fe);
   }
 
-  return NULL;
+  return nullptr;
 }
 
 ezResult ezFileSystem::ResolvePath(const char* szPath, bool bForWriting, ezString* out_sAbsolutePath, ezString* out_sDataDirRelativePath)
 {
-  EZ_ASSERT(s_Data != NULL, "FileSystem is not initialized.");
+  EZ_ASSERT(s_Data != nullptr, "FileSystem is not initialized.");
 
-  ezLock<ezMutex> lock(s_Data->m_Mutex);
+  EZ_LOCK(s_Data->m_Mutex);
 
   ezResult bRet = EZ_FAILURE;
   bool bWrite = bForWriting;
@@ -455,10 +455,10 @@ ezResult ezFileSystem::ResolvePath(const char* szPath, bool bForWriting, ezStrin
     {
       if (out_sAbsolutePath)
       {
-        ezStringBuilder sAbs = pReader->GetDataDirectory()->GetDataDirectoryPath().GetData();
+        ezStringBuilder sAbs = pReader->GetDataDirectory()->GetDataDirectoryPath();
         sAbs.AppendPath(pReader->GetFilePath().GetData());
 
-        *out_sAbsolutePath = sAbs.GetData();
+        *out_sAbsolutePath = sAbs;
       }
 
       if (out_sDataDirRelativePath)
@@ -493,10 +493,10 @@ ezResult ezFileSystem::ResolvePath(const char* szPath, bool bForWriting, ezStrin
 
     if (pWriter)
     {
-      ezStringBuilder sRelativePath = pWriter->GetFilePath().GetData();    // get the path of the actually opened file
+      ezStringBuilder sRelativePath = pWriter->GetFilePath();    // get the path of the actually opened file
       pWriter->Close();
 
-      ezStringBuilder sAbsPath = pWriter->GetDataDirectory()->GetDataDirectoryPath().GetData();
+      ezStringBuilder sAbsPath = pWriter->GetDataDirectory()->GetDataDirectoryPath();
       sAbsPath.AppendPath(sRelativePath.GetData());
 
       ezFileSystem::DeleteFile(sAbsPath.GetData()); // we use the absolute path here, so this will delete exactly the one file
@@ -504,13 +504,13 @@ ezResult ezFileSystem::ResolvePath(const char* szPath, bool bForWriting, ezStrin
       if (out_sAbsolutePath)
       {
         sAbsPath.ChangeFileNameAndExtension(sFileNameAndExt.GetData()); // change the filename back to the original filename
-        *out_sAbsolutePath = sAbsPath.GetData();
+        *out_sAbsolutePath = sAbsPath;
       }
 
       if (out_sDataDirRelativePath)
       {
         sRelativePath.ChangeFileNameAndExtension(sFileNameAndExt.GetData()); // change the filename back to the original filename
-        *out_sDataDirRelativePath = sRelativePath.GetData();
+        *out_sDataDirRelativePath = sRelativePath;
       }
 
       bRet = EZ_SUCCESS;

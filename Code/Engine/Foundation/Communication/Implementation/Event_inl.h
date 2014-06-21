@@ -11,7 +11,7 @@ ezEventBase<EventData, MutexType>::ezEventBase(ezAllocatorBase* pAllocator) : m_
 template <typename EventData, typename MutexType>
 void ezEventBase<EventData, MutexType>::AddEventHandler(Handler handler)
 {
-  ezLock<MutexType> lock(m_Mutex);
+  EZ_LOCK(m_Mutex);
 
   m_EventHandlers.PushBack(handler);
 }
@@ -21,9 +21,10 @@ void ezEventBase<EventData, MutexType>::AddEventHandler(Handler handler)
 template <typename EventData, typename MutexType>
 void ezEventBase<EventData, MutexType>::RemoveEventHandler(Handler handler)
 {
-  ezLock<MutexType> lock(m_Mutex);
+  EZ_LOCK(m_Mutex);
 
-  bool bResult = m_EventHandlers.Remove(handler);  
+  bool bResult = m_EventHandlers.Remove(handler);
+  EZ_IGNORE_UNUSED(bResult);
   EZ_ASSERT(bResult, "ezEvent::RemoveEventHandler: Handler %p has not been registered or already been unregistered.", &handler);
 }
 
@@ -31,7 +32,7 @@ void ezEventBase<EventData, MutexType>::RemoveEventHandler(Handler handler)
 template <typename EventData, typename MutexType>
 void ezEventBase<EventData, MutexType>::Broadcast(EventData eventData)
 {
-  ezLock<MutexType> lock(m_Mutex);
+  EZ_LOCK(m_Mutex);
 
   EZ_ASSERT(!m_bBroadcasting, "The event has been triggered recursively or from several threads simultaneously.");  
 

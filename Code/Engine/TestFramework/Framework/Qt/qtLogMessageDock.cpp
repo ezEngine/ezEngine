@@ -20,9 +20,9 @@ ezQtLogMessageDock::ezQtLogMessageDock(QObject* pParent, const ezTestFrameworkRe
 
 ezQtLogMessageDock::~ezQtLogMessageDock()
 {
-  ListView->setModel(NULL);
+  ListView->setModel(nullptr);
   delete m_pModel;
-  m_pModel = NULL;
+  m_pModel = nullptr;
 }
 
 void ezQtLogMessageDock::currentTestResultChanged(const ezTestResultData* pTestResult)
@@ -53,7 +53,7 @@ ezQtLogMessageModel::~ezQtLogMessageModel()
 
 QModelIndex ezQtLogMessageModel::GetFirstIndexOfTestSelection()
 {
-  if (pCurrentTestSelection == NULL || pCurrentTestSelection->m_iFirstOutput == -1)
+  if (pCurrentTestSelection == nullptr || pCurrentTestSelection->m_iFirstOutput == -1)
     return QModelIndex();
 
   ezInt32 iEntries = (ezInt32)m_VisibleEntries.size();
@@ -67,7 +67,7 @@ QModelIndex ezQtLogMessageModel::GetFirstIndexOfTestSelection()
 
 QModelIndex ezQtLogMessageModel::GetLastIndexOfTestSelection()
 {
-  if (pCurrentTestSelection == NULL || pCurrentTestSelection->m_iLastOutput == -1)
+  if (pCurrentTestSelection == nullptr || pCurrentTestSelection->m_iLastOutput == -1)
     return QModelIndex();
 
   ezInt32 iEntries = (ezInt32)m_VisibleEntries.size();
@@ -88,7 +88,7 @@ void ezQtLogMessageModel::currentTestResultChanged(const ezTestResultData* pTest
 void ezQtLogMessageModel::currentTestSelectionChanged(const ezTestResultData* pTestResult)
 {
   pCurrentTestSelection = pTestResult;
-  if (pCurrentTestSelection != NULL)
+  if (pCurrentTestSelection != nullptr)
   {
     dataChanged(index(pCurrentTestSelection->m_iFirstOutput, 0), index(pCurrentTestSelection->m_iLastOutput, 0));
   }
@@ -101,7 +101,7 @@ void ezQtLogMessageModel::currentTestSelectionChanged(const ezTestResultData* pT
 
 QVariant ezQtLogMessageModel::data(const QModelIndex& index, int role) const
 {
-  if (!index.isValid() || m_pTestResult == NULL|| index.column() != 0)
+  if (!index.isValid() || m_pTestResult == nullptr|| index.column() != 0)
     return QVariant();
 
   const ezInt32 iRow = index.row();
@@ -111,12 +111,12 @@ QVariant ezQtLogMessageModel::data(const QModelIndex& index, int role) const
   const ezUInt32 uiLogIdx = m_VisibleEntries[iRow];
   const ezUInt8 uiIndention = m_VisibleEntriesIndention[iRow];
   const ezTestOutputMessage& Message = *m_pTestResult->GetOutputMessage(uiLogIdx);
-  const ezTestErrorMessage* pError = (Message.m_iErrorIndex != -1) ? m_pTestResult->GetErrorMessage(Message.m_iErrorIndex) : NULL;
+  const ezTestErrorMessage* pError = (Message.m_iErrorIndex != -1) ? m_pTestResult->GetErrorMessage(Message.m_iErrorIndex) : nullptr;
   switch (role)
   {
   case Qt::DisplayRole:
     {
-      if (pError != NULL)
+      if (pError != nullptr)
       {
         QString sBlockStart = QLatin1String("\n") % QString((uiIndention + 1) * 3, ' ');
         QString sBlockName = pError->m_sBlock.empty() ? QLatin1String("") : (sBlockStart % QLatin1String("Block: ") + QLatin1String(pError->m_sBlock.c_str()));
@@ -157,7 +157,7 @@ QVariant ezQtLogMessageModel::data(const QModelIndex& index, int role) const
   case Qt::BackgroundColorRole:
     {
       QPalette palette = QApplication::palette();
-      if (pCurrentTestSelection != NULL && pCurrentTestSelection->m_iFirstOutput != -1)
+      if (pCurrentTestSelection != nullptr && pCurrentTestSelection->m_iFirstOutput != -1)
       {
         if (pCurrentTestSelection->m_iFirstOutput <= (ezInt32)uiLogIdx && (ezInt32)uiLogIdx <= pCurrentTestSelection->m_iLastOutput)
         {
@@ -192,7 +192,7 @@ QVariant ezQtLogMessageModel::data(const QModelIndex& index, int role) const
 
 Qt::ItemFlags ezQtLogMessageModel::flags(const QModelIndex& index) const
 {
-  if (!index.isValid() || m_pTestResult == NULL)
+  if (!index.isValid() || m_pTestResult == nullptr)
     return 0;
 
   return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
@@ -213,7 +213,7 @@ QVariant ezQtLogMessageModel::headerData(int section, Qt::Orientation orientatio
 
 QModelIndex ezQtLogMessageModel::index(int row, int column, const QModelIndex& parent) const
 {
-  if (parent.isValid() || m_pTestResult == NULL || column != 0)
+  if (parent.isValid() || m_pTestResult == nullptr || column != 0)
     return QModelIndex();
 
   return createIndex(row, column, row);
@@ -226,7 +226,7 @@ QModelIndex ezQtLogMessageModel::parent(const QModelIndex& index) const
 
 int ezQtLogMessageModel::rowCount(const QModelIndex& parent) const
 {
-  if (parent.isValid() || m_pTestResult == NULL)
+  if (parent.isValid() || m_pTestResult == nullptr)
     return 0;
 
   return (int)m_VisibleEntries.size();
@@ -246,7 +246,7 @@ void ezQtLogMessageModel::UpdateVisibleEntries()
 {
   m_VisibleEntries.clear();
   m_VisibleEntriesIndention.clear();
-  if (m_pTestResult == NULL)
+  if (m_pTestResult == nullptr)
     return;
 
   ezUInt8 uiIndention = 0;

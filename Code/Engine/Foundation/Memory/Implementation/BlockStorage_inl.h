@@ -1,6 +1,6 @@
 
 template <typename T>
-EZ_FORCE_INLINE ezBlockStorage<T>::Iterator::Iterator(ezBlockStorage<T>& storage, ezUInt32 uiStartIndex, ezUInt32 uiCount) : 
+EZ_FORCE_INLINE ezBlockStorage<T>::Iterator::Iterator(const ezBlockStorage<T>& storage, ezUInt32 uiStartIndex, ezUInt32 uiCount) : 
   m_Storage(storage)
 {
   m_uiCurrentIndex = uiStartIndex;
@@ -13,6 +13,22 @@ EZ_FORCE_INLINE T& ezBlockStorage<T>::Iterator::operator*() const
   const ezUInt32 uiBlockIndex = m_uiCurrentIndex / ezDataBlock<T>::CAPACITY;
   const ezUInt32 uiInnerIndex = m_uiCurrentIndex - uiBlockIndex * ezDataBlock<T>::CAPACITY;
   return m_Storage.m_Blocks[uiBlockIndex][uiInnerIndex];
+}
+
+template <typename T>
+EZ_FORCE_INLINE T* ezBlockStorage<T>::Iterator::operator->() const
+{
+  const ezUInt32 uiBlockIndex = m_uiCurrentIndex / ezDataBlock<T>::CAPACITY;
+  const ezUInt32 uiInnerIndex = m_uiCurrentIndex - uiBlockIndex * ezDataBlock<T>::CAPACITY;  
+  return m_Storage.m_Blocks[uiBlockIndex].m_pData + uiInnerIndex;
+}
+
+template <typename T>
+EZ_FORCE_INLINE ezBlockStorage<T>::Iterator::operator T*() const
+{
+  const ezUInt32 uiBlockIndex = m_uiCurrentIndex / ezDataBlock<T>::CAPACITY;
+  const ezUInt32 uiInnerIndex = m_uiCurrentIndex - uiBlockIndex * ezDataBlock<T>::CAPACITY;
+  return m_Storage.m_Blocks[uiBlockIndex].m_pData + uiInnerIndex;
 }
 
 template <typename T>
@@ -78,14 +94,14 @@ ezBlockStorage<T>::~ezBlockStorage()
 template <typename T>
 typename ezBlockStorage<T>::Entry ezBlockStorage<T>::Create()
 {
-  ezDataBlock<T>* pBlock = NULL;
+  ezDataBlock<T>* pBlock = nullptr;
 
   if (m_Blocks.GetCount() > 0)
   {
     pBlock = &m_Blocks.PeekBack();
   }
 
-  if (pBlock == NULL || pBlock->IsFull())
+  if (pBlock == nullptr || pBlock->IsFull())
   {
     m_Blocks.PushBack(m_pBlockAllocator->AllocateBlock<T>());
     pBlock = &m_Blocks.PeekBack();
@@ -102,7 +118,14 @@ typename ezBlockStorage<T>::Entry ezBlockStorage<T>::Create()
 }
 
 template <typename T>
-void ezBlockStorage<T>::Delete(Entry entry)
+EZ_FORCE_INLINE void ezBlockStorage<T>::Delete(Entry entry)
+{
+  T* pDummy;
+  Delete(entry, pDummy);
+}
+
+template <typename T>
+void ezBlockStorage<T>::Delete(Entry entry, T*& out_pMovedObject)
 {
   EZ_ASSERT(entry.m_uiIndex < m_uiCount, "Out of bounds access. Block storage has %i objects, trying to remove object at index %i.", 
     m_uiCount, entry.m_uiIndex);
@@ -122,8 +145,9 @@ void ezBlockStorage<T>::Delete(Entry entry)
     ezMemoryUtils::Copy(&block[uiInnerIndex], pLast, 1);
   }
 
+  out_pMovedObject = pLast;
   ezMemoryUtils::Destruct(pLast, 1);
-
+  
   if (lastBlock.IsEmpty())
   {
     m_pBlockAllocator->DeallocateBlock(lastBlock);
@@ -132,7 +156,13 @@ void ezBlockStorage<T>::Delete(Entry entry)
 }
 
 template <typename T>
-EZ_FORCE_INLINE typename ezBlockStorage<T>::Iterator ezBlockStorage<T>::GetIterator(ezUInt32 uiStartIndex /*= 0*/, ezUInt32 uiCount /*= ezInvalidIndex*/)
+EZ_FORCE_INLINE ezUInt32 ezBlockStorage<T>::GetCount() const
+{
+  return m_uiCount;
+}
+
+template <typename T>
+EZ_FORCE_INLINE typename ezBlockStorage<T>::Iterator ezBlockStorage<T>::GetIterator(ezUInt32 uiStartIndex /*= 0*/, ezUInt32 uiCount /*= ezInvalidIndex*/) const
 {
   return Iterator(*this, uiStartIndex, uiCount);
 }

@@ -32,5 +32,3 @@ private:
   ezVec2 m_vMouseScale;
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezInputDeviceMouseKeyboard);
-

@@ -38,10 +38,10 @@ public:
     EZ_DECLARE_POD_TYPE();
 
     /// \brief Constructs an invalid iterator.
-    EZ_FORCE_INLINE Iterator() : m_pElement(NULL) { } // [tested]
+    EZ_FORCE_INLINE Iterator() : m_pElement(nullptr) { } // [tested]
 
     /// \brief Checks whether this iterator points to a valid element.
-    EZ_FORCE_INLINE bool IsValid() const { return (m_pElement != NULL); } // [tested]
+    EZ_FORCE_INLINE bool IsValid() const { return (m_pElement != nullptr); } // [tested]
 
     /// \brief Checks whether the two iterators point to the same element.
     EZ_FORCE_INLINE bool operator==(const typename ezSetBase<KeyType, Comparer>::Iterator& it2) const { return (m_pElement == it2.m_pElement); }
@@ -75,7 +75,7 @@ public:
 protected:
 
   /// \brief Initializes the set to be empty.
-  ezSetBase(ezAllocatorBase* pAllocator); // [tested]
+  ezSetBase(const Comparer& comparer, ezAllocatorBase* pAllocator); // [tested]
 
   /// \brief Copies all keys from the given set into this one.
   ezSetBase(const ezSetBase<KeyType, Comparer>& cc, ezAllocatorBase* pAllocator); // [tested]
@@ -165,6 +165,9 @@ private:
 
   /// \brief Stack of recently discarded nodes to quickly acquire new nodes.
   Node* m_pFreeElementStack;
+
+  /// \brief Comparer object
+  Comparer m_Comparer;
 };
 
 /// \brief \see ezSetBase
@@ -173,7 +176,7 @@ class ezSet : public ezSetBase<KeyType, Comparer>
 {
 public:
   ezSet();
-  ezSet(ezAllocatorBase* pAllocator);
+  ezSet(const Comparer& comparer, ezAllocatorBase* pAllocator);
 
   ezSet(const ezSet<KeyType, Comparer, AllocatorWrapper>& other);
   ezSet(const ezSetBase<KeyType, Comparer>& other);

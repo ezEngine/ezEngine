@@ -30,17 +30,17 @@ EZ_CORE_DLL void ezRun(ezApplication* pApplicationInstance);
 ///   {
 ///   public:
 ///   
-///     virtual void AfterEngineInit() EZ_OVERRIDE
+///     virtual void AfterEngineInit() override
 ///     {
 ///       // Setup Filesystem, Logging, etc.
 ///     }
 ///   
-///     virtual void BeforeEngineShutdown() EZ_OVERRIDE
+///     virtual void BeforeEngineShutdown() override
 ///     {
 ///       // Close log file, etc.
 ///     }
 ///   
-///     virtual ezApplication::ApplicationExecution Run() EZ_OVERRIDE
+///     virtual ezApplication::ApplicationExecution Run() override
 ///     {
 ///       // Either run a one-time application (e.g. console script) and return ezApplication::Quit
 ///       // Or run one update (frame) of your game loop and return ezApplication::Continue
@@ -64,7 +64,7 @@ public:
 
   /// \brief Constructor.
   ezApplication()
-    : m_iReturnCode(0), m_uiArgumentCount(0), m_ppArguments(NULL)
+    : m_iReturnCode(0), m_uiArgumentCount(0), m_ppArguments(nullptr)
   {
   }
 
@@ -182,6 +182,7 @@ public:
     return m_ppArguments;
   }
 
+  /// \brief Returns the ezCommandLineUtils object. Only useful if the command line parameters were passed to the application object at the start.
   const ezCommandLineUtils& GetCommandLine() const
   {
     return m_CommandLine;

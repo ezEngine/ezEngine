@@ -2,7 +2,7 @@
 #include <Foundation/PCH.h>
 #include <Foundation/Threading/ThreadLocalStorage.h>
 #include <Foundation/Threading/Mutex.h>
-#include <Foundation/Threading/Lock.h>
+#include <Foundation/Threading/ConditionalLock.h>
 #include <Foundation/Configuration/Startup.h>
 
 bool ezThreadLocalStorage::s_bInitialized = false;
@@ -17,7 +17,7 @@ static ezMutex g_TableManagementMutex;
 
 ezUInt32 ezThreadLocalStorage::AllocateSlot()
 {
-  ezLock<ezMutex> Lock(g_TableManagementMutex);
+  ezConditionalLock<ezMutex> Lock(g_TableManagementMutex, s_bInitialized);
 
   Initialize();
 
@@ -43,7 +43,14 @@ void ezThreadLocalStorage::FreeSlot(ezUInt32 uiSlotIndex)
 {
   EZ_ASSERT(uiSlotIndex < EZ_THREAD_LOCAL_STORAGE_SLOT_COUNT, "Invalid slot index passed!");
 
-  ezLock<ezMutex> Lock(g_TableManagementMutex);
+  ezConditionalLock<ezMutex> Lock(g_TableManagementMutex, s_bInitialized);
+
+  // Special handling for the main thread pointer table since it may live longer
+  // than other thread pointer tables - e.g. the foundation tests don't reinitialize the TLS
+  // But only when the system is still initialized, otherwise the static destruction order may have cleaned the table
+  // already.
+  if (s_bInitialized)
+    g_MainThreadLocalPointerTable[uiSlotIndex] = nullptr;
 
   g_bThreadLocalStorageAllocationTable[uiSlotIndex] = false;
 }

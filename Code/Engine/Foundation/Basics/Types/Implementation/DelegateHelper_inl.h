@@ -8,10 +8,11 @@ private:
 public:
   EZ_DECLARE_POD_TYPE();
 
-  EZ_FORCE_INLINE ezDelegate() : m_pDispatchFunction(NULL)
+  EZ_FORCE_INLINE ezDelegate() : m_pDispatchFunction(nullptr)
   {
   }
 
+  /// \brief Constructs the delegate from a member function type and takes the class instance on which to call the function later.
   template <typename Method, typename Class>
   EZ_FORCE_INLINE ezDelegate(Method method, Class* pInstance)
   {
@@ -24,6 +25,7 @@ public:
     m_pDispatchFunction = &DispatchToMethod<Method, Class>;
   }
 
+  /// \brief Constructs the delegate from a member function type and takes the (const) class instance on which to call the function later.
   template <typename Method, typename Class>
   EZ_FORCE_INLINE ezDelegate(Method method, const Class* pInstance)
   {
@@ -36,6 +38,7 @@ public:
     m_pDispatchFunction = &DispatchToConstMethod<Method, Class>;
   }
 
+  /// \brief Constructs the delegate from a regular C function type.
   template <typename Function>
   EZ_FORCE_INLINE ezDelegate(Function function)
   {
@@ -50,10 +53,11 @@ public:
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
   EZ_FORCE_INLINE ~ezDelegate()
   {
-    m_pDispatchFunction = NULL;
+    m_pDispatchFunction = nullptr;
   }
 #endif
 
+  /// \brief Copies the data from another delegate.
   EZ_FORCE_INLINE void operator=(const SelfType& other)
   {
     m_pInstance = other.m_pInstance;
@@ -61,22 +65,32 @@ public:
     memcpy(m_Data, other.m_Data, DATA_SIZE);
   }
 
+  /// \brief Function call operator. This will call the function that is bound to the delegate, or assert if nothing was bound.
   EZ_FORCE_INLINE R operator()(EZ_PAIR_LIST(ARG, arg, ARG_COUNT))
   {
-    EZ_ASSERT(m_pDispatchFunction != NULL, "Delegate is not bound.");
+    EZ_ASSERT(m_pDispatchFunction != nullptr, "Delegate is not bound.");
     return (*m_pDispatchFunction)(*this EZ_COMMA_IF(ARG_COUNT) EZ_LIST(arg, ARG_COUNT));
   }
 
+  /// \brief Checks whether two delegates are bound to the exact same function, including the class instance.
   EZ_FORCE_INLINE bool operator==(const SelfType& other) const
   {
     return memcmp(m_Data, other.m_Data, DATA_SIZE) == 0 && m_pInstance.m_Ptr == other.m_pInstance.m_Ptr;
   }
 
+  /// \brief Checks whether two delegates are bound to the exact same function, including the class instance.
   EZ_FORCE_INLINE bool operator!=(const SelfType& other) const
   {
     return !(*this == other);
   }
 
+  /// \brief Returns true when the delegate is bound to a valid non-nullptr function.
+  EZ_FORCE_INLINE bool IsValid() const
+  {
+    return m_pDispatchFunction != nullptr;
+  }
+
+  /// \brief Returns the class instance that is used to call a member function pointer on.
   EZ_FORCE_INLINE void* GetInstance() const
   {
     return m_pInstance.m_Ptr;
@@ -86,7 +100,7 @@ private:
   template <typename Method, typename Class>
   static EZ_FORCE_INLINE R DispatchToMethod(SelfType& self EZ_COMMA_IF(ARG_COUNT) EZ_PAIR_LIST(ARG, arg, ARG_COUNT))
   {
-    EZ_ASSERT(self.m_pInstance.m_Ptr != NULL, "Instance must not be null.");
+    EZ_ASSERT(self.m_pInstance.m_Ptr != nullptr, "Instance must not be null.");
     Method method = *reinterpret_cast<Method*>(&self.m_Data);
     return (static_cast<Class*>(self.m_pInstance.m_Ptr)->*method)(EZ_LIST(arg, ARG_COUNT));
   }
@@ -94,7 +108,7 @@ private:
   template <typename Method, typename Class>
   static EZ_FORCE_INLINE R DispatchToConstMethod(SelfType& self EZ_COMMA_IF(ARG_COUNT) EZ_PAIR_LIST(ARG, arg, ARG_COUNT))
   {
-    EZ_ASSERT(self.m_pInstance.m_ConstPtr != NULL, "Instance must not be null.");
+    EZ_ASSERT(self.m_pInstance.m_ConstPtr != nullptr, "Instance must not be null.");
     Method method = *reinterpret_cast<Method*>(&self.m_Data);
     return (static_cast<const Class*>(self.m_pInstance.m_ConstPtr)->*method)(EZ_LIST(arg, ARG_COUNT));
   }

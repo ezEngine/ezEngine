@@ -4,10 +4,8 @@
 
 #include <Foundation/Reflection/Implementation/RTTI.h>
 #include <Foundation/Reflection/Implementation/DynamicRTTI.h>
-#include <Foundation/Math/Vec2.h>
-#include <Foundation/Math/Vec3.h>
 #include <Foundation/Math/Vec4.h>
-
+#include <Foundation/Math/Quat.h>
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_FOUNDATION_DLL, ezReflectedClass);
 
@@ -32,7 +30,9 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_FOUNDATION_DLL, ezUInt64);
 typedef const char* ezConstCharPtr;
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_FOUNDATION_DLL, ezConstCharPtr);
 
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_FOUNDATION_DLL, ezColor);
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_FOUNDATION_DLL, ezVec2);
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_FOUNDATION_DLL, ezVec3);
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_FOUNDATION_DLL, ezVec4);
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_FOUNDATION_DLL, ezQuat);
 

@@ -5,7 +5,7 @@
 // **** ListElement ****
 
 template <typename T>
-ezListBase<T>::ListElementBase::ListElementBase() : m_pPrev(NULL), m_pNext(NULL)
+ezListBase<T>::ListElementBase::ListElementBase() : m_pPrev(nullptr), m_pNext(nullptr)
 {
 }
 
@@ -21,7 +21,7 @@ ezListBase<T>::ezListBase(ezAllocatorBase* pAllocator) :
   m_End(reinterpret_cast<ListElement*>(&m_Last)),
   m_uiCount(0),
   m_Elements(pAllocator),
-  m_pFreeElementStack(NULL)
+  m_pFreeElementStack(nullptr)
 {
   m_First.m_pNext = reinterpret_cast<ListElement*>(&m_Last);
   m_Last.m_pPrev  = reinterpret_cast<ListElement*>(&m_First);
@@ -32,7 +32,7 @@ ezListBase<T>::ezListBase(const ezListBase<T>& cc, ezAllocatorBase* pAllocator) 
   m_End(reinterpret_cast<ListElement*>(&m_Last)),
   m_uiCount(0),
   m_Elements(pAllocator),
-  m_pFreeElementStack(NULL)
+  m_pFreeElementStack(nullptr)
 {
   m_First.m_pNext = reinterpret_cast<ListElement*>(&m_Last);
   m_Last.m_pPrev  = reinterpret_cast<ListElement*>(&m_First);
@@ -58,7 +58,7 @@ typename ezListBase<T>::ListElement* ezListBase<T>::AcquireNode(const T& data)
 {
   ListElement* pNode;
 
-  if (m_pFreeElementStack == NULL)
+  if (m_pFreeElementStack == nullptr)
   {
     m_Elements.PushBack();
     pNode = &m_Elements.PeekBack();
@@ -152,7 +152,7 @@ void ezListBase<T>::Clear()
   if (!IsEmpty())
     Erase(GetIterator(), GetEndIterator());
 
-  m_pFreeElementStack = NULL;
+  m_pFreeElementStack = nullptr;
   m_Elements.Clear();
 }
 
@@ -232,7 +232,7 @@ void ezListBase<T>::PopFront()
 template <typename T>
 typename ezListBase<T>::Iterator ezListBase<T>::Insert(const Iterator& pos, const T& data)
 {
-  EZ_ASSERT(pos.m_pElement != NULL, "The iterator (pos) is invalid.");
+  EZ_ASSERT(pos.m_pElement != nullptr, "The iterator (pos) is invalid.");
 
   ++m_uiCount;
   ListElement* elem = AcquireNode(data);
@@ -249,9 +249,9 @@ typename ezListBase<T>::Iterator ezListBase<T>::Insert(const Iterator& pos, cons
 template <typename T>
 void ezListBase<T>::Insert(const Iterator& pos, ConstIterator first, const ConstIterator& last)
 {
-  EZ_ASSERT(pos.m_pElement != NULL, "The iterator (pos) is invalid.");
-  EZ_ASSERT(first.m_pElement != NULL, "The iterator (first) is invalid.");
-  EZ_ASSERT(last.m_pElement != NULL, "The iterator (last) is invalid.");
+  EZ_ASSERT(pos.m_pElement != nullptr, "The iterator (pos) is invalid.");
+  EZ_ASSERT(first.m_pElement != nullptr, "The iterator (first) is invalid.");
+  EZ_ASSERT(last.m_pElement != nullptr, "The iterator (last) is invalid.");
 
   while (first != last)
   {
@@ -264,7 +264,7 @@ template <typename T>
 typename ezListBase<T>::Iterator ezListBase<T>::Erase(const Iterator& pos)
 {
   EZ_ASSERT(!IsEmpty(), "The container is empty.");
-  EZ_ASSERT(pos.m_pElement != NULL, "The iterator (pos) is invalid.");
+  EZ_ASSERT(pos.m_pElement != nullptr, "The iterator (pos) is invalid.");
 
   ListElement* pPrev = pos.m_pElement->m_pPrev;
   ListElement* pNext = pos.m_pElement->m_pNext;
@@ -281,8 +281,8 @@ template <typename T>
 typename ezListBase<T>::Iterator ezListBase<T>::Erase(Iterator first, const Iterator& last)
 {
   EZ_ASSERT(!IsEmpty(), "The container is empty.");
-  EZ_ASSERT(first.m_pElement != NULL, "The iterator (first) is invalid.");
-  EZ_ASSERT(last.m_pElement != NULL, "The iterator (last) is invalid.");
+  EZ_ASSERT(first.m_pElement != nullptr, "The iterator (first) is invalid.");
+  EZ_ASSERT(last.m_pElement != nullptr, "The iterator (last) is invalid.");
 
   while (first != last)
     first = Erase(first);

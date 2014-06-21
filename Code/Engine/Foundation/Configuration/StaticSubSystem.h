@@ -1,7 +1,7 @@
 #pragma once
 
 /// \file
-///
+
 /// *** Example Subsystem declarations ***
 ///
 ///EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, ExampleSubSystem)
@@ -53,12 +53,6 @@
 #define ON_BASE_STARTUP \
   private: virtual void OnBaseStartup()
 
-/// \brief Defines what code is to be executed upon base shutdown.
-///
-/// Put this inside the subsystem declaration block.
-#define ON_BASE_SHUTDOWN \
-  private: virtual void OnBaseShutdown()
-
 /// \brief Defines what code is to be executed upon core startup.
 ///
 /// Put this inside the subsystem declaration block.
@@ -93,7 +87,7 @@
 
 /// \brief Ends the list of subsystems, on which the currently declared system depends on.
 #define END_SUBSYSTEM_DEPENDENCIES \
-      , NULL }; \
+      , nullptr }; \
     return szDeps[iDep]; \
   }
 

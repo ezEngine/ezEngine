@@ -27,7 +27,7 @@ void ezFileWriter::Close()
   Flush();
   
   m_pDataDirWriter->Close();
-  m_pDataDirWriter = NULL;
+  m_pDataDirWriter = nullptr;
 }
 
 ezResult ezFileWriter::Flush()
@@ -40,7 +40,7 @@ ezResult ezFileWriter::Flush()
 
 ezResult ezFileWriter::WriteBytes(const void* pWriteBuffer, ezUInt64 uiBytesToWrite)
 {
-  EZ_ASSERT(m_pDataDirWriter != NULL, "The file has not been opened (successfully).");
+  EZ_ASSERT(m_pDataDirWriter != nullptr, "The file has not been opened (successfully).");
 
   ezUInt8* pBuffer = (ezUInt8*) pWriteBuffer;
 

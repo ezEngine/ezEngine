@@ -5,6 +5,7 @@
 ezFrustum::ezFrustum()
 {
   m_uiUsedPlanes = 0;
+  m_vPosition.SetZero();
 }
 
 void ezFrustum::SetFrustum(const ezVec3& vPosition, ezUInt8 uiNumPlanes, const ezPlane* pPlanes)
@@ -29,6 +30,8 @@ void ezFrustum::TransformFrustum(const ezMat4& mTransform)
 
 ezVolumePosition::Enum ezFrustum::GetObjectPosition(const ezVec3* pVertices, ezUInt32 uiNumVertices) const
 {
+  /// \test Not yet tested
+
   bool bOnSomePlane = false;
 
   for (ezUInt32 i = 0; i < m_uiUsedPlanes; ++i)
@@ -88,7 +91,7 @@ static ezPositionOnPlane::Enum GetPlaneObjectPosition(const ezPlane& p, const ez
 
 ezVolumePosition::Enum ezFrustum::GetObjectPosition(const ezVec3* pVertices, ezUInt32 uiNumVertices, const ezMat4& mObjectTransform) const
 {
-  /// \todo This can be optimized to only transform each vertex once and then check against all planes.
+  /// \test Not yet tested
 
   bool bOnSomePlane = false;
 
@@ -113,6 +116,8 @@ ezVolumePosition::Enum ezFrustum::GetObjectPosition(const ezVec3* pVertices, ezU
 
 ezVolumePosition::Enum ezFrustum::GetObjectPosition(const ezBoundingSphere& Sphere) const
 {
+  /// \test Not yet tested
+
   bool bOnSomePlane = false;
 
   for (ezUInt32 i = 0; i < m_uiUsedPlanes; ++i)
@@ -136,6 +141,8 @@ ezVolumePosition::Enum ezFrustum::GetObjectPosition(const ezBoundingSphere& Sphe
 
 ezVolumePosition::Enum ezFrustum::GetObjectPosition(const ezBoundingBox& Box) const
 {
+  /// \test Not yet tested
+
   bool bOnSomePlane = false;
 
   for (ezUInt32 i = 0; i < m_uiUsedPlanes; ++i)
@@ -165,146 +172,80 @@ void ezFrustum::InvertFrustum()
 
 void ezFrustum::SetFrustum(const ezVec3& vPosition, const ezMat4& ModelViewProjection, float fMaxFarPlaneDist)
 {
-  /// \test Not tested yet.
+  /// \test Tested manually, works as expected, but no automatic tests yet.
 
   m_vPosition = vPosition;
 
-	float t;
-	float frustum[6][4];
-
-  const float* Mat = ModelViewProjection.m_fElementsCM;
-
-	// Extract the numbers for the RIGHT plane
-	frustum[0][0] = Mat[12] - Mat[ 0];
-	frustum[0][1] = Mat[13] - Mat[ 1];
-	frustum[0][2] = Mat[15] - Mat[ 2];
-	frustum[0][3] = Mat[15] - Mat[ 3];
-
-	// Normalize the result
-	t = 1.0f / ezMath::Sqrt (frustum[0][0] * frustum[0][0] + frustum[0][1] * frustum[0][1] + frustum[0][2] * frustum[0][2]);
-	frustum[0][0] *= t;
-	frustum[0][1] *= t;
-	frustum[0][2] *= t;
-	frustum[0][3] *= t;
-
-	// Extract the numbers for the LEFT plane
-	frustum[1][0] = Mat[12] + Mat[ 0];
-	frustum[1][1] = Mat[13] + Mat[ 1];
-	frustum[1][2] = Mat[15] + Mat[ 2];
-	frustum[1][3] = Mat[15] + Mat[ 3];
-
-	// Normalize the result
-	t = 1.0f / ezMath::Sqrt (frustum[1][0] * frustum[1][0] + frustum[1][1] * frustum[1][1] + frustum[1][2] * frustum[1][2]);
-	frustum[1][0] *= t;
-	frustum[1][1] *= t;
-	frustum[1][2] *= t;
-	frustum[1][3] *= t;
-
-	/* Extract the BOTTOM plane */
-	frustum[2][0] = Mat[12] + Mat[ 4];
-	frustum[2][1] = Mat[13] + Mat[ 5];
-	frustum[2][2] = Mat[15] + Mat[ 6];
-	frustum[2][3] = Mat[15] + Mat[ 7];
-
-	/* Normalize the result */
-	t = 1.0f / ezMath::Sqrt (frustum[2][0] * frustum[2][0] + frustum[2][1] * frustum[2][1] + frustum[2][2] * frustum[2][2]);
-	frustum[2][0] *= t;
-	frustum[2][1] *= t;
-	frustum[2][2] *= t;
-	frustum[2][3] *= t;
-
-	/* Extract the TOP plane */
-	frustum[3][0] = Mat[12] - Mat[ 4];
-	frustum[3][1] = Mat[13] - Mat[ 5];
-	frustum[3][2] = Mat[15] - Mat[ 6];
-	frustum[3][3] = Mat[15] - Mat[ 7];
-
-	/* Normalize the result */
-	t = 1.0f / ezMath::Sqrt (frustum[3][0] * frustum[3][0] + frustum[3][1] * frustum[3][1] + frustum[3][2] * frustum[3][2]);
-	frustum[3][0] *= t;
-	frustum[3][1] *= t;
-	frustum[3][2] *= t;
-	frustum[3][3] *= t;
-
-	/* Extract the FAR plane */
-	frustum[4][0] = Mat[12] - Mat[ 8];
-	frustum[4][1] = Mat[13] - Mat[ 9];
-	frustum[4][2] = Mat[15] - Mat[10];
-	frustum[4][3] = Mat[15] - Mat[11];
-
-	/* Normalize the result */
-	t = 1.0f / ezMath::Sqrt (frustum[4][0] * frustum[4][0] + frustum[4][1] * frustum[4][1] + frustum[4][2] * frustum[4][2]);
-	frustum[4][0] *= t;
-	frustum[4][1] *= t;
-	frustum[4][2] *= t;
-	frustum[4][3] *= t;
-
-	/* Extract the NEAR plane */
-	frustum[5][0] = Mat[12] + Mat[ 8];
-	frustum[5][1] = Mat[13] + Mat[ 9];
-	frustum[5][2] = Mat[15] + Mat[10];
-	frustum[5][3] = Mat[15] + Mat[11];
-
-	/* Normalize the result */
-	t = 1.0f / ezMath::Sqrt (frustum[5][0] * frustum[5][0] + frustum[5][1] * frustum[5][1] + frustum[5][2] * frustum[5][2]);
-	frustum[5][0] *= t;
-	frustum[5][1] *= t;
-	frustum[5][2] *= t;
-	frustum[5][3] *= t;
-
-
   // Near Plane
-	m_Planes[0].m_vNormal.x = frustum[5][0];
-	m_Planes[0].m_vNormal.y = frustum[5][1];
-	m_Planes[0].m_vNormal.z = frustum[5][2];
+  {
+    m_Planes[0].m_vNormal.x = ModelViewProjection.Element(0, 3) - ModelViewProjection.Element(0, 2);
+    m_Planes[0].m_vNormal.y = ModelViewProjection.Element(1, 3) - ModelViewProjection.Element(1, 2);
+    m_Planes[0].m_vNormal.z = ModelViewProjection.Element(2, 3) - ModelViewProjection.Element(2, 2);
+    m_Planes[0].m_vNormal.Normalize();
 
-	// The near-plane has to be at the camera's position, so that no portals in front of you, get culled away
-  m_Planes[0].SetFromNormalAndPoint(m_Planes[0].m_vNormal, m_vPosition);
-
-  // Right Plane
-	m_Planes[1].m_vNormal.x    = frustum[0][0];
-	m_Planes[1].m_vNormal.y    = frustum[0][1];
-	m_Planes[1].m_vNormal.z    = frustum[0][2];
-  m_Planes[1].m_fNegDistance = frustum[0][3];
-
-  // Left Plane
-	m_Planes[2].m_vNormal.x    = frustum[1][0];
-	m_Planes[2].m_vNormal.y    = frustum[1][1];
-	m_Planes[2].m_vNormal.z    = frustum[1][2];
-	m_Planes[2].m_fNegDistance = frustum[1][3];
-
-  // Bottom Plane
-	m_Planes[3].m_vNormal.x    = frustum[2][0];
-	m_Planes[3].m_vNormal.y    = frustum[2][1];
-	m_Planes[3].m_vNormal.z    = frustum[2][2];
-	m_Planes[3].m_fNegDistance = frustum[2][3];
-
-  // Top Plane
-	m_Planes[4].m_vNormal.x    = frustum[3][0];
-	m_Planes[4].m_vNormal.y    = frustum[3][1];
-	m_Planes[4].m_vNormal.z    = frustum[3][2];
-	m_Planes[4].m_fNegDistance = frustum[3][3];
+    // The near-plane has to be at the camera's position, so that no portals in front of you, get culled away
+    m_Planes[0].SetFromNormalAndPoint(m_Planes[0].m_vNormal, vPosition);
+  }
 
   // Far Plane
-	m_Planes[5].m_vNormal.x    = frustum[4][0];
-	m_Planes[5].m_vNormal.y    = frustum[4][1];
-	m_Planes[5].m_vNormal.z    = frustum[4][2];
-	m_Planes[5].m_fNegDistance = frustum[4][3];
-
-  // move the far plane closer, if necessary
   {
-    const float fTemp = m_Planes[5].GetDistanceTo(m_vPosition);
+    m_Planes[5].m_vNormal.x     = -(ModelViewProjection.Element(0, 3) - ModelViewProjection.Element(0, 2));
+    m_Planes[5].m_vNormal.y     = -(ModelViewProjection.Element(1, 3) - ModelViewProjection.Element(1, 2));
+    m_Planes[5].m_vNormal.z     = -(ModelViewProjection.Element(2, 3) - ModelViewProjection.Element(2, 2));
+    m_Planes[5].m_fNegDistance  = -(ModelViewProjection.Element(3, 3) - ModelViewProjection.Element(3, 2));
+    m_Planes[5].m_fNegDistance /= m_Planes[5].m_vNormal.GetLengthAndNormalize();
 
-	  if (fTemp > fMaxFarPlaneDist)
-		  m_Planes[5].m_fNegDistance += fMaxFarPlaneDist - fTemp;
+    // move the far plane closer, if necessary
+    {
+      const float fTemp = -m_Planes[5].GetDistanceTo(m_vPosition);
+
+      if (fTemp > fMaxFarPlaneDist)
+        m_Planes[5].m_fNegDistance += fTemp - fMaxFarPlaneDist;
+    }
   }
-		
-	m_uiUsedPlanes = 6;
+
+  // Right Plane
+  {
+    m_Planes[1].m_vNormal.x     = +ModelViewProjection.Element(0, 0) - ModelViewProjection.Element(0, 3);
+    m_Planes[1].m_vNormal.y     = +ModelViewProjection.Element(1, 0) - ModelViewProjection.Element(1, 3);
+    m_Planes[1].m_vNormal.z     = +ModelViewProjection.Element(2, 0) - ModelViewProjection.Element(2, 3);
+    m_Planes[1].m_fNegDistance  = +ModelViewProjection.Element(3, 0) - ModelViewProjection.Element(3, 3);
+    m_Planes[1].m_fNegDistance /= m_Planes[1].m_vNormal.GetLengthAndNormalize();
+  }
+
+  // Left Plane
+  {
+    m_Planes[2].m_vNormal.x     = -ModelViewProjection.Element(0, 0) - ModelViewProjection.Element(0, 3);
+    m_Planes[2].m_vNormal.y     = -ModelViewProjection.Element(1, 0) - ModelViewProjection.Element(1, 3);
+    m_Planes[2].m_vNormal.z     = -ModelViewProjection.Element(2, 0) - ModelViewProjection.Element(2, 3);
+    m_Planes[2].m_fNegDistance  = -ModelViewProjection.Element(3, 0) - ModelViewProjection.Element(3, 3);
+    m_Planes[2].m_fNegDistance /= m_Planes[2].m_vNormal.GetLengthAndNormalize();
+  }
+
+  // Top Plane
+  {
+    m_Planes[3].m_vNormal.x     = +ModelViewProjection.Element(0, 1) - ModelViewProjection.Element(0, 3);
+    m_Planes[3].m_vNormal.y     = +ModelViewProjection.Element(1, 1) - ModelViewProjection.Element(1, 3);
+    m_Planes[3].m_vNormal.z     = +ModelViewProjection.Element(2, 1) - ModelViewProjection.Element(2, 3);
+    m_Planes[3].m_fNegDistance  = +ModelViewProjection.Element(3, 1) - ModelViewProjection.Element(3, 3);
+    m_Planes[3].m_fNegDistance /= m_Planes[3].m_vNormal.GetLengthAndNormalize();
+  }
+
+  // Bottom Plane
+  {
+    m_Planes[4].m_vNormal.x     = -ModelViewProjection.Element(0, 1) - ModelViewProjection.Element(0, 3);
+    m_Planes[4].m_vNormal.y     = -ModelViewProjection.Element(1, 1) - ModelViewProjection.Element(1, 3);
+    m_Planes[4].m_vNormal.z     = -ModelViewProjection.Element(2, 1) - ModelViewProjection.Element(2, 3);
+    m_Planes[4].m_fNegDistance  = -ModelViewProjection.Element(3, 1) - ModelViewProjection.Element(3, 3);
+    m_Planes[4].m_fNegDistance /= m_Planes[4].m_vNormal.GetLengthAndNormalize();
+  }
+
+  m_uiUsedPlanes = 6;
 }
 
-void ezFrustum::SetFrustum (const ezVec3& vPosition, const ezVec3& vForwards, const ezVec3& vUp, ezAngle FovX, ezAngle FovY, float fFarPlane)
+void ezFrustum::SetFrustum(const ezVec3& vPosition, const ezVec3& vForwards, const ezVec3& vUp, ezAngle FovX, ezAngle FovY, float fFarPlane)
 {
-  /// \test Not tested yet.
+  /// \test Tested manually, works as expected, but no automatic tests yet.
 
   m_vPosition = vPosition;
   
@@ -333,7 +274,7 @@ void ezFrustum::SetFrustum (const ezVec3& vPosition, const ezVec3& vForwards, co
 
   // Left Plane
   {
-    ezVec3 vPlaneNormal = mLocalFrame * ezVec3(-fCosFovY, 0, fSinFovY);
+    ezVec3 vPlaneNormal = mLocalFrame * ezVec3(-fCosFovX, 0, fSinFovX);
     vPlaneNormal.Normalize();
 
     m_Planes[1].SetFromNormalAndPoint(vPlaneNormal, m_vPosition);
@@ -341,7 +282,7 @@ void ezFrustum::SetFrustum (const ezVec3& vPosition, const ezVec3& vForwards, co
 
   // Right Plane
   {
-    ezVec3 vPlaneNormal = mLocalFrame * ezVec3( fCosFovY, 0, fSinFovY);
+    ezVec3 vPlaneNormal = mLocalFrame * ezVec3( fCosFovX, 0, fSinFovX);
     vPlaneNormal.Normalize();
 
     m_Planes[2].SetFromNormalAndPoint(vPlaneNormal, m_vPosition);
@@ -349,7 +290,7 @@ void ezFrustum::SetFrustum (const ezVec3& vPosition, const ezVec3& vForwards, co
 
   // Bottom Plane
   {
-    ezVec3 vPlaneNormal = mLocalFrame * ezVec3(0, -fCosFovX, fSinFovX);
+    ezVec3 vPlaneNormal = mLocalFrame * ezVec3(0, -fCosFovY, fSinFovY);
     vPlaneNormal.Normalize();
 
     m_Planes[3].SetFromNormalAndPoint(vPlaneNormal, m_vPosition);
@@ -357,7 +298,7 @@ void ezFrustum::SetFrustum (const ezVec3& vPosition, const ezVec3& vForwards, co
 
   // Top Plane
   {
-    ezVec3 vPlaneNormal = mLocalFrame * ezVec3(0,  fCosFovX, fSinFovX);
+    ezVec3 vPlaneNormal = mLocalFrame * ezVec3(0,  fCosFovY, fSinFovY);
     vPlaneNormal.Normalize();
 
     m_Planes[4].SetFromNormalAndPoint(vPlaneNormal, m_vPosition);

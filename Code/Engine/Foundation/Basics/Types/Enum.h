@@ -1,5 +1,7 @@
 #pragma once
 
+/// \file
+
 /// \brief A custom enum implementation that allows to define the underlying storage type to control its memory footprint.
 ///
 /// Advantages over a simple C++ enum:
@@ -88,7 +90,7 @@ private:
     switch (value) \
     { \
       EZ_EXPAND_ARGS(EZ_ENUM_VALUE_TO_STRING, ##__VA_ARGS__) \
-      default: return NULL; \
+      default: return nullptr; \
     } \
   }
 

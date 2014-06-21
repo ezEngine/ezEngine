@@ -6,7 +6,7 @@
 ezLuaWrapper::ezLuaWrapper()
 {
   m_bReleaseOnExit = true;
-  m_pState = NULL;
+  m_pState = nullptr;
 
   Clear();
 }
@@ -27,10 +27,10 @@ void ezLuaWrapper::Clear()
 {
   EZ_ASSERT(m_bReleaseOnExit, "Cannot clear a script that did not create the Lua state itself.");
 
-  if(m_pState)
+  if (m_pState)
     lua_close(m_pState);
 
-  m_pState = lua_newstate(lua_allocator, NULL);
+  m_pState = lua_newstate(lua_allocator, nullptr);
 
   luaL_openlibs(m_pState);
 }
@@ -48,8 +48,8 @@ ezResult ezLuaWrapper::ExecuteString(const char* szString, const char* szDebugCh
   {
     EZ_LOG_BLOCK("ezLuaWrapper::ExecuteString");
 
-    ezLog::Error(pLogInterface, "[lua]Compiling Lua script failed: %s", lua_tostring(m_pState, -1));
-    ezLog::Info("[luascript]%s", szString);
+    ezLog::Error(pLogInterface, "[lua]Lua compile error: %s", lua_tostring(m_pState, -1));
+    ezLog::Info("[luascript]Script: %s", szString);
 
     return EZ_FAILURE;
   }
@@ -60,8 +60,8 @@ ezResult ezLuaWrapper::ExecuteString(const char* szString, const char* szDebugCh
   {
     EZ_LOG_BLOCK("ezLuaWrapper::ExecuteString");
 
-    ezLog::Error(pLogInterface, "[lua]Executing Lua script failed: %s", lua_tostring(m_pState, -1));
-    ezLog::Info("[luascript]%s", szString);
+    ezLog::Error(pLogInterface, "[lua]Lua error: %s", lua_tostring(m_pState, -1));
+    ezLog::Info("[luascript]Script: %s", szString);
 
     return EZ_FAILURE;
   }
@@ -76,12 +76,12 @@ void* ezLuaWrapper::lua_allocator(void* ud, void* ptr, size_t osize, size_t nsiz
   if (nsize == 0)
   {
     delete[] (ezUInt8*) ptr;
-    return (NULL);
+    return (nullptr);
   }
 
   ezUInt8* ucPtr = new ezUInt8[nsize];
 
-  if (ptr != NULL)
+  if (ptr != nullptr)
   {
     ezMemoryUtils::Copy(ucPtr, (ezUInt8*) ptr, ezUInt32 (osize < nsize ? osize : nsize));
 

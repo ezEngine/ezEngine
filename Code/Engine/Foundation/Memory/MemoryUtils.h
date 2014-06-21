@@ -66,9 +66,13 @@ public:
   template <typename T>
   static const T* AddByteOffsetConst(const T* ptr, ptrdiff_t iOffset); // [tested]
 
-  /// \brief Alignes the pointer \a ptr by moving its address backwards to the previous multiple of \a uiAlignment.  
+  /// \brief Aligns the pointer \a ptr by moving its address backwards to the previous multiple of \a uiAlignment.  
   template <typename T>
   static T* Align(T* ptr, size_t uiAlignment); // [tested]
+
+  /// \brief Aligns the given size \a uiSize by rounding up to the next multiple of the size. 
+  template <typename T>
+  static T AlignSize(T uiSize, T uiAlignment); // [tested]
 
   /// \brief Checks whether \a ptr is aligned to a memory address that is a multiple of \a uiAlignment.
   template <typename T>

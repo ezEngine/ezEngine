@@ -25,7 +25,7 @@ inline ezInt32 ezStringUtils::CompareChars_NoCase(const char* szUtf8Char1, const
 template <typename T>
 EZ_FORCE_INLINE bool ezStringUtils::IsNullOrEmpty(const T* pString)
 {
-  return (pString == NULL) || (pString[0] == '\0');
+  return (pString == nullptr) || (pString[0] == '\0');
 }
 
 template <typename T>

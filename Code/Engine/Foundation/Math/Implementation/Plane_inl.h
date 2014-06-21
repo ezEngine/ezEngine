@@ -398,7 +398,7 @@ bool ezPlaneTemplate<Type>::GetLineSegmentIntersection(const ezVec3Template<Type
 template<typename Type>
 Type ezPlaneTemplate<Type>::GetMinimumDistanceTo(const ezVec3Template<Type>* pPoints, ezUInt32 uiNumPoints, ezUInt32 uiStride /* = sizeof (ezVec3Template<Type>) */) const
 {
-  EZ_ASSERT(pPoints != NULL, "Array may not be NULL.");
+  EZ_ASSERT(pPoints != nullptr, "Array may not be nullptr.");
   EZ_ASSERT(uiStride >= sizeof (ezVec3Template<Type>), "Stride must be at least sizeof(ezVec3Template) to not have overlapping data.");
   EZ_ASSERT(uiNumPoints >= 1, "Array must contain at least one point.");
 
@@ -419,7 +419,7 @@ Type ezPlaneTemplate<Type>::GetMinimumDistanceTo(const ezVec3Template<Type>* pPo
 template<typename Type>
 void ezPlaneTemplate<Type>::GetMinMaxDistanceTo(Type &out_fMin, Type &out_fMax, const ezVec3Template<Type>* pPoints, ezUInt32 uiNumPoints, ezUInt32 uiStride /* = sizeof (ezVec3Template<Type>) */) const
 {
-  EZ_ASSERT(pPoints != NULL, "Array may not be NULL.");
+  EZ_ASSERT(pPoints != nullptr, "Array may not be nullptr.");
   EZ_ASSERT(uiStride >= sizeof (ezVec3Template<Type>), "Stride must be at least sizeof(ezVec3Template) to not have overlapping data.");
   EZ_ASSERT(uiNumPoints >= 1, "Array must contain at least one point.");
 

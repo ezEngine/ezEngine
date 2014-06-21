@@ -1,0 +1,21 @@
+#ifdef A
+  # error "Invalid"
+#else
+  valid
+#endif
+
+#define A
+
+#ifndef A
+  # error "Invalid"
+#else
+  valid
+#endif
+
+#undef A
+
+#ifdef A
+  # error "Invalid"
+#else
+  valid
+#endif

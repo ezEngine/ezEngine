@@ -79,7 +79,7 @@ public:
   /// \brief Converts color part to HSV and returns as ezVec3.
   /// Using this function on non-normalized colors will lead to invalid results.
   /// Hue value is given by an angle in degree (0 degree - 360 degree)
-  /// \see ezColor32f::IsNormalized
+  /// \see ezColor::IsNormalized
   template<typename Type>
   ezVec3Template<Type> ConvertToHSV() const; // [tested]
 
@@ -90,7 +90,7 @@ public:
   template<typename Type>
   static ezColor FromHSV(Type hue, Type sat, Type val); // [tested]
 
-  /// \copydoc ezColor32f::FromHSV
+  /// \copydoc ezColor::FromHSV
   template<typename Type>
   static ezColor FromHSV(ezVec3Template<Type> hsv) { return FromHSV(hsv.x, hsv.y, hsv.z); }
 
@@ -103,12 +103,12 @@ public:
 
   /// \brief Gets inverted color (on all channels).
   /// Performs a simple 1.0-color inversion. Using this function on non-normalized colors will lead to negative results.
-  /// \see ezColor32f::IsNormalized
+  /// \see ezColor::IsNormalized
   ezColor GetInvertedColor() const;
 
   /// \brief Converts color from linear to sRGB space. Will not touch alpha.
   /// Using this function on non-normalized colors will lead to negative results
-  /// \see ezColor32f::IsNormalized
+  /// \see ezColor::IsNormalized
   ezColor ConvertLinearToSRGB() const;
 
   /// Converts color from sRGB to linear space. Will not touch alpha.
@@ -187,6 +187,8 @@ bool operator== (const ezColor& c1, const ezColor& c2); // [tested]
 
 /// \brief Returns true, if both colors are not identical in all components.
 bool operator!= (const ezColor& c1, const ezColor& c2); // [tested]
+
+EZ_CHECK_AT_COMPILETIME(sizeof(ezColor) == 16);
 
 #include <Foundation/Math/Implementation/Color_inl.h>
 

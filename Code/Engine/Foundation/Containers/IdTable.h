@@ -14,11 +14,10 @@
 template <typename IdType, typename ValueType>
 class ezIdTableBase
 {
-private:
+public:
   typedef typename IdType::StorageType IndexType;
   typedef IdType TypeOfId;
 
-public:
   /// \brief Const iterator.
   class ConstIterator
   {
@@ -100,7 +99,7 @@ public:
   IdType Insert(const ValueType& value); // [tested]
 
   /// \brief Removes the entry with the given id. Returns if an entry was removed and optionally writes out the old value to out_oldValue.
-  bool Remove(const IdType id, ValueType* out_oldValue = NULL); // [tested]
+  bool Remove(const IdType id, ValueType* out_oldValue = nullptr); // [tested]
 
   /// \brief Returns if an entry with the given id was found and if found writes out the corresponding value to out_value.
   bool TryGetValue(const IdType id, ValueType& out_value) const; // [tested]
@@ -113,6 +112,12 @@ public:
 
   /// \brief Returns the value to the given id. Does bounds checks in debug builds.
   ValueType& operator[](const IdType id); // [tested]
+
+  /// \brief Returns the value at the given index. Does bounds checks in debug builds but does not check for stale access.
+  const ValueType& GetValueUnchecked(const IndexType index) const;
+
+  /// \brief Returns the value at the given index. Does bounds checks in debug builds but does not check for stale access.
+  ValueType& GetValueUnchecked(const IndexType index);
 
   /// \brief Returns if the table contains an entry corresponding to the given id.
   bool Contains(const IdType id) const; // [tested]

@@ -15,7 +15,7 @@ namespace ezMemoryPolicies
     EZ_FORCE_INLINE ezProxyAllocation(ezAllocatorBase* pParent) :
       m_pParent(pParent)
     {
-      EZ_ASSERT_ALWAYS(m_pParent != NULL, "Parent allocator must not be NULL");
+      EZ_ASSERT_ALWAYS(m_pParent != nullptr, "Parent allocator must not be nullptr");
     }
 
     EZ_FORCE_INLINE void* Allocate(size_t uiSize, size_t uiAlign)

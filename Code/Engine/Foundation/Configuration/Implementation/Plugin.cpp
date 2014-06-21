@@ -1,9 +1,7 @@
 #include <Foundation/PCH.h>
 #include <Foundation/Configuration/Plugin.h>
+#include <Foundation/Configuration/ReloadableVariable.h>
 #include <Foundation/Logging/Log.h>
-#include <Foundation/Strings/StringBuilder.h>
-#include <Foundation/Strings/String.h>
-#include <Foundation/Containers/Map.h>
 #include <Foundation/Containers/Set.h>
 #include <Foundation/IO/OSFile.h>
 
@@ -25,7 +23,7 @@ struct PluginData
 {
   PluginData()
   {
-    m_pPluginObject = NULL;
+    m_pPluginObject = nullptr;
     m_iReferenceCount = 0;
     m_LastModificationTime.Invalidate();
   }
@@ -107,8 +105,8 @@ void ezPlugin::BeginPluginChanges()
   {
     PluginEvent e;
     e.m_EventType = PluginEvent::BeforePluginChanges;
-    e.m_pPluginObject = NULL;
-    e.m_szPluginFile = NULL;
+    e.m_pPluginObject = nullptr;
+    e.m_szPluginFile = nullptr;
     s_PluginEvents.Broadcast(e);
 
     ezReloadableVariableBase::StoreVariables();
@@ -125,8 +123,8 @@ void ezPlugin::EndPluginChanges()
   {
     PluginEvent e;
     e.m_EventType = PluginEvent::AfterPluginChanges;
-    e.m_pPluginObject = NULL;
-    e.m_szPluginFile = NULL;
+    e.m_pPluginObject = nullptr;
+    e.m_szPluginFile = nullptr;
     s_PluginEvents.Broadcast(e);
   }
 }
@@ -176,7 +174,7 @@ ezResult ezPlugin::UnloadPluginInternal(const char* szPluginFile, bool bReloadin
   {
     PluginEvent e;
     e.m_EventType = PluginEvent::AfterUnloading;
-    e.m_pPluginObject = NULL;
+    e.m_pPluginObject = nullptr;
     e.m_szPluginFile = szPluginFile;
     s_PluginEvents.Broadcast(e);
   }
@@ -198,7 +196,7 @@ ezResult ezPlugin::LoadPluginInternal(const char* szPluginFile, bool bLoadCopy, 
     // create a copy of the original plugin file
     if (ezOSFile::CopyFile(sOldPlugin.GetData(), sNewPlugin.GetData()) == EZ_FAILURE)
     {
-      g_LoadedPlugins.Erase(sNewPlugin.GetData());
+      g_LoadedPlugins.Erase(sNewPlugin);
       return EZ_FAILURE;
     }
   }
@@ -213,7 +211,7 @@ ezResult ezPlugin::LoadPluginInternal(const char* szPluginFile, bool bLoadCopy, 
   {
     PluginEvent e;
     e.m_EventType = PluginEvent::BeforeLoading;
-    e.m_pPluginObject = NULL;
+    e.m_pPluginObject = nullptr;
     e.m_szPluginFile = szPluginFile;
     s_PluginEvents.Broadcast(e);
   }
@@ -340,7 +338,7 @@ ezPlugin* ezPlugin::FindPluginByName(const char* szPluginName)
     pPlugin = pPlugin->GetNextInstance();
   }
 
-  return NULL;
+  return nullptr;
 }
 
 void ezPlugin::SortPluginReloadOrder(ezHybridArray<ezString, 16>& PluginsToReload)
@@ -356,7 +354,7 @@ void ezPlugin::SortPluginReloadOrder(ezHybridArray<ezString, 16>& PluginsToReloa
   // convert the plugin names to pointers
   for (ezUInt32 i = 0; i < PluginsToReload.GetCount(); ++i)
   {
-    NotYetSorted.Insert(PluginsToReload[i].GetData());
+    NotYetSorted.Insert(PluginsToReload[i]);
     PluginsToSort.PushBack(FindPluginByName(PluginsToReload[i].GetData()));
   }
 
@@ -370,7 +368,7 @@ void ezPlugin::SortPluginReloadOrder(ezHybridArray<ezString, 16>& PluginsToReloa
     // find the next plugin that has no dependency anymore
     for (ezUInt32 iPlugin = 0; iPlugin < PluginsToSort.GetCount(); ++iPlugin)
     {
-      if (PluginsToSort[iPlugin] == NULL) // plugins that have been inserted are removed this way from the array
+      if (PluginsToSort[iPlugin] == nullptr) // plugins that have been inserted are removed this way from the array
         continue;
 
       bool bHasDependency = false;
@@ -393,7 +391,7 @@ void ezPlugin::SortPluginReloadOrder(ezHybridArray<ezString, 16>& PluginsToReloa
       {
         PluginsToReload.PushBack(PluginsToSort[iPlugin]->GetPluginName());
         NotYetSorted.Erase(PluginsToSort[iPlugin]->GetPluginName());
-        PluginsToSort[iPlugin] = NULL;
+        PluginsToSort[iPlugin] = nullptr;
 
         bFoundAny = true;
 
@@ -446,7 +444,7 @@ ezResult ezPlugin::ReloadPlugins(bool bForceReload)
               ezFileStats stat;
               if (ezOSFile::GetFileStats(sOldPlugin.GetData(), stat) == EZ_SUCCESS)
               {
-                if (g_LoadedPlugins[pPlugin->m_sLoadedFromFile.GetData()].m_LastModificationTime.IsEqual(stat.m_LastModificationTime, ezTimestamp::CompareMode::FileTime))
+                if (g_LoadedPlugins[pPlugin->m_sLoadedFromFile].m_LastModificationTime.IsEqual(stat.m_LastModificationTime, ezTimestamp::CompareMode::FileTime))
                 {
                   ezLog::Dev("Plugin '%s' is not modified.", pPlugin->GetPluginName());
                   bModified = false;

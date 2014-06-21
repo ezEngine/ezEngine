@@ -9,7 +9,7 @@ ezAtomicInteger32 ezOSThread::s_iThreadCount;
 
 // Posix specific implementation of the thread class
 
-ezOSThread::ezOSThread(ezOSThreadEntryPoint pThreadEntryPoint, void* pUserData /*= NULL*/, const char* szName /*= "ezThread"*/, ezUInt32 uiStackSize /*= 128 * 1024*/)
+ezOSThread::ezOSThread(ezOSThreadEntryPoint pThreadEntryPoint, void* pUserData /*= nullptr*/, const char* szName /*= "ezThread"*/, ezUInt32 uiStackSize /*= 128 * 1024*/)
 {
   s_iThreadCount.Increment();
 
@@ -35,7 +35,10 @@ void ezOSThread::Start()
   pthread_attr_setstacksize(&ThreadAttributes, m_uiStackSize);
   
   int iReturnCode = pthread_create(&m_Handle, &ThreadAttributes, m_EntryPoint, m_pUserData);
+  EZ_IGNORE_UNUSED(iReturnCode);
   EZ_ASSERT(iReturnCode == 0, "Thread creation failed!");
+
+  m_ThreadID = m_Handle;
   
   pthread_attr_destroy(&ThreadAttributes);
 }
@@ -43,6 +46,6 @@ void ezOSThread::Start()
 /// Joins with the thread (waits for termination)
 void ezOSThread::Join()
 {
-  pthread_join(m_Handle, NULL);
+  pthread_join(m_Handle, nullptr);
 }
 

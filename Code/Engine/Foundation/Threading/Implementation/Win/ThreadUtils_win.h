@@ -14,10 +14,6 @@ void ezThreadUtils::Initialize()
   g_uiMainThreadID = GetCurrentThreadId();
 }
 
-void ezThreadUtils::Shutdown()
-{
-}
-
 void ezThreadUtils::YieldTimeSlice()
 {
   ::Sleep(0);
@@ -28,13 +24,13 @@ void ezThreadUtils::Sleep(ezUInt32 uiMilliSeconds)
   ::Sleep(uiMilliSeconds);
 }
 
-ezThreadHandle ezThreadUtils::GetCurrentThreadHandle()
+ezThreadID ezThreadUtils::GetCurrentThreadID()
 {
-  return ::GetCurrentThread();
+  return ::GetCurrentThreadId();
 }
 
 bool ezThreadUtils::IsMainThread()
 {
-  return ::GetCurrentThreadId() == g_uiMainThreadID;
+  return GetCurrentThreadID() == g_uiMainThreadID;
 }
 

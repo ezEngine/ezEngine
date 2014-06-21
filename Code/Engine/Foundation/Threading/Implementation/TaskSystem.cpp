@@ -44,8 +44,8 @@ void ezTaskSystem::Startup()
   s_ProfileWaitForGroup = ezProfilingSystem::CreateId("WaitForGroup");
   s_ProfileCancelTask = ezProfilingSystem::CreateId("CancelTask");
   s_ProfileCancelGroup = ezProfilingSystem::CreateId("CancelGroup");
-  s_ProfileMainThreadTasks = ezProfilingSystem::CreateId("MainThreadTasks");
-  s_ProfileSomeFrameTasks = ezProfilingSystem::CreateId("MainThreadTasks2");
+  s_ProfileMainThreadTasks = ezProfilingSystem::CreateId("ThisFrameMainThreadTasks");
+  s_ProfileSomeFrameTasks = ezProfilingSystem::CreateId("SomeFrameMainThreadTasks");
 }
 
 void ezTaskSystem::Shutdown()
@@ -218,7 +218,7 @@ void ezTaskSystem::FinishFrameTasks(double fSmoothFrameMS)
   // now all the important tasks for this frame should be finished
   // so now we reprioritize the tasks for the next frame
   {
-    ezLock<ezMutex> Lock(s_TaskSystemMutex);
+    EZ_LOCK(s_TaskSystemMutex);
 
     // get this info once, it won't shrink (but might grow) while we are outside the lock
     uiSomeFrameTasks = s_Tasks[ezTaskPriority::SomeFrameMainThread].GetCount();

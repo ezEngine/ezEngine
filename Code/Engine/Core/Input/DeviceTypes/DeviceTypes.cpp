@@ -2,13 +2,13 @@
 #include <Core/Input/DeviceTypes/Controller.h>
 #include <Core/Input/DeviceTypes/MouseKeyboard.h>
 
-EZ_BEGIN_REFLECTED_TYPE(ezInputDeviceMouseKeyboard, ezInputDevice, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezInputDeviceMouseKeyboard, ezInputDevice, ezRTTINoAllocator);
   // no properties or message handlers
-EZ_END_REFLECTED_TYPE(ezInputDeviceMouseKeyboard);
+EZ_END_DYNAMIC_REFLECTED_TYPE();
 
-EZ_BEGIN_REFLECTED_TYPE(ezInputDeviceController, ezInputDevice, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezInputDeviceController, ezInputDevice, ezRTTINoAllocator);
   // no properties or message handlers
-EZ_END_REFLECTED_TYPE(ezInputDeviceController);
+EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 ezInputDeviceController::ezInputDeviceController()
 {
@@ -99,7 +99,7 @@ void ezInputDeviceController::AddVibrationTrack(ezUInt8 uiVirtual, Motor::Enum e
 
   for (ezUInt32 s = 0; s < uiSamples; ++s)
   {
-    float& fVal = m_fVibrationTracks[uiVirtual][eMotor][(m_uiVibrationTrackPos + 1 + s) % 20];
+    float& fVal = m_fVibrationTracks[uiVirtual][eMotor][(m_uiVibrationTrackPos + 1 + s) % MaxVibrationSamples];
 
     fVal = ezMath::Max(fVal, fVibrationTrackValue[s] * fScalingFactor);
     fVal = ezMath::Clamp(fVal, 0.0f, 1.0f);
@@ -111,10 +111,12 @@ void ezInputDeviceController::UpdateVibration(ezTime tTimeDifference)
   static ezTime tElapsedTime;
   tElapsedTime += tTimeDifference;
 
+  const ezTime tTimePerSample = ezTime::Seconds(1.0 / VibrationSamplesPerSecond);
+
   // advance the vibration track sampling
-  while (tElapsedTime.GetSeconds() >= 0.1)
+  while (tElapsedTime >= tTimePerSample)
   {
-    tElapsedTime -= ezTime::Seconds(0.1);
+    tElapsedTime -= tTimePerSample;
 
     for (ezUInt32 c = 0; c < MaxControllers; ++c)
     {
@@ -142,13 +144,13 @@ void ezInputDeviceController::UpdateVibration(ezTime tTimeDifference)
     if (!m_bVibrationEnabled[c])
       continue;
 
-    for (ezUInt32 m = 0; m < Motor::ENUM_COUNT; ++m)
-    {
-      // check which physical controller this virtual controller is attached to
-      const ezInt8 iPhysical = GetControllerMapping(c);
+    // check which physical controller this virtual controller is attached to
+    const ezInt8 iPhysical = GetControllerMapping(c);
 
-      // if it is attached to any physical controller, store the vibration value
-      if (iPhysical >= 0)
+    // if it is attached to any physical controller, store the vibration value
+    if (iPhysical >= 0)
+    {
+      for (ezUInt32 m = 0; m < Motor::ENUM_COUNT; ++m)
         fVibrationToApply[iPhysical][m] = ezMath::Max(m_fVibrationStrength[c][m], m_fVibrationTracks[c][m][m_uiVibrationTrackPos]);
     }
   }

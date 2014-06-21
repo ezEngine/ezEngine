@@ -1,0 +1,38 @@
+Processing succeeded
+
+
+
+
+
+
+// Block 1
+"str1"
+"str1""str2"
+"str3"
+"str1""str1""str2""str3"
+
+// Block 2
+"VARIABLE"
+"VARIABLE"""
+"strvar"
+"VARIABLE""VARIABLE""""strvar"
+
+// Block 3
+"VARIABLE2"
+"VARIABLE2"""
+"str var 2"
+"VARIABLE2""VARIABLE2""""str var 2"
+
+// Block 4
+"VARIABLE3(str1)"
+"VARIABLE3(str1 )""EZ_STRINGIZE ( VARIABLE3(str2 ) )"
+"varstr3"
+
+// Block 5
+"VARIABLE3(str1)"
+"VARIABLE3(str1)""EZ_STRINGIZE ( VARIABLE3(str2) )"
+"varstr3"
+
+"\"a string\""
+"\"a newline
+in a string, \\n not that\""

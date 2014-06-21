@@ -12,7 +12,7 @@ namespace ezInternal
   template <typename T>
   EZ_FORCE_INLINE void Delete(ezAllocatorBase* pAllocator, T* ptr)
   {
-    if (ptr != NULL)
+    if (ptr != nullptr)
     {
       ezMemoryUtils::Destruct(ptr, 1);
       pAllocator->Deallocate(ptr);
@@ -27,7 +27,7 @@ namespace ezInternal
   
   EZ_FORCE_INLINE void DeleteRawBuffer(ezAllocatorBase* pAllocator, void* ptr)
   {
-    if (ptr != NULL)
+    if (ptr != nullptr)
     {
       pAllocator->Deallocate(ptr);
     }
@@ -46,7 +46,7 @@ namespace ezInternal
   inline void DeleteArray(ezAllocatorBase* pAllocator, const ezArrayPtr<T>& arrayPtr)
   {
     T* buffer = arrayPtr.GetPtr();
-    if (buffer != NULL)
+    if (buffer != nullptr)
     {
       ezMemoryUtils::Destruct(buffer, arrayPtr.GetCount()); 
       pAllocator->Deallocate(buffer);

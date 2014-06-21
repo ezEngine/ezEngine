@@ -1,15 +1,31 @@
 #pragma once
 
 #include <Foundation/Containers/HybridArray.h>
+#include <Foundation/Math/Mat4.h>
+#include <Foundation/Math/Quat.h>
+#include <Foundation/Math/Transform.h>
+#include <Foundation/Time/Time.h>
 
 #include <Core/World/ComponentManager.h>
 #include <Core/World/GameObjectDesc.h>
 
+/// \brief This class represents an object inside the world.
+///
+/// Game objects only consists of hierarchical data like transformation and a list of components. 
+/// You cannot derive from the game object class. To add functionality to an object you have to attach components to it.
+/// To create an object instance call CreateObject on the world. Never store a direct pointer to an object but store an 
+/// object handle instead.
+/// \see ezWorld
+/// \see ezComponent
+///
+/// \todo Implement Clone
+/// \todo Implement switching dynamic and static
+/// \todo Implement unique ids
 class EZ_CORE_DLL ezGameObject
 {
 private:
   friend class ezWorld;
-  friend struct ezInternal::WorldData;
+  friend class ezInternal::WorldData;
   friend class ezMemoryUtils;
 
   ezGameObject();
@@ -18,30 +34,9 @@ private:
   
   void operator=(const ezGameObject& other);
 
-  struct EZ_ALIGN_16(TransformationData)
-  {
-    EZ_DECLARE_POD_TYPE();
-
-    ezGameObject* m_pObject;
-    TransformationData* m_pParentData;
-    
-  #if EZ_ENABLED(EZ_PLATFORM_32BIT)
-    ezUInt64 m_uiPadding;
-  #endif
-
-    ezVec4 m_localPosition;
-    ezQuat m_localRotation;
-    ezVec4 m_localScaling;
-
-    /// \todo simd struct
-    ezMat3 m_worldRotation;
-    ezVec3 m_worldPosition;
-
-    ezVec4 m_velocity;
-  };
-
 public:
-  class ChildIterator
+  /// \brief Iterates over all children of one object.
+  class EZ_CORE_DLL ChildIterator
   {
   public:
     ChildIterator();
@@ -49,9 +44,15 @@ public:
     ezGameObject& operator*() const;
     ezGameObject* operator->() const;
 
+    operator ezGameObject*() const;
+
+    /// \brief Advances the iterator to the next child object. The iterator will not be valid anymore, if the last child is reached.
     void Next();
+
+    /// \brief Checks whether this iterator points to a valid object.
     bool IsValid() const;
 
+    /// \brief Shorthand for 'Next'
     void operator++();
 
   private:
@@ -62,32 +63,60 @@ public:
     ezGameObject* m_pObject;
   };
 
+  /// \brief Returns a handle to this object.
   ezGameObjectHandle GetHandle() const;
   
-  ezGameObjectHandle Clone() const;
+  //ezGameObjectHandle Clone() const;
 
-  void MakeDynamic();
+  //void MakeDynamic();
+  //void MakeStatic();
+  /// \brief Returns whether this object is dynamic.
   bool IsDynamic() const;
 
+  /// \brief Returns whether this object is static.
+  bool IsStatic() const;
+
+
+  /// \brief Activates the object and all its components.
   void Activate();
+
+  /// \brief Deactivates the object and all its components.
   void Deactivate();
+
+  /// \brief Returns whether this object is active.
   bool IsActive() const;
 
-  ezUInt64 GetPersistentId() const;
+
+  //ezUInt64 GetUniqueId() const;
 
   void SetName(const char* szName);
   const char* GetName() const;
 
-  void SetParent(const ezGameObjectHandle& parent);
-  ezGameObjectHandle GetParent() const;
 
+  /// \brief Sets the parent of this object to the given. Note that the actual re-parenting is postponed.
+  void SetParent(const ezGameObjectHandle& parent);
+
+  /// \brief Gets the parent of this object or nullptr if this is a toplevel object.
+  ezGameObject* GetParent() const;
+
+  /// \brief Adds the given object as a child object. Note that the actual re-parenting is postponed.
   void AddChild(const ezGameObjectHandle& child);
+
+  /// \brief Adds the given objects as child objects. Note that the actual re-parenting is postponed.
   void AddChildren(const ezArrayPtr<const ezGameObjectHandle>& children);
 
+  /// \brief Removes the given child object from this object and makes it a toplevel object. Note that the actual re-parenting is postponed.
   void DetachChild(const ezGameObjectHandle& child);
+
+  /// \brief Removes the given child objects from this object and makes them toplevel objects. Note that the actual re-parenting is postponed.
   void DetachChildren(const ezArrayPtr<const ezGameObjectHandle>& children);
 
+  /// \brief Returns the number of children.
+  ezUInt32 GetChildCount() const;
+
+  /// \brief Returns an iterator over all children of this object.
   ChildIterator GetChildren() const;
+
 
   ezWorld* GetWorld() const;
 
@@ -104,47 +133,106 @@ public:
   const ezVec3& GetWorldPosition() const;
 
   void SetWorldRotation(const ezQuat& rotation);
-  const ezQuat& GetWorldRotation() const;
+  const ezQuat GetWorldRotation() const;
 
   void SetWorldScaling(const ezVec3& scaling);
-  const ezVec3& GetWorldScaling() const;
+  const ezVec3 GetWorldScaling() const;
 
-  ezMat4 GetWorldTransform() const;
+  void SetWorldTransform(const ezTransform& transform);
+  const ezTransform& GetWorldTransform() const;
 
-  const ezVec3& GetVelocity() const;
   void SetVelocity(const ezVec3& vVelocity);
+  const ezVec3& GetVelocity() const;
 
-  // components
+
+  /// \brief Attaches the component to the object. Calls the OnAttachedToObject method on the component.
   ezResult AddComponent(const ezComponentHandle& component);
+
+  /// \brief Attaches the component to the object. Calls the OnAttachedToObject method on the component.
+  ezResult AddComponent(ezComponent* pComponent);
+
+  /// \brief Removes the component from this object. Calls the OnDetachedFromObject method on the component. The component is still valid afterwards.
   ezResult RemoveComponent(const ezComponentHandle& component);
 
+  /// \brief Removes the component from this object. Calls the OnDetachedFromObject method on the component. The component is still valid afterwards.
+  ezResult RemoveComponent(ezComponent* pComponent);
+
+  /// \brief Tries to find a component of the given base type in the objects components list and returns the first match.
   template <typename T>
-  bool TryGetComponentOfType(T*& out_pComponent) const;
+  bool TryGetComponentOfBaseType(T*& out_pComponent) const;
 
+  /// \brief Tries to find components of the given base type in the objects components list and returns all matches.
   template <typename T>
-  void TryGetComponentsOfType(ezHybridArray<T*, 8>& out_components) const;
+  void TryGetComponentsOfBaseType(ezHybridArray<T*, 8>& out_components) const;
 
-  ezArrayPtr<ezComponentHandle> GetComponents() const;
+  /// \brief Returns a list of all components attached to this object.
+  ezArrayPtr<ezComponent*> GetComponents() const;
 
-  // messaging
-  void SendMessage(ezMessage& msg, ezBitflags<ezObjectMsgRouting> routing = ezObjectMsgRouting::Default);
+
+  /// \brief Sends a message to all components of this object. Depending on the routing options the message is also send to parents or children.
+  void SendMessage(ezMessage& msg, ezObjectMsgRouting::Enum routing = ezObjectMsgRouting::Default);
+
+  /// \brief Queues the message for the given phase and processes it later in that phase.
+  void PostMessage(ezMessage& msg, ezObjectMsgQueueType::Enum queueType, 
+    ezObjectMsgRouting::Enum routing = ezObjectMsgRouting::Default);
+
+  /// \brief Queues the message for the given phase. The message is processed after the given delay in the corresponding phase.
+  void PostMessage(ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay,
+    ezObjectMsgRouting::Enum routing = ezObjectMsgRouting::Default);
   
 private:
-  bool TryGetComponent(const ezComponentHandle& component, ezComponent*& out_pComponent) const;
-  void OnMessage(ezMessage& msg, ezBitflags<ezObjectMsgRouting> routing);
+  friend class ezGameObjectTest;
+
+  void FixComponentPointer(ezComponent* pOldPtr, ezComponent* pNewPtr);
+  void OnMessage(ezMessage& msg, ezObjectMsgRouting::Enum routing);
+
+  struct EZ_ALIGN_16(TransformationData)
+  {
+    EZ_DECLARE_POD_TYPE();
+
+    ezGameObject* m_pObject;
+    TransformationData* m_pParentData;
+
+#if EZ_ENABLED(EZ_PLATFORM_32BIT)
+    ezUInt64 m_uiPadding;
+#endif
+
+    ezVec4 m_localPosition;
+    ezQuat m_localRotation;
+    ezVec4 m_localScaling;
+
+    ezTransform m_worldTransform;
+    ezVec4 m_velocity;
+  };
 
   ezGameObjectId m_InternalId;
   ezBitflags<ezObjectFlags> m_Flags;
-  ezUInt64 m_uiPersistentId;
-  
-  ezGameObjectHandle m_Parent;
-  ezGameObjectHandle m_FirstChild;
-  ezGameObjectHandle m_NextSibling;
+  ezHashedString m_sName;
+
+#if EZ_ENABLED(EZ_PLATFORM_32BIT)
+  ezUInt32 m_uiNamePadding;
+#endif
+
+  struct
+  {
+    ezUInt64 m_ParentIndex : 20;
+    ezUInt64 m_FirstChildIndex : 20;
+    ezUInt64 m_LastChildIndex : 20;
+  };
+
+  struct
+  {
+    ezUInt64 m_NextSiblingIndex : 20;
+    ezUInt64 m_PrevSiblingIndex : 20;
+    ezUInt64 m_ChildCount : 20;
+  };
+
+  ezUInt32 m_uiReserved;
 
   struct
   {
     ezUInt32 m_uiHierarchyLevel : 12;
-    ezUInt32 m_uiTransformationDataIndex : 20;    
+    ezUInt32 m_uiTransformationDataIndex : 20;
   };
   TransformationData* m_pTransformationData;
 
@@ -154,16 +242,24 @@ private:
   ezUInt64 m_uiPadding;
 #endif
 
+  enum
+  {
+#if EZ_ENABLED(EZ_PLATFORM_32BIT)
+    NUM_INPLACE_COMPONENTS = 12
+#else
+    NUM_INPLACE_COMPONENTS = 6
+#endif
+  };
+
   /// \todo small array class to reduce memory overhead
-  ezHybridArray<ezComponentHandle, 6> m_Components;
+  ezHybridArray<ezComponent*, NUM_INPLACE_COMPONENTS> m_Components;
 
 #if EZ_ENABLED(EZ_PLATFORM_32BIT)
   ezUInt64 m_uiPadding2;
 #endif
-
-  ezUInt32 m_uiHandledMessageCounter;
-  ezUInt32 m_uiReserved;
 };
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_CORE_DLL, ezGameObject);
 
 #include <Core/World/Implementation/GameObject_inl.h>
 

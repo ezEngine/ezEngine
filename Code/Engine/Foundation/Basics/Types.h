@@ -27,6 +27,8 @@ EZ_CHECK_AT_COMPILETIME(sizeof(ezUInt8)  == 1);
 EZ_CHECK_AT_COMPILETIME(sizeof(ezUInt16) == 2);
 EZ_CHECK_AT_COMPILETIME(sizeof(ezUInt32) == 4);
 EZ_CHECK_AT_COMPILETIME(sizeof(ezUInt64) == 8); // must be defined in the specific compiler header
+EZ_CHECK_AT_COMPILETIME(sizeof(long long int) == 8);
+
 
 #if EZ_ENABLED(EZ_PLATFORM_64BIT)
   #define EZ_ALIGNMENT_MINIMUM 8
@@ -55,7 +57,8 @@ public:
   bool operator== (ezResultEnum cmp) const { return e == cmp; }
   bool operator!= (ezResultEnum cmp) const { return e != cmp; }
 
-  bool IsSuccess() const { return e == EZ_SUCCESS; }
+  bool Succeeded() const { return e == EZ_SUCCESS; }
+  bool Failed() const { return e == EZ_FAILURE; }
 
 private:
   ezResultEnum e;
@@ -87,6 +90,7 @@ template <> struct EZ_ALIGN(ezAligned<8192>, 8192) { };
 
 /// \brief Helper struct to get a storage type from a size in byte.
 template <size_t SizeInByte> struct ezSizeToType;
+/// \cond
 template <> struct ezSizeToType<1> { typedef ezUInt8 Type; };
 template <> struct ezSizeToType<2> { typedef ezUInt16 Type; };
 template <> struct ezSizeToType<3> { typedef ezUInt32 Type; };
@@ -95,4 +99,4 @@ template <> struct ezSizeToType<5> { typedef ezUInt64 Type; };
 template <> struct ezSizeToType<6> { typedef ezUInt64 Type; };
 template <> struct ezSizeToType<7> { typedef ezUInt64 Type; };
 template <> struct ezSizeToType<8> { typedef ezUInt64 Type; };
-
+/// \endcond

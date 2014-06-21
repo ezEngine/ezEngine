@@ -1,7 +1,7 @@
 #include <GameUtils/PCH.h>
 #include <GameUtils/GridAlgorithms/Rasterization.h>
 
-ezRasterizationResult::Enum ez2DGridUtils::ComputePointsOnLine(ezInt32 iStartX, ezInt32 iStartY, ezInt32 iEndX, ezInt32 iEndY, EZ_RASTERIZED_POINT_CALLBACK Callback, void* pPassThrough /* = NULL */)
+ezRasterizationResult::Enum ez2DGridUtils::ComputePointsOnLine(ezInt32 iStartX, ezInt32 iStartY, ezInt32 iEndX, ezInt32 iEndY, EZ_RASTERIZED_POINT_CALLBACK Callback, void* pPassThrough /* = nullptr */)
 {
   // Implements Bresenham's line algorithm:
   // http://en.wikipedia.org/wiki/Bresenham%27s_line_algorithm
@@ -39,7 +39,7 @@ ezRasterizationResult::Enum ez2DGridUtils::ComputePointsOnLine(ezInt32 iStartX, 
   }
 }
 
-ezRasterizationResult::Enum ez2DGridUtils::ComputePointsOnLineConservative(ezInt32 iStartX, ezInt32 iStartY, ezInt32 iEndX, ezInt32 iEndY, EZ_RASTERIZED_POINT_CALLBACK Callback, void* pPassThrough /* = NULL */, bool bVisitBothNeighbors /* = false */)
+ezRasterizationResult::Enum ez2DGridUtils::ComputePointsOnLineConservative(ezInt32 iStartX, ezInt32 iStartY, ezInt32 iEndX, ezInt32 iEndY, EZ_RASTERIZED_POINT_CALLBACK Callback, void* pPassThrough /* = nullptr */, bool bVisitBothNeighbors /* = false */)
 {
   ezInt32 dx = ezMath::Abs(iEndX - iStartX);
   ezInt32 dy = ezMath::Abs(iEndY - iStartY);
@@ -103,7 +103,7 @@ ezRasterizationResult::Enum ez2DGridUtils::ComputePointsOnLineConservative(ezInt
 }
 
 
-ezRasterizationResult::Enum ez2DGridUtils::ComputePointsOnCircle(ezInt32 iStartX, ezInt32 iStartY, ezUInt32 uiRadius, EZ_RASTERIZED_POINT_CALLBACK Callback, void* pPassThrough /* = NULL */)
+ezRasterizationResult::Enum ez2DGridUtils::ComputePointsOnCircle(ezInt32 iStartX, ezInt32 iStartY, ezUInt32 uiRadius, EZ_RASTERIZED_POINT_CALLBACK Callback, void* pPassThrough /* = nullptr */)
 {
   int f = 1 - uiRadius;
   int ddF_x = 1;
@@ -120,7 +120,7 @@ ezRasterizationResult::Enum ez2DGridUtils::ComputePointsOnCircle(ezInt32 iStartX
   // the loop iterates over an eighth of the circle (a 45 degree segment) and then mirrors each point 8 times to fill the entire circle
   while (x < y)
   {
-    if(f >= 0) 
+    if (f >= 0) 
     {
       y--;
       ddF_y += 2;
@@ -143,13 +143,13 @@ ezRasterizationResult::Enum ez2DGridUtils::ComputePointsOnCircle(ezInt32 iStartX
   return ezRasterizationResult::Finished;
 }
 
-ezUInt32 ez2DGridUtils::FloodFill(ezInt32 iStartX, ezInt32 iStartY, EZ_RASTERIZED_POINT_CALLBACK Callback, void* pPassThrough /* = NULL */, ezDeque<ezVec2I32>* pTempArray /* = NULL */)
+ezUInt32 ez2DGridUtils::FloodFill(ezInt32 iStartX, ezInt32 iStartY, EZ_RASTERIZED_POINT_CALLBACK Callback, void* pPassThrough /* = nullptr */, ezDeque<ezVec2I32>* pTempArray /* = nullptr */)
 {
   ezUInt32 uiFilled = 0;
 
   ezDeque<ezVec2I32> FallbackQueue;
 
-  if (pTempArray == NULL)
+  if (pTempArray == nullptr)
     pTempArray = &FallbackQueue;
 
   pTempArray->Clear();
@@ -202,7 +202,7 @@ static const ezInt32 CircleCenter = 7;
 static const ezUInt8 CircleAreaMin[9] = { 7, 6, 6, 5, 4, 3, 2, 1, 0 };
 static const ezUInt8 CircleAreaMax[9] = { 7, 8, 8, 9,10,11,12,13,14 };
 
-ezRasterizationResult::Enum ez2DGridUtils::RasterizeBlob(ezInt32 iPosX, ezInt32 iPosY, ezBlobType eType, EZ_RASTERIZED_POINT_CALLBACK Callback, void* pPassThrough /* = NULL */)
+ezRasterizationResult::Enum ez2DGridUtils::RasterizeBlob(ezInt32 iPosX, ezInt32 iPosY, ezBlobType eType, EZ_RASTERIZED_POINT_CALLBACK Callback, void* pPassThrough /* = nullptr */)
 {
   const ezUInt8 uiCircleType = ezMath::Clamp<ezUInt8>(eType, 0, 8);
 
@@ -227,7 +227,7 @@ ezRasterizationResult::Enum ez2DGridUtils::RasterizeBlob(ezInt32 iPosX, ezInt32 
   return ezRasterizationResult::Finished;
 }
 
-ezRasterizationResult::Enum ez2DGridUtils::RasterizeCircle(ezInt32 iPosX, ezInt32 iPosY, float fRadius, EZ_RASTERIZED_POINT_CALLBACK Callback, void* pPassThrough /* = NULL */)
+ezRasterizationResult::Enum ez2DGridUtils::RasterizeCircle(ezInt32 iPosX, ezInt32 iPosY, float fRadius, EZ_RASTERIZED_POINT_CALLBACK Callback, void* pPassThrough /* = nullptr */)
 {
   const ezVec2 vCenter ((float) iPosX, (float) iPosY);
 
@@ -334,14 +334,14 @@ static ezCallbackResult::Enum MarkPointsInCircleVisible(ezInt32 x, ezInt32 y, vo
   return ezCallbackResult::Continue;
 }
 
-void ez2DGridUtils::ComputeVisibleArea(ezInt32 iPosX, ezInt32 iPosY, ezUInt16 uiRadius, ezUInt32 uiWidth, ezUInt32 uiHeight, EZ_RASTERIZED_POINT_CALLBACK Callback, void* pPassThrough /* = NULL */, ezDynamicArray<ezUInt8>* pTempArray /* = NULL */ )
+void ez2DGridUtils::ComputeVisibleArea(ezInt32 iPosX, ezInt32 iPosY, ezUInt16 uiRadius, ezUInt32 uiWidth, ezUInt32 uiHeight, EZ_RASTERIZED_POINT_CALLBACK Callback, void* pPassThrough /* = nullptr */, ezDynamicArray<ezUInt8>* pTempArray /* = nullptr */ )
 {
   const ezUInt32 uiSize = uiRadius * 2 + 1;
 
   ezDynamicArray<ezUInt8> VisiblityFlags;
 
   // if we don't get a temp array, use our own array, with blackjack etc.
-  if (pTempArray == NULL)
+  if (pTempArray == nullptr)
     pTempArray = &VisiblityFlags;
 
   pTempArray->Clear();
@@ -380,14 +380,14 @@ static ezCallbackResult::Enum MarkPointsInConeVisible(ezInt32 x, ezInt32 y, void
   return ezCallbackResult::Continue;
 }
 
-void ez2DGridUtils::ComputeVisibleAreaInCone(ezInt32 iPosX, ezInt32 iPosY, ezUInt16 uiRadius, const ezVec2& vDirection, ezAngle ConeAngle, ezUInt32 uiWidth, ezUInt32 uiHeight, EZ_RASTERIZED_POINT_CALLBACK Callback, void* pPassThrough /* = NULL */, ezDynamicArray<ezUInt8>* pTempArray /* = NULL */)
+void ez2DGridUtils::ComputeVisibleAreaInCone(ezInt32 iPosX, ezInt32 iPosY, ezUInt16 uiRadius, const ezVec2& vDirection, ezAngle ConeAngle, ezUInt32 uiWidth, ezUInt32 uiHeight, EZ_RASTERIZED_POINT_CALLBACK Callback, void* pPassThrough /* = nullptr */, ezDynamicArray<ezUInt8>* pTempArray /* = nullptr */)
 {
   const ezUInt32 uiSize = uiRadius * 2 + 1;
 
   ezDynamicArray<ezUInt8> VisiblityFlags;
 
   // if we don't get a temp array, use our own array, with blackjack etc.
-  if (pTempArray == NULL)
+  if (pTempArray == nullptr)
     pTempArray = &VisiblityFlags;
 
   pTempArray->Clear();

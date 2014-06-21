@@ -1,0 +1,8 @@
+#undef PP_OBJ
+
+#if defined PP_OBJ || 
+    defined(PP_FUNC)
+
+  So it has come to this.
+
+#endif

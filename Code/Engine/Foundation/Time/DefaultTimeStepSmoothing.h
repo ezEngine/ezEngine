@@ -16,9 +16,9 @@ class EZ_FOUNDATION_DLL ezDefaultTimeStepSmoothing : public ezTimeStepSmoothing
 public:
   ezDefaultTimeStepSmoothing();
 
-  virtual ezTime GetSmoothedTimeStep(ezTime RawTimeStep, const ezClock* pClock) EZ_OVERRIDE;
+  virtual ezTime GetSmoothedTimeStep(ezTime RawTimeStep, const ezClock* pClock) override;
 
-  virtual void Reset(const ezClock* pClock) EZ_OVERRIDE;
+  virtual void Reset(const ezClock* pClock) override;
 
   /// \brief Changes the factor with which to lerp from the last used time step to the new average time step. Default is 0.2
   ///

@@ -4,8 +4,9 @@
 #include <Foundation/Strings/StringIterator.h>
 #include <Foundation/Strings/Implementation/StringBase.h>
 #include <Foundation/Strings/StringConversion.h>
-#include <Foundation/Strings/StringBuilder.h>
 #include <Foundation/Containers/HybridArray.h>
+
+class ezStringBuilder;
 
 /// \brief A string class for storing and passing around strings.
 ///
@@ -31,6 +32,9 @@ protected:
   /// \brief Copies the data from \a rhs.
   ezHybridStringBase(const ezHybridStringBase& rhs, ezAllocatorBase* pAllocator); // [tested]
 
+  /// \brief Moves the data from \a rhs.
+  ezHybridStringBase(ezHybridStringBase&& rhs, ezAllocatorBase* pAllocator); // [tested]
+
   /// \brief Copies the data from \a rhs.
   ezHybridStringBase(const char* rhs, ezAllocatorBase* pAllocator); // [tested]
 
@@ -43,11 +47,17 @@ protected:
   /// \brief Copies the data from \a rhs.
   ezHybridStringBase(const ezStringBuilder& rhs, ezAllocatorBase* pAllocator); // [tested]
 
+  /// \brief Moves the data from \a rhs.
+  ezHybridStringBase(ezStringBuilder&& rhs, ezAllocatorBase* pAllocator); // [tested]
+
   /// \brief Destructor.
   ~ezHybridStringBase(); // [tested]
 
   /// \brief Copies the data from \a rhs.
   void operator=(const ezHybridStringBase& rhs); // [tested]
+
+  /// \brief Moves the data from \a rhs.
+  void operator=(ezHybridStringBase&& rhs); // [tested]
 
   /// \brief Copies the data from \a rhs.
   void operator=(const char* rhs); // [tested]
@@ -60,6 +70,9 @@ protected:
 
   /// \brief Copies the data from \a rhs.
   void operator=(const ezStringBuilder& rhs); // [tested]
+
+  /// \brief Moves the data from \a rhs.
+  void operator=(ezStringBuilder&& rhs); // [tested]
 
 public:
 
@@ -108,6 +121,8 @@ public:
   ezStringIterator GetLast(ezUInt32 uiNumCharacters) const; // [tested]
 
 private:
+  friend class ezStringBuilder;
+
   ezHybridArray<char, Size> m_Data;
   ezUInt32 m_uiCharacterCount;
 };
@@ -127,6 +142,11 @@ public:
   ezHybridString(const wchar_t* rhs);
   ezHybridString(const ezStringIterator& rhs);
   ezHybridString(const ezStringBuilder& rhs);
+  ezHybridString(ezStringBuilder&& rhs);
+
+  ezHybridString(ezHybridString<Size, AllocatorWrapper>&& other);
+  ezHybridString(ezHybridStringBase<Size>&& other);
+
 
   void operator=(const ezHybridString<Size, AllocatorWrapper>& rhs);
   void operator=(const ezHybridStringBase<Size>& rhs);
@@ -134,6 +154,10 @@ public:
   void operator=(const wchar_t* szString);
   void operator=(const ezStringIterator& rhs);
   void operator=(const ezStringBuilder& rhs);
+  void operator=(ezStringBuilder&& rhs);
+
+  void operator=(ezHybridString<Size, AllocatorWrapper>&& rhs);
+  void operator=(ezHybridStringBase<Size>&& rhs);
 };
 
 

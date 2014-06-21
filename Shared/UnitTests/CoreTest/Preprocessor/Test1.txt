@@ -1,0 +1,17 @@
+// Line comment
+#define OBJECT
+  // Line comment2
+
+ /* 
+  Block
+  Comment
+  */
+#define FUNCTION(a, b)
+
+OBJECT
+
+#if defined PP_OBJ || defined(PP_FUNC)
+
+  So it has come to this.
+
+#endif

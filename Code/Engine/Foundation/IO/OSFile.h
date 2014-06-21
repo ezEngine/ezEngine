@@ -244,8 +244,8 @@ public:
     {
       m_EventType = EventType::None;
       m_iFileID = 0;
-      m_szFile = NULL;
-      m_szFile2 = NULL;
+      m_szFile = nullptr;
+      m_szFile2 = nullptr;
       m_FileMode = ezFileMode::None;
       m_bSuccess = true;
       m_uiBytesAccessed = 0;

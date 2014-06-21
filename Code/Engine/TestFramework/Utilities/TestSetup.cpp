@@ -87,6 +87,10 @@ void ezTestSetup::DeInitTestFramework()
     }
   }
 #endif
+  // This is needed as at least windows can't be bothered to write anything
+  // to the output streams at all if it's not enough or the app is too fast.
+  fflush(stdout);
+  fflush(stderr);
   delete pTestFramework;
 }
 

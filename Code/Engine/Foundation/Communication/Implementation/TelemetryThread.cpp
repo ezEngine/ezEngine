@@ -41,7 +41,7 @@ private:
   }
 };
 
-static ezTelemetryThread* g_pBroadcastThread = NULL;
+static ezTelemetryThread* g_pBroadcastThread = nullptr;
 ezMutex ezTelemetry::s_TelemetryMutex;
 
 

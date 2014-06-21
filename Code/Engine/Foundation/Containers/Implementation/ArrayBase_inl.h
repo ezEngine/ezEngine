@@ -2,7 +2,7 @@
 template <typename T, typename Derived>
 ezArrayBase<T, Derived>::ezArrayBase()
 {
-  m_pElements = NULL;
+  m_pElements = nullptr;
   m_uiCount = 0;
 }
 
@@ -10,7 +10,7 @@ template <typename T, typename Derived>
 ezArrayBase<T, Derived>::~ezArrayBase()
 {
   EZ_ASSERT(m_uiCount == 0, "The derived class did not destruct all objects. Count is %i.", m_uiCount);
-  EZ_ASSERT(m_pElements == NULL, "The derived class did not free its memory.");
+  EZ_ASSERT(m_pElements == nullptr, "The derived class did not free its memory.");
 }
 
 template <typename T, typename Derived>
@@ -261,13 +261,13 @@ EZ_FORCE_INLINE const T& ezArrayBase<T, Derived>::PeekBack() const
 }
 
 template <typename T, typename Derived>
-template <typename C>
-void ezArrayBase<T, Derived>::Sort()
+template <typename Comparer>
+void ezArrayBase<T, Derived>::Sort(const Comparer& comparer)
 {
   if (m_uiCount > 1)
   {
     ezArrayPtr<T> ar = *this;
-    ezSorting<C>::QuickSort(ar);
+    ezSorting::QuickSort(ar, comparer);
   }
 }
 
@@ -277,7 +277,7 @@ void ezArrayBase<T, Derived>::Sort()
   if (m_uiCount > 1)
   {
     ezArrayPtr<T> ar = *this;
-    ezSorting<ezCompareHelper<T> >::QuickSort(ar);
+    ezSorting::QuickSort(ar, ezCompareHelper<T>());
   }
 }
 

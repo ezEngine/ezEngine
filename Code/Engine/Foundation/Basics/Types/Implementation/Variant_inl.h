@@ -10,6 +10,11 @@ EZ_FORCE_INLINE ezVariant::ezVariant(const ezVariant& other)
   CopyFrom(other);
 }
 
+EZ_FORCE_INLINE ezVariant::ezVariant(ezVariant&& other)
+{
+  MoveFrom(std::move(other));
+}
+
 template <typename T>
 EZ_FORCE_INLINE ezVariant::ezVariant(const T& value)
 {
@@ -27,6 +32,15 @@ EZ_FORCE_INLINE void ezVariant::operator=(const ezVariant& other)
   {
     Release();
     CopyFrom(other);
+  }
+}
+
+EZ_FORCE_INLINE void ezVariant::operator=(ezVariant&& other)
+{
+  if (this != &other)
+  {
+    Release();
+    MoveFrom(std::move(other));
   }
 }
 
@@ -95,6 +109,16 @@ EZ_FORCE_INLINE const T& ezVariant::Get() const
   return Cast<T>();
 }
 
+EZ_FORCE_INLINE void* ezVariant::GetData()
+{
+  return m_bIsShared ? m_Data.shared->m_Ptr : &m_Data;
+}
+
+EZ_FORCE_INLINE const void* ezVariant::GetData() const
+{
+  return m_bIsShared ? m_Data.shared->m_Ptr : &m_Data;
+}
+
 template <typename T>
 EZ_FORCE_INLINE bool ezVariant::CanConvertTo() const
 {
@@ -102,11 +126,11 @@ EZ_FORCE_INLINE bool ezVariant::CanConvertTo() const
 }
 
 template <typename T>
-T ezVariant::ConvertTo(ezResult* out_pConversionStatus /* = NULL*/) const
+T ezVariant::ConvertTo(ezResult* out_pConversionStatus /* = nullptr*/) const
 {
   if (!CanConvertTo<T>())
   {
-    if (out_pConversionStatus != NULL)
+    if (out_pConversionStatus != nullptr)
       *out_pConversionStatus = EZ_FAILURE;
 
     return T();
@@ -114,7 +138,7 @@ T ezVariant::ConvertTo(ezResult* out_pConversionStatus /* = NULL*/) const
 
   if (m_Type == TypeDeduction<T>::value)
   {
-    if (out_pConversionStatus != NULL)
+    if (out_pConversionStatus != nullptr)
       *out_pConversionStatus = EZ_SUCCESS;
 
     return Cast<T>();
@@ -124,7 +148,7 @@ T ezVariant::ConvertTo(ezResult* out_pConversionStatus /* = NULL*/) const
   bool bSuccessful = true;
   ezVariantHelper::To(*this, result, bSuccessful);
 
-  if (out_pConversionStatus != NULL)
+  if (out_pConversionStatus != nullptr)
     *out_pConversionStatus = bSuccessful ? EZ_SUCCESS : EZ_FAILURE;
 
   return result;
@@ -144,6 +168,22 @@ void ezVariant::DispatchTo(Functor& functor, Type::Enum type)
   {
   case Type::Bool:
     CALL_FUNCTOR(functor, bool);
+    break;
+
+  case Type::Int8:
+    CALL_FUNCTOR(functor, ezInt8);
+    break;
+
+  case Type::UInt8:
+    CALL_FUNCTOR(functor, ezUInt8);
+    break;
+
+  case Type::Int16:
+    CALL_FUNCTOR(functor, ezInt16);
+    break;
+
+  case Type::UInt16:
+    CALL_FUNCTOR(functor, ezUInt16);
     break;
 
   case Type::Int32:
@@ -214,9 +254,9 @@ void ezVariant::DispatchTo(Functor& functor, Type::Enum type)
     CALL_FUNCTOR(functor, ezVariantDictionary);
     break;
 
-  /*case Type::ObjectPointer:
-    CALL_FUNCTOR(functor, ezObject*);
-    break;*/
+  case Type::ReflectedPointer:
+    CALL_FUNCTOR(functor, ezReflectedClass*);
+    break;
 
   case Type::VoidPointer:
     CALL_FUNCTOR(functor, void*);
@@ -245,6 +285,7 @@ EZ_FORCE_INLINE void ezVariant::Init(const T& value)
 template <typename StorageType, typename T>
 EZ_FORCE_INLINE void ezVariant::Store(const T& value, ezTraitInt<0>)
 {
+  EZ_CHECK_AT_COMPILETIME_MSG(ezIsPodType<T>::value, "in place data needs to be POD");
   ezMemoryUtils::Construct(reinterpret_cast<T*>(&m_Data), value, 1);
   m_bIsShared = false;
 }
@@ -254,6 +295,44 @@ EZ_FORCE_INLINE void ezVariant::Store(const T& value, ezTraitInt<1>)
 {
   m_Data.shared = EZ_DEFAULT_NEW(TypedSharedData<StorageType>)(value);
   m_bIsShared = true;
+}
+
+inline void ezVariant::Release()
+{
+  if (m_bIsShared)
+  {
+    if (m_Data.shared->m_uiRef.Decrement() == 0)
+    {
+      EZ_DEFAULT_DELETE(m_Data.shared);
+    }
+  }
+}
+
+inline void ezVariant::CopyFrom(const ezVariant& other)
+{
+  m_Type = other.m_Type;
+  m_bIsShared = other.m_bIsShared;
+  
+  if (m_bIsShared)
+  {
+    m_Data.shared = other.m_Data.shared;
+    m_Data.shared->m_uiRef.Increment();
+  }
+  else if (other.IsValid())
+  {
+    m_Data = other.m_Data;
+  }
+}
+
+EZ_FORCE_INLINE void ezVariant::MoveFrom(ezVariant&& other)
+{
+  m_Type = other.m_Type;
+  m_bIsShared = other.m_bIsShared;
+  m_Data = other.m_Data;
+
+  other.m_Type = Type::Invalid;
+  other.m_bIsShared = false;
+  other.m_Data.shared = nullptr;
 }
 
 template <typename T>
@@ -295,6 +374,14 @@ T ezVariant::ConvertNumber() const
   {
   case Type::Bool:
     return static_cast<T>(Cast<bool>());
+  case Type::Int8:
+    return static_cast<T>(Cast<ezInt8>());
+  case Type::UInt8:
+    return static_cast<T>(Cast<ezUInt8>());
+  case Type::Int16:
+    return static_cast<T>(Cast<ezInt16>());
+  case Type::UInt16:
+    return static_cast<T>(Cast<ezUInt16>());
   case Type::Int32:
     return static_cast<T>(Cast<ezInt32>());
   case Type::UInt32:

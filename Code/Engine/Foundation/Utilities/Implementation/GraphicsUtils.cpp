@@ -51,7 +51,7 @@ ezResult ezGraphicsUtils::ConvertScreenPosToWorldPos(const ezMat4& InverseModelV
 
   out_vPoint = vWorldSpacePoint.GetAsVec3() / vWorldSpacePoint.w;
 
-  if (out_vDirection != NULL)
+  if (out_vDirection != nullptr)
   {
     vToUnProject.z += 0.1f; // a point that is a bit further away
 

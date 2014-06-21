@@ -1,0 +1,55 @@
+
+#define TOSTR(a) #a
+#define TOSTR2(a, b) #a#b
+
+#define VARIABLE strvar
+#define VARIABLE2 str var 2
+
+#include "../Preprocessor/Includes/Utils.txt"
+
+#define CONCAT(a, b) a##b
+#define VARIABLE3(a) CONCAT(var,a)
+
+// Block 1
+TOSTR(str1)
+TOSTR2(str1, str2)
+EZ_STRINGIZE(str3)
+TOSTR(str1)TOSTR2(str1, str2)EZ_STRINGIZE(str3)
+
+// Block 2
+TOSTR(VARIABLE)
+TOSTR2(VARIABLE)
+EZ_STRINGIZE(VARIABLE)
+TOSTR(VARIABLE)TOSTR2(VARIABLE)EZ_STRINGIZE(VARIABLE)
+
+// Block 3
+TOSTR(VARIABLE2)
+TOSTR2(VARIABLE2)
+EZ_STRINGIZE(VARIABLE2)
+TOSTR(VARIABLE2)TOSTR2(VARIABLE2)EZ_STRINGIZE(VARIABLE2)
+
+// Block 4
+TOSTR
+ (
+   VARIABLE3(str1)
+ )
+TOSTR2(
+  VARIABLE3(str1
+  )   ,EZ_STRINGIZE  (   VARIABLE3(str2  ) )
+  )
+EZ_STRINGIZE
+
+
+(VARIABLE3(
+str3)
+)
+
+// Block 5
+TOSTR(VARIABLE3(str1)// comment1
+)
+TOSTR2(VARIABLE3(str1) /*comment2 */  ,EZ_STRINGIZE ( /*comment3*/VARIABLE3(str2) )  )
+EZ_STRINGIZE(VARIABLE3(str3/*comment4*/)/*comment5*/)
+
+EZ_STRINGIZE("a string")
+EZ_STRINGIZE("a newline
+in a string, \n not that")

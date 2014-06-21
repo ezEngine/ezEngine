@@ -86,7 +86,7 @@ public:
   bool IsValidCellCoordinate(const ezVec2I32& Coord) const;
 
   /// \brief Casts a world space ray through the grid and determines which cell is hit (if any).
-  bool PickCell(const ezVec3& vRayStartPos, const ezVec3& vRayDirNorm, ezVec2I32* out_CellCoord, ezVec3* out_vIntersection = NULL) const;
+  bool PickCell(const ezVec3& vRayStartPos, const ezVec3& vRayDirNorm, ezVec2I32* out_CellCoord, ezVec3* out_vIntersection = nullptr) const;
 
 private:
   ezUInt16 m_uiWidth;

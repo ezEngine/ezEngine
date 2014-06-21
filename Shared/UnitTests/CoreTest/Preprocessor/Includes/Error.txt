@@ -1,0 +1,3 @@
+
+#line 100
+#error "This is an error"

@@ -3,9 +3,9 @@
 #include <Core/Input/InputManager.h>
 #include <Foundation/Strings/StringBuilder.h>
 
-EZ_BEGIN_REFLECTED_TYPE(ezVirtualThumbStick, ezInputDevice, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVirtualThumbStick, ezInputDevice, ezRTTINoAllocator);
   // no properties or message handlers
-EZ_END_REFLECTED_TYPE(ezVirtualThumbStick);
+EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 ezInt32 ezVirtualThumbStick::s_iThumbsticks = 0;
 
@@ -19,7 +19,7 @@ ezVirtualThumbStick::ezVirtualThumbStick()
 
   ezStringBuilder s;
   s.Format("Thumbstick_%i", s_iThumbsticks);
-  m_sName = s.GetData();
+  m_sName = s;
 
   ++s_iThumbsticks;
 
@@ -68,7 +68,7 @@ void ezVirtualThumbStick::SetTriggerInputSlot(ezVirtualThumbStick::Input::Enum I
     break;
   case ezVirtualThumbStick::Input::Custom:
     {
-      EZ_ASSERT(pCustomConfig != NULL, "Must pass a custom config, if you want to have a custom config.");
+      EZ_ASSERT(pCustomConfig != nullptr, "Must pass a custom config, if you want to have a custom config.");
 
       for (ezInt32 i = 0; i < ezInputActionConfig::MaxInputSlotAlternatives; ++i)
       {

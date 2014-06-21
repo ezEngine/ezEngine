@@ -24,9 +24,9 @@ public:
   }
 
   /// \brief Returns the actual type of the property. You can then compare that with known types, eg. compare it to ezGetStaticRTTI<int>() to see whether this is an int property.
-  virtual const ezRTTI* GetPropertyType() const EZ_OVERRIDE // [tested]
+  virtual const ezRTTI* GetPropertyType() const override // [tested]
   {
-    return ezGetStaticRTTI<Type>();
+    return ezGetStaticRTTI<typename ezTypeTraits<Type>::NonConstReferenceType>();
   }
 
   /// \brief Returns the value of the property. Pass the instance pointer to the surrounding class along.
@@ -53,40 +53,40 @@ public:
   /// \brief Constructor.
   ezAccessorProperty(const char* szPropertyName, GetterFunc getter, SetterFunc setter) : ezTypedMemberProperty<Type>(szPropertyName)
   {
-    EZ_ASSERT(getter != NULL, "The getter of a property cannot be NULL.");
+    EZ_ASSERT(getter != nullptr, "The getter of a property cannot be nullptr.");
 
     m_Getter = getter;
     m_Setter = setter;
   }
 
-  /// \brief Always returns NULL; once a property is modified through accessors, there is no point in giving more direct access to others.
-  virtual void* GetPropertyPointer(const void* pInstance) const EZ_OVERRIDE
+  /// \brief Always returns nullptr; once a property is modified through accessors, there is no point in giving more direct access to others.
+  virtual void* GetPropertyPointer(const void* pInstance) const override
   {
     // No access to sub-properties, if we have accessors for this property
-    return NULL;
+    return nullptr;
   }
 
   /// \brief Returns whether the property can be modified or is read-only.
-  virtual bool IsReadOnly() const EZ_OVERRIDE // [tested]
+  virtual bool IsReadOnly() const override // [tested]
   {
-    return m_Setter == NULL;
+    return m_Setter == nullptr;
   }
 
     /// \brief Returns the value of the property. Pass the instance pointer to the surrounding class along.
-  virtual Type GetValue(const void* pInstance) const EZ_OVERRIDE // [tested]
+  virtual Type GetValue(const void* pInstance) const override // [tested]
   {
-    return (((Class*) pInstance)->*m_Getter)();
+    return (static_cast<const Class*>(pInstance)->*m_Getter)();
   }
 
   /// \brief Modifies the value of the property. Pass the instance pointer to the surrounding class along.
   ///
   /// \note Make sure the property is not read-only before calling this, otherwise an assert will fire.
-  virtual void SetValue(void* pInstance, Type value) EZ_OVERRIDE // [tested]
+  virtual void SetValue(void* pInstance, Type value) override // [tested]
   {
-    EZ_ASSERT(m_Setter != NULL, "The property '%s' has no setter function, thus it is read-only.", ezAbstractProperty::GetPropertyName());
+    EZ_ASSERT(m_Setter != nullptr, "The property '%s' has no setter function, thus it is read-only.", ezAbstractProperty::GetPropertyName());
 
     if (m_Setter)
-      (((Class*) pInstance)->*m_Setter)(value);
+      (static_cast<Class*>(pInstance)->*m_Setter)(value);
   }
 
 private:
@@ -131,7 +131,7 @@ public:
   /// \brief Constructor.
   ezMemberProperty(const char* szPropertyName, GetterFunc getter, SetterFunc setter, PointerFunc pointer) : ezTypedMemberProperty<Type>(szPropertyName)
   {
-    EZ_ASSERT(getter != NULL, "The getter of a property cannot be NULL.");
+    EZ_ASSERT(getter != nullptr, "The getter of a property cannot be nullptr.");
 
     m_Getter = getter;
     m_Setter = setter;
@@ -139,19 +139,19 @@ public:
   }
 
   /// \brief Returns a pointer to the member property.
-  virtual void* GetPropertyPointer(const void* pInstance) const EZ_OVERRIDE
+  virtual void* GetPropertyPointer(const void* pInstance) const override
   {
     return m_Pointer(static_cast<const Class*>(pInstance));
   }
 
   /// \brief Returns whether the property can be modified or is read-only.
-  virtual bool IsReadOnly() const EZ_OVERRIDE
+  virtual bool IsReadOnly() const override
   {
-    return m_Setter == NULL;
+    return m_Setter == nullptr;
   }
 
     /// \brief Returns the value of the property. Pass the instance pointer to the surrounding class along.
-  virtual Type GetValue(const void* pInstance) const EZ_OVERRIDE
+  virtual Type GetValue(const void* pInstance) const override
   {
     return m_Getter(static_cast<const Class*>(pInstance));
   }
@@ -159,9 +159,9 @@ public:
   /// \brief Modifies the value of the property. Pass the instance pointer to the surrounding class along.
   ///
   /// \note Make sure the property is not read-only before calling this, otherwise an assert will fire.
-  virtual void SetValue(void* pInstance, Type value) EZ_OVERRIDE
+  virtual void SetValue(void* pInstance, Type value) override
   {
-    EZ_ASSERT(m_Setter != NULL, "The property '%s' has no setter function, thus it is read-only.", ezAbstractProperty::GetPropertyName());
+    EZ_ASSERT(m_Setter != nullptr, "The property '%s' has no setter function, thus it is read-only.", ezAbstractProperty::GetPropertyName());
 
     if (m_Setter)
       m_Setter(static_cast<Class*>(pInstance), value);

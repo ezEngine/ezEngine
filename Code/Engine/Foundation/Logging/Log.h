@@ -2,7 +2,6 @@
 
 #include <Foundation/Communication/Event.h>
 #include <Foundation/Threading/AtomicInteger.h>
-#include <Foundation/Threading/ThreadLocalPointer.h>
 #include <Foundation/Strings/StringUtils.h>
 
 /// \brief Use this helper macro to easily create a scoped logging group. Will generate unique variable names to make the static code analysis happy.
@@ -59,7 +58,7 @@ typedef ezEvent<const ezLoggingEventData&, ezMutex> ezLoggingEvent;
 class EZ_FOUNDATION_DLL ezLogInterface
 {
 public:
-  ezLogInterface() { m_pCurrentBlock = NULL; }
+  ezLogInterface() { m_pCurrentBlock = nullptr; }
 
   /// \brief Override this function to handle logging events.
   virtual void HandleLogMessage(const ezLoggingEventData& le) = 0;
@@ -79,7 +78,7 @@ class EZ_FOUNDATION_DLL ezGlobalLog : public ezLogInterface
 public:
   static ezGlobalLog* GetInstance();
 
-  virtual void HandleLogMessage(const ezLoggingEventData& le) EZ_OVERRIDE;
+  virtual void HandleLogMessage(const ezLoggingEventData& le) override;
 
   /// \brief LogLevel is between ezLogEventType::None and ezLogEventType::All and defines which messages will be logged and which will be filtered out.
   static void SetLogLevel(ezLogMsgType::Enum LogLevel);

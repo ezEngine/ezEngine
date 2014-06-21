@@ -1,0 +1,17 @@
+#line 10
+__FILE__:__LINE__: a
+
+#line 20 
+__FILE__:__LINE__: b
+
+#line 30 "lc1"
+__FILE__:__LINE__: c
+
+#line 11 "lc2"
+__FILE__:__LINE__: d
+
+#include "Test/../Includes\LineControl Include.txt"
+__FILE__:__LINE__: e
+
+#line 21 "lc3"
+__FILE__:__LINE__: f

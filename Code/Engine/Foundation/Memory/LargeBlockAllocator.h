@@ -75,7 +75,7 @@ public:
   EZ_FORCE_INLINE void DeallocateBlock(ezDataBlock<T>& block)
   {
     Deallocate(block.m_pData);
-    block.m_pData = NULL;
+    block.m_pData = nullptr;
     block.m_uiCount = 0;
   }
 
@@ -95,7 +95,7 @@ private:
   ezAllocatorId m_Id;
 
   ezMutex m_mutex;
-  ezThreadHandle m_threadHandle;
+  ezThreadID m_ThreadID;
 
   struct SuperBlock
   {

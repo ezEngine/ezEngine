@@ -17,15 +17,16 @@ void ezSystemInformation::Initialize()
   size_t uiLength = sizeof(iPhysicalMemory);
   
   mib[0] = CTL_HW; mib[1] = HW_MEMSIZE;
-  sysctl(mib, 2, &iPhysicalMemory, &uiLength, NULL, 0);
+  sysctl(mib, 2, &iPhysicalMemory, &uiLength, nullptr, 0);
   
   s_SystemInformation.m_uiInstalledMainMemory = iPhysicalMemory;
   
-  /// \todo Not correct for 32 bit process on 64 bit system
+  // Not correct for 32 bit process on 64 bit system
 #if EZ_ENABLED(EZ_PLATFORM_64BIT)
   s_SystemInformation.m_b64BitOS = true;
 #else
   s_SystemInformation.m_b64BitOS = false;
+  #error "32 Bit builds are not supported on OSX"
 #endif
 
   s_SystemInformation.m_szPlatformName = "OSX";

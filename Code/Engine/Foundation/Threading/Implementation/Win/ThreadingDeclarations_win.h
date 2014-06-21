@@ -5,6 +5,7 @@
 
 typedef CRITICAL_SECTION ezMutexHandle;
 typedef HANDLE ezThreadHandle;
+typedef DWORD ezThreadID;
 typedef DWORD (__stdcall *ezOSThreadEntryPoint)(LPVOID lpThreadParameter);
 typedef DWORD ezThreadLocalStorageKey;
 

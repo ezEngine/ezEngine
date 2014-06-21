@@ -12,7 +12,7 @@ static bool IsWhitespace(char c)
 
 static void SkipWhitespace(const char*& szString)
 {
-  if (szString == NULL)
+  if (szString == nullptr)
     return;
 
   while (*szString != '\0' && IsWhitespace(*szString))
@@ -126,7 +126,7 @@ ezResult StringToInt64(const char* szString, ezInt64& out_Res, const char** out_
 
   out_Res = iCurRes;
 
-  if (out_LastParsePosition != NULL)
+  if (out_LastParsePosition != nullptr)
     *out_LastParsePosition = szString;
 
   return EZ_SUCCESS;
@@ -182,7 +182,7 @@ ezResult StringToFloat(const char* szString, double& out_Res, const char** out_L
         continue;
       }
 
-      if (c == 'e')
+      if ((c == 'e') || (c == 'E'))
       {
         Part = Exponent;
         ++szString;
@@ -207,7 +207,7 @@ ezResult StringToFloat(const char* szString, double& out_Res, const char** out_L
         continue;
       }
 
-      if (c == 'e')
+      if ((c == 'e') || (c == 'E'))
       {
         Part = Exponent;
         ++szString;
@@ -230,12 +230,6 @@ ezResult StringToFloat(const char* szString, double& out_Res, const char** out_L
         ++szString;
         continue;
       }
-    }
-
-    if ((c == 'f') || (c == 'd'))
-    {
-      // if we find an 'f', skip it as well, then stop parsing
-      ++szString;
     }
 
     // found something that is not part of a float value -> stop parsing here
@@ -374,6 +368,77 @@ ezResult StringToBool(const char* szString, bool& out_Res, const char** out_Last
   return EZ_FAILURE;
 }
 
+ezUInt32 ExtractFloatsFromString(const char* szText, ezUInt32 uiNumFloats, float* out_pFloats, const char** out_LastParsePosition)
+{
+  ezUInt32 uiFloatsFound = 0;
+
+  // just try to extract n floats from the given text
+  // if n floats were extracted, or the text end is reached, stop
+
+  while (*szText != '\0' && uiFloatsFound < uiNumFloats)
+  {
+    double res;
+    const char* szPos;
+
+    // if successful, store the float, otherwise advance the string by one, to skip invalid characters
+    if (StringToFloat(szText, res, &szPos) == EZ_SUCCESS)
+    {
+      out_pFloats[uiFloatsFound] = (float) res;
+      ++uiFloatsFound;
+
+      szText = szPos;
+    }
+    else
+      ++szText;
+  }
+
+  if (out_LastParsePosition != nullptr)
+    *out_LastParsePosition = szText;
+
+  return uiFloatsFound;
+}
+
+ezInt8 HexCharacterToIntValue(char Character)
+{
+  if (Character >= '0' && Character <= '9')
+    return Character - '0';
+
+  if (Character >= 'a' && Character <= 'f')
+    return Character - 'a' + 10;
+
+  if (Character >= 'A' && Character <= 'F')
+    return Character - 'A' + 10;
+
+  return -1;
+}
+
+ezString ToString(ezInt8 value)
+{
+  ezStringBuilder sb;
+  sb.Format("%i", (ezInt32)value);
+  return sb;
+}
+
+ezString ToString(ezUInt8 value)
+{
+  ezStringBuilder sb;
+  sb.Format("%u", (ezUInt32)value);
+  return sb;
+}
+
+ezString ToString(ezInt16 value)
+{
+  ezStringBuilder sb;
+  sb.Format("%i", (ezInt32)value);
+  return sb;
+}
+
+ezString ToString(ezUInt16 value)
+{
+  ezStringBuilder sb;
+  sb.Format("%u", (ezUInt32)value);
+  return sb;
+}
 
 ezString ToString(ezInt32 value)
 {

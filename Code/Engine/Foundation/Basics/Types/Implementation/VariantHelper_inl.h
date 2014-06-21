@@ -1,7 +1,9 @@
 
 class ezVariantHelper
 {
-public:
+  friend class ezVariant;
+  friend struct ConvertFunc;
+
   template <typename T>
   EZ_FORCE_INLINE static bool CompareFloat(const ezVariant& v, const T& other, ezTraitInt<1>)
   {
@@ -40,6 +42,34 @@ public:
     }
     else
       EZ_REPORT_FAILURE("Conversion to bool failed");
+  }
+
+  static void To(const ezVariant& value, ezInt8& result, bool& bSuccessful)
+  {
+    ezInt32 tempResult;
+    To (value, tempResult, bSuccessful);
+    result = (ezInt8)tempResult;
+  }
+
+  static void To(const ezVariant& value, ezUInt8& result, bool& bSuccessful)
+  {
+    ezUInt32 tempResult;
+    To (value, tempResult, bSuccessful);
+    result = (ezUInt8)tempResult;
+  }
+
+  static void To(const ezVariant& value, ezInt16& result, bool& bSuccessful)
+  {
+    ezInt32 tempResult;
+    To (value, tempResult, bSuccessful);
+    result = (ezInt16)tempResult;
+  }
+
+  static void To(const ezVariant& value, ezUInt16& result, bool& bSuccessful)
+  {
+    ezUInt32 tempResult;
+    To (value, tempResult, bSuccessful);
+    result = (ezUInt16)tempResult;
   }
 
   static void To(const ezVariant& value, ezInt32& result, bool& bSuccessful)
@@ -164,7 +194,6 @@ public:
     bSuccessful = false;
   }
 
-private:
   struct ToStringFunc
   {
     template <typename T>

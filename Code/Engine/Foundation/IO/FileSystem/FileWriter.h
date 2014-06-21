@@ -1,10 +1,10 @@
 #pragma once
 
-#include <Foundation/IO/IBinaryStream.h>
+#include <Foundation/IO/Stream.h>
 #include <Foundation/IO/FileSystem/Implementation/FileReaderWriterBase.h>
 #include <Foundation/Containers/DynamicArray.h>
 
-/// \brief The default class to use to write data to a file, implements the ezIBinaryStreamWriter interface.
+/// \brief The default class to use to write data to a file, implements the ezStreamWriterBase interface.
 ///
 /// This file writer buffers writes up to a certain amount of bytes (configurable).
 /// It closes the file automatically once it goes out of scope.
@@ -32,14 +32,14 @@ public:
   /// \brief Writes the given number of bytes to the file. Returns EZ_SUCCESS if all bytes were successfully written.
   ///
   /// As this class buffers writes with an internal cache, EZ_SUCCESS does NOT mean that the data is actually written to disk.
-  virtual ezResult WriteBytes(const void* pWriteBuffer, ezUInt64 uiBytesToWrite) EZ_OVERRIDE;
+  virtual ezResult WriteBytes(const void* pWriteBuffer, ezUInt64 uiBytesToWrite) override;
 
   /// \brief Will write anything that's currently in the write-cache to disk. Will decrease performance if used excessively.
   ///
   /// \note Flush only guarantees that the data is sent through the OS file functions. It does not guarantee that the OS
   /// actually wrote the data on the disk, it might still use buffer itself and thus an application that crashes might
   /// still see data loss even when 'Flush' had been called.
-  virtual ezResult Flush() EZ_OVERRIDE; 
+  virtual ezResult Flush() override; 
 
 private:
   ezUInt64 m_uiCacheWritePosition;

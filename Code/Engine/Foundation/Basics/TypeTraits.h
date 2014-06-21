@@ -61,10 +61,18 @@ struct ezConversionTest<T, T>
 };
 
 
+#ifdef __INTELLISENSE__
+
+#define EZ_DECLARE_POD_TYPE()
+
+#else
+
 /// \brief Embed this into a class to mark it as a POD type.
 /// POD types will get special treatment from allocators and container classes, such that they are faster to construct and copy.
 #define EZ_DECLARE_POD_TYPE() \
   ezCompileTimeTrueType operator%(const ezTypeIsPod&) const
+
+#endif
 
 /// \brief Defines a type T as Pod.
 /// POD types will get special treatment from allocators and container classes, such that they are faster to construct and copy.
@@ -98,14 +106,26 @@ template <typename T>
 struct ezTypeTraits
 {
 private:
-  template<typename U>
+  template <typename U>
   struct RemoveConst
   {
     typedef U type;
   };
 
-  template<typename U>
+  template <typename U>
   struct RemoveConst<const U>
+  {
+    typedef U type;
+  };
+
+  template <typename U>
+  struct RemoveReference
+  {
+    typedef U type;
+  };
+
+  template <typename U>
+  struct RemoveReference<U&>
   {
     typedef U type;
   };
@@ -113,5 +133,11 @@ private:
 public:
   /// \brief removes const qualifier
   typedef typename RemoveConst<T>::type NonConstType;
+
+  /// \brief removes reference
+  typedef typename RemoveReference<T>::type NonReferenceType;
+
+  /// \brief removes reference and const qualifier
+  typedef typename RemoveConst<typename RemoveReference<T>::type>::type NonConstReferenceType;
 };
 

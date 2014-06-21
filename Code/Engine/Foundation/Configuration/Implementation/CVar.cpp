@@ -2,6 +2,7 @@
 #include <Foundation/Configuration/Plugin.h>
 #include <Foundation/Configuration/CVar.h>
 #include <Foundation/Configuration/Startup.h>
+#include <Foundation/Containers/Map.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 
@@ -18,21 +19,9 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, CVars)
     "FileSystem"
   END_SUBSYSTEM_DEPENDENCIES
 
-  ON_BASE_STARTUP
+  ON_CORE_STARTUP
   {
     ezPlugin::s_PluginEvents.AddEventHandler(ezCVar::PluginEventHandler);
-  }
-
-  ON_BASE_SHUTDOWN
-  {
-    ezPlugin::s_PluginEvents.RemoveEventHandler(ezCVar::PluginEventHandler);
-  }
-
-  ON_ENGINE_SHUTDOWN
-  {
-    // save the CVars every time the engine is shut down
-    // at this point the filesystem should usually still be configured properly
-    ezCVar::SaveCVars();
   }
 
   ON_CORE_SHUTDOWN
@@ -41,6 +30,15 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, CVars)
     // at this point the filesystem might already be uninitialized by the user (data dirs)
     // in that case the variables cannot be saved, but it will fail silently
     // if it succeeds, the most recent state will be serialized though
+    ezCVar::SaveCVars();
+
+    ezPlugin::s_PluginEvents.RemoveEventHandler(ezCVar::PluginEventHandler);
+  }
+
+  ON_ENGINE_SHUTDOWN
+  {
+    // save the CVars every time the engine is shut down
+    // at this point the filesystem should usually still be configured properly
     ezCVar::SaveCVars();
   }
 
@@ -59,7 +57,7 @@ void ezCVar::AssignSubSystemPlugin(const char* szPluginName)
 
   while (pCVar)
   {
-    if (pCVar->m_szPluginName == NULL)
+    if (pCVar->m_szPluginName == nullptr)
       pCVar->m_szPluginName = szPluginName;
 
     pCVar = pCVar->GetNextInstance();
@@ -104,7 +102,7 @@ void ezCVar::PluginEventHandler(const ezPlugin::PluginEvent& EventData)
 
 ezCVar::ezCVar(const char* szName, ezBitflags<ezCVarFlags> Flags, const char* szDescription)
 {
-  m_szPluginName = NULL; // will be filled out when plugins are loaded
+  m_szPluginName = nullptr; // will be filled out when plugins are loaded
   m_bHasNeverBeenLoaded = true; // next time 'LoadCVars' is called, its state will be changed
 
   m_szName = szName;
@@ -128,7 +126,7 @@ ezCVar* ezCVar::FindCVarByName(const char* szName)
     pCVar = pCVar->GetNextInstance();
   }
 
-  return NULL;
+  return nullptr;
 }
 
 void ezCVar::SetStorageFolder(const char* szFolder)
@@ -151,7 +149,7 @@ void ezCVar::SaveCVars()
       // only store cvars that should be saved
       if (pCVar->GetFlags().IsAnySet(ezCVarFlags::Save))
       {
-        if (pCVar->m_szPluginName != NULL)
+        if (pCVar->m_szPluginName != nullptr)
           PluginCVars[pCVar->m_szPluginName].PushBack(pCVar);
         else
           PluginCVars["Static"].PushBack(pCVar);
@@ -221,7 +219,7 @@ void ezCVar::SaveCVars()
 
 }
 
-static ezResult ReadLine(ezIBinaryStreamReader& Stream, ezStringBuilder& sLine)
+static ezResult ReadLine(ezStreamReaderBase& Stream, ezStringBuilder& sLine)
 {
   sLine.Clear();
 
@@ -266,7 +264,7 @@ static ezResult ParseLine(const ezStringBuilder& sLine, ezStringBuilder& VarName
 
   const char* szSign = sLine.FindSubString("=");
 
-  if (szSign == NULL)
+  if (szSign == nullptr)
     return EZ_FAILURE;
 
   {
@@ -322,7 +320,7 @@ void ezCVar::LoadCVars(bool bOnlyNewOnes, bool bSetAsCurrentValue)
       {
         if (!bOnlyNewOnes || pCVar->m_bHasNeverBeenLoaded)
         {
-          if (pCVar->m_szPluginName != NULL)
+          if (pCVar->m_szPluginName != nullptr)
             PluginCVars[pCVar->m_szPluginName].PushBack(pCVar);
           else
             PluginCVars["Static"].PushBack(pCVar);

@@ -11,6 +11,9 @@
 class EZ_FOUNDATION_DLL ezStringIterator : public ezStringBase<ezStringIterator>
 {
 public:
+  /// \brief Default constructor creates an invalid iterator.
+  ezStringIterator();
+
   /// \brief Creates a string iterator starting at the given position, ending at the next '\0' terminator.
   ///
   /// If bIsPureASCII is set to true, a little more efficient iterating method is used.

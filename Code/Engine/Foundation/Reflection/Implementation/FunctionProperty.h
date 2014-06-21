@@ -18,7 +18,7 @@ public:
   }
 
   /// \brief Calls the proper function on the provided instance.
-  virtual void Execute(void* pInstance) const EZ_OVERRIDE
+  virtual void Execute(void* pInstance) const override
   {
     CLASS* pTargetInstance = (CLASS*) pInstance;
     (pTargetInstance->*m_Function)();

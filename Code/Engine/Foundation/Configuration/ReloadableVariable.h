@@ -38,9 +38,6 @@ class EZ_FOUNDATION_DLL ezReloadableVariableBase : public ezEnumerable<ezReloada
 public:
   virtual ~ezReloadableVariableBase() { }
 
-  /// \brief Automatically called via the global event 'ezFoundation_Shutdown' to free the internal memory.
-  static void Shutdown();
-
   /// \brief Automatically called by ezPlugin whenever a plugin is unloaded, to preserve the current state of all reloadable global variables.
   static void StoreVariables();
 
@@ -57,12 +54,12 @@ private:
   EZ_DISALLOW_COPY_AND_ASSIGN(ezReloadableVariableBase);
 
   /// \brief Overridden by 'ezReloadableVariableWrapper' to implement type specific serialization.
-  virtual void SaveState(ezIBinaryStreamWriter& Stream) = 0;
+  virtual void SaveState(ezStreamWriterBase& Stream) = 0;
   /// \brief Overridden by 'ezReloadableVariableWrapper' to implement type specific serialization.
-  virtual void LoadState(ezIBinaryStreamReader& Stream) = 0;
+  virtual void LoadState(ezStreamReaderBase& Stream) = 0;
 
   /// \brief This map stores the last state of all known reloadable variables, to allow reading it back again on demand.
-  static ezMap<ezString, ezMemoryStreamStorage>* s_StoredVariables;
+  static ezMap<ezString, ezMemoryStreamStorage> s_StoredVariables;
 };
 
 /// \brief [internal] Helper class, derived from ezReloadableVariableBase, to implement type specific reloading of global variables.
@@ -75,8 +72,8 @@ public:
 private:
   EZ_DISALLOW_COPY_AND_ASSIGN(ezReloadableVariableWrapper);
 
-  virtual void SaveState(ezIBinaryStreamWriter& Stream) EZ_OVERRIDE;
-  virtual void LoadState(ezIBinaryStreamReader& Stream) EZ_OVERRIDE;
+  virtual void SaveState(ezStreamWriterBase& Stream) override;
+  virtual void LoadState(ezStreamReaderBase& Stream) override;
 
   Type& m_Variable;
 };

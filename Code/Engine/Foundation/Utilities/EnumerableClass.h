@@ -29,27 +29,27 @@ class ezEnumerable : public Base
 public:
   ezEnumerable()
   {
-    if (Derived::s_pFirstInstance == NULL)
+    if (Derived::s_pFirstInstance == nullptr)
       Derived::s_pFirstInstance = this;
     else
       Derived::s_pLastInstance->m_pNextInstance = this;
     
     Derived::s_pLastInstance = this;
-    m_pNextInstance = NULL;
+    m_pNextInstance = nullptr;
     ++Derived::s_uiInstances;
   }
   
   virtual ~ezEnumerable()
   {
     --Derived::s_uiInstances;
-    ezEnumerable* pPrev = NULL;
+    ezEnumerable* pPrev = nullptr;
     ezEnumerable* pCur = Derived::s_pFirstInstance;
     
     while (pCur)
     {
       if (pCur == this)
       {
-        if (pPrev == NULL)
+        if (pPrev == nullptr)
           Derived::s_pFirstInstance = m_pNextInstance;
         else
           pPrev->m_pNextInstance = m_pNextInstance;
@@ -94,7 +94,7 @@ protected:
 ///
 /// See class ezEnumerable for more details.
 #define EZ_ENUMERABLE_CLASS_IMPLEMENTATION(self) \
-  ezEnumerable<self, self::ezEnumerableBase>* self::s_pFirstInstance = NULL; \
-  ezEnumerable<self, self::ezEnumerableBase>* self::s_pLastInstance = NULL; \
+  ezEnumerable<self, self::ezEnumerableBase>* self::s_pFirstInstance = nullptr; \
+  ezEnumerable<self, self::ezEnumerableBase>* self::s_pLastInstance = nullptr; \
   ezUInt32 self::s_uiInstances = 0
 

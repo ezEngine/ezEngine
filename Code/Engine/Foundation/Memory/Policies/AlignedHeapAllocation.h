@@ -16,7 +16,7 @@ namespace ezMemoryPolicies
     void* Allocate(size_t uiSize, size_t uiAlign);
     void Deallocate(void* ptr);
     
-    EZ_FORCE_INLINE ezAllocatorBase* GetParent() const { return NULL; }
+    EZ_FORCE_INLINE ezAllocatorBase* GetParent() const { return nullptr; }
   };
 
   #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)

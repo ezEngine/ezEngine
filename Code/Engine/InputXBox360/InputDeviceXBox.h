@@ -19,23 +19,21 @@ public:
   /// \brief Destroys all devices of this type. Automatically called at engine shutdown.
   static void DestroyAllDevices();
 
-  virtual bool IsControllerConnected(ezUInt8 uiPhysical) const EZ_OVERRIDE;
+  virtual bool IsControllerConnected(ezUInt8 uiPhysical) const override;
 
 private:
-  virtual void ApplyVibration(ezUInt8 uiPhysicalController, Motor::Enum eMotor, float fStrength) EZ_OVERRIDE;
+  virtual void ApplyVibration(ezUInt8 uiPhysicalController, Motor::Enum eMotor, float fStrength) override;
 
   bool m_bControllerConnected[4];
 
-  virtual void InitializeDevice() EZ_OVERRIDE { }
-  virtual void UpdateInputSlotValues() EZ_OVERRIDE;
-  virtual void RegisterInputSlots() EZ_OVERRIDE;
-  virtual void UpdateHardwareState(ezTime tTimeDifference) EZ_OVERRIDE;
+  virtual void InitializeDevice() override { }
+  virtual void UpdateInputSlotValues() override;
+  virtual void RegisterInputSlots() override;
+  virtual void UpdateHardwareState(ezTime tTimeDifference) override;
 
   void SetValue(ezInt32 iController, const char* szButton, float fValue);
 
   static void RegisterControllerButton(const char* szButton, const char* szName, ezBitflags<ezInputSlotFlags> SlotFlags);
   static void SetDeadZone(const char* szButton);
 };
-
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_INPUTXBOX360_DLL, ezInputDeviceXBox360);
 

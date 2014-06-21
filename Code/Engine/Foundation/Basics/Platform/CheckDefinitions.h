@@ -36,10 +36,6 @@
   #error "EZ_ANALYSIS_IGNORE_ALL_END is not defined."
 #endif
 
-#ifndef EZ_OVERRIDE
-  #error "EZ_OVERRIDE is not defined."
-#endif
-
 #ifndef EZ_ALIGN
   #error "EZ_ALIGN is not defined."
 #endif

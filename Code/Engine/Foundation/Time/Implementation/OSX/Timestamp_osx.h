@@ -3,7 +3,7 @@
 const ezTimestamp ezTimestamp::CurrentTimestamp()
 {
   timeval currentTime;
-  gettimeofday(&currentTime, NULL);
+  gettimeofday(&currentTime, nullptr);
   
   return ezTimestamp(currentTime.tv_sec * 1000000LL + currentTime.tv_usec, ezSIUnitOfTime::Microsecond);
 }
@@ -21,14 +21,14 @@ const ezTimestamp ezDateTime::GetTimestamp() const
   if (!CFGregorianDateIsValid(gdate, kCFGregorianAllUnits))
     return ezTimestamp();
 
-  CFAbsoluteTime absTime = CFGregorianDateGetAbsoluteTime(gdate, NULL);
+  CFAbsoluteTime absTime = CFGregorianDateGetAbsoluteTime(gdate, nullptr);
   return ezTimestamp(static_cast<ezInt64>((absTime + kCFAbsoluteTimeIntervalSince1970) * 1000000.0), ezSIUnitOfTime::Microsecond);
 }
 
 bool ezDateTime::SetTimestamp(ezTimestamp timestamp)
 {
   CFAbsoluteTime at = (static_cast<CFAbsoluteTime>(timestamp.GetInt64(ezSIUnitOfTime::Microsecond) / 1000000.0)) - kCFAbsoluteTimeIntervalSince1970;
-  CFGregorianDate gdate = CFAbsoluteTimeGetGregorianDate(at, NULL);
+  CFGregorianDate gdate = CFAbsoluteTimeGetGregorianDate(at, nullptr);
   if (!CFGregorianDateIsValid(gdate, kCFGregorianAllUnits))
     return false;
 

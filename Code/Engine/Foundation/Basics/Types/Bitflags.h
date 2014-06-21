@@ -201,7 +201,7 @@ private:
 };
 
 
-/// This macro will define the operator| and operator& function that is required for class \a FlagsType to work with ezBitflags.
+/// \brief This macro will define the operator| and operator& function that is required for class \a FlagsType to work with ezBitflags.
 /// See class ezBitflags for more information.
 #define EZ_DECLARE_FLAGS_OPERATORS(FlagsType) \
   inline ezBitflags<FlagsType> operator|(FlagsType::Enum lhs, FlagsType::Enum rhs)    \

@@ -5,9 +5,9 @@
 
 EZ_ENUMERABLE_CLASS_IMPLEMENTATION(ezInputDevice);
 
-EZ_BEGIN_REFLECTED_TYPE(ezInputDevice, ezReflectedClass, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezInputDevice, ezReflectedClass, ezRTTINoAllocator);
   // no properties or message handlers
-EZ_END_REFLECTED_TYPE(ezInputDevice);
+EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 ezKeyState::Enum ezKeyState::GetNewKeyState(ezKeyState::Enum PrevState, bool bKeyDown)
 {
@@ -54,7 +54,7 @@ void ezInputDevice::Initialize()
 void ezInputDevice::UpdateAllHardwareStates(ezTime tTimeDifference)
 {
   // tell each device to update its hardware
-  for (ezInputDevice* pDevice = ezInputDevice::GetFirstInstance(); pDevice != NULL; pDevice = pDevice->GetNextInstance())
+  for (ezInputDevice* pDevice = ezInputDevice::GetFirstInstance(); pDevice != nullptr; pDevice = pDevice->GetNextInstance())
   {
     pDevice->UpdateHardwareState(tTimeDifference);
   }
@@ -63,7 +63,7 @@ void ezInputDevice::UpdateAllHardwareStates(ezTime tTimeDifference)
 void ezInputDevice::UpdateAllDevices()
 {
   // tell each device to update its current input slot values
-  for (ezInputDevice* pDevice = ezInputDevice::GetFirstInstance(); pDevice != NULL; pDevice = pDevice->GetNextInstance())
+  for (ezInputDevice* pDevice = ezInputDevice::GetFirstInstance(); pDevice != nullptr; pDevice = pDevice->GetNextInstance())
   {
     pDevice->Initialize();
     pDevice->UpdateInputSlotValues();
@@ -75,7 +75,7 @@ void ezInputDevice::ResetAllDevices()
   // tell all devices that the input update is through and they might need to reset some values now
   // this is especially important for device types that will get input messages at some undefined time after this call
   // but not during 'UpdateInputSlotValues'
-  for (ezInputDevice* pDevice = ezInputDevice::GetFirstInstance(); pDevice != NULL; pDevice = pDevice->GetNextInstance())
+  for (ezInputDevice* pDevice = ezInputDevice::GetFirstInstance(); pDevice != nullptr; pDevice = pDevice->GetNextInstance())
   {
     pDevice->ResetInputSlotValues();
   }
@@ -90,7 +90,7 @@ ezUInt32 ezInputDevice::RetrieveLastCharacter()
 
 ezUInt32 ezInputDevice::RetrieveLastCharacterFromAllDevices()
 {
-  for (ezInputDevice* pDevice = ezInputDevice::GetFirstInstance(); pDevice != NULL; pDevice = pDevice->GetNextInstance())
+  for (ezInputDevice* pDevice = ezInputDevice::GetFirstInstance(); pDevice != nullptr; pDevice = pDevice->GetNextInstance())
   {
     const ezUInt32 Char = pDevice->RetrieveLastCharacter();
 

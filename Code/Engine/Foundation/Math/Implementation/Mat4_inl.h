@@ -301,7 +301,7 @@ const ezVec3Template<Type> ezMat4Template<Type>::TransformPosition(const ezVec3T
 template<typename Type>
 void ezMat4Template<Type>::TransformPosition(ezVec3Template<Type>* inout_v, ezUInt32 uiNumVectors, ezUInt32 uiStride /* = sizeof(ezVec3Template) */) const
 {
-  EZ_ASSERT(inout_v != NULL, "Array must not be NULL.");
+  EZ_ASSERT(inout_v != nullptr, "Array must not be nullptr.");
   EZ_ASSERT(uiStride >= sizeof(ezVec3Template<Type>), "Data must not overlap.");
 
   ezVec3Template<Type>* pCur = inout_v;
@@ -328,7 +328,7 @@ const ezVec3Template<Type> ezMat4Template<Type>::TransformDirection(const ezVec3
 template<typename Type>
 void ezMat4Template<Type>::TransformDirection(ezVec3Template<Type>* inout_v, ezUInt32 uiNumVectors, ezUInt32 uiStride /* = sizeof(ezVec3Template<Type>) */) const
 {
-  EZ_ASSERT(inout_v != NULL, "Array must not be NULL.");
+  EZ_ASSERT(inout_v != nullptr, "Array must not be nullptr.");
   EZ_ASSERT(uiStride >= sizeof(ezVec3Template<Type>), "Data must not overlap.");
 
   ezVec3Template<Type>* pCur = inout_v;
@@ -356,7 +356,7 @@ const ezVec4Template<Type> ezMat4Template<Type>::Transform(const ezVec4Template<
 template<typename Type>
 void ezMat4Template<Type>::Transform(ezVec4Template<Type>* inout_v, ezUInt32 uiNumVectors, ezUInt32 uiStride /* = sizeof(ezVec4Template) */) const
 {
-  EZ_ASSERT(inout_v != NULL, "Array must not be NULL.");
+  EZ_ASSERT(inout_v != nullptr, "Array must not be nullptr.");
   EZ_ASSERT(uiStride >= sizeof(ezVec4Template<Type>), "Data must not overlap.");
 
   ezVec4Template<Type>* pCur = inout_v;

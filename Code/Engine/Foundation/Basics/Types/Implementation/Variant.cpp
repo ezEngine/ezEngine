@@ -1,5 +1,6 @@
 #include <Foundation/PCH.h>
 #include <Foundation/Basics/Types/Variant.h>
+#include <Foundation/Reflection/ReflectionUtils.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_64BIT)
   EZ_CHECK_AT_COMPILETIME(sizeof(ezVariant) == 24);
@@ -22,6 +23,58 @@ struct CompareFunc
   bool m_bResult;
 };
 
+struct IndexFunc
+{
+  template <typename T>
+  EZ_FORCE_INLINE ezVariant Impl(ezTraitInt<1>)
+  {
+    const ezRTTI* pRtti = ezGetStaticRTTI<T>();
+    return ezReflectionUtils::GetMemberPropertyValue(ezReflectionUtils::GetMemberProperty(pRtti, m_uiIndex), m_pThis->GetData());
+  }
+
+  template <typename T>
+  EZ_FORCE_INLINE ezVariant Impl(ezTraitInt<0>)
+  {
+    return ezVariant();
+  }
+
+  template <typename T>
+  EZ_FORCE_INLINE void operator()()
+  {
+    m_Result = Impl<T>(ezTraitInt<ezVariant::TypeDeduction<T>::hasReflectedMembers>());
+  }
+
+  const ezVariant* m_pThis;
+  ezVariant m_Result;
+  ezUInt32 m_uiIndex;
+};
+
+struct KeyFunc
+{
+  template <typename T>
+  EZ_FORCE_INLINE ezVariant Impl(ezTraitInt<1>)
+  {
+    const ezRTTI* pRtti = ezGetStaticRTTI<T>();
+    return ezReflectionUtils::GetMemberPropertyValue(ezReflectionUtils::GetMemberProperty(pRtti, m_szKey), m_pThis->GetData());
+  }
+
+  template <typename T>
+  EZ_FORCE_INLINE ezVariant Impl(ezTraitInt<0>)
+  {
+    return ezVariant();
+  }
+
+  template <typename T>
+  EZ_FORCE_INLINE void operator()()
+  {
+    m_Result = Impl<T>(ezTraitInt<ezVariant::TypeDeduction<T>::hasReflectedMembers>());
+  }
+
+  const ezVariant* m_pThis;
+  ezVariant m_Result;
+  const char* m_szKey;
+};
+
 struct ConvertFunc
 {
   template <typename T>
@@ -37,35 +90,15 @@ struct ConvertFunc
   bool m_bSuccessful;
 };
 
-struct DestructFunc
-{
-  template <typename T>
-  EZ_FORCE_INLINE void operator()()
-  {
-    ezMemoryUtils::Destruct(&m_pThis->Cast<T>(), 1);
-  }
-
-  ezVariant* m_pThis;
-};
-
-struct CopyFunc
-{
-  template <typename T>
-  EZ_FORCE_INLINE void operator()()
-  {
-    m_pThis->Init(m_pOther->Cast<T>());
-  }
-
-  ezVariant* m_pThis;
-  const ezVariant* m_pOther;
-};
-
-
 /// public methods
 
 bool ezVariant::operator==(const ezVariant& other) const
 {
-  if (IsFloatingPoint(m_Type) && IsNumber(other.m_Type))
+  if (m_Type == Type::Invalid && other.m_Type == Type::Invalid)
+  {
+    return true;
+  }
+  else if (IsFloatingPoint(m_Type) && IsNumber(other.m_Type))
   {
     return ConvertNumber<double>() == other.ConvertNumber<double>();
   }
@@ -87,6 +120,62 @@ bool ezVariant::operator==(const ezVariant& other) const
   return false;
 }
 
+ezVariant ezVariant::operator[](ezUInt32 uiIndex) const
+{
+  if (m_Type == Type::VariantArray)
+  {
+    const ezVariantArray& a = Cast<ezVariantArray>();
+    if (uiIndex < a.GetCount())
+      return a[uiIndex];
+  }
+  else if (m_Type == Type::ReflectedPointer)
+  {
+    ezReflectedClass* pObject = Cast<ezReflectedClass*>();
+    const ezRTTI* pRtti = pObject->GetDynamicRTTI();
+    return ezReflectionUtils::GetMemberPropertyValue(ezReflectionUtils::GetMemberProperty(pRtti, uiIndex), pObject);
+  }
+  else if (IsValid())
+  {
+    IndexFunc func;
+    func.m_pThis = this;
+    func.m_uiIndex = uiIndex;
+
+    DispatchTo(func, GetType());
+
+    return func.m_Result;
+  }
+
+  return ezVariant();
+}
+
+ezVariant ezVariant::operator[](ezHashing::StringWrapper szKey) const
+{
+  if (m_Type == Type::VariantDictionary)
+  {
+    ezVariant result;
+    Cast<ezVariantDictionary>().TryGetValue(szKey.m_str, result);
+    return result;
+  }
+  else if (m_Type == Type::ReflectedPointer)
+  {
+    ezReflectedClass* pObject = Cast<ezReflectedClass*>();
+    const ezRTTI* pRtti = pObject->GetDynamicRTTI();
+    return ezReflectionUtils::GetMemberPropertyValue(ezReflectionUtils::GetMemberProperty(pRtti, szKey.m_str), pObject);
+  }
+  else if (IsValid())
+  {
+    KeyFunc func;
+    func.m_pThis = this;
+    func.m_szKey = szKey.m_str;
+
+    DispatchTo(func, GetType());
+
+    return func.m_Result;
+  }
+
+  return ezVariant();
+}
+
 bool ezVariant::CanConvertTo(Type::Enum type) const
 {
   if (m_Type == type) 
@@ -104,11 +193,11 @@ bool ezVariant::CanConvertTo(Type::Enum type) const
   return false;
 }
 
-ezVariant ezVariant::ConvertTo(Type::Enum type, ezResult* out_pConversionStatus /* = NULL*/) const
+ezVariant ezVariant::ConvertTo(Type::Enum type, ezResult* out_pConversionStatus /* = nullptr*/) const
 {
   if (!CanConvertTo(type))
   {
-    if (out_pConversionStatus != NULL)
+    if (out_pConversionStatus != nullptr)
       *out_pConversionStatus = EZ_FAILURE;
 
     return ezVariant(); // creates an invalid variant
@@ -116,7 +205,7 @@ ezVariant ezVariant::ConvertTo(Type::Enum type, ezResult* out_pConversionStatus 
 
   if (m_Type == type)
   {
-    if (out_pConversionStatus != NULL)
+    if (out_pConversionStatus != nullptr)
       *out_pConversionStatus = EZ_SUCCESS;
 
     return *this;
@@ -128,52 +217,11 @@ ezVariant ezVariant::ConvertTo(Type::Enum type, ezResult* out_pConversionStatus 
 
   DispatchTo(convertFunc, type);
 
-  if (out_pConversionStatus != NULL)
+  if (out_pConversionStatus != nullptr)
     *out_pConversionStatus = convertFunc.m_bSuccessful ? EZ_SUCCESS : EZ_FAILURE;
 
   return convertFunc.m_Result;
 }
-
-/// private methods
-
-void ezVariant::Release()
-{
-  if (m_bIsShared)
-  {
-    if (m_Data.shared->m_uiRef.Decrement() == 0)
-    {
-      EZ_DEFAULT_DELETE(m_Data.shared);
-    }
-  }
-  else if (IsValid())
-  {
-    DestructFunc destructFunc;
-    destructFunc.m_pThis = this;
-
-    DispatchTo(destructFunc, GetType());
-  }
-}
-
-void ezVariant::CopyFrom(const ezVariant& other)
-{
-  m_Type = other.m_Type;
-  m_bIsShared = other.m_bIsShared;
-  
-  if (m_bIsShared)
-  {
-    m_Data.shared = other.m_Data.shared;
-    m_Data.shared->m_uiRef.Increment();
-  }
-  else if (other.IsValid())
-  {
-    CopyFunc copyFunc;
-    copyFunc.m_pThis = this;
-    copyFunc.m_pOther = &other;
-
-    DispatchTo(copyFunc, GetType());
-  }
-}
-
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Basics_Types_Implementation_Variant);
 

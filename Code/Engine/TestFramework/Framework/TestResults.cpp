@@ -38,6 +38,7 @@ void ezTestResultData::Reset()
 {
   m_bExecuted = false;
   m_bSuccess = false;
+  m_iTestAsserts = 0;
   m_fTestDuration = 0.0;
   m_iFirstOutput = -1;
   m_iLastOutput = -1;
@@ -87,7 +88,6 @@ void ezTestFrameworkResult::SetupTests(const std::deque<ezTestEntry>& tests, con
   for (ezUInt32 uiTestIdx = 0; uiTestIdx < uiTestCount; ++uiTestIdx)
   {
     m_Tests.push_back(ezTestResult(tests[uiTestIdx].m_szTestName));
-    ezTestResult& testResult = *m_Tests.rbegin();
 
     const ezUInt32 uiSubTestCount = (ezUInt32)tests[uiTestIdx].m_SubTests.size();
     for (ezUInt32 uiSubTestIdx = 0; uiSubTestIdx < uiSubTestCount; ++uiSubTestIdx)
@@ -119,7 +119,7 @@ bool ezTestFrameworkResult::WriteJsonToFile(const char* szAbsFileName) const
     ezFileWriter file;
     if (file.Open(szAbsFileName) == EZ_FAILURE)
     {
-      ezStartup::ShutdownBase();
+      ezStartup::ShutdownCore();
       return false;
     }
     ezStandardJSONWriter js;
@@ -194,6 +194,7 @@ bool ezTestFrameworkResult::WriteJsonToFile(const char* szAbsFileName) const
             js.AddVariableString("m_sName", testResult.m_sName.c_str());
             js.AddVariableBool("m_bExecuted", testResult.m_bExecuted);
             js.AddVariableBool("m_bSuccess", testResult.m_bSuccess);
+            js.AddVariableInt32("m_iTestAsserts", testResult.m_iTestAsserts);
             js.AddVariableDouble("m_fTestDuration", testResult.m_fTestDuration);
             js.AddVariableInt32("m_iFirstOutput", testResult.m_iFirstOutput);
             js.AddVariableInt32("m_iLastOutput", testResult.m_iLastOutput);
@@ -210,6 +211,7 @@ bool ezTestFrameworkResult::WriteJsonToFile(const char* szAbsFileName) const
                   js.AddVariableString("m_sName", subTestResult.m_sName.c_str());
                   js.AddVariableBool("m_bExecuted", subTestResult.m_bExecuted);
                   js.AddVariableBool("m_bSuccess", subTestResult.m_bSuccess);
+                  js.AddVariableInt32("m_iTestAsserts", subTestResult.m_iTestAsserts);
                   js.AddVariableDouble("m_fTestDuration", subTestResult.m_fTestDuration);
                   js.AddVariableInt32("m_iFirstOutput", subTestResult.m_iFirstOutput);
                   js.AddVariableInt32("m_iLastOutput", subTestResult.m_iLastOutput);
@@ -227,7 +229,8 @@ bool ezTestFrameworkResult::WriteJsonToFile(const char* szAbsFileName) const
     }
     js.EndObject();
   }
-  ezStartup::ShutdownBase();
+
+  ezStartup::ShutdownCore();
   return true;
 }
 
@@ -388,6 +391,19 @@ void ezTestFrameworkResult::TestResult(ezUInt32 uiTestIndex, ezInt32 iSubTestInd
   if (iSubTestIndex != -1)
   {
     m_Tests[uiTestIndex].m_Result.m_fTestDuration += fDuration;
+  }
+}
+
+void ezTestFrameworkResult::AddAsserts(ezUInt32 uiTestIndex, ezInt32 iSubTestIndex, int iCount)
+{
+  if (uiTestIndex != -1)
+  {
+    m_Tests[uiTestIndex].m_Result.m_iTestAsserts += iCount;
+  }
+
+  if (iSubTestIndex != -1)
+  {
+    m_Tests[uiTestIndex].m_SubTests[iSubTestIndex].m_Result.m_iTestAsserts += iCount;
   }
 }
 

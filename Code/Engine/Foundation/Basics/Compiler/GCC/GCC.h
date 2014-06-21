@@ -6,8 +6,6 @@
 
 #define EZ_RESTRICT __restrict
 
-#define EZ_OVERRIDE override
-
 #define EZ_ALIGN(decl, alignment) __attribute__((aligned(alignment))) decl
 #define EZ_ALIGNMENT_OF(type) __alignof(type)
 

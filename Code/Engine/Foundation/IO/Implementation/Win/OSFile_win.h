@@ -20,22 +20,22 @@ ezResult ezOSFile::InternalOpen(const char* szFile, ezFileMode::Enum OpenMode)
   switch (OpenMode)
   {
   case ezFileMode::Read:
-    m_FileData.m_pFileHandle = CreateFileW(s.GetData(), GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING,  FILE_ATTRIBUTE_NORMAL, NULL); 
+    m_FileData.m_pFileHandle = CreateFileW(s.GetData(), GENERIC_READ, FILE_SHARE_READ, nullptr, OPEN_EXISTING,  FILE_ATTRIBUTE_NORMAL, nullptr); 
     break;
   case ezFileMode::Write:
-    m_FileData.m_pFileHandle = CreateFileW(s.GetData(), GENERIC_WRITE, 0, NULL, CREATE_ALWAYS,  FILE_ATTRIBUTE_NORMAL, NULL); 
+    m_FileData.m_pFileHandle = CreateFileW(s.GetData(), GENERIC_WRITE, 0, nullptr, CREATE_ALWAYS,  FILE_ATTRIBUTE_NORMAL, nullptr); 
     break;
   case ezFileMode::Append:
-    m_FileData.m_pFileHandle = CreateFileW(s.GetData(), FILE_APPEND_DATA, 0, NULL, OPEN_ALWAYS,  FILE_ATTRIBUTE_NORMAL, NULL); 
+    m_FileData.m_pFileHandle = CreateFileW(s.GetData(), FILE_APPEND_DATA, 0, nullptr, OPEN_ALWAYS,  FILE_ATTRIBUTE_NORMAL, nullptr); 
 
     // in append mode we need to set the file pointer to the end explicitely, otherwise GetFilePosition might return 0 the first time
-    if ((m_FileData.m_pFileHandle != NULL) && (m_FileData.m_pFileHandle != INVALID_HANDLE_VALUE))
+    if ((m_FileData.m_pFileHandle != nullptr) && (m_FileData.m_pFileHandle != INVALID_HANDLE_VALUE))
       InternalSetFilePosition(0, ezFilePos::FromEnd);
 
     break;
   }
 
-  return ((m_FileData.m_pFileHandle != NULL) && (m_FileData.m_pFileHandle != INVALID_HANDLE_VALUE)) ? EZ_SUCCESS : EZ_FAILURE;
+  return ((m_FileData.m_pFileHandle != nullptr) && (m_FileData.m_pFileHandle != INVALID_HANDLE_VALUE)) ? EZ_SUCCESS : EZ_FAILURE;
 }
 
 void ezOSFile::InternalClose()
@@ -52,7 +52,7 @@ ezResult ezOSFile::InternalWrite(const void* pBuffer, ezUInt64 uiBytes)
   while (uiBytes > uiBatchBytes)
   {
     DWORD uiBytesWritten = 0;
-    if ((!WriteFile(m_FileData.m_pFileHandle, pBuffer, uiBatchBytes, &uiBytesWritten, NULL)) || (uiBytesWritten != uiBatchBytes))
+    if ((!WriteFile(m_FileData.m_pFileHandle, pBuffer, uiBatchBytes, &uiBytesWritten, nullptr)) || (uiBytesWritten != uiBatchBytes))
       return EZ_FAILURE;
 
     uiBytes -= uiBatchBytes;
@@ -64,7 +64,7 @@ ezResult ezOSFile::InternalWrite(const void* pBuffer, ezUInt64 uiBytes)
     const ezUInt32 uiBytes32 = static_cast<ezUInt32>(uiBytes);
 
     DWORD uiBytesWritten = 0;
-    if ((!WriteFile(m_FileData.m_pFileHandle, pBuffer, uiBytes32, &uiBytesWritten, NULL)) || (uiBytesWritten != uiBytes32))
+    if ((!WriteFile(m_FileData.m_pFileHandle, pBuffer, uiBytes32, &uiBytesWritten, nullptr)) || (uiBytesWritten != uiBytes32))
       return EZ_FAILURE;
   }
 
@@ -81,7 +81,7 @@ ezUInt64 ezOSFile::InternalRead(void* pBuffer, ezUInt64 uiBytes)
   while (uiBytes > uiBatchBytes)
   {
     DWORD uiBytesReadThisTime = 0;
-    if (!ReadFile(m_FileData.m_pFileHandle, pBuffer, uiBatchBytes, &uiBytesReadThisTime, NULL))
+    if (!ReadFile(m_FileData.m_pFileHandle, pBuffer, uiBatchBytes, &uiBytesReadThisTime, nullptr))
       return uiBytesRead + uiBytesReadThisTime;
 
     uiBytesRead += uiBytesReadThisTime;
@@ -98,7 +98,7 @@ ezUInt64 ezOSFile::InternalRead(void* pBuffer, ezUInt64 uiBytes)
     const ezUInt32 uiBytes32 = static_cast<ezUInt32>(uiBytes);
 
     DWORD uiBytesReadThisTime = 0;
-    if (!ReadFile(m_FileData.m_pFileHandle, pBuffer, uiBytes32, &uiBytesReadThisTime, NULL))
+    if (!ReadFile(m_FileData.m_pFileHandle, pBuffer, uiBytes32, &uiBytesReadThisTime, nullptr))
       return uiBytesRead + uiBytesReadThisTime;
 
     uiBytesRead += uiBytesReadThisTime;
@@ -166,7 +166,7 @@ ezResult ezOSFile::InternalCreateDirectory(const char* szDirectory)
     return EZ_SUCCESS;
 
   ezStringWChar s = szDirectory;
-  if (CreateDirectoryW(s.GetData(), NULL) == FALSE)
+  if (CreateDirectoryW(s.GetData(), nullptr) == FALSE)
   {
     DWORD uiError = GetLastError();
     if (uiError == ERROR_ALREADY_EXISTS) 
@@ -201,7 +201,7 @@ ezResult ezOSFile::InternalGetFileStats(const char* szFileOrFolder, ezFileStats&
   WIN32_FIND_DATAW data;
   HANDLE hSearch = FindFirstFileW(ezStringWChar(s.GetData()).GetData(), &data);
 
-  if ((hSearch == NULL) || (hSearch == INVALID_HANDLE_VALUE))
+  if ((hSearch == nullptr) || (hSearch == INVALID_HANDLE_VALUE))
     return EZ_FAILURE;
 
   out_Stats.m_uiFileSize = HighLowToUInt64(data.nFileSizeHigh, data.nFileSizeLow);
@@ -243,7 +243,7 @@ ezResult ezFileSystemIterator::StartSearch(const char* szSearchStart, bool bRecu
   WIN32_FIND_DATAW data;
   HANDLE hSearch = FindFirstFileW(ezStringWChar(sSearch.GetData()).GetData(), &data);
 
-  if ((hSearch == NULL) || (hSearch == INVALID_HANDLE_VALUE))
+  if ((hSearch == nullptr) || (hSearch == INVALID_HANDLE_VALUE))
     return EZ_FAILURE;
 
   m_CurFile.m_uiFileSize = HighLowToUInt64(data.nFileSizeHigh, data.nFileSizeLow);
@@ -277,7 +277,7 @@ ezResult ezFileSystemIterator::Next()
     WIN32_FIND_DATAW data;
     HANDLE hSearch = FindFirstFileW(ezStringWChar(sNewSearch.GetData()).GetData(), &data);
 
-    if ((hSearch != NULL) && (hSearch != INVALID_HANDLE_VALUE))
+    if ((hSearch != nullptr) && (hSearch != INVALID_HANDLE_VALUE))
     {
       m_CurFile.m_uiFileSize = HighLowToUInt64(data.nFileSizeHigh, data.nFileSizeLow);
       m_CurFile.m_bIsDirectory = (data.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) != 0;
@@ -346,7 +346,7 @@ const char* ezOSFile::GetApplicationDirectory()
   if (s_ApplicationPath.IsEmpty())
   {
     wchar_t szFilename[256];
-    GetModuleFileNameW(NULL, szFilename, 256);
+    GetModuleFileNameW(nullptr, szFilename, 256);
 
     ezStringBuilder sPath = ezStringUtf8(szFilename).GetData();
     s_ApplicationPath = sPath.GetFileDirectory();
