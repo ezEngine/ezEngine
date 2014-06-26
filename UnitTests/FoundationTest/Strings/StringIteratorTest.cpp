@@ -72,6 +72,23 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringIterator)
     EZ_TEST_BOOL(!it.IsValid());
   }
 
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator==")
+  {
+    ezString s1(L"abcdefghiäöüß€");
+    ezString s2(L"ghiäöüß€abdef");
+
+    ezStringIterator it1 = s1.GetSubString(8, 4);
+    ezStringIterator it2 = s2.GetSubString(2, 4);
+    ezStringIterator it3 = s2.GetSubString(2, 5);
+
+    EZ_TEST_BOOL(it1 == it2);
+    EZ_TEST_BOOL(it1 != it3);
+
+    EZ_TEST_BOOL(it1 == ezString(L"iäöü").GetData());
+    EZ_TEST_BOOL(it2 == ezString(L"iäöü").GetData());
+    EZ_TEST_BOOL(it3 == ezString(L"iäöüß").GetData());
+  }
+
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator+=")
   {
     const char* sz = "abcdefghijklmnopqrstuvwxyz";
