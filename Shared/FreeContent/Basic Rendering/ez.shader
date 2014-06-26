@@ -80,7 +80,11 @@ void main()
 
 float4 main(PS_IN Input) : SV_Target
 {
-  return float4(Input.tex0, 0.0f, 1.0f);
+#if COLORED
+  return float4(0.0f, Input.tex0, 1.0f);
+#else
+  return float4(0.0f, 0.0f, 1.0f, 1.0f);
+#endif
   //return float4(TileTex.Sample(TileSampler, Input.tex0).rgba);
   //return float4(Input.norm, 1.0f);
 }

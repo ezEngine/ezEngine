@@ -95,13 +95,15 @@ void ezShaderManager::BindShader(const char* szShaderFile)
 
   const ezUInt32 uiShaderHash = ezPermutationGenerator::GetHash(UsedPermVars);
 
-  ezStringBuilder sShaderFile = szShaderFile;
-  const ezString sShaderName = sShaderFile.GetFileName();
+  ezStringBuilder sShaderDir = szShaderFile;
+  const ezString sShaderName = sShaderDir.GetFileName();
 
-  sShaderFile.PathParentDirectory();
-  sShaderFile.AppendPath(s_sPlatform.GetData());
+  sShaderDir.PathParentDirectory();
+  sShaderDir.AppendPath(s_sPlatform.GetData());
+
+  ezStringBuilder sShaderFile = sShaderDir;
   sShaderFile.AppendPath(sShaderName.GetData());
-  sShaderFile.AppendFormat("%08X.compiled", uiShaderHash);
+  sShaderFile.AppendFormat("%08X.permutation", uiShaderHash);
 
   auto itShaderProgram = s_ShaderPrograms.FindOrAdd(sShaderFile, &bExisted);
 
@@ -114,32 +116,48 @@ void ezShaderManager::BindShader(const char* szShaderFile)
     {
       ezShaderCompiler sc;
       sc.CompileShader(szShaderFile, PermGen, s_sPlatform.GetData());
+
+      // try again
+      if (ShaderProgramFile.Open(sShaderFile.GetData()).Failed())
+        return;
     }
 
-    // try again
-    if (ShaderProgramFile.Open(sShaderFile.GetData()).Failed())
-      return;
-
-    ezUInt8 uiVersion = 1;
-    ShaderProgramFile >> uiVersion;
-
-    EZ_ASSERT(uiVersion == 1, "");
+    ezShaderPermutationBinary spb;
+    EZ_VERIFY(spb.Read(ShaderProgramFile).Succeeded(), "Could not read shader permutation file '%s'", sShaderFile.GetData());
 
     ezGALShaderCreationDescription CompiledShader;
 
-    ezHybridArray<ezUInt8, 4096> Bytecode;
-
     for (ezUInt32 stage = ezGALShaderStage::VertexShader; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
     {
-      ezUInt32 uiBytes = 0;
-      ShaderProgramFile >> uiBytes;
+      const ezUInt32 uiStageHash = spb.m_uiShaderStageHashes[stage];
 
-      if (uiBytes > 0)
+      if (uiStageHash == 0) // not used
+        continue;
+
+      // check if this shader stage has already been loaded before
+      auto itStage = ezShaderStageBinary::s_ShaderStageBinaries[stage].Find(uiStageHash);
+
+      // if not, load it now
+      if (!itStage.IsValid())
       {
-        Bytecode.SetCount(uiBytes);
-        ShaderProgramFile.ReadBytes(&Bytecode[0], uiBytes);
+        ezStringBuilder sShaderStageFile = sShaderDir;
+        sShaderStageFile.AppendFormat("/%08X", uiStageHash);
 
-        CompiledShader.m_ByteCodes[stage] = new ezGALShaderByteCode(&Bytecode[0], uiBytes);
+        ezFileReader StageFileIn;
+        EZ_VERIFY(StageFileIn.Open(sShaderStageFile.GetData()).Succeeded(), "Could not open shader stage file '%s'", sShaderStageFile.GetData());
+
+        ezShaderStageBinary ssb;
+        EZ_VERIFY(ssb.Read(StageFileIn).Succeeded(), "Could not read shader stage file '%s'", sShaderStageFile.GetData());
+
+        itStage = ezShaderStageBinary::s_ShaderStageBinaries[stage].Insert(uiStageHash, ssb);
+      }
+
+      EZ_ASSERT(itStage.IsValid(), "Implementation error");
+
+      // if it is invalid, do not create the shader
+      if (itStage.Value().m_Stage < ezGALShaderStage::ENUM_COUNT && !itStage.Value().m_ByteCode.IsEmpty())
+      {
+        CompiledShader.m_ByteCodes[stage] = new ezGALShaderByteCode(&itStage.Value().m_ByteCode[0], itStage.Value().m_ByteCode.GetCount());
       }
     }
 

@@ -134,3 +134,33 @@ inline void ezStringIterator::Shrink(ezUInt32 uiShrinkCharsFront, ezUInt32 uiShr
   m_bValid = (m_pCurrent < m_pEnd);
 }
 
+inline bool ezStringIterator::operator==(const char* rhs) const
+{
+  /// \test This is new
+
+  const ezUInt64 uiLen = m_pEnd - m_pFirst;
+
+  return ezStringUtils::IsEqualN(m_pFirst, rhs, (ezUInt32) uiLen) && (*(rhs + uiLen) == '\0');
+}
+
+EZ_FORCE_INLINE bool ezStringIterator::operator!=(const char* rhs) const
+{
+  /// \test This is new
+
+  return !operator==(rhs);
+}
+
+inline bool ezStringIterator::operator==(const ezStringIterator& rhs) const
+{
+  /// \test This is new
+
+  const ezUInt64 uiLen = m_pEnd - m_pFirst;
+  return (uiLen == (ezUInt64) (rhs.m_pEnd - rhs.m_pFirst)) && ezStringUtils::IsEqualN(m_pFirst, rhs.m_pFirst, (ezUInt32) uiLen);
+}
+
+EZ_FORCE_INLINE bool ezStringIterator::operator!=(const ezStringIterator& rhs) const
+{
+  /// \test This is new
+
+  return !operator==(rhs);
+}

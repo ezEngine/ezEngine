@@ -9,6 +9,7 @@
 #include <RendererFoundation/Descriptors/Descriptors.h>
 #include <CoreUtils/CodeUtils/Preprocessor.h>
 #include <Graphics/ShaderCompiler/PermutationGenerator.h>
+#include <Graphics/Shader/ShaderPermutationBinary.h>
 
 struct ezShaderProgramData
 {
@@ -22,7 +23,7 @@ struct ezShaderProgramData
 
   const char* m_szPlatform;
   const char* m_szShaderSource[ezGALShaderStage::ENUM_COUNT];
-  ezGALShaderCreationDescription m_CompiledShader;
+  ezShaderStageBinary m_StageBinary[ezGALShaderStage::ENUM_COUNT];
 };
 
 class EZ_GRAPHICS_DLL ezShaderProgramCompiler : public ezEnumerable<ezShaderProgramCompiler>

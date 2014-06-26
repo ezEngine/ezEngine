@@ -110,14 +110,16 @@ static bool PlatformEnabled(const ezString& sPlatforms, const char* szPlatform)
 
 ezResult ezShaderCompiler::CompileShader(const char* szFile, const ezPermutationGenerator& MainGenerator, const char* szPlatform)
 {
-  ezFileReader File;
-  if (File.Open(szFile).Failed())
-    return EZ_FAILURE;
-
   ezTokenizedFileCache FileCache;
-
   ezStringBuilder sFileContent, sTemp;
-  sFileContent.ReadAll(File);
+
+  {
+    ezFileReader File;
+    if (File.Open(szFile).Failed())
+      return EZ_FAILURE;
+    
+    sFileContent.ReadAll(File);
+  }
 
   ezHybridArray<ShaderSection, 16> Sections;
   GetShaderSections(sFileContent, Sections);
@@ -206,41 +208,41 @@ ezResult ezShaderCompiler::CompileShader(const char* szFile, const ezPermutation
           pp.Process(m_StageSourceFile[stage].GetData(), sProcessed[stage], true);
 
           spd.m_szShaderSource[stage] = sProcessed[stage].GetData();
+
+          spd.m_StageBinary[stage].m_Stage = (ezGALShaderStage::Enum) stage;
+          spd.m_StageBinary[stage].m_uiSourceHash = ezHashing::MurmurHash(ezHashing::StringWrapper(sProcessed[stage].GetData()));
         }
 
         if (pCompiler->Compile(spd, ezGlobalLog::GetInstance()).Failed())
           ezLog::Error("Shader compilation failed.");
+
+        ezShaderPermutationBinary spb;
+
+        for (ezUInt32 stage = ezGALShaderStage::VertexShader; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
+        {
+          spb.m_uiShaderStageHashes[stage] = spd.m_StageBinary[stage].m_uiSourceHash;
+
+          if (spd.m_StageBinary[stage].m_uiSourceHash != 0)
+          {
+            sTemp = Platforms[p];
+            sTemp.AppendFormat("/%08X", spd.m_StageBinary[stage].m_uiSourceHash);
+
+            ezFileWriter StageFileOut;
+            EZ_VERIFY(StageFileOut.Open(sTemp.GetData()).Succeeded(), "Could not write to file '%s'", sTemp.GetData());
+            EZ_VERIFY(spd.m_StageBinary[stage].Write(StageFileOut).Succeeded(), "Writing shader stage %u to file '%s' failed.", stage, sTemp.GetData());
+          }
+        }
 
         sTemp = Platforms[p];
         sTemp.AppendPath(szFile);
         sTemp.ChangeFileExtension("");
         if (sTemp.EndsWith("."))
           sTemp.Shrink(0, 1);
-        sTemp.AppendFormat("%08X.compiled", uiPermutationHash);
+        sTemp.AppendFormat("%08X.permutation", uiPermutationHash);
 
-        ezFileWriter FileOut;
-        if (FileOut.Open(sTemp.GetData()).Succeeded())
-        {
-          const ezUInt8 uiVersion = 1;
-          FileOut << uiVersion;
-
-          for (ezUInt32 stage = ezGALShaderStage::VertexShader; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
-          {
-            if (spd.m_CompiledShader.HasByteCodeForStage((ezGALShaderStage::Enum) stage))
-            {
-              const ezUInt32 uiBytes = spd.m_CompiledShader.m_ByteCodes[stage]->GetSize();
-
-              FileOut << uiBytes;
-              FileOut.WriteBytes(spd.m_CompiledShader.m_ByteCodes[stage]->GetByteCode(), uiBytes);
-            }
-            else
-            {
-              const ezUInt32 uiBytes = 0;
-              FileOut << uiBytes;
-            }
-          }
-          FileOut.Close();
-        }
+        ezFileWriter PermutationFileOut;
+        EZ_VERIFY(PermutationFileOut.Open(sTemp.GetData()).Succeeded(), "Could not write file '%s'", sTemp.GetData());
+          spb.Write(PermutationFileOut);
       }
     }
 

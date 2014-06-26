@@ -20,8 +20,8 @@
 
 #include <System/Window/Window.h>
 
-#define DEMO_GL EZ_ON
-#define DEMO_DX11 EZ_OFF
+#define DEMO_GL EZ_OFF
+#define DEMO_DX11 EZ_ON
 
 #if EZ_ENABLED(DEMO_GL)
   #include <RendererGL/Device/DeviceGL.h>
@@ -89,8 +89,12 @@ public:
 
     ezTelemetry::CreateServer();
     ezPlugin::LoadPlugin("ezInspectorPlugin");
-    ezPlugin::LoadPlugin("ezShaderCompilerGLSL");
-    ezPlugin::LoadPlugin("ezShaderCompilerHLSL");
+
+#if EZ_ENABLED(DEMO_GL)
+    EZ_VERIFY(ezPlugin::LoadPlugin("ezShaderCompilerGLSL").Succeeded(), "Compiler Plugin not found");
+#else
+    EZ_VERIFY(ezPlugin::LoadPlugin("ezShaderCompilerHLSL").Succeeded(), "Compiler Plugin not found");
+#endif
 
     ezClock::SetNumGlobalClocks();
 

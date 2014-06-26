@@ -87,6 +87,18 @@ public:
   /// \brief Resets the current position to the last character and flags the iterator as valid again (unless its range is empty).
   void ResetToBack(); // [tested]
 
+  /// \brief Compares the piece that this iterator points to with the given string. rhs must be null terminated.
+  bool operator==(const char* rhs) const;
+
+  /// \brief Compares the piece that this iterator points to with the given string. rhs must be null terminated.
+  bool operator!=(const char* rhs) const;
+
+  /// \brief Compares the two stringiterators for equality. Both do not need to be null terminated, but must have the same length.
+  bool operator==(const ezStringIterator& rhs) const;
+
+  /// \brief Compares the two stringiterators for equality. Both do not need to be null terminated, but must have the same length.
+  bool operator!=(const ezStringIterator& rhs) const;
+
 private:
   bool m_bValid;
   bool m_bIsPureASCII;

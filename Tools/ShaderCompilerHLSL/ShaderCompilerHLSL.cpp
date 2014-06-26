@@ -11,7 +11,7 @@ EZ_DYNAMIC_PLUGIN_IMPLEMENTATION(ezShaderCompilerHLSLPlugin);
 
 ezShaderCompilerHLSL Compiler;
 
-ezGALShaderByteCode* CompileDXShader(const char* source, const char* profile, const char* entryPoint)
+ezDynamicArray<ezUInt8> CompileDXShader(const char* source, const char* profile, const char* entryPoint)
 {
   ID3DBlob* ResultBlob = nullptr;
   ID3DBlob* ErrorBlob = nullptr;
@@ -25,9 +25,21 @@ ezGALShaderByteCode* CompileDXShader(const char* source, const char* profile, co
     return nullptr;
   }
 
-  ezGALShaderByteCode* pByteCode = EZ_DEFAULT_NEW(ezGALShaderByteCode)(ResultBlob->GetBufferPointer(), (ezUInt32) ResultBlob->GetBufferSize());
+  ezDynamicArray<ezUInt8> r;
 
-  return pByteCode;
+  if (ResultBlob != nullptr)
+  {
+    r.SetCount((ezUInt32) ResultBlob->GetBufferSize());
+    ezMemoryUtils::Copy(&r[0], (ezUInt8*) ResultBlob->GetBufferPointer(), r.GetCount());
+    ResultBlob->Release();
+  }
+
+  if (ErrorBlob != nullptr)
+  {
+    ErrorBlob->Release();
+  }
+
+  return r;
 }
 
 const char* GetProfileName(const char* szPlatform, ezGALShaderStage::Enum Stage)
@@ -92,7 +104,7 @@ ezResult ezShaderCompilerHLSL::Compile(ezShaderProgramData& inout_Data, ezLogInt
 
     if (uiLength > 0)
     {
-      inout_Data.m_CompiledShader.m_ByteCodes[stage] = CompileDXShader(inout_Data.m_szShaderSource[stage], GetProfileName(inout_Data.m_szPlatform, (ezGALShaderStage::Enum) stage), "main");
+      inout_Data.m_StageBinary[stage].m_ByteCode = CompileDXShader(inout_Data.m_szShaderSource[stage], GetProfileName(inout_Data.m_szPlatform, (ezGALShaderStage::Enum) stage), "main");
     }
   }
 

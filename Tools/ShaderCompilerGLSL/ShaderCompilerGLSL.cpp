@@ -17,7 +17,10 @@ ezResult ezShaderCompilerGLSL::Compile(ezShaderProgramData& inout_Data, ezLogInt
     const ezUInt32 uiLength = ezStringUtils::GetStringElementCount(inout_Data.m_szShaderSource[stage]);
 
     if (uiLength > 0)
-      inout_Data.m_CompiledShader.m_ByteCodes[stage] = new ezGALShaderByteCode(inout_Data.m_szShaderSource[stage], uiLength + 1);
+    {
+      inout_Data.m_StageBinary[stage].m_ByteCode.Reserve(uiLength + 1);
+      inout_Data.m_StageBinary[stage].m_ByteCode.PushBackRange(ezArrayPtr<const ezUInt8>((const ezUInt8*) inout_Data.m_szShaderSource[stage], uiLength + 1));
+    }
   }
 
   return EZ_SUCCESS;
