@@ -111,7 +111,7 @@ template<typename ResourceType>
 void ezResourceManager::EndAcquireResource(ResourceType* pResource)
 {
   EZ_ASSERT(pResource != NULL, "Resource Pointer cannot be NULL.");
-  EZ_ASSERT(pResource->m_iLockCount > 0, "The resource lock counter is incorrect: %i", pResource->m_iLockCount);
+  EZ_ASSERT(pResource->m_iLockCount > 0, "The resource lock counter is incorrect: %i", (ezInt32) pResource->m_iLockCount);
 
   pResource->m_iLockCount.Decrement();
 }
