@@ -211,30 +211,4 @@ private:
 };
 
 
-/// \brief Helper class to acquire and release a resource safely.
-///
-/// The constructor calls ezResourceManager::BeginAcquireResource, the destructor makes sure to call ezResourceManager::EndAcquireResource.
-/// The instance of this class can be used like a pointer to the resource.
-template<class RESOURCE_TYPE>
-class ezResourceLock
-{
-public:
-  ezResourceLock(const ezResourceHandle<RESOURCE_TYPE>& hResource, ezResourceAcquireMode::Enum mode = ezResourceAcquireMode::AllowFallback, ezResourcePriority::Enum Priority = ezResourcePriority::Unchanged)
-  {
-    m_pResource = ezResourceManager::BeginAcquireResource(hResource, mode, Priority);
-  }
 
-  ~ezResourceLock()
-  {
-    if (m_pResource)
-      ezResourceManager::EndAcquireResource(m_pResource);
-  }
-
-  RESOURCE_TYPE* operator->()
-  {
-    return m_pResource;
-  }
-
-private:
-  RESOURCE_TYPE* m_pResource;
-};
