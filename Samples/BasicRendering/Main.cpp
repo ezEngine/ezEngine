@@ -17,6 +17,7 @@
 #include <Core/Basics.h>
 #include <Core/Application/Application.h>
 #include <Core/Input/InputManager.h>
+#include <Core/ResourceManager/ResourceManager.h>
 
 #include <System/Window/Window.h>
 
@@ -148,13 +149,7 @@ public:
     m_hCB = m_pDevice->CreateConstantBuffer(sizeof(TestCB));
 
     m_pObj = DontUse::MayaObj::LoadFromFile("ez.obj", m_pDevice);
-
-    //ezPermutationGenerator Generator;
-    //Generator.ReadFromFile("ShaderPermutations.txt", "GL3");
-
-    //ezShaderCompiler sc;
-    //sc.CompileShader("ez.shader", Generator, "GL3");
-
+    
 #if EZ_ENABLED(DEMO_GL)
       ezShaderManager::SetPlatform("GL3", m_pDevice);
 #else
@@ -162,32 +157,7 @@ public:
 #endif
 
     ezShaderManager::BindShader("ez.shader");
-
-    // Create a shader (uses a quick hacky implementation to compile the HLSL shaders)
-//    ezGALShaderCreationDescription ShaderDesc;
-//#if EZ_ENABLED(DEMO_GL)
-//    ezStringBuilder pixelShader, vertexShader;
-//    DontUse::ReadCompleteFile("ez_vert.glsl", vertexShader);
-//    DontUse::ReadCompleteFile("ez_frag.glsl", pixelShader);
-//    ShaderDesc.m_ByteCodes[ezGALShaderStage::VertexShader] = new ezGALShaderByteCode(vertexShader.GetData(), vertexShader.GetElementCount() + 1);
-//    ShaderDesc.m_ByteCodes[ezGALShaderStage::PixelShader] = new ezGALShaderByteCode(pixelShader.GetData(), pixelShader.GetElementCount() + 1);
-//#else
-//    DontUse::ShaderCompiler::Compile("ez.hlsl", ShaderDesc);
-//#endif
-//
-//    m_hShader = m_pDevice->CreateShader(ShaderDesc);
-//    EZ_ASSERT(!m_hShader.IsInvalidated(), "Couldn't create shader!");
-
-    // Now the vertex declaration needs to be built
-    //ezGALVertexDeclarationCreationDescription VertDeclDesc;
-    //VertDeclDesc.m_hShader = m_hShader;
-    //VertDeclDesc.m_VertexAttributes.PushBack(ezGALVertexAttribute(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat, 0, 0, false));
-    //VertDeclDesc.m_VertexAttributes.PushBack(ezGALVertexAttribute(ezGALVertexAttributeSemantic::Normal, ezGALResourceFormat::XYZFloat, 12, 0, false));
-    //VertDeclDesc.m_VertexAttributes.PushBack(ezGALVertexAttribute(ezGALVertexAttributeSemantic::TexCoord0, ezGALResourceFormat::UVFloat, 24, 0, false));
-
-    //m_hVertexDeclaration = m_pDevice->CreateVertexDeclaration(VertDeclDesc);
-    //EZ_ASSERT(!m_hVertexDeclaration.IsInvalidated(), "Couldn't create input layout!");
-
+    
     ezGALRasterizerStateCreationDescription RasterStateDesc;
     //RasterStateDesc.m_bWireFrame = true;
     RasterStateDesc.m_CullMode = ezGALCullMode::Back;
@@ -385,7 +355,26 @@ public:
   {
     EZ_DEFAULT_DELETE(m_pObj);
 
+    while (ezResourceManager::FreeUnusedResources() > 0)
+    {
+    }
+
+    for (ezUInt32 i = 0; i < ezGALShaderStage::ENUM_COUNT; ++i)
+      ezShaderStageBinary::s_ShaderStageBinaries[i].Clear();
+
     m_pDevice->Shutdown();
+
+    // the device requires some data for shutdown that is referenced below
+    // so we must not clean this stuff up before 'device shutdown'
+    m_pDevice->DestroyBuffer(m_hCB);
+    m_pDevice->DestroyRasterizerState(m_hRasterizerState);
+    m_pDevice->DestroyDepthStencilState(m_hDepthStencilState);
+    m_pDevice->DestroyTexture(m_hTexture);
+    m_pDevice->DestroySamplerState(m_hSamplerState);
+    m_pDevice->DestroyResourceView(m_hTexView);
+    //m_pDevice->DestroyRenderTargetConfig(m_hBBRT);
+
+    
 
     EZ_DEFAULT_DELETE(m_pDevice);
 

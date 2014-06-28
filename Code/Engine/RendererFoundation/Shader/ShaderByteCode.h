@@ -31,8 +31,6 @@ protected:
 
   void CopyFrom(const ezArrayPtr<const ezUInt8>& pByteCode);
 
-  void Free();
-
   ezDynamicArray<ezUInt8> m_Source;
 };
 

@@ -18,7 +18,6 @@ ezGALShaderByteCode::ezGALShaderByteCode(const void* pSource, ezUInt32 uiSize)
 
 ezGALShaderByteCode::~ezGALShaderByteCode()
 {
-  int breakpoint = 0;
 }
 
 void ezGALShaderByteCode::CopyFrom(const ezArrayPtr<const ezUInt8>& pByteCode)

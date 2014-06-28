@@ -169,7 +169,7 @@ ezResult ezGALShaderGL::DeInitPlatform(ezGALDevice* pDevice)
 
   if (m_VertexShader != EZ_RENDERERGL_INVALID_ID)
   {
-    if (EZ_GL_CALL(glDeleteProgram, m_VertexShader) != EZ_SUCCESS)
+    if (EZ_GL_CALL(glDeleteShader, m_VertexShader) != EZ_SUCCESS)
       return EZ_FAILURE;
   }
   if (m_PixelShader != EZ_RENDERERGL_INVALID_ID)

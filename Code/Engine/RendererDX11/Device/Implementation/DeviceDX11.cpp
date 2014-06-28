@@ -135,11 +135,13 @@ ezResult ezGALDeviceDX11::ShutdownPlatform()
 
 ezGALBlendState* ezGALDeviceDX11::CreateBlendStatePlatform(const ezGALBlendStateCreationDescription& Description)
 {
+  EZ_ASSERT_NOT_IMPLEMENTED;
   return nullptr;
 }
 
 void ezGALDeviceDX11::DestroyBlendStatePlatform(ezGALBlendState* pBlendState)
 {
+  EZ_ASSERT_NOT_IMPLEMENTED;
 }
 
 ezGALDepthStencilState* ezGALDeviceDX11::CreateDepthStencilStatePlatform(const ezGALDepthStencilStateCreationDescription& Description)
@@ -159,6 +161,9 @@ ezGALDepthStencilState* ezGALDeviceDX11::CreateDepthStencilStatePlatform(const e
 
 void ezGALDeviceDX11::DestroyDepthStencilStatePlatform(ezGALDepthStencilState* pDepthStencilState)
 {
+  ezGALDepthStencilStateDX11* pDX11DepthStencilState = static_cast<ezGALDepthStencilStateDX11*>(pDepthStencilState);
+  pDX11DepthStencilState->DeInitPlatform(this);
+  EZ_DEFAULT_DELETE(pDX11DepthStencilState);
 }
 
 ezGALRasterizerState* ezGALDeviceDX11::CreateRasterizerStatePlatform(const ezGALRasterizerStateCreationDescription& Description)
@@ -334,20 +339,24 @@ void ezGALDeviceDX11::DestroySwapChainPlatform(ezGALSwapChain* pSwapChain)
 
 ezGALFence* ezGALDeviceDX11::CreateFencePlatform()
 {
+  EZ_ASSERT_NOT_IMPLEMENTED;
   return nullptr;
 }
 
 void ezGALDeviceDX11::DestroyFencePlatform(ezGALFence* pFence)
 {
+  EZ_ASSERT_NOT_IMPLEMENTED;
 }
 
 ezGALQuery* ezGALDeviceDX11::CreateQueryPlatform(const ezGALQueryCreationDescription& Description)
 {
+  EZ_ASSERT_NOT_IMPLEMENTED;
   return nullptr;
 }
 
 void ezGALDeviceDX11::DestroyQueryPlatform(ezGALQuery* pQuery)
 {
+  EZ_ASSERT_NOT_IMPLEMENTED;
 }
 
 ezGALRenderTargetConfig* ezGALDeviceDX11::CreateRenderTargetConfigPlatform(const ezGALRenderTargetConfigCreationDescription& Description)
@@ -389,6 +398,8 @@ ezGALVertexDeclaration* ezGALDeviceDX11::CreateVertexDeclarationPlatform(const e
 
 void ezGALDeviceDX11::DestroyVertexDeclarationPlatform(ezGALVertexDeclaration* pVertexDeclaration)
 {
+  // Why is it necessary to cast this here and then call the virtual function???
+  // couldn't the renderer abstraction call DeInitPlatform directly (also EZ_DEFAULT_DELETE) ?
 
   ezGALVertexDeclarationDX11* pVertexDeclarationDX11 = static_cast<ezGALVertexDeclarationDX11*>(pVertexDeclaration);
   pVertexDeclarationDX11->DeInitPlatform(this);
@@ -399,6 +410,7 @@ void ezGALDeviceDX11::DestroyVertexDeclarationPlatform(ezGALVertexDeclaration* p
 
 void ezGALDeviceDX11::GetQueryDataPlatform(ezGALQuery* pQuery, ezUInt64* puiRendererdPixels)
 {
+  EZ_ASSERT_NOT_IMPLEMENTED;
   *puiRendererdPixels = 42;
 }
 

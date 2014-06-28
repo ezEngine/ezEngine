@@ -260,8 +260,8 @@ struct ezGALSystemMemoryDescription
   ezUInt32 m_uiSlicePitch;
 };
 
-/// \brief Base class for GAL objects, stores a creation description of the object and also allows for reference counting.
-template<typename CreationDescription> class ezGALObjectBase : public ezRefCounted
+/// \brief Base class for GAL objects, stores a creation description of the object
+template<typename CreationDescription> class ezGALObjectBase
 {
 public:
 
