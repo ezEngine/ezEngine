@@ -1,30 +1,48 @@
 #include <Graphics/PCH.h>
 #include <Graphics/ShaderCompiler/ShaderManager.h>
 #include <Graphics/ShaderCompiler/ShaderCompiler.h>
+#include <Graphics/Shader/ShaderPermutationResource.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <RendererFoundation/Context/Context.h>
+#include <Core/ResourceManager/ResourceManager.h>
 
-ezPermutationGenerator ezShaderManager::s_AllowedPermutations;
-ezMap<ezString, ezString> ezShaderManager::s_PermutationVariables;
-ezString ezShaderManager::s_sPlatform;
-ezMap<ezString, ezShaderManager::ShaderConfig> ezShaderManager::s_ShaderConfigs;
-bool ezShaderManager::s_bShaderValid = false;
-ezGALDevice* ezShaderManager::s_pDevice = nullptr;
-ezMap<ezString, ezShaderManager::ShaderProgramData> ezShaderManager::s_ShaderPrograms;
+void ezShaderManager::ContextEventHandler(ezGALContext::ezGALContextEvent& ed)
+{
+  switch (ed.m_EventType)
+  {
+  case ezGALContext::ezGALContextEvent::BeforeDrawcall:
+    {
+      ContextState& state = s_ContextState[ed.m_pContext];
 
-void ezShaderManager::SetPlatform(const char* szPlatform, ezGALDevice* pDevice)
+      // if the shader system is currently in an invalid state, prevent any drawcalls
+      SetContextState(ed.m_pContext, state);
+
+      if (!state.m_bStateValid)
+        ed.m_bCancelDrawcall = true;
+    }
+    break;
+
+  default:
+    return;
+  }
+}
+
+void ezShaderManager::SetPlatform(const char* szPlatform, ezGALDevice* pDevice, bool bEnableRuntimeCompilation)
 {
   s_pDevice = pDevice;
+
+  ezGALContext::s_ContextEvents.AddEventHandler(ContextEventHandler);
 
   ezStringBuilder s = szPlatform;
   s.ToUpper();
 
+  s_bEnableRuntimeCompilation = bEnableRuntimeCompilation;
   s_sPlatform = s;
 
   s_AllowedPermutations.ReadFromFile("ShaderPermutations.txt", s.GetData());
 
-  s_PermutationVariables.Clear();
+  s_ContextState.Clear();
 
   // initialize all permutation variables
   for (auto it = s_AllowedPermutations.GetPermutationSet().GetIterator(); it.IsValid(); ++it)
@@ -33,8 +51,15 @@ void ezShaderManager::SetPlatform(const char* szPlatform, ezGALDevice* pDevice)
   }
 }
 
-void ezShaderManager::SetPermutationVariable(const char* szVariable, const char* szValue)
+void ezShaderManager::SetPermutationVariable(const char* szVariable, const char* szValue, ezGALContext* pContext)
 {
+  if (pContext == nullptr)
+    pContext = s_pDevice->GetPrimaryContext();
+
+  ezLog::Info("Setting '%s' to '%s'", szVariable, szValue);
+
+  ContextState& state = s_ContextState[pContext];
+
   ezStringBuilder sVar, sVal;
   sVar = szVariable;
   sVal = szValue;
@@ -42,51 +67,68 @@ void ezShaderManager::SetPermutationVariable(const char* szVariable, const char*
   sVar.ToUpper();
   sVal.ToUpper();
 
+  /// \todo This cannot be checked here anymore, once permutation vars are read from the shader
   if (!s_AllowedPermutations.IsValueAllowed(sVar.GetData(), sVal.GetData()))
   {
     ezLog::Error("Invalid Shader Permutation: '%s' cannot be set to value '%s'", sVar.GetData(), sVal.GetData());
     return;
   }
 
-  s_PermutationVariables[sVar] = sVal;
+  auto itVar = state.m_PermutationVariables.FindOrAdd(sVar);
+
+  if (itVar.Value() != sVal)
+    state.m_bStateChanged = true;
+
+  itVar.Value() = sVal;
 }
 
-void ezShaderManager::BindShader(const char* szShaderFile)
+void ezShaderManager::SetActiveShader(ezShaderResourceHandle hShader, ezGALContext* pContext)
 {
-  s_bShaderValid = false;
+  if (pContext == nullptr)
+    pContext = s_pDevice->GetPrimaryContext();
 
-  bool bExisted = false;
-  auto itShader = s_ShaderConfigs.FindOrAdd(szShaderFile, &bExisted);
+  ContextState& state = s_ContextState[pContext];
 
-  if (!bExisted)
-  {
-    itShader.Value().m_bShaderValid = false;
+  if (state.m_hActiveShader != hShader)
+    state.m_bStateChanged = true;
 
-    // not yet loaded shader
+  state.m_hActiveShader = hShader;
+}
 
-    ezFileReader File;
-    if (File.Open(szShaderFile).Failed())
-      return;
+ezGALShaderHandle ezShaderManager::GetActiveGALShader(ezGALContext* pContext)
+{
+  if (pContext == nullptr)
+    pContext = s_pDevice->GetPrimaryContext();
 
-    ezStringBuilder sFileContent;
-    sFileContent.ReadAll(File);
+  ContextState& state = s_ContextState[pContext];
 
-    ezHybridArray<ezShaderCompiler::ShaderSection, 16> Sections;
-    ezShaderCompiler::GetShaderSections(sFileContent, Sections);
+  // make sure the internal state is up to date
+  SetContextState(pContext, state);
 
-    itShader.Value().m_PermutationVarsUsed = Sections[ezShaderCompiler::PERMUTATIONS].m_Content;
+  if (!state.m_bStateValid)
+    return ezGALShaderHandle(); // invalid handle
 
-    itShader.Value().m_bShaderValid = true;
-  }
+  return state.m_hActiveGALShader;
+}
 
-  if (!itShader.Value().m_bShaderValid)
+void ezShaderManager::SetContextState(ezGALContext* pContext, ContextState& state)
+{
+  if (!state.m_bStateChanged)
     return;
 
+  state.m_bStateChanged = false;
+  state.m_bStateValid = false;
+
+  if (!state.m_hActiveShader.IsValid())
+    return;
+
+  ezResourceLock<ezShaderResource> pShader(state.m_hActiveShader, ezResourceAcquireMode::AllowFallback);
+
   ezPermutationGenerator PermGen;
-  for (auto itPerm = s_PermutationVariables.GetIterator(); itPerm.IsValid(); ++itPerm)
+  for (auto itPerm = state.m_PermutationVariables.GetIterator(); itPerm.IsValid(); ++itPerm)
     PermGen.AddPermutation(itPerm.Key().GetData(), itPerm.Value().GetData());
 
-  PermGen.RemoveUnusedPermutations(itShader.Value().m_PermutationVarsUsed);
+  PermGen.RemoveUnusedPermutations(pShader->GetUsedPermutationVars());
 
   EZ_ASSERT(PermGen.GetPermutationCount() == 1, "bla");
 
@@ -95,87 +137,44 @@ void ezShaderManager::BindShader(const char* szShaderFile)
 
   const ezUInt32 uiShaderHash = ezPermutationGenerator::GetHash(UsedPermVars);
 
-  ezStringBuilder sShaderDir = szShaderFile;
-  const ezString sShaderName = sShaderDir.GetFileName();
-
-  sShaderDir.PathParentDirectory();
-  sShaderDir.AppendPath(s_sPlatform.GetData());
-
-  ezStringBuilder sShaderFile = sShaderDir;
-  sShaderFile.AppendPath(sShaderName.GetData());
+  ezStringBuilder sShaderFile = GetShaderCacheDirectory();
+  sShaderFile.AppendPath(GetPlatform().GetData());
+  sShaderFile.AppendPath(pShader->GetResourceID().GetData());
+  sShaderFile.ChangeFileExtension("");
+  if (sShaderFile.EndsWith("."))
+    sShaderFile.Shrink(0, 1);
   sShaderFile.AppendFormat("%08X.permutation", uiShaderHash);
 
-  auto itShaderProgram = s_ShaderPrograms.FindOrAdd(sShaderFile, &bExisted);
+  ezShaderPermutationResourceHandle hShaderPermutation = ezResourceManager::GetResourceHandle<ezShaderPermutationResource>(sShaderFile.GetData());
 
-  if (!bExisted)
+  if (s_bEnableRuntimeCompilation)
   {
-    // shader permutation was not yet loaded, 
+    ezResourceLock<ezShaderPermutationResource> pShaderPermutation(hShaderPermutation, ezResourceAcquireMode::PointerOnly);
 
-    ezFileReader ShaderProgramFile;
-    if (ShaderProgramFile.Open(sShaderFile.GetData()).Failed())
+    if (pShaderPermutation->GetLoadingState() == ezResourceLoadState::Uninitialized)
     {
-      ezShaderCompiler sc;
-      sc.CompileShader(szShaderFile, PermGen, s_sPlatform.GetData());
+      // compile
 
-      // try again
+      ezFileReader ShaderProgramFile;
       if (ShaderProgramFile.Open(sShaderFile.GetData()).Failed())
-        return;
-    }
-
-    ezShaderPermutationBinary spb;
-    EZ_VERIFY(spb.Read(ShaderProgramFile).Succeeded(), "Could not read shader permutation file '%s'", sShaderFile.GetData());
-
-    ezGALShaderCreationDescription CompiledShader;
-
-    for (ezUInt32 stage = ezGALShaderStage::VertexShader; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
-    {
-      const ezUInt32 uiStageHash = spb.m_uiShaderStageHashes[stage];
-
-      if (uiStageHash == 0) // not used
-        continue;
-
-      // check if this shader stage has already been loaded before
-      auto itStage = ezShaderStageBinary::s_ShaderStageBinaries[stage].Find(uiStageHash);
-
-      // if not, load it now
-      if (!itStage.IsValid())
       {
-        ezStringBuilder sShaderStageFile = sShaderDir;
-        sShaderStageFile.AppendFormat("/%08X", uiStageHash);
-
-        ezFileReader StageFileIn;
-        EZ_VERIFY(StageFileIn.Open(sShaderStageFile.GetData()).Succeeded(), "Could not open shader stage file '%s'", sShaderStageFile.GetData());
-
-        ezShaderStageBinary ssb;
-        EZ_VERIFY(ssb.Read(StageFileIn).Succeeded(), "Could not read shader stage file '%s'", sShaderStageFile.GetData());
-
-        itStage = ezShaderStageBinary::s_ShaderStageBinaries[stage].Insert(uiStageHash, ssb);
-      }
-
-      EZ_ASSERT(itStage.IsValid(), "Implementation error");
-
-      // if it is invalid, do not create the shader
-      if (itStage.Value().m_Stage < ezGALShaderStage::ENUM_COUNT && !itStage.Value().m_ByteCode.IsEmpty())
-      {
-        CompiledShader.m_ByteCodes[stage] = new ezGALShaderByteCode(&itStage.Value().m_ByteCode[0], itStage.Value().m_ByteCode.GetCount());
+        ezShaderCompiler sc;
+        sc.CompileShader(pShader->GetResourceID().GetData(), PermGen, s_sPlatform.GetData());
       }
     }
-
-    ezGALShaderHandle hShader = s_pDevice->CreateShader(CompiledShader);
-
-    itShaderProgram.Value().m_hShader = hShader;
-
-    ezGALVertexDeclarationCreationDescription VertDeclDesc;
-    VertDeclDesc.m_hShader = hShader;
-    VertDeclDesc.m_VertexAttributes.PushBack(ezGALVertexAttribute(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat, 0, 0, false));
-    VertDeclDesc.m_VertexAttributes.PushBack(ezGALVertexAttribute(ezGALVertexAttributeSemantic::Normal, ezGALResourceFormat::XYZFloat, 12, 0, false));
-    VertDeclDesc.m_VertexAttributes.PushBack(ezGALVertexAttribute(ezGALVertexAttributeSemantic::TexCoord0, ezGALResourceFormat::UVFloat, 24, 0, false));
-
-    itShaderProgram.Value().m_hVertexDeclaration = s_pDevice->CreateVertexDeclaration(VertDeclDesc);
   }
 
-  s_pDevice->GetPrimaryContext()->SetShader(itShaderProgram.Value().m_hShader);
-  s_pDevice->GetPrimaryContext()->SetVertexDeclaration(itShaderProgram.Value().m_hVertexDeclaration);
+  ezResourceLock<ezShaderPermutationResource> pShaderPermutation(hShaderPermutation, ezResourceAcquireMode::AllowFallback);
+
+  if (!pShaderPermutation->IsShaderValid())
+    return;
+
+  state.m_hActiveGALShader = pShaderPermutation->GetGALShader();
+
+  pContext->SetShader(state.m_hActiveGALShader);
+  pContext->SetVertexDeclaration(pShaderPermutation->GetGALVertexDeclaration());
+
+  state.m_bStateValid = true;
 }
 
 

@@ -4,6 +4,8 @@
 
 class ezShaderCompilerGLSL : public ezShaderProgramCompiler
 {
+  EZ_ADD_DYNAMIC_REFLECTION(ezShaderCompilerGLSL);
+
 public:
   virtual void GetSupportedPlatforms(ezHybridArray<ezString, 4>& Platforms) override
   {

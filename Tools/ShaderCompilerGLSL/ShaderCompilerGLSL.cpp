@@ -1,14 +1,16 @@
 #include <PCH.h>
 #include <ShaderCompilerGLSL/ShaderCompilerGLSL.h>
 
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezShaderCompilerGLSL, ezShaderProgramCompiler, ezRTTIDefaultAllocator<ezShaderCompilerGLSL>);
+  // no properties or message handlers
+EZ_END_DYNAMIC_REFLECTED_TYPE();
+
 void OnLoadPlugin(bool bReloading)    { }
 void OnUnloadPlugin(bool bReloading)  { }
 
 ezPlugin g_Plugin(false, OnLoadPlugin, OnUnloadPlugin);
 
 EZ_DYNAMIC_PLUGIN_IMPLEMENTATION(ezShaderCompilerGLSLPlugin);
-
-ezShaderCompilerGLSL Compiler;
 
 ezResult ezShaderCompilerGLSL::Compile(ezShaderProgramData& inout_Data, ezLogInterface* pLog)
 {

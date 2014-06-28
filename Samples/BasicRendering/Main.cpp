@@ -34,7 +34,6 @@
 #include <RendererFoundation/Context/Context.h>
 
 #include <Helper/MayaObj.h>
-#include <Helper/Shader.h>
 #include <Helper/Misc.h>
 
 #include <CoreUtils/Debugging/DataTransfer.h>
@@ -151,12 +150,14 @@ public:
     m_pObj = DontUse::MayaObj::LoadFromFile("ez.obj", m_pDevice);
     
 #if EZ_ENABLED(DEMO_GL)
-      ezShaderManager::SetPlatform("GL3", m_pDevice);
+      ezShaderManager::SetPlatform("GL3", m_pDevice, true);
 #else
-      ezShaderManager::SetPlatform("DX11_SM40", m_pDevice);
+      ezShaderManager::SetPlatform("DX11_SM40", m_pDevice, true);
 #endif
 
-    ezShaderManager::BindShader("ez.shader");
+    m_hShader = ezResourceManager::GetResourceHandle<ezShaderResource>("ez.shader");
+
+    ezShaderManager::SetActiveShader(m_hShader);
     
     ezGALRasterizerStateCreationDescription RasterStateDesc;
     //RasterStateDesc.m_bWireFrame = true;
@@ -231,6 +232,7 @@ public:
     if (ezInputManager::GetInputActionState("Main", "ToggleShader") == ezKeyState::Pressed)
     {
       static int iPerm = 1;
+      static int iColorValue = 10;
 
       switch (iPerm)
       {
@@ -239,6 +241,14 @@ public:
         break;
       case 1:
         ezShaderManager::SetPermutationVariable("COLORED", "1");
+
+        if (iColorValue > 250)
+          iColorValue = 10;
+
+        ezShaderManager::SetPermutationVariable("COLORVALUE", ezConversionUtils::ToString(iColorValue).GetData());
+
+        iColorValue += 10;
+
         break;
       default:
         iPerm = 0;
@@ -270,10 +280,6 @@ public:
 
     pContext->SetVertexBuffer(0, m_pObj->GetVB());
     pContext->SetIndexBuffer(m_pObj->GetIB());
-
-    ezShaderManager::BindShader("ez.shader");
-    //pContext->SetShader(m_hShader);
-    //pContext->SetVertexDeclaration(m_hVertexDeclaration);
 
     pContext->SetPrimitiveTopology(ezGALPrimitiveTopology::Triangles);
     pContext->SetRasterizerState(m_hRasterizerState);
@@ -354,6 +360,7 @@ public:
   void BeforeEngineShutdown() override
   {
     EZ_DEFAULT_DELETE(m_pObj);
+    m_hShader.Invalidate();
 
     while (ezResourceManager::FreeUnusedResources() > 0)
     {
@@ -406,6 +413,7 @@ private:
 
   ezGALSamplerStateHandle m_hSamplerState;
 
+  ezShaderResourceHandle m_hShader;
 
   DontUse::MayaObj* m_pObj;
 

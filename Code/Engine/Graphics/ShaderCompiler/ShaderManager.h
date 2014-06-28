@@ -6,41 +6,63 @@
 #include <Foundation/Containers/Map.h>
 #include <RendererFoundation/Shader/Shader.h>
 #include <RendererFoundation/Device/Device.h>
+#include <RendererFoundation/Context/Context.h>
+#include <Graphics/Shader/ShaderResource.h>
 
 class EZ_GRAPHICS_DLL ezShaderManager
 {
 public:
 
-  static void SetPlatform(const char* szPlatform, ezGALDevice* pDevice);
+  static void SetPlatform(const char* szPlatform, ezGALDevice* pDevice, bool bEnableRuntimeCompilation);
 
-  static void SetPermutationVariable(const char* szVariable, const char* szValue);
+  static const ezString& GetPlatform() { return s_sPlatform; }
 
-  static void BindShader(const char* szShaderFile);
+  static ezGALDevice* GetDevice() { return s_pDevice; }
 
-  static bool IsShaderValid() { return s_bShaderValid; }
+  static void SetPermutationVariable(const char* szVariable, const char* szValue, ezGALContext* pContext = nullptr);
+
+  /// \brief Sets the currently active shader on the given render context. If pContext is null, the state is set for the primary context.
+  ///
+  /// This function has no effect until the next drawcall on the context.
+  static void SetActiveShader(ezShaderResourceHandle hShader, ezGALContext* pContext = nullptr);
+
+  /// \brief Evaluates the currently active shader program and then returns that.
+  /// Can be used to determine the shader that needs to be used to create a vertex declaration.
+  static ezGALShaderHandle GetActiveGALShader(ezGALContext* pContext = nullptr);
+
+  static void SetShaderCacheDirectory(const char* szDirectory) { s_ShaderCacheDirectory = szDirectory; }
+
+  static const ezString& GetShaderCacheDirectory() { return s_ShaderCacheDirectory; }
 
 private:
+  EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(Graphics, ShaderManager);
 
-  struct ShaderConfig
+  static void OnEngineShutdown();
+
+  struct ContextState
   {
-    ezString m_PermutationVarsUsed;
-    bool m_bShaderValid;
+    ContextState()
+    {
+      m_bStateChanged = true;
+      m_bStateValid = false;
+    }
+
+    bool m_bStateChanged;
+    bool m_bStateValid;
+    ezShaderResourceHandle m_hActiveShader;
+    ezGALShaderHandle m_hActiveGALShader;
+    ezMap<ezString, ezString> m_PermutationVariables;
   };
 
-  struct ShaderProgramData
-  {
-    ezGALShaderHandle m_hShader;
-    ezGALVertexDeclarationHandle m_hVertexDeclaration;
-  };
-
-  static ezMap<ezString, ShaderConfig> s_ShaderConfigs;
+  static void SetContextState(ezGALContext* pContext, ContextState& state);
+  static void ContextEventHandler(ezGALContext::ezGALContextEvent& ed);
 
   static ezPermutationGenerator s_AllowedPermutations;
-  static ezMap<ezString, ezString> s_PermutationVariables;
+  static bool s_bEnableRuntimeCompilation;
   static ezString s_sPlatform;
-  static bool s_bShaderValid;
-  static ezMap<ezString, ShaderProgramData> s_ShaderPrograms;
   static ezGALDevice* s_pDevice;
+  static ezMap<ezGALContext*, ContextState> s_ContextState;
+  static ezString s_ShaderCacheDirectory;
 };
 
 

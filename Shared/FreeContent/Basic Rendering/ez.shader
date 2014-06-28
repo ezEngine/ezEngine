@@ -5,6 +5,7 @@ ALL
 [PERMUTATIONS]
 
 COLORED
+COLORVALUE
 
 [VERTEXSHADER]
 
@@ -68,9 +69,9 @@ layout(location = 0, index = 0) out vec4 outFragColor;
 void main()
 {
 #if COLORED
-  outFragColor = vec4(0.0, 1.0, 0.0, 1.0);
+  outFragColor = vec4(0.0, COLORVALUE / 255.0, 0.0, 1.0);
 #else
-  outFragColor = vec4(inTex0, 0.0, 1.0);
+  outFragColor = vec4((COLORVALUE / 255.0) * inTex0, 0.0, 1.0);
 #endif
 }
 
@@ -81,9 +82,9 @@ void main()
 float4 main(PS_IN Input) : SV_Target
 {
 #if COLORED
-  return float4(0.0f, Input.tex0, 1.0f);
+  return float4(0.0f, (COLORVALUE / 255.0) * Input.tex0, 1.0f);
 #else
-  return float4(0.0f, 0.0f, 1.0f, 1.0f);
+  return float4(0.0f, 0.0f, COLORVALUE / 255.0, 1.0f);
 #endif
   //return float4(TileTex.Sample(TileSampler, Input.tex0).rgba);
   //return float4(Input.norm, 1.0f);

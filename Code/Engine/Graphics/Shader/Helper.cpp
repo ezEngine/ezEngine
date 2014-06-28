@@ -1,0 +1,73 @@
+#include <Graphics/PCH.h>
+#include <Graphics/Shader/Helper.h>
+
+void ezTextSectionizer::Clear()
+{
+  m_Sections.Clear();
+  m_sText.Clear();
+}
+
+void ezTextSectionizer::AddSection(const char* szName)
+{
+  m_Sections.PushBack(ezTextSection(szName));
+}
+
+void ezTextSectionizer::Process(const char* szText)
+{
+  for (ezUInt32 i = 0; i < m_Sections.GetCount(); ++i)
+    m_Sections[i].Reset();
+
+  m_sText = szText;
+
+
+  for (ezUInt32 s = 0; s < m_Sections.GetCount(); ++s)
+  {
+    m_Sections[s].m_szSectionStart = m_sText.FindSubString_NoCase(m_Sections[s].m_sName.GetData());
+
+    if (m_Sections[s].m_szSectionStart != nullptr)
+      m_Sections[s].m_Content = ezStringIterator(m_Sections[s].m_szSectionStart + m_Sections[s].m_sName.GetElementCount());
+  }
+
+  for (ezUInt32 s = 0; s < m_Sections.GetCount(); ++s)
+  {
+    if (m_Sections[s].m_szSectionStart == nullptr)
+      continue;
+
+    for (ezUInt32 s2 = 0; s2 < m_Sections.GetCount(); ++s2)
+    {
+      if (s == s2)
+        continue;
+
+      if (m_Sections[s2].m_szSectionStart > m_Sections[s].m_szSectionStart)
+      {
+        const char* szContentStart = m_Sections[s].m_Content.GetStart();
+        const char* szSectionEnd = ezMath::Min(m_Sections[s].m_Content.GetEnd(), m_Sections[s2].m_szSectionStart);
+
+        m_Sections[s].m_Content = ezStringIterator(szContentStart, szSectionEnd, szContentStart);
+      }
+    }
+  }
+
+}
+
+ezStringIterator ezTextSectionizer::GetSectionContent(ezUInt32 uiSection) const
+{
+  return m_Sections[uiSection].m_Content;
+}
+
+void GetShaderSections(const char* szContent, ezTextSectionizer& out_Sections)
+{
+  out_Sections.Clear();
+
+  out_Sections.AddSection("[PLATFORMS]");
+  out_Sections.AddSection("[PERMUTATIONS]");
+  out_Sections.AddSection("[VERTEXSHADER]");
+  out_Sections.AddSection("[HULLSHADER]");
+  out_Sections.AddSection("[DOMAINSHADER]");
+  out_Sections.AddSection("[GEOMETRYSHADER]");
+  out_Sections.AddSection("[PIXELSHADER]");
+  out_Sections.AddSection("[COMPUTESHADER]");
+
+  out_Sections.Process(szContent);
+}
+

@@ -89,7 +89,7 @@ ResourceType* ezResourceManager::BeginAcquireResource(const ezResourceHandle<Res
 
           if (!m_WorkerGPU[iWorkerGPU].IsTaskFinished())
           {
-            ezTaskSystem::WaitForTask(&m_WorkerGPU[i]);
+            ezTaskSystem::WaitForTask(&m_WorkerGPU[iWorkerGPU]);
             break; // we waited for one of them, that's enough for this round
           }
         }

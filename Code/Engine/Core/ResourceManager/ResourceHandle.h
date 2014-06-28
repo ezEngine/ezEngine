@@ -91,6 +91,16 @@ public:
     m_pResource = NULL;
   }
 
+  EZ_FORCE_INLINE bool operator==(const ezResourceHandle<ResourceType>& rhs) const
+  {
+    return m_pResource == rhs.m_pResource;
+  }
+
+  EZ_FORCE_INLINE bool operator!=(const ezResourceHandle<ResourceType>& rhs) const
+  {
+    return m_pResource != rhs.m_pResource;
+  }
+
 private:
   // you must go through the resource manager to get access to the resource pointer
   friend class ezResourceManager;

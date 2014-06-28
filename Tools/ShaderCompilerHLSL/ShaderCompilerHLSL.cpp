@@ -2,14 +2,16 @@
 #include <ShaderCompilerHLSL/ShaderCompilerHLSL.h>
 #include <d3dcompiler.h>
 
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezShaderCompilerHLSL, ezShaderProgramCompiler, ezRTTIDefaultAllocator<ezShaderCompilerHLSL>);
+  // no properties or message handlers
+EZ_END_DYNAMIC_REFLECTED_TYPE();
+
 void OnLoadPlugin(bool bReloading) { }
 void OnUnloadPlugin(bool bReloading) { }
 
 ezPlugin g_Plugin(false, OnLoadPlugin, OnUnloadPlugin);
 
 EZ_DYNAMIC_PLUGIN_IMPLEMENTATION(ezShaderCompilerHLSLPlugin);
-
-ezShaderCompilerHLSL Compiler;
 
 ezDynamicArray<ezUInt8> CompileDXShader(const char* source, const char* profile, const char* entryPoint)
 {

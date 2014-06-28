@@ -9,6 +9,7 @@ class EZ_GRAPHICS_DLL ezShaderStageBinary
 {
 public:
   ezShaderStageBinary();
+  ~ezShaderStageBinary();
 
   ezResult Write(ezStreamWriterBase& Stream) const;
   ezResult Read(ezStreamReaderBase& Stream);
@@ -17,7 +18,13 @@ public:
   ezUInt32 m_uiSourceHash;
   ezGALShaderStage::Enum m_Stage;
   ezDynamicArray<ezUInt8> m_ByteCode;
+  ezScopedRefPointer<ezGALShaderByteCode> m_pGALByteCode;
 
+  ezResult WriteStageBinary() const;
+
+  static ezDeque<ezGALShaderByteCode*> s_GALByteCodes;
+
+  static ezShaderStageBinary* LoadStageBinary(ezGALShaderStage::Enum Stage, ezUInt32 uiHash);
 
   static ezMap<ezUInt32, ezShaderStageBinary> s_ShaderStageBinaries[ezGALShaderStage::ENUM_COUNT];
 };
