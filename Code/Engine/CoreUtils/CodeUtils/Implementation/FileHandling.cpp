@@ -145,9 +145,11 @@ ezResult ezPreprocessor::DefaultFileOpen(const char* szAbsoluteFile, ezDynamicAr
   if (r.Open(szAbsoluteFile).Failed())
     return EZ_FAILURE;
 
+#if EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
   ezFileStats stats;
   if (ezOSFile::GetFileStats(r.GetFilePathAbsolute().GetData(), stats).Succeeded())
     out_FileModification = stats.m_LastModificationTime;
+#endif
 
   ezUInt8 Temp[4096];
 

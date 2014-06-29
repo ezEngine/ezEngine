@@ -35,11 +35,13 @@ ezResult ezShaderCompiler::FileOpen(const char* szAbsoluteFile, ezDynamicArray<e
   if (r.Open(szAbsoluteFile).Failed())
     return EZ_FAILURE;
 
+#if EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
   ezFileStats stats;
   if (ezOSFile::GetFileStats(r.GetFilePathAbsolute().GetData(), stats).Succeeded())
   {
     out_FileModification = stats.m_LastModificationTime;
   }
+#endif
 
   ezUInt8 Temp[4096];
 
@@ -88,9 +90,11 @@ ezResult ezShaderCompiler::CompileShader(const char* szFile, const ezPermutation
     
     sFileContent.ReadAll(File);
 
+#if EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
     ezFileStats stats;
     if (ezOSFile::GetFileStats(File.GetFilePathAbsolute().GetData(), stats).Succeeded())
       iMainFileTimeStamp = stats.m_LastModificationTime.GetInt64(ezSIUnitOfTime::Second);
+#endif
   }
 
   

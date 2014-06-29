@@ -134,6 +134,7 @@ struct ShaderPermutationResourceLoadData
 
 ezTimestamp ezShaderPermutationResourceLoader::GetFileTimestamp(const char* szFile)
 {
+#if EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
   bool bExisted = false;
   auto it = m_FileTimestamps.FindOrAdd(szFile, &bExisted);
 
@@ -153,6 +154,9 @@ ezTimestamp ezShaderPermutationResourceLoader::GetFileTimestamp(const char* szFi
   }
 
   return it.Value().m_FileTimestamp;
+#else
+  return ezTimestamp();
+#endif
 }
 
 ezResult ezShaderPermutationResourceLoader::RunCompiler(const ezResourceBase* pResource, ezShaderPermutationBinary& BinaryInfo, bool bForce)
