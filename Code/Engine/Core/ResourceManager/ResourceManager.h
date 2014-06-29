@@ -72,7 +72,9 @@ public:
 
   static ezResourceTypeLoader* GetDefaultResourceLoader() { return m_pDefaultResourceLoader; }
 
-  static void Shutdown();
+  static void OnEngineShutdown();
+
+  static void OnCoreShutdown();
 
   template<typename ResourceType>
   static void PreloadResource(const ezResourceHandle<ResourceType>& hResource, ezTime tShouldBeAvailableIn);
@@ -107,14 +109,19 @@ private:
     ezTime m_DueDate;
     ezResourceBase* m_pResource;
 
+    EZ_FORCE_INLINE bool operator==(const LoadingInfo& rhs) const
+    {
+      return m_pResource == rhs.m_pResource;
+    }
+
     inline bool operator<(const LoadingInfo& rhs) const
     {
-      if (m_DueDate > rhs.m_DueDate)
-        return true;
       if (m_DueDate < rhs.m_DueDate)
+        return true;
+      if (m_DueDate > rhs.m_DueDate)
         return false;
 
-      return m_pResource > rhs.m_pResource;
+      return m_pResource < rhs.m_pResource;
     }
   };
 

@@ -111,6 +111,12 @@ public:
 
     ezInputManager::SetInputActionConfig("Main", "ToggleShader", cfg, true);
 
+    cfg = ezInputManager::GetInputActionConfig("Main", "PreloadShader");
+    cfg.m_sInputSlotTrigger[0] = ezInputSlot_KeyP;
+
+    ezInputManager::SetInputActionConfig("Main", "PreloadShader", cfg, true);
+
+
     // Create a window for rendering
     ezWindowCreationDesc WindowCreationDesc;
     WindowCreationDesc.m_ClientAreaSize.width = g_uiWindowWidth;
@@ -155,7 +161,7 @@ public:
       ezShaderManager::SetPlatform("DX11_SM40", m_pDevice, true);
 #endif
 
-    m_hShader = ezResourceManager::GetResourceHandle<ezShaderResource>("ez.shader");
+    m_hShader = ezResourceManager::GetResourceHandle<ezShaderResource>("Shaders/ez2.shader");
 
     ezShaderManager::SetActiveShader(m_hShader);
     
@@ -257,6 +263,14 @@ public:
 
       ++iPerm;
       iPerm %= 2;
+    }
+
+    if (ezInputManager::GetInputActionState("Main", "PreloadShader") == ezKeyState::Pressed)
+    {
+      ezPermutationGenerator All;
+      All.ReadFromFile("ShaderPermutations.txt", ezShaderManager::GetPlatform().GetData());
+
+      ezShaderManager::PreloadPermutations(m_hShader, All, ezTime::Milliseconds(10000.0));
     }
 
     ezClock::UpdateAllGlobalClocks();
@@ -362,12 +376,9 @@ public:
     EZ_DEFAULT_DELETE(m_pObj);
     m_hShader.Invalidate();
 
-    while (ezResourceManager::FreeUnusedResources() > 0)
-    {
-    }
+    ezStartup::ShutdownEngine();
 
-    for (ezUInt32 i = 0; i < ezGALShaderStage::ENUM_COUNT; ++i)
-      ezShaderStageBinary::s_ShaderStageBinaries[i].Clear();
+    ezResourceManager::OnEngineShutdown();
 
     m_pDevice->Shutdown();
 
@@ -381,7 +392,7 @@ public:
     m_pDevice->DestroyResourceView(m_hTexView);
     //m_pDevice->DestroyRenderTargetConfig(m_hBBRT);
 
-    
+    ezResourceManager::OnCoreShutdown();
 
     EZ_DEFAULT_DELETE(m_pDevice);
 

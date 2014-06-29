@@ -18,12 +18,14 @@ public:
     ezString m_sValue;
   };
 
+  void Clear() { m_Permutations.Clear(); }
+
   void AddPermutation(const char* szVariable, const char* szValue);
   ezUInt32 GetPermutationCount() const;
-  void GetPermutation(ezUInt32 uiPerm, ezDeque<PermutationVar>& out_PermVars) const;
+  void GetPermutation(ezUInt32 uiPerm, ezHybridArray<PermutationVar, 16>& out_PermVars) const;
   void RemoveVariable(const char* szVariable) { m_Permutations.Erase(szVariable); }
 
-  static ezUInt32 GetHash(const ezDeque<PermutationVar>& PermVars);
+  static ezUInt32 GetHash(const ezHybridArray<PermutationVar, 16>& PermVars);
 
   const ezMap<ezString, ezSet<ezString> >& GetPermutationSet() const { return m_Permutations; }
 

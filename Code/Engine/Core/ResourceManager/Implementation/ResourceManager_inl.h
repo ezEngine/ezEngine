@@ -121,7 +121,9 @@ void ezResourceManager::PreloadResource(const ezResourceHandle<ResourceType>& hR
 {
   ResourceType* pResource = BeginAcquireResource(hResource, ezResourceAcquireMode::PointerOnly);
 
-  pResource->SetDueDate(ezMath::Min(ezTime::Now() + tShouldBeAvailableIn, pResource->GetDueDate()));
+  const ezTime tNow = ezTime::Now();
+
+  pResource->SetDueDate(ezMath::Min(tNow + tShouldBeAvailableIn, pResource->m_DueDate));
   InternalPreloadResource(pResource, tShouldBeAvailableIn <= ezTime::Seconds(0.0)); // if the user set the timeout to zero or below, it will be scheduled immediately
 
   EndAcquireResource(pResource);

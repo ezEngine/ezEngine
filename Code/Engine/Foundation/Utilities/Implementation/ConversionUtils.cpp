@@ -412,6 +412,34 @@ ezInt8 HexCharacterToIntValue(char Character)
   return -1;
 }
 
+ezUInt32 ConvertHexStringToUInt32(const char* szHEX)
+{
+  /// \test This is new
+
+  if (ezStringUtils::IsNullOrEmpty(szHEX))
+    return 0;
+
+  ezUInt32 uiResult = 0;
+
+  // skip 0x
+  if (szHEX[0] == '0' && szHEX[1] == 'x')
+    szHEX += 2;
+
+  // convert two characters to one byte, at a time
+  // try not to run out of buffer space
+  while (*szHEX != '\0')
+  {
+    ezUInt8 uiValue = ezConversionUtils::HexCharacterToIntValue(*szHEX);
+    
+    uiResult <<= 4;
+    uiResult += uiValue;
+
+    szHEX += 1;
+  }
+
+  return uiResult;
+}
+
 ezString ToString(ezInt8 value)
 {
   ezStringBuilder sb;

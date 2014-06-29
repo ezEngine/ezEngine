@@ -2,8 +2,10 @@
 
 #include <Graphics/Basics.h>
 #include <Graphics/Shader/ShaderPermutationBinary.h>
+#include <Graphics/ShaderCompiler/PermutationGenerator.h>
 #include <Core/ResourceManager/Resource.h>
 #include <Core/ResourceManager/ResourceTypeLoader.h>
+#include <Foundation/Time/Timestamp.h>
 
 class ezShaderPermutationResource;
 typedef ezResourceHandle<ezShaderPermutationResource> ezShaderPermutationResourceHandle;
@@ -31,6 +33,7 @@ private:
   virtual void UpdateContent(ezStreamReaderBase& Stream) override;
   virtual void UpdateMemoryUsage() override;
   virtual void CreateResource(const ezShaderPermutationResourceDescriptor& descriptor) override;
+  virtual ezResourceTypeLoader* GetDefaultResourceTypeLoader() const override;
 
 private:
 
@@ -41,3 +44,24 @@ private:
   ezGALVertexDeclarationHandle m_hVertexDeclaration;
 };
 
+
+class ezShaderPermutationResourceLoader : public ezResourceTypeLoader
+{
+public:
+
+  virtual ezResourceLoadData OpenDataStream(const ezResourceBase* pResource) override;
+  virtual void CloseDataStream(const ezResourceBase* pResource, const ezResourceLoadData& LoaderData) override;
+
+private:
+
+  ezResult RunCompiler(const ezResourceBase* pResource, ezShaderPermutationBinary& BinaryInfo, bool bForce);
+  ezTimestamp GetFileTimestamp(const char* szFile);
+
+  struct FileCheckCache
+  {
+    ezTimestamp m_FileTimestamp;
+    ezTime m_LastCheck;
+  };
+
+  ezMap<ezString, FileCheckCache> m_FileTimestamps;
+};

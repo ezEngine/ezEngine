@@ -86,7 +86,7 @@ void SampleGameApp::BeforeEngineShutdown()
 
   EZ_DEFAULT_DELETE(m_pWindow);
   
-  ezResourceManager::Shutdown();
+  ezResourceManager::OnCoreShutdown();
 
   if (ezPlugin::UnloadPlugin("ezInspectorPlugin") == EZ_SUCCESS)
   {

@@ -7,6 +7,66 @@
 #include <RendererFoundation/Context/Context.h>
 #include <Core/ResourceManager/ResourceManager.h>
 
+const ezPermutationGenerator* ezShaderManager::GetGeneratorForPermutation(ezUInt32 uiPermutationHash)
+{
+  auto it = s_PermutationHashCache.Find(uiPermutationHash);
+
+  if (it.IsValid())
+    return &it.Value();
+
+  return nullptr;
+}
+
+void ezShaderManager::PreloadPermutations(ezShaderResourceHandle hShader, const ezPermutationGenerator& MainGenerator, ezTime tShouldBeAvailableIn)
+{
+  ezResourceLock<ezShaderResource> pShader(hShader, ezResourceAcquireMode::NoFallback);
+
+  ezPermutationGenerator Generator = MainGenerator;
+  Generator.RemoveUnusedPermutations(pShader->GetUsedPermutationVars());
+
+  ezHybridArray<ezPermutationGenerator::PermutationVar, 16> UsedPermVars;
+
+  for (ezUInt32 p = 0; p < Generator.GetPermutationCount(); ++p)
+  {
+    Generator.GetPermutation(p, UsedPermVars);
+
+    PreloadSinglePermutation(hShader, UsedPermVars, tShouldBeAvailableIn);
+  }
+}
+
+ezShaderPermutationResourceHandle ezShaderManager::PreloadSinglePermutation(ezShaderResourceHandle hShader, const ezHybridArray<ezPermutationGenerator::PermutationVar, 16>& UsedPermVars, ezTime tShouldBeAvailableIn)
+{
+  ezResourceLock<ezShaderResource> pShader(hShader, ezResourceAcquireMode::NoFallback);
+
+  const ezUInt32 uiPermutationHash = ezPermutationGenerator::GetHash(UsedPermVars);
+
+  /// \todo Mutex
+
+  bool bExisted = false;
+  auto itPermCache = s_PermutationHashCache.FindOrAdd(uiPermutationHash, &bExisted);
+
+  if (!bExisted)
+  {
+    // store this set of permutations in a generator
+    for (ezUInt32 pv = 0; pv < UsedPermVars.GetCount(); ++pv)
+      itPermCache.Value().AddPermutation(UsedPermVars[pv].m_sVariable.GetData(), UsedPermVars[pv].m_sValue.GetData());
+  }
+
+  ezStringBuilder sShaderFile = GetShaderCacheDirectory();
+  sShaderFile.AppendPath(GetPlatform().GetData());
+  sShaderFile.AppendPath(pShader->GetResourceID().GetData());
+  sShaderFile.ChangeFileExtension("");
+  if (sShaderFile.EndsWith("."))
+    sShaderFile.Shrink(0, 1);
+  sShaderFile.AppendFormat("%08X.permutation", uiPermutationHash);
+
+  ezShaderPermutationResourceHandle hShaderPermutation = ezResourceManager::GetResourceHandle<ezShaderPermutationResource>(sShaderFile.GetData());
+
+  ezResourceManager::PreloadResource(hShaderPermutation, tShouldBeAvailableIn);
+
+  return hShaderPermutation;
+}
+
 void ezShaderManager::ContextEventHandler(ezGALContext::ezGALContextEvent& ed)
 {
   switch (ed.m_EventType)
@@ -124,45 +184,18 @@ void ezShaderManager::SetContextState(ezGALContext* pContext, ContextState& stat
 
   ezResourceLock<ezShaderResource> pShader(state.m_hActiveShader, ezResourceAcquireMode::AllowFallback);
 
-  ezPermutationGenerator PermGen;
+  state.m_PermGenerator.Clear();
   for (auto itPerm = state.m_PermutationVariables.GetIterator(); itPerm.IsValid(); ++itPerm)
-    PermGen.AddPermutation(itPerm.Key().GetData(), itPerm.Value().GetData());
+    state.m_PermGenerator.AddPermutation(itPerm.Key().GetData(), itPerm.Value().GetData());
 
-  PermGen.RemoveUnusedPermutations(pShader->GetUsedPermutationVars());
+  state.m_PermGenerator.RemoveUnusedPermutations(pShader->GetUsedPermutationVars());
 
-  EZ_ASSERT(PermGen.GetPermutationCount() == 1, "bla");
+  EZ_ASSERT(state.m_PermGenerator.GetPermutationCount() == 1, "Invalid shader setup");
 
-  ezDeque<ezPermutationGenerator::PermutationVar> UsedPermVars;
-  PermGen.GetPermutation(0, UsedPermVars);
+  ezHybridArray<ezPermutationGenerator::PermutationVar, 16> UsedPermVars;
+  state.m_PermGenerator.GetPermutation(0, UsedPermVars);
 
-  const ezUInt32 uiShaderHash = ezPermutationGenerator::GetHash(UsedPermVars);
-
-  ezStringBuilder sShaderFile = GetShaderCacheDirectory();
-  sShaderFile.AppendPath(GetPlatform().GetData());
-  sShaderFile.AppendPath(pShader->GetResourceID().GetData());
-  sShaderFile.ChangeFileExtension("");
-  if (sShaderFile.EndsWith("."))
-    sShaderFile.Shrink(0, 1);
-  sShaderFile.AppendFormat("%08X.permutation", uiShaderHash);
-
-  ezShaderPermutationResourceHandle hShaderPermutation = ezResourceManager::GetResourceHandle<ezShaderPermutationResource>(sShaderFile.GetData());
-
-  if (s_bEnableRuntimeCompilation)
-  {
-    ezResourceLock<ezShaderPermutationResource> pShaderPermutation(hShaderPermutation, ezResourceAcquireMode::PointerOnly);
-
-    if (pShaderPermutation->GetLoadingState() == ezResourceLoadState::Uninitialized)
-    {
-      // compile
-
-      ezFileReader ShaderProgramFile;
-      if (ShaderProgramFile.Open(sShaderFile.GetData()).Failed())
-      {
-        ezShaderCompiler sc;
-        sc.CompileShader(pShader->GetResourceID().GetData(), PermGen, s_sPlatform.GetData());
-      }
-    }
-  }
+  ezShaderPermutationResourceHandle hShaderPermutation = PreloadSinglePermutation(state.m_hActiveShader, UsedPermVars, ezTime::Seconds(0.0));
 
   ezResourceLock<ezShaderPermutationResource> pShaderPermutation(hShaderPermutation, ezResourceAcquireMode::AllowFallback);
 

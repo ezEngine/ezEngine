@@ -19,8 +19,6 @@ public:
 
   ezGALShaderByteCode(const void* pSource, ezUInt32 uiSize);
 
-  ~ezGALShaderByteCode();
-
   inline const void* GetByteCode() const;
 
   inline ezUInt32 GetSize() const;

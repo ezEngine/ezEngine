@@ -16,6 +16,10 @@ ezResult ezShaderCompilerGLSL::Compile(ezShaderProgramData& inout_Data, ezLogInt
 {
   for (ezUInt32 stage = 0; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
   {
+    // shader already compiled
+    if (!inout_Data.m_StageBinary[stage].m_ByteCode.IsEmpty())
+      continue;
+
     const ezUInt32 uiLength = ezStringUtils::GetStringElementCount(inout_Data.m_szShaderSource[stage]);
 
     if (uiLength > 0)

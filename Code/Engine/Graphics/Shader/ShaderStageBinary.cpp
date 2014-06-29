@@ -21,9 +21,10 @@ ezShaderStageBinary::~ezShaderStageBinary()
     ezGALShaderByteCode* pByteCode = m_pGALByteCode;
     m_pGALByteCode = nullptr;
 
-    EZ_ASSERT(pByteCode->GetRefCount() == 0, "Shader Bytecode is still referenced.");
+    //EZ_ASSERT(pByteCode->GetRefCount() == 0, "Shader Bytecode is still referenced.");
 
-    EZ_DEFAULT_DELETE(pByteCode);
+    if (pByteCode->GetRefCount() == 0)
+      EZ_DEFAULT_DELETE(pByteCode);
   }
 }
 
@@ -122,7 +123,7 @@ ezShaderStageBinary* ezShaderStageBinary::LoadStageBinary(ezGALShaderStage::Enum
     ezFileReader StageFileIn;
     if (StageFileIn.Open(sShaderStageFile.GetData()).Failed())
     {
-      ezLog::Error("Could not open shader stage file '%s' for reading", sShaderStageFile.GetData());
+      //ezLog::Error("Could not open shader stage file '%s' for reading", sShaderStageFile.GetData());
       return nullptr;
     }
 

@@ -30,8 +30,26 @@ void ezResourceManager::InternalPreloadResource(ezResourceBase* pResource, bool 
 
   EZ_LOCK(ResourceMutex);
 
-  if (pResource->m_bIsPreloading)
+  if (pResource->GetLoadingState() == ezResourceLoadState::Loaded && pResource->m_uiLoadedQualityLevel >= pResource->m_uiMaxQualityLevel)
     return;
+
+  // if we are already preloading this resource, but now it has highest priority
+  // and it is still in the task queue (so not yet started)
+  if (pResource->m_bIsPreloading)
+  {
+    if (bHighestPriority)
+    {
+      LoadingInfo li;
+      li.m_pResource = pResource;
+
+      // move it to the front of the queue
+      // if it is not in the queue anymore, it has already been started by some thread
+      if (m_RequireLoading.Remove(li))
+        m_RequireLoading.PushFront(li);
+    }
+
+    return;
+  }
 
   EZ_ASSERT(!pResource->m_bIsPreloading, "");
   pResource->m_bIsPreloading = true;
@@ -42,9 +60,9 @@ void ezResourceManager::InternalPreloadResource(ezResourceBase* pResource, bool 
   //li.m_DueDate = pResource->GetLoadingDeadline();
 
   if (bHighestPriority)
-    m_RequireLoading.PushBack(li);
-  else
     m_RequireLoading.PushFront(li);
+  else
+    m_RequireLoading.PushBack(li);
 
   RunWorkerTask();
 }
@@ -157,9 +175,9 @@ void ezResourceManagerWorker::Execute()
       return;
     }
 
-    auto it = ezResourceManager::m_RequireLoading.PeekBack();
+    auto it = ezResourceManager::m_RequireLoading.PeekFront();
     pResourceToLoad = it.m_pResource;
-    ezResourceManager::m_RequireLoading.PopBack();
+    ezResourceManager::m_RequireLoading.PopFront();
   }
 
   const ezResourceLoadState::Enum CurState = pResourceToLoad->GetLoadingState();
@@ -167,7 +185,7 @@ void ezResourceManagerWorker::Execute()
   ezResourceTypeLoader* pLoader = ezResourceManager::GetResourceTypeLoader(pResourceToLoad->GetDynamicRTTI());
 
   if (pLoader == NULL)
-    pLoader = ezResourceManager::GetDefaultResourceLoader();
+    pLoader = pResourceToLoad->GetDefaultResourceTypeLoader();
 
   EZ_ASSERT(pLoader != NULL, "No Loader function available for Resource Type '%s'", pResourceToLoad->GetDynamicRTTI()->GetTypeName());
 
@@ -336,7 +354,7 @@ void ezResourceManager::CleanUpResources()
 }
 */
 
-void ezResourceManager::Shutdown()
+void ezResourceManager::OnEngineShutdown()
 {
   {
     EZ_LOCK(ResourceMutex);
@@ -357,6 +375,11 @@ void ezResourceManager::Shutdown()
 
   // unload all resources until there are no more that can be unloaded
   while (FreeUnusedResources() > 0) { /* empty */ }
+}
+
+void ezResourceManager::OnCoreShutdown()
+{
+  OnEngineShutdown();
 
   if (!m_LoadedResources.IsEmpty())
   {

@@ -1,5 +1,6 @@
 #include <Graphics/PCH.h>
 #include <Graphics/Shader/Helper.h>
+#include <Foundation/Utilities/ConversionUtils.h>
 
 void ezTextSectionizer::Clear()
 {

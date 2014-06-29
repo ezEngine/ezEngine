@@ -4,12 +4,13 @@
 #include <Graphics/Shader/Helper.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
+#include <Foundation/IO/OSFile.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezShaderProgramCompiler, ezNoBase, ezRTTINoAllocator);
   // no properties or message handlers
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
-ezResult ezShaderCompiler::FileOpen(const char* szAbsoluteFile, ezDynamicArray<ezUInt8>& FileContent)
+ezResult ezShaderCompiler::FileOpen(const char* szAbsoluteFile, ezDynamicArray<ezUInt8>& FileContent, ezTimestamp& out_FileModification)
 {
   for (ezUInt32 stage = 0; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
   {
@@ -28,9 +29,17 @@ ezResult ezShaderCompiler::FileOpen(const char* szAbsoluteFile, ezDynamicArray<e
     }
   }
 
+  m_IncludeFiles.Insert(szAbsoluteFile);
+
   ezFileReader r;
   if (r.Open(szAbsoluteFile).Failed())
     return EZ_FAILURE;
+
+  ezFileStats stats;
+  if (ezOSFile::GetFileStats(r.GetFilePathAbsolute().GetData(), stats).Succeeded())
+  {
+    out_FileModification = stats.m_LastModificationTime;
+  }
 
   ezUInt8 Temp[4096];
 
@@ -70,13 +79,21 @@ ezResult ezShaderCompiler::CompileShader(const char* szFile, const ezPermutation
 {
   ezStringBuilder sFileContent, sTemp;
 
+  ezInt64 iMainFileTimeStamp = 0;
+
   {
     ezFileReader File;
     if (File.Open(szFile).Failed())
       return EZ_FAILURE;
     
     sFileContent.ReadAll(File);
+
+    ezFileStats stats;
+    if (ezOSFile::GetFileStats(File.GetFilePathAbsolute().GetData(), stats).Succeeded())
+      iMainFileTimeStamp = stats.m_LastModificationTime.GetInt64(ezSIUnitOfTime::Second);
   }
+
+  
 
   ezTextSectionizer Sections;
   GetShaderSections(sFileContent.GetData(), Sections);
@@ -122,7 +139,7 @@ ezResult ezShaderCompiler::CompileShader(const char* szFile, const ezPermutation
     {
       ezShaderProgramCompiler* pCompiler = static_cast<ezShaderProgramCompiler*>(pAllocator->Allocate());
 
-      CompileShader(szFile, Generator, szPlatform, pCompiler);
+      CompileShader(szFile, Generator, szPlatform, pCompiler, iMainFileTimeStamp);
 
       pAllocator->Deallocate(pCompiler);
     }
@@ -133,7 +150,7 @@ ezResult ezShaderCompiler::CompileShader(const char* szFile, const ezPermutation
   return EZ_SUCCESS;
 }
 
-ezResult ezShaderCompiler::CompileShader(const char* szFile, const ezPermutationGenerator& Generator, const char* szPlatform, ezShaderProgramCompiler* pCompiler)
+ezResult ezShaderCompiler::CompileShader(const char* szFile, const ezPermutationGenerator& Generator, const char* szPlatform, ezShaderProgramCompiler* pCompiler, ezInt64 iMainFileTimeStamp)
 {
   ezStringBuilder sTemp;
   ezStringBuilder sProcessed[ezGALShaderStage::ENUM_COUNT];
@@ -160,6 +177,8 @@ ezResult ezShaderCompiler::CompileShader(const char* szFile, const ezPermutation
 
       ezShaderProgramCompiler::ezShaderProgramData spd;
       spd.m_szPlatform = Platforms[p].GetData();
+
+      m_IncludeFiles.Clear();
 
       for (ezUInt32 stage = ezGALShaderStage::VertexShader; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
       {
@@ -188,6 +207,17 @@ ezResult ezShaderCompiler::CompileShader(const char* szFile, const ezPermutation
 
         spd.m_StageBinary[stage].m_Stage = (ezGALShaderStage::Enum) stage;
         spd.m_StageBinary[stage].m_uiSourceHash = ezHashing::MurmurHash(ezHashing::StringWrapper(sProcessed[stage].GetData()));
+
+        if (spd.m_StageBinary[stage].m_uiSourceHash != 0)
+        {
+          ezShaderStageBinary* pBinary = ezShaderStageBinary::LoadStageBinary((ezGALShaderStage::Enum) stage, spd.m_StageBinary[stage].m_uiSourceHash);
+
+          if (pBinary)
+          {
+            spd.m_StageBinary[stage] = *pBinary;
+            spd.m_bWriteToDisk[stage] = false;
+          }
+        }
       }
 
       if (pCompiler->Compile(spd, ezGlobalLog::GetInstance()).Failed())
@@ -199,7 +229,7 @@ ezResult ezShaderCompiler::CompileShader(const char* szFile, const ezPermutation
       {
         spb.m_uiShaderStageHashes[stage] = spd.m_StageBinary[stage].m_uiSourceHash;
 
-        if (spd.m_StageBinary[stage].m_uiSourceHash != 0)
+        if (spd.m_StageBinary[stage].m_uiSourceHash != 0 && spd.m_bWriteToDisk[stage])
         {
           if (spd.m_StageBinary[stage].WriteStageBinary().Failed())
           {
@@ -216,6 +246,17 @@ ezResult ezShaderCompiler::CompileShader(const char* szFile, const ezPermutation
       if (sTemp.EndsWith("."))
         sTemp.Shrink(0, 1);
       sTemp.AppendFormat("%08X.permutation", uiPermutationHash);
+
+      spb.m_IncludeFiles.Clear();
+      spb.m_IncludeFiles.Reserve(m_IncludeFiles.GetCount());
+
+      spb.m_iMaxTimeStamp = iMainFileTimeStamp;
+
+      for (auto it = m_IncludeFiles.GetIterator(); it.IsValid(); ++it)
+      {
+        spb.m_IncludeFiles.PushBack(it.Key());
+        spb.m_iMaxTimeStamp = ezMath::Max(spb.m_iMaxTimeStamp, m_FileCache.Lookup(it.Key()).Value().m_Timestamp.GetInt64(ezSIUnitOfTime::Second));
+      }
 
       ezFileWriter PermutationFileOut;
       EZ_VERIFY(PermutationFileOut.Open(sTemp.GetData()).Succeeded(), "Could not write file '%s'", sTemp.GetData());

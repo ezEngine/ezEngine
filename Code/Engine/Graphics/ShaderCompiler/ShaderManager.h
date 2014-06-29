@@ -8,6 +8,7 @@
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Context/Context.h>
 #include <Graphics/Shader/ShaderResource.h>
+#include <Graphics/Shader/ShaderPermutationResource.h>
 
 class EZ_GRAPHICS_DLL ezShaderManager
 {
@@ -34,10 +35,19 @@ public:
 
   static const ezString& GetShaderCacheDirectory() { return s_ShaderCacheDirectory; }
 
+  static bool IsRuntimeCompilationEnabled() { return s_bEnableRuntimeCompilation; }
+
+  static const ezPermutationGenerator* GetGeneratorForPermutation(ezUInt32 uiPermutationHash);
+
+  static void PreloadPermutations(ezShaderResourceHandle hShader, const ezPermutationGenerator& Generator, ezTime tShouldBeAvailableIn);
+
+  static ezShaderPermutationResourceHandle PreloadSinglePermutation(ezShaderResourceHandle hShader, const ezHybridArray<ezPermutationGenerator::PermutationVar, 16>& UsedPermVars, ezTime tShouldBeAvailableIn);
+
 private:
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(Graphics, ShaderManager);
 
   static void OnEngineShutdown();
+  static void OnCoreShutdown();
 
   struct ContextState
   {
@@ -52,6 +62,7 @@ private:
     ezShaderResourceHandle m_hActiveShader;
     ezGALShaderHandle m_hActiveGALShader;
     ezMap<ezString, ezString> m_PermutationVariables;
+    ezPermutationGenerator m_PermGenerator;
   };
 
   static void SetContextState(ezGALContext* pContext, ContextState& state);
@@ -63,6 +74,7 @@ private:
   static ezGALDevice* s_pDevice;
   static ezMap<ezGALContext*, ContextState> s_ContextState;
   static ezString s_ShaderCacheDirectory;
+  static ezMap<ezUInt32, ezPermutationGenerator> s_PermutationHashCache;
 };
 
 

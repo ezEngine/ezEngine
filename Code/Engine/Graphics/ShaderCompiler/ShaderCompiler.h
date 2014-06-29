@@ -28,12 +28,16 @@ public:
       m_szPlatform = nullptr;
 
       for (ezUInt32 stage = 0; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
+      {
+        m_bWriteToDisk[stage] = true;
         m_szShaderSource[stage] = nullptr;
+      }
     }
 
     const char* m_szPlatform;
     const char* m_szShaderSource[ezGALShaderStage::ENUM_COUNT];
     ezShaderStageBinary m_StageBinary[ezGALShaderStage::ENUM_COUNT];
+    bool m_bWriteToDisk[ezGALShaderStage::ENUM_COUNT];
   };
 
   virtual void GetSupportedPlatforms(ezHybridArray<ezString, 4>& Platforms) = 0;
@@ -50,7 +54,7 @@ public:
 
 private:
 
-  ezResult CompileShader(const char* szFile, const ezPermutationGenerator& Generator, const char* szPlatform, ezShaderProgramCompiler* pCompiler);
+  ezResult CompileShader(const char* szFile, const ezPermutationGenerator& Generator, const char* szPlatform, ezShaderProgramCompiler* pCompiler, ezInt64 iMainFileTimeStamp);
 
   struct ezShaderData
   {
@@ -59,13 +63,15 @@ private:
     ezString m_ShaderStageSource[ezGALShaderStage::ENUM_COUNT];
   };
 
-  ezResult FileOpen(const char* szAbsoluteFile, ezDynamicArray<ezUInt8>& FileContent);
+  ezResult FileOpen(const char* szAbsoluteFile, ezDynamicArray<ezUInt8>& FileContent, ezTimestamp& out_FileModification);
 
   ezStringBuilder m_StageSourceFile[ezGALShaderStage::ENUM_COUNT];
 
-  ezDeque<ezPermutationGenerator::PermutationVar> m_PermVars;
+  ezHybridArray<ezPermutationGenerator::PermutationVar, 16> m_PermVars;
   ezTokenizedFileCache m_FileCache;
   ezShaderData m_ShaderData;
+
+  ezSet<ezString> m_IncludeFiles;
 };
 
 

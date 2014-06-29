@@ -28,7 +28,7 @@ ezUInt32 ezPermutationGenerator::GetPermutationCount() const
   return uiPermutations;
 }
 
-void ezPermutationGenerator::GetPermutation(ezUInt32 uiPerm, ezDeque<PermutationVar>& out_PermVars) const
+void ezPermutationGenerator::GetPermutation(ezUInt32 uiPerm, ezHybridArray<PermutationVar, 16>& out_PermVars) const
 {
   out_PermVars.Clear();
 
@@ -54,7 +54,7 @@ void ezPermutationGenerator::GetPermutation(ezUInt32 uiPerm, ezDeque<Permutation
   }
 }
 
-ezUInt32 ezPermutationGenerator::GetHash(const ezDeque<PermutationVar>& PermVars)
+ezUInt32 ezPermutationGenerator::GetHash(const ezHybridArray<PermutationVar, 16>& PermVars)
 {
   ezStringBuilder s;
 

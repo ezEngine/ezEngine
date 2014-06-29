@@ -1,8 +1,9 @@
 #include <CoreUtils/PCH.h>
 #include <CoreUtils/CodeUtils/Preprocessor.h>
 #include <Foundation/Utilities/ConversionUtils.h>
+#include <Foundation/IO/OSFile.h>
 
-ezMap<ezString, ezTokenizer>::ConstIterator ezTokenizedFileCache::Lookup(const ezString& sFileName) const
+ezMap<ezString, ezTokenizedFileCache::FileData>::ConstIterator ezTokenizedFileCache::Lookup(const ezString& sFileName) const
 {
   EZ_LOCK(m_Mutex);
   auto it = m_Cache.Find(sFileName);
@@ -31,10 +32,14 @@ void ezTokenizedFileCache::SkipWhitespace(ezDeque<ezToken>& Tokens, ezUInt32& ui
     ++uiCurToken;
 }
 
-const ezTokenizer* ezTokenizedFileCache::Tokenize(const ezString& sFileName, const ezDynamicArray<ezUInt8>& FileContent, ezLogInterface* pLog)
+const ezTokenizer* ezTokenizedFileCache::Tokenize(const ezString& sFileName, const ezDynamicArray<ezUInt8>& FileContent, const ezTimestamp& FileTimeStamp, ezLogInterface* pLog)
 {
   EZ_LOCK(m_Mutex);
-  ezTokenizer* pTokenizer = &m_Cache[sFileName];
+
+  auto& data = m_Cache[sFileName];
+
+  data.m_Timestamp = FileTimeStamp;
+  ezTokenizer* pTokenizer = &data.m_Tokens;
   pTokenizer->Tokenize(FileContent, pLog);
 
   ezDeque<ezToken>& Tokens = pTokenizer->GetTokens();
@@ -134,11 +139,15 @@ ezResult ezPreprocessor::DefaultFileLocator(const char* szCurAbsoluteFile, const
   return EZ_SUCCESS;
 }
 
-ezResult ezPreprocessor::DefaultFileOpen(const char* szAbsoluteFile, ezDynamicArray<ezUInt8>& FileContent)
+ezResult ezPreprocessor::DefaultFileOpen(const char* szAbsoluteFile, ezDynamicArray<ezUInt8>& FileContent, ezTimestamp& out_FileModification)
 {
   ezFileReader r;
   if (r.Open(szAbsoluteFile).Failed())
     return EZ_FAILURE;
+
+  ezFileStats stats;
+  if (ezOSFile::GetFileStats(r.GetFilePathAbsolute().GetData(), stats).Succeeded())
+    out_FileModification = stats.m_LastModificationTime;
 
   ezUInt8 Temp[4096];
 
@@ -161,18 +170,20 @@ ezResult ezPreprocessor::OpenFile(const char* szFile, const ezTokenizer** pToken
 
   if (it.IsValid())
   {
-    *pTokenizer = &it.Value();
+    *pTokenizer = &it.Value().m_Tokens;
     return EZ_SUCCESS;
   }
 
+  ezTimestamp stamp;
+
   ezDynamicArray<ezUInt8> Content;
-  if (m_FileOpenCallback(szFile, Content).Failed())
+  if (m_FileOpenCallback(szFile, Content, stamp).Failed())
   {
     ezLog::Error(m_pLog, "Could not open file '%s'", szFile);
     return EZ_FAILURE;
   }
 
-  *pTokenizer = m_pUsedFileCache->Tokenize(szFile, Content, m_pLog);
+  *pTokenizer = m_pUsedFileCache->Tokenize(szFile, Content, stamp, m_pLog);
 
 
   return EZ_SUCCESS;

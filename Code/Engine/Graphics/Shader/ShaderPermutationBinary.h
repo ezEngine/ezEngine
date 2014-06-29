@@ -13,5 +13,8 @@ public:
 
   ezUInt32 m_uiShaderStateHash;
   ezUInt32 m_uiShaderStageHashes[ezGALShaderStage::ENUM_COUNT];
+
+  ezDynamicArray<ezString> m_IncludeFiles;
+  ezInt64 m_iMaxTimeStamp;
 };
 

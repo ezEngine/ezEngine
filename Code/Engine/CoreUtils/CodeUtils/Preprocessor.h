@@ -4,14 +4,21 @@
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Containers/Set.h>
+#include <Foundation/Time/Timestamp.h>
 
 /// \brief This object caches files in a tokenized state. It can be shared among ezPreprocessor instances to improve performance when
 /// they access the same files.
 class EZ_COREUTILS_DLL ezTokenizedFileCache
 {
 public:
+  struct FileData
+  {
+    ezTokenizer m_Tokens;
+    ezTimestamp m_Timestamp;
+  };
+
   /// \brief Checks whether \a sFileName is already in the cache, returns an iterator to it. If the iterator is invalid, the file is not cached yet.
-  ezMap<ezString, ezTokenizer>::ConstIterator Lookup(const ezString& sFileName) const;
+  ezMap<ezString, FileData>::ConstIterator Lookup(const ezString& sFileName) const;
 
   /// \brief Removes the cached content for \a sFileName from the cache. Should be used when the file content has changed and needs to be re-read.
   void Remove(const ezString& sFileName);
@@ -23,13 +30,13 @@ public:
   /// 
   //// The file content is tokenized first and all #line directives are evaluated, to update the line number and file origin for each token.
   /// Any errors are written to the given log.
-  const ezTokenizer* Tokenize(const ezString& sFileName, const ezDynamicArray<ezUInt8>& FileContent, ezLogInterface* pLog);
+  const ezTokenizer* Tokenize(const ezString& sFileName, const ezDynamicArray<ezUInt8>& FileContent, const ezTimestamp& FileTimeStamp, ezLogInterface* pLog);
 
 private:
   void SkipWhitespace(ezDeque<ezToken>& Tokens, ezUInt32& uiCurToken);
 
   mutable ezMutex m_Mutex;
-  ezMap<ezString, ezTokenizer> m_Cache;
+  ezMap<ezString, FileData> m_Cache;
 };
 
 /// \brief ezPreprocessor implements a standard C preprocessor. It can be used to preprocess files to get the output after macro expansion and #ifdef handling.
@@ -60,7 +67,7 @@ public:
   };
 
   /// \brief This type of callback is used to read an #include file. \a szAbsoluteFile is the path that the FileLocatorCB reported, the result needs to be stored in \a FileContent.
-  typedef ezDelegate<ezResult (const char* szAbsoluteFile, ezDynamicArray<ezUInt8>& FileContent)> FileOpenCB;
+  typedef ezDelegate<ezResult (const char* szAbsoluteFile, ezDynamicArray<ezUInt8>& FileContent, ezTimestamp& out_FileModification)> FileOpenCB;
 
   /// \brief This type of callback is used to retrieve the absolute path of the \a szIncludeFile when #included inside \a szCurAbsoluteFile.
   ///
@@ -216,7 +223,7 @@ private:
 private: // *** File Handling ***
   ezResult OpenFile(const char* szFile, const ezTokenizer** pTokenizer);
   static ezResult DefaultFileLocator(const char* szCurAbsoluteFile, const char* szIncludeFile, ezPreprocessor::IncludeType IncType, ezString& out_sAbsoluteFilePath);
-  static ezResult DefaultFileOpen(const char* szAbsoluteFile, ezDynamicArray<ezUInt8>& FileContent);
+  static ezResult DefaultFileOpen(const char* szAbsoluteFile, ezDynamicArray<ezUInt8>& FileContent, ezTimestamp& out_FileModification);
 
   FileOpenCB m_FileOpenCallback;
   FileLocatorCB m_FileLocatorCallback;

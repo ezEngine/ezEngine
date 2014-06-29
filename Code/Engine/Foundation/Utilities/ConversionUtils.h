@@ -120,6 +120,9 @@ namespace ezConversionUtils
   /// \note Returns -1 for invalid HEX characters.
   EZ_FOUNDATION_DLL ezInt8 HexCharacterToIntValue(char Character); // [tested]
 
+  /// \brief Converts a hex string (ie. 0xAABBCCDD) into its uint32 value.
+  EZ_FOUNDATION_DLL ezUInt32 ConvertHexStringToUInt32(const char* szHEX);
+
   /// \brief Converts a bool to a string
   EZ_FORCE_INLINE ezString ToString(bool value) // [tested]
   {

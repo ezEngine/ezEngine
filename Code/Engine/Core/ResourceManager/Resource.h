@@ -8,6 +8,8 @@
 #include <Core/ResourceManager/Implementation/Declarations.h>
 #include <Core/ResourceManager/ResourceHandle.h>
 
+class ezResourceTypeLoader;
+
 /// \brief The case class for all resources.
 ///
 /// \note Never derive directly from ezResourceBase, but derive from ezResource instead.
@@ -126,6 +128,15 @@ private:
   ///  m_uiLoadedQualityLevel and m_uiMaxQualityLevel (both are allowed to change)
   ///  m_LoadingState (should be MetaInfoAvailable or Loaded afterwards)
   virtual void UpdateContent(ezStreamReaderBase& Stream) = 0;
+
+  /// \brief Returns the resource type loader that should be used for this type of resource, unless it has been overridden on the ezResourceManager.
+  ///
+  /// By default, this redirects to ezResourceManager::GetDefaultResourceLoader. So there is one global default loader, that can be set
+  /// on the resource manager. Overriding this function will then allow to use a different resource loader on a specific type.
+  /// Additionally, one can override the resource loader from the outside, by setting it via ezResourceManager::SetResourceTypeLoader.
+  /// That last method always takes precedence and allows to modify the behavior without modifying the code for the resource.
+  /// But in the default case, the resource defines which loader is used.
+  virtual ezResourceTypeLoader* GetDefaultResourceTypeLoader() const;
 
 protected:
 

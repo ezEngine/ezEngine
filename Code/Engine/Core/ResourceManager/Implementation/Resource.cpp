@@ -1,5 +1,7 @@
 #include <Core/PCH.h>
 #include <Core/ResourceManager/Resource.h>
+#include <Core/ResourceManager/ResourceTypeLoader.h>
+#include <Core/ResourceManager/ResourceManager.h>
 
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezResourceBase, ezReflectedClass, ezRTTINoAllocator);
@@ -52,5 +54,11 @@ ezTime ezResourceBase::GetLoadingDeadline(ezTime tNow) const
 
   return ezMath::Min(DueDate, m_DueDate);
 }
+
+ezResourceTypeLoader* ezResourceBase::GetDefaultResourceTypeLoader() const
+{
+  return ezResourceManager::GetDefaultResourceLoader();
+}
+
 
 
