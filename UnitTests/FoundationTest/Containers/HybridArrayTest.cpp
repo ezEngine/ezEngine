@@ -75,6 +75,13 @@ EZ_CREATE_SIMPLE_TEST(Containers, HybridArray)
     EZ_TEST_BOOL(a1 == a2);
     EZ_TEST_BOOL(a1 == a3);
     EZ_TEST_BOOL(a2 == a3);
+
+    ezInt32 test[] = { 1, 2, 3, 4 };
+    ezArrayPtr<ezInt32> aptr(test);
+
+    ezHybridArray<ezInt32, 16> a4(aptr);
+
+    EZ_TEST_BOOL(a4 == aptr);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Move Constructor / Operator")
@@ -143,6 +150,12 @@ EZ_CREATE_SIMPLE_TEST(Containers, HybridArray)
     a2 = a1;
 
     EZ_TEST_BOOL(a1 == a2);
+
+    ezArrayPtr<ezInt32> arrayPtr(a1);
+
+    a2 = arrayPtr;
+
+    EZ_TEST_BOOL(a2 == arrayPtr);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator == / !=")

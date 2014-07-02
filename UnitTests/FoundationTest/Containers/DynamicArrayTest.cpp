@@ -81,6 +81,13 @@ EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
     EZ_TEST_BOOL(a1 == a2);
     EZ_TEST_BOOL(a1 == a3);
     EZ_TEST_BOOL(a2 == a3);
+
+    ezInt32 test[] = { 1, 2, 3, 4 };
+    ezArrayPtr<ezInt32> aptr(test);
+
+    ezDynamicArray<ezInt32> a4(aptr);
+
+    EZ_TEST_BOOL(a4 == aptr);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Move Constructor / Operator")

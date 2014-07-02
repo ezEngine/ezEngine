@@ -91,6 +91,12 @@ EZ_CREATE_SIMPLE_TEST(Containers, StaticArray)
     a2 = a1;
 
     EZ_TEST_BOOL(a1 == a2);
+
+    ezArrayPtr<ezInt32> arrayPtr(a1);
+
+    a2 = arrayPtr;
+
+    EZ_TEST_BOOL(a2 == arrayPtr);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator == / !=")

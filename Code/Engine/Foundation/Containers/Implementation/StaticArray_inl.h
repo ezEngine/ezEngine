@@ -65,12 +65,8 @@ EZ_FORCE_INLINE void ezStaticArray<T, C>::operator= (const ezStaticArray<T, Othe
 }
 
 template <typename T, ezUInt32 C>
-void ezStaticArray<T, C>::operator= (const ezArrayPtr<T>& rhs)
+EZ_FORCE_INLINE void ezStaticArray<T, C>::operator= (const ezArrayPtr<T>& rhs)
 {
-  EZ_ASSERT(rhs.GetCount() <= C, "Cannot copy an array of size %i into this array with capacity %i.", rhs.GetCount(), C);
-
-  this->SetCount(ezMath::Min(C, rhs.GetCount()));
-
-  ezMemoryUtils::Copy(this->m_pElements, rhs.GetPtr(), this->m_uiCount);
+  ezArrayBase<T, ezStaticArray<T, C>>::operator=(rhs);
 }
 

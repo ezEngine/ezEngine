@@ -14,6 +14,27 @@ ezArrayBase<T, Derived>::~ezArrayBase()
 }
 
 template <typename T, typename Derived>
+void ezArrayBase<T, Derived>::operator= (const ezArrayPtr<T>& rhs)
+{
+  const ezUInt32 uiOldCount = m_uiCount;
+  const ezUInt32 uiNewCount = rhs.GetCount();
+
+  if (uiNewCount > uiOldCount)
+  {
+    static_cast<Derived*>(this)->Reserve(uiNewCount);
+    ezMemoryUtils::Copy(m_pElements, rhs.GetPtr(), uiOldCount);
+    ezMemoryUtils::Construct(m_pElements + uiOldCount, rhs.GetPtr() + uiOldCount, uiNewCount - uiOldCount);
+  }
+  else
+  {
+    ezMemoryUtils::Copy(m_pElements, rhs.GetPtr(), uiNewCount);
+    ezMemoryUtils::Destruct(m_pElements + uiNewCount, uiOldCount - uiNewCount);
+  }
+
+  m_uiCount = uiNewCount;
+}
+
+template <typename T, typename Derived>
 EZ_FORCE_INLINE ezArrayBase<T, Derived>::operator const ezArrayPtr<T>() const
 {
   return ezArrayPtr<T>(m_pElements, m_uiCount);

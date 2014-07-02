@@ -18,6 +18,9 @@ public:
   /// \brief Destructor.
   ~ezArrayBase(); // [tested]
 
+  /// \brief Copies the data from some other contiguous array into this one.
+  void operator= (const ezArrayPtr<T>& rhs); // [tested]
+
   /// \brief Conversion to const ezArrayPtr.
   operator const ezArrayPtr<T>() const; // [tested]
 

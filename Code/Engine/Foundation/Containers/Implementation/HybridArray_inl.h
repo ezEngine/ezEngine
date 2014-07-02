@@ -14,7 +14,7 @@ ezHybridArrayBase<T, Size>::ezHybridArrayBase(const ezHybridArrayBase<T, Size>& 
   this->m_uiCapacity = Size;
   this->m_pAllocator = pAllocator;
 
-  *this = (ezArrayPtr<T>) other; // redirect this to the ezArrayPtr version
+  ezArrayBase<T, ezHybridArrayBase<T, Size>>::operator=((ezArrayPtr<T>)other); // redirect this to the ezArrayPtr version
 }
 
 template <typename T, ezUInt32 Size>
@@ -34,7 +34,7 @@ ezHybridArrayBase<T, Size>::ezHybridArrayBase(const ezArrayPtr<T>& other, ezAllo
   this->m_uiCapacity = Size;
   this->m_pAllocator = pAllocator;
 
-  *this = other;
+  ezArrayBase<T, ezHybridArrayBase<T, Size>>::operator=((ezArrayPtr<T>)other);
 }
 
 template <typename T, ezUInt32 Size>
@@ -57,14 +57,17 @@ EZ_FORCE_INLINE T* ezHybridArrayBase<T, Size>::GetStaticArray()
 template <typename T, ezUInt32 Size>
 EZ_FORCE_INLINE void ezHybridArrayBase<T, Size>::operator= (const ezHybridArrayBase<T, Size>& rhs)
 {
-  *this = (ezArrayPtr<T>) rhs; // redirect this to the ezArrayPtr version
+  ezArrayBase<T, ezHybridArrayBase<T, Size>>::operator=((ezArrayPtr<T>)rhs); // redirect this to the ezArrayPtr version
 }
 
 template <typename T, ezUInt32 Size>
 EZ_FORCE_INLINE void ezHybridArrayBase<T, Size>::operator= (ezHybridArrayBase<T, Size>&& rhs)
 {
   if (rhs.m_pElements == rhs.GetStaticArray() || (m_pAllocator != rhs.m_pAllocator))
-    *this = (ezArrayPtr<T>) rhs; // redirect this to the ezArrayPtr version
+  {
+    ezArrayBase<T, ezHybridArrayBase<T, Size>>::operator=((ezArrayPtr<T>)rhs); // redirect this to the ezArrayPtr version
+    rhs.Clear();
+  }
   else
   {
     // Move semantics !
@@ -84,13 +87,6 @@ EZ_FORCE_INLINE void ezHybridArrayBase<T, Size>::operator= (ezHybridArrayBase<T,
     rhs.m_pElements = rhs.GetStaticArray();
     rhs.m_uiCapacity = Size;
   }
-}
-
-template <typename T, ezUInt32 Size>
-void ezHybridArrayBase<T, Size>::operator= (const ezArrayPtr<T>& rhs)
-{
-  this->SetCount(rhs.GetCount());
-  ezMemoryUtils::Copy(this->m_pElements, rhs.GetPtr(), rhs.GetCount());
 }
 
 template <typename T, ezUInt32 Size>
@@ -219,10 +215,9 @@ void ezHybridArray<T, Size, A>::operator=(ezHybridArrayBase<T, Size>&& rhs)
   ezHybridArrayBase<T, Size>::operator=(std::move(rhs));
 }
 
-
 template <typename T, ezUInt32 Size, typename A>
 void ezHybridArray<T, Size, A>::operator=(const ezArrayPtr<T>& rhs)
 {
-  ezHybridArrayBase<T, Size>::operator=(rhs);
+  ezArrayBase<T, ezHybridArrayBase<T, Size>>::operator=((ezArrayPtr<T>)rhs);
 }
 
