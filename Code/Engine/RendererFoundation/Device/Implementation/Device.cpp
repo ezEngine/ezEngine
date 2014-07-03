@@ -120,6 +120,7 @@ ezGALBlendStateHandle ezGALDevice::CreateBlendState(const ezGALBlendStateCreatio
   if(it.IsValid())
   {
     ezGALBlendState* pBlendState = m_BlendStates[it.Value()];
+    pBlendState->AddRef(); 
     return it.Value();
   }
 
@@ -132,6 +133,7 @@ ezGALBlendStateHandle ezGALDevice::CreateBlendState(const ezGALBlendStateCreatio
   }
   else
   {
+    pBlendState->AddRef();
     return ezGALBlendStateHandle(m_BlendStates.Insert(pBlendState));
   }
 
@@ -144,9 +146,14 @@ void ezGALDevice::DestroyBlendState(ezGALBlendStateHandle hBlendState)
 
   if(m_BlendStates.TryGetValue(hBlendState, pBlendState))
   {
-    m_BlendStates.Remove(hBlendState);
+    pBlendState->ReleaseRef();
 
-    DestroyBlendStatePlatform(pBlendState);
+    if(pBlendState->GetRefCount() == 0)
+    {
+      m_BlendStates.Remove(hBlendState);
+
+      DestroyBlendStatePlatform(pBlendState);
+    }
   }
   else
   {

@@ -13,6 +13,8 @@ class EZ_RENDERERFOUNDATION_DLL ezGALContext
 public:
 
   /// \brief Event data that the context broadcasts
+  ///
+  /// Once we have high level abstractions for everything, we maybe can move this somewhere else
   struct ezGALContextEvent
   {
     enum EventType

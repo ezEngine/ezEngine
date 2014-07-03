@@ -8,6 +8,8 @@
 
 #include <RendererFoundation/Basics.h>
 
+#include <Graphics/Meshes/MeshBufferResource.h>
+
 namespace DontUse
 {
   class MayaObj
@@ -25,11 +27,13 @@ namespace DontUse
 
     static MayaObj* LoadFromFile(const char* szPath, ezGALDevice* pDevice);
 
-    ezGALBufferHandle GetVB() const { return m_hVB; }
+    //ezGALBufferHandle GetVB() const { return m_hVB; }
 
-    ezGALBufferHandle GetIB() const { return m_hIB; }
+    //ezGALBufferHandle GetIB() const { return m_hIB; }
 
-    ezUInt32 GetPrimitiveCount() const { return m_uiPrimitiveCount; }
+    //ezUInt32 GetPrimitiveCount() const { return m_uiPrimitiveCount; }
+
+    ezMeshBufferResourceHandle m_hMeshBuffer;
 
   protected:
 
@@ -37,13 +41,13 @@ namespace DontUse
 
   private:
 
-    ezGALBufferHandle m_hVB;
+    //ezGALBufferHandle m_hVB;
 
-    ezGALBufferHandle m_hIB;
+    //ezGALBufferHandle m_hIB;
 
-    ezGALDevice* m_pDevice;
+    //ezGALDevice* m_pDevice;
 
-    ezUInt32 m_uiPrimitiveCount;
+    //ezUInt32 m_uiPrimitiveCount;
 
   };
 }

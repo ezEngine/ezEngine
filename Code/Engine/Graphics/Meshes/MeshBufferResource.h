@@ -1,0 +1,114 @@
+#pragma once
+
+#include <Graphics/Basics.h>
+#include <Core/ResourceManager/Resource.h>
+#include <RendererFoundation/Descriptors/Descriptors.h>
+
+class ezMeshBufferResource;
+typedef ezResourceHandle<ezMeshBufferResource> ezMeshBufferResourceHandle;
+
+struct EZ_GRAPHICS_DLL ezMeshBufferResourceDescriptor
+{
+public:
+  struct StreamInfo
+  {
+    EZ_DECLARE_POD_TYPE();
+
+    ezGALVertexAttributeSemantic::Enum m_Semantic;
+    ezGALResourceFormat::Enum m_Format;
+    ezUInt16 m_uiOffset;
+    ezUInt16 m_uiElementSize;
+  };
+
+  ezMeshBufferResourceDescriptor();
+
+  /// \brief Use this function to add vertex streams to the mesh buffer. The return value is the index of the just added stream.
+  ezUInt32 AddStream(ezGALVertexAttributeSemantic::Enum Semantic, ezGALResourceFormat::Enum Format);
+
+  /// \brief After all streams are added, call this to allocate the data for the streams. If uiNumTriangles is 0, the mesh buffer will not use indexed rendering.
+  void AllocateStreams(ezUInt32 uiNumVertices, ezUInt32 uiNumTriangles = 0);
+
+  /// \brief Gives read access to the allocated vertex data
+  const ezDynamicArray<ezUInt8>& GetVertexBufferData() const;
+
+  /// \brief Gives read access to the allocated index data
+  const ezDynamicArray<ezUInt8>& GetIndexBufferData() const;
+
+  /// \brief Allows write access to the allocated vertex data. This can be used for copying data fast into the array.
+  ezDynamicArray<ezUInt8>& GetVertexBufferData();
+
+  /// \brief Allows write access to the allocated index data. This can be used for copying data fast into the array.
+  ezDynamicArray<ezUInt8>& GetIndexBufferData();
+
+  /// \brief Slow, but convenient method to write one piece of vertex data at a time into the stream buffer.
+  ///
+  /// uiStream is the index of the data stream to write to.
+  /// uiVertexIndex is the index of the vertex for which to write the data.
+  /// data is the piece of data to write to the stream.
+  template<typename TYPE>
+  void SetVertexData(ezUInt32 uiStream, ezUInt32 uiVertexIndex, const TYPE& data)
+  {
+    reinterpret_cast<TYPE&>(m_VertexStreamData[m_uiVertexSize * uiVertexIndex + m_Streams[uiStream].m_uiOffset]) = data;
+  }
+
+  /// \brief Writes the three vertex indices for the given triangle into the index buffer.
+  void SetTriangleIndices(ezUInt32 uiTriangle, ezUInt32 uiVertex0, ezUInt32 uiVertex1, ezUInt32 uiVertex2);
+
+  /// \brief Allows to read the stream info of the descriptor, which is filled out by AddStream()
+  const ezHybridArray<StreamInfo, 16>& GetStreamInfo() const { return m_Streams; }
+
+  /// \brief The device on which the resource shall be created. Must be filled out!
+  ezGALDevice* m_pDevice;
+
+  /// \brief Returns the byte size of all the data for one vertex.
+  ezUInt32 GetVertexDataSize() const { return m_uiVertexSize; }
+
+  /// \brief Return the number of vertices, with which AllocateStreams() was called.
+  ezUInt32 GetVertexCount() const { return m_uiVertexCount; }
+
+  /// \brief Returns the number of primitives that the array holds.
+  ezUInt32 GetPrimitiveCount() const;
+
+  /// \brief Returns whether 16 or 32 Bit indices are to be used.
+  bool Uses32BitIndices() const { return m_uiVertexCount > 0xFFFF; }
+
+  /// \brief Returns whether an index buffer is available.
+  bool HasIndexBuffer() const { return !m_IndexBufferData.IsEmpty(); }
+
+private:
+
+  ezUInt32 m_uiVertexSize;
+  ezUInt32 m_uiVertexCount;
+  ezHybridArray<StreamInfo, 16> m_Streams;
+  ezDynamicArray<ezUInt8> m_VertexStreamData;
+  ezDynamicArray<ezUInt8> m_IndexBufferData;
+};
+
+class EZ_GRAPHICS_DLL ezMeshBufferResource : public ezResource<ezMeshBufferResource, ezMeshBufferResourceDescriptor>
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezMeshBufferResource);
+
+public:
+  ezMeshBufferResource();
+  ~ezMeshBufferResource();
+
+  /// \todo Copy the vertex stream format/semantic info for vertex declaration creation
+
+  /// \todo Where do we put this ?
+  void BindResource(/* context? */);
+
+  /// \todo Where do we put this ?
+  void Draw(ezUInt32 uiNumPrimitives = 0xFFFFFFFF, ezUInt32 uiFirstPrimitive = 0);
+
+private:
+  virtual void UnloadData(bool bFullUnload) override;
+  virtual void UpdateContent(ezStreamReaderBase& Stream) override;
+  virtual void UpdateMemoryUsage() override;
+  virtual void CreateResource(const ezMeshBufferResourceDescriptor& descriptor) override;
+
+  ezUInt32 m_uiPrimitiveCount;
+  ezGALBufferHandle m_hVertexBuffer;
+  ezGALBufferHandle m_hIndexBuffer;
+  ezGALDevice* m_pDevice; // default device somewhere ?
+};
+

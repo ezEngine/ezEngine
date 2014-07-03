@@ -292,10 +292,10 @@ public:
     pContext->SetViewport(0.0f, 0.0f, (float)g_uiWindowWidth, (float)g_uiWindowHeight, 0.0f, 1.0f);
     pContext->Clear(ezColor::GetBlack());
 
-    pContext->SetVertexBuffer(0, m_pObj->GetVB());
-    pContext->SetIndexBuffer(m_pObj->GetIB());
+    //pContext->SetVertexBuffer(0, m_pObj->GetVB());
+    //pContext->SetIndexBuffer(m_pObj->GetIB());
 
-    pContext->SetPrimitiveTopology(ezGALPrimitiveTopology::Triangles);
+    //pContext->SetPrimitiveTopology(ezGALPrimitiveTopology::Triangles);
     pContext->SetRasterizerState(m_hRasterizerState);
     pContext->SetDepthStencilState(m_hDepthStencilState);
     pContext->SetResourceView(ezGALShaderStage::PixelShader, 0, m_hTexView);
@@ -334,7 +334,13 @@ public:
 
     pContext->SetConstantBuffer(1, m_hCB);
 
-    pContext->DrawIndexed(m_pObj->GetPrimitiveCount() * 3, 0);
+    //pContext->DrawIndexed(m_pObj->GetPrimitiveCount() * 3, 0);
+
+    {
+      ezResourceLock<ezMeshBufferResource> pMeshBuffer (m_pObj->m_hMeshBuffer);
+
+      pMeshBuffer->Draw();
+    }
 
 
     // Readback: Currently not supported for MSAA since Resolve() is not implemented
