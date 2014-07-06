@@ -1,6 +1,11 @@
 What's New {#WhatsNew}
 ==========
 
+Milestone 6
+-----------
+
+  * Added ezOBJLoader to load OBJ/MTL files.
+
 Milestone 5
 -----------
 

@@ -34,7 +34,6 @@
 #include <RendererFoundation/Context/Context.h>
 
 #include <Helper/MayaObj.h>
-#include <Helper/Misc.h>
 
 #include <CoreUtils/Debugging/DataTransfer.h>
 
