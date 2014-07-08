@@ -254,6 +254,7 @@ ezResult ezShaderCompiler::CompileShader(const char* szFile, const ezPermutation
       spb.m_IncludeFiles.Clear();
       spb.m_IncludeFiles.Reserve(m_IncludeFiles.GetCount());
 
+      spb.m_IncludeFiles.PushBack(szFile);
       spb.m_iMaxTimeStamp = iMainFileTimeStamp;
 
       for (auto it = m_IncludeFiles.GetIterator(); it.IsValid(); ++it)

@@ -1,6 +1,15 @@
 #include <Graphics/PCH.h>
 #include <Graphics/Shader/ShaderPermutationBinary.h>
 
+enum ezShaderPermutationBinaryVersion
+{
+  Version1 = 1,
+  Version2,
+  Version3,
+
+  ENUM_COUNT,
+  Current = ENUM_COUNT - 1
+};
 
 ezShaderPermutationBinary::ezShaderPermutationBinary()
 {
@@ -12,7 +21,7 @@ ezShaderPermutationBinary::ezShaderPermutationBinary()
 
 ezResult ezShaderPermutationBinary::Write(ezStreamWriterBase& Stream) const
 {
-  const ezUInt8 uiVersion = 2;
+  const ezUInt8 uiVersion = ezShaderPermutationBinaryVersion::Current;
 
   if (Stream.WriteBytes(&uiVersion, sizeof(ezUInt8)).Failed())
     return EZ_FAILURE;
@@ -47,7 +56,7 @@ ezResult ezShaderPermutationBinary::Read(ezStreamReaderBase& Stream)
   if (Stream.ReadBytes(&uiVersion, sizeof(ezUInt8)) != sizeof(ezUInt8))
     return EZ_FAILURE;
 
-  EZ_ASSERT(uiVersion <= 2, "Wrong Version %u", uiVersion);
+  EZ_ASSERT(uiVersion <= ezShaderPermutationBinaryVersion::Current, "Wrong Version %u", uiVersion);
 
   if (Stream.ReadDWordValue(&m_uiShaderStateHash).Failed())
     return EZ_FAILURE;
@@ -58,7 +67,7 @@ ezResult ezShaderPermutationBinary::Read(ezStreamReaderBase& Stream)
       return EZ_FAILURE;
   }
 
-  if (uiVersion >= 2)
+  if (uiVersion >= ezShaderPermutationBinaryVersion::Version2)
   {
     ezUInt32 uiIncludes = 0;
     Stream >> uiIncludes;
@@ -71,6 +80,10 @@ ezResult ezShaderPermutationBinary::Read(ezStreamReaderBase& Stream)
   }
 
   Stream >> m_iMaxTimeStamp;
+
+  // if this is an older version, make sure the dependent files check will always return that something changed
+  if (uiVersion < ezShaderPermutationBinaryVersion::Current)
+    m_iMaxTimeStamp = 0;
 
   return EZ_SUCCESS;
 }
