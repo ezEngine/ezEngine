@@ -2,7 +2,7 @@
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Containers/HashTable.h>
 #include <Core/ResourceManager/ResourceManager.h>
-#include <CoreUtils/Graphics/OBJLoader.h>
+#include <CoreUtils/Geometry/OBJLoader.h>
 
 #include <Helper/MayaObj.h>
 #include <RendererFoundation/Device/Device.h>

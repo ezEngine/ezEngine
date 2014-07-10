@@ -37,8 +37,8 @@
 
 #include <CoreUtils/Debugging/DataTransfer.h>
 
-#include <Graphics/ShaderCompiler/ShaderCompiler.h>
-#include <Graphics/ShaderCompiler/ShaderManager.h>
+#include <RendererCore/ShaderCompiler/ShaderCompiler.h>
+#include <RendererCore/ShaderCompiler/ShaderManager.h>
 
 // This sample is a really simple low-level rendering demo showing how the high level renderer will interact with the GPU abstraction layer
 

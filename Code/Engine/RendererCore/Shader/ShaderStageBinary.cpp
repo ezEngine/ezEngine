@@ -1,6 +1,6 @@
-#include <Graphics/PCH.h>
-#include <Graphics/Shader/ShaderStageBinary.h>
-#include <Graphics/ShaderCompiler/ShaderManager.h>
+#include <RendererCore/PCH.h>
+#include <RendererCore/Shader/ShaderStageBinary.h>
+#include <RendererCore/ShaderCompiler/ShaderManager.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
 

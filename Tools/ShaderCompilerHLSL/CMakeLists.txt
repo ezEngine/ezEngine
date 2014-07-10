@@ -19,7 +19,7 @@ BUILD_CONDITIONAL(BUILDSYSTEM_PLATFORM_WINDOWS)
 # Add all the libraries that this project needs to link against here
 SET (LINK_LIBRARIES
   Foundation
-  Graphics
+  RendererCore
   RendererFoundation
 )
 

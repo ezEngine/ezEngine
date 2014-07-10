@@ -1,5 +1,5 @@
 #include <CoreUtils/PCH.h>
-#include <CoreUtils/Graphics/OBJLoader.h>
+#include <CoreUtils/Geometry/OBJLoader.h>
 #include <Foundation/Utilities/ConversionUtils.h>
 
 

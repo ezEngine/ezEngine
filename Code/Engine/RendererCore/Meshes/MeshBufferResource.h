@@ -1,13 +1,13 @@
 #pragma once
 
-#include <Graphics/Basics.h>
+#include <RendererCore/Basics.h>
 #include <Core/ResourceManager/Resource.h>
 #include <RendererFoundation/Descriptors/Descriptors.h>
 
 class ezMeshBufferResource;
 typedef ezResourceHandle<ezMeshBufferResource> ezMeshBufferResourceHandle;
 
-struct EZ_GRAPHICS_DLL ezMeshBufferResourceDescriptor
+struct EZ_RENDERERCORE_DLL ezMeshBufferResourceDescriptor
 {
 public:
   struct StreamInfo
@@ -84,7 +84,7 @@ private:
   ezDynamicArray<ezUInt8> m_IndexBufferData;
 };
 
-class EZ_GRAPHICS_DLL ezMeshBufferResource : public ezResource<ezMeshBufferResource, ezMeshBufferResourceDescriptor>
+class EZ_RENDERERCORE_DLL ezMeshBufferResource : public ezResource<ezMeshBufferResource, ezMeshBufferResourceDescriptor>
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezMeshBufferResource);
 

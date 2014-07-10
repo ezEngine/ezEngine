@@ -1,20 +1,20 @@
 #pragma once
 
-#include <Graphics/Basics.h>
-#include <Graphics/Shader/ShaderPermutationBinary.h>
+#include <RendererCore/Basics.h>
+#include <RendererCore/Shader/ShaderPermutationBinary.h>
 #include <Core/ResourceManager/Resource.h>
 #include <Core/ResourceManager/ResourceTypeLoader.h>
 
 class ezShaderResource;
 typedef ezResourceHandle<ezShaderResource> ezShaderResourceHandle;
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_GRAPHICS_DLL, ezShaderResource);
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezShaderResource);
 
 struct ezShaderResourceDescriptor
 {
 };
 
-class EZ_GRAPHICS_DLL ezShaderResource : public ezResource<ezShaderResource, ezShaderResourceDescriptor>
+class EZ_RENDERERCORE_DLL ezShaderResource : public ezResource<ezShaderResource, ezShaderResourceDescriptor>
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezShaderResource);
 

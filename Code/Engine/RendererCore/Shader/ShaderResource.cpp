@@ -1,6 +1,6 @@
-#include <Graphics/PCH.h>
-#include <Graphics/Shader/ShaderResource.h>
-#include <Graphics/Shader/Helper.h>
+#include <RendererCore/PCH.h>
+#include <RendererCore/Shader/ShaderResource.h>
+#include <RendererCore/Shader/Helper.h>
 #include <Foundation/Logging/Log.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezShaderResource, ezResourceBase, ezRTTIDefaultAllocator<ezShaderResource>);

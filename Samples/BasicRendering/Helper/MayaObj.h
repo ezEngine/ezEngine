@@ -8,7 +8,7 @@
 
 #include <RendererFoundation/Basics.h>
 
-#include <Graphics/Meshes/MeshBufferResource.h>
+#include <RendererCore/Meshes/MeshBufferResource.h>
 
 namespace DontUse
 {

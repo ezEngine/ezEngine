@@ -1,7 +1,7 @@
-#include <Graphics/PCH.h>
-#include <Graphics/ShaderCompiler/ShaderCompiler.h>
-#include <Graphics/ShaderCompiler/ShaderManager.h>
-#include <Graphics/Shader/Helper.h>
+#include <RendererCore/PCH.h>
+#include <RendererCore/ShaderCompiler/ShaderCompiler.h>
+#include <RendererCore/ShaderCompiler/ShaderManager.h>
+#include <RendererCore/Shader/Helper.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/IO/OSFile.h>

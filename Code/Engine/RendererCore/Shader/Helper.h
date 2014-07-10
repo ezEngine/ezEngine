@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Graphics/Basics.h>
+#include <RendererCore/Basics.h>
 #include <Foundation/Strings/String.h>
 
 class ezTextSectionizer

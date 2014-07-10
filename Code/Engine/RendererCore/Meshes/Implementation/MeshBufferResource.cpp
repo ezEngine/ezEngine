@@ -1,5 +1,5 @@
-#include <Graphics/PCH.h>
-#include <Graphics/Meshes/MeshBufferResource.h>
+#include <RendererCore/PCH.h>
+#include <RendererCore/Meshes/MeshBufferResource.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Context/Context.h>
 

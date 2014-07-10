@@ -1,11 +1,11 @@
 #pragma once
 
-#include <Graphics/Basics.h>
+#include <RendererCore/Basics.h>
 #include <RendererFoundation/Descriptors/Descriptors.h>
 #include <Foundation/Containers/Map.h>
 #include <Foundation/IO/Stream.h>
 
-class EZ_GRAPHICS_DLL ezShaderStageBinary
+class EZ_RENDERERCORE_DLL ezShaderStageBinary
 {
 public:
   ezShaderStageBinary();

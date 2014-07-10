@@ -1,7 +1,7 @@
-#include <Graphics/PCH.h>
-#include <Graphics/ShaderCompiler/ShaderManager.h>
-#include <Graphics/ShaderCompiler/ShaderCompiler.h>
-#include <Graphics/Shader/ShaderPermutationResource.h>
+#include <RendererCore/PCH.h>
+#include <RendererCore/ShaderCompiler/ShaderManager.h>
+#include <RendererCore/ShaderCompiler/ShaderCompiler.h>
+#include <RendererCore/Shader/ShaderPermutationResource.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <RendererFoundation/Context/Context.h>

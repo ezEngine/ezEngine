@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Graphics/ShaderCompiler/ShaderCompiler.h>
+#include <RendererCore/ShaderCompiler/ShaderCompiler.h>
 
 class ezShaderCompilerHLSL : public ezShaderProgramCompiler
 {

@@ -1,5 +1,5 @@
-#include <Graphics/PCH.h>
-#include <Graphics/ShaderCompiler/PermutationGenerator.h>
+#include <RendererCore/PCH.h>
+#include <RendererCore/ShaderCompiler/PermutationGenerator.h>
 #include <Foundation/Algorithm/Hashing.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <CoreUtils/Scripting/LuaWrapper.h>

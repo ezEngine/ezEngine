@@ -1,9 +1,9 @@
 #pragma once
 
-#include <Graphics/Basics.h>
-#include <Graphics/Shader/ShaderStageBinary.h>
+#include <RendererCore/Basics.h>
+#include <RendererCore/Shader/ShaderStageBinary.h>
 
-class EZ_GRAPHICS_DLL ezShaderPermutationBinary
+class EZ_RENDERERCORE_DLL ezShaderPermutationBinary
 {
 public:
   ezShaderPermutationBinary();

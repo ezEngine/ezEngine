@@ -1,7 +1,7 @@
 #pragma once
 
-#include <Graphics/Basics.h>
-#include <Graphics/Shader/Helper.h>
+#include <RendererCore/Basics.h>
+#include <RendererCore/Shader/Helper.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Strings/String.h>
@@ -9,13 +9,13 @@
 #include <RendererFoundation/Basics.h>
 #include <RendererFoundation/Descriptors/Descriptors.h>
 #include <CoreUtils/CodeUtils/Preprocessor.h>
-#include <Graphics/ShaderCompiler/PermutationGenerator.h>
-#include <Graphics/Shader/ShaderPermutationBinary.h>
+#include <RendererCore/ShaderCompiler/PermutationGenerator.h>
+#include <RendererCore/Shader/ShaderPermutationBinary.h>
 
 class ezShaderProgramCompiler;
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_GRAPHICS_DLL, ezShaderProgramCompiler);
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezShaderProgramCompiler);
 
-class EZ_GRAPHICS_DLL ezShaderProgramCompiler : public ezReflectedClass
+class EZ_RENDERERCORE_DLL ezShaderProgramCompiler : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezShaderProgramCompiler);
 
@@ -46,7 +46,7 @@ public:
 
 };
 
-class EZ_GRAPHICS_DLL ezShaderCompiler
+class EZ_RENDERERCORE_DLL ezShaderCompiler
 {
 public:
 

@@ -1,8 +1,8 @@
 #pragma once
 
-#include <Graphics/Basics.h>
-#include <Graphics/Shader/ShaderPermutationBinary.h>
-#include <Graphics/ShaderCompiler/PermutationGenerator.h>
+#include <RendererCore/Basics.h>
+#include <RendererCore/Shader/ShaderPermutationBinary.h>
+#include <RendererCore/ShaderCompiler/PermutationGenerator.h>
 #include <Core/ResourceManager/Resource.h>
 #include <Core/ResourceManager/ResourceTypeLoader.h>
 #include <Foundation/Time/Timestamp.h>
@@ -10,13 +10,13 @@
 class ezShaderPermutationResource;
 typedef ezResourceHandle<ezShaderPermutationResource> ezShaderPermutationResourceHandle;
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_GRAPHICS_DLL, ezShaderPermutationResource);
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezShaderPermutationResource);
 
 struct ezShaderPermutationResourceDescriptor
 {
 };
 
-class EZ_GRAPHICS_DLL ezShaderPermutationResource : public ezResource<ezShaderPermutationResource, ezShaderPermutationResourceDescriptor>
+class EZ_RENDERERCORE_DLL ezShaderPermutationResource : public ezResource<ezShaderPermutationResource, ezShaderPermutationResourceDescriptor>
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezShaderPermutationResource);
 

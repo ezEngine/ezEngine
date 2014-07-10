@@ -27,7 +27,7 @@ SET (LINK_LIBRARIES
   # RendererGL4 Use of GL4 cancels out use of GL3 since most class/function names are identical
   InputXBox360
   CoreUtils
-  Graphics
+  RendererCore
 )
 
 BUILD_REQUIRES_DX11()

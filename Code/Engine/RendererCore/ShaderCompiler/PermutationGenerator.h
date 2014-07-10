@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Graphics/Basics.h>
+#include <RendererCore/Basics.h>
 #include <Foundation/Strings/String.h>
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Containers/Set.h>
@@ -8,7 +8,7 @@
 
 struct lua_State;
 
-class EZ_GRAPHICS_DLL ezPermutationGenerator
+class EZ_RENDERERCORE_DLL ezPermutationGenerator
 {
 public:
 

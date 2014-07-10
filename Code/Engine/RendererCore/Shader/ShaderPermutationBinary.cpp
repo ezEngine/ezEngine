@@ -1,5 +1,5 @@
-#include <Graphics/PCH.h>
-#include <Graphics/Shader/ShaderPermutationBinary.h>
+#include <RendererCore/PCH.h>
+#include <RendererCore/Shader/ShaderPermutationBinary.h>
 
 enum ezShaderPermutationBinaryVersion
 {

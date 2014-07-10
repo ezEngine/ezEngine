@@ -1,16 +1,16 @@
 #pragma once
 
-#include <Graphics/Basics.h>
-#include <Graphics/ShaderCompiler/PermutationGenerator.h>
+#include <RendererCore/Basics.h>
+#include <RendererCore/ShaderCompiler/PermutationGenerator.h>
 #include <Foundation/Strings/String.h>
 #include <Foundation/Containers/Map.h>
 #include <RendererFoundation/Shader/Shader.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Context/Context.h>
-#include <Graphics/Shader/ShaderResource.h>
-#include <Graphics/Shader/ShaderPermutationResource.h>
+#include <RendererCore/Shader/ShaderResource.h>
+#include <RendererCore/Shader/ShaderPermutationResource.h>
 
-class EZ_GRAPHICS_DLL ezShaderManager
+class EZ_RENDERERCORE_DLL ezShaderManager
 {
 public:
 
