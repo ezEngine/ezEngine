@@ -29,13 +29,20 @@ namespace DontUse
 
       ezMat4 mTrans;
       mTrans.SetIdentity();
-      mTrans.SetTranslationMatrix(ezVec3(1, 0, 0));
+      mTrans.SetRotationMatrixZ(ezAngle::Degree(90));
+      //mTrans.SetTranslationMatrix(ezVec3(1, 0, 0));
       //mTrans.SetScalingFactors(ezVec3(0.5f, 1, 0.3f));
       //geom.AddGeodesicSphere(0.5f, i, ezColor8UNorm(0, 255, 0), mTrans);
 
       //geom.AddBox(ezVec3(1, 2, 3), ezColor8UNorm(0, 255, 0), mTrans);
       //geom.AddPyramid(ezVec3(1.0f, 1.5f, 2.0f), col);
-      geom.AddCylinder(0.5f, 1.0f, 1.1f, true, true, 8 * (i + 1), col, mTrans);
+      //geom.AddCylinder(1.0f, 1.0f, 1.1f, true, true, 3 * (i + 1), col, mTrans, 0, ezAngle::Degree(270));
+      //geom.AddCone(-1.0f, 2.0f, true, 3 * (i + 1), col, mTrans);
+      geom.AddHalfSphere(1.0f, i + 3, i + 1 , true, col, mTrans, 0);
+      //geom.AddCylinder(1.0f, 1.0f, 0.5f, false, false, i + 3, col, mTrans);
+      //geom.AddCapsule(1.0f, 1.5f, i + 3, i + 1, col, mTrans);
+      //geom.AddTorus(1.0f, 1.5f, 16 * (i+1), 3 * (i+1), col);
+
 
       ezLog::Info("Polygons: %u, Vertices: %u", geom.GetPolygons().GetCount(), geom.GetVertices().GetCount());
 

@@ -43,7 +43,7 @@ void ezGeometry::AddPolygon(const ezArrayPtr<ezUInt32>& Vertices)
 void ezGeometry::AddLine(ezUInt32 uiStartVertex, ezUInt32 uiEndVertex)
 {
   EZ_ASSERT(uiStartVertex < m_Vertices.GetCount(), "Invalid vertex index %u, geometry only has %u vertices", uiStartVertex, m_Vertices.GetCount());
-  EZ_ASSERT(uiEndVertex   < m_Vertices.GetCount(), "Invalid vertex index %u, geometry only has %u vertices", uiEndVertex  , m_Vertices.GetCount());
+  EZ_ASSERT(uiEndVertex < m_Vertices.GetCount(), "Invalid vertex index %u, geometry only has %u vertices", uiEndVertex, m_Vertices.GetCount());
 
   Line l;
   l.m_uiStartVertex = uiStartVertex;
@@ -112,7 +112,7 @@ void ezGeometry::TransformVertices(const ezMat4& mTransform, ezUInt32 uiFirstVer
   for (ezUInt32 v = uiFirstVertex; v < m_Vertices.GetCount(); ++v)
   {
     m_Vertices[v].m_vPosition = mTransform.TransformPosition(m_Vertices[v].m_vPosition);
-    m_Vertices[v].m_vNormal   = mTransform.TransformDirection(m_Vertices[v].m_vNormal);
+    m_Vertices[v].m_vNormal = mTransform.TransformDirection(m_Vertices[v].m_vNormal);
   }
 }
 
@@ -142,7 +142,7 @@ void ezGeometry::Merge(const ezGeometry& other)
   {
     m_Polygons.PushBack(other.m_Polygons[p]);
     Polygon& poly = m_Polygons.PeekBack();
-    
+
     for (ezUInt32 pv = 0; pv < poly.m_Vertices.GetCount(); ++pv)
     {
       poly.m_Vertices[pv] += uiVertexOffset;
@@ -166,9 +166,9 @@ void ezGeometry::AddRectXY(const ezVec2& size, const ezColor8UNorm& color, const
   ezUInt32 idx[4];
 
   idx[0] = AddVertex(ezVec3(-halfSize.x, -halfSize.y, 0), ezVec3(0, 0, 1), color, iCustomIndex, mTransform);
-  idx[1] = AddVertex(ezVec3( halfSize.x, -halfSize.y, 0), ezVec3(0, 0, 1), color, iCustomIndex, mTransform);
-  idx[2] = AddVertex(ezVec3( halfSize.x,  halfSize.y, 0), ezVec3(0, 0, 1), color, iCustomIndex, mTransform);
-  idx[3] = AddVertex(ezVec3(-halfSize.x,  halfSize.y, 0), ezVec3(0, 0, 1), color, iCustomIndex, mTransform);
+  idx[1] = AddVertex(ezVec3(halfSize.x, -halfSize.y, 0), ezVec3(0, 0, 1), color, iCustomIndex, mTransform);
+  idx[2] = AddVertex(ezVec3(halfSize.x, halfSize.y, 0), ezVec3(0, 0, 1), color, iCustomIndex, mTransform);
+  idx[3] = AddVertex(ezVec3(-halfSize.x, halfSize.y, 0), ezVec3(0, 0, 1), color, iCustomIndex, mTransform);
 
   AddPolygon(idx);
 }
@@ -179,15 +179,15 @@ void ezGeometry::AddBox(const ezVec3& size, const ezColor8UNorm& color, const ez
 
   ezUInt32 idx[8];
 
-  idx[0] = AddVertex(ezVec3(-halfSize.x, -halfSize.y,  halfSize.z), ezVec3(0, 0,  1), color, iCustomIndex, mTransform);
-  idx[1] = AddVertex(ezVec3( halfSize.x, -halfSize.y,  halfSize.z), ezVec3(0, 0,  1), color, iCustomIndex, mTransform);
-  idx[2] = AddVertex(ezVec3( halfSize.x,  halfSize.y,  halfSize.z), ezVec3(0, 0,  1), color, iCustomIndex, mTransform);
-  idx[3] = AddVertex(ezVec3(-halfSize.x,  halfSize.y,  halfSize.z), ezVec3(0, 0,  1), color, iCustomIndex, mTransform);
+  idx[0] = AddVertex(ezVec3(-halfSize.x, -halfSize.y, halfSize.z), ezVec3(0, 0, 1), color, iCustomIndex, mTransform);
+  idx[1] = AddVertex(ezVec3(halfSize.x, -halfSize.y, halfSize.z), ezVec3(0, 0, 1), color, iCustomIndex, mTransform);
+  idx[2] = AddVertex(ezVec3(halfSize.x, halfSize.y, halfSize.z), ezVec3(0, 0, 1), color, iCustomIndex, mTransform);
+  idx[3] = AddVertex(ezVec3(-halfSize.x, halfSize.y, halfSize.z), ezVec3(0, 0, 1), color, iCustomIndex, mTransform);
 
   idx[4] = AddVertex(ezVec3(-halfSize.x, -halfSize.y, -halfSize.z), ezVec3(0, 0, -1), color, iCustomIndex, mTransform);
-  idx[5] = AddVertex(ezVec3( halfSize.x, -halfSize.y, -halfSize.z), ezVec3(0, 0, -1), color, iCustomIndex, mTransform);
-  idx[6] = AddVertex(ezVec3( halfSize.x,  halfSize.y, -halfSize.z), ezVec3(0, 0, -1), color, iCustomIndex, mTransform);
-  idx[7] = AddVertex(ezVec3(-halfSize.x,  halfSize.y, -halfSize.z), ezVec3(0, 0, -1), color, iCustomIndex, mTransform);
+  idx[5] = AddVertex(ezVec3(halfSize.x, -halfSize.y, -halfSize.z), ezVec3(0, 0, -1), color, iCustomIndex, mTransform);
+  idx[6] = AddVertex(ezVec3(halfSize.x, halfSize.y, -halfSize.z), ezVec3(0, 0, -1), color, iCustomIndex, mTransform);
+  idx[7] = AddVertex(ezVec3(-halfSize.x, halfSize.y, -halfSize.z), ezVec3(0, 0, -1), color, iCustomIndex, mTransform);
 
   ezUInt32 poly[4];
 
@@ -234,11 +234,11 @@ void ezGeometry::AddPyramid(const ezVec3& size, const ezColor8UNorm& color, cons
 
   ezUInt32 quad[4];
 
-  quad[0] = AddVertex(ezVec3(-halfSize.x, 0,  halfSize.z), ezVec3(0, -1,  0), color, iCustomIndex, mTransform);
-  quad[1] = AddVertex(ezVec3(-halfSize.x, 0, -halfSize.z), ezVec3(0, -1,  0), color, iCustomIndex, mTransform);
-  quad[2] = AddVertex(ezVec3( halfSize.x, 0, -halfSize.z), ezVec3(0, -1,  0), color, iCustomIndex, mTransform);
-  quad[3] = AddVertex(ezVec3( halfSize.x, 0,  halfSize.z), ezVec3(0, -1,  0), color, iCustomIndex, mTransform);
-  ezUInt32 tip = AddVertex(ezVec3(0, size.y, 0), ezVec3(0, 1,  0), color, iCustomIndex, mTransform);
+  quad[0] = AddVertex(ezVec3(-halfSize.x, 0, halfSize.z), ezVec3(0, -1, 0), color, iCustomIndex, mTransform);
+  quad[1] = AddVertex(ezVec3(-halfSize.x, 0, -halfSize.z), ezVec3(0, -1, 0), color, iCustomIndex, mTransform);
+  quad[2] = AddVertex(ezVec3(halfSize.x, 0, -halfSize.z), ezVec3(0, -1, 0), color, iCustomIndex, mTransform);
+  quad[3] = AddVertex(ezVec3(halfSize.x, 0, halfSize.z), ezVec3(0, -1, 0), color, iCustomIndex, mTransform);
+  ezUInt32 tip = AddVertex(ezVec3(0, size.y, 0), ezVec3(0, 1, 0), color, iCustomIndex, mTransform);
 
   AddPolygon(quad);
 
@@ -427,29 +427,43 @@ void ezGeometry::AddGeodesicSphere(float fRadius, ezUInt8 uiSubDivisions, const 
   TransformVertices(mTransform, uiFirstVertex);
 }
 
-void ezGeometry::AddCylinder(float fRadiusTop, float fRadiusBottom, float fHeight, bool bCapTop, bool bCapBottom, ezUInt16 uiSegments, const ezColor8UNorm& color, const ezMat4& mTransform, ezInt32 iCustomIndex)
+void ezGeometry::AddCylinder(float fRadiusTop, float fRadiusBottom, float fHeight, bool bCapTop, bool bCapBottom, ezUInt16 uiSegments, const ezColor8UNorm& color, const ezMat4& mTransform, ezInt32 iCustomIndex, ezAngle fraction)
 {
-  const ezUInt32 uiFirstVertex = m_Vertices.GetCount();
+  EZ_ASSERT(uiSegments >= 3, "Cannot create a cylinder with only %u segments", uiSegments);
+  EZ_ASSERT(fraction.GetDegree() <= 360.0f, "A cylinder cannot be built with more than 360 degree");
+
+  const bool bIsFraction = fraction.GetDegree() < 360.0f;
 
   ezHybridArray<ezUInt32, 512> VertsTop;
   ezHybridArray<ezUInt32, 512> VertsBottom;
 
-  const ezAngle fDegStep = ezAngle::Degree(360.0f / uiSegments);
-
-  const ezVec3 vTopCenter   (0,  fHeight * 0.5f, 0);
+  const ezVec3 vTopCenter(0, fHeight * 0.5f, 0);
   const ezVec3 vBottomCenter(0, -fHeight * 0.5f, 0);
+
+  const ezAngle fDegStep = ezAngle::Degree(fraction.GetDegree() / uiSegments);
+
+  if (bIsFraction)
+  {
+    VertsTop.PushBack(AddVertex(vTopCenter, ezVec3(0, 1, 0), color, iCustomIndex, mTransform));
+    VertsBottom.PushBack(AddVertex(vBottomCenter, ezVec3(0, -1, 0), color, iCustomIndex, mTransform));
+
+    ++uiSegments;
+  }
 
   for (ezUInt32 i = 0; i < uiSegments; ++i)
   {
-    const ezAngle deg = (float)i * fDegStep;
+    const ezAngle deg = (float) i * fDegStep;
 
     ezVec3 vDir(ezMath::Cos(deg), 0, ezMath::Sin(deg));
 
-    VertsTop.PushBack   (AddVertex(vTopCenter    + vDir * fRadiusTop   , vDir, color, iCustomIndex, mTransform));
+    VertsTop.PushBack(AddVertex(vTopCenter + vDir * fRadiusTop, vDir, color, iCustomIndex, mTransform));
     VertsBottom.PushBack(AddVertex(vBottomCenter + vDir * fRadiusBottom, vDir, color, iCustomIndex, mTransform));
   }
 
-  ezUInt32 uiPrevSeg = uiSegments - 1;
+  if (bIsFraction)
+    ++uiSegments;
+
+  ezUInt32 uiPrevSeg = VertsBottom.GetCount() - 1;
 
   for (ezUInt32 i = 0; i < uiSegments; ++i)
   {
@@ -473,7 +487,9 @@ void ezGeometry::AddCylinder(float fRadiusTop, float fRadiusBottom, float fHeigh
   {
     VertsBottom.Clear();
 
-    for (ezUInt32 i = VertsTop.GetCount(); i > 0; --i)
+    VertsBottom.PushBack(VertsTop[0]);
+
+    for (ezUInt32 i = VertsTop.GetCount(); i > 1; --i)
       VertsBottom.PushBack(VertsTop[i - 1]);
 
     AddPolygon(VertsBottom);
@@ -481,6 +497,367 @@ void ezGeometry::AddCylinder(float fRadiusTop, float fRadiusBottom, float fHeigh
 
 }
 
+void ezGeometry::AddCone(float fRadius, float fHeight, bool bCap, ezUInt16 uiSegments, const ezColor8UNorm& color, const ezMat4& mTransform, ezInt32 iCustomIndex)
+{
+  EZ_ASSERT(uiSegments >= 3, "Cannot create a cone with only %u segments", uiSegments);
+
+  ezHybridArray<ezUInt32, 512> VertsBottom;
+
+  const ezAngle fDegStep = ezAngle::Degree(360.0f / uiSegments);
+
+  const ezUInt32 uiTip = AddVertex(ezVec3(0, fHeight, 0), ezVec3(0, 1, 0), color, iCustomIndex, mTransform);
+
+  for (ezUInt32 i = 0; i < uiSegments; ++i)
+  {
+    const ezAngle deg = (float) i * fDegStep;
+
+    ezVec3 vDir(ezMath::Cos(deg), 0, ezMath::Sin(deg));
+
+    VertsBottom.PushBack(AddVertex(vDir * fRadius, vDir, color, iCustomIndex, mTransform));
+  }
+
+  ezUInt32 uiPrevSeg = uiSegments - 1;
+
+  for (ezUInt32 i = 0; i < uiSegments; ++i)
+  {
+    ezUInt32 tri[3];
+    tri[0] = VertsBottom[uiPrevSeg];
+    tri[1] = uiTip;
+    tri[2] = VertsBottom[i];
+
+    uiPrevSeg = i;
+
+    AddPolygon(tri);
+  }
+
+  if (bCap)
+  {
+    AddPolygon(VertsBottom);
+  }
+}
+
+void ezGeometry::AddSphere(float fRadius, ezUInt16 uiSegments, ezUInt16 uiStacks, const ezColor8UNorm& color, const ezMat4& mTransform, ezInt32 iCustomIndex)
+{
+  EZ_ASSERT(uiSegments >= 3, "Sphere must have at least 3 segments");
+  EZ_ASSERT(uiStacks >= 2, "Sphere must have at least 2 stacks");
+
+  const ezAngle fDegreeDiffSegments = ezAngle::Degree(360.0f / (float) (uiSegments));
+  const ezAngle fDegreeDiffStacks = ezAngle::Degree(180.0f / (float) (uiStacks));
+
+  const ezUInt32 uiFirstVertex = m_Vertices.GetCount();
+
+  // first create all the vertex positions
+  for (ezUInt32 st = 1; st < uiStacks; ++st)
+  {
+    const ezAngle fDegreeStack = ezAngle::Degree(-90.0f + (st * fDegreeDiffStacks.GetDegree()));
+    const float fCosDS = ezMath::Cos(fDegreeStack);
+    const float fSinDS = ezMath::Sin(fDegreeStack);
+    const float fY = -fSinDS * fRadius;
+
+    for (ezUInt32 sp = 0; sp < uiSegments; ++sp)
+    {
+      // the vertices for the bottom disk
+      const ezAngle fDegree = (float)sp * fDegreeDiffSegments;
+
+      ezVec3 vPos;
+      vPos.x = ezMath::Cos(fDegree) * fRadius * fCosDS;
+      vPos.y = fY;
+      vPos.z = ezMath::Sin(fDegree) * fRadius * fCosDS;
+
+      AddVertex(vPos, vPos.GetNormalized(), color, iCustomIndex, mTransform);
+    }
+  }
+
+  ezUInt32 uiTopVertex = AddVertex(ezVec3(0, fRadius, 0), ezVec3(0, 1, 0), color, iCustomIndex, mTransform);
+  ezUInt32 uiBottomVertex = AddVertex(ezVec3(0, -fRadius, 0), ezVec3(0, -1, 0), color, iCustomIndex, mTransform);
+
+  ezUInt32 tri[3];
+  ezUInt32 quad[4];
+
+  // now create the top cone
+  for (ezUInt32 p = 0; p < uiSegments; ++p)
+  {
+    tri[0] = uiTopVertex;
+    tri[1] = uiFirstVertex + ((p + 1) % uiSegments);
+    tri[2] = uiFirstVertex + p;
+
+    AddPolygon(tri);
+  }
+
+  // now create the stacks in the middle
+
+  for (ezUInt16 st = 0; st < uiStacks - 2; ++st)
+  {
+    const ezUInt32 uiRowBottom = uiSegments * st;
+    const ezUInt32 uiRowTop = uiSegments * (st + 1);
+
+    for (ezInt32 i = 0; i < uiSegments; ++i)
+    {
+      quad[0] = uiFirstVertex + (uiRowTop + ((i + 1) % uiSegments));
+      quad[1] = uiFirstVertex + (uiRowTop + i);
+      quad[2] = uiFirstVertex + (uiRowBottom + i);
+      quad[3] = uiFirstVertex + (uiRowBottom + ((i + 1) % uiSegments));
+
+      AddPolygon(quad);
+    }
+  }
+
+  const ezInt32 iTopStack = uiSegments * (uiStacks - 2);
+
+  // now create the bottom cone
+  for (ezUInt32 p = 0; p < uiSegments; ++p)
+  {
+    tri[0] = uiBottomVertex;
+    tri[1] = uiFirstVertex + (iTopStack + p);
+    tri[2] = uiFirstVertex + (iTopStack + ((p + 1) % uiSegments));
+
+    AddPolygon(tri);
+  }
+}
+
+void ezGeometry::AddHalfSphere(float fRadius, ezUInt16 uiSegments, ezUInt16 uiStacks, bool bCap, const ezColor8UNorm& color, const ezMat4& mTransform, ezInt32 iCustomIndex)
+{
+  EZ_ASSERT(uiSegments >= 3, "Sphere must have at least 3 segments");
+  EZ_ASSERT(uiStacks >= 1, "Sphere must have at least 1 stacks");
+
+  const ezAngle fDegreeDiffSegments = ezAngle::Degree(360.0f / (float) (uiSegments));
+  const ezAngle fDegreeDiffStacks = ezAngle::Degree(90.0f / (float) (uiStacks));
+
+  const ezUInt32 uiFirstVertex = m_Vertices.GetCount();
+
+  // first create all the vertex positions
+  for (ezUInt32 st = 0; st < uiStacks; ++st)
+  {
+    const ezAngle fDegreeStack = ezAngle::Degree(-90.0f + ((st+1) * fDegreeDiffStacks.GetDegree()));
+    const float fCosDS = ezMath::Cos(fDegreeStack);
+    const float fSinDS = ezMath::Sin(fDegreeStack);
+    const float fY = -fSinDS * fRadius;
+
+    for (ezUInt32 sp = 0; sp < uiSegments; ++sp)
+    {
+      // the vertices for the bottom disk
+      const ezAngle fDegree = (float)sp * fDegreeDiffSegments;
+
+      ezVec3 vPos;
+      vPos.x = ezMath::Cos(fDegree) * fRadius * fCosDS;
+      vPos.y = fY;
+      vPos.z = ezMath::Sin(fDegree) * fRadius * fCosDS;
+
+      AddVertex(vPos, vPos.GetNormalized(), color, iCustomIndex, mTransform);
+    }
+  }
+
+  ezUInt32 uiTopVertex = AddVertex(ezVec3(0, fRadius, 0), ezVec3(0, 1, 0), color, iCustomIndex, mTransform);
+  ezUInt32 uiBottomVertex = AddVertex(ezVec3(0, -fRadius, 0), ezVec3(0, -1, 0), color, iCustomIndex, mTransform);
+
+  ezUInt32 tri[3];
+  ezUInt32 quad[4];
+
+  // now create the top cone
+  for (ezUInt32 p = 0; p < uiSegments; ++p)
+  {
+    tri[0] = uiTopVertex;
+    tri[1] = uiFirstVertex + ((p + 1) % uiSegments);
+    tri[2] = uiFirstVertex + p;
+
+    AddPolygon(tri);
+  }
+
+  // now create the stacks in the middle
+
+  for (ezUInt16 st = 0; st < uiStacks - 1; ++st)
+  {
+    const ezUInt32 uiRowBottom = uiSegments * st;
+    const ezUInt32 uiRowTop = uiSegments * (st + 1);
+
+    for (ezInt32 i = 0; i < uiSegments; ++i)
+    {
+      quad[0] = uiFirstVertex + (uiRowTop + ((i + 1) % uiSegments));
+      quad[1] = uiFirstVertex + (uiRowTop + i);
+      quad[2] = uiFirstVertex + (uiRowBottom + i);
+      quad[3] = uiFirstVertex + (uiRowBottom + ((i + 1) % uiSegments));
+
+      AddPolygon(quad);
+    }
+  }
+
+  if (bCap)
+  {
+    ezHybridArray<ezUInt32, 256> uiCap;
+
+    for (ezUInt32 i = uiTopVertex - uiSegments; i < uiTopVertex; ++i)
+      uiCap.PushBack(i);
+
+    AddPolygon(uiCap);
+  }
+
+}
+
+void ezGeometry::AddCapsule(float fRadius, float fHeight, ezUInt16 uiSegments, ezUInt16 uiStacks, const ezColor8UNorm& color, const ezMat4& mTransform, ezInt32 iCustomIndex)
+{
+  EZ_ASSERT(uiSegments >= 3, "Capsule must have at least 3 segments");
+  EZ_ASSERT(uiStacks >= 1, "Capsule must have at least 1 stacks");
+  EZ_ASSERT(fHeight >= 0.0f, "Height must be positive");
+
+  const ezAngle fDegreeDiffSegments = ezAngle::Degree(360.0f / (float) (uiSegments));
+  const ezAngle fDegreeDiffStacks = ezAngle::Degree(90.0f / (float) (uiStacks));
+
+  const ezUInt32 uiFirstVertex = m_Vertices.GetCount();
+
+  // first create all the vertex positions
+  const float fDegreeStepSlices = 360.0f / (float) (uiSegments);
+
+  float fOffset = fHeight * 0.5f;
+
+  //for (ezUInt32 h = 0; h < 2; ++h)
+  {
+    for (ezUInt32 st = 0; st < uiStacks; ++st)
+    {
+      const ezAngle fDegreeStack = ezAngle::Degree(-90.0f + ((st + 1) * fDegreeDiffStacks.GetDegree()));
+      const float fCosDS = ezMath::Cos(fDegreeStack);
+      const float fSinDS = ezMath::Sin(fDegreeStack);
+      const float fY = -fSinDS * fRadius;
+
+      for (ezUInt32 sp = 0; sp < uiSegments; ++sp)
+      {
+        const ezAngle fDegree = ezAngle::Degree(sp * fDegreeStepSlices);
+
+        ezVec3 vPos;
+        vPos.x = ezMath::Cos(fDegree) * fRadius * fCosDS;
+        vPos.y = fY + fOffset;
+        vPos.z = ezMath::Sin(fDegree) * fRadius * fCosDS;
+
+        AddVertex(vPos, vPos.GetNormalized(), color, iCustomIndex, mTransform);
+      }
+    }
+
+    fOffset -= fHeight;
+
+    for (ezUInt32 st = 0; st < uiStacks; ++st)
+    {
+      const ezAngle fDegreeStack = ezAngle::Degree(0.0f - (st * fDegreeDiffStacks.GetDegree()));
+      const float fCosDS = ezMath::Cos(fDegreeStack);
+      const float fSinDS = ezMath::Sin(fDegreeStack);
+      const float fY = fSinDS * fRadius;
+
+      for (ezUInt32 sp = 0; sp < uiSegments; ++sp)
+      {
+        const ezAngle fDegree = ezAngle::Degree(sp * fDegreeStepSlices);
+
+        ezVec3 vPos;
+        vPos.x = ezMath::Cos(fDegree) * fRadius * fCosDS;
+        vPos.y = fY + fOffset;
+        vPos.z = ezMath::Sin(fDegree) * fRadius * fCosDS;
+
+        AddVertex(vPos, vPos.GetNormalized(), color, iCustomIndex, mTransform);
+      }
+    }
+  }
+
+  ezUInt32 uiTopVertex = AddVertex(ezVec3(0, fRadius + fHeight * 0.5f, 0), ezVec3(0, 1, 0), color, iCustomIndex, mTransform);
+  ezUInt32 uiBottomVertex = AddVertex(ezVec3(0, -fRadius - fHeight * 0.5f, 0), ezVec3(0, -1, 0), color, iCustomIndex, mTransform);
+
+  ezUInt32 tri[3];
+  ezUInt32 quad[4];
+
+  // now create the top cone
+  for (ezUInt32 p = 0; p < uiSegments; ++p)
+  {
+    tri[0] = uiTopVertex;
+    tri[1] = uiFirstVertex + ((p + 1) % uiSegments);
+    tri[2] = uiFirstVertex + p;
+
+    AddPolygon(tri);
+  }
+
+  // now create the stacks in the middle
+
+  for (ezUInt16 st = 0; st < uiStacks * 2 - 1; ++st)
+  {
+    const ezUInt32 uiRowBottom = uiSegments * st;
+    const ezUInt32 uiRowTop = uiSegments * (st + 1);
+
+    for (ezInt32 i = 0; i < uiSegments; ++i)
+    {
+      quad[0] = uiFirstVertex + (uiRowTop + ((i + 1) % uiSegments));
+      quad[1] = uiFirstVertex + (uiRowTop + i);
+      quad[2] = uiFirstVertex + (uiRowBottom + i);
+      quad[3] = uiFirstVertex + (uiRowBottom + ((i + 1) % uiSegments));
+
+      AddPolygon(quad);
+    }
+  }
+
+  const ezInt32 iBottomStack = uiSegments * (uiStacks * 2 - 1);
+
+  // now create the bottom cone
+  for (ezUInt32 p = 0; p < uiSegments; ++p)
+  {
+    tri[0] = uiBottomVertex;
+    tri[1] = uiFirstVertex + (iBottomStack + p);
+    tri[2] = uiFirstVertex + (iBottomStack + ((p + 1) % uiSegments));
+
+    AddPolygon(tri);
+  }
+
+}
+
+void ezGeometry::AddTorus(float fInnerRadius, float fOuterRadius, ezUInt16 uiSegments, ezUInt16 uiSegmentDetail, const ezColor8UNorm& color, const ezMat4& mTransform, ezInt32 iCustomIndex)
+{
+  EZ_ASSERT(fInnerRadius < fOuterRadius, "Inner radius must be smaller than outer radius. Doh!");
+  EZ_ASSERT(uiSegments >= 3, "Invalid number of segments.");
+  EZ_ASSERT(uiSegmentDetail >= 3, "Invalid segment detail value.");
+
+  const float fCylinderRadius = (fOuterRadius - fInnerRadius) * 0.5f;
+  const float fLoopRadius = fInnerRadius + fCylinderRadius;
+
+  const ezAngle fAngleStepSegment = ezAngle::Degree(360.0f / uiSegments);
+  const ezAngle fAngleStepCylinder = ezAngle::Degree(360.0f / uiSegmentDetail);
+
+  // this is the loop for the torus ring
+  for (ezUInt16 seg = 0; seg < uiSegments; ++seg)
+  {
+    const ezAngle fAngle = seg * fAngleStepSegment;
+
+    const float fSinAngle = ezMath::Sin(fAngle);
+    const float fCosAngle = ezMath::Cos(fAngle);
+
+    const ezVec3 vLoopPos = ezVec3(fSinAngle, 0, fCosAngle) * fLoopRadius;
+
+    // this is the loop to go round the cylinder
+    for (ezUInt16 p = 0; p < uiSegmentDetail; ++p)
+    {
+      const ezAngle fCylinderAngle = p * fAngleStepCylinder;
+
+      const ezVec3 vDir(ezMath::Cos(fCylinderAngle) * fSinAngle, ezMath::Sin(fCylinderAngle), ezMath::Cos(fCylinderAngle) * fCosAngle);
+
+      const ezVec3 vPos = vLoopPos + fCylinderRadius * vDir;
+
+      AddVertex(vPos, vDir, color, iCustomIndex, mTransform);
+    }
+  }
+
+
+  for (ezUInt16 seg = 0; seg < uiSegments; ++seg)
+  {
+    const ezUInt16 rs0 = seg * uiSegmentDetail;
+    const ezUInt16 rs1 = ((seg + 1) % uiSegments) * uiSegmentDetail;
+
+    for (ezUInt16 p = 0; p < uiSegmentDetail; ++p)
+    {
+      const ezUInt16 p1 = (p + 1) % uiSegmentDetail;
+
+      ezUInt32 quad[4];
+
+      quad[0] = rs1 + p;
+      quad[1] = rs1 + p1;
+      quad[2] = rs0 + p1;
+      quad[3] = rs0 + p;
+
+      AddPolygon(quad);
+    }
+  }
+}
 
 
 

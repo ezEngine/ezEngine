@@ -113,15 +113,50 @@ public:
 
   /// \brief Adds a cylinder. The origin is at the center.
   ///
+  /// uiSegments is the detail around the up axis, must be at least 3.
   /// The top or bottom caps can be removed using \a bCapTop and \a bCapBottom.
-  void AddCylinder(float fRadiusTop, float fRadiusBottom, float fHeight, bool bCapTop, bool bCapBottom, ezUInt16 uiSegments, const ezColor8UNorm& color, const ezMat4& mTransform = ezMat4::IdentityMatrix(), ezInt32 iCustomIndex = 0);
+  /// When \a fraction is set to any value below 360 degree, a pie / pacman shaped cylinder is created.
+  void AddCylinder(float fRadiusTop, float fRadiusBottom, float fHeight, bool bCapTop, bool bCapBottom, ezUInt16 uiSegments, const ezColor8UNorm& color, const ezMat4& mTransform = ezMat4::IdentityMatrix(), ezInt32 iCustomIndex = 0, ezAngle fraction = ezAngle::Degree(360.0f));
 
-  // Sphere
-  // Cone
-  // Capsule
+  /// \brief Adds a cylinder. The origin is at the center of the bottom.
+  ///
+  /// uiSegments is the detail around the up axis, must be at least 3.
+  void AddCone(float fRadius, float fHeight, bool bCap, ezUInt16 uiSegments, const ezColor8UNorm& color, const ezMat4& mTransform = ezMat4::IdentityMatrix(), ezInt32 iCustomIndex = 0);
+
+  /// \brief Adds a sphere.
+  ///
+  /// uiSegments is the detail around the up axis, must be at least 3.
+  /// uiStacks is the detail of the rounded top and bottom, must be at least 2.
+  void AddSphere(float fRadius, ezUInt16 uiSegments, ezUInt16 uiStacks, const ezColor8UNorm& color, const ezMat4& mTransform = ezMat4::IdentityMatrix(), ezInt32 iCustomIndex = 0);
+
+  /// \brief Adds half a sphere.
+  ///
+  /// The origin is at the 'full sphere center', ie. at the center of the cap.
+  /// uiSegments is the detail around the up axis, must be at least 3.
+  /// uiStacks is the detail of the rounded top and bottom, must be at least 1.
+  void AddHalfSphere(float fRadius, ezUInt16 uiSegments, ezUInt16 uiStacks, bool bCap, const ezColor8UNorm& color, const ezMat4& mTransform = ezMat4::IdentityMatrix(), ezInt32 iCustomIndex = 0);
+
+  /// \brief Adds a capsule.
+  ///
+  /// The origin is at the center of the capsule.
+  /// Radius and height are added to get the total height of the capsule.
+  /// uiSegments is the detail around the up axis, must be at least 3.
+  /// uiStacks is the detail of the rounded top and bottom, must be at least 1.
+  void AddCapsule(float fRadius, float fHeight, ezUInt16 uiSegments, ezUInt16 uiStacks, const ezColor8UNorm& color, const ezMat4& mTransform = ezMat4::IdentityMatrix(), ezInt32 iCustomIndex = 0);
+
+  /// \brief Adds a full torus.
+  ///
+  /// The origin is at the center of the torus.
+  /// fInnerRadius is the radius from the center to where the torus ring starts.
+  /// fOuterRadius is the radius to where the torus ring stops.
+  /// uiSegments is the detail around the up axis.
+  /// uiSegmentDetail is the number of segments around the torus ring (ie. the cylinder detail)
+  void AddTorus(float fInnerRadius, float fOuterRadius, ezUInt16 uiSegments, ezUInt16 uiSegmentDetail, const ezColor8UNorm& color, const ezMat4& mTransform = ezMat4::IdentityMatrix(), ezInt32 iCustomIndex = 0);
+
   // ThickLine
-  // Torus
+  // Part of a Torus
   // Arc
+  // Arch
   // Circle
   // Curved cone (spotlight)
   // flat arc / circle (ie. UE4 gizmo)
