@@ -75,6 +75,8 @@ public:
 
   void AfterEngineInit() override
   {
+    m_iCurObject = 0;
+
     ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
     ezFileSystem::AddDataDirectory("");
 
@@ -102,19 +104,23 @@ public:
 
     cfg = ezInputManager::GetInputActionConfig("Main", "CloseApp");
     cfg.m_sInputSlotTrigger[0] = ezInputSlot_KeyEscape;
-
     ezInputManager::SetInputActionConfig("Main", "CloseApp", cfg, true);
 
     cfg = ezInputManager::GetInputActionConfig("Main", "ToggleShader");
     cfg.m_sInputSlotTrigger[0] = ezInputSlot_KeySpace;
-
     ezInputManager::SetInputActionConfig("Main", "ToggleShader", cfg, true);
 
     cfg = ezInputManager::GetInputActionConfig("Main", "PreloadShader");
     cfg.m_sInputSlotTrigger[0] = ezInputSlot_KeyP;
-
     ezInputManager::SetInputActionConfig("Main", "PreloadShader", cfg, true);
 
+    cfg = ezInputManager::GetInputActionConfig("Main", "NextObj");
+    cfg.m_sInputSlotTrigger[0] = ezInputSlot_KeyP;
+    ezInputManager::SetInputActionConfig("Main", "NextObj", cfg, true);
+
+    cfg = ezInputManager::GetInputActionConfig("Main", "PrevObj");
+    cfg.m_sInputSlotTrigger[0] = ezInputSlot_KeyO;
+    ezInputManager::SetInputActionConfig("Main", "PrevObj", cfg, true);
 
     // Create a window for rendering
     ezWindowCreationDesc WindowCreationDesc;
@@ -152,7 +158,8 @@ public:
     // Create a constant buffer for matrix upload
     m_hCB = m_pDevice->CreateConstantBuffer(sizeof(TestCB));
 
-    m_pObj = DontUse::MayaObj::LoadFromFile("ez.obj", m_pDevice);
+    for (int i = 0; i < MaxObjs; ++i)
+      m_pObj[i] = DontUse::MayaObj::LoadFromFile("ez.obj", m_pDevice, i);
     
 #if EZ_ENABLED(DEMO_GL)
       ezShaderManager::SetPlatform("GL3", m_pDevice, true);
@@ -163,10 +170,12 @@ public:
     m_hShader = ezResourceManager::GetResourceHandle<ezShaderResource>("Shaders/ez2.shader");
 
     ezShaderManager::SetActiveShader(m_hShader);
+    ezShaderManager::SetPermutationVariable("COLORED", "1");
     
     ezGALRasterizerStateCreationDescription RasterStateDesc;
-    //RasterStateDesc.m_bWireFrame = true;
+    RasterStateDesc.m_bWireFrame = true;
     RasterStateDesc.m_CullMode = ezGALCullMode::Back;
+    RasterStateDesc.m_bFrontCounterClockwise = true;
     m_hRasterizerState = m_pDevice->CreateRasterizerState(RasterStateDesc);
     EZ_ASSERT(!m_hRasterizerState.IsInvalidated(), "Couldn't create rasterizer state!");
 
@@ -236,7 +245,7 @@ public:
 
     if (ezInputManager::GetInputActionState("Main", "ToggleShader") == ezKeyState::Pressed)
     {
-      static int iPerm = 1;
+      static int iPerm = 0;
       static int iColorValue = 10;
 
       switch (iPerm)
@@ -272,6 +281,16 @@ public:
       ezShaderManager::PreloadPermutations(m_hShader, All, ezTime::Milliseconds(10000.0));
     }
 
+    if (ezInputManager::GetInputActionState("Main", "NextObj") == ezKeyState::Pressed)
+    {
+      m_iCurObject = (m_iCurObject + 1) % MaxObjs;
+    }
+    
+    if (ezInputManager::GetInputActionState("Main", "PrevObj") == ezKeyState::Pressed)
+    {
+      m_iCurObject = m_iCurObject == 0 ? (MaxObjs-1) : m_iCurObject - 1;
+    }
+
     ezClock::UpdateAllGlobalClocks();
 
     ezInputManager::Update(ezClock::Get()->GetTimeDiff());
@@ -301,7 +320,7 @@ public:
     pContext->SetSamplerState(ezGALShaderStage::PixelShader, 0, m_hSamplerState);
 
     static float fRotY = 0.0f;
-    fRotY -= 10.0f * ezClock::Get()->GetTimeDiff().AsFloat();
+    fRotY -= 30.0f * ezClock::Get()->GetTimeDiff().AsFloat();
 
     ezMat4 ModelRot;
     ModelRot.SetRotationMatrixY(ezAngle::Degree(fRotY));
@@ -336,7 +355,7 @@ public:
     //pContext->DrawIndexed(m_pObj->GetPrimitiveCount() * 3, 0);
 
     {
-      ezResourceLock<ezMeshBufferResource> pMeshBuffer (m_pObj->m_hMeshBuffer);
+      ezResourceLock<ezMeshBufferResource> pMeshBuffer (m_pObj[m_iCurObject]->m_hMeshBuffer);
 
       pMeshBuffer->Draw();
     }
@@ -378,7 +397,9 @@ public:
 
   void BeforeEngineShutdown() override
   {
-    EZ_DEFAULT_DELETE(m_pObj);
+    for (int i = 0; i < MaxObjs; ++i)
+      EZ_DEFAULT_DELETE(m_pObj[i]);
+
     m_hShader.Invalidate();
 
     ezStartup::ShutdownEngine();
@@ -431,7 +452,10 @@ private:
 
   ezShaderResourceHandle m_hShader;
 
-  DontUse::MayaObj* m_pObj;
+  static const int MaxObjs = 7;
+
+  ezInt32 m_iCurObject;
+  DontUse::MayaObj* m_pObj[MaxObjs];
 
   ezDataTransfer m_DebugBackBufferDT;
 };

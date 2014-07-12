@@ -82,7 +82,7 @@ void main()
 float4 main(PS_IN Input) : SV_Target
 {
 #if COLORED
-  return float4((COLORVALUE / 255.0) * Input.norm * 0.5 + 0.5, 1.0f);
+  return float4(Input.norm * 0.5 + 0.5, 1.0f);
 #else
   return float4(COLORVALUE / 255.0, some_color, 0.0f, 1.0f);
 #endif

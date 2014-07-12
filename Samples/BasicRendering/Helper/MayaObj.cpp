@@ -10,7 +10,7 @@
 
 namespace DontUse
 {
-  MayaObj* MayaObj::LoadFromFile(const char* szPath, ezGALDevice* pDevice)
+  MayaObj* MayaObj::LoadFromFile(const char* szPath, ezGALDevice* pDevice, int i)
   {
     ezDynamicArray<MayaObj::Vertex> Vertices;
     ezDynamicArray<ezUInt16> Indices;
@@ -20,10 +20,18 @@ namespace DontUse
       ezMat4 m;
 
       ezGeometry geom;
-      geom.AddRectXY(ezColor8UNorm(255, 255, 0));
+      //geom.AddRectXY(1.0f, 2.0f, ezColor8UNorm(255, 255, 0));
 
       m.SetRotationMatrixY(ezAngle::Degree(90));
-      geom.AddRectXY(ezColor8UNorm(255, 255, 0), m);
+      //geom.AddRectXY(2.0f, 1.0f, ezColor8UNorm(255, 255, 0), m);
+
+      ezMat4 mTrans;
+      mTrans.SetIdentity();
+      //mTrans.SetTranslationMatrix(ezVec3(1, 0, 0));
+      //mTrans.SetScalingFactors(ezVec3(0.5f, 1, 0.3f));
+      geom.AddGeodesicSphere(i, ezColor8UNorm(0, 255, 0), mTrans);
+
+      ezLog::Info("Triangles: %u, Vertices: %u", geom.GetPolygons().GetCount(), geom.GetVertices().GetCount());
 
       Vertices.Reserve(geom.GetVertices().GetCount());
       Indices.Reserve(geom.GetPolygons().GetCount() * 6);
@@ -80,11 +88,11 @@ namespace DontUse
       }
     }
 
-    MayaObj* Obj = EZ_DEFAULT_NEW(MayaObj)(Vertices, Indices, pDevice);
+    MayaObj* Obj = EZ_DEFAULT_NEW(MayaObj)(Vertices, Indices, pDevice, i);
     return Obj;
   }
 
-  MayaObj::MayaObj(const ezArrayPtr<MayaObj::Vertex>& pVertices, const ezArrayPtr<ezUInt16>& pIndices, ezGALDevice* pDevice)
+  MayaObj::MayaObj(const ezArrayPtr<MayaObj::Vertex>& pVertices, const ezArrayPtr<ezUInt16>& pIndices, ezGALDevice* pDevice, int iMesh)
   {
     ezMeshBufferResourceDescriptor desc;
     desc.m_pDevice = pDevice;
@@ -109,9 +117,14 @@ namespace DontUse
 
     // there should be a function to generate a unique ID
     // or we should just move this into CreateResource, not sure yet
-    m_hMeshBuffer = ezResourceManager::GetResourceHandle<ezMeshBufferResource>("MayaMesh");
+    {
+      ezStringBuilder s;
+      s.Format("MayaMesh%i", iMesh);
 
-    ezResourceManager::CreateResource(m_hMeshBuffer, desc);
+      m_hMeshBuffer = ezResourceManager::GetResourceHandle<ezMeshBufferResource>(s.GetData());
+
+      ezResourceManager::CreateResource(m_hMeshBuffer, desc);
+    }
   }
 
 }

@@ -23,13 +23,13 @@ namespace DontUse
       ezVec2 tex0;
     };
 
-    static MayaObj* LoadFromFile(const char* szPath, ezGALDevice* pDevice);
+    static MayaObj* LoadFromFile(const char* szPath, ezGALDevice* pDevice, int i);
 
     ezMeshBufferResourceHandle m_hMeshBuffer;
 
   protected:
 
-    MayaObj(const ezArrayPtr<Vertex>& pVertices, const ezArrayPtr<ezUInt16>& pIndices, ezGALDevice* pDevice);
+    MayaObj(const ezArrayPtr<Vertex>& pVertices, const ezArrayPtr<ezUInt16>& pIndices, ezGALDevice* pDevice, int iMesh);
 
 
   };

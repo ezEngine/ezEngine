@@ -78,11 +78,11 @@ void ezMeshBufferResourceDescriptor::AllocateStreams(ezUInt32 uiNumVertices, ezU
 
     if (Uses32BitIndices())
     {
-      uiIndexBufferSize *= 4;
+      uiIndexBufferSize *= sizeof(ezUInt32);
     }
     else
     {
-      uiIndexBufferSize *= 2;
+      uiIndexBufferSize *= sizeof(ezUInt16);
     }
 
     m_IndexBufferData.SetCount(uiIndexBufferSize);
@@ -179,7 +179,7 @@ void ezMeshBufferResource::CreateResource(const ezMeshBufferResourceDescriptor& 
   m_hVertexBuffer = descriptor.m_pDevice->CreateVertexBuffer(descriptor.GetVertexDataSize(), descriptor.GetVertexCount(), &(descriptor.GetVertexBufferData()[0]));
 
   if (descriptor.HasIndexBuffer())
-    m_hIndexBuffer = descriptor.m_pDevice->CreateIndexBuffer(descriptor.Uses32BitIndices() ? ezGALIndexType::UInt : ezGALIndexType::UShort, descriptor.GetIndexBufferData().GetCount(), &(descriptor.GetIndexBufferData()[0]));
+    m_hIndexBuffer = descriptor.m_pDevice->CreateIndexBuffer(descriptor.Uses32BitIndices() ? ezGALIndexType::UInt : ezGALIndexType::UShort, descriptor.GetPrimitiveCount() * 3, &(descriptor.GetIndexBufferData()[0]));
 
   m_uiPrimitiveCount = descriptor.GetPrimitiveCount();
 
