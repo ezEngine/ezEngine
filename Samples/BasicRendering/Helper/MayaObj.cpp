@@ -25,13 +25,19 @@ namespace DontUse
       m.SetRotationMatrixY(ezAngle::Degree(90));
       //geom.AddRectXY(2.0f, 1.0f, ezColor8UNorm(255, 255, 0), m);
 
+      ezColor8UNorm col(0, 255, 0);
+
       ezMat4 mTrans;
       mTrans.SetIdentity();
-      //mTrans.SetTranslationMatrix(ezVec3(1, 0, 0));
+      mTrans.SetTranslationMatrix(ezVec3(1, 0, 0));
       //mTrans.SetScalingFactors(ezVec3(0.5f, 1, 0.3f));
-      geom.AddGeodesicSphere(i, ezColor8UNorm(0, 255, 0), mTrans);
+      //geom.AddGeodesicSphere(0.5f, i, ezColor8UNorm(0, 255, 0), mTrans);
 
-      ezLog::Info("Triangles: %u, Vertices: %u", geom.GetPolygons().GetCount(), geom.GetVertices().GetCount());
+      //geom.AddBox(ezVec3(1, 2, 3), ezColor8UNorm(0, 255, 0), mTrans);
+      //geom.AddPyramid(ezVec3(1.0f, 1.5f, 2.0f), col);
+      geom.AddCylinder(0.5f, 1.0f, 1.1f, true, true, 8 * (i + 1), col, mTrans);
+
+      ezLog::Info("Polygons: %u, Vertices: %u", geom.GetPolygons().GetCount(), geom.GetVertices().GetCount());
 
       Vertices.Reserve(geom.GetVertices().GetCount());
       Indices.Reserve(geom.GetPolygons().GetCount() * 6);

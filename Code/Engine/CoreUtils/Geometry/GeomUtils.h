@@ -26,8 +26,6 @@ public:
   /// \brief Each polygon has a face normal and a set of indices, which vertices it references.
   struct Polygon
   {
-    EZ_DECLARE_POD_TYPE();
-
     ezVec3 m_vNormal;
     ezHybridArray<ezUInt32, 4> m_Vertices;
   };
@@ -90,8 +88,16 @@ public:
   void Merge(const ezGeometry& other);
 
   /// \brief Adds a rectangle shape in the XY plane, with the front in positive Z direction.
-  /// It is centered at the origin, extending half fSizeX and half fSizeY into direction +X, -X, +Y and -Y.
-  void AddRectXY(float fSizeX, float fSizeY, const ezColor8UNorm& color, const ezMat4& mTransform = ezMat4::IdentityMatrix(), ezInt32 iCustomIndex = 0);
+  /// It is centered at the origin, extending half size.x and half size.y into direction +X, -X, +Y and -Y.
+  void AddRectXY(const ezVec2& size, const ezColor8UNorm& color, const ezMat4& mTransform = ezMat4::IdentityMatrix(), ezInt32 iCustomIndex = 0);
+
+  /// \brief Adds a box.
+  void AddBox(const ezVec3& size, const ezColor8UNorm& color, const ezMat4& mTransform = ezMat4::IdentityMatrix(), ezInt32 iCustomIndex = 0);
+
+  /// \brief Adds a pyramid. This is different to a low-res cone in that the corners are placed differently (like on a box).
+  ///
+  /// The origin is at the center of the base quad.size.z is the height of the pyramid.
+  void AddPyramid(const ezVec3& size, const ezColor8UNorm& color, const ezMat4& mTransform = ezMat4::IdentityMatrix(), ezInt32 iCustomIndex = 0);
 
   /// \brief Adds a geodesic sphere with radius 1 at the origin.
   ///
@@ -103,14 +109,15 @@ public:
   /// 3 = 1280 triangles,  642 vertices\n
   /// 4 = 5120 triangles, 2562 vertices\n
   /// ...\n
-  void AddGeodesicSphere(ezUInt8 uiSubDivisions, const ezColor8UNorm& color, const ezMat4& mTransform = ezMat4::IdentityMatrix(), ezInt32 iCustomIndex = 0);
+  void AddGeodesicSphere(float fRadius, ezUInt8 uiSubDivisions, const ezColor8UNorm& color, const ezMat4& mTransform = ezMat4::IdentityMatrix(), ezInt32 iCustomIndex = 0);
+
+  /// \brief Adds a cylinder. The origin is at the center.
+  ///
+  /// The top or bottom caps can be removed using \a bCapTop and \a bCapBottom.
+  void AddCylinder(float fRadiusTop, float fRadiusBottom, float fHeight, bool bCapTop, bool bCapBottom, ezUInt16 uiSegments, const ezColor8UNorm& color, const ezMat4& mTransform = ezMat4::IdentityMatrix(), ezInt32 iCustomIndex = 0);
 
   // Sphere
-  // GeodesicSphere
-  // Box
-  // Pyramid
   // Cone
-  // Cylinder
   // Capsule
   // ThickLine
   // Torus
