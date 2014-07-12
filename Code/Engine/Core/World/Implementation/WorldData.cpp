@@ -44,6 +44,8 @@ WorldData::WorldData(const char* szWorldName) :
 
 WorldData::~WorldData()
 {
+  EZ_ASSERT(m_ComponentManagers.IsEmpty(), "Component managers should be cleaned up already.");
+
   // delete all transformation data
   for (ezUInt32 uiHierarchyIndex = 0; uiHierarchyIndex < HierarchyType::COUNT; ++uiHierarchyIndex)
   {
@@ -58,16 +60,6 @@ WorldData::~WorldData()
       }
       EZ_DELETE(&m_Allocator, blocks);
     }
-  }
-
-  // delete all component manager
-  for (ezUInt32 i = 0; i < m_ComponentManagers.GetCount(); ++i)
-  {
-    if (ezComponentManagerBase* pManager = m_ComponentManagers[i])
-    {
-      pManager->Deinitialize();
-      EZ_DELETE(&m_Allocator, pManager);
-    }    
   }
 
   // delete task storage
