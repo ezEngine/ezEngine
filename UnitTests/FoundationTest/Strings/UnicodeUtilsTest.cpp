@@ -94,6 +94,8 @@ EZ_CREATE_SIMPLE_TEST(Strings, UnicodeUtils)
   {
     ezStringUtf8 s(L"aböäß€de");
 
+    EZ_TEST_INT(s.GetElementCount(), 13);
+
     const char* sz = s.GetData();
 
     // test how far it skips ahead
@@ -125,6 +127,8 @@ EZ_CREATE_SIMPLE_TEST(Strings, UnicodeUtils)
     ezStringUtf8 s(L"aböäß€de");
 
     const char* sz = &s.GetData()[13];
+
+    EZ_TEST_INT(s.GetElementCount(), 13);
 
     // test how far it skips ahead
 
