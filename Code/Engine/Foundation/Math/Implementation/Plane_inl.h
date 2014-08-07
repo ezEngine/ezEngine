@@ -255,7 +255,7 @@ ezResult ezPlaneTemplate<Type>::FindSupportPoints (const ezVec3Template<Type>* c
 
   while (i < iMaxVertices)
   {
-    // check for inequality, then for non-colinearity
+    // check for inequality, then for non-collinearity
     if ((pVertices[i].IsEqual (v2, 0.001f) == false) && 
       (ezMath::Abs ((pVertices[i] - v2).GetNormalized().Dot (vDir1)) < (Type) 0.999))
     {

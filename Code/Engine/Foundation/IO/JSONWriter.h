@@ -179,7 +179,7 @@ public:
 ///
 /// ezStandardJSONWriter also implements WriteBinaryData() and the functions WriteVec2() etc., for which there is no standard way to implement them in
 /// JSON. WriteVec2() etc. will simply redirect to WriteBinaryData(), which in turn implements the MongoDB convention of outputting binary data.
-/// Ie. it will turn the data into a JSON object which contains one variable called "$type" that identifies the data type, and one variable called
+/// I.e. it will turn the data into a JSON object which contains one variable called "$type" that identifies the data type, and one variable called
 /// "$binary" which contains the raw binary data Hex encoded in little endian format.
 /// If you want to write a fully standard compliant JSON file, just don't output any of these types.
 class EZ_FOUNDATION_DLL ezStandardJSONWriter : public ezJSONWriter
@@ -221,7 +221,7 @@ public:
   /// \brief \copydoc ezJSONWriter::WriteNULL()
   virtual void WriteNULL() override; // [tested]
 
-  /// \brief Writes the time value as a double (ie. redirects to WriteDouble()).
+  /// \brief Writes the time value as a double (i.e. redirects to WriteDouble()).
   virtual void WriteTime(ezTime value) override; // [tested]
 
   /// \brief Outputs the value via WriteVec4().

@@ -225,7 +225,7 @@ void ezMat3Template<Type>::SetLookInDirectionMatrix (ezVec3Template<Type> vLookD
   // orthogonalize vUpDir
   vUpDir = vRightDir.Cross(vLookDir); // vLookDir and vRightDir are normalized and orthogonal, vUpDir will be normalized too
 
-  // the matrix needs to be transposed (ie. inverted), so we set the ROWS instead of the columns
+  // the matrix needs to be transposed (i.e. inverted), so we set the ROWS instead of the columns
   SetRow(0, vRightDir);
   SetRow(1, vUpDir);
   SetRow(2, -vLookDir);

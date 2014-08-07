@@ -28,7 +28,7 @@ ezResult ezOSFile::InternalOpen(const char* szFile, ezFileMode::Enum OpenMode)
   case ezFileMode::Append:
     m_FileData.m_pFileHandle = CreateFileW(s.GetData(), FILE_APPEND_DATA, 0, nullptr, OPEN_ALWAYS,  FILE_ATTRIBUTE_NORMAL, nullptr); 
 
-    // in append mode we need to set the file pointer to the end explicitely, otherwise GetFilePosition might return 0 the first time
+    // in append mode we need to set the file pointer to the end explicitly, otherwise GetFilePosition might return 0 the first time
     if ((m_FileData.m_pFileHandle != nullptr) && (m_FileData.m_pFileHandle != INVALID_HANDLE_VALUE))
       InternalSetFilePosition(0, ezFilePos::FromEnd);
 

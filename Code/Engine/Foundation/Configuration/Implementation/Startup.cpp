@@ -432,7 +432,7 @@ bool ezStartup::HasDependencyOnPlugin(ezSubSystem* pSubSystem, const char* szMod
 
 void ezStartup::UnloadPluginSubSystems(const char* szPluginName)
 {
-  EZ_LOG_BLOCK("Unloadg Plugin SubSystems", szPluginName);
+  EZ_LOG_BLOCK("Unloading Plugin SubSystems", szPluginName);
   ezLog::Dev("Plugin to unload: '%s'", szPluginName);
 
   ezGlobalEvent::Broadcast(EZ_GLOBALEVENT_UNLOAD_PLUGIN_BEGIN, ezVariant(szPluginName));

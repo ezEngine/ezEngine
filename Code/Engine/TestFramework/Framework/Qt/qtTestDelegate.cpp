@@ -35,7 +35,7 @@ void ezQtTestDelegate::paint(QPainter* painter, const QStyleOptionViewItem& opti
     bool bSuccess = false;
     float fProgress = index.data(ezQtTestModel::UserRoles::Duration).toFloat(&bSuccess);
     
-    // If we got a valid float rom the model we can draw a small duration bar on top of the background.
+    // If we got a valid float from the model we can draw a small duration bar on top of the background.
     if (bSuccess)
     {
       QColor DurationColor = index.data(ezQtTestModel::UserRoles::DurationColor).value<QColor>();

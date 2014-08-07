@@ -1,5 +1,5 @@
 
-// Helper function to shift windows file time into unix epoch (in microseconds).
+// Helper function to shift windows file time into Unix epoch (in microseconds).
 ezInt64 FileTimeToEpoch(FILETIME fileTime)
 {
   ULARGE_INTEGER currentTime;
@@ -11,7 +11,7 @@ ezInt64 FileTimeToEpoch(FILETIME fileTime)
   return iTemp;
 }
 
-// Helper function to shift unix epoch (in microseconds) into windows file time.
+// Helper function to shift Unix epoch (in microseconds) into windows file time.
 FILETIME EpochToFileTime(ezInt64 iFileTime)
 {
   ezInt64 iTemp = iFileTime + 11644473600000000LL;

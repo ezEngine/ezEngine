@@ -211,7 +211,7 @@ void ezTaskSystem::WaitForGroup(ezTaskGroupID Group)
     return;
 
   // This function does basically the same as 'WaitForTask' only that it waits until ALL tasks of an entire group are finished
-  // This function is less goal oriented, it does not try to pick out tasks that belong to the given group (atm)
+  // This function is less goal oriented, it does not try to pick out tasks that belong to the given group (at the moment)
   // It simply helps running tasks, until the given Group has been finished as well
 
   EZ_PROFILE(s_ProfileWaitForGroup);
@@ -231,7 +231,7 @@ void ezTaskSystem::WaitForGroup(ezTaskGroupID Group)
 
   while (!ezTaskSystem::IsTaskGroupFinished(Group))
   {
-    // first try the main-thead tasks
+    // first try the main-thread tasks
     if (!ExecuteTask(FirstPriority, LastPriority))
     {
       // retry with other tasks

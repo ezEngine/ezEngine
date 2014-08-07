@@ -8,7 +8,7 @@
 #include <Foundation/Threading/Implementation/OSThread.h>
 
 // Warning: 'this' used in member initialization list (is fine here since it is just stored and not
-// accessed in the constructor (so no operations on a not completly initialized object happen)
+// accessed in the constructor (so no operations on a not completely initialized object happen)
 
 #define EZ_MSVC_WARNING_NUMBER 4355
 #include <Foundation/Basics/Compiler/DisableWarning.h>

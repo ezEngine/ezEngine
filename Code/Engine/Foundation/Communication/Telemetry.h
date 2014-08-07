@@ -22,8 +22,8 @@ public:
   enum ConnectionMode
   {
     None,     ///< Not configured yet, at all.
-    Server,   ///< Set up as a Server, ie. this is an application that broadcasts information about its current state to one or several Clients.
-    Client,   ///< Set up as a Client, ie. this is a tool that gathers information from a Server, usually for debugging/inspection use cases.
+    Server,   ///< Set up as a Server, i.e. this is an application that broadcasts information about its current state to one or several Clients.
+    Client,   ///< Set up as a Client, i.e. this is a tool that gathers information from a Server, usually for debugging/inspection use cases.
   };
 
   /// \brief Describes how to send messages.
@@ -108,7 +108,7 @@ public:
   /// \brief Returns the internal mutex used to synchronize all telemetry data access.
   ///
   /// This can be used to block all threads from accessing telemetry data, thus stopping the application.
-  /// This can be useful when you want to implement some operation that is fully synchronus with some external tool and you want to
+  /// This can be useful when you want to implement some operation that is fully synchronous with some external tool and you want to
   /// wait for its response and prevent all other actions while you wait for that.
   static ezMutex& GetTelemetryMutex();
 
@@ -142,13 +142,13 @@ public:
   /// \brief Call this once per frame to process queued messages and to send the PerFrameUpdate event.
   static void PerFrameUpdate();
 
-  /// \brief Specifies how many reliable messages from a system might get queued when no receipient is available yet.
+  /// \brief Specifies how many reliable messages from a system might get queued when no recipient is available yet.
   ///
   /// \param uiSystemID The ID for the system that sends the messages.
   /// \param uiMaxQueued The maximum number of reliable messages that get queued and delivered later, once
-  ///        a proper receipient is available. Set this to zero to discard all messages from a system, when no receipient is available.
+  ///        a proper recipient is available. Set this to zero to discard all messages from a system, when no recipient is available.
   ///
-  /// The default queue size is 1000. When a connection to a suitable receipient is made, all queued messages are delivered in one burst.
+  /// The default queue size is 1000. When a connection to a suitable recipient is made, all queued messages are delivered in one burst.
   static void SetOutgoingQueueSize(ezUInt32 uiSystemID, ezUInt16 uiMaxQueued);
 
   /// @}

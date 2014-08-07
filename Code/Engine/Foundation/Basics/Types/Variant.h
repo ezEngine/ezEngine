@@ -123,7 +123,7 @@ public:
 
   /// \brief Returns whether the stored type is exactly the given type.
   ///
-  /// \note This explicitely also differentiates between the different integer types.
+  /// \note This explicitly also differentiates between the different integer types.
   /// So when the variant stores an Int32, IsA<Int64>() will return false, even though the types could be converted.
   template <typename T>
   bool IsA() const; // [tested]

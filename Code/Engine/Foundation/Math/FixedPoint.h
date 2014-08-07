@@ -5,12 +5,12 @@
 /// \brief Implements fixed point arithmetic for fractional values.
 ///
 /// Advantages over float and double are mostly that the computations are entirely integer-based and therefore
-/// have a predictable (ie. deterministic) result, independent from floating point settings, SSE support and
+/// have a predictable (i.e. deterministic) result, independent from floating point settings, SSE support and
 /// differences among CPUs.
 /// Additionally fixed point arithmetic should be quite fast, compare to traditional floating point arithmetic
 /// (not comparing it to SSE though).
 /// With the template argument 'DecimalBits' you can specify how many bits are used for the fractional part.
-/// Ie. a simple integer has zero DecimalBits. For a precision of about 1/1000 you need at least 10 DecimalBits
+/// I.e. a simple integer has zero DecimalBits. For a precision of about 1/1000 you need at least 10 DecimalBits
 /// (1 << 10) == 1024.
 /// Conversion between integer and fixed point is very fast (a shift), in contrast to float/int conversion.
 ///

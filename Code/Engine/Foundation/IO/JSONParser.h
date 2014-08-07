@@ -6,7 +6,7 @@
 
 /// \brief A low level JSON parser that can incrementally parse the structure of a JSON document.
 ///
-/// The document structure is retured through virtual functions that need to be overridden. 
+/// The document structure is returned through virtual functions that need to be overridden. 
 class EZ_FOUNDATION_DLL ezJSONParser
 {
 public:

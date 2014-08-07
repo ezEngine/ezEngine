@@ -251,7 +251,7 @@ public:
   /// \brief Returns the file extension of the given path. Will be empty, if the path does not end with a proper extension.
   ezStringIterator GetFileExtension() const; // [tested]
 
-  /// \brief Returns the file name of a path, exluding the path and extension.
+  /// \brief Returns the file name of a path, excluding the path and extension.
   ///
   /// If the path already ends with a path separator, the result will be empty.
   ezStringIterator GetFileName() const; // [tested]
@@ -326,7 +326,7 @@ public:
   /// In all other cases the internal representation uses slashes, no matter on which operating system.
   void MakePathOsSpecific(); // [tested]
 
-  /// \brief Checks whether this path is a subpath of the given path.
+  /// \brief Checks whether this path is a sub-path of the given path.
   ///
   /// This function will call 'MakeCleanPath' to be able to compare both paths, thus it might modify the data of this instance.
   bool IsPathBelowFolder (const char* szPathToFolder); // [tested]

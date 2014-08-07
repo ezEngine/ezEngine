@@ -117,7 +117,7 @@ inline void ezStringBuilder::Prepend(ezUInt32 uiChar)
 inline void ezStringBuilder::Append(const wchar_t* pData1, const wchar_t* pData2, const wchar_t* pData3, const wchar_t* pData4, const wchar_t* pData5, const wchar_t* pData6)
 {
   // this is a bit heavy on the stack size (6KB)
-  // but it is really only a convenience function, as one could always just use the char* Append function and convert explicitely
+  // but it is really only a convenience function, as one could always just use the char* Append function and convert explicitly
   ezStringUtf8 s1(pData1, m_Data.GetAllocator());
   ezStringUtf8 s2(pData2, m_Data.GetAllocator());
   ezStringUtf8 s3(pData3, m_Data.GetAllocator());
@@ -131,7 +131,7 @@ inline void ezStringBuilder::Append(const wchar_t* pData1, const wchar_t* pData2
 inline void ezStringBuilder::Prepend(const wchar_t* pData1, const wchar_t* pData2, const wchar_t* pData3, const wchar_t* pData4, const wchar_t* pData5, const wchar_t* pData6)
 {
   // this is a bit heavy on the stack size (6KB)
-  // but it is really only a convenience function, as one could always just use the char* Append function and convert explicitely
+  // but it is really only a convenience function, as one could always just use the char* Append function and convert explicitly
   ezStringUtf8 s1(pData1, m_Data.GetAllocator());
   ezStringUtf8 s2(pData2, m_Data.GetAllocator());
   ezStringUtf8 s3(pData3, m_Data.GetAllocator());

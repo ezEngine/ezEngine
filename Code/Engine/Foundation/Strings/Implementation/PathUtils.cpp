@@ -142,7 +142,7 @@ bool ezPathUtils::IsAbsolutePath(const char* szPath)
 
   #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
     /// if it is an absolute path, character 0 must be ASCII (A - Z)
-    /// checks for local paths, ie. 'C:\stuff' and UNC paths, ie. '\\server\stuff'
+    /// checks for local paths, i.e. 'C:\stuff' and UNC paths, i.e. '\\server\stuff'
     /// not sure if we should handle '//' identical to '\\' (currently we do)
     return ((szPath[1] == ':') || (IsPathSeparator(szPath[0]) && IsPathSeparator(szPath[1])));
   #elif EZ_ENABLED(EZ_PLATFORM_LINUX)

@@ -60,7 +60,7 @@ ezResult ezFileSystem::AddDataDirectory(const char* szDataDirectory, DataDirUsag
   ezStringBuilder sPath = szDataDirectory;
   sPath.MakeCleanPath();
 
-  // use the factory that was added last as the one with the highes priority -> allows to override already added factories
+  // use the factory that was added last as the one with the highest priority -> allows to override already added factories
   for (ezInt32 i = s_Data->m_DataDirFactories.GetCount() - 1; i >= 0; --i)
   {
     ezDataDirectoryType* pDataDir = s_Data->m_DataDirFactories[i](sPath.GetData());
@@ -179,7 +179,7 @@ const char* ezFileSystem::GetDataDirRelativePath(const char* szPath, ezUInt32 ui
   // otherwise the data directory would prepend its own path and thus create an invalid path to work with
   const ezString128& sDirPath = s_Data->m_DataDirectories[uiDataDir].m_pDataDirectory->GetDataDirectoryPath();
     
-  // If the data dir is empty we return the paths as is or the code below would remove the '/' infront of an
+  // If the data dir is empty we return the paths as is or the code below would remove the '/' in front of an
   // absolute path.
   if (sDirPath.IsEmpty())
     return szPath;
@@ -316,7 +316,7 @@ ezDataDirectoryReader* ezFileSystem::GetFileReader(const char* szFile, bool bAll
   // Go through all Data Directory Categories and let each data dir from each requested Category try to open the file.
   for (ezUInt32 sd = 0; sd < SearchDirs.GetCount(); ++sd)
   {
-    // the last added data directory has the highes priority
+    // the last added data directory has the highest priority
     for (ezInt32 i = (ezInt32) s_Data->m_DataDirectories.GetCount() - 1; i >= 0; --i)
     {
       // ignore all directories that have not the category that is currently requested
@@ -383,7 +383,7 @@ ezDataDirectoryWriter* ezFileSystem::GetFileWriter(const char* szFile, bool bAll
   // Go through all Data Directory Categories and let each data dir from each requested Category try to open the file.
   for (ezUInt32 sd = 0; sd < SearchDirs.GetCount(); ++sd)
   {
-    // the last added data directory has the highes priority
+    // the last added data directory has the highest priority
     for (ezInt32 i = (ezInt32) s_Data->m_DataDirectories.GetCount() - 1; i >= 0; --i)
     {
       if (s_Data->m_DataDirectories[i].m_Usage != AllowWrites)

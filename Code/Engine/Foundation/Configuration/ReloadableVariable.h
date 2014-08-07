@@ -19,10 +19,10 @@
 /// EZ_MAKE_RELOADABLE(float, g_fValue);\n
 /// \n
 /// \note The state of the reloadable variables is only made persistent over the lifetime of the application and thus only restored
-/// when a plugin is reloaded. It is not stored on disk and can thus not be restored when the application is restared.
+/// when a plugin is reloaded. It is not stored on disk and can thus not be restored when the application is restarted.
 /// \n
 /// \note This mechanism should be used rarely. It is meant to help in the few cases that one has global variables that need to
-/// stay unchanged while code is being reloaded and it cannot be recomputed during plugin initialization. In such cases wrting state
+/// stay unchanged while code is being reloaded and it cannot be recomputed during plugin initialization. In such cases writing state
 /// to disk might be contra-productive, as that might result in state being restored from a file, even though a plugin has actually been
 /// loaded for the first time (the save file might still exist due to a crash).
 /// Still, try to avoid global variables in general, and only use reloadable variables, if there is no better solution.
@@ -42,7 +42,7 @@ public:
   static void StoreVariables();
 
 protected:
-  /// \brief Protected constructor, because this class should never be instanciated directly.
+  /// \brief Protected constructor, because this class should never be instantiated directly.
   ezReloadableVariableBase() { }
 
   /// \brief Called by 'ezReloadableVariableWrapper' to retrieve the stored state of a reloadable variable (if available).

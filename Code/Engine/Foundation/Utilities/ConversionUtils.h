@@ -18,7 +18,7 @@ namespace ezConversionUtils
   ///
   /// \param szString
   ///   If szString is nullptr or an empty string or starts with an some non-whitespace and non-sign character, EZ_FAILURE is returned.
-  ///   All whitespaces at the start of the string are skipped. Each minus sign flips the sign of the output value, so --3 will return 3.
+  ///   All whitespace at the start of the string are skipped. Each minus sign flips the sign of the output value, so --3 will return 3.
   ///   Plus signs are skipped and have no effect, so -+3 will still return -3.
   /// \param out_Res
   ///   The parsed value is returned in out_Res on success. On failure out_Res is not modified at all, so you can store a default value
@@ -27,7 +27,7 @@ namespace ezConversionUtils
   ///   On success out_LastParsePosition will contain the address of the character in szString that stopped the parser. This might point
   ///   to the zero terminator of szString, or to some non-digit character, since for example "5+6" will parse as '5' and '+' will be the
   ///   position where the parser stopped (returning EZ_SUCCESS).
-  ///   If szString is supposed to only contain one full integer and nothing else, then out_LastParsePosition should alwas point to a zero
+  ///   If szString is supposed to only contain one full integer and nothing else, then out_LastParsePosition should always point to a zero
   ///   terminator (otherwise the string was malformed).
   /// \return
   ///   EZ_SUCCESS if any integer value could get properly extracted from szString (including 0). This includes that only some part of the
@@ -42,7 +42,7 @@ namespace ezConversionUtils
   ///
   /// \param szString
   ///   If szString is nullptr or an empty string or starts with an some non-whitespace and non-sign character, EZ_FAILURE is returned.
-  ///   All whitespaces at the start of the string are skipped. Each minus sign flips the sign of the output value, so --3 will return 3.
+  ///   All whitespace at the start of the string are skipped. Each minus sign flips the sign of the output value, so --3 will return 3.
   ///   Plus signs are skipped and have no effect, so -+3 will still return -3.
   ///   The value string may contain one '.' to separate integer and fractional part. It may also contain an 'e' for scientific notation
   ///   followed by an integer exponent value. No '.' may follow after an 'e' anymore.
@@ -51,7 +51,7 @@ namespace ezConversionUtils
   ///   Commas (',') are never treated as fractional part separators (as in the German locale).
   /// \param out_Res
   ///   If EZ_SUCCESS is returned, out_Res will contain the result. Otherwise it stays unmodified.
-  ///   The result may have rounding errors, ie. even though a double may be able to represent the string value exactly, there is no guarantee
+  ///   The result may have rounding errors, i.e. even though a double may be able to represent the string value exactly, there is no guarantee
   ///   that out_Res will be 100% identical. If that is required, use the C lib atof() function.
   /// \param out_LastParsePosition
   ///   On success out_LastParsePosition will contain the address of the character in szString that stopped the parser. This might point
@@ -65,7 +65,7 @@ namespace ezConversionUtils
   ///
   /// \note
   ///   The difference to the C lib atof() function is that this function properly returns whether something could get parsed as a floating point
-  ///   value, at all. atof() just returns zero in such a case. Also the way whitespaces and signs at the beginning of the string are handled is
+  ///   value, at all. atof() just returns zero in such a case. Also the way whitespace and signs at the beginning of the string are handled is
   ///   different and StringToFloat will return 'success' if it finds anything that can be parsed as a float, even if the string continues with
   ///   invalid text. So you can parse "2.54f+3.5" as "2.54f" and out_LastParsePosition will tell you where the parser stopped.
   ///   On the down-side StringToFloat() is probably not as precise as atof(), because of a very simplistic conversion algorithm.
@@ -120,7 +120,7 @@ namespace ezConversionUtils
   /// \note Returns -1 for invalid HEX characters.
   EZ_FOUNDATION_DLL ezInt8 HexCharacterToIntValue(char Character); // [tested]
 
-  /// \brief Converts a hex string (ie. 0xAABBCCDD) into its uint32 value.
+  /// \brief Converts a hex string (i.e. 0xAABBCCDD) into its uint32 value.
   EZ_FOUNDATION_DLL ezUInt32 ConvertHexStringToUInt32(const char* szHEX);
 
   /// \brief Converts a bool to a string

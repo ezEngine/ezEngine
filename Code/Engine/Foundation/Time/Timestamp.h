@@ -13,7 +13,7 @@ struct ezSIUnitOfTime
   };
 };
 
-/// \brief The timestamp class encapsulates a date in time as microseconds since unix epoch.
+/// \brief The timestamp class encapsulates a date in time as microseconds since Unix epoch.
 ///
 /// The value is represented by an ezInt64 and allows storing time stamps from roughly
 /// -291030 BC to 293970 AC.
@@ -41,7 +41,7 @@ public:
   /// \brief Creates an invalidated timestamp.
   ezTimestamp(); // [tested]
 
-    /// \brief Creates an new timestamp with the given time in the given unit of time since unix epoch.
+    /// \brief Creates an new timestamp with the given time in the given unit of time since Unix epoch.
   ezTimestamp(ezInt64 iTimeValue, ezSIUnitOfTime::Enum unitOfTime); // [tested]
 
 // *** Public Functions ***
@@ -52,10 +52,10 @@ public:
   /// \brief Returns whether the timestamp is valid.
   bool IsValid() const; // [tested]
 
-  /// \brief Returns the number of 'unitOfTime' since unix epoch.
+  /// \brief Returns the number of 'unitOfTime' since Unix epoch.
   ezInt64 GetInt64(ezSIUnitOfTime::Enum unitOfTime) const; // [tested]
 
-  /// \brief Sets the timestamp as 'iTimeValue' in 'unitOfTime' since unix epoch.
+  /// \brief Sets the timestamp as 'iTimeValue' in 'unitOfTime' since Unix epoch.
   void SetInt64(ezInt64 iTimeValue, ezSIUnitOfTime::Enum unitOfTime); // [tested]
 
   /// \brief Returns whether this timestamp is considered equal to 'rhs' in the given mode.
@@ -85,7 +85,7 @@ public:
 
 
 private:
-  /// \brief The date is stored as microseconds since unix epoch.
+  /// \brief The date is stored as microseconds since Unix epoch.
   ezInt64 m_iTimestamp;
 };
  
@@ -95,7 +95,7 @@ const ezTimestamp operator+ (ezTime& timeSpan, const ezTimestamp& timestamp);
 
 /// \brief The ezDateTime class can be used to convert ezTimestamp into a human readable form.
 ///
-/// Note: As ezTimestamp is microseconds since unix epoch, the values in this class will always be
+/// Note: As ezTimestamp is microseconds since Unix epoch, the values in this class will always be
 /// in UTC.
 class EZ_FOUNDATION_DLL ezDateTime
 {

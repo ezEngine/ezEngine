@@ -117,7 +117,7 @@ public:
   /// \brief Transforms the corners of the box in its local space. The center of the box does not change, unless the transform contains a translation.
   void TransformFromOrigin(const ezMat4Template<Type>& mTransform); // [tested]
 
-  /// \brief The given point is clamped to the volume of the box, ie. it will be either inside the box or on its surface and it will have the closest possible distance to the original point.
+  /// \brief The given point is clamped to the volume of the box, i.e. it will be either inside the box or on its surface and it will have the closest possible distance to the original point.
   const ezVec3Template<Type> GetClampedPoint(const ezVec3Template<Type>& vPoint) const; // [tested]
 
   /// \brief Returns the squared minimum distance from the box's surface to the point. Zero if the point is inside the box.

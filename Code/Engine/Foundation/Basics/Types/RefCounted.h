@@ -80,7 +80,7 @@ public:
     AddReferenceIfValid();
   }
 
-  /// \brief Destructor - releases the reference on the refcounted object (if there is one).
+  /// \brief Destructor - releases the reference on the ref-counted object (if there is one).
   ~ezScopedRefPointer()
   {
     ReleaseReferenceIfValid();

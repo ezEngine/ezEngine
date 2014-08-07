@@ -8,19 +8,19 @@
 /// \brief The ezFileSystem provides high-level functionality to manage files in a virtual file system.
 ///
 /// There are two sides at which the file system can be extended:
-/// Data directories are the 'sources' of data. These can be simple folders, zip files, data-bases, http servers, etc.
-/// Different ezDataDirectoryType's can implement these different 'decoding methods', ie. they handle how to actually
+/// Data directories are the 'sources' of data. These can be simple folders, zip files, data-bases, HTTP servers, etc.
+/// Different ezDataDirectoryType's can implement these different 'decoding methods', i.e. they handle how to actually
 /// access the data and they use their own readers/writers to implement a common interface for passing data streams
 /// to and from the data directory.
 /// On the other end there are the actual file readers/writers, which implement policies how to optimize these reads/writes.
-/// The default ezFileReader and ezFileWriter implement a buffering policy, ie. they use an internal cache to only
+/// The default ezFileReader and ezFileWriter implement a buffering policy, i.e. they use an internal cache to only
 /// sporadically read or write to the actual data stream.
 /// A 'threaded' or 'parallel' file reader/writer could implement a different policy, where a file is read/written
 /// in a thread and thus allows to have non-blocking file accesses.
 ///
 /// Which policy to use is defined by the user every time he needs to access a file, by simply using the desired 
 /// reader/writer class.
-/// How to mount data directories (ie. with which ezDataDirectoryType) is defined by the 'DataDirFactories', which
+/// How to mount data directories (i.e. with which ezDataDirectoryType) is defined by the 'DataDirFactories', which
 /// are functions that create ezDataDirectoryType's. This way one can mount the same data directory (e.g. "MyTestDir")
 /// differently, depending on which Factories have been registered previously.
 /// This allows to easily configure how to set up data directories.
@@ -35,12 +35,12 @@
 /// All operations that go through the ezFileSystem are protected by a mutex, which means that opening, closing, deleting
 /// files, as well as adding or removing data directories etc. will be synchronized and cannot happen in parallel.
 /// Reading/writing file streams can happen in parallel, only the administrative tasks need to be protected.
-/// File events are broadcasted as they occur, that means they will be executed on whichever thread triggered them.
+/// File events are broadcast as they occur, that means they will be executed on whichever thread triggered them.
 /// Since they are executed from within the filesystem mutex, they cannot occur in parallel.
 class EZ_FOUNDATION_DLL ezFileSystem
 {
 public:
-  /// \brief Enum that describes the type of file-event that occured.
+  /// \brief Enum that describes the type of file-event that occurred.
   struct FileEventType;
 
   /// \brief The data that is sent through the event interface.
@@ -62,7 +62,7 @@ public:
   /// can successfully create an ezDataDirectoryType. In this process the last factory added has the highest priority.
   /// Once a factory is found that was able to create a ezDataDirectoryType, that one is used.
   /// Different factories can be used to mount different types of data directories. But the same directory can also be
-  /// mounted in different ways. For example a simple folder could be mounted on the local system, or via a http server
+  /// mounted in different ways. For example a simple folder could be mounted on the local system, or via a HTTP server
   /// over a network (lets call it a 'FileServer'). Thus depending on which type of factories are registered, the file system
   /// can provide data from very different sources.
   typedef ezDataDirectoryType* (*ezDataDirFactory)(const char* szDataDirectory);
@@ -86,7 +86,7 @@ public:
   /// COULD write anything.
   /// szGroup defines to what 'group' of data directories this data dir belongs. This is only used in calls to RemoveDataDirectoryGroup,
   /// to remove all data directories of the same group.
-  /// You could use groups such as 'Base', 'Project', 'Settings', 'Level', 'Temp' to distingiush between different sets of data directories.
+  /// You could use groups such as 'Base', 'Project', 'Settings', 'Level', 'Temp' to distinguish between different sets of data directories.
   /// You can also specify the exact same string as szDataDirectory for szGroup, and thus uniquely identify the data dir, to be able to remove just that one.
   /// szCategory can be a (short) identifier, such as 'BIN', 'PACKAGE', 'SETTINGS' etc.
   /// Categories are used to look up files in specific data directories via a path-prefix.
@@ -200,12 +200,12 @@ private:
   static FileSystemData* s_Data;
 };
 
-/// \brief Describes the type of events that are broadcasted by the ezFileSystem.
+/// \brief Describes the type of events that are broadcast by the ezFileSystem.
 struct ezFileSystem::FileEventType
 {
   enum Enum
   {
-    None,                       ///< None. Should not occure.
+    None,                       ///< None. Should not occur.
     OpenFileAttempt,            ///< A file is about to be opened for reading.
     OpenFileSucceeded,          ///< A file has been successfully opened for reading.
     OpenFileFailed,             ///< Opening a file for reading failed. Probably because it doesn't exist.
@@ -220,12 +220,12 @@ struct ezFileSystem::FileEventType
   };
 };
 
-/// \brief The event data that is broadcasted by the ezFileSystem upon certain file operations.
+/// \brief The event data that is broadcast by the ezFileSystem upon certain file operations.
 struct ezFileSystem::FileEvent
 {
   FileEvent();
 
-  /// \brief The exact event that occured.
+  /// \brief The exact event that occurred.
   ezFileSystem::FileEventType::Enum m_EventType;
 
   /// \brief Path to the file or directory that was involved.

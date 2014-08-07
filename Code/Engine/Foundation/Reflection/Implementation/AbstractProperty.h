@@ -14,7 +14,7 @@ public:
   /// \brief Describes what category a property belongs to.
   enum PropertyCategory
   {
-    Member,   ///< The property is a 'member property', ie. it represents some accessible value. Cast to ezAbstractMemberProperty.
+    Member,   ///< The property is a 'member property', i.e. it represents some accessible value. Cast to ezAbstractMemberProperty.
     Function, ///< The property is a function which can be called. Cast to ezAbstractFunctionProperty.
     Array     ///< The property is actually an array of values. The array dimensions might be changeable. Cast to ezAbstractArrayProperty.
   };
@@ -25,7 +25,7 @@ public:
     m_szPropertyName = szPropertyName;
   }
 
-  /// \brief Returns the name of the propery.
+  /// \brief Returns the name of the property.
   const char* GetPropertyName() const { return m_szPropertyName; }
 
   /// \brief Returns the category of this property. Cast this property to the next higher type for more information.

@@ -5,7 +5,7 @@
 #include <Foundation/Basics.h>
 #include <Foundation/Basics/Types/Enum.h>
 
-/// \brief The ezBitflags class allows you to work with typesafe bitflags.
+/// \brief The ezBitflags class allows you to work with type-safe bitflags.
 ///
 /// ezBitflags takes a struct as its template parameter, which contains an enum for the available flag values.
 /// ezBitflags wraps this type in a way which enables the compiler to do type-checks. This makes it very easy
@@ -73,7 +73,7 @@
 /// specifies names for those first three Bits.\n
 /// The typedef 'StorageType' is also mandatory, such that ezBitflags can access it.\n
 /// Finally the macro EZ_DECLARE_FLAGS_OPERATORS will define the required operator to be able to combine bitflags of your type.
-/// Ie. it enables to write ezBitflags<SimpleRenderFlags> f = EnableEffects | EnableLighting;\n
+/// I.e. it enables to write ezBitflags<SimpleRenderFlags> f = EnableEffects | EnableLighting;\n
 ///
 /// For a real world usage example, see ezCVarFlags.
 template <typename T>
@@ -221,7 +221,7 @@ private:
 /// Usage: EZ_DECLARE_FLAGS(ezUInt32, FlagsTypeName, Flag1Name, Flag2Name, Flag3Name, Flag4Name, ...)
 ///
 /// This macro will define a simple type of with the name that is given as the second parameter, 
-/// which can be used as typesafe bitflags. Everything that is necessary to work with the ezBitflags
+/// which can be used as type-safe bitflags. Everything that is necessary to work with the ezBitflags
 /// class, will be set up automatically.
 /// The bitflag type will use the integer type that is given as the first parameter for its internal
 /// storage. So if you pass ezUInt32 as the first parameter, your bitflag type will take up 4 bytes

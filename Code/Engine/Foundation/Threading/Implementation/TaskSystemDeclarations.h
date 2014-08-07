@@ -22,9 +22,9 @@ class ezTask;
 /// For those tasks, use 'EarlyNextFrame', 'NextFrame' and 'LateNextFrame'.\n
 /// Once 'ezTaskSystem::FinishFrameTasks' is called, all those tasks will be moved into the 'XYZThisFrame' categories.\n
 /// For tasks that run over a longer period (e.g. path searches, procedural data creation), use 'LongRunning'.
-/// Only use 'LongRunningHighPriority' for tasks that occure rarely, otherwise 'LongRunning' tasks might not get processed, at all.\n
+/// Only use 'LongRunningHighPriority' for tasks that occur rarely, otherwise 'LongRunning' tasks might not get processed, at all.\n
 /// For tasks that need to access files, prefer to use 'FileAccess', this way all file accesses get executed sequentially.\n
-/// Use 'FileAccessHighPriority' to get very important file accesses done sooner. For example writing out a savegame should finish quickly.\n
+/// Use 'FileAccessHighPriority' to get very important file accesses done sooner. For example writing out a save-game should finish quickly.\n
 /// For tasks that need to execute on the main thread (e.g. uploading GPU resources) use 'ThisFrameMainThread' or 'SomeFrameMainThread'
 /// depending on how urgent it is. 'SomeFrameMainThread' tasks might get delayed for quite a while, depending on the system load.
 /// For tasks that need to do several things (e.g. reading from a file AND uploading something on the main thread), split them up into

@@ -184,7 +184,7 @@ namespace ezMath
   template<typename Type>
   bool IsZero(Type f, Type fEpsilon)
   {
-    EZ_ASSERT (fEpsilon >= 0, "Epsilon may not be negativ.");
+    EZ_ASSERT (fEpsilon >= 0, "Epsilon may not be negative.");
 
     return ((f >= -fEpsilon) && (f <= fEpsilon));
   }

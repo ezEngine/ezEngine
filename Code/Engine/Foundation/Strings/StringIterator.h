@@ -29,7 +29,7 @@ public:
   /// \brief Advances the iterator to the next character, unless the end of the range was reached.
   void operator++(); // [tested]
 
-  /// \brief Moves the iteratore backwards to the previous character, unless the start of the range was reached.
+  /// \brief Moves the iterator backwards to the previous character, unless the start of the range was reached.
   void operator--(); // [tested]
 
   /// \brief Advances the iterator forwards by d characters. Does not move it beyond the range's end.
@@ -60,7 +60,7 @@ public:
   /// Must be between the iterators start and end range.
   void SetCurrentPosition(const char* szCurPos); // [tested]
 
-  /// \brief Returns whether this sub-string represents a simple ASCII string, ie. whether the byte count and the character count will be identical.
+  /// \brief Returns whether this sub-string represents a simple ASCII string, i.e. whether the byte count and the character count will be identical.
   bool IsPureASCII() const { return m_bIsPureASCII; } // [tested]
 
   /// \brief Returns the start of the iterator range.
@@ -74,7 +74,7 @@ public:
 
   /// \brief Shrinks the iterator range by uiShrinkCharsFront characters at the front and by uiShrinkCharsBack characters at the back.
   ///
-  /// Thus reduces the range of the iterator to a smalle sub-string.
+  /// Thus reduces the range of the iterator to a small sub-string.
   /// The current position is clamped to the new start of the range.
   /// The new end position is clamped to the new start of the range.
   /// If more characters are removed from the range, than it actually contains, the iterator range will become 'empty' 
@@ -87,10 +87,10 @@ public:
   /// \brief Resets the current position to the last character and flags the iterator as valid again (unless its range is empty).
   void ResetToBack(); // [tested]
 
-  /// \brief Compares the two stringiterators for equality. Both do not need to be null terminated, but must have the same length.
+  /// \brief Compares the two string iterators for equality. Both do not need to be null terminated, but must have the same length.
   bool operator==(const ezStringIterator& rhs) const;
 
-  /// \brief Compares the two stringiterators for equality. Both do not need to be null terminated, but must have the same length.
+  /// \brief Compares the two string iterators for equality. Both do not need to be null terminated, but must have the same length.
   bool operator!=(const ezStringIterator& rhs) const;
 
 private:

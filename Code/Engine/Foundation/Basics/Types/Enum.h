@@ -54,7 +54,7 @@ public:
     m_value = value;
   }
 
-  /// \brief Implict conversion to enum type.
+  /// \brief Implicit conversion to enum type.
   EZ_FORCE_INLINE operator typename Derived::Enum() const // [tested]
   {
     return static_cast<typename Derived::Enum>(m_value);

@@ -166,7 +166,7 @@ ezResult ezPlugin::UnloadPluginInternal(const char* szPluginFile, bool bReloadin
     ezOSFile::DeleteFile(sNewPlugin.GetData());
   }
 
-  // if the refcount is zero (ie. we are not 'reloading' plugins), remove the info about the plugin
+  // if the refcount is zero (i.e. we are not 'reloading' plugins), remove the info about the plugin
   if (g_LoadedPlugins[szPluginFile].m_iReferenceCount == 0)
     g_LoadedPlugins.Erase(szPluginFile);
 
@@ -378,7 +378,7 @@ void ezPlugin::SortPluginReloadOrder(ezHybridArray<ezString, 16>& PluginsToReloa
       {
         if (NotYetSorted.Find(PluginsToSort[iPlugin]->m_szPluginDependencies[iDep]).IsValid())
         {
-          //ezLog::Debug("[test] Plugin '%s' has a depencency on '%s'", PluginsToSort[iPlugin]->GetPluginName(), PluginsToSort[iPlugin]->m_szPluginDependencies[iDep]);
+          //ezLog::Debug("[test] Plugin '%s' has a dependency on '%s'", PluginsToSort[iPlugin]->GetPluginName(), PluginsToSort[iPlugin]->m_szPluginDependencies[iDep]);
 
           // The plugin has a dependency on another plugin that is not yet in the list -> do not put it into the list yet
           bHasDependency = true;

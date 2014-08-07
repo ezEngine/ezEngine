@@ -72,7 +72,7 @@ void ezGlobalEvent::PrintGlobalEventStatistics()
 {
   UpdateGlobalEventStatistics();
 
-  EZ_LOG_BLOCK("Globel Event Statistics");
+  EZ_LOG_BLOCK("Global Event Statistics");
 
   EventMap::Iterator it = s_KnownEvents.GetIterator();
 

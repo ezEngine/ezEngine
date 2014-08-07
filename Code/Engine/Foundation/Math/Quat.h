@@ -2,18 +2,18 @@
 
 #include <Foundation/Math/Vec3.h>
 
-/// \brief Quaternians can be used to represent rotations in 3D space.
+/// \brief Quaternions can be used to represent rotations in 3D space.
 ///
 /// Quaternions are useful to represent 3D rotations, as they are smaller and more efficient than matrices
 /// and can be concatenated easily, without having the 'Gimbal Lock' problem of Euler Angles.
 /// Either use a full blown transformation (e.g. a 4x4 matrix) to represent a object, or use a Quaternion
 /// bundled with a position vector, if (non-uniform) scale is not required.
 /// Quaternions can also easily be interpolated (via Slerp).
-/// This implementation also allows to convert back and forth between Quaternins and Matrices easily.
+/// This implementation also allows to convert back and forth between Quaternions and Matrices easily.
 ///
 /// Quaternions have no 'IsIdentical' or 'IsEqual' function, as there can be different representations for the
 /// same rotation, and it is rather difficult to check this. So to not convey any false notion of being equal
-/// (or rather inequal), those functions are not provided.
+/// (or rather unequal), those functions are not provided.
 template<typename Type>
 class ezQuatTemplate
 {

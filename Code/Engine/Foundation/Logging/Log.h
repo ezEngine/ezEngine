@@ -219,9 +219,9 @@ public:
   ///
   /// Use the szContextInfo to pass in a string that can give additional context information (e.g. a file name).
   /// This string must point to valid memory until after the log block object is destroyed.
-  /// Logwriters get these strings provided through the ezLoggingEventData::m_szTag variable.
+  /// Log writers get these strings provided through the ezLoggingEventData::m_szTag variable.
   /// \note The log block header (and context info) will not be printed until a message is successfully logged,
-  /// ie. as long as all messages in this block are filtered out (via the LogLevel setting), the log block
+  /// i.e. as long as all messages in this block are filtered out (via the LogLevel setting), the log block
   /// header will not be printed, to prevent spamming the log.
   ///
   /// This constructor will output the log block data to the ezGlobalLog.

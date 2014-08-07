@@ -567,7 +567,7 @@ void ezMapBase<KeyType, ValueType, Comparer>::Insert(const KeyType& key, const V
 
     while (true) 
     {
-      EZ_ASSERT(top >= 0 && top < STACK_SIZE, "Boese");
+      EZ_ASSERT(top >= 0 && top < STACK_SIZE, "Implementation error");
       up[top++] = it;
       dir = m_Comparer.Less(it->m_Key, key) ? 1 : 0;
 
@@ -594,23 +594,23 @@ void ezMapBase<KeyType, ValueType, Comparer>::Insert(const KeyType& key, const V
     {
       if (top != 0)
       {
-        EZ_ASSERT(top >= 1 && top < STACK_SIZE, "Boese");
+        EZ_ASSERT(top >= 1 && top < STACK_SIZE, "Implementation error");
         dir = up[top - 1]->m_pLink[1] == up[top];
       }
 
-      EZ_ASSERT(top >= 0 && top < STACK_SIZE, "Boese");
+      EZ_ASSERT(top >= 0 && top < STACK_SIZE, "Implementation error");
       up[top] = SkewNode(up[top]);
       up[top] = SplitNode(up[top]);
 
       if (top != 0)
       {
-        EZ_ASSERT(top >= 1 && top < STACK_SIZE, "Boese");
+        EZ_ASSERT(top >= 1 && top < STACK_SIZE, "Implementation error");
         up[top - 1]->m_pLink[dir] = up[top];
         up[top - 1]->m_pLink[dir]->m_pParent = up[top - 1];
       }
       else
       {
-        EZ_ASSERT(top >= 0 && top < STACK_SIZE, "Boese");
+        EZ_ASSERT(top >= 0 && top < STACK_SIZE, "Implementation error");
         root = up[top];
       }
     }
@@ -638,7 +638,7 @@ typename ezMapBase<KeyType, ValueType, Comparer>::Node* ezMapBase<KeyType, Value
 
     while (true)
     {
-      EZ_ASSERT(top >= 0 && top < STACK_SIZE, "Boese");
+      EZ_ASSERT(top >= 0 && top < STACK_SIZE, "Implementation error");
       up[top++] = it;
 
       if (it == &m_NilNode)
@@ -660,7 +660,7 @@ typename ezMapBase<KeyType, ValueType, Comparer>::Node* ezMapBase<KeyType, Value
 
       if ( --top != 0 )
       {
-        EZ_ASSERT(top >= 1 && top < STACK_SIZE, "Boese");
+        EZ_ASSERT(top >= 1 && top < STACK_SIZE, "Implementation error");
         up[top - 1]->m_pLink[dir] = it->m_pLink[dir2];
         up[top - 1]->m_pLink[dir]->m_pParent = up[top - 1];
       }
@@ -674,7 +674,7 @@ typename ezMapBase<KeyType, ValueType, Comparer>::Node* ezMapBase<KeyType, Value
 
       while (heir->m_pLink[0] != &m_NilNode)
       {
-        EZ_ASSERT(top >= 0 && top < STACK_SIZE, "Boese");
+        EZ_ASSERT(top >= 0 && top < STACK_SIZE, "Implementation error");
         up[top++] = prev = heir;
 
         heir = heir->m_pLink[0];
@@ -691,11 +691,11 @@ typename ezMapBase<KeyType, ValueType, Comparer>::Node* ezMapBase<KeyType, Value
     {
       if (top != 0)
       {
-        EZ_ASSERT(top >= 1 && top < STACK_SIZE, "Boese");
+        EZ_ASSERT(top >= 1 && top < STACK_SIZE, "Implementation error");
         dir = up[top - 1]->m_pLink[1] == up[top];
       }
 
-      EZ_ASSERT(top >= 0 && top < STACK_SIZE, "Boese");
+      EZ_ASSERT(top >= 0 && top < STACK_SIZE, "Implementation error");
 
       if ((up[top]->m_pLink[0]->m_uiLevel < up[top]->m_uiLevel - 1) || (up[top]->m_pLink[1]->m_uiLevel < up[top]->m_uiLevel - 1))
       {
@@ -714,14 +714,14 @@ typename ezMapBase<KeyType, ValueType, Comparer>::Node* ezMapBase<KeyType, Value
 
       if (top != 0)
       {
-        EZ_ASSERT(top >= 1 && top < STACK_SIZE, "Boese");
+        EZ_ASSERT(top >= 1 && top < STACK_SIZE, "Implementation error");
 
         up[top - 1]->m_pLink[dir] = up[top];
         up[top - 1]->m_pLink[dir]->m_pParent = up[top - 1];
       }
       else
       {
-        EZ_ASSERT(top >= 0 && top < STACK_SIZE, "Boese");
+        EZ_ASSERT(top >= 0 && top < STACK_SIZE, "Implementation error");
         root = up[top];
       }
     }

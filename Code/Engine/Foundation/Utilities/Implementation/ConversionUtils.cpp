@@ -35,7 +35,7 @@ static ezResult FindFirstDigit(const char*& inout_szString, bool& out_bSignIsPos
     if (c >= '0' && c <= '9')
       break;
 
-    // skip all whitespaces
+    // skip all whitespace
     if (IsWhitespace(c))
     {
       ++inout_szString;
@@ -64,7 +64,7 @@ static ezResult FindFirstDigit(const char*& inout_szString, bool& out_bSignIsPos
   if (ezStringUtils::IsNullOrEmpty(inout_szString))
     return EZ_FAILURE;
 
-  // remove all leading zeroes
+  // remove all leading zeros
   while (inout_szString[0] == '0' && inout_szString[1] == '0')
     ++inout_szString;
 

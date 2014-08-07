@@ -83,7 +83,7 @@ public:
   /// Can be used to check whether a certain plugin is loaded.
   static ezPlugin* FindPluginByName(const char* szPluginName); // [tested]
 
-  /// \brief The data that is broadcasted whenever a plugin is (un-) loaded.
+  /// \brief The data that is broadcast whenever a plugin is (un-) loaded.
   struct PluginEvent
   {
     enum Type

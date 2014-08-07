@@ -35,9 +35,9 @@ struct ezFilePos
 {
   enum Enum
   {
-    FromStart,    ///< The seek position is relative the the file's beginning
-    FromEnd,      ///< The seek position is relative the the file's end
-    FromCurrent,  ///< The seek position is relative the the file's current seek position
+    FromStart,    ///< The seek position is relative to the file's beginning
+    FromEnd,      ///< The seek position is relative to the file's end
+    FromCurrent,  ///< The seek position is relative to the file's current seek position
   };
 };
 
@@ -49,7 +49,7 @@ struct EZ_FOUNDATION_DLL ezFileStats
   /// \brief The name of the file or folder that the stats are for. Does not include the path to it.
   ezStringBuilder m_sFileName;
 
-  /// \brief The last modification time as an UTC timestamp since unix epoch.
+  /// \brief The last modification time as an UTC timestamp since Unix epoch.
   ezTimestamp m_LastModificationTime;
 
   /// \brief The size of the file in bytes.
@@ -78,7 +78,7 @@ struct EZ_FOUNDATION_DLL ezFileStats
     ///
     /// To iterate all files from on folder, use '/Some/Folder/*'
     /// To iterate over all files of a certain type (in one folder) use '/Some/Folder/*.ext'
-    /// Only the final path segmant can use placeholders, folders in between must be fully named.
+    /// Only the final path segment can use placeholders, folders in between must be fully named.
     /// If bRecursive is false, the iterator will only iterate over the files in the start folder, and will not recurse into subdirectories.
     /// If bReportFolders is false, only files will be reported, folders will be skipped (though they will be recursed into, if bRecursive is true).
     ///
@@ -87,7 +87,7 @@ struct EZ_FOUNDATION_DLL ezFileStats
     /// When no iteration is possible (the directory does not exist or the wildcards are used incorrectly), EZ_FAILURE is returned.
     ezResult StartSearch(const char* szSearchStart, bool bRecursive = true, bool bReportFolders = true); // [tested]
 
-    /// \brief Returns the current path in which files are searched. Changes when 'Next' moves in or out of a subfolder.
+    /// \brief Returns the current path in which files are searched. Changes when 'Next' moves in or out of a sub-folder.
     ///
     /// You can use this to get the full path of the current file, by appending this value and the filename from 'GetStats'
     const ezStringBuilder& GetCurrentPath() const { return m_sCurPath; } // [tested]
@@ -95,7 +95,7 @@ struct EZ_FOUNDATION_DLL ezFileStats
     /// \brief Returns the file stats of the current object that the iterator points to.
     const ezFileStats& GetStats() const { return m_CurFile; } // [tested]
 
-    /// \brief Advances the iterator to the next file object. Might recurse into subfolders.
+    /// \brief Advances the iterator to the next file object. Might recurse into sub-folders.
     ///
     /// Returns false, if the search has reached its end.
     ezResult Next(); // [tested]

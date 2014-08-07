@@ -69,7 +69,7 @@ protected:
 /// Just treat the delegate like a simple C function and call it. Internally it will dispatch the call
 /// to whatever function is bound to it, independent of whether it is a regular C function or a member function.
 /// 
-/// The check to 'IsValid' is only required when the delegate might have a nullptr bound (ie. no function has
+/// The check to 'IsValid' is only required when the delegate might have a nullptr bound (i.e. no function has
 /// been bound to it). When you know the delegate is always bound, this is not necessary.
 ///
 /// \note If you are wondering where the code is, the delegate is implemented with macro and template magic in

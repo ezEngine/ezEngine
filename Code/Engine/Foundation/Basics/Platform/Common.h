@@ -15,7 +15,7 @@
 
 #include <Foundation/Basics/Compiler/RestoreWarning.h>
 
-// redifine NULL to nullptr
+// redefine NULL to nullptr
 #undef NULL
 #define NULL nullptr
 
@@ -60,7 +60,7 @@
   /// \brief The tool 'StaticLinkUtil' inserts this macro into each file in a library.
   /// Each library also needs to contain exactly one instance of EZ_STATICLINK_LIBRARY.
   /// The macros create functions that reference each other, which means the linker is forced to look at all files in the library.
-  /// This in turn will drag all global variables into the visibility of the linker, and since it musn't optimize them away,
+  /// This in turn will drag all global variables into the visibility of the linker, and since it mustn't optimize them away,
   /// they then end up in the final application, where they will do what they are meant for.
   #define EZ_STATICLINK_FILE(LibraryName, UniqueName)
 
@@ -83,7 +83,7 @@
   /// \brief The tool 'StaticLinkUtil' inserts this macro into each file in a library.
   /// Each library also needs to contain exactly one instance of EZ_STATICLINK_LIBRARY.
   /// The macros create functions that reference each other, which means the linker is forced to look at all files in the library.
-  /// This in turn will drag all global variables into the visibility of the linker, and since it musn't optimize them away,
+  /// This in turn will drag all global variables into the visibility of the linker, and since it mustn't optimize them away,
   /// they then end up in the final application, where they will do what they are meant for.
   #define EZ_STATICLINK_FILE(LibraryName, UniqueName) \
     void ezReferenceFunction_##UniqueName(bool bReturn = true) { } \

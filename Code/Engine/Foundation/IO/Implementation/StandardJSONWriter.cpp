@@ -291,7 +291,8 @@ void ezStandardJSONWriter::BeginArray(const char* szName)
 {
   const ezStandardJSONWriter::State state = m_StateStack.PeekBack().m_State;
   EZ_IGNORE_UNUSED(state);
-  EZ_ASSERT((state == ezStandardJSONWriter::Object || state == ezStandardJSONWriter::NamedObject) && !ezStringUtils::IsNullOrEmpty(szName) ||
+  EZ_ASSERT((state == ezStandardJSONWriter::Empty) ||
+            (state == ezStandardJSONWriter::Object || state == ezStandardJSONWriter::NamedObject) && !ezStringUtils::IsNullOrEmpty(szName) ||
             (state == ezStandardJSONWriter::Array  || state == ezStandardJSONWriter::NamedArray) && szName == nullptr ||
             (state == ezStandardJSONWriter::Variable && szName == nullptr),
             "Inside objects you can only begin arrays when also giving them a (non-empty) name.\n"

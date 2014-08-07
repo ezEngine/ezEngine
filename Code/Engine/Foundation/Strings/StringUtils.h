@@ -24,7 +24,7 @@ public:
   /// \brief Returns the number of elements of type T that the string contains, until it hits an element that is zero OR until it hits the end pointer.
   ///
   /// Equal to the string length, if used with pure ASCII strings.
-  /// Equal to the amount of bytes in a string, if used on non-ASCII (ie. UTF-8) strings.
+  /// Equal to the amount of bytes in a string, if used on non-ASCII (i.e. UTF-8) strings.
   /// Equal to the number of characters in a string, if used with UTF-32 strings.
   template <typename T>
   static ezUInt32 GetStringElementCount(const T* pString, const T* pStringEnd = (const T*) -1); // [tested]
@@ -211,7 +211,7 @@ public:
   /// \brief A default word delimiter function that returns true for ' ' (space), '\r' (carriage return), '\n' (newline), '\t' (tab) and '\v' (vertical tab)
   static bool IsWhiteSpace(ezUInt32 uiChar); // [tested]
 
-  /// \brief A default word delimiter function for english text.
+  /// \brief A default word delimiter function for English text.
   static bool IsWordDelimiter_English(ezUInt32 uiChar); // [tested]
 
   /// \brief A default word delimiter function for identifiers in C code. 

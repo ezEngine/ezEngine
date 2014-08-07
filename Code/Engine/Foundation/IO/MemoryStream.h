@@ -16,7 +16,7 @@ class ezMemoryStreamWriter;
 class ezMemoryStreamStorage : public ezRefCounted
 {
 public:
-  /// \brief Creates the storae object for a memory stream. Use \a uiInitialCapacity to reserve a some memory up front, to reduce reallocations.
+  /// \brief Creates the storage object for a memory stream. Use \a uiInitialCapacity to reserve a some memory up front, to reduce reallocations.
   ezMemoryStreamStorage(ezUInt32 uiInitialCapacity = 0, ezAllocatorBase* pAllocator = ezFoundation::GetDefaultAllocator())
     : m_Storage(pAllocator)
   {
@@ -90,7 +90,7 @@ public:
 
   ~ezMemoryStreamWriter();
 
-  /// \brief Sets the storage object upon which to operate. Resests the write position to the end of the storage stream.
+  /// \brief Sets the storage object upon which to operate. Resets the write position to the end of the storage stream.
   /// Pass nullptr if you want to detach from any previous storage stream, for example to ensure its reference count gets properly reduced.
   void SetStorage(ezMemoryStreamStorage* pStreamStorage)
   { 

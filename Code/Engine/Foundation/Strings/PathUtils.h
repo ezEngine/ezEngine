@@ -29,7 +29,7 @@ public:
   /// \brief Returns the file extension of the given path. Will be empty, if the path does not end with a proper extension.
   static ezStringIterator GetFileExtension(const char* szPath, const char* szPathEnd = ezMaxStringEnd); // [tested]
 
-  /// \brief Returns the file name of a path, exluding the path and extension.
+  /// \brief Returns the file name of a path, excluding the path and extension.
   ///
   /// If the path already ends with a path separator, the result will be empty.
   static ezStringIterator GetFileName(const char* szPath, const char* szPathEnd = ezMaxStringEnd); // [tested]

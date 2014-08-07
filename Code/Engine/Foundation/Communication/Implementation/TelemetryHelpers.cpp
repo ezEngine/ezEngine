@@ -22,7 +22,7 @@ void ezTelemetry::QueueOutgoingMessage(TransmitMode tm, ezUInt32 uiSystemID, ezU
   if (uiDataBytes > 0)
     msg.GetWriter().WriteBytes(pData, uiDataBytes);
 
-  // if our outgoing queue has grown too large, dismis older messages
+  // if our outgoing queue has grown too large, dismiss older messages
   if (Queue.m_OutgoingQueue.GetCount() > Queue.m_uiMaxQueuedOutgoing)
     Queue.m_OutgoingQueue.PopFront(Queue.m_OutgoingQueue.GetCount() - Queue.m_uiMaxQueuedOutgoing);
 }

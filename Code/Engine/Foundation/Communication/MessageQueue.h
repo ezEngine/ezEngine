@@ -61,7 +61,7 @@ public:
   /// \brief Tries to compact the array to avoid wasting memory.The resulting capacity is at least 'GetCount' (no elements get removed).
   void Compact();
 
-  /// \brief Enqueues the given message and metadata. This method is thread safe.
+  /// \brief Enqueues the given message and meta-data. This method is thread safe.
   void Enqueue(ezMessage* pMessage, const MetaDataType& metaData); // [tested]
 
   /// \brief Dequeues the first element if the queue is not empty and returns true. Returns false if the queue is empty. This method is thread safe.

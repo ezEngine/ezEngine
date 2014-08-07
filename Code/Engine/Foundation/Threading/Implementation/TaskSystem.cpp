@@ -216,7 +216,7 @@ void ezTaskSystem::FinishFrameTasks(double fSmoothFrameMS)
   ezUInt32 uiSomeFrameTasks = 0;
 
   // now all the important tasks for this frame should be finished
-  // so now we reprioritize the tasks for the next frame
+  // so now we re-prioritize the tasks for the next frame
   {
     EZ_LOCK(s_TaskSystemMutex);
 
