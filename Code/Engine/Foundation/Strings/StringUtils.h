@@ -179,16 +179,16 @@ public:
   static bool EndsWith_NoCase(const char* szString, const char* szEndsWith, const char* pStringEnd = ezMaxStringEnd); // [tested]
 
 
-  /// \brief Searches for the first occurrence of szStringToFind in szSource after uiFirstCharacter. 
+  /// \brief Searches for the first occurrence of szStringToFind in szSource. 
   static const char* FindSubString(const char* szSource, const char* szStringToFind, const char* pSourceEnd = ezMaxStringEnd); // [tested]
 
-  /// \brief Searches for the first occurrence of szStringToFind in szSource after uiFirstCharacter. Ignores case.
+  /// \brief Searches for the first occurrence of szStringToFind in szSource. Ignores case.
   static const char* FindSubString_NoCase(const char* szSource, const char* szStringToFind, const char* pSourceEnd = ezMaxStringEnd); // [tested]
 
-  /// \brief Searches for the last occurrence of szStringToFind in szSource before uiFirstCharacter.
+  /// \brief Searches for the last occurrence of szStringToFind in szSource before szStartSearchAt.
   static const char* FindLastSubString(const char* szSource, const char* szStringToFind, const char* szStartSearchAt = nullptr, const char* pSourceEnd = ezMaxStringEnd); // [tested]
 
-  /// \brief Searches for the last occurrence of szStringToFind in szSource before uiFirstCharacter. Ignores case.
+  /// \brief Searches for the last occurrence of szStringToFind in szSource before szStartSearchAt. Ignores case.
   static const char* FindLastSubString_NoCase(const char* szSource, const char* szStringToFind, const char* szStartSearchAt = nullptr, const char* pSourceEnd = ezMaxStringEnd); // [tested]
 
   /// \brief Function Definition for a function that determines whether a (Utf32) character belongs to a certain category of characters.

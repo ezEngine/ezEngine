@@ -24,7 +24,7 @@ EZ_FORCE_INLINE ezUInt32 ezStringBase<Derived>::InternalGetElementCount() const
 template <typename Derived>
 EZ_FORCE_INLINE bool ezStringBase<Derived>::IsEmpty() const
 {
-  return InternalGetElementCount() == 0;
+  return ezStringUtils::IsNullOrEmpty(InternalGetData()) || (InternalGetData() == InternalGetDataEnd());
 }
 
 template <typename Derived>
