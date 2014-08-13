@@ -97,7 +97,7 @@ private:
   virtual void CameraOrientationChanged(bool bPosition, bool bRotation) { }
 
   /// \brief This function is called when the camera mode changes (e.g. SetCameraMode was called).
-  /// Override this to do sanity checks or restrict certains values.
+  /// Override this to do sanity checks or restrict certain values.
   virtual void CameraSettingsChanged();
 
   /// \brief This function is called by RotateLocally() and RotateGlobally() BEFORE the values are applied,

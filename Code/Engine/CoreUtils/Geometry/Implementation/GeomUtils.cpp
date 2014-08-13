@@ -311,7 +311,7 @@ void ezGeometry::AddGeodesicSphere(float fRadius, ezUInt8 uiSubDivisions, const 
   ezInt32 iCurrentList = 0;
   ezDeque<Triangle> Tris[2];
 
-  // create ikosaedron
+  // create icosahedron
   {
     ezMat3 mRotZ, mRotY, mRotYh;
     mRotZ.SetRotationMatrixZ(ezAngle::Degree(60.0f));
@@ -375,7 +375,7 @@ void ezGeometry::AddGeodesicSphere(float fRadius, ezUInt8 uiSubDivisions, const 
 
   ezMap<Edge, ezUInt32> NewVertices;
 
-  // subdivide the ikosaeder n times (spliting every triangle into 4 new triangles)
+  // subdivide the icosahedron n times (splitting every triangle into 4 new triangles)
   for (ezUInt32 div = 0; div < uiSubDivisions; ++div)
   {
     // switch the last result and the new result

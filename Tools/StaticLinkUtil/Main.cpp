@@ -346,7 +346,7 @@ public:
         if (sInclude.StartsWith(sLibraryName.GetData()))
           continue;
 
-        // ignore thirdparty includes
+        // ignore third-party includes
         if (sInclude.FindSubString_NoCase("ThirdParty"))
         {
           ezLog::Dev("Skipping ThirdParty Include: '%s'", sInclude.GetData());

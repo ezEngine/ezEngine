@@ -17,16 +17,16 @@ struct EZ_CORE_DLL ezInputActionConfig
   ///
   /// You should enable this, if the value of the triggered action is used to modify how much to e.g. move an or rotate something.
   /// For example, if an action 'RotateLeft' will rotate the player to the left, then he should rotate each frame an amount that is dependent on how
-  /// much time has passed since the last update and by how much the button is pressed (e.g. a thumbstick can be pressed only slightly).
+  /// much time has passed since the last update and by how much the button is pressed (e.g. a thumb-stick can be pressed only slightly).
   /// Mouse input, however, should not get scaled, because when the user moved the mouse one centimeter in the last frame, then that is an absolute
   /// movement and it does not depend on how much time elapsed. Therefore the ezInputManager will take care NOT to scale input from such devices,
-  /// whereas input from a thumbstick or a keyboard key would be scaled by the elapsed time.
+  /// whereas input from a thumb-stick or a keyboard key would be scaled by the elapsed time.
   ///
-  /// However, if you for example use a thumbstick to position something on screen (e.g. a cursor), then that action should NEVER be scaled by the
-  /// elapsed time, because you are actually interested in the absolute value of the thumbstick (and thus the action). In such cases you should
+  /// However, if you for example use a thumb-stick to position something on screen (e.g. a cursor), then that action should NEVER be scaled by the
+  /// elapsed time, because you are actually interested in the absolute value of the thumb-stick (and thus the action). In such cases you should
   /// disable time scaling.
   ///
-  /// When you have an action where your are not intersted in the value, only in whether it is triggered, at all, you can ignore time scaling altogether.
+  /// When you have an action where your are not interested in the value, only in whether it is triggered, at all, you can ignore time scaling altogether.
   bool m_bApplyTimeScaling;
 
   /// \brief Which input slots will trigger this action.
@@ -71,8 +71,8 @@ struct EZ_CORE_DLL ezInputActionConfig
 ///
 /// The ezInputManager is the central hub through which you can configure which keys will trigger which actions. You can query in which state
 /// an action is (inactive (up), active (down), just recently activated (pressed) or just recently deactivated (released)). You can query their
-/// values (e.g. how much a thumbstick or the mouse was moved).
-/// Additionally you can localize buttons and actions. The internal data will always use english names and the US keyboard layout, but what with which
+/// values (e.g. how much a thumb-stick or the mouse was moved).
+/// Additionally you can localize buttons and actions. The internal data will always use English names and the US keyboard layout, but what with which
 /// names those keys are presented to the user can be changed.
 /// Although the input manager allows to query the state of each key, button, axis, etc. directly, this is not advised. Instead the user should set
 /// up 'actions' and define which keys will trigger those actions. At runtime the user should only query the state of actions. In the best case, an
@@ -111,7 +111,7 @@ public:
   /// \brief Returns an array that contains all the names of all currently known input slots.
   static void RetrieveAllKnownInputSlots(ezDynamicArray<const char*>& out_InputSlots);
 
-  /// \brief Returns the last typed character as the OS has reported it. Thus supports unicode etc.
+  /// \brief Returns the last typed character as the OS has reported it. Thus supports Unicode etc.
   ///
   /// If \a bResetCurrent is true, the internal last character will be reset to '\0'.
   /// If it is false, the internal state will not be changed. This should only be used, if the calling code does not do anything meaningful with the value.
@@ -120,7 +120,7 @@ public:
   /// \brief Makes sure that hardware input is processed at this moment, which allows to do this more often than Update() is called.
   ///
   /// When you have a game where you are doing relatively few game updates (including processing input), for example only 20 times
-  /// per second, it is possible to 'miss' input. PollHardware() allows to introduce sampling the hardeware state more often to prevent this.
+  /// per second, it is possible to 'miss' input. PollHardware() allows to introduce sampling the hardware state more often to prevent this.
   /// E.g. when your renderer renders at 60 Hz, you can poll input also at 60 Hz, even though you really only process it at 20 Hz.
   /// In typical usage scenarios this is not required to do and can be ignored.
   /// Note that you can call PollHardware() as often as you like and at irregular intervals, it will not have a negative effect
@@ -138,12 +138,12 @@ public:
   ///   'Input Sets' are sets of actions that are disjunct from each other. That means the same input slot (key, mouse button, etc.) can trigger
   ///   multiple different actions from different input sets. For example In the input set 'Game' the left mouse button may trigger the action
   ///   'Shoot', but in the input set 'UI' the left mouse button may trigger the action 'Click'. All input sets are always evaluated and update their
-  ///   state simultaniously. The user only has to decide which actions to react to, ie. whether the game is currently running un thus the 'Game' input
+  ///   state simultaneously. The user only has to decide which actions to react to, ie. whether the game is currently running and thus the 'Game' input
   ///   set is queried or whether a menu is shown and thus the 'UI' input set is queried.
   /// \param szAction
   ///   The action that is supposed to be triggered. The same action name may be reused in multiple input sets, they will have nothing in common.
   ///   The action name should describe WHAT is to be done, not which key the user pressed. For example an action could be 'player_forwards'. Which
-  ///   key is set to triggere that action should be irrelevant at run-time.
+  ///   key is set to trigger that action should be irrelevant at run-time.
   /// \param Config
   ///   This struct defines exactly which input slots (keys, buttons etc.) will trigger this action. The configuration allows to scale key values by
   ///   the frame time, to get smooth movement when the frame-rate varies. It allows to only accept input from a slot if two other slots have certain
@@ -169,8 +169,8 @@ public:
 
   /// \brief Returns the current state and value of the given input action.
   ///
-  /// This is the one function that is called repeatedly at runtime to figure out which actions are active and thus which gameplay functions
-  /// to execute. You can (and should) use the /a pValue to scale gameplay features (e.g. how fast to drive).
+  /// This is the one function that is called repeatedly at runtime to figure out which actions are active and thus which game-play functions
+  /// to execute. You can (and should) use the /a pValue to scale game play features (e.g. how fast to drive).
   static ezKeyState::Enum GetInputActionState(const char* szInputSet, const char* szAction, float* pValue = nullptr, ezInt8* iTriggeredSlot = nullptr); // [tested]
 
   /// \brief Sets the display name for the given action.
@@ -201,10 +201,10 @@ public:
   /// This function can be used in a UI to wait for user input and then assign that input to a certain action.
   static const char* GetPressedInputSlot(ezInputSlotFlags::Enum MustHaveFlags, ezInputSlotFlags::Enum MustNotHaveFlags); // [tested]
 
-  /// \brief Mostly for internal use. Converts a scancode value to the string that is used inside the engine for that key.
+  /// \brief Mostly for internal use. Converts a scan-code value to the string that is used inside the engine for that key.
   static const char* ConvertScanCodeToEngineName(ezUInt8 uiScanCode, bool bIsExtendedKey);
 
-  /// \brief The data that is broadcasted when certain events occur.
+  /// \brief The data that is broadcast when certain events occur.
   struct InputEventData
   {
     enum EventType
@@ -284,7 +284,7 @@ private:
     ezMap<ezString, float> s_InjectedInputSlots;
   };
 
-  /// \brief The last (unicode) character that was typed by the user, as reported by the OS (on Windows: WM_CHAR).
+  /// \brief The last (Unicode) character that was typed by the user, as reported by the OS (on Windows: WM_CHAR).
   static ezUInt32 s_LastCharacter;
 
   static bool s_bInputSlotResetRequired;

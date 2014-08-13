@@ -39,7 +39,7 @@ public:
   /// will instruct the resource to unload some of its data soon.
   ///
   /// The quality level is a purely logical concept that can be handled very different by different resource types.
-  /// E.g. a texture resource could theoretically use one quality level per available mipmap level. Howver, since
+  /// E.g. a texture resource could theoretically use one quality level per available mipmap level. However, since
   /// the resource should generally be able to load and unload each quality level separately, it might make more sense
   /// for a texture resource, to use one quality level for everything up to 64*64, and then one quality level for each
   /// mipmap above that, which would result in 5 quality levels for a 1024*1024 texture.

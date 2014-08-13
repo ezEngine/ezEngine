@@ -9,14 +9,14 @@
 
 class ezApplication;
 
-/// \brief Platform independent run function for mainloop based systems (e.g. Win32, ..)
+/// \brief Platform independent run function for main loop based systems (e.g. Win32, ..)
 ///
 /// This is automatically called by EZ_APPLICATION_ENTRY_POINT() and EZ_CONSOLEAPP_ENTRY_POINT().
 EZ_CORE_DLL void ezRun(ezApplication* pApplicationInstance);
 
 /// \brief Base class to be used by applications based on ezEngine.
 ///
-/// The platform abstraction layer will ensure that the correct functions are called independent of the basic mainloop structure (traditional or event-based).
+/// The platform abstraction layer will ensure that the correct functions are called independent of the basic main loop structure (traditional or event-based).
 /// Derive an application specific class from ezApplication and implement at least the abstract Run() function.
 /// Additional virtual functions allow to hook into specific events to run application specific code at the correct times.
 ///

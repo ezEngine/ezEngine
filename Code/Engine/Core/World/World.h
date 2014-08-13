@@ -7,7 +7,7 @@
 ///
 /// There can be multiple worlds active at a time, but only 64 at most. The world manages all object storage and might move objects around in memory.
 /// Thus it is not allowed to store pointers to objects. They should be referenced by handles.\n
-/// The world has a multi-phase update mechanism which is devided in the following phases:\n
+/// The world has a multi-phase update mechanism which is divided in the following phases:\n
 /// * Pre-async phase: The corresponding component manager update functions are called synchronously in the order of their dependencies.
 /// * Async phase: The update functions are called in batches asynchronously on multiple threads. There is absolutely no guarantee in which order the functions are called.
 ///   Thus it is not allowed to access any data other than the components own data during that phase.
@@ -51,7 +51,7 @@ public:
   /// \brief Returns an iterator over all objects in this world in no specific order.
   ezBlockStorage<ezGameObject>::Iterator GetObjects();
 
-  /// \brief Defines a visitor function that is called for every gameobject when using the traverse method. 
+  /// \brief Defines a visitor function that is called for every game-object when using the traverse method. 
   /// The function takes a pointer to the game object as argument and returns a bool which indicates whether to continue (true) or abort (false) traversal.
   typedef ezInternal::WorldData::VisitorFunc VisitorFunc;
 

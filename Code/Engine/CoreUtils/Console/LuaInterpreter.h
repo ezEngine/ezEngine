@@ -4,7 +4,7 @@
 
 namespace ezConsoleInterpreter
 {
-  /// \brief The default inpreter used by ezConsole. Uses Lua for parsing and execution.
+  /// \brief The default interpreter used by ezConsole. Uses Lua for parsing and execution.
   ///
   /// The lua interpreter can modify ezCVar variables and call ezConsoleFunction functions.
   ///

@@ -182,7 +182,7 @@ void ezWorld::Update()
 {
   CheckForMultithreadedAccess();
 
-  EZ_ASSERT(m_Data.m_UnresolvedUpdateFunctions.IsEmpty(), "There are update functions with unresolved depedencies.");
+  EZ_ASSERT(m_Data.m_UnresolvedUpdateFunctions.IsEmpty(), "There are update functions with unresolved dependencies.");
 
   EZ_PROFILE(m_Data.m_UpdateProfilingID);
 

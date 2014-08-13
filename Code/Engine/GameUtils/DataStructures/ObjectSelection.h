@@ -26,7 +26,7 @@ public:
   /// \brief Adds the given object to the selection, unless it is not valid anymore. Objects can be added multiple times.
   void AddObject(ezGameObjectHandle hObject, bool bDontAddTwice = true);
 
-  /// \brief Removes the first occurence of the given object from the selection. Returns false if the object did not exist in the selection.
+  /// \brief Removes the first occurrence of the given object from the selection. Returns false if the object did not exist in the selection.
   bool RemoveObject(ezGameObjectHandle hObject);
 
   /// \brief Removes the object from the selection if it exists already, otherwise adds it.

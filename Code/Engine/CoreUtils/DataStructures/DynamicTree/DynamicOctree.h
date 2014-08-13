@@ -69,7 +69,7 @@ public:
   /// with the same iObjectType value, if needed.
   ezResult InsertObject(const ezVec3& vCenter, const ezVec3& vHalfExtents, ezInt32 iObjectType, ezInt32 iObjectInstance, ezDynamicTreeObject* out_Object = nullptr, bool bOnlyIfInside = false); // [tested]
 
-  /// \brief Calls the Callback for every object that is inside the Viewfrustum. pPassThrough is passed to the Callback for custom purposes.
+  /// \brief Calls the Callback for every object that is inside the View-frustum. pPassThrough is passed to the Callback for custom purposes.
   void FindVisibleObjects (const ezFrustum& Viewfrustum, EZ_VISIBLE_OBJ_CALLBACK Callback, void* pPassThrough) const;
 
   /// \brief Returns all objects that are located in a node that overlaps with the given point.
@@ -125,7 +125,7 @@ private:
   /// \brief The actual bounding box (to discard objects that are outside the world)
   float m_fRealMinX, m_fRealMaxX, m_fRealMinY, m_fRealMaxY, m_fRealMinZ, m_fRealMaxZ;
 
-  /// \brief Used to turn the map into a multimap.
+  /// \brief Used to turn the map into a multi-map.
   ezUInt32 m_uiMultiMapCounter;
 
   /// \brief Every node has a unique index, the map allows to store many objects at each node, using that index

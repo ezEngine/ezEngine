@@ -22,7 +22,7 @@ struct EZ_CORE_DLL ezKeyState
 
 /// \brief These flags are specified when registering an input slot (by a device), to define some capabilities and restrictions of the hardware.
 ///
-/// By default you do not need to use these flags at all. However, when presenting the user with a list of 'posssible' buttons to press to map to an
+/// By default you do not need to use these flags at all. However, when presenting the user with a list of 'possible' buttons to press to map to an
 /// action, these flags can be used to filter out unwanted slots.
 /// For example you can filter out mouse movements by requiring that the input slot must be pressable or may not represent any axis.
 /// You an additionally also use the prefix of the input slot name, to filter out all touch input slots etc. if necessary.
@@ -36,15 +36,15 @@ struct ezInputSlotFlags
 
     ReportsRelativeValues     = EZ_BIT(0),  ///< The input slot reports delta values (e.g. a mouse move), instead of absolute values.
     ValueBinaryZeroOrOne      = EZ_BIT(1),  ///< The input slot will either be zero or one. Used for all buttons and keys.
-    ValueRangeZeroToOne       = EZ_BIT(2),  ///< The input slot has analog values between zero and one. Used for analog axis like the xbox triggers or thumbsticks.
+    ValueRangeZeroToOne       = EZ_BIT(2),  ///< The input slot has analog values between zero and one. Used for analog axis like the xbox triggers or thumb-sticks.
     ValueRangeZeroToInf       = EZ_BIT(3),  ///< The input slot has unbounded values larger than zero. Used for all absolute positions, such as the mouse position.
     Pressable                 = EZ_BIT(4),  ///< The slot can be pressed (e.g. a key). This is not possible for an axis, such as the mouse of an analog stick.
     Holdable                  = EZ_BIT(5),  ///< The user can hold down the key. Possible for buttons, but not for axes or for wheels such as the mouse wheel.
-    HalfAxis                  = EZ_BIT(6),  ///< The input slot represents one half of the actually possible data. Used for all axes (pos / neg mouse movement, thumbsticks).
+    HalfAxis                  = EZ_BIT(6),  ///< The input slot represents one half of the actually possible data. Used for all axes (pos / neg mouse movement, thumb-sticks).
     FullAxis                  = EZ_BIT(7),  ///< The input slot represents one full axis. Mostly used for devices that report absolute values, such as the mouse position or touch input positions (values between zero and one) 
-    RequiresDeadZone          = EZ_BIT(8),  ///< The input slot represents hardware that should use a dead zone, otherwise it might fire prematurely. Mostly used on thumbsticks and trigger buttons.
+    RequiresDeadZone          = EZ_BIT(8),  ///< The input slot represents hardware that should use a dead zone, otherwise it might fire prematurely. Mostly used on thumb-sticks and trigger buttons.
     ValuesAreNonContinuous    = EZ_BIT(9),  ///< The values of the slot can jump around randomly, ie. the user can input arbitrary values, like the position on a touchpad
-    ActivationDependsOnOthers = EZ_BIT(10), ///< Whether this slot can be activated depends on whether certain other slots are active. This is the case for touchpoints which are numbered depending on how many other touchpoints are already active.
+    ActivationDependsOnOthers = EZ_BIT(10), ///< Whether this slot can be activated depends on whether certain other slots are active. This is the case for touch-points which are numbered depending on how many other touch-points are already active.
     NeverTimeScale            = EZ_BIT(11), ///< When this flag is specified, data from the input slot will never be scaled by the input update time difference. Important for mouse deltas and such.
 
 

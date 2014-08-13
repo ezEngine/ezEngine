@@ -129,7 +129,7 @@ struct ezObjectMsgRouting
     Default,     ///< Send the message only to the object's components.
     ToParent,    ///< Send the message to parent objects recursively.
     ToChildren,  ///< Send the message to all child objects recursively.
-    ToSubTree,   ///< Send the message to the whole subtree starting at the toplevel parent object.
+    ToSubTree,   ///< Send the message to the whole subtree starting at the top-level parent object.
   };
 };
 

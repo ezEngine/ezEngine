@@ -13,7 +13,7 @@ static void StatsEventHandler(const ezStats::StatsEventData& e)
   {
   case ezStats::StatsEventData::Set:
     Mode = ezTelemetry::Unreliable;
-    // fallthrough
+    // fall-through
   case ezStats::StatsEventData::Add:
     {
       ezTelemetryMessage msg;

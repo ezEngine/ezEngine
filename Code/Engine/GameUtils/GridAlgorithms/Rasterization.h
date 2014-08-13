@@ -64,7 +64,7 @@ namespace ez2DGridUtils
   /// \brief Starts at the given point and then fills all surrounding cells until a border is detected.
   ///
   /// The callback should return ezCallbackResult::Continue for each cell that has not been visited so far and for which all four direct
-  /// neighbors should be visited. If the floodfill algorithm leaves the valid area, the callback must return ezCallbackResult::Stop to signal
+  /// neighbors should be visited. If the flood-fill algorithm leaves the valid area, the callback must return ezCallbackResult::Stop to signal
   /// a border. Thus the callback must be able to handle point positions outside the valid range and it also needs to be able to detect
   /// which cells have been visited before, as the FloodFill function will not keep that state internally.
   ///

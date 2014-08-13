@@ -44,7 +44,7 @@ void ezDynamicOctree::CreateTree(const ezVec3& vCenter, const ezVec3& vHalfExten
 
 /// The object lies at vCenter and has vHalfExtents as its bounding box.
 /// If bOnlyIfInside is false, the object is ALWAYS inserted, even if it is outside the tree.
-/// \note In such a case it is inserted at the root-node and thus ALWAYS returned in range/viewfrustum queries.
+/// \note In such a case it is inserted at the root-node and thus ALWAYS returned in range/view-frustum queries.
 /// 
 /// If bOnlyIfInside is true, the object is discarded, if it is not inside the actual bounding box of the tree.
 ezResult ezDynamicOctree::InsertObject(const ezVec3& vCenter, const ezVec3& vHalfExtents, ezInt32 iObjectType, ezInt32 iObjectInstance, ezDynamicTreeObject* out_Object, bool bOnlyIfInside)

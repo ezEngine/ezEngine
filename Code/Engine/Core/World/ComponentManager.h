@@ -10,7 +10,7 @@
 
 /// \brief Base class for all component managers. Do not derive directly from this class, but derive from ezComponentManager instead.
 ///
-/// Every component type has its corresponding mananger type. The manager stores the components in memory blocks to minimize overhead 
+/// Every component type has its corresponding manager type. The manager stores the components in memory blocks to minimize overhead 
 /// on creation and deletion of components. Each manager can also register update functions to update its components during
 /// the different update phases of ezWorld.
 /// Use ezWorld::CreateComponentManager to create an instance of a component manager within a specific world.

@@ -20,7 +20,7 @@ class EZ_CORE_DLL ezComponent : public ezReflectedClass
   EZ_ADD_DYNAMIC_REFLECTION(ezComponent);
 
 protected:
-  /// \brief Keep the contructor private or protected in derived classes, so it cannot be called manually.
+  /// \brief Keep the constructor private or protected in derived classes, so it cannot be called manually.
   ezComponent();
   virtual ~ezComponent();
 
@@ -93,7 +93,7 @@ private:
 
 #include <Core/World/Implementation/Component_inl.h>
 
-/// \brief Add this macro to a custom component type iniside the type declaration.
+/// \brief Add this macro to a custom component type inside the type declaration.
 #define EZ_DECLARE_COMPONENT_TYPE(componentType, managerType) \
   EZ_ADD_DYNAMIC_REFLECTION(componentType); \
   public: \

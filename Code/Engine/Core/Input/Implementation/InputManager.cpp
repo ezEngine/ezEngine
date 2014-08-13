@@ -195,7 +195,7 @@ void ezInputManager::GatherDeviceInputSlotValues()
       {
         ezInputManager::ezInputSlot& Slot = GetInternals().s_InputSlots[it.Key()];
 
-        // do not store a value larger than 0 unless it exceeds the deadzone threshold
+        // do not store a value larger than 0 unless it exceeds the dead-zone threshold
         if (it.Value() > Slot.m_fDeadZone)
           Slot.m_fValue = ezMath::Max(Slot.m_fValue, it.Value()); // 'accumulate' the values for one slot from all the connected devices
       }
@@ -208,7 +208,7 @@ void ezInputManager::GatherDeviceInputSlotValues()
   {
     ezInputManager::ezInputSlot& Slot = GetInternals().s_InputSlots[it.Key()];
 
-    // do not store a value larger than 0 unless it exceeds the deadzone threshold
+    // do not store a value larger than 0 unless it exceeds the dead-zone threshold
     if (it.Value() > Slot.m_fDeadZone)
       Slot.m_fValue = ezMath::Max(Slot.m_fValue, it.Value()); // 'accumulate' the values for one slot from all the connected devices
   }
@@ -221,7 +221,7 @@ void ezInputManager::UpdateInputSlotStates()
   for (ezInputSlotsMap::Iterator it = GetInternals().s_InputSlots.GetIterator(); it.IsValid(); it.Next())
   {
     // update the state of the input slot, depending on its current value
-    // its value will only be larger than zero, if it is also larger than its deadzone value
+    // its value will only be larger than zero, if it is also larger than its dead-zone value
     const ezKeyState::Enum NewState = ezKeyState::GetNewKeyState(it.Value().m_State, it.Value().m_fValue > 0.0f);
 
     if ((it.Value().m_State != NewState) || (NewState != ezKeyState::Up))

@@ -12,7 +12,7 @@ struct EZ_COREUTILS_DLL ezTokenType
     Unknown,        ///< for internal use
     Whitespace,     ///< The token is a space or tab
     Identifier,     ///< a series of alphanumerics or underscores
-    NonIdentifier,  ///< Everthing else
+    NonIdentifier,  ///< Everything else
     Newline,        ///< Either '\n' or '\r\n'
     LineComment,    ///< A comment that starts with two slashes and ends at the next newline (or end of file)
     BlockComment,   ///< A comment that starts with a slash and a star, and ends at the next star/slash combination (or end of file)

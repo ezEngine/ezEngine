@@ -96,7 +96,7 @@ public:
   /// \brief Sets the parent of this object to the given. Note that the actual re-parenting is postponed.
   void SetParent(const ezGameObjectHandle& parent);
 
-  /// \brief Gets the parent of this object or nullptr if this is a toplevel object.
+  /// \brief Gets the parent of this object or nullptr if this is a top-level object.
   ezGameObject* GetParent() const;
 
   /// \brief Adds the given object as a child object. Note that the actual re-parenting is postponed.
@@ -105,10 +105,10 @@ public:
   /// \brief Adds the given objects as child objects. Note that the actual re-parenting is postponed.
   void AddChildren(const ezArrayPtr<const ezGameObjectHandle>& children);
 
-  /// \brief Removes the given child object from this object and makes it a toplevel object. Note that the actual re-parenting is postponed.
+  /// \brief Removes the given child object from this object and makes it a top-level object. Note that the actual re-parenting is postponed.
   void DetachChild(const ezGameObjectHandle& child);
 
-  /// \brief Removes the given child objects from this object and makes them toplevel objects. Note that the actual re-parenting is postponed.
+  /// \brief Removes the given child objects from this object and makes them top-level objects. Note that the actual re-parenting is postponed.
   void DetachChildren(const ezArrayPtr<const ezGameObjectHandle>& children);
 
   /// \brief Returns the number of children.

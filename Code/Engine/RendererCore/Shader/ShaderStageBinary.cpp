@@ -21,7 +21,7 @@ ezShaderStageBinary::~ezShaderStageBinary()
     ezGALShaderByteCode* pByteCode = m_pGALByteCode;
     m_pGALByteCode = nullptr;
 
-    //EZ_ASSERT(pByteCode->GetRefCount() == 0, "Shader Bytecode is still referenced.");
+    //EZ_ASSERT(pByteCode->GetRefCount() == 0, "Shader Byte-code is still referenced.");
 
     if (pByteCode->GetRefCount() == 0)
       EZ_DEFAULT_DELETE(pByteCode);

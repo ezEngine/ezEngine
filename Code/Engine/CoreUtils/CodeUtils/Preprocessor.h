@@ -58,7 +58,7 @@ class EZ_COREUTILS_DLL ezPreprocessor
 {
 public:
 
-  /// \brief Describes the type of #include that was encountered during prepocessing
+  /// \brief Describes the type of #include that was encountered during preprocessing
   enum IncludeType
   {
     MainFile,         ///< This is used for the very first access to the main source file
@@ -120,7 +120,7 @@ public:
   /// Note that when the preprocessor encounters any error, it will stop immediately and usually no output is generated.
   /// However, there are also a few cases where only a warning is generated, in this case preprocessing will continue without problems.
   ///
-  /// Additionally errors and warnings are also broadcasted through m_ProcessingEvents. So if you want to output more detailed information,
+  /// Additionally errors and warnings are also broadcast through m_ProcessingEvents. So if you want to output more detailed information,
   /// that method should be preferred, because the events carry more information about the current file and line number etc.
   void SetLogInterface(ezLogInterface* pLog);
 

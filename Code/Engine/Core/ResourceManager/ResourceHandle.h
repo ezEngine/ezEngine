@@ -2,9 +2,9 @@
 
 #include <Core/Basics.h>
 
-/// \brief The ezResourceHandle controlls access to an ezResource.
+/// \brief The ezResourceHandle controls access to an ezResource.
 ///
-/// All resources must be referenced using ezResourceHandle instances (instanciated with the proper resource type as the template argument).
+/// All resources must be referenced using ezResourceHandle instances (instantiated with the proper resource type as the template argument).
 /// You must not store a direct pointer to a resource anywhere. Instead always store resource handles. To actually access a resource,
 /// use ezResourceManager::BeginAcquireResource and ezResourceManager::EndAcquireResource after you have finished using it.
 ///

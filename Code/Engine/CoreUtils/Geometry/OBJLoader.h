@@ -7,7 +7,7 @@
 ///
 /// The LoadOBJ() and LoadMTL() functions will parse the given files and add all information to the existing mesh data.
 /// You can load multiple OBJ and MTL files into this object, all information will be merged.
-/// Afterwards faces can be sorted by material and tangents and bitangents can be computed.
+/// Afterwards faces can be sorted by material and tangents and bi-tangents can be computed.
 ///
 /// All shared information (positions, normals, texcoords) is stored using indices, so the information what is shared
 /// is preserved in the ezOBJLoader object. For upload into a GPU the vertex information must be duplicated manually.
@@ -73,7 +73,7 @@ public:
   /// \brief Returns whether vertex-normals are available for this mesh. Otherwise only face-normals are available.
   bool HasVertexNormals() const { return (!m_Normals.IsEmpty()); }
 
-  /// \brief Updates the tangent and bitangent vectors of the faces.
+  /// \brief Updates the tangent and bi-tangent vectors of the faces.
   void ComputeTangentSpaceVectors();
 
   /// \brief Sorts all faces by their material.
