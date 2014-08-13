@@ -24,7 +24,7 @@ void ezOBJLoader::Clear()
   m_Materials.Clear();
 }
 
-static ezStringIterator ReadLine(ezStringIterator& szPos)
+static ezStringView ReadLine(ezStringView& szPos)
 {
   while (szPos.GetCharacter() != '\0' && ezStringUtils::IsWhiteSpace(szPos.GetCharacter()))
     ++szPos;
@@ -39,10 +39,10 @@ static ezStringIterator ReadLine(ezStringIterator& szPos)
   while (szPos.GetCharacter() != '\0' && ezStringUtils::IsWhiteSpace(szPos.GetCharacter()))
     ++szPos;
 
-  return ezStringIterator(szStart, szEnd, szStart);
+  return ezStringView(szStart, szEnd);
 }
 
-static ezStringIterator ReadString(ezStringIterator& szPos)
+static ezStringView ReadString(ezStringView& szPos)
 {
   while (szPos.GetCharacter() != '\0' && ezStringUtils::IsWhiteSpace(szPos.GetCharacter()))
     ++szPos;
@@ -57,10 +57,10 @@ static ezStringIterator ReadString(ezStringIterator& szPos)
   while (szPos.GetCharacter() != '\0' && ezStringUtils::IsWhiteSpace(szPos.GetCharacter()))
     ++szPos;
 
-  return ezStringIterator(szStart, szEnd, szStart);
+  return ezStringView(szStart, szEnd);
 }
 
-static bool SkipSlash(ezStringIterator& szPos)
+static bool SkipSlash(ezStringView& szPos)
 {
   if (szPos.GetCharacter() != '/')
     return false;
@@ -85,7 +85,7 @@ ezResult ezOBJLoader::LoadOBJ(const char* szFile, bool bIgnoreMaterials)
 
   ezUInt32 uiCurMaterial = 0xFFFFFFFF;
 
-  ezStringIterator sText = sContent.GetIteratorFront();
+  ezStringView sText = sContent.GetIteratorFront();
 
   ezUInt32 uiPositionOffset = m_Positions.GetCount();
   ezUInt32 uiNormalOffset = m_Normals.GetCount();
@@ -93,8 +93,8 @@ ezResult ezOBJLoader::LoadOBJ(const char* szFile, bool bIgnoreMaterials)
 
   while (sText.IsValid())
   {
-    ezStringIterator sLine = ReadLine(sText);
-    const ezStringIterator sFirst = ReadString(sLine);
+    ezStringView sLine = ReadLine(sText);
+    const ezStringView sFirst = ReadString(sLine);
 
     if (sFirst.IsEqual_NoCase("v"))// line declares a vertex
     {
@@ -274,15 +274,15 @@ ezResult ezOBJLoader::LoadMTL(const char* szFile, const char* szMaterialBasePath
   ezString sContent;
   sContent.ReadAll(File);
 
-  ezStringIterator sText = sContent.GetIteratorFront();
+  ezStringView sText = sContent.GetIteratorFront();
 
   ezString sCurMatName;
   ezStringBuilder sTemp;
 
   while (sText.IsValid())
   {
-    ezStringIterator sLine = ReadLine(sText);
-    const ezStringIterator sFirst = ReadString(sLine);
+    ezStringView sLine = ReadLine(sText);
+    const ezStringView sFirst = ReadString(sLine);
 
     if (sFirst.IsEqual_NoCase("newmtl")) // declares a new material with a given name
     {

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Foundation/Strings/StringUtils.h>
-#include <Foundation/Strings/StringIterator.h>
+#include <Foundation/Strings/StringView.h>
 #include <Foundation/Strings/Implementation/StringBase.h>
 #include <Foundation/Strings/StringConversion.h>
 #include <Foundation/Containers/HybridArray.h>
@@ -43,7 +43,7 @@ protected:
   ezHybridStringBase(const wchar_t* rhs, ezAllocatorBase* pAllocator); // [tested]
 
   /// \brief Copies the data from \a rhs.
-  ezHybridStringBase(const ezStringIterator& rhs, ezAllocatorBase* pAllocator); // [tested]
+  ezHybridStringBase(const ezStringView& rhs, ezAllocatorBase* pAllocator); // [tested]
 
   /// \brief Copies the data from \a rhs.
   ezHybridStringBase(const ezStringBuilder& rhs, ezAllocatorBase* pAllocator); // [tested]
@@ -67,7 +67,7 @@ protected:
   void operator=(const wchar_t* rhs); // [tested]
 
   /// \brief Copies the data from \a rhs.
-  void operator=(const ezStringIterator& rhs); // [tested]
+  void operator=(const ezStringView& rhs); // [tested]
 
   /// \brief Copies the data from \a rhs.
   void operator=(const ezStringBuilder& rhs); // [tested]
@@ -76,6 +76,9 @@ protected:
   void operator=(ezStringBuilder&& rhs); // [tested]
 
 public:
+
+  /// \brief Returns a string view to this string's data.
+  operator ezStringView() const; // [tested]
 
   /// \brief Resets this string to an empty string.
   ///
@@ -95,31 +98,31 @@ public:
   ///
   /// Note that this iterator will only be valid as long as this ezHybridString lives.
   /// Once the original string is destroyed, all iterators to them will point into invalid memory.
-  ezStringIterator GetIteratorFront() const; // [tested]
+  ezStringView GetIteratorFront() const; // [tested]
 
   /// \brief Returns an iterator to this string, which points to the very last character (NOT the end).
   ///
   /// Note that this iterator will only be valid as long as this ezHybridString lives.
   /// Once the original string is destroyed, all iterators to them will point into invalid memory.
-  ezStringIterator GetIteratorBack() const; // [tested]
+  ezStringView GetIteratorBack() const; // [tested]
 
   /// \brief Returns an iterator to a sub-string of this string, starting at character uiFirstCharacter, up until uiFirstCharacter +  uiNumCharacters.
   ///
   /// Note that this iterator will only be valid as long as this ezHybridString lives.
   /// Once the original string is destroyed, all iterators to them will point into invalid memory.
-  ezStringIterator GetSubString(ezUInt32 uiFirstCharacter, ezUInt32 uiNumCharacters) const; // [tested]
+  ezStringView GetSubString(ezUInt32 uiFirstCharacter, ezUInt32 uiNumCharacters) const; // [tested]
 
   /// \brief Returns an iterator to the sub-string containing the first uiNumCharacters characters of this string.
   ///
   /// Note that this iterator will only be valid as long as this ezHybridString lives.
   /// Once the original string is destroyed, all iterators to them will point into invalid memory.
-  ezStringIterator GetFirst(ezUInt32 uiNumCharacters) const; // [tested]
+  ezStringView GetFirst(ezUInt32 uiNumCharacters) const; // [tested]
 
   /// \brief Returns an iterator to the sub-string containing the last uiNumCharacters characters of this string.
   ///
   /// Note that this iterator will only be valid as long as this ezHybridString lives.
   /// Once the original string is destroyed, all iterators to them will point into invalid memory.
-  ezStringIterator GetLast(ezUInt32 uiNumCharacters) const; // [tested]
+  ezStringView GetLast(ezUInt32 uiNumCharacters) const; // [tested]
 
   /// \brief Replaces the current string with the content from the stream. Reads the stream to its end.
   void ReadAll(ezStreamReaderBase& Stream);
@@ -144,7 +147,7 @@ public:
   ezHybridString(const ezHybridStringBase<Size>& other);
   ezHybridString(const char* rhs);
   ezHybridString(const wchar_t* rhs);
-  ezHybridString(const ezStringIterator& rhs);
+  ezHybridString(const ezStringView& rhs);
   ezHybridString(const ezStringBuilder& rhs);
   ezHybridString(ezStringBuilder&& rhs);
 
@@ -156,7 +159,7 @@ public:
   void operator=(const ezHybridStringBase<Size>& rhs);
   void operator=(const char* szString);
   void operator=(const wchar_t* szString);
-  void operator=(const ezStringIterator& rhs);
+  void operator=(const ezStringView& rhs);
   void operator=(const ezStringBuilder& rhs);
   void operator=(ezStringBuilder&& rhs);
 

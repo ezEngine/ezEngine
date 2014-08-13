@@ -36,7 +36,7 @@ ezResult ezOSFile::Open(const char* szFile, ezFileMode::Enum OpenMode)
 
   m_sFileName = szFile;
   m_sFileName.MakeCleanPath();
-  m_sFileName.MakePathOsSpecific();
+  m_sFileName.MakePathSeparatorsNative();
 
   ezResult Res = EZ_FAILURE;
 
@@ -196,7 +196,7 @@ bool ezOSFile::Exists(const char* szFile)
 
   ezStringBuilder s(szFile);
   s.MakeCleanPath();
-  s.MakePathOsSpecific();
+  s.MakePathSeparatorsNative();
 
   const bool bRes = InternalExists(szFile);
 
@@ -222,7 +222,7 @@ ezResult ezOSFile::DeleteFile(const char* szFile)
 
   ezStringBuilder s(szFile);
   s.MakeCleanPath();
-  s.MakePathOsSpecific();
+  s.MakePathSeparatorsNative();
 
   const ezResult Res = InternalDeleteFile(s.GetData());
 
@@ -247,13 +247,13 @@ ezResult ezOSFile::CreateDirectoryStructure(const char* szDirectory)
 
   ezStringBuilder s(szDirectory);
   s.MakeCleanPath();
-  s.MakePathOsSpecific();
+  s.MakePathSeparatorsNative();
 
   EZ_ASSERT(s.IsAbsolutePath(), "The path '%s' is not absolute.", s.GetData());
 
   ezStringBuilder sCurPath;
 
-  ezStringIterator it = s.GetIteratorFront();
+  ezStringView it = s.GetIteratorFront();
 
   ezResult Res = EZ_SUCCESS;
 
@@ -351,7 +351,7 @@ done:
 
     ezStringBuilder s = szFileOrFolder;
     s.MakeCleanPath();
-    s.MakePathOsSpecific();
+    s.MakePathSeparatorsNative();
 
     EZ_ASSERT(s.IsAbsolutePath(), "The path '%s' is not absolute.", s.GetData());
 
@@ -378,13 +378,13 @@ done:
 
     ezStringBuilder s(szFileOrFolder);
     s.MakeCleanPath();
-    s.MakePathOsSpecific();
+    s.MakePathSeparatorsNative();
 
     EZ_ASSERT(s.IsAbsolutePath(), "The path '%s' is not absolute.", s.GetData());
 
     ezStringBuilder sCurPath;
 
-    ezStringIterator it = s.GetIteratorFront();
+    ezStringView it = s.GetIteratorFront();
 
     out_sCorrectSpelling.Clear();
 

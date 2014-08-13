@@ -5,7 +5,7 @@
 #include <Foundation/Memory/MemoryUtils.h>
 #include <Foundation/Strings/StringUtils.h>
 #include <Foundation/Strings/Implementation/StringBase.h>
-#include <Foundation/Strings/StringIterator.h>
+#include <Foundation/Strings/StringView.h>
 #include <Foundation/Strings/PathUtils.h>
 
 template <ezUInt16 Size>
@@ -65,8 +65,8 @@ public:
   /// \brief Copies the given wchar_t string into this one.
   /* implicit */ ezStringBuilder(const wchar_t* szWChar, ezAllocatorBase* pAllocator = ezFoundation::GetDefaultAllocator()); // [tested]
 
-  /// \brief Copies the given substring into this one. The ezStringIterator might actually be a substring of this very string.
-  /* implicit */ ezStringBuilder(const ezStringIterator& rhs, ezAllocatorBase* pAllocator = ezFoundation::GetDefaultAllocator()); // [tested]
+  /// \brief Copies the given substring into this one. The ezStringView might actually be a substring of this very string.
+  /* implicit */ ezStringBuilder(const ezStringView& rhs, ezAllocatorBase* pAllocator = ezFoundation::GetDefaultAllocator()); // [tested]
 
   /// \brief Copies the given string into this one.
   void operator=(const ezStringBuilder& rhs); // [tested]
@@ -80,8 +80,8 @@ public:
   /// \brief Copies the given wchar_t string into this one.
   void operator=(const wchar_t* szWChar); // [tested]
 
-  /// \brief Copies the given substring into this one. The ezStringIterator might actually be a substring of this very string.
-  void operator=(const ezStringIterator& rhs); // [tested]
+  /// \brief Copies the given substring into this one. The ezStringView might actually be a substring of this very string.
+  void operator=(const ezStringView& rhs); // [tested]
 
   /// \brief Copies the given string into this one.
   template <ezUInt16 Size>
@@ -102,6 +102,9 @@ public:
   /// \brief Returns the allocator that is used by this object.
   ezAllocatorBase* GetAllocator() const;
 
+  /// \brief Returns a string view to this string's data.
+  operator ezStringView() const; // [tested]
+
   /// \brief Resets this string to be empty. Does not deallocate any previously allocated data, as it might be reused later again.
   void Clear(); // [tested]
 
@@ -118,10 +121,10 @@ public:
   bool IsPureASCII() const; // [tested]
 
   /// \brief Returns an iterator to the entire string, which starts at the first character.
-  ezStringIterator GetIteratorFront() const; // [tested]
+  ezStringView GetIteratorFront() const; // [tested]
 
   /// \brief Returns an iterator to the entire string, which starts at the last character.
-  ezStringIterator GetIteratorBack() const; // [tested]
+  ezStringView GetIteratorBack() const; // [tested]
 
   /// \brief Converts all characters to upper case. Might move the string data around, so all iterators to the data will be invalid afterwards.
   void ToUpper(); // [tested]
@@ -137,7 +140,7 @@ public:
   /// This can be a very costly operation (unless this string is pure ASCII).
   /// It is only provided for the few rare cases where it is more convenient and performance is not of concern.
   /// If possible, do not use this function, at all.
-  void ChangeCharacter(ezStringIterator& Pos, ezUInt32 uiCharacter); // [tested]
+  void ChangeCharacter(ezStringView& Pos, ezUInt32 uiCharacter); // [tested]
 
   /// \brief Appends a single Utf32 character.
   void Append(ezUInt32 uiChar); // [tested]
@@ -229,9 +232,9 @@ public:
   /// \brief Case-insensitive version of ReplaceWholeWordAll.
   ezUInt32 ReplaceWholeWordAll_NoCase(const char* szSearchFor, const char* szReplaceWith, ezStringUtils::EZ_CHARACTER_FILTER IsDelimiterCB); // [tested]
 
-  /// \brief Fills the given container with ezStringIterator's which represent each found substring.
+  /// \brief Fills the given container with ezStringView's which represent each found substring.
   /// If bReturnEmptyStrings is true, even empty strings between separators are returned.
-  /// Output must be a container that stores ezStringIterator's and provides the functions 'Clear' and 'Append'.
+  /// Output must be a container that stores ezStringView's and provides the functions 'Clear' and 'Append'.
   /// szSeparator1 to szSeparator6 are strings which act as separators and indicate where to split the string.
   /// This string itself will not be modified.
   template <typename Container>
@@ -249,17 +252,17 @@ public:
   bool HasExtension(const char* szExtension) const; // [tested]
 
   /// \brief Returns the file extension of the given path. Will be empty, if the path does not end with a proper extension.
-  ezStringIterator GetFileExtension() const; // [tested]
+  ezStringView GetFileExtension() const; // [tested]
 
   /// \brief Returns the file name of a path, excluding the path and extension.
   ///
   /// If the path already ends with a path separator, the result will be empty.
-  ezStringIterator GetFileName() const; // [tested]
+  ezStringView GetFileName() const; // [tested]
 
   /// \brief Returns the substring that represents the file name including the file extension.
   ///
   /// Returns an empty string, if sPath already ends in a path separator, or is empty itself.
-  ezStringIterator GetFileNameAndExtension() const; // [tested]
+  ezStringView GetFileNameAndExtension() const; // [tested]
 
   /// \brief Returns the directory of the given file, which is the substring up to the last path separator.
   ///
@@ -268,7 +271,7 @@ public:
   /// "path/to/folder/" -> "path/to/folder/"
   /// "filename" -> ""
   /// "/file_at_root_level" -> "/"
-  ezStringIterator GetFileDirectory() const; // [tested]
+  ezStringView GetFileDirectory() const; // [tested]
 
   /// \brief Returns true, if the given path represents an absolute path on the current OS.
   bool IsAbsolutePath() const; // [tested]
@@ -279,15 +282,15 @@ public:
 
 
 
-  /// \brief Removes "../" where possible, replaces all path separators with /
+  /// \brief Removes "../" where possible, replaces all path separators with /, removes double slashes.
   ///
-  /// All paths use slashes on all platforms. If you need to convert a path to the OS specific representation, use 'MakePathOsSpecific'
+  /// All paths use slashes on all platforms. If you need to convert a path to the OS specific representation, use 'MakePathSeparatorsNative'
   /// 'MakeCleanPath' will in rare circumstances grow the string by one character. That means it is quite safe to assume that
   /// it will not waste time on memory allocations.
   /// If it is repeatedly called on the same string, it has a minor overhead for computing the same string over and over, 
   /// but no memory allocations will be done (everything is in-place).
-  /// \note MakeCleanPath does NOT remove double slashes, as they might have some meaning in certain situations (UNC paths etc.)
-  ///       Use 'RemoveDoubleSlashesInPath' to get rid of extra path separators, if necessary (though the OS usually deals with that without problems).
+  ///
+  /// Removes all double path separators (slashes and backslashes) in a path, except if the path starts with two (back-)slashes, those are kept, as they might indicate a UNC path.
   void MakeCleanPath(); // [tested]
 
   /// \brief Modifies this string to point to the parent directory.
@@ -312,30 +315,25 @@ public:
   /// szNewExtension must not start with a dot.
   void ChangeFileExtension(const char* szNewExtension); // [tested]
 
-  /// \brief Sets this path to the absolute path by concatenating the absolute base path and the relative path.
-  ///
-  /// The result is already cleaned up by 'MakeCleanPath'
-  void MakeAbsolutePath(const char* szAbsoluteBasePath); // [tested]
-
   /// \brief Converts this path into a relative path to the path with the awesome variable name 'szAbsolutePathToMakeThisRelativeTo'
-  void MakeRelativePath(const char* szAbsolutePathToMakeThisRelativeTo); // [tested]
+  void MakeRelativeTo(const char* szAbsolutePathToMakeThisRelativeTo); // [tested]
 
   /// \brief Cleans this path up and replaces all path separators by the OS specific separator.
   ///
   /// This can be used, if you want to present paths in the OS specific form to the user in the UI.
   /// In all other cases the internal representation uses slashes, no matter on which operating system.
-  void MakePathOsSpecific(); // [tested]
+  void MakePathSeparatorsNative(); // [tested]
 
   /// \brief Checks whether this path is a sub-path of the given path.
   ///
   /// This function will call 'MakeCleanPath' to be able to compare both paths, thus it might modify the data of this instance.
-  bool IsPathBelowFolder (const char* szPathToFolder); // [tested]
+  bool IsPathBelowFolder(const char* szPathToFolder); // [tested]
 
+private:
   /// \brief Will remove all double path separators (slashes and backslashes) in a path, except if the path starts with two (back-)slashes, those are kept, as they might indicate a UNC path.
   void RemoveDoubleSlashesInPath(); // [tested]
 
-private:
-  void ChangeCharacterNonASCII(ezStringIterator& Pos, ezUInt32 uiCharacter);
+  void ChangeCharacterNonASCII(ezStringView& Pos, ezUInt32 uiCharacter);
   void AppendTerminator();
 
   // needed for better copy construction

@@ -26,7 +26,7 @@ void ezTextSectionizer::Process(const char* szText)
     m_Sections[s].m_szSectionStart = m_sText.FindSubString_NoCase(m_Sections[s].m_sName.GetData());
 
     if (m_Sections[s].m_szSectionStart != nullptr)
-      m_Sections[s].m_Content = ezStringIterator(m_Sections[s].m_szSectionStart + m_Sections[s].m_sName.GetElementCount());
+      m_Sections[s].m_Content = ezStringView(m_Sections[s].m_szSectionStart + m_Sections[s].m_sName.GetElementCount());
   }
 
   for (ezUInt32 s = 0; s < m_Sections.GetCount(); ++s)
@@ -44,14 +44,14 @@ void ezTextSectionizer::Process(const char* szText)
         const char* szContentStart = m_Sections[s].m_Content.GetStart();
         const char* szSectionEnd = ezMath::Min(m_Sections[s].m_Content.GetEnd(), m_Sections[s2].m_szSectionStart);
 
-        m_Sections[s].m_Content = ezStringIterator(szContentStart, szSectionEnd, szContentStart);
+        m_Sections[s].m_Content = ezStringView(szContentStart, szSectionEnd);
       }
     }
   }
 
 }
 
-ezStringIterator ezTextSectionizer::GetSectionContent(ezUInt32 uiSection) const
+ezStringView ezTextSectionizer::GetSectionContent(ezUInt32 uiSection) const
 {
   return m_Sections[uiSection].m_Content;
 }

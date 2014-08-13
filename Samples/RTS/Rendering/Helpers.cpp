@@ -164,7 +164,7 @@ void GameRenderer::RenderText(float fTextSize, TextAlignment Align, ezColor Colo
   ezVec3 vTranslation(0.0f);
   vTranslation += ezVec3((float) x + fMoveX, (float) y, 0);
 
-  ezStringIterator it = sText.GetIteratorFront();
+  ezStringView it = sText.GetIteratorFront();
 
   glEnable(GL_TEXTURE_2D);
   glBindTexture(GL_TEXTURE_2D, m_uiFontTextureID);

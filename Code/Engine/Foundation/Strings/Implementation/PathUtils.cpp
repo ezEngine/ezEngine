@@ -44,37 +44,37 @@ bool ezPathUtils::HasExtension(const char* szPath, const char* szExtension, cons
   return ezStringUtils::EndsWith_NoCase(szPath, sExt.GetData(), szPathEnd);
 }
 
-ezStringIterator ezPathUtils::GetFileExtension(const char* szPath, const char* szPathEnd)
+ezStringView ezPathUtils::GetFileExtension(const char* szPath, const char* szPathEnd)
 {
   ezStringUtils::UpdateStringEnd(szPath, szPathEnd);
 
   const char* szDot = ezStringUtils::FindLastSubString(szPath, ".", nullptr, szPathEnd);
 
   if (szDot == nullptr)
-    return ezStringIterator(nullptr);
+    return ezStringView(nullptr);
 
   // find the last separator in the string
   const char* szSeparator = FindPreviousSeparator(szPath, szPathEnd);
 
   if (szSeparator > szDot)
-    return ezStringIterator(nullptr);
+    return ezStringView(nullptr);
 
-  return ezStringIterator(szDot + 1, szPathEnd, szDot + 1);
+  return ezStringView(szDot + 1, szPathEnd);
 }
 
-ezStringIterator ezPathUtils::GetFileNameAndExtension(const char* szPath, const char* szPathEnd)
+ezStringView ezPathUtils::GetFileNameAndExtension(const char* szPath, const char* szPathEnd)
 {
   ezStringUtils::UpdateStringEnd(szPath, szPathEnd);
 
   const char* szSeparator = FindPreviousSeparator(szPath, szPathEnd);
 
   if (szSeparator == nullptr)
-    return ezStringIterator(szPath, szPathEnd, szPath);
+    return ezStringView(szPath, szPathEnd);
 
-  return ezStringIterator(szSeparator + 1, szPathEnd, szSeparator + 1);
+  return ezStringView(szSeparator + 1, szPathEnd);
 }
 
-ezStringIterator ezPathUtils::GetFileName(const char* szPath, const char* szPathEnd)
+ezStringView ezPathUtils::GetFileName(const char* szPath, const char* szPathEnd)
 {
   // make sure szPathEnd is valid
   ezStringUtils::UpdateStringEnd(szPath, szPathEnd);
@@ -85,42 +85,42 @@ ezStringIterator ezPathUtils::GetFileName(const char* szPath, const char* szPath
 
   if (szDot < szSeparator) // includes (szDot == nullptr), szSeparator will never be nullptr here -> no extension
   {
-    return ezStringIterator(szSeparator + 1, szPathEnd, szSeparator + 1);
+    return ezStringView(szSeparator + 1, szPathEnd);
   }
 
   if (szSeparator == nullptr)
   {
     if (szDot == nullptr) // no folder, no extension -> the entire thing is just a name
-      return ezStringIterator(szPath, szPathEnd, szPath);
+      return ezStringView(szPath, szPathEnd);
 
-    return ezStringIterator(szPath, szDot, szPath); // no folder, but an extension -> remove the extension
+    return ezStringView(szPath, szDot); // no folder, but an extension -> remove the extension
   }
 
   // now: there is a separator AND an extension
 
-  return ezStringIterator(szSeparator + 1, szDot, szSeparator + 1);
+  return ezStringView(szSeparator + 1, szDot);
 }
 
-ezStringIterator ezPathUtils::GetFileDirectory(const char* szPath, const char* szPathEnd)
+ezStringView ezPathUtils::GetFileDirectory(const char* szPath, const char* szPathEnd)
 {
   // make sure szPathEnd is valid
   ezStringUtils::UpdateStringEnd(szPath, szPathEnd);
 
-  ezStringIterator end (szPath, szPathEnd, szPath);
+  ezStringView end (szPath, szPathEnd);
   end.ResetToBack();
 
   // if it already ends in a path separator, do not return a different directory
   if (IsPathSeparator(end.GetCharacter()))
-    return ezStringIterator(szPath, szPathEnd, szPath);
+    return ezStringView(szPath, szPathEnd);
 
   // find the last separator in the string
   const char* szSeparator = FindPreviousSeparator(szPath, szPathEnd);
 
   // no path separator -> root dir -> return the empty path
   if (szSeparator == nullptr)
-    return ezStringIterator(nullptr);
+    return ezStringView(nullptr);
 
-  return ezStringIterator(szPath, szSeparator + 1, szPath);
+  return ezStringView(szPath, szSeparator + 1);
 }
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)

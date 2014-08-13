@@ -4,27 +4,21 @@
 #include <Foundation/Strings/StringUtils.h>
 #include <Foundation/Strings/Implementation/StringBase.h>
 
-/// \brief ezStringIterator allows for character-wise iterating over a (read-only) Utf8 string.
+/// \brief ezStringView allows for character-wise iterating over a (read-only) Utf8 string.
 ///
 /// It can also be used to represent a sub-string of a larger string, as it can store a dedicated string end position.
 /// It derives from ezStringBase and thus provides a large set of functions for search and comparisons.
-class EZ_FOUNDATION_DLL ezStringIterator : public ezStringBase<ezStringIterator>
+class EZ_FOUNDATION_DLL ezStringView : public ezStringBase<ezStringView>
 {
 public:
   /// \brief Default constructor creates an invalid iterator.
-  ezStringIterator();
+  ezStringView();
 
   /// \brief Creates a string iterator starting at the given position, ending at the next '\0' terminator.
-  ///
-  /// If bIsPureASCII is set to true, a little more efficient iterating method is used.
-  /// By default this flag should be kept false, as it will ensure that iterating will always work.
-  explicit ezStringIterator(const char* pCurrent, bool bIsPureASCII = false); // [tested]
+  explicit ezStringView(const char* pStart); // [tested]
 
   /// \brief Creates a string iterator for the range from pFirst to pEnd, which currently points to pCurrent.
-  ///
-  /// If bIsPureASCII is set to true, a little more efficient iterating method is used.
-  /// By default this flag should be kept false, as it will ensure that iterating will always work.
-  ezStringIterator(const char* pFirst, const char* pEnd, const char* pCurrent, bool bIsPureASCII = false); // [tested]
+  ezStringView(const char* pStart, const char* pEnd); // [tested]
 
   /// \brief Advances the iterator to the next character, unless the end of the range was reached.
   void operator++(); // [tested]
@@ -60,11 +54,8 @@ public:
   /// Must be between the iterators start and end range.
   void SetCurrentPosition(const char* szCurPos); // [tested]
 
-  /// \brief Returns whether this sub-string represents a simple ASCII string, i.e. whether the byte count and the character count will be identical.
-  bool IsPureASCII() const { return m_bIsPureASCII; } // [tested]
-
   /// \brief Returns the start of the iterator range.
-  const char* GetStart() const { return m_pFirst; } // [tested]
+  const char* GetStart() const { return m_pStart; } // [tested]
 
   /// \brief Returns the end of the iterator range. This will point to the byte AFTER the last character.
   ///
@@ -87,19 +78,12 @@ public:
   /// \brief Resets the current position to the last character and flags the iterator as valid again (unless its range is empty).
   void ResetToBack(); // [tested]
 
-  /// \brief Compares the two string iterators for equality. Both do not need to be null terminated, but must have the same length.
-  bool operator==(const ezStringIterator& rhs) const;
-
-  /// \brief Compares the two string iterators for equality. Both do not need to be null terminated, but must have the same length.
-  bool operator!=(const ezStringIterator& rhs) const;
-
 private:
   bool m_bValid;
-  bool m_bIsPureASCII;
-  const char* m_pFirst;
+  const char* m_pStart;
   const char* m_pEnd;
   const char* m_pCurrent;
 };
 
-#include <Foundation/Strings/Implementation/StringIterator_inl.h>
+#include <Foundation/Strings/Implementation/StringView_inl.h>
 

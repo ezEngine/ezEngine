@@ -31,6 +31,6 @@
 #include <Foundation/Strings/PathUtils.h>
 #include <Foundation/Strings/String.h>
 #include <Foundation/Strings/StringBuilder.h>
-#include <Foundation/Strings/StringIterator.h>
+#include <Foundation/Strings/StringView.h>
 #include <Foundation/Utilities/EnumerableClass.h>
 

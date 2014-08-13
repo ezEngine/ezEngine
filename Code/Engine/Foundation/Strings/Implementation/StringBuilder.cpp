@@ -165,7 +165,7 @@ void ezStringBuilder::PrependFormat(const char* szUtf8Format, va_list args0)
   va_end(args);
 }
 
-void ezStringBuilder::ChangeCharacterNonASCII(ezStringIterator& It, ezUInt32 uiCharacter)
+void ezStringBuilder::ChangeCharacterNonASCII(ezStringView& It, ezUInt32 uiCharacter)
 {
   char* pPos = const_cast<char*>(It.GetData()); // yes, I know...
 
@@ -202,7 +202,8 @@ void ezStringBuilder::ChangeCharacterNonASCII(ezStringIterator& It, ezUInt32 uiC
     m_Data.PopBack(uiDifference);
 
     // since the end of the array has changed, we must update the character iterator
-    ezStringIterator NewIt(It.GetStart(), &m_Data[m_Data.GetCount() - 1], It.GetData());
+    ezStringView NewIt(It.GetStart(), &m_Data[m_Data.GetCount() - 1]);
+    NewIt.SetCurrentPosition(It.GetData());
     It = NewIt;
   }
   else
@@ -219,7 +220,8 @@ void ezStringBuilder::ChangeCharacterNonASCII(ezStringIterator& It, ezUInt32 uiC
 
     // these might have changed (array realloc)
     pPos = &m_Data[0] + (It.GetData() - It.GetStart());
-    ezStringIterator NewIt(&m_Data[0], &m_Data[m_Data.GetCount() - 1], pPos);
+    ezStringView NewIt(&m_Data[0], &m_Data[m_Data.GetCount() - 1]);
+    NewIt.SetCurrentPosition(pPos);
 
     It = NewIt;
     
@@ -590,7 +592,7 @@ ezUInt32 ezStringBuilder::ReplaceWholeWordAll_NoCase(const char* szSearchFor, co
   return uiReplacements;
 }
 
-void ezStringBuilder::operator=(const ezStringIterator& rhs)
+void ezStringBuilder::operator=(const ezStringView& rhs)
 {
   ezUInt32 uiBytes;
   ezUInt32 uiCharacters;
@@ -710,6 +712,9 @@ void ezStringBuilder::MakeCleanPath()
   // make sure to write the terminating \0 and reset the count
   *szCurWritePos = '\0';
   m_Data.SetCount(uiNewByteCount);
+
+
+  RemoveDoubleSlashesInPath();
 }
 
 void ezStringBuilder::PathParentDirectory(ezUInt32 uiLevelsUp)
@@ -743,14 +748,14 @@ void ezStringBuilder::AppendPath(const char* szPath1, const char* szPath2, const
 
 void ezStringBuilder::ChangeFileName(const char* szNewFileName)
 {
-  ezStringIterator it = ezPathUtils::GetFileName(GetData(), GetData() + m_Data.GetCount() - 1);
+  ezStringView it = ezPathUtils::GetFileName(GetData(), GetData() + m_Data.GetCount() - 1);
 
   ReplaceSubString(it.GetData(), it.GetEnd(), szNewFileName);
 }
 
 void ezStringBuilder::ChangeFileNameAndExtension(const char* szNewFileNameWithExtension)
 {
-  ezStringIterator it = ezPathUtils::GetFileNameAndExtension(GetData(), GetData() + m_Data.GetCount() - 1);
+  ezStringView it = ezPathUtils::GetFileNameAndExtension(GetData(), GetData() + m_Data.GetCount() - 1);
 
   ReplaceSubString(it.GetData(), it.GetEnd(), szNewFileNameWithExtension);
 }
@@ -759,7 +764,7 @@ void ezStringBuilder::ChangeFileExtension(const char* szNewExtension)
 {
   EZ_ASSERT(!ezStringUtils::StartsWith(szNewExtension, "."), "The given extension string must not start with a dot.");
 
-  ezStringIterator it = ezPathUtils::GetFileExtension(GetData(), GetData() + m_Data.GetCount() - 1);
+  ezStringView it = ezPathUtils::GetFileExtension(GetData(), GetData() + m_Data.GetCount() - 1);
 
   if (it.IsEmpty())
     Append(".", szNewExtension);
@@ -767,22 +772,7 @@ void ezStringBuilder::ChangeFileExtension(const char* szNewExtension)
     ReplaceSubString(it.GetData(), it.GetEnd(), szNewExtension);
 }
 
-void ezStringBuilder::MakeAbsolutePath(const char* szAbsoluteBasePath)
-{
-  EZ_ASSERT(ezPathUtils::IsAbsolutePath(szAbsoluteBasePath), "The given base path is not an absolute path.");
-  EZ_ASSERT(IsRelativePath(), "The given relative path is not relative.");
-
-  ezStringBuilder sTemp = *this;
-
-  Clear();
-  *this = szAbsoluteBasePath;
-  AppendPath(sTemp.GetData());
-  MakeCleanPath();
-
-  EZ_ASSERT(ezPathUtils::IsAbsolutePath(GetData()), "I have failed you, oh great Master! Though your path is a strange one, indeed: \"%s\"", GetData());
-}
-
-void ezStringBuilder::MakeRelativePath(const char* szAbsolutePathToMakeThisRelativeTo)
+void ezStringBuilder::MakeRelativeTo(const char* szAbsolutePathToMakeThisRelativeTo)
 {
   ezStringBuilder sAbsBase = szAbsolutePathToMakeThisRelativeTo;  sAbsBase.MakeCleanPath();
   ezStringBuilder sAbsThis = *this;                               sAbsThis.MakeCleanPath();
@@ -875,7 +865,7 @@ bool ezStringBuilder::IsPathBelowFolder(const char* szPathToFolder)
   return StartsWith_NoCase(sBasePath.GetData());
 }
 
-void ezStringBuilder::MakePathOsSpecific()
+void ezStringBuilder::MakePathSeparatorsNative()
 {
   const char sep[2] = { ezPathUtils::OsSpecificPathSeparator, '\0' };
 

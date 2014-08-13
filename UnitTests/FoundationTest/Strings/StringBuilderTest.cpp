@@ -64,11 +64,11 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     EZ_TEST_BOOL(!s2.IsPureASCII());
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Constructor(StringIterator)")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Constructor(StringView)")
   {
     ezStringUtf8 sUtf8(L"abc äöü € def");
 
-    ezStringIterator it(sUtf8.GetData() + 2, sUtf8.GetData() + 8, sUtf8.GetData() + 2);
+    ezStringView it(sUtf8.GetData() + 2, sUtf8.GetData() + 8);
 
     ezStringBuilder s(it);
 
@@ -132,16 +132,32 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     EZ_TEST_BOOL(!s2.IsPureASCII());
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator=(StringIterator)")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator=(StringView)")
   {
     ezStringBuilder s ("abcdefghi");
-    ezStringIterator it(s.GetData() + 2, s.GetData() + 8, s.GetData() + 3);
+    ezStringView it(s.GetData() + 2, s.GetData() + 8);
+    it.SetCurrentPosition(s.GetData() + 3);
 
     s = it;
 
     EZ_TEST_BOOL(s == "defgh");
     EZ_TEST_INT(s.GetElementCount(), 5);
     EZ_TEST_INT(s.GetCharacterCount(), 5);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "convert to ezStringView")
+  {
+    ezStringBuilder s(L"aölsdföasld");
+
+    ezStringView sv = s;
+
+    EZ_TEST_STRING(sv.GetData(), ezStringUtf8(L"aölsdföasld").GetData());
+    EZ_TEST_BOOL(sv == ezStringUtf8(L"aölsdföasld").GetData());
+
+    s = "abcdef";
+
+    EZ_TEST_STRING(sv.GetData(), "abcdef");
+    EZ_TEST_BOOL(sv == "abcdef");
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Clear")
@@ -333,7 +349,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetIteratorFront")
   {
     ezStringBuilder s(L"abcdefghijklmnopqrstuvwxyzäöü€ß");
-    ezStringIterator it = s.GetIteratorFront();
+    ezStringView it = s.GetIteratorFront();
 
     EZ_TEST_BOOL(it.StartsWith(ezStringUtf8(L"abcdefghijklmnopqrstuvwxyzäöü€ß").GetData()));
     EZ_TEST_BOOL(it.EndsWith(ezStringUtf8(L"abcdefghijklmnopqrstuvwxyzäöü€ß").GetData()));
@@ -347,7 +363,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetIteratorBack")
   {
     ezStringBuilder s(L"abcdefghijklmnopqrstuvwxyzäöü€ß");
-    ezStringIterator it = s.GetIteratorBack();
+    ezStringView it = s.GetIteratorBack();
 
     EZ_TEST_BOOL(it.StartsWith(ezStringUtf8(L"ß").GetData()));
     EZ_TEST_BOOL(it.EndsWith(ezStringUtf8(L"ß").GetData()));
@@ -363,9 +379,9 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     ezStringBuilder s(L"abcdefghijklmnopqrstuvwxyzäöü€ß");
 
     ezStringUtf8 upr(L"ÄÖÜ€ßABCDEFGHIJKLMNOPQRSTUVWXYZ");
-    ezStringIterator it2(upr.GetData());
+    ezStringView it2(upr.GetData());
     
-    for (ezStringIterator it = s.GetIteratorFront(); it.IsValid(); ++it, ++it2)
+    for (ezStringView it = s.GetIteratorFront(); it.IsValid(); ++it, ++it2)
     {
       s.ChangeCharacter(it, it2.GetCharacter());
       
@@ -730,7 +746,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "teset")
   {
     const char* sz = "abc def";
-    ezStringIterator it(sz);
+    ezStringView it(sz);
 
     ezStringBuilder s = it;
   }
@@ -739,7 +755,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
   {
     ezStringBuilder s = "|abc,def<>ghi|,<>jkl|mno,pqr|stu";
 
-    ezHybridArray<ezStringIterator, 32> SubStrings;
+    ezHybridArray<ezStringView, 32> SubStrings;
 
     s.Split(false, SubStrings, ",", "|", "<>");
 
@@ -774,11 +790,11 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
 
     p = "C:\\temp/temp//tut";
     p.MakeCleanPath();
-    EZ_TEST_BOOL(p == "C:/temp/temp//tut");
+    EZ_TEST_BOOL(p == "C:/temp/temp/tut");
 
     p = "\\temp/temp//tut\\\\";
     p.MakeCleanPath();
-    EZ_TEST_BOOL(p == "/temp/temp//tut//");
+    EZ_TEST_BOOL(p == "/temp/temp/tut/");
 
     p = "\\";
     p.MakeCleanPath();
@@ -790,7 +806,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
 
     p = "C:\\temp/..//tut";
     p.MakeCleanPath();
-    EZ_TEST_BOOL(p == "C://tut");
+    EZ_TEST_BOOL(p == "C:/tut");
 
     p = "C:\\temp/..";
     p.MakeCleanPath();
@@ -802,7 +818,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
 
     p = "\\//temp/../bla\\\\blub///..\\temp//tut/tat/..\\\\..\\//ploep";
     p.MakeCleanPath();
-    EZ_TEST_BOOL(p == "///bla//blub//temp//tut///ploep");
+    EZ_TEST_BOOL(p == "//bla/blub/temp/tut/ploep");
 
     p = "a/b/c/../../../../e/f";
     p.MakeCleanPath();
@@ -822,7 +838,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
 
     p = "\\//temp/./bla\\\\blub///.\\temp//tut/tat/..\\.\\.\\//ploep";
     p.MakeCleanPath();
-    EZ_TEST_STRING(p.GetData(), "///temp/bla//blub///temp//tut///ploep");
+    EZ_TEST_STRING(p.GetData(), "//temp/bla/blub/temp/tut/ploep");
 
     p = "./";
     p.MakeCleanPath();
@@ -848,11 +864,11 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
 
     p = "C:\\temp/temp//tut";
     p.PathParentDirectory();
-    EZ_TEST_BOOL(p == "C:/temp/temp//");
+    EZ_TEST_BOOL(p == "C:/temp/temp/");
 
     p = "C:\\temp/temp//tut\\\\";
     p.PathParentDirectory();
-    EZ_TEST_BOOL(p == "C:/temp/temp//tut/");
+    EZ_TEST_BOOL(p == "C:/temp/temp/tut/");
 
     p = "file";
     p.PathParentDirectory();
@@ -864,7 +880,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
 
     p = "C:\\temp/..//tut";
     p.PathParentDirectory();
-    EZ_TEST_BOOL(p == "C://");
+    EZ_TEST_BOOL(p == "C:/");
 
     p = "file";
     p.PathParentDirectory(3);
@@ -986,28 +1002,6 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     p = "C:/test/test/tut";
     p.ChangeFileExtension("");
     EZ_TEST_BOOL(p == "C:/test/test/tut.");
-  }
-
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "MakeAbsolutePath")
-  {
-    #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-    ezStringBuilder p = "../../d/..\\f";
-    p.MakeAbsolutePath("C:\\a/b/c/");
-    EZ_TEST_BOOL(p == "C:/a/f");
-
-    p = ".\\file.txt";
-    p.MakeAbsolutePath("c:\\rootpath");
-
-    EZ_TEST_STRING(p.GetData(), "c:/rootpath/file.txt");
-
-    #elif EZ_ENABLED(EZ_PLATFORM_OSX) || EZ_ENABLED(EZ_PLATFORM_LINUX)
-    ezStringBuilder p = "../../d/..\\f";
-    p.MakeAbsolutePath("/a/b/c/");
-    EZ_TEST_BOOL(p == "/a/f");
-    #else
-      #warning "Missing test code!"
-    #endif
-
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "HasAnyExtension")
@@ -1221,103 +1215,62 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     EZ_TEST_BOOL(!p.IsPathBelowFolder("b"));
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "MakeRelativePath")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "MakeRelativeTo")
   {
     ezStringBuilder p;
 
     p = "a/b\\c/d\\\\e/f/g";
-    p.MakeRelativePath("a\\b/c");
-    EZ_TEST_BOOL(p == "d//e/f/g");
+    p.MakeRelativeTo("a\\b/c");
+    EZ_TEST_BOOL(p == "d/e/f/g");
 
     p = "a/b\\c//d\\\\e/f/g";
-    p.MakeRelativePath("a\\b/c");
-    EZ_TEST_BOOL(p == "/d//e/f/g");
+    p.MakeRelativeTo("a\\b/c");
+    EZ_TEST_BOOL(p == "d/e/f/g");
 
     p = "a/b\\c/d\\\\e/f/g";
-    p.MakeRelativePath("a\\b/c/");
-    EZ_TEST_BOOL(p == "d//e/f/g");
+    p.MakeRelativeTo("a\\b/c/");
+    EZ_TEST_BOOL(p == "d/e/f/g");
 
     p = "a/b\\c//d\\\\e/f/g";
-    p.MakeRelativePath("a\\b/c/");
-    EZ_TEST_BOOL(p == "/d//e/f/g");
+    p.MakeRelativeTo("a\\b/c/");
+    EZ_TEST_BOOL(p == "d/e/f/g");
 
     p = "a/b\\c//d\\\\e/f/g";
-    p.MakeRelativePath("a\\b/c\\/d/\\e\\f/g");
+    p.MakeRelativeTo("a\\b/c\\/d/\\e\\f/g");
     EZ_TEST_BOOL(p == "");
 
     p = "a/b\\c//d\\\\e/f/g/";
-    p.MakeRelativePath("a\\b/c\\/d//e\\f/g\\h/i");
+    p.MakeRelativeTo("a\\b/c\\/d//e\\f/g\\h/i");
     EZ_TEST_BOOL(p == "../../");
 
     p = "a/b\\c//d\\\\e/f/g/j/k";
-    p.MakeRelativePath("a\\b/c\\/d//e\\f/g\\h/i");
+    p.MakeRelativeTo("a\\b/c\\/d//e\\f/g\\h/i");
     EZ_TEST_BOOL(p == "../../j/k");
 
     p = "a/b\\c//d\\\\e/f/ge";
-    p.MakeRelativePath("a\\b/c//d/\\e\\f/g\\h/i");
+    p.MakeRelativeTo("a\\b/c//d/\\e\\f/g\\h/i");
     EZ_TEST_BOOL(p == "../../../ge");
 
     p = "a/b\\c//d\\\\e/f/g.txt";
-    p.MakeRelativePath("a\\b/c//d//e\\f/g\\h/i");
+    p.MakeRelativeTo("a\\b/c//d//e\\f/g\\h/i");
     EZ_TEST_BOOL(p == "../../../g.txt");
 
     p = "a/b\\c//d\\\\e/f/g";
-    p.MakeRelativePath("a\\b/c//d//e\\f/g\\h/i");
+    p.MakeRelativeTo("a\\b/c//d//e\\f/g\\h/i");
     EZ_TEST_BOOL(p == "../../");
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "RemoveDoubleSlashesInPath")
-  {
-    ezStringBuilder p;
-
-    p = "C:\\\\temp.stuff";
-    p.RemoveDoubleSlashesInPath();
-    EZ_TEST_BOOL(p == "C:/temp.stuff");
-
-    p = "C://temp.stuff";
-    p.RemoveDoubleSlashesInPath();
-    EZ_TEST_BOOL(p == "C:/temp.stuff");
-
-    p = "\\\\myserver\\temp.stuff";
-    p.RemoveDoubleSlashesInPath();
-    EZ_TEST_BOOL(p == "//myserver/temp.stuff");
-
-    p = "\\myserver/\\temp.stuff";
-    p.RemoveDoubleSlashesInPath();
-    EZ_TEST_BOOL(p == "/myserver/temp.stuff");
-
-    p = "temp.stuff";
-    p.RemoveDoubleSlashesInPath();
-    EZ_TEST_BOOL(p == "temp.stuff");
-
-    p = "/test.stuff";
-    p.RemoveDoubleSlashesInPath();
-    EZ_TEST_BOOL(p == "/test.stuff");
-
-    p = "\\/temp.stuff";
-    p.RemoveDoubleSlashesInPath();
-    EZ_TEST_BOOL(p == "//temp.stuff");
-
-    p = "..\\//temp.stuff";
-    p.RemoveDoubleSlashesInPath();
-    EZ_TEST_BOOL(p == "../temp.stuff");
-
-    p = ".\\\\temp.stuff";
-    p.RemoveDoubleSlashesInPath();
-    EZ_TEST_BOOL(p == "./temp.stuff");
-  }
-
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "MakePathOsSpecific")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "MakePathSeparatorsNative")
   {
     ezStringBuilder p;
     p = "This/is\\a/temp\\\\path//to/my///file";
 
-    p.MakePathOsSpecific();
+    p.MakePathSeparatorsNative();
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-    EZ_TEST_STRING(p.GetData(), "This\\is\\a\\temp\\\\path\\\\to\\my\\\\\\file");
+    EZ_TEST_STRING(p.GetData(), "This\\is\\a\\temp\\path\\to\\my\\file");
 #else
-    EZ_TEST_STRING(p.GetData(), "This/is/a/temp//path//to/my///file");
+    EZ_TEST_STRING(p.GetData(), "This/is/a/temp/path/to/my/file");
 #endif
 
   }

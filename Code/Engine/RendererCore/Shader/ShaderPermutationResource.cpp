@@ -191,7 +191,7 @@ ezResult ezShaderPermutationResourceLoader::RunCompiler(const ezResourceBase* pR
     sPermutationFile.ChangeFileExtension("");
     sPermutationFile.Shrink(ezShaderManager::GetShaderCacheDirectory().GetCharacterCount() + ezShaderManager::GetPlatform().GetCharacterCount() + 2, 1);
 
-    ezStringIterator itBack = sPermutationFile.GetIteratorBack();
+    ezStringView itBack = sPermutationFile.GetIteratorBack();
 
     // move the start of the iterator 8 characters from the back to the front
     itBack -= 8;

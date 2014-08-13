@@ -268,7 +268,7 @@ static ezResult ParseLine(const ezStringBuilder& sLine, ezStringBuilder& VarName
     return EZ_FAILURE;
 
   {
-    ezStringIterator sSubString(sLine.GetData(), szSign, sLine.GetData()); 
+    ezStringView sSubString(sLine.GetData(), szSign); 
   
     // remove all trailing spaces
     while (sSubString.EndsWith(" "))
@@ -278,7 +278,7 @@ static ezResult ParseLine(const ezStringBuilder& sLine, ezStringBuilder& VarName
   }
 
   {
-    ezStringIterator sSubString(szSign + 1); 
+    ezStringView sSubString(szSign + 1); 
 
     // remove all spaces
     while (sSubString.StartsWith(" "))

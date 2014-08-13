@@ -47,7 +47,7 @@ struct EZ_COREUTILS_DLL ezToken
 
   /// The actual string data that represents the token. Note that this is a view to a substring of some larger text data.
   /// To get only the relevant piece as one zero-terminated string, assign m_DataView to an ezStringBuilder and read that instead.
-  ezStringIterator m_DataView;
+  ezStringView m_DataView;
 
   /// For users to be able to store additional info for a token.
   ezUInt32 m_uiCustomFlags;
@@ -112,7 +112,7 @@ private:
 
   ezLogInterface* m_pLog;
   ezTokenType::Enum m_CurMode;
-  ezStringIterator m_Iterator;
+  ezStringView m_Iterator;
   ezUInt32 m_uiCurLine;
   ezUInt32 m_uiCurColumn;
   ezUInt32 m_uiCurChar;

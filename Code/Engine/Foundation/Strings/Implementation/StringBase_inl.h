@@ -168,7 +168,7 @@ bool ezStringBase<Derived>::IsEqualN_NoCase(const char* pString2, ezUInt32 uiCha
 template <typename DerivedLhs, typename DerivedRhs>
 EZ_FORCE_INLINE bool operator== (const ezStringBase<DerivedLhs>& lhs, const ezStringBase<DerivedRhs>& rhs) // [tested]
 {
-  return lhs.IsEqual(rhs.InternalGetData());
+  return ezStringUtils::IsEqual(lhs.InternalGetData(), rhs.InternalGetData(), lhs.InternalGetDataEnd(), rhs.InternalGetDataEnd());
 }
 
 template <typename DerivedRhs>
@@ -186,7 +186,7 @@ EZ_FORCE_INLINE bool operator== (const ezStringBase<DerivedLhs>& lhs, const char
 template <typename DerivedLhs, typename DerivedRhs>
 EZ_FORCE_INLINE bool operator!= (const ezStringBase<DerivedLhs>& lhs, const ezStringBase<DerivedRhs>& rhs) // [tested]
 {
-  return !lhs.IsEqual(rhs.InternalGetData());
+  return !ezStringUtils::IsEqual(lhs.InternalGetData(), rhs.InternalGetData(), lhs.InternalGetDataEnd(), rhs.InternalGetDataEnd());
 }
 
 template <typename DerivedRhs>

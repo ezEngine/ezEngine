@@ -4,17 +4,17 @@
 
 static void AllowScriptCVarAccess(ezLuaWrapper& Script);
 
-static const ezString GetNextWord(ezStringIterator& sString)
+static const ezString GetNextWord(ezStringView& sString)
 {
   const char* szStartWord = ezStringUtils::SkipCharacters(sString.GetData(), ezStringUtils::IsWhiteSpace, false);
   const char* szEndWord = ezStringUtils::FindWordEnd(szStartWord, ezStringUtils::IsIdentifierDelimiter_C_Code, true);
 
-  sString = ezStringIterator(szEndWord, sString.IsPureASCII());
+  sString = ezStringView(szEndWord);
   
-  return ezStringIterator(szStartWord, szEndWord, szStartWord);
+  return ezStringView(szStartWord, szEndWord);
 }
 
-static ezString GetRestWords(ezStringIterator sString)
+static ezString GetRestWords(ezStringView sString)
 {
   return ezStringUtils::SkipCharacters(sString.GetData(), ezStringUtils::IsWhiteSpace, false);
 }
@@ -86,7 +86,7 @@ ezResult ezConsoleInterpreter::Lua(const char* szCommand, ezConsole* pConsole)
 
   int iPos = 0;
 
-  ezStringIterator sCommandIt = sCommand.GetIteratorFront();
+  ezStringView sCommandIt = sCommand.GetIteratorFront();
 
   const ezString sVarName = GetNextWord(sCommandIt);
   const ezString sFunctionParam = GetRestWords(sCommandIt);

@@ -276,7 +276,7 @@ const char* ezFileSystem::ExtractDataDirsToSearch(const char* szPath, ezHybridAr
   }
 
   ezStringBuilder sCur;
-  ezStringIterator it(szPath);
+  ezStringView it(szPath);
   ++it;
 
   while (!it.IsEmpty() && (it.GetCharacter() != '>'))

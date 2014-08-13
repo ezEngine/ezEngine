@@ -35,7 +35,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, String)
     ezString s4(L"abc");
     EZ_TEST_BOOL(s4 == "abc");
 
-    ezStringIterator it = s4.GetFirst(2);
+    ezStringView it = s4.GetFirst(2);
     ezString s5(it);
     EZ_TEST_BOOL(s5 == "ab");
 
@@ -57,14 +57,29 @@ EZ_CREATE_SIMPLE_TEST(Strings, String)
     EZ_TEST_BOOL(s4 == "abc");
 
     ezString s5(L"abcdefghijklm");
-    ezStringIterator it (s5.GetData() + 2, s5.GetData() + 10, s5.GetData() + 2);
+    ezStringView it (s5.GetData() + 2, s5.GetData() + 10);
     s5 = it;
     EZ_TEST_BOOL(s5 == "cdefghij");
 
-    ezString s6("aölsdföasld");
+    ezString s6(L"aölsdföasld");
     ezStringBuilder strB("wobwob");
     s6 = strB;
     EZ_TEST_BOOL(s6 == "wobwob");
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "convert to ezStringView")
+  {
+    ezString s(L"aölsdföasld");
+
+    ezStringView sv = s;
+
+    EZ_TEST_STRING(sv.GetData(), ezStringUtf8(L"aölsdföasld").GetData());
+    EZ_TEST_BOOL(sv == ezStringUtf8(L"aölsdföasld").GetData());
+
+    s = "abcdef";
+
+    EZ_TEST_STRING(sv.GetData(), "abcdef");
+    EZ_TEST_BOOL(sv == "abcdef");
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Move constructor / operator")
@@ -159,7 +174,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, String)
     ezString s(L"abcäöü€def");
     ezStringUtf8 s8(L"äöü€");
 
-    ezStringIterator it = s.GetSubString(3, 4);
+    ezStringView it = s.GetSubString(3, 4);
     EZ_TEST_BOOL(it == s8.GetData());
   }
 

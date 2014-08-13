@@ -96,7 +96,7 @@
 #include <Foundation/Strings/String.h>
 #include <Foundation/Strings/StringBuilder.h>
 #include <Foundation/Strings/StringConversion.h>
-#include <Foundation/Strings/StringIterator.h>
+#include <Foundation/Strings/StringView.h>
 #include <Foundation/Strings/StringUtils.h>
 #include <Foundation/Strings/UnicodeUtils.h>
 

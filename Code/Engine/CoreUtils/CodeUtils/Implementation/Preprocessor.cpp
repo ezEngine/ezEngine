@@ -23,7 +23,7 @@ ezPreprocessor::ezPreprocessor()
     s_ParamNames[i] = s;
 
     m_ParameterTokens[i].m_iType = s_MacroParameter0 + i;
-    m_ParameterTokens[i].m_DataView = ezStringIterator(s_ParamNames[i].GetData());
+    m_ParameterTokens[i].m_DataView = ezStringView(s_ParamNames[i].GetData());
   }
 
   ezToken dummy;
@@ -124,7 +124,7 @@ ezResult ezPreprocessor::Process(const char* szMainFile, TokenStream& TokenOutpu
 
   // Add a custom define for the __FILE__ macro
   {
-    m_TokenFile.m_DataView = ezStringIterator("__FILE__");
+    m_TokenFile.m_DataView = ezStringView("__FILE__");
     m_TokenFile.m_iType = ezTokenType::Identifier;
   
     MacroDefinition md;
@@ -138,7 +138,7 @@ ezResult ezPreprocessor::Process(const char* szMainFile, TokenStream& TokenOutpu
 
   // Add a custom define for the __LINE__ macro
   {
-    m_TokenLine.m_DataView = ezStringIterator("__LINE__");
+    m_TokenLine.m_DataView = ezStringView("__LINE__");
     m_TokenLine.m_iType = ezTokenType::Identifier;
   
     MacroDefinition md;

@@ -322,7 +322,7 @@ public:
 
         const char* szLineEnd = ezStringUtils::FindSubString(szI, "\n");
 
-        ezStringIterator si(szI, szLineEnd, szI);
+        ezStringView si(szI, szLineEnd);
 
         ezStringBuilder sInclude = si;
 
@@ -463,7 +463,7 @@ public:
   ezString GetFileMarkerName(const char* szFile)
   {
     ezStringBuilder sRel = szFile;
-    sRel.MakeRelativePath(m_sSearchDir.GetData());
+    sRel.MakeRelativeTo(m_sSearchDir.GetData());
 
     ezStringBuilder sRefPointName = ezPathUtils::GetFileName(m_sSearchDir.GetData());
     sRefPointName.Append("_");

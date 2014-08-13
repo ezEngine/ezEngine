@@ -124,7 +124,7 @@ FileStats GetFileStats(const char* szFile)
     ezDynamicArray<ezString> Lines;
     sContent.ReplaceAll("\r", ""); // remove carriage return
 
-    // splits the string at occurance of '\n' and adds each line to the 'Lines' container
+    // splits the string at occurrence of '\n' and adds each line to the 'Lines' container
     sContent.Split(true, Lines, "\n");
 
     ezStringBuilder sLine;
@@ -141,7 +141,7 @@ FileStats GetFileStats(const char* szFile)
       {
         ++s.m_uiLines;
 
-        ezStringIterator LineIt = sLine.GetIteratorFront();
+        ezStringView LineIt = sLine.GetIteratorFront();
 
         bool bIsInWord = false;
         while (!LineIt.IsEmpty())

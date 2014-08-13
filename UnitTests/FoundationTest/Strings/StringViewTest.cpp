@@ -1,20 +1,20 @@
 ﻿#include <PCH.h>
 #include <Foundation/Strings/String.h>
 
-EZ_CREATE_SIMPLE_TEST(Strings, StringIterator)
+EZ_CREATE_SIMPLE_TEST(Strings, StringView)
 {
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Constructor (simple)")
   {
     const char* sz = "abcdefghijklmnopqrstuvwxyz";
 
-    ezStringIterator it(sz);
+    ezStringView it(sz);
 
     EZ_TEST_BOOL(it.GetStart() == sz);
     EZ_TEST_BOOL(it.GetData() == sz);
     EZ_TEST_BOOL(it.GetEnd() == sz + 26);
     EZ_TEST_INT(it.GetElementCount(), 26);
 
-    ezStringIterator it2(sz + 15);
+    ezStringView it2(sz + 15);
 
     EZ_TEST_BOOL(it2.GetStart() == &sz[15]);
     EZ_TEST_BOOL(it2.GetData() == &sz[15]);
@@ -26,7 +26,8 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringIterator)
   {
     const char* sz = "abcdefghijklmnopqrstuvwxyz";
 
-    ezStringIterator it(sz + 3, sz + 17, sz + 5);
+    ezStringView it(sz + 3, sz + 17);
+    it.SetCurrentPosition(sz + 5);
 
     EZ_TEST_BOOL(it.GetStart() == sz + 3);
     EZ_TEST_BOOL(it.GetData() == sz + 5);
@@ -37,7 +38,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringIterator)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator++")
   {
     const char* sz = "abcdefghijklmnopqrstuvwxyz";
-    ezStringIterator it(sz);
+    ezStringView it(sz);
 
     for (ezInt32 i = 0; i < 26; ++i)
     {
@@ -56,7 +57,8 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringIterator)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator--")
   {
     const char* sz = "abcdefghijklmnopqrstuvwxyz";
-    ezStringIterator it(sz, sz + 26, sz + 25);
+    ezStringView it(sz, sz + 26);
+    it.SetCurrentPosition(sz + 25);
 
     for (ezInt32 i = 25; i >= 0; --i)
     {
@@ -72,14 +74,14 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringIterator)
     EZ_TEST_BOOL(!it.IsValid());
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator==")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator== / operator!=")
   {
     ezString s1(L"abcdefghiäöüß€");
     ezString s2(L"ghiäöüß€abdef");
 
-    ezStringIterator it1 = s1.GetSubString(8, 4);
-    ezStringIterator it2 = s2.GetSubString(2, 4);
-    ezStringIterator it3 = s2.GetSubString(2, 5);
+    ezStringView it1 = s1.GetSubString(8, 4);
+    ezStringView it2 = s2.GetSubString(2, 4);
+    ezStringView it3 = s2.GetSubString(2, 5);
 
     EZ_TEST_BOOL(it1 == it2);
     EZ_TEST_BOOL(it1 != it3);
@@ -87,12 +89,25 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringIterator)
     EZ_TEST_BOOL(it1 == ezString(L"iäöü").GetData());
     EZ_TEST_BOOL(it2 == ezString(L"iäöü").GetData());
     EZ_TEST_BOOL(it3 == ezString(L"iäöüß").GetData());
+
+    s1 = "abcdefghijkl";
+    s2 = "oghijklm";
+
+    it1 = s1.GetSubString(6, 4);
+    it2 = s2.GetSubString(1, 4);
+    it3 = s2.GetSubString(1, 5);
+
+    EZ_TEST_BOOL(it1 == it2);
+    EZ_TEST_BOOL(it1 != it3);
+
+    EZ_TEST_BOOL(it1 == "ghij");
+    EZ_TEST_BOOL(it1 != "ghijk");
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator+=")
   {
     const char* sz = "abcdefghijklmnopqrstuvwxyz";
-    ezStringIterator it(sz);
+    ezStringView it(sz);
 
     for (ezInt32 i = 0; i < 26; i += 2)
     {
@@ -107,7 +122,8 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringIterator)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator-=")
   {
     const char* sz = "abcdefghijklmnopqrstuvwxyz";
-    ezStringIterator it(sz, sz + 26, sz + 25);
+    ezStringView it(sz, sz + 26);
+    it.SetCurrentPosition(sz + 25);
 
     for (ezInt32 i = 25; i >= 0; i -= 2)
     {
@@ -120,7 +136,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringIterator)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetCharacter")
   {
     ezStringUtf8 s(L"abcäöü€");
-    ezStringIterator it = ezStringIterator(s.GetData());
+    ezStringView it = ezStringView(s.GetData());
 
     EZ_TEST_INT(it.GetCharacter(), ezUnicodeUtils::ConvertUtf8ToUtf32(&s.GetData()[0])); ++it;
     EZ_TEST_INT(it.GetCharacter(), ezUnicodeUtils::ConvertUtf8ToUtf32(&s.GetData()[1])); ++it;
@@ -135,7 +151,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringIterator)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetElementCount")
   {
     ezStringUtf8 s(L"abcäöü€");
-    ezStringIterator it = ezStringIterator(s.GetData());
+    ezStringView it = ezStringView(s.GetData());
 
     EZ_TEST_INT(it.GetElementCount(), 12); ++it;    EZ_TEST_BOOL(it.IsValid());
     EZ_TEST_INT(it.GetElementCount(), 11); ++it;    EZ_TEST_BOOL(it.IsValid());
@@ -150,7 +166,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringIterator)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetCurrentPosition")
   {
     const char* sz = "abcdefghijklmnopqrstuvwxyz";
-    ezStringIterator it(sz);
+    ezStringView it(sz);
 
     for (ezInt32 i = 0; i < 26; ++i)
     {
@@ -171,21 +187,11 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringIterator)
     }
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsPureASCII")
-  {
-    const char* sz = "abcdefghijklmnopqrstuvwxyz";
-    ezStringIterator it(sz, true);
-    ezStringIterator it2(sz, false);
-
-    // there is no automatic detection for this in ezStringIterator (in ezString yes)
-    EZ_TEST_BOOL(it.IsPureASCII());
-    EZ_TEST_BOOL(!it2.IsPureASCII());
-  }
-
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetStart / GetEnd / GetData")
   {
     const char* sz = "abcdefghijklmnopqrstuvwxyz";
-    ezStringIterator it(sz + 7, sz + 19, sz + 13);
+    ezStringView it(sz + 7, sz + 19);
+    it.SetCurrentPosition(sz + 13);
 
     EZ_TEST_BOOL(it.GetStart() == sz + 7);
     EZ_TEST_BOOL(it.GetEnd() == sz + 19);
@@ -195,7 +201,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringIterator)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Shrink")
   {
     ezStringUtf8 s(L"abcäöü€def");
-    ezStringIterator it(s.GetData());
+    ezStringView it(s.GetData());
     it += 2;
 
     EZ_TEST_BOOL(it.GetStart() == &s.GetData()[0]);
@@ -242,7 +248,8 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringIterator)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ResetToFront")
   {
     const char* sz = "abcdefghijklmnopqrstuvwxyz";
-    ezStringIterator it(sz + 7, sz + 19, sz + 13);
+    ezStringView it(sz + 7, sz + 19);
+    it.SetCurrentPosition(sz + 13);
 
     EZ_TEST_BOOL(it.GetStart() == sz + 7);
     EZ_TEST_BOOL(it.GetEnd() == sz + 19);
@@ -263,7 +270,8 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringIterator)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ResetToBack")
   {
     const char* sz = "abcdefghijklmnopqrstuvwxyz";
-    ezStringIterator it(sz + 7, sz + 19, sz + 13);
+    ezStringView it(sz + 7, sz + 19);
+    it.SetCurrentPosition(sz + 13);
 
     EZ_TEST_BOOL(it.GetStart() == sz + 7);
     EZ_TEST_BOOL(it.GetEnd() == sz + 19);
