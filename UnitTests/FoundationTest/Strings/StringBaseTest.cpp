@@ -375,6 +375,45 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBase)
     EZ_TEST_BOOL(it != it3);
   }
 
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "substring operator ==/!=/</>/<=/>=")
+  {
+
+    const char* sz1 = "aaabbbcccddd";
+    const char* sz2 = "aaabbbdddeee";
+
+    ezStringView it1(sz1 + 3, sz1 + 6);
+    ezStringView it2(sz2 + 3, sz2 + 6);
+
+    EZ_TEST_BOOL(it1 == it1);
+    EZ_TEST_BOOL(it2 == it2);
+
+    EZ_TEST_BOOL(it1 == it2);
+    EZ_TEST_BOOL(!(it1 != it2));
+    EZ_TEST_BOOL(!(it1 < it2));
+    EZ_TEST_BOOL(!(it1 > it2));
+    EZ_TEST_BOOL(it1 <= it2);
+    EZ_TEST_BOOL(it1 >= it2);
+
+    it1 = ezStringView(sz1 + 3, sz1 + 7);
+    it2 = ezStringView(sz2 + 3, sz2 + 7);
+
+    EZ_TEST_BOOL(it1 == it1);
+    EZ_TEST_BOOL(it2 == it2);
+
+    EZ_TEST_BOOL(it1 != it2);
+    EZ_TEST_BOOL(!(it1 == it2));
+
+    EZ_TEST_BOOL(it1 < it2);
+    EZ_TEST_BOOL(!(it1 > it2));
+    EZ_TEST_BOOL(it1 <= it2);
+    EZ_TEST_BOOL(!(it1 >= it2));
+
+    EZ_TEST_BOOL(it2 > it1);
+    EZ_TEST_BOOL(!(it2 < it1));
+    EZ_TEST_BOOL(it2 >= it1);
+    EZ_TEST_BOOL(!(it2 <= it1));
+  }
+
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator</>")
   {
     const char* sz = "abcdef";
