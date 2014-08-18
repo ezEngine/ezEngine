@@ -353,6 +353,21 @@ void ezDequeBase<T, Construct>::SetCount(ezUInt32 uiCount)
 }
 
 template <typename T, bool Construct>
+EZ_FORCE_INLINE ezUInt32 ezDequeBase<T, Construct>::GetContiguousRange(ezUInt32 uiIndex) const
+{
+  EZ_ASSERT(uiIndex < m_uiCount, "The deque has %i elements. Cannot access element %i.", m_uiCount, uiIndex);
+
+  const ezUInt32 uiChunkSize = CHUNK_SIZE(T);
+
+  const ezUInt32 uiRealIndex   = m_uiFirstElement + uiIndex;
+  const ezUInt32 uiChunkOffset = uiRealIndex % uiChunkSize;
+
+  const ezUInt32 uiRange = uiChunkSize - uiChunkOffset;
+
+  return ezMath::Min(uiRange, GetCount() - uiIndex);
+}
+
+template <typename T, bool Construct>
 EZ_FORCE_INLINE T& ezDequeBase<T, Construct>::operator[](ezUInt32 uiIndex)
 {
   EZ_ASSERT(uiIndex < m_uiCount, "The deque has %i elements. Cannot access element %i.", m_uiCount, uiIndex);

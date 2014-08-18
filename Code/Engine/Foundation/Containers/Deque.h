@@ -141,6 +141,11 @@ public:
   /// \brief Returns the allocator that is used by this instance.
   ezAllocatorBase* GetAllocator() const { return m_pAllocator; }
 
+  /// \brief Returns the number of elements after uiStartIndex that are stored in contiguous memory.
+  ///
+  /// That means one can do a memcpy or memcmp from position uiStartIndex up until uiStartIndex + range.
+  ezUInt32 GetContiguousRange(ezUInt32 uiStartIndex) const;
+
 private:
 
   /// \brief A common constructor function.
