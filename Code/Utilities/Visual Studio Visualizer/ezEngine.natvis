@@ -9,7 +9,7 @@
 	</Type>
 	
 
-	<Type Name="ezStringIterator">
+	<Type Name="ezStringView">
 		<DisplayString>{m_pCurrent,s8}</DisplayString>
 		<StringView>m_pCurrent,s8</StringView>
 		
@@ -19,7 +19,6 @@
 			<Item Name="End">m_pEnd,s8</Item>
 			<Item Name="Current">m_pCurrent,s8</Item>
 			<Item Name="Valid">m_bValid</Item>
-			<Item Name="ASCII">m_bIsPureASCII</Item>
 		</Expand>
 	</Type>	
 	

@@ -29,14 +29,14 @@ How to access C strings
 -----------------------
 
 Working on Utf8 strings is difficult, as you usually want to work on a per-character basis, which does not have a 1:1 mapping to bytes, when the data is Utf8 encoded.
-To make this possible, use `ezStringIterator`.
+To make this possible, use `ezStringView`.
 
-`ezStringIterator` provides an interface on top of a char array, that allows to iterate forwards and backwards through a string on a per-character basis.
+`ezStringView` provides an interface on top of a char array, that allows to iterate forwards and backwards through a string on a per-character basis.
 You can access the current character and get it in Utf32 encoding. This can easily be compared with standard C++ char-constants like 'a', 'b', '\\', '\\n', '\0' etc.
 
-If you want to work on a per-character basis on a char that might be Utf8 encoded, you should always wrap it inside an `ezStringIterator` and then use the iterator instead of accessing the array directly. Note that it only provides read-access though, as you cannot modify a Utf8 string in place in all circumstances.
+If you want to work on a per-character basis on a char that might be Utf8 encoded, you should always wrap it inside an `ezStringView` and then use the iterator instead of accessing the array directly. Note that it only provides read-access though, as you cannot modify a Utf8 string in place in all circumstances.
 
-`ezStringIterator` also allows to only work on sub-strings of other strings, which can be used to implement parsing functions very efficiently.
+`ezStringView` also allows to only work on sub-strings of other strings, which can be used to implement parsing functions very efficiently.
 
 
 How to create and modify strings

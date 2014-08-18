@@ -8,6 +8,13 @@
 ///
 /// It can also be used to represent a sub-string of a larger string, as it can store a dedicated string end position.
 /// It derives from ezStringBase and thus provides a large set of functions for search and comparisons.
+///
+/// Attention: ezStringView does not store string data itself. It only stores pointers into memory. For example,
+/// when you get an ezStringView to an ezStringBuilder, the ezStringView instance will point to the exact same memory,
+/// enabling you to iterate over it (read-only).
+/// That means that an ezStringView is only valid as long as its source data is not modified. Once you make any kind
+/// of modification to the source data, you should not continue using the ezStringView to that data anymore,
+/// as it might now point into invalid memory.
 class EZ_FOUNDATION_DLL ezStringView : public ezStringBase<ezStringView>
 {
 public:
