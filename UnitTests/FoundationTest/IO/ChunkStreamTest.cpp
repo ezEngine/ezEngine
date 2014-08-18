@@ -1,9 +1,9 @@
 #include <PCH.h>
 #include <Foundation/Containers/Deque.h>
-#include <CoreUtils/DataStructures/ChunkFormat.h>
+#include <Foundation/IO/ChunkStream.h>
 #include <Foundation/IO/MemoryStream.h>
 
-EZ_CREATE_SIMPLE_TEST(DataStructures, ChunkFormat)
+EZ_CREATE_SIMPLE_TEST(IO, ChunkStream)
 {
   ezMemoryStreamStorage StreamStorage;
 
@@ -12,7 +12,7 @@ EZ_CREATE_SIMPLE_TEST(DataStructures, ChunkFormat)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Write Format")
   {
-    ezChunkFormatWriter writer(&MemoryWriter);
+    ezChunkStreamWriter writer(MemoryWriter);
 
     writer.BeginChunkFile();
 
@@ -52,7 +52,7 @@ EZ_CREATE_SIMPLE_TEST(DataStructures, ChunkFormat)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Read Format")
   {
-    ezChunkFormatReader reader(&MemoryReader);
+    ezChunkStreamReader reader(MemoryReader);
 
     reader.BeginChunkFile();
 
@@ -127,7 +127,7 @@ EZ_CREATE_SIMPLE_TEST(DataStructures, ChunkFormat)
 
     EZ_TEST_BOOL(!reader.GetCurrentChunk().m_bValid);
 
-    reader.EndChunkFile(ezChunkFormatReader::EndChunkFileMode::SkipToEnd);
+    reader.EndChunkFile(ezChunkStreamReader::EndChunkFileMode::SkipToEnd);
 
     ezUInt8 Temp[1024];
     EZ_TEST_INT(MemoryReader.ReadBytes(Temp, 1024), 0); // nothing left to read

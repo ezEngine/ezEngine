@@ -8,11 +8,11 @@
 ///
 /// This stream writer allows to subdivide a stream into chunks, where each chunk stores a chunk name, 
 /// version and size in bytes.
-class EZ_COREUTILS_DLL ezChunkFormatWriter : public ezStreamWriterBase
+class EZ_FOUNDATION_DLL ezChunkStreamWriter : public ezStreamWriterBase
 {
 public:
   /// \brief Pass the underlying stream writer to the constructor.
-  ezChunkFormatWriter(ezStreamWriterBase* pStream);
+  ezChunkStreamWriter(ezStreamWriterBase& stream);
 
   /// \brief Writes bytes directly to the stream. Only allowed when a chunk is open (between BeginChunk / EndChunk).
   virtual ezResult WriteBytes(const void* pWriteBuffer, ezUInt64 uiBytesToWrite) override;
@@ -35,18 +35,18 @@ private:
   bool m_bWritingChunk;
   ezString m_sChunkName;
   ezDeque<ezUInt8> m_Storage;
-  ezStreamWriterBase* m_pStream;
+  ezStreamWriterBase& m_Stream;
 };
 
 
-/// \brief Reader for the chunk format that ezChunkFormatWriter writes.
+/// \brief Reader for the chunk format that ezChunkStreamWriter writes.
 ///
 /// 
-class EZ_COREUTILS_DLL ezChunkFormatReader : public ezStreamReaderBase
+class EZ_FOUNDATION_DLL ezChunkStreamReader : public ezStreamReaderBase
 {
 public:
   /// \brief Pass the underlying stream writer to the constructor.
-  ezChunkFormatReader(ezStreamReaderBase* pStream);
+  ezChunkStreamReader(ezStreamReaderBase& stream);
 
   /// \brief Reads bytes directly from the stream. Only allowed while a valid chunk is available.
   /// Returns 0 bytes when the end of a chunk is reached, even if there are more chunks to come.
@@ -93,5 +93,5 @@ private:
 
   ChunkInfo m_ChunkInfo;
 
-  ezStreamReaderBase* m_pStream;
+  ezStreamReaderBase& m_Stream;
 };
