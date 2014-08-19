@@ -388,7 +388,7 @@ void AccessorPropertyTest(ezIReflectedTypeAccessor& accessor, const ezPropertyPa
   EZ_TEST_BOOL(newValue == defaultValue);
 }
 
-ezUInt32 AccessorPropertiesTest(ezIReflectedTypeAccessor& accessor, ezReflectedTypeHandle handle, ezPropertyPath& path = ezPropertyPath())
+ezUInt32 AccessorPropertiesTest(ezIReflectedTypeAccessor& accessor, ezReflectedTypeHandle handle, ezPropertyPath& path)
 {
   ezUInt32 uiPropertiesSet = 0;
   EZ_TEST_BOOL(!handle.IsInvalidated());
@@ -398,7 +398,7 @@ ezUInt32 AccessorPropertiesTest(ezIReflectedTypeAccessor& accessor, ezReflectedT
   // Call for base class
   if (!pType->GetParentTypeHandle().IsInvalidated())
   {
-    uiPropertiesSet += AccessorPropertiesTest(accessor, pType->GetParentTypeHandle());
+    uiPropertiesSet += AccessorPropertiesTest(accessor, pType->GetParentTypeHandle(), path);
   }
 
   // Test properties
@@ -431,7 +431,8 @@ ezUInt32 AccessorPropertiesTest(ezIReflectedTypeAccessor& accessor, ezReflectedT
 ezUInt32 AccessorPropertiesTest(ezIReflectedTypeAccessor& accessor)
 {
   ezReflectedTypeHandle handle = accessor.GetReflectedTypeHandle();
-  return AccessorPropertiesTest(accessor, handle);
+  ezPropertyPath path = ezPropertyPath();
+  return AccessorPropertiesTest(accessor, handle, path);
 }
 
 EZ_CREATE_SIMPLE_TEST(Reflection, ReflectedType)
@@ -507,3 +508,4 @@ EZ_CREATE_SIMPLE_TEST(Reflection, ReflectedType)
     EZ_TEST_INT(ezReflectedTypeManager::GetTypeCount(), 0);
   }
 }
+

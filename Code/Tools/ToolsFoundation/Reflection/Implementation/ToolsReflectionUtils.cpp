@@ -128,12 +128,12 @@ ezAbstractMemberProperty* ezToolsReflectionUtils::GetMemberPropertyByPath(const 
   for (ezUInt32 i = 1; i < uiPathSize; ++i)
   {
     if (pCurrentProp == nullptr)
-      return false;
+      return nullptr;
 
     inout_pRtti = pCurrentProp->GetPropertyType();
     inout_pData = pCurrentProp->GetPropertyPointer(inout_pData);
     if (inout_pData == nullptr)
-      return false;
+      return nullptr;
     
     pCurrentProp = ezReflectionUtils::GetMemberProperty(inout_pRtti, path[i]);
   }
