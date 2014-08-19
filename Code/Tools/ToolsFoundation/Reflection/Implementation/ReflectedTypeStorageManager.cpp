@@ -166,7 +166,7 @@ void ezReflectedTypeStorageManager::TypeAddedEvent(ezReflectedTypeChange& data)
   const ezReflectedType* pType = data.pNewType;
   EZ_ASSERT(pType != nullptr, "A type was added but it has an invalid handle!");
   ReflectedTypeStorageMapping* pMapping = EZ_DEFAULT_NEW(ReflectedTypeStorageMapping);
-  EZ_ASSERT(!m_ReflectedTypeToStorageMapping.Find(data.m_hType).IsValid(), "The type '%s' was added twice!", pType->GetTypeName());
+  EZ_ASSERT(!m_ReflectedTypeToStorageMapping.Find(data.m_hType).IsValid(), "The type '%s' was added twice!", pType->GetTypeName().GetString().GetData());
   pMapping->AddPropertiesRecursive(pType, "");
 
   m_ReflectedTypeToStorageMapping.Insert(data.m_hType, pMapping);
