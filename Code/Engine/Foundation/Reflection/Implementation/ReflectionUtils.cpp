@@ -34,6 +34,9 @@ ezVariant ezReflectionUtils::GetMemberPropertyValue(const ezAbstractMemberProper
 {
   if (pProp != nullptr)
   {
+    if (pProp->GetPropertyType() == ezGetStaticRTTI<const char*>())
+      return static_cast<const ezTypedMemberProperty<const char*>*>(pProp)->GetValue(pObject);
+ 
     GetValueFunc func;
     func.m_pProp = pProp;
     func.m_pObject = pObject;
@@ -50,6 +53,12 @@ void ezReflectionUtils::SetMemberPropertyValue(ezAbstractMemberProperty* pProp, 
 {
   if (pProp != nullptr)
   {
+    if (pProp->GetPropertyType() == ezGetStaticRTTI<const char*>())
+    {
+      static_cast<ezTypedMemberProperty<const char*>*>(pProp)->SetValue(pObject, value.Get<ezString>().GetData());
+      return;
+    }
+
     SetValueFunc func;
     func.m_pProp = pProp;
     func.m_pObject = pObject;

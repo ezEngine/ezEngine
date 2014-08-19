@@ -627,7 +627,8 @@ ENDMACRO()
 #########################################################################################
 ## Include directories
 
-include_directories ("${CMAKE_CURRENT_LIST_DIR}/../../Engine")   # this way it will also work for applications
+include_directories ("${CMAKE_CURRENT_LIST_DIR}/../../Engine")  # this way it will also work for applications
+include_directories ("${CMAKE_CURRENT_LIST_DIR}/../../Tools")
 include_directories ("${CMAKE_CURRENT_LIST_DIR}/../../../Projects")
 include_directories ("${CMAKE_CURRENT_LIST_DIR}/../../../Tools")
 include_directories ("${CMAKE_CURRENT_LIST_DIR}/../../../Samples")

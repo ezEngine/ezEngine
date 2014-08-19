@@ -47,7 +47,9 @@ public:
       VariantArray,       ///< The variant stores an array of ezVariant's. A heap allocation is required to store this data type.
       VariantDictionary,  ///< The variant stores a dictionary (hashmap) of ezVariant's. A heap allocation is required to store this data type.
       ReflectedPointer,   ///< The variant stores a pointer to a dynamically reflected object.
-      VoidPointer         ///< The variant stores a void pointer.      
+      VoidPointer,        ///< The variant stores a void pointer.
+      ENUM_COUNT,         ///< Number of values for ezVariant::Type.
+      DefaultInit = Invalid ///< Default value used by ezEnum.
     };
   };
 

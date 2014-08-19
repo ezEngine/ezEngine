@@ -1,6 +1,9 @@
 #include <Foundation/PCH.h>
 #include <Foundation/Reflection/Implementation/StandardTypes.h>
 #include <Foundation/Reflection/Reflection.h>
+#include <Foundation/Math/Mat3.h>
+#include <Foundation/Math/Mat4.h>
+#include <Foundation/Time/Time.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezReflectedClass, ezNoBase, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
@@ -44,6 +47,9 @@ EZ_END_STATIC_REFLECTED_TYPE();
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezConstCharPtr, ezNoBase, ezRTTINoAllocator);
 EZ_END_STATIC_REFLECTED_TYPE();
 
+EZ_BEGIN_STATIC_REFLECTED_TYPE(ezTime, ezNoBase, ezRTTINoAllocator);
+EZ_END_STATIC_REFLECTED_TYPE();
+
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezColor, ezNoBase, ezRTTINoAllocator);
   EZ_BEGIN_PROPERTIES
     EZ_MEMBER_PROPERTY("r", r),
@@ -83,6 +89,13 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezQuat, ezNoBase, ezRTTINoAllocator);
     EZ_MEMBER_PROPERTY("w", w)
   EZ_END_PROPERTIES
 EZ_END_STATIC_REFLECTED_TYPE();
+
+EZ_BEGIN_STATIC_REFLECTED_TYPE(ezMat3, ezNoBase, ezRTTINoAllocator);
+EZ_END_STATIC_REFLECTED_TYPE();
+
+EZ_BEGIN_STATIC_REFLECTED_TYPE(ezMat4, ezNoBase, ezRTTINoAllocator);
+EZ_END_STATIC_REFLECTED_TYPE();
+
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Reflection_Implementation_StandardTypes);
 
