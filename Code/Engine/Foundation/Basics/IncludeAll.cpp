@@ -43,6 +43,7 @@
 #include <Foundation/IO/Stream.h>
 #include <Foundation/IO/MemoryStream.h>
 #include <Foundation/IO/OSFile.h>
+#include <Foundation/IO/SerializationContext.h>
 
 #include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
 #include <Foundation/IO/FileSystem/FileReader.h>

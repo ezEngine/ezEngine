@@ -2,6 +2,46 @@
 #include <Foundation/Containers/Deque.h>
 #include <Foundation/IO/ChunkStream.h>
 #include <Foundation/IO/MemoryStream.h>
+#include <Foundation/IO/SerializationContext.h>
+
+class ezSomeSerializationObj
+{
+public:
+  ezSomeSerializationObj(ezInt32 val)
+  {
+    m_iData = val;
+  }
+
+  ezInt32 m_iData;
+};
+
+class ezSerializationContextTest : public ezSerializationContext<ezSerializationContextTest>
+{
+public:
+
+  void SetStream(ezStreamReaderBase& stream)
+  {
+    RegisterStream(&stream);
+  }
+
+  void SetStream(ezStreamWriterBase& stream)
+  {
+    RegisterStream(&stream);
+  }
+
+  void Read(ezStreamReaderBase& stream, ezSomeSerializationObj& obj)
+  {
+    stream >> obj.m_iData;
+  }
+
+  void Write(ezStreamWriterBase& stream, const ezSomeSerializationObj& obj)
+  {
+    stream << obj.m_iData;
+  }
+};
+
+EZ_ADD_SERIALIZATION_CONTEXT_OPERATORS(ezSerializationContextTest, ezSomeSerializationObj);
+
 
 EZ_CREATE_SIMPLE_TEST(IO, ChunkStream)
 {
@@ -10,9 +50,13 @@ EZ_CREATE_SIMPLE_TEST(IO, ChunkStream)
   ezMemoryStreamWriter MemoryWriter(&StreamStorage);
   ezMemoryStreamReader MemoryReader(&StreamStorage);
 
+  ezSerializationContextTest SerialContext;
+
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Write Format")
   {
     ezChunkStreamWriter writer(MemoryWriter);
+
+    SerialContext.SetStream(writer);
 
     writer.BeginChunkFile();
 
@@ -24,7 +68,7 @@ EZ_CREATE_SIMPLE_TEST(IO, ChunkStream)
       writer << (double) 7.8;
       writer << "nine";
       writer << ezVec3(10, 11.2f, 13.4f);
-      writer << (ezUInt32) 50;
+      writer << ezSomeSerializationObj(50);
 
       writer.EndChunk();
     }
@@ -33,7 +77,7 @@ EZ_CREATE_SIMPLE_TEST(IO, ChunkStream)
       writer.BeginChunk("Chunk2", 2);
 
       writer << "chunk 2 content";
-      writer << (ezUInt32) 60;
+      writer << ezSomeSerializationObj(60);
 
       writer.EndChunk();
     }
@@ -42,7 +86,7 @@ EZ_CREATE_SIMPLE_TEST(IO, ChunkStream)
       writer.BeginChunk("Chunk3", 3);
 
       writer << "chunk 3 content";
-      writer << (ezUInt32) 70;
+      writer << ezSomeSerializationObj(70);
 
       writer.EndChunk();
     }
@@ -53,6 +97,7 @@ EZ_CREATE_SIMPLE_TEST(IO, ChunkStream)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Read Format")
   {
     ezChunkStreamReader reader(MemoryReader);
+    SerialContext.SetStream(reader);
 
     reader.BeginChunkFile();
 
@@ -95,13 +140,13 @@ EZ_CREATE_SIMPLE_TEST(IO, ChunkStream)
       EZ_TEST_INT(reader.GetCurrentChunk().m_uiChunkBytes, 23);
 
       ezString s;
-      ezUInt32 i;
+      ezSomeSerializationObj i(0);
 
       reader >> s;
       reader >> i;
 
       EZ_TEST_STRING(s.GetData(), "chunk 2 content");
-      EZ_TEST_INT(i, 60);
+      EZ_TEST_INT(i.m_iData, 60);
 
       EZ_TEST_INT(reader.GetCurrentChunk().m_uiUnreadChunkBytes, 0);
       reader.NextChunk();
