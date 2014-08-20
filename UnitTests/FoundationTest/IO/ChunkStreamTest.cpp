@@ -21,12 +21,12 @@ public:
 
   void SetStream(ezStreamReaderBase& stream)
   {
-    RegisterStream(&stream);
+    RegisterReaderStream(&stream);
   }
 
   void SetStream(ezStreamWriterBase& stream)
   {
-    RegisterStream(&stream);
+    RegisterWriterStream(&stream);
   }
 
   void Read(ezStreamReaderBase& stream, ezSomeSerializationObj& obj)
