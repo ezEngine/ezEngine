@@ -30,6 +30,17 @@ EZ_END_SUBSYSTEM_DECLARATION
 // ezReflectedTypeStorageManager::ReflectedTypeStorageMapping public functions
 ////////////////////////////////////////////////////////////////////////
 
+void ezReflectedTypeStorageManager::ReflectedTypeStorageMapping::AddProperties(const ezReflectedType* pType)
+{
+  // Mark all properties as invalid. Thus, when a property is dropped we know it is no longer valid.
+  // All others will be set to their old or new value by the AddPropertiesRecursive function. 
+  for (auto it = m_PathToStorageInfoTable.GetIterator(); it.IsValid(); ++it)
+  {
+    it.Value().m_Type = ezVariant::Type::Invalid;
+  }
+  AddPropertiesRecursive(pType, "");
+}
+
 void ezReflectedTypeStorageManager::ReflectedTypeStorageMapping::AddPropertiesRecursive(const ezReflectedType* pType, const char* szPath)
 {
   // Parse parent class
@@ -167,18 +178,33 @@ void ezReflectedTypeStorageManager::TypeAddedEvent(ezReflectedTypeChange& data)
   EZ_ASSERT(pType != nullptr, "A type was added but it has an invalid handle!");
   ReflectedTypeStorageMapping* pMapping = EZ_DEFAULT_NEW(ReflectedTypeStorageMapping);
   EZ_ASSERT(!m_ReflectedTypeToStorageMapping.Find(data.m_hType).IsValid(), "The type '%s' was added twice!", pType->GetTypeName().GetString().GetData());
-  pMapping->AddPropertiesRecursive(pType, "");
+  pMapping->AddProperties(pType);
 
   m_ReflectedTypeToStorageMapping.Insert(data.m_hType, pMapping);
 }
 
 void ezReflectedTypeStorageManager::TypeChangedEvent(ezReflectedTypeChange& data)
 {
-  const ezReflectedType* pType = data.pNewType;
-  EZ_ASSERT(pType != nullptr, "A type was updated but its handle is invalid!");
+  const ezReflectedType* pNewType = data.pNewType;
+  EZ_ASSERT(pNewType != nullptr, "A type was updated but its handle is invalid!");
   ReflectedTypeStorageMapping* pMapping = m_ReflectedTypeToStorageMapping[data.m_hType];
   EZ_ASSERT(pMapping != nullptr, "A type was updated but no mapping exists for it!");
-  pMapping->AddPropertiesRecursive(pType, "");
+  pMapping->AddProperties(pNewType);
+
+  ezSet<ezReflectedTypeHandle> dependencies;
+  // Update all types that either derive from the changed type or have the type as a member.
+  for(auto it = m_ReflectedTypeToStorageMapping.GetIterator(); it.IsValid(); ++it)
+  {
+    if (it.Key() == data.m_hType)
+      continue;
+
+    const ezReflectedType* pType = it.Key().GetType();
+    // Check whether the changed type comes up in the transitive dependency list.
+    // If that is the case we need to update this type as well.
+    pType->GetDependencies(dependencies, true);
+    if (dependencies.Find(data.m_hType).IsValid())
+      it.Value()->AddProperties(pType);
+  }
 }
 
 void ezReflectedTypeStorageManager::TypeRemovedEvent(ezReflectedTypeChange& data)

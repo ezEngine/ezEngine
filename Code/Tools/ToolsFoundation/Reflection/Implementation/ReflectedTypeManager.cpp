@@ -32,10 +32,8 @@ EZ_END_SUBSYSTEM_DECLARATION
 // ezReflectedTypeManager public functions
 ////////////////////////////////////////////////////////////////////////
 
-ezReflectedTypeHandle ezReflectedTypeManager::RegisterType(ezReflectedTypeDescriptor& desc)
+ezReflectedTypeHandle ezReflectedTypeManager::RegisterType(const ezReflectedTypeDescriptor& desc)
 {
-  EZ_ASSERT(m_NameToHandle.KeyExists(desc.m_sTypeName.GetData()) == false, "ezReflectedTypeManager::RegisterType: Updating of types not implemented yet!");
-  
   ezReflectedType* pType;
   if (ezStringUtils::IsNullOrEmpty(desc.m_sParentTypeName.GetData()))
   {
@@ -43,8 +41,10 @@ ezReflectedTypeHandle ezReflectedTypeManager::RegisterType(ezReflectedTypeDescri
   }
   else
   {
-    EZ_ASSERT(m_NameToHandle.KeyExists(desc.m_sParentTypeName.GetData()) == true, "ezReflectedTypeManager::RegisterType: Can't register a type to which the parent type is not known yet!");
-    pType = EZ_DEFAULT_NEW(ezReflectedType)(desc.m_sTypeName.GetData(), desc.m_sPluginName.GetData(), m_NameToHandle[desc.m_sParentTypeName.GetData()]);
+    ezReflectedTypeHandle hParent = GetTypeHandleByName(desc.m_sParentTypeName.GetData());
+    EZ_ASSERT(!hParent.IsInvalidated(), "ezReflectedTypeManager::RegisterType: Can't register a type to which the parent type is not known yet!");
+    pType = EZ_DEFAULT_NEW(ezReflectedType)(desc.m_sTypeName.GetData(), desc.m_sPluginName.GetData(), hParent);
+    pType->m_Dependencies.Insert(hParent);
   }
 
   // Convert properties
@@ -53,31 +53,57 @@ ezReflectedTypeHandle ezReflectedTypeManager::RegisterType(ezReflectedTypeDescri
 
   for (ezUInt32 i = 0; i < iCount; i++)
   {
-    ezReflectedPropertyDescriptor& propDesc = desc.m_Properties[i];
+    const ezReflectedPropertyDescriptor& propDesc = desc.m_Properties[i];
     if (propDesc.m_Type != ezVariant::Type::Invalid)
     {
       pType->m_Properties.PushBack(ezReflectedProperty(propDesc.m_sName.GetData(), propDesc.m_Type, propDesc.m_Flags));
     }
     else
     {
-      EZ_ASSERT(m_NameToHandle.KeyExists(propDesc.m_sType.GetData()) == true, "ezReflectedTypeManager::RegisterType: Can't register a type to which a property's type is not known yet!");
-      pType->m_Properties.PushBack(ezReflectedProperty(propDesc.m_sName.GetData(), m_NameToHandle[propDesc.m_sType.GetData()], propDesc.m_Flags));
+      ezReflectedTypeHandle hProp = GetTypeHandleByName(propDesc.m_sType.GetData());
+      EZ_ASSERT(!hProp.IsInvalidated(), "ezReflectedTypeManager::RegisterType: Can't register a type to which a property's type is not known yet!");
+      pType->m_Properties.PushBack(ezReflectedProperty(propDesc.m_sName.GetData(), hProp, propDesc.m_Flags));
+      pType->m_Dependencies.Insert(hProp);
     }
   }
   pType->RegisterProperties();
 
   // Register finished Type
-  ezReflectedTypeHandle hType = m_Types.Insert(pType);
-  m_NameToHandle.Insert(pType->GetTypeName().GetString().GetData(), hType);
-  pType->m_hType = hType;
-
+  ezReflectedTypeHandle hType = GetTypeHandleByName(desc.m_sTypeName.GetData());
+  if (!hType.IsInvalidated())
   {
-    ezReflectedTypeChange msg;
-    msg.m_hType = hType;
-    msg.pOldType = nullptr;
-    msg.pNewType = pType;
-    m_TypeAddedEvent.Broadcast(msg);
+    // Type already present, swap type definition and broadcast changed event.
+    pType->m_hType = hType;
+    ezReflectedType* pOldType = m_Types[hType];
+    m_Types[hType] = pType;
+
+    {
+      ezReflectedTypeChange msg;
+      msg.m_hType = hType;
+      msg.pOldType = pOldType;
+      msg.pNewType = pType;
+      m_TypeChangedEvent.Broadcast(msg);
+    }
+
+    EZ_DEFAULT_DELETE(pOldType);
   }
+  else
+  {
+    // Type is new, add and broadcast added event.
+    hType = m_Types.Insert(pType);
+    m_NameToHandle.Insert(pType->GetTypeName().GetString().GetData(), hType);
+    pType->m_hType = hType;
+
+    {
+      ezReflectedTypeChange msg;
+      msg.m_hType = hType;
+      msg.pOldType = nullptr;
+      msg.pNewType = pType;
+      m_TypeAddedEvent.Broadcast(msg);
+    }
+  }
+
+
 
   return hType;
 }

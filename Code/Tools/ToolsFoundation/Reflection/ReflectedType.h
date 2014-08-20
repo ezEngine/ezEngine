@@ -7,13 +7,15 @@
 #include <Foundation/Basics/Types/Id.h>
 #include <Foundation/Strings/HashedString.h>
 #include <Foundation/Reflection/Reflection.h>
+#include <Foundation/Containers/Set.h>
 
 class ezReflectedType;
 class ezReflectedTypeManager;
 class ezReflectedTypeStorageManager;
 
 /// \brief A path of property names to the POD data type that is to be set / get inside ezIReflectedTypeAccessor.
-typedef ezHybridArray<const char*, 8> ezPropertyPath;
+typedef ezHybridArray<const char*, 6> ezPropertyPath;
+
 
 typedef ezGenericId<24, 8> ezReflectedTypeId;
 
@@ -93,6 +95,8 @@ public:
   const ezReflectedProperty* GetPropertyByIndex(ezUInt32 uiIndex) const; // [tested]
   const ezReflectedProperty* GetPropertyByName(const char* szPropertyName) const; // [tested]
 
+  void GetDependencies(ezSet<ezReflectedTypeHandle>& out_dependencies, bool bTransitive = false) const;
+
 private:
   EZ_DISALLOW_COPY_AND_ASSIGN(ezReflectedType);
   ezReflectedType(const char* szTypeName, const char* szPluginName, ezReflectedTypeHandle hParentType);
@@ -106,5 +110,6 @@ private:
 
   ezDynamicArray<ezReflectedProperty> m_Properties;
   ezHashTable<const char*, ezUInt32> m_NameToIndex;
+  ezSet<ezReflectedTypeHandle> m_Dependencies;
 };
 

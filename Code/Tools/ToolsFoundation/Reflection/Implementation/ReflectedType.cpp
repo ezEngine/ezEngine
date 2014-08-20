@@ -68,6 +68,41 @@ const ezReflectedProperty* ezReflectedType::GetPropertyByName(const char* szProp
   return nullptr;
 }
 
+void ezReflectedType::GetDependencies(ezSet<ezReflectedTypeHandle>& out_dependencies, bool bTransitive) const
+{
+  out_dependencies.Clear();
+  out_dependencies = m_Dependencies;
+
+  if (!bTransitive)
+    return;
+
+  ezDeque<ezReflectedTypeHandle> queue;
+
+  for (auto it = m_Dependencies.GetIterator(); it.IsValid(); ++it)
+  {
+    queue.PushBack(it.Key());
+  }
+
+  while (!queue.IsEmpty())
+  {
+    ezReflectedTypeHandle handle = queue.PeekFront();
+    queue.PopFront();
+
+    const ezReflectedType* pType = handle.GetType();
+    EZ_ASSERT(pType != nullptr, "A dependency could not be resolved to an actual type!");
+    for (auto it = pType->m_Dependencies.GetIterator(); it.IsValid(); ++it)
+    {
+      if (!out_dependencies.Find(it.Key()).IsValid())
+      {
+        // Dependency is new, add to both queue and set.
+        queue.PushBack(it.Key());
+        out_dependencies.Insert(it.Key());
+      }
+    }
+  }
+  
+}
+
 
 ////////////////////////////////////////////////////////////////////////
 // ezReflectedType public functions

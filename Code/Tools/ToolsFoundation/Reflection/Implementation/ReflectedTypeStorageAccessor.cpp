@@ -47,6 +47,9 @@ const ezVariant ezReflectedTypeStorageAccessor::GetValue(const ezPropertyPath& p
   ezReflectedTypeStorageManager::ReflectedTypeStorageMapping::StorageInfo* storageInfo = nullptr;
   if (m_pMapping->m_PathToStorageInfoTable.TryGetValue(ezString(pathBuilder.GetData()), storageInfo))
   {
+    if (storageInfo->m_Type == ezVariant::Type::Invalid)
+      return ezVariant();
+
     return m_Data[storageInfo->m_uiIndex];
   }
   return ezVariant();

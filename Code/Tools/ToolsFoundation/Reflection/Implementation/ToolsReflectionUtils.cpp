@@ -117,6 +117,22 @@ void ezToolsReflectionUtils::GetReflectedTypeDescriptorFromRtti(const ezRTTI* pR
   }
 }
 
+ezPropertyPath ezToolsReflectionUtils::CreatePropertyPath(const char* pData1, const char* pData2, const char* pData3, const char* pData4, const char* pData5, const char* pData6)
+{
+  const ezUInt32 uiMaxParams = 6;
+  const char* pStrings[uiMaxParams] = { pData1, pData2, pData3, pData4, pData5, pData6 };
+  ezUInt32 uiUsedParams = 0;
+  for (ezUInt32 i = 0; i < uiMaxParams; ++i)
+  {
+    if (ezStringUtils::IsNullOrEmpty(pStrings[i]))
+      break;
+
+    uiUsedParams++;
+  }
+
+  return ezPropertyPath(ezArrayPtr<const char*>(pStrings, uiUsedParams));
+}
+
 ezAbstractMemberProperty* ezToolsReflectionUtils::GetMemberPropertyByPath(const ezRTTI*& inout_pRtti, void*& inout_pData, const ezPropertyPath& path)
 {
   EZ_ASSERT(path.GetCount() > 0, "ezReflectedTypeDirectAccessor: the given property path is empty!");

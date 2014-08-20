@@ -509,3 +509,183 @@ EZ_CREATE_SIMPLE_TEST(Reflection, ReflectedType)
   }
 }
 
+
+struct InnerStruct
+{
+public:
+  float m_fP1;
+};
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, InnerStruct);
+
+EZ_BEGIN_STATIC_REFLECTED_TYPE(InnerStruct, ezNoBase, ezRTTINoAllocator);
+  EZ_BEGIN_PROPERTIES
+    EZ_MEMBER_PROPERTY("IP1", m_fP1),
+  EZ_END_PROPERTIES
+EZ_END_STATIC_REFLECTED_TYPE();
+
+
+class OuterClass : public ezReflectedClass
+{
+  EZ_ADD_DYNAMIC_REFLECTION(OuterClass);
+
+public:
+  InnerStruct m_Inner1;
+  float m_fP1;
+};
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(OuterClass, ezReflectedClass, ezRTTIDefaultAllocator<OuterClass>);
+  EZ_BEGIN_PROPERTIES
+    EZ_MEMBER_PROPERTY("Inner", m_Inner1),
+    EZ_MEMBER_PROPERTY("OP1", m_fP1),
+  EZ_END_PROPERTIES
+EZ_END_DYNAMIC_REFLECTED_TYPE();
+
+
+EZ_CREATE_SIMPLE_TEST(Reflection, ReflectedTypeReloading)
+{
+  const ezRTTI* pRttiInner = ezRTTI::FindTypeByName("InnerStruct");
+  ezReflectedTypeHandle InnerHandle;
+  ezReflectedTypeDescriptor descInner;
+
+  const ezRTTI* pRttiOuter = ezRTTI::FindTypeByName("OuterClass");
+  ezReflectedTypeHandle OuterHandle;
+  ezReflectedTypeDescriptor descOuter;
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "RegisterType")
+  {
+    const ezRTTI* pRttiBase = ezRTTI::FindTypeByName("ezReflectedClass");
+    RegisterTypeViaRtti(pRttiBase);
+
+    EZ_TEST_BOOL(pRttiInner != nullptr);
+    ezToolsReflectionUtils::GetReflectedTypeDescriptorFromRtti(pRttiInner, descInner);
+    InnerHandle = ezReflectedTypeManager::RegisterType(descInner);
+    EZ_TEST_BOOL(!InnerHandle.IsInvalidated());
+
+    EZ_TEST_BOOL(pRttiOuter != nullptr);
+    ezToolsReflectionUtils::GetReflectedTypeDescriptorFromRtti(pRttiOuter, descOuter);
+    OuterHandle = ezReflectedTypeManager::RegisterType(descOuter);
+    EZ_TEST_BOOL(!OuterHandle.IsInvalidated());
+  }
+
+  ezReflectedTypeStorageAccessor innerAccessor(InnerHandle);
+  ezReflectedTypeStorageAccessor outerAccessor(OuterHandle);
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetValues")
+  {
+    // Just set a few values to make sure they don't get messed up by the following operations.
+    ezPropertyPath path = ezToolsReflectionUtils::CreatePropertyPath("IP1");
+    EZ_TEST_BOOL(innerAccessor.SetValue(path, 1.4f));
+
+    path = ezToolsReflectionUtils::CreatePropertyPath("OP1");
+    EZ_TEST_BOOL(outerAccessor.SetValue(path, 0.9f));
+    path = ezToolsReflectionUtils::CreatePropertyPath("Inner", "IP1");
+    EZ_TEST_BOOL(outerAccessor.SetValue(path, 1.4f));
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "AddProperty")
+  {
+    // Say we reload the engine and the InnerStruct now has a second property: IP2.
+    descInner.m_Properties.PushBack(ezReflectedPropertyDescriptor("IP2", ezVariant::Type::Vector4, PropertyFlags::IsPOD));
+    ezReflectedTypeHandle NewInnerHandle = ezReflectedTypeManager::RegisterType(descInner);
+    EZ_TEST_BOOL(NewInnerHandle == InnerHandle);
+
+    // Check that the new property is present.
+    ezPropertyPath path = ezToolsReflectionUtils::CreatePropertyPath("IP2");
+    AccessorPropertyTest(innerAccessor, path, ezVariant::Type::Vector4);
+
+    path = ezToolsReflectionUtils::CreatePropertyPath("Inner", "IP2");
+    AccessorPropertyTest(outerAccessor, path, ezVariant::Type::Vector4);
+
+    // Test that the old properties are still valid.
+    path = ezToolsReflectionUtils::CreatePropertyPath("IP1");
+    EZ_TEST_BOOL(innerAccessor.GetValue(path) == 1.4f);
+
+    path = ezToolsReflectionUtils::CreatePropertyPath("OP1");
+    EZ_TEST_BOOL(outerAccessor.GetValue(path) == 0.9f);
+    path = ezToolsReflectionUtils::CreatePropertyPath("Inner", "IP1");
+    EZ_TEST_BOOL(outerAccessor.GetValue(path) == 1.4f);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ChangeProperty")
+  {
+    // Out original inner float now is a Int32!
+    descInner.m_Properties[0].m_Type = ezVariant::Type::Int32;
+    ezReflectedTypeHandle NewInnerHandle = ezReflectedTypeManager::RegisterType(descInner);
+    EZ_TEST_BOOL(NewInnerHandle == InnerHandle);
+
+    // Test if the previous value was converted correctly to its new type.
+    ezPropertyPath path = ezToolsReflectionUtils::CreatePropertyPath("IP1");
+    ezVariant innerValue = innerAccessor.GetValue(path);
+    EZ_TEST_BOOL(innerValue.IsValid());
+    EZ_TEST_BOOL(innerValue.GetType() == ezVariant::Type::Int32);
+    EZ_TEST_INT(innerValue.Get<ezInt32>(), 1);
+
+    path = ezToolsReflectionUtils::CreatePropertyPath("Inner", "IP1");
+    ezVariant outerValue = outerAccessor.GetValue(path);
+    EZ_TEST_BOOL(outerValue.IsValid());
+    EZ_TEST_BOOL(outerValue.GetType() == ezVariant::Type::Int32);
+    EZ_TEST_INT(outerValue.Get<ezInt32>(), 1);
+
+    // Test that the old properties are still valid.
+    path = ezToolsReflectionUtils::CreatePropertyPath("OP1");
+    EZ_TEST_BOOL(outerAccessor.GetValue(path) == 0.9f);
+
+    path = ezToolsReflectionUtils::CreatePropertyPath("IP2");
+    AccessorPropertyTest(innerAccessor, path, ezVariant::Type::Vector4);
+
+    path = ezToolsReflectionUtils::CreatePropertyPath("Inner", "IP2");
+    AccessorPropertyTest(outerAccessor, path, ezVariant::Type::Vector4);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "DeleteProperty")
+  {
+    // Lets now delete the original inner property IP1.
+    descInner.m_Properties.RemoveAt(0);
+    ezReflectedTypeHandle NewInnerHandle = ezReflectedTypeManager::RegisterType(descInner);
+    EZ_TEST_BOOL(NewInnerHandle == InnerHandle);
+
+    // Check that IP1 is really gone.
+    ezPropertyPath path = ezToolsReflectionUtils::CreatePropertyPath("IP1");
+    EZ_TEST_BOOL(!innerAccessor.GetValue(path).IsValid());
+
+    path = ezToolsReflectionUtils::CreatePropertyPath("Inner", "IP1");
+    EZ_TEST_BOOL(!outerAccessor.GetValue(path).IsValid());
+
+    // Test that the old properties are still valid.
+    path = ezToolsReflectionUtils::CreatePropertyPath("OP1");
+    EZ_TEST_BOOL(outerAccessor.GetValue(path) == 0.9f);
+
+    path = ezToolsReflectionUtils::CreatePropertyPath("IP2");
+    AccessorPropertyTest(innerAccessor, path, ezVariant::Type::Vector4);
+
+    path = ezToolsReflectionUtils::CreatePropertyPath("Inner", "IP2");
+    AccessorPropertyTest(outerAccessor, path, ezVariant::Type::Vector4);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "RevertProperties")
+  {
+    // Reset all classes to their initial state.
+    ezToolsReflectionUtils::GetReflectedTypeDescriptorFromRtti(pRttiInner, descInner);
+    ezReflectedTypeManager::RegisterType(descInner);
+
+    ezToolsReflectionUtils::GetReflectedTypeDescriptorFromRtti(pRttiOuter, descOuter);
+    ezReflectedTypeManager::RegisterType(descOuter);
+
+    // Test that the old properties are back again.
+    ezPropertyPath path = ezToolsReflectionUtils::CreatePropertyPath("IP1");
+    ezVariant innerValue = innerAccessor.GetValue(path);
+    EZ_TEST_BOOL(innerValue.IsValid());
+    EZ_TEST_BOOL(innerValue.GetType() == ezVariant::Type::Float);
+    EZ_TEST_FLOAT(innerValue.Get<float>(), 1.0f, 0.0f);
+
+    path = ezToolsReflectionUtils::CreatePropertyPath("Inner", "IP1");
+    ezVariant outerValue = outerAccessor.GetValue(path);
+    EZ_TEST_BOOL(outerValue.IsValid());
+    EZ_TEST_BOOL(outerValue.GetType() == ezVariant::Type::Float);
+    EZ_TEST_FLOAT(outerValue.Get<float>(), 1.0f, 0.0f);
+
+    path = ezToolsReflectionUtils::CreatePropertyPath("OP1");
+    EZ_TEST_BOOL(outerAccessor.GetValue(path) == 0.9f);
+  }
+}
