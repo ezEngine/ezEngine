@@ -46,7 +46,7 @@ private:
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezIntegerStruct);
 
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezIntegerStruct, ezNoBase, ezRTTINoAllocator);
+EZ_BEGIN_STATIC_REFLECTED_TYPE(ezIntegerStruct, ezNoBase, 1, ezRTTINoAllocator);
   EZ_BEGIN_PROPERTIES
     EZ_ACCESSOR_PROPERTY("Int8", GetInt8, SetInt8),
     EZ_ACCESSOR_PROPERTY("UInt8", GetUInt8, SetUInt8),
@@ -86,7 +86,7 @@ private:
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezFloatStruct);
 
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezFloatStruct, ezNoBase, ezRTTINoAllocator);
+EZ_BEGIN_STATIC_REFLECTED_TYPE(ezFloatStruct, ezNoBase, 1, ezRTTINoAllocator);
   EZ_BEGIN_PROPERTIES
     EZ_ACCESSOR_PROPERTY("Float", GetFloat, SetFloat),
     EZ_ACCESSOR_PROPERTY("Double", GetDouble, SetDouble),
@@ -124,7 +124,7 @@ private:
   ezString m_sString;
 };
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPODClass, ezReflectedClass, ezRTTIDefaultAllocator<ezPODClass>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezPODClass, ezReflectedClass, 1, ezRTTIDefaultAllocator<ezPODClass>);
   EZ_BEGIN_PROPERTIES
     EZ_MEMBER_PROPERTY("Integer", m_IntegerStruct),
     EZ_MEMBER_PROPERTY("Float", m_FloatStruct),
@@ -171,7 +171,7 @@ private:
   ezMat4 m_Mat4;
 };
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMathClass, ezPODClass, ezRTTIDefaultAllocator<ezMathClass>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMathClass, ezPODClass, 1, ezRTTIDefaultAllocator<ezMathClass>);
   EZ_BEGIN_PROPERTIES
     EZ_ACCESSOR_PROPERTY("Vec2", GetVec2, SetVec2),
     EZ_ACCESSOR_PROPERTY("Vec3", GetVec3, SetVec3),
@@ -518,7 +518,7 @@ public:
 
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, InnerStruct);
 
-EZ_BEGIN_STATIC_REFLECTED_TYPE(InnerStruct, ezNoBase, ezRTTINoAllocator);
+EZ_BEGIN_STATIC_REFLECTED_TYPE(InnerStruct, ezNoBase, 1, ezRTTINoAllocator);
   EZ_BEGIN_PROPERTIES
     EZ_MEMBER_PROPERTY("IP1", m_fP1),
   EZ_END_PROPERTIES
@@ -534,7 +534,7 @@ public:
   float m_fP1;
 };
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(OuterClass, ezReflectedClass, ezRTTIDefaultAllocator<OuterClass>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(OuterClass, ezReflectedClass, 1, ezRTTIDefaultAllocator<OuterClass>);
   EZ_BEGIN_PROPERTIES
     EZ_MEMBER_PROPERTY("Inner", m_Inner1),
     EZ_MEMBER_PROPERTY("OP1", m_fP1),

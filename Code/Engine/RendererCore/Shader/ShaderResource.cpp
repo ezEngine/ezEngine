@@ -3,7 +3,7 @@
 #include <RendererCore/Shader/Helper.h>
 #include <Foundation/Logging/Log.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezShaderResource, ezResourceBase, ezRTTIDefaultAllocator<ezShaderResource>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezShaderResource, ezResourceBase, 1, ezRTTIDefaultAllocator<ezShaderResource>);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 ezShaderResource::ezShaderResource()

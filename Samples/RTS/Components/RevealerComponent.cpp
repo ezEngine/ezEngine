@@ -4,7 +4,7 @@
 #include <Foundation/Time/Stopwatch.h>
 #include <RTS/Level.h>
 
-EZ_BEGIN_COMPONENT_TYPE(RevealerComponent, ezComponent, RevealerComponentManager);
+EZ_BEGIN_COMPONENT_TYPE(RevealerComponent, ezComponent, 1, RevealerComponentManager);
 EZ_END_COMPONENT_TYPE();
 
 float RevealerComponent::g_fDefaultRadius = 15.0f;

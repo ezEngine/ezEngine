@@ -109,11 +109,11 @@ private:
 /// \brief Implements rtti and component specific functionality. Add this macro to a cpp file.
 ///
 /// \see EZ_BEGIN_DYNAMIC_REFLECTED_TYPE
-#define EZ_BEGIN_COMPONENT_TYPE(componentType, baseType, managerType) \
+#define EZ_BEGIN_COMPONENT_TYPE(componentType, baseType, version, managerType) \
   ezUInt16 componentType::TYPE_ID = ezComponent::GetNextTypeId(); \
   ezComponentHandle componentType::GetHandle() const { return ezComponent::GetHandle<componentType>(); } \
   managerType* componentType::GetManager() const { return static_cast<managerType*>(ezComponent::GetManager()); } \
-  EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(componentType, baseType, ezRTTINoAllocator);
+  EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(componentType, baseType, version, ezRTTINoAllocator);
 
 /// \brief Ends the component implementation code block that was opened with EZ_BEGIN_COMPONENT_TYPE.
 #define EZ_END_COMPONENT_TYPE EZ_END_DYNAMIC_REFLECTED_TYPE

@@ -47,7 +47,7 @@ public:
   ezInt32 m_iValue;
 };
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(BaseHandler, ezReflectedClass, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(BaseHandler, ezReflectedClass, 1, ezRTTINoAllocator);
   EZ_BEGIN_MESSAGEHANDLERS
     EZ_MESSAGE_HANDLER(AddMessage, OnAddMessage),
     EZ_MESSAGE_HANDLER(MulMessage, OnMulMessage)
@@ -70,7 +70,7 @@ public:
   }
 };
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(DerivedHandler, BaseHandler, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(DerivedHandler, BaseHandler, 1, ezRTTINoAllocator);
   EZ_BEGIN_MESSAGEHANDLERS
     EZ_MESSAGE_HANDLER(AddMessage, OnAddMessage),
     EZ_MESSAGE_HANDLER(SubMessage, OnSubMessage)

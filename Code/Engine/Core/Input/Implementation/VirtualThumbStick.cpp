@@ -3,7 +3,7 @@
 #include <Core/Input/InputManager.h>
 #include <Foundation/Strings/StringBuilder.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVirtualThumbStick, ezInputDevice, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezVirtualThumbStick, ezInputDevice, 1, ezRTTINoAllocator);
   // no properties or message handlers
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 

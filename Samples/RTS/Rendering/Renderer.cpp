@@ -8,7 +8,7 @@
 #include <gl/GL.h>
 #include <gl/glu.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ColorResource, ezResourceBase, ezRTTIDefaultAllocator<ColorResource>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ColorResource, ezResourceBase, 1, ezRTTIDefaultAllocator<ColorResource>);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 #include <RendererGL/Device/DeviceGL.h>

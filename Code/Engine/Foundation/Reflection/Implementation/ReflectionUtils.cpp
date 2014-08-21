@@ -36,7 +36,7 @@ ezVariant ezReflectionUtils::GetMemberPropertyValue(const ezAbstractMemberProper
   {
     if (pProp->GetPropertyType() == ezGetStaticRTTI<const char*>())
       return static_cast<const ezTypedMemberProperty<const char*>*>(pProp)->GetValue(pObject);
- 
+
     GetValueFunc func;
     func.m_pProp = pProp;
     func.m_pObject = pObject;
@@ -94,7 +94,92 @@ ezAbstractMemberProperty* ezReflectionUtils::GetMemberProperty(const ezRTTI* pRt
     if (pProp->GetCategory() == ezAbstractProperty::Member)
       return static_cast<ezAbstractMemberProperty*>(pProp);
   }
-  
-  return nullptr;  
+
+  return nullptr;
 }
 
+ezUInt32 ezReflectedClassSerializationContext::GetStoredTypeVersion(const ezRTTI* pRtti) const
+{
+  auto it = m_Read.Find(pRtti);
+
+  EZ_VERIFY(it.IsValid(), "The version for type '%s' has not (yet) been read from the stream.", pRtti->GetTypeName());
+
+  return it.Value();
+}
+
+void ezReflectedClassSerializationContext::WriteRttiVersion(ezStreamWriterBase& stream, const ezRTTI* pRtti)
+{
+  if (!m_Written.Find(pRtti).IsValid())
+  {
+    ezUInt8 uiUnknown = 1;
+
+    const ezRTTI* pBaseRtti = pRtti->GetParentType();
+
+    // count the number of not-yet-written base class types
+    while (pBaseRtti && !m_Written.Find(pBaseRtti).IsValid())
+    {
+      ++uiUnknown;
+      pBaseRtti = pBaseRtti->GetParentType();
+    }
+
+    // write the number of types
+    stream << uiUnknown;
+
+    pBaseRtti = pRtti;
+
+    // write all base types
+    for (ezUInt32 i = 0; i < uiUnknown; ++i)
+    {
+      // now we know...
+      m_Written.Insert(pBaseRtti);
+
+      stream << pBaseRtti->GetTypeName();
+      stream << pBaseRtti->GetTypeVersion();
+
+      pBaseRtti = pBaseRtti->GetParentType();
+    }
+  }
+
+}
+
+void ezReflectedClassSerializationContext::ReadRttiVersion(ezStreamReaderBase& stream, const ezRTTI* pRtti)
+{
+  if (!m_Read.Find(pRtti).IsValid())
+  {
+    ezUInt8 uiUnknown = 0;
+
+    stream >> uiUnknown;
+
+    ezString sTypeName;
+
+    // read all base types
+    for (ezUInt32 i = 0; i < uiUnknown; ++i)
+    {
+      ezUInt32 uiVersion = 0;
+
+      stream >> sTypeName;
+      stream >> uiVersion;
+
+      const ezRTTI* pRtti = ezRTTI::FindTypeByName(sTypeName.GetData());
+
+      EZ_VERIFY(pRtti != nullptr, "File contains unknown RTTI type '%s'", sTypeName.GetData());
+
+      // now we know...
+      m_Read[pRtti] = uiVersion;
+    }
+  }
+}
+
+void ezReflectedClassSerializationContext::Write(ezStreamWriterBase& stream, const ezReflectedClass& Type)
+{
+  WriteRttiVersion(stream, Type.GetDynamicRTTI());
+
+  Type.Serialize(stream, *this);
+}
+
+void ezReflectedClassSerializationContext::Read(ezStreamReaderBase& stream, ezReflectedClass& Type)
+{
+  ReadRttiVersion(stream, Type.GetDynamicRTTI());
+
+  Type.Deserialize(stream, *this);
+}

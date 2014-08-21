@@ -6,7 +6,7 @@
 #include <Foundation/Time/Stopwatch.h>
 #include <RTS/Level.h>
 
-EZ_BEGIN_COMPONENT_TYPE(UnitComponent, ezComponent, UnitComponentManager);
+EZ_BEGIN_COMPONENT_TYPE(UnitComponent, ezComponent, 1, UnitComponentManager);
 EZ_END_COMPONENT_TYPE();
 
 ezCVarFloat CVarUnitSpeed("ai_UnitSpeed", 10.0f, ezCVarFlags::Save, "How fast units move.");

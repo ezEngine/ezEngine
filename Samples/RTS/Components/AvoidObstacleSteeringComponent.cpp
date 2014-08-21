@@ -2,7 +2,7 @@
 #include <RTS/Components/AvoidObstacleSteeringComponent.h>
 #include <RTS/Level.h>
 
-EZ_BEGIN_COMPONENT_TYPE(AvoidObstacleSteeringComponent, SteeringBehaviorComponent, AvoidObstacleSteeringComponentManager);
+EZ_BEGIN_COMPONENT_TYPE(AvoidObstacleSteeringComponent, SteeringBehaviorComponent, 1, AvoidObstacleSteeringComponentManager);
 EZ_END_COMPONENT_TYPE();
 
 AvoidObstacleSteeringComponent::AvoidObstacleSteeringComponent()

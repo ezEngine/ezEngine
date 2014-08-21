@@ -2,7 +2,7 @@
 #include <RTS/Components/SteeringBehaviorComponent.h>
 #include <RTS/Level.h>
 
-EZ_BEGIN_COMPONENT_TYPE(SteeringBehaviorComponent, ezComponent, SteeringBehaviorComponentManager);
+EZ_BEGIN_COMPONENT_TYPE(SteeringBehaviorComponent, ezComponent, 1, SteeringBehaviorComponentManager);
 EZ_END_COMPONENT_TYPE();
 
 ezVec3 SteeringBehaviorComponent::g_vSteeringDirections[g_iSteeringDirections];

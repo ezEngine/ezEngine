@@ -88,10 +88,11 @@ EZ_FORCE_INLINE const ezRTTI* ezGetStaticRTTI()
 
 /// \cond
 // internal helper macro
-#define EZ_RTTIINFO_DECL(Type, BaseType)                              \
+#define EZ_RTTIINFO_DECL(Type, BaseType, Version)                     \
   struct ezRTTInfo_##Type                                             \
   {                                                                   \
     static const char* GetTypeName() { return #Type; }                \
+    static ezUInt32 GetTypeVersion() { return Version; }              \
                                                                       \
     typedef Type OwnType;                                             \
     typedef BaseType OwnBaseType;                                     \
@@ -120,9 +121,9 @@ EZ_FORCE_INLINE const ezRTTI* ezGetStaticRTTI()
 ///   of \a Type. Pass ezRTTINoAllocator for types that should not be created dynamically.
 ///   Pass ezRTTIDefaultAllocator<Type> for types that should be created on the default heap.
 ///   Pass a custom ezRTTIAllocator type to handle allocation differently.
-#define EZ_BEGIN_STATIC_REFLECTED_TYPE(Type, BaseType, AllocatorType)                   \
-  EZ_RTTIINFO_DECL(Type, BaseType)                                                      \
-  ezRTTI ezInternal::ezStaticRTTIWrapper_##Type::s_RTTI = ezRTTInfo_##Type::GetRTTI();  \
+#define EZ_BEGIN_STATIC_REFLECTED_TYPE(Type, BaseType, Version, AllocatorType)                \
+  EZ_RTTIINFO_DECL(Type, BaseType, Version)                                                   \
+  ezRTTI ezInternal::ezStaticRTTIWrapper_##Type::s_RTTI = ezRTTInfo_##Type::GetRTTI();        \
   EZ_RTTIINFO_GETRTTI_IMPL_BEGIN(Type, AllocatorType)
     
 
@@ -131,6 +132,7 @@ EZ_FORCE_INLINE const ezRTTI* ezGetStaticRTTI()
     return ezRTTI(GetTypeName(),                                    \
       ezGetStaticRTTI<OwnBaseType>(),                               \
       sizeof(OwnType),                                              \
+      GetTypeVersion(),                                             \
       ezVariant::TypeDeduction<OwnType>::value,                     \
       &Allocator, Properties, MessageHandlers);                     \
   }

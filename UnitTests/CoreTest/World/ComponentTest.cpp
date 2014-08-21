@@ -85,7 +85,7 @@ namespace
   ezInt32 TestComponent::s_iInitCounter = 0;
   ezInt32 TestComponent::s_iAttachCounter = 0;
 
-  EZ_BEGIN_COMPONENT_TYPE(TestComponent, ezComponent, TestComponentManager);
+  EZ_BEGIN_COMPONENT_TYPE(TestComponent, ezComponent, 1, TestComponentManager);
   EZ_END_COMPONENT_TYPE();
 
   void TestComponentManager::Update(ezUInt32 uiStartIndex, ezUInt32 uiCount)

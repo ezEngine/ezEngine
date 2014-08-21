@@ -3,7 +3,7 @@
 #include "ShipComponent.h"
 #include <Foundation/Configuration/CVar.h>
 
-EZ_BEGIN_COMPONENT_TYPE(AsteroidComponent, ezComponent, AsteroidComponentManager);
+EZ_BEGIN_COMPONENT_TYPE(AsteroidComponent, ezComponent, 1, AsteroidComponentManager);
 EZ_END_COMPONENT_TYPE();
 
 ezCVarFloat CVar_AsteroidMaxDist("g_AsteroidMaxDist", 4.0f, ezCVarFlags::Default, "cvar float");

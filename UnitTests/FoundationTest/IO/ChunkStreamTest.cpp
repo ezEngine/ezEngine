@@ -40,7 +40,7 @@ public:
   }
 };
 
-EZ_ADD_SERIALIZATION_CONTEXT_OPERATORS(ezSerializationContextTest, ezSomeSerializationObj);
+EZ_ADD_SERIALIZATION_CONTEXT_OPERATORS(ezSerializationContextTest, ezSomeSerializationObj&);
 
 
 EZ_CREATE_SIMPLE_TEST(IO, ChunkStream)

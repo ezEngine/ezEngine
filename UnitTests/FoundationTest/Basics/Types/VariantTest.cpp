@@ -10,7 +10,7 @@ public:
   float v;
 };
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(Blubb, ezReflectedClass, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(Blubb, ezReflectedClass, 1, ezRTTINoAllocator);
   EZ_BEGIN_PROPERTIES
     EZ_MEMBER_PROPERTY("u", u),
     EZ_MEMBER_PROPERTY("v", v)
