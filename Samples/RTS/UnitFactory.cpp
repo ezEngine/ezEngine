@@ -1,13 +1,11 @@
 #include <PCH.h>
 #include <RTS/Level.h>
 
-template<typename ComponentType, typename ManagerType>
+template<typename ComponentType>
 ComponentType* AddComponent(ezWorld* pWorld, ezGameObject* pObject)
 {
-  ManagerType* pManager = pWorld->GetComponentManager<ManagerType>();
-
   ComponentType* pComponent = nullptr;
-  ezComponentHandle hComponent = pManager->CreateComponent(pComponent);
+  ezComponentHandle hComponent = ComponentType::CreateComponent(pWorld, pComponent);
   
   pObject->AddComponent(hComponent);
   return pComponent;
@@ -34,7 +32,7 @@ ezGameObjectHandle Level::CreateUnit_Default(const ezVec3& vPosition, const ezQu
 
   // Unit component
   {
-    pUnitComponent = AddComponent<UnitComponent, UnitComponentManager>(m_pWorld, pObject);
+    pUnitComponent = AddComponent<UnitComponent>(m_pWorld, pObject);
 
     pUnitComponent->SetUnitType(UnitType::Default);
 
@@ -45,25 +43,25 @@ ezGameObjectHandle Level::CreateUnit_Default(const ezVec3& vPosition, const ezQu
 
   // Revealer component
   {
-    RevealerComponent* pComponent = AddComponent<RevealerComponent, RevealerComponentManager>(m_pWorld, pObject);
+    RevealerComponent* pComponent = AddComponent<RevealerComponent>(m_pWorld, pObject);
 
   }
 
   // Obstacle component
   {
-    ObstacleComponent* pComponent = AddComponent<ObstacleComponent, ObstacleComponentManager>(m_pWorld, pObject);
+    ObstacleComponent* pComponent = AddComponent<ObstacleComponent>(m_pWorld, pObject);
 
   }
 
   // Avoid Obstacle Steering Behavior component
   {
-    AvoidObstacleSteeringComponent* pComponent = AddComponent<AvoidObstacleSteeringComponent, AvoidObstacleSteeringComponentManager>(m_pWorld, pObject);
+    AvoidObstacleSteeringComponent* pComponent = AddComponent<AvoidObstacleSteeringComponent>(m_pWorld, pObject);
 
   }
 
   // Follow Path Steering Behavior component
   {
-    FollowPathSteeringComponent* pComponent = AddComponent<FollowPathSteeringComponent, FollowPathSteeringComponentManager>(m_pWorld, pObject);
+    FollowPathSteeringComponent* pComponent = AddComponent<FollowPathSteeringComponent>(m_pWorld, pObject);
 
     pComponent->SetPath(&pUnitComponent->m_Path);
 

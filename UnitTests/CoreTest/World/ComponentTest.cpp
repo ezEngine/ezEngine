@@ -133,7 +133,7 @@ EZ_CREATE_SIMPLE_TEST(World, Components)
     ezComponentHandle handle;
     EZ_TEST_BOOL(!world.TryGetComponent(handle, pComponent));
 
-    handle = pManager->CreateComponent(pComponent);
+    handle = TestComponent::CreateComponent(&world, pComponent);
     TestComponent* pTest = nullptr;
     EZ_TEST_BOOL(world.TryGetComponent(handle, pTest));
     EZ_TEST_BOOL(pTest == pComponent);

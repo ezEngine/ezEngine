@@ -102,6 +102,7 @@ private:
     EZ_FORCE_INLINE ezWorld* GetWorld() const { return GetManager()->GetWorld(); } \
     virtual ezUInt16 GetTypeId() const override { return TYPE_ID; } \
     static EZ_FORCE_INLINE ezUInt16 TypeId() { return TYPE_ID; } \
+    static ezComponentHandle CreateComponent(ezWorld* pWorld, componentType*& pComponent) { return pWorld->GetComponentManager<managerType>()->CreateComponent(pComponent); } \
   private: \
     friend managerType; \
     static ezUInt16 TYPE_ID;

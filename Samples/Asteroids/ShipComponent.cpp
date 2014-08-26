@@ -103,7 +103,7 @@ void ShipComponent::Update()
     ezGameObjectHandle hProjectile = GetWorld()->CreateObject(desc, pProjectile);
 
     ProjectileComponent* pProjectileComponent = nullptr;
-    ezComponentHandle hProjectileComponent = GetWorld()->GetComponentManager<ProjectileComponentManager>()->CreateComponent(pProjectileComponent);
+    ezComponentHandle hProjectileComponent = ProjectileComponent::CreateComponent(GetWorld(), pProjectileComponent);
 
     pProjectileComponent->m_iBelongsToPlayer = m_iPlayerIndex;
     pProjectileComponent->m_vVelocity = vShipDir * ezMath::Max(m_vVelocity.GetLength(), 1.0f) * 1.0f;

@@ -100,7 +100,7 @@ void ProjectileComponent::Update()
             ezGameObjectHandle hProjectile = GetWorld()->CreateObject(desc, pProjectile);
 
             ProjectileComponent* pProjectileComponent = nullptr;
-            ezComponentHandle hProjectileComponent = GetWorld()->GetComponentManager<ProjectileComponentManager>()->CreateComponent(pProjectileComponent);
+            ezComponentHandle hProjectileComponent = ProjectileComponent::CreateComponent(GetWorld(), pProjectileComponent);
 
             pProjectileComponent->m_iBelongsToPlayer = pShipComponent->m_iPlayerIndex;
             pProjectileComponent->m_vVelocity = vDir * (1.0f + ((rand() % 1000) / 999.0f));
