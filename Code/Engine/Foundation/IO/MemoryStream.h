@@ -34,6 +34,8 @@ public:
   /// \brief Clears the entire storage. All readers and writers must be reset to start from the beginning again.
   void Clear() { m_Storage.Clear(); }
 
+  const ezUInt8* GetData() const { if (m_Storage.IsEmpty()) return nullptr; return &m_Storage[0]; }
+
 private:
   friend class ezMemoryStreamReader;
   friend class ezMemoryStreamWriter;

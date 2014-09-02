@@ -77,6 +77,7 @@ void ezLogWriter::HTML::LogMessageHandler(const ezLoggingEventData& eventData)
   sOriginalText.ReplaceAll ("&", "&amp;");
   sOriginalText.ReplaceAll ("<", "&lt;");
   sOriginalText.ReplaceAll (">", "&gt;");
+  sOriginalText.ReplaceAll ("\n", "<br>\n");
 
   sTag.ReplaceAll ("&", "&amp;");
   sTag.ReplaceAll ("<", "&lt;");
