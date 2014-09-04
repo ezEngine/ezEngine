@@ -7,7 +7,7 @@ ezChunkStreamWriter::ezChunkStreamWriter(ezStreamWriterBase& pStream) : m_Stream
   m_bWritingChunk = false;
 }
 
-void ezChunkStreamWriter::BeginChunkFile()
+void ezChunkStreamWriter::BeginStream()
 {
   EZ_ASSERT(!m_bWritingFile, "Already writing the file.");
 
@@ -17,7 +17,7 @@ void ezChunkStreamWriter::BeginChunkFile()
   m_Stream.WriteBytes(szTag, 8);
 }
 
-void ezChunkStreamWriter::EndChunkFile()
+void ezChunkStreamWriter::EndStream()
 {
   EZ_ASSERT(m_bWritingFile, "Not writing to the file.");
   EZ_ASSERT(!m_bWritingChunk, "A chunk is still open for writing: '%s'", m_sChunkName.GetData());
@@ -52,9 +52,10 @@ void ezChunkStreamWriter::EndChunk()
 
   m_bWritingChunk = false;
 
-  m_Stream << m_Storage.GetCount();
+  const ezUInt32 uiStorageSize = m_Storage.GetCount();
+  m_Stream << uiStorageSize;
 
-  for (ezUInt32 i = 0; i < m_Storage.GetCount(); )
+  for (ezUInt32 i = 0; i < uiStorageSize; )
   {
     const ezUInt32 uiRange = m_Storage.GetContiguousRange(i);
 
@@ -86,6 +87,7 @@ ezResult ezChunkStreamWriter::WriteBytes(const void* pWriteBuffer, ezUInt64 uiBy
 ezChunkStreamReader::ezChunkStreamReader(ezStreamReaderBase& stream) : m_Stream(stream)
 {
   m_ChunkInfo.m_bValid = false;
+  m_EndChunkFileMode = EndChunkFileMode::JustClose;
 }
 
 ezUInt64 ezChunkStreamReader::ReadBytes(void* pReadBuffer, ezUInt64 uiBytesToRead)
@@ -98,7 +100,7 @@ ezUInt64 ezChunkStreamReader::ReadBytes(void* pReadBuffer, ezUInt64 uiBytesToRea
   return m_Stream.ReadBytes(pReadBuffer, uiBytesToRead);
 }
 
-void ezChunkStreamReader::BeginChunkFile()
+void ezChunkStreamReader::BeginStream()
 {
   m_ChunkInfo.m_bValid = false;
 
@@ -111,9 +113,9 @@ void ezChunkStreamReader::BeginChunkFile()
   TryReadChunkHeader();
 }
 
-void ezChunkStreamReader::EndChunkFile(EndChunkFileMode mode)
+void ezChunkStreamReader::EndStream()
 {
-  if (mode == EndChunkFileMode::SkipToEnd)
+  if (m_EndChunkFileMode == EndChunkFileMode::SkipToEnd)
   {
     while (m_ChunkInfo.m_bValid)
       NextChunk();

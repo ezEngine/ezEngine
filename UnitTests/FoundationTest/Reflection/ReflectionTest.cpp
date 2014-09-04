@@ -21,26 +21,6 @@ public:
 
   float m_fFloat1;
 
-  void Serialize(ezStreamWriterBase& stream, ezReflectedClassSerializationContext& context) const
-  {
-    context.WriteRttiVersion<ezTestStruct>(stream);
-
-    stream << m_fFloat1;
-    stream << m_iInt2;
-    stream << m_vProperty3;
-  }
-
-  void Deserialize(ezStreamReaderBase& stream, ezReflectedClassSerializationContext& context)
-  {
-    context.ReadRttiVersion<ezTestStruct>(stream);
-
-    EZ_TEST_INT(context.GetStoredTypeVersion<ezTestStruct>(), 7);
-
-    stream >> m_fFloat1;
-    stream >> m_iInt2;
-    stream >> m_vProperty3;
-  }
-
 private:
   void SetInt(ezInt32 i) { m_iInt2 = i; }
   ezInt32 GetInt() const { return m_iInt2; }
@@ -71,22 +51,6 @@ public:
     m_Struct.m_fFloat1 = 33.3f;
   }
 
-  virtual void Serialize(ezStreamWriterBase& stream, ezReflectedClassSerializationContext& context) const override
-  {
-    stream << m_MyVector;
-
-    m_Struct.Serialize(stream, context);
-  }
-
-  virtual void Deserialize(ezStreamReaderBase& stream, ezReflectedClassSerializationContext& context) override
-  {
-    EZ_TEST_INT(context.GetStoredTypeVersion<ezTestClass1>(), 11);
-
-    stream >> m_MyVector;
-
-    m_Struct.Deserialize(stream, context);
-  }
-
   ezVec3 GetVector() const { return m_MyVector; }
 
   ezTestStruct m_Struct;
@@ -112,22 +76,6 @@ public:
 
   const char* GetText() const { return m_Text.GetData(); }
   void SetText(const char* sz) { m_Text = sz; }
-
-  virtual void Serialize(ezStreamWriterBase& stream, ezReflectedClassSerializationContext& context) const override
-  {
-    ezTestClass1::Serialize(stream, context);
-
-    stream << m_Text;
-  }
-
-  virtual void Deserialize(ezStreamReaderBase& stream, ezReflectedClassSerializationContext& context) override
-  {
-    ezTestClass1::Deserialize(stream, context);
-
-    EZ_TEST_INT(context.GetStoredTypeVersion<ezTestClass2>(), 22);
-
-    stream >> m_Text;
-  }
 
 private:
   ezString m_Text;
@@ -503,41 +451,6 @@ EZ_CREATE_SIMPLE_TEST(Reflection, MemberProperties)
   }
 }
 
-EZ_CREATE_SIMPLE_TEST(Reflection, Serialization)
-{
-  ezMemoryStreamStorage StreamStorage;
 
-  ezMemoryStreamWriter MemoryWriter(&StreamStorage);
-  ezMemoryStreamReader MemoryReader(&StreamStorage);
-
-  ezReflectedClassSerializationContext SerialContext(&MemoryReader, &MemoryWriter);
-
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Serialize")
-  {
-    ezTestClass1 tc1;
-    tc1.m_MyVector.Set(3, 4, 5);
-
-    ezTestClass2 tc2;
-    tc2.m_MyVector.Set(6, 7, 8);
-    tc2.SetText("wait for it");
-
-    MemoryWriter << tc1;
-    MemoryWriter << tc2;
-  }
-
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Deserialize")
-  {
-    ezTestClass1 tc1;
-    ezTestClass2 tc2;
-
-    MemoryReader >> tc1;
-    MemoryReader >> tc2;
-
-    EZ_TEST_VEC3(tc1.m_MyVector, ezVec3(3, 4, 5), 0);
-
-    EZ_TEST_VEC3(tc2.m_MyVector, ezVec3(6, 7, 8), 0);
-    EZ_TEST_STRING(tc2.GetText(), "wait for it");
-  }
-}
 
 

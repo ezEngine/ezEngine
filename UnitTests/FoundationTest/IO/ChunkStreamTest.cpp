@@ -58,7 +58,7 @@ EZ_CREATE_SIMPLE_TEST(IO, ChunkStream)
 
     SerialContext.SetStream(writer);
 
-    writer.BeginChunkFile();
+    writer.BeginStream();
 
     {
       writer.BeginChunk("Chunk1", 1);
@@ -91,7 +91,7 @@ EZ_CREATE_SIMPLE_TEST(IO, ChunkStream)
       writer.EndChunk();
     }
 
-    writer.EndChunkFile();
+    writer.EndStream();
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Read Format")
@@ -99,7 +99,7 @@ EZ_CREATE_SIMPLE_TEST(IO, ChunkStream)
     ezChunkStreamReader reader(MemoryReader);
     SerialContext.SetStream(reader);
 
-    reader.BeginChunkFile();
+    reader.BeginStream();
 
     // Chunk 1
     {
@@ -172,7 +172,8 @@ EZ_CREATE_SIMPLE_TEST(IO, ChunkStream)
 
     EZ_TEST_BOOL(!reader.GetCurrentChunk().m_bValid);
 
-    reader.EndChunkFile(ezChunkStreamReader::EndChunkFileMode::SkipToEnd);
+    reader.SetEndChunkFileMode(ezChunkStreamReader::EndChunkFileMode::SkipToEnd);
+    reader.EndStream();
 
     ezUInt8 Temp[1024];
     EZ_TEST_INT(MemoryReader.ReadBytes(Temp, 1024), 0); // nothing left to read

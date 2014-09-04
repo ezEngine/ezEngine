@@ -18,16 +18,16 @@ public:
   virtual ezResult WriteBytes(const void* pWriteBuffer, ezUInt64 uiBytesToWrite) override;
 
   /// \brief Starts writing to the chunk file. Has to be the first thing that is called.
-  void BeginChunkFile();
+  virtual void BeginStream();
 
   /// \brief Stops writing to the chunk file. Has to be the last thing that is called.
-  void EndChunkFile();
+  virtual void EndStream();
 
   /// \brief Opens the next chunk for writing. Chunks cannot be nested (except by using multiple chunk format writers).
-  void BeginChunk(const char* szName, ezUInt32 uiVersion);
+  virtual void BeginChunk(const char* szName, ezUInt32 uiVersion);
 
   /// \brief Closes the current chunk.
-  void EndChunk();
+  virtual void EndChunk();
 
 
 private:
@@ -58,11 +58,13 @@ public:
     JustClose  ///< Just stops, leaving the stream at the last read position. This should be used if definitely nothing more needs to be read from all underlying streams.
   };
 
+  void SetEndChunkFileMode(EndChunkFileMode mode) { m_EndChunkFileMode = mode; }
+
   /// \brief Starts reading from the chunk file.
-  void BeginChunkFile();
+  virtual void BeginStream();
 
   /// \brief Stops reading from the chunk file. Optionally skips the remaining bytes, so that the underlying streams read position is after the chunk file content.
-  void EndChunkFile(EndChunkFileMode mode);
+  virtual void EndStream();
 
   /// \brief Describes the state of the current chunk.
   struct ChunkInfo
@@ -91,6 +93,7 @@ public:
 private:
   void TryReadChunkHeader();
 
+  EndChunkFileMode m_EndChunkFileMode;
   ChunkInfo m_ChunkInfo;
 
   ezStreamReaderBase& m_Stream;

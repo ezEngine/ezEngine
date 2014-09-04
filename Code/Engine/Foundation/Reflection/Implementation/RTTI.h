@@ -63,7 +63,7 @@ public:
   /// \brief Returns the version number of this type.
   EZ_FORCE_INLINE ezUInt32 GetTypeVersion() const { return m_uiTypeVersion; }
 
-  /// \brief Iterates over all ezRTTI instances and returns the one with the given name, or nullptr of no such type exists.
+  /// \brief Iterates over all ezRTTI instances and returns the one with the given name, or nullptr if no such type exists.
   static ezRTTI* FindTypeByName(const char* szName); // [tested]
 
   /// \brief Will iterate over all properties of this type and (optionally) the base types to search for a property with the given name.
