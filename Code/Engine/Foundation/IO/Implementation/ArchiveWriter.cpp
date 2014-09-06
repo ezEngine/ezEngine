@@ -17,6 +17,43 @@ ezResult ezArchiveWriter::WriteBytes(const void* pWriteBuffer, ezUInt64 uiBytesT
   return ezChunkStreamWriter::WriteBytes(pWriteBuffer, uiBytesToWrite);
 }
 
+void ezArchiveWriter::RegisterTypeSerializer(const ezRTTI* pRttiBase, ezArchiveSerializer* pSerializer)
+{
+  m_TypeSerializers[pRttiBase] = pSerializer;
+}
+
+ezArchiveSerializer* ezArchiveWriter::GetTypeSerializer(const ezRTTI* pRttiBase)
+{
+  bool bExisted = false;
+  auto it = m_TypeSerializers.FindOrAdd(pRttiBase, &bExisted); // this will insert nullptr if not found
+
+  if (bExisted)
+    return it.Value();
+
+  // if we have a base type use that serializer, if not, nullptr will stay in there
+  if (pRttiBase->GetParentType() != nullptr)
+  {
+    it.Value() = GetTypeSerializer(pRttiBase->GetParentType());
+  }
+
+  return it.Value();
+}
+
+void ezArchiveWriter::AddObjectWrittenState(const void* pReference)
+{
+  m_WrittenObjects.Insert(pReference);
+}
+
+bool ezArchiveWriter::HasObjectBeenWritten(const void* pReference) const
+{
+  return m_WrittenObjects.Find(pReference).IsValid();
+}
+
+void ezArchiveWriter::ResetObjectWrittenState()
+{
+  m_WrittenObjects.Clear();
+}
+
 void ezArchiveWriter::StoreType(const ezRTTI* pRtti)
 {
   bool bExisted = false;
@@ -39,6 +76,18 @@ void ezArchiveWriter::StoreType(const ezRTTI* pRtti)
   m_RttiToWrite.PushBack(pRtti);
 }
 
+void ezArchiveWriter::WriteObjectReference(const void* pReference)
+{
+  bool bExisted = false;
+  auto it = m_ObjectReferences.FindOrAdd(pReference, &bExisted);
+
+  if (!bExisted)
+    it.Value() = m_ObjectReferences.GetCount();
+
+  // write the reference ID
+  WriteBytes(&it.Value(), sizeof(ezUInt32));
+}
+
 void ezArchiveWriter::WriteReflectedObject(const ezReflectedClass* pReflected)
 {
   BeginTypedObject(pReflected->GetDynamicRTTI(), pReflected);
@@ -52,6 +101,9 @@ void ezArchiveWriter::BeginTypedObject(const ezRTTI* pRtti, const void* pReferen
 {
   // check whether the type data is already stored
   StoreType(pRtti);
+
+  // store that we have written this object
+  AddObjectWrittenState(pReference);
 
   // write the object's type ID
   const ezUInt16 uiTypeID = m_WrittenTypes[pRtti].m_uiTypeID;
@@ -67,7 +119,6 @@ void ezArchiveWriter::BeginTypedObject(const ezRTTI* pRtti, const void* pReferen
   {
     pSerializer->Serialize(m_Temp.PeekBack().m_Writer, pRtti, pReference);
   }
-  
 }
 
 void ezArchiveWriter::EndTypedObject()
@@ -94,60 +145,6 @@ void ezArchiveWriter::EndTypedObject()
   m_Temp.PopBack();
 }
 
-void ezArchiveWriter::WriteObjectReference(const void* pReference)
-{
-  bool bExisted = false;
-  auto it = m_ObjectReferences.FindOrAdd(pReference, &bExisted);
-
-  if (!bExisted)
-    it.Value() = m_ObjectReferences.GetCount();
-
-  // write the reference ID
-  WriteBytes(&it.Value(), sizeof(ezUInt32));
-}
-
-void ezArchiveWriter::RegisterTypeSerializer(const ezRTTI* pRttiBase, ezArchiveSerializer* pSerializer)
-{
-  m_TypeSerializers[pRttiBase] = pSerializer;
-}
-
-ezArchiveSerializer* ezArchiveWriter::GetTypeSerializer(const ezRTTI* pRttiBase)
-{
-  bool bExisted = false;
-  auto it = m_TypeSerializers.FindOrAdd(pRttiBase, &bExisted); // this will insert nullptr if not found
-
-  if (bExisted)
-    return it.Value();
-
-  // if we have a base type use that serializer, if not, nullptr will stay in there
-  if (pRttiBase->GetParentType() != nullptr)
-  {
-    it.Value() = GetTypeSerializer(pRttiBase->GetParentType());
-  }
-
-  return it.Value();
-}
-
-//void ezArchiveWriter::BeginChunk(const char* szName, ezUInt32 uiVersion)
-//{
-//  ezChunkStreamWriter::BeginChunk(szName, uiVersion);
-//}
-//
-//void ezArchiveWriter::EndChunk()
-//{
-//  ezChunkStreamWriter::EndChunk();
-//}
-
-enum ezArchiveVersion : ezUInt8
-{
-  InvalidVersion = 0,
-  Version1,
-
-
-  ENUM_COUNT,
-  CurrentVersion = ENUM_COUNT - 1 // automatically the highest version number
-};
-
 void ezArchiveWriter::EndStream()
 {
   EZ_ASSERT(m_Temp.GetCount() == 0, "BeginTypedObject / EndTypedObject has not been called in tandem (%i)", m_Temp.GetCount());
@@ -158,6 +155,9 @@ void ezArchiveWriter::EndStream()
 
   m_OutputStream << "ezArchive";
   m_OutputStream << uiVersion;
+
+  const ezUInt32 uiMaxReferences = m_ObjectReferences.GetCount();
+  m_OutputStream << uiMaxReferences;
 
   // write all RTTI information
   {
@@ -179,59 +179,4 @@ void ezArchiveWriter::EndStream()
 
     m_OutputStream.WriteBytes(m_StorageTemp.GetData(), m_StorageTemp.GetStorageSize());
   }
-}
-
-
-ezArchiveReader::ezArchiveReader(ezStreamReaderBase& stream) : ezChunkStreamReader(stream), m_InputStream(stream)
-{
-}
-
-//ezUInt64 ezArchiveReader::ReadBytes(void* pReadBuffer, ezUInt64 uiBytesToRead)
-//{
-//  return 0;
-//}
-
-void ezArchiveReader::BeginStream()
-{
-  ezString sArchiveTag;
-  m_InputStream >> sArchiveTag;
-
-  EZ_ASSERT(sArchiveTag == "ezArchive", "The given file is either not an ezArchive, or it has been corrupted.");
-
-  ezUInt8 uiVersion = 0;
-  m_InputStream >> uiVersion;
-
-  EZ_ASSERT(uiVersion <= ezArchiveVersion::CurrentVersion, "The ezArchive version %u is not supported, expected version %u or lower.", uiVersion, ezArchiveVersion::CurrentVersion);
-
-  // Read the RTTI information
-  {
-    ezUInt32 uiRttiCount = 0;
-    m_InputStream >> uiRttiCount;
-
-    m_Types.Reserve(uiRttiCount);
-
-    for (ezUInt32 i = 0; i < uiRttiCount; ++i)
-    {
-      RttiData ri;
-      m_InputStream >> ri.m_uiTypeID;
-      m_InputStream >> ri.m_sTypeName;
-      m_InputStream >> ri.m_uiTypeVersion;
-      m_InputStream >> ri.m_uiObjectCount;
-
-      ri.m_pRTTI = ezRTTI::FindTypeByName(ri.m_sTypeName.GetData());
-
-      m_Types.PushBack(ri);
-    }
-  }
-
-  ezUInt32 uiChunkFileSize = 0;
-  m_InputStream >> uiChunkFileSize;
-
-  // now the input stream is at the proper position for the chunk file to take over
-  ezChunkStreamReader::BeginStream();
-}
-
-void ezArchiveReader::EndStream()
-{
-  ezChunkStreamReader::EndStream();
 }
