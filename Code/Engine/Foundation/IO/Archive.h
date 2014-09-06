@@ -173,8 +173,6 @@ public:
   /// \brief Calls ezReflectedClass::OnDeserialized() on all objects that were read with ReadReflectedObject().
   void CallOnDeserialized();
 
-  // TODO: callback when object creation fails
-
 private:
   void FinishReferenceMapping();
 
