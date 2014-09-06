@@ -75,7 +75,7 @@ ezUInt32 ezArchiveReader::ReadObjectReference(void** ppReference)
 
     // if the mapping is already available, do not queue it
 
-    void* pMapped = m_ObjectIDtoPointer[om.m_ObjectID];
+    void* pMapped = m_ObjectIDtoPointer[om.m_ObjectID].m_pObject;
 
     if (pMapped != nullptr)
     {
