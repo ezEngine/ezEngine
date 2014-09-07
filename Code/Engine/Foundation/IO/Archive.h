@@ -165,6 +165,14 @@ public:
 
   ezReflectedClass* ReadReflectedObject();
 
+  /// \brief The internal ezSerializedRttiVersion stores with which version typed objects were stored.
+  ///
+  /// When reflected objects are deserialized via ReadReflectedObject() this information is automatically
+  /// passed to the ezReflectedClass::Deserialize() function. However, when objects are deserialized
+  /// with custom code and only ReadTypedObject() is used, then this information needs to be queried
+  /// and passed along manually.
+  const ezSerializedRttiVersion& GetTypeVersionData() const { return m_VersionInfo; }
+
   void RegisterTypeSerializer(const ezRTTI* pRttiBase, ezArchiveSerializer* pSerializer);
 
   /// \brief Returns an array with pointers to all objects that were read using ReadReflectedObject().
@@ -208,6 +216,7 @@ private:
   ezDynamicArray<RttiData> m_Types;
   ezStreamReaderBase& m_InputStream;
 
+  ezSerializedRttiVersion m_VersionInfo;
   ezDeque<ezReflectedClass*> m_DeserializedReflected;
 };
 

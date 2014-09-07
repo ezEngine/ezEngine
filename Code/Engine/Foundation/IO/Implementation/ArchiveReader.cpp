@@ -173,6 +173,10 @@ void ezArchiveReader::BeginStream()
       {
         ezLog::SeriousWarning(m_pLog, "Stored type '%s' is unknown. Objects of this type will be skipped during deserialization.", ri.m_sTypeName.GetData());
       }
+      else
+      {
+        m_VersionInfo.SetStoredTypeVersion(ri.m_pRTTI, ri.m_uiTypeVersion);
+      }
     }
   }
 
@@ -210,7 +214,7 @@ ezReflectedClass* ezArchiveReader::ReadReflectedObject()
 
   m_DeserializedReflected.PushBack(pReflected);
 
-  pReflected->Deserialize(*this);
+  pReflected->Deserialize(*this, m_VersionInfo);
 
   return pReflected;
 }
