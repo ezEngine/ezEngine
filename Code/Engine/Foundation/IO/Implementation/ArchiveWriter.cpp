@@ -65,14 +65,12 @@ void ezArchiveWriter::StoreType(const ezRTTI* pRtti)
   if (bExisted)
     return;
 
-  const ezUInt16 uiTypeID = m_WrittenTypes.GetCount(); // can never be 0
-
-  it.Value().m_uiTypeID = uiTypeID; // store a unique type ID
-
   // store type information of all parents
   if (pRtti->GetParentType())
     StoreType(pRtti->GetParentType());
 
+  const ezUInt16 uiTypeID = m_RttiToWrite.GetCount();
+  it.Value().m_uiTypeID = uiTypeID; // store a unique type ID
   m_RttiToWrite.PushBack(pRtti);
 }
 
@@ -82,7 +80,7 @@ void ezArchiveWriter::WriteObjectReference(const void* pReference)
   auto it = m_ObjectReferences.FindOrAdd(pReference, &bExisted);
 
   if (!bExisted)
-    it.Value() = m_ObjectReferences.GetCount();
+    it.Value() = m_ObjectReferences.GetCount() - 1;
 
   // write the reference ID
   WriteBytes(&it.Value(), sizeof(ezUInt32));
@@ -166,7 +164,6 @@ void ezArchiveWriter::EndStream()
 
     for (ezUInt32 i = 0; i < m_RttiToWrite.GetCount(); ++i)
     {
-      m_OutputStream << m_WrittenTypes[m_RttiToWrite[i]].m_uiTypeID;
       m_OutputStream << m_RttiToWrite[i]->GetTypeName();
       m_OutputStream << m_RttiToWrite[i]->GetTypeVersion();
       m_OutputStream << m_WrittenTypes[m_RttiToWrite[i]].m_uiObjects;

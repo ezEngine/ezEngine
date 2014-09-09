@@ -6,6 +6,7 @@
 #include <Foundation/IO/MemoryStream.h>
 #include <Foundation/Logging/Log.h>
 
+/// \todo document, test
 
 class ezArchiveSerializer
 {
@@ -13,26 +14,17 @@ public:
 
   virtual void Serialize(ezStreamWriterBase& stream, const ezRTTI* pRtti, const void* pReference)
   {
+    EZ_ASSERT_NOT_IMPLEMENTED;
   }
 
   virtual void* Deserialize(ezStreamReaderBase& stream, const ezRTTI* pRtti)
   {
+    EZ_ASSERT_NOT_IMPLEMENTED;
+    return nullptr;
   }
 
 private:
 
-};
-
-// TODO type versions
-
-enum ezArchiveVersion : ezUInt8
-{
-  InvalidVersion = 0,
-  Version1,
-
-
-  ENUM_COUNT,
-  CurrentVersion = ENUM_COUNT - 1 // automatically the highest version number
 };
 
 class EZ_FOUNDATION_DLL ezArchiveWriter : public ezChunkStreamWriter
@@ -146,7 +138,6 @@ public:
 
   struct RttiData
   {
-    ezUInt16 m_uiTypeID;
     ezString m_sTypeName;
     ezUInt32 m_uiTypeVersion;
     ezUInt32 m_uiObjectCount;
@@ -165,14 +156,6 @@ public:
 
   ezReflectedClass* ReadReflectedObject();
 
-  /// \brief The internal ezSerializedRttiVersion stores with which version typed objects were stored.
-  ///
-  /// When reflected objects are deserialized via ReadReflectedObject() this information is automatically
-  /// passed to the ezReflectedClass::Deserialize() function. However, when objects are deserialized
-  /// with custom code and only ReadTypedObject() is used, then this information needs to be queried
-  /// and passed along manually.
-  const ezSerializedRttiVersion& GetTypeVersionData() const { return m_VersionInfo; }
-
   void RegisterTypeSerializer(const ezRTTI* pRttiBase, ezArchiveSerializer* pSerializer);
 
   /// \brief Returns an array with pointers to all objects that were read using ReadReflectedObject().
@@ -180,6 +163,14 @@ public:
 
   /// \brief Calls ezReflectedClass::OnDeserialized() on all objects that were read with ReadReflectedObject().
   void CallOnDeserialized();
+
+  ezUInt32 GetStoredTypeVersion(const ezRTTI* pRtti) const;
+
+  template<typename TYPE>
+  ezUInt32 GetStoredTypeVersion() const
+  {
+    return GetStoredTypeVersion(ezGetStaticRTTI<TYPE>());
+  }
 
 private:
   void FinishReferenceMapping();
@@ -196,6 +187,12 @@ private:
   struct ObjectRef
   {
     EZ_DECLARE_POD_TYPE();
+
+    ObjectRef()
+    {
+      m_pObject = nullptr;
+      m_uiDataSize = 0;
+    }
 
     void* m_pObject;
     ezUInt32 m_uiDataSize;
@@ -216,9 +213,19 @@ private:
   ezDynamicArray<RttiData> m_Types;
   ezStreamReaderBase& m_InputStream;
 
-  ezSerializedRttiVersion m_VersionInfo;
   ezDeque<ezReflectedClass*> m_DeserializedReflected;
+
+  ezMap<const ezRTTI*, ezUInt32> m_StoredVersion;
 };
 
 
+// [internal]
+enum ezArchiveVersion : ezUInt8
+{
+  InvalidVersion = 0,
+  Version1,
+
+  ENUM_COUNT,
+  CurrentVersion = ENUM_COUNT - 1 // automatically the highest version number
+};
 

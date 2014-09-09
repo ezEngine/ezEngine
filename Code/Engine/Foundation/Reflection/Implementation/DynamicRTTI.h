@@ -53,6 +53,8 @@
   }
 
 class ezSerializedRttiVersion;
+class ezArchiveWriter;
+class ezArchiveReader;
 
 /// \brief All classes that should be dynamically reflectable, need to be derived from this base class.
 ///
@@ -85,7 +87,7 @@ public:
   /// It should be overridden by deriving classes. In general each overridden version should always call the
   /// function of the base class. Only classes directly derived from ezReflectedClass must not do this, due to the assert in the
   /// base implementation.
-  virtual void Serialize(ezStreamWriterBase& stream) const
+  virtual void Serialize(ezArchiveWriter& stream) const
   {
     EZ_REPORT_FAILURE("Serialize is not overridden by deriving class.");
   }
@@ -98,7 +100,7 @@ public:
   /// It should be overridden by deriving classes. In general each overridden version should always call the
   /// function of the base class. Only classes directly derived from ezReflectedClass must not do this, due to the assert in the
   /// base implementation.
-  virtual void Deserialize(ezStreamReaderBase& stream, const ezSerializedRttiVersion& VersionInfo)
+  virtual void Deserialize(ezArchiveReader& stream)
   {
     EZ_REPORT_FAILURE("Deserialize is not overridden by deriving class.");
   }
@@ -114,39 +116,4 @@ public:
   {
     EZ_REPORT_FAILURE("OnDeserialized is not overridden by deriving class.");
   }
-};
-
-class EZ_FOUNDATION_DLL ezSerializedRttiVersion
-{
-public:
-
-  ezUInt32 GetStoredTypeVersion(const ezRTTI* pRtti) const
-  {
-    auto it = m_StoredVersion.Find(pRtti);
-
-    if (it.IsValid())
-      return it.Value();
-
-    return 0xFFFFFFFF;
-  }
-
-  template<typename TYPE>
-  ezUInt32 GetStoredTypeVersion() const
-  {
-    return GetStoredTypeVersion(ezGetStaticRTTI<TYPE>());
-  }
-
-  void SetStoredTypeVersion(const ezRTTI* pRtti, ezUInt32 uiVersion)
-  {
-    m_StoredVersion[pRtti] = uiVersion;
-  }
-
-  template<typename TYPE>
-  void SetStoredTypeVersion(ezUInt32 uiVersion)
-  {
-    SetStoredTypeVersion(ezGetStaticRTTI<TYPE>(), uiVersion);
-  }
-
-private:
-  ezMap<const ezRTTI*, ezUInt32> m_StoredVersion;
 };

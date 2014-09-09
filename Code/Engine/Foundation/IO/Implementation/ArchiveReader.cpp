@@ -19,6 +19,16 @@ void ezArchiveReader::RegisterTypeSerializer(const ezRTTI* pRttiBase, ezArchiveS
   m_TypeSerializers[pRttiBase] = pSerializer;
 }
 
+ezUInt32 ezArchiveReader::GetStoredTypeVersion(const ezRTTI* pRtti) const
+{
+  auto it = m_StoredVersion.Find(pRtti);
+
+  if (it.IsValid())
+    return it.Value();
+
+  return 0xFFFFFFFF;
+}
+
 ezArchiveSerializer* ezArchiveReader::GetTypeSerializer(const ezRTTI* pRttiBase)
 {
   bool bExisted = false;
@@ -158,7 +168,6 @@ void ezArchiveReader::BeginStream()
     for (ezUInt32 i = 0; i < uiRttiCount; ++i)
     {
       RttiData ri;
-      m_InputStream >> ri.m_uiTypeID;
       m_InputStream >> ri.m_sTypeName;
       m_InputStream >> ri.m_uiTypeVersion;
       m_InputStream >> ri.m_uiObjectCount;
@@ -175,7 +184,7 @@ void ezArchiveReader::BeginStream()
       }
       else
       {
-        m_VersionInfo.SetStoredTypeVersion(ri.m_pRTTI, ri.m_uiTypeVersion);
+        m_StoredVersion[ri.m_pRTTI] = ri.m_uiTypeVersion;
       }
     }
   }
@@ -214,7 +223,7 @@ ezReflectedClass* ezArchiveReader::ReadReflectedObject()
 
   m_DeserializedReflected.PushBack(pReflected);
 
-  pReflected->Deserialize(*this, m_VersionInfo);
+  pReflected->Deserialize(*this);
 
   return pReflected;
 }
