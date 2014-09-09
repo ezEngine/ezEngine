@@ -98,7 +98,7 @@ EZ_CREATE_SIMPLE_TEST(World, World)
     EZ_TEST_VEC3(pParentObject->GetLocalScaling(), desc.m_LocalScaling, 0);
 
     EZ_TEST_VEC3(pParentObject->GetWorldPosition(), desc.m_LocalPosition, 0);
-    EZ_TEST_BOOL(pParentObject->GetWorldRotation().IsEqualRotation(desc.m_LocalRotation, eps));
+    EZ_TEST_BOOL(pParentObject->GetWorldRotation().IsEqualRotation(desc.m_LocalRotation, eps * 10.0f));
     EZ_TEST_VEC3(pParentObject->GetWorldScaling(), desc.m_LocalScaling, 0);
 
     EZ_TEST_STRING(pParentObject->GetName(), desc.m_sName.GetString().GetData());
@@ -128,7 +128,7 @@ EZ_CREATE_SIMPLE_TEST(World, World)
       EZ_TEST_STRING(it->GetName(), sb.GetData());
 
       EZ_TEST_VEC3(it->GetWorldPosition(), ezVec3(100.0f, uiCounter * 15.0f, 0.0f), eps * 2.0f); // 15 because parent is scaled by 1.5
-      EZ_TEST_BOOL(it->GetWorldRotation().IsEqualRotation(q, eps));
+      EZ_TEST_BOOL(it->GetWorldRotation().IsEqualRotation(q, eps * 10.0f));
       EZ_TEST_VEC3(it->GetWorldScaling(), ezVec3(1.5f, 1.5f, 1.5f), 0.0f);
 
       ++uiCounter;
