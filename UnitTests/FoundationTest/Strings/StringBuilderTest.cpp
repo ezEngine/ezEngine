@@ -1,6 +1,7 @@
 ﻿#include <PCH.h>
 #include <Foundation/Memory/CommonAllocators.h>
 #include <Foundation/Strings/String.h>
+#include <Foundation/IO/MemoryStream.h>
 
 EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
 {
@@ -1273,6 +1274,23 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     EZ_TEST_STRING(p.GetData(), "This/is/a/temp/path/to/my/file");
 #endif
 
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ReadAll")
+  {
+    ezMemoryStreamStorage StreamStorage;
+    
+    ezMemoryStreamWriter MemoryWriter(&StreamStorage);
+    ezMemoryStreamReader MemoryReader(&StreamStorage);
+
+    const char* szText = "l;kjasdflkjdfasjlk asflkj asfljwe oiweq2390432 4 @#$ otrjk3l;2rlkhitoqhrn324:R l324h32kjr hnasfhsakfh234fas1440687873242321245";
+
+    MemoryWriter.WriteBytes(szText, ezStringUtils::GetStringElementCount(szText));
+
+    ezStringBuilder s;
+    s.ReadAll(MemoryReader);
+
+    EZ_TEST_BOOL(s == szText);
   }
 }
 

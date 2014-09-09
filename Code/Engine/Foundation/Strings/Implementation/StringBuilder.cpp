@@ -924,8 +924,6 @@ void ezStringBuilder::RemoveDoubleSlashesInPath()
 
 void ezStringBuilder::ReadAll(ezStreamReaderBase& Stream)
 {
-  /// \test This is new
-
   Clear();
 
   ezHybridArray<ezUInt8, 1024 * 4> Bytes(m_Data.GetAllocator());

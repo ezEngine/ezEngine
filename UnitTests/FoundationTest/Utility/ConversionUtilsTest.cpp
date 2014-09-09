@@ -429,6 +429,23 @@ EZ_CREATE_SIMPLE_TEST(Utility, ConversionUtils)
     EZ_TEST_INT(ezConversionUtils::HexCharacterToIntValue('i'), -1);
   }
 
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ConvertHexStringToUInt32")
+  {
+    EZ_TEST_INT(ezConversionUtils::ConvertHexStringToUInt32(""), 0);
+    EZ_TEST_INT(ezConversionUtils::ConvertHexStringToUInt32("0x"), 0);
+    EZ_TEST_INT(ezConversionUtils::ConvertHexStringToUInt32("0"), 0);
+    EZ_TEST_INT(ezConversionUtils::ConvertHexStringToUInt32("0x0"), 0);
+    EZ_TEST_INT(ezConversionUtils::ConvertHexStringToUInt32("a"), 10);
+    EZ_TEST_INT(ezConversionUtils::ConvertHexStringToUInt32("0xb"), 11);
+    EZ_TEST_INT(ezConversionUtils::ConvertHexStringToUInt32("000c"), 12);
+    EZ_TEST_INT(ezConversionUtils::ConvertHexStringToUInt32("000c"), 12);
+    EZ_TEST_INT(ezConversionUtils::ConvertHexStringToUInt32("AA"), 170);
+    EZ_TEST_INT(ezConversionUtils::ConvertHexStringToUInt32("aAbB"), 43707);
+    EZ_TEST_INT(ezConversionUtils::ConvertHexStringToUInt32("FFFFffff"), 4294967295);
+    EZ_TEST_INT(ezConversionUtils::ConvertHexStringToUInt32("0000FFFFffff"), 4294967295);
+    EZ_TEST_INT(ezConversionUtils::ConvertHexStringToUInt32("100000000"), 0);
+  }
+
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ExtractFloatsFromString")
   {
     float v[16];

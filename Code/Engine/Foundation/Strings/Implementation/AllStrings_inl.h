@@ -59,8 +59,6 @@ EZ_FORCE_INLINE void ezHybridString<Size, A>::operator=(ezStringBuilder&& rhs)
 template<ezUInt16 Size>
 void ezHybridStringBase<Size>::ReadAll(ezStreamReaderBase& Stream)
 {
-  /// \test This is new
-
   Clear();
 
   ezHybridArray<ezUInt8, 1024 * 4> Bytes(m_Data.GetAllocator());

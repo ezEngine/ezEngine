@@ -1,21 +1,21 @@
 #pragma once
 
-#include <Foundation/Math/Math.h>
+#include <Foundation/Math/Declarations.h>
 
 /// \brief Float wrapper struct for a safe usage and conversions of angles.
 /// 
 /// Uses radian internally. Will <b>not</b> automatically keep its range between 0 degree - 360 degree (0 - 2PI) but you can call NormalizeRange to do so.
-class ezAngle
+class EZ_FOUNDATION_DLL ezAngle
 {
 public:
 
   /// \brief Returns the constant to multiply with an angle in degree to convert it to radians.
   template<typename Type>
-  static EZ_FORCE_INLINE Type DegToRadMultiplier();
+  static EZ_FORCE_INLINE Type DegToRadMultiplier(); // [tested]
 
   /// \brief Returns the constant to multiply with an angle in degree to convert it to radians.
   template<typename Type>
-  static EZ_FORCE_INLINE Type RadToDegMultiplier();
+  static EZ_FORCE_INLINE Type RadToDegMultiplier(); // [tested]
 
   /// \brief Converts an angle in degree to radians.
   template<typename Type>
@@ -26,17 +26,17 @@ public:
   static Type RadToDeg(Type f); // [tested]
 
   /// \brief Creates an instance of ezAngle that was initialized from degree. (Performs a conversion)
-  static ezAngle Degree(float fDegree);
+  static ezAngle Degree(float fDegree); // [tested]
 
   /// \brief Creates an instance of ezAngle that was initialized from radian. (No need for any conversion)
-  static ezAngle Radian(float fRadian);
+  static ezAngle Radian(float fRadian); // [tested]
 
 
 
   EZ_DECLARE_POD_TYPE();
 
   /// \brief Standard constructor, initializing with 0.
-  ezAngle() : m_fRadian(0.0f) {}
+  ezAngle() : m_fRadian(0.0f) {} // [tested]
 
   /// \brief Returns the degree value. (Performs a conversion)
   float GetDegree() const; // [tested]
@@ -46,17 +46,21 @@ public:
 
   /// \brief Brings the angle into the range of 0 degree - 360 degree
   /// \see GetNormalizedRange()
-  void NormalizeRange();
+  void NormalizeRange(); // [tested]
 
   /// \brief Returns an equivalent angle with range between 0 degree - 360 degree
   /// \see NormalizeRange()
-  ezAngle GetNormalizedRange(); // [tested]
+  ezAngle GetNormalizedRange() const; // [tested]
 
-  /// \brief Equality check with epsilon. Simple check without normalization, 360 degree != 0
-  bool IsEqualSimple(ezAngle rhs, ezAngle epsilon); // [tested]
+  /// \brief Computes the smallest angle between the two given angles. The angle will always be a positive value.
+  /// \note The two angles must be in the same range. E.g. they should be either normalized or at least the absolute angle between them should not be more than 180 degree.
+  static ezAngle AngleBetween(ezAngle a, ezAngle b); // [tested]
 
-  /// \brief Equality check with epsilon that uses normalized angles. Will also recognize 360 degree == 0 degree
-  bool IsEqualNormalized(ezAngle rhs, ezAngle epsilon); // [tested]
+  /// \brief Equality check with epsilon. Simple check without normalization. 360 degree will equal 0 degree, but 720 will not.
+  bool IsEqualSimple(ezAngle rhs, ezAngle epsilon) const; // [tested]
+
+  /// \brief Equality check with epsilon that uses normalized angles. Will recognize 720 degree == 0 degree.
+  bool IsEqualNormalized(ezAngle rhs, ezAngle epsilon) const; // [tested]
 
   // unary operators
   ezAngle operator - () const; // [tested]

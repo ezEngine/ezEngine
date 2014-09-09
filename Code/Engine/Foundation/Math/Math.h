@@ -185,8 +185,8 @@ namespace ezMath
   template<typename Type>
   Type Fraction(Type f); // [tested]
 
-  /// \brief Returns "value mod div" for floats.
-  float Mod(float f, float div); // [tested]
+  /// \brief Returns "value mod div" for floats. This also works with negative numbers, both for value and for div.
+  float Mod(float value, float div); // [tested]
 
   /// \brief Returns 1 / f
   template<typename Type>

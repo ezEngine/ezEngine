@@ -414,8 +414,6 @@ ezInt8 HexCharacterToIntValue(char Character)
 
 ezUInt32 ConvertHexStringToUInt32(const char* szHEX)
 {
-  /// \test This is new
-
   if (ezStringUtils::IsNullOrEmpty(szHEX))
     return 0;
 

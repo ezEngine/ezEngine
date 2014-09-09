@@ -682,5 +682,48 @@ EZ_CREATE_SIMPLE_TEST(Containers, Deque)
     EZ_TEST_BOOL(st::HasDone(100, 0));
   }
 
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetContiguousRange")
+  {
+    // deques allocate data in 4 KB chunks, so an integer deque will have 1024 ints per chunk
+
+    ezDeque<ezInt32> d;
+
+    for (ezUInt32 i = 0; i < 100 * 1024; ++i)
+      d.PushBack(i);
+
+    ezDynamicArray<ezInt32> a;
+    a.SetCount(d.GetCount());
+
+    ezUInt32 uiArrayPos = 0;
+
+    for (ezUInt32 i = 0; i < 100; ++i)
+    {
+      const ezUInt32 uiOffset = i * 1024 + i;
+
+      const ezUInt32 uiRange = d.GetContiguousRange(uiOffset);
+
+      EZ_TEST_INT(uiRange, 1024 - i);
+
+      ezMemoryUtils::Copy(&a[uiArrayPos], &d[uiOffset], uiRange);
+
+      uiArrayPos += uiRange;
+    }
+
+    a.SetCount(uiArrayPos);
+
+    uiArrayPos = 0;
+
+    for (ezUInt32 i = 0; i < 100; ++i)
+    {
+      const ezUInt32 uiOffset = i * 1024 + i;
+      const ezUInt32 uiRange = 1024 - i;
+
+      for (ezUInt32 r = 0; r < uiRange; ++r)
+      {
+        EZ_TEST_INT(a[uiArrayPos], uiOffset + r);
+        ++uiArrayPos;
+      }
+    }
+  }
 }
 

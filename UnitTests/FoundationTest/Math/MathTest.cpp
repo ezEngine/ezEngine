@@ -400,8 +400,11 @@ EZ_CREATE_SIMPLE_TEST(Math, General)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Mod")
   {
-    EZ_TEST_FLOAT(2.34f, ezMath::Mod(12.34f, 2.5f), 0.000001f);
-    EZ_TEST_FLOAT(-2.34f, ezMath::Mod(-12.34f, 2.5f), 0.000001f);
+    EZ_TEST_FLOAT( 2.34f, ezMath::Mod( 12.34f,  2.5f), 0.000001f);
+    EZ_TEST_FLOAT(-2.34f, ezMath::Mod(-12.34f,  2.5f), 0.000001f);
+
+    EZ_TEST_FLOAT( 2.34f, ezMath::Mod( 12.34f, -2.5f), 0.000001f);
+    EZ_TEST_FLOAT(-2.34f, ezMath::Mod(-12.34f, -2.5f), 0.000001f);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Invert")
