@@ -37,7 +37,41 @@ EZ_CREATE_SIMPLE_TEST(Strings, UnicodeUtils)
     for (ezUInt32 i = 0; i < 128; ++i)
       EZ_TEST_INT(ezUnicodeUtils::GetUtf8SequenceLength(i), 1);
 
-    /// \todo: ... auch UTF-8 Zeichen testen...
+    {
+      ezStringUtf8 s(L"ä");
+      EZ_TEST_INT(ezUnicodeUtils::GetUtf8SequenceLength(s.GetData()[0]), 2);
+    }
+
+    {
+      ezStringUtf8 s(L"ß");
+      EZ_TEST_INT(ezUnicodeUtils::GetUtf8SequenceLength(s.GetData()[0]), 2);
+    }
+
+    {
+      ezStringUtf8 s(L"€");
+      EZ_TEST_INT(ezUnicodeUtils::GetUtf8SequenceLength(s.GetData()[0]), 3);
+    }
+
+    {
+      ezStringUtf8 s(L"з");
+      EZ_TEST_INT(ezUnicodeUtils::GetUtf8SequenceLength(s.GetData()[0]), 2);
+    }
+
+    {
+      ezStringUtf8 s(L"г");
+      EZ_TEST_INT(ezUnicodeUtils::GetUtf8SequenceLength(s.GetData()[0]), 2);
+    }
+
+    {
+      ezStringUtf8 s(L"ы");
+      EZ_TEST_INT(ezUnicodeUtils::GetUtf8SequenceLength(s.GetData()[0]), 2);
+    }
+
+    {
+      ezUInt32 u[2] = { L'\u0B87', 0 };
+      ezStringUtf8 s(u);
+      EZ_TEST_INT(ezUnicodeUtils::GetUtf8SequenceLength(s.GetData()[0]), 3);
+    }
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ConvertUtf8ToUtf32")
