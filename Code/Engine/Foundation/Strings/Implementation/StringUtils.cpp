@@ -3,47 +3,47 @@
 #include <Foundation/Math/Math.h>
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
-  #include <Foundation/Logging/Log.h>
+#include <Foundation/Logging/Log.h>
 
-  ezAtomicInteger32 ezStringUtils::g_MaxUsedStringLength;
-  ezAtomicInteger32 ezStringUtils::g_UsedStringLengths[256];
+ezAtomicInteger32 ezStringUtils::g_MaxUsedStringLength;
+ezAtomicInteger32 ezStringUtils::g_UsedStringLengths[256];
 
-  void ezStringUtils::AddUsedStringLength(ezUInt32 uiLength)
+void ezStringUtils::AddUsedStringLength(ezUInt32 uiLength)
+{
+  g_MaxUsedStringLength.Max(uiLength);
+
+  if (uiLength > 255)
+    uiLength = 255;
+
+  g_UsedStringLengths[uiLength].Increment();
+}
+
+void ezStringUtils::PrintStringLengthStatistics()
+{
+  EZ_LOG_BLOCK("String Length Statistics");
+
+  ezLog::Info("Max String Length: %i", (ezInt32) g_MaxUsedStringLength);
+
+  ezUInt32 uiCopiedStrings = 0;
+  for (ezUInt32 i = 0; i < 256; ++i)
+    uiCopiedStrings += g_UsedStringLengths[i];
+
+  ezLog::Info("Number of String Copies: %i", uiCopiedStrings);
+  ezLog::Info("");
+
+  ezUInt32 uiPercent = 0;
+  ezUInt32 uiStrings = 0;
+  for (ezUInt32 i = 0; i < 256; ++i)
   {
-    g_MaxUsedStringLength.Max(uiLength);
-
-    if (uiLength > 255)
-      uiLength = 255;
-
-    g_UsedStringLengths[uiLength].Increment();
-  }
-
-  void ezStringUtils::PrintStringLengthStatistics()
-  {
-    EZ_LOG_BLOCK("String Length Statistics");
-
-    ezLog::Info("Max String Length: %i", (ezInt32)g_MaxUsedStringLength);
-
-    ezUInt32 uiCopiedStrings = 0;
-    for (ezUInt32 i = 0; i < 256; ++i)
-      uiCopiedStrings += g_UsedStringLengths[i];
-
-    ezLog::Info("Number of String Copies: %i", uiCopiedStrings);
-    ezLog::Info("");
-
-    ezUInt32 uiPercent = 0;
-    ezUInt32 uiStrings = 0;
-    for (ezUInt32 i = 0; i < 256; ++i)
+    if (100.0f * (uiStrings + g_UsedStringLengths[i]) / (float) uiCopiedStrings >= uiPercent)
     {
-      if (100.0f * (uiStrings + g_UsedStringLengths[i]) / (float) uiCopiedStrings >= uiPercent)
-      {
-        ezLog::Info("%3i%% of all Strings are shorter than %3i Elements.", uiPercent, i + 1);
-        uiPercent += 10;
-      }
-
-      uiStrings += g_UsedStringLengths[i];
+      ezLog::Info("%3i%% of all Strings are shorter than %3i Elements.", uiPercent, i + 1);
+      uiPercent += 10;
     }
+
+    uiStrings += g_UsedStringLengths[i];
   }
+}
 
 #endif
 
@@ -60,14 +60,14 @@ ezUInt32 ezStringUtils::ToUpperChar(ezUInt32 wc)
   else if (wc >= 0x00E0)
   {
     if ((wc >= 0x00E0 && wc <= 0x00F6) ||
-      (wc >= 0x00F8 && wc <= 0x00FE))
+        (wc >= 0x00F8 && wc <= 0x00FE))
     {
       wc -= 32;
     }
     else if (wc == 0x00FF)
       wc = 0x0178;
     else if ((wc >= 0x0100 && wc < 0x0138) ||
-      (wc >  0x0149 && wc < 0x0178))
+             (wc >  0x0149 && wc < 0x0178))
     {
       if (wc == 0x0131)
       {
@@ -90,7 +90,7 @@ ezUInt32 ezStringUtils::ToUpperChar(ezUInt32 wc)
           --wc;
     }
     else if ((wc >= 0x0139 && wc < 0x0149) ||
-      (wc >  0x0178 && wc < 0x017F))
+             (wc >  0x0178 && wc < 0x017F))
     {
       if ((wc & 1) == 0)
         --wc;
@@ -114,7 +114,7 @@ ezUInt32 ezStringUtils::ToUpperChar(ezUInt32 wc)
     else if (wc >= 0x0430 && wc <= 0x044F)
       wc -= 32;
     else if ((wc >= 0x0451 && wc <= 0x045C) ||
-      (wc >= 0x045E && wc <= 0x045F))
+             (wc >= 0x045E && wc <= 0x045F))
     {
       wc -= 80;
     }
@@ -145,12 +145,12 @@ ezUInt32 ezStringUtils::ToLowerChar(ezUInt32 wc)
   else if (wc >= 0x00C0)
   {
     if ((wc >= 0x00C0 && wc <= 0x00D6) ||
-      (wc >= 0x00D8 && wc <= 0x00DE))
+        (wc >= 0x00D8 && wc <= 0x00DE))
     {
       wc += 32;
     }
     else if ((wc >= 0x0100 && wc < 0x0138) ||
-      (wc > 0x0149 && wc < 0x0178))
+             (wc > 0x0149 && wc < 0x0178))
     {
       if (wc == 0x0130)
       {
@@ -174,7 +174,7 @@ ezUInt32 ezStringUtils::ToLowerChar(ezUInt32 wc)
     else if (wc == 0x0178)
       wc = 0x00FF;
     else if ((wc >= 0x0139 && wc < 0x0149) ||
-      (wc > 0x0178 && wc < 0x017F))
+             (wc > 0x0178 && wc < 0x017F))
     {
       if (wc & 1)
         ++wc;
@@ -185,7 +185,7 @@ ezUInt32 ezStringUtils::ToLowerChar(ezUInt32 wc)
         ++wc;
     }
     else if ((wc >= 0x0401 && wc <= 0x040C) ||
-      (wc>= 0x040E && wc <= 0x040F))
+             (wc >= 0x040E && wc <= 0x040F))
     {
       wc += 80;
     }
@@ -247,33 +247,35 @@ ezUInt32 ezStringUtils::ToLowerString(char* pString)
 // Macro to Handle nullptr-pointer strings
 #define EZ_STRINGCOMPARE_HANDLE_NULL_PTRS(szString1, szString2, ret_equal, ret_str2_larger, ret_str1_larger, szString1End, szString2End)\
   if (szString1 == szString2) /* Handles the case that both are nullptr and that both are actually the same string */ \
-  {\
+    {\
     if ((szString1 == nullptr) || (szString1End == szString2End)) /* if both are nullptr, ignore the end pointer, otherwise the strings are equal, if both end pointers are also the same */ \
       return (ret_equal);\
-  }\
+    }\
   if (szString1 == nullptr)\
-  {\
+    {\
     if (szString2[0] == '\0') /* if String1 is nullptr, String2 is never nullptr, otherwise the previous IF would have returned already */ \
       return (ret_equal);\
-    else\
+        else\
       return (ret_str2_larger);\
-  }\
+    }\
   if (szString2 == nullptr) \
-  {\
+    {\
     if (szString1[0] == '\0') /* if String2 is nullptr, String1 is never nullptr, otherwise the previous IF would have returned already */ \
       return (ret_equal);\
-    else\
+        else\
       return (ret_str1_larger);\
-  }
+    }
+
+#define ToSignedInt(c) ((ezInt32) ((unsigned char) c))
 
 ezInt32 ezStringUtils::Compare(const char* pString1, const char* pString2, const char* pString1End, const char* pString2End)
 {
   EZ_STRINGCOMPARE_HANDLE_NULL_PTRS(pString1, pString2, 0, -1, 1, pString1End, pString2End);
 
-  while ((*pString1 != '\0') && (*pString2 != '\0') && (pString1 < pString1End)  && (pString2 < pString2End))
+  while ((*pString1 != '\0') && (*pString2 != '\0') && (pString1 < pString1End) && (pString2 < pString2End))
   {
     if (*pString1 != *pString2)
-      return *pString1 - *pString2;
+      return ToSignedInt(*pString1) - ToSignedInt(*pString2);
 
     ++pString1;
     ++pString2;
@@ -284,14 +286,14 @@ ezInt32 ezStringUtils::Compare(const char* pString1, const char* pString2, const
     if (pString2 >= pString2End)
       return 0;
 
-    return -*pString2; // either also '\0' (end) or not 0, thus 'smaller' than pString1 (negated)
+    return -ToSignedInt(*pString2); // either also '\0' (end) or not 0, thus 'smaller' than pString1 (negated)
   }
   else
   {
     if (pString2 >= pString2End)
-      return *pString1; // either also '\0' (end) or not 0, thus 'larger' than pString2
+      return ToSignedInt(*pString1); // either also '\0' (end) or not 0, thus 'larger' than pString2
 
-    return *pString1 - *pString2;
+    return ToSignedInt(*pString1) - ToSignedInt(*pString2);
   }
 }
 
@@ -305,7 +307,7 @@ ezInt32 ezStringUtils::CompareN(const char* pString1, const char* pString2, ezUI
   while ((*pString1 != '\0') && (*pString2 != '\0') && (uiCharsToCompare > 0) && (pString1 < pString1End) && (pString2 < pString2End))
   {
     if (*pString1 != *pString2)
-      return (ezInt32) *pString1 - (ezInt32) *pString2;
+      return ToSignedInt(*pString1) - ToSignedInt(*pString2);
 
     if (!ezUnicodeUtils::IsUtf8ContinuationByte(*pString1))
       --uiCharsToCompare;
@@ -322,14 +324,14 @@ ezInt32 ezStringUtils::CompareN(const char* pString1, const char* pString2, ezUI
     if (pString2 >= pString2End)
       return 0; // both reached their end pointer
 
-    return -*pString2; // either also '\0' (end) or not 0, thus 'smaller' than pString1 (negated)
+    return -ToSignedInt(*pString2); // either also '\0' (end) or not 0, thus 'smaller' than pString1 (negated)
   }
   else
   {
     if (pString2 >= pString2End)
-      return *pString1; // either also '\0' (end) or not 0, thus 'larger' than pString2
+      return ToSignedInt(*pString1); // either also '\0' (end) or not 0, thus 'larger' than pString2
 
-    return *pString1 - *pString2;
+    return ToSignedInt(*pString1) - ToSignedInt(*pString2);
   }
 }
 
@@ -344,7 +346,7 @@ ezInt32 ezStringUtils::Compare_NoCase(const char* pString1, const char* pString2
     const ezUInt32 uiChar2 = ezUnicodeUtils::DecodeUtf8ToUtf32(pString2);
 
     const ezInt32 iComparison = CompareChars_NoCase(uiChar1, uiChar2);
-    
+
     if (iComparison != 0)
       return iComparison;
   }
@@ -355,15 +357,15 @@ ezInt32 ezStringUtils::Compare_NoCase(const char* pString1, const char* pString2
     if (pString2 >= pString2End)
       return 0; // both reached their end pointer
 
-    return -*pString2; // either also '\0' (end) or not 0, thus 'smaller' than pString1 (negated)
+    return -ToSignedInt(*pString2); // either also '\0' (end) or not 0, thus 'smaller' than pString1 (negated)
   }
   else
   {
     if (pString2 >= pString2End)
-      return *pString1; // either also '\0' (end) or not 0, thus 'larger' than pString2
+      return ToSignedInt(*pString1); // either also '\0' (end) or not 0, thus 'larger' than pString2
 
     // none of them has reached their end pointer, but at least one is 0, so no need to ToUpper
-    return *pString1 - *pString2;
+    return ToSignedInt(*pString1) - ToSignedInt(*pString2);
   }
 }
 
@@ -381,7 +383,7 @@ ezInt32 ezStringUtils::CompareN_NoCase(const char* pString1, const char* pString
     const ezUInt32 uiChar2 = ezUnicodeUtils::DecodeUtf8ToUtf32(pString2);
 
     const ezInt32 iComparison = CompareChars_NoCase(uiChar1, uiChar2);
-    
+
     if (iComparison != 0)
       return iComparison;
 
@@ -396,15 +398,15 @@ ezInt32 ezStringUtils::CompareN_NoCase(const char* pString1, const char* pString
     if (pString2 >= pString2End)
       return 0; // both reached their end pointer
 
-    return -*pString2; // either also '\0' (end) or not 0, thus 'smaller' than pString1 (negated)
+    return -ToSignedInt(*pString2); // either also '\0' (end) or not 0, thus 'smaller' than pString1 (negated)
   }
   else
   {
     if (pString2 >= pString2End)
-      return *pString1; // either also '\0' (end) or not 0, thus 'larger' than pString2
+      return ToSignedInt(*pString1); // either also '\0' (end) or not 0, thus 'larger' than pString2
 
     // none of them has reached their end pointer, but at least one is 0, so no need to ToUpper
-    return *pString1 - *pString2;
+    return ToSignedInt(*pString1) - ToSignedInt(*pString2);
   }
 }
 
@@ -483,7 +485,7 @@ bool ezStringUtils::StartsWith(const char* szString, const char* szStartsWith, c
     ++szStartsWith;
   }
 
-  // if both are equally long, this comparision will return true
+  // if both are equally long, this comparison will return true
   return (*szStartsWith == '\0');
 }
 
@@ -507,7 +509,7 @@ bool ezStringUtils::StartsWith_NoCase(const char* szString, const char* szStarts
     ezUnicodeUtils::MoveToNextUtf8(szStartsWith);
   }
 
-  // if both are equally long, this comparision will return true
+  // if both are equally long, this comparison will return true
   return (*szStartsWith == '\0');
 }
 
@@ -542,7 +544,7 @@ bool ezStringUtils::EndsWith_NoCase(const char* szString, const char* szEndsWith
 
   while (pCur1 > szString)
   {
-    // if that string has reached its beginning, all comparisions succeded and szString does end with szEndsWith
+    // if that string has reached its beginning, all comparisons succeeded and szString does end with szEndsWith
     if (pCur2 <= szEndsWith)
       return true;
 
@@ -555,7 +557,7 @@ bool ezStringUtils::EndsWith_NoCase(const char* szString, const char* szEndsWith
   }
 
   // we have reached the beginning of szString
-  // but we may have simultaniously reached the beginning of szEndsWith
+  // but we may have simultaneously reached the beginning of szEndsWith
   // so if pCur2 has reached the beginning of szEndsWith, both strings are equal, otherwise szString does not end with szEndsWith
   return (pCur2 <= szEndsWith);
 }
@@ -563,7 +565,7 @@ bool ezStringUtils::EndsWith_NoCase(const char* szString, const char* szEndsWith
 const char* ezStringUtils::FindSubString(const char* szSource, const char* szStringToFind, const char* pSourceEnd)
 {
   // Handle nullptr-pointer strings
-  if ((IsNullOrEmpty (szSource)) || (IsNullOrEmpty (szStringToFind)))
+  if ((IsNullOrEmpty(szSource)) || (IsNullOrEmpty(szStringToFind)))
     return nullptr;
 
   const char* pCurPos = &szSource[0];
@@ -582,7 +584,7 @@ const char* ezStringUtils::FindSubString(const char* szSource, const char* szStr
 const char* ezStringUtils::FindSubString_NoCase(const char* szSource, const char* szStringToFind, const char* pSourceEnd)
 {
   // Handle nullptr-pointer strings
-  if ((IsNullOrEmpty (szSource)) || (IsNullOrEmpty (szStringToFind)))
+  if ((IsNullOrEmpty(szSource)) || (IsNullOrEmpty(szStringToFind)))
     return nullptr;
 
   const char* pCurPos = &szSource[0];
@@ -602,7 +604,7 @@ const char* ezStringUtils::FindSubString_NoCase(const char* szSource, const char
 const char* ezStringUtils::FindLastSubString(const char* szSource, const char* szStringToFind, const char* szStartSearchAt, const char* pSourceEnd)
 {
   // Handle nullptr-pointer strings
-  if ((IsNullOrEmpty (szSource)) || (IsNullOrEmpty (szStringToFind)))
+  if ((IsNullOrEmpty(szSource)) || (IsNullOrEmpty(szStringToFind)))
     return nullptr;
 
   // get the last element (actually the \0 terminator)
@@ -624,7 +626,7 @@ const char* ezStringUtils::FindLastSubString(const char* szSource, const char* s
 const char* ezStringUtils::FindLastSubString_NoCase(const char* szSource, const char* szStringToFind, const char* szStartSearchAt, const char* pSourceEnd)
 {
   // Handle nullptr-pointer strings
-  if ((IsNullOrEmpty (szSource)) || (IsNullOrEmpty (szStringToFind)))
+  if ((IsNullOrEmpty(szSource)) || (IsNullOrEmpty(szStringToFind)))
     return nullptr;
 
   if (szStartSearchAt == nullptr)
@@ -642,129 +644,128 @@ const char* ezStringUtils::FindLastSubString_NoCase(const char* szSource, const 
 }
 
 
-  const char* ezStringUtils::FindWholeWord(const char* szString, const char* szSearchFor, EZ_CHARACTER_FILTER IsDelimiterCB, const char* pStringEnd)
-  {
-    // Handle nullptr-pointer strings
-    if ((IsNullOrEmpty (szString)) || (IsNullOrEmpty (szSearchFor)))
-      return nullptr;
-
-    const ezUInt32 uiSearchedWordLength = GetStringElementCount(szSearchFor);
-
-    const char* pPrevPos = nullptr;
-    const char* pCurPos = szString;
-
-    while ((*pCurPos != '\0') && (pCurPos < pStringEnd))
-    {
-      if (StartsWith(pCurPos, szSearchFor, pStringEnd)) // yay, we found a substring, now make sure it is a 'whole word'
-      {
-        if (((szString == pCurPos) || // the start of the string is always a word delimiter
-          (IsDelimiterCB(ezUnicodeUtils::ConvertUtf8ToUtf32(pPrevPos)/* front */))) && // make sure the character before this substring is a word delimiter
-          ((pCurPos + uiSearchedWordLength >= pStringEnd) || // the end of the string is also always a delimiter
-          (IsDelimiterCB(ezUnicodeUtils::ConvertUtf8ToUtf32(pCurPos + uiSearchedWordLength)/* back */)))) // and the character after it, as well
-          return pCurPos;
-      }
-
-      pPrevPos = pCurPos;
-      ezUnicodeUtils::MoveToNextUtf8(pCurPos);
-    }
-
+const char* ezStringUtils::FindWholeWord(const char* szString, const char* szSearchFor, EZ_CHARACTER_FILTER IsDelimiterCB, const char* pStringEnd)
+{
+  // Handle nullptr-pointer strings
+  if ((IsNullOrEmpty(szString)) || (IsNullOrEmpty(szSearchFor)))
     return nullptr;
-  }
 
-  const char* ezStringUtils::FindWholeWord_NoCase(const char* szString, const char* szSearchFor, EZ_CHARACTER_FILTER IsDelimiterCB, const char* pStringEnd)
+  const ezUInt32 uiSearchedWordLength = GetStringElementCount(szSearchFor);
+
+  const char* pPrevPos = nullptr;
+  const char* pCurPos = szString;
+
+  while ((*pCurPos != '\0') && (pCurPos < pStringEnd))
   {
-    // Handle nullptr-pointer strings
-    if ((IsNullOrEmpty (szString)) || (IsNullOrEmpty (szSearchFor)))
-      return nullptr;
-
-    const ezUInt32 uiSearchedWordLength = GetStringElementCount(szSearchFor);
-
-    const char* pPrevPos = nullptr;
-    const char* pCurPos = szString;
-
-    while ((*pCurPos != '\0') && (pCurPos < pStringEnd))
+    if (StartsWith(pCurPos, szSearchFor, pStringEnd)) // yay, we found a substring, now make sure it is a 'whole word'
     {
-      if (StartsWith_NoCase(pCurPos, szSearchFor, pStringEnd)) // yay, we found a substring, now make sure it is a 'whole word'
-      {
-        if (((szString == pCurPos) || // the start of the string is always a word delimiter
-          (IsDelimiterCB(ezUnicodeUtils::ConvertUtf8ToUtf32(pPrevPos)/* front */))) && // make sure the character before this substring is a word delimiter
-          (IsDelimiterCB(ezUnicodeUtils::ConvertUtf8ToUtf32(pCurPos + uiSearchedWordLength)/* back */))) // and the character after it, as well
-          return pCurPos;
-      }
-
-      pPrevPos = pCurPos;
-      ezUnicodeUtils::MoveToNextUtf8(pCurPos);
+      if (((szString == pCurPos) || // the start of the string is always a word delimiter
+        (IsDelimiterCB(ezUnicodeUtils::ConvertUtf8ToUtf32(pPrevPos)/* front */))) && // make sure the character before this substring is a word delimiter
+        ((pCurPos + uiSearchedWordLength >= pStringEnd) || // the end of the string is also always a delimiter
+        (IsDelimiterCB(ezUnicodeUtils::ConvertUtf8ToUtf32(pCurPos + uiSearchedWordLength)/* back */)))) // and the character after it, as well
+        return pCurPos;
     }
 
+    pPrevPos = pCurPos;
+    ezUnicodeUtils::MoveToNextUtf8(pCurPos);
+  }
+
+  return nullptr;
+}
+
+const char* ezStringUtils::FindWholeWord_NoCase(const char* szString, const char* szSearchFor, EZ_CHARACTER_FILTER IsDelimiterCB, const char* pStringEnd)
+{
+  // Handle nullptr-pointer strings
+  if ((IsNullOrEmpty(szString)) || (IsNullOrEmpty(szSearchFor)))
     return nullptr;
-  }
 
-  const char* ezStringUtils::SkipCharacters(const char* szString, EZ_CHARACTER_FILTER SkipCharacterCB, bool bAlwaysSkipFirst)
+  const ezUInt32 uiSearchedWordLength = GetStringElementCount(szSearchFor);
+
+  const char* pPrevPos = nullptr;
+  const char* pCurPos = szString;
+
+  while ((*pCurPos != '\0') && (pCurPos < pStringEnd))
   {
-    EZ_ASSERT(szString != nullptr, "Invalid string");
-
-    while (*szString != '\0')
+    if (StartsWith_NoCase(pCurPos, szSearchFor, pStringEnd)) // yay, we found a substring, now make sure it is a 'whole word'
     {
-      if (!bAlwaysSkipFirst && !SkipCharacterCB(ezUnicodeUtils::ConvertUtf8ToUtf32(szString)))
-        break;
-
-      bAlwaysSkipFirst = false;
-      ezUnicodeUtils::MoveToNextUtf8(szString);
+      if (((szString == pCurPos) || // the start of the string is always a word delimiter
+        (IsDelimiterCB(ezUnicodeUtils::ConvertUtf8ToUtf32(pPrevPos)/* front */))) && // make sure the character before this substring is a word delimiter
+        (IsDelimiterCB(ezUnicodeUtils::ConvertUtf8ToUtf32(pCurPos + uiSearchedWordLength)/* back */))) // and the character after it, as well
+        return pCurPos;
     }
 
-    return szString;
+    pPrevPos = pCurPos;
+    ezUnicodeUtils::MoveToNextUtf8(pCurPos);
   }
 
-  const char* ezStringUtils::FindWordEnd(const char* szString, EZ_CHARACTER_FILTER IsDelimiterCB, bool bAlwaysSkipFirst)
+  return nullptr;
+}
+
+const char* ezStringUtils::SkipCharacters(const char* szString, EZ_CHARACTER_FILTER SkipCharacterCB, bool bAlwaysSkipFirst)
+{
+  EZ_ASSERT(szString != nullptr, "Invalid string");
+
+  while (*szString != '\0')
   {
-    EZ_ASSERT(szString != nullptr, "Invalid string");
+    if (!bAlwaysSkipFirst && !SkipCharacterCB(ezUnicodeUtils::ConvertUtf8ToUtf32(szString)))
+      break;
 
-    while (*szString != '\0')
-    {
-      if (!bAlwaysSkipFirst && IsDelimiterCB(ezUnicodeUtils::ConvertUtf8ToUtf32(szString)))
-        break;
-
-      bAlwaysSkipFirst = false;
-      ezUnicodeUtils::MoveToNextUtf8(szString);
-    }
-
-    return szString;
+    bAlwaysSkipFirst = false;
+    ezUnicodeUtils::MoveToNextUtf8(szString);
   }
 
-  bool ezStringUtils::IsWhiteSpace(ezUInt32 c)
+  return szString;
+}
+
+const char* ezStringUtils::FindWordEnd(const char* szString, EZ_CHARACTER_FILTER IsDelimiterCB, bool bAlwaysSkipFirst)
+{
+  EZ_ASSERT(szString != nullptr, "Invalid string");
+
+  while (*szString != '\0')
   {
-    return (c == ' ' || c == '\t' || c == '\r' || c == '\n' || c == '\v');
+    if (!bAlwaysSkipFirst && IsDelimiterCB(ezUnicodeUtils::ConvertUtf8ToUtf32(szString)))
+      break;
+
+    bAlwaysSkipFirst = false;
+    ezUnicodeUtils::MoveToNextUtf8(szString);
   }
 
-  bool ezStringUtils::IsWordDelimiter_English(ezUInt32 uiChar)
-  {
-    if ((uiChar >= 'a') && (uiChar <= 'z'))
-      return false;
-    if ((uiChar >= 'A') && (uiChar <= 'Z'))
-      return false;
-    if ((uiChar >= '0') && (uiChar <= '9'))
-      return false;
-    if (uiChar == '_')
-      return false;
-    if (uiChar == '-')
-      return false;
+  return szString;
+}
 
-    return true;
-  }
+bool ezStringUtils::IsWhiteSpace(ezUInt32 c)
+{
+  return (c == ' ' || c == '\t' || c == '\r' || c == '\n' || c == '\v');
+}
 
-  bool ezStringUtils::IsIdentifierDelimiter_C_Code(ezUInt32 uiChar)
-  {
-    if ((uiChar >= 'a') && (uiChar <= 'z'))
-      return false;
-    if ((uiChar >= 'A') && (uiChar <= 'Z'))
-      return false;
-    if ((uiChar >= '0') && (uiChar <= '9'))
-      return false;
-    if (uiChar == '_')
-      return false;
+bool ezStringUtils::IsWordDelimiter_English(ezUInt32 uiChar)
+{
+  if ((uiChar >= 'a') && (uiChar <= 'z'))
+    return false;
+  if ((uiChar >= 'A') && (uiChar <= 'Z'))
+    return false;
+  if ((uiChar >= '0') && (uiChar <= '9'))
+    return false;
+  if (uiChar == '_')
+    return false;
+  if (uiChar == '-')
+    return false;
 
-    return true;
-  }
+  return true;
+}
+
+bool ezStringUtils::IsIdentifierDelimiter_C_Code(ezUInt32 uiChar)
+{
+  if ((uiChar >= 'a') && (uiChar <= 'z'))
+    return false;
+  if ((uiChar >= 'A') && (uiChar <= 'Z'))
+    return false;
+  if ((uiChar >= '0') && (uiChar <= '9'))
+    return false;
+  if (uiChar == '_')
+    return false;
+
+  return true;
+}
 
 EZ_STATICLINK_FILE(Foundation, Foundation_Strings_Implementation_StringUtils);
-
