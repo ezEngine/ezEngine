@@ -55,6 +55,7 @@ EZ_STATICLINK_LIBRARY(Foundation)
   EZ_STATICLINK_REFERENCE(Foundation_Strings_Implementation_StringUtils);
   EZ_STATICLINK_REFERENCE(Foundation_Strings_Implementation_snprintf);
   EZ_STATICLINK_REFERENCE(Foundation_System_Implementation_SystemInformation);
+  EZ_STATICLINK_REFERENCE(Foundation_System_Implementation_UuidGenerator);
   EZ_STATICLINK_REFERENCE(Foundation_Threading_Implementation_OSThread);
   EZ_STATICLINK_REFERENCE(Foundation_Threading_Implementation_TaskGroups);
   EZ_STATICLINK_REFERENCE(Foundation_Threading_Implementation_TaskSystem);

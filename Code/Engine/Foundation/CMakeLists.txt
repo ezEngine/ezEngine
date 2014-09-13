@@ -25,6 +25,7 @@ if (MSVC)
   SET (LINK_LIBRARIES
     ${LINK_LIBRARIES}
     ${CMAKE_SOURCE_DIR}/Code/ThirdParty/gpa_ITT/libs/$(PlatformName)/libittnotify.lib
+    Rpcrt4.lib
   )
 endif()
 
