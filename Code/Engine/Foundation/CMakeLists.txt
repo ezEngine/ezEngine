@@ -29,6 +29,12 @@ if (MSVC)
   )
 endif()
 
+if (BUILDSYSTEM_PLATFORM_POSIX)
+  SET (LINK_LIBRARIES
+    ${LINK_LIBRARIES}
+    uuid
+  )
+endif()
 
 if (CURRENT_OSX_VERSION)
   FIND_LIBRARY(CORESERVICES_LIBRARY CoreServices )

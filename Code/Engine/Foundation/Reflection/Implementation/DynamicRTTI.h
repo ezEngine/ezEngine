@@ -52,7 +52,6 @@
       &Allocator, Properties, MessageHandlers);                     \
   }
 
-class ezSerializedRttiVersion;
 class ezArchiveWriter;
 class ezArchiveReader;
 
