@@ -94,12 +94,30 @@ class TypeABD : public TypeAB
 public:
 
   ezInt32 m_iDataABD;
+  ezReflectedClass* pA;
+
+  TypeABD()
+  {
+    pA = nullptr;
+  }
+
+  ~TypeABD()
+  {
+    if (pA)
+    {
+      pA->GetDynamicRTTI()->GetAllocator()->Deallocate(pA);
+    }
+  }
 
   virtual void Serialize(ezArchiveWriter& stream) const override
   {
     TypeAB::Serialize(stream);
 
     stream << m_iDataABD;
+
+    TypeA a;
+    a.m_iDataA = 13;
+    stream.WriteReflectedObject(&a);
   }
 
   virtual void Deserialize(ezArchiveReader& stream) override
@@ -109,6 +127,10 @@ public:
     TypeAB::Deserialize(stream);
 
     stream >> m_iDataABD;
+
+    pA = stream.ReadReflectedObject();
+    EZ_ASSERT(pA != nullptr, "bla");
+    EZ_ASSERT(pA->GetDynamicRTTI() == ezGetStaticRTTI<TypeA>(), "Wrong type");
   }
 
   virtual void OnDeserialized() override
@@ -133,6 +155,10 @@ public:
   virtual void Serialize(ezArchiveWriter& stream) const override
   {
     stream << m_iDataC;
+
+    TypeA a;
+    a.m_iDataA = 17;
+    stream.WriteReflectedObject(&a);
   }
 
   virtual void Deserialize(ezArchiveReader& stream) override
@@ -140,6 +166,11 @@ public:
     EZ_ASSERT(stream.GetStoredTypeVersion<TypeC>() == 4, "Wrong version");
 
     stream >> m_iDataC;
+
+    ezReflectedClass* pA = stream.ReadReflectedObject();
+    EZ_ASSERT(pA != nullptr, "bla");
+
+    pA->GetDynamicRTTI()->GetAllocator()->Deallocate(pA);
   }
 
   virtual void OnDeserialized() override
@@ -155,12 +186,12 @@ class SerializerAB : public ezArchiveSerializer
 {
 public:
 
-  virtual void Serialize(ezStreamWriterBase& stream, const ezRTTI* pRtti, const void* pReference) override
+  virtual void Serialize(ezArchiveWriter& stream, const ezRTTI* pRtti, const void* pReference) override
   {
     stream << pRtti->GetTypeName();
   }
 
-  virtual void* Deserialize(ezStreamReaderBase& stream, const ezRTTI* pRtti) override
+  virtual void* Deserialize(ezArchiveReader& stream, const ezRTTI* pRtti) override
   {
     ezString s;
     stream >> s;

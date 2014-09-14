@@ -5,10 +5,18 @@ ezArchiveWriter::ezArchiveWriter(ezStreamWriterBase& stream) : ezChunkStreamWrit
   m_OutputStream(stream),
   m_WriterTemp(&m_StorageTemp)
 {
+  m_bWritingFile = false;
+}
+
+ezArchiveWriter::~ezArchiveWriter()
+{
+  EZ_ASSERT(!m_bWritingFile, "The stream is left in an invalid state. EndStream() has to be called before it may be destroyed.");
 }
 
 ezResult ezArchiveWriter::WriteBytes(const void* pWriteBuffer, ezUInt64 uiBytesToWrite)
 {
+  EZ_ASSERT(m_bWritingFile, "You have to call BeginStream() before you can write to the archive");
+
   if (!m_Temp.IsEmpty())
   {
     return m_Temp.PeekBack().m_Writer.WriteBytes(pWriteBuffer, uiBytesToWrite);
@@ -19,6 +27,8 @@ ezResult ezArchiveWriter::WriteBytes(const void* pWriteBuffer, ezUInt64 uiBytesT
 
 void ezArchiveWriter::RegisterTypeSerializer(const ezRTTI* pRttiBase, ezArchiveSerializer* pSerializer)
 {
+  EZ_ASSERT(!m_bWritingFile, "This function must be called before BeginStream()");
+
   m_TypeSerializers[pRttiBase] = pSerializer;
 }
 
@@ -74,7 +84,7 @@ void ezArchiveWriter::StoreType(const ezRTTI* pRtti)
   m_RttiToWrite.PushBack(pRtti);
 }
 
-void ezArchiveWriter::WriteObjectReference(const void* pReference)
+ezUInt32 ezArchiveWriter::WriteObjectReference(const void* pReference)
 {
   bool bExisted = false;
   auto it = m_ObjectReferences.FindOrAdd(pReference, &bExisted);
@@ -84,6 +94,8 @@ void ezArchiveWriter::WriteObjectReference(const void* pReference)
 
   // write the reference ID
   WriteBytes(&it.Value(), sizeof(ezUInt32));
+
+  return it.Value();
 }
 
 void ezArchiveWriter::WriteReflectedObject(const ezReflectedClass* pReflected)
@@ -115,7 +127,7 @@ void ezArchiveWriter::BeginTypedObject(const ezRTTI* pRtti, const void* pReferen
 
   if (pSerializer != nullptr)
   {
-    pSerializer->Serialize(m_Temp.PeekBack().m_Writer, pRtti, pReference);
+    pSerializer->Serialize(*this, pRtti, pReference);
   }
 }
 
@@ -143,9 +155,21 @@ void ezArchiveWriter::EndTypedObject()
   m_Temp.PopBack();
 }
 
+void ezArchiveWriter::BeginStream()
+{
+  EZ_ASSERT(!m_bWritingFile, "This function cannot be called after BeginStream()");
+
+  m_bWritingFile = true;
+
+  ezChunkStreamWriter::BeginStream();
+}
+
 void ezArchiveWriter::EndStream()
 {
+  EZ_ASSERT(m_bWritingFile, "This function must be called after BeginStream()");
   EZ_ASSERT(m_Temp.GetCount() == 0, "BeginTypedObject / EndTypedObject has not been called in tandem (%i)", m_Temp.GetCount());
+
+  m_bWritingFile = false;
 
   ezChunkStreamWriter::EndStream();
 

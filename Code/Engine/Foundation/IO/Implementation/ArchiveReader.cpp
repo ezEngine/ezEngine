@@ -228,13 +228,16 @@ ezReflectedClass* ezArchiveReader::ReadReflectedObject()
   return pReflected;
 }
 
-void* ezArchiveReader::ReadTypedObject()
+void* ezArchiveReader::ReadTypedObject(const ezRTTI** out_pRtti, ezUInt16* out_pTypeID)
 {
   EZ_ASSERT(!m_bStreamFinished, "The stream is in an invalid state.");
 
   // read the object's type ID
   ezUInt16 uiTypeID = 0;
   *this >> uiTypeID;
+
+  if (out_pTypeID)
+    *out_pTypeID = uiTypeID;
 
   // read the object's reference ID, if this is known already, the object has been read before
   ezUInt32 uiObjectID = 0;
@@ -248,6 +251,9 @@ void* ezArchiveReader::ReadTypedObject()
 
   // object is not yet known, try to create it
   const ezRTTI* pRtti = m_Types[uiTypeID].m_pRTTI;
+
+  if (out_pRtti)
+    *out_pRtti = pRtti;
 
   ezLog::Debug(m_pLog, "Reading object of Type '%s' (v%u), ID = %u, Size = %u", m_Types[uiTypeID].m_sTypeName.GetData(), m_Types[uiTypeID].m_uiTypeVersion, uiObjectID, uiObjectDataSize);
 
