@@ -180,7 +180,7 @@ inline void ezStringBuilder::AppendFormat(const char* szUtf8Format, ...)
   va_list args;
   va_start (args, szUtf8Format);
 
-  AppendFormat(szUtf8Format, args);
+  AppendFormatArgs(szUtf8Format, args);
 
   va_end (args);
 }
@@ -190,7 +190,7 @@ inline void ezStringBuilder::PrependFormat(const char* szUtf8Format, ...)
   va_list args;
   va_start (args, szUtf8Format);
 
-  PrependFormat(szUtf8Format, args);
+  PrependFormatArgs(szUtf8Format, args);
 
   va_end (args);
 }
@@ -200,18 +200,18 @@ inline void ezStringBuilder::Format(const char* szUtf8Format, ...)
   va_list args;
   va_start (args, szUtf8Format);
 
-  Format(szUtf8Format, args);
+  FormatArgs(szUtf8Format, args);
 
   va_end (args);
 }
 
-inline void ezStringBuilder::Format(const char* szUtf8Format, va_list args0)
+inline void ezStringBuilder::FormatArgs(const char* szUtf8Format, va_list args0)
 {
   va_list args;
   va_copy(args, args0);
 
   Clear();
-  AppendFormat(szUtf8Format, args);
+  AppendFormatArgs(szUtf8Format, args);
 
   va_end(args);
 }

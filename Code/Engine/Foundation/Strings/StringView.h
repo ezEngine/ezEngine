@@ -72,7 +72,7 @@ public:
 
   /// \brief Shrinks the iterator range by uiShrinkCharsFront characters at the front and by uiShrinkCharsBack characters at the back.
   ///
-  /// Thus reduces the range of the iterator to a small sub-string.
+  /// Thus reduces the range of the iterator to a smaller sub-string.
   /// The current position is clamped to the new start of the range.
   /// The new end position is clamped to the new start of the range.
   /// If more characters are removed from the range, than it actually contains, the iterator range will become 'empty' 

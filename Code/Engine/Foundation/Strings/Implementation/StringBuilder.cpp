@@ -101,7 +101,7 @@ void ezStringBuilder::Prepend(const char* pData1, const char* pData2, const char
   }
 }
 
-void ezStringBuilder::AppendFormat(const char* szUtf8Format, va_list args0)
+void ezStringBuilder::AppendFormatArgs(const char* szUtf8Format, va_list args0)
 {
   va_list args;
   va_copy(args, args0);
@@ -114,7 +114,10 @@ void ezStringBuilder::AppendFormat(const char* szUtf8Format, va_list args0)
   EZ_ASSERT(iCount != -1, "There was an error while formatting the string. Probably and unescaped usage of the %% sign.");
 
   if (iCount == -1)
+  {
+    va_end(args);
     return;
+  }
 
   if (iCount > TempBuffer - 1)
   {
@@ -133,7 +136,7 @@ void ezStringBuilder::AppendFormat(const char* szUtf8Format, va_list args0)
   va_end(args);
 }
 
-void ezStringBuilder::PrependFormat(const char* szUtf8Format, va_list args0)
+void ezStringBuilder::PrependFormatArgs(const char* szUtf8Format, va_list args0)
 {
   va_list args;
   va_copy(args, args0);
@@ -146,7 +149,10 @@ void ezStringBuilder::PrependFormat(const char* szUtf8Format, va_list args0)
   EZ_ASSERT(iCount != -1, "There was an error while formatting the string. Probably and unescaped usage of the %% sign.");
 
   if (iCount == -1)
+  {
+    va_end(args);
     return;
+  }
 
   if (iCount > TempBuffer - 1)
   {
