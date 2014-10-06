@@ -106,12 +106,12 @@ ezResult ezWindow::Initialize()
 
   if (!m_CreationDescription.m_bFullscreenWindow)
   {
-    ezLog::Dev("Window is fullscreen.");
+    ezLog::Dev("Window is not fullscreen.");
     dwWindowStyle |= WS_OVERLAPPED | WS_BORDER | WS_CAPTION | WS_MINIMIZEBOX | WS_SYSMENU | WS_VISIBLE;
   }
   else
   {
-    ezLog::Dev("Window is not fullscreen.");
+    ezLog::Dev("Window is fullscreen.");
     dwWindowStyle |= WS_POPUP;
   }
 
@@ -131,7 +131,7 @@ ezResult ezWindow::Initialize()
     // Adjust for borders and bars etc.
     AdjustWindowRectEx(&Rect, dwWindowStyle, FALSE, dwExStyle);
 
-    // top left position now be negative (due to AdjustWindowRectEx)
+    // top left position now may be negative (due to AdjustWindowRectEx)
     // move
     Rect.right -= Rect.left;
     Rect.bottom -= Rect.top;
@@ -145,13 +145,10 @@ ezResult ezWindow::Initialize()
     RECT RectWorkArea = {0};
     SystemParametersInfoW(SPI_GETWORKAREA, 0, &RectWorkArea, 0);
 
-    int dx = RectWorkArea.left - Rect.left;
-    int dy = RectWorkArea.top - Rect.top;
-
-    Rect.left += dx;
-    Rect.right += dx;
-    Rect.top += dy;
-    Rect.bottom += dy;
+		Rect.left += RectWorkArea.left;
+		Rect.right += RectWorkArea.left;
+		Rect.top += RectWorkArea.top;
+		Rect.bottom += RectWorkArea.top;
   }
 
   const int iLeft   = Rect.left;
@@ -228,7 +225,7 @@ ezResult ezWindow::Destroy()
   if (Res == EZ_SUCCESS)
     ezLog::Success("Window destroyed.");
   else
-    ezLog::SeriousWarning("There were problems to destroy the Window properly.");
+    ezLog::SeriousWarning("There were problems to destroy the window properly.");
 
   return Res;
 }
