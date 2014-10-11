@@ -1,6 +1,12 @@
 #include <PCH.h>
 #include <Foundation/Reflection/Reflection.h>
+#include <Foundation/Reflection/ReflectionUtils.h>
 #include <Foundation/IO/MemoryStream.h>
+#include <Foundation/IO/FileSystem/FileSystem.h>
+#include <Foundation/IO/FileSystem/FileReader.h>
+#include <Foundation/IO/FileSystem/FileWriter.h>
+#include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
+
 
 EZ_CREATE_SIMPLE_TEST_GROUP(Reflection);
 
@@ -17,9 +23,11 @@ public:
     m_fFloat1 = 1.1f;
     m_iInt2 = 2;
     m_vProperty3.Set(3, 4, 5);
+    m_UInt8 = 6;
   }
 
   float m_fFloat1;
+  ezUInt8 m_UInt8;
 
 private:
   void SetInt(ezInt32 i) { m_iInt2 = i; }
@@ -35,9 +43,43 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezTestStruct, ezNoBase, 7, ezRTTINoAllocator);
   EZ_BEGIN_PROPERTIES
     EZ_MEMBER_PROPERTY("Float", m_fFloat1),
     EZ_MEMBER_PROPERTY_READ_ONLY("Vector", m_vProperty3),
-    EZ_ACCESSOR_PROPERTY("Int", GetInt, SetInt)
+    EZ_ACCESSOR_PROPERTY("Int", GetInt, SetInt),
+    EZ_MEMBER_PROPERTY("UInt8", m_UInt8),
   EZ_END_PROPERTIES
 EZ_END_STATIC_REFLECTED_TYPE();
+
+struct ezTestStruct2
+{
+  EZ_ALLOW_PRIVATE_PROPERTIES(ezTestStruct2);
+
+public:
+  ezTestStruct2()
+  {
+    m_fFloat1 = 1.1f;
+    m_iInt2 = 2;
+    m_UInt8 = 6;
+  }
+
+  double m_fFloat1;
+  ezInt16 m_UInt8;
+
+private:
+  void SetInt(ezUInt32 i) { m_iInt2 = i; }
+  ezUInt32 GetInt() const { return m_iInt2; }
+
+  ezInt32 m_iInt2;
+};
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezTestStruct2);
+
+EZ_BEGIN_STATIC_REFLECTED_TYPE(ezTestStruct2, ezNoBase, 71, ezRTTINoAllocator);
+  EZ_BEGIN_PROPERTIES
+    EZ_MEMBER_PROPERTY("Float", m_fFloat1),
+    EZ_ACCESSOR_PROPERTY("Int", GetInt, SetInt),
+    EZ_MEMBER_PROPERTY("UInt8", m_UInt8),
+  EZ_END_PROPERTIES
+EZ_END_STATIC_REFLECTED_TYPE();
+
 
 class ezTestClass1 : public ezReflectedClass
 {
@@ -55,11 +97,13 @@ public:
 
   ezTestStruct m_Struct;
   ezVec3 m_MyVector;
+  ezColor m_Color;
 };
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTestClass1, ezReflectedClass, 11, ezRTTIDefaultAllocator<ezTestClass1>);
   EZ_BEGIN_PROPERTIES
     EZ_MEMBER_PROPERTY("Sub Struct", m_Struct),
+    EZ_MEMBER_PROPERTY("Color", m_Color),
     EZ_ACCESSOR_PROPERTY_READ_ONLY("Sub Vector", GetVector)
   EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
@@ -76,6 +120,8 @@ public:
 
   const char* GetText() const { return m_Text.GetData(); }
   void SetText(const char* sz) { m_Text = sz; }
+
+  ezTime m_Time;
 
 private:
   ezString m_Text;
@@ -107,7 +153,36 @@ ezInt32 ezTestClass2Allocator::m_iDeallocs = 0;
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTestClass2, ezTestClass1, 22, ezTestClass2Allocator);
   EZ_BEGIN_PROPERTIES
-    EZ_ACCESSOR_PROPERTY("Text", GetText, SetText)
+    EZ_ACCESSOR_PROPERTY("Text", GetText, SetText),
+    EZ_MEMBER_PROPERTY("Time", m_Time)
+  EZ_END_PROPERTIES
+EZ_END_DYNAMIC_REFLECTED_TYPE();
+
+class ezTestClass2b : ezReflectedClass
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezTestClass2b);
+
+public:
+  ezTestClass2b()
+  {
+    m_Text = "Tut";
+  }
+
+  const char* GetText() const { return m_Text.GetData(); }
+  void SetText(const char* sz) { m_Text = sz; }
+
+  ezTestStruct2 m_Struct;
+  ezColor m_Color;
+
+private:
+  ezString m_Text;
+};
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTestClass2b, ezReflectedClass, 24, ezRTTIDefaultAllocator<ezTestClass2b>);
+  EZ_BEGIN_PROPERTIES
+    EZ_ACCESSOR_PROPERTY("Text2b", GetText, SetText),
+    EZ_MEMBER_PROPERTY("Sub Struct", m_Struct),
+    EZ_MEMBER_PROPERTY("Color", m_Color),
   EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
@@ -161,26 +236,30 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Types)
       ezRTTI* pType = ezRTTI::FindTypeByName("ezTestStruct");
 
       auto Props = pType->GetProperties();
-      EZ_TEST_INT(Props.GetCount(), 3);
+      EZ_TEST_INT(Props.GetCount(), 4);
       EZ_TEST_STRING(Props[0]->GetPropertyName(), "Float");
       EZ_TEST_STRING(Props[1]->GetPropertyName(), "Vector");
       EZ_TEST_STRING(Props[2]->GetPropertyName(), "Int");
+      EZ_TEST_STRING(Props[3]->GetPropertyName(), "UInt8");
     }
 
     {
       ezRTTI* pType = ezRTTI::FindTypeByName("ezTestClass2");
 
       auto Props = pType->GetProperties();
-      EZ_TEST_INT(Props.GetCount(), 1);
+      EZ_TEST_INT(Props.GetCount(), 2);
       EZ_TEST_STRING(Props[0]->GetPropertyName(), "Text");
+      EZ_TEST_STRING(Props[1]->GetPropertyName(), "Time");
 
       ezHybridArray<ezAbstractProperty*, 32> AllProps;
       pType->GetAllProperties(AllProps);
 
-      EZ_TEST_INT(AllProps.GetCount(), 3);
-      EZ_TEST_STRING(AllProps[0]->GetPropertyName(), "Text");
-      EZ_TEST_STRING(AllProps[1]->GetPropertyName(), "Sub Struct");
+      EZ_TEST_INT(AllProps.GetCount(), 5);
+      EZ_TEST_STRING(AllProps[0]->GetPropertyName(), "Sub Struct");
+      EZ_TEST_STRING(AllProps[1]->GetPropertyName(), "Color");
       EZ_TEST_STRING(AllProps[2]->GetPropertyName(), "Sub Vector");
+      EZ_TEST_STRING(AllProps[3]->GetPropertyName(), "Text");
+      EZ_TEST_STRING(AllProps[4]->GetPropertyName(), "Time");
     }
   }
 
@@ -449,6 +528,107 @@ EZ_CREATE_SIMPLE_TEST(Reflection, MemberProperties)
       EZ_TEST_FLOAT(pMember->GetValue(pSubStruct), 44.4f, 0.00001f);
     }
   }
+
+}
+
+EZ_CREATE_SIMPLE_TEST(Reflection, ReflectionUtils)
+{
+
+  ezStringBuilder sOutputFolder1 = BUILDSYSTEM_OUTPUT_FOLDER;
+  sOutputFolder1.AppendPath("FoundationTest", "Reflection");
+
+  //ezOSFile osf;
+  //osf.CreateDirectoryStructure(sOutputFolder1.GetData());
+
+  //ezFileSystem::ClearAllDataDirectoryFactories();
+  //ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
+  //EZ_TEST_BOOL(ezFileSystem::AddDataDirectory(sOutputFolder1.GetData(), ezFileSystem::AllowWrites, "Clear") == EZ_SUCCESS);
+
+  ezMemoryStreamStorage StreamStorage;
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "WriteObjectToJSON")
+  {
+    ezMemoryStreamWriter FileOut(&StreamStorage);
+
+    //ezFileWriter FileOut;
+    //EZ_TEST_BOOL(FileOut.Open("JSON.txt") == EZ_SUCCESS);
+
+    ezTestClass2 c2;
+    c2.SetText("Hallo");
+    c2.m_MyVector.Set(14, 16, 18);
+    c2.m_Struct.m_fFloat1 = 128;
+    c2.m_Struct.m_UInt8 = 234;
+    c2.m_Color.SetRGB(ezVec3(0.1f, 0.2f, 0.3f));
+    c2.m_Time = ezTime::Seconds(91.0f);
+
+    ezReflectionUtils::WriteObjectToJSON(FileOut, c2.GetDynamicRTTI(), &c2, ezJSONWriter::WhitespaceMode::All);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ReadObjectPropertiesFromJSON")
+  {
+    ezMemoryStreamReader FileIn(&StreamStorage);
+
+    //ezFileReader FileIn;
+    //EZ_TEST_BOOL(FileIn.Open("JSON.txt") == EZ_SUCCESS);
+
+    ezTestClass2 c2;
+
+    ezReflectionUtils::ReadObjectPropertiesFromJSON(FileIn, *c2.GetDynamicRTTI(), &c2);
+
+    EZ_TEST_STRING(c2.GetText(), "Hallo");
+    EZ_TEST_VEC3(c2.m_MyVector, ezVec3(3, 4, 5), 0.0f);
+    EZ_TEST_FLOAT(c2.m_Time.GetSeconds(), 91.0f, 0.0f);
+    EZ_TEST_VEC3(c2.m_Color.GetRGB<float>(), ezVec3(0.1f, 0.2f, 0.3f), 0.0f);
+    EZ_TEST_FLOAT(c2.m_Struct.m_fFloat1, 128, 0.0f);
+    EZ_TEST_INT(c2.m_Struct.m_UInt8, 234);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ReadObjectPropertiesFromJSON (different type)")
+  {
+    // here we restore the same properties into a different type of object which has properties that are named the same
+    // but may have slightly different types (but which are compatible)
+
+    ezMemoryStreamReader FileIn(&StreamStorage);
+
+    //ezFileReader FileIn;
+    //EZ_TEST_BOOL(FileIn.Open("JSON.txt") == EZ_SUCCESS);
+
+    ezTestClass2b c2;
+
+    ezReflectionUtils::ReadObjectPropertiesFromJSON(FileIn, *c2.GetDynamicRTTI(), &c2);
+
+    EZ_TEST_STRING(c2.GetText(), "Tut"); // not restored, different property name
+    EZ_TEST_VEC3(c2.m_Color.GetRGB<float>(), ezVec3(0.1f, 0.2f, 0.3f), 0.0f);
+    EZ_TEST_FLOAT(c2.m_Struct.m_fFloat1, 128, 0.0f);
+    EZ_TEST_INT(c2.m_Struct.m_UInt8, 234);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ReadObjectFromJSON")
+  {
+    ezMemoryStreamReader FileIn(&StreamStorage);
+
+    //ezFileReader FileIn;
+    //EZ_TEST_BOOL(FileIn.Open("JSON.txt") == EZ_SUCCESS);
+
+    const ezRTTI* pRtti;
+    void* pObject = ezReflectionUtils::ReadObjectFromJSON(FileIn, pRtti);
+
+    ezTestClass2& c2 = *((ezTestClass2*) pObject);
+
+    EZ_TEST_STRING(c2.GetText(), "Hallo");
+    EZ_TEST_VEC3(c2.m_MyVector, ezVec3(3, 4, 5), 0.0f);
+    EZ_TEST_FLOAT(c2.m_Time.GetSeconds(), 91.0f, 0.0f);
+    EZ_TEST_VEC3(c2.m_Color.GetRGB<float>(), ezVec3(0.1f, 0.2f, 0.3f), 0.0f);
+    EZ_TEST_FLOAT(c2.m_Struct.m_fFloat1, 128, 0.0f);
+    EZ_TEST_INT(c2.m_Struct.m_UInt8, 234);
+
+    if (pObject)
+    {
+      pRtti->GetAllocator()->Deallocate(pObject);
+    }
+  }
+
+  ezFileSystem::ClearAllDataDirectories();
 }
 
 

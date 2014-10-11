@@ -130,14 +130,10 @@ void ezRTTI::GetAllProperties(ezHybridArray<ezAbstractProperty*, 32>& out_Proper
 {
   out_Properties.Clear();
 
-  const ezRTTI* pThis = this;
+  if (m_pParentType)
+    m_pParentType->GetAllProperties(out_Properties);
 
-  while (pThis)
-  {
-    out_Properties.PushBackRange(pThis->GetProperties());
-
-    pThis = pThis->m_pParentType;
-  }
+  out_Properties.PushBackRange(GetProperties());
 }
 
 ezRTTI* ezRTTI::FindTypeByName(const char* szName)
