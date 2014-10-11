@@ -5,9 +5,9 @@
 // all include's AFTER this will be removed by the StaticLinkUtil and updated by what is actually used throughout the library
 
 #include <Foundation/Basics.h>
-#include <Foundation/Basics/Types/Bitflags.h>
-#include <Foundation/Basics/Types/Delegate.h>
-#include <Foundation/Basics/Types/Id.h>
+#include <Foundation/Types/Bitflags.h>
+#include <Foundation/Types/Delegate.h>
+#include <Foundation/Types/Id.h>
 #include <Foundation/Communication/Event.h>
 #include <Foundation/Communication/Message.h>
 #include <Foundation/Communication/MessageQueue.h>

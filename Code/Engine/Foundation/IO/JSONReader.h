@@ -2,7 +2,7 @@
 
 #include <Foundation/Basics.h>
 #include <Foundation/IO/JSONParser.h>
-#include <Foundation/Basics/Types/Variant.h>
+#include <Foundation/Types/Variant.h>
 
 /// \brief This JSON reader will read an entire JSON document into a hierarchical structure of ezVariants.
 ///

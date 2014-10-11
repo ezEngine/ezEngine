@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Foundation/Basics/Types.h>
+#include <Foundation/Types/Types.h>
 #include <CoreUtils/Basics.h>
 
 /// \brief Enum describing the type of an image format.

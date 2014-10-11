@@ -2,7 +2,7 @@
 
 #include <Foundation/Utilities/EnumerableClass.h>
 #include <Foundation/Strings/String.h>
-#include <Foundation/Basics/Types/Bitflags.h>
+#include <Foundation/Types/Bitflags.h>
 #include <Foundation/Communication/Event.h>
 #include <Foundation/Configuration/Plugin.h>
 

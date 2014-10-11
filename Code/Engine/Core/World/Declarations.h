@@ -1,7 +1,7 @@
 #pragma once
 
-#include <Foundation/Basics/Types/Bitflags.h>
-#include <Foundation/Basics/Types/Id.h>
+#include <Foundation/Types/Bitflags.h>
+#include <Foundation/Types/Id.h>
 
 #include <Core/Basics.h>
 

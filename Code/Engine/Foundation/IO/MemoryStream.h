@@ -4,7 +4,7 @@
 #include <Foundation/Basics.h>
 #include <Foundation/IO/Stream.h>
 #include <Foundation/Containers/HybridArray.h>
-#include <Foundation/Basics/Types/RefCounted.h>
+#include <Foundation/Types/RefCounted.h>
 
 class ezMemoryStreamReader;
 class ezMemoryStreamWriter;

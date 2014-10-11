@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Foundation/Basics/Types/Bitflags.h>
+#include <Foundation/Types/Bitflags.h>
 #include <Core/Basics.h>
 
 /// \brief This struct defines the different states a key can be in.

@@ -2,7 +2,7 @@
 #pragma once
 
 #include <RendererFoundation/Basics.h>
-#include <Foundation/Basics/Types/RefCounted.h>
+#include <Foundation/Types/RefCounted.h>
 #include <Foundation/Containers/DynamicArray.h>
 
 /// \brief This class wraps shader byte code storage.

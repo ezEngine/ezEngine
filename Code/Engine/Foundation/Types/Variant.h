@@ -256,7 +256,7 @@ private:
 typedef ezDynamicArray<ezVariant> ezVariantArray;
 typedef ezHashTable<ezString, ezVariant> ezVariantDictionary;
 
-#include <Foundation/Basics/Types/Implementation/VariantTypeDeduction_inl.h>
-#include <Foundation/Basics/Types/Implementation/VariantHelper_inl.h>
-#include <Foundation/Basics/Types/Implementation/Variant_inl.h>
+#include <Foundation/Types/Implementation/VariantTypeDeduction_inl.h>
+#include <Foundation/Types/Implementation/VariantHelper_inl.h>
+#include <Foundation/Types/Implementation/Variant_inl.h>
 

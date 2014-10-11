@@ -1,7 +1,7 @@
 #include <Foundation/PCH.h>
 #include <Foundation/IO/Stream.h>
 #include <Foundation/Time/Time.h>
-#include <Foundation/Basics/Types/Uuid.h>
+#include <Foundation/Types/Uuid.h>
 
 // ezAllocatorBase::Stats
 

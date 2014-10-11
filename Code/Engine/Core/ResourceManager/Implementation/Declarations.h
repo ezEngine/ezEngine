@@ -3,7 +3,7 @@
 #include <Core/Basics.h>
 #include <Foundation/Strings/String.h>
 #include <Foundation/Strings/HashedString.h>
-#include <Foundation/Basics/Types/Bitflags.h>
+#include <Foundation/Types/Bitflags.h>
 
 class ezResourceManager;
 

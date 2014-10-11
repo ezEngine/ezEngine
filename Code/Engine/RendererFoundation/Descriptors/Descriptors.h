@@ -2,7 +2,7 @@
 #pragma once
 
 #include <Foundation/Algorithm/HashableStruct.h>
-#include <Foundation/Basics/Types/RefCounted.h>
+#include <Foundation/Types/RefCounted.h>
 #include <Foundation/Math/Color.h>
 #include <Foundation/Containers/HybridArray.h>
 #include <RendererFoundation/Resources/ResourceFormats.h>

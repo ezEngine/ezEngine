@@ -1,5 +1,5 @@
 ﻿#include <PCH.h>
-#include <Foundation/Basics/Types/Variant.h>
+#include <Foundation/Types/Variant.h>
 #include <Foundation/Reflection/Reflection.h>
 
 class Blubb : public ezReflectedClass

@@ -1,5 +1,5 @@
 #include <PCH.h>
-#include <Foundation/Basics/Types/Uuid.h>
+#include <Foundation/Types/Uuid.h>
 #include <Foundation/System/UuidGenerator.h>
 #include <Foundation/IO/MemoryStream.h>
 

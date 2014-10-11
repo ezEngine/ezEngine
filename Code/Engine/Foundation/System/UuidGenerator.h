@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include <Foundation/Basics/Types/Uuid.h>
+#include <Foundation/Types/Uuid.h>
 
 /// \brief The uuid generator abstracts safe uuid generation which uses platform specific calls.
 ///

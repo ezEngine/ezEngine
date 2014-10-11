@@ -1,5 +1,5 @@
 #include <PCH.h>
-#include <Foundation/Basics/Types/Delegate.h>
+#include <Foundation/Types/Delegate.h>
 
 namespace
 {

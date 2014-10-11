@@ -2,7 +2,7 @@
 
 #include <RendererGL/Basics.h>
 #include <RendererFoundation/Device/Device.h>
-#include <Foundation/Basics/Types/Bitflags.h>
+#include <Foundation/Types/Bitflags.h>
 
 typedef ezGALFormatLookupEntry<ezUInt32, EZ_RENDERERGL_INVALID_ID> ezGALFormatLookupEntryGL;
 typedef ezGALFormatLookupTable<ezGALFormatLookupEntryGL> ezGALFormatLookupTableGL;

@@ -2,7 +2,7 @@
 
 #include <Foundation/Algorithm/Sorting.h>
 #include <Foundation/Math/Math.h>
-#include <Foundation/Basics/Types/ArrayPtr.h>
+#include <Foundation/Types/ArrayPtr.h>
 
 /// \brief Value used by containers for indices to indicate an invalid index.
 #define ezInvalidIndex 0xFFFFFFFF

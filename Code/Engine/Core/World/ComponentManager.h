@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Foundation/Basics/Types/Delegate.h>
+#include <Foundation/Types/Delegate.h>
 #include <Foundation/Containers/HybridArray.h>
 #include <Foundation/Containers/IdTable.h>
 #include <Foundation/Memory/BlockStorage.h>

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Foundation/Basics/Types/Delegate.h>
+#include <Foundation/Types/Delegate.h>
 #include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/Threading/Lock.h>
 #include <Foundation/Threading/Mutex.h>

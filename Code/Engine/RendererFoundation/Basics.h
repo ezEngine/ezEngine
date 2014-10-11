@@ -1,8 +1,8 @@
 #pragma once
 
 #include <Foundation/Basics.h>
-#include <Foundation/Basics/Types/Id.h>
-#include <Foundation/Basics/Types/RefCounted.h>
+#include <Foundation/Types/Id.h>
+#include <Foundation/Types/RefCounted.h>
 
 // Configure the DLL Import/Export Define
 #if EZ_ENABLED(EZ_COMPILE_ENGINE_AS_DLL)

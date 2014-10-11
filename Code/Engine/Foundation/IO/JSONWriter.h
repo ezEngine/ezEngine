@@ -3,7 +3,7 @@
 #include <Foundation/Basics.h>
 #include <Foundation/IO/Stream.h>
 #include <Foundation/Containers/HybridArray.h>
-#include <Foundation/Basics/Types/Variant.h>
+#include <Foundation/Types/Variant.h>
 
 /// \brief The base class for JSON writers.
 ///

@@ -17,7 +17,7 @@
 #include <Foundation/Logging/Log.h>
 #include <System/Window/Window.h>
 #include <Foundation/Math/Color.h>
-#include <Foundation/Basics/Types/ArrayPtr.h>
+#include <Foundation/Types/ArrayPtr.h>
 
 
 ezGALDeviceGL::ezGALDeviceGL(const ezGALDeviceCreationDescription& Description)

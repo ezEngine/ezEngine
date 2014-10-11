@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Foundation/Basics/Types/Id.h>
+#include <Foundation/Types/Id.h>
 #include <Foundation/Memory/AllocatorWrapper.h>
 
 /// \brief Implementation of an id mapping table which stores id/value pairs.

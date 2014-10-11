@@ -1,10 +1,10 @@
 #pragma once
 
 #include <ToolsFoundation/Basics.h>
-#include <Foundation/Basics/Types/Variant.h>
-#include <Foundation/Basics/Types/Enum.h>
-#include <Foundation/Basics/Types/Bitflags.h>
-#include <Foundation/Basics/Types/Id.h>
+#include <Foundation/Types/Variant.h>
+#include <Foundation/Types/Enum.h>
+#include <Foundation/Types/Bitflags.h>
+#include <Foundation/Types/Id.h>
 #include <Foundation/Strings/HashedString.h>
 #include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Containers/Set.h>

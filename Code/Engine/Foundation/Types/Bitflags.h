@@ -3,7 +3,7 @@
 /// \file
 
 #include <Foundation/Basics.h>
-#include <Foundation/Basics/Types/Enum.h>
+#include <Foundation/Types/Enum.h>
 
 /// \brief The ezBitflags class allows you to work with type-safe bitflags.
 ///

@@ -9,13 +9,13 @@
 
 #include <Foundation/Basics.h>
 #include <Foundation/Basics/Assert.h>
-#include <Foundation/Basics/Types.h>
-#include <Foundation/Basics/TypeTraits.h>
-#include <Foundation/Basics/Types/Bitflags.h>
-#include <Foundation/Basics/Types/Delegate.h>
-#include <Foundation/Basics/Types/Id.h>
-#include <Foundation/Basics/Types/RefCounted.h>
-#include <Foundation/Basics/Types/Variant.h>
+#include <Foundation/Types/Types.h>
+#include <Foundation/Types/TypeTraits.h>
+#include <Foundation/Types/Bitflags.h>
+#include <Foundation/Types/Delegate.h>
+#include <Foundation/Types/Id.h>
+#include <Foundation/Types/RefCounted.h>
+#include <Foundation/Types/Variant.h>
 
 #include <Foundation/Communication/Event.h>
 #include <Foundation/Communication/GlobalEvent.h>

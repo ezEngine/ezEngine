@@ -29,7 +29,7 @@
 #include <Foundation/Basics/Platform/BlackMagic.h>
 
 // Now declare all fundamental types
-#include <Foundation/Basics/Types.h>
+#include <Foundation/Types/Types.h>
 
 #ifdef BUILDSYSTEM_BUILDING_FOUNDATION_LIB
   #if BUILDSYSTEM_COMPILE_ENGINE_AS_DLL && EZ_DISABLED(EZ_COMPILE_ENGINE_AS_DLL)
@@ -53,7 +53,7 @@
 
 // Finally include the rest of basics
 #include <Foundation/Basics/Assert.h>
-#include <Foundation/Basics/TypeTraits.h>
+#include <Foundation/Types/TypeTraits.h>
 
 #include <Foundation/Memory/AllocatorBase.h>
 

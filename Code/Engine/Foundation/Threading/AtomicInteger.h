@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Foundation/Basics/TypeTraits.h>
+#include <Foundation/Types/TypeTraits.h>
 #include <Foundation/Threading/AtomicUtils.h>
 
 /// \brief Integer class that can be manipulated in an atomic (i.e. thread-safe) fashion.

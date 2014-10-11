@@ -43,4 +43,4 @@ private:
   ezUInt64 m_uiLow;
 };
 
-#include <Foundation/Basics/Types/Implementation/Uuid_inl.h>
+#include <Foundation/Types/Implementation/Uuid_inl.h>

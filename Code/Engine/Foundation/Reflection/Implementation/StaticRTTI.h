@@ -3,7 +3,7 @@
 /// \file
 
 #include <Foundation/Basics.h>
-#include <Foundation/Basics/Types/Variant.h>
+#include <Foundation/Types/Variant.h>
 
 class ezRTTI;
 class ezReflectedClass;

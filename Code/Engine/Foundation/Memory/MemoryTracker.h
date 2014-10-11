@@ -1,8 +1,8 @@
 #pragma once
 
 #include <Foundation/Basics.h>
-#include <Foundation/Basics/Types/Bitflags.h>
-#include <Foundation/Basics/Types/Id.h>
+#include <Foundation/Types/Bitflags.h>
+#include <Foundation/Types/Id.h>
 
 typedef ezGenericId<24, 8> ezAllocatorId;
 

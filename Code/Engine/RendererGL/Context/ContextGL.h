@@ -5,7 +5,7 @@
 #include <RendererGL/Shader/VertexDeclarationGL.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Context/Context.h>
-#include <Foundation/Basics/Types/Bitflags.h>
+#include <Foundation/Types/Bitflags.h>
 #include <Foundation/Containers/HashTable.h>
 
 namespace ezGALGL

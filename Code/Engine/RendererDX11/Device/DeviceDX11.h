@@ -3,7 +3,7 @@
 
 #include <RendererDX11/Basics.h>
 #include <RendererFoundation/Device/Device.h>
-#include <Foundation/Basics/Types/Bitflags.h>
+#include <Foundation/Types/Bitflags.h>
 
 struct ID3D11Device;
 struct ID3D11DeviceContext;

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Foundation/Basics/Types/Id.h>
+#include <Foundation/Types/Id.h>
 
 class ezStreamWriterBase;
 class ezThread;

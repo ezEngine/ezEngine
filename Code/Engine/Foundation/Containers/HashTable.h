@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Foundation/Algorithm/Hashing.h>
-#include <Foundation/Basics/Types/ArrayPtr.h>
+#include <Foundation/Types/ArrayPtr.h>
 #include <Foundation/Math/Math.h>
 #include <Foundation/Memory/AllocatorWrapper.h>
 
