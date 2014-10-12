@@ -48,12 +48,12 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezTestStruct, ezNoBase, 7, ezRTTINoAllocator);
   EZ_END_PROPERTIES
 EZ_END_STATIC_REFLECTED_TYPE();
 
-struct ezTestStruct2
+struct ezTestStruct3
 {
-  EZ_ALLOW_PRIVATE_PROPERTIES(ezTestStruct2);
+  EZ_ALLOW_PRIVATE_PROPERTIES(ezTestStruct3);
 
 public:
-  ezTestStruct2()
+  ezTestStruct3()
   {
     m_fFloat1 = 1.1f;
     m_iInt2 = 2;
@@ -70,9 +70,9 @@ private:
   ezInt32 m_iInt2;
 };
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezTestStruct2);
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezTestStruct3);
 
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezTestStruct2, ezNoBase, 71, ezRTTINoAllocator);
+EZ_BEGIN_STATIC_REFLECTED_TYPE(ezTestStruct3, ezNoBase, 71, ezRTTINoAllocator);
   EZ_BEGIN_PROPERTIES
     EZ_MEMBER_PROPERTY("Float", m_fFloat1),
     EZ_ACCESSOR_PROPERTY("Int", GetInt, SetInt),
@@ -171,7 +171,7 @@ public:
   const char* GetText() const { return m_Text.GetData(); }
   void SetText(const char* sz) { m_Text = sz; }
 
-  ezTestStruct2 m_Struct;
+  ezTestStruct3 m_Struct;
   ezColor m_Color;
 
 private:
