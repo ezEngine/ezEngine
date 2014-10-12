@@ -1,0 +1,5 @@
+<RCC>
+  <qresource prefix="Icons">
+    <file>Icons/ezEditor16.png</file>
+  </qresource>
+</RCC>

@@ -94,6 +94,7 @@ endif ()
 
 QT_ADD_MODULES()
 DX11_COPY_DLLS()
+
 # Add to target list
 ADD_TO_TARGET_LIST()
 

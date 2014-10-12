@@ -2,6 +2,13 @@
 #include <Foundation/Utilities/CommandLineUtils.h>
 #include <Foundation/Utilities/ConversionUtils.h>
 
+static ezCommandLineUtils g_pCmdLineInstance;
+
+ezCommandLineUtils* ezCommandLineUtils::GetInstance()
+{
+  return &g_pCmdLineInstance;
+}
+
 void ezCommandLineUtils::SetCommandLine(ezUInt32 argc, const char** argv)
 {
   m_Commands.Clear();
