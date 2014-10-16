@@ -1,0 +1,44 @@
+#pragma once
+
+#include <Core/World/World.h>
+#include <RendererCore/Material/MaterialResource.h>
+#include <RendererCore/Meshes/MeshResource.h>
+#include <RendererCore/Pipeline/Declarations.h>
+
+class EZ_RENDERERCORE_DLL ezMeshRenderData : public ezRenderData
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezMeshRenderData);
+
+public:
+  ezTransform m_WorldTransform;
+  ezMeshResourceHandle m_hMesh;
+  ezMaterialResourceHandle m_hMaterial;
+  ezUInt32 m_uiPartIndex;
+};
+
+class ezMeshComponent;
+typedef ezComponentManager<ezMeshComponent> ezMeshComponentManager;
+
+class EZ_RENDERERCORE_DLL ezMeshComponent : public ezComponent
+{
+  EZ_DECLARE_COMPONENT_TYPE(ezMeshComponent, ezMeshComponentManager);
+
+public:
+  ezMeshComponent();
+
+  void SetMesh(const ezMeshResourceHandle& hMesh);
+  EZ_FORCE_INLINE const ezMeshResourceHandle& GetMesh() const
+  {
+    return m_hMesh;
+  }
+
+  virtual ezResult OnAttachedToObject() override;
+  virtual ezResult OnDetachedFromObject() override;
+
+  void OnExtractRenderData(ezExtractRenderDataMessage& msg);
+
+private:
+  ezMeshResourceHandle m_hMesh;
+  ezDynamicArray<ezMaterialResourceHandle> m_Materials;
+};
+

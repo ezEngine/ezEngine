@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Core/World/GameObject.h>
+#include <Core/World/Implementation/SpatialData.h>
 #include <Core/World/Implementation/WorldData.h>
 
 /// \brief A world encapsulates a scene graph of game objects and various component managers and their components.
@@ -103,11 +103,19 @@ public:
   void Update();
 
 
+  /// \brief
+  const ezInternal::SpatialData& GetSpatialData() const;
+
+
   /// \brief Returns the allocator used by this world.
   ezAllocatorBase* GetAllocator();
 
   /// \brief Returns the block allocator used by this world.
   ezLargeBlockAllocator* GetBlockAllocator();
+
+  /// \brief Transfers ownership of the world to the calling thread. Use with care!
+  /// Call this method if you want to update the world in a workerthread. Make sure that the world is not accessed by multiple threads at the same time.
+  void TransferThreadOwnership();
 
 
   /// \brief Associates the given user data with the world. The user is responsible for the life time of user data.
@@ -153,6 +161,8 @@ private:
   typedef ezInternal::WorldData::ObjectStorage::Entry ObjectStorageEntry;
 
   typedef ezInternal::WorldData::QueuedMsgMetaData QueuedMsgMetaData;
+
+  ezInternal::SpatialData m_SpatialData;
 
   ezUInt32 m_uiIndex;
   static ezStaticArray<ezWorld*, 64> s_Worlds;

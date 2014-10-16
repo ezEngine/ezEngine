@@ -164,6 +164,11 @@ EZ_FORCE_INLINE void ezWorld::SendMessage(const ezGameObjectHandle& receiverObje
   }
 }
 
+EZ_FORCE_INLINE const ezInternal::SpatialData& ezWorld::GetSpatialData() const
+{
+  return m_SpatialData;
+}
+
 EZ_FORCE_INLINE ezAllocatorBase* ezWorld::GetAllocator()
 {
   return &m_Data.m_Allocator;
@@ -172,6 +177,11 @@ EZ_FORCE_INLINE ezAllocatorBase* ezWorld::GetAllocator()
 EZ_FORCE_INLINE ezLargeBlockAllocator* ezWorld::GetBlockAllocator()
 {
   return &m_Data.m_BlockAllocator;
+}
+
+EZ_FORCE_INLINE void ezWorld::TransferThreadOwnership()
+{
+  m_Data.m_ThreadID = ezThreadUtils::GetCurrentThreadID();
 }
 
 EZ_FORCE_INLINE void ezWorld::SetUserData(void* pUserData)

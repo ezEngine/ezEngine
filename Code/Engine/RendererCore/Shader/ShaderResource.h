@@ -8,8 +8,6 @@
 class ezShaderResource;
 typedef ezResourceHandle<ezShaderResource> ezShaderResourceHandle;
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezShaderResource);
-
 struct ezShaderResourceDescriptor
 {
 };

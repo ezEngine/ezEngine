@@ -225,7 +225,7 @@ void ezMeshBufferResource::Draw(ezUInt32 uiNumPrimitives, ezUInt32 uiFirstPrimit
     // draw not indexed
 
     /// \todo draw without indices cannot have a start offset ?
-    m_pDevice->GetPrimaryContext()->Draw(uiNumPrimitives * 3);
+    m_pDevice->GetPrimaryContext()->Draw(uiNumPrimitives * 3, uiFirstPrimitive * 3);
   }
 
   /// \todo Instancing etc. ?

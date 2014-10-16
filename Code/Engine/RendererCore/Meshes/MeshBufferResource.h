@@ -100,6 +100,21 @@ public:
   /// \todo Where do we put this ?
   void Draw(ezUInt32 uiNumPrimitives = 0xFFFFFFFF, ezUInt32 uiFirstPrimitive = 0);
 
+  EZ_FORCE_INLINE ezUInt32 GetPrimitiveCount() const
+  {
+    return m_uiPrimitiveCount;
+  }
+
+  EZ_FORCE_INLINE ezGALBufferHandle GetVertexBuffer() const
+  {
+    return m_hVertexBuffer;
+  }
+
+  EZ_FORCE_INLINE ezGALBufferHandle GetIndexBuffer() const
+  {
+    return m_hIndexBuffer;
+  }
+
 private:
   virtual void UnloadData(bool bFullUnload) override;
   virtual void UpdateContent(ezStreamReaderBase& Stream) override;

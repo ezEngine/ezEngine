@@ -22,10 +22,11 @@ SET (LINK_LIBRARIES
   Foundation
   Core
   System
-  OpenGL32
   InputXBox360
   ThirdParty
   RendererFoundation
+  RendererCore
+  RendererDX11
   RendererGL3
 )
 

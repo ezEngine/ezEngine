@@ -69,14 +69,14 @@ public:
   virtual ~ezReflectedClass() {}
 
   /// \brief Returns whether the type of this instance is of the given type or derived from it.
-  EZ_FORCE_INLINE bool IsInstanceOf(const ezRTTI* pType)
+  EZ_FORCE_INLINE bool IsInstanceOf(const ezRTTI* pType) const
   {
     return GetDynamicRTTI()->IsDerivedFrom(pType);
   }
 
   /// \brief Returns whether the type of this instance is of the given type or derived from it.
   template<typename T>
-  EZ_FORCE_INLINE bool IsInstanceOf()
+  EZ_FORCE_INLINE bool IsInstanceOf() const
   {
     return GetDynamicRTTI()->IsDerivedFrom<T>();
   }

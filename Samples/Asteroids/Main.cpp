@@ -1,4 +1,3 @@
-#include <ThirdParty/enet/enet.h>
 #include "Main.h"
 #include "Application.h"
 #include "Window.h"
@@ -13,12 +12,31 @@
 #include <Foundation/Time/Clock.h>
 
 #include <RendererGL/Device/DeviceGL.h>
+#include <RendererCore/Pipeline/RenderPipeline.h>
 
-SampleGameApp::SampleGameApp()
+SampleGameApp::WorldUpdateTask::WorldUpdateTask(SampleGameApp* pApp)
+{
+  m_pApp = pApp;
+  SetTaskName("GameLoop");
+}
+
+void SampleGameApp::WorldUpdateTask::Execute()
+{
+  m_pApp->UpdateInput(ezClock::Get()->GetTimeDiff());
+  m_pApp->m_pLevel->Update();
+
+  m_pApp->m_View.ExtractData();
+}
+
+ezGALDevice* SampleGameApp::s_pDevice;
+
+SampleGameApp::SampleGameApp() : 
+  m_WorldUpdateTask(this), m_View("MainView")
 {
   m_bActiveRenderLoop = false;
+  m_pLevel = nullptr;
   m_pWindow = nullptr;
-  m_pDevice = NULL;
+  s_pDevice = nullptr;
 }
 
 void SampleGameApp::AfterEngineInit()
@@ -28,12 +46,19 @@ void SampleGameApp::AfterEngineInit()
   ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
   ezFileSystem::AddDataDirectory(ezOSFile::GetApplicationDirectory());
 
+  ezStringBuilder sReadDir = BUILDSYSTEM_OUTPUT_FOLDER;
+  sReadDir.AppendPath("../../Shared/FreeContent/Asteroids/");
+
+  ezFileSystem::AddDataDirectory(sReadDir.GetData(), ezFileSystem::AllowWrites, "Asteroids Content");
+
   ezTelemetry::CreateServer();
 
   if (ezPlugin::LoadPlugin("ezInspectorPlugin") == EZ_SUCCESS)
   {
 
   }
+
+  EZ_VERIFY(ezPlugin::LoadPlugin("ezShaderCompilerHLSL").Succeeded(), "Compiler Plugin not found");
 
   // Setup the logging system
   ezGlobalLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);
@@ -55,8 +80,6 @@ void SampleGameApp::AfterEngineInit()
 
   CreateGameLevel();
 
-  
-
   m_bActiveRenderLoop = true;
 }
 
@@ -66,8 +89,11 @@ void SampleGameApp::BeforeEngineShutdown()
 
   ezStartup::ShutdownEngine();
 
-  m_pDevice->Shutdown();
-  EZ_DEFAULT_DELETE(m_pDevice);
+  ezRenderPipeline* pRenderPipeline = m_View.GetRenderPipeline();
+  EZ_DEFAULT_DELETE(pRenderPipeline);
+
+  s_pDevice->Shutdown();
+  EZ_DEFAULT_DELETE(s_pDevice);
 
   EZ_DEFAULT_DELETE(m_pWindow);
 
@@ -90,8 +116,12 @@ ezApplication::ApplicationExecution SampleGameApp::Run()
 
   ezClock::UpdateAllGlobalClocks();
 
-  RenderSingleFrame();
-  
+  ezTaskGroupID updateTaskID = ezTaskSystem::StartSingleTask(&m_WorldUpdateTask, ezTaskPriority::EarlyThisFrame);
+
+  m_View.Render();
+
+  ezTaskSystem::FinishFrameTasks();
+  ezTaskSystem::WaitForGroup(updateTaskID);
 
   ezTelemetry::PerFrameUpdate();
 

@@ -12,8 +12,6 @@ ezCVarFloat CVar_AsteroidPush("g_AsteroidPush", 0.06f, ezCVarFlags::Default, "cv
 AsteroidComponent::AsteroidComponent()
 {
   m_fRotationSpeed = ((rand() % 1000) / 999.0f) * 2.0f - 1.0f;
-  m_fRadius = 1.0f;
-  m_iShapeRandomSeed = rand() % 1000; 
 }
 
 void AsteroidComponent::Update()

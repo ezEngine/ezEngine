@@ -8,6 +8,7 @@
 class ezWorld;
 namespace ezInternal
 {
+  class SpatialData;
   class WorldData;
 }
 

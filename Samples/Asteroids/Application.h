@@ -1,12 +1,15 @@
 #pragma once
 
-#include <Core/Application/Application.h>
 #include "Level.h"
-#include <Core/Input/VirtualThumbStick.h>
+#include <Foundation/Threading/TaskSystem.h>
 #include <Foundation/Time/Time.h>
 #include <Foundation/Time/DefaultTimeStepSmoothing.h>
+#include <Core/Application/Application.h>
+#include <Core/Input/VirtualThumbStick.h>
+#include <RendererCore/Pipeline/View.h>
 
-class ezGALDeviceGL;
+class ezGALDevice;
+class GameWindow;
 
 class SampleGameApp : public ezApplication
 {
@@ -18,7 +21,10 @@ public:
 
   virtual ezApplication::ApplicationExecution Run() override;
 
-
+  static ezGALDevice* GetDevice()
+  {
+    return s_pDevice;
+  }
 
 private:
   friend LRESULT CALLBACK WndProc (HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
@@ -27,22 +33,33 @@ private:
 
   void RenderSingleFrame();
   void UpdateInput(ezTime UpdateDiff);
-  void RenderProjectiles();
-  void RenderAsteroids();
-  void RenderPlayerShips();
 
   void GameLoop();
   void SetupInput();
   void CreateGameLevel();
   void DestroyGameLevel();
 
+  class WorldUpdateTask : public ezTask
+  {
+  public:
+    WorldUpdateTask(SampleGameApp* pApp);
+
+  private:
+    virtual void Execute() override;
+
+    SampleGameApp* m_pApp;
+  };
+
+  WorldUpdateTask m_WorldUpdateTask;
+
   bool m_bActiveRenderLoop;
   Level* m_pLevel;
-  class GameWindow* m_pWindow;
+  GameWindow* m_pWindow;
 
   ezDefaultTimeStepSmoothing m_TimeStepSmoother;
   ezVirtualThumbStick* m_pThumbstick;
   ezVirtualThumbStick* m_pThumbstick2;
 
-  ezGALDeviceGL* m_pDevice;
+  static ezGALDevice* s_pDevice;
+  ezView m_View;
 };

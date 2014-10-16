@@ -1,16 +1,22 @@
 #include "Application.h"
 #include "Window.h"
-#include "ShipComponent.h"
-#include "ProjectileComponent.h"
-#include "AsteroidComponent.h"
-#include <gl/GL.h>
+#include "MainRenderPass.h"
 #include <Core/Input/InputManager.h>
 #include <Foundation/Math/Size.h>
 #include <Foundation/Configuration/CVar.h>
 #include <Foundation/Math/Color.h>
 #include <Foundation/Logging/Log.h>
 
-#include <RendererGL/Device/DeviceGL.h>
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+  #include <RendererDX11/Device/DeviceDX11.h>
+  typedef ezGALDeviceDX11 ezGALDeviceDefault;
+#else
+  #include <RendererGL/Device/DeviceGL.h>
+  typedef ezGALDeviceGL ezGALDeviceDefault;
+#endif
+
+#include <RendererCore/Pipeline/RenderPipeline.h>
+#include <RendererCore/ShaderCompiler/ShaderManager.h>
 
 const ezColor g_fShipColors[4] =
 {
@@ -20,6 +26,7 @@ const ezColor g_fShipColors[4] =
   ezColor::GetYellow()
 };
 
+#if 0
 static void RenderShip(ezGameObject* pShip, ezInt32 iPlayer)
 {
   ShipComponent* pShipComponent = nullptr;
@@ -59,6 +66,7 @@ static void RenderShip(ezGameObject* pShip, ezInt32 iPlayer)
 
   glEnd();
 }
+#endif
 
 void SampleGameApp::InitRendering()
 {
@@ -72,10 +80,18 @@ void SampleGameApp::InitRendering()
   DeviceInit.m_PrimarySwapChainDescription.m_bAllowScreenshots = true;
   DeviceInit.m_PrimarySwapChainDescription.m_bVerticalSynchronization = true;
 
-  m_pDevice = EZ_DEFAULT_NEW(ezGALDeviceGL)(DeviceInit);
-  EZ_VERIFY(m_pDevice->Init() == EZ_SUCCESS, "Device init failed!");
+  s_pDevice = EZ_DEFAULT_NEW(ezGALDeviceDefault)(DeviceInit);
+  EZ_VERIFY(s_pDevice->Init() == EZ_SUCCESS, "Device init failed!");
+
+  ezShaderManager::SetPlatform("DX11_SM40", s_pDevice, true);
+
+  ezRenderPipeline* pRenderPipeline = EZ_DEFAULT_NEW(ezRenderPipeline)(s_pDevice, true);
+  pRenderPipeline->AddPass(EZ_DEFAULT_NEW(MainRenderPass));
+
+  m_View.SetRenderPipeline(pRenderPipeline);
 }
 
+#if 0
 void SampleGameApp::RenderPlayerShips()
 {
   ShipComponentManager* pShipManager = m_pLevel->GetWorld()->GetComponentManager<ShipComponentManager>();
@@ -87,57 +103,6 @@ void SampleGameApp::RenderPlayerShips()
     RenderShip ((*it).GetOwner(), (*it).m_iPlayerIndex);
   }
 }
-
-void RenderAsteroid(ezGameObject* pObject, AsteroidComponent* pComponent)
-{
-  const ezVec3 vPos = pObject->GetLocalPosition();
-  const ezQuat qRot = pObject->GetLocalRotation();
-
-  glColor3ub(128, 128, 128);
-
-  const ezInt32 iCorners = 14;
-  const float fStep = 360.0f / iCorners;
-  ezVec3 v[iCorners];
-
-  for (ezInt32 i = 0; i < iCorners; ++i)
-  {
-    v[i].x = ezMath::Cos(ezAngle::Degree(fStep * i)) * pComponent->m_fRadius;
-    v[i].y = ezMath::Sin(ezAngle::Degree(fStep * i)) * pComponent->m_fRadius;
-    v[i].z = 0.0f;
-  }
-
-  srand(pComponent->m_iShapeRandomSeed);
-
-  for (ezInt32 i = 0; i < iCorners; ++i)
-    v[i] *= 0.9f + ((rand() % 1000) / 999.0f) * 0.2f;
-
-  for (ezInt32 i = 0; i < iCorners; ++i)
-    v[i] = qRot * v[i] + vPos;
-
-  glBegin(GL_TRIANGLES);
-
-    for (ezInt32 i = 0; i < iCorners - 2; ++i)
-    {
-      glVertex3f(v[0    ].x, v[0    ].y, v[0    ].z);
-      glVertex3f(v[i + 1].x, v[i + 1].y, v[i + 1].z);
-      glVertex3f(v[i + 2].x, v[i + 2].y, v[i + 2].z);
-    }
-
-  glEnd();
-}
-
-void SampleGameApp::RenderAsteroids()
-{
-  AsteroidComponentManager* pManager = m_pLevel->GetWorld()->GetComponentManager<AsteroidComponentManager>();
-
-  ezBlockStorage<AsteroidComponent>::Iterator it = pManager->GetComponents();
-
-  for ( ; it.IsValid(); ++it)
-  {
-    RenderAsteroid((*it).GetOwner(), &(*it));
-  }
-}
-
 
 static void RenderProjectile(ezGameObject* pObj, ProjectileComponent* pProjectile)
 {
@@ -184,42 +149,7 @@ void SampleGameApp::RenderSingleFrame()
 {
   EZ_LOG_BLOCK("SampleGameApp::RenderSingleFrame");
 
-  m_pDevice->BeginFrame();
-
-  // always update the game with a fixed time step of 1/60 seconds
-  const ezTime tUpdateInterval = ezTime::Seconds(1.0 / 60.0);
-  const ezTime tNow = ezTime::Now();
-
-  static ezTime s_LastGameUpdate = tNow;
-
-  // This loop lets you artificially slow down the game to see how the fixed
-  // game time stepping kicks in to do more updates per frame and keep a stable simulation
-  //if (false)
-  {
-    // enable this loop to reduce the overall framerate
-    for (int i = 0; i < CVarGameSlowDown; ++i)
-    {
-      ezThreadUtils::Sleep(1);
-      ezInputManager::PollHardware();
-    }
-  }
-
-  bool bPolledInput = false;
-
-  while (tNow - s_LastGameUpdate > tUpdateInterval)
-  {
-    bPolledInput = true;
-
-    UpdateInput(tUpdateInterval);
-    m_pLevel->Update();
-
-    s_LastGameUpdate += tUpdateInterval;
-  }
-
-  // this should be done at least once per frame to ensure that all input devices are actually initialized
-  // otherwise you might see some warnings for a few frames
-  if (!bPolledInput)
-    ezInputManager::PollHardware();
+  
 
   ezSizeU32 resolution = m_pWindow->GetResolution();
   glViewport(0, 0, resolution.width, resolution.height);
@@ -233,9 +163,6 @@ void SampleGameApp::RenderSingleFrame()
   glLoadIdentity();
 
   glDisable(GL_CULL_FACE);
-
-  glClearColor(0, 0, 0.1f, 1);
-  glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
   RenderProjectiles();
   RenderAsteroids();
@@ -377,8 +304,8 @@ void SampleGameApp::RenderSingleFrame()
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
   }
 
-  m_pDevice->EndFrame();
-  m_pDevice->Present(m_pDevice->GetPrimarySwapChain());
+ 
 }
 
+#endif
 

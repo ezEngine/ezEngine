@@ -36,7 +36,7 @@ void ezGALContext::Clear(const ezColor& ClearColor, ezUInt32 uiRenderTargetClear
   ClearPlatform(ClearColor, uiRenderTargetClearMask, bClearDepth, bClearStencil, fDepthClear, uiStencilClear);
 }
 
-void ezGALContext::Draw(ezUInt32 uiVertexCount)
+void ezGALContext::Draw(ezUInt32 uiVertexCount, ezUInt32 uiStartVertex)
 {
   AssertRenderingThread();
 
@@ -52,7 +52,7 @@ void ezGALContext::Draw(ezUInt32 uiVertexCount)
   if (ed.m_bCancelDrawcall)
     return;
 
-  DrawPlatform(uiVertexCount);
+  DrawPlatform(uiVertexCount, uiStartVertex);
 
   CountDrawCall();
 }
@@ -122,7 +122,7 @@ void ezGALContext::DrawIndexedInstancedIndirect(ezGALBufferHandle hIndirectArgum
   CountDrawCall();
 }
 
-void ezGALContext::DrawInstanced(ezUInt32 uiVertexCountPerInstance, ezUInt32 uiInstanceCount)
+void ezGALContext::DrawInstanced(ezUInt32 uiVertexCountPerInstance, ezUInt32 uiInstanceCount, ezUInt32 uiStartVertex)
 {
   AssertRenderingThread();
   /// \todo Assert for instancing
@@ -139,7 +139,7 @@ void ezGALContext::DrawInstanced(ezUInt32 uiVertexCountPerInstance, ezUInt32 uiI
   if (ed.m_bCancelDrawcall)
     return;
 
-  DrawInstancedPlatform(uiVertexCountPerInstance, uiInstanceCount);
+  DrawInstancedPlatform(uiVertexCountPerInstance, uiInstanceCount, uiStartVertex);
 
   CountDrawCall();
 }

@@ -10,8 +10,6 @@
 class ezShaderPermutationResource;
 typedef ezResourceHandle<ezShaderPermutationResource> ezShaderPermutationResourceHandle;
 
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezShaderPermutationResource);
-
 struct ezShaderPermutationResourceDescriptor
 {
 };

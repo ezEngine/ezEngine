@@ -2,6 +2,7 @@
 
 #include "Main.h"
 #include <Core/World/World.h>
+#include <CoreUtils/Graphics/Camera.h>
 
 class Level
 {
@@ -12,7 +13,8 @@ public:
   void SetupLevel(const char* szLevelName);
   void Update();
 
-  const ezWorld* GetWorld() const { return m_pWorld; }
+  ezWorld* GetWorld() const { return m_pWorld; }
+  const ezCamera* GetCamera() const { return &m_Camera; }
 
 private:
   void UpdatePlayerInput(ezInt32 iPlayer);
@@ -21,5 +23,6 @@ private:
 
   ezWorld* m_pWorld;
   ezGameObjectHandle m_hPlayerShips[MaxPlayers];
+  ezCamera m_Camera;
 };
 

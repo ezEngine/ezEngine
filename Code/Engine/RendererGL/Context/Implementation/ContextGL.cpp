@@ -249,11 +249,11 @@ void ezGALContextGL::ClearPlatform(const ezColor& ClearColor, ezUInt32 uiRenderT
   }
 }
 
-void ezGALContextGL::DrawPlatform(ezUInt32 uiVertexCount)
+void ezGALContextGL::DrawPlatform(ezUInt32 uiVertexCount, ezUInt32 uiStartVertex)
 {
   FlushDeferredStateChanges();
 
-  EZ_GL_CALL(glDrawArrays, s_GALTopologyToGL[m_PrimitiveTopology], 0, uiVertexCount);
+  EZ_GL_CALL(glDrawArrays, s_GALTopologyToGL[m_PrimitiveTopology], uiStartVertex, uiVertexCount);
 }
 
 void ezGALContextGL::DrawIndexedPlatform(ezUInt32 uiIndexCount, ezUInt32 uiStartIndex)
@@ -279,11 +279,11 @@ void ezGALContextGL::DrawIndexedInstancedIndirectPlatform(ezGALBuffer* pIndirect
   EZ_ASSERT_NOT_IMPLEMENTED;
 }
 
-void ezGALContextGL::DrawInstancedPlatform(ezUInt32 uiVertexCountPerInstance, ezUInt32 uiInstanceCount)
+void ezGALContextGL::DrawInstancedPlatform(ezUInt32 uiVertexCountPerInstance, ezUInt32 uiInstanceCount, ezUInt32 uiStartVertex)
 {
   FlushDeferredStateChanges();
 
-  EZ_GL_CALL(glDrawArraysInstanced, s_GALTopologyToGL[m_PrimitiveTopology], 0, uiVertexCountPerInstance, uiInstanceCount);
+  EZ_GL_CALL(glDrawArraysInstanced, s_GALTopologyToGL[m_PrimitiveTopology], uiStartVertex, uiVertexCountPerInstance, uiInstanceCount);
 }
 
 void ezGALContextGL::DrawInstancedIndirectPlatform(ezGALBuffer* pIndirectArgumentBuffer, ezUInt32 uiArgumentOffsetInBytes)

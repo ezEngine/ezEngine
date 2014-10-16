@@ -22,9 +22,15 @@
 ezGALContextDX11::ezGALContextDX11(ezGALDevice* pDevice, ID3D11DeviceContext* pDXContext)
 : ezGALContext(pDevice),
   m_pDXContext(pDXContext),
+  m_pBoundDepthStencilTarget(nullptr),
   m_uiBoundRenderTargetCount(0)
 {
   EZ_ASSERT(pDXContext != nullptr, "Invalid DX context!");
+
+  for (ezUInt32 i = 0; i < EZ_GAL_MAX_RENDERTARGET_COUNT; i++)
+  {
+    m_pBoundRenderTargets[i] = nullptr;
+  }
 
   for (ezUInt32 i = 0; i < EZ_GAL_MAX_VERTEX_BUFFER_COUNT; i++)
   {
@@ -72,11 +78,11 @@ void ezGALContextDX11::ClearPlatform(const ezColor& ClearColor, ezUInt32 uiRende
   }
 }
 
-void ezGALContextDX11::DrawPlatform(ezUInt32 uiVertexCount)
+void ezGALContextDX11::DrawPlatform(ezUInt32 uiVertexCount, ezUInt32 uiStartVertex)
 {
   FlushDeferredStateChanges();
 
-  m_pDXContext->Draw(uiVertexCount, 0);
+  m_pDXContext->Draw(uiVertexCount, uiStartVertex);
 }
 
 void ezGALContextDX11::DrawIndexedPlatform(ezUInt32 uiIndexCount, ezUInt32 uiStartIndex)
@@ -100,11 +106,11 @@ void ezGALContextDX11::DrawIndexedInstancedIndirectPlatform(ezGALBuffer* pIndire
   m_pDXContext->DrawIndexedInstancedIndirect(static_cast<ezGALBufferDX11*>(pIndirectArgumentBuffer)->GetDXBuffer(), uiArgumentOffsetInBytes);
 }
 
-void ezGALContextDX11::DrawInstancedPlatform(ezUInt32 uiVertexCountPerInstance, ezUInt32 uiInstanceCount)
+void ezGALContextDX11::DrawInstancedPlatform(ezUInt32 uiVertexCountPerInstance, ezUInt32 uiInstanceCount, ezUInt32 uiStartVertex)
 {
   FlushDeferredStateChanges();
 
-  m_pDXContext->DrawInstanced(uiVertexCountPerInstance, uiInstanceCount, 0, 0);
+  m_pDXContext->DrawInstanced(uiVertexCountPerInstance, uiInstanceCount, uiStartVertex, 0);
 }
 
 void ezGALContextDX11::DrawInstancedIndirectPlatform(ezGALBuffer* pIndirectArgumentBuffer, ezUInt32 uiArgumentOffsetInBytes)

@@ -16,8 +16,6 @@ public:
   void Update();
 
   float m_fRotationSpeed;
-  float m_fRadius;
-  ezInt32 m_iShapeRandomSeed;
 };
 
 

@@ -12,9 +12,6 @@
 #include <RendererCore/ShaderCompiler/PermutationGenerator.h>
 #include <RendererCore/Shader/ShaderPermutationBinary.h>
 
-class ezShaderProgramCompiler;
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_RENDERERCORE_DLL, ezShaderProgramCompiler);
-
 class EZ_RENDERERCORE_DLL ezShaderProgramCompiler : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezShaderProgramCompiler);
