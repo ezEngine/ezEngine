@@ -23,18 +23,12 @@ void MainRenderPass::Execute()
   ezGALDevice* pDevice = GetPipeline()->GetDevice();
   ezGALContext* pContext = pDevice->GetPrimaryContext();
 
-  pDevice->BeginFrame();
-
   const ezGALSwapChain* pSwapChain = pDevice->GetSwapChain(pDevice->GetPrimarySwapChain());
 
   pContext->SetRenderTargetConfig(pSwapChain->GetRenderTargetViewConfig());
-  pContext->SetViewport(0.0f, 0.0f, 500.0f, 500.0f, 0.0f, 1.0f);
   pContext->Clear(ezColor(0.0f, 0.0f, 0.1f));
 
   ezShaderManager::SetActiveShader(s_hShader);
 
   RenderDataWithPassType(ezDefaultPassTypes::Opaque);
-
-  pDevice->EndFrame();
-  pDevice->Present(pDevice->GetPrimarySwapChain());
 }

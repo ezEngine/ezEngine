@@ -21,6 +21,16 @@ public:
   void AddPass(ezRenderPipelinePass* pPass);
   void RemovePass(ezRenderPipelinePass* pPass);
 
+  EZ_FORCE_INLINE void SetViewport(const ezRectFloat& viewport)
+  {
+    m_ViewPortRect = viewport;
+  }
+
+  EZ_FORCE_INLINE const ezRectFloat& GetViewport() const
+  {
+    return m_ViewPortRect;
+  }
+
   EZ_FORCE_INLINE ezGALDevice* GetDevice()
   {
     return m_pDevice;
@@ -92,6 +102,8 @@ private:
   static void ClearPipelineData(PipelineData* pPipeLineData);
 
   ezDynamicArray<ezRenderPipelinePass*> m_Passes;
+
+  ezRectFloat m_ViewPortRect;
 
   ezGALDevice* m_pDevice;
 

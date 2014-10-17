@@ -45,7 +45,8 @@ private:
   ezProfilingId m_ExtractDataProfilingID;
   ezProfilingId m_RenderProfilingID;
 
-  ezWorld* m_pWorld;
+  /// \todo the pointer to the world should be const
+  ezWorld* m_pWorld; 
   ezRenderPipeline* m_pRenderPipeline;
   const ezCamera* m_pLogicCamera;
   const ezCamera* m_pRenderCamera;

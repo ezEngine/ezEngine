@@ -83,10 +83,17 @@ void SampleGameApp::InitRendering()
   s_pDevice = EZ_DEFAULT_NEW(ezGALDeviceDefault)(DeviceInit);
   EZ_VERIFY(s_pDevice->Init() == EZ_SUCCESS, "Device init failed!");
 
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   ezShaderManager::SetPlatform("DX11_SM40", s_pDevice, true);
+#else
+  ezShaderManager::SetPlatform("GL3", s_pDevice, true);
+#endif
 
   ezRenderPipeline* pRenderPipeline = EZ_DEFAULT_NEW(ezRenderPipeline)(s_pDevice, true);
   pRenderPipeline->AddPass(EZ_DEFAULT_NEW(MainRenderPass));
+
+  ezSizeU32 size = m_pWindow->GetResolution();
+  pRenderPipeline->SetViewport(ezRectFloat(0.0f, 0.0f, (float)size.width, (float)size.height));
 
   m_View.SetRenderPipeline(pRenderPipeline);
 }

@@ -28,6 +28,7 @@ void ezRenderPipeline::PassData::SortRenderData()
 
 ezRenderPipeline::ezRenderPipeline(ezGALDevice* pDevice, bool bAsynchronous)
 {
+  m_ViewPortRect = ezRectFloat(0.0f, 0.0f);
   m_pDevice = pDevice;
   m_bAsynchronous = bAsynchronous;
 
@@ -76,6 +77,9 @@ void ezRenderPipeline::Render(const ezCamera& camera)
   {
     m_pRenderData = (m_pRenderData == &m_Data[0]) ? &m_Data[1] : &m_Data[0];
   }
+
+  m_pDevice->GetPrimaryContext()->SetViewport(m_ViewPortRect.x, m_ViewPortRect.y, 
+    m_ViewPortRect.width, m_ViewPortRect.height, 0.0f, 1.0f);
 
   for (ezUInt32 i = 0; i < m_Passes.GetCount(); ++i)
   {

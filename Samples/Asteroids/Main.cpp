@@ -58,7 +58,9 @@ void SampleGameApp::AfterEngineInit()
 
   }
 
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   EZ_VERIFY(ezPlugin::LoadPlugin("ezShaderCompilerHLSL").Succeeded(), "Compiler Plugin not found");
+#endif
 
   // Setup the logging system
   ezGlobalLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);
@@ -118,7 +120,15 @@ ezApplication::ApplicationExecution SampleGameApp::Run()
 
   ezTaskGroupID updateTaskID = ezTaskSystem::StartSingleTask(&m_WorldUpdateTask, ezTaskPriority::EarlyThisFrame);
 
-  m_View.Render();
+  {
+    s_pDevice->BeginFrame();
+
+    m_View.Render();
+
+    s_pDevice->EndFrame();
+    s_pDevice->Present(s_pDevice->GetPrimarySwapChain());
+  }
+  
 
   ezTaskSystem::FinishFrameTasks();
   ezTaskSystem::WaitForGroup(updateTaskID);
