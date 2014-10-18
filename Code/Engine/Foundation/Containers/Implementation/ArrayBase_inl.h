@@ -221,6 +221,20 @@ ezUInt32 ezArrayBase<T, Derived>::LastIndexOf(const T& value, ezUInt32 uiStartIn
 }
 
 template <typename T, typename Derived>
+T& ezArrayBase<T, Derived>::ExpandAndGetRef()
+{
+  static_cast<Derived*>(this)->Reserve(m_uiCount + 1);
+
+  ezMemoryUtils::Construct(m_pElements + m_uiCount, 1);
+
+  T& ReturnRef = *(m_pElements + m_uiCount);
+
+  m_uiCount++;
+
+  return ReturnRef;
+}
+
+template <typename T, typename Derived>
 void ezArrayBase<T, Derived>::PushBack(const T& value)
 {
   static_cast<Derived*>(this)->Reserve(m_uiCount + 1);

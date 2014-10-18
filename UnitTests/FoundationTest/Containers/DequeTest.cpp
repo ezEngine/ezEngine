@@ -499,6 +499,25 @@ EZ_CREATE_SIMPLE_TEST(Containers, Deque)
       EZ_TEST_BOOL(ezMath::IsEven(a1[i]));
   }
 
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ExpandAndGetRef")
+  {
+    ezDeque<ezInt32> a1;
+
+    for (ezInt32 i = 0; i < 20; ++i)
+    {
+      ezInt32& intRef = a1.ExpandAndGetRef();
+      intRef = i * 5;
+    }
+
+
+    EZ_TEST_BOOL(a1.GetCount() == 20);
+
+    for (ezInt32 i = 0; i < 20; ++i)
+    {
+      EZ_TEST_INT(a1[i], i * 5);
+    }
+  }
+
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "PushBack / PopBack / PeekBack")
   {
     ezDeque<ezInt32> a1;

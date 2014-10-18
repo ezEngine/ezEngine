@@ -71,6 +71,9 @@ public:
   /// \brief Accesses the n-th element in the deque.
   const T& operator[](ezUInt32 uiIndex) const; // [tested]
 
+  /// \brief Grows the deque by one element and returns a reference to the newly created element.
+  T& ExpandAndGetRef(); // [tested]
+
   /// \brief Adds one default constructed element to the back of the deque.
   void PushBack(); // [tested]
 

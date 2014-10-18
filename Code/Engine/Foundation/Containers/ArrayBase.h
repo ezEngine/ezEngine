@@ -78,6 +78,9 @@ public:
   /// \brief Searches for the last occurrence of the given value and returns its index or ezInvalidIndex if not found. 
   ezUInt32 LastIndexOf(const T& value, ezUInt32 uiStartIndex = ezInvalidIndex) const; // [tested]
 
+  /// \brief Grows the array by one element and returns a reference to the newly created element.
+  T& ExpandAndGetRef(); // [tested]
+
   /// \brief Pushes value at the end of the array.
   void PushBack(const T& value); // [tested]
 

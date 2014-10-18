@@ -394,6 +394,20 @@ EZ_FORCE_INLINE const T& ezDequeBase<T, Construct>::operator[](ezUInt32 uiIndex)
 }
 
 template <typename T, bool Construct>
+EZ_FORCE_INLINE T& ezDequeBase<T, Construct>::ExpandAndGetRef()
+{
+  RESERVE(m_uiCount + 1);
+  ++m_uiCount;
+
+  T* pElement = &ElementAt(m_uiCount - 1);
+
+  if (Construct)
+    ezMemoryUtils::DefaultConstruct(pElement, 1);
+
+  return *pElement;
+}
+
+template <typename T, bool Construct>
 EZ_FORCE_INLINE void ezDequeBase<T, Construct>::PushBack()
 {
   RESERVE(m_uiCount + 1);
