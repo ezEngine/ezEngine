@@ -56,12 +56,12 @@ public:
     char** cArgs = (char**) GetArgumentsArray();
 
     ezCommandLineUtils::GetInstance()->SetCommandLine(GetArgumentCount(), GetArgumentsArray());
-    ezEditorFramework::SetApplicationName(ezCommandLineUtils::GetInstance()->GetStringOption("-appname", 0, "ezEditor"));
+    ezEditorFramework::StartupEditor(ezCommandLineUtils::GetInstance()->GetStringOption("-appname", 0, "ezEditor"));
 
     QApplication app(iArgs, cArgs);
     QCoreApplication::setOrganizationDomain("www.ezEngine.net");
     QCoreApplication::setOrganizationName("ezEngine Project");
-    QCoreApplication::setApplicationName(ezEditorFramework::GetApplicationName());
+    QCoreApplication::setApplicationName(ezEditorFramework::GetApplicationName().GetData());
     QCoreApplication::setApplicationVersion("1.0.0");
 
     SetStyleSheet();
@@ -74,13 +74,14 @@ public:
       ezStartup::StartupCore();
 
       ezStringBuilder sAppDir = ezOSFile::GetApplicationDirectory();
-      sAppDir.AppendPath("..", ezEditorFramework::GetApplicationName());
+      sAppDir.AppendPath("..", ezEditorFramework::GetApplicationName().GetData());
 
       ezOSFile osf;
       osf.CreateDirectoryStructure(sAppDir.GetData());
 
       ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
-      ezFileSystem::AddDataDirectory(sAppDir.GetData(), ezFileSystem::AllowWrites, "Editor");
+      ezFileSystem::AddDataDirectory("", ezFileSystem::AllowWrites, "Editor"); // for absolute paths
+      ezFileSystem::AddDataDirectory(sAppDir.GetData(), ezFileSystem::AllowWrites, "Editor"); // for everything relative
 
       ezEditorFramework::LoadPlugins();
       ezEditorFramework::RestoreWindowLayout();
@@ -91,6 +92,8 @@ public:
 
       SetReturnCode(iReturnCode);
       ezEditorFramework::SetMainWindow(nullptr);
+
+      ezEditorFramework::ShutdownEditor();
     }
 
     return ezApplication::Quit;

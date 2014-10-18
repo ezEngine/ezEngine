@@ -21,6 +21,12 @@ public slots:
 
 private slots:
   virtual void on_ActionConfigurePlugins_triggered();
+  virtual void on_ActionProjectCreate_triggered();
+  virtual void on_ActionProjectOpen_triggered();
+  virtual void on_ActionProjectClose_triggered();
+  virtual void on_ActionSceneCreate_triggered();
+  virtual void on_ActionSceneOpen_triggered();
+  virtual void on_ActionSceneClose_triggered();
 
 private:
   // Window Layout

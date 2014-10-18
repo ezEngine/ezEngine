@@ -51,11 +51,65 @@
     </property>
     <addaction name="ActionConfigurePlugins"/>
    </widget>
+   <widget class="QMenu" name="menuFile">
+    <property name="title">
+     <string>File</string>
+    </property>
+    <widget class="QMenu" name="menuProject">
+     <property name="title">
+      <string>Project</string>
+     </property>
+     <addaction name="ActionProjectCreate"/>
+     <addaction name="ActionProjectOpen"/>
+     <addaction name="ActionProjectClose"/>
+    </widget>
+    <widget class="QMenu" name="menuScene">
+     <property name="title">
+      <string>Scene</string>
+     </property>
+     <addaction name="ActionSceneCreate"/>
+     <addaction name="ActionSceneOpen"/>
+     <addaction name="ActionSceneClose"/>
+    </widget>
+    <addaction name="menuProject"/>
+    <addaction name="menuScene"/>
+   </widget>
+   <addaction name="menuFile"/>
    <addaction name="menuSettings"/>
   </widget>
   <action name="ActionConfigurePlugins">
    <property name="text">
     <string>Plugins</string>
+   </property>
+  </action>
+  <action name="ActionProjectCreate">
+   <property name="text">
+    <string>Create</string>
+   </property>
+  </action>
+  <action name="ActionProjectOpen">
+   <property name="text">
+    <string>Open</string>
+   </property>
+  </action>
+  <action name="ActionProjectClose">
+   <property name="text">
+    <string>Close</string>
+   </property>
+  </action>
+  <action name="ActionSceneCreate">
+   <property name="text">
+    <string>Create</string>
+   </property>
+  </action>
+  <action name="ActionSceneOpen">
+   <property name="text">
+    <string>Open</string>
+   </property>
+  </action>
+  <action name="ActionSceneClose">
+   <property name="text">
+    <string>Close</string>
    </property>
   </action>
  </widget>
