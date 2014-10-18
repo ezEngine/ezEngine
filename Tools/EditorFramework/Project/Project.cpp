@@ -14,7 +14,7 @@ ezString ezEditorFramework::GetProjectDataFolder()
   return sPath;
 }
 
-ezResult ezEditorFramework::CreateProject(const ezString& sProjectPath)
+ezResult ezEditorFramework::CreateProject(ezStringView sProjectPath)
 {
   EZ_ASSERT(!sProjectPath.IsEmpty(), "Path cannot be empty.");
 
@@ -48,7 +48,7 @@ ezResult ezEditorFramework::CreateProject(const ezString& sProjectPath)
   return OpenProject(sProjectPath);
 }
 
-ezResult ezEditorFramework::OpenProject(const ezString& sProjectPath)
+ezResult ezEditorFramework::OpenProject(ezStringView sProjectPath)
 {
   EZ_ASSERT(!sProjectPath.IsEmpty(), "Path cannot be empty.");
 

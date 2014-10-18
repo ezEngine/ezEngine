@@ -9,6 +9,7 @@
 #include <QSettings>
 
 ezString ezEditorFramework::s_sApplicationName("ezEditor");
+ezString ezEditorFramework::s_sUserName("DefaultUser");
 bool ezEditorFramework::s_bContentModified = false;
 
 ezEvent<const ezEditorFramework::EditorEvent&> ezEditorFramework::s_EditorEvents;
@@ -17,9 +18,10 @@ QMainWindow* ezEditorFramework::s_pMainWindow = nullptr;
 
 ezSet<ezString> ezEditorFramework::s_RestartRequiredReasons;
 
-void ezEditorFramework::StartupEditor(const ezString& sAppName)
+void ezEditorFramework::StartupEditor(ezStringView sAppName, ezStringView sUserName)
 {
   s_sApplicationName = sAppName;
+  s_sUserName = sUserName;
   UpdateEditorWindowTitle();
 
   // load the settings

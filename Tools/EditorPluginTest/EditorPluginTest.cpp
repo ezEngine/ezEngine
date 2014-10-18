@@ -4,6 +4,7 @@
 #include <EditorPluginTest/Windows/TestWindow.moc.h>
 #include <EditorFramework/EditorFramework.h>
 #include <qmainwindow.h>
+#include <QMessageBox>
 
 ezTestPanel* pPanel = nullptr;
 ezTestWindow* pWindow = nullptr;
@@ -23,7 +24,11 @@ void OnLoadPlugin(bool bReloading)
   ezEditorFramework::s_EditorEvents.AddEventHandler(OnEditorEvent);
 
   ezEditorFramework::GetSettings(ezEditorFramework::SettingsCategory::Editor, "TestPlugin").RegisterValueBool("Awesome", true);
+  ezEditorFramework::GetSettings(ezEditorFramework::SettingsCategory::Editor, "TestPlugin").RegisterValueBool("SomeUserSetting", true, ezSettingsFlags::User);
   ezEditorFramework::GetSettings(ezEditorFramework::SettingsCategory::Project, "TestPlugin").RegisterValueString("Legen", "dary");
+
+  if (ezEditorFramework::GetSettings(ezEditorFramework::SettingsCategory::Editor, "TestPlugin").GetValueBool("SomeUserSetting") == false)
+    QMessageBox::information(pPanel, QLatin1String(""), QLatin1String(""), QMessageBox::StandardButton::Ok, QMessageBox::StandardButton::Ok);
 }
 
 void OnUnloadPlugin(bool bReloading)  

@@ -56,7 +56,7 @@ public:
     char** cArgs = (char**) GetArgumentsArray();
 
     ezCommandLineUtils::GetInstance()->SetCommandLine(GetArgumentCount(), GetArgumentsArray());
-    ezEditorFramework::StartupEditor(ezCommandLineUtils::GetInstance()->GetStringOption("-appname", 0, "ezEditor"));
+    ezEditorFramework::StartupEditor(ezCommandLineUtils::GetInstance()->GetStringOption("-appname", 0, "ezEditor"), "DefaultUser");
 
     QApplication app(iArgs, cArgs);
     QCoreApplication::setOrganizationDomain("www.ezEngine.net");

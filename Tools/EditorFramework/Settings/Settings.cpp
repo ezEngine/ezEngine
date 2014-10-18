@@ -9,33 +9,43 @@
 
 ezMap<ezString, ezSettings> ezEditorFramework::s_Settings[3];
 
-void ezSettings::RegisterValueBool(const char* szKey, bool Default)
+void ezSettings::RegisterValueBool(const char* szKey, bool Default, ezBitflags<ezSettingsFlags> flags)
 {
-  m_Settings[szKey].m_Value = Default; 
-  m_Settings[szKey].m_bRegistered = true;
+  if (!m_Settings.Find(szKey).IsValid())
+    m_Settings[szKey].m_Value = Default;
+
+  m_Settings[szKey].m_Flags = flags | ezSettingsFlags::Registered;
 }
 
-void ezSettings::RegisterValueInt(const char* szKey, ezInt32 Default)
+void ezSettings::RegisterValueInt(const char* szKey, ezInt32 Default, ezBitflags<ezSettingsFlags> flags)
 {
-  m_Settings[szKey].m_Value = Default;
-  m_Settings[szKey].m_bRegistered = true;
+  if (!m_Settings.Find(szKey).IsValid())
+    m_Settings[szKey].m_Value = Default;
+
+  m_Settings[szKey].m_Flags = flags | ezSettingsFlags::Registered;
 }
 
-void ezSettings::RegisterValueFloat(const char* szKey, float Default)
+void ezSettings::RegisterValueFloat(const char* szKey, float Default, ezBitflags<ezSettingsFlags> flags)
 {
-  m_Settings[szKey].m_Value = Default;
-  m_Settings[szKey].m_bRegistered = true;
+  if (!m_Settings.Find(szKey).IsValid())
+    m_Settings[szKey].m_Value = Default;
+
+  m_Settings[szKey].m_Flags = flags | ezSettingsFlags::Registered;
 }
-void ezSettings::RegisterValueString(const char* szKey, const char* Default) 
+void ezSettings::RegisterValueString(const char* szKey, const char* Default, ezBitflags<ezSettingsFlags> flags) 
 {
-  m_Settings[szKey].m_Value = Default;
-  m_Settings[szKey].m_bRegistered = true;
+  if (!m_Settings.Find(szKey).IsValid())
+    m_Settings[szKey].m_Value = Default;
+
+  m_Settings[szKey].m_Flags = flags | ezSettingsFlags::Registered;
 }
 
-void ezSettings::RegisterValueColor(const char* szKey, const ezColor& Default)
+void ezSettings::RegisterValueColor(const char* szKey, const ezColor& Default, ezBitflags<ezSettingsFlags> flags)
 {
-  m_Settings[szKey].m_Value = Default;
-  m_Settings[szKey].m_bRegistered = true;
+  if (!m_Settings.Find(szKey).IsValid())
+    m_Settings[szKey].m_Value = Default;
+
+  m_Settings[szKey].m_Flags = flags | ezSettingsFlags::Registered;
 }
 
 
@@ -78,7 +88,7 @@ void ezSettings::SetValueColor(const char* szKey, const ezColor& value)
 bool ezSettings::GetValueBool(const char* szKey)
 {
   auto it = m_Settings.FindOrAdd(szKey);
-  EZ_ASSERT(it.IsValid() && it.Value().m_bRegistered && it.Value().m_Value.IsA<bool>(), "The setting '%s' has not been registered as type 'bool'", szKey);
+  EZ_ASSERT(it.IsValid() && it.Value().m_Flags.IsAnySet(ezSettingsFlags::Registered) && it.Value().m_Value.IsA<bool>(), "The setting '%s' has not been registered as type 'bool'", szKey);
 
   if (!it.IsValid())
     return false;
@@ -89,7 +99,7 @@ bool ezSettings::GetValueBool(const char* szKey)
 ezInt32 ezSettings::GetValueInt(const char* szKey)
 {
   auto it = m_Settings.FindOrAdd(szKey);
-  EZ_ASSERT(it.IsValid() && it.Value().m_bRegistered && it.Value().m_Value.IsA<ezInt32>(), "The setting '%s' has not been registered as type 'int'", szKey);
+  EZ_ASSERT(it.IsValid() && it.Value().m_Flags.IsAnySet(ezSettingsFlags::Registered) && it.Value().m_Value.IsA<ezInt32>(), "The setting '%s' has not been registered as type 'int'", szKey);
 
   if (!it.IsValid())
     return 0;
@@ -101,7 +111,7 @@ ezInt32 ezSettings::GetValueInt(const char* szKey)
 float ezSettings::GetValueFloat(const char* szKey)
 {
   auto it = m_Settings.FindOrAdd(szKey);
-  EZ_ASSERT(it.IsValid() && it.Value().m_bRegistered && it.Value().m_Value.IsA<float>(), "The setting '%s' has not been registered as type 'float'", szKey);
+  EZ_ASSERT(it.IsValid() && it.Value().m_Flags.IsAnySet(ezSettingsFlags::Registered) && it.Value().m_Value.IsA<float>(), "The setting '%s' has not been registered as type 'float'", szKey);
 
   if (!it.IsValid())
     return 0.0f;
@@ -113,7 +123,7 @@ float ezSettings::GetValueFloat(const char* szKey)
 ezString ezSettings::GetValueString(const char* szKey)
 {
   auto it = m_Settings.FindOrAdd(szKey);
-  EZ_ASSERT(it.IsValid() && it.Value().m_bRegistered && it.Value().m_Value.IsA<ezString>(), "The setting '%s' has not been registered as type 'string'", szKey);
+  EZ_ASSERT(it.IsValid() && it.Value().m_Flags.IsAnySet(ezSettingsFlags::Registered) && it.Value().m_Value.IsA<ezString>(), "The setting '%s' has not been registered as type 'string'", szKey);
 
   if (!it.IsValid())
     return "";
@@ -125,7 +135,7 @@ ezString ezSettings::GetValueString(const char* szKey)
 ezColor ezSettings::GetValueColor(const char* szKey)
 {
   auto it = m_Settings.FindOrAdd(szKey);
-  EZ_ASSERT(it.IsValid() && it.Value().m_bRegistered && it.Value().m_Value.IsA<ezColor>(), "The setting '%s' has not been registered as type 'color'", szKey);
+  EZ_ASSERT(it.IsValid() && it.Value().m_Flags.IsAnySet(ezSettingsFlags::Registered) && it.Value().m_Value.IsA<ezColor>(), "The setting '%s' has not been registered as type 'color'", szKey);
 
   if (!it.IsValid())
     return ezColor::GetBlack();
@@ -134,7 +144,7 @@ ezColor ezSettings::GetValueColor(const char* szKey)
 
 }
 
-void ezSettings::WriteToJSON(ezStreamWriterBase& stream) const
+void ezSettings::WriteToJSON(ezStreamWriterBase& stream, bool bNonUserSettings, bool bUserSettings) const
 {
   ezExtendedJSONWriter writer;
   writer.SetOutputStream(&stream);
@@ -143,7 +153,12 @@ void ezSettings::WriteToJSON(ezStreamWriterBase& stream) const
 
   for (auto it = m_Settings.GetIterator(); it.IsValid(); ++it)
   {
-    if (!it.Value().m_bRegistered)
+    if (!it.Value().m_Flags.IsAnySet(ezSettingsFlags::Registered))
+      continue;
+
+    const bool bIsUserSetting = it.Value().m_Flags.IsAnySet(ezSettingsFlags::User);
+
+    if (bIsUserSetting && !bUserSettings || !bIsUserSetting && !bNonUserSettings)
       continue;
 
     const char* szKey = it.Key().GetData();
@@ -229,6 +244,17 @@ ezSettings& ezEditorFramework::GetSettings(SettingsCategory category, const char
     if (file.Open(sPath.GetData()).Succeeded())
     {
       settings.ReadFromJSON(file);
+      file.Close();
+    }
+
+    ezStringBuilder sUserFile;
+    sUserFile.Append(GetApplicationUserName().GetData(), ".usersettings");
+    sPath.ChangeFileExtension(sUserFile.GetData());
+
+    if (file.Open(sPath.GetData()).Succeeded())
+    {
+      settings.ReadFromJSON(file);
+      file.Close();
     }
   }
 
@@ -263,7 +289,18 @@ void ezEditorFramework::SaveSettings()
       ezFileWriter file;
       if (file.Open(sPath.GetData()).Succeeded())
       {
-        settings.WriteToJSON(file);
+        settings.WriteToJSON(file, true, false);
+        file.Close();
+      }
+
+      ezStringBuilder sUserFile;
+      sUserFile.Append(GetApplicationUserName().GetData(), ".usersettings");
+      sPath.ChangeFileExtension(sUserFile.GetData());
+
+      if (file.Open(sPath.GetData()).Succeeded())
+      {
+        settings.WriteToJSON(file, false, true);
+        file.Close();
       }
     }
   }
@@ -281,7 +318,18 @@ void ezEditorFramework::SaveSettings()
       ezFileWriter file;
       if (file.Open(sPath.GetData()).Succeeded())
       {
-        settings.WriteToJSON(file);
+        settings.WriteToJSON(file, true, false);
+        file.Close();
+      }
+
+      ezStringBuilder sUserFile;
+      sUserFile.Append(GetApplicationUserName().GetData(), ".usersettings");
+      sPath.ChangeFileExtension(sUserFile.GetData());
+
+      if (file.Open(sPath.GetData()).Succeeded())
+      {
+        settings.WriteToJSON(file, false, true);
+        file.Close();
       }
     }
   }
@@ -299,7 +347,18 @@ void ezEditorFramework::SaveSettings()
       ezFileWriter file;
       if (file.Open(sPath.GetData()).Succeeded())
       {
-        settings.WriteToJSON(file);
+        settings.WriteToJSON(file, true, false);
+        file.Close();
+      }
+
+      ezStringBuilder sUserFile;
+      sUserFile.Append(GetApplicationUserName().GetData(), ".usersettings");
+      sPath.ChangeFileExtension(sUserFile.GetData());
+
+      if (file.Open(sPath.GetData()).Succeeded())
+      {
+        settings.WriteToJSON(file, false, true);
+        file.Close();
       }
     }
   }

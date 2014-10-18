@@ -43,13 +43,14 @@ public:
   static void SetMainWindow(QMainWindow* pWindow) { s_pMainWindow = pWindow; }
   static QMainWindow* GetMainWindow() { return s_pMainWindow; }
   static const ezString& GetApplicationName() { return s_sApplicationName; }
+  static const ezString& GetApplicationUserName() { return s_sUserName; }
 
   static const ezPluginSet& GetEditorPluginsAvailable();
   static const ezPluginSet& GetEditorPluginsActive() { return s_EditorPluginsActive; }
   static const ezPluginSet& GetEditorPluginsToBeLoaded() { return s_EditorPluginsToBeLoaded; }
   static void SetEditorPluginsToBeLoaded(const ezPluginSet& plugins);
 
-  static void AddRestartRequiredReason(const ezString& sReason) { s_RestartRequiredReasons.Insert(sReason); }
+  static void AddRestartRequiredReason(ezStringView sReason) { s_RestartRequiredReasons.Insert(sReason); }
   static const ezSet<ezString>& GetRestartRequiredReasons() { return s_RestartRequiredReasons; }
 
   static void SaveWindowLayout();
@@ -68,16 +69,16 @@ public:
   static const ezString& GetProjectPath() { return s_sProjectPath; }
   static const ezString& GetScenePath() { return s_sScenePath; }
 
-  static void StartupEditor(const ezString& sAppName);
+  static void StartupEditor(ezStringView sAppName, ezStringView sUserName);
   static void ShutdownEditor();
 
-  static ezResult OpenProject(const ezString& sProjectPath);
-  static ezResult CreateProject(const ezString& sProjectPath);
+  static ezResult OpenProject(ezStringView sProjectPath);
+  static ezResult CreateProject(ezStringView sProjectPath);
   static void CloseProject();
   static ezString GetProjectDataFolder();
 
-  static ezResult OpenScene(const ezString& sScenePath);
-  static ezResult CreateScene(const ezString& sScenePath);
+  static ezResult OpenScene(ezStringView sScenePath);
+  static ezResult CreateScene(ezStringView sScenePath);
   static void CloseScene();
   static ezString GetSceneDataFolder();
 
@@ -96,6 +97,7 @@ private:
   static void ReadPluginsToBeLoaded();
 
   static ezString s_sApplicationName;
+  static ezString s_sUserName;
   static bool s_bContentModified;
 
   static ezString s_sProjectPath;

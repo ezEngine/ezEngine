@@ -22,7 +22,7 @@ public:
   ezStringView();
 
   /// \brief Creates a string iterator starting at the given position, ending at the next '\0' terminator.
-  explicit ezStringView(const char* pStart); // [tested]
+  ezStringView(const char* pStart); // [tested]
 
   /// \brief Creates a string iterator for the range from pFirst to pEnd, which currently points to pCurrent.
   ezStringView(const char* pStart, const char* pEnd); // [tested]

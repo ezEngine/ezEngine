@@ -13,7 +13,7 @@ ezString ezEditorFramework::GetSceneDataFolder()
   return sPath;
 }
 
-ezResult ezEditorFramework::CreateScene(const ezString& sScenePath)
+ezResult ezEditorFramework::CreateScene(ezStringView sScenePath)
 {
   EZ_ASSERT(!sScenePath.IsEmpty(), "Path cannot be empty.");
 
@@ -38,7 +38,7 @@ ezResult ezEditorFramework::CreateScene(const ezString& sScenePath)
   return OpenScene(sScenePath);
 }
 
-ezResult ezEditorFramework::OpenScene(const ezString& sScenePath)
+ezResult ezEditorFramework::OpenScene(ezStringView sScenePath)
 {
   EZ_ASSERT(!sScenePath.IsEmpty(), "Path cannot be empty.");
 
