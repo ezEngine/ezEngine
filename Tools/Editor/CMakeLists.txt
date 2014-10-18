@@ -29,6 +29,7 @@ SET (LINK_LIBRARIES
   Core
   ThirdParty
   EditorFramework
+  ToolsFoundation
 )
 
 include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/CMAKE_Application.txt)

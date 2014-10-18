@@ -63,7 +63,6 @@ public:
     QCoreApplication::setOrganizationName("ezEngine Project");
     QCoreApplication::setApplicationName(ezEditorFramework::GetApplicationName().GetData());
     QCoreApplication::setApplicationVersion("1.0.0");
-
     SetStyleSheet();
 
     {

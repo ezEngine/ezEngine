@@ -95,7 +95,7 @@ void ezToolsReflectionUtils::GetReflectedTypeDescriptorFromRtti(const ezRTTI* pR
         if (memberProp->IsReadOnly())
           memberFlags.Add(PropertyFlags::IsReadOnly);
 
-        if (memberType == ezVariant::Type::Invalid)
+        if (memberType == ezVariant::Type::Invalid || memberType == ezVariant::Type::ReflectedPointer)
         {
           out_desc.m_Properties.PushBack(ezReflectedPropertyDescriptor(memberProp->GetPropertyName(), pMemberPropRtti->GetTypeName(), memberFlags));
         }

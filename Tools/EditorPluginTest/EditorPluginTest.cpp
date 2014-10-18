@@ -3,21 +3,51 @@
 #include <EditorPluginTest/Panels/TestPanel.moc.h>
 #include <EditorPluginTest/Windows/TestWindow.moc.h>
 #include <EditorFramework/EditorFramework.h>
+#include <EditorFramework/GUI/RawPropertyGridWidget.h>
+#include <ToolsFoundation/Reflection/ToolsReflectionUtils.h>
+#include <ToolsFoundation/Reflection/ReflectedTypeManager.h>
+#include <EditorPluginTest/Objects/TestObject.h>
 #include <qmainwindow.h>
 #include <QMessageBox>
 
 ezTestPanel* pPanel = nullptr;
 ezTestWindow* pWindow = nullptr;
+ezRawPropertyGridWidget* pProps = nullptr;
+ezTestObject* g_pTestObject = nullptr;
 
 void OnEditorEvent(const ezEditorFramework::EditorEvent& e);
 
+void RegisterType(const ezRTTI* pRtti)
+{
+  if (pRtti->GetParentType() != nullptr)
+    RegisterType(pRtti->GetParentType());
+
+  ezReflectedTypeDescriptor desc;
+  ezToolsReflectionUtils::GetReflectedTypeDescriptorFromRtti(pRtti, desc);
+  ezReflectedTypeManager::RegisterType(desc);
+}
+
 void OnLoadPlugin(bool bReloading)    
 {
+  RegisterType(ezGetStaticRTTI<ezTestEditorProperties>());
+  RegisterType(ezGetStaticRTTI<ezTestObjectProperties>());
+  
+
   //pWindow = new ezTestWindow(nullptr);
   //pWindow->show();
 
   pPanel = new ezTestPanel(/*(QWidget*) pWindow);*/ezEditorFramework::GetMainWindow());
   pPanel->show();
+
+  pProps = new ezRawPropertyGridWidget(nullptr);//
+  pPanel->setWidget(pProps);
+
+  g_pTestObject = new ezTestObject;
+
+  ezHybridArray<ezDocumentObjectBase*, 32> sel;
+  sel.PushBack(g_pTestObject);
+
+  pProps->SetSelection(sel);
 
   /*pWindow*/ezEditorFramework::GetMainWindow()->addDockWidget(Qt::DockWidgetArea::RightDockWidgetArea, pPanel);
 

@@ -4,7 +4,7 @@
 #include <QDockWidget>
 #include <Tools/EditorPluginTest/ui_TestPanel.h>
 
-class ezTestPanel : public QDockWidget, public Ui_TestPanel
+class ezTestPanel : public QDockWidget
 {
 public:
   Q_OBJECT

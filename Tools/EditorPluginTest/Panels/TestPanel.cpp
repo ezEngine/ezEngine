@@ -4,7 +4,8 @@
 
 ezTestPanel::ezTestPanel(QWidget* parent) : QDockWidget(parent)
 {
-  setupUi(this);
+  //setupUi(this);
+  setBackgroundRole(QPalette::ColorRole::Highlight);
 }
 
 ezTestPanel::~ezTestPanel()
