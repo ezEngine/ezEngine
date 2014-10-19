@@ -83,6 +83,8 @@ public:
       ezFileSystem::AddDataDirectory(sAppDir.GetData(), ezFileSystem::AllowWrites, "Editor"); // for everything relative
 
       ezEditorFramework::LoadPlugins();
+
+      // *** RESTORE ***
       ezEditorFramework::RestoreWindowLayout();
 
       MainWindow.show();

@@ -6,6 +6,8 @@
 #include <ToolsFoundation/Reflection/ReflectedTypeDirectAccessor.h>
 #include <Foundation/Containers/Map.h>
 
+class ezDocumentBase;
+
 class ezEmptyProperties : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezEmptyProperties);
@@ -22,31 +24,31 @@ private:
   static ezReflectedTypeDirectAccessor s_Accessor;
 };
 
+struct ezDocumentObjectTreeEvent
+{
+  enum class Type
+  {
+    BeforeObjectAdded,
+    AfterObjectAdded,
+    BeforeObjectRemoved,
+    AfterObjectRemoved,
+    BeforeObjectMoved,
+    AfterObjectMoved,
+  };
+
+  Type m_EventType;
+  const ezDocumentObjectBase* m_pObject;
+  const ezDocumentObjectBase* m_pPreviousParent;
+  const ezDocumentObjectBase* m_pNewParent;
+};
+
 class EZ_TOOLSFOUNDATION_DLL ezDocumentObjectTree
 {
 public:
 
-  struct Event
-  {
-    enum class Type
-    {
-      BeforeObjectAdded,
-      AfterObjectAdded,
-      BeforeObjectRemoved,
-      AfterObjectRemoved,
-      BeforeObjectMoved,
-      AfterObjectMoved,
-    };
+  ezEvent<const ezDocumentObjectTreeEvent&> m_Events;
 
-    Type m_EventType;
-    const ezDocumentObjectBase* m_pObject;
-    const ezDocumentObjectBase* m_pPreviousParent;
-    const ezDocumentObjectBase* m_pNewParent;
-  };
-
-  mutable ezEvent<const Event&> m_Events;
-
-  ezDocumentObjectTree(ezDocumentObjectManagerBase* pObjectManager);
+  ezDocumentObjectTree(const ezDocumentBase* pDocument);
 
   const ezDocumentObjectBase* GetRootObject() const { return &m_RootObject; }
 
@@ -58,7 +60,7 @@ public:
 
   const ezDocumentObjectBase* GetObject(const ezUuid& guid) const;
 
-  ezDocumentObjectManagerBase* GetObjectManager() { return m_pObjectManager; }
+  const ezDocumentBase* GetDocument() const { return m_pDocument; }
 
 private:
   ezDocumentObjectRoot m_RootObject;
@@ -69,5 +71,5 @@ private:
   /// \todo this should be a hash map
   ezMap<ezUuid, const ezDocumentObjectBase*> m_GuidToObject;
 
-  ezDocumentObjectManagerBase* m_pObjectManager;
+  const ezDocumentBase* m_pDocument;
 };

@@ -4,13 +4,13 @@
 #include <qlistwidget.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 
-class ezTextObjectCreatorWidget : public QListWidget
+class ezTestObjectCreatorWidget : public QListWidget
 {
 public:
   Q_OBJECT
 
 public:
-  ezTextObjectCreatorWidget(ezDocumentObjectManagerBase* pManager, QWidget* parent);
+  ezTestObjectCreatorWidget(const ezDocumentObjectManagerBase* pManager, QWidget* parent);
 
   virtual QMimeData * mimeData ( const QList<QListWidgetItem *> items ) const override;
   virtual QStringList mimeTypes () const override;
@@ -20,7 +20,7 @@ public slots:
 private slots:
 
 private:
-  ezDocumentObjectManagerBase* m_pManager;
+  const ezDocumentObjectManagerBase* m_pManager;
 
 };
 

@@ -22,6 +22,7 @@ protected:
 class EZ_TOOLSFOUNDATION_DLL ezDocumentObjectBase
 {
 public:
+  virtual ~ezDocumentObjectBase() { }
 
   virtual const ezIReflectedTypeAccessor& GetTypeAccessor() const = 0;
   virtual const ezIReflectedTypeAccessor& GetEditorTypeAccessor() const = 0;

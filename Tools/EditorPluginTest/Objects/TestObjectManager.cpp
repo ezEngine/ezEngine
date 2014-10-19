@@ -3,7 +3,7 @@
 #include <EditorPluginTest/Objects/TestObject.h>
 #include <ToolsFoundation/Reflection/ReflectedTypeManager.h>
 
-ezDocumentObjectBase* ezTestObjectManager::CreateObject(ezReflectedTypeHandle hType)
+ezDocumentObjectBase* ezTestObjectManager::InternalCreateObject(ezReflectedTypeHandle hType)
 {
   if (ezStringUtils::IsEqual(hType.GetType()->GetTypeName().GetData(), ezGetStaticRTTI<ezTestObjectProperties>()->GetTypeName()))
   {

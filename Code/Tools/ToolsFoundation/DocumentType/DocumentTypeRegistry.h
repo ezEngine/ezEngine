@@ -13,11 +13,11 @@ struct EZ_TOOLSFOUNDATION_DLL ezContextChange
 };
 
 /// \brief Tracks existing and active ezDocumentTypeBase.
-class EZ_TOOLSFOUNDATION_DLL ezContextRegistry
+class EZ_TOOLSFOUNDATION_DLL ezDocumentTypeRegistry
 {
 public:
-  static bool RegisterContext(const ezDocumentTypeBase* pContext);
-  static bool UnregisterContext(const ezDocumentTypeBase* pContext);
+  static bool RegisterDocumentType(const ezDocumentTypeBase* pContext);
+  static bool UnregisterDocumentType(const ezDocumentTypeBase* pContext);
 
   static ezArrayPtr<const ezDocumentTypeBase*> GetContexts() { return s_Contexts; }
 

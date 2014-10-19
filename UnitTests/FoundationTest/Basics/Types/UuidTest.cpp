@@ -1,6 +1,5 @@
 #include <PCH.h>
 #include <Foundation/Types/Uuid.h>
-#include <Foundation/System/UuidGenerator.h>
 #include <Foundation/IO/MemoryStream.h>
 
 
@@ -12,10 +11,12 @@ EZ_CREATE_SIMPLE_TEST(Basics, Uuid)
 
     EZ_TEST_BOOL(ShouldBeInvalid.IsValid() == false);
 
-    ezUuid FirstGenerated = ezUuidGenerator::NewUuid();
+    ezUuid FirstGenerated;
+    FirstGenerated.CreateNewUuid();
     EZ_TEST_BOOL(FirstGenerated.IsValid());
 
-    ezUuid SecondGenerated = ezUuidGenerator::NewUuid();
+    ezUuid SecondGenerated;
+    SecondGenerated.CreateNewUuid();
     EZ_TEST_BOOL(SecondGenerated.IsValid());
 
     EZ_TEST_BOOL(!(FirstGenerated == SecondGenerated));
@@ -27,7 +28,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, Uuid)
     ezUuid Uuid;
     EZ_TEST_BOOL(Uuid.IsValid() == false);
 
-    Uuid = ezUuidGenerator::NewUuid();
+    Uuid.CreateNewUuid();
     EZ_TEST_BOOL(Uuid.IsValid());
 
 

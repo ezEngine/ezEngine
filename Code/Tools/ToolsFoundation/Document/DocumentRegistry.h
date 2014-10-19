@@ -7,24 +7,24 @@
 
 struct EZ_TOOLSFOUNDATION_DLL ezActiveDocumentChange
 {
-  const ezDocument* m_pOldDocument;
-  const ezDocument* m_pNewDocument;
+  const ezDocumentBase* m_pOldDocument;
+  const ezDocumentBase* m_pNewDocument;
 };
 
-/// \brief Tracks existing and active ezDocument.
+/// \brief Tracks existing and active ezDocumentBase.
 ///
 /// While the IDocumentManager manages documents of a certain context,
 /// this class simply keeps track of the overall number of documents and the currently active one.
 class EZ_TOOLSFOUNDATION_DLL ezDocumentRegistry
 {
 public:
-  static bool RegisterDocument(const ezDocument* pDocument);
-  static bool UnregisterDocument(const ezDocument* pDocument);
+  static bool RegisterDocument(const ezDocumentBase* pDocument);
+  static bool UnregisterDocument(const ezDocumentBase* pDocument);
 
-  static ezArrayPtr<const ezDocument*> GetDocuments() { return s_Documents; }
+  static ezArrayPtr<const ezDocumentBase*> GetDocuments() { return s_Documents; }
 
-  static void SetActiveDocument(const ezDocument* pDocument);
-  static const ezDocument* GetActiveDocument();
+  static void SetActiveDocument(const ezDocumentBase* pDocument);
+  static const ezDocumentBase* GetActiveDocument();
 
 private:
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(Core, DocumentRegistry);
@@ -33,11 +33,11 @@ private:
   static void Shutdown();
 
 public:
-  static ezEvent<ezDocumentChange&> m_DocumentAddedEvent;
-  static ezEvent<ezDocumentChange&> m_DocumentRemovedEvent;
+  //static ezEvent<ezDocumentChange&> m_DocumentAddedEvent;
+  //static ezEvent<ezDocumentChange&> m_DocumentRemovedEvent;
   static ezEvent<ezActiveDocumentChange&> m_ActiveDocumentChanged;
 
 private:
-  static ezHybridArray<const ezDocument*, 16> s_Documents;
-  static ezDocument* s_pActiveDocument;
+  static ezHybridArray<const ezDocumentBase*, 16> s_Documents;
+  static ezDocumentBase* s_pActiveDocument;
 };

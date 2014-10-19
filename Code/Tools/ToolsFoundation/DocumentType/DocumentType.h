@@ -11,6 +11,7 @@ class ezCommandRegistry;
 class EZ_TOOLSFOUNDATION_DLL ezDocumentTypeBase
 {
 public:
+  virtual ~ezDocumentTypeBase() { }
 
 
 

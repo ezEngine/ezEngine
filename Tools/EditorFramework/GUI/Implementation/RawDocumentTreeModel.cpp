@@ -2,6 +2,7 @@
 #include <EditorFramework/GUI/RawDocumentTreeModel.moc.h>
 #include <ToolsFoundation/Reflection/ToolsReflectionUtils.h>
 #include <ToolsFoundation/Reflection/ReflectedTypeManager.h>
+#include <ToolsFoundation/Document/Document.h>
 #include <QStringList>
 #include <QMimeData>
 
@@ -10,19 +11,19 @@ ezRawDocumentTreeModel::ezRawDocumentTreeModel(const ezDocumentObjectTree* pTree
 {
   m_pDocumentTree = pTree;
 
-  m_pDocumentTree->m_Events.AddEventHandler(ezDelegate<void (const ezDocumentObjectTree::Event&)>(&ezRawDocumentTreeModel::TreeEventHandler, this));
+  m_pDocumentTree->m_Events.AddEventHandler(ezDelegate<void (const ezDocumentObjectTreeEvent&)>(&ezRawDocumentTreeModel::TreeEventHandler, this));
 }
 
 ezRawDocumentTreeModel::~ezRawDocumentTreeModel()
 {
-  m_pDocumentTree->m_Events.RemoveEventHandler(ezDelegate<void (const ezDocumentObjectTree::Event&)>(&ezRawDocumentTreeModel::TreeEventHandler, this));
+  m_pDocumentTree->m_Events.RemoveEventHandler(ezDelegate<void (const ezDocumentObjectTreeEvent&)>(&ezRawDocumentTreeModel::TreeEventHandler, this));
 }
 
-void ezRawDocumentTreeModel::TreeEventHandler(const ezDocumentObjectTree::Event& e)
+void ezRawDocumentTreeModel::TreeEventHandler(const ezDocumentObjectTreeEvent& e)
 {
   switch (e.m_EventType)
   {
-  case ezDocumentObjectTree::Event::Type::BeforeObjectAdded:
+  case ezDocumentObjectTreeEvent::Type::BeforeObjectAdded:
     {
       ezInt32 iIndex = e.m_pNewParent->GetChildren().GetCount();
       if (e.m_pNewParent == m_pDocumentTree->GetRootObject())
@@ -31,31 +32,31 @@ void ezRawDocumentTreeModel::TreeEventHandler(const ezDocumentObjectTree::Event&
         beginInsertRows(ComputeModelIndex(e.m_pNewParent), iIndex, iIndex);
     }
     break;
-  case ezDocumentObjectTree::Event::Type::AfterObjectAdded:
+  case ezDocumentObjectTreeEvent::Type::AfterObjectAdded:
     {
       endInsertRows();
     }
     break;
-  case ezDocumentObjectTree::Event::Type::BeforeObjectRemoved:
+  case ezDocumentObjectTreeEvent::Type::BeforeObjectRemoved:
     {
       ezInt32 iIndex = ComputeIndex(e.m_pObject);
 
       beginRemoveRows(ComputeParent(e.m_pObject), iIndex, iIndex);
     }
     break;
-  case ezDocumentObjectTree::Event::Type::AfterObjectRemoved:
+  case ezDocumentObjectTreeEvent::Type::AfterObjectRemoved:
     {
       endRemoveRows();
     }
     break;
-  case ezDocumentObjectTree::Event::Type::BeforeObjectMoved:
+  case ezDocumentObjectTreeEvent::Type::BeforeObjectMoved:
     {
       ezInt32 iIndex = ComputeIndex(e.m_pObject);
       ezInt32 iNewIndex = e.m_pNewParent->GetChildren().GetCount();
       beginMoveRows(ComputeModelIndex(e.m_pPreviousParent), iIndex, iIndex, ComputeModelIndex(e.m_pNewParent), iNewIndex);
     }
     break;
-  case ezDocumentObjectTree::Event::Type::AfterObjectMoved:
+  case ezDocumentObjectTreeEvent::Type::AfterObjectMoved:
     {
       endMoveRows();
     }
@@ -179,7 +180,8 @@ bool ezRawDocumentTreeModel::dropMimeData(const QMimeData* data, Qt::DropAction 
 
   if (data->hasFormat("application/ezEditor.ObjectSelection"))
   {
-    if (action != Qt::DropAction::MoveAction)
+    // TODO: Why copy ??
+    if (action != Qt::DropAction::MoveAction && action != Qt::DropAction::CopyAction)
       return false;
 
     QByteArray encodedData = data->data("application/ezEditor.ObjectSelection");
@@ -209,7 +211,7 @@ bool ezRawDocumentTreeModel::dropMimeData(const QMimeData* data, Qt::DropAction 
     QDataStream stream(&encodedData, QIODevice::ReadOnly);
     QString typeName;
     stream >> typeName;
-    ezDocumentObjectBase* pObject = ((ezDocumentObjectTree*)m_pDocumentTree)->GetObjectManager()->CreateObject(ezReflectedTypeManager::GetTypeHandleByName(typeName.toUtf8().data()));
+    ezDocumentObjectBase* pObject = ((ezDocumentObjectManagerBase*)m_pDocumentTree->GetDocument()->GetObjectManager())->CreateObject(ezReflectedTypeManager::GetTypeHandleByName(typeName.toUtf8().data()));
     if (pObject != nullptr)
     {
       if (parent.isValid())

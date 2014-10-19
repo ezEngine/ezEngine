@@ -7,8 +7,8 @@ EZ_END_DYNAMIC_REFLECTED_TYPE();
 ezEmptyProperties ezDocumentObjectRoot::s_Properties;
 ezReflectedTypeDirectAccessor ezDocumentObjectRoot::s_Accessor(&ezDocumentObjectRoot::s_Properties);
 
-ezDocumentObjectTree::ezDocumentObjectTree(ezDocumentObjectManagerBase* pObjectManager) :
-  m_pObjectManager(pObjectManager)
+ezDocumentObjectTree::ezDocumentObjectTree(const ezDocumentBase* pDocument) :
+  m_pDocument(pDocument)
 {
 
 }
@@ -34,12 +34,12 @@ void ezDocumentObjectTree::AddObject(ezDocumentObjectBase* pObject, ezDocumentOb
   if (pParent == nullptr)
     pParent = &m_RootObject;
 
-  Event e;
+  ezDocumentObjectTreeEvent e;
   e.m_pObject = pObject;
   e.m_pPreviousParent = nullptr;
   e.m_pNewParent = pParent;
 
-  e.m_EventType = Event::Type::BeforeObjectAdded;
+  e.m_EventType = ezDocumentObjectTreeEvent::Type::BeforeObjectAdded;
   m_Events.Broadcast(e);
 
   pObject->m_pParent = pParent;
@@ -47,18 +47,18 @@ void ezDocumentObjectTree::AddObject(ezDocumentObjectBase* pObject, ezDocumentOb
 
   RecursiveAddGuids(pObject);
  
-  e.m_EventType = Event::Type::AfterObjectAdded;
+  e.m_EventType = ezDocumentObjectTreeEvent::Type::AfterObjectAdded;
   m_Events.Broadcast(e);
 }
 
 void ezDocumentObjectTree::RemoveObject(ezDocumentObjectBase* pObject)
 {
-  Event e;
+  ezDocumentObjectTreeEvent e;
   e.m_pObject = pObject;
   e.m_pPreviousParent = pObject->m_pParent;
   e.m_pNewParent = nullptr;
 
-  e.m_EventType = Event::Type::BeforeObjectRemoved;
+  e.m_EventType = ezDocumentObjectTreeEvent::Type::BeforeObjectRemoved;
   m_Events.Broadcast(e);
 
   pObject->m_pParent->m_Children.Remove(pObject);
@@ -66,7 +66,7 @@ void ezDocumentObjectTree::RemoveObject(ezDocumentObjectBase* pObject)
 
   RecursiveRemoveGuids(pObject);
 
-  e.m_EventType = Event::Type::AfterObjectRemoved;
+  e.m_EventType = ezDocumentObjectTreeEvent::Type::AfterObjectRemoved;
   m_Events.Broadcast(e);
 }
 
@@ -78,19 +78,19 @@ void ezDocumentObjectTree::MoveObject(ezDocumentObjectBase* pObject, ezDocumentO
   if (pNewParent == pObject->m_pParent)
     return;
 
-  Event e;
+  ezDocumentObjectTreeEvent e;
   e.m_pObject = pObject;
   e.m_pPreviousParent = pObject->m_pParent;
   e.m_pNewParent = pNewParent;
 
-  e.m_EventType = Event::Type::BeforeObjectMoved;
+  e.m_EventType = ezDocumentObjectTreeEvent::Type::BeforeObjectMoved;
   m_Events.Broadcast(e);
 
   pObject->m_pParent->m_Children.Remove(pObject);
   pObject->m_pParent = pNewParent;
   pNewParent->m_Children.PushBack(pObject);
 
-  e.m_EventType = Event::Type::AfterObjectMoved;
+  e.m_EventType = ezDocumentObjectTreeEvent::Type::AfterObjectMoved;
   m_Events.Broadcast(e);
 }
 

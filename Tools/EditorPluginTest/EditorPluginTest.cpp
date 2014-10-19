@@ -10,6 +10,7 @@
 #include <EditorPluginTest/Objects/TestObject.h>
 #include <EditorPluginTest/Objects/TestObjectManager.h>
 #include <EditorPluginTest/Widgets/TestObjectCreator.moc.h>
+#include <EditorPluginTest/Document/TestDocument.h>
 #include <qmainwindow.h>
 #include <QMessageBox>
 
@@ -23,9 +24,8 @@ ezTestObject* g_pTestObject = nullptr;
 ezTestObject2* g_pTestObject2 = nullptr;
 ezTestObject* g_pTestObject3 = nullptr;
 ezTestObject2* g_pTestObject4 = nullptr;
-ezDocumentObjectTree* g_pObjectTree = nullptr;
-ezTestObjectManager* g_pObjectManager = nullptr;
-ezTextObjectCreatorWidget* g_pCreator = nullptr;
+ezTestObjectCreatorWidget* g_pCreator = nullptr;
+ezTestDocument* g_pDocument = nullptr;
 
 void OnEditorEvent(const ezEditorFramework::EditorEvent& e);
 
@@ -48,7 +48,7 @@ void OnLoadPlugin(bool bReloading)
   //pWindow = new ezTestWindow(nullptr);
   //pWindow->show();
 
-  g_pObjectManager = new ezTestObjectManager();
+  g_pDocument = new ezTestDocument();
 
   g_pTestObject = new ezTestObject(new ezTestObjectProperties);
   g_pTestObject3 = new ezTestObject(new ezTestObjectProperties);
@@ -67,25 +67,24 @@ void OnLoadPlugin(bool bReloading)
   pPanelCreator->show();
   pPanelCreator->setObjectName("CreatorPanel");
 
-  pProps = new ezRawPropertyGridWidget(pPanel);//
+  pProps = new ezRawPropertyGridWidget(g_pDocument, pPanel);//
   pPanel->setWidget(pProps);
 
-  g_pObjectTree = new ezDocumentObjectTree(g_pObjectManager);
-  g_pObjectTree->AddObject(g_pTestObject, nullptr);
-  g_pObjectTree->AddObject(g_pTestObject2, g_pTestObject);
-  g_pObjectTree->AddObject(g_pTestObject3, g_pTestObject);
-  g_pObjectTree->AddObject(g_pTestObject4, g_pTestObject3);
+  ((ezDocumentObjectTree*) g_pDocument->GetObjectTree())->AddObject(g_pTestObject, nullptr);
+  ((ezDocumentObjectTree*) g_pDocument->GetObjectTree())->AddObject(g_pTestObject2, g_pTestObject);
+  ((ezDocumentObjectTree*) g_pDocument->GetObjectTree())->AddObject(g_pTestObject3, g_pTestObject);
+  ((ezDocumentObjectTree*) g_pDocument->GetObjectTree())->AddObject(g_pTestObject4, g_pTestObject3);
 
-  pTreeWidget = new ezRawDocumentTreeWidget(pPanelTree, g_pObjectTree);
+  pTreeWidget = new ezRawDocumentTreeWidget(pPanelTree, g_pDocument);
   pPanelTree->setWidget(pTreeWidget);
 
-  g_pCreator = new ezTextObjectCreatorWidget(g_pObjectManager, pPanelCreator);
+  g_pCreator = new ezTestObjectCreatorWidget(g_pDocument->GetObjectManager(), pPanelCreator);
 
   pPanelCreator->setWidget(g_pCreator);
 
 
 
-  ezHybridArray<ezDocumentObjectBase*, 32> sel;
+  ezDeque<const ezDocumentObjectBase*> sel;
   sel.PushBack(g_pTestObject2);
 
   pProps->SetSelection(sel);
@@ -126,7 +125,14 @@ void OnEditorEvent(const ezEditorFramework::EditorEvent& e)
   case ezEditorFramework::EditorEvent::EventType::AfterOpenProject:
     {
       ezEditorFramework::GetSettings(ezEditorFramework::SettingsCategory::Project, "TestPlugin").RegisterValueString("Legen", "dary");
-      g_pObjectTree->MoveObject(g_pTestObject2, nullptr);
+      auto& sel = g_pDocument->GetSelectionManager()->GetSelection();
+
+      while (!g_pDocument->GetSelectionManager()->GetSelection().IsEmpty())
+      {
+        // TODO cast cast cast !!!
+        ((ezDocumentObjectTree*)g_pDocument->GetObjectTree())->RemoveObject((ezDocumentObjectBase*) g_pDocument->GetSelectionManager()->GetSelection()[0]);
+      }
+      //g_pObjectTree->MoveObject(g_pTestObject2, nullptr);
       //pProps->ClearSelection();
     }
     break;
@@ -134,7 +140,7 @@ void OnEditorEvent(const ezEditorFramework::EditorEvent& e)
     {
       ezEditorFramework::GetSettings(ezEditorFramework::SettingsCategory::Scene, "TestPlugin").RegisterValueString("Legen2", "dary2");
 
-      g_pObjectTree->MoveObject(g_pTestObject2, g_pTestObject);
+      //g_pObjectTree->MoveObject(g_pTestObject2, g_pTestObject);
 
       //ezHybridArray<ezDocumentObjectBase*, 32> sel;
       //sel.PushBack(g_pTestObject2);

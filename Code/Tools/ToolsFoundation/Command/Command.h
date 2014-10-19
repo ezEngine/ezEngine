@@ -4,7 +4,7 @@
 #include <ToolsFoundation/Basics/Guid.h>
 #include <Foundation/Reflection/Reflection.h>
 
-class ezDocument;
+class ezDocumentBase;
 class ezDocumentTypeBase;
 
 /// \brief Interface for a command
@@ -21,6 +21,6 @@ private:
   virtual bool Undo();
 
 protected:
-  ezDocument* GetDocument(const ezGuid& documentGuid);
+  ezDocumentBase* GetDocument(const ezGuid& documentGuid);
   ezDocumentTypeBase* GetContext(const ezGuid& contextGuid);
 };

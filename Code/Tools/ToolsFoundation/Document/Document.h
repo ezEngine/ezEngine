@@ -3,6 +3,8 @@
 #include <ToolsFoundation/Basics.h>
 #include <Foundation/Strings/String.h>
 #include <ToolsFoundation/Basics/Guid.h>
+#include <ToolsFoundation/Object/DocumentObjectTree.h>
+#include <ToolsFoundation/Selection/SelectionManager.h>
 #include <Foundation/Communication/Event.h>
 
 struct EZ_TOOLSFOUNDATION_DLL ezDocumentInfo
@@ -11,36 +13,50 @@ struct EZ_TOOLSFOUNDATION_DLL ezDocumentInfo
   ezGuid m_sDocumentGuid;
 };
 
-class ezDocument;
+class ezDocumentBase;
 class ezCommandHistoryBase;
-class ezObjectManager;
-class ezDocumentObjectTree;
-class ezSelectionManager;
+class ezDocumentObjectManagerBase;
 
-
-
-struct EZ_TOOLSFOUNDATION_DLL ezDocumentChange
-{
-  const ezDocument* m_pDocument;
-};
-
-class EZ_TOOLSFOUNDATION_DLL ezDocument
+class EZ_TOOLSFOUNDATION_DLL ezDocumentBase
 {
 public:
-  virtual bool IsModified() const;
-  virtual bool IsReadOnly() const;
+  ezDocumentBase();
+  virtual ~ezDocumentBase();
 
-  const ezCommandHistoryBase* GetCommandHistory() const;
-  const ezObjectManager* GetObjectManager() const;
-  const ezDocumentObjectTree* GetObjectTree() const;
-  const ezSelectionManager* GetSelectionManager() const;
+  bool IsModified() const { return m_bModified; }
+  bool IsReadOnly() const { return m_bReadOnly; }
+
+  const ezCommandHistoryBase* GetCommandHistory() const { return m_pCommandHistory; }
+  const ezDocumentObjectManagerBase* GetObjectManager() const { return m_pObjectManager; }
+  const ezDocumentObjectTree* GetObjectTree() const { return &m_ObjectTree; }
+  const ezSelectionManager* GetSelectionManager() const { return &m_SelectionManager; }
 
 public:
-  ezEvent<ezDocumentChange&> m_DocumentModifiedChanged;
+  struct Event
+  {
+    enum class Type
+    {
+      ModifiedChanged,
+      ReadOnlyChanged,
+    };
+
+    Type m_Type;
+
+    const ezDocumentBase* m_pDocument;
+  };
+
+  ezEvent<const Event&> m_Events;
+
+protected:
+  void SetModified(bool b);
+  void SetReadOnly(bool b);
+
+  ezCommandHistoryBase* m_pCommandHistory;
+  ezDocumentObjectManagerBase* m_pObjectManager;
+  ezDocumentObjectTree m_ObjectTree;
+  ezSelectionManager m_SelectionManager;
 
 private:
-  ezCommandHistoryBase* m_pCommandHistory;
-  ezObjectManager* m_pObjectManager;
-  ezDocumentObjectTree* m_pObjectTree;
-  ezSelectionManager* m_pSelectionManager;
+  bool m_bModified;
+  bool m_bReadOnly;
 };

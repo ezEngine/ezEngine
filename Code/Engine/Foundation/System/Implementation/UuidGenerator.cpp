@@ -1,6 +1,6 @@
 
 #include <Foundation/PCH.h>
-#include <Foundation/System/UuidGenerator.h>
+#include <Foundation/Types/Uuid.h>
 
 // Include inline file
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)

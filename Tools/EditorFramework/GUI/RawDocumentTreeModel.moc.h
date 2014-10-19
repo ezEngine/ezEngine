@@ -33,7 +33,7 @@ private:
   QModelIndex ComputeModelIndex(const ezDocumentObjectBase* pObject) const;
 
 
-  void TreeEventHandler(const ezDocumentObjectTree::Event& e);
+  void TreeEventHandler(const ezDocumentObjectTreeEvent& e);
 
   const ezDocumentObjectTree* m_pDocumentTree;
 

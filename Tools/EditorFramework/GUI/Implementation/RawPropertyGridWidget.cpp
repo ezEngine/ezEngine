@@ -2,11 +2,12 @@
 #include <EditorFramework/GUI/RawPropertyGridWidget.h>
 #include <EditorFramework/GUI/PropertyEditorBaseWidget.moc.h>
 #include <ToolsFoundation/Reflection/ToolsReflectionUtils.h>
+#include <ToolsFoundation/Document/Document.h>
 #include <QPushButton>
 #include <QGroupBox>
 #include <QScrollArea>
 
-ezRawPropertyGridWidget::ezRawPropertyGridWidget(QWidget* pParent) : QWidget(pParent)
+ezRawPropertyGridWidget::ezRawPropertyGridWidget(ezDocumentBase* pDocument, QWidget* pParent) : QWidget(pParent), m_pDocument(pDocument)
 {
   QScrollArea* pScroll = new QScrollArea(this);
   pScroll->setContentsMargins(0, 0, 0, 0);
@@ -29,10 +30,30 @@ ezRawPropertyGridWidget::ezRawPropertyGridWidget(QWidget* pParent) : QWidget(pPa
   m_pGroups[0] = nullptr;
   m_pGroups[1] = nullptr;
   m_pSpacer = nullptr;
+
+  m_pDocument->GetSelectionManager()->m_Events.AddEventHandler(ezDelegate<void (const ezSelectionManager::Event&)>(&ezRawPropertyGridWidget::SelectionEventHandler, this));
+
 }
 
 ezRawPropertyGridWidget::~ezRawPropertyGridWidget()
 {
+}
+
+void ezRawPropertyGridWidget::SelectionEventHandler(const ezSelectionManager::Event& e)
+{
+  switch (e.m_Type)
+  {
+  case ezSelectionManager::Event::Type::SelectionCleared:
+    ClearSelection();
+    break;
+  case ezSelectionManager::Event::Type::SelectionSet:
+  case ezSelectionManager::Event::Type::ObjectAdded:
+  case ezSelectionManager::Event::Type::ObjectRemoved:
+    {
+      SetSelection(m_pDocument->GetSelectionManager()->GetSelection());
+    }
+    break;
+  }
 }
 
 void ezRawPropertyGridWidget::EditorPropertyChangedHandler(const ezPropertyEditorBaseWidget::EventData& ed)
@@ -151,11 +172,14 @@ void ezRawPropertyGridWidget::ClearSelection()
   m_Selection.Clear();
 }
 
-void ezRawPropertyGridWidget::SetSelection(const ezHybridArray<ezDocumentObjectBase*, 32>& selection)
+void ezRawPropertyGridWidget::SetSelection(const ezDeque<const ezDocumentObjectBase*>& selection)
 {
   ClearSelection();
 
   m_Selection = selection;
+
+  if (m_Selection.IsEmpty())
+    return;
 
   {
     m_pGroups[0] = new QGroupBox(m_pMainContent);

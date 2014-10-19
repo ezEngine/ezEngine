@@ -1,5 +1,18 @@
 #include <ToolsFoundation/PCH.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
+#include <ToolsFoundation/Object/DocumentObjectTree.h>
+
+ezDocumentObjectBase* ezDocumentObjectManagerBase::CreateObject(ezReflectedTypeHandle hType)
+{
+  ezDocumentObjectBase* pObject = InternalCreateObject(hType);
+
+  if (pObject)
+  {
+    pObject->m_Guid.CreateNewUuid();
+  }
+
+  return pObject;
+}
 
 bool ezDocumentObjectManagerBase::CanAdd(ezReflectedTypeHandle hType, const ezDocumentObjectBase* pParent) const
 {

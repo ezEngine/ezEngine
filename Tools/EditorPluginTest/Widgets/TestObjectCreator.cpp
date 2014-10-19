@@ -3,7 +3,7 @@
 #include <EditorFramework/GUI/QtHelpers.h>
 #include <QMimeData>
 
-ezTextObjectCreatorWidget::ezTextObjectCreatorWidget(ezDocumentObjectManagerBase* pManager, QWidget* parent) : QListWidget(parent)
+ezTestObjectCreatorWidget::ezTestObjectCreatorWidget(const ezDocumentObjectManagerBase* pManager, QWidget* parent) : QListWidget(parent)
 {
   m_pManager = pManager;
 
@@ -20,7 +20,7 @@ ezTextObjectCreatorWidget::ezTextObjectCreatorWidget(ezDocumentObjectManagerBase
 
 }
 
-QMimeData* ezTextObjectCreatorWidget::mimeData(const QList<QListWidgetItem *> items) const
+QMimeData* ezTestObjectCreatorWidget::mimeData(const QList<QListWidgetItem *> items) const
 {
   QMimeData* mimeData = new QMimeData();
   QByteArray encodedData;
@@ -33,7 +33,7 @@ QMimeData* ezTextObjectCreatorWidget::mimeData(const QList<QListWidgetItem *> it
   return mimeData;
 }
 
-QStringList ezTextObjectCreatorWidget::mimeTypes() const
+QStringList ezTestObjectCreatorWidget::mimeTypes() const
 {
   QStringList types;
   types << "application/ezEditor.ObjectCreator";
