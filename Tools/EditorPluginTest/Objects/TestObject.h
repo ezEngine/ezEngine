@@ -26,18 +26,25 @@ public:
   ezTestEditorProperties m_EditorProps;
 };
 
-class ezTestObject : public ezDocumentObjectBase
+class ezTestObject : public ezDocumentObjectDirect<ezTestEditorProperties>
 {
 public:
-  ezTestObject();
+  ezTestObject(ezReflectedClass* pObjectProperties) : ezDocumentObjectDirect<ezTestEditorProperties>(pObjectProperties)
+  {
+  }
 
-  virtual const ezIReflectedTypeAccessor& GetTypeAccessor() const override { return m_ObjectProperties; }
-  virtual const ezIReflectedTypeAccessor& GetEditorTypeAccessor() const override { return m_EditorProperties; }
+  ~ezTestObject()
+  {
+    delete m_pObjectProperties;
+    m_pObjectProperties = nullptr;
+  }
+};
 
-private:
-  ezTestObjectProperties m_TestObjectProperties;
-  ezTestEditorProperties m_TestEditorProperties;
+class ezTestObject2 : public ezDocumentObjectStorage<ezTestEditorProperties>
+{
+public:
+  ezTestObject2(ezReflectedTypeHandle hObjectProperties) : ezDocumentObjectStorage<ezTestEditorProperties>(hObjectProperties)
+  {
+  }
 
-  ezReflectedTypeDirectAccessor m_ObjectProperties;
-  ezReflectedTypeDirectAccessor m_EditorProperties;
 };

@@ -80,6 +80,11 @@ inline const ezString& ezHashedString::GetString() const
   return m_Data.Key();
 }
 
+inline const char* ezHashedString::GetData() const
+{
+  return m_Data.Key().GetData();
+}
+
 inline ezUInt32 ezHashedString::GetHash() const
 {
   return m_Data.Value().m_uiHash;

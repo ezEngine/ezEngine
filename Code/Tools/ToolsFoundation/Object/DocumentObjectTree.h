@@ -2,6 +2,7 @@
 
 #include <ToolsFoundation/Basics.h>
 #include <ToolsFoundation/Object/DocumentObjectBase.h>
+#include <ToolsFoundation/Object/DocumentObjectManager.h>
 #include <ToolsFoundation/Reflection/ReflectedTypeDirectAccessor.h>
 #include <Foundation/Containers/Map.h>
 
@@ -29,9 +30,12 @@ public:
   {
     enum class Type
     {
-      ObjectAdded,
-      ObjectRemoved,
-      ObjectMoved,
+      BeforeObjectAdded,
+      AfterObjectAdded,
+      BeforeObjectRemoved,
+      AfterObjectRemoved,
+      BeforeObjectMoved,
+      AfterObjectMoved,
     };
 
     Type m_EventType;
@@ -40,7 +44,9 @@ public:
     const ezDocumentObjectBase* m_pNewParent;
   };
 
-  ezEvent<const Event&> m_Events;
+  mutable ezEvent<const Event&> m_Events;
+
+  ezDocumentObjectTree(ezDocumentObjectManagerBase* pObjectManager);
 
   const ezDocumentObjectBase* GetRootObject() const { return &m_RootObject; }
 
@@ -52,9 +58,16 @@ public:
 
   const ezDocumentObjectBase* GetObject(const ezUuid& guid) const;
 
+  ezDocumentObjectManagerBase* GetObjectManager() { return m_pObjectManager; }
+
 private:
   ezDocumentObjectRoot m_RootObject;
 
+  void RecursiveAddGuids(ezDocumentObjectBase* pObject);
+  void RecursiveRemoveGuids(ezDocumentObjectBase* pObject);
+
   /// \todo this should be a hash map
   ezMap<ezUuid, const ezDocumentObjectBase*> m_GuidToObject;
+
+  ezDocumentObjectManagerBase* m_pObjectManager;
 };

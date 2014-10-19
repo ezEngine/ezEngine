@@ -48,7 +48,7 @@ void ezEditorMainWnd::on_ActionProjectCreate_triggered()
 void ezEditorMainWnd::on_ActionProjectOpen_triggered()
 {
   static QString sDir = QString::fromUtf8(ezOSFile::GetApplicationDirectory());
-  QString sResult = QFileDialog::getOpenFileName(this, QLatin1String("Open Project"), sDir, QLatin1String("Projects (*.project)"));
+  QString sResult = "D:\\Daten\\Code\\ezEngine\\Trunk\\Output\\Bin\\Projects\\test.project"; //QFileDialog::getOpenFileName(this, QLatin1String("Open Project"), sDir, QLatin1String("Projects (*.project)"));
 
   if (sResult.isEmpty())
     return;
@@ -83,7 +83,7 @@ void ezEditorMainWnd::on_ActionSceneCreate_triggered()
 void ezEditorMainWnd::on_ActionSceneOpen_triggered()
 {
   static QString sDir = QString::fromUtf8(ezOSFile::GetApplicationDirectory());
-  QString sResult = QFileDialog::getOpenFileName(this, QLatin1String("Open Scene"), sDir, QLatin1String("Scenes (*.scene)"));
+  QString sResult = "D:\\Daten\\Code\\ezEngine\\Trunk\\Output\\Bin\\Projects\\Scenes\\myscene.scene";//QFileDialog::getOpenFileName(this, QLatin1String("Open Scene"), sDir, QLatin1String("Scenes (*.scene)"));
 
   if (sResult.isEmpty())
     return;

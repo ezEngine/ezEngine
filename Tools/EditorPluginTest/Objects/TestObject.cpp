@@ -10,7 +10,13 @@ EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 ezTestEditorProperties::ezTestEditorProperties()
 {
-  SetName("TestEditorProperties");
+  static int bla = 0;
+  bla++;
+
+  ezStringBuilder s;
+  s.Format("Object %i", bla);
+
+  SetName(s.GetData());
   m_bAwesome = true;
   m_fLoat = 23.0f;
 }
@@ -26,11 +32,3 @@ ezTestObjectProperties::ezTestObjectProperties()
 {
   m_fValue = 42.0f;
 }
-
-ezTestObject::ezTestObject() :
-  m_ObjectProperties(&m_TestObjectProperties),
-  m_EditorProperties(&m_TestEditorProperties)
-{
-
-}
-

@@ -10,6 +10,7 @@ class EZ_TOOLSFOUNDATION_DLL ezDocumentObjectManagerBase
 public:
 
   virtual ezDocumentObjectBase* CreateObject(ezReflectedTypeHandle hType) = 0;
+  virtual void GetCreateableTypes(ezHybridArray<ezReflectedTypeHandle, 32>& Types) const = 0;
 
   bool CanAdd(ezReflectedTypeHandle hType, const ezDocumentObjectBase* pParent) const;
   bool CanRemove(const ezDocumentObjectBase* pObject) const;

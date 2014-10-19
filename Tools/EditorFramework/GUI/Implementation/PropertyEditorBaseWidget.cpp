@@ -5,12 +5,43 @@
 #include <qlayout.h>
 #include <QLineEdit>
 #include <QLabel>
+#include <QKeyEvent>
 #include <EditorFramework/GUI/QtHelpers.h>
 
 ezPropertyEditorBaseWidget::ezPropertyEditorBaseWidget(const ezPropertyPath& path, const char* szName, QWidget* pParent) : QWidget(pParent)
 {
   m_szDisplayName = szName;
   m_PropertyPath = path;
+}
+
+void ezPropertyEditorBaseWidget::SetValue(const ezVariant& value)
+{
+  m_OldValue = value;
+
+  InternalSetValue(value);
+}
+
+void ezPropertyEditorBaseWidget::BroadcastValueChanged(const ezVariant& NewValue)
+{
+  if (NewValue == m_OldValue)
+    return;
+
+  m_OldValue = NewValue;
+
+  EventData ed;
+  ed.m_pPropertyPath = &m_PropertyPath;
+  ed.m_Value = NewValue;
+
+  m_ValueChanged.Broadcast(ed);
+}
+
+void ezPropertyEditorBaseWidget::keyPressEvent(QKeyEvent* pEvent)
+{
+  if (pEvent->key() == Qt::Key::Key_Escape)
+  {
+    SetValue(m_OldValue);
+  }
+
 }
 
 ezPropertyEditorCheckboxWidget::ezPropertyEditorCheckboxWidget(const ezPropertyPath& path, const char* szName, QWidget* pParent) : ezPropertyEditorBaseWidget(path, szName, pParent)
@@ -37,7 +68,7 @@ ezPropertyEditorCheckboxWidget::ezPropertyEditorCheckboxWidget(const ezPropertyP
   connect(m_pWidget, SIGNAL(stateChanged(int)), this, SLOT(on_StateChanged_triggered(int)));
 }
 
-void ezPropertyEditorCheckboxWidget::SetValue(const ezVariant& value)
+void ezPropertyEditorCheckboxWidget::InternalSetValue(const ezVariant& value)
 {
   ezQtBlockSignals b(m_pWidget);
   m_pWidget->setChecked(value.ConvertTo<bool>() ? Qt::Checked : Qt::Unchecked);
@@ -52,11 +83,7 @@ void ezPropertyEditorCheckboxWidget::mousePressEvent(QMouseEvent* ev)
 
 void ezPropertyEditorCheckboxWidget::on_StateChanged_triggered(int state)
 {
-  EventData ed;
-  ed.m_pPropertyPath = &m_PropertyPath;
-  ed.m_Value = (state == Qt::Checked) ? true : false;
-
-  m_ValueChanged.Broadcast(ed);
+  BroadcastValueChanged((state == Qt::Checked) ? true : false);
 }
 
 ezPropertyEditorDoubleSpinboxWidget::ezPropertyEditorDoubleSpinboxWidget(const ezPropertyPath& path, const char* szName, QWidget* pParent) : ezPropertyEditorBaseWidget(path, szName, pParent)
@@ -70,6 +97,11 @@ ezPropertyEditorDoubleSpinboxWidget::ezPropertyEditorDoubleSpinboxWidget(const e
   m_pLabel->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
 
   m_pWidget = new QDoubleSpinBox(this);
+  m_pWidget->setMinimum(-ezMath::BasicType<double>::GetInfinity());
+  m_pWidget->setMaximum( ezMath::BasicType<double>::GetInfinity());
+  m_pWidget->setSingleStep(1.0);
+  m_pWidget->setAccelerated(true);
+  m_pWidget->setDecimals(8);
 
   QSizePolicy policy = m_pLabel->sizePolicy();
   policy.setHorizontalStretch(1);
@@ -80,10 +112,11 @@ ezPropertyEditorDoubleSpinboxWidget::ezPropertyEditorDoubleSpinboxWidget(const e
   m_pLayout->addWidget(m_pLabel);
   m_pLayout->addWidget(m_pWidget);
 
-  connect(m_pWidget, SIGNAL(valueChanged(double)), this, SLOT(on_ValueChanged_triggered(double)));
+  //connect(m_pWidget, SIGNAL(valueChanged(double)), this, SLOT(on_ValueChanged_triggered(double)));
+  connect(m_pWidget, SIGNAL(editingFinished()), this, SLOT(on_EditingFinished_triggered()));
 }
 
-void ezPropertyEditorDoubleSpinboxWidget::SetValue(const ezVariant& value)
+void ezPropertyEditorDoubleSpinboxWidget::InternalSetValue(const ezVariant& value)
 {
   ezQtBlockSignals b (m_pWidget);
   m_pWidget->setValue(value.ConvertTo<double>());
@@ -91,14 +124,13 @@ void ezPropertyEditorDoubleSpinboxWidget::SetValue(const ezVariant& value)
 
 void ezPropertyEditorDoubleSpinboxWidget::on_ValueChanged_triggered(double value)
 {
-  EventData ed;
-  ed.m_pPropertyPath = &m_PropertyPath;
-  ed.m_Value = value;
-
-  m_ValueChanged.Broadcast(ed);
+  BroadcastValueChanged(value);
 }
 
-
+void ezPropertyEditorDoubleSpinboxWidget::on_EditingFinished_triggered()
+{
+  BroadcastValueChanged(m_pWidget->value());
+}
 
 ezPropertyEditorLineEditWidget::ezPropertyEditorLineEditWidget(const ezPropertyPath& path, const char* szName, QWidget* pParent) : ezPropertyEditorBaseWidget(path, szName, pParent)
 {
@@ -121,10 +153,11 @@ ezPropertyEditorLineEditWidget::ezPropertyEditorLineEditWidget(const ezPropertyP
   m_pLayout->addWidget(m_pLabel);
   m_pLayout->addWidget(m_pWidget);
 
-  connect(m_pWidget, SIGNAL(textChanged(const QString& value)), this, SLOT(on_TextChanged_triggered(const QString& value)));
+  connect(m_pWidget, SIGNAL(editingFinished()), this, SLOT(on_TextFinished_triggered()));
+  //connect(m_pWidget, SIGNAL(textChanged(const QString&)), this, SLOT(on_TextChanged_triggered(const QString&)));
 }
 
-void ezPropertyEditorLineEditWidget::SetValue(const ezVariant& value)
+void ezPropertyEditorLineEditWidget::InternalSetValue(const ezVariant& value)
 {
   ezQtBlockSignals b (m_pWidget);
   m_pWidget->setText(QString::fromUtf8(value.ConvertTo<ezString>().GetData()));
@@ -132,10 +165,11 @@ void ezPropertyEditorLineEditWidget::SetValue(const ezVariant& value)
 
 void ezPropertyEditorLineEditWidget::on_TextChanged_triggered(const QString& value)
 {
-  EventData ed;
-  ed.m_pPropertyPath = &m_PropertyPath;
-  ed.m_Value = value.toUtf8().data();
+  BroadcastValueChanged(value.toUtf8().data());
+}
 
-  m_ValueChanged.Broadcast(ed);
+void ezPropertyEditorLineEditWidget::on_TextFinished_triggered()
+{
+  BroadcastValueChanged(m_pWidget->text().toUtf8().data());
 }
 
