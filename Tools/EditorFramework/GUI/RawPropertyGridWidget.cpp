@@ -17,32 +17,18 @@ ezRawPropertyGridWidget::ezRawPropertyGridWidget(QWidget* pParent) : QWidget(pPa
   this->setLayout(pLayout2);
   pLayout2->addWidget(pScroll);
 
-  QWidget* pContent = new QWidget(this);
-  pScroll->setWidget(pContent);
+  m_pMainContent = new QWidget(this);
+  pScroll->setWidget(m_pMainContent);
   pScroll->setWidgetResizable(true);
-  pContent->setBackgroundRole(QPalette::ColorRole::Background);
+  m_pMainContent->setBackgroundRole(QPalette::ColorRole::Background);
 
-  m_pLayout = new QVBoxLayout(pContent);
+  m_pLayout = new QVBoxLayout(m_pMainContent);
   m_pLayout->setSpacing(1);
-  pContent->setLayout(m_pLayout);
+  m_pMainContent->setLayout(m_pLayout);
 
-  m_pGroups[0] = new QGroupBox(pContent);
-  m_pGroups[1] = new QGroupBox(pContent);
-
-  m_pGroups[0]->setTitle(QLatin1String("Editor Properties"));
-  m_pGroups[1]->setTitle(QLatin1String("Object Properties"));
-
-
-  m_pLayout->addWidget(m_pGroups[0]);
-  m_pLayout->addWidget(m_pGroups[1]);
-
-  QVBoxLayout* pLayout0 = new QVBoxLayout(pContent);
-  pLayout0->setSpacing(1);
-  m_pGroups[0]->setLayout(pLayout0);
-
-  QVBoxLayout* pLayout1 = new QVBoxLayout(pContent);
-  pLayout1->setSpacing(1);
-  m_pGroups[1]->setLayout(pLayout1);
+  m_pGroups[0] = nullptr;
+  m_pGroups[1] = nullptr;
+  m_pSpacer = nullptr;
 }
 
 ezRawPropertyGridWidget::~ezRawPropertyGridWidget()
@@ -149,16 +135,54 @@ void ezRawPropertyGridWidget::BuildUI(const ezIReflectedTypeAccessor& et, const 
   }
 }
 
+void ezRawPropertyGridWidget::ClearSelection()
+{
+  if (m_pSpacer)
+    m_pLayout->removeItem(m_pSpacer);
+
+  delete m_pGroups[0];
+  delete m_pGroups[1];
+  delete m_pSpacer;
+
+  m_pGroups[0] = nullptr;
+  m_pGroups[1] = nullptr;
+  m_pSpacer = nullptr;
+
+  m_Selection.Clear();
+}
+
 void ezRawPropertyGridWidget::SetSelection(const ezHybridArray<ezDocumentObjectBase*, 32>& selection)
 {
+  ClearSelection();
+
   m_Selection = selection;
+
+  {
+    m_pGroups[0] = new QGroupBox(m_pMainContent);
+    m_pGroups[1] = new QGroupBox(m_pMainContent);
+
+    m_pGroups[0]->setTitle(QLatin1String("Editor Properties"));
+    m_pGroups[1]->setTitle(QLatin1String("Object Properties"));
+
+
+    m_pLayout->addWidget(m_pGroups[0]);
+    m_pLayout->addWidget(m_pGroups[1]);
+
+    QVBoxLayout* pLayout0 = new QVBoxLayout(m_pGroups[0]);
+    pLayout0->setSpacing(1);
+    m_pGroups[0]->setLayout(pLayout0);
+
+    QVBoxLayout* pLayout1 = new QVBoxLayout(m_pGroups[1]);
+    pLayout1->setSpacing(1);
+    m_pGroups[1]->setLayout(pLayout1);
+  }
 
   ezPropertyPath path;
   BuildUI(m_Selection[0]->GetEditorTypeAccessor(), m_Selection[0]->GetEditorTypeAccessor().GetReflectedTypeHandle().GetType(), path, m_pGroups[0]->layout(), true);
   BuildUI(m_Selection[0]->GetTypeAccessor(), m_Selection[0]->GetTypeAccessor().GetReflectedTypeHandle().GetType(), path, m_pGroups[1]->layout(), false);
 
-  QSpacerItem* pSpacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
+  m_pSpacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
   
-  m_pLayout->addSpacerItem(pSpacer);
+  m_pLayout->addSpacerItem(m_pSpacer);
 }
 

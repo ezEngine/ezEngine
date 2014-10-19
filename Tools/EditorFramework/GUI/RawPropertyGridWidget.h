@@ -15,6 +15,7 @@ public:
   ezRawPropertyGridWidget(QWidget* pParent);
   ~ezRawPropertyGridWidget();
 
+  void ClearSelection();
   void SetSelection(const ezHybridArray<ezDocumentObjectBase*, 32>& selection);
 
 private:
@@ -24,7 +25,9 @@ private:
 
   ezHybridArray<ezDocumentObjectBase*, 32> m_Selection;
   QVBoxLayout* m_pLayout;
+  QWidget* m_pMainContent;
   QGroupBox* m_pGroups[2];
+  QSpacerItem* m_pSpacer;
 };
 
 

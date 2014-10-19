@@ -19,11 +19,14 @@ public:
   /// \brief Default constructor. Constructed Uuid will be invalid. [tested]
   EZ_FORCE_INLINE ezUuid();
 
-  /// \brief Comparision operator. [tested]
+  /// \brief Comparison operator. [tested]
   EZ_FORCE_INLINE bool operator == (const ezUuid& Other) const;
 
-  /// \brief Comparision operator. [tested]
+  /// \brief Comparison operator. [tested]
   EZ_FORCE_INLINE bool operator != (const ezUuid& Other) const;
+
+  /// \brief Comparison operator.
+  EZ_FORCE_INLINE bool operator < (const ezUuid& Other) const;
 
   /// \brief Returns true if this is a valid Uuid (e.g. generated with a Uuid generator, or properly deserialized)
   EZ_FORCE_INLINE bool IsValid() const;

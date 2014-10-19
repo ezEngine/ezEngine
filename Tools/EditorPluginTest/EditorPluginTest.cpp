@@ -77,12 +77,20 @@ void OnEditorEvent(const ezEditorFramework::EditorEvent& e)
   {
   case ezEditorFramework::EditorEvent::EventType::AfterOpenProject:
     {
-    ezEditorFramework::GetSettings(ezEditorFramework::SettingsCategory::Project, "TestPlugin").RegisterValueString("Legen", "dary");
+      ezEditorFramework::GetSettings(ezEditorFramework::SettingsCategory::Project, "TestPlugin").RegisterValueString("Legen", "dary");
+
+      pProps->ClearSelection();
     }
     break;
   case ezEditorFramework::EditorEvent::EventType::AfterOpenScene:
     {
-    ezEditorFramework::GetSettings(ezEditorFramework::SettingsCategory::Scene, "TestPlugin").RegisterValueString("Legen2", "dary2");
+      ezEditorFramework::GetSettings(ezEditorFramework::SettingsCategory::Scene, "TestPlugin").RegisterValueString("Legen2", "dary2");
+
+      ezHybridArray<ezDocumentObjectBase*, 32> sel;
+      sel.PushBack(g_pTestObject);
+
+      pProps->SetSelection(sel);
+
     }
     break; 
   }
