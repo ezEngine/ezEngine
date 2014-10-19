@@ -5,6 +5,7 @@
 #include <ToolsFoundation/Document/Document.h>
 #include <QStringList>
 #include <QMimeData>
+#include <QMessageBox>
 
 ezRawDocumentTreeModel::ezRawDocumentTreeModel(const ezDocumentObjectTree* pTree) :
   QAbstractItemModel(nullptr)
@@ -12,6 +13,8 @@ ezRawDocumentTreeModel::ezRawDocumentTreeModel(const ezDocumentObjectTree* pTree
   m_pDocumentTree = pTree;
 
   m_pDocumentTree->m_Events.AddEventHandler(ezDelegate<void (const ezDocumentObjectTreeEvent&)>(&ezRawDocumentTreeModel::TreeEventHandler, this));
+
+  
 }
 
 ezRawDocumentTreeModel::~ezRawDocumentTreeModel()
@@ -145,6 +148,7 @@ QVariant ezRawDocumentTreeModel::data(const QModelIndex& index, int role) const
     switch (role)
     {
     case Qt::DisplayRole:
+    case Qt::EditRole:
       {
         return QString::fromUtf8(pObject->GetEditorTypeAccessor().GetValue(ezToolsReflectionUtils::CreatePropertyPath("Name")).ConvertTo<ezString>().GetData());
       }
@@ -167,7 +171,7 @@ Qt::ItemFlags ezRawDocumentTreeModel::flags(const QModelIndex &index) const
 
   if (index.column() == 0)
   {
-    return (/*Qt::ItemIsUserCheckable | Qt::ItemIsEditable |*/ Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled);
+    return (/*Qt::ItemIsUserCheckable | */ Qt::ItemIsEditable | Qt::ItemIsEnabled | Qt::ItemIsSelectable | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled);
   }
 
   return Qt::ItemFlag::NoItemFlags;
@@ -180,9 +184,9 @@ bool ezRawDocumentTreeModel::dropMimeData(const QMimeData* data, Qt::DropAction 
 
   if (data->hasFormat("application/ezEditor.ObjectSelection"))
   {
-    // TODO: Why copy ??
-    if (action != Qt::DropAction::MoveAction && action != Qt::DropAction::CopyAction)
-      return false;
+    ezDocumentObjectBase* pNewParent = (ezDocumentObjectBase*) parent.internalPointer();
+
+    ezHybridArray<ezDocumentObjectBase*, 32> Dragged;
 
     QByteArray encodedData = data->data("application/ezEditor.ObjectSelection");
     QDataStream stream(&encodedData, QIODevice::ReadOnly);
@@ -199,7 +203,35 @@ bool ezRawDocumentTreeModel::dropMimeData(const QMimeData* data, Qt::DropAction 
 
       ezDocumentObjectBase* pDocObject = (ezDocumentObjectBase*) p;
 
-      ((ezDocumentObjectTree*) m_pDocumentTree)->MoveObject(pDocObject, (ezDocumentObjectBase*) parent.internalPointer());
+      Dragged.PushBack(pDocObject);
+
+      if (action != Qt::DropAction::MoveAction)
+      {
+        bool bCanMove = true;
+        const ezDocumentObjectBase* pCurParent = pNewParent;
+
+        while (pCurParent)
+        {
+          if (pCurParent == pDocObject)
+          {
+            bCanMove = false;
+            break;
+          }
+
+          pCurParent = pCurParent->GetParent();
+        }
+
+        if (!bCanMove)
+        {
+          QMessageBox::information(nullptr, QLatin1String("ezEditor"), QLatin1String("Cannot move an object to one of its own children"), QMessageBox::StandardButton::Ok, QMessageBox::StandardButton::Ok);
+          return false;
+        }
+      }
+    }
+
+    for (ezUInt32 i = 0; i < Dragged.GetCount(); ++i)
+    {
+      ((ezDocumentObjectTree*) m_pDocumentTree)->MoveObject(Dragged[i], pNewParent);
     }
 
     return true;
@@ -266,3 +298,26 @@ QMimeData* ezRawDocumentTreeModel::mimeData(const QModelIndexList& indexes) cons
   mimeData->setData("application/ezEditor.ObjectSelection", encodedData);
   return mimeData;
 }
+
+bool ezRawDocumentTreeModel::setData(const QModelIndex& index, const QVariant& value, int role)
+{
+  ezDocumentObjectBase* pObject = (ezDocumentObjectBase*) index.internalPointer();
+
+  if (role == Qt::EditRole)
+  {
+    ezPropertyPath path = ezToolsReflectionUtils::CreatePropertyPath("Name");
+
+    // TODO cast cast cast!!!
+    // TODO: This doesn't update the property grid yet
+    ((ezIReflectedTypeAccessor&) pObject->GetEditorTypeAccessor()).SetValue(path, value.toString().toUtf8().data());
+
+    QVector<int> roles;
+    roles.push_back(Qt::DisplayRole);
+    roles.push_back(Qt::EditRole);
+
+    emit dataChanged(index, index, roles);
+  }
+
+  return false;
+}
+

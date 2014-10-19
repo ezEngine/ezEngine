@@ -76,7 +76,9 @@ void ezDocumentObjectTree::MoveObject(ezDocumentObjectBase* pObject, ezDocumentO
     pNewParent = &m_RootObject;
 
   if (pNewParent == pObject->m_pParent)
+  {
     return;
+  }
 
   ezDocumentObjectTreeEvent e;
   e.m_pObject = pObject;
@@ -88,7 +90,13 @@ void ezDocumentObjectTree::MoveObject(ezDocumentObjectBase* pObject, ezDocumentO
 
   pObject->m_pParent->m_Children.Remove(pObject);
   pObject->m_pParent = pNewParent;
-  pNewParent->m_Children.PushBack(pObject);
+
+  //if (iNewChildIndex < 0)
+    pNewParent->m_Children.PushBack(pObject);
+  //else
+    // this is difficult, because now ALL objects after that index need to be "moved" (including signals), 
+    // otherwise the UI does not know about this (which crashes in Qt with "persistent index corruption" or so)
+    //pNewParent->m_Children.Insert(pObject, iNewChildIndex);
 
   e.m_EventType = ezDocumentObjectTreeEvent::Type::AfterObjectMoved;
   m_Events.Broadcast(e);

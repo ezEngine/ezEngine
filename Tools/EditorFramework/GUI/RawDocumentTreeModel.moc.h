@@ -26,6 +26,8 @@ public:
   virtual bool dropMimeData(const QMimeData* data, Qt::DropAction action, int row, int column, const QModelIndex& parent) override;
   virtual QStringList mimeTypes() const override;
   virtual QMimeData* mimeData(const QModelIndexList& indexes) const override;
+
+  virtual bool setData(const QModelIndex& index, const QVariant& value, int role) override;
  
 private:
   QModelIndex ComputeParent(const ezDocumentObjectBase* pObject) const;
