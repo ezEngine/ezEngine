@@ -9,16 +9,16 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringView)
 
     ezStringView it(sz);
 
-    EZ_TEST_BOOL(it.GetStart() == sz);
+    EZ_TEST_BOOL(it.GetStartPosition() == sz);
     EZ_TEST_BOOL(it.GetData() == sz);
-    EZ_TEST_BOOL(it.GetEnd() == sz + 26);
+    EZ_TEST_BOOL(it.GetEndPosition() == sz + 26);
     EZ_TEST_INT(it.GetElementCount(), 26);
 
     ezStringView it2(sz + 15);
 
-    EZ_TEST_BOOL(it2.GetStart() == &sz[15]);
+    EZ_TEST_BOOL(it2.GetStartPosition() == &sz[15]);
     EZ_TEST_BOOL(it2.GetData() == &sz[15]);
-    EZ_TEST_BOOL(it2.GetEnd() == sz + 26);
+    EZ_TEST_BOOL(it2.GetEndPosition() == sz + 26);
     EZ_TEST_INT(it2.GetElementCount(), 11);
   }
 
@@ -29,9 +29,9 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringView)
     ezStringView it(sz + 3, sz + 17);
     it.SetCurrentPosition(sz + 5);
 
-    EZ_TEST_BOOL(it.GetStart() == sz + 3);
+    EZ_TEST_BOOL(it.GetStartPosition() == sz + 3);
     EZ_TEST_BOOL(it.GetData() == sz + 5);
-    EZ_TEST_BOOL(it.GetEnd() == sz + 17);
+    EZ_TEST_BOOL(it.GetEndPosition() == sz + 17);
     EZ_TEST_INT(it.GetElementCount(), 12);
   }
 
@@ -187,14 +187,14 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringView)
     }
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetStart / GetEnd / GetData")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetStartPosition / GetEndPosition / GetData")
   {
     const char* sz = "abcdefghijklmnopqrstuvwxyz";
     ezStringView it(sz + 7, sz + 19);
     it.SetCurrentPosition(sz + 13);
 
-    EZ_TEST_BOOL(it.GetStart() == sz + 7);
-    EZ_TEST_BOOL(it.GetEnd() == sz + 19);
+    EZ_TEST_BOOL(it.GetStartPosition() == sz + 7);
+    EZ_TEST_BOOL(it.GetEndPosition() == sz + 19);
     EZ_TEST_BOOL(it.GetData() == sz + 13);
   }
 
@@ -204,43 +204,43 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringView)
     ezStringView it(s.GetData());
     it += 2;
 
-    EZ_TEST_BOOL(it.GetStart() == &s.GetData()[0]);
-    EZ_TEST_BOOL(it.GetEnd() == &s.GetData()[15]);
+    EZ_TEST_BOOL(it.GetStartPosition() == &s.GetData()[0]);
+    EZ_TEST_BOOL(it.GetEndPosition() == &s.GetData()[15]);
     EZ_TEST_BOOL(it.GetData() == &s.GetData()[2]);
     EZ_TEST_BOOL(it.IsValid());
 
     it.Shrink(1, 0);
 
-    EZ_TEST_BOOL(it.GetStart() == &s.GetData()[1]);
-    EZ_TEST_BOOL(it.GetEnd() == &s.GetData()[15]);
+    EZ_TEST_BOOL(it.GetStartPosition() == &s.GetData()[1]);
+    EZ_TEST_BOOL(it.GetEndPosition() == &s.GetData()[15]);
     EZ_TEST_BOOL(it.GetData() == &s.GetData()[2]);
     EZ_TEST_BOOL(it.IsValid());
 
     it.Shrink(3, 0);
 
-    EZ_TEST_BOOL(it.GetStart() == &s.GetData()[5]);
-    EZ_TEST_BOOL(it.GetEnd() == &s.GetData()[15]);
+    EZ_TEST_BOOL(it.GetStartPosition() == &s.GetData()[5]);
+    EZ_TEST_BOOL(it.GetEndPosition() == &s.GetData()[15]);
     EZ_TEST_BOOL(it.GetData() == &s.GetData()[5]);
     EZ_TEST_BOOL(it.IsValid());
 
     it.Shrink(0, 4);
 
-    EZ_TEST_BOOL(it.GetStart() == &s.GetData()[5]);
-    EZ_TEST_BOOL(it.GetEnd() == &s.GetData()[9]);
+    EZ_TEST_BOOL(it.GetStartPosition() == &s.GetData()[5]);
+    EZ_TEST_BOOL(it.GetEndPosition() == &s.GetData()[9]);
     EZ_TEST_BOOL(it.GetData() == &s.GetData()[5]);
     EZ_TEST_BOOL(it.IsValid());
 
     it.Shrink(1, 1);
 
-    EZ_TEST_BOOL(it.GetStart() == &s.GetData()[7]);
-    EZ_TEST_BOOL(it.GetEnd() == &s.GetData()[7]);
+    EZ_TEST_BOOL(it.GetStartPosition() == &s.GetData()[7]);
+    EZ_TEST_BOOL(it.GetEndPosition() == &s.GetData()[7]);
     EZ_TEST_BOOL(it.GetData() == &s.GetData()[7]);
     EZ_TEST_BOOL(!it.IsValid());
 
     it.Shrink(10, 10);
 
-    EZ_TEST_BOOL(it.GetStart() == &s.GetData()[7]);
-    EZ_TEST_BOOL(it.GetEnd() == &s.GetData()[7]);
+    EZ_TEST_BOOL(it.GetStartPosition() == &s.GetData()[7]);
+    EZ_TEST_BOOL(it.GetEndPosition() == &s.GetData()[7]);
     EZ_TEST_BOOL(it.GetData() == &s.GetData()[7]);
     EZ_TEST_BOOL(!it.IsValid());
   }
@@ -251,8 +251,8 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringView)
     ezStringView it(sz + 7, sz + 19);
     it.SetCurrentPosition(sz + 13);
 
-    EZ_TEST_BOOL(it.GetStart() == sz + 7);
-    EZ_TEST_BOOL(it.GetEnd() == sz + 19);
+    EZ_TEST_BOOL(it.GetStartPosition() == sz + 7);
+    EZ_TEST_BOOL(it.GetEndPosition() == sz + 19);
     EZ_TEST_BOOL(it.GetData() == sz + 13);
 
     it.ResetToFront();
@@ -273,8 +273,8 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringView)
     ezStringView it(sz + 7, sz + 19);
     it.SetCurrentPosition(sz + 13);
 
-    EZ_TEST_BOOL(it.GetStart() == sz + 7);
-    EZ_TEST_BOOL(it.GetEnd() == sz + 19);
+    EZ_TEST_BOOL(it.GetStartPosition() == sz + 7);
+    EZ_TEST_BOOL(it.GetEndPosition() == sz + 19);
     EZ_TEST_BOOL(it.GetData() == sz + 13);
 
     it.ResetToBack();

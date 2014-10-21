@@ -435,7 +435,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
 
     const char* szInsert = "abc def ghi";
 
-    s.ReplaceSubString(s.GetData(), s.GetData(), szInsert, szInsert + 7); // partial insert into empty
+    s.ReplaceSubString(s.GetData(), s.GetData(), ezStringView(szInsert, szInsert + 7)); // partial insert into empty
     EZ_TEST_BOOL(s == ezStringUtf8(L"abc def").GetData());
     EZ_TEST_INT(s.GetCharacterCount(), 7);
     EZ_TEST_INT(s.GetElementCount(), 7);

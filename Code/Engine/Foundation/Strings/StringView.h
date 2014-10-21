@@ -48,6 +48,10 @@ public:
   /// to set the iterator to a valid starting position again.
   bool IsValid() const; // [tested]
 
+  // no implicit conversion to ezStringParamImpl or const char* because the string view may not be zero terminated
+  //operator ezStringParamImpl () const;
+  //operator const char* () const { return GetData(); }
+
   /// \brief Returns the string, starting at the current iteration position.
   const char* GetData() const { return m_pCurrent; } // [tested]
 
@@ -62,13 +66,13 @@ public:
   void SetCurrentPosition(const char* szCurPos); // [tested]
 
   /// \brief Returns the start of the iterator range.
-  const char* GetStart() const { return m_pStart; } // [tested]
+  const char* GetStartPosition() const { return m_pStart; } // [tested]
 
   /// \brief Returns the end of the iterator range. This will point to the byte AFTER the last character.
   ///
   /// That means it might point to the '\0' terminator, UNLESS the iterator only represents a sub-string of a larger string.
   /// Accessing the value at 'GetEnd' has therefore no real use.
-  const char* GetEnd() const { return m_pEnd; } // [tested]
+  const char* GetEndPosition() const { return m_pEnd; } // [tested]
 
   /// \brief Shrinks the iterator range by uiShrinkCharsFront characters at the front and by uiShrinkCharsBack characters at the back.
   ///

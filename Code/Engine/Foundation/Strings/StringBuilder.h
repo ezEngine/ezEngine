@@ -190,10 +190,10 @@ public:
 
 
   /// \brief Replaces the string that starts at szStartPos and ends at szEndPos with the string szReplaceWith.
-  void ReplaceSubString(const char* szStartPos, const char* szEndPos, const char* szReplaceWith, const char* szReplaceWithEnd = ezMaxStringEnd); // [tested]
+  void ReplaceSubString(const char* szStartPos, const char* szEndPos, const ezStringView& szReplaceWith); // [tested]
 
   /// \brief A wrapper around ReplaceSubString. Will insert the given string at szInsertAtPos.
-  void Insert(const char* szInsertAtPos, const char* szTextToInsert, const char* szTextToInsertEnd = ezMaxStringEnd); // [tested]
+  void Insert(const char* szInsertAtPos, const ezStringView& szTextToInsert); // [tested]
 
   /// \brief A wrapper around ReplaceSubString. Will remove the substring which starts at szRemoveFromPos and ends at szRemoveToPos.
   void Remove(const char* szRemoveFromPos, const char* szRemoveToPos); // [tested]
@@ -201,36 +201,36 @@ public:
   /// \brief Replaces the first occurrence of szSearchFor by szReplacement. Optionally starts searching at szStartSearchAt (or the beginning).
   ///
   /// Returns the first position where szSearchFor was found, or nullptr if nothing was found (and replaced).
-  const char* ReplaceFirst(const char* szSearchFor, const char* szReplacement, const char* szStartSearchAt = nullptr); // [tested]
+  const char* ReplaceFirst(const char* szSearchFor, const ezStringView& szReplacement, const char* szStartSearchAt = nullptr); // [tested]
 
   /// \brief Case-insensitive version of ReplaceFirst.
-  const char* ReplaceFirst_NoCase(const char* szSearchFor, const char* szReplacement, const char* szStartSearchAt = nullptr); // [tested]
+  const char* ReplaceFirst_NoCase(const char* szSearchFor, const ezStringView& szReplacement, const char* szStartSearchAt = nullptr); // [tested]
 
   /// \brief Replaces the last occurrence of szSearchFor by szReplacement. Optionally starts searching at szStartSearchAt (or the end).
   ///
   /// Returns the last position where szSearchFor was found, or nullptr if nothing was found (and replaced).
-  const char* ReplaceLast(const char* szSearchFor, const char* szReplacement, const char* szStartSearchAt = nullptr); // [tested]
+  const char* ReplaceLast(const char* szSearchFor, const ezStringView& szReplacement, const char* szStartSearchAt = nullptr); // [tested]
 
   /// \brief Case-insensitive version of ReplaceLast.
-  const char* ReplaceLast_NoCase(const char* szSearchFor, const char* szReplacement, const char* szStartSearchAt = nullptr); // [tested]
+  const char* ReplaceLast_NoCase(const char* szSearchFor, const ezStringView& szReplacement, const char* szStartSearchAt = nullptr); // [tested]
 
   /// \brief Replaces all occurrences of szSearchFor by szReplacement. Returns the number of replacements.
-  ezUInt32 ReplaceAll(const char* szSearchFor, const char* szReplacement); // [tested]
+  ezUInt32 ReplaceAll(const char* szSearchFor, const ezStringView& szReplacement); // [tested]
 
   /// \brief Case-insensitive version of ReplaceAll.
-  ezUInt32 ReplaceAll_NoCase(const char* szSearchFor, const char* szReplacement); // [tested]
+  ezUInt32 ReplaceAll_NoCase(const char* szSearchFor, const ezStringView& szReplacement); // [tested]
 
   /// \brief Replaces the first occurrence of szSearchFor by szReplaceWith, if szSearchFor was found to be a 'whole word', as indicated by the delimiter function IsDelimiterCB.
-  const char* ReplaceWholeWord(const char* szSearchFor, const char* szReplaceWith, ezStringUtils::EZ_CHARACTER_FILTER IsDelimiterCB); // [tested]
+  const char* ReplaceWholeWord(const char* szSearchFor, const ezStringView& szReplaceWith, ezStringUtils::EZ_CHARACTER_FILTER IsDelimiterCB); // [tested]
 
   /// \brief Case-insensitive version of ReplaceWholeWord.
-  const char* ReplaceWholeWord_NoCase(const char* szSearchFor, const char* szReplaceWith, ezStringUtils::EZ_CHARACTER_FILTER IsDelimiterCB); // [tested]
+  const char* ReplaceWholeWord_NoCase(const char* szSearchFor, const ezStringView& szReplaceWith, ezStringUtils::EZ_CHARACTER_FILTER IsDelimiterCB); // [tested]
 
   /// \brief Replaces all occurrences of szSearchFor by szReplaceWith, if szSearchFor was found to be a 'whole word', as indicated by the delimiter function IsDelimiterCB.
-  ezUInt32 ReplaceWholeWordAll(const char* szSearchFor, const char* szReplaceWith, ezStringUtils::EZ_CHARACTER_FILTER IsDelimiterCB); // [tested]
+  ezUInt32 ReplaceWholeWordAll(const char* szSearchFor, const ezStringView& szReplaceWith, ezStringUtils::EZ_CHARACTER_FILTER IsDelimiterCB); // [tested]
 
   /// \brief Case-insensitive version of ReplaceWholeWordAll.
-  ezUInt32 ReplaceWholeWordAll_NoCase(const char* szSearchFor, const char* szReplaceWith, ezStringUtils::EZ_CHARACTER_FILTER IsDelimiterCB); // [tested]
+  ezUInt32 ReplaceWholeWordAll_NoCase(const char* szSearchFor, const ezStringView& szReplaceWith, ezStringUtils::EZ_CHARACTER_FILTER IsDelimiterCB); // [tested]
 
   /// \brief Fills the given container with ezStringView's which represent each found substring.
   /// If bReturnEmptyStrings is true, even empty strings between separators are returned.

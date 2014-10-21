@@ -181,7 +181,7 @@ double ExtractValue(const char* szString)
       }
     }
 
-    if (s.GetData() == s.GetStart())
+    if (s.GetData() == s.GetStartPosition())
       break;
 
     --s;

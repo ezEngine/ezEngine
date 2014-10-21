@@ -255,14 +255,14 @@ inline void ezStringBuilder::Reserve(ezUInt32 uiNumElements)
   m_Data.Reserve(uiNumElements);
 }
 
-inline void ezStringBuilder::Insert (const char* szInsertAtPos, const char* szTextToInsert, const char* szTextToInsertEnd)
+inline void ezStringBuilder::Insert (const char* szInsertAtPos, const ezStringView& szTextToInsert)
 {
-  ReplaceSubString(szInsertAtPos, szInsertAtPos, szTextToInsert, szTextToInsertEnd);
+  ReplaceSubString(szInsertAtPos, szInsertAtPos, szTextToInsert);
 }
 
 inline void ezStringBuilder::Remove(const char* szRemoveFromPos, const char* szRemoveToPos)
 {
-  ReplaceSubString(szRemoveFromPos, szRemoveToPos, nullptr);
+  ReplaceSubString(szRemoveFromPos, szRemoveToPos, ezStringView());
 }
 
 template <typename Container>

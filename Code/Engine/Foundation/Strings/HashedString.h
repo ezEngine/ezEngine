@@ -100,6 +100,12 @@ public:
   /// \brief Returns the hash of the stored string.
   ezUInt32 GetHash() const; // [tested]
 
+  /// \brief Returns a string view to this string's data.
+  operator ezStringView() const { return GetString(); }
+
+  /// \brief Returns a pointer to the internal Utf8 string.
+  operator const char*() const { return GetData(); }
+
 private:
   static void InitHashedString();
   static HashedType AddHashedString(const char* szString, ezUInt32 uiHash);

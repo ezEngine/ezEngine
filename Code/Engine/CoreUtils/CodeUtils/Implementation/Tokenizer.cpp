@@ -44,7 +44,7 @@ void ezTokenizer::NextChar()
 
   if (!m_Iterator.IsValid())
   {
-    m_szNextCharStart = m_Iterator.GetEnd();
+    m_szNextCharStart = m_Iterator.GetEndPosition();
     m_uiNextChar = '\0';
     return;
   }

@@ -80,6 +80,9 @@ public:
   /// \brief Returns a string view to this string's data.
   operator ezStringView() const; // [tested]
 
+  /// \brief Returns a pointer to the internal Utf8 string.
+  operator const char*() const { return GetData(); }
+
   /// \brief Resets this string to an empty string.
   ///
   /// This will not deallocate any previously allocated data, but reuse that memory.

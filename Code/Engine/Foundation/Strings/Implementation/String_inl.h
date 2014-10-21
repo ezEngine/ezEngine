@@ -119,7 +119,7 @@ template<ezUInt16 Size>
 void ezHybridStringBase<Size>::operator=(const ezStringView& rhs)
 {
   m_Data.SetCount(rhs.GetElementCount() + 1);
-  ezStringUtils::Copy(&m_Data[0], m_Data.GetCount() + 1, rhs.GetData(), rhs.GetEnd());
+  ezStringUtils::Copy(&m_Data[0], m_Data.GetCount() + 1, rhs.GetData(), rhs.GetEndPosition());
   m_uiCharacterCount = ezStringUtils::GetCharacterCount(GetData());
 }
 

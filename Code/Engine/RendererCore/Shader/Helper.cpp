@@ -41,8 +41,8 @@ void ezTextSectionizer::Process(const char* szText)
 
       if (m_Sections[s2].m_szSectionStart > m_Sections[s].m_szSectionStart)
       {
-        const char* szContentStart = m_Sections[s].m_Content.GetStart();
-        const char* szSectionEnd = ezMath::Min(m_Sections[s].m_Content.GetEnd(), m_Sections[s2].m_szSectionStart);
+        const char* szContentStart = m_Sections[s].m_Content.GetStartPosition();
+        const char* szSectionEnd = ezMath::Min(m_Sections[s].m_Content.GetEndPosition(), m_Sections[s2].m_szSectionStart);
 
         m_Sections[s].m_Content = ezStringView(szContentStart, szSectionEnd);
       }

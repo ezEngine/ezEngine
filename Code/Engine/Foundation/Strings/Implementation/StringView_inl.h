@@ -11,9 +11,9 @@ inline ezStringView::ezStringView()
 inline ezStringView::ezStringView(const char* pStart)
 {
   m_pStart = pStart;
-  m_pEnd = (pStart == nullptr) ? nullptr : (pStart + ezStringUtils::GetStringElementCount(pStart));
-  m_pCurrent = pStart;
-  m_bValid = (pStart < m_pEnd);
+  m_pEnd = pStart + ezStringUtils::GetStringElementCount(pStart);
+  m_pCurrent = m_pStart;
+  m_bValid = (m_pStart < m_pEnd);
 }
 
 inline ezStringView::ezStringView(const char* pStart, const char* pEnd)
@@ -22,7 +22,7 @@ inline ezStringView::ezStringView(const char* pStart, const char* pEnd)
 
   m_pStart = pStart;
   m_pEnd = pEnd;
-  m_pCurrent = pStart;
+  m_pCurrent = m_pStart;
   m_bValid = (m_pStart < m_pEnd);
 }
 
