@@ -135,7 +135,13 @@ ezResult ezPreprocessor::ExtractParameterValue(const TokenStream& Tokens, ezUInt
     if (iParenthesis == 0)
     {
       if (Tokens[uiCurToken]->m_DataView == "," || Tokens[uiCurToken]->m_DataView == ")")
+      {
+        if (ParamTokens.PeekBack()->m_iType == ezTokenType::Whitespace)
+        {
+          ParamTokens.PopBack();
+        }
         return EZ_SUCCESS;
+      }
     }
 
     if (Tokens[uiCurToken]->m_DataView == "(")
