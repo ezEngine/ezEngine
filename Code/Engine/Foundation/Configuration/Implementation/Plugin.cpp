@@ -26,9 +26,11 @@ struct PluginData
     m_pPluginObject = nullptr;
     m_iReferenceCount = 0;
     m_LastModificationTime.Invalidate();
+    m_uiFileNumber = 0;
   }
 
   ezPluginModule m_hModule;
+  ezUInt8 m_uiFileNumber;
   ezTimestamp m_LastModificationTime;
   ezPlugin* m_pPluginObject;
   ezInt32 m_iReferenceCount;
@@ -36,6 +38,7 @@ struct PluginData
 
 static ezMap<ezString, PluginData> g_LoadedPlugins;
 ezInt32 ezPlugin::s_iPluginChangeRecursionCounter = 0;
+ezUInt32 ezPlugin::m_uiMaxParallelInstances = 32;
 ezEvent<const ezPlugin::PluginEvent&> ezPlugin::s_PluginEvents;
 
 
@@ -161,7 +164,7 @@ ezResult ezPlugin::UnloadPluginInternal(const char* szPluginFile, bool bReloadin
   // delete the plugin copy that we had loaded
   {
     ezStringBuilder sOldPlugin, sNewPlugin;
-    GetPluginPaths(szPluginFile, sOldPlugin, sNewPlugin);
+    GetPluginPaths(szPluginFile, sOldPlugin, sNewPlugin, g_LoadedPlugins[szPluginFile].m_uiFileNumber);
 
     ezOSFile::DeleteFile(sNewPlugin.GetData());
   }
@@ -188,22 +191,34 @@ ezResult ezPlugin::UnloadPluginInternal(const char* szPluginFile, bool bReloadin
 
 ezResult ezPlugin::LoadPluginInternal(const char* szPluginFile, bool bLoadCopy, bool bReloading)
 {
+  ezUInt8 uiFileNumber = 0;
+
   ezStringBuilder sOldPlugin, sNewPlugin;
-  GetPluginPaths(szPluginFile, sOldPlugin, sNewPlugin);
+  GetPluginPaths(szPluginFile, sOldPlugin, sNewPlugin, uiFileNumber);
 
   if (bLoadCopy)
   {
     // create a copy of the original plugin file
-    if (ezOSFile::CopyFile(sOldPlugin.GetData(), sNewPlugin.GetData()) == EZ_FAILURE)
+    for (uiFileNumber = 0; uiFileNumber < ezPlugin::m_uiMaxParallelInstances; ++uiFileNumber)
     {
-      g_LoadedPlugins.Erase(sNewPlugin);
-      return EZ_FAILURE;
+      GetPluginPaths(szPluginFile, sOldPlugin, sNewPlugin, uiFileNumber);
+      if (ezOSFile::CopyFile(sOldPlugin.GetData(), sNewPlugin.GetData()) == EZ_SUCCESS)
+        goto success;
     }
+
+    ezLog::Error("Could not copy the plugin file '%s' to '%s' (and all previous file numbers). Plugin MaxParallelInstances is set to %i.", sOldPlugin.GetData(), sNewPlugin.GetData(), ezPlugin::m_uiMaxParallelInstances);
+
+    g_LoadedPlugins.Erase(sNewPlugin);
+    return EZ_FAILURE;
   }
   else
   {
     sNewPlugin = sOldPlugin;
   }
+
+success:
+
+  g_LoadedPlugins[szPluginFile].m_uiFileNumber = uiFileNumber;
 
   BeginPluginChanges();
 
@@ -425,7 +440,7 @@ ezResult ezPlugin::ReloadPlugins(bool bForceReload)
         bool bModified = true;
 
         ezStringBuilder sOldPlugin, sNewPlugin;
-        GetPluginPaths(pPlugin->m_sLoadedFromFile.GetData(), sOldPlugin, sNewPlugin);
+        GetPluginPaths(pPlugin->m_sLoadedFromFile, sOldPlugin, sNewPlugin, g_LoadedPlugins[pPlugin->m_sLoadedFromFile].m_uiFileNumber);
 
         if (!ezOSFile::Exists(sOldPlugin.GetData()))
         {
@@ -495,7 +510,7 @@ ezResult ezPlugin::ReloadPlugins(bool bForceReload)
     for (ezUInt32 i = 0; i < PluginsToReload.GetCount(); ++i)
     {
       ezStringBuilder sOldPlugin, sNewPlugin;
-      GetPluginPaths(PluginsToReload[i].GetData(), sOldPlugin, sNewPlugin);
+      GetPluginPaths(PluginsToReload[i].GetData(), sOldPlugin, sNewPlugin, g_LoadedPlugins[PluginsToReload[i]].m_uiFileNumber);
 
       ezStringBuilder sBackup = sNewPlugin;
       sBackup.Append(".backup");

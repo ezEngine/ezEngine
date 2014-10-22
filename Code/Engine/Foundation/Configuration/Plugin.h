@@ -108,8 +108,15 @@ public:
   /// \brief Returns the n-th plugin that this one is dependent on, or nullptr if there is no further dependency.
   const char* GetPluginDependency(ezUInt8 uiDependency) const { return (uiDependency < 5) ? m_szPluginDependencies[uiDependency] : nullptr; }
 
+  /// \brief Sets how many tries the system will do to find a free plugin file name.
+  ///
+  /// During plugin loading the system creates copies of the plugin DLLs for reloading. This only works if the system can find a
+  /// file to write to. If too many instances of the engine are running, no such free file name might be found and plugin loading fails.
+  /// This value specifies how often the system tries to find a free file. The default is 32.
+  static void SetMaxParallelInstances(ezUInt32 uiMaxParallelInstances);
+
 private:
-  static void GetPluginPaths(const char* szPluginName, ezStringBuilder& sOldPath, ezStringBuilder& sNewPath);
+  static void GetPluginPaths(const char* szPluginName, ezStringBuilder& sOldPath, ezStringBuilder& sNewPath, ezUInt8 uiFileNumber);
 
   const char* m_szPluginDependencies[5];
   ezString m_sLoadedFromFile;
@@ -127,6 +134,7 @@ private:
   bool m_bInitialized;
   bool m_bIsReloadable;
 
+  static ezUInt32 m_uiMaxParallelInstances;
   static ezInt32 s_iPluginChangeRecursionCounter;
 };
 

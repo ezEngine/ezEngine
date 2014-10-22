@@ -8,7 +8,7 @@
 
   typedef HMODULE ezPluginModule;
 
-  void ezPlugin::GetPluginPaths(const char* szPluginName, ezStringBuilder& sOldPath, ezStringBuilder& sNewPath)
+  void ezPlugin::GetPluginPaths(const char* szPluginName, ezStringBuilder& sOldPath, ezStringBuilder& sNewPath, ezUInt8 uiFileNumber)
   {
     sOldPath = ezOSFile::GetApplicationDirectory();
     sOldPath.AppendPath(szPluginName);
@@ -16,6 +16,10 @@
 
     sNewPath = ezOSFile::GetApplicationDirectory();
     sNewPath.AppendPath(szPluginName);
+
+    if (uiFileNumber > 0)
+      sNewPath.AppendFormat("%i", uiFileNumber);
+
     sNewPath.Append(".loaded");
   }
 
