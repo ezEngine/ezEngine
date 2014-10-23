@@ -55,7 +55,7 @@ NPARAM(p1, p2, p3)
 NPARAM2()
 NPARAM2(p1)
 NPARAM2(p1, p2)
-NPARAM2(p1, p2, p3)
+NPARAM2( p1 , p2 , p3 )
 
 pop front: POPFRONT(p1, p2, p3, p4)
 
