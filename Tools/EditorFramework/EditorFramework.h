@@ -83,6 +83,7 @@ public:
   static ezString GetSceneDataFolder();
 
   static void LoadPlugins();
+  static void UnloadPlugins();
 
 private:
 

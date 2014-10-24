@@ -71,8 +71,22 @@
      <addaction name="ActionSceneOpen"/>
      <addaction name="ActionSceneClose"/>
     </widget>
+    <widget class="QMenu" name="MenuNewDocument">
+     <property name="title">
+      <string>New Document</string>
+     </property>
+     <addaction name="separator"/>
+    </widget>
+    <widget class="QMenu" name="MenuOpenDocument">
+     <property name="title">
+      <string>Open Document</string>
+     </property>
+     <addaction name="separator"/>
+    </widget>
     <addaction name="menuProject"/>
     <addaction name="menuScene"/>
+    <addaction name="MenuNewDocument"/>
+    <addaction name="MenuOpenDocument"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuSettings"/>

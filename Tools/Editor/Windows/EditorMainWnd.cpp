@@ -12,11 +12,63 @@ ezEditorMainWnd::ezEditorMainWnd() : QMainWindow()
   s_pWidget = this;
 
   setupUi(this);
+
+  ezDocumentManagerBase::s_Events.AddEventHandler(ezDelegate<void (const ezDocumentManagerBase::Event&)>(&ezEditorMainWnd::DocumentManagerEventHandler, this));
 }
 
 ezEditorMainWnd::~ezEditorMainWnd()
 {
+  ezDocumentManagerBase::s_Events.RemoveEventHandler(ezDelegate<void (const ezDocumentManagerBase::Event&)>(&ezEditorMainWnd::DocumentManagerEventHandler, this));
+
   s_pWidget = nullptr;
+}
+
+void ezEditorMainWnd::DocumentManagerEventHandler(const ezDocumentManagerBase::Event& e)
+{
+  switch (e.m_Type)
+  {
+  case ezDocumentManagerBase::Event::Type::DocumentTypesAdded:
+  case ezDocumentManagerBase::Event::Type::DocumentTypesRemoved:
+    UpdateSupportedDocumentTypes();
+    break;
+  }
+}
+
+void ezEditorMainWnd::UpdateSupportedDocumentTypes()
+{
+  //QMenu* MenuNewDocument;
+  MenuNewDocument->clear();
+
+  const ezHybridArray<ezDocumentManagerBase*, 16>& man = ezDocumentManagerBase::GetAllDocumentManagers();
+
+  ezStringBuilder sTemp;
+
+  for (ezUInt32 i = 0; i < man.GetCount(); ++i)
+  {
+    ezHybridArray<ezDocumentTypeDescriptor, 4> DocumentTypes;
+    man[i]->GetSupportedDocumentTypes(DocumentTypes);
+
+    for (ezUInt32 d = 0; d < DocumentTypes.GetCount(); ++d)
+    {
+      sTemp.Clear();
+      sTemp.Append(DocumentTypes[d].m_sDocumentTypeName, " (");
+
+      for (ezUInt32 ext = 0; ext < DocumentTypes[d].m_sFileExtensions.GetCount(); ++ext)
+      {
+        if (ext > 0)
+          sTemp.Append("; ");
+
+        sTemp.Append("*.", DocumentTypes[d].m_sFileExtensions[ext]);
+      }
+
+      sTemp.Append(")");
+
+      if (DocumentTypes[d].m_bCanCreate)
+      {
+        MenuNewDocument->addAction(QString::fromUtf8(sTemp.GetData()));
+      }
+    }
+  }
 }
 
 void ezEditorMainWnd::closeEvent(QCloseEvent* event) 

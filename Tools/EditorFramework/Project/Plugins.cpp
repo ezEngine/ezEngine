@@ -94,14 +94,25 @@ void ezEditorFramework::LoadPlugins()
   GetEditorPluginsAvailable();
   ReadPluginsToBeLoaded();
 
+  s_EditorPluginsActive.m_Plugins.Clear();
+
   for (auto it = s_EditorPluginsToBeLoaded.m_Plugins.GetIterator(); it.IsValid(); ++it)
   {
     // only load plugins that are available
     if (s_EditorPluginsAvailable.m_Plugins.Find(it.Key().GetData()).IsValid())
     {
+      s_EditorPluginsActive.m_Plugins.Insert(it.Key());
       ezPlugin::LoadPlugin(it.Key().GetData());
     }
   }
+}
 
-  s_EditorPluginsActive = s_EditorPluginsToBeLoaded;
+void ezEditorFramework::UnloadPlugins()
+{
+  for (auto it = s_EditorPluginsActive.m_Plugins.GetIterator(); it.IsValid(); ++it)
+  {
+    ezPlugin::UnloadPlugin(it.Key().GetData());
+  }
+
+  s_EditorPluginsActive.m_Plugins.Clear();
 }

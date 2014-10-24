@@ -58,14 +58,14 @@ public:
     ezCommandLineUtils::GetInstance()->SetCommandLine(GetArgumentCount(), GetArgumentsArray());
     ezEditorFramework::StartupEditor(ezCommandLineUtils::GetInstance()->GetStringOption("-appname", 0, "ezEditor"), "DefaultUser");
 
-    QApplication app(iArgs, cArgs);
-    QCoreApplication::setOrganizationDomain("www.ezEngine.net");
-    QCoreApplication::setOrganizationName("ezEngine Project");
-    QCoreApplication::setApplicationName(ezEditorFramework::GetApplicationName().GetData());
-    QCoreApplication::setApplicationVersion("1.0.0");
-    SetStyleSheet();
-
     {
+      QApplication app(iArgs, cArgs);
+      QCoreApplication::setOrganizationDomain("www.ezEngine.net");
+      QCoreApplication::setOrganizationName("ezEngine Project");
+      QCoreApplication::setApplicationName(ezEditorFramework::GetApplicationName().GetData());
+      QCoreApplication::setApplicationVersion("1.0.0");
+      SetStyleSheet();
+
       ezEditorMainWnd MainWindow;
       ezEditorFramework::SetMainWindow(&MainWindow);
 

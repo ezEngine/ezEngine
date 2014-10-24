@@ -3,6 +3,7 @@
 #include <Foundation/Basics.h>
 #include <QMainWindow>
 #include <Tools/Editor/ui_EditorMainWnd.h>
+#include <ToolsFoundation/Document/DocumentManager.h>
 
 class ezEditorMainWnd : public QMainWindow, public Ui_EditorMainWnd
 {
@@ -29,6 +30,10 @@ private slots:
   virtual void on_ActionSceneClose_triggered();
 
 private:
+  void DocumentManagerEventHandler(const ezDocumentManagerBase::Event& e);
+
+  void UpdateSupportedDocumentTypes();
+
   // Window Layout
   void SaveWindowLayout();
   void RestoreWindowLayout();

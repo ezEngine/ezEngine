@@ -5,8 +5,11 @@
 
 struct ezStatus
 {
+  ezStatus() : m_Result(EZ_FAILURE)
+  {
+  }
+
   ezResult m_Result;
   ezString m_sError;
-
 };
 
