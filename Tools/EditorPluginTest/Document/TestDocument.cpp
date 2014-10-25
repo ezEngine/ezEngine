@@ -6,7 +6,7 @@
 ezTestDocument::ezTestDocument()
 {
   //m_pCommandHistory;
-  m_pObjectManager = new ezTestObjectManager;
+  m_pObjectManager = new ezTestObjectManager(this);
   //m_pSelectionManager
 }
 

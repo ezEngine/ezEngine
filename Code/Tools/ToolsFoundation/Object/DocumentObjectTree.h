@@ -26,6 +26,9 @@ private:
 
 struct ezDocumentObjectTreeEvent
 {
+  ezDocumentObjectTreeEvent() : m_pObject(nullptr), m_pPreviousParent(nullptr), m_pNewParent(nullptr), m_uiNewChildIndex(-1)
+  {}
+
   enum class Type
   {
     BeforeObjectAdded,
@@ -40,6 +43,7 @@ struct ezDocumentObjectTreeEvent
   const ezDocumentObjectBase* m_pObject;
   const ezDocumentObjectBase* m_pPreviousParent;
   const ezDocumentObjectBase* m_pNewParent;
+  ezUInt32 m_uiNewChildIndex;
 };
 
 class EZ_TOOLSFOUNDATION_DLL ezDocumentObjectTree
@@ -52,11 +56,11 @@ public:
 
   const ezDocumentObjectBase* GetRootObject() const { return &m_RootObject; }
 
-  void AddObject(ezDocumentObjectBase* pObject, ezDocumentObjectBase* pParent);
+  void AddObject(ezDocumentObjectBase* pObject, ezDocumentObjectBase* pParent, ezInt32 iChildIndex = -1);
 
   void RemoveObject(ezDocumentObjectBase* pObject);
 
-  void MoveObject(ezDocumentObjectBase* pObject, ezDocumentObjectBase* pNewParent);
+  void MoveObject(ezDocumentObjectBase* pObject, ezDocumentObjectBase* pNewParent, ezInt32 iChildIndex = -1);
 
   const ezDocumentObjectBase* GetObject(const ezUuid& guid) const;
 

@@ -3,6 +3,10 @@
 #include <EditorPluginTest/Objects/TestObject.h>
 #include <ToolsFoundation/Reflection/ReflectedTypeManager.h>
 
+ezTestObjectManager::ezTestObjectManager(const ezDocumentBase* pDocument) : ezDocumentObjectManagerBase(pDocument)
+{
+}
+
 ezDocumentObjectBase* ezTestObjectManager::InternalCreateObject(ezReflectedTypeHandle hType)
 {
   if (ezStringUtils::IsEqual(hType.GetType()->GetTypeName().GetData(), ezGetStaticRTTI<ezTestObjectProperties>()->GetTypeName()))
@@ -44,7 +48,7 @@ bool ezTestObjectManager::InternalCanRemove(const ezDocumentObjectBase* pObject)
   return true;
 }
 
-bool ezTestObjectManager::InternalCanMove(const ezDocumentObjectBase* pObject, const ezDocumentObjectBase* pNewParent) const
+bool ezTestObjectManager::InternalCanMove(const ezDocumentObjectBase* pObject, const ezDocumentObjectBase* pNewParent, ezInt32 iChildIndex) const
 {
   return true;
 }

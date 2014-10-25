@@ -20,10 +20,10 @@ ezTestPanel* pPanelCreator = nullptr;
 ezTestWindow* pWindow = nullptr;
 ezRawPropertyGridWidget* pProps = nullptr;
 ezRawDocumentTreeWidget* pTreeWidget = nullptr;
-ezTestObject* g_pTestObject = nullptr;
-ezTestObject2* g_pTestObject2 = nullptr;
-ezTestObject* g_pTestObject3 = nullptr;
-ezTestObject2* g_pTestObject4 = nullptr;
+ezDocumentObjectBase* g_pTestObject = nullptr;
+ezDocumentObjectBase* g_pTestObject2 = nullptr;
+ezDocumentObjectBase* g_pTestObject3 = nullptr;
+ezDocumentObjectBase* g_pTestObject4 = nullptr;
 ezTestObjectCreatorWidget* g_pCreator = nullptr;
 ezTestDocument* g_pDocument = nullptr;
 
@@ -50,10 +50,10 @@ void OnLoadPlugin(bool bReloading)
 
   g_pDocument = new ezTestDocument();
 
-  g_pTestObject = new ezTestObject(new ezTestObjectProperties);
-  g_pTestObject3 = new ezTestObject(new ezTestObjectProperties);
-  g_pTestObject2 = new ezTestObject2(ezReflectedTypeManager::GetTypeHandleByName("ezTestObjectProperties"));
-  g_pTestObject4 = new ezTestObject2(ezReflectedTypeManager::GetTypeHandleByName("ezTestObjectProperties"));
+  g_pTestObject = ((ezDocumentObjectManagerBase*) g_pDocument->GetObjectManager())->CreateObject(ezReflectedTypeManager::GetTypeHandleByName(ezGetStaticRTTI<ezTestObjectProperties>()->GetTypeName()));
+  g_pTestObject3 = ((ezDocumentObjectManagerBase*) g_pDocument->GetObjectManager())->CreateObject(ezReflectedTypeManager::GetTypeHandleByName(ezGetStaticRTTI<ezTestObjectProperties>()->GetTypeName()));
+  g_pTestObject2 = ((ezDocumentObjectManagerBase*) g_pDocument->GetObjectManager())->CreateObject(ezReflectedTypeManager::GetTypeHandleByName(ezGetStaticRTTI<ezTestEditorProperties>()->GetTypeName()));
+  g_pTestObject4 = ((ezDocumentObjectManagerBase*) g_pDocument->GetObjectManager())->CreateObject(ezReflectedTypeManager::GetTypeHandleByName(ezGetStaticRTTI<ezTestEditorProperties>()->GetTypeName()));
 
   pPanel = new ezTestPanel(/*(QWidget*) pWindow);*/ezEditorFramework::GetMainWindow());
   pPanel->show();

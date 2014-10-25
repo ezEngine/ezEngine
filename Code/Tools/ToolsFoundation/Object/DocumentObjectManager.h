@@ -4,11 +4,12 @@
 #include <ToolsFoundation/Reflection/ReflectedType.h>
 #include <ToolsFoundation/Object/DocumentObjectBase.h>
 
-class ezDocumentObjectTree;
+class ezDocumentBase;
 
 class EZ_TOOLSFOUNDATION_DLL ezDocumentObjectManagerBase
 {
 public:
+  ezDocumentObjectManagerBase(const ezDocumentBase* pDocument);
   virtual ~ezDocumentObjectManagerBase() { }
 
   ezDocumentObjectBase* CreateObject(ezReflectedTypeHandle hType);
@@ -16,13 +17,13 @@ public:
 
   bool CanAdd(ezReflectedTypeHandle hType, const ezDocumentObjectBase* pParent) const;
   bool CanRemove(const ezDocumentObjectBase* pObject) const;
-  bool CanMove(const ezDocumentObjectBase* pObject, const ezDocumentObjectBase* pNewParent) const;
+  bool CanMove(const ezDocumentObjectBase* pObject, const ezDocumentObjectBase* pNewParent, ezInt32 iChildIndex = -1) const;
 
 private:
   virtual ezDocumentObjectBase* InternalCreateObject(ezReflectedTypeHandle hType) = 0;
   virtual bool InternalCanAdd(ezReflectedTypeHandle hType, const ezDocumentObjectBase* pParent) const = 0;
   virtual bool InternalCanRemove(const ezDocumentObjectBase* pObject) const = 0;
-  virtual bool InternalCanMove(const ezDocumentObjectBase* pObject, const ezDocumentObjectBase* pNewParent) const = 0;
+  virtual bool InternalCanMove(const ezDocumentObjectBase* pObject, const ezDocumentObjectBase* pNewParent, ezInt32 iChildIndex) const = 0;
 
-  ezDocumentObjectTree* m_pObjectTree;
+  const ezDocumentBase* m_pDocument;
 };

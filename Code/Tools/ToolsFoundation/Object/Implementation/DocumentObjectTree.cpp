@@ -1,5 +1,6 @@
 #include <ToolsFoundation/PCH.h>
 #include <ToolsFoundation/Object/DocumentObjectTree.h>
+#include <ToolsFoundation/Document/Document.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEmptyProperties, ezReflectedClass, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
@@ -29,21 +30,30 @@ void ezDocumentObjectTree::RecursiveRemoveGuids(ezDocumentObjectBase* pObject)
     RecursiveRemoveGuids(pObject->GetChildren()[c]);
 }
 
-void ezDocumentObjectTree::AddObject(ezDocumentObjectBase* pObject, ezDocumentObjectBase* pParent)
+void ezDocumentObjectTree::AddObject(ezDocumentObjectBase* pObject, ezDocumentObjectBase* pParent, ezInt32 iChildIndex)
 {
+  EZ_ASSERT(pObject->GetGuid().IsValid(), "Object Guid invalid! Object was not created via an ezObjectManagerBase!");
+  EZ_ASSERT(m_pDocument->GetObjectManager()->CanAdd(pObject->GetTypeAccessor().GetReflectedTypeHandle(), pParent), "Trying to execute invalid add!");
+
   if (pParent == nullptr)
     pParent = &m_RootObject;
+
+  if (iChildIndex < 0)
+    iChildIndex = pParent->m_Children.GetCount();
+
+  EZ_ASSERT((ezUInt32)iChildIndex <= pParent->m_Children.GetCount(), "Child index to add to is out of bounds of the parent's children!");
 
   ezDocumentObjectTreeEvent e;
   e.m_pObject = pObject;
   e.m_pPreviousParent = nullptr;
   e.m_pNewParent = pParent;
+  e.m_uiNewChildIndex = (ezUInt32)iChildIndex;
 
   e.m_EventType = ezDocumentObjectTreeEvent::Type::BeforeObjectAdded;
   m_Events.Broadcast(e);
 
   pObject->m_pParent = pParent;
-  pParent->m_Children.PushBack(pObject);
+  pParent->m_Children.Insert(pObject, (ezUInt32)iChildIndex);
 
   RecursiveAddGuids(pObject);
  
@@ -53,6 +63,8 @@ void ezDocumentObjectTree::AddObject(ezDocumentObjectBase* pObject, ezDocumentOb
 
 void ezDocumentObjectTree::RemoveObject(ezDocumentObjectBase* pObject)
 {
+  EZ_ASSERT(m_pDocument->GetObjectManager()->CanRemove(pObject), "Trying to execute invalid remove!");
+
   ezDocumentObjectTreeEvent e;
   e.m_pObject = pObject;
   e.m_pPreviousParent = pObject->m_pParent;
@@ -70,33 +82,43 @@ void ezDocumentObjectTree::RemoveObject(ezDocumentObjectBase* pObject)
   m_Events.Broadcast(e);
 }
 
-void ezDocumentObjectTree::MoveObject(ezDocumentObjectBase* pObject, ezDocumentObjectBase* pNewParent)
+void ezDocumentObjectTree::MoveObject(ezDocumentObjectBase* pObject, ezDocumentObjectBase* pNewParent, ezInt32 iChildIndex)
 {
+  EZ_ASSERT(m_pDocument->GetObjectManager()->CanMove(pObject, pNewParent, iChildIndex), "Trying to execute invalid move!");
+
   if (pNewParent == nullptr)
     pNewParent = &m_RootObject;
 
-  if (pNewParent == pObject->m_pParent)
-  {
-    return;
-  }
+  if (iChildIndex < 0)
+    iChildIndex = pNewParent->m_Children.GetCount();
+
+  EZ_ASSERT((ezUInt32)iChildIndex <= pNewParent->m_Children.GetCount(), "Child index to insert to is out of bounds of the new parent's children!");
 
   ezDocumentObjectTreeEvent e;
   e.m_pObject = pObject;
   e.m_pPreviousParent = pObject->m_pParent;
   e.m_pNewParent = pNewParent;
-
+  e.m_uiNewChildIndex = (ezUInt32)iChildIndex;
   e.m_EventType = ezDocumentObjectTreeEvent::Type::BeforeObjectMoved;
   m_Events.Broadcast(e);
+
+
+  if (pNewParent == pObject->m_pParent)
+  {
+    // Move after oneself?
+    ezInt32 iIndex = pNewParent->m_Children.IndexOf(pObject);
+    if (iChildIndex > iIndex)
+    {
+      iChildIndex -= 1;
+    }
+  }
 
   pObject->m_pParent->m_Children.Remove(pObject);
   pObject->m_pParent = pNewParent;
 
-  //if (iNewChildIndex < 0)
-    pNewParent->m_Children.PushBack(pObject);
-  //else
-    // this is difficult, because now ALL objects after that index need to be "moved" (including signals), 
-    // otherwise the UI does not know about this (which crashes in Qt with "persistent index corruption" or so)
-    //pNewParent->m_Children.Insert(pObject, iNewChildIndex);
+  pNewParent->m_Children.Insert(pObject, iChildIndex);
+
+
 
   e.m_EventType = ezDocumentObjectTreeEvent::Type::AfterObjectMoved;
   m_Events.Broadcast(e);

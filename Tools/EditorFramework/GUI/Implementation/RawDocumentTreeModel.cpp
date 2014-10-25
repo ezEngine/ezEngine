@@ -28,7 +28,7 @@ void ezRawDocumentTreeModel::TreeEventHandler(const ezDocumentObjectTreeEvent& e
   {
   case ezDocumentObjectTreeEvent::Type::BeforeObjectAdded:
     {
-      ezInt32 iIndex = e.m_pNewParent->GetChildren().GetCount();
+      ezInt32 iIndex = (ezInt32)e.m_uiNewChildIndex;
       if (e.m_pNewParent == m_pDocumentTree->GetRootObject())
         beginInsertRows(QModelIndex(), iIndex, iIndex);
       else
@@ -55,8 +55,7 @@ void ezRawDocumentTreeModel::TreeEventHandler(const ezDocumentObjectTreeEvent& e
   case ezDocumentObjectTreeEvent::Type::BeforeObjectMoved:
     {
       ezInt32 iIndex = ComputeIndex(e.m_pObject);
-      ezInt32 iNewIndex = e.m_pNewParent->GetChildren().GetCount();
-      beginMoveRows(ComputeModelIndex(e.m_pPreviousParent), iIndex, iIndex, ComputeModelIndex(e.m_pNewParent), iNewIndex);
+      beginMoveRows(ComputeModelIndex(e.m_pPreviousParent), iIndex, iIndex, ComputeModelIndex(e.m_pNewParent), e.m_uiNewChildIndex);
     }
     break;
   case ezDocumentObjectTreeEvent::Type::AfterObjectMoved:
@@ -231,7 +230,8 @@ bool ezRawDocumentTreeModel::dropMimeData(const QMimeData* data, Qt::DropAction 
 
     for (ezUInt32 i = 0; i < Dragged.GetCount(); ++i)
     {
-      ((ezDocumentObjectTree*) m_pDocumentTree)->MoveObject(Dragged[i], pNewParent);
+      if (m_pDocumentTree->GetDocument()->GetObjectManager()->CanMove(Dragged[i], pNewParent, row))
+        ((ezDocumentObjectTree*) m_pDocumentTree)->MoveObject(Dragged[i], pNewParent, row);
     }
 
     return true;
@@ -248,11 +248,11 @@ bool ezRawDocumentTreeModel::dropMimeData(const QMimeData* data, Qt::DropAction 
     {
       if (parent.isValid())
       {
-        ((ezDocumentObjectTree*) m_pDocumentTree)->AddObject(pObject, (ezDocumentObjectBase*) parent.internalPointer());
+        ((ezDocumentObjectTree*) m_pDocumentTree)->AddObject(pObject, (ezDocumentObjectBase*) parent.internalPointer(), row);
       }
       else
       {
-        ((ezDocumentObjectTree*) m_pDocumentTree)->AddObject(pObject, nullptr);
+        ((ezDocumentObjectTree*) m_pDocumentTree)->AddObject(pObject, nullptr, row);
       }
       
     }
