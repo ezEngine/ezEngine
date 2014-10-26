@@ -2,7 +2,7 @@
 
 #include <Foundation/Basics.h>
 #include <QDialog>
-#include <Tools/Editor/ui_PluginDlg.h>
+#include <Tools/EditorFramework/ui_PluginDlg.h>
 
 class PluginDlg : public QDialog, public Ui_PluginDlg
 {

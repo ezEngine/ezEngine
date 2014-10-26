@@ -7,11 +7,11 @@
 #include <ToolsFoundation/Selection/SelectionManager.h>
 #include <Foundation/Communication/Event.h>
 
-struct EZ_TOOLSFOUNDATION_DLL ezDocumentInfo
-{
-  ezString m_sAbsoluteFilePath;
-  ezGuid m_sDocumentGuid;
-};
+//struct EZ_TOOLSFOUNDATION_DLL ezDocumentInfo
+//{
+//  ezString m_sAbsoluteFilePath;
+//  ezGuid m_sDocumentGuid;
+//};
 
 class ezDocumentBase;
 class ezCommandHistoryBase;

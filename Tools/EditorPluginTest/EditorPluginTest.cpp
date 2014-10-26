@@ -11,6 +11,7 @@
 #include <EditorPluginTest/Objects/TestObjectManager.h>
 #include <EditorPluginTest/Widgets/TestObjectCreator.moc.h>
 #include <EditorPluginTest/Document/TestDocument.h>
+#include <EditorPluginTest/MainContainerWnd/MainContainerWnd.moc.h>
 #include <qmainwindow.h>
 #include <QMessageBox>
 
@@ -39,15 +40,31 @@ void RegisterType(const ezRTTI* pRtti)
   ezReflectedTypeManager::RegisterType(desc);
 }
 
+void OnEditorRequest(ezEditorFramework::EditorRequest& r)
+{
+  switch (r.m_Type)
+  {
+  case ezEditorFramework::EditorRequest::Type::RequestContainerWindow:
+    {
+      if (r.m_pResult == nullptr && r.m_sContainerName == "Main")
+      {
+        r.m_pResult = new ezMainContainerWnd();
+      }
+    }
+    break;
+  }
+}
+
 void OnLoadPlugin(bool bReloading)    
 {
+  ezEditorFramework::s_EditorRequests.AddEventHandler(ezDelegate<void (ezEditorFramework::EditorRequest&)>(OnEditorRequest));
+
+  ezContainerWindow* pContainer = ezEditorFramework::GetContainerWindow("Main", true);
+  EZ_ASSERT(pContainer != nullptr, "Failed to retrieve the main container window");
+
   RegisterType(ezGetStaticRTTI<ezTestEditorProperties>());
   RegisterType(ezGetStaticRTTI<ezTestObjectProperties>());
   
-
-  //pWindow = new ezTestWindow(nullptr);
-  //pWindow->show();
-
   g_pDocument = new ezTestDocument();
 
   g_pTestObject = ((ezDocumentObjectManagerBase*) g_pDocument->GetObjectManager())->CreateObject(ezReflectedTypeManager::GetTypeHandleByName(ezGetStaticRTTI<ezTestObjectProperties>()->GetTypeName()));
@@ -55,15 +72,15 @@ void OnLoadPlugin(bool bReloading)
   g_pTestObject2 = ((ezDocumentObjectManagerBase*) g_pDocument->GetObjectManager())->CreateObject(ezReflectedTypeManager::GetTypeHandleByName(ezGetStaticRTTI<ezTestEditorProperties>()->GetTypeName()));
   g_pTestObject4 = ((ezDocumentObjectManagerBase*) g_pDocument->GetObjectManager())->CreateObject(ezReflectedTypeManager::GetTypeHandleByName(ezGetStaticRTTI<ezTestEditorProperties>()->GetTypeName()));
 
-  pPanel = new ezTestPanel(/*(QWidget*) pWindow);*/ezEditorFramework::GetMainWindow());
+  pPanel = new ezTestPanel(pContainer);
   pPanel->show();
   pPanel->setObjectName("PropertyPanel");
 
-  pPanelTree = new ezTestPanel(/*(QWidget*) pWindow);*/ezEditorFramework::GetMainWindow());
+  pPanelTree = new ezTestPanel(pContainer);
   pPanelTree->show();
   pPanelTree->setObjectName("TreePanel");
 
-  pPanelCreator = new ezTestPanel(/*(QWidget*) pWindow);*/ezEditorFramework::GetMainWindow());
+  pPanelCreator = new ezTestPanel(pContainer);
   pPanelCreator->show();
   pPanelCreator->setObjectName("CreatorPanel");
 
@@ -89,9 +106,9 @@ void OnLoadPlugin(bool bReloading)
 
   pProps->SetSelection(sel);
 
-  /*pWindow*/ezEditorFramework::GetMainWindow()->addDockWidget(Qt::DockWidgetArea::RightDockWidgetArea, pPanel);
-  ezEditorFramework::GetMainWindow()->addDockWidget(Qt::DockWidgetArea::LeftDockWidgetArea, pPanelTree);
-  ezEditorFramework::GetMainWindow()->addDockWidget(Qt::DockWidgetArea::LeftDockWidgetArea, pPanelCreator);
+  pContainer->addDockWidget(Qt::DockWidgetArea::RightDockWidgetArea, pPanel);
+  pContainer->addDockWidget(Qt::DockWidgetArea::LeftDockWidgetArea, pPanelTree);
+  pContainer->addDockWidget(Qt::DockWidgetArea::LeftDockWidgetArea, pPanelCreator);
 
   ezEditorFramework::s_EditorEvents.AddEventHandler(OnEditorEvent);
 
@@ -101,21 +118,32 @@ void OnLoadPlugin(bool bReloading)
 
   if (ezEditorFramework::GetSettings(ezEditorFramework::SettingsCategory::Editor, "TestPlugin").GetValueBool("SomeUserSetting") == false)
     QMessageBox::information(pPanel, QLatin1String(""), QLatin1String(""), QMessageBox::StandardButton::Ok, QMessageBox::StandardButton::Ok);
+
+  pContainer->AddDocumentWindow("ViewerMap.scene");
+  pContainer->AddDocumentWindow("CityMap.scene");
+
+  pContainer->RestoreWindowLayout();
+  pContainer->show();
 }
 
 void OnUnloadPlugin(bool bReloading)  
 {
-  ezEditorFramework::GetMainWindow()->removeDockWidget(pPanel);
+  ezContainerWindow* pContainer = ezEditorFramework::GetContainerWindow("Main", false);
+  if (pContainer)
+  {
+    pContainer->removeDockWidget(pPanel);
+    pContainer->removeDockWidget(pPanelTree);
+  }
 
   pPanel->setParent(nullptr);
   delete pPanel;
-
-  ezEditorFramework::GetMainWindow()->removeDockWidget(pPanelTree);
 
   pPanelTree->setParent(nullptr);
   delete pPanelTree;
 
   delete pWindow;
+
+  ezEditorFramework::s_EditorRequests.RemoveEventHandler(ezDelegate<void (ezEditorFramework::EditorRequest&)>(OnEditorRequest));
 }
 
 void OnEditorEvent(const ezEditorFramework::EditorEvent& e)

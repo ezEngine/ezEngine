@@ -2,11 +2,13 @@
 
 #include <EditorFramework/Plugin.h>
 #include <EditorFramework/Settings/Settings.h>
+#include <EditorFramework/ContainerWindow/ContainerWindow.moc.h>
 #include <Foundation/Containers/Set.h>
 #include <Foundation/Strings/String.h>
 #include <Foundation/Communication/Event.h>
 
 class QMainWindow;
+class QWidget;
 
 struct EZ_EDITORFRAMEWORK_DLL ezPluginSet
 {
@@ -38,10 +40,30 @@ public:
 
   static ezEvent<const EditorEvent&> s_EditorEvents;
 
+  struct EditorRequest
+  {
+    enum class Type
+    {
+      None,
+      RequestContainerWindow,
+    };
+
+    EditorRequest()
+    {
+      m_Type = Type::None;
+      m_pResult = nullptr;
+    }
+
+    Type m_Type;
+    ezString m_sContainerName;
+    ezString m_sDocumentID;
+    void* m_pResult;
+  };
+
+  static ezEvent<EditorRequest&> s_EditorRequests;
+
 public:
 
-  static void SetMainWindow(QMainWindow* pWindow) { s_pMainWindow = pWindow; }
-  static QMainWindow* GetMainWindow() { return s_pMainWindow; }
   static const ezString& GetApplicationName() { return s_sApplicationName; }
   static const ezString& GetApplicationUserName() { return s_sUserName; }
 
@@ -53,8 +75,7 @@ public:
   static void AddRestartRequiredReason(ezStringView sReason) { s_RestartRequiredReasons.Insert(sReason); }
   static const ezSet<ezString>& GetRestartRequiredReasons() { return s_RestartRequiredReasons; }
 
-  static void SaveWindowLayout();
-  static void RestoreWindowLayout();
+  static void ShowPluginConfigDialog();
 
   enum class SettingsCategory
   {
@@ -67,7 +88,6 @@ public:
   static void SaveSettings();
 
   static const ezString& GetProjectPath() { return s_sProjectPath; }
-  static const ezString& GetScenePath() { return s_sScenePath; }
 
   static void StartupEditor(ezStringView sAppName, ezStringView sUserName);
   static void ShutdownEditor();
@@ -77,21 +97,23 @@ public:
   static void CloseProject();
   static ezString GetProjectDataFolder();
 
-  static ezResult OpenScene(ezStringView sScenePath);
-  static ezResult CreateScene(ezStringView sScenePath);
-  static void CloseScene();
-  static ezString GetSceneDataFolder();
+  //static ezResult OpenScene(ezStringView sScenePath);
+  //static ezResult CreateScene(ezStringView sScenePath);
+  //static void CloseScene();
+  //static ezString GetSceneDataFolder();
 
   static void LoadPlugins();
   static void UnloadPlugins();
+
+  static ezContainerWindow* GetContainerWindow(const char* szUniqueName, bool bAllowCreate);
 
 private:
 
   static ezResult LoadProject();
   static void UnloadProject();
 
-  static ezResult LoadScene();
-  static void UnloadScene();
+  //static ezResult LoadScene();
+  //static void UnloadScene();
 
   static void UpdateEditorWindowTitle();
 
@@ -102,15 +124,13 @@ private:
   static bool s_bContentModified;
 
   static ezString s_sProjectPath;
-  static ezString s_sScenePath;
+  //static ezString s_sScenePath;
 
   static ezSet<ezString> s_RestartRequiredReasons;
 
   static ezPluginSet s_EditorPluginsAvailable;
   static ezPluginSet s_EditorPluginsActive;
   static ezPluginSet s_EditorPluginsToBeLoaded;
-
-  static QMainWindow* s_pMainWindow;
 
   static void ClearSettingsProject();
   static void ClearSettingsScene();

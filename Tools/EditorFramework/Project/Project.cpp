@@ -86,7 +86,7 @@ void ezEditorFramework::CloseProject()
   if (s_sProjectPath.IsEmpty())
     return;
 
-  CloseScene();
+  //CloseScene();
 
   EditorEvent e;
   e.m_Type = EditorEvent::EventType::BeforeCloseProject;

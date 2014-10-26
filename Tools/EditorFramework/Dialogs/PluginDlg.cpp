@@ -1,8 +1,14 @@
 #include <PCH.h>
-#include <Editor/Dialogs/PluginDlg.moc.h>
+#include <EditorFramework/Dialogs/PluginDlg.moc.h>
 #include <EditorFramework/EditorFramework.h>
 #include <Foundation/IO/OSFile.h>
 #include <QMessageBox>
+
+void ezEditorFramework::ShowPluginConfigDialog()
+{
+  PluginDlg dlg(nullptr);
+  dlg.exec();
+}
 
 PluginDlg::PluginDlg(QWidget* parent) : QDialog(parent)
 {

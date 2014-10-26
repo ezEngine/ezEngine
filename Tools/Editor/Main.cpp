@@ -1,6 +1,5 @@
 #include <PCH.h>
 #include <Core/Application/Application.h>
-#include <Editor/Windows/EditorMainWnd.moc.h>
 #include <EditorFramework/EditorFramework.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
@@ -66,10 +65,6 @@ public:
       QCoreApplication::setApplicationVersion("1.0.0");
       SetStyleSheet();
 
-      ezEditorMainWnd MainWindow;
-      ezEditorFramework::SetMainWindow(&MainWindow);
-
-      // messy
       ezStartup::StartupCore();
 
       ezStringBuilder sAppDir = ezOSFile::GetApplicationDirectory();
@@ -84,15 +79,19 @@ public:
 
       ezEditorFramework::LoadPlugins();
 
-      // *** RESTORE ***
-      ezEditorFramework::RestoreWindowLayout();
+      ezInt32 iReturnCode = -1;
 
-      MainWindow.show();
-
-      const ezInt32 iReturnCode = app.exec();
+      if (ezEditorFramework::GetContainerWindow("Main", false) == nullptr)
+      {
+        ezEditorFramework::ShowPluginConfigDialog();
+        iReturnCode = 1;
+      }
+      else
+      {
+        iReturnCode = app.exec();
+      }
 
       SetReturnCode(iReturnCode);
-      ezEditorFramework::SetMainWindow(nullptr);
 
       ezEditorFramework::ShutdownEditor();
     }

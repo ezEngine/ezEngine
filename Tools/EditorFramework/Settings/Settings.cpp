@@ -232,9 +232,9 @@ ezSettings& ezEditorFramework::GetSettings(SettingsCategory category, const char
     case SettingsCategory::Project:
       sPath = GetProjectDataFolder();
       break;
-    case SettingsCategory::Scene:
-      sPath = GetSceneDataFolder();
-      break;
+    //case SettingsCategory::Scene:
+    //  sPath = GetSceneDataFolder();
+    //  break;
     }
 
     sPath.AppendPath("Settings", szPlugin);
@@ -334,34 +334,34 @@ void ezEditorFramework::SaveSettings()
     }
   }
 
-  if (!GetScenePath().IsEmpty())
-  {
-    for (auto it = s_Settings[(int) SettingsCategory::Scene].GetIterator(); it.IsValid(); ++it)
-    {
-      ezSettings& settings = it.Value();
+  //if (!GetScenePath().IsEmpty())
+  //{
+  //  for (auto it = s_Settings[(int) SettingsCategory::Scene].GetIterator(); it.IsValid(); ++it)
+  //  {
+  //    ezSettings& settings = it.Value();
 
-      ezStringBuilder sPath = GetSceneDataFolder();
-      sPath.AppendPath("Settings", it.Key().GetData());
-      sPath.ChangeFileExtension("settings");
+  //    ezStringBuilder sPath = GetSceneDataFolder();
+  //    sPath.AppendPath("Settings", it.Key().GetData());
+  //    sPath.ChangeFileExtension("settings");
 
-      ezFileWriter file;
-      if (file.Open(sPath.GetData()).Succeeded())
-      {
-        settings.WriteToJSON(file, true, false);
-        file.Close();
-      }
+  //    ezFileWriter file;
+  //    if (file.Open(sPath.GetData()).Succeeded())
+  //    {
+  //      settings.WriteToJSON(file, true, false);
+  //      file.Close();
+  //    }
 
-      ezStringBuilder sUserFile;
-      sUserFile.Append(GetApplicationUserName().GetData(), ".usersettings");
-      sPath.ChangeFileExtension(sUserFile.GetData());
+  //    ezStringBuilder sUserFile;
+  //    sUserFile.Append(GetApplicationUserName().GetData(), ".usersettings");
+  //    sPath.ChangeFileExtension(sUserFile.GetData());
 
-      if (file.Open(sPath.GetData()).Succeeded())
-      {
-        settings.WriteToJSON(file, false, true);
-        file.Close();
-      }
-    }
-  }
+  //    if (file.Open(sPath.GetData()).Succeeded())
+  //    {
+  //      settings.WriteToJSON(file, false, true);
+  //      file.Close();
+  //    }
+  //  }
+  //}
 }
 
 
