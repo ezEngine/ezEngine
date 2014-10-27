@@ -5,6 +5,8 @@
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTestDocumentManager, ezDocumentManagerBase, 1, ezRTTIDefaultAllocator<ezTestDocumentManager>);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
+ezTestDocumentManager* ezTestDocumentManager::s_pSingleton = nullptr;
+
 bool ezTestDocumentManager::InternalCanOpenDocument(const char* szFilePath) const
 {
   return true;
@@ -14,9 +16,9 @@ ezStatus ezTestDocumentManager::InternalCreateDocument(const char* szDocumentTyp
 {
   ezStatus status;
 
-  if (ezStringUtils::IsEqual(szDocumentTypeName, "scene"))
+  if (ezStringUtils::IsEqual(szDocumentTypeName, "ezScene"))
   {
-    out_pDocument = new ezTestDocument();
+    out_pDocument = new ezTestDocument(szPath);
   }
   else
   {

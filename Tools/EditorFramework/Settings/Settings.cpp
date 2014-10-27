@@ -7,7 +7,8 @@
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
 
-ezMap<ezString, ezSettings> ezEditorFramework::s_Settings[3];
+
+//ezMap<ezString, ezSettings> ezEditorFramework::s_Settings[3];
 
 void ezSettings::RegisterValueBool(const char* szKey, bool Default, ezBitflags<ezSettingsFlags> flags)
 {
@@ -213,6 +214,7 @@ void ezSettings::ReadFromJSON(ezStreamReaderBase& stream)
   }
 }
 
+/*
 ezSettings& ezEditorFramework::GetSettings(SettingsCategory category, const char* szPlugin)
 {
   bool bExisted = false;
@@ -260,6 +262,8 @@ ezSettings& ezEditorFramework::GetSettings(SettingsCategory category, const char
 
   return settings;
 }
+*/
+/*
 
 void ezEditorFramework::ClearSettingsProject()
 {
@@ -366,3 +370,4 @@ void ezEditorFramework::SaveSettings()
 
 
 
+*/

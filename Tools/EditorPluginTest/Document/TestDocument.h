@@ -4,7 +4,9 @@
 
 class ezTestDocument : public ezDocumentBase
 {
+  EZ_ADD_DYNAMIC_REFLECTION(ezTestDocument);
+
 public:
-  ezTestDocument();
+  ezTestDocument(const char* szDocumentPath);
   ~ezTestDocument();
 };

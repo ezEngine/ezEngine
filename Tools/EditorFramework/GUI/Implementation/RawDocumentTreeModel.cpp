@@ -70,6 +70,9 @@ QModelIndex ezRawDocumentTreeModel::index(int row, int column, const QModelIndex
 {
   if (!parent.isValid())
   {
+    if (m_pDocumentTree->GetRootObject()->GetChildren().IsEmpty())
+      return QModelIndex();
+
     ezDocumentObjectBase* pObject = m_pDocumentTree->GetRootObject()->GetChildren()[row];
     return createIndex(row, column, pObject);
   }

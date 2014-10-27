@@ -3,11 +3,11 @@
 #include <EditorFramework/Plugin.h>
 #include <Foundation/Strings/String.h>
 #include <Foundation/Communication/Event.h>
-#include <QWidget>
+#include <QMainWindow>
 
 class ezContainerWindow;
 
-class EZ_EDITORFRAMEWORK_DLL ezDocumentWindow : public QWidget
+class EZ_EDITORFRAMEWORK_DLL ezDocumentWindow : public QMainWindow
 {
   Q_OBJECT
 
@@ -28,7 +28,7 @@ public:
   static ezEvent<const Event&> s_Events;
 
 public:
-  ezDocumentWindow(const char* szUniqueName, ezContainerWindow* pContainer);
+  ezDocumentWindow(const char* szUniqueName);
   ~ezDocumentWindow();
 
   virtual ezString GetDisplayName() const { return GetUniqueName(); }
@@ -36,18 +36,22 @@ public:
 
   const char* GetUniqueName() const { return m_sUniqueName; }
 
-  ezContainerWindow* GetContainerWindow() const { return m_pContainer; }
-
   bool CanClose();
   void CloseDocument();
 
+  void SaveWindowLayout();
+  void RestoreWindowLayout();
+
 private:
-  virtual void closeEvent(QCloseEvent* e);
+  friend class ezContainerWindow;
+
+  ezContainerWindow* m_pContainerWindow;
+
+private:
   virtual bool InternalCanClose();
   virtual void InternalCloseDocument();
 
   ezString m_sUniqueName;
-  ezContainerWindow* m_pContainer;
 };
 
 

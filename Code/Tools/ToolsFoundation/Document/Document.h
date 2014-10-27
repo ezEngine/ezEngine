@@ -7,20 +7,16 @@
 #include <ToolsFoundation/Selection/SelectionManager.h>
 #include <Foundation/Communication/Event.h>
 
-//struct EZ_TOOLSFOUNDATION_DLL ezDocumentInfo
-//{
-//  ezString m_sAbsoluteFilePath;
-//  ezGuid m_sDocumentGuid;
-//};
-
 class ezDocumentBase;
 class ezCommandHistoryBase;
 class ezDocumentObjectManagerBase;
 
-class EZ_TOOLSFOUNDATION_DLL ezDocumentBase
+class EZ_TOOLSFOUNDATION_DLL ezDocumentBase : public ezReflectedClass
 {
+  EZ_ADD_DYNAMIC_REFLECTION(ezDocumentBase);
+
 public:
-  ezDocumentBase();
+  ezDocumentBase(const char* szPath);
   virtual ~ezDocumentBase();
 
   bool IsModified() const { return m_bModified; }
@@ -30,6 +26,8 @@ public:
   const ezDocumentObjectManagerBase* GetObjectManager() const { return m_pObjectManager; }
   const ezDocumentObjectTree* GetObjectTree() const { return &m_ObjectTree; }
   const ezSelectionManager* GetSelectionManager() const { return &m_SelectionManager; }
+
+  const char* GetDocumentPath() const { return m_sDocumentPath; }
 
 public:
   struct Event
@@ -57,6 +55,7 @@ protected:
   ezSelectionManager m_SelectionManager;
 
 private:
+  ezString m_sDocumentPath;
   bool m_bModified;
   bool m_bReadOnly;
 };

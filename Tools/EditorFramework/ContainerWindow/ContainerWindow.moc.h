@@ -3,6 +3,7 @@
 #include <EditorFramework/Plugin.h>
 #include <Foundation/Strings/String.h>
 #include <Foundation/Containers/Map.h>
+#include <Foundation/Containers/DynamicArray.h>
 #include <EditorFramework/DocumentWindow/DocumentWindow.moc.h>
 #include <QMainWindow>
 
@@ -11,33 +12,31 @@ class EZ_EDITORFRAMEWORK_DLL ezContainerWindow : public QMainWindow
   Q_OBJECT
 
 public:
-  ezContainerWindow(const char* szUniqueName);
+  ezContainerWindow();
   ~ezContainerWindow();
 
-  virtual void SaveWindowLayout();
-  virtual void RestoreWindowLayout();
+  void MoveDocumentWindowToContainer(ezDocumentWindow* pDocWindow);
 
-  const char* GetUniqueName() const { return m_sUniqueName; }
-
-  virtual ezDocumentWindow* AddDocumentWindow(const char* szUniqueName);
-  ezDocumentWindow* GetDocumentWindow(const char* szUniqueName);
-
-protected:
-  ezMap<ezString, ezDocumentWindow*> m_DocumentWindows;
-
-  virtual void SetupDocumentTabArea();
-  virtual ezDocumentWindow* CreateDocumentWindow(const char* szUniqueName);
+  void SaveWindowLayout();
+  void RestoreWindowLayout();
 
 private slots:
   void OnDocumentTabCloseRequested(int index);
+  void OnMenuSettingsPlugins();
 
 private:
-  virtual void InternalCloseDocumentWindow(ezDocumentWindow* pDocumentWindow);
-  virtual void DocumentWindowEventHandler(const ezDocumentWindow::Event& e);
-  virtual void closeEvent(QCloseEvent* e);
+  void RemoveDocumentWindowFromContainer(ezDocumentWindow* pDocWindow);
 
+  void SetupDocumentTabArea();
 
-  ezString m_sUniqueName;
+  const char* GetUniqueName() const { return "Container"; /* todo */ }
+
+  void DocumentWindowEventHandler(const ezDocumentWindow::Event& e);
+  void closeEvent(QCloseEvent* e);
+
+private:
+  ezDynamicArray<ezDocumentWindow*> m_DocumentWindows;
+
 };
 
 

@@ -7,7 +7,12 @@ class ezTestDocumentManager : public ezDocumentManagerBase
   EZ_ADD_DYNAMIC_REFLECTION(ezTestDocumentManager);
 
 public:
+  ezTestDocumentManager()
+  {
+    s_pSingleton = this;
+  }
 
+  static ezTestDocumentManager* s_pSingleton;
 
 private:
   virtual bool InternalCanOpenDocument(const char* szFilePath) const;

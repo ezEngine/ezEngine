@@ -3,46 +3,19 @@
 #include <EditorFramework/DocumentWindow/DocumentWindow.moc.h>
 #include <EditorFramework/EditorFramework.h>
 #include <QSettings>
+#include <QMenu>
+#include <QMenuBar>
 
-static ezMap<ezString, ezContainerWindow*> g_ContainerWindows;
-
-ezContainerWindow* ezEditorFramework::GetContainerWindow(const char* szUniqueName, bool bAllowCreate)
+ezContainerWindow::ezContainerWindow()
 {
-  auto it = g_ContainerWindows.Find(szUniqueName);
-
-  if (it.IsValid())
-    return it.Value();
-
-  if (!bAllowCreate)
-    return nullptr;
-
-  EditorRequest r;
-  r.m_sContainerName = szUniqueName;
-  r.m_Type = EditorRequest::Type::RequestContainerWindow;
-
-  s_EditorRequests.Broadcast(r);
-
-  ezContainerWindow* pContainer = (ezContainerWindow*) r.m_pResult;
-
-  if (pContainer != nullptr)
-  {
-    g_ContainerWindows[szUniqueName] = pContainer;
-  }
-  else
-  {
-    // TODO: Probably don't do this ?
-    //pContainer = new ezContainerWindow(szUniqueName);
-  }
-
-  return pContainer;
-}
-
-ezContainerWindow::ezContainerWindow(const char* szUniqueName)
-{
-  m_sUniqueName = szUniqueName;
-  setObjectName(QLatin1String(szUniqueName));
-  setWindowTitle(QString::fromUtf8(szUniqueName));
+  setObjectName(QLatin1String(GetUniqueName())); // todo
+  setWindowTitle(QString::fromUtf8(GetUniqueName()));
   setWindowIcon(QIcon(QLatin1String(":/Icons/Icons/ezEditor16.png")));
+
+  QMenu* pMenuSettings = menuBar()->addMenu("Settings");
+  QAction* pAction = pMenuSettings->addAction("Plugins");
+
+  EZ_VERIFY(connect(pAction, SIGNAL(triggered()), this, SLOT(OnMenuSettingsPlugins())) != nullptr, "signal/slot connection failed");
 
   ezDocumentWindow::s_Events.AddEventHandler(ezDelegate<void (const ezDocumentWindow::Event&)>(&ezContainerWindow::DocumentWindowEventHandler, this));
 }
@@ -50,6 +23,11 @@ ezContainerWindow::ezContainerWindow(const char* szUniqueName)
 ezContainerWindow::~ezContainerWindow()
 {
   ezDocumentWindow::s_Events.RemoveEventHandler(ezDelegate<void (const ezDocumentWindow::Event&)>(&ezContainerWindow::DocumentWindowEventHandler, this));
+}
+
+void ezContainerWindow::OnMenuSettingsPlugins()
+{
+  ezEditorFramework::ShowPluginConfigDialog();
 }
 
 void ezContainerWindow::closeEvent(QCloseEvent* e)
@@ -111,44 +89,52 @@ void ezContainerWindow::SetupDocumentTabArea()
   pTabs->setObjectName("DocumentTabs");
   pTabs->setTabsClosable(true);
   pTabs->setMovable(true);
+  pTabs->setTabShape(QTabWidget::TabShape::Rounded);
 
   EZ_VERIFY(connect(pTabs, SIGNAL(tabCloseRequested(int)), this, SLOT(OnDocumentTabCloseRequested(int))) != nullptr, "signal/slot connection failed");
 
   setCentralWidget(pTabs);
 }
 
-ezDocumentWindow* ezContainerWindow::CreateDocumentWindow(const char* szUniqueName)
+void ezContainerWindow::RemoveDocumentWindowFromContainer(ezDocumentWindow* pDocWindow)
 {
-  return new ezDocumentWindow(szUniqueName, this);
-}
+  const ezInt32 iListIndex = m_DocumentWindows.IndexOf(pDocWindow);
 
-ezDocumentWindow* ezContainerWindow::AddDocumentWindow(const char* szUniqueName)
-{
-  EZ_ASSERT(!m_DocumentWindows.Find(szUniqueName).IsValid(), "The document name '%s' is not unique", szUniqueName);
-
-  SetupDocumentTabArea();
+  if (iListIndex == ezInvalidIndex)
+    return;
 
   QTabWidget* pTabs = (QTabWidget*) centralWidget();
   EZ_ASSERT(pTabs != nullptr, "The central widget is NULL");
 
-  ezDocumentWindow* pDocWindow = CreateDocumentWindow(szUniqueName);
-  EZ_ASSERT(pDocWindow != nullptr, "CreateDocumentWindow(%s) returned NULL", szUniqueName);
+  int iTabIndex = pTabs->indexOf(pDocWindow);
+  EZ_ASSERT(iTabIndex >= 0, "Invalid document window to close");
 
-  m_DocumentWindows[szUniqueName] = pDocWindow;
+  pTabs->removeTab(iTabIndex);
 
-  pTabs->addTab(pDocWindow, QString::fromUtf8(pDocWindow->GetDisplayName()));
+  m_DocumentWindows.RemoveAtSwap(iListIndex);
 
-  return pDocWindow;
+  pDocWindow->m_pContainerWindow = nullptr;
 }
 
-ezDocumentWindow* ezContainerWindow::GetDocumentWindow(const char* szUniqueName)
+void ezContainerWindow::MoveDocumentWindowToContainer(ezDocumentWindow* pDocWindow)
 {
-  auto it = m_DocumentWindows.Find(szUniqueName);
+  if (m_DocumentWindows.IndexOf(pDocWindow) != ezInvalidIndex)
+    return;
 
-  if (it.IsValid())
-    return it.Value();
+  if (pDocWindow->m_pContainerWindow != nullptr)
+    pDocWindow->m_pContainerWindow->RemoveDocumentWindowFromContainer(pDocWindow);
 
-  return nullptr;
+  EZ_ASSERT(pDocWindow->m_pContainerWindow == nullptr, "Implementation error");
+
+  SetupDocumentTabArea();
+
+  m_DocumentWindows.PushBack(pDocWindow);
+  pDocWindow->m_pContainerWindow = this;
+
+  QTabWidget* pTabs = (QTabWidget*) centralWidget();
+  EZ_ASSERT(pTabs != nullptr, "The central widget is NULL");
+
+  pTabs->addTab(pDocWindow, QString::fromUtf8(pDocWindow->GetDisplayNameShort()));
 }
 
 void ezContainerWindow::OnDocumentTabCloseRequested(int index)
@@ -169,30 +155,7 @@ void ezContainerWindow::DocumentWindowEventHandler(const ezDocumentWindow::Event
   switch (e.m_Type)
   {
   case ezDocumentWindow::Event::Type::AfterDocumentClosed:
-    {
-      for (auto it = m_DocumentWindows.GetIterator(); it.IsValid(); ++it)
-      {
-        if (it.Value() == e.m_pDocument)
-        {
-          InternalCloseDocumentWindow(e.m_pDocument);
-          m_DocumentWindows.Erase(it);
-          break;
-        }
-      }
-    }
+    RemoveDocumentWindowFromContainer(e.m_pDocument);
     break;
   }
 }
-
-void ezContainerWindow::InternalCloseDocumentWindow(ezDocumentWindow* pDocumentWindow)
-{
-  QTabWidget* pTabs = (QTabWidget*) centralWidget();
-  EZ_ASSERT(pTabs != nullptr, "The central widget is NULL");
-
-  int iIndex = pTabs->indexOf(pDocumentWindow);
-  EZ_ASSERT(iIndex >= 0, "Invalid document window to close");
-
-  pTabs->removeTab(iIndex);
-}
-
-

@@ -3,7 +3,10 @@
 #include <EditorPluginTest/Objects/TestObject.h>
 #include <EditorPluginTest/Objects/TestObjectManager.h>
 
-ezTestDocument::ezTestDocument()
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTestDocument, ezDocumentBase, 1, ezRTTINoAllocator);
+EZ_END_DYNAMIC_REFLECTED_TYPE();
+
+ezTestDocument::ezTestDocument(const char* szDocumentPath) : ezDocumentBase(szDocumentPath)
 {
   //m_pCommandHistory;
   m_pObjectManager = new ezTestObjectManager(this);

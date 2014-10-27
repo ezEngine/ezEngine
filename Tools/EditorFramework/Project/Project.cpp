@@ -5,8 +5,8 @@
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/Logging/Log.h>
 
-ezString ezEditorFramework::s_sProjectPath;
-
+//ezString ezEditorFramework::s_sProjectPath;
+/*
 ezString ezEditorFramework::GetProjectDataFolder()
 {
   ezStringBuilder sPath = GetProjectPath();
@@ -117,3 +117,5 @@ ezResult ezEditorFramework::LoadProject()
 void ezEditorFramework::UnloadProject()
 {
 }
+
+*/

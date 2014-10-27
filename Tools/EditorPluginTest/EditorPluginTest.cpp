@@ -1,7 +1,6 @@
 #include <PCH.h>
 #include <EditorPluginTest/EditorPluginTest.h>
 #include <EditorPluginTest/Panels/TestPanel.moc.h>
-#include <EditorPluginTest/Windows/TestWindow.moc.h>
 #include <EditorFramework/EditorFramework.h>
 #include <EditorFramework/GUI/RawPropertyGridWidget.h>
 #include <EditorFramework/GUI/RawDocumentTreeWidget.moc.h>
@@ -11,24 +10,9 @@
 #include <EditorPluginTest/Objects/TestObjectManager.h>
 #include <EditorPluginTest/Widgets/TestObjectCreator.moc.h>
 #include <EditorPluginTest/Document/TestDocument.h>
-#include <EditorPluginTest/MainContainerWnd/MainContainerWnd.moc.h>
+#include <EditorPluginTest/Document/TestDocumentManager.h>
 #include <qmainwindow.h>
 #include <QMessageBox>
-
-ezTestPanel* pPanel = nullptr;
-ezTestPanel* pPanelTree = nullptr;
-ezTestPanel* pPanelCreator = nullptr;
-ezTestWindow* pWindow = nullptr;
-ezRawPropertyGridWidget* pProps = nullptr;
-ezRawDocumentTreeWidget* pTreeWidget = nullptr;
-ezDocumentObjectBase* g_pTestObject = nullptr;
-ezDocumentObjectBase* g_pTestObject2 = nullptr;
-ezDocumentObjectBase* g_pTestObject3 = nullptr;
-ezDocumentObjectBase* g_pTestObject4 = nullptr;
-ezTestObjectCreatorWidget* g_pCreator = nullptr;
-ezTestDocument* g_pDocument = nullptr;
-
-void OnEditorEvent(const ezEditorFramework::EditorEvent& e);
 
 void RegisterType(const ezRTTI* pRtti)
 {
@@ -40,15 +24,68 @@ void RegisterType(const ezRTTI* pRtti)
   ezReflectedTypeManager::RegisterType(desc);
 }
 
-void OnEditorRequest(ezEditorFramework::EditorRequest& r)
+void OnPluginEvent(const ezPlugin::PluginEvent& e)
 {
-  switch (r.m_Type)
+  // this function is a hack
+
+  static bool bDone = false;
+
+  if (e.m_EventType == ezPlugin::PluginEvent::Type::AfterPluginChanges && !bDone)
   {
-  case ezEditorFramework::EditorRequest::Type::RequestContainerWindow:
+    bDone = true;
+
+    ezDocumentBase* pDoc;
+    ezTestDocumentManager::s_pSingleton->CreateDocument("ezScene", "bla/blub.scene", pDoc);
+
+    ezDocumentBase* pDoc2;
+    ezTestDocumentManager::s_pSingleton->CreateDocument("ezScene", "bla/blub2.scene", pDoc2);
+  }
+}
+
+void OnDocumentManagerEvent(const ezDocumentManagerBase::Event& e)
+{
+  switch (e.m_Type)
+  {
+  case ezDocumentManagerBase::Event::Type::DocumentOpened:
     {
-      if (r.m_pResult == nullptr && r.m_sContainerName == "Main")
+      if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezTestDocument>())
       {
-        r.m_pResult = new ezMainContainerWnd();
+        ezDocumentWindow* pDocWnd = new ezDocumentWindow(e.m_pDocument->GetDocumentPath());
+
+        {
+          ezTestPanel* pPropertyPanel = new ezTestPanel(pDocWnd);
+          pPropertyPanel->setObjectName("PropertyPanel");
+          pPropertyPanel->setWindowTitle("Properties");
+          pPropertyPanel->show();
+
+          ezTestPanel* pPanelTree = new ezTestPanel(pDocWnd);
+          pPanelTree->setObjectName("TreePanel");
+          pPanelTree->setWindowTitle("Hierarchy");
+          pPanelTree->show();
+
+          ezTestPanel* pPanelCreator = new ezTestPanel(pDocWnd);
+          pPanelCreator->setObjectName("CreatorPanel");
+          pPanelCreator->setWindowTitle("Object Creator");
+          pPanelCreator->show();
+
+          ezRawPropertyGridWidget* pPropertyGrid = new ezRawPropertyGridWidget(e.m_pDocument, pPropertyPanel);
+          pPropertyPanel->setWidget(pPropertyGrid);
+
+          ezRawDocumentTreeWidget* pTreeWidget = new ezRawDocumentTreeWidget(pPanelTree, e.m_pDocument);
+          pPanelTree->setWidget(pTreeWidget);
+
+          ezTestObjectCreatorWidget* pCreatorWidget = new ezTestObjectCreatorWidget(e.m_pDocument->GetObjectManager(), pPanelCreator);
+          pPanelCreator->setWidget(pCreatorWidget);
+
+          //ezDocumentObjectBase* pTestObject1 = ((ezDocumentObjectManagerBase*) e.m_pDocument->GetObjectManager())->CreateObject(ezReflectedTypeManager::GetTypeHandleByName(ezGetStaticRTTI<ezTestObjectProperties>()->GetTypeName()));
+          //((ezDocumentObjectTree*) e.m_pDocument->GetObjectTree())->AddObject(pTestObject1, nullptr);
+
+          pDocWnd->addDockWidget(Qt::DockWidgetArea::RightDockWidgetArea, pPropertyPanel);
+          pDocWnd->addDockWidget(Qt::DockWidgetArea::LeftDockWidgetArea, pPanelTree);
+          pDocWnd->addDockWidget(Qt::DockWidgetArea::LeftDockWidgetArea, pPanelCreator);
+        }
+
+        ezEditorFramework::AddDocumentWindow(pDocWnd);
       }
     }
     break;
@@ -57,127 +94,32 @@ void OnEditorRequest(ezEditorFramework::EditorRequest& r)
 
 void OnLoadPlugin(bool bReloading)    
 {
-  ezEditorFramework::s_EditorRequests.AddEventHandler(ezDelegate<void (ezEditorFramework::EditorRequest&)>(OnEditorRequest));
-
-  ezContainerWindow* pContainer = ezEditorFramework::GetContainerWindow("Main", true);
-  EZ_ASSERT(pContainer != nullptr, "Failed to retrieve the main container window");
-
   RegisterType(ezGetStaticRTTI<ezTestEditorProperties>());
   RegisterType(ezGetStaticRTTI<ezTestObjectProperties>());
-  
-  g_pDocument = new ezTestDocument();
 
-  g_pTestObject = ((ezDocumentObjectManagerBase*) g_pDocument->GetObjectManager())->CreateObject(ezReflectedTypeManager::GetTypeHandleByName(ezGetStaticRTTI<ezTestObjectProperties>()->GetTypeName()));
-  g_pTestObject3 = ((ezDocumentObjectManagerBase*) g_pDocument->GetObjectManager())->CreateObject(ezReflectedTypeManager::GetTypeHandleByName(ezGetStaticRTTI<ezTestObjectProperties>()->GetTypeName()));
-  g_pTestObject2 = ((ezDocumentObjectManagerBase*) g_pDocument->GetObjectManager())->CreateObject(ezReflectedTypeManager::GetTypeHandleByName(ezGetStaticRTTI<ezTestEditorProperties>()->GetTypeName()));
-  g_pTestObject4 = ((ezDocumentObjectManagerBase*) g_pDocument->GetObjectManager())->CreateObject(ezReflectedTypeManager::GetTypeHandleByName(ezGetStaticRTTI<ezTestEditorProperties>()->GetTypeName()));
+  ezPlugin::s_PluginEvents.AddEventHandler(ezDelegate<void (const ezPlugin::PluginEvent&)>(OnPluginEvent));
+  ezDocumentManagerBase::s_Events.AddEventHandler(ezDelegate<void (const ezDocumentManagerBase::Event&)>(OnDocumentManagerEvent));
 
-  pPanel = new ezTestPanel(pContainer);
-  pPanel->show();
-  pPanel->setObjectName("PropertyPanel");
+  //g_pTestObject = ((ezDocumentObjectManagerBase*) g_pDocument->GetObjectManager())->CreateObject(ezReflectedTypeManager::GetTypeHandleByName(ezGetStaticRTTI<ezTestObjectProperties>()->GetTypeName()));
+  //g_pTestObject3 = ((ezDocumentObjectManagerBase*) g_pDocument->GetObjectManager())->CreateObject(ezReflectedTypeManager::GetTypeHandleByName(ezGetStaticRTTI<ezTestObjectProperties>()->GetTypeName()));
+  //g_pTestObject2 = ((ezDocumentObjectManagerBase*) g_pDocument->GetObjectManager())->CreateObject(ezReflectedTypeManager::GetTypeHandleByName(ezGetStaticRTTI<ezTestEditorProperties>()->GetTypeName()));
+  //g_pTestObject4 = ((ezDocumentObjectManagerBase*) g_pDocument->GetObjectManager())->CreateObject(ezReflectedTypeManager::GetTypeHandleByName(ezGetStaticRTTI<ezTestEditorProperties>()->GetTypeName()));
 
-  pPanelTree = new ezTestPanel(pContainer);
-  pPanelTree->show();
-  pPanelTree->setObjectName("TreePanel");
+  //((ezDocumentObjectTree*) g_pDocument->GetObjectTree())->AddObject(g_pTestObject, nullptr);
+  //((ezDocumentObjectTree*) g_pDocument->GetObjectTree())->AddObject(g_pTestObject2, g_pTestObject);
+  //((ezDocumentObjectTree*) g_pDocument->GetObjectTree())->AddObject(g_pTestObject3, g_pTestObject);
+  //((ezDocumentObjectTree*) g_pDocument->GetObjectTree())->AddObject(g_pTestObject4, g_pTestObject3);
 
-  pPanelCreator = new ezTestPanel(pContainer);
-  pPanelCreator->show();
-  pPanelCreator->setObjectName("CreatorPanel");
+  //ezDeque<const ezDocumentObjectBase*> sel;
+  //sel.PushBack(g_pTestObject2);
 
-  pProps = new ezRawPropertyGridWidget(g_pDocument, pPanel);//
-  pPanel->setWidget(pProps);
-
-  ((ezDocumentObjectTree*) g_pDocument->GetObjectTree())->AddObject(g_pTestObject, nullptr);
-  ((ezDocumentObjectTree*) g_pDocument->GetObjectTree())->AddObject(g_pTestObject2, g_pTestObject);
-  ((ezDocumentObjectTree*) g_pDocument->GetObjectTree())->AddObject(g_pTestObject3, g_pTestObject);
-  ((ezDocumentObjectTree*) g_pDocument->GetObjectTree())->AddObject(g_pTestObject4, g_pTestObject3);
-
-  pTreeWidget = new ezRawDocumentTreeWidget(pPanelTree, g_pDocument);
-  pPanelTree->setWidget(pTreeWidget);
-
-  g_pCreator = new ezTestObjectCreatorWidget(g_pDocument->GetObjectManager(), pPanelCreator);
-
-  pPanelCreator->setWidget(g_pCreator);
-
-
-
-  ezDeque<const ezDocumentObjectBase*> sel;
-  sel.PushBack(g_pTestObject2);
-
-  pProps->SetSelection(sel);
-
-  pContainer->addDockWidget(Qt::DockWidgetArea::RightDockWidgetArea, pPanel);
-  pContainer->addDockWidget(Qt::DockWidgetArea::LeftDockWidgetArea, pPanelTree);
-  pContainer->addDockWidget(Qt::DockWidgetArea::LeftDockWidgetArea, pPanelCreator);
-
-  ezEditorFramework::s_EditorEvents.AddEventHandler(OnEditorEvent);
-
-  ezEditorFramework::GetSettings(ezEditorFramework::SettingsCategory::Editor, "TestPlugin").RegisterValueBool("Awesome", true);
-  ezEditorFramework::GetSettings(ezEditorFramework::SettingsCategory::Editor, "TestPlugin").RegisterValueBool("SomeUserSetting", true, ezSettingsFlags::User);
-  ezEditorFramework::GetSettings(ezEditorFramework::SettingsCategory::Project, "TestPlugin").RegisterValueString("Legen", "dary");
-
-  if (ezEditorFramework::GetSettings(ezEditorFramework::SettingsCategory::Editor, "TestPlugin").GetValueBool("SomeUserSetting") == false)
-    QMessageBox::information(pPanel, QLatin1String(""), QLatin1String(""), QMessageBox::StandardButton::Ok, QMessageBox::StandardButton::Ok);
-
-  pContainer->AddDocumentWindow("ViewerMap.scene");
-  pContainer->AddDocumentWindow("CityMap.scene");
-
-  pContainer->RestoreWindowLayout();
-  pContainer->show();
+  //pProps->SetSelection(sel);
 }
 
 void OnUnloadPlugin(bool bReloading)  
 {
-  ezContainerWindow* pContainer = ezEditorFramework::GetContainerWindow("Main", false);
-  if (pContainer)
-  {
-    pContainer->removeDockWidget(pPanel);
-    pContainer->removeDockWidget(pPanelTree);
-  }
-
-  pPanel->setParent(nullptr);
-  delete pPanel;
-
-  pPanelTree->setParent(nullptr);
-  delete pPanelTree;
-
-  delete pWindow;
-
-  ezEditorFramework::s_EditorRequests.RemoveEventHandler(ezDelegate<void (ezEditorFramework::EditorRequest&)>(OnEditorRequest));
-}
-
-void OnEditorEvent(const ezEditorFramework::EditorEvent& e)
-{
-  switch (e.m_Type)
-  {
-  case ezEditorFramework::EditorEvent::EventType::AfterOpenProject:
-    {
-      ezEditorFramework::GetSettings(ezEditorFramework::SettingsCategory::Project, "TestPlugin").RegisterValueString("Legen", "dary");
-      auto& sel = g_pDocument->GetSelectionManager()->GetSelection();
-
-      while (!g_pDocument->GetSelectionManager()->GetSelection().IsEmpty())
-      {
-        // TODO cast cast cast !!!
-        ((ezDocumentObjectTree*)g_pDocument->GetObjectTree())->RemoveObject((ezDocumentObjectBase*) g_pDocument->GetSelectionManager()->GetSelection()[0]);
-      }
-      //g_pObjectTree->MoveObject(g_pTestObject2, nullptr);
-      //pProps->ClearSelection();
-    }
-    break;
-  case ezEditorFramework::EditorEvent::EventType::AfterOpenScene:
-    {
-      ezEditorFramework::GetSettings(ezEditorFramework::SettingsCategory::Scene, "TestPlugin").RegisterValueString("Legen2", "dary2");
-
-      //g_pObjectTree->MoveObject(g_pTestObject2, g_pTestObject);
-
-      //ezHybridArray<ezDocumentObjectBase*, 32> sel;
-      //sel.PushBack(g_pTestObject2);
-
-      //pProps->SetSelection(sel);
-
-    }
-    break; 
-  }
+  ezDocumentManagerBase::s_Events.RemoveEventHandler(ezDelegate<void (const ezDocumentManagerBase::Event&)>(OnDocumentManagerEvent));
+  ezPlugin::s_PluginEvents.RemoveEventHandler(ezDelegate<void (const ezPlugin::PluginEvent&)>(OnPluginEvent));
 }
 
 ezPlugin g_Plugin(false, OnLoadPlugin, OnUnloadPlugin);

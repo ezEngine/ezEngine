@@ -27,13 +27,9 @@ public:
   ezStatus CreateDocument(const char* szDocumentTypeName, const char* szPath, ezDocumentBase*& out_pDocument);
 
   //virtual bool CanOpen(ezDocumentInfo& docInfo) const;
-
   //virtual const ezDocumentBase* Open(ezDocumentInfo& docInfo);
-
   //virtual void Show(const ezDocumentBase* pDocument);
-
   //virtual void Save(const ezDocumentBase* pDocument, ezDocumentInfo* pDocInfo = nullptr);
-
   //virtual void Close(const ezDocumentBase* pDocument);
 
   struct Event
@@ -42,9 +38,11 @@ public:
     {
       DocumentTypesRemoved,
       DocumentTypesAdded,
+      DocumentOpened,
     };
 
     Type m_Type;
+    ezDocumentBase* m_pDocument;
   };
 
   static ezEvent<const Event&> s_Events;

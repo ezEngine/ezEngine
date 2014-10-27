@@ -171,6 +171,15 @@ ezStatus ezDocumentManagerBase::CreateDocument(const char* szDocumentTypeName, c
 
       EZ_ASSERT(status.m_Result == EZ_FAILURE || out_pDocument != nullptr, "Status was success, but the document manager returned a nullptr document.");
 
+      if (status.m_Result.Succeeded())
+      {
+        Event e;
+        e.m_pDocument = out_pDocument;
+        e.m_Type = Event::Type::DocumentOpened;
+
+        s_Events.Broadcast(e);
+      }
+
       return status;
     }
   }

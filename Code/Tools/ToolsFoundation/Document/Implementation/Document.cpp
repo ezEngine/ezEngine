@@ -1,9 +1,13 @@
 #include <ToolsFoundation/PCH.h>
 #include <ToolsFoundation/Document/Document.h>
 
-ezDocumentBase::ezDocumentBase() :
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDocumentBase, ezReflectedClass, 1, ezRTTINoAllocator);
+EZ_END_DYNAMIC_REFLECTED_TYPE();
+
+ezDocumentBase::ezDocumentBase(const char* szPath) :
   m_ObjectTree(this)
 {
+  m_sDocumentPath = szPath;
   m_pCommandHistory = nullptr;
   m_pObjectManager = nullptr;
   m_SelectionManager.SetOwner(this);
