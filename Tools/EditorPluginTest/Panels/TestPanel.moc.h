@@ -13,11 +13,9 @@ public:
   ezTestPanel(QWidget* parent);
   ~ezTestPanel();
 
-public slots:
-
-private slots:
-
 private:
+
+
 };
 
 

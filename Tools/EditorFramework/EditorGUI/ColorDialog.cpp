@@ -1,0 +1,28 @@
+#include <PCH.h>
+#include <EditorFramework/EditorGUI.moc.h>
+#include <QWidget>
+#include <QColor>
+#include <QColorDialog>
+
+void ezEditorGUI::ShowColorDialog(const ezColor& color, bool bAlpha, QWidget* pParent, const char* slotCurColChanged, const char* slotAccept, const char* slotReject)
+{
+  QColor col;
+  col.setRgbF(color.r, color.g, color.b, color.a);
+
+  m_pColorDlg = new QColorDialog (col, pParent);
+  m_pColorDlg->move(m_ColorDlgPos);
+  m_pColorDlg->setOption (QColorDialog::ShowAlphaChannel, true);
+  EZ_VERIFY(QWidget::connect(m_pColorDlg, SIGNAL(currentColorChanged(const QColor&)), pParent, slotCurColChanged) != nullptr, "signal/slot connection failed");
+  EZ_VERIFY(QWidget::connect(m_pColorDlg, SIGNAL(accepted()), pParent, slotAccept) != nullptr, "signal/slot connection failed");
+  EZ_VERIFY(QWidget::connect(m_pColorDlg, SIGNAL(rejected()), pParent, slotReject) != nullptr, "signal/slot connection failed");
+  EZ_VERIFY(QWidget::connect(m_pColorDlg, SIGNAL(accepted()), this, SLOT(SlotColorDialogClosed())) != nullptr, "signal/slot connection failed");
+  EZ_VERIFY(QWidget::connect(m_pColorDlg, SIGNAL(rejected()), this, SLOT(SlotColorDialogClosed())) != nullptr, "signal/slot connection failed");
+  m_pColorDlg->open(pParent, slotCurColChanged);
+}
+
+void ezEditorGUI::SlotColorDialogClosed()
+{
+  m_ColorDlgPos = m_pColorDlg->pos();
+  m_pColorDlg = nullptr;
+}
+

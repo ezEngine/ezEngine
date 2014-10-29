@@ -3,6 +3,7 @@
 #include <EditorFramework/EditorFramework.h>
 #include <QSettings>
 #include <QMessageBox>
+#include <QTimer>
 
 ezEvent<const ezDocumentWindow::Event&> ezDocumentWindow::s_Events;
 ezMap<ezString, ezDocumentWindow*> ezEditorFramework::s_DocumentWindows;
@@ -23,7 +24,7 @@ void ezEditorFramework::AddDocumentWindow(ezDocumentWindow* pWindow)
   s_DocumentWindows[pWindow->GetUniqueName()] = pWindow;
   s_ContainerWindows[0]->MoveDocumentWindowToContainer(pWindow);
 
-  pWindow->RestoreWindowLayout();
+  pWindow->ScheduleRestoreWindowLayout();
 }
 
 
@@ -35,15 +36,20 @@ ezDocumentWindow::ezDocumentWindow(const char* szUniqueName)
   setObjectName(QLatin1String(szUniqueName));
 
   setDockNestingEnabled(true);
-
-  //setAutoFillBackground(true);
-  //setBackgroundRole(QPalette::ColorRole::Highlight);
-
-  // todo restore state
 }
 
 ezDocumentWindow::~ezDocumentWindow()
 {
+}
+
+void ezDocumentWindow::ScheduleRestoreWindowLayout()
+{
+  QTimer::singleShot(0, this, SLOT(SlotRestoreLayout()));
+}
+
+void ezDocumentWindow::SlotRestoreLayout()
+{
+  RestoreWindowLayout();
 }
 
 void ezDocumentWindow::SaveWindowLayout()
@@ -54,7 +60,7 @@ void ezDocumentWindow::SaveWindowLayout()
     showNormal();
 
   ezStringBuilder sGroup;
-  sGroup.Format("DocumentWnd_%s", GetUniqueName());
+  sGroup.Format("DocumentWnd_%s", GetGroupName());
 
   QSettings Settings;
   Settings.beginGroup(QString::fromUtf8(sGroup));
@@ -73,7 +79,7 @@ void ezDocumentWindow::SaveWindowLayout()
 void ezDocumentWindow::RestoreWindowLayout()
 {
   ezStringBuilder sGroup;
-  sGroup.Format("DocumentWnd_%s", GetUniqueName());
+  sGroup.Format("DocumentWnd_%s", GetGroupName());
 
   QSettings Settings;
   Settings.beginGroup(QString::fromUtf8(sGroup));

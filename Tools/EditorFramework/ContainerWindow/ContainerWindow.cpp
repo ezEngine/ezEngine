@@ -5,6 +5,7 @@
 #include <QSettings>
 #include <QMenu>
 #include <QMenuBar>
+#include <QTimer>
 
 ezContainerWindow::ezContainerWindow()
 {
@@ -15,9 +16,11 @@ ezContainerWindow::ezContainerWindow()
   QMenu* pMenuSettings = menuBar()->addMenu("Settings");
   QAction* pAction = pMenuSettings->addAction("Plugins");
 
-  EZ_VERIFY(connect(pAction, SIGNAL(triggered()), this, SLOT(OnMenuSettingsPlugins())) != nullptr, "signal/slot connection failed");
+  EZ_VERIFY(connect(pAction, SIGNAL(triggered()), this, SLOT(SlotMenuSettingsPlugins())) != nullptr, "signal/slot connection failed");
 
   ezDocumentWindow::s_Events.AddEventHandler(ezDelegate<void (const ezDocumentWindow::Event&)>(&ezContainerWindow::DocumentWindowEventHandler, this));
+
+  QTimer::singleShot(0, this, SLOT(SlotRestoreLayout()));
 }
 
 ezContainerWindow::~ezContainerWindow()
@@ -25,7 +28,12 @@ ezContainerWindow::~ezContainerWindow()
   ezDocumentWindow::s_Events.RemoveEventHandler(ezDelegate<void (const ezDocumentWindow::Event&)>(&ezContainerWindow::DocumentWindowEventHandler, this));
 }
 
-void ezContainerWindow::OnMenuSettingsPlugins()
+void ezContainerWindow::SlotRestoreLayout()
+{
+  RestoreWindowLayout();
+}
+
+void ezContainerWindow::SlotMenuSettingsPlugins()
 {
   ezEditorFramework::ShowPluginConfigDialog();
 }
@@ -37,6 +45,18 @@ void ezContainerWindow::closeEvent(QCloseEvent* e)
 
 void ezContainerWindow::SaveWindowLayout()
 {
+  for (ezUInt32 i = 0; i < m_DocumentWindows.GetCount(); ++i)
+    m_DocumentWindows[i]->SaveWindowLayout();
+
+  QTabWidget* pTabs = (QTabWidget*) centralWidget();
+  EZ_ASSERT(pTabs != nullptr, "The central widget is NULL");
+
+  if (pTabs->currentWidget())
+  {
+    ezDocumentWindow* pDoc = (ezDocumentWindow*) pTabs->currentWidget();
+    pDoc->SaveWindowLayout();
+  }
+
   const bool bMaximized = isMaximized();
 
   if (bMaximized)
@@ -91,7 +111,7 @@ void ezContainerWindow::SetupDocumentTabArea()
   pTabs->setMovable(true);
   pTabs->setTabShape(QTabWidget::TabShape::Rounded);
 
-  EZ_VERIFY(connect(pTabs, SIGNAL(tabCloseRequested(int)), this, SLOT(OnDocumentTabCloseRequested(int))) != nullptr, "signal/slot connection failed");
+  EZ_VERIFY(connect(pTabs, SIGNAL(tabCloseRequested(int)), this, SLOT(SlotDocumentTabCloseRequested(int))) != nullptr, "signal/slot connection failed");
 
   setCentralWidget(pTabs);
 }
@@ -137,7 +157,7 @@ void ezContainerWindow::MoveDocumentWindowToContainer(ezDocumentWindow* pDocWind
   pTabs->addTab(pDocWindow, QString::fromUtf8(pDocWindow->GetDisplayNameShort()));
 }
 
-void ezContainerWindow::OnDocumentTabCloseRequested(int index)
+void ezContainerWindow::SlotDocumentTabCloseRequested(int index)
 {
   QTabWidget* pTabs = (QTabWidget*) centralWidget();
   EZ_ASSERT(pTabs != nullptr, "The central widget is NULL");

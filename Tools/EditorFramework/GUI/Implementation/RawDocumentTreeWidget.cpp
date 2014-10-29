@@ -15,7 +15,7 @@ ezRawDocumentTreeWidget::ezRawDocumentTreeWidget(QWidget* pParent, const ezDocum
   setAcceptDrops(true);
   setDropIndicatorShown(true);
 
-  connect(selectionModel(), SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)), this, SLOT(on_selectionChanged_triggered(const QItemSelection&, const QItemSelection&)));
+  EZ_VERIFY(connect(selectionModel(), SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)), this, SLOT(on_selectionChanged_triggered(const QItemSelection&, const QItemSelection&))) != nullptr, "signal/slot connection failed");
 
   QModelIndexList selection = selectionModel()->selectedIndexes();
 }

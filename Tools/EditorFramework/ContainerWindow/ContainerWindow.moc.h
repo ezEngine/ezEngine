@@ -17,19 +17,22 @@ public:
 
   void MoveDocumentWindowToContainer(ezDocumentWindow* pDocWindow);
 
+
+private slots:
+  void SlotDocumentTabCloseRequested(int index);
+  void SlotMenuSettingsPlugins();
+  void SlotRestoreLayout();
+
+
+private:
   void SaveWindowLayout();
   void RestoreWindowLayout();
 
-private slots:
-  void OnDocumentTabCloseRequested(int index);
-  void OnMenuSettingsPlugins();
-
-private:
   void RemoveDocumentWindowFromContainer(ezDocumentWindow* pDocWindow);
 
   void SetupDocumentTabArea();
 
-  const char* GetUniqueName() const { return "Container"; /* todo */ }
+  const char* GetUniqueName() const { return "ezEditor"; /* todo */ }
 
   void DocumentWindowEventHandler(const ezDocumentWindow::Event& e);
   void closeEvent(QCloseEvent* e);

@@ -6,7 +6,13 @@
 #include <QLineEdit>
 #include <QLabel>
 #include <QKeyEvent>
+#include <QSpinBox>
+#include <QPushButton>
+#include <QColor>
 #include <EditorFramework/GUI/QtHelpers.h>
+#include <EditorFramework/EditorGUI.moc.h>
+
+/// *** BASE ***
 
 ezPropertyEditorBaseWidget::ezPropertyEditorBaseWidget(const ezPropertyPath& path, const char* szName, QWidget* pParent) : QWidget(pParent)
 {
@@ -44,6 +50,9 @@ void ezPropertyEditorBaseWidget::keyPressEvent(QKeyEvent* pEvent)
 
 }
 
+
+/// *** CHECKBOX ***
+
 ezPropertyEditorCheckboxWidget::ezPropertyEditorCheckboxWidget(const ezPropertyPath& path, const char* szName, QWidget* pParent) : ezPropertyEditorBaseWidget(path, szName, pParent)
 {
   m_pLayout = new QHBoxLayout(this);
@@ -65,7 +74,7 @@ ezPropertyEditorCheckboxWidget::ezPropertyEditorCheckboxWidget(const ezPropertyP
   m_pLayout->addWidget(m_pLabel);
   m_pLayout->addWidget(m_pWidget);
 
-  connect(m_pWidget, SIGNAL(stateChanged(int)), this, SLOT(on_StateChanged_triggered(int)));
+  EZ_VERIFY(connect(m_pWidget, SIGNAL(stateChanged(int)), this, SLOT(on_StateChanged_triggered(int))) != nullptr, "signal/slot connection failed");
 }
 
 void ezPropertyEditorCheckboxWidget::InternalSetValue(const ezVariant& value)
@@ -85,6 +94,9 @@ void ezPropertyEditorCheckboxWidget::on_StateChanged_triggered(int state)
 {
   BroadcastValueChanged((state == Qt::Checked) ? true : false);
 }
+
+
+/// *** DOUBLE SPINBOX ***
 
 ezPropertyEditorDoubleSpinboxWidget::ezPropertyEditorDoubleSpinboxWidget(const ezPropertyPath& path, const char* szName, QWidget* pParent) : ezPropertyEditorBaseWidget(path, szName, pParent)
 {
@@ -132,6 +144,56 @@ void ezPropertyEditorDoubleSpinboxWidget::on_EditingFinished_triggered()
   BroadcastValueChanged(m_pWidget->value());
 }
 
+/// *** INT SPINBOX ***
+
+ezPropertyEditorIntSpinboxWidget::ezPropertyEditorIntSpinboxWidget(const ezPropertyPath& path, const char* szName, QWidget* pParent, ezInt32 iMinValue, ezInt32 iMaxValue) : ezPropertyEditorBaseWidget(path, szName, pParent)
+{
+  m_pLayout = new QHBoxLayout(this);
+  m_pLayout->setMargin(0);
+  setLayout(m_pLayout);
+
+  m_pLabel = new QLabel(this);
+  m_pLabel->setText(QString::fromUtf8(szName));
+  m_pLabel->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
+
+  m_pWidget = new QSpinBox(this);
+  m_pWidget->setMinimum(iMinValue);
+  m_pWidget->setMaximum(iMaxValue);
+  m_pWidget->setSingleStep(1);
+  m_pWidget->setAccelerated(true);
+
+  QSizePolicy policy = m_pLabel->sizePolicy();
+  policy.setHorizontalStretch(1);
+  m_pLabel->setSizePolicy(policy);
+  policy.setHorizontalStretch(2);
+  m_pWidget->setSizePolicy(policy);
+
+  m_pLayout->addWidget(m_pLabel);
+  m_pLayout->addWidget(m_pWidget);
+
+  //connect(m_pWidget, SIGNAL(valueChanged(double)), this, SLOT(on_ValueChanged_triggered(double)));
+  connect(m_pWidget, SIGNAL(editingFinished()), this, SLOT(on_EditingFinished_triggered()));
+}
+
+void ezPropertyEditorIntSpinboxWidget::InternalSetValue(const ezVariant& value)
+{
+  ezQtBlockSignals b (m_pWidget);
+  m_pWidget->setValue(value.ConvertTo<ezInt32>());
+}
+
+void ezPropertyEditorIntSpinboxWidget::on_ValueChanged_triggered(int value)
+{
+  BroadcastValueChanged(value);
+}
+
+void ezPropertyEditorIntSpinboxWidget::on_EditingFinished_triggered()
+{
+  BroadcastValueChanged(m_pWidget->value());
+}
+
+
+/// *** LINEEDIT ***
+
 ezPropertyEditorLineEditWidget::ezPropertyEditorLineEditWidget(const ezPropertyPath& path, const char* szName, QWidget* pParent) : ezPropertyEditorBaseWidget(path, szName, pParent)
 {
   m_pLayout = new QHBoxLayout(this);
@@ -173,3 +235,81 @@ void ezPropertyEditorLineEditWidget::on_TextFinished_triggered()
   BroadcastValueChanged(m_pWidget->text().toUtf8().data());
 }
 
+/// *** COLOR ***
+
+ezPropertyEditorColorWidget::ezPropertyEditorColorWidget(const ezPropertyPath& path, const char* szName, QWidget* pParent) : ezPropertyEditorBaseWidget(path, szName, pParent)
+{
+  m_pLayout = new QHBoxLayout(this);
+  m_pLayout->setMargin(0);
+  setLayout(m_pLayout);
+
+  m_pLabel = new QLabel(this);
+  m_pLabel->setText(QString::fromUtf8(szName));
+  m_pLabel->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
+
+  m_pWidget = new QPushButton(this);
+
+  QSizePolicy policy = m_pLabel->sizePolicy();
+  policy.setHorizontalStretch(1);
+  m_pLabel->setSizePolicy(policy);
+  policy.setHorizontalStretch(2);
+  m_pWidget->setSizePolicy(policy);
+
+  m_pLayout->addWidget(m_pLabel);
+  m_pLayout->addWidget(m_pWidget);
+
+  EZ_VERIFY(connect(m_pWidget, SIGNAL(clicked()), this, SLOT(on_Button_triggered())) != nullptr, "signal/slot connection failed");
+}
+
+void ezPropertyEditorColorWidget::InternalSetValue(const ezVariant& value)
+{
+  ezQtBlockSignals b (m_pWidget);
+  m_CurrentColor = value.ConvertTo<ezColor>();
+
+  QColor col;
+  col.setRgbF(m_CurrentColor.r, m_CurrentColor.g, m_CurrentColor.b, m_CurrentColor.a);
+  
+  const QString COLOR_STYLE("QPushButton { background-color : %1 }");
+  m_pWidget->setStyleSheet(COLOR_STYLE.arg(col.name()));
+}
+
+static ezColor g_LastColor;
+
+void ezPropertyEditorColorWidget::on_Button_triggered()
+{
+  g_LastColor = m_CurrentColor;
+  
+  QColor col;
+  col.setRgbF(m_CurrentColor.r, m_CurrentColor.g, m_CurrentColor.b, m_CurrentColor.a);
+
+  ezEditorGUI::GetInstance()->ShowColorDialog(m_CurrentColor, true, this, SLOT(on_CurrentColor_changed(const QColor&)), SLOT(on_Color_accepted()), SLOT(on_Color_reset()));
+}
+
+void ezPropertyEditorColorWidget::on_CurrentColor_changed(const QColor& color)
+{
+  const ezColor NewCol(color.redF(), color.greenF(), color.blueF(), color.alphaF());
+
+  const QString COLOR_STYLE("QPushButton { background-color : %1 }");
+  m_pWidget->setStyleSheet(COLOR_STYLE.arg(color.name()));
+
+  m_CurrentColor = NewCol;
+
+  BroadcastValueChanged(NewCol);
+}
+
+void ezPropertyEditorColorWidget::on_Color_reset()
+{
+  m_CurrentColor = g_LastColor;
+  
+  QColor color;
+  color.setRgbF(m_CurrentColor.r, m_CurrentColor.g, m_CurrentColor.b, m_CurrentColor.a);
+
+  const QString COLOR_STYLE("QPushButton { background-color : %1 }");
+  m_pWidget->setStyleSheet(COLOR_STYLE.arg(color.name()));
+
+  BroadcastValueChanged(g_LastColor);
+}
+
+void ezPropertyEditorColorWidget::on_Color_accepted()
+{
+}

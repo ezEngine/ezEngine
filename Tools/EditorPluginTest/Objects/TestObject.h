@@ -22,6 +22,10 @@ public:
   ezTestObjectProperties();
 
   float m_fValue;
+  ezInt8 m_Int8;
+  ezInt16 m_Int16;
+  ezUInt32 m_UInt32;
+  ezColor m_Color;
 
   ezTestEditorProperties m_EditorProps;
 };

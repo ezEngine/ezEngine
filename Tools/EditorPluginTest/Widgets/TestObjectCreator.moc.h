@@ -15,10 +15,6 @@ public:
   virtual QMimeData * mimeData ( const QList<QListWidgetItem *> items ) const override;
   virtual QStringList mimeTypes () const override;
 
-public slots:
-
-private slots:
-
 private:
   const ezDocumentObjectManagerBase* m_pManager;
 

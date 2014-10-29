@@ -1,5 +1,6 @@
 #include <PCH.h>
 #include <EditorFramework/EditorFramework.h>
+#include <EditorFramework/EditorGUI.moc.h>
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
@@ -98,9 +99,11 @@ void ezEditorFramework::StartupEditor(ezStringView sAppName, ezStringView sUserN
   ezFileSystem::AddDataDirectory("", ezFileSystem::AllowWrites, "Editor"); // for absolute paths
   ezFileSystem::AddDataDirectory(sAppDir.GetData(), ezFileSystem::AllowWrites, "Editor"); // for everything relative
 
+  ezEditorGUI::GetInstance()->LoadState();
+
   ezEditorFramework::LoadPlugins();
 
-  s_ContainerWindows[0]->RestoreWindowLayout();
+  //s_ContainerWindows[0]->RestoreWindowLayout();
 }
 
 void ezEditorFramework::ShutdownEditor()
@@ -108,6 +111,8 @@ void ezEditorFramework::ShutdownEditor()
   //SaveSettings();
 
   //CloseProject();
+
+  ezEditorGUI::GetInstance()->SaveState();
 
   delete s_pQtApplication;
 }

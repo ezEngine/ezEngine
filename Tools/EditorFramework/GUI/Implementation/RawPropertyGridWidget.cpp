@@ -110,13 +110,39 @@ void ezRawPropertyGridWidget::BuildUI(const ezIReflectedTypeAccessor& et, const 
         pNewWidget = new ezPropertyEditorCheckboxWidget(ParentPath, pProp->m_sPropertyName.GetString().GetData(), this);
         break;
 
+      case ezVariant::Type::Time:
       case ezVariant::Type::Float:
       case ezVariant::Type::Double:
         pNewWidget = new ezPropertyEditorDoubleSpinboxWidget(ParentPath, pProp->m_sPropertyName.GetString().GetData(), this);
         break;
 
+      case ezVariant::Type::Int8:
+        pNewWidget = new ezPropertyEditorIntSpinboxWidget(ParentPath, pProp->m_sPropertyName.GetString().GetData(), this, -127, 127);
+        break;
+      case ezVariant::Type::UInt8:
+        pNewWidget = new ezPropertyEditorIntSpinboxWidget(ParentPath, pProp->m_sPropertyName.GetString().GetData(), this, 0, 255);
+        break;
+      case ezVariant::Type::Int16:
+        pNewWidget = new ezPropertyEditorIntSpinboxWidget(ParentPath, pProp->m_sPropertyName.GetString().GetData(), this, -32767, 32767);
+        break;
+      case ezVariant::Type::UInt16:
+        pNewWidget = new ezPropertyEditorIntSpinboxWidget(ParentPath, pProp->m_sPropertyName.GetString().GetData(), this, 0, 65535);
+        break;
+      case ezVariant::Type::Int32:
+      case ezVariant::Type::Int64:
+        pNewWidget = new ezPropertyEditorIntSpinboxWidget(ParentPath, pProp->m_sPropertyName.GetString().GetData(), this, -2147483645, 2147483645);
+        break;
+      case ezVariant::Type::UInt32:
+      case ezVariant::Type::UInt64:
+        pNewWidget = new ezPropertyEditorIntSpinboxWidget(ParentPath, pProp->m_sPropertyName.GetString().GetData(), this, 0, 2147483645);
+        break;
+
       case ezVariant::Type::String:
         pNewWidget = new ezPropertyEditorLineEditWidget(ParentPath, pProp->m_sPropertyName.GetString().GetData(), this);
+        break;
+
+      case ezVariant::Type::Color:
+        pNewWidget = new ezPropertyEditorColorWidget(ParentPath, pProp->m_sPropertyName.GetString().GetData(), this);
         break;
 
       default:

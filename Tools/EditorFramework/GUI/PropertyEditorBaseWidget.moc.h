@@ -9,9 +9,11 @@
 
 class QCheckBox;
 class QDoubleSpinBox;
+class QSpinBox;
 class QLabel;
 class QHBoxLayout;
 class QLineEdit;
+class QPushButton;
 
 /// *** BASE ***
 
@@ -93,6 +95,27 @@ private:
   QDoubleSpinBox* m_pWidget;
 };
 
+/// *** INT SPINBOX ***
+
+class EZ_EDITORFRAMEWORK_DLL ezPropertyEditorIntSpinboxWidget : public ezPropertyEditorBaseWidget
+{
+  Q_OBJECT
+
+public:
+  ezPropertyEditorIntSpinboxWidget(const ezPropertyPath& path, const char* szName, QWidget* pParent, ezInt32 iMinValue, ezInt32 iMaxValue);
+
+private slots:
+  void on_ValueChanged_triggered(int value);
+  void on_EditingFinished_triggered();
+
+private:
+  virtual void InternalSetValue(const ezVariant& value) override;
+
+  QHBoxLayout* m_pLayout;
+  QLabel* m_pLabel;
+  QSpinBox* m_pWidget;
+};
+
 
 /// *** LINEEDIT ***
 
@@ -114,3 +137,29 @@ private:
   QLabel* m_pLabel;
   QLineEdit* m_pWidget;
 };
+
+
+/// *** COLOR ***
+
+class EZ_EDITORFRAMEWORK_DLL ezPropertyEditorColorWidget : public ezPropertyEditorBaseWidget
+{
+  Q_OBJECT
+
+public:
+  ezPropertyEditorColorWidget(const ezPropertyPath& path, const char* szName, QWidget* pParent);
+
+private slots:
+  void on_Button_triggered();
+  void on_CurrentColor_changed(const QColor& color);
+  void on_Color_reset();
+  void on_Color_accepted();
+
+private:
+  virtual void InternalSetValue(const ezVariant& value) override;
+
+  QHBoxLayout* m_pLayout;
+  QLabel* m_pLabel;
+  QPushButton* m_pWidget;
+  ezColor m_CurrentColor;
+};
+

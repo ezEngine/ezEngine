@@ -35,10 +35,17 @@ public:
   virtual ezString GetDisplayNameShort() const { return GetDisplayName(); }
 
   const char* GetUniqueName() const { return m_sUniqueName; }
+  virtual const char* GetGroupName() const { return "Scene"; }
 
   bool CanClose();
   void CloseDocument();
 
+  void ScheduleRestoreWindowLayout();
+
+private slots:
+  void SlotRestoreLayout();
+
+private:
   void SaveWindowLayout();
   void RestoreWindowLayout();
 

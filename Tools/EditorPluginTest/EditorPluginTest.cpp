@@ -35,10 +35,13 @@ void OnPluginEvent(const ezPlugin::PluginEvent& e)
     bDone = true;
 
     ezDocumentBase* pDoc;
-    ezTestDocumentManager::s_pSingleton->CreateDocument("ezScene", "bla/blub.scene", pDoc);
+    ezTestDocumentManager::s_pSingleton->CreateDocument("ezScene", "bla/blub1.scene", pDoc);
 
     ezDocumentBase* pDoc2;
     ezTestDocumentManager::s_pSingleton->CreateDocument("ezScene", "bla/blub2.scene", pDoc2);
+
+    ezDocumentBase* pDoc3;
+    ezTestDocumentManager::s_pSingleton->CreateDocument("ezScene", "bla/blub3.scene", pDoc3);
   }
 }
 
@@ -58,6 +61,11 @@ void OnDocumentManagerEvent(const ezDocumentManagerBase::Event& e)
           pPropertyPanel->setWindowTitle("Properties");
           pPropertyPanel->show();
 
+          ezTestPanel* pPropertyPanel2 = new ezTestPanel(pDocWnd);
+          pPropertyPanel2->setObjectName("PropertyPanel2");
+          pPropertyPanel2->setWindowTitle("Properties 2");
+          pPropertyPanel2->show();
+
           ezTestPanel* pPanelTree = new ezTestPanel(pDocWnd);
           pPanelTree->setObjectName("TreePanel");
           pPanelTree->setWindowTitle("Hierarchy");
@@ -71,6 +79,9 @@ void OnDocumentManagerEvent(const ezDocumentManagerBase::Event& e)
           ezRawPropertyGridWidget* pPropertyGrid = new ezRawPropertyGridWidget(e.m_pDocument, pPropertyPanel);
           pPropertyPanel->setWidget(pPropertyGrid);
 
+          ezRawPropertyGridWidget* pPropertyGrid2 = new ezRawPropertyGridWidget(e.m_pDocument, pPropertyPanel2);
+          pPropertyPanel2->setWidget(pPropertyGrid2);
+
           ezRawDocumentTreeWidget* pTreeWidget = new ezRawDocumentTreeWidget(pPanelTree, e.m_pDocument);
           pPanelTree->setWidget(pTreeWidget);
 
@@ -81,6 +92,7 @@ void OnDocumentManagerEvent(const ezDocumentManagerBase::Event& e)
           //((ezDocumentObjectTree*) e.m_pDocument->GetObjectTree())->AddObject(pTestObject1, nullptr);
 
           pDocWnd->addDockWidget(Qt::DockWidgetArea::RightDockWidgetArea, pPropertyPanel);
+          pDocWnd->addDockWidget(Qt::DockWidgetArea::RightDockWidgetArea, pPropertyPanel2);
           pDocWnd->addDockWidget(Qt::DockWidgetArea::LeftDockWidgetArea, pPanelTree);
           pDocWnd->addDockWidget(Qt::DockWidgetArea::LeftDockWidgetArea, pPanelCreator);
         }
