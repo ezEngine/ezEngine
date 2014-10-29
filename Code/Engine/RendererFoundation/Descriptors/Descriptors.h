@@ -9,14 +9,13 @@
 #include <RendererFoundation/Shader/ShaderByteCode.h>
 
 
-
-class ezWindow;
+class ezWindowBase;
 
 struct ezGALSwapChainCreationDescription : public ezHashableStruct<ezGALSwapChainCreationDescription>
 {
   inline ezGALSwapChainCreationDescription();
 
-  ezWindow* m_pWindow;
+  ezWindowBase* m_pWindow;
 
   ezGALMSAASampleCount::Enum m_SampleCount;
   ezGALResourceFormat::Enum m_BackBufferFormat;

@@ -91,6 +91,12 @@ public:
   /// Rotate around Y for turning the camera left/right.
   void RotateGlobally(ezAngle X, ezAngle Y, ezAngle Z);
 
+  /// \brief Calculates the view matrix from the current camera properties and stores it in out_viewMatrix.
+  void GetViewMatrix(ezMat4& out_viewMatrix) const;
+
+  /// \brief Calculates the projection matrix from the current camera properties and stores it in out_projectionMatrix.
+  void GetProjectionMatrix(float fAspectRatioWidthDivHeight, ezProjectionDepthRange::Enum depthRange, ezMat4& out_projectionMatrix) const;
+
 private:
   /// \brief This function is called whenever the camera position or rotation changed.
   /// Override this function to implement restrictions on the camera position or rotation.
@@ -116,10 +122,6 @@ private:
   ezVec3 m_vDirUp;
   ezVec3 m_vDirRight;
 };
-
-
-
-
 
 
 #include <CoreUtils/Graphics/Implementation/Camera_inl.h>

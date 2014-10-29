@@ -1,6 +1,7 @@
 #include <RendererCore/PCH.h>
 #include <RendererCore/Pipeline/RenderPipeline.h>
 #include <Core/World/World.h>
+#include <CoreUtils/Graphics/Camera.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRenderData, ezReflectedClass, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
@@ -77,6 +78,12 @@ void ezRenderPipeline::Render(const ezCamera& camera)
   {
     m_pRenderData = (m_pRenderData == &m_Data[0]) ? &m_Data[1] : &m_Data[0];
   }
+
+  // calculate camera matrices
+  camera.GetViewMatrix(m_ViewMatrix);
+  /// \todo get depth range from device?
+  camera.GetProjectionMatrix(m_ViewPortRect.width / m_ViewPortRect.height, ezProjectionDepthRange::ZeroToOne, m_ProjectionMatrix);
+  m_ViewProjectionMatrix = m_ProjectionMatrix * m_ViewMatrix;
 
   m_pDevice->GetPrimaryContext()->SetViewport(m_ViewPortRect.x, m_ViewPortRect.y, 
     m_ViewPortRect.width, m_ViewPortRect.height, 0.0f, 1.0f);

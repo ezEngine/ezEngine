@@ -91,7 +91,7 @@ void Level::SetupLevel(const char* szLevelName)
     CreateAsteroid();
 
   m_Camera.LookAt(ezVec3(0.0f, 0.0f, 100.0f), ezVec3(0.0f));
-  m_Camera.SetCameraMode(ezCamera::OrthoFixedWidth, 1000.0f, 0.0f, 500.0f);
+  m_Camera.SetCameraMode(ezCamera::OrthoFixedWidth, 45.0f, 0.0f, 500.0f);
 }
 
 void Level::CreatePlayerShip(ezInt32 iPlayer)

@@ -28,3 +28,18 @@ bool ezUuid::IsValid() const
 {
   return m_uiHigh != 0 || m_uiLow != 0;
 }
+
+template <>
+struct ezHashHelper<ezUuid>
+{
+  EZ_FORCE_INLINE static ezUInt32 Hash(const ezUuid& value)
+  {
+    return ezHashing::MurmurHash(&value, sizeof(ezUuid));
+  }
+
+  EZ_FORCE_INLINE static bool Equal(const ezUuid& a, const ezUuid& b)
+  {
+    return a == b;
+  }
+};
+

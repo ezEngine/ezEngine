@@ -30,6 +30,16 @@
   #error "Missing Platform Code!"
 #endif
 
+/// \brief Base class of all window classes that have a client area and a native window handle.
+class EZ_SYSTEM_DLL ezWindowBase
+{
+public:
+  virtual ~ezWindowBase() {}
+
+  virtual ezSizeU32 GetClientAreaSize() const = 0;
+  virtual ezWindowHandle GetNativeWindowHandle() const = 0;
+};
+
 struct EZ_SYSTEM_DLL ezWindowCreationDesc
 {
 
@@ -69,7 +79,7 @@ struct EZ_SYSTEM_DLL ezWindowCreationDesc
 /// Will handle basic message looping. Notable events can be listened to by overriding the corresponding callbacks.
 /// You should call ProcessWindowMessages every frame to keep the window responsive.
 /// Input messages will not be forwarded automatically. You can do so by overriding the OnWindowMessage function.
-class EZ_SYSTEM_DLL ezWindow
+class EZ_SYSTEM_DLL ezWindow : public ezWindowBase
 {
 public:
 
@@ -91,8 +101,14 @@ public:
     return m_CreationDescription;
   }
 
+  /// \brief Returns the size of the client area.
+  virtual ezSizeU32 GetClientAreaSize() const override
+  {
+    return m_CreationDescription.m_ClientAreaSize;
+  }
+
   /// \brief Returns the platform specific window handle.
-  inline ezWindowHandle GetNativeWindowHandle() const
+  virtual ezWindowHandle GetNativeWindowHandle() const override
   {
     return m_WindowHandle;
   }

@@ -60,9 +60,38 @@ void ezCamera::SetFromMatrix(const ezMat4& mLookAtMatrix)
   CameraOrientationChanged(true, true);
 }
 
+void ezCamera::GetViewMatrix(ezMat4& out_viewMatrix) const
+{
+  out_viewMatrix.SetLookAtMatrix(m_vPosition, m_vPosition + m_vDirForwards, m_vDirUp);
+}
+
+void ezCamera::GetProjectionMatrix(float fAspectRatioWidthDivHeight, ezProjectionDepthRange::Enum depthRange, ezMat4& out_projectionMatrix) const
+{
+  if (m_Mode == PerspectiveFixedFovX)
+  {
+    out_projectionMatrix.SetPerspectiveProjectionMatrixFromFovX(ezAngle::Degree(m_fFovOrDim), fAspectRatioWidthDivHeight, m_fNearPlane, m_fFarPlane, depthRange);
+  }
+  else if (m_Mode == PerspectiveFixedFovY)
+  {
+    out_projectionMatrix.SetPerspectiveProjectionMatrixFromFovY(ezAngle::Degree(m_fFovOrDim), fAspectRatioWidthDivHeight, m_fNearPlane, m_fFarPlane, depthRange);
+  }
+  else if (m_Mode == OrthoFixedWidth)
+  {
+    out_projectionMatrix.SetOrthographicProjectionMatrix(m_fFovOrDim, m_fFovOrDim / fAspectRatioWidthDivHeight, m_fNearPlane, m_fFarPlane, depthRange);
+  }
+  else if (m_Mode == OrthoFixedHeight)
+  {
+    out_projectionMatrix.SetOrthographicProjectionMatrix(m_fFovOrDim * fAspectRatioWidthDivHeight, m_fFovOrDim, m_fNearPlane, m_fFarPlane, depthRange);
+  }
+  else
+  {
+    EZ_REPORT_FAILURE("Invalid Camera Mode.");
+  }
+}
+
 void ezCamera::CameraSettingsChanged()
 {
-  EZ_ASSERT(m_Mode != None, "Wrong Camera Mode");
+  EZ_ASSERT(m_Mode != None, "Invalid Camera Mode.");
   EZ_ASSERT(m_fNearPlane < m_fFarPlane, "Near and Far Plane are invalid.");
   EZ_ASSERT(m_fFovOrDim > 0.0f, "FOV or Camera Dimension is invalid.");
 }

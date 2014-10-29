@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include <Foundation/Basics.h>
+#include <Foundation/Algorithm/Hashing.h>
 
 class ezStreamReaderBase;
 class ezStreamWriterBase;

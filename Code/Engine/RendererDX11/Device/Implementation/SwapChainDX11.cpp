@@ -31,8 +31,8 @@ ezResult ezGALSwapChainDX11::InitPlatform(ezGALDevice* pDevice)
   /// \todo Get from enumeration of available modes
   /// \todo (Find via format table)
   SwapChainDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM_SRGB;
-  SwapChainDesc.BufferDesc.Width = m_Description.m_pWindow->GetCreationDescription().m_ClientAreaSize.width;
-  SwapChainDesc.BufferDesc.Height = m_Description.m_pWindow->GetCreationDescription().m_ClientAreaSize.height;
+  SwapChainDesc.BufferDesc.Width = m_Description.m_pWindow->GetClientAreaSize().width;
+  SwapChainDesc.BufferDesc.Height = m_Description.m_pWindow->GetClientAreaSize().height;
   SwapChainDesc.BufferDesc.RefreshRate.Numerator = 60; SwapChainDesc.BufferDesc.RefreshRate.Denominator = 1;
   SwapChainDesc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
   SwapChainDesc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;

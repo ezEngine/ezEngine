@@ -36,6 +36,21 @@ public:
     return m_pDevice;
   }
 
+  EZ_FORCE_INLINE const ezMat4& GetViewMatrix() const
+  {
+    return m_ViewMatrix;
+  }
+
+  EZ_FORCE_INLINE const ezMat4& GetProjectionMatrix() const
+  {
+    return m_ProjectionMatrix;
+  }
+
+  EZ_FORCE_INLINE const ezMat4& GetViewProjectionMatrix() const
+  {
+    return m_ViewProjectionMatrix;
+  }
+
   template <typename T>
   T* CreateRenderData(ezRenderPassType passType, ezGameObject* pOwner)
   {
@@ -104,6 +119,9 @@ private:
   ezDynamicArray<ezRenderPipelinePass*> m_Passes;
 
   ezRectFloat m_ViewPortRect;
+  ezMat4 m_ViewMatrix;
+  ezMat4 m_ProjectionMatrix;
+  ezMat4 m_ViewProjectionMatrix;
 
   ezGALDevice* m_pDevice;
 

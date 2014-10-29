@@ -42,22 +42,16 @@ ezUInt32 ezMeshRenderer::Render(ezRenderPipelinePass* pPass, const ezArrayPtr<co
     pContext->SetRasterizerState(s_hRasterizerState);
   }
 
-  const ezCamera& camera = pPass->GetCurrentCamera();
-  ezMat4 View; 
-  View.SetLookAtMatrix(camera.GetPosition(), camera.GetPosition() + camera.GetDirForwards(), camera.GetDirUp());
-
-  ezMat4 Proj;
-  Proj.SetOrthographicProjectionMatrix(45.0f, 45.0f, camera.GetNearPlane(), camera.GetFarPlane(), ezProjectionDepthRange::ZeroToOne);
-
+  const ezMat4& ViewProj = pPass->GetPipeline()->GetViewProjectionMatrix();
+  
   ezUInt32 uiDataRendered = 0;
-
   while (uiDataRendered < renderData.GetCount() && renderData[uiDataRendered]->IsInstanceOf<ezMeshRenderData>())
   { 
     const ezMeshRenderData* pRenderData = static_cast<const ezMeshRenderData*>(renderData[uiDataRendered]);
 
     PerObjectCB cb;
     cb.world = pRenderData->m_WorldTransform.GetAsMat4();
-    cb.mvp = Proj * View * cb.world;
+    cb.mvp = ViewProj * cb.world;
     pContext->UpdateBuffer(s_hPerObjectBuffer, 0, &cb, sizeof(PerObjectCB));
 
     ezResourceLock<ezMeshResource> pMesh(pRenderData->m_hMesh);

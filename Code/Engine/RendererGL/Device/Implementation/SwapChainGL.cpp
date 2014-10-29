@@ -80,7 +80,7 @@ void ezGALSwapChainGL::SwapBuffers(ezGALDevice* pDevice)
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   if (!::SwapBuffers(GetWindowDC()))
   {
-    ezLog::Error("Failed to swap buffers for the windows with number \"%i\".", m_Description.m_pWindow->GetCreationDescription().m_uiWindowNumber);
+    ezLog::Error("Failed to swap buffers for the window \"%p\".", m_Description.m_pWindow->GetNativeWindowHandle());
   }
 #else
   EZ_ASSERT_NOT_IMPLEMENTED;
@@ -144,9 +144,6 @@ ezResult ezGALSwapChainGL::CreateContextWindows()
   }
 
   wglMakeCurrent(m_hDC, m_hRC);
-
-  SetFocus(hWnd);
-  SetForegroundWindow(hWnd);
 
   ezLog::Success("OpenGL graphics context is initialized.");
 
