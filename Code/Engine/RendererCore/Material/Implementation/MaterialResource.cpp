@@ -25,5 +25,10 @@ void ezMaterialResource::UpdateMemoryUsage()
 
 void ezMaterialResource::CreateResource(const ezMaterialResourceDescriptor& descriptor)
 {
+  m_hShader = descriptor.m_hShader;
 
+  m_uiMaxQualityLevel = 1;
+  m_uiLoadedQualityLevel = 1;
+
+  m_LoadingState = ezResourceLoadState::Loaded;
 }

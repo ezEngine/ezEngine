@@ -128,35 +128,37 @@ public:
 
   void SetPrimarySwapChain(ezGALSwapChainHandle hSwapChain);
 
-  EZ_FORCE_INLINE ezGALSwapChainHandle GetPrimarySwapChain() const;
+  ezGALSwapChainHandle GetPrimarySwapChain() const;
+
+  ezGALContext* GetPrimaryContext() const;
+
+  template<typename T>
+  T* GetPrimaryContext() const;
+
+  const ezGALDeviceCreationDescription* GetDescription() const;
 
 
-  EZ_FORCE_INLINE ezGALContext* GetPrimaryContext() const;
+  const ezGALSwapChain* GetSwapChain(ezGALSwapChainHandle hSwapChain) const;
+  const ezGALShader* GetShader(ezGALShaderHandle hShader) const;
+  const ezGALTexture* GetTexture(ezGALTextureHandle hTexture) const;
+  const ezGALBuffer* GetBuffer(ezGALBufferHandle hBuffer) const;
+  const ezGALDepthStencilState* GetDepthStencilState(ezGALDepthStencilStateHandle hDepthStencilState) const;
+  const ezGALBlendState* GetBlendState(ezGALBlendStateHandle hBlendState) const;
+  const ezGALRasterizerState* GetRasterizerState(ezGALRasterizerStateHandle hRasterizerState) const;
+  const ezGALRenderTargetConfig* GetRenderTargetConfig(ezGALRenderTargetConfigHandle hRenderTargetConfig) const;
+  const ezGALVertexDeclaration* GetVertexDeclaration(ezGALVertexDeclarationHandle hVertexDeclaration) const;
+  const ezGALQuery* GetQuery(ezGALQueryHandle hQuery) const;
+  const ezGALSamplerState* GetSamplerState(ezGALSamplerStateHandle hSamplerState) const;
+  const ezGALResourceView* GetResourceView(ezGALResourceViewHandle hResourceView) const;
+  const ezGALRenderTargetView* GetRenderTargetView(ezGALRenderTargetViewHandle hRenderTargetView) const;
 
-  template<typename T> EZ_FORCE_INLINE T* GetPrimaryContext() const;
-
-
-
-
-  EZ_FORCE_INLINE const ezGALDeviceCreationDescription* GetDescription() const;
-
-
-  EZ_FORCE_INLINE const ezGALSwapChain* GetSwapChain(ezGALSwapChainHandle hSwapChain) const;
-  EZ_FORCE_INLINE const ezGALShader* GetShader(ezGALShaderHandle hShader) const;
-  EZ_FORCE_INLINE const ezGALTexture* GetTexture(ezGALTextureHandle hTexture) const;
-  EZ_FORCE_INLINE const ezGALBuffer* GetBuffer(ezGALBufferHandle hBuffer) const;
-  EZ_FORCE_INLINE const ezGALDepthStencilState* GetDepthStencilState(ezGALDepthStencilStateHandle hDepthStencilState) const;
-  EZ_FORCE_INLINE const ezGALBlendState* GetBlendState(ezGALBlendStateHandle hBlendState) const;
-  EZ_FORCE_INLINE const ezGALRasterizerState* GetRasterizerState(ezGALRasterizerStateHandle hRasterizerState) const;
-  EZ_FORCE_INLINE const ezGALRenderTargetConfig* GetRenderTargetConfig(ezGALRenderTargetConfigHandle hRenderTargetConfig) const;
-  EZ_FORCE_INLINE const ezGALVertexDeclaration* GetVertexDeclaration(ezGALVertexDeclarationHandle hVertexDeclaration) const;
-  EZ_FORCE_INLINE const ezGALQuery* GetQuery(ezGALQueryHandle hQuery) const;
-  EZ_FORCE_INLINE const ezGALSamplerState* GetSamplerState(ezGALSamplerStateHandle hSamplerState) const;
-  EZ_FORCE_INLINE const ezGALResourceView* GetResourceView(ezGALResourceViewHandle hResourceView) const;
-  EZ_FORCE_INLINE const ezGALRenderTargetView* GetRenderTargetView(ezGALRenderTargetViewHandle hRenderTargetView) const;
-
-  
   const ezGALDeviceCapabilities& GetCapabilities() const;
+
+  static void SetDefaultDevice(ezGALDevice* pDefaultDevice);
+  static ezGALDevice* GetDefaultDevice();
+
+private:
+  static ezGALDevice* s_pDefaultDevice;
 
 protected:
 
@@ -245,7 +247,6 @@ protected:
   ezGALContext* m_pPrimaryContext;
 
   ezGALDeviceCapabilities m_Capabilities;
-
 
   // Deactivate Doxygen document generation for the following block. (API abstraction only)
   /// \cond

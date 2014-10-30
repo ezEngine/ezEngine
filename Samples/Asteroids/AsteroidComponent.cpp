@@ -2,6 +2,7 @@
 #include "AsteroidComponent.h"
 #include "ShipComponent.h"
 #include <Foundation/Configuration/CVar.h>
+#include <Foundation/Time/Clock.h>
 
 EZ_BEGIN_COMPONENT_TYPE(AsteroidComponent, ezComponent, 1, AsteroidComponentManager);
 EZ_END_COMPONENT_TYPE();
@@ -16,8 +17,10 @@ AsteroidComponent::AsteroidComponent()
 
 void AsteroidComponent::Update()
 {
+  const float fTimeDiff = (float)ezClock::Get()->GetTimeDiff().GetSeconds();
+
   ezQuat qRot;
-  qRot.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(m_fRotationSpeed));
+  qRot.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Radian(m_fRotationSpeed * fTimeDiff));
   
   GetOwner()->SetLocalRotation(qRot * GetOwner()->GetLocalRotation());
 

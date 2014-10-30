@@ -28,15 +28,12 @@ void SampleGameApp::WorldUpdateTask::Execute()
   m_pApp->m_View.ExtractData();
 }
 
-ezGALDevice* SampleGameApp::s_pDevice;
-
 SampleGameApp::SampleGameApp() : 
   m_WorldUpdateTask(this), m_View("MainView")
 {
   m_bActiveRenderLoop = false;
   m_pLevel = nullptr;
   m_pWindow = nullptr;
-  s_pDevice = nullptr;
 }
 
 void SampleGameApp::AfterEngineInit()
@@ -94,8 +91,10 @@ void SampleGameApp::BeforeEngineShutdown()
   ezRenderPipeline* pRenderPipeline = m_View.GetRenderPipeline();
   EZ_DEFAULT_DELETE(pRenderPipeline);
 
-  s_pDevice->Shutdown();
-  EZ_DEFAULT_DELETE(s_pDevice);
+  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+  pDevice->Shutdown();
+  EZ_DEFAULT_DELETE(pDevice);
+  ezGALDevice::SetDefaultDevice(nullptr);
 
   EZ_DEFAULT_DELETE(m_pWindow);
 
@@ -120,20 +119,21 @@ ezApplication::ApplicationExecution SampleGameApp::Run()
 
   ezTaskGroupID updateTaskID = ezTaskSystem::StartSingleTask(&m_WorldUpdateTask, ezTaskPriority::EarlyThisFrame);
 
+  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
   {
-    s_pDevice->BeginFrame();
+    pDevice->BeginFrame();
 
-    m_View.Render();
+    m_View.Render(pDevice->GetPrimaryContext());
 
-    s_pDevice->EndFrame();
-    s_pDevice->Present(s_pDevice->GetPrimarySwapChain());
-  }
-  
+    pDevice->EndFrame();
+  }  
 
-  ezTaskSystem::FinishFrameTasks();
+  ezTaskSystem::FinishFrameTasks(16.6);
   ezTaskSystem::WaitForGroup(updateTaskID);
 
   ezTelemetry::PerFrameUpdate();
+
+  pDevice->Present(pDevice->GetPrimarySwapChain());
 
   return ezApplication::Continue;
 }

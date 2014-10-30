@@ -21,17 +21,11 @@ public:
 
   virtual ezApplication::ApplicationExecution Run() override;
 
-  static ezGALDevice* GetDevice()
-  {
-    return s_pDevice;
-  }
-
 private:
   friend LRESULT CALLBACK WndProc (HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
   void InitRendering();
 
-  void RenderSingleFrame();
   void UpdateInput(ezTime UpdateDiff);
 
   void GameLoop();
@@ -60,6 +54,5 @@ private:
   ezVirtualThumbStick* m_pThumbstick;
   ezVirtualThumbStick* m_pThumbstick2;
 
-  static ezGALDevice* s_pDevice;
   ezView m_View;
 };

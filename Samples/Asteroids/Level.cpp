@@ -28,7 +28,6 @@ static ezMeshResourceHandle CreateAsteroidMesh()
     geom.ComputeSmoothVertexNormals();
 
     ezMeshBufferResourceDescriptor desc;
-    desc.m_pDevice = SampleGameApp::GetDevice();
     desc.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
     desc.AddStream(ezGALVertexAttributeSemantic::Normal, ezGALResourceFormat::XYZFloat);
     desc.AddStream(ezGALVertexAttributeSemantic::Color, ezGALResourceFormat::RGBAByteNormalized);
@@ -61,6 +60,26 @@ static ezMeshResourceHandle CreateAsteroidMesh()
   }
 
   return hMesh;
+}
+
+static ezMaterialResourceHandle CreateAsteroidMaterial()
+{
+  ezMaterialResourceHandle hMaterial = ezResourceManager::GetResourceHandle<ezMaterialResource>("AsteroidMaterial");
+
+  {
+    ezResourceLock<ezMaterialResource> pMaterial(hMaterial, ezResourceAcquireMode::PointerOnly);
+    if (pMaterial->GetLoadingState() == ezResourceLoadState::Loaded)
+      return hMaterial;
+  }
+
+  {
+    ezMaterialResourceDescriptor desc;
+    desc.m_hShader = ezResourceManager::GetResourceHandle<ezShaderResource>("Generic.shader");
+
+    ezResourceManager::CreateResource(hMaterial, desc);
+  }
+
+  return hMaterial;
 }
 
 Level::Level()
@@ -139,6 +158,7 @@ void Level::CreateAsteroid()
     ezMeshComponent::CreateComponent(m_pWorld, pMeshComponent);
 
     pMeshComponent->SetMesh(CreateAsteroidMesh());
+    pMeshComponent->SetMaterial(0, CreateAsteroidMaterial());
 
     pGameObject->AddComponent(pMeshComponent);
   }

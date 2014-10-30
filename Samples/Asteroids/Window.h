@@ -7,8 +7,6 @@ public:
   GameWindow();
   ~GameWindow();
 
-  ezSizeU32 GetResolution() const;
-
 private:
   void OnResizeMessage(const ezSizeU32& newWindowSize) override;
 

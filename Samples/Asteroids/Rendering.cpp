@@ -78,21 +78,23 @@ void SampleGameApp::InitRendering()
   DeviceInit.m_PrimarySwapChainDescription.m_bCreateDepthStencilBuffer = true;
   DeviceInit.m_PrimarySwapChainDescription.m_DepthStencilBufferFormat = ezGALResourceFormat::D24S8;
   DeviceInit.m_PrimarySwapChainDescription.m_bAllowScreenshots = true;
-  DeviceInit.m_PrimarySwapChainDescription.m_bVerticalSynchronization = true;
+  DeviceInit.m_PrimarySwapChainDescription.m_bVerticalSynchronization = false;
 
-  s_pDevice = EZ_DEFAULT_NEW(ezGALDeviceDefault)(DeviceInit);
-  EZ_VERIFY(s_pDevice->Init() == EZ_SUCCESS, "Device init failed!");
+  ezGALDevice* pDevice = EZ_DEFAULT_NEW(ezGALDeviceDefault)(DeviceInit);
+  EZ_VERIFY(pDevice->Init() == EZ_SUCCESS, "Device init failed!");
+
+  ezGALDevice::SetDefaultDevice(pDevice);
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-  ezShaderManager::SetPlatform("DX11_SM40", s_pDevice, true);
+  ezShaderManager::SetPlatform("DX11_SM40", pDevice, true);
 #else
-  ezShaderManager::SetPlatform("GL3", s_pDevice, true);
+  ezShaderManager::SetPlatform("GL3", pDevice, true);
 #endif
 
-  ezRenderPipeline* pRenderPipeline = EZ_DEFAULT_NEW(ezRenderPipeline)(s_pDevice, true);
+  ezRenderPipeline* pRenderPipeline = EZ_DEFAULT_NEW(ezRenderPipeline)(ezRenderPipeline::Asynchronous);
   pRenderPipeline->AddPass(EZ_DEFAULT_NEW(MainRenderPass));
 
-  ezSizeU32 size = m_pWindow->GetResolution();
+  ezSizeU32 size = m_pWindow->GetClientAreaSize();
   pRenderPipeline->SetViewport(ezRectFloat(0.0f, 0.0f, (float)size.width, (float)size.height));
 
   m_View.SetRenderPipeline(pRenderPipeline);

@@ -1,5 +1,4 @@
 #include "Window.h"
-#include <gl/GL.h>
 #include <Foundation/Logging/Log.h>
 
 GameWindow::GameWindow()
@@ -22,10 +21,5 @@ void GameWindow::OnResizeMessage(const ezSizeU32& newWindowSize)
   ezLog::Info("Resolution changed to %i * %i", newWindowSize.width, newWindowSize.height);
 
   m_CreationDescription.m_ClientAreaSize = newWindowSize;
-}
-
-ezSizeU32 GameWindow::GetResolution() const
-{
-  return m_CreationDescription.m_ClientAreaSize;
 }
 

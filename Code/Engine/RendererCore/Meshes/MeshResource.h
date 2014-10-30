@@ -15,8 +15,8 @@ class EZ_RENDERERCORE_DLL ezMeshResource : public ezResource<ezMeshResource, ezM
 public:
   struct Part
   {
-    ezUInt32 m_uiStartPrimitive;
-    ezUInt32 m_uiNumPrimitives;
+    ezUInt32 m_uiPrimitiveCount;
+    ezUInt32 m_uiFirstPrimitive;
     ezUInt32 m_uiMaterialIndex;
     ezMeshBufferResourceHandle m_hMeshBuffer;
   };

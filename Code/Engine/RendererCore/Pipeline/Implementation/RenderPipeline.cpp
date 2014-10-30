@@ -27,14 +27,16 @@ void ezRenderPipeline::PassData::SortRenderData()
   m_RenderData.Sort(RenderDataComparer());
 }
 
-ezRenderPipeline::ezRenderPipeline(ezGALDevice* pDevice, bool bAsynchronous)
+ezRenderPipeline::ezRenderPipeline(Mode mode)
 {
-  m_ViewPortRect = ezRectFloat(0.0f, 0.0f);
-  m_pDevice = pDevice;
-  m_bAsynchronous = bAsynchronous;
+  m_Mode = mode;
 
   m_pExtractedData = &m_Data[0];
-  m_pRenderData = bAsynchronous ? &m_Data[1] : &m_Data[0];
+  m_pRenderData = m_Mode == Asynchronous ? &m_Data[1] : &m_Data[0];
+
+  m_ViewPortRect = ezRectFloat(0.0f, 0.0f);
+  m_pCurrentCamera = nullptr;
+  m_pCurrentContext = nullptr;  
 }
 
 ezRenderPipeline::~ezRenderPipeline()
@@ -46,7 +48,7 @@ ezRenderPipeline::~ezRenderPipeline()
 void ezRenderPipeline::ExtractData(ezWorld& world, const ezCamera& camera)
 {
   // swap data
-  if (m_bAsynchronous)
+  if (m_Mode == Asynchronous)
   {
     m_pExtractedData = (m_pExtractedData == &m_Data[0]) ? &m_Data[1] : &m_Data[0];
   }
@@ -71,10 +73,10 @@ void ezRenderPipeline::ExtractData(ezWorld& world, const ezCamera& camera)
   }
 }
 
-void ezRenderPipeline::Render(const ezCamera& camera)
+void ezRenderPipeline::Render(const ezCamera& camera, ezGALContext* pContext)
 {
   // swap data
-  if (m_bAsynchronous)
+  if (m_Mode == Asynchronous)
   {
     m_pRenderData = (m_pRenderData == &m_Data[0]) ? &m_Data[1] : &m_Data[0];
   }
@@ -85,13 +87,18 @@ void ezRenderPipeline::Render(const ezCamera& camera)
   camera.GetProjectionMatrix(m_ViewPortRect.width / m_ViewPortRect.height, ezProjectionDepthRange::ZeroToOne, m_ProjectionMatrix);
   m_ViewProjectionMatrix = m_ProjectionMatrix * m_ViewMatrix;
 
-  m_pDevice->GetPrimaryContext()->SetViewport(m_ViewPortRect.x, m_ViewPortRect.y, 
-    m_ViewPortRect.width, m_ViewPortRect.height, 0.0f, 1.0f);
+  pContext->SetViewport(m_ViewPortRect.x, m_ViewPortRect.y, m_ViewPortRect.width, m_ViewPortRect.height, 0.0f, 1.0f);
+
+  m_pCurrentCamera = &camera;
+  m_pCurrentContext = pContext;
 
   for (ezUInt32 i = 0; i < m_Passes.GetCount(); ++i)
   {
-    m_Passes[i]->Run(camera);
+    m_Passes[i]->Run();
   }
+
+  m_pCurrentCamera = nullptr;
+  m_pCurrentContext = nullptr;
 }
 
 void ezRenderPipeline::AddPass(ezRenderPipelinePass* pPass)

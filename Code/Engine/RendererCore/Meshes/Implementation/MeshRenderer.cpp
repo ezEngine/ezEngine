@@ -1,9 +1,9 @@
 #include <RendererCore/PCH.h>
 #include <RendererCore/Meshes/MeshComponent.h>
 #include <RendererCore/Meshes/MeshRenderer.h>
+#include <RendererCore/Pipeline/RenderHelper.h>
 #include <RendererCore/Pipeline/RenderPipeline.h>
 #include <Core/ResourceManager/ResourceManager.h>
-#include <CoreUtils/Graphics/Camera.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshRenderer, ezRenderer, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
@@ -24,12 +24,11 @@ void ezMeshRenderer::GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>
 
 ezUInt32 ezMeshRenderer::Render(ezRenderPipelinePass* pPass, const ezArrayPtr<const ezRenderData*>& renderData)
 {
-  ezGALDevice* pDevice = pPass->GetPipeline()->GetDevice();
-  ezGALContext* pContext = pDevice->GetPrimaryContext();
+  ezGALContext* pContext = pPass->GetPipeline()->GetCurrentContext();
 
   if (s_hPerObjectBuffer.IsInvalidated())
   {
-    s_hPerObjectBuffer = pDevice->CreateConstantBuffer(sizeof(PerObjectCB));
+    s_hPerObjectBuffer = ezGALDevice::GetDefaultDevice()->CreateConstantBuffer(sizeof(PerObjectCB));
     pContext->SetConstantBuffer(1, s_hPerObjectBuffer);
   }
 
@@ -38,11 +37,12 @@ ezUInt32 ezMeshRenderer::Render(ezRenderPipelinePass* pPass, const ezArrayPtr<co
     ezGALRasterizerStateCreationDescription RasterStateDesc;
     RasterStateDesc.m_CullMode = ezGALCullMode::Back;
     RasterStateDesc.m_bFrontCounterClockwise = true;
-    s_hRasterizerState = pDevice->CreateRasterizerState(RasterStateDesc);
+    s_hRasterizerState = ezGALDevice::GetDefaultDevice()->CreateRasterizerState(RasterStateDesc);
     pContext->SetRasterizerState(s_hRasterizerState);
   }
 
   const ezMat4& ViewProj = pPass->GetPipeline()->GetViewProjectionMatrix();
+  ezMaterialResourceHandle hLastMaterial;
   
   ezUInt32 uiDataRendered = 0;
   while (uiDataRendered < renderData.GetCount() && renderData[uiDataRendered]->IsInstanceOf<ezMeshRenderData>())
@@ -57,9 +57,14 @@ ezUInt32 ezMeshRenderer::Render(ezRenderPipelinePass* pPass, const ezArrayPtr<co
     ezResourceLock<ezMeshResource> pMesh(pRenderData->m_hMesh);
     const ezMeshResource::Part& meshPart = pMesh->GetParts()[pRenderData->m_uiPartIndex];
 
-    ezResourceLock<ezMeshBufferResource> pMeshBuffer(meshPart.m_hMeshBuffer);
-    pMeshBuffer->Draw(meshPart.m_uiNumPrimitives, meshPart.m_uiStartPrimitive);
+    if (pRenderData->m_hMaterial != hLastMaterial)
+    {
+      ezRenderHelper::SetMaterialState(pContext, pRenderData->m_hMaterial);
+      hLastMaterial = pRenderData->m_hMaterial;
+    }
 
+    ezRenderHelper::DrawMeshBuffer(pContext, meshPart.m_hMeshBuffer, meshPart.m_uiPrimitiveCount, meshPart.m_uiFirstPrimitive);
+    
     ++uiDataRendered;
   }
 

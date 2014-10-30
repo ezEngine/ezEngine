@@ -6,6 +6,7 @@
 
 struct ezMaterialResourceDescriptor
 {
+  ezShaderResourceHandle m_hShader;
 };
 
 class EZ_RENDERERCORE_DLL ezMaterialResource : public ezResource<ezMaterialResource, ezMaterialResourceDescriptor>
@@ -14,6 +15,11 @@ class EZ_RENDERERCORE_DLL ezMaterialResource : public ezResource<ezMaterialResou
 
 public:
   ezMaterialResource();
+
+  EZ_FORCE_INLINE ezShaderResourceHandle GetShader()
+  {
+    return m_hShader;
+  }
 
 private:
   virtual void UnloadData(bool bFullUnload) override;

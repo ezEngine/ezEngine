@@ -24,11 +24,11 @@ void ezView::ExtractData()
   m_pRenderPipeline->ExtractData(*m_pWorld, *m_pLogicCamera);
 }
 
-void ezView::Render()
+void ezView::Render(ezGALContext* pContext)
 {
   EZ_ASSERT(IsValid(), "Cannot render an invalid view");
 
   EZ_PROFILE(m_RenderProfilingID);
 
-  m_pRenderPipeline->Render(*m_pRenderCamera);
+  m_pRenderPipeline->Render(*m_pRenderCamera, pContext);
 }

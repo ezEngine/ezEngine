@@ -10,7 +10,6 @@ ezMeshBufferResourceDescriptor::ezMeshBufferResourceDescriptor()
 {
   m_uiVertexSize = 0;
   m_uiVertexCount = 0;
-  m_pDevice = nullptr;
 }
 
 const ezDynamicArray<ezUInt8>& ezMeshBufferResourceDescriptor::GetVertexBufferData() const
@@ -140,13 +139,13 @@ void ezMeshBufferResource::UnloadData(bool bFullUnload)
 {
   if (!m_hVertexBuffer.IsInvalidated())
   {
-    m_pDevice->DestroyBuffer(m_hVertexBuffer);
+    ezGALDevice::GetDefaultDevice()->DestroyBuffer(m_hVertexBuffer);
     m_hVertexBuffer.Invalidate();
   }
 
   if (!m_hIndexBuffer.IsInvalidated())
   {
-    m_pDevice->DestroyBuffer(m_hIndexBuffer);
+    ezGALDevice::GetDefaultDevice()->DestroyBuffer(m_hIndexBuffer);
     m_hIndexBuffer.Invalidate();
   }
 
@@ -173,13 +172,10 @@ void ezMeshBufferResource::CreateResource(const ezMeshBufferResourceDescriptor& 
   EZ_ASSERT(m_hVertexBuffer.IsInvalidated(), "Implementation error");
   EZ_ASSERT(m_hIndexBuffer.IsInvalidated(), "Implementation error");
 
-  EZ_ASSERT(descriptor.m_pDevice != nullptr, "Device was not set");
-  m_pDevice = descriptor.m_pDevice;
-
-  m_hVertexBuffer = descriptor.m_pDevice->CreateVertexBuffer(descriptor.GetVertexDataSize(), descriptor.GetVertexCount(), &(descriptor.GetVertexBufferData()[0]));
+  m_hVertexBuffer = ezGALDevice::GetDefaultDevice()->CreateVertexBuffer(descriptor.GetVertexDataSize(), descriptor.GetVertexCount(), &(descriptor.GetVertexBufferData()[0]));
 
   if (descriptor.HasIndexBuffer())
-    m_hIndexBuffer = descriptor.m_pDevice->CreateIndexBuffer(descriptor.Uses32BitIndices() ? ezGALIndexType::UInt : ezGALIndexType::UShort, descriptor.GetPrimitiveCount() * 3, &(descriptor.GetIndexBufferData()[0]));
+    m_hIndexBuffer = ezGALDevice::GetDefaultDevice()->CreateIndexBuffer(descriptor.Uses32BitIndices() ? ezGALIndexType::UInt : ezGALIndexType::UShort, descriptor.GetPrimitiveCount() * 3, &(descriptor.GetIndexBufferData()[0]));
 
   m_uiPrimitiveCount = descriptor.GetPrimitiveCount();
 
@@ -191,43 +187,3 @@ void ezMeshBufferResource::CreateResource(const ezMeshBufferResourceDescriptor& 
   SetMemoryUsageCPU(0);
   SetMemoryUsageGPU(descriptor.GetVertexBufferData().GetCount() + descriptor.GetIndexBufferData().GetCount());
 }
-
-void ezMeshBufferResource::BindResource()
-{
-  EZ_ASSERT(!m_hVertexBuffer.IsInvalidated(), "Cannot bind a resource that hasn't been created");
-
-  m_pDevice->GetPrimaryContext()->SetVertexBuffer(0, m_hVertexBuffer);
-
-  if (!m_hIndexBuffer.IsInvalidated())
-    m_pDevice->GetPrimaryContext()->SetIndexBuffer(m_hIndexBuffer);
-
-  m_pDevice->GetPrimaryContext()->SetPrimitiveTopology(ezGALPrimitiveTopology::Triangles);
-}
-
-void ezMeshBufferResource::Draw(ezUInt32 uiNumPrimitives, ezUInt32 uiFirstPrimitive)
-{
-  BindResource();
-
-  EZ_ASSERT(uiFirstPrimitive < m_uiPrimitiveCount, "You are doing it wrong");
-
-  uiNumPrimitives = ezMath::Min(uiNumPrimitives, m_uiPrimitiveCount - uiFirstPrimitive);
-
-  EZ_ASSERT(uiNumPrimitives > 0, "You are doing it wrong");
-
-  if (!m_hIndexBuffer.IsInvalidated())
-  {
-    // draw indexed
-    m_pDevice->GetPrimaryContext()->DrawIndexed(uiNumPrimitives * 3, uiFirstPrimitive * 3);
-
-  }
-  else
-  {
-    // draw not indexed
-
-    /// \todo draw without indices cannot have a start offset ?
-    m_pDevice->GetPrimaryContext()->Draw(uiNumPrimitives * 3, uiFirstPrimitive * 3);
-  }
-
-  /// \todo Instancing etc. ?
-}
-

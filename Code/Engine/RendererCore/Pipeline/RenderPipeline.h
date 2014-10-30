@@ -12,11 +12,17 @@ class ezCamera;
 class EZ_RENDERERCORE_DLL ezRenderPipeline
 {
 public:
-  ezRenderPipeline(ezGALDevice* pDevice, bool bAsynchronous);
+  enum Mode
+  {
+    Synchronous,
+    Asynchronous
+  };
+
+  ezRenderPipeline(Mode mode);
   ~ezRenderPipeline();
 
   void ExtractData(ezWorld& world, const ezCamera& camera);
-  void Render(const ezCamera& camera);
+  void Render(const ezCamera& camera, ezGALContext* pContext);
 
   void AddPass(ezRenderPipelinePass* pPass);
   void RemovePass(ezRenderPipelinePass* pPass);
@@ -29,11 +35,6 @@ public:
   EZ_FORCE_INLINE const ezRectFloat& GetViewport() const
   {
     return m_ViewPortRect;
-  }
-
-  EZ_FORCE_INLINE ezGALDevice* GetDevice()
-  {
-    return m_pDevice;
   }
 
   EZ_FORCE_INLINE const ezMat4& GetViewMatrix() const
@@ -49,6 +50,16 @@ public:
   EZ_FORCE_INLINE const ezMat4& GetViewProjectionMatrix() const
   {
     return m_ViewProjectionMatrix;
+  }
+
+  EZ_FORCE_INLINE const ezCamera* GetCurrentCamera() const
+  {
+    return m_pCurrentCamera;
+  }
+
+  EZ_FORCE_INLINE ezGALContext* GetCurrentContext()
+  {
+    return m_pCurrentContext;
   }
 
   template <typename T>
@@ -107,7 +118,7 @@ private:
     ezHybridArray<PassData, 8> m_PassData;
   };
 
-  bool m_bAsynchronous;
+  Mode m_Mode;
 
   PipelineData m_Data[2];
 
@@ -123,7 +134,8 @@ private:
   ezMat4 m_ProjectionMatrix;
   ezMat4 m_ViewProjectionMatrix;
 
-  ezGALDevice* m_pDevice;
+  const ezCamera* m_pCurrentCamera;
+  ezGALContext* m_pCurrentContext;
 
   static ezRenderPassType s_uiNextPassType;
 

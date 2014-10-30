@@ -9,6 +9,8 @@
 #include <Foundation/Threading/ThreadUtils.h>
 #include <Foundation/Logging/Log.h>
 
+ezGALDevice* ezGALDevice::s_pDefaultDevice = nullptr;
+
 ezGALDevice::ezGALDevice(const ezGALDeviceCreationDescription& Description)
   : m_Description(Description),
     m_pPrimaryContext(nullptr)

@@ -32,6 +32,16 @@ public:
     return m_hMesh;
   }
 
+  EZ_FORCE_INLINE void SetMaterial(ezUInt32 uiIndex, const ezMaterialResourceHandle& hMaterial)
+  {
+    m_Materials[uiIndex] = hMaterial;
+  }
+
+  EZ_FORCE_INLINE ezMaterialResourceHandle GetMaterial(ezUInt32 uiIndex)
+  {
+    return m_Materials[uiIndex];
+  }
+
   virtual ezResult OnAttachedToObject() override;
   virtual ezResult OnDetachedFromObject() override;
 

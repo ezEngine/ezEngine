@@ -23,11 +23,12 @@ void ezMeshResource::UpdateMemoryUsage()
 
 void ezMeshResource::CreateResource(const ezMeshResourceDescriptor& descriptor)
 {
+  /// \todo proper implementation
   ezResourceLock<ezMeshBufferResource> pMeshBuffer(descriptor.hMeshBuffer);
 
   Part part;
-  part.m_uiStartPrimitive = 0;
-  part.m_uiNumPrimitives = pMeshBuffer->GetPrimitiveCount();
+  part.m_uiPrimitiveCount = pMeshBuffer->GetPrimitiveCount();
+  part.m_uiFirstPrimitive = 0;  
   part.m_uiMaterialIndex = 0;
   part.m_hMeshBuffer = descriptor.hMeshBuffer;
 

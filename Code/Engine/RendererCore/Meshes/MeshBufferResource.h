@@ -57,9 +57,6 @@ public:
   /// \brief Allows to read the stream info of the descriptor, which is filled out by AddStream()
   const ezHybridArray<StreamInfo, 16>& GetStreamInfo() const { return m_Streams; }
 
-  /// \brief The device on which the resource shall be created. Must be filled out!
-  ezGALDevice* m_pDevice;
-
   /// \brief Returns the byte size of all the data for one vertex.
   ezUInt32 GetVertexDataSize() const { return m_uiVertexSize; }
 
@@ -94,12 +91,6 @@ public:
 
   /// \todo Copy the vertex stream format/semantic info for vertex declaration creation
 
-  /// \todo Where do we put this ?
-  void BindResource(/* context? */);
-
-  /// \todo Where do we put this ?
-  void Draw(ezUInt32 uiNumPrimitives = 0xFFFFFFFF, ezUInt32 uiFirstPrimitive = 0);
-
   EZ_FORCE_INLINE ezUInt32 GetPrimitiveCount() const
   {
     return m_uiPrimitiveCount;
@@ -124,6 +115,5 @@ private:
   ezUInt32 m_uiPrimitiveCount;
   ezGALBufferHandle m_hVertexBuffer;
   ezGALBufferHandle m_hIndexBuffer;
-  ezGALDevice* m_pDevice; // default device somewhere ?
 };
 

@@ -6,6 +6,7 @@
 
 class ezWorld;
 class ezCamera;
+class ezGALContext;
 class ezRenderPipeline;
 
 /// \brief Encapsulates a view on the given world through the given camera and rendered with the specified RenderPipeline.
@@ -37,7 +38,7 @@ public:
   void ExtractData();
 
   /// \brief Renders the extracted data with the view's pipeline.
-  void Render();
+  void Render(ezGALContext* pContext);
 
 private:
   ezHashedString m_sName;

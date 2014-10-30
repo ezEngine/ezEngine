@@ -20,10 +20,8 @@ void ezRenderPipelinePass::AddRenderer(ezRenderer* pRenderer)
   }
 }
 
-void ezRenderPipelinePass::Run(const ezCamera& camera)
+void ezRenderPipelinePass::Run()
 {
-  m_pCurrentCamera = &camera;
-
   EZ_PROFILE(m_ProfilingID);
 
   Execute();

@@ -161,7 +161,7 @@ void ezGALContext::DrawInstancedIndirect(ezGALBufferHandle hIndirectArgumentBuff
   if (ed.m_bCancelDrawcall)
     return;
 
-    ezGALBuffer* pBuffer = m_pDevice->m_Buffers[hIndirectArgumentBuffer];
+  ezGALBuffer* pBuffer = m_pDevice->m_Buffers[hIndirectArgumentBuffer];
   EZ_ASSERT(pBuffer != nullptr, "Invalid buffer handle for indirect arguments!");
 
   /// \todo Assert that the buffer can be used for indirect arguments (flag in desc)
