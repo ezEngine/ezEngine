@@ -779,6 +779,15 @@ void ezStringBuilder::ChangeFileExtension(const char* szNewExtension)
     ReplaceSubString(it.GetData(), it.GetEndPosition(), szNewExtension);
 }
 
+void ezStringBuilder::RemoveFileExtension()
+{
+  if (HasAnyExtension())
+  {
+    ChangeFileExtension("");
+    Shrink(0, 1); // remove the dot
+  }
+}
+
 void ezStringBuilder::MakeRelativeTo(const char* szAbsolutePathToMakeThisRelativeTo)
 {
   ezStringBuilder sAbsBase = szAbsolutePathToMakeThisRelativeTo;  sAbsBase.MakeCleanPath();

@@ -318,6 +318,9 @@ public:
   /// szNewExtension must not start with a dot.
   void ChangeFileExtension(const char* szNewExtension); // [tested]
 
+  /// \brief If any extension exists, it is removed, including the dot before it.
+  void RemoveFileExtension();
+
   /// \brief Converts this path into a relative path to the path with the awesome variable name 'szAbsolutePathToMakeThisRelativeTo'
   void MakeRelativeTo(const char* szAbsolutePathToMakeThisRelativeTo); // [tested]
 
