@@ -31,6 +31,8 @@ public:
   ezDocumentWindow(const char* szUniqueName);
   ~ezDocumentWindow();
 
+  void EnsureVisible();
+
   virtual ezString GetDisplayName() const { return GetUniqueName(); }
   virtual ezString GetDisplayNameShort() const { return GetDisplayName(); }
 

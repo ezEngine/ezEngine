@@ -65,7 +65,7 @@ public:
 public:
 
   static const ezString& GetApplicationName() { return s_sApplicationName; }
-  //Sstatic const ezString& GetApplicationUserName() { return s_sUserName; }
+  static const ezString& GetApplicationUserName() { return s_sUserName; }
 
   static const ezPluginSet& GetEditorPluginsAvailable();
   static const ezPluginSet& GetEditorPluginsActive() { return s_EditorPluginsActive; }
@@ -77,15 +77,10 @@ public:
 
   static void ShowPluginConfigDialog();
 
-  //enum class SettingsCategory
-  //{
-  //  Editor,
-  //  Project,
-  //  Scene
-  //};
-
-  //static ezSettings& GetSettings(SettingsCategory category, const char* szPlugin = "Main");
-  //static void SaveSettings();
+  static ezSettings& GetEditorSettings(const char* szPlugin = "Main");
+  static ezSettings& GetProjectSettings(const char* szPlugin = "Main");
+  static ezSettings& GetDocumentSettings(const char* szDocument, const char* szPlugin = "Main");
+  static void SaveSettings();
 
   //static const ezString& GetProjectPath() { return s_sProjectPath; }
 
@@ -112,6 +107,8 @@ public:
   static void AddDocumentWindow(ezDocumentWindow* pWindow);
 
 private:
+  static ezSettings& GetSettings(ezMap<ezString, ezSettings>& SettingsMap, const char* szPlugin, const char* szSearchPath);
+
   static ezHybridArray<ezContainerWindow*, 4> s_ContainerWindows;
   static ezMap<ezString, ezDocumentWindow*> s_DocumentWindows;
 
@@ -126,7 +123,7 @@ private:
   static void ReadPluginsToBeLoaded();
 
   static ezString s_sApplicationName;
-  //static ezString s_sUserName;
+  static ezString s_sUserName;
   //static bool s_bContentModified;
 
   //static ezString s_sProjectPath;
@@ -141,7 +138,9 @@ private:
   //static void ClearSettingsProject();
   //static void ClearSettingsScene();
 
-  //static ezMap<ezString, ezSettings> s_Settings[3];
+  static ezMap<ezString, ezSettings> s_EditorSettings;
+  static ezMap<ezString, ezSettings> s_ProjectSettings;
+  static ezMap<ezString, ezMap<ezString, ezSettings> > s_DocumentSettings;
 
   static QApplication* s_pQtApplication;
 };

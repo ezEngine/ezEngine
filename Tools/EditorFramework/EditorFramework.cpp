@@ -15,7 +15,7 @@
 #include <qstylefactory.h>
 
 ezString ezEditorFramework::s_sApplicationName("ezEditor");
-//ezString ezEditorFramework::s_sUserName("DefaultUser");
+ezString ezEditorFramework::s_sUserName("DefaultUser");
 //bool ezEditorFramework::s_bContentModified = false;
 ezHybridArray<ezContainerWindow*, 4> ezEditorFramework::s_ContainerWindows;
 QApplication* ezEditorFramework::s_pQtApplication = nullptr;
@@ -77,7 +77,7 @@ void ezEditorFramework::StartupEditor(ezStringView sAppName, ezStringView sUserN
   SetStyleSheet();
 
   s_sApplicationName = sAppName;
-  //s_sUserName = sUserName;
+  s_sUserName = sUserName;
   //UpdateEditorWindowTitle();
 
   // load the settings
@@ -102,13 +102,11 @@ void ezEditorFramework::StartupEditor(ezStringView sAppName, ezStringView sUserN
   ezEditorGUI::GetInstance()->LoadState();
 
   ezEditorFramework::LoadPlugins();
-
-  //s_ContainerWindows[0]->RestoreWindowLayout();
 }
 
 void ezEditorFramework::ShutdownEditor()
 {
-  //SaveSettings();
+  SaveSettings();
 
   //CloseProject();
 

@@ -11,7 +11,7 @@ void ezEditorGUI::ShowColorDialog(const ezColor& color, bool bAlpha, QWidget* pP
 
   m_pColorDlg = new QColorDialog (col, pParent);
   m_pColorDlg->move(m_ColorDlgPos);
-  m_pColorDlg->setOption (QColorDialog::ShowAlphaChannel, true);
+  m_pColorDlg->setOption (QColorDialog::ShowAlphaChannel, bAlpha);
   EZ_VERIFY(QWidget::connect(m_pColorDlg, SIGNAL(currentColorChanged(const QColor&)), pParent, slotCurColChanged) != nullptr, "signal/slot connection failed");
   EZ_VERIFY(QWidget::connect(m_pColorDlg, SIGNAL(accepted()), pParent, slotAccept) != nullptr, "signal/slot connection failed");
   EZ_VERIFY(QWidget::connect(m_pColorDlg, SIGNAL(rejected()), pParent, slotReject) != nullptr, "signal/slot connection failed");

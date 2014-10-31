@@ -74,25 +74,6 @@ void ezRawPropertyGridWidget::BuildUI(const ezIReflectedTypeAccessor& et, const 
 
   if (pType->GetPropertyCount() == 0)
     return;
-  //pLayout->setSpacing(10);
-  //pLayout->setMargin(0);
-  //QFrame* pTypeGroup = new QFrame((QWidget*) pLayout->parent());
-  //pTypeGroup->setAutoFillBackground(true);
-  //pTypeGroup->setFrameShadow(QFrame::Shadow::Sunken);
-  //pTypeGroup->setFrameShape(QFrame::Shape::Box);
-  //pTypeGroup->setLineWidth(1);
-  //pTypeGroup->setMidLineWidth(0);
-  ////pTypeGroup->setTitle(QString::fromUtf8(pType->GetTypeName().GetString().GetData()));
-
-  //QVBoxLayout* pTypeLayout = new QVBoxLayout(pTypeGroup);
-  //pTypeLayout->setMargin(0);
-  ////pTypeLayout->setContentsMargins(0, 20, 0, 20);
-  //pTypeLayout->setSpacing(1);
-  //pTypeGroup->setLayout(pTypeLayout);
-
-  //pLayout->addWidget(pTypeGroup);
-
-  //pLayout = pTypeLayout;
 
   for (ezUInt32 i = 0; i < pType->GetPropertyCount(); ++i)
   {

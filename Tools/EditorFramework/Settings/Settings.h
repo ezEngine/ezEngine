@@ -29,7 +29,13 @@ EZ_DECLARE_FLAGS_OPERATORS(ezSettingsFlags);
 
 class EZ_EDITORFRAMEWORK_DLL ezSettings
 {
+
 public:
+  struct VariableValue
+  {
+    ezBitflags<ezSettingsFlags> m_Flags;
+    ezVariant m_Value;
+  };
 
   void RegisterValueBool(const char* szKey, bool Default, ezBitflags<ezSettingsFlags> flags = ezSettingsFlags::None);
   void RegisterValueInt(const char* szKey, ezInt32 Default, ezBitflags<ezSettingsFlags> flags = ezSettingsFlags::None);
@@ -52,12 +58,10 @@ public:
   void WriteToJSON(ezStreamWriterBase& stream, bool bNonUserSettings, bool bUserSettings) const;
   void ReadFromJSON(ezStreamReaderBase& stream);
 
+  const ezMap<ezString, VariableValue>& GetAllSettings() const { return m_Settings; }
+  ezMap<ezString, VariableValue>& GetAllSettings() { return m_Settings; }
+
 private:
-  struct VariableValue
-  {
-    ezBitflags<ezSettingsFlags> m_Flags;
-    ezVariant m_Value;
-  };
 
   ezMap<ezString, VariableValue> m_Settings;
 

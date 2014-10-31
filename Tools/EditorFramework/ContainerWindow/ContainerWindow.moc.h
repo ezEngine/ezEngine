@@ -18,11 +18,16 @@ public:
   void MoveDocumentWindowToContainer(ezDocumentWindow* pDocWindow);
 
 
+private:
+  friend class ezDocumentWindow;
+
+  void EnsureVisible(ezDocumentWindow* pDocWindow);
+
 private slots:
   void SlotDocumentTabCloseRequested(int index);
   void SlotMenuSettingsPlugins();
   void SlotRestoreLayout();
-
+  void SlotSettings();
 
 private:
   void SaveWindowLayout();
@@ -40,6 +45,7 @@ private:
 private:
   ezDynamicArray<ezDocumentWindow*> m_DocumentWindows;
 
+  QAction* m_pActionSettings;
 };
 
 

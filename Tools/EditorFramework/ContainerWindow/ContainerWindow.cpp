@@ -2,10 +2,13 @@
 #include <EditorFramework/ContainerWindow/ContainerWindow.moc.h>
 #include <EditorFramework/DocumentWindow/DocumentWindow.moc.h>
 #include <EditorFramework/EditorFramework.h>
+#include <EditorFramework/Settings/SettingsTab.moc.h>
 #include <QSettings>
 #include <QMenu>
 #include <QMenuBar>
 #include <QTimer>
+#include <QPushButton>
+#include <QToolButton>
 
 ezContainerWindow::ezContainerWindow()
 {
@@ -113,6 +116,28 @@ void ezContainerWindow::SetupDocumentTabArea()
 
   EZ_VERIFY(connect(pTabs, SIGNAL(tabCloseRequested(int)), this, SLOT(SlotDocumentTabCloseRequested(int))) != nullptr, "signal/slot connection failed");
 
+  m_pActionSettings = new QAction("Settings", this);
+  EZ_VERIFY(connect(m_pActionSettings, SIGNAL(triggered()), this, SLOT(SlotSettings())) != nullptr, "signal/slot connection failed");
+
+  QToolButton* pButton = new QToolButton();
+  pButton->setText("+");
+  pButton->setIcon(QIcon(QLatin1String(":/Icons/Icons/ezEditor16.png")));
+  pButton->setAutoRaise(true);
+  pButton->setToolButtonStyle(Qt::ToolButtonStyle::ToolButtonTextOnly);
+  pButton->setPopupMode(QToolButton::ToolButtonPopupMode::InstantPopup);
+  pButton->setArrowType(Qt::ArrowType::NoArrow);
+  pButton->setStyleSheet("QToolButton::menu-indicator { image: none; }");
+  pButton->setMenu(new QMenu());
+  pButton->menu()->addAction("Create Document");
+  pButton->menu()->addAction("Open Document");
+  pButton->menu()->addSeparator();
+  pButton->menu()->addAction("Create Project");
+  pButton->menu()->addAction("Open Project");
+  pButton->menu()->addSeparator();
+  pButton->menu()->addAction(m_pActionSettings);
+
+  pTabs->setCornerWidget(pButton, Qt::Corner::TopLeftCorner);
+
   setCentralWidget(pTabs);
 }
 
@@ -157,6 +182,17 @@ void ezContainerWindow::MoveDocumentWindowToContainer(ezDocumentWindow* pDocWind
   pTabs->addTab(pDocWindow, QString::fromUtf8(pDocWindow->GetDisplayNameShort()));
 }
 
+void ezContainerWindow::EnsureVisible(ezDocumentWindow* pDocWindow)
+{
+  if (m_DocumentWindows.IndexOf(pDocWindow) == ezInvalidIndex)
+    return;
+
+  QTabWidget* pTabs = (QTabWidget*) centralWidget();
+  EZ_ASSERT(pTabs != nullptr, "The central widget is NULL");
+
+  pTabs->setCurrentWidget(pDocWindow);
+}
+
 void ezContainerWindow::SlotDocumentTabCloseRequested(int index)
 {
   QTabWidget* pTabs = (QTabWidget*) centralWidget();
@@ -168,6 +204,7 @@ void ezContainerWindow::SlotDocumentTabCloseRequested(int index)
     return;
 
   pDocWindow->CloseDocument();
+  delete pDocWindow;
 }
 
 void ezContainerWindow::DocumentWindowEventHandler(const ezDocumentWindow::Event& e)
@@ -179,3 +216,18 @@ void ezContainerWindow::DocumentWindowEventHandler(const ezDocumentWindow::Event
     break;
   }
 }
+
+void ezContainerWindow::SlotSettings()
+{
+  ezSettingsTab* pSettingsTab = ezSettingsTab::GetInstance();
+
+  if (pSettingsTab == nullptr)
+  {
+    pSettingsTab = new ezSettingsTab();
+
+    ezEditorFramework::AddDocumentWindow(pSettingsTab);
+  }
+
+  pSettingsTab->EnsureVisible();
+}
+

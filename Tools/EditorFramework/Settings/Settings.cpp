@@ -8,8 +8,6 @@
 #include <Foundation/IO/FileSystem/FileWriter.h>
 
 
-//ezMap<ezString, ezSettings> ezEditorFramework::s_Settings[3];
-
 void ezSettings::RegisterValueBool(const char* szKey, bool Default, ezBitflags<ezSettingsFlags> flags)
 {
   if (!m_Settings.Find(szKey).IsValid())
@@ -214,30 +212,39 @@ void ezSettings::ReadFromJSON(ezStreamReaderBase& stream)
   }
 }
 
-/*
-ezSettings& ezEditorFramework::GetSettings(SettingsCategory category, const char* szPlugin)
+ezMap<ezString, ezSettings> ezEditorFramework::s_EditorSettings;
+ezMap<ezString, ezSettings> ezEditorFramework::s_ProjectSettings;
+ezMap<ezString, ezMap<ezString, ezSettings> > ezEditorFramework::s_DocumentSettings;
+
+ezSettings& ezEditorFramework::GetEditorSettings(const char* szPlugin)
+{
+  return GetSettings(s_EditorSettings, szPlugin, "");
+}
+
+ezSettings& ezEditorFramework::GetProjectSettings(const char* szPlugin)
+{
+  return GetSettings(s_ProjectSettings, szPlugin, "Project"); // TODO
+}
+
+ezSettings& ezEditorFramework::GetDocumentSettings(const char* szDocument, const char* szPlugin)
+{
+  ezStringBuilder sPath = szDocument;
+  sPath.Append("_data"); // TODO
+
+  return GetSettings(s_DocumentSettings[szDocument], szPlugin, sPath);
+}
+
+ezSettings& ezEditorFramework::GetSettings(ezMap<ezString, ezSettings>& SettingsMap, const char* szPlugin, const char* szSearchPath)
 {
   bool bExisted = false;
 
-  auto itSett = s_Settings[(int) category].FindOrAdd(szPlugin, &bExisted);
+  auto itSett = s_EditorSettings.FindOrAdd(szPlugin, &bExisted);
 
   ezSettings& settings = itSett.Value();
 
   if (!bExisted)
   {
-    ezStringBuilder sPath;
-
-    switch (category)
-    {
-    case SettingsCategory::Editor:
-      break;
-    case SettingsCategory::Project:
-      sPath = GetProjectDataFolder();
-      break;
-    //case SettingsCategory::Scene:
-    //  sPath = GetSceneDataFolder();
-    //  break;
-    }
+    ezStringBuilder sPath = szSearchPath;
 
     sPath.AppendPath("Settings", szPlugin);
     sPath.ChangeFileExtension("settings");
@@ -262,7 +269,7 @@ ezSettings& ezEditorFramework::GetSettings(SettingsCategory category, const char
 
   return settings;
 }
-*/
+
 /*
 
 void ezEditorFramework::ClearSettingsProject()
@@ -278,11 +285,11 @@ void ezEditorFramework::ClearSettingsScene()
 
   s_Settings[(int) SettingsCategory::Scene].Clear();
 }
-
+*/
 void ezEditorFramework::SaveSettings()
 {
   {
-    for (auto it = s_Settings[(int) SettingsCategory::Editor].GetIterator(); it.IsValid(); ++it)
+    for (auto it = s_EditorSettings.GetIterator(); it.IsValid(); ++it)
     {
       ezSettings& settings = it.Value();
 
@@ -309,34 +316,34 @@ void ezEditorFramework::SaveSettings()
     }
   }
 
-  if (!GetProjectPath().IsEmpty())
-  {
-    for (auto it = s_Settings[(int) SettingsCategory::Project].GetIterator(); it.IsValid(); ++it)
-    {
-      ezSettings& settings = it.Value();
+  //if (!GetProjectPath().IsEmpty())
+  //{
+  //  for (auto it = s_Settings[(int) SettingsCategory::Project].GetIterator(); it.IsValid(); ++it)
+  //  {
+  //    ezSettings& settings = it.Value();
 
-      ezStringBuilder sPath = GetProjectDataFolder();
-      sPath.AppendPath("Settings", it.Key().GetData());
-      sPath.ChangeFileExtension("settings");
+  //    ezStringBuilder sPath = GetProjectDataFolder();
+  //    sPath.AppendPath("Settings", it.Key().GetData());
+  //    sPath.ChangeFileExtension("settings");
 
-      ezFileWriter file;
-      if (file.Open(sPath.GetData()).Succeeded())
-      {
-        settings.WriteToJSON(file, true, false);
-        file.Close();
-      }
+  //    ezFileWriter file;
+  //    if (file.Open(sPath.GetData()).Succeeded())
+  //    {
+  //      settings.WriteToJSON(file, true, false);
+  //      file.Close();
+  //    }
 
-      ezStringBuilder sUserFile;
-      sUserFile.Append(GetApplicationUserName().GetData(), ".usersettings");
-      sPath.ChangeFileExtension(sUserFile.GetData());
+  //    ezStringBuilder sUserFile;
+  //    sUserFile.Append(GetApplicationUserName().GetData(), ".usersettings");
+  //    sPath.ChangeFileExtension(sUserFile.GetData());
 
-      if (file.Open(sPath.GetData()).Succeeded())
-      {
-        settings.WriteToJSON(file, false, true);
-        file.Close();
-      }
-    }
-  }
+  //    if (file.Open(sPath.GetData()).Succeeded())
+  //    {
+  //      settings.WriteToJSON(file, false, true);
+  //      file.Close();
+  //    }
+  //  }
+  //}
 
   //if (!GetScenePath().IsEmpty())
   //{
@@ -370,4 +377,3 @@ void ezEditorFramework::SaveSettings()
 
 
 
-*/

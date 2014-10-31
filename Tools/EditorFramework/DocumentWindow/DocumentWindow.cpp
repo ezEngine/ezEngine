@@ -136,6 +136,9 @@ void ezDocumentWindow::InternalCloseDocument()
 {
 }
 
-
+void ezDocumentWindow::EnsureVisible()
+{
+  m_pContainerWindow->EnsureVisible(this);
+}
 
 
