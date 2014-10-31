@@ -37,6 +37,7 @@
 
 #include <CoreUtils/Debugging/DataTransfer.h>
 
+#include <RendererCore/Pipeline/RenderHelper.h>
 #include <RendererCore/ShaderCompiler/ShaderCompiler.h>
 #include <RendererCore/ShaderCompiler/ShaderManager.h>
 
@@ -147,6 +148,8 @@ public:
     m_pDevice = EZ_DEFAULT_NEW(ezGALDeviceDX11)(DeviceInit);
 #endif
     EZ_VERIFY(m_pDevice->Init() == EZ_SUCCESS, "Device init failed!");
+
+    ezGALDevice::SetDefaultDevice(m_pDevice);
 
     // Get the primary swapchain (this one will always be created by device init except if the user instructs no swap chain creation explicitly)
     ezGALSwapChainHandle hPrimarySwapChain = m_pDevice->GetPrimarySwapChain();
@@ -352,13 +355,7 @@ public:
 
     pContext->SetConstantBuffer(1, m_hCB);
 
-    //pContext->DrawIndexed(m_pObj->GetPrimitiveCount() * 3, 0);
-
-    {
-      ezResourceLock<ezMeshBufferResource> pMeshBuffer (m_pObj[m_iCurObject]->m_hMeshBuffer);
-
-      pMeshBuffer->Draw();
-    }
+    ezRenderHelper::DrawMeshBuffer(pContext, m_pObj[m_iCurObject]->m_hMeshBuffer);
 
 
     // Readback: Currently not supported for MSAA since Resolve() is not implemented
