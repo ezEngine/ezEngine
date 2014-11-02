@@ -18,7 +18,7 @@
 /// This is particularly useful when editing entities in a hierarchical structure.
 ///
 /// Since the 'm_Rotation' member is a full ezMat3, it may also contain scaling, including non-uniform scaling and shearing.
-class ezTransform
+class EZ_FOUNDATION_DLL ezTransform
 {
   // *** Data ***
 public:

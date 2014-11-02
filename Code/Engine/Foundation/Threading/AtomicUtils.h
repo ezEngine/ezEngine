@@ -11,7 +11,7 @@
 /// does not need to be thread-safe.
 /// ezAtomicInteger is built on top of ezAtomicUtils and provides a more convenient interface to use atomic
 /// integer instructions.
-struct ezAtomicUtils
+struct EZ_FOUNDATION_DLL ezAtomicUtils
 {
   /// \brief Increments dest as an atomic operation and returns the new value.
   static ezInt32 Increment(volatile ezInt32& dest); // [tested]

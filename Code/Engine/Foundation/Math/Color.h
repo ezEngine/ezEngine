@@ -4,7 +4,7 @@
 #include <Foundation/Math/Vec4.h>
 
 /// \brief A floating point color.
-class ezColor
+class EZ_FOUNDATION_DLL ezColor
 {
 public:
   // Means that colors can be copied using memcpy instead of copy construction.
@@ -48,10 +48,10 @@ public:
   operator ezVec4Template<Type> () const;  // [tested]
 
   /// Conversion to const float*
-  operator const float* () const { return &r; }  // [tested]
+  const float* GetData() const { return &r; }  // [tested]
 
   /// Conversion to float* - use with care!
-  operator float* () { return &r; }  // [tested]
+  float* GetData() { return &r; }  // [tested]
 
   /// \brief Returns RGB  as ezVec3.
   template<typename Type>

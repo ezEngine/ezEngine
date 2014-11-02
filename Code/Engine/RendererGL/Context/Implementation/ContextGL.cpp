@@ -230,7 +230,7 @@ void ezGALContextGL::ClearPlatform(const ezColor& ClearColor, ezUInt32 uiRenderT
   {
     if (uiRenderTargetClearMask & (1u << i))
     {
-      EZ_GL_CALL(glClearBufferfv, GL_COLOR, i, ClearColor);
+      EZ_GL_CALL(glClearBufferfv, GL_COLOR, i, ClearColor.GetData());
     }
   }
 

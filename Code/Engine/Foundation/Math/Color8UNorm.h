@@ -7,7 +7,7 @@
 /// 
 /// For any calculations or conversions use ezColor.
 /// \see ezColor
-class ezColor8UNorm
+class EZ_FOUNDATION_DLL ezColor8UNorm
 {
 public:
   // Means that colors can be copied using memcpy instead of copy construction.
@@ -42,16 +42,13 @@ public:
 public:
 
   /// \brief Conversion to ezColor.
-  operator ezColor () const; // [tested]
+  operator const ezColor () const; // [tested]
 
   /// \brief Conversion to const ezUInt8*.
-  operator const ezUInt8* () const { return &r; } // [tested]
-
-  /// \brief Conversion to const ezUInt32.
-  operator ezUInt32 () const { return *reinterpret_cast<const ezUInt32*>(&r); }
+  const ezUInt8* GetData() const { return &r; } // [tested]
 
   /// \brief Conversion to ezUInt8* - use with care!
-  operator ezUInt8* () { return &r; } // [tested]
+  ezUInt8* GetData() { return &r; } // [tested]
 
   /// \brief Equality Check (bitwise)
   bool IsIdentical(const ezColor8UNorm& rhs) const; // [tested]
@@ -72,7 +69,7 @@ EZ_CHECK_AT_COMPILETIME(sizeof(ezColor8UNorm) == 4);
 /// 
 /// For any calculations or conversions use ezColor.
 /// \see ezColor
-class ezColorBgra8UNorm
+class EZ_FOUNDATION_DLL ezColorBgra8UNorm
 {
 public:
   // Means that colors can be copied using memcpy instead of copy construction.
@@ -107,16 +104,13 @@ public:
 public:
 
   /// \brief Conversion to ezColor.
-  operator ezColor () const; // [tested]
+  operator const ezColor () const; // [tested]
 
   /// \brief Conversion to const ezUInt8*.
-  operator const ezUInt8* () const { return &b; } // [tested]
-
-  /// \brief Conversion to const ezUInt32.
-  operator ezUInt32 () const { return *reinterpret_cast<const ezUInt32*>(&b); }
+  const ezUInt8* GetData() const { return &b; } // [tested]
 
   /// \brief Conversion to ezUInt8* - use with care!
-  operator ezUInt8* () { return &b; } // [tested]
+  ezUInt8* GetData() { return &b; } // [tested]
 
   /// \brief Equality Check (bitwise)
   bool IsIdentical(const ezColorBgra8UNorm& rhs) const; // [tested]

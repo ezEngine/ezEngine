@@ -67,7 +67,7 @@ void ezGALContextDX11::ClearPlatform(const ezColor& ClearColor, ezUInt32 uiRende
   {
     if (uiRenderTargetClearMask & (1u << i))
     {
-      m_pDXContext->ClearRenderTargetView(m_pBoundRenderTargets[i], ClearColor);
+      m_pDXContext->ClearRenderTargetView(m_pBoundRenderTargets[i], ClearColor.GetData());
     }
   }
 

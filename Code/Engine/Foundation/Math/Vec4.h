@@ -50,6 +50,12 @@ public:
   /// \brief Returns an ezVec3Template with x,y and z from this vector.
   const ezVec3Template<Type> GetAsVec3() const;  // [tested]
 
+  /// \brief Returns the data as an array.
+  const Type* GetData() const { return &x; }
+
+  /// \brief Returns the data as an array.
+  Type* GetData() { return &x; }
+
 // *** Functions to set the vector to specific values ***
 public:
 

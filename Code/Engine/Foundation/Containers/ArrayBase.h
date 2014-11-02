@@ -109,6 +109,12 @@ public:
   /// \brief Sort with default comparer
   void Sort(); // [tested]
 
+  /// \brief Returns a pointer to the array data, or nullptr if the array is empty.
+  T* GetData();
+
+  /// \brief Returns a pointer to the array data, or nullptr if the array is empty.
+  const T* GetData() const;
+
 protected:
 
   /// \brief Element-type access to m_Data.

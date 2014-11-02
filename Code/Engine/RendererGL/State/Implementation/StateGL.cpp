@@ -108,7 +108,7 @@ ezResult ezGALSamplerStateGL::InitPlatform(ezGALDevice* pDevice)
   if (EZ_GL_CALL(glSamplerParameteri, m_SamplerStateID, GL_TEXTURE_WRAP_R, s_GALAdressModeToGL[m_Description.m_AddressW]) != EZ_SUCCESS)
     return EZ_FAILURE;
 
-  glSamplerParameterfv(m_SamplerStateID, GL_TEXTURE_BORDER_COLOR, m_Description.m_BorderColor);
+  glSamplerParameterfv(m_SamplerStateID, GL_TEXTURE_BORDER_COLOR, m_Description.m_BorderColor.GetData());
 
 
   // Filter.

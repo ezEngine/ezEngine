@@ -316,3 +316,21 @@ void ezArrayBase<T, Derived>::Sort()
   }
 }
 
+template <typename T, typename Derived>
+T* ezArrayBase<T, Derived>::GetData()
+{
+  if (IsEmpty())
+    return nullptr;
+
+  return m_pElements;
+}
+
+template <typename T, typename Derived>
+const T* ezArrayBase<T, Derived>::GetData() const
+{
+  if (IsEmpty())
+    return nullptr;
+
+  return m_pElements;
+}
+

@@ -7,7 +7,7 @@
 ///
 /// This can be used to protect code that is not thread-safe against race conditions.
 /// To ensure that mutexes are always properly released, use the scoped Lock class.
-class ezMutex
+class EZ_FOUNDATION_DLL ezMutex
 {
 public:
   ezMutex();
@@ -29,7 +29,7 @@ private:
 ///
 /// Used when a mutex object needs to be passed to some code (such as allocators), but thread-synchronization
 /// is actually not necessary.
-class ezNoMutex
+class EZ_FOUNDATION_DLL ezNoMutex
 {
 public:
 

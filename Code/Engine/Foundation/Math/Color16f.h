@@ -7,7 +7,7 @@
 /// 
 /// For any calculations or conversions use ezColor.
 /// \see ezColor
-class ezColor16f
+class EZ_FOUNDATION_DLL ezColor16f
 {
 public:
   // Means that colors can be copied using memcpy instead of copy construction.
@@ -40,16 +40,13 @@ public:
 public:
 
   /// \brief Conversion to ezColor.
-  operator ezColor () const; // [tested]
+  operator const ezColor () const; // [tested]
 
   /// \brief Conversion to const ezFloat16*.
-  operator const ezFloat16* () const { return &r; }
+  const ezFloat16* GetData() const { return &r; }
 
   /// \brief Conversion to ezFloat16* - use with care!
-  operator ezFloat16* () { return &r; }
-
-  /// \brief Conversion to const ezUInt64.
-  operator ezUInt64 () const { return *reinterpret_cast<const ezUInt64*>(&r); }
+  ezFloat16* GetData() { return &r; }
 
   /// \brief Equality Check (bitwise)
   bool IsIdentical(const ezColor16f& rhs) const; // [tested]

@@ -59,10 +59,10 @@ EZ_CREATE_SIMPLE_TEST(Math, Color8UNorm)
 
     EZ_TEST_BLOCK(ezTestBlock::Enabled, "Conversion ezUInt*")
     {
-      const ezUInt8* pUIntsConst = static_cast<const ezUInt8*>(cornflowerBlue);
+      const ezUInt8* pUIntsConst = cornflowerBlue.GetData();
       EZ_TEST_BOOL(pUIntsConst[0] == cornflowerBlue.r && pUIntsConst[1] == cornflowerBlue.g && pUIntsConst[2] == cornflowerBlue.b && pUIntsConst[3] == cornflowerBlue.a);
 
-      ezUInt8* pUInts = static_cast<ezUInt8*>(cornflowerBlue);
+      ezUInt8* pUInts = cornflowerBlue.GetData();
       EZ_TEST_BOOL(pUInts[0] == cornflowerBlue.r && pUInts[1] == cornflowerBlue.g && pUInts[2] == cornflowerBlue.b && pUInts[3] == cornflowerBlue.a);
     }
   }
@@ -152,10 +152,10 @@ EZ_CREATE_SIMPLE_TEST(Math, ColorBgra8UNorm)
 
     EZ_TEST_BLOCK(ezTestBlock::Enabled, "Conversion ezUInt*")
     {
-      const ezUInt8* pUIntsConst = static_cast<const ezUInt8*>(cornflowerBlue);
+      const ezUInt8* pUIntsConst = cornflowerBlue.GetData();
       EZ_TEST_BOOL(pUIntsConst[0] == cornflowerBlue.b && pUIntsConst[1] == cornflowerBlue.g && pUIntsConst[2] == cornflowerBlue.r && pUIntsConst[3] == cornflowerBlue.a);
 
-      ezUInt8* pUInts = static_cast<ezUInt8*>(cornflowerBlue);
+      ezUInt8* pUInts = cornflowerBlue.GetData();
       EZ_TEST_BOOL(pUInts[0] == cornflowerBlue.b && pUInts[1] == cornflowerBlue.g && pUInts[2] == cornflowerBlue.r && pUInts[3] == cornflowerBlue.a);
     }
   }

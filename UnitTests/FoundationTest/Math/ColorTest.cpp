@@ -73,10 +73,10 @@ EZ_CREATE_SIMPLE_TEST(Math, Color)
 
     EZ_TEST_BLOCK(ezTestBlock::Enabled, "Conversion float")
     {
-      float* pFloats = static_cast<float*>(cornflowerBlue);
+      float* pFloats = cornflowerBlue.GetData();
       EZ_TEST_BOOL(pFloats[0] == cornflowerBlue.r && pFloats[1] == cornflowerBlue.g && pFloats[2] == cornflowerBlue.b && pFloats[3] == cornflowerBlue.a);
 
-      const float* pConstFloats = static_cast<const float*>(cornflowerBlue);
+      const float* pConstFloats = cornflowerBlue.GetData();
       EZ_TEST_BOOL(pConstFloats[0] == cornflowerBlue.r && pConstFloats[1] == cornflowerBlue.g && pConstFloats[2] == cornflowerBlue.b && pConstFloats[3] == cornflowerBlue.a);
     }
 
