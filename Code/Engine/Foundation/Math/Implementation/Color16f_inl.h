@@ -12,7 +12,7 @@ inline ezColor16f::ezColor16f(const ezColor& color) :
 {
 }
 
-inline ezColor16f::operator const ezColor () const
+inline ezColor16f::operator ezColor () const
 {
   return ezColor(static_cast<float>(r), static_cast<float>(g), static_cast<float>(b), static_cast<float>(a));
 }

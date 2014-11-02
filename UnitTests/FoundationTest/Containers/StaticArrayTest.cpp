@@ -227,7 +227,9 @@ EZ_CREATE_SIMPLE_TEST(Containers, StaticArray)
     for (ezInt32 i = 0; i < 100; ++i)
       a1.PushBack(i % 2);
 
-    while (a1.Remove(1));
+    while (a1.Remove(1))
+    {
+    }
 
     EZ_TEST_BOOL(a1.GetCount() == 50);
 

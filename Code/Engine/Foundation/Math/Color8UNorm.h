@@ -42,7 +42,7 @@ public:
 public:
 
   /// \brief Conversion to ezColor.
-  operator const ezColor () const; // [tested]
+  operator ezColor () const; // [tested]
 
   /// \brief Conversion to const ezUInt8*.
   const ezUInt8* GetData() const { return &r; } // [tested]
@@ -104,7 +104,7 @@ public:
 public:
 
   /// \brief Conversion to ezColor.
-  operator const ezColor () const; // [tested]
+  operator ezColor () const; // [tested]
 
   /// \brief Conversion to const ezUInt8*.
   const ezUInt8* GetData() const { return &b; } // [tested]

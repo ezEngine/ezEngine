@@ -19,7 +19,7 @@ inline ezColor8UNorm::ezColor8UNorm(const ezColor& color) :
 
 // *****************
 
-inline ezColor8UNorm::operator const ezColor () const
+inline ezColor8UNorm::operator ezColor () const
 {
   return ezColor(r * (1.0f / 255.0f), g * (1.0f / 255.0f), b * (1.0f / 255.0f), a * (1.0f / 255.0f));
 }
@@ -66,7 +66,7 @@ a(static_cast<ezUInt8>(color.a * 255))
 
 // *****************
 
-inline ezColorBgra8UNorm::operator const ezColor () const
+inline ezColorBgra8UNorm::operator ezColor () const
 {
   return ezColor(r * (1.0f / 255.0f), g * (1.0f / 255.0f), b * (1.0f / 255.0f), a * (1.0f / 255.0f));
 }

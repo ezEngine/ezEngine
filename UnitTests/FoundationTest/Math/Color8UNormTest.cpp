@@ -50,7 +50,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Color8UNorm)
 
     EZ_TEST_BLOCK(ezTestBlock::Enabled, "Conversion ezColor")
     {
-      ezColor color32f = static_cast<ezColor>(cornflowerBlue);
+      ezColor color32f = cornflowerBlue;
       EZ_TEST_BOOL(ezMath::IsEqual<float>(color32f.r, ezColor::GetCornflowerBlue().r, 2.0f / 255.0f) &&
         ezMath::IsEqual<float>(color32f.g, ezColor::GetCornflowerBlue().g, 2.0f / 255.0f) &&
         ezMath::IsEqual<float>(color32f.b, ezColor::GetCornflowerBlue().b, 2.0f / 255.0f) &&
@@ -143,7 +143,7 @@ EZ_CREATE_SIMPLE_TEST(Math, ColorBgra8UNorm)
 
     EZ_TEST_BLOCK(ezTestBlock::Enabled, "Conversion ezColor")
     {
-      ezColor color32f = static_cast<ezColor>(cornflowerBlue);
+      ezColor color32f = cornflowerBlue;
       EZ_TEST_BOOL(ezMath::IsEqual<float>(color32f.r, ezColor::GetCornflowerBlue().r, 2.0f / 255.0f) &&
                    ezMath::IsEqual<float>(color32f.g, ezColor::GetCornflowerBlue().g, 2.0f / 255.0f) &&
                    ezMath::IsEqual<float>(color32f.b, ezColor::GetCornflowerBlue().b, 2.0f / 255.0f) &&

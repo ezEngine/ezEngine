@@ -4,7 +4,7 @@
 #include <QGroupBox>
 #include <QScrollArea>
 #include <QLabel>
-#include <QCheckbox>
+#include <QCheckBox>
 #include <QSpinBox>
 #include <QLineEdit>
 

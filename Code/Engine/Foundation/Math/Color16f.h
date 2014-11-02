@@ -40,7 +40,7 @@ public:
 public:
 
   /// \brief Conversion to ezColor.
-  operator const ezColor () const; // [tested]
+  operator ezColor () const; // [tested]
 
   /// \brief Conversion to const ezFloat16*.
   const ezFloat16* GetData() const { return &r; }
