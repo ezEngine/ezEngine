@@ -11,7 +11,7 @@
 /// \brief The base class for all input device types.
 ///
 /// An input device is the abstraction of one or more types of input. It is not linked to one physical device.
-/// For example an input device can represent mouse AND keyoard (through one class). Another input device
+/// For example an input device can represent mouse AND keyboard (through one class). Another input device
 /// can represent all connected controllers (e.g. up to 4 XBox 360 controllers).
 /// On OSes where applications can have several windows, an input device may also represent all input from one window, if required.
 ///
@@ -53,7 +53,7 @@ private:
   ///
   /// An input device that handles keyboard input should also have a way to query the real typed character. I.e. by default only the
   /// individual state of each key is handled, such that we know that the shift key and the a key are pressed. However, the fact that
-  /// this resulsts in an upper case A in typed text also needs to be handled. An OS usually has a way to compute this, for example
+  /// this results in an upper case A in typed text also needs to be handled. An OS usually has a way to compute this, for example
   /// on Windows the WM_CHAR message sends this information. An ezInputDevice derived class should never try to compute this
   /// itself, but instead query this information from the OS, which will also handle localization.
   ezUInt32 RetrieveLastCharacter();

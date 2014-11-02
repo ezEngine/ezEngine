@@ -25,9 +25,16 @@ if (MSVC)
   SET (LINK_LIBRARIES
     ${LINK_LIBRARIES}
     ${CMAKE_SOURCE_DIR}/Code/ThirdParty/gpa_ITT/libs/$(PlatformName)/libittnotify.lib
+    Rpcrt4.lib
   )
 endif()
 
+if (BUILDSYSTEM_PLATFORM_LINUX)
+  SET (LINK_LIBRARIES
+    ${LINK_LIBRARIES}
+    uuid
+  )
+endif()
 
 if (CURRENT_OSX_VERSION)
   FIND_LIBRARY(CORESERVICES_LIBRARY CoreServices )

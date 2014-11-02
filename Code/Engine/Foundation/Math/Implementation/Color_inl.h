@@ -50,11 +50,30 @@ EZ_FORCE_INLINE ezVec3Template<Type> ezColor::GetBGR() const
 }
 
 template<typename Type>
+EZ_FORCE_INLINE ezVec4Template<Type> ezColor::GetRGBA() const
+{
+  ezVec4Template<Type> v(static_cast<Type>(r), static_cast<Type>(g), static_cast<Type>(b), static_cast<Type>(a));
+
+  EZ_NAN_ASSERT(&v);
+  return v;
+}
+
+template<typename Type>
+EZ_FORCE_INLINE ezVec4Template<Type> ezColor::GetBGRA() const
+{
+  ezVec4Template<Type> v(static_cast<Type>(b), static_cast<Type>(g), static_cast<Type>(r), static_cast<Type>(a));
+
+  EZ_NAN_ASSERT(&v);
+  return v;
+}
+
+template<typename Type>
 EZ_FORCE_INLINE void ezColor::SetRGB(const ezVec3Template<Type>& rgb)
 {
   r = static_cast<float>(rgb.x);
   g = static_cast<float>(rgb.y);
   b = static_cast<float>(rgb.z);
+  a = 1.0f;
 }
 
 template<typename Type>
@@ -63,6 +82,25 @@ EZ_FORCE_INLINE void ezColor::SetBGR(const ezVec3Template<Type>& bgr)
   r = static_cast<float>(bgr.z);
   g = static_cast<float>(bgr.y);
   b = static_cast<float>(bgr.x);
+  a = 1.0f;
+}
+
+template<typename Type>
+EZ_FORCE_INLINE void ezColor::SetRGBA(const ezVec4Template<Type>& rgba)
+{
+  r = static_cast<float>(rgba.x);
+  g = static_cast<float>(rgba.y);
+  b = static_cast<float>(rgba.z);
+  a = static_cast<float>(rgba.w);
+}
+
+template<typename Type>
+EZ_FORCE_INLINE void ezColor::SetBGRA(const ezVec4Template<Type>& bgra)
+{
+  r = static_cast<float>(bgra.z);
+  g = static_cast<float>(bgra.y);
+  b = static_cast<float>(bgra.x);
+  a = static_cast<float>(bgra.w);
 }
 
 // *****************

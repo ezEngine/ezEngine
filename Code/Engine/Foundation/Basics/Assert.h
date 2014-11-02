@@ -12,7 +12,7 @@
 /// EZ_ASSERT and EZ_VERIFY will trigger a breakpoint in debug builds, but will not interrupt the application 
 /// in release builds.
 ///
-/// If you need to check something that is so vital that the application can only fail (ie. crash), if that condition 
+/// If you need to check something that is so vital that the application can only fail (i.e. crash), if that condition 
 /// is not met, even in release builds, then use EZ_ASSERT_ALWAYS. Its condition will always be evaluated and it will
 /// always trigger a breakpoint (debug) or crash the application (release).
 ///
@@ -23,7 +23,7 @@
 ///
 /// If you need to squeeze the last bit of performance out of your code, EZ_ASSERT_API can be disabled, by defining 
 /// EZ_DISABLE_API_ASSERTS.
-/// Please be aware that EZ_ASSERT_API works like the other asserts, ie. once it is deactivated, the code in the condition 
+/// Please be aware that EZ_ASSERT_API works like the other asserts, i.e. once it is deactivated, the code in the condition 
 /// is not executed anymore.
 ///
 

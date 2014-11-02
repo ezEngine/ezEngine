@@ -1,12 +1,12 @@
 #pragma once
 
-#include <Foundation/Strings/StringIterator.h>
+#include <Foundation/Strings/StringView.h>
 
 /// \brief Contains Helper functions to work with paths.
 ///
 /// Only functions that require read-only access to a string are provided here
 /// All functions that require to modify the path are provided by ezPathBuilder.
-/// Many functions return ezStringIterator's, which will always be strict sub-strings of their input data.
+/// Many functions return ezStringView's, which will always be strict sub-strings of their input data.
 /// That allows that these functions can work without any additional memory allocations.
 class EZ_FOUNDATION_DLL ezPathUtils
 {
@@ -27,17 +27,17 @@ public:
   static bool HasExtension(const char* szPath, const char* szExtension, const char* szPathEnd = ezMaxStringEnd); // [tested]
 
   /// \brief Returns the file extension of the given path. Will be empty, if the path does not end with a proper extension.
-  static ezStringIterator GetFileExtension(const char* szPath, const char* szPathEnd = ezMaxStringEnd); // [tested]
+  static ezStringView GetFileExtension(const char* szPath, const char* szPathEnd = ezMaxStringEnd); // [tested]
 
-  /// \brief Returns the file name of a path, exluding the path and extension.
+  /// \brief Returns the file name of a path, excluding the path and extension.
   ///
   /// If the path already ends with a path separator, the result will be empty.
-  static ezStringIterator GetFileName(const char* szPath, const char* szPathEnd = ezMaxStringEnd); // [tested]
+  static ezStringView GetFileName(const char* szPath, const char* szPathEnd = ezMaxStringEnd); // [tested]
 
   /// \brief Returns the substring that represents the file name including the file extension.
   ///
   /// Returns an empty string, if sPath already ends in a path separator, or is empty itself.
-  static ezStringIterator GetFileNameAndExtension(const char* szPath, const char* szPathEnd = ezMaxStringEnd); // [tested]
+  static ezStringView GetFileNameAndExtension(const char* szPath, const char* szPathEnd = ezMaxStringEnd); // [tested]
 
   /// \brief Returns the directory of the given file, which is the substring up to the last path separator.
   ///
@@ -46,7 +46,7 @@ public:
   /// "path/to/folder/" -> "path/to/folder/"
   /// "filename" -> ""
   /// "/file_at_root_level" -> "/"
-  static ezStringIterator GetFileDirectory(const char* szPath, const char* szPathEnd = ezMaxStringEnd); // [tested]
+  static ezStringView GetFileDirectory(const char* szPath, const char* szPathEnd = ezMaxStringEnd); // [tested]
 
   /// \brief Returns true, if the given path represents an absolute path on the current OS.
   static bool IsAbsolutePath(const char* szPath); // [tested]

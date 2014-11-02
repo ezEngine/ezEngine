@@ -2,7 +2,7 @@
 
 #include <Foundation/Algorithm/Sorting.h>
 #include <Foundation/Math/Math.h>
-#include <Foundation/Basics/Types/ArrayPtr.h>
+#include <Foundation/Types/ArrayPtr.h>
 
 /// \brief Value used by containers for indices to indicate an invalid index.
 #define ezInvalidIndex 0xFFFFFFFF
@@ -17,6 +17,9 @@ public:
   
   /// \brief Destructor.
   ~ezArrayBase(); // [tested]
+
+  /// \brief Copies the data from some other contiguous array into this one.
+  void operator= (const ezArrayPtr<T>& rhs); // [tested]
 
   /// \brief Conversion to const ezArrayPtr.
   operator const ezArrayPtr<T>() const; // [tested]
@@ -75,6 +78,9 @@ public:
   /// \brief Searches for the last occurrence of the given value and returns its index or ezInvalidIndex if not found. 
   ezUInt32 LastIndexOf(const T& value, ezUInt32 uiStartIndex = ezInvalidIndex) const; // [tested]
 
+  /// \brief Grows the array by one element and returns a reference to the newly created element.
+  T& ExpandAndGetRef(); // [tested]
+
   /// \brief Pushes value at the end of the array.
   void PushBack(const T& value); // [tested]
 
@@ -102,6 +108,12 @@ public:
 
   /// \brief Sort with default comparer
   void Sort(); // [tested]
+
+  /// \brief Returns a pointer to the array data, or nullptr if the array is empty.
+  T* GetData();
+
+  /// \brief Returns a pointer to the array data, or nullptr if the array is empty.
+  const T* GetData() const;
 
 protected:
 

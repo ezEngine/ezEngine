@@ -61,7 +61,7 @@ public:
   /// By default all virtual controllers take their input from the physical controller with the same index.
   /// You can use this feature to let the player pick up any controller, detect which one it is (e.g. by forcing him to press 'Start')
   /// and then map that physical controller index to the virtual index 0 (ie. player 1).
-  /// Note that unless you specify a negative index for a mapping (which deactives that virtual controller), mapping controllers
+  /// Note that unless you specify a negative index for a mapping (which deactivates that virtual controller), mapping controllers
   /// around does never deactivate any controller, because the indices are swapped between the different virtual controllers,
   /// so which physical controller maps to which virtual controller only 'moves around'.
   void SetControllerMapping(ezUInt8 uiVirtualController, ezInt8 iTakeInputFromPhysical);

@@ -178,7 +178,7 @@ ezUInt32 ezStackTracer::GetStackTrace(ezArrayPtr<void*>& trace)
     const ezUInt32 uiMaxNumTrace = ezMath::Min(62U, trace.GetCount() - uiSkip);
     ezInt32 iNumTraces = (*s_pImplementation->captureStackBackTrace)(uiSkip, uiMaxNumTrace, trace.GetPtr(), nullptr);
 
-    // skip the last three stackframes since they are useless
+    // skip the last three stack-frames since they are useless
     return ezMath::Max(iNumTraces - 3, 0);
   }
   return 0;

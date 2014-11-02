@@ -14,7 +14,7 @@ void ezThreadLocalStorage::Initialize()
 
   s_bInitialized = true;
 
-  // Get a tls index from the OS, since we manage a table of our own one tls index suffices
+  // Get a TLS index from the OS, since we manage a table of our own one TLS index suffices
   g_ThreadLocalManagmentTableKey = TlsAlloc();
   EZ_ASSERT_ALWAYS(g_ThreadLocalManagmentTableKey != TLS_OUT_OF_INDEXES, "Unable to allocate key for thread local management table!");
 
@@ -46,7 +46,7 @@ void ezThreadLocalStorage::SetPerThreadPointerTable(ezThreadLocalPointerTable* p
 
 ezThreadLocalPointerTable* ezThreadLocalStorage::GetPerThreadPointerTable()
 {
-  EZ_ASSERT(g_ThreadLocalManagmentTableKey != TLS_OUT_OF_INDEXES, "Invalid internal tls index");
+  EZ_ASSERT(g_ThreadLocalManagmentTableKey != TLS_OUT_OF_INDEXES, "Invalid internal TLS index");
 
   return static_cast<ezThreadLocalPointerTable*>(TlsGetValue(g_ThreadLocalManagmentTableKey));
 }

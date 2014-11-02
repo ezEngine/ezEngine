@@ -16,7 +16,7 @@ struct ezPathStateBase
     m_fEstimatedCostToTarget = 0.0f;
   }
 
-  /// Initialized by the path searcher. Backpointer to the node from which this node was reached.
+  /// Initialized by the path searcher. Back-pointer to the node from which this node was reached.
   ezInt64 m_iReachedThroughNode;
 
   /// Each ezPathStateGenerator needs to update the costs by taking the nodes from the predecessor state and adding a non-zero cost value to it.
@@ -24,7 +24,7 @@ struct ezPathStateBase
 
   /// To get directed path searches (A*) this estimation needs to be filled out. It must be the sum of m_fCostToNode and an estimation
   /// of how much the remaining path will cost (at least).
-  /// To always get the 'optimal path' (the shortest) the estimation should be 'optimistic', ie. it musn't be possible to reach the
+  /// To always get the 'optimal path' (the shortest) the estimation should be 'optimistic', ie. it mustn't be possible to reach the
   /// destination with less costs than what was estimated.
   /// However, the estimation can also be 'pessimistic', ie. the final path will actually cost less than what was estimated. In this case
   /// path searches can be a lot faster, but they will also produce paths that are longer than necessary and might be overly winding.

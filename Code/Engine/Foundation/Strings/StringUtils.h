@@ -24,7 +24,7 @@ public:
   /// \brief Returns the number of elements of type T that the string contains, until it hits an element that is zero OR until it hits the end pointer.
   ///
   /// Equal to the string length, if used with pure ASCII strings.
-  /// Equal to the amount of bytes in a string, if used on non-ASCII (ie. UTF-8) strings.
+  /// Equal to the amount of bytes in a string, if used on non-ASCII (i.e. UTF-8) strings.
   /// Equal to the number of characters in a string, if used with UTF-32 strings.
   template <typename T>
   static ezUInt32 GetStringElementCount(const T* pString, const T* pStringEnd = (const T*) -1); // [tested]
@@ -179,16 +179,16 @@ public:
   static bool EndsWith_NoCase(const char* szString, const char* szEndsWith, const char* pStringEnd = ezMaxStringEnd); // [tested]
 
 
-  /// \brief Searches for the first occurrence of szStringToFind in szSource after uiFirstCharacter. 
+  /// \brief Searches for the first occurrence of szStringToFind in szSource. 
   static const char* FindSubString(const char* szSource, const char* szStringToFind, const char* pSourceEnd = ezMaxStringEnd); // [tested]
 
-  /// \brief Searches for the first occurrence of szStringToFind in szSource after uiFirstCharacter. Ignores case.
+  /// \brief Searches for the first occurrence of szStringToFind in szSource. Ignores case.
   static const char* FindSubString_NoCase(const char* szSource, const char* szStringToFind, const char* pSourceEnd = ezMaxStringEnd); // [tested]
 
-  /// \brief Searches for the last occurrence of szStringToFind in szSource before uiFirstCharacter.
+  /// \brief Searches for the last occurrence of szStringToFind in szSource before szStartSearchAt.
   static const char* FindLastSubString(const char* szSource, const char* szStringToFind, const char* szStartSearchAt = nullptr, const char* pSourceEnd = ezMaxStringEnd); // [tested]
 
-  /// \brief Searches for the last occurrence of szStringToFind in szSource before uiFirstCharacter. Ignores case.
+  /// \brief Searches for the last occurrence of szStringToFind in szSource before szStartSearchAt. Ignores case.
   static const char* FindLastSubString_NoCase(const char* szSource, const char* szStringToFind, const char* szStartSearchAt = nullptr, const char* pSourceEnd = ezMaxStringEnd); // [tested]
 
   /// \brief Function Definition for a function that determines whether a (Utf32) character belongs to a certain category of characters.
@@ -211,7 +211,7 @@ public:
   /// \brief A default word delimiter function that returns true for ' ' (space), '\r' (carriage return), '\n' (newline), '\t' (tab) and '\v' (vertical tab)
   static bool IsWhiteSpace(ezUInt32 uiChar); // [tested]
 
-  /// \brief A default word delimiter function for english text.
+  /// \brief A default word delimiter function for English text.
   static bool IsWordDelimiter_English(ezUInt32 uiChar); // [tested]
 
   /// \brief A default word delimiter function for identifiers in C code. 

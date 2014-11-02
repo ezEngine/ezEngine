@@ -569,7 +569,7 @@ bool ezMat4Template<Type>::IsEqual(const ezMat4Template<Type>& rhs, Type fEpsilo
   EZ_NAN_ASSERT(this);
   EZ_NAN_ASSERT(&rhs);
 
-  EZ_ASSERT(fEpsilon >= 0.0f, "Epsilon may not be negativ.");
+  EZ_ASSERT(fEpsilon >= 0.0f, "Epsilon may not be negative.");
 
   for (ezUInt32 i = 0; i < 16; ++i)
   {

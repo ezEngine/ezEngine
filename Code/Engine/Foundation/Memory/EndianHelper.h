@@ -15,7 +15,7 @@ struct EZ_FOUNDATION_DLL ezEndianHelper
     return (*(char*)&i) == 0;
   }
 
-  /// \brief Returns true if called on a little endian endian system, false otherwise.
+  /// \brief Returns true if called on a little endian system, false otherwise.
   ///
   /// \note Note that usually the compile time decisions with the defines EZ_PLATFORM_LITTLE_ENDIAN, EZ_PLATFORM_BIG_ENDIAN is preferred.
   static inline bool IsLittleEndian()

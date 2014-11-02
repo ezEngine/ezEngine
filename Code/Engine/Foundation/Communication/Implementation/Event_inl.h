@@ -9,7 +9,7 @@ ezEventBase<EventData, MutexType>::ezEventBase(ezAllocatorBase* pAllocator) : m_
 /// A callback can be registered multiple times with different pass-through data (or even with the same,
 /// though that is less useful).
 template <typename EventData, typename MutexType>
-void ezEventBase<EventData, MutexType>::AddEventHandler(Handler handler)
+void ezEventBase<EventData, MutexType>::AddEventHandler(Handler handler) const
 {
   EZ_LOCK(m_Mutex);
 
@@ -19,7 +19,7 @@ void ezEventBase<EventData, MutexType>::AddEventHandler(Handler handler)
 /// Use exactly the same combination of callback/pass-through-data to unregister an event handlers.
 /// Otherwise an error occurs.
 template <typename EventData, typename MutexType>
-void ezEventBase<EventData, MutexType>::RemoveEventHandler(Handler handler)
+void ezEventBase<EventData, MutexType>::RemoveEventHandler(Handler handler) const
 {
   EZ_LOCK(m_Mutex);
 

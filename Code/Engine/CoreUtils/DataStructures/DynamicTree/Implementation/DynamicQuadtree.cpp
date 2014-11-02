@@ -51,7 +51,7 @@ void ezDynamicQuadtree::CreateTree(const ezVec3& vCenter, const ezVec3& vHalfExt
 
 /// The object lies at vCenter and has vHalfExtents as its bounding box.
 /// If bOnlyIfInside is false, the object is ALWAYS inserted, even if it is outside the tree.
-/// \note In such a case it is inserted at the root-node and thus ALWAYS returned in range/viewfrustum queries.
+/// \note In such a case it is inserted at the root-node and thus ALWAYS returned in range/view-frustum queries.
 /// 
 /// If bOnlyIfInside is true, the object is discarded, if it is not inside the actual bounding box of the tree.
 /// 
@@ -165,7 +165,7 @@ bool ezDynamicQuadtree::InsertObject(const ezVec3& vCenter, const ezVec3& vHalfE
     // to compute the ID of child node 'n', the number of children in child node 'n-1' has to be considered
     // uiAddID is the number of IDs that need to be skipped to get from the ID of child node 'n' to the ID of child 'n+1'
 
-    // everytime one goes down one step in the tree the number of child-nodes in the sub-tree is divided by 4
+    // every time one goes down one step in the tree the number of child-nodes in the sub-tree is divided by 4
     // so the number of IDs to skip to get from child 'n' to 'n+1' is reduced to 1/4
 
     const ezUInt32 uiNodeIDBase = uiNodeID + 1;

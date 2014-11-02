@@ -7,7 +7,7 @@
 #include <CoreUtils/Console/ConsoleFunction.h>
 
 
-/// \brief A Quake-style console is for ingame configuration of ezCVar and ezConsoleFunction.
+/// \brief A Quake-style console is for in-game configuration of ezCVar and ezConsoleFunction.
 ///
 /// The console displays the recent log activity and allows to modify cvars and call console functions.
 /// It supports auto-completion of known keywords.
@@ -44,7 +44,7 @@ public:
   /// @{
 
 
-  /// \brief The event data that is broadcasted by the console
+  /// \brief The event data that is broadcast by the console
   struct ConsoleEvent
   {
     enum EventType
@@ -53,7 +53,7 @@ public:
       ProcessCommandSuccess,  ///< A command was successfully processed
       ProcessCommandFailure,  ///< A command failed to be processed
       StringAdded,            ///< A string was added to the console
-      AutoCompleteRequest,    ///< The user tries to autocomplete the input
+      AutoCompleteRequest,    ///< The user tries to auto-complete the input
     };
 
     EventType m_EventType;
@@ -64,10 +64,10 @@ public:
     /// \brief The console string that was just added.
     const ConsoleString* m_AddedpConsoleString;
 
-    /// \brief AutoComplete: The strings that might be used for autocompletion, the event handler may add additional suggestions to it.
+    /// \brief AutoComplete: The strings that might be used for auto-completion, the event handler may add additional suggestions to it.
     ezDeque<ezString>* m_pAutoCompleteOptions;
 
-    /// \brief The descriptions of each autocomplete option, to be shown in the console.
+    /// \brief The descriptions of each auto-complete option, to be shown in the console.
     ezDeque<ConsoleString>* m_pAutoCompleteDescriptions;
   };
 
@@ -101,7 +101,7 @@ public:
 
   /// \brief Replaces the current command interpreter. This allows to attach a custom interpreter to the console.
   ///
-  /// by default the Lua interpeter is used. Using a custom interpreter you can extend its functionality or allow for different syntax.
+  /// by default the Lua interpreter is used. Using a custom interpreter you can extend its functionality or allow for different syntax.
   void SetCommandInterpreter(ezCommandProcessor processor) { m_CommandProcessor = processor; }
 
   /// \brief Executes the given command using the current command interpreter.
@@ -148,7 +148,7 @@ public:
   /// \brief Moves the caret in the text. Its position will be clamped to the length of the current input line text.
   void MoveCaret(ezInt32 iMoveOffset);
 
-  /// \brief Delets the character following the caret position.
+  /// \brief Deletes the character following the caret position.
   void DeleteNextCharacter();
 
   /// \brief Scrolls the contents of the console up or down. Will be clamped to the available range.

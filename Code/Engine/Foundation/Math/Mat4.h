@@ -16,7 +16,7 @@ public:
 // *** Data ***
 public:
   // The elements are stored in column-major order.
-  // That means first is colum 0 (with elements of row 0, row 1, row 2, row 3),
+  // That means first is column 0 (with elements of row 0, row 1, row 2, row 3),
   // then column 1, then column 2 and finally column 3
 
   /// \brief The matrix as a 16-element Type array (column-major)

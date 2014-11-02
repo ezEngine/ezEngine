@@ -221,7 +221,7 @@ void ezTestFramework::StartTests()
   ezSetAssertHandler(TestAssertHandler);
 }
 
-// Redirects engine warnings / errors to testframework output
+// Redirects engine warnings / errors to test-framework output
 static void LogWriter(const ezLoggingEventData& e)
 {
   switch (e.m_EventType)

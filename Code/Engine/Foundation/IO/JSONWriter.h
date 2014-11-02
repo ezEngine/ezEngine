@@ -3,7 +3,7 @@
 #include <Foundation/Basics.h>
 #include <Foundation/IO/Stream.h>
 #include <Foundation/Containers/HybridArray.h>
-#include <Foundation/Basics/Types/Variant.h>
+#include <Foundation/Types/Variant.h>
 
 /// \brief The base class for JSON writers.
 ///
@@ -11,6 +11,29 @@
 class EZ_FOUNDATION_DLL ezJSONWriter
 {
 public:
+
+  /// \brief Modes to configure how much whitespace the JSON writer will output
+  struct WhitespaceMode
+  {
+    /// \brief Modes to configure how much whitespace the JSON writer will output
+    enum Enum
+    {
+      All,              ///< All whitespace is output. This is the default, it should be used for files that are read by humans.
+      LessIndentation,  ///< Saves some space by using less space for indentation
+      NoIndentation,    ///< Saves even more space by dropping all indentation from the output. The result will be noticeably less readable.
+      NewlinesOnly,     ///< All unnecessary whitespace, except for newlines, is not output.
+      None,             ///< No whitespace, not even newlines, is output. This should be used when JSON is used for data exchange, but probably not read by humans.
+    };
+  };
+
+  /// \brief Constructor
+  ezJSONWriter()
+  {
+    m_WhitespaceMode = WhitespaceMode::All;
+  }
+
+  /// \brief Configures how much whitespace is output.
+  void SetWhitespaceMode(WhitespaceMode::Enum wsm) { m_WhitespaceMode = wsm; }
 
   /// \brief Shorthand for "BeginVariable(szName); WriteBool(value); EndVariable(); "
   void AddVariableBool(const char* szName, bool value); // [tested]
@@ -172,6 +195,9 @@ public:
   /// \brief Ends outputting an object variable.
   virtual void EndObject() = 0;
 
+protected:
+  WhitespaceMode::Enum m_WhitespaceMode;
+
 };
 
 
@@ -179,7 +205,7 @@ public:
 ///
 /// ezStandardJSONWriter also implements WriteBinaryData() and the functions WriteVec2() etc., for which there is no standard way to implement them in
 /// JSON. WriteVec2() etc. will simply redirect to WriteBinaryData(), which in turn implements the MongoDB convention of outputting binary data.
-/// Ie. it will turn the data into a JSON object which contains one variable called "$type" that identifies the data type, and one variable called
+/// I.e. it will turn the data into a JSON object which contains one variable called "$type" that identifies the data type, and one variable called
 /// "$binary" which contains the raw binary data Hex encoded in little endian format.
 /// If you want to write a fully standard compliant JSON file, just don't output any of these types.
 class EZ_FOUNDATION_DLL ezStandardJSONWriter : public ezJSONWriter
@@ -221,7 +247,7 @@ public:
   /// \brief \copydoc ezJSONWriter::WriteNULL()
   virtual void WriteNULL() override; // [tested]
 
-  /// \brief Writes the time value as a double (ie. redirects to WriteDouble()).
+  /// \brief Writes the time value as a double (i.e. redirects to WriteDouble()).
   virtual void WriteTime(ezTime value) override; // [tested]
 
   /// \brief Outputs the value via WriteVec4().

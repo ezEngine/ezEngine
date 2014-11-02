@@ -101,7 +101,7 @@ ezResult ezPreprocessor::ExpandOnce(const TokenStream& Tokens, TokenStream& Outp
     {
       --uiCurToken;
 
-      // we have a function macro -> extract all parameters, preexpand them, then replace the macro body parameters and expand the macro itself
+      // we have a function macro -> extract all parameters, pre-expand them, then replace the macro body parameters and expand the macro itself
 
       MacroParameters AllParameters;
       if (ExtractAllMacroParameters(Tokens, uiCurToken, AllParameters).Failed())
@@ -230,14 +230,14 @@ ezToken* ezPreprocessor::CreateStringifiedParameter(ezUInt32 uiParam, const ezTo
     sStringifiedParam = "\"\"";
   else
   {
-    // if we want to stringify the varargs parameters
+    // if we want to stringify the var-args parameters
     if (Macro.m_bHasVarArgs && uiParam + 1 == Macro.m_iNumParameters)
     {
       ezStringBuilder sOneParam;
 
       sStringifiedParam = "\"";
 
-      // stringifh each parameter at the end, attach it to the output
+      // stringify each parameter at the end, attach it to the output
       for (ezUInt32 i = uiParam; i < m_MacroParamStack.PeekBack()->GetCount(); ++i)
       {
         StringifyTokens((*m_MacroParamStack.PeekBack())[i], sOneParam, false);
@@ -306,7 +306,7 @@ ezResult ezPreprocessor::InsertStringifiedParameters(const TokenStream& Tokens, 
 
       ezToken* pStringifiedToken = CreateStringifiedParameter(uiParam, Tokens[i], Macro);
 
-      // remove all whitespaces and the last # at the end of the output
+      // remove all whitespace and the last # at the end of the output
       while (true)
       {
         if (Output.PeekBack()->m_iType == ezTokenType::Whitespace)
@@ -347,7 +347,7 @@ void ezPreprocessor::MergeTokens(const ezToken* pFirst, const ezToken* pSecond, 
 
     if (uiParam  < m_MacroParamStack.PeekBack()->GetCount())
     {
-      // fucking varargs
+      // fucking var-args
       if (Macro.m_bHasVarArgs && uiParam + 1 == Macro.m_iNumParameters)
       {
         for (ezUInt32 i = uiParam; i < m_MacroParamStack.PeekBack()->GetCount() - 1; ++i)
@@ -382,7 +382,7 @@ void ezPreprocessor::MergeTokens(const ezToken* pFirst, const ezToken* pSecond, 
       for (ezUInt32 i = 1; i < (*m_MacroParamStack.PeekBack())[uiParam].GetCount(); ++i)
         Output.PushBack((*m_MacroParamStack.PeekBack())[uiParam][i]);
 
-      // fucking varargs
+      // fucking var-args
       if (Macro.m_bHasVarArgs && uiParam + 1 == Macro.m_iNumParameters)
       {
         for (ezUInt32 i = uiParam + 1; i < m_MacroParamStack.PeekBack()->GetCount(); ++i)
@@ -439,7 +439,7 @@ ezResult ezPreprocessor::ConcatenateParameters(const TokenStream& Tokens, TokenS
         Accept(Tokens, uiCurToken, "#", "#", &uiConcatToken))
     {
       // we have already removed all single hashes during the stringification, so here we will only encounter double hashes
-      // (and quadrupel, etc.)
+      // (and quadruple, etc.)
 
       while (Accept(Tokens, uiCurToken, "#", "#")) { /* remove all double hashes ##, also skip whitespace in between */ }
 

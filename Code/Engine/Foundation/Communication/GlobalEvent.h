@@ -2,7 +2,7 @@
 
 /// \file
 
-#include <Foundation/Basics/Types/Variant.h>
+#include <Foundation/Types/Variant.h>
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Strings/String.h>
 #include <Foundation/Utilities/EnumerableClass.h>

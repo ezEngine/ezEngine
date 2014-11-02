@@ -72,7 +72,7 @@ public:
   virtual ezInt32 Virtual() = 0;
 };
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(Base, ezReflectedClass, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(Base, ezReflectedClass, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
@@ -101,7 +101,7 @@ public:
   EZ_NO_INLINE void OnGetValueMessage(GetValueMessage& msg) { msg.m_iValue = 1; }
 };
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(Derived1, Base, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(Derived1, Base, 1, ezRTTINoAllocator);
   EZ_BEGIN_MESSAGEHANDLERS
     EZ_MESSAGE_HANDLER(GetValueMessage, OnGetValueMessage)
   EZ_END_MESSAGEHANDLERS
@@ -117,7 +117,7 @@ public:
   EZ_NO_INLINE void OnGetValueMessage(GetValueMessage& msg) { msg.m_iValue = 2; }
 };
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(Derived2, Base, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(Derived2, Base, 1, ezRTTINoAllocator);
   EZ_BEGIN_MESSAGEHANDLERS
     EZ_MESSAGE_HANDLER(GetValueMessage, OnGetValueMessage)
   EZ_END_MESSAGEHANDLERS

@@ -1,6 +1,14 @@
 What's New {#WhatsNew}
 ==========
 
+Milestone 6
+-----------
+
+  * Added ezOBJLoader to load OBJ/MTL files.
+  * Renamed ezStringIterator to ezStringView.
+  * Added ezGeometry, a class with functions to generate basic geometric shapes.
+  * Added ezChunkFormatReader / ezChunkFormatWriter to work with 'chunked' file formats.
+
 Milestone 5
 -----------
 
@@ -21,7 +29,7 @@ Milestone 5
   * Added ezDataTransfer, which allows ezInspector to pull arbitrary (custom) data from the connected application. This can be used to make screenshots, etc.
   * Improved the profiling system: When GPA is not used, it can now store the profiling history in a ringbuffer in memory and dump it on request. We are currently supporting a JSON file format that can be displayed by Google Chrome using chrome://tracing
   * Added ezTokenizer, a class that allows to easily tokenize a C language like piece of text.
-  * The natvis Visual Studio Visualizer now also supports ezStringIterator, ezHashedString and ezHashTable.
+  * The natvis Visual Studio Visualizer now also supports ezStringView, ezHashedString and ezHashTable.
   * GameObject improvements:
     * Parenting works now
     * Transformation propagation to child objects has been implemented

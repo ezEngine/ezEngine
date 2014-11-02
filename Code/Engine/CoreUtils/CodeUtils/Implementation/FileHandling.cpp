@@ -1,8 +1,9 @@
 #include <CoreUtils/PCH.h>
 #include <CoreUtils/CodeUtils/Preprocessor.h>
 #include <Foundation/Utilities/ConversionUtils.h>
+#include <Foundation/IO/OSFile.h>
 
-ezMap<ezString, ezTokenizer>::ConstIterator ezTokenizedFileCache::Lookup(const ezString& sFileName) const
+ezMap<ezString, ezTokenizedFileCache::FileData>::ConstIterator ezTokenizedFileCache::Lookup(const ezString& sFileName) const
 {
   EZ_LOCK(m_Mutex);
   auto it = m_Cache.Find(sFileName);
@@ -21,7 +22,7 @@ void ezTokenizedFileCache::Clear()
   m_Cache.Clear();
 }
 
-static void SkipWhitespace(ezDeque<ezToken>& Tokens, ezUInt32& uiCurToken)
+void ezTokenizedFileCache::SkipWhitespace(ezDeque<ezToken>& Tokens, ezUInt32& uiCurToken)
 {
   while (uiCurToken < Tokens.GetCount() && 
           (Tokens[uiCurToken].m_iType == ezTokenType::BlockComment ||
@@ -31,10 +32,14 @@ static void SkipWhitespace(ezDeque<ezToken>& Tokens, ezUInt32& uiCurToken)
     ++uiCurToken;
 }
 
-const ezTokenizer* ezTokenizedFileCache::Tokenize(const ezString& sFileName, const ezDynamicArray<ezUInt8>& FileContent, ezLogInterface* pLog)
+const ezTokenizer* ezTokenizedFileCache::Tokenize(const ezString& sFileName, const ezDynamicArray<ezUInt8>& FileContent, const ezTimestamp& FileTimeStamp, ezLogInterface* pLog)
 {
   EZ_LOCK(m_Mutex);
-  ezTokenizer* pTokenizer = &m_Cache[sFileName];
+
+  auto& data = m_Cache[sFileName];
+
+  data.m_Timestamp = FileTimeStamp;
+  ezTokenizer* pTokenizer = &data.m_Tokens;
   pTokenizer->Tokenize(FileContent, pLog);
 
   ezDeque<ezToken>& Tokens = pTokenizer->GetTokens();
@@ -103,16 +108,63 @@ void ezPreprocessor::SetLogInterface(ezLogInterface* pLog)
   m_pLog = pLog;
 }
 
-void ezPreprocessor::SetFileCallbacks(FileOpenCB OpenAbsFileCB, FileLocatorCB LocateAbsFileCB)
+void ezPreprocessor::SetFileOpenFunction(FileOpenCB OpenAbsFileCB)
 {
   m_FileOpenCallback = OpenAbsFileCB;
+}
+
+void ezPreprocessor::SetFileLocatorFunction(FileLocatorCB LocateAbsFileCB)
+{
   m_FileLocatorCallback = LocateAbsFileCB;
+}
+
+ezResult ezPreprocessor::DefaultFileLocator(const char* szCurAbsoluteFile, const char* szIncludeFile, ezPreprocessor::IncludeType IncType, ezString& out_sAbsoluteFilePath)
+{
+  ezStringBuilder s;
+
+  if (IncType == ezPreprocessor::RelativeInclude)
+  {
+    s = szCurAbsoluteFile;
+    s.PathParentDirectory();
+    s.AppendPath(szIncludeFile);
+    s.MakeCleanPath();
+  }
+  else
+  {
+    s = szIncludeFile;
+    s.MakeCleanPath();
+  }
+
+  out_sAbsoluteFilePath = s;
+  return EZ_SUCCESS;
+}
+
+ezResult ezPreprocessor::DefaultFileOpen(const char* szAbsoluteFile, ezDynamicArray<ezUInt8>& FileContent, ezTimestamp& out_FileModification)
+{
+  ezFileReader r;
+  if (r.Open(szAbsoluteFile).Failed())
+    return EZ_FAILURE;
+
+#if EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
+  ezFileStats stats;
+  if (ezOSFile::GetFileStats(r.GetFilePathAbsolute().GetData(), stats).Succeeded())
+    out_FileModification = stats.m_LastModificationTime;
+#endif
+
+  ezUInt8 Temp[4096];
+
+  while (ezUInt64 uiRead = r.ReadBytes(Temp, 4096))
+  {
+    FileContent.PushBackRange(ezArrayPtr<ezUInt8>(Temp, (ezUInt32) uiRead));
+  }
+
+  return EZ_SUCCESS;
 }
 
 ezResult ezPreprocessor::OpenFile(const char* szFile, const ezTokenizer** pTokenizer)
 {
-  EZ_ASSERT(m_FileOpenCallback != nullptr, "OpenFile callback has not been set");
-  EZ_ASSERT(m_FileLocatorCallback != nullptr, "File locator callback has not been set");
+  EZ_ASSERT(m_FileOpenCallback.IsValid(), "OpenFile callback has not been set");
+  EZ_ASSERT(m_FileLocatorCallback.IsValid(), "File locator callback has not been set");
 
   *pTokenizer = nullptr;
 
@@ -120,18 +172,20 @@ ezResult ezPreprocessor::OpenFile(const char* szFile, const ezTokenizer** pToken
 
   if (it.IsValid())
   {
-    *pTokenizer = &it.Value();
+    *pTokenizer = &it.Value().m_Tokens;
     return EZ_SUCCESS;
   }
 
+  ezTimestamp stamp;
+
   ezDynamicArray<ezUInt8> Content;
-  if (m_FileOpenCallback(szFile, Content).Failed())
+  if (m_FileOpenCallback(szFile, Content, stamp).Failed())
   {
     ezLog::Error(m_pLog, "Could not open file '%s'", szFile);
     return EZ_FAILURE;
   }
 
-  *pTokenizer = m_pUsedFileCache->Tokenize(szFile, Content, m_pLog);
+  *pTokenizer = m_pUsedFileCache->Tokenize(szFile, Content, stamp, m_pLog);
 
 
   return EZ_SUCCESS;
@@ -140,7 +194,7 @@ ezResult ezPreprocessor::OpenFile(const char* szFile, const ezTokenizer** pToken
 
 ezResult ezPreprocessor::HandleInclude(const TokenStream& Tokens, ezUInt32 uiCurToken, ezUInt32 uiDirectiveToken, TokenStream& TokenOutput)
 {
-  EZ_ASSERT(m_FileLocatorCallback != nullptr, "File locator callback has not been set");
+  EZ_ASSERT(m_FileLocatorCallback.IsValid(), "File locator callback has not been set");
 
   SkipWhitespace(Tokens, uiCurToken);
 

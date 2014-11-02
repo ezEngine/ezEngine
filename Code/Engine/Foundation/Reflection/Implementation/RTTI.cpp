@@ -28,7 +28,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, Reflection)
 
 EZ_END_SUBSYSTEM_DECLARATION
 
-ezRTTI::ezRTTI(const char* szName, const ezRTTI* pParentType, ezUInt32 uiTypeSize, ezUInt32 uiVariantType,
+ezRTTI::ezRTTI(const char* szName, const ezRTTI* pParentType, ezUInt32 uiTypeSize, ezUInt32 uiTypeVersion, ezUInt32 uiVariantType,
   ezRTTIAllocator* pAllocator, ezArrayPtr<ezAbstractProperty*> properties, ezArrayPtr<ezAbstractMessageHandler*> messageHandlers)
 {
   m_szPluginName = nullptr;
@@ -36,6 +36,7 @@ ezRTTI::ezRTTI(const char* szName, const ezRTTI* pParentType, ezUInt32 uiTypeSiz
   m_pParentType = pParentType;
   m_uiVariantType = uiVariantType;
   m_uiTypeSize = uiTypeSize;
+  m_uiTypeVersion = uiTypeVersion;
   m_pAllocator = pAllocator;
   m_Properties = properties;
   m_MessageHandlers = messageHandlers;  
@@ -129,14 +130,10 @@ void ezRTTI::GetAllProperties(ezHybridArray<ezAbstractProperty*, 32>& out_Proper
 {
   out_Properties.Clear();
 
-  const ezRTTI* pThis = this;
+  if (m_pParentType)
+    m_pParentType->GetAllProperties(out_Properties);
 
-  while (pThis)
-  {
-    out_Properties.PushBackRange(pThis->GetProperties());
-
-    pThis = pThis->m_pParentType;
-  }
+  out_Properties.PushBackRange(GetProperties());
 }
 
 ezRTTI* ezRTTI::FindTypeByName(const char* szName)

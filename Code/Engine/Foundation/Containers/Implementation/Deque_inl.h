@@ -326,7 +326,7 @@ void ezDequeBase<T, Construct>::SetCount(ezUInt32 uiCount)
 
     if (Construct)
     {
-      // default construct the new eleemnts
+      // default construct the new elements
       for (ezUInt32 i = uiOldCount; i < uiNewCount; ++i)
         ezMemoryUtils::DefaultConstruct(&ElementAt(i), 1);
     }
@@ -353,6 +353,21 @@ void ezDequeBase<T, Construct>::SetCount(ezUInt32 uiCount)
 }
 
 template <typename T, bool Construct>
+EZ_FORCE_INLINE ezUInt32 ezDequeBase<T, Construct>::GetContiguousRange(ezUInt32 uiIndex) const
+{
+  EZ_ASSERT(uiIndex < m_uiCount, "The deque has %i elements. Cannot access element %i.", m_uiCount, uiIndex);
+
+  const ezUInt32 uiChunkSize = CHUNK_SIZE(T);
+
+  const ezUInt32 uiRealIndex   = m_uiFirstElement + uiIndex;
+  const ezUInt32 uiChunkOffset = uiRealIndex % uiChunkSize;
+
+  const ezUInt32 uiRange = uiChunkSize - uiChunkOffset;
+
+  return ezMath::Min(uiRange, GetCount() - uiIndex);
+}
+
+template <typename T, bool Construct>
 EZ_FORCE_INLINE T& ezDequeBase<T, Construct>::operator[](ezUInt32 uiIndex)
 {
   EZ_ASSERT(uiIndex < m_uiCount, "The deque has %i elements. Cannot access element %i.", m_uiCount, uiIndex);
@@ -376,6 +391,20 @@ EZ_FORCE_INLINE const T& ezDequeBase<T, Construct>::operator[](ezUInt32 uiIndex)
   const ezUInt32 uiChunkOffset= uiRealIndex % CHUNK_SIZE(T);
 
   return m_pChunks[uiChunkIndex][uiChunkOffset];
+}
+
+template <typename T, bool Construct>
+EZ_FORCE_INLINE T& ezDequeBase<T, Construct>::ExpandAndGetRef()
+{
+  RESERVE(m_uiCount + 1);
+  ++m_uiCount;
+
+  T* pElement = &ElementAt(m_uiCount - 1);
+
+  if (Construct)
+    ezMemoryUtils::DefaultConstruct(pElement, 1);
+
+  return *pElement;
 }
 
 template <typename T, bool Construct>
@@ -550,7 +579,7 @@ EZ_FORCE_INLINE void ezDequeBase<T, Construct>::MoveIndexChunksLeft(ezUInt32 uiC
   for (ezUInt32 front = 0; front < uiRemainingChunks; ++front)
     ezMath::Swap(m_pChunks[uiNewFirstChunk + front], m_pChunks[front + uiCurFirstChunk]);
 
-  // just ensures that the following substraction is possible
+  // just ensures that the following subtraction is possible
   EZ_ASSERT(m_uiFirstElement > uiChunkDiff * CHUNK_SIZE(T), "");
 
   // adjust which element is the first by how much the index array has been moved
@@ -656,7 +685,7 @@ void ezDequeBase<T, Construct>::ReduceSize(ezInt32 iReduction)
 
   // we keep this amount of chunks
   // m_uiMaxCount will be adjusted over time
-  // if the deque is shrinked and operates in this state long enough, m_uiMaxCount will be reduced more and more
+  // if the deque is shrunk and operates in this state long enough, m_uiMaxCount will be reduced more and more
   const ezUInt32 uiMaxChunks = (m_uiMaxCount / CHUNK_SIZE(T)) + 3; // +1 because of rounding, +2 spare chunks
 
   EZ_ASSERT(uiMaxChunks >= GetRequiredChunks(m_uiCount), "Implementation Error.");

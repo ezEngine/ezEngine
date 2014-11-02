@@ -40,7 +40,7 @@ inline ezStringBuilder::ezStringBuilder(const wchar_t* szWChar, ezAllocatorBase*
   *this = szWChar;
 }
 
-inline ezStringBuilder::ezStringBuilder(const ezStringIterator& rhs, ezAllocatorBase* pAllocator) : m_Data(pAllocator)
+inline ezStringBuilder::ezStringBuilder(const ezStringView& rhs, ezAllocatorBase* pAllocator) : m_Data(pAllocator)
 {
   m_uiCharacterCount = 0;
   AppendTerminator();
@@ -89,6 +89,11 @@ inline ezUInt32 ezStringBuilder::GetCharacterCount() const
   return m_uiCharacterCount;
 }
 
+inline ezStringBuilder::operator ezStringView() const
+{
+  return GetIteratorFront();
+}
+
 inline void ezStringBuilder::Clear()
 {
   m_uiCharacterCount = 0;
@@ -117,7 +122,7 @@ inline void ezStringBuilder::Prepend(ezUInt32 uiChar)
 inline void ezStringBuilder::Append(const wchar_t* pData1, const wchar_t* pData2, const wchar_t* pData3, const wchar_t* pData4, const wchar_t* pData5, const wchar_t* pData6)
 {
   // this is a bit heavy on the stack size (6KB)
-  // but it is really only a convenience function, as one could always just use the char* Append function and convert explicitely
+  // but it is really only a convenience function, as one could always just use the char* Append function and convert explicitly
   ezStringUtf8 s1(pData1, m_Data.GetAllocator());
   ezStringUtf8 s2(pData2, m_Data.GetAllocator());
   ezStringUtf8 s3(pData3, m_Data.GetAllocator());
@@ -131,7 +136,7 @@ inline void ezStringBuilder::Append(const wchar_t* pData1, const wchar_t* pData2
 inline void ezStringBuilder::Prepend(const wchar_t* pData1, const wchar_t* pData2, const wchar_t* pData3, const wchar_t* pData4, const wchar_t* pData5, const wchar_t* pData6)
 {
   // this is a bit heavy on the stack size (6KB)
-  // but it is really only a convenience function, as one could always just use the char* Append function and convert explicitely
+  // but it is really only a convenience function, as one could always just use the char* Append function and convert explicitly
   ezStringUtf8 s1(pData1, m_Data.GetAllocator());
   ezStringUtf8 s2(pData2, m_Data.GetAllocator());
   ezStringUtf8 s3(pData3, m_Data.GetAllocator());
@@ -175,7 +180,7 @@ inline void ezStringBuilder::AppendFormat(const char* szUtf8Format, ...)
   va_list args;
   va_start (args, szUtf8Format);
 
-  AppendFormat(szUtf8Format, args);
+  AppendFormatArgs(szUtf8Format, args);
 
   va_end (args);
 }
@@ -185,7 +190,7 @@ inline void ezStringBuilder::PrependFormat(const char* szUtf8Format, ...)
   va_list args;
   va_start (args, szUtf8Format);
 
-  PrependFormat(szUtf8Format, args);
+  PrependFormatArgs(szUtf8Format, args);
 
   va_end (args);
 }
@@ -195,23 +200,23 @@ inline void ezStringBuilder::Format(const char* szUtf8Format, ...)
   va_list args;
   va_start (args, szUtf8Format);
 
-  Format(szUtf8Format, args);
+  FormatArgs(szUtf8Format, args);
 
   va_end (args);
 }
 
-inline void ezStringBuilder::Format(const char* szUtf8Format, va_list args0)
+inline void ezStringBuilder::FormatArgs(const char* szUtf8Format, va_list args0)
 {
   va_list args;
   va_copy(args, args0);
 
   Clear();
-  AppendFormat(szUtf8Format, args);
+  AppendFormatArgs(szUtf8Format, args);
 
   va_end(args);
 }
 
-inline void ezStringBuilder::ChangeCharacter(ezStringIterator& It, ezUInt32 uiCharacter)
+inline void ezStringBuilder::ChangeCharacter(ezStringView& It, ezUInt32 uiCharacter)
 {
   EZ_ASSERT(It.IsValid(), "The given character iterator does not point to a valid character.");
   EZ_ASSERT(It.GetData() >= GetData() && It.GetData() < GetData() + GetElementCount(), "The given character iterator does not point into this string. It was either created from another string, or this string has been reallocated in the mean time.");
@@ -228,14 +233,14 @@ inline void ezStringBuilder::ChangeCharacter(ezStringIterator& It, ezUInt32 uiCh
   ChangeCharacterNonASCII(It, uiCharacter);
 }
 
-inline ezStringIterator ezStringBuilder::GetIteratorFront() const
+inline ezStringView ezStringBuilder::GetIteratorFront() const
 {
-  return ezStringIterator(GetData(), GetData() + GetElementCount(), GetData(), GetCharacterCount() == GetElementCount());
+  return ezStringView(GetData(), GetData() + GetElementCount());
 }
 
-inline ezStringIterator ezStringBuilder::GetIteratorBack() const
+inline ezStringView ezStringBuilder::GetIteratorBack() const
 {
-  ezStringIterator it (GetData(), GetData() + GetElementCount(), GetData() + GetElementCount(), GetCharacterCount() == GetElementCount());
+  ezStringView it (GetData(), GetData() + GetElementCount());
   it.ResetToBack();
   return it;
 }
@@ -250,14 +255,14 @@ inline void ezStringBuilder::Reserve(ezUInt32 uiNumElements)
   m_Data.Reserve(uiNumElements);
 }
 
-inline void ezStringBuilder::Insert (const char* szInsertAtPos, const char* szTextToInsert, const char* szTextToInsertEnd)
+inline void ezStringBuilder::Insert (const char* szInsertAtPos, const ezStringView& szTextToInsert)
 {
-  ReplaceSubString(szInsertAtPos, szInsertAtPos, szTextToInsert, szTextToInsertEnd);
+  ReplaceSubString(szInsertAtPos, szInsertAtPos, szTextToInsert);
 }
 
 inline void ezStringBuilder::Remove(const char* szRemoveFromPos, const char* szRemoveToPos)
 {
-  ReplaceSubString(szRemoveFromPos, szRemoveToPos, nullptr);
+  ReplaceSubString(szRemoveFromPos, szRemoveToPos, ezStringView());
 }
 
 template <typename Container>
@@ -309,13 +314,13 @@ void ezStringBuilder::Split(bool bReturnEmptyStrings, Container& Output, const c
       const ezUInt32 uiLen = ezStringUtils::GetStringElementCount(szReadPos);
 
       if (bReturnEmptyStrings || (uiLen > 0))
-        Output.PushBack(ezStringIterator(szReadPos, szReadPos + uiLen, szReadPos));
+        Output.PushBack(ezStringView(szReadPos, szReadPos + uiLen));
 
       return;
     }
     
     if (bReturnEmptyStrings || (szFoundPos > szReadPos))
-      Output.PushBack(ezStringIterator(szReadPos, szFoundPos, szReadPos));
+      Output.PushBack(ezStringView(szReadPos, szFoundPos));
 
     szReadPos = szFoundPos + SepLen[iFoundSeparator];
   }
@@ -331,22 +336,22 @@ inline bool ezStringBuilder::HasExtension(const char* szExtension) const
   return ezPathUtils::HasExtension(GetData(), szExtension, GetData() + GetElementCount());
 }
 
-inline ezStringIterator ezStringBuilder::GetFileExtension() const
+inline ezStringView ezStringBuilder::GetFileExtension() const
 {
   return ezPathUtils::GetFileExtension(GetData(), GetData() + GetElementCount());
 }
 
-inline ezStringIterator ezStringBuilder::GetFileName() const
+inline ezStringView ezStringBuilder::GetFileName() const
 {
   return ezPathUtils::GetFileName(GetData(), GetData() + GetElementCount());
 }
 
-inline ezStringIterator ezStringBuilder::GetFileNameAndExtension() const
+inline ezStringView ezStringBuilder::GetFileNameAndExtension() const
 {
   return ezPathUtils::GetFileNameAndExtension(GetData(), GetData() + GetElementCount());
 }
 
-inline ezStringIterator ezStringBuilder::GetFileDirectory() const
+inline ezStringView ezStringBuilder::GetFileDirectory() const
 {
   return ezPathUtils::GetFileDirectory(GetData(), GetData() + GetElementCount());
 }

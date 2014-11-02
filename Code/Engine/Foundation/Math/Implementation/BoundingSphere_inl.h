@@ -137,7 +137,7 @@ void ezBoundingSphereTemplate<Type>::ScaleFromOrigin(const ezVec3Template<Type>&
 
   m_vCenter = m_vCenter.CompMult(vScale);
 
-  // scale the radius by the maximum scaling factor (the sphere cannot become an elipsoid, 
+  // scale the radius by the maximum scaling factor (the sphere cannot become an ellipsoid, 
   // so to be a 'bounding' sphere, it should be as large as possible
   m_fRadius *= ezMath::Max(vScale.x, vScale.y, vScale.z);
 }

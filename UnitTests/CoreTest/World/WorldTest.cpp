@@ -98,7 +98,7 @@ EZ_CREATE_SIMPLE_TEST(World, World)
     EZ_TEST_VEC3(pParentObject->GetLocalScaling(), desc.m_LocalScaling, 0);
 
     EZ_TEST_VEC3(pParentObject->GetWorldPosition(), desc.m_LocalPosition, 0);
-    EZ_TEST_BOOL(pParentObject->GetWorldRotation().IsEqualRotation(desc.m_LocalRotation, eps));
+    EZ_TEST_BOOL(pParentObject->GetWorldRotation().IsEqualRotation(desc.m_LocalRotation, eps * 10.0f));
     EZ_TEST_VEC3(pParentObject->GetWorldScaling(), desc.m_LocalScaling, 0);
 
     EZ_TEST_STRING(pParentObject->GetName(), desc.m_sName.GetString().GetData());
@@ -128,7 +128,7 @@ EZ_CREATE_SIMPLE_TEST(World, World)
       EZ_TEST_STRING(it->GetName(), sb.GetData());
 
       EZ_TEST_VEC3(it->GetWorldPosition(), ezVec3(100.0f, uiCounter * 15.0f, 0.0f), eps * 2.0f); // 15 because parent is scaled by 1.5
-      EZ_TEST_BOOL(it->GetWorldRotation().IsEqualRotation(q, eps));
+      EZ_TEST_BOOL(it->GetWorldRotation().IsEqualRotation(q, eps * 10.0f));
       EZ_TEST_VEC3(it->GetWorldScaling(), ezVec3(1.5f, 1.5f, 1.5f), 0.0f);
 
       ++uiCounter;
@@ -230,5 +230,70 @@ EZ_CREATE_SIMPLE_TEST(World, World)
     EZ_TEST_INT(o.pParent2->GetChildCount(), 0);
     it = o.pParent2->GetChildren();
     EZ_TEST_BOOL(!it.IsValid());
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Traversal")
+  {
+    ezWorld world("Test");
+    TestWorldObjects o = CreateTestWorld(world);
+
+    {
+      struct BreadthFirstTest
+      {
+        BreadthFirstTest() { m_uiCounter = 0; }
+
+        bool Visit(ezGameObject* pObject)
+        {
+          if (m_uiCounter < EZ_ARRAY_SIZE(m_o.pObjects))
+          {
+            EZ_TEST_BOOL(pObject == m_o.pObjects[m_uiCounter]);
+          }
+
+          ++m_uiCounter;
+          return true;
+        }
+
+        ezUInt32 m_uiCounter;
+        TestWorldObjects m_o;
+      };
+
+      BreadthFirstTest bft;
+      bft.m_o = o;
+
+      world.Traverse(ezWorld::VisitorFunc(&BreadthFirstTest::Visit, &bft), ezWorld::BreadthFirst);
+      EZ_TEST_INT(bft.m_uiCounter, EZ_ARRAY_SIZE(o.pObjects));
+    }
+
+    {
+      world.CreateObject(ezGameObjectDesc());
+
+      struct DepthFirstTest
+      {
+        DepthFirstTest() { m_uiCounter = 0; }
+
+        bool Visit(ezGameObject* pObject)
+        {
+          if      (m_uiCounter == 0) { EZ_TEST_BOOL(pObject == m_o.pParent1); }
+          else if (m_uiCounter == 1) { EZ_TEST_BOOL(pObject == m_o.pChild11); }
+          else if (m_uiCounter == 2) { EZ_TEST_BOOL(pObject == m_o.pParent2); }
+          else if (m_uiCounter == 3) { EZ_TEST_BOOL(pObject == m_o.pChild21); }
+
+          ++m_uiCounter;
+          if (m_uiCounter >= EZ_ARRAY_SIZE(m_o.pObjects))
+            return false;
+
+          return true;
+        }
+
+        ezUInt32 m_uiCounter;
+        TestWorldObjects m_o;
+      };
+
+      DepthFirstTest dft;
+      dft.m_o = o;
+
+      world.Traverse(ezWorld::VisitorFunc(&DepthFirstTest::Visit, &dft), ezWorld::DepthFirst);
+      EZ_TEST_INT(dft.m_uiCounter, EZ_ARRAY_SIZE(o.pObjects));
+    }
   }
 }

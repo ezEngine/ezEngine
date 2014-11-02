@@ -19,7 +19,7 @@
 
 /// \brief The startup system makes sure to initialize and shut down all known subsystems in the proper order.
 ///
-/// Each subsystem can define on which other subsystems (or entire group) it is dependent (ie. which other code it needs in an initialized
+/// Each subsystem can define on which other subsystems (or entire group) it is dependent (i.e. which other code it needs in an initialized
 /// state, before it can run itself). The startup system will sort all subsystems by their dependencies and then initialize
 /// them in the proper order.
 /// The startup and shutdown sequence consists of two steps. First the 'core' functionality is initialized. This is usually

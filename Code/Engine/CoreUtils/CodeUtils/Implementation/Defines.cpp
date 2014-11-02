@@ -41,6 +41,17 @@ ezResult ezPreprocessor::StoreDefine(const ezToken* pMacroNameToken, const Token
     return EZ_FAILURE;
   }
 
+  /* make sure all replacements are not empty
+  {
+    ezToken Whitespace;
+    Whitespace.m_File = pMacroNameToken->m_File;
+    Whitespace.m_iType = ezTokenType::Whitespace;
+    Whitespace.m_uiColumn = pMacroNameToken->m_uiColumn + sMacroName.GetCharacterCount() + 1;
+    Whitespace.m_uiLine = pMacroNameToken->m_uiLine;
+
+    md.m_Replacement.PushBack(AddCustomToken(&Whitespace, ""));
+  }*/
+
   bool bExisted = false;
   auto it = m_Macros.FindOrAdd(sMacroName, &bExisted);
 
@@ -143,6 +154,21 @@ ezResult ezPreprocessor::AddCustomDefine(const char* szDefinition)
 
   if (m_CustomDefines.PeekBack().m_Tokenized.GetNextLine(uiFirstToken, Tokens).Failed())
     return EZ_FAILURE;
+
+  ezDeque<ezToken>&  NewTokens = m_CustomDefines.PeekBack().m_Tokenized.GetTokens();
+
+  ezHashedString sFile;
+  sFile.Assign("<CustomDefines>");
+
+  ezUInt32 uiColumn = 1;
+  for (ezUInt32 t = 0; t < NewTokens.GetCount(); ++t)
+  {
+    NewTokens[t].m_File = sFile;
+    NewTokens[t].m_uiLine = m_CustomDefines.GetCount();
+    NewTokens[t].m_uiColumn = uiColumn;
+
+    uiColumn += ezString(NewTokens[t].m_DataView).GetCharacterCount();
+  }
 
   ezUInt32 uiCurToken = 0;
   return HandleDefine(Tokens, uiCurToken);

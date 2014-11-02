@@ -89,7 +89,7 @@ void ezTelemetry::UpdateNetwork()
           Broadcast(ezTelemetry::Reliable, 'EZBC', 'EZID', &s_uiApplicationID, sizeof(ezUInt32));
           s_bConnectedToClient = false;
 
-          // then wait for its acknowledgement message
+          // then wait for its acknowledgment message
         }
       }
       break;

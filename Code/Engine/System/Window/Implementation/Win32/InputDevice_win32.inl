@@ -5,7 +5,7 @@
 #include <Foundation/Strings/StringConversion.h>
 #include <Foundation/Containers/HybridArray.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezStandardInputDevice, ezInputDeviceMouseKeyboard, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezStandardInputDevice, ezInputDeviceMouseKeyboard, 1, ezRTTINoAllocator);
   // no properties or message handlers
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
@@ -56,7 +56,7 @@ void ezStandardInputDevice::InitializeDevice()
       ezLog::Success("Initialized RawInput for Mouse and Keyboard input.");
   }
   else
-    ezLog::Info("Window %i does not need to initialize Mouse or Keybard.", m_uiWindowNumber);
+    ezLog::Info("Window %i does not need to initialize Mouse or Keyboard.", m_uiWindowNumber);
 }
 
 void ezStandardInputDevice::RegisterInputSlots()

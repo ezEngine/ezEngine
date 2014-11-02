@@ -14,7 +14,7 @@
 /// in memory, thus it is safe to store pointers to elements inside the deque.
 /// The deque uses one redirection to look up elements, for which it uses one index array. Thus a look up into a deque
 /// is slightly slower than a pure array lookup, but still very fast, compared to all other containers.
-/// Deques can easily grow and shrink at both ends and are thus well suited for use as a fifo or lifo queue or even
+/// Deques can easily grow and shrink at both ends and are thus well suited for use as a FIFO or LIFO queue or even
 /// a ring-buffer. It is optimized to even handle the ring-buffer use case without any memory allocations, as long as
 /// the buffer does not need to grow.
 template <typename T, bool Construct>
@@ -57,7 +57,7 @@ public:
   /// \brief This function deallocates as much memory as possible to shrink the deque to the bare minimum size that it needs to work.
   ///
   /// This function is never called internally. It is only for the user to trigger a size reduction when he feels like it.
-  /// The index array data is not reduced as much as possible, a bit spare memory is keept to allow for scaling the deque
+  /// The index array data is not reduced as much as possible, a bit spare memory is kept to allow for scaling the deque
   /// up again, without immediate reallocation of all data structures.
   /// If the deque is completely empty, ALL data is completely deallocated.
   void Compact(); // [tested]
@@ -70,6 +70,9 @@ public:
 
   /// \brief Accesses the n-th element in the deque.
   const T& operator[](ezUInt32 uiIndex) const; // [tested]
+
+  /// \brief Grows the deque by one element and returns a reference to the newly created element.
+  T& ExpandAndGetRef(); // [tested]
 
   /// \brief Adds one default constructed element to the back of the deque.
   void PushBack(); // [tested]
@@ -113,7 +116,7 @@ public:
   /// \brief Returns the first index at which an element with the given value could be found or ezInvalidIndex if nothing was found.
   ezUInt32 IndexOf(const T& value, ezUInt32 uiStartIndex = 0) const; // [tested]
 
-  /// \brief Returns the last index at wich an element with the given value could be found or ezInvalidIndex if nothing was found.
+  /// \brief Returns the last index at which an element with the given value could be found or ezInvalidIndex if nothing was found.
   ezUInt32 LastIndexOf(const T& value, ezUInt32 uiStartIndex = ezInvalidIndex) const; // [tested]
 
   /// \brief Removes the element at the given index and fills the gap with the last element in the deque.
@@ -140,6 +143,11 @@ public:
 
   /// \brief Returns the allocator that is used by this instance.
   ezAllocatorBase* GetAllocator() const { return m_pAllocator; }
+
+  /// \brief Returns the number of elements after uiStartIndex that are stored in contiguous memory.
+  ///
+  /// That means one can do a memcpy or memcmp from position uiStartIndex up until uiStartIndex + range.
+  ezUInt32 GetContiguousRange(ezUInt32 uiStartIndex) const; // [tested]
 
 private:
 

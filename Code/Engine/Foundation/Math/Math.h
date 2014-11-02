@@ -15,7 +15,7 @@ namespace ezMath
   template<typename Type>
   static bool IsNaN(Type value) { return false; }
 
-  /// \brief Returns whether the given value represents a finite value (ie. not +/- Infinity and not NaN)
+  /// \brief Returns whether the given value represents a finite value (i.e. not +/- Infinity and not NaN)
   template<typename Type>
   static bool IsFinite(Type value) { return true; }
 
@@ -115,7 +115,7 @@ namespace ezMath
   /// \brief Returns the n-th root of f.
   float Root(float f, float NthRoot); // [tested]
 
-  /// \brief Returns the sign of f (ie: -1, 1 or 0)
+  /// \brief Returns the sign of f (i.e: -1, 1 or 0)
   template <typename T>
   T Sign(T f); // [tested]
 
@@ -173,7 +173,7 @@ namespace ezMath
   template<typename Type>
   Type Trunc(Type f); // [tested]
 
-  /// \brief Rounds f to the next integer. If f is positive 0.5 is rounded UP (ie. to 1), if f is negative, -0.5 is rounded DOWN (ie. to -1).
+  /// \brief Rounds f to the next integer. If f is positive 0.5 is rounded UP (i.e. to 1), if f is negative, -0.5 is rounded DOWN (i.e. to -1).
   template<typename Type>
   Type Round(Type f); // [tested]
 
@@ -185,8 +185,8 @@ namespace ezMath
   template<typename Type>
   Type Fraction(Type f); // [tested]
 
-  /// \brief Returns "value mod div" for floats.
-  float Mod(float f, float div); // [tested]
+  /// \brief Returns "value mod div" for floats. This also works with negative numbers, both for value and for div.
+  float Mod(float value, float div); // [tested]
 
   /// \brief Returns 1 / f
   template<typename Type>

@@ -33,9 +33,6 @@ protected:
   /// \brief Moves the data from some other contiguous array into this one.
   void operator= (ezHybridArrayBase<T, Size>&& rhs); // [tested]
 
-  /// \brief Copies the data from some other contiguous array into this one.
-  void operator= (const ezArrayPtr<T>& rhs); // [tested]
-
 public:
 
   /// \brief Expands the array so it can at least store the given capacity.

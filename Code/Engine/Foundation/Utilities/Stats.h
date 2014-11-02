@@ -34,7 +34,7 @@ public:
   /// \brief Returns the entire map of stats, can be used to display them.
   static const MapType& GetAllStats() { return s_Stats; }
 
-  /// \brief The event data that is broadcasted whenever a stat is changed.
+  /// \brief The event data that is broadcast whenever a stat is changed.
   struct StatsEventData
   {
     /// \brief Which type of event this is.

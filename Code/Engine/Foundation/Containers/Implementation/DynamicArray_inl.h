@@ -12,7 +12,7 @@ ezDynamicArrayBase<T>::ezDynamicArrayBase(const ezDynamicArrayBase<T>& other, ez
   this->m_uiCapacity = 0;
   m_pAllocator = pAllocator;
 
-  *this = (ezArrayPtr<T>) other; // redirect this to the ezArrayPtr version
+  ezArrayBase<T, ezDynamicArrayBase<T>>::operator=((ezArrayPtr<T>)other); // redirect this to the ezArrayPtr version
 }
 
 template <typename T>
@@ -30,7 +30,7 @@ ezDynamicArrayBase<T>::ezDynamicArrayBase(const ezArrayPtr<T>& other, ezAllocato
   this->m_uiCapacity = 0;
   m_pAllocator = pAllocator;
 
-  *this = other;
+  ezArrayBase<T, ezDynamicArrayBase<T>>::operator=((ezArrayPtr<T>)other);
 }
 
 template <typename T>
@@ -44,7 +44,7 @@ ezDynamicArrayBase<T>::~ezDynamicArrayBase()
 template <typename T>
 EZ_FORCE_INLINE void ezDynamicArrayBase<T>::operator= (const ezDynamicArrayBase<T>& rhs)
 {
-  *this = (ezArrayPtr<T>) rhs; // redirect this to the ezArrayPtr version
+  ezArrayBase<T, ezDynamicArrayBase<T>>::operator=((ezArrayPtr<T>)rhs); // redirect this to the ezArrayPtr version
 }
 
 template <typename T>
@@ -68,16 +68,9 @@ EZ_FORCE_INLINE void ezDynamicArrayBase<T>::operator= (ezDynamicArrayBase<T>&& r
   }
   else
   {
-    *this = (ezArrayPtr<T>) rhs; // redirect this to the ezArrayPtr version
+    ezArrayBase<T, ezDynamicArrayBase<T>>::operator=((ezArrayPtr<T>)rhs); // redirect this to the ezArrayPtr version
+    rhs.Clear();
   }
-}
-
-
-template <typename T>
-void ezDynamicArrayBase<T>::operator= (const ezArrayPtr<T>& rhs)
-{
-  this->SetCount(rhs.GetCount());
-  ezMemoryUtils::Copy(this->m_pElements, rhs.GetPtr(), rhs.GetCount());
 }
 
 template <typename T>
@@ -170,7 +163,7 @@ void ezDynamicArray<T, A>::operator=(const ezDynamicArrayBase<T>& rhs)
 template <typename T, typename A>
 void ezDynamicArray<T, A>::operator=(const ezArrayPtr<T>& rhs)
 {
-  ezDynamicArrayBase<T>::operator=(rhs);
+  ezArrayBase<T, ezDynamicArrayBase<T>>::operator=(rhs);
 }
 
 template <typename T, typename A>

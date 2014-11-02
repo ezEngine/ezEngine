@@ -112,13 +112,13 @@ public:
   Iterator Erase(const Iterator& pos); // [tested]
 
   /// \brief Searches for key, returns an Iterator to it or an invalid iterator, if no such key is found. O(log n) operation.
-  Iterator Find(const KeyType& key); // [tested]
+  Iterator Find(const KeyType& key) const; // [tested]
 
   /// \brief Returns an Iterator to the element with a key equal or larger than the given key. Returns an invalid iterator, if there is no such element.
-  Iterator LowerBound(const KeyType& key); // [tested]
+  Iterator LowerBound(const KeyType& key) const; // [tested]
 
   /// \brief Returns an Iterator to the element with a key that is LARGER than the given key. Returns an invalid iterator, if there is no such element.
-  Iterator UpperBound(const KeyType& key); // [tested]
+  Iterator UpperBound(const KeyType& key) const; // [tested]
 
   /// \brief Returns the allocator that is used by this instance.
   ezAllocatorBase* GetAllocator() const { return m_Elements.GetAllocator(); }

@@ -21,7 +21,7 @@ void ezConsole::ProcessCommand(const char* szCmd)
     const char* szKeyNameStart = ezStringUtils::SkipCharacters(szAfterCmd, ezStringUtils::IsWhiteSpace); // go to the next word
     const char* szKeyNameEnd = ezStringUtils::FindWordEnd(szKeyNameStart, ezStringUtils::IsIdentifierDelimiter_C_Code); // find its end
     
-    ezStringIterator sKey(szKeyNameStart, szKeyNameEnd, szKeyNameStart);
+    ezStringView sKey(szKeyNameStart, szKeyNameEnd);
     ezStringBuilder sKeyName = sKey; // copy the word into a zero terminated string
 
     const char* szCommandToBind = ezStringUtils::SkipCharacters(szKeyNameEnd, ezStringUtils::IsWhiteSpace);

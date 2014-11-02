@@ -137,7 +137,7 @@ public:
   /// \brief Appends a default-constructed element to the list.
   void PushBack(); // [tested]
 
-  /// \brief Appands a copy of the given element to the list.
+  /// \brief Appends a copy of the given element to the list.
   void PushBack(const T& element); // [tested]
 
   /// \brief Removes the very last element from the list.
@@ -146,7 +146,7 @@ public:
   /// \brief Appends a default-constructed element to the front of the list.
   void PushFront(); // [tested]
 
-  /// \brief Appands a copy of the given element to the front of the list.
+  /// \brief Appends a copy of the given element to the front of the list.
   void PushFront (const T& element); // [tested]
 
   /// \brief Removes the very first element from the list.

@@ -269,7 +269,7 @@ void ezInputWidget::UpdateSlotTable(bool bRecreate)
         }
       }
 
-      // Deadzone
+      // Dead-zone
       {
         QLabel* pDeadZone = (QLabel*) TableInputSlots->cellWidget(iRow, 4);
         pDeadZone->setAlignment(Qt::AlignHCenter);

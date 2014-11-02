@@ -10,7 +10,7 @@ class ezDataDirectoryWriter;
 /// \brief The base class for all data directory types.
 ///
 /// There are different data directory types, such as a simple folder, a ZIP file or some kind of library 
-/// (e.g. image files from procedural data). Even a http server that actually transmits files over a network
+/// (e.g. image files from procedural data). Even a HTTP server that actually transmits files over a network
 /// can provided by implementing it as a data directory type.
 /// Data directories are added through ezFileSystem, which uses factories to decide which ezDataDirectoryType
 /// to use for handling which data directory.

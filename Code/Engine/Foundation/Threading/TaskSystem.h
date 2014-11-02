@@ -93,7 +93,7 @@ private:
 /// You can run a single task using the 'StartSingleTask' function. For more complex setups, it is possible
 /// to create groups of tasks, which can have interdependencies. This should be used to group all
 /// tasks that belong to one system and need to be done before another system runs. For example you could group
-/// all tasks to update particle systems, and then hae another group for all tasks to update sound, which depends
+/// all tasks to update particle systems, and then have another group for all tasks to update sound, which depends
 /// on the first group, such that sound is only updated after all particle systems are done with.
 ///
 /// Although it is possible to wait for tasks or to cancel them, it is generally advised to try to minimize their use.
@@ -141,7 +141,7 @@ public:
   /// \brief Adds a dependency on another group to \a Group. This means \a Group will not be execute before \a DependsOn has finished.
   ///
   /// \note Be careful with dependencies and task priorities. A task that has to execute 'this frame' should never depend on a task
-  /// that needs only finish 'next frame', this might introduce very long and unnecesary waits.
+  /// that needs only finish 'next frame', this might introduce very long and unnecessary waits.
   /// A task that has priority 'this frame' or 'next frame' will actually not be executed in 'this frame' or 'next frame' until all
   /// its dependencies are fulfilled. So you might add a long running task and a short task which depends on it, but the system will
   /// not block at the end of the frame, to wait for the long running task (to finish the short task thereafter), as that short task

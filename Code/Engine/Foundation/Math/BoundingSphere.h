@@ -80,10 +80,10 @@ public:
   /// \brief Scales the sphere in world unites, meaning its center position will change as well.
   void ScaleFromOrigin(const ezVec3Template<Type>& vScale); // [tested]
 
-  /// \brief Transforms the sphere with the given matrix from the world origin. Ie. scalings and rotations will influence its position.
+  /// \brief Transforms the sphere with the given matrix from the world origin. I.e. scalings and rotations will influence its position.
   void TransformFromOrigin(const ezMat4Template<Type>& mTransform); // [tested]
 
-  /// \brief Transforms the sphere with the given matrix from its own center. Ie. rotations have no effect, scalings will only affect the radius, and only translations will affect its position.
+  /// \brief Transforms the sphere with the given matrix from its own center. I.e. rotations have no effect, scalings will only affect the radius, and only translations will affect its position.
   void TransformFromCenter(const ezMat4Template<Type>& mTransform); // [tested]
 
   /// \brief Computes the distance of the point to the sphere's surface. Returns negative values for points inside the sphere.
@@ -129,7 +129,7 @@ public:
   /// The function will also return true, if the ray already starts inside the sphere, but it will still compute the intersection with the surface of the sphere.
   bool GetRayIntersection(const ezVec3Template<Type>& vRayStartPos, const ezVec3Template<Type>& vRayDir, Type* out_fIntersection = nullptr, ezVec3Template<Type>* out_vIntersection = nullptr) const; // [tested]
 
-  /// \brief Returns true if the line segment intersects the spere.
+  /// \brief Returns true if the line segment intersects the sphere.
   bool GetLineSegmentIntersection(const ezVec3Template<Type>& vLineStartPos, const ezVec3Template<Type>& vLineEndPos, Type* out_fHitFraction = nullptr, ezVec3Template<Type>* out_vIntersection = nullptr) const; // [tested]
 
 

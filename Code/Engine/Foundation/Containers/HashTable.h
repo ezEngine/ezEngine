@@ -1,11 +1,11 @@
 #pragma once
 
 #include <Foundation/Algorithm/Hashing.h>
-#include <Foundation/Basics/Types/ArrayPtr.h>
+#include <Foundation/Types/ArrayPtr.h>
 #include <Foundation/Math/Math.h>
 #include <Foundation/Memory/AllocatorWrapper.h>
 
-/// \brief Implementation of a Hashtable which stores key/value pairs.
+/// \brief Implementation of a hashtable which stores key/value pairs.
 ///
 /// The hashtable maps keys to values by using the hash of the key as an index into the table. 
 /// This implementation uses linear-probing to resolve hash collisions which means all key/value pairs are stored 

@@ -85,7 +85,7 @@ namespace
   ezInt32 TestComponent::s_iInitCounter = 0;
   ezInt32 TestComponent::s_iAttachCounter = 0;
 
-  EZ_BEGIN_COMPONENT_TYPE(TestComponent, ezComponent, TestComponentManager);
+  EZ_BEGIN_COMPONENT_TYPE(TestComponent, ezComponent, 1, TestComponentManager);
   EZ_END_COMPONENT_TYPE();
 
   void TestComponentManager::Update(ezUInt32 uiStartIndex, ezUInt32 uiCount)
@@ -133,7 +133,7 @@ EZ_CREATE_SIMPLE_TEST(World, Components)
     ezComponentHandle handle;
     EZ_TEST_BOOL(!world.TryGetComponent(handle, pComponent));
 
-    handle = pManager->CreateComponent(pComponent);
+    handle = TestComponent::CreateComponent(&world, pComponent);
     TestComponent* pTest = nullptr;
     EZ_TEST_BOOL(world.TryGetComponent(handle, pTest));
     EZ_TEST_BOOL(pTest == pComponent);

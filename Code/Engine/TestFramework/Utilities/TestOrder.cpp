@@ -122,7 +122,6 @@ inline void StripWhitespaces(char* szString)
   szString[uiWritePos] = '\0';
 }
 
-/// Loads the order of tests from a file and sorts the existing tests in the array accordingly. The file and the array do not need to contain the same set of tests, the array is only re-arranged, nothing is added or removed from it.
 void LoadTestOrder(const char* szFile, std::deque<ezTestEntry>& AllTests, TestSettings& testSettings)
 {
   FILE* pFile = fopen(szFile, "rb");
@@ -132,8 +131,6 @@ void LoadTestOrder(const char* szFile, std::deque<ezTestEntry>& AllTests, TestSe
     return;
   }
 
-  ezInt32 iMainTestPos = 0;
-  ezInt32 iSubTestPos = 0;
   ezInt32 iLastMainTest =  0;
 
   while (!feof(pFile))
@@ -155,7 +152,6 @@ void LoadTestOrder(const char* szFile, std::deque<ezTestEntry>& AllTests, TestSe
     {
       if (!bIndented)
       {
-        iSubTestPos = 0;
         iLastMainTest = -1;
 
         // Are we in the settings block?
@@ -171,13 +167,8 @@ void LoadTestOrder(const char* szFile, std::deque<ezTestEntry>& AllTests, TestSe
 
           if (strcmp(szOtherName, szTestName) == 0)
           {
-            // swap the two tests, to move the currently found test to the front
-            ezMath::Swap(AllTests[iMainTestPos], AllTests[t]);
-
-            AllTests[iMainTestPos].m_bEnableTest = !bIsOff;
-
-            iLastMainTest = iMainTestPos;
-            ++iMainTestPos;
+            iLastMainTest = t;
+            AllTests[t].m_bEnableTest = !bIsOff;
             break;
           }
         }
@@ -214,17 +205,11 @@ void LoadTestOrder(const char* szFile, std::deque<ezTestEntry>& AllTests, TestSe
 
             if (strcmp(szOtherName, szTestName) == 0)
             {
-              // swap the two tests, to move the currently found test to the front
-              ezSubTestEntry entry = AllTests[iLastMainTest].m_SubTests[iSubTestPos];
-              AllTests[iLastMainTest].m_SubTests[iSubTestPos] = AllTests[iLastMainTest].m_SubTests[t];
-              AllTests[iLastMainTest].m_SubTests[t] = entry;
-
-              AllTests[iLastMainTest].m_SubTests[iSubTestPos].m_bEnableTest = !bIsOff;
+              AllTests[iLastMainTest].m_SubTests[t].m_bEnableTest = !bIsOff;
               break;
             }
           }
         }
-        ++iSubTestPos;
       }
     }
   }

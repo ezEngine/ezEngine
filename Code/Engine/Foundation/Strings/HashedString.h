@@ -94,8 +94,17 @@ public:
   /// \brief Gives access to the actual string data, so you can do all the typical (read-only) string operations on it.
   const ezString& GetString() const; // [tested]
 
+  /// \brief Gives access to the actual string data, so you can do all the typical (read-only) string operations on it.
+  const char* GetData() const;
+
   /// \brief Returns the hash of the stored string.
   ezUInt32 GetHash() const; // [tested]
+
+  /// \brief Returns a string view to this string's data.
+  operator ezStringView() const { return GetString(); }
+
+  /// \brief Returns a pointer to the internal Utf8 string.
+  operator const char*() const { return GetData(); }
 
 private:
   static void InitHashedString();

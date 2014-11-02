@@ -156,7 +156,7 @@ double ExtractValue(const char* szString)
 {
   ezStringBuilder res;
 
-  ezStringIterator s(szString);
+  ezStringView s(szString);
   s.ResetToBack();
 
   bool bFoundNumber = false;
@@ -181,7 +181,7 @@ double ExtractValue(const char* szString)
       }
     }
 
-    if (s.GetData() == s.GetStart())
+    if (s.GetData() == s.GetStartPosition())
       break;
 
     --s;

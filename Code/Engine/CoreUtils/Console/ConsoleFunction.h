@@ -2,7 +2,7 @@
 
 #include <CoreUtils/Basics.h>
 #include <Foundation/Utilities/EnumerableClass.h>
-#include <Foundation/Basics/Types/Variant.h>
+#include <Foundation/Types/Variant.h>
 
 /// \brief Base class for all types of ezConsoleFunction, represents functions to be exposed to ezConsole.
 ///

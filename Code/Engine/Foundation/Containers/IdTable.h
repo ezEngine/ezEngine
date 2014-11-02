@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Foundation/Basics/Types/Id.h>
+#include <Foundation/Types/Id.h>
 #include <Foundation/Memory/AllocatorWrapper.h>
 
 /// \brief Implementation of an id mapping table which stores id/value pairs.
@@ -8,7 +8,7 @@
 /// An id contains an index into the table and a generation counter to detect if a table entry was re-used.
 /// All insertion/erasure/lookup functions take O(1) time if the table does not need to be expanded. 
 /// Lookup is nearly as fast as a simple array lookup. 
-/// The table stores a freelist in its free elements to ensure fast insertion/erasure.
+/// The table stores a free-list in its free elements to ensure fast insertion/erasure.
 ///
 /// \see ezGenericId
 template <typename IdType, typename ValueType>
@@ -70,10 +70,10 @@ public:
   };
 
 protected:
-  /// \brief Creates an empty idtable. Does not allocate any data yet.
+  /// \brief Creates an empty id-table. Does not allocate any data yet.
   ezIdTableBase(ezAllocatorBase* pAllocator); // [tested]
   
-  /// \brief Creates a copy of the given idtable.
+  /// \brief Creates a copy of the given id-table.
   ezIdTableBase(const ezIdTableBase<IdType, ValueType>& rhs, ezAllocatorBase* pAllocator); // [tested]
 
   /// \brief Destructor.
@@ -131,7 +131,7 @@ public:
   /// \brief Returns the allocator that is used by this instance.
   ezAllocatorBase* GetAllocator() const;
 
-  /// \brief Returns whether the internal freelist is valid. For testing purpose only.
+  /// \brief Returns whether the internal free-list is valid. For testing purpose only.
   bool IsFreelistValid() const;
 
 private:

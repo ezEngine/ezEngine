@@ -6,7 +6,7 @@
 
 /// \brief Implementation of a thread.
 ///
-/// Since the thread class needs a platform specific entrypoint it is usually
+/// Since the thread class needs a platform specific entry-point it is usually
 /// recommended to use the ezThread class instead as the base for long running threads.
 class EZ_FOUNDATION_DLL ezOSThread
 {

@@ -1,5 +1,5 @@
 ﻿#include <PCH.h>
-#include <Foundation/Basics/Types/Variant.h>
+#include <Foundation/Types/Variant.h>
 #include <Foundation/Reflection/Reflection.h>
 
 class Blubb : public ezReflectedClass
@@ -10,7 +10,7 @@ public:
   float v;
 };
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(Blubb, ezReflectedClass, ezRTTINoAllocator);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(Blubb, ezReflectedClass, 1, ezRTTINoAllocator);
   EZ_BEGIN_PROPERTIES
     EZ_MEMBER_PROPERTY("u", u),
     EZ_MEMBER_PROPERTY("v", v)

@@ -50,50 +50,27 @@ EZ_FORCE_INLINE float ezAngle::GetRadian() const
   return m_fRadian;
 }
 
-inline void ezAngle::NormalizeRange()
-{
-  /// \test This is inefficient and possibly wrong
-
-  if (m_fRadian >= 2.0f * Pi<float>()) // without 360 degree
-  {
-    do {
-      m_fRadian -= 2.0f * Pi<float>();
-    } while (m_fRadian >= 2.0f * Pi<float>());
-  }
-  else if (m_fRadian < 0.0f) // with 0 degree
-  {
-    do {
-      m_fRadian += 2.0f * Pi<float>();
-    } while (m_fRadian < 0.0f);
-  }
-}
-
-inline ezAngle ezAngle::GetNormalizedRange()
+inline ezAngle ezAngle::GetNormalizedRange() const
 {
   ezAngle out(m_fRadian);
   out.NormalizeRange();
   return out;
 }
 
-inline bool ezAngle::IsEqualSimple(ezAngle rhs, ezAngle epsilon)
+inline bool ezAngle::IsEqualSimple(ezAngle rhs, ezAngle epsilon) const
 {
-  return ((m_fRadian >= rhs.m_fRadian - epsilon.m_fRadian) && (m_fRadian <= rhs.m_fRadian + epsilon.m_fRadian));
+  const ezAngle diff = AngleBetween(*this, rhs);
+
+  return ((diff.m_fRadian >= -epsilon.m_fRadian) && (diff.m_fRadian <= epsilon.m_fRadian));
 }
 
-inline bool ezAngle::IsEqualNormalized(ezAngle rhs, ezAngle epsilon)
+inline bool ezAngle::IsEqualNormalized(ezAngle rhs, ezAngle epsilon) const
 {
   // equality between normalized angles
-  ezAngle aNorm = GetNormalizedRange();
-  ezAngle bNorm = rhs.GetNormalizedRange();
-  if (aNorm.IsEqualSimple(bNorm, epsilon))
-    return true;
+  const ezAngle aNorm = GetNormalizedRange();
+  const ezAngle bNorm = rhs.GetNormalizedRange();
 
-  /// \test Not sure why the code below should be necessary
-  
-  // offset with 180 degree, normalize and check equality again
-  ezAngle aNormOffset = ezAngle::Radian(aNorm.m_fRadian + Pi<float>()).GetNormalizedRange();
-  ezAngle bNormOffset = ezAngle::Radian(bNorm.m_fRadian + Pi<float>()).GetNormalizedRange();
-  return aNormOffset.IsEqualSimple(bNormOffset, epsilon);
+  return aNorm.IsEqualSimple(bNorm, epsilon);
 }
 
 EZ_FORCE_INLINE ezAngle ezAngle::operator - () const

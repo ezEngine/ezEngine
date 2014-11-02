@@ -14,11 +14,11 @@
 ///
 /// The functions SetLocalTransform() and SetGlobalTransform() allow to create transforms that either represent the full
 /// global transformation of an object, factoring its parent's transform in, or the local transformation that will get you
-/// from the parent's global transformation to the current global transformation of a child (ie. only the difference).
+/// from the parent's global transformation to the current global transformation of a child (i.e. only the difference).
 /// This is particularly useful when editing entities in a hierarchical structure.
 ///
 /// Since the 'm_Rotation' member is a full ezMat3, it may also contain scaling, including non-uniform scaling and shearing.
-class ezTransform
+class EZ_FOUNDATION_DLL ezTransform
 {
   // *** Data ***
 public:
@@ -89,7 +89,7 @@ public:
 
 // *** free functions ***
 
-/// \brief Transforms the vector v by the tranform.
+/// \brief Transforms the vector v by the transform.
 const ezVec3 operator*(const ezTransform& t, const ezVec3& v); // [tested]
 
 /// \brief Rotates the transform by the given quaternion.

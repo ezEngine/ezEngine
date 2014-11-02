@@ -1,13 +1,13 @@
 #pragma once
 
-#include <Core/World/GameObject.h>
+#include <Core/World/Implementation/SpatialData.h>
 #include <Core/World/Implementation/WorldData.h>
 
 /// \brief A world encapsulates a scene graph of game objects and various component managers and their components.
 ///
 /// There can be multiple worlds active at a time, but only 64 at most. The world manages all object storage and might move objects around in memory.
 /// Thus it is not allowed to store pointers to objects. They should be referenced by handles.\n
-/// The world has a multi-phase update mechanism which is devided in the following phases:\n
+/// The world has a multi-phase update mechanism which is divided in the following phases:\n
 /// * Pre-async phase: The corresponding component manager update functions are called synchronously in the order of their dependencies.
 /// * Async phase: The update functions are called in batches asynchronously on multiple threads. There is absolutely no guarantee in which order the functions are called.
 ///   Thus it is not allowed to access any data other than the components own data during that phase.
@@ -44,11 +44,25 @@ public:
   
   //bool TryGetObjectWithUniqueId(ezUInt64 uiPersistentId, ezGameObject*& out_pObject) const;  
 
+
   /// \brief Returns the total number of objects in this world.
   ezUInt32 GetObjectCount() const;
 
   /// \brief Returns an iterator over all objects in this world in no specific order.
-  ezBlockStorage<ezGameObject>::Iterator GetObjects() const;
+  ezBlockStorage<ezGameObject>::Iterator GetObjects();
+
+  /// \brief Defines a visitor function that is called for every game-object when using the traverse method. 
+  /// The function takes a pointer to the game object as argument and returns a bool which indicates whether to continue (true) or abort (false) traversal.
+  typedef ezInternal::WorldData::VisitorFunc VisitorFunc;
+
+  enum TraversalMethod
+  {
+    BreadthFirst,
+    DepthFirst
+  };
+
+  /// \brief Traverses the game object tree starting at the top level objects and then recursively all children. The given callback function is called for every object.
+  void Traverse(VisitorFunc visitorFunc, TraversalMethod method = DepthFirst);
 
 
   /// \brief Creates an instance of the given component manager type or returns a pointer to an already existing instance.
@@ -89,11 +103,19 @@ public:
   void Update();
 
 
+  /// \brief
+  const ezInternal::SpatialData& GetSpatialData() const;
+
+
   /// \brief Returns the allocator used by this world.
   ezAllocatorBase* GetAllocator();
 
   /// \brief Returns the block allocator used by this world.
   ezLargeBlockAllocator* GetBlockAllocator();
+
+  /// \brief Transfers ownership of the world to the calling thread. Use with care!
+  /// Call this method if you want to update the world in a workerthread. Make sure that the world is not accessed by multiple threads at the same time.
+  void TransferThreadOwnership();
 
 
   /// \brief Associates the given user data with the world. The user is responsible for the life time of user data.
@@ -139,6 +161,8 @@ private:
   typedef ezInternal::WorldData::ObjectStorage::Entry ObjectStorageEntry;
 
   typedef ezInternal::WorldData::QueuedMsgMetaData QueuedMsgMetaData;
+
+  ezInternal::SpatialData m_SpatialData;
 
   ezUInt32 m_uiIndex;
   static ezStaticArray<ezWorld*, 64> s_Worlds;

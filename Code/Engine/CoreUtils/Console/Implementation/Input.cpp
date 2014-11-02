@@ -37,7 +37,7 @@ bool ezConsole::ProcessInputCharacter(ezUInt32 uiChar)
 bool ezConsole::FilterInputCharacter(ezUInt32 uiChar)
 {
   // filter out not only all non-ASCII characters, but also all the non-printable ASCII characters
-  // if you want to support full unicode characters in the console, override this function and change this restriction
+  // if you want to support full Unicode characters in the console, override this function and change this restriction
   if (uiChar < 32 || uiChar > 126)
     return false;
 

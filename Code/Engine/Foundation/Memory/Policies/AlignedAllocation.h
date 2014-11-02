@@ -67,7 +67,7 @@ namespace ezMemoryPolicies
   private:
     enum { MetadataSize = sizeof(ezUInt32) };
 
-    // Metadata is stored 4 bytes before the aligned memory
+    // Meta-data is stored 4 bytes before the aligned memory
     inline ezUInt32* GetMetadataPtr(void* pAlignedMemory)
     {
       return static_cast<ezUInt32*>(ezMemoryUtils::AddByteOffset(pAlignedMemory, -MetadataSize));
@@ -79,7 +79,7 @@ namespace ezMemoryPolicies
         -MetadataSize));
     }
 
-    // Store offset between pMemory and pAlignedMemory in the lower 24 bit of metadata. 
+    // Store offset between pMemory and pAlignedMemory in the lower 24 bit of meta-data. 
     // The upper 8 bit are used to store the Log2 of the alignment.
     EZ_FORCE_INLINE ezUInt32 PackMetadata(ezUInt32 uiOffset, ezUInt32 uiAlignment)
     {

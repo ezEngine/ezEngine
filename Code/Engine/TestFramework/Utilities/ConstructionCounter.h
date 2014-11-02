@@ -78,7 +78,7 @@ struct ezConstructionCounter
     return (b);
   }
 
-  /// Checks whether n constructions and desctructions have been done since the last check.
+  /// Checks whether n constructions and destructions have been done since the last check.
   static bool HasDone(ezInt32 cons, ezInt32 des)
   {
     const bool bc = (s_iConstructions == (s_iConstructionsLast + cons));

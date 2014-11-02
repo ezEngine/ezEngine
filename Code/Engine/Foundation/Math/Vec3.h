@@ -56,6 +56,12 @@ public:
   /// \brief Returns an ezVec4Template with x,y,z from this vector and w set 0.
   const ezVec4Template<Type> GetAsDirectionVec4() const; // [tested]
 
+  /// \brief Returns the data as an array.
+  const Type* GetData() const { return &x; }
+
+  /// \brief Returns the data as an array.
+  Type* GetData() { return &x; }
+
 // *** Functions to set the vector to specific values ***
 public:
 

@@ -36,7 +36,7 @@ public:
   /// Takes an EXISTING Lua-Script and allows to get easier access to it.
   ezLuaWrapper(lua_State* s);
 
-  /// Destroyes the Lua-Script, if it was created, but leaves it intact, if this instance did not generate the Lua-Script.
+  /// Destroys the Lua-Script, if it was created, but leaves it intact, if this instance did not generate the Lua-Script.
   ~ezLuaWrapper(); // [tested]
 
   /// Clears the script to be empty.
@@ -49,7 +49,7 @@ public:
   /// internal state), or to only do actions that will end up in the same stack state as before.
   lua_State* GetLuaState();
 
-  /// Executes a string containig Lua-Code.
+  /// Executes a string containing Lua-Code.
   ///
   /// \param szString
   ///   The lua code to execute.

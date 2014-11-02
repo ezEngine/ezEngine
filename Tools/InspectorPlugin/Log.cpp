@@ -4,7 +4,7 @@
 
 namespace ezLogWriter
 {
-  /// \brief This logwriter will broadcast all messages through ezTelemetry, such that external applications can display the log messages.
+  /// \brief This log-writer will broadcast all messages through ezTelemetry, such that external applications can display the log messages.
   class Telemetry
   {
   public:

@@ -4,14 +4,21 @@
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Containers/Set.h>
+#include <Foundation/Time/Timestamp.h>
 
 /// \brief This object caches files in a tokenized state. It can be shared among ezPreprocessor instances to improve performance when
 /// they access the same files.
 class EZ_COREUTILS_DLL ezTokenizedFileCache
 {
 public:
+  struct FileData
+  {
+    ezTokenizer m_Tokens;
+    ezTimestamp m_Timestamp;
+  };
+
   /// \brief Checks whether \a sFileName is already in the cache, returns an iterator to it. If the iterator is invalid, the file is not cached yet.
-  ezMap<ezString, ezTokenizer>::ConstIterator Lookup(const ezString& sFileName) const;
+  ezMap<ezString, FileData>::ConstIterator Lookup(const ezString& sFileName) const;
 
   /// \brief Removes the cached content for \a sFileName from the cache. Should be used when the file content has changed and needs to be re-read.
   void Remove(const ezString& sFileName);
@@ -23,11 +30,13 @@ public:
   /// 
   //// The file content is tokenized first and all #line directives are evaluated, to update the line number and file origin for each token.
   /// Any errors are written to the given log.
-  const ezTokenizer* Tokenize(const ezString& sFileName, const ezDynamicArray<ezUInt8>& FileContent, ezLogInterface* pLog);
+  const ezTokenizer* Tokenize(const ezString& sFileName, const ezDynamicArray<ezUInt8>& FileContent, const ezTimestamp& FileTimeStamp, ezLogInterface* pLog);
 
 private:
+  void SkipWhitespace(ezDeque<ezToken>& Tokens, ezUInt32& uiCurToken);
+
   mutable ezMutex m_Mutex;
-  ezMap<ezString, ezTokenizer> m_Cache;
+  ezMap<ezString, FileData> m_Cache;
 };
 
 /// \brief ezPreprocessor implements a standard C preprocessor. It can be used to preprocess files to get the output after macro expansion and #ifdef handling.
@@ -49,7 +58,7 @@ class EZ_COREUTILS_DLL ezPreprocessor
 {
 public:
 
-  /// \brief Describes the type of #include that was encountered during prepocessing
+  /// \brief Describes the type of #include that was encountered during preprocessing
   enum IncludeType
   {
     MainFile,         ///< This is used for the very first access to the main source file
@@ -58,14 +67,14 @@ public:
   };
 
   /// \brief This type of callback is used to read an #include file. \a szAbsoluteFile is the path that the FileLocatorCB reported, the result needs to be stored in \a FileContent.
-  typedef ezResult (*FileOpenCB)(const char* szAbsoluteFile, ezDynamicArray<ezUInt8>& FileContent);
+  typedef ezDelegate<ezResult (const char* szAbsoluteFile, ezDynamicArray<ezUInt8>& FileContent, ezTimestamp& out_FileModification)> FileOpenCB;
 
   /// \brief This type of callback is used to retrieve the absolute path of the \a szIncludeFile when #included inside \a szCurAbsoluteFile.
   ///
   /// Note that you should ensure that \a out_sAbsoluteFilePath is always identical (including casing and path slashes) when it is supposed to point
   /// to the same file, as this exact name is used for file lookup (and therefore also file caching).
   /// If it is not identical, file caching will not work, and on different OSes the file may be found or not.
-  typedef ezResult (*FileLocatorCB)(const char* szCurAbsoluteFile, const char* szIncludeFile, IncludeType IncType, ezString& out_sAbsoluteFilePath);
+  typedef ezDelegate<ezResult (const char* szCurAbsoluteFile, const char* szIncludeFile, IncludeType IncType, ezString& out_sAbsoluteFilePath)> FileLocatorCB;
 
   typedef ezHybridArray<const ezToken*, 32> TokenStream;
   typedef ezDeque<TokenStream> MacroParameters;
@@ -83,6 +92,9 @@ public:
       EndExpansion,     ///< A macro is finished being expanded
       Error,            ///< An error was encountered
       Warning,          ///< A warning has been output.
+      CheckDefined,     ///< A 'defined(X)' is being evaluated
+      CheckIfdef,       ///< A '#ifdef X' is being evaluated
+      EvaluateUnknown,  ///< Inside an #if an unknown identifier has been encountered, it will be evaluated as zero
     };
 
     ProcessingEvent()
@@ -108,7 +120,7 @@ public:
   /// Note that when the preprocessor encounters any error, it will stop immediately and usually no output is generated.
   /// However, there are also a few cases where only a warning is generated, in this case preprocessing will continue without problems.
   ///
-  /// Additionally errors and warnings are also broadcasted through m_ProcessingEvents. So if you want to output more detailed information,
+  /// Additionally errors and warnings are also broadcast through m_ProcessingEvents. So if you want to output more detailed information,
   /// that method should be preferred, because the events carry more information about the current file and line number etc.
   void SetLogInterface(ezLogInterface* pLog);
 
@@ -124,10 +136,19 @@ public:
   /// \brief If set to true, all #line commands are passed through to the output, otherwise they are removed.
   void SetPassThroughLine(bool bPassThrough) { m_bPassThroughLine = bPassThrough; }
 
-  /// \brief Sets the callbacks that are needed to locate and read the input data.
+  /// \brief If set to true, all #xyz commands that are unknown are passed through to the output, otherwise an error is generated
+  void SetPassThroughUnknownCmds(bool bPassThrough) { m_bPassThroughUnknownCmd = bPassThrough; }
+
+  /// \brief Sets the callback that is needed to read input data.
   ///
-  /// These callbacks must be set, otherwise the processing will crash.
-  void SetFileCallbacks(FileOpenCB OpenAbsFileCB, FileLocatorCB LocateAbsFileCB);
+  /// The default file open function will just try to open files via ezFileReader.
+  void SetFileOpenFunction(FileOpenCB OpenAbsFileCB);
+
+  /// \brief Sets the callback that is needed to locate an input file
+  ///
+  /// The default file locator will assume that the main source file and all files #included in angle brackets can be opened without modification.
+  /// Files #included in "" will be appended as relative paths to the path of the file they appeared in.
+  void SetFileLocatorFunction(FileLocatorCB LocateAbsFileCB);
 
   /// \brief Adds a #define to the preprocessor, even before any file is processed.
   ///
@@ -181,6 +202,7 @@ private:
 
   bool m_bPassThroughPragma;
   bool m_bPassThroughLine;
+  bool m_bPassThroughUnknownCmd;
 
   // this file cache is used as long as the user does not provide his own
   ezTokenizedFileCache m_InternalFileCache;
@@ -200,6 +222,8 @@ private:
 
 private: // *** File Handling ***
   ezResult OpenFile(const char* szFile, const ezTokenizer** pTokenizer);
+  static ezResult DefaultFileLocator(const char* szCurAbsoluteFile, const char* szIncludeFile, ezPreprocessor::IncludeType IncType, ezString& out_sAbsoluteFilePath);
+  static ezResult DefaultFileOpen(const char* szAbsoluteFile, ezDynamicArray<ezUInt8>& FileContent, ezTimestamp& out_FileModification);
 
   FileOpenCB m_FileOpenCallback;
   FileLocatorCB m_FileLocatorCallback;

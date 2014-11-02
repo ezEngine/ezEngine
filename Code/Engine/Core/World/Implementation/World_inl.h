@@ -36,9 +36,21 @@ EZ_FORCE_INLINE ezUInt32 ezWorld::GetObjectCount() const
   return m_Data.m_ObjectStorage.GetCount();
 }
 
-EZ_FORCE_INLINE ezBlockStorage<ezGameObject>::Iterator ezWorld::GetObjects() const
+EZ_FORCE_INLINE ezBlockStorage<ezGameObject>::Iterator ezWorld::GetObjects()
 {
   return m_Data.m_ObjectStorage.GetIterator(0);
+}
+
+EZ_FORCE_INLINE void ezWorld::Traverse(VisitorFunc visitorFunc, TraversalMethod method /*= DepthFirst*/)
+{
+  if (method == DepthFirst)
+  {
+    m_Data.TraverseDepthFirst(visitorFunc);
+  }
+  else // method == BreadthFirst
+  {
+    m_Data.TraverseBreadthFirst(visitorFunc);
+  }
 }
 
 template <typename ManagerType>
@@ -152,6 +164,11 @@ EZ_FORCE_INLINE void ezWorld::SendMessage(const ezGameObjectHandle& receiverObje
   }
 }
 
+EZ_FORCE_INLINE const ezInternal::SpatialData& ezWorld::GetSpatialData() const
+{
+  return m_SpatialData;
+}
+
 EZ_FORCE_INLINE ezAllocatorBase* ezWorld::GetAllocator()
 {
   return &m_Data.m_Allocator;
@@ -160,6 +177,11 @@ EZ_FORCE_INLINE ezAllocatorBase* ezWorld::GetAllocator()
 EZ_FORCE_INLINE ezLargeBlockAllocator* ezWorld::GetBlockAllocator()
 {
   return &m_Data.m_BlockAllocator;
+}
+
+EZ_FORCE_INLINE void ezWorld::TransferThreadOwnership()
+{
+  m_Data.m_ThreadID = ezThreadUtils::GetCurrentThreadID();
 }
 
 EZ_FORCE_INLINE void ezWorld::SetUserData(void* pUserData)

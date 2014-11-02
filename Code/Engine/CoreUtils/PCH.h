@@ -8,8 +8,8 @@
 
 #include <Foundation/Basics.h>
 #include <Foundation/Basics/Assert.h>
-#include <Foundation/Basics/Types.h>
-#include <Foundation/Basics/Types/Bitflags.h>
+#include <Foundation/Types/Types.h>
+#include <Foundation/Types/Bitflags.h>
 #include <Foundation/Communication/Telemetry.h>
 #include <Foundation/Configuration/SubSystem.h>
 #include <Foundation/Containers/DynamicArray.h>
@@ -31,6 +31,6 @@
 #include <Foundation/Strings/PathUtils.h>
 #include <Foundation/Strings/String.h>
 #include <Foundation/Strings/StringBuilder.h>
-#include <Foundation/Strings/StringIterator.h>
+#include <Foundation/Strings/StringView.h>
 #include <Foundation/Utilities/EnumerableClass.h>
 

@@ -34,6 +34,25 @@
   + ((unsigned long)EZ_8BIT(B2) <<  8) \
   + ((unsigned long)EZ_8BIT(B1))
 
+namespace 
+{
+    struct UniqueInt
+    {
+        int i, id;
+        UniqueInt(int i, int id) : i(i), id(id) {}
+
+        bool operator < (const UniqueInt& rh) 
+        {
+            return this->i < rh.i;
+        }
+
+        bool operator > (const UniqueInt& rh)
+        {
+            return this->i > rh.i;
+        }
+    };
+};
+
 
 EZ_CREATE_SIMPLE_TEST_GROUP(Math);
 
@@ -280,6 +299,8 @@ EZ_CREATE_SIMPLE_TEST(Math, General)
     EZ_TEST_BOOL(ezMath::Min(5, 2, 3, 4) == 2);
     EZ_TEST_BOOL(ezMath::Min(5, 6, 3, 4) == 3);
     EZ_TEST_BOOL(ezMath::Min(5, 6, 7, 4) == 4);
+
+    EZ_TEST_BOOL(ezMath::Min(UniqueInt(1, 0), UniqueInt(1, 1)).id == 0);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Max")
@@ -295,6 +316,8 @@ EZ_CREATE_SIMPLE_TEST(Math, General)
     EZ_TEST_BOOL(ezMath::Max(1, 2, 3, 0) == 3);
     EZ_TEST_BOOL(ezMath::Max(1, 2, 0, 0) == 2);
     EZ_TEST_BOOL(ezMath::Max(1, 0, 0, 0) == 1);
+
+    EZ_TEST_BOOL(ezMath::Max(UniqueInt(1, 0), UniqueInt(1, 1)).id == 1);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Clamp")
@@ -377,8 +400,11 @@ EZ_CREATE_SIMPLE_TEST(Math, General)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Mod")
   {
-    EZ_TEST_FLOAT(2.34f, ezMath::Mod(12.34f, 2.5f), 0.000001f);
-    EZ_TEST_FLOAT(-2.34f, ezMath::Mod(-12.34f, 2.5f), 0.000001f);
+    EZ_TEST_FLOAT( 2.34f, ezMath::Mod( 12.34f,  2.5f), 0.000001f);
+    EZ_TEST_FLOAT(-2.34f, ezMath::Mod(-12.34f,  2.5f), 0.000001f);
+
+    EZ_TEST_FLOAT( 2.34f, ezMath::Mod( 12.34f, -2.5f), 0.000001f);
+    EZ_TEST_FLOAT(-2.34f, ezMath::Mod(-12.34f, -2.5f), 0.000001f);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Invert")

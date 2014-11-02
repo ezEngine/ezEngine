@@ -27,7 +27,7 @@ class EZ_FOUNDATION_DLL ezRTTI : public ezEnumerable<ezRTTI>
 
 public:
   /// \brief The constructor requires all the information about the type that this object represents.
-  ezRTTI(const char* szName, const ezRTTI* pParentType, ezUInt32 uiTypeSize, ezUInt32 uiVariantType,
+  ezRTTI(const char* szName, const ezRTTI* pParentType, ezUInt32 uiTypeSize, ezUInt32 uiTypeVersion, ezUInt32 uiVariantType,
     ezRTTIAllocator* pAllocator, ezArrayPtr<ezAbstractProperty*> properties, ezArrayPtr<ezAbstractMessageHandler*> messageHandlers);
 
   ~ezRTTI();
@@ -60,7 +60,10 @@ public:
   /// \brief Returns the size (in bytes) of an instance of this type.
   EZ_FORCE_INLINE ezUInt32 GetTypeSize() const { return m_uiTypeSize; } // [tested]
 
-  /// \brief Iterates over all ezRTTI instances and returns the one with the given name, or nullptr of no such type exists.
+  /// \brief Returns the version number of this type.
+  EZ_FORCE_INLINE ezUInt32 GetTypeVersion() const { return m_uiTypeVersion; }
+
+  /// \brief Iterates over all ezRTTI instances and returns the one with the given name, or nullptr if no such type exists.
   static ezRTTI* FindTypeByName(const char* szName); // [tested]
 
   /// \brief Will iterate over all properties of this type and (optionally) the base types to search for a property with the given name.
@@ -96,6 +99,7 @@ private:
   ezUInt32 m_uiVariantType;
   ezUInt32 m_uiTypeSize;
   ezUInt32 m_uiMsgIdOffset;
+  ezUInt32 m_uiTypeVersion;
   ezRTTIAllocator* m_pAllocator;
 
   ezArrayPtr<ezAbstractProperty*> m_Properties;

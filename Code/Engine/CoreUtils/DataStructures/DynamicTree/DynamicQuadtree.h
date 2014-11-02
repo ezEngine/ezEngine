@@ -126,7 +126,7 @@ private:
   /// \brief The actual bounding box (to discard objects that are outside the world)
   float m_fRealMinX, m_fRealMaxX, m_fRealMinZ, m_fRealMaxZ;
 
-  /// \brief Used to turn the map into a multimap.
+  /// \brief Used to turn the map into a multi-map.
   ezUInt32 m_uiMultiMapCounter;
 
   /// \brief Every node has a unique index, the map allows to store many objects at each node, using that index

@@ -26,15 +26,15 @@ public:
 
   /// \brief Helper method to read a word value correctly (copes with potentially different endianess)
   template <typename T> 
-  ezUInt64 ReadWordValue(T* pWordValue); // [tested]
+  ezResult ReadWordValue(T* pWordValue); // [tested]
 
   /// \brief Helper method to read a dword value correctly (copes with potentially different endianess)
   template <typename T> 
-  ezUInt64 ReadDWordValue(T* pDWordValue); // [tested]
+  ezResult ReadDWordValue(T* pDWordValue); // [tested]
 
   /// \brief Helper method to read a qword value correctly (copes with potentially different endianess)
   template <typename T> 
-  ezUInt64 ReadQWordValue(T* pQWordValue); // [tested]
+  ezResult ReadQWordValue(T* pQWordValue); // [tested]
 
   /// \brief Helper method to skip a number of bytes (implementations of the stream reader may implement this more efficiently for example)
   virtual ezUInt64 SkipBytes(ezUInt64 uiBytesToSkip)
@@ -88,15 +88,15 @@ public:
 
   /// \brief Helper method to write a word value correctly (copes with potentially different endianess)
   template <typename T> 
-  ezUInt64 WriteWordValue(const T* pWordValue); // [tested]
+  ezResult WriteWordValue(const T* pWordValue); // [tested]
 
   /// \brief Helper method to write a dword value correctly (copes with potentially different endianess)
   template <typename T> 
-  ezUInt64 WriteDWordValue(const T* pDWordValue); // [tested]
+  ezResult WriteDWordValue(const T* pDWordValue); // [tested]
 
   /// \brief Helper method to write a qword value correctly (copes with potentially different endianess)
   template <typename T> 
-  ezUInt64 WriteQWordValue(const T* pQWordValue); // [tested]
+  ezResult WriteQWordValue(const T* pQWordValue); // [tested]
 
 };
 

@@ -44,6 +44,8 @@ WorldData::WorldData(const char* szWorldName) :
 
 WorldData::~WorldData()
 {
+  EZ_ASSERT(m_ComponentManagers.IsEmpty(), "Component managers should be cleaned up already.");
+
   // delete all transformation data
   for (ezUInt32 uiHierarchyIndex = 0; uiHierarchyIndex < HierarchyType::COUNT; ++uiHierarchyIndex)
   {
@@ -58,16 +60,6 @@ WorldData::~WorldData()
       }
       EZ_DELETE(&m_Allocator, blocks);
     }
-  }
-
-  // delete all component manager
-  for (ezUInt32 i = 0; i < m_ComponentManagers.GetCount(); ++i)
-  {
-    if (ezComponentManagerBase* pManager = m_ComponentManagers[i])
-    {
-      pManager->Deinitialize();
-      EZ_DELETE(&m_Allocator, pManager);
-    }    
   }
 
   // delete task storage
@@ -154,34 +146,99 @@ void WorldData::DeleteTransformationData(const ezBitflags<ezObjectFlags>& object
   }
 }
 
+void WorldData::TraverseBreadthFirst(VisitorFunc& func)
+{
+  struct Helper
+  {
+    EZ_FORCE_INLINE static bool Visit(ezGameObject::TransformationData* pData, void* pUserData)
+    {
+      return (*static_cast<VisitorFunc*>(pUserData))(pData->m_pObject);
+    }
+  };
+
+  const ezUInt32 uiMaxHierarchyLevel = ezMath::Max(m_Hierarchies[HierarchyType::Static].m_Data.GetCount(),
+    m_Hierarchies[HierarchyType::Dynamic].m_Data.GetCount());
+
+  for (ezUInt32 uiHierarchyLevel = 0; uiHierarchyLevel < uiMaxHierarchyLevel; ++uiHierarchyLevel)
+  {
+    for (ezUInt32 uiHierarchyIndex = 0; uiHierarchyIndex < HierarchyType::COUNT; ++uiHierarchyIndex)
+    {
+      Hierarchy& hierarchy = m_Hierarchies[uiHierarchyIndex];
+      if (uiHierarchyLevel < hierarchy.m_Data.GetCount())
+      {
+        if (!TraverseHierarchyLevel<Helper>(*hierarchy.m_Data[uiHierarchyLevel], &func))
+          return;
+      }
+    }
+  }
+}
+
+void WorldData::TraverseDepthFirst(VisitorFunc& func)
+{
+  struct Helper
+  {
+    EZ_FORCE_INLINE static bool Visit(ezGameObject::TransformationData* pData, void* pUserData)
+    {
+      return WorldData::TraverseObjectDepthFirst(pData->m_pObject, *static_cast<VisitorFunc*>(pUserData));
+    }
+  };
+
+  for (ezUInt32 uiHierarchyIndex = 0; uiHierarchyIndex < HierarchyType::COUNT; ++uiHierarchyIndex)
+  {
+    Hierarchy& hierarchy = m_Hierarchies[uiHierarchyIndex];
+    if (!hierarchy.m_Data.IsEmpty())
+    {
+      if (!TraverseHierarchyLevel<Helper>(*hierarchy.m_Data[0], &func))
+        return;
+    }
+  }
+}
+
+// static
+bool WorldData::TraverseObjectDepthFirst(ezGameObject* pObject, VisitorFunc& func)
+{
+  if (!func(pObject))
+    return false;
+
+  for (auto it = pObject->GetChildren(); it.IsValid(); ++it)
+  {
+    if (!TraverseObjectDepthFirst(it, func))
+      return false;
+  }
+
+  return true;
+}
+
 void WorldData::UpdateWorldTransforms()
 {
   struct RootLevel
   {
-    EZ_FORCE_INLINE static void Update(ezGameObject::TransformationData* pData, float fInvDeltaSeconds)
+    EZ_FORCE_INLINE static bool Visit(ezGameObject::TransformationData* pData, void* pUserData)
     {
-      WorldData::UpdateWorldTransform(pData, fInvDeltaSeconds);
+      WorldData::UpdateWorldTransform(pData, *static_cast<float*>(pUserData));
+      return true;
     }
   };
 
   struct WithParent
   {
-    EZ_FORCE_INLINE static void Update(ezGameObject::TransformationData* pData, float fInvDeltaSeconds)
+    EZ_FORCE_INLINE static bool Visit(ezGameObject::TransformationData* pData, void* pUserData)
     {
-      WorldData::UpdateWorldTransformWithParent(pData, fInvDeltaSeconds);
+      WorldData::UpdateWorldTransformWithParent(pData, *static_cast<float*>(pUserData));
+      return true;
     }
   };
 
   float fInvDeltaSeconds = 1.0f / (float)ezClock::Get(ezGlobalClock_GameLogic)->GetTimeDiff().GetSeconds();
 
-  Hierarchy& hierarchy = m_Hierarchies[WorldData::HierarchyType::Dynamic];
+  Hierarchy& hierarchy = m_Hierarchies[HierarchyType::Dynamic];
   if (!hierarchy.m_Data.IsEmpty())
   {
-    UpdateHierarchyLevel<RootLevel>(*hierarchy.m_Data[0], fInvDeltaSeconds);
+    TraverseHierarchyLevel<RootLevel>(*hierarchy.m_Data[0], &fInvDeltaSeconds);
 
     for (ezUInt32 i = 1; i < hierarchy.m_Data.GetCount(); ++i)
     {
-      UpdateHierarchyLevel<WithParent>(*hierarchy.m_Data[i], fInvDeltaSeconds);
+      TraverseHierarchyLevel<WithParent>(*hierarchy.m_Data[i], &fInvDeltaSeconds);
     }
   }
 }

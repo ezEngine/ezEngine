@@ -13,7 +13,7 @@ static QColor s_Colors[ezTimeWidget::s_uiMaxColors] =
   QColor(255,   0, 255), // pink
   QColor(  0, 148, 255), // light blue
   QColor(255,   0,   0), // red
-  QColor(  0, 255, 255), // turqoise
+  QColor(  0, 255, 255), // turquoise
   QColor(178,   0, 255), // purple
   QColor(  0,  38, 255), // dark blue
   QColor( 72,   0, 255), // lilac

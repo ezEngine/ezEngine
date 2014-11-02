@@ -91,6 +91,12 @@ EZ_CREATE_SIMPLE_TEST(Containers, StaticArray)
     a2 = a1;
 
     EZ_TEST_BOOL(a1 == a2);
+
+    ezArrayPtr<ezInt32> arrayPtr(a1);
+
+    a2 = arrayPtr;
+
+    EZ_TEST_BOOL(a2 == arrayPtr);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator == / !=")
@@ -221,7 +227,9 @@ EZ_CREATE_SIMPLE_TEST(Containers, StaticArray)
     for (ezInt32 i = 0; i < 100; ++i)
       a1.PushBack(i % 2);
 
-    while (a1.Remove(1));
+    while (a1.Remove(1))
+    {
+    }
 
     EZ_TEST_BOOL(a1.GetCount() == 50);
 

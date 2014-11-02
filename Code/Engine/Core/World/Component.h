@@ -20,7 +20,7 @@ class EZ_CORE_DLL ezComponent : public ezReflectedClass
   EZ_ADD_DYNAMIC_REFLECTION(ezComponent);
 
 protected:
-  /// \brief Keep the contructor private or protected in derived classes, so it cannot be called manually.
+  /// \brief Keep the constructor private or protected in derived classes, so it cannot be called manually.
   ezComponent();
   virtual ~ezComponent();
 
@@ -93,7 +93,7 @@ private:
 
 #include <Core/World/Implementation/Component_inl.h>
 
-/// \brief Add this macro to a custom component type iniside the type declaration.
+/// \brief Add this macro to a custom component type inside the type declaration.
 #define EZ_DECLARE_COMPONENT_TYPE(componentType, managerType) \
   EZ_ADD_DYNAMIC_REFLECTION(componentType); \
   public: \
@@ -102,6 +102,7 @@ private:
     EZ_FORCE_INLINE ezWorld* GetWorld() const { return GetManager()->GetWorld(); } \
     virtual ezUInt16 GetTypeId() const override { return TYPE_ID; } \
     static EZ_FORCE_INLINE ezUInt16 TypeId() { return TYPE_ID; } \
+    static ezComponentHandle CreateComponent(ezWorld* pWorld, componentType*& pComponent) { return pWorld->GetComponentManager<managerType>()->CreateComponent(pComponent); } \
   private: \
     friend managerType; \
     static ezUInt16 TYPE_ID;
@@ -109,11 +110,11 @@ private:
 /// \brief Implements rtti and component specific functionality. Add this macro to a cpp file.
 ///
 /// \see EZ_BEGIN_DYNAMIC_REFLECTED_TYPE
-#define EZ_BEGIN_COMPONENT_TYPE(componentType, baseType, managerType) \
+#define EZ_BEGIN_COMPONENT_TYPE(componentType, baseType, version, managerType) \
   ezUInt16 componentType::TYPE_ID = ezComponent::GetNextTypeId(); \
   ezComponentHandle componentType::GetHandle() const { return ezComponent::GetHandle<componentType>(); } \
   managerType* componentType::GetManager() const { return static_cast<managerType*>(ezComponent::GetManager()); } \
-  EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(componentType, baseType, ezRTTINoAllocator);
+  EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(componentType, baseType, version, ezRTTINoAllocator);
 
 /// \brief Ends the component implementation code block that was opened with EZ_BEGIN_COMPONENT_TYPE.
 #define EZ_END_COMPONENT_TYPE EZ_END_DYNAMIC_REFLECTED_TYPE

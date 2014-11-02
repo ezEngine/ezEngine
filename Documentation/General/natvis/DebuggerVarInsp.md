@@ -33,7 +33,7 @@ Some of them are implicit by parent types, more types could be affected.
     - ezMap
 - ezStaticRingBuffer (wrong element order)
 - ezArrayPtr
-- ezStringIterator
+- ezStringView
 - ezHashedString
 - ezHashTable
 

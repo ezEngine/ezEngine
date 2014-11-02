@@ -276,7 +276,7 @@ void ezQtTestGUI::onTestFrameworkTestResultReceived(qint32 iTestIndex, qint32 iS
     bool bExpanded = testTreeView->isExpanded(TestModelIndex);
     if (!bExpanded)
     {
-      // Remeber if we expanded the test so we can close it again once the tests is done.
+      // Remember if we expanded the test so we can close it again once the tests is done.
       testTreeView->expand(TestModelIndex);
       m_bExpandedCurrentTest = true;
     }

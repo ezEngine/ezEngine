@@ -346,7 +346,7 @@ ezResult ezDdsFileFormat::WriteImage(ezStreamWriterBase& stream, const ezImage& 
 
   case ezImageFormatType::BLOCK_COMPRESSED:
     fileHeader.m_uiFlags |= ezDdsdFlags::LINEARSIZE;
-    fileHeader.m_uiPitchOrLinearSize = 0;     /// \todo subimage size
+    fileHeader.m_uiPitchOrLinearSize = 0;     /// \todo sub-image size
     break;
 
   default:

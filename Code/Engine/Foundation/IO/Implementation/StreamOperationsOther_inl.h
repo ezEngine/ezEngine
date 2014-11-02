@@ -15,3 +15,11 @@ EZ_FOUNDATION_DLL void operator<< (ezStreamWriterBase& Stream, ezTime Value);
 /// \brief Operator to serialize ezTime objects.
 EZ_FOUNDATION_DLL void operator>> (ezStreamReaderBase& Stream, ezTime& Value);
 
+
+class ezUuid;
+
+/// \brief Operator to serialize ezUuid objects. [tested]
+EZ_FOUNDATION_DLL void operator<< (ezStreamWriterBase& Stream, const ezUuid& Value);
+
+/// \brief Operator to serialize ezUuid objects. [tested]
+EZ_FOUNDATION_DLL void operator>> (ezStreamReaderBase& Stream, ezUuid& Value);

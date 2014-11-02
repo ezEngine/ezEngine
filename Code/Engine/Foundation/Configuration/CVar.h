@@ -2,7 +2,7 @@
 
 #include <Foundation/Utilities/EnumerableClass.h>
 #include <Foundation/Strings/String.h>
-#include <Foundation/Basics/Types/Bitflags.h>
+#include <Foundation/Types/Bitflags.h>
 #include <Foundation/Communication/Event.h>
 #include <Foundation/Configuration/Plugin.h>
 
@@ -61,14 +61,14 @@ EZ_DECLARE_FLAGS_OPERATORS(ezCVarFlags);
 /// approaches. However, one should throw out all unnecessary variables after such work is finished.
 /// CVars are stored in one settings file per plugin. That means plugins can easily contain additional CVars for their own use
 /// and their states are restored at plugin loading time, as well.
-/// For the storage of CVars to work, the 'StorageFolder' must have been set. Also at startup the application should explicitely
+/// For the storage of CVars to work, the 'StorageFolder' must have been set. Also at startup the application should explicitly
 /// load CVars via 'LoadCVars', once the filesystem is set up and the storage folder is configured.
 /// The CVar system listens to events from the Plugin system, and it will automatically take care to serialize and deserialize
 /// CVar values whenever plugins are loaded or unloaded.
-/// CVars additionally allow to only change their visible value after a certain subsystem has been 'restarted', ie. a user can
+/// CVars additionally allow to only change their visible value after a certain subsystem has been 'restarted', i.e. a user can
 /// change the CVar value at runtime, but when the 'current' value is read, it will not have changed.
 /// It will change however, once the application is restarted (such that code can initialize the engine with the correct values)
-/// or after the corresponding subsystem explicitely sets the CVar to the updated value.
+/// or after the corresponding subsystem explicitly sets the CVar to the updated value.
 /// This is useful, e.g. for a screen resolution CVar, as changing this at runtime might be possible in a GUI, but the engine
 /// might not support that without a restart.
 /// Finally all CVars broadcast events when their value is changed, which can be used to listen to certain CVars and react
@@ -131,7 +131,7 @@ public:
   /// \brief Returns all the CVar flags.
   ezBitflags<ezCVarFlags> GetFlags() const { return m_Flags; } // [tested]
 
-  /// \brief The data that is broadcasted whenever a cvar is changed.
+  /// \brief The data that is broadcast whenever a cvar is changed.
   struct CVarEvent
   {
     CVarEvent(ezCVar* pCVar) : m_EventType(ValueChanged), m_pCVar(pCVar) { }

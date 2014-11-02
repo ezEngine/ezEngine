@@ -361,9 +361,9 @@ ezResult ezTgaFileFormat::ReadImage(ezStreamReaderBase& stream, ezImage& image, 
           ++iCurrentPixel;
         }
       }
-      else // chunkheader > 128 RLE data, next color reapeated (chunkheader - 127) times
+      else // chunk header > 128 RLE data, next color repeated (chunk header - 127) times
       {
-        uiChunkHeader -= 127; // Subteact 127 to get rid of the ID bit
+        uiChunkHeader -= 127; // Subtract 127 to get rid of the ID bit
 
         ezUInt8 uiBuffer[4] = { 255, 255, 255, 255 };
 

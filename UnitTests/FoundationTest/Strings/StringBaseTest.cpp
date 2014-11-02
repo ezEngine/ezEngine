@@ -10,39 +10,40 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBase)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsEmpty")
   {
-    ezStringIterator it (nullptr);
+    ezStringView it (nullptr);
     EZ_TEST_BOOL(it.IsEmpty());
 
-    ezStringIterator it2("");
+    ezStringView it2("");
     EZ_TEST_BOOL(it2.IsEmpty());
 
-    ezStringIterator it3(nullptr, nullptr, nullptr);
+    ezStringView it3(nullptr, nullptr);
     EZ_TEST_BOOL(it3.IsEmpty());
 
     const char* sz = "abcdef";
 
-    ezStringIterator it4(sz, sz, sz);
+    ezStringView it4(sz, sz);
     EZ_TEST_BOOL(it4.IsEmpty());
 
-    ezStringIterator it5(sz, sz + 1, sz);
+    ezStringView it5(sz, sz + 1);
     EZ_TEST_BOOL(!it5.IsEmpty());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "StartsWith")
   {
     const char* sz = "abcdef";
-    ezStringIterator it(sz);
+    ezStringView it(sz);
 
     EZ_TEST_BOOL(it.StartsWith("abc"));
     EZ_TEST_BOOL(it.StartsWith("abcdef"));
     EZ_TEST_BOOL(it.StartsWith("")); // empty strings always return true
 
-    ezStringIterator it2(sz + 3);
+    ezStringView it2(sz + 3);
 
     EZ_TEST_BOOL(it2.StartsWith("def"));
     EZ_TEST_BOOL(it2.StartsWith(""));
 
-    ezStringIterator it3(sz + 2, sz + 4, sz + 3);
+    ezStringView it3(sz + 2, sz + 4);
+    it3.SetCurrentPosition(sz + 3);
 
     EZ_TEST_BOOL(it3.StartsWith("d"));
     EZ_TEST_BOOL(!it3.StartsWith("de"));
@@ -51,18 +52,19 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBase)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "StartsWith_NoCase")
   {
     const char* sz = "abcdef";
-    ezStringIterator it(sz);
+    ezStringView it(sz);
 
     EZ_TEST_BOOL(it.StartsWith_NoCase("ABC"));
     EZ_TEST_BOOL(it.StartsWith_NoCase("abcDEF"));
     EZ_TEST_BOOL(it.StartsWith_NoCase("")); // empty strings always return true
 
-    ezStringIterator it2(sz + 3);
+    ezStringView it2(sz + 3);
 
     EZ_TEST_BOOL(it2.StartsWith_NoCase("DEF"));
     EZ_TEST_BOOL(it2.StartsWith_NoCase(""));
 
-    ezStringIterator it3(sz + 2, sz + 4, sz + 3);
+    ezStringView it3(sz + 2, sz + 4);
+    it3.SetCurrentPosition(sz + 3);
 
     EZ_TEST_BOOL(it3.StartsWith_NoCase("D"));
     EZ_TEST_BOOL(!it3.StartsWith_NoCase("DE"));
@@ -71,18 +73,19 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBase)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "EndsWith")
   {
     const char* sz = "abcdef";
-    ezStringIterator it(sz);
+    ezStringView it(sz);
 
     EZ_TEST_BOOL(it.EndsWith("def"));
     EZ_TEST_BOOL(it.EndsWith("abcdef"));
     EZ_TEST_BOOL(it.EndsWith("")); // empty strings always return true
 
-    ezStringIterator it2(sz + 3);
+    ezStringView it2(sz + 3);
 
     EZ_TEST_BOOL(it2.EndsWith("def"));
     EZ_TEST_BOOL(it2.EndsWith(""));
 
-    ezStringIterator it3(sz + 2, sz + 4, sz + 3);
+    ezStringView it3(sz + 2, sz + 4);
+    it3.SetCurrentPosition(sz + 3);
 
     EZ_TEST_BOOL(it3.EndsWith("d"));
     EZ_TEST_BOOL(!it3.EndsWith("cd"));
@@ -91,18 +94,19 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBase)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "EndsWith_NoCase")
   {
     const char* sz = "ABCDEF";
-    ezStringIterator it(sz);
+    ezStringView it(sz);
 
     EZ_TEST_BOOL(it.EndsWith_NoCase("def"));
     EZ_TEST_BOOL(it.EndsWith_NoCase("abcdef"));
     EZ_TEST_BOOL(it.EndsWith_NoCase("")); // empty strings always return true
 
-    ezStringIterator it2(sz + 3);
+    ezStringView it2(sz + 3);
 
     EZ_TEST_BOOL(it2.EndsWith_NoCase("def"));
     EZ_TEST_BOOL(it2.EndsWith_NoCase(""));
 
-    ezStringIterator it3(sz + 2, sz + 4, sz + 3);
+    ezStringView it3(sz + 2, sz + 4);
+    it3.SetCurrentPosition(sz + 3);
 
     EZ_TEST_BOOL(it3.EndsWith_NoCase("d"));
     EZ_TEST_BOOL(!it3.EndsWith_NoCase("cd"));
@@ -111,7 +115,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBase)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "FindSubString")
   {
     const char* sz = "abcdef";
-    ezStringIterator it(sz);
+    ezStringView it(sz);
 
     EZ_TEST_BOOL(it.FindSubString("abcdef") == sz);
     EZ_TEST_BOOL(it.FindSubString("abc") == sz);
@@ -128,7 +132,8 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBase)
     EZ_TEST_BOOL(it.FindSubString("def", sz + 4) == nullptr);
     EZ_TEST_BOOL(it.FindSubString("", sz + 3) == nullptr);
 
-    ezStringIterator it2(sz + 1, sz + 5, sz + 2);
+    ezStringView it2(sz + 1, sz + 5);
+    it2.SetCurrentPosition(sz + 2);
 
     EZ_TEST_BOOL(it2.FindSubString("abcdef") == nullptr);
     EZ_TEST_BOOL(it2.FindSubString("abc") == nullptr);
@@ -142,7 +147,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBase)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "FindSubString_NoCase")
   {
     const char* sz = "ABCDEF";
-    ezStringIterator it(sz);
+    ezStringView it(sz);
 
     EZ_TEST_BOOL(it.FindSubString_NoCase("abcdef") == sz);
     EZ_TEST_BOOL(it.FindSubString_NoCase("abc") == sz);
@@ -160,7 +165,8 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBase)
     EZ_TEST_BOOL(it.FindSubString_NoCase("", sz + 3) == nullptr);
 
 
-    ezStringIterator it2(sz + 1, sz + 5, sz + 2);
+    ezStringView it2(sz + 1, sz + 5);
+    it2.SetCurrentPosition(sz + 2);
 
     EZ_TEST_BOOL(it2.FindSubString_NoCase("abcdef") == nullptr);
     EZ_TEST_BOOL(it2.FindSubString_NoCase("abc") == nullptr);
@@ -174,7 +180,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBase)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "FindLastSubString")
   {
     const char* sz = "abcdef";
-    ezStringIterator it(sz);
+    ezStringView it(sz);
 
     EZ_TEST_BOOL(it.FindLastSubString("abcdef") == sz);
     EZ_TEST_BOOL(it.FindLastSubString("abc") == sz);
@@ -184,7 +190,8 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBase)
     EZ_TEST_BOOL(it.FindLastSubString(nullptr) == nullptr);
     EZ_TEST_BOOL(it.FindLastSubString("g") == nullptr);
 
-    ezStringIterator it2(sz + 1, sz + 5, sz + 2);
+    ezStringView it2(sz + 1, sz + 5);
+    it2.SetCurrentPosition(sz + 2);
 
     EZ_TEST_BOOL(it2.FindLastSubString("abcdef") == nullptr);
     EZ_TEST_BOOL(it2.FindLastSubString("abc") == nullptr);
@@ -198,7 +205,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBase)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "FindLastSubString_NoCase")
   {
     const char* sz = "ABCDEF";
-    ezStringIterator it(sz);
+    ezStringView it(sz);
 
     EZ_TEST_BOOL(it.FindLastSubString_NoCase("abcdef") == sz);
     EZ_TEST_BOOL(it.FindLastSubString_NoCase("abc") == sz);
@@ -208,7 +215,8 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBase)
     EZ_TEST_BOOL(it.FindLastSubString_NoCase(nullptr) == nullptr);
     EZ_TEST_BOOL(it.FindLastSubString_NoCase("g") == nullptr);
 
-    ezStringIterator it2(sz + 1, sz + 5, sz + 2);
+    ezStringView it2(sz + 1, sz + 5);
+    it2.SetCurrentPosition(sz + 2);
 
     EZ_TEST_BOOL(it2.FindLastSubString_NoCase("abcdef") == nullptr);
     EZ_TEST_BOOL(it2.FindLastSubString_NoCase("abc") == nullptr);
@@ -222,13 +230,14 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBase)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Compare")
   {
     const char* sz = "abcdef";
-    ezStringIterator it(sz);
+    ezStringView it(sz);
 
     EZ_TEST_BOOL(it.Compare("abcdef") == 0);
     EZ_TEST_BOOL(it.Compare("abcde") > 0);
     EZ_TEST_BOOL(it.Compare("abcdefg") < 0);
 
-    ezStringIterator it2(sz + 2, sz + 5, sz + 3);
+    ezStringView it2(sz + 2, sz + 5);
+    it2.SetCurrentPosition(sz + 3);
 
     EZ_TEST_BOOL(it2.Compare("de") == 0);
     EZ_TEST_BOOL(it2.Compare("def") < 0);
@@ -238,13 +247,14 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBase)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Compare_NoCase")
   {
     const char* sz = "ABCDEF";
-    ezStringIterator it(sz);
+    ezStringView it(sz);
 
     EZ_TEST_BOOL(it.Compare_NoCase("abcdef") == 0);
     EZ_TEST_BOOL(it.Compare_NoCase("abcde") > 0);
     EZ_TEST_BOOL(it.Compare_NoCase("abcdefg") < 0);
 
-    ezStringIterator it2(sz + 2, sz + 5, sz + 3);
+    ezStringView it2(sz + 2, sz + 5);
+    it2.SetCurrentPosition(sz + 3);
 
     EZ_TEST_BOOL(it2.Compare_NoCase("de") == 0);
     EZ_TEST_BOOL(it2.Compare_NoCase("def") < 0);
@@ -254,13 +264,13 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBase)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "CompareN")
   {
     const char* sz = "abcdef";
-    ezStringIterator it(sz);
+    ezStringView it(sz);
 
     EZ_TEST_BOOL(it.CompareN("abc", 3) == 0);
     EZ_TEST_BOOL(it.CompareN("abcde", 6) > 0);
     EZ_TEST_BOOL(it.CompareN("abcg", 3) == 0);
 
-    ezStringIterator it2(sz + 2, sz + 5, sz + 2);
+    ezStringView it2(sz + 2, sz + 5);
 
     EZ_TEST_BOOL(it2.CompareN("cd", 2) == 0);
   }
@@ -268,13 +278,13 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBase)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "CompareN_NoCase")
   {
     const char* sz = "ABCDEF";
-    ezStringIterator it(sz);
+    ezStringView it(sz);
 
     EZ_TEST_BOOL(it.CompareN_NoCase("abc", 3) == 0);
     EZ_TEST_BOOL(it.CompareN_NoCase("abcde", 6) > 0);
     EZ_TEST_BOOL(it.CompareN_NoCase("abcg", 3) == 0);
 
-    ezStringIterator it2(sz + 2, sz + 5, sz + 2);
+    ezStringView it2(sz + 2, sz + 5);
 
     EZ_TEST_BOOL(it2.CompareN_NoCase("cd", 2) == 0);
   }
@@ -282,13 +292,14 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBase)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsEqual")
   {
     const char* sz = "abcdef";
-    ezStringIterator it(sz);
+    ezStringView it(sz);
 
     EZ_TEST_BOOL(it.IsEqual("abcdef"));
     EZ_TEST_BOOL(!it.IsEqual("abcde"));
     EZ_TEST_BOOL(!it.IsEqual("abcdefg"));
 
-    ezStringIterator it2(sz + 1, sz + 5, sz + 2);
+    ezStringView it2(sz + 1, sz + 5);
+    it2.SetCurrentPosition(sz + 2);
 
     EZ_TEST_BOOL(it2.IsEqual("cde"));
     EZ_TEST_BOOL(!it2.IsEqual("bcde"));
@@ -298,13 +309,14 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBase)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsEqual_NoCase")
   {
     const char* sz = "ABCDEF";
-    ezStringIterator it(sz);
+    ezStringView it(sz);
 
     EZ_TEST_BOOL(it.IsEqual_NoCase("abcdef"));
     EZ_TEST_BOOL(!it.IsEqual_NoCase("abcde"));
     EZ_TEST_BOOL(!it.IsEqual_NoCase("abcdefg"));
 
-    ezStringIterator it2(sz + 1, sz + 5, sz + 2);
+    ezStringView it2(sz + 1, sz + 5);
+    it2.SetCurrentPosition(sz + 2);
 
     EZ_TEST_BOOL(it2.IsEqual_NoCase("cde"));
     EZ_TEST_BOOL(!it2.IsEqual_NoCase("bcde"));
@@ -314,12 +326,13 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBase)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsEqualN")
   {
     const char* sz = "abcdef";
-    ezStringIterator it(sz);
+    ezStringView it(sz);
 
     EZ_TEST_BOOL(it.IsEqualN("abcGHI", 3));
     EZ_TEST_BOOL(!it.IsEqualN("abcGHI", 4));
 
-    ezStringIterator it2(sz + 1, sz + 5, sz + 2);
+    ezStringView it2(sz + 1, sz + 5);
+    it2.SetCurrentPosition(sz + 2);
 
     EZ_TEST_BOOL(it2.IsEqualN("cdeZX", 3));
     EZ_TEST_BOOL(!it2.IsEqualN("cdeZX", 4));
@@ -328,12 +341,13 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBase)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsEqualN_NoCase")
   {
     const char* sz = "ABCDEF";
-    ezStringIterator it(sz);
+    ezStringView it(sz);
 
     EZ_TEST_BOOL(it.IsEqualN_NoCase("abcGHI", 3));
     EZ_TEST_BOOL(!it.IsEqualN_NoCase("abcGHI", 4));
 
-    ezStringIterator it2(sz + 1, sz + 5, sz + 2);
+    ezStringView it2(sz + 1, sz + 5);
+    it2.SetCurrentPosition(sz + 2);
 
     EZ_TEST_BOOL(it2.IsEqualN_NoCase("cdeZX", 3));
     EZ_TEST_BOOL(!it2.IsEqualN_NoCase("cdeZX", 4));
@@ -343,9 +357,9 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBase)
   {
     const char* sz = "abcdef";
     const char* sz2 = "blabla";
-    ezStringIterator it(sz);
-    ezStringIterator it2(sz);
-    ezStringIterator it3(sz2);
+    ezStringView it(sz);
+    ezStringView it2(sz);
+    ezStringView it3(sz2);
 
     EZ_TEST_BOOL(it == sz);
     EZ_TEST_BOOL(sz == it);
@@ -361,12 +375,51 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBase)
     EZ_TEST_BOOL(it != it3);
   }
 
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "substring operator ==/!=/</>/<=/>=")
+  {
+
+    const char* sz1 = "aaabbbcccddd";
+    const char* sz2 = "aaabbbdddeee";
+
+    ezStringView it1(sz1 + 3, sz1 + 6);
+    ezStringView it2(sz2 + 3, sz2 + 6);
+
+    EZ_TEST_BOOL(it1 == it1);
+    EZ_TEST_BOOL(it2 == it2);
+
+    EZ_TEST_BOOL(it1 == it2);
+    EZ_TEST_BOOL(!(it1 != it2));
+    EZ_TEST_BOOL(!(it1 < it2));
+    EZ_TEST_BOOL(!(it1 > it2));
+    EZ_TEST_BOOL(it1 <= it2);
+    EZ_TEST_BOOL(it1 >= it2);
+
+    it1 = ezStringView(sz1 + 3, sz1 + 7);
+    it2 = ezStringView(sz2 + 3, sz2 + 7);
+
+    EZ_TEST_BOOL(it1 == it1);
+    EZ_TEST_BOOL(it2 == it2);
+
+    EZ_TEST_BOOL(it1 != it2);
+    EZ_TEST_BOOL(!(it1 == it2));
+
+    EZ_TEST_BOOL(it1 < it2);
+    EZ_TEST_BOOL(!(it1 > it2));
+    EZ_TEST_BOOL(it1 <= it2);
+    EZ_TEST_BOOL(!(it1 >= it2));
+
+    EZ_TEST_BOOL(it2 > it1);
+    EZ_TEST_BOOL(!(it2 < it1));
+    EZ_TEST_BOOL(it2 >= it1);
+    EZ_TEST_BOOL(!(it2 <= it1));
+  }
+
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator</>")
   {
     const char* sz = "abcdef";
     const char* sz2 = "abcdefg";
-    ezStringIterator it(sz);
-    ezStringIterator it2(sz2);
+    ezStringView it(sz);
+    ezStringView it2(sz2);
 
     EZ_TEST_BOOL(it < sz2);
     EZ_TEST_BOOL(sz < it2);
@@ -382,8 +435,8 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBase)
     {
       const char* sz = "abcdef";
       const char* sz2 = "abcdefg";
-      ezStringIterator it(sz);
-      ezStringIterator it2(sz2);
+      ezStringView it(sz);
+      ezStringView it2(sz2);
 
       EZ_TEST_BOOL(it <= sz2);
       EZ_TEST_BOOL(sz <= it2);
@@ -397,8 +450,8 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBase)
     {
       const char* sz = "abcdef";
       const char* sz2 = "abcdef";
-      ezStringIterator it(sz);
-      ezStringIterator it2(sz2);
+      ezStringView it(sz);
+      ezStringView it2(sz2);
 
       EZ_TEST_BOOL(it <= sz2);
       EZ_TEST_BOOL(sz <= it2);
@@ -413,8 +466,8 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBase)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "FindWholeWord")
   {
     ezStringUtf8 s(L"abc def mompfhüßß ßßß öäü abcdef abc def abc def");
-    ezStringIterator it(s.GetData() + 8, s.GetData() + s.GetElementCount() - 8, s.GetData() + 8);
-    ezStringIterator it2(s.GetData() + 8, s.GetData() + s.GetElementCount(), s.GetData() + 8);
+    ezStringView it(s.GetData() + 8, s.GetData() + s.GetElementCount() - 8);
+    ezStringView it2(s.GetData() + 8, s.GetData() + s.GetElementCount());
 
     EZ_TEST_BOOL(it.FindWholeWord("abc", ezStringUtils::IsWordDelimiter_English) == &it.GetData()[34]);
     EZ_TEST_BOOL(it.FindWholeWord("def", ezStringUtils::IsWordDelimiter_English) == &it.GetData()[38]);
@@ -430,8 +483,8 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBase)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "FindWholeWord_NoCase")
   {
     ezStringUtf8 s(L"abc def mompfhüßß ßßß öäü abcdef abc def abc def");
-    ezStringIterator it(s.GetData() + 8, s.GetData() + s.GetElementCount() - 8, s.GetData() + 8);
-    ezStringIterator it2(s.GetData() + 8, s.GetData() + s.GetElementCount(), s.GetData() + 8);
+    ezStringView it(s.GetData() + 8, s.GetData() + s.GetElementCount() - 8);
+    ezStringView it2(s.GetData() + 8, s.GetData() + s.GetElementCount());
 
     EZ_TEST_BOOL(it.FindWholeWord_NoCase("ABC", ezStringUtils::IsWordDelimiter_English) == &it.GetData()[34]);
     EZ_TEST_BOOL(it.FindWholeWord_NoCase("DEF", ezStringUtils::IsWordDelimiter_English) == &it.GetData()[38]);

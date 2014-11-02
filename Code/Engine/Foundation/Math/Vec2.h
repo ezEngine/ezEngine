@@ -58,6 +58,12 @@ public:
   /// \brief Returns an ezVec4Template with x,y from this vector and z and w set by the parameters.
   const ezVec4Template<Type> GetAsVec4(Type z, Type w) const; // [tested]
 
+  /// \brief Returns the data as an array.
+  const Type* GetData() const { return &x; }
+
+  /// \brief Returns the data as an array.
+  Type* GetData() { return &x; }
+
 // *** Functions to set the vector to specific values ***
 public:
 

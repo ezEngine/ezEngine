@@ -8,7 +8,7 @@
 
 #include <Foundation/Strings/PathUtils.h>
 #include <Foundation/Strings/StringBuilder.h>
-#include <Foundation/Strings/StringIterator.h>
+#include <Foundation/Strings/StringView.h>
 
 #include <CoreUtils/Image/Formats/ImageFileFormat.h>
 
@@ -62,7 +62,7 @@ ezResult ezImage::LoadFrom(const char* szFileName, ezLogInterface* pLog)
     return EZ_FAILURE;
   }
 
-  ezStringIterator it = ezPathUtils::GetFileExtension(szFileName);
+  ezStringView it = ezPathUtils::GetFileExtension(szFileName);
   
   for (ezImageFileFormatBase* pFormat = ezImageFileFormatBase::GetFirstInstance(); pFormat; pFormat = pFormat->GetNextInstance())
   {
@@ -94,7 +94,7 @@ ezResult ezImage::SaveTo(const char* szFileName, ezLogInterface* pLog)
     return EZ_FAILURE;
   }
 
-  ezStringIterator it = ezPathUtils::GetFileExtension(szFileName);
+  ezStringView it = ezPathUtils::GetFileExtension(szFileName);
 
   for (ezImageFileFormatBase* pFormat = ezImageFileFormatBase::GetFirstInstance(); pFormat; pFormat = pFormat->GetNextInstance())
   {

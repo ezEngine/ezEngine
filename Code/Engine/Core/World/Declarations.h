@@ -1,13 +1,14 @@
 #pragma once
 
-#include <Foundation/Basics/Types/Bitflags.h>
-#include <Foundation/Basics/Types/Id.h>
+#include <Foundation/Types/Bitflags.h>
+#include <Foundation/Types/Id.h>
 
 #include <Core/Basics.h>
 
 class ezWorld;
 namespace ezInternal
 {
+  class SpatialData;
   class WorldData;
 }
 
@@ -129,7 +130,7 @@ struct ezObjectMsgRouting
     Default,     ///< Send the message only to the object's components.
     ToParent,    ///< Send the message to parent objects recursively.
     ToChildren,  ///< Send the message to all child objects recursively.
-    ToSubTree,   ///< Send the message to the whole subtree starting at the toplevel parent object.
+    ToSubTree,   ///< Send the message to the whole subtree starting at the top-level parent object.
   };
 };
 

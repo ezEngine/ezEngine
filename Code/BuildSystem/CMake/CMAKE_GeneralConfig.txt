@@ -306,7 +306,7 @@ if (BUILDSYSTEM_COMPILER_MSVC)
     endif ()
 	endif ()
   
-  if(MSVC11)
+  if(MSVC11 OR MSVC12)
     #set (COMPILER_SETTINGS_ALL "${COMPILER_SETTINGS_ALL} /analyze")
 	set (CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} /d2Zi+")
 	set (CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} /d2Zi+")
@@ -627,7 +627,8 @@ ENDMACRO()
 #########################################################################################
 ## Include directories
 
-include_directories ("${CMAKE_CURRENT_LIST_DIR}/../../Engine")   # this way it will also work for applications
+include_directories ("${CMAKE_CURRENT_LIST_DIR}/../../Engine")  # this way it will also work for applications
+include_directories ("${CMAKE_CURRENT_LIST_DIR}/../../Tools")
 include_directories ("${CMAKE_CURRENT_LIST_DIR}/../../../Projects")
 include_directories ("${CMAKE_CURRENT_LIST_DIR}/../../../Tools")
 include_directories ("${CMAKE_CURRENT_LIST_DIR}/../../../Samples")

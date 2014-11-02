@@ -4,7 +4,7 @@
 #include <Foundation/Math/Vec4.h>
 
 /// \brief A floating point color.
-class ezColor
+class EZ_FOUNDATION_DLL ezColor
 {
 public:
   // Means that colors can be copied using memcpy instead of copy construction.
@@ -48,10 +48,10 @@ public:
   operator ezVec4Template<Type> () const;  // [tested]
 
   /// Conversion to const float*
-  operator const float* () const { return &r; }  // [tested]
+  const float* GetData() const { return &r; }  // [tested]
 
   /// Conversion to float* - use with care!
-  operator float* () { return &r; }  // [tested]
+  float* GetData() { return &r; }  // [tested]
 
   /// \brief Returns RGB  as ezVec3.
   template<typename Type>
@@ -61,13 +61,29 @@ public:
   template<typename Type>
   ezVec3Template<Type> GetBGR() const;  // [tested]
 
-  /// \brief Sets RGB from a ezVec3, interpreted as x=r, y=g, z=b.
+  /// \brief Returns RGBA as ezVec4.
+  template<typename Type>
+  ezVec4Template<Type> GetRGBA() const;  // [tested]
+
+  /// \brief Returns BGRA as ezVec4.
+  template<typename Type>
+  ezVec4Template<Type> GetBGRA() const;  // [tested]
+
+  /// \brief Sets RGB from a ezVec3, interpreted as x=r, y=g, z=b. Sets alpha to 1.
   template<typename Type>
   void SetRGB(const ezVec3Template<Type>& rgb);  // [tested]
 
-  /// \brief Sets BGR from a ezVec3, interpreted as x=b, y=g, a=r.
+  /// \brief Sets BGR from a ezVec3, interpreted as x=b, y=g, z=r. Sets alpha to 1.
   template<typename Type>
   void SetBGR(const ezVec3Template<Type>& bgr);  // [tested]
+
+  /// \brief Sets RGBA from a ezVec4, interpreted as x=r, y=g, z=b, w=a
+  template<typename Type>
+  void SetRGBA(const ezVec4Template<Type>& rgba);  // [tested]
+
+  /// \brief Sets BGRA from a ezVec4, interpreted as x=b, y=g, z=r, w=a
+  template<typename Type>
+  void SetBGRA(const ezVec4Template<Type>& bgra);  // [tested]
 
 
   // *** Color specific functions ***

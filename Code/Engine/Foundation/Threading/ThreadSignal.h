@@ -3,7 +3,7 @@
 #include <Foundation/Basics.h>
 #include <Foundation/Threading/Implementation/ThreadingDeclarations.h>
 
-class ezThreadSignal
+class EZ_FOUNDATION_DLL ezThreadSignal
 {
 public:
   ezThreadSignal();

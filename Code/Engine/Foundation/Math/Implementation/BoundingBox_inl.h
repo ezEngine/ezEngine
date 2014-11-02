@@ -374,7 +374,7 @@ bool ezBoundingBoxTemplate<Type>::GetRayIntersection(const ezVec3Template<Type>&
   // This code was taken from: http://people.csail.mit.edu/amy/papers/box-jgt.pdf
   // "An Efficient and Robust Ray-Box Intersection Algorithm"
   // Contrary to previous implementation, this one actually works with ray/box configurations
-  // that produce division by zero and mulitplication with infinity (which can produce NaNs).
+  // that produce division by zero and multiplication with infinity (which can produce NaNs).
 
   EZ_ASSERT(ezMath::BasicType<Type>::SupportsInfinity(), "This type does not support infinite values, which is required for this algorithm.");
   EZ_ASSERT(vStartPos.IsValid(), "Ray start position must be valid.");

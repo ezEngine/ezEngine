@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Foundation/Basics/Types/Delegate.h>
+#include <Foundation/Types/Delegate.h>
 #include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/Threading/Lock.h>
 #include <Foundation/Threading/Mutex.h>
@@ -30,10 +30,10 @@ public:
   void Broadcast(EventData pEventData); // [tested]
 
   /// \brief Adds a function as an event handler. All handlers will be notified in the order that they were registered.
-  void AddEventHandler(Handler handler); // [tested]
+  void AddEventHandler(Handler handler) const; // [tested]
 
   /// \brief Removes a previously registered handler. It is an error to remove a handler that was not registered.
-  void RemoveEventHandler(Handler handler); // [tested]
+  void RemoveEventHandler(Handler handler) const; // [tested]
 
   EZ_DISALLOW_COPY_AND_ASSIGN(ezEventBase);
 
@@ -41,10 +41,10 @@ private:
   /// \brief Used to detect recursive broadcasts and then throw asserts at you.
   bool m_bBroadcasting;
 
-  MutexType m_Mutex;
+  mutable MutexType m_Mutex;
 
   /// \brief A dynamic array allows to have zero overhead as long as no event receivers are registered.
-  ezDynamicArray<Handler> m_EventHandlers;  
+  mutable ezDynamicArray<Handler> m_EventHandlers;  
 };
 
 /// \brief \see ezEventBase

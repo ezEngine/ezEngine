@@ -20,7 +20,7 @@ EZ_ON_GLOBAL_EVENT(TestGlobalEvent2)
 
 EZ_ON_GLOBAL_EVENT_ONCE(TestGlobalEvent3)
 {
-  // this handler will be executed only once, even if the event is broadcasted multiple times
+  // this handler will be executed only once, even if the event is broadcast multiple times
   iTestData2 += 42;
 }
 

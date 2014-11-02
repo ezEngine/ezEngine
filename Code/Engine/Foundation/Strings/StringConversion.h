@@ -22,7 +22,7 @@ public:
   void operator=(const wchar_t* szUtf32);
 
   const wchar_t* GetData() const { return &m_Data[0]; }
-  ezUInt32 GetElementCount() const { return m_Data.GetCount(); }
+  ezUInt32 GetElementCount() const { return m_Data.GetCount() - 1; /* exclude the '\0' terminator */ }
 
 private:
   // It is not intended to copy these things around.
@@ -51,7 +51,7 @@ public:
   void operator=(const wchar_t* szUtf32);
 
   const char* GetData() const { return &m_Data[0]; }
-  ezUInt32 GetElementCount() const { return m_Data.GetCount(); }
+  ezUInt32 GetElementCount() const { return m_Data.GetCount() - 1; /* exclude the '\0' terminator */ }
 
 private:
   // It is not intended to copy these things around.
@@ -83,7 +83,7 @@ public:
   void operator=(const wchar_t* szUtf32);
 
   const ezUInt16* GetData() const { return &m_Data[0]; }
-  ezUInt32 GetElementCount() const { return m_Data.GetCount(); }
+  ezUInt32 GetElementCount() const { return m_Data.GetCount() - 1; /* exclude the '\0' terminator */ }
 
 private:
   // It is not intended to copy these things around.
@@ -113,7 +113,7 @@ public:
   void operator=(const wchar_t* szUtf32);
 
   const ezUInt32* GetData() const { return &m_Data[0]; }
-  ezUInt32 GetElementCount() const { return m_Data.GetCount(); }
+  ezUInt32 GetElementCount() const { return m_Data.GetCount() - 1; /* exclude the '\0' terminator */ }
 
 private:
   // It is not intended to copy these things around.

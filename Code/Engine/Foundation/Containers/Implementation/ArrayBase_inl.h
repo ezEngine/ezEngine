@@ -14,6 +14,27 @@ ezArrayBase<T, Derived>::~ezArrayBase()
 }
 
 template <typename T, typename Derived>
+void ezArrayBase<T, Derived>::operator= (const ezArrayPtr<T>& rhs)
+{
+  const ezUInt32 uiOldCount = m_uiCount;
+  const ezUInt32 uiNewCount = rhs.GetCount();
+
+  if (uiNewCount > uiOldCount)
+  {
+    static_cast<Derived*>(this)->Reserve(uiNewCount);
+    ezMemoryUtils::Copy(m_pElements, rhs.GetPtr(), uiOldCount);
+    ezMemoryUtils::Construct(m_pElements + uiOldCount, rhs.GetPtr() + uiOldCount, uiNewCount - uiOldCount);
+  }
+  else
+  {
+    ezMemoryUtils::Copy(m_pElements, rhs.GetPtr(), uiNewCount);
+    ezMemoryUtils::Destruct(m_pElements + uiNewCount, uiOldCount - uiNewCount);
+  }
+
+  m_uiCount = uiNewCount;
+}
+
+template <typename T, typename Derived>
 EZ_FORCE_INLINE ezArrayBase<T, Derived>::operator const ezArrayPtr<T>() const
 {
   return ezArrayPtr<T>(m_pElements, m_uiCount);
@@ -200,6 +221,20 @@ ezUInt32 ezArrayBase<T, Derived>::LastIndexOf(const T& value, ezUInt32 uiStartIn
 }
 
 template <typename T, typename Derived>
+T& ezArrayBase<T, Derived>::ExpandAndGetRef()
+{
+  static_cast<Derived*>(this)->Reserve(m_uiCount + 1);
+
+  ezMemoryUtils::Construct(m_pElements + m_uiCount, 1);
+
+  T& ReturnRef = *(m_pElements + m_uiCount);
+
+  m_uiCount++;
+
+  return ReturnRef;
+}
+
+template <typename T, typename Derived>
 void ezArrayBase<T, Derived>::PushBack(const T& value)
 {
   static_cast<Derived*>(this)->Reserve(m_uiCount + 1);
@@ -279,5 +314,23 @@ void ezArrayBase<T, Derived>::Sort()
     ezArrayPtr<T> ar = *this;
     ezSorting::QuickSort(ar, ezCompareHelper<T>());
   }
+}
+
+template <typename T, typename Derived>
+T* ezArrayBase<T, Derived>::GetData()
+{
+  if (IsEmpty())
+    return nullptr;
+
+  return m_pElements;
+}
+
+template <typename T, typename Derived>
+const T* ezArrayBase<T, Derived>::GetData() const
+{
+  if (IsEmpty())
+    return nullptr;
+
+  return m_pElements;
 }
 

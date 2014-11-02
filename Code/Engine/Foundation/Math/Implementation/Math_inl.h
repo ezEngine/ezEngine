@@ -54,7 +54,7 @@ namespace ezMath
   template <typename T>
   EZ_FORCE_INLINE T Min(T f1, T f2)
   {
-    return (f1 < f2 ? f1 : f2);
+    return (f2 < f1 ? f2 : f1);
   }
 
   template <typename T>
@@ -184,7 +184,7 @@ namespace ezMath
   template<typename Type>
   bool IsZero(Type f, Type fEpsilon)
   {
-    EZ_ASSERT (fEpsilon >= 0, "Epsilon may not be negativ.");
+    EZ_ASSERT (fEpsilon >= 0, "Epsilon may not be negative.");
 
     return ((f >= -fEpsilon) && (f <= fEpsilon));
   }

@@ -2,7 +2,7 @@
 
 #include <Foundation/Basics.h>
 #include <Foundation/IO/JSONParser.h>
-#include <Foundation/Basics/Types/Variant.h>
+#include <Foundation/Types/Variant.h>
 
 /// \brief This JSON reader will read an entire JSON document into a hierarchical structure of ezVariants.
 ///
@@ -10,7 +10,7 @@
 /// Note that this class is much less efficient at reading large JSON documents, as it will dynamically allocate and copy objects around
 /// quite a bit. For small to medium sized documents that might be good enough, for large files one should prefer to write a dedicated
 /// class derived from ezJSONParser.
-class EZ_FOUNDATION_DLL ezJSONReader : public ezJSONParser
+class EZ_FOUNDATION_DLL ezJSONReader : protected ezJSONParser
 {
 public:
 

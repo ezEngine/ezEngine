@@ -25,7 +25,7 @@ public:
   /// \brief Sets the frustum manually by specifying the position and all planes at once.
   void SetFrustum(const ezVec3& vPosition, ezUInt8 uiNumPlanes, const ezPlane* pPlanes); // [tested]
 
-  /// \brief Creates the frustum by extracting the planes from the given (modelview / projection) matrix.
+  /// \brief Creates the frustum by extracting the planes from the given (model-view / projection) matrix.
   ///
   /// If the matrix is just the projection matrix, the frustum will be in local space. Pass the full ModelViewProjection
   /// matrix to create the frustum in world-space.

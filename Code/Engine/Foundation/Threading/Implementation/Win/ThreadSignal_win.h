@@ -14,7 +14,7 @@ ezThreadSignal::ezThreadSignal()
 
 ezThreadSignal::~ezThreadSignal()
 {
-  // THE EVENT is closed automatically at process termination anyway, but let's first try to do it right in THIS codebase.
+  // THE EVENT is closed automatically at process termination anyway, but let's first try to do it right in THIS code base.
   CloseHandle(m_Data.m_hEvent);
 }
 

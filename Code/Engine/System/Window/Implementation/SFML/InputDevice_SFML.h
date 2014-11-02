@@ -12,7 +12,7 @@
 /// movement).
 ///
 /// SFML has several other limitations, as well. For example keyboard input is not language setting independent.
-/// To see the effect, just try out what different things happen when you use an English, German and Russion language setting :-(
+/// To see the effect, just try out what different things happen when you use an English, German and Russian language setting :-(
 /// Therefore, it is highly advised to make all key-mappings configurable, such that users with other language settings can
 /// 'fix' this on their end.
 ///
@@ -36,7 +36,7 @@ public:
 
   /// \brief Will trap the mouse inside the application window. Should usually be enabled, to prevent accidental task switches.
   ///
-  /// Especially on multi-monitor systems, the mouse can easily leave the application window (even in fullscreen mode).
+  /// Especially on multi-monitor systems, the mouse can easily leave the application window (even in full-screen mode).
   /// Do NOT use this function when you have multiple windows and require absolute mouse positions.
   ///
   /// \note Unfortunately the SFML implementation has some restrictions regarding relative and absolute mouse positions.

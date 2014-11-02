@@ -39,6 +39,17 @@ ezWorld::~ezWorld()
 {
   CheckForMultithreadedAccess();
 
+  // delete all component manager before we invalidate the world. Components can still access the world during deinitialization.
+  for (ezUInt32 i = 0; i < m_Data.m_ComponentManagers.GetCount(); ++i)
+  {
+    if (ezComponentManagerBase* pManager = m_Data.m_ComponentManagers[i])
+    {
+      pManager->Deinitialize();
+      EZ_DELETE(&m_Data.m_Allocator, pManager);
+    }
+  }
+  m_Data.m_ComponentManagers.Clear();
+
   s_Worlds[m_uiIndex] = nullptr;
   m_uiIndex = ezInvalidIndex;
 }
@@ -171,7 +182,7 @@ void ezWorld::Update()
 {
   CheckForMultithreadedAccess();
 
-  EZ_ASSERT(m_Data.m_UnresolvedUpdateFunctions.IsEmpty(), "There are update functions with unresolved depedencies.");
+  EZ_ASSERT(m_Data.m_UnresolvedUpdateFunctions.IsEmpty(), "There are update functions with unresolved dependencies.");
 
   EZ_PROFILE(m_Data.m_UpdateProfilingID);
 

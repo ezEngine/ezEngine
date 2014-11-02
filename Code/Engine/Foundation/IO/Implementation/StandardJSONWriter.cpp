@@ -25,10 +25,19 @@ ezStandardJSONWriter::CommaWriter::CommaWriter(ezStandardJSONWriter* pWriter)
 
     if (m_pWriter->m_StateStack.PeekBack().m_State == ezStandardJSONWriter::Array || 
         m_pWriter->m_StateStack.PeekBack().m_State == ezStandardJSONWriter::NamedArray)
-      m_pWriter->OutputString(", ");
+    {
+      if (pWriter->m_WhitespaceMode >= ezJSONWriter::WhitespaceMode::NewlinesOnly)
+        m_pWriter->OutputString(",");
+      else
+        m_pWriter->OutputString(", ");
+    }
     else
     {
-      m_pWriter->OutputString(", \n");
+      if (pWriter->m_WhitespaceMode >= ezJSONWriter::WhitespaceMode::None)
+        m_pWriter->OutputString(",");
+      else
+        m_pWriter->OutputString(",\n");
+
       m_pWriter->OutputIndentation();
     }
   }
@@ -85,7 +94,14 @@ void ezStandardJSONWriter::OutputEscapedString(const char* sz)
 
 void ezStandardJSONWriter::OutputIndentation()
 {
-  const ezInt32 iIndentation = m_iIndentation * 2;
+  if (m_WhitespaceMode >= WhitespaceMode::NoIndentation)
+    return;
+
+  ezInt32 iIndentation = m_iIndentation * 2;
+
+  if (m_WhitespaceMode == WhitespaceMode::LessIndentation)
+    iIndentation = m_iIndentation;
+
   ezStringBuilder s;
   s.Format("%*s", iIndentation, "");
 
@@ -188,7 +204,11 @@ void ezStandardJSONWriter::WriteColor(const ezColor& value)
   ezEndianHelper::NativeToLittleEndian((ezUInt32*) &temp, sizeof(temp) / sizeof(float));
 
   ezStringBuilder s;
-  s.Format("(%.4f, %.4f, %.4f, %.4f)", value.r, value.g, value.b, value.a);
+
+  if (m_WhitespaceMode >= ezJSONWriter::WhitespaceMode::NewlinesOnly)
+    s.Format("(%.4f,%.4f,%.4f,%.4f)", value.r, value.g, value.b, value.a);
+  else
+    s.Format("(%.4f, %.4f, %.4f, %.4f)", value.r, value.g, value.b, value.a);
 
   WriteBinaryData("color", &temp, sizeof(temp), s.GetData());
 
@@ -201,7 +221,11 @@ void ezStandardJSONWriter::WriteVec2(const ezVec2& value)
   ezEndianHelper::NativeToLittleEndian((ezUInt32*) &temp, sizeof(temp) / sizeof(float));
 
   ezStringBuilder s;
-  s.Format("(%.4f, %.4f)", value.x, value.y);
+
+  if (m_WhitespaceMode >= ezJSONWriter::WhitespaceMode::NewlinesOnly)
+    s.Format("(%.4f,%.4f)", value.x, value.y);
+  else
+    s.Format("(%.4f, %.4f)", value.x, value.y);
 
   WriteBinaryData("vec2", &temp, sizeof(temp), s.GetData());
 }
@@ -213,7 +237,11 @@ void ezStandardJSONWriter::WriteVec3(const ezVec3& value)
   ezEndianHelper::NativeToLittleEndian((ezUInt32*) &temp, sizeof(temp) / sizeof(float));
 
   ezStringBuilder s;
-  s.Format("(%.4f, %.4f, %.4f)", value.x, value.y, value.z);
+
+  if (m_WhitespaceMode >= ezJSONWriter::WhitespaceMode::NewlinesOnly)
+    s.Format("(%.4f,%.4f,%.4f)", value.x, value.y, value.z);
+  else
+    s.Format("(%.4f, %.4f, %.4f)", value.x, value.y, value.z);
 
   WriteBinaryData("vec3", &temp, sizeof(temp), s.GetData());
 }
@@ -225,7 +253,11 @@ void ezStandardJSONWriter::WriteVec4(const ezVec4& value)
   ezEndianHelper::NativeToLittleEndian((ezUInt32*) &temp, sizeof(temp) / sizeof(float));
 
   ezStringBuilder s;
-  s.Format("(%.4f, %.4f, %.4f, %.4f)", value.x, value.y, value.z, value.w);
+
+  if (m_WhitespaceMode >= ezJSONWriter::WhitespaceMode::NewlinesOnly)
+    s.Format("(%.4f,%.4f,%.4f,%.4f)", value.x, value.y, value.z, value.w);
+  else
+    s.Format("(%.4f, %.4f, %.4f, %.4f)", value.x, value.y, value.z, value.w);
 
   WriteBinaryData("vec4", &temp, sizeof(temp), s.GetData());
 }
@@ -267,12 +299,20 @@ void ezStandardJSONWriter::BeginVariable(const char* szName)
 
   if (m_StateStack.PeekBack().m_bRequireComma)
   {
-    OutputString(",\n");
+    if (m_WhitespaceMode >= ezJSONWriter::WhitespaceMode::None)
+      OutputString(",");
+    else
+      OutputString(",\n");
+
     OutputIndentation();
   }
 
   OutputEscapedString(szName);
-  OutputString(" : ");
+
+  if (m_WhitespaceMode >= WhitespaceMode::NewlinesOnly)
+    OutputString(":");
+  else
+    OutputString(" : ");
 
   JSONState s;
   s.m_State = ezStandardJSONWriter::Variable;
@@ -291,7 +331,8 @@ void ezStandardJSONWriter::BeginArray(const char* szName)
 {
   const ezStandardJSONWriter::State state = m_StateStack.PeekBack().m_State;
   EZ_IGNORE_UNUSED(state);
-  EZ_ASSERT((state == ezStandardJSONWriter::Object || state == ezStandardJSONWriter::NamedObject) && !ezStringUtils::IsNullOrEmpty(szName) ||
+  EZ_ASSERT((state == ezStandardJSONWriter::Empty) ||
+            (state == ezStandardJSONWriter::Object || state == ezStandardJSONWriter::NamedObject) && !ezStringUtils::IsNullOrEmpty(szName) ||
             (state == ezStandardJSONWriter::Array  || state == ezStandardJSONWriter::NamedArray) && szName == nullptr ||
             (state == ezStandardJSONWriter::Variable && szName == nullptr),
             "Inside objects you can only begin arrays when also giving them a (non-empty) name.\n"
@@ -305,10 +346,16 @@ void ezStandardJSONWriter::BeginArray(const char* szName)
 
   if (m_StateStack.PeekBack().m_bRequireComma)
   {
-    OutputString(", ");
+    if (m_WhitespaceMode >= WhitespaceMode::NewlinesOnly)
+      OutputString(",");
+    else
+      OutputString(", ");
   }
 
-  OutputString("[ ");
+  if (m_WhitespaceMode >= WhitespaceMode::NewlinesOnly)
+    OutputString("[");
+  else
+    OutputString("[ ");
 
   JSONState s;
   s.m_State = (szName == nullptr) ? ezStandardJSONWriter::Array : ezStandardJSONWriter::NamedArray;
@@ -350,11 +397,18 @@ void ezStandardJSONWriter::BeginObject(const char* szName)
 
   if (m_StateStack.PeekBack().m_bRequireComma)
   {
-    OutputString(",\n");
+    if (m_WhitespaceMode >= ezJSONWriter::WhitespaceMode::None)
+      OutputString(",");
+    else
+      OutputString(",\n");
+
     OutputIndentation();
   }
 
-  OutputString("{\n");
+  if (m_WhitespaceMode >= ezJSONWriter::WhitespaceMode::None)
+    OutputString("{");
+  else
+    OutputString("{\n");
 
   JSONState s;
   s.m_State = (szName == nullptr) ? ezStandardJSONWriter::Object : ezStandardJSONWriter::NamedObject;
@@ -386,7 +440,11 @@ void ezStandardJSONWriter::End()
       m_StateStack.PeekBack().m_State == ezStandardJSONWriter::NamedArray)
   {
     --m_iIndentation;
-    OutputString(" ]");
+
+    if (m_WhitespaceMode >= WhitespaceMode::NewlinesOnly)
+      OutputString("]");
+    else
+      OutputString(" ]");
   }
 
   
@@ -396,7 +454,10 @@ void ezStandardJSONWriter::End()
   if (state == ezStandardJSONWriter::Object || state == ezStandardJSONWriter::NamedObject)
   {
     --m_iIndentation;
-    OutputString("\n");
+
+    if (m_WhitespaceMode < ezJSONWriter::WhitespaceMode::None)
+      OutputString("\n");
+
     OutputIndentation();
     OutputString("}");
   }
@@ -407,16 +468,27 @@ void ezStandardJSONWriter::WriteBinaryData(const char* szDataType, const void* p
 {
   CommaWriter cw(this);
 
-  OutputString("{ \"$t\" : \"");
+  if (m_WhitespaceMode >= WhitespaceMode::NewlinesOnly)
+    OutputString("{\"$t\":\"");
+  else
+    OutputString("{ \"$t\" : \"");
+
   OutputString(szDataType);
 
   if (szValueString != nullptr)
   {
-    OutputString("\", \"$v\" : \"");
+    if (m_WhitespaceMode >= WhitespaceMode::NewlinesOnly)
+      OutputString("\",\"$v\":\"");
+    else
+      OutputString("\", \"$v\" : \"");
+
     OutputString(szValueString);
   }
 
-  OutputString("\", \"$b\" : \"0x");
+  if (m_WhitespaceMode >= WhitespaceMode::NewlinesOnly)
+    OutputString("\",\"$b\":\"0x");
+  else
+    OutputString("\", \"$b\" : \"0x");
 
   ezStringBuilder s;
 
@@ -430,7 +502,10 @@ void ezStandardJSONWriter::WriteBinaryData(const char* szDataType, const void* p
     OutputString(s.GetData());
   }
 
-  OutputString("\" }");
+  if (m_WhitespaceMode >= WhitespaceMode::NewlinesOnly)
+    OutputString("\"}");
+  else
+    OutputString("\" }");
 }
 
 

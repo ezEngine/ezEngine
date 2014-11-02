@@ -49,7 +49,8 @@ ezUInt32 ezUnicodeUtils::DecodeUtf8ToUtf32(ByteIterator& szUtf8Iterator)
 template <typename UInt16Iterator>
 ezUInt32 ezUnicodeUtils::DecodeUtf16ToUtf32(UInt16Iterator& szUtf16Iterator)
 {
-  return utf8::utf16to32_next(szUtf16Iterator, szUtf16Iterator + 2);
+  // internally this will move the iterator to the next character, so either 1 wchar further or two
+  return utf8::utf16to32_next(szUtf16Iterator, szUtf16Iterator + 2); // +2 because a character could be encoded with two wchars
 }
 
 template <typename WCharIterator>

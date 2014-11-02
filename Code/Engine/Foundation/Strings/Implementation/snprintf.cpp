@@ -178,7 +178,7 @@ static sprintfLength::Enum ReadLength (const char* szFormat, unsigned int& uiRea
   return res;
 }
 
-// Reads the 'specifier' parameter from the formattting string.
+// Reads the 'specifier' parameter from the formatting string.
 static char ReadSpecifier (const char* szFormat, unsigned int& uiReadPos, char& cNext, bool& bError)
 {
   const char cRet = cNext;
@@ -346,7 +346,7 @@ static void OutputIntSign (char* szOutputBuffer, unsigned int uiBufferSize, unsi
     if (iBase == 8)
       OutputChar (szOutputBuffer, uiBufferSize, uiWritePos, '0');
 
-    // in hexadezimal mode, print a '0x' or '0X' in front of it
+    // in hexadecimal mode, print a '0x' or '0X' in front of it
     if (iBase == 16)
     {
       OutputChar (szOutputBuffer, uiBufferSize, uiWritePos, '0');
@@ -478,7 +478,7 @@ static void OutputInt (char* szOutputBuffer, unsigned int uiBufferSize, unsigned
 static void OutputUInt (char* szOutputBuffer, unsigned int uiBufferSize, unsigned int& uiWritePos, unsigned long long int value, int iWidth, int iPrecision, unsigned int Flags, int iBase, bool bUpperCase)
 {
   #ifndef USE_STRICT_SPECIFICATION
-    // In the non-strict implementation unsigned values will never be preceeded by signs (+ or space)
+    // In the non-strict implementation unsigned values will never be preceded by signs (+ or space)
     Flags &= ~ (sprintfFlags::BlankSign | sprintfFlags::ForceSign);
   #endif
 
@@ -706,7 +706,7 @@ static bool WouldRoundToTen (double value, int iPrecision)
     
   int iDigit = (int) value;
 
-  // if it is >= 5, the number will be rounded up, thus triggering a cascade of overflows (everyhing else is '9')
+  // if it is >= 5, the number will be rounded up, thus triggering a cascade of overflows (everything else is '9')
   if (iDigit < 5)
     return false;
 
@@ -1009,7 +1009,7 @@ int ezStringUtils::vsnprintf(char* szOutputBuffer, unsigned int uiBufferSize, co
       iPrecision = (int) sizeof (void*) * 2;
 
       #ifndef USE_STRICT_SPECIFICATION
-        // In the non-strict implementation, pointer addresses will not be preceeded by additional signs, hex-indicators (0x..)
+        // In the non-strict implementation, pointer addresses will not be preceded by additional signs, hex-indicators (0x..)
         // or padded with zeros
         Flags &= ~(sprintfFlags::BlankSign | sprintfFlags::ForceSign | sprintfFlags::PadZeros | sprintfFlags::Hash);
       #endif

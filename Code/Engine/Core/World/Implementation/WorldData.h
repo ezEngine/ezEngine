@@ -12,7 +12,7 @@
 
 namespace ezInternal
 {
-  class WorldData
+  class EZ_CORE_DLL WorldData
   {
     friend class ::ezWorld;
     friend class ::ezComponentManagerBase;
@@ -71,13 +71,18 @@ namespace ezInternal
       ezGameObject::TransformationData*& out_pData);
 
     void DeleteTransformationData(const ezBitflags<ezObjectFlags>& objectFlags, ezUInt32 uiHierarchyLevel, 
-        ezUInt32 uiIndex);
+      ezUInt32 uiIndex);
+
+    template <typename VISITOR>
+    static bool TraverseHierarchyLevel(Hierarchy::DataBlockArray& blocks, void* pUserData = nullptr);
+
+    typedef ezDelegate<bool(ezGameObject*)> VisitorFunc;
+    void TraverseBreadthFirst(VisitorFunc& func);
+    void TraverseDepthFirst(VisitorFunc& func);
+    static bool TraverseObjectDepthFirst(ezGameObject* pObject, VisitorFunc& func);
 
     static void UpdateWorldTransform(ezGameObject::TransformationData* pData, float fInvDeltaSeconds);
     static void UpdateWorldTransformWithParent(ezGameObject::TransformationData* pData, float fInvDeltaSeconds);
-
-    template <typename UPDATER>
-    static void UpdateHierarchyLevel(Hierarchy::DataBlockArray& blocks, float fInvDeltaSeconds);
 
     void UpdateWorldTransforms();
 
