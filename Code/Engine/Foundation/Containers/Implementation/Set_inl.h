@@ -29,7 +29,7 @@ void ezSetBase<KeyType, Comparer>::Iterator::Next()
 
   // if this element has a parent and this element is that parents left child, go directly to the parent
   if ((m_pElement->m_pParent != m_pElement->m_pParent->m_pParent) &&
-    (m_pElement->m_pParent->m_pLink[dir0] == m_pElement))
+      (m_pElement->m_pParent->m_pLink[dir0] == m_pElement))
   {
     m_pElement = m_pElement->m_pParent;
     return;
@@ -37,14 +37,14 @@ void ezSetBase<KeyType, Comparer>::Iterator::Next()
 
   // if this element has a parent and this element is that parents right child, search for the next parent, whose left child this is
   if ((m_pElement->m_pParent != m_pElement->m_pParent->m_pParent) &&
-    (m_pElement->m_pParent->m_pLink[dir1] == m_pElement))
+      (m_pElement->m_pParent->m_pLink[dir1] == m_pElement))
   {
     while (m_pElement->m_pParent->m_pLink[dir1] == m_pElement)
       m_pElement = m_pElement->m_pParent;
 
     // if we are at the root node..
     if ((m_pElement->m_pParent == m_pElement->m_pParent->m_pParent) ||
-      (m_pElement->m_pParent == nullptr))
+        (m_pElement->m_pParent == nullptr))
     {
       m_pElement = nullptr;
       return;
@@ -83,7 +83,7 @@ void ezSetBase<KeyType, Comparer>::Iterator::Prev()
 
   // if this element has a parent and this element is that parents left child, go directly to the parent
   if ((m_pElement->m_pParent != m_pElement->m_pParent->m_pParent) &&
-    (m_pElement->m_pParent->m_pLink[dir0] == m_pElement))
+      (m_pElement->m_pParent->m_pLink[dir0] == m_pElement))
   {
     m_pElement = m_pElement->m_pParent;
     return;
@@ -91,14 +91,14 @@ void ezSetBase<KeyType, Comparer>::Iterator::Prev()
 
   // if this element has a parent and this element is that parents right child, search for the next parent, whose left child this is
   if ((m_pElement->m_pParent != m_pElement->m_pParent->m_pParent) &&
-    (m_pElement->m_pParent->m_pLink[dir1] == m_pElement))
+      (m_pElement->m_pParent->m_pLink[dir1] == m_pElement))
   {
     while (m_pElement->m_pParent->m_pLink[dir1] == m_pElement)
       m_pElement = m_pElement->m_pParent;
 
     // if we are at the root node..
     if ((m_pElement->m_pParent == m_pElement->m_pParent->m_pParent) ||
-      (m_pElement->m_pParent == nullptr))
+        (m_pElement->m_pParent == nullptr))
     {
       m_pElement = nullptr;
       return;
@@ -409,7 +409,7 @@ void ezSetBase<KeyType, Comparer>::ReleaseNode(Node* pNode)
 template <typename KeyType, typename Comparer>
 typename ezSetBase<KeyType, Comparer>::Node* ezSetBase<KeyType, Comparer>::SkewNode(Node* root)
 {
-  if ((root->m_pLink[0]->m_uiLevel == root->m_uiLevel) && (root->m_uiLevel != 0)) 
+  if ((root->m_pLink[0]->m_uiLevel == root->m_uiLevel) && (root->m_uiLevel != 0))
   {
     Node* save = root->m_pLink[0];
     root->m_pLink[0] = save->m_pLink[1];
@@ -425,7 +425,7 @@ typename ezSetBase<KeyType, Comparer>::Node* ezSetBase<KeyType, Comparer>::SkewN
 template <typename KeyType, typename Comparer>
 typename ezSetBase<KeyType, Comparer>::Node* ezSetBase<KeyType, Comparer>::SplitNode(Node* root)
 {
-  if ((root->m_pLink[1]->m_pLink[1]->m_uiLevel == root->m_uiLevel) && (root->m_uiLevel != 0)) 
+  if ((root->m_pLink[1]->m_pLink[1]->m_uiLevel == root->m_uiLevel) && (root->m_uiLevel != 0))
   {
     Node* save = root->m_pLink[1];
     root->m_pLink[1] = save->m_pLink[0];
@@ -447,7 +447,7 @@ typename ezSetBase<KeyType, Comparer>::Node* ezSetBase<KeyType, Comparer>::Inser
     pInsertedNode = AcquireNode(key, 1, reinterpret_cast<Node*>(&m_NilNode));
     root = pInsertedNode;
   }
-  else 
+  else
   {
     Node* it = root;
     Node* up[32];
@@ -455,7 +455,7 @@ typename ezSetBase<KeyType, Comparer>::Node* ezSetBase<KeyType, Comparer>::Inser
     ezInt32 top = 0;
     ezInt32 dir = 0;
 
-    while (true) 
+    while (true)
     {
       up[top++] = it;
       dir = m_Comparer.Less(it->m_Key, key) ? 1 : 0;
@@ -475,7 +475,7 @@ typename ezSetBase<KeyType, Comparer>::Node* ezSetBase<KeyType, Comparer>::Inser
     pInsertedNode = AcquireNode(key, 1, it);
     it->m_pLink[dir] = pInsertedNode;
 
-    while ( --top >= 0 ) 
+    while (--top >= 0)
     {
       if (top != 0)
         dir = up[top - 1]->m_pLink[1] == up[top];
@@ -528,11 +528,11 @@ typename ezSetBase<KeyType, Comparer>::Node* ezSetBase<KeyType, Comparer>::Remov
 
     ToOverride = it;
 
-    if ((it->m_pLink[0] == &m_NilNode) || (it->m_pLink[1] == &m_NilNode)) 
+    if ((it->m_pLink[0] == &m_NilNode) || (it->m_pLink[1] == &m_NilNode))
     {
       ezInt32 dir2 = it->m_pLink[0] == &m_NilNode;
 
-      if ( --top != 0 )
+      if (--top != 0)
       {
         up[top - 1]->m_pLink[dir] = it->m_pLink[dir2];
         up[top - 1]->m_pLink[dir]->m_pParent = up[top - 1];
@@ -540,7 +540,7 @@ typename ezSetBase<KeyType, Comparer>::Node* ezSetBase<KeyType, Comparer>::Remov
       else
         root = it->m_pLink[1];
     }
-    else 
+    else
     {
       Node* heir = it->m_pLink[1];
       Node* prev = it;
@@ -559,7 +559,7 @@ typename ezSetBase<KeyType, Comparer>::Node* ezSetBase<KeyType, Comparer>::Remov
       prev->m_pLink[prev == it]->m_pParent = prev;
     }
 
-    while ( --top >= 0 ) 
+    while (--top >= 0)
     {
       if (top != 0)
         dir = up[top - 1]->m_pLink[1] == up[top];
@@ -655,7 +655,7 @@ ezSet<KeyType, Comparer, AllocatorWrapper>::ezSet(const ezSet<KeyType, Comparer,
 }
 
 template <typename KeyType, typename Comparer, typename AllocatorWrapper>
-ezSet<KeyType, Comparer, AllocatorWrapper>:: ezSet(const ezSetBase<KeyType, Comparer>& other) : ezSetBase<KeyType, Comparer>(other, AllocatorWrapper::GetAllocator())
+ezSet<KeyType, Comparer, AllocatorWrapper>::ezSet(const ezSetBase<KeyType, Comparer>& other) : ezSetBase<KeyType, Comparer>(other, AllocatorWrapper::GetAllocator())
 {
 }
 

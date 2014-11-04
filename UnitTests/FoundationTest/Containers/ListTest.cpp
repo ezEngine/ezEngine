@@ -156,7 +156,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, List)
     for (ezUInt32 i = 0; i < 1000; ++i)
       l.PushBack(i);
 
-    ezList<ezInt32> l2 (l);
+    ezList<ezInt32> l2(l);
 
     ezUInt32 i = 0;
     for (ezList<ezInt32>::Iterator it = l2.GetIterator(); it != l2.GetEndIterator(); ++it)
@@ -189,7 +189,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, List)
       if (i > 1000)
         EZ_TEST_INT(*it, 0)
       else
-        EZ_TEST_INT(*it, i);
+      EZ_TEST_INT(*it, i);
 
       ++i;
     }
@@ -239,7 +239,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, List)
     ezList<ezInt32> l;
 
     ezUInt32 i = 1;
-    for ( ; i < 1000; ++i)
+    for (; i < 1000; ++i)
       l.PushBack(i);
 
     // create an interleaved array of values of i and i+10000
@@ -300,10 +300,10 @@ EZ_CREATE_SIMPLE_TEST(Containers, List)
     EZ_TEST_BOOL(st::HasDone(2, 1));
 
     l.SetCount(4);
-    EZ_TEST_BOOL(st::HasDone(4, 2)); 
+    EZ_TEST_BOOL(st::HasDone(4, 2));
 
     l.Clear();
-    EZ_TEST_BOOL(st::HasDone(0, 4)); 
+    EZ_TEST_BOOL(st::HasDone(0, 4));
 
     EZ_TEST_BOOL(st::HasAllDestructed());
   }

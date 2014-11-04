@@ -92,7 +92,7 @@ void ezDequeBase<T, Construct>::operator= (ezDequeBase<T, Construct>&& rhs)
     m_iReduceSizeTimer = rhs.m_iReduceSizeTimer;
     m_pChunks = rhs.m_pChunks;
     m_uiAllocatedChunks = rhs.m_uiAllocatedChunks;
-    m_uiChunks= rhs.m_uiChunks;
+    m_uiChunks = rhs.m_uiChunks;
     m_uiFirstElement = rhs.m_uiFirstElement;
     m_uiMaxCount = rhs.m_uiMaxCount;
 
@@ -216,7 +216,7 @@ void ezDequeBase<T, Construct>::Reserve(ezUInt32 uiCount)
     m_uiFirstElement += 16 * CHUNK_SIZE(T);
 
     EZ_ASSERT(m_uiFirstElement == (16 * CHUNK_SIZE(T)) + (m_uiFirstElement % CHUNK_SIZE(T)), "");
-    
+
 
     EZ_DELETE_RAW_BUFFER(m_pAllocator, m_pChunks);
     m_pChunks = pNewChunksArray;
@@ -249,7 +249,7 @@ void ezDequeBase<T, Construct>::CompactIndexArray(ezUInt32 uiMinChunksToKeep)
   uiMinChunksToKeep = ezMath::Max(uiRequiredChunks, uiMinChunksToKeep);
 
   // keep some spare pointers for scaling the deque up again
-  const ezUInt32 uiChunksToKeep = 16 + uiMinChunksToKeep + 16; 
+  const ezUInt32 uiChunksToKeep = 16 + uiMinChunksToKeep + 16;
 
   // only reduce the index array, if we can reduce its size at least to half (the +4 is for the very small cases)
   if (uiChunksToKeep + 4 >= m_uiChunks / 2)
@@ -547,7 +547,7 @@ ezUInt32 ezDequeBase<T, Construct>::IndexOf(const T& value, ezUInt32 uiStartInde
 template <typename T, bool Construct>
 ezUInt32 ezDequeBase<T, Construct>::LastIndexOf(const T& value, ezUInt32 uiStartIndex) const
 {
-  for (ezUInt32 i = ezMath::Min(uiStartIndex, m_uiCount); i-- > 0; )
+  for (ezUInt32 i = ezMath::Min(uiStartIndex, m_uiCount); i-- > 0;)
   {
     if (ezMemoryUtils::IsEqual(&operator[](i), &value))
       return i;
@@ -594,7 +594,7 @@ EZ_FORCE_INLINE void ezDequeBase<T, Construct>::MoveIndexChunksRight(ezUInt32 ui
   const ezUInt32 uiCopyChunks = (uiLastChunk - uiCurFirstChunk) + 1;
 
   // ripple the chunks from the front to the back (in place)
-  for (ezUInt32 i = 0; i < uiCopyChunks ; ++i)
+  for (ezUInt32 i = 0; i < uiCopyChunks; ++i)
     ezMath::Swap(m_pChunks[uiLastChunk - i], m_pChunks[uiLastChunk + uiChunkDiff - i]);
 
   // adjust which element is the first by how much the index array has been moved
@@ -724,7 +724,7 @@ EZ_FORCE_INLINE T* ezDequeBase<T, Construct>::GetUnusedChunk()
     }
   }
 
-  const ezUInt32 uiCurLastChunk  = GetLastUsedChunk();
+  const ezUInt32 uiCurLastChunk = GetLastUsedChunk();
 
   // search the unused blocks at the end
   for (ezUInt32 i = m_uiChunks - 1; i > uiCurLastChunk; --i)
@@ -791,7 +791,7 @@ void ezDequeBase<T, Construct>::RemoveAt(ezUInt32 uiIndex)
   EZ_ASSERT(uiIndex < m_uiCount, "Out of bounds access. Array has %i elements, trying to remove element at index %i.", m_uiCount, uiIndex);
 
   for (ezUInt32 i = uiIndex + 1; i < m_uiCount; ++i)
-    ezMemoryUtils::Move(&operator[](i - 1), &operator[](i), 1); 
+    ezMemoryUtils::Move(&operator[](i - 1), &operator[](i), 1);
 
   PopBack();
 }

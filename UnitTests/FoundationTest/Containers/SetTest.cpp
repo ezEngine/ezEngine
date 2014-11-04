@@ -147,7 +147,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, Set)
     for (ezInt32 i = 0; i < 1000; ++i)
       m.Insert(i);
 
-    for (ezInt32 i = 1000-1; i >= 0; --i)
+    for (ezInt32 i = 1000 - 1; i >= 0; --i)
       EZ_TEST_INT(m.Find(i).Key(), i);
   }
 
@@ -172,13 +172,13 @@ EZ_CREATE_SIMPLE_TEST(Containers, Set)
     for (ezInt32 i = 0; i < 1000; ++i)
       m.Insert(i);
 
-    for (ezInt32 i = 0; i < 1000-1; ++i)
+    for (ezInt32 i = 0; i < 1000 - 1; ++i)
     {
       ezSet<ezUInt32>::Iterator itNext = m.Remove(m.Find(i));
       EZ_TEST_BOOL(!m.Find(i).IsValid());
       EZ_TEST_BOOL(itNext.Key() == i + 1);
 
-      EZ_TEST_INT(m.GetCount(), 1000-1 - i);
+      EZ_TEST_INT(m.GetCount(), 1000 - 1 - i);
     }
   }
 
@@ -194,7 +194,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, Set)
       m.Remove(i);
       EZ_TEST_BOOL(!m.Find(i).IsValid());
 
-      EZ_TEST_INT(m.GetCount(), 1000-1 - i);
+      EZ_TEST_INT(m.GetCount(), 1000 - 1 - i);
     }
   }
 
@@ -207,7 +207,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, Set)
 
     m2 = m;
 
-    for (ezInt32 i = 1000-1; i >= 0; --i)
+    for (ezInt32 i = 1000 - 1; i >= 0; --i)
       EZ_TEST_BOOL(m2.Find(i).IsValid());
   }
 
@@ -218,9 +218,9 @@ EZ_CREATE_SIMPLE_TEST(Containers, Set)
     for (ezInt32 i = 0; i < 1000; ++i)
       m.Insert(i);
 
-    ezSet<ezUInt32> m2 (m);
+    ezSet<ezUInt32> m2(m);
 
-    for (ezInt32 i = 1000-1; i >= 0; --i)
+    for (ezInt32 i = 1000 - 1; i >= 0; --i)
       EZ_TEST_BOOL(m2.Find(i).IsValid());
   }
 
@@ -267,7 +267,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, Set)
     for (ezInt32 i = 0; i < 1000; ++i)
       m.Insert(i);
 
-    ezInt32 i = 1000-1;
+    ezInt32 i = 1000 - 1;
     for (ezSet<ezUInt32>::Iterator it = m.GetLastIterator(); it.IsValid(); --it)
     {
       EZ_TEST_INT(it.Key(), i);
@@ -284,7 +284,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, Set)
 
     const ezSet<ezUInt32> m2(m);
 
-    ezInt32 i = 1000-1;
+    ezInt32 i = 1000 - 1;
     for (ezSet<ezUInt32>::Iterator it = m2.GetLastIterator(); it.IsValid(); --it)
     {
       EZ_TEST_INT(it.Key(), i);
@@ -301,7 +301,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, Set)
     m.Insert(7);
     m.Insert(9);
 
-    EZ_TEST_INT(m.LowerBound(-1).Key(),0);
+    EZ_TEST_INT(m.LowerBound(-1).Key(), 0);
     EZ_TEST_INT(m.LowerBound(0).Key(), 0);
     EZ_TEST_INT(m.LowerBound(1).Key(), 3);
     EZ_TEST_INT(m.LowerBound(2).Key(), 3);
@@ -325,7 +325,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, Set)
     m.Insert(7);
     m.Insert(9);
 
-    EZ_TEST_INT(m.UpperBound(-1).Key(),0);
+    EZ_TEST_INT(m.UpperBound(-1).Key(), 0);
     EZ_TEST_INT(m.UpperBound(0).Key(), 3);
     EZ_TEST_INT(m.UpperBound(1).Key(), 3);
     EZ_TEST_INT(m.UpperBound(2).Key(), 3);

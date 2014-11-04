@@ -2,6 +2,7 @@
 
 #include <Foundation/Algorithm/Sorting.h>
 #include <Foundation/Memory/AllocatorWrapper.h>
+#include <Foundation/Containers/Implementation/ArrayIterator.h>
 
 #define ezInvalidIndex 0xFFFFFFFF
 
@@ -144,6 +145,11 @@ public:
   /// \brief Returns the allocator that is used by this instance.
   ezAllocatorBase* GetAllocator() const { return m_pAllocator; }
 
+  typedef const_iterator_base<ezDequeBase<T, Construct>, T, false> const_iterator;
+  typedef const_iterator_base<ezDequeBase<T, Construct>, T, true> const_reverse_iterator;
+  typedef iterator_base<ezDequeBase<T, Construct>, T, false> iterator;
+  typedef iterator_base<ezDequeBase<T, Construct>, T, true> reverse_iterator;
+
   /// \brief Returns the number of elements after uiStartIndex that are stored in contiguous memory.
   ///
   /// That means one can do a memcpy or memcmp from position uiStartIndex up until uiStartIndex + range.
@@ -239,6 +245,42 @@ public:
   void operator=(ezDeque<T, AllocatorWrapper, Construct>&& rhs);
   void operator=(ezDequeBase<T, Construct>&& rhs);
 };
+
+template <typename T, bool Construct>
+typename ezDequeBase<T, Construct>::iterator begin(ezDequeBase<T, Construct>& container) { return typename ezDequeBase<T, Construct>::iterator(container, (size_t) 0); }
+
+template <typename T, bool Construct>
+typename ezDequeBase<T, Construct>::const_iterator  begin(const ezDequeBase<T, Construct>& container) { return typename ezDequeBase<T, Construct>::const_iterator(container, (size_t) 0); }
+
+template <typename T, bool Construct>
+typename ezDequeBase<T, Construct>::const_iterator cbegin(const ezDequeBase<T, Construct>& container) { return typename ezDequeBase<T, Construct>::const_iterator(container, (size_t) 0); }
+
+template <typename T, bool Construct>
+typename ezDequeBase<T, Construct>::reverse_iterator rbegin(ezDequeBase<T, Construct>& container) { return ezDequeBase<T, Construct>::reverse_iterator(container, (size_t) 0); }
+
+template <typename T, bool Construct>
+typename ezDequeBase<T, Construct>::const_reverse_iterator rbegin(const ezDequeBase<T, Construct>& container) { return ezDequeBase<T, Construct>::const_reverse_iterator(container, (size_t) 0); }
+
+template <typename T, bool Construct>
+typename ezDequeBase<T, Construct>::const_reverse_iterator crbegin(const ezDequeBase<T, Construct>& container) { return ezDequeBase<T, Construct>::const_reverse_iterator(container, (size_t) 0); }
+
+template <typename T, bool Construct>
+typename ezDequeBase<T, Construct>::iterator end(ezDequeBase<T, Construct>& container) { return ezDequeBase<T, Construct>::iterator(container, (size_t) container.GetCount()); }
+
+template <typename T, bool Construct>
+typename ezDequeBase<T, Construct>::const_iterator end(const ezDequeBase<T, Construct>& container) { return ezDequeBase<T, Construct>::const_iterator(container, (size_t) container.GetCount()); }
+
+template <typename T, bool Construct>
+typename ezDequeBase<T, Construct>::const_iterator cend(const ezDequeBase<T, Construct>& container) { return ezDequeBase<T, Construct>::const_iterator(container, (size_t) container.GetCount()); }
+
+template <typename T, bool Construct>
+typename ezDequeBase<T, Construct>::reverse_iterator rend(ezDequeBase<T, Construct>& container) { return ezDequeBase<T, Construct>::reverse_iterator(container, (size_t) container.GetCount()); }
+
+template <typename T, bool Construct>
+typename ezDequeBase<T, Construct>::const_reverse_iterator  rend(const ezDequeBase<T, Construct>& container) { return ezDequeBase<T, Construct>::const_reverse_iterator(container, (size_t) container.GetCount()); }
+
+template <typename T, bool Construct>
+typename ezDequeBase<T, Construct>::const_reverse_iterator crend(const ezDequeBase<T, Construct>& container) { return ezDequeBase<T, Construct>::const_reverse_iterator(container, (size_t) container.GetCount()); }
 
 #include <Foundation/Containers/Implementation/Deque_inl.h>
 

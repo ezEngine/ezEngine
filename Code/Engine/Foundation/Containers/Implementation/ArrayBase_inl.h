@@ -84,7 +84,7 @@ void ezArrayBase<T, Derived>::SetCount(ezUInt32 uiCount)
   if (uiNewCount > uiOldCount)
   {
     static_cast<Derived*>(this)->Reserve(uiNewCount);
-    ezMemoryUtils::DefaultConstruct(m_pElements + uiOldCount, uiNewCount - uiOldCount);  
+    ezMemoryUtils::DefaultConstruct(m_pElements + uiOldCount, uiNewCount - uiOldCount);
   }
   else if (uiNewCount < uiOldCount)
   {
@@ -103,7 +103,7 @@ void ezArrayBase<T, Derived>::SetCountUninitialized(ezUInt32 uiCount)
   if (uiNewCount > uiOldCount)
   {
     static_cast<Derived*>(this)->Reserve(uiNewCount);
-    ezMemoryUtils::Construct(m_pElements + uiOldCount, uiNewCount - uiOldCount);  
+    ezMemoryUtils::Construct(m_pElements + uiOldCount, uiNewCount - uiOldCount);
   }
   else if (uiNewCount < uiOldCount)
   {
@@ -142,7 +142,7 @@ template <typename T, typename Derived>
 void ezArrayBase<T, Derived>::Insert(const T& value, ezUInt32 uiIndex)
 {
   EZ_ASSERT(uiIndex <= m_uiCount, "Invalid index. Array has %i elements, trying to insert element at index %i.", m_uiCount, uiIndex);
-  
+
   static_cast<Derived*>(this)->Reserve(m_uiCount + 1);
 
   ezMemoryUtils::Construct(m_pElements + m_uiCount, 1);
@@ -181,7 +181,7 @@ void ezArrayBase<T, Derived>::RemoveAt(ezUInt32 uiIndex)
   EZ_ASSERT(uiIndex < m_uiCount, "Out of bounds access. Array has %i elements, trying to remove element at index %i.", m_uiCount, uiIndex);
 
   m_uiCount--;
-  ezMemoryUtils::Move(m_pElements + uiIndex, m_pElements + uiIndex + 1, m_uiCount - uiIndex); 
+  ezMemoryUtils::Move(m_pElements + uiIndex, m_pElements + uiIndex + 1, m_uiCount - uiIndex);
   ezMemoryUtils::Destruct(m_pElements + m_uiCount, 1);
 }
 
@@ -189,7 +189,7 @@ template <typename T, typename Derived>
 void ezArrayBase<T, Derived>::RemoveAtSwap(ezUInt32 uiIndex)
 {
   EZ_ASSERT(uiIndex < m_uiCount, "Out of bounds access. Array has %i elements, trying to remove element at index %i.", m_uiCount, uiIndex);
-  
+
   m_uiCount--;
   if (m_uiCount != uiIndex)
   {
@@ -212,7 +212,7 @@ ezUInt32 ezArrayBase<T, Derived>::IndexOf(const T& value, ezUInt32 uiStartIndex)
 template <typename T, typename Derived>
 ezUInt32 ezArrayBase<T, Derived>::LastIndexOf(const T& value, ezUInt32 uiStartIndex) const
 {
-  for (ezUInt32 i = ezMath::Min(uiStartIndex, m_uiCount); i-- > 0; )
+  for (ezUInt32 i = ezMath::Min(uiStartIndex, m_uiCount); i-- > 0;)
   {
     if (ezMemoryUtils::IsEqual(m_pElements + i, &value))
       return i;
@@ -238,7 +238,7 @@ template <typename T, typename Derived>
 void ezArrayBase<T, Derived>::PushBack(const T& value)
 {
   static_cast<Derived*>(this)->Reserve(m_uiCount + 1);
-  
+
   ezMemoryUtils::Construct(m_pElements + m_uiCount, value, 1);
   m_uiCount++;
 }
@@ -257,7 +257,7 @@ void ezArrayBase<T, Derived>::PushBackRange(const ezArrayPtr<typename ezTypeTrai
 {
   const ezUInt32 uiRangeCount = range.GetCount();
   static_cast<Derived*>(this)->Reserve(m_uiCount + uiRangeCount);
-  
+
   ezMemoryUtils::Construct(m_pElements + m_uiCount, range.GetPtr(), uiRangeCount);
   m_uiCount += uiRangeCount;
 }
@@ -267,7 +267,7 @@ void ezArrayBase<T, Derived>::PushBackRange(const ezArrayPtr<const T>& range)
 {
   const ezUInt32 uiRangeCount = range.GetCount();
   static_cast<Derived*>(this)->Reserve(m_uiCount + uiRangeCount);
-  
+
   ezMemoryUtils::Construct(m_pElements + m_uiCount, range.GetPtr(), uiRangeCount);
   m_uiCount += uiRangeCount;
 }

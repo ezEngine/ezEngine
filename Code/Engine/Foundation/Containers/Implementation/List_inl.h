@@ -226,7 +226,7 @@ void ezListBase<T>::PopFront()
 {
   EZ_ASSERT(!IsEmpty(), "The container is empty.");
 
-  Remove (Iterator(m_First.m_pNext));
+  Remove(Iterator(m_First.m_pNext));
 }
 
 template <typename T>
@@ -320,7 +320,7 @@ ezList<T, A>::ezList(const ezList<T, A>& other) : ezListBase<T>(other, A::GetAll
 }
 
 template <typename T, typename A>
-ezList<T, A>:: ezList(const ezListBase<T>& other) : ezListBase<T>(other, A::GetAllocator())
+ezList<T, A>::ezList(const ezListBase<T>& other) : ezListBase<T>(other, A::GetAllocator())
 {
 }
 

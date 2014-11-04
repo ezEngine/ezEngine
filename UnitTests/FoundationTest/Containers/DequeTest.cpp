@@ -166,7 +166,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, Deque)
       EZ_TEST_BOOL(!d1.IsEmpty());
 
       d1.PopFront();
-      d1.PopBack ();
+      d1.PopBack();
 
 
       EZ_TEST_BOOL(d2.PeekFront() == i);
@@ -175,9 +175,53 @@ EZ_CREATE_SIMPLE_TEST(Containers, Deque)
       EZ_TEST_BOOL(!d2.IsEmpty());
 
       d2.PopFront();
-      d2.PopBack ();
+      d2.PopBack();
     }
-    
+
+    EZ_TEST_BLOCK(ezTestBlock::Enabled, "STL Iterator")
+    {
+      ezDeque<ezInt32> a1;
+      for (ezInt32 i = 0; i < 1000; ++i)
+        a1.PushBack(1000 - i - 1);
+
+      // STL sort
+      std::sort(begin(a1), end(a1));
+
+      ezUInt32 prev = 0;
+      for (ezUInt32 val : a1)
+      {
+        EZ_TEST_BOOL(prev <= val);
+        prev = val;
+      }
+
+      // STL lower bound
+      auto lb = std::lower_bound(begin(a1), end(a1), 400);
+      EZ_TEST_BOOL(*lb == a1[400]);
+    }
+
+    EZ_TEST_BLOCK(ezTestBlock::Enabled, "STL Reverse Iterator")
+    {
+      ezDeque<ezInt32> a1;
+      for (ezInt32 i = 0; i < 1000; ++i)
+        a1.PushBack(1000 - i - 1);
+
+      std::sort(rbegin(a1), rend(a1));
+
+      // foreach
+      ezUInt32 prev = 1000;
+      for (ezUInt32 val : a1)
+      {
+        EZ_TEST_BOOL(prev >= val);
+        prev = val;
+      }
+
+      // const array
+      const ezDeque<ezInt32>& a2 = a1;
+
+      // STL lower bound
+      auto lb2 = std::lower_bound(rbegin(a2), rend(a2), 400);
+      EZ_TEST_INT(*lb2, a2[1000 - 400 - 1]);
+    }
   }
 
   ezStartup::ShutdownCore();
@@ -193,17 +237,17 @@ EZ_CREATE_SIMPLE_TEST(Containers, Deque)
       EZ_TEST_BOOL(st::HasDone(0, 0));
 
       {
-        v1.PushBack(st (3));
+        v1.PushBack(st(3));
         EZ_TEST_BOOL(st::HasDone(2, 1));
 
         v1.PushBack();
         EZ_TEST_BOOL(st::HasDone(1, 0));
 
-        v1.PopBack ();
+        v1.PopBack();
         EZ_TEST_BOOL(st::HasDone(0, 1));
       }
       {
-        v1.PushFront(st (3));
+        v1.PushFront(st(3));
         EZ_TEST_BOOL(st::HasDone(2, 1));
 
         v1.PushFront();
@@ -228,10 +272,10 @@ EZ_CREATE_SIMPLE_TEST(Containers, Deque)
         v2.Clear();
         EZ_TEST_BOOL(st::HasDone(0, 12));
 
-        ezDeque<st> v3 (v1);
+        ezDeque<st> v3(v1);
         EZ_TEST_BOOL(st::HasDone(12, 0));
 
-        ezDeque<st> v4 (v1);
+        ezDeque<st> v4(v1);
         EZ_TEST_BOOL(st::HasDone(12, 0));
 
         v4.SetCount(0);
@@ -244,7 +288,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, Deque)
     EZ_TEST_BOOL(st::HasAllDestructed());
   }
 
-   EZ_TEST_BLOCK(ezTestBlock::Enabled, "SortingPrimitives")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SortingPrimitives")
   {
     ezDeque<ezUInt32> list;
 
@@ -285,7 +329,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, Deque)
       a1.PushBack(rand() % 100000);
 
     ezDeque<ezInt32> a2 = a1;
-    ezDeque<ezInt32> a3 (a1);
+    ezDeque<ezInt32> a3(a1);
 
     EZ_TEST_BOOL(a1.GetCount() == a2.GetCount());
     EZ_TEST_BOOL(a1.GetCount() == a3.GetCount());
@@ -304,7 +348,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, Deque)
 
     {
       // move constructor
-      ezDeque<st> a1 (CreateArray(100, 20));
+      ezDeque<st> a1(CreateArray(100, 20));
 
       EZ_TEST_INT(a1.GetCount(), 100);
       for (ezUInt32 i = 0; i < a1.GetCount(); ++i)
@@ -414,7 +458,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, Deque)
       EZ_TEST_INT(a1.LastIndexOf(i), i);
     }
   }
-  
+
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Insert")
   {
     ezDeque<ezInt32> a1;

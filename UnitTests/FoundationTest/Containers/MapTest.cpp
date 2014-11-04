@@ -118,7 +118,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, Map)
     for (ezInt32 i = 0; i < 1000; ++i)
       m[i] = i * 10;
 
-    for (ezInt32 i = 1000-1; i >= 0; --i)
+    for (ezInt32 i = 1000 - 1; i >= 0; --i)
       EZ_TEST_INT(m.Find(i).Value(), i * 10);
   }
 
@@ -147,7 +147,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, Map)
       EZ_TEST_BOOL(!bExisted);
     }
 
-    for (ezInt32 i = 1000-1; i >= 0; --i)
+    for (ezInt32 i = 1000 - 1; i >= 0; --i)
     {
       bool bExisted = false;
       EZ_TEST_INT(m.FindOrAdd(i, &bExisted).Value(), i * 10);
@@ -162,7 +162,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, Map)
     for (ezInt32 i = 0; i < 1000; ++i)
       m[i] = i * 10;
 
-    for (ezInt32 i = 1000-1; i >= 0; --i)
+    for (ezInt32 i = 1000 - 1; i >= 0; --i)
       EZ_TEST_INT(m[i], i * 10);
   }
 
@@ -187,13 +187,13 @@ EZ_CREATE_SIMPLE_TEST(Containers, Map)
     for (ezInt32 i = 0; i < 1000; ++i)
       m[i] = i * 10;
 
-    for (ezInt32 i = 0; i < 1000-1; ++i)
+    for (ezInt32 i = 0; i < 1000 - 1; ++i)
     {
       ezMap<ezUInt32, ezUInt32>::Iterator itNext = m.Remove(m.Find(i));
       EZ_TEST_BOOL(!m.Find(i).IsValid());
       EZ_TEST_BOOL(itNext.Key() == i + 1);
 
-      EZ_TEST_INT(m.GetCount(), 1000-1 - i);
+      EZ_TEST_INT(m.GetCount(), 1000 - 1 - i);
     }
   }
 
@@ -209,7 +209,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, Map)
       m.Remove(i);
       EZ_TEST_BOOL(!m.Find(i).IsValid());
 
-      EZ_TEST_INT(m.GetCount(), 1000-1 - i);
+      EZ_TEST_INT(m.GetCount(), 1000 - 1 - i);
     }
   }
 
@@ -222,7 +222,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, Map)
 
     m2 = m;
 
-    for (ezInt32 i = 1000-1; i >= 0; --i)
+    for (ezInt32 i = 1000 - 1; i >= 0; --i)
       EZ_TEST_INT(m2[i], i * 10);
   }
 
@@ -233,9 +233,9 @@ EZ_CREATE_SIMPLE_TEST(Containers, Map)
     for (ezInt32 i = 0; i < 1000; ++i)
       m[i] = i * 10;
 
-    ezMap<ezUInt32, ezUInt32> m2 (m);
+    ezMap<ezUInt32, ezUInt32> m2(m);
 
-    for (ezInt32 i = 1000-1; i >= 0; --i)
+    for (ezInt32 i = 1000 - 1; i >= 0; --i)
       EZ_TEST_INT(m2[i], i * 10);
   }
 
@@ -284,7 +284,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, Map)
     for (ezInt32 i = 0; i < 1000; ++i)
       m[i] = i * 10;
 
-    ezInt32 i = 1000-1;
+    ezInt32 i = 1000 - 1;
     for (ezMap<ezUInt32, ezUInt32>::Iterator it = m.GetLastIterator(); it.IsValid(); --it)
     {
       EZ_TEST_INT(it.Key(), i);
@@ -302,7 +302,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, Map)
 
     const ezMap<ezUInt32, ezUInt32> m2(m);
 
-    ezInt32 i = 1000-1;
+    ezInt32 i = 1000 - 1;
     for (ezMap<ezUInt32, ezUInt32>::ConstIterator it = m2.GetLastIterator(); it.IsValid(); --it)
     {
       EZ_TEST_INT(it.Key(), i);
@@ -315,12 +315,12 @@ EZ_CREATE_SIMPLE_TEST(Containers, Map)
   {
     ezMap<ezInt32, ezInt32> m, m2;
 
-    m[0] =  0;
+    m[0] = 0;
     m[3] = 30;
     m[7] = 70;
     m[9] = 90;
 
-    EZ_TEST_INT(m.LowerBound(-1).Key(),0);
+    EZ_TEST_INT(m.LowerBound(-1).Key(), 0);
     EZ_TEST_INT(m.LowerBound(0).Key(), 0);
     EZ_TEST_INT(m.LowerBound(1).Key(), 3);
     EZ_TEST_INT(m.LowerBound(2).Key(), 3);
@@ -339,12 +339,12 @@ EZ_CREATE_SIMPLE_TEST(Containers, Map)
   {
     ezMap<ezInt32, ezInt32> m, m2;
 
-    m[0] =  0;
+    m[0] = 0;
     m[3] = 30;
     m[7] = 70;
     m[9] = 90;
 
-    EZ_TEST_INT(m.UpperBound(-1).Key(),0);
+    EZ_TEST_INT(m.UpperBound(-1).Key(), 0);
     EZ_TEST_INT(m.UpperBound(0).Key(), 3);
     EZ_TEST_INT(m.UpperBound(1).Key(), 3);
     EZ_TEST_INT(m.UpperBound(2).Key(), 3);

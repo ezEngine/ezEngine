@@ -76,7 +76,7 @@ EZ_FORCE_INLINE void ezDynamicArrayBase<T>::operator= (ezDynamicArrayBase<T>&& r
 template <typename T>
 void ezDynamicArrayBase<T>::SetCapacity(ezUInt32 uiCapacity)
 {
-  this->m_uiCapacity = uiCapacity;  
+  this->m_uiCapacity = uiCapacity;
   T* pNewData = EZ_NEW_RAW_BUFFER(this->m_pAllocator, T, this->m_uiCapacity);
   ezMemoryUtils::Construct(pNewData, this->m_pElements, this->m_uiCount);
   ezMemoryUtils::Destruct(this->m_pElements, this->m_uiCount);
@@ -91,7 +91,7 @@ void ezDynamicArrayBase<T>::Reserve(ezUInt32 uiCapacity)
     return;
 
   ezUInt32 uiNewCapacity = ezMath::Max(this->m_uiCapacity + (this->m_uiCapacity / 2), uiCapacity);
-  uiNewCapacity = (uiNewCapacity + (CAPACITY_ALIGNMENT-1)) & ~(CAPACITY_ALIGNMENT-1);
+  uiNewCapacity = (uiNewCapacity + (CAPACITY_ALIGNMENT - 1)) & ~(CAPACITY_ALIGNMENT - 1);
   SetCapacity(uiNewCapacity);
 }
 
@@ -106,7 +106,7 @@ void ezDynamicArrayBase<T>::Compact()
   }
   else
   {
-    const ezUInt32 uiNewCapacity = (this->m_uiCount + (CAPACITY_ALIGNMENT-1)) & ~(CAPACITY_ALIGNMENT-1);
+    const ezUInt32 uiNewCapacity = (this->m_uiCount + (CAPACITY_ALIGNMENT - 1)) & ~(CAPACITY_ALIGNMENT - 1);
     if (this->m_uiCapacity != uiNewCapacity)
       SetCapacity(uiNewCapacity);
   }
@@ -119,7 +119,7 @@ ezDynamicArray<T, A>::ezDynamicArray() : ezDynamicArrayBase<T>(A::GetAllocator()
 }
 
 template <typename T, typename A>
-ezDynamicArray<T, A>:: ezDynamicArray(ezAllocatorBase* pAllocator) : ezDynamicArrayBase<T>(pAllocator)
+ezDynamicArray<T, A>::ezDynamicArray(ezAllocatorBase* pAllocator) : ezDynamicArrayBase<T>(pAllocator)
 {
 }
 
@@ -129,7 +129,7 @@ ezDynamicArray<T, A>::ezDynamicArray(const ezDynamicArray<T, A>& other) : ezDyna
 }
 
 template <typename T, typename A>
-ezDynamicArray<T, A>:: ezDynamicArray(const ezDynamicArrayBase<T>& other) : ezDynamicArrayBase<T>(other, A::GetAllocator())
+ezDynamicArray<T, A>::ezDynamicArray(const ezDynamicArrayBase<T>& other) : ezDynamicArrayBase<T>(other, A::GetAllocator())
 {
 }
 
@@ -144,7 +144,7 @@ ezDynamicArray<T, A>::ezDynamicArray(ezDynamicArray<T, A>&& other) : ezDynamicAr
 }
 
 template <typename T, typename A>
-ezDynamicArray<T, A>:: ezDynamicArray(ezDynamicArrayBase<T>&& other) : ezDynamicArrayBase<T>(std::move(other), A::GetAllocator())
+ezDynamicArray<T, A>::ezDynamicArray(ezDynamicArrayBase<T>&& other) : ezDynamicArrayBase<T>(std::move(other), A::GetAllocator())
 {
 }
 

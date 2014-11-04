@@ -130,7 +130,7 @@ void ezHybridArrayBase<T, Size>::Reserve(ezUInt32 uiCapacity)
     return;
 
   ezUInt32 uiNewCapacity = ezMath::Max(this->m_uiCapacity + (this->m_uiCapacity / 2), uiCapacity);
-  uiNewCapacity = (uiNewCapacity + (CAPACITY_ALIGNMENT-1)) & ~(CAPACITY_ALIGNMENT-1);
+  uiNewCapacity = (uiNewCapacity + (CAPACITY_ALIGNMENT - 1)) & ~(CAPACITY_ALIGNMENT - 1);
 
   SetCapacity(uiNewCapacity);
 }
@@ -149,7 +149,7 @@ void ezHybridArrayBase<T, Size>::Compact()
   }
   else
   {
-    const ezUInt32 uiNewCapacity = (this->m_uiCount + (CAPACITY_ALIGNMENT-1)) & ~(CAPACITY_ALIGNMENT-1);
+    const ezUInt32 uiNewCapacity = (this->m_uiCount + (CAPACITY_ALIGNMENT - 1)) & ~(CAPACITY_ALIGNMENT - 1);
     if (this->m_uiCapacity != uiNewCapacity)
       SetCapacity(uiNewCapacity);
   }
@@ -162,7 +162,7 @@ ezHybridArray<T, Size, A>::ezHybridArray() : ezHybridArrayBase<T, Size>(A::GetAl
 }
 
 template <typename T, ezUInt32 Size, typename A>
-ezHybridArray<T, Size, A>:: ezHybridArray(ezAllocatorBase* pAllocator) : ezHybridArrayBase<T, Size>(pAllocator)
+ezHybridArray<T, Size, A>::ezHybridArray(ezAllocatorBase* pAllocator) : ezHybridArrayBase<T, Size>(pAllocator)
 {
 }
 
@@ -172,7 +172,7 @@ ezHybridArray<T, Size, A>::ezHybridArray(const ezHybridArray<T, Size, A>& other)
 }
 
 template <typename T, ezUInt32 Size, typename A>
-ezHybridArray<T, Size, A>:: ezHybridArray(const ezHybridArrayBase<T, Size>& other) : ezHybridArrayBase<T, Size>(other, A::GetAllocator())
+ezHybridArray<T, Size, A>::ezHybridArray(const ezHybridArrayBase<T, Size>& other) : ezHybridArrayBase<T, Size>(other, A::GetAllocator())
 {
 }
 
@@ -182,7 +182,7 @@ ezHybridArray<T, Size, A>::ezHybridArray(ezHybridArray<T, Size, A>&& other) : ez
 }
 
 template <typename T, ezUInt32 Size, typename A>
-ezHybridArray<T, Size, A>:: ezHybridArray(ezHybridArrayBase<T, Size>&& other) : ezHybridArrayBase<T, Size>(std::move(other), A::GetAllocator())
+ezHybridArray<T, Size, A>::ezHybridArray(ezHybridArrayBase<T, Size>&& other) : ezHybridArrayBase<T, Size>(std::move(other), A::GetAllocator())
 {
 }
 

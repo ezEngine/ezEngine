@@ -676,4 +676,67 @@ EZ_CREATE_SIMPLE_TEST(Containers, HybridArray)
     a.SetCount(200);
     EZ_TEST_BOOL(st::HasDone(200, 100));
   }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "STL Iterator")
+  {
+    ezHybridArray<ezInt32, 16> a1;
+
+    for (ezInt32 i = 0; i < 1000; ++i)
+      a1.PushBack(1000 - i - 1);
+
+    // STL sort
+    std::sort(begin(a1), end(a1));
+
+    for (ezInt32 i = 1; i < 1000; ++i)
+    {
+      EZ_TEST_BOOL(a1[i - 1] <= a1[i]);
+    }
+
+    // foreach
+    ezUInt32 prev = 0;
+    for(ezUInt32 val : a1)
+    {
+      EZ_TEST_BOOL(prev <= val);
+      prev = val;
+    }
+
+    // const array
+    const ezHybridArray<ezInt32, 16>& a2 = a1;
+
+    // STL lower bound
+    auto lb = std::lower_bound(begin(a2), end(a2), 400);
+    EZ_TEST_BOOL(*lb == a2[400]);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "STL Reverse Iterator")
+  {
+    ezHybridArray<ezInt32, 16> a1;
+
+    for (ezInt32 i = 0; i < 1000; ++i)
+      a1.PushBack(1000 - i - 1);
+
+    // STL sort
+    std::sort(rbegin(a1), rend(a1));
+
+    for (ezInt32 i = 1; i < 1000; ++i)
+    {
+      EZ_TEST_BOOL(a1[i - 1] >= a1[i]);
+    }
+
+    // foreach
+    ezUInt32 prev = 1000;
+    for(ezUInt32 val : a1)
+    {
+      EZ_TEST_BOOL(prev >= val);
+      prev = val;
+    }
+
+    // const array
+    const ezHybridArray<ezInt32, 16>& a2 = a1;
+
+    // STL lower bound
+    auto lb = std::lower_bound(rbegin(a2), rend(a2), 400);
+    EZ_TEST_BOOL(*lb == a2[1000 - 400 - 1]);
+  }
 }
+
