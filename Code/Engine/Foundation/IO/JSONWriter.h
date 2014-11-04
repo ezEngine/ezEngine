@@ -157,6 +157,11 @@ public:
   /// \note Standard JSON does not have a suitable type for this. A derived class might turn this into an object or output it via WriteBinaryData().
   virtual void WriteMat4(const ezMat4& value) = 0;
 
+  /// \brief Writes an ezUuid to the JSON file. Can only be called between BeginVariable() / EndVariable() or BeginArray() / EndArray().
+  ///
+  /// \note Standard JSON does not have a suitable type for this. A derived class might turn this into an object or output it via WriteBinaryData().
+  virtual void WriteUuid(const ezUuid& value) = 0;
+
   /// \brief The default implementation dispatches all supported types to WriteBool, WriteInt32, etc. and asserts on the more complex types.
   ///
   /// A derived class may override this function to implement support for the remaining variant types, if required.
@@ -272,6 +277,9 @@ public:
 
   /// \brief Outputs the value via WriteBinaryData().
   virtual void WriteMat4(const ezMat4& value) override; // [tested]
+
+  /// \brief Outputs the value via WriteBinaryData().
+  virtual void WriteUuid(const ezUuid& value) override; // [tested]
 
   /// \brief Implements the MongoDB way of writing binary data. First writes a "$type" variable, then a "$binary" variable that represents the raw data (Hex encoded, little endian).
   virtual void WriteBinaryData(const char* szDataType, const void* pData, ezUInt32 uiBytes, const char* szValueString = nullptr) override; // [tested]

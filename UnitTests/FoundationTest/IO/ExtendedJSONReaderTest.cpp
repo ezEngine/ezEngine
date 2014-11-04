@@ -26,6 +26,7 @@ EZ_CREATE_SIMPLE_TEST(IO, ExtendedJSONReader)
 \"var12\": { \"$t\" : \"mat3\", \"$b\" : \"0x0000803F000080400000E040000000400000A04000000041000040400000C04000001041\" },\n\
 \"var13\": { \"$t\" : \"mat4\", \"$b\" : \"0x0000803F0000A0400000104100005041000000400000C0400000204100006041000040400000E040000030410000704100008040000000410000404100008041\" },\n\
 \"var14\": { \"$t\" : \"color\", \"$v\" : \"(1.0001, 2.0000, 3.0000, 4.0000)\", \"$b\" : \"0x0000803F000000400000404000008040\" },\n\
+\"var15\": { \"$t\" : \"uuid\", \"$v\" : \"(0, 0)\", \"$b\" : \"0x00000000000000000000000000000000\" },\n\
 }";
 
     // NOTE: The way this test is implemented, it might break, if the HashMap uses another insertion algorithm.
@@ -83,6 +84,9 @@ EZ_CREATE_SIMPLE_TEST(IO, ExtendedJSONReader)
 
       sCompare.PushBack("var7");
       sCompare.PushBack("time 0.5000");
+
+      sCompare.PushBack("var15");
+      sCompare.PushBack("uuid { 00000000-0000-0000-0000-000000000000 }");
 
       sCompare.PushBack("var6");
       sCompare.PushBack("double 2621.0625");

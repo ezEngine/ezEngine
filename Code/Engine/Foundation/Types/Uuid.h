@@ -25,7 +25,7 @@ public:
   /// \brief Comparison operator.
   EZ_FORCE_INLINE bool operator < (const ezUuid& Other) const;
 
-  /// \brief Returns true if this is a valid Uuid
+  /// \brief Returns true if this is a valid Uuid.
   EZ_FORCE_INLINE bool IsValid() const;
 
   /// \brief Creates a new Uuid and stores is it in this object.

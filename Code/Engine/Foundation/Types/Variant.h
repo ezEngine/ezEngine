@@ -44,6 +44,7 @@ public:
       Matrix4,            ///< The variant stores an ezMat4. A heap allocation is required to store this data type.
       String,             ///< The variant stores a string. A heap allocation is required to store this data type.
       Time,               ///< The variant stores an ezTime value.
+      Uuid,               ///< The variant stores an ezUuid value.
       VariantArray,       ///< The variant stores an array of ezVariant's. A heap allocation is required to store this data type.
       VariantDictionary,  ///< The variant stores a dictionary (hashmap) of ezVariant's. A heap allocation is required to store this data type.
       ReflectedPointer,   ///< The variant stores a pointer to a dynamically reflected object.

@@ -229,6 +229,9 @@ void ezJSONWriter::WriteVariant(const ezVariant& value)
   case ezVariant::Type::Time:
     WriteTime(value.Get<ezTime>());
     return;
+  case ezVariant::Type::Uuid:
+    WriteUuid(value.Get<ezUuid>());
+    return;
 
   default:
     break;

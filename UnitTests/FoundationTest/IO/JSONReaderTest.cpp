@@ -264,7 +264,17 @@ void TraverseTree(const ezVariant& var, ezDeque<ezString>& Compare)
       Compare.PopFront();
     }
     break;
-      
+  
+  case ezVariant::Type::Uuid:
+    {
+      ezUuid uuid = var.Get<ezUuid>();
+      ezStringBuilder sTemp;
+      sTemp.Format("uuid %s", ezConversionUtils::ToString(uuid).GetData());
+      EZ_TEST_STRING(Compare.PeekFront().GetData(), sTemp.GetData());
+      Compare.PopFront();
+    }
+    break;
+
   default:
     EZ_ASSERT_NOT_IMPLEMENTED;
     break;

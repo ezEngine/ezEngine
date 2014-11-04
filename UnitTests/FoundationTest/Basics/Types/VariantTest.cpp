@@ -66,6 +66,7 @@ inline void TestNumberCanConvertTo(const ezVariant& v)
   EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::Matrix4) == false);
   EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::String));
   EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::Time) == false);
+  EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::Uuid) == false);
   EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::VariantArray) == false);
   EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::VariantDictionary) == false);
   EZ_TEST_BOOL(v.CanConvertTo(ezVariant::Type::VoidPointer) == false);
@@ -511,6 +512,25 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
 
     v = ezVariant(ezTime::Seconds(13));
     EZ_TEST_BOOL(v == ezTime::Seconds(13));
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezUuid")
+  {
+    ezUuid id;
+    ezVariant v(id);
+    EZ_TEST_BOOL(v.IsValid());
+    EZ_TEST_BOOL(v.GetType() == ezVariant::Type::Uuid);
+    EZ_TEST_BOOL(v.IsA<ezUuid>());
+    EZ_TEST_BOOL(v.Get<ezUuid>() == ezUuid());
+
+    ezUuid uuid;
+    uuid.CreateNewUuid();
+    EZ_TEST_BOOL(v != ezVariant(uuid));
+    EZ_TEST_BOOL(ezVariant(uuid).Get<ezUuid>() == uuid);
+
+    ezUuid uuid2;
+    uuid2.CreateNewUuid();
+    EZ_TEST_BOOL(ezVariant(uuid) != ezVariant(uuid2));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezVariantArray")
@@ -1031,6 +1051,21 @@ EZ_CREATE_SIMPLE_TEST(Basics, Variant)
     //EZ_TEST_BOOL(v.ConvertTo<ezString>() == "");
 
     EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::Time).Get<ezTime>() == t);
+    //EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::String).Get<ezString>() == "");
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "(Can)ConvertTo (ezUuid)")
+  {
+    ezUuid uuid;
+    uuid.CreateNewUuid();
+    ezVariant v(uuid);
+
+    TestCanOnlyConvertToStringAndID(v, ezVariant::Type::Uuid);
+
+    EZ_TEST_BOOL(v.ConvertTo<ezUuid>() == uuid);
+    //EZ_TEST_BOOL(v.ConvertTo<ezString>() == "");
+
+    EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::Uuid).Get<ezUuid>() == uuid);
     //EZ_TEST_BOOL(v.ConvertTo(ezVariant::Type::String).Get<ezString>() == "");
   }
 

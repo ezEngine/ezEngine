@@ -314,6 +314,19 @@ struct ezVariant::TypeDeduction<ezTime>
 };
 
 template <>
+struct ezVariant::TypeDeduction<ezUuid>
+{
+  enum
+  {
+    value = Type::Uuid,
+    forceSharing = false,
+    hasReflectedMembers = false
+  };
+
+  typedef ezUuid StorageType;
+};
+
+template <>
 struct ezVariant::TypeDeduction<ezVariantArray>
 {
   enum

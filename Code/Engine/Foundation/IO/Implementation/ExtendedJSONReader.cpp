@@ -194,6 +194,9 @@ ezVariant BuildTypedVariant(const char* szType, const ezVariant& Value, const ez
   if (ezStringUtils::IsEqual(szType, "mat4"))
     return BuildTypedVariant_binary<ezMat4>(Binary, out_Result);
 
+  if (ezStringUtils::IsEqual(szType, "uuid"))
+    return BuildTypedVariant_binary<ezUuid>(Binary, out_Result);
+
   return ezVariant();
 }
 

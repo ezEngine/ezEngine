@@ -289,6 +289,17 @@ void ezStandardJSONWriter::WriteMat4(const ezMat4& value)
   WriteBinaryData("mat4", &temp, sizeof(temp));
 }
 
+void ezStandardJSONWriter::WriteUuid(const ezUuid& value)
+{
+  CommaWriter cw(this);
+
+  ezUuid temp = value;
+
+  ezEndianHelper::NativeToLittleEndian((ezUInt64*) &temp, sizeof(temp) / sizeof(ezUInt64));
+
+  WriteBinaryData("Uuid", &temp, sizeof(temp));
+}
+
 void ezStandardJSONWriter::BeginVariable(const char* szName)
 {
   const ezStandardJSONWriter::State state = m_StateStack.PeekBack().m_State;

@@ -7,6 +7,7 @@
 #include <Foundation/Math/Quat.h>
 #include <Foundation/Strings/String.h>
 #include <Foundation/Time/Time.h>
+#include <Foundation/Types/Uuid.h>
 
 /// \brief This namespace contains functions to convert between different types.
 ///
@@ -180,6 +181,9 @@ namespace ezConversionUtils
   /// \brief Converts a mat4 to a string
   EZ_FOUNDATION_DLL ezString ToString(const ezMat4& value); // [tested]
   
+  /// \brief Converts a Uuid to a string
+  EZ_FOUNDATION_DLL ezString ToString(const ezUuid& value);
+
   /// \brief Fallback ToString implementation for all types that don't have one
   template <typename T>
   EZ_FORCE_INLINE ezString ToString(const T& value)

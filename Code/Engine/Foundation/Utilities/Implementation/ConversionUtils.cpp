@@ -569,6 +569,28 @@ ezString ToString(const ezMat4& value)
   return sb;
 }
 
+ezString ToString(const ezUuid& value)
+{
+  ezStringBuilder sb;
+
+  // Windows GUID formatting.
+  struct GUID
+  {
+    ezUInt32  Data1;
+    ezUInt16 Data2;
+    ezUInt16 Data3;
+    ezUInt8  Data4[ 8 ];
+  };
+
+  const GUID* pGuid = reinterpret_cast<const GUID*>(&value);
+
+  sb.Format("{ %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x }", 
+    pGuid->Data1, pGuid->Data2, pGuid->Data3, 
+    pGuid->Data4[0], pGuid->Data4[1], pGuid->Data4[2], pGuid->Data4[3],
+    pGuid->Data4[4], pGuid->Data4[5], pGuid->Data4[6], pGuid->Data4[7]);
+  return sb;
+}
+
 } // namespace ezConvertionUtils
 
 
