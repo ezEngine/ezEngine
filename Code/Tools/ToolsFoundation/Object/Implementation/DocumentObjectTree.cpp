@@ -24,7 +24,7 @@ void ezDocumentObjectTree::RecursiveAddGuids(ezDocumentObjectBase* pObject)
 
 void ezDocumentObjectTree::RecursiveRemoveGuids(ezDocumentObjectBase* pObject)
 {
-  m_GuidToObject.Erase(pObject->m_Guid);
+  m_GuidToObject.Remove(pObject->m_Guid);
 
   for (ezUInt32 c = 0; c < pObject->GetChildren().GetCount(); ++c)
     RecursiveRemoveGuids(pObject->GetChildren()[c]);

@@ -77,7 +77,7 @@ void ezConsole::UnbindKey(const char* szKey)
   s.Format("Unbinding key '%s'", szKey);
   AddConsoleString(s.GetData(), ezColor(50 / 255.0f, 1, 50 / 255.0f));
 
-  m_BoundKeys.Erase(szKey);
+  m_BoundKeys.Remove(szKey);
 }
 
 void ezConsole::ExecuteBoundKey(const char* szKey)

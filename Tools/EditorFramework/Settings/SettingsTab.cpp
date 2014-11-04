@@ -44,6 +44,7 @@ ezSettingsTab::ezSettingsTab() : ezDocumentWindow("Settings")
   m_pSettingsGrid->EndProperties();
 
   EZ_VERIFY(connect(m_pSettingsGrid, SIGNAL(value_changed()), this, SLOT(SlotSettingsChanged())) != nullptr, "signal/slot connection failed");
+  EZ_VERIFY(connect(ButtonPluginConfig, SIGNAL(clicked()), this, SLOT(on_ButtonPluginConfig_clicked())) != nullptr, "signal/slot connection failed");
 }
 
 ezSettingsTab::~ezSettingsTab()
@@ -77,3 +78,7 @@ void ezSettingsTab::SlotSettingsChanged()
 
 }
 
+void ezSettingsTab::on_ButtonPluginConfig_clicked()
+{
+  ezEditorFramework::ShowPluginConfigDialog();
+}

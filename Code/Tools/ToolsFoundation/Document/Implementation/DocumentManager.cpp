@@ -51,7 +51,7 @@ void ezDocumentManagerBase::UpdateBeforeUnloadingPlugins(const ezPlugin::PluginE
 
     if (ezStringUtils::IsEqual(pRtti->GetPluginName(), e.m_pPluginObject->GetPluginName()))
     {
-      s_KnownManagers.Erase(pRtti);
+      s_KnownManagers.Remove(pRtti);
 
       pRtti->GetAllocator()->Deallocate(s_AllDocumentManagers[i]);
       s_AllDocumentManagers.RemoveAtSwap(i);

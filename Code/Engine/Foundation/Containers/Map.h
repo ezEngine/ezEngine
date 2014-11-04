@@ -141,10 +141,10 @@ public:
   Iterator Insert(const KeyType& key, const ValueType& value); // [tested]
 
   /// \brief Erases the key/value pair with the given key, if it exists. O(log n) operation.
-  void Erase(const KeyType& key); // [tested]
+  void Remove(const KeyType& key); // [tested]
 
   /// \brief Erases the key/value pair at the given Iterator. O(1) operation(nearly).
-  Iterator Erase(const Iterator& pos); // [tested]
+  Iterator Remove(const Iterator& pos); // [tested]
 
   /// \brief Searches for the given key and returns an iterator to it. If it did not exist yet, it is default-created. \a bExisted is set to true, if the key was found, false if it needed to be created.
   Iterator FindOrAdd(const KeyType& key, bool* bExisted = nullptr); // [tested]
@@ -163,6 +163,9 @@ public:
 
   /// \brief Searches for key, returns an Iterator to it or an invalid iterator, if no such key is found. O(log n) operation.
   ConstIterator Find(const KeyType& key) const; // [tested]
+
+  /// \brief Checks whether the given key is in the container.
+  bool Contains(const KeyType& key) const; // [tested]
 
   /// \brief Returns an Iterator to the element with a key equal or larger than the given key. Returns an invalid iterator, if there is no such element.
   ConstIterator LowerBound(const KeyType& key) const; // [tested]
@@ -192,7 +195,7 @@ private:
   Node* SkewNode(Node* root);
   Node* SplitNode(Node* root);
   void Insert(const KeyType& key, const ValueType& value, Node*& pInsertedNode);
-  Node* Erase(Node* root, const KeyType& key);
+  Node* Remove(Node* root, const KeyType& key);
 
   /// \brief Returns the left-most node of the tree(smallest key).
   Node* GetLeftMost() const;

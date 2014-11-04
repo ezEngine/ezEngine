@@ -171,7 +171,7 @@ ezResult ezPlugin::UnloadPluginInternal(const char* szPluginFile, bool bReloadin
 
   // if the refcount is zero (i.e. we are not 'reloading' plugins), remove the info about the plugin
   if (g_LoadedPlugins[szPluginFile].m_iReferenceCount == 0)
-    g_LoadedPlugins.Erase(szPluginFile);
+    g_LoadedPlugins.Remove(szPluginFile);
 
   // Broadcast event: After unloading plugin
   {
@@ -208,7 +208,7 @@ ezResult ezPlugin::LoadPluginInternal(const char* szPluginFile, bool bLoadCopy, 
 
     ezLog::Error("Could not copy the plugin file '%s' to '%s' (and all previous file numbers). Plugin MaxParallelInstances is set to %i.", sOldPlugin.GetData(), sNewPlugin.GetData(), ezPlugin::m_uiMaxParallelInstances);
 
-    g_LoadedPlugins.Erase(sNewPlugin);
+    g_LoadedPlugins.Remove(sNewPlugin);
     return EZ_FAILURE;
   }
   else
@@ -233,7 +233,7 @@ success:
 
   if (LoadPluginModule(sNewPlugin.GetData(), g_LoadedPlugins[szPluginFile].m_hModule, szPluginFile) == EZ_FAILURE)
   {
-    g_LoadedPlugins.Erase(szPluginFile);
+    g_LoadedPlugins.Remove(szPluginFile);
     EndPluginChanges();
     
     return EZ_FAILURE;
@@ -405,7 +405,7 @@ void ezPlugin::SortPluginReloadOrder(ezHybridArray<ezString, 16>& PluginsToReloa
       if (!bHasDependency)
       {
         PluginsToReload.PushBack(PluginsToSort[iPlugin]->GetPluginName());
-        NotYetSorted.Erase(PluginsToSort[iPlugin]->GetPluginName());
+        NotYetSorted.Remove(PluginsToSort[iPlugin]->GetPluginName());
         PluginsToSort[iPlugin] = nullptr;
 
         bFoundAny = true;

@@ -142,26 +142,26 @@ ezMapBase<KeyType, ValueType, Comparer>::ezMapBase(const Comparer& comparer, ezA
 }
 
 template <typename KeyType, typename ValueType, typename Comparer>
-ezMapBase<KeyType, ValueType, Comparer>::ezMapBase (const ezMapBase<KeyType, ValueType, Comparer>& cc, ezAllocatorBase* pAllocator) : m_Elements(pAllocator)
+ezMapBase<KeyType, ValueType, Comparer>::ezMapBase(const ezMapBase<KeyType, ValueType, Comparer>& cc, ezAllocatorBase* pAllocator) : m_Elements(pAllocator)
 {
   Constructor();
 
-  operator= (cc);
+  operator=(cc);
 }
 
 template <typename KeyType, typename ValueType, typename Comparer>
-ezMapBase<KeyType, ValueType, Comparer>::~ezMapBase ()
+ezMapBase<KeyType, ValueType, Comparer>::~ezMapBase()
 {
   Clear();
 }
 
 template <typename KeyType, typename ValueType, typename Comparer>
-void ezMapBase<KeyType, ValueType, Comparer>::operator= (const ezMapBase<KeyType, ValueType, Comparer>& rhs)
+void ezMapBase<KeyType, ValueType, Comparer>::operator=(const ezMapBase<KeyType, ValueType, Comparer>& rhs)
 {
   Clear();
 
   for (ConstIterator it = rhs.GetIterator(); it.IsValid(); ++it)
-    Insert (it.Key(), it.Value());
+    Insert(it.Key(), it.Value());
 }
 
 template <typename KeyType, typename ValueType, typename Comparer>
@@ -199,25 +199,25 @@ EZ_FORCE_INLINE ezUInt32 ezMapBase<KeyType, ValueType, Comparer>::GetCount() con
 template <typename KeyType, typename ValueType, typename Comparer>
 EZ_FORCE_INLINE typename ezMapBase<KeyType, ValueType, Comparer>::Iterator ezMapBase<KeyType, ValueType, Comparer>::GetIterator()
 {
-  return Iterator(GetLeftMost ());
+  return Iterator(GetLeftMost());
 }
 
 template <typename KeyType, typename ValueType, typename Comparer>
 EZ_FORCE_INLINE typename ezMapBase<KeyType, ValueType, Comparer>::ConstIterator ezMapBase<KeyType, ValueType, Comparer>::GetIterator() const
 {
-  return ConstIterator(GetLeftMost ());
+  return ConstIterator(GetLeftMost());
 }
 
 template <typename KeyType, typename ValueType, typename Comparer>
 EZ_FORCE_INLINE typename ezMapBase<KeyType, ValueType, Comparer>::Iterator ezMapBase<KeyType, ValueType, Comparer>::GetLastIterator()
 {
-  return Iterator(GetRightMost ());
+  return Iterator(GetRightMost());
 }
 
 template <typename KeyType, typename ValueType, typename Comparer>
 EZ_FORCE_INLINE typename ezMapBase<KeyType, ValueType, Comparer>::ConstIterator ezMapBase<KeyType, ValueType, Comparer>::GetLastIterator() const
 {
-  return ConstIterator(GetRightMost ());
+  return ConstIterator(GetRightMost());
 }
 
 template <typename KeyType, typename ValueType, typename Comparer>
@@ -249,7 +249,7 @@ typename ezMapBase<KeyType, ValueType, Comparer>::Node* ezMapBase<KeyType, Value
 }
 
 template <typename KeyType, typename ValueType, typename Comparer>
-typename ezMapBase<KeyType, ValueType, Comparer>::Node* ezMapBase<KeyType, ValueType, Comparer>::Internal_Find (const KeyType& key) const
+typename ezMapBase<KeyType, ValueType, Comparer>::Node* ezMapBase<KeyType, ValueType, Comparer>::Internal_Find(const KeyType& key) const
 {
   Node* pNode = m_pRoot;
 
@@ -271,19 +271,25 @@ typename ezMapBase<KeyType, ValueType, Comparer>::Node* ezMapBase<KeyType, Value
 }
 
 template <typename KeyType, typename ValueType, typename Comparer>
-EZ_FORCE_INLINE typename ezMapBase<KeyType, ValueType, Comparer>::Iterator ezMapBase<KeyType, ValueType, Comparer>::Find (const KeyType& key)
+EZ_FORCE_INLINE typename ezMapBase<KeyType, ValueType, Comparer>::Iterator ezMapBase<KeyType, ValueType, Comparer>::Find(const KeyType& key)
 {
   return Iterator(Internal_Find(key));
 }
 
 template <typename KeyType, typename ValueType, typename Comparer>
-EZ_FORCE_INLINE typename ezMapBase<KeyType, ValueType, Comparer>::ConstIterator ezMapBase<KeyType, ValueType, Comparer>::Find (const KeyType& key) const
+EZ_FORCE_INLINE typename ezMapBase<KeyType, ValueType, Comparer>::ConstIterator ezMapBase<KeyType, ValueType, Comparer>::Find(const KeyType& key) const
 {
   return ConstIterator(Internal_Find(key));
 }
 
 template <typename KeyType, typename ValueType, typename Comparer>
-typename ezMapBase<KeyType, ValueType, Comparer>::Node* ezMapBase<KeyType, ValueType, Comparer>::Internal_LowerBound (const KeyType& key) const
+EZ_FORCE_INLINE bool ezMapBase<KeyType, ValueType, Comparer>::Contains(const KeyType& key) const
+{
+  return Internal_Find(key) != nullptr;
+}
+
+template <typename KeyType, typename ValueType, typename Comparer>
+typename ezMapBase<KeyType, ValueType, Comparer>::Node* ezMapBase<KeyType, ValueType, Comparer>::Internal_LowerBound(const KeyType& key) const
 {
   Node* pNode = m_pRoot;
   Node* pNodeSmaller = nullptr;
@@ -306,19 +312,19 @@ typename ezMapBase<KeyType, ValueType, Comparer>::Node* ezMapBase<KeyType, Value
 }
 
 template <typename KeyType, typename ValueType, typename Comparer>
-EZ_FORCE_INLINE typename ezMapBase<KeyType, ValueType, Comparer>::Iterator ezMapBase<KeyType, ValueType, Comparer>::LowerBound (const KeyType& key)
+EZ_FORCE_INLINE typename ezMapBase<KeyType, ValueType, Comparer>::Iterator ezMapBase<KeyType, ValueType, Comparer>::LowerBound(const KeyType& key)
 {
   return Iterator(Internal_LowerBound(key));
 }
 
 template <typename KeyType, typename ValueType, typename Comparer>
-EZ_FORCE_INLINE typename ezMapBase<KeyType, ValueType, Comparer>::ConstIterator ezMapBase<KeyType, ValueType, Comparer>::LowerBound (const KeyType& key) const
+EZ_FORCE_INLINE typename ezMapBase<KeyType, ValueType, Comparer>::ConstIterator ezMapBase<KeyType, ValueType, Comparer>::LowerBound(const KeyType& key) const
 {
   return ConstIterator(Internal_LowerBound(key));
 }
 
 template <typename KeyType, typename ValueType, typename Comparer>
-typename ezMapBase<KeyType, ValueType, Comparer>::Node* ezMapBase<KeyType, ValueType, Comparer>::Internal_UpperBound (const KeyType& key) const
+typename ezMapBase<KeyType, ValueType, Comparer>::Node* ezMapBase<KeyType, ValueType, Comparer>::Internal_UpperBound(const KeyType& key) const
 {
   Node* pNode = m_pRoot;
   Node* pNodeSmaller = nullptr;
@@ -330,7 +336,7 @@ typename ezMapBase<KeyType, ValueType, Comparer>::Node* ezMapBase<KeyType, Value
 
     if (dir == dir2)
     {
-      ConstIterator it (pNode);
+      ConstIterator it(pNode);
       ++it;
       return it.m_pElement;
     }
@@ -345,19 +351,19 @@ typename ezMapBase<KeyType, ValueType, Comparer>::Node* ezMapBase<KeyType, Value
 }
 
 template <typename KeyType, typename ValueType, typename Comparer>
-EZ_FORCE_INLINE typename ezMapBase<KeyType, ValueType, Comparer>::Iterator ezMapBase<KeyType, ValueType, Comparer>::UpperBound (const KeyType& key)
+EZ_FORCE_INLINE typename ezMapBase<KeyType, ValueType, Comparer>::Iterator ezMapBase<KeyType, ValueType, Comparer>::UpperBound(const KeyType& key)
 {
   return Iterator(Internal_UpperBound(key));
 }
 
 template <typename KeyType, typename ValueType, typename Comparer>
-EZ_FORCE_INLINE typename ezMapBase<KeyType, ValueType, Comparer>::ConstIterator ezMapBase<KeyType, ValueType, Comparer>::UpperBound (const KeyType& key) const
+EZ_FORCE_INLINE typename ezMapBase<KeyType, ValueType, Comparer>::ConstIterator ezMapBase<KeyType, ValueType, Comparer>::UpperBound(const KeyType& key) const
 {
   return ConstIterator(Internal_UpperBound(key));
 }
 
 template <typename KeyType, typename ValueType, typename Comparer>
-ValueType& ezMapBase<KeyType, ValueType, Comparer>::operator[] (const KeyType& key)
+ValueType& ezMapBase<KeyType, ValueType, Comparer>::operator[](const KeyType& key)
 {
   return FindOrAdd(key).Value();
 }
@@ -450,9 +456,9 @@ typename ezMapBase<KeyType, ValueType, Comparer>::Iterator ezMapBase<KeyType, Va
 }
 
 template <typename KeyType, typename ValueType, typename Comparer>
-void ezMapBase<KeyType, ValueType, Comparer>::Erase (const KeyType& key)
+void ezMapBase<KeyType, ValueType, Comparer>::Remove(const KeyType& key)
 {
-  m_pRoot = Erase(m_pRoot, key);
+  m_pRoot = Remove(m_pRoot, key);
   m_pRoot->m_pParent  = reinterpret_cast<Node*>(&m_NilNode);
   m_NilNode.m_pParent = reinterpret_cast<Node*>(&m_NilNode);
 }
@@ -624,7 +630,7 @@ end:
 }
 
 template <typename KeyType, typename ValueType, typename Comparer>
-typename ezMapBase<KeyType, ValueType, Comparer>::Node* ezMapBase<KeyType, ValueType, Comparer>::Erase(Node* root, const KeyType& key)
+typename ezMapBase<KeyType, ValueType, Comparer>::Node* ezMapBase<KeyType, ValueType, Comparer>::Remove(Node* root, const KeyType& key)
 {
   Node* ToErase    = reinterpret_cast<Node*>(&m_NilNode);
   Node* ToOverride = reinterpret_cast<Node*>(&m_NilNode);
@@ -702,13 +708,13 @@ typename ezMapBase<KeyType, ValueType, Comparer>::Node* ezMapBase<KeyType, Value
         if (up[top]->m_pLink[1]->m_uiLevel > --up[top]->m_uiLevel)
           up[top]->m_pLink[1]->m_uiLevel = up[top]->m_uiLevel;
 
-        up[top] = SkewNode (up[top]);
-        up[top]->m_pLink[1] = SkewNode (up[top]->m_pLink[1]);
+        up[top] = SkewNode(up[top]);
+        up[top]->m_pLink[1] = SkewNode(up[top]->m_pLink[1]);
         up[top]->m_pLink[1]->m_pParent = up[top];
 
-        up[top]->m_pLink[1]->m_pLink[1] = SkewNode (up[top]->m_pLink[1]->m_pLink[1]);
-        up[top] = SplitNode (up[top]);
-        up[top]->m_pLink[1] = SplitNode (up[top]->m_pLink[1]);
+        up[top]->m_pLink[1]->m_pLink[1] = SkewNode(up[top]->m_pLink[1]->m_pLink[1]);
+        up[top] = SplitNode(up[top]);
+        up[top]->m_pLink[1] = SplitNode(up[top]->m_pLink[1]);
         up[top]->m_pLink[1]->m_pParent = up[top];
       }
 
@@ -766,13 +772,13 @@ typename ezMapBase<KeyType, ValueType, Comparer>::Node* ezMapBase<KeyType, Value
 }
 
 template <typename KeyType, typename ValueType, typename Comparer>
-typename ezMapBase<KeyType, ValueType, Comparer>::Iterator ezMapBase<KeyType, ValueType, Comparer>::Erase(const Iterator& pos)
+typename ezMapBase<KeyType, ValueType, Comparer>::Iterator ezMapBase<KeyType, ValueType, Comparer>::Remove(const Iterator& pos)
 {
-  EZ_ASSERT(pos.m_pElement != nullptr, "The Iterator (pos) is invalid.");
+  EZ_ASSERT(pos.m_pElement != nullptr, "The Iterator(pos) is invalid.");
 
   Iterator temp(pos);
   ++temp;
-  Erase(pos.Key());
+  Remove(pos.Key());
   return temp;
 }
 

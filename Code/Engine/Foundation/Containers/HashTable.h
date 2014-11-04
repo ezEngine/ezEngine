@@ -127,7 +127,7 @@ public:
   ValueType& operator[](const KeyType& key); // [tested]
 
   /// \brief Returns if an entry with given key exists in the table.
-  bool KeyExists(const KeyType& key) const; // [tested]
+  bool Contains(const KeyType& key) const; // [tested]
 
   /// \brief Returns an Iterator to the very first element.
   Iterator GetIterator(); // [tested]

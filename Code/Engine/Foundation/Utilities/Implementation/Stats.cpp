@@ -11,7 +11,7 @@ void ezStats::RemoveStat(const char* szStatName)
   if (!it.IsValid())
     return;
 
-  s_Stats.Erase(it);
+  s_Stats.Remove(it);
 
   StatsEventData e;
   e.m_EventType = StatsEventData::Remove;

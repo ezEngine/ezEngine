@@ -145,7 +145,7 @@ foundany:
         {
           TaskData td = *it;
 
-          s_Tasks[i].Erase(it);
+          s_Tasks[i].Remove(it);
           return td;
         }
 
@@ -162,7 +162,7 @@ foundany:
     {
       TaskData td = *s_Tasks[i].GetIterator();
 
-      s_Tasks[i].Erase(s_Tasks[i].GetIterator());
+      s_Tasks[i].Remove(s_Tasks[i].GetIterator());
       return td;
     }
   }
@@ -269,7 +269,7 @@ ezResult ezTaskSystem::CancelTask(ezTask* pTask, ezOnTaskRunning::Enum OnTaskRun
         {
           if (it->m_pTask == pTask)
           {
-            s_Tasks[i].Erase(it);
+            s_Tasks[i].Remove(it);
 
             // we set the task to finished, even though it was not executed
             pTask->m_bIsFinished = true;

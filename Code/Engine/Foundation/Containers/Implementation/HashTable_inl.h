@@ -364,7 +364,7 @@ inline V& ezHashTableBase<K, V, H>::operator[](const K& key)
 }
 
 template <typename K, typename V, typename H>
-EZ_FORCE_INLINE bool ezHashTableBase<K, V, H>::KeyExists(const K& key) const
+EZ_FORCE_INLINE bool ezHashTableBase<K, V, H>::Contains(const K& key) const
 {
   return FindEntry(key) != ezInvalidIndex;
 }

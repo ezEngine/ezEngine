@@ -13,7 +13,7 @@ ezMap<ezString, ezTokenizedFileCache::FileData>::ConstIterator ezTokenizedFileCa
 void ezTokenizedFileCache::Remove(const ezString& sFileName)
 {
   EZ_LOCK(m_Mutex);
-  m_Cache.Erase(sFileName);
+  m_Cache.Remove(sFileName);
 }
 
 void ezTokenizedFileCache::Clear()

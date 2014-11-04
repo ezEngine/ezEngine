@@ -121,7 +121,7 @@ void ezReflectedType::RegisterProperties()
   for (ezUInt32 i = 0; i < uiPropertyCount; ++i)
   {
     const char* szPropertyName = m_Properties[i].m_sPropertyName.GetString().GetData();
-    EZ_ASSERT(!m_NameToIndex.KeyExists(szPropertyName), "A property with the name '%s' already exists!", szPropertyName);
+    EZ_ASSERT(!m_NameToIndex.Contains(szPropertyName), "A property with the name '%s' already exists!", szPropertyName);
     m_NameToIndex.Insert(szPropertyName, i);
   }
 }

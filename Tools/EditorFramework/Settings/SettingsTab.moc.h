@@ -25,6 +25,7 @@ public:
 
 private slots:
   void SlotSettingsChanged();
+  void on_ButtonPluginConfig_clicked();
 
 private:
   virtual bool InternalCanClose();

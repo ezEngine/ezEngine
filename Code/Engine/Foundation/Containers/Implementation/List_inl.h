@@ -150,7 +150,7 @@ template <typename T>
 void ezListBase<T>::Clear()
 {
   if (!IsEmpty())
-    Erase(GetIterator(), GetEndIterator());
+    Remove(GetIterator(), GetEndIterator());
 
   m_pFreeElementStack = nullptr;
   m_Elements.Clear();
@@ -218,7 +218,7 @@ EZ_FORCE_INLINE void ezListBase<T>::PopBack()
 {
   EZ_ASSERT(!IsEmpty(), "The container is empty.");
 
-  Erase(Iterator(m_Last.m_pPrev));
+  Remove(Iterator(m_Last.m_pPrev));
 }
 
 template <typename T>
@@ -226,7 +226,7 @@ void ezListBase<T>::PopFront()
 {
   EZ_ASSERT(!IsEmpty(), "The container is empty.");
 
-  Erase (Iterator(m_First.m_pNext));
+  Remove (Iterator(m_First.m_pNext));
 }
 
 template <typename T>
@@ -261,7 +261,7 @@ void ezListBase<T>::Insert(const Iterator& pos, ConstIterator first, const Const
 }
 
 template <typename T>
-typename ezListBase<T>::Iterator ezListBase<T>::Erase(const Iterator& pos)
+typename ezListBase<T>::Iterator ezListBase<T>::Remove(const Iterator& pos)
 {
   EZ_ASSERT(!IsEmpty(), "The container is empty.");
   EZ_ASSERT(pos.m_pElement != nullptr, "The iterator (pos) is invalid.");
@@ -278,14 +278,14 @@ typename ezListBase<T>::Iterator ezListBase<T>::Erase(const Iterator& pos)
 }
 
 template <typename T>
-typename ezListBase<T>::Iterator ezListBase<T>::Erase(Iterator first, const Iterator& last)
+typename ezListBase<T>::Iterator ezListBase<T>::Remove(Iterator first, const Iterator& last)
 {
   EZ_ASSERT(!IsEmpty(), "The container is empty.");
   EZ_ASSERT(first.m_pElement != nullptr, "The iterator (first) is invalid.");
   EZ_ASSERT(last.m_pElement != nullptr, "The iterator (last) is invalid.");
 
   while (first != last)
-    first = Erase(first);
+    first = Remove(first);
 
   return last;
 }

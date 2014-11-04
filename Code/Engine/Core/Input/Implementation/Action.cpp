@@ -90,7 +90,7 @@ ezInputActionConfig ezInputManager::GetInputActionConfig(const char* szInputSet,
 
 void ezInputManager::RemoveInputAction(const char* szInputSet, const char* szAction)
 {
-  GetInternals().s_ActionMapping[szInputSet].Erase(szAction);
+  GetInternals().s_ActionMapping[szInputSet].Remove(szAction);
 }
 
 ezKeyState::Enum ezInputManager::GetInputActionState(const char* szInputSet, const char* szAction, float* pValue, ezInt8* iTriggeredSlot)

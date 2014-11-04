@@ -122,7 +122,21 @@ EZ_CREATE_SIMPLE_TEST(Containers, Map)
       EZ_TEST_INT(m.Find(i).Value(), i * 10);
   }
 
-    EZ_TEST_BLOCK(ezTestBlock::Enabled, "FindOrAdd")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Contains")
+  {
+    ezMap<ezUInt32, ezUInt32> m;
+
+    for (ezInt32 i = 0; i < 1000; i += 2)
+      m[i] = i * 10;
+
+    for (ezInt32 i = 0; i < 1000; i += 2)
+    {
+      EZ_TEST_BOOL(m.Contains(i));
+      EZ_TEST_BOOL(!m.Contains(i + 1));
+    }
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "FindOrAdd")
   {
     ezMap<ezUInt32, ezUInt32> m;
 
@@ -152,21 +166,21 @@ EZ_CREATE_SIMPLE_TEST(Containers, Map)
       EZ_TEST_INT(m[i], i * 10);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Erase (non-existing)")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Remove (non-existing)")
   {
     ezMap<ezUInt32, ezUInt32> m;
 
     for (ezInt32 i = 0; i < 1000; ++i)
-      m.Erase(i);
+      m.Remove(i);
 
     for (ezInt32 i = 0; i < 1000; ++i)
       m[i] = i * 10;
 
     for (ezInt32 i = 0; i < 1000; ++i)
-      m.Erase(i + 500);
+      m.Remove(i + 500);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Erase (Iterator)")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Remove (Iterator)")
   {
     ezMap<ezUInt32, ezUInt32> m;
 
@@ -175,7 +189,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, Map)
 
     for (ezInt32 i = 0; i < 1000-1; ++i)
     {
-      ezMap<ezUInt32, ezUInt32>::Iterator itNext = m.Erase(m.Find(i));
+      ezMap<ezUInt32, ezUInt32>::Iterator itNext = m.Remove(m.Find(i));
       EZ_TEST_BOOL(!m.Find(i).IsValid());
       EZ_TEST_BOOL(itNext.Key() == i + 1);
 
@@ -183,7 +197,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, Map)
     }
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Erase (Key)")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Remove (Key)")
   {
     ezMap<ezUInt32, ezUInt32> m;
 
@@ -192,7 +206,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, Map)
 
     for (ezInt32 i = 0; i < 1000; ++i)
     {
-      m.Erase(i);
+      m.Remove(i);
       EZ_TEST_BOOL(!m.Find(i).IsValid());
 
       EZ_TEST_INT(m.GetCount(), 1000-1 - i);
@@ -344,7 +358,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, Map)
     EZ_TEST_BOOL(!m.UpperBound(10).IsValid());
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Insert / Erase")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Insert / Remove")
   {
     // Tests whether reusing of elements makes problems
 
@@ -358,23 +372,23 @@ EZ_CREATE_SIMPLE_TEST(Containers, Map)
 
       EZ_TEST_INT(m.GetCount(), 10000);
 
-      // Erase
+      // Remove
       for (ezUInt32 i = 0; i < 5000; ++i)
-        m.Erase(i);
+        m.Remove(i);
 
       // Insert others
       for (ezUInt32 j = 1; j < 1000; ++j)
         m.Insert(20000 * j, j);
 
-      // Erase
+      // Remove
       for (ezUInt32 i = 0; i < 5000; ++i)
-        m.Erase(5000 + i);
+        m.Remove(5000 + i);
 
-      // Erase others
+      // Remove others
       for (ezUInt32 j = 1; j < 1000; ++j)
       {
         EZ_TEST_BOOL(m.Find(20000 * j).IsValid());
-        m.Erase(20000 * j);
+        m.Remove(20000 * j);
       }
     }
 

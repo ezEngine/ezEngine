@@ -218,7 +218,7 @@ void ezMainWindow::SetFavourite(const ezString& sStat, bool bFavourite)
   {
     if (sd.m_pItemFavourite)
     {
-      m_Favourites.Erase(sStat);
+      m_Favourites.Remove(sStat);
 
       delete sd.m_pItemFavourite;
       sd.m_pItemFavourite = nullptr;

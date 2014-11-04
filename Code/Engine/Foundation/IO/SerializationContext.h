@@ -96,7 +96,7 @@ protected:
     if (m_pReaderStream == nullptr)
       return;
 
-    s_ActiveReaderContexts.Erase(m_pReaderStream);
+    s_ActiveReaderContexts.Remove(m_pReaderStream);
     m_pReaderStream = nullptr;
   }
 
@@ -120,7 +120,7 @@ protected:
     if (m_pWriterStream == nullptr)
       return;
 
-    s_ActiveWriterContexts.Erase(m_pWriterStream);
+    s_ActiveWriterContexts.Remove(m_pWriterStream);
     m_pWriterStream = nullptr;
   }
 

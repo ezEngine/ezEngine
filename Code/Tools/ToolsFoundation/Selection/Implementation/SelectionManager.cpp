@@ -66,7 +66,7 @@ void ezSelectionManager::RemoveObject(const ezDocumentObjectBase* pObject)
   if (!it.IsValid())
     return;
 
-  m_SelectionSet.Erase(it);
+  m_SelectionSet.Remove(it);
 
   m_SelectionList.Remove(pObject);
 

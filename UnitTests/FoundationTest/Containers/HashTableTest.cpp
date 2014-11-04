@@ -83,7 +83,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, HashTable)
       {
         key = rand() % 100000;
       }
-      while (table1.KeyExists(key));
+      while (table1.Contains(key));
 
       table1.Insert(key, ezConstructionCounter(i));
     }
@@ -147,12 +147,12 @@ EZ_CREATE_SIMPLE_TEST(Containers, HashTable)
     EZ_TEST_BOOL(map2[Collision(1, 4)] == 4);
     EZ_TEST_BOOL(map2[Collision(0, 5)] == 5);
 
-    EZ_TEST_BOOL(map2.KeyExists(Collision(0, 0)));
-    EZ_TEST_BOOL(map2.KeyExists(Collision(1, 1)));
-    EZ_TEST_BOOL(map2.KeyExists(Collision(0, 2)));
-    EZ_TEST_BOOL(map2.KeyExists(Collision(1, 3)));
-    EZ_TEST_BOOL(map2.KeyExists(Collision(1, 4)));
-    EZ_TEST_BOOL(map2.KeyExists(Collision(0, 5)));
+    EZ_TEST_BOOL(map2.Contains(Collision(0, 0)));
+    EZ_TEST_BOOL(map2.Contains(Collision(1, 1)));
+    EZ_TEST_BOOL(map2.Contains(Collision(0, 2)));
+    EZ_TEST_BOOL(map2.Contains(Collision(1, 3)));
+    EZ_TEST_BOOL(map2.Contains(Collision(1, 4)));
+    EZ_TEST_BOOL(map2.Contains(Collision(0, 5)));
 
     EZ_TEST_BOOL(map2.Remove(Collision(0, 0)));
     EZ_TEST_BOOL(map2.Remove(Collision(1, 1)));
@@ -162,12 +162,12 @@ EZ_CREATE_SIMPLE_TEST(Containers, HashTable)
     EZ_TEST_BOOL(map2[Collision(1, 4)] == 4);
     EZ_TEST_BOOL(map2[Collision(0, 5)] == 5);
 
-    EZ_TEST_BOOL(!map2.KeyExists(Collision(0, 0)));
-    EZ_TEST_BOOL(!map2.KeyExists(Collision(1, 1)));
-    EZ_TEST_BOOL(map2.KeyExists(Collision(0, 2)));
-    EZ_TEST_BOOL(map2.KeyExists(Collision(1, 3)));
-    EZ_TEST_BOOL(map2.KeyExists(Collision(1, 4)));
-    EZ_TEST_BOOL(map2.KeyExists(Collision(0, 5)));
+    EZ_TEST_BOOL(!map2.Contains(Collision(0, 0)));
+    EZ_TEST_BOOL(!map2.Contains(Collision(1, 1)));
+    EZ_TEST_BOOL(map2.Contains(Collision(0, 2)));
+    EZ_TEST_BOOL(map2.Contains(Collision(1, 3)));
+    EZ_TEST_BOOL(map2.Contains(Collision(1, 4)));
+    EZ_TEST_BOOL(map2.Contains(Collision(0, 5)));
 
     map2[Collision(0, 6)] = 6;
     map2[Collision(1, 7)] = 7;
@@ -179,12 +179,12 @@ EZ_CREATE_SIMPLE_TEST(Containers, HashTable)
     EZ_TEST_BOOL(map2[Collision(0, 6)] == 6);
     EZ_TEST_BOOL(map2[Collision(1, 7)] == 7);
 
-    EZ_TEST_BOOL(map2.KeyExists(Collision(0, 2)));
-    EZ_TEST_BOOL(map2.KeyExists(Collision(1, 3)));
-    EZ_TEST_BOOL(map2.KeyExists(Collision(1, 4)));
-    EZ_TEST_BOOL(map2.KeyExists(Collision(0, 5)));
-    EZ_TEST_BOOL(map2.KeyExists(Collision(0, 6)));
-    EZ_TEST_BOOL(map2.KeyExists(Collision(1, 7)));
+    EZ_TEST_BOOL(map2.Contains(Collision(0, 2)));
+    EZ_TEST_BOOL(map2.Contains(Collision(1, 3)));
+    EZ_TEST_BOOL(map2.Contains(Collision(1, 4)));
+    EZ_TEST_BOOL(map2.Contains(Collision(0, 5)));
+    EZ_TEST_BOOL(map2.Contains(Collision(0, 6)));
+    EZ_TEST_BOOL(map2.Contains(Collision(1, 7)));
 
     EZ_TEST_BOOL(map2.Remove(Collision(1, 4)));
     EZ_TEST_BOOL(map2.Remove(Collision(0, 6)));
@@ -194,12 +194,12 @@ EZ_CREATE_SIMPLE_TEST(Containers, HashTable)
     EZ_TEST_BOOL(map2[Collision(0, 5)] == 5);
     EZ_TEST_BOOL(map2[Collision(1, 7)] == 7);
 
-    EZ_TEST_BOOL(!map2.KeyExists(Collision(1, 4)));
-    EZ_TEST_BOOL(!map2.KeyExists(Collision(0, 6)));
-    EZ_TEST_BOOL(map2.KeyExists(Collision(0, 2)));
-    EZ_TEST_BOOL(map2.KeyExists(Collision(1, 3)));
-    EZ_TEST_BOOL(map2.KeyExists(Collision(0, 5)));
-    EZ_TEST_BOOL(map2.KeyExists(Collision(1, 7)));
+    EZ_TEST_BOOL(!map2.Contains(Collision(1, 4)));
+    EZ_TEST_BOOL(!map2.Contains(Collision(0, 6)));
+    EZ_TEST_BOOL(map2.Contains(Collision(0, 2)));
+    EZ_TEST_BOOL(map2.Contains(Collision(1, 3)));
+    EZ_TEST_BOOL(map2.Contains(Collision(0, 5)));
+    EZ_TEST_BOOL(map2.Contains(Collision(1, 7)));
 
     map2[Collision(0, 2)] = 3;
     map2[Collision(0, 5)] = 6;

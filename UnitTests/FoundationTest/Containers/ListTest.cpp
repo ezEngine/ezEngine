@@ -234,7 +234,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, List)
     EZ_TEST_INT(i, 1000);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Erase(item)")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Remove(item)")
   {
     ezList<ezInt32> l;
 
@@ -252,7 +252,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, List)
     // now remove every second element and only keep the larger values
     for (ezList<ezInt32>::Iterator it = l.GetLastIterator(); it.IsValid(); --it)
     {
-      it = l.Erase(it);
+      it = l.Remove(it);
       --it;
       --i;
       EZ_TEST_INT(*it, i + 10000);

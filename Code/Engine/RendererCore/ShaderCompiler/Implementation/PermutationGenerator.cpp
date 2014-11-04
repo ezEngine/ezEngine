@@ -74,7 +74,7 @@ void ezPermutationGenerator::RemoveUnusedPermutations(const ezString& sUsedPermu
   for (auto it = m_Permutations.GetIterator(); it.IsValid(); )
   {
     if (!PermutationUsed(sUsedPermutations, it.Key().GetData()))
-      it = m_Permutations.Erase(it);
+      it = m_Permutations.Remove(it);
     else
       ++it;
   }

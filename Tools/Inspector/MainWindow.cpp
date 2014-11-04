@@ -359,7 +359,7 @@ void ezMainWindow::ProcessTelemetry(void* pUnuseed)
         if (it.Value().m_pItemFavourite)
           delete it.Value().m_pItemFavourite;
 
-        s_pWidget->m_Stats.Erase(it);
+        s_pWidget->m_Stats.Remove(it);
       }
       break;
 

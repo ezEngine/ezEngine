@@ -255,7 +255,7 @@ void ezDynamicOctree::FindVisibleObjects (const ezFrustum& Viewfrustum, EZ_VISIB
 
 void ezDynamicOctree::RemoveObject(ezDynamicTreeObject obj)
 {
-  m_NodeMap.Erase(obj);
+  m_NodeMap.Remove(obj);
 }
 
 void ezDynamicOctree::RemoveObject(ezInt32 iObjectType, ezInt32 iObjectInstance)
@@ -264,7 +264,7 @@ void ezDynamicOctree::RemoveObject(ezInt32 iObjectType, ezInt32 iObjectInstance)
   {
     if ((it.Value().m_iObjectInstance == iObjectInstance) && (it.Value().m_iObjectType == iObjectType))
     {
-      m_NodeMap.Erase(it);
+      m_NodeMap.Remove(it);
       return;
     }
   }
@@ -279,7 +279,7 @@ void ezDynamicOctree::RemoveObjectsOfType(ezInt32 iObjectType)
       ezDynamicTreeObject itold = it;
       ++it;
 
-      m_NodeMap.Erase(itold);
+      m_NodeMap.Remove(itold);
     }
     else
       ++it;

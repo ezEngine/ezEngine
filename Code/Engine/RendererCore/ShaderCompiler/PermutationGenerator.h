@@ -23,7 +23,7 @@ public:
   void AddPermutation(const char* szVariable, const char* szValue);
   ezUInt32 GetPermutationCount() const;
   void GetPermutation(ezUInt32 uiPerm, ezHybridArray<PermutationVar, 16>& out_PermVars) const;
-  void RemoveVariable(const char* szVariable) { m_Permutations.Erase(szVariable); }
+  void RemoveVariable(const char* szVariable) { m_Permutations.Remove(szVariable); }
 
   static ezUInt32 GetHash(const ezHybridArray<PermutationVar, 16>& PermVars);
 

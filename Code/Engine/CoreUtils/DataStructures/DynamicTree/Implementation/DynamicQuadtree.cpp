@@ -112,7 +112,7 @@ ezResult ezDynamicQuadtree::InsertObject(const ezVec3& vCenter, const ezVec3& vH
 
 void ezDynamicQuadtree::RemoveObject(ezDynamicTreeObject obj)
 {
-  m_NodeMap.Erase(obj);
+  m_NodeMap.Remove(obj);
 }
 
 void ezDynamicQuadtree::RemoveObject(ezInt32 iObjectType, ezInt32 iObjectInstance)
@@ -121,7 +121,7 @@ void ezDynamicQuadtree::RemoveObject(ezInt32 iObjectType, ezInt32 iObjectInstanc
   {
     if ((it.Value().m_iObjectInstance == iObjectInstance) && (it.Value().m_iObjectType == iObjectType))
     {
-      m_NodeMap.Erase(it);
+      m_NodeMap.Remove(it);
       return;
     }
   }
@@ -136,7 +136,7 @@ void ezDynamicQuadtree::RemoveObjectsOfType(ezInt32 iObjectType)
       ezDynamicTreeObject itold = it;
       ++it;
 
-      m_NodeMap.Erase(itold);
+      m_NodeMap.Remove(itold);
     }
     else
       ++it;

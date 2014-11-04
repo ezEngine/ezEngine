@@ -140,26 +140,26 @@ ezSetBase<KeyType, Comparer>::ezSetBase(const Comparer& comparer, ezAllocatorBas
 }
 
 template <typename KeyType, typename Comparer>
-ezSetBase<KeyType, Comparer>::ezSetBase (const ezSetBase<KeyType, Comparer>& cc, ezAllocatorBase* pAllocator) : m_Elements(pAllocator)
+ezSetBase<KeyType, Comparer>::ezSetBase(const ezSetBase<KeyType, Comparer>& cc, ezAllocatorBase* pAllocator) : m_Elements(pAllocator)
 {
   Constructor();
 
-  operator= (cc);
+  operator=(cc);
 }
 
 template <typename KeyType, typename Comparer>
-ezSetBase<KeyType, Comparer>::~ezSetBase ()
+ezSetBase<KeyType, Comparer>::~ezSetBase()
 {
   Clear();
 }
 
 template <typename KeyType, typename Comparer>
-void ezSetBase<KeyType, Comparer>::operator= (const ezSetBase<KeyType, Comparer>& rhs)
+void ezSetBase<KeyType, Comparer>::operator=(const ezSetBase<KeyType, Comparer>& rhs)
 {
   Clear();
 
   for (Iterator it = rhs.GetIterator(); it.IsValid(); ++it)
-    Insert (it.Key ());
+    Insert(it.Key());
 }
 
 template <typename KeyType, typename Comparer>
@@ -197,13 +197,13 @@ EZ_FORCE_INLINE ezUInt32 ezSetBase<KeyType, Comparer>::GetCount() const
 template <typename KeyType, typename Comparer>
 EZ_FORCE_INLINE typename ezSetBase<KeyType, Comparer>::Iterator ezSetBase<KeyType, Comparer>::GetIterator() const
 {
-  return Iterator(GetLeftMost ());
+  return Iterator(GetLeftMost());
 }
 
 template <typename KeyType, typename Comparer>
 EZ_FORCE_INLINE typename ezSetBase<KeyType, Comparer>::Iterator ezSetBase<KeyType, Comparer>::GetLastIterator() const
 {
-  return Iterator(GetRightMost ());
+  return Iterator(GetRightMost());
 }
 
 template <typename KeyType, typename Comparer>
@@ -235,7 +235,7 @@ typename ezSetBase<KeyType, Comparer>::Node* ezSetBase<KeyType, Comparer>::GetRi
 }
 
 template <typename KeyType, typename Comparer>
-typename ezSetBase<KeyType, Comparer>::Node* ezSetBase<KeyType, Comparer>::Internal_Find (const KeyType& key) const
+typename ezSetBase<KeyType, Comparer>::Node* ezSetBase<KeyType, Comparer>::Internal_Find(const KeyType& key) const
 {
   Node* pNode = m_pRoot;
 
@@ -257,13 +257,20 @@ typename ezSetBase<KeyType, Comparer>::Node* ezSetBase<KeyType, Comparer>::Inter
 }
 
 template <typename KeyType, typename Comparer>
-EZ_FORCE_INLINE typename ezSetBase<KeyType, Comparer>::Iterator ezSetBase<KeyType, Comparer>::Find (const KeyType& key) const
+EZ_FORCE_INLINE typename ezSetBase<KeyType, Comparer>::Iterator ezSetBase<KeyType, Comparer>::Find(const KeyType& key) const
 {
   return Iterator(Internal_Find(key));
 }
 
 template <typename KeyType, typename Comparer>
-typename ezSetBase<KeyType, Comparer>::Node* ezSetBase<KeyType, Comparer>::Internal_LowerBound (const KeyType& key) const
+EZ_FORCE_INLINE bool ezSetBase<KeyType, Comparer>::Contains(const KeyType& key) const
+{
+  return Internal_Find(key) != nullptr;
+}
+
+
+template <typename KeyType, typename Comparer>
+typename ezSetBase<KeyType, Comparer>::Node* ezSetBase<KeyType, Comparer>::Internal_LowerBound(const KeyType& key) const
 {
   Node* pNode = m_pRoot;
   Node* pNodeSmaller = nullptr;
@@ -286,13 +293,13 @@ typename ezSetBase<KeyType, Comparer>::Node* ezSetBase<KeyType, Comparer>::Inter
 }
 
 template <typename KeyType, typename Comparer>
-EZ_FORCE_INLINE typename ezSetBase<KeyType, Comparer>::Iterator ezSetBase<KeyType, Comparer>::LowerBound (const KeyType& key) const
+EZ_FORCE_INLINE typename ezSetBase<KeyType, Comparer>::Iterator ezSetBase<KeyType, Comparer>::LowerBound(const KeyType& key) const
 {
   return Iterator(Internal_LowerBound(key));
 }
 
 template <typename KeyType, typename Comparer>
-typename ezSetBase<KeyType, Comparer>::Node* ezSetBase<KeyType, Comparer>::Internal_UpperBound (const KeyType& key) const
+typename ezSetBase<KeyType, Comparer>::Node* ezSetBase<KeyType, Comparer>::Internal_UpperBound(const KeyType& key) const
 {
   Node* pNode = m_pRoot;
   Node* pNodeSmaller = nullptr;
@@ -304,7 +311,7 @@ typename ezSetBase<KeyType, Comparer>::Node* ezSetBase<KeyType, Comparer>::Inter
 
     if (dir == dir2)
     {
-      Iterator it (pNode);
+      Iterator it(pNode);
       ++it;
       return it.m_pElement;
     }
@@ -319,7 +326,7 @@ typename ezSetBase<KeyType, Comparer>::Node* ezSetBase<KeyType, Comparer>::Inter
 }
 
 template <typename KeyType, typename Comparer>
-EZ_FORCE_INLINE typename ezSetBase<KeyType, Comparer>::Iterator ezSetBase<KeyType, Comparer>::UpperBound (const KeyType& key) const
+EZ_FORCE_INLINE typename ezSetBase<KeyType, Comparer>::Iterator ezSetBase<KeyType, Comparer>::UpperBound(const KeyType& key) const
 {
   return Iterator(Internal_UpperBound(key));
 }
@@ -337,9 +344,9 @@ typename ezSetBase<KeyType, Comparer>::Iterator ezSetBase<KeyType, Comparer>::In
 }
 
 template <typename KeyType, typename Comparer>
-void ezSetBase<KeyType, Comparer>::Erase (const KeyType& key)
+void ezSetBase<KeyType, Comparer>::Remove(const KeyType& key)
 {
-  m_pRoot = Erase(m_pRoot, key);
+  m_pRoot = Remove(m_pRoot, key);
   m_pRoot->m_pParent  = reinterpret_cast<Node*>(&m_NilNode);
   m_NilNode.m_pParent = reinterpret_cast<Node*>(&m_NilNode);
 }
@@ -490,7 +497,7 @@ typename ezSetBase<KeyType, Comparer>::Node* ezSetBase<KeyType, Comparer>::Inser
 }
 
 template <typename KeyType, typename Comparer>
-typename ezSetBase<KeyType, Comparer>::Node* ezSetBase<KeyType, Comparer>::Erase(Node* root, const KeyType& key)
+typename ezSetBase<KeyType, Comparer>::Node* ezSetBase<KeyType, Comparer>::Remove(Node* root, const KeyType& key)
 {
   Node* ToErase    = reinterpret_cast<Node*>(&m_NilNode);
   Node* ToOverride = reinterpret_cast<Node*>(&m_NilNode);
@@ -562,13 +569,13 @@ typename ezSetBase<KeyType, Comparer>::Node* ezSetBase<KeyType, Comparer>::Erase
         if (up[top]->m_pLink[1]->m_uiLevel > --up[top]->m_uiLevel)
           up[top]->m_pLink[1]->m_uiLevel = up[top]->m_uiLevel;
 
-        up[top] = SkewNode (up[top]);
-        up[top]->m_pLink[1] = SkewNode (up[top]->m_pLink[1]);
+        up[top] = SkewNode(up[top]);
+        up[top]->m_pLink[1] = SkewNode(up[top]->m_pLink[1]);
         up[top]->m_pLink[1]->m_pParent = up[top];
 
-        up[top]->m_pLink[1]->m_pLink[1] = SkewNode (up[top]->m_pLink[1]->m_pLink[1]);
-        up[top] = SplitNode (up[top]);
-        up[top]->m_pLink[1] = SplitNode (up[top]->m_pLink[1]);
+        up[top]->m_pLink[1]->m_pLink[1] = SkewNode(up[top]->m_pLink[1]->m_pLink[1]);
+        up[top] = SplitNode(up[top]);
+        up[top]->m_pLink[1] = SplitNode(up[top]->m_pLink[1]);
         up[top]->m_pLink[1]->m_pParent = up[top];
       }
 
@@ -621,13 +628,13 @@ typename ezSetBase<KeyType, Comparer>::Node* ezSetBase<KeyType, Comparer>::Erase
 }
 
 template <typename KeyType, typename Comparer>
-typename ezSetBase<KeyType, Comparer>::Iterator ezSetBase<KeyType, Comparer>::Erase(const Iterator& pos)
+typename ezSetBase<KeyType, Comparer>::Iterator ezSetBase<KeyType, Comparer>::Remove(const Iterator& pos)
 {
-  EZ_ASSERT(pos.m_pElement != nullptr, "The Iterator (pos) is invalid.");
+  EZ_ASSERT(pos.m_pElement != nullptr, "The Iterator(pos) is invalid.");
 
   Iterator temp(pos);
   ++temp;
-  Erase(pos.Key());
+  Remove(pos.Key());
   return temp;
 }
 

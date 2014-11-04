@@ -144,7 +144,7 @@ void ezStatVisWidget::on_ButtonRemove_clicked()
     if (it.Value().m_pListItem == ListStats->currentItem())
     {
       delete it.Value().m_pListItem;
-      m_Stats.Erase(it);
+      m_Stats.Remove(it);
       break;
     }
   }

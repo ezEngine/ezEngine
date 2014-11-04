@@ -25,7 +25,6 @@ private:
 
 private slots:
   void SlotDocumentTabCloseRequested(int index);
-  void SlotMenuSettingsPlugins();
   void SlotRestoreLayout();
   void SlotSettings();
 

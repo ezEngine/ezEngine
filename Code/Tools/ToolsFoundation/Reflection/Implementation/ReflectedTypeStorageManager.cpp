@@ -169,7 +169,7 @@ const ezReflectedTypeStorageManager::ReflectedTypeStorageMapping* ezReflectedTyp
 void ezReflectedTypeStorageManager::RemoveStorageAccessor(ezReflectedTypeStorageAccessor* pInstance)
 {
   ReflectedTypeStorageMapping* pMapping = m_ReflectedTypeToStorageMapping[pInstance->GetReflectedTypeHandle()];
-  pMapping->m_Instances.Erase(pInstance);
+  pMapping->m_Instances.Remove(pInstance);
 }
 
 void ezReflectedTypeStorageManager::TypeAddedEvent(ezReflectedTypeChange& data)
@@ -212,6 +212,6 @@ void ezReflectedTypeStorageManager::TypeRemovedEvent(ezReflectedTypeChange& data
   ReflectedTypeStorageMapping* pMapping = m_ReflectedTypeToStorageMapping[data.m_hType];
   EZ_ASSERT(pMapping != nullptr, "A type was removed but no mapping ever exited for it!");
   EZ_ASSERT(pMapping->m_Instances.IsEmpty(), "A type was removed which still has instances using the type!");
-  m_ReflectedTypeToStorageMapping.Erase(data.m_hType);
+  m_ReflectedTypeToStorageMapping.Remove(data.m_hType);
   EZ_DEFAULT_DELETE(pMapping);
 }

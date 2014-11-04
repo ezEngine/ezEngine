@@ -162,10 +162,10 @@ public:
   void Insert(const Iterator& pos, ConstIterator first, const ConstIterator& last);
 
   /// \brief Erases the element pointed to by the iterator.
-  Iterator Erase(const Iterator& pos); // [tested]
+  Iterator Remove(const Iterator& pos); // [tested]
 
   /// \brief Erases range [first; last).
-  Iterator Erase(Iterator first, const Iterator& last);
+  Iterator Remove(Iterator first, const Iterator& last);
 
   /// \brief Returns an iterator to the first list-element.
   Iterator GetIterator(); // [tested]

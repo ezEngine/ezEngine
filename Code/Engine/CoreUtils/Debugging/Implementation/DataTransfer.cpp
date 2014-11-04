@@ -68,7 +68,7 @@ void ezDataTransfer::DisableDataTransfer()
   if (!m_bEnabled)
     return;
 
-  ezDataTransfer::s_AllTransfers.Erase(this);
+  ezDataTransfer::s_AllTransfers.Remove(this);
 
   m_bEnabled = false;
   SendStatus();

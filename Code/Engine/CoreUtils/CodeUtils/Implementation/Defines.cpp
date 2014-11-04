@@ -7,7 +7,7 @@ bool ezPreprocessor::RemoveDefine(const char* szName)
 
   if (it.IsValid())
   {
-    m_Macros.Erase(it);
+    m_Macros.Remove(it);
     return true;
   }
 

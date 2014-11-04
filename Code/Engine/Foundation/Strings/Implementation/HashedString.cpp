@@ -61,7 +61,7 @@ ezUInt32 ezHashedString::ClearUnusedStrings()
   {
     if (it.Value().m_iRefCount == 0)
     {
-      it = g_HashedStrings.Erase(it);
+      it = g_HashedStrings.Remove(it);
       ++uiDeleted;
     }
     else

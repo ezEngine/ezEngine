@@ -16,11 +16,6 @@ ezContainerWindow::ezContainerWindow()
   setWindowTitle(QString::fromUtf8(GetUniqueName()));
   setWindowIcon(QIcon(QLatin1String(":/Icons/Icons/ezEditor16.png")));
 
-  QMenu* pMenuSettings = menuBar()->addMenu("Settings");
-  QAction* pAction = pMenuSettings->addAction("Plugins");
-
-  EZ_VERIFY(connect(pAction, SIGNAL(triggered()), this, SLOT(SlotMenuSettingsPlugins())) != nullptr, "signal/slot connection failed");
-
   ezDocumentWindow::s_Events.AddEventHandler(ezDelegate<void (const ezDocumentWindow::Event&)>(&ezContainerWindow::DocumentWindowEventHandler, this));
 
   QTimer::singleShot(0, this, SLOT(SlotRestoreLayout()));
@@ -34,11 +29,6 @@ ezContainerWindow::~ezContainerWindow()
 void ezContainerWindow::SlotRestoreLayout()
 {
   RestoreWindowLayout();
-}
-
-void ezContainerWindow::SlotMenuSettingsPlugins()
-{
-  ezEditorFramework::ShowPluginConfigDialog();
 }
 
 void ezContainerWindow::closeEvent(QCloseEvent* e)
