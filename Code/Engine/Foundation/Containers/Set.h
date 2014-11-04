@@ -35,6 +35,12 @@ public:
   /// \brief Base class for all iterators.
   struct Iterator
   {
+    typedef std::forward_iterator_tag iterator_category;
+    typedef Iterator value_type;
+    typedef ptrdiff_t difference_type;
+    typedef Iterator* pointer;
+    typedef Iterator& reference;
+
     EZ_DECLARE_POD_TYPE();
 
     /// \brief Constructs an invalid iterator.
@@ -51,6 +57,9 @@ public:
 
     /// \brief Returns the 'key' of the element that this iterator points to.
     EZ_FORCE_INLINE const KeyType&   Key ()  const { EZ_ASSERT(IsValid(), "Cannot access the 'key' of an invalid iterator."); return m_pElement->m_Key;   } // [tested]
+
+    /// \brief Returns the 'key' of the element that this iterator points to.
+    EZ_FORCE_INLINE const KeyType& operator*() { return Key(); }
 
     /// \brief Advances the iterator to the next element in the set. The iterator will not be valid anymore, if the end is reached.
     void Next(); // [tested]
@@ -187,6 +196,26 @@ public:
   void operator=(const ezSet<KeyType, Comparer, AllocatorWrapper>& rhs);
   void operator=(const ezSetBase<KeyType, Comparer>& rhs);
 };
+
+
+template <typename KeyType, typename Comparer = ezCompareHelper<KeyType>, typename AllocatorWrapper = ezDefaultAllocatorWrapper>
+typename ezSet<KeyType, Comparer, AllocatorWrapper>::Iterator begin(ezSet<KeyType, Comparer, AllocatorWrapper>& container) { return container.GetIterator(); }
+
+template <typename KeyType, typename Comparer = ezCompareHelper<KeyType>, typename AllocatorWrapper = ezDefaultAllocatorWrapper>
+typename ezSet<KeyType, Comparer, AllocatorWrapper>::ConstIterator begin(const ezSet<KeyType, Comparer, AllocatorWrapper>& container) { return container.GetIterator(); }
+
+template <typename KeyType, typename Comparer = ezCompareHelper<KeyType>, typename AllocatorWrapper = ezDefaultAllocatorWrapper>
+typename ezSet<KeyType, Comparer, AllocatorWrapper>::ConstIterator cbegin(const ezSet<KeyType, Comparer, AllocatorWrapper>& container) { return container.GetIterator(); }
+
+template <typename KeyType, typename Comparer = ezCompareHelper<KeyType>, typename AllocatorWrapper = ezDefaultAllocatorWrapper>
+typename ezSet<KeyType, Comparer, AllocatorWrapper>::Iterator end(ezSet<KeyType, Comparer, AllocatorWrapper>& container) { return ezSet<KeyType, Comparer, AllocatorWrapper>::Iterator(); }
+
+template <typename KeyType, typename Comparer = ezCompareHelper<KeyType>, typename AllocatorWrapper = ezDefaultAllocatorWrapper>
+typename ezSet<KeyType, Comparer, AllocatorWrapper>::ConstIterator end(const ezSet<KeyType, Comparer, AllocatorWrapper>& container) { return ezSet<KeyType, Comparer, AllocatorWrapper>::Iterator(); }
+
+template <typename KeyType, typename Comparer = ezCompareHelper<KeyType>, typename AllocatorWrapper = ezDefaultAllocatorWrapper>
+typename ezSet<KeyType, Comparer, AllocatorWrapper>::ConstIterator cend(const ezSet<KeyType, Comparer, AllocatorWrapper>& container) { return ezSet<KeyType, Comparer, AllocatorWrapper>::Iterator(); }
+
 
 #include <Foundation/Containers/Implementation/Set_inl.h>
 

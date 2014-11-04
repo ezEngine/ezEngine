@@ -375,6 +375,26 @@ EZ_CREATE_SIMPLE_TEST(Containers, Set)
 
     EZ_TEST_BOOL(m.IsEmpty());
   }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Iterator")
+  {
+    ezSet<ezUInt32> m;
+    for (ezUInt32 i = 0; i < 1000; ++i)
+      m.Insert(i + 1);
+
+    EZ_TEST_INT(std::find(begin(m), end(m), 500).Key(), 500);
+
+    auto itfound = std::find_if(begin(m), end(m), [](ezUInt32 val){return val == 500;});
+
+    EZ_TEST_BOOL(std::find(begin(m), end(m), 500) == itfound);
+
+    ezUInt32 prev = *begin(m);
+    for (ezUInt32 val : m)
+    {
+      EZ_TEST_BOOL(val >= prev);
+      prev = val;
+    }
+  }
 }
 
 

@@ -41,6 +41,12 @@ public:
   /// \brief Base class for all iterators.
   struct ConstIterator
   {
+    typedef std::forward_iterator_tag iterator_category;
+    typedef ConstIterator value_type;
+    typedef ptrdiff_t difference_type;
+    typedef ConstIterator* pointer;
+    typedef ConstIterator& reference;
+
     EZ_DECLARE_POD_TYPE();
 
     /// \brief Constructs an invalid iterator.
@@ -84,6 +90,12 @@ public:
   /// \brief Forward Iterator to iterate over all elements in sorted order.
   struct Iterator : public ConstIterator
   {
+    typedef std::forward_iterator_tag iterator_category;
+    typedef Iterator value_type;
+    typedef ptrdiff_t difference_type;
+    typedef Iterator* pointer;
+    typedef Iterator& reference;
+
     // this is required to pull in the const version of this function
     using ConstIterator::Value;
 
@@ -94,6 +106,9 @@ public:
 
     /// \brief Returns the 'value' of the element that this iterator points to.
     EZ_FORCE_INLINE ValueType& Value() { EZ_ASSERT(this->IsValid(), "Cannot access the 'value' of an invalid iterator."); return this->m_pElement->m_Value; }
+
+    /// \brief Returns the 'value' of the element that this iterator points to.
+    EZ_FORCE_INLINE ValueType& operator*() { return Value(); }
 
   private:
     friend class ezMapBase<KeyType, ValueType, Comparer>;
@@ -237,6 +252,24 @@ public:
   void operator=(const ezMap<KeyType, ValueType, Comparer, AllocatorWrapper>& rhs);
   void operator=(const ezMapBase<KeyType, ValueType, Comparer>& rhs);
 };
+
+template <typename KeyType, typename ValueType, typename Comparer = ezCompareHelper<KeyType>, typename AllocatorWrapper = ezDefaultAllocatorWrapper>
+typename ezMap<KeyType, ValueType, Comparer, AllocatorWrapper>::Iterator begin(ezMap<KeyType, ValueType, Comparer, AllocatorWrapper>& container) { return container.GetIterator(); }
+
+template <typename KeyType, typename ValueType, typename Comparer = ezCompareHelper<KeyType>, typename AllocatorWrapper = ezDefaultAllocatorWrapper>
+typename ezMap<KeyType, ValueType, Comparer, AllocatorWrapper>::ConstIterator begin(const ezMap<KeyType, ValueType, Comparer, AllocatorWrapper>& container) { return container.GetIterator(); }
+
+template <typename KeyType, typename ValueType, typename Comparer = ezCompareHelper<KeyType>, typename AllocatorWrapper = ezDefaultAllocatorWrapper>
+typename ezMap<KeyType, ValueType, Comparer, AllocatorWrapper>::ConstIterator cbegin(const ezMap<KeyType, ValueType, Comparer, AllocatorWrapper>& container) { return container.GetIterator(); }
+
+template <typename KeyType, typename ValueType, typename Comparer = ezCompareHelper<KeyType>, typename AllocatorWrapper = ezDefaultAllocatorWrapper>
+typename ezMap<KeyType, ValueType, Comparer, AllocatorWrapper>::Iterator end(ezMap<KeyType, ValueType, Comparer, AllocatorWrapper>& container) { return ezMap<KeyType, ValueType, Comparer, AllocatorWrapper>::Iterator(); }
+
+template <typename KeyType, typename ValueType, typename Comparer = ezCompareHelper<KeyType>, typename AllocatorWrapper = ezDefaultAllocatorWrapper>
+typename ezMap<KeyType, ValueType, Comparer, AllocatorWrapper>::ConstIterator end(const ezMap<KeyType, ValueType, Comparer, AllocatorWrapper>& container) { return ezMap<KeyType, ValueType, Comparer, AllocatorWrapper>::ConstIterator(); }
+
+template <typename KeyType, typename ValueType, typename Comparer = ezCompareHelper<KeyType>, typename AllocatorWrapper = ezDefaultAllocatorWrapper>
+typename ezMap<KeyType, ValueType, Comparer, AllocatorWrapper>::ConstIterator cend(const ezMap<KeyType, ValueType, Comparer, AllocatorWrapper>& container) { return ezMap<KeyType, ValueType, Comparer, AllocatorWrapper>::ConstIterator(); }
 
 #include <Foundation/Containers/Implementation/Map_inl.h>
 
