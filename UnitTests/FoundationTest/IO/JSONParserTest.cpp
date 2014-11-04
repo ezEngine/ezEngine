@@ -77,6 +77,12 @@ public:
     EZ_TEST_INT(m_Results.GetCount(), 0);
   }
 
+  void ParseStream(ezStreamReaderBase& stream)
+  {
+    SetInputStream(stream);
+    ParseAll();
+  }
+
   void Add(ParseResult pr)
   {
     m_Results.PushBack(pr);
@@ -303,8 +309,7 @@ EZ_CREATE_SIMPLE_TEST(IO, JSONParser)
 
     reader.Add(ParseResult(EndObject));
 
-    reader.SetInputStream(&stream);
-    reader.ParseAll();
+    reader.ParseStream(stream);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Empty Document (string")
@@ -315,8 +320,7 @@ EZ_CREATE_SIMPLE_TEST(IO, JSONParser)
 
     TestReader reader;
 
-    reader.SetInputStream(&stream);
-    reader.ParseAll();
+    reader.ParseStream(stream);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Empty Document (Whitespace)")
@@ -327,8 +331,7 @@ EZ_CREATE_SIMPLE_TEST(IO, JSONParser)
 
     TestReader reader;
 
-    reader.SetInputStream(&stream);
-    reader.ParseAll();
+    reader.ParseStream(stream);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Empty Document")
@@ -342,8 +345,7 @@ EZ_CREATE_SIMPLE_TEST(IO, JSONParser)
     reader.Add(ParseResult(BeginObject));
     reader.Add(ParseResult(EndObject));
 
-    reader.SetInputStream(&stream);
-    reader.ParseAll();
+    reader.ParseStream(stream);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Two Empty Documents")
@@ -358,8 +360,7 @@ EZ_CREATE_SIMPLE_TEST(IO, JSONParser)
     reader.Add(ParseResult(BeginObject));
     reader.Add(ParseResult(EndObject));
 
-    reader.SetInputStream(&stream);
-    reader.ParseAll();
+    reader.ParseStream(stream);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "No Whitespace")
@@ -387,8 +388,7 @@ EZ_CREATE_SIMPLE_TEST(IO, JSONParser)
 
     reader.Add(ParseResult(EndObject));
 
-    reader.SetInputStream(&stream);
-    reader.ParseAll();
+    reader.ParseStream(stream);
 
     EZ_TEST_INT(reader.m_iExpectedParsingErrors, 0);
   }
@@ -424,8 +424,7 @@ EZ_CREATE_SIMPLE_TEST(IO, JSONParser)
 
     reader.Add(ParseResult(EndObject));
 
-    reader.SetInputStream(&stream);
-    reader.ParseAll();
+    reader.ParseStream(stream);
 
     EZ_TEST_INT(reader.m_iExpectedParsingErrors, 0);
   }
@@ -464,8 +463,7 @@ EZ_CREATE_SIMPLE_TEST(IO, JSONParser)
 
     reader.Add(ParseResult(EndObject));
 
-    reader.SetInputStream(&stream);
-    reader.ParseAll();
+    reader.ParseStream(stream);
 
     EZ_TEST_INT(reader.m_iExpectedParsingErrors, 0);
   }
@@ -488,8 +486,7 @@ EZ_CREATE_SIMPLE_TEST(IO, JSONParser)
 
     //reader.Add(ParseResult(EndObject));
 
-    reader.SetInputStream(&stream);
-    reader.ParseAll();
+    reader.ParseStream(stream);
 
     EZ_TEST_INT(reader.m_iExpectedParsingErrors, 0); // must fail to parse
   }
@@ -513,8 +510,7 @@ EZ_CREATE_SIMPLE_TEST(IO, JSONParser)
 
     reader.Add(ParseResult(EndObject));
 
-    reader.SetInputStream(&stream);
-    reader.ParseAll();
+    reader.ParseStream(stream);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Skip Object")
@@ -541,8 +537,7 @@ EZ_CREATE_SIMPLE_TEST(IO, JSONParser)
 
     reader.Add(ParseResult(EndObject));
 
-    reader.SetInputStream(&stream);
-    reader.ParseAll();
+    reader.ParseStream(stream);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Skip Array")
@@ -569,8 +564,7 @@ EZ_CREATE_SIMPLE_TEST(IO, JSONParser)
 
     reader.Add(ParseResult(EndObject));
 
-    reader.SetInputStream(&stream);
-    reader.ParseAll();
+    reader.ParseStream(stream);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Skip Variable")
@@ -606,8 +600,7 @@ EZ_CREATE_SIMPLE_TEST(IO, JSONParser)
 
     reader.Add(ParseResult(EndObject));
 
-    reader.SetInputStream(&stream);
-    reader.ParseAll();
+    reader.ParseStream(stream);
   }
 
 }

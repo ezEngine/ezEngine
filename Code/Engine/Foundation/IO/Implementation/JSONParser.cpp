@@ -10,20 +10,17 @@ ezJSONParser::ezJSONParser()
   m_bSkippingMode = false;
 }
 
-void ezJSONParser::SetInputStream(ezStreamReaderBase* pInput)
+void ezJSONParser::SetInputStream(ezStreamReaderBase& stream)
 {
   m_StateStack.Clear();
   m_uiCurByte = '\0';
   m_TempString.Clear();
   m_bSkippingMode = false;
 
-  m_pInput = pInput;
+  m_pInput = &stream;
 
   m_uiNextByte = ' ';
   ReadCharacter();
-
-  if (m_pInput == nullptr)
-    return;
 
   // go to the start of the document
   SkipWhitespace();

@@ -13,8 +13,12 @@ public:
   /// \brief Constructor.
   ezJSONParser();
 
+  virtual ~ezJSONParser() { }
+
+protected:
+
   /// \brief Resets the parser to the start state and configures it to read from the given stream.
-  void SetInputStream(ezStreamReaderBase* pInput);
+  void SetInputStream(ezStreamReaderBase& stream);
 
   /// \brief Does one parsing step.
   ///
@@ -26,8 +30,6 @@ public:
 
   /// \brief Calls ContinueParsing() in a loop until that returns false.
   void ParseAll();
-
-protected:
 
   /// \brief Skips the rest of the currently open object. No OnEndArray() and OnEndObject() calls will be done for this object,
   /// cleanup must be done manually.

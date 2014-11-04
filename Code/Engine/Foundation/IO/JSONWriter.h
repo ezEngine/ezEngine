@@ -32,6 +32,8 @@ public:
     m_WhitespaceMode = WhitespaceMode::All;
   }
 
+  virtual ~ezJSONWriter() { }
+
   /// \brief Configures how much whitespace is output.
   void SetWhitespaceMode(WhitespaceMode::Enum wsm) { m_WhitespaceMode = wsm; }
 

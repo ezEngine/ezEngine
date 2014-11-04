@@ -224,7 +224,7 @@ void ezExtendedJSONReader::OnEndObject()
     {
       Element& Parent = m_Stack[m_Stack.GetCount() - 2];
 
-      if (Parent.m_iMode == 0)
+      if (Parent.m_Mode == ElementMode::Array)
       {
         Parent.m_Array.PushBack(v);
       }
@@ -250,7 +250,7 @@ void ezExtendedJSONReader::OnEndObject()
     {
       Element& Parent = m_Stack[m_Stack.GetCount() - 2];
 
-      if (Parent.m_iMode == 0)
+      if (Parent.m_Mode == ElementMode::Array)
       {
         Parent.m_Array.PushBack(Child.m_Dictionary);
       }
