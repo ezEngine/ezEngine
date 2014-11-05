@@ -253,23 +253,23 @@ public:
   void operator=(const ezMapBase<KeyType, ValueType, Comparer>& rhs);
 };
 
-template <typename KeyType, typename ValueType>
-typename ezMap<KeyType, ValueType>::Iterator begin(ezMap<KeyType, ValueType>& container) { return container.GetIterator(); }
+template <typename KeyType, typename ValueType, typename Comparer, typename AllocatorWrapper>
+typename ezMap<KeyType, ValueType, Comparer, AllocatorWrapper>::Iterator begin(ezMap<KeyType, ValueType, Comparer, AllocatorWrapper>& container) { return container.GetIterator(); }
 
-template <typename KeyType, typename ValueType>
-typename ezMap<KeyType, ValueType>::ConstIterator begin(const ezMap<KeyType, ValueType>& container) { return container.GetIterator(); }
+template <typename KeyType, typename ValueType, typename Comparer, typename AllocatorWrapper>
+typename ezMap<KeyType, ValueType, Comparer, AllocatorWrapper>::ConstIterator begin(const ezMap<KeyType, ValueType, Comparer, AllocatorWrapper>& container) { return container.GetIterator(); }
 
-template <typename KeyType, typename ValueType>
-typename ezMap<KeyType, ValueType>::ConstIterator cbegin(const ezMap<KeyType, ValueType>& container) { return container.GetIterator(); }
+template <typename KeyType, typename ValueType, typename Comparer, typename AllocatorWrapper>
+typename ezMap<KeyType, ValueType, Comparer, AllocatorWrapper>::ConstIterator cbegin(const ezMap<KeyType, ValueType, Comparer, AllocatorWrapper>& container) { return container.GetIterator(); }
 
-template <typename KeyType, typename ValueType>
-typename ezMap<KeyType, ValueType>::Iterator end(ezMap<KeyType, ValueType>& container) { return typename ezMap<KeyType, ValueType>::Iterator(); }
+template <typename KeyType, typename ValueType, typename Comparer, typename AllocatorWrapper>
+typename ezMap<KeyType, ValueType, Comparer, AllocatorWrapper>::Iterator end(ezMap<KeyType, ValueType, Comparer, AllocatorWrapper>& container) { return typename ezMap<KeyType, ValueType, Comparer, AllocatorWrapper>::Iterator(); }
 
-template <typename KeyType, typename ValueType>
-typename ezMap<KeyType, ValueType>::ConstIterator end(const ezMap<KeyType, ValueType>& container) { return typename ezMap<KeyType, ValueType>::ConstIterator(); }
+template <typename KeyType, typename ValueType, typename Comparer, typename AllocatorWrapper>
+typename ezMap<KeyType, ValueType, Comparer, AllocatorWrapper>::ConstIterator end(const ezMap<KeyType, ValueType, Comparer, AllocatorWrapper>& container) { return typename ezMap<KeyType, ValueType, Comparer, AllocatorWrapper>::ConstIterator(); }
 
-template <typename KeyType, typename ValueType>
-typename ezMap<KeyType, ValueType>::ConstIterator cend(const ezMap<KeyType, ValueType>& container) { return typename ezMap<KeyType, ValueType>::ConstIterator(); }
+template <typename KeyType, typename ValueType, typename Comparer, typename AllocatorWrapper>
+typename ezMap<KeyType, ValueType, Comparer, AllocatorWrapper>::ConstIterator cend(const ezMap<KeyType, ValueType, Comparer, AllocatorWrapper>& container) { return typename ezMap<KeyType, ValueType, Comparer, AllocatorWrapper>::ConstIterator(); }
 
 #include <Foundation/Containers/Implementation/Map_inl.h>
 
