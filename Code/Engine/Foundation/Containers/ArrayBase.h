@@ -144,31 +144,31 @@ template <typename T, typename Derived>
 typename ezArrayBase<T, Derived>::const_iterator cbegin(const ezArrayBase<T, Derived>& container) { return typename ezArrayBase<T, Derived>::const_iterator(container, (size_t) 0); }
 
 template <typename T, typename Derived>
-typename ezArrayBase<T, Derived>::reverse_iterator rbegin(ezArrayBase<T, Derived>& container) { return ezArrayBase<T, Derived>::reverse_iterator(container, (size_t) 0); }
+typename ezArrayBase<T, Derived>::reverse_iterator rbegin(ezArrayBase<T, Derived>& container) { return typename ezArrayBase<T, Derived>::reverse_iterator(container, (size_t) 0); }
 
 template <typename T, typename Derived>
-typename ezArrayBase<T, Derived>::const_reverse_iterator rbegin(const ezArrayBase<T, Derived>& container) { return ezArrayBase<T, Derived>::const_reverse_iterator(container, (size_t) 0); }
+typename ezArrayBase<T, Derived>::const_reverse_iterator rbegin(const ezArrayBase<T, Derived>& container) { return typename ezArrayBase<T, Derived>::const_reverse_iterator(container, (size_t) 0); }
 
 template <typename T, typename Derived>
-typename ezArrayBase<T, Derived>::const_reverse_iterator crbegin(const ezArrayBase<T, Derived>& container) { return ezArrayBase<T, Derived>::const_reverse_iterator(container, (size_t) 0); }
+typename ezArrayBase<T, Derived>::const_reverse_iterator crbegin(const ezArrayBase<T, Derived>& container) { return typename ezArrayBase<T, Derived>::const_reverse_iterator(container, (size_t) 0); }
 
 template <typename T, typename Derived>
-typename ezArrayBase<T, Derived>::iterator end(ezArrayBase<T, Derived>& container) { return ezArrayBase<T, Derived>::iterator(container, (size_t) container.GetCount()); }
+typename ezArrayBase<T, Derived>::iterator end(ezArrayBase<T, Derived>& container) { return typename ezArrayBase<T, Derived>::iterator(container, (size_t) container.GetCount()); }
 
 template <typename T, typename Derived>
-typename ezArrayBase<T, Derived>::const_iterator end(const ezArrayBase<T, Derived>& container) { return ezArrayBase<T, Derived>::const_iterator(container, (size_t) container.GetCount()); }
+typename ezArrayBase<T, Derived>::const_iterator end(const ezArrayBase<T, Derived>& container) { return typename ezArrayBase<T, Derived>::const_iterator(container, (size_t) container.GetCount()); }
 
 template <typename T, typename Derived>
-typename ezArrayBase<T, Derived>::const_iterator cend(const ezArrayBase<T, Derived>& container) { return ezArrayBase<T, Derived>::const_iterator(container, (size_t) container.GetCount()); }
+typename ezArrayBase<T, Derived>::const_iterator cend(const ezArrayBase<T, Derived>& container) { return typename ezArrayBase<T, Derived>::const_iterator(container, (size_t) container.GetCount()); }
 
 template <typename T, typename Derived>
-typename ezArrayBase<T, Derived>::reverse_iterator rend(ezArrayBase<T, Derived>& container) { return ezArrayBase<T, Derived>::reverse_iterator(container, (size_t) container.GetCount()); }
+typename ezArrayBase<T, Derived>::reverse_iterator rend(ezArrayBase<T, Derived>& container) { return typename ezArrayBase<T, Derived>::reverse_iterator(container, (size_t) container.GetCount()); }
 
 template <typename T, typename Derived>
-typename ezArrayBase<T, Derived>::const_reverse_iterator  rend(const ezArrayBase<T, Derived>& container) { return ezArrayBase<T, Derived>::const_reverse_iterator(container, (size_t) container.GetCount()); }
+typename ezArrayBase<T, Derived>::const_reverse_iterator  rend(const ezArrayBase<T, Derived>& container) { return typename ezArrayBase<T, Derived>::const_reverse_iterator(container, (size_t) container.GetCount()); }
 
 template <typename T, typename Derived>
-typename ezArrayBase<T, Derived>::const_reverse_iterator crend(const ezArrayBase<T, Derived>& container) { return ezArrayBase<T, Derived>::const_reverse_iterator(container, (size_t) container.GetCount()); }
+typename ezArrayBase<T, Derived>::const_reverse_iterator crend(const ezArrayBase<T, Derived>& container) { return typename ezArrayBase<T, Derived>::const_reverse_iterator(container, (size_t) container.GetCount()); }
 
 
 #include <Foundation/Containers/Implementation/ArrayBase_inl.h>
