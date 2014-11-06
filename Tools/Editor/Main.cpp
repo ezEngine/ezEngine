@@ -10,7 +10,7 @@ public:
 
   virtual ApplicationExecution Run() override
   {
-    ezEditorFramework::StartupEditor(ezCommandLineUtils::GetInstance()->GetStringOption("-appname", 0, "ezEditor"), "DefaultUser", GetArgumentCount(), (char**) GetArgumentsArray());
+    ezEditorFramework::StartupEditor("ezEditor", "DefaultUser", GetArgumentCount(), (char**) GetArgumentsArray());
 
     {
       const ezInt32 iReturnCode = ezEditorFramework::RunEditor();

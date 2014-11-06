@@ -63,9 +63,12 @@ void SetStyleSheet()
   QApplication::setPalette(palette);
 }
 
-void ezEditorFramework::StartupEditor(ezStringView sAppName, ezStringView sUserName, int argc, char** argv)
+void ezEditorFramework::StartupEditor(const char* szAppName, const char* szUserName, int argc, char** argv)
 {
   ezCommandLineUtils::GetInstance()->SetCommandLine(argc, (const char**) argv);
+
+  s_sApplicationName = ezCommandLineUtils::GetInstance()->GetStringOption("-appname", 0, szAppName);
+  s_sUserName = szUserName;
 
   s_pQtApplication = new QApplication(argc, argv);
 
@@ -76,8 +79,6 @@ void ezEditorFramework::StartupEditor(ezStringView sAppName, ezStringView sUserN
 
   SetStyleSheet();
 
-  s_sApplicationName = sAppName;
-  s_sUserName = sUserName;
   //UpdateEditorWindowTitle();
 
   // load the settings
@@ -85,6 +86,8 @@ void ezEditorFramework::StartupEditor(ezStringView sAppName, ezStringView sUserN
 
   s_ContainerWindows.PushBack(new ezContainerWindow());
   s_ContainerWindows[0]->show();
+
+  s_ContainerWindows[0]->ShowSettingsTab();
 
 
   ezStartup::StartupCore();

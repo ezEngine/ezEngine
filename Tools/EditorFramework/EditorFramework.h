@@ -72,7 +72,7 @@ public:
   static const ezPluginSet& GetEditorPluginsToBeLoaded() { return s_EditorPluginsToBeLoaded; }
   static void SetEditorPluginsToBeLoaded(const ezPluginSet& plugins);
 
-  static void AddRestartRequiredReason(ezStringView sReason) { s_RestartRequiredReasons.Insert(sReason); }
+  static void AddRestartRequiredReason(const char* szReason) { s_RestartRequiredReasons.Insert(szReason); }
   static const ezSet<ezString>& GetRestartRequiredReasons() { return s_RestartRequiredReasons; }
 
   static void ShowPluginConfigDialog();
@@ -84,7 +84,7 @@ public:
 
   //static const ezString& GetProjectPath() { return s_sProjectPath; }
 
-  static void StartupEditor(ezStringView sAppName, ezStringView sUserName, int argc, char** argv);
+  static void StartupEditor(const char* szAppName, const char* szUserName, int argc, char** argv);
   static void ShutdownEditor();
   static ezInt32 RunEditor();
 

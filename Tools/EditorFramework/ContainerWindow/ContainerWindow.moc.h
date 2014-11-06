@@ -17,6 +17,7 @@ public:
 
   void MoveDocumentWindowToContainer(ezDocumentWindow* pDocWindow);
 
+  void ShowSettingsTab() { SlotSettings(); }
 
 private:
   friend class ezDocumentWindow;
