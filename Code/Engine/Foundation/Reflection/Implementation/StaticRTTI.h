@@ -233,8 +233,5 @@ EZ_FORCE_INLINE const ezRTTI* ezGetStaticRTTI()
 ///
 /// \note A message handler is a function that takes one parameter of type ezMessage (or a derived type) and returns void.
 #define EZ_MESSAGE_HANDLER(MessageType, FunctionName)                         \
-  new ezMessageHandler<OwnType, MessageType, &OwnType::FunctionName>()        \
-
-#define EZ_MESSAGE_HANDLER_CONST(MessageType, FunctionName)                   \
-  new ezMessageHandlerConst<OwnType, MessageType, &OwnType::FunctionName>()   \
+  new ezInternal::MessageHandler<EZ_IS_CONST_MESSAGE_HANDLER(OwnType, MessageType, &OwnType::FunctionName)>::Impl<OwnType, MessageType, &OwnType::FunctionName>()  \
 

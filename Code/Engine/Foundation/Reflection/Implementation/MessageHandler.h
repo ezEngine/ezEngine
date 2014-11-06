@@ -43,44 +43,61 @@ protected:
   bool m_bIsConst;
 };
 
-
-/// \brief [internal] Implements the functionality of ezAbstractMessageHandler.
-template <typename Class, typename MessageType, void(Class::*Method)(MessageType&)>
-class ezMessageHandler : public ezAbstractMessageHandler
+namespace ezInternal
 {
-public:
-  ezMessageHandler()
+  template <typename Class, typename MessageType>
+  struct MessageHandlerTraits
   {
-    m_DispatchFunc = &Dispatch;
-    m_Id = MessageType::GetMsgId();
-    m_bIsConst = false;
-  }
+    static ezCompileTimeTrueType IsConst(void(Class::*)(MessageType&) const);
+    static ezCompileTimeFalseType IsConst(...);
+  };
 
-  /// \brief Casts the given message to the type of this message handler, then passes that to the class instance.
-  static void Dispatch(void* pInstance, ezMessage& msg)
+  template <bool bIsConst>
+  struct MessageHandler
   {
-    Class* pTargetInstance = static_cast<Class*>(pInstance);
-    (pTargetInstance->*Method)(static_cast<MessageType&>(msg));
-  }
-};
+    template <typename Class, typename MessageType, void(Class::*Method)(MessageType&)>
+    class Impl : public ezAbstractMessageHandler
+    {
+    public:
+      Impl()
+      {
+        m_DispatchFunc = &Dispatch;
+        m_Id = MessageType::GetMsgId();
+        m_bIsConst = false;
+      }
 
-/// \brief [internal] Implements the functionality of ezAbstractMessageHandler.
-template <typename Class, typename MessageType, void(Class::*Method)(MessageType&) const>
-class ezMessageHandlerConst : public ezAbstractMessageHandler
-{
-public:
-  ezMessageHandlerConst()
-  {
-    m_ConstDispatchFunc = &Dispatch;
-    m_Id = MessageType::GetMsgId();
-    m_bIsConst = true;
-  }
+      static void Dispatch(void* pInstance, ezMessage& msg)
+      {
+        Class* pTargetInstance = static_cast<Class*>(pInstance);
+        (pTargetInstance->*Method)(static_cast<MessageType&>(msg));
+      }
+    };
+  };
 
-  /// \brief Casts the given message to the type of this message handler, then passes that to the class instance.
-  static void Dispatch(const void* pInstance, ezMessage& msg)
+  template <>
+  struct MessageHandler<true>
   {
-    const Class* pTargetInstance = static_cast<const Class*>(pInstance);
-    (pTargetInstance->*Method)(static_cast<MessageType&>(msg));
-  }
-};
+    template <typename Class, typename MessageType, void(Class::*Method)(MessageType&) const>
+    class Impl : public ezAbstractMessageHandler
+    {
+    public:
+      Impl()
+      {
+        m_ConstDispatchFunc = &Dispatch;
+        m_Id = MessageType::GetMsgId();
+        m_bIsConst = true;
+      }
+
+      /// \brief Casts the given message to the type of this message handler, then passes that to the class instance.
+      static void Dispatch(const void* pInstance, ezMessage& msg)
+      {
+        const Class* pTargetInstance = static_cast<const Class*>(pInstance);
+        (pTargetInstance->*Method)(static_cast<MessageType&>(msg));
+      }
+    };
+  };
+}
+
+#define EZ_IS_CONST_MESSAGE_HANDLER(Class, MessageType, Method) \
+  (sizeof(ezInternal::MessageHandlerTraits<Class, MessageType>::IsConst(Method)) == sizeof(ezCompileTimeTrueType))
 
