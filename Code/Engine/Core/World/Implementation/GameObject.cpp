@@ -10,7 +10,7 @@ EZ_BEGIN_STATIC_REFLECTED_TYPE(ezGameObject, ezNoBase, 1, ezRTTINoAllocator);
   EZ_END_PROPERTIES
 EZ_END_STATIC_REFLECTED_TYPE();
 
-void ezGameObject::ChildIterator::Next()
+void ezGameObject::ConstChildIterator::Next()
 {
   m_pObject = m_pObject->m_pWorld->GetObjectUnchecked(m_pObject->m_NextSiblingIndex);
 }
@@ -75,7 +75,12 @@ void ezGameObject::SetParent(const ezGameObjectHandle& parent)
   m_pWorld->SetParent(this, pParent);
 }
 
-ezGameObject* ezGameObject::GetParent() const
+ezGameObject* ezGameObject::GetParent()
+{
+  return m_pWorld->GetObjectUnchecked(m_ParentIndex);
+}
+
+const ezGameObject* ezGameObject::GetParent() const
 {
   return m_pWorld->GetObjectUnchecked(m_ParentIndex);
 }
@@ -101,9 +106,14 @@ void ezGameObject::DetachChild(const ezGameObjectHandle& child)
   }
 }
 
-ezGameObject::ChildIterator ezGameObject::GetChildren() const
+ezGameObject::ChildIterator ezGameObject::GetChildren()
 {
   return ChildIterator(m_pWorld->GetObjectUnchecked(m_FirstChildIndex));
+}
+
+ezGameObject::ConstChildIterator ezGameObject::GetChildren() const
+{
+  return ConstChildIterator(m_pWorld->GetObjectUnchecked(m_FirstChildIndex));
 }
 
 ezResult ezGameObject::AddComponent(const ezComponentHandle& component)
@@ -184,7 +194,7 @@ void ezGameObject::PostMessage(ezMessage& msg, ezObjectMsgQueueType::Enum queueT
   m_pWorld->PostMessage(GetHandle(), msg, queueType, delay, routing);
 }
 
-void ezGameObject::OnMessage(ezMessage& msg, ezObjectMsgRouting::Enum routing)
+void ezGameObject::SendMessage(ezMessage& msg, ezObjectMsgRouting::Enum routing)
 {
   if (routing == ezObjectMsgRouting::ToSubTree)
   {
@@ -197,7 +207,7 @@ void ezGameObject::OnMessage(ezMessage& msg, ezObjectMsgRouting::Enum routing)
       pParent = pCurrent->GetParent();
     }
 
-    pCurrent->OnMessage(msg, ezObjectMsgRouting::ToChildren);
+    pCurrent->SendMessage(msg, ezObjectMsgRouting::ToChildren);
     return;
   }
 
@@ -212,14 +222,55 @@ void ezGameObject::OnMessage(ezMessage& msg, ezObjectMsgRouting::Enum routing)
   {
     if (ezGameObject* pParent = GetParent())
     {
-      pParent->OnMessage(msg, routing);
+      pParent->SendMessage(msg, routing);
     }
   }
   else if (routing == ezObjectMsgRouting::ToChildren)
   {
-    for (ChildIterator it = GetChildren(); it.IsValid(); ++it)
+    for (auto it = GetChildren(); it.IsValid(); ++it)
     {
-      it->OnMessage(msg, routing);
+      it->SendMessage(msg, routing);
+    }
+  }
+}
+
+void ezGameObject::SendMessage(ezMessage& msg, ezObjectMsgRouting::Enum routing) const
+{
+  if (routing == ezObjectMsgRouting::ToSubTree)
+  {
+    // walk up the sub tree and send to children form there to prevent double handling
+    const ezGameObject* pCurrent = this;
+    const ezGameObject* pParent = GetParent();
+    while (pParent != nullptr)
+    {
+      pCurrent = pParent;
+      pParent = pCurrent->GetParent();
+    }
+
+    pCurrent->SendMessage(msg, ezObjectMsgRouting::ToChildren);
+    return;
+  }
+
+  // always send message to all components
+  for (ezUInt32 i = 0; i < m_Components.GetCount(); ++i)
+  {
+    const ezComponent* pComponent = m_Components[i];
+    pComponent->OnMessage(msg);
+  }
+
+  // route message to parent or children
+  if (routing == ezObjectMsgRouting::ToParent)
+  {
+    if (const ezGameObject* pParent = GetParent())
+    {
+      pParent->SendMessage(msg, routing);
+    }
+  }
+  else if (routing == ezObjectMsgRouting::ToChildren)
+  {
+    for (auto it = GetChildren(); it.IsValid(); ++it)
+    {
+      it->SendMessage(msg, routing);
     }
   }
 }

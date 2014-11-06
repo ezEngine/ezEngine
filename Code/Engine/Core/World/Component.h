@@ -81,6 +81,7 @@ private:
   virtual ezResult OnDetachedFromObject();
 
   void OnMessage(ezMessage& msg);
+  void OnMessage(ezMessage& msg) const;
 
   ezGenericComponentId m_InternalId;
 

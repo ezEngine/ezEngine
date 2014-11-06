@@ -20,8 +20,8 @@ public:
   void SetName(const char* szName);
   const char* GetName() const;
   
-  void SetWorld(ezWorld* pWorld);
-  ezWorld* GetWorld() const;
+  void SetWorld(const ezWorld* pWorld);
+  const ezWorld* GetWorld() const;
 
   void SetRenderPipeline(ezRenderPipeline* pRenderPipeline);
   ezRenderPipeline* GetRenderPipeline() const;
@@ -46,8 +46,7 @@ private:
   ezProfilingId m_ExtractDataProfilingID;
   ezProfilingId m_RenderProfilingID;
 
-  /// \todo the pointer to the world should be const
-  ezWorld* m_pWorld; 
+  const ezWorld* m_pWorld; 
   ezRenderPipeline* m_pRenderPipeline;
   const ezCamera* m_pLogicCamera;
   const ezCamera* m_pRenderCamera;

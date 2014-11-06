@@ -41,6 +41,11 @@ EZ_FORCE_INLINE ezBlockStorage<ezGameObject>::Iterator ezWorld::GetObjects()
   return m_Data.m_ObjectStorage.GetIterator(0);
 }
 
+EZ_FORCE_INLINE ezBlockStorage<ezGameObject>::ConstIterator ezWorld::GetObjects() const
+{
+  return m_Data.m_ObjectStorage.GetIterator(0);
+}
+
 EZ_FORCE_INLINE void ezWorld::Traverse(VisitorFunc visitorFunc, TraversalMethod method /*= DepthFirst*/)
 {
   if (method == DepthFirst)
@@ -160,7 +165,7 @@ EZ_FORCE_INLINE void ezWorld::SendMessage(const ezGameObjectHandle& receiverObje
   ezGameObject* pReceiverObject = NULL;
   if (TryGetObject(receiverObject, pReceiverObject))
   {
-    pReceiverObject->OnMessage(msg, routing);
+    pReceiverObject->SendMessage(msg, routing);
   }
 }
 

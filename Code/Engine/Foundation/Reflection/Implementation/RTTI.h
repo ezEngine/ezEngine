@@ -78,6 +78,9 @@ public:
   /// \brief Dispatches the given message to the proper message handler, if there is one available. Returns true if so, false if no message handler for this type exists.
   bool DispatchMessage(void* pInstance, ezMessage& msg) const;
 
+  /// \brief Dispatches the given message to the proper message handler, if there is one available. Returns true if so, false if no message handler for this type exists.
+  bool DispatchMessage(const void* pInstance, ezMessage& msg) const;
+
   /// \brief Returns whether this type can handle the given message type.
   template <typename MessageType>
   EZ_FORCE_INLINE bool CanHandleMessage() const

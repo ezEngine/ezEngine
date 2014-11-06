@@ -202,9 +202,9 @@ static char ReadSpecifier (const char* szFormat, unsigned int& uiReadPos, char& 
   case 'n':
   case '%':
 
-	// 'b' for 'binary' does not exist in the original specification
-	// However, for debugging, it is sometime quite useful, so I added it
-	case 'b': 
+  // 'b' for 'binary' does not exist in the original specification
+  // However, for debugging, it is sometime quite useful, so I added it
+  case 'b': 
     cNext = szFormat[++uiReadPos];
     break;
 

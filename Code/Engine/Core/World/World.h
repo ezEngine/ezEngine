@@ -51,6 +51,9 @@ public:
   /// \brief Returns an iterator over all objects in this world in no specific order.
   ezBlockStorage<ezGameObject>::Iterator GetObjects();
 
+  /// \brief Returns an iterator over all objects in this world in no specific order.
+  ezBlockStorage<ezGameObject>::ConstIterator GetObjects() const;
+
   /// \brief Defines a visitor function that is called for every game-object when using the traverse method. 
   /// The function takes a pointer to the game object as argument and returns a bool which indicates whether to continue (true) or abort (false) traversal.
   typedef ezInternal::WorldData::VisitorFunc VisitorFunc;

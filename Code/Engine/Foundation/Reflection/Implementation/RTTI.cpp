@@ -192,6 +192,23 @@ bool ezRTTI::DispatchMessage(void* pInstance, ezMessage& msg) const
   return false;
 }
 
+bool ezRTTI::DispatchMessage(const void* pInstance, ezMessage& msg) const
+{
+  const ezUInt32 uiIndex = msg.GetId() - m_uiMsgIdOffset;
+
+  if (uiIndex < m_DynamicMessageHandlers.GetCount())
+  {
+    ezAbstractMessageHandler* pHandler = m_DynamicMessageHandlers[uiIndex];
+    if (pHandler != nullptr && pHandler->IsConst())
+    {
+      (*pHandler)(pInstance, msg);
+      return true;
+    }
+  }
+
+  return false;
+}
+
 void ezRTTI::AssignPlugin(const char* szPluginName)
 {
   // assigns the given plugin name to every ezRTTI instance that has no plugin assigned yet

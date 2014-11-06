@@ -323,7 +323,7 @@ void ezWorld::ProcessQueuedMessages(ezObjectMsgQueueType::Enum queueType)
     ezGameObject* pReceiverObject = nullptr;
     if (TryGetObject(entry.m_MetaData.m_ReceiverObject, pReceiverObject))
     {
-      pReceiverObject->OnMessage(*entry.m_pMessage, entry.m_MetaData.m_Routing);
+      pReceiverObject->SendMessage(*entry.m_pMessage, entry.m_MetaData.m_Routing);
     }
 
     EZ_DELETE(&m_Data.m_Allocator, entry.m_pMessage);

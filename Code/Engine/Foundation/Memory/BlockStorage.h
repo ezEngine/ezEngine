@@ -6,13 +6,13 @@ template <typename T>
 class ezBlockStorage
 {
 public:
-  class Iterator
+  class ConstIterator
   {
   public:
-    T& operator*() const;
-    T* operator->() const;
+    const T& operator*() const;
+    const T* operator->() const;
 
-    operator T*() const;
+    operator const T*() const;
     
     void Next();
     bool IsValid() const;
@@ -22,11 +22,25 @@ public:
   private:
     friend class ezBlockStorage<T>;
 
-    Iterator(const ezBlockStorage<T>& storage, ezUInt32 uiStartIndex, ezUInt32 uiCount);
+    ConstIterator(const ezBlockStorage<T>& storage, ezUInt32 uiStartIndex, ezUInt32 uiCount);
     
     const ezBlockStorage<T>& m_Storage;
     ezUInt32 m_uiCurrentIndex;
     ezUInt32 m_uiEndIndex;
+  };
+
+  class Iterator : public ConstIterator
+  {
+  public:
+    T& operator*();
+    T* operator->();
+
+    operator T*();
+
+  private:
+    friend class ezBlockStorage<T>;
+
+    Iterator(const ezBlockStorage<T>& storage, ezUInt32 uiStartIndex, ezUInt32 uiCount);
   };
 
   struct Entry
@@ -49,7 +63,8 @@ public:
   void Delete(Entry entry, T*& out_pMovedObject);
   
   ezUInt32 GetCount() const;
-  Iterator GetIterator(ezUInt32 uiStartIndex = 0, ezUInt32 uiCount = ezInvalidIndex) const;
+  Iterator GetIterator(ezUInt32 uiStartIndex = 0, ezUInt32 uiCount = ezInvalidIndex);
+  ConstIterator GetIterator(ezUInt32 uiStartIndex = 0, ezUInt32 uiCount = ezInvalidIndex) const;
   
 private:
   ezLargeBlockAllocator* m_pBlockAllocator;

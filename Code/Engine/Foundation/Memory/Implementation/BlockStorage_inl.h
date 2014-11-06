@@ -1,6 +1,6 @@
 
 template <typename T>
-EZ_FORCE_INLINE ezBlockStorage<T>::Iterator::Iterator(const ezBlockStorage<T>& storage, ezUInt32 uiStartIndex, ezUInt32 uiCount) : 
+EZ_FORCE_INLINE ezBlockStorage<T>::ConstIterator::ConstIterator(const ezBlockStorage<T>& storage, ezUInt32 uiStartIndex, ezUInt32 uiCount) : 
   m_Storage(storage)
 {
   m_uiCurrentIndex = uiStartIndex;
@@ -8,7 +8,7 @@ EZ_FORCE_INLINE ezBlockStorage<T>::Iterator::Iterator(const ezBlockStorage<T>& s
 }
 
 template <typename T>
-EZ_FORCE_INLINE T& ezBlockStorage<T>::Iterator::operator*() const
+EZ_FORCE_INLINE const T& ezBlockStorage<T>::ConstIterator::operator*() const
 {
   const ezUInt32 uiBlockIndex = m_uiCurrentIndex / ezDataBlock<T>::CAPACITY;
   const ezUInt32 uiInnerIndex = m_uiCurrentIndex - uiBlockIndex * ezDataBlock<T>::CAPACITY;
@@ -16,7 +16,7 @@ EZ_FORCE_INLINE T& ezBlockStorage<T>::Iterator::operator*() const
 }
 
 template <typename T>
-EZ_FORCE_INLINE T* ezBlockStorage<T>::Iterator::operator->() const
+EZ_FORCE_INLINE const T* ezBlockStorage<T>::ConstIterator::operator->() const
 {
   const ezUInt32 uiBlockIndex = m_uiCurrentIndex / ezDataBlock<T>::CAPACITY;
   const ezUInt32 uiInnerIndex = m_uiCurrentIndex - uiBlockIndex * ezDataBlock<T>::CAPACITY;  
@@ -24,7 +24,7 @@ EZ_FORCE_INLINE T* ezBlockStorage<T>::Iterator::operator->() const
 }
 
 template <typename T>
-EZ_FORCE_INLINE ezBlockStorage<T>::Iterator::operator T*() const
+EZ_FORCE_INLINE ezBlockStorage<T>::ConstIterator::operator const T*() const
 {
   const ezUInt32 uiBlockIndex = m_uiCurrentIndex / ezDataBlock<T>::CAPACITY;
   const ezUInt32 uiInnerIndex = m_uiCurrentIndex - uiBlockIndex * ezDataBlock<T>::CAPACITY;
@@ -32,22 +32,54 @@ EZ_FORCE_INLINE ezBlockStorage<T>::Iterator::operator T*() const
 }
 
 template <typename T>
-EZ_FORCE_INLINE void ezBlockStorage<T>::Iterator::Next()
+EZ_FORCE_INLINE void ezBlockStorage<T>::ConstIterator::Next()
 {
   ++m_uiCurrentIndex;
 }
 
 template <typename T>
-EZ_FORCE_INLINE bool ezBlockStorage<T>::Iterator::IsValid() const
+EZ_FORCE_INLINE bool ezBlockStorage<T>::ConstIterator::IsValid() const
 {
   return m_uiCurrentIndex < ezMath::Min(m_uiEndIndex, m_Storage.m_uiCount);
 }
 
 template <typename T>
-EZ_FORCE_INLINE void ezBlockStorage<T>::Iterator::operator++()
+EZ_FORCE_INLINE void ezBlockStorage<T>::ConstIterator::operator++()
 {
   Next();
 }
+
+
+template <typename T>
+EZ_FORCE_INLINE ezBlockStorage<T>::Iterator::Iterator(const ezBlockStorage<T>& storage, ezUInt32 uiStartIndex, ezUInt32 uiCount) :
+  ConstIterator(storage, uiStartIndex, uiCount)
+{
+}
+
+template <typename T>
+EZ_FORCE_INLINE T& ezBlockStorage<T>::Iterator::operator*()
+{
+  const ezUInt32 uiBlockIndex = m_uiCurrentIndex / ezDataBlock<T>::CAPACITY;
+  const ezUInt32 uiInnerIndex = m_uiCurrentIndex - uiBlockIndex * ezDataBlock<T>::CAPACITY;
+  return m_Storage.m_Blocks[uiBlockIndex][uiInnerIndex];
+}
+
+template <typename T>
+EZ_FORCE_INLINE T* ezBlockStorage<T>::Iterator::operator->()
+{
+  const ezUInt32 uiBlockIndex = m_uiCurrentIndex / ezDataBlock<T>::CAPACITY;
+  const ezUInt32 uiInnerIndex = m_uiCurrentIndex - uiBlockIndex * ezDataBlock<T>::CAPACITY;
+  return m_Storage.m_Blocks[uiBlockIndex].m_pData + uiInnerIndex;
+}
+
+template <typename T>
+EZ_FORCE_INLINE ezBlockStorage<T>::Iterator::operator T*()
+{
+  const ezUInt32 uiBlockIndex = m_uiCurrentIndex / ezDataBlock<T>::CAPACITY;
+  const ezUInt32 uiInnerIndex = m_uiCurrentIndex - uiBlockIndex * ezDataBlock<T>::CAPACITY;
+  return m_Storage.m_Blocks[uiBlockIndex].m_pData + uiInnerIndex;
+}
+
 
 
 template <typename T>
@@ -162,8 +194,14 @@ EZ_FORCE_INLINE ezUInt32 ezBlockStorage<T>::GetCount() const
 }
 
 template <typename T>
-EZ_FORCE_INLINE typename ezBlockStorage<T>::Iterator ezBlockStorage<T>::GetIterator(ezUInt32 uiStartIndex /*= 0*/, ezUInt32 uiCount /*= ezInvalidIndex*/) const
+EZ_FORCE_INLINE typename ezBlockStorage<T>::Iterator ezBlockStorage<T>::GetIterator(ezUInt32 uiStartIndex /*= 0*/, ezUInt32 uiCount /*= ezInvalidIndex*/)
 {
   return Iterator(*this, uiStartIndex, uiCount);
+}
+
+template <typename T>
+EZ_FORCE_INLINE typename ezBlockStorage<T>::ConstIterator ezBlockStorage<T>::GetIterator(ezUInt32 uiStartIndex /*= 0*/, ezUInt32 uiCount /*= ezInvalidIndex*/) const
+{
+  return ConstIterator(*this, uiStartIndex, uiCount);
 }
 

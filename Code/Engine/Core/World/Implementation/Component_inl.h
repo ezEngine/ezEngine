@@ -66,3 +66,8 @@ EZ_FORCE_INLINE void ezComponent::OnMessage(ezMessage& msg)
   GetDynamicRTTI()->DispatchMessage(this, msg);
 }
 
+EZ_FORCE_INLINE void ezComponent::OnMessage(ezMessage& msg) const
+{
+  GetDynamicRTTI()->DispatchMessage(this, msg);
+}
+

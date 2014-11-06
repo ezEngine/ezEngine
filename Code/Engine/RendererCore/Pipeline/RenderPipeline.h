@@ -21,7 +21,7 @@ public:
   ezRenderPipeline(Mode mode);
   ~ezRenderPipeline();
 
-  void ExtractData(ezWorld& world, const ezCamera& camera);
+  void ExtractData(const ezWorld& world, const ezCamera& camera);
   void Render(const ezCamera& camera, ezGALContext* pContext);
 
   void AddPass(ezRenderPipelinePass* pPass);

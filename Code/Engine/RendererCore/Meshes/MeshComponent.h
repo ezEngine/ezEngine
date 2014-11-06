@@ -45,7 +45,7 @@ public:
   virtual ezResult OnAttachedToObject() override;
   virtual ezResult OnDetachedFromObject() override;
 
-  void OnExtractRenderData(ezExtractRenderDataMessage& msg);
+  void OnExtractRenderData(ezExtractRenderDataMessage& msg) const;
 
 private:
   ezMeshResourceHandle m_hMesh;

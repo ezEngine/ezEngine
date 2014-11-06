@@ -1,37 +1,55 @@
 
-EZ_FORCE_INLINE ezGameObject::ChildIterator::ChildIterator() : m_pObject(nullptr)
+EZ_FORCE_INLINE ezGameObject::ConstChildIterator::ConstChildIterator(ezGameObject* pObject) :
+  m_pObject(pObject)
 {
 }
 
-EZ_FORCE_INLINE ezGameObject::ChildIterator::ChildIterator(ezGameObject* pObject) : m_pObject(pObject)
-{
-}
-
-EZ_FORCE_INLINE ezGameObject& ezGameObject::ChildIterator::operator*() const
+EZ_FORCE_INLINE const ezGameObject& ezGameObject::ConstChildIterator::operator*() const
 {
   return *m_pObject;
 }
 
-EZ_FORCE_INLINE ezGameObject* ezGameObject::ChildIterator::operator->() const
+EZ_FORCE_INLINE const ezGameObject* ezGameObject::ConstChildIterator::operator->() const
 {
   return m_pObject;
 }
 
-EZ_FORCE_INLINE ezGameObject::ChildIterator::operator ezGameObject*() const
+EZ_FORCE_INLINE ezGameObject::ConstChildIterator::operator const ezGameObject*() const
 {
   return m_pObject;
 }
 
-EZ_FORCE_INLINE bool ezGameObject::ChildIterator::IsValid() const
+EZ_FORCE_INLINE bool ezGameObject::ConstChildIterator::IsValid() const
 {
   return m_pObject != nullptr;
 }
 
-EZ_FORCE_INLINE void ezGameObject::ChildIterator::operator++()
+EZ_FORCE_INLINE void ezGameObject::ConstChildIterator::operator++()
 {
   Next();
 }
-    
+
+////////////////////////////////////////////////////////////////////////////////////////////////////
+
+EZ_FORCE_INLINE ezGameObject::ChildIterator::ChildIterator(ezGameObject* pObject) : 
+  ConstChildIterator(pObject)
+{
+}
+
+EZ_FORCE_INLINE ezGameObject& ezGameObject::ChildIterator::operator*()
+{
+  return *m_pObject;
+}
+
+EZ_FORCE_INLINE ezGameObject* ezGameObject::ChildIterator::operator->()
+{
+  return m_pObject;
+}
+
+EZ_FORCE_INLINE ezGameObject::ChildIterator::operator ezGameObject*()
+{
+  return m_pObject;
+}    
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -112,7 +130,12 @@ EZ_FORCE_INLINE ezUInt32 ezGameObject::GetChildCount() const
   return m_ChildCount;
 }
 
-EZ_FORCE_INLINE ezWorld* ezGameObject::GetWorld() const
+EZ_FORCE_INLINE ezWorld* ezGameObject::GetWorld()
+{
+  return m_pWorld;
+}
+
+EZ_FORCE_INLINE const ezWorld* ezGameObject::GetWorld() const
 {
   return m_pWorld;
 }
@@ -215,10 +238,5 @@ void ezGameObject::TryGetComponentsOfBaseType(ezHybridArray<T*, 8>& out_componen
 EZ_FORCE_INLINE ezArrayPtr<ezComponent*> ezGameObject::GetComponents() const
 {
   return m_Components;
-}
-
-EZ_FORCE_INLINE void ezGameObject::SendMessage(ezMessage& msg, ezObjectMsgRouting::Enum routing /*= ezObjectMsgRouting::Default*/)
-{
-  OnMessage(msg, routing);
 }
 

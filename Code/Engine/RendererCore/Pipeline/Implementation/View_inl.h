@@ -14,12 +14,12 @@ EZ_FORCE_INLINE const char* ezView::GetName() const
   return m_sName.GetString().GetData();
 }
 
-EZ_FORCE_INLINE void ezView::SetWorld(ezWorld* pWorld)
+EZ_FORCE_INLINE void ezView::SetWorld(const ezWorld* pWorld)
 {
   m_pWorld = pWorld;
 }
 
-EZ_FORCE_INLINE ezWorld* ezView::GetWorld() const
+EZ_FORCE_INLINE const ezWorld* ezView::GetWorld() const
 {
   return m_pWorld;
 }

@@ -45,7 +45,7 @@ ezRenderPipeline::~ezRenderPipeline()
   ClearPipelineData(m_pRenderData);
 }
 
-void ezRenderPipeline::ExtractData(ezWorld& world, const ezCamera& camera)
+void ezRenderPipeline::ExtractData(const ezWorld& world, const ezCamera& camera)
 {
   // swap data
   if (m_Mode == Asynchronous)
@@ -62,7 +62,7 @@ void ezRenderPipeline::ExtractData(ezWorld& world, const ezCamera& camera)
   /// \todo use spatial data to do visibility culling etc.
   for (auto it = world.GetObjects(); it.IsValid(); ++it)
   {
-    ezGameObject* pObject = it;
+    const ezGameObject* pObject = it;
     pObject->SendMessage(msg);
   }
 

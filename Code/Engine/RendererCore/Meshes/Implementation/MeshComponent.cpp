@@ -8,7 +8,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 EZ_BEGIN_COMPONENT_TYPE(ezMeshComponent, ezComponent, 1, ezMeshComponentManager);
   EZ_BEGIN_MESSAGEHANDLERS
-    EZ_MESSAGE_HANDLER(ezExtractRenderDataMessage, OnExtractRenderData)
+    EZ_MESSAGE_HANDLER_CONST(ezExtractRenderDataMessage, OnExtractRenderData)
   EZ_END_MESSAGEHANDLERS
 EZ_END_COMPONENT_TYPE();
 
@@ -34,7 +34,7 @@ ezResult ezMeshComponent::OnDetachedFromObject()
   return EZ_SUCCESS;
 }
 
-void ezMeshComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg)
+void ezMeshComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) const
 {
   ezRenderPipeline* pRenderPipeline = msg.m_pRenderPipeline;
 

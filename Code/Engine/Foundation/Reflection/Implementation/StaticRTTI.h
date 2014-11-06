@@ -235,3 +235,6 @@ EZ_FORCE_INLINE const ezRTTI* ezGetStaticRTTI()
 #define EZ_MESSAGE_HANDLER(MessageType, FunctionName)                         \
   new ezMessageHandler<OwnType, MessageType, &OwnType::FunctionName>()        \
 
+#define EZ_MESSAGE_HANDLER_CONST(MessageType, FunctionName)                   \
+  new ezMessageHandlerConst<OwnType, MessageType, &OwnType::FunctionName>()   \
+
