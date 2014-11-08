@@ -59,6 +59,8 @@ bool ezSettingsTab::InternalCanClose()
 
 void ezSettingsTab::InternalCloseDocument()
 {
+  // make sure this instance isn't used anymore
+  g_pInstance = nullptr;
 }
 
 void ezSettingsTab::SlotSettingsChanged()

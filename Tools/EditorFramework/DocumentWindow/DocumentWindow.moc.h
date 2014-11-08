@@ -29,7 +29,7 @@ public:
 
 public:
   ezDocumentWindow(const char* szUniqueName);
-  ~ezDocumentWindow();
+  virtual ~ezDocumentWindow();
 
   void EnsureVisible();
 

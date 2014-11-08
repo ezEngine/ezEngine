@@ -13,7 +13,7 @@
 ezContainerWindow::ezContainerWindow()
 {
   setObjectName(QLatin1String(GetUniqueName())); // todo
-  setWindowTitle(QString::fromUtf8(GetUniqueName()));
+  setWindowTitle(ezEditorFramework::GetApplicationName().GetData()); // todo
   setWindowIcon(QIcon(QLatin1String(":/Icons/Icons/ezEditor16.png")));
 
   ezDocumentWindow::s_Events.AddEventHandler(ezDelegate<void (const ezDocumentWindow::Event&)>(&ezContainerWindow::DocumentWindowEventHandler, this));
@@ -190,6 +190,11 @@ void ezContainerWindow::SlotDocumentTabCloseRequested(int index)
 
   ezDocumentWindow* pDocWindow = (ezDocumentWindow*) pTabs->widget(index);
 
+  // Prevent closing the only tab
+  // this is not necessary, since a new settings tab would be created, but it is a bit cleaner
+  if (m_DocumentWindows.GetCount() == 1 && pDocWindow == ezSettingsTab::GetInstance())
+    return;
+
   if (!pDocWindow->CanClose())
     return;
 
@@ -203,6 +208,10 @@ void ezContainerWindow::DocumentWindowEventHandler(const ezDocumentWindow::Event
   {
   case ezDocumentWindow::Event::Type::AfterDocumentClosed:
     RemoveDocumentWindowFromContainer(e.m_pDocument);
+
+    if (m_DocumentWindows.IsEmpty())
+      ShowSettingsTab();
+
     break;
   }
 }
