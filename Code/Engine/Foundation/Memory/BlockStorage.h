@@ -19,10 +19,12 @@ public:
     
     void operator++();
     
-  private:
+  protected:
     friend class ezBlockStorage<T>;
 
     ConstIterator(const ezBlockStorage<T>& storage, ezUInt32 uiStartIndex, ezUInt32 uiCount);
+    
+    T& CurrentElement() const;
     
     const ezBlockStorage<T>& m_Storage;
     ezUInt32 m_uiCurrentIndex;
