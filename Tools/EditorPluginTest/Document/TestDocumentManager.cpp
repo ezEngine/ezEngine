@@ -7,9 +7,9 @@ EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 ezTestDocumentManager* ezTestDocumentManager::s_pSingleton = nullptr;
 
-bool ezTestDocumentManager::InternalCanOpenDocument(const char* szFilePath) const
+ezStatus ezTestDocumentManager::InternalCanOpenDocument(const char* szDocumentTypeName, const char* szFilePath) const
 {
-  return true;
+  return ezStatus(EZ_SUCCESS);
 }
 
 ezStatus ezTestDocumentManager::InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, ezDocumentBase*& out_pDocument)

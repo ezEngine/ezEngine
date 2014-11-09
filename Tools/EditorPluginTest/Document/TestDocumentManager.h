@@ -1,6 +1,7 @@
 #pragma once
 
 #include <ToolsFoundation/Document/DocumentManager.h>
+#include <ToolsFoundation/Basics/Status.h>
 
 class ezTestDocumentManager : public ezDocumentManagerBase
 {
@@ -15,7 +16,7 @@ public:
   static ezTestDocumentManager* s_pSingleton;
 
 private:
-  virtual bool InternalCanOpenDocument(const char* szFilePath) const;
+  virtual ezStatus InternalCanOpenDocument(const char* szDocumentTypeName, const char* szFilePath) const;
   virtual ezStatus InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, ezDocumentBase*& out_pDocument);
   virtual void InternalGetSupportedDocumentTypes(ezHybridArray<ezDocumentTypeDescriptor, 4>& out_DocumentTypes) const;
 

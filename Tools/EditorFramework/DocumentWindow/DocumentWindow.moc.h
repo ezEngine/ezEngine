@@ -3,9 +3,12 @@
 #include <EditorFramework/Plugin.h>
 #include <Foundation/Strings/String.h>
 #include <Foundation/Communication/Event.h>
+#include <ToolsFoundation/Basics/Status.h>
 #include <QMainWindow>
+#include <ToolsFoundation/Document/DocumentManager.h>
 
 class ezContainerWindow;
+class ezDocumentBase;
 
 class EZ_EDITORFRAMEWORK_DLL ezDocumentWindow : public QMainWindow
 {
@@ -17,8 +20,7 @@ public:
   {
     enum Type
     {
-      BeforeDocumentClosed,
-      AfterDocumentClosed,
+      DocumentWindowClosed,
     };
 
     Type m_Type;
@@ -28,19 +30,24 @@ public:
   static ezEvent<const Event&> s_Events;
 
 public:
+  ezDocumentWindow(ezDocumentBase* pDocument);
   ezDocumentWindow(const char* szUniqueName);
   virtual ~ezDocumentWindow();
 
   void EnsureVisible();
 
   virtual ezString GetDisplayName() const { return GetUniqueName(); }
-  virtual ezString GetDisplayNameShort() const { return GetDisplayName(); }
+  virtual ezString GetDisplayNameShort() const;
 
   const char* GetUniqueName() const { return m_sUniqueName; }
   virtual const char* GetGroupName() const { return "Scene"; }
 
-  bool CanClose();
-  void CloseDocument();
+  ezDocumentBase* GetDocument() const { return m_pDocument; }
+
+  ezStatus SaveDocument();
+
+  bool CanCloseWindow();
+  void CloseDocumentWindow();
 
   void ScheduleRestoreWindowLayout();
 
@@ -51,14 +58,21 @@ private:
   void SaveWindowLayout();
   void RestoreWindowLayout();
 
+  void ShutdownDocumentWindow();
+
 private:
   friend class ezContainerWindow;
 
+  ezDocumentBase* m_pDocument;
   ezContainerWindow* m_pContainerWindow;
 
 private:
-  virtual bool InternalCanClose();
-  virtual void InternalCloseDocument();
+  void Constructor();
+  void DocumentManagerEventHandler(const ezDocumentManagerBase::Event& e);
+
+  virtual void InternalDeleteThis() { delete this; }
+  virtual bool InternalCanCloseWindow();
+  virtual void InternalCloseDocumentWindow();
 
   ezString m_sUniqueName;
 };

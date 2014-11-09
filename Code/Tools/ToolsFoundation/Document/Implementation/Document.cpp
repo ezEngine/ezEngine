@@ -11,6 +11,9 @@ ezDocumentBase::ezDocumentBase(const char* szPath) :
   m_pCommandHistory = nullptr;
   m_pObjectManager = nullptr;
   m_SelectionManager.SetOwner(this);
+
+  m_bModified = false;
+  m_bReadOnly = false;
 }
 
 ezDocumentBase::~ezDocumentBase()

@@ -127,7 +127,7 @@ void ezDocumentManagerBase::GetSupportedDocumentTypes(ezHybridArray<ezDocumentTy
   }
 }
 
-bool ezDocumentManagerBase::CanOpenDocument(const char* szFilePath) const
+ezStatus ezDocumentManagerBase::CanOpenDocument(const char* szFilePath) const
 {
   ezHybridArray<ezDocumentTypeDescriptor, 4> DocumentTypes;
   GetSupportedDocumentTypes(DocumentTypes);
@@ -143,20 +143,22 @@ bool ezDocumentManagerBase::CanOpenDocument(const char* szFilePath) const
     {
       if (DocumentTypes[i].m_sFileExtensions[e].IsEqual(sExt))
       {
-        return InternalCanOpenDocument(szFilePath);
+        return InternalCanOpenDocument(DocumentTypes[i].m_sDocumentTypeName, szFilePath);
       }
     }
   }
 
-  return false;
+  return ezStatus("File extension is not handled by any registered type");
 }
 
-ezStatus ezDocumentManagerBase::CreateDocument(const char* szDocumentTypeName, const char* szPath, ezDocumentBase*& out_pDocument)
+ezStatus ezDocumentManagerBase::CreateOrOpenDocument(bool bCreate, const char* szDocumentTypeName, const char* szPath, ezDocumentBase*& out_pDocument)
 {
+  ezStringBuilder sPath = szPath;
+  sPath.MakeCleanPath();
+
   out_pDocument = nullptr;
 
   ezStatus status;
-  status.m_Result = EZ_FAILURE;
 
   ezHybridArray<ezDocumentTypeDescriptor, 4> DocumentTypes;
   GetSupportedDocumentTypes(DocumentTypes);
@@ -167,12 +169,18 @@ ezStatus ezDocumentManagerBase::CreateDocument(const char* szDocumentTypeName, c
     {
       EZ_ASSERT(DocumentTypes[i].m_bCanCreate, "This document manager cannot create the document type '%s'", szDocumentTypeName);
 
-      status = InternalCreateDocument(szDocumentTypeName, szPath, out_pDocument);
+      status = InternalCreateDocument(szDocumentTypeName, sPath, out_pDocument);
 
       EZ_ASSERT(status.m_Result == EZ_FAILURE || out_pDocument != nullptr, "Status was success, but the document manager returned a nullptr document.");
 
       if (status.m_Result.Succeeded())
       {
+        out_pDocument->m_pDocumentManager = this;
+        m_AllDocuments.PushBack(out_pDocument);
+
+        if (!bCreate)
+          status = out_pDocument->LoadDocument();
+
         Event e;
         e.m_pDocument = out_pDocument;
         e.m_Type = Event::Type::DocumentOpened;
@@ -187,4 +195,45 @@ ezStatus ezDocumentManagerBase::CreateDocument(const char* szDocumentTypeName, c
   EZ_REPORT_FAILURE("This document manager does not support the document type '%s'", szDocumentTypeName);
   return status;
 }
+
+ezStatus ezDocumentManagerBase::CreateDocument(const char* szDocumentTypeName, const char* szPath, ezDocumentBase*& out_pDocument)
+{
+  return CreateOrOpenDocument(true, szDocumentTypeName, szPath, out_pDocument);
+}
+
+ezStatus ezDocumentManagerBase::OpenDocument(const char* szDocumentTypeName, const char* szPath, ezDocumentBase*& out_pDocument)
+{
+  return CreateOrOpenDocument(false, szDocumentTypeName, szPath, out_pDocument);
+}
+
+void ezDocumentManagerBase::CloseDocument(ezDocumentBase* pDocument)
+{
+  EZ_ASSERT(pDocument != nullptr, "Invalid document pointer");
+
+  Event e;
+  e.m_pDocument = pDocument;
+  e.m_Type = Event::Type::DocumentClosing;
+
+  s_Events.Broadcast(e);
+  
+  EZ_VERIFY(m_AllDocuments.Remove(pDocument), "Document was not found in this document manager");
+
+  delete pDocument;
+}
+
+ezDocumentBase* ezDocumentManagerBase::GetDocumentByPath(const char* szPath) const
+{
+  ezStringBuilder sPath = szPath;
+  sPath.MakeCleanPath();
+
+  for (ezDocumentBase* pDoc : m_AllDocuments)
+  {
+    if (sPath.IsEqual_NoCase(pDoc->GetDocumentPath()))
+      return pDoc;
+  }
+
+  return nullptr;
+}
+
+// todo on close doc: remove from m_AllDocuments
 

@@ -22,9 +22,15 @@ public:
 
   void GetSupportedDocumentTypes(ezHybridArray<ezDocumentTypeDescriptor, 4>& out_DocumentTypes) const;
 
-  bool CanOpenDocument(const char* szFilePath) const;
+  ezStatus CanOpenDocument(const char* szFilePath) const;
 
   ezStatus CreateDocument(const char* szDocumentTypeName, const char* szPath, ezDocumentBase*& out_pDocument);
+  ezStatus OpenDocument(const char* szDocumentTypeName, const char* szPath, ezDocumentBase*& out_pDocument);
+  void CloseDocument(ezDocumentBase* pDocument);
+
+  const ezDynamicArray<ezDocumentBase*>& GetAllDocuments() const { return m_AllDocuments; }
+
+  ezDocumentBase* GetDocumentByPath(const char* szPath) const;
 
   //virtual bool CanOpen(ezDocumentInfo& docInfo) const;
   //virtual const ezDocumentBase* Open(ezDocumentInfo& docInfo);
@@ -39,6 +45,7 @@ public:
       DocumentTypesRemoved,
       DocumentTypesAdded,
       DocumentOpened,
+      DocumentClosing,
     };
 
     Type m_Type;
@@ -48,9 +55,12 @@ public:
   static ezEvent<const Event&> s_Events;
 
 private:
-  virtual bool InternalCanOpenDocument(const char* szFilePath) const = 0;
+  virtual ezStatus InternalCanOpenDocument(const char* szDocumentTypeName, const char* szFilePath) const = 0;
   virtual ezStatus InternalCreateDocument(const char* szDocumentTypeName, const char* szPath, ezDocumentBase*& out_pDocument) = 0;
   virtual void InternalGetSupportedDocumentTypes(ezHybridArray<ezDocumentTypeDescriptor, 4>& out_DocumentTypes) const = 0;
+
+private:
+  ezStatus CreateOrOpenDocument(bool bCreate, const char* szDocumentTypeName, const char* szPath, ezDocumentBase*& out_pDocument);
 
 private:
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(ToolsFoundation, DocumentManager);
@@ -60,9 +70,8 @@ private:
   static void UpdateBeforeUnloadingPlugins(const ezPlugin::PluginEvent& e);
   static void UpdatedAfterLoadingPlugins();
 
+  ezDynamicArray<ezDocumentBase*> m_AllDocuments;
+
   static ezSet<const ezRTTI*> s_KnownManagers;
   static ezHybridArray<ezDocumentManagerBase*, 16> s_AllDocumentManagers;
-
-  //ezEvent<ezDocumentChange&> m_DocumentAddedEvent;
-  //ezEvent<ezDocumentChange&> m_DocumentRemovedEvent;
 };

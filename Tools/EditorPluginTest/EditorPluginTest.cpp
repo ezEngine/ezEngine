@@ -53,7 +53,7 @@ void OnDocumentManagerEvent(const ezDocumentManagerBase::Event& e)
     {
       if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezTestDocument>())
       {
-        ezDocumentWindow* pDocWnd = new ezDocumentWindow(e.m_pDocument->GetDocumentPath());
+        ezDocumentWindow* pDocWnd = new ezDocumentWindow(e.m_pDocument);
 
         {
           ezTestPanel* pPropertyPanel = new ezTestPanel(pDocWnd);

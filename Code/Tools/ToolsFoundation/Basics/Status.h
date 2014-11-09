@@ -9,6 +9,15 @@ struct ezStatus
   {
   }
 
+  ezStatus(ezResult r) : m_Result(r)
+  {
+  }
+
+  ezStatus(const char* szError) : m_Result(EZ_FAILURE)
+  {
+    m_sError = szError;
+  }
+
   ezResult m_Result;
   ezString m_sError;
 };
