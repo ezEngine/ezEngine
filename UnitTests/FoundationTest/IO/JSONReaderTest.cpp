@@ -285,24 +285,24 @@ EZ_CREATE_SIMPLE_TEST(IO, JSONReader)
 {
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Test")
   {
-    const char* szTestData =
-"{\n\
+    ezStringUtf8 sTD(
+L"{\n\
 \"myarray2\":[\"\",2.2],\n\
 \"myarray\" : [1, 2.2, 3.3, false, \"ende\" ],\n\
-\"String\"/**/ : \"testvalue\",\n\
-\"double\"/***/ : 43.56,\n\
-\"float\" :/**//*a*/ 64.720001,\n\
-\"bool\" : true,\n\
+\"String\"/**/ : \"testvälue\",\n\
+\"double\"/***/ : 43.56,//comment\n\
+\"float\" :/**//*a*/ 64/*comment*/.720001,\n\
+\"bool\" : tr/*asdf*/ue,\n\
 \"int\" : 23,\n\
-\"MyNull\" : null,\n\
+\"MyNüll\" : nu/*asdf*/ll,\n\
 \"object\" :\n\
 /* totally \n weird \t stuff \n\n\n going on here // thats a line comment \n */ \
 // more line comments \n\n\n\n\
 {\n\
-  \"variable in object\" : \"bla\",\n\
+  \"variable in object\" : \"bla\\\\\\\"\\/\",\n\
     \"Subobject\" :\n\
   {\n\
-    \"variable in subobject\" : \"blub\",\n\
+    \"variable in subobject\" : \"blub\\r\\f\\n\\b\\t\",\n\
       \"array in sub\" : [\n\
     {\n\
       \"obj var\" : 234\n\
@@ -314,7 +314,8 @@ EZ_CREATE_SIMPLE_TEST(IO, JSONReader)
   }\n\
 },\n\
 \"test\" : \"text\"\n\
-}";
+}");
+    const char* szTestData = sTD.GetData();
 
     // NOTE: The way this test is implemented, it might break, if the HashMap uses another insertion algorithm.
     // ezVariantDictionary is an ezHashmap and this test currently relies on one exact order in of the result.
@@ -346,7 +347,7 @@ EZ_CREATE_SIMPLE_TEST(IO, JSONReader)
       sCompare.PushBack("<object>");
 
         sCompare.PushBack("variable in object");
-        sCompare.PushBack("bla");
+        sCompare.PushBack("bla\\\"/"); // escaped backslash, quotation mark, slash
       
         sCompare.PushBack("Subobject");
         sCompare.PushBack("<object>");
@@ -371,7 +372,7 @@ EZ_CREATE_SIMPLE_TEST(IO, JSONReader)
           sCompare.PushBack("</array>");
 
           sCompare.PushBack("variable in subobject");
-          sCompare.PushBack("blub");
+          sCompare.PushBack("blub\r\f\n\b\t"); // escaped special characters
 
         sCompare.PushBack("</object>");
 
@@ -381,16 +382,16 @@ EZ_CREATE_SIMPLE_TEST(IO, JSONReader)
       sCompare.PushBack("text");
 
       sCompare.PushBack("String");
-      sCompare.PushBack("testvalue");
+      sCompare.PushBack(ezStringUtf8(L"testvälue").GetData()); // unicode literal
 
       sCompare.PushBack("float");
       sCompare.PushBack("double 64.7200");
 
+      sCompare.PushBack(ezStringUtf8(L"MyNüll").GetData()); // unicode literal
+      sCompare.PushBack("null");
+
       sCompare.PushBack("double");
       sCompare.PushBack("double 43.5600");
-
-      sCompare.PushBack("MyNull");
-      sCompare.PushBack("null");
 
       sCompare.PushBack("myarray2");
       sCompare.PushBack("<array>");

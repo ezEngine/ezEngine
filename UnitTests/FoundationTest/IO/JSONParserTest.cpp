@@ -602,7 +602,4 @@ EZ_CREATE_SIMPLE_TEST(IO, JSONParser)
 
     reader.ParseStream(stream);
   }
-
-  /// \todo Add tests for reading escaped characters in strings
-  /// \todo Add test with unicode characters in strings and in variable names
 }

@@ -564,6 +564,7 @@ void ezJSONParser::ReadString()
         break;
       case '\\':
         m_TempString.PushBack('\\');
+        m_uiCurByte = '\0'; // make sure the next character isn't interpreted as an escape sequence
         break;
       case '/':
         m_TempString.PushBack('/');
