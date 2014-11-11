@@ -79,7 +79,7 @@ void ezStandardJSONWriter::OutputEscapedString(const char* sz)
 {
   ezStringBuilder sEscaped = sz;
   sEscaped.ReplaceAll("\\", "\\\\");
-  sEscaped.ReplaceAll("/", "\\/");
+  //sEscaped.ReplaceAll("/", "\\/"); // this is not necessary to escape
   sEscaped.ReplaceAll("\"", "\\\"");
   sEscaped.ReplaceAll("\b", "\\b");
   sEscaped.ReplaceAll("\r", "\\r");

@@ -126,7 +126,7 @@ private:
   void ContinueValue();
   void ContinueSeparator();
 
-  bool ReadCharacter();
+  bool ReadCharacter(bool bSkipComments);
 
   void SkipStack(State s);
 
