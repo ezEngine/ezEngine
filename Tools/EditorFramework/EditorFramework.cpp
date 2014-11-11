@@ -20,10 +20,6 @@ ezString ezEditorFramework::s_sUserName("DefaultUser");
 ezHybridArray<ezContainerWindow*, 4> ezEditorFramework::s_ContainerWindows;
 QApplication* ezEditorFramework::s_pQtApplication = nullptr;
 
-//ezEvent<const ezEditorFramework::EditorEvent&> ezEditorFramework::s_EditorEvents;
-//
-ezEvent<ezEditorFramework::EditorRequest&> ezEditorFramework::s_EditorRequests;
-
 ezSet<ezString> ezEditorFramework::s_RestartRequiredReasons;
 
 void SetStyleSheet()
@@ -89,6 +85,8 @@ void ezEditorFramework::StartupEditor(const char* szAppName, const char* szUserN
 
   s_ContainerWindows[0]->ShowSettingsTab();
 
+  ezDocumentManagerBase::s_Requests.AddEventHandler(ezDelegate<void (ezDocumentManagerBase::Request&)>(&ezEditorFramework::DocumentManagerRequestHandler));
+
 
   ezStartup::StartupCore();
 
@@ -109,9 +107,11 @@ void ezEditorFramework::StartupEditor(const char* szAppName, const char* szUserN
 
 void ezEditorFramework::ShutdownEditor()
 {
+  ezEditorProject::CloseProject();
+
   SaveSettings();
 
-  //CloseProject();
+  ezDocumentManagerBase::s_Requests.RemoveEventHandler(ezDelegate<void (ezDocumentManagerBase::Request&)>(&ezEditorFramework::DocumentManagerRequestHandler));
 
   ezEditorGUI::GetInstance()->SaveState();
 
@@ -123,27 +123,50 @@ ezInt32 ezEditorFramework::RunEditor()
   return s_pQtApplication->exec();
 }
 
-/*
-void ezEditorFramework::UpdateEditorWindowTitle()
+void ezEditorFramework::DocumentManagerRequestHandler(ezDocumentManagerBase::Request& r)
 {
-ezStringBuilder sTitle = s_sApplicationName;
+  switch (r.m_Type)
+  {
+  case ezDocumentManagerBase::Request::Type::DocumentAllowedToOpen:
+    {
+      // if someone else already said no, don't bother to check further
+      if (r.m_RequestStatus.m_Result.Failed())
+        return;
 
-//if (!s_sScenePath.IsEmpty())
-//{
-//  sTitle.Append(" - ", s_sScenePath.GetData());
-//}
-//else
-if (!s_sProjectPath.IsEmpty())
-{
-sTitle.Append(" - ", s_sProjectPath.GetData());
-}
+      if (!ezEditorProject::IsProjectOpen())
+      {
+        // if no project is open yet, try to open the corresponding one
 
-if (s_bContentModified)
-{
-sTitle.Append("*");
-}
+        ezString sProjectPath = ezEditorProject::FindProjectForDocument(r.m_sDocumentPath);
 
-//if (s_pMainWindow)
-//  s_pMainWindow->setWindowTitle(QString::fromUtf8(sTitle.GetData()));
+        // if no project could be located, just reject the request
+        if (sProjectPath.IsEmpty())
+        {
+          r.m_RequestStatus = ezStatus("No project could be opened");
+          return;
+        }
+        else
+        {
+          // if a project could be found, try to open it
+          ezStatus res = ezEditorProject::OpenProject(sProjectPath);
+
+          // if project opening failed, relay that error message
+          if (res.m_Result.Failed())
+          {
+            r.m_RequestStatus = res;
+            return;
+          }
+        }
+      }
+      else
+      {
+        if (!ezEditorProject::GetInstance()->IsDocumentInProject(r.m_sDocumentPath))
+        {
+          r.m_RequestStatus = ezStatus("The document is not part of the currently open project");
+          return;
+        }
+      }
+    }
+    return;
+  }
 }
-*/

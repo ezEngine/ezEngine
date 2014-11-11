@@ -34,14 +34,14 @@ void OnPluginEvent(const ezPlugin::PluginEvent& e)
   {
     bDone = true;
 
-    ezDocumentBase* pDoc;
-    ezTestDocumentManager::s_pSingleton->CreateDocument("ezScene", "bla/blub1.scene", pDoc);
+    //ezDocumentBase* pDoc;
+    //ezTestDocumentManager::s_pSingleton->CreateDocument("ezScene", "bla/blub1.scene", pDoc);
 
-    ezDocumentBase* pDoc2;
-    ezTestDocumentManager::s_pSingleton->CreateDocument("ezScene", "bla/blub2.scene", pDoc2);
+    //ezDocumentBase* pDoc2;
+    //ezTestDocumentManager::s_pSingleton->CreateDocument("ezScene", "bla/blub2.scene", pDoc2);
 
-    ezDocumentBase* pDoc3;
-    ezTestDocumentManager::s_pSingleton->CreateDocument("ezScene", "bla/blub3.scene", pDoc3);
+    //ezDocumentBase* pDoc3;
+    //ezTestDocumentManager::s_pSingleton->CreateDocument("ezScene", "bla/blub3.scene", pDoc3);
   }
 }
 

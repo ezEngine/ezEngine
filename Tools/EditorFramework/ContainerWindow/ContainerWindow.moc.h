@@ -5,6 +5,7 @@
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Containers/DynamicArray.h>
 #include <EditorFramework/DocumentWindow/DocumentWindow.moc.h>
+#include <EditorFramework/Project/EditorProject.h>
 #include <QMainWindow>
 
 class ezDocumentManagerBase;
@@ -38,6 +39,9 @@ private slots:
   void SlotSettings();
   void SlotCreateDocument();
   void SlotOpenDocument();
+  void SlotCreateProject();
+  void SlotOpenProject();
+  void SlotCloseProject();
   void SlotTabsContextMenuRequested(const QPoint& pos);
   void SlotCurrentTabSave();
   void SlotCurrentTabSaveAll();
@@ -49,9 +53,12 @@ private:
   ezString BuildDocumentTypeFileFilter(bool bForCreation) const;
   ezResult FindDocumentTypeFromPath(const char* szPath, bool bForCreation, ezDocumentManagerBase*& out_pTypeManager, ezDocumentTypeDescriptor& out_TypeDesc) const;
   void CreateOrOpenDocument(bool bCreate);
+  void CreateOrOpenProject(bool bCreate);
 
   void SaveWindowLayout();
   void RestoreWindowLayout();
+
+  void UpdateWindowTitle();
 
   void RemoveDocumentWindowFromContainer(ezDocumentWindow* pDocWindow);
 
@@ -60,6 +67,8 @@ private:
   const char* GetUniqueName() const { return "ezEditor"; /* todo */ }
 
   void DocumentWindowEventHandler(const ezDocumentWindow::Event& e);
+  void ProjectEventHandler(const ezEditorProject::Event& e);
+
   void closeEvent(QCloseEvent* e);
 
 private:
@@ -68,6 +77,9 @@ private:
   QAction* m_pActionSettings;
   QAction* m_pActionCreateDocument;
   QAction* m_pActionOpenDocument;
+  QAction* m_pActionCreateProject;
+  QAction* m_pActionOpenProject;
+  QAction* m_pActionCloseProject;
   QAction* m_pActionCurrentTabSave;
   QAction* m_pActionCurrentTabSaveAll;
   QAction* m_pActionCurrentTabClose;

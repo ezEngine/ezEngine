@@ -32,6 +32,9 @@ public:
 
   ezDocumentBase* GetDocumentByPath(const char* szPath) const;
 
+  void CloseAllDocumentsOfManager();
+  static void CloseAllDocuments();
+
   //virtual bool CanOpen(ezDocumentInfo& docInfo) const;
   //virtual const ezDocumentBase* Open(ezDocumentInfo& docInfo);
   //virtual void Show(const ezDocumentBase* pDocument);
@@ -52,7 +55,20 @@ public:
     ezDocumentBase* m_pDocument;
   };
 
+  struct Request
+  {
+    enum class Type
+    {
+      DocumentAllowedToOpen,
+    };
+
+    Type m_Type;
+    ezString m_sDocumentPath;
+    ezStatus m_RequestStatus;
+  };
+
   static ezEvent<const Event&> s_Events;
+  static ezEvent<Request&> s_Requests;
 
 private:
   virtual ezStatus InternalCanOpenDocument(const char* szDocumentTypeName, const char* szFilePath) const = 0;

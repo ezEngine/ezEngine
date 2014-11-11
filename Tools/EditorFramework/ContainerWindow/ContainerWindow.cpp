@@ -3,6 +3,7 @@
 #include <EditorFramework/DocumentWindow/DocumentWindow.moc.h>
 #include <EditorFramework/EditorFramework.h>
 #include <EditorFramework/Settings/SettingsTab.moc.h>
+#include <EditorFramework/Project/EditorProject.h>
 #include <ToolsFoundation/Document/DocumentManager.h>
 #include <Foundation/IO/OSFile.h>
 #include <QSettings>
@@ -20,10 +21,7 @@ ezDynamicArray<ezContainerWindow*> ezContainerWindow::s_AllContainerWindows;
 ezContainerWindow::ezContainerWindow()
 {
   setObjectName(QLatin1String(GetUniqueName())); // todo
-  setWindowTitle(ezEditorFramework::GetApplicationName().GetData()); // todo
   setWindowIcon(QIcon(QLatin1String(":/Icons/Icons/ezEditor16.png")));
-
-  ezDocumentWindow::s_Events.AddEventHandler(ezDelegate<void (const ezDocumentWindow::Event&)>(&ezContainerWindow::DocumentWindowEventHandler, this));
 
   QTimer::singleShot(0, this, SLOT(SlotRestoreLayout()));
 
@@ -39,6 +37,28 @@ ezContainerWindow::ezContainerWindow()
   EZ_VERIFY(connect(m_pActionCurrentTabClose,      SIGNAL(triggered()), this, SLOT(SlotCurrentTabClose()))       != nullptr, "signal/slot connection failed");
   EZ_VERIFY(connect(m_pActionCurrentTabOpenFolder, SIGNAL(triggered()), this, SLOT(SlotCurrentTabOpenFolder()))  != nullptr, "signal/slot connection failed");
 
+  m_pActionSettings       = new QAction("Settings", this);
+  m_pActionCreateDocument = new QAction("Create Document", this);
+  m_pActionOpenDocument   = new QAction("Open Document", this);
+  m_pActionCreateProject  = new QAction("Create Project", this);
+  m_pActionOpenProject    = new QAction("Open Project", this);
+  m_pActionCloseProject   = new QAction("Close Project", this);
+
+  EZ_VERIFY(connect(m_pActionSettings,        SIGNAL(triggered()), this, SLOT(SlotSettings()))        != nullptr, "signal/slot connection failed");
+  EZ_VERIFY(connect(m_pActionCreateDocument,  SIGNAL(triggered()), this, SLOT(SlotCreateDocument()))  != nullptr, "signal/slot connection failed");
+  EZ_VERIFY(connect(m_pActionOpenDocument,    SIGNAL(triggered()), this, SLOT(SlotOpenDocument()))    != nullptr, "signal/slot connection failed");
+  EZ_VERIFY(connect(m_pActionCreateProject,   SIGNAL(triggered()), this, SLOT(SlotCreateProject()))   != nullptr, "signal/slot connection failed");
+  EZ_VERIFY(connect(m_pActionOpenProject,     SIGNAL(triggered()), this, SLOT(SlotOpenProject()))     != nullptr, "signal/slot connection failed");
+  EZ_VERIFY(connect(m_pActionCloseProject,    SIGNAL(triggered()), this, SLOT(SlotCloseProject()))    != nullptr, "signal/slot connection failed");
+
+  //m_pActionCreateDocument->setEnabled(ezEditorProject::IsProjectOpen());
+  //m_pActionOpenDocument->setEnabled(ezEditorProject::IsProjectOpen());
+  m_pActionCloseProject->setEnabled(ezEditorProject::IsProjectOpen());
+
+  ezDocumentWindow::s_Events.AddEventHandler(ezDelegate<void (const ezDocumentWindow::Event&)>(&ezContainerWindow::DocumentWindowEventHandler, this));
+  ezEditorProject::s_Events.AddEventHandler(ezDelegate<void (const ezEditorProject::Event&)>(&ezContainerWindow::ProjectEventHandler, this));
+
+  UpdateWindowTitle();
 }
 
 ezContainerWindow::~ezContainerWindow()
@@ -46,6 +66,7 @@ ezContainerWindow::~ezContainerWindow()
   s_AllContainerWindows.Remove(this);
 
   ezDocumentWindow::s_Events.RemoveEventHandler(ezDelegate<void (const ezDocumentWindow::Event&)>(&ezContainerWindow::DocumentWindowEventHandler, this));
+  ezEditorProject::s_Events.RemoveEventHandler(ezDelegate<void (const ezEditorProject::Event&)>(&ezContainerWindow::ProjectEventHandler, this));
 }
 
 QTabWidget* ezContainerWindow::GetTabWidget() const
@@ -54,6 +75,21 @@ QTabWidget* ezContainerWindow::GetTabWidget() const
   EZ_ASSERT(pTabs != nullptr, "The central widget is NULL");
 
   return pTabs;
+}
+
+void ezContainerWindow::UpdateWindowTitle()
+{
+  ezStringBuilder sTitle;
+
+  if (ezEditorProject::IsProjectOpen())
+  {
+    sTitle = ezPathUtils::GetFileName(ezEditorProject::GetInstance()->GetProjectPath());
+    sTitle.Append(" - ");
+  }
+  
+  sTitle.Append(ezEditorFramework::GetApplicationName());
+
+  setWindowTitle(QString::fromUtf8(sTitle.GetData()));
 }
 
 void ezContainerWindow::SlotRestoreLayout()
@@ -139,15 +175,6 @@ void ezContainerWindow::SetupDocumentTabArea()
 
   EZ_VERIFY(connect(pTabs, SIGNAL(tabCloseRequested(int)), this, SLOT(SlotDocumentTabCloseRequested(int))) != nullptr, "signal/slot connection failed");
 
-  m_pActionSettings = new QAction("Settings", this);
-  EZ_VERIFY(connect(m_pActionSettings, SIGNAL(triggered()), this, SLOT(SlotSettings())) != nullptr, "signal/slot connection failed");
-
-  m_pActionCreateDocument = new QAction("Create Document", this);
-  EZ_VERIFY(connect(m_pActionCreateDocument, SIGNAL(triggered()), this, SLOT(SlotCreateDocument())) != nullptr, "signal/slot connection failed");
-
-  m_pActionOpenDocument = new QAction("Open Document", this);
-  EZ_VERIFY(connect(m_pActionOpenDocument, SIGNAL(triggered()), this, SLOT(SlotOpenDocument())) != nullptr, "signal/slot connection failed");
-
   QToolButton* pButton = new QToolButton();
   pButton->setText("+");
   pButton->setIcon(QIcon(QLatin1String(":/Icons/Icons/ezEditor16.png")));
@@ -160,8 +187,9 @@ void ezContainerWindow::SetupDocumentTabArea()
   pButton->menu()->addAction(m_pActionCreateDocument);
   pButton->menu()->addAction(m_pActionOpenDocument);
   pButton->menu()->addSeparator();
-  pButton->menu()->addAction("Create Project");
-  pButton->menu()->addAction("Open Project");
+  pButton->menu()->addAction(m_pActionCreateProject);
+  pButton->menu()->addAction(m_pActionOpenProject);
+  pButton->menu()->addAction(m_pActionCloseProject);
   pButton->menu()->addSeparator();
   pButton->menu()->addAction(m_pActionSettings);
 
@@ -270,6 +298,20 @@ void ezContainerWindow::DocumentWindowEventHandler(const ezDocumentWindow::Event
     if (m_DocumentWindows.IsEmpty())
       ShowSettingsTab();
 
+    break;
+  }
+}
+
+void ezContainerWindow::ProjectEventHandler(const ezEditorProject::Event& e)
+{
+  switch (e.m_Type)
+  {
+  case ezEditorProject::Event::Type::ProjectOpened:
+  case ezEditorProject::Event::Type::ProjectClosed:
+    //m_pActionCreateDocument->setEnabled(ezEditorProject::IsProjectOpen());
+    //m_pActionOpenDocument->setEnabled(ezEditorProject::IsProjectOpen());
+    m_pActionCloseProject->setEnabled(ezEditorProject::IsProjectOpen());
+    UpdateWindowTitle();
     break;
   }
 }
@@ -409,7 +451,7 @@ void ezContainerWindow::CreateOrOpenDocument(bool bCreate)
     if (res.m_Result.Failed())
     {
       ezStringBuilder s;
-      s.Format("Document creation failed:\n'%s'", sFile.GetData());
+      s.Format("Failed to open document: \n'%s'", sFile.GetData());
 
       if (!res.m_sError.IsEmpty())
         s.AppendFormat("\n\nDetails: %s", res.m_sError.GetData());
@@ -429,7 +471,6 @@ void ezContainerWindow::CreateOrOpenDocument(bool bCreate)
   }
 
   ezContainerWindow::EnsureVisibleAnyContainer(pDocument);
-
 }
 
 void ezContainerWindow::SlotCreateDocument()
@@ -441,6 +482,59 @@ void ezContainerWindow::SlotOpenDocument()
 {
   CreateOrOpenDocument(false);
 }
+
+void ezContainerWindow::CreateOrOpenProject(bool bCreate)
+{
+  static QString sDir = ezOSFile::GetApplicationDirectory();
+  ezString sFile;
+
+  const char* szFilter = "ezEditor Project (*.project)";
+  
+  if (bCreate)
+    sFile = QFileDialog::getSaveFileName(this, QLatin1String("Create Project"), sDir, QLatin1String(szFilter)).toUtf8().data();
+  else
+    sFile = QFileDialog::getOpenFileName(this, QLatin1String("Open Project"), sDir, QLatin1String(szFilter)).toUtf8().data();
+
+  if (sFile.IsEmpty())
+    return;
+
+  ezStatus res;
+  if (bCreate)
+    res = ezEditorProject::CreateProject(sFile);
+  else
+    res = ezEditorProject::OpenProject(sFile);
+
+  if (res.m_Result.Failed())
+  {
+    ezStringBuilder s;
+    s.Format("Failed to open project:\n'%s'", sFile.GetData());
+
+    if (!res.m_sError.IsEmpty())
+      s.AppendFormat("\n\nDetails: %s", res.m_sError.GetData());
+
+    QMessageBox::warning(this, QLatin1String("ezEditor"), QString::fromUtf8(s.GetData()), QMessageBox::StandardButton::Ok);
+    return;
+  }
+}
+
+void ezContainerWindow::SlotCreateProject()
+{
+  CreateOrOpenProject(true);
+}
+
+void ezContainerWindow::SlotOpenProject()
+{
+  CreateOrOpenProject(false);
+}
+
+void ezContainerWindow::SlotCloseProject()
+{
+  if (ezEditorProject::CanCloseProject())
+  {
+    ezEditorProject::CloseProject();
+  }
+}
+
 
 void ezContainerWindow::SlotTabsContextMenuRequested(const QPoint& pos)
 {

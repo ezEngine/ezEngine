@@ -27,6 +27,7 @@ EZ_END_SUBSYSTEM_DECLARATION
 ezSet<const ezRTTI*> ezDocumentManagerBase::s_KnownManagers;
 ezHybridArray<ezDocumentManagerBase*, 16> ezDocumentManagerBase::s_AllDocumentManagers;
 ezEvent<const ezDocumentManagerBase::Event&> ezDocumentManagerBase::s_Events;
+ezEvent<ezDocumentManagerBase::Request&> ezDocumentManagerBase::s_Requests;
 
 void ezDocumentManagerBase::OnPluginEvent(const ezPlugin::PluginEvent& e)
 {
@@ -156,6 +157,16 @@ ezStatus ezDocumentManagerBase::CreateOrOpenDocument(bool bCreate, const char* s
   ezStringBuilder sPath = szPath;
   sPath.MakeCleanPath();
 
+  Request r;
+  r.m_Type = Request::Type::DocumentAllowedToOpen;
+  r.m_RequestStatus.m_Result = EZ_SUCCESS;
+  r.m_sDocumentPath = sPath;
+  s_Requests.Broadcast(r);
+
+  // if for example no project is open, or not the correct one, then a document cannot be opened
+  if (r.m_RequestStatus.m_Result.Failed())
+    return r.m_RequestStatus;
+
   out_pDocument = nullptr;
 
   ezStatus status;
@@ -219,6 +230,22 @@ void ezDocumentManagerBase::CloseDocument(ezDocumentBase* pDocument)
   EZ_VERIFY(m_AllDocuments.Remove(pDocument), "Document was not found in this document manager");
 
   delete pDocument;
+}
+
+void ezDocumentManagerBase::CloseAllDocumentsOfManager()
+{
+  while (!m_AllDocuments.IsEmpty())
+  {
+    CloseDocument(m_AllDocuments[0]);
+  }
+}
+
+void ezDocumentManagerBase::CloseAllDocuments()
+{
+  for (ezDocumentManagerBase* pMan : s_AllDocumentManagers)
+  {
+    pMan->CloseAllDocumentsOfManager();
+  }
 }
 
 ezDocumentBase* ezDocumentManagerBase::GetDocumentByPath(const char* szPath) const
