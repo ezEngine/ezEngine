@@ -1,4 +1,4 @@
-#include <PCH.h>
+ï»¿#include <PCH.h>
 #include <Foundation/IO/JSONReader.h>
 #include <Foundation/Containers/Deque.h>
 
@@ -289,12 +289,12 @@ EZ_CREATE_SIMPLE_TEST(IO, JSONReader)
 L"{\n\
 \"myarray2\":[\"\",2.2],\n\
 \"myarray\" : [1, 2.2, 3.3, false, \"ende\" ],\n\
-\"String\"/**/ : \"testvälue\",\n\
+\"String\"/**/ : \"testvÃ¤lue\",\n\
 \"double\"/***/ : 43.56,//comment\n\
 \"float\" :/**//*a*/ 64/*comment*/.720001,\n\
 \"bool\" : tr/*asdf*/ue,\n\
 \"int\" : 23,\n\
-\"MyNüll\" : nu/*asdf*/ll,\n\
+\"MyNÃ¼ll\" : nu/*asdf*/ll,\n\
 \"object\" :\n\
 /* totally \n weird \t stuff \n\n\n going on here // thats a line comment \n */ \
 // more line comments \n\n\n\n\
@@ -382,12 +382,12 @@ L"{\n\
       sCompare.PushBack("text");
 
       sCompare.PushBack("String");
-      sCompare.PushBack(ezStringUtf8(L"testvälue").GetData()); // unicode literal
+      sCompare.PushBack(ezStringUtf8(L"testvÃ¤lue").GetData()); // unicode literal
 
       sCompare.PushBack("float");
       sCompare.PushBack("double 64.7200");
 
-      sCompare.PushBack(ezStringUtf8(L"MyNüll").GetData()); // unicode literal
+      sCompare.PushBack(ezStringUtf8(L"MyNÃ¼ll").GetData()); // unicode literal
       sCompare.PushBack("null");
 
       sCompare.PushBack("double");

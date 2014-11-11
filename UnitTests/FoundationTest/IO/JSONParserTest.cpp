@@ -1,4 +1,4 @@
-#include <PCH.h>
+﻿#include <PCH.h>
 #include <Foundation/IO/JSONParser.h>
 #include <Foundation/Containers/Deque.h>
 #include <Foundation/Strings/StringUtils.h>

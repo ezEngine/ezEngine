@@ -1,4 +1,4 @@
-#include <PCH.h>
+ï»¿#include <PCH.h>
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/IO/JSONWriter.h>
 #include <Foundation/IO/ExtendedJSONWriter.h>
@@ -291,10 +291,10 @@ EZ_CREATE_SIMPLE_TEST(IO, StandardJSONWriter)
   {
     ezStringUtf8 sExp(L"\
 {\n\
-  \"String\" : \"testvälue\",\n\
+  \"String\" : \"testvÃ¤lue\",\n\
   \"double\" : 43.56,\n\
   \"float\" : 64.720001,\n\
-  \"bööl\" : true,\n\
+  \"bÃ¶Ã¶l\" : true,\n\
   \"int\" : 23,\n\
   \"myarray\" : [ 1, 2.2, 3.3, false, \"ende\" ],\n\
   \"object\" : {\n\
@@ -319,10 +319,10 @@ EZ_CREATE_SIMPLE_TEST(IO, StandardJSONWriter)
 
     js.BeginObject();
 
-      js.AddVariableString("String", ezStringUtf8(L"testvälue").GetData()); // Unicode / Utf-8 test (in string)
+      js.AddVariableString("String", ezStringUtf8(L"testvÃ¤lue").GetData()); // Unicode / Utf-8 test (in string)
       js.AddVariableDouble("double", 43.56);
       js.AddVariableFloat("float", 64.72f);
-      js.AddVariableBool(ezStringUtf8(L"bööl").GetData(), true); // Unicode / Utf-8 test (identifier)
+      js.AddVariableBool(ezStringUtf8(L"bÃ¶Ã¶l").GetData(), true); // Unicode / Utf-8 test (identifier)
       js.AddVariableInt32("int", 23);
 
       js.BeginArray("myarray");
