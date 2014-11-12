@@ -58,3 +58,13 @@ ezStatus ezDocumentBase::SaveDocument()
 
   return ret;
 }
+
+void ezDocumentBase::EnsureVisible()
+{
+  Event e;
+  e.m_pDocument = this;
+  e.m_Type = Event::Type::EnsureVisible;
+
+  m_Events.Broadcast(e);
+}
+

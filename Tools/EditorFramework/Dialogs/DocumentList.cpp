@@ -4,35 +4,112 @@
 
 DocumentList::DocumentList(QWidget* parent, const ezHybridArray<ezDocumentBase*, 32>& ModifiedDocs) : QDialog(parent)
 {
+  m_ModifiedDocs = ModifiedDocs;
+
   setupUi(this);
 
-  ListDocuments->blockSignals(true);
+  TableDocuments->blockSignals(true);
 
-  for (ezDocumentBase* pDoc : ModifiedDocs)
+  TableDocuments->setRowCount(m_ModifiedDocs.GetCount());
+  
+  QStringList Headers;
+  Headers.append("");
+  Headers.append(" Type ");
+  Headers.append(" Document ");
+
+  TableDocuments->setColumnCount(Headers.size());
+
+  TableDocuments->setSelectionBehavior(QAbstractItemView::SelectionBehavior::SelectRows);
+  TableDocuments->setHorizontalHeaderLabels(Headers);
+  TableDocuments->horizontalHeader()->show();
+  TableDocuments->setSortingEnabled(true);
+  EZ_VERIFY(connect(TableDocuments, SIGNAL(currentCellChanged(int, int, int, int)), this, SLOT(SlotSelectionChanged(int, int, int, int))) != nullptr, "signal/slot connection failed");
+
+  ezStringBuilder sPath = ezPathUtils::GetFileDirectory(ezEditorProject::GetInstance()->GetProjectPath());
+  ezInt32 iTrimStart = sPath.GetCharacterCount();
+
+  ezInt32 iRow = 0;
+  for (ezDocumentBase* pDoc : m_ModifiedDocs)
   {
-    QListWidgetItem* pItem = new QListWidgetItem();
-    pItem->setFlags(Qt::ItemFlag::ItemIsEnabled | Qt::ItemFlag::ItemIsSelectable | Qt::ItemFlag::ItemIsUserCheckable);
-
     ezStringBuilder sText = pDoc->GetDocumentPath();
+    sText.Shrink(iTrimStart, 0);
 
-    pItem->setText(sText.GetData());
-    //pItem->setData(Qt::UserRole + 1, pDoc);
-    pItem->setCheckState(Qt::CheckState::Checked);
-    ListDocuments->addItem(pItem);
+    QPushButton* pButtonSave = new QPushButton(QLatin1String("Save"));
+    EZ_VERIFY(connect(pButtonSave, SIGNAL(clicked()), this, SLOT(SlotSaveDocument())) != nullptr, "signal/slot connection failed");
+
+    pButtonSave->setProperty("document", qVariantFromValue((void*) pDoc));
+
+    pButtonSave->setMinimumWidth(100);
+    pButtonSave->setMaximumWidth(100);
+
+    TableDocuments->setCellWidget(iRow, 0, pButtonSave);
+
+    QTableWidgetItem* pItem0 = new QTableWidgetItem();
+    pItem0->setData(Qt::DisplayRole, QVariant(pDoc->GetDocumentTypeDisplayString()));
+    TableDocuments->setItem(iRow, 1, pItem0);
+
+    QTableWidgetItem* pItem1 = new QTableWidgetItem();
+    pItem1->setData(Qt::DisplayRole, QVariant(sText.GetData()));
+    TableDocuments->setItem(iRow, 2, pItem1);
+
+    ++iRow;
   }
 
-  ListDocuments->blockSignals(false);
+  TableDocuments->resizeColumnsToContents();
+  TableDocuments->blockSignals(false);
 }
 
-void DocumentList::on_ButtonSaveAll_clicked()
+ezResult DocumentList::SaveDocument(ezDocumentBase* pDoc)
 {
+  if (pDoc->SaveDocument().m_Result.Failed())
+  {
+    // ... TODO
+
+    return EZ_FAILURE;
+  }
+
+  return EZ_SUCCESS;
+}
+
+void DocumentList::SlotSaveDocument()
+{
+  QPushButton* pButtonSave = qobject_cast<QPushButton*>(sender());
+
+  if (!pButtonSave)
+    return;
+
+  ezDocumentBase* pDoc = (ezDocumentBase*) pButtonSave->property("document").value<void*>();
+
+  SaveDocument(pDoc);
+
+  pButtonSave->setEnabled(pDoc->IsModified());
+}
+
+void DocumentList::SlotSelectionChanged(int currentRow, int currentColumn, int previousRow, int previousColumn)
+{
+  QPushButton* pButtonSave = qobject_cast<QPushButton*>(TableDocuments->cellWidget(currentRow, 0));
+  
+  if (!pButtonSave)
+    return;
+
+  ezDocumentBase* pDoc = (ezDocumentBase*) pButtonSave->property("document").value<void*>();
+
+  pDoc->EnsureVisible();
+}
+
+void DocumentList::on_ButtonSaveSelected_clicked()
+{
+  for (ezDocumentBase* pDoc : m_ModifiedDocs)
+  {
+    if (SaveDocument(pDoc).Failed())
+      return;
+  }
 
   accept();
 }
 
-void DocumentList::on_ButtonDiscardAll_clicked()
+void DocumentList::on_ButtonDontSave_clicked()
 {
-
   accept();
 }
 

@@ -46,6 +46,7 @@ ezDocumentWindow::ezDocumentWindow(ezDocumentBase* pDocument)
   setObjectName(GetUniqueName());
 
   pDocument->GetDocumentManager()->s_Events.AddEventHandler(ezDelegate<void (const ezDocumentManagerBase::Event&)>(&ezDocumentWindow::DocumentManagerEventHandler, this));
+  pDocument->m_Events.AddEventHandler(ezDelegate<void (const ezDocumentBase::Event&)>(&ezDocumentWindow::DocumentEventHandler, this));
 }
 
 ezDocumentWindow::ezDocumentWindow(const char* szUniqueName)
@@ -61,7 +62,30 @@ ezDocumentWindow::ezDocumentWindow(const char* szUniqueName)
 ezDocumentWindow::~ezDocumentWindow()
 {
   if (m_pDocument)
+  {
+    m_pDocument->m_Events.RemoveEventHandler(ezDelegate<void (const ezDocumentBase::Event&)>(&ezDocumentWindow::DocumentEventHandler, this));
     m_pDocument->GetDocumentManager()->s_Events.RemoveEventHandler(ezDelegate<void (const ezDocumentManagerBase::Event&)>(&ezDocumentWindow::DocumentManagerEventHandler, this));
+  }
+}
+
+void ezDocumentWindow::DocumentEventHandler(const ezDocumentBase::Event& e)
+{
+  switch (e.m_Type)
+  {
+  case ezDocumentBase::Event::Type::ModifiedChanged:
+    {
+      Event dwe;
+      dwe.m_pWindow = this;
+      dwe.m_Type = Event::Type::WindowDecorationChanged;
+      s_Events.Broadcast(dwe);
+    }
+    break;
+  case ezDocumentBase::Event::Type::EnsureVisible:
+    {
+      EnsureVisible();
+    }
+    break;
+  }
 }
 
 void ezDocumentWindow::DocumentManagerEventHandler(const ezDocumentManagerBase::Event& e)
@@ -83,7 +107,12 @@ void ezDocumentWindow::DocumentManagerEventHandler(const ezDocumentManagerBase::
 ezString ezDocumentWindow::GetDisplayNameShort() const
 {
   ezStringBuilder s = GetDisplayName();
-  return s.GetFileNameAndExtension();
+  s = s.GetFileNameAndExtension();
+
+  if (m_pDocument && m_pDocument->IsModified())
+    s.Append('*');
+
+  return s;
 }
 
 void ezDocumentWindow::ScheduleRestoreWindowLayout()
@@ -171,11 +200,9 @@ bool ezDocumentWindow::CanCloseWindow()
 
 bool ezDocumentWindow::InternalCanCloseWindow()
 {
-  if (m_pDocument)
+  if (m_pDocument && m_pDocument->IsModified())
   {
-    // todo check if modified
-
-    QMessageBox::StandardButton res = QMessageBox::question(this, QLatin1String("Close?"), QLatin1String("Save before closing?"), QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No | QMessageBox::StandardButton::Cancel, QMessageBox::StandardButton::Cancel);
+    QMessageBox::StandardButton res = QMessageBox::question(this, QLatin1String("ezEditor"), QLatin1String("Save before closing?"), QMessageBox::StandardButton::Yes | QMessageBox::StandardButton::No | QMessageBox::StandardButton::Cancel, QMessageBox::StandardButton::Cancel);
 
     if (res == QMessageBox::StandardButton::Cancel)
       return false;
@@ -210,8 +237,8 @@ void ezDocumentWindow::ShutdownDocumentWindow()
   InternalCloseDocumentWindow();
 
   Event e;
-  e.m_pDocument = this;
-  e.m_Type = Event::Type::DocumentWindowClosed;
+  e.m_pWindow = this;
+  e.m_Type = Event::Type::WindowClosed;
   s_Events.Broadcast(e);
 
   InternalDeleteThis();

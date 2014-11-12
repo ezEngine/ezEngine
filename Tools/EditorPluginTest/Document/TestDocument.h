@@ -10,6 +10,8 @@ public:
   ezTestDocument(const char* szDocumentPath);
   ~ezTestDocument();
 
+  virtual const char* GetDocumentTypeDisplayString() const override { return "Scene"; }
+
 protected:
   virtual ezStatus InternalSaveDocument() override 
   {

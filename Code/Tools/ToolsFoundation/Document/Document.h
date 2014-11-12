@@ -23,6 +23,7 @@ public:
 
   bool IsModified() const { return m_bModified; }
   bool IsReadOnly() const { return m_bReadOnly; }
+  virtual const char* GetDocumentTypeDisplayString() const = 0;
 
   const ezCommandHistoryBase* GetCommandHistory() const { return m_pCommandHistory; }
   const ezDocumentObjectManagerBase* GetObjectManager() const { return m_pObjectManager; }
@@ -33,6 +34,7 @@ public:
 
   ezStatus SaveDocument();
   ezStatus LoadDocument() { return InternalLoadDocument(); }
+  void EnsureVisible();
 
   ezDocumentManagerBase* GetDocumentManager() const { return m_pDocumentManager; }
 
@@ -43,6 +45,7 @@ public:
     {
       ModifiedChanged,
       ReadOnlyChanged,
+      EnsureVisible,
     };
 
     Type m_Type;

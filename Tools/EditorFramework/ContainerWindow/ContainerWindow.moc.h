@@ -61,6 +61,7 @@ private:
   void UpdateWindowTitle();
 
   void RemoveDocumentWindowFromContainer(ezDocumentWindow* pDocWindow);
+  void UpdateWindowDecoration(ezDocumentWindow* pDocWindow);
 
   void SetupDocumentTabArea();
 

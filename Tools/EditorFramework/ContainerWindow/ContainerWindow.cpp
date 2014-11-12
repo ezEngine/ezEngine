@@ -15,6 +15,7 @@
 #include <QMessageBox>
 #include <QFileDialog>
 #include <QProcess>
+#include <QCloseEvent>
 
 ezDynamicArray<ezContainerWindow*> ezContainerWindow::s_AllContainerWindows;
 
@@ -99,6 +100,13 @@ void ezContainerWindow::SlotRestoreLayout()
 
 void ezContainerWindow::closeEvent(QCloseEvent* e)
 {
+  if (!ezEditorProject::CanCloseProject())
+  {
+    e->setAccepted(false);
+    return;
+  }
+
+  ezEditorProject::CloseProject();
   SaveWindowLayout();
 }
 
@@ -198,6 +206,23 @@ void ezContainerWindow::SetupDocumentTabArea()
   setCentralWidget(pTabs);
 }
 
+void ezContainerWindow::UpdateWindowDecoration(ezDocumentWindow* pDocWindow)
+{
+  const ezInt32 iListIndex = m_DocumentWindows.IndexOf(pDocWindow);
+
+  if (iListIndex == ezInvalidIndex)
+    return;
+
+  QTabWidget* pTabs = GetTabWidget();
+
+  int iTabIndex = pTabs->indexOf(pDocWindow);
+  EZ_ASSERT(iTabIndex >= 0, "Invalid document window to close");
+
+  pTabs->setTabToolTip(iTabIndex, QString::fromUtf8(pDocWindow->GetDisplayName().GetData()));
+  pTabs->setTabText(iTabIndex, QString::fromUtf8(pDocWindow->GetDisplayNameShort().GetData()));
+  pTabs->setTabIcon(iTabIndex, QIcon(QString::fromUtf8(pDocWindow->GetTypeIcon().GetData())));
+}
+
 void ezContainerWindow::RemoveDocumentWindowFromContainer(ezDocumentWindow* pDocWindow)
 {
   const ezInt32 iListIndex = m_DocumentWindows.IndexOf(pDocWindow);
@@ -233,9 +258,9 @@ void ezContainerWindow::MoveDocumentWindowToContainer(ezDocumentWindow* pDocWind
   pDocWindow->m_pContainerWindow = this;
 
   QTabWidget* pTabs = GetTabWidget();
-
   int iTab = pTabs->addTab(pDocWindow, QString::fromUtf8(pDocWindow->GetDisplayNameShort()));
-  pTabs->setTabToolTip(iTab, pDocWindow->GetDisplayName().GetData());
+
+  UpdateWindowDecoration(pDocWindow);
 }
 
 ezResult ezContainerWindow::EnsureVisible(ezDocumentWindow* pDocWindow)
@@ -292,12 +317,15 @@ void ezContainerWindow::DocumentWindowEventHandler(const ezDocumentWindow::Event
 {
   switch (e.m_Type)
   {
-  case ezDocumentWindow::Event::Type::DocumentWindowClosed:
-    RemoveDocumentWindowFromContainer(e.m_pDocument);
+  case ezDocumentWindow::Event::Type::WindowClosed:
+    RemoveDocumentWindowFromContainer(e.m_pWindow);
 
     if (m_DocumentWindows.IsEmpty())
       ShowSettingsTab();
 
+    break;
+  case ezDocumentWindow::Event::Type::WindowDecorationChanged:
+    UpdateWindowDecoration(e.m_pWindow);
     break;
   }
 }
@@ -343,6 +371,9 @@ ezString ezContainerWindow::BuildDocumentTypeFileFilter(bool bForCreation) const
     for (const ezDocumentTypeDescriptor& desc : Types)
     {
       if (bForCreation && !desc.m_bCanCreate)
+        continue;
+
+      if (desc.m_sFileExtensions.IsEmpty())
         continue;
 
       sAllFilters.Append(sepsep, desc.m_sDocumentTypeName, " (");

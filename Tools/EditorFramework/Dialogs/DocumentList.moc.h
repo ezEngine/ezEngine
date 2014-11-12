@@ -15,12 +15,16 @@ public:
 
 
 private slots:
-  virtual void on_ButtonSaveAll_clicked();
-  virtual void on_ButtonDiscardAll_clicked();
-  virtual void on_ButtonCancel_clicked();
+  void on_ButtonSaveSelected_clicked();
+  void on_ButtonDontSave_clicked();
+  void on_ButtonCancel_clicked();
+  void SlotSaveDocument();
+  void SlotSelectionChanged(int currentRow, int currentColumn, int previousRow, int previousColumn);
 
 private:
+  ezResult SaveDocument(ezDocumentBase* pDoc);
 
+  ezHybridArray<ezDocumentBase*, 32> m_ModifiedDocs;
 };
 
 

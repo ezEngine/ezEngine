@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>562</width>
-    <height>430</height>
+    <width>880</width>
+    <height>504</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -27,7 +27,7 @@
       </sizepolicy>
      </property>
      <property name="text">
-      <string>The following documents are modified.</string>
+      <string>The following documents are modified:</string>
      </property>
      <property name="wordWrap">
       <bool>true</bool>
@@ -35,18 +35,77 @@
     </widget>
    </item>
    <item>
-    <widget class="QListWidget" name="ListDocuments">
+    <widget class="QTableWidget" name="TableDocuments">
+     <property name="editTriggers">
+      <set>QAbstractItemView::NoEditTriggers</set>
+     </property>
+     <property name="alternatingRowColors">
+      <bool>true</bool>
+     </property>
+     <property name="selectionMode">
+      <enum>QAbstractItemView::SingleSelection</enum>
+     </property>
+     <property name="selectionBehavior">
+      <enum>QAbstractItemView::SelectRows</enum>
+     </property>
      <property name="sortingEnabled">
       <bool>true</bool>
      </property>
+     <property name="cornerButtonEnabled">
+      <bool>false</bool>
+     </property>
+     <property name="rowCount">
+      <number>2</number>
+     </property>
+     <property name="columnCount">
+      <number>4</number>
+     </property>
+     <attribute name="horizontalHeaderVisible">
+      <bool>true</bool>
+     </attribute>
+     <attribute name="horizontalHeaderCascadingSectionResizes">
+      <bool>false</bool>
+     </attribute>
+     <attribute name="horizontalHeaderStretchLastSection">
+      <bool>true</bool>
+     </attribute>
+     <attribute name="verticalHeaderVisible">
+      <bool>false</bool>
+     </attribute>
+     <row/>
+     <row/>
+     <column>
+      <property name="text">
+       <string>Document</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>Type</string>
+      </property>
+     </column>
+     <column/>
+     <column/>
     </widget>
    </item>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
-      <widget class="QPushButton" name="ButtonDiscardAll">
+      <widget class="QPushButton" name="ButtonSaveSelected">
+       <property name="minimumSize">
+        <size>
+         <width>100</width>
+         <height>0</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>100</width>
+         <height>16777215</height>
+        </size>
+       </property>
        <property name="text">
-        <string>Discard All</string>
+        <string>Save All</string>
        </property>
       </widget>
      </item>
@@ -64,16 +123,9 @@
       </spacer>
      </item>
      <item>
-      <widget class="QPushButton" name="ButtonSaveAll">
+      <widget class="QPushButton" name="ButtonDontSave">
        <property name="text">
-        <string>Save All</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="ButtonCancel">
-       <property name="text">
-        <string>Cancel</string>
+        <string>Don't Save</string>
        </property>
       </widget>
      </item>

@@ -24,27 +24,6 @@ void RegisterType(const ezRTTI* pRtti)
   ezReflectedTypeManager::RegisterType(desc);
 }
 
-void OnPluginEvent(const ezPlugin::PluginEvent& e)
-{
-  // this function is a hack
-
-  static bool bDone = false;
-
-  if (e.m_EventType == ezPlugin::PluginEvent::Type::AfterPluginChanges && !bDone)
-  {
-    bDone = true;
-
-    //ezDocumentBase* pDoc;
-    //ezTestDocumentManager::s_pSingleton->CreateDocument("ezScene", "bla/blub1.scene", pDoc);
-
-    //ezDocumentBase* pDoc2;
-    //ezTestDocumentManager::s_pSingleton->CreateDocument("ezScene", "bla/blub2.scene", pDoc2);
-
-    //ezDocumentBase* pDoc3;
-    //ezTestDocumentManager::s_pSingleton->CreateDocument("ezScene", "bla/blub3.scene", pDoc3);
-  }
-}
-
 void OnDocumentManagerEvent(const ezDocumentManagerBase::Event& e)
 {
   switch (e.m_Type)
@@ -109,7 +88,6 @@ void OnLoadPlugin(bool bReloading)
   RegisterType(ezGetStaticRTTI<ezTestEditorProperties>());
   RegisterType(ezGetStaticRTTI<ezTestObjectProperties>());
 
-  ezPlugin::s_PluginEvents.AddEventHandler(ezDelegate<void (const ezPlugin::PluginEvent&)>(OnPluginEvent));
   ezDocumentManagerBase::s_Events.AddEventHandler(ezDelegate<void (const ezDocumentManagerBase::Event&)>(OnDocumentManagerEvent));
 
   ezEditorFramework::GetEditorSettings("Main").RegisterValueInt("iStuff", 42);
@@ -135,7 +113,6 @@ void OnLoadPlugin(bool bReloading)
 void OnUnloadPlugin(bool bReloading)  
 {
   ezDocumentManagerBase::s_Events.RemoveEventHandler(ezDelegate<void (const ezDocumentManagerBase::Event&)>(OnDocumentManagerEvent));
-  ezPlugin::s_PluginEvents.RemoveEventHandler(ezDelegate<void (const ezPlugin::PluginEvent&)>(OnPluginEvent));
 }
 
 ezPlugin g_Plugin(false, OnLoadPlugin, OnUnloadPlugin);

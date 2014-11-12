@@ -160,6 +160,7 @@ ezStatus ezDocumentManagerBase::CreateOrOpenDocument(bool bCreate, const char* s
   Request r;
   r.m_Type = Request::Type::DocumentAllowedToOpen;
   r.m_RequestStatus.m_Result = EZ_SUCCESS;
+  r.m_sDocumentType = szDocumentTypeName;
   r.m_sDocumentPath = sPath;
   s_Requests.Broadcast(r);
 

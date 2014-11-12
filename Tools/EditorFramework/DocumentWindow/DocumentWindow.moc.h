@@ -20,11 +20,12 @@ public:
   {
     enum Type
     {
-      DocumentWindowClosed,
+      WindowClosed,
+      WindowDecorationChanged,
     };
 
     Type m_Type;
-    ezDocumentWindow* m_pDocument;
+    ezDocumentWindow* m_pWindow;
   };
 
   static ezEvent<const Event&> s_Events;
@@ -35,6 +36,8 @@ public:
   virtual ~ezDocumentWindow();
 
   void EnsureVisible();
+
+  virtual ezString GetTypeIcon() const { return ":/Icons/Icons/ezEditor16.png"; }
 
   virtual ezString GetDisplayName() const { return GetUniqueName(); }
   virtual ezString GetDisplayNameShort() const;
@@ -69,6 +72,7 @@ private:
 private:
   void Constructor();
   void DocumentManagerEventHandler(const ezDocumentManagerBase::Event& e);
+  void DocumentEventHandler(const ezDocumentBase::Event& e);
 
   virtual void InternalDeleteThis() { delete this; }
   virtual bool InternalCanCloseWindow();

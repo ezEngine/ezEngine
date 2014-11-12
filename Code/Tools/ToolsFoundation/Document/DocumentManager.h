@@ -63,6 +63,7 @@ public:
     };
 
     Type m_Type;
+    ezString m_sDocumentType;
     ezString m_sDocumentPath;
     ezStatus m_RequestStatus;
   };

@@ -21,6 +21,11 @@ ezStatus ezTestDocumentManager::InternalCreateDocument(const char* szDocumentTyp
     out_pDocument = new ezTestDocument(szPath);
   }
   else
+  if (ezStringUtils::IsEqual(szDocumentTypeName, "ezPrefab"))
+  {
+    out_pDocument = new ezTestDocument(szPath);
+  }
+  else
   {
     status.m_sError = "Unknown Document Type";
   }
