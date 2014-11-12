@@ -99,7 +99,7 @@ void ezEditorProject::CloseProject()
 bool ezEditorProject::CanCloseProject()
 {
   Request e;
-  e.m_Type = Request::Type::CanProjectCloseRequest;
+  e.m_Type = Request::Type::CanProjectClose;
   e.m_bProjectCanClose = true;
   s_Requests.Broadcast(e);
 

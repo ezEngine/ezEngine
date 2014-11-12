@@ -1,6 +1,7 @@
 #include <PCH.h>
 #include <EditorFramework/EditorFramework.h>
 #include <EditorFramework/EditorGUI.moc.h>
+#include <EditorFramework/Dialogs/DocumentList.moc.h>
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
@@ -86,7 +87,7 @@ void ezEditorFramework::StartupEditor(const char* szAppName, const char* szUserN
   s_ContainerWindows[0]->ShowSettingsTab();
 
   ezDocumentManagerBase::s_Requests.AddEventHandler(ezDelegate<void (ezDocumentManagerBase::Request&)>(&ezEditorFramework::DocumentManagerRequestHandler));
-
+  ezEditorProject::s_Requests.AddEventHandler(ezDelegate<void (ezEditorProject::Request&)>(&ezEditorFramework::ProjectRequestHandler));
 
   ezStartup::StartupCore();
 
@@ -111,6 +112,7 @@ void ezEditorFramework::ShutdownEditor()
 
   SaveSettings();
 
+  ezEditorProject::s_Requests.RemoveEventHandler(ezDelegate<void (ezEditorProject::Request&)>(&ezEditorFramework::ProjectRequestHandler));
   ezDocumentManagerBase::s_Requests.RemoveEventHandler(ezDelegate<void (ezDocumentManagerBase::Request&)>(&ezEditorFramework::DocumentManagerRequestHandler));
 
   ezEditorGUI::GetInstance()->SaveState();
@@ -170,3 +172,35 @@ void ezEditorFramework::DocumentManagerRequestHandler(ezDocumentManagerBase::Req
     return;
   }
 }
+
+void ezEditorFramework::ProjectRequestHandler(ezEditorProject::Request& r)
+{
+  switch (r.m_Type)
+  {
+    case ezEditorProject::Request::Type::CanProjectClose:
+    {
+      if (r.m_bProjectCanClose == false)
+        return;
+
+      ezHybridArray<ezDocumentBase*, 32> ModifiedDocs;
+
+      for (ezDocumentManagerBase* pMan : ezDocumentManagerBase::GetAllDocumentManagers())
+      {
+        for (ezDocumentBase* pDoc : pMan->GetAllDocuments())
+        {
+          if (pDoc->IsModified())
+            ModifiedDocs.PushBack(pDoc);
+        }
+      }
+
+      if (!ModifiedDocs.IsEmpty())
+      {
+        DocumentList dlg(s_ContainerWindows[0], ModifiedDocs);
+        if (dlg.exec() == 0)
+          r.m_bProjectCanClose = false;
+      }
+    }
+    return;
+  }
+}
+

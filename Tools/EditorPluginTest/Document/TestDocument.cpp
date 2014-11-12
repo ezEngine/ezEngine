@@ -11,6 +11,8 @@ ezTestDocument::ezTestDocument(const char* szDocumentPath) : ezDocumentBase(szDo
   //m_pCommandHistory;
   m_pObjectManager = new ezTestObjectManager(this);
   //m_pSelectionManager
+
+  SetModified(true);
 }
 
 ezTestDocument::~ezTestDocument()

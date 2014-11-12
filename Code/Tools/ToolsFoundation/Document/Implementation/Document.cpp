@@ -23,6 +23,9 @@ ezDocumentBase::~ezDocumentBase()
 
 void ezDocumentBase::SetModified(bool b)
 {
+  if (m_bModified == b)
+    return;
+
   m_bModified = b;
 
   Event e;
@@ -34,6 +37,9 @@ void ezDocumentBase::SetModified(bool b)
 
 void ezDocumentBase::SetReadOnly(bool b)
 {
+  if (m_bReadOnly == b)
+    return;
+
   m_bReadOnly = b;
 
   Event e;
@@ -41,4 +47,14 @@ void ezDocumentBase::SetReadOnly(bool b)
   e.m_Type = Event::Type::ReadOnlyChanged;
 
   m_Events.Broadcast(e);
+}
+
+ezStatus ezDocumentBase::SaveDocument()
+{
+  ezStatus ret = InternalSaveDocument();
+
+  if (ret.m_Result.Succeeded())
+    SetModified(false);
+
+  return ret;
 }

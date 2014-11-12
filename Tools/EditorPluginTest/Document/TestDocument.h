@@ -13,7 +13,8 @@ public:
 protected:
   virtual ezStatus InternalSaveDocument() override 
   {
-    return "Saving is not implemented"; 
+    //return "Saving is not implemented"; 
+    return ezStatus(EZ_SUCCESS);
   }
 
   virtual ezStatus InternalLoadDocument() override

@@ -418,6 +418,8 @@ void ezContainerWindow::CreateOrOpenDocument(bool bCreate)
   if (sFile.IsEmpty())
     return;
 
+  sDir = ezString(ezPathUtils::GetFileDirectory(sFile)).GetData();
+
   ezDocumentManagerBase* pManToCreate = nullptr;
   ezDocumentTypeDescriptor DescToCreate;
 
@@ -498,6 +500,14 @@ void ezContainerWindow::CreateOrOpenProject(bool bCreate)
   if (sFile.IsEmpty())
     return;
 
+  sDir = ezString(ezPathUtils::GetFileDirectory(sFile)).GetData();
+
+  if (ezEditorProject::IsProjectOpen() && ezEditorProject::GetInstance()->GetProjectPath() == sFile)
+  {
+    QMessageBox::information(this, QLatin1String("ezEditor"), QLatin1String("The selected project is already open"), QMessageBox::StandardButton::Ok);
+    return;
+  }
+
   ezStatus res;
   if (bCreate)
     res = ezEditorProject::CreateProject(sFile);
@@ -564,7 +574,7 @@ void ezContainerWindow::SlotTabsContextMenuRequested(const QPoint& pos)
     m.addAction(m_pActionCurrentTabClose);
     m.addSeparator();
 
-    if (pDoc->GetDocument())
+    //if (pDoc->GetDocument())
       m.addAction(m_pActionCurrentTabOpenFolder);
 
     m.exec(pTabs->tabBar()->mapToGlobal(pos));
@@ -611,12 +621,19 @@ void ezContainerWindow::SlotCurrentTabOpenFolder()
   ezDocumentWindow* pDocWnd = (ezDocumentWindow*) pTabs->currentWidget();
 
   ezDocumentBase* pDocument = pDocWnd->GetDocument();
+  ezString sPath;
+
   if (!pDocument)
-    return;
+  {
+    if (ezEditorProject::IsProjectOpen())
+      sPath = ezEditorProject::GetInstance()->GetProjectPath();
+    else
+      sPath = ezOSFile::GetApplicationDirectory();
+  }
+  else
+    sPath = pDocument->GetDocumentPath();
 
   QStringList args;
-  args << "/select," << QDir::toNativeSeparators(pDocument->GetDocumentPath());
+  args << "/select," << QDir::toNativeSeparators(sPath.GetData());
   QProcess::startDetached("explorer", args);
-
-  pDocument->GetDocumentPath();
 }

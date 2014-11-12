@@ -23,11 +23,11 @@ public:
   {
     enum class Type
     {
-      CanProjectCloseRequest,
+      CanProjectClose,
     };
 
     Type m_Type;
-    bool m_bProjectCanClose; // when the event 'CanProjectCloseRequest' is sent, interested code can set this to false to prevent project closing
+    bool m_bProjectCanClose; // when the event 'CanProjectClose' is sent, interested code can set this to false to prevent project closing
   };
 
   static ezEvent<const Event&> s_Events;

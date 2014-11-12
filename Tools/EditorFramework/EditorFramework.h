@@ -3,6 +3,7 @@
 #include <EditorFramework/Plugin.h>
 #include <EditorFramework/Settings/Settings.h>
 #include <EditorFramework/ContainerWindow/ContainerWindow.moc.h>
+#include <EditorFramework/Project/EditorProject.h>
 #include <Foundation/Containers/Set.h>
 #include <Foundation/Strings/String.h>
 #include <Foundation/Communication/Event.h>
@@ -52,6 +53,7 @@ private:
   static ezSettings& GetSettings(ezMap<ezString, ezSettings>& SettingsMap, const char* szPlugin, const char* szSearchPath);
 
   static void DocumentManagerRequestHandler(ezDocumentManagerBase::Request& r);
+  static void ProjectRequestHandler(ezEditorProject::Request& r);
 
   static ezHybridArray<ezContainerWindow*, 4> s_ContainerWindows;
   static ezMap<ezString, ezDocumentWindow*> s_DocumentWindows;

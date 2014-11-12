@@ -31,7 +31,7 @@ public:
 
   const char* GetDocumentPath() const { return m_sDocumentPath; }
 
-  ezStatus SaveDocument() { return InternalSaveDocument(); }
+  ezStatus SaveDocument();
   ezStatus LoadDocument() { return InternalLoadDocument(); }
 
   ezDocumentManagerBase* GetDocumentManager() const { return m_pDocumentManager; }
