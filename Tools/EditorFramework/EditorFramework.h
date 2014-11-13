@@ -20,6 +20,7 @@ struct EZ_EDITORFRAMEWORK_DLL ezPluginSet
 class EZ_EDITORFRAMEWORK_DLL ezEditorFramework
 {
 public:
+  static QMainWindow* GetMainWindow();
 
   static const ezString& GetApplicationName() { return s_sApplicationName; }
   static const ezString& GetApplicationUserName() { return s_sUserName; }

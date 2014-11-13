@@ -1,6 +1,7 @@
 #include <PCH.h>
 #include <EditorFramework/Dialogs/PluginDlg.moc.h>
 #include <EditorFramework/EditorFramework.h>
+#include <EditorFramework/EditorGUI.moc.h>
 #include <Foundation/IO/OSFile.h>
 #include <QMessageBox>
 
@@ -82,7 +83,7 @@ void PluginDlg::on_ButtonOK_clicked()
 
   if (bDifferent)
   {
-    QMessageBox::information(this, QLatin1String("Restart Required"), QLatin1String("Plugins are only loaded at startup.\n\nYou need to restart the program for this change to take effect."), QMessageBox::StandardButton::Ok, QMessageBox::StandardButton::Ok);
+    ezEditorGUI::MessageBoxInformation("Plugins are only loaded at startup.\n\nYou need to restart the program for this change to take effect.");
 
     ezEditorFramework::SetEditorPluginsToBeLoaded(ToBeLoaded);
   }

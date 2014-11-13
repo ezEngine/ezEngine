@@ -23,6 +23,11 @@ QApplication* ezEditorFramework::s_pQtApplication = nullptr;
 
 ezSet<ezString> ezEditorFramework::s_RestartRequiredReasons;
 
+QMainWindow* ezEditorFramework::GetMainWindow()
+{
+  return s_ContainerWindows[0];
+}
+
 void SetStyleSheet()
 {
   QApplication::setStyle(QStyleFactory::create("fusion"));

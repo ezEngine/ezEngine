@@ -5,6 +5,7 @@
 #include <EditorFramework/Settings/SettingsTab.moc.h>
 #include <EditorFramework/Project/EditorProject.h>
 #include <ToolsFoundation/Document/DocumentManager.h>
+#include <EditorFramework/EditorGUI.moc.h>
 #include <Foundation/IO/OSFile.h>
 #include <QSettings>
 #include <QMenu>
@@ -433,7 +434,7 @@ void ezContainerWindow::CreateOrOpenDocument(bool bCreate)
 
   if (sAllFilters.IsEmpty())
   {
-    QMessageBox::information(this, QLatin1String("ezEditor"), QLatin1String("No file types are currently known. Load plugins to add file types."), QMessageBox::StandardButton::Ok);
+    ezEditorGUI::MessageBoxInformation("No file types are currently known. Load plugins to add file types.");
     return;
   }
 
@@ -456,7 +457,7 @@ void ezContainerWindow::CreateOrOpenDocument(bool bCreate)
 
   if (FindDocumentTypeFromPath(sFile, bCreate, pManToCreate, DescToCreate).Failed())
   {
-    QMessageBox::warning(this, QLatin1String("ezEditor"), QLatin1String("The selected file extension is not registered with any known type."), QMessageBox::StandardButton::Ok);
+    ezEditorGUI::MessageBoxWarning("The selected file extension is not registered with any known type.");
     return;
   }
 
@@ -486,10 +487,7 @@ void ezContainerWindow::CreateOrOpenDocument(bool bCreate)
       ezStringBuilder s;
       s.Format("Failed to open document: \n'%s'", sFile.GetData());
 
-      if (!res.m_sError.IsEmpty())
-        s.AppendFormat("\n\nDetails: %s", res.m_sError.GetData());
-
-      QMessageBox::warning(this, QLatin1String("ezEditor"), QString::fromUtf8(s.GetData()), QMessageBox::StandardButton::Ok);
+      ezEditorGUI::MessageBoxStatus(res, s);
       return;
     }
 
@@ -499,7 +497,7 @@ void ezContainerWindow::CreateOrOpenDocument(bool bCreate)
   {
     if (bCreate)
     {
-      QMessageBox::information(this, QLatin1String("ezEditor"), QString::fromUtf8("The selected document is already open. You need to close the document before you can re-create it."), QMessageBox::StandardButton::Ok);
+      ezEditorGUI::MessageBoxInformation("The selected document is already open. You need to close the document before you can re-create it.");
     }
   }
 
@@ -535,7 +533,7 @@ void ezContainerWindow::CreateOrOpenProject(bool bCreate)
 
   if (ezEditorProject::IsProjectOpen() && ezEditorProject::GetInstance()->GetProjectPath() == sFile)
   {
-    QMessageBox::information(this, QLatin1String("ezEditor"), QLatin1String("The selected project is already open"), QMessageBox::StandardButton::Ok);
+    ezEditorGUI::MessageBoxInformation("The selected project is already open");
     return;
   }
 
@@ -550,10 +548,7 @@ void ezContainerWindow::CreateOrOpenProject(bool bCreate)
     ezStringBuilder s;
     s.Format("Failed to open project:\n'%s'", sFile.GetData());
 
-    if (!res.m_sError.IsEmpty())
-      s.AppendFormat("\n\nDetails: %s", res.m_sError.GetData());
-
-    QMessageBox::warning(this, QLatin1String("ezEditor"), QString::fromUtf8(s.GetData()), QMessageBox::StandardButton::Ok);
+    ezEditorGUI::MessageBoxStatus(res, s);
     return;
   }
 }

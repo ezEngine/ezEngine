@@ -2,6 +2,7 @@
 
 #include <EditorFramework/Plugin.h>
 #include <EditorFramework/Settings/Settings.h>
+#include <ToolsFoundation/Basics/Status.h>
 #include <QApplication>
 
 class QColorDialog;
@@ -14,6 +15,10 @@ public:
   static ezEditorGUI* GetInstance();
 
   void ShowColorDialog(const ezColor& color, bool bAlpha, QWidget* pParent, const char* slotCurColChanged, const char* slotAccept, const char* slotReject);
+
+  static void MessageBoxStatus(const ezStatus& s, const char* szFailureMsg, const char* szSuccessMsg = "", bool bOnlySuccessMsgIfDetails = true);
+  static void MessageBoxInformation(const char* szMsg);
+  static void MessageBoxWarning(const char* szMsg);
 
   void LoadState();
   void SaveState();
