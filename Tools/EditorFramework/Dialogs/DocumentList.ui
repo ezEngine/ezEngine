@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>880</width>
-    <height>504</height>
+    <width>700</width>
+    <height>400</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -104,8 +104,14 @@
          <height>16777215</height>
         </size>
        </property>
+       <property name="toolTip">
+        <string>Shortcut: CTRL+S</string>
+       </property>
        <property name="text">
         <string>Save All</string>
+       </property>
+       <property name="shortcut">
+        <string>Ctrl+S</string>
        </property>
       </widget>
      </item>
@@ -124,8 +130,14 @@
      </item>
      <item>
       <widget class="QPushButton" name="ButtonDontSave">
+       <property name="toolTip">
+        <string>Shortcut: CRTL+Q</string>
+       </property>
        <property name="text">
         <string>Don't Save</string>
+       </property>
+       <property name="shortcut">
+        <string>Ctrl+Q</string>
        </property>
       </widget>
      </item>

@@ -195,14 +195,20 @@ void ezContainerWindow::SetupDocumentTabArea()
   pButton->setMenu(new QMenu());
   pButton->menu()->addAction(m_pActionCreateDocument);
   pButton->menu()->addAction(m_pActionOpenDocument);
+  m_pMenuRecentDocuments = pButton->menu()->addMenu("Recent Documents");
+  
   pButton->menu()->addSeparator();
   pButton->menu()->addAction(m_pActionCreateProject);
   pButton->menu()->addAction(m_pActionOpenProject);
+  m_pMenuRecentProjects = pButton->menu()->addMenu("Recent Projects");
   pButton->menu()->addAction(m_pActionCloseProject);
   pButton->menu()->addSeparator();
   pButton->menu()->addAction(m_pActionSettings);
 
   pTabs->setCornerWidget(pButton, Qt::Corner::TopLeftCorner);
+
+  EZ_VERIFY(connect(m_pMenuRecentDocuments, SIGNAL(aboutToShow()), this, SLOT(SlotRecentDocumentsMenu())) != nullptr, "signal/slot connection failed");
+  EZ_VERIFY(connect(m_pMenuRecentProjects, SIGNAL(aboutToShow()), this, SLOT(SlotRecentProjectsMenu())) != nullptr, "signal/slot connection failed");
 
   setCentralWidget(pTabs);
 }
@@ -364,6 +370,12 @@ ezString ezContainerWindow::BuildDocumentTypeFileFilter(bool bForCreation) const
   ezStringBuilder sAllFilters;
   const char* sepsep = "";
 
+  if (!bForCreation)
+  {
+    sAllFilters = "All Files (*.*)";
+    sepsep = ";;";
+  }
+
   for (ezDocumentManagerBase* pMan : ezDocumentManagerBase::GetAllDocumentManagers())
   {
     ezHybridArray<ezDocumentTypeDescriptor, 4> Types;
@@ -455,37 +467,48 @@ void ezContainerWindow::CreateOrOpenDocument(bool bCreate)
   ezDocumentManagerBase* pManToCreate = nullptr;
   ezDocumentTypeDescriptor DescToCreate;
 
-  if (FindDocumentTypeFromPath(sFile, bCreate, pManToCreate, DescToCreate).Failed())
+  if (FindDocumentTypeFromPath(sFile, bCreate, pManToCreate, DescToCreate).Succeeded())
+  {
+    sSelectedExt = DescToCreate.m_sDocumentTypeName;
+  }
+
+  CreateOrOpenDocument(bCreate, sFile);
+}
+
+void ezContainerWindow::CreateOrOpenDocument(bool bCreate, const char* szFile)
+{
+  ezDocumentManagerBase* pManToCreate = nullptr;
+  ezDocumentTypeDescriptor DescToCreate;
+
+  if (FindDocumentTypeFromPath(szFile, bCreate, pManToCreate, DescToCreate).Failed())
   {
     ezEditorGUI::MessageBoxWarning("The selected file extension is not registered with any known type.");
     return;
   }
 
-  sSelectedExt = DescToCreate.m_sDocumentTypeName;
-
   // does the same document already exist and is open ?
-  ezDocumentBase* pDocument = pManToCreate->GetDocumentByPath(sFile);
+  ezDocumentBase* pDocument = pManToCreate->GetDocumentByPath(szFile);
 
   if (!pDocument)
   {
     ezStatus res;
   
     if (bCreate)
-      res = pManToCreate->CreateDocument(DescToCreate.m_sDocumentTypeName, sFile, pDocument);
+      res = pManToCreate->CreateDocument(DescToCreate.m_sDocumentTypeName, szFile, pDocument);
     else
     {
-      res = pManToCreate->CanOpenDocument(sFile);
+      res = pManToCreate->CanOpenDocument(szFile);
 
       if (res.m_Result.Succeeded())
       {
-        res = pManToCreate->OpenDocument(DescToCreate.m_sDocumentTypeName, sFile, pDocument);
+        res = pManToCreate->OpenDocument(DescToCreate.m_sDocumentTypeName, szFile, pDocument);
       }
     }
 
     if (res.m_Result.Failed())
     {
       ezStringBuilder s;
-      s.Format("Failed to open document: \n'%s'", sFile.GetData());
+      s.Format("Failed to open document: \n'%s'", szFile);
 
       ezEditorGUI::MessageBoxStatus(res, s);
       return;
@@ -531,22 +554,30 @@ void ezContainerWindow::CreateOrOpenProject(bool bCreate)
 
   sDir = ezString(ezPathUtils::GetFileDirectory(sFile)).GetData();
 
-  if (ezEditorProject::IsProjectOpen() && ezEditorProject::GetInstance()->GetProjectPath() == sFile)
+  CreateOrOpenProject(bCreate, sFile);
+}
+
+void ezContainerWindow::CreateOrOpenProject(bool bCreate, const char* szFile)
+{
+  if (ezEditorProject::IsProjectOpen() && ezEditorProject::GetInstance()->GetProjectPath() == szFile)
   {
     ezEditorGUI::MessageBoxInformation("The selected project is already open");
     return;
   }
 
+  if (!ezEditorProject::CanCloseProject())
+    return;
+
   ezStatus res;
   if (bCreate)
-    res = ezEditorProject::CreateProject(sFile);
+    res = ezEditorProject::CreateProject(szFile);
   else
-    res = ezEditorProject::OpenProject(sFile);
+    res = ezEditorProject::OpenProject(szFile);
 
   if (res.m_Result.Failed())
   {
     ezStringBuilder s;
-    s.Format("Failed to open project:\n'%s'", sFile.GetData());
+    s.Format("Failed to open project:\n'%s'", szFile);
 
     ezEditorGUI::MessageBoxStatus(res, s);
     return;
@@ -663,3 +694,84 @@ void ezContainerWindow::SlotCurrentTabOpenFolder()
   args << "/select," << QDir::toNativeSeparators(sPath.GetData());
   QProcess::startDetached("explorer", args);
 }
+
+void ezContainerWindow::SlotRecentDocumentsMenu()
+{
+  m_pMenuRecentDocuments->clear();
+
+  if (ezEditorFramework::GetRecentDocumentsList().GetFileList().IsEmpty())
+  {
+    QAction* pAction = m_pMenuRecentDocuments->addAction(QLatin1String("<empty>"));
+    pAction->setEnabled(false);
+    return;
+  }
+
+  ezInt32 iMaxDocumentsToAdd = 10;
+  for (ezString s : ezEditorFramework::GetRecentDocumentsList().GetFileList())
+  {
+    QAction* pAction = nullptr;
+
+    if (ezEditorProject::IsProjectOpen())
+    {
+      ezString sRelativePath;
+      if (!ezEditorProject::GetInstance()->IsDocumentInProject(s, &sRelativePath))
+        continue;
+
+      pAction = m_pMenuRecentDocuments->addAction(QString::fromUtf8(sRelativePath.GetData()));
+    }
+    else
+    {
+      pAction = m_pMenuRecentDocuments->addAction(QString::fromUtf8(s.GetData()));
+    }
+
+    pAction->setData(QString::fromUtf8(s.GetData()));
+    EZ_VERIFY(connect(pAction, SIGNAL(triggered()), this, SLOT(SlotRecentDocument())) != nullptr, "signal/slot connection failed");
+
+    --iMaxDocumentsToAdd;
+
+    if (iMaxDocumentsToAdd <= 0)
+      break;
+  }
+}
+
+void ezContainerWindow::SlotRecentProjectsMenu()
+{
+  m_pMenuRecentProjects->clear();
+
+  if (ezEditorFramework::GetRecentProjectsList().GetFileList().IsEmpty())
+  {
+    QAction* pAction = m_pMenuRecentProjects->addAction(QLatin1String("<empty>"));
+    pAction->setEnabled(false);
+    return;
+  }
+
+  for (ezString s : ezEditorFramework::GetRecentProjectsList().GetFileList())
+  {
+    QAction* pAction = m_pMenuRecentProjects->addAction(QString::fromUtf8(s.GetData()));
+    pAction->setData(QString::fromUtf8(s.GetData()));
+    EZ_VERIFY(connect(pAction, SIGNAL(triggered()), this, SLOT(SlotRecentProject())) != nullptr, "signal/slot connection failed");
+  }
+}
+
+void ezContainerWindow::SlotRecentProject()
+{
+  QAction* pAction = qobject_cast<QAction*>(sender());
+  if (!pAction)
+    return;
+
+  ezString sFile = pAction->data().toString().toUtf8().data();
+
+  CreateOrOpenProject(false, sFile);
+}
+
+void ezContainerWindow::SlotRecentDocument()
+{
+  QAction* pAction = qobject_cast<QAction*>(sender());
+  if (!pAction)
+    return;
+
+  ezString sFile = pAction->data().toString().toUtf8().data();
+
+  CreateOrOpenDocument(false, sFile);
+}
+

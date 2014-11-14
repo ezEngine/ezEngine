@@ -270,24 +270,11 @@ ezSettings& ezEditorFramework::GetSettings(ezMap<ezString, ezSettings>& Settings
   return settings;
 }
 
-/*
-
-void ezEditorFramework::ClearSettingsProject()
-{
-  ClearSettingsScene();
-
-  s_Settings[(int) SettingsCategory::Project].Clear();
-}
-
-void ezEditorFramework::ClearSettingsScene()
-{
-  SaveSettings();
-
-  s_Settings[(int) SettingsCategory::Scene].Clear();
-}
-*/
 void ezEditorFramework::SaveSettings()
 {
+  s_RecentProjects.Save("Settings/RecentProjects.txt");
+  s_RecentDocuments.Save("Settings/RecentDocuments.txt");
+
   {
     for (auto it = s_EditorSettings.GetIterator(); it.IsValid(); ++it)
     {

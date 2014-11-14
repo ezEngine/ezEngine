@@ -47,13 +47,19 @@ private slots:
   void SlotCurrentTabSaveAll();
   void SlotCurrentTabClose();
   void SlotCurrentTabOpenFolder();
+  void SlotRecentDocumentsMenu();
+  void SlotRecentProjectsMenu();
+  void SlotRecentProject();
+  void SlotRecentDocument();
 
 private:
   QTabWidget* GetTabWidget() const;
   ezString BuildDocumentTypeFileFilter(bool bForCreation) const;
   ezResult FindDocumentTypeFromPath(const char* szPath, bool bForCreation, ezDocumentManagerBase*& out_pTypeManager, ezDocumentTypeDescriptor& out_TypeDesc) const;
   void CreateOrOpenDocument(bool bCreate);
+  void CreateOrOpenDocument(bool bCreate, const char* szFile);
   void CreateOrOpenProject(bool bCreate);
+  void CreateOrOpenProject(bool bCreate, const char* szFile);
 
   void SaveWindowLayout();
   void RestoreWindowLayout();
@@ -85,6 +91,9 @@ private:
   QAction* m_pActionCurrentTabSaveAll;
   QAction* m_pActionCurrentTabClose;
   QAction* m_pActionCurrentTabOpenFolder;
+
+  QMenu* m_pMenuRecentDocuments;
+  QMenu* m_pMenuRecentProjects;
 
   static ezDynamicArray<ezContainerWindow*> s_AllContainerWindows;
 };

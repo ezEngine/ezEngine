@@ -46,7 +46,7 @@ public:
 
   static ezString FindProjectForDocument(const char* szDocumentPath);
 
-  bool IsDocumentInProject(const char* szDocumentPath) const;
+  bool IsDocumentInProject(const char* szDocumentPath, ezString* out_RelativePath = nullptr) const;
 
 private:
 

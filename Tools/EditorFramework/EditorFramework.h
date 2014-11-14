@@ -17,6 +17,23 @@ struct EZ_EDITORFRAMEWORK_DLL ezPluginSet
   ezSet<ezString> m_Plugins;
 };
 
+class EZ_EDITORFRAMEWORK_DLL ezRecentFilesList
+{
+public:
+  ezRecentFilesList(ezUInt32 uiMaxElements) { m_uiMaxElements = uiMaxElements; }
+
+  void Insert(const char* szFile);
+  const ezDeque<ezString>& GetFileList() const { return m_Files; }
+  void Clear() { m_Files.Clear(); }
+
+  void Save(const char* szFile);
+  void Load(const char* szFile);
+
+private:
+  ezUInt32 m_uiMaxElements;
+  ezDeque<ezString> m_Files;
+};
+
 class EZ_EDITORFRAMEWORK_DLL ezEditorFramework
 {
 public:
@@ -50,11 +67,16 @@ public:
   static ezDocumentWindow* GetDocumentWindow(const char* szUniqueName);
   static void AddDocumentWindow(ezDocumentWindow* pWindow);
 
+  static ezRecentFilesList& GetRecentProjectsList()   { return s_RecentProjects;  }
+  static ezRecentFilesList& GetRecentDocumentsList()  { return s_RecentDocuments; }
+
 private:
   static ezSettings& GetSettings(ezMap<ezString, ezSettings>& SettingsMap, const char* szPlugin, const char* szSearchPath);
 
   static void DocumentManagerRequestHandler(ezDocumentManagerBase::Request& r);
+  static void DocumentManagerEventHandler(const ezDocumentManagerBase::Event& r);
   static void ProjectRequestHandler(ezEditorProject::Request& r);
+  static void ProjectEventHandler(const ezEditorProject::Event& r);
 
   static ezHybridArray<ezContainerWindow*, 4> s_ContainerWindows;
   static ezMap<ezString, ezDocumentWindow*> s_DocumentWindows;
@@ -73,6 +95,9 @@ private:
   static ezMap<ezString, ezSettings> s_EditorSettings;
   static ezMap<ezString, ezSettings> s_ProjectSettings;
   static ezMap<ezString, ezMap<ezString, ezSettings> > s_DocumentSettings;
+
+  static ezRecentFilesList s_RecentProjects;
+  static ezRecentFilesList s_RecentDocuments;
 
   static QApplication* s_pQtApplication;
 };

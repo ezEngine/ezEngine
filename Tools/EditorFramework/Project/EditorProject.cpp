@@ -98,6 +98,9 @@ void ezEditorProject::CloseProject()
 
 bool ezEditorProject::CanCloseProject()
 {
+  if (GetInstance() == nullptr)
+    return true;
+
   Request e;
   e.m_Type = Request::Type::CanProjectClose;
   e.m_bProjectCanClose = true;
@@ -138,13 +141,26 @@ ezStatus ezEditorProject::CreateProject(const char* szProjectPath)
   return CreateOrOpenProject(szProjectPath, true);
 }
 
-bool ezEditorProject::IsDocumentInProject(const char* szDocumentPath) const
+bool ezEditorProject::IsDocumentInProject(const char* szDocumentPath, ezString* out_RelativePath) const
 {
   ezStringBuilder sProjectFolder = m_sProjectPath;
   sProjectFolder.PathParentDirectory();
 
   ezStringBuilder s = szDocumentPath;
-  return s.IsPathBelowFolder(sProjectFolder);
+  if (!s.IsPathBelowFolder(sProjectFolder))
+    return false;
+
+  if (out_RelativePath)
+  {
+    ezInt32 iTrimStart = sProjectFolder.GetCharacterCount();
+
+    ezStringBuilder sText = szDocumentPath;
+    sText.Shrink(iTrimStart, 0);
+
+    *out_RelativePath = sText;
+  }
+
+  return true;
 }
 
 ezString ezEditorProject::FindProjectForDocument(const char* szDocumentPath)
@@ -175,71 +191,3 @@ ezString ezEditorProject::FindProjectForDocument(const char* szDocumentPath)
 
   return "";
 }
-
-
-//ezString ezEditorFramework::s_sProjectPath;
-/*
-ezString ezEditorFramework::GetProjectDataFolder()
-{
-  ezStringBuilder sPath = GetProjectPath();
-  sPath.Append("_data");
-  return sPath;
-}
-
-
-ezResult ezEditorFramework::OpenProject(ezStringView sProjectPath)
-{
-  EZ_ASSERT(!sProjectPath.IsEmpty(), "Path cannot be empty.");
-
-  // do not open the same project twice
-  if (s_sProjectPath == sProjectPath)
-    return EZ_SUCCESS;
-
-  CloseProject();
-
-  s_sProjectPath = sProjectPath;
-  UpdateEditorWindowTitle();
-
-  // load the settings
-  GetSettings(SettingsCategory::Project);
-
-  EditorEvent e;
-  e.m_Type = EditorEvent::EventType::BeforeOpenProject;
-  s_EditorEvents.Broadcast(e);
-
-  if (LoadProject().Failed())
-  {
-    CloseProject();
-    return EZ_FAILURE;
-  }
-
-  e.m_Type = EditorEvent::EventType::AfterOpenProject;
-  s_EditorEvents.Broadcast(e);
-
-  SaveSettings();
-  return EZ_SUCCESS;
-}
-
-void ezEditorFramework::CloseProject()
-{
-  if (s_sProjectPath.IsEmpty())
-    return;
-
-  //CloseScene();
-
-  EditorEvent e;
-  e.m_Type = EditorEvent::EventType::BeforeCloseProject;
-  s_EditorEvents.Broadcast(e);
-
-  UnloadProject();
-
-  e.m_Type = EditorEvent::EventType::AfterCloseProject;
-  s_EditorEvents.Broadcast(e);
-
-  ClearSettingsProject();
-  s_sProjectPath.Clear();
-
-  UpdateEditorWindowTitle();
-}
-
-*/

@@ -20,6 +20,8 @@ ezString ezEditorFramework::s_sUserName("DefaultUser");
 //bool ezEditorFramework::s_bContentModified = false;
 ezHybridArray<ezContainerWindow*, 4> ezEditorFramework::s_ContainerWindows;
 QApplication* ezEditorFramework::s_pQtApplication = nullptr;
+ezRecentFilesList ezEditorFramework::s_RecentProjects(5);
+ezRecentFilesList ezEditorFramework::s_RecentDocuments(50);
 
 ezSet<ezString> ezEditorFramework::s_RestartRequiredReasons;
 
@@ -81,18 +83,15 @@ void ezEditorFramework::StartupEditor(const char* szAppName, const char* szUserN
 
   SetStyleSheet();
 
-  //UpdateEditorWindowTitle();
-
-  // load the settings
-  //GetSettings(SettingsCategory::Editor);
-
   s_ContainerWindows.PushBack(new ezContainerWindow());
   s_ContainerWindows[0]->show();
 
   s_ContainerWindows[0]->ShowSettingsTab();
 
   ezDocumentManagerBase::s_Requests.AddEventHandler(ezDelegate<void (ezDocumentManagerBase::Request&)>(&ezEditorFramework::DocumentManagerRequestHandler));
+  ezDocumentManagerBase::s_Events.AddEventHandler(ezDelegate<void (const ezDocumentManagerBase::Event&)>(&ezEditorFramework::DocumentManagerEventHandler));
   ezEditorProject::s_Requests.AddEventHandler(ezDelegate<void (ezEditorProject::Request&)>(&ezEditorFramework::ProjectRequestHandler));
+  ezEditorProject::s_Events.AddEventHandler(ezDelegate<void (const ezEditorProject::Event&)>(&ezEditorFramework::ProjectEventHandler));
 
   ezStartup::StartupCore();
 
@@ -108,6 +107,9 @@ void ezEditorFramework::StartupEditor(const char* szAppName, const char* szUserN
 
   ezEditorGUI::GetInstance()->LoadState();
 
+  s_RecentProjects.Load("Settings/RecentProjects.txt");
+  s_RecentDocuments.Load("Settings/RecentDocuments.txt");
+
   ezEditorFramework::LoadPlugins();
 }
 
@@ -115,10 +117,10 @@ void ezEditorFramework::ShutdownEditor()
 {
   ezEditorProject::CloseProject();
 
-  SaveSettings();
-
   ezEditorProject::s_Requests.RemoveEventHandler(ezDelegate<void (ezEditorProject::Request&)>(&ezEditorFramework::ProjectRequestHandler));
+  ezEditorProject::s_Events.RemoveEventHandler(ezDelegate<void (const ezEditorProject::Event&)>(&ezEditorFramework::ProjectEventHandler));
   ezDocumentManagerBase::s_Requests.RemoveEventHandler(ezDelegate<void (ezDocumentManagerBase::Request&)>(&ezEditorFramework::DocumentManagerRequestHandler));
+  ezDocumentManagerBase::s_Events.RemoveEventHandler(ezDelegate<void (const ezDocumentManagerBase::Event&)>(&ezEditorFramework::DocumentManagerEventHandler));
 
   ezEditorGUI::GetInstance()->SaveState();
 
@@ -128,6 +130,19 @@ void ezEditorFramework::ShutdownEditor()
 ezInt32 ezEditorFramework::RunEditor()
 {
   return s_pQtApplication->exec();
+}
+
+void ezEditorFramework::DocumentManagerEventHandler(const ezDocumentManagerBase::Event& r)
+{
+  switch (r.m_Type)
+  {
+  case ezDocumentManagerBase::Event::Type::DocumentOpened:
+    {
+      s_RecentDocuments.Insert(r.m_pDocument->GetDocumentPath());
+      SaveSettings();
+    }
+    break;
+  }
 }
 
 void ezEditorFramework::DocumentManagerRequestHandler(ezDocumentManagerBase::Request& r)
@@ -178,6 +193,20 @@ void ezEditorFramework::DocumentManagerRequestHandler(ezDocumentManagerBase::Req
   }
 }
 
+void ezEditorFramework::ProjectEventHandler(const ezEditorProject::Event& r)
+{
+  switch (r.m_Type)
+  {
+  case ezEditorProject::Event::Type::ProjectOpened:
+  case ezEditorProject::Event::Type::ProjectClosing:
+    {
+      s_RecentProjects.Insert(ezEditorProject::GetInstance()->GetProjectPath());
+      SaveSettings();
+    }
+    break;
+  }
+}
+
 void ezEditorFramework::ProjectRequestHandler(ezEditorProject::Request& r)
 {
   switch (r.m_Type)
@@ -205,7 +234,59 @@ void ezEditorFramework::ProjectRequestHandler(ezEditorProject::Request& r)
           r.m_bProjectCanClose = false;
       }
     }
-    return;
+      return;
   }
 }
+
+void ezRecentFilesList::Insert(const char* szFile)
+{
+  ezStringBuilder sCleanPath = szFile;
+  sCleanPath.MakeCleanPath();
+
+  ezString s = sCleanPath;
+
+  m_Files.Remove(s);
+  m_Files.PushFront(s);
+
+  if (m_Files.GetCount() > m_uiMaxElements)
+    m_Files.SetCount(m_uiMaxElements);
+}
+
+void ezRecentFilesList::Save(const char* szFile)
+{
+  ezFileWriter File;
+  if (File.Open(szFile).Failed())
+    return;
+
+  for (const ezString& s : m_Files)
+  {
+    File.WriteBytes(s.GetData(), s.GetElementCount());
+    File.WriteBytes("\n", sizeof(char));
+  }
+}
+
+void ezRecentFilesList::Load(const char* szFile)
+{
+  m_Files.Clear();
+
+  ezFileReader File;
+  if (File.Open(szFile).Failed())
+    return;
+
+  ezStringBuilder sAllLines;
+  sAllLines.ReadAll(File);
+
+  ezHybridArray<ezStringView, 16> Lines;
+  sAllLines.Split(false, Lines, "\n");
+
+  for (const ezStringView& sv : Lines)
+  {
+    ezString s = sv;
+    Insert(s);
+  }
+}
+
+
+
+
 

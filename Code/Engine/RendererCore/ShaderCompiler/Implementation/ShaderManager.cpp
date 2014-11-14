@@ -100,6 +100,7 @@ void ezShaderManager::SetPlatform(const char* szPlatform, ezGALDevice* pDevice, 
   s_bEnableRuntimeCompilation = bEnableRuntimeCompilation;
   s_sPlatform = s;
 
+  /// \todo This is a bit hardcoded...
   s_AllowedPermutations.ReadFromFile("ShaderPermutations.txt", s.GetData());
 
   s_ContextState.Clear();
