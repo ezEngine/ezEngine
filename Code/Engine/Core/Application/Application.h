@@ -63,8 +63,11 @@ public:
   };
 
   /// \brief Constructor.
-  ezApplication()
-    : m_iReturnCode(0), m_uiArgumentCount(0), m_ppArguments(nullptr)
+  ezApplication() : 
+    m_iReturnCode(0), 
+    m_uiArgumentCount(0), 
+    m_ppArguments(nullptr),
+    m_bReportMemoryLeaks(true)
   {
   }
 
@@ -188,6 +191,11 @@ public:
     return m_CommandLine;
   }
 
+  void EnableMemoryLeakReporting(bool bEnable)
+  {
+    m_bReportMemoryLeaks = bEnable;
+  }
+
 private:
 
   ezInt32 m_iReturnCode;
@@ -195,6 +203,8 @@ private:
   ezUInt32 m_uiArgumentCount;
 
   const char** m_ppArguments;
+
+  bool m_bReportMemoryLeaks;
 
   static ezApplication* s_pApplicationInstance;
 
