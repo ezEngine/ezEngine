@@ -111,6 +111,9 @@ QWidget* ezSimplePropertyGridWidget::CreateControl(Property& Prop, QWidget* pWid
   m_pLayout->addWidget(m_pLabel);
   m_pLayout->addWidget(pWidget);
 
+  m_pLabel->setEnabled(!Prop.m_bReadOnly);
+  pWidget->setEnabled(!Prop.m_bReadOnly);
+
   return pControl;
 }
 
@@ -168,12 +171,13 @@ void ezSimplePropertyGridWidget::BeginProperties()
   ClearProperties();
 }
 
-void ezSimplePropertyGridWidget::AddProperty(const char* szName, const ezVariant& value, ezVariant* pValue)
+void ezSimplePropertyGridWidget::AddProperty(const char* szName, const ezVariant& value, ezVariant* pValue, bool bReadOnly)
 {
   Property p;
   p.m_sName = szName;
   p.m_Value = value;
   p.m_pValue = pValue;
+  p.m_bReadOnly = bReadOnly;
 
   m_Properties.PushBack(p);
 }

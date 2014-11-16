@@ -212,9 +212,15 @@ void ezSettings::ReadFromJSON(ezStreamReaderBase& stream)
   }
 }
 
+ezSet<ezString> ezEditorFramework::s_SettingsPluginNames;
 ezMap<ezString, ezSettings> ezEditorFramework::s_EditorSettings;
 ezMap<ezString, ezSettings> ezEditorFramework::s_ProjectSettings;
 ezMap<ezString, ezMap<ezString, ezSettings> > ezEditorFramework::s_DocumentSettings;
+
+void ezEditorFramework::RegisterPluginNameForSettings(const char* szPluginName)
+{
+  s_SettingsPluginNames.Insert(szPluginName);
+}
 
 ezSettings& ezEditorFramework::GetEditorSettings(const char* szPlugin)
 {
@@ -223,22 +229,28 @@ ezSettings& ezEditorFramework::GetEditorSettings(const char* szPlugin)
 
 ezSettings& ezEditorFramework::GetProjectSettings(const char* szPlugin)
 {
-  return GetSettings(s_ProjectSettings, szPlugin, "Project"); // TODO
+  EZ_ASSERT(ezEditorProject::IsProjectOpen(), "No project is open");
+
+  return GetSettings(s_ProjectSettings, szPlugin, ezEditorFramework::GetDocumentDataFolder(ezEditorProject::GetInstance()->GetProjectPath()));
+}
+
+ezSettings& ezEditorFramework::GetDocumentSettings(const ezDocumentBase* pDocument, const char* szPlugin)
+{
+  return GetDocumentSettings(pDocument->GetDocumentPath(), szPlugin);
 }
 
 ezSettings& ezEditorFramework::GetDocumentSettings(const char* szDocument, const char* szPlugin)
 {
-  ezStringBuilder sPath = szDocument;
-  sPath.Append("_data"); // TODO
-
-  return GetSettings(s_DocumentSettings[szDocument], szPlugin, sPath);
+  return GetSettings(s_DocumentSettings[szDocument], szPlugin, ezEditorFramework::GetDocumentDataFolder(szDocument));
 }
 
 ezSettings& ezEditorFramework::GetSettings(ezMap<ezString, ezSettings>& SettingsMap, const char* szPlugin, const char* szSearchPath)
 {
+  EZ_ASSERT(s_SettingsPluginNames.Contains(szPlugin), "The plugin name '%s' has not been registered with 'ezEditorFramework::RegisterPluginNameForSettings'", szPlugin);
+
   bool bExisted = false;
 
-  auto itSett = s_EditorSettings.FindOrAdd(szPlugin, &bExisted);
+  auto itSett = SettingsMap.FindOrAdd(szPlugin, &bExisted);
 
   ezSettings& settings = itSett.Value();
 
@@ -270,96 +282,67 @@ ezSettings& ezEditorFramework::GetSettings(ezMap<ezString, ezSettings>& Settings
   return settings;
 }
 
-void ezEditorFramework::SaveSettings()
+void ezEditorFramework::SaveRecentFiles()
 {
   s_RecentProjects.Save("Settings/RecentProjects.txt");
   s_RecentDocuments.Save("Settings/RecentDocuments.txt");
+}
 
+void ezEditorFramework::LoadRecentFiles()
+{
+  s_RecentProjects.Load("Settings/RecentProjects.txt");
+  s_RecentDocuments.Load("Settings/RecentDocuments.txt");
+}
+
+void ezEditorFramework::StoreSettings(const ezMap<ezString, ezSettings>& settings, const char* szFolder)
+{
+  for (auto it = settings.GetIterator(); it.IsValid(); ++it)
   {
-    for (auto it = s_EditorSettings.GetIterator(); it.IsValid(); ++it)
+    const ezSettings& settings = it.Value();
+
+    ezStringBuilder sPath = szFolder;
+    sPath.AppendPath("Settings", it.Key().GetData());
+    sPath.ChangeFileExtension("settings");
+
+    ezFileWriter file;
+    if (file.Open(sPath.GetData()).Succeeded())
     {
-      ezSettings& settings = it.Value();
+      settings.WriteToJSON(file, true, false);
+      file.Close();
+    }
 
-      ezStringBuilder sPath = "";
-      sPath.AppendPath("Settings", it.Key().GetData());
-      sPath.ChangeFileExtension("settings");
+    ezStringBuilder sUserFile;
+    sUserFile.Append(GetApplicationUserName().GetData(), ".usersettings");
+    sPath.ChangeFileExtension(sUserFile.GetData());
 
-      ezFileWriter file;
-      if (file.Open(sPath.GetData()).Succeeded())
-      {
-        settings.WriteToJSON(file, true, false);
-        file.Close();
-      }
-
-      ezStringBuilder sUserFile;
-      sUserFile.Append(GetApplicationUserName().GetData(), ".usersettings");
-      sPath.ChangeFileExtension(sUserFile.GetData());
-
-      if (file.Open(sPath.GetData()).Succeeded())
-      {
-        settings.WriteToJSON(file, false, true);
-        file.Close();
-      }
+    if (file.Open(sPath.GetData()).Succeeded())
+    {
+      settings.WriteToJSON(file, false, true);
+      file.Close();
     }
   }
+}
 
-  //if (!GetProjectPath().IsEmpty())
-  //{
-  //  for (auto it = s_Settings[(int) SettingsCategory::Project].GetIterator(); it.IsValid(); ++it)
-  //  {
-  //    ezSettings& settings = it.Value();
+void ezEditorFramework::SaveSettings()
+{
+  SaveRecentFiles();
 
-  //    ezStringBuilder sPath = GetProjectDataFolder();
-  //    sPath.AppendPath("Settings", it.Key().GetData());
-  //    sPath.ChangeFileExtension("settings");
+  StoreSettings(s_EditorSettings, "");
 
-  //    ezFileWriter file;
-  //    if (file.Open(sPath.GetData()).Succeeded())
-  //    {
-  //      settings.WriteToJSON(file, true, false);
-  //      file.Close();
-  //    }
+  if (ezEditorProject::IsProjectOpen())
+  {
+    StoreSettings(s_ProjectSettings, GetDocumentDataFolder(ezEditorProject::GetInstance()->GetProjectPath()));
+  }
+}
 
-  //    ezStringBuilder sUserFile;
-  //    sUserFile.Append(GetApplicationUserName().GetData(), ".usersettings");
-  //    sPath.ChangeFileExtension(sUserFile.GetData());
+void ezEditorFramework::SaveDocumentSettings(const ezDocumentBase* pDocument)
+{
+  auto it = s_DocumentSettings.Find(pDocument->GetDocumentPath());
 
-  //    if (file.Open(sPath.GetData()).Succeeded())
-  //    {
-  //      settings.WriteToJSON(file, false, true);
-  //      file.Close();
-  //    }
-  //  }
-  //}
+  if (!it.IsValid())
+    return;
 
-  //if (!GetScenePath().IsEmpty())
-  //{
-  //  for (auto it = s_Settings[(int) SettingsCategory::Scene].GetIterator(); it.IsValid(); ++it)
-  //  {
-  //    ezSettings& settings = it.Value();
-
-  //    ezStringBuilder sPath = GetSceneDataFolder();
-  //    sPath.AppendPath("Settings", it.Key().GetData());
-  //    sPath.ChangeFileExtension("settings");
-
-  //    ezFileWriter file;
-  //    if (file.Open(sPath.GetData()).Succeeded())
-  //    {
-  //      settings.WriteToJSON(file, true, false);
-  //      file.Close();
-  //    }
-
-  //    ezStringBuilder sUserFile;
-  //    sUserFile.Append(GetApplicationUserName().GetData(), ".usersettings");
-  //    sPath.ChangeFileExtension(sUserFile.GetData());
-
-  //    if (file.Open(sPath.GetData()).Succeeded())
-  //    {
-  //      settings.WriteToJSON(file, false, true);
-  //      file.Close();
-  //    }
-  //  }
-  //}
+  StoreSettings(it.Value(), GetDocumentDataFolder(it.Key()));
 }
 
 

@@ -47,7 +47,7 @@ ezDocumentWindow::ezDocumentWindow(ezDocumentBase* pDocument)
   setObjectName(GetUniqueName());
 
   pDocument->GetDocumentManager()->s_Events.AddEventHandler(ezDelegate<void (const ezDocumentManagerBase::Event&)>(&ezDocumentWindow::DocumentManagerEventHandler, this));
-  pDocument->m_Events.AddEventHandler(ezDelegate<void (const ezDocumentBase::Event&)>(&ezDocumentWindow::DocumentEventHandler, this));
+  pDocument->m_EventsOne.AddEventHandler(ezDelegate<void (const ezDocumentBase::Event&)>(&ezDocumentWindow::DocumentEventHandler, this));
 }
 
 ezDocumentWindow::ezDocumentWindow(const char* szUniqueName)
@@ -64,7 +64,7 @@ ezDocumentWindow::~ezDocumentWindow()
 {
   if (m_pDocument)
   {
-    m_pDocument->m_Events.RemoveEventHandler(ezDelegate<void (const ezDocumentBase::Event&)>(&ezDocumentWindow::DocumentEventHandler, this));
+    m_pDocument->m_EventsOne.RemoveEventHandler(ezDelegate<void (const ezDocumentBase::Event&)>(&ezDocumentWindow::DocumentEventHandler, this));
     m_pDocument->GetDocumentManager()->s_Events.RemoveEventHandler(ezDelegate<void (const ezDocumentManagerBase::Event&)>(&ezDocumentWindow::DocumentManagerEventHandler, this));
   }
 }

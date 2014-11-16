@@ -49,6 +49,7 @@ public:
       DocumentTypesAdded,
       DocumentOpened,
       DocumentClosing,
+      DocumentClosed, // this will not point to a valid document anymore, as the document is deleted, use DocumentClosing to get the event before it is deleted
     };
 
     Type m_Type;

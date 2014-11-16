@@ -22,6 +22,7 @@ public:
     ezVariant m_Value;
     ezVariant* m_pValue;
     QWidget* m_pWidget;
+    bool m_bReadOnly;
   };
 
   ezSimplePropertyGridWidget(QWidget* pParent);
@@ -29,7 +30,7 @@ public:
 
   void BeginProperties();
   void EndProperties();
-  void AddProperty(const char* szName, const ezVariant& value, ezVariant* pValue = nullptr);
+  void AddProperty(const char* szName, const ezVariant& value, ezVariant* pValue = nullptr, bool bReadOnly = false);
 
   void ClearProperties();
 

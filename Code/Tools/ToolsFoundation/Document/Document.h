@@ -46,14 +46,15 @@ public:
       ModifiedChanged,
       ReadOnlyChanged,
       EnsureVisible,
+      DocumentSaved,
     };
 
     Type m_Type;
-
     const ezDocumentBase* m_pDocument;
   };
 
-  ezEvent<const Event&> m_Events;
+  ezEvent<const Event&> m_EventsOne;
+  static ezEvent<const Event&> s_EventsAny;
 
 protected:
   void SetModified(bool b);

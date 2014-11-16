@@ -3,6 +3,7 @@
 #include <EditorFramework/EditorFramework.h>
 #include <QApplication>
 #include <QSettings>
+#include <QtNetwork/QHostInfo>
 
 class ezEditorApp : public ezApplication
 {
@@ -14,7 +15,11 @@ public:
 
   virtual ApplicationExecution Run() override
   {
-    ezEditorFramework::StartupEditor("ezEditor", "DefaultUser", GetArgumentCount(), (char**) GetArgumentsArray());
+    QHostInfo hostInfo;
+    hostInfo = QHostInfo::fromName(QHostInfo::localHostName());
+    ezString sHostName = QHostInfo::localHostName().toUtf8().data();
+
+    ezEditorFramework::StartupEditor("ezEditor", sHostName, GetArgumentCount(), (char**) GetArgumentsArray());
 
     {
       const ezInt32 iReturnCode = ezEditorFramework::RunEditor();

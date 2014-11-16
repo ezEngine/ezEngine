@@ -74,6 +74,8 @@ void ezEditorFramework::StartupEditor(const char* szAppName, const char* szUserN
   s_sApplicationName = ezCommandLineUtils::GetInstance()->GetStringOption("-appname", 0, szAppName);
   s_sUserName = szUserName;
 
+  RegisterPluginNameForSettings("-Main-");
+
   s_pQtApplication = new QApplication(argc, argv);
 
   QCoreApplication::setOrganizationDomain("www.ezEngine.net");
@@ -86,10 +88,9 @@ void ezEditorFramework::StartupEditor(const char* szAppName, const char* szUserN
   s_ContainerWindows.PushBack(new ezContainerWindow());
   s_ContainerWindows[0]->show();
 
-  s_ContainerWindows[0]->ShowSettingsTab();
-
   ezDocumentManagerBase::s_Requests.AddEventHandler(ezDelegate<void (ezDocumentManagerBase::Request&)>(&ezEditorFramework::DocumentManagerRequestHandler));
   ezDocumentManagerBase::s_Events.AddEventHandler(ezDelegate<void (const ezDocumentManagerBase::Event&)>(&ezEditorFramework::DocumentManagerEventHandler));
+  ezDocumentBase::s_EventsAny.AddEventHandler(ezDelegate<void (const ezDocumentBase::Event&)>(&ezEditorFramework::DocumentEventHandler));
   ezEditorProject::s_Requests.AddEventHandler(ezDelegate<void (ezEditorProject::Request&)>(&ezEditorFramework::ProjectRequestHandler));
   ezEditorProject::s_Events.AddEventHandler(ezDelegate<void (const ezEditorProject::Event&)>(&ezEditorFramework::ProjectEventHandler));
 
@@ -107,10 +108,11 @@ void ezEditorFramework::StartupEditor(const char* szAppName, const char* szUserN
 
   ezEditorGUI::GetInstance()->LoadState();
 
-  s_RecentProjects.Load("Settings/RecentProjects.txt");
-  s_RecentDocuments.Load("Settings/RecentDocuments.txt");
+  LoadRecentFiles();
 
   ezEditorFramework::LoadPlugins();
+
+  s_ContainerWindows[0]->ShowSettingsTab();
 }
 
 void ezEditorFramework::ShutdownEditor()
@@ -119,8 +121,11 @@ void ezEditorFramework::ShutdownEditor()
 
   ezEditorProject::s_Requests.RemoveEventHandler(ezDelegate<void (ezEditorProject::Request&)>(&ezEditorFramework::ProjectRequestHandler));
   ezEditorProject::s_Events.RemoveEventHandler(ezDelegate<void (const ezEditorProject::Event&)>(&ezEditorFramework::ProjectEventHandler));
+  ezDocumentBase::s_EventsAny.RemoveEventHandler(ezDelegate<void (const ezDocumentBase::Event&)>(&ezEditorFramework::DocumentEventHandler));
   ezDocumentManagerBase::s_Requests.RemoveEventHandler(ezDelegate<void (ezDocumentManagerBase::Request&)>(&ezEditorFramework::DocumentManagerRequestHandler));
   ezDocumentManagerBase::s_Events.RemoveEventHandler(ezDelegate<void (const ezDocumentManagerBase::Event&)>(&ezEditorFramework::DocumentManagerEventHandler));
+
+  SaveSettings();
 
   ezEditorGUI::GetInstance()->SaveState();
 
@@ -140,6 +145,24 @@ void ezEditorFramework::DocumentManagerEventHandler(const ezDocumentManagerBase:
     {
       s_RecentDocuments.Insert(r.m_pDocument->GetDocumentPath());
       SaveSettings();
+    }
+    break;
+  case ezDocumentManagerBase::Event::Type::DocumentClosing:
+    {
+      // Clear all document settings when it is closed
+      s_DocumentSettings.Remove(r.m_pDocument->GetDocumentPath());
+    }
+    break;
+  }
+}
+
+void ezEditorFramework::DocumentEventHandler(const ezDocumentBase::Event& e)
+{
+  switch (e.m_Type)
+  {
+  case ezDocumentBase::Event::Type::DocumentSaved:
+    {
+      SaveDocumentSettings(e.m_pDocument);
     }
     break;
   }
@@ -202,6 +225,12 @@ void ezEditorFramework::ProjectEventHandler(const ezEditorProject::Event& r)
     {
       s_RecentProjects.Insert(ezEditorProject::GetInstance()->GetProjectPath());
       SaveSettings();
+    }
+    break;
+  case ezEditorProject::Event::Type::ProjectClosed:
+    {
+      // make sure to clear all project settings when a project is closed
+      s_ProjectSettings.Clear();
     }
     break;
   }
@@ -284,6 +313,14 @@ void ezRecentFilesList::Load(const char* szFile)
     ezString s = sv;
     Insert(s);
   }
+}
+
+ezString ezEditorFramework::GetDocumentDataFolder(const char* szDocument)
+{
+  ezStringBuilder sPath = szDocument;
+  sPath.Append("_data");
+
+  return sPath;
 }
 
 

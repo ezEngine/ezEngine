@@ -12,16 +12,18 @@ struct ezSettingsFlags
   enum Enum
   {
     None = 0,
-    Registered = EZ_BIT(0), // internal
-    Hidden = EZ_BIT(1),
-    User = EZ_BIT(2),
+    Registered  = EZ_BIT(0),  // internal
+    Hidden      = EZ_BIT(1),  // The setting should not appear in the UI
+    User        = EZ_BIT(2),  // A user setting that should not be shared with other users
+    ReadOnly    = EZ_BIT(3),  // The setting should appear as read-only in the UI
   };
 
   struct Bits
   {
-    StorageType Registered : 1;
-    StorageType Hidden : 1;
-    StorageType User : 1;
+    StorageType Registered  : 1;
+    StorageType Hidden      : 1;
+    StorageType User        : 1;
+    StorageType ReadOnly    : 1;
   };
 };
 

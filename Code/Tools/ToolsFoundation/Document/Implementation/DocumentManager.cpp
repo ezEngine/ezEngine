@@ -225,12 +225,15 @@ void ezDocumentManagerBase::CloseDocument(ezDocumentBase* pDocument)
   Event e;
   e.m_pDocument = pDocument;
   e.m_Type = Event::Type::DocumentClosing;
-
   s_Events.Broadcast(e);
   
   EZ_VERIFY(m_AllDocuments.Remove(pDocument), "Document was not found in this document manager");
 
   delete pDocument;
+
+  e.m_pDocument = nullptr;
+  e.m_Type = Event::Type::DocumentClosed;
+  s_Events.Broadcast(e);
 }
 
 void ezDocumentManagerBase::CloseAllDocumentsOfManager()

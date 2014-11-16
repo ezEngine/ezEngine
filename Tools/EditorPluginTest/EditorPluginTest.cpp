@@ -90,9 +90,12 @@ void OnLoadPlugin(bool bReloading)
 
   ezDocumentManagerBase::s_Events.AddEventHandler(ezDelegate<void (const ezDocumentManagerBase::Event&)>(OnDocumentManagerEvent));
 
-  ezEditorFramework::GetEditorSettings("Main").RegisterValueInt("iStuff", 42);
-  ezEditorFramework::GetEditorSettings("Main").RegisterValueBool("bStuff1", true);
-  ezEditorFramework::GetEditorSettings("Main").RegisterValueBool("bStuff2", false);
+  ezEditorFramework::RegisterPluginNameForSettings("TestPlugin");
+
+  ezEditorFramework::GetEditorSettings().RegisterValueInt("iStuff", 42, ezSettingsFlags::ReadOnly);
+  ezEditorFramework::GetEditorSettings().RegisterValueBool("bStuff1", true);
+  ezEditorFramework::GetEditorSettings().RegisterValueBool("bStuff2", false);
+  ezEditorFramework::GetEditorSettings().RegisterValueColor("Color", ezColor::GetCornflowerBlue());
 
   //g_pTestObject = ((ezDocumentObjectManagerBase*) g_pDocument->GetObjectManager())->CreateObject(ezReflectedTypeManager::GetTypeHandleByName(ezGetStaticRTTI<ezTestObjectProperties>()->GetTypeName()));
   //g_pTestObject3 = ((ezDocumentObjectManagerBase*) g_pDocument->GetObjectManager())->CreateObject(ezReflectedTypeManager::GetTypeHandleByName(ezGetStaticRTTI<ezTestObjectProperties>()->GetTypeName()));

@@ -4,6 +4,8 @@
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDocumentBase, ezReflectedClass, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
+ezEvent<const ezDocumentBase::Event&> ezDocumentBase::s_EventsAny;
+
 ezDocumentBase::ezDocumentBase(const char* szPath) :
   m_ObjectTree(this)
 {
@@ -32,7 +34,8 @@ void ezDocumentBase::SetModified(bool b)
   e.m_pDocument = this;
   e.m_Type = Event::Type::ModifiedChanged;
 
-  m_Events.Broadcast(e);
+  m_EventsOne.Broadcast(e);
+  s_EventsAny.Broadcast(e);
 }
 
 void ezDocumentBase::SetReadOnly(bool b)
@@ -46,7 +49,8 @@ void ezDocumentBase::SetReadOnly(bool b)
   e.m_pDocument = this;
   e.m_Type = Event::Type::ReadOnlyChanged;
 
-  m_Events.Broadcast(e);
+  m_EventsOne.Broadcast(e);
+  s_EventsAny.Broadcast(e);
 }
 
 ezStatus ezDocumentBase::SaveDocument()
@@ -54,7 +58,15 @@ ezStatus ezDocumentBase::SaveDocument()
   ezStatus ret = InternalSaveDocument();
 
   if (ret.m_Result.Succeeded())
+  {
+    Event e;
+    e.m_pDocument = this;
+    e.m_Type = Event::Type::DocumentSaved;
+    m_EventsOne.Broadcast(e);
+    s_EventsAny.Broadcast(e);
+
     SetModified(false);
+  }
 
   return ret;
 }
@@ -65,6 +77,7 @@ void ezDocumentBase::EnsureVisible()
   e.m_pDocument = this;
   e.m_Type = Event::Type::EnsureVisible;
 
-  m_Events.Broadcast(e);
+  m_EventsOne.Broadcast(e);
+  s_EventsAny.Broadcast(e);
 }
 

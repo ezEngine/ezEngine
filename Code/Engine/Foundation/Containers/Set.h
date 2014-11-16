@@ -202,19 +202,19 @@ template <typename KeyType, typename Comparer, typename AllocatorWrapper>
 typename ezSet<KeyType, Comparer, AllocatorWrapper>::Iterator begin(ezSet<KeyType, Comparer, AllocatorWrapper>& container) { return container.GetIterator(); }
 
 template <typename KeyType, typename Comparer, typename AllocatorWrapper>
-typename ezSet<KeyType, Comparer, AllocatorWrapper>::ConstIterator begin(const ezSet<KeyType, Comparer, AllocatorWrapper>& container) { return container.GetIterator(); }
+typename ezSet<KeyType, Comparer, AllocatorWrapper>::Iterator begin(const ezSet<KeyType, Comparer, AllocatorWrapper>& container) { return container.GetIterator(); }
 
 template <typename KeyType, typename Comparer, typename AllocatorWrapper>
-typename ezSet<KeyType, Comparer, AllocatorWrapper>::ConstIterator cbegin(const ezSet<KeyType, Comparer, AllocatorWrapper>& container) { return container.GetIterator(); }
+typename ezSet<KeyType, Comparer, AllocatorWrapper>::Iterator cbegin(const ezSet<KeyType, Comparer, AllocatorWrapper>& container) { return container.GetIterator(); }
 
 template <typename KeyType, typename Comparer, typename AllocatorWrapper>
 typename ezSet<KeyType, Comparer, AllocatorWrapper>::Iterator end(ezSet<KeyType, Comparer, AllocatorWrapper>& container) { return typename ezSet<KeyType, Comparer, AllocatorWrapper>::Iterator(); }
 
 template <typename KeyType, typename Comparer, typename AllocatorWrapper>
-typename ezSet<KeyType, Comparer, AllocatorWrapper>::ConstIterator end(const ezSet<KeyType, Comparer, AllocatorWrapper>& container) { return typename ezSet<KeyType, Comparer, AllocatorWrapper>::Iterator(); }
+typename ezSet<KeyType, Comparer, AllocatorWrapper>::Iterator end(const ezSet<KeyType, Comparer, AllocatorWrapper>& container) { return typename ezSet<KeyType, Comparer, AllocatorWrapper>::Iterator(); }
 
 template <typename KeyType, typename Comparer, typename AllocatorWrapper>
-typename ezSet<KeyType, Comparer, AllocatorWrapper>::ConstIterator cend(const ezSet<KeyType, Comparer, AllocatorWrapper>& container) { return typename ezSet<KeyType, Comparer, AllocatorWrapper>::Iterator(); }
+typename ezSet<KeyType, Comparer, AllocatorWrapper>::Iterator cend(const ezSet<KeyType, Comparer, AllocatorWrapper>& container) { return typename ezSet<KeyType, Comparer, AllocatorWrapper>::Iterator(); }
 
 
 #include <Foundation/Containers/Implementation/Set_inl.h>

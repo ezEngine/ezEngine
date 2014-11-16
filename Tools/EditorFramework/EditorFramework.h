@@ -52,9 +52,12 @@ public:
 
   static void ShowPluginConfigDialog();
 
-  static ezSettings& GetEditorSettings(const char* szPlugin = "Main");
-  static ezSettings& GetProjectSettings(const char* szPlugin = "Main");
-  static ezSettings& GetDocumentSettings(const char* szDocument, const char* szPlugin = "Main");
+  static void RegisterPluginNameForSettings(const char* szPluginName);
+  static const ezSet<ezString>& GetRegisteredPluginNamesForSettings() { return s_SettingsPluginNames; }
+  static ezSettings& GetEditorSettings(const char* szPluginName = "-Main-");
+  static ezSettings& GetProjectSettings(const char* szPluginName = "-Main-");
+  static ezSettings& GetDocumentSettings(const ezDocumentBase* pDocument, const char* szPluginName = "-Main-");
+  static ezSettings& GetDocumentSettings(const char* szDocument, const char* szPlugin = "-Main-");
   static void SaveSettings();
 
   static void StartupEditor(const char* szAppName, const char* szUserName, int argc, char** argv);
@@ -70,11 +73,14 @@ public:
   static ezRecentFilesList& GetRecentProjectsList()   { return s_RecentProjects;  }
   static ezRecentFilesList& GetRecentDocumentsList()  { return s_RecentDocuments; }
 
+  static ezString GetDocumentDataFolder(const char* szDocument);
+
 private:
   static ezSettings& GetSettings(ezMap<ezString, ezSettings>& SettingsMap, const char* szPlugin, const char* szSearchPath);
 
   static void DocumentManagerRequestHandler(ezDocumentManagerBase::Request& r);
   static void DocumentManagerEventHandler(const ezDocumentManagerBase::Event& r);
+  static void DocumentEventHandler(const ezDocumentBase::Event& e);
   static void ProjectRequestHandler(ezEditorProject::Request& r);
   static void ProjectEventHandler(const ezEditorProject::Event& r);
 
@@ -92,9 +98,16 @@ private:
   static ezPluginSet s_EditorPluginsActive;
   static ezPluginSet s_EditorPluginsToBeLoaded;
 
+  static ezSet<ezString> s_SettingsPluginNames;
   static ezMap<ezString, ezSettings> s_EditorSettings;
   static ezMap<ezString, ezSettings> s_ProjectSettings;
   static ezMap<ezString, ezMap<ezString, ezSettings> > s_DocumentSettings;
+
+  static void StoreSettings(const ezMap<ezString, ezSettings>& settings, const char* szFolder);
+  static void SaveDocumentSettings(const ezDocumentBase* pDocument);
+
+  static void SaveRecentFiles();
+  static void LoadRecentFiles();
 
   static ezRecentFilesList s_RecentProjects;
   static ezRecentFilesList s_RecentDocuments;

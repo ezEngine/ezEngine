@@ -2,14 +2,9 @@
 
 #include <EditorFramework/DocumentWindow/DocumentWindow.moc.h>
 #include <EditorFramework/GUI/SimplePropertyGridWidget.moc.h>
+#include <EditorFramework/Project/EditorProject.h>
 #include <Tools/EditorFramework/ui_SettingsTab.h>
-
-//class ezSettingsTabCenter : public QWidget, Ui_SettingsTab
-//{
-//  Q_OBJECT
-//
-//
-//};
+#include <Foundation/Configuration/Plugin.h>
 
 class ezSettingsTab : public ezDocumentWindow, Ui_SettingsTab
 {
@@ -25,12 +20,19 @@ public:
 
 private slots:
   void SlotSettingsChanged();
-  void on_ButtonPluginConfig_clicked();
+  void SlotButtonPluginConfig();
+  void SlotComboSettingsDomainIndexChanged(int iIndex);
 
 private:
   virtual bool InternalCanClose();
   virtual void InternalCloseDocument();
 
+  void PluginEventHandler(const ezPlugin::PluginEvent& e);
+  void UpdateSettings();
+  void ProjectEventHandler(const ezEditorProject::Event& e);
+  void DocumentManagerEventHandler(const ezDocumentManagerBase::Event& e);
+
+  ezString m_sSelectedSettingDomain;
   ezMap<ezString, ezVariant> m_Settings;
 
   ezSimplePropertyGridWidget* m_pSettingsGrid;
