@@ -268,7 +268,7 @@ void ezArrayBase<T, Derived>::PushBackRange(const ezArrayPtr<const T>& range)
   const ezUInt32 uiRangeCount = range.GetCount();
   static_cast<Derived*>(this)->Reserve(m_uiCount + uiRangeCount);
 
-  ezMemoryUtils::Construct(m_pElements + m_uiCount, range.GetPtr(), uiRangeCount);
+  ezMemoryUtils::CopyConstruct(m_pElements + m_uiCount, range.GetPtr(), uiRangeCount);
   m_uiCount += uiRangeCount;
 }
 
