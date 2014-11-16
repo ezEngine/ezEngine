@@ -2,6 +2,7 @@
 
 #include <ToolsFoundation/Basics.h>
 #include <Foundation/Strings/String.h>
+#include <ToolsFoundation/Basics/Status.h>
 #include <ToolsFoundation/Basics/Guid.h>
 #include <ToolsFoundation/Basics/Status.h>
 #include <ToolsFoundation/Object/DocumentObjectTree.h>
@@ -13,6 +14,16 @@ class ezDocumentManagerBase;
 class ezCommandHistoryBase;
 class ezDocumentObjectManagerBase;
 
+class EZ_TOOLSFOUNDATION_DLL ezDocumentInfo : public ezReflectedClass
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezDocumentInfo);
+
+public:
+  ezDocumentInfo();
+
+  ezUuid m_DocumentID;
+};
+
 class EZ_TOOLSFOUNDATION_DLL ezDocumentBase : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezDocumentBase);
@@ -23,12 +34,16 @@ public:
 
   bool IsModified() const { return m_bModified; }
   bool IsReadOnly() const { return m_bReadOnly; }
+  const ezUuid& GetGuid() const { return m_documentInfo.m_DocumentID; }
   virtual const char* GetDocumentTypeDisplayString() const = 0;
 
-  const ezCommandHistoryBase* GetCommandHistory() const { return m_pCommandHistory; }
   const ezDocumentObjectManagerBase* GetObjectManager() const { return m_pObjectManager; }
   const ezDocumentObjectTree* GetObjectTree() const { return &m_ObjectTree; }
   const ezSelectionManager* GetSelectionManager() const { return &m_SelectionManager; }
+
+  ezDocumentObjectManagerBase* GetObjectManager() { return m_pObjectManager; }
+  ezDocumentObjectTree* GetObjectTree() { return &m_ObjectTree; }
+  ezSelectionManager* GetSelectionManager() { return &m_SelectionManager; }
 
   const char* GetDocumentPath() const { return m_sDocumentPath; }
 
@@ -52,17 +67,16 @@ public:
     Type m_Type;
     const ezDocumentBase* m_pDocument;
   };
-
+  
   ezEvent<const Event&> m_EventsOne;
   static ezEvent<const Event&> s_EventsAny;
 
 protected:
   void SetModified(bool b);
   void SetReadOnly(bool b);
-  virtual ezStatus InternalSaveDocument() = 0;
-  virtual ezStatus InternalLoadDocument() = 0;
+  virtual ezStatus InternalSaveDocument();
+  virtual ezStatus InternalLoadDocument();
 
-  ezCommandHistoryBase* m_pCommandHistory;
   ezDocumentObjectManagerBase* m_pObjectManager;
   ezDocumentObjectTree m_ObjectTree;
   ezSelectionManager m_SelectionManager;
@@ -74,4 +88,5 @@ private:
   ezString m_sDocumentPath;
   bool m_bModified;
   bool m_bReadOnly;
+  ezDocumentInfo m_documentInfo;
 };

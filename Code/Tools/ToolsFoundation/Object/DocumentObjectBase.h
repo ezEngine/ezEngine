@@ -28,6 +28,9 @@ public:
   virtual const ezIReflectedTypeAccessor& GetTypeAccessor() const = 0;
   virtual const ezIReflectedTypeAccessor& GetEditorTypeAccessor() const = 0;
 
+  virtual ezIReflectedTypeAccessor& GetTypeAccessor();
+  virtual ezIReflectedTypeAccessor& GetEditorTypeAccessor();
+
   const ezDocumentObjectBase* GetParent() const { return m_pParent; }
   const ezHybridArray<ezDocumentObjectBase*, 4>& GetChildren() const { return m_Children; }
 

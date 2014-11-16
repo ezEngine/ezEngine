@@ -415,7 +415,7 @@ ezUInt32 AccessorPropertiesTest(ezIReflectedTypeAccessor& accessor, ezReflectedT
       // Recurs into sub-classes
       uiPropertiesSet += AccessorPropertiesTest(accessor, pProp->m_hTypeHandle, propPath);
     }
-    else if (pProp->m_Type >= ezVariant::Type::Bool && pProp->m_Type <= ezVariant::Type::Time)
+    else if (pProp->m_Type >= ezVariant::Type::Bool && pProp->m_Type <= ezVariant::Type::Uuid)
     {
       AccessorPropertyTest(accessor, propPath, pProp->m_Type);
       uiPropertiesSet++;

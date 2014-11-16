@@ -64,6 +64,8 @@ public:
 
   const ezDocumentObjectBase* GetObject(const ezUuid& guid) const;
 
+  ezDocumentObjectBase* GetObject(const ezUuid& guid);
+
   const ezDocumentBase* GetDocument() const { return m_pDocument; }
 
 private:

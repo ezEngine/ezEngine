@@ -133,3 +133,8 @@ const ezDocumentObjectBase* ezDocumentObjectTree::GetObject(const ezUuid& guid) 
 
   return nullptr;
 }
+
+ezDocumentObjectBase* ezDocumentObjectTree::GetObject(const ezUuid& guid)
+{
+  return const_cast<ezDocumentObjectBase*>(((const ezDocumentObjectTree*)this)->GetObject(guid));
+}

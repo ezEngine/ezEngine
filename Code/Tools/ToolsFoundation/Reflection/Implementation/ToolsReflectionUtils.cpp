@@ -54,6 +54,8 @@ ezVariant ezToolsReflectionUtils::GetDefaultVariantFromType(ezVariant::Type::Enu
     return ezVariant("");
   case ezVariant::Type::Time:
     return ezVariant(ezTime());
+  case ezVariant::Type::Uuid:
+    return ezVariant(ezUuid());
   case ezVariant::Type::VariantArray:
     return ezVariant();
   case ezVariant::Type::VariantDictionary:
@@ -99,7 +101,7 @@ void ezToolsReflectionUtils::GetReflectedTypeDescriptorFromRtti(const ezRTTI* pR
         {
           out_desc.m_Properties.PushBack(ezReflectedPropertyDescriptor(memberProp->GetPropertyName(), pMemberPropRtti->GetTypeName(), memberFlags));
         }
-        else if (memberType >= ezVariant::Type::Bool && memberType <= ezVariant::Type::Time)
+        else if (memberType >= ezVariant::Type::Bool && memberType <= ezVariant::Type::Uuid)
         {
           memberFlags.Add(PropertyFlags::IsPOD);
           out_desc.m_Properties.PushBack(ezReflectedPropertyDescriptor(memberProp->GetPropertyName(), memberType, memberFlags));

@@ -297,7 +297,7 @@ void ezStandardJSONWriter::WriteUuid(const ezUuid& value)
 
   ezEndianHelper::NativeToLittleEndian((ezUInt64*) &temp, sizeof(temp) / sizeof(ezUInt64));
 
-  WriteBinaryData("Uuid", &temp, sizeof(temp));
+  WriteBinaryData("uuid", &temp, sizeof(temp));
 }
 
 void ezStandardJSONWriter::BeginVariable(const char* szName)

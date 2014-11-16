@@ -6,13 +6,16 @@ ezDocumentObjectManagerBase::ezDocumentObjectManagerBase(const ezDocumentBase* p
 {
 }
 
-ezDocumentObjectBase* ezDocumentObjectManagerBase::CreateObject(ezReflectedTypeHandle hType)
+ezDocumentObjectBase* ezDocumentObjectManagerBase::CreateObject(ezReflectedTypeHandle hType, ezUuid guid)
 {
   ezDocumentObjectBase* pObject = InternalCreateObject(hType);
 
   if (pObject)
   {
-    pObject->m_Guid.CreateNewUuid();
+    if (guid.IsValid())
+      pObject->m_Guid = guid;
+    else
+      pObject->m_Guid.CreateNewUuid();
   }
 
   return pObject;

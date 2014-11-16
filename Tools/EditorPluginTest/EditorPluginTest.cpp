@@ -88,6 +88,9 @@ void OnLoadPlugin(bool bReloading)
   RegisterType(ezGetStaticRTTI<ezTestEditorProperties>());
   RegisterType(ezGetStaticRTTI<ezTestObjectProperties>());
 
+  // TODO: HACK: Need to find a place to register this poor guy.
+  RegisterType(ezGetStaticRTTI<ezDocumentInfo>());
+
   ezDocumentManagerBase::s_Events.AddEventHandler(ezDelegate<void (const ezDocumentManagerBase::Event&)>(OnDocumentManagerEvent));
 
   ezEditorFramework::RegisterPluginNameForSettings("TestPlugin");

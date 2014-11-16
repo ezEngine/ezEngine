@@ -182,7 +182,10 @@ ezStatus ezDocumentManagerBase::CreateOrOpenDocument(bool bCreate, const char* s
       EZ_ASSERT(DocumentTypes[i].m_bCanCreate, "This document manager cannot create the document type '%s'", szDocumentTypeName);
 
       status = InternalCreateDocument(szDocumentTypeName, sPath, out_pDocument);
-
+      if (out_pDocument != nullptr)
+      {
+        out_pDocument->m_documentInfo.m_DocumentID.CreateNewUuid();
+      }
       EZ_ASSERT(status.m_Result == EZ_FAILURE || out_pDocument != nullptr, "Status was success, but the document manager returned a nullptr document.");
 
       if (status.m_Result.Succeeded())

@@ -11,16 +11,4 @@ public:
   ~ezTestDocument();
 
   virtual const char* GetDocumentTypeDisplayString() const override { return "Scene"; }
-
-protected:
-  virtual ezStatus InternalSaveDocument() override 
-  {
-    //return "Saving is not implemented"; 
-    return ezStatus(EZ_SUCCESS);
-  }
-
-  virtual ezStatus InternalLoadDocument() override
-  {
-    return ezStatus(EZ_SUCCESS);
-  }
 };

@@ -7,3 +7,15 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDocumentObjectBaseProperties, ezReflectedClass
     EZ_ACCESSOR_PROPERTY("Name", GetName, SetName),
   EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
+
+ezIReflectedTypeAccessor& ezDocumentObjectBase::GetTypeAccessor()
+{
+  const ezDocumentObjectBase* pMe = this;
+  return const_cast<ezIReflectedTypeAccessor&>(pMe->GetTypeAccessor());
+}
+
+ezIReflectedTypeAccessor& ezDocumentObjectBase::GetEditorTypeAccessor()
+{
+  const ezDocumentObjectBase* pMe = this;
+  return const_cast<ezIReflectedTypeAccessor&>(pMe->GetEditorTypeAccessor());
+}

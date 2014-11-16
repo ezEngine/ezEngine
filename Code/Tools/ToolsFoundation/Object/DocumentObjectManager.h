@@ -12,7 +12,7 @@ public:
   ezDocumentObjectManagerBase(const ezDocumentBase* pDocument);
   virtual ~ezDocumentObjectManagerBase() { }
 
-  ezDocumentObjectBase* CreateObject(ezReflectedTypeHandle hType);
+  ezDocumentObjectBase* CreateObject(ezReflectedTypeHandle hType, ezUuid guid = ezUuid());
   virtual void GetCreateableTypes(ezHybridArray<ezReflectedTypeHandle, 32>& Types) const = 0;
 
   bool CanAdd(ezReflectedTypeHandle hType, const ezDocumentObjectBase* pParent) const;

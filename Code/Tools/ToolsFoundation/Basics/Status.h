@@ -9,6 +9,10 @@ struct ezStatus
   {
   }
 
+  ezStatus(ezResult res, ezStringView sError) : m_Result(res), m_sError(sError)
+  {
+  }
+
   ezStatus(ezResult r) : m_Result(r)
   {
   }
