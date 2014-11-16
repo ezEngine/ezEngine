@@ -115,8 +115,3 @@ EZ_FORCE_INLINE bool ezStringUtils::IsEqualN_NoCase(const char* pString1, const 
   return ezStringUtils::CompareN_NoCase(pString1, pString2, uiCharsToCompare, pString1End, pString2End) == 0;
 }
 
-EZ_FORCE_INLINE ezUInt32 ezStringUtils::Copy(char* szDest, ezUInt32 uiDstSize, const char* szSource, const char* pSourceEnd)
-{
-  return ezStringUtils::CopyN(szDest, uiDstSize, szSource, uiDstSize, pSourceEnd);
-}
-

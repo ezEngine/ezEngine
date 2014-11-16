@@ -11,6 +11,7 @@ struct ezTraitInt
   enum { value = v };
 };
 
+typedef ezTraitInt<2> ezTypeIsMemRelocatable;
 typedef ezTraitInt<1> ezTypeIsPod;
 typedef ezTraitInt<0> ezTypeIsClass;
 
@@ -33,6 +34,16 @@ struct ezIsPodType<T*> : public ezTypeIsPod { };
 /// \brief arrays are POD types
 template <typename T, int N>
 struct ezIsPodType<T[N]> : public ezTypeIsPod { };
+
+/// \brief Default % operator for T and ezTypeIsMemRelocatable which returns a CompileTimeFalseType.
+template <typename T>
+ezCompileTimeFalseType operator%(const T&, const ezTypeIsMemRelocatable&);
+
+/// \brief If there is an % operator which takes a ezTypeIsMemRelocatable and returns a CompileTimeTrueType T is Pod. Default % operator return false.
+template <typename T>
+struct ezGetTypeClass : public ezTraitInt<
+    (sizeof(*((T*)0) % *((const ezTypeIsMemRelocatable*)0)) == sizeof(ezCompileTimeTrueType)) ? 2 : 
+    ezIsPodType<T>::value> { };
 
 /// \brief Static Conversion Test
 template <typename From, typename To>
@@ -64,6 +75,7 @@ struct ezConversionTest<T, T>
 #ifdef __INTELLISENSE__
 
 #define EZ_DECLARE_POD_TYPE()
+#define EZ_DECLARE_MEM_RELOCATABLE_TYPE()
 
 #else
 
@@ -71,6 +83,13 @@ struct ezConversionTest<T, T>
 /// POD types will get special treatment from allocators and container classes, such that they are faster to construct and copy.
 #define EZ_DECLARE_POD_TYPE() \
   ezCompileTimeTrueType operator%(const ezTypeIsPod&) const
+
+/// \brief Embed this into a class to mark it as memory relocatable.
+/// Memory relocatable types will get special treatment from allocators and container classes, such that they are faster to construct and copy.
+/// A type is memory relocatable if it does not have any internal references. e.g: struct example { char[16] buffer; char* pCur; example() pCur(buffer) {} };
+/// A memory relocatable type also must not give out any pointers to its own location. If these two conditions are met, a type is memory relocatable.
+#define EZ_DECLARE_MEM_RELOCATABLE_TYPE() \
+  ezCompileTimeTrueType operator%(const ezTypeIsMemRelocatable&) const
 
 #endif
 
@@ -140,4 +159,15 @@ public:
   /// \brief removes reference and const qualifier
   typedef typename RemoveConst<typename RemoveReference<T>::type>::type NonConstReferenceType;
 };
+
+/// generates a template named 'checkerName' which checks for the existance of a member function with 
+/// the name 'functionName' and the signature 'Signature'
+#define EZ_MAKE_MEMBERFUNCTION_CHECKER(functionName, checkerName)                                        \
+  template<typename T, typename Signature>                                                               \
+  struct checkerName {                                                                                   \
+    template <typename U, U> struct type_check;                                                          \
+    template <typename O> static ezCompileTimeTrueType &chk(type_check<Signature, &O::functionName > *); \
+    template <typename   > static ezCompileTimeFalseType  &chk(...);                                     \
+    enum { value = (sizeof(chk<T>(0)) == sizeof(ezCompileTimeTrueType)) ? 1 : 0  };                      \
+  }
 

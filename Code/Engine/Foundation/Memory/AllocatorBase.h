@@ -34,6 +34,7 @@ public:
   /// \brief Interface, do not use this directly, always use the new/delete macros below
   virtual void* Allocate(size_t uiSize, size_t uiAlign) = 0;
   virtual void Deallocate(void* ptr) = 0;
+  virtual void* Reallocate(void* ptr, size_t uiCurrentSize, size_t uiNewSize, size_t uiAlign);
   virtual size_t AllocatedSize(const void* ptr) = 0;
 
   virtual Stats GetStats() const = 0;
@@ -67,6 +68,10 @@ private:
 /// \brief deletes a raw buffer stored in ptr using the given allocator, but does NOT call destructor
 #define EZ_DELETE_RAW_BUFFER(allocator, ptr) \
   { ezInternal::DeleteRawBuffer(allocator, ptr); ptr = nullptr; }
+
+/// \brief extends a given raw buffer to the new size, taking care of calling constructors / asignment operators.
+#define EZ_EXTEND_RAW_BUFFER(allocator, ptr, oldSize, newSize) \
+  ezInternal::ExtendRawBuffer(ptr, allocator, oldSize, newSize)
 
 
 

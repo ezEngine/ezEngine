@@ -143,7 +143,7 @@ void ezSorting::InsertionSort(ezArrayPtr<T>& arrayPtr, ezUInt32 uiStartIndex, ez
     const ezUInt32 uiMoveCount = i - uiHoleIndex;
     if (uiMoveCount > 0)
     {
-      ezMemoryUtils::Move(&arrayPtr[uiHoleIndex + 1], &arrayPtr[uiHoleIndex], uiMoveCount);
+      ezMemoryUtils::CopyOverlapped(&arrayPtr[uiHoleIndex + 1], &arrayPtr[uiHoleIndex], uiMoveCount);
       arrayPtr[uiHoleIndex] = valueToInsert;
     }
   }

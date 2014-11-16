@@ -74,7 +74,7 @@ void ezDequeBase<T, Construct>::operator= (const ezDequeBase<T, Construct>& rhs)
 
   // copy construct all the elements
   for (ezUInt32 i = 0; i < rhs.m_uiCount; ++i)
-    ezMemoryUtils::Construct(&ElementAt(i), &rhs[i], 1);
+    ezMemoryUtils::CopyConstruct(&ElementAt(i), &rhs[i], 1);
 }
 
 template <typename T, bool Construct>
@@ -456,7 +456,7 @@ EZ_FORCE_INLINE void ezDequeBase<T, Construct>::PushFront(const T& element)
   ++m_uiCount;
   --m_uiFirstElement;
 
-  ezMemoryUtils::Construct(&ElementAt(0), &element, 1);
+  ezMemoryUtils::CopyConstruct(&ElementAt(0), &element, 1);
 }
 
 template <typename T, bool Construct>
@@ -791,7 +791,7 @@ void ezDequeBase<T, Construct>::RemoveAt(ezUInt32 uiIndex)
   EZ_ASSERT(uiIndex < m_uiCount, "Out of bounds access. Array has %i elements, trying to remove element at index %i.", m_uiCount, uiIndex);
 
   for (ezUInt32 i = uiIndex + 1; i < m_uiCount; ++i)
-    ezMemoryUtils::Move(&operator[](i - 1), &operator[](i), 1);
+    ezMemoryUtils::CopyOverlapped(&operator[](i - 1), &operator[](i), 1); 
 
   PopBack();
 }

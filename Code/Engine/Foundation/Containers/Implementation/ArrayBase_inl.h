@@ -23,7 +23,7 @@ void ezArrayBase<T, Derived>::operator= (const ezArrayPtr<T>& rhs)
   {
     static_cast<Derived*>(this)->Reserve(uiNewCount);
     ezMemoryUtils::Copy(m_pElements, rhs.GetPtr(), uiOldCount);
-    ezMemoryUtils::Construct(m_pElements + uiOldCount, rhs.GetPtr() + uiOldCount, uiNewCount - uiOldCount);
+    ezMemoryUtils::CopyConstruct(m_pElements + uiOldCount, rhs.GetPtr() + uiOldCount, uiNewCount - uiOldCount);
   }
   else
   {
@@ -146,7 +146,7 @@ void ezArrayBase<T, Derived>::Insert(const T& value, ezUInt32 uiIndex)
   static_cast<Derived*>(this)->Reserve(m_uiCount + 1);
 
   ezMemoryUtils::Construct(m_pElements + m_uiCount, 1);
-  ezMemoryUtils::Move(m_pElements + uiIndex + 1, m_pElements + uiIndex, m_uiCount - uiIndex);
+  ezMemoryUtils::CopyOverlapped(m_pElements + uiIndex + 1, m_pElements + uiIndex, m_uiCount - uiIndex);
   m_pElements[uiIndex] = value;
   m_uiCount++;
 }
@@ -181,7 +181,7 @@ void ezArrayBase<T, Derived>::RemoveAt(ezUInt32 uiIndex)
   EZ_ASSERT(uiIndex < m_uiCount, "Out of bounds access. Array has %i elements, trying to remove element at index %i.", m_uiCount, uiIndex);
 
   m_uiCount--;
-  ezMemoryUtils::Move(m_pElements + uiIndex, m_pElements + uiIndex + 1, m_uiCount - uiIndex);
+  ezMemoryUtils::CopyOverlapped(m_pElements + uiIndex, m_pElements + uiIndex + 1, m_uiCount - uiIndex); 
   ezMemoryUtils::Destruct(m_pElements + m_uiCount, 1);
 }
 
@@ -258,7 +258,7 @@ void ezArrayBase<T, Derived>::PushBackRange(const ezArrayPtr<typename ezTypeTrai
   const ezUInt32 uiRangeCount = range.GetCount();
   static_cast<Derived*>(this)->Reserve(m_uiCount + uiRangeCount);
 
-  ezMemoryUtils::Construct(m_pElements + m_uiCount, range.GetPtr(), uiRangeCount);
+  ezMemoryUtils::CopyConstruct(m_pElements + m_uiCount, range.GetPtr(), uiRangeCount);
   m_uiCount += uiRangeCount;
 }
 

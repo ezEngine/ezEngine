@@ -345,8 +345,7 @@ void ezIdTableBase<IdType, ValueType>::SetCapacity(IndexType uiCapacity)
 
     if (m_pEntries[i].id.m_InstanceIndex == i)
     {
-      ezMemoryUtils::Construct(&pNewEntries[i].value, &m_pEntries[i].value, 1);
-      ezMemoryUtils::Destruct(&m_pEntries[i].value, 1);
+      ezMemoryUtils::RelocateConstruct(&pNewEntries[i].value, &m_pEntries[i].value, 1);
     }
   }
 

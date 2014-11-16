@@ -3,6 +3,14 @@
 #include <Foundation/Basics.h>
 
 /// \brief This class provides functions to work on raw memory.
+///
+/// \details
+///   The following concepts are realized:
+///   Copy: Copying a object from a to b means that two equivalent objects will exists in both a and b.
+///   Relocate: Relocating an object from a to b means that the object will exist in b afterwards but will no longer exist in a. 
+///   Construct: Constructing assumes that the destination does not contain a valid object.
+///   Overlapped: The source and destination range may overlap for the operation to be performed.
+///   The above mentioned concepts can be combined, e.g. RelocateConstruct for relocating to an uninitialized buffer.
 class ezMemoryUtils
 {
 public:
@@ -18,7 +26,11 @@ public:
 
   /// \brief Constructs \a uiCount objects of type T in a raw buffer at \a pDestination from an existing array of objects at \a pSource by using copy construction.
   template <typename T>
-  static void Construct(T* pDestination, const T* pSource, size_t uiCount); // [tested]
+  static void CopyConstruct(T* pDestination, const T* pSource, size_t uiCount); // [tested]
+
+  /// brief Constructs \a uiCount objects of type T in a raw buffer at \a pDestionation from an existing array of objects at \a pSource by using move construction.
+  template <typename T>
+  static void RelocateConstruct(T* pDestination, T* pSource, size_t uiCount);
 
   /// \brief Destructs \a uiCount objects of type T at \a pDestination.
   template <typename T>
@@ -30,15 +42,19 @@ public:
 
   /// \brief Copies objects of type T from \a pSource to \a pDestination.
   ///
-  /// You should use 'Move' instead of 'Copy', when the source and destination buffer might overlap.
+  /// If the two buffers overlap use CopyOverlapped instead.
   template <typename T>
   static void Copy(T* pDestination, const T* pSource, size_t uiCount); // [tested]
 
-  /// \brief Moves objects of type T from \a pSource to \a pDestination.
+  /// \brief Copies objects of type T from \a pSource to \a pDestination.
   ///
-  /// You should use 'Move' instead of 'Copy', when the source and destination buffer might overlap.
+  /// The two buffers may overlap when using this method.
   template <typename T>
-  static void Move(T* pDestination, const T* pSource, size_t uiCount); // [tested]
+  static void CopyOverlapped(T* pDestination, const T* pSource, size_t uiCount);
+
+  /// \brief Moves objects of type T from \a pSource to \a pDestination.
+  template <typename T>
+  static void Relocate(T* pDestination, T* pSource, size_t uiCount); // [tested]
 
   /// \brief Tests if objects of type T from \a pSource and \a pDestination are equal.
   template <typename T>
@@ -98,9 +114,16 @@ private:
   static void Construct(T* pDestination, const T& copy, size_t uiCount, ezTypeIsClass);
 
   template <typename T>
-  static void Construct(T* pDestination, const T* pSource, size_t uiCount, ezTypeIsPod);
+  static void CopyConstruct(T* pDestination, const T* pSource, size_t uiCount, ezTypeIsPod);
   template <typename T>
-  static void Construct(T* pDestination, const T* pSource, size_t uiCount, ezTypeIsClass);
+  static void CopyConstruct(T* pDestination, const T* pSource, size_t uiCount, ezTypeIsClass);
+
+  template <typename T>
+  static void RelocateConstruct(T* pDestination, T* pSource, size_t uiCount, ezTypeIsPod);
+  template <typename T>
+  static void RelocateConstruct(T* pDestination, T* pSource, size_t uiCount, ezTypeIsMemRelocatable);
+  template <typename T>
+  static void RelocateConstruct(T* pDestination, T* pSource, size_t uiCount, ezTypeIsClass);
 
   template <typename T>
   static void Destruct(T* pDestination, size_t uiCount, ezTypeIsPod);
@@ -113,9 +136,16 @@ private:
   static void Copy(T* pDestination, const T* pSource, size_t uiCount, ezTypeIsClass);
 
   template <typename T>
-  static void Move(T* pDestination, const T* pSource, size_t uiCount, ezTypeIsPod);
+  static void CopyOverlapped(T* pDestination, const T* pSource, size_t uiCount, ezTypeIsPod);
   template <typename T>
-  static void Move(T* pDestination, const T* pSource, size_t uiCount, ezTypeIsClass);
+  static void CopyOverlapped(T* pDestination, const T* pSource, size_t uiCount, ezTypeIsClass);
+
+  template <typename T>
+  static void Relocate(T* pDestination, T* pSource, size_t uiCount, ezTypeIsPod);
+  template <typename T>
+  static void Relocate(T* pDestination, T* pSource, size_t uiCount, ezTypeIsMemRelocatable);
+  template <typename T>
+  static void Relocate(T* pDestination, T* pSource, size_t uiCount, ezTypeIsClass);
 
   template <typename T>
   static bool IsEqual(const T* a, const T* b, size_t uiCount, ezTypeIsPod);

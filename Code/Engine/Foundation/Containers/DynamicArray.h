@@ -58,6 +58,8 @@ template <typename T, typename AllocatorWrapper = ezDefaultAllocatorWrapper>
 class ezDynamicArray : public ezDynamicArrayBase<T>
 {
 public:
+  EZ_DECLARE_MEM_RELOCATABLE_TYPE();
+
   ezDynamicArray();
   ezDynamicArray(ezAllocatorBase* pAllocator);
 
@@ -75,6 +77,8 @@ public:
   void operator=(ezDynamicArray<T, AllocatorWrapper>&& rhs);
   void operator=(ezDynamicArrayBase<T>&& rhs);
 };
+
+EZ_CHECK_AT_COMPILETIME_MSG(ezGetTypeClass<ezDynamicArray<int>>::value == 2, "dynamic array is not memory relocatable");
 
 #include <Foundation/Containers/Implementation/DynamicArray_inl.h>
 

@@ -77,11 +77,7 @@ template <typename T>
 void ezDynamicArrayBase<T>::SetCapacity(ezUInt32 uiCapacity)
 {
   this->m_uiCapacity = uiCapacity;
-  T* pNewData = EZ_NEW_RAW_BUFFER(this->m_pAllocator, T, this->m_uiCapacity);
-  ezMemoryUtils::Construct(pNewData, this->m_pElements, this->m_uiCount);
-  ezMemoryUtils::Destruct(this->m_pElements, this->m_uiCount);
-  EZ_DELETE_RAW_BUFFER(this->m_pAllocator, this->m_pElements);
-  this->m_pElements = pNewData;
+  this->m_pElements = EZ_EXTEND_RAW_BUFFER(this->m_pAllocator, this->m_pElements, this->m_uiCount, this->m_uiCapacity);
 }
 
 template <typename T>

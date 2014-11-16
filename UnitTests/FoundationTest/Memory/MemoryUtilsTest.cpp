@@ -43,7 +43,7 @@ EZ_CREATE_SIMPLE_TEST(Memory, MemoryUtils)
     Copy[0].m_iData = 43;
     Copy[1].m_iData = 44;
 
-    ezMemoryUtils::Construct<ezConstructTest>(pTest + 1, Copy, 2);
+    ezMemoryUtils::CopyConstruct<ezConstructTest>(pTest + 1, Copy, 2);
 
     EZ_TEST_INT(pTest[0].m_iData, 0);
     EZ_TEST_INT(pTest[1].m_iData, 43);
@@ -131,7 +131,7 @@ EZ_CREATE_SIMPLE_TEST(Memory, MemoryUtils)
     EZ_TEST_INT(uiRawData[3], 4);
     EZ_TEST_INT(uiRawData[4], 5);
 
-    ezMemoryUtils::Move(uiRawData + 1, uiRawData + 3, 2);
+    ezMemoryUtils::CopyOverlapped(uiRawData + 1, uiRawData + 3, 2);
 
     EZ_TEST_INT(uiRawData[0], 1);
     EZ_TEST_INT(uiRawData[1], 4);
@@ -139,7 +139,7 @@ EZ_CREATE_SIMPLE_TEST(Memory, MemoryUtils)
     EZ_TEST_INT(uiRawData[3], 4);
     EZ_TEST_INT(uiRawData[4], 5);
 
-    ezMemoryUtils::Move(uiRawData + 1, uiRawData, 4);
+    ezMemoryUtils::CopyOverlapped(uiRawData + 1, uiRawData, 4);
 
     EZ_TEST_INT(uiRawData[0], 1);
     EZ_TEST_INT(uiRawData[1], 1);

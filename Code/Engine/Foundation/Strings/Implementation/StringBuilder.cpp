@@ -43,7 +43,7 @@ void ezStringBuilder::Append(const char* pData1, const char* pData2, const char*
       continue;
 
     // make enough room to copy the entire string, including the T-800
-    ezStringUtils::Copy(&m_Data[uiPrevCount-1], uiStrLen[i] + 1, pStrings[i]);
+    ezStringUtils::Copy(&m_Data[uiPrevCount-1], uiStrLen[i] + 1, pStrings[i], pStrings[i] + uiStrLen[i]);
 
     uiPrevCount += uiStrLen[i];
   }
@@ -84,7 +84,7 @@ void ezStringBuilder::Prepend(const char* pData1, const char* pData2, const char
   m_Data.SetCount(uiPrevCount + uiMoreBytes);
 
   // move the previous string data at the end
-  ezMemoryUtils::Move(&m_Data[0] + uiMoreBytes, GetData(), uiPrevCount);
+  ezMemoryUtils::CopyOverlapped(&m_Data[0] + uiMoreBytes, GetData(), uiPrevCount);
 
   ezUInt32 uiWritePos = 0;
 
@@ -202,7 +202,7 @@ void ezStringBuilder::ChangeCharacterNonASCII(ezStringView& It, ezUInt32 uiChara
     const ezUInt32 uiTrailStringBytes = (ezUInt32) (It.GetEndPosition() - It.GetData() - uiOldCharLength + 1); // ???
 
     // move the trailing characters forwards
-    ezMemoryUtils::Move(pPos, pPos + uiDifference, uiTrailStringBytes);
+    ezMemoryUtils::CopyOverlapped(pPos, pPos + uiDifference, uiTrailStringBytes);
 
     // update the data array
     m_Data.PopBack(uiDifference);
@@ -232,7 +232,7 @@ void ezStringBuilder::ChangeCharacterNonASCII(ezStringView& It, ezUInt32 uiChara
     It = NewIt;
     
     // move the trailing string backwards
-    ezMemoryUtils::Move(pPos + uiNewCharLength, pPos + uiOldCharLength, uiTrailStringBytes);
+    ezMemoryUtils::CopyOverlapped(pPos + uiNewCharLength, pPos + uiOldCharLength, uiTrailStringBytes);
 
     // just overwrite all characters at the given position with the new Utf8 string
     ezUnicodeUtils::EncodeUtf32ToUtf8(uiCharacter, pPos);
@@ -280,7 +280,7 @@ void ezStringBuilder::Shrink(ezUInt32 uiShrinkCharsFront, ezUInt32 uiShrinkChars
   {
     const ezUInt32 uiLessBytes = (ezUInt32) (szNewStart - &m_Data[0]);
 
-    ezMemoryUtils::Move(&m_Data[0], szNewStart, m_Data.GetCount() - uiLessBytes);
+    ezMemoryUtils::CopyOverlapped(&m_Data[0], szNewStart, m_Data.GetCount() - uiLessBytes);
     m_Data.PopBack(uiLessBytes);
   }
 
@@ -337,7 +337,7 @@ void ezStringBuilder::ReplaceSubString(const char* szStartPos, const char* szEnd
     const char* szStringEnd = GetData() + m_Data.GetCount();
 
     // now move all the characters from behind the replaced string to the correct position
-    ezMemoryUtils::Move(szWritePos + uiWordBytes, szWritePos + uiSubStringBytes, szStringEnd - (szWritePos + uiSubStringBytes));
+    ezMemoryUtils::CopyOverlapped(szWritePos + uiWordBytes, szWritePos + uiSubStringBytes, szStringEnd - (szWritePos + uiSubStringBytes));
 
     m_Data.PopBack(uiDifference);
 
@@ -360,7 +360,7 @@ void ezStringBuilder::ReplaceSubString(const char* szStartPos, const char* szEnd
     const char* szStringEnd = GetData() + uiDataByteCountBefore;
 
     // first move the characters to the proper position from back to front
-    ezMemoryUtils::Move(szWritePos + uiWordBytes, szWritePos + uiSubStringBytes, szStringEnd - (szWritePos + uiSubStringBytes));
+    ezMemoryUtils::CopyOverlapped(szWritePos + uiWordBytes, szWritePos + uiSubStringBytes, szStringEnd - (szWritePos + uiSubStringBytes));
 
     // now copy the replacement to the correct position
     ezMemoryUtils::Copy(szWritePos, szReplaceWith.GetData(), uiWordBytes);
@@ -614,7 +614,7 @@ void ezStringBuilder::operator=(const ezStringView& rhs)
   // if it comes from our own array, the data will always be a sub-set -> smaller than this array
   // in this case we defer the SetCount till later, to ensure that the data is not corrupted (destructed) before we copy it
   // however, when the new data is larger than the old, it cannot be from our own data, so we can (and must) reallocate before copying
-  ezMemoryUtils::Move(&m_Data[0], rhs.GetData(), uiBytes);
+  ezMemoryUtils::CopyOverlapped(&m_Data[0], rhs.GetData(), uiBytes);
 
   m_Data.SetCount(uiBytes + 1);
   m_Data[uiBytes] = '\0';

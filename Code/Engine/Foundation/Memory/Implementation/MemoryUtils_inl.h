@@ -19,9 +19,17 @@ EZ_FORCE_INLINE void ezMemoryUtils::Construct(T* pDestination, const T& copy, si
 }
 
 template <typename T>
-EZ_FORCE_INLINE void ezMemoryUtils::Construct(T* pDestination, const T* pSource, size_t uiCount)
+EZ_FORCE_INLINE void ezMemoryUtils::CopyConstruct(T* pDestination, const T* pSource, size_t uiCount)
 {
-  Construct(pDestination, pSource, uiCount, ezIsPodType<T>());
+  EZ_ASSERT(pDestination < pSource || pSource + uiCount <= pDestination, "Memory regions must not overlap when using CopyConstruct.");
+  CopyConstruct(pDestination, pSource, uiCount, ezIsPodType<T>());
+}
+
+template <typename T>
+EZ_FORCE_INLINE void ezMemoryUtils::RelocateConstruct(T* pDestination, T* pSource, size_t uiCount)
+{
+  EZ_ASSERT(pDestination < pSource || pSource + uiCount <= pDestination, "Memory regions must not overlap when using RelocateConstruct.");
+  RelocateConstruct(pDestination, pSource, uiCount, ezGetTypeClass<T>());
 }
 
 template <typename T>
@@ -42,14 +50,21 @@ EZ_FORCE_INLINE void ezMemoryUtils::DefaultConstruct(T* pDestination, size_t uiC
 template <typename T>
 EZ_FORCE_INLINE void ezMemoryUtils::Copy(T* pDestination, const T* pSource, size_t uiCount)
 {
-  EZ_ASSERT(pDestination < pSource || pSource + uiCount <= pDestination, "Memory regions must not overlap when using Copy. Use Move instead.");
+  EZ_ASSERT(pDestination < pSource || pSource + uiCount <= pDestination, "Memory regions must not overlap when using Copy. Use CopyOverlapped instead.");
   Copy(pDestination, pSource, uiCount, ezIsPodType<T>());
 }
 
 template <typename T>
-EZ_FORCE_INLINE void ezMemoryUtils::Move(T* pDestination, const T* pSource, size_t uiCount)
+EZ_FORCE_INLINE void ezMemoryUtils::CopyOverlapped(T* pDestination, const T* pSource, size_t uiCount)
 {
-  Move(pDestination, pSource, uiCount, ezIsPodType<T>());
+  CopyOverlapped(pDestination, pSource, uiCount, ezIsPodType<T>());
+}
+
+template <typename T>
+EZ_FORCE_INLINE void ezMemoryUtils::Relocate(T* pDestination, T* pSource, size_t uiCount)
+{
+  EZ_ASSERT(pDestination < pSource || pSource + uiCount <= pDestination, "Memory regions must not overlap when using Relocate.");
+  Relocate(pDestination, pSource, uiCount, ezGetTypeClass<T>());
 }
 
 template <typename T>
@@ -100,7 +115,6 @@ EZ_FORCE_INLINE bool ezMemoryUtils::IsAligned(const T* ptr, size_t uiAlignment)
   return (reinterpret_cast<size_t>(ptr) & (uiAlignment - 1)) == 0;
 }
 
-
 // private methods
 
 template <typename T>
@@ -141,13 +155,13 @@ EZ_FORCE_INLINE void ezMemoryUtils::Construct(T* pDestination, const T& copy, si
 }
 
 template <typename T>
-EZ_FORCE_INLINE void ezMemoryUtils::Construct(T* pDestination, const T* pSource, size_t uiCount, ezTypeIsPod)
+EZ_FORCE_INLINE void ezMemoryUtils::CopyConstruct(T* pDestination, const T* pSource, size_t uiCount, ezTypeIsPod)
 {
   memcpy(pDestination, pSource, uiCount * sizeof(T));
 }
 
 template <typename T>
-EZ_FORCE_INLINE void ezMemoryUtils::Construct(T* pDestination, const T* pSource, size_t uiCount, ezTypeIsClass)
+EZ_FORCE_INLINE void ezMemoryUtils::CopyConstruct(T* pDestination, const T* pSource, size_t uiCount, ezTypeIsClass)
 {
   EZ_CHECK_CLASS(T);
 
@@ -155,6 +169,30 @@ EZ_FORCE_INLINE void ezMemoryUtils::Construct(T* pDestination, const T* pSource,
   {
     ::new (pDestination + i) T(pSource[i]);
   }
+}
+
+template <typename T>
+EZ_FORCE_INLINE void ezMemoryUtils::RelocateConstruct(T* pDestination, T* pSource, size_t uiCount, ezTypeIsPod)
+{
+  memcpy(pDestination, pSource, uiCount * sizeof(T));
+}
+
+template <typename T>
+EZ_FORCE_INLINE void ezMemoryUtils::RelocateConstruct(T* pDestination, T* pSource, size_t uiCount, ezTypeIsMemRelocatable)
+{
+  memcpy(pDestination, pSource, uiCount * sizeof(T));
+}
+
+template <typename T>
+EZ_FORCE_INLINE void ezMemoryUtils::RelocateConstruct(T* pDestination, T* pSource, size_t uiCount, ezTypeIsClass)
+{
+  EZ_CHECK_CLASS(T);
+
+  for (size_t i = 0; i < uiCount; i++)
+  {
+    ::new (pDestination + i) T(std::move(pSource[i]));
+  }
+  Destruct(pSource, uiCount, ezTypeIsClass());
 }
 
 template <typename T>
@@ -192,13 +230,13 @@ EZ_FORCE_INLINE void ezMemoryUtils::Copy(T* pDestination, const T* pSource, size
 }
 
 template <typename T>
-EZ_FORCE_INLINE void ezMemoryUtils::Move(T* pDestination, const T* pSource, size_t uiCount, ezTypeIsPod)
+EZ_FORCE_INLINE void ezMemoryUtils::CopyOverlapped(T* pDestination, const T* pSource, size_t uiCount, ezTypeIsPod)
 {
   memmove(pDestination, pSource, uiCount * sizeof(T));
 }
 
 template <typename T>
-inline void ezMemoryUtils::Move(T* pDestination, const T* pSource, size_t uiCount, ezTypeIsClass)
+inline void ezMemoryUtils::CopyOverlapped(T* pDestination, const T* pSource, size_t uiCount, ezTypeIsClass)
 {
   EZ_CHECK_CLASS(T);
 
@@ -222,6 +260,30 @@ inline void ezMemoryUtils::Move(T* pDestination, const T* pSource, size_t uiCoun
 }
 
 template <typename T>
+EZ_FORCE_INLINE void ezMemoryUtils::Relocate(T* pDestination, T* pSource, size_t uiCount, ezTypeIsPod)
+{
+  memcpy(pDestination, pSource, uiCount * sizeof(T));
+}
+
+template <typename T>
+EZ_FORCE_INLINE void ezMemoryUtils::Relocate(T* pDestination, T* pSource, size_t uiCount, ezTypeIsMemRelocatable)
+{
+  memcpy(pDestination, pSource, uiCount * sizeof(T));
+}
+
+template <typename T>
+EZ_FORCE_INLINE void ezMemoryUtils::Relocate(T* pDestination, T* pSource, size_t uiCount, ezTypeIsClass)
+{
+  EZ_CHECK_CLASS(T);
+
+  for (size_t i = 0; i < uiCount; i++)
+  {
+    pDestination[i] = std::move(pSource[i]);
+  }
+  Destruct(pSource, uiCount, ezTypeIsClass());
+}
+
+template <typename T>
 EZ_FORCE_INLINE bool ezMemoryUtils::IsEqual(const T* a, const T* b, size_t uiCount, ezTypeIsPod)
 {
   return memcmp(a, b, uiCount * sizeof(T)) == 0;
@@ -239,6 +301,7 @@ EZ_FORCE_INLINE bool ezMemoryUtils::IsEqual(const T* a, const T* b, size_t uiCou
   }
   return true;
 }
+
 
 #undef EZ_CHECK_CLASS
 

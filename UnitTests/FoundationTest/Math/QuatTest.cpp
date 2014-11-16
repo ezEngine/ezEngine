@@ -241,5 +241,21 @@ EZ_CREATE_SIMPLE_TEST(Math, Quaternion)
     }
   }
 
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "rotation direction")
+  {
+    ezMat3T m;
+    m.SetRotationMatrixZ(ezAngle::Degree(90.0f));
+
+    ezQuatT q;
+    q.SetFromAxisAndAngle(ezVec3T(0, 0, 1), ezAngle::Degree(90.0f));
+
+    ezVec3T xAxis(1, 0, 0);
+
+    ezVec3T temp1 = m.TransformDirection(xAxis);
+    ezVec3T temp2 = q.GetAsMat3().TransformDirection(xAxis);
+
+    EZ_TEST_BOOL(temp1.IsEqual(temp2, 0.01f));
+  }
+
 }
 

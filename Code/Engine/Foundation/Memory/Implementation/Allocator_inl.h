@@ -1,6 +1,45 @@
+namespace ezInternal
+{
+  template <typename AllocationPolicy, ezUInt32 TrackingFlags>
+  class ezAllocatorImpl : public ezAllocatorBase
+  {
+  public:
+    ezAllocatorImpl(const char* szName, ezAllocatorBase* pParent);
+    ~ezAllocatorImpl();
+
+    // ezAllocatorBase implementation
+    virtual void* Allocate(size_t uiSize, size_t uiAlign) override;
+    virtual void Deallocate(void* ptr) override;
+    virtual size_t AllocatedSize(const void* ptr) override;
+    virtual Stats GetStats() const override;
+
+    ezAllocatorBase* GetParent() const;
+
+  protected:
+    AllocationPolicy m_allocator;
+
+    ezAllocatorId m_Id;
+    ezThreadID m_ThreadID;
+  };
+
+  template <typename AllocationPolicy, ezUInt32 TrackingFlags, bool HasReallocate>
+  class ezAllocatorMixinReallocate : public ezAllocatorImpl < AllocationPolicy, TrackingFlags >
+  {
+  public:
+    ezAllocatorMixinReallocate(const char* szName, ezAllocatorBase* pParent);
+  };
+
+  template <typename AllocationPolicy, ezUInt32 TrackingFlags>
+  class ezAllocatorMixinReallocate<AllocationPolicy, TrackingFlags, true> : public ezAllocatorImpl < AllocationPolicy, TrackingFlags >
+  {
+  public:
+    ezAllocatorMixinReallocate(const char* szName, ezAllocatorBase* pParent);
+    virtual void* Reallocate(void* ptr, size_t uiCurrentSize, size_t uiNewSize, size_t uiAlign) override;
+  };
+};
 
 template <typename A, ezUInt32 TrackingFlags>
-EZ_FORCE_INLINE ezAllocator<A, TrackingFlags>::ezAllocator(const char* szName, ezAllocatorBase* pParent /* = nullptr */) : 
+EZ_FORCE_INLINE ezInternal::ezAllocatorImpl<A, TrackingFlags>::ezAllocatorImpl(const char* szName, ezAllocatorBase* pParent /* = nullptr */) : 
   m_allocator(pParent),
   m_ThreadID(ezThreadUtils::GetCurrentThreadID())
 {
@@ -14,7 +53,7 @@ EZ_FORCE_INLINE ezAllocator<A, TrackingFlags>::ezAllocator(const char* szName, e
 }
 
 template <typename A, ezUInt32 TrackingFlags>
-ezAllocator<A, TrackingFlags>::~ezAllocator()
+ezInternal::ezAllocatorImpl<A, TrackingFlags>::~ezAllocatorImpl()
 {
   EZ_ASSERT_API(m_ThreadID == ezThreadUtils::GetCurrentThreadID(), "Allocator is deleted from another thread");
 
@@ -25,7 +64,7 @@ ezAllocator<A, TrackingFlags>::~ezAllocator()
 }
 
 template <typename A, ezUInt32 TrackingFlags>
-void* ezAllocator<A, TrackingFlags>::Allocate(size_t uiSize, size_t uiAlign)
+void* ezInternal::ezAllocatorImpl<A, TrackingFlags>::Allocate(size_t uiSize, size_t uiAlign)
 {
   // zero size allocations always return nullptr without tracking (since deallocate nullptr is ignored)
   if (uiSize == 0)
@@ -45,7 +84,7 @@ void* ezAllocator<A, TrackingFlags>::Allocate(size_t uiSize, size_t uiAlign)
 }
 
 template <typename A, ezUInt32 TrackingFlags>
-void ezAllocator<A, TrackingFlags>::Deallocate(void* ptr)
+void ezInternal::ezAllocatorImpl<A, TrackingFlags>::Deallocate(void* ptr)
 {
   if ((TrackingFlags & ezMemoryTrackingFlags::EnableTracking) != 0)
   {
@@ -56,7 +95,7 @@ void ezAllocator<A, TrackingFlags>::Deallocate(void* ptr)
 }
 
 template <typename A, ezUInt32 TrackingFlags>
-size_t ezAllocator<A, TrackingFlags>::AllocatedSize(const void* ptr)
+size_t ezInternal::ezAllocatorImpl<A, TrackingFlags>::AllocatedSize(const void* ptr)
 {
   if ((TrackingFlags & ezMemoryTrackingFlags::EnableTracking) != 0)
   {
@@ -67,7 +106,7 @@ size_t ezAllocator<A, TrackingFlags>::AllocatedSize(const void* ptr)
 }
 
 template <typename A, ezUInt32 TrackingFlags>
-ezAllocatorBase::Stats ezAllocator<A, TrackingFlags>::GetStats() const
+ezAllocatorBase::Stats ezInternal::ezAllocatorImpl<A, TrackingFlags>::GetStats() const
 {
   if ((TrackingFlags & ezMemoryTrackingFlags::EnableTracking) != 0)
   {
@@ -78,8 +117,40 @@ ezAllocatorBase::Stats ezAllocator<A, TrackingFlags>::GetStats() const
 }
 
 template <typename A, ezUInt32 TrackingFlags>
-EZ_FORCE_INLINE ezAllocatorBase* ezAllocator<A, TrackingFlags>::GetParent() const
+EZ_FORCE_INLINE ezAllocatorBase* ezInternal::ezAllocatorImpl<A, TrackingFlags>::GetParent() const
 {
   return m_allocator.GetParent();
 }
 
+template <typename A, ezUInt32 TrackingFlags, bool HasReallocate>
+ezInternal::ezAllocatorMixinReallocate<A, TrackingFlags, HasReallocate>::ezAllocatorMixinReallocate(const char* szName, ezAllocatorBase* pParent)
+  : ezAllocatorImpl<A, TrackingFlags>(szName, pParent)
+{
+
+}
+
+template <typename A, ezUInt32 TrackingFlags>
+ezInternal::ezAllocatorMixinReallocate<A, TrackingFlags, true>::ezAllocatorMixinReallocate(const char* szName, ezAllocatorBase* pParent)
+  : ezAllocatorImpl<A, TrackingFlags>(szName, pParent)
+{
+
+}
+
+template <typename A, ezUInt32 TrackingFlags>
+void* ezInternal::ezAllocatorMixinReallocate<A, TrackingFlags, true>::Reallocate(void* ptr, size_t uiCurrentSize, size_t uiNewSize, size_t uiAlign)
+{
+    void* pNewMem = this->m_allocator.Reallocate(ptr, uiCurrentSize, uiNewSize, uiAlign);
+    if((TrackingFlags & ezMemoryTrackingFlags::EnableTracking) != 0)
+    {
+      if (pNewMem == ptr)
+      {
+        ezMemoryTracker::ReplaceAllocation(m_Id, ptr, uiCurrentSize, uiNewSize);
+      }
+      else
+      {
+        ezMemoryTracker::RemoveAllocation(m_Id, ptr);
+        ezMemoryTracker::AddAllocation(m_Id, pNewMem, uiNewSize, uiAlign);
+      }
+    }
+    return pNewMem;
+}

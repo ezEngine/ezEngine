@@ -112,8 +112,7 @@ void ezHybridArrayBase<T, Size>::SetCapacity(ezUInt32 uiCapacity)
     pNewData = EZ_NEW_RAW_BUFFER(m_pAllocator, T, this->m_uiCapacity);
   }
 
-  ezMemoryUtils::Construct(pNewData, this->m_pElements, this->m_uiCount);
-  ezMemoryUtils::Destruct(this->m_pElements, this->m_uiCount);
+  ezMemoryUtils::RelocateConstruct(pNewData, this->m_pElements, this->m_uiCount);
 
   // if the previous buffer is not the static array, deallocate it
   if (this->m_pElements != GetStaticArray())
