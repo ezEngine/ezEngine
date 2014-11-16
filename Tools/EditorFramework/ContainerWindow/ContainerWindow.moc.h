@@ -51,6 +51,7 @@ private slots:
   void SlotRecentProjectsMenu();
   void SlotRecentProject();
   void SlotRecentDocument();
+  void SlotDocumentTabCurrentChanged(int index);
 
 private:
   QTabWidget* GetTabWidget() const;

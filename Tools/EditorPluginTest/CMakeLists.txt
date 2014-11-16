@@ -25,6 +25,13 @@ SET (LINK_LIBRARIES
   Foundation
   EditorFramework
   ToolsFoundation
+
+  Core
+  System
+  RendererFoundation
+  RendererDX11
+  RendererCore
+  CoreUtils
 )
 
 include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/CMAKE_Plugin.txt)

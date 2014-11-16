@@ -54,8 +54,14 @@ public:
 
   void ScheduleRestoreWindowLayout();
 
+  bool IsVisibleInContainer() const { return m_bIsVisibleInContainer; }
+  void SetTargetFramerate(ezInt8 iTargetFPS);
+
+  void TriggerRedraw();
+
 private slots:
   void SlotRestoreLayout();
+  void SlotRedraw();
 
 private:
   void SaveWindowLayout();
@@ -66,6 +72,13 @@ private:
 private:
   friend class ezContainerWindow;
 
+  void SetVisibleInContainer(bool bVisible);
+
+  bool m_bIsVisibleInContainer;
+  bool m_bRedrawIsTriggered;
+  bool m_bIsDrawingATM;
+  bool m_bTriggerRedrawQueued;
+  ezInt8 m_iTargetFramerate;
   ezDocumentBase* m_pDocument;
   ezContainerWindow* m_pContainerWindow;
 
@@ -77,6 +90,8 @@ private:
   virtual void InternalDeleteThis() { delete this; }
   virtual bool InternalCanCloseWindow();
   virtual void InternalCloseDocumentWindow();
+  virtual void InternalVisibleInContainerChanged(bool bVisible) { }
+  virtual void InternalRedraw() { }
 
   ezString m_sUniqueName;
 };

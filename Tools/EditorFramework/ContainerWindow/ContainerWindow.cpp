@@ -183,6 +183,7 @@ void ezContainerWindow::SetupDocumentTabArea()
   EZ_VERIFY(connect(pTabs->tabBar(), SIGNAL(customContextMenuRequested(const QPoint&)), this, SLOT(SlotTabsContextMenuRequested(const QPoint&))) != nullptr, "signal/slot connection failed");
 
   EZ_VERIFY(connect(pTabs, SIGNAL(tabCloseRequested(int)), this, SLOT(SlotDocumentTabCloseRequested(int))) != nullptr, "signal/slot connection failed");
+  EZ_VERIFY(connect(pTabs, SIGNAL(currentChanged(int)), this, SLOT(SlotDocumentTabCurrentChanged(int))) != nullptr, "signal/slot connection failed");
 
   QToolButton* pButton = new QToolButton();
   pButton->setText("+");
@@ -318,6 +319,27 @@ void ezContainerWindow::SlotDocumentTabCloseRequested(int index)
     return;
 
   pDocWindow->CloseDocumentWindow();
+}
+
+void ezContainerWindow::SlotDocumentTabCurrentChanged(int index)
+{
+  QTabWidget* pTabs = GetTabWidget();
+
+  ezDocumentWindow* pNowCurrentWindow = nullptr; 
+
+  if (index >= 0)
+    pNowCurrentWindow = (ezDocumentWindow*) pTabs->widget(index);
+
+  for (ezDocumentWindow* pWnd : m_DocumentWindows)
+  {
+    if (pNowCurrentWindow == pWnd)
+      continue;
+
+    pWnd->SetVisibleInContainer(false);
+  }
+
+  if (pNowCurrentWindow)
+    pNowCurrentWindow->SetVisibleInContainer(true);
 }
 
 void ezContainerWindow::DocumentWindowEventHandler(const ezDocumentWindow::Event& e)

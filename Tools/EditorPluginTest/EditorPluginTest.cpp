@@ -11,6 +11,7 @@
 #include <EditorPluginTest/Widgets/TestObjectCreator.moc.h>
 #include <EditorPluginTest/Document/TestDocument.h>
 #include <EditorPluginTest/Document/TestDocumentManager.h>
+#include <EditorPluginTest/Document/TestDocumentWindow.moc.h>
 #include <qmainwindow.h>
 #include <QMessageBox>
 
@@ -32,7 +33,7 @@ void OnDocumentManagerEvent(const ezDocumentManagerBase::Event& e)
     {
       if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezTestDocument>())
       {
-        ezDocumentWindow* pDocWnd = new ezDocumentWindow(e.m_pDocument);
+        ezDocumentWindow* pDocWnd = new ezTestDocumentWindow(e.m_pDocument);
 
         {
           ezTestPanel* pPropertyPanel = new ezTestPanel(pDocWnd);

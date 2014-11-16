@@ -33,6 +33,11 @@ void ezDocumentWindow::Constructor()
 {
   m_pContainerWindow = nullptr;
   m_pDocument = nullptr;
+  m_bIsVisibleInContainer = false;
+  m_bRedrawIsTriggered = false;
+  m_bIsDrawingATM = false;
+  m_bTriggerRedrawQueued = false;
+  m_iTargetFramerate = 0;
 
   setDockNestingEnabled(true);
 }
@@ -67,6 +72,81 @@ ezDocumentWindow::~ezDocumentWindow()
     m_pDocument->m_EventsOne.RemoveEventHandler(ezDelegate<void (const ezDocumentBase::Event&)>(&ezDocumentWindow::DocumentEventHandler, this));
     m_pDocument->GetDocumentManager()->s_Events.RemoveEventHandler(ezDelegate<void (const ezDocumentManagerBase::Event&)>(&ezDocumentWindow::DocumentManagerEventHandler, this));
   }
+}
+
+void ezDocumentWindow::SetVisibleInContainer(bool bVisible)
+{
+  if (m_bIsVisibleInContainer == bVisible)
+    return;
+
+  m_bIsVisibleInContainer = bVisible;
+  InternalVisibleInContainerChanged(bVisible);
+
+  if (m_bIsVisibleInContainer)
+  {
+    // if the window is now visible, immediately do a redraw and trigger the timers
+    InternalRedraw();
+
+    if (m_iTargetFramerate != 0)
+      TriggerRedraw();
+  }
+}
+
+void ezDocumentWindow::SetTargetFramerate(ezInt8 iTargetFPS)
+{
+  if (m_iTargetFramerate == iTargetFPS)
+    return;
+
+  m_iTargetFramerate = iTargetFPS;
+
+  if (m_iTargetFramerate != 0)
+    TriggerRedraw();
+}
+
+void ezDocumentWindow::TriggerRedraw()
+{
+  if (m_bRedrawIsTriggered)
+    return;
+
+  // to not set up the timer while we are drawing, this could lead to recursive drawing, which will fail
+  if (m_bIsDrawingATM)
+  {
+    // just store that we got a redraw request while drawing
+    m_bTriggerRedrawQueued = true;
+    return;
+  }
+
+  m_bRedrawIsTriggered = true;
+  m_bTriggerRedrawQueued = false;
+
+  int iDelay = 1000.0f / 25.0f;
+
+  if (m_iTargetFramerate > 0)
+    iDelay = (int) (1000.0f / m_iTargetFramerate);
+
+  if (m_iTargetFramerate < 0)
+    iDelay = 0;
+
+  QTimer::singleShot(iDelay, this, SLOT(SlotRedraw()));
+}
+
+void ezDocumentWindow::SlotRedraw()
+{
+  EZ_ASSERT(!m_bIsDrawingATM, "Implementation error");
+
+  m_bRedrawIsTriggered = false;
+
+  // if our window is not visible, interrupt the redrawing, and do nothing
+  if (!m_bIsVisibleInContainer)
+    return;
+
+  m_bIsDrawingATM = true;
+  InternalRedraw();
+  m_bIsDrawingATM = false;
+
+  // immediately trigger the next redraw, if a constant framerate is desired
+  if (m_iTargetFramerate != 0 || m_bTriggerRedrawQueued)
+    TriggerRedraw();
 }
 
 void ezDocumentWindow::DocumentEventHandler(const ezDocumentBase::Event& e)
