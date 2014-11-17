@@ -6,7 +6,7 @@
 
 ezSerializedDocumentObjectWriter::ezSerializedDocumentObjectWriter(const ezDocumentObjectBase* pObject) : m_pObject(pObject)
 {
-  EZ_ASSERT(pObject, "Object passed to ezSerializedDocumentObjectWriter must not be nullptr!");
+  EZ_ASSERT(pObject != nullptr, "Object passed to ezSerializedDocumentObjectWriter must not be nullptr!");
 }
 
 ezSerializedDocumentObjectWriter::~ezSerializedDocumentObjectWriter()

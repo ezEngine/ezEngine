@@ -6,7 +6,7 @@
 
 ezSerializedTypeAccessorObjectWriter::ezSerializedTypeAccessorObjectWriter(const ezIReflectedTypeAccessor* pObject) : m_pObject(pObject)
 {
-  EZ_ASSERT(pObject, "Object passed to ezSerializedTypeAccessorObjectWriter must not be nullptr!");
+  EZ_ASSERT(pObject != nullptr, "Object passed to ezSerializedTypeAccessorObjectWriter must not be nullptr!");
 }
 
 ezSerializedTypeAccessorObjectWriter::~ezSerializedTypeAccessorObjectWriter()
