@@ -3,8 +3,9 @@
 /// \file
 
 #include <Foundation/Basics.h>
-#include <Foundation/Types/ArrayPtr.h>
 #include <utility>
+#include <Foundation/Types/ArrayPtr.h>
+
 
 #ifdef new
   #undef new
