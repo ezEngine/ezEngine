@@ -4,6 +4,7 @@
 
 #include <Foundation/Basics.h>
 #include <Foundation/Types/ArrayPtr.h>
+#include <utility>
 
 #ifdef new
   #undef new

@@ -48,7 +48,7 @@ EZ_FORCE_INLINE ezInternal::ezAllocatorImpl<A, TrackingFlags>::ezAllocatorImpl(c
     EZ_CHECK_AT_COMPILETIME_MSG((TrackingFlags & ~ezMemoryTrackingFlags::All) == 0, "Invalid tracking flags");
     const ezUInt32 uiTrackingFlags = TrackingFlags;
     ezBitflags<ezMemoryTrackingFlags> flags = *reinterpret_cast<const ezBitflags<ezMemoryTrackingFlags>*>(&uiTrackingFlags);
-    m_Id = ezMemoryTracker::RegisterAllocator(szName, flags);
+    this->m_Id = ezMemoryTracker::RegisterAllocator(szName, flags);
   }
 }
 
@@ -59,7 +59,7 @@ ezInternal::ezAllocatorImpl<A, TrackingFlags>::~ezAllocatorImpl()
 
   if ((TrackingFlags & ezMemoryTrackingFlags::EnableTracking) != 0)
   {
-    ezMemoryTracker::DeregisterAllocator(m_Id);
+    ezMemoryTracker::DeregisterAllocator(this->m_Id);
   }
 }
 
@@ -77,7 +77,7 @@ void* ezInternal::ezAllocatorImpl<A, TrackingFlags>::Allocate(size_t uiSize, siz
 
   if ((TrackingFlags & ezMemoryTrackingFlags::EnableTracking) != 0)
   {
-    ezMemoryTracker::AddAllocation(m_Id, ptr, uiSize, uiAlign);
+    ezMemoryTracker::AddAllocation(this->m_Id, ptr, uiSize, uiAlign);
   }
 
   return ptr;
@@ -88,7 +88,7 @@ void ezInternal::ezAllocatorImpl<A, TrackingFlags>::Deallocate(void* ptr)
 {
   if ((TrackingFlags & ezMemoryTrackingFlags::EnableTracking) != 0)
   {
-    ezMemoryTracker::RemoveAllocation(m_Id, ptr);
+    ezMemoryTracker::RemoveAllocation(this->m_Id, ptr);
   }
 
   m_allocator.Deallocate(ptr);
@@ -99,7 +99,7 @@ size_t ezInternal::ezAllocatorImpl<A, TrackingFlags>::AllocatedSize(const void* 
 {
   if ((TrackingFlags & ezMemoryTrackingFlags::EnableTracking) != 0)
   {
-    return ezMemoryTracker::GetAllocationInfo(m_Id, ptr).m_uiSize;
+    return ezMemoryTracker::GetAllocationInfo(this->m_Id, ptr).m_uiSize;
   }
 
   return 0;
@@ -110,7 +110,7 @@ ezAllocatorBase::Stats ezInternal::ezAllocatorImpl<A, TrackingFlags>::GetStats()
 {
   if ((TrackingFlags & ezMemoryTrackingFlags::EnableTracking) != 0)
   {
-    return ezMemoryTracker::GetAllocatorStats(m_Id);
+    return ezMemoryTracker::GetAllocatorStats(this->m_Id);
   }
 
   return Stats();
