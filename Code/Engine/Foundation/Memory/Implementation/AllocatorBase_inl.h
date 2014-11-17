@@ -54,20 +54,6 @@ namespace ezInternal
   }
 
   template <typename T>
-  EZ_FORCE_INLINE T* ExtendRawBuffer(T* ptr, ezAllocatorBase* pAllocator, size_t uiCurrentCount, size_t uiNewCount)
-  {
-    EZ_ASSERT(uiCurrentCount < uiNewCount, "Shrinking of a buffer is not implemented yet");
-    EZ_ASSERT(!(uiCurrentCount == uiNewCount), "Same size passed in twice.");
-    if (ptr == NULL)
-    {
-      EZ_ASSERT(uiCurrentCount == 0, "current count must be 0 if ptr is NULL");
-
-      return CreateRawBuffer<T>(pAllocator, uiNewCount);
-    }
-    return ExtendRawBuffer(ptr, pAllocator, uiCurrentCount, uiNewCount, ezGetTypeClass<T>());
-  }
-
-  template <typename T>
   EZ_FORCE_INLINE T* ExtendRawBuffer(T* ptr, ezAllocatorBase* pAllocator, size_t uiCurrentCount, size_t uiNewCount, ezTypeIsPod)
   {
     return (T*)pAllocator->Reallocate(ptr, uiCurrentCount * sizeof(T), uiNewCount * sizeof(T), EZ_ALIGNMENT_OF(T));
@@ -88,6 +74,20 @@ namespace ezInternal
     ezMemoryUtils::RelocateConstruct(pNewMem, ptr, uiCurrentCount);
     DeleteRawBuffer(pAllocator, ptr);
     return pNewMem;
+  }
+
+  template <typename T>
+  EZ_FORCE_INLINE T* ExtendRawBuffer(T* ptr, ezAllocatorBase* pAllocator, size_t uiCurrentCount, size_t uiNewCount)
+  {
+    EZ_ASSERT(uiCurrentCount < uiNewCount, "Shrinking of a buffer is not implemented yet");
+    EZ_ASSERT(!(uiCurrentCount == uiNewCount), "Same size passed in twice.");
+    if (ptr == NULL)
+    {
+      EZ_ASSERT(uiCurrentCount == 0, "current count must be 0 if ptr is NULL");
+
+      return CreateRawBuffer<T>(pAllocator, uiNewCount);
+    }
+    return ExtendRawBuffer(ptr, pAllocator, uiCurrentCount, uiNewCount, ezGetTypeClass<T>());
   }
 
 }

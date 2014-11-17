@@ -144,12 +144,12 @@ void* ezInternal::ezAllocatorMixinReallocate<A, TrackingFlags, true>::Reallocate
     {
       if (pNewMem == ptr)
       {
-        ezMemoryTracker::ReplaceAllocation(m_Id, ptr, uiCurrentSize, uiNewSize);
+        ezMemoryTracker::ReplaceAllocation(this->m_Id, ptr, uiCurrentSize, uiNewSize);
       }
       else
       {
-        ezMemoryTracker::RemoveAllocation(m_Id, ptr);
-        ezMemoryTracker::AddAllocation(m_Id, pNewMem, uiNewSize, uiAlign);
+        ezMemoryTracker::RemoveAllocation(this->m_Id, ptr);
+        ezMemoryTracker::AddAllocation(this->m_Id, pNewMem, uiNewSize, uiAlign);
       }
     }
     return pNewMem;
