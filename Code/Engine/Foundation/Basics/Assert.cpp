@@ -1,5 +1,6 @@
 #include <Foundation/PCH.h>
 #include <Foundation/Basics/Assert.h>
+#include <Foundation/Strings/StringUtils.h>
 
 bool ezDefaultAssertHandler(const char* szSourceFile, ezUInt32 uiLine, const char* szFunction, const char* szExpression, const char* szAssertMsg)
 {
@@ -62,8 +63,7 @@ bool ezFailedCheck(const char* szSourceFile, ezUInt32 uiLine, const char* szFunc
   va_start (ap, szErrorMsg);
 
   char szMsg[1024 * 2] = "";
-  vsprintf(szMsg, szErrorMsg, ap);
-  szMsg[1024 * 2 - 1] = '\0';
+  ezStringUtils::snprintf(szMsg, EZ_ARRAY_SIZE(szMsg), szErrorMsg, ap);
 
   va_end (ap);
 
