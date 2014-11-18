@@ -55,13 +55,13 @@ public:
   bool IsIdentical(const ezTransformTemplate& rhs) const; // [tested]
 
   /// \brief Equality Check with epsilon
-  bool IsEqual(const ezTransformTemplate& rhs, float fEpsilon) const; // [tested]
+  bool IsEqual(const ezTransformTemplate& rhs, Type fEpsilon) const; // [tested]
 
   // *** Inverse ***
 public:
 
   /// \brief Inverts this transform. Return value indicates whether it could be Inverted.
-  ezResult Invert(float fEpsilon = ezMath::BasicType<float>::SmallEpsilon()); // [tested]
+  ezResult Invert(Type fEpsilon = ezMath::BasicType<Type>::SmallEpsilon()); // [tested]
 
   /// \brief Returns the inverse of this transform.
   const ezTransformTemplate GetInverse() const; // [tested]

@@ -40,7 +40,7 @@ inline bool ezTransformTemplate<Type>::IsIdentical(const ezTransformTemplate<Typ
 }
 
 template<typename Type>
-inline bool ezTransformTemplate<Type>::IsEqual(const ezTransformTemplate<Type>& rhs, float fEpsilon) const
+inline bool ezTransformTemplate<Type>::IsEqual(const ezTransformTemplate<Type>& rhs, Type fEpsilon) const
 {
   return m_vPosition.IsEqual(rhs.m_vPosition, fEpsilon) && m_Rotation.IsEqual(rhs.m_Rotation, fEpsilon);
 }
@@ -128,7 +128,7 @@ inline const ezTransformTemplate<Type> operator*(const ezMat4& t1, const ezTrans
 }
 
 template<typename Type>
-inline ezResult ezTransformTemplate<Type>::Invert(float fEpsilon)
+inline ezResult ezTransformTemplate<Type>::Invert(Type fEpsilon)
 {
   if (m_Rotation.Invert(fEpsilon).Failed())
     return EZ_FAILURE;
