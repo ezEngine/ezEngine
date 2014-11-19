@@ -126,3 +126,9 @@ template<ezUInt8 DecimalBits>
 class ezFixedPoint;
 
 class ezAngle;
+
+template<typename Type>
+class ezTransformTemplate;
+
+typedef ezTransformTemplate<float> ezTransform;
+typedef ezTransformTemplate<double> ezTransformd;

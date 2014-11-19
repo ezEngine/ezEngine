@@ -20,4 +20,4 @@ typedef ezQuatTemplate<ezMathTestType> ezQuatT; ///< This is only for testing pu
 typedef ezPlaneTemplate<ezMathTestType> ezPlaneT; ///< This is only for testing purposes
 typedef ezBoundingBoxTemplate<ezMathTestType> ezBoundingBoxT; ///< This is only for testing purposes
 typedef ezBoundingSphereTemplate<ezMathTestType> ezBoundingSphereT; ///< This is only for testing purposes
-
+typedef ezTransformTemplate<ezMathTestType> ezTransformT;

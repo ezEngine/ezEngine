@@ -69,8 +69,6 @@ void SetStyleSheet()
 
 void ezEditorFramework::StartupEditor(const char* szAppName, const char* szUserName, int argc, char** argv)
 {
-  ezCommandLineUtils::GetInstance()->SetCommandLine(argc, (const char**) argv);
-
   s_sApplicationName = ezCommandLineUtils::GetInstance()->GetStringOption("-appname", 0, szAppName);
   s_sUserName = szUserName;
 

@@ -154,7 +154,7 @@ public:
   {
     m_uiArgumentCount = uiArgumentCount;
     m_ppArguments = ppArguments;
-    m_CommandLine.SetCommandLine(uiArgumentCount, ppArguments);
+    ezCommandLineUtils::GetInstance()->SetCommandLine(uiArgumentCount, ppArguments);
   }
 
   /// \brief Returns the one instance of ezApplication that is available.
@@ -185,12 +185,6 @@ public:
     return m_ppArguments;
   }
 
-  /// \brief Returns the ezCommandLineUtils object. Only useful if the command line parameters were passed to the application object at the start.
-  const ezCommandLineUtils& GetCommandLine() const
-  {
-    return m_CommandLine;
-  }
-
   void EnableMemoryLeakReporting(bool bEnable)
   {
     m_bReportMemoryLeaks = bEnable;
@@ -209,8 +203,5 @@ private:
   static ezApplication* s_pApplicationInstance;
 
   friend EZ_CORE_DLL void ezRun(ezApplication* pApplicationInstance);
-
-  ezCommandLineUtils m_CommandLine;
-
-};
+  };
 
