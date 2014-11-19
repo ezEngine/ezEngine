@@ -36,7 +36,7 @@ bool ezDocumentJSONReader::OpenGroup(const char* szName)
 
 bool ezDocumentJSONReader::PeekNextObject(ezUuid& out_objectGuid, ezStringBuilder& out_sType, ezUuid& out_parentGuid)
 {
-  EZ_ASSERT(m_pGroup, "Need to call 'OpenGroup' first before reading objects!");
+  EZ_ASSERT(m_pGroup != nullptr, "Need to call 'OpenGroup' first before reading objects!");
   out_objectGuid = ezUuid();
   out_sType.Clear();
   out_parentGuid = ezUuid();
@@ -72,7 +72,7 @@ bool ezDocumentJSONReader::PeekNextObject(ezUuid& out_objectGuid, ezStringBuilde
 
 void ezDocumentJSONReader::ReadObject(ezSerializedObjectReaderBase& object)
 {
-  EZ_ASSERT(m_pObject, "No object to read, call OpenGroup and then PeekNextObject!");
+  EZ_ASSERT(m_pObject != nullptr, "No object to read, call OpenGroup and then PeekNextObject!");
   ezVariant* pType = nullptr;
   ezHybridArray<ezString, 8> stack;
 

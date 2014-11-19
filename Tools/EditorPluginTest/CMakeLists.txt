@@ -20,6 +20,8 @@ QT_MODULES(Core Gui Widgets)
 # Call this in case this project does not function without Qt.
 BUILD_REQUIRES_QT()
 
+BUILD_REQUIRES_DX11()
+
 # Add all the libraries that this project needs to link against here
 SET (LINK_LIBRARIES
   Foundation

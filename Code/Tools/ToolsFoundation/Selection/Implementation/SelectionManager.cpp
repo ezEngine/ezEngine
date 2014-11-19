@@ -29,6 +29,8 @@ void ezSelectionManager::TreeEventHandler(const ezDocumentObjectTreeEvent& e)
   case ezDocumentObjectTreeEvent::Type::BeforeObjectRemoved:
     RemoveObject(e.m_pObject);
     break;
+  default:
+    return;
   }
 }
 

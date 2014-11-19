@@ -64,6 +64,9 @@ ezVariant ezToolsReflectionUtils::GetDefaultVariantFromType(ezVariant::Type::Enu
     return ezVariant();
   case ezVariant::Type::VoidPointer:
     return ezVariant();
+  case ezVariant::Type::ENUM_COUNT:
+    EZ_REPORT_FAILURE("Invalid case statement");
+    return ezVariant();
   }
   return ezVariant();
 }
