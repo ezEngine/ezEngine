@@ -5,28 +5,28 @@ EZ_CREATE_SIMPLE_TEST(Math, Transform)
 {
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Constructors")
   {
-    ezTransform t0;
+    ezTransformT t0;
 
     {
-      ezTransform t(ezVec3(1, 2, 3));
-      EZ_TEST_VEC3(t.m_vPosition, ezVec3(1, 2, 3), 0);
+      ezTransformT t(ezVec3T(1, 2, 3));
+      EZ_TEST_VEC3(t.m_vPosition, ezVec3T(1, 2, 3), 0);
     }
 
     {
       ezQuat qRot;
-      qRot.SetFromAxisAndAngle(ezVec3(1, 2, 3).GetNormalized(), ezAngle::Degree(42.0f));
+      qRot.SetFromAxisAndAngle(ezVec3T(1, 2, 3).GetNormalized(), ezAngle::Degree(42.0f));
 
-      ezTransform t(ezVec3(4, 5, 6), qRot);
-      EZ_TEST_VEC3(t.m_vPosition, ezVec3(4, 5, 6), 0);
+      ezTransformT t(ezVec3T(4, 5, 6), qRot);
+      EZ_TEST_VEC3(t.m_vPosition, ezVec3T(4, 5, 6), 0);
       EZ_TEST_BOOL(t.m_Rotation == qRot.GetAsMat3());
     }
 
     {
       ezMat3 mRot;
-      mRot.SetRotationMatrix(ezVec3(1, 2, 3).GetNormalized(), ezAngle::Degree(42.0f));
+      mRot.SetRotationMatrix(ezVec3T(1, 2, 3).GetNormalized(), ezAngle::Degree(42.0f));
 
-      ezTransform t(ezVec3(4, 5, 6), mRot);
-      EZ_TEST_VEC3(t.m_vPosition, ezVec3(4, 5, 6), 0);
+      ezTransformT t(ezVec3T(4, 5, 6), mRot);
+      EZ_TEST_VEC3(t.m_vPosition, ezVec3T(4, 5, 6), 0);
       EZ_TEST_BOOL(t.m_Rotation == mRot);
     }
 
@@ -34,18 +34,18 @@ EZ_CREATE_SIMPLE_TEST(Math, Transform)
       ezQuat qRot;
       qRot.SetIdentity();
 
-      ezTransform t(ezVec3(4, 5, 6), qRot, ezVec3(2, 3, 4));
-      EZ_TEST_VEC3(t.m_vPosition, ezVec3(4, 5, 6), 0);
+      ezTransformT t(ezVec3T(4, 5, 6), qRot, ezVec3T(2, 3, 4));
+      EZ_TEST_VEC3(t.m_vPosition, ezVec3T(4, 5, 6), 0);
       EZ_TEST_BOOL(t.m_Rotation == ezMat3(2, 0, 0, 0, 3, 0, 0, 0, 4));
     }
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetIdentity")
   {
-    ezTransform t;
+    ezTransformT t;
     t.SetIdentity();
 
-    EZ_TEST_VEC3(t.m_vPosition, ezVec3(0), 0);
+    EZ_TEST_VEC3(t.m_vPosition, ezVec3T(0), 0);
     EZ_TEST_BOOL(t.m_Rotation == ezMat3(1, 0, 0, 0, 1, 0, 0, 0, 1));
   }
 
@@ -54,95 +54,95 @@ EZ_CREATE_SIMPLE_TEST(Math, Transform)
     ezQuat qRot;
     qRot.SetIdentity();
 
-    ezTransform t(ezVec3(4, 5, 6), qRot, ezVec3(2, 3, 4));
+    ezTransformT t(ezVec3T(4, 5, 6), qRot, ezVec3T(2, 3, 4));
     EZ_TEST_BOOL(t.GetAsMat4() == ezMat4(2, 0, 0, 4, 0, 3, 0, 5, 0, 0, 4, 6, 0, 0, 0, 1));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator + / -")
   {
-    ezTransform t0, t1;
+    ezTransformT t0, t1;
     t0.SetIdentity();
     t1.SetIdentity();
 
-    t1 = t0 + ezVec3(2, 3, 4);
-    EZ_TEST_VEC3(t1.m_vPosition, ezVec3(2, 3, 4), 0.0001f);
+    t1 = t0 + ezVec3T(2, 3, 4);
+    EZ_TEST_VEC3(t1.m_vPosition, ezVec3T(2, 3, 4), 0.0001f);
 
-    t1 = t1 - ezVec3(4, 2, 1);
-    EZ_TEST_VEC3(t1.m_vPosition, ezVec3(-2, 1, 3), 0.0001f);
+    t1 = t1 - ezVec3T(4, 2, 1);
+    EZ_TEST_VEC3(t1.m_vPosition, ezVec3T(-2, 1, 3), 0.0001f);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator *=")
   {
     ezQuat qRotX, qRotY;
-    qRotX.SetFromAxisAndAngle(ezVec3(1, 0, 0), ezAngle::Degree(90.0f));
-    qRotY.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(90.0f));
+    qRotX.SetFromAxisAndAngle(ezVec3T(1, 0, 0), ezAngle::Degree(90.0f));
+    qRotY.SetFromAxisAndAngle(ezVec3T(0, 1, 0), ezAngle::Degree(90.0f));
 
-    ezTransform t;
+    ezTransformT t;
     t.SetIdentity();
 
     t *= qRotX;
-    EZ_TEST_VEC3(t.m_vPosition, ezVec3(0, 0, 0), 0.0001f);
+    EZ_TEST_VEC3(t.m_vPosition, ezVec3T(0, 0, 0), 0.0001f);
     EZ_TEST_BOOL(t.m_Rotation.IsEqual(ezMat3(1, 0, 0, 0, 0, -1, 0, 1, 0), 0.0001f));
 
     t *= qRotY;
-    EZ_TEST_VEC3(t.m_vPosition, ezVec3(0, 0, 0), 0.0001f);
+    EZ_TEST_VEC3(t.m_vPosition, ezVec3T(0, 0, 0), 0.0001f);
     EZ_TEST_BOOL(t.m_Rotation.IsEqual(ezMat3(0, 1, 0, 0, 0, -1, -1, 0, 0), 0.0001f));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator * (quat)")
   {
     ezQuat qRotX, qRotY;
-    qRotX.SetFromAxisAndAngle(ezVec3(1, 0, 0), ezAngle::Degree(90.0f));
-    qRotY.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(90.0f));
+    qRotX.SetFromAxisAndAngle(ezVec3T(1, 0, 0), ezAngle::Degree(90.0f));
+    qRotY.SetFromAxisAndAngle(ezVec3T(0, 1, 0), ezAngle::Degree(90.0f));
 
-    ezTransform t0, t1;
+    ezTransformT t0, t1;
     t0.SetIdentity();
     t1.SetIdentity();
 
     t1 = qRotX * t0;
-    EZ_TEST_VEC3(t1.m_vPosition, ezVec3(0, 0, 0), 0.0001f);
+    EZ_TEST_VEC3(t1.m_vPosition, ezVec3T(0, 0, 0), 0.0001f);
     EZ_TEST_BOOL(t1.m_Rotation.IsEqual(ezMat3(1, 0, 0, 0, 0, -1, 0, 1, 0), 0.0001f));
 
     t1 = qRotY * t1;
-    EZ_TEST_VEC3(t1.m_vPosition, ezVec3(0, 0, 0), 0.0001f);
+    EZ_TEST_VEC3(t1.m_vPosition, ezVec3T(0, 0, 0), 0.0001f);
     EZ_TEST_BOOL(t1.m_Rotation.IsEqual(ezMat3(0, 1, 0, 0, 0, -1, -1, 0, 0), 0.0001f));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator * (vec3)")
   {
     ezQuat qRotX, qRotY;
-    qRotX.SetFromAxisAndAngle(ezVec3(1, 0, 0), ezAngle::Degree(90.0f));
-    qRotY.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(90.0f));
+    qRotX.SetFromAxisAndAngle(ezVec3T(1, 0, 0), ezAngle::Degree(90.0f));
+    qRotY.SetFromAxisAndAngle(ezVec3T(0, 1, 0), ezAngle::Degree(90.0f));
 
-    ezTransform t;
+    ezTransformT t;
     t.SetIdentity();
 
     t = qRotX * t;
-    t = t + ezVec3(1, 2, 3);
+    t = t + ezVec3T(1, 2, 3);
     t = qRotY * t;
-    EZ_TEST_VEC3(t.m_vPosition, ezVec3(1, 2, 3), 0.0001f);
+    EZ_TEST_VEC3(t.m_vPosition, ezVec3T(1, 2, 3), 0.0001f);
     EZ_TEST_BOOL(t.m_Rotation.IsEqual(ezMat3(0, 1, 0, 0, 0, -1, -1, 0, 0), 0.0001f));
 
-    ezVec3 v;
-    v = t * ezVec3(4, 5, 6);
+    ezVec3T v;
+    v = t * ezVec3T(4, 5, 6);
 
-    EZ_TEST_VEC3(v, ezVec3(5 + 1, -6 + 2, -4 + 3), 0.0001f);
+    EZ_TEST_VEC3(v, ezVec3T(5 + 1, -6 + 2, -4 + 3), 0.0001f);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetGlobalTransform")
   {
-    ezTransform tParent(ezVec3(1, 2, 3));
-    tParent.m_Rotation.SetRotationMatrix(ezVec3(0, 1, 0), ezAngle::Degree(90));
-    tParent.m_Rotation.SetScalingFactors(ezVec3(2));
+    ezTransformT tParent(ezVec3T(1, 2, 3));
+    tParent.m_Rotation.SetRotationMatrix(ezVec3T(0, 1, 0), ezAngle::Degree(90));
+    tParent.m_Rotation.SetScalingFactors(ezVec3T(2));
 
-    ezTransform tToChild(ezVec3(4, 5, 6));
-    tToChild.m_Rotation.SetRotationMatrix(ezVec3(0, 0, 1), ezAngle::Degree(90));
-    tToChild.m_Rotation.SetScalingFactors(ezVec3(4));
+    ezTransformT tToChild(ezVec3T(4, 5, 6));
+    tToChild.m_Rotation.SetRotationMatrix(ezVec3T(0, 0, 1), ezAngle::Degree(90));
+    tToChild.m_Rotation.SetScalingFactors(ezVec3T(4));
 
-    ezTransform tChild;
+    ezTransformT tChild;
     tChild.SetGlobalTransform(tParent, tToChild);
 
-    EZ_TEST_VEC3(tChild.m_vPosition, ezVec3(13, 12, -5), 0.0001f);
+    EZ_TEST_VEC3(tChild.m_vPosition, ezVec3T(13, 12, -5), 0.0001f);
     EZ_TEST_BOOL(tChild.m_Rotation.IsEqual(ezMat3(0, 0, 8, 8, 0, 0, 0, 8, 0), 0.0001f));
   }
 
@@ -150,78 +150,78 @@ EZ_CREATE_SIMPLE_TEST(Math, Transform)
   {
     // the inverse of the SetGlobalTransform test
 
-    ezTransform tParent(ezVec3(1, 2, 3));
-    tParent.m_Rotation.SetRotationMatrix(ezVec3(0, 1, 0), ezAngle::Degree(90));
-    tParent.m_Rotation.SetScalingFactors(ezVec3(2));
+    ezTransformT tParent(ezVec3T(1, 2, 3));
+    tParent.m_Rotation.SetRotationMatrix(ezVec3T(0, 1, 0), ezAngle::Degree(90));
+    tParent.m_Rotation.SetScalingFactors(ezVec3T(2));
 
-    ezTransform tChild;
-    tChild.m_vPosition = ezVec3(13, 12, -5);
+    ezTransformT tChild;
+    tChild.m_vPosition = ezVec3T(13, 12, -5);
     tChild.m_Rotation = ezMat3(0, 0, 8, 8, 0, 0, 0, 8, 0);
 
-    ezTransform tToChild;
+    ezTransformT tToChild;
     tToChild.SetLocalTransform(tParent, tChild);
 
     ezMat3 mRot;
-    mRot.SetRotationMatrix(ezVec3(0, 0, 1), ezAngle::Degree(90));
-    mRot.SetScalingFactors(ezVec3(4));
+    mRot.SetRotationMatrix(ezVec3T(0, 0, 1), ezAngle::Degree(90));
+    mRot.SetScalingFactors(ezVec3T(4));
 
-    EZ_TEST_VEC3(tToChild.m_vPosition, ezVec3(4, 5, 6), 0.0001f);
+    EZ_TEST_VEC3(tToChild.m_vPosition, ezVec3T(4, 5, 6), 0.0001f);
     EZ_TEST_BOOL(tToChild.m_Rotation.IsEqual(mRot, 0.0001f));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsIdentical")
   {
-    ezTransform t(ezVec3(1, 2, 3));
-    t.m_Rotation.SetRotationMatrix(ezVec3(0, 1, 0), ezAngle::Degree(90));
+    ezTransformT t(ezVec3T(1, 2, 3));
+    t.m_Rotation.SetRotationMatrix(ezVec3T(0, 1, 0), ezAngle::Degree(90));
 
     EZ_TEST_BOOL(t.IsIdentical(t));
 
-    ezTransform t2(ezVec3(1, 2, 4));
-    t2.m_Rotation.SetRotationMatrix(ezVec3(0, 1, 0), ezAngle::Degree(90));
+    ezTransformT t2(ezVec3T(1, 2, 4));
+    t2.m_Rotation.SetRotationMatrix(ezVec3T(0, 1, 0), ezAngle::Degree(90));
 
     EZ_TEST_BOOL(!t.IsIdentical(t2));
 
-    ezTransform t3(ezVec3(1, 2, 3));
-    t3.m_Rotation.SetRotationMatrix(ezVec3(0, 1, 0), ezAngle::Degree(91));
+    ezTransformT t3(ezVec3T(1, 2, 3));
+    t3.m_Rotation.SetRotationMatrix(ezVec3T(0, 1, 0), ezAngle::Degree(91));
 
     EZ_TEST_BOOL(!t.IsIdentical(t3));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsEqual")
   {
-    ezTransform t(ezVec3(1, 2, 3));
-    t.m_Rotation.SetRotationMatrix(ezVec3(0, 1, 0), ezAngle::Degree(90));
+    ezTransformT t(ezVec3T(1, 2, 3));
+    t.m_Rotation.SetRotationMatrix(ezVec3T(0, 1, 0), ezAngle::Degree(90));
 
     EZ_TEST_BOOL(t.IsEqual(t, 0.0001f));
 
-    ezTransform t2(ezVec3(1, 2, 3.0002f));
-    t2.m_Rotation.SetRotationMatrix(ezVec3(0, 1, 0), ezAngle::Degree(90));
+    ezTransformT t2(ezVec3T(1, 2, 3.0002f));
+    t2.m_Rotation.SetRotationMatrix(ezVec3T(0, 1, 0), ezAngle::Degree(90));
 
     EZ_TEST_BOOL(t.IsEqual(t2, 0.001f));
     EZ_TEST_BOOL(!t.IsEqual(t2, 0.0001f));
 
-    ezTransform t3(ezVec3(1, 2, 3));
-    t3.m_Rotation.SetRotationMatrix(ezVec3(0, 1, 0), ezAngle::Degree(90.01f));
+    ezTransformT t3(ezVec3T(1, 2, 3));
+    t3.m_Rotation.SetRotationMatrix(ezVec3T(0, 1, 0), ezAngle::Degree(90.01f));
 
     EZ_TEST_BOOL(t.IsEqual(t3, 0.01f));
     EZ_TEST_BOOL(!t.IsEqual(t3, 0.0001f));
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator*(ezTransform, ezTransform)")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator*(ezTransformT, ezTransformT)")
   {
-    ezTransform tParent(ezVec3(1, 2, 3));
-    tParent.m_Rotation.SetRotationMatrix(ezVec3(0, 1, 0), ezAngle::Degree(90));
-    tParent.m_Rotation.SetScalingFactors(ezVec3(2));
+    ezTransformT tParent(ezVec3T(1, 2, 3));
+    tParent.m_Rotation.SetRotationMatrix(ezVec3T(0, 1, 0), ezAngle::Degree(90));
+    tParent.m_Rotation.SetScalingFactors(ezVec3T(2));
 
-    ezTransform tToChild(ezVec3(4, 5, 6));
-    tToChild.m_Rotation.SetRotationMatrix(ezVec3(0, 0, 1), ezAngle::Degree(90));
-    tToChild.m_Rotation.SetScalingFactors(ezVec3(4));
+    ezTransformT tToChild(ezVec3T(4, 5, 6));
+    tToChild.m_Rotation.SetRotationMatrix(ezVec3T(0, 0, 1), ezAngle::Degree(90));
+    tToChild.m_Rotation.SetScalingFactors(ezVec3T(4));
 
     // this is exactly the same as SetGlobalTransform
-    ezTransform tChild;
+    ezTransformT tChild;
     tChild  = tParent * tToChild;
 
-    EZ_TEST_VEC3(tChild.m_vPosition, ezVec3(13, 12, -5), 0.0001f);
+    EZ_TEST_VEC3(tChild.m_vPosition, ezVec3T(13, 12, -5), 0.0001f);
     EZ_TEST_BOOL(tChild.m_Rotation.IsEqual(ezMat3(0, 0, 8, 8, 0, 0, 0, 8, 0), 0.0001f));
 
     // verify that it works exactly like a 4x4 matrix
@@ -232,21 +232,21 @@ EZ_CREATE_SIMPLE_TEST(Math, Transform)
     EZ_TEST_BOOL(mChild.IsEqual(tChild.GetAsMat4(), 0.0001f));
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator*(ezTransform, ezMat4)")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator*(ezTransformT, ezMat4)")
   {
-    ezTransform tParent(ezVec3(1, 2, 3));
-    tParent.m_Rotation.SetRotationMatrix(ezVec3(0, 1, 0), ezAngle::Degree(90));
-    tParent.m_Rotation.SetScalingFactors(ezVec3(2));
+    ezTransformT tParent(ezVec3T(1, 2, 3));
+    tParent.m_Rotation.SetRotationMatrix(ezVec3T(0, 1, 0), ezAngle::Degree(90));
+    tParent.m_Rotation.SetScalingFactors(ezVec3T(2));
 
-    ezTransform tToChild(ezVec3(4, 5, 6));
-    tToChild.m_Rotation.SetRotationMatrix(ezVec3(0, 0, 1), ezAngle::Degree(90));
-    tToChild.m_Rotation.SetScalingFactors(ezVec3(4));
+    ezTransformT tToChild(ezVec3T(4, 5, 6));
+    tToChild.m_Rotation.SetRotationMatrix(ezVec3T(0, 0, 1), ezAngle::Degree(90));
+    tToChild.m_Rotation.SetScalingFactors(ezVec3T(4));
 
     // this is exactly the same as SetGlobalTransform
-    ezTransform tChild;
+    ezTransformT tChild;
     tChild  = tParent * tToChild.GetAsMat4();
 
-    EZ_TEST_VEC3(tChild.m_vPosition, ezVec3(13, 12, -5), 0.0001f);
+    EZ_TEST_VEC3(tChild.m_vPosition, ezVec3T(13, 12, -5), 0.0001f);
     EZ_TEST_BOOL(tChild.m_Rotation.IsEqual(ezMat3(0, 0, 8, 8, 0, 0, 0, 8, 0), 0.0001f));
 
     // verify that it works exactly like a 4x4 matrix
@@ -257,21 +257,21 @@ EZ_CREATE_SIMPLE_TEST(Math, Transform)
     EZ_TEST_BOOL(mChild.IsEqual(tChild.GetAsMat4(), 0.0001f));
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator*(ezMat4, ezTransform)")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator*(ezMat4, ezTransformT)")
   {
-    ezTransform tParent(ezVec3(1, 2, 3));
-    tParent.m_Rotation.SetRotationMatrix(ezVec3(0, 1, 0), ezAngle::Degree(90));
-    tParent.m_Rotation.SetScalingFactors(ezVec3(2));
+    ezTransformT tParent(ezVec3T(1, 2, 3));
+    tParent.m_Rotation.SetRotationMatrix(ezVec3T(0, 1, 0), ezAngle::Degree(90));
+    tParent.m_Rotation.SetScalingFactors(ezVec3T(2));
 
-    ezTransform tToChild(ezVec3(4, 5, 6));
-    tToChild.m_Rotation.SetRotationMatrix(ezVec3(0, 0, 1), ezAngle::Degree(90));
-    tToChild.m_Rotation.SetScalingFactors(ezVec3(4));
+    ezTransformT tToChild(ezVec3T(4, 5, 6));
+    tToChild.m_Rotation.SetRotationMatrix(ezVec3T(0, 0, 1), ezAngle::Degree(90));
+    tToChild.m_Rotation.SetScalingFactors(ezVec3T(4));
 
     // this is exactly the same as SetGlobalTransform
-    ezTransform tChild;
+    ezTransformT tChild;
     tChild  = tParent.GetAsMat4() * tToChild;
 
-    EZ_TEST_VEC3(tChild.m_vPosition, ezVec3(13, 12, -5), 0.0001f);
+    EZ_TEST_VEC3(tChild.m_vPosition, ezVec3T(13, 12, -5), 0.0001f);
     EZ_TEST_BOOL(tChild.m_Rotation.IsEqual(ezMat3(0, 0, 8, 8, 0, 0, 0, 8, 0), 0.0001f));
 
     // verify that it works exactly like a 4x4 matrix
@@ -284,24 +284,24 @@ EZ_CREATE_SIMPLE_TEST(Math, Transform)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Invert / GetInverse")
   {
-    ezTransform tParent(ezVec3(1, 2, 3));
-    tParent.m_Rotation.SetRotationMatrix(ezVec3(0, 1, 0), ezAngle::Degree(90));
-    tParent.m_Rotation.SetScalingFactors(ezVec3(2));
+    ezTransformT tParent(ezVec3T(1, 2, 3));
+    tParent.m_Rotation.SetRotationMatrix(ezVec3T(0, 1, 0), ezAngle::Degree(90));
+    tParent.m_Rotation.SetScalingFactors(ezVec3T(2));
 
-    ezTransform tToChild(ezVec3(4, 5, 6));
-    tToChild.m_Rotation.SetRotationMatrix(ezVec3(0, 0, 1), ezAngle::Degree(90));
-    tToChild.m_Rotation.SetScalingFactors(ezVec3(4));
+    ezTransformT tToChild(ezVec3T(4, 5, 6));
+    tToChild.m_Rotation.SetRotationMatrix(ezVec3T(0, 0, 1), ezAngle::Degree(90));
+    tToChild.m_Rotation.SetScalingFactors(ezVec3T(4));
 
-    ezTransform tChild;
+    ezTransformT tChild;
     tChild.SetGlobalTransform(tParent, tToChild);
 
     // negate twice -> get back original
     EZ_TEST_BOOL(tToChild.Invert().Succeeded());
     EZ_TEST_BOOL(tToChild.Invert().Succeeded());
 
-    ezTransform tInvToChild = tToChild.GetInverse();
+    ezTransformT tInvToChild = tToChild.GetInverse();
 
-    ezTransform tParentFromChild;
+    ezTransformT tParentFromChild;
     tParentFromChild.SetGlobalTransform(tChild, tInvToChild);
 
     EZ_TEST_BOOL(tParent.IsEqual(tParentFromChild, 0.0001f));
@@ -309,7 +309,7 @@ EZ_CREATE_SIMPLE_TEST(Math, Transform)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetAsArray")
   {
-    ezTransform t;
+    ezTransformT t;
     t.m_Rotation.SetElements(1, 2, 3,
                              4, 5, 6,
                              7, 8, 9);
