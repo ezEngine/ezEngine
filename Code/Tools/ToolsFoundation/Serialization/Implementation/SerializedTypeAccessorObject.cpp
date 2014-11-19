@@ -26,7 +26,7 @@ ezUuid ezSerializedTypeAccessorObjectWriter::GetParentGuid() const
 const char* ezSerializedTypeAccessorObjectWriter::GetType(ezStringBuilder& builder) const
 {
   auto pType = m_pObject->GetReflectedTypeHandle().GetType();
-  EZ_ASSERT(pType, "ezIReflectedTypeAccessor used for serialization has an unknown type!");
+  EZ_ASSERT(pType != nullptr, "ezIReflectedTypeAccessor used for serialization has an unknown type!");
   builder = pType->GetTypeName().GetData();
   return builder.GetData();
 }
