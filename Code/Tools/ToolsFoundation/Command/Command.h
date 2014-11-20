@@ -1,11 +1,14 @@
 #pragma once
 
 #include <ToolsFoundation/Basics.h>
-#include <ToolsFoundation/Basics/Guid.h>
+#include <ToolsFoundation/Basics/Status.h>
 #include <Foundation/Reflection/Reflection.h>
 
 class ezDocumentBase;
 class ezDocumentTypeBase;
+class ezCommandTransaction;
+class ezJSONWriter;
+class ezJSONReader;
 
 /// \brief Interface for a command
 ///
@@ -14,13 +17,30 @@ class ezDocumentTypeBase;
 class EZ_TOOLSFOUNDATION_DLL ezCommandBase : public ezReflectedClass
 {
 public:
-  virtual bool IsUndoable() const;
+  ezCommandBase();
+
+  bool IsUndoable() const { return m_bUndoable; };
   
+ // bool Serialize(ezJSONWriter& writer) const = 0;
+ // bool DeSerialize(ezJSONReader& reader) = 0;
+
 private:
-  virtual bool Do();
-  virtual bool Undo();
+  virtual ezStatus Do(bool bRedo) = 0;
+  virtual ezStatus Undo() = 0;
+
+  //virtual bool InternalSerialize(ezJSONWriter& writer) const = 0;
+  //virtual bool InternalDeSerialize(ezJSONReader& reader) = 0;
 
 protected:
-  ezDocumentBase* GetDocument(const ezGuid& documentGuid);
-  ezDocumentTypeBase* GetContext(const ezGuid& contextGuid);
+  ezDocumentBase* GetDocument() { return m_pDocument; };
+
+protected:
+  friend class ezCommandHistory;
+  friend class ezCommandTransaction;
+
+  ezString m_sDescription;
+  bool m_bUndoable;
+
+private:
+  ezDocumentBase* m_pDocument;
 };
