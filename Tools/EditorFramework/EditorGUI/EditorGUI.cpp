@@ -1,6 +1,6 @@
 #include <PCH.h>
 #include <EditorFramework/EditorGUI.moc.h>
-#include <EditorFramework/EditorFramework.h>
+#include <EditorFramework/EditorApp.moc.h>
 #include <QSettings>
 #include <QMessageBox>
 
@@ -67,11 +67,11 @@ void ezEditorGUI::MessageBoxStatus(const ezStatus& s, const char* szFailureMsg, 
 
 void ezEditorGUI::MessageBoxInformation(const char* szMsg)
 {
-  QMessageBox::information(ezEditorFramework::GetMainWindow(), QLatin1String(ezEditorFramework::GetApplicationName().GetData()), QString::fromUtf8(szMsg), QMessageBox::StandardButton::Ok);
+  QMessageBox::information(ezEditorApp::GetInstance()->GetMainWindow(), QLatin1String(ezEditorApp::GetInstance()->GetApplicationName().GetData()), QString::fromUtf8(szMsg), QMessageBox::StandardButton::Ok);
 }
 
 void ezEditorGUI::MessageBoxWarning(const char* szMsg)
 {
-  QMessageBox::warning(ezEditorFramework::GetMainWindow(), QLatin1String(ezEditorFramework::GetApplicationName().GetData()), QString::fromUtf8(szMsg), QMessageBox::StandardButton::Ok);
+  QMessageBox::warning(ezEditorApp::GetInstance()->GetMainWindow(), QLatin1String(ezEditorApp::GetInstance()->GetApplicationName().GetData()), QString::fromUtf8(szMsg), QMessageBox::StandardButton::Ok);
 }
 

@@ -1,7 +1,7 @@
 #include <PCH.h>
 #include <EditorPluginTest/EditorPluginTest.h>
 #include <EditorPluginTest/Panels/TestPanel.moc.h>
-#include <EditorFramework/EditorFramework.h>
+#include <EditorFramework/EditorApp.moc.h>
 #include <EditorFramework/GUI/RawPropertyGridWidget.h>
 #include <EditorFramework/GUI/RawDocumentTreeWidget.moc.h>
 #include <ToolsFoundation/Reflection/ToolsReflectionUtils.h>
@@ -77,7 +77,7 @@ void OnDocumentManagerEvent(const ezDocumentManagerBase::Event& e)
           pDocWnd->addDockWidget(Qt::DockWidgetArea::LeftDockWidgetArea, pPanelCreator);
         }
 
-        ezEditorFramework::AddDocumentWindow(pDocWnd);
+        ezEditorApp::GetInstance()->AddDocumentWindow(pDocWnd);
       }
     }
     break;
@@ -94,12 +94,12 @@ void OnLoadPlugin(bool bReloading)
 
   ezDocumentManagerBase::s_Events.AddEventHandler(ezDelegate<void (const ezDocumentManagerBase::Event&)>(OnDocumentManagerEvent));
 
-  ezEditorFramework::RegisterPluginNameForSettings("TestPlugin");
+  ezEditorApp::GetInstance()->RegisterPluginNameForSettings("TestPlugin");
 
-  ezEditorFramework::GetEditorSettings().RegisterValueInt("iStuff", 42, ezSettingsFlags::ReadOnly);
-  ezEditorFramework::GetEditorSettings().RegisterValueBool("bStuff1", true);
-  ezEditorFramework::GetEditorSettings().RegisterValueBool("bStuff2", false);
-  ezEditorFramework::GetEditorSettings().RegisterValueColor("Color", ezColor::GetCornflowerBlue());
+  ezEditorApp::GetInstance()->GetEditorSettings().RegisterValueInt("iStuff", 42, ezSettingsFlags::ReadOnly);
+  ezEditorApp::GetInstance()->GetEditorSettings().RegisterValueBool("bStuff1", true);
+  ezEditorApp::GetInstance()->GetEditorSettings().RegisterValueBool("bStuff2", false);
+  ezEditorApp::GetInstance()->GetEditorSettings().RegisterValueColor("Color", ezColor::GetCornflowerBlue());
 
   //g_pTestObject = ((ezDocumentObjectManagerBase*) g_pDocument->GetObjectManager())->CreateObject(ezReflectedTypeManager::GetTypeHandleByName(ezGetStaticRTTI<ezTestObjectProperties>()->GetTypeName()));
   //g_pTestObject3 = ((ezDocumentObjectManagerBase*) g_pDocument->GetObjectManager())->CreateObject(ezReflectedTypeManager::GetTypeHandleByName(ezGetStaticRTTI<ezTestObjectProperties>()->GetTypeName()));

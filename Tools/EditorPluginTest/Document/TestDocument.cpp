@@ -2,7 +2,7 @@
 #include <EditorPluginTest/Document/TestDocument.h>
 #include <EditorPluginTest/Objects/TestObject.h>
 #include <EditorPluginTest/Objects/TestObjectManager.h>
-#include <EditorFramework/EditorFramework.h>
+#include <EditorFramework/EditorApp.moc.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTestDocument, ezDocumentBase, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
@@ -15,11 +15,11 @@ ezTestDocument::ezTestDocument(const char* szDocumentPath) : ezDocumentBase(szDo
 
   SetModified(true);
 
-  ezEditorFramework::GetDocumentSettings(this, "TestPlugin").RegisterValueBool("HasSettings", true);
-  ezEditorFramework::GetDocumentSettings(this, "TestPlugin").RegisterValueBool("HasUserSettings", true, ezSettingsFlags::User);
+  ezEditorApp::GetInstance()->GetDocumentSettings(this, "TestPlugin").RegisterValueBool("HasSettings", true);
+  ezEditorApp::GetInstance()->GetDocumentSettings(this, "TestPlugin").RegisterValueBool("HasUserSettings", true, ezSettingsFlags::User);
 
-  ezEditorFramework::GetEditorSettings("TestPlugin").RegisterValueBool("HasEditorSettings", true);
-  ezEditorFramework::GetProjectSettings("TestPlugin").RegisterValueBool("HasProjectSettings", true);
+  ezEditorApp::GetInstance()->GetEditorSettings("TestPlugin").RegisterValueBool("HasEditorSettings", true);
+  ezEditorApp::GetInstance()->GetProjectSettings("TestPlugin").RegisterValueBool("HasProjectSettings", true);
 }
 
 ezTestDocument::~ezTestDocument()

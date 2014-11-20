@@ -1,6 +1,6 @@
 #include <PCH.h>
 #include <EditorFramework/Settings/SettingsTab.moc.h>
-#include <EditorFramework/EditorFramework.h>
+#include <EditorFramework/EditorApp.moc.h>
 
 static ezSettingsTab* g_pInstance = nullptr;
 
@@ -22,7 +22,7 @@ ezSettingsTab::ezSettingsTab() : ezDocumentWindow("Settings")
   setupUi(centralWidget());
 
   ezStringBuilder sTitle;
-  sTitle.Format("<html><head/><body><p><span style=\" font-size:18pt; font-weight:600;\">%s</span></p></body></html>", ezEditorFramework::GetApplicationName().GetData());
+  sTitle.Format("<html><head/><body><p><span style=\" font-size:18pt; font-weight:600;\">%s</span></p></body></html>", ezEditorApp::GetInstance()->GetApplicationName().GetData());
   LabelAppName->setText(QString::fromUtf8(sTitle.GetData()));
 
   m_pSettingsGrid = new ezSimplePropertyGridWidget(this);
@@ -125,17 +125,17 @@ void ezSettingsTab::UpdateSettings()
 
   m_pSettingsGrid->BeginProperties();
 
-  for (const ezString& sName : ezEditorFramework::GetRegisteredPluginNamesForSettings())
+  for (const ezString& sName : ezEditorApp::GetInstance()->GetRegisteredPluginNamesForSettings())
   {
     ezSettings* s;
 
     if (m_sSelectedSettingDomain == "<Application>")
-      s = &ezEditorFramework::GetEditorSettings(sName);
+      s = &ezEditorApp::GetInstance()->GetEditorSettings(sName);
     else
     if (m_sSelectedSettingDomain == "<Project>")
-      s = &ezEditorFramework::GetProjectSettings(sName);
+      s = &ezEditorApp::GetInstance()->GetProjectSettings(sName);
     else
-      s = &ezEditorFramework::GetDocumentSettings(m_sSelectedSettingDomain, sName);
+      s = &ezEditorApp::GetInstance()->GetDocumentSettings(m_sSelectedSettingDomain, sName);
 
     bool bAddedGroupName = false;
 
@@ -174,7 +174,7 @@ void ezSettingsTab::SlotSettingsChanged()
 
 void ezSettingsTab::SlotButtonPluginConfig()
 {
-  ezEditorFramework::ShowPluginConfigDialog();
+  ezEditorApp::GetInstance()->ShowPluginConfigDialog();
 }
 
 void ezSettingsTab::SlotComboSettingsDomainIndexChanged(int iIndex)

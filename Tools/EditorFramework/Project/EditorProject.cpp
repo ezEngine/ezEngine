@@ -1,5 +1,5 @@
 #include <PCH.h>
-#include <EditorFramework/EditorFramework.h>
+#include <EditorFramework/EditorApp.moc.h>
 #include <EditorFramework/Project/EditorProject.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/IO/OSFile.h>

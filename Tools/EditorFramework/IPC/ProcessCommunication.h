@@ -2,10 +2,20 @@
 
 #include <EditorFramework/Plugin.h>
 #include <Foundation/Strings/String.h>
-#include <Foundation/Reflection/Reflection.h>
 #include <Foundation/IO/MemoryStream.h>
+#include <Foundation/Communication/Event.h>
+#include <Foundation/Containers/Deque.h>
+#include <Foundation/Reflection/Reflection.h>
 #include <QProcess>
 #include <QSharedMemory>
+
+class EZ_EDITORFRAMEWORK_DLL ezProcessMessage : public ezReflectedClass
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezProcessMessage);
+
+public:
+
+};
 
 class EZ_EDITORFRAMEWORK_DLL ezProcessCommunication
 {
@@ -20,13 +30,13 @@ public:
 
   bool IsClientAlive() const;
 
-  void SendMessage(ezReflectedClass* pMessage);
+  void SendMessage(ezProcessMessage* pMessage);
 
   void ProcessMessages();
 
   struct Event
   {
-    const ezReflectedClass* m_pMessage;
+    const ezProcessMessage* m_pMessage;
   };
 
   ezEvent<const Event&> m_Events;
@@ -43,14 +53,3 @@ private:
   ezDeque<ezMemoryStreamStorage> m_MessageReadQueue;
 };
 
-
-class EZ_EDITORFRAMEWORK_DLL ezEngineViewMsg : public ezReflectedClass
-{
-  EZ_ADD_DYNAMIC_REFLECTION(ezEngineViewMsg);
-
-public:
-
-  ezUInt32 m_uiHWND;
-  ezUInt16 m_uiWindowWidth;
-  ezUInt16 m_uiWindowHeight;
-};

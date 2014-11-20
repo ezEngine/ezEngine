@@ -1,5 +1,6 @@
 #include <PCH.h>
 #include <EditorFramework/IPC/ProcessCommunication.h>
+#include <EditorFramework/EngineView/EngineViewMessages.h>
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/Utilities/CommandLineUtils.h>
 #include <Foundation/Reflection/ReflectionUtils.h>
@@ -120,7 +121,7 @@ bool ezProcessCommunication::IsClientAlive() const
   return bRunning && bNoError;
 }
 
-void ezProcessCommunication::SendMessage(ezReflectedClass* pMessage)
+void ezProcessCommunication::SendMessage(ezProcessMessage* pMessage)
 {
   ezMemoryStreamStorage& storage = m_MessageSendQueue.ExpandAndGetRef();
   ezMemoryStreamWriter writer(&storage);
@@ -130,6 +131,9 @@ void ezProcessCommunication::SendMessage(ezReflectedClass* pMessage)
 
 void ezProcessCommunication::ProcessMessages()
 {
+  if (!m_pSharedMemory)
+    return;
+
   EZ_VERIFY(m_pSharedMemory->lock(), "Implementation error?");
 
   ezUInt8* pData = (ezUInt8*) m_pSharedMemory->data();
@@ -219,11 +223,11 @@ void ezProcessCommunication::DispatchMessages()
       ezMemoryStreamReader reader(&storage);
 
       const ezRTTI* pRtti = nullptr;
-      ezReflectedClass* pObject = (ezReflectedClass*) ezReflectionUtils::ReadObjectFromJSON(reader, pRtti);
+      ezProcessMessage* pObject = (ezProcessMessage*) ezReflectionUtils::ReadObjectFromJSON(reader, pRtti);
 
       EZ_ASSERT(pRtti != nullptr, "Message Type unknown");
       EZ_ASSERT(pObject != nullptr, "Object could not be allocated");
-      EZ_ASSERT(pRtti->IsDerivedFrom<ezReflectedClass>(), "Msg base type is invalid");
+      EZ_ASSERT(pRtti->IsDerivedFrom<ezProcessMessage>(), "Msg base type is invalid");
 
       Event e;
       e.m_pMessage = pObject;
@@ -237,13 +241,3 @@ void ezProcessCommunication::DispatchMessages()
   }
 }
 
-
-
-
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEngineViewMsg, ezReflectedClass, 1, ezRTTIDefaultAllocator<ezEngineViewMsg> );
-  EZ_BEGIN_PROPERTIES
-    EZ_MEMBER_PROPERTY("HWND", m_uiHWND),
-    EZ_MEMBER_PROPERTY("WindowWidth", m_uiWindowWidth),
-    EZ_MEMBER_PROPERTY("WindowHeight", m_uiWindowHeight),
-  EZ_END_PROPERTIES
-EZ_END_DYNAMIC_REFLECTED_TYPE();

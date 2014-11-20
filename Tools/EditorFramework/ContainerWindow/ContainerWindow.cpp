@@ -1,7 +1,7 @@
 #include <PCH.h>
 #include <EditorFramework/ContainerWindow/ContainerWindow.moc.h>
 #include <EditorFramework/DocumentWindow/DocumentWindow.moc.h>
-#include <EditorFramework/EditorFramework.h>
+#include <EditorFramework/EditorApp.moc.h>
 #include <EditorFramework/Settings/SettingsTab.moc.h>
 #include <EditorFramework/Project/EditorProject.h>
 #include <ToolsFoundation/Document/DocumentManager.h>
@@ -89,7 +89,7 @@ void ezContainerWindow::UpdateWindowTitle()
     sTitle.Append(" - ");
   }
   
-  sTitle.Append(ezEditorFramework::GetApplicationName());
+  sTitle.Append(ezEditorApp::GetInstance()->GetApplicationName());
 
   setWindowTitle(QString::fromUtf8(sTitle.GetData()));
 }
@@ -381,7 +381,7 @@ void ezContainerWindow::SlotSettings()
   {
     pSettingsTab = new ezSettingsTab();
 
-    ezEditorFramework::AddDocumentWindow(pSettingsTab);
+    ezEditorApp::GetInstance()->AddDocumentWindow(pSettingsTab);
   }
 
   pSettingsTab->EnsureVisible();
@@ -721,7 +721,7 @@ void ezContainerWindow::SlotRecentDocumentsMenu()
 {
   m_pMenuRecentDocuments->clear();
 
-  if (ezEditorFramework::GetRecentDocumentsList().GetFileList().IsEmpty())
+  if (ezEditorApp::GetInstance()->GetRecentDocumentsList().GetFileList().IsEmpty())
   {
     QAction* pAction = m_pMenuRecentDocuments->addAction(QLatin1String("<empty>"));
     pAction->setEnabled(false);
@@ -729,9 +729,12 @@ void ezContainerWindow::SlotRecentDocumentsMenu()
   }
 
   ezInt32 iMaxDocumentsToAdd = 10;
-  for (ezString s : ezEditorFramework::GetRecentDocumentsList().GetFileList())
+  for (ezString s : ezEditorApp::GetInstance()->GetRecentDocumentsList().GetFileList())
   {
     QAction* pAction = nullptr;
+
+    if (!ezOSFile::Exists(s))
+      continue;
 
     if (ezEditorProject::IsProjectOpen())
     {
@@ -760,15 +763,18 @@ void ezContainerWindow::SlotRecentProjectsMenu()
 {
   m_pMenuRecentProjects->clear();
 
-  if (ezEditorFramework::GetRecentProjectsList().GetFileList().IsEmpty())
+  if (ezEditorApp::GetInstance()->GetRecentProjectsList().GetFileList().IsEmpty())
   {
     QAction* pAction = m_pMenuRecentProjects->addAction(QLatin1String("<empty>"));
     pAction->setEnabled(false);
     return;
   }
 
-  for (ezString s : ezEditorFramework::GetRecentProjectsList().GetFileList())
+  for (ezString s : ezEditorApp::GetInstance()->GetRecentProjectsList().GetFileList())
   {
+    if (!ezOSFile::Exists(s))
+      continue;
+
     QAction* pAction = m_pMenuRecentProjects->addAction(QString::fromUtf8(s.GetData()));
     pAction->setData(QString::fromUtf8(s.GetData()));
     EZ_VERIFY(connect(pAction, SIGNAL(triggered()), this, SLOT(SlotRecentProject())) != nullptr, "signal/slot connection failed");

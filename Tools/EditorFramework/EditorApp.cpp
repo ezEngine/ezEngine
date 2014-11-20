@@ -1,7 +1,8 @@
 #include <PCH.h>
-#include <EditorFramework/EditorFramework.h>
+#include <EditorFramework/EditorApp.moc.h>
 #include <EditorFramework/EditorGUI.moc.h>
 #include <EditorFramework/Dialogs/DocumentList.moc.h>
+#include <EditorFramework/EngineView/EngineView.h>
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
@@ -13,19 +14,12 @@
 #include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
 #include <QMainWindow>
 #include <QSettings>
+#include <QTimer>
 #include <qstylefactory.h>
 
-ezString ezEditorFramework::s_sApplicationName("ezEditor");
-ezString ezEditorFramework::s_sUserName("DefaultUser");
-//bool ezEditorFramework::s_bContentModified = false;
-ezHybridArray<ezContainerWindow*, 4> ezEditorFramework::s_ContainerWindows;
-QApplication* ezEditorFramework::s_pQtApplication = nullptr;
-ezRecentFilesList ezEditorFramework::s_RecentProjects(5);
-ezRecentFilesList ezEditorFramework::s_RecentDocuments(50);
+ezEditorApp* ezEditorApp::s_pInstance = nullptr;
 
-ezSet<ezString> ezEditorFramework::s_RestartRequiredReasons;
-
-QMainWindow* ezEditorFramework::GetMainWindow()
+QMainWindow* ezEditorApp::GetMainWindow()
 {
   return s_ContainerWindows[0];
 }
@@ -67,7 +61,24 @@ void SetStyleSheet()
   QApplication::setPalette(palette);
 }
 
-void ezEditorFramework::StartupEditor(const char* szAppName, const char* szUserName, int argc, char** argv)
+ezEditorApp::ezEditorApp() :
+  s_RecentProjects(5),
+  s_RecentDocuments(50)
+{
+  s_pInstance = this;
+
+  s_sApplicationName = "ezEditor";
+  s_sUserName = "DefaultUser";
+  s_pQtApplication = nullptr;
+  s_pEngineViewProcess = nullptr;
+}
+
+ezEditorApp::~ezEditorApp()
+{
+  s_pInstance = nullptr;
+}
+
+void ezEditorApp::StartupEditor(const char* szAppName, const char* szUserName, int argc, char** argv)
 {
   s_sApplicationName = ezCommandLineUtils::GetInstance()->GetStringOption("-appname", 0, szAppName);
   s_sUserName = szUserName;
@@ -75,10 +86,11 @@ void ezEditorFramework::StartupEditor(const char* szAppName, const char* szUserN
   RegisterPluginNameForSettings("-Main-");
 
   s_pQtApplication = new QApplication(argc, argv);
+  s_pEngineViewProcess = new ezEditorEngineViewProcess;
 
   QCoreApplication::setOrganizationDomain("www.ezEngine.net");
   QCoreApplication::setOrganizationName("ezEngine Project");
-  QCoreApplication::setApplicationName(ezEditorFramework::GetApplicationName().GetData());
+  QCoreApplication::setApplicationName(GetApplicationName().GetData());
   QCoreApplication::setApplicationVersion("1.0.0");
 
   SetStyleSheet();
@@ -86,16 +98,16 @@ void ezEditorFramework::StartupEditor(const char* szAppName, const char* szUserN
   s_ContainerWindows.PushBack(new ezContainerWindow());
   s_ContainerWindows[0]->show();
 
-  ezDocumentManagerBase::s_Requests.AddEventHandler(ezDelegate<void (ezDocumentManagerBase::Request&)>(&ezEditorFramework::DocumentManagerRequestHandler));
-  ezDocumentManagerBase::s_Events.AddEventHandler(ezDelegate<void (const ezDocumentManagerBase::Event&)>(&ezEditorFramework::DocumentManagerEventHandler));
-  ezDocumentBase::s_EventsAny.AddEventHandler(ezDelegate<void (const ezDocumentBase::Event&)>(&ezEditorFramework::DocumentEventHandler));
-  ezEditorProject::s_Requests.AddEventHandler(ezDelegate<void (ezEditorProject::Request&)>(&ezEditorFramework::ProjectRequestHandler));
-  ezEditorProject::s_Events.AddEventHandler(ezDelegate<void (const ezEditorProject::Event&)>(&ezEditorFramework::ProjectEventHandler));
+  ezDocumentManagerBase::s_Requests.AddEventHandler(ezDelegate<void (ezDocumentManagerBase::Request&)>(&ezEditorApp::DocumentManagerRequestHandler, this));
+  ezDocumentManagerBase::s_Events.AddEventHandler(ezDelegate<void (const ezDocumentManagerBase::Event&)>(&ezEditorApp::DocumentManagerEventHandler, this));
+  ezDocumentBase::s_EventsAny.AddEventHandler(ezDelegate<void (const ezDocumentBase::Event&)>(&ezEditorApp::DocumentEventHandler, this));
+  ezEditorProject::s_Requests.AddEventHandler(ezDelegate<void (ezEditorProject::Request&)>(&ezEditorApp::ProjectRequestHandler, this));
+  ezEditorProject::s_Events.AddEventHandler(ezDelegate<void (const ezEditorProject::Event&)>(&ezEditorApp::ProjectEventHandler, this));
 
   ezStartup::StartupCore();
 
   ezStringBuilder sAppDir = ezOSFile::GetApplicationDirectory();
-  sAppDir.AppendPath("..", ezEditorFramework::GetApplicationName().GetData());
+  sAppDir.AppendPath("..", GetApplicationName().GetData());
 
   ezOSFile osf;
   osf.CreateDirectoryStructure(sAppDir.GetData());
@@ -108,34 +120,45 @@ void ezEditorFramework::StartupEditor(const char* szAppName, const char* szUserN
 
   LoadRecentFiles();
 
-  ezEditorFramework::LoadPlugins();
+  LoadPlugins();
 
   s_ContainerWindows[0]->ShowSettingsTab();
 }
 
-void ezEditorFramework::ShutdownEditor()
+void ezEditorApp::ShutdownEditor()
 {
   ezEditorProject::CloseProject();
 
-  ezEditorProject::s_Requests.RemoveEventHandler(ezDelegate<void (ezEditorProject::Request&)>(&ezEditorFramework::ProjectRequestHandler));
-  ezEditorProject::s_Events.RemoveEventHandler(ezDelegate<void (const ezEditorProject::Event&)>(&ezEditorFramework::ProjectEventHandler));
-  ezDocumentBase::s_EventsAny.RemoveEventHandler(ezDelegate<void (const ezDocumentBase::Event&)>(&ezEditorFramework::DocumentEventHandler));
-  ezDocumentManagerBase::s_Requests.RemoveEventHandler(ezDelegate<void (ezDocumentManagerBase::Request&)>(&ezEditorFramework::DocumentManagerRequestHandler));
-  ezDocumentManagerBase::s_Events.RemoveEventHandler(ezDelegate<void (const ezDocumentManagerBase::Event&)>(&ezEditorFramework::DocumentManagerEventHandler));
+  ezEditorProject::s_Requests.RemoveEventHandler(ezDelegate<void (ezEditorProject::Request&)>(&ezEditorApp::ProjectRequestHandler, this));
+  ezEditorProject::s_Events.RemoveEventHandler(ezDelegate<void (const ezEditorProject::Event&)>(&ezEditorApp::ProjectEventHandler, this));
+  ezDocumentBase::s_EventsAny.RemoveEventHandler(ezDelegate<void (const ezDocumentBase::Event&)>(&ezEditorApp::DocumentEventHandler, this));
+  ezDocumentManagerBase::s_Requests.RemoveEventHandler(ezDelegate<void (ezDocumentManagerBase::Request&)>(&ezEditorApp::DocumentManagerRequestHandler, this));
+  ezDocumentManagerBase::s_Events.RemoveEventHandler(ezDelegate<void (const ezDocumentManagerBase::Event&)>(&ezEditorApp::DocumentManagerEventHandler, this));
 
   SaveSettings();
 
   ezEditorGUI::GetInstance()->SaveState();
 
+  delete s_pEngineViewProcess;
   delete s_pQtApplication;
 }
 
-ezInt32 ezEditorFramework::RunEditor()
+ezInt32 ezEditorApp::RunEditor()
 {
+  QTimer::singleShot(0, this, SLOT(SlotTimedUpdate()));
+
   return s_pQtApplication->exec();
 }
 
-void ezEditorFramework::DocumentManagerEventHandler(const ezDocumentManagerBase::Event& r)
+void ezEditorApp::SlotTimedUpdate()
+{
+  if (ezEditorEngineViewProcess::GetInstance())
+    ezEditorEngineViewProcess::GetInstance()->Update();
+
+  QTimer::singleShot(0, this, SLOT(SlotTimedUpdate()));
+}
+
+void ezEditorApp::DocumentManagerEventHandler(const ezDocumentManagerBase::Event& r)
 {
   switch (r.m_Type)
   {
@@ -154,7 +177,7 @@ void ezEditorFramework::DocumentManagerEventHandler(const ezDocumentManagerBase:
   }
 }
 
-void ezEditorFramework::DocumentEventHandler(const ezDocumentBase::Event& e)
+void ezEditorApp::DocumentEventHandler(const ezDocumentBase::Event& e)
 {
   switch (e.m_Type)
   {
@@ -166,7 +189,7 @@ void ezEditorFramework::DocumentEventHandler(const ezDocumentBase::Event& e)
   }
 }
 
-void ezEditorFramework::DocumentManagerRequestHandler(ezDocumentManagerBase::Request& r)
+void ezEditorApp::DocumentManagerRequestHandler(ezDocumentManagerBase::Request& r)
 {
   switch (r.m_Type)
   {
@@ -214,7 +237,7 @@ void ezEditorFramework::DocumentManagerRequestHandler(ezDocumentManagerBase::Req
   }
 }
 
-void ezEditorFramework::ProjectEventHandler(const ezEditorProject::Event& r)
+void ezEditorApp::ProjectEventHandler(const ezEditorProject::Event& r)
 {
   switch (r.m_Type)
   {
@@ -234,7 +257,7 @@ void ezEditorFramework::ProjectEventHandler(const ezEditorProject::Event& r)
   }
 }
 
-void ezEditorFramework::ProjectRequestHandler(ezEditorProject::Request& r)
+void ezEditorApp::ProjectRequestHandler(ezEditorProject::Request& r)
 {
   switch (r.m_Type)
   {
@@ -313,7 +336,7 @@ void ezRecentFilesList::Load(const char* szFile)
   }
 }
 
-ezString ezEditorFramework::GetDocumentDataFolder(const char* szDocument)
+ezString ezEditorApp::GetDocumentDataFolder(const char* szDocument)
 {
   ezStringBuilder sPath = szDocument;
   sPath.Append("_data");

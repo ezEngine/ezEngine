@@ -1,6 +1,6 @@
 #include <PCH.h>
 #include <EditorFramework/Settings/Settings.h>
-#include <EditorFramework/EditorFramework.h>
+#include <EditorFramework/EditorApp.moc.h>
 #include <Foundation/IO/JSONWriter.h>
 #include <Foundation/IO/ExtendedJSONWriter.h>
 #include <Foundation/IO/ExtendedJSONReader.h>
@@ -212,41 +212,36 @@ void ezSettings::ReadFromJSON(ezStreamReaderBase& stream)
   }
 }
 
-ezSet<ezString> ezEditorFramework::s_SettingsPluginNames;
-ezMap<ezString, ezSettings> ezEditorFramework::s_EditorSettings;
-ezMap<ezString, ezSettings> ezEditorFramework::s_ProjectSettings;
-ezMap<ezString, ezMap<ezString, ezSettings> > ezEditorFramework::s_DocumentSettings;
-
-void ezEditorFramework::RegisterPluginNameForSettings(const char* szPluginName)
+void ezEditorApp::RegisterPluginNameForSettings(const char* szPluginName)
 {
   s_SettingsPluginNames.Insert(szPluginName);
 }
 
-ezSettings& ezEditorFramework::GetEditorSettings(const char* szPlugin)
+ezSettings& ezEditorApp::GetEditorSettings(const char* szPlugin)
 {
   return GetSettings(s_EditorSettings, szPlugin, "");
 }
 
-ezSettings& ezEditorFramework::GetProjectSettings(const char* szPlugin)
+ezSettings& ezEditorApp::GetProjectSettings(const char* szPlugin)
 {
   EZ_ASSERT(ezEditorProject::IsProjectOpen(), "No project is open");
 
-  return GetSettings(s_ProjectSettings, szPlugin, ezEditorFramework::GetDocumentDataFolder(ezEditorProject::GetInstance()->GetProjectPath()));
+  return GetSettings(s_ProjectSettings, szPlugin, ezEditorApp::GetDocumentDataFolder(ezEditorProject::GetInstance()->GetProjectPath()));
 }
 
-ezSettings& ezEditorFramework::GetDocumentSettings(const ezDocumentBase* pDocument, const char* szPlugin)
+ezSettings& ezEditorApp::GetDocumentSettings(const ezDocumentBase* pDocument, const char* szPlugin)
 {
   return GetDocumentSettings(pDocument->GetDocumentPath(), szPlugin);
 }
 
-ezSettings& ezEditorFramework::GetDocumentSettings(const char* szDocument, const char* szPlugin)
+ezSettings& ezEditorApp::GetDocumentSettings(const char* szDocument, const char* szPlugin)
 {
-  return GetSettings(s_DocumentSettings[szDocument], szPlugin, ezEditorFramework::GetDocumentDataFolder(szDocument));
+  return GetSettings(s_DocumentSettings[szDocument], szPlugin, ezEditorApp::GetDocumentDataFolder(szDocument));
 }
 
-ezSettings& ezEditorFramework::GetSettings(ezMap<ezString, ezSettings>& SettingsMap, const char* szPlugin, const char* szSearchPath)
+ezSettings& ezEditorApp::GetSettings(ezMap<ezString, ezSettings>& SettingsMap, const char* szPlugin, const char* szSearchPath)
 {
-  EZ_ASSERT(s_SettingsPluginNames.Contains(szPlugin), "The plugin name '%s' has not been registered with 'ezEditorFramework::RegisterPluginNameForSettings'", szPlugin);
+  EZ_ASSERT(s_SettingsPluginNames.Contains(szPlugin), "The plugin name '%s' has not been registered with 'ezEditorApp::RegisterPluginNameForSettings'", szPlugin);
 
   bool bExisted = false;
 
@@ -282,19 +277,19 @@ ezSettings& ezEditorFramework::GetSettings(ezMap<ezString, ezSettings>& Settings
   return settings;
 }
 
-void ezEditorFramework::SaveRecentFiles()
+void ezEditorApp::SaveRecentFiles()
 {
   s_RecentProjects.Save("Settings/RecentProjects.txt");
   s_RecentDocuments.Save("Settings/RecentDocuments.txt");
 }
 
-void ezEditorFramework::LoadRecentFiles()
+void ezEditorApp::LoadRecentFiles()
 {
   s_RecentProjects.Load("Settings/RecentProjects.txt");
   s_RecentDocuments.Load("Settings/RecentDocuments.txt");
 }
 
-void ezEditorFramework::StoreSettings(const ezMap<ezString, ezSettings>& settings, const char* szFolder)
+void ezEditorApp::StoreSettings(const ezMap<ezString, ezSettings>& settings, const char* szFolder)
 {
   for (auto it = settings.GetIterator(); it.IsValid(); ++it)
   {
@@ -323,7 +318,7 @@ void ezEditorFramework::StoreSettings(const ezMap<ezString, ezSettings>& setting
   }
 }
 
-void ezEditorFramework::SaveSettings()
+void ezEditorApp::SaveSettings()
 {
   SaveRecentFiles();
 
@@ -335,7 +330,7 @@ void ezEditorFramework::SaveSettings()
   }
 }
 
-void ezEditorFramework::SaveDocumentSettings(const ezDocumentBase* pDocument)
+void ezEditorApp::SaveDocumentSettings(const ezDocumentBase* pDocument)
 {
   auto it = s_DocumentSettings.Find(pDocument->GetDocumentPath());
 

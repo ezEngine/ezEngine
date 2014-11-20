@@ -1,6 +1,6 @@
 #include <PCH.h>
 #include <EditorFramework/DocumentWindow/DocumentWindow.moc.h>
-#include <EditorFramework/EditorFramework.h>
+#include <EditorFramework/EditorApp.moc.h>
 #include <ToolsFoundation/Document/Document.h>
 #include <EditorFramework/EditorGUI.moc.h>
 #include <QSettings>
@@ -8,10 +8,8 @@
 #include <QTimer>
 
 ezEvent<const ezDocumentWindow::Event&> ezDocumentWindow::s_Events;
-ezMap<ezString, ezDocumentWindow*> ezEditorFramework::s_DocumentWindows;
 
-
-ezDocumentWindow* ezEditorFramework::GetDocumentWindow(const char* szUniqueName)
+ezDocumentWindow* ezEditorApp::GetDocumentWindow(const char* szUniqueName)
 {
   auto it = s_DocumentWindows.Find(szUniqueName);
 
@@ -21,7 +19,7 @@ ezDocumentWindow* ezEditorFramework::GetDocumentWindow(const char* szUniqueName)
   return nullptr;
 }
 
-void ezEditorFramework::AddDocumentWindow(ezDocumentWindow* pWindow)
+void ezEditorApp::AddDocumentWindow(ezDocumentWindow* pWindow)
 {
   s_DocumentWindows[pWindow->GetUniqueName()] = pWindow;
   s_ContainerWindows[0]->MoveDocumentWindowToContainer(pWindow);

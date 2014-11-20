@@ -1,14 +1,16 @@
 #include <PCH.h>
 #include <Core/Application/Application.h>
-#include <EditorFramework/EditorFramework.h>
+#include <EditorFramework/EditorApp.moc.h>
 #include <QApplication>
 #include <QSettings>
 #include <QtNetwork/QHostInfo>
 
-class ezEditorApp : public ezApplication
+static ezEditorApp g_EditorApp;
+
+class ezEditorApplication : public ezApplication
 {
 public:
-  ezEditorApp()
+  ezEditorApplication()
   {
     EnableMemoryLeakReporting(false);
   }
@@ -19,19 +21,19 @@ public:
     hostInfo = QHostInfo::fromName(QHostInfo::localHostName());
     ezString sHostName = QHostInfo::localHostName().toUtf8().data();
 
-    ezEditorFramework::StartupEditor("ezEditor", sHostName, GetArgumentCount(), (char**) GetArgumentsArray());
+    ezEditorApp::GetInstance()->StartupEditor("ezEditor", sHostName, GetArgumentCount(), (char**) GetArgumentsArray());
 
     {
-      const ezInt32 iReturnCode = ezEditorFramework::RunEditor();
+      const ezInt32 iReturnCode = ezEditorApp::GetInstance()->RunEditor();
 
       SetReturnCode(iReturnCode);
 
-      ezEditorFramework::ShutdownEditor();
+      ezEditorApp::GetInstance()->ShutdownEditor();
     }
 
     return ezApplication::Quit;
   }
 };
 
-EZ_APPLICATION_ENTRY_POINT(ezEditorApp);
+EZ_APPLICATION_ENTRY_POINT(ezEditorApplication);
 

@@ -1,11 +1,11 @@
 #include <PCH.h>
 #include <EditorFramework/Dialogs/PluginDlg.moc.h>
-#include <EditorFramework/EditorFramework.h>
+#include <EditorFramework/EditorApp.moc.h>
 #include <EditorFramework/EditorGUI.moc.h>
 #include <Foundation/IO/OSFile.h>
 #include <QMessageBox>
 
-void ezEditorFramework::ShowPluginConfigDialog()
+void ezEditorApp::ShowPluginConfigDialog()
 {
   PluginDlg dlg(nullptr);
   dlg.exec();
@@ -20,9 +20,9 @@ PluginDlg::PluginDlg(QWidget* parent) : QDialog(parent)
 
 void PluginDlg::FillPluginList()
 {
-  const ezPluginSet& PluginsAvailable = ezEditorFramework::GetEditorPluginsAvailable();
-  const ezPluginSet& PluginsActive = ezEditorFramework::GetEditorPluginsActive();
-  const ezPluginSet& PluginsToBeLoaded = ezEditorFramework::GetEditorPluginsToBeLoaded();
+  const ezPluginSet& PluginsAvailable = ezEditorApp::GetInstance()->GetEditorPluginsAvailable();
+  const ezPluginSet& PluginsActive = ezEditorApp::GetInstance()->GetEditorPluginsActive();
+  const ezPluginSet& PluginsToBeLoaded = ezEditorApp::GetInstance()->GetEditorPluginsToBeLoaded();
 
   ListPlugins->blockSignals(true);
 
@@ -62,7 +62,7 @@ void PluginDlg::on_ButtonOK_clicked()
     }
   }
 
-  const ezPluginSet& PluginsToBeLoaded = ezEditorFramework::GetEditorPluginsToBeLoaded();
+  const ezPluginSet& PluginsToBeLoaded = ezEditorApp::GetInstance()->GetEditorPluginsToBeLoaded();
 
   auto it1 = PluginsToBeLoaded.m_Plugins.GetIterator();
   auto it2 = ToBeLoaded.m_Plugins.GetIterator(); 
@@ -85,7 +85,7 @@ void PluginDlg::on_ButtonOK_clicked()
   {
     ezEditorGUI::MessageBoxInformation("Plugins are only loaded at startup.\n\nYou need to restart the program for this change to take effect.");
 
-    ezEditorFramework::SetEditorPluginsToBeLoaded(ToBeLoaded);
+    ezEditorApp::GetInstance()->SetEditorPluginsToBeLoaded(ToBeLoaded);
   }
 
   accept();

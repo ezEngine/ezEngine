@@ -1,5 +1,5 @@
 #include <PCH.h>
-#include <EditorFramework/EditorFramework.h>
+#include <EditorFramework/EditorApp.moc.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/JSONWriter.h>
@@ -7,11 +7,7 @@
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/Configuration/Plugin.h>
 
-ezPluginSet ezEditorFramework::s_EditorPluginsAvailable;
-ezPluginSet ezEditorFramework::s_EditorPluginsActive;
-ezPluginSet ezEditorFramework::s_EditorPluginsToBeLoaded;
-
-const ezPluginSet& ezEditorFramework::GetEditorPluginsAvailable()
+const ezPluginSet& ezEditorApp::GetEditorPluginsAvailable()
 {
 #if EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS)
   if (s_EditorPluginsAvailable.m_Plugins.IsEmpty())
@@ -37,7 +33,7 @@ const ezPluginSet& ezEditorFramework::GetEditorPluginsAvailable()
   return s_EditorPluginsAvailable;
 }
 
-void ezEditorFramework::SetEditorPluginsToBeLoaded(const ezPluginSet& plugins)
+void ezEditorApp::SetEditorPluginsToBeLoaded(const ezPluginSet& plugins)
 {
   s_EditorPluginsToBeLoaded = plugins;
   AddRestartRequiredReason("The set of active plugins has changed.");
@@ -60,7 +56,7 @@ void ezEditorFramework::SetEditorPluginsToBeLoaded(const ezPluginSet& plugins)
   writer.EndObject();
 }
 
-void ezEditorFramework::ReadPluginsToBeLoaded()
+void ezEditorApp::ReadPluginsToBeLoaded()
 {
   s_EditorPluginsToBeLoaded.m_Plugins.Clear();
 
@@ -87,7 +83,7 @@ void ezEditorFramework::ReadPluginsToBeLoaded()
 }
 
 
-void ezEditorFramework::LoadPlugins()
+void ezEditorApp::LoadPlugins()
 {
   EZ_ASSERT(s_EditorPluginsActive.m_Plugins.IsEmpty(), "Plugins were already loaded.");
 
@@ -107,7 +103,7 @@ void ezEditorFramework::LoadPlugins()
   }
 }
 
-void ezEditorFramework::UnloadPlugins()
+void ezEditorApp::UnloadPlugins()
 {
   for (auto it = s_EditorPluginsActive.m_Plugins.GetIterator(); it.IsValid(); ++it)
   {
