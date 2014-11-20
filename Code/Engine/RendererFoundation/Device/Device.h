@@ -164,9 +164,7 @@ protected:
 
   friend class ezGALContext;
 
-//#ifndef __INTELLISENSE__
   template<typename IdTableType, typename ReturnType> ReturnType* Get(typename IdTableType::TypeOfId hHandle, const IdTableType& IdTable) const;
-//#endif
 
   ezGALDevice(const ezGALDeviceCreationDescription& Description);
 

@@ -22,14 +22,26 @@
 // include c++11 specific header
 #include <type_traits>
 
-// Macros to do compile-time checks, such as to ensure sizes of types
-// EZ_CHECK_AT_COMPILETIME(exp) : only checks exp
-// EZ_CHECK_AT_COMPILETIME_MSG(exp, msg) : checks exp and displays msg
-#define EZ_CHECK_AT_COMPILETIME(exp) \
-  static_assert(exp, EZ_STRINGIZE(exp) " is false.");
+#ifndef __INTELLISENSE__
+
+  // Macros to do compile-time checks, such as to ensure sizes of types
+  // EZ_CHECK_AT_COMPILETIME(exp) : only checks exp
+  // EZ_CHECK_AT_COMPILETIME_MSG(exp, msg) : checks exp and displays msg
+  #define EZ_CHECK_AT_COMPILETIME(exp) \
+    static_assert(exp, EZ_STRINGIZE(exp) " is false.");
   
-#define EZ_CHECK_AT_COMPILETIME_MSG(exp, msg) \
-  static_assert(exp, EZ_STRINGIZE(exp) " is false. Message: " msg);
+  #define EZ_CHECK_AT_COMPILETIME_MSG(exp, msg) \
+    static_assert(exp, EZ_STRINGIZE(exp) " is false. Message: " msg);
+
+#else
+
+  // Intellisense often isn't smart enough to evaluate these conditions correctly
+
+  #define EZ_CHECK_AT_COMPILETIME(exp)
+
+  #define EZ_CHECK_AT_COMPILETIME_MSG(exp, msg)
+
+#endif
 
 /// \brief Disallow the copy constructor and the assignment operator for this type. 
 #define EZ_DISALLOW_COPY_AND_ASSIGN(type) \

@@ -74,22 +74,22 @@ struct ezConversionTest<T, T>
 
 #ifdef __INTELLISENSE__
 
-#define EZ_DECLARE_POD_TYPE()
-#define EZ_DECLARE_MEM_RELOCATABLE_TYPE()
+  #define EZ_DECLARE_POD_TYPE()
+  #define EZ_DECLARE_MEM_RELOCATABLE_TYPE()
 
 #else
 
-/// \brief Embed this into a class to mark it as a POD type.
-/// POD types will get special treatment from allocators and container classes, such that they are faster to construct and copy.
-#define EZ_DECLARE_POD_TYPE() \
-  ezCompileTimeTrueType operator%(const ezTypeIsPod&) const
+  /// \brief Embed this into a class to mark it as a POD type.
+  /// POD types will get special treatment from allocators and container classes, such that they are faster to construct and copy.
+  #define EZ_DECLARE_POD_TYPE() \
+    ezCompileTimeTrueType operator%(const ezTypeIsPod&) const
 
-/// \brief Embed this into a class to mark it as memory relocatable.
-/// Memory relocatable types will get special treatment from allocators and container classes, such that they are faster to construct and copy.
-/// A type is memory relocatable if it does not have any internal references. e.g: struct example { char[16] buffer; char* pCur; example() pCur(buffer) {} };
-/// A memory relocatable type also must not give out any pointers to its own location. If these two conditions are met, a type is memory relocatable.
-#define EZ_DECLARE_MEM_RELOCATABLE_TYPE() \
-  ezCompileTimeTrueType operator%(const ezTypeIsMemRelocatable&) const
+  /// \brief Embed this into a class to mark it as memory relocatable.
+  /// Memory relocatable types will get special treatment from allocators and container classes, such that they are faster to construct and copy.
+  /// A type is memory relocatable if it does not have any internal references. e.g: struct example { char[16] buffer; char* pCur; example() pCur(buffer) {} };
+  /// A memory relocatable type also must not give out any pointers to its own location. If these two conditions are met, a type is memory relocatable.
+  #define EZ_DECLARE_MEM_RELOCATABLE_TYPE() \
+    ezCompileTimeTrueType operator%(const ezTypeIsMemRelocatable&) const
 
 #endif
 
