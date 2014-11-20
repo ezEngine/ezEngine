@@ -10,6 +10,8 @@
 # *** Modify this file as required ***
 #
 
+BUILD_CONDITIONAL(BUILDSYSTEM_PLATFORM_WINDOWS)
+
 # Add all the preprocessor definitions that are needed to configure this library
 # add_definitions (-DMY_PREPROCESS_DEFINITION_1)
 # add_definitions (-DMY_PREPROCESS_DEFINITION_2)
@@ -22,6 +24,8 @@ QT_MODULES(Core Gui Widgets Network)
 
 # Call this in case this project does not function without Qt.
 BUILD_REQUIRES_QT()
+
+BUILD_REQUIRES_DX11()
 
 # Add all the libraries that this project needs to link against here
 SET (LINK_LIBRARIES
