@@ -53,10 +53,8 @@ success:
   arguments << "-IPC";
   arguments << QLatin1String(sMemName.GetData());
 
-  m_pClientProcess = new QProcess;
-  m_pClientProcess->setProgram(QString::fromUtf8(sPath.GetData()));
-  m_pClientProcess->setArguments(arguments);
-  m_pClientProcess->start();
+  m_pClientProcess = new QProcess();
+  m_pClientProcess->start(QString::fromUtf8(sPath.GetData()), arguments);
 
   if (!m_pClientProcess->waitForStarted())
   {
