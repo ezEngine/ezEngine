@@ -1,9 +1,10 @@
 #include <PCH.h>
 #include <EditorFramework/IPC/ProcessCommunication.h>
-#include <EditorFramework/EngineView/EngineViewMessages.h>
+#include <EditorFramework/EngineProcess/EngineProcessMessages.h>
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/Utilities/CommandLineUtils.h>
 #include <Foundation/Reflection/ReflectionUtils.h>
+#include <Foundation/Logging/Log.h>
 
 ezProcessCommunication::ezProcessCommunication()
 {
@@ -14,6 +15,8 @@ ezProcessCommunication::ezProcessCommunication()
 
 ezResult ezProcessCommunication::StartClientProcess(const char* szProcess, ezUInt32 uiMemSize)
 {
+  EZ_LOG_BLOCK("ezProcessCommunication::StartClientProcess");
+
   EZ_ASSERT(m_pSharedMemory == nullptr, "ProcessCommunication object already in use");
   EZ_ASSERT(m_pClientProcess == nullptr, "ProcessCommunication object already in use");
 
@@ -32,6 +35,7 @@ ezResult ezProcessCommunication::StartClientProcess(const char* szProcess, ezUIn
       goto success;
   }
 
+  ezLog::Error("Could not find shared memory to use");
   return EZ_FAILURE;
 
 success:
@@ -65,6 +69,7 @@ success:
     delete m_pSharedMemory;
     m_pSharedMemory = nullptr;
 
+    ezLog::Error("Failed to start process '%s'", sPath.GetData());
     return EZ_FAILURE;
   }
 

@@ -4,13 +4,13 @@
 #include <EditorFramework/EditorApp.moc.h>
 #include <QApplication>
 #include <EditorFramework/IPC/ProcessCommunication.h>
-#include <EditorEngineView/ViewContext.h>
+#include <EditorEngineProcess/ViewContext.h>
 #include <RendererFoundation/Device/Device.h>
 
-class ezEditorEngineViewApp : public ezApplication
+class ezEditorProcessApp : public ezApplication
 {
 public:
-  ezEditorEngineViewApp();
+  ezEditorProcessApp();
   void EventHandlerIPC(const ezProcessCommunication::Event& e);
 
   virtual void AfterEngineInit() override;

@@ -11,7 +11,7 @@
 
 class QMainWindow;
 class QWidget;
-class ezEditorEngineViewProcess;
+class ezEditorEngineProcessConnection;
 
 struct EZ_EDITORFRAMEWORK_DLL ezPluginSet
 {
@@ -85,7 +85,7 @@ public:
 
   ezString GetDocumentDataFolder(const char* szDocument);
 
-  ezEditorEngineViewProcess* GetEngineViewProcess() { return s_pEngineViewProcess; }
+  ezEditorEngineProcessConnection* GetEngineViewProcess() { return s_pEngineViewProcess; }
 
 private slots:
   void SlotTimedUpdate();
@@ -128,5 +128,5 @@ private:
   ezRecentFilesList s_RecentDocuments;
 
   QApplication* s_pQtApplication;
-  ezEditorEngineViewProcess* s_pEngineViewProcess;
+  ezEditorEngineProcessConnection* s_pEngineViewProcess;
 };

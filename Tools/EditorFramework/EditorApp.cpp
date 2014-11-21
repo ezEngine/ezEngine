@@ -2,7 +2,7 @@
 #include <EditorFramework/EditorApp.moc.h>
 #include <EditorFramework/EditorGUI.moc.h>
 #include <EditorFramework/Dialogs/DocumentList.moc.h>
-#include <EditorFramework/EngineView/EngineView.h>
+#include <EditorFramework/EngineProcess/EngineProcessConnection.h>
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
@@ -86,7 +86,7 @@ void ezEditorApp::StartupEditor(const char* szAppName, const char* szUserName, i
   RegisterPluginNameForSettings("-Main-");
 
   s_pQtApplication = new QApplication(argc, argv);
-  s_pEngineViewProcess = new ezEditorEngineViewProcess;
+  s_pEngineViewProcess = new ezEditorEngineProcessConnection;
 
   QCoreApplication::setOrganizationDomain("www.ezEngine.net");
   QCoreApplication::setOrganizationName("ezEngine Project");
@@ -152,8 +152,8 @@ ezInt32 ezEditorApp::RunEditor()
 
 void ezEditorApp::SlotTimedUpdate()
 {
-  if (ezEditorEngineViewProcess::GetInstance())
-    ezEditorEngineViewProcess::GetInstance()->Update();
+  if (ezEditorEngineProcessConnection::GetInstance())
+    ezEditorEngineProcessConnection::GetInstance()->Update();
 
   QTimer::singleShot(0, this, SLOT(SlotTimedUpdate()));
 }

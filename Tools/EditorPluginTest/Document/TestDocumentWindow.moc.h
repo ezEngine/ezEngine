@@ -3,7 +3,7 @@
 #include <Foundation/Basics.h>
 #include <EditorFramework/DocumentWindow/DocumentWindow.moc.h>
 #include <EditorFramework/IPC/ProcessCommunication.h>
-#include <EditorFramework/EngineView/EngineView.h>
+#include <EditorFramework/EngineProcess/EngineProcessConnection.h>
 #include <RendererDX11/Device/DeviceDX11.h>
 #include <RendererFoundation/Device/SwapChain.h>
 #include <RendererFoundation/Context/Context.h>
@@ -45,12 +45,12 @@ private slots:
 
 private:
   virtual void InternalRedraw() override;
-  void EngineViewProcessEventHandler(const ezEditorEngineViewProcess::Event& e);
+  void EngineViewProcessEventHandler(const ezEditorEngineProcessConnection::Event& e);
 
   void SendRedrawMsg();
 
   ez3DViewWidget* m_pCenterWidget;
-  ezEditorEngineView* m_pEngineView;
+  ezEditorEngineConnection* m_pEngineView;
   QHBoxLayout* m_pRestartButtonLayout;
   QPushButton* m_pRestartButton;
 };

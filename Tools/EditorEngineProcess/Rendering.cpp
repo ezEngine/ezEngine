@@ -1,5 +1,5 @@
 #include <PCH.h>
-#include <EditorEngineView/Application.h>
+#include <EditorEngineProcess/Application.h>
 #include <RendererFoundation/Context/Context.h>
 #include <RendererFoundation/Device/SwapChain.h>
 #include <RendererDX11/Device/DeviceDX11.h>
@@ -31,7 +31,7 @@ void ezViewContext::Redraw(ezInt32 iOwnID)
   pDevide->EndFrame();
 }
 
-void ezEditorEngineViewApp::InitDevice()
+void ezEditorProcessApp::InitDevice()
 {
   // Create a device
   ezGALDeviceCreationDescription DeviceInit;

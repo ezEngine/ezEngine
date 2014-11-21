@@ -7,7 +7,7 @@
 #include <Foundation/IO/OSFile.h>
 #include <QTimer>
 #include <QPushButton>
-#include <EditorFramework/EngineView/EngineViewMessages.h>
+#include <EditorFramework/EngineProcess/EngineProcessMessages.h>
 #include <qlayout.h>
 
 ezTestDocumentWindow::ezTestDocumentWindow(ezDocumentBase* pDocument) : ezDocumentWindow(pDocument)
@@ -23,7 +23,7 @@ ezTestDocumentWindow::ezTestDocumentWindow(ezDocumentBase* pDocument) : ezDocume
 
   m_pRestartButton = new QPushButton(centralWidget());
   m_pRestartButton->setText("Restart Engine View Process");
-  m_pRestartButton->setVisible(ezEditorEngineViewProcess::GetInstance()->IsProcessCrashed());
+  m_pRestartButton->setVisible(ezEditorEngineProcessConnection::GetInstance()->IsProcessCrashed());
   m_pRestartButton->setMaximumWidth(200);
   m_pRestartButton->setMinimumHeight(50);
   m_pRestartButton->connect(m_pRestartButton, &QPushButton::clicked, this, &ezTestDocumentWindow::SlotRestartEngineProcess);
@@ -32,41 +32,41 @@ ezTestDocumentWindow::ezTestDocumentWindow(ezDocumentBase* pDocument) : ezDocume
 
   SetTargetFramerate(15);
 
-  m_pEngineView = ezEditorEngineViewProcess::GetInstance()->CreateEngineView();
-  ezEditorEngineViewProcess::s_Events.AddEventHandler(ezDelegate<void (const ezEditorEngineViewProcess::Event&)>(&ezTestDocumentWindow::EngineViewProcessEventHandler, this));
+  m_pEngineView = ezEditorEngineProcessConnection::GetInstance()->CreateEngineView();
+  ezEditorEngineProcessConnection::s_Events.AddEventHandler(ezDelegate<void (const ezEditorEngineProcessConnection::Event&)>(&ezTestDocumentWindow::EngineViewProcessEventHandler, this));
 }
 
 ezTestDocumentWindow::~ezTestDocumentWindow()
 {
-  ezEditorEngineViewProcess::s_Events.RemoveEventHandler(ezDelegate<void (const ezEditorEngineViewProcess::Event&)>(&ezTestDocumentWindow::EngineViewProcessEventHandler, this));
-  ezEditorEngineViewProcess::GetInstance()->DestroyEngineView(m_pEngineView);
+  ezEditorEngineProcessConnection::s_Events.RemoveEventHandler(ezDelegate<void (const ezEditorEngineProcessConnection::Event&)>(&ezTestDocumentWindow::EngineViewProcessEventHandler, this));
+  ezEditorEngineProcessConnection::GetInstance()->DestroyEngineView(m_pEngineView);
 }
 
-void ezTestDocumentWindow::EngineViewProcessEventHandler(const ezEditorEngineViewProcess::Event& e)
+void ezTestDocumentWindow::EngineViewProcessEventHandler(const ezEditorEngineProcessConnection::Event& e)
 {
   switch (e.m_Type)
   {
-  case ezEditorEngineViewProcess::Event::Type::ProcessCrashed:
+  case ezEditorEngineProcessConnection::Event::Type::ProcessCrashed:
     {
       m_pRestartButton->setVisible(true);
       m_pRestartButton->update();
     }
     break;
 
-  case ezEditorEngineViewProcess::Event::Type::ProcessStarted:
+  case ezEditorEngineProcessConnection::Event::Type::ProcessStarted:
     {
       m_pRestartButton->setVisible(false);
     }
     break;
 
-  case ezEditorEngineViewProcess::Event::Type::ProcessShutdown:
+  case ezEditorEngineProcessConnection::Event::Type::ProcessShutdown:
     break;
   }
 }
 
 void ezTestDocumentWindow::SlotRestartEngineProcess()
 {
-  ezEditorEngineViewProcess::GetInstance()->RestartProcess();
+  ezEditorEngineProcessConnection::GetInstance()->RestartProcess();
 }
 
 void ezTestDocumentWindow::InternalRedraw()

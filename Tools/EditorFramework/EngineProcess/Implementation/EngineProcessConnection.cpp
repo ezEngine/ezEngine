@@ -1,14 +1,14 @@
 #include <PCH.h>
-#include <EditorFramework/EngineView/EngineView.h>
+#include <EditorFramework/EngineProcess/EngineProcessConnection.h>
 #include <QMessageBox>
 #include <Foundation/Logging/Log.h>
 
-ezEditorEngineViewProcess* ezEditorEngineViewProcess::s_pInstance = nullptr;
-ezEvent<const ezEditorEngineViewProcess::Event&> ezEditorEngineViewProcess::s_Events;
+ezEditorEngineProcessConnection* ezEditorEngineProcessConnection::s_pInstance = nullptr;
+ezEvent<const ezEditorEngineProcessConnection::Event&> ezEditorEngineProcessConnection::s_Events;
 
-ezEditorEngineViewProcess::ezEditorEngineViewProcess()
+ezEditorEngineProcessConnection::ezEditorEngineProcessConnection()
 {
-  EZ_ASSERT(s_pInstance == nullptr, "Incorrect use of ezEditorEngineViewProcess");
+  EZ_ASSERT(s_pInstance == nullptr, "Incorrect use of ezEditorEngineProcessConnection");
   s_pInstance = this;
   m_iNumViews = 0;
   m_iNextEngineViewID = 0;
@@ -16,14 +16,14 @@ ezEditorEngineViewProcess::ezEditorEngineViewProcess()
   m_bProcessCrashed = false;
 }
 
-ezEditorEngineViewProcess::~ezEditorEngineViewProcess()
+ezEditorEngineProcessConnection::~ezEditorEngineProcessConnection()
 {
   EZ_ASSERT(m_iNumViews == 0, "There are still views open at shutdown");
 
   s_pInstance = nullptr;
 }
 
-ezEditorEngineView* ezEditorEngineViewProcess::CreateEngineView()
+ezEditorEngineConnection* ezEditorEngineProcessConnection::CreateEngineView()
 {
   if (m_iNumViews == 0)
   {
@@ -32,7 +32,7 @@ ezEditorEngineView* ezEditorEngineViewProcess::CreateEngineView()
 
   ++m_iNumViews;
 
-  ezEditorEngineView* pView = new ezEditorEngineView();
+  ezEditorEngineConnection* pView = new ezEditorEngineConnection();
 
   pView->m_iEngineViewID = m_iNextEngineViewID;
 
@@ -43,7 +43,7 @@ ezEditorEngineView* ezEditorEngineViewProcess::CreateEngineView()
   return pView;
 }
 
-void ezEditorEngineViewProcess::DestroyEngineView(ezEditorEngineView* pView)
+void ezEditorEngineProcessConnection::DestroyEngineView(ezEditorEngineConnection* pView)
 {
   m_EngineViewsByID.Remove(pView->m_iEngineViewID);
 
@@ -57,7 +57,7 @@ void ezEditorEngineViewProcess::DestroyEngineView(ezEditorEngineView* pView)
   }
 }
 
-void ezEditorEngineViewProcess::Initialize()
+void ezEditorEngineProcessConnection::Initialize()
 {
   if (m_IPC.IsClientAlive())
     return;
@@ -65,10 +65,9 @@ void ezEditorEngineViewProcess::Initialize()
   m_bProcessShouldBeRunning = true;
   m_bProcessCrashed = false;
 
-  if (m_IPC.StartClientProcess("EditorEngineView.exe").Failed())
+  if (m_IPC.StartClientProcess("EditorEngineProcess.exe").Failed())
   {
     m_bProcessCrashed = true;
-    ezLog::Error("Failed to start 'EditorEngineView.exe'");
   }
   else
   {
@@ -78,7 +77,7 @@ void ezEditorEngineViewProcess::Initialize()
   }
 }
 
-void ezEditorEngineViewProcess::Deinitialize()
+void ezEditorEngineProcessConnection::Deinitialize()
 {
   if (!m_bProcessShouldBeRunning)
     return;
@@ -91,19 +90,19 @@ void ezEditorEngineViewProcess::Deinitialize()
   s_Events.Broadcast(e);
 }
 
-void ezEditorEngineViewProcess::SendMessage(ezProcessMessage* pMessage)
+void ezEditorEngineProcessConnection::SendMessage(ezProcessMessage* pMessage)
 {
   m_IPC.SendMessage(pMessage);
 }
 
-void ezEditorEngineViewProcess::RestartProcess()
+void ezEditorEngineProcessConnection::RestartProcess()
 {
   Deinitialize();
 
   Initialize();
 }
 
-void ezEditorEngineViewProcess::Update()
+void ezEditorEngineProcessConnection::Update()
 {
   if (!m_bProcessShouldBeRunning)
     return;
@@ -123,9 +122,9 @@ void ezEditorEngineViewProcess::Update()
   m_IPC.ProcessMessages();
 }
 
-void ezEditorEngineView::SendMessage(ezEngineViewMsg* pMessage)
+void ezEditorEngineConnection::SendMessage(ezEngineProcessMsg* pMessage)
 {
   pMessage->m_iTargetID = m_iEngineViewID;
 
-  ezEditorEngineViewProcess::GetInstance()->SendMessage(pMessage);
+  ezEditorEngineProcessConnection::GetInstance()->SendMessage(pMessage);
 }

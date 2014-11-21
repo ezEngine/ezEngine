@@ -1,5 +1,5 @@
 #include <PCH.h>
-#include <EditorEngineView/ViewContext.h>
+#include <EditorEngineProcess/ViewContext.h>
 #include <RendererFoundation/Device/SwapChain.h>
 
 void ezViewContext::SetupRenderTarget(ezWindowHandle hWnd, ezUInt16 uiWidth, ezUInt16 uiHeight)

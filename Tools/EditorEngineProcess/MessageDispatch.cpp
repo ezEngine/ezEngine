@@ -1,15 +1,15 @@
 #include <PCH.h>
 #include <EditorFramework/EditorApp.moc.h>
 #include <EditorFramework/IPC/ProcessCommunication.h>
-#include <EditorFramework/EngineView/EngineViewMessages.h>
-#include <EditorEngineView/ViewContext.h>
-#include <EditorEngineView/Application.h>
+#include <EditorFramework/EngineProcess/EngineProcessMessages.h>
+#include <EditorEngineProcess/ViewContext.h>
+#include <EditorEngineProcess/Application.h>
 
 
 
-void ezEditorEngineViewApp::EventHandlerIPC(const ezProcessCommunication::Event& e)
+void ezEditorProcessApp::EventHandlerIPC(const ezProcessCommunication::Event& e)
 {
-  const ezEngineViewMsg* pMsg = (const ezEngineViewMsg*) e.m_pMessage;
+  const ezEngineProcessMsg* pMsg = (const ezEngineProcessMsg*) e.m_pMessage;
 
   if (pMsg->m_iTargetID >= (ezInt32) m_ViewContexts.GetCount() ||
       m_ViewContexts[pMsg->m_iTargetID] == nullptr)
