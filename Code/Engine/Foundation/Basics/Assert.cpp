@@ -29,7 +29,7 @@ bool ezDefaultAssertHandler(const char* szSourceFile, ezUInt32 uiLine, const cha
 
   #else
     char szTemp[1024 * 4] = "";
-    sprintf(szTemp, " *** Assertion ***\n\nExpression: \"%s\"\nFunction: \"%s\"\nFile: \"%s\"\nLine: %u\nMessage: \"%s\"", szExpression, szFunction, szSourceFile, uiLine, szAssertMsg);
+    ezStringUtils::snprintf(szTemp, EZ_ARRAY_SIZE(szTemp), " *** Assertion ***\n\nExpression: \"%s\"\nFunction: \"%s\"\nFile: \"%s\"\nLine: %u\nMessage: \"%s\"", szExpression, szFunction, szSourceFile, uiLine, szAssertMsg);
     szTemp[1024 * 4 - 1] = '\0';
     MessageBox(nullptr, szTemp, "Assertion", MB_ICONERROR);
   #endif
@@ -63,7 +63,7 @@ bool ezFailedCheck(const char* szSourceFile, ezUInt32 uiLine, const char* szFunc
   va_start (ap, szErrorMsg);
 
   char szMsg[1024 * 2] = "";
-  ezStringUtils::snprintf(szMsg, EZ_ARRAY_SIZE(szMsg), szErrorMsg, ap);
+  ezStringUtils::vsnprintf(szMsg, EZ_ARRAY_SIZE(szMsg), szErrorMsg, ap);
 
   va_end (ap);
 
