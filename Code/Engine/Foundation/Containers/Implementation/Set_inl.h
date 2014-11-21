@@ -268,6 +268,17 @@ EZ_FORCE_INLINE bool ezSetBase<KeyType, Comparer>::Contains(const KeyType& key) 
   return Internal_Find(key) != nullptr;
 }
 
+template <typename KeyType, typename Comparer>
+EZ_FORCE_INLINE bool ezSetBase<KeyType, Comparer>::Contains(const ezSetBase<KeyType, Comparer>& operand) const
+{
+  for (const KeyType& key : operand)
+  {
+    if (!Contains(key))
+      return false;
+  }
+
+  return true;
+}
 
 template <typename KeyType, typename Comparer>
 typename ezSetBase<KeyType, Comparer>::Node* ezSetBase<KeyType, Comparer>::Internal_LowerBound(const KeyType& key) const
@@ -329,6 +340,34 @@ template <typename KeyType, typename Comparer>
 EZ_FORCE_INLINE typename ezSetBase<KeyType, Comparer>::Iterator ezSetBase<KeyType, Comparer>::UpperBound(const KeyType& key) const
 {
   return Iterator(Internal_UpperBound(key));
+}
+
+template <typename KeyType, typename Comparer>
+void ezSetBase<KeyType, Comparer>::Union(const ezSetBase<KeyType, Comparer>& operand)
+{
+  for (const auto& key : operand)
+  {
+    Insert(key);
+  }
+}
+
+template <typename KeyType, typename Comparer>
+void ezSetBase<KeyType, Comparer>::Difference(const ezSetBase<KeyType, Comparer>& operand)
+{
+  for (const auto& key : operand)
+  {
+    Remove(key);
+  }
+}
+
+template <typename KeyType, typename Comparer>
+void ezSetBase<KeyType, Comparer>::Intersection(const ezSetBase<KeyType, Comparer>& operand)
+{
+  for (const auto& key : *this)
+  {
+    if (!operand.Contains(key))
+      Remove(key);
+  }
 }
 
 template <typename KeyType, typename Comparer>

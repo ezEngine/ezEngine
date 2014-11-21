@@ -140,6 +140,61 @@ EZ_CREATE_SIMPLE_TEST(Containers, Set)
     EZ_TEST_INT(m.GetCount(), 9);
   }
 
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Set Operations")
+  {
+    ezSet<ezUInt32> base;
+    base.Insert(1);
+    base.Insert(3);
+    base.Insert(5);
+
+    ezSet<ezUInt32> empty;
+
+    ezSet<ezUInt32> disjunct;
+    disjunct.Insert(2);
+    disjunct.Insert(4);
+    disjunct.Insert(6);
+
+    ezSet<ezUInt32> subSet;
+    subSet.Insert(1);
+    subSet.Insert(5);
+
+    ezSet<ezUInt32> superSet;
+    superSet.Insert(1);
+    superSet.Insert(3);
+    superSet.Insert(5);
+    superSet.Insert(7);
+
+    ezSet<ezUInt32> nonDisjunctNonEmptySubSet;
+    nonDisjunctNonEmptySubSet.Insert(1);
+    nonDisjunctNonEmptySubSet.Insert(4);
+    nonDisjunctNonEmptySubSet.Insert(5);
+
+    // Contains
+    EZ_TEST_BOOL(base.Contains(base));
+
+    EZ_TEST_BOOL(base.Contains(empty));
+    EZ_TEST_BOOL(!empty.Contains(base));
+
+    EZ_TEST_BOOL(!base.Contains(disjunct));
+    EZ_TEST_BOOL(!disjunct.Contains(base));
+
+    EZ_TEST_BOOL(base.Contains(subSet));
+    EZ_TEST_BOOL(!subSet.Contains(base));
+
+    EZ_TEST_BOOL(!base.Contains(superSet));
+    EZ_TEST_BOOL(superSet.Contains(base));
+
+    EZ_TEST_BOOL(!base.Contains(nonDisjunctNonEmptySubSet));
+    EZ_TEST_BOOL(!nonDisjunctNonEmptySubSet.Contains(base));
+
+    // Union
+    {
+      ezSet<ezUInt32> res;
+      res.Union(base);
+      // TBC...
+    }
+  }
+
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Find")
   {
     ezSet<ezUInt32> m;

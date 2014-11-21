@@ -324,3 +324,114 @@ void* ezReflectionUtils::ReadObjectFromJSON(ezStreamReaderBase& stream, const ez
 }
 
 
+void ezReflectionUtils::GatherTypesDerivedFromClass(const ezRTTI* pRtti, ezSet<const ezRTTI*>& out_types, bool bIncludeDependencies)
+{
+  out_types.Clear();
+
+  ezRTTI* pFirst = ezRTTI::GetFirstInstance();
+  while (pFirst != nullptr)
+  {
+    if (pFirst->IsDerivedFrom(pRtti))
+    {
+      out_types.Insert(pFirst);
+      if (bIncludeDependencies)
+      {
+        GatherDependentTypes(pFirst, out_types);
+      }
+    }
+    pFirst = pFirst->GetNextInstance();
+  }
+}
+
+void ezReflectionUtils::GatherDependentTypes(const ezRTTI* pRtti, ezSet<const ezRTTI*>& inout_types)
+{
+  const ezRTTI* pParentRtti = pRtti->GetParentType();
+  if (pParentRtti != nullptr)
+  {
+    inout_types.Insert(pParentRtti);
+    GatherDependentTypes(pParentRtti, inout_types);
+  }
+
+  const ezArrayPtr<ezAbstractProperty*>& rttiProps = pRtti->GetProperties();
+  const ezUInt32 uiCount = rttiProps.GetCount();
+
+  for (ezUInt32 i = 0; i < uiCount; ++i)
+  {
+    ezAbstractProperty* prop = rttiProps[i];
+    
+    switch (prop->GetCategory())
+    {
+    case ezAbstractProperty::Member:
+      {
+        ezAbstractMemberProperty* memberProp = static_cast<ezAbstractMemberProperty*>(prop);
+        const ezRTTI* pMemberPropRtti = memberProp->GetPropertyType();
+        ezVariant::Type::Enum memberType = pMemberPropRtti->GetVariantType();
+       
+        if (memberType == ezVariant::Type::Invalid || memberType == ezVariant::Type::ReflectedPointer)
+        {
+          if (pMemberPropRtti != nullptr)
+          {
+            // static rtti or dynamic rtti classes
+            inout_types.Insert(pMemberPropRtti);
+            GatherDependentTypes(pMemberPropRtti, inout_types);
+          }
+        }
+        else if (memberType >= ezVariant::Type::Bool && memberType <= ezVariant::Type::Uuid)
+        {
+          // Ignore PODs
+        }
+        else
+        {
+          EZ_ASSERT(false, "Member property found that is not understood: Property '%s' of type '%s'!",
+            memberProp->GetPropertyName(), pMemberPropRtti->GetTypeName());
+        }
+      }
+      break;
+    case ezAbstractProperty::Function:
+      break;
+    case ezAbstractProperty::Array:
+      EZ_ASSERT(false, "Arrays are not supported yet!");
+      break;
+    }
+  }
+}
+
+bool ezReflectionUtils::CreateDependencySortedTypeArray(const ezSet<const ezRTTI*> types, ezDynamicArray<const ezRTTI*>& out_sortedTypes)
+{
+  out_sortedTypes.Clear();
+  out_sortedTypes.Reserve(types.GetCount());
+
+  ezMap<const ezRTTI*, ezSet<const ezRTTI*> > dependencies;
+
+  ezSet<const ezRTTI*> accu;
+
+  for (const ezRTTI* pType : types)
+  {
+    auto it = dependencies.Insert(pType, ezSet<const ezRTTI*>());
+    GatherDependentTypes(pType, it.Value());
+  }
+  
+
+  while(!dependencies.IsEmpty())
+  {
+    bool bDeadEnd = true;
+    for (auto it = dependencies.GetIterator(); it.IsValid(); ++it)
+    {
+      // Are the types dependencies met?
+      if (accu.Contains(it.Value()))
+      {
+        out_sortedTypes.PushBack(it.Key());
+        bDeadEnd = false;
+        dependencies.Remove(it);
+        break;
+      }
+    }
+
+    if (bDeadEnd)
+    {
+      return false;
+    }
+  }
+
+  return true;
+}

@@ -126,11 +126,23 @@ public:
   /// \brief Checks whether the given key is in the container.
   bool Contains(const KeyType& key) const; // [tested]
 
+  /// \brief Checks whether the given key is in the container.
+  bool Contains(const ezSetBase<KeyType, Comparer>& operand) const; // [tested]
+
   /// \brief Returns an Iterator to the element with a key equal or larger than the given key. Returns an invalid iterator, if there is no such element.
   Iterator LowerBound(const KeyType& key) const; // [tested]
 
   /// \brief Returns an Iterator to the element with a key that is LARGER than the given key. Returns an invalid iterator, if there is no such element.
   Iterator UpperBound(const KeyType& key) const; // [tested]
+
+  /// \brief Makes this set the union of itself and the operand.
+  void Union(const ezSetBase<KeyType, Comparer>& operand);
+
+  /// \brief Makes this set the difference of itself and the operand, i.e. subtracts operand.
+  void Difference(const ezSetBase<KeyType, Comparer>& operand);
+
+  /// \brief Makes this set the intersection of itself and the operand.
+  void Intersection(const ezSetBase<KeyType, Comparer>& operand);
 
   /// \brief Returns the allocator that is used by this instance.
   ezAllocatorBase* GetAllocator() const { return m_Elements.GetAllocator(); }
@@ -198,23 +210,23 @@ public:
 };
 
 
-template <typename KeyType, typename Comparer, typename AllocatorWrapper>
-typename ezSet<KeyType, Comparer, AllocatorWrapper>::Iterator begin(ezSet<KeyType, Comparer, AllocatorWrapper>& container) { return container.GetIterator(); }
+template <typename KeyType, typename Comparer>
+typename ezSetBase<KeyType, Comparer>::Iterator begin(ezSetBase<KeyType, Comparer>& container) { return container.GetIterator(); }
 
-template <typename KeyType, typename Comparer, typename AllocatorWrapper>
-typename ezSet<KeyType, Comparer, AllocatorWrapper>::Iterator begin(const ezSet<KeyType, Comparer, AllocatorWrapper>& container) { return container.GetIterator(); }
+template <typename KeyType, typename Comparer>
+typename ezSetBase<KeyType, Comparer>::Iterator begin(const ezSetBase<KeyType, Comparer>& container) { return container.GetIterator(); }
 
-template <typename KeyType, typename Comparer, typename AllocatorWrapper>
-typename ezSet<KeyType, Comparer, AllocatorWrapper>::Iterator cbegin(const ezSet<KeyType, Comparer, AllocatorWrapper>& container) { return container.GetIterator(); }
+template <typename KeyType, typename Comparer>
+typename ezSetBase<KeyType, Comparer>::Iterator cbegin(const ezSetBase<KeyType, Comparer>& container) { return container.GetIterator(); }
 
-template <typename KeyType, typename Comparer, typename AllocatorWrapper>
-typename ezSet<KeyType, Comparer, AllocatorWrapper>::Iterator end(ezSet<KeyType, Comparer, AllocatorWrapper>& container) { return typename ezSet<KeyType, Comparer, AllocatorWrapper>::Iterator(); }
+template <typename KeyType, typename Comparer>
+typename ezSetBase<KeyType, Comparer>::Iterator end(ezSetBase<KeyType, Comparer>& container) { return typename ezSetBase<KeyType, Comparer>::Iterator(); }
 
-template <typename KeyType, typename Comparer, typename AllocatorWrapper>
-typename ezSet<KeyType, Comparer, AllocatorWrapper>::Iterator end(const ezSet<KeyType, Comparer, AllocatorWrapper>& container) { return typename ezSet<KeyType, Comparer, AllocatorWrapper>::Iterator(); }
+template <typename KeyType, typename Comparer>
+typename ezSetBase<KeyType, Comparer>::Iterator end(const ezSetBase<KeyType, Comparer>& container) { return typename ezSetBase<KeyType, Comparer>::Iterator(); }
 
-template <typename KeyType, typename Comparer, typename AllocatorWrapper>
-typename ezSet<KeyType, Comparer, AllocatorWrapper>::Iterator cend(const ezSet<KeyType, Comparer, AllocatorWrapper>& container) { return typename ezSet<KeyType, Comparer, AllocatorWrapper>::Iterator(); }
+template <typename KeyType, typename Comparer>
+typename ezSetBase<KeyType, Comparer>::Iterator cend(const ezSetBase<KeyType, Comparer>& container) { return typename ezSetBase<KeyType, Comparer>::Iterator(); }
 
 
 #include <Foundation/Containers/Implementation/Set_inl.h>

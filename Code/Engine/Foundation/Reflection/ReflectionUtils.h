@@ -48,4 +48,24 @@ public:
   /// in the JSON data, or cannot be matched, will not be affected.
   static void ReadObjectPropertiesFromJSON(ezStreamReaderBase& stream, const ezRTTI& rtti, void* pObject);
 
+  /// \brief Gathers all RTTI types that are derived from pRtti.
+  ///
+  /// This includes all classes that have pRtti as a base class, either direct or indirect.
+  /// If bIncludeDependencies is set to true, the resulting set will also contain all dependent types.
+  ///
+  /// \sa GatherDependentTypes
+  static void GatherTypesDerivedFromClass(const ezRTTI* pRtti, ezSet<const ezRTTI*>& out_types, bool bIncludeDependencies);
+
+  /// \brief Gathers all RTTI types that pRtti depends on and adds them to inout_types.
+  ///
+  /// Dependencies are either member properties or base classes. The output contains the transitive closure of the dependencies.
+  /// Note that inout_types is not cleared when this function is called.
+  static void GatherDependentTypes(const ezRTTI* pRtti, ezSet<const ezRTTI*>& inout_types);
+
+  /// \brief Sorts the input types according to their dependencies.
+  ///
+  /// Types that have no dependences come first in the output followed by types that have their dependencies met by
+  /// the previous entries in the output.
+  /// If circular dependencies are found the function returns false.
+  static bool CreateDependencySortedTypeArray(const ezSet<const ezRTTI*> types, ezDynamicArray<const ezRTTI*>& out_sortedTypes);  
 };
