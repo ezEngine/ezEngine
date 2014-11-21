@@ -21,8 +21,6 @@ private:
 
   void InitDevice();
 
-  ezHybridArray<ezViewContext*, 32> m_ViewContexts;
-
   QApplication* m_pApp;
   ezProcessCommunication m_IPC;
   ezGALDevice* s_pDevice;

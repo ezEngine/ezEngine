@@ -32,14 +32,14 @@ ezTestDocumentWindow::ezTestDocumentWindow(ezDocumentBase* pDocument) : ezDocume
 
   SetTargetFramerate(15);
 
-  m_pEngineView = ezEditorEngineProcessConnection::GetInstance()->CreateEngineView();
+  m_pEngineView = ezEditorEngineProcessConnection::GetInstance()->CreateEngineConnection(pDocument);
   ezEditorEngineProcessConnection::s_Events.AddEventHandler(ezDelegate<void (const ezEditorEngineProcessConnection::Event&)>(&ezTestDocumentWindow::EngineViewProcessEventHandler, this));
 }
 
 ezTestDocumentWindow::~ezTestDocumentWindow()
 {
   ezEditorEngineProcessConnection::s_Events.RemoveEventHandler(ezDelegate<void (const ezEditorEngineProcessConnection::Event&)>(&ezTestDocumentWindow::EngineViewProcessEventHandler, this));
-  ezEditorEngineProcessConnection::GetInstance()->DestroyEngineView(m_pEngineView);
+  ezEditorEngineProcessConnection::GetInstance()->DestroyEngineConnection(m_pEngineView);
 }
 
 void ezTestDocumentWindow::EngineViewProcessEventHandler(const ezEditorEngineProcessConnection::Event& e)

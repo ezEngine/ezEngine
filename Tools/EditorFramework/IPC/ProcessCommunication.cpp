@@ -227,6 +227,15 @@ void ezProcessCommunication::DispatchMessages()
       ezMemoryStreamStorage& storage = m_MessageReadQueue.PeekFront();
       ezMemoryStreamReader reader(&storage);
 
+      // Debug
+      if (false)
+      {
+        ezMemoryStreamReader reader2(&storage);
+        ezStringBuilder s;
+        s.ReadAll(reader2);
+        ezLog::Debug("IPC Msg: %s", s.GetData());
+      }
+
       const ezRTTI* pRtti = nullptr;
       ezProcessMessage* pObject = (ezProcessMessage*) ezReflectionUtils::ReadObjectFromJSON(reader, pRtti);
 

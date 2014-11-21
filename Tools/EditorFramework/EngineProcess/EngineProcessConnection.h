@@ -5,6 +5,7 @@
 #include <Foundation/Communication/Event.h>
 
 class ezEditorEngineConnection;
+class ezDocumentBase;
 
 class EZ_EDITORFRAMEWORK_DLL ezEditorEngineProcessConnection
 {
@@ -20,8 +21,8 @@ public:
   void RestartProcess();
   bool IsProcessCrashed() const { return m_bProcessCrashed; }
 
-  ezEditorEngineConnection* CreateEngineView();
-  void DestroyEngineView(ezEditorEngineConnection* pView);
+  ezEditorEngineConnection* CreateEngineConnection(ezDocumentBase* pDocument);
+  void DestroyEngineConnection(ezEditorEngineConnection* pView);
 
   void SendMessage(ezProcessMessage* pMessage);
 
@@ -45,10 +46,10 @@ private:
 
   bool m_bProcessShouldBeRunning;
   bool m_bProcessCrashed;
-  ezInt32 m_iNextEngineViewID;
+  ezUInt32 m_uiNextEngineViewID;
   ezInt32 m_iNumViews;
   ezProcessCommunication m_IPC;
-  ezHashTable<ezInt32, ezEditorEngineConnection*> m_EngineViewsByID;
+  ezHashTable<ezUInt32, ezEditorEngineConnection*> m_EngineViewsByID;
 };
 
 class EZ_EDITORFRAMEWORK_DLL ezEditorEngineConnection
@@ -59,8 +60,9 @@ public:
 
 private:
   friend class ezEditorEngineProcessConnection;
-  ezEditorEngineConnection() { m_iEngineViewID = -2; }
+  ezEditorEngineConnection(ezDocumentBase* pDocument, ezInt32 iEngineViewID) { m_pDocument = pDocument; m_iEngineViewID = iEngineViewID; }
   ~ezEditorEngineConnection() { }
 
+  ezDocumentBase* m_pDocument;
   ezInt32 m_iEngineViewID;
 };

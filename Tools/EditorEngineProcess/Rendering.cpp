@@ -4,16 +4,18 @@
 #include <RendererFoundation/Device/SwapChain.h>
 #include <RendererDX11/Device/DeviceDX11.h>
 
-void ezViewContext::Redraw(ezInt32 iOwnID)
+void ezViewContext::Redraw()
 {
   ezGALDevice* pDevide = ezGALDevice::GetDefaultDevice();
+
+  ezInt32 iOwnID = GetViewIndex();
 
   pDevide->BeginFrame();
 
   // The ezGALContext class is the main interaction point for draw / compute operations
   ezGALContext* pContext = pDevide->GetPrimaryContext();
 
-  ezSizeU32 wndsize = m_Window.GetClientAreaSize();
+  ezSizeU32 wndsize = GetEditorWindow().GetClientAreaSize();
 
   pContext->SetRenderTargetConfig(m_hBBRT);
   pContext->SetViewport(0.0f, 0.0f, (float) wndsize.width, (float) wndsize.height, 0.0f, 1.0f);

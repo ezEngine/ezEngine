@@ -158,6 +158,7 @@ static void WriteProperties(ezJSONWriter& writer, const ezRTTI* pRtti, const voi
 
       else IF_HANDLE_TYPE(ezColor,  AddVariableColor)
       else IF_HANDLE_TYPE(ezTime,  AddVariableTime)
+      else IF_HANDLE_TYPE(ezUuid,  AddVariableUuid)
       else IF_HANDLE_TYPE(ezConstCharPtr,  AddVariableString)
 
       else if (prop->GetPropertyType()->GetProperties().GetCount() > 0 && prop->GetPropertyPointer(pObject) != nullptr)

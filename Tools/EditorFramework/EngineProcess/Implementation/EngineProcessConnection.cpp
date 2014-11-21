@@ -2,6 +2,7 @@
 #include <EditorFramework/EngineProcess/EngineProcessConnection.h>
 #include <QMessageBox>
 #include <Foundation/Logging/Log.h>
+#include <ToolsFoundation/Document/Document.h>
 
 ezEditorEngineProcessConnection* ezEditorEngineProcessConnection::s_pInstance = nullptr;
 ezEvent<const ezEditorEngineProcessConnection::Event&> ezEditorEngineProcessConnection::s_Events;
@@ -11,7 +12,7 @@ ezEditorEngineProcessConnection::ezEditorEngineProcessConnection()
   EZ_ASSERT(s_pInstance == nullptr, "Incorrect use of ezEditorEngineProcessConnection");
   s_pInstance = this;
   m_iNumViews = 0;
-  m_iNextEngineViewID = 0;
+  m_uiNextEngineViewID = 0;
   m_bProcessShouldBeRunning = false;
   m_bProcessCrashed = false;
 }
@@ -23,7 +24,7 @@ ezEditorEngineProcessConnection::~ezEditorEngineProcessConnection()
   s_pInstance = nullptr;
 }
 
-ezEditorEngineConnection* ezEditorEngineProcessConnection::CreateEngineView()
+ezEditorEngineConnection* ezEditorEngineProcessConnection::CreateEngineConnection(ezDocumentBase* pDocument)
 {
   if (m_iNumViews == 0)
   {
@@ -32,18 +33,16 @@ ezEditorEngineConnection* ezEditorEngineProcessConnection::CreateEngineView()
 
   ++m_iNumViews;
 
-  ezEditorEngineConnection* pView = new ezEditorEngineConnection();
-
-  pView->m_iEngineViewID = m_iNextEngineViewID;
+  ezEditorEngineConnection* pView = new ezEditorEngineConnection(pDocument, m_uiNextEngineViewID);
 
   m_EngineViewsByID[pView->m_iEngineViewID] = pView;
 
-  m_iNextEngineViewID++;
+  m_uiNextEngineViewID++;
 
   return pView;
 }
 
-void ezEditorEngineProcessConnection::DestroyEngineView(ezEditorEngineConnection* pView)
+void ezEditorEngineProcessConnection::DestroyEngineConnection(ezEditorEngineConnection* pView)
 {
   m_EngineViewsByID.Remove(pView->m_iEngineViewID);
 
@@ -124,7 +123,8 @@ void ezEditorEngineProcessConnection::Update()
 
 void ezEditorEngineConnection::SendMessage(ezEngineProcessMsg* pMessage)
 {
-  pMessage->m_iTargetID = m_iEngineViewID;
+  pMessage->m_uiViewID = m_iEngineViewID;
+  pMessage->m_DocumentGuid = m_pDocument->GetGuid();
 
   ezEditorEngineProcessConnection::GetInstance()->SendMessage(pMessage);
 }

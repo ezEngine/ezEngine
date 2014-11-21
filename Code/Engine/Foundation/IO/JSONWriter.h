@@ -67,6 +67,9 @@ public:
   /// \brief Shorthand for "BeginVariable(szName); WriteTime(value); EndVariable(); "
   void AddVariableTime(const char* szName, ezTime value); // [tested]
 
+  /// \brief Shorthand for "BeginVariable(szName); WriteUuid(value); EndVariable(); "
+  void AddVariableUuid(const char* szName, ezUuid value);
+
   /// \brief Shorthand for "BeginVariable(szName); WriteColor(value); EndVariable(); "
   void AddVariableColor(const char* szName, const ezColor& value); // [tested]
 

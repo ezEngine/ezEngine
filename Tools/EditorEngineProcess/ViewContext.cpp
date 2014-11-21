@@ -4,18 +4,18 @@
 
 void ezViewContext::SetupRenderTarget(ezWindowHandle hWnd, ezUInt16 uiWidth, ezUInt16 uiHeight)
 {
-  if (m_Window.m_hWnd != 0)
+  if (GetEditorWindow().m_hWnd != 0)
     return;
 
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
-  m_Window.m_hWnd = hWnd;
-  m_Window.m_uiWidth = uiWidth;
-  m_Window.m_uiHeight = uiHeight;
+  GetEditorWindow().m_hWnd = hWnd;
+  GetEditorWindow().m_uiWidth = uiWidth;
+  GetEditorWindow().m_uiHeight = uiHeight;
 
   {
     ezGALSwapChainCreationDescription scd;
-    scd.m_pWindow = &m_Window;
+    scd.m_pWindow = &GetEditorWindow();
     scd.m_SampleCount = ezGALMSAASampleCount::None;
     scd.m_bCreateDepthStencilBuffer = true;
     scd.m_DepthStencilBufferFormat = ezGALResourceFormat::D24S8;

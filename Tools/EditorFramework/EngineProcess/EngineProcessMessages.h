@@ -10,10 +10,11 @@ class EZ_EDITORFRAMEWORK_DLL ezEngineProcessMsg : public ezProcessMessage
 public:
   ezEngineProcessMsg()
   {
-    m_iTargetID = -1;
+    m_uiViewID = 0xFFFFFFFF;
   }
 
-  ezInt32 m_iTargetID;
+  ezUuid m_DocumentGuid;
+  ezUInt32 m_uiViewID;
 };
 
 class EZ_EDITORFRAMEWORK_DLL ezEngineViewRedrawMsg : public ezEngineProcessMsg
