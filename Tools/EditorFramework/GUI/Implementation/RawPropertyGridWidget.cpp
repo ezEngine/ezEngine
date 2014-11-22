@@ -94,7 +94,17 @@ void ezRawPropertyGridWidget::BuildUI(const ezIReflectedTypeAccessor& et, const 
       case ezVariant::Type::Time:
       case ezVariant::Type::Float:
       case ezVariant::Type::Double:
-        pNewWidget = new ezPropertyEditorDoubleSpinboxWidget(ParentPath, pProp->m_sPropertyName.GetString().GetData(), this);
+        pNewWidget = new ezPropertyEditorDoubleSpinboxWidget(ParentPath, pProp->m_sPropertyName.GetString().GetData(), this, 1);
+        break;
+
+      case ezVariant::Type::Vector2:
+        pNewWidget = new ezPropertyEditorDoubleSpinboxWidget(ParentPath, pProp->m_sPropertyName.GetString().GetData(), this, 2);
+        break;
+      case ezVariant::Type::Vector3:
+        pNewWidget = new ezPropertyEditorDoubleSpinboxWidget(ParentPath, pProp->m_sPropertyName.GetString().GetData(), this, 3);
+        break;
+      case ezVariant::Type::Vector4:
+        pNewWidget = new ezPropertyEditorDoubleSpinboxWidget(ParentPath, pProp->m_sPropertyName.GetString().GetData(), this, 4);
         break;
 
       case ezVariant::Type::Int8:

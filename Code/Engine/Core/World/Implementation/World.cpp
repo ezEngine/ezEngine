@@ -63,7 +63,7 @@ ezGameObjectHandle ezWorld::CreateObject(const ezGameObjectDesc& desc, ezGameObj
   ezUInt32 uiParentIndex = 0;
   ezUInt32 uiHierarchyLevel = 0;
 
-  if (TryGetObject(desc.m_Parent, pParentObject))
+  if (!desc.m_Parent.IsInvalidated() && TryGetObject(desc.m_Parent, pParentObject))
   {
     pParentData = pParentObject->m_pTransformationData;
     uiParentIndex = desc.m_Parent.m_InternalId.m_InstanceIndex;

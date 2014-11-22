@@ -9,12 +9,15 @@ public:
   ezQtBlockSignals(QWidget* pWidget)
   {
     m_pWidget = pWidget;
-    m_bBlocked = m_pWidget->blockSignals(true);
+
+    if (m_pWidget)
+      m_bBlocked = m_pWidget->blockSignals(true);
   }
 
   ~ezQtBlockSignals()
   {
-    m_pWidget->blockSignals(m_bBlocked);
+    if (m_pWidget)
+      m_pWidget->blockSignals(m_bBlocked);
   }
 
 private:

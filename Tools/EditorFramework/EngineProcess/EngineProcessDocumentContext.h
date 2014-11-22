@@ -14,9 +14,11 @@ public:
   static void AddDocumentContext(ezUuid guid, ezEngineProcessDocumentContext* pView);
   static void DestroyDocumentContext(ezUuid guid);
 
+  ezWorld* m_pWorld;
+
 private:
   static ezHashTable<ezUuid, ezEngineProcessDocumentContext*> s_DocumentContexts;
 
-  ezWorld* m_pWorld;
+  
 };
 

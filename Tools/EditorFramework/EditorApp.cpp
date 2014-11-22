@@ -107,14 +107,14 @@ void ezEditorApp::StartupEditor(const char* szAppName, const char* szUserName, i
   ezStartup::StartupCore();
 
   ezStringBuilder sAppDir = ezOSFile::GetApplicationDirectory();
-  sAppDir.AppendPath("..", GetApplicationName().GetData());
+  sAppDir.AppendPath("../../../Shared/Tools", GetApplicationName().GetData());
 
   ezOSFile osf;
-  osf.CreateDirectoryStructure(sAppDir.GetData());
+  osf.CreateDirectoryStructure(sAppDir);
 
   ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
-  ezFileSystem::AddDataDirectory("", ezFileSystem::AllowWrites, "Editor"); // for absolute paths
-  ezFileSystem::AddDataDirectory(sAppDir.GetData(), ezFileSystem::AllowWrites, "Editor"); // for everything relative
+  ezFileSystem::AddDataDirectory("", ezFileSystem::AllowWrites, "App"); // for absolute paths
+  ezFileSystem::AddDataDirectory(sAppDir.GetData(), ezFileSystem::AllowWrites, "App"); // for everything relative
 
   ezEditorGUI::GetInstance()->LoadState();
 
@@ -331,8 +331,7 @@ void ezRecentFilesList::Load(const char* szFile)
 
   for (const ezStringView& sv : Lines)
   {
-    ezString s = sv;
-    Insert(s);
+    m_Files.PushBack(sv);
   }
 }
 

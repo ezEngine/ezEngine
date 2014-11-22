@@ -1,17 +1,31 @@
 #include <PCH.h>
 #include <EditorEngineProcess/ViewContext.h>
 #include <RendererFoundation/Device/SwapChain.h>
+#include <Core/ResourceManager/ResourceManager.h>
 
 void ezViewContext::SetupRenderTarget(ezWindowHandle hWnd, ezUInt16 uiWidth, ezUInt16 uiHeight)
 {
   if (GetEditorWindow().m_hWnd != 0)
-    return;
+  {
+    if (GetEditorWindow().m_uiWidth == uiWidth && GetEditorWindow().m_uiHeight == uiHeight)
+      return;
+
+    ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+    pDevice->DestroySwapChain(m_hPrimarySwapChain);
+    m_hPrimarySwapChain.Invalidate();
+  }
+  else
+  {
+    m_hSphere = DontUse::CreateSphere(3);
+  }
 
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
   GetEditorWindow().m_hWnd = hWnd;
   GetEditorWindow().m_uiWidth = uiWidth;
   GetEditorWindow().m_uiHeight = uiHeight;
+
+  ezLog::Debug("Creating Swapchain with size %u * %u", uiWidth, uiHeight);
 
   {
     ezGALSwapChainCreationDescription scd;
@@ -43,5 +57,14 @@ void ezViewContext::SetupRenderTarget(ezWindowHandle hWnd, ezUInt16 uiWidth, ezU
   m_hDepthStencilState = pDevice->CreateDepthStencilState(DepthStencilStateDesc);
   EZ_ASSERT(!m_hDepthStencilState.IsInvalidated(), "Couldn't create depth-stencil state!");
 
+
+  // Create a constant buffer for matrix upload
+  m_hCB = pDevice->CreateConstantBuffer(sizeof(ezMat4));
+
+  ezShaderManager::SetPlatform("DX11_SM40", pDevice, true);
+
+  m_hShader = ezResourceManager::GetResourceHandle<ezShaderResource>("Shaders/Wireframe.shader");
+
+  ezShaderManager::SetActiveShader(m_hShader);
 }
 

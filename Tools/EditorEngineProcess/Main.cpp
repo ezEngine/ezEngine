@@ -1,6 +1,9 @@
 #include <PCH.h>
 #include <EditorEngineProcess/Application.h>
 #include <Foundation/Threading/ThreadUtils.h>
+#include <Foundation/IO/FileSystem/FileSystem.h>
+#include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
+#include <Foundation/Time/Clock.h>
 
 EZ_APPLICATION_ENTRY_POINT(ezEditorProcessApp);
 
@@ -14,8 +17,21 @@ void ezEditorProcessApp::AfterEngineInit()
 {
   ezTelemetry::CreateServer();
 
+  {
+    ezStringBuilder sAppDir = ezOSFile::GetApplicationDirectory();
+    sAppDir.AppendPath("../../../Shared/Tools/EditorEngineProcess");
+
+    ezOSFile osf;
+    osf.CreateDirectoryStructure(sAppDir);
+
+    ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
+    ezFileSystem::AddDataDirectory("", ezFileSystem::AllowWrites, "App"); // for absolute paths
+    ezFileSystem::AddDataDirectory(sAppDir.GetData(), ezFileSystem::AllowWrites, "App"); // for everything relative
+  }
+
   ezPlugin::LoadPlugin("ezInspectorPlugin");
   ezPlugin::LoadPlugin("ezEnginePluginTest");
+  EZ_VERIFY(ezPlugin::LoadPlugin("ezShaderCompilerHLSL").Succeeded(), "Compiler Plugin not found");
 
   int argc = GetArgumentCount();
   const char** argv = GetArgumentsArray();
@@ -26,6 +42,8 @@ void ezEditorProcessApp::AfterEngineInit()
   m_IPC.m_Events.AddEventHandler(ezDelegate<void(const ezProcessCommunication::Event&)>(&ezEditorProcessApp::EventHandlerIPC, this));
 
   InitDevice();
+
+  ezClock::SetNumGlobalClocks();
 }
 
 void ezEditorProcessApp::BeforeEngineShutdown()

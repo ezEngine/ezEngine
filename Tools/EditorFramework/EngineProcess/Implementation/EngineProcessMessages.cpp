@@ -19,3 +19,16 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEngineViewRedrawMsg, ezEngineProcessMsg, 1, ez
   EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEngineProcessEntityMsg, ezEngineProcessMsg, 1, ezRTTIDefaultAllocator<ezEngineProcessEntityMsg> );
+  EZ_BEGIN_PROPERTIES
+    EZ_MEMBER_PROPERTY("MsgType", m_iMsgType),
+    EZ_MEMBER_PROPERTY("NewChildIndex", m_uiNewChildIndex),
+    EZ_MEMBER_PROPERTY("ObjectGuid", m_ObjectGuid),
+    EZ_MEMBER_PROPERTY("PreviousParentGuid", m_PreviousParentGuid),
+    EZ_MEMBER_PROPERTY("NewParentGuid", m_NewParentGuid),
+    EZ_MEMBER_PROPERTY("Position", m_vPosition),
+    EZ_ACCESSOR_PROPERTY("ObjectData", GetObjectData, SetObjectData),
+  EZ_END_PROPERTIES
+EZ_END_DYNAMIC_REFLECTED_TYPE();
+
+

@@ -81,18 +81,18 @@ class EZ_EDITORFRAMEWORK_DLL ezPropertyEditorDoubleSpinboxWidget : public ezProp
   Q_OBJECT
 
 public:
-  ezPropertyEditorDoubleSpinboxWidget(const ezPropertyPath& path, const char* szName, QWidget* pParent);
+  ezPropertyEditorDoubleSpinboxWidget(const ezPropertyPath& path, const char* szName, QWidget* pParent, ezInt8 iNumComponents);
 
 private slots:
-  void on_ValueChanged_triggered(double value);
   void on_EditingFinished_triggered();
 
 private:
   virtual void InternalSetValue(const ezVariant& value) override;
 
+  ezInt8 m_iNumComponents;
   QHBoxLayout* m_pLayout;
   QLabel* m_pLabel;
-  QDoubleSpinBox* m_pWidget;
+  QDoubleSpinBox*  m_pWidget[4];
 };
 
 /// *** INT SPINBOX ***
@@ -162,4 +162,5 @@ private:
   QPushButton* m_pWidget;
   ezColor m_CurrentColor;
 };
+
 

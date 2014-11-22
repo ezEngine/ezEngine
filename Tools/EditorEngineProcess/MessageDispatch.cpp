@@ -3,6 +3,7 @@
 #include <EditorFramework/IPC/ProcessCommunication.h>
 #include <EditorFramework/EngineProcess/EngineProcessMessages.h>
 #include <EditorFramework/EngineProcess/EngineProcessViewContext.h>
+#include <EditorFramework/EngineProcess/EngineProcessDocumentContext.h>
 #include <EditorEngineProcess/Application.h>
 
 
@@ -21,12 +22,82 @@ void ezEditorProcessApp::EventHandlerIPC(const ezProcessCommunication::Event& e)
     ezEngineProcessViewContext::AddViewContext(pMsg->m_uiViewID, pViewContext);
   }
 
+  ezEngineProcessDocumentContext* pDocumentContext = ezEngineProcessDocumentContext::GetDocumentContext(pMsg->m_DocumentGuid);
+
+  if (pDocumentContext == nullptr && pMsg->m_DocumentGuid.IsValid())
+  {
+    ezLog::Info("Created new Document context for Guid %s", ezConversionUtils::ToString(pMsg->m_DocumentGuid).GetData());
+
+    pDocumentContext = EZ_DEFAULT_NEW(ezEngineProcessDocumentContext);
+
+    ezEngineProcessDocumentContext::AddDocumentContext(pMsg->m_DocumentGuid, pDocumentContext);
+
+    pDocumentContext->m_pWorld = EZ_DEFAULT_NEW(ezWorld)(ezConversionUtils::ToString(pMsg->m_DocumentGuid));
+  }
+
   if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezEngineViewRedrawMsg>())
   {
     ezEngineViewRedrawMsg* pRedrawMsg = (ezEngineViewRedrawMsg*) pMsg;
 
     pViewContext->SetupRenderTarget((HWND) pRedrawMsg->m_uiHWND, pRedrawMsg->m_uiWindowWidth, pRedrawMsg->m_uiWindowHeight);
     pViewContext->Redraw();
+  }
+  else if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezEngineProcessEntityMsg>())
+  {
+    ezEngineProcessEntityMsg* pEntityMsg = (ezEngineProcessEntityMsg*) pMsg;
+
+    ezGameObjectHandle hObject;
+
+    static ezHashTable<ezUuid, ezGameObjectHandle> g_AllObjects;
+
+    const char* szDone = "unknown";
+    switch (pEntityMsg->m_iMsgType)
+    {
+    case ezEngineProcessEntityMsg::ObjectAdded:
+      {
+        szDone = "Added";
+
+        ezGameObjectDesc d;
+        d.m_LocalPosition = pEntityMsg->m_vPosition;
+        d.m_sName.Assign(ezConversionUtils::ToString(pEntityMsg->m_ObjectGuid).GetData());
+        hObject = pDocumentContext->m_pWorld->CreateObject(d);
+
+        g_AllObjects[pEntityMsg->m_ObjectGuid] = hObject;
+
+        ezGameObject* pObject;
+        if (pDocumentContext->m_pWorld->TryGetObject(hObject, pObject))
+          ezLog::Info("Added Object %s to world %p", ezConversionUtils::ToString(pEntityMsg->m_ObjectGuid).GetData(), pDocumentContext->m_pWorld);
+        else
+          ezLog::Error("After Create: Couldn't access game object %s in world: %p", ezConversionUtils::ToString(pEntityMsg->m_ObjectGuid).GetData(), pDocumentContext->m_pWorld);
+      }
+      break;
+    case ezEngineProcessEntityMsg::ObjectMoved:
+      {
+        szDone = "Moved";
+        hObject = g_AllObjects[pEntityMsg->m_ObjectGuid];
+
+        ezGameObject* pObject;
+        if (pDocumentContext->m_pWorld->TryGetObject(hObject, pObject))
+        {
+          pObject->SetLocalPosition(pEntityMsg->m_vPosition);
+        }
+        else
+          ezLog::Error("Couldn't access game object object %s in world %p", ezConversionUtils::ToString(pEntityMsg->m_ObjectGuid).GetData(), pDocumentContext->m_pWorld);
+      }
+      break;
+    case ezEngineProcessEntityMsg::ObjectRemoved:
+      szDone = "Removed";
+      break;
+    }
+
+    ezLog::Debug("%s: Entity %s, Position %.2f | %.2f | %.2f, OldParent %s, NewParent %s, Child %u ", 
+                szDone,
+                ezConversionUtils::ToString(pEntityMsg->m_ObjectGuid).GetData(),
+                pEntityMsg->m_vPosition.x, pEntityMsg->m_vPosition.y, pEntityMsg->m_vPosition.z,
+                ezConversionUtils::ToString(pEntityMsg->m_PreviousParentGuid).GetData(),
+                ezConversionUtils::ToString(pEntityMsg->m_NewParentGuid).GetData(),
+                pEntityMsg->m_uiNewChildIndex);
+
   }
 }
 

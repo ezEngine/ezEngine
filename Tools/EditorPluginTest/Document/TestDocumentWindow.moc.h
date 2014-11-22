@@ -46,6 +46,7 @@ private slots:
 private:
   virtual void InternalRedraw() override;
   void EngineViewProcessEventHandler(const ezEditorEngineProcessConnection::Event& e);
+  void DocumentTreeEventHandler(const ezDocumentObjectTreeEvent& e);
 
   void SendRedrawMsg();
 

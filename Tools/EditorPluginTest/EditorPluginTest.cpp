@@ -12,6 +12,7 @@
 #include <EditorPluginTest/Document/TestDocument.h>
 #include <EditorPluginTest/Document/TestDocumentManager.h>
 #include <EditorPluginTest/Document/TestDocumentWindow.moc.h>
+#include <Core/World/GameObject.h>
 #include <qmainwindow.h>
 #include <QMessageBox>
 
@@ -88,6 +89,7 @@ void OnLoadPlugin(bool bReloading)
 {
   RegisterType(ezGetStaticRTTI<ezTestEditorProperties>());
   RegisterType(ezGetStaticRTTI<ezTestObjectProperties>());
+  RegisterType(ezGetStaticRTTI<ezGameObject>());
 
   // TODO: HACK: Need to find a place to register this poor guy.
   RegisterType(ezGetStaticRTTI<ezDocumentInfo>());

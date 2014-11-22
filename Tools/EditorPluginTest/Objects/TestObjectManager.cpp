@@ -2,6 +2,7 @@
 #include <EditorPluginTest/Objects/TestObjectManager.h>
 #include <EditorPluginTest/Objects/TestObject.h>
 #include <ToolsFoundation/Reflection/ReflectedTypeManager.h>
+#include <Core/World/GameObject.h>
 
 ezTestObjectManager::ezTestObjectManager(const ezDocumentBase* pDocument) : ezDocumentObjectManagerBase(pDocument)
 {
@@ -29,6 +30,11 @@ ezDocumentObjectBase* ezTestObjectManager::InternalCreateObject(ezReflectedTypeH
     return new ezTestObject(new ezTestEditorProperties);
   }
 
+  if (ezStringUtils::IsEqual(hType.GetType()->GetTypeName().GetData(), ezGetStaticRTTI<ezGameObject>()->GetTypeName()))
+  {
+    return new ezTestObject2(hType);
+  }
+
   return nullptr;
 }
 
@@ -36,6 +42,7 @@ void ezTestObjectManager::GetCreateableTypes(ezHybridArray<ezReflectedTypeHandle
 {
   Types.PushBack(ezReflectedTypeManager::GetTypeHandleByName(ezGetStaticRTTI<ezTestObjectProperties>()->GetTypeName()));
   Types.PushBack(ezReflectedTypeManager::GetTypeHandleByName(ezGetStaticRTTI<ezTestEditorProperties>()->GetTypeName()));
+  Types.PushBack(ezReflectedTypeManager::GetTypeHandleByName(ezGetStaticRTTI<ezGameObject>()->GetTypeName()));
 }
 
 bool ezTestObjectManager::InternalCanAdd(ezReflectedTypeHandle hType, const ezDocumentObjectBase* pParent) const

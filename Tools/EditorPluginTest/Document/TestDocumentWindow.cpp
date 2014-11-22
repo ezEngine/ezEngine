@@ -9,6 +9,8 @@
 #include <QPushButton>
 #include <EditorFramework/EngineProcess/EngineProcessMessages.h>
 #include <qlayout.h>
+#include <Foundation/Reflection/ReflectionUtils.h>
+#include <Core/World/GameObject.h>
 
 ezTestDocumentWindow::ezTestDocumentWindow(ezDocumentBase* pDocument) : ezDocumentWindow(pDocument)
 {
@@ -30,16 +32,66 @@ ezTestDocumentWindow::ezTestDocumentWindow(ezDocumentBase* pDocument) : ezDocume
 
   m_pRestartButtonLayout->addWidget(m_pRestartButton);
 
-  SetTargetFramerate(15);
+  SetTargetFramerate(24);
 
   m_pEngineView = ezEditorEngineProcessConnection::GetInstance()->CreateEngineConnection(pDocument);
   ezEditorEngineProcessConnection::s_Events.AddEventHandler(ezDelegate<void (const ezEditorEngineProcessConnection::Event&)>(&ezTestDocumentWindow::EngineViewProcessEventHandler, this));
+
+  GetDocument()->GetObjectTree()->m_Events.AddEventHandler(ezDelegate<void (const ezDocumentObjectTreeEvent&)>(&ezTestDocumentWindow::DocumentTreeEventHandler, this));
 }
 
 ezTestDocumentWindow::~ezTestDocumentWindow()
 {
+  GetDocument()->GetObjectTree()->m_Events.RemoveEventHandler(ezDelegate<void (const ezDocumentObjectTreeEvent&)>(&ezTestDocumentWindow::DocumentTreeEventHandler, this));
   ezEditorEngineProcessConnection::s_Events.RemoveEventHandler(ezDelegate<void (const ezEditorEngineProcessConnection::Event&)>(&ezTestDocumentWindow::EngineViewProcessEventHandler, this));
   ezEditorEngineProcessConnection::GetInstance()->DestroyEngineConnection(m_pEngineView);
+}
+
+void ezTestDocumentWindow::DocumentTreeEventHandler(const ezDocumentObjectTreeEvent& e)
+{
+  ezEngineProcessEntityMsg msg;
+  msg.m_DocumentGuid = GetDocument()->GetGuid();
+  msg.m_ObjectGuid = e.m_pObject->GetGuid();
+  msg.m_uiNewChildIndex = e.m_uiNewChildIndex;
+
+  if (e.m_pPreviousParent)
+    msg.m_PreviousParentGuid = e.m_pPreviousParent->GetGuid();
+  if (e.m_pNewParent)
+    msg.m_NewParentGuid = e.m_pNewParent->GetGuid();
+
+  msg.m_vPosition = e.m_pObject->GetTypeAccessor().GetValue("Position").ConvertTo<ezVec3>();
+
+  switch (e.m_EventType)
+  {
+  case ezDocumentObjectTreeEvent::Type::AfterObjectAdded:
+    {
+      msg.m_iMsgType = ezEngineProcessEntityMsg::ObjectAdded;
+    }
+    break;
+
+  case ezDocumentObjectTreeEvent::Type::AfterObjectMoved:
+    {
+      msg.m_iMsgType = ezEngineProcessEntityMsg::ObjectMoved;
+    }
+    break;
+
+  case ezDocumentObjectTreeEvent::Type::BeforeObjectRemoved:
+    {
+      msg.m_iMsgType = ezEngineProcessEntityMsg::ObjectRemoved;
+    }
+    break;
+
+  case ezDocumentObjectTreeEvent::Type::AfterObjectRemoved:
+  case ezDocumentObjectTreeEvent::Type::BeforeObjectAdded:
+  case ezDocumentObjectTreeEvent::Type::BeforeObjectMoved:
+    return;
+
+  default:
+    EZ_REPORT_FAILURE("Unknown event type");
+    return;
+  }
+
+  m_pEngineView->SendMessage(&msg);
 }
 
 void ezTestDocumentWindow::EngineViewProcessEventHandler(const ezEditorEngineProcessConnection::Event& e)

@@ -98,8 +98,15 @@ void ezPropertyEditorCheckboxWidget::on_StateChanged_triggered(int state)
 
 /// *** DOUBLE SPINBOX ***
 
-ezPropertyEditorDoubleSpinboxWidget::ezPropertyEditorDoubleSpinboxWidget(const ezPropertyPath& path, const char* szName, QWidget* pParent) : ezPropertyEditorBaseWidget(path, szName, pParent)
+ezPropertyEditorDoubleSpinboxWidget::ezPropertyEditorDoubleSpinboxWidget(const ezPropertyPath& path, const char* szName, QWidget* pParent, ezInt8 iNumComponents) : ezPropertyEditorBaseWidget(path, szName, pParent)
 {
+  m_iNumComponents= iNumComponents;
+
+  m_pWidget[0] = nullptr;
+  m_pWidget[1] = nullptr;
+  m_pWidget[2] = nullptr;
+  m_pWidget[3] = nullptr;
+
   m_pLayout = new QHBoxLayout(this);
   m_pLayout->setMargin(0);
   setLayout(m_pLayout);
@@ -108,40 +115,76 @@ ezPropertyEditorDoubleSpinboxWidget::ezPropertyEditorDoubleSpinboxWidget(const e
   m_pLabel->setText(QString::fromUtf8(szName));
   m_pLabel->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
 
-  m_pWidget = new QDoubleSpinBox(this);
-  m_pWidget->setMinimum(-ezMath::BasicType<double>::GetInfinity());
-  m_pWidget->setMaximum( ezMath::BasicType<double>::GetInfinity());
-  m_pWidget->setSingleStep(1.0);
-  m_pWidget->setAccelerated(true);
-  m_pWidget->setDecimals(8);
-
   QSizePolicy policy = m_pLabel->sizePolicy();
-  policy.setHorizontalStretch(1);
+  policy.setHorizontalStretch(m_iNumComponents);
   m_pLabel->setSizePolicy(policy);
-  policy.setHorizontalStretch(2);
-  m_pWidget->setSizePolicy(policy);
-
   m_pLayout->addWidget(m_pLabel);
-  m_pLayout->addWidget(m_pWidget);
 
-  //connect(m_pWidget, SIGNAL(valueChanged(double)), this, SLOT(on_ValueChanged_triggered(double)));
-  connect(m_pWidget, SIGNAL(editingFinished()), this, SLOT(on_EditingFinished_triggered()));
+  for (ezInt32 c = 0; c < m_iNumComponents; ++c)
+  {
+    m_pWidget[c] = new QDoubleSpinBox(this);
+    m_pWidget[c]->setMinimum(-ezMath::BasicType<double>::GetInfinity());
+    m_pWidget[c]->setMaximum( ezMath::BasicType<double>::GetInfinity());
+    m_pWidget[c]->setSingleStep(1.0);
+    m_pWidget[c]->setAccelerated(true);
+    m_pWidget[c]->setDecimals(8);
+
+    policy.setHorizontalStretch(2);
+    m_pWidget[c]->setSizePolicy(policy);
+
+    m_pLayout->addWidget(m_pWidget[c]);
+
+    connect(m_pWidget[c], SIGNAL(editingFinished()), this, SLOT(on_EditingFinished_triggered()));
+  }
 }
 
 void ezPropertyEditorDoubleSpinboxWidget::InternalSetValue(const ezVariant& value)
 {
-  ezQtBlockSignals b (m_pWidget);
-  m_pWidget->setValue(value.ConvertTo<double>());
-}
+  ezQtBlockSignals b0 (m_pWidget[0]);
+  ezQtBlockSignals b1 (m_pWidget[1]);
+  ezQtBlockSignals b2 (m_pWidget[2]);
+  ezQtBlockSignals b3 (m_pWidget[3]);
 
-void ezPropertyEditorDoubleSpinboxWidget::on_ValueChanged_triggered(double value)
-{
-  BroadcastValueChanged(value);
+  switch (m_iNumComponents)
+  {
+  case 1:
+    m_pWidget[0]->setValue(value.ConvertTo<double>());
+    break;
+  case 2:
+    m_pWidget[0]->setValue(value.ConvertTo<ezVec2>().x);
+    m_pWidget[1]->setValue(value.ConvertTo<ezVec2>().y);
+    break;
+  case 3:
+    m_pWidget[0]->setValue(value.ConvertTo<ezVec3>().x);
+    m_pWidget[1]->setValue(value.ConvertTo<ezVec3>().y);
+    m_pWidget[2]->setValue(value.ConvertTo<ezVec3>().z);
+    break;
+  case 4:
+    m_pWidget[0]->setValue(value.ConvertTo<ezVec4>().x);
+    m_pWidget[1]->setValue(value.ConvertTo<ezVec4>().y);
+    m_pWidget[2]->setValue(value.ConvertTo<ezVec4>().z);
+    m_pWidget[3]->setValue(value.ConvertTo<ezVec4>().w);
+    break;
+  }
 }
 
 void ezPropertyEditorDoubleSpinboxWidget::on_EditingFinished_triggered()
 {
-  BroadcastValueChanged(m_pWidget->value());
+  switch (m_iNumComponents)
+  {
+  case 1:
+    BroadcastValueChanged(m_pWidget[0]->value());
+    break;
+  case 2:
+    BroadcastValueChanged(ezVec2(m_pWidget[0]->value(), m_pWidget[1]->value()));
+    break;
+  case 3:
+    BroadcastValueChanged(ezVec3(m_pWidget[0]->value(), m_pWidget[1]->value(), m_pWidget[2]->value()));
+    break;
+  case 4:
+    BroadcastValueChanged(ezVec4(m_pWidget[0]->value(), m_pWidget[1]->value(), m_pWidget[2]->value(), m_pWidget[3]->value()));
+    break;
+  }
 }
 
 /// *** INT SPINBOX ***
