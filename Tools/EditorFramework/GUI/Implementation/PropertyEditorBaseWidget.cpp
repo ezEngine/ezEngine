@@ -51,16 +51,6 @@ void ezPropertyEditorBaseWidget::BroadcastValueChanged(const ezVariant& NewValue
   m_Events.Broadcast(ed);
 }
 
-void ezPropertyEditorBaseWidget::keyPressEvent(QKeyEvent* pEvent)
-{
-  if (pEvent->key() == Qt::Key::Key_Escape)
-  {
-    Broadcast(ezPropertyEditorBaseWidget::Event::Type::RevertValue);
-    SetValue(m_OldValue);
-  }
-
-}
-
 
 /// *** CHECKBOX ***
 
@@ -217,6 +207,7 @@ void ezPropertyEditorDoubleSpinboxWidget::SlotValueChanged()
 
 ezPropertyEditorIntSpinboxWidget::ezPropertyEditorIntSpinboxWidget(const ezPropertyPath& path, const char* szName, QWidget* pParent, ezInt32 iMinValue, ezInt32 iMaxValue) : ezPropertyEditorBaseWidget(path, szName, pParent)
 {
+  m_bTemporaryCommand = false;
   m_pLayout = new QHBoxLayout(this);
   m_pLayout->setMargin(0);
   setLayout(m_pLayout);
@@ -240,8 +231,8 @@ ezPropertyEditorIntSpinboxWidget::ezPropertyEditorIntSpinboxWidget(const ezPrope
   m_pLayout->addWidget(m_pLabel);
   m_pLayout->addWidget(m_pWidget);
 
-  //connect(m_pWidget, SIGNAL(valueChanged(double)), this, SLOT(on_ValueChanged_triggered(double)));
   connect(m_pWidget, SIGNAL(editingFinished()), this, SLOT(on_EditingFinished_triggered()));
+  connect(m_pWidget, SIGNAL(valueChanged(int)), this, SLOT(SlotValueChanged()));
 }
 
 void ezPropertyEditorIntSpinboxWidget::InternalSetValue(const ezVariant& value)
@@ -250,14 +241,22 @@ void ezPropertyEditorIntSpinboxWidget::InternalSetValue(const ezVariant& value)
   m_pWidget->setValue(value.ConvertTo<ezInt32>());
 }
 
-void ezPropertyEditorIntSpinboxWidget::on_ValueChanged_triggered(int value)
+void ezPropertyEditorIntSpinboxWidget::SlotValueChanged()
 {
-  BroadcastValueChanged(value);
+  if (!m_bTemporaryCommand)
+    Broadcast(ezPropertyEditorBaseWidget::Event::Type::BeginTemporary);
+
+  m_bTemporaryCommand = true;
+
+  BroadcastValueChanged(m_pWidget->value());
 }
 
 void ezPropertyEditorIntSpinboxWidget::on_EditingFinished_triggered()
 {
-  BroadcastValueChanged(m_pWidget->value());
+  if (m_bTemporaryCommand)
+    Broadcast(ezPropertyEditorBaseWidget::Event::Type::EndTemporary);
+
+  m_bTemporaryCommand = false;
 }
 
 
@@ -285,7 +284,6 @@ ezPropertyEditorLineEditWidget::ezPropertyEditorLineEditWidget(const ezPropertyP
   m_pLayout->addWidget(m_pWidget);
 
   connect(m_pWidget, SIGNAL(editingFinished()), this, SLOT(on_TextFinished_triggered()));
-  //connect(m_pWidget, SIGNAL(textChanged(const QString&)), this, SLOT(on_TextChanged_triggered(const QString&)));
 }
 
 void ezPropertyEditorLineEditWidget::InternalSetValue(const ezVariant& value)
@@ -342,12 +340,8 @@ void ezPropertyEditorColorWidget::InternalSetValue(const ezVariant& value)
   m_pWidget->setStyleSheet(COLOR_STYLE.arg(col.name()));
 }
 
-static ezColor g_LastColor;
-
 void ezPropertyEditorColorWidget::on_Button_triggered()
 {
-  g_LastColor = m_CurrentColor;
-  
   QColor col;
   col.setRgbF(m_CurrentColor.r, m_CurrentColor.g, m_CurrentColor.b, m_CurrentColor.a);
 
@@ -370,18 +364,13 @@ void ezPropertyEditorColorWidget::on_CurrentColor_changed(const QColor& color)
 
 void ezPropertyEditorColorWidget::on_Color_reset()
 {
-  m_CurrentColor = g_LastColor;
-  
   QColor color;
   color.setRgbF(m_CurrentColor.r, m_CurrentColor.g, m_CurrentColor.b, m_CurrentColor.a);
 
   const QString COLOR_STYLE("QPushButton { background-color : %1 }");
   m_pWidget->setStyleSheet(COLOR_STYLE.arg(color.name()));
 
-  Broadcast(ezPropertyEditorBaseWidget::Event::Type::RevertValue);
-  //BroadcastValueChanged(g_LastColor);
-
-  Broadcast(ezPropertyEditorBaseWidget::Event::Type::EndTemporary);
+  Broadcast(ezPropertyEditorBaseWidget::Event::Type::CancelTemporary);
 }
 
 void ezPropertyEditorColorWidget::on_Color_accepted()

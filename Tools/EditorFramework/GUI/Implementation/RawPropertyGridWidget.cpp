@@ -111,13 +111,13 @@ void ezRawPropertyGridWidget::PropertyChangedHandler(const ezPropertyEditorBaseW
 
   case  ezPropertyEditorBaseWidget::Event::Type::EndTemporary:
     {
-      m_pDocument->GetCommandHistory()->EndTemporaryCommands();
+      m_pDocument->GetCommandHistory()->EndTemporaryCommands(false);
     }
     break;
 
-  case  ezPropertyEditorBaseWidget::Event::Type::RevertValue:
+  case  ezPropertyEditorBaseWidget::Event::Type::CancelTemporary:
     {
-      //m_pDocument->GetCommandHistory()->
+      m_pDocument->GetCommandHistory()->EndTemporaryCommands(true);
     }
     break;
 

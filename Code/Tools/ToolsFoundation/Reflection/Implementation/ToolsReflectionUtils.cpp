@@ -2,6 +2,8 @@
 #include <ToolsFoundation/Reflection/ReflectedType.h>
 #include <ToolsFoundation/Reflection/ToolsReflectionUtils.h>
 #include <Foundation/Configuration/Startup.h>
+#include <Foundation/IO/ExtendedJSONWriter.h>
+#include <ToolsFoundation/Reflection/IReflectedTypeAccessor.h>
 
 
 ////////////////////////////////////////////////////////////////////////
@@ -191,5 +193,119 @@ ezString ezToolsReflectionUtils::GetStringFromPropertyPath(const ezPropertyPath&
   }
 
   return pathBuilder;
+}
+
+
+
+#define IF_HANDLE_TYPE(VAR_TYPE, TYPE, FUNC) \
+  if (pProp->m_Type == VAR_TYPE) \
+  { \
+    ParentPath.PushBack(pProp->m_sPropertyName); \
+    writer.BeginObject(); \
+    writer.AddVariableString("t", #TYPE); \
+    writer.AddVariableString("n", pProp->m_sPropertyName); \
+    writer.FUNC("v", et.GetValue(ParentPath).ConvertTo<TYPE>()); \
+    writer.EndObject(); \
+    ParentPath.PopBack(); \
+  } 
+
+#define IF_HANDLE_TYPE_STRING(VAR_TYPE, TYPE, FUNC) \
+  if (pProp->m_Type == VAR_TYPE) \
+  { \
+    ParentPath.PushBack(pProp->m_sPropertyName); \
+    writer.BeginObject(); \
+    writer.AddVariableString("t", #TYPE); \
+    writer.AddVariableString("n", pProp->m_sPropertyName); \
+    writer.FUNC("v", et.GetValue(ParentPath).ConvertTo<ezString>()); \
+    writer.EndObject(); \
+    ParentPath.PopBack(); \
+  } 
+
+static void WriteJSONObject(ezJSONWriter& writer, const ezIReflectedTypeAccessor& et, const ezReflectedType* pType, ezPropertyPath& ParentPath, const char* szObjectName);
+
+static void WriteProperties(ezJSONWriter& writer, const ezIReflectedTypeAccessor& et, const ezReflectedType* pType, ezPropertyPath& ParentPath)
+{
+  if (!pType->GetParentTypeHandle().IsInvalidated())
+  {
+    WriteProperties(writer, et, pType->GetParentTypeHandle().GetType(), ParentPath);
+  }
+
+  for (ezUInt32 p = 0; p < pType->GetPropertyCount(); ++p)
+  {
+    const ezReflectedProperty* pProp = pType->GetPropertyByIndex(p);
+
+    if (pProp->m_Flags.IsAnySet(PropertyFlags::IsReadOnly))
+      continue;
+
+    if (pProp->m_Flags.IsAnySet(PropertyFlags::IsPOD))
+    {
+
+      IF_HANDLE_TYPE(ezVariant::Type::Bool, bool, AddVariableBool)
+
+      else IF_HANDLE_TYPE(ezVariant::Type::Int8, ezInt8, AddVariableInt32)
+      else IF_HANDLE_TYPE(ezVariant::Type::Int16, ezInt16, AddVariableInt32)
+      else IF_HANDLE_TYPE(ezVariant::Type::Int32, ezInt32, AddVariableInt32)
+      else IF_HANDLE_TYPE(ezVariant::Type::Int64, ezInt64, AddVariableInt64)
+
+      else IF_HANDLE_TYPE(ezVariant::Type::UInt8, ezUInt8, AddVariableUInt32)
+      else IF_HANDLE_TYPE(ezVariant::Type::UInt16, ezUInt16, AddVariableUInt32)
+      else IF_HANDLE_TYPE(ezVariant::Type::UInt32, ezUInt32, AddVariableUInt32)
+      else IF_HANDLE_TYPE(ezVariant::Type::UInt64, ezUInt64, AddVariableUInt64)
+
+      else IF_HANDLE_TYPE(ezVariant::Type::Float, float, AddVariableFloat)
+      else IF_HANDLE_TYPE(ezVariant::Type::Double, double, AddVariableDouble)
+
+      else IF_HANDLE_TYPE(ezVariant::Type::Matrix3, ezMat3, AddVariableMat3)
+      else IF_HANDLE_TYPE(ezVariant::Type::Matrix4, ezMat4, AddVariableMat4)
+      else IF_HANDLE_TYPE(ezVariant::Type::Quaternion, ezQuat, AddVariableQuat)
+
+      else IF_HANDLE_TYPE(ezVariant::Type::Vector2, ezVec2, AddVariableVec2)
+      else IF_HANDLE_TYPE(ezVariant::Type::Vector3, ezVec3, AddVariableVec3)
+      else IF_HANDLE_TYPE(ezVariant::Type::Vector4, ezVec4, AddVariableVec4)
+
+      else IF_HANDLE_TYPE(ezVariant::Type::Color, ezColor, AddVariableColor)
+      else IF_HANDLE_TYPE(ezVariant::Type::Time, ezTime, AddVariableTime)
+      else IF_HANDLE_TYPE(ezVariant::Type::Uuid, ezUuid, AddVariableUuid)
+      else IF_HANDLE_TYPE_STRING(ezVariant::Type::String, ezConstCharPtr, AddVariableString)
+    }
+    else
+    {
+      writer.BeginObject();
+      writer.AddVariableString("t", "$s"); // struct property
+      writer.AddVariableString("n", pProp->m_sPropertyName);
+
+      ParentPath.PushBack(pProp->m_sPropertyName);
+      WriteJSONObject(writer, et, pProp->m_hTypeHandle.GetType(), ParentPath, "v");
+      ParentPath.PopBack();
+
+      writer.EndObject();
+    }
+  }
+}
+
+static void WriteJSONObject(ezJSONWriter& writer, const ezIReflectedTypeAccessor& et, const ezReflectedType* pType, ezPropertyPath& ParentPath, const char* szObjectName)
+{
+  writer.BeginObject(szObjectName);
+
+  writer.AddVariableString("t", et.GetReflectedTypeHandle().GetType()->GetTypeName().GetData());
+
+  writer.BeginArray("p");
+
+  WriteProperties(writer, et, pType, ParentPath);
+
+  writer.EndArray();
+
+  writer.EndObject();
+}
+
+
+void ezToolsReflectionUtils::WriteObjectToJSON(ezStreamWriterBase& stream, const ezIReflectedTypeAccessor& accessor, ezJSONWriter::WhitespaceMode::Enum WhitespaceMode)
+{
+  ezExtendedJSONWriter writer;
+  writer.SetOutputStream(&stream);
+  writer.SetWhitespaceMode(WhitespaceMode);
+
+  ezPropertyPath path;
+  WriteJSONObject(writer, accessor, accessor.GetReflectedTypeHandle().GetType(), path, nullptr);
 }
 

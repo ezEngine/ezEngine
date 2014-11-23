@@ -58,7 +58,6 @@ void ezEditorProcessApp::EventHandlerIPC(const ezProcessCommunication::Event& e)
         szDone = "Added";
 
         ezGameObjectDesc d;
-        d.m_LocalPosition = pEntityMsg->m_vPosition;
         d.m_sName.Assign(ezConversionUtils::ToString(pEntityMsg->m_ObjectGuid).GetData());
         hObject = pDocumentContext->m_pWorld->CreateObject(d);
 
@@ -79,7 +78,14 @@ void ezEditorProcessApp::EventHandlerIPC(const ezProcessCommunication::Event& e)
         ezGameObject* pObject;
         if (pDocumentContext->m_pWorld->TryGetObject(hObject, pObject))
         {
-          pObject->SetLocalPosition(pEntityMsg->m_vPosition);
+          ezMemoryStreamStorage storage;
+          ezMemoryStreamWriter writer(&storage);
+          ezMemoryStreamReader reader(&storage);
+
+          writer.WriteBytes(pEntityMsg->m_sObjectData.GetData(), pEntityMsg->m_sObjectData.GetElementCount());
+
+          //pObject->SetLocalPosition(pEntityMsg->m_vPosition);
+          ezReflectionUtils::ReadObjectPropertiesFromJSON(reader, *ezGetStaticRTTI<ezGameObject>(), pObject);
         }
         else
           ezLog::Error("Couldn't access game object object %s in world %p", ezConversionUtils::ToString(pEntityMsg->m_ObjectGuid).GetData(), pDocumentContext->m_pWorld);
@@ -90,10 +96,9 @@ void ezEditorProcessApp::EventHandlerIPC(const ezProcessCommunication::Event& e)
       break;
     }
 
-    ezLog::Debug("%s: Entity %s, Position %.2f | %.2f | %.2f, OldParent %s, NewParent %s, Child %u ", 
+    ezLog::Debug("%s: Entity %s, OldParent %s, NewParent %s, Child %u ", 
                 szDone,
                 ezConversionUtils::ToString(pEntityMsg->m_ObjectGuid).GetData(),
-                pEntityMsg->m_vPosition.x, pEntityMsg->m_vPosition.y, pEntityMsg->m_vPosition.z,
                 ezConversionUtils::ToString(pEntityMsg->m_PreviousParentGuid).GetData(),
                 ezConversionUtils::ToString(pEntityMsg->m_NewParentGuid).GetData(),
                 pEntityMsg->m_uiNewChildIndex);

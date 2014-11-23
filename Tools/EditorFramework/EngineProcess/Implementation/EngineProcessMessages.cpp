@@ -26,7 +26,6 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEngineProcessEntityMsg, ezEngineProcessMsg, 1,
     EZ_MEMBER_PROPERTY("ObjectGuid", m_ObjectGuid),
     EZ_MEMBER_PROPERTY("PreviousParentGuid", m_PreviousParentGuid),
     EZ_MEMBER_PROPERTY("NewParentGuid", m_NewParentGuid),
-    EZ_MEMBER_PROPERTY("Position", m_vPosition),
     EZ_ACCESSOR_PROPERTY("ObjectData", GetObjectData, SetObjectData),
   EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();

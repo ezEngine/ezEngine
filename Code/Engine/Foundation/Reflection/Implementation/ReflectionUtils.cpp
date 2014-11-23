@@ -172,7 +172,7 @@ static void WriteProperties(ezJSONWriter& writer, const ezRTTI* pRtti, const voi
       else if (prop->GetPropertyType()->GetProperties().GetCount() > 0 && prop->GetPropertyPointer(pObject) != nullptr)
       {
         writer.BeginObject();
-        writer.AddVariableString("t", "$s");
+        writer.AddVariableString("t", "$s"); // struct property
         writer.AddVariableString("n", prop->GetPropertyName());
 
         WriteJSONObject(writer, prop->GetPropertyType(), prop->GetPropertyPointer(pObject), "v");
@@ -258,7 +258,7 @@ static void ReadJSONObject(const ezVariantDictionary& root, const ezRTTI* pRtti,
 
     ezAbstractMemberProperty* pMember = (ezAbstractMemberProperty*) pProperty;
 
-    if (sType != "$s")
+    if (sType != "$s") // not a struct property
     {
       ezReflectionUtils::SetMemberPropertyValue(pMember, pObject, *pValue);
     }

@@ -41,7 +41,7 @@ public:
   void EndTransaction(bool bCancel);
 
   void BeginTemporaryCommands();
-  void EndTemporaryCommands();
+  void EndTemporaryCommands(bool bCancel);
 
   ezStatus AddCommand(ezCommandBase& command);
 

@@ -38,6 +38,7 @@ public:
     ObjectAdded,
     ObjectRemoved,
     ObjectMoved,
+    PropertyChanged,
   };
 
   ezInt8 m_iMsgType;
@@ -46,7 +47,6 @@ public:
   ezUuid m_PreviousParentGuid;
   ezUuid m_NewParentGuid;
   ezString m_sObjectData;
-  ezVec3 m_vPosition;
 
   const char* GetObjectData() const { return m_sObjectData; }
   void SetObjectData(const char* s) { m_sObjectData = s; }

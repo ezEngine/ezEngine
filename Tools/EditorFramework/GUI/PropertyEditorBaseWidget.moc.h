@@ -32,9 +32,9 @@ public:
     enum class Type
     {
       ValueChanged,
-      RevertValue,
       BeginTemporary,
-      EndTemporary
+      EndTemporary,
+      CancelTemporary,
     };
 
     Type m_Type;
@@ -52,8 +52,6 @@ protected:
   ezPropertyPath m_PropertyPath;
 
 private:
-  virtual void keyPressEvent(QKeyEvent* pEvent) override;
-
   ezVariant m_OldValue;
 };
 
@@ -117,12 +115,13 @@ public:
   ezPropertyEditorIntSpinboxWidget(const ezPropertyPath& path, const char* szName, QWidget* pParent, ezInt32 iMinValue, ezInt32 iMaxValue);
 
 private slots:
-  void on_ValueChanged_triggered(int value);
+  void SlotValueChanged();
   void on_EditingFinished_triggered();
 
 private:
   virtual void InternalSetValue(const ezVariant& value) override;
 
+  bool m_bTemporaryCommand;
   QHBoxLayout* m_pLayout;
   QLabel* m_pLabel;
   QSpinBox* m_pWidget;

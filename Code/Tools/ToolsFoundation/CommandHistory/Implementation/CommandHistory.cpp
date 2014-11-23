@@ -79,6 +79,7 @@ ezStatus ezCommandTransaction::AddCommand(ezCommandBase& command)
 
   if (ret.m_Result == EZ_FAILURE)
   {
+    pCommand->Cleanup(ezCommandBase::CommandState::WasDone);
     pCommand->GetDynamicRTTI()->GetAllocator()->Deallocate(pCommand);
     return ret;
   }
@@ -118,7 +119,7 @@ void ezCommandHistory::BeginTemporaryCommands()
   m_bTemporaryMode = true;
 }
 
-void ezCommandHistory::EndTemporaryCommands()
+void ezCommandHistory::EndTemporaryCommands(bool bCancel)
 {
   EZ_ASSERT(m_bTemporaryMode, "Temporary Mode was not enabled");
 
@@ -126,7 +127,7 @@ void ezCommandHistory::EndTemporaryCommands()
 
   if (m_bTempTransaction)
   {
-    EndTransaction(false);
+    EndTransaction(bCancel);
     m_bTempTransaction = false;
   }
 }
@@ -238,6 +239,7 @@ void ezCommandHistory::EndTransaction(bool bCancel)
 
     if (m_TransactionStack.IsEmpty())
     {
+      pTransaction->Cleanup(ezCommandBase::CommandState::WasUndone);
       pTransaction->GetDynamicRTTI()->GetAllocator()->Deallocate(pTransaction);
     }
   }

@@ -60,7 +60,16 @@ void ezTestDocumentWindow::DocumentTreeEventHandler(const ezDocumentObjectTreeSt
   if (e.m_pNewParent)
     msg.m_NewParentGuid = e.m_pNewParent->GetGuid();
 
-  msg.m_vPosition = e.m_pObject->GetTypeAccessor().GetValue("Position").ConvertTo<ezVec3>();
+  // TODO lalala
+  ezMemoryStreamStorage storage;
+  ezMemoryStreamWriter writer(&storage);
+  ezMemoryStreamReader reader(&storage);
+  ezToolsReflectionUtils::WriteObjectToJSON(writer, e.m_pObject->GetTypeAccessor());
+
+  ezStringBuilder sData;
+  sData.ReadAll(reader);
+
+  msg.SetObjectData(sData);
 
   switch (e.m_EventType)
   {

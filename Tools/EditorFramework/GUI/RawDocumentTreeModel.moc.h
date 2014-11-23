@@ -36,6 +36,7 @@ private:
 
 
   void TreeEventHandler(const ezDocumentObjectTreeStructureEvent& e);
+  void TreePropertyEventHandler(const ezDocumentObjectTreePropertyEvent& e);
 
   const ezDocumentObjectTree* m_pDocumentTree;
 

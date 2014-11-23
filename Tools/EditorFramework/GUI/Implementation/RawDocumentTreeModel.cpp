@@ -15,6 +15,7 @@ ezRawDocumentTreeModel::ezRawDocumentTreeModel(const ezDocumentObjectTree* pTree
   m_pDocumentTree = pTree;
 
   m_pDocumentTree->m_StructureEvents.AddEventHandler(ezDelegate<void (const ezDocumentObjectTreeStructureEvent&)>(&ezRawDocumentTreeModel::TreeEventHandler, this));
+  m_pDocumentTree->m_PropertyEvents.AddEventHandler(ezDelegate<void (const ezDocumentObjectTreePropertyEvent&)>(&ezRawDocumentTreeModel::TreePropertyEventHandler, this));
 
   
 }
@@ -22,6 +23,21 @@ ezRawDocumentTreeModel::ezRawDocumentTreeModel(const ezDocumentObjectTree* pTree
 ezRawDocumentTreeModel::~ezRawDocumentTreeModel()
 {
   m_pDocumentTree->m_StructureEvents.RemoveEventHandler(ezDelegate<void (const ezDocumentObjectTreeStructureEvent&)>(&ezRawDocumentTreeModel::TreeEventHandler, this));
+  m_pDocumentTree->m_PropertyEvents.RemoveEventHandler(ezDelegate<void (const ezDocumentObjectTreePropertyEvent&)>(&ezRawDocumentTreeModel::TreePropertyEventHandler, this));
+}
+
+void ezRawDocumentTreeModel::TreePropertyEventHandler(const ezDocumentObjectTreePropertyEvent& e)
+{
+  if (!e.m_bEditorProperty)
+    return;
+
+  if (e.m_sPropertyPath != "Name")
+    return;
+
+  auto index = ComputeModelIndex(e.m_pObject);
+  QVector<int> v;
+  v.push_back(Qt::DisplayRole);
+  dataChanged(index, index, v);
 }
 
 void ezRawDocumentTreeModel::TreeEventHandler(const ezDocumentObjectTreeStructureEvent& e)
@@ -320,15 +336,23 @@ QMimeData* ezRawDocumentTreeModel::mimeData(const QModelIndexList& indexes) cons
 
 bool ezRawDocumentTreeModel::setData(const QModelIndex& index, const QVariant& value, int role)
 {
-  ezDocumentObjectBase* pObject = (ezDocumentObjectBase*) index.internalPointer();
-
   if (role == Qt::EditRole)
   {
-    ezPropertyPath path = ezToolsReflectionUtils::CreatePropertyPath("Name");
+    const ezDocumentObjectBase* pObject = (const ezDocumentObjectBase*) index.internalPointer();
 
-    // TODO cast cast cast!!!
-    // TODO: This doesn't update the property grid yet
-    ((ezIReflectedTypeAccessor&) pObject->GetEditorTypeAccessor()).SetValue(path, value.toString().toUtf8().data());
+    auto pHistory = m_pDocumentTree->GetDocument()->GetCommandHistory();
+
+    pHistory->StartTransaction();
+
+    ezSetObjectPropertyCommand cmd;
+    cmd.m_bEditorProperty = true;
+    cmd.m_NewValue = value.toString().toUtf8().data();
+    cmd.m_Object = pObject->GetGuid();
+    cmd.SetPropertyPath("Name");
+
+    pHistory->AddCommand(cmd);
+
+    pHistory->EndTransaction(false);
 
     QVector<int> roles;
     roles.push_back(Qt::DisplayRole);
