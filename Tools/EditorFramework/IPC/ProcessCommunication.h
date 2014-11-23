@@ -30,6 +30,8 @@ public:
 
   bool IsClientAlive() const;
 
+  bool IsHostAlive() const;
+
   void SendMessage(ezProcessMessage* pMessage);
 
   void ProcessMessages();
@@ -46,6 +48,7 @@ private:
   void WriteMessages();
   void DispatchMessages();
 
+  ezInt64 m_iHostPID;
   ezUInt32 m_uiProcessID;
   QProcess* m_pClientProcess;
   QSharedMemory* m_pSharedMemory;

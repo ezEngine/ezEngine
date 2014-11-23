@@ -44,7 +44,7 @@ void ezRawDocumentTreeWidget::keyPressEvent(QKeyEvent* e)
     auto objects = m_pDocument->GetSelectionManager()->GetSelection();
 
     auto history = m_pDocument->GetCommandHistory();
-    auto pTrans = history->StartTransaction();
+    history->StartTransaction();
 
     ezRemoveObjectCommand cmd;
 
@@ -53,7 +53,7 @@ void ezRawDocumentTreeWidget::keyPressEvent(QKeyEvent* e)
     {
       cmd.m_Object = pObject->GetGuid();
 
-      if (pTrans->AddCommand(cmd).m_Result.Failed())
+      if (history->AddCommand(cmd).m_Result.Failed())
       {
         bCancel = true;
         break;

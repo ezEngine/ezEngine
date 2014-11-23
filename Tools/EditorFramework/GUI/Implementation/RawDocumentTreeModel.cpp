@@ -235,7 +235,7 @@ bool ezRawDocumentTreeModel::dropMimeData(const QMimeData* data, Qt::DropAction 
 
     auto pDoc = m_pDocumentTree->GetDocument();
     auto pHistory = pDoc->GetCommandHistory();
-    auto pTrans = pHistory->StartTransaction();
+    pHistory->StartTransaction();
 
     for (ezUInt32 i = 0; i < Dragged.GetCount(); ++i)
     {
@@ -246,7 +246,7 @@ bool ezRawDocumentTreeModel::dropMimeData(const QMimeData* data, Qt::DropAction 
       if (pNewParent)
         cmd.m_NewParent = pNewParent->GetGuid();
 
-      pTrans->AddCommand(cmd);
+      pHistory->AddCommand(cmd);
     }
 
     pHistory->EndTransaction(false);
@@ -270,9 +270,9 @@ bool ezRawDocumentTreeModel::dropMimeData(const QMimeData* data, Qt::DropAction 
 
     auto history = m_pDocumentTree->GetDocument()->GetCommandHistory();
 
-    ezCommandTransaction* pTransaction = history->StartTransaction();
+    history->StartTransaction();
 
-    ezStatus ret = pTransaction->AddCommand(cmd);
+    ezStatus ret = history->AddCommand(cmd);
 
     history->EndTransaction(ret.m_Result.Failed());
   }

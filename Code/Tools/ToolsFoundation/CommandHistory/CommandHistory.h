@@ -14,13 +14,12 @@ public:
   ~ezCommandTransaction();
 
   virtual ezStatus Do(bool bRedo) override;
-  virtual ezStatus Undo() override;
+  virtual ezStatus Undo(bool bFireEvents) override;
   virtual void Cleanup(CommandState state) override;
-
-  ezStatus AddCommand(ezCommandBase& command);
 
 private:
   friend class ezCommandHistory;
+  ezStatus AddCommand(ezCommandBase& command);
   ezStatus AddCommand(ezCommandBase* command);
 
 private:
@@ -38,8 +37,13 @@ public:
   bool CanUndo() const;
   bool CanRedo() const;
 
-  ezCommandTransaction* StartTransaction();
+  void StartTransaction();
   void EndTransaction(bool bCancel);
+
+  void BeginTemporaryCommands();
+  void EndTemporaryCommands();
+
+  ezStatus AddCommand(ezCommandBase& command);
 
 
 private:
@@ -47,6 +51,9 @@ private:
   void ClearRedoHistory();
 
 private:
+  bool m_bTemporaryMode;
+  bool m_bTempTransaction;
+
   ezHybridArray<ezCommandTransaction*, 4> m_TransactionStack;
   ezDeque<ezCommandTransaction*> m_UndoHistory;
   ezDeque<ezCommandTransaction*> m_RedoHistory;

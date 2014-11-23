@@ -27,15 +27,25 @@ public:
 public:
   virtual void InternalSetValue(const ezVariant& value) = 0;
 
-  struct EventData
+  struct Event
   {
+    enum class Type
+    {
+      ValueChanged,
+      RevertValue,
+      BeginTemporary,
+      EndTemporary
+    };
+
+    Type m_Type;
     const ezPropertyPath* m_pPropertyPath;
     ezVariant m_Value;
   };
 
-  ezEvent<const EventData&> m_ValueChanged;
+  ezEvent<const Event&> m_Events;
 
 protected:
+  void Broadcast(Event::Type type);
   void BroadcastValueChanged(const ezVariant& NewValue);
 
   const char* m_szDisplayName;
@@ -85,10 +95,12 @@ public:
 
 private slots:
   void on_EditingFinished_triggered();
+  void SlotValueChanged();
 
 private:
   virtual void InternalSetValue(const ezVariant& value) override;
 
+  bool m_bTemporaryCommand;
   ezInt8 m_iNumComponents;
   QHBoxLayout* m_pLayout;
   QLabel* m_pLabel;

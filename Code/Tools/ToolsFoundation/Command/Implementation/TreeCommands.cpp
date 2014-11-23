@@ -80,8 +80,10 @@ ezStatus ezAddObjectCommand::Do(bool bRedo)
   return ezStatus(EZ_SUCCESS);
 }
 
-ezStatus ezAddObjectCommand::Undo()
+ezStatus ezAddObjectCommand::Undo(bool bFireEvents)
 {
+  EZ_ASSERT(bFireEvents, "This command does not support temporary commands");
+
   ezDocumentBase* pDocument = GetDocument();
   if (!pDocument->GetObjectManager()->CanRemove(m_pObject))
     return ezStatus(EZ_FAILURE, "Add Object: Removal of the object is forbidden!");
@@ -140,8 +142,10 @@ ezStatus ezRemoveObjectCommand::Do(bool bRedo)
   return ezStatus(EZ_SUCCESS);
 }
 
-ezStatus ezRemoveObjectCommand::Undo()
+ezStatus ezRemoveObjectCommand::Undo(bool bFireEvents)
 {
+  EZ_ASSERT(bFireEvents, "This command does not support temporary commands");
+
   ezDocumentBase* pDocument = GetDocument();
   if (!pDocument->GetObjectManager()->CanAdd(m_pObject->GetTypeAccessor().GetReflectedTypeHandle(), m_pParent))
     return ezStatus(EZ_FAILURE, "Remove Object: Adding the object is forbidden!");
@@ -201,8 +205,10 @@ ezStatus ezMoveObjectCommand::Do(bool bRedo)
   return ezStatus(EZ_SUCCESS);
 }
 
-ezStatus ezMoveObjectCommand::Undo()
+ezStatus ezMoveObjectCommand::Undo(bool bFireEvents)
 {
+  EZ_ASSERT(bFireEvents, "This command does not support temporary commands");
+  
   ezDocumentBase* pDocument = GetDocument();
 
   if (!pDocument->GetObjectManager()->CanMove(m_pObject, m_pOldParent, m_iOldChildIndex))
@@ -240,17 +246,14 @@ ezStatus ezSetObjectPropertyCommand::Do(bool bRedo)
     else
       return ezStatus(EZ_FAILURE, "Set Property: The given object does not exist!");
 
-    if (m_bEditorProperty)
-    {
-      m_OldValue = m_pObject->GetEditorTypeAccessor().GetValue(m_sPropertyPath);
-    }
-    else
-    {
-      m_OldValue = m_pObject->GetTypeAccessor().GetValue(m_sPropertyPath);
-    }
+    ezIReflectedTypeAccessor& accessor0 = m_bEditorProperty ? m_pObject->GetEditorTypeAccessor() : m_pObject->GetTypeAccessor();
+
+    m_OldValue = accessor0.GetValue(m_sPropertyPath);
   }
 
-  if (!m_pObject->GetTypeAccessor().SetValue(m_sPropertyPath, m_NewValue))
+  ezIReflectedTypeAccessor& accessor = m_bEditorProperty ? m_pObject->GetEditorTypeAccessor() : m_pObject->GetTypeAccessor();
+
+  if (!accessor.SetValue(m_sPropertyPath, m_NewValue))
   {
     ezStringBuilder s;
     s.Format("Set Property: The property '%s' does not exist", m_sPropertyPath.GetData());
@@ -268,22 +271,27 @@ ezStatus ezSetObjectPropertyCommand::Do(bool bRedo)
   return ezStatus(EZ_SUCCESS);
 }
 
-ezStatus ezSetObjectPropertyCommand::Undo()
+ezStatus ezSetObjectPropertyCommand::Undo(bool bFireEvents)
 {
-  if (!m_pObject->GetTypeAccessor().SetValue(m_sPropertyPath, m_OldValue))
+  ezIReflectedTypeAccessor& accessor = m_bEditorProperty ? m_pObject->GetEditorTypeAccessor() : m_pObject->GetTypeAccessor();
+
+  if (!accessor.SetValue(m_sPropertyPath, m_OldValue))
   {
     ezStringBuilder s;
     s.Format("Set Property: The property '%s' does not exist", m_sPropertyPath.GetData());
     return ezStatus(EZ_FAILURE, s);
   }
 
-  ezDocumentObjectTreePropertyEvent e;
-  e.m_bEditorProperty = m_bEditorProperty;
-  e.m_pObject = m_pObject;
-  e.m_NewValue = m_OldValue;
-  e.m_sPropertyPath = m_sPropertyPath;
+  if (bFireEvents)
+  {
+    ezDocumentObjectTreePropertyEvent e;
+    e.m_bEditorProperty = m_bEditorProperty;
+    e.m_pObject = m_pObject;
+    e.m_NewValue = m_OldValue;
+    e.m_sPropertyPath = m_sPropertyPath;
 
-  GetDocument()->GetObjectTree()->m_PropertyEvents.Broadcast(e);
+    GetDocument()->GetObjectTree()->m_PropertyEvents.Broadcast(e);
+  }
 
   return ezStatus(EZ_SUCCESS);
 }

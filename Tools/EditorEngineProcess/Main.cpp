@@ -59,6 +59,9 @@ ezApplication::ApplicationExecution ezEditorProcessApp::Run()
 {
   m_IPC.ProcessMessages();
 
+  if (!m_IPC.IsHostAlive())
+    return ezApplication::Quit;
+
   ezTelemetry::PerFrameUpdate();
 
   ezThreadUtils::Sleep(1);

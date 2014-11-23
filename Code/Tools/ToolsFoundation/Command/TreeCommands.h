@@ -21,7 +21,7 @@ public: // Properties
 
 private:
   virtual ezStatus Do(bool bRedo) override;
-  virtual ezStatus Undo() override;
+  virtual ezStatus Undo(bool bFireEvents) override;
   virtual void Cleanup(CommandState state) override;
 
 private:
@@ -40,7 +40,7 @@ public: // Properties
 
 private:
   virtual ezStatus Do(bool bRedo) override;
-  virtual ezStatus Undo() override;
+  virtual ezStatus Undo(bool bFireEvents) override;
   virtual void Cleanup(CommandState state) override;
 
 private:
@@ -64,7 +64,7 @@ public: // Properties
 
 private:
   virtual ezStatus Do(bool bRedo) override;
-  virtual ezStatus Undo() override;
+  virtual ezStatus Undo(bool bFireEvents) override;
   virtual void Cleanup(CommandState state) override { }
 
 private:
@@ -91,7 +91,7 @@ public: // Properties
 
 private:
   virtual ezStatus Do(bool bRedo) override;
-  virtual ezStatus Undo() override;
+  virtual ezStatus Undo(bool bFireEvents) override;
   virtual void Cleanup(CommandState state) override { }
 
 private:

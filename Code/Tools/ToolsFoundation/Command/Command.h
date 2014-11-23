@@ -22,20 +22,14 @@ public:
   ezCommandBase();
 
   bool IsUndoable() const { return m_bUndoable; };
-  
- // bool Serialize(ezJSONWriter& writer) const = 0;
- // bool DeSerialize(ezJSONReader& reader) = 0;
 
   enum class CommandState { WasDone, WasUndone };
 
 private:
 
   virtual ezStatus Do(bool bRedo) = 0;
-  virtual ezStatus Undo() = 0;
+  virtual ezStatus Undo(bool bFireEvents) = 0;
   virtual void Cleanup(CommandState state) = 0;
-
-  //virtual bool InternalSerialize(ezJSONWriter& writer) const = 0;
-  //virtual bool InternalDeSerialize(ezJSONReader& reader) = 0;
 
 protected:
   ezDocumentBase* GetDocument() { return m_pDocument; };
@@ -44,8 +38,8 @@ protected:
   friend class ezCommandHistory;
   friend class ezCommandTransaction;
 
-  ezString m_sDescription;
-  bool m_bUndoable;
+  ezString m_sDescription; // TODO
+  bool m_bUndoable; // TODO
 
 private:
   ezDocumentBase* m_pDocument;

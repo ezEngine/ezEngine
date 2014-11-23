@@ -5,6 +5,7 @@
 #include <Foundation/Utilities/CommandLineUtils.h>
 #include <Foundation/Reflection/ReflectionUtils.h>
 #include <Foundation/Logging/Log.h>
+#include <QCoreApplication>
 
 ezProcessCommunication::ezProcessCommunication()
 {
@@ -54,9 +55,13 @@ success:
 
   sPath.MakeCleanPath();
 
+  ezString sPID = ezConversionUtils::ToString((ezUInt64) QCoreApplication::applicationPid());
+
   QStringList arguments;
   arguments << "-IPC";
   arguments << QLatin1String(sMemName.GetData());
+  arguments << "-PID";
+  arguments << sPID.GetData();
 
   m_pClientProcess = new QProcess();
   m_pClientProcess->start(QString::fromUtf8(sPath.GetData()), arguments);
@@ -89,6 +94,17 @@ ezResult ezProcessCommunication::ConnectToHostProcess()
     return EZ_FAILURE;
   }
 
+  if (ezStringUtils::IsNullOrEmpty(ezCommandLineUtils::GetInstance()->GetStringOption("-PID")))
+  {
+    EZ_REPORT_FAILURE("Command Line does not contain -PID parameter");
+    return EZ_FAILURE;
+  }
+
+  m_iHostPID = 0;
+  ezConversionUtils::StringToInt64(ezCommandLineUtils::GetInstance()->GetStringOption("-PID"), m_iHostPID);
+
+  ezLog::Debug("Host Process ID: %lli", m_iHostPID);
+
   m_pSharedMemory = new QSharedMemory(QLatin1String(ezCommandLineUtils::GetInstance()->GetStringOption("-IPC")));
   if (!m_pSharedMemory->attach())
   {
@@ -113,6 +129,26 @@ void ezProcessCommunication::CloseConnection()
 
   m_MessageSendQueue.Clear();
   m_MessageReadQueue.Clear();
+}
+
+bool ezProcessCommunication::IsHostAlive() const
+{
+  bool bValid = true;
+
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+  HANDLE hProcess = OpenProcess(PROCESS_QUERY_LIMITED_INFORMATION, FALSE, m_iHostPID);
+  bValid = (hProcess != INVALID_HANDLE_VALUE) && (hProcess != NULL);
+
+  DWORD exitcode = 0;
+  if (GetExitCodeProcess(hProcess, &exitcode) && exitcode != STILL_ACTIVE)
+    bValid = false;
+
+  CloseHandle(hProcess); 
+
+  
+#endif
+
+  return bValid;
 }
 
 bool ezProcessCommunication::IsClientAlive() const
