@@ -165,4 +165,31 @@ ezAbstractMemberProperty* ezToolsReflectionUtils::GetMemberPropertyByPath(const 
   return pCurrentProp;
 }
 
+void ezToolsReflectionUtils::GetPropertyPathFromString(const char* szPath, ezPropertyPath& out_Path, ezHybridArray<ezString, 6>& out_Storage)
+{
+  ezStringBuilder temp = szPath;
+  temp.Split(false, out_Storage, "/");
+
+  const ezUInt32 uiCount = out_Storage.GetCount();
+
+  for (ezUInt32 i = 0; i < uiCount; i++)
+  {
+    out_Path.PushBack(out_Storage[i]);
+  }
+}
+
+ezString ezToolsReflectionUtils::GetStringFromPropertyPath(const ezPropertyPath& Path)
+{
+  EZ_ASSERT(Path.GetCount() > 0, "Path must not be empty");
+
+  ezStringBuilder pathBuilder(Path[0]);
+
+  const ezUInt32 pathLength = Path.GetCount();
+  for (ezUInt32 i = 1; i < pathLength; ++i)
+  {
+    pathBuilder.Append("/", Path[i]);
+  }
+
+  return pathBuilder;
+}
 

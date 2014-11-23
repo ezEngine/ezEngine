@@ -24,9 +24,9 @@ private:
   static ezReflectedTypeDirectAccessor s_Accessor;
 };
 
-struct ezDocumentObjectTreeEvent
+struct ezDocumentObjectTreeStructureEvent
 {
-  ezDocumentObjectTreeEvent() : m_pObject(nullptr), m_pPreviousParent(nullptr), m_pNewParent(nullptr), m_uiNewChildIndex(-1)
+  ezDocumentObjectTreeStructureEvent() : m_pObject(nullptr), m_pPreviousParent(nullptr), m_pNewParent(nullptr), m_uiNewChildIndex(-1)
   {}
 
   enum class Type
@@ -46,11 +46,26 @@ struct ezDocumentObjectTreeEvent
   ezUInt32 m_uiNewChildIndex;
 };
 
+struct ezDocumentObjectTreePropertyEvent
+{
+  ezDocumentObjectTreePropertyEvent()
+  {
+    m_pObject = nullptr;
+    m_bEditorProperty = false;
+  }
+
+  const ezDocumentObjectBase* m_pObject;
+  ezVariant m_NewValue;
+  ezString m_sPropertyPath;
+  bool m_bEditorProperty;
+};
+
 class EZ_TOOLSFOUNDATION_DLL ezDocumentObjectTree
 {
 public:
 
-  ezEvent<const ezDocumentObjectTreeEvent&> m_Events;
+  ezEvent<const ezDocumentObjectTreeStructureEvent&> m_StructureEvents;
+  ezEvent<const ezDocumentObjectTreePropertyEvent&> m_PropertyEvents;
 
   ezDocumentObjectTree(const ezDocumentBase* pDocument);
 
@@ -67,6 +82,8 @@ public:
   ezDocumentObjectBase* GetObject(const ezUuid& guid);
 
   const ezDocumentBase* GetDocument() const { return m_pDocument; }
+
+  
 
 private:
   ezDocumentObjectRoot m_RootObject;

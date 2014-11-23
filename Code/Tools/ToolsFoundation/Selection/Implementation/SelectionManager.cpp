@@ -11,22 +11,22 @@ void ezSelectionManager::SetOwner(const ezDocumentBase* pDocument)
 {
   if (pDocument)
   {
-    pDocument->GetObjectTree()->m_Events.AddEventHandler(ezDelegate<void (const ezDocumentObjectTreeEvent&)>(&ezSelectionManager::TreeEventHandler, this));
+    pDocument->GetObjectTree()->m_StructureEvents.AddEventHandler(ezDelegate<void (const ezDocumentObjectTreeStructureEvent&)>(&ezSelectionManager::TreeEventHandler, this));
 
   }
   else
   {
-    m_pDocument->GetObjectTree()->m_Events.RemoveEventHandler(ezDelegate<void (const ezDocumentObjectTreeEvent&)>(&ezSelectionManager::TreeEventHandler, this));
+    m_pDocument->GetObjectTree()->m_StructureEvents.RemoveEventHandler(ezDelegate<void (const ezDocumentObjectTreeStructureEvent&)>(&ezSelectionManager::TreeEventHandler, this));
   }
 
   m_pDocument = pDocument;
 }
 
-void ezSelectionManager::TreeEventHandler(const ezDocumentObjectTreeEvent& e)
+void ezSelectionManager::TreeEventHandler(const ezDocumentObjectTreeStructureEvent& e)
 {
   switch (e.m_EventType)
   {
-  case ezDocumentObjectTreeEvent::Type::BeforeObjectRemoved:
+  case ezDocumentObjectTreeStructureEvent::Type::BeforeObjectRemoved:
     RemoveObject(e.m_pObject);
     break;
   default:

@@ -18,7 +18,6 @@ public: // Properties
   ezReflectedTypeHandle m_hType;
   ezUuid m_Parent;
   ezInt32 m_iChildIndex;
-  ezVariant m_Variant;
 
 private:
   virtual ezStatus Do(bool bRedo) override;
@@ -49,3 +48,57 @@ private:
   ezInt32 m_iChildIndex;
   ezDocumentObjectBase* m_pObject;
 };
+
+
+class EZ_TOOLSFOUNDATION_DLL ezMoveObjectCommand : public ezCommandBase
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezMoveObjectCommand);
+
+public:
+  ezMoveObjectCommand();
+
+public: // Properties
+  ezUuid m_Object;
+  ezUuid m_NewParent;
+  ezInt32 m_iNewChildIndex;
+
+private:
+  virtual ezStatus Do(bool bRedo) override;
+  virtual ezStatus Undo() override;
+  virtual void Cleanup(CommandState state) override { }
+
+private:
+  ezDocumentObjectBase* m_pObject;
+  ezDocumentObjectBase* m_pOldParent;
+  ezDocumentObjectBase* m_pNewParent;
+  ezInt32 m_iOldChildIndex;
+};
+
+class EZ_TOOLSFOUNDATION_DLL ezSetObjectPropertyCommand : public ezCommandBase
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezSetObjectPropertyCommand);
+
+public:
+  ezSetObjectPropertyCommand();
+
+public: // Properties
+  ezUuid m_Object;
+  ezVariant m_NewValue;
+  bool m_bEditorProperty;
+
+  const char* GetPropertyPath() const { return m_sPropertyPath; }
+  void SetPropertyPath(const char* szPath) { m_sPropertyPath = szPath; }
+
+private:
+  virtual ezStatus Do(bool bRedo) override;
+  virtual ezStatus Undo() override;
+  virtual void Cleanup(CommandState state) override { }
+
+private:
+  ezDocumentObjectBase* m_pObject;
+  ezVariant m_OldValue;
+  ezString m_sPropertyPath;
+};
+
+
+

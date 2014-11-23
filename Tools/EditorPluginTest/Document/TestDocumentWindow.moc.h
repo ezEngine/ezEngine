@@ -40,13 +40,16 @@ public:
   ezTestDocumentWindow(ezDocumentBase* pDocument);
   ~ezTestDocumentWindow();
 
+protected:
+  void keyPressEvent(QKeyEvent* e) override;
+
 private slots:
   void SlotRestartEngineProcess();
 
 private:
   virtual void InternalRedraw() override;
   void EngineViewProcessEventHandler(const ezEditorEngineProcessConnection::Event& e);
-  void DocumentTreeEventHandler(const ezDocumentObjectTreeEvent& e);
+  void DocumentTreeEventHandler(const ezDocumentObjectTreeStructureEvent& e);
 
   void SendRedrawMsg();
 

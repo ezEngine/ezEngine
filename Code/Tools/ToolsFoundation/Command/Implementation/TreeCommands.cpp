@@ -7,13 +7,29 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAddObjectCommand, ezCommandBase, 1, ezRTTIDefa
     EZ_MEMBER_PROPERTY("ParentGuid", m_Parent),
     EZ_MEMBER_PROPERTY("ChildIndex", m_iChildIndex),
     EZ_ACCESSOR_PROPERTY("Type", GetType, SetType),
-    EZ_MEMBER_PROPERTY("Variant", m_Variant),
   EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRemoveObjectCommand, ezCommandBase, 1, ezRTTIDefaultAllocator<ezRemoveObjectCommand>);
   EZ_BEGIN_PROPERTIES
     EZ_MEMBER_PROPERTY("ObjectGuid", m_Object),
+  EZ_END_PROPERTIES
+EZ_END_DYNAMIC_REFLECTED_TYPE();
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMoveObjectCommand, ezCommandBase, 1, ezRTTIDefaultAllocator<ezMoveObjectCommand>);
+  EZ_BEGIN_PROPERTIES
+    EZ_MEMBER_PROPERTY("ObjectGuid", m_Object),
+    EZ_MEMBER_PROPERTY("NewParentGuid", m_NewParent),
+    EZ_MEMBER_PROPERTY("NewChildIndex", m_iNewChildIndex),
+  EZ_END_PROPERTIES
+EZ_END_DYNAMIC_REFLECTED_TYPE();
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSetObjectPropertyCommand, ezCommandBase, 1, ezRTTIDefaultAllocator<ezSetObjectPropertyCommand>);
+  EZ_BEGIN_PROPERTIES
+    EZ_MEMBER_PROPERTY("ObjectGuid", m_Object),
+    EZ_MEMBER_PROPERTY("NewValue", m_NewValue),
+    EZ_MEMBER_PROPERTY("EditorProperty", m_bEditorProperty),
+    EZ_ACCESSOR_PROPERTY("PropertyPath", GetPropertyPath, SetPropertyPath),
   EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
@@ -34,7 +50,6 @@ ezAddObjectCommand::ezAddObjectCommand() :
   m_iChildIndex(-1),
   m_pObject(nullptr)
 {
-  m_Variant = ezColor::GetCornflowerBlue(); // The original!
 }
 
 ezStatus ezAddObjectCommand::Do(bool bRedo)
@@ -145,3 +160,130 @@ void ezRemoveObjectCommand::Cleanup(CommandState state)
 
 }
 
+ezMoveObjectCommand::ezMoveObjectCommand()
+{
+  m_pObject = nullptr;
+  m_pOldParent = nullptr;
+  m_pNewParent = nullptr;
+  m_iOldChildIndex = -1;
+  m_iNewChildIndex = -1;
+}
+
+ezStatus ezMoveObjectCommand::Do(bool bRedo)
+{
+  ezDocumentBase* pDocument = GetDocument();
+
+  if (!bRedo)
+  {
+    {
+      m_pObject = pDocument->GetObjectTree()->GetObject(m_Object);
+      if (m_pObject == nullptr)
+        return ezStatus(EZ_FAILURE, "Move Object: The given object does not exist!");
+    }
+
+    if (m_NewParent.IsValid())
+    {
+      m_pNewParent = pDocument->GetObjectTree()->GetObject(m_NewParent);
+      if (m_pNewParent == nullptr)
+        return ezStatus(EZ_FAILURE, "Move Object: The new parent does not exist!");
+    }
+
+    m_pOldParent = const_cast<ezDocumentObjectBase*>(m_pObject->GetParent());
+    m_iOldChildIndex = m_pOldParent->GetChildIndex(m_pObject);
+
+    if (!pDocument->GetObjectManager()->CanMove(m_pObject, m_pNewParent, m_iNewChildIndex))
+    {
+      return ezStatus(EZ_FAILURE, "Move Object: Cannot move object to the new location.");
+    }
+  }
+
+  pDocument->GetObjectTree()->MoveObject(m_pObject, m_pNewParent, m_iNewChildIndex);
+  return ezStatus(EZ_SUCCESS);
+}
+
+ezStatus ezMoveObjectCommand::Undo()
+{
+  ezDocumentBase* pDocument = GetDocument();
+
+  if (!pDocument->GetObjectManager()->CanMove(m_pObject, m_pOldParent, m_iOldChildIndex))
+  {
+    return ezStatus(EZ_FAILURE, "Move Object: Cannot move object to the old location.");
+  }
+
+  pDocument->GetObjectTree()->MoveObject(m_pObject, m_pOldParent, m_iOldChildIndex);
+
+  return ezStatus(EZ_SUCCESS);
+}
+
+
+
+
+
+ezSetObjectPropertyCommand::ezSetObjectPropertyCommand()
+{
+  m_bEditorProperty = false;
+  m_pObject = nullptr;
+}
+
+ezStatus ezSetObjectPropertyCommand::Do(bool bRedo)
+{
+  ezDocumentBase* pDocument = GetDocument();
+
+  if (!bRedo)
+  {
+    if (m_Object.IsValid())
+    {
+      m_pObject = pDocument->GetObjectTree()->GetObject(m_Object);
+      if (m_pObject == nullptr)
+        return ezStatus(EZ_FAILURE, "Set Property: The given object does not exist!");
+    }
+    else
+      return ezStatus(EZ_FAILURE, "Set Property: The given object does not exist!");
+
+    if (m_bEditorProperty)
+    {
+      m_OldValue = m_pObject->GetEditorTypeAccessor().GetValue(m_sPropertyPath);
+    }
+    else
+    {
+      m_OldValue = m_pObject->GetTypeAccessor().GetValue(m_sPropertyPath);
+    }
+  }
+
+  if (!m_pObject->GetTypeAccessor().SetValue(m_sPropertyPath, m_NewValue))
+  {
+    ezStringBuilder s;
+    s.Format("Set Property: The property '%s' does not exist", m_sPropertyPath.GetData());
+    return ezStatus(EZ_FAILURE, s);
+  }
+
+  ezDocumentObjectTreePropertyEvent e;
+  e.m_bEditorProperty = m_bEditorProperty;
+  e.m_pObject = m_pObject;
+  e.m_NewValue = m_NewValue;
+  e.m_sPropertyPath = m_sPropertyPath;
+
+  pDocument->GetObjectTree()->m_PropertyEvents.Broadcast(e);
+
+  return ezStatus(EZ_SUCCESS);
+}
+
+ezStatus ezSetObjectPropertyCommand::Undo()
+{
+  if (!m_pObject->GetTypeAccessor().SetValue(m_sPropertyPath, m_OldValue))
+  {
+    ezStringBuilder s;
+    s.Format("Set Property: The property '%s' does not exist", m_sPropertyPath.GetData());
+    return ezStatus(EZ_FAILURE, s);
+  }
+
+  ezDocumentObjectTreePropertyEvent e;
+  e.m_bEditorProperty = m_bEditorProperty;
+  e.m_pObject = m_pObject;
+  e.m_NewValue = m_OldValue;
+  e.m_sPropertyPath = m_sPropertyPath;
+
+  GetDocument()->GetObjectTree()->m_PropertyEvents.Broadcast(e);
+
+  return ezStatus(EZ_SUCCESS);
+}

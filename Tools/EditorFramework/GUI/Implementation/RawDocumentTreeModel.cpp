@@ -14,21 +14,21 @@ ezRawDocumentTreeModel::ezRawDocumentTreeModel(const ezDocumentObjectTree* pTree
 {
   m_pDocumentTree = pTree;
 
-  m_pDocumentTree->m_Events.AddEventHandler(ezDelegate<void (const ezDocumentObjectTreeEvent&)>(&ezRawDocumentTreeModel::TreeEventHandler, this));
+  m_pDocumentTree->m_StructureEvents.AddEventHandler(ezDelegate<void (const ezDocumentObjectTreeStructureEvent&)>(&ezRawDocumentTreeModel::TreeEventHandler, this));
 
   
 }
 
 ezRawDocumentTreeModel::~ezRawDocumentTreeModel()
 {
-  m_pDocumentTree->m_Events.RemoveEventHandler(ezDelegate<void (const ezDocumentObjectTreeEvent&)>(&ezRawDocumentTreeModel::TreeEventHandler, this));
+  m_pDocumentTree->m_StructureEvents.RemoveEventHandler(ezDelegate<void (const ezDocumentObjectTreeStructureEvent&)>(&ezRawDocumentTreeModel::TreeEventHandler, this));
 }
 
-void ezRawDocumentTreeModel::TreeEventHandler(const ezDocumentObjectTreeEvent& e)
+void ezRawDocumentTreeModel::TreeEventHandler(const ezDocumentObjectTreeStructureEvent& e)
 {
   switch (e.m_EventType)
   {
-  case ezDocumentObjectTreeEvent::Type::BeforeObjectAdded:
+  case ezDocumentObjectTreeStructureEvent::Type::BeforeObjectAdded:
     {
       ezInt32 iIndex = (ezInt32)e.m_uiNewChildIndex;
       if (e.m_pNewParent == m_pDocumentTree->GetRootObject())
@@ -37,30 +37,30 @@ void ezRawDocumentTreeModel::TreeEventHandler(const ezDocumentObjectTreeEvent& e
         beginInsertRows(ComputeModelIndex(e.m_pNewParent), iIndex, iIndex);
     }
     break;
-  case ezDocumentObjectTreeEvent::Type::AfterObjectAdded:
+  case ezDocumentObjectTreeStructureEvent::Type::AfterObjectAdded:
     {
       endInsertRows();
     }
     break;
-  case ezDocumentObjectTreeEvent::Type::BeforeObjectRemoved:
+  case ezDocumentObjectTreeStructureEvent::Type::BeforeObjectRemoved:
     {
       ezInt32 iIndex = ComputeIndex(e.m_pObject);
 
       beginRemoveRows(ComputeParent(e.m_pObject), iIndex, iIndex);
     }
     break;
-  case ezDocumentObjectTreeEvent::Type::AfterObjectRemoved:
+  case ezDocumentObjectTreeStructureEvent::Type::AfterObjectRemoved:
     {
       endRemoveRows();
     }
     break;
-  case ezDocumentObjectTreeEvent::Type::BeforeObjectMoved:
+  case ezDocumentObjectTreeStructureEvent::Type::BeforeObjectMoved:
     {
       ezInt32 iIndex = ComputeIndex(e.m_pObject);
       beginMoveRows(ComputeModelIndex(e.m_pPreviousParent), iIndex, iIndex, ComputeModelIndex(e.m_pNewParent), e.m_uiNewChildIndex);
     }
     break;
-  case ezDocumentObjectTreeEvent::Type::AfterObjectMoved:
+  case ezDocumentObjectTreeStructureEvent::Type::AfterObjectMoved:
     {
       endMoveRows();
     }
@@ -233,11 +233,23 @@ bool ezRawDocumentTreeModel::dropMimeData(const QMimeData* data, Qt::DropAction 
       }
     }
 
+    auto pDoc = m_pDocumentTree->GetDocument();
+    auto pHistory = pDoc->GetCommandHistory();
+    auto pTrans = pHistory->StartTransaction();
+
     for (ezUInt32 i = 0; i < Dragged.GetCount(); ++i)
     {
-      if (m_pDocumentTree->GetDocument()->GetObjectManager()->CanMove(Dragged[i], pNewParent, row))
-        ((ezDocumentObjectTree*) m_pDocumentTree)->MoveObject(Dragged[i], pNewParent, row);
+      ezMoveObjectCommand cmd;
+      cmd.m_Object = Dragged[i]->GetGuid();
+      cmd.m_iNewChildIndex = row;
+
+      if (pNewParent)
+        cmd.m_NewParent = pNewParent->GetGuid();
+
+      pTrans->AddCommand(cmd);
     }
+
+    pHistory->EndTransaction(false);
 
     return true;
   }

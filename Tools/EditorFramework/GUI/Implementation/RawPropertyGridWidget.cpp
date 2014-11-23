@@ -1,8 +1,11 @@
 #include <PCH.h>
 #include <EditorFramework/GUI/RawPropertyGridWidget.h>
 #include <EditorFramework/GUI/PropertyEditorBaseWidget.moc.h>
+#include <EditorFramework/EditorGUI.moc.h>
 #include <ToolsFoundation/Reflection/ToolsReflectionUtils.h>
 #include <ToolsFoundation/Document/Document.h>
+#include <ToolsFoundation/Command/TreeCommands.h>
+#include <ToolsFoundation/Reflection/ToolsReflectionUtils.h>
 #include <QPushButton>
 #include <QGroupBox>
 #include <QScrollArea>
@@ -58,12 +61,35 @@ void ezRawPropertyGridWidget::SelectionEventHandler(const ezSelectionManager::Ev
 
 void ezRawPropertyGridWidget::EditorPropertyChangedHandler(const ezPropertyEditorBaseWidget::EventData& ed)
 {
-  const_cast<ezIReflectedTypeAccessor&>(m_Selection[0]->GetEditorTypeAccessor()).SetValue(*ed.m_pPropertyPath, ed.m_Value);
+  ezSetObjectPropertyCommand cmd;
+  cmd.m_bEditorProperty = true;
+  cmd.m_Object = m_Selection[0]->GetGuid(); // TODO: Multi selection
+  cmd.m_NewValue = ed.m_Value;
+  cmd.SetPropertyPath(ezToolsReflectionUtils::GetStringFromPropertyPath(*ed.m_pPropertyPath));
+
+  auto transaction = m_pDocument->GetCommandHistory()->StartTransaction();
+  ezStatus res = transaction->AddCommand(cmd);
+
+  ezEditorGUI::GetInstance()->MessageBoxStatus(res, "Changing the property failed.");
+
+  m_pDocument->GetCommandHistory()->EndTransaction(res.m_Result.Failed());
 }
 
 void ezRawPropertyGridWidget::ObjectPropertyChangedHandler(const ezPropertyEditorBaseWidget::EventData& ed)
 {
-  const_cast<ezIReflectedTypeAccessor&>(m_Selection[0]->GetTypeAccessor()).SetValue(*ed.m_pPropertyPath, ed.m_Value);
+  ezSetObjectPropertyCommand cmd;
+  cmd.m_bEditorProperty = false;
+  cmd.m_Object = m_Selection[0]->GetGuid(); // TODO: Multi selection
+  cmd.m_NewValue = ed.m_Value;
+  cmd.SetPropertyPath(ezToolsReflectionUtils::GetStringFromPropertyPath(*ed.m_pPropertyPath));
+
+  auto transaction = m_pDocument->GetCommandHistory()->StartTransaction();
+  ezStatus res = transaction->AddCommand(cmd);
+
+  ezEditorGUI::GetInstance()->MessageBoxStatus(res, "Changing the property failed.");
+
+  m_pDocument->GetCommandHistory()->EndTransaction(res.m_Result.Failed());
+
 }
 
 void ezRawPropertyGridWidget::BuildUI(const ezIReflectedTypeAccessor& et, const ezReflectedType* pType, ezPropertyPath& ParentPath, QLayout* pLayout, bool bEditorProp)
@@ -218,6 +244,7 @@ void ezRawPropertyGridWidget::SetSelection(const ezDeque<const ezDocumentObjectB
     m_pGroups[1]->setLayout(pLayout1);
   }
 
+   // TODO: Multi selection
   ezPropertyPath path;
   BuildUI(m_Selection[0]->GetEditorTypeAccessor(), m_Selection[0]->GetEditorTypeAccessor().GetReflectedTypeHandle().GetType(), path, m_pGroups[0]->layout(), true);
   BuildUI(m_Selection[0]->GetTypeAccessor(), m_Selection[0]->GetTypeAccessor().GetReflectedTypeHandle().GetType(), path, m_pGroups[1]->layout(), false);

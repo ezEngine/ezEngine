@@ -36,16 +36,10 @@ ezReflectedTypeStorageAccessor::~ezReflectedTypeStorageAccessor()
 
 const ezVariant ezReflectedTypeStorageAccessor::GetValue(const ezPropertyPath& path) const
 {
-  EZ_ASSERT(path.GetCount() > 0, "Can't set a property with an empty path!");
-  ezStringBuilder pathBuilder(path[0]);
-  const ezUInt32 pathLength = path.GetCount();
-  for (ezUInt32 i = 1; i < pathLength; ++i)
-  {
-    pathBuilder.Append("/", path[i]);
-  }
+  ezString sPathString = ezToolsReflectionUtils::GetStringFromPropertyPath(path);
 
   ezReflectedTypeStorageManager::ReflectedTypeStorageMapping::StorageInfo* storageInfo = nullptr;
-  if (m_pMapping->m_PathToStorageInfoTable.TryGetValue(ezString(pathBuilder.GetData()), storageInfo))
+  if (m_pMapping->m_PathToStorageInfoTable.TryGetValue(sPathString, storageInfo))
   {
     if (storageInfo->m_Type == ezVariant::Type::Invalid)
       return ezVariant();
@@ -57,16 +51,10 @@ const ezVariant ezReflectedTypeStorageAccessor::GetValue(const ezPropertyPath& p
 
 bool ezReflectedTypeStorageAccessor::SetValue(const ezPropertyPath& path, const ezVariant& value)
 {
-  EZ_ASSERT(path.GetCount() > 0, "Can't set a property with an empty path!");
-  ezStringBuilder pathBuilder(path[0]);
-  const ezUInt32 pathLength = path.GetCount();
-  for (ezUInt32 i = 1; i < pathLength; ++i)
-  {
-    pathBuilder.Append("/", path[i]);
-  }
+  ezString sPathString = ezToolsReflectionUtils::GetStringFromPropertyPath(path);
 
   ezReflectedTypeStorageManager::ReflectedTypeStorageMapping::StorageInfo* storageInfo = nullptr;
-  if (m_pMapping->m_PathToStorageInfoTable.TryGetValue(ezString(pathBuilder.GetData()), storageInfo))
+  if (m_pMapping->m_PathToStorageInfoTable.TryGetValue(sPathString, storageInfo))
   {
     // We are lenient here regarding the type, as we may have stored values in the undo-redo stack
     // that may have a different type now as someone reloaded the type information and replaced a type.

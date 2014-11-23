@@ -43,43 +43,43 @@ void ezDocumentObjectTree::AddObject(ezDocumentObjectBase* pObject, ezDocumentOb
 
   EZ_ASSERT((ezUInt32)iChildIndex <= pParent->m_Children.GetCount(), "Child index to add to is out of bounds of the parent's children!");
 
-  ezDocumentObjectTreeEvent e;
+  ezDocumentObjectTreeStructureEvent e;
   e.m_pObject = pObject;
   e.m_pPreviousParent = nullptr;
   e.m_pNewParent = pParent;
   e.m_uiNewChildIndex = (ezUInt32)iChildIndex;
 
-  e.m_EventType = ezDocumentObjectTreeEvent::Type::BeforeObjectAdded;
-  m_Events.Broadcast(e);
+  e.m_EventType = ezDocumentObjectTreeStructureEvent::Type::BeforeObjectAdded;
+  m_StructureEvents.Broadcast(e);
 
   pObject->m_pParent = pParent;
   pParent->m_Children.Insert(pObject, (ezUInt32)iChildIndex);
 
   RecursiveAddGuids(pObject);
  
-  e.m_EventType = ezDocumentObjectTreeEvent::Type::AfterObjectAdded;
-  m_Events.Broadcast(e);
+  e.m_EventType = ezDocumentObjectTreeStructureEvent::Type::AfterObjectAdded;
+  m_StructureEvents.Broadcast(e);
 }
 
 void ezDocumentObjectTree::RemoveObject(ezDocumentObjectBase* pObject)
 {
   EZ_ASSERT(m_pDocument->GetObjectManager()->CanRemove(pObject), "Trying to execute invalid remove!");
 
-  ezDocumentObjectTreeEvent e;
+  ezDocumentObjectTreeStructureEvent e;
   e.m_pObject = pObject;
   e.m_pPreviousParent = pObject->m_pParent;
   e.m_pNewParent = nullptr;
 
-  e.m_EventType = ezDocumentObjectTreeEvent::Type::BeforeObjectRemoved;
-  m_Events.Broadcast(e);
+  e.m_EventType = ezDocumentObjectTreeStructureEvent::Type::BeforeObjectRemoved;
+  m_StructureEvents.Broadcast(e);
 
   pObject->m_pParent->m_Children.Remove(pObject);
   pObject->m_pParent = nullptr;
 
   RecursiveRemoveGuids(pObject);
 
-  e.m_EventType = ezDocumentObjectTreeEvent::Type::AfterObjectRemoved;
-  m_Events.Broadcast(e);
+  e.m_EventType = ezDocumentObjectTreeStructureEvent::Type::AfterObjectRemoved;
+  m_StructureEvents.Broadcast(e);
 }
 
 void ezDocumentObjectTree::MoveObject(ezDocumentObjectBase* pObject, ezDocumentObjectBase* pNewParent, ezInt32 iChildIndex)
@@ -94,13 +94,13 @@ void ezDocumentObjectTree::MoveObject(ezDocumentObjectBase* pObject, ezDocumentO
 
   EZ_ASSERT((ezUInt32)iChildIndex <= pNewParent->m_Children.GetCount(), "Child index to insert to is out of bounds of the new parent's children!");
 
-  ezDocumentObjectTreeEvent e;
+  ezDocumentObjectTreeStructureEvent e;
   e.m_pObject = pObject;
   e.m_pPreviousParent = pObject->m_pParent;
   e.m_pNewParent = pNewParent;
   e.m_uiNewChildIndex = (ezUInt32)iChildIndex;
-  e.m_EventType = ezDocumentObjectTreeEvent::Type::BeforeObjectMoved;
-  m_Events.Broadcast(e);
+  e.m_EventType = ezDocumentObjectTreeStructureEvent::Type::BeforeObjectMoved;
+  m_StructureEvents.Broadcast(e);
 
 
   if (pNewParent == pObject->m_pParent)
@@ -120,8 +120,8 @@ void ezDocumentObjectTree::MoveObject(ezDocumentObjectBase* pObject, ezDocumentO
 
 
 
-  e.m_EventType = ezDocumentObjectTreeEvent::Type::AfterObjectMoved;
-  m_Events.Broadcast(e);
+  e.m_EventType = ezDocumentObjectTreeStructureEvent::Type::AfterObjectMoved;
+  m_StructureEvents.Broadcast(e);
 }
 
 const ezDocumentObjectBase* ezDocumentObjectTree::GetObject(const ezUuid& guid) const

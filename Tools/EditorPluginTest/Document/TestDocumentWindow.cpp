@@ -11,6 +11,7 @@
 #include <qlayout.h>
 #include <Foundation/Reflection/ReflectionUtils.h>
 #include <Core/World/GameObject.h>
+#include <QKeyEvent>
 
 ezTestDocumentWindow::ezTestDocumentWindow(ezDocumentBase* pDocument) : ezDocumentWindow(pDocument)
 {
@@ -37,17 +38,17 @@ ezTestDocumentWindow::ezTestDocumentWindow(ezDocumentBase* pDocument) : ezDocume
   m_pEngineView = ezEditorEngineProcessConnection::GetInstance()->CreateEngineConnection(pDocument);
   ezEditorEngineProcessConnection::s_Events.AddEventHandler(ezDelegate<void (const ezEditorEngineProcessConnection::Event&)>(&ezTestDocumentWindow::EngineViewProcessEventHandler, this));
 
-  GetDocument()->GetObjectTree()->m_Events.AddEventHandler(ezDelegate<void (const ezDocumentObjectTreeEvent&)>(&ezTestDocumentWindow::DocumentTreeEventHandler, this));
+  GetDocument()->GetObjectTree()->m_StructureEvents.AddEventHandler(ezDelegate<void (const ezDocumentObjectTreeStructureEvent&)>(&ezTestDocumentWindow::DocumentTreeEventHandler, this));
 }
 
 ezTestDocumentWindow::~ezTestDocumentWindow()
 {
-  GetDocument()->GetObjectTree()->m_Events.RemoveEventHandler(ezDelegate<void (const ezDocumentObjectTreeEvent&)>(&ezTestDocumentWindow::DocumentTreeEventHandler, this));
+  GetDocument()->GetObjectTree()->m_StructureEvents.RemoveEventHandler(ezDelegate<void (const ezDocumentObjectTreeStructureEvent&)>(&ezTestDocumentWindow::DocumentTreeEventHandler, this));
   ezEditorEngineProcessConnection::s_Events.RemoveEventHandler(ezDelegate<void (const ezEditorEngineProcessConnection::Event&)>(&ezTestDocumentWindow::EngineViewProcessEventHandler, this));
   ezEditorEngineProcessConnection::GetInstance()->DestroyEngineConnection(m_pEngineView);
 }
 
-void ezTestDocumentWindow::DocumentTreeEventHandler(const ezDocumentObjectTreeEvent& e)
+void ezTestDocumentWindow::DocumentTreeEventHandler(const ezDocumentObjectTreeStructureEvent& e)
 {
   ezEngineProcessEntityMsg msg;
   msg.m_DocumentGuid = GetDocument()->GetGuid();
@@ -63,27 +64,27 @@ void ezTestDocumentWindow::DocumentTreeEventHandler(const ezDocumentObjectTreeEv
 
   switch (e.m_EventType)
   {
-  case ezDocumentObjectTreeEvent::Type::AfterObjectAdded:
+  case ezDocumentObjectTreeStructureEvent::Type::AfterObjectAdded:
     {
       msg.m_iMsgType = ezEngineProcessEntityMsg::ObjectAdded;
     }
     break;
 
-  case ezDocumentObjectTreeEvent::Type::AfterObjectMoved:
+  case ezDocumentObjectTreeStructureEvent::Type::AfterObjectMoved:
     {
       msg.m_iMsgType = ezEngineProcessEntityMsg::ObjectMoved;
     }
     break;
 
-  case ezDocumentObjectTreeEvent::Type::BeforeObjectRemoved:
+  case ezDocumentObjectTreeStructureEvent::Type::BeforeObjectRemoved:
     {
       msg.m_iMsgType = ezEngineProcessEntityMsg::ObjectRemoved;
     }
     break;
 
-  case ezDocumentObjectTreeEvent::Type::AfterObjectRemoved:
-  case ezDocumentObjectTreeEvent::Type::BeforeObjectAdded:
-  case ezDocumentObjectTreeEvent::Type::BeforeObjectMoved:
+  case ezDocumentObjectTreeStructureEvent::Type::AfterObjectRemoved:
+  case ezDocumentObjectTreeStructureEvent::Type::BeforeObjectAdded:
+  case ezDocumentObjectTreeStructureEvent::Type::BeforeObjectMoved:
     return;
 
   default:
@@ -136,3 +137,29 @@ void ezTestDocumentWindow::SendRedrawMsg()
 
   m_pEngineView->SendMessage(&msg);
 }
+
+void ezTestDocumentWindow::keyPressEvent(QKeyEvent* e)
+{
+  if (e->modifiers() == Qt::KeyboardModifier::ControlModifier)
+  {
+    if (e->key() == Qt::Key_Z)
+    {
+      if (GetDocument()->GetCommandHistory()->CanUndo())
+      {
+        GetDocument()->GetCommandHistory()->Undo();
+        return;
+      }
+    }
+    else if (e->key() == Qt::Key_Y)
+    {
+      if (GetDocument()->GetCommandHistory()->CanRedo())
+      {
+        GetDocument()->GetCommandHistory()->Redo();
+        return;
+      }
+    }
+  }
+
+  ezDocumentWindow::keyPressEvent(e);
+}
+
