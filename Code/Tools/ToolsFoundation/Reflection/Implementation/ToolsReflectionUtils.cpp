@@ -3,6 +3,7 @@
 #include <ToolsFoundation/Reflection/ToolsReflectionUtils.h>
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/IO/ExtendedJSONWriter.h>
+#include <Foundation/IO/ExtendedJSONReader.h>
 #include <ToolsFoundation/Reflection/IReflectedTypeAccessor.h>
 
 
@@ -308,4 +309,71 @@ void ezToolsReflectionUtils::WriteObjectToJSON(ezStreamWriterBase& stream, const
   ezPropertyPath path;
   WriteJSONObject(writer, accessor, accessor.GetReflectedTypeHandle().GetType(), path, nullptr);
 }
+
+static void ReadJSONObject(const ezVariantDictionary& root, ezIReflectedTypeAccessor& et, ezPropertyPath& ParentPath)
+{
+  ezVariant* pVal;
+
+  if (!root.TryGetValue("p", pVal) || !pVal->IsA<ezVariantArray>())
+    return;
+
+  ezVariantArray va = pVal->ConvertTo<ezVariantArray>();
+  
+  for (ezUInt32 prop = 0; prop < va.GetCount(); ++prop)
+  {
+    if (va[prop].GetType() != ezVariant::Type::VariantDictionary)
+      continue;
+
+    const ezVariantDictionary obj = va[prop].ConvertTo<ezVariantDictionary>();
+
+    ezVariant* pName;
+    if (!obj.TryGetValue("n", pName))
+      continue;
+
+    ezVariant* pType;
+    if (!obj.TryGetValue("t", pType))
+      continue;
+
+    ezVariant* pValue;
+    if (!obj.TryGetValue("v", pValue))
+      continue;
+
+    ezString sName = pName->ConvertTo<ezString>();
+
+    ParentPath.PushBack(sName);
+
+    const ezString sType = pType->ConvertTo<ezString>();
+
+    if (sType != "$s") // not a struct property
+    {
+      et.SetValue(ParentPath, *pValue);
+    }
+    else
+    {
+      if (!pValue->IsA<ezVariantDictionary>())
+      {
+        ParentPath.PopBack();
+        continue;
+      }
+
+      ReadJSONObject(pValue->ConvertTo<ezVariantDictionary>(), et, ParentPath);
+    }
+
+    ParentPath.PopBack();
+  }
+}
+
+
+void ezToolsReflectionUtils::ReadObjectPropertiesFromJSON(ezStreamReaderBase& stream, ezIReflectedTypeAccessor& accessor)
+{
+  ezExtendedJSONReader reader;
+  if (reader.Parse(stream).Failed())
+    return;
+
+  const ezVariantDictionary& root = reader.GetTopLevelObject();
+
+  ezPropertyPath path;
+  ReadJSONObject(root, accessor, path);
+}
+
 

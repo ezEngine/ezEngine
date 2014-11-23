@@ -3,6 +3,8 @@
 #include <QMessageBox>
 #include <Foundation/Logging/Log.h>
 #include <ToolsFoundation/Document/Document.h>
+#include <ToolsFoundation/Object/DocumentObjectTree.h>
+#include <ToolsFoundation/Object/DocumentObjectBase.h>
 
 ezEditorEngineProcessConnection* ezEditorEngineProcessConnection::s_pInstance = nullptr;
 ezEvent<const ezEditorEngineProcessConnection::Event&> ezEditorEngineProcessConnection::s_Events;
@@ -128,3 +130,111 @@ void ezEditorEngineConnection::SendMessage(ezEngineProcessMsg* pMessage)
 
   ezEditorEngineProcessConnection::GetInstance()->SendMessage(pMessage);
 }
+
+void ezEditorEngineConnection::SendObjectProperties(const ezDocumentObjectTreePropertyEvent& e)
+{
+  if (e.m_bEditorProperty)
+    return;
+
+  ezEngineProcessEntityMsg msg;
+  msg.m_DocumentGuid = m_pDocument->GetGuid();
+  msg.m_ObjectGuid = e.m_pObject->GetGuid();
+  msg.m_iMsgType = ezEngineProcessEntityMsg::PropertyChanged;
+
+  ezMemoryStreamStorage storage;
+  ezMemoryStreamWriter writer(&storage);
+  ezMemoryStreamReader reader(&storage);
+
+  // TODO: Only write a single property
+  ezToolsReflectionUtils::WriteObjectToJSON(writer, e.m_pObject->GetTypeAccessor());
+
+  ezStringBuilder sData;
+  sData.ReadAll(reader);
+
+  msg.SetObjectData(sData);
+
+  SendMessage(&msg);
+}
+
+void ezEditorEngineConnection::SendDocumentTreeChange(const ezDocumentObjectTreeStructureEvent& e)
+{
+  ezEngineProcessEntityMsg msg;
+  msg.m_DocumentGuid = m_pDocument->GetGuid();
+  msg.m_ObjectGuid = e.m_pObject->GetGuid();
+  msg.m_uiNewChildIndex = e.m_uiNewChildIndex;
+
+  if (e.m_pPreviousParent)
+    msg.m_PreviousParentGuid = e.m_pPreviousParent->GetGuid();
+  if (e.m_pNewParent)
+    msg.m_NewParentGuid = e.m_pNewParent->GetGuid();
+
+  switch (e.m_EventType)
+  {
+  case ezDocumentObjectTreeStructureEvent::Type::AfterObjectAdded:
+    {
+      msg.m_iMsgType = ezEngineProcessEntityMsg::ObjectAdded;
+
+      ezMemoryStreamStorage storage;
+      ezMemoryStreamWriter writer(&storage);
+      ezMemoryStreamReader reader(&storage);
+      ezToolsReflectionUtils::WriteObjectToJSON(writer, e.m_pObject->GetTypeAccessor());
+
+      ezStringBuilder sData;
+      sData.ReadAll(reader);
+
+      msg.SetObjectData(sData);
+    }
+    break;
+
+  case ezDocumentObjectTreeStructureEvent::Type::AfterObjectMoved:
+    {
+      msg.m_iMsgType = ezEngineProcessEntityMsg::ObjectMoved;
+    }
+    break;
+
+  case ezDocumentObjectTreeStructureEvent::Type::BeforeObjectRemoved:
+    {
+      msg.m_iMsgType = ezEngineProcessEntityMsg::ObjectRemoved;
+    }
+    break;
+
+  case ezDocumentObjectTreeStructureEvent::Type::AfterObjectRemoved:
+  case ezDocumentObjectTreeStructureEvent::Type::BeforeObjectAdded:
+  case ezDocumentObjectTreeStructureEvent::Type::BeforeObjectMoved:
+    return;
+
+  default:
+    EZ_REPORT_FAILURE("Unknown event type");
+    return;
+  }
+
+  SendMessage(&msg);
+}
+
+void ezEditorEngineConnection::SendDocument()
+{
+  auto pTree = m_pDocument->GetObjectTree();
+
+  for (auto pChild : pTree->GetRootObject()->GetChildren())
+  {
+    SendObject(pChild);
+  }
+}
+
+void ezEditorEngineConnection::SendObject(const ezDocumentObjectBase* pObject)
+{
+  ezDocumentObjectTreeStructureEvent msg;
+  msg.m_EventType = ezDocumentObjectTreeStructureEvent::Type::AfterObjectAdded;
+  msg.m_pObject = pObject;
+  msg.m_pNewParent = pObject->GetParent();
+  msg.m_pPreviousParent = nullptr;
+  msg.m_uiNewChildIndex = msg.m_pNewParent->GetChildIndex((ezDocumentObjectBase*) pObject);
+
+  SendDocumentTreeChange(msg);
+
+  for (auto pChild : pObject->GetChildren())
+  {
+    SendObject(pChild);
+  }
+}
+

@@ -22,6 +22,22 @@ void RegisterType(const ezRTTI* pRtti)
     RegisterType(pRtti->GetParentType());
 
   ezReflectedTypeDescriptor desc;
+
+  if (pRtti->GetAllocator()->CanAllocate())
+  {
+    void* pObject = pRtti->GetAllocator()->Allocate();
+
+    ezMemoryStreamStorage storage;
+    ezMemoryStreamWriter writer(&storage);
+    ezMemoryStreamReader reader(&storage);
+
+    ezReflectionUtils::WriteObjectToJSON(writer, pRtti, pObject);
+
+    pRtti->GetAllocator()->Deallocate(pObject);
+
+    desc.m_sDefaultInitialization.ReadAll(reader);
+  }
+  
   ezToolsReflectionUtils::GetReflectedTypeDescriptorFromRtti(pRtti, desc);
   ezReflectedTypeManager::RegisterType(desc);
 }

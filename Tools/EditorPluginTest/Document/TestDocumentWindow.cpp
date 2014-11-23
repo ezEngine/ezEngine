@@ -39,69 +39,27 @@ ezTestDocumentWindow::ezTestDocumentWindow(ezDocumentBase* pDocument) : ezDocume
   ezEditorEngineProcessConnection::s_Events.AddEventHandler(ezDelegate<void (const ezEditorEngineProcessConnection::Event&)>(&ezTestDocumentWindow::EngineViewProcessEventHandler, this));
 
   GetDocument()->GetObjectTree()->m_StructureEvents.AddEventHandler(ezDelegate<void (const ezDocumentObjectTreeStructureEvent&)>(&ezTestDocumentWindow::DocumentTreeEventHandler, this));
+  GetDocument()->GetObjectTree()->m_PropertyEvents.AddEventHandler(ezDelegate<void (const ezDocumentObjectTreePropertyEvent&)>(&ezTestDocumentWindow::PropertyEventHandler, this));
+
+  m_pEngineView->SendDocument();
 }
 
 ezTestDocumentWindow::~ezTestDocumentWindow()
 {
+  GetDocument()->GetObjectTree()->m_PropertyEvents.RemoveEventHandler(ezDelegate<void (const ezDocumentObjectTreePropertyEvent&)>(&ezTestDocumentWindow::PropertyEventHandler, this));
   GetDocument()->GetObjectTree()->m_StructureEvents.RemoveEventHandler(ezDelegate<void (const ezDocumentObjectTreeStructureEvent&)>(&ezTestDocumentWindow::DocumentTreeEventHandler, this));
   ezEditorEngineProcessConnection::s_Events.RemoveEventHandler(ezDelegate<void (const ezEditorEngineProcessConnection::Event&)>(&ezTestDocumentWindow::EngineViewProcessEventHandler, this));
   ezEditorEngineProcessConnection::GetInstance()->DestroyEngineConnection(m_pEngineView);
 }
 
+void ezTestDocumentWindow::PropertyEventHandler(const ezDocumentObjectTreePropertyEvent& e)
+{
+  m_pEngineView->SendObjectProperties(e);
+}
+
 void ezTestDocumentWindow::DocumentTreeEventHandler(const ezDocumentObjectTreeStructureEvent& e)
 {
-  ezEngineProcessEntityMsg msg;
-  msg.m_DocumentGuid = GetDocument()->GetGuid();
-  msg.m_ObjectGuid = e.m_pObject->GetGuid();
-  msg.m_uiNewChildIndex = e.m_uiNewChildIndex;
-
-  if (e.m_pPreviousParent)
-    msg.m_PreviousParentGuid = e.m_pPreviousParent->GetGuid();
-  if (e.m_pNewParent)
-    msg.m_NewParentGuid = e.m_pNewParent->GetGuid();
-
-  // TODO lalala
-  ezMemoryStreamStorage storage;
-  ezMemoryStreamWriter writer(&storage);
-  ezMemoryStreamReader reader(&storage);
-  ezToolsReflectionUtils::WriteObjectToJSON(writer, e.m_pObject->GetTypeAccessor());
-
-  ezStringBuilder sData;
-  sData.ReadAll(reader);
-
-  msg.SetObjectData(sData);
-
-  switch (e.m_EventType)
-  {
-  case ezDocumentObjectTreeStructureEvent::Type::AfterObjectAdded:
-    {
-      msg.m_iMsgType = ezEngineProcessEntityMsg::ObjectAdded;
-    }
-    break;
-
-  case ezDocumentObjectTreeStructureEvent::Type::AfterObjectMoved:
-    {
-      msg.m_iMsgType = ezEngineProcessEntityMsg::ObjectMoved;
-    }
-    break;
-
-  case ezDocumentObjectTreeStructureEvent::Type::BeforeObjectRemoved:
-    {
-      msg.m_iMsgType = ezEngineProcessEntityMsg::ObjectRemoved;
-    }
-    break;
-
-  case ezDocumentObjectTreeStructureEvent::Type::AfterObjectRemoved:
-  case ezDocumentObjectTreeStructureEvent::Type::BeforeObjectAdded:
-  case ezDocumentObjectTreeStructureEvent::Type::BeforeObjectMoved:
-    return;
-
-  default:
-    EZ_REPORT_FAILURE("Unknown event type");
-    return;
-  }
-
-  m_pEngineView->SendMessage(&msg);
+  m_pEngineView->SendDocumentTreeChange(e);
 }
 
 void ezTestDocumentWindow::EngineViewProcessEventHandler(const ezEditorEngineProcessConnection::Event& e)
@@ -129,6 +87,8 @@ void ezTestDocumentWindow::EngineViewProcessEventHandler(const ezEditorEnginePro
 void ezTestDocumentWindow::SlotRestartEngineProcess()
 {
   ezEditorEngineProcessConnection::GetInstance()->RestartProcess();
+
+  m_pEngineView->SendDocument();
 }
 
 void ezTestDocumentWindow::InternalRedraw()

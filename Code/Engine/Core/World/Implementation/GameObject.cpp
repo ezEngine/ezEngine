@@ -1,12 +1,45 @@
 #include <Core/PCH.h>
 #include <Core/World/World.h>
 
-EZ_BEGIN_STATIC_REFLECTED_TYPE(ezGameObject, ezNoBase, 1, ezRTTINoAllocator);
+
+// TODO: This is a temporary hack
+ezWorld* g_DummyWorld = nullptr;
+
+class ezGameObjectDummyAllocator : public ezRTTIAllocator
+{
+public:
+  
+  virtual void* Allocate() override
+  {
+    if (g_DummyWorld == nullptr)
+      g_DummyWorld = EZ_DEFAULT_NEW(ezWorld)("Dummy");
+
+    ezGameObject* pObject = nullptr;
+
+    ezGameObjectDesc d;
+    ezGameObjectHandle hObject = g_DummyWorld->CreateObject(d, pObject);
+
+    return pObject;
+  }
+
+  virtual void Deallocate(void* pObject) override
+  {
+    ezGameObject* pGameObject = (ezGameObject*) pObject;
+
+    g_DummyWorld->DeleteObject(pGameObject->GetHandle());
+
+    EZ_DEFAULT_DELETE(g_DummyWorld);
+  }
+};
+
+
+// TODO: Using references for the getters corrupts the stack when a non-reference wrapper function is used
+EZ_BEGIN_STATIC_REFLECTED_TYPE(ezGameObject, ezNoBase, 1, ezGameObjectDummyAllocator);
   EZ_BEGIN_PROPERTIES
     EZ_ACCESSOR_PROPERTY("Name", GetName, SetName),
-    EZ_ACCESSOR_PROPERTY("Position", GetLocalPosition, SetLocalPosition),
-    EZ_ACCESSOR_PROPERTY("Rotation", GetLocalRotation, SetLocalRotation),
-    EZ_ACCESSOR_PROPERTY("Scaling", GetLocalScaling, SetLocalScaling),
+    EZ_ACCESSOR_PROPERTY("Position", GetLocalPositionNoRef, SetLocalPositionNoRef),
+    EZ_ACCESSOR_PROPERTY("Rotation", GetLocalRotationNoRef, SetLocalRotationNoRef),
+    EZ_ACCESSOR_PROPERTY("Scaling", GetLocalScalingNoRef, SetLocalScalingNoRef),
   EZ_END_PROPERTIES
 EZ_END_STATIC_REFLECTED_TYPE();
 

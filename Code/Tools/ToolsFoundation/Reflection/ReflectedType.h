@@ -62,6 +62,7 @@ struct EZ_TOOLSFOUNDATION_DLL ezReflectedTypeDescriptor
   ezString m_sTypeName;
   ezString m_sPluginName;
   ezString m_sParentTypeName;
+  ezString m_sDefaultInitialization;
   ezDynamicArray<ezReflectedPropertyDescriptor> m_Properties;
 };
 
@@ -96,6 +97,7 @@ public:
   const ezReflectedProperty* GetPropertyByName(const char* szPropertyName) const; // [tested]
 
   void GetDependencies(ezSet<ezReflectedTypeHandle>& out_dependencies, bool bTransitive = false) const;
+  const ezString& GetDefaultInitialization() const { return m_sDefaultInitialization; }
 
 private:
   EZ_DISALLOW_COPY_AND_ASSIGN(ezReflectedType);
@@ -107,6 +109,7 @@ private:
   ezHashedString m_sPluginName;
   ezReflectedTypeHandle m_hParentType;
   ezReflectedTypeHandle m_hType;
+  ezString m_sDefaultInitialization;
 
   ezDynamicArray<ezReflectedProperty> m_Properties;
   ezHashTable<const char*, ezUInt32> m_NameToIndex;

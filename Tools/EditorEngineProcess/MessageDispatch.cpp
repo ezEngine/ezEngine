@@ -46,8 +46,6 @@ void ezEditorProcessApp::EventHandlerIPC(const ezProcessCommunication::Event& e)
   {
     ezEngineProcessEntityMsg* pEntityMsg = (ezEngineProcessEntityMsg*) pMsg;
 
-    ezGameObjectHandle hObject;
-
     static ezHashTable<ezUuid, ezGameObjectHandle> g_AllObjects;
 
     const char* szDone = "unknown";
@@ -59,21 +57,12 @@ void ezEditorProcessApp::EventHandlerIPC(const ezProcessCommunication::Event& e)
 
         ezGameObjectDesc d;
         d.m_sName.Assign(ezConversionUtils::ToString(pEntityMsg->m_ObjectGuid).GetData());
-        hObject = pDocumentContext->m_pWorld->CreateObject(d);
 
+        if (pEntityMsg->m_NewParentGuid.IsValid())
+          d.m_Parent = g_AllObjects[pEntityMsg->m_NewParentGuid];
+
+        ezGameObjectHandle hObject = pDocumentContext->m_pWorld->CreateObject(d);
         g_AllObjects[pEntityMsg->m_ObjectGuid] = hObject;
-
-        ezGameObject* pObject;
-        if (pDocumentContext->m_pWorld->TryGetObject(hObject, pObject))
-          ezLog::Info("Added Object %s to world %p", ezConversionUtils::ToString(pEntityMsg->m_ObjectGuid).GetData(), pDocumentContext->m_pWorld);
-        else
-          ezLog::Error("After Create: Couldn't access game object %s in world: %p", ezConversionUtils::ToString(pEntityMsg->m_ObjectGuid).GetData(), pDocumentContext->m_pWorld);
-      }
-      break;
-    case ezEngineProcessEntityMsg::ObjectMoved:
-      {
-        szDone = "Moved";
-        hObject = g_AllObjects[pEntityMsg->m_ObjectGuid];
 
         ezGameObject* pObject;
         if (pDocumentContext->m_pWorld->TryGetObject(hObject, pObject))
@@ -84,15 +73,57 @@ void ezEditorProcessApp::EventHandlerIPC(const ezProcessCommunication::Event& e)
 
           writer.WriteBytes(pEntityMsg->m_sObjectData.GetData(), pEntityMsg->m_sObjectData.GetElementCount());
 
-          //pObject->SetLocalPosition(pEntityMsg->m_vPosition);
           ezReflectionUtils::ReadObjectPropertiesFromJSON(reader, *ezGetStaticRTTI<ezGameObject>(), pObject);
+        }
+      }
+      break;
+
+    case ezEngineProcessEntityMsg::ObjectMoved:
+      {
+        szDone = "Moved";
+
+        ezGameObjectHandle hObject = g_AllObjects[pEntityMsg->m_ObjectGuid];
+
+        ezGameObjectHandle hNewParent;
+        if (pEntityMsg->m_NewParentGuid.IsValid())
+          hNewParent = g_AllObjects[pEntityMsg->m_NewParentGuid];
+
+        ezGameObject* pObject = nullptr;
+        if (pDocumentContext->m_pWorld->TryGetObject(hObject, pObject))
+        {
+          pObject->SetParent(hNewParent);
         }
         else
           ezLog::Error("Couldn't access game object object %s in world %p", ezConversionUtils::ToString(pEntityMsg->m_ObjectGuid).GetData(), pDocumentContext->m_pWorld);
       }
       break;
+
     case ezEngineProcessEntityMsg::ObjectRemoved:
-      szDone = "Removed";
+      {
+        szDone = "Removed";
+
+        pDocumentContext->m_pWorld->DeleteObject(g_AllObjects[pEntityMsg->m_ObjectGuid]);
+      }
+      break;
+
+    case ezEngineProcessEntityMsg::PropertyChanged:
+      {
+        szDone = "Property";
+
+        ezGameObjectHandle hObject = g_AllObjects[pEntityMsg->m_ObjectGuid];
+
+        ezGameObject* pObject;
+        if (pDocumentContext->m_pWorld->TryGetObject(hObject, pObject))
+        {
+          ezMemoryStreamStorage storage;
+          ezMemoryStreamWriter writer(&storage);
+          ezMemoryStreamReader reader(&storage);
+
+          writer.WriteBytes(pEntityMsg->m_sObjectData.GetData(), pEntityMsg->m_sObjectData.GetElementCount());
+
+          ezReflectionUtils::ReadObjectPropertiesFromJSON(reader, *ezGetStaticRTTI<ezGameObject>(), pObject);
+        }
+      }
       break;
     }
 

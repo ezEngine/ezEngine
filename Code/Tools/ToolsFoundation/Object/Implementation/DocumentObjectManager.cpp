@@ -1,6 +1,7 @@
 #include <ToolsFoundation/PCH.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>
 #include <ToolsFoundation/Document/Document.h>
+#include <Foundation/IO/MemoryStream.h>
 
 ezDocumentObjectManagerBase::ezDocumentObjectManagerBase(const ezDocumentBase* pDocument) : m_pDocument(pDocument)
 {
@@ -12,6 +13,16 @@ ezDocumentObjectBase* ezDocumentObjectManagerBase::CreateObject(ezReflectedTypeH
 
   if (pObject)
   {
+    if (!hType.GetType()->GetDefaultInitialization().IsEmpty())
+    {
+      ezMemoryStreamStorage storage;
+      ezMemoryStreamWriter writer(&storage);
+      ezMemoryStreamReader reader(&storage);
+      writer.WriteBytes(hType.GetType()->GetDefaultInitialization().GetData(), hType.GetType()->GetDefaultInitialization().GetElementCount());
+
+      ezToolsReflectionUtils::ReadObjectPropertiesFromJSON(reader, pObject->GetTypeAccessor());
+    }
+
     if (guid.IsValid())
       pObject->m_Guid = guid;
     else

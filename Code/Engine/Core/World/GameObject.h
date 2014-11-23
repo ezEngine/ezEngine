@@ -27,6 +27,7 @@ private:
   friend class ezWorld;
   friend class ezInternal::WorldData;
   friend class ezMemoryUtils;
+  friend class ezGameObjectDummyAllocator; // TODO: This is a temporary hack
 
   ezGameObject();
   ezGameObject(const ezGameObject& other);
@@ -201,7 +202,19 @@ public:
   /// \brief Queues the message for the given phase. The message is processed after the given delay in the corresponding phase.
   void PostMessage(ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay,
     ezObjectMsgRouting::Enum routing = ezObjectMsgRouting::Default);
+
+public:
+  // TODO: The reflection gets stack corruptions with getters that use const references
+
+  void SetLocalPositionNoRef(ezVec3 position) { SetLocalPosition(position); }
+  ezVec3 GetLocalPositionNoRef() const { return GetLocalPosition(); }
   
+  void SetLocalRotationNoRef(ezQuat rotation) { SetLocalRotation(rotation); }
+  ezQuat GetLocalRotationNoRef() const { return GetLocalRotation(); }
+
+  void SetLocalScalingNoRef(ezVec3 scaling) { SetLocalScaling(scaling); }
+  ezVec3 GetLocalScalingNoRef() const { return GetLocalScaling(); }
+
 private:
   friend class ezGameObjectTest;
 

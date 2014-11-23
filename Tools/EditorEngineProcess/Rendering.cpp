@@ -7,16 +7,64 @@
 #include <Foundation/Threading/TaskSystem.h>
 #include <EditorFramework/EngineProcess/EngineProcessDocumentContext.h>
 
+void ezViewContext::RenderObject(ezGameObject* pObject)
+{
+  //const ezVec3 vLocalPos = pObject->GetLocalPosition();
+  const ezVec3 vPos = pObject->GetWorldPosition();
+
+  ezSizeU32 wndsize = GetEditorWindow().GetClientAreaSize();
+
+  ezMat4 ModelRot;
+  ModelRot.SetIdentity();
+  //ModelRot.SetRotationMatrixY(ezAngle::Degree(m_fRotY));
+
+  ezMat4 Model;
+  Model.SetIdentity();
+  Model.SetTranslationMatrix(vPos);
+
+
+  ezMat4 View;
+  View.SetIdentity();
+  View.SetLookAtMatrix(ezVec3(0.5f, 1.5f, 2.0f), ezVec3(0.0f, 0.5f, 0.0f), ezVec3(0.0f, 1.0f, 0.0f));
+
+  ezMat4 Proj;
+  Proj.SetIdentity();
+  Proj.SetPerspectiveProjectionMatrixFromFovY(ezAngle::Degree(80.0f), (float) wndsize.width / (float) wndsize.height, 0.1f, 1000.0f, ezProjectionDepthRange::ZeroToOne);
+
+  ezMat4 ObjectData;
+
+  ObjectData = Proj * View * Model * ModelRot;
+
+  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+  ezGALContext* pContext = pDevice->GetPrimaryContext();
+
+  pContext->UpdateBuffer(m_hCB, 0, &ObjectData, sizeof(ObjectData));
+
+  pContext->SetConstantBuffer(1, m_hCB);
+
+  ezRenderHelper::DrawMeshBuffer(pContext, m_hSphere);
+
+  auto itChild = pObject->GetChildren();
+
+  //while (itChild.IsValid())
+  //{
+  //  RenderObject(&(*itChild));
+
+  //  itChild.Next();
+  //}
+}
+
+
 void ezViewContext::Redraw()
 {
-  ezGALDevice* pDevide = ezGALDevice::GetDefaultDevice();
+  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
   ezInt32 iOwnID = GetViewIndex();
 
-  pDevide->BeginFrame();
+  pDevice->BeginFrame();
 
   // The ezGALContext class is the main interaction point for draw / compute operations
-  ezGALContext* pContext = pDevide->GetPrimaryContext();
+  ezGALContext* pContext = pDevice->GetPrimaryContext();
 
   ezSizeU32 wndsize = GetEditorWindow().GetClientAreaSize();
 
@@ -41,44 +89,15 @@ void ezViewContext::Redraw()
   
     while (it.IsValid())
     {
-      const ezVec3 vPos = it->GetLocalPosition();
-
-      m_fRotY -= 30.0f * 0.05f;
-
-      ezMat4 ModelRot;
-      ModelRot.SetIdentity();
-      //ModelRot.SetRotationMatrixY(ezAngle::Degree(m_fRotY));
-
-      ezMat4 Model;
-      Model.SetIdentity();
-      Model.SetTranslationMatrix(vPos);
-
-
-      ezMat4 View;
-      View.SetIdentity();
-      View.SetLookAtMatrix(ezVec3(0.5f, 1.5f, 2.0f), ezVec3(0.0f, 0.5f, 0.0f), ezVec3(0.0f, 1.0f, 0.0f));
-
-      ezMat4 Proj;
-      Proj.SetIdentity();
-      Proj.SetPerspectiveProjectionMatrixFromFovY(ezAngle::Degree(80.0f), (float) wndsize.width / (float) wndsize.height, 0.1f, 1000.0f, ezProjectionDepthRange::ZeroToOne);
-
-      ezMat4 ObjectData;
-
-      ObjectData = Proj * View * Model * ModelRot;
-
-      pContext->UpdateBuffer(m_hCB, 0, &ObjectData, sizeof(ObjectData));
-
-      pContext->SetConstantBuffer(1, m_hCB);
-
-      ezRenderHelper::DrawMeshBuffer(pContext, m_hSphere);
+      RenderObject(&(*it));
 
       it.Next();
     }
   }
 
-  pDevide->Present(m_hPrimarySwapChain);
+  pDevice->Present(m_hPrimarySwapChain);
 
-  pDevide->EndFrame();
+  pDevice->EndFrame();
 
   ezTaskSystem::FinishFrameTasks();
 }

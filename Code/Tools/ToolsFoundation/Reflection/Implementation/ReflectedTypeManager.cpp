@@ -47,6 +47,8 @@ ezReflectedTypeHandle ezReflectedTypeManager::RegisterType(const ezReflectedType
     pType->m_Dependencies.Insert(hParent);
   }
 
+  pType->m_sDefaultInitialization = desc.m_sDefaultInitialization;
+
   // Convert properties
   const ezUInt32 iCount = desc.m_Properties.GetCount();
   pType->m_Properties.Reserve(iCount);

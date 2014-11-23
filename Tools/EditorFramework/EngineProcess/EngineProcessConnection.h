@@ -6,6 +6,9 @@
 
 class ezEditorEngineConnection;
 class ezDocumentBase;
+class ezDocumentObjectBase;
+struct ezDocumentObjectTreePropertyEvent;
+struct ezDocumentObjectTreeStructureEvent;
 
 class EZ_EDITORFRAMEWORK_DLL ezEditorEngineProcessConnection
 {
@@ -58,10 +61,16 @@ public:
 
   void SendMessage(ezEngineProcessMsg* pMessage);
 
+  void SendObjectProperties(const ezDocumentObjectTreePropertyEvent& e);
+  void SendDocumentTreeChange(const ezDocumentObjectTreeStructureEvent& e);
+  void SendDocument();
+
 private:
   friend class ezEditorEngineProcessConnection;
   ezEditorEngineConnection(ezDocumentBase* pDocument, ezInt32 iEngineViewID) { m_pDocument = pDocument; m_iEngineViewID = iEngineViewID; }
   ~ezEditorEngineConnection() { }
+
+  void SendObject(const ezDocumentObjectBase* pObject);
 
   ezDocumentBase* m_pDocument;
   ezInt32 m_iEngineViewID;

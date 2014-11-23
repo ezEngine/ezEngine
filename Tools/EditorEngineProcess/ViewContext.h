@@ -8,6 +8,8 @@
 #include <RendererCore/ShaderCompiler/ShaderCompiler.h>
 #include <RendererCore/ShaderCompiler/ShaderManager.h>
 
+class ezGameObject;
+
 class ezViewContext : public ezEngineProcessViewContext
 {
 public:
@@ -21,6 +23,8 @@ public:
   void Redraw();
 
 private:
+  void RenderObject(ezGameObject* pObject);
+
   ezGALRenderTargetConfigHandle m_hBBRT;
   ezGALBufferHandle m_hCB;
   ezGALRasterizerStateHandle m_hRasterizerState;

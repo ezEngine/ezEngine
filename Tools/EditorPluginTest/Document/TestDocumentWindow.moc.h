@@ -50,6 +50,7 @@ private:
   virtual void InternalRedraw() override;
   void EngineViewProcessEventHandler(const ezEditorEngineProcessConnection::Event& e);
   void DocumentTreeEventHandler(const ezDocumentObjectTreeStructureEvent& e);
+  void PropertyEventHandler(const ezDocumentObjectTreePropertyEvent& e);
 
   void SendRedrawMsg();
 
