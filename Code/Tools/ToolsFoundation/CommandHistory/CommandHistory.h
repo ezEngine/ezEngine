@@ -7,9 +7,15 @@ class ezCommandHistory;
 
 class EZ_TOOLSFOUNDATION_DLL ezCommandTransaction : public ezCommandBase
 {
+  EZ_ADD_DYNAMIC_REFLECTION(ezCommandTransaction);
+
 public:
+  ezCommandTransaction() { }
+  ~ezCommandTransaction();
+
   virtual ezStatus Do(bool bRedo) override;
   virtual ezStatus Undo() override;
+  virtual void Cleanup(CommandState state) override;
 
   ezStatus AddCommand(ezCommandBase& command);
 
@@ -19,7 +25,6 @@ private:
 
 private:
   ezHybridArray<ezCommandBase*, 8> m_ChildActions;
-  ezHybridArray<ezCommandBase*, 8> m_CreatedActions;
 };
 
 class EZ_TOOLSFOUNDATION_DLL ezCommandHistory
@@ -34,8 +39,7 @@ public:
   bool CanRedo() const;
 
   ezCommandTransaction* StartTransaction();
-  void EndTransaction();
-  void CancelTransaction();
+  void EndTransaction(bool bCancel);
 
 
 private:

@@ -16,6 +16,8 @@ class ezJSONReader;
 /// Thus, any modification must go through a command and the ezCommandHistory is the only class capable of executing commands.
 class EZ_TOOLSFOUNDATION_DLL ezCommandBase : public ezReflectedClass
 {
+  EZ_ADD_DYNAMIC_REFLECTION(ezCommandBase);
+
 public:
   ezCommandBase();
 
@@ -24,9 +26,13 @@ public:
  // bool Serialize(ezJSONWriter& writer) const = 0;
  // bool DeSerialize(ezJSONReader& reader) = 0;
 
+  enum class CommandState { WasDone, WasUndone };
+
 private:
+
   virtual ezStatus Do(bool bRedo) = 0;
   virtual ezStatus Undo() = 0;
+  virtual void Cleanup(CommandState state) = 0;
 
   //virtual bool InternalSerialize(ezJSONWriter& writer) const = 0;
   //virtual bool InternalDeSerialize(ezJSONReader& reader) = 0;

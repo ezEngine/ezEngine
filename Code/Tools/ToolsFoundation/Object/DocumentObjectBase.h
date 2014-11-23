@@ -34,6 +34,8 @@ public:
   const ezDocumentObjectBase* GetParent() const { return m_pParent; }
   const ezHybridArray<ezDocumentObjectBase*, 4>& GetChildren() const { return m_Children; }
 
+  ezUInt32 GetChildIndex(ezDocumentObjectBase* pChild) const;
+
   const ezUuid& GetGuid() const { return m_Guid; }
 
 private:

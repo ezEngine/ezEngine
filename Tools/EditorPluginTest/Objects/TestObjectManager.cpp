@@ -38,6 +38,11 @@ ezDocumentObjectBase* ezTestObjectManager::InternalCreateObject(ezReflectedTypeH
   return nullptr;
 }
 
+void ezTestObjectManager::InternalDestroyObject(ezDocumentObjectBase* pObject)
+{
+  delete pObject;
+}
+
 void ezTestObjectManager::GetCreateableTypes(ezHybridArray<ezReflectedTypeHandle, 32>& Types) const
 {
   Types.PushBack(ezReflectedTypeManager::GetTypeHandleByName(ezGetStaticRTTI<ezTestObjectProperties>()->GetTypeName()));

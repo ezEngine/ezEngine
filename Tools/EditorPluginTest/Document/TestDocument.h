@@ -11,4 +11,6 @@ public:
   ~ezTestDocument();
 
   virtual const char* GetDocumentTypeDisplayString() const override { return "Scene"; }
+
+  virtual ezStatus InternalSaveDocument() override;
 };

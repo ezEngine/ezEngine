@@ -27,4 +27,11 @@ ezTestDocument::~ezTestDocument()
   delete m_pObjectManager;
 }
 
+ezStatus ezTestDocument::InternalSaveDocument()
+{
+  if (GetCommandHistory()->CanUndo())
+    GetCommandHistory()->Undo();
+
+  return ezDocumentBase::InternalSaveDocument();
+}
 

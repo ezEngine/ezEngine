@@ -7,6 +7,7 @@
 #include <ToolsFoundation/Basics/Status.h>
 #include <ToolsFoundation/Object/DocumentObjectTree.h>
 #include <ToolsFoundation/Selection/SelectionManager.h>
+#include <ToolsFoundation/CommandHistory/CommandHistory.h>
 #include <Foundation/Communication/Event.h>
 
 class ezDocumentBase;
@@ -40,6 +41,7 @@ public:
   const ezDocumentObjectManagerBase* GetObjectManager() const { return m_pObjectManager; }
   const ezDocumentObjectTree* GetObjectTree() const { return &m_ObjectTree; }
   const ezSelectionManager* GetSelectionManager() const { return &m_SelectionManager; }
+  ezCommandHistory* GetCommandHistory() const { return &m_CommandHistory; }
 
   ezDocumentObjectManagerBase* GetObjectManager() { return m_pObjectManager; }
   ezDocumentObjectTree* GetObjectTree() { return &m_ObjectTree; }
@@ -80,9 +82,12 @@ protected:
   ezDocumentObjectManagerBase* m_pObjectManager;
   ezDocumentObjectTree m_ObjectTree;
   ezSelectionManager m_SelectionManager;
+  mutable ezCommandHistory m_CommandHistory;
 
 private:
   friend class ezDocumentManagerBase;
+  friend class ezCommandHistory;
+
   ezDocumentManagerBase* m_pDocumentManager;
 
   ezString m_sDocumentPath;

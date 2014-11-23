@@ -1,14 +1,30 @@
 #include <ToolsFoundation/PCH.h>
 #include <ToolsFoundation/CommandHistory/CommandHistory.h>
+#include <ToolsFoundation/Document/Document.h>
+#include <Foundation/Reflection/ReflectionUtils.h>
+#include <Foundation/IO/MemoryStream.h>
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCommandTransaction, ezCommandBase, 1, ezRTTIDefaultAllocator<ezCommandTransaction>);
+EZ_END_DYNAMIC_REFLECTED_TYPE();
+
+ezCommandTransaction::~ezCommandTransaction()
+{
+  for (ezCommandBase* pCommand : m_ChildActions)
+  {
+    pCommand->GetDynamicRTTI()->GetAllocator()->Deallocate(pCommand);
+  }
+}
 
 ezStatus ezCommandTransaction::Do(bool bRedo)
 {
+  EZ_ASSERT(bRedo == true, "Implementation error");
+
   const ezUInt32 uiChildActions = m_ChildActions.GetCount();
   for (ezUInt32 i = 0; i < uiChildActions; ++i)
   {
     if (m_ChildActions[i]->Do(bRedo).m_Result == EZ_FAILURE)
     {
-      for (ezUInt32 j = i - 1; j > 0; --j)
+      for (ezInt32 j = i - 1; j >= 0; --j)
       {
         ezStatus status = m_ChildActions[j]->Undo();
         EZ_ASSERT(status.m_Result == EZ_SUCCESS, "Failed redo could not be recovered! Inconsistent state!");
@@ -23,7 +39,7 @@ ezStatus ezCommandTransaction::Do(bool bRedo)
 ezStatus ezCommandTransaction::Undo()
 {
   const ezUInt32 uiChildActions = m_ChildActions.GetCount();
-  for (ezUInt32 i = uiChildActions - 1; i > 0; --i)
+  for (ezInt32 i = uiChildActions - 1; i >= 0; --i)
   {
     if (m_ChildActions[i]->Undo().m_Result == EZ_FAILURE)
     {
@@ -39,15 +55,37 @@ ezStatus ezCommandTransaction::Undo()
   return ezStatus(EZ_SUCCESS);
 }
 
+void ezCommandTransaction::Cleanup(CommandState state)
+{
+  for (ezCommandBase* pCommand : m_ChildActions)
+  {
+    pCommand->Cleanup(state);
+  }
+}
+
 ezStatus ezCommandTransaction::AddCommand(ezCommandBase& command)
 {
-  // serialize
+  ezMemoryStreamStorage storage;
+  ezMemoryStreamWriter writer(&storage);
+  ezMemoryStreamReader reader(&storage);
 
-  // de-serialize
+  ezReflectionUtils::WriteObjectToJSON(writer, command.GetDynamicRTTI(), &command, ezJSONWriter::WhitespaceMode::None);
 
-  // execute
+  const ezRTTI* pRtti;
+  ezCommandBase* pCommand = (ezCommandBase*) ezReflectionUtils::ReadObjectFromJSON(reader, pRtti);
+
+  pCommand->m_pDocument = m_pDocument;
+  ezStatus ret = pCommand->Do(false);
+
+  if (ret.m_Result == EZ_FAILURE)
+  {
+    pCommand->GetDynamicRTTI()->GetAllocator()->Deallocate(pCommand);
+    return ret;
+  }
+
+  m_ChildActions.PushBack(pCommand);
   
-  return ezStatus(EZ_FAILURE);
+  return ezStatus(EZ_SUCCESS);
 }
 
 ezStatus ezCommandTransaction::AddCommand(ezCommandBase* pCommand)
@@ -77,6 +115,8 @@ ezStatus ezCommandHistory::Undo()
   {
     m_UndoHistory.PopBack();
     m_RedoHistory.PushBack(pTransaction);
+
+    m_pDocument->SetModified(true);
     return ezStatus(EZ_SUCCESS);
   }
   
@@ -94,6 +134,8 @@ ezStatus ezCommandHistory::Redo()
   {
     m_RedoHistory.PopBack();
     m_UndoHistory.PushBack(pTransaction);
+
+    m_pDocument->SetModified(true);
     return ezStatus(EZ_SUCCESS);
   }
   
@@ -118,7 +160,7 @@ bool ezCommandHistory::CanRedo() const
 
 ezCommandTransaction* ezCommandHistory::StartTransaction()
 {
-  ezCommandTransaction* pTransaction = new ezCommandTransaction();
+  ezCommandTransaction* pTransaction = (ezCommandTransaction*) ezGetStaticRTTI<ezCommandTransaction>()->GetAllocator()->Allocate();
   pTransaction->m_pDocument = m_pDocument;
 
   if (!m_TransactionStack.IsEmpty())
@@ -130,34 +172,50 @@ ezCommandTransaction* ezCommandHistory::StartTransaction()
   return pTransaction;
 }
 
-void ezCommandHistory::EndTransaction()
+void ezCommandHistory::EndTransaction(bool bCancel)
 {
   EZ_ASSERT(!m_TransactionStack.IsEmpty(), "Trying to end transaction without starting one!");
-  if (m_TransactionStack.GetCount() > 1)
+
+  if (!bCancel)
   {
-    m_TransactionStack.PopBack();
+    if (m_TransactionStack.GetCount() > 1)
+    {
+      m_TransactionStack.PopBack();
+    }
+    else
+    {
+      m_UndoHistory.PushBack(m_TransactionStack.PeekBack());
+      m_TransactionStack.PopBack();
+      ClearRedoHistory();
+
+      m_pDocument->SetModified(true);
+    }
   }
   else
   {
-    m_UndoHistory.PushBack(m_TransactionStack.PeekBack());
-    m_TransactionStack.PopBack();
-    ClearRedoHistory();
-    // TODO: Fire event
-  }
-}
+    ezCommandTransaction* pTransaction = m_TransactionStack.PeekBack();
 
-void ezCommandHistory::CancelTransaction()
-{
-  EZ_ASSERT(!m_TransactionStack.IsEmpty(), "Trying to cancel transaction without starting one!");
-  m_TransactionStack.PeekBack()->Undo();
-  m_TransactionStack.PopBack();
+    pTransaction->Undo();
+    m_TransactionStack.PopBack();
+
+    if (m_TransactionStack.IsEmpty())
+    {
+      pTransaction->GetDynamicRTTI()->GetAllocator()->Deallocate(pTransaction);
+    }
+  }
+
+  // TODO: Fire event
 }
 
 void ezCommandHistory::ClearUndoHistory()
 {
   while (!m_UndoHistory.IsEmpty())
   {
-    delete m_UndoHistory.PeekBack();
+    ezCommandTransaction* pTransaction = m_UndoHistory.PeekBack();
+
+    pTransaction->Cleanup(ezCommandBase::CommandState::WasDone);
+    pTransaction->GetDynamicRTTI()->GetAllocator()->Deallocate(pTransaction);
+
     m_UndoHistory.PopBack();
   }
 }
@@ -166,7 +224,11 @@ void ezCommandHistory::ClearRedoHistory()
 {
   while (!m_RedoHistory.IsEmpty())
   {
-    delete m_RedoHistory.PeekBack();
+    ezCommandTransaction* pTransaction = m_RedoHistory.PeekBack();
+
+    pTransaction->Cleanup(ezCommandBase::CommandState::WasUndone);
+    pTransaction->GetDynamicRTTI()->GetAllocator()->Deallocate(pTransaction);
+
     m_RedoHistory.PopBack();
   }
 }

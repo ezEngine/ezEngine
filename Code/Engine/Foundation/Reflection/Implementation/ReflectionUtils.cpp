@@ -61,12 +61,19 @@ void ezReflectionUtils::SetMemberPropertyValue(ezAbstractMemberProperty* pProp, 
       return;
     }
 
-    SetValueFunc func;
-    func.m_pProp = pProp;
-    func.m_pObject = pObject;
-    func.m_pValue = &value;
+    if (pProp->GetPropertyType() == ezGetStaticRTTI<ezVariant>())
+    {
+      static_cast<ezTypedMemberProperty<ezVariant>*>(pProp)->SetValue(pObject, value);
+    }
+    else
+    {
+      SetValueFunc func;
+      func.m_pProp = pProp;
+      func.m_pObject = pObject;
+      func.m_pValue = &value;
 
-    ezVariant::DispatchTo(func, pProp->GetPropertyType()->GetVariantType());
+      ezVariant::DispatchTo(func, pProp->GetPropertyType()->GetVariantType());
+    }
   }
 }
 
@@ -160,6 +167,7 @@ static void WriteProperties(ezJSONWriter& writer, const ezRTTI* pRtti, const voi
       else IF_HANDLE_TYPE(ezTime,  AddVariableTime)
       else IF_HANDLE_TYPE(ezUuid,  AddVariableUuid)
       else IF_HANDLE_TYPE(ezConstCharPtr,  AddVariableString)
+      else IF_HANDLE_TYPE(ezVariant,  AddVariableVariant)
 
       else if (prop->GetPropertyType()->GetProperties().GetCount() > 0 && prop->GetPropertyPointer(pObject) != nullptr)
       {

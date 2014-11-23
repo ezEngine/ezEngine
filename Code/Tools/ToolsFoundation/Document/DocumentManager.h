@@ -35,11 +35,6 @@ public:
   void CloseAllDocumentsOfManager();
   static void CloseAllDocuments();
 
-  //virtual bool CanOpen(ezDocumentInfo& docInfo) const;
-  //virtual const ezDocumentBase* Open(ezDocumentInfo& docInfo);
-  //virtual void Show(const ezDocumentBase* pDocument);
-  //virtual void Save(const ezDocumentBase* pDocument, ezDocumentInfo* pDocInfo = nullptr);
-  //virtual void Close(const ezDocumentBase* pDocument);
 
   struct Event
   {

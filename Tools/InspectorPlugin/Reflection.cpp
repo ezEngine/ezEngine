@@ -36,6 +36,12 @@ const char* GetParentType(ezRTTI* pRTTI)
       (ezStringUtils::IsEqual(pRTTI->GetTypeName(), "ezVec2")) ||
       (ezStringUtils::IsEqual(pRTTI->GetTypeName(), "ezVec3")) ||
       (ezStringUtils::IsEqual(pRTTI->GetTypeName(), "ezVec4")) ||
+      (ezStringUtils::IsEqual(pRTTI->GetTypeName(), "ezMat3")) ||
+      (ezStringUtils::IsEqual(pRTTI->GetTypeName(), "ezMat4")) ||
+      (ezStringUtils::IsEqual(pRTTI->GetTypeName(), "ezTime")) ||
+      (ezStringUtils::IsEqual(pRTTI->GetTypeName(), "ezUuid")) ||
+      (ezStringUtils::IsEqual(pRTTI->GetTypeName(), "ezColor")) ||
+      (ezStringUtils::IsEqual(pRTTI->GetTypeName(), "ezVariant")) ||
       (ezStringUtils::IsEqual(pRTTI->GetTypeName(), "ezQuat")))
     return "Basic Types";
 

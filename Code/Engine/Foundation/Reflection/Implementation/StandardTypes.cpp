@@ -99,5 +99,8 @@ EZ_END_STATIC_REFLECTED_TYPE();
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezUuid, ezNoBase, 1, ezRTTINoAllocator);
 EZ_END_STATIC_REFLECTED_TYPE();
 
+EZ_BEGIN_STATIC_REFLECTED_TYPE(ezVariant, ezNoBase, 1, ezRTTINoAllocator);
+EZ_END_STATIC_REFLECTED_TYPE();
+
 EZ_STATICLINK_FILE(Foundation, Foundation_Reflection_Implementation_StandardTypes);
 

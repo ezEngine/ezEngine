@@ -25,7 +25,8 @@ EZ_END_DYNAMIC_REFLECTED_TYPE();
 ezEvent<const ezDocumentBase::Event&> ezDocumentBase::s_EventsAny;
 
 ezDocumentBase::ezDocumentBase(const char* szPath) :
-  m_ObjectTree(this)
+  m_ObjectTree(this),
+  m_CommandHistory(this)
 {
   m_sDocumentPath = szPath;
   m_pObjectManager = nullptr;

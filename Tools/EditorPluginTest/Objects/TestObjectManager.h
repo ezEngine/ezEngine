@@ -15,6 +15,7 @@ public:
 private:
 
   virtual ezDocumentObjectBase* InternalCreateObject(ezReflectedTypeHandle hType) override;
+  virtual void InternalDestroyObject(ezDocumentObjectBase* pObject) override;
   virtual bool InternalCanAdd(ezReflectedTypeHandle hType, const ezDocumentObjectBase* pParent) const override;
   virtual bool InternalCanRemove(const ezDocumentObjectBase* pObject) const override;
   virtual bool InternalCanMove(const ezDocumentObjectBase* pObject, const ezDocumentObjectBase* pNewParent, ezInt32 iChildIndex) const override;

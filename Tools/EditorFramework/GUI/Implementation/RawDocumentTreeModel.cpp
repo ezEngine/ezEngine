@@ -4,6 +4,7 @@
 #include <ToolsFoundation/Reflection/ToolsReflectionUtils.h>
 #include <ToolsFoundation/Reflection/ReflectedTypeManager.h>
 #include <ToolsFoundation/Document/Document.h>
+#include <ToolsFoundation/Command/TreeCommands.h>
 #include <QStringList>
 #include <QMimeData>
 #include <QMessageBox>
@@ -247,19 +248,21 @@ bool ezRawDocumentTreeModel::dropMimeData(const QMimeData* data, Qt::DropAction 
     QDataStream stream(&encodedData, QIODevice::ReadOnly);
     QString typeName;
     stream >> typeName;
-    ezDocumentObjectBase* pObject = ((ezDocumentObjectManagerBase*)m_pDocumentTree->GetDocument()->GetObjectManager())->CreateObject(ezReflectedTypeManager::GetTypeHandleByName(typeName.toUtf8().data()));
-    if (pObject != nullptr)
-    {
-      if (parent.isValid())
-      {
-        ((ezDocumentObjectTree*) m_pDocumentTree)->AddObject(pObject, (ezDocumentObjectBase*) parent.internalPointer(), row);
-      }
-      else
-      {
-        ((ezDocumentObjectTree*) m_pDocumentTree)->AddObject(pObject, nullptr, row);
-      }
-      
-    }
+
+    ezAddObjectCommand cmd;
+    cmd.SetType(typeName.toUtf8().data());
+    cmd.m_iChildIndex = row;
+
+    if (parent.isValid())
+      cmd.m_Parent = ((ezDocumentObjectBase*) parent.internalPointer())->GetGuid();
+
+    auto history = m_pDocumentTree->GetDocument()->GetCommandHistory();
+
+    ezCommandTransaction* pTransaction = history->StartTransaction();
+
+    ezStatus ret = pTransaction->AddCommand(cmd);
+
+    history->EndTransaction(ret.m_Result.Failed());
   }
 
   return false;

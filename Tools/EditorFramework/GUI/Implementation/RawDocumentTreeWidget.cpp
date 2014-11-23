@@ -1,7 +1,8 @@
 #include <PCH.h>
 #include <EditorFramework/GUI/RawDocumentTreeWidget.moc.h>
 #include <ToolsFoundation/Document/Document.h>
-
+#include <ToolsFoundation/Command/TreeCommands.h>
+#include <QKeyEvent>
 
 ezRawDocumentTreeWidget::ezRawDocumentTreeWidget(QWidget* pParent, const ezDocumentBase* pDocument) : 
   QTreeView(pParent),
@@ -34,4 +35,35 @@ void ezRawDocumentTreeWidget::on_selectionChanged_triggered(const QItemSelection
 
   // TODO const cast
   ((ezSelectionManager*) m_pDocument->GetSelectionManager())->SetSelection(sel);
+}
+
+void ezRawDocumentTreeWidget::keyPressEvent(QKeyEvent* e)
+{
+  if (e->key() == Qt::Key::Key_Delete)
+  {
+    auto objects = m_pDocument->GetSelectionManager()->GetSelection();
+
+    auto history = m_pDocument->GetCommandHistory();
+    auto pTrans = history->StartTransaction();
+
+    ezRemoveObjectCommand cmd;
+
+    bool bCancel = false;
+    for (const ezDocumentObjectBase* pObject : objects)
+    {
+      cmd.m_Object = pObject->GetGuid();
+
+      if (pTrans->AddCommand(cmd).m_Result.Failed())
+      {
+        bCancel = true;
+        break;
+      }
+    }
+
+    history->EndTransaction(bCancel);
+  }
+  else
+  {
+    QTreeView::keyPressEvent(e);
+  }
 }

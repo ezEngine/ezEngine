@@ -21,6 +21,16 @@ ezDocumentObjectBase* ezDocumentObjectManagerBase::CreateObject(ezReflectedTypeH
   return pObject;
 }
 
+void ezDocumentObjectManagerBase::DestroyObject(ezDocumentObjectBase* pObject)
+{
+  for (ezDocumentObjectBase* pChild : pObject->m_Children)
+  {
+    DestroyObject(pChild);
+  }
+
+  InternalDestroyObject(pObject);
+}
+
 bool ezDocumentObjectManagerBase::CanAdd(ezReflectedTypeHandle hType, const ezDocumentObjectBase* pParent) const
 {
   if (pParent == nullptr)

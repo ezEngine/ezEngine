@@ -127,7 +127,7 @@ ezPropertyEditorDoubleSpinboxWidget::ezPropertyEditorDoubleSpinboxWidget(const e
     m_pWidget[c]->setMaximum( ezMath::BasicType<double>::GetInfinity());
     m_pWidget[c]->setSingleStep(1.0);
     m_pWidget[c]->setAccelerated(true);
-    m_pWidget[c]->setDecimals(8);
+    m_pWidget[c]->setDecimals(3);
 
     policy.setHorizontalStretch(2);
     m_pWidget[c]->setSizePolicy(policy);

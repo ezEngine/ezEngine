@@ -12,11 +12,14 @@ public:
 
   ezRawDocumentTreeWidget(QWidget* pParent, const ezDocumentBase* pDocument);
 
+protected:
+  virtual void keyPressEvent(QKeyEvent* e) override;
 
 private slots:
   void on_selectionChanged_triggered(const QItemSelection& selected, const QItemSelection& deselected);
 
 private:
+
   ezRawDocumentTreeModel m_Model;
   const ezDocumentBase* m_pDocument;
 };
