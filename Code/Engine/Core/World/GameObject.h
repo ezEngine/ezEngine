@@ -203,18 +203,6 @@ public:
   void PostMessage(ezMessage& msg, ezObjectMsgQueueType::Enum queueType, ezTime delay,
     ezObjectMsgRouting::Enum routing = ezObjectMsgRouting::Default);
 
-public:
-  // TODO: The reflection gets stack corruptions with getters that use const references
-
-  void SetLocalPositionNoRef(ezVec3 position) { SetLocalPosition(position); }
-  ezVec3 GetLocalPositionNoRef() const { return GetLocalPosition(); }
-  
-  void SetLocalRotationNoRef(ezQuat rotation) { SetLocalRotation(rotation); }
-  ezQuat GetLocalRotationNoRef() const { return GetLocalRotation(); }
-
-  void SetLocalScalingNoRef(ezVec3 scaling) { SetLocalScaling(scaling); }
-  ezVec3 GetLocalScalingNoRef() const { return GetLocalScaling(); }
-
 private:
   friend class ezGameObjectTest;
 

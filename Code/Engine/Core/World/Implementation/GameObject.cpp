@@ -37,9 +37,9 @@ public:
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezGameObject, ezNoBase, 1, ezGameObjectDummyAllocator);
   EZ_BEGIN_PROPERTIES
     EZ_ACCESSOR_PROPERTY("Name", GetName, SetName),
-    EZ_ACCESSOR_PROPERTY("Position", GetLocalPositionNoRef, SetLocalPositionNoRef),
-    EZ_ACCESSOR_PROPERTY("Rotation", GetLocalRotationNoRef, SetLocalRotationNoRef),
-    EZ_ACCESSOR_PROPERTY("Scaling", GetLocalScalingNoRef, SetLocalScalingNoRef),
+    EZ_ACCESSOR_PROPERTY("Position", GetLocalPosition, SetLocalPosition),
+    EZ_ACCESSOR_PROPERTY("Rotation", GetLocalRotation, SetLocalRotation),
+    EZ_ACCESSOR_PROPERTY("Scaling", GetLocalScaling, SetLocalScaling),
   EZ_END_PROPERTIES
 EZ_END_STATIC_REFLECTED_TYPE();
 
