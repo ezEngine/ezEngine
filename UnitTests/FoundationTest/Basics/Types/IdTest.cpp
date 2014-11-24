@@ -4,7 +4,7 @@ struct TestId
 {
   typedef ezUInt32 StorageType;
 
-  EZ_DECLARE_ID_TYPE(TestId, 20);
+  EZ_DECLARE_ID_TYPE(TestId, 20, 6);
 
   EZ_FORCE_INLINE TestId(StorageType instanceIndex, StorageType generation, StorageType systemIndex = 0)
   {
@@ -45,6 +45,12 @@ EZ_CREATE_SIMPLE_TEST(Basics, Id)
   id2.m_InstanceIndex = 2;
   EZ_TEST_INT(id2.m_InstanceIndex, 2);
   EZ_TEST_BOOL(id2 != id3);
+  EZ_TEST_BOOL(!id2.IsIndexAndGenerationEqual(id3));
+
+  id2.m_InstanceIndex = 1;
+  id2.m_SystemIndex = 16;
+  EZ_TEST_BOOL(id2 != id3);
+  EZ_TEST_BOOL(id2.IsIndexAndGenerationEqual(id3));
 
   id2.m_Generation = 94; // overflow
   EZ_TEST_INT(id2.m_Generation, 30);
@@ -54,6 +60,6 @@ EZ_CREATE_SIMPLE_TEST(Basics, Id)
 
   LargeTestId id4(1, 1224); // overflow
   EZ_TEST_INT(id4.m_InstanceIndex, 1);
-  EZ_TEST_INT(id4.m_Generation, 200);  
+  EZ_TEST_INT(id4.m_Generation, 200);
 }
 

@@ -13,7 +13,7 @@ EZ_FORCE_INLINE ezGameObjectHandle ezWorld::CreateObject(const ezGameObjectDesc&
 EZ_FORCE_INLINE bool ezWorld::IsValidObject(const ezGameObjectHandle& object) const
 {
   CheckForMultithreadedAccess();
-  EZ_ASSERT(object.m_InternalId.m_WorldIndex == m_uiIndex, 
+  EZ_ASSERT(object.IsInvalidated() || object.m_InternalId.m_WorldIndex == m_uiIndex,
     "Object does not belong to this world. Expected world id %d got id %d", m_uiIndex, object.m_InternalId.m_WorldIndex);
 
   return m_Data.m_Objects.Contains(object);
@@ -22,7 +22,7 @@ EZ_FORCE_INLINE bool ezWorld::IsValidObject(const ezGameObjectHandle& object) co
 EZ_FORCE_INLINE bool ezWorld::TryGetObject(const ezGameObjectHandle& object, ezGameObject*& out_pObject) const
 {
   CheckForMultithreadedAccess();
-  EZ_ASSERT(object.m_InternalId.m_WorldIndex == m_uiIndex, 
+  EZ_ASSERT(object.IsInvalidated() || object.m_InternalId.m_WorldIndex == m_uiIndex,
     "Object does not belong to this world. Expected world id %d got id %d", m_uiIndex, object.m_InternalId.m_WorldIndex);
 
   ObjectStorageEntry storageEntry = { nullptr };

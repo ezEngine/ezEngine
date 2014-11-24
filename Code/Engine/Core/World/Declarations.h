@@ -23,7 +23,7 @@ struct ezGameObjectId
 {
   typedef ezUInt32 StorageType;
 
-  EZ_DECLARE_ID_TYPE(ezGameObjectId, 20);
+  EZ_DECLARE_ID_TYPE(ezGameObjectId, 20, 6);
 
   EZ_FORCE_INLINE ezGameObjectId(StorageType instanceIndex, StorageType generation, 
     StorageType worldIndex = 0)

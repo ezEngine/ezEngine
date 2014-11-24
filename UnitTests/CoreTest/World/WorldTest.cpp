@@ -296,4 +296,29 @@ EZ_CREATE_SIMPLE_TEST(World, World)
       EZ_TEST_INT(dft.m_uiCounter, EZ_ARRAY_SIZE(o.pObjects));
     }
   }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Multiple Worlds")
+  {
+    ezWorld world1("Test1");
+    ezWorld world2("Test2");
+
+    ezGameObjectDesc desc;
+    desc.m_sName.Assign("Obj1");
+    
+    ezGameObjectHandle hObj1 = world1.CreateObject(desc);
+    EZ_TEST_BOOL(world1.IsValidObject(hObj1));
+
+    desc.m_sName.Assign("Obj2");
+
+    ezGameObjectHandle hObj2 = world2.CreateObject(desc);
+    EZ_TEST_BOOL(world2.IsValidObject(hObj2));
+
+    ezGameObject* pObj1 = nullptr;
+    EZ_TEST_BOOL(world1.TryGetObject(hObj1, pObj1));
+    EZ_TEST_BOOL(pObj1 != nullptr);
+
+    ezGameObject* pObj2 = nullptr;
+    EZ_TEST_BOOL(world2.TryGetObject(hObj2, pObj2));
+    EZ_TEST_BOOL(pObj2 != nullptr);
+  }
 }

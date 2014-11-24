@@ -233,7 +233,7 @@ template <typename IdType, typename ValueType>
 EZ_FORCE_INLINE bool ezIdTableBase<IdType, ValueType>::TryGetValue(const IdType id, ValueType& out_value) const
 {
   const IndexType index = id.m_InstanceIndex;
-  if (index < m_uiCapacity && m_pEntries[index].id == id)
+  if (index < m_uiCapacity && m_pEntries[index].id.IsIndexAndGenerationEqual(id))
   {
     out_value = m_pEntries[index].value;
     return true;
@@ -245,7 +245,7 @@ template <typename IdType, typename ValueType>
 EZ_FORCE_INLINE bool ezIdTableBase<IdType, ValueType>::TryGetValue(const IdType id, ValueType*& out_pValue) const
 {
   const IndexType index = id.m_InstanceIndex;
-  if (index < m_uiCapacity && m_pEntries[index].id == id)
+  if (index < m_uiCapacity && m_pEntries[index].id.IsIndexAndGenerationEqual(id))
   {
     out_pValue = &m_pEntries[index].value;
     return true;
@@ -258,7 +258,7 @@ EZ_FORCE_INLINE const ValueType& ezIdTableBase<IdType, ValueType>::operator[](co
 {
   EZ_ASSERT(id.m_InstanceIndex < m_uiCapacity, "Out of bounds access. Table has %i elements, trying to access element at index %i.", m_uiCapacity, id.m_InstanceIndex);
   Entry& entry = m_pEntries[id.m_InstanceIndex];
-  EZ_ASSERT(entry.id == id,
+  EZ_ASSERT(entry.id.IsIndexAndGenerationEqual(id),
             "Stale access. Trying to access a value (generation: %i) that has been removed and replaced by a new value (generation: %i)", entry.id.m_Generation, id.m_Generation);
 
   return entry.value;
@@ -269,7 +269,7 @@ EZ_FORCE_INLINE ValueType& ezIdTableBase<IdType, ValueType>::operator[](const Id
 {
   EZ_ASSERT(id.m_InstanceIndex < m_uiCapacity, "Out of bounds access. Table has %i elements, trying to access element at index %i.", m_uiCapacity, id.m_InstanceIndex);
   Entry& entry = m_pEntries[id.m_InstanceIndex];
-  EZ_ASSERT(entry.id == id,
+  EZ_ASSERT(entry.id.IsIndexAndGenerationEqual(id),
             "Stale access. Trying to access a value (generation: %i) that has been removed and replaced by a new value (generation: %i)", entry.id.m_Generation, id.m_Generation);
 
   return entry.value;
@@ -293,7 +293,7 @@ template <typename IdType, typename ValueType>
 EZ_FORCE_INLINE bool ezIdTableBase<IdType, ValueType>::Contains(const IdType id) const
 {
   const IndexType index = id.m_InstanceIndex;
-  return index < m_uiCapacity && m_pEntries[index].id == id;
+  return index < m_uiCapacity && m_pEntries[index].id.IsIndexAndGenerationEqual(id);
 }
 
 template <typename IdType, typename ValueType>
@@ -367,6 +367,7 @@ inline void ezIdTableBase<IdType, ValueType>::InitializeFreelist(IndexType uiSta
 
   m_uiFreelistEnqueue = uiEnd - 1;
 }
+
 
 template <typename IdType, typename V, typename A>
 ezIdTable<IdType, V, A>::ezIdTable() : ezIdTableBase<IdType, V>(A::GetAllocator())

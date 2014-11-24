@@ -5,15 +5,18 @@
 #include <Foundation/Basics.h>
 
 /// \brief Declares an id type, see generic id below how to use this
-#define EZ_DECLARE_ID_TYPE(name, instanceIndexBits) \
+#define EZ_DECLARE_ID_TYPE(name, instanceIndexBits, generationBits) \
   static const StorageType MAX_INSTANCES = (1ULL << instanceIndexBits); \
   static const StorageType INVALID_INSTANCE_INDEX = MAX_INSTANCES - 1; \
+  static const StorageType INDEX_AND_GENERATION_MASK = (1ULL << (instanceIndexBits + generationBits)) - 1; \
   EZ_DECLARE_POD_TYPE(); \
   EZ_FORCE_INLINE name() { m_Data = INVALID_INSTANCE_INDEX; } \
   EZ_FORCE_INLINE bool operator==(const name other) const { return m_Data == other.m_Data; } \
   EZ_FORCE_INLINE bool operator!=(const name other) const { return m_Data != other.m_Data; } \
   EZ_FORCE_INLINE bool operator<(const name other) const { return m_Data < other.m_Data; } \
-  EZ_FORCE_INLINE void Invalidate() { m_Data = INVALID_INSTANCE_INDEX; }
+  EZ_FORCE_INLINE void Invalidate() { m_Data = INVALID_INSTANCE_INDEX; } \
+  EZ_FORCE_INLINE bool IsIndexAndGenerationEqual(const name other) { \
+    return (m_Data & INDEX_AND_GENERATION_MASK) == (other.m_Data & INDEX_AND_GENERATION_MASK); }
 
 
 /// \brief A generic id class that holds an id combined of an instance index and a generation counter. 
@@ -25,7 +28,7 @@ struct ezGenericId
   enum { STORAGE_SIZE = ((InstanceIndexBits + GenerationBits - 1) / 8) + 1 };
   typedef typename ezSizeToType<STORAGE_SIZE>::Type StorageType;
 
-  EZ_DECLARE_ID_TYPE(ezGenericId, InstanceIndexBits);
+  EZ_DECLARE_ID_TYPE(ezGenericId, InstanceIndexBits, GenerationBits);
 
   EZ_FORCE_INLINE ezGenericId(StorageType instanceIndex, StorageType generation)
   {
