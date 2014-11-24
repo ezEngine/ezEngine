@@ -13,15 +13,56 @@
 #include <System/Window/Window.h>
 #include <QProcess>
 #include <QSharedMemory>
+#include <CoreUtils/Graphics/Camera.h>
 
 class QWidget;
 class QHBoxLayout;
 class QPushButton;
 
+class ezCameraMoveContext
+{
+public:
+  ezCameraMoveContext();
+  void Update();
+
+  ezCamera* m_pCamera;
+  float m_fMoveSpeed;
+
+  bool m_bRun;
+  bool m_bSlowDown;
+  bool m_bMoveForwards;
+  bool m_bMoveBackwards;
+  bool m_bMoveRight;
+  bool m_bMoveLeft;
+  bool m_bMoveUp;
+  bool m_bMoveDown;
+
+private:
+  ezTime m_LastUpdate;
+};
+
+class ezQtCameraMoveContext : public ezCameraMoveContext
+{
+public:
+  ezQtCameraMoveContext();
+
+  bool keyPressEvent(QKeyEvent* e);
+  bool keyReleaseEvent(QKeyEvent* e);
+  bool mousePressEvent(QMouseEvent* e);
+  bool mouseReleaseEvent(QMouseEvent* e);
+  bool mouseMoveEvent(QMouseEvent* e);
+
+private:
+  QPointF m_LastMousePos;
+  bool m_bRotateCamera;
+};
+
 class ez3DViewWidget : public QWidget
 {
 public:
-  ez3DViewWidget(QWidget* pParent, ezDocumentWindow* pDocument) : QWidget(pParent), m_pDocument(pDocument) { }
+  ez3DViewWidget(QWidget* pParent, ezDocumentWindow* pDocument);
+
+  ezQtCameraMoveContext m_MoveContext;
 
 protected:
   virtual void resizeEvent(QResizeEvent* event) override
@@ -29,6 +70,12 @@ protected:
     m_pDocument->TriggerRedraw();
   }
 
+  virtual void keyPressEvent(QKeyEvent* e) override;
+  virtual void keyReleaseEvent(QKeyEvent* e) override;
+  virtual void mousePressEvent(QMouseEvent* e) override;
+  virtual void mouseReleaseEvent(QMouseEvent* e) override;
+  virtual void mouseMoveEvent(QMouseEvent* e) override;
+  
   ezDocumentWindow* m_pDocument;
 };
 
@@ -58,4 +105,5 @@ private:
   ezEditorEngineConnection* m_pEngineView;
   QHBoxLayout* m_pRestartButtonLayout;
   QPushButton* m_pRestartButton;
+  ezCamera m_Camera;
 };

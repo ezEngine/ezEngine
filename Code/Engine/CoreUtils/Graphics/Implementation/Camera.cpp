@@ -52,10 +52,10 @@ void ezCamera::LookAt(const ezVec3& vCameraPos, const ezVec3& vTargetPos, const 
 
 void ezCamera::SetFromMatrix(const ezMat4& mLookAtMatrix)
 {
-  m_vPosition    =  mLookAtMatrix.GetTranslationVector();
-  m_vDirRight    =  mLookAtMatrix.GetColumn(0).GetAsVec3();
-  m_vDirUp       =  mLookAtMatrix.GetColumn(1).GetAsVec3();
-  m_vDirForwards = -mLookAtMatrix.GetColumn(2).GetAsVec3();
+  m_vPosition    = -mLookAtMatrix.GetTranslationVector();
+  m_vDirRight    =  mLookAtMatrix.GetRow(0).GetAsVec3();
+  m_vDirUp       =  mLookAtMatrix.GetRow(1).GetAsVec3();
+  m_vDirForwards = -mLookAtMatrix.GetRow(2).GetAsVec3();
 
   CameraOrientationChanged(true, true);
 }
@@ -161,6 +161,8 @@ void ezCamera::RotateLocally (ezAngle X, ezAngle Y, ezAngle Z)
     m_vDirUp = m * m_vDirUp;
     m_vDirRight = m * m_vDirRight;
   }
+
+  CameraOrientationChanged(false, true);
 }
 
 void ezCamera::RotateGlobally(ezAngle X, ezAngle Y, ezAngle Z)
@@ -196,6 +198,8 @@ void ezCamera::RotateGlobally(ezAngle X, ezAngle Y, ezAngle Z)
     m_vDirUp       = m * m_vDirUp;
     m_vDirForwards = m * m_vDirForwards;
   }
+
+  CameraOrientationChanged(false, true);
 }
 
 

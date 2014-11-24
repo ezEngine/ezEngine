@@ -65,6 +65,12 @@ public:
   ///   Fov X/Y in degree or width/height (depending on Mode)
   void SetCameraMode(CameraMode Mode, float fFovOrDim, float fNearPlane, float fFarPlane);
 
+  /// \brief Returns the fFovOrDim parameter that was passed to SetCameraMode().
+  float GetFovOrDim() const { return m_fFovOrDim; }
+
+  /// \brief Returns the current camera mode.
+  CameraMode GetCameraMode() const { return m_Mode; };
+
   /// \brief Sets the camera position and rotation from the given look at matrix.
   void SetFromMatrix(const ezMat4& mLookAtMatrix);
 

@@ -135,6 +135,12 @@ void ezEditorProcessApp::EventHandlerIPC(const ezProcessCommunication::Event& e)
                 pEntityMsg->m_uiNewChildIndex);
 
   }
+  else if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezEngineViewCameraMsg>())
+  {
+    ezEngineViewCameraMsg* pCamMsg = (ezEngineViewCameraMsg*) pMsg;
+
+    pViewContext->SetCamera(pCamMsg);
+  }
 }
 
 

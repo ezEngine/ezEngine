@@ -28,6 +28,25 @@ public:
   ezUInt16 m_uiWindowHeight;
 };
 
+class EZ_EDITORFRAMEWORK_DLL ezEngineViewCameraMsg : public ezEngineProcessMsg
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezEngineViewCameraMsg);
+
+public:
+
+  ezInt8 m_iCameraMode;
+  float m_fNearPlane;
+  float m_fFarPlane;
+  float m_fFovOrDim;
+
+  ezVec3 m_vPosition;
+  ezVec3 m_vDirForwards;
+  ezVec3 m_vDirUp;
+  ezVec3 m_vDirRight;
+  ezMat4 m_ViewMatrix;
+  ezMat4 m_ProjMatrix;
+};
+
 class EZ_EDITORFRAMEWORK_DLL ezEngineProcessEntityMsg : public ezEngineProcessMsg
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezEngineProcessEntityMsg);

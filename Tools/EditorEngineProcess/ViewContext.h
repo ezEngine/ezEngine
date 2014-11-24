@@ -7,8 +7,10 @@
 #include <RendererCore/Meshes/MeshBufferResource.h>
 #include <RendererCore/ShaderCompiler/ShaderCompiler.h>
 #include <RendererCore/ShaderCompiler/ShaderManager.h>
+#include <CoreUtils/Graphics/Camera.h>
 
 class ezGameObject;
+class ezEngineViewCameraMsg;
 
 class ezViewContext : public ezEngineProcessViewContext
 {
@@ -22,8 +24,10 @@ public:
 
   void Redraw();
 
+  void SetCamera(ezEngineViewCameraMsg* pMsg);
+
 private:
-  void RenderObject(ezGameObject* pObject);
+  void RenderObject(ezGameObject* pObject, const ezMat4& ViewProj);
 
   ezGALRenderTargetConfigHandle m_hBBRT;
   ezGALBufferHandle m_hCB;
@@ -34,6 +38,10 @@ private:
   float m_fRotY;
   ezShaderResourceHandle m_hShader;
   ezMeshBufferResourceHandle m_hSphere;
+
+  ezMat4 m_ViewMatrix;
+  ezMat4 m_ProjectionMatrix;
+  ezCamera m_Camera;
 };
 
 namespace DontUse

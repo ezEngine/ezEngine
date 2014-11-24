@@ -6,34 +6,21 @@
 #include <RendererCore/Pipeline/RenderHelper.h>
 #include <Foundation/Threading/TaskSystem.h>
 #include <EditorFramework/EngineProcess/EngineProcessDocumentContext.h>
+#include <EditorFramework/EngineProcess/EngineProcessMessages.h>
 
-void ezViewContext::RenderObject(ezGameObject* pObject)
+void ezViewContext::RenderObject(ezGameObject* pObject, const ezMat4& ViewProj)
 {
   //const ezVec3 vLocalPos = pObject->GetLocalPosition();
   const ezVec3 vPos = pObject->GetWorldPosition();
 
   ezSizeU32 wndsize = GetEditorWindow().GetClientAreaSize();
 
-  ezMat4 ModelRot;
-  ModelRot.SetIdentity();
-  //ModelRot.SetRotationMatrixY(ezAngle::Degree(m_fRotY));
-
   ezMat4 Model;
-  Model.SetIdentity();
   Model.SetTranslationMatrix(vPos);
 
+    ezMat4 ObjectData;
 
-  ezMat4 View;
-  View.SetIdentity();
-  View.SetLookAtMatrix(ezVec3(0.5f, 1.5f, 2.0f), ezVec3(0.0f, 0.5f, 0.0f), ezVec3(0.0f, 1.0f, 0.0f));
-
-  ezMat4 Proj;
-  Proj.SetIdentity();
-  Proj.SetPerspectiveProjectionMatrixFromFovY(ezAngle::Degree(80.0f), (float) wndsize.width / (float) wndsize.height, 0.1f, 1000.0f, ezProjectionDepthRange::ZeroToOne);
-
-  ezMat4 ObjectData;
-
-  ObjectData = Proj * View * Model * ModelRot;
+  ObjectData = ViewProj * Model;
 
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
   ezGALContext* pContext = pDevice->GetPrimaryContext();
@@ -43,20 +30,14 @@ void ezViewContext::RenderObject(ezGameObject* pObject)
   pContext->SetConstantBuffer(1, m_hCB);
 
   ezRenderHelper::DrawMeshBuffer(pContext, m_hSphere);
-
-  auto itChild = pObject->GetChildren();
-
-  //while (itChild.IsValid())
-  //{
-  //  RenderObject(&(*itChild));
-
-  //  itChild.Next();
-  //}
 }
 
 
 void ezViewContext::Redraw()
 {
+  if (m_Camera.GetCameraMode() == ezCamera::CameraMode::None)
+    return;
+
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
   ezInt32 iOwnID = GetViewIndex();
@@ -81,6 +62,13 @@ void ezViewContext::Redraw()
 
   ezEngineProcessDocumentContext* pDocumentContext = ezEngineProcessDocumentContext::GetDocumentContext(GetDocumentGuid());
 
+  ezMat4 mViewMatrix, mProjectionMatrix, mViewProjection;
+  m_Camera.GetViewMatrix(mViewMatrix);
+  m_Camera.GetProjectionMatrix((float) wndsize.width / (float) wndsize.height, ezProjectionDepthRange::ZeroToOne, mProjectionMatrix);
+  
+  mViewProjection = mProjectionMatrix * mViewMatrix;
+  //mViewProjection = m_ProjectionMatrix * m_ViewMatrix;
+
   if (pDocumentContext && pDocumentContext->m_pWorld)
   {
     pDocumentContext->m_pWorld->Update();
@@ -89,7 +77,7 @@ void ezViewContext::Redraw()
   
     while (it.IsValid())
     {
-      RenderObject(&(*it));
+      RenderObject(&(*it), mViewProjection);
 
       it.Next();
     }
@@ -100,6 +88,23 @@ void ezViewContext::Redraw()
   pDevice->EndFrame();
 
   ezTaskSystem::FinishFrameTasks();
+}
+
+void ezViewContext::SetCamera(ezEngineViewCameraMsg* pMsg)
+{
+  m_Camera.SetCameraMode((ezCamera::CameraMode) pMsg->m_iCameraMode, pMsg->m_fFovOrDim, pMsg->m_fNearPlane, pMsg->m_fFarPlane);
+
+  ezMat4 mOri;
+  mOri.SetLookAtMatrix(pMsg->m_vPosition, pMsg->m_vPosition + pMsg->m_vDirForwards, pMsg->m_vDirUp);
+
+  // TODO: This is somehow buggy
+  m_Camera.SetFromMatrix(mOri);
+
+  m_Camera.LookAt(pMsg->m_vPosition, pMsg->m_vPosition + pMsg->m_vDirForwards, pMsg->m_vDirUp);
+  
+
+  m_ViewMatrix = pMsg->m_ViewMatrix;
+  m_ProjectionMatrix = pMsg->m_ProjMatrix;
 }
 
 void ezEditorProcessApp::InitDevice()
