@@ -92,13 +92,14 @@ void ezShaderPermutationResource::UpdateContent(ezStreamReaderBase& Stream)
 
   m_bValid = true;
 
-  // *** HACK ***
+  // *** TODO: HACK ***
 
   ezGALVertexDeclarationCreationDescription VertDeclDesc;
   VertDeclDesc.m_hShader = m_hShader;
   VertDeclDesc.m_VertexAttributes.PushBack(ezGALVertexAttribute(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat, 0, 0, false));
-  VertDeclDesc.m_VertexAttributes.PushBack(ezGALVertexAttribute(ezGALVertexAttributeSemantic::Normal, ezGALResourceFormat::XYZFloat, 12, 0, false));
-  VertDeclDesc.m_VertexAttributes.PushBack(ezGALVertexAttribute(ezGALVertexAttributeSemantic::TexCoord0, ezGALResourceFormat::UVFloat, 24, 0, false));
+  VertDeclDesc.m_VertexAttributes.PushBack(ezGALVertexAttribute(ezGALVertexAttributeSemantic::Color, ezGALResourceFormat::RGBAUByteNormalized, 12, 0, false));
+  VertDeclDesc.m_VertexAttributes.PushBack(ezGALVertexAttribute(ezGALVertexAttributeSemantic::Normal, ezGALResourceFormat::XYZFloat, 16, 0, false));
+  VertDeclDesc.m_VertexAttributes.PushBack(ezGALVertexAttribute(ezGALVertexAttributeSemantic::TexCoord0, ezGALResourceFormat::UVFloat, 28, 0, false));
 
   m_hVertexDeclaration = ezShaderManager::GetDevice()->CreateVertexDeclaration(VertDeclDesc);
 

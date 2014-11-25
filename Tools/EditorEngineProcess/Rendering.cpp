@@ -7,19 +7,138 @@
 #include <Foundation/Threading/TaskSystem.h>
 #include <EditorFramework/EngineProcess/EngineProcessDocumentContext.h>
 #include <EditorFramework/EngineProcess/EngineProcessMessages.h>
+#include <RendererCore/Meshes/MeshBufferResource.h>
+#include <CoreUtils/Geometry/GeomUtils.h>
+#include <Core/ResourceManager/ResourceManager.h>
+
+ezMeshBufferResourceHandle CreateMesh(const ezGeometry& geom, const char* szResourceName)
+{
+  ezMeshBufferResourceHandle hMesh;
+  hMesh = ezResourceManager::GetResourceHandle<ezMeshBufferResource>(szResourceName);
+
+  ezResourceLock<ezMeshBufferResource> res(hMesh, ezResourceAcquireMode::PointerOnly);
+
+  if (res->GetLoadingState() == ezResourceLoadState::Loaded)
+    return hMesh;
+
+  ezDynamicArray<ezUInt16> Indices;
+  Indices.Reserve(geom.GetPolygons().GetCount() * 6);
+
+  for (ezUInt32 p = 0; p < geom.GetPolygons().GetCount(); ++p)
+  {
+    for (ezUInt32 v = 0; v < geom.GetPolygons()[p].m_Vertices.GetCount() - 2; ++v)
+    {
+      Indices.PushBack(geom.GetPolygons()[p].m_Vertices[0]);
+      Indices.PushBack(geom.GetPolygons()[p].m_Vertices[v + 1]);
+      Indices.PushBack(geom.GetPolygons()[p].m_Vertices[v + 2]);
+    }
+  }
+
+  ezMeshBufferResourceDescriptor desc;
+  desc.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
+  desc.AddStream(ezGALVertexAttributeSemantic::Color, ezGALResourceFormat::RGBAUByteNormalized);
+
+  desc.AllocateStreams(geom.GetVertices().GetCount(), Indices.GetCount() / 3);
+
+  for (ezUInt32 v = 0; v < geom.GetVertices().GetCount(); ++v)
+  {
+    desc.SetVertexData<ezVec3>(0, v, geom.GetVertices()[v].m_vPosition);
+    desc.SetVertexData<ezColor8UNorm>(1, v, geom.GetVertices()[v].m_Color);
+  }
+
+  for (ezUInt32 t = 0; t < Indices.GetCount(); t += 3)
+  {
+    desc.SetTriangleIndices(t / 3, Indices[t], Indices[t + 1], Indices[t + 2]);
+  }
+
+  ezResourceManager::CreateResource(hMesh, desc);
+
+  return hMesh;
+}
+
+ezMeshBufferResourceHandle CreateTranslateGizmo()
+{
+  const float fThickness = 0.01f;
+  const float fLength = 0.5f;
+  const float fRectSize = fLength / 3.0f;
+
+  ezMat4 m;
+  m.SetIdentity();
+
+  ezGeometry geom;
+
+  //geom.AddGeodesicSphere(fThickness * 3.0f, 1, ezColor8UNorm(255, 255, 0), m, 0);
+  geom.AddBox(ezVec3(fThickness * 5.0f), ezColor8UNorm(255, 255, 0), m, 0);
+
+  m.SetRotationMatrixZ(ezAngle::Degree(-90.0f));
+  geom.AddCylinder(fThickness, fThickness, fLength, false, true, 16, ezColor8UNorm(255, 0, 0), m, 1);
+
+  m.SetTranslationVector(ezVec3(fLength * 0.5f, 0, 0));
+  geom.AddCone(fThickness * 3.0f, fThickness * 6.0f, true, 16, ezColor8UNorm(255, 0, 0), m, 1);
+
+  m.SetIdentity();
+  geom.AddCylinder(fThickness, fThickness, fLength, false, true, 16, ezColor8UNorm(0, 255, 0), m, 2);
+
+  m.SetTranslationVector(ezVec3(0, fLength * 0.5f, 0));
+  geom.AddCone(fThickness * 3.0f, fThickness * 6.0f, true, 16, ezColor8UNorm(0, 255, 0), m, 2);
+
+  m.SetRotationMatrixX(ezAngle::Degree(90.0f));
+  geom.AddCylinder(fThickness, fThickness, fLength, false, true, 16, ezColor8UNorm(0, 0, 255), m, 3);
+
+  m.SetTranslationVector(ezVec3(0, 0, fLength * 0.5f));
+  geom.AddCone(fThickness * 3.0f, fThickness * 6.0f, true, 16, ezColor8UNorm(0, 0, 255), m, 3);
+
+
+  ezUInt8 uiDark = 200;
+  ezUInt8 uiLight = 255;
+
+  m.SetRotationMatrixY(ezAngle::Degree(-90.0f));
+  geom.AddRectXY(ezVec2(fRectSize), ezColor8UNorm(uiLight, uiDark, uiDark), m, 1);
+  m.SetRotationMatrixY(ezAngle::Degree( 90.0f));
+  geom.AddRectXY(ezVec2(fRectSize), ezColor8UNorm(uiLight, uiDark, uiDark), m, 1);
+
+  m.SetRotationMatrixX(ezAngle::Degree(-90.0f));
+  geom.AddRectXY(ezVec2(fRectSize), ezColor8UNorm(uiDark, uiLight, uiDark), m, 2);
+  m.SetRotationMatrixX(ezAngle::Degree( 90.0f));
+  geom.AddRectXY(ezVec2(fRectSize), ezColor8UNorm(uiDark, uiLight, uiDark), m, 2);
+
+  m.SetIdentity();
+  geom.AddRectXY(ezVec2(fRectSize), ezColor8UNorm(uiDark, uiDark, uiLight), m, 3);
+  m.SetRotationMatrixX(ezAngle::Degree(180.0f));
+  geom.AddRectXY(ezVec2(fRectSize), ezColor8UNorm(uiDark, uiDark, uiLight), m, 3);
+
+  return CreateMesh(geom, "TranslateGizmo");
+}
+
+void ezViewContext::RenderTranslateGizmo(const ezMat4& mTransformation)
+{
+  ezShaderManager::SetActiveShader(m_hGizmoShader);
+
+  ezMat4 ObjectData;
+  ObjectData = m_ProjectionMatrix * m_ViewMatrix * mTransformation;
+
+  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+  ezGALContext* pContext = pDevice->GetPrimaryContext();
+
+  pContext->SetRasterizerState(m_hRasterizerStateGizmo);
+
+  pContext->UpdateBuffer(m_hCB, 0, &ObjectData, sizeof(ObjectData));
+
+  pContext->SetConstantBuffer(1, m_hCB);
+
+  ezRenderHelper::DrawMeshBuffer(pContext, m_hTranslateGizmo);
+}
 
 void ezViewContext::RenderObject(ezGameObject* pObject, const ezMat4& ViewProj)
 {
-  //const ezVec3 vLocalPos = pObject->GetLocalPosition();
-  const ezVec3 vPos = pObject->GetWorldPosition();
+  ezShaderManager::SetActiveShader(m_hShader);
 
-  ezSizeU32 wndsize = GetEditorWindow().GetClientAreaSize();
+  const ezVec3 vPos = pObject->GetWorldPosition();
 
   ezMat4 Model;
   Model.SetTranslationMatrix(vPos);
 
-    ezMat4 ObjectData;
-
+  ezMat4 ObjectData;
   ObjectData = ViewProj * Model;
 
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
@@ -55,6 +174,7 @@ void ezViewContext::Redraw()
   static float fBlue = 0;
   fBlue = ezMath::Mod(fBlue + 0.01f, 1.0f);
   ezColor c(ezMath::Mod(0.3f * iOwnID, 1.0f), ezMath::Mod(0.1f * iOwnID, 1.0f), fBlue);
+  c = ezColor::GetCornflowerBlue() * 0.25f; // The original! * 0.25f
   pContext->Clear(c);
 
   pContext->SetRasterizerState(m_hRasterizerState);
@@ -82,6 +202,8 @@ void ezViewContext::Redraw()
       it.Next();
     }
   }
+
+  RenderTranslateGizmo(ezMat4::IdentityMatrix());
 
   pDevice->Present(m_hPrimarySwapChain);
 
@@ -131,37 +253,35 @@ namespace DontUse
     ezDynamicArray<ezVec3> Vertices;
     ezDynamicArray<ezUInt16> Indices;
 
-      ezMat4 m;
-      m.SetIdentity();
-
+    ezMat4 m;
+    m.SetIdentity();
     
+    ezColor8UNorm col(0, 255, 0);
 
-      ezColor8UNorm col(0, 255, 0);
+    ezMat4 mTrans;
+    mTrans.SetIdentity();
+    mTrans.SetRotationMatrixZ(ezAngle::Degree(90));
 
-      ezMat4 mTrans;
-      mTrans.SetIdentity();
-      mTrans.SetRotationMatrixZ(ezAngle::Degree(90));
+    ezGeometry geom;
+    geom.AddGeodesicSphere(0.5f, iMesh, ezColor8UNorm(0, 255, 0), mTrans);
 
-      ezGeometry geom;
-      geom.AddGeodesicSphere(0.5f, iMesh, ezColor8UNorm(0, 255, 0), mTrans);
+    Vertices.Reserve(geom.GetVertices().GetCount());
+    Indices.Reserve(geom.GetPolygons().GetCount() * 6);
 
-      Vertices.Reserve(geom.GetVertices().GetCount());
-      Indices.Reserve(geom.GetPolygons().GetCount() * 6);
+    for (ezUInt32 v = 0; v < geom.GetVertices().GetCount(); ++v)
+    {
+      Vertices.PushBack(geom.GetVertices()[v].m_vPosition);
+    }
 
-      for (ezUInt32 v = 0; v < geom.GetVertices().GetCount(); ++v)
+    for (ezUInt32 p = 0; p < geom.GetPolygons().GetCount(); ++p)
+    {
+      for (ezUInt32 v = 0; v < geom.GetPolygons()[p].m_Vertices.GetCount() - 2; ++v)
       {
-        Vertices.PushBack(geom.GetVertices()[v].m_vPosition);
+        Indices.PushBack(geom.GetPolygons()[p].m_Vertices[0]);
+        Indices.PushBack(geom.GetPolygons()[p].m_Vertices[v + 1]);
+        Indices.PushBack(geom.GetPolygons()[p].m_Vertices[v + 2]);
       }
-
-      for (ezUInt32 p = 0; p < geom.GetPolygons().GetCount(); ++p)
-      {
-        for (ezUInt32 v = 0; v < geom.GetPolygons()[p].m_Vertices.GetCount() - 2; ++v)
-        {
-          Indices.PushBack(geom.GetPolygons()[p].m_Vertices[0]);
-          Indices.PushBack(geom.GetPolygons()[p].m_Vertices[v + 1]);
-          Indices.PushBack(geom.GetPolygons()[p].m_Vertices[v + 2]);
-        }
-      }
+    }
 
 
     return CreateMesh(Vertices, Indices, iMesh);

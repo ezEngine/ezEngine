@@ -548,9 +548,11 @@ bool ezQtCameraMoveContext::mouseMoveEvent(QMouseEvent* e)
   const ezAngle fFovX = m_pCamera->GetFovX(fAspectRatio);
   const ezAngle fFovY = m_pCamera->GetFovY(fAspectRatio);
 
+  const float fMouseScale = 4.0f;
+
   const float fMouseMoveSensitivity = 0.002f * m_fMoveSpeed * fBoost;
-  const float fMouseRotateSensitivityX = fFovX.GetRadian() / (float) m_pParentWidget->size().width() * fBoost;
-  const float fMouseRotateSensitivityY = fFovY.GetRadian() / (float) m_pParentWidget->size().height() * fBoost;
+  const float fMouseRotateSensitivityX = (fFovX.GetRadian() / (float) m_pParentWidget->size().width()) * fBoost * fMouseScale;
+  const float fMouseRotateSensitivityY = (fFovY.GetRadian() / (float) m_pParentWidget->size().height()) * fBoost * fMouseScale;
 
   if (m_bRotateCamera && m_bMoveCamera) // left & right mouse button -> pan
   {

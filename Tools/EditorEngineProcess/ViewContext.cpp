@@ -3,6 +3,8 @@
 #include <RendererFoundation/Device/SwapChain.h>
 #include <Core/ResourceManager/ResourceManager.h>
 
+ezMeshBufferResourceHandle CreateTranslateGizmo();
+
 void ezViewContext::SetupRenderTarget(ezWindowHandle hWnd, ezUInt16 uiWidth, ezUInt16 uiHeight)
 {
   if (GetEditorWindow().m_hWnd != 0)
@@ -17,6 +19,7 @@ void ezViewContext::SetupRenderTarget(ezWindowHandle hWnd, ezUInt16 uiWidth, ezU
   else
   {
     m_hSphere = DontUse::CreateSphere(3);
+    m_hTranslateGizmo = CreateTranslateGizmo();
   }
 
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
@@ -51,6 +54,13 @@ void ezViewContext::SetupRenderTarget(ezWindowHandle hWnd, ezUInt16 uiWidth, ezU
   m_hRasterizerState = pDevice->CreateRasterizerState(RasterStateDesc);
   EZ_ASSERT(!m_hRasterizerState.IsInvalidated(), "Couldn't create rasterizer state!");
 
+  RasterStateDesc.m_bWireFrame = false;
+  RasterStateDesc.m_CullMode = ezGALCullMode::Back;
+  RasterStateDesc.m_bFrontCounterClockwise = true;
+  m_hRasterizerStateGizmo = pDevice->CreateRasterizerState(RasterStateDesc);
+  EZ_ASSERT(!m_hRasterizerState.IsInvalidated(), "Couldn't create rasterizer state!");
+  
+
   ezGALDepthStencilStateCreationDescription DepthStencilStateDesc;
   DepthStencilStateDesc.m_bDepthTest = true;
   DepthStencilStateDesc.m_bDepthWrite = true;
@@ -64,7 +74,6 @@ void ezViewContext::SetupRenderTarget(ezWindowHandle hWnd, ezUInt16 uiWidth, ezU
   ezShaderManager::SetPlatform("DX11_SM40", pDevice, true);
 
   m_hShader = ezResourceManager::GetResourceHandle<ezShaderResource>("Shaders/Wireframe.shader");
-
-  ezShaderManager::SetActiveShader(m_hShader);
+  m_hGizmoShader = ezResourceManager::GetResourceHandle<ezShaderResource>("Shaders/Gizmo.shader");
 }
 

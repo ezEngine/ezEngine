@@ -28,16 +28,20 @@ public:
 
 private:
   void RenderObject(ezGameObject* pObject, const ezMat4& ViewProj);
+  void RenderTranslateGizmo(const ezMat4& mTransformation);
 
   ezGALRenderTargetConfigHandle m_hBBRT;
   ezGALBufferHandle m_hCB;
   ezGALRasterizerStateHandle m_hRasterizerState;
+  ezGALRasterizerStateHandle m_hRasterizerStateGizmo;
   ezGALDepthStencilStateHandle m_hDepthStencilState;
   ezGALSwapChainHandle m_hPrimarySwapChain;
 
   float m_fRotY;
   ezShaderResourceHandle m_hShader;
+  ezShaderResourceHandle m_hGizmoShader;
   ezMeshBufferResourceHandle m_hSphere;
+  ezMeshBufferResourceHandle m_hTranslateGizmo;
 
   ezMat4 m_ViewMatrix;
   ezMat4 m_ProjectionMatrix;
