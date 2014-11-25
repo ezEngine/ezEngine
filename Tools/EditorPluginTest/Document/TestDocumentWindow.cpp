@@ -229,7 +229,7 @@ void ezCameraMoveContext::Update()
 
 }
 
-ez3DViewWidget::ez3DViewWidget(QWidget* pParent, ezDocumentWindow* pDocument) : QWidget(pParent), m_pDocument(pDocument)
+ez3DViewWidget::ez3DViewWidget(QWidget* pParent, ezDocumentWindow* pDocument) : QWidget(pParent), m_pDocument(pDocument), m_MoveContext(this)
 {
   setFocusPolicy(Qt::FocusPolicy::StrongFocus);
 }
@@ -266,12 +266,27 @@ void ez3DViewWidget::mouseReleaseEvent(QMouseEvent* e)
   QWidget::mouseReleaseEvent(e);
 }
 
+#include <QApplication>
+
 void ez3DViewWidget::mouseMoveEvent(QMouseEvent* e)
 {
   if (m_MoveContext.mouseMoveEvent(e))
     return;
 
+  //QApplication::setOverrideCursor( QCursor( Qt::BlankCursor ) );
+
   QWidget::mouseMoveEvent(e);
+}
+
+void ez3DViewWidget::wheelEvent(QWheelEvent* e)
+{
+  if (m_MoveContext.wheelEvent(e))
+  {
+    e->accept();
+    return;
+  }
+
+  QWidget::wheelEvent(e);
 }
 
 void ez3DViewWidget::focusOutEvent(QFocusEvent* e)
@@ -281,11 +296,14 @@ void ez3DViewWidget::focusOutEvent(QFocusEvent* e)
   QWidget::focusOutEvent(e);
 }
 
-ezQtCameraMoveContext::ezQtCameraMoveContext()
+ezQtCameraMoveContext::ezQtCameraMoveContext(QWidget* pParentWidget)
 {
+  m_pParentWidget = pParentWidget;
   m_bRotateCamera = false;
   m_bMoveCamera = false;
   m_bMoveCameraInPlane = false;
+  m_bTempMousePosition = false;
+  SetMoveSpeed(15);
 }
 
 void ezQtCameraMoveContext::Reset()
@@ -293,6 +311,8 @@ void ezQtCameraMoveContext::Reset()
   m_bRotateCamera = false;
   m_bMoveCamera = false;
   m_bMoveCameraInPlane = false;
+
+  ResetCursor();
 
   ezCameraMoveContext::Reset();
 }
@@ -355,6 +375,10 @@ bool ezQtCameraMoveContext::keyPressEvent(QKeyEvent* e)
 
   switch (e->key())
   {
+  case Qt::Key_Alt:
+  case Qt::Key_Shift:
+    return true;
+
   case Qt::Key_Left:
     m_bMoveLeft = true;
     return true;
@@ -402,31 +426,69 @@ bool ezQtCameraMoveContext::mousePressEvent(QMouseEvent* e)
   if (m_pCamera == nullptr)
     return false;
 
-  if (e->modifiers() != Qt::KeyboardModifier::NoModifier)
-    return false;
-
   if (e->button() == Qt::MouseButton::RightButton)
   {
     m_bRotateCamera = true;
-    m_LastMousePos = e->localPos();
+    m_LastMousePos = e->globalPos();
     return true;
   }
 
   if (e->button() == Qt::MouseButton::LeftButton)
   {
     m_bMoveCamera = true;
-    m_LastMousePos = e->localPos();
+    m_LastMousePos = e->globalPos();
     return true;
   }
 
   if (e->button() == Qt::MouseButton::MiddleButton)
   {
     m_bMoveCameraInPlane = true;
-    m_LastMousePos = e->localPos();
+    m_LastMousePos = e->globalPos();
     return true;
   }
 
   return false;
+}
+
+void ezQtCameraMoveContext::ResetCursor()
+{
+  if (!m_bRotateCamera && !m_bMoveCamera && !m_bMoveCameraInPlane)
+  {
+    if (m_bTempMousePosition)
+    {
+      m_bTempMousePosition = false;
+      QCursor::setPos(m_OriginalMousePos);
+    }
+
+    m_pParentWidget->setCursor(QCursor(Qt::ArrowCursor));
+  }
+}
+
+void ezQtCameraMoveContext::SetBlankCursor()
+{
+  if (m_bRotateCamera || m_bMoveCamera || m_bMoveCameraInPlane)
+  {
+    m_pParentWidget->setCursor(QCursor(Qt::BlankCursor));
+  }
+}
+
+void ezQtCameraMoveContext::SetCursorToWindowCenter()
+{
+  if (!m_bTempMousePosition)
+  {
+    m_OriginalMousePos = m_LastMousePos;
+    m_bTempMousePosition = true;
+  }
+
+  QSize size = m_pParentWidget->size();
+  QPoint center;
+  center.setX(size.width() / 2);
+  center.setY(size.height() / 2);
+
+  center = m_pParentWidget->mapToGlobal(center);
+
+  m_LastMousePos = center;
+  QCursor::setPos(center);
 }
 
 bool ezQtCameraMoveContext::mouseReleaseEvent(QMouseEvent* e)
@@ -445,18 +507,23 @@ bool ezQtCameraMoveContext::mouseReleaseEvent(QMouseEvent* e)
     m_bMoveUp = false;
     m_bMoveDown = false;
 
+    ResetCursor();
     return true;
   }
 
   if (e->button() == Qt::MouseButton::LeftButton)
   {
     m_bMoveCamera = false;
+
+    ResetCursor();
     return true;
   }
 
   if (e->button() == Qt::MouseButton::MiddleButton)
   {
     m_bMoveCameraInPlane = false;
+
+    ResetCursor();
     return true;
   }
 
@@ -468,63 +535,70 @@ bool ezQtCameraMoveContext::mouseMoveEvent(QMouseEvent* e)
   if (m_pCamera == nullptr)
     return false;
 
-  float fSpeedFactor = m_fMoveSpeed;
+  SetBlankCursor();
+
+  float fBoost = 1.0f;
 
   if (m_bRun)
-    fSpeedFactor *= 5.0f;
+    fBoost = 5.0f;
   if (m_bSlowDown)
-    fSpeedFactor *= 0.2f;
+    fBoost = 0.1f;
 
-  const float fMouseMoveSensitivity = 0.025f;
-  const float fMouseRotateSensitivity = 0.5f;
+  const float fAspectRatio = (float) m_pParentWidget->size().width() / (float) m_pParentWidget->size().height();
+  const ezAngle fFovX = m_pCamera->GetFovX(fAspectRatio);
+  const ezAngle fFovY = m_pCamera->GetFovY(fAspectRatio);
+
+  const float fMouseMoveSensitivity = 0.002f * m_fMoveSpeed * fBoost;
+  const float fMouseRotateSensitivityX = fFovX.GetRadian() / (float) m_pParentWidget->size().width() * fBoost;
+  const float fMouseRotateSensitivityY = fFovY.GetRadian() / (float) m_pParentWidget->size().height() * fBoost;
 
   if (m_bRotateCamera && m_bMoveCamera) // left & right mouse button -> pan
   {
-    const QPointF diff = e->localPos() - m_LastMousePos;
+    const QPointF diff = e->globalPos() - m_LastMousePos;
 
-    float fMoveY = -diff.y() * fMouseMoveSensitivity * fSpeedFactor;
-    float fMoveX =  diff.x() * fMouseMoveSensitivity * fSpeedFactor;
+    float fMoveY = -diff.y() * fMouseMoveSensitivity;
+    float fMoveX =  diff.x() * fMouseMoveSensitivity;
 
     m_pCamera->MoveLocally(ezVec3(fMoveX, fMoveY, 0));
 
-    m_LastMousePos = e->localPos();
+    SetCursorToWindowCenter();
     return true;
   }
 
   if (m_bRotateCamera)
   {
-    const QPointF diff = e->localPos() - m_LastMousePos;
+    const QPointF diff = e->globalPos() - m_LastMousePos;
 
-    float fRotateX = diff.y() * -fMouseRotateSensitivity * fSpeedFactor;
-    float fRotateY = diff.x() * -fMouseRotateSensitivity * fSpeedFactor;
+    float fRotateX = diff.y() * -fMouseRotateSensitivityX;
+    float fRotateY = diff.x() * -fMouseRotateSensitivityY;
 
-    m_pCamera->RotateGlobally(ezAngle::Radian(0), ezAngle::Degree(fRotateY), ezAngle::Radian(0));
-    m_pCamera->RotateLocally(ezAngle::Degree(fRotateX), ezAngle::Radian(0), ezAngle::Radian(0));
+    m_pCamera->RotateGlobally(ezAngle::Radian(0), ezAngle::Radian(fRotateY), ezAngle::Radian(0));
+    m_pCamera->RotateLocally(ezAngle::Radian(fRotateX), ezAngle::Radian(0), ezAngle::Radian(0));
 
-    m_LastMousePos = e->localPos();
+    SetCursorToWindowCenter();
     return true;
   }
 
   if (m_bMoveCamera)
   {
-    const QPointF diff = e->localPos() - m_LastMousePos;
+    const QPointF diff = e->globalPos() - m_LastMousePos;
 
-    float fMoveX = diff.x() * fMouseMoveSensitivity * fSpeedFactor;
-    float fMoveZ = diff.y() * fMouseMoveSensitivity * fSpeedFactor;
+    float fMoveX = diff.x() * fMouseMoveSensitivity;
+    float fMoveZ = diff.y() * fMouseMoveSensitivity;
 
     m_pCamera->MoveLocally(ezVec3(fMoveX, 0, fMoveZ));
 
-    m_LastMousePos = e->localPos();
+    SetCursorToWindowCenter();
 
     return true;
   }
 
   if (m_bMoveCameraInPlane)
   {
-    const QPointF diff = e->localPos() - m_LastMousePos;
+    const QPointF diff = e->globalPos() - m_LastMousePos;
 
-    float fMoveX =  diff.x() * fMouseMoveSensitivity * fSpeedFactor;
-    float fMoveZ = -diff.y() * fMouseMoveSensitivity * fSpeedFactor;
+    float fMoveX =  diff.x() * fMouseMoveSensitivity;
+    float fMoveZ = -diff.y() * fMouseMoveSensitivity;
 
     m_pCamera->MoveLocally(ezVec3(fMoveX, 0, 0));
 
@@ -534,13 +608,76 @@ bool ezQtCameraMoveContext::mouseMoveEvent(QMouseEvent* e)
 
     m_pCamera->MoveGlobally(vDir * fMoveZ);
 
-    m_LastMousePos = e->localPos();
+    SetCursorToWindowCenter();
 
     return true;
   }
 
-
   return false;
+}
+
+static const float s_fMoveSpeed[31] =
+{
+  0.0078125f,
+  0.01171875f,
+  0.015625f,
+  0.0234375f,
+  0.03125f,
+
+  0.046875f,
+  0.0625f,
+  0.09375f,
+  0.125f,
+  0.1875f,
+
+  0.25f,
+  0.375f,
+  0.5f,
+  0.75f,
+  1.0f,
+
+  1.5f,
+  2.0f,
+  3.0f,
+  4.0f,
+  6.0f,
+
+  8.0f,
+  12.0f,
+  16.0f,
+  24.0f,
+  32.0f,
+
+  48.0f,
+  64.0f,
+  96.0f,
+  128.0f,
+  192.0f,
+
+  256.0f,
+};
+
+void ezQtCameraMoveContext::SetMoveSpeed(ezInt32 iSpeed)
+{
+  m_iMoveSpeed = ezMath::Clamp(iSpeed, 0, 30);
+  m_fMoveSpeed = s_fMoveSpeed[m_iMoveSpeed];
+}
+
+bool ezQtCameraMoveContext::wheelEvent(QWheelEvent* e)
+{
+  if (e->modifiers() != Qt::KeyboardModifier::NoModifier)
+    return false;
+
+  if (e->delta() > 0)
+  {
+    SetMoveSpeed(m_iMoveSpeed + 1);
+  }
+  else
+  {
+    SetMoveSpeed(m_iMoveSpeed - 1);
+  }
+
+  return true;
 }
 
 
