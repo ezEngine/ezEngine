@@ -24,6 +24,7 @@ class ezCameraMoveContext
 public:
   ezCameraMoveContext();
   void Update();
+  virtual void Reset();
 
   ezCamera* m_pCamera;
   float m_fMoveSpeed;
@@ -36,6 +37,8 @@ public:
   bool m_bMoveLeft;
   bool m_bMoveUp;
   bool m_bMoveDown;
+  bool m_bMoveForwardsInPlane;
+  bool m_bMoveBackwardsInPlane;
 
 private:
   ezTime m_LastUpdate;
@@ -46,6 +49,8 @@ class ezQtCameraMoveContext : public ezCameraMoveContext
 public:
   ezQtCameraMoveContext();
 
+  virtual void Reset() override;
+
   bool keyPressEvent(QKeyEvent* e);
   bool keyReleaseEvent(QKeyEvent* e);
   bool mousePressEvent(QMouseEvent* e);
@@ -55,6 +60,8 @@ public:
 private:
   QPointF m_LastMousePos;
   bool m_bRotateCamera;
+  bool m_bMoveCamera;
+  bool m_bMoveCameraInPlane;
 };
 
 class ez3DViewWidget : public QWidget
@@ -75,6 +82,7 @@ protected:
   virtual void mousePressEvent(QMouseEvent* e) override;
   virtual void mouseReleaseEvent(QMouseEvent* e) override;
   virtual void mouseMoveEvent(QMouseEvent* e) override;
+  virtual void focusOutEvent(QFocusEvent* e) override;
   
   ezDocumentWindow* m_pDocument;
 };
