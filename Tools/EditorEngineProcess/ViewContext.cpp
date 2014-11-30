@@ -69,11 +69,70 @@ void ezViewContext::SetupRenderTarget(ezWindowHandle hWnd, ezUInt16 uiWidth, ezU
 
 
   // Create a constant buffer for matrix upload
-  m_hCB = pDevice->CreateConstantBuffer(sizeof(ezMat4));
+  m_hCB = pDevice->CreateConstantBuffer(sizeof(ObjectData));
 
   ezShaderManager::SetPlatform("DX11_SM40", pDevice, true);
 
   m_hShader = ezResourceManager::GetResourceHandle<ezShaderResource>("Shaders/Wireframe.shader");
   m_hGizmoShader = ezResourceManager::GetResourceHandle<ezShaderResource>("Shaders/Gizmo.shader");
+
+  // Create render target for picking
+  {
+    if (!m_hPickingRT.IsInvalidated())
+    {
+      pDevice->DestroyTexture(m_hPickingRT);
+      m_hPickingRT.Invalidate();
+    }
+
+    if (!m_hPickingDepthRT.IsInvalidated())
+    {
+      pDevice->DestroyTexture(m_hPickingDepthRT);
+      m_hPickingDepthRT.Invalidate();
+    }
+
+    if (!m_hPickingRenderTargetCfg.IsInvalidated())
+    {
+      pDevice->DestroyRenderTargetConfig(m_hPickingRenderTargetCfg);
+      m_hPickingRenderTargetCfg.Invalidate();
+    }
+
+    ezGALTextureCreationDescription tcd;
+    tcd.m_bAllowDynamicMipGeneration = false;
+    tcd.m_bAllowShaderResourceView = false;
+    tcd.m_bAllowUAV = false;
+    tcd.m_bCreateRenderTarget = true;
+    tcd.m_Format = ezGALResourceFormat::RGBAUByteNormalized;
+    tcd.m_ResourceAccess.m_bReadBack = true;
+    tcd.m_Type = ezGALTextureType::Texture2D;
+    tcd.m_uiWidth = uiWidth;
+    tcd.m_uiHeight = uiHeight;
+
+    m_hPickingRT = pDevice->CreateTexture(tcd);
+
+    tcd.m_Format = ezGALResourceFormat::D24S8;
+    tcd.m_ResourceAccess.m_bReadBack = false;
+
+    m_hPickingDepthRT = pDevice->CreateTexture(tcd);
+
+    ezGALRenderTargetViewCreationDescription rtvd;
+    rtvd.m_hTexture = m_hPickingRT;
+    rtvd.m_RenderTargetType = ezGALRenderTargetType::Color;
+    ezGALRenderTargetViewHandle hRTVcol = pDevice->CreateRenderTargetView(rtvd);
+
+    rtvd.m_hTexture = m_hPickingDepthRT;
+    rtvd.m_RenderTargetType = ezGALRenderTargetType::DepthStencil;
+    ezGALRenderTargetViewHandle hRTVdepth = pDevice->CreateRenderTargetView(rtvd);
+
+    ezGALRenderTargetConfigCreationDescription rtd;
+    rtd.m_bHardwareBackBuffer = false;
+    rtd.m_hColorTargets[0] = hRTVcol;
+    rtd.m_hDepthStencilTarget = hRTVdepth;
+    rtd.m_uiColorTargetCount = 1;
+
+    m_hPickingRenderTargetCfg = pDevice->CreateRenderTargetConfig(rtd);
+
+    m_PickingRenderTargetDT.EnableDataTransfer("Picking RT");
+  }
+
 }
 

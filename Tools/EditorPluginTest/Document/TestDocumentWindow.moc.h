@@ -25,6 +25,7 @@ public:
   ezCameraMoveContext();
   void Update();
   virtual void Reset();
+  virtual void LoadState() { }
 
   ezCamera* m_pCamera;
   float m_fMoveSpeed;
@@ -47,9 +48,11 @@ private:
 class ezQtCameraMoveContext : public ezCameraMoveContext
 {
 public:
-  ezQtCameraMoveContext(QWidget* pParentWidget);
+  ezQtCameraMoveContext(QWidget* pParentWidget, ezDocumentBase* pDocument);
 
   virtual void Reset() override;
+
+  virtual void LoadState() override;
 
   bool keyPressEvent(QKeyEvent* e);
   bool keyReleaseEvent(QKeyEvent* e);
@@ -57,6 +60,9 @@ public:
   bool mouseReleaseEvent(QMouseEvent* e);
   bool mouseMoveEvent(QMouseEvent* e);
   bool wheelEvent(QWheelEvent* e);
+
+protected:
+  ezDocumentBase* m_pDocument;
 
 private:
   void SetMoveSpeed(ezInt32 iSpeed);

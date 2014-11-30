@@ -117,7 +117,7 @@ void ezShaderManager::SetPermutationVariable(const char* szVariable, const char*
   if (pContext == nullptr)
     pContext = s_pDevice->GetPrimaryContext();
 
-  ezLog::Info("Setting '%s' to '%s'", szVariable, szValue);
+  //ezLog::Debug("Setting '%s' to '%s'", szVariable, szValue);
 
   ContextState& state = s_ContextState[pContext];
 

@@ -9,17 +9,8 @@ EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 ezTestDocument::ezTestDocument(const char* szDocumentPath) : ezDocumentBase(szDocumentPath)
 {
-  //m_pCommandHistory;
   m_pObjectManager = new ezTestObjectManager(this);
-  //m_pSelectionManager
 
-  SetModified(true);
-
-  ezEditorApp::GetInstance()->GetDocumentSettings(this, "TestPlugin").RegisterValueBool("HasSettings", true);
-  ezEditorApp::GetInstance()->GetDocumentSettings(this, "TestPlugin").RegisterValueBool("HasUserSettings", true, ezSettingsFlags::User);
-
-  ezEditorApp::GetInstance()->GetEditorSettings("TestPlugin").RegisterValueBool("HasEditorSettings", true);
-  ezEditorApp::GetInstance()->GetProjectSettings("TestPlugin").RegisterValueBool("HasProjectSettings", true);
 }
 
 ezTestDocument::~ezTestDocument()

@@ -1,4 +1,5 @@
 #include <PCH.h>
+#include <EditorFramework/EditorApp.moc.h>
 #include <EditorPluginTest/Document/TestDocumentWindow.moc.h>
 #include <Core/ResourceManager/ResourceManager.h>
 #include <RendererCore/Meshes/MeshBufferResource.h>
@@ -47,8 +48,9 @@ ezTestDocumentWindow::ezTestDocumentWindow(ezDocumentBase* pDocument) : ezDocume
   m_pEngineView->SendDocument();
   
   m_Camera.SetCameraMode(ezCamera::CameraMode::PerspectiveFixedFovY, 80.0f, 0.1f, 1000.0f);
-  //m_Camera.LookAt(ezVec3::ZeroVector(), ezVec3(0, 0, -1), ezVec3(0, 1, 0));
   m_Camera.LookAt(ezVec3(0.5f, 1.5f, 2.0f), ezVec3(0.0f, 0.5f, 0.0f), ezVec3(0.0f, 1.0f, 0.0f));
+
+  m_pCenterWidget->m_MoveContext.LoadState();
 }
 
 ezTestDocumentWindow::~ezTestDocumentWindow()
@@ -229,7 +231,7 @@ void ezCameraMoveContext::Update()
 
 }
 
-ez3DViewWidget::ez3DViewWidget(QWidget* pParent, ezDocumentWindow* pDocument) : QWidget(pParent), m_pDocument(pDocument), m_MoveContext(this)
+ez3DViewWidget::ez3DViewWidget(QWidget* pParent, ezDocumentWindow* pDocument) : QWidget(pParent), m_pDocument(pDocument), m_MoveContext(this, pDocument->GetDocument())
 {
   setFocusPolicy(Qt::FocusPolicy::StrongFocus);
 }
@@ -266,14 +268,10 @@ void ez3DViewWidget::mouseReleaseEvent(QMouseEvent* e)
   QWidget::mouseReleaseEvent(e);
 }
 
-#include <QApplication>
-
 void ez3DViewWidget::mouseMoveEvent(QMouseEvent* e)
 {
   if (m_MoveContext.mouseMoveEvent(e))
     return;
-
-  //QApplication::setOverrideCursor( QCursor( Qt::BlankCursor ) );
 
   QWidget::mouseMoveEvent(e);
 }
@@ -296,14 +294,59 @@ void ez3DViewWidget::focusOutEvent(QFocusEvent* e)
   QWidget::focusOutEvent(e);
 }
 
-ezQtCameraMoveContext::ezQtCameraMoveContext(QWidget* pParentWidget)
+static const float s_fMoveSpeed[31] =
 {
+  0.0078125f,
+  0.01171875f,
+  0.015625f,
+  0.0234375f,
+  0.03125f,
+
+  0.046875f,
+  0.0625f,
+  0.09375f,
+  0.125f,
+  0.1875f,
+
+  0.25f,
+  0.375f,
+  0.5f,
+  0.75f,
+  1.0f,
+
+  1.5f,
+  2.0f,
+  3.0f,
+  4.0f,
+  6.0f,
+
+  8.0f,
+  12.0f,
+  16.0f,
+  24.0f,
+  32.0f,
+
+  48.0f,
+  64.0f,
+  96.0f,
+  128.0f,
+  192.0f,
+
+  256.0f,
+};
+
+ezQtCameraMoveContext::ezQtCameraMoveContext(QWidget* pParentWidget, ezDocumentBase* pDocument)
+{
+  m_pDocument = pDocument;
   m_pParentWidget = pParentWidget;
   m_bRotateCamera = false;
   m_bMoveCamera = false;
   m_bMoveCameraInPlane = false;
   m_bTempMousePosition = false;
-  SetMoveSpeed(15);
+
+  // do not use SetMoveSpeed here, that would save that value to the settings
+  m_iMoveSpeed = 15;
+  m_fMoveSpeed = s_fMoveSpeed[m_iMoveSpeed];
 }
 
 void ezQtCameraMoveContext::Reset()
@@ -315,6 +358,12 @@ void ezQtCameraMoveContext::Reset()
   ResetCursor();
 
   ezCameraMoveContext::Reset();
+}
+
+void ezQtCameraMoveContext::LoadState()
+{
+  ezEditorApp::GetInstance()->GetDocumentSettings(m_pDocument->GetDocumentPath(), "TestPlugin").RegisterValueInt("CameraSpeed", 15, ezSettingsFlags::User);
+  SetMoveSpeed(ezEditorApp::GetInstance()->GetDocumentSettings(m_pDocument->GetDocumentPath(), "TestPlugin").GetValueInt("CameraSpeed"));
 }
 
 bool ezQtCameraMoveContext::keyReleaseEvent(QKeyEvent* e)
@@ -618,51 +667,13 @@ bool ezQtCameraMoveContext::mouseMoveEvent(QMouseEvent* e)
   return false;
 }
 
-static const float s_fMoveSpeed[31] =
-{
-  0.0078125f,
-  0.01171875f,
-  0.015625f,
-  0.0234375f,
-  0.03125f,
-
-  0.046875f,
-  0.0625f,
-  0.09375f,
-  0.125f,
-  0.1875f,
-
-  0.25f,
-  0.375f,
-  0.5f,
-  0.75f,
-  1.0f,
-
-  1.5f,
-  2.0f,
-  3.0f,
-  4.0f,
-  6.0f,
-
-  8.0f,
-  12.0f,
-  16.0f,
-  24.0f,
-  32.0f,
-
-  48.0f,
-  64.0f,
-  96.0f,
-  128.0f,
-  192.0f,
-
-  256.0f,
-};
-
 void ezQtCameraMoveContext::SetMoveSpeed(ezInt32 iSpeed)
 {
   m_iMoveSpeed = ezMath::Clamp(iSpeed, 0, 30);
   m_fMoveSpeed = s_fMoveSpeed[m_iMoveSpeed];
+
+  if (m_pDocument != nullptr)
+    ezEditorApp::GetInstance()->GetDocumentSettings(m_pDocument->GetDocumentPath(), "TestPlugin").SetValueInt("CameraSpeed", m_iMoveSpeed);
 }
 
 bool ezQtCameraMoveContext::wheelEvent(QWheelEvent* e)

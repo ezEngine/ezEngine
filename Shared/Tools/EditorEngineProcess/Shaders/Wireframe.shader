@@ -3,6 +3,7 @@ ALL
 
 [PERMUTATIONS]
 
+EDITOR_PICKING
 
 [VERTEXSHADER]
 
@@ -22,6 +23,12 @@ VS_OUT main(VS_IN Input)
 
 float4 main(PS_IN Input) : SV_Target
 {
-  return float4(0.0, 1.0, 0.0, 1.0);
+#if EDITOR_PICKING != 0
+  return ObjectID;
+  //return float4(1.0, 1.0, 0.0, 0.0);
+#else
+  //return ObjectID;
+  return float4(1.0, 0.5, 0.0, 1.0);
+#endif
 }
 

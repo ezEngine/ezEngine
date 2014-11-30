@@ -95,13 +95,13 @@ ezResult ezGALTextureDX11::InitPlatform(ezGALDevice* pDevice, const ezArrayPtr<e
 
         if(FAILED(pDXDevice->GetDXDevice()->CreateTexture2D(&Tex2DDesc, pInitialData != nullptr ? &InitialData[0] : nullptr, reinterpret_cast<ID3D11Texture2D**>(&m_pDXTexture))))
         {
-          if (!m_Description.m_ResourceAccess.IsImmutable() || m_Description.m_ResourceAccess.m_bReadBack)
-            return CreateStagingTexture(pDXDevice);
-
           return EZ_FAILURE;
         }
         else
         {
+          if (!m_Description.m_ResourceAccess.IsImmutable() || m_Description.m_ResourceAccess.m_bReadBack)
+            return CreateStagingTexture(pDXDevice);
+
           return EZ_SUCCESS;
         }
 
@@ -109,6 +109,7 @@ ezResult ezGALTextureDX11::InitPlatform(ezGALDevice* pDevice, const ezArrayPtr<e
       break;
 
     case ezGALTextureType::Texture3D:
+      EZ_ASSERT_NOT_IMPLEMENTED;
       break;
 
     default:

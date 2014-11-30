@@ -11,6 +11,8 @@
 #include <CoreUtils/Geometry/GeomUtils.h>
 #include <Core/ResourceManager/ResourceManager.h>
 
+ezDataTransfer ezViewContext::m_PickingRenderTargetDT;
+
 ezMeshBufferResourceHandle CreateMesh(const ezGeometry& geom, const char* szResourceName)
 {
   ezMeshBufferResourceHandle hMesh;
@@ -112,17 +114,23 @@ ezMeshBufferResourceHandle CreateTranslateGizmo()
 
 void ezViewContext::RenderTranslateGizmo(const ezMat4& mTransformation)
 {
+  ezUInt32 uiPickingID = m_PickingCache.GeneratePickingID(nullptr, "ezTranslateGizmo");
+
   ezShaderManager::SetActiveShader(m_hGizmoShader);
 
-  ezMat4 ObjectData;
-  ObjectData = m_ProjectionMatrix * m_ViewMatrix * mTransformation;
+  ObjectData od;
+  od.m_ModelView = m_ProjectionMatrix * m_ViewMatrix * mTransformation;
+  od.m_PickingID[0] = (uiPickingID & 0xFF) / 255.0f;
+  od.m_PickingID[1] = ((uiPickingID & 0xFF00) >> 8) / 255.0f;
+  od.m_PickingID[2] = ((uiPickingID & 0xFF0000) >> 16) / 255.0f;
+  od.m_PickingID[3] = ((uiPickingID & 0xFF000000) >> 24) / 255.0f;
 
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
   ezGALContext* pContext = pDevice->GetPrimaryContext();
 
   pContext->SetRasterizerState(m_hRasterizerStateGizmo);
 
-  pContext->UpdateBuffer(m_hCB, 0, &ObjectData, sizeof(ObjectData));
+  pContext->UpdateBuffer(m_hCB, 0, &od, sizeof(ObjectData));
 
   pContext->SetConstantBuffer(1, m_hCB);
 
@@ -131,6 +139,8 @@ void ezViewContext::RenderTranslateGizmo(const ezMat4& mTransformation)
 
 void ezViewContext::RenderObject(ezGameObject* pObject, const ezMat4& ViewProj)
 {
+  ezUInt32 uiPickingID = m_PickingCache.GeneratePickingID(pObject, "ezGameObject");
+
   ezShaderManager::SetActiveShader(m_hShader);
 
   const ezVec3 vPos = pObject->GetWorldPosition();
@@ -138,19 +148,59 @@ void ezViewContext::RenderObject(ezGameObject* pObject, const ezMat4& ViewProj)
   ezMat4 Model;
   Model.SetTranslationMatrix(vPos);
 
-  ezMat4 ObjectData;
-  ObjectData = ViewProj * Model;
+  ObjectData od;
+  od.m_ModelView = ViewProj * Model;
+  od.m_PickingID[0] = (uiPickingID & 0xFF) / 255.0f;
+  od.m_PickingID[1] = ((uiPickingID & 0xFF00) >> 8) / 255.0f;
+  od.m_PickingID[2] = ((uiPickingID & 0xFF0000) >> 16) / 255.0f;
+  od.m_PickingID[3] = ((uiPickingID & 0xFF000000) >> 24) / 255.0f;
+
 
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
   ezGALContext* pContext = pDevice->GetPrimaryContext();
 
-  pContext->UpdateBuffer(m_hCB, 0, &ObjectData, sizeof(ObjectData));
+  pContext->UpdateBuffer(m_hCB, 0, &od, sizeof(ObjectData));
 
   pContext->SetConstantBuffer(1, m_hCB);
 
   ezRenderHelper::DrawMeshBuffer(pContext, m_hSphere);
 }
 
+void ezViewContext::RenderScene()
+{
+  ezSizeU32 wndsize = GetEditorWindow().GetClientAreaSize();
+
+  ezEngineProcessDocumentContext* pDocumentContext = ezEngineProcessDocumentContext::GetDocumentContext(GetDocumentGuid());
+
+  ezMat4 mViewMatrix, mProjectionMatrix, mViewProjection;
+  m_Camera.GetViewMatrix(mViewMatrix);
+  m_Camera.GetProjectionMatrix((float) wndsize.width / (float) wndsize.height, ezProjectionDepthRange::ZeroToOne, mProjectionMatrix);
+  
+  mViewProjection = mProjectionMatrix * mViewMatrix;
+  //mViewProjection = m_ProjectionMatrix * m_ViewMatrix;
+
+  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+  ezGALContext* pContext = pDevice->GetPrimaryContext();
+
+  pContext->SetRasterizerState(m_hRasterizerState);
+  pContext->SetDepthStencilState(m_hDepthStencilState);
+
+  if (pDocumentContext && pDocumentContext->m_pWorld)
+  {
+    pDocumentContext->m_pWorld->Update();
+
+    auto it = pDocumentContext->m_pWorld->GetObjects();
+  
+    while (it.IsValid())
+    {
+      RenderObject(&(*it), mViewProjection);
+
+      it.Next();
+    }
+  }
+
+  RenderTranslateGizmo(ezMat4::IdentityMatrix());
+}
 
 void ezViewContext::Redraw()
 {
@@ -168,44 +218,59 @@ void ezViewContext::Redraw()
 
   ezSizeU32 wndsize = GetEditorWindow().GetClientAreaSize();
 
-  pContext->SetRenderTargetConfig(m_hBBRT);
   pContext->SetViewport(0.0f, 0.0f, (float) wndsize.width, (float) wndsize.height, 0.0f, 1.0f);
 
-  static float fBlue = 0;
-  fBlue = ezMath::Mod(fBlue + 0.01f, 1.0f);
-  ezColor c(ezMath::Mod(0.3f * iOwnID, 1.0f), ezMath::Mod(0.1f * iOwnID, 1.0f), fBlue);
-  c = ezColor::GetCornflowerBlue() * 0.25f; // The original! * 0.25f
-  pContext->Clear(c);
-
-  pContext->SetRasterizerState(m_hRasterizerState);
-  pContext->SetDepthStencilState(m_hDepthStencilState);
-
-  ezEngineProcessDocumentContext* pDocumentContext = ezEngineProcessDocumentContext::GetDocumentContext(GetDocumentGuid());
-
-  ezMat4 mViewMatrix, mProjectionMatrix, mViewProjection;
-  m_Camera.GetViewMatrix(mViewMatrix);
-  m_Camera.GetProjectionMatrix((float) wndsize.width / (float) wndsize.height, ezProjectionDepthRange::ZeroToOne, mProjectionMatrix);
-  
-  mViewProjection = mProjectionMatrix * mViewMatrix;
-  //mViewProjection = m_ProjectionMatrix * m_ViewMatrix;
-
-  if (pDocumentContext && pDocumentContext->m_pWorld)
   {
-    pDocumentContext->m_pWorld->Update();
+    m_PickingCache.Clear();
 
-    auto it = pDocumentContext->m_pWorld->GetObjects();
-  
-    while (it.IsValid())
-    {
-      RenderObject(&(*it), mViewProjection);
+    pContext->SetRenderTargetConfig(m_hPickingRenderTargetCfg);
 
-      it.Next();
-    }
+    pContext->Clear(ezColor::GetBlack());
+    ezShaderManager::SetPermutationVariable("EDITOR_PICKING", "1");
+
+    RenderScene();
   }
 
-  RenderTranslateGizmo(ezMat4::IdentityMatrix());
+  {
+    pContext->SetRenderTargetConfig(m_hBBRT);
+
+    ezColor c = ezColor::GetCornflowerBlue() * 0.25f; // The original! * 0.25f
+    pContext->Clear(c);
+    ezShaderManager::SetPermutationVariable("EDITOR_PICKING", "0");
+
+    RenderScene();
+  }
 
   pDevice->Present(m_hPrimarySwapChain);
+
+  if (m_PickingRenderTargetDT.IsTransferRequested())
+  {
+    pContext->ReadbackTexture(m_hPickingRT);
+
+    ezDynamicArray<ezUInt8> ImageContent;
+    ImageContent.SetCount(4 * wndsize.width * wndsize.height);
+
+    ezGALSystemMemoryDescription MemDesc;
+    MemDesc.m_pData = ImageContent.GetData();
+    MemDesc.m_uiRowPitch = 4 * wndsize.width;
+    MemDesc.m_uiSlicePitch = 4 * wndsize.width * wndsize.height;
+
+    ezArrayPtr<ezGALSystemMemoryDescription> SysMemDescs(&MemDesc, 1);
+
+    pContext->CopyTextureReadbackResult(m_hPickingRT, &SysMemDescs);
+
+    for (ezUInt32 i = 0; i < ImageContent.GetCount(); i += 4)
+    {
+      ezMath::Swap(ImageContent[i + 0], ImageContent[i + 2]);
+    }
+
+    ezDataTransferObject DataObject(m_PickingRenderTargetDT, "Picking IDs", "image/rgba8", "rgba");
+    DataObject.GetWriter() << wndsize.width;
+    DataObject.GetWriter() << wndsize.height;
+    DataObject.GetWriter().WriteBytes(ImageContent.GetData(), ImageContent.GetCount());
+
+    DataObject.Transmit();
+  }
 
   pDevice->EndFrame();
 

@@ -416,6 +416,9 @@ void ezGALContextDX11::ReadbackTexturePlatform(ezGALTexture* pTexture)
   // MSAA textures (e.g. backbuffers) need to be converted to non MSAA versions
   const bool bMSAASourceTexture = pDXTexture->GetDescription().m_SampleCount != ezGALMSAASampleCount::None;
 
+  EZ_ASSERT(pDXTexture->GetDXStagingTexture() != nullptr, "No staging resource available for read-back");
+  EZ_ASSERT(pDXTexture->GetDXTexture() != nullptr, "Texture object is invalid");
+
   if (bMSAASourceTexture)
   {
     /// \todo Other mip levels etc?
@@ -432,10 +435,12 @@ void ezGALContextDX11::CopyTextureReadbackResultPlatform(ezGALTexture* pTexture,
 {
   ezGALTextureDX11* pDXTexture = static_cast<ezGALTextureDX11*>(pTexture);
 
+  EZ_ASSERT(pDXTexture->GetDXStagingTexture() != nullptr, "No staging resource available for read-back");
+
   D3D11_MAPPED_SUBRESOURCE Mapped;
   if(SUCCEEDED(m_pDXContext->Map(pDXTexture->GetDXStagingTexture(), 0, D3D11_MAP_READ, 0, &Mapped)))
   {
-    ezLog::Info("Warning: CopyTextureReadbackResult() is not 100% correctly implemented at the current time!");
+    ezLog::Info("Warning: CopyTextureReadbackResult() is not 100%% correctly implemented at the current time!");
 
     if (Mapped.RowPitch == (*pData)[0].m_uiRowPitch)
     {

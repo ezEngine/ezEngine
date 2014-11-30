@@ -129,6 +129,8 @@ void ezCommandHistory::EndTemporaryCommands(bool bCancel)
   {
     EndTransaction(bCancel);
     m_bTempTransaction = false;
+
+    EZ_ASSERT(m_TransactionStack.IsEmpty(), "Transaction stack should be empty now");
   }
 }
 

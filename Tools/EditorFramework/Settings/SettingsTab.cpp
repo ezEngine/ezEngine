@@ -91,11 +91,11 @@ void ezSettingsTab::UpdateSettings()
   ComboSettingsDomain->clear();
 
   int iSelected = 0;
-  ComboSettingsDomain->addItem("<Application>");
+  ComboSettingsDomain->addItem("<Application>", QString("<Application>"));
 
   if (ezEditorProject::IsProjectOpen())
   {
-    ComboSettingsDomain->addItem("<Project>");
+    ComboSettingsDomain->addItem("<Project>", QString("<Project>"));
 
     if ("<Project>" == m_sSelectedSettingDomain)
       iSelected = 1;
@@ -109,9 +109,9 @@ void ezSettingsTab::UpdateSettings()
         if (!ezEditorProject::GetInstance()->IsDocumentInProject(doc->GetDocumentPath(), &sRel))
           continue;
 
-        ComboSettingsDomain->addItem(sRel.GetData());
+        ComboSettingsDomain->addItem(sRel.GetData(), QString(doc->GetDocumentPath()));
 
-        if (sRel == m_sSelectedSettingDomain)
+        if (doc->GetDocumentPath() == m_sSelectedSettingDomain)
           iSelected = iIndex;
 
         ++iIndex;
@@ -120,7 +120,7 @@ void ezSettingsTab::UpdateSettings()
   }
 
   ComboSettingsDomain->setCurrentIndex(iSelected);
-  m_sSelectedSettingDomain = ComboSettingsDomain->currentText().toUtf8().data();
+  m_sSelectedSettingDomain = ComboSettingsDomain->itemData(iSelected, Qt::UserRole).toString().toUtf8().data();
   ComboSettingsDomain->blockSignals(false);
 
   m_pSettingsGrid->BeginProperties();
@@ -141,6 +141,8 @@ void ezSettingsTab::UpdateSettings()
 
     for (auto it = s->GetAllSettings().GetIterator(); it.IsValid(); ++it)
     {
+      if (!it.Value().m_Flags.IsAnySet(ezSettingsFlags::Registered))
+        continue;
       if (it.Value().m_Flags.IsAnySet(ezSettingsFlags::Hidden))
         continue;
 
@@ -179,7 +181,7 @@ void ezSettingsTab::SlotButtonPluginConfig()
 
 void ezSettingsTab::SlotComboSettingsDomainIndexChanged(int iIndex)
 {
-  m_sSelectedSettingDomain = ComboSettingsDomain->itemText(iIndex).toUtf8().data();
+  m_sSelectedSettingDomain = ComboSettingsDomain->itemData(iIndex, Qt::UserRole).toString().toUtf8().data();
 
   UpdateSettings();
 

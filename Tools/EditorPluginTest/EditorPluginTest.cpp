@@ -114,25 +114,6 @@ void OnLoadPlugin(bool bReloading)
 
   ezEditorApp::GetInstance()->RegisterPluginNameForSettings("TestPlugin");
 
-  ezEditorApp::GetInstance()->GetEditorSettings().RegisterValueInt("iStuff", 42, ezSettingsFlags::ReadOnly);
-  ezEditorApp::GetInstance()->GetEditorSettings().RegisterValueBool("bStuff1", true);
-  ezEditorApp::GetInstance()->GetEditorSettings().RegisterValueBool("bStuff2", false);
-  ezEditorApp::GetInstance()->GetEditorSettings().RegisterValueColor("Color", ezColor::GetCornflowerBlue());
-
-  //g_pTestObject = ((ezDocumentObjectManagerBase*) g_pDocument->GetObjectManager())->CreateObject(ezReflectedTypeManager::GetTypeHandleByName(ezGetStaticRTTI<ezTestObjectProperties>()->GetTypeName()));
-  //g_pTestObject3 = ((ezDocumentObjectManagerBase*) g_pDocument->GetObjectManager())->CreateObject(ezReflectedTypeManager::GetTypeHandleByName(ezGetStaticRTTI<ezTestObjectProperties>()->GetTypeName()));
-  //g_pTestObject2 = ((ezDocumentObjectManagerBase*) g_pDocument->GetObjectManager())->CreateObject(ezReflectedTypeManager::GetTypeHandleByName(ezGetStaticRTTI<ezTestEditorProperties>()->GetTypeName()));
-  //g_pTestObject4 = ((ezDocumentObjectManagerBase*) g_pDocument->GetObjectManager())->CreateObject(ezReflectedTypeManager::GetTypeHandleByName(ezGetStaticRTTI<ezTestEditorProperties>()->GetTypeName()));
-
-  //((ezDocumentObjectTree*) g_pDocument->GetObjectTree())->AddObject(g_pTestObject, nullptr);
-  //((ezDocumentObjectTree*) g_pDocument->GetObjectTree())->AddObject(g_pTestObject2, g_pTestObject);
-  //((ezDocumentObjectTree*) g_pDocument->GetObjectTree())->AddObject(g_pTestObject3, g_pTestObject);
-  //((ezDocumentObjectTree*) g_pDocument->GetObjectTree())->AddObject(g_pTestObject4, g_pTestObject3);
-
-  //ezDeque<const ezDocumentObjectBase*> sel;
-  //sel.PushBack(g_pTestObject2);
-
-  //pProps->SetSelection(sel);
 }
 
 void OnUnloadPlugin(bool bReloading)  

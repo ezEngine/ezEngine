@@ -53,6 +53,8 @@ public:
   ezStatus LoadDocument() { return InternalLoadDocument(); }
   void EnsureVisible();
 
+  void BroadcastSaveDocumentMetaState();
+
   ezDocumentManagerBase* GetDocumentManager() const { return m_pDocumentManager; }
 
 public:
@@ -64,6 +66,7 @@ public:
       ReadOnlyChanged,
       EnsureVisible,
       DocumentSaved,
+      SaveDocumentMetaState,
     };
 
     Type m_Type;

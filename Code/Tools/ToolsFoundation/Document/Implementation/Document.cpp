@@ -84,7 +84,15 @@ void ezDocumentBase::SetReadOnly(bool b)
   s_EventsAny.Broadcast(e);
 }
 
+void ezDocumentBase::BroadcastSaveDocumentMetaState()
+{
+  Event e;
+  e.m_pDocument = this;
+  e.m_Type = Event::Type::SaveDocumentMetaState;
 
+  m_EventsOne.Broadcast(e);
+  s_EventsAny.Broadcast(e);
+}
 
 ezStatus ezDocumentBase::SaveDocument()
 {
@@ -100,6 +108,8 @@ ezStatus ezDocumentBase::SaveDocument()
 
     SetModified(false);
   }
+
+  BroadcastSaveDocumentMetaState();
 
   return ret;
 }

@@ -225,6 +225,8 @@ void ezDocumentManagerBase::CloseDocument(ezDocumentBase* pDocument)
 {
   EZ_ASSERT(pDocument != nullptr, "Invalid document pointer");
 
+  pDocument->BroadcastSaveDocumentMetaState();
+
   Event e;
   e.m_pDocument = pDocument;
   e.m_Type = Event::Type::DocumentClosing;

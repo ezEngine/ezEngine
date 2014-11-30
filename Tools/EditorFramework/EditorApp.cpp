@@ -181,7 +181,7 @@ void ezEditorApp::DocumentEventHandler(const ezDocumentBase::Event& e)
 {
   switch (e.m_Type)
   {
-  case ezDocumentBase::Event::Type::DocumentSaved:
+  case ezDocumentBase::Event::Type::SaveDocumentMetaState:
     {
       SaveDocumentSettings(e.m_pDocument);
     }
