@@ -69,7 +69,10 @@ public:
 
     T* pRenderData = EZ_DEFAULT_NEW(T);
     pRenderData->m_uiSortingKey = 0; /// \todo implement sorting
+
+	#if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
     pRenderData->m_pOwner = pOwner;
+	#endif
     
     if (passType >= m_pExtractedData->m_PassData.GetCount())
     {
