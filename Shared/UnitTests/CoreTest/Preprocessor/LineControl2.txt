@@ -1,0 +1,25 @@
+#define A
+
+#line 10
+__FILE__:__LINE__: a
+
+#line 20 
+#ifdef A
+  __FILE__:__LINE__: b
+
+  #line 30 "lc1"
+  __FILE__:__LINE__: c
+  
+  #ifdef B
+
+    #line 11 "lc2"
+    __FILE__:__LINE__: d
+
+    #include "Test/../Includes\LineControl Include.txt"
+    __FILE__:__LINE__: e
+
+    #line 32 "lc3"
+  #endif
+#endif
+
+__FILE__:__LINE__: f

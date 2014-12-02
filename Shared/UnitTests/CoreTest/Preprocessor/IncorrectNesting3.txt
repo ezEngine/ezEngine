@@ -1,0 +1,18 @@
+#define A
+
+#ifdef A
+
+ 'A' is defined
+
+ifdef B
+
+ 'B' is defined
+ 
+#else
+
+  'B' is not defined
+ 
+#endif
+
+#endif
+

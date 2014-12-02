@@ -1,0 +1,3 @@
+Processing failed
+Preprocessor/Includes/ErrorWarning.txt: Line 4 [3]: Error: #error 'Some error'
+Log: 'File 'Preprocessor/Includes/ErrorWarning.txt', Line 4 (3): #error 'Some error''

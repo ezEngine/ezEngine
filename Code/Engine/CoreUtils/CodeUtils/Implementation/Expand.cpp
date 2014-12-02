@@ -61,7 +61,10 @@ ezResult ezPreprocessor::ExpandOnce(const TokenStream& Tokens, TokenStream& Outp
 
     // if we are not inside some macro expansion, but on the top level, adjust the line counter
     if (bIsOutermost)
+    {
+      m_sCurrentFileStack.PeekBack().m_sVirtualFileName = Tokens[uiCurToken]->m_File.GetData();
       m_sCurrentFileStack.PeekBack().m_iCurrentLine = (ezInt32) Tokens[uiCurToken]->m_uiLine;
+    }
 
     // if it is no identifier, it cannot be a macro -> just pass it through
     if (Tokens[uiCurToken]->m_iType != ezTokenType::Identifier)

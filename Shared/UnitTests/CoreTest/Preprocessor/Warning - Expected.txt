@@ -1,0 +1,8 @@
+Processing succeeded
+
+
+	
+			
+
+Preprocessor/Includes/ErrorWarning.txt: Line 10 [4]: Warning: #warning '"Some warning		"'
+Log: 'File 'Preprocessor/Includes/ErrorWarning.txt', Line 10 (4): #warning '"Some warning		"''

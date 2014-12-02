@@ -1,0 +1,12 @@
+
+#	if 	 defined (	\
+	E		)
+	#error Some error
+	
+	#			\
+	endif
+	
+	#ifdef W
+		#warning "Some warning		"
+			
+			#endif

@@ -111,8 +111,6 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, Preprocessor)
     #ifdef, #if etc.
       macro expansion
       mathematical expressions
-    #error
-    #warning
     custom defines from outside
     expand to self (with, without parameters, with parameters to expand)
     stringify invalid token
@@ -124,10 +122,6 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, Preprocessor)
       #define
       #ifdef
       etc.
-    unlocateable include file
-    pass through #pragma
-    pass through #line
-    invalid #if, #else, #elif, #endif nesting
 
     Done:
     #pragma once
@@ -145,6 +139,10 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, Preprocessor)
     stringification of strings and special characters (\n)
     commas in macro parameters
     #undef
+    unlocateable include file
+    pass through #pragma
+    pass through #line
+    invalid #if, #else, #elif, #endif nesting
   */
   
   {
@@ -168,6 +166,7 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, Preprocessor)
         PPTestSettings("InvalidIf1"),
         PPTestSettings("Parameters"),
         PPTestSettings("LineControl"),
+        PPTestSettings("LineControl2"),
         PPTestSettings("DefineFile"),
         PPTestSettings("DefineLine"),
         PPTestSettings("DefineDefined"),
@@ -177,6 +176,11 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, Preprocessor)
         PPTestSettings("Test1"), 
         PPTestSettings("FailedInclude"), /// \todo Better error message
         PPTestSettings("PassThroughUnknown", false, false, true),
+        PPTestSettings("IncorrectNesting1"),
+        PPTestSettings("IncorrectNesting2"),
+        PPTestSettings("IncorrectNesting3"),
+        PPTestSettings("Error"),
+        PPTestSettings("Warning"),
     };
 
     ezStringBuilder sOutput;

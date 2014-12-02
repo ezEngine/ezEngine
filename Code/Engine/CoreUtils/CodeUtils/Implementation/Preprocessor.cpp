@@ -163,6 +163,20 @@ ezResult ezPreprocessor::Process(const char* szMainFile, TokenStream& TokenOutpu
   if (ProcessFile(sFileToOpen.GetData(), TokenOutput).Failed())
     return EZ_FAILURE;
 
+  m_IfdefActiveStack.PopBack();
+
+  if (!m_IfdefActiveStack.IsEmpty())
+  {
+    ezLog::Error(m_pLog, "Incomplete nesting of #if / #else / #endif");
+    return EZ_FAILURE;
+  }
+
+  if (!m_sCurrentFileStack.IsEmpty())
+  {
+    ezLog::Error(m_pLog, "Internal error, file stack is not empty after processing. %i elements, top stack item: '%s'", m_sCurrentFileStack.GetCount(), m_sCurrentFileStack.PeekBack().m_sFileName.GetData());
+    return EZ_FAILURE;
+  }
+
   return EZ_SUCCESS;
 }
 
@@ -233,7 +247,24 @@ ezResult ezPreprocessor::ProcessCmd(const TokenStream& Tokens, TokenStream& Toke
 
   // we are currently inside an inactive text block, so skip all the following commands
   if (m_IfdefActiveStack.PeekBack() != IfDefActivity::IsActive)
-    return EZ_SUCCESS;
+  {
+    /// \todo Unknown command should only be passed through after callback agrees to it, to prevent invalid preprocessor commands
+    if (m_bPassThroughUnknownCmd)
+      return EZ_SUCCESS;
+
+    // check that the following command is valid, even if it is ignored
+    if (Accept(Tokens, uiCurToken, "line", &uiAccepted) ||
+        Accept(Tokens, uiCurToken, "include", &uiAccepted) ||
+        Accept(Tokens, uiCurToken, "define") ||
+        Accept(Tokens, uiCurToken, "undef", &uiAccepted) ||
+        Accept(Tokens, uiCurToken, "error", &uiAccepted) ||
+        Accept(Tokens, uiCurToken, "warning", &uiAccepted) ||
+        Accept(Tokens, uiCurToken, "pragma"))
+        return EZ_SUCCESS;
+
+    PP_LOG0(Error, "Expected a preprocessor command", Tokens[0]);
+    return EZ_FAILURE;
+  }
 
   if (Accept(Tokens, uiCurToken, "line", &uiAccepted))
     return HandleLine(Tokens, uiCurToken, uiHashToken, TokenOutput);
@@ -274,7 +305,7 @@ ezResult ezPreprocessor::ProcessCmd(const TokenStream& Tokens, TokenStream& Toke
 
 ezResult ezPreprocessor::HandleLine(const TokenStream& Tokens, ezUInt32 uiCurToken, ezUInt32 uiHashToken, TokenStream& TokenOutput)
 {
-  // #line directives are just passed through
+  // #line directives are just passed through, the actual #line detection is already done by the tokenizer
   // however we check them for validity here
 
   if (m_bPassThroughLine)
@@ -296,9 +327,9 @@ ezResult ezPreprocessor::HandleLine(const TokenStream& Tokens, ezUInt32 uiCurTok
   ezUInt32 uiFileNameToken = 0;
   if (Accept(Tokens, uiCurToken, ezTokenType::String1, &uiFileNameToken))
   {
-    ezStringBuilder sFileName = Tokens[uiFileNameToken]->m_DataView;
-    sFileName.Shrink(1, 1); // remove surrounding "
-    m_sCurrentFileStack.PeekBack().m_sVirtualFileName = sFileName;
+    //ezStringBuilder sFileName = Tokens[uiFileNameToken]->m_DataView;
+    //sFileName.Shrink(1, 1); // remove surrounding "
+    //m_sCurrentFileStack.PeekBack().m_sVirtualFileName = sFileName;
   }
   else
   {

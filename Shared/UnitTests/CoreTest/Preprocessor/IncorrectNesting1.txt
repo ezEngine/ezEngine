@@ -1,0 +1,15 @@
+#define A
+//#define B
+
+#ifdef A
+
+ A is defined
+
+#ifdef B
+
+ B is defined
+ 
+#Endif
+
+#endif
+
