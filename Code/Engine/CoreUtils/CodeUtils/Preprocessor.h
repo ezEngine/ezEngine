@@ -274,7 +274,7 @@ private: // *** Parsing ***
   static void SkipWhitespace(const TokenStream& Tokens, ezUInt32& uiCurToken);
   static void SkipWhitespaceAndNewline(const TokenStream& Tokens, ezUInt32& uiCurToken);
   static bool IsEndOfLine(const TokenStream& Tokens, ezUInt32 uiCurToken, bool bIgnoreWhitespace);
-  static void CopyRelevantTokens(const TokenStream& Source, ezUInt32 uiFirstSourceToken, TokenStream& Destination);
+  static void CopyRelevantTokens(const TokenStream& Source, ezUInt32 uiFirstSourceToken, TokenStream& Destination, bool bPreserveNewLines);
   ezResult CopyTokensAndEvaluateDefined(const TokenStream& Source, ezUInt32 uiFirstSourceToken, TokenStream& Destination);
 
   bool Accept(const TokenStream& Tokens, ezUInt32& uiCurToken, const char* szToken, ezUInt32* pAccepted = nullptr);

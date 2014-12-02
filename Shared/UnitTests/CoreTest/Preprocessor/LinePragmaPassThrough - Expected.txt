@@ -1,0 +1,10 @@
+Processing succeeded
+#pragma warning
+Test
+
+#line 100 "Test.txt"
+Some line
+
+#line 200 "Test.txt"
+
+Weird line

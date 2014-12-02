@@ -148,21 +148,35 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, Preprocessor)
   */
   
   {
-    const char* szTestFiles[] =
+    struct PPTestSettings
     {
-      "Undef",
-      "InvalidIf1",
-      "Parameters",
-      "LineControl",
-      "DefineFile",
-      "DefineLine",
-      "DefineDefined",
-      "Stringify",
-      "BuildFlags",
-      "Empty",
-      "Test1", 
-      "FailedInclude", /// \todo Better error message
-      "PassThroughUnknown",
+        PPTestSettings(const char* szFileName, bool bPassThroughLines = false, bool bPassThroughPragmas = false, bool bPassThroughUnknownCommands = false)
+            : m_szFileName(szFileName), m_bPassThroughLines(bPassThroughLines), m_bPassThroughPragmas(bPassThroughPragmas), m_bPassThroughUnknownCommands(bPassThroughUnknownCommands)
+        {
+        }
+
+        const char* m_szFileName;
+        bool m_bPassThroughLines;
+        bool m_bPassThroughPragmas;
+        bool m_bPassThroughUnknownCommands;
+    };
+
+    PPTestSettings TestSettings[] =
+    {
+        PPTestSettings("LinePragmaPassThrough", true, true),
+        PPTestSettings("Undef"),
+        PPTestSettings("InvalidIf1"),
+        PPTestSettings("Parameters"),
+        PPTestSettings("LineControl"),
+        PPTestSettings("DefineFile"),
+        PPTestSettings("DefineLine"),
+        PPTestSettings("DefineDefined"),
+        PPTestSettings("Stringify"),
+        PPTestSettings("BuildFlags"),
+        PPTestSettings("Empty"),
+        PPTestSettings("Test1"), 
+        PPTestSettings("FailedInclude"), /// \todo Better error message
+        PPTestSettings("PassThroughUnknown", false, false, true),
     };
 
     ezStringBuilder sOutput;
@@ -170,30 +184,27 @@ EZ_CREATE_SIMPLE_TEST(CodeUtils, Preprocessor)
     ezStringBuilder fileNameOut;
     ezStringBuilder fileNameExp;
 
-    for (int i = 0; i < EZ_ARRAY_SIZE(szTestFiles); i++)
+    for (int i = 0; i < EZ_ARRAY_SIZE(TestSettings); i++)
     {
-      EZ_TEST_BLOCK(ezTestBlock::Enabled, szTestFiles[i])
+      EZ_TEST_BLOCK(ezTestBlock::Enabled, TestSettings[i].m_szFileName)
       {
         Logger log;
 
         ezPreprocessor pp;
         pp.SetLogInterface(&log);
-        pp.SetPassThroughLine(false);
-        pp.SetPassThroughPragma(true);
+        pp.SetPassThroughLine(TestSettings[i].m_bPassThroughLines);
+        pp.SetPassThroughPragma(TestSettings[i].m_bPassThroughPragmas);
         pp.SetFileLocatorFunction(FileLocator);
         pp.SetCustomFileCache(&SharedCache);
         pp.m_ProcessingEvents.AddEventHandler(ezDelegate<void (const ezPreprocessor::ProcessingEvent&)>(&Logger::EventHandler, &log));
         pp.AddCustomDefine("PP_OBJ");
         pp.AddCustomDefine("PP_FUNC(a) a");
-
-        if (ezStringUtils::StartsWith(szTestFiles[i], "PassThroughUnknown"))
-          pp.SetPassThroughUnknownCmds(true);
-
+        pp.SetPassThroughUnknownCmds(TestSettings[i].m_bPassThroughUnknownCommands);
 
         {
-          fileName.Format("Preprocessor/%s.txt", szTestFiles[i]);
-          fileNameExp.Format("Preprocessor/%s - Expected.txt", szTestFiles[i]);
-          fileNameOut.Format("Preprocessor/%s - Result.txt", szTestFiles[i]);
+          fileName.Format("Preprocessor/%s.txt", TestSettings[i].m_szFileName);
+          fileNameExp.Format("Preprocessor/%s - Expected.txt", TestSettings[i].m_szFileName);
+          fileNameOut.Format("Preprocessor/%s - Result.txt", TestSettings[i].m_szFileName);
 
           EZ_TEST_BOOL_MSG(ezFileSystem::ExistsFile(fileName.GetData()), "File does not exist: '%s'", fileName.GetData());
 

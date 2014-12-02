@@ -31,7 +31,7 @@ bool ezPreprocessor::IsEndOfLine(const TokenStream& Tokens, ezUInt32 uiCurToken,
   return Tokens[uiCurToken]->m_iType == ezTokenType::Newline || Tokens[uiCurToken]->m_iType == ezTokenType::EndOfFile;
 }
 
-void ezPreprocessor::CopyRelevantTokens(const TokenStream& Source, ezUInt32 uiFirstSourceToken, TokenStream& Destination)
+void ezPreprocessor::CopyRelevantTokens(const TokenStream& Source, ezUInt32 uiFirstSourceToken, TokenStream& Destination, bool bPreserveNewLines)
 {
   Destination.Reserve(Destination.GetCount() + Source.GetCount() - uiFirstSourceToken);
 
@@ -46,7 +46,7 @@ void ezPreprocessor::CopyRelevantTokens(const TokenStream& Source, ezUInt32 uiFi
       if (Source[i]->m_iType == ezTokenType::BlockComment ||
           Source[i]->m_iType == ezTokenType::LineComment ||
           Source[i]->m_iType == ezTokenType::EndOfFile ||
-          Source[i]->m_iType == ezTokenType::Newline)
+          (!bPreserveNewLines && Source[i]->m_iType == ezTokenType::Newline))
           continue;
 
       Destination.PushBack(Source[i]);

@@ -257,7 +257,7 @@ ezResult ezPreprocessor::ProcessCmd(const TokenStream& Tokens, TokenStream& Toke
   if (Accept(Tokens, uiCurToken, "pragma"))
   {
     if (m_bPassThroughPragma)
-      CopyRelevantTokens(Tokens, uiHashToken, TokenOutput);
+      CopyRelevantTokens(Tokens, uiHashToken, TokenOutput, true);
 
     return EZ_SUCCESS;
   }
@@ -278,7 +278,7 @@ ezResult ezPreprocessor::HandleLine(const TokenStream& Tokens, ezUInt32 uiCurTok
   // however we check them for validity here
 
   if (m_bPassThroughLine)
-    CopyRelevantTokens(Tokens, uiHashToken, TokenOutput);
+    CopyRelevantTokens(Tokens, uiHashToken, TokenOutput, true);
   
   ezUInt32 uiNumberToken = 0;
   if (Expect(Tokens, uiCurToken, ezTokenType::Identifier, &uiNumberToken).Failed())

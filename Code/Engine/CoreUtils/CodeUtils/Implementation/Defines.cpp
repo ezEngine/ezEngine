@@ -33,7 +33,7 @@ ezResult ezPreprocessor::StoreDefine(const ezToken* pMacroNameToken, const Token
 
   // removes whitespace at start and end, skips comments, newlines, etc.
   if (pReplacementTokens)
-    CopyRelevantTokens(*pReplacementTokens, uiFirstReplacementToken, md.m_Replacement);
+    CopyRelevantTokens(*pReplacementTokens, uiFirstReplacementToken, md.m_Replacement, false);
 
   if (!md.m_Replacement.IsEmpty() && md.m_Replacement.PeekBack()->m_DataView == "#")
   {
