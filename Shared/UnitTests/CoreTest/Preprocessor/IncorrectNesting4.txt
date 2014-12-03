@@ -1,0 +1,21 @@
+true1
+
+#ifdef B
+
+false1
+
+#else
+
+true2
+
+#else
+
+false2
+
+#elif A
+
+false3
+
+#endif
+
+true3

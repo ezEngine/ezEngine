@@ -220,7 +220,16 @@ private:
   ezLogInterface* m_pLog;
 
   ezDeque<CustomDefine> m_CustomDefines;
-  ezDeque<ezInt32> m_IfdefActiveStack;
+
+  struct IfDefState
+  {
+    IfDefState(IfDefActivity ActiveState = IfDefActivity::IsActive) : m_ActiveState(ActiveState), m_bIsInElseClause(false) {}
+
+    IfDefActivity m_ActiveState;
+    bool m_bIsInElseClause;
+  };
+
+  ezDeque<IfDefState> m_IfdefActiveStack;
 
   ezResult ProcessFile(const char* szFile, TokenStream& TokenOutput);
   ezResult ProcessCmd(const TokenStream& Tokens, TokenStream& TokenOutput);

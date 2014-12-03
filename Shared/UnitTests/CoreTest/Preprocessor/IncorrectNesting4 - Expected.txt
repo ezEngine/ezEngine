@@ -1,0 +1,3 @@
+Processing failed
+Preprocessor/IncorrectNesting4.txt: Line 11 [2]: Error: Unexpected '#else'
+Log: 'File 'Preprocessor/IncorrectNesting4.txt', Line 11 (2): Unexpected '#else''

@@ -93,7 +93,7 @@ ezResult ezPreprocessor::ProcessFile(const char* szFile, TokenStream& TokenOutpu
     else
     {
       // we are currently inside an inactive text block
-      if (m_IfdefActiveStack.PeekBack() != IfDefActivity::IsActive)
+      if (m_IfdefActiveStack.PeekBack().m_ActiveState != IfDefActivity::IsActive)
         continue;
 
       // store for later expansion
@@ -245,7 +245,7 @@ ezResult ezPreprocessor::ProcessCmd(const TokenStream& Tokens, TokenStream& Toke
     return HandleEndif(Tokens, uiCurToken, uiAccepted);
 
   // we are currently inside an inactive text block, so skip all the following commands
-  if (m_IfdefActiveStack.PeekBack() != IfDefActivity::IsActive)
+  if (m_IfdefActiveStack.PeekBack().m_ActiveState != IfDefActivity::IsActive)
   {
     // check that the following command is valid, even if it is ignored
     if (Accept(Tokens, uiCurToken, "line", &uiAccepted) ||
@@ -355,7 +355,7 @@ ezResult ezPreprocessor::HandleLine(const TokenStream& Tokens, ezUInt32 uiCurTok
 
 ezResult ezPreprocessor::HandleIfdef(const TokenStream& Tokens, ezUInt32 uiCurToken, ezUInt32 uiDirectiveToken, bool bIsIfdef)
 {
-  if (m_IfdefActiveStack.PeekBack() != IfDefActivity::IsActive)
+  if (m_IfdefActiveStack.PeekBack().m_ActiveState != IfDefActivity::IsActive)
   {
     m_IfdefActiveStack.PushBack(IfDefActivity::IsInactive);
     return EZ_SUCCESS;
@@ -385,7 +385,7 @@ ezResult ezPreprocessor::HandleIfdef(const TokenStream& Tokens, ezUInt32 uiCurTo
 
 ezResult ezPreprocessor::HandleElse(const TokenStream& Tokens, ezUInt32 uiCurToken, ezUInt32 uiDirectiveToken)
 {
-  const IfDefActivity bCur = (IfDefActivity) m_IfdefActiveStack.PeekBack();
+  const IfDefActivity bCur = m_IfdefActiveStack.PeekBack().m_ActiveState;
   m_IfdefActiveStack.PopBack();
 
   if (m_IfdefActiveStack.IsEmpty())
@@ -394,7 +394,15 @@ ezResult ezPreprocessor::HandleElse(const TokenStream& Tokens, ezUInt32 uiCurTok
     return EZ_FAILURE;
   }
 
-  if (m_IfdefActiveStack.PeekBack() != IfDefActivity::IsActive)
+  if (m_IfdefActiveStack.PeekBack().m_bIsInElseClause)
+  {
+    PP_LOG0(Error, "Unexpected '#else'", Tokens[uiDirectiveToken]);
+    return EZ_FAILURE;
+  }
+
+  m_IfdefActiveStack.PeekBack().m_bIsInElseClause = true;
+
+  if (m_IfdefActiveStack.PeekBack().m_ActiveState != IfDefActivity::IsActive)
   {
     m_IfdefActiveStack.PushBack(IfDefActivity::IsInactive);
     return EZ_SUCCESS;
@@ -410,7 +418,7 @@ ezResult ezPreprocessor::HandleElse(const TokenStream& Tokens, ezUInt32 uiCurTok
 
 ezResult ezPreprocessor::HandleIf(const TokenStream& Tokens, ezUInt32 uiCurToken, ezUInt32 uiDirectiveToken)
 {
-  if (m_IfdefActiveStack.PeekBack() != IfDefActivity::IsActive)
+  if (m_IfdefActiveStack.PeekBack().m_ActiveState != IfDefActivity::IsActive)
   {
     m_IfdefActiveStack.PushBack(IfDefActivity::IsInactive);
     return EZ_SUCCESS;
@@ -427,7 +435,7 @@ ezResult ezPreprocessor::HandleIf(const TokenStream& Tokens, ezUInt32 uiCurToken
 
 ezResult ezPreprocessor::HandleElif(const TokenStream& Tokens, ezUInt32 uiCurToken, ezUInt32 uiDirectiveToken)
 {
-  const IfDefActivity Cur = (IfDefActivity) m_IfdefActiveStack.PeekBack();
+  const IfDefActivity Cur = m_IfdefActiveStack.PeekBack().m_ActiveState;
   m_IfdefActiveStack.PopBack();
 
   if (m_IfdefActiveStack.IsEmpty())
@@ -436,7 +444,13 @@ ezResult ezPreprocessor::HandleElif(const TokenStream& Tokens, ezUInt32 uiCurTok
     return EZ_FAILURE;
   }
 
-  if (m_IfdefActiveStack.PeekBack() != IfDefActivity::IsActive)
+  if (m_IfdefActiveStack.PeekBack().m_bIsInElseClause)
+  {
+    PP_LOG0(Error, "Unexpected '#elif'", Tokens[uiDirectiveToken]);
+    return EZ_FAILURE;
+  }
+
+  if (m_IfdefActiveStack.PeekBack().m_ActiveState != IfDefActivity::IsActive)
   {
     m_IfdefActiveStack.PushBack(IfDefActivity::IsInactive);
     return EZ_SUCCESS;
@@ -469,6 +483,10 @@ ezResult ezPreprocessor::HandleEndif(const TokenStream& Tokens, ezUInt32 uiCurTo
   {
     PP_LOG0(Error, "Unexpected '#endif'", Tokens[uiDirectiveToken]);
     return EZ_FAILURE;
+  }
+  else
+  {
+    m_IfdefActiveStack.PeekBack().m_bIsInElseClause = false;
   }
 
   return EZ_SUCCESS;
