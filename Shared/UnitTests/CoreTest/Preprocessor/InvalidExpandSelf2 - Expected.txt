@@ -1,0 +1,3 @@
+Processing failed
+Preprocessor/InvalidExpandSelf2.txt: Line 3 [0]: Warning: Expected end-of-line, found token '('
+Log: 'File 'Preprocessor/InvalidExpandSelf2.txt', Line 3 (0): Expected end-of-line, found token '(''

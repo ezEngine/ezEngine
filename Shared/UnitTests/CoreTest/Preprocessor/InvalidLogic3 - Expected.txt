@@ -1,0 +1,3 @@
+Processing failed
+Preprocessor/InvalidLogic3.txt: Line 2 [7]: Warning: Expected end-of-line, found token '3'
+Log: 'File 'Preprocessor/InvalidLogic3.txt', Line 2 (7): Expected end-of-line, found token '3''

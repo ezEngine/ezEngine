@@ -1,0 +1,12 @@
+#define SOME_DEFINE (SOME_DEFINE*7)
+
+// the following will rightly throw an error, because it is expanded to
+//#if (SOME_DEFINE*7)(2) != 0
+//which is interpreted as
+//#if (0*7)(2) != 0
+// therefore the parenthesis of (2) will be an invalid part of the expression
+
+#if SOME_DEFINE(2) != 0
+	false1
+#endif
+

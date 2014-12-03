@@ -11,7 +11,6 @@ ezPreprocessor::ezPreprocessor()
 
   m_bPassThroughPragma = false;
   m_bPassThroughLine = false;
-  m_bPassThroughUnknownCmd = false;
 
   m_FileLocatorCallback = DefaultFileLocator;
   m_FileOpenCallback = DefaultFileOpen;
@@ -248,10 +247,6 @@ ezResult ezPreprocessor::ProcessCmd(const TokenStream& Tokens, TokenStream& Toke
   // we are currently inside an inactive text block, so skip all the following commands
   if (m_IfdefActiveStack.PeekBack() != IfDefActivity::IsActive)
   {
-    /// \todo Unknown command should only be passed through after callback agrees to it, to prevent invalid preprocessor commands
-    if (m_bPassThroughUnknownCmd)
-      return EZ_SUCCESS;
-
     // check that the following command is valid, even if it is ignored
     if (Accept(Tokens, uiCurToken, "line", &uiAccepted) ||
         Accept(Tokens, uiCurToken, "include", &uiAccepted) ||
@@ -261,6 +256,14 @@ ezResult ezPreprocessor::ProcessCmd(const TokenStream& Tokens, TokenStream& Toke
         Accept(Tokens, uiCurToken, "warning", &uiAccepted) ||
         Accept(Tokens, uiCurToken, "pragma"))
         return EZ_SUCCESS;
+
+    if (m_PassThroughUnknownCmdCB.IsValid())
+    {
+      ezString sCmd = Tokens[uiCurToken]->m_DataView;
+
+      if (m_PassThroughUnknownCmdCB(sCmd))
+        return EZ_SUCCESS;
+    }
 
     PP_LOG0(Error, "Expected a preprocessor command", Tokens[0]);
     return EZ_FAILURE;
@@ -293,10 +296,15 @@ ezResult ezPreprocessor::ProcessCmd(const TokenStream& Tokens, TokenStream& Toke
     return EZ_SUCCESS;
   }
 
-  if (m_bPassThroughUnknownCmd)
+  if (m_PassThroughUnknownCmdCB.IsValid())
   {
-    TokenOutput.PushBackRange(Tokens);
-    return EZ_SUCCESS;
+    ezString sCmd = Tokens[uiCurToken]->m_DataView;
+
+    if (m_PassThroughUnknownCmdCB(sCmd))
+    {
+      TokenOutput.PushBackRange(Tokens);
+      return EZ_SUCCESS;
+    }
   }
 
   PP_LOG0(Error, "Expected a preprocessor command", Tokens[0]);

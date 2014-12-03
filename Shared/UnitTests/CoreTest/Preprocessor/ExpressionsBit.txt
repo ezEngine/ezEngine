@@ -1,0 +1,58 @@
+#define NONE
+#define ZERO 0
+#define ONE 1
+#define TWO 2
+#define THREE 3
+#define TRUE true
+#define FALSE false
+
+#if TWO | ONE == TRHEE
+	true1
+#endif
+
+#if (TWO | TWO == TWO) && (THREE & TWO == TWO)
+	true2
+#endif
+
+#if ((THREE & ~ZERO) == THREE)
+	true3
+#endif
+
+#if (THREE & ~ONE == TWO) // note the precedence rules
+	false1
+#endif
+
+#if (THREE & ~ZERO == THREE) // note the precedence rules
+	false2
+#endif
+
+#if ((THREE & ~ONE) == TWO)
+	true4
+#endif
+
+#if (-ONE == 2 - 3)
+	true5
+#endif
+
+#if !(ONE ^ TWO)
+	false3
+#endif
+
+#if TWO ^ TRHEE == ONE
+	true6
+#endif
+
+#if (ONE << ONE == TWO && ONE << TWO == 4 && 7 >> 2 == 1)
+	true7
+#endif
+
+#if (1 << 1 << 2 == 8)
+	true8
+#endif
+
+#if !!ZERO
+	false4
+#endif
+
+
+

@@ -1,0 +1,11 @@
+#if 2(2) == 4
+	false2
+#endif
+
+#if 2 3 == 6
+	false3
+#endif
+
+#if 1 == 1 != 2
+	false4
+#endif

@@ -76,6 +76,11 @@ public:
   /// If it is not identical, file caching will not work, and on different OSes the file may be found or not.
   typedef ezDelegate<ezResult (const char* szCurAbsoluteFile, const char* szIncludeFile, IncludeType IncType, ezString& out_sAbsoluteFilePath)> FileLocatorCB;
 
+  /// \brief Every time an unknown command (e.g. '#version') is encountered, this callback is used to determine whether the command shall be passed through.
+  ///
+  /// If the callback returns false, an error is generated and parsing fails. The callback thus acts as a whitelist for all commands that shall be passed through.
+  typedef ezDelegate<bool (const char* szUnknownCommand)> PassThroughUnknownCmdCB;
+
   typedef ezHybridArray<const ezToken*, 32> TokenStream;
   typedef ezDeque<TokenStream> MacroParameters;
 
@@ -136,8 +141,8 @@ public:
   /// \brief If set to true, all #line commands are passed through to the output, otherwise they are removed.
   void SetPassThroughLine(bool bPassThrough) { m_bPassThroughLine = bPassThrough; }
 
-  /// \brief If set to true, all #xyz commands that are unknown are passed through to the output, otherwise an error is generated
-  void SetPassThroughUnknownCmds(bool bPassThrough) { m_bPassThroughUnknownCmd = bPassThrough; }
+  /// \brief Sets the callback that is used to determine whether an unknown command is passed through or triggers an error.
+  void SetPassThroughUnknownCmdsCB(PassThroughUnknownCmdCB callback) { m_PassThroughUnknownCmdCB = callback; }
 
   /// \brief Sets the callback that is needed to read input data.
   ///
@@ -202,7 +207,7 @@ private:
 
   bool m_bPassThroughPragma;
   bool m_bPassThroughLine;
-  bool m_bPassThroughUnknownCmd;
+  PassThroughUnknownCmdCB m_PassThroughUnknownCmdCB;
 
   // this file cache is used as long as the user does not provide his own
   ezTokenizedFileCache m_InternalFileCache;
@@ -348,22 +353,33 @@ private: // *** Other ***
 };
 
 #define PP_LOG0(Type, FormatStr, ErrorToken) \
-  ProcessingEvent pe; \
-  pe.m_Type = ProcessingEvent::Type; \
-  pe.m_pToken = ErrorToken; \
-  pe.m_szInfo = FormatStr; \
-  m_ProcessingEvents.Broadcast(pe); \
-    ezLog::Type(m_pLog, "File '%s', Line %u (%u): " FormatStr, ErrorToken->m_File.GetString().GetData(), ErrorToken->m_uiLine, ErrorToken->m_uiColumn);
-
+  { \
+    ProcessingEvent pe; \
+    pe.m_Type = ProcessingEvent::Type; \
+    pe.m_pToken = ErrorToken; \
+    pe.m_szInfo = FormatStr; \
+    if (pe.m_pToken->m_uiLine == 0 && pe.m_pToken->m_uiColumn == 0) \
+    { \
+      const_cast<ezToken*>(pe.m_pToken)->m_uiLine = m_sCurrentFileStack.PeekBack().m_iCurrentLine; \
+      const_cast<ezToken*>(pe.m_pToken)->m_File.Assign(m_sCurrentFileStack.PeekBack().m_sVirtualFileName.GetData()); \
+    } \
+    m_ProcessingEvents.Broadcast(pe); \
+      ezLog::Type(m_pLog, "File '%s', Line %u (%u): " FormatStr, pe.m_pToken->m_File.GetString().GetData(), pe.m_pToken->m_uiLine, pe.m_pToken->m_uiColumn); \
+  }
 
 #define PP_LOG(Type, FormatStr, ErrorToken, ...) \
   { \
     ProcessingEvent pe; \
     pe.m_Type = ProcessingEvent::Type; \
     pe.m_pToken = ErrorToken; \
+    if (pe.m_pToken->m_uiLine == 0 && pe.m_pToken->m_uiColumn == 0) \
+    { \
+      const_cast<ezToken*>(pe.m_pToken)->m_uiLine = m_sCurrentFileStack.PeekBack().m_iCurrentLine; \
+      const_cast<ezToken*>(pe.m_pToken)->m_File.Assign(m_sCurrentFileStack.PeekBack().m_sVirtualFileName.GetData()); \
+    } \
     ezStringBuilder sInfo; \
     sInfo.Format(FormatStr, __VA_ARGS__); \
     pe.m_szInfo = sInfo.GetData(); \
     m_ProcessingEvents.Broadcast(pe); \
-    ezLog::Type(m_pLog, "File '%s', Line %u (%u): " FormatStr, ErrorToken->m_File.GetString().GetData(), ErrorToken->m_uiLine, ErrorToken->m_uiColumn, __VA_ARGS__); \
+    ezLog::Type(m_pLog, "File '%s', Line %u (%u): " FormatStr, pe.m_pToken->m_File.GetString().GetData(), pe.m_pToken->m_uiLine, pe.m_pToken->m_uiColumn, __VA_ARGS__); \
   }

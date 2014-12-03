@@ -1,0 +1,8 @@
+
+#if 2 3 == 6
+	false3
+#endif
+
+#if 1 == 1 != 2
+	false4
+#endif

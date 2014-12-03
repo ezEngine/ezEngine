@@ -53,6 +53,11 @@ private:
 
   ezResult CompileShader(const char* szFile, const ezPermutationGenerator& Generator, const char* szPlatform, ezShaderProgramCompiler* pCompiler, ezInt64 iMainFileTimeStamp);
 
+  bool PassThroughUnknownCommandCB(const char* szCmd)
+  {
+    return ezStringUtils::IsEqual(szCmd, "version");
+  }
+
   struct ezShaderData
   {
     ezString m_Platforms;

@@ -1,0 +1,12 @@
+
+#if 2 == 3
+	false0
+#endif
+
+#if 2 != 3
+	true1
+#endif
+
+#if (2)1 == 2
+	false1
+#endif

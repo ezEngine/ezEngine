@@ -191,7 +191,7 @@ ezResult ezShaderCompiler::CompileShader(const char* szFile, const ezPermutation
         pp.SetLogInterface(ezGlobalLog::GetInstance());
         pp.SetFileOpenFunction(ezPreprocessor::FileOpenCB(&ezShaderCompiler::FileOpen, this));
         pp.SetPassThroughPragma(true);
-        pp.SetPassThroughUnknownCmds(true);
+        pp.SetPassThroughUnknownCmdsCB(ezDelegate<bool (const char*)>(&ezShaderCompiler::PassThroughUnknownCommandCB, this));
         pp.SetPassThroughLine(true);
 
         sTemp = Platforms[p];

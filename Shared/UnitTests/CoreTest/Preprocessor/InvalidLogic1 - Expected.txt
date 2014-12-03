@@ -1,0 +1,3 @@
+Processing failed
+Preprocessor/InvalidLogic1.txt: Line 10 [8]: Warning: Expected end-of-line, found token '1'
+Log: 'File 'Preprocessor/InvalidLogic1.txt', Line 10 (8): Expected end-of-line, found token '1''

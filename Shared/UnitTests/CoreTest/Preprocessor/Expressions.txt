@@ -1,0 +1,113 @@
+#define NONE
+#define ZERO 0
+#define ONE 1
+#define TWO 2
+#define THREE 3
+#define TRUE true
+#define FALSE false
+
+#if ONE + ONE == TWO
+	true1
+#endif
+
+#if (THREE-ONE) == TWO
+	true2
+#endif
+
+#if (THREE * TWO == TWO + TWO+TWO)
+	true3
+#endif
+
+#if (((TWO + TWO) / TWO) == TWO / ONE)
+	true4
+#endif
+
+#if(ONE!=TWO)
+	true5
+#endif
+
+#if (ZERO == UNDEFINED)
+	true6
+#endif
+
+#if (UNDEF + UNDEF2 == UNDEF3)
+	true7
+#endif
+
+#if (TRUE == 0)
+	true8
+#endif
+
+#if (ONE || ZERO)
+	true9
+#endif
+
+#if (ONE && ZERO)
+	false10
+#endif
+
+#if!UNKNOWN
+	true10
+#endif
+
+#if ONE && TWO
+	true11
+#endif
+
+#if !TWO
+	false12
+#endif
+
+#if !(ONE || TWO)
+	false13
+#endif
+
+#if (!TWO || !THREE)
+	false14
+#endif
+
+#if ZERO || !ONE && TWO
+	false15
+#endif
+
+#if ONE && ZERO || ZERO && TWO
+	false16
+#endif
+
+#if ONE && ZERO || TWO && ZERO
+	false17
+#endif
+
+#if ONE && ZERO || TWO && THREE
+	true12
+#endif
+
+#if ONE && !ZERO || !ZERO && THREE
+	true13
+#endif
+
+#if ONE < TWO && TWO > ZERO
+	true14
+#endif
+
+#if (TWO >= TWO && TWO > ZERO)
+	true15
+#endif
+
+#if (TWO < THREE && TWO <= TWO)
+	true16
+#endif
+
+#if ( ONE==ONE&&ONE!=TWO )
+	true17
+#endif
+
+#if (ONE > TWO &&\
+	TWO <= THREE &&	\
+	ZERO != !FOUR)
+	true18
+#endif
+
+#if (5 % 2 == 1)
+	true19
+#endif

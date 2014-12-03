@@ -103,7 +103,6 @@ ezResult ezPermutationGenerator::ReadFromFile(const char* szFile, const char* sz
   pp.SetLogInterface(ezGlobalLog::GetInstance());
   pp.SetPassThroughLine(false);
   pp.SetPassThroughPragma(false);
-  pp.SetPassThroughUnknownCmds(false);
   pp.AddCustomDefine(sTemp.GetData());
 
   if (pp.Process(szFile, sTemp, false).Failed())
