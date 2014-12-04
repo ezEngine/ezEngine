@@ -18,5 +18,7 @@ public:
 
   /// \brief Returns the subimage of \a input that starts at \a offset and has the size \a newsize
   static void CropImage(const ezImage& input, const ezVec2I32& offset, const ezSizeU32& newsize, ezImage& output);
+
+  static void ScaleDownHalf(const ezImage& Image, ezImage& out_Result);
 };
 

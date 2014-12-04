@@ -216,4 +216,58 @@ void ezImageUtils::CropImage(const ezImage& input, const ezVec2I32& offset, cons
   }
 }
 
+void ezImageUtils::ScaleDownHalf(const ezImage& Image, ezImage& out_Result)
+{
+  const ezUInt32 uiNewWidth  = Image.GetWidth() / 2;
+  const ezUInt32 uiNewHeight = Image.GetHeight() / 2;
+
+  out_Result.SetWidth(uiNewWidth);
+  out_Result.SetHeight(uiNewHeight);
+  out_Result.SetImageFormat(Image.GetImageFormat());
+  out_Result.AllocateImageData();
+
+  const ezUInt32 uiRowPitchImg = Image.GetRowPitch();
+  const ezUInt32 uiRowPitchRes = out_Result.GetRowPitch();
+
+  ezUInt32 uiPixelBytes = 0;
+
+  if (Image.GetImageFormat() == ezImageFormat::R8G8B8A8_UNORM     ||
+      Image.GetImageFormat() == ezImageFormat::R8G8B8A8_TYPELESS  ||
+      Image.GetImageFormat() == ezImageFormat::R8G8B8A8_UINT      ||
+      Image.GetImageFormat() == ezImageFormat::R8G8B8A8_SNORM     ||
+      Image.GetImageFormat() == ezImageFormat::R8G8B8A8_SINT      ||
+      Image.GetImageFormat() == ezImageFormat::B8G8R8A8_UNORM     ||
+      Image.GetImageFormat() == ezImageFormat::B8G8R8X8_UNORM     ||
+      Image.GetImageFormat() == ezImageFormat::B8G8R8A8_TYPELESS  ||
+      Image.GetImageFormat() == ezImageFormat::B8G8R8X8_TYPELESS)
+  {
+    uiPixelBytes = 4;
+  }
+  else if (Image.GetImageFormat() == ezImageFormat::B8G8R8_UNORM)
+  {
+    uiPixelBytes = 3;
+  }
+
+  EZ_ASSERT(uiPixelBytes > 0, "The image format '%i' is not supported", Image.GetImageFormat());
+  
+  ezUInt8* pDataRes = out_Result.GetPixelPointer<ezUInt8>(0, 0, 0, 0, 0);
+  const ezUInt8* pDataImg = Image.GetPixelPointer<ezUInt8>(0, 0, 0, 0, 0);
+
+  for (ezUInt32 y = 0; y < uiNewHeight; ++y)
+  {
+    for (ezUInt32 x = 0; x < uiNewWidth; ++x)
+    {
+      ezUInt32 uiPixelImg0 = (uiRowPitchImg * y * 2) + (x * 2) * uiPixelBytes;
+      ezUInt32 uiPixelImg1 = (uiRowPitchImg * y * 2) + (x * 2 + 1) * uiPixelBytes;
+      ezUInt32 uiPixelImg2 = (uiRowPitchImg * (y * 2 + 1)) + (x * 2 + 1) * uiPixelBytes;
+      ezUInt32 uiPixelImg3 = (uiRowPitchImg * (y * 2 + 1)) + (x * 2 + 1) * uiPixelBytes;
+
+      ezUInt32 uiPixelRes = (uiRowPitchRes * y) + x * uiPixelBytes;
+
+      for (ezUInt32 p = 0; p < uiPixelBytes; ++p)
+        pDataRes[uiPixelRes + p] = (((ezUInt32) pDataImg[uiPixelImg0 + p] + (ezUInt32) pDataImg[uiPixelImg1 + p] + (ezUInt32) pDataImg[uiPixelImg2 + p] + (ezUInt32) pDataImg[uiPixelImg3 + p]) / 4) & 0xFF;
+    }
+  }
+}
+
 

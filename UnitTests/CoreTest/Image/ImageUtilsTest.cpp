@@ -25,18 +25,11 @@ EZ_CREATE_SIMPLE_TEST(Image, ImageUtils)
     ImageA.LoadFrom("ImageUtils/ImageA_RGB.tga");
     ImageB.LoadFrom("ImageUtils/ImageB_RGB.tga");
 
-    ezImage ImageAc, ImageBc;
-    ezImageUtils::CropImage(ImageA, ezVec2I32(100, 50), ezSizeU32(300, 200), ImageAc);
-    ezImageUtils::CropImage(ImageB, ezVec2I32(100, 50), ezSizeU32(300, 200), ImageBc);
-
-    ezImageUtils::ComputeImageDifferenceABS(ImageAc, ImageBc, ImageDiff);
+    ezImageUtils::ComputeImageDifferenceABS(ImageA, ImageB, ImageDiff);
 
     ImageDiff.SaveTo("ImageUtils/Diff_RGB.tga");
 
     EZ_TEST_FILES("ImageUtils/ExpectedDiff_RGB.tga", "ImageUtils/Diff_RGB.tga", "");
-
-    ezUInt32 uiError = ezImageUtils::ComputeMeanSquareError(ImageDiff, 4);
-    EZ_TEST_INT(uiError, 2919);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ComputeImageDifferenceABS RGBA")
@@ -45,18 +38,76 @@ EZ_CREATE_SIMPLE_TEST(Image, ImageUtils)
     ImageA.LoadFrom("ImageUtils/ImageA_RGBA.tga");
     ImageB.LoadFrom("ImageUtils/ImageB_RGBA.tga");
 
-    ezImage ImageAc, ImageBc;
-    ezImageUtils::CropImage(ImageA, ezVec2I32(100, 50), ezSizeU32(300, 200), ImageAc);
-    ezImageUtils::CropImage(ImageB, ezVec2I32(100, 50), ezSizeU32(300, 200), ImageBc);
-
-    ezImageUtils::ComputeImageDifferenceABS(ImageAc, ImageBc, ImageDiff);
+    ezImageUtils::ComputeImageDifferenceABS(ImageA, ImageB, ImageDiff);
 
     ImageDiff.SaveTo("ImageUtils/Diff_RGBA.tga");
 
     EZ_TEST_FILES("ImageUtils/ExpectedDiff_RGBA.tga", "ImageUtils/Diff_RGBA.tga", "");
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Scaledown Half RGB")
+  {
+    ezImage ImageA, ImageAc;
+    ImageA.LoadFrom("ImageUtils/ImageA_RGB.tga");
+    ezImageUtils::ScaleDownHalf(ImageA, ImageAc);
+
+    ImageAc.SaveTo("ImageUtils/ScaledHalf_RGB.tga");
+
+    EZ_TEST_FILES("ImageUtils/ExpectedScaledHalf_RGB.tga", "ImageUtils/ScaledHalf_RGB.tga", "");
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Scaledown Half RGBA")
+  {
+    ezImage ImageA, ImageAc;
+    ImageA.LoadFrom("ImageUtils/ImageA_RGBA.tga");
+    ezImageUtils::ScaleDownHalf(ImageA, ImageAc);
+
+    ImageAc.SaveTo("ImageUtils/ScaledHalf_RGBA.tga");
+
+    EZ_TEST_FILES("ImageUtils/ExpectedScaledHalf_RGBA.tga", "ImageUtils/ScaledHalf_RGBA.tga", "");
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "CropImage RGB")
+  {
+    ezImage ImageA, ImageAc;
+    ImageA.LoadFrom("ImageUtils/ImageA_RGB.tga");
+    ezImageUtils::CropImage(ImageA, ezVec2I32(100, 50), ezSizeU32(300, 200), ImageAc);
+
+    ImageAc.SaveTo("ImageUtils/Crop_RGB.tga");
+
+    EZ_TEST_FILES("ImageUtils/ExpectedCrop_RGB.tga", "ImageUtils/Crop_RGB.tga", "");
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "CropImage RGBA")
+  {
+    ezImage ImageA, ImageAc;
+    ImageA.LoadFrom("ImageUtils/ImageA_RGBA.tga");
+    ezImageUtils::CropImage(ImageA, ezVec2I32(100, 75), ezSizeU32(300, 180), ImageAc);
+
+    ImageAc.SaveTo("ImageUtils/Crop_RGBA.tga");
+
+    EZ_TEST_FILES("ImageUtils/ExpectedCrop_RGBA.tga", "ImageUtils/Crop_RGBA.tga", "");
+  }
+
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ComputeMeanSquareError")
+  {
+    ezImage ImageA, ImageB, ImageDiff;
+    ImageA.LoadFrom("ImageUtils/ImageA_RGB.tga");
+    ImageB.LoadFrom("ImageUtils/ImageB_RGB.tga");
+
+    ezImage ImageAc, ImageBc;
+    ezImageUtils::ScaleDownHalf(ImageA, ImageAc);
+    ezImageUtils::ScaleDownHalf(ImageB, ImageBc);
+
+    ezImageUtils::ComputeImageDifferenceABS(ImageAc, ImageBc, ImageDiff);
+
+    ImageDiff.SaveTo("ImageUtils/MeanSquareDiff_RGB.tga");
+
+    EZ_TEST_FILES("ImageUtils/ExpectedMeanSquareDiff_RGB.tga", "ImageUtils/MeanSquareDiff_RGB.tga", "");
 
     ezUInt32 uiError = ezImageUtils::ComputeMeanSquareError(ImageDiff, 4);
-    EZ_TEST_INT(uiError, 12718);
+    EZ_TEST_INT(uiError, 2004);
   }
 
   ezFileSystem::RemoveDataDirectoryGroup("ImageTest");
