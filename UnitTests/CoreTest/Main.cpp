@@ -8,7 +8,11 @@ int main(int argc, char **argv)
   
   // *** Add additional output handlers and configurations here. ***
 
-  ezInt32 iFailedTests = ezTestSetup::RunTests(argc, argv);
+  while (ezTestSetup::RunTests() == ezTestAppRun::Continue)
+  {
+  }
+
+  const ezInt32 iFailedTests = ezTestSetup::GetFailedTestCount();
   
   ezTestSetup::DeInitTestFramework();
   return iFailedTests;

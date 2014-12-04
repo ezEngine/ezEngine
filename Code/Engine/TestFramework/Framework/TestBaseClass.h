@@ -27,7 +27,7 @@ private:
   /// Called at startup to setup all tests. Should use 'AddSubTest' to register all the sub-tests to the test framework.
   virtual void SetupSubTests() /*override*/ = 0;
   /// Called to run the test that was registered with the given identifier.
-  virtual void RunSubTest(ezInt32 iIdentifier) /*override*/ = 0;
+  virtual ezTestAppRun RunSubTest(ezInt32 iIdentifier) /*override*/ = 0;
 
   // *** Override these functions to implement optional (de-)initialization ***
 
@@ -66,7 +66,7 @@ private:
   void DoTestDeInitialization();
   ezResult DoSubTestInitialization(ezInt32 iIdentifier);
   void DoSubTestDeInitialization(ezInt32 iIdentifier);
-  double DoSubTestRun(ezInt32 iIdentifier);
+  ezTestAppRun DoSubTestRun(ezInt32 iIdentifier, double& fDuration);
 
 
   std::deque<TestEntry> m_Entries;

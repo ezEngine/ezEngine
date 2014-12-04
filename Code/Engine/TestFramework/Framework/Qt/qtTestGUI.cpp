@@ -150,26 +150,26 @@ void ezQtTestGUI::on_actionShowMessageBox_triggered(bool bChecked)
 void ezQtTestGUI::on_actionRunTests_triggered()
 {
   m_pTestFramework->SaveTestOrder();
-  m_pTestFramework->StartTests();
   m_pModel->InvalidateAll();
   m_bExpandedCurrentTest = false;
   m_bAbort = false;
   m_pMessageLogDock->currentTestResultChanged(nullptr);
-  UpdateButtonStates();
 
   m_pStatusTextWorkState->setText("<p><span style=\"font-weight:600; color:#ff5500;\" >  [Working...]</span></p>");
 
-  const ezUInt32 uiTestCount = m_pTestFramework->GetTestCount();
-  for (ezUInt32 uiTestIdx = 0; uiTestIdx < uiTestCount; ++uiTestIdx)
+  // make sure we start with a clean state
+  m_pTestFramework->ResetTests();
+
+  while (m_pTestFramework->RunTestExecutionLoop() == ezTestAppRun::Continue)
   {
-    // Check state of the test is evaluated by the execute function
-    m_pTestFramework->ExecuteTest(uiTestIdx);
+    UpdateButtonStates();
+
     if (m_bAbort)
     {
-      break;
+      m_pTestFramework->AbortTests();
     }
   }
-  m_pTestFramework->EndTests();
+
   UpdateButtonStates();
   m_pMessageLogDock->currentTestResultChanged(nullptr);
 

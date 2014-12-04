@@ -17,8 +17,14 @@
   #include <conio.h>
 #endif
 
+int ezTestSetup::s_argc = 0;
+const char** ezTestSetup::s_argv = nullptr;
+
 ezTestFramework* ezTestSetup::InitTestFramework(const char* szTestName, const char* szNiceTestName, int argc, const char** argv)
 {
+  s_argc = argc;
+  s_argv = argv;
+
   // without at proper file system the current working directory is pretty much useless
   std::string sTestFolder = std::string(BUILDSYSTEM_OUTPUT_FOLDER);
   if (*sTestFolder.rbegin() != '/')
@@ -38,19 +44,20 @@ ezTestFramework* ezTestSetup::InitTestFramework(const char* szTestName, const ch
   return pTestFramework;
 }
 
-ezInt32 ezTestSetup::RunTests(int argc, char **argv)
+ezTestAppRun ezTestSetup::RunTests()
 {
   ezTestFramework* pTestFramework = ezTestFramework::GetInstance();
 #ifdef EZ_USE_QT
   TestSettings settings = pTestFramework->GetSettings();
   if (settings.m_bNoGUI)
   {
-    pTestFramework->ExecuteAllTests();
-    return pTestFramework->GetTestsFailedCount();
+    return pTestFramework->RunTestExecutionLoop();
   }
 
   // Setup Qt Application
   ezQtTestGUI::SetDarkTheme();
+  int argc = s_argc;
+  char** argv = const_cast<char**>(s_argv);
   QApplication app(argc, argv);
 
   app.setApplicationName(pTestFramework->GetTestName());
@@ -60,11 +67,12 @@ ezInt32 ezTestSetup::RunTests(int argc, char **argv)
   mainWindow.show();
 
   app.exec();
+
+  return ezTestAppRun::Quit;
 #else
   // Run all the tests with the given order
-  pTestFramework->ExecuteAllTests();
+  return pTestFramework->RunTestExecutionLoop();
 #endif
-  return pTestFramework->GetTestsFailedCount();
 }
 
 void ezTestSetup::DeInitTestFramework()
@@ -92,6 +100,11 @@ void ezTestSetup::DeInitTestFramework()
   fflush(stdout);
   fflush(stderr);
   delete pTestFramework;
+}
+
+ezInt32 ezTestSetup::GetFailedTestCount()
+{
+  return ezTestFramework::GetInstance()->GetTestsFailedCount();
 }
 
 

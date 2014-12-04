@@ -30,11 +30,12 @@ public:
 
   // Test execution
   void ResetTests();
-  void ExecuteAllTests();
+  ezTestAppRun RunTestExecutionLoop();
 
   void StartTests();
-  void ExecuteTest(ezUInt32 uiTestIndex);
+  void ExecuteNextTest();
   void EndTests();
+  void AbortTests();
 
   // Test queries
   ezUInt32 GetTestCount() const;
@@ -98,6 +99,14 @@ private:
   std::deque<ezTestEntry> m_TestEntries;
   ezTestFrameworkResult m_Result;
   ezAssertHandler m_PreviousAssertHandler;
+
+  ezInt32 m_iExecutingTest;
+  ezInt32 m_iExecutingSubTest;
+  bool m_bSubTestInitialized;
+  bool m_bAbortTests;
+  double m_fTotalTestDuration;
+  double m_fTotalSubTestDuration;
+  ezInt32 m_iErrorCountBeforeTest;
 
 protected:
   ezInt32 m_iCurrentTestIndex;

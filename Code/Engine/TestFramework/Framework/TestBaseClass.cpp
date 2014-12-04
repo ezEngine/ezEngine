@@ -111,21 +111,23 @@ void ezTestBaseClass::DoSubTestDeInitialization(ezInt32 iIdentifier)
   }
 }
 
-double ezTestBaseClass::DoSubTestRun(ezInt32 iIdentifier)
+ezTestAppRun ezTestBaseClass::DoSubTestRun(ezInt32 iIdentifier, double& fDuration)
 {
-  double fDuration = 0.0;
+  fDuration = 0.0;
 
   if (iIdentifier < 0 || iIdentifier >= (ezInt32)m_Entries.size())
   {
     ezTestFramework::Output(ezTestOutput::Error, "Test with identifier '%d' not found.", iIdentifier);
-    return fDuration;
+    return ezTestAppRun::Quit;
   }
+
+  ezTestAppRun ret = ezTestAppRun::Quit;
 
   try
   {
     ezTime StartTime = ezTime::Now();
 
-    RunSubTest(iIdentifier);
+    ret = RunSubTest(iIdentifier);
 
     fDuration = (ezTime::Now() - StartTime).GetMilliseconds();
 
@@ -135,7 +137,7 @@ double ezTestBaseClass::DoSubTestRun(ezInt32 iIdentifier)
     ezTestFramework::Output(ezTestOutput::Error, "Exception during sub-test '%s'.", m_Entries[iIdentifier].m_szName);
   }
 
-  return fDuration;
+  return ret;
 }
 
 

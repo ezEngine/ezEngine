@@ -199,6 +199,9 @@ void ezReflectedTypeStorageManager::TypeChangedEvent(ezReflectedTypeChange& data
       continue;
 
     const ezReflectedType* pType = it.Key().GetType();
+
+    EZ_ASSERT(pType != nullptr, "Invalid type pointer");
+
     // Check whether the changed type comes up in the transitive dependency list.
     // If that is the case we need to update this type as well.
     pType->GetDependencies(dependencies, true);

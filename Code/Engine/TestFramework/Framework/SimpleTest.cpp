@@ -27,12 +27,11 @@ void ezSimpleTestGroup::SetupSubTests()
     AddSubTest(m_SimpleTests[i].m_szName, i);
 }
 
-void ezSimpleTestGroup::RunSubTest(ezInt32 iIdentifier)
+ezTestAppRun ezSimpleTestGroup::RunSubTest(ezInt32 iIdentifier)
 {
-  {
-    EZ_PROFILE(m_SimpleTests[iIdentifier].m_ProfilingId);
-    m_SimpleTests[iIdentifier].m_Func();
-  }
+  EZ_PROFILE(m_SimpleTests[iIdentifier].m_ProfilingId);
+  m_SimpleTests[iIdentifier].m_Func();
+  return ezTestAppRun::Quit;
 }
 
 ezResult ezSimpleTestGroup::InitializeSubTest(ezInt32 iIdentifier)

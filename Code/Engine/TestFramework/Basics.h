@@ -13,3 +13,8 @@
   #define EZ_TEST_DLL
 #endif
 
+enum class ezTestAppRun
+{
+  Continue,
+  Quit
+};

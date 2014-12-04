@@ -12,9 +12,15 @@ public:
   static ezTestFramework* InitTestFramework(const char* szTestName, const char* szNiceTestName, int argc, const char** argv);
 
   /// \brief Runs tests and returns number of errors.
-  static ezInt32 RunTests(int argc, char **argv);
+  static ezTestAppRun RunTests();
+
+  static ezInt32 GetFailedTestCount();
 
   /// \brief Deletes the test framework and outputs final test output.
   static void DeInitTestFramework();
+
+private:
+  static int s_argc;
+  static const char** s_argv;
 };
 
