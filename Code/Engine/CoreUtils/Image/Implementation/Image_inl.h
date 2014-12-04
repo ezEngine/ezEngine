@@ -55,6 +55,9 @@ template<typename T>
 const T* ezImage::GetPixelPointer(ezUInt32 uiMipLevel, ezUInt32 uiFace, ezUInt32 uiArrayIndex, ezUInt32 x, ezUInt32 y, ezUInt32 z) const
 {
   EZ_ASSERT(ezImageFormat::GetType(m_format) == ezImageFormatType::LINEAR, "Pixel pointer can only be retrieved for linear formats.");
+  EZ_ASSERT(x < this->m_uiWidth, "x out of bounds");
+  EZ_ASSERT(y < this->m_uiHeight, "y out of bounds");
+  EZ_ASSERT(z < this->m_uiDepth, "z out of bounds");
 
   const ezUInt8* pPointer = GetSubImagePointer<ezUInt8>(uiMipLevel, uiFace, uiArrayIndex);
 

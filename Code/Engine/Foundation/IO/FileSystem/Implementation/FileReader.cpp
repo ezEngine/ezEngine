@@ -18,6 +18,7 @@ ezResult ezFileReader::Open(const char* szFile, ezUInt32 uiCacheSize, bool bAllo
 
   m_uiCacheReadPosition = 0;
   m_uiBytesCached = m_pDataDirReader->Read(&m_Cache[0], m_Cache.GetCount());
+  m_bEOF = m_uiBytesCached > 0 ? false : true;
 
   return EZ_SUCCESS;
 }
@@ -28,11 +29,14 @@ void ezFileReader::Close()
     m_pDataDirReader->Close();
 
   m_pDataDirReader = nullptr;
+  m_bEOF = true;
 }
 
 ezUInt64 ezFileReader::ReadBytes(void* pReadBuffer, ezUInt64 uiBytesToRead)
 {
   EZ_ASSERT(m_pDataDirReader != nullptr, "The file has not been opened (successfully).");
+  if (m_bEOF)
+    return 0;
 
   ezUInt64 uiBufferPosition = 0; //how much was read, yet
   ezUInt8* pBuffer = (ezUInt8*) pReadBuffer;
@@ -69,6 +73,7 @@ ezUInt64 ezFileReader::ReadBytes(void* pReadBuffer, ezUInt64 uiBytesToRead)
       {
         // if absolutely nothing could be read, we reached the end of the file (and we actually returned everything else,
         // so the file was really read to the end).
+        m_bEOF = true;
         return uiBufferPosition;
       }
     }

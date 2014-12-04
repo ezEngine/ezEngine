@@ -334,7 +334,7 @@ ezResult ezTgaFileFormat::ReadImage(ezStreamReaderBase& stream, ezImage& image, 
     // compressed
 
     ezInt32 iCurrentPixel = 0;
-    const int iPixelCount = Header.m_iImageWidth * Header.m_iImageWidth;
+    const int iPixelCount = Header.m_iImageWidth * Header.m_iImageHeight;
 
     do
     {
