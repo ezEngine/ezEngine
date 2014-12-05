@@ -71,11 +71,21 @@ struct ezConversionTest<T, T>
   };
 };
 
+// remapping of the 0 (not special) type to 3
+template <typename T1, typename T2>
+struct ezGetStrongestTypeClass : public ezTraitInt <
+    (T1::value == 0 || T2::value == 0)
+    ? 0
+    : EZ_COMPILE_TIME_MAX(T1::value, T2::value) > { };
+
+
+
 
 #ifdef __INTELLISENSE__
 
   #define EZ_DECLARE_POD_TYPE()
   #define EZ_DECLARE_MEM_RELOCATABLE_TYPE()
+  #define EZ_DETECT_TYPE_CLASS(...)
 
 #else
 
@@ -91,6 +101,18 @@ struct ezConversionTest<T, T>
   #define EZ_DECLARE_MEM_RELOCATABLE_TYPE() \
     ezCompileTimeTrueType operator%(const ezTypeIsMemRelocatable&) const
 
+  #define EZ_DETECT_TYPE_CLASS_1(T1) ezGetTypeClass<decltype(T1)>
+  #define EZ_DETECT_TYPE_CLASS_2(T1, T2) ezGetStrongestTypeClass<EZ_DETECT_TYPE_CLASS_1(T1), EZ_DETECT_TYPE_CLASS_1(T2)>
+  #define EZ_DETECT_TYPE_CLASS_3(T1, T2, T3) ezGetStrongestTypeClass<EZ_DETECT_TYPE_CLASS_2(T1, T2), EZ_DETECT_TYPE_CLASS_1(T3)>
+  #define EZ_DETECT_TYPE_CLASS_4(T1, T2, T3, T4) ezGetStrongestTypeClass<EZ_DETECT_TYPE_CLASS_2(T1, T2), EZ_DETECT_TYPE_CLASS_2(T3, T4)>
+  #define EZ_DETECT_TYPE_CLASS_5(T1, T2, T3, T4, T5) ezGetStrongestTypeClass<EZ_DETECT_TYPE_CLASS_4(T1, T2, T3, T4), EZ_DETECT_TYPE_CLASS_1(T5)>
+  #define EZ_DETECT_TYPE_CLASS_6(T1, T2, T3, T4, T5, T6) ezGetStrongestTypeClass<EZ_DETECT_TYPE_CLASS_4(T1,T2,T3,T4), EZ_DETECT_TYPE_CLASS_2(T5, T6)>
+  
+  // \brief embed this into a class to automatically detect which type class it belongs to
+  // This macro is only garanteed to work for classes / structs which don't have any constructor / destructor / assignment operator!
+  // As arguments you have to list the names of all the members of the class / struct.
+  #define EZ_DETECT_TYPE_CLASS(...) \
+     ezCompileTimeTrueType operator%(const ezTraitInt<EZ_CALL_MACRO(EZ_CONCAT(EZ_DETECT_TYPE_CLASS_, EZ_VA_NUM_ARGS(__VA_ARGS__)), (__VA_ARGS__))::value>&) const
 #endif
 
 /// \brief Defines a type T as Pod.
