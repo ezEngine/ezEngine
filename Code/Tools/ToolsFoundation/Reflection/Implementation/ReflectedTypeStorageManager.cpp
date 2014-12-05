@@ -157,6 +157,13 @@ void ezReflectedTypeStorageManager::Shutdown()
   ezReflectedTypeManager::m_TypeAddedEvent.RemoveEventHandler(TypeAddedEvent);
   ezReflectedTypeManager::m_TypeChangedEvent.RemoveEventHandler(TypeChangedEvent);
   ezReflectedTypeManager::m_TypeRemovedEvent.RemoveEventHandler(TypeRemovedEvent);
+
+  for(auto it = m_ReflectedTypeToStorageMapping.GetIterator(); it.IsValid(); ++it)
+  {
+    ReflectedTypeStorageMapping* pMapping = it.Value();
+    EZ_DEFAULT_DELETE(pMapping);
+  }
+  m_ReflectedTypeToStorageMapping.Clear();
 }
 
 const ezReflectedTypeStorageManager::ReflectedTypeStorageMapping* ezReflectedTypeStorageManager::AddStorageAccessor(ezReflectedTypeStorageAccessor* pInstance)
