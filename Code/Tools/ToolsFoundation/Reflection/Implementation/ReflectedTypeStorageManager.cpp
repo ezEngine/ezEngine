@@ -161,6 +161,7 @@ void ezReflectedTypeStorageManager::Shutdown()
   for(auto it = m_ReflectedTypeToStorageMapping.GetIterator(); it.IsValid(); ++it)
   {
     ReflectedTypeStorageMapping* pMapping = it.Value();
+    EZ_ASSERT(pMapping->m_Instances.IsEmpty(), "A type was removed which still has instances using the type!");
     EZ_DEFAULT_DELETE(pMapping);
   }
   m_ReflectedTypeToStorageMapping.Clear();
