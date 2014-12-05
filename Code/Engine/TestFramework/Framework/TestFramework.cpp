@@ -217,7 +217,7 @@ ezTestAppRun ezTestFramework::RunTestExecutionLoop()
 
   ExecuteNextTest();
 
-  if (m_iExecutingTest >= m_TestEntries.size())
+  if (m_iExecutingTest >= (ezInt32) m_TestEntries.size())
   {
     EndTests();
     return ezTestAppRun::Quit;
@@ -312,7 +312,7 @@ void ezTestFramework::ExecuteNextTest()
       }
     }
 
-    if (m_iExecutingSubTest < TestEntry.m_SubTests.size())
+    if (m_iExecutingSubTest < (ezInt32) TestEntry.m_SubTests.size())
     {
       ezSubTestEntry& subTest = TestEntry.m_SubTests[m_iExecutingSubTest];
       ezInt32 iSubTestIdentifier = subTest.m_iSubTestIdentifier;
@@ -384,7 +384,7 @@ void ezTestFramework::ExecuteNextTest()
       }
     }
 
-    if (m_iExecutingSubTest >= TestEntry.m_SubTests.size())
+    if (m_iExecutingSubTest >= (ezInt32) TestEntry.m_SubTests.size())
     {
       // *** Test De-Initialization ***
       pTestClass->DoTestDeInitialization();
