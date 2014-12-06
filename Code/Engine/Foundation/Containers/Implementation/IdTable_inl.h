@@ -211,7 +211,7 @@ bool ezIdTableBase<IdType, ValueType>::Remove(const IdType id, ValueType* out_ol
 
   const IndexType uiIndex = id.m_InstanceIndex;
   Entry& entry = m_pEntries[uiIndex];
-  if (entry.id != id)
+  if (!entry.id.IsIndexAndGenerationEqual(id))
     return false;
 
   if (out_oldValue != nullptr)

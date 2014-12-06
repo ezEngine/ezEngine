@@ -320,5 +320,9 @@ EZ_CREATE_SIMPLE_TEST(World, World)
     ezGameObject* pObj2 = nullptr;
     EZ_TEST_BOOL(world2.TryGetObject(hObj2, pObj2));
     EZ_TEST_BOOL(pObj2 != nullptr);
+
+    world2.DeleteObject(hObj2);
+
+    EZ_TEST_BOOL(!world2.IsValidObject(hObj2));
   }
 }

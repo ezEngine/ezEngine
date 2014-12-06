@@ -25,6 +25,7 @@ ezWorld::ezWorld(const char* szWorldName) :
     {
       s_Worlds[i] = this;
       m_uiIndex = i;
+      break;
     }
   }
 
@@ -150,7 +151,7 @@ void ezWorld::DeleteObject(const ezGameObjectHandle& object)
   pObject->m_InternalId.Invalidate();
   pObject->m_Flags.Remove(ezObjectFlags::Active);
   m_Data.m_DeadObjects.PushBack(storageEntry);
-  m_Data.m_Objects.Remove(object);  
+  EZ_VERIFY(m_Data.m_Objects.Remove(object), "Implementation error.");
 }
 
 void ezWorld::PostMessage(const ezGameObjectHandle& receiverObject, ezMessage& msg, 
