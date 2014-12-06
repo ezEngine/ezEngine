@@ -1,12 +1,19 @@
 #include <PCH.h>
 #include <Foundation/Containers/ArrayMap.h>
+#include <Foundation/Containers/Map.h>
 #include <Foundation/Strings/String.h>
+#include <Foundation/Time/Stopwatch.h>
 
 EZ_CREATE_SIMPLE_TEST(Containers, ArrayMap)
 {
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Insert / Find")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Insert / Find / Reserve / Clear / IsEmpty / Compact / GetCount")
   {
     ezArrayMap<ezString, ezInt32> sa;
+
+    EZ_TEST_INT(sa.GetCount(), 0);
+    EZ_TEST_BOOL(sa.IsEmpty());
+
+    sa.Reserve(10);
 
     sa.Insert("z", 0);
     sa.Insert("y", 1);
@@ -14,6 +21,9 @@ EZ_CREATE_SIMPLE_TEST(Containers, ArrayMap)
     sa.Insert("c", 3);
     sa.Insert("b", 4);
     sa.Insert("a", 5);
+
+    EZ_TEST_INT(sa.GetCount(), 6);
+    EZ_TEST_BOOL(!sa.IsEmpty());
 
     EZ_TEST_INT(sa.Find("a"), 0);
     EZ_TEST_INT(sa.Find("b"), 1);
@@ -28,18 +38,30 @@ EZ_CREATE_SIMPLE_TEST(Containers, ArrayMap)
     EZ_TEST_INT(sa[sa.Find("x")].value, 2);
     EZ_TEST_INT(sa[sa.Find("y")].value, 1);
     EZ_TEST_INT(sa[sa.Find("z")].value, 0);
+
+    sa.Clear();
+    EZ_TEST_BOOL(sa.IsEmpty());
+
+    sa.Compact();
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Insert / Find")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Insert / Find / = / == / != ")
   {
-    ezArrayMap<ezInt32, ezInt32> sa;
+    ezArrayMap<ezInt32, ezInt32> sa, sa2;
 
     sa.Insert(20, 0);
     sa.Insert(19, 1);
     sa.Insert(18, 2);
     sa.Insert(12, 3);
     sa.Insert(11, 4);
+
+    sa2 = sa;
+
+    EZ_TEST_BOOL(sa == sa2);
+
     sa.Insert(10, 5);
+
+    EZ_TEST_BOOL(sa != sa2);
 
     EZ_TEST_INT(sa.Find(10), 0);
     EZ_TEST_INT(sa.Find(11), 1);
@@ -48,12 +70,168 @@ EZ_CREATE_SIMPLE_TEST(Containers, ArrayMap)
     EZ_TEST_INT(sa.Find(19), 4);
     EZ_TEST_INT(sa.Find(20), 5);
 
+    sa2.Insert(10, 5);
+
+    EZ_TEST_BOOL(sa == sa2);
+
     EZ_TEST_INT(sa.GetValue(sa.Find(10)), 5);
     EZ_TEST_INT(sa.GetValue(sa.Find(11)), 4);
     EZ_TEST_INT(sa.GetValue(sa.Find(12)), 3);
     EZ_TEST_INT(sa.GetValue(sa.Find(18)), 2);
     EZ_TEST_INT(sa.GetValue(sa.Find(19)), 1);
     EZ_TEST_INT(sa.GetValue(sa.Find(20)), 0);
+
+    EZ_TEST_BOOL(sa == sa2);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Contains")
+  {
+    ezArrayMap<ezString, ezInt32> sa;
+
+    EZ_TEST_BOOL(!sa.Contains("a"));
+    EZ_TEST_BOOL(!sa.Contains("z"));
+
+    sa.Insert("z", 0);
+    sa.Insert("y", 1);
+    sa.Insert("x", 2);
+
+    EZ_TEST_BOOL(!sa.Contains("a"));
+    EZ_TEST_BOOL(sa.Contains("z"));
+
+    sa.Insert("c", 3);
+    sa.Insert("b", 4);
+    sa.Insert("a", 5);
+
+    EZ_TEST_BOOL(sa.Contains("a"));
+    EZ_TEST_BOOL(sa.Contains("z"));
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetValue / GetKey / Copy Constructor")
+  {
+    ezArrayMap<ezString, ezInt32> sa;
+
+    sa.Insert("z", 1);
+    sa.Insert("y", 3);
+    sa.Insert("x", 5);
+    sa.Insert("c", 7);
+    sa.Insert("b", 9);
+    sa.Insert("a", 11);
+
+    sa.Sort();
+
+    const ezArrayMap<ezString, ezInt32> sa2(sa);
+
+    EZ_TEST_INT(sa.GetValue(0), 11);
+    EZ_TEST_INT(sa.GetValue(2), 7);
+
+    EZ_TEST_INT(sa2.GetValue(0), 11);
+    EZ_TEST_INT(sa2.GetValue(2), 7);
+
+    EZ_TEST_STRING(sa.GetKey(1), "b");
+    EZ_TEST_STRING(sa.GetKey(3), "x");
+
+    EZ_TEST_INT(sa["b"], 9);
+    EZ_TEST_INT(sa["y"], 3);
+
+    EZ_TEST_INT(sa[2].value, 7);
+    EZ_TEST_STRING(sa[4].key, "y");
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Remove")
+  {
+    ezArrayMap<ezString, ezInt32> sa;
+
+    bool bExisted = true;
+
+    sa.FindOrAdd("a", &bExisted) = 2;
+    EZ_TEST_BOOL(!bExisted);
+
+    sa.FindOrAdd("b", &bExisted) = 4;
+    EZ_TEST_BOOL(!bExisted);
+
+    sa.FindOrAdd("c", &bExisted) = 6;
+    EZ_TEST_BOOL(!bExisted);
+
+    sa.FindOrAdd("b", &bExisted) = 5;
+    EZ_TEST_BOOL(bExisted);
+
+    EZ_TEST_INT(sa.GetCount(), 3);
+
+    EZ_TEST_INT(sa.Find("a"), 0);
+    EZ_TEST_INT(sa.Find("c"), 2);
+
+    sa.Remove("b");
+    EZ_TEST_INT(sa.GetCount(), 2);
+
+    EZ_TEST_INT(sa.Find("b"), ezInvalidIndex);
+
+    EZ_TEST_INT(sa.Find("a"), 0);
+    EZ_TEST_INT(sa.Find("c"), 1);
+
+    sa.Remove(1);
+    EZ_TEST_INT(sa.GetCount(), 1);
+
+    EZ_TEST_INT(sa.Find("a"), 0);
+    EZ_TEST_INT(sa.Find("c"), ezInvalidIndex);
+
+    sa.Remove(0);
+    EZ_TEST_INT(sa.GetCount(), 0);
+
+    EZ_TEST_INT(sa.Find("a"), ezInvalidIndex);
+    EZ_TEST_INT(sa.Find("c"), ezInvalidIndex);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Stresstest")
+  {
+    // Interestingly the map is not really slower than the sorted array, at least not in debug builds
+
+    ezStopwatch s;
+    ezArrayMap<ezInt32, ezInt32> sa;
+    ezMap<ezInt32, ezInt32> map;
+
+    const ezUInt32 uiElements = 100000;
+
+    const ezTime t0 = s.Checkpoint();
+
+    {
+      for (ezUInt32 i = 0; i < uiElements; ++i)
+      {
+        sa.Insert(uiElements - i, i*2);
+      }
+
+      sa.Sort();
+    }
+
+    const ezTime t1 = s.Checkpoint();
+
+    {
+      for (ezUInt32 i = 0; i < uiElements; ++i)
+      {
+        EZ_TEST_INT(sa.GetValue(sa.Find(uiElements - i)), i * 2);
+      }
+    }
+
+    const ezTime t2 = s.Checkpoint();
+
+    {
+      for (ezUInt32 i = 0; i < uiElements; ++i)
+      {
+        map.Insert(uiElements - i, i*2);
+      }
+    }
+
+    const ezTime t3 = s.Checkpoint();
+
+    {
+      for (ezUInt32 i = 0; i < uiElements; ++i)
+      {
+        EZ_TEST_INT(map[uiElements - i], i * 2);
+      }
+    }
+
+    const ezTime t4 = s.Checkpoint();
+
+    int breakpoint = 0;
   }
 }
 

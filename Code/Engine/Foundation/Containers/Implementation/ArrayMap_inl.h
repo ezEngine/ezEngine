@@ -7,8 +7,9 @@ inline ezArrayMapBase<KEY, VALUE>::ezArrayMapBase(ezAllocatorBase* pAllocator) :
 }
 
 template<typename KEY, typename VALUE>
-inline ezArrayMapBase<KEY, VALUE>::ezArrayMapBase(const ezArrayMapBase& rhs, ezAllocatorBase* pAllocator) : m_bSorted(rhs.m_bSorted), m_Data(rhs.m_Data, pAllocator)
+inline ezArrayMapBase<KEY, VALUE>::ezArrayMapBase(const ezArrayMapBase& rhs, ezAllocatorBase* pAllocator) : m_bSorted(rhs.m_bSorted), m_Data(pAllocator)
 {
+  m_Data = rhs.m_Data;
 }
 
 template<typename KEY, typename VALUE>
@@ -54,21 +55,25 @@ inline void ezArrayMapBase<KEY, VALUE>::Sort() const
   if (m_bSorted)
     return;
 
-  m_Data.Sort();
   m_bSorted = true;
+  m_Data.Sort();
 }
 
 template<typename KEY, typename VALUE>
 ezUInt32 ezArrayMapBase<KEY, VALUE>::Find(const KEY& key) const
 {
-  Sort();
+  if (!m_bSorted)
+  {
+    m_bSorted = true;
+    m_Data.Sort();
+  }
 
   ezUInt32 lb = 0;
   ezUInt32 ub = m_Data.GetCount();
 
   while (lb < ub)
   {
-    ezUInt32 middle = lb + (ub - lb) / 2;
+    const ezUInt32 middle = lb + ((ub - lb) >> 1);
 
     if (m_Data[middle].key < key)
     {
@@ -138,7 +143,7 @@ void ezArrayMapBase<KEY, VALUE>::Remove(ezUInt32 index, bool bKeepSorted)
 {
   if (bKeepSorted && m_bSorted)
   {
-    m_Data.Remove(index);
+    m_Data.RemoveAt(index);
   }
   else
   {
