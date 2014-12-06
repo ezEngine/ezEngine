@@ -8,6 +8,7 @@ Milestone 6
   * Renamed ezStringIterator to ezStringView.
   * Added ezGeometry, a class with functions to generate basic geometric shapes.
   * Added ezChunkFormatReader / ezChunkFormatWriter to work with 'chunked' file formats.
+  * Added ezArrayMap container, which is an associative container that is typically more efficient than ezMap.
 
 Milestone 5
 -----------

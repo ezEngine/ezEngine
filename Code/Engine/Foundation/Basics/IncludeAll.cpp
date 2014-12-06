@@ -40,6 +40,7 @@
 #include <Foundation/Containers/Set.h>
 #include <Foundation/Containers/StaticArray.h>
 #include <Foundation/Containers/StaticRingBuffer.h>
+#include <Foundation/Containers/ArrayMap.h>
 
 #include <Foundation/IO/Stream.h>
 #include <Foundation/IO/MemoryStream.h>

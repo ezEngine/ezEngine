@@ -14,9 +14,7 @@ One of the next releases:
 
 Unknown:
   * Per Object Type Memory Tracking (Clemens)
-  * Binary Search Algorithm
   * ezMap, ezSet Comparer mit dem Comparer in Algorithm ersetzen; auﬂerdem < und == sinnvoller verwenden (-1, 0, 1 vergleich etc.) (Clemens :-P )
-  * Containers: Sorted Array (Requires Binary Search)
   * Math: Random Number Generators
   * Optimize container regarding construction/destruction, unnecessary operations (ask Clemens for more info)
   * Type-safe printf

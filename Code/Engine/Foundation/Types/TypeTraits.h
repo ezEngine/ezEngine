@@ -109,7 +109,7 @@ struct ezGetStrongestTypeClass : public ezTraitInt <
   #define EZ_DETECT_TYPE_CLASS_6(T1, T2, T3, T4, T5, T6) ezGetStrongestTypeClass<EZ_DETECT_TYPE_CLASS_4(T1,T2,T3,T4), EZ_DETECT_TYPE_CLASS_2(T5, T6)>
   
   // \brief embed this into a class to automatically detect which type class it belongs to
-  // This macro is only garanteed to work for classes / structs which don't have any constructor / destructor / assignment operator!
+  // This macro is only guaranteed to work for classes / structs which don't have any constructor / destructor / assignment operator!
   // As arguments you have to list the names of all the members of the class / struct.
   #define EZ_DETECT_TYPE_CLASS(...) \
      ezCompileTimeTrueType operator%(const ezTraitInt<EZ_CALL_MACRO(EZ_CONCAT(EZ_DETECT_TYPE_CLASS_, EZ_VA_NUM_ARGS(__VA_ARGS__)), (__VA_ARGS__))::value>&) const
@@ -182,7 +182,7 @@ public:
   typedef typename RemoveConst<typename RemoveReference<T>::type>::type NonConstReferenceType;
 };
 
-/// generates a template named 'checkerName' which checks for the existance of a member function with 
+/// generates a template named 'checkerName' which checks for the existence of a member function with 
 /// the name 'functionName' and the signature 'Signature'
 #define EZ_MAKE_MEMBERFUNCTION_CHECKER(functionName, checkerName)                                        \
   template<typename T, typename Signature>                                                               \
