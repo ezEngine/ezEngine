@@ -108,7 +108,7 @@ VALUE& ezArrayMapBase<KEY, VALUE>::GetValue(ezUInt32 index)
 template<typename KEY, typename VALUE>
 VALUE& ezArrayMapBase<KEY, VALUE>::FindOrAdd(const KEY& key, bool* bExisted)
 {
-  ezUInt32 index = Find(Key);
+  ezUInt32 index = Find(key);
 
   if (bExisted)
     *bExisted = index != ezInvalidIndex;
@@ -128,7 +128,7 @@ EZ_FORCE_INLINE VALUE& ezArrayMapBase<KEY, VALUE>::operator[](const KEY& key)
 }
 
 template<typename KEY, typename VALUE>
-EZ_FORCE_INLINE typename const ezArrayMapBase<KEY, VALUE>::Pair& ezArrayMapBase<KEY, VALUE>::operator[](ezUInt32 index) const
+EZ_FORCE_INLINE const typename ezArrayMapBase<KEY, VALUE>::Pair& ezArrayMapBase<KEY, VALUE>::operator[](ezUInt32 index) const
 {
   return m_Data[index];
 }
