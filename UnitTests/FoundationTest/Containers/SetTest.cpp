@@ -190,8 +190,53 @@ EZ_CREATE_SIMPLE_TEST(Containers, Set)
     // Union
     {
       ezSet<ezUInt32> res;
+
       res.Union(base);
-      // TBC...
+      EZ_TEST_BOOL(res.Contains(base));
+      EZ_TEST_BOOL(base.Contains(res));
+      res.Union(subSet);
+      EZ_TEST_BOOL(res.Contains(base));
+      EZ_TEST_BOOL(res.Contains(subSet));
+      EZ_TEST_BOOL(base.Contains(res));
+      res.Union(superSet);
+      EZ_TEST_BOOL(res.Contains(base));
+      EZ_TEST_BOOL(res.Contains(subSet));
+      EZ_TEST_BOOL(res.Contains(superSet));
+      EZ_TEST_BOOL(superSet.Contains(res));
+    }
+
+    // Difference
+    {
+      ezSet<ezUInt32> res;
+      res.Union(base);
+      res.Difference(empty);
+      EZ_TEST_BOOL(res.Contains(base));
+      EZ_TEST_BOOL(base.Contains(res));
+      res.Difference(disjunct);
+      EZ_TEST_BOOL(res.Contains(base));
+      EZ_TEST_BOOL(base.Contains(res));
+      res.Difference(subSet);
+      EZ_TEST_INT(res.GetCount(), 1);
+      res.Contains(3);
+    }
+
+    // Intersection
+    {
+      ezSet<ezUInt32> res;
+      res.Union(base);
+      res.Intersection(disjunct);
+      EZ_TEST_BOOL(res.IsEmpty());
+      res.Union(base);
+      res.Intersection(subSet);
+      EZ_TEST_BOOL(base.Contains(subSet));
+      EZ_TEST_BOOL(res.Contains(subSet));
+      EZ_TEST_BOOL(subSet.Contains(res));
+      res.Intersection(superSet);
+      EZ_TEST_BOOL(superSet.Contains(res));
+      EZ_TEST_BOOL(res.Contains(subSet));
+      EZ_TEST_BOOL(subSet.Contains(res));
+      res.Intersection(empty);
+      EZ_TEST_BOOL(res.IsEmpty());
     }
   }
 

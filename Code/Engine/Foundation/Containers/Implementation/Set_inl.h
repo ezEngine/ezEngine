@@ -363,10 +363,12 @@ void ezSetBase<KeyType, Comparer>::Difference(const ezSetBase<KeyType, Comparer>
 template <typename KeyType, typename Comparer>
 void ezSetBase<KeyType, Comparer>::Intersection(const ezSetBase<KeyType, Comparer>& operand)
 {
-  for (const auto& key : *this)
+  for (auto it = GetIterator(); it.IsValid();)
   {
-    if (!operand.Contains(key))
-      Remove(key);
+    if (!operand.Contains(it.Key()))
+      it = Remove(it);
+    else
+      ++it;
   }
 }
 
