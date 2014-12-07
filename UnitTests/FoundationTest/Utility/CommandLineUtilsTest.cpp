@@ -99,18 +99,18 @@ EZ_CREATE_SIMPLE_TEST(Utility, CommandLineUtils)
     CmdLn.SetCommandLine(argc, argv);
 
     // case sensitive and wrong
-    EZ_TEST_BOOL(CmdLn.GetBoolOption("-test1", true)  == true);
-    EZ_TEST_BOOL(CmdLn.GetBoolOption("-test1", false) == false);
+    EZ_TEST_BOOL(CmdLn.GetBoolOption("-test1", true, true)  == true);
+    EZ_TEST_BOOL(CmdLn.GetBoolOption("-test1", false, true) == false);
 
-    EZ_TEST_BOOL(CmdLn.GetBoolOption("-test2", true)  == true);
-    EZ_TEST_BOOL(CmdLn.GetBoolOption("-test2", false) == false);
+    EZ_TEST_BOOL(CmdLn.GetBoolOption("-test2", true, true)  == true);
+    EZ_TEST_BOOL(CmdLn.GetBoolOption("-test2", false, true) == false);
 
     // case insensitive and wrong
-    EZ_TEST_BOOL(CmdLn.GetBoolOption("-test1", true, false)  == true);
-    EZ_TEST_BOOL(CmdLn.GetBoolOption("-test1", false, false) == true);
+    EZ_TEST_BOOL(CmdLn.GetBoolOption("-test1", true)  == true);
+    EZ_TEST_BOOL(CmdLn.GetBoolOption("-test1", false) == true);
 
-    EZ_TEST_BOOL(CmdLn.GetBoolOption("-test2", true, false)  == false);
-    EZ_TEST_BOOL(CmdLn.GetBoolOption("-test2", false, false) == false);
+    EZ_TEST_BOOL(CmdLn.GetBoolOption("-test2", true)  == false);
+    EZ_TEST_BOOL(CmdLn.GetBoolOption("-test2", false) == false);
 
     // case sensitive and correct
     EZ_TEST_BOOL(CmdLn.GetBoolOption("-Test1", true)  == true);
@@ -146,12 +146,12 @@ EZ_CREATE_SIMPLE_TEST(Utility, CommandLineUtils)
     CmdLn.SetCommandLine(argc, argv);
 
     // case sensitive and wrong
-    EZ_TEST_INT(CmdLn.GetIntOption("-test1", 2), 2);
-    EZ_TEST_INT(CmdLn.GetIntOption("-test2", 17), 17);
+    EZ_TEST_INT(CmdLn.GetIntOption("-test1", 2, true), 2);
+    EZ_TEST_INT(CmdLn.GetIntOption("-test2", 17, true), 17);
 
     // case insensitive and wrong
-    EZ_TEST_INT(CmdLn.GetIntOption("-test1", 2, false), 23);
-    EZ_TEST_INT(CmdLn.GetIntOption("-test2", 17, false), 42);
+    EZ_TEST_INT(CmdLn.GetIntOption("-test1", 2), 23);
+    EZ_TEST_INT(CmdLn.GetIntOption("-test2", 17), 42);
 
     // case sensitive and correct
     EZ_TEST_INT(CmdLn.GetIntOption("-Test1", 2), 23);
@@ -178,12 +178,12 @@ EZ_CREATE_SIMPLE_TEST(Utility, CommandLineUtils)
     CmdLn.SetCommandLine(argc, argv);
 
     // case sensitive and wrong
-    EZ_TEST_DOUBLE(CmdLn.GetFloatOption("-test1", 2.3), 2.3, 0.0);
-    EZ_TEST_DOUBLE(CmdLn.GetFloatOption("-test2", 17.8), 17.8, 0.0);
+    EZ_TEST_DOUBLE(CmdLn.GetFloatOption("-test1", 2.3, true), 2.3, 0.0);
+    EZ_TEST_DOUBLE(CmdLn.GetFloatOption("-test2", 17.8, true), 17.8, 0.0);
 
     // case insensitive and wrong
-    EZ_TEST_DOUBLE(CmdLn.GetFloatOption("-test1", 2.3, false), 23.45, 0.0);
-    EZ_TEST_DOUBLE(CmdLn.GetFloatOption("-test2", 17.8, false), 42.3, 0.0);
+    EZ_TEST_DOUBLE(CmdLn.GetFloatOption("-test1", 2.3), 23.45, 0.0);
+    EZ_TEST_DOUBLE(CmdLn.GetFloatOption("-test2", 17.8), 42.3, 0.0);
 
     // case sensitive and correct
     EZ_TEST_DOUBLE(CmdLn.GetFloatOption("-Test1", 2.3), 23.45, 0.0);

@@ -224,7 +224,7 @@ ezTestAppRun ezTestFramework::RunTestExecutionLoop()
   {
     EndTests();
 
-    if (m_uiPassesLeft > 0 && !m_bAbortTests)
+    if (m_uiPassesLeft > 1 && !m_bAbortTests)
     {
       --m_uiPassesLeft;
 
