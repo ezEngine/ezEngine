@@ -104,6 +104,7 @@ private:
   ezInt32 m_iExecutingSubTest;
   bool m_bSubTestInitialized;
   bool m_bAbortTests;
+  ezUInt8 m_uiPassesLeft;
   double m_fTotalTestDuration;
   double m_fTotalSubTestDuration;
   ezInt32 m_iErrorCountBeforeTest;

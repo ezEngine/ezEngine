@@ -148,8 +148,11 @@ void ezTestFramework::GetTestSettingsFromCommandLine(int argc, const char** argv
     m_Settings.m_bShowMessageBox   = cmd.GetBoolOption("-msgbox", m_Settings.m_bShowMessageBox);
     m_Settings.m_iRevision         = cmd.GetIntOption("-rev", -1);
     m_Settings.m_bEnableAllTests   = cmd.GetBoolOption("-all", false);
+    m_Settings.m_uiFullPasses      = cmd.GetIntOption("-passes", 1, false);
     if (cmd.GetStringOptionArguments("-json") == 1)
       m_Settings.m_sJsonOutput     = cmd.GetStringOption("-json", 0, "");
+
+    m_uiPassesLeft = m_Settings.m_uiFullPasses;
   }
 }
 
@@ -220,6 +223,17 @@ ezTestAppRun ezTestFramework::RunTestExecutionLoop()
   if (m_iExecutingTest >= (ezInt32) m_TestEntries.size())
   {
     EndTests();
+
+    if (m_uiPassesLeft > 0 && !m_bAbortTests)
+    {
+      --m_uiPassesLeft;
+
+      m_iExecutingTest = -1;
+      m_iExecutingSubTest = -1;
+
+      return ezTestAppRun::Continue;
+    }
+
     return ezTestAppRun::Quit;
   }
 

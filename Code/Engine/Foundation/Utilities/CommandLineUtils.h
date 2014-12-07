@@ -41,17 +41,17 @@ public:
   /// \return
   ///  -1 When no option with the given name is found.
   ///  Otherwise the index at which the option can be found. This can be passed to GetParameter() or GetStringOptionArguments().
-  ezInt32 GetOptionIndex(const char* szOption, bool bCaseSensitive = true) const; // [tested]
+  ezInt32 GetOptionIndex(const char* szOption, bool bCaseSensitive = false) const; // [tested]
 
   /// \brief Returns how many arguments follow behind the option with the name \a szOption.
   ///
   /// Everything that does not start with a hyphen is considered to be an additional parameter for the option.
-  ezUInt32 GetStringOptionArguments(const char* szOption, bool bCaseSensitive = true) const; // [tested]
+  ezUInt32 GetStringOptionArguments(const char* szOption, bool bCaseSensitive = false) const; // [tested]
 
   /// \brief Returns the n-th parameter to the command line option with the name \a szOption.
   ///
   /// If the option does not exist or does not have that many parameters, \a szDefault is returned.
-  const char* GetStringOption(const char* szOption, ezUInt32 uiArgument = 0, const char* szDefault = "", bool bCaseSensitive = true) const; // [tested]
+  const char* GetStringOption(const char* szOption, ezUInt32 uiArgument = 0, const char* szDefault = "", bool bCaseSensitive = false) const; // [tested]
 
   /// \brief Returns a boolean interpretation of the option \a szOption or bDefault if it cannot be found.
   ///
@@ -68,7 +68,7 @@ public:
   ///   If an option with the name \a szOption can be found, which has no parameters, it is interpreted as 'true'.
   ///   If there is one parameter following, it is interpreted using ezConversionUtils::StringToBool().
   ///   If that conversion fails, bDefault is returned.
-  bool GetBoolOption(const char* szOption, bool bDefault = false, bool bCaseSensitive = true) const; // [tested]
+  bool GetBoolOption(const char* szOption, bool bDefault = false, bool bCaseSensitive = false) const; // [tested]
 
   /// \brief Returns an integer interpretation of the option \a szOption or iDefault if it cannot be found.
   ///
@@ -85,7 +85,7 @@ public:
   ///   If an option with the name \a szOption can be found, and there is one parameter following, 
   ///   it is interpreted using ezConversionUtils::StringToInt().
   ///   If that conversion fails or there is no such option or no parameter follows it, iDefault is returned.
-  ezInt32 GetIntOption(const char* szOption, ezInt32 iDefault = 0, bool bCaseSensitive = true) const; // [tested]
+  ezInt32 GetIntOption(const char* szOption, ezInt32 iDefault = 0, bool bCaseSensitive = false) const; // [tested]
 
   /// \brief Returns a float interpretation of the option \a szOption or fDefault if it cannot be found.
   ///
@@ -102,7 +102,7 @@ public:
   ///   If an option with the name \a szOption can be found, and there is one parameter following, 
   ///   it is interpreted using ezConversionUtils::StringToFloat().
   ///   If that conversion fails or there is no such option or no parameter follows it, fDefault is returned.
-  double GetFloatOption(const char* szOption, double fDefault = 0.0, bool bCaseSensitive = true) const; // [tested]
+  double GetFloatOption(const char* szOption, double fDefault = 0.0, bool bCaseSensitive = false) const; // [tested]
 
 private:
 

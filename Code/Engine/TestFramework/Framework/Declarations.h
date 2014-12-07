@@ -42,6 +42,7 @@ struct TestSettings
     m_bNoGUI = false;
     m_iRevision = -1;
     m_bEnableAllTests = false;
+    m_uiFullPasses = 1;
   }
 
   // The following settings are stored in the settings file.
@@ -58,4 +59,5 @@ struct TestSettings
   int m_iRevision;          /// Revision in the RCS of this test run. Will be written into the test results json file for later reference.
   std::string m_sJsonOutput;/// Absolute path to the json file the results should be written to.
   bool m_bEnableAllTests;   /// Enables all test.
+  ezUInt8 m_uiFullPasses;   /// All tests are done this often, to check whether some tests fail only when executed multiple times.
 };
