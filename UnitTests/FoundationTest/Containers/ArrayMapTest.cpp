@@ -194,6 +194,8 @@ EZ_CREATE_SIMPLE_TEST(Containers, ArrayMap)
     const ezTime t0 = s.Checkpoint();
 
     {
+      sa.Reserve(uiElements);
+
       for (ezUInt32 i = 0; i < uiElements; ++i)
       {
         sa.Insert(uiElements - i, i*2);

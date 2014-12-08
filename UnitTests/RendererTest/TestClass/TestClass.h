@@ -3,6 +3,11 @@
 #include <TestFramework/Framework/TestBaseClass.h>
 #include <RendererFoundation/Device/Device.h>
 #include <System/Window/Window.h>
+#include <RendererCore/Meshes/MeshResource.h>
+#include <RendererCore/Meshes/MeshBufferResource.h>
+#include <CoreUtils/Geometry/GeomUtils.h>
+#include <RendererCore/ShaderCompiler/ShaderCompiler.h>
+#include <RendererCore/ShaderCompiler/ShaderManager.h>
 
 class ezImage;
 
@@ -21,13 +26,17 @@ protected:
   virtual ezResult DeInitializeSubTest(ezInt32 iIdentifier) override;
 
 protected:
-  ezResult SetupRenderer(ezUInt32 uiResolutionX = 640, ezUInt32 uiResolutionY = 480);
+  ezResult SetupRenderer(ezUInt32 uiResolutionX = 960, ezUInt32 uiResolutionY = 540);
   void ShutdownRenderer();
   void ClearScreen(const ezColor& color = ezColor::GetBlack());
 
   void BeginFrame();
   void EndFrame(bool bImageComparison = true);
   void GetScreenshot(ezImage& img);
+
+  ezMeshBufferResourceHandle CreateMesh(const ezGeometry& geom, const char* szResourceName);
+  ezMeshBufferResourceHandle CreateSphere(ezInt32 iSubDivs);
+  void RenderObject(ezMeshBufferResourceHandle hObject, const ezMat4& mTransform);
 
   ezWindow* m_pWindow;
   ezGALDevice* m_pDevice;
@@ -36,4 +45,8 @@ protected:
   ezGALRenderTargetConfigHandle m_hBBRT;
   ezGALRasterizerStateHandle m_hRasterizerState;
   ezGALDepthStencilStateHandle m_hDepthStencilState;
+  ezGALBufferHandle m_hObjectTransformCB;
+  ezShaderResourceHandle m_hShader;
 };
+
+

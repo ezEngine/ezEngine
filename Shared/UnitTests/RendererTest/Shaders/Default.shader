@@ -1,0 +1,26 @@
+[PLATFORMS] 
+ALL
+
+[PERMUTATIONS]
+
+[VERTEXSHADER]
+
+#include "Common.inc"
+
+VS_OUT main(VS_IN Input)
+{
+  VS_OUT RetVal;
+  RetVal.pos = mul(mvp, float4(Input.pos, 1.0));
+
+  return RetVal;
+}
+
+[PIXELSHADER]
+
+#include "Common.inc"
+
+float4 main(PS_IN Input) : SV_Target
+{
+  return float4(1.0, 1.0, 0.0, 0.0);
+}
+

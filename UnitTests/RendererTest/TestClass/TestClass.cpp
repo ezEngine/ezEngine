@@ -11,6 +11,8 @@
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Memory/MemoryTracker.h>
+#include <Core/ResourceManager/ResourceManager.h>
+#include <RendererCore/Pipeline/RenderHelper.h>
 
 
 ezGraphicsTest::ezGraphicsTest()
@@ -42,10 +44,9 @@ ezResult ezGraphicsTest::SetupRenderer(ezUInt32 uiResolutionX, ezUInt32 uiResolu
   {
     ezStringBuilder sReadDir = ezTestFramework::GetInstance()->GetAbsOutputPath();
     ezString sFolderName = sReadDir.GetFileName();
-    sReadDir.AppendPath("../../../Shared/UnitTests", sFolderName, "ImgCompare");
+    sReadDir.AppendPath("../../../Shared/UnitTests", sFolderName);
 
     ezStringBuilder sWriteDir = ezTestFramework::GetInstance()->GetAbsOutputPath();
-    sWriteDir.AppendPath("ImgCompare");
 
     if (ezOSFile::CreateDirectoryStructure(sWriteDir.GetData()).Failed())
       return EZ_FAILURE;
@@ -93,7 +94,7 @@ ezResult ezGraphicsTest::SetupRenderer(ezUInt32 uiResolutionX, ezUInt32 uiResolu
 
   ezGALRasterizerStateCreationDescription RasterStateDesc;
   RasterStateDesc.m_bWireFrame = true;
-  RasterStateDesc.m_CullMode = ezGALCullMode::Back;
+  RasterStateDesc.m_CullMode = ezGALCullMode::None;
   RasterStateDesc.m_bFrontCounterClockwise = true;
   m_hRasterizerState = m_pDevice->CreateRasterizerState(RasterStateDesc);
   EZ_ASSERT(!m_hRasterizerState.IsInvalidated(), "Couldn't create rasterizer state!");
@@ -105,13 +106,26 @@ ezResult ezGraphicsTest::SetupRenderer(ezUInt32 uiResolutionX, ezUInt32 uiResolu
   m_hDepthStencilState = m_pDevice->CreateDepthStencilState(DepthStencilStateDesc);
   EZ_ASSERT(!m_hDepthStencilState.IsInvalidated(), "Couldn't create depth-stencil state!");
 
+  m_hObjectTransformCB = m_pDevice->CreateConstantBuffer(sizeof(ezMat4));
+
+  ezShaderManager::SetPlatform("DX11_SM40", m_pDevice, true);
+
+    EZ_VERIFY(ezPlugin::LoadPlugin("ezShaderCompilerHLSL").Succeeded(), "Compiler Plugin not found");
+
+  m_hShader = ezResourceManager::GetResourceHandle<ezShaderResource>("Shaders/Default.shader");
+
   return EZ_SUCCESS;
 }
 
 void ezGraphicsTest::ShutdownRenderer()
 {
+  while (ezResourceManager::FreeUnusedResources() > 0)
+  {
+  }
+
   if (m_pDevice)
   {
+    m_pDevice->DestroyBuffer(m_hObjectTransformCB);
     m_pDevice->DestroyDepthStencilState(m_hDepthStencilState);
     m_pDevice->DestroyRasterizerState(m_hRasterizerState);
 
@@ -162,7 +176,7 @@ void ezGraphicsTest::EndFrame(bool bImageComparison)
 
     ezImageUtils::ScaleDownHalf(img, imgSmall);
 
-    sImgName.Format("%s_%s_%03u.tga", szTestName, szSubTestName, m_uiFrameCounter);
+    sImgName.Format("ImgCompare/%s_%s_%03u.tga", szTestName, szSubTestName, m_uiFrameCounter);
 
     imgSmall.SaveTo(sImgName);
 
@@ -185,6 +199,8 @@ void ezGraphicsTest::EndFrame(bool bImageComparison)
   }
 
   ++m_uiFrameCounter;
+
+  ezTaskSystem::FinishFrameTasks();
 }
 
 void ezGraphicsTest::GetScreenshot(ezImage& img)
@@ -225,6 +241,78 @@ void ezGraphicsTest::ClearScreen(const ezColor& color)
 
 }
 
+ezMeshBufferResourceHandle ezGraphicsTest::CreateMesh(const ezGeometry& geom, const char* szResourceName)
+{
+  ezMeshBufferResourceHandle hMesh;
+  hMesh = ezResourceManager::GetResourceHandle<ezMeshBufferResource>(szResourceName);
 
+  ezResourceLock<ezMeshBufferResource> res(hMesh, ezResourceAcquireMode::PointerOnly);
 
+  if (res->GetLoadingState() == ezResourceLoadState::Loaded)
+    return hMesh;
+
+  ezDynamicArray<ezUInt16> Indices;
+  Indices.Reserve(geom.GetPolygons().GetCount() * 6);
+
+  for (ezUInt32 p = 0; p < geom.GetPolygons().GetCount(); ++p)
+  {
+    for (ezUInt32 v = 0; v < geom.GetPolygons()[p].m_Vertices.GetCount() - 2; ++v)
+    {
+      Indices.PushBack(geom.GetPolygons()[p].m_Vertices[0]);
+      Indices.PushBack(geom.GetPolygons()[p].m_Vertices[v + 1]);
+      Indices.PushBack(geom.GetPolygons()[p].m_Vertices[v + 2]);
+    }
+  }
+
+  ezMeshBufferResourceDescriptor desc;
+  desc.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
+  desc.AddStream(ezGALVertexAttributeSemantic::Color, ezGALResourceFormat::RGBAUByteNormalized);
+
+  desc.AllocateStreams(geom.GetVertices().GetCount(), Indices.GetCount() / 3);
+
+  for (ezUInt32 v = 0; v < geom.GetVertices().GetCount(); ++v)
+  {
+    desc.SetVertexData<ezVec3>(0, v, geom.GetVertices()[v].m_vPosition);
+    desc.SetVertexData<ezColor8UNorm>(1, v, geom.GetVertices()[v].m_Color);
+  }
+
+  for (ezUInt32 t = 0; t < Indices.GetCount(); t += 3)
+  {
+    desc.SetTriangleIndices(t / 3, Indices[t], Indices[t + 1], Indices[t + 2]);
+  }
+
+  ezResourceManager::CreateResource(hMesh, desc);
+
+  return hMesh;
+}
+
+ezMeshBufferResourceHandle ezGraphicsTest::CreateSphere(ezInt32 iSubDivs)
+{
+  ezDynamicArray<ezVec3> Vertices;
+  ezDynamicArray<ezUInt16> Indices;
+
+  ezMat4 mTrans;
+  mTrans.SetIdentity();
+
+  ezGeometry geom;
+  geom.AddGeodesicSphere(1.0f, iSubDivs, ezColor8UNorm(0, 255, 0), mTrans);
+
+  ezStringBuilder sName;
+  sName.Format("Sphere_%i", iSubDivs);
+
+  return CreateMesh(geom, sName);
+}
+
+void ezGraphicsTest::RenderObject(ezMeshBufferResourceHandle hObject, const ezMat4& mTransform)
+{
+  ezShaderManager::SetActiveShader(m_hShader);
+
+  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
+  ezGALContext* pContext = pDevice->GetPrimaryContext();
+
+  pContext->UpdateBuffer(m_hObjectTransformCB, 0, &mTransform, sizeof(ezMat4));
+  pContext->SetConstantBuffer(1, m_hObjectTransformCB);
+
+  ezRenderHelper::DrawMeshBuffer(pContext, hObject);
+}
 

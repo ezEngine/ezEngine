@@ -11,23 +11,36 @@ private:
   enum SubTests
   {
     ST_ClearScreen,
+    ST_SimpleMesh,
   };
 
   virtual void SetupSubTests() override
   {
     AddSubTest("Clear Screen", SubTests::ST_ClearScreen);
+    AddSubTest("Simple Mesh", SubTests::ST_SimpleMesh);
   }
+
 
   virtual ezResult InitializeSubTest(ezInt32 iIdentifier) override
   {
+    m_uiFrame = 0;
+
     if (ezGraphicsTest::InitializeSubTest(iIdentifier).Failed())
       return EZ_FAILURE;
 
     if (iIdentifier == SubTests::ST_ClearScreen)
     {
-      m_uiFrames = 0;
+      return SetupRenderer(320, 240);
+    }
 
-      return SetupRenderer();
+    if (iIdentifier == SubTests::ST_SimpleMesh)
+    {
+      if (SetupRenderer().Failed())
+        return EZ_FAILURE;
+
+      m_hSphere = CreateSphere(3);
+
+      return EZ_SUCCESS;
     }
 
     return EZ_SUCCESS;
@@ -35,10 +48,12 @@ private:
 
   virtual ezResult DeInitializeSubTest(ezInt32 iIdentifier) override
   {
-    if (iIdentifier == SubTests::ST_ClearScreen)
+    if (iIdentifier == SubTests::ST_SimpleMesh)
     {
-      ShutdownRenderer();
+      m_hSphere.Invalidate();
     }
+
+    ShutdownRenderer();
 
     if (ezGraphicsTest::DeInitializeSubTest(iIdentifier).Failed())
       return EZ_FAILURE;
@@ -48,24 +63,65 @@ private:
 
   virtual ezTestAppRun RunSubTest(ezInt32 iIdentifier) override
   {
+    ++m_uiFrame;
+
     if (iIdentifier == SubTests::ST_ClearScreen)
     {
       BeginFrame();
 
+      switch (m_uiFrame)
+      {
+      case 1:
+        ClearScreen(ezColor::GetBlack());
+        break;
+      case 2:
+        ClearScreen(ezColor::GetCornflowerBlue()); // The original!
+        break;
+      case 3:
+        ClearScreen(ezColor::GetRed());
+        break;
+      case 4:
+        ClearScreen(ezColor::GetGreen());
+        break;
+      case 5:
+        ClearScreen(ezColor::GetYellow());
+        break;
+      case 6:
+        ClearScreen(ezColor::GetBlue());
+        break;
+      case 7:
+        ClearScreen(ezColor::GetWhite());
+        break;
+      case 8:
+        ClearScreen(ezColor(0.5f, 0.5f, 0.5f, 0.5f));
+        break;
+      }
+
+      EndFrame();
+
+      return m_uiFrame < 7 ? ezTestAppRun::Continue : ezTestAppRun::Quit;
+    }
+
+    if (iIdentifier == SubTests::ST_SimpleMesh)
+    {
+      BeginFrame();
       ClearScreen(ezColor::GetCornflowerBlue()); // The original!
 
+      ezMat4 mTransform;
+      mTransform.SetIdentity();
 
+      RenderObject(m_hSphere, mTransform);
 
-      EndFrame(m_uiFrames > 5);
+      EndFrame();
 
-      ++m_uiFrames;
-      return m_uiFrames < 10 ? ezTestAppRun::Continue : ezTestAppRun::Quit;
+      return m_uiFrame < 5 ? ezTestAppRun::Continue : ezTestAppRun::Quit;
     }
 
     return ezTestAppRun::Quit;
   }
 
-  ezUInt32 m_uiFrames;
+  ezUInt32 m_uiFrame;
+  ezMeshBufferResourceHandle m_hSphere;
 };
 
 static ezRendererTestBasics g_Test;

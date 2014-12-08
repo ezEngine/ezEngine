@@ -25,6 +25,7 @@ SET (LINK_LIBRARIES
   TestFramework
   Core
   CoreUtils
+  RendererCore
   RendererFoundation
   RendererDX11
   System
