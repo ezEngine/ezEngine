@@ -9,7 +9,7 @@ namespace
     int m_1;
     float m_2;
 
-    EZ_DETECT_TYPE_CLASS(m_1, m_2);
+    EZ_DETECT_TYPE_CLASS(int, float);
   };
 
   struct AggregatePod2
@@ -18,7 +18,7 @@ namespace
     float m_2;
     AggregatePod m_3;
 
-    EZ_DETECT_TYPE_CLASS(m_1, m_2, m_3);
+    EZ_DETECT_TYPE_CLASS(int, float, AggregatePod);
   };
 
   struct MemRelocateable
@@ -33,7 +33,7 @@ namespace
     AggregatePod m_3;
     MemRelocateable m_4;
 
-    EZ_DETECT_TYPE_CLASS(m_1, m_2, m_3, m_4);
+    EZ_DETECT_TYPE_CLASS(int, float, AggregatePod, MemRelocateable);
   };
 
   class ClassType
@@ -49,7 +49,7 @@ namespace
     MemRelocateable m_4;
     ClassType m_5;
 
-    EZ_DETECT_TYPE_CLASS(m_1, m_2, m_3, m_4, m_5);
+    EZ_DETECT_TYPE_CLASS(int, float, AggregatePod, MemRelocateable, ClassType);
   };
 
   EZ_CHECK_AT_COMPILETIME(ezGetTypeClass<AggregatePod>::value == ezTypeIsPod::value);

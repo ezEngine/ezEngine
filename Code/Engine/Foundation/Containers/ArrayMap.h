@@ -17,7 +17,7 @@ public:
     KEY key;
     VALUE value;
 
-    EZ_DETECT_TYPE_CLASS(key, value);
+    EZ_DETECT_TYPE_CLASS(KEY, VALUE);
 
     EZ_FORCE_INLINE bool operator<(const Pair& rhs) const
     {

@@ -101,7 +101,7 @@ struct ezGetStrongestTypeClass : public ezTraitInt <
   #define EZ_DECLARE_MEM_RELOCATABLE_TYPE() \
     ezCompileTimeTrueType operator%(const ezTypeIsMemRelocatable&) const
 
-  #define EZ_DETECT_TYPE_CLASS_1(T1) ezGetTypeClass<decltype(T1)>
+  #define EZ_DETECT_TYPE_CLASS_1(T1) ezGetTypeClass<T1>
   #define EZ_DETECT_TYPE_CLASS_2(T1, T2) ezGetStrongestTypeClass<EZ_DETECT_TYPE_CLASS_1(T1), EZ_DETECT_TYPE_CLASS_1(T2)>
   #define EZ_DETECT_TYPE_CLASS_3(T1, T2, T3) ezGetStrongestTypeClass<EZ_DETECT_TYPE_CLASS_2(T1, T2), EZ_DETECT_TYPE_CLASS_1(T3)>
   #define EZ_DETECT_TYPE_CLASS_4(T1, T2, T3, T4) ezGetStrongestTypeClass<EZ_DETECT_TYPE_CLASS_2(T1, T2), EZ_DETECT_TYPE_CLASS_2(T3, T4)>
@@ -110,7 +110,7 @@ struct ezGetStrongestTypeClass : public ezTraitInt <
   
   // \brief embed this into a class to automatically detect which type class it belongs to
   // This macro is only guaranteed to work for classes / structs which don't have any constructor / destructor / assignment operator!
-  // As arguments you have to list the names of all the members of the class / struct.
+  // As arguments you have to list the types of all the members of the class / struct.
   #define EZ_DETECT_TYPE_CLASS(...) \
      ezCompileTimeTrueType operator%(const ezTraitInt<EZ_CALL_MACRO(EZ_CONCAT(EZ_DETECT_TYPE_CLASS_, EZ_VA_NUM_ARGS(__VA_ARGS__)), (__VA_ARGS__))::value>&) const
 #endif
