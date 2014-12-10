@@ -155,7 +155,61 @@ void ezGraphicsTest::BeginFrame()
 
 }
 
-void ezGraphicsTest::EndFrame(bool bImageComparison)
+ezResult ezGraphicsTest::CompareImages(const char* szImageName, ezUInt32 uiMaxError, bool bFullResolution)
+{
+  ezResult result = EZ_SUCCESS;
+
+  ezImage img, imgSmall;
+  GetScreenshot(img);
+
+  ezStringBuilder sImgName;
+  ezTestFramework* pFramework = ezTestFramework::GetInstance();
+
+  if (bFullResolution)
+    imgSmall = img;
+  else
+    ezImageUtils::ScaleDownHalf(img, imgSmall);
+
+  sImgName.Format("ImgCompare/%s.tga", szImageName);
+
+  ezImage imgExp, imgExpRGBA;
+  ezResult res = imgExp.LoadFrom(sImgName);
+
+  EZ_TEST_BOOL_MSG(res.Succeeded(), "Could not read comparison image '%s'", sImgName.GetData());
+
+  if (res.Succeeded())
+  {
+    ezImageConversionBase::Convert(imgExp, imgExpRGBA, ezImageFormat::R8G8B8A8_UNORM);
+
+    ezImage imgDiff;
+    ezImageUtils::ComputeImageDifferenceABS(imgExpRGBA, imgSmall, imgDiff);
+
+    const ezUInt32 uiError = ezImageUtils::ComputeMeanSquareError(imgDiff, 32);
+
+    if (uiError > uiMaxError)
+    {
+      ezStringBuilder sImgDiffName;
+      sImgDiffName.Format("ImgCompare/%s_diff.tga", szImageName);
+
+      imgDiff.SaveTo(sImgDiffName);
+
+      result = EZ_FAILURE;
+    }
+
+    EZ_TEST_BOOL_MSG(uiError <= uiMaxError, "Image Mean-Square Error was %u, exceeded %u", uiError, uiMaxError);
+  }
+  else
+    result = EZ_FAILURE;
+  
+  if (result.Failed())
+  {
+    imgSmall.SaveTo(sImgName);
+  }
+
+  return result;
+}
+
+void ezGraphicsTest::EndFrame(bool bImageComparison, ezUInt32 uiMaxError)
 {
   m_pWindow->ProcessWindowMessages();
 
@@ -165,37 +219,15 @@ void ezGraphicsTest::EndFrame(bool bImageComparison)
 
   if (bImageComparison)
   {
-    ezImage img, imgSmall;
-    GetScreenshot(img);
-
     ezStringBuilder sImgName;
-    ezTestFramework* pFramework = ezTestFramework::GetInstance();
 
+    ezTestFramework* pFramework = ezTestFramework::GetInstance();
     const char* szTestName = pFramework->GetTest(pFramework->GetCurrentTestIndex())->m_szTestName;
     const char* szSubTestName = pFramework->GetTest(pFramework->GetCurrentTestIndex())->m_SubTests[pFramework->GetCurrentSubTestIndex()].m_szSubTestName;
 
-    ezImageUtils::ScaleDownHalf(img, imgSmall);
+    sImgName.Format("%s_%s_%03u", szTestName, szSubTestName, m_uiFrameCounter);
 
-    sImgName.Format("ImgCompare/%s_%s_%03u.tga", szTestName, szSubTestName, m_uiFrameCounter);
-
-    imgSmall.SaveTo(sImgName);
-
-    ezImage imgExp, imgExpRGBA;
-    ezResult res = imgExp.LoadFrom(sImgName);
-
-    EZ_TEST_BOOL_MSG(res.Succeeded(), "Could not read comparison image '%s'", sImgName.GetData());
-
-    if (res.Succeeded())
-    {
-      ezImageConversionBase::Convert(imgExp, imgExpRGBA, ezImageFormat::R8G8B8A8_UNORM);
-
-      ezImage imgDiff;
-      ezImageUtils::ComputeImageDifferenceABS(imgExpRGBA, imgSmall, imgDiff);
-
-      const ezUInt32 uiError = ezImageUtils::ComputeMeanSquareError(imgDiff, 4);
-
-      EZ_TEST_BOOL_MSG(uiError < 1, "Image Mean-Square Error was %u", uiError);
-    }
+    CompareImages(sImgName, uiMaxError);
   }
 
   ++m_uiFrameCounter;

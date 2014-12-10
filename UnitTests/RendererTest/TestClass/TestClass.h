@@ -25,13 +25,15 @@ protected:
   virtual ezResult InitializeSubTest(ezInt32 iIdentifier) override;
   virtual ezResult DeInitializeSubTest(ezInt32 iIdentifier) override;
 
+  ezResult CompareImages(const char* szImageName, ezUInt32 uiMaxError, bool bFullResolution = false);
+
 protected:
   ezResult SetupRenderer(ezUInt32 uiResolutionX = 960, ezUInt32 uiResolutionY = 540);
   void ShutdownRenderer();
   void ClearScreen(const ezColor& color = ezColor::GetBlack());
 
   void BeginFrame();
-  void EndFrame(bool bImageComparison = true);
+  void EndFrame(bool bImageComparison = true, ezUInt32 uiMaxError = 25);
   void GetScreenshot(ezImage& img);
 
   ezMeshBufferResourceHandle CreateMesh(const ezGeometry& geom, const char* szResourceName);

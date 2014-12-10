@@ -112,9 +112,9 @@ private:
 
       RenderObject(m_hSphere, mTransform);
 
-      EndFrame();
+      EndFrame(true, 30);
 
-      return m_uiFrame < 5 ? ezTestAppRun::Continue : ezTestAppRun::Quit;
+      return m_uiFrame < 1 ? ezTestAppRun::Continue : ezTestAppRun::Quit;
     }
 
     return ezTestAppRun::Quit;
