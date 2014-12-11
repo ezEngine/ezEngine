@@ -97,6 +97,8 @@ private:
         break;
       }
 
+      EZ_TEST_IMAGE(0);
+
       EndFrame();
 
       return m_uiFrame < 7 ? ezTestAppRun::Continue : ezTestAppRun::Quit;
@@ -112,7 +114,9 @@ private:
 
       RenderObject(m_hSphere, mTransform);
 
-      EndFrame(true, 30);
+      EZ_TEST_IMAGE(30);
+
+      EndFrame();
 
       return m_uiFrame < 1 ? ezTestAppRun::Continue : ezTestAppRun::Quit;
     }

@@ -141,6 +141,43 @@ public:
   }
 };
 
+class ezImageConversion_BGRA_BGR : public ezImageConversionMixinLinear<ezImageConversion_BGRA_BGR>
+{
+public:
+  static const ezUInt32 s_uiSourceBpp = 32;
+  static const ezUInt32 s_uiTargetBpp = 24;
+  static const ezUInt32 s_uiMultiConversionSize = 1;
+
+  typedef ezUInt8 SourceTypeSingle;
+  typedef ezUInt8 TargetTypeSingle;
+
+  ezImageConversion_BGRA_BGR()
+  {
+    /// \todo Not sure about the SRGB stuff and the Lossy flag. Also maybe this could be generalized, like the swizzle conversion ?
+
+    m_subConversions.PushBack(SubConversion(ezImageFormat::B8G8R8A8_UNORM,      ezImageFormat::B8G8R8_UNORM, ezImageConversionFlags::Lossy));
+    m_subConversions.PushBack(SubConversion(ezImageFormat::B8G8R8X8_UNORM,      ezImageFormat::B8G8R8_UNORM, ezImageConversionFlags::Lossy));
+    m_subConversions.PushBack(SubConversion(ezImageFormat::B8G8R8A8_TYPELESS,   ezImageFormat::B8G8R8_UNORM, ezImageConversionFlags::Lossy));
+    m_subConversions.PushBack(SubConversion(ezImageFormat::B8G8R8A8_UNORM_SRGB, ezImageFormat::B8G8R8_UNORM, ezImageConversionFlags::Lossy));
+    m_subConversions.PushBack(SubConversion(ezImageFormat::B8G8R8X8_TYPELESS,   ezImageFormat::B8G8R8_UNORM, ezImageConversionFlags::Lossy));
+    m_subConversions.PushBack(SubConversion(ezImageFormat::B8G8R8X8_UNORM_SRGB, ezImageFormat::B8G8R8_UNORM, ezImageConversionFlags::Lossy));
+  }
+
+  static void ConvertSingle(const SourceTypeSingle* pSource, TargetTypeSingle* pTarget)
+  {
+    pTarget[0] = pSource[0];
+    pTarget[1] = pSource[1];
+    pTarget[2] = pSource[2];
+  }
+
+  typedef ezUInt8 SourceTypeMultiple;
+  typedef ezUInt8 TargetTypeMultiple;
+
+  static void ConvertMultiple(const SourceTypeMultiple* pSource, TargetTypeMultiple* pTarget)
+  {
+    return ConvertSingle(pSource, pTarget);
+  }
+};
 
 ezColorBgra8UNorm ezDecompress565(ezUInt16 uiColor)
 {
@@ -155,6 +192,7 @@ ezColorBgra8UNorm ezDecompress565(ezUInt16 uiColor)
 static ezImageConversion_4444_8888 g_conversion4444_8888;
 static ezImageConversion_BGRX_BGRA g_conversionBGRX_BGRA;
 static ezImageConversion_BGR_BGRA g_conversionBGR_BGRA;
+static ezImageConversion_BGRA_BGR g_conversionBGRA_BGR;
 static ezImageConversion_F32_U8 g_conversionF32_U32;
 
 

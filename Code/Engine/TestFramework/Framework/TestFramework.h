@@ -62,6 +62,9 @@ public:
   ezInt32 GetTestsFailedCount() const;
   double GetTotalTestDuration() const;
 
+  // Image comparison
+  bool CompareImages(ezUInt32 uiMaxError, char* szErrorMsg);
+
 protected:
   virtual void ErrorImpl(const char* szError, const char* szFile, ezInt32 iLine, const char* szFunction, const char* szMsg);
   virtual void OutputImpl(ezTestOutput::Enum Type, const char* szMsg);
@@ -102,6 +105,7 @@ private:
 
   ezInt32 m_iExecutingTest;
   ezInt32 m_iExecutingSubTest;
+  ezInt32 m_iImageCounter;
   bool m_bSubTestInitialized;
   bool m_bAbortTests;
   ezUInt8 m_uiPassesLeft;
@@ -343,6 +347,15 @@ inline float ToFloat(double f) { return (float) f; }
       } \
     } \
   } \
+}
+
+#define EZ_TEST_IMAGE(MaxError) EZ_TEST_IMAGE_MSG(MaxError, "")
+
+#define EZ_TEST_IMAGE_MSG(MaxError, msg, ...) \
+{ \
+  char szLocal_TestMacro[512] = ""; \
+  if (!ezTestFramework::GetInstance()->CompareImages(MaxError, szLocal_TestMacro)) \
+    EZ_TEST_FAILURE(szLocal_TestMacro, msg, ##__VA_ARGS__); \
 }
 
 

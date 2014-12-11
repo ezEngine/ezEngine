@@ -19,7 +19,6 @@ ezGraphicsTest::ezGraphicsTest()
 {
   m_pWindow = nullptr;
   m_pDevice = nullptr;
-  m_uiFrameCounter = 0;
 }
 
 ezResult ezGraphicsTest::InitializeSubTest(ezInt32 iIdentifier)
@@ -39,8 +38,6 @@ ezResult ezGraphicsTest::DeInitializeSubTest(ezInt32 iIdentifier)
 
 ezResult ezGraphicsTest::SetupRenderer(ezUInt32 uiResolutionX, ezUInt32 uiResolutionY)
 {
-  m_uiFrameCounter = 0;
-
   {
     ezStringBuilder sReadDir = ezTestFramework::GetInstance()->GetAbsOutputPath();
     ezString sFolderName = sReadDir.GetFileName();
@@ -155,61 +152,7 @@ void ezGraphicsTest::BeginFrame()
 
 }
 
-ezResult ezGraphicsTest::CompareImages(const char* szImageName, ezUInt32 uiMaxError, bool bFullResolution)
-{
-  ezResult result = EZ_SUCCESS;
-
-  ezImage img, imgSmall;
-  GetScreenshot(img);
-
-  ezStringBuilder sImgName;
-  ezTestFramework* pFramework = ezTestFramework::GetInstance();
-
-  if (bFullResolution)
-    imgSmall = img;
-  else
-    ezImageUtils::ScaleDownHalf(img, imgSmall);
-
-  sImgName.Format("ImgCompare/%s.tga", szImageName);
-
-  ezImage imgExp, imgExpRGBA;
-  ezResult res = imgExp.LoadFrom(sImgName);
-
-  EZ_TEST_BOOL_MSG(res.Succeeded(), "Could not read comparison image '%s'", sImgName.GetData());
-
-  if (res.Succeeded())
-  {
-    ezImageConversionBase::Convert(imgExp, imgExpRGBA, ezImageFormat::R8G8B8A8_UNORM);
-
-    ezImage imgDiff;
-    ezImageUtils::ComputeImageDifferenceABS(imgExpRGBA, imgSmall, imgDiff);
-
-    const ezUInt32 uiError = ezImageUtils::ComputeMeanSquareError(imgDiff, 32);
-
-    if (uiError > uiMaxError)
-    {
-      ezStringBuilder sImgDiffName;
-      sImgDiffName.Format("ImgCompare/%s_diff.tga", szImageName);
-
-      imgDiff.SaveTo(sImgDiffName);
-
-      result = EZ_FAILURE;
-    }
-
-    EZ_TEST_BOOL_MSG(uiError <= uiMaxError, "Image Mean-Square Error was %u, exceeded %u", uiError, uiMaxError);
-  }
-  else
-    result = EZ_FAILURE;
-  
-  if (result.Failed())
-  {
-    imgSmall.SaveTo(sImgName);
-  }
-
-  return result;
-}
-
-void ezGraphicsTest::EndFrame(bool bImageComparison, ezUInt32 uiMaxError)
+void ezGraphicsTest::EndFrame()
 {
   m_pWindow->ProcessWindowMessages();
 
@@ -217,25 +160,10 @@ void ezGraphicsTest::EndFrame(bool bImageComparison, ezUInt32 uiMaxError)
 
   m_pDevice->EndFrame();
 
-  if (bImageComparison)
-  {
-    ezStringBuilder sImgName;
-
-    ezTestFramework* pFramework = ezTestFramework::GetInstance();
-    const char* szTestName = pFramework->GetTest(pFramework->GetCurrentTestIndex())->m_szTestName;
-    const char* szSubTestName = pFramework->GetTest(pFramework->GetCurrentTestIndex())->m_SubTests[pFramework->GetCurrentSubTestIndex()].m_szSubTestName;
-
-    sImgName.Format("%s_%s_%03u", szTestName, szSubTestName, m_uiFrameCounter);
-
-    CompareImages(sImgName, uiMaxError);
-  }
-
-  ++m_uiFrameCounter;
-
   ezTaskSystem::FinishFrameTasks();
 }
 
-void ezGraphicsTest::GetScreenshot(ezImage& img)
+ezResult ezGraphicsTest::GetImage(ezImage& img)
 {
   ezGALContext* pContext = m_pDevice->GetPrimaryContext();
 
@@ -255,6 +183,8 @@ void ezGraphicsTest::GetScreenshot(ezImage& img)
   ezArrayPtr<ezGALSystemMemoryDescription> SysMemDescs(&MemDesc, 1);
 
   pContext->CopyTextureReadbackResult(hBBTexture, &SysMemDescs);
+
+  return EZ_SUCCESS;
 }
 
 void ezGraphicsTest::ClearScreen(const ezColor& color)

@@ -16,6 +16,8 @@ class ezGraphicsTest : public ezTestBaseClass
 public:
   ezGraphicsTest();
 
+  virtual ezResult GetImage(ezImage& img) override;
+
 protected:
   virtual void SetupSubTests() override { }
   virtual ezTestAppRun RunSubTest(ezInt32 iIdentifier) override { return ezTestAppRun::Quit; }
@@ -25,16 +27,13 @@ protected:
   virtual ezResult InitializeSubTest(ezInt32 iIdentifier) override;
   virtual ezResult DeInitializeSubTest(ezInt32 iIdentifier) override;
 
-  ezResult CompareImages(const char* szImageName, ezUInt32 uiMaxError, bool bFullResolution = false);
-
 protected:
   ezResult SetupRenderer(ezUInt32 uiResolutionX = 960, ezUInt32 uiResolutionY = 540);
   void ShutdownRenderer();
   void ClearScreen(const ezColor& color = ezColor::GetBlack());
 
   void BeginFrame();
-  void EndFrame(bool bImageComparison = true, ezUInt32 uiMaxError = 25);
-  void GetScreenshot(ezImage& img);
+  void EndFrame();
 
   ezMeshBufferResourceHandle CreateMesh(const ezGeometry& geom, const char* szResourceName);
   ezMeshBufferResourceHandle CreateSphere(ezInt32 iSubDivs);
@@ -42,7 +41,6 @@ protected:
 
   ezWindow* m_pWindow;
   ezGALDevice* m_pDevice;
-  ezUInt32 m_uiFrameCounter;
 
   ezGALRenderTargetConfigHandle m_hBBRT;
   ezGALRasterizerStateHandle m_hRasterizerState;

@@ -5,6 +5,7 @@
 #include <TestFramework/Framework/Declarations.h>
 
 struct ezTestConfiguration;
+class ezImage;
 
 class EZ_TEST_DLL ezTestBaseClass : public ezEnumerable<ezTestBaseClass>
 {
@@ -21,6 +22,8 @@ public:
 
   /// Override this function to add additional information to the test configuration
   virtual void UpdateConfiguration(ezTestConfiguration& config) const /*override*/;
+
+  virtual ezResult GetImage(ezImage& img) { return EZ_FAILURE; }
 
 private:
 

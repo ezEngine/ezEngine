@@ -6,6 +6,10 @@
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/Utilities/CommandLineUtils.h>
+#include <Foundation/Strings/StringBuilder.h>
+#include <CoreUtils/Image/Image.h>
+#include <CoreUtils/Image/ImageUtils.h>
+#include <CoreUtils/Image/ImageConversion.h>
 
 ezTestFramework* ezTestFramework::s_pInstance = nullptr;
 
@@ -307,6 +311,7 @@ void ezTestFramework::ExecuteNextTest()
       }
 
       m_iExecutingSubTest = 0;
+      m_iImageCounter = 0;
       m_fTotalTestDuration = 0.0;
 
       // Reset assert counter. This variable is used to reduce the overhead of counting millions of asserts.
@@ -644,6 +649,71 @@ void ezTestFramework::FlushAsserts()
   s_iAssertCounter = 0;
 }
 
+
+bool ezTestFramework::CompareImages(ezUInt32 uiMaxError, char* szErrorMsg)
+{
+  const char* szTestName = GetTest(GetCurrentTestIndex())->m_szTestName;
+  const char* szSubTestName = GetTest(GetCurrentTestIndex())->m_SubTests[GetCurrentSubTestIndex()].m_szSubTestName;
+
+  ezStringBuilder sImgName, sImgPathReference, sImgPathResult;
+  sImgName.Format("%s_%s_%03i", szTestName, szSubTestName, m_iImageCounter);
+  ++m_iImageCounter;
+
+  ezImage img, imgRGB, imgSmall;
+  if (GetTest(GetCurrentTestIndex())->m_pTest->GetImage(img).Failed())
+  {
+    safeprintf(szErrorMsg, 512, "Image '%s' could not be captured", sImgName.GetData());
+    return false;
+  }
+
+  if (ezImageConversionBase::Convert(img, imgRGB, ezImageFormat::B8G8R8_UNORM).Failed())
+  {
+    safeprintf(szErrorMsg, 512, "Captured Image '%s' could not be converted to BGR8", sImgName.GetData());
+    return false;
+  }
+
+  ezImageUtils::ScaleDownHalf(imgRGB, imgSmall);
+
+  sImgPathReference.Format("Images_Reference/%s.tga", sImgName.GetData());
+  sImgPathResult.Format("Images_Result/%s.tga", sImgName.GetData());
+
+  ezImage imgExp, imgExpRGB;
+  if (imgExp.LoadFrom(sImgPathReference).Failed())
+  {
+    imgSmall.SaveTo(sImgPathResult);
+
+    safeprintf(szErrorMsg, 512, "Comparison Image '%s' could not be read", sImgPathReference.GetData());
+    return false;
+  }
+
+  if (ezImageConversionBase::Convert(imgExp, imgExpRGB, ezImageFormat::B8G8R8_UNORM).Failed())
+  {
+    imgSmall.SaveTo(sImgPathResult);
+
+    safeprintf(szErrorMsg, 512, "Comparison Image '%s' could not be converted to BGR8", sImgPathReference.GetData());
+    return false;
+  }
+
+  ezImage imgDiff;
+  ezImageUtils::ComputeImageDifferenceABS(imgExpRGB, imgSmall, imgDiff);
+
+  const ezUInt32 uiMeanError = ezImageUtils::ComputeMeanSquareError(imgDiff, 32);
+
+  if (uiMeanError > uiMaxError)
+  {
+    imgSmall.SaveTo(sImgPathResult);
+
+    ezStringBuilder sImgDiffName;
+    sImgDiffName.Format("Images_Result/%s_diff.tga", sImgName.GetData());
+
+    imgDiff.SaveTo(sImgDiffName);
+
+    safeprintf(szErrorMsg, 512, "Image Comparison Failed: Error of %u exceeds threshold of %u for image '%s'", uiMeanError, uiMaxError, sImgName.GetData());
+    return false;
+  }
+
+  return true;
+}
 
 ////////////////////////////////////////////////////////////////////////
 // ezTestFramework static functions
