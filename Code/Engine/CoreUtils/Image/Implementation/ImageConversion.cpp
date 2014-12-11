@@ -182,8 +182,10 @@ ezImageFormat::Enum ezImageConversionBase::FindClosestCompatibleFormat(ezImageFo
 
   for (ezUInt32 uiTargetIndex = 0; uiTargetIndex < uiNumCompatible; uiTargetIndex++)
   {
-    if (s_costTable[GetTableIndex(format, pCompatibleFormats[uiTargetIndex])] < fBestCost)
+    float fCost = s_costTable[GetTableIndex(format, pCompatibleFormats[uiTargetIndex])];
+    if (fCost < fBestCost)
     {
+      fBestCost = fCost;
       bestFormat = pCompatibleFormats[uiTargetIndex];
     }
   }
