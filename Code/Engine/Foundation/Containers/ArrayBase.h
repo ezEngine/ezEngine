@@ -3,7 +3,6 @@
 #include <Foundation/Algorithm/Sorting.h>
 #include <Foundation/Math/Math.h>
 #include <Foundation/Types/ArrayPtr.h>
-#include <Foundation/Containers/Implementation/ArrayIterator.h>
 
 /// \brief Value used by containers for indices to indicate an invalid index.
 #define ezInvalidIndex 0xFFFFFFFF

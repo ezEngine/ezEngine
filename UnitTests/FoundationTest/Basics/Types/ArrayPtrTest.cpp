@@ -1,4 +1,5 @@
 #include <PCH.h>
+#include <Foundation/Containers/DynamicArray.h>
 
 EZ_CREATE_SIMPLE_TEST(Basics, ArrayPtr)
 {
@@ -236,4 +237,75 @@ EZ_CREATE_SIMPLE_TEST(Basics, ArrayPtr)
     EZ_TEST_BOOL(ap2.GetPtr() == &pIntData1[2]);
     EZ_TEST_BOOL(ap2.GetCount() == 3);
   }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "STL Iterator")
+  {
+    ezDynamicArray<ezInt32> a1;
+
+    for (ezInt32 i = 0; i < 1000; ++i)
+      a1.PushBack(1000 - i - 1);
+
+    ezArrayPtr<ezInt32> ptr1 = a1;
+
+    // STL sort
+    std::sort(begin(ptr1), end(ptr1));
+
+    for (ezInt32 i = 1; i < 1000; ++i)
+    {
+      EZ_TEST_BOOL(ptr1[i - 1] <= ptr1[i]);
+    }
+
+    // foreach
+    ezUInt32 prev = 0;
+    for(ezUInt32 val : ptr1)
+    {
+      EZ_TEST_BOOL(prev <= val);
+      prev = val;
+    }
+
+    // const array
+    const ezDynamicArray<ezInt32>& a2 = a1;
+
+    const ezArrayPtr<ezInt32> ptr2 = a2;
+
+    // STL lower bound
+    auto lb = std::lower_bound(begin(ptr2), end(ptr2), 400);
+    EZ_TEST_BOOL(*lb == ptr2[400]);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "STL Reverse Iterator")
+  {
+    ezDynamicArray<ezInt32> a1;
+
+    for (ezInt32 i = 0; i < 1000; ++i)
+      a1.PushBack(1000 - i - 1);
+
+    ezArrayPtr<ezInt32> ptr1 = a1;
+
+    // STL sort
+    std::sort(rbegin(ptr1), rend(ptr1));
+
+    for (ezInt32 i = 1; i < 1000; ++i)
+    {
+      EZ_TEST_BOOL(ptr1[i - 1] >= ptr1[i]);
+    }
+
+    // foreach
+    ezUInt32 prev = 1000;
+    for(ezUInt32 val : ptr1)
+    {
+      EZ_TEST_BOOL(prev >= val);
+      prev = val;
+    }
+
+    // const array
+    const ezDynamicArray<ezInt32>& a2 = a1;
+
+    const ezArrayPtr<ezInt32> ptr2 = a2;
+
+    // STL lower bound
+    auto lb = std::lower_bound(rbegin(ptr2), rend(ptr2), 400);
+    EZ_TEST_BOOL(*lb == ptr2[1000 - 400 - 1]);
+  }
+
 }

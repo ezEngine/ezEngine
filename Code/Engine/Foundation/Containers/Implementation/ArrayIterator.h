@@ -1,6 +1,8 @@
 
 #pragma once
 
+#include <algorithm>
+
 /// \brief Base class for STL like random access iterators
 template<class ARRAY, class T, bool reverse = false>
 struct const_iterator_base
