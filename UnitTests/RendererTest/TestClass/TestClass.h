@@ -11,6 +11,12 @@
 
 class ezImage;
 
+struct ObjectCB
+{
+  ezMat4 m_MVP;
+  ezColor m_Color;
+};
+
 class ezGraphicsTest : public ezTestBaseClass
 {
 public:
@@ -27,6 +33,8 @@ protected:
   virtual ezResult InitializeSubTest(ezInt32 iIdentifier) override;
   virtual ezResult DeInitializeSubTest(ezInt32 iIdentifier) override;
 
+  ezSizeU32 GetResolution() const;
+
 protected:
   ezResult SetupRenderer(ezUInt32 uiResolutionX = 960, ezUInt32 uiResolutionY = 540);
   void ShutdownRenderer();
@@ -36,8 +44,10 @@ protected:
   void EndFrame();
 
   ezMeshBufferResourceHandle CreateMesh(const ezGeometry& geom, const char* szResourceName);
-  ezMeshBufferResourceHandle CreateSphere(ezInt32 iSubDivs);
-  void RenderObject(ezMeshBufferResourceHandle hObject, const ezMat4& mTransform);
+  ezMeshBufferResourceHandle CreateSphere(ezInt32 iSubDivs, float fRadius);
+  ezMeshBufferResourceHandle CreateTorus(ezInt32 iSubDivs, float fInnerRadius, float fOuterRadius);
+  ezMeshBufferResourceHandle CreateBox(float fWidth, float fHeight, float fDepth);
+  void RenderObject(ezMeshBufferResourceHandle hObject, const ezMat4& mTransform, const ezColor& color);
 
   ezWindow* m_pWindow;
   ezGALDevice* m_pDevice;

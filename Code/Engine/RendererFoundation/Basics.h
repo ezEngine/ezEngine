@@ -200,13 +200,15 @@ struct ezGALCompareFunc
   };
 };
 
+/// \brief Defines which sides of a polygon gets culled by the graphics card
 struct ezGALCullMode
 {
+  /// \brief Defines which sides of a polygon gets culled by the graphics card
   enum Enum
   {
-    None = 0,
-    Front = 1,
-    Back = 2,
+    None = 0,   ///< Triangles do not get culled
+    Front = 1,  ///< When the 'front' of a triangle is visible, it gets culled. The rasterizer state defines which side is the 'front'. See ezGALRasterizerStateCreationDescription for details.
+    Back = 2,   ///< When the 'back'  of a triangle is visible, it gets culled. The rasterizer state defines which side is the 'front'. See ezGALRasterizerStateCreationDescription for details.
 
     ENUM_COUNT
   };

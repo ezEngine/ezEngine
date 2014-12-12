@@ -6,56 +6,43 @@
 ezTestAppRun ezRendererTestBasics::SubtestRasterizerStates()
 {
   BeginFrame();
-  ClearScreen(ezColor::GetCornflowerBlue()); // The original!
-
-  ezCamera cam;
-  cam.SetCameraMode(ezCamera::PerspectiveFixedFovX, 90, 0.1f, 1000.0f);
-  cam.LookAt(ezVec3(0, 0, 0), ezVec3(0, 0, -1));
-  ezMat4 mProj, mView;
-  cam.GetProjectionMatrix(16.0f / 9.0f, ezProjectionDepthRange::ZeroToOne, mProj);
-  cam.GetViewMatrix(mView);
 
   ezGALRasterizerStateHandle hState;
 
-  if (m_uiFrame == 1)
-  {
-    ezGALRasterizerStateCreationDescription RasterStateDesc;
-    RasterStateDesc.m_bWireFrame = false;
-    RasterStateDesc.m_CullMode = ezGALCullMode::None;
-    RasterStateDesc.m_bFrontCounterClockwise = true;
-    hState = m_pDevice->CreateRasterizerState(RasterStateDesc);
-    EZ_ASSERT(!hState.IsInvalidated(), "Couldn't create rasterizer state!");
-  }
+  ezUInt32 state = m_uiFrame;
 
-  if (m_uiFrame == 2)
-  {
-    ezGALRasterizerStateCreationDescription RasterStateDesc;
-    RasterStateDesc.m_bWireFrame = false;
-    RasterStateDesc.m_CullMode = ezGALCullMode::Front;
-    RasterStateDesc.m_bFrontCounterClockwise = true;
-    hState = m_pDevice->CreateRasterizerState(RasterStateDesc);
-    EZ_ASSERT(!hState.IsInvalidated(), "Couldn't create rasterizer state!");
-  }
+  ezGALRasterizerStateCreationDescription RasterStateDesc;
+  RasterStateDesc.m_bDepthClip = (state % 2) == 0; state /= 2;
+  RasterStateDesc.m_bFrontCounterClockwise = (state % 2) == 0; state /= 2;
+  RasterStateDesc.m_bWireFrame = (state % 2) == 1; state /= 2;
+  RasterStateDesc.m_CullMode = (ezGALCullMode::Enum) (ezGALCullMode::None + (state % 3)); state /= 3;
+  RasterStateDesc.m_bScissorTest = (state % 2) == 1; state /= 2;
 
-  if (m_uiFrame == 3)
+  ezColor clear(0, 0, 0, 0);
+  if (RasterStateDesc.m_bDepthClip)
+    clear.r = 0.5f;
+  if (RasterStateDesc.m_bFrontCounterClockwise)
+    clear.g = 0.5f;
+  if (RasterStateDesc.m_CullMode == ezGALCullMode::Front)
+    clear.b = 0.5f;
+  if (RasterStateDesc.m_CullMode == ezGALCullMode::Back)
+    clear.b = 1.0f;
+
+  ClearScreen(clear);
+
+  hState = m_pDevice->CreateRasterizerState(RasterStateDesc);
+  EZ_ASSERT(!hState.IsInvalidated(), "Couldn't create rasterizer state!");
+
+  if (hState.IsInvalidated())
   {
-    ezGALRasterizerStateCreationDescription RasterStateDesc;
-    RasterStateDesc.m_bWireFrame = false;
-    RasterStateDesc.m_CullMode = ezGALCullMode::Back;
-    RasterStateDesc.m_bFrontCounterClockwise = true;
-    hState = m_pDevice->CreateRasterizerState(RasterStateDesc);
-    EZ_ASSERT(!hState.IsInvalidated(), "Couldn't create rasterizer state!");
+    int i = 0;
   }
 
   m_pDevice->GetPrimaryContext()->SetRasterizerState(hState);
 
-  ezMat4 mTransform;
-  mTransform.SetIdentity();
-  mTransform.SetTranslationMatrix(ezVec3(0, 0, -2.0f));
+  m_pDevice->GetPrimaryContext()->SetScissorRect(100, 50, GetResolution().width - 150, GetResolution().height - 20);
 
-  mTransform = mProj * mView * mTransform;
-
-  RenderObject(m_hSphere, mTransform);
+  RenderObjects();
 
   EZ_TEST_IMAGE(0);
 
@@ -63,6 +50,6 @@ ezTestAppRun ezRendererTestBasics::SubtestRasterizerStates()
 
   m_pDevice->DestroyRasterizerState(hState);
 
-  return m_uiFrame < 3 ? ezTestAppRun::Continue : ezTestAppRun::Quit;
+  return m_uiFrame < 48 ? ezTestAppRun::Continue : ezTestAppRun::Quit;
 }
 

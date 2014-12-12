@@ -36,6 +36,11 @@ ezResult ezGraphicsTest::DeInitializeSubTest(ezInt32 iIdentifier)
   return EZ_SUCCESS;
 }
 
+ezSizeU32 ezGraphicsTest::GetResolution() const
+{
+  return m_pWindow->GetClientAreaSize();
+}
+
 ezResult ezGraphicsTest::SetupRenderer(ezUInt32 uiResolutionX, ezUInt32 uiResolutionY)
 {
   {
@@ -103,7 +108,7 @@ ezResult ezGraphicsTest::SetupRenderer(ezUInt32 uiResolutionX, ezUInt32 uiResolu
   m_hDepthStencilState = m_pDevice->CreateDepthStencilState(DepthStencilStateDesc);
   EZ_ASSERT(!m_hDepthStencilState.IsInvalidated(), "Couldn't create depth-stencil state!");
 
-  m_hObjectTransformCB = m_pDevice->CreateConstantBuffer(sizeof(ezMat4));
+  m_hObjectTransformCB = m_pDevice->CreateConstantBuffer(sizeof(ObjectCB));
 
   ezShaderManager::SetPlatform("DX11_SM40", m_pDevice, true);
 
@@ -248,7 +253,7 @@ ezMeshBufferResourceHandle ezGraphicsTest::CreateMesh(const ezGeometry& geom, co
   return hMesh;
 }
 
-ezMeshBufferResourceHandle ezGraphicsTest::CreateSphere(ezInt32 iSubDivs)
+ezMeshBufferResourceHandle ezGraphicsTest::CreateSphere(ezInt32 iSubDivs, float fRadius)
 {
   ezDynamicArray<ezVec3> Vertices;
   ezDynamicArray<ezUInt16> Indices;
@@ -257,7 +262,7 @@ ezMeshBufferResourceHandle ezGraphicsTest::CreateSphere(ezInt32 iSubDivs)
   mTrans.SetIdentity();
 
   ezGeometry geom;
-  geom.AddGeodesicSphere(1.0f, iSubDivs, ezColor8UNorm(0, 255, 0), mTrans);
+  geom.AddGeodesicSphere(fRadius, iSubDivs, ezColor8UNorm(255, 255, 255), mTrans);
 
   ezStringBuilder sName;
   sName.Format("Sphere_%i", iSubDivs);
@@ -265,14 +270,52 @@ ezMeshBufferResourceHandle ezGraphicsTest::CreateSphere(ezInt32 iSubDivs)
   return CreateMesh(geom, sName);
 }
 
-void ezGraphicsTest::RenderObject(ezMeshBufferResourceHandle hObject, const ezMat4& mTransform)
+ezMeshBufferResourceHandle ezGraphicsTest::CreateTorus(ezInt32 iSubDivs, float fInnerRadius, float fOuterRadius)
+{
+  ezDynamicArray<ezVec3> Vertices;
+  ezDynamicArray<ezUInt16> Indices;
+
+  ezMat4 mTrans;
+  mTrans.SetIdentity();
+
+  ezGeometry geom;
+  geom.AddTorus(fInnerRadius, fOuterRadius, iSubDivs, iSubDivs, ezColor8UNorm(255, 255, 255), mTrans);
+
+  ezStringBuilder sName;
+  sName.Format("Torus_%i", iSubDivs);
+
+  return CreateMesh(geom, sName);
+}
+
+ezMeshBufferResourceHandle ezGraphicsTest::CreateBox(float fWidth, float fHeight, float fDepth)
+{
+  ezDynamicArray<ezVec3> Vertices;
+  ezDynamicArray<ezUInt16> Indices;
+
+  ezMat4 mTrans;
+  mTrans.SetIdentity();
+
+  ezGeometry geom;
+  geom.AddBox(ezVec3(fWidth, fHeight, fDepth), ezColor8UNorm(255, 255, 255), mTrans);
+
+  ezStringBuilder sName;
+  sName.Format("Box_%.1f_%.1f_%.1f", fWidth, fHeight, fDepth);
+
+  return CreateMesh(geom, sName);
+}
+
+void ezGraphicsTest::RenderObject(ezMeshBufferResourceHandle hObject, const ezMat4& mTransform, const ezColor& color)
 {
   ezShaderManager::SetActiveShader(m_hShader);
 
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
   ezGALContext* pContext = pDevice->GetPrimaryContext();
 
-  pContext->UpdateBuffer(m_hObjectTransformCB, 0, &mTransform, sizeof(ezMat4));
+  ObjectCB ocb;
+  ocb.m_MVP = mTransform;
+  ocb.m_Color = color;
+
+  pContext->UpdateBuffer(m_hObjectTransformCB, 0, &ocb, sizeof(ObjectCB));
   pContext->SetConstantBuffer(1, m_hObjectTransformCB);
 
   ezRenderHelper::DrawMeshBuffer(pContext, hObject);

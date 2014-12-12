@@ -21,6 +21,6 @@ VS_OUT main(VS_IN Input)
 
 float4 main(PS_IN Input) : SV_Target
 {
-  return float4(1.0, 1.0, 0.0, 0.0);
+  return ObjectColor;
 }
 

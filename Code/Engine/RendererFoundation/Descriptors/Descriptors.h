@@ -100,16 +100,17 @@ struct ezGALDepthStencilStateCreationDescription : public ezHashableStruct<ezGAL
   ezUInt8 m_uiStencilWriteMask;
 };
 
+/// \brief Describes the settings for a new rasterizer state. See ezGALDevice::CreateRasterizerState
 struct ezGALRasterizerStateCreationDescription : public ezHashableStruct<ezGALRasterizerStateCreationDescription>
 {
   inline ezGALRasterizerStateCreationDescription();
 
-  ezGALCullMode::Enum m_CullMode;
-  ezInt32 m_iDepthBias;
-  float m_fDepthBiasClamp;
-  float m_fSlopeScaledDepthBias;
-  bool m_bWireFrame;
-  bool m_bFrontCounterClockwise;
+  ezGALCullMode::Enum m_CullMode; ///< Which sides of a triangle to cull. Default is ezGALCullMode::Back
+  ezInt32 m_iDepthBias;           ///< The pixel depth bias. Default is 0
+  float m_fDepthBiasClamp;        ///< The pixel depth bias clamp. Default is 0
+  float m_fSlopeScaledDepthBias;  ///< The pixel slope scaled depth bias clamp. Default is 0
+  bool m_bWireFrame;              ///< Whether triangles are rendered filled or as wireframe. Default is false
+  bool m_bFrontCounterClockwise;  ///< Sets which triangle winding order defines the 'front' of a triangle. If true, the front of a triangle is the one where the vertices appear in counter clockwise order. Default is true
   bool m_bDepthClip;
   bool m_bScissorTest;
   bool m_bMSAA;
