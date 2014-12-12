@@ -135,13 +135,25 @@ ezResult ezGALDeviceDX11::ShutdownPlatform()
 
 ezGALBlendState* ezGALDeviceDX11::CreateBlendStatePlatform(const ezGALBlendStateCreationDescription& Description)
 {
-  EZ_ASSERT_NOT_IMPLEMENTED;
+  ezGALBlendStateDX11* pState = EZ_DEFAULT_NEW(ezGALBlendStateDX11)(Description);
+
+  if (pState->InitPlatform(this).Succeeded())
+  {
+    return pState;
+  }
+  else
+  {
+    EZ_DEFAULT_DELETE(pState);
+    return nullptr;
+  }
   return nullptr;
 }
 
 void ezGALDeviceDX11::DestroyBlendStatePlatform(ezGALBlendState* pBlendState)
 {
-  EZ_ASSERT_NOT_IMPLEMENTED;
+  ezGALBlendStateDX11* pState = static_cast<ezGALBlendStateDX11*>(pBlendState);
+  pState->DeInitPlatform(this);
+  EZ_DEFAULT_DELETE(pState);
 }
 
 ezGALDepthStencilState* ezGALDeviceDX11::CreateDepthStencilStatePlatform(const ezGALDepthStencilStateCreationDescription& Description)

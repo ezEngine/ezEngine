@@ -9,14 +9,115 @@ ezTestAppRun ezRendererTestBasics::SubtestRasterizerStates()
 
   ezGALRasterizerStateHandle hState;
 
-  ezUInt32 state = m_uiFrame;
-
   ezGALRasterizerStateCreationDescription RasterStateDesc;
-  RasterStateDesc.m_bDepthClip = (state % 2) == 0; state /= 2;
-  RasterStateDesc.m_bFrontCounterClockwise = (state % 2) == 0; state /= 2;
-  RasterStateDesc.m_bWireFrame = (state % 2) == 1; state /= 2;
-  RasterStateDesc.m_CullMode = (ezGALCullMode::Enum) (ezGALCullMode::None + (state % 3)); state /= 3;
-  RasterStateDesc.m_bScissorTest = (state % 2) == 1; state /= 2;
+
+  if (m_iFrame == 0)
+  {
+    RasterStateDesc.m_bDepthClip = true;
+    RasterStateDesc.m_bFrontCounterClockwise = true;
+    RasterStateDesc.m_bWireFrame = false;
+    RasterStateDesc.m_CullMode = ezGALCullMode::None;
+    RasterStateDesc.m_bScissorTest = false;
+  }
+
+  if (m_iFrame == 1)
+  {
+    RasterStateDesc.m_bDepthClip = true;
+    RasterStateDesc.m_bFrontCounterClockwise = true;
+    RasterStateDesc.m_bWireFrame = false;
+    RasterStateDesc.m_CullMode = ezGALCullMode::Back;
+    RasterStateDesc.m_bScissorTest = false;
+  }
+
+  if (m_iFrame == 2)
+  {
+    RasterStateDesc.m_bDepthClip = true;
+    RasterStateDesc.m_bFrontCounterClockwise = true;
+    RasterStateDesc.m_bWireFrame = false;
+    RasterStateDesc.m_CullMode = ezGALCullMode::Front;
+    RasterStateDesc.m_bScissorTest = false;
+  }
+
+  if (m_iFrame == 3)
+  {
+    RasterStateDesc.m_bDepthClip = true;
+    RasterStateDesc.m_bFrontCounterClockwise = false;
+    RasterStateDesc.m_bWireFrame = false;
+    RasterStateDesc.m_CullMode = ezGALCullMode::Back;
+    RasterStateDesc.m_bScissorTest = false;
+  }
+
+  if (m_iFrame == 4)
+  {
+    RasterStateDesc.m_bDepthClip = true;
+    RasterStateDesc.m_bFrontCounterClockwise = false;
+    RasterStateDesc.m_bWireFrame = false;
+    RasterStateDesc.m_CullMode = ezGALCullMode::Front;
+    RasterStateDesc.m_bScissorTest = false;
+  }
+
+  if (m_iFrame == 5)
+  {
+    RasterStateDesc.m_bDepthClip = false;
+    RasterStateDesc.m_bFrontCounterClockwise = true;
+    RasterStateDesc.m_bWireFrame = false;
+    RasterStateDesc.m_CullMode = ezGALCullMode::Back;
+    RasterStateDesc.m_bScissorTest = false;
+  }
+
+  if (m_iFrame == 6)
+  {
+    RasterStateDesc.m_bDepthClip = true;
+    RasterStateDesc.m_bFrontCounterClockwise = true;
+    RasterStateDesc.m_bWireFrame = false;
+    RasterStateDesc.m_CullMode = ezGALCullMode::Back;
+    RasterStateDesc.m_bScissorTest = true;
+  }
+
+  if (m_iFrame == 7)
+  {
+    RasterStateDesc.m_bDepthClip = true;
+    RasterStateDesc.m_bFrontCounterClockwise = true;
+    RasterStateDesc.m_bWireFrame = true;
+    RasterStateDesc.m_CullMode = ezGALCullMode::None;
+    RasterStateDesc.m_bScissorTest = false;
+  }
+
+  if (m_iFrame == 8)
+  {
+    RasterStateDesc.m_bDepthClip = false;
+    RasterStateDesc.m_bFrontCounterClockwise = true;
+    RasterStateDesc.m_bWireFrame = true;
+    RasterStateDesc.m_CullMode = ezGALCullMode::Back;
+    RasterStateDesc.m_bScissorTest = false;
+  }
+
+  if (m_iFrame == 9)
+  {
+    RasterStateDesc.m_bDepthClip = false;
+    RasterStateDesc.m_bFrontCounterClockwise = true;
+    RasterStateDesc.m_bWireFrame = true;
+    RasterStateDesc.m_CullMode = ezGALCullMode::Front;
+    RasterStateDesc.m_bScissorTest = false;
+  }
+
+  if (m_iFrame == 10)
+  {
+    RasterStateDesc.m_bDepthClip = true;
+    RasterStateDesc.m_bFrontCounterClockwise = false;
+    RasterStateDesc.m_bWireFrame = true;
+    RasterStateDesc.m_CullMode = ezGALCullMode::Back;
+    RasterStateDesc.m_bScissorTest = false;
+  }
+
+  if (m_iFrame == 11)
+  {
+    RasterStateDesc.m_bDepthClip = true;
+    RasterStateDesc.m_bFrontCounterClockwise = false;
+    RasterStateDesc.m_bWireFrame = true;
+    RasterStateDesc.m_CullMode = ezGALCullMode::Front;
+    RasterStateDesc.m_bScissorTest = false;
+  }
 
   ezColor clear(0, 0, 0, 0);
   if (RasterStateDesc.m_bDepthClip)
@@ -33,14 +134,9 @@ ezTestAppRun ezRendererTestBasics::SubtestRasterizerStates()
   hState = m_pDevice->CreateRasterizerState(RasterStateDesc);
   EZ_ASSERT(!hState.IsInvalidated(), "Couldn't create rasterizer state!");
 
-  if (hState.IsInvalidated())
-  {
-    int i = 0;
-  }
-
   m_pDevice->GetPrimaryContext()->SetRasterizerState(hState);
 
-  m_pDevice->GetPrimaryContext()->SetScissorRect(100, 50, GetResolution().width - 150, GetResolution().height - 20);
+  m_pDevice->GetPrimaryContext()->SetScissorRect(100, 50, GetResolution().width / 2, GetResolution().height / 2);
 
   RenderObjects();
 
@@ -50,6 +146,6 @@ ezTestAppRun ezRendererTestBasics::SubtestRasterizerStates()
 
   m_pDevice->DestroyRasterizerState(hState);
 
-  return m_uiFrame < 48 ? ezTestAppRun::Continue : ezTestAppRun::Quit;
+  return m_iFrame < 11 ? ezTestAppRun::Continue : ezTestAppRun::Quit;
 }
 

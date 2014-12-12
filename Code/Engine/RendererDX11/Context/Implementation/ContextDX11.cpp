@@ -134,6 +134,7 @@ void ezGALContextDX11::BeginStreamOutPlatform()
 
 void ezGALContextDX11::EndStreamOutPlatform()
 {
+  EZ_ASSERT_NOT_IMPLEMENTED;
 }
 
 // Some state changes are deferred so they can be updated faster
@@ -305,14 +306,23 @@ void ezGALContextDX11::SetRenderTargetConfigPlatform(ezGALRenderTargetConfig* pR
 
 void ezGALContextDX11::SetUnorderedAccessViewPlatform(ezUInt32 uiSlot, ezGALResourceView* pResourceView)
 {
+  EZ_ASSERT_NOT_IMPLEMENTED;
 }
 
 void ezGALContextDX11::SetBlendStatePlatform(ezGALBlendState* pBlendState)
 {
+  //EZ_ASSERT_NOT_IMPLEMENTED;
+  /// \todo BlendFactors and Sample mask are not implemented
+
+  m_pDXContext->OMSetBlendState(pBlendState != nullptr ? static_cast<ezGALBlendStateDX11*>(pBlendState)->GetDXBlendState() : nullptr, nullptr, 0xFFFFFFFF );
 }
 
 void ezGALContextDX11::SetDepthStencilStatePlatform(ezGALDepthStencilState* pDepthStencilState)
 {
+  //EZ_ASSERT_NOT_IMPLEMENTED;
+  /// \todo StencilRef not implemented
+
+  m_pDXContext->OMSetDepthStencilState(pDepthStencilState != nullptr ? static_cast<ezGALDepthStencilStateDX11*>(pDepthStencilState)->GetDXDepthStencilState() : nullptr, 0 /* StencilRef Value not implemented? */ );
 }
 
 void ezGALContextDX11::SetRasterizerStatePlatform(ezGALRasterizerState* pRasterizerState)

@@ -4,7 +4,7 @@
 
 ezResult ezRendererTestBasics::InitializeSubTest(ezInt32 iIdentifier)
 {
-  m_uiFrame = 0;
+  m_iFrame = -1;
 
   if (ezGraphicsTest::InitializeSubTest(iIdentifier).Failed())
     return EZ_FAILURE;
@@ -50,30 +50,18 @@ ezTestAppRun ezRendererTestBasics::SubtestClearScreen()
 {
   BeginFrame();
 
-  switch (m_uiFrame)
+  switch (m_iFrame)
   {
-  case 1:
-    ClearScreen(ezColor::GetBlack());
-    break;
-  case 2:
-    ClearScreen(ezColor::GetCornflowerBlue()); // The original!
-    break;
-  case 3:
+  case 0:
     ClearScreen(ezColor::GetRed());
     break;
-  case 4:
+  case 1:
     ClearScreen(ezColor::GetGreen());
     break;
-  case 5:
-    ClearScreen(ezColor::GetYellow());
-    break;
-  case 6:
+  case 2:
     ClearScreen(ezColor::GetBlue());
     break;
-  case 7:
-    ClearScreen(ezColor::GetWhite());
-    break;
-  case 8:
+  case 3:
     ClearScreen(ezColor(0.5f, 0.5f, 0.5f, 0.5f));
     break;
   }
@@ -82,7 +70,7 @@ ezTestAppRun ezRendererTestBasics::SubtestClearScreen()
 
   EndFrame();
 
-  return m_uiFrame < 7 ? ezTestAppRun::Continue : ezTestAppRun::Quit;
+  return m_iFrame < 3 ? ezTestAppRun::Continue : ezTestAppRun::Quit;
 }
 
 void ezRendererTestBasics::RenderObjects()
@@ -97,7 +85,7 @@ void ezRendererTestBasics::RenderObjects()
   ezMat4 mTransform, mOther;
 
   mOther.SetScalingMatrix(ezVec3(1.0f, 1.0f, 1.0f));
-  mTransform.SetTranslationMatrix(ezVec3( 0.2f, -0.3f, 0.0f));
+  mTransform.SetTranslationMatrix(ezVec3( 0.3f, -0.3f, 0.0f));
   RenderObject(m_hLongBox, mProj * mView * mTransform * mOther, ezColor(1, 0, 1));
 
   mOther.SetRotationMatrixX(ezAngle::Degree(80.0f));

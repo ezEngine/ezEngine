@@ -55,6 +55,7 @@ protected:
   ezGALRenderTargetConfigHandle m_hBBRT;
   ezGALRasterizerStateHandle m_hRasterizerState;
   ezGALDepthStencilStateHandle m_hDepthStencilState;
+  ezGALBlendStateHandle m_hBlendState;
   ezGALBufferHandle m_hObjectTransformCB;
   ezShaderResourceHandle m_hShader;
 };

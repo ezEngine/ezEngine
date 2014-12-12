@@ -22,9 +22,93 @@ ezGALBlendStateDX11::~ezGALBlendStateDX11()
 {
 }
 
+static D3D11_BLEND_OP ToD3DBlendOp(ezGALBlendOp::Enum e)
+{
+  switch (e)
+  {
+  case ezGALBlendOp::Add:
+    return D3D11_BLEND_OP_ADD;
+  case ezGALBlendOp::Max:
+    return D3D11_BLEND_OP_MAX;
+  case ezGALBlendOp::Min:
+    return D3D11_BLEND_OP_MIN;
+  case ezGALBlendOp::RevSubtract:
+    return D3D11_BLEND_OP_REV_SUBTRACT;
+  case ezGALBlendOp::Subtract:
+    return D3D11_BLEND_OP_SUBTRACT;
+  default:
+    EZ_ASSERT_NOT_IMPLEMENTED;
+  }
+
+  return D3D11_BLEND_OP_ADD;
+}
+
+static D3D11_BLEND ToD3DBlend(ezGALBlend::Enum e)
+{
+  switch (e)
+  {
+  case ezGALBlend::BlendFactor:
+    EZ_ASSERT_NOT_IMPLEMENTED;
+    // if this is used, it also must be implemented in ezGALContextDX11::SetBlendStatePlatform
+    return D3D11_BLEND_BLEND_FACTOR;
+  case ezGALBlend::DestAlpha:
+    return D3D11_BLEND_DEST_ALPHA;
+  case ezGALBlend::DestColor:
+    return D3D11_BLEND_DEST_COLOR;
+  case ezGALBlend::InvBlendFactor:
+    EZ_ASSERT_NOT_IMPLEMENTED;
+    // if this is used, it also must be implemented in ezGALContextDX11::SetBlendStatePlatform
+    return D3D11_BLEND_INV_BLEND_FACTOR;
+  case ezGALBlend::InvDestAlpha:
+    return D3D11_BLEND_INV_DEST_ALPHA;
+  case ezGALBlend::InvDestColor:
+    return D3D11_BLEND_INV_DEST_COLOR;
+  case ezGALBlend::InvSrcAlpha:
+    return D3D11_BLEND_INV_SRC_ALPHA;
+  case ezGALBlend::InvSrcColor:
+    return D3D11_BLEND_INV_SRC_COLOR;
+  case ezGALBlend::One:
+    return D3D11_BLEND_ONE;
+  case ezGALBlend::SrcAlpha:
+    return D3D11_BLEND_SRC_ALPHA;
+  case ezGALBlend::SrcAlphaSaturated:
+    return D3D11_BLEND_SRC_ALPHA_SAT;
+  case ezGALBlend::SrcColor:
+    return D3D11_BLEND_SRC_COLOR;
+  case ezGALBlend::Zero:
+    return D3D11_BLEND_ZERO;
+
+  default:
+    EZ_ASSERT_NOT_IMPLEMENTED;
+  }
+
+  return D3D11_BLEND_ONE;
+}
+
 ezResult ezGALBlendStateDX11::InitPlatform(ezGALDevice* pDevice)
 {
-  return EZ_FAILURE;
+  D3D11_BLEND_DESC DXDesc;
+  DXDesc.AlphaToCoverageEnable = m_Description.m_bAlphaToCoverage;
+  DXDesc.IndependentBlendEnable = m_Description.m_bIndependentBlend;
+
+  for (ezInt32 i = 0; i < 8; ++i)
+  {
+    DXDesc.RenderTarget[i].BlendEnable    = m_Description.m_RenderTargetBlendDescriptions[i].m_bBlendingEnabled;
+    DXDesc.RenderTarget[i].BlendOp        = ToD3DBlendOp(m_Description.m_RenderTargetBlendDescriptions[i].m_BlendOp);
+    DXDesc.RenderTarget[i].BlendOpAlpha   = ToD3DBlendOp(m_Description.m_RenderTargetBlendDescriptions[i].m_BlendOpAlpha);
+    DXDesc.RenderTarget[i].DestBlend      = ToD3DBlend(m_Description.m_RenderTargetBlendDescriptions[i].m_DestBlend);
+    DXDesc.RenderTarget[i].DestBlendAlpha = ToD3DBlend(m_Description.m_RenderTargetBlendDescriptions[i].m_DestBlendAlpha);
+    DXDesc.RenderTarget[i].SrcBlend       = ToD3DBlend(m_Description.m_RenderTargetBlendDescriptions[i].m_SourceBlend);
+    DXDesc.RenderTarget[i].SrcBlendAlpha  = ToD3DBlend(m_Description.m_RenderTargetBlendDescriptions[i].m_SourceBlendAlpha);
+    DXDesc.RenderTarget[i].RenderTargetWriteMask = m_Description.m_RenderTargetBlendDescriptions[i].m_uiWriteMask & 0x0F; // D3D11: RenderTargetWriteMask can only have the least significant 4 bits set.
+  }
+
+  if (FAILED(static_cast<ezGALDeviceDX11*>(pDevice)->GetDXDevice()->CreateBlendState(&DXDesc, &m_pDXBlendState)))
+  {
+    return EZ_FAILURE;
+  }
+
+  return EZ_SUCCESS;
 }
 
 ezResult ezGALBlendStateDX11::DeInitPlatform(ezGALDevice* pDevice)
@@ -49,7 +133,7 @@ ezResult ezGALDepthStencilStateDX11::InitPlatform(ezGALDevice* pDevice)
 {
   D3D11_DEPTH_STENCIL_DESC DXDesc;
   DXDesc.DepthEnable = m_Description.m_bDepthTest;
-  DXDesc.DepthWriteMask = m_Description.m_bDepthWrite ? D3D11_DEPTH_WRITE_MASK_ZERO : D3D11_DEPTH_WRITE_MASK_ALL;
+  DXDesc.DepthWriteMask = m_Description.m_bDepthWrite ? D3D11_DEPTH_WRITE_MASK_ALL : D3D11_DEPTH_WRITE_MASK_ZERO;
   DXDesc.DepthFunc = GALCompareFuncToDX11[m_Description.m_DepthTestFunc];
   DXDesc.StencilEnable = m_Description.m_bStencilTest;
   DXDesc.StencilReadMask = m_Description.m_uiStencilReadMask;

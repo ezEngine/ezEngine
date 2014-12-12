@@ -108,6 +108,12 @@ ezResult ezGraphicsTest::SetupRenderer(ezUInt32 uiResolutionX, ezUInt32 uiResolu
   m_hDepthStencilState = m_pDevice->CreateDepthStencilState(DepthStencilStateDesc);
   EZ_ASSERT(!m_hDepthStencilState.IsInvalidated(), "Couldn't create depth-stencil state!");
 
+  ezGALBlendStateCreationDescription BlendStateDesc;
+  BlendStateDesc.m_bAlphaToCoverage = false;
+  BlendStateDesc.m_bIndependentBlend = false;
+  m_hBlendState = m_pDevice->CreateBlendState(BlendStateDesc);
+  EZ_ASSERT(!m_hBlendState.IsInvalidated(), "Couldn't create blend state!");
+
   m_hObjectTransformCB = m_pDevice->CreateConstantBuffer(sizeof(ObjectCB));
 
   ezShaderManager::SetPlatform("DX11_SM40", m_pDevice, true);
@@ -128,6 +134,7 @@ void ezGraphicsTest::ShutdownRenderer()
   if (m_pDevice)
   {
     m_pDevice->DestroyBuffer(m_hObjectTransformCB);
+    m_pDevice->DestroyBlendState(m_hBlendState);
     m_pDevice->DestroyDepthStencilState(m_hDepthStencilState);
     m_pDevice->DestroyRasterizerState(m_hRasterizerState);
 

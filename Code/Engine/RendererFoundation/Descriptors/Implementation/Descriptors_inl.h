@@ -32,6 +32,23 @@ bool ezGALShaderCreationDescription::HasByteCodeForStage(ezGALShaderStage::Enum 
   return m_ByteCodes[Stage] != nullptr && m_ByteCodes[Stage]->IsValid();
 }
 
+ezGALRenderTargetBlendDescription::ezGALRenderTargetBlendDescription()
+  : m_SourceBlend(ezGALBlend::One),
+    m_DestBlend(ezGALBlend::One),
+    m_BlendOp(ezGALBlendOp::Add),
+    m_SourceBlendAlpha(ezGALBlend::One),
+    m_DestBlendAlpha(ezGALBlend::One),
+    m_BlendOpAlpha(ezGALBlendOp::Add),
+    m_uiWriteMask(0xFF),
+    m_bBlendingEnabled(false)
+{
+}
+
+ezGALBlendStateCreationDescription::ezGALBlendStateCreationDescription()
+  : m_bAlphaToCoverage(false),
+    m_bIndependentBlend(false)
+{
+}
 
 ezGALResourceAccess::ezGALResourceAccess()
   : m_bReadBack(false), m_bImmutable(true)
@@ -149,9 +166,7 @@ ezGALStencilOpDescription::ezGALStencilOpDescription()
 }
 
 ezGALDepthStencilStateCreationDescription::ezGALDepthStencilStateCreationDescription()
-  : m_FrontFaceStencilOp(),
-    m_BackFaceStencilOp(),
-    m_DepthTestFunc(ezGALCompareFunc::Greater),
+  : m_DepthTestFunc(ezGALCompareFunc::Less),
     m_bSeparateFrontAndBack(false),
     m_bDepthTest(true),
     m_bDepthWrite(true),

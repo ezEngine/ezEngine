@@ -704,7 +704,7 @@ bool ezTestFramework::CompareImages(ezUInt32 uiMaxError, char* szErrorMsg)
     imgSmall.SaveTo(sImgPathResult);
 
     ezStringBuilder sImgDiffName;
-    sImgDiffName.Format("Images_Result/%s_diff.tga", sImgName.GetData());
+    sImgDiffName.Format("Images_Diff/%s.tga", sImgName.GetData());
 
     imgDiff.SaveTo(sImgDiffName);
 

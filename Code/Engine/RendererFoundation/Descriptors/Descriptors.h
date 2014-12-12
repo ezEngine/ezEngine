@@ -68,8 +68,8 @@ struct ezGALBlendStateCreationDescription : public ezHashableStruct<ezGALBlendSt
 
   ezGALRenderTargetBlendDescription m_RenderTargetBlendDescriptions[EZ_GAL_MAX_RENDERTARGET_COUNT];
 
-  bool m_bAlphaToCoverage;
-  bool m_bIndependentBlend;
+  bool m_bAlphaToCoverage;    ///< Alpha-to-coverage can only be used with MSAA render targets. Default is false.
+  bool m_bIndependentBlend;   ///< If disabled, the blend state of the first render target is used for all render targets. Otherwise each render target uses a different blend state.
 };
 
 struct ezGALStencilOpDescription : public ezHashableStruct<ezGALStencilOpDescription>
