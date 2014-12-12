@@ -1,132 +1,99 @@
 #include <PCH.h>
-#include "../TestClass/TestClass.h"
+#include "Basics.h"
 
-class ezRendererTestBasics : public ezGraphicsTest
+ezResult ezRendererTestBasics::InitializeSubTest(ezInt32 iIdentifier)
 {
-public:
+  m_uiFrame = 0;
 
-  virtual const char* GetTestName() const override { return "Basics"; }
+  if (ezGraphicsTest::InitializeSubTest(iIdentifier).Failed())
+    return EZ_FAILURE;
 
-private:
-  enum SubTests
+  if (iIdentifier == SubTests::ST_ClearScreen)
   {
-    ST_ClearScreen,
-    ST_SimpleMesh,
-  };
-
-  virtual void SetupSubTests() override
-  {
-    AddSubTest("Clear Screen", SubTests::ST_ClearScreen);
-    AddSubTest("Simple Mesh", SubTests::ST_SimpleMesh);
+    return SetupRenderer(320, 240);
   }
-
-
-  virtual ezResult InitializeSubTest(ezInt32 iIdentifier) override
+  else
+  //if (iIdentifier == SubTests::ST_SimpleMesh)
   {
-    m_uiFrame = 0;
-
-    if (ezGraphicsTest::InitializeSubTest(iIdentifier).Failed())
+    if (SetupRenderer().Failed())
       return EZ_FAILURE;
 
-    if (iIdentifier == SubTests::ST_ClearScreen)
-    {
-      return SetupRenderer(320, 240);
-    }
-
-    if (iIdentifier == SubTests::ST_SimpleMesh)
-    {
-      if (SetupRenderer().Failed())
-        return EZ_FAILURE;
-
-      m_hSphere = CreateSphere(3);
-
-      return EZ_SUCCESS;
-    }
+    m_hSphere = CreateSphere(3);
 
     return EZ_SUCCESS;
   }
 
-  virtual ezResult DeInitializeSubTest(ezInt32 iIdentifier) override
+  return EZ_SUCCESS;
+}
+
+ezResult ezRendererTestBasics::DeInitializeSubTest(ezInt32 iIdentifier)
+{
+  m_hSphere.Invalidate();
+
+  ShutdownRenderer();
+
+  if (ezGraphicsTest::DeInitializeSubTest(iIdentifier).Failed())
+    return EZ_FAILURE;
+
+  return EZ_SUCCESS;
+}
+
+
+ezTestAppRun ezRendererTestBasics::SubtestClearScreen()
+{
+  BeginFrame();
+
+  switch (m_uiFrame)
   {
-    if (iIdentifier == SubTests::ST_SimpleMesh)
-    {
-      m_hSphere.Invalidate();
-    }
-
-    ShutdownRenderer();
-
-    if (ezGraphicsTest::DeInitializeSubTest(iIdentifier).Failed())
-      return EZ_FAILURE;
-
-    return EZ_SUCCESS;
+  case 1:
+    ClearScreen(ezColor::GetBlack());
+    break;
+  case 2:
+    ClearScreen(ezColor::GetCornflowerBlue()); // The original!
+    break;
+  case 3:
+    ClearScreen(ezColor::GetRed());
+    break;
+  case 4:
+    ClearScreen(ezColor::GetGreen());
+    break;
+  case 5:
+    ClearScreen(ezColor::GetYellow());
+    break;
+  case 6:
+    ClearScreen(ezColor::GetBlue());
+    break;
+  case 7:
+    ClearScreen(ezColor::GetWhite());
+    break;
+  case 8:
+    ClearScreen(ezColor(0.5f, 0.5f, 0.5f, 0.5f));
+    break;
   }
 
-  virtual ezTestAppRun RunSubTest(ezInt32 iIdentifier) override
-  {
-    ++m_uiFrame;
+  EZ_TEST_IMAGE(0);
 
-    if (iIdentifier == SubTests::ST_ClearScreen)
-    {
-      BeginFrame();
+  EndFrame();
 
-      switch (m_uiFrame)
-      {
-      case 1:
-        ClearScreen(ezColor::GetBlack());
-        break;
-      case 2:
-        ClearScreen(ezColor::GetCornflowerBlue()); // The original!
-        break;
-      case 3:
-        ClearScreen(ezColor::GetRed());
-        break;
-      case 4:
-        ClearScreen(ezColor::GetGreen());
-        break;
-      case 5:
-        ClearScreen(ezColor::GetYellow());
-        break;
-      case 6:
-        ClearScreen(ezColor::GetBlue());
-        break;
-      case 7:
-        ClearScreen(ezColor::GetWhite());
-        break;
-      case 8:
-        ClearScreen(ezColor(0.5f, 0.5f, 0.5f, 0.5f));
-        break;
-      }
+  return m_uiFrame < 7 ? ezTestAppRun::Continue : ezTestAppRun::Quit;
+}
 
-      EZ_TEST_IMAGE(0);
+ezTestAppRun ezRendererTestBasics::SubtestSimpleMesh()
+{
+  BeginFrame();
+  ClearScreen(ezColor::GetCornflowerBlue()); // The original!
 
-      EndFrame();
+  ezMat4 mTransform;
+  mTransform.SetIdentity();
 
-      return m_uiFrame < 7 ? ezTestAppRun::Continue : ezTestAppRun::Quit;
-    }
+  RenderObject(m_hSphere, mTransform);
 
-    if (iIdentifier == SubTests::ST_SimpleMesh)
-    {
-      BeginFrame();
-      ClearScreen(ezColor::GetCornflowerBlue()); // The original!
+  EZ_TEST_IMAGE(30);
 
-      ezMat4 mTransform;
-      mTransform.SetIdentity();
+  EndFrame();
 
-      RenderObject(m_hSphere, mTransform);
-
-      EZ_TEST_IMAGE(30);
-
-      EndFrame();
-
-      return m_uiFrame < 1 ? ezTestAppRun::Continue : ezTestAppRun::Quit;
-    }
-
-    return ezTestAppRun::Quit;
-  }
-
-  ezUInt32 m_uiFrame;
-  ezMeshBufferResourceHandle m_hSphere;
-};
+  return m_uiFrame < 1 ? ezTestAppRun::Continue : ezTestAppRun::Quit;
+}
 
 static ezRendererTestBasics g_Test;
 

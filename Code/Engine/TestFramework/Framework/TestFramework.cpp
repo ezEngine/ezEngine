@@ -311,7 +311,6 @@ void ezTestFramework::ExecuteNextTest()
       }
 
       m_iExecutingSubTest = 0;
-      m_iImageCounter = 0;
       m_fTotalTestDuration = 0.0;
 
       // Reset assert counter. This variable is used to reduce the overhead of counting millions of asserts.
@@ -356,6 +355,7 @@ void ezTestFramework::ExecuteNextTest()
         }
 
         m_fTotalSubTestDuration = 0.0;
+        m_iImageCounter = 0;
 
         // First flush of assert counter, these are all asserts during test init.
         FlushAsserts();
