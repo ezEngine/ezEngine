@@ -40,7 +40,7 @@ void ezImage::AllocateImageData()
         else
         {
           subImage.m_uiRowPitch = GetWidth(uiMipLevel) * uiBitsPerPixel / 8;
-          subImage.m_uiDepthPitch = GetWidth(uiMipLevel) * subImage.m_uiRowPitch;
+          subImage.m_uiDepthPitch = GetHeight(uiMipLevel) * subImage.m_uiRowPitch;
         }
 
         uiDataSize += subImage.m_uiDepthPitch * GetDepth(uiMipLevel);
