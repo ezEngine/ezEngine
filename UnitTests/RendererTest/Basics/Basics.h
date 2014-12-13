@@ -1,5 +1,6 @@
 #include <PCH.h>
 #include "../TestClass/TestClass.h"
+#include <RendererCore/Textures/TextureResource.h>
 
 class ezRendererTestBasics : public ezGraphicsTest
 {
@@ -53,6 +54,7 @@ private:
   ezMeshBufferResourceHandle m_hSphere2;
   ezMeshBufferResourceHandle m_hTorus;
   ezMeshBufferResourceHandle m_hLongBox;
+  ezTextureResourceHandle m_hTexture;
 };
 
 

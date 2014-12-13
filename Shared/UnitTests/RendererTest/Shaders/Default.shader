@@ -19,8 +19,12 @@ VS_OUT main(VS_IN Input)
 
 #include "Common.inc"
 
+Texture2D TexDiffuse : register(t0);
+SamplerState TexDiffuseSampler : register(s0);
+
 float4 main(PS_IN Input) : SV_Target
 {
   return ObjectColor;
+  //return TexDiffuse.Sample(TexDiffuseSampler, float2(0.5, 0.5));
 }
 
