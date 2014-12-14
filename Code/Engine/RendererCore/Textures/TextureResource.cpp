@@ -72,12 +72,15 @@ void ezTextureResource::UnloadData(bool bFullUnload)
   }
 }
 
-static ezGALResourceFormat::Enum ImgToGalFormat(ezImageFormat::Enum format)
+static ezGALResourceFormat::Enum ImgToGalFormat(ezImageFormat::Enum format, bool bSRGB)
 {
   switch (format)
   {
   case ezImageFormat::R8G8B8A8_UNORM:
-    return ezGALResourceFormat::RGBAUByteNormalized;
+    if (bSRGB)
+      return ezGALResourceFormat::RGBAUByteNormalizedsRGB;
+    else
+      return ezGALResourceFormat::RGBAUByteNormalized;
 
   //case ezImageFormat::R8G8B8A8_TYPELESS:
   case ezImageFormat::R8G8B8A8_UNORM_SRGB:
@@ -93,11 +96,16 @@ static ezGALResourceFormat::Enum ImgToGalFormat(ezImageFormat::Enum format)
     return ezGALResourceFormat::RGBAInt;
 
   case ezImageFormat::B8G8R8A8_UNORM:
-    return ezGALResourceFormat::RGBAUByteNormalized; // HACK
-    //return ezGALResourceFormat::BGRAUByteNormalized;
+    if (bSRGB)
+      return ezGALResourceFormat::BGRAUByteNormalizedsRGB;
+    else
+      return ezGALResourceFormat::BGRAUByteNormalized;
 
   case ezImageFormat::B8G8R8X8_UNORM:
-    return ezGALResourceFormat::BGRAUByteNormalized;
+    if (bSRGB)
+        return ezGALResourceFormat::BGRAUByteNormalizedsRGB;
+    else
+      return ezGALResourceFormat::BGRAUByteNormalized;
 
   //case ezImageFormat::B8G8R8A8_TYPELESS:
   case ezImageFormat::B8G8R8A8_UNORM_SRGB:
@@ -111,21 +119,30 @@ static ezGALResourceFormat::Enum ImgToGalFormat(ezImageFormat::Enum format)
 
   //case ezImageFormat::BC1_TYPELESS:
   case ezImageFormat::BC1_UNORM:
-    return ezGALResourceFormat::BC1;
+    if (bSRGB)
+      return ezGALResourceFormat::BC1sRGB;
+    else
+      return ezGALResourceFormat::BC1;
 
   case ezImageFormat::BC1_UNORM_SRGB:
     return ezGALResourceFormat::BC1sRGB;
 
   //case ezImageFormat::BC2_TYPELESS:
   case ezImageFormat::BC2_UNORM:
-    return ezGALResourceFormat::BC2;
+    if (bSRGB)
+      return ezGALResourceFormat::BC2sRGB;
+    else
+      return ezGALResourceFormat::BC2;
 
   case ezImageFormat::BC2_UNORM_SRGB:
     return ezGALResourceFormat::BC2sRGB;
 
   //case ezImageFormat::BC3_TYPELESS:
   case ezImageFormat::BC3_UNORM:
-    return ezGALResourceFormat::BC3;
+    if (bSRGB)
+      return ezGALResourceFormat::BC3sRGB;
+    else
+      return ezGALResourceFormat::BC3;
 
   case ezImageFormat::BC3_UNORM_SRGB:
     return ezGALResourceFormat::BC3sRGB;
@@ -153,7 +170,10 @@ static ezGALResourceFormat::Enum ImgToGalFormat(ezImageFormat::Enum format)
 
   //case ezImageFormat::BC7_TYPELESS:
   case ezImageFormat::BC7_UNORM:
-    return ezGALResourceFormat::BC7UNormalized;
+    if (bSRGB)
+      return ezGALResourceFormat::BC7UNormalizedsRGB;
+    else
+      return ezGALResourceFormat::BC7UNormalized;
 
   case ezImageFormat::BC7_UNORM_SRGB:
     return ezGALResourceFormat::BC7UNormalizedsRGB;
@@ -176,6 +196,9 @@ void ezTextureResource::UpdateContent(ezStreamReaderBase& Stream)
     ezImage* pImage = nullptr;
     Stream.ReadBytes(&pImage, sizeof(ezImage*));
 
+    bool bSRGB = false;
+    Stream >> bSRGB;
+
     ezGALTextureCreationDescription TexDesc;
     TexDesc.m_Format = ezGALResourceFormat::RGBAUByteNormalized;
     TexDesc.m_uiWidth  = pImage->GetWidth();
@@ -190,12 +213,60 @@ void ezTextureResource::UpdateContent(ezStreamReaderBase& Stream)
     if (pImage->GetNumFaces() == 6)
       TexDesc.m_Type = ezGALTextureType::TextureCube;
 
-    TexDesc.m_Format = ImgToGalFormat(pImage->GetImageFormat());
+    TexDesc.m_Format = ImgToGalFormat(pImage->GetImageFormat(), bSRGB);
+
 
     ezGALSystemMemoryDescription InitData[1];
     InitData[0].m_pData = pImage->GetDataPointer<void>();
-    InitData[0].m_uiRowPitch = pImage->GetRowPitch();
-    InitData[0].m_uiSlicePitch = pImage->GetDepthPitch();
+
+    if (ezImageFormat::GetType(pImage->GetImageFormat()) == ezImageFormatType::BLOCK_COMPRESSED)
+    {
+      ezUInt32 uiMemPitchFactor = 1;
+
+      switch (pImage->GetImageFormat())
+      {
+      case ezImageFormat::BC1_TYPELESS:
+      case ezImageFormat::BC1_UNORM:
+      case ezImageFormat::BC1_UNORM_SRGB:
+        uiMemPitchFactor = 8;
+        break;
+      case ezImageFormat::BC2_TYPELESS:
+      case ezImageFormat::BC2_UNORM:
+      case ezImageFormat::BC2_UNORM_SRGB:
+      case ezImageFormat::BC3_TYPELESS:
+      case ezImageFormat::BC3_UNORM:
+      case ezImageFormat::BC3_UNORM_SRGB:
+        uiMemPitchFactor = 4;
+        break;
+      //case ezImageFormat::BC4_TYPELESS:
+      //case ezImageFormat::BC4_UNORM:
+      //case ezImageFormat::BC4_SNORM:
+      //  uiMemPitchFactor = 8;
+      //  break;
+      //case ezImageFormat::BC5_TYPELESS:
+      //case ezImageFormat::BC5_UNORM:
+      //case ezImageFormat::BC5_SNORM:
+      //case ezImageFormat::BC6H_TYPELESS:
+      //case ezImageFormat::BC6H_UF16:
+      //case ezImageFormat::BC6H_SF16:
+      //case ezImageFormat::BC7_TYPELESS:
+      //case ezImageFormat::BC7_UNORM:
+      //case ezImageFormat::BC7_UNORM_SRGB:
+      //  uiMemPitchFactor = 4;
+      //  break;
+      default:
+        EZ_ASSERT_NOT_IMPLEMENTED;
+        break;
+      }
+
+      InitData[0].m_uiRowPitch = pImage->GetWidth() * uiMemPitchFactor;
+      InitData[0].m_uiSlicePitch = InitData[0].m_uiRowPitch * pImage->GetHeight() / uiMemPitchFactor;
+    }
+    else
+    {
+      InitData[0].m_uiRowPitch = pImage->GetRowPitch();
+      InitData[0].m_uiSlicePitch = pImage->GetDepthPitch();
+    }
 
     //EZ_ASSERT(pImage->GetRowPitch() > 0, "");
 
@@ -276,6 +347,14 @@ ezResourceLoadData ezTextureResourceLoader::OpenDataStream(const ezResourceBase*
   {
     ezImage* pImage = &pData->m_Image;
     w.WriteBytes(&pImage, sizeof(ezImage*));
+
+    /// \todo As long as we don't have a custom format or asset meta data, this is a hack to get the SRGB information for the texture
+
+    const ezStringBuilder sName = ezPathUtils::GetFileName(pResource->GetResourceID());
+
+    bool bSRGB = (sName.EndsWith_NoCase("_D") || sName.EndsWith_NoCase("_SRGB"));
+
+    w << bSRGB;
   }
 
   ezResourceLoadData LoaderData;
