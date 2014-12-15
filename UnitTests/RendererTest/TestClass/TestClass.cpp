@@ -95,8 +95,8 @@ ezResult ezGraphicsTest::SetupRenderer(ezUInt32 uiResolutionX, ezUInt32 uiResolu
   ezGALDevice::SetDefaultDevice(m_pDevice);
 
   ezGALRasterizerStateCreationDescription RasterStateDesc;
-  RasterStateDesc.m_bWireFrame = true;
-  RasterStateDesc.m_CullMode = ezGALCullMode::None;
+  RasterStateDesc.m_bWireFrame = false;
+  RasterStateDesc.m_CullMode = ezGALCullMode::Back;
   RasterStateDesc.m_bFrontCounterClockwise = true;
   m_hRasterizerState = m_pDevice->CreateRasterizerState(RasterStateDesc);
   EZ_ASSERT(!m_hRasterizerState.IsInvalidated(), "Couldn't create rasterizer state!");

@@ -1,7 +1,6 @@
 #include <PCH.h>
 #include "Basics.h"
 #include <CoreUtils/Graphics/Camera.h>
-#include <Core/ResourceManager/ResourceManager.h>
 
 ezResult ezRendererTestBasics::InitializeSubTest(ezInt32 iIdentifier)
 {
@@ -15,7 +14,6 @@ ezResult ezRendererTestBasics::InitializeSubTest(ezInt32 iIdentifier)
     return SetupRenderer(320, 240);
   }
   else
-  //if (iIdentifier == SubTests::ST_SimpleMesh)
   {
     if (SetupRenderer().Failed())
       return EZ_FAILURE;
@@ -24,13 +22,6 @@ ezResult ezRendererTestBasics::InitializeSubTest(ezInt32 iIdentifier)
     m_hSphere2 = CreateSphere(1, 0.75f);
     m_hTorus = CreateTorus(16, 0.5f, 0.75f);
     m_hLongBox = CreateBox(0.4f, 0.2f, 2.0f);
-
-    m_hTexture = ezResourceManager::GetResourceHandle<ezTextureResource>("Textures/Test.tga");
-
-    // HACK
-    {
-      ezResourceLock<ezTextureResource> l(m_hTexture, ezResourceAcquireMode::NoFallback);
-    }
 
     return EZ_SUCCESS;
   }

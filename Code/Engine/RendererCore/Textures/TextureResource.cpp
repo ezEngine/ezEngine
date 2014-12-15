@@ -103,7 +103,7 @@ static ezGALResourceFormat::Enum ImgToGalFormat(ezImageFormat::Enum format, bool
 
   case ezImageFormat::B8G8R8X8_UNORM:
     if (bSRGB)
-        return ezGALResourceFormat::BGRAUByteNormalizedsRGB;
+      return ezGALResourceFormat::BGRAUByteNormalizedsRGB;
     else
       return ezGALResourceFormat::BGRAUByteNormalized;
 
@@ -178,12 +178,56 @@ static ezGALResourceFormat::Enum ImgToGalFormat(ezImageFormat::Enum format, bool
   case ezImageFormat::BC7_UNORM_SRGB:
     return ezGALResourceFormat::BC7UNormalizedsRGB;
 
+  case ezImageFormat::B5G6R5_UNORM:
+    return ezGALResourceFormat::B5G6R5UNormalized; /// \todo Not supported by some GPUs ?
+
   default:
     EZ_ASSERT_NOT_IMPLEMENTED;
     break;
   }
 
   return ezGALResourceFormat::Invalid;
+}
+
+static ezUInt32 GetBCnMemPitchFactor(ezImageFormat::Enum format)
+{
+  /// \todo Finish (verify) this function
+
+  switch (format)
+  {
+  case ezImageFormat::BC1_TYPELESS:
+  case ezImageFormat::BC1_UNORM:
+  case ezImageFormat::BC1_UNORM_SRGB:
+    return 2;
+    break;
+  case ezImageFormat::BC2_TYPELESS:
+  case ezImageFormat::BC2_UNORM:
+  case ezImageFormat::BC2_UNORM_SRGB:
+  case ezImageFormat::BC3_TYPELESS:
+  case ezImageFormat::BC3_UNORM:
+  case ezImageFormat::BC3_UNORM_SRGB:
+    return 4;
+    //case ezImageFormat::BC4_TYPELESS:
+    //case ezImageFormat::BC4_UNORM:
+    //case ezImageFormat::BC4_SNORM:
+    //  uiMemPitchFactor = 8;
+    //  break;
+    //case ezImageFormat::BC5_TYPELESS:
+    //case ezImageFormat::BC5_UNORM:
+    //case ezImageFormat::BC5_SNORM:
+    //case ezImageFormat::BC6H_TYPELESS:
+    //case ezImageFormat::BC6H_UF16:
+    //case ezImageFormat::BC6H_SF16:
+    //case ezImageFormat::BC7_TYPELESS:
+    //case ezImageFormat::BC7_UNORM:
+    //case ezImageFormat::BC7_UNORM_SRGB:
+    //  return 4;
+  default:
+    EZ_ASSERT_NOT_IMPLEMENTED;
+    break;
+  }
+
+  return 1;
 }
 
 void ezTextureResource::UpdateContent(ezStreamReaderBase& Stream)
@@ -213,86 +257,70 @@ void ezTextureResource::UpdateContent(ezStreamReaderBase& Stream)
     if (pImage->GetNumFaces() == 6)
       TexDesc.m_Type = ezGALTextureType::TextureCube;
 
+    EZ_ASSERT(pImage->GetNumFaces() == 1 || pImage->GetNumFaces() == 6, "Invalid number of image faces (resource: '%s')", GetResourceID().GetData());
+
     TexDesc.m_Format = ImgToGalFormat(pImage->GetImageFormat(), bSRGB);
 
 
-    ezGALSystemMemoryDescription InitData[1];
-    InitData[0].m_pData = pImage->GetDataPointer<void>();
+    ezHybridArray<ezGALSystemMemoryDescription, 32> InitData;
 
-    if (ezImageFormat::GetType(pImage->GetImageFormat()) == ezImageFormatType::BLOCK_COMPRESSED)
+    /// \todo Figure out the correct order of the arrays/faces/mips
+    for (ezUInt32 array_index = 0; array_index < pImage->GetNumArrayIndices(); ++array_index)
     {
-      ezUInt32 uiMemPitchFactor = 1;
-
-      switch (pImage->GetImageFormat())
+      for (ezUInt32 face = 0; face < pImage->GetNumFaces(); ++face)
       {
-      case ezImageFormat::BC1_TYPELESS:
-      case ezImageFormat::BC1_UNORM:
-      case ezImageFormat::BC1_UNORM_SRGB:
-        uiMemPitchFactor = 8;
-        break;
-      case ezImageFormat::BC2_TYPELESS:
-      case ezImageFormat::BC2_UNORM:
-      case ezImageFormat::BC2_UNORM_SRGB:
-      case ezImageFormat::BC3_TYPELESS:
-      case ezImageFormat::BC3_UNORM:
-      case ezImageFormat::BC3_UNORM_SRGB:
-        uiMemPitchFactor = 4;
-        break;
-      //case ezImageFormat::BC4_TYPELESS:
-      //case ezImageFormat::BC4_UNORM:
-      //case ezImageFormat::BC4_SNORM:
-      //  uiMemPitchFactor = 8;
-      //  break;
-      //case ezImageFormat::BC5_TYPELESS:
-      //case ezImageFormat::BC5_UNORM:
-      //case ezImageFormat::BC5_SNORM:
-      //case ezImageFormat::BC6H_TYPELESS:
-      //case ezImageFormat::BC6H_UF16:
-      //case ezImageFormat::BC6H_SF16:
-      //case ezImageFormat::BC7_TYPELESS:
-      //case ezImageFormat::BC7_UNORM:
-      //case ezImageFormat::BC7_UNORM_SRGB:
-      //  uiMemPitchFactor = 4;
-      //  break;
-      default:
-        EZ_ASSERT_NOT_IMPLEMENTED;
-        break;
+        for (ezUInt32 mip = 0; mip < pImage->GetNumMipLevels(); ++mip)
+        {
+          ezGALSystemMemoryDescription& id = InitData.ExpandAndGetRef();
+
+          id.m_pData = pImage->GetDataPointer<ezUInt8>() + pImage->GetDataOffSet(mip, face, array_index);
+
+          if (ezImageFormat::GetType(pImage->GetImageFormat()) == ezImageFormatType::BLOCK_COMPRESSED)
+          {
+            const ezUInt32 uiMemPitchFactor = GetBCnMemPitchFactor(pImage->GetImageFormat());
+
+            id.m_uiRowPitch = pImage->GetWidth(mip) * uiMemPitchFactor;
+            id.m_uiSlicePitch = id.m_uiRowPitch * pImage->GetHeight(mip) / uiMemPitchFactor;
+          }
+          else
+          {
+            id.m_uiRowPitch = pImage->GetRowPitch(mip);
+            id.m_uiSlicePitch = pImage->GetDepthPitch(mip);
+          }
+        }
       }
-
-      InitData[0].m_uiRowPitch = pImage->GetWidth() * uiMemPitchFactor;
-      InitData[0].m_uiSlicePitch = InitData[0].m_uiRowPitch * pImage->GetHeight() / uiMemPitchFactor;
-    }
-    else
-    {
-      InitData[0].m_uiRowPitch = pImage->GetRowPitch();
-      InitData[0].m_uiSlicePitch = pImage->GetDepthPitch();
     }
 
-    //EZ_ASSERT(pImage->GetRowPitch() > 0, "");
-
-    ezArrayPtr<ezGALSystemMemoryDescription> InitDataPtr(InitData);
+    const ezArrayPtr<ezGALSystemMemoryDescription> InitDataPtr(InitData);
 
     m_hGALTexture = ezGALDevice::GetDefaultDevice()->CreateTexture(TexDesc, &InitDataPtr);
 
     if (m_hGALTexture.IsInvalidated())
     {
+      /// \todo Fallback
       ezLog::Error("Texture state error");
     }
 
     ezGALResourceViewCreationDescription TexViewDesc;
     TexViewDesc.m_hTexture = m_hGALTexture;
-    
+
     m_hGALTexView = ezGALDevice::GetDefaultDevice()->CreateResourceView(TexViewDesc);
 
-    if (m_hGALTexView.IsInvalidated())
-    {
-      ezLog::Error("Texview state error");
-    }
+    EZ_ASSERT(!m_hGALTexView.IsInvalidated(), "No resource view could be created for texture '%s'. Maybe the format table is incorrect?", GetResourceID().GetData());
 
     /// \todo HACK
     {
       ezGALSamplerStateCreationDescription SamplerDesc;
-      SamplerDesc.m_MagFilter = SamplerDesc.m_MinFilter = SamplerDesc.m_MipFilter = ezGALTextureFilterMode::Point;
+      SamplerDesc.m_MagFilter = ezGALTextureFilterMode::Linear;
+      SamplerDesc.m_MinFilter = ezGALTextureFilterMode::Point;
+      SamplerDesc.m_MipFilter = ezGALTextureFilterMode::Point;
+
+      if (pImage->GetNumMipLevels() > 1)
+      {
+        SamplerDesc.m_MinFilter = ezGALTextureFilterMode::Linear;
+        SamplerDesc.m_MipFilter = ezGALTextureFilterMode::Linear;
+      }
+
       m_hSamplerState = ezGALDevice::GetDefaultDevice()->CreateSamplerState(SamplerDesc);
 
       if (m_hSamplerState.IsInvalidated())
@@ -306,6 +334,7 @@ void ezTextureResource::UpdateContent(ezStreamReaderBase& Stream)
   }
   else
   {
+    /// \todo Setup fallback texture
   }
 
   m_LoadingState = ezResourceLoadState::Loaded;
@@ -315,12 +344,15 @@ void ezTextureResource::UpdateContent(ezStreamReaderBase& Stream)
 
 void ezTextureResource::UpdateMemoryUsage()
 {
+  /// \todo Compute memory usage
+
   //SetMemoryUsageCPU(0);
   //SetMemoryUsageGPU(0);
 }
 
 void ezTextureResource::CreateResource(const ezTextureResourceDescriptor& descriptor)
 {
+  /// \todo Implement texture creation
   EZ_ASSERT_NOT_IMPLEMENTED;
 }
 

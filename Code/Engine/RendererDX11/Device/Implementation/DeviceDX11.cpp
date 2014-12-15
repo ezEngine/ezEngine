@@ -599,9 +599,11 @@ void ezGALDeviceDX11::FillFormatLookupTable()
       RV(DXGI_FORMAT_R32G32B32_SINT)
       );
 
+  // creating textures with this format gives me:
+  // D3D11 ERROR: ID3D11Device::CreateTexture2D: Device does not support the format B5G6R5_UNORM. [ STATE_CREATION ERROR #92: CREATETEXTURE2D_UNSUPPORTEDFORMAT]
   m_FormatLookupTable.SetFormatInfo(
     ezGALResourceFormat::B5G6R5UNormalized,
-    ezGALFormatLookupEntryDX11(DXGI_FORMAT_R16_TYPELESS). /// \todo Marc: is this correct ?
+    ezGALFormatLookupEntryDX11(DXGI_FORMAT_B5G6R5_UNORM). /// \todo Marc: is this correct ?
       RT(DXGI_FORMAT_B5G6R5_UNORM).
       VA(DXGI_FORMAT_B5G6R5_UNORM).
       RV(DXGI_FORMAT_B5G6R5_UNORM)

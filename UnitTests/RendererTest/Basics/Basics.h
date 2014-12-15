@@ -14,6 +14,7 @@ private:
     ST_ClearScreen,
     ST_RasterizerStates,
     ST_BlendStates,
+    ST_Textures,
   };
 
   virtual void SetupSubTests() override
@@ -21,6 +22,7 @@ private:
     AddSubTest("Clear Screen", SubTests::ST_ClearScreen);
     AddSubTest("Rasterizer States", SubTests::ST_RasterizerStates);
     //AddSubTest("Blend States", SubTests::ST_BlendStates);
+    AddSubTest("Textures", SubTests::ST_Textures);
   }
 
 
@@ -30,6 +32,7 @@ private:
   ezTestAppRun SubtestClearScreen();
   ezTestAppRun SubtestRasterizerStates();
   ezTestAppRun SubtestBlendStates();
+  ezTestAppRun SubtestTextures();
 
   void RenderObjects();
 
@@ -45,6 +48,9 @@ private:
 
     if (iIdentifier == SubTests::ST_BlendStates)
       return SubtestBlendStates();
+
+    if (iIdentifier == SubTests::ST_Textures)
+      return SubtestTextures();
 
     return ezTestAppRun::Quit;
   }

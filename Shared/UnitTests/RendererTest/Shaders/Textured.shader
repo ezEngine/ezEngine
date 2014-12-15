@@ -11,6 +11,7 @@ VS_OUT main(VS_IN Input)
 {
   VS_OUT RetVal;
   RetVal.pos = mul(mvp, float4(Input.pos, 1.0));
+  RetVal.texcoord0 = Input.pos.xy + 0.5;
 
   return RetVal;
 }
@@ -24,6 +25,6 @@ SamplerState TexDiffuseSampler : register(s0);
 
 float4 main(PS_IN Input) : SV_Target
 {
-  return TexDiffuse.Sample(TexDiffuseSampler, float2(Input.pos.x, Input.pos.y) / 100.0);
+  return TexDiffuse.Sample(TexDiffuseSampler, Input.texcoord0 * 4);
 }
 
