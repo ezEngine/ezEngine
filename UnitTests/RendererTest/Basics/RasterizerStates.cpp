@@ -140,7 +140,7 @@ ezTestAppRun ezRendererTestBasics::SubtestRasterizerStates()
 
   RenderObjects();
 
-  EZ_TEST_IMAGE(0);
+  EZ_TEST_IMAGE(150);
 
   EndFrame();
 

@@ -67,7 +67,11 @@ ezTestAppRun ezRendererTestBasics::SubtestTextures()
   if (m_iFrame == 10)
   {
     /// \todo Christian: This format cannot be read by ezImage: The number of bits per pixel specified in the file (%d) does not match the expected value of %d for the format '%s'
-    m_hTexture = ezResourceManager::GetResourceHandle<ezTextureResource>("Textures/ezLogo_RGB_Mips_D.dds");
+    //m_hTexture = ezResourceManager::GetResourceHandle<ezTextureResource>("Textures/ezLogo_RGB_Mips_D.dds");
+
+    m_hShader = ezResourceManager::GetResourceHandle<ezShaderResource>("Shaders/TexturedCube.shader");
+    m_hTexture = ezResourceManager::GetResourceHandle<ezTextureResource>("Textures/ezLogo_Cube_RGBA_NoMips_D.dds");
+
   }
 
   if (m_iFrame == 11)
@@ -97,7 +101,7 @@ ezTestAppRun ezRendererTestBasics::SubtestTextures()
 
   RenderObjects();
 
-  EZ_TEST_IMAGE(0);
+  EZ_TEST_IMAGE(100);
 
   EndFrame();
 

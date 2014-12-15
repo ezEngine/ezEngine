@@ -73,7 +73,10 @@ ezResult ezGALTextureDX11::InitPlatform(ezGALDevice* pDevice, const ezArrayPtr<e
 
         if(m_Description.m_bAllowDynamicMipGeneration)
           Tex2DDesc.MiscFlags |= D3D11_RESOURCE_MISC_GENERATE_MIPS;
-        
+
+        if(m_Description.m_Type == ezGALTextureType::TextureCube)
+          Tex2DDesc.MiscFlags |= D3D11_RESOURCE_MISC_TEXTURECUBE;
+
         Tex2DDesc.SampleDesc.Count = m_Description.m_SampleCount;
         Tex2DDesc.SampleDesc.Quality = 0;
 
