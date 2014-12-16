@@ -9,12 +9,12 @@ EZ_FORCE_INLINE ezColor8UNorm::ezColor8UNorm(ezUInt8 R, ezUInt8 G, ezUInt8 B, ez
 {
 }
 
-inline ezColor8UNorm::ezColor8UNorm(const ezColor& color) :
-  r(static_cast<ezUInt8>(color.r*255)),
-  g(static_cast<ezUInt8>(color.g*255)),
-  b(static_cast<ezUInt8>(color.b*255)),
-  a(static_cast<ezUInt8>(color.a*255))
+inline ezColor8UNorm::ezColor8UNorm(const ezColor& color)
 {
+  r = static_cast<ezUInt8>(ezMath::Min(255.0f, ((color.r * 255.0f) + 0.5f)));
+  g = static_cast<ezUInt8>(ezMath::Min(255.0f, ((color.g * 255.0f) + 0.5f)));
+  b = static_cast<ezUInt8>(ezMath::Min(255.0f, ((color.b * 255.0f) + 0.5f)));
+  a = static_cast<ezUInt8>(ezMath::Min(255.0f, ((color.a * 255.0f) + 0.5f)));
 }
 
 // *****************

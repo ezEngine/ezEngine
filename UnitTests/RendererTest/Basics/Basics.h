@@ -14,7 +14,9 @@ private:
     ST_ClearScreen,
     ST_RasterizerStates,
     ST_BlendStates,
-    ST_Textures,
+    ST_Textures2D,
+    ST_Textures3D,
+    ST_TexturesCube,
   };
 
   virtual void SetupSubTests() override
@@ -22,7 +24,9 @@ private:
     AddSubTest("Clear Screen", SubTests::ST_ClearScreen);
     AddSubTest("Rasterizer States", SubTests::ST_RasterizerStates);
     //AddSubTest("Blend States", SubTests::ST_BlendStates);
-    AddSubTest("Textures", SubTests::ST_Textures);
+    AddSubTest("2D Textures", SubTests::ST_Textures2D);
+    //AddSubTest("3D Textures", SubTests::ST_Textures3D);
+    AddSubTest("Cube Textures", SubTests::ST_TexturesCube);
   }
 
 
@@ -32,7 +36,9 @@ private:
   ezTestAppRun SubtestClearScreen();
   ezTestAppRun SubtestRasterizerStates();
   ezTestAppRun SubtestBlendStates();
-  ezTestAppRun SubtestTextures();
+  ezTestAppRun SubtestTextures2D();
+  ezTestAppRun SubtestTextures3D();
+  ezTestAppRun SubtestTexturesCube();
 
   void RenderObjects();
 
@@ -49,8 +55,14 @@ private:
     if (iIdentifier == SubTests::ST_BlendStates)
       return SubtestBlendStates();
 
-    if (iIdentifier == SubTests::ST_Textures)
-      return SubtestTextures();
+    if (iIdentifier == SubTests::ST_Textures2D)
+      return SubtestTextures2D();
+
+    if (iIdentifier == SubTests::ST_Textures3D)
+      return SubtestTextures3D();
+
+    if (iIdentifier == SubTests::ST_TexturesCube)
+      return SubtestTexturesCube();
 
     return ezTestAppRun::Quit;
   }
