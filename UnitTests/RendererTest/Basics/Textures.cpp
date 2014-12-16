@@ -111,12 +111,14 @@ ezTestAppRun ezRendererTestBasics::SubtestTextures3D()
 
   bool bFinish = true;
 
-  const ezInt32 iNumFrames = 0;
+  const ezInt32 iNumFrames = 1;
 
-  if (m_iFrame == 1)
+  m_hShader = ezResourceManager::GetResourceHandle<ezShaderResource>("Shaders/TexturedVolume.shader");
+
+  if (m_iFrame == 0)
   {
-    // This format generally does not support mipmaps
-    //m_hTexture = ezResourceManager::GetResourceHandle<ezTextureResource>("Textures/ezLogo_R5G6B5_MipsD.dds");
+    /// \todo Christian: Error "The image format is neither specified as a pixel mask nor as a FourCC code"
+    m_hTexture = ezResourceManager::GetResourceHandle<ezTextureResource>("Textures/Volume/ezLogo_Volume_A8_NoMips_D.dds");
   }
 
   // HACK

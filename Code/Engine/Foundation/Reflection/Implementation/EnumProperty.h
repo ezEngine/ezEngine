@@ -49,7 +49,7 @@ public:
 
 /// \brief [internal] An implementation of ezTypedEnumProperty that uses custom getter / setter functions to access an enum property.
 template<typename Class, typename EnumType, typename Type>
-class ezEnumAccessorProperty : public ezTypedEnumProperty< typename EnumType >
+class ezEnumAccessorProperty : public ezTypedEnumProperty< EnumType >
 {
 public:
   typedef typename ezTypeTraits<Type>::NonConstReferenceType RealType;
@@ -78,7 +78,7 @@ public:
 
   virtual ezInt64 GetValue(const void* pInstance) const override // [tested]
   {
-    EnumType::Enum enumTemp = (static_cast<const Class*>(pInstance)->*m_Getter)();
+    typename EnumType::Enum enumTemp = (static_cast<const Class*>(pInstance)->*m_Getter)();
     return (ezInt64)enumTemp;
   }
 
@@ -86,7 +86,7 @@ public:
   {
     EZ_ASSERT(m_Setter != nullptr, "The property '%s' has no setter function, thus it is read-only.", ezAbstractProperty::GetPropertyName());
     if (m_Setter)
-      (static_cast<Class*>(pInstance)->*m_Setter)((EnumType::Enum)value);
+      (static_cast<Class*>(pInstance)->*m_Setter)((typename EnumType::Enum) value);
   }
 
 private:
@@ -97,7 +97,7 @@ private:
 
 /// \brief [internal] An implementation of ezTypedEnumProperty that accesses the enum property data directly.
 template <typename Class, typename EnumType, typename Type>
-class ezEnumMemberProperty : public ezTypedEnumProperty< typename EnumType >
+class ezEnumMemberProperty : public ezTypedEnumProperty< EnumType >
 {
 public:
   typedef Type  (*GetterFunc)(const Class* pInstance);
@@ -126,7 +126,7 @@ public:
 
   virtual ezInt64 GetValue(const void* pInstance) const override // [tested]
   {
-    EnumType::Enum enumTemp = m_Getter(static_cast<const Class*>(pInstance));
+    typename EnumType::Enum enumTemp = m_Getter(static_cast<const Class*>(pInstance));
     return (ezInt64)enumTemp;
   }
 
@@ -135,7 +135,7 @@ public:
     EZ_ASSERT(m_Setter != nullptr, "The property '%s' has no setter function, thus it is read-only.", ezAbstractProperty::GetPropertyName());
 
     if (m_Setter)
-      m_Setter(static_cast<Class*>(pInstance), (EnumType::Enum)value);
+      m_Setter(static_cast<Class*>(pInstance), (typename EnumType::Enum) value);
   }
 
 private:

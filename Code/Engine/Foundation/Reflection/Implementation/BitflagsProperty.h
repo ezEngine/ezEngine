@@ -7,7 +7,7 @@
 
 /// \brief [internal] An implementation of ezTypedEnumProperty that uses custom getter / setter functions to access a bitflags property.
 template<typename Class, typename EnumType, typename Type>
-class ezBitflagsAccessorProperty : public ezTypedEnumProperty< typename EnumType >
+class ezBitflagsAccessorProperty : public ezTypedEnumProperty< EnumType >
 {
 public:
   typedef typename ezTypeTraits<Type>::NonConstReferenceType RealType;
@@ -36,7 +36,7 @@ public:
 
   virtual ezInt64 GetValue(const void* pInstance) const override // [tested]
   {
-    EnumType::StorageType enumTemp = (static_cast<const Class*>(pInstance)->*m_Getter)().GetValue();
+    typename EnumType::StorageType enumTemp = (static_cast<const Class*>(pInstance)->*m_Getter)().GetValue();
     return (ezInt64)enumTemp;
   }
 
@@ -44,7 +44,7 @@ public:
   {
     EZ_ASSERT(m_Setter != nullptr, "The property '%s' has no setter function, thus it is read-only.", ezAbstractProperty::GetPropertyName());
     if (m_Setter)
-      (static_cast<Class*>(pInstance)->*m_Setter)((EnumType::Enum)value);
+      (static_cast<Class*>(pInstance)->*m_Setter)((typename EnumType::Enum)value);
   }
 
 private:
@@ -55,7 +55,7 @@ private:
 
 /// \brief [internal] An implementation of ezTypedEnumProperty that accesses the bitflags property data directly.
 template <typename Class, typename EnumType, typename Type>
-class ezBitflagsMemberProperty : public ezTypedEnumProperty< typename EnumType >
+class ezBitflagsMemberProperty : public ezTypedEnumProperty< EnumType >
 {
 public:
   typedef Type  (*GetterFunc)(const Class* pInstance);
@@ -84,7 +84,7 @@ public:
 
   virtual ezInt64 GetValue(const void* pInstance) const override // [tested]
   {
-    EnumType::StorageType enumTemp = m_Getter(static_cast<const Class*>(pInstance)).GetValue();
+    typename EnumType::StorageType enumTemp = m_Getter(static_cast<const Class*>(pInstance)).GetValue();
     return (ezInt64)enumTemp;
   }
 
@@ -93,7 +93,7 @@ public:
     EZ_ASSERT(m_Setter != nullptr, "The property '%s' has no setter function, thus it is read-only.", ezAbstractProperty::GetPropertyName());
 
     if (m_Setter)
-      m_Setter(static_cast<Class*>(pInstance), (EnumType::Enum)value);
+      m_Setter(static_cast<Class*>(pInstance), (typename EnumType::Enum)value);
   }
 
 private:

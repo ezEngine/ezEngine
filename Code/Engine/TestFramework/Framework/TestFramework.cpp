@@ -19,6 +19,13 @@ int ezTestFramework::s_iAssertCounter = 0;
 static bool TestAssertHandler(const char* szSourceFile, ezUInt32 uiLine, const char* szFunction, const char* szExpression, const char* szAssertMsg)
 {
   ezTestFramework::Error(szExpression, szSourceFile, (ezInt32)uiLine, szFunction, szAssertMsg);
+
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+  // if a debugger is attached, one typically always wants to know about asserts
+  if (IsDebuggerPresent())
+    return true;
+#endif
+
   return ezTestFramework::GetAssertOnTestFail();
 }
 
@@ -252,6 +259,7 @@ void ezTestFramework::StartTests()
   ezTestFramework::Output(ezTestOutput::StartOutput, "");
 
   m_PreviousAssertHandler = ezGetAssertHandler();
+
   ezSetAssertHandler(TestAssertHandler);
 }
 
