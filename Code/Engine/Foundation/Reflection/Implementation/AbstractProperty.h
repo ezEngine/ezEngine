@@ -14,6 +14,7 @@ public:
   /// \brief Describes what category a property belongs to.
   enum PropertyCategory
   {
+    Constant, ///< The property is a constant value that is stored inside the RTTI data.
     Member,   ///< The property is a 'member property', i.e. it represents some accessible value. Cast to ezAbstractMemberProperty.
     Function, ///< The property is a function which can be called. Cast to ezAbstractFunctionProperty.
     Array     ///< The property is actually an array of values. The array dimensions might be changeable. Cast to ezAbstractArrayProperty.
@@ -33,6 +34,26 @@ public:
 
 private:
   const char* m_szPropertyName;
+};
+
+/// \brief This is the base class for all constant properties that are stored inside the RTTI data.
+class EZ_FOUNDATION_DLL ezAbstractConstantProperty : public ezAbstractProperty
+{
+public:
+  
+  /// \brief Passes the property name through to ezAbstractProperty.
+  ezAbstractConstantProperty(const char* szPropertyName) : ezAbstractProperty(szPropertyName)
+  {
+  }
+
+  /// \brief Returns ezAbstractProperty::Constant.
+  virtual ezAbstractProperty::PropertyCategory GetCategory() const override { return ezAbstractProperty::Constant; } // [tested]
+  
+  /// \brief Returns the type information of the constant property. Use this to cast this property to a specific version of ezTypedConstantProperty.
+  virtual const ezRTTI* GetPropertyType() const = 0;
+  
+  /// \brief Returns a pointer to the constant data or nullptr. See ezAbstractMemberProperty::GetPropertyPointer for more information.
+  virtual void* GetPropertyPointer() const = 0;
 };
 
 /// \brief This is the base class for all properties that are members of a class. It provides more information about the actual type.

@@ -20,5 +20,5 @@
 
 
 /// \brief Creates a bit mask with only the n-th Bit set. Useful when creating enum values for flags.
-#define EZ_BIT(n) (1U << (n))
+#define EZ_BIT(n) (1ull << (n))
 

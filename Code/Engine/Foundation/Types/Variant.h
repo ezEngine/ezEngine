@@ -16,10 +16,10 @@ class ezReflectedClass;
 class EZ_FOUNDATION_DLL ezVariant
 {
 public:
-
   /// \brief This enum describes the type of data that is currently stored inside the variant.
   struct Type
   {
+    typedef ezUInt8 StorageType;
     /// \brief This enum describes the type of data that is currently stored inside the variant.
     enum Enum
     {
@@ -50,7 +50,7 @@ public:
       ReflectedPointer,   ///< The variant stores a pointer to a dynamically reflected object.
       VoidPointer,        ///< The variant stores a void pointer.
       ENUM_COUNT,         ///< Number of values for ezVariant::Type.
-      DefaultInit = Invalid ///< Default value used by ezEnum.
+      Default = Invalid   ///< Default value used by ezEnum.
     };
   };
 

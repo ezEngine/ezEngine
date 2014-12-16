@@ -116,6 +116,8 @@ EZ_FORCE_INLINE const ezRTTI* ezGetStaticRTTI()
 ///   The type for which the reflection functionality should be implemented.
 /// \param BaseType
 ///   The base class type of \a Type. If it has no base class, pass ezNoBase
+/// \param Version
+///   The version of \a Type. Must be increased when the class serialization changes.
 /// \param AllocatorType
 ///   The type of an ezRTTIAllocator that can be used to create and destroy instances
 ///   of \a Type. Pass ezRTTINoAllocator for types that should not be created dynamically.
@@ -184,6 +186,40 @@ EZ_FORCE_INLINE const ezRTTI* ezGetStaticRTTI()
   new ezAccessorProperty<OwnType, EZ_GETTER_TYPE(OwnType, OwnType::Getter)>   \
     (PropertyName, &OwnType::Getter, nullptr)                                    \
 
+
+/// \brief Within a EZ_BEGIN_PROPERTIES / EZ_END_PROPERTIES block, this adds a property that uses custom getter / setter functions.
+///
+/// \param PropertyName
+///   The unique (in this class) name under which the property should be registered.
+/// \param EnumType
+///   The name of the enum struct used by ezEnum.
+/// \param Getter
+///   The getter function for this property.
+/// \param Setter
+///   The setter function for this property.
+///
+/// \note There does not actually need to be a variable for this type of properties, as all accesses go through functions.
+/// Thus you can for example expose a 'vector' property that is actually stored as a column of a matrix.
+#define EZ_ENUM_ACCESSOR_PROPERTY(PropertyName, EnumType, Getter, Setter)                    \
+  new ezEnumAccessorProperty<OwnType, EnumType, EZ_GETTER_TYPE(OwnType, OwnType::Getter)>    \
+    (PropertyName, &OwnType::Getter, &OwnType::Setter)                                       \
+
+/// \brief Same as EZ_ENUM_ACCESSOR_PROPERTY, but no setter is provided, thus making the property read-only.
+#define EZ_ENUM_ACCESSOR_PROPERTY_READ_ONLY(PropertyName, EnumType, Getter)                  \
+  new ezEnumAccessorProperty<OwnType, EnumType, EZ_GETTER_TYPE(OwnType, OwnType::Getter)>    \
+    (PropertyName, &OwnType::Getter, nullptr)                                                \
+
+/// \brief Same as EZ_ENUM_ACCESSOR_PROPERTY, but for bitfields.
+#define EZ_BITFLAGS_ACCESSOR_PROPERTY(PropertyName, BitflagsType, Getter, Setter)                    \
+  new ezBitflagsAccessorProperty<OwnType, BitflagsType, EZ_GETTER_TYPE(OwnType, OwnType::Getter)>    \
+    (PropertyName, &OwnType::Getter, &OwnType::Setter)                                               \
+
+/// \brief Same as EZ_BITFLAGS_ACCESSOR_PROPERTY, but no setter is provided, thus making the property read-only.
+#define EZ_BITFLAGS_ACCESSOR_PROPERTY_READ_ONLY(PropertyName, BitflagsType, Getter)                  \
+  new ezBitflagsAccessorProperty<OwnType, BitflagsType, EZ_GETTER_TYPE(OwnType, OwnType::Getter)>    \
+    (PropertyName, &OwnType::Getter, nullptr)                                                        \
+
+
 // [internal] Helper macro to get the type of a class member.
 #define EZ_MEMBER_TYPE(Class, Member)                                         \
   decltype(((Class*) nullptr)->Member)
@@ -197,7 +233,7 @@ EZ_FORCE_INLINE const ezRTTI* ezGetStaticRTTI()
 ///
 /// \note Since the member is exposed directly, there is no way to know when the variable was modified. That also means
 /// no custom limits to the values can be applied. If that becomes necessary, just add getter / setter functions and
-/// expose the property as a EZ_ACCESSOR_PROPERTY instead.
+/// expose the property as a EZ_ENUM_ACCESSOR_PROPERTY instead.
 #define EZ_MEMBER_PROPERTY(PropertyName, MemberName)                          \
   new ezMemberProperty<OwnType, EZ_MEMBER_TYPE(OwnType, MemberName)>          \
     (PropertyName,                                                            \
@@ -212,6 +248,124 @@ EZ_FORCE_INLINE const ezRTTI* ezGetStaticRTTI()
     &ezPropertyAccessor<OwnType, EZ_MEMBER_TYPE(OwnType, MemberName), &OwnType::MemberName>::GetValue,            \
     nullptr,                                                                     \
     &ezPropertyAccessor<OwnType, EZ_MEMBER_TYPE(OwnType, MemberName), &OwnType::MemberName>::GetPropertyPointer)  \
+
+
+
+/// \brief Within a EZ_BEGIN_PROPERTIES / EZ_END_PROPERTIES block, this adds a property that actually exists as a member.
+///
+/// \param PropertyName
+///   The unique (in this class) name under which the property should be registered.
+/// \param EnumType
+///   Name of the struct used by ezEnum.
+/// \param MemberName
+///   The name of the member variable that should get exposed as a property.
+///
+/// \note Since the member is exposed directly, there is no way to know when the variable was modified. That also means
+/// no custom limits to the values can be applied. If that becomes necessary, just add getter / setter functions and
+/// expose the property as a EZ_ACCESSOR_PROPERTY instead.
+#define EZ_ENUM_MEMBER_PROPERTY(PropertyName, EnumType, MemberName)                                               \
+  new ezEnumMemberProperty<OwnType, EnumType, EZ_MEMBER_TYPE(OwnType, MemberName)>                                \
+    (PropertyName,                                                                                                \
+    &ezPropertyAccessor<OwnType, EZ_MEMBER_TYPE(OwnType, MemberName), &OwnType::MemberName>::GetValue,            \
+    &ezPropertyAccessor<OwnType, EZ_MEMBER_TYPE(OwnType, MemberName), &OwnType::MemberName>::SetValue,            \
+    &ezPropertyAccessor<OwnType, EZ_MEMBER_TYPE(OwnType, MemberName), &OwnType::MemberName>::GetPropertyPointer)  \
+
+/// \brief Same as EZ_ENUM_MEMBER_PROPERTY, but the property is read-only.
+#define EZ_ENUM_MEMBER_PROPERTY_READ_ONLY(PropertyName, EnumType, MemberName)                                     \
+  new ezEnumMemberProperty<OwnType, EnumType, EZ_MEMBER_TYPE(OwnType, MemberName)>                                \
+    (PropertyName,                                                                                                \
+    &ezPropertyAccessor<OwnType, EZ_MEMBER_TYPE(OwnType, MemberName), &OwnType::MemberName>::GetValue,            \
+    nullptr,                                                                                                      \
+    &ezPropertyAccessor<OwnType, EZ_MEMBER_TYPE(OwnType, MemberName), &OwnType::MemberName>::GetPropertyPointer)  \
+
+/// \brief Same as EZ_ENUM_MEMBER_PROPERTY, but for bitfields.
+#define EZ_BITFLAGS_MEMBER_PROPERTY(PropertyName, BitflagsType, MemberName)                                       \
+  new ezBitflagsMemberProperty<OwnType, BitflagsType, EZ_MEMBER_TYPE(OwnType, MemberName)>                        \
+    (PropertyName,                                                                                                \
+    &ezPropertyAccessor<OwnType, EZ_MEMBER_TYPE(OwnType, MemberName), &OwnType::MemberName>::GetValue,            \
+    &ezPropertyAccessor<OwnType, EZ_MEMBER_TYPE(OwnType, MemberName), &OwnType::MemberName>::SetValue,            \
+    &ezPropertyAccessor<OwnType, EZ_MEMBER_TYPE(OwnType, MemberName), &OwnType::MemberName>::GetPropertyPointer)  \
+
+/// \brief Same as EZ_ENUM_MEMBER_PROPERTY_READ_ONLY, but for bitfields.
+#define EZ_BITFLAGS_MEMBER_PROPERTY_READ_ONLY(PropertyName, BitflagsType, MemberName)                             \
+  new ezBitflagsMemberProperty<OwnType, BitflagsType, EZ_MEMBER_TYPE(OwnType, MemberName)>                        \
+    (PropertyName,                                                                                                \
+    &ezPropertyAccessor<OwnType, EZ_MEMBER_TYPE(OwnType, MemberName), &OwnType::MemberName>::GetValue,            \
+    nullptr,                                                                                                      \
+    &ezPropertyAccessor<OwnType, EZ_MEMBER_TYPE(OwnType, MemberName), &OwnType::MemberName>::GetPropertyPointer)  \
+
+
+
+/// \brief Within a EZ_BEGIN_PROPERTIES / EZ_END_PROPERTIES block, this adds a constant property stored inside the RTTI data.
+///
+/// \param PropertyName
+///   The unique (in this class) name under which the property should be registered.
+/// \param Value
+///   The constant value to be stored.
+#define EZ_CONSTANT_PROPERTY(PropertyName, Value)                             \
+  new ezConstantProperty<decltype(Value)>                                     \
+    (PropertyName, Value)                                                     \
+
+
+
+// [internal] Helper macro
+#define EZ_ENUM_VALUE_TO_CONSTANT_PROPERTY(name)                              \
+  EZ_CONSTANT_PROPERTY(EZ_STRINGIZE(name), (Storage)name),                    \
+
+/// \brief Within a EZ_BEGIN_STATIC_REFLECTED_ENUM / EZ_END_STATIC_REFLECTED_ENUM block, this converts a
+/// list of enum values into constant RTTI properties.
+#define EZ_ENUM_CONSTANTS(...)                                                \
+  EZ_EXPAND_ARGS(EZ_ENUM_VALUE_TO_CONSTANT_PROPERTY, ##__VA_ARGS__)           \
+
+/// \brief Within a EZ_BEGIN_STATIC_REFLECTED_ENUM / EZ_END_STATIC_REFLECTED_ENUM block, this converts a
+/// an enum value into a constant RTTI property.
+#define EZ_ENUM_CONSTANT(Value)                                               \
+EZ_CONSTANT_PROPERTY(EZ_STRINGIZE(Value), (Storage)Value)                     \
+
+/// \brief Within a EZ_BEGIN_STATIC_REFLECTED_ENUM / EZ_END_STATIC_REFLECTED_ENUM block, this converts a
+/// list of bitflags into constant RTTI properties.
+#define EZ_BITFLAGS_CONSTANTS(...)                                            \
+  EZ_EXPAND_ARGS(EZ_ENUM_VALUE_TO_CONSTANT_PROPERTY, ##__VA_ARGS__)           \
+
+/// \brief Within a EZ_BEGIN_STATIC_REFLECTED_ENUM / EZ_END_STATIC_REFLECTED_ENUM block, this converts a
+/// an bitflags into a constant RTTI property.
+#define EZ_BITFLAGS_CONSTANT(Value)                                           \
+EZ_CONSTANT_PROPERTY(EZ_STRINGIZE(Value), (Storage)Value)                     \
+
+
+
+/// \brief Implements the necessary functionality for an enum to be statically reflectable.
+///
+/// \param Type
+///   The enum struct used by ezEnum for which reflection should be defined.
+/// \param Version
+///   The version of \a Type. Must be increased when the class changes.
+#define EZ_BEGIN_STATIC_REFLECTED_ENUM(Type, Version)                           \
+  EZ_BEGIN_STATIC_REFLECTED_TYPE(Type, ezEnumBase, Version, ezRTTINoAllocator); \
+  typedef Type::StorageType Storage;                                            \
+  EZ_BEGIN_PROPERTIES                                                           \
+
+#define EZ_END_STATIC_REFLECTED_ENUM()                                        \
+  EZ_END_PROPERTIES                                                           \
+  EZ_END_STATIC_REFLECTED_TYPE();                                             \
+
+
+/// \brief Implements the necessary functionality for bitflags to be statically reflectable.
+///
+/// \param Type
+///   The bitflags struct used by ezBitflags for which reflection should be defined.
+/// \param Version
+///   The version of \a Type. Must be increased when the class changes.
+#define EZ_BEGIN_STATIC_REFLECTED_BITFLAGS(Type, Version)                           \
+  EZ_BEGIN_STATIC_REFLECTED_TYPE(Type, ezBitflagsBase, Version, ezRTTINoAllocator); \
+  typedef Type::StorageType Storage;                                                \
+  EZ_BEGIN_PROPERTIES                                                               \
+
+#define EZ_END_STATIC_REFLECTED_BITFLAGS()                                    \
+  EZ_END_PROPERTIES                                                           \
+  EZ_END_STATIC_REFLECTED_TYPE();                                             \
+
+
 
 /// \brief Within an EZ_BEGIN_REFLECTED_TYPE / EZ_END_REFLECTED_TYPE block, use this to start the block that declares all the message handlers.
 #define EZ_BEGIN_MESSAGEHANDLERS                                              \

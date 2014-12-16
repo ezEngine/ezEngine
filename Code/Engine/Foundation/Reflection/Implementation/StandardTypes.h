@@ -7,6 +7,9 @@
 #include <Foundation/Math/Vec4.h>
 #include <Foundation/Math/Quat.h>
 
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_FOUNDATION_DLL, ezEnumBase);
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_FOUNDATION_DLL, ezBitflagsBase);
+
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_FOUNDATION_DLL, ezReflectedClass);
 
 // *********************************************

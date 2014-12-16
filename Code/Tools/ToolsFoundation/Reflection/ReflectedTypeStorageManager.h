@@ -24,7 +24,7 @@ private:
       StorageInfo(ezUInt16 uiIndex, ezVariant::Type::Enum type) : m_uiIndex(uiIndex), m_Type(type) {}
 
       ezUInt16 m_uiIndex;
-      ezEnum<ezVariant::Type, ezUInt8> m_Type;
+      ezEnum<ezVariant::Type> m_Type;
     };
 
     /// \brief Flattens all POD type properties of the given ezReflectedType into m_PathToStorageInfoTable.

@@ -98,6 +98,18 @@ public:
   }
 
   /// \brief Comparison operator.
+  EZ_FORCE_INLINE bool operator==(const StorageType rhs) const // [tested]
+  {
+    return m_Value == rhs;
+  }
+
+  /// \brief Comparison operator.
+  EZ_FORCE_INLINE bool operator!=(const StorageType rhs) const
+  {
+    return m_Value != rhs;
+  }
+
+  /// \brief Comparison operator.
   EZ_FORCE_INLINE bool operator==(const ezBitflags<T>& rhs) const
   {
     return m_Value == rhs.m_Value;

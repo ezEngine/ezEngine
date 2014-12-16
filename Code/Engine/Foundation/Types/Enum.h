@@ -9,7 +9,7 @@
 /// 2) Enum is default initialized automatically
 /// 3) Definition of the enum itself, the storage type and the default init value is in one place
 /// 4) It makes function definitions shorter, instead of:
-///      void function(ezExampleEnum::Enum value)
+///      void function(ezExampleEnumBase::Enum value)
 ///    you can write:
 ///      void function(ezExampleEnum value)
 /// 5) In all other ways it works exactly like a C++ enum
@@ -18,26 +18,29 @@
 ///
 /// struct ezExampleEnumBase
 /// {
+///   typedef ezUInt8 StorageType;
+///
 ///   enum Enum
 ///   {
 ///     Value1 = 1,          // normal value
 ///     Value2 = 2,          // normal value
 ///     Value3 = 3,          // normal value
-///     DefaultInit = Value1 // Default initialization value (required)
+///     Default = Value1 // Default initialization value (required)
 ///   };
 /// };
-/// typedef ezEnum<ezExampleEnumBase, ezUInt8> ezExampleEnum;
+/// typedef ezEnum<ezExampleEnumBase> ezExampleEnum;
 ///
 /// This defines an "ezExampleEnum" which is stored in an ezUInt8 and is default initialized with Value1
 /// For more examples see the enum test.
-template <typename Derived, typename StorageType> 
+template <typename Derived> 
 struct ezEnum : public Derived
 {
 public:
-  typedef ezEnum<Derived, StorageType> SelfType;
+  typedef ezEnum<Derived> SelfType;
+  typedef typename Derived::StorageType StorageType;
 
   /// \brief Default constructor
-  EZ_FORCE_INLINE ezEnum() : m_value(Derived::DefaultInit) {} // [tested]
+  EZ_FORCE_INLINE ezEnum() : m_value(Derived::Default) {} // [tested]
 
   /// \brief Construct from a C++ enum, and implicit conversion from enum type
   EZ_FORCE_INLINE ezEnum(typename Derived::Enum init) : m_value(init) {} // [tested]

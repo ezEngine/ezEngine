@@ -52,7 +52,7 @@ struct EZ_TOOLSFOUNDATION_DLL ezReflectedPropertyDescriptor
 
   ezString m_sName;
   ezString m_sType;
-  ezEnum<ezVariant::Type, ezUInt8> m_Type;
+  ezEnum<ezVariant::Type> m_Type;
   ezBitflags<PropertyFlags> m_Flags;
 };
 
@@ -75,7 +75,7 @@ struct EZ_TOOLSFOUNDATION_DLL ezReflectedProperty
 
   ezHashedString m_sPropertyName;          ///< Name of the property, must be unique inside an ezReflectedType.
   ezReflectedTypeHandle m_hTypeHandle;     ///< invalid for any type that is directly storable in a ezVariant.
-  ezEnum<ezVariant::Type, ezUInt8> m_Type; ///< POD type storable in an ezVariant. If m_pType is set, this value is set to 'Invalid'.
+  ezEnum<ezVariant::Type> m_Type;          ///< POD type storable in an ezVariant. If m_pType is set, this value is set to 'Invalid'.
   ezBitflags<PropertyFlags> m_Flags;       ///< Property flags (IsPOD, IsReadOnly).
 };
 
