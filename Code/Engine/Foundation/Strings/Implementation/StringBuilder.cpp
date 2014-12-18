@@ -2,6 +2,51 @@
 #include <Foundation/Strings/StringBuilder.h>
 #include <Foundation/Containers/DynamicArray.h>
 
+ezStringBuilder::ezStringBuilder(const char* pData1, const char* pData2, const char* pData3, const char* pData4, const char* pData5, const char* pData6)
+{
+  /// \test This is new
+
+  m_uiCharacterCount = 0;
+  AppendTerminator();
+
+  Append(pData1, pData2, pData3, pData4, pData5, pData6);
+}
+
+void ezStringBuilder::Set(const char* pData1, const char* pData2, const char* pData3, const char* pData4, const char* pData5, const char* pData6)
+{
+  /// \test This is new
+
+  Clear();
+  Append(pData1, pData2, pData3, pData4, pData5, pData6);
+}
+
+void ezStringBuilder::SetSubString_FromTo(const char* pStart, const char* pEnd)
+{
+  /// \test This is new
+
+  ezStringView view(pStart, pEnd);
+  *this = view;
+}
+
+void ezStringBuilder::SetSubString_ElementCount(const char* pStart, ezUInt32 uiElementCount)
+{
+  /// \test This is new
+
+  ezStringView view(pStart, pStart + uiElementCount);
+  *this = view;
+}
+
+void ezStringBuilder::SetSubString_CharacterCount(const char* pStart, ezUInt32 uiCharacterCount)
+{
+  /// \test This is new
+
+  const char* pEnd = pStart;
+  ezUnicodeUtils::MoveToNextUtf8(pEnd, uiCharacterCount);
+
+  ezStringView view(pStart, pEnd);
+  *this = view;
+}
+
 void ezStringBuilder::Append(const char* pData1, const char* pData2, const char* pData3, const char* pData4, const char* pData5, const char* pData6)
 {
   // it is not possible to find out how many parameters were passed to a vararg function
@@ -781,6 +826,8 @@ void ezStringBuilder::ChangeFileExtension(const char* szNewExtension)
 
 void ezStringBuilder::RemoveFileExtension()
 {
+  /// \test  This is new
+
   if (HasAnyExtension())
   {
     ChangeFileExtension("");

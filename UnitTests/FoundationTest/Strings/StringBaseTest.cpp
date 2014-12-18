@@ -496,5 +496,13 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBase)
     EZ_TEST_BOOL(it2.FindWholeWord_NoCase("ABc", ezStringUtils::IsWordDelimiter_English, it.GetData() + 34) == &it.GetData()[34]);
     EZ_TEST_BOOL(it2.FindWholeWord_NoCase("ABc", ezStringUtils::IsWordDelimiter_English, it.GetData() + 35) == &it.GetData()[42]);
   }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ComputeCharacterPosition")
+  {
+    wchar_t* sz = L"mompfhüßß ßßß öäü abcdef abc def abc def";
+    ezStringBuilder s(sz);
+
+    EZ_TEST_STRING(s.ComputeCharacterPosition(14), ezStringUtf8(L"öäü abcdef abc def abc def").GetData());
+  }
 }
 

@@ -165,6 +165,14 @@ bool ezStringBase<Derived>::IsEqualN_NoCase(const char* pString2, ezUInt32 uiCha
   return ezStringUtils::IsEqualN_NoCase(InternalGetData(), pString2, uiCharsToCompare, InternalGetDataEnd());
 }
 
+template <typename Derived>
+const char* ezStringBase<Derived>::ComputeCharacterPosition(ezUInt32 uiCharacterIndex) const
+{
+  const char* pos = InternalGetData();
+  ezUnicodeUtils::MoveToNextUtf8(pos, uiCharacterIndex);
+  return pos;
+}
+
 template <typename DerivedLhs, typename DerivedRhs>
 EZ_FORCE_INLINE bool operator== (const ezStringBase<DerivedLhs>& lhs, const ezStringBase<DerivedRhs>& rhs) // [tested]
 {

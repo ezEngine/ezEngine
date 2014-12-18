@@ -6,19 +6,23 @@
 		<AlternativeType Name="ezStringBuilder" />
 		<DisplayString>{m_Data.m_pElements,s8}</DisplayString>
 		<StringView>m_Data.m_pElements,s8</StringView>
+		<Expand>
+			<Item Name="String">m_Data.m_pElements,s8</Item>
+			<Item Name="CharacterCount">m_uiCharacterCount</Item>
+			<Item Name="ElementCount">m_Data.m_uiCount</Item>
+		</Expand>
 	</Type>
-	
 
 	<Type Name="ezStringView">
-		<DisplayString>{m_pCurrent,s8}</DisplayString>
-		<StringView>m_pCurrent,s8</StringView>
-		
+		<DisplayString Condition="m_bValid">{m_pCurrent,[m_pEnd - m_pCurrent]s8}</DisplayString>
+		<DisplayString Condition="!m_bValid">&lt;Invalid String&gt;</DisplayString>
+		<StringView>m_pCurrent,[m_pEnd - m_pCurrent]s8</StringView>
 		<Expand>
-			<Item Name="Length">m_pEnd - m_pFirst</Item>
-			<Item Name="Start">m_pFirst,s8</Item>
-			<Item Name="End">m_pEnd,s8</Item>
-			<Item Name="Current">m_pCurrent,s8</Item>
+			<Item Name="String" Condition="m_bValid">m_pCurrent,[m_pEnd - m_pCurrent]s8</Item>
+			<Item Name="ElementCount" Condition="m_bValid">m_pEnd - m_pCurrent</Item>
 			<Item Name="Valid">m_bValid</Item>
+			<Item Name="ZeroTerminated" Condition="m_pEnd != 0">m_pEnd[0] == 0</Item>
+			<Item Name="Range" Condition="m_pStart != 0">m_pStart,[m_pEnd - m_pStart]s8</Item>
 		</Expand>
 	</Type>	
 	
@@ -70,17 +74,29 @@
 		</Expand>
 	</Type>
 
-	<Type Name="ezMapBase&lt;*&gt;">
-		<AlternativeType Name="ezSet&lt;*&gt;" />
+	<Type Name="ezDequeBase&lt;*&gt;">
 		<DisplayString>{{ count={m_uiCount} }}</DisplayString>
 		<Expand>
 			<Item Name="count">m_uiCount</Item>
-			<LinkedListItems>
+			<IndexListItems>
+				<Size>m_uiCount</Size>
+				<ValueNode>m_pChunks[(m_iFirstElement + $i) / m_uiChunkSize][(m_iFirstElement + $i) % m_uiChunkSize]</ValueNode>
+			</IndexListItems>
+		</Expand>
+	</Type>
+
+	<Type Name="ezMapBase&lt;*&gt;">
+		<AlternativeType Name="ezSetBase&lt;*&gt;" />
+		<DisplayString>{{ count={m_uiCount} }}</DisplayString>
+		<Expand>
+			<Item Name="count">m_uiCount</Item>
+			<TreeItems>
 				<Size>m_uiCount</Size>
 				<HeadPointer>m_pRoot</HeadPointer>
-				<NextPointer>m_pLink[1]</NextPointer>
-				<ValueNode>*this</ValueNode>
-			</LinkedListItems>
+				<LeftPointer>m_pLink[0]</LeftPointer>
+				<RightPointer>m_pLink[1]</RightPointer>
+				<ValueNode Condition="m_uiLevel != 0">*this</ValueNode>
+			</TreeItems>
 		</Expand>
 	</Type>
 

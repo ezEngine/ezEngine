@@ -59,6 +59,9 @@ public:
   template <ezUInt16 Size, typename A>
   ezStringBuilder(ezHybridString<Size, A>&& rhs);
 
+  /// \brief Constructor that appends all the given strings.
+  ezStringBuilder(const char* pData1, const char* pData2, const char* pData3 = nullptr, const char* pData4 = nullptr, const char* pData5 = nullptr, const char* pData6 = nullptr);
+
   /// \brief Copies the given Utf8 string into this one.
   /* implicit */ ezStringBuilder(const char* szUTF8, ezAllocatorBase* pAllocator = ezFoundation::GetDefaultAllocator()); // [tested]
 
@@ -144,6 +147,18 @@ public:
   /// It is only provided for the few rare cases where it is more convenient and performance is not of concern.
   /// If possible, do not use this function, at all.
   void ChangeCharacter(ezStringView& Pos, ezUInt32 uiCharacter); // [tested]
+
+  /// \brief Sets the string by concatenating all given strings.
+  void Set(const char* pData1, const char* pData2 = nullptr, const char* pData3 = nullptr, const char* pData4 = nullptr, const char* pData5 = nullptr, const char* pData6 = nullptr);
+
+  /// \brief Copies the string starting at \a pStart up to \a pEnd (exclusive).
+  void SetSubString_FromTo(const char* pStart, const char* pEnd);
+
+  /// \brief Copies the string starting at \a pStart with a length of \a uiElementCount bytes.
+  void SetSubString_ElementCount(const char* pStart, ezUInt32 uiElementCount);
+
+  /// \brief Copies the string starting at \a pStart with a length of \a uiCharacterCount characters.
+  void SetSubString_CharacterCount(const char* pStart, ezUInt32 uiCharacterCount);
 
   /// \brief Appends a single Utf32 character.
   void Append(ezUInt32 uiChar); // [tested]

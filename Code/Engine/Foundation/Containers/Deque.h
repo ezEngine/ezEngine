@@ -223,6 +223,10 @@ private:
   ezUInt32 m_uiAllocatedChunks; ///< How many entries in the m_pChunks array are allocated at the moment.
   ezInt32 m_iReduceSizeTimer;   ///< Every time this counter reaches zero, a 'garbage collection' step is performed, which might deallocate chunks.
   ezUInt32 m_uiMaxCount;        ///< How many elements were maximally active since the last 'garbage collection' to prevent deallocating too much memory.
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+  ezUInt32 m_uiChunkSize; // needed for debugger visualization
+#endif
 };
 
 /// \brief \see ezDequeBase

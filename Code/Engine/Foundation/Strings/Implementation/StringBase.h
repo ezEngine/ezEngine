@@ -79,6 +79,9 @@ public:
   /// Compares up to a given number of characters of this string with the other string for equality. Case insensitive.
   bool IsEqualN_NoCase(const char* pString2, ezUInt32 uiCharsToCompare) const; // [tested]
 
+  /// \brief Computes the pointer to the n-th character in the string. This is a linear search from the start.
+  const char* ComputeCharacterPosition(ezUInt32 uiCharacterIndex) const;
+
 private:
   const char* InternalGetData() const;
   const char* InternalGetDataEnd() const;

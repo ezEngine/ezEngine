@@ -29,6 +29,10 @@ void ezDequeBase<T, Construct>::Constructor(ezAllocatorBase* pAllocator)
   m_uiMaxCount = 0;
 
   ResetReduceSizeCounter();
+
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+  m_uiChunkSize = CHUNK_SIZE(T);
+#endif
 }
 
 template <typename T, bool Construct>

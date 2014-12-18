@@ -187,7 +187,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringView)
     }
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetStartPosition / GetEndPosition / GetData")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetStartPosition / GetEndPosition / GetData / GetCurrentPosition")
   {
     const char* sz = "abcdefghijklmnopqrstuvwxyz";
     ezStringView it(sz + 7, sz + 19);
@@ -196,6 +196,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringView)
     EZ_TEST_BOOL(it.GetStartPosition() == sz + 7);
     EZ_TEST_BOOL(it.GetEndPosition() == sz + 19);
     EZ_TEST_BOOL(it.GetData() == sz + 13);
+    EZ_TEST_BOOL(it.GetCurrentPosition() == sz + 13);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Shrink")

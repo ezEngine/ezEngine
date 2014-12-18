@@ -65,6 +65,9 @@ public:
   /// Must be between the iterators start and end range.
   void SetCurrentPosition(const char* szCurPos); // [tested]
 
+  /// \brief Returns the current position. Same as GetData().
+  const char* GetCurrentPosition() const { return m_pCurrent; } // [tested]
+
   /// \brief Returns the start of the iterator range.
   const char* GetStartPosition() const { return m_pStart; } // [tested]
 
