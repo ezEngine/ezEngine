@@ -66,7 +66,7 @@ ezTestAppRun ezRendererTestBasics::SubtestClearScreen()
     break;
   }
 
-  EZ_TEST_IMAGE(0);
+  EZ_TEST_IMAGE(1);
 
   EndFrame();
 
@@ -86,19 +86,19 @@ void ezRendererTestBasics::RenderObjects()
 
   mOther.SetScalingMatrix(ezVec3(1.0f, 1.0f, 1.0f));
   mTransform.SetTranslationMatrix(ezVec3( 0.3f, -0.3f, 0.0f));
-  RenderObject(m_hLongBox, mProj * mView * mTransform * mOther, ezColor(1, 0, 1));
+  RenderObject(m_hLongBox, mProj * mView * mTransform * mOther, ezColor(1, 0, 1, 0.25f));
 
   mOther.SetRotationMatrixX(ezAngle::Degree(80.0f));
   mTransform.SetTranslationMatrix(ezVec3(-0.75f, 0, -1.8f));
-  RenderObject(m_hTorus, mProj * mView * mTransform * mOther, ezColor(1, 0, 0));
+  RenderObject(m_hTorus, mProj * mView * mTransform * mOther, ezColor(1, 0, 0, 0.5f));
 
   mOther.SetIdentity();
   mTransform.SetTranslationMatrix(ezVec3( 0, 0.1f, -2.0f));
-  RenderObject(m_hSphere, mProj * mView * mTransform * mOther, ezColor(0, 1, 0));
+  RenderObject(m_hSphere, mProj * mView * mTransform * mOther, ezColor(0, 1, 0, 0.75f));
 
   mOther.SetScalingMatrix(ezVec3(1.5f, 1.0f, 1.0f));
   mTransform.SetTranslationMatrix(ezVec3( 0.6f, -0.2f, -2.2f));
-  RenderObject(m_hSphere2, mProj * mView * mTransform * mOther, ezColor(0, 0, 1));
+  RenderObject(m_hSphere2, mProj * mView * mTransform * mOther, ezColor(0, 0, 1, 1));
 }
 
 static ezRendererTestBasics g_Test;

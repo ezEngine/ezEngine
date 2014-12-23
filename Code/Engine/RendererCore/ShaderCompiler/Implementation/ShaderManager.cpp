@@ -208,6 +208,21 @@ void ezShaderManager::SetContextState(ezGALContext* pContext, ContextState& stat
   pContext->SetShader(state.m_hActiveGALShader);
   pContext->SetVertexDeclaration(pShaderPermutation->GetGALVertexDeclaration());
 
+  EZ_LOG_BLOCK("Shader Resource Bindings");
+
+  for (ezUInt32 stage = 0; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
+  {
+    auto pBin = pShaderPermutation->GetShaderStageBinary((ezGALShaderStage::Enum) stage);
+
+    if (pBin == nullptr)
+      continue;
+
+    for (const auto& rb : pBin->m_ShaderResourceBindings)
+    {
+      ezLog::Dev("%s at slot %i, Type: %u", rb.m_Name.GetData(), rb.m_iSlot, (ezUInt32) rb.m_Type);
+    }
+  }
+
   state.m_bStateValid = true;
 }
 

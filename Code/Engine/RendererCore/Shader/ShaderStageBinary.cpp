@@ -30,7 +30,7 @@ ezShaderStageBinary::~ezShaderStageBinary()
 
 ezResult ezShaderStageBinary::Write(ezStreamWriterBase& Stream) const
 {
-  const ezUInt8 uiVersion = 1;
+  const ezUInt8 uiVersion = ezShaderStageBinary::VersionCurrent;
 
   if (Stream.WriteBytes(&uiVersion, sizeof(ezUInt8)).Failed())
     return EZ_FAILURE;
@@ -51,6 +51,16 @@ ezResult ezShaderStageBinary::Write(ezStreamWriterBase& Stream) const
   if (!m_ByteCode.IsEmpty() && Stream.WriteBytes(&m_ByteCode[0], uiByteCodeSize).Failed())
     return EZ_FAILURE;
 
+  ezUInt16 uiResources = m_ShaderResourceBindings.GetCount();
+  Stream << uiResources;
+
+  for (const ezShaderStageResource& r : m_ShaderResourceBindings)
+  {
+    Stream << r.m_Name.GetData();
+    Stream << r.m_iSlot;
+    Stream << (ezUInt8) r.m_Type;
+  }
+
   return EZ_SUCCESS;
 }
 
@@ -61,7 +71,7 @@ ezResult ezShaderStageBinary::Read(ezStreamReaderBase& Stream)
   if (Stream.ReadBytes(&uiVersion, sizeof(ezUInt8)) != sizeof(ezUInt8))
     return EZ_FAILURE;
 
-  EZ_ASSERT(uiVersion == 1, "Wrong Version %u", uiVersion);
+  EZ_ASSERT(uiVersion <= ezShaderStageBinary::VersionCurrent, "Wrong Version %u", uiVersion);
 
   if (Stream.ReadDWordValue(&m_uiSourceHash).Failed())
     return EZ_FAILURE;
@@ -82,6 +92,27 @@ ezResult ezShaderStageBinary::Read(ezStreamReaderBase& Stream)
 
   if (!m_ByteCode.IsEmpty() && Stream.ReadBytes(&m_ByteCode[0], uiByteCodeSize) != uiByteCodeSize)
     return EZ_FAILURE;
+
+  if (uiVersion >= ezShaderStageBinary::Version2)
+  {
+    ezUInt16 uiResources = 0;
+    Stream >> uiResources;
+
+    m_ShaderResourceBindings.SetCount(uiResources);
+
+    ezString sTemp;
+
+    for (ezShaderStageResource& r : m_ShaderResourceBindings)
+    {
+      Stream >> sTemp;
+      r.m_Name.Assign(sTemp.GetData());
+      Stream >> r.m_iSlot;
+
+      ezUInt8 uiType = 0;
+      Stream >> uiType;
+      r.m_Type = (ezShaderStageResource::ResourceType) uiType;
+    }
+  }
 
   return EZ_SUCCESS;
 }

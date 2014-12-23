@@ -355,6 +355,9 @@ protected:
   virtual void FillCapabilitiesPlatform() = 0;
 
   /// \endcond
+
+private:
+  bool m_bFrameBeginCalled;
 };
 
 #include <RendererFoundation/Device/Implementation/Device_inl.h>

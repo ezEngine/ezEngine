@@ -17,7 +17,8 @@ public:
 
   virtual ezResult Compile(ezShaderProgramData& inout_Data, ezLogInterface* pLog) override;
 
-
+private:
+  void ReflectShaderStage(ezShaderProgramData& inout_Data, ezGALShaderStage::Enum Stage);
 };
 
 

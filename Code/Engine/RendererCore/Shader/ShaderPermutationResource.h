@@ -23,6 +23,7 @@ public:
 
   ezGALShaderHandle GetGALShader() const { return m_hShader; }
   ezGALVertexDeclarationHandle GetGALVertexDeclaration() const { return m_hVertexDeclaration; }
+  const ezShaderStageBinary* GetShaderStageBinary(ezGALShaderStage::Enum stage) const { return m_pShaderStageBinaries[stage]; }
 
   bool IsShaderValid() const { return m_bValid; }
 
@@ -36,6 +37,7 @@ private:
 private:
 
   ezShaderPermutationBinary m_PermutationBinary;
+  ezShaderStageBinary* m_pShaderStageBinaries[ezGALShaderStage::ENUM_COUNT];
 
   bool m_bValid;
   ezGALShaderHandle m_hShader;

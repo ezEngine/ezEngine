@@ -1,11 +1,12 @@
 #include <RendererCore/PCH.h>
 #include <RendererCore/Shader/ShaderPermutationBinary.h>
+#include <Foundation/Logging/Log.h>
 
 enum ezShaderPermutationBinaryVersion
 {
   Version1 = 1,
-  Version2,
-  Version3,
+  Version2,     ///< Added include depencency information
+  Version3,     ///< Added that when the version changes, the dependent files check always returns that something changed and recompilation is triggered
 
   ENUM_COUNT,
   Current = ENUM_COUNT - 1
@@ -83,7 +84,11 @@ ezResult ezShaderPermutationBinary::Read(ezStreamReaderBase& Stream)
 
   // if this is an older version, make sure the dependent files check will always return that something changed
   if (uiVersion < ezShaderPermutationBinaryVersion::Current)
+  {
     m_iMaxTimeStamp = 0;
+
+    ezLog::Warning("Shader Permutation Binary version is outdated (%u of %u), recompilation will be triggered, if available", uiVersion, ezShaderPermutationBinaryVersion::Current);
+  }
 
   return EZ_SUCCESS;
 }
