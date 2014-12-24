@@ -1,7 +1,7 @@
 #include <RendererCore/PCH.h>
 #include <RendererCore/Meshes/MeshComponent.h>
 #include <RendererCore/Meshes/MeshRenderer.h>
-#include <RendererCore/Pipeline/RenderHelper.h>
+#include <RendererCore/RendererCore.h>
 #include <RendererCore/Pipeline/RenderPipeline.h>
 #include <Core/ResourceManager/ResourceManager.h>
 
@@ -59,11 +59,11 @@ ezUInt32 ezMeshRenderer::Render(ezRenderPipelinePass* pPass, const ezArrayPtr<co
 
     if (pRenderData->m_hMaterial != hLastMaterial)
     {
-      ezRenderHelper::SetMaterialState(pContext, pRenderData->m_hMaterial);
+      ezRendererCore::SetMaterialState(pContext, pRenderData->m_hMaterial);
       hLastMaterial = pRenderData->m_hMaterial;
     }
 
-    ezRenderHelper::DrawMeshBuffer(pContext, meshPart.m_hMeshBuffer, meshPart.m_uiPrimitiveCount, meshPart.m_uiFirstPrimitive);
+    ezRendererCore::DrawMeshBuffer(pContext, meshPart.m_hMeshBuffer, meshPart.m_uiPrimitiveCount, meshPart.m_uiFirstPrimitive);
     
     ++uiDataRendered;
   }

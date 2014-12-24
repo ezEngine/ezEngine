@@ -1,7 +1,7 @@
 #include <RendererCore/PCH.h>
 #include <RendererCore/Shader/ShaderPermutationResource.h>
 #include <RendererCore/Shader/Helper.h>
-#include <RendererCore/ShaderCompiler/ShaderManager.h>
+#include <RendererCore/RendererCore.h>
 #include <RendererCore/ShaderCompiler/ShaderCompiler.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
@@ -32,13 +32,13 @@ void ezShaderPermutationResource::UnloadData(bool bFullUnload)
 
   if (!m_hVertexDeclaration.IsInvalidated())
   {
-    ezShaderManager::GetDevice()->DestroyVertexDeclaration(m_hVertexDeclaration);
+    ezGALDevice::GetDefaultDevice()->DestroyVertexDeclaration(m_hVertexDeclaration);
     m_hVertexDeclaration.Invalidate();
   }
 
   if (!m_hShader.IsInvalidated())
   {
-    ezShaderManager::GetDevice()->DestroyShader(m_hShader);
+    ezGALDevice::GetDefaultDevice()->DestroyShader(m_hShader);
     m_hShader.Invalidate();
   }
 }
@@ -89,7 +89,7 @@ void ezShaderPermutationResource::UpdateContent(ezStreamReaderBase& Stream)
     uiGPUMem += pStageBin->m_ByteCode.GetCount();
   }
 
-  m_hShader = ezShaderManager::GetDevice()->CreateShader(ShaderDesc);
+  m_hShader = ezGALDevice::GetDefaultDevice()->CreateShader(ShaderDesc);
 
   if (m_hShader.IsInvalidated())
   {
@@ -108,7 +108,7 @@ void ezShaderPermutationResource::UpdateContent(ezStreamReaderBase& Stream)
   VertDeclDesc.m_VertexAttributes.PushBack(ezGALVertexAttribute(ezGALVertexAttributeSemantic::Normal, ezGALResourceFormat::XYZFloat, 16, 0, false));
   VertDeclDesc.m_VertexAttributes.PushBack(ezGALVertexAttribute(ezGALVertexAttributeSemantic::TexCoord0, ezGALResourceFormat::UVFloat, 28, 0, false));
 
-  m_hVertexDeclaration = ezShaderManager::GetDevice()->CreateVertexDeclaration(VertDeclDesc);
+  m_hVertexDeclaration = ezGALDevice::GetDefaultDevice()->CreateVertexDeclaration(VertDeclDesc);
 
   // ************
 
@@ -169,7 +169,7 @@ ezTimestamp ezShaderPermutationResourceLoader::GetFileTimestamp(const char* szFi
 
 ezResult ezShaderPermutationResourceLoader::RunCompiler(const ezResourceBase* pResource, ezShaderPermutationBinary& BinaryInfo, bool bForce)
 {
-  if (ezShaderManager::IsRuntimeCompilationEnabled())
+  if (ezRendererCore::IsRuntimeShaderCompilationEnabled())
   {
     const ezShaderPermutationResource* pShaderPermutation = static_cast<const ezShaderPermutationResource*>(pResource);
 
@@ -196,7 +196,7 @@ ezResult ezShaderPermutationResourceLoader::RunCompiler(const ezResourceBase* pR
     ezStringBuilder sPermutationFile = pResource->GetResourceID();
 
     sPermutationFile.ChangeFileExtension("");
-    sPermutationFile.Shrink(ezShaderManager::GetShaderCacheDirectory().GetCharacterCount() + ezShaderManager::GetPlatform().GetCharacterCount() + 2, 1);
+    sPermutationFile.Shrink(ezRendererCore::GetShaderCacheDirectory().GetCharacterCount() + ezRendererCore::GetShaderPlatform().GetCharacterCount() + 2, 1);
 
     ezStringView itBack = sPermutationFile.GetIteratorBack();
 
@@ -209,12 +209,12 @@ ezResult ezShaderPermutationResourceLoader::RunCompiler(const ezResourceBase* pR
     sPermutationFile.Shrink(0, 8); // remove the hash at the end
     sPermutationFile.Append(".shader");
 
-    const ezPermutationGenerator* pGenerator = ezShaderManager::GetGeneratorForPermutation(uiPermutationHash);
+    const ezPermutationGenerator* pGenerator = ezRendererCore::GetGeneratorForShaderPermutation(uiPermutationHash);
 
     EZ_ASSERT(pGenerator != nullptr, "The permutation generator for permutation '%s' is unknown", sHash.GetData());
 
     ezShaderCompiler sc;
-    return sc.CompileShader(sPermutationFile.GetData(), *pGenerator, ezShaderManager::GetPlatform().GetData());
+    return sc.CompileShader(sPermutationFile.GetData(), *pGenerator, ezRendererCore::GetShaderPlatform().GetData());
   }
   else
   {

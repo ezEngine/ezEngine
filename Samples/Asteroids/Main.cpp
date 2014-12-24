@@ -125,6 +125,8 @@ ezApplication::ApplicationExecution SampleGameApp::Run()
 
     m_View.Render(pDevice->GetPrimaryContext());
 
+    pDevice->Present(pDevice->GetPrimarySwapChain());
+
     pDevice->EndFrame();
   }  
 
@@ -132,8 +134,6 @@ ezApplication::ApplicationExecution SampleGameApp::Run()
   ezTaskSystem::WaitForGroup(updateTaskID);
 
   ezTelemetry::PerFrameUpdate();
-
-  pDevice->Present(pDevice->GetPrimarySwapChain());
 
   return ezApplication::Continue;
 }

@@ -1,21 +1,35 @@
 #include <RendererCore/PCH.h>
-#include <RendererCore/Pipeline/RenderHelper.h>
-#include <RendererCore/ShaderCompiler/ShaderManager.h>
+#include <RendererCore/RendererCore.h>
 #include <Core/ResourceManager/ResourceManager.h>
 #include <RendererFoundation/Context/Context.h>
 
+ezMap<ezGALContext*, ezRendererCore::ContextState> ezRendererCore::s_ContextState;
+
 // static
-void ezRenderHelper::SetMaterialState(ezGALContext* pContext, const ezMaterialResourceHandle& hMaterial)
+void ezRendererCore::SetMaterialState(ezGALContext* pContext, const ezMaterialResourceHandle& hMaterial)
 {
+  if (pContext == nullptr)
+    pContext = ezGALDevice::GetDefaultDevice()->GetPrimaryContext();
+
   ezResourceLock<ezMaterialResource> pMaterial(hMaterial);
 
-  ezShaderManager::SetActiveShader(pMaterial->GetShader(), pContext);
+  ezRendererCore::SetActiveShader(pMaterial->GetShader(), pContext);
 }
 
 // static 
-void ezRenderHelper::DrawMeshBuffer(ezGALContext* pContext, const ezMeshBufferResourceHandle& hMeshBuffer,
+void ezRendererCore::DrawMeshBuffer(ezGALContext* pContext, const ezMeshBufferResourceHandle& hMeshBuffer,
   ezUInt32 uiPrimitiveCount, ezUInt32 uiFirstPrimitive, ezUInt32 uiInstanceCount)
 {
+  if (pContext == nullptr)
+    pContext = ezGALDevice::GetDefaultDevice()->GetPrimaryContext();
+
+  if (ApplyContextStates(pContext).Failed())
+  {
+    ezLog::Error("Drawcall failed, context is in an invalid state");
+    /// \todo Log (better) that a drawcall failed ?
+    return;
+  }
+
   EZ_ASSERT(uiFirstPrimitive < uiPrimitiveCount, "Invalid primitive range: first primitive (%d) can't be larger than number of primitives (%d)", uiFirstPrimitive, uiPrimitiveCount);
 
   ezResourceLock<ezMeshBufferResource> pMeshBuffer(hMeshBuffer);
@@ -56,3 +70,34 @@ void ezRenderHelper::DrawMeshBuffer(ezGALContext* pContext, const ezMeshBufferRe
     }
   }
 }
+
+void ezRendererCore::BindTexture(ezGALContext* pContext, const ezTempHashedString& sSlotName, const ezTextureResourceHandle& hTexture)
+{
+  if (pContext == nullptr)
+    pContext = ezGALDevice::GetDefaultDevice()->GetPrimaryContext();
+
+  ContextState& cs = s_ContextState[pContext];
+
+  cs.m_BoundTextures[sSlotName.GetHash()] = hTexture;
+
+  cs.m_bTextureBindingsChanged = true;
+}
+
+ezResult ezRendererCore::ApplyContextStates(ezGALContext* pContext)
+{
+  if (pContext == nullptr)
+    pContext = ezGALDevice::GetDefaultDevice()->GetPrimaryContext();
+
+  ContextState& state = s_ContextState[pContext];
+
+  // make sure the internal state is up to date
+  SetShaderContextState(pContext, state);
+
+  if (!state.m_bShaderStateValid)
+    return EZ_FAILURE;
+
+
+  return EZ_SUCCESS;
+}
+
+

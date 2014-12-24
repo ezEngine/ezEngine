@@ -37,9 +37,8 @@
 
 #include <CoreUtils/Debugging/DataTransfer.h>
 
-#include <RendererCore/Pipeline/RenderHelper.h>
+#include <RendererCore/RendererCore.h>
 #include <RendererCore/ShaderCompiler/ShaderCompiler.h>
-#include <RendererCore/ShaderCompiler/ShaderManager.h>
 
 // This sample is a really simple low-level rendering demo showing how the high level renderer will interact with the GPU abstraction layer
 
@@ -165,15 +164,15 @@ public:
       m_pObj[i] = DontUse::MayaObj::LoadFromFile("ez.obj", m_pDevice, i);
     
 #if EZ_ENABLED(DEMO_GL)
-      ezShaderManager::SetPlatform("GL3", m_pDevice, true);
+      ezRendererCore::SetShaderPlatform("GL3", true);
 #else
-      ezShaderManager::SetPlatform("DX11_SM40", m_pDevice, true);
+      ezRendererCore::SetShaderPlatform("DX11_SM40", true);
 #endif
 
     m_hShader = ezResourceManager::GetResourceHandle<ezShaderResource>("Shaders/ez2.shader");
 
-    ezShaderManager::SetActiveShader(m_hShader);
-    ezShaderManager::SetPermutationVariable("COLORED", "1");
+    ezRendererCore::SetActiveShader(m_hShader);
+    ezRendererCore::SetShaderPermutationVariable("COLORED", "1");
     
     ezGALRasterizerStateCreationDescription RasterStateDesc;
     RasterStateDesc.m_bWireFrame = true;
@@ -254,15 +253,15 @@ public:
       switch (iPerm)
       {
       case 0:
-        ezShaderManager::SetPermutationVariable("COLORED", "0");
+        ezRendererCore::SetShaderPermutationVariable("COLORED", "0");
         break;
       case 1:
-        ezShaderManager::SetPermutationVariable("COLORED", "1");
+        ezRendererCore::SetShaderPermutationVariable("COLORED", "1");
 
         if (iColorValue > 250)
           iColorValue = 10;
 
-        ezShaderManager::SetPermutationVariable("COLORVALUE", ezConversionUtils::ToString(iColorValue).GetData());
+        ezRendererCore::SetShaderPermutationVariable("COLORVALUE", ezConversionUtils::ToString(iColorValue).GetData());
 
         iColorValue += 10;
 
@@ -279,9 +278,9 @@ public:
     if (ezInputManager::GetInputActionState("Main", "PreloadShader") == ezKeyState::Pressed)
     {
       ezPermutationGenerator All;
-      All.ReadFromFile("ShaderPermutations.txt", ezShaderManager::GetPlatform().GetData());
+      All.ReadFromFile("ShaderPermutations.txt", ezRendererCore::GetShaderPlatform().GetData());
 
-      ezShaderManager::PreloadPermutations(m_hShader, All, ezTime::Milliseconds(10000.0));
+      ezRendererCore::PreloadShaderPermutations(m_hShader, All, ezTime::Milliseconds(10000.0));
     }
 
     if (ezInputManager::GetInputActionState("Main", "NextObj") == ezKeyState::Pressed)
@@ -355,7 +354,7 @@ public:
 
     pContext->SetConstantBuffer(1, m_hCB);
 
-    ezRenderHelper::DrawMeshBuffer(pContext, m_pObj[m_iCurObject]->m_hMeshBuffer);
+    ezRendererCore::DrawMeshBuffer(pContext, m_pObj[m_iCurObject]->m_hMeshBuffer);
 
 
     // Readback: Currently not supported for MSAA since Resolve() is not implemented

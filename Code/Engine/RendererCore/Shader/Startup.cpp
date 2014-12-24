@@ -1,30 +1,28 @@
 #include <RendererCore/PCH.h>
 #include <RendererCore/Shader/ShaderStageBinary.h>
-#include <RendererCore/ShaderCompiler/ShaderManager.h>
+#include <RendererCore/RendererCore.h>
 #include <Foundation/Configuration/Startup.h>
 
-ezPermutationGenerator ezShaderManager::s_AllowedPermutations;
-ezMap<ezGALContext*, ezShaderManager::ContextState> ezShaderManager::s_ContextState;
-ezString ezShaderManager::s_sPlatform;
-ezGALDevice* ezShaderManager::s_pDevice = nullptr;
-bool ezShaderManager::s_bEnableRuntimeCompilation = false;
-ezString ezShaderManager::s_ShaderCacheDirectory = "ShaderBins";
-ezMap<ezUInt32, ezPermutationGenerator> ezShaderManager::s_PermutationHashCache;
+ezPermutationGenerator ezRendererCore::s_AllowedPermutations;
+ezString ezRendererCore::s_sPlatform;
+bool ezRendererCore::s_bEnableRuntimeCompilation = false;
+ezString ezRendererCore::s_ShaderCacheDirectory = "ShaderBins";
+ezMap<ezUInt32, ezPermutationGenerator> ezRendererCore::s_PermutationHashCache;
 
-void ezShaderManager::OnEngineShutdown()
+void ezRendererCore::OnEngineShutdown()
 {
   s_ContextState.Clear();
   s_PermutationHashCache.Clear();
   s_AllowedPermutations.Clear();
 }
 
-void ezShaderManager::OnCoreShutdown()
+void ezRendererCore::OnCoreShutdown()
 {
   for (ezUInt32 i = 0; i < ezGALShaderStage::ENUM_COUNT; ++i)
     ezShaderStageBinary::s_ShaderStageBinaries[i].Clear();
 }
 
-EZ_BEGIN_SUBSYSTEM_DECLARATION(Graphics, ShaderManager)
+EZ_BEGIN_SUBSYSTEM_DECLARATION(Graphics, RendererCore)
 
   BEGIN_SUBSYSTEM_DEPENDENCIES
     "Foundation",
@@ -37,7 +35,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Graphics, ShaderManager)
  
   ON_CORE_SHUTDOWN
   {
-    ezShaderManager::OnCoreShutdown();
+    ezRendererCore::OnCoreShutdown();
   }
 
   ON_ENGINE_STARTUP
@@ -46,7 +44,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Graphics, ShaderManager)
  
   ON_ENGINE_SHUTDOWN
   {
-    ezShaderManager::OnEngineShutdown();
+    ezRendererCore::OnEngineShutdown();
   }
  
 EZ_END_SUBSYSTEM_DECLARATION

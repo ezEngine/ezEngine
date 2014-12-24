@@ -10,8 +10,6 @@
 #include <Foundation/Threading/ThreadUtils.h>
 #include <Foundation/Logging/Log.h>
 
-ezEvent<ezGALContext::ezGALContextEvent&> ezGALContext::s_ContextEvents;
-
 ezGALContext::ezGALContext(ezGALDevice* pDevice)
   : m_pDevice(pDevice),
     m_uiDrawCalls(0),
@@ -42,16 +40,6 @@ void ezGALContext::Draw(ezUInt32 uiVertexCount, ezUInt32 uiStartVertex)
 
   /// \todo If platform indicates that non-indexed rendering is not possible bind a helper index buffer which contains continous indices (0, 1, 2, ..)
 
-  ezGALContextEvent ed;
-  ed.m_pContext = this;
-  ed.m_EventType = ezGALContextEvent::BeforeDrawcall;
-  s_ContextEvents.Broadcast(ed);
-
-  // this can be set to prevent drawcalls when the pipeline state is invalid,
-  // e.g. when the shader that should be used could not be loaded
-  if (ed.m_bCancelDrawcall)
-    return;
-
   DrawPlatform(uiVertexCount, uiStartVertex);
 
   CountDrawCall();
@@ -60,16 +48,6 @@ void ezGALContext::Draw(ezUInt32 uiVertexCount, ezUInt32 uiStartVertex)
 void ezGALContext::DrawIndexed(ezUInt32 uiIndexCount, ezUInt32 uiStartIndex)
 {
   AssertRenderingThread();
-
-  ezGALContextEvent ed;
-  ed.m_pContext = this;
-  ed.m_EventType = ezGALContextEvent::BeforeDrawcall;
-  s_ContextEvents.Broadcast(ed);
-
-  // this can be set to prevent drawcalls when the pipeline state is invalid,
-  // e.g. when the shader that should be used could not be loaded
-  if (ed.m_bCancelDrawcall)
-    return;
 
   DrawIndexedPlatform(uiIndexCount, uiStartIndex);
 
@@ -80,16 +58,6 @@ void ezGALContext::DrawIndexedInstanced(ezUInt32 uiIndexCountPerInstance, ezUInt
 {
   AssertRenderingThread();
   /// \todo Assert for instancing
-
-  ezGALContextEvent ed;
-  ed.m_pContext = this;
-  ed.m_EventType = ezGALContextEvent::BeforeDrawcall;
-  s_ContextEvents.Broadcast(ed);
-
-  // this can be set to prevent drawcalls when the pipeline state is invalid,
-  // e.g. when the shader that should be used could not be loaded
-  if (ed.m_bCancelDrawcall)
-    return;
 
   DrawIndexedInstancedPlatform(uiIndexCountPerInstance, uiInstanceCount, uiStartIndex);
 
@@ -102,16 +70,6 @@ void ezGALContext::DrawIndexedInstancedIndirect(ezGALBufferHandle hIndirectArgum
   /// \todo Assert for instancing
   /// \todo Assert for indirect draw
   /// \todo Assert offset < buffer size
-
-  ezGALContextEvent ed;
-  ed.m_pContext = this;
-  ed.m_EventType = ezGALContextEvent::BeforeDrawcall;
-  s_ContextEvents.Broadcast(ed);
-
-  // this can be set to prevent drawcalls when the pipeline state is invalid,
-  // e.g. when the shader that should be used could not be loaded
-  if (ed.m_bCancelDrawcall)
-    return;
 
   ezGALBuffer* pBuffer = m_pDevice->m_Buffers[hIndirectArgumentBuffer];
   EZ_ASSERT(pBuffer != nullptr, "Invalid buffer handle for indirect arguments!");
@@ -129,16 +87,6 @@ void ezGALContext::DrawInstanced(ezUInt32 uiVertexCountPerInstance, ezUInt32 uiI
 
   /// \todo If platform indicates that non-indexed rendering is not possible bind a helper index buffer which contains continous indices (0, 1, 2, ..)
 
-  ezGALContextEvent ed;
-  ed.m_pContext = this;
-  ed.m_EventType = ezGALContextEvent::BeforeDrawcall;
-  s_ContextEvents.Broadcast(ed);
-
-  // this can be set to prevent drawcalls when the pipeline state is invalid,
-  // e.g. when the shader that should be used could not be loaded
-  if (ed.m_bCancelDrawcall)
-    return;
-
   DrawInstancedPlatform(uiVertexCountPerInstance, uiInstanceCount, uiStartVertex);
 
   CountDrawCall();
@@ -150,16 +98,6 @@ void ezGALContext::DrawInstancedIndirect(ezGALBufferHandle hIndirectArgumentBuff
   /// \todo Assert for instancing
   /// \todo Assert for indirect draw
   /// \todo Assert offset < buffer size
-
-  ezGALContextEvent ed;
-  ed.m_pContext = this;
-  ed.m_EventType = ezGALContextEvent::BeforeDrawcall;
-  s_ContextEvents.Broadcast(ed);
-
-  // this can be set to prevent drawcalls when the pipeline state is invalid,
-  // e.g. when the shader that should be used could not be loaded
-  if (ed.m_bCancelDrawcall)
-    return;
 
   ezGALBuffer* pBuffer = m_pDevice->m_Buffers[hIndirectArgumentBuffer];
   EZ_ASSERT(pBuffer != nullptr, "Invalid buffer handle for indirect arguments!");
@@ -174,16 +112,6 @@ void ezGALContext::DrawAuto()
 {
   AssertRenderingThread();
   /// \todo Assert for draw auto support
-
-  ezGALContextEvent ed;
-  ed.m_pContext = this;
-  ed.m_EventType = ezGALContextEvent::BeforeDrawcall;
-  s_ContextEvents.Broadcast(ed);
-
-  // this can be set to prevent drawcalls when the pipeline state is invalid,
-  // e.g. when the shader that should be used could not be loaded
-  if (ed.m_bCancelDrawcall)
-    return;
 
   DrawAutoPlatform();
 

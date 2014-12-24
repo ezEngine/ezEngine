@@ -1,6 +1,6 @@
 #include <RendererCore/PCH.h>
 #include <RendererCore/Shader/ShaderStageBinary.h>
-#include <RendererCore/ShaderCompiler/ShaderManager.h>
+#include <RendererCore/RendererCore.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
 
@@ -119,9 +119,9 @@ ezResult ezShaderStageBinary::Read(ezStreamReaderBase& Stream)
 
 ezResult ezShaderStageBinary::WriteStageBinary() const
 {
-  ezStringBuilder sShaderStageFile = ezShaderManager::GetShaderCacheDirectory();
+  ezStringBuilder sShaderStageFile = ezRendererCore::GetShaderCacheDirectory();
 
-  sShaderStageFile.AppendPath(ezShaderManager::GetPlatform().GetData());
+  sShaderStageFile.AppendPath(ezRendererCore::GetShaderPlatform().GetData());
   sShaderStageFile.AppendFormat("/%08X", m_uiSourceHash);
 
   ezFileWriter StageFileOut;
@@ -146,9 +146,9 @@ ezShaderStageBinary* ezShaderStageBinary::LoadStageBinary(ezGALShaderStage::Enum
 
   if (!itStage.IsValid())
   {
-    ezStringBuilder sShaderStageFile = ezShaderManager::GetShaderCacheDirectory();
+    ezStringBuilder sShaderStageFile = ezRendererCore::GetShaderCacheDirectory();
 
-    sShaderStageFile.AppendPath(ezShaderManager::GetPlatform().GetData());
+    sShaderStageFile.AppendPath(ezRendererCore::GetShaderPlatform().GetData());
     sShaderStageFile.AppendFormat("/%08X", uiHash);
 
     ezFileReader StageFileIn;

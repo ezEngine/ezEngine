@@ -12,33 +12,6 @@ class EZ_RENDERERFOUNDATION_DLL ezGALContext
 {
 public:
 
-  /// \brief Event data that the context broadcasts
-  ///
-  /// Once we have high level abstractions for everything, we maybe can move this somewhere else
-  struct ezGALContextEvent
-  {
-    enum EventType
-    {
-      None,
-      BeforeDrawcall,     ///< This can be used to do profiling, or update some state right before a drawcall
-      AfterDrawcall,
-    };
-
-    ezGALContextEvent()
-    {
-      m_bCancelDrawcall = false;
-      m_pContext = nullptr;
-      m_EventType = None;
-    }
-
-    bool m_bCancelDrawcall;
-    EventType m_EventType;
-    ezGALContext* m_pContext;
-  };
-
-  /// \brief The context broadcasts information about a few important events.
-  static ezEvent<ezGALContextEvent&> s_ContextEvents;
-
   // Draw functions
 
   /// \brief Clears active rendertargets.

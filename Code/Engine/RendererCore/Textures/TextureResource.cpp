@@ -327,9 +327,6 @@ void ezTextureResource::UpdateContent(ezStreamReaderBase& Stream)
       {
         ezLog::Error("Sampler state error");
       }
-
-      ezGALDevice::GetDefaultDevice()->GetPrimaryContext()->SetResourceView(ezGALShaderStage::PixelShader, 0, m_hGALTexView);
-      ezGALDevice::GetDefaultDevice()->GetPrimaryContext()->SetSamplerState(ezGALShaderStage::PixelShader, 0, m_hSamplerState);
     }
   }
   else

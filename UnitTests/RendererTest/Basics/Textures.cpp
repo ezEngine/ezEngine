@@ -88,10 +88,7 @@ ezTestAppRun ezRendererTestBasics::SubtestTextures2D()
     //m_hTexture = ezResourceManager::GetResourceHandle<ezTextureResource>("Textures/ezLogo_R5G6B5_MipsD.dds");
   }
 
-  // HACK
-  {
-    ezResourceLock<ezTextureResource> l(m_hTexture, ezResourceAcquireMode::NoFallback);
-  }
+  ezRendererCore::BindTexture(nullptr, "TexDiffuse", m_hTexture);
 
   ClearScreen(ezColor::GetBlack());
 
@@ -121,10 +118,7 @@ ezTestAppRun ezRendererTestBasics::SubtestTextures3D()
     m_hTexture = ezResourceManager::GetResourceHandle<ezTextureResource>("Textures/Volume/ezLogo_Volume_A8_NoMips_D.dds");
   }
 
-  // HACK
-  {
-    ezResourceLock<ezTextureResource> l(m_hTexture, ezResourceAcquireMode::NoFallback);
-  }
+  ezRendererCore::BindTexture(nullptr, "TexDiffuse", m_hTexture);
 
   ClearScreen(ezColor::GetBlack());
 
@@ -212,10 +206,7 @@ ezTestAppRun ezRendererTestBasics::SubtestTexturesCube()
     m_hTexture = ezResourceManager::GetResourceHandle<ezTextureResource>("Textures/Cubemap/ezLogo_Cube_RGB_Mips_D.dds");
   }
 
-  // HACK
-  {
-    ezResourceLock<ezTextureResource> l(m_hTexture, ezResourceAcquireMode::NoFallback);
-  }
+  ezRendererCore::BindTexture(nullptr, "TexDiffuse", m_hTexture);
 
   ClearScreen(ezColor::GetBlack());
 

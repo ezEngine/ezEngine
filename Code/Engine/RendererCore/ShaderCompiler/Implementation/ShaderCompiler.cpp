@@ -1,6 +1,6 @@
 #include <RendererCore/PCH.h>
 #include <RendererCore/ShaderCompiler/ShaderCompiler.h>
-#include <RendererCore/ShaderCompiler/ShaderManager.h>
+#include <RendererCore/RendererCore.h>
 #include <RendererCore/Shader/Helper.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
@@ -243,7 +243,7 @@ ezResult ezShaderCompiler::CompileShader(const char* szFile, const ezPermutation
         }
       }
 
-      sTemp = ezShaderManager::GetShaderCacheDirectory();
+      sTemp = ezRendererCore::GetShaderCacheDirectory();
       sTemp.AppendPath(Platforms[p].GetData());
       sTemp.AppendPath(szFile);
       sTemp.ChangeFileExtension("");

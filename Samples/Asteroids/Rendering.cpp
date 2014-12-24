@@ -16,7 +16,7 @@
 #endif
 
 #include <RendererCore/Pipeline/RenderPipeline.h>
-#include <RendererCore/ShaderCompiler/ShaderManager.h>
+#include <RendererCore/RendererCore.h>
 
 const ezColor g_fShipColors[4] =
 {
@@ -86,9 +86,9 @@ void SampleGameApp::InitRendering()
   ezGALDevice::SetDefaultDevice(pDevice);
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-  ezShaderManager::SetPlatform("DX11_SM40", pDevice, true);
+  ezRendererCore::SetShaderPlatform("DX11_SM40", true);
 #else
-  ezShaderManager::SetPlatform("GL3", pDevice, true);
+  ezRendererCore::SetShaderPlatform("GL3", true);
 #endif
 
   ezRenderPipeline* pRenderPipeline = EZ_DEFAULT_NEW(ezRenderPipeline)(ezRenderPipeline::Asynchronous);

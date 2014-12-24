@@ -21,6 +21,12 @@ class EZ_RENDERERCORE_DLL ezTextureResource : public ezResource<ezTextureResourc
 public:
   ezTextureResource();
 
+  const ezGALResourceViewHandle& GetGALTextureView() const { return m_hGALTexView; }
+
+  const ezGALTextureHandle& GetGALTexture() const { return m_hGALTexture; }
+
+  const ezGALSamplerStateHandle& GetGALSamplerState() const { return m_hSamplerState; }
+
 
 private:
   virtual void UnloadData(bool bFullUnload) override;

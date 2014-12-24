@@ -1,5 +1,5 @@
 #include <RendererCore/PCH.h>
-#include <RendererCore/ShaderCompiler/ShaderManager.h>
+#include <RendererCore/RendererCore.h>
 #include <RendererCore/ShaderCompiler/ShaderCompiler.h>
 #include <RendererCore/Shader/ShaderPermutationResource.h>
 #include <Foundation/Logging/Log.h>
@@ -7,7 +7,7 @@
 #include <RendererFoundation/Context/Context.h>
 #include <Core/ResourceManager/ResourceManager.h>
 
-const ezPermutationGenerator* ezShaderManager::GetGeneratorForPermutation(ezUInt32 uiPermutationHash)
+const ezPermutationGenerator* ezRendererCore::GetGeneratorForShaderPermutation(ezUInt32 uiPermutationHash)
 {
   auto it = s_PermutationHashCache.Find(uiPermutationHash);
 
@@ -17,7 +17,7 @@ const ezPermutationGenerator* ezShaderManager::GetGeneratorForPermutation(ezUInt
   return nullptr;
 }
 
-void ezShaderManager::PreloadPermutations(ezShaderResourceHandle hShader, const ezPermutationGenerator& MainGenerator, ezTime tShouldBeAvailableIn)
+void ezRendererCore::PreloadShaderPermutations(ezShaderResourceHandle hShader, const ezPermutationGenerator& MainGenerator, ezTime tShouldBeAvailableIn)
 {
   ezResourceLock<ezShaderResource> pShader(hShader, ezResourceAcquireMode::NoFallback);
 
@@ -30,11 +30,11 @@ void ezShaderManager::PreloadPermutations(ezShaderResourceHandle hShader, const 
   {
     Generator.GetPermutation(p, UsedPermVars);
 
-    PreloadSinglePermutation(hShader, UsedPermVars, tShouldBeAvailableIn);
+    PreloadSingleShaderPermutation(hShader, UsedPermVars, tShouldBeAvailableIn);
   }
 }
 
-ezShaderPermutationResourceHandle ezShaderManager::PreloadSinglePermutation(ezShaderResourceHandle hShader, const ezHybridArray<ezPermutationGenerator::PermutationVar, 16>& UsedPermVars, ezTime tShouldBeAvailableIn)
+ezShaderPermutationResourceHandle ezRendererCore::PreloadSingleShaderPermutation(ezShaderResourceHandle hShader, const ezHybridArray<ezPermutationGenerator::PermutationVar, 16>& UsedPermVars, ezTime tShouldBeAvailableIn)
 {
   ezResourceLock<ezShaderResource> pShader(hShader, ezResourceAcquireMode::NoFallback);
 
@@ -53,7 +53,7 @@ ezShaderPermutationResourceHandle ezShaderManager::PreloadSinglePermutation(ezSh
   }
 
   ezStringBuilder sShaderFile = GetShaderCacheDirectory();
-  sShaderFile.AppendPath(GetPlatform().GetData());
+  sShaderFile.AppendPath(GetShaderPlatform().GetData());
   sShaderFile.AppendPath(pShader->GetResourceID().GetData());
   sShaderFile.ChangeFileExtension("");
   if (sShaderFile.EndsWith("."))
@@ -67,33 +67,8 @@ ezShaderPermutationResourceHandle ezShaderManager::PreloadSinglePermutation(ezSh
   return hShaderPermutation;
 }
 
-void ezShaderManager::ContextEventHandler(ezGALContext::ezGALContextEvent& ed)
+void ezRendererCore::SetShaderPlatform(const char* szPlatform, bool bEnableRuntimeCompilation)
 {
-  switch (ed.m_EventType)
-  {
-  case ezGALContext::ezGALContextEvent::BeforeDrawcall:
-    {
-      ContextState& state = s_ContextState[ed.m_pContext];
-
-      // if the shader system is currently in an invalid state, prevent any drawcalls
-      SetContextState(ed.m_pContext, state);
-
-      if (!state.m_bStateValid)
-        ed.m_bCancelDrawcall = true;
-    }
-    break;
-
-  default:
-    return;
-  }
-}
-
-void ezShaderManager::SetPlatform(const char* szPlatform, ezGALDevice* pDevice, bool bEnableRuntimeCompilation)
-{
-  s_pDevice = pDevice;
-
-  ezGALContext::s_ContextEvents.AddEventHandler(ContextEventHandler);
-
   ezStringBuilder s = szPlatform;
   s.ToUpper();
 
@@ -108,14 +83,14 @@ void ezShaderManager::SetPlatform(const char* szPlatform, ezGALDevice* pDevice, 
   // initialize all permutation variables
   for (auto it = s_AllowedPermutations.GetPermutationSet().GetIterator(); it.IsValid(); ++it)
   {
-    SetPermutationVariable(it.Key().GetData(), it.Value().GetIterator().Key().GetData());
+    SetShaderPermutationVariable(it.Key().GetData(), it.Value().GetIterator().Key().GetData());
   }
 }
 
-void ezShaderManager::SetPermutationVariable(const char* szVariable, const char* szValue, ezGALContext* pContext)
+void ezRendererCore::SetShaderPermutationVariable(const char* szVariable, const char* szValue, ezGALContext* pContext)
 {
   if (pContext == nullptr)
-    pContext = s_pDevice->GetPrimaryContext();
+    pContext = ezGALDevice::GetDefaultDevice()->GetPrimaryContext();
 
   //ezLog::Debug("Setting '%s' to '%s'", szVariable, szValue);
 
@@ -138,92 +113,136 @@ void ezShaderManager::SetPermutationVariable(const char* szVariable, const char*
   auto itVar = state.m_PermutationVariables.FindOrAdd(sVar);
 
   if (itVar.Value() != sVal)
-    state.m_bStateChanged = true;
+    state.m_bShaderStateChanged = true;
 
   itVar.Value() = sVal;
 }
 
-void ezShaderManager::SetActiveShader(ezShaderResourceHandle hShader, ezGALContext* pContext)
+void ezRendererCore::SetActiveShader(ezShaderResourceHandle hShader, ezGALContext* pContext)
 {
   if (pContext == nullptr)
-    pContext = s_pDevice->GetPrimaryContext();
+    pContext = ezGALDevice::GetDefaultDevice()->GetPrimaryContext();
 
   ContextState& state = s_ContextState[pContext];
 
   if (state.m_hActiveShader != hShader)
-    state.m_bStateChanged = true;
+    state.m_bShaderStateChanged = true;
 
   state.m_hActiveShader = hShader;
 }
 
-ezGALShaderHandle ezShaderManager::GetActiveGALShader(ezGALContext* pContext)
+ezGALShaderHandle ezRendererCore::GetActiveGALShader(ezGALContext* pContext)
 {
   if (pContext == nullptr)
-    pContext = s_pDevice->GetPrimaryContext();
+    pContext = ezGALDevice::GetDefaultDevice()->GetPrimaryContext();
 
   ContextState& state = s_ContextState[pContext];
 
   // make sure the internal state is up to date
-  SetContextState(pContext, state);
+  SetShaderContextState(pContext, state);
 
-  if (!state.m_bStateValid)
+  if (!state.m_bShaderStateValid)
     return ezGALShaderHandle(); // invalid handle
 
   return state.m_hActiveGALShader;
 }
 
-void ezShaderManager::SetContextState(ezGALContext* pContext, ContextState& state)
+void ezRendererCore::SetShaderContextState(ezGALContext* pContext, ContextState& state)
 {
-  if (!state.m_bStateChanged)
-    return;
+  ezShaderPermutationResource* pShaderPermutation = nullptr;
 
-  state.m_bStateChanged = false;
-  state.m_bStateValid = false;
-
-  if (!state.m_hActiveShader.IsValid())
-    return;
-
-  ezResourceLock<ezShaderResource> pShader(state.m_hActiveShader, ezResourceAcquireMode::AllowFallback);
-
-  state.m_PermGenerator.Clear();
-  for (auto itPerm = state.m_PermutationVariables.GetIterator(); itPerm.IsValid(); ++itPerm)
-    state.m_PermGenerator.AddPermutation(itPerm.Key().GetData(), itPerm.Value().GetData());
-
-  state.m_PermGenerator.RemoveUnusedPermutations(pShader->GetUsedPermutationVars());
-
-  EZ_ASSERT(state.m_PermGenerator.GetPermutationCount() == 1, "Invalid shader setup");
-
-  ezHybridArray<ezPermutationGenerator::PermutationVar, 16> UsedPermVars;
-  state.m_PermGenerator.GetPermutation(0, UsedPermVars);
-
-  ezShaderPermutationResourceHandle hShaderPermutation = PreloadSinglePermutation(state.m_hActiveShader, UsedPermVars, ezTime::Seconds(0.0));
-
-  ezResourceLock<ezShaderPermutationResource> pShaderPermutation(hShaderPermutation, ezResourceAcquireMode::AllowFallback);
-
-  if (!pShaderPermutation->IsShaderValid())
-    return;
-
-  state.m_hActiveGALShader = pShaderPermutation->GetGALShader();
-
-  pContext->SetShader(state.m_hActiveGALShader);
-  pContext->SetVertexDeclaration(pShaderPermutation->GetGALVertexDeclaration());
-
-  EZ_LOG_BLOCK("Shader Resource Bindings");
-
-  for (ezUInt32 stage = 0; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
+  if (state.m_bShaderStateChanged)
   {
-    auto pBin = pShaderPermutation->GetShaderStageBinary((ezGALShaderStage::Enum) stage);
+    state.m_bShaderStateChanged = false;
+    state.m_bShaderStateValid = false;
+    state.m_bTextureBindingsChanged = true;
 
-    if (pBin == nullptr)
-      continue;
+    if (!state.m_hActiveShader.IsValid())
+      return;
 
-    for (const auto& rb : pBin->m_ShaderResourceBindings)
+    ezResourceLock<ezShaderResource> pShader(state.m_hActiveShader, ezResourceAcquireMode::AllowFallback);
+
+    state.m_PermGenerator.Clear();
+    for (auto itPerm = state.m_PermutationVariables.GetIterator(); itPerm.IsValid(); ++itPerm)
+      state.m_PermGenerator.AddPermutation(itPerm.Key().GetData(), itPerm.Value().GetData());
+
+    state.m_PermGenerator.RemoveUnusedPermutations(pShader->GetUsedPermutationVars());
+
+    EZ_ASSERT(state.m_PermGenerator.GetPermutationCount() == 1, "Invalid shader setup");
+
+    ezHybridArray<ezPermutationGenerator::PermutationVar, 16> UsedPermVars;
+    state.m_PermGenerator.GetPermutation(0, UsedPermVars);
+
+    state.m_hActiveShaderPermutation = PreloadSingleShaderPermutation(state.m_hActiveShader, UsedPermVars, ezTime::Seconds(0.0));
+
+    pShaderPermutation = ezResourceManager::BeginAcquireResource(state.m_hActiveShaderPermutation, ezResourceAcquireMode::AllowFallback);
+
+    if (!pShaderPermutation->IsShaderValid())
     {
-      ezLog::Dev("%s at slot %i, Type: %u", rb.m_Name.GetData(), rb.m_iSlot, (ezUInt32) rb.m_Type);
+      ezResourceManager::EndAcquireResource(pShaderPermutation);
+      return;
     }
+
+    state.m_hActiveGALShader = pShaderPermutation->GetGALShader();
+
+    pContext->SetShader(state.m_hActiveGALShader);
+    pContext->SetVertexDeclaration(pShaderPermutation->GetGALVertexDeclaration());
   }
 
-  state.m_bStateValid = true;
+  if (state.m_bTextureBindingsChanged && state.m_hActiveShaderPermutation.IsValid())
+  {
+    state.m_bTextureBindingsChanged = false;
+
+    if (pShaderPermutation == nullptr)
+      pShaderPermutation = ezResourceManager::BeginAcquireResource(state.m_hActiveShaderPermutation, ezResourceAcquireMode::AllowFallback);
+
+    for (ezUInt32 stage = 0; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
+    {
+      auto pBin = pShaderPermutation->GetShaderStageBinary((ezGALShaderStage::Enum) stage);
+
+      if (pBin == nullptr)
+        continue;
+
+      ApplyTextureBindings(pContext, (ezGALShaderStage::Enum) stage, pBin);
+    }
+
+    ezResourceManager::EndAcquireResource(pShaderPermutation);
+  }
+
+  state.m_bShaderStateValid = true;
+}
+
+void ezRendererCore::ApplyTextureBindings(ezGALContext* pContext, ezGALShaderStage::Enum stage, const ezShaderStageBinary* pBinary)
+{
+  const auto& cs = s_ContextState[pContext];
+
+  for (const auto& rb : pBinary->m_ShaderResourceBindings)
+  {
+    //ezLog::Dev("%s at slot %i, Type: %u", rb.m_Name.GetData(), rb.m_iSlot, (ezUInt32) rb.m_Type);
+
+    if (rb.m_Type == ezShaderStageResource::ConstantBuffer)
+      continue; /// \todo Implement
+
+    const ezUInt32 uiResourceHash = rb.m_Name.GetHash();
+
+    ezTextureResourceHandle* hTexture;
+    if (!cs.m_BoundTextures.TryGetValue(uiResourceHash, hTexture))
+    {
+      ezLog::Error("No resource is bound for shader slot '%s'", rb.m_Name.GetData());
+      continue;
+    }
+
+    if (hTexture == nullptr || !hTexture->IsValid())
+    {
+      ezLog::Error("An invalid resource is bound for shader slot '%s'", rb.m_Name.GetData());
+      continue;
+    }
+
+    ezResourceLock<ezTextureResource> l(*hTexture, ezResourceAcquireMode::AllowFallback);
+
+    pContext->SetResourceView(stage, rb.m_iSlot, l->GetGALTextureView());
+    pContext->SetSamplerState(stage, rb.m_iSlot, l->GetGALSamplerState());
+  }
 }
 
 

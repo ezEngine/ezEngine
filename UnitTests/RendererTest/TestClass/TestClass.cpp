@@ -12,7 +12,7 @@
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Memory/MemoryTracker.h>
 #include <Core/ResourceManager/ResourceManager.h>
-#include <RendererCore/Pipeline/RenderHelper.h>
+#include <RendererCore/RendererCore.h>
 
 
 ezGraphicsTest::ezGraphicsTest()
@@ -116,17 +116,21 @@ ezResult ezGraphicsTest::SetupRenderer(ezUInt32 uiResolutionX, ezUInt32 uiResolu
 
   m_hObjectTransformCB = m_pDevice->CreateConstantBuffer(sizeof(ObjectCB));
 
-  ezShaderManager::SetPlatform("DX11_SM40", m_pDevice, true);
+  ezRendererCore::SetShaderPlatform("DX11_SM40", true);
 
-    EZ_VERIFY(ezPlugin::LoadPlugin("ezShaderCompilerHLSL").Succeeded(), "Compiler Plugin not found");
+  EZ_VERIFY(ezPlugin::LoadPlugin("ezShaderCompilerHLSL").Succeeded(), "Compiler Plugin not found");
 
   m_hShader = ezResourceManager::GetResourceHandle<ezShaderResource>("Shaders/Default.shader");
+
+  ezStartup::StartupEngine();
 
   return EZ_SUCCESS;
 }
 
 void ezGraphicsTest::ShutdownRenderer()
 {
+  ezStartup::ShutdownEngine();
+
   while (ezResourceManager::FreeUnusedResources() > 0)
   {
   }
@@ -313,7 +317,7 @@ ezMeshBufferResourceHandle ezGraphicsTest::CreateBox(float fWidth, float fHeight
 
 void ezGraphicsTest::RenderObject(ezMeshBufferResourceHandle hObject, const ezMat4& mTransform, const ezColor& color)
 {
-  ezShaderManager::SetActiveShader(m_hShader);
+  ezRendererCore::SetActiveShader(m_hShader);
 
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
   ezGALContext* pContext = pDevice->GetPrimaryContext();
@@ -325,6 +329,6 @@ void ezGraphicsTest::RenderObject(ezMeshBufferResourceHandle hObject, const ezMa
   pContext->UpdateBuffer(m_hObjectTransformCB, 0, &ocb, sizeof(ObjectCB));
   pContext->SetConstantBuffer(1, m_hObjectTransformCB);
 
-  ezRenderHelper::DrawMeshBuffer(pContext, hObject);
+  ezRendererCore::DrawMeshBuffer(pContext, hObject);
 }
 
