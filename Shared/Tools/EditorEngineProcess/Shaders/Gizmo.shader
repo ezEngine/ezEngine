@@ -13,7 +13,7 @@ VS_OUT main(VS_IN input)
 {
   VS_OUT output;
   output.pos = mul(mvp, float4(input.pos, 1.0));
-  output.color = input.color;
+  output.color = float4(1, 0, 0, 1);//input.color;
 
   return output;
 }

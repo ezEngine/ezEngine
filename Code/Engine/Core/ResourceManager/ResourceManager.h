@@ -54,10 +54,16 @@ class EZ_CORE_DLL ezResourceManager
 {
 public:
   template<typename ResourceType>
-  static ezResourceHandle<ResourceType> GetResourceHandle(const char* szResourceID);
+  static ezResourceHandle<ResourceType> LoadResource(const char* szResourceID);
 
   template<typename ResourceType>
-  static void CreateResource(const ezResourceHandle<ResourceType>& hResource, const typename ResourceType::DescriptorType& descriptor);
+  static ezResourceHandle<ResourceType> LoadResource(const char* szResourceID, ezResourcePriority::Enum Priority, ezResourceHandle<ResourceType> hFallbackResource);
+
+  template<typename ResourceType>
+  static ezResourceHandle<ResourceType> CreateResource(const char* szResourceID, const typename ResourceType::DescriptorType& descriptor);
+
+  template<typename ResourceType>
+  static ezResourceHandle<ResourceType> GetCreatedResource(const char* szResourceID);
 
   template<typename ResourceType>
   static ResourceType* BeginAcquireResource(const ezResourceHandle<ResourceType>& hResource, ezResourceAcquireMode::Enum mode = ezResourceAcquireMode::AllowFallback, ezResourcePriority::Enum Priority = ezResourcePriority::Unchanged);
@@ -76,6 +82,8 @@ public:
 
   static void OnCoreShutdown();
 
+  static void OnCoreStartup();
+
   template<typename ResourceType>
   static void PreloadResource(const ezResourceHandle<ResourceType>& hResource, ezTime tShouldBeAvailableIn);
 
@@ -88,6 +96,9 @@ public:
 private:
   friend class ezResourceManagerWorker;
   friend class ezResourceManagerWorkerGPU;
+
+  template<typename ResourceType>
+  static ResourceType* GetResource(const char* szResourceID);
 
   static void InternalPreloadResource(ezResourceBase* pResource, bool bHighestPriority);
 

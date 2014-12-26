@@ -3,7 +3,7 @@
 #include <RendererFoundation/Context/Context.h>
 #include <RendererFoundation/Device/SwapChain.h>
 #include <RendererDX11/Device/DeviceDX11.h>
-#include <RendererCore/Pipeline/RenderHelper.h>
+#include <RendererCore/RendererCore.h>
 #include <Foundation/Threading/TaskSystem.h>
 #include <EditorFramework/EngineProcess/EngineProcessDocumentContext.h>
 #include <EditorFramework/EngineProcess/EngineProcessMessages.h>
@@ -13,16 +13,8 @@
 
 ezDataTransfer ezViewContext::m_PickingRenderTargetDT;
 
-ezMeshBufferResourceHandle CreateMesh(const ezGeometry& geom, const char* szResourceName)
+ezMeshBufferResourceHandle CreateMeshResource(const ezGeometry& geom, const char* szResourceName)
 {
-  ezMeshBufferResourceHandle hMesh;
-  hMesh = ezResourceManager::GetResourceHandle<ezMeshBufferResource>(szResourceName);
-
-  ezResourceLock<ezMeshBufferResource> res(hMesh, ezResourceAcquireMode::PointerOnly);
-
-  if (res->GetLoadingState() == ezResourceLoadState::Loaded)
-    return hMesh;
-
   ezDynamicArray<ezUInt16> Indices;
   Indices.Reserve(geom.GetPolygons().GetCount() * 6);
 
@@ -53,12 +45,12 @@ ezMeshBufferResourceHandle CreateMesh(const ezGeometry& geom, const char* szReso
     desc.SetTriangleIndices(t / 3, Indices[t], Indices[t + 1], Indices[t + 2]);
   }
 
-  ezResourceManager::CreateResource(hMesh, desc);
+  ezMeshBufferResourceHandle hMesh = ezResourceManager::CreateResource<ezMeshBufferResource>(szResourceName, desc);
 
   return hMesh;
 }
 
-ezMeshBufferResourceHandle CreateTranslateGizmo()
+ezMeshBufferResourceHandle CreateTranslateGizmoMesh()
 {
   const float fThickness = 0.01f;
   const float fLength = 0.5f;
@@ -109,14 +101,14 @@ ezMeshBufferResourceHandle CreateTranslateGizmo()
   m.SetRotationMatrixX(ezAngle::Degree(180.0f));
   geom.AddRectXY(ezVec2(fRectSize), ezColor8UNorm(uiDark, uiDark, uiLight), m, 3);
 
-  return CreateMesh(geom, "TranslateGizmo");
+  return CreateMeshResource(geom, "TranslateGizmo");
 }
 
 void ezViewContext::RenderTranslateGizmo(const ezMat4& mTransformation)
 {
   ezUInt32 uiPickingID = m_PickingCache.GeneratePickingID(nullptr, "ezTranslateGizmo");
 
-  ezShaderManager::SetActiveShader(m_hGizmoShader);
+  ezRendererCore::SetActiveShader(m_hGizmoShader);
 
   ObjectData od;
   od.m_ModelView = m_ProjectionMatrix * m_ViewMatrix * mTransformation;
@@ -134,14 +126,14 @@ void ezViewContext::RenderTranslateGizmo(const ezMat4& mTransformation)
 
   pContext->SetConstantBuffer(1, m_hCB);
 
-  ezRenderHelper::DrawMeshBuffer(pContext, m_hTranslateGizmo);
+  ezRendererCore::DrawMeshBuffer(pContext, m_hTranslateGizmo);
 }
 
 void ezViewContext::RenderObject(ezGameObject* pObject, const ezMat4& ViewProj)
 {
   ezUInt32 uiPickingID = m_PickingCache.GeneratePickingID(pObject, "ezGameObject");
 
-  ezShaderManager::SetActiveShader(m_hShader);
+  ezRendererCore::SetActiveShader(m_hShader);
 
   const ezVec3 vPos = pObject->GetWorldPosition();
 
@@ -163,7 +155,7 @@ void ezViewContext::RenderObject(ezGameObject* pObject, const ezMat4& ViewProj)
 
   pContext->SetConstantBuffer(1, m_hCB);
 
-  ezRenderHelper::DrawMeshBuffer(pContext, m_hSphere);
+  ezRendererCore::DrawMeshBuffer(pContext, m_hSphere);
 }
 
 void ezViewContext::RenderScene()
@@ -226,7 +218,7 @@ void ezViewContext::Redraw()
     pContext->SetRenderTargetConfig(m_hPickingRenderTargetCfg);
 
     pContext->Clear(ezColor::GetBlack());
-    ezShaderManager::SetPermutationVariable("EDITOR_PICKING", "1");
+    ezRendererCore::SetShaderPermutationVariable("EDITOR_PICKING", "1");
 
     RenderScene();
   }
@@ -236,7 +228,7 @@ void ezViewContext::Redraw()
 
     ezColor c = ezColor::GetCornflowerBlue() * 0.25f; // The original! * 0.25f
     pContext->Clear(c);
-    ezShaderManager::SetPermutationVariable("EDITOR_PICKING", "0");
+    ezRendererCore::SetShaderPermutationVariable("EDITOR_PICKING", "0");
 
     RenderScene();
   }
@@ -313,7 +305,7 @@ void ezEditorProcessApp::InitDevice()
 
 namespace DontUse
 {
-  ezMeshBufferResourceHandle CreateSphere(ezInt32 iMesh)
+  ezMeshBufferResourceHandle CreateSphereMesh(ezInt32 iMesh)
   {
     ezDynamicArray<ezVec3> Vertices;
     ezDynamicArray<ezUInt16> Indices;
@@ -349,10 +341,10 @@ namespace DontUse
     }
 
 
-    return CreateMesh(Vertices, Indices, iMesh);
+    return CreateMeshResource(Vertices, Indices, iMesh);
   }
 
-  ezMeshBufferResourceHandle CreateMesh(const ezArrayPtr<ezVec3>& pVertices, const ezArrayPtr<ezUInt16>& pIndices, ezInt32 iMesh)
+  ezMeshBufferResourceHandle CreateMeshResource(const ezArrayPtr<ezVec3>& pVertices, const ezArrayPtr<ezUInt16>& pIndices, ezInt32 iMesh)
   {
     ezMeshBufferResourceDescriptor desc;
     desc.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
@@ -370,12 +362,7 @@ namespace DontUse
       ezStringBuilder s;
       s.Format("MayaMesh%i", iMesh);
 
-      hMesh = ezResourceManager::GetResourceHandle<ezMeshBufferResource>(s.GetData());
-
-      ezResourceLock<ezMeshBufferResource> res(hMesh, ezResourceAcquireMode::PointerOnly);
-
-      if (res->GetLoadingState() != ezResourceLoadState::Loaded)
-        ezResourceManager::CreateResource(hMesh, desc);
+      hMesh = ezResourceManager::CreateResource<ezMeshBufferResource>(s.GetData(), desc);
     }
 
     return hMesh;

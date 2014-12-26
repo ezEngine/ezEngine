@@ -7,9 +7,8 @@
 #include <RendererDX11/Device/DeviceDX11.h>
 #include <RendererFoundation/Device/SwapChain.h>
 #include <RendererFoundation/Context/Context.h>
-#include <RendererCore/Pipeline/RenderHelper.h>
+#include <RendererCore/RendererCore.h>
 #include <RendererCore/ShaderCompiler/ShaderCompiler.h>
-#include <RendererCore/ShaderCompiler/ShaderManager.h>
 #include <System/Window/Window.h>
 #include <QProcess>
 #include <QSharedMemory>

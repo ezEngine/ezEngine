@@ -72,11 +72,7 @@ void GameRenderer::RenderGrid()
 
         ezResourcePriority::Enum iPriority = ezMath::Clamp((ezResourcePriority::Enum) (ezInt32) ((vCellPos - vCamPos).GetLength() / 10.0f), ezResourcePriority::Highest, ezResourcePriority::Lowest);
 
-        const_cast<GameCellData&>(cd).m_hColorResource = ezResourceManager::GetResourceHandle<ColorResource>(sColorResource.GetData());
-        pColor = ezResourceManager::BeginAcquireResource(cd.m_hColorResource, ezResourceAcquireMode::PointerOnly, iPriority);
-        pColor->SetFallbackResource(g_pColorFallback);
-
-        ezResourceManager::EndAcquireResource(pColor);
+        const_cast<GameCellData&>(cd).m_hColorResource = ezResourceManager::LoadResource<ColorResource>(sColorResource.GetData(), iPriority, g_pColorFallback);
       }
 
       

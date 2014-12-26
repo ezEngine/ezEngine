@@ -120,7 +120,7 @@ ezResult ezGraphicsTest::SetupRenderer(ezUInt32 uiResolutionX, ezUInt32 uiResolu
 
   EZ_VERIFY(ezPlugin::LoadPlugin("ezShaderCompilerHLSL").Succeeded(), "Compiler Plugin not found");
 
-  m_hShader = ezResourceManager::GetResourceHandle<ezShaderResource>("Shaders/Default.shader");
+  m_hShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Default.shader");
 
   ezStartup::StartupEngine();
 
@@ -129,6 +129,8 @@ ezResult ezGraphicsTest::SetupRenderer(ezUInt32 uiResolutionX, ezUInt32 uiResolu
 
 void ezGraphicsTest::ShutdownRenderer()
 {
+  m_hShader.Invalidate();
+
   ezStartup::ShutdownEngine();
 
   while (ezResourceManager::FreeUnusedResources() > 0)
@@ -222,11 +224,9 @@ void ezGraphicsTest::ClearScreen(const ezColor& color)
 ezMeshBufferResourceHandle ezGraphicsTest::CreateMesh(const ezGeometry& geom, const char* szResourceName)
 {
   ezMeshBufferResourceHandle hMesh;
-  hMesh = ezResourceManager::GetResourceHandle<ezMeshBufferResource>(szResourceName);
+  hMesh = ezResourceManager::GetCreatedResource<ezMeshBufferResource>(szResourceName);
 
-  ezResourceLock<ezMeshBufferResource> res(hMesh, ezResourceAcquireMode::PointerOnly);
-
-  if (res->GetLoadingState() == ezResourceLoadState::Loaded)
+  if (hMesh.IsValid())
     return hMesh;
 
   ezDynamicArray<ezUInt16> Indices;
@@ -259,7 +259,7 @@ ezMeshBufferResourceHandle ezGraphicsTest::CreateMesh(const ezGeometry& geom, co
     desc.SetTriangleIndices(t / 3, Indices[t], Indices[t + 1], Indices[t + 2]);
   }
 
-  ezResourceManager::CreateResource(hMesh, desc);
+  hMesh = ezResourceManager::CreateResource<ezMeshBufferResource>(szResourceName, desc);
 
   return hMesh;
 }

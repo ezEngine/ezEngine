@@ -1,14 +1,14 @@
 #pragma once
 
 template<typename ResourceType>
-ezResourceHandle<ResourceType> ezResourceManager::GetResourceHandle(const char* szResourceID)
+ResourceType* ezResourceManager::GetResource(const char* szResourceID)
 {
   ezResourceBase* pResource = NULL;
 
   const ezTempHashedString sResourceHash(szResourceID);
 
   if (m_LoadedResources.TryGetValue(sResourceHash, pResource))
-    return ezResourceHandle<ResourceType>((ResourceType*) pResource);
+    return (ResourceType*) pResource;
 
   const ezRTTI* pRtti = ezGetStaticRTTI<ResourceType>();
   EZ_ASSERT(pRtti != NULL, "There is no RTTI information available for the given resource type '%s'", EZ_STRINGIZE(ResourceType));
@@ -19,13 +19,59 @@ ezResourceHandle<ResourceType> ezResourceManager::GetResourceHandle(const char* 
 
   m_LoadedResources.Insert(sResourceHash, pNewResource);
 
-  return ezResourceHandle<ResourceType>(pNewResource);
+  return (ResourceType*) pNewResource;
 }
 
 template<typename ResourceType>
-void ezResourceManager::CreateResource(const ezResourceHandle<ResourceType>& hResource, const typename ResourceType::DescriptorType& descriptor)
+ezResourceHandle<ResourceType> ezResourceManager::LoadResource(const char* szResourceID)
 {
+  return ezResourceHandle<ResourceType>(GetResource<ResourceType>(szResourceID));
+}
+
+template<typename ResourceType>
+ezResourceHandle<ResourceType> ezResourceManager::LoadResource(const char* szResourceID, ezResourcePriority::Enum Priority, ezResourceHandle<ResourceType> hFallbackResource)
+{
+  ezResourceHandle<ResourceType> hResource (GetResource<ResourceType>(szResourceID));
+
+  ResourceType* pResource = ezResourceManager::BeginAcquireResource(hResource, ezResourceAcquireMode::PointerOnly, Priority);
+
+  if (hFallbackResource.IsValid())
+  {
+    pResource->SetFallbackResource(hFallbackResource);
+  }
+
+  ezResourceManager::EndAcquireResource(pResource);
+
+  return hResource;
+}
+
+template<typename ResourceType>
+ezResourceHandle<ResourceType> ezResourceManager::GetCreatedResource(const char* szResourceID)
+{
+  ezResourceBase* pResource = NULL;
+
+  const ezTempHashedString sResourceHash(szResourceID);
+
+  if (m_LoadedResources.TryGetValue(sResourceHash, pResource))
+  {
+    /// \todo Verify the resource was created, not loaded
+
+    return (ResourceType*) pResource;
+  }
+
+  return ezResourceHandle<ResourceType>();
+}
+
+template<typename ResourceType>
+ezResourceHandle<ResourceType> ezResourceManager::CreateResource(const char* szResourceID, const typename ResourceType::DescriptorType& descriptor)
+{
+  ezResourceHandle<ResourceType> hResource(GetResource<ResourceType>(szResourceID));
+
   ResourceType* pResource = BeginAcquireResource(hResource, ezResourceAcquireMode::PointerOnly);
+
+  EZ_ASSERT(pResource->GetLoadingState() == ezResourceLoadState::Uninitialized, "CreateResource was called on a resource this is already created");
+
+  /// \todo Set a flag that this resource was created, and not loaded
 
   // If this does not compile, you have forgotten to make ezResourceManager a friend of your resource class.
   // which probably means that you did not derive from ezResource, which you should do!
@@ -35,6 +81,8 @@ void ezResourceManager::CreateResource(const ezResourceHandle<ResourceType>& hRe
   EZ_ASSERT(pResource->GetMaxQualityLevel() > 0, "CreateResource did not set the max quality level properly.");
 
   EndAcquireResource(pResource);
+
+  return hResource;
 }
 
 template<typename ResourceType>

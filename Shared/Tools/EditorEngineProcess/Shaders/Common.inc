@@ -12,9 +12,7 @@ cbuffer PerObject : register(b1)
 struct VS_IN
 {
   float3 pos : POSITION;
-  float4 color : COLOR;
-  float3 normal : NORMAL;
-  float2 texcoord0 : TEXCOORD0;
+  //float4 color : COLOR;
 };
 
 struct VS_OUT

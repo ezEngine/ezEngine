@@ -169,7 +169,7 @@ public:
     ezRendererCore::SetShaderPlatform("DX11_SM40", true);
 #endif
 
-    m_hShader = ezResourceManager::GetResourceHandle<ezShaderResource>("Shaders/ez2.shader");
+    m_hShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/ez2.shader");
 
     ezRendererCore::SetActiveShader(m_hShader);
     ezRendererCore::SetShaderPermutationVariable("COLORED", "1");

@@ -2,8 +2,9 @@
 #include <EditorEngineProcess/ViewContext.h>
 #include <RendererFoundation/Device/SwapChain.h>
 #include <Core/ResourceManager/ResourceManager.h>
+#include <RendererCore/RendererCore.h>
 
-ezMeshBufferResourceHandle CreateTranslateGizmo();
+ezMeshBufferResourceHandle CreateTranslateGizmoMesh();
 
 void ezViewContext::SetupRenderTarget(ezWindowHandle hWnd, ezUInt16 uiWidth, ezUInt16 uiHeight)
 {
@@ -18,8 +19,8 @@ void ezViewContext::SetupRenderTarget(ezWindowHandle hWnd, ezUInt16 uiWidth, ezU
   }
   else
   {
-    m_hSphere = DontUse::CreateSphere(3);
-    m_hTranslateGizmo = CreateTranslateGizmo();
+    m_hSphere = DontUse::CreateSphereMesh(3);
+    m_hTranslateGizmo = CreateTranslateGizmoMesh();
   }
 
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
@@ -71,10 +72,10 @@ void ezViewContext::SetupRenderTarget(ezWindowHandle hWnd, ezUInt16 uiWidth, ezU
   // Create a constant buffer for matrix upload
   m_hCB = pDevice->CreateConstantBuffer(sizeof(ObjectData));
 
-  ezShaderManager::SetPlatform("DX11_SM40", pDevice, true);
+  ezRendererCore::SetShaderPlatform("DX11_SM40", true);
 
-  m_hShader = ezResourceManager::GetResourceHandle<ezShaderResource>("Shaders/Wireframe.shader");
-  m_hGizmoShader = ezResourceManager::GetResourceHandle<ezShaderResource>("Shaders/Gizmo.shader");
+  m_hShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Wireframe.shader");
+  m_hGizmoShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Gizmo.shader");
 
   // Create render target for picking
   {

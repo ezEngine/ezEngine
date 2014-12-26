@@ -129,12 +129,10 @@ void GameRenderer::SetupRenderer(GameWindow* pWindow, const Level* pLevel, const
 
   ezResourceManager::SetResourceTypeLoader<ColorResource>(&g_ColorLoader);
 
-  g_hColorFallback = ezResourceManager::GetResourceHandle<ColorResource>("ColorFallback");
-
   ColorResourceDescriptor crd;
   crd.m_Color.SetRGB(ezVec3(0, 0, 1));
 
-  ezResourceManager::CreateResource(g_hColorFallback, crd);
+  g_hColorFallback = ezResourceManager::CreateResource<ColorResource>("ColorFallback", crd);
   g_pColorFallback = ezResourceManager::BeginAcquireResource(g_hColorFallback, ezResourceAcquireMode::NoFallback);
   g_pColorFallback->m_Color.SetRGB(ezVec3(1, 0, 0));
   ezResourceManager::EndAcquireResource(g_pColorFallback);

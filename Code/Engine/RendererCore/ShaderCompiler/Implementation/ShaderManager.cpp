@@ -60,7 +60,7 @@ ezShaderPermutationResourceHandle ezRendererCore::PreloadSingleShaderPermutation
     sShaderFile.Shrink(0, 1);
   sShaderFile.AppendFormat("%08X.permutation", uiPermutationHash);
 
-  ezShaderPermutationResourceHandle hShaderPermutation = ezResourceManager::GetResourceHandle<ezShaderPermutationResource>(sShaderFile.GetData());
+  ezShaderPermutationResourceHandle hShaderPermutation = ezResourceManager::LoadResource<ezShaderPermutationResource>(sShaderFile.GetData());
 
   ezResourceManager::PreloadResource(hShaderPermutation, tShouldBeAvailableIn);
 

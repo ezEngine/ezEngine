@@ -5,8 +5,7 @@
 #include <System/Window/Window.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererCore/Meshes/MeshBufferResource.h>
-#include <RendererCore/ShaderCompiler/ShaderCompiler.h>
-#include <RendererCore/ShaderCompiler/ShaderManager.h>
+#include <RendererCore/Shader/ShaderResource.h>
 #include <CoreUtils/Graphics/Camera.h>
 #include <CoreUtils/Debugging/DataTransfer.h>
 
@@ -102,8 +101,8 @@ private:
 
 namespace DontUse
 {
-  ezMeshBufferResourceHandle CreateMesh(const ezArrayPtr<ezVec3>& pVertices, const ezArrayPtr<ezUInt16>& pIndices, ezInt32 iMesh);
+  ezMeshBufferResourceHandle CreateMeshResource(const ezArrayPtr<ezVec3>& pVertices, const ezArrayPtr<ezUInt16>& pIndices, ezInt32 iMesh);
 
-  ezMeshBufferResourceHandle CreateSphere(ezInt32 iMesh);
+  ezMeshBufferResourceHandle CreateSphereMesh(ezInt32 iMesh);
 }
 

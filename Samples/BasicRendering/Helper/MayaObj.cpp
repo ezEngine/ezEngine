@@ -133,9 +133,10 @@ namespace DontUse
       ezStringBuilder s;
       s.Format("MayaMesh%i", iMesh);
 
-      m_hMeshBuffer = ezResourceManager::GetResourceHandle<ezMeshBufferResource>(s.GetData());
+      m_hMeshBuffer = ezResourceManager::GetCreatedResource<ezMeshBufferResource>(s.GetData());
 
-      ezResourceManager::CreateResource(m_hMeshBuffer, desc);
+      if (!m_hMeshBuffer.IsValid())
+        m_hMeshBuffer = ezResourceManager::CreateResource<ezMeshBufferResource>(s.GetData(), desc);
     }
   }
 

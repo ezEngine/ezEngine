@@ -354,6 +354,13 @@ void ezResourceManager::CleanUpResources()
 }
 */
 
+void ezResourceManager::OnCoreStartup()
+{
+  EZ_LOCK(ResourceMutex);
+  m_bTaskRunning = false;
+  m_bStop = false;
+}
+
 void ezResourceManager::OnEngineShutdown()
 {
   {
@@ -363,14 +370,14 @@ void ezResourceManager::OnEngineShutdown()
     m_bStop = true;
   }
 
-  for (int i = 0; i < 16; ++i)
-  {
-    ezTaskSystem::CancelTask(&m_WorkerGPU[i]);
-  }
-
   for (int i = 0; i < 2; ++i)
   {
     ezTaskSystem::CancelTask(&m_WorkerTask[i]);
+  }
+
+  for (int i = 0; i < 16; ++i)
+  {
+    ezTaskSystem::CancelTask(&m_WorkerGPU[i]);
   }
 
   // unload all resources until there are no more that can be unloaded
@@ -404,6 +411,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Core, ResourceManager)
 
   ON_CORE_STARTUP
   {
+    ezResourceManager::OnCoreStartup();
   }
  
   ON_CORE_SHUTDOWN
