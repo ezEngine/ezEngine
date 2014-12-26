@@ -30,11 +30,11 @@ void ezShaderPermutationResource::UnloadData(bool bFullUnload)
   m_uiLoadedQualityLevel = 0;
   m_LoadingState = ezResourceLoadState::Uninitialized;
 
-  if (!m_hVertexDeclaration.IsInvalidated())
-  {
-    ezGALDevice::GetDefaultDevice()->DestroyVertexDeclaration(m_hVertexDeclaration);
-    m_hVertexDeclaration.Invalidate();
-  }
+  //if (!m_hVertexDeclaration.IsInvalidated())
+  //{
+  //  ezGALDevice::GetDefaultDevice()->DestroyVertexDeclaration(m_hVertexDeclaration);
+  //  m_hVertexDeclaration.Invalidate();
+  //}
 
   if (!m_hShader.IsInvalidated())
   {
@@ -99,18 +99,18 @@ void ezShaderPermutationResource::UpdateContent(ezStreamReaderBase& Stream)
 
   m_bValid = true;
 
-  // *** TODO: HACK ***
+  //// *** TODO: HACK ***
 
-  ezGALVertexDeclarationCreationDescription VertDeclDesc;
-  VertDeclDesc.m_hShader = m_hShader;
-  VertDeclDesc.m_VertexAttributes.PushBack(ezGALVertexAttribute(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat, 0, 0, false));
-  VertDeclDesc.m_VertexAttributes.PushBack(ezGALVertexAttribute(ezGALVertexAttributeSemantic::Color, ezGALResourceFormat::RGBAUByteNormalized, 12, 0, false));
-  VertDeclDesc.m_VertexAttributes.PushBack(ezGALVertexAttribute(ezGALVertexAttributeSemantic::Normal, ezGALResourceFormat::XYZFloat, 16, 0, false));
-  VertDeclDesc.m_VertexAttributes.PushBack(ezGALVertexAttribute(ezGALVertexAttributeSemantic::TexCoord0, ezGALResourceFormat::UVFloat, 28, 0, false));
+  //ezGALVertexDeclarationCreationDescription VertDeclDesc;
+  //VertDeclDesc.m_hShader = m_hShader;
+  //VertDeclDesc.m_VertexAttributes.PushBack(ezGALVertexAttribute(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat, 0, 0, false));
+  //VertDeclDesc.m_VertexAttributes.PushBack(ezGALVertexAttribute(ezGALVertexAttributeSemantic::Color, ezGALResourceFormat::RGBAUByteNormalized, 12, 0, false));
+  //VertDeclDesc.m_VertexAttributes.PushBack(ezGALVertexAttribute(ezGALVertexAttributeSemantic::Normal, ezGALResourceFormat::XYZFloat, 16, 0, false));
+  //VertDeclDesc.m_VertexAttributes.PushBack(ezGALVertexAttribute(ezGALVertexAttributeSemantic::TexCoord0, ezGALResourceFormat::UVFloat, 28, 0, false));
 
-  m_hVertexDeclaration = ezGALDevice::GetDefaultDevice()->CreateVertexDeclaration(VertDeclDesc);
+  //m_hVertexDeclaration = ezGALDevice::GetDefaultDevice()->CreateVertexDeclaration(VertDeclDesc);
 
-  // ************
+  //// ************
 
   SetMemoryUsageGPU(uiGPUMem);
 }

@@ -14,6 +14,8 @@
 #include <RendererCore/Shader/ShaderPermutationResource.h>
 
 class ezGALContext;
+struct ezVertexDeclarationInfo;
+
 
 class EZ_RENDERERCORE_DLL ezRendererCore
 {
@@ -83,8 +85,29 @@ private:
     ezHashTable<ezUInt32, ezTextureResourceHandle> m_BoundTextures;
   };
 
+  struct ShaderVertexDecl
+  {
+    ezGALShaderHandle m_hShader;
+    ezUInt32 m_uiVertexDeclarationHash;
+
+    EZ_FORCE_INLINE bool operator<(const ShaderVertexDecl& rhs) const
+    {
+      if (m_hShader < rhs.m_hShader)
+        return true;
+      if (rhs.m_hShader < m_hShader)
+        return false;
+      return m_uiVertexDeclarationHash < rhs.m_uiVertexDeclarationHash;
+    }
+
+    EZ_FORCE_INLINE bool operator==(const ShaderVertexDecl& rhs) const
+    {
+      return (m_hShader == rhs.m_hShader && m_uiVertexDeclarationHash == rhs.m_uiVertexDeclarationHash);
+    }
+  };
+
   static void SetShaderContextState(ezGALContext* pContext, ContextState& state);
   static void ApplyTextureBindings(ezGALContext* pContext, ezGALShaderStage::Enum stage, const ezShaderStageBinary* pBinary);
+  static ezGALVertexDeclarationHandle GetVertexDeclaration(ezGALShaderHandle hShader, const ezVertexDeclarationInfo& decl);
 
   static ezPermutationGenerator s_AllowedPermutations;
   static bool s_bEnableRuntimeCompilation;
@@ -92,5 +115,6 @@ private:
   static ezMap<ezGALContext*, ContextState> s_ContextState;
   static ezString s_ShaderCacheDirectory;
   static ezMap<ezUInt32, ezPermutationGenerator> s_PermutationHashCache;
+  static ezMap<ShaderVertexDecl, ezGALVertexDeclarationHandle> s_GALVertexDeclarations;
 };
 

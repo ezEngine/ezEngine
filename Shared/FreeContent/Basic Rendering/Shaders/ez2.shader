@@ -79,15 +79,19 @@ void main()
 
 #if defined(DX11_SM40_93) || defined(DX11_SM40) || defined(DX11_SM41) || defined(DX11_SM50)
 
+Texture2D TexDiffuse;
+SamplerState TexDiffuseSampler;
+
 float4 main(PS_IN Input) : SV_Target
 {
+  
+
 #if COLORED
-  return float4(Input.norm * 0.5 + 0.5, 1.0f);
+  //return TexDiffuse.Sample(TexDiffuseSampler, Input.norm.xz * 4);
+  return float4(0.0, 1.0, 0.0, 1.0);
 #else
   return float4(COLORVALUE / 255.0, some_color, 0.0f, 1.0f);
 #endif
-  //return float4(TileTex.Sample(TileSampler, Input.tex0).rgba);
-  //return float4(Input.norm, 1.0f);
 }
 
 #endif

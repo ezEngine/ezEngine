@@ -10,8 +10,7 @@ VS_OUT main(VS_IN In)
 {
   VS_OUT Out;
   Out.pos = mul(mvp, float4(In.pos, 1.0f));
-  Out.norm = mul((float3x3)world, In.norm);
-  Out.tex0 = In.tex0;
+  Out.norm = mul((float3x3)world, normalize(In.pos.xyz));//In.norm);
 
   return Out;
 }

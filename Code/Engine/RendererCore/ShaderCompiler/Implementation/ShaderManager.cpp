@@ -186,7 +186,7 @@ void ezRendererCore::SetShaderContextState(ezGALContext* pContext, ContextState&
     state.m_hActiveGALShader = pShaderPermutation->GetGALShader();
 
     pContext->SetShader(state.m_hActiveGALShader);
-    pContext->SetVertexDeclaration(pShaderPermutation->GetGALVertexDeclaration());
+    //pContext->SetVertexDeclaration(pShaderPermutation->GetGALVertexDeclaration());
   }
 
   if (state.m_bTextureBindingsChanged && state.m_hActiveShaderPermutation.IsValid())

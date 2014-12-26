@@ -47,6 +47,11 @@ void ezRendererCore::DrawMeshBuffer(ezGALContext* pContext, const ezMeshBufferRe
   uiPrimitiveCount *= 3;
   uiFirstPrimitive *= 3;
 
+  {
+    ContextState& state = s_ContextState[pContext];
+    pContext->SetVertexDeclaration(GetVertexDeclaration(state.m_hActiveGALShader, pMeshBuffer->GetVertexDeclaration()));
+  }
+
   if (uiInstanceCount > 1)
   {
     if (!hIndexBuffer.IsInvalidated())

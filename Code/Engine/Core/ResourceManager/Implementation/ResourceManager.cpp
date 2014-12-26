@@ -396,3 +396,28 @@ void ezResourceManager::OnCoreShutdown()
   }
 }
 
+EZ_BEGIN_SUBSYSTEM_DECLARATION(Core, ResourceManager)
+
+  BEGIN_SUBSYSTEM_DEPENDENCIES
+    "Foundation"
+  END_SUBSYSTEM_DEPENDENCIES
+
+  ON_CORE_STARTUP
+  {
+  }
+ 
+  ON_CORE_SHUTDOWN
+  {
+    ezResourceManager::OnCoreShutdown();
+  }
+
+  ON_ENGINE_STARTUP
+  {
+  }
+ 
+  ON_ENGINE_SHUTDOWN
+  {
+    ezResourceManager::OnEngineShutdown();
+  }
+ 
+EZ_END_SUBSYSTEM_DECLARATION

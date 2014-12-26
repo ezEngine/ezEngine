@@ -21,8 +21,8 @@ VS_OUT main(VS_IN Input)
 
 #include "Common.inc"
 
-TextureCube TexDiffuse : register(t0);
-SamplerState TexDiffuseSampler : register(s0);
+TextureCube TexDiffuse : register(t1);
+SamplerState TexDiffuseSampler : register(s1);
 
 float4 main(PS_IN Input) : SV_Target
 {

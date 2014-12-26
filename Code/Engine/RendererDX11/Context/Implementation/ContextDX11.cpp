@@ -36,6 +36,7 @@ ezGALContextDX11::ezGALContextDX11(ezGALDevice* pDevice, ID3D11DeviceContext* pD
   {
     m_pBoundVertexBuffers[i] = nullptr;
     m_VertexBufferOffsets[i] = 0;
+    m_VertexBufferStrides[i] = 0;
   }
 
   for (ezUInt32 i = 0; i < EZ_GAL_MAX_CONSTANT_BUFFER_COUNT; i++)
@@ -226,6 +227,8 @@ void ezGALContextDX11::SetIndexBufferPlatform(ezGALBuffer* pIndexBuffer)
 
 void ezGALContextDX11::SetVertexBufferPlatform(ezUInt32 uiSlot, ezGALBuffer* pVertexBuffer)
 {
+  EZ_ASSERT(uiSlot < EZ_GAL_MAX_VERTEX_BUFFER_COUNT, "Invalid slot index");
+
   m_pBoundVertexBuffers[uiSlot] = pVertexBuffer != nullptr ? static_cast<ezGALBufferDX11*>(pVertexBuffer)->GetDXBuffer() : nullptr;
   m_VertexBufferStrides[uiSlot] = pVertexBuffer != nullptr ? pVertexBuffer->GetDescription().m_uiStructSize : 0;
   m_DeferredStateChanged.Add(ezGALDX11::DeferredStateChanged::VertexBuffer);

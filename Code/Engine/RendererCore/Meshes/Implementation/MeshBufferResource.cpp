@@ -2,6 +2,7 @@
 #include <RendererCore/Meshes/MeshBufferResource.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Context/Context.h>
+#include <RendererCore/RendererCore.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshBufferResource, ezResourceBase, 1, ezRTTIDefaultAllocator<ezMeshBufferResource>);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
@@ -38,12 +39,12 @@ ezUInt32 ezMeshBufferResourceDescriptor::AddStream(ezGALVertexAttributeSemantic:
 {
   EZ_ASSERT(m_VertexStreamData.IsEmpty(), "This function can only be called before 'AllocateStreams' is called");
 
-  for (ezUInt32 i = 0; i < m_Streams.GetCount(); ++i)
+  for (ezUInt32 i = 0; i < m_VertexDeclaration.m_VertexStreams.GetCount(); ++i)
   {
-    EZ_ASSERT(m_Streams[i].m_Semantic != Semantic, "The given semantic %u is already used by a previous stream", Semantic);
+    EZ_ASSERT(m_VertexDeclaration.m_VertexStreams[i].m_Semantic != Semantic, "The given semantic %u is already used by a previous stream", Semantic);
   }
 
-  ezMeshBufferResourceDescriptor::StreamInfo si;
+  ezVertexStreamInfo si;
 
   si.m_Semantic = Semantic;
   si.m_Format = Format;
@@ -53,17 +54,17 @@ ezUInt32 ezMeshBufferResourceDescriptor::AddStream(ezGALVertexAttributeSemantic:
 
   EZ_ASSERT(si.m_uiElementSize > 0, "Invalid Element Size. Format not supported?");
 
-  if (!m_Streams.IsEmpty())
-    si.m_uiOffset = m_Streams.PeekBack().m_uiOffset + m_Streams.PeekBack().m_uiElementSize;
+  if (!m_VertexDeclaration.m_VertexStreams.IsEmpty())
+    si.m_uiOffset = m_VertexDeclaration.m_VertexStreams.PeekBack().m_uiOffset + m_VertexDeclaration.m_VertexStreams.PeekBack().m_uiElementSize;
 
-  m_Streams.PushBack(si);
+  m_VertexDeclaration.m_VertexStreams.PushBack(si);
 
-  return m_Streams.GetCount() - 1;
+  return m_VertexDeclaration.m_VertexStreams.GetCount() - 1;
 }
 
 void ezMeshBufferResourceDescriptor::AllocateStreams(ezUInt32 uiNumVertices, ezUInt32 uiNumTriangles)
 {
-  EZ_ASSERT(!m_Streams.IsEmpty(), "You have to add streams via 'AddStream' before calling this function");
+  EZ_ASSERT(!m_VertexDeclaration.m_VertexStreams.IsEmpty(), "You have to add streams via 'AddStream' before calling this function");
 
   m_uiVertexCount = uiNumVertices;
   const ezUInt32 uiVertexStreamSize = m_uiVertexSize * uiNumVertices;
@@ -172,7 +173,10 @@ void ezMeshBufferResource::CreateResource(const ezMeshBufferResourceDescriptor& 
   EZ_ASSERT(m_hVertexBuffer.IsInvalidated(), "Implementation error");
   EZ_ASSERT(m_hIndexBuffer.IsInvalidated(), "Implementation error");
 
-  m_hVertexBuffer = ezGALDevice::GetDefaultDevice()->CreateVertexBuffer(descriptor.GetVertexDataSize(), descriptor.GetVertexCount(), &(descriptor.GetVertexBufferData()[0]));
+  m_VertexDeclaration = descriptor.GetVertexDeclaration();
+  m_VertexDeclaration.ComputeHash();
+
+  m_hVertexBuffer = ezGALDevice::GetDefaultDevice()->CreateVertexBuffer(descriptor.GetVertexDataSize(), descriptor.GetVertexCount(), descriptor.GetVertexBufferData().GetData());
 
   if (descriptor.HasIndexBuffer())
     m_hIndexBuffer = ezGALDevice::GetDefaultDevice()->CreateIndexBuffer(descriptor.Uses32BitIndices() ? ezGALIndexType::UInt : ezGALIndexType::UShort, descriptor.GetPrimitiveCount() * 3, &(descriptor.GetIndexBufferData()[0]));
@@ -186,4 +190,58 @@ void ezMeshBufferResource::CreateResource(const ezMeshBufferResourceDescriptor& 
 
   SetMemoryUsageCPU(0);
   SetMemoryUsageGPU(descriptor.GetVertexBufferData().GetCount() + descriptor.GetIndexBufferData().GetCount());
+}
+
+void ezVertexDeclarationInfo::ComputeHash()
+{
+  m_uiHash = 0;
+
+  for (const auto& vs : m_VertexStreams)
+  {
+    m_uiHash += vs.CalculateHash();
+
+    EZ_ASSERT(m_uiHash != 0, "Invalid Hash Value");
+  }
+}
+
+ezGALVertexDeclarationHandle ezRendererCore::GetVertexDeclaration(ezGALShaderHandle hShader, const ezVertexDeclarationInfo& decl)
+{
+  ShaderVertexDecl svd;
+  svd.m_hShader = hShader;
+  svd.m_uiVertexDeclarationHash = decl.m_uiHash;
+
+  bool bExisted = false;
+  auto it = s_GALVertexDeclarations.FindOrAdd(svd, &bExisted);
+
+  if (!bExisted)
+  {
+    const ezGALShader* pShader = ezGALDevice::GetDefaultDevice()->GetShader(hShader);
+
+    auto pBytecode = pShader->GetDescription().m_ByteCodes[ezGALShaderStage::VertexShader];
+
+    ezGALVertexDeclarationCreationDescription vd;
+    vd.m_hShader = hShader;
+
+    for (ezUInt32 slot = 0; slot < decl.m_VertexStreams.GetCount(); ++slot)
+    {
+      auto& stream = decl.m_VertexStreams[slot];
+
+      //stream.m_Format
+      ezGALVertexAttribute gal;
+      gal.m_bInstanceData = false;
+      gal.m_eFormat = stream.m_Format;
+      gal.m_eSemantic = stream.m_Semantic;
+      gal.m_uiOffset = stream.m_uiOffset;
+      gal.m_uiVertexBufferSlot = slot;
+      vd.m_VertexAttributes.PushBack(gal);
+    }
+
+    ezGALVertexDeclarationHandle hDecl = ezGALDevice::GetDefaultDevice()->CreateVertexDeclaration(vd);
+
+    EZ_ASSERT(!hDecl.IsInvalidated(), "Failed to create vertex declaration");
+
+    it.Value() = hDecl;
+  }
+
+  return it.Value();
 }

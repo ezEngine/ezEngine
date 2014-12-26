@@ -10,7 +10,11 @@ ezMaterialResource::ezMaterialResource()
 
 void ezMaterialResource::UnloadData(bool bFullUnload)
 {
+  m_hShader.Invalidate();
+  m_Parameter.Clear();
+  m_PermutationVars.Clear();
 
+  m_LoadingState = ezResourceLoadState::Uninitialized;
 }
 
 void ezMaterialResource::UpdateContent(ezStreamReaderBase& Stream)
@@ -20,7 +24,6 @@ void ezMaterialResource::UpdateContent(ezStreamReaderBase& Stream)
 
 void ezMaterialResource::UpdateMemoryUsage()
 {
-
 }
 
 void ezMaterialResource::CreateResource(const ezMaterialResourceDescriptor& descriptor)

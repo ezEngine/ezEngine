@@ -7,18 +7,28 @@
 class ezMeshBufferResource;
 typedef ezResourceHandle<ezMeshBufferResource> ezMeshBufferResourceHandle;
 
+struct EZ_RENDERERCORE_DLL ezVertexStreamInfo : public ezHashableStruct<ezVertexStreamInfo>
+{
+  EZ_DECLARE_POD_TYPE();
+
+  ezGALVertexAttributeSemantic::Enum m_Semantic;
+  ezGALResourceFormat::Enum m_Format;
+  ezUInt16 m_uiOffset;
+  ezUInt16 m_uiElementSize;
+};
+
+struct EZ_RENDERERCORE_DLL ezVertexDeclarationInfo
+{
+  void ComputeHash();
+
+  ezHybridArray<ezVertexStreamInfo, 8> m_VertexStreams;
+  ezUInt32 m_uiHash;
+};
+
+
 struct EZ_RENDERERCORE_DLL ezMeshBufferResourceDescriptor
 {
 public:
-  struct StreamInfo
-  {
-    EZ_DECLARE_POD_TYPE();
-
-    ezGALVertexAttributeSemantic::Enum m_Semantic;
-    ezGALResourceFormat::Enum m_Format;
-    ezUInt16 m_uiOffset;
-    ezUInt16 m_uiElementSize;
-  };
 
   ezMeshBufferResourceDescriptor();
 
@@ -48,14 +58,14 @@ public:
   template<typename TYPE>
   void SetVertexData(ezUInt32 uiStream, ezUInt32 uiVertexIndex, const TYPE& data)
   {
-    reinterpret_cast<TYPE&>(m_VertexStreamData[m_uiVertexSize * uiVertexIndex + m_Streams[uiStream].m_uiOffset]) = data;
+    reinterpret_cast<TYPE&>(m_VertexStreamData[m_uiVertexSize * uiVertexIndex + m_VertexDeclaration.m_VertexStreams[uiStream].m_uiOffset]) = data;
   }
 
   /// \brief Writes the three vertex indices for the given triangle into the index buffer.
   void SetTriangleIndices(ezUInt32 uiTriangle, ezUInt32 uiVertex0, ezUInt32 uiVertex1, ezUInt32 uiVertex2);
 
   /// \brief Allows to read the stream info of the descriptor, which is filled out by AddStream()
-  const ezHybridArray<StreamInfo, 16>& GetStreamInfo() const { return m_Streams; }
+  const ezVertexDeclarationInfo& GetVertexDeclaration() const { return m_VertexDeclaration; }
 
   /// \brief Returns the byte size of all the data for one vertex.
   ezUInt32 GetVertexDataSize() const { return m_uiVertexSize; }
@@ -76,20 +86,18 @@ private:
 
   ezUInt32 m_uiVertexSize;
   ezUInt32 m_uiVertexCount;
-  ezHybridArray<StreamInfo, 16> m_Streams;
+  ezVertexDeclarationInfo m_VertexDeclaration;
   ezDynamicArray<ezUInt8> m_VertexStreamData;
   ezDynamicArray<ezUInt8> m_IndexBufferData;
 };
 
-class EZ_RENDERERCORE_DLL ezMeshBufferResource : public ezResource<ezMeshBufferResource, ezMeshBufferResourceDescriptor>
+class EZ_RENDERERCORE_DLL ezMeshBufferResource : public ezResource < ezMeshBufferResource, ezMeshBufferResourceDescriptor >
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezMeshBufferResource);
 
 public:
   ezMeshBufferResource();
   ~ezMeshBufferResource();
-
-  /// \todo Copy the vertex stream format/semantic info for vertex declaration creation
 
   EZ_FORCE_INLINE ezUInt32 GetPrimitiveCount() const
   {
@@ -106,12 +114,16 @@ public:
     return m_hIndexBuffer;
   }
 
+  /// \brief Returns the vertex declaration used by this mesh buffer.
+  const ezVertexDeclarationInfo& GetVertexDeclaration() const { return m_VertexDeclaration; }
+
 private:
   virtual void UnloadData(bool bFullUnload) override;
   virtual void UpdateContent(ezStreamReaderBase& Stream) override;
   virtual void UpdateMemoryUsage() override;
   virtual void CreateResource(const ezMeshBufferResourceDescriptor& descriptor) override;
 
+  ezVertexDeclarationInfo m_VertexDeclaration;
   ezUInt32 m_uiPrimitiveCount;
   ezGALBufferHandle m_hVertexBuffer;
   ezGALBufferHandle m_hIndexBuffer;

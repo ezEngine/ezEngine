@@ -25,9 +25,9 @@
 #define DEMO_DX11 EZ_ON
 
 #if EZ_ENABLED(DEMO_GL)
-  #include <RendererGL/Device/DeviceGL.h>
+#include <RendererGL/Device/DeviceGL.h>
 #else
-  #include <RendererDX11/Device/DeviceDX11.h>
+#include <RendererDX11/Device/DeviceDX11.h>
 #endif
 
 #include <RendererFoundation/Device/SwapChain.h>
@@ -44,20 +44,20 @@
 
 class TestWindow : public ezWindow
 {
-  public:
+public:
 
-    TestWindow()
-      : ezWindow()
-    {
-      m_bCloseRequested = false;
-    }
+  TestWindow()
+    : ezWindow()
+  {
+    m_bCloseRequested = false;
+  }
 
-    virtual void OnClickCloseMessage() override
-    {
-      m_bCloseRequested = true;
-    }
+  virtual void OnClickCloseMessage() override
+  {
+    m_bCloseRequested = true;
+  }
 
-    bool m_bCloseRequested;
+  bool m_bCloseRequested;
 };
 
 struct TestCB
@@ -153,27 +153,27 @@ public:
     // Get the primary swapchain (this one will always be created by device init except if the user instructs no swap chain creation explicitly)
     ezGALSwapChainHandle hPrimarySwapChain = m_pDevice->GetPrimarySwapChain();
     const ezGALSwapChain* pPrimarySwapChain = m_pDevice->GetSwapChain(hPrimarySwapChain);
-    
+
     m_hBBRT = pPrimarySwapChain->GetRenderTargetViewConfig();
-    
+
 
     // Create a constant buffer for matrix upload
     m_hCB = m_pDevice->CreateConstantBuffer(sizeof(TestCB));
 
     for (int i = 0; i < MaxObjs; ++i)
       m_pObj[i] = DontUse::MayaObj::LoadFromFile("ez.obj", m_pDevice, i);
-    
+
 #if EZ_ENABLED(DEMO_GL)
-      ezRendererCore::SetShaderPlatform("GL3", true);
+    ezRendererCore::SetShaderPlatform("GL3", true);
 #else
-      ezRendererCore::SetShaderPlatform("DX11_SM40", true);
+    ezRendererCore::SetShaderPlatform("DX11_SM40", true);
 #endif
 
     m_hShader = ezResourceManager::GetResourceHandle<ezShaderResource>("Shaders/ez2.shader");
 
     ezRendererCore::SetActiveShader(m_hShader);
     ezRendererCore::SetShaderPermutationVariable("COLORED", "1");
-    
+
     ezGALRasterizerStateCreationDescription RasterStateDesc;
     RasterStateDesc.m_bWireFrame = true;
     RasterStateDesc.m_CullMode = ezGALCullMode::Back;
@@ -181,57 +181,16 @@ public:
     m_hRasterizerState = m_pDevice->CreateRasterizerState(RasterStateDesc);
     EZ_ASSERT(!m_hRasterizerState.IsInvalidated(), "Couldn't create rasterizer state!");
 
- 
+
     ezGALDepthStencilStateCreationDescription DepthStencilStateDesc;
     DepthStencilStateDesc.m_bDepthTest = true;
     DepthStencilStateDesc.m_bDepthWrite = true;
     m_hDepthStencilState = m_pDevice->CreateDepthStencilState(DepthStencilStateDesc);
     EZ_ASSERT(!m_hDepthStencilState.IsInvalidated(), "Couldn't create depth-stencil state!");
 
-    // Create texture (not used on the mesh)
-    ezGALTextureCreationDescription TexDesc;
-    TexDesc.m_Format = ezGALResourceFormat::RGBAUByteNormalized;
-    TexDesc.m_uiWidth = 16;
-    TexDesc.m_uiHeight = 16;
-
-    static ezUInt32 Pixels[] = {
-      0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC, 0xFF000000,
-      0xFF000000, 0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC,
-      0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC, 0xFF000000,
-      0xFF000000, 0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC,
-      0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC, 0xFF000000,
-      0xFF000000, 0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC,
-      0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC, 0xFF000000,
-      0xFF000000, 0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC,
-      0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC, 0xFF000000,
-      0xFF000000, 0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC,
-      0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC, 0xFF000000,
-      0xFF000000, 0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC,
-      0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC, 0xFF000000,
-      0xFF000000, 0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC,
-      0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC, 0xFF000000,
-      0xFF000000, 0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC, 0xFF000000, 0xFFCCCCCC,
-    };
-
-    ezGALSystemMemoryDescription InitData[1];
-    InitData[0].m_pData = Pixels;
-    InitData[0].m_uiRowPitch = TexDesc.m_uiWidth * sizeof(ezUInt32);
-    InitData[0].m_uiSlicePitch = TexDesc.m_uiHeight * InitData[0].m_uiRowPitch;
-
-    ezArrayPtr<ezGALSystemMemoryDescription> InitDataPtr(InitData);
-
-    m_hTexture = m_pDevice->CreateTexture(TexDesc, &InitDataPtr);
-
-    ezGALResourceViewCreationDescription TexViewDesc;
-    TexViewDesc.m_hTexture = m_hTexture;
-    
-    m_hTexView = m_pDevice->CreateResourceView(TexViewDesc);
-
-    ezGALSamplerStateCreationDescription SamplerDesc;
-    SamplerDesc.m_MagFilter = SamplerDesc.m_MinFilter = SamplerDesc.m_MipFilter = ezGALTextureFilterMode::Point;
-    m_hSamplerState = m_pDevice->CreateSamplerState(SamplerDesc);
-
     m_DebugBackBufferDT.EnableDataTransfer("Back Buffer");
+
+    ezStartup::StartupEngine();
   }
 
 
@@ -287,10 +246,10 @@ public:
     {
       m_iCurObject = (m_iCurObject + 1) % MaxObjs;
     }
-    
+
     if (ezInputManager::GetInputActionState("Main", "PrevObj") == ezKeyState::Pressed)
     {
-      m_iCurObject = m_iCurObject == 0 ? (MaxObjs-1) : m_iCurObject - 1;
+      m_iCurObject = m_iCurObject == 0 ? (MaxObjs - 1) : m_iCurObject - 1;
     }
 
     ezClock::UpdateAllGlobalClocks();
@@ -301,7 +260,7 @@ public:
 
     ezTaskSystem::FinishFrameTasks();
 
- 
+
     // Before starting to render in a frame call this function
     m_pDevice->BeginFrame();
 
@@ -309,17 +268,11 @@ public:
     ezGALContext* pContext = m_pDevice->GetPrimaryContext();
 
     pContext->SetRenderTargetConfig(m_hBBRT);
-    pContext->SetViewport(0.0f, 0.0f, (float)g_uiWindowWidth, (float)g_uiWindowHeight, 0.0f, 1.0f);
+    pContext->SetViewport(0.0f, 0.0f, (float) g_uiWindowWidth, (float) g_uiWindowHeight, 0.0f, 1.0f);
     pContext->Clear(ezColor::GetBlack());
 
-    //pContext->SetVertexBuffer(0, m_pObj->GetVB());
-    //pContext->SetIndexBuffer(m_pObj->GetIB());
-
-    //pContext->SetPrimitiveTopology(ezGALPrimitiveTopology::Triangles);
     pContext->SetRasterizerState(m_hRasterizerState);
     pContext->SetDepthStencilState(m_hDepthStencilState);
-    pContext->SetResourceView(ezGALShaderStage::PixelShader, 0, m_hTexView);
-    pContext->SetSamplerState(ezGALShaderStage::PixelShader, 0, m_hSamplerState);
 
     static float fRotY = 0.0f;
     fRotY -= 30.0f * ezClock::Get()->GetTimeDiff().AsFloat();
@@ -330,21 +283,21 @@ public:
     ezMat4 Model;
     Model.SetIdentity();
     Model.SetScalingFactors(ezVec3(0.75f));
-    
-    
+
+
     ezMat4 View;
     View.SetIdentity();
     View.SetLookAtMatrix(ezVec3(0.5f, 1.5f, 2.0f), ezVec3(0.0f, 0.5f, 0.0f), ezVec3(0.0f, 1.0f, 0.0f));
 
     ezMat4 Proj;
     Proj.SetIdentity();
-    Proj.SetPerspectiveProjectionMatrixFromFovY(ezAngle::Degree(80.0f), (float)g_uiWindowWidth / (float)g_uiWindowHeight, 0.1f, 1000.0f, 
+    Proj.SetPerspectiveProjectionMatrixFromFovY(ezAngle::Degree(80.0f), (float) g_uiWindowWidth / (float) g_uiWindowHeight, 0.1f, 1000.0f,
 #if EZ_ENABLED(DEMO_GL)
       ezProjectionDepthRange::MinusOneToOne
 #else
       ezProjectionDepthRange::ZeroToOne
 #endif
-    );
+      );
 
     TestCB ObjectData;
 
@@ -400,8 +353,6 @@ public:
 
     ezStartup::ShutdownEngine();
 
-    ezResourceManager::OnEngineShutdown();
-
     m_pDevice->Shutdown();
 
     // the device requires some data for shutdown that is referenced below
@@ -409,12 +360,6 @@ public:
     m_pDevice->DestroyBuffer(m_hCB);
     m_pDevice->DestroyRasterizerState(m_hRasterizerState);
     m_pDevice->DestroyDepthStencilState(m_hDepthStencilState);
-    m_pDevice->DestroyTexture(m_hTexture);
-    m_pDevice->DestroySamplerState(m_hSamplerState);
-    m_pDevice->DestroyResourceView(m_hTexView);
-    //m_pDevice->DestroyRenderTargetConfig(m_hBBRT);
-
-    ezResourceManager::OnCoreShutdown();
 
     EZ_DEFAULT_DELETE(m_pDevice);
 
@@ -432,19 +377,9 @@ private:
 
   ezGALBufferHandle m_hCB;
 
-  //ezGALShaderHandle m_hShader;
-
-  //ezGALVertexDeclarationHandle m_hVertexDeclaration;
-
   ezGALRasterizerStateHandle m_hRasterizerState;
 
   ezGALDepthStencilStateHandle m_hDepthStencilState;
-
-  ezGALTextureHandle m_hTexture;
-
-  ezGALResourceViewHandle m_hTexView;
-
-  ezGALSamplerStateHandle m_hSamplerState;
 
   ezShaderResourceHandle m_hShader;
 

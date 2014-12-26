@@ -22,7 +22,7 @@ public:
   ezShaderPermutationResource();
 
   ezGALShaderHandle GetGALShader() const { return m_hShader; }
-  ezGALVertexDeclarationHandle GetGALVertexDeclaration() const { return m_hVertexDeclaration; }
+  //ezGALVertexDeclarationHandle GetGALVertexDeclaration() const { return m_hVertexDeclaration; }
   const ezShaderStageBinary* GetShaderStageBinary(ezGALShaderStage::Enum stage) const { return m_pShaderStageBinaries[stage]; }
 
   bool IsShaderValid() const { return m_bValid; }
@@ -41,7 +41,7 @@ private:
 
   bool m_bValid;
   ezGALShaderHandle m_hShader;
-  ezGALVertexDeclarationHandle m_hVertexDeclaration;
+  //ezGALVertexDeclarationHandle m_hVertexDeclaration;
 };
 
 

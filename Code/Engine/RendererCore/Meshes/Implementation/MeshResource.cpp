@@ -8,7 +8,10 @@ EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 void ezMeshResource::UnloadData(bool bFullUnload)
 {
+  m_Parts.Clear();
+  m_uiMaterialCount = 0;
 
+  m_LoadingState = ezResourceLoadState::Uninitialized;
 }
 
 void ezMeshResource::UpdateContent(ezStreamReaderBase& Stream)

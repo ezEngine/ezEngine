@@ -8,16 +8,26 @@ ezString ezRendererCore::s_sPlatform;
 bool ezRendererCore::s_bEnableRuntimeCompilation = false;
 ezString ezRendererCore::s_ShaderCacheDirectory = "ShaderBins";
 ezMap<ezUInt32, ezPermutationGenerator> ezRendererCore::s_PermutationHashCache;
+ezMap<ezRendererCore::ShaderVertexDecl, ezGALVertexDeclarationHandle> ezRendererCore::s_GALVertexDeclarations;
 
 void ezRendererCore::OnEngineShutdown()
 {
   s_ContextState.Clear();
   s_PermutationHashCache.Clear();
   s_AllowedPermutations.Clear();
+
+  for (auto it = s_GALVertexDeclarations.GetIterator(); it.IsValid(); ++it)
+  {
+    ezGALDevice::GetDefaultDevice()->DestroyVertexDeclaration(it.Value());
+  }
+
+  s_GALVertexDeclarations.Clear();
 }
 
 void ezRendererCore::OnCoreShutdown()
 {
+  EZ_ASSERT(s_GALVertexDeclarations.IsEmpty(), "ezRendererCore::OnEngineShutdown has not been called. Either ezStartup::ShutdownEngine was not called or ezStartup::StartupEngine was not called at program start");
+
   for (ezUInt32 i = 0; i < ezGALShaderStage::ENUM_COUNT; ++i)
     ezShaderStageBinary::s_ShaderStageBinaries[i].Clear();
 }

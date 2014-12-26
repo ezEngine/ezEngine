@@ -10,6 +10,7 @@
 #include <Foundation/Communication/Telemetry.h>
 #include <Foundation/Configuration/Plugin.h>
 #include <Foundation/Time/Clock.h>
+#include <Core/ResourceManager/ResourceManager.h>
 
 #include <RendererGL/Device/DeviceGL.h>
 #include <RendererCore/Pipeline/RenderPipeline.h>
@@ -86,10 +87,14 @@ void SampleGameApp::BeforeEngineShutdown()
 {
   EZ_LOG_BLOCK("SampleGameApp::BeforeEngineShutdown");
 
+  DestroyGameLevel();
+
   ezStartup::ShutdownEngine();
 
   ezRenderPipeline* pRenderPipeline = m_View.GetRenderPipeline();
   EZ_DEFAULT_DELETE(pRenderPipeline);
+
+  while (ezResourceManager::FreeUnusedResources() > 0) { }
 
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
   pDevice->Shutdown();
@@ -100,8 +105,6 @@ void SampleGameApp::BeforeEngineShutdown()
 
   EZ_DEFAULT_DELETE(m_pThumbstick);
   EZ_DEFAULT_DELETE(m_pThumbstick2);
-
-  DestroyGameLevel();
 
   ezTelemetry::CloseConnection();
 }
