@@ -14,7 +14,7 @@ void ezMeshResource::UnloadData(bool bFullUnload)
   m_LoadingState = ezResourceLoadState::Uninitialized;
 }
 
-void ezMeshResource::UpdateContent(ezStreamReaderBase& Stream)
+void ezMeshResource::UpdateContent(ezStreamReaderBase* Stream)
 {
 
 }

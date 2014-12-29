@@ -13,36 +13,44 @@ ezPlugin g_Plugin(false, OnLoadPlugin, OnUnloadPlugin);
 
 EZ_DYNAMIC_PLUGIN_IMPLEMENTATION(ezShaderCompilerHLSLPlugin);
 
-ezDynamicArray<ezUInt8> CompileDXShader(const char* source, const char* profile, const char* entryPoint)
+ezResult CompileDXShader(const char* szFile, const char* source, const char* profile, const char* entryPoint, ezDynamicArray<ezUInt8>& out_ByteCode)
 {
+  out_ByteCode.Clear();
+
   ID3DBlob* ResultBlob = nullptr;
   ID3DBlob* ErrorBlob = nullptr;
 
-  if (FAILED(D3DCompile(source, strlen(source), "<file>", nullptr, nullptr, entryPoint, profile, 0, 0, &ResultBlob, &ErrorBlob)))
+  if (FAILED(D3DCompile(source, strlen(source), szFile, nullptr, nullptr, entryPoint, profile, 0, 0, &ResultBlob, &ErrorBlob)))
   {
     const char* szError = (const char*) ErrorBlob->GetBufferPointer();
 
-    EZ_ASSERT(false, "Shader compilation failed for profile %s: %s", profile, szError);
+    EZ_LOG_BLOCK("Shader Compilation Failed", szFile);
 
-    return nullptr;
-  }
+    ezLog::Error("Could not compile shader '%s' for profile '%s'", szFile, profile);
+    ezLog::Error("%s", szError);
 
-  ezDynamicArray<ezUInt8> r;
-
-  if (ResultBlob != nullptr)
-  {
-    r.SetCount((ezUInt32) ResultBlob->GetBufferSize());
-    ezMemoryUtils::Copy(&r[0], (ezUInt8*) ResultBlob->GetBufferPointer(), r.GetCount());
-    ResultBlob->Release();
+    ErrorBlob->Release();
+    return EZ_FAILURE;
   }
 
   if (ErrorBlob != nullptr)
   {
+    const char* szError = (const char*) ErrorBlob->GetBufferPointer();
+
+    EZ_LOG_BLOCK("Shader Compilation Error Message", szFile);
+    ezLog::Dev("%s", szError);
+
     ErrorBlob->Release();
   }
 
+  if (ResultBlob != nullptr)
+  {
+    out_ByteCode.SetCount((ezUInt32) ResultBlob->GetBufferSize());
+    ezMemoryUtils::Copy(out_ByteCode.GetData(), (ezUInt8*) ResultBlob->GetBufferPointer(), out_ByteCode.GetCount());
+    ResultBlob->Release();
+  }
 
-  return r;
+  return EZ_SUCCESS;
 }
 
 void ezShaderCompilerHLSL::ReflectShaderStage(ezShaderProgramData& inout_Data, ezGALShaderStage::Enum Stage)
@@ -54,10 +62,10 @@ void ezShaderCompilerHLSL::ReflectShaderStage(ezShaderProgramData& inout_Data, e
   D3D11_SHADER_DESC sd;
   pReflector->GetDesc(&sd);
 
-  ezLog::Info("Bound Resources: %u", sd.BoundResources);
-  ezLog::Info("Num Constant Buffers: %u", sd.ConstantBuffers);
-  ezLog::Info("Num Inputs: %u", sd.InputParameters);
-  ezLog::Info("Num Outputs: %u", sd.OutputParameters);
+  //ezLog::Info("Bound Resources: %u", sd.BoundResources);
+  //ezLog::Info("Num Constant Buffers: %u", sd.ConstantBuffers);
+  //ezLog::Info("Num Inputs: %u", sd.InputParameters);
+  //ezLog::Info("Num Outputs: %u", sd.OutputParameters);
 
   for (ezUInt32 r = 0; r < sd.BoundResources; ++r)
   {
@@ -66,33 +74,33 @@ void ezShaderCompilerHLSL::ReflectShaderStage(ezShaderProgramData& inout_Data, e
     D3D11_SHADER_INPUT_BIND_DESC sibd;
     pReflector->GetResourceBindingDesc(r, &sibd);
 
-    ezLog::Info("Bound Resource: '%s' at slot %u (Count: %u, Flags: %u)", sibd.Name, sibd.BindPoint, sibd.BindCount, sibd.uFlags);
+    //ezLog::Info("Bound Resource: '%s' at slot %u (Count: %u, Flags: %u)", sibd.Name, sibd.BindPoint, sibd.BindCount, sibd.uFlags);
 
     ssr.m_Name.Assign(sibd.Name);
     ssr.m_iSlot = sibd.BindPoint;
     
 
-    if (sibd.Type == D3D_SIT_TEXTURE || sibd.Type == D3D_SIT_TBUFFER)
-    {
-      
-      switch (sibd.Dimension)
-      {
-      //case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_BUFFER: ezLog::Info("Resource is a Buffer"); break;
-      //case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_BUFFEREX: ezLog::Info("Resource is a Buffer Ex"); break;
-      case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURE1D: ezLog::Info("Resource is a 1D Texture"); ssr.m_Type = ezShaderStageResource::Texture1D; break;
-      case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURE1DARRAY: ezLog::Info("Resource is a 1D Texture Array"); ssr.m_Type = ezShaderStageResource::Texture1DArray; break;
-      case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURE2D: ezLog::Info("Resource is a 2D Texture"); ssr.m_Type = ezShaderStageResource::Texture2D; break;
-      case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURE2DARRAY: ezLog::Info("Resource is a 2D Texture Array"); ssr.m_Type = ezShaderStageResource::Texture2DArray; break;
-      case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURE2DMS: ezLog::Info("Resource is a 2D Texture MS"); ssr.m_Type = ezShaderStageResource::Texture2DMS; break;
-      case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURE2DMSARRAY: ezLog::Info("Resource is a 2D Texture MS Array"); ssr.m_Type = ezShaderStageResource::Texture2DMSArray; break;
-      case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURE3D: ezLog::Info("Resource is a 3D Texture"); ssr.m_Type = ezShaderStageResource::Texture3D; break;
-      case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURECUBE: ezLog::Info("Resource is a Cube Texture"); ssr.m_Type = ezShaderStageResource::TextureCube; break;
-      case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURECUBEARRAY: ezLog::Info("Resource is a Cube Texture Array"); ssr.m_Type = ezShaderStageResource::TextureCubeArray; break;
-      default:
-        ezLog::Error("Resource Dimension is an unknown type");
-        break;
-      }
-    }
+    //if (sibd.Type == D3D_SIT_TEXTURE || sibd.Type == D3D_SIT_TBUFFER)
+    //{
+    //  
+    //  switch (sibd.Dimension)
+    //  {
+    //  //case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_BUFFER: ezLog::Info("Resource is a Buffer"); break;
+    //  //case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_BUFFEREX: ezLog::Info("Resource is a Buffer Ex"); break;
+    //  case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURE1D: ezLog::Info("Resource is a 1D Texture"); ssr.m_Type = ezShaderStageResource::Texture1D; break;
+    //  case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURE1DARRAY: ezLog::Info("Resource is a 1D Texture Array"); ssr.m_Type = ezShaderStageResource::Texture1DArray; break;
+    //  case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURE2D: ezLog::Info("Resource is a 2D Texture"); ssr.m_Type = ezShaderStageResource::Texture2D; break;
+    //  case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURE2DARRAY: ezLog::Info("Resource is a 2D Texture Array"); ssr.m_Type = ezShaderStageResource::Texture2DArray; break;
+    //  case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURE2DMS: ezLog::Info("Resource is a 2D Texture MS"); ssr.m_Type = ezShaderStageResource::Texture2DMS; break;
+    //  case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURE2DMSARRAY: ezLog::Info("Resource is a 2D Texture MS Array"); ssr.m_Type = ezShaderStageResource::Texture2DMSArray; break;
+    //  case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURE3D: ezLog::Info("Resource is a 3D Texture"); ssr.m_Type = ezShaderStageResource::Texture3D; break;
+    //  case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURECUBE: ezLog::Info("Resource is a Cube Texture"); ssr.m_Type = ezShaderStageResource::TextureCube; break;
+    //  case D3D_SRV_DIMENSION::D3D_SRV_DIMENSION_TEXTURECUBEARRAY: ezLog::Info("Resource is a Cube Texture Array"); ssr.m_Type = ezShaderStageResource::TextureCubeArray; break;
+    //  default:
+    //    ezLog::Error("Resource Dimension is an unknown type");
+    //    break;
+    //  }
+    //}
 
     if (sibd.Type == D3D_SIT_TEXTURE)
     {
@@ -105,23 +113,23 @@ void ezShaderCompilerHLSL::ReflectShaderStage(ezShaderProgramData& inout_Data, e
       inout_Data.m_StageBinary[Stage].m_ShaderResourceBindings.PushBack(ssr);
     }
 
-    switch (sibd.Type)
-    {
-    case D3D_SIT_TBUFFER: ezLog::Info("Resource is Texture Buffer"); break;
-    case D3D_SIT_TEXTURE: ezLog::Info("Resource is Texture"); break;
-    case D3D_SIT_CBUFFER: ezLog::Info("Resource is Constant Buffer"); break;
-    case D3D_SIT_SAMPLER: ezLog::Info("Resource is Sampler"); break;
-    case D3D_SIT_UAV_RWTYPED:
-    case D3D_SIT_STRUCTURED:
-    case D3D_SIT_UAV_RWSTRUCTURED:
-    case D3D_SIT_BYTEADDRESS:
-    case D3D_SIT_UAV_RWBYTEADDRESS:
-    case D3D_SIT_UAV_APPEND_STRUCTURED:
-    case D3D_SIT_UAV_CONSUME_STRUCTURED:
-    case D3D_SIT_UAV_RWSTRUCTURED_WITH_COUNTER:
-    default:
-      ezLog::Error("Resource is some weird type"); break;
-    }
+    //switch (sibd.Type)
+    //{
+    //case D3D_SIT_TBUFFER: ezLog::Info("Resource is Texture Buffer"); break;
+    //case D3D_SIT_TEXTURE: ezLog::Info("Resource is Texture"); break;
+    //case D3D_SIT_CBUFFER: ezLog::Info("Resource is Constant Buffer"); break;
+    //case D3D_SIT_SAMPLER: ezLog::Info("Resource is Sampler"); break;
+    //case D3D_SIT_UAV_RWTYPED:
+    //case D3D_SIT_STRUCTURED:
+    //case D3D_SIT_UAV_RWSTRUCTURED:
+    //case D3D_SIT_BYTEADDRESS:
+    //case D3D_SIT_UAV_RWBYTEADDRESS:
+    //case D3D_SIT_UAV_APPEND_STRUCTURED:
+    //case D3D_SIT_UAV_CONSUME_STRUCTURED:
+    //case D3D_SIT_UAV_RWSTRUCTURED_WITH_COUNTER:
+    //default:
+    //  ezLog::Error("Resource is some weird type"); break;
+    //}
 
 
   }
@@ -190,7 +198,7 @@ ezResult ezShaderCompilerHLSL::Compile(ezShaderProgramData& inout_Data, ezLogInt
     // shader already compiled
     if (!inout_Data.m_StageBinary[stage].m_ByteCode.IsEmpty())
     {
-      ezLog::Info("Shader for stage %u is already compiled.", stage);
+      ezLog::Dev("Shader for stage %u is already compiled.", stage);
       continue;
     }
 
@@ -198,9 +206,14 @@ ezResult ezShaderCompilerHLSL::Compile(ezShaderProgramData& inout_Data, ezLogInt
 
     if (uiLength > 0)
     {
-      inout_Data.m_StageBinary[stage].m_ByteCode = CompileDXShader(inout_Data.m_szShaderSource[stage], GetProfileName(inout_Data.m_szPlatform, (ezGALShaderStage::Enum) stage), "main");
-
-      ReflectShaderStage(inout_Data, (ezGALShaderStage::Enum) stage);
+      if (CompileDXShader(inout_Data.m_szSourceFile, inout_Data.m_szShaderSource[stage], GetProfileName(inout_Data.m_szPlatform, (ezGALShaderStage::Enum) stage), "main", inout_Data.m_StageBinary[stage].m_ByteCode).Succeeded())
+      {
+        ReflectShaderStage(inout_Data, (ezGALShaderStage::Enum) stage);
+      }
+      else
+      {
+        return EZ_FAILURE;
+      }
     }
   }
 

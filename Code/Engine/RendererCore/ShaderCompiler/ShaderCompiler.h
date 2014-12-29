@@ -23,6 +23,7 @@ public:
     ezShaderProgramData()
     {
       m_szPlatform = nullptr;
+      m_szSourceFile = nullptr;
 
       for (ezUInt32 stage = 0; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
       {
@@ -32,6 +33,7 @@ public:
     }
 
     const char* m_szPlatform;
+    const char* m_szSourceFile;
     const char* m_szShaderSource[ezGALShaderStage::ENUM_COUNT];
     ezShaderStageBinary m_StageBinary[ezGALShaderStage::ENUM_COUNT];
     bool m_bWriteToDisk[ezGALShaderStage::ENUM_COUNT];
@@ -47,11 +49,11 @@ class EZ_RENDERERCORE_DLL ezShaderCompiler
 {
 public:
 
-  ezResult CompileShader(const char* szFile, const ezPermutationGenerator& Generator, const char* szPlatform = "ALL");
+  ezResult CompileShaderPermutationsForPlatforms(const char* szFile, const ezPermutationGenerator& Generator, const char* szPlatform = "ALL");
 
 private:
 
-  ezResult CompileShader(const char* szFile, const ezPermutationGenerator& Generator, const char* szPlatform, ezShaderProgramCompiler* pCompiler, ezInt64 iMainFileTimeStamp);
+  void RunShaderCompilerForPermutations(const char* szFile, const ezPermutationGenerator& Generator, const char* szPlatform, ezShaderProgramCompiler* pCompiler, ezInt64 iMainFileTimeStamp);
 
   bool PassThroughUnknownCommandCB(const char* szCmd)
   {

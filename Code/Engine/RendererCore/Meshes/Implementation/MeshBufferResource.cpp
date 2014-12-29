@@ -159,7 +159,7 @@ void ezMeshBufferResource::UnloadData(bool bFullUnload)
   SetMemoryUsageGPU(0);
 }
 
-void ezMeshBufferResource::UpdateContent(ezStreamReaderBase& Stream)
+void ezMeshBufferResource::UpdateContent(ezStreamReaderBase* Stream)
 {
   EZ_REPORT_FAILURE("This resource type does not support loading data from file.");
 }

@@ -135,9 +135,7 @@ void ezResourceManager::UpdateLoadingDeadlines()
 
 void ezResourceManagerWorkerGPU::Execute()
 {
-  EZ_ASSERT(m_LoaderData.m_pDataStream != nullptr, "Data was not loaded");
-
-  m_pResourceToLoad->UpdateContent(*m_LoaderData.m_pDataStream);
+  m_pResourceToLoad->UpdateContent(m_LoaderData.m_pDataStream);
 
   // update the file modification date, if available
   if (m_LoaderData.m_LoadedFileModificationDate.IsValid())
@@ -191,8 +189,6 @@ void ezResourceManagerWorker::Execute()
 
   ezResourceLoadData LoaderData = pLoader->OpenDataStream(pResourceToLoad);
 
-  EZ_ASSERT(LoaderData.m_pDataStream != nullptr, "Resource '%s': data could not be loaded", pResourceToLoad->GetResourceID().GetData());
-
   // the resource data has been loaded (at least one piece), reset the due date
   pResourceToLoad->SetDueDate();
 
@@ -215,9 +211,7 @@ void ezResourceManagerWorker::Execute()
   }
   else
   {
-    EZ_ASSERT(LoaderData.m_pDataStream != nullptr, "Data was not loaded");
-
-    pResourceToLoad->UpdateContent(*LoaderData.m_pDataStream);
+    pResourceToLoad->UpdateContent(LoaderData.m_pDataStream);
 
     // update the file modification date, if available
     if (LoaderData.m_LoadedFileModificationDate.IsValid())

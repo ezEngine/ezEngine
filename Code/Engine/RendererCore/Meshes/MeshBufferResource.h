@@ -119,7 +119,7 @@ public:
 
 private:
   virtual void UnloadData(bool bFullUnload) override;
-  virtual void UpdateContent(ezStreamReaderBase& Stream) override;
+  virtual void UpdateContent(ezStreamReaderBase* Stream) override;
   virtual void UpdateMemoryUsage() override;
   virtual void CreateResource(const ezMeshBufferResourceDescriptor& descriptor) override;
 

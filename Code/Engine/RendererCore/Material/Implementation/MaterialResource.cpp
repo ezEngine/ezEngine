@@ -17,7 +17,7 @@ void ezMaterialResource::UnloadData(bool bFullUnload)
   m_LoadingState = ezResourceLoadState::Uninitialized;
 }
 
-void ezMaterialResource::UpdateContent(ezStreamReaderBase& Stream)
+void ezMaterialResource::UpdateContent(ezStreamReaderBase* Stream)
 {
 
 }

@@ -16,17 +16,32 @@ void ezRendererCore::SetMaterialState(ezGALContext* pContext, const ezMaterialRe
   ezRendererCore::SetActiveShader(pMaterial->GetShader(), pContext);
 }
 
+void ezRendererCore::OutputErrors(ezGALContext* pContext)
+{
+  if (pContext == nullptr)
+    pContext = ezGALDevice::GetDefaultDevice()->GetPrimaryContext();
+
+  ContextState& state = s_ContextState[pContext];
+
+  if (state.m_uiFailedDrawcalls > 0)
+  {
+    ezLog::Error("%u drawcalls failed because of an invalid pipeline state", state.m_uiFailedDrawcalls);
+
+    state.m_uiFailedDrawcalls = 0;
+  }
+}
+
 // static 
-void ezRendererCore::DrawMeshBuffer(ezGALContext* pContext, const ezMeshBufferResourceHandle& hMeshBuffer,
-  ezUInt32 uiPrimitiveCount, ezUInt32 uiFirstPrimitive, ezUInt32 uiInstanceCount)
+void ezRendererCore::DrawMeshBuffer(ezGALContext* pContext, const ezMeshBufferResourceHandle& hMeshBuffer, ezUInt32 uiPrimitiveCount, ezUInt32 uiFirstPrimitive, ezUInt32 uiInstanceCount)
 {
   if (pContext == nullptr)
     pContext = ezGALDevice::GetDefaultDevice()->GetPrimaryContext();
 
   if (ApplyContextStates(pContext).Failed())
   {
-    ezLog::Error("Drawcall failed, context is in an invalid state");
-    /// \todo Log (better) that a drawcall failed ?
+    ContextState& state = s_ContextState[pContext];
+    state.m_uiFailedDrawcalls++;
+
     return;
   }
 

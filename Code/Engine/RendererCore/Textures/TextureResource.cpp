@@ -230,18 +230,18 @@ static ezUInt32 GetBCnMemPitchFactor(ezImageFormat::Enum format)
   return 1;
 }
 
-void ezTextureResource::UpdateContent(ezStreamReaderBase& Stream)
+void ezTextureResource::UpdateContent(ezStreamReaderBase* Stream)
 {
   bool bSuccess = false;
-  Stream >> bSuccess;
+  *Stream >> bSuccess;
 
   if (bSuccess)
   {
     ezImage* pImage = nullptr;
-    Stream.ReadBytes(&pImage, sizeof(ezImage*));
+    Stream->ReadBytes(&pImage, sizeof(ezImage*));
 
     bool bSRGB = false;
-    Stream >> bSRGB;
+    *Stream >> bSRGB;
 
     ezGALTextureCreationDescription TexDesc;
     TexDesc.m_Format = ezGALResourceFormat::RGBAUByteNormalized;

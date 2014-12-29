@@ -16,7 +16,7 @@ static ezShaderPermutationResourceLoader g_PermutationResourceLoader;
 
 ezShaderPermutationResource::ezShaderPermutationResource()
 {
-  m_bValid = false;
+  m_bShaderPermutationValid = false;
   m_uiMaxQualityLevel = 1;
   m_Flags.Add(ezResourceFlags::UpdateOnMainThread);
 
@@ -26,15 +26,9 @@ ezShaderPermutationResource::ezShaderPermutationResource()
 
 void ezShaderPermutationResource::UnloadData(bool bFullUnload)
 {
-  m_bValid = false;
+  m_bShaderPermutationValid = false;
   m_uiLoadedQualityLevel = 0;
   m_LoadingState = ezResourceLoadState::Uninitialized;
-
-  //if (!m_hVertexDeclaration.IsInvalidated())
-  //{
-  //  ezGALDevice::GetDefaultDevice()->DestroyVertexDeclaration(m_hVertexDeclaration);
-  //  m_hVertexDeclaration.Invalidate();
-  //}
 
   if (!m_hShader.IsInvalidated())
   {
@@ -43,20 +37,26 @@ void ezShaderPermutationResource::UnloadData(bool bFullUnload)
   }
 }
 
-void ezShaderPermutationResource::UpdateContent(ezStreamReaderBase& Stream)
+void ezShaderPermutationResource::UpdateContent(ezStreamReaderBase* Stream)
 {
   ezUInt32 uiGPUMem = 0;
   SetMemoryUsageGPU(0);
 
-  m_bValid = false;
+  m_bShaderPermutationValid = false;
 
   m_LoadingState = ezResourceLoadState::Loaded;
   m_uiLoadedQualityLevel = 1;
   m_uiMaxQualityLevel = 1;
 
-  if (m_PermutationBinary.Read(Stream).Failed())
+  if (Stream == nullptr)
   {
-    ezLog::Error("Shader Resource '%s': Could not read shader permutation binary", GetResourceID().GetData());
+    ezLog::Error("Shader Permutation '%s': Data is not available", GetResourceID().GetData());
+    return;
+  }
+
+  if (m_PermutationBinary.Read(*Stream).Failed())
+  {
+    ezLog::Error("Shader Permutation '%s': Could not read shader permutation binary", GetResourceID().GetData());
     return;
   }
 
@@ -74,7 +74,7 @@ void ezShaderPermutationResource::UpdateContent(ezStreamReaderBase& Stream)
 
     if (pStageBin == nullptr)
     {
-      ezLog::Error("Shader Resource '%s': Stage %u could not be loaded", GetResourceID().GetData(), stage);
+      ezLog::Error("Shader Permutation '%s': Stage %u could not be loaded", GetResourceID().GetData(), stage);
       return;
     }
 
@@ -93,24 +93,11 @@ void ezShaderPermutationResource::UpdateContent(ezStreamReaderBase& Stream)
 
   if (m_hShader.IsInvalidated())
   {
-    ezLog::Error("Shader Resource '%s': Shader program creation failed", GetResourceID().GetData());
+    ezLog::Error("Shader Permutation '%s': Shader program creation failed", GetResourceID().GetData());
     return;
   }
 
-  m_bValid = true;
-
-  //// *** TODO: HACK ***
-
-  //ezGALVertexDeclarationCreationDescription VertDeclDesc;
-  //VertDeclDesc.m_hShader = m_hShader;
-  //VertDeclDesc.m_VertexAttributes.PushBack(ezGALVertexAttribute(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat, 0, 0, false));
-  //VertDeclDesc.m_VertexAttributes.PushBack(ezGALVertexAttribute(ezGALVertexAttributeSemantic::Color, ezGALResourceFormat::RGBAUByteNormalized, 12, 0, false));
-  //VertDeclDesc.m_VertexAttributes.PushBack(ezGALVertexAttribute(ezGALVertexAttributeSemantic::Normal, ezGALResourceFormat::XYZFloat, 16, 0, false));
-  //VertDeclDesc.m_VertexAttributes.PushBack(ezGALVertexAttribute(ezGALVertexAttributeSemantic::TexCoord0, ezGALResourceFormat::UVFloat, 28, 0, false));
-
-  //m_hVertexDeclaration = ezGALDevice::GetDefaultDevice()->CreateVertexDeclaration(VertDeclDesc);
-
-  //// ************
+  m_bShaderPermutationValid = true;
 
   SetMemoryUsageGPU(uiGPUMem);
 }
@@ -118,11 +105,6 @@ void ezShaderPermutationResource::UpdateContent(ezStreamReaderBase& Stream)
 void ezShaderPermutationResource::UpdateMemoryUsage()
 {
   SetMemoryUsageCPU(sizeof(this));
-}
-
-void ezShaderPermutationResource::CreateResource(const ezShaderPermutationResourceDescriptor& descriptor)
-{
-  EZ_ASSERT_NOT_IMPLEMENTED;
 }
 
 ezResourceTypeLoader* ezShaderPermutationResource::GetDefaultResourceTypeLoader() const
@@ -171,8 +153,6 @@ ezResult ezShaderPermutationResourceLoader::RunCompiler(const ezResourceBase* pR
 {
   if (ezRendererCore::IsRuntimeShaderCompilationEnabled())
   {
-    const ezShaderPermutationResource* pShaderPermutation = static_cast<const ezShaderPermutationResource*>(pResource);
-
     if (!bForce)
     {
       // check whether any dependent file has changed, and trigger a recompilation if necessary
@@ -214,7 +194,7 @@ ezResult ezShaderPermutationResourceLoader::RunCompiler(const ezResourceBase* pR
     EZ_ASSERT(pGenerator != nullptr, "The permutation generator for permutation '%s' is unknown", sHash.GetData());
 
     ezShaderCompiler sc;
-    return sc.CompileShader(sPermutationFile.GetData(), *pGenerator, ezRendererCore::GetShaderPlatform().GetData());
+    return sc.CompileShaderPermutationsForPlatforms(sPermutationFile.GetData(), *pGenerator, ezRendererCore::GetShaderPlatform().GetData());
   }
   else
   {
@@ -236,32 +216,46 @@ ezResourceLoadData ezShaderPermutationResourceLoader::OpenDataStream(const ezRes
 
   bool bNeedsCompilation = true;
 
-  ezFileReader File;
-  if (File.Open(pResource->GetResourceID().GetData()).Failed())
   {
-    bNeedsCompilation = false;
-    RunCompiler(pResource, permutationBinary, true);
-
-    // try again
+    ezFileReader File;
     if (File.Open(pResource->GetResourceID().GetData()).Failed())
-      return res;
+    {
+      bNeedsCompilation = false;
+      if (RunCompiler(pResource, permutationBinary, true).Failed())
+        return res;
+
+      // try again
+      if (File.Open(pResource->GetResourceID().GetData()).Failed())
+        return res;
+    }
+
+    if (permutationBinary.Read(File).Failed())
+    {
+      ezLog::Error("Shader Permutation '%s': Could not read shader permutation binary", pResource->GetResourceID().GetData());
+
+      bNeedsCompilation = true;
+    }
   }
-
-  if (permutationBinary.Read(File).Failed())
-  {
-    ezLog::Error("Shader Resource '%s': Could not read shader permutation binary", pResource->GetResourceID().GetData());
-
-    bNeedsCompilation = true;
-  }
-
-  File.Close();
 
   if (bNeedsCompilation)
   {
-    RunCompiler(pResource, permutationBinary, false);
+    if (RunCompiler(pResource, permutationBinary, false).Failed())
+      return res;
 
-    EZ_VERIFY(File.Open(pResource->GetResourceID().GetData()).Succeeded(), "Shader Permutation Binary could not be opened");
-    EZ_VERIFY(permutationBinary.Read(File).Succeeded(), "Shader Permutation Binary could not be read");
+    ezFileReader File;
+
+    if (File.Open(pResource->GetResourceID().GetData()).Failed())
+    {
+      ezLog::Error("Shader Permutation '%s': Failed to open the file", pResource->GetResourceID().GetData());
+      return res;
+    }
+
+    if (permutationBinary.Read(File).Failed())
+    {
+      ezLog::Error("Shader Permutation '%s': Binary data could not be read", pResource->GetResourceID().GetData());
+      return res;
+    }
+
     File.Close();
   }
 

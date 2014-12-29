@@ -221,12 +221,12 @@ public:
       case 1:
         ezRendererCore::SetShaderPermutationVariable("COLORED", "1");
 
-        if (iColorValue > 250)
-          iColorValue = 10;
+        //if (iColorValue > 250)
+        //  iColorValue = 10;
 
-        ezRendererCore::SetShaderPermutationVariable("COLORVALUE", ezConversionUtils::ToString(iColorValue).GetData());
+        //ezRendererCore::SetShaderPermutationVariable("COLORVALUE", ezConversionUtils::ToString(iColorValue).GetData());
 
-        iColorValue += 10;
+        //iColorValue += 10;
 
         break;
       default:
@@ -352,6 +352,8 @@ public:
     m_pDevice->Present(m_pDevice->GetPrimarySwapChain());
 
     m_pDevice->EndFrame();
+
+    ezRendererCore::OutputErrors();
 
     return ezApplication::Continue;
   }

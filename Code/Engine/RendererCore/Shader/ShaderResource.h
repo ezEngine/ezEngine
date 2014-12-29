@@ -19,16 +19,17 @@ class EZ_RENDERERCORE_DLL ezShaderResource : public ezResource<ezShaderResource,
 public:
   ezShaderResource();
 
+  bool IsShaderValid() const { return m_bShaderResourceIsValid; }
+
   const ezString& GetUsedPermutationVars() const { return m_PermutationVarsUsed; }
 
 private:
   virtual void UnloadData(bool bFullUnload) override;
-  virtual void UpdateContent(ezStreamReaderBase& Stream) override;
+  virtual void UpdateContent(ezStreamReaderBase* Stream) override;
   virtual void UpdateMemoryUsage() override;
-  virtual void CreateResource(const ezShaderResourceDescriptor& descriptor) override;
 
 private:
   ezString m_PermutationVarsUsed;
-
+  bool m_bShaderResourceIsValid;
 };
 

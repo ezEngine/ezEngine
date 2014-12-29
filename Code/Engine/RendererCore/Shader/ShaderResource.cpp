@@ -8,28 +8,36 @@ EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 ezShaderResource::ezShaderResource()
 {
+  m_bShaderResourceIsValid = false;
 }
 
 void ezShaderResource::UnloadData(bool bFullUnload)
 {
+  m_bShaderResourceIsValid = false;
   m_uiLoadedQualityLevel = 0;
   m_PermutationVarsUsed.Clear();
   m_LoadingState = ezResourceLoadState::Uninitialized;
 }
 
-void ezShaderResource::UpdateContent(ezStreamReaderBase& Stream)
+void ezShaderResource::UpdateContent(ezStreamReaderBase* Stream)
 {
+  m_LoadingState = ezResourceLoadState::Loaded;
+  m_uiLoadedQualityLevel = 1;
+  m_uiMaxQualityLevel = 1;
+  m_bShaderResourceIsValid = false;
+
+  if (Stream == nullptr)
+    return;
+
   ezString sContent;
-  sContent.ReadAll(Stream);
+  sContent.ReadAll(*Stream);
 
   ezTextSectionizer Sections;
   GetShaderSections(sContent.GetData(), Sections);
 
   m_PermutationVarsUsed = Sections.GetSectionContent(ezShaderSections::PERMUTATIONS);
 
-  m_LoadingState = ezResourceLoadState::Loaded;
-  m_uiLoadedQualityLevel = 1;
-  m_uiMaxQualityLevel = 1;
+  m_bShaderResourceIsValid = true;
 }
 
 void ezShaderResource::UpdateMemoryUsage()
@@ -38,21 +46,3 @@ void ezShaderResource::UpdateMemoryUsage()
   SetMemoryUsageGPU(0);
 }
 
-void ezShaderResource::CreateResource(const ezShaderResourceDescriptor& descriptor)
-{
-
-}
-
-//ezResourceManager::SetResourceTypeLoader<ColorResource>(&g_ColorLoader);
-
-//ezShaderResourceLoader::ezShaderResourceLoader()
-//{
-//}
-//
-//ezResourceLoadData ezShaderResourceLoader::OpenDataStream(const ezResourceBase* pResource)
-//{
-//}
-//
-//void ezShaderResourceLoader::CloseDataStream(const ezResourceBase* pResource, const ezResourceLoadData& LoaderData)
-//{
-//}

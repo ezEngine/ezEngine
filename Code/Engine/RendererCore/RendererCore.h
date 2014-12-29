@@ -56,6 +56,8 @@ public:
 
   static ezShaderPermutationResourceHandle PreloadSingleShaderPermutation(ezShaderResourceHandle hShader, const ezHybridArray<ezPermutationGenerator::PermutationVar, 16>& UsedPermVars, ezTime tShouldBeAvailableIn);
 
+  static void OutputErrors(ezGALContext* pContext = nullptr);
+
 private:
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(Graphics, RendererCore);
 
@@ -70,8 +72,10 @@ private:
       m_bShaderStateChanged = true;
       m_bShaderStateValid = false;
       m_bTextureBindingsChanged = true;
+      m_uiFailedDrawcalls = 0;
     }
 
+    ezUInt32 m_uiFailedDrawcalls;
     bool m_bShaderStateChanged;
     bool m_bShaderStateValid;
     bool m_bTextureBindingsChanged;

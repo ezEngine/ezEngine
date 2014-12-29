@@ -133,7 +133,7 @@ private:
   /// Afterwards it must update the following data:
   ///  m_uiLoadedQualityLevel and m_uiMaxQualityLevel (both are allowed to change)
   ///  m_LoadingState (should be MetaInfoAvailable or Loaded afterwards)
-  virtual void UpdateContent(ezStreamReaderBase& Stream) = 0;
+  virtual void UpdateContent(ezStreamReaderBase* Stream) = 0;
 
   /// \brief Returns the resource type loader that should be used for this type of resource, unless it has been overridden on the ezResourceManager.
   ///
@@ -223,7 +223,10 @@ private:
   /// Note that created resources should always set its loading state to 'Loaded' and its current and max quality to 1, otherwise
   /// the resource manager might try to load even more into the resource afterwards.
   /// However, since this might be a valid use case for some resource types, it is not enforced by the resource manager.
-  virtual void CreateResource(const SELF_DESCRIPTOR& descriptor) = 0;
+  virtual void CreateResource(const SELF_DESCRIPTOR& descriptor)
+  {
+    EZ_REPORT_FAILURE("The resource type '%s' does not support resource creation", GetDynamicRTTI()->GetTypeName());
+  }
 
   ezResourceHandle<SELF> m_hFallback;
 };

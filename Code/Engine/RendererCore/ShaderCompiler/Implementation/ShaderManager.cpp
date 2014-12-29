@@ -38,6 +38,9 @@ ezShaderPermutationResourceHandle ezRendererCore::PreloadSingleShaderPermutation
 {
   ezResourceLock<ezShaderResource> pShader(hShader, ezResourceAcquireMode::NoFallback);
 
+  if (!pShader->IsShaderValid())
+    return ezShaderPermutationResourceHandle();
+
   const ezUInt32 uiPermutationHash = ezPermutationGenerator::GetHash(UsedPermVars);
 
   /// \todo Mutex
@@ -162,6 +165,9 @@ void ezRendererCore::SetShaderContextState(ezGALContext* pContext, ContextState&
 
     ezResourceLock<ezShaderResource> pShader(state.m_hActiveShader, ezResourceAcquireMode::AllowFallback);
 
+    if (!pShader->IsShaderValid())
+      return;
+
     state.m_PermGenerator.Clear();
     for (auto itPerm = state.m_PermutationVariables.GetIterator(); itPerm.IsValid(); ++itPerm)
       state.m_PermGenerator.AddPermutation(itPerm.Key().GetData(), itPerm.Value().GetData());
@@ -175,6 +181,9 @@ void ezRendererCore::SetShaderContextState(ezGALContext* pContext, ContextState&
 
     state.m_hActiveShaderPermutation = PreloadSingleShaderPermutation(state.m_hActiveShader, UsedPermVars, ezTime::Seconds(0.0));
 
+    if (!state.m_hActiveShaderPermutation.IsValid())
+      return;
+
     pShaderPermutation = ezResourceManager::BeginAcquireResource(state.m_hActiveShaderPermutation, ezResourceAcquireMode::AllowFallback);
 
     if (!pShaderPermutation->IsShaderValid())
@@ -187,6 +196,8 @@ void ezRendererCore::SetShaderContextState(ezGALContext* pContext, ContextState&
 
     pContext->SetShader(state.m_hActiveGALShader);
     //pContext->SetVertexDeclaration(pShaderPermutation->GetGALVertexDeclaration());
+
+    state.m_bShaderStateValid = true;
   }
 
   if ((bForce || state.m_bTextureBindingsChanged) && state.m_hActiveShaderPermutation.IsValid())
@@ -208,8 +219,6 @@ void ezRendererCore::SetShaderContextState(ezGALContext* pContext, ContextState&
 
     ezResourceManager::EndAcquireResource(pShaderPermutation);
   }
-
-  state.m_bShaderStateValid = true;
 }
 
 void ezRendererCore::ApplyTextureBindings(ezGALContext* pContext, ezGALShaderStage::Enum stage, const ezShaderStageBinary* pBinary)
