@@ -27,7 +27,7 @@ public:
 
   static void BindTexture(ezGALContext* pContext, const ezTempHashedString& sSlotName, const ezTextureResourceHandle& hTexture);
 
-  static ezResult ApplyContextStates(ezGALContext* pContext = nullptr);
+  static ezResult ApplyContextStates(ezGALContext* pContext = nullptr, bool bForce = false);
 
   static void SetShaderPlatform(const char* szPlatform, bool bEnableRuntimeCompilation);
 
@@ -55,7 +55,6 @@ public:
   static void PreloadShaderPermutations(ezShaderResourceHandle hShader, const ezPermutationGenerator& Generator, ezTime tShouldBeAvailableIn);
 
   static ezShaderPermutationResourceHandle PreloadSingleShaderPermutation(ezShaderResourceHandle hShader, const ezHybridArray<ezPermutationGenerator::PermutationVar, 16>& UsedPermVars, ezTime tShouldBeAvailableIn);
-
 
 private:
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(Graphics, RendererCore);
@@ -105,7 +104,7 @@ private:
     }
   };
 
-  static void SetShaderContextState(ezGALContext* pContext, ContextState& state);
+  static void SetShaderContextState(ezGALContext* pContext, ContextState& state, bool bForce);
   static void ApplyTextureBindings(ezGALContext* pContext, ezGALShaderStage::Enum stage, const ezShaderStageBinary* pBinary);
   static ezGALVertexDeclarationHandle GetVertexDeclaration(ezGALShaderHandle hShader, const ezVertexDeclarationInfo& decl);
 

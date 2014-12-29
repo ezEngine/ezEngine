@@ -29,6 +29,7 @@ struct EZ_CORE_DLL ezResourceFlags
     NoFileAccessRequired  = EZ_BIT(1),  ///< The resource 'loading' does not require file accesses and can therefore be done on one or several non-file-loading threads. Use this for procedurally generated data.
     /// \todo implement NoFileAccessRequired
     ResourceHasFallback   = EZ_BIT(2),  ///< Specifies whether this resource has a valid fallback resource that could be used. Automatically updated in ezResource::SetFallbackResource.
+    WasCreated            = EZ_BIT(3),  ///< The resource was created, not loaded from file
     Default               = 0,
   };
 

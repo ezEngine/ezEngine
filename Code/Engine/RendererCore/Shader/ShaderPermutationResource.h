@@ -52,6 +52,8 @@ public:
   virtual ezResourceLoadData OpenDataStream(const ezResourceBase* pResource) override;
   virtual void CloseDataStream(const ezResourceBase* pResource, const ezResourceLoadData& LoaderData) override;
 
+  virtual bool IsResourceOutdated(const ezResourceBase* pResource) const override { return true; }
+
 private:
 
   ezResult RunCompiler(const ezResourceBase* pResource, ezShaderPermutationBinary& BinaryInfo, bool bForce);

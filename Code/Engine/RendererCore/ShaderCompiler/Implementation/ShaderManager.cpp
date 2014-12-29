@@ -139,7 +139,7 @@ ezGALShaderHandle ezRendererCore::GetActiveGALShader(ezGALContext* pContext)
   ContextState& state = s_ContextState[pContext];
 
   // make sure the internal state is up to date
-  SetShaderContextState(pContext, state);
+  SetShaderContextState(pContext, state, false);
 
   if (!state.m_bShaderStateValid)
     return ezGALShaderHandle(); // invalid handle
@@ -147,11 +147,11 @@ ezGALShaderHandle ezRendererCore::GetActiveGALShader(ezGALContext* pContext)
   return state.m_hActiveGALShader;
 }
 
-void ezRendererCore::SetShaderContextState(ezGALContext* pContext, ContextState& state)
+void ezRendererCore::SetShaderContextState(ezGALContext* pContext, ContextState& state, bool bForce)
 {
   ezShaderPermutationResource* pShaderPermutation = nullptr;
 
-  if (state.m_bShaderStateChanged)
+  if (bForce || state.m_bShaderStateChanged)
   {
     state.m_bShaderStateChanged = false;
     state.m_bShaderStateValid = false;
@@ -189,7 +189,7 @@ void ezRendererCore::SetShaderContextState(ezGALContext* pContext, ContextState&
     //pContext->SetVertexDeclaration(pShaderPermutation->GetGALVertexDeclaration());
   }
 
-  if (state.m_bTextureBindingsChanged && state.m_hActiveShaderPermutation.IsValid())
+  if ((bForce || state.m_bTextureBindingsChanged) && state.m_hActiveShaderPermutation.IsValid())
   {
     state.m_bTextureBindingsChanged = false;
 
@@ -244,5 +244,4 @@ void ezRendererCore::ApplyTextureBindings(ezGALContext* pContext, ezGALShaderSta
     pContext->SetSamplerState(stage, rb.m_iSlot, l->GetGALSamplerState());
   }
 }
-
 

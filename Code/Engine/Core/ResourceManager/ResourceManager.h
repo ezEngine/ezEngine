@@ -91,11 +91,25 @@ public:
 
   /// \todo ReloadResources of type / one / all (if necessary)
 
+  template<typename ResourceType>
+  static void ReloadResource(const ezResourceHandle<ResourceType>& hResource);
+
+  template<typename ResourceType>
+  static void ReloadResourcesOfType();
+
+  static void ReloadResourcesOfType(const ezRTTI* pType);
+
+  static void ReloadAllResources();
+
   //static void CleanUpResources();
   
 private:
   friend class ezResourceManagerWorker;
   friend class ezResourceManagerWorkerGPU;
+
+  static void ReloadResource(ezResourceBase* pResource);
+
+  static void PreloadResource(ezResourceBase* pResource, ezTime tShouldBeAvailableIn);
 
   template<typename ResourceType>
   static ResourceType* GetResource(const char* szResourceID);

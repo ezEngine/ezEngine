@@ -23,8 +23,6 @@ ezMutex ResourceMutex;
 
 void ezResourceManager::InternalPreloadResource(ezResourceBase* pResource, bool bHighestPriority)
 {
-  /// \todo Make this publicly available
-
   if (m_bStop)
     return;
 
@@ -124,7 +122,6 @@ void ezResourceManager::UpdateLoadingDeadlines()
     {
       EZ_ASSERT(m_RequireLoading[i].m_pResource->m_bIsPreloading == true, "");
       m_RequireLoading[i].m_pResource->m_bIsPreloading = false;
-      EZ_ASSERT(m_RequireLoading[i].m_pResource->m_bIsPreloading == false, "");
 
       m_RequireLoading.RemoveAtSwap(i);
       --uiCount;
@@ -142,6 +139,10 @@ void ezResourceManagerWorkerGPU::Execute()
 
   m_pResourceToLoad->UpdateContent(*m_LoaderData.m_pDataStream);
 
+  // update the file modification date, if available
+  if (m_LoaderData.m_LoadedFileModificationDate.IsValid())
+    m_pResourceToLoad->m_LoadedFileModificationTime = m_LoaderData.m_LoadedFileModificationDate;
+
   EZ_ASSERT(m_pResourceToLoad->GetLoadingState() != ezResourceLoadState::Uninitialized, "The resource should have changed its loading state.");
   EZ_ASSERT(m_pResourceToLoad->GetMaxQualityLevel() > 0, "The resource should have changed its max quality level (at least to 1).");
 
@@ -153,7 +154,6 @@ void ezResourceManagerWorkerGPU::Execute()
     EZ_LOCK(ResourceMutex);
     EZ_ASSERT(m_pResourceToLoad->m_bIsPreloading == true, "");
     m_pResourceToLoad->m_bIsPreloading = false;
-    EZ_ASSERT(m_pResourceToLoad->m_bIsPreloading == false, "");
   }
 
   m_pLoader = NULL;
@@ -219,6 +219,10 @@ void ezResourceManagerWorker::Execute()
 
     pResourceToLoad->UpdateContent(*LoaderData.m_pDataStream);
 
+    // update the file modification date, if available
+    if (LoaderData.m_LoadedFileModificationDate.IsValid())
+      pResourceToLoad->m_LoadedFileModificationTime = LoaderData.m_LoadedFileModificationDate;
+
     EZ_ASSERT(pResourceToLoad->GetLoadingState() != ezResourceLoadState::Uninitialized, "The resource should have changed its loading state.");
     EZ_ASSERT(pResourceToLoad->GetMaxQualityLevel() > 0, "The resource should have changed its max quality level (at least to 1).");
 
@@ -237,7 +241,6 @@ void ezResourceManagerWorker::Execute()
     {
       EZ_ASSERT(pResourceToLoad->m_bIsPreloading == true, "");
       pResourceToLoad->m_bIsPreloading = false;
-      EZ_ASSERT(pResourceToLoad->m_bIsPreloading == false, "");
     }
 
     ezResourceManager::m_bTaskRunning = false;
@@ -279,6 +282,99 @@ ezUInt32 ezResourceManager::FreeUnusedResources()
   }
 
   return uiUnloaded;
+}
+
+void ezResourceManager::PreloadResource(ezResourceBase* pResource, ezTime tShouldBeAvailableIn)
+{
+  const ezTime tNow = ezTime::Now();
+
+  pResource->SetDueDate(ezMath::Min(tNow + tShouldBeAvailableIn, pResource->m_DueDate));
+  InternalPreloadResource(pResource, tShouldBeAvailableIn <= ezTime::Seconds(0.0)); // if the user set the timeout to zero or below, it will be scheduled immediately
+}
+
+
+void ezResourceManager::ReloadResource(ezResourceBase* pResource)
+{
+  EZ_LOCK(ResourceMutex);
+
+  if (pResource->m_Flags.IsAnySet(ezResourceFlags::WasCreated))
+    return;
+
+  ezResourceTypeLoader* pLoader = ezResourceManager::GetResourceTypeLoader(pResource->GetDynamicRTTI());
+
+  if (pLoader == nullptr)
+    pLoader = pResource->GetDefaultResourceTypeLoader();
+
+  if (pLoader == nullptr)
+    return;
+
+  // no need to reload resources that are not loaded so far
+  if (pResource->GetLoadingState() == ezResourceLoadState::Uninitialized)
+    return;
+
+  bool bAllowPreloading = true;
+
+  // if the resource is already in the preloading queue we can just keep it there
+  if (pResource->m_bIsPreloading)
+  {
+    bAllowPreloading = false;
+
+    LoadingInfo li;
+    li.m_pResource = pResource;
+
+    if (m_RequireLoading.IndexOf(li) == ezInvalidIndex)
+    {
+      // the resource is marked as 'preloading' but it is not in the queue anymore
+      // that means some task is already working on loading it
+      // therefore we should not touch it (especially unload it), it might end up in an inconsistent state
+
+      ezLog::Dev("Resource '%s' is not being reloaded, because it is currently loaded already", pResource->GetResourceID().GetData());
+      return;
+    }
+  }
+
+  if (!pLoader->IsResourceOutdated(pResource))
+    return;
+
+  ezLog::Dev("Resource '%s' is outdated and will be reloaded", pResource->GetResourceID().GetData());
+
+  // make sure existing data is purged
+  pResource->UnloadData(true);
+
+  EZ_ASSERT(pResource->GetLoadingState() <= ezResourceLoadState::MetaInfoAvailable, "Resource '%s' should be in an unloaded state now.", pResource->GetResourceID().GetData());
+
+  if (bAllowPreloading)
+  {
+    const ezTime tNow = ezTime::Now();
+
+    // resources that have been in use recently will be put into the preload queue immediately
+    // everything else will be loaded on demand
+    if (pResource->GetLastAcquireTime() >= tNow - ezTime::Seconds(30.0))
+    {
+      PreloadResource(pResource, tNow - pResource->GetLastAcquireTime());
+    }
+  }
+}
+
+void ezResourceManager::ReloadResourcesOfType(const ezRTTI* pType)
+{
+  EZ_LOCK(ResourceMutex);
+
+  for (auto it = m_LoadedResources.GetIterator(); it.IsValid(); ++it)
+  {
+    if (it.Value()->GetDynamicRTTI() == pType)
+      ReloadResource(it.Value());
+  }
+}
+
+void ezResourceManager::ReloadAllResources()
+{
+  EZ_LOCK(ResourceMutex);
+
+  for (auto it = m_LoadedResources.GetIterator(); it.IsValid(); ++it)
+  {
+    ReloadResource(it.Value());
+  }
 }
 
 /* Not yet good enough for prime time

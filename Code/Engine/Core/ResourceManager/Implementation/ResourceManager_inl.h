@@ -54,7 +54,7 @@ ezResourceHandle<ResourceType> ezResourceManager::GetCreatedResource(const char*
 
   if (m_LoadedResources.TryGetValue(sResourceHash, pResource))
   {
-    /// \todo Verify the resource was created, not loaded
+    EZ_ASSERT(pResource->m_Flags.IsAnySet(ezResourceFlags::WasCreated), "This resource was not created but loaded, you should not use this function on resources that are loaded");
 
     return (ResourceType*) pResource;
   }
@@ -71,11 +71,11 @@ ezResourceHandle<ResourceType> ezResourceManager::CreateResource(const char* szR
 
   EZ_ASSERT(pResource->GetLoadingState() == ezResourceLoadState::Uninitialized, "CreateResource was called on a resource this is already created");
 
-  /// \todo Set a flag that this resource was created, and not loaded
-
   // If this does not compile, you have forgotten to make ezResourceManager a friend of your resource class.
   // which probably means that you did not derive from ezResource, which you should do!
   static_cast<ezResource<ResourceType, typename ResourceType::DescriptorType>*>(pResource)->CreateResource(descriptor);
+
+  pResource->m_Flags.Add(ezResourceFlags::WasCreated);
 
   EZ_ASSERT(pResource->GetLoadingState() != ezResourceLoadState::Uninitialized, "CreateResource did not set the loading state properly.");
   EZ_ASSERT(pResource->GetMaxQualityLevel() > 0, "CreateResource did not set the max quality level properly.");
@@ -169,14 +169,26 @@ void ezResourceManager::PreloadResource(const ezResourceHandle<ResourceType>& hR
 {
   ResourceType* pResource = BeginAcquireResource(hResource, ezResourceAcquireMode::PointerOnly);
 
-  const ezTime tNow = ezTime::Now();
-
-  pResource->SetDueDate(ezMath::Min(tNow + tShouldBeAvailableIn, pResource->m_DueDate));
-  InternalPreloadResource(pResource, tShouldBeAvailableIn <= ezTime::Seconds(0.0)); // if the user set the timeout to zero or below, it will be scheduled immediately
+  PreloadResource(pResource, tShouldBeAvailableIn);
 
   EndAcquireResource(pResource);
 }
 
+template<typename ResourceType>
+void ezResourceManager::ReloadResource(const ezResourceHandle<ResourceType>& hResource)
+{
+  ResourceType* pResource = BeginAcquireResource(hResource, ezResourceAcquireMode::PointerOnly);
+
+  ReloadResource(pResource);
+
+  EndAcquireResource(pResource);
+}
+
+template<typename ResourceType>
+void ezResourceManager::ReloadResourcesOfType()
+{
+  ReloadResourcesOfType(ezGetStaticRTTI<ResourceType>());
+}
 
 template<typename ResourceType>
 void ezResourceManager::SetResourceTypeLoader(ezResourceTypeLoader* creator)

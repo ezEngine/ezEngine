@@ -88,7 +88,7 @@ void ezRendererCore::BindTexture(ezGALContext* pContext, const ezTempHashedStrin
   cs.m_bTextureBindingsChanged = true;
 }
 
-ezResult ezRendererCore::ApplyContextStates(ezGALContext* pContext)
+ezResult ezRendererCore::ApplyContextStates(ezGALContext* pContext, bool bForce)
 {
   if (pContext == nullptr)
     pContext = ezGALDevice::GetDefaultDevice()->GetPrimaryContext();
@@ -96,7 +96,7 @@ ezResult ezRendererCore::ApplyContextStates(ezGALContext* pContext)
   ContextState& state = s_ContextState[pContext];
 
   // make sure the internal state is up to date
-  SetShaderContextState(pContext, state);
+  SetShaderContextState(pContext, state, bForce);
 
   if (!state.m_bShaderStateValid)
     return EZ_FAILURE;

@@ -3,6 +3,7 @@
 #include <Core/ResourceManager/Resource.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/MemoryStream.h>
+#include <Foundation/IO/OSFile.h>
 
 struct FileResourceLoadData
 {
@@ -21,6 +22,16 @@ ezResourceLoadData ezResourceLoaderFromFile::OpenDataStream(const ezResourceBase
   ezFileReader File;
   if (File.Open(pResource->GetResourceID().GetData()).Failed())
     return res;
+
+#if EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
+  ezFileStats stat;
+  if (ezOSFile::GetFileStats(File.GetFilePathAbsolute(), stat).Succeeded())
+  {
+    res.m_LoadedFileModificationDate = stat.m_LastModificationTime;
+  }
+
+#endif
+
 
   FileResourceLoadData* pData = EZ_DEFAULT_NEW(FileResourceLoadData);
 
@@ -49,4 +60,28 @@ void ezResourceLoaderFromFile::CloseDataStream(const ezResourceBase* pResource, 
 
   EZ_DEFAULT_DELETE(pData);
 }
+
+bool ezResourceLoaderFromFile::IsResourceOutdated(const ezResourceBase* pResource) const
+{
+#if EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
+  if (pResource->GetLoadedFileModificationTime().IsValid())
+  {
+    ezString sAbs;
+    if (ezFileSystem::ResolvePath(pResource->GetResourceID(), false, &sAbs, nullptr).Failed())
+      return false;
+
+    ezFileStats stat;
+    if (ezOSFile::GetFileStats(sAbs, stat).Failed())
+      return false;
+  
+    return !stat.m_LastModificationTime.IsEqual(pResource->GetLoadedFileModificationTime(), ezTimestamp::CompareMode::FileTime);
+  }
+
+#endif
+
+  return true;
+}
+
+
+
 

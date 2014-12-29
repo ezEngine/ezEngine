@@ -114,13 +114,17 @@ public:
     cfg.m_sInputSlotTrigger[0] = ezInputSlot_KeyP;
     ezInputManager::SetInputActionConfig("Main", "PreloadShader", cfg, true);
 
-    cfg = ezInputManager::GetInputActionConfig("Main", "NextObj");
-    cfg.m_sInputSlotTrigger[0] = ezInputSlot_KeyP;
-    ezInputManager::SetInputActionConfig("Main", "NextObj", cfg, true);
+    cfg = ezInputManager::GetInputActionConfig("Main", "ReloadShader");
+    cfg.m_sInputSlotTrigger[0] = ezInputSlot_KeyR;
+    ezInputManager::SetInputActionConfig("Main", "ReloadShader", cfg, true);
 
-    cfg = ezInputManager::GetInputActionConfig("Main", "PrevObj");
-    cfg.m_sInputSlotTrigger[0] = ezInputSlot_KeyO;
-    ezInputManager::SetInputActionConfig("Main", "PrevObj", cfg, true);
+    //cfg = ezInputManager::GetInputActionConfig("Main", "NextObj");
+    //cfg.m_sInputSlotTrigger[0] = ezInputSlot_KeyP;
+    //ezInputManager::SetInputActionConfig("Main", "NextObj", cfg, true);
+
+    //cfg = ezInputManager::GetInputActionConfig("Main", "PrevObj");
+    //cfg.m_sInputSlotTrigger[0] = ezInputSlot_KeyO;
+    //ezInputManager::SetInputActionConfig("Main", "PrevObj", cfg, true);
 
     // Create a window for rendering
     ezWindowCreationDesc WindowCreationDesc;
@@ -242,15 +246,23 @@ public:
       ezRendererCore::PreloadShaderPermutations(m_hShader, All, ezTime::Milliseconds(10000.0));
     }
 
-    if (ezInputManager::GetInputActionState("Main", "NextObj") == ezKeyState::Pressed)
+    if (ezInputManager::GetInputActionState("Main", "ReloadShader") == ezKeyState::Pressed)
     {
-      m_iCurObject = (m_iCurObject + 1) % MaxObjs;
+      ezResourceManager::ReloadResourcesOfType<ezShaderResource>();
+      ezResourceManager::ReloadResourcesOfType<ezShaderPermutationResource>();
+
+      ezRendererCore::ApplyContextStates(nullptr, true); // force state resetting
     }
 
-    if (ezInputManager::GetInputActionState("Main", "PrevObj") == ezKeyState::Pressed)
-    {
-      m_iCurObject = m_iCurObject == 0 ? (MaxObjs - 1) : m_iCurObject - 1;
-    }
+    //if (ezInputManager::GetInputActionState("Main", "NextObj") == ezKeyState::Pressed)
+    //{
+    //  m_iCurObject = (m_iCurObject + 1) % MaxObjs;
+    //}
+
+    //if (ezInputManager::GetInputActionState("Main", "PrevObj") == ezKeyState::Pressed)
+    //{
+    //  m_iCurObject = m_iCurObject == 0 ? (MaxObjs - 1) : m_iCurObject - 1;
+    //}
 
     ezClock::UpdateAllGlobalClocks();
 

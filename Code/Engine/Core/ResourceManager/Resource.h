@@ -5,6 +5,7 @@
 #include <Foundation/IO/Stream.h>
 #include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Time/Time.h>
+#include <Foundation/Time/Timestamp.h>
 #include <Core/ResourceManager/Implementation/Declarations.h>
 #include <Core/ResourceManager/ResourceHandle.h>
 
@@ -110,6 +111,11 @@ public:
   /// \brief Returns the reference count of this resource.
   ezInt32 GetReferenceCount() const { return m_iReferenceCount; }
 
+  /// \brief Returns the modification date of the file from which this resource was loaded.
+  ///
+  /// The date may be invalid, if it cannot be retrieved or the resource was created and not loaded.
+  const ezTimestamp& GetLoadedFileModificationTime() const { return m_LoadedFileModificationTime; }
+
 private:
 
   friend class ezResourceManager;
@@ -177,6 +183,7 @@ private:
   
   ezTime m_LastAcquire;
   ezTime m_DueDate;
+  ezTimestamp m_LoadedFileModificationTime;
 };
 
 
