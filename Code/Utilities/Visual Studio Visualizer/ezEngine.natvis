@@ -122,4 +122,87 @@
 			</ArrayItems>
 		</Expand>
 	</Type>
+
+	<Type Name="ezVariant">
+		<Expand>
+			<Item Name="Type">(Type::Enum) m_Type</Item>
+			<Item Name="IsShared">m_bIsShared != 0</Item>
+			<Item Name="Value" Condition="m_Type == Type::Bool">*reinterpret_cast&lt;bool*&gt;(&amp;m_Data)</Item>
+			<Item Name="Value" Condition="m_Type == Type::Int8">*reinterpret_cast&lt;ezInt8*&gt;(&amp;m_Data)</Item>
+			<Item Name="Value" Condition="m_Type == Type::UInt8">*reinterpret_cast&lt;ezUInt8*&gt;(&amp;m_Data)</Item>
+			<Item Name="Value" Condition="m_Type == Type::Int16">*reinterpret_cast&lt;ezInt16*&gt;(&amp;m_Data)</Item>
+			<Item Name="Value" Condition="m_Type == Type::UInt16">*reinterpret_cast&lt;ezUInt16*&gt;(&amp;m_Data)</Item>
+			<Item Name="Value" Condition="m_Type == Type::Int32">*reinterpret_cast&lt;ezInt32*&gt;(&amp;m_Data)</Item>
+			<Item Name="Value" Condition="m_Type == Type::UInt32">*reinterpret_cast&lt;ezUInt32*&gt;(&amp;m_Data)</Item>
+			<Item Name="Value" Condition="m_Type == Type::Int64">*reinterpret_cast&lt;ezInt64*&gt;(&amp;m_Data)</Item>
+			<Item Name="Value" Condition="m_Type == Type::UInt64">*reinterpret_cast&lt;ezUInt64*&gt;(&amp;m_Data)</Item>
+			<Item Name="Value" Condition="m_Type == Type::Float">*reinterpret_cast&lt;float*&gt;(&amp;m_Data)</Item>
+			<Item Name="Value" Condition="m_Type == Type::Double">*reinterpret_cast&lt;double*&gt;(&amp;m_Data)</Item>
+			<Item Name="Value" Condition="m_Type == Type::Color">*reinterpret_cast&lt;ezColor*&gt;(&amp;m_Data)</Item>
+			<Item Name="Value" Condition="m_Type == Type::Vector2">*reinterpret_cast&lt;ezVec2Template&lt;float&gt;*&gt;(&amp;m_Data)</Item>
+			<Item Name="Value" Condition="m_Type == Type::Vector3">*reinterpret_cast&lt;ezVec3Template&lt;float&gt;*&gt;(&amp;m_Data)</Item>
+			<Item Name="Value" Condition="m_Type == Type::Vector4">*reinterpret_cast&lt;ezVec4Template&lt;float&gt;*&gt;(&amp;m_Data)</Item>
+			<Item Name="Value" Condition="m_Type == Type::Quaternion">*reinterpret_cast&lt;ezQuatTemplate&lt;float&gt;*&gt;(&amp;m_Data)</Item>
+			<Item Name="Value" Condition="m_Type == Type::Time">*reinterpret_cast&lt;ezTime*&gt;(&amp;m_Data)</Item>
+			<Item Name="Value" Condition="m_Type == Type::Uuid">*reinterpret_cast&lt;ezUuid*&gt;(&amp;m_Data)</Item>
+			<Item Name="Value" Condition="m_Type == Type::VoidPointer">*reinterpret_cast&lt;void**&gt;(&amp;m_Data)</Item>
+			<Item Name="Value" Condition="m_Type == Type::ReflectedPointer">*reinterpret_cast&lt;ezReflectedClass**&gt;(&amp;m_Data)</Item>
+			<Item Name="Value" Condition="m_Type == Type::Matrix3">*reinterpret_cast&lt;ezMat3Template&lt;float&gt;*&gt;(m_Data.shared->m_Ptr)</Item>
+			<Item Name="Value" Condition="m_Type == Type::Matrix4">*reinterpret_cast&lt;ezMat4Template&lt;float&gt;*&gt;(m_Data.shared->m_Ptr)</Item>
+			<Item Name="Value" Condition="m_Type == Type::String">*reinterpret_cast&lt;ezHybridStringBase&lt;32&gt;*&gt;(m_Data.shared->m_Ptr)</Item>
+			<Item Name="Value" Condition="m_Type == Type::VariantArray">*reinterpret_cast&lt;ezDynamicArray&lt;ezVariant,ezDefaultAllocatorWrapper&gt;*&gt;(m_Data.shared->m_Ptr)</Item>
+			<Item Name="Value" Condition="m_Type == Type::VariantDictionary">*reinterpret_cast&lt;ezHashTable&lt;ezHybridString&lt;32,ezDefaultAllocatorWrapper&gt;,ezVariant,ezHashHelper&lt;ezHybridString&lt;32,ezDefaultAllocatorWrapper&gt; &gt;,ezDefaultAllocatorWrapper&gt;*&gt;(m_Data.shared->m_Ptr)</Item>
+		</Expand>
+	</Type>
+
+	<Type Name="ezVec2Template&lt;*&gt;">
+		<DisplayString>{{ x={x}, y={y} }}</DisplayString>
+	</Type>
+	
+	<Type Name="ezVec3Template&lt;*&gt;">
+		<DisplayString>{{ x={x}, y={y}, z={z} }}</DisplayString>
+	</Type>
+
+	<Type Name="ezVec4Template&lt;*&gt;">
+		<DisplayString>{{ x={x}, y={y}, z={z}, w={w} }}</DisplayString>
+	</Type>
+
+	<Type Name="ezQuatTemplate&lt;*&gt;">
+		<DisplayString>{{ x={v.x}, y={v.y}, z={v.z}, w={w} }}</DisplayString>
+	</Type>
+	
+	<Type Name="ezColor">
+		<DisplayString>{{ r={r}, g={g}, b={b}, a={a} }}</DisplayString>
+	</Type>
+	
+	<Type Name="ezTime">
+		<DisplayString>{{seconds = {m_fTime} }}</DisplayString>
+		<Expand>
+			<Item Name="seconds">m_fTime</Item>
+			<Item Name="milliseconds">m_fTime * 1000.0</Item>
+			<Item Name="microseconds">m_fTime * 1000000.0</Item>
+			<Item Name="nanoseconds">m_fTime * 1000000000.0</Item>
+		</Expand>
+	</Type>
+
+	<Type Name="ezMat3Template&lt;*&gt;">
+		<Expand>
+			<Item Name="Column0">&amp;m_fElementsCM[0],3</Item>
+			<Item Name="Column1">&amp;m_fElementsCM[3],3</Item>
+			<Item Name="Column2">&amp;m_fElementsCM[6],3</Item>
+		</Expand>
+	</Type>
+
+	<Type Name="ezMat4Template&lt;*&gt;">
+		<Expand>
+			<Item Name="Column0">&amp;m_fElementsCM[0],4</Item>
+			<Item Name="Column1">&amp;m_fElementsCM[4],4</Item>
+			<Item Name="Column2">&amp;m_fElementsCM[8],4</Item>
+			<Item Name="Column3">&amp;m_fElementsCM[12],4</Item>
+		</Expand>
+	</Type>
 </AutoVisualizer>
+
+
+
+
