@@ -20,6 +20,7 @@ struct EZ_RENDERERFOUNDATION_DLL ezGALDeviceCapabilities
   // Texture related capabilities
   bool m_bTextureArrays;
   bool m_bCubemapArrays;
+  bool m_bB5G6R5Textures;
   ezUInt16 m_uiMaxTextureDimension;
   ezUInt16 m_uiMaxCubemapDimension;
   ezUInt16 m_uiMax3DTextureDimension;

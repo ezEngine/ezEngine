@@ -736,7 +736,6 @@ void ezGALDevice::EndFrame()
 
 void ezGALDevice::Flush()
 {
-  /// \todo Marc: Check in which other functions this should be asserted
   EZ_ASSERT(m_bFrameBeginCalled, "You must have called ezGALDevice::Begin before you can call this function");
 
   FlushPlatform();

@@ -21,6 +21,7 @@ ezGALDeviceCapabilities::ezGALDeviceCapabilities()
   // Texture related capabilities
   m_bTextureArrays = false;
   m_bCubemapArrays = false;
+  m_bB5G6R5Textures = false;
   m_uiMaxTextureDimension = 0;
   m_uiMaxCubemapDimension = 0;
   m_uiMax3DTextureDimension = 0;

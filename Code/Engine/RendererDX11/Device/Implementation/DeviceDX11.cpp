@@ -470,6 +470,7 @@ void ezGALDeviceDX11::FillCapabilitiesPlatform()
   switch (m_FeatureLevel)
   {
   case D3D_FEATURE_LEVEL_11_1:
+	  m_Capabilities.m_bB5G6R5Textures = true;
   case D3D_FEATURE_LEVEL_11_0:
     m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::VertexShader] = true;
     m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::HullShader] = true;
@@ -547,8 +548,6 @@ void ezGALDeviceDX11::FillCapabilitiesPlatform()
 
 void ezGALDeviceDX11::FillFormatLookupTable()
 {
-  /// \todo Marc: Please review this list. I have marked the ones that I am particularly unsure about.
-  ///       I also do not know exactly which formats can be used for depth and stencil formats, so please check if I have missed some.
   ///       The list below is in the same order as the ezGALResourceFormat enum. No format should be missing except the ones that are just different names for the same enum value.
 
   m_FormatLookupTable.SetFormatInfo(
@@ -599,11 +598,10 @@ void ezGALDeviceDX11::FillFormatLookupTable()
       RV(DXGI_FORMAT_R32G32B32_SINT)
       );
 
-  // creating textures with this format gives me:
-  // D3D11 ERROR: ID3D11Device::CreateTexture2D: Device does not support the format B5G6R5_UNORM. [ STATE_CREATION ERROR #92: CREATETEXTURE2D_UNSUPPORTEDFORMAT]
+  // Supported with DX 11.1
   m_FormatLookupTable.SetFormatInfo(
     ezGALResourceFormat::B5G6R5UNormalized,
-    ezGALFormatLookupEntryDX11(DXGI_FORMAT_B5G6R5_UNORM). /// \todo Marc: is this correct ?
+    ezGALFormatLookupEntryDX11(DXGI_FORMAT_B5G6R5_UNORM).
       RT(DXGI_FORMAT_B5G6R5_UNORM).
       VA(DXGI_FORMAT_B5G6R5_UNORM).
       RV(DXGI_FORMAT_B5G6R5_UNORM)
@@ -621,7 +619,6 @@ void ezGALDeviceDX11::FillFormatLookupTable()
     ezGALResourceFormat::BGRAUByteNormalizedsRGB,
     ezGALFormatLookupEntryDX11(DXGI_FORMAT_B8G8R8A8_TYPELESS).
       RT(DXGI_FORMAT_B8G8R8A8_UNORM_SRGB).
-      VA(DXGI_FORMAT_B8G8R8A8_UNORM_SRGB). /// \todo Marc: sRGB as vertex array ?
       RV(DXGI_FORMAT_B8G8R8A8_UNORM_SRGB)
       );
 
@@ -702,7 +699,7 @@ void ezGALDeviceDX11::FillFormatLookupTable()
 
   m_FormatLookupTable.SetFormatInfo(
     ezGALResourceFormat::RG11B10Float,
-    ezGALFormatLookupEntryDX11(DXGI_FORMAT_R11G11B10_FLOAT). /// \todo Marc: Please check
+    ezGALFormatLookupEntryDX11(DXGI_FORMAT_R11G11B10_FLOAT).
       RT(DXGI_FORMAT_R11G11B10_FLOAT).
       VA(DXGI_FORMAT_R11G11B10_FLOAT).
       RV(DXGI_FORMAT_R11G11B10_FLOAT));
@@ -719,7 +716,6 @@ void ezGALDeviceDX11::FillFormatLookupTable()
     ezGALResourceFormat::RGBAUByteNormalizedsRGB, 
     ezGALFormatLookupEntryDX11(DXGI_FORMAT_R8G8B8A8_TYPELESS).
       RT(DXGI_FORMAT_R8G8B8A8_UNORM_SRGB).
-      VA(DXGI_FORMAT_R8G8B8A8_UNORM_SRGB).  /// \todo Marc: sRGB as vertex array ?
       RV(DXGI_FORMAT_R8G8B8A8_UNORM_SRGB)
       );
 
@@ -821,7 +817,7 @@ void ezGALDeviceDX11::FillFormatLookupTable()
 
   m_FormatLookupTable.SetFormatInfo(
     ezGALResourceFormat::DFloat, 
-    ezGALFormatLookupEntryDX11(DXGI_FORMAT_R32_TYPELESS). /// \todo Marc: Review
+    ezGALFormatLookupEntryDX11(DXGI_FORMAT_R32_TYPELESS).
       RT(DXGI_FORMAT_D32_FLOAT).
       RV(DXGI_FORMAT_D32_FLOAT).
       D(DXGI_FORMAT_D32_FLOAT)
@@ -856,7 +852,7 @@ void ezGALDeviceDX11::FillFormatLookupTable()
     ezGALFormatLookupEntryDX11(DXGI_FORMAT_R16_TYPELESS).
       RT(DXGI_FORMAT_R16_FLOAT).
       VA(DXGI_FORMAT_R16_FLOAT).
-      RV(DXGI_FORMAT_R16_FLOAT) /// \todo Marc: Depth ?
+	  RV(DXGI_FORMAT_R16_FLOAT)
       );
 
   m_FormatLookupTable.SetFormatInfo(
@@ -872,7 +868,8 @@ void ezGALDeviceDX11::FillFormatLookupTable()
     ezGALFormatLookupEntryDX11(DXGI_FORMAT_R16_TYPELESS).
       RT(DXGI_FORMAT_R16_UNORM).
       VA(DXGI_FORMAT_R16_UNORM).
-      RV(DXGI_FORMAT_R16_UNORM)
+	  RV(DXGI_FORMAT_R16_UNORM).
+	  D(DXGI_FORMAT_D16_UNORM)
       );
 
   m_FormatLookupTable.SetFormatInfo(
@@ -896,7 +893,7 @@ void ezGALDeviceDX11::FillFormatLookupTable()
     ezGALFormatLookupEntryDX11(DXGI_FORMAT_R8_TYPELESS).
       RT(DXGI_FORMAT_R8_UINT).
       VA(DXGI_FORMAT_R8_UINT).
-      RV(DXGI_FORMAT_R8_UINT) /// \todo Marc: Stencil ?
+      RV(DXGI_FORMAT_R8_UINT)
       );
 
   m_FormatLookupTable.SetFormatInfo(
@@ -925,7 +922,7 @@ void ezGALDeviceDX11::FillFormatLookupTable()
 
   m_FormatLookupTable.SetFormatInfo(
     ezGALResourceFormat::AUByteNormalized,
-    ezGALFormatLookupEntryDX11(DXGI_FORMAT_R8_TYPELESS). /// \todo Marc: What is this anyway ?
+    ezGALFormatLookupEntryDX11(DXGI_FORMAT_R8_TYPELESS).
       RT(DXGI_FORMAT_A8_UNORM).
       VA(DXGI_FORMAT_A8_UNORM).
       RV(DXGI_FORMAT_A8_UNORM)
@@ -939,105 +936,88 @@ void ezGALDeviceDX11::FillFormatLookupTable()
       S(DXGI_FORMAT_X24_TYPELESS_G8_UINT)
       );
 
-  /// \todo Marc: Do BC formats allow render-targets ?
-
   m_FormatLookupTable.SetFormatInfo(
     ezGALResourceFormat::BC1,
     ezGALFormatLookupEntryDX11(DXGI_FORMAT_BC1_TYPELESS).
-//      RT(DXGI_FORMAT_BC1_UNORM).
       RV(DXGI_FORMAT_BC1_UNORM)
       );
 
   m_FormatLookupTable.SetFormatInfo(
     ezGALResourceFormat::BC1sRGB,
     ezGALFormatLookupEntryDX11(DXGI_FORMAT_BC1_TYPELESS).
-//      RT(DXGI_FORMAT_BC1_UNORM_SRGB).
       RV(DXGI_FORMAT_BC1_UNORM_SRGB)
       );
 
   m_FormatLookupTable.SetFormatInfo(
     ezGALResourceFormat::BC2,
     ezGALFormatLookupEntryDX11(DXGI_FORMAT_BC2_TYPELESS).
-//      RT(DXGI_FORMAT_BC2_UNORM).
       RV(DXGI_FORMAT_BC2_UNORM)
       );
 
   m_FormatLookupTable.SetFormatInfo(
     ezGALResourceFormat::BC2sRGB,
     ezGALFormatLookupEntryDX11(DXGI_FORMAT_BC2_TYPELESS).
-//      RT(DXGI_FORMAT_BC2_UNORM_SRGB).
       RV(DXGI_FORMAT_BC2_UNORM_SRGB)
       );
 
   m_FormatLookupTable.SetFormatInfo(
     ezGALResourceFormat::BC3,
     ezGALFormatLookupEntryDX11(DXGI_FORMAT_BC3_TYPELESS).
-//      RT(DXGI_FORMAT_BC3_UNORM).
       RV(DXGI_FORMAT_BC3_UNORM)
       );
 
   m_FormatLookupTable.SetFormatInfo(
     ezGALResourceFormat::BC3sRGB,
     ezGALFormatLookupEntryDX11(DXGI_FORMAT_BC3_TYPELESS).
-//      RT(DXGI_FORMAT_BC3_UNORM_SRGB).
       RV(DXGI_FORMAT_BC3_UNORM_SRGB)
       );
 
   m_FormatLookupTable.SetFormatInfo(
     ezGALResourceFormat::BC4UNormalized,
     ezGALFormatLookupEntryDX11(DXGI_FORMAT_BC4_TYPELESS).
-//      RT(DXGI_FORMAT_BC4_UNORM).
       RV(DXGI_FORMAT_BC4_UNORM)
       );
 
   m_FormatLookupTable.SetFormatInfo(
     ezGALResourceFormat::BC4Normalized,
     ezGALFormatLookupEntryDX11(DXGI_FORMAT_BC4_TYPELESS).
-//      RT(DXGI_FORMAT_BC4_SNORM).
       RV(DXGI_FORMAT_BC4_SNORM)
       );
 
   m_FormatLookupTable.SetFormatInfo(
     ezGALResourceFormat::BC5UNormalized,
     ezGALFormatLookupEntryDX11(DXGI_FORMAT_BC5_TYPELESS).
-//      RT(DXGI_FORMAT_BC5_UNORM).
       RV(DXGI_FORMAT_BC5_UNORM)
       );
 
   m_FormatLookupTable.SetFormatInfo(
     ezGALResourceFormat::BC5Normalized,
     ezGALFormatLookupEntryDX11(DXGI_FORMAT_BC5_TYPELESS).
-//      RT(DXGI_FORMAT_BC5_SNORM).
       RV(DXGI_FORMAT_BC5_SNORM)
       );
 
   m_FormatLookupTable.SetFormatInfo(
     ezGALResourceFormat::BC6UFloat,
     ezGALFormatLookupEntryDX11(DXGI_FORMAT_BC6H_TYPELESS).
-//      RT(DXGI_FORMAT_BC6H_UF16).
       RV(DXGI_FORMAT_BC6H_UF16)
       );
 
   m_FormatLookupTable.SetFormatInfo(
     ezGALResourceFormat::BC6Float,
     ezGALFormatLookupEntryDX11(DXGI_FORMAT_BC6H_TYPELESS).
-//      RT(DXGI_FORMAT_BC6H_SF16).
       RV(DXGI_FORMAT_BC6H_SF16)
       );
 
   m_FormatLookupTable.SetFormatInfo(
     ezGALResourceFormat::BC7UNormalized,
     ezGALFormatLookupEntryDX11(DXGI_FORMAT_BC7_TYPELESS).
-//      RT(DXGI_FORMAT_BC7_UNORM).
       RV(DXGI_FORMAT_BC7_UNORM)
       );
 
   m_FormatLookupTable.SetFormatInfo(
     ezGALResourceFormat::BC7UNormalizedsRGB,
     ezGALFormatLookupEntryDX11(DXGI_FORMAT_BC7_TYPELESS).
-//      RT(DXGI_FORMAT_BC7_UNORM_SRGB).
       RV(DXGI_FORMAT_BC7_UNORM_SRGB)
       );
-
 
 }
