@@ -157,6 +157,9 @@ inline void ezStringBuilder::Prepend(const wchar_t* pData1, const wchar_t* pData
 
 inline const char* ezStringBuilder::GetData() const
 {
+  if (m_Data.IsEmpty())
+    return "";
+
   return &m_Data[0];
 }
 

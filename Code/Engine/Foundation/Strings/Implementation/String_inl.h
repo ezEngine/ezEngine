@@ -64,6 +64,9 @@ void ezHybridStringBase<Size>::Clear()
 template<ezUInt16 Size>
 EZ_FORCE_INLINE const char* ezHybridStringBase<Size>::GetData() const
 {
+  if (m_Data.IsEmpty())
+    return "";
+
   return &m_Data[0];
 }
 
