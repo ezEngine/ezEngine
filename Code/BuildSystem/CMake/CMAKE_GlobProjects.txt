@@ -31,16 +31,16 @@ set_property (GLOBAL PROPERTY ALL_KNOWN_PROJECTS "")
 
 # add all those directories to the to-be-processed queue
 foreach (VAR ${DIRS})
-	get_filename_component (RES ${VAR} PATH)
+  get_filename_component (RES ${VAR} PATH)
 
-	# add directory to the queue
-	add_subdirectory (${RES})
+  # add directory to the queue
+  add_subdirectory (${RES})
 endforeach ()
 
 get_property (KNOWN_LIBS GLOBAL PROPERTY ALL_KNOWN_PROJECTS)
 
 # Export all the cmake settings for this project
 # This allows other cmake projects to import them, and easily configure dependencies
-export (TARGETS ${KNOWN_LIBS} FILE "${CMAKE_SOURCE_DIR}/Code/exports.cmake")
+export(TARGETS ${KNOWN_LIBS} NAMESPACE ez FILE "${CMAKE_BINARY_DIR}/exports.cmake")
 
 
