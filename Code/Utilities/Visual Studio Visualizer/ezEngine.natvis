@@ -113,7 +113,7 @@
 	</Type>
 
 	<Type Name="ezArrayPtr&lt;*&gt;">
-		<DisplayString>{ {count={m_uiCount}} }</DisplayString>
+		<DisplayString>{{ count={m_uiCount} }}</DisplayString>
 		<Expand>
 			<Item Name="count">m_uiCount</Item>
 			<ArrayItems>
@@ -123,10 +123,10 @@
 		</Expand>
 	</Type>
 
+	<!-- Basic Types -->
 	<Type Name="ezVariant">
 		<Expand>
 			<Item Name="Type">(Type::Enum) m_Type</Item>
-			<Item Name="IsShared">m_bIsShared != 0</Item>
 			<Item Name="Value" Condition="m_Type == Type::Bool">*reinterpret_cast&lt;bool*&gt;(&amp;m_Data)</Item>
 			<Item Name="Value" Condition="m_Type == Type::Int8">*reinterpret_cast&lt;ezInt8*&gt;(&amp;m_Data)</Item>
 			<Item Name="Value" Condition="m_Type == Type::UInt8">*reinterpret_cast&lt;ezUInt8*&gt;(&amp;m_Data)</Item>
@@ -152,9 +152,18 @@
 			<Item Name="Value" Condition="m_Type == Type::String">*reinterpret_cast&lt;ezHybridStringBase&lt;32&gt;*&gt;(m_Data.shared->m_Ptr)</Item>
 			<Item Name="Value" Condition="m_Type == Type::VariantArray">*reinterpret_cast&lt;ezDynamicArray&lt;ezVariant,ezDefaultAllocatorWrapper&gt;*&gt;(m_Data.shared->m_Ptr)</Item>
 			<Item Name="Value" Condition="m_Type == Type::VariantDictionary">*reinterpret_cast&lt;ezHashTable&lt;ezHybridString&lt;32,ezDefaultAllocatorWrapper&gt;,ezVariant,ezHashHelper&lt;ezHybridString&lt;32,ezDefaultAllocatorWrapper&gt; &gt;,ezDefaultAllocatorWrapper&gt;*&gt;(m_Data.shared->m_Ptr)</Item>
+			<Item Name="IsShared">m_bIsShared != 0</Item>
 		</Expand>
 	</Type>
 
+	<Type Name="ezEnum&lt;*&gt;">
+		<DisplayString>{($T1::Enum)m_value}</DisplayString>
+	</Type>
+	
+	<Type Name="ezBitflags&lt;*&gt;">
+		<DisplayString>{($T1::Enum)m_Value}</DisplayString>
+	</Type>
+		
 	<Type Name="ezVec2Template&lt;*&gt;">
 		<DisplayString>{{ x={x}, y={y} }}</DisplayString>
 	</Type>
