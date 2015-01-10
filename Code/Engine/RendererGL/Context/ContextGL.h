@@ -174,9 +174,9 @@ protected:
 
   virtual void SetUnorderedAccessViewPlatform(ezUInt32 uiSlot, ezGALResourceView* pResourceView) override;
 
-  virtual void SetBlendStatePlatform(ezGALBlendState* pBlendState) override;
+  virtual void SetBlendStatePlatform(ezGALBlendState* pBlendState, const ezColor& BlendFactor, ezUInt32 uiSampleMask) override;
 
-  virtual void SetDepthStencilStatePlatform(ezGALDepthStencilState* pDepthStencilState) override;
+  virtual void SetDepthStencilStatePlatform(ezGALDepthStencilState* pDepthStencilState, ezUInt8 uiStencilRefValue) override;
 
   virtual void SetRasterizerStatePlatform(ezGALRasterizerState* pRasterizerState) override;
 

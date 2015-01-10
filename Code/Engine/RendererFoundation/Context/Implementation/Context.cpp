@@ -350,11 +350,11 @@ void ezGALContext::SetUnorderedAccessView(ezUInt32 uiSlot, ezGALResourceViewHand
   EZ_REPORT_FAILURE("not implemented");
 }
 
-void ezGALContext::SetBlendState(ezGALBlendStateHandle hBlendState)
+void ezGALContext::SetBlendState(ezGALBlendStateHandle hBlendState, const ezColor& BlendFactor, ezUInt32 uiSampleMask)
 {
   AssertRenderingThread();
 
-  if (m_State.m_hBlendState == hBlendState)
+  if (m_State.m_hBlendState == hBlendState && m_State.m_BlendFactor.IsEqual(BlendFactor, 0.001f) && m_State.m_uiSampleMask == uiSampleMask)
   {
     CountRedundantStateChange();
     return;
@@ -363,18 +363,18 @@ void ezGALContext::SetBlendState(ezGALBlendStateHandle hBlendState)
   ezGALBlendState* pBlendState = nullptr;
   m_pDevice->m_BlendStates.TryGetValue(hBlendState, pBlendState);
 
-  SetBlendStatePlatform(pBlendState);
+  SetBlendStatePlatform(pBlendState, BlendFactor, uiSampleMask);
 
   m_State.m_hBlendState = hBlendState;
 
   CountStateChange();
 }
 
-void ezGALContext::SetDepthStencilState(ezGALDepthStencilStateHandle hDepthStencilState)
+void ezGALContext::SetDepthStencilState(ezGALDepthStencilStateHandle hDepthStencilState, ezUInt8 uiStencilRefValue /*= 0xFFu*/)
 {
   AssertRenderingThread();
 
-  if (m_State.m_hDepthStencilState == hDepthStencilState)
+  if (m_State.m_hDepthStencilState == hDepthStencilState && uiStencilRefValue == m_State.m_uiStencilRefValue)
   {
     CountRedundantStateChange();
     return;
@@ -383,7 +383,7 @@ void ezGALContext::SetDepthStencilState(ezGALDepthStencilStateHandle hDepthStenc
   ezGALDepthStencilState* pDepthStencilState = nullptr;
   m_pDevice->m_DepthStencilStates.TryGetValue(hDepthStencilState, pDepthStencilState);
 
-  SetDepthStencilStatePlatform(pDepthStencilState);
+  SetDepthStencilStatePlatform(pDepthStencilState, uiStencilRefValue);
 
   m_State.m_hDepthStencilState = hDepthStencilState;
 

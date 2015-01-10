@@ -6,7 +6,13 @@ void ezGALContextState::Invalidate()
 
   m_hBlendState = ezGALBlendStateHandle();
 
+  m_BlendFactor = ezColor::GetBlack();
+
+  m_uiSampleMask = 0x0;
+
   m_hDepthStencilState = ezGALDepthStencilStateHandle();
+
+  m_uiStencilRefValue = 0;
 
   m_hRasterizerState = ezGALRasterizerStateHandle();
 

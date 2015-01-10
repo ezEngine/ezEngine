@@ -4,8 +4,8 @@
 #include <RendererFoundation/Basics.h>
 #include <RendererFoundation/Context/ContextState.h>
 #include <Foundation/Communication/Event.h>
+#include <Foundation/Math/Color.h>
 
-class ezColor;
 class ezGALDevice;
 
 class EZ_RENDERERFOUNDATION_DLL ezGALContext
@@ -68,9 +68,9 @@ public:
 
   void SetUnorderedAccessView(ezUInt32 uiSlot, ezGALResourceViewHandle hResourceView);
 
-  void SetBlendState(ezGALBlendStateHandle hBlendState);
+  void SetBlendState(ezGALBlendStateHandle hBlendState, const ezColor& BlendFactor = ezColor::GetWhite(), ezUInt32 uiSampleMask = 0xFFFFFFFFu);
 
-  void SetDepthStencilState(ezGALDepthStencilStateHandle hDepthStencilState);
+  void SetDepthStencilState(ezGALDepthStencilStateHandle hDepthStencilState, ezUInt8 uiStencilRefValue = 0xFFu);
 
   void SetRasterizerState(ezGALRasterizerStateHandle hRasterizerState);
 
@@ -181,9 +181,9 @@ protected:
 
   virtual void SetUnorderedAccessViewPlatform(ezUInt32 uiSlot, ezGALResourceView* pResourceView) = 0;
 
-  virtual void SetBlendStatePlatform(ezGALBlendState* pBlendState) = 0;
+  virtual void SetBlendStatePlatform(ezGALBlendState* pBlendState, const ezColor& BlendFactor, ezUInt32 uiSampleMask) = 0;
 
-  virtual void SetDepthStencilStatePlatform(ezGALDepthStencilState* pDepthStencilState) = 0;
+  virtual void SetDepthStencilStatePlatform(ezGALDepthStencilState* pDepthStencilState, ezUInt8 uiStencilRefValue) = 0;
 
   virtual void SetRasterizerStatePlatform(ezGALRasterizerState* pRasterizerState) = 0;
 

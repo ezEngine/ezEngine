@@ -312,20 +312,23 @@ void ezGALContextDX11::SetUnorderedAccessViewPlatform(ezUInt32 uiSlot, ezGALReso
   EZ_ASSERT_NOT_IMPLEMENTED;
 }
 
-void ezGALContextDX11::SetBlendStatePlatform(ezGALBlendState* pBlendState)
+void ezGALContextDX11::SetBlendStatePlatform(ezGALBlendState* pBlendState, const ezColor& BlendFactor, ezUInt32 uiSampleMask)
 {
-  //EZ_ASSERT_NOT_IMPLEMENTED;
-  /// \todo BlendFactors and Sample mask are not implemented
+  FLOAT BlendFactors[4] =
+  {
+	  BlendFactor.r,
+	  BlendFactor.g,
+	  BlendFactor.b,
+	  BlendFactor.a
+  };
 
-  m_pDXContext->OMSetBlendState(pBlendState != nullptr ? static_cast<ezGALBlendStateDX11*>(pBlendState)->GetDXBlendState() : nullptr, nullptr, 0xFFFFFFFF );
+
+  m_pDXContext->OMSetBlendState(pBlendState != nullptr ? static_cast<ezGALBlendStateDX11*>(pBlendState)->GetDXBlendState() : nullptr, BlendFactors, uiSampleMask);
 }
 
-void ezGALContextDX11::SetDepthStencilStatePlatform(ezGALDepthStencilState* pDepthStencilState)
+void ezGALContextDX11::SetDepthStencilStatePlatform(ezGALDepthStencilState* pDepthStencilState, ezUInt8 uiStencilRefValue)
 {
-  //EZ_ASSERT_NOT_IMPLEMENTED;
-  /// \todo StencilRef not implemented
-
-  m_pDXContext->OMSetDepthStencilState(pDepthStencilState != nullptr ? static_cast<ezGALDepthStencilStateDX11*>(pDepthStencilState)->GetDXDepthStencilState() : nullptr, 0 /* StencilRef Value not implemented? */ );
+  m_pDXContext->OMSetDepthStencilState(pDepthStencilState != nullptr ? static_cast<ezGALDepthStencilStateDX11*>(pDepthStencilState)->GetDXDepthStencilState() : nullptr, uiStencilRefValue );
 }
 
 void ezGALContextDX11::SetRasterizerStatePlatform(ezGALRasterizerState* pRasterizerState)

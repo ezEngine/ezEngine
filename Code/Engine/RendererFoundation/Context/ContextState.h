@@ -2,6 +2,7 @@
 #pragma once
 
 #include <Foundation/Math/Rect.h>
+#include <Foundation/Math/Color.h>
 
 struct EZ_RENDERERFOUNDATION_DLL ezGALContextState
 {
@@ -9,7 +10,13 @@ struct EZ_RENDERERFOUNDATION_DLL ezGALContextState
 
   ezGALBlendStateHandle m_hBlendState;
 
+  ezColor m_BlendFactor;
+
+  ezUInt32 m_uiSampleMask;
+
   ezGALDepthStencilStateHandle m_hDepthStencilState;
+
+  ezUInt8 m_uiStencilRefValue;
 
   ezGALRasterizerStateHandle m_hRasterizerState;
 

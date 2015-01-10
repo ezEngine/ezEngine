@@ -464,12 +464,12 @@ void ezGALContextGL::SetUnorderedAccessViewPlatform(ezUInt32 uiSlot, ezGALResour
   EZ_ASSERT_NOT_IMPLEMENTED;
 }
 
-void ezGALContextGL::SetBlendStatePlatform(ezGALBlendState* pBlendState)
+void ezGALContextGL::SetBlendStatePlatform(ezGALBlendState* pBlendState, const ezColor& BlendFactor, ezUInt32 uiSampleMask)
 {
   EZ_ASSERT_NOT_IMPLEMENTED;
 }
 
-void ezGALContextGL::SetDepthStencilStatePlatform(ezGALDepthStencilState* pDepthStencilState)
+void ezGALContextGL::SetDepthStencilStatePlatform(ezGALDepthStencilState* pDepthStencilState, ezUInt8 uiStencilRefValue)
 {
   const ezGALDepthStencilStateCreationDescription& depthDesc = pDepthStencilState->GetDescription();
 
@@ -489,6 +489,7 @@ void ezGALContextGL::SetDepthStencilStatePlatform(ezGALDepthStencilState* pDepth
     EZ_GL_CALL(glStencilMask, m_StencilWriteMask);
   }
 
+  /// \todo Stencil func needs to be implemented
 
  /* ezGALStencilOpDescription m_FrontFaceStencilOp;
   ezGALStencilOpDescription m_BackFaceStencilOp;
