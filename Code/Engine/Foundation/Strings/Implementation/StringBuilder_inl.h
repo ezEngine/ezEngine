@@ -157,8 +157,7 @@ inline void ezStringBuilder::Prepend(const wchar_t* pData1, const wchar_t* pData
 
 inline const char* ezStringBuilder::GetData() const
 {
-  if (m_Data.IsEmpty())
-    return "";
+  EZ_ASSERT(!m_Data.IsEmpty(), "ezStringBuilder has been corrupted, the array can never be empty.");
 
   return &m_Data[0];
 }

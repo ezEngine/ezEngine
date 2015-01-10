@@ -64,8 +64,7 @@ void ezHybridStringBase<Size>::Clear()
 template<ezUInt16 Size>
 EZ_FORCE_INLINE const char* ezHybridStringBase<Size>::GetData() const
 {
-  if (m_Data.IsEmpty())
-    return "";
+  EZ_ASSERT(!m_Data.IsEmpty(), "ezHybridString has been corrupted, the array can never be empty.");
 
   return &m_Data[0];
 }
