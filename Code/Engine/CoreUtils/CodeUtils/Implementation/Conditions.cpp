@@ -420,3 +420,7 @@ ezResult ezPreprocessor::ParseCondition(const TokenStream& Tokens, ezUInt32& uiC
   return EZ_FAILURE;
 }
 
+
+
+EZ_STATICLINK_FILE(CoreUtils, CoreUtils_CodeUtils_Implementation_Conditions);
+

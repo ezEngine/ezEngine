@@ -3,6 +3,7 @@
 #include <RendererFoundation/Device/SwapChain.h>
 #include <Core/ResourceManager/ResourceManager.h>
 #include <RendererCore/RendererCore.h>
+#include <RendererCore/Shader/ShaderResource.h>
 
 ezMeshBufferResourceHandle CreateTranslateGizmoMesh();
 

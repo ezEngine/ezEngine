@@ -11,3 +11,8 @@ ezGALRenderTargetConfig::ezGALRenderTargetConfig(const ezGALRenderTargetConfigCr
 ezGALRenderTargetConfig::~ezGALRenderTargetConfig()
 {
 }
+
+
+
+EZ_STATICLINK_FILE(RendererFoundation, RendererFoundation_Resources_Implementation_RenderTargetConfig);
+

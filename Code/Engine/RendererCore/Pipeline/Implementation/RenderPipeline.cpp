@@ -147,3 +147,8 @@ ezRenderPassType ezRenderPipeline::RegisterPassType(const char* szPassTypeName)
 ezRenderPassType ezDefaultPassTypes::Opaque = ezRenderPipeline::RegisterPassType("Opaque");
 ezRenderPassType ezDefaultPassTypes::Masked = ezRenderPipeline::RegisterPassType("Masked");
 ezRenderPassType ezDefaultPassTypes::Transparent = ezRenderPipeline::RegisterPassType("Transparent");
+
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_RenderPipeline);
+

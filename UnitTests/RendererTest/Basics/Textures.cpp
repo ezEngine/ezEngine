@@ -3,6 +3,7 @@
 #include <RendererFoundation/Context/Context.h>
 #include <CoreUtils/Graphics/Camera.h>
 #include <Core/ResourceManager/ResourceManager.h>
+#include <RendererCore/Shader/ShaderResource.h>
 
 ezTestAppRun ezRendererTestBasics::SubtestTextures2D()
 {

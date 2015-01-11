@@ -165,6 +165,9 @@ private:
   template<typename ResourceType>
   friend class ezResourceHandle;
 
+  friend EZ_CORE_DLL void IncreaseResourceRefCount(ezResourceBase* pResource);
+  friend EZ_CORE_DLL void DecreaseResourceRefCount(ezResourceBase* pResource);
+
   /// \brief This function must be overridden by all resource types.
   ///
   /// It has to compute the CPU and GPU memory used by this resource, and set that via SetMemoryUsageCPU() and SetMemoryUsageGPU().

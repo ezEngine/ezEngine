@@ -7,8 +7,7 @@
 #include <CoreUtils/Image/Image.h>
 #include <RendererFoundation/Basics.h>
 
-class ezTextureResource;
-typedef ezResourceHandle<ezTextureResource> ezTextureResourceHandle;
+typedef ezResourceHandle<class ezTextureResource> ezTextureResourceHandle;
 
 struct ezTextureResourceDescriptor
 {

@@ -289,3 +289,7 @@ void ezShaderCompiler::RunShaderCompilerForPermutations(const char* szFile, cons
 }
 
 
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_ShaderCompiler_Implementation_ShaderCompiler);
+

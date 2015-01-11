@@ -4,8 +4,7 @@
 #include <Core/ResourceManager/Resource.h>
 #include <RendererFoundation/Descriptors/Descriptors.h>
 
-class ezMeshBufferResource;
-typedef ezResourceHandle<ezMeshBufferResource> ezMeshBufferResourceHandle;
+typedef ezResourceHandle<class ezMeshBufferResource> ezMeshBufferResourceHandle;
 
 struct EZ_RENDERERCORE_DLL ezVertexStreamInfo : public ezHashableStruct<ezVertexStreamInfo>
 {

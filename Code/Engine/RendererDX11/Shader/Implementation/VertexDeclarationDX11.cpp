@@ -111,3 +111,8 @@ ezResult ezGALVertexDeclarationDX11::DeInitPlatform(ezGALDevice* pDevice)
   EZ_GAL_DX11_RELEASE(m_pDXInputLayout);
   return EZ_SUCCESS;
 }
+
+
+
+EZ_STATICLINK_FILE(RendererDX11, RendererDX11_Shader_Implementation_VertexDeclarationDX11);
+

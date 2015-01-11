@@ -1,5 +1,6 @@
-#include <CoreUtils/Image/Image.h>
+#pragma once
 
+#include <CoreUtils/Image/Image.h>
 #include <CoreUtils/Image/ImageConversion.h>
 
 /// \brief A template mixin useful as a base for custom image conversion routines.

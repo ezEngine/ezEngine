@@ -223,5 +223,5 @@ ezVariant ezVariant::ConvertTo(Type::Enum type, ezResult* out_pConversionStatus 
   return convertFunc.m_Result;
 }
 
-EZ_STATICLINK_FILE(Foundation, Foundation_Basics_Types_Implementation_Variant);
+EZ_STATICLINK_FILE(Foundation, Foundation_Types_Implementation_Variant);
 

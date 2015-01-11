@@ -135,3 +135,7 @@ void ezJSONReader::OnEndArray()
   m_Stack.PopBack();
 }
 
+
+
+EZ_STATICLINK_FILE(Foundation, Foundation_IO_Implementation_JSONReader);
+

@@ -203,3 +203,8 @@ const ezString ezConsole::FindCommonString(const ezDeque<ezString>& vStrings)
 
   return sCommon;
 }
+
+
+
+EZ_STATICLINK_FILE(CoreUtils, CoreUtils_Console_Implementation_Autocomplete);
+

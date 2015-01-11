@@ -52,3 +52,8 @@ ezResult ezGALRenderTargetConfigDX11::DeInitPlatform(ezGALDevice* pDevice)
   ID3D11RenderTargetView* m_pRenderTargetViews[EZ_GAL_MAX_RENDERTARGET_COUNT];
 
   ID3D11DepthStencilView* m_pDepthStencilTargetView;*/
+
+
+
+EZ_STATICLINK_FILE(RendererDX11, RendererDX11_Resources_Implementation_RenderTargetConfigDX11);
+

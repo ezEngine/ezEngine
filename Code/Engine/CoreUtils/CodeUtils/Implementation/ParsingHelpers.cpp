@@ -239,3 +239,8 @@ void ezPreprocessor::CombineTokensToString(const TokenStream& Tokens, ezUInt32 u
     sResult.Append(sTemp.GetData());
   }
 }
+
+
+
+EZ_STATICLINK_FILE(CoreUtils, CoreUtils_CodeUtils_Implementation_ParsingHelpers);
+

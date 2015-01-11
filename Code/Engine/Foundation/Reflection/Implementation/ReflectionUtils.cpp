@@ -444,3 +444,8 @@ bool ezReflectionUtils::CreateDependencySortedTypeArray(const ezSet<const ezRTTI
 
   return true;
 }
+
+
+
+EZ_STATICLINK_FILE(Foundation, Foundation_Reflection_Implementation_ReflectionUtils);
+

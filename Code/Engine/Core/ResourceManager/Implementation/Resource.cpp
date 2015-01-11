@@ -8,6 +8,16 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezResourceBase, ezReflectedClass, 1, ezRTTINoAll
 
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
+EZ_CORE_DLL void IncreaseResourceRefCount(ezResourceBase* pResource)
+{
+  pResource->m_iReferenceCount.Increment();
+}
+
+EZ_CORE_DLL void DecreaseResourceRefCount(ezResourceBase* pResource)
+{
+  pResource->m_iReferenceCount.Decrement();
+}
+
 ezResourceBase::ezResourceBase()
 {
   m_iReferenceCount = 0;
@@ -61,4 +71,8 @@ ezResourceTypeLoader* ezResourceBase::GetDefaultResourceTypeLoader() const
 }
 
 
+
+
+
+EZ_STATICLINK_FILE(Core, Core_ResourceManager_Implementation_Resource);
 

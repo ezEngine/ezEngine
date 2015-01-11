@@ -128,3 +128,8 @@ ezResult ezGALSwapChainDX11::DeInitPlatform(ezGALDevice* pDevice)
 
   return EZ_SUCCESS;
 }
+
+
+
+EZ_STATICLINK_FILE(RendererDX11, RendererDX11_Device_Implementation_SwapChainDX11);
+

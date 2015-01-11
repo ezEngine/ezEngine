@@ -6,10 +6,26 @@ EZ_STATICLINK_LIBRARY(CoreUtils)
   if (bReturn)
     return;
 
+  EZ_STATICLINK_REFERENCE(CoreUtils_CodeUtils_Implementation_Conditions);
+  EZ_STATICLINK_REFERENCE(CoreUtils_CodeUtils_Implementation_Defines);
+  EZ_STATICLINK_REFERENCE(CoreUtils_CodeUtils_Implementation_Expand);
+  EZ_STATICLINK_REFERENCE(CoreUtils_CodeUtils_Implementation_FileHandling);
+  EZ_STATICLINK_REFERENCE(CoreUtils_CodeUtils_Implementation_Macros);
+  EZ_STATICLINK_REFERENCE(CoreUtils_CodeUtils_Implementation_ParsingHelpers);
+  EZ_STATICLINK_REFERENCE(CoreUtils_CodeUtils_Implementation_Preprocessor);
+  EZ_STATICLINK_REFERENCE(CoreUtils_CodeUtils_Implementation_Tokenizer);
+  EZ_STATICLINK_REFERENCE(CoreUtils_Console_Implementation_Autocomplete);
+  EZ_STATICLINK_REFERENCE(CoreUtils_Console_Implementation_Commands);
+  EZ_STATICLINK_REFERENCE(CoreUtils_Console_Implementation_Console);
+  EZ_STATICLINK_REFERENCE(CoreUtils_Console_Implementation_Input);
+  EZ_STATICLINK_REFERENCE(CoreUtils_Console_Implementation_LuaInterpreter);
   EZ_STATICLINK_REFERENCE(CoreUtils_DataStructures_DynamicTree_Implementation_DynamicOctree);
   EZ_STATICLINK_REFERENCE(CoreUtils_DataStructures_DynamicTree_Implementation_DynamicQuadtree);
   EZ_STATICLINK_REFERENCE(CoreUtils_Debugging_Implementation_DataTransfer);
+  EZ_STATICLINK_REFERENCE(CoreUtils_Geometry_Implementation_GeomUtils);
+  EZ_STATICLINK_REFERENCE(CoreUtils_Geometry_Implementation_OBJLoader);
   EZ_STATICLINK_REFERENCE(CoreUtils_Graphics_Implementation_Camera);
+  EZ_STATICLINK_REFERENCE(CoreUtils_Graphics_Implementation_SimpleASCIIFont);
   EZ_STATICLINK_REFERENCE(CoreUtils_Image_Conversions_BC6Conversions);
   EZ_STATICLINK_REFERENCE(CoreUtils_Image_Conversions_DXTConversions);
   EZ_STATICLINK_REFERENCE(CoreUtils_Image_Conversions_PixelConversions);
@@ -22,6 +38,7 @@ EZ_STATICLINK_LIBRARY(CoreUtils)
   EZ_STATICLINK_REFERENCE(CoreUtils_Image_Implementation_ImageFileFormat);
   EZ_STATICLINK_REFERENCE(CoreUtils_Image_Implementation_ImageFormat);
   EZ_STATICLINK_REFERENCE(CoreUtils_Image_Implementation_ImageFormatMappings);
+  EZ_STATICLINK_REFERENCE(CoreUtils_Image_Implementation_ImageUtils);
   EZ_STATICLINK_REFERENCE(CoreUtils_Image_Implementation_SubSystem);
   EZ_STATICLINK_REFERENCE(CoreUtils_Scripting_LuaWrapper_CFunctions);
   EZ_STATICLINK_REFERENCE(CoreUtils_Scripting_LuaWrapper_Initialize);

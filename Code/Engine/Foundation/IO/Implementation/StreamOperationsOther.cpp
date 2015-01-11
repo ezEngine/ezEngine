@@ -48,5 +48,5 @@ void operator>> (ezStreamReaderBase& Stream, ezUuid& Value)
   Stream >> Value.m_uiLow;
 }
 
-EZ_STATICLINK_FILE(Foundation, Foundation_IO_Implementation_BinaryStreamOperationsOther);
+EZ_STATICLINK_FILE(Foundation, Foundation_IO_Implementation_StreamOperationsOther);
 

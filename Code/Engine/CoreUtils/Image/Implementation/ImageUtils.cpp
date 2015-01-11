@@ -271,3 +271,7 @@ void ezImageUtils::ScaleDownHalf(const ezImage& Image, ezImage& out_Result)
 }
 
 
+
+
+EZ_STATICLINK_FILE(CoreUtils, CoreUtils_Image_Implementation_ImageUtils);
+

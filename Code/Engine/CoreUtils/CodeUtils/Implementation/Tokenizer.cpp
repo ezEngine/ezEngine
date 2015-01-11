@@ -424,3 +424,7 @@ ezResult ezTokenizer::GetNextLine(ezUInt32& uiFirstToken, ezHybridArray<const ez
   return EZ_SUCCESS;
 }
 
+
+
+EZ_STATICLINK_FILE(CoreUtils, CoreUtils_CodeUtils_Implementation_Tokenizer);
+

@@ -1021,3 +1021,8 @@ void ezGALDeviceDX11::FillFormatLookupTable()
       );
 
 }
+
+
+
+EZ_STATICLINK_FILE(RendererDX11, RendererDX11_Device_Implementation_DeviceDX11);
+

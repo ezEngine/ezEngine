@@ -44,3 +44,8 @@ void ezMeshResource::CreateResource(const ezMeshResourceDescriptor& descriptor)
 
   m_LoadingState = ezResourceLoadState::Loaded;
 }
+
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_Meshes_Implementation_MeshResource);
+

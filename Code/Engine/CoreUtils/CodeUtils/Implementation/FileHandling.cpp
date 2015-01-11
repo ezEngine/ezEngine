@@ -278,3 +278,7 @@ ezResult ezPreprocessor::HandleInclude(const TokenStream& Tokens, ezUInt32 uiCur
   return EZ_SUCCESS;
 }
 
+
+
+EZ_STATICLINK_FILE(CoreUtils, CoreUtils_CodeUtils_Implementation_FileHandling);
+

@@ -7,8 +7,7 @@
 #include <Core/ResourceManager/ResourceTypeLoader.h>
 #include <Foundation/Time/Timestamp.h>
 
-class ezShaderPermutationResource;
-typedef ezResourceHandle<ezShaderPermutationResource> ezShaderPermutationResourceHandle;
+typedef ezResourceHandle<class ezShaderPermutationResource> ezShaderPermutationResourceHandle;
 
 struct ezShaderPermutationResourceDescriptor
 {

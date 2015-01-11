@@ -120,3 +120,7 @@ bool ezIntersectionUtils::Ray2DLine2D(const ezVec2& vRayStartPos, const ezVec2& 
   return true;
 }
 
+
+
+EZ_STATICLINK_FILE(Foundation, Foundation_Math_Implementation_Intersection);
+

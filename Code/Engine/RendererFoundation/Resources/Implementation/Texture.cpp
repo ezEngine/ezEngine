@@ -10,3 +10,8 @@ ezGALTexture::ezGALTexture(const ezGALTextureCreationDescription& Description)
 ezGALTexture::~ezGALTexture()
 {
 }
+
+
+
+EZ_STATICLINK_FILE(RendererFoundation, RendererFoundation_Resources_Implementation_Texture);
+

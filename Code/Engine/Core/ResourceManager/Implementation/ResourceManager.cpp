@@ -519,3 +519,8 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Core, ResourceManager)
   }
  
 EZ_END_SUBSYSTEM_DECLARATION
+
+
+
+EZ_STATICLINK_FILE(Core, Core_ResourceManager_Implementation_ResourceManager);
+

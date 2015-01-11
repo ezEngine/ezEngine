@@ -127,3 +127,7 @@ bool ezPermutationGenerator::IsValueAllowed(const char* szVariable, const char* 
 
 
 
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_ShaderCompiler_Implementation_PermutationGenerator);
+

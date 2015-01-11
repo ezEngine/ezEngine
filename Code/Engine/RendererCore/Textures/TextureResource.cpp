@@ -400,3 +400,8 @@ void ezTextureResourceLoader::CloseDataStream(const ezResourceBase* pResource, c
 
   EZ_DEFAULT_DELETE(pData);
 }
+
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_Textures_TextureResource);
+

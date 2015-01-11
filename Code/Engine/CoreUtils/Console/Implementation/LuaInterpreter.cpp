@@ -291,3 +291,7 @@ __metatable = \"Access Denied\",\n\
 }
 
 
+
+
+EZ_STATICLINK_FILE(CoreUtils, CoreUtils_Console_Implementation_LuaInterpreter);
+

@@ -1,3 +1,5 @@
+#pragma once
+
 #include <CoreUtils/Basics.h>
 #include <Foundation/IO/Stream.h>
 #include <Foundation/Logging/Log.h>

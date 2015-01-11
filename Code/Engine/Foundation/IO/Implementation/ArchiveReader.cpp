@@ -307,3 +307,7 @@ void* ezArchiveReader::ReadTypedObject(const ezRTTI** out_pRtti, ezUInt16* out_p
 
 
 
+
+
+EZ_STATICLINK_FILE(Foundation, Foundation_IO_Implementation_ArchiveReader);
+

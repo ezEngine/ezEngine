@@ -57,3 +57,8 @@ void ezRenderPipelinePass::RenderDataWithPassType(ezRenderPassType passType)
     renderData = renderData.GetSubArray(uiDataRendered, uiDataLeft - uiDataRendered);
   }  
 }
+
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_RenderPipelinePass);
+

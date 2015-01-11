@@ -33,3 +33,8 @@ ezGALDeviceCapabilities::ezGALDeviceCapabilities()
   m_uiUAVCount = 0;
   m_bAlphaToCoverage = false;
 }
+
+
+
+EZ_STATICLINK_FILE(RendererFoundation, RendererFoundation_Device_Implementation_DeviceCapabilities);
+

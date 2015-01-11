@@ -474,3 +474,8 @@ void ezTestFrameworkResult::ezTestResult::Reset()
     m_SubTests[uiSubTest].m_Result.Reset();
   }
 }
+
+
+
+EZ_STATICLINK_FILE(TestFramework, TestFramework_Framework_TestResults);
+

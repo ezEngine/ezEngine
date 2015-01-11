@@ -72,3 +72,7 @@ void GetShaderSections(const char* szContent, ezTextSectionizer& out_Sections)
   out_Sections.Process(szContent);
 }
 
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_Shader_Helper);
+

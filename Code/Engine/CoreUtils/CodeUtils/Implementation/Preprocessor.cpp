@@ -542,3 +542,8 @@ ezResult ezPreprocessor::HandleWarningDirective(const TokenStream& Tokens, ezUIn
 
   return EZ_SUCCESS;
 }
+
+
+
+EZ_STATICLINK_FILE(CoreUtils, CoreUtils_CodeUtils_Implementation_Preprocessor);
+

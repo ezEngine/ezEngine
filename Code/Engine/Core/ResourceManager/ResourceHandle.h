@@ -2,6 +2,12 @@
 
 #include <Core/Basics.h>
 
+class ezResourceBase;
+
+// These out-of-line helper functions allow to forward declare resource handles without knowledge about the resource class.
+EZ_CORE_DLL void IncreaseResourceRefCount(ezResourceBase* pResource);
+EZ_CORE_DLL void DecreaseResourceRefCount(ezResourceBase* pResource);
+
 /// \brief The ezResourceHandle controls access to an ezResource.
 ///
 /// All resources must be referenced using ezResourceHandle instances (instantiated with the proper resource type as the template argument).
@@ -31,7 +37,7 @@ public:
     m_pResource = pResource;
 
     if (m_pResource)
-      m_pResource->m_iReferenceCount.Increment();
+      IncreaseResourceRefCount(reinterpret_cast<ezResourceBase*>(m_pResource));
   }
 
   /// \brief Increases the refcount of the given resource.
@@ -40,7 +46,7 @@ public:
     m_pResource = rhs.m_pResource;
 
     if (m_pResource)
-      m_pResource->m_iReferenceCount.Increment();
+      IncreaseResourceRefCount(reinterpret_cast<ezResourceBase*>(m_pResource));
   }
 
   /// \brief Move constructor, no refcount change is necessary.
@@ -58,7 +64,7 @@ public:
     m_pResource = rhs.m_pResource;
 
     if (m_pResource)
-      m_pResource->m_iReferenceCount.Increment();
+      IncreaseResourceRefCount(reinterpret_cast<ezResourceBase*>(m_pResource));
   }
 
   /// \brief Move operator, no refcount change is necessary.
@@ -86,7 +92,7 @@ public:
   void Invalidate()
   {
     if (m_pResource)
-      m_pResource->m_iReferenceCount.Decrement();
+      DecreaseResourceRefCount(reinterpret_cast<ezResourceBase*>(m_pResource));
 
     m_pResource = NULL;
   }

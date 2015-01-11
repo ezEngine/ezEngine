@@ -245,3 +245,8 @@ ezGALVertexDeclarationHandle ezRendererCore::GetVertexDeclaration(ezGALShaderHan
 
   return it.Value();
 }
+
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_Meshes_Implementation_MeshBufferResource);
+

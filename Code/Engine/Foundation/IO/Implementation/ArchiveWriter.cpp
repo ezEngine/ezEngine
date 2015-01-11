@@ -201,3 +201,8 @@ void ezArchiveWriter::EndStream()
     m_OutputStream.WriteBytes(m_StorageTemp.GetData(), m_StorageTemp.GetStorageSize());
   }
 }
+
+
+
+EZ_STATICLINK_FILE(Foundation, Foundation_IO_Implementation_ArchiveWriter);
+

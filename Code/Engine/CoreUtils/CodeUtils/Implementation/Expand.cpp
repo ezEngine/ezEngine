@@ -597,3 +597,7 @@ ezResult ezPreprocessor::ExpandMacroParam(const ezToken& MacroToken, ezUInt32 ui
   return EZ_SUCCESS;
 }
 
+
+
+EZ_STATICLINK_FILE(CoreUtils, CoreUtils_CodeUtils_Implementation_Expand);
+

@@ -201,3 +201,7 @@ void ezConsole::LoadState(ezStreamReaderBase& Stream)
 }
 
 
+
+
+EZ_STATICLINK_FILE(CoreUtils, CoreUtils_Console_Implementation_Console);
+

@@ -861,3 +861,7 @@ void ezGeometry::AddTorus(float fInnerRadius, float fOuterRadius, ezUInt16 uiSeg
 
 
 
+
+
+EZ_STATICLINK_FILE(CoreUtils, CoreUtils_Geometry_Implementation_GeomUtils);
+

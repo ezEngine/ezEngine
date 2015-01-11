@@ -288,3 +288,8 @@ ezResult ezGALSamplerStateDX11::DeInitPlatform(ezGALDevice* pDevice)
   EZ_GAL_DX11_RELEASE(m_pDXSamplerState);
   return EZ_SUCCESS;
 }
+
+
+
+EZ_STATICLINK_FILE(RendererDX11, RendererDX11_State_Implementation_StateDX11);
+

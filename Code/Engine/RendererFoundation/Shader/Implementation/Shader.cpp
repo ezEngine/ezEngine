@@ -10,3 +10,8 @@ ezGALShader::ezGALShader(const ezGALShaderCreationDescription& Description)
 ezGALShader::~ezGALShader()
 {
 }
+
+
+
+EZ_STATICLINK_FILE(RendererFoundation, RendererFoundation_Shader_Implementation_Shader);
+

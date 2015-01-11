@@ -59,3 +59,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Graphics, RendererCore)
  
 EZ_END_SUBSYSTEM_DECLARATION
 
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_Shader_Startup);
+

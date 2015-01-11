@@ -8,3 +8,8 @@ void* ezAllocatorBase::Reallocate(void* ptr, size_t uiCurrentSize, size_t uiNewS
     Deallocate(ptr);
     return pNewMem;
 }
+
+
+
+EZ_STATICLINK_FILE(Foundation, Foundation_Memory_Implementation_AllocatorBase);
+

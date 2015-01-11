@@ -217,3 +217,8 @@ void LoadTestOrder(const char* szFile, std::deque<ezTestEntry>& AllTests, TestSe
   fclose(pFile);
   SortTestsAlphabetically(AllTests);
 }
+
+
+
+EZ_STATICLINK_FILE(TestFramework, TestFramework_Utilities_TestOrder);
+

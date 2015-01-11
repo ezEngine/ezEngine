@@ -4,6 +4,8 @@
 #include <Core/ResourceManager/Resource.h>
 #include <RendererCore/Shader/ShaderResource.h>
 
+typedef ezResourceHandle<class ezMaterialResource> ezMaterialResourceHandle;
+
 struct ezMaterialResourceDescriptor
 {
   ezShaderResourceHandle m_hShader;
@@ -42,4 +44,4 @@ private:
   ezShaderResourceHandle m_hShader;
 };
 
-typedef ezResourceHandle<ezMaterialResource> ezMaterialResourceHandle;
+

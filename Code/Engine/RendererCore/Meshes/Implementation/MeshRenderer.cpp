@@ -70,3 +70,8 @@ ezUInt32 ezMeshRenderer::Render(ezRenderPipelinePass* pPass, const ezArrayPtr<co
 
   return uiDataRendered;
 }
+
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_Meshes_Implementation_MeshRenderer);
+

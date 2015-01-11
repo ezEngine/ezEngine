@@ -174,3 +174,7 @@ ezResult ezPreprocessor::AddCustomDefine(const char* szDefinition)
   return HandleDefine(Tokens, uiCurToken);
 }
 
+
+
+EZ_STATICLINK_FILE(CoreUtils, CoreUtils_CodeUtils_Implementation_Defines);
+

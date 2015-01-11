@@ -1,3 +1,5 @@
+#pragma once
+
 #include <CoreUtils/Basics.h>
 #include <CoreUtils/CodeUtils/Tokenizer.h>
 #include <Foundation/IO/Stream.h>

@@ -88,3 +88,7 @@ void ezConsole::ExecuteBoundKey(const char* szKey)
     ProcessCommand(it.Value().GetData());
 }
 
+
+
+EZ_STATICLINK_FILE(CoreUtils, CoreUtils_Console_Implementation_Commands);
+

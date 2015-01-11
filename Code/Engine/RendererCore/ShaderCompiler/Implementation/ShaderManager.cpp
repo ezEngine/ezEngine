@@ -6,6 +6,9 @@
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <RendererFoundation/Context/Context.h>
 #include <Core/ResourceManager/ResourceManager.h>
+#include <RendererCore/Textures/TextureResource.h>
+#include <RendererCore/Shader/ShaderResource.h>
+#include <RendererCore/Shader/ShaderPermutationResource.h>
 
 const ezPermutationGenerator* ezRendererCore::GetGeneratorForShaderPermutation(ezUInt32 uiPermutationHash)
 {
@@ -253,4 +256,8 @@ void ezRendererCore::ApplyTextureBindings(ezGALContext* pContext, ezGALShaderSta
     pContext->SetSamplerState(stage, rb.m_iSlot, l->GetGALSamplerState());
   }
 }
+
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_ShaderCompiler_Implementation_ShaderManager);
 

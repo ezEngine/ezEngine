@@ -85,3 +85,6 @@ bool ezResourceLoaderFromFile::IsResourceOutdated(const ezResourceBase* pResourc
 
 
 
+
+EZ_STATICLINK_FILE(Core, Core_ResourceManager_Implementation_ResourceTypeLoader);
+

@@ -1,8 +1,6 @@
 #pragma once
 
-#include <RendererCore/Material/MaterialResource.h>
-#include <RendererCore/Meshes/MeshBufferResource.h>
-#include <RendererCore/Textures/TextureResource.h>
+#include <RendererCore/Basics.h>
 #include <Foundation/Strings/HashedString.h>
 #include <RendererCore/ShaderCompiler/PermutationGenerator.h>
 #include <Foundation/Strings/String.h>
@@ -10,12 +8,18 @@
 #include <RendererFoundation/Shader/Shader.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Context/Context.h>
-#include <RendererCore/Shader/ShaderResource.h>
-#include <RendererCore/Shader/ShaderPermutationResource.h>
+#include <Core/ResourceManager/Resource.h>
 
 class ezGALContext;
+class ezShaderStageBinary;
 struct ezVertexDeclarationInfo;
 
+typedef ezResourceHandle<class ezTextureResource> ezTextureResourceHandle;
+typedef ezResourceHandle<class ezConstantBufferResource> ezConstantBufferResourceHandle;
+typedef ezResourceHandle<class ezMeshBufferResource> ezMeshBufferResourceHandle;
+typedef ezResourceHandle<class ezMaterialResource> ezMaterialResourceHandle;
+typedef ezResourceHandle<class ezShaderResource> ezShaderResourceHandle;
+typedef ezResourceHandle<class ezShaderPermutationResource> ezShaderPermutationResourceHandle;
 
 class EZ_RENDERERCORE_DLL ezRendererCore
 {
@@ -26,6 +30,8 @@ public:
     ezUInt32 uiPrimitiveCount = 0xFFFFFFFF, ezUInt32 uiFirstPrimitive = 0, ezUInt32 uiInstanceCount = 1);
 
   static void BindTexture(ezGALContext* pContext, const ezTempHashedString& sSlotName, const ezTextureResourceHandle& hTexture);
+
+  static void BindConstantBuffer(ezGALContext* pContext, const ezTempHashedString& sSlotName, const ezConstantBufferResourceHandle& hTexture);
 
   static ezResult ApplyContextStates(ezGALContext* pContext = nullptr, bool bForce = false);
 

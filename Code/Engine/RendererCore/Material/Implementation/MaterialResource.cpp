@@ -35,3 +35,8 @@ void ezMaterialResource::CreateResource(const ezMaterialResourceDescriptor& desc
 
   m_LoadingState = ezResourceLoadState::Loaded;
 }
+
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_Material_Implementation_MaterialResource);
+

@@ -494,3 +494,8 @@ void ezGALContextDX11::PopMarkerPlatform()
 void ezGALContextDX11::InsertEventMarkerPlatform(const char* Marker)
 {
 }
+
+
+
+EZ_STATICLINK_FILE(RendererDX11, RendererDX11_Context_Implementation_ContextDX11);
+

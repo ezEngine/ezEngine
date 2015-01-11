@@ -1,12 +1,11 @@
 #pragma once
 
 #include <RendererCore/Basics.h>
-#include <RendererCore/Shader/ShaderPermutationBinary.h>
 #include <Core/ResourceManager/Resource.h>
 #include <Core/ResourceManager/ResourceTypeLoader.h>
+#include <RendererCore/Shader/ShaderPermutationResource.h>
 
-class ezShaderResource;
-typedef ezResourceHandle<ezShaderResource> ezShaderResourceHandle;
+typedef ezResourceHandle<class ezShaderResource> ezShaderResourceHandle;
 
 struct ezShaderResourceDescriptor
 {

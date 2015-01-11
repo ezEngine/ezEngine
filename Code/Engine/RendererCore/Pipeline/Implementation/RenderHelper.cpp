@@ -2,6 +2,10 @@
 #include <RendererCore/RendererCore.h>
 #include <Core/ResourceManager/ResourceManager.h>
 #include <RendererFoundation/Context/Context.h>
+#include <RendererCore/Material/MaterialResource.h>
+#include <RendererCore/Meshes/MeshBufferResource.h>
+#include <RendererCore/Textures/TextureResource.h>
+#include <RendererCore/ConstantBuffers/ConstantBufferResource.h>
 
 ezMap<ezGALContext*, ezRendererCore::ContextState> ezRendererCore::s_ContextState;
 
@@ -120,4 +124,8 @@ ezResult ezRendererCore::ApplyContextStates(ezGALContext* pContext, bool bForce)
   return EZ_SUCCESS;
 }
 
+
+
+
+EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_RenderHelper);
 

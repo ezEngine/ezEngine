@@ -12,7 +12,9 @@
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Memory/MemoryTracker.h>
 #include <Core/ResourceManager/ResourceManager.h>
+#include <RendererCore/Shader/ShaderResource.h>
 #include <RendererCore/RendererCore.h>
+
 
 
 ezGraphicsTest::ezGraphicsTest()

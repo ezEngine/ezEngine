@@ -39,6 +39,8 @@
 
 #include <RendererCore/RendererCore.h>
 #include <RendererCore/ShaderCompiler/ShaderCompiler.h>
+#include <RendererCore/Shader/ShaderResource.h>
+
 
 // This sample is a really simple low-level rendering demo showing how the high level renderer will interact with the GPU abstraction layer
 

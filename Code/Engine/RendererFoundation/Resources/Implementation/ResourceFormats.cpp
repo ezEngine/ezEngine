@@ -169,3 +169,8 @@ const ezUInt8 ezGALResourceFormat::ChannelCount[ezGALResourceFormat::ENUM_COUNT]
   4, // BC7UNormalized
   4  // BC7UNormalizedsRGB
 };  
+
+
+
+EZ_STATICLINK_FILE(RendererFoundation, RendererFoundation_Resources_Implementation_ResourceFormats);
+
