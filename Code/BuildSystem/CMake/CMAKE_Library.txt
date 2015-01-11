@@ -12,6 +12,10 @@ if (POLICY CMP0022)
   cmake_policy(SET CMP0022 NEW)
 endif()
 
+if (POLICY CMP0043)
+  cmake_policy(SET CMP0043 NEW)
+endif()
+
 # Get the name of this folder
 get_filename_component (CUR_FOLDER_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME_WE)
 get_filename_component (PARENT_FOLDER ${CMAKE_CURRENT_SOURCE_DIR} PATH)
