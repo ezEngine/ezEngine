@@ -12,7 +12,7 @@ cbuffer PerFrame : register(b0)
   float time;
 };
 
-cbuffer PerObject : register(b1)
+cbuffer PerObject : register(b2)
 {
   float4x4 mvp : packoffset(c0);
 };

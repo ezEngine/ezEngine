@@ -95,18 +95,6 @@ void ezRendererCore::DrawMeshBuffer(ezGALContext* pContext, const ezMeshBufferRe
   }
 }
 
-void ezRendererCore::BindTexture(ezGALContext* pContext, const ezTempHashedString& sSlotName, const ezTextureResourceHandle& hTexture)
-{
-  if (pContext == nullptr)
-    pContext = ezGALDevice::GetDefaultDevice()->GetPrimaryContext();
-
-  ContextState& cs = s_ContextState[pContext];
-
-  cs.m_BoundTextures[sSlotName.GetHash()] = hTexture;
-
-  cs.m_bTextureBindingsChanged = true;
-}
-
 ezResult ezRendererCore::ApplyContextStates(ezGALContext* pContext, bool bForce)
 {
   if (pContext == nullptr)

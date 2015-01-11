@@ -6,13 +6,7 @@
 
 #if defined(DX11_SM40_93) || defined(DX11_SM40) || defined(DX11_SM41) || defined(DX11_SM50)
 
-
-cbuffer PerFrame : register(b0)
-{
-  float time;
-};
-
-cbuffer PerObject : register(b1)
+cbuffer PerObject : register(b2)
 {
   float4x4 mvp : packoffset(c0);
 };

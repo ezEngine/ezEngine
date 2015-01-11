@@ -9,6 +9,7 @@
 #include <RendererCore/Textures/TextureResource.h>
 #include <RendererCore/Shader/ShaderResource.h>
 #include <RendererCore/Shader/ShaderPermutationResource.h>
+#include <RendererCore/ConstantBuffers/ConstantBufferResource.h>
 
 const ezPermutationGenerator* ezRendererCore::GetGeneratorForShaderPermutation(ezUInt32 uiPermutationHash)
 {
@@ -162,6 +163,7 @@ void ezRendererCore::SetShaderContextState(ezGALContext* pContext, ContextState&
     state.m_bShaderStateChanged = false;
     state.m_bShaderStateValid = false;
     state.m_bTextureBindingsChanged = true;
+    state.m_bConstantBufferBindingsChanged = true;
 
     if (!state.m_hActiveShader.IsValid())
       return;
@@ -219,44 +221,29 @@ void ezRendererCore::SetShaderContextState(ezGALContext* pContext, ContextState&
 
       ApplyTextureBindings(pContext, (ezGALShaderStage::Enum) stage, pBin);
     }
-
-    ezResourceManager::EndAcquireResource(pShaderPermutation);
   }
-}
 
-void ezRendererCore::ApplyTextureBindings(ezGALContext* pContext, ezGALShaderStage::Enum stage, const ezShaderStageBinary* pBinary)
-{
-  const auto& cs = s_ContextState[pContext];
-
-  for (const auto& rb : pBinary->m_ShaderResourceBindings)
+  if ((bForce || state.m_bConstantBufferBindingsChanged) && state.m_hActiveShaderPermutation.IsValid())
   {
-    //ezLog::Dev("%s at slot %i, Type: %u", rb.m_Name.GetData(), rb.m_iSlot, (ezUInt32) rb.m_Type);
+    state.m_bConstantBufferBindingsChanged = false;
 
-    if (rb.m_Type == ezShaderStageResource::ConstantBuffer)
-      continue; /// \todo Implement
+    if (pShaderPermutation == nullptr)
+      pShaderPermutation = ezResourceManager::BeginAcquireResource(state.m_hActiveShaderPermutation, ezResourceAcquireMode::AllowFallback);
 
-    const ezUInt32 uiResourceHash = rb.m_Name.GetHash();
-
-    ezTextureResourceHandle* hTexture;
-    if (!cs.m_BoundTextures.TryGetValue(uiResourceHash, hTexture))
+    for (ezUInt32 stage = 0; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
     {
-      ezLog::Error("No resource is bound for shader slot '%s'", rb.m_Name.GetData());
-      continue;
+      auto pBin = pShaderPermutation->GetShaderStageBinary((ezGALShaderStage::Enum) stage);
+
+      if (pBin == nullptr)
+        continue;
+
+      ApplyConstantBufferBindings(pContext, pBin);
     }
-
-    if (hTexture == nullptr || !hTexture->IsValid())
-    {
-      ezLog::Error("An invalid resource is bound for shader slot '%s'", rb.m_Name.GetData());
-      continue;
-    }
-
-    ezResourceLock<ezTextureResource> l(*hTexture, ezResourceAcquireMode::AllowFallback);
-
-    pContext->SetResourceView(stage, rb.m_iSlot, l->GetGALTextureView());
-    pContext->SetSamplerState(stage, rb.m_iSlot, l->GetGALSamplerState());
   }
-}
 
+  if (pShaderPermutation != nullptr)
+    ezResourceManager::EndAcquireResource(pShaderPermutation);
+}
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_ShaderCompiler_Implementation_ShaderManager);

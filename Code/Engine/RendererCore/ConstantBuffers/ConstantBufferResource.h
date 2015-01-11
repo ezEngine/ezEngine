@@ -6,43 +6,46 @@
 
 typedef ezResourceHandle<class ezConstantBufferResource> ezConstantBufferResourceHandle;
 
-struct ezConstantBufferResourceDescriptor
+struct ezConstantBufferResourceDescriptorBase
 {
-  template<typename STRUCT>
-  void Initialize()
-  {
-    m_Bytes.SetCount(sizeof(STRUCT));
-    ezMemoryUtils::Construct<STRUCT>(m_Bytes.GetData());
-  }
+protected:
+  ezConstantBufferResourceDescriptorBase() { m_pBytes = nullptr; m_uiSize = 0; }
 
-  ezDynamicArray<ezUInt8> m_Bytes;
+  friend class ezConstantBufferResource;
+  ezUInt8* m_pBytes;
+  ezUInt32 m_uiSize;
 };
 
-class EZ_RENDERERCORE_DLL ezConstantBufferResource : public ezResource<ezConstantBufferResource, ezConstantBufferResourceDescriptor>
+template<typename STRUCT>
+struct ezConstantBufferResourceDescriptor : public ezConstantBufferResourceDescriptorBase
+{
+  ezConstantBufferResourceDescriptor()
+  {
+    m_pBytes = reinterpret_cast<ezUInt8*>(&m_Data);
+    m_uiSize = sizeof(STRUCT);
+  }
+
+  STRUCT m_Data;
+};
+
+class EZ_RENDERERCORE_DLL ezConstantBufferResource : public ezResource<ezConstantBufferResource, ezConstantBufferResourceDescriptorBase>
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezConstantBufferResource);
 
 public:
   ezConstantBufferResource();
 
-  void UploadStateToGPU(ezGALContext* pContext);
-
-  ezGALBufferHandle GetGALBufferHandle() const { return m_hGALConstantBuffer; }
-
-  template<typename STRUCT>
-  STRUCT& Modify()
-  {
-    m_bHasBeenModified = true;
-    return *reinterpret_cast<STRUCT*>(m_Bytes.GetData());
-  }
-
 private:
   virtual void UnloadData(bool bFullUnload) override;
   virtual void UpdateContent(ezStreamReaderBase* Stream) override;
   virtual void UpdateMemoryUsage() override;
-  virtual void CreateResource(const ezConstantBufferResourceDescriptor& descriptor) override;
+  virtual void CreateResource(const ezConstantBufferResourceDescriptorBase& descriptor) override;
 
 private:
+  friend class ezRendererCore;
+  ezGALBufferHandle GetGALBufferHandle() const { return m_hGALConstantBuffer; }
+
+  void UploadStateToGPU(ezGALContext* pContext);
 
   bool m_bHasBeenModified;
   ezGALBufferHandle m_hGALConstantBuffer;

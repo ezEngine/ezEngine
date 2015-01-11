@@ -31,7 +31,7 @@ public:
 
   static void BindTexture(ezGALContext* pContext, const ezTempHashedString& sSlotName, const ezTextureResourceHandle& hTexture);
 
-  static void BindConstantBuffer(ezGALContext* pContext, const ezTempHashedString& sSlotName, const ezConstantBufferResourceHandle& hTexture);
+  static void BindConstantBuffer(ezGALContext* pContext, const ezTempHashedString& sSlotName, const ezConstantBufferResourceHandle& hConstantBuffer);
 
   static ezResult ApplyContextStates(ezGALContext* pContext = nullptr, bool bForce = false);
 
@@ -64,6 +64,14 @@ public:
 
   static void OutputErrors(ezGALContext* pContext = nullptr);
 
+  template<typename STRUCT>
+  static STRUCT* BeginModifyConstantBuffer(ezConstantBufferResourceHandle hConstantBuffer, ezGALContext* pContext = nullptr)
+  {
+    return reinterpret_cast<STRUCT*>(InternalBeginModifyConstantBuffer(hConstantBuffer, pContext));
+  }
+
+  static void EndModifyConstantBuffer(ezGALContext* pContext = nullptr);
+
 private:
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(Graphics, RendererCore);
 
@@ -78,20 +86,25 @@ private:
       m_bShaderStateChanged = true;
       m_bShaderStateValid = false;
       m_bTextureBindingsChanged = true;
+      m_bConstantBufferBindingsChanged = true;
       m_uiFailedDrawcalls = 0;
+      m_pCurrentlyModifyingBuffer = nullptr;
     }
 
     ezUInt32 m_uiFailedDrawcalls;
     bool m_bShaderStateChanged;
     bool m_bShaderStateValid;
     bool m_bTextureBindingsChanged;
+    bool m_bConstantBufferBindingsChanged;
     ezShaderResourceHandle m_hActiveShader;
     ezGALShaderHandle m_hActiveGALShader;
     ezMap<ezString, ezString> m_PermutationVariables;
     ezPermutationGenerator m_PermGenerator;
     ezShaderPermutationResourceHandle m_hActiveShaderPermutation;
+    ezConstantBufferResource* m_pCurrentlyModifyingBuffer;
 
     ezHashTable<ezUInt32, ezTextureResourceHandle> m_BoundTextures;
+    ezHashTable<ezUInt32, ezConstantBufferResourceHandle> m_BoundConstantBuffers;
   };
 
   struct ShaderVertexDecl
@@ -116,7 +129,9 @@ private:
 
   static void SetShaderContextState(ezGALContext* pContext, ContextState& state, bool bForce);
   static void ApplyTextureBindings(ezGALContext* pContext, ezGALShaderStage::Enum stage, const ezShaderStageBinary* pBinary);
+  static void ApplyConstantBufferBindings(ezGALContext* pContext, const ezShaderStageBinary* pBinary);
   static ezGALVertexDeclarationHandle GetVertexDeclaration(ezGALShaderHandle hShader, const ezVertexDeclarationInfo& decl);
+  static ezUInt8* InternalBeginModifyConstantBuffer(ezConstantBufferResourceHandle hConstantBuffer, ezGALContext* pContext);
 
   static ezPermutationGenerator s_AllowedPermutations;
   static bool s_bEnableRuntimeCompilation;

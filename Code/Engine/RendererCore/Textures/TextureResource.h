@@ -20,18 +20,18 @@ class EZ_RENDERERCORE_DLL ezTextureResource : public ezResource<ezTextureResourc
 public:
   ezTextureResource();
 
-  const ezGALResourceViewHandle& GetGALTextureView() const { return m_hGALTexView; }
-
-  const ezGALTextureHandle& GetGALTexture() const { return m_hGALTexture; }
-
-  const ezGALSamplerStateHandle& GetGALSamplerState() const { return m_hSamplerState; }
-
-
 private:
   virtual void UnloadData(bool bFullUnload) override;
   virtual void UpdateContent(ezStreamReaderBase* Stream) override;
   virtual void UpdateMemoryUsage() override;
   virtual void CreateResource(const ezTextureResourceDescriptor& descriptor) override;
+
+private:
+  friend class ezRendererCore;
+
+  const ezGALResourceViewHandle& GetGALTextureView() const { return m_hGALTexView; }
+  const ezGALTextureHandle& GetGALTexture() const { return m_hGALTexture; }
+  const ezGALSamplerStateHandle& GetGALSamplerState() const { return m_hSamplerState; }
 
 private:
   ezGALTextureHandle m_hGALTexture;

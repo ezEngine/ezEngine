@@ -40,6 +40,7 @@
 #include <RendererCore/RendererCore.h>
 #include <RendererCore/ShaderCompiler/ShaderCompiler.h>
 #include <RendererCore/Shader/ShaderResource.h>
+#include <RendererCore/ConstantBuffers/ConstantBufferResource.h>
 
 
 // This sample is a really simple low-level rendering demo showing how the high level renderer will interact with the GPU abstraction layer
@@ -65,6 +66,11 @@ public:
 struct TestCB
 {
   ezMat4 mvp;
+};
+
+struct ColorCB
+{
+  ezColor m_CustomColor;
 };
 
 static bool g_bMSAA = false;
@@ -120,13 +126,9 @@ public:
     cfg.m_sInputSlotTrigger[0] = ezInputSlot_KeyR;
     ezInputManager::SetInputActionConfig("Main", "ReloadShader", cfg, true);
 
-    //cfg = ezInputManager::GetInputActionConfig("Main", "NextObj");
-    //cfg.m_sInputSlotTrigger[0] = ezInputSlot_KeyP;
-    //ezInputManager::SetInputActionConfig("Main", "NextObj", cfg, true);
-
-    //cfg = ezInputManager::GetInputActionConfig("Main", "PrevObj");
-    //cfg.m_sInputSlotTrigger[0] = ezInputSlot_KeyO;
-    //ezInputManager::SetInputActionConfig("Main", "PrevObj", cfg, true);
+    cfg = ezInputManager::GetInputActionConfig("Main", "ChangeColor");
+    cfg.m_sInputSlotTrigger[0] = ezInputSlot_KeyC;
+    ezInputManager::SetInputActionConfig("Main", "ChangeColor", cfg, true);
 
     // Create a window for rendering
     ezWindowCreationDesc WindowCreationDesc;
@@ -162,18 +164,25 @@ public:
 
     m_hBBRT = pPrimarySwapChain->GetRenderTargetViewConfig();
 
-
-    // Create a constant buffer for matrix upload
-    m_hCB = m_pDevice->CreateConstantBuffer(sizeof(TestCB));
-
-    for (int i = 0; i < MaxObjs; ++i)
-      m_pObj[i] = DontUse::MayaObj::LoadFromFile("ez.obj", m_pDevice, i);
-
 #if EZ_ENABLED(DEMO_GL)
     ezRendererCore::SetShaderPlatform("GL3", true);
 #else
     ezRendererCore::SetShaderPlatform("DX11_SM40", true);
 #endif
+
+    ezConstantBufferResourceDescriptor<TestCB> cbd;
+    cbd.m_Data.mvp.SetIdentity();
+    m_hConstantBuffer = ezResourceManager::CreateResource<ezConstantBufferResource>("MainCB", cbd);
+
+    ezConstantBufferResourceDescriptor<ColorCB> cbd2;
+    cbd2.m_Data.m_CustomColor = ezColor::GetCornflowerBlue(); // The original!
+    m_hColorConstantBuffer = ezResourceManager::CreateResource<ezConstantBufferResource>("ColorCB", cbd2);
+
+    ezRendererCore::BindConstantBuffer(nullptr, "PerObject", m_hConstantBuffer);
+    ezRendererCore::BindConstantBuffer(nullptr, "ColorBuffer", m_hColorConstantBuffer);
+
+    for (int i = 0; i < MaxObjs; ++i)
+      m_pObj[i] = DontUse::MayaObj::LoadFromFile("ez.obj", m_pDevice, i);
 
     m_hShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/ez2.shader");
 
@@ -209,6 +218,14 @@ public:
 
     if (ezInputManager::GetInputActionState("Main", "CloseApp") == ezKeyState::Pressed)
       return ApplicationExecution::Quit;
+
+    if (ezInputManager::GetInputActionState("Main", "ChangeColor") == ezKeyState::Pressed)
+    {
+      auto ObjectData = ezRendererCore::BeginModifyConstantBuffer<ColorCB>(m_hColorConstantBuffer);
+      ObjectData->m_CustomColor = ObjectData->m_CustomColor.GetInvertedColor();
+
+      ezRendererCore::EndModifyConstantBuffer();
+    }
 
     if (ezInputManager::GetInputActionState("Main", "ToggleShader") == ezKeyState::Pressed)
     {
@@ -255,16 +272,6 @@ public:
 
       ezRendererCore::ApplyContextStates(nullptr, true); // force state resetting
     }
-
-    //if (ezInputManager::GetInputActionState("Main", "NextObj") == ezKeyState::Pressed)
-    //{
-    //  m_iCurObject = (m_iCurObject + 1) % MaxObjs;
-    //}
-
-    //if (ezInputManager::GetInputActionState("Main", "PrevObj") == ezKeyState::Pressed)
-    //{
-    //  m_iCurObject = m_iCurObject == 0 ? (MaxObjs - 1) : m_iCurObject - 1;
-    //}
 
     ezClock::UpdateAllGlobalClocks();
 
@@ -313,13 +320,10 @@ public:
 #endif
       );
 
-    TestCB ObjectData;
+    auto ObjectData = ezRendererCore::BeginModifyConstantBuffer<TestCB>(m_hConstantBuffer);
+    ObjectData->mvp = Proj * View * Model * ModelRot;
 
-    ObjectData.mvp = Proj * View * Model * ModelRot;
-
-    pContext->UpdateBuffer(m_hCB, 0, &ObjectData, sizeof(TestCB));
-
-    pContext->SetConstantBuffer(1, m_hCB);
+    ezRendererCore::EndModifyConstantBuffer();
 
     ezRendererCore::DrawMeshBuffer(pContext, m_pObj[m_iCurObject]->m_hMeshBuffer);
 
@@ -366,6 +370,8 @@ public:
       EZ_DEFAULT_DELETE(m_pObj[i]);
 
     m_hShader.Invalidate();
+    m_hConstantBuffer.Invalidate();
+    m_hColorConstantBuffer.Invalidate();
 
     ezStartup::ShutdownEngine();
 
@@ -373,7 +379,6 @@ public:
 
     // the device requires some data for shutdown that is referenced below
     // so we must not clean this stuff up before 'device shutdown'
-    m_pDevice->DestroyBuffer(m_hCB);
     m_pDevice->DestroyRasterizerState(m_hRasterizerState);
     m_pDevice->DestroyDepthStencilState(m_hDepthStencilState);
 
@@ -391,7 +396,8 @@ private:
 
   ezGALRenderTargetConfigHandle m_hBBRT;
 
-  ezGALBufferHandle m_hCB;
+  ezConstantBufferResourceHandle m_hConstantBuffer;
+  ezConstantBufferResourceHandle m_hColorConstantBuffer;
 
   ezGALRasterizerStateHandle m_hRasterizerState;
 

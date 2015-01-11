@@ -1,5 +1,7 @@
 #include <RendererCore/PCH.h>
 #include <RendererCore/ConstantBuffers/ConstantBufferResource.h>
+#include <RendererCore/RendererCore.h>
+#include <RendererCore/Shader/ShaderPermutationBinary.h>
 #include <Foundation/Logging/Log.h>
 #include <Core/ResourceManager/ResourceManager.h>
 #include <RendererFoundation/Descriptors/Descriptors.h>
@@ -38,10 +40,11 @@ void ezConstantBufferResource::UpdateMemoryUsage()
   SetMemoryUsageGPU(m_Bytes.GetCount());
 }
 
-void ezConstantBufferResource::CreateResource(const ezConstantBufferResourceDescriptor& descriptor)
+void ezConstantBufferResource::CreateResource(const ezConstantBufferResourceDescriptorBase& descriptor)
 {
   m_bHasBeenModified = true;
-  m_Bytes = std::move(descriptor.m_Bytes);
+  m_Bytes.SetCount(descriptor.m_uiSize);
+  ezMemoryUtils::Copy<ezUInt8>(m_Bytes.GetData(), descriptor.m_pBytes, descriptor.m_uiSize);
 
   m_uiLoadedQualityLevel = 1;
   m_LoadingState = ezResourceLoadState::Loaded;
@@ -61,6 +64,81 @@ void ezConstantBufferResource::UploadStateToGPU(ezGALContext* pContext)
   pContext->UpdateBuffer(m_hGALConstantBuffer, 0, m_Bytes.GetData(), m_Bytes.GetCount());
 }
 
+void ezRendererCore::BindConstantBuffer(ezGALContext* pContext, const ezTempHashedString& sSlotName, const ezConstantBufferResourceHandle& hConstantBuffer)
+{
+  if (pContext == nullptr)
+    pContext = ezGALDevice::GetDefaultDevice()->GetPrimaryContext();
+
+  ContextState& cs = s_ContextState[pContext];
+
+  cs.m_BoundConstantBuffers[sSlotName.GetHash()] = hConstantBuffer;
+
+  cs.m_bConstantBufferBindingsChanged = true;
+}
+
+ezUInt8* ezRendererCore::InternalBeginModifyConstantBuffer(ezConstantBufferResourceHandle hConstantBuffer, ezGALContext* pContext)
+{
+  if (pContext == nullptr)
+    pContext = ezGALDevice::GetDefaultDevice()->GetPrimaryContext();
+
+  ContextState& cs = s_ContextState[pContext];
+
+  EZ_ASSERT(cs.m_pCurrentlyModifyingBuffer == nullptr, "Only one buffer can be modified at a time. Call EndModifyConstantBuffer before updating another buffer.");
+
+  cs.m_pCurrentlyModifyingBuffer = ezResourceManager::BeginAcquireResource<ezConstantBufferResource>(hConstantBuffer);
+
+  return cs.m_pCurrentlyModifyingBuffer->m_Bytes.GetData();
+}
+
+void ezRendererCore::EndModifyConstantBuffer(ezGALContext* pContext)
+{
+  if (pContext == nullptr)
+    pContext = ezGALDevice::GetDefaultDevice()->GetPrimaryContext();
+
+  ContextState& cs = s_ContextState[pContext];
+
+  EZ_ASSERT(cs.m_pCurrentlyModifyingBuffer != nullptr, "No buffer is currently being modified. Call BeginModifyConstantBuffer before calling EndModifyConstantBuffer.");
+
+  cs.m_pCurrentlyModifyingBuffer->m_bHasBeenModified = true;
+
+  ezResourceManager::EndAcquireResource(cs.m_pCurrentlyModifyingBuffer);
+
+  cs.m_bConstantBufferBindingsChanged = true; // make sure the next drawcall triggers an upload
+  cs.m_pCurrentlyModifyingBuffer = nullptr;
+  /// \todo Upload immediately ?
+}
+
+void ezRendererCore::ApplyConstantBufferBindings(ezGALContext* pContext, const ezShaderStageBinary* pBinary)
+{
+  const auto& cs = s_ContextState[pContext];
+
+  for (const auto& rb : pBinary->m_ShaderResourceBindings)
+  {
+    if (rb.m_Type != ezShaderStageResource::ConstantBuffer)
+      continue;
+
+    const ezUInt32 uiResourceHash = rb.m_Name.GetHash();
+
+    ezConstantBufferResourceHandle* hResource;
+    if (!cs.m_BoundConstantBuffers.TryGetValue(uiResourceHash, hResource))
+    {
+      ezLog::Error("No resource is bound for constant buffer slot '%s'", rb.m_Name.GetData());
+      continue;
+    }
+
+    if (hResource == nullptr || !hResource->IsValid())
+    {
+      ezLog::Error("An invalid resource is bound for constant buffer slot '%s'", rb.m_Name.GetData());
+      continue;
+    }
+
+    ezResourceLock<ezConstantBufferResource> l(*hResource, ezResourceAcquireMode::AllowFallback);
+
+    l->UploadStateToGPU(pContext);
+
+    pContext->SetConstantBuffer(rb.m_iSlot, l->GetGALBufferHandle());
+  }
+}
 
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_ConstantBuffers_ConstantBufferResource);

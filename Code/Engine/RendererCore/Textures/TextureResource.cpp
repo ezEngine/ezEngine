@@ -1,5 +1,7 @@
 #include <RendererCore/PCH.h>
 #include <RendererCore/Textures/TextureResource.h>
+#include <RendererCore/RendererCore.h>
+#include <RendererCore/Shader/ShaderPermutationBinary.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Configuration/Startup.h>
 #include <Core/ResourceManager/ResourceManager.h>
@@ -402,6 +404,48 @@ void ezTextureResourceLoader::CloseDataStream(const ezResourceBase* pResource, c
 }
 
 
+void ezRendererCore::BindTexture(ezGALContext* pContext, const ezTempHashedString& sSlotName, const ezTextureResourceHandle& hTexture)
+{
+  if (pContext == nullptr)
+    pContext = ezGALDevice::GetDefaultDevice()->GetPrimaryContext();
+
+  ContextState& cs = s_ContextState[pContext];
+
+  cs.m_BoundTextures[sSlotName.GetHash()] = hTexture;
+
+  cs.m_bTextureBindingsChanged = true;
+}
+
+void ezRendererCore::ApplyTextureBindings(ezGALContext* pContext, ezGALShaderStage::Enum stage, const ezShaderStageBinary* pBinary)
+{
+  const auto& cs = s_ContextState[pContext];
+
+  for (const auto& rb : pBinary->m_ShaderResourceBindings)
+  {
+    if (rb.m_Type == ezShaderStageResource::ConstantBuffer)
+      continue;
+
+    const ezUInt32 uiResourceHash = rb.m_Name.GetHash();
+
+    ezTextureResourceHandle* hTexture;
+    if (!cs.m_BoundTextures.TryGetValue(uiResourceHash, hTexture))
+    {
+      ezLog::Error("No resource is bound for shader slot '%s'", rb.m_Name.GetData());
+      continue;
+    }
+
+    if (hTexture == nullptr || !hTexture->IsValid())
+    {
+      ezLog::Error("An invalid resource is bound for shader slot '%s'", rb.m_Name.GetData());
+      continue;
+    }
+
+    ezResourceLock<ezTextureResource> l(*hTexture, ezResourceAcquireMode::AllowFallback);
+
+    pContext->SetResourceView(stage, rb.m_iSlot, l->GetGALTextureView());
+    pContext->SetSamplerState(stage, rb.m_iSlot, l->GetGALSamplerState());
+  }
+}
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Textures_TextureResource);
 
