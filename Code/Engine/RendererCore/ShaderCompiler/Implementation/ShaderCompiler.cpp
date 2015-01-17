@@ -33,7 +33,10 @@ ezResult ezShaderCompiler::FileOpen(const char* szAbsoluteFile, ezDynamicArray<e
 
   ezFileReader r;
   if (r.Open(szAbsoluteFile).Failed())
+  {
+    ezLog::Error("Could not find include file '%s'", szAbsoluteFile);
     return EZ_FAILURE;
+  }
 
 #if EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
   ezFileStats stats;

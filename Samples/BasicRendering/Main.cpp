@@ -91,7 +91,11 @@ public:
     ezStringBuilder sReadDir = BUILDSYSTEM_OUTPUT_FOLDER;
     sReadDir.AppendPath("../../Shared/FreeContent/Basic Rendering/");
 
+    ezStringBuilder sBaseDir = BUILDSYSTEM_OUTPUT_FOLDER;
+    sBaseDir.AppendPath("../../Shared/Data/");
+
     ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
+    ezFileSystem::AddDataDirectory(sBaseDir.GetData(), ezFileSystem::ReadOnly, "Shared");
     ezFileSystem::AddDataDirectory(sReadDir.GetData(), ezFileSystem::AllowWrites, "Basic Rendering Content");
 
     ezGlobalLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);
@@ -184,7 +188,7 @@ public:
     for (int i = 0; i < MaxObjs; ++i)
       m_pObj[i] = DontUse::MayaObj::LoadFromFile("ez.obj", m_pDevice, i);
 
-    m_hShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/ez2.shader");
+    m_hShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/ez.shader");
 
     ezRendererCore::SetActiveShader(m_hShader);
     ezRendererCore::SetShaderPermutationVariable("COLORED", "1");
@@ -216,6 +220,8 @@ public:
     if (m_pWindow->m_bCloseRequested)
       return ApplicationExecution::Quit;
 
+    ezRendererCore::WriteGlobalConstants().GameTime = (float) ezClock::Get()->GetAccumulatedTime().GetSeconds();
+
     if (ezInputManager::GetInputActionState("Main", "CloseApp") == ezKeyState::Pressed)
       return ApplicationExecution::Quit;
 
@@ -223,6 +229,8 @@ public:
     {
       auto ObjectData = ezRendererCore::BeginModifyConstantBuffer<ColorCB>(m_hColorConstantBuffer);
       ObjectData->m_CustomColor = ObjectData->m_CustomColor.GetInvertedColor();
+
+      ezRendererCore::WriteGlobalConstants().AmbientColor = ObjectData->m_CustomColor;
 
       ezRendererCore::EndModifyConstantBuffer();
     }

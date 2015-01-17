@@ -1,21 +1,11 @@
-#if defined(GL3) || defined(GL4)
+#include <Shaders/Common/GlobalConstants.h>
 
-#version 430
-
-#endif
-
-#if defined(DX11_SM40_93) || defined(DX11_SM40) || defined(DX11_SM41) || defined(DX11_SM50)
-
-
-cbuffer PerFrame : register(b0)
+CONSTANT_BUFFER(PerObject, 1)
 {
-  float time;
+  MAT4(mvp);
 };
 
-cbuffer PerObject : register(b2)
-{
-  float4x4 mvp : packoffset(c0);
-};
+#ifdef PLATFORM_DX11
 
 Texture2D TileTex : register(t0);
 SamplerState TileSampler : register(s0);
@@ -38,5 +28,5 @@ typedef VS_OUT PS_IN;
 
 #endif
 
-#define some_color 0.0
+
 

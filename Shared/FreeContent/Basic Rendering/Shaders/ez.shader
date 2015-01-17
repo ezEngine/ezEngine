@@ -1,17 +1,15 @@
 [PLATFORMS] 
 ALL
-!DX11_SM40_93
 
 [PERMUTATIONS]
 
 COLORED
-COLORVALUE
 
 [VERTEXSHADER]
 
 #include "Common.inc"
 
-#if defined(DX11_SM40_93) || defined(DX11_SM40) || defined(DX11_SM41) || defined(DX11_SM50)
+#ifdef PLATFORM_DX11
 
 VS_OUT main(VS_IN Input)
 {
@@ -30,11 +28,11 @@ VS_OUT main(VS_IN Input)
 
 #include "Common.inc"
 
-#if defined(DX11_SM40_93) || defined(DX11_SM40) || defined(DX11_SM41) || defined(DX11_SM50)
+#ifdef PLATFORM_DX11
 
-cbuffer ColorBuffer
+CONSTANT_BUFFER(ColorBuffer, 2)
 {
-  float4 CustomColor;
+  COLOR(CustomColor);
 };
 
 
@@ -45,7 +43,7 @@ float4 main(PS_IN Input) : SV_Target
 {
 #if COLORED
   //return TexDiffuse.Sample(TexDiffuseSampler, Input.norm.xz * 4);
-  return float4(1.0, 1.0, 0.0, 1.0);
+  return AmbientColor;//float4(1.0, 1.0, 0.0, 1.0);
 #else
   return CustomColor;
 #endif

@@ -200,7 +200,6 @@ void ezRendererCore::SetShaderContextState(ezGALContext* pContext, ContextState&
     state.m_hActiveGALShader = pShaderPermutation->GetGALShader();
 
     pContext->SetShader(state.m_hActiveGALShader);
-    //pContext->SetVertexDeclaration(pShaderPermutation->GetGALVertexDeclaration());
 
     state.m_bShaderStateValid = true;
   }
@@ -222,6 +221,8 @@ void ezRendererCore::SetShaderContextState(ezGALContext* pContext, ContextState&
       ApplyTextureBindings(pContext, (ezGALShaderStage::Enum) stage, pBin);
     }
   }
+
+  UploadGlobalConstants(pContext);
 
   if ((bForce || state.m_bConstantBufferBindingsChanged) && state.m_hActiveShaderPermutation.IsValid())
   {

@@ -9,6 +9,8 @@
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Context/Context.h>
 #include <Core/ResourceManager/Resource.h>
+#include <RendererCore/../../../Shared/Data/Shaders/Common/ConstantBufferMacros.h>
+#include <RendererCore/../../../Shared/Data/Shaders/Common/GlobalConstants.h>
 
 class ezGALContext;
 class ezShaderStageBinary;
@@ -72,6 +74,17 @@ public:
 
   static void EndModifyConstantBuffer(ezGALContext* pContext = nullptr);
 
+  static GlobalConstants& WriteGlobalConstants()
+  {
+    s_bGlobalConstantsModified = true;
+    return s_GlobalConstants;
+  }
+
+  static const GlobalConstants& ReadGlobalConstants()
+  {
+    return s_GlobalConstants;
+  }
+
 private:
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(Graphics, RendererCore);
 
@@ -132,6 +145,7 @@ private:
   static void ApplyConstantBufferBindings(ezGALContext* pContext, const ezShaderStageBinary* pBinary);
   static ezGALVertexDeclarationHandle GetVertexDeclaration(ezGALShaderHandle hShader, const ezVertexDeclarationInfo& decl);
   static ezUInt8* InternalBeginModifyConstantBuffer(ezConstantBufferResourceHandle hConstantBuffer, ezGALContext* pContext);
+  static void UploadGlobalConstants(ezGALContext* pContext);
 
   static ezPermutationGenerator s_AllowedPermutations;
   static bool s_bEnableRuntimeCompilation;
@@ -140,5 +154,9 @@ private:
   static ezString s_ShaderCacheDirectory;
   static ezMap<ezUInt32, ezPermutationGenerator> s_PermutationHashCache;
   static ezMap<ShaderVertexDecl, ezGALVertexDeclarationHandle> s_GALVertexDeclarations;
+
+  static bool s_bGlobalConstantsModified;
+  static GlobalConstants s_GlobalConstants;
+  static ezConstantBufferResourceHandle s_hGlobalConstantBuffer;
 };
 

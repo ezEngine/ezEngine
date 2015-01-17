@@ -15,6 +15,7 @@ void ezRendererCore::OnEngineShutdown()
   s_ContextState.Clear();
   s_PermutationHashCache.Clear();
   s_AllowedPermutations.Clear();
+  s_hGlobalConstantBuffer.Invalidate();
 
   for (auto it = s_GALVertexDeclarations.GetIterator(); it.IsValid(); ++it)
   {
@@ -22,6 +23,9 @@ void ezRendererCore::OnEngineShutdown()
   }
 
   s_GALVertexDeclarations.Clear();
+
+  // reset to a default state by re-constructing the struct
+  ezMemoryUtils::Construct(&s_GlobalConstants, 1);
 }
 
 void ezRendererCore::OnCoreShutdown()
