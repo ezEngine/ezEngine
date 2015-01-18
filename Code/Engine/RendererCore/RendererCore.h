@@ -11,6 +11,7 @@
 #include <Core/ResourceManager/Resource.h>
 #include <RendererCore/../../../Shared/Data/Shaders/Common/ConstantBufferMacros.h>
 #include <RendererCore/../../../Shared/Data/Shaders/Common/GlobalConstants.h>
+#include <RendererCore/Shader/ShaderStageBinary.h>
 
 class ezGALContext;
 class ezShaderStageBinary;
@@ -85,6 +86,31 @@ public:
     return s_GlobalConstants;
   }
 
+  struct MaterialParam
+  {
+    ezUInt64 m_LastModification;
+    ezShaderStageBinary::MaterialParameter::Type m_Type;
+    ezUInt8 m_uiArrayElements;
+    ezUInt16 m_uiDataSize;
+  };
+
+  static void SetMaterialParameter(const ezTempHashedString& sName, const float& value);
+  static void SetMaterialParameter(const ezTempHashedString& sName, const ezVec2& value);
+  static void SetMaterialParameter(const ezTempHashedString& sName, const ezVec3& value);
+  static void SetMaterialParameter(const ezTempHashedString& sName, const ezVec4& value);
+  static void SetMaterialParameter(const ezTempHashedString& sName, const ezColor& value);
+  static void SetMaterialParameter(const ezTempHashedString& sName, const ezInt32& value);
+  static void SetMaterialParameter(const ezTempHashedString& sName, const ezVec2I32& value);
+  static void SetMaterialParameter(const ezTempHashedString& sName, const ezVec3I32& value);
+  static void SetMaterialParameter(const ezTempHashedString& sName, const ezVec4I32& value);
+  static void SetMaterialParameter(const ezTempHashedString& sName, const ezMat3& value);
+  static void SetMaterialParameter(const ezTempHashedString& sName, const ezMat4& value);
+  static void SetMaterialParameter(const ezTempHashedString& sName, const ezTransform& value);
+  /// \todo Array versions of material parameters
+
+
+  static const MaterialParam* GetMaterialParameterPointer(ezUInt32 uiNameHash);
+
 private:
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(Graphics, RendererCore);
 
@@ -146,6 +172,7 @@ private:
   static ezGALVertexDeclarationHandle GetVertexDeclaration(ezGALShaderHandle hShader, const ezVertexDeclarationInfo& decl);
   static ezUInt8* InternalBeginModifyConstantBuffer(ezConstantBufferResourceHandle hConstantBuffer, ezGALContext* pContext);
   static void UploadGlobalConstants(ezGALContext* pContext);
+  static MaterialParam* InternalSetMaterialParameter(const ezTempHashedString& sName, ezShaderStageBinary::MaterialParameter::Type type, ezUInt32 uiMaxArrayElements);
 
   static ezPermutationGenerator s_AllowedPermutations;
   static bool s_bEnableRuntimeCompilation;
@@ -154,6 +181,7 @@ private:
   static ezString s_ShaderCacheDirectory;
   static ezMap<ezUInt32, ezPermutationGenerator> s_PermutationHashCache;
   static ezMap<ShaderVertexDecl, ezGALVertexDeclarationHandle> s_GALVertexDeclarations;
+  static ezUInt64 s_LastMaterialParamModification;
 
   static bool s_bGlobalConstantsModified;
   static GlobalConstants s_GlobalConstants;

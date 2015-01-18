@@ -40,6 +40,7 @@ struct ezGALDeviceCreationDescription
 struct ezGALShaderCreationDescription : public ezHashableStruct<ezGALShaderCreationDescription>
 {
   inline ezGALShaderCreationDescription();
+  inline ~ezGALShaderCreationDescription();
 
   inline bool HasByteCodeForStage(ezGALShaderStage::Enum Stage) const;
 

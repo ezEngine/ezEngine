@@ -3,7 +3,7 @@
 #include <d3dcompiler.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezShaderCompilerHLSL, ezShaderProgramCompiler, 1, ezRTTIDefaultAllocator<ezShaderCompilerHLSL>);
-  // no properties or message handlers
+// no properties or message handlers
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 void OnLoadPlugin(bool bReloading) { }
@@ -78,7 +78,7 @@ void ezShaderCompilerHLSL::ReflectShaderStage(ezShaderProgramData& inout_Data, e
 
     ssr.m_Name.Assign(sibd.Name);
     ssr.m_iSlot = sibd.BindPoint;
-    
+
 
     //if (sibd.Type == D3D_SIT_TEXTURE || sibd.Type == D3D_SIT_TBUFFER)
     //{
@@ -130,7 +130,138 @@ void ezShaderCompilerHLSL::ReflectShaderStage(ezShaderProgramData& inout_Data, e
     //default:
     //  ezLog::Error("Resource is some weird type"); break;
     //}
+  }
 
+  ReflectMaterialParameters(inout_Data, Stage, pReflector);
+}
+
+void ezShaderCompilerHLSL::ReflectMaterialParameters(ezShaderProgramData& inout_Data, ezGALShaderStage::Enum Stage, ID3D11ShaderReflection* pReflector)
+{
+
+  const char* szMaterialCBName = "MaterialCB";
+
+  ID3D11ShaderReflectionConstantBuffer* pMaterialCB = pReflector->GetConstantBufferByName(szMaterialCBName);
+
+  if (pMaterialCB != nullptr)
+  {
+    D3D11_SHADER_BUFFER_DESC sbd;
+
+    if (SUCCEEDED(pMaterialCB->GetDesc(&sbd)))
+    {
+      EZ_LOG_BLOCK("Material Block", szMaterialCBName);
+      ezLog::Debug("MaterialCB has %u variables, Size is %u", sbd.Variables, sbd.Size);
+
+      inout_Data.m_StageBinary[Stage].m_uiMaterialCBSize = sbd.Size;
+
+      for (ezUInt32 var = 0; var < sbd.Variables; ++var)
+      {
+        ID3D11ShaderReflectionVariable* pVar = pMaterialCB->GetVariableByIndex(var);
+
+        D3D11_SHADER_VARIABLE_DESC svd;
+        pVar->GetDesc(&svd);
+
+        EZ_LOG_BLOCK("Material Parameter", svd.Name);
+
+        D3D11_SHADER_TYPE_DESC std;
+        pVar->GetType()->GetDesc(&std);
+
+        ezShaderStageBinary::MaterialParameter mp;
+        mp.m_Type = ezShaderStageBinary::MaterialParameter::Type::Unknown;
+        mp.m_uiNameHash = ezTempHashedString(svd.Name).GetHash();
+        mp.m_uiOffset = svd.StartOffset;
+        mp.m_uiArrayElements = std.Elements;
+
+        if (std.Class == D3D_SVC_SCALAR || std.Class == D3D_SVC_VECTOR)
+        {
+          switch (std.Type)
+          {
+          case D3D_SVT_FLOAT:
+            mp.m_Type = (ezShaderStageBinary::MaterialParameter::Type) ((ezInt32) ezShaderStageBinary::MaterialParameter::Type::Float1 + std.Columns - 1);
+            break;
+          case D3D_SVT_INT:
+            mp.m_Type = (ezShaderStageBinary::MaterialParameter::Type) ((ezInt32) ezShaderStageBinary::MaterialParameter::Type::Int1 + std.Columns - 1);
+            break;
+
+          default:
+            break;
+          }
+        }
+        else if (std.Class == D3D_SVC_MATRIX_ROWS || std.Class == D3D_SVC_MATRIX_COLUMNS)
+        {
+          /// \todo Only support one matrix layout type
+
+          if (std.Type != D3D_SVT_FLOAT)
+          {
+            ezLog::Error("Variable '%s': Only float matrices are supported", svd.Name);
+            continue;
+          }
+
+          if (std.Columns == 3 && std.Rows == 3)
+            mp.m_Type = ezShaderStageBinary::MaterialParameter::Type::Mat3x3;
+          else if (std.Columns == 4 && std.Rows == 4)
+            mp.m_Type = ezShaderStageBinary::MaterialParameter::Type::Mat4x4;
+          else if (std.Columns == 4 && std.Rows == 3)
+            mp.m_Type = ezShaderStageBinary::MaterialParameter::Type::Mat3x4;
+          else
+          {
+            ezLog::Error("Variable '%s': %ux%u matrices are not supported", svd.Name, std.Rows, std.Columns);
+            continue;
+          }
+        }
+        else if (std.Class == D3D_SVC_MATRIX_COLUMNS)
+        {
+          ezLog::Error("Variable '%s': Column-Major matrices are not supported", svd.Name);
+          continue;
+        }
+
+        if (mp.m_Type == ezShaderStageBinary::MaterialParameter::Type::Unknown)
+        {
+          ezLog::Error("Variable '%s': Variable type is unknown / not supported", svd.Name);
+          continue;
+        }
+
+        inout_Data.m_StageBinary[Stage].m_MaterialParameters.PushBack(mp);
+
+        //ezLog::Dev("Variable '%s', Offset: %u, Size: %u", svd.Name, svd.StartOffset, svd.Size);
+
+        //switch (std.Class)
+        //{
+        //case D3D_SVC_SCALAR:
+        //  ezLog::Dev("%s: Type is scalar", std.Name);
+        //  break;
+        //case D3D_SVC_VECTOR:
+        //  ezLog::Dev("%s: Type is vector", std.Name);
+        //  break;
+        //case D3D_SVC_MATRIX_ROWS:
+        //  ezLog::Dev("%s: Type is row matrix", std.Name);
+        //  break;
+        //case D3D_SVC_MATRIX_COLUMNS:
+        //  ezLog::Dev("%s: Type is column matrix", std.Name);
+        //  break;
+        //default:
+        //  ezLog::Error("Unknown Type Class");
+        //}
+
+        //switch (std.Type)
+        //{
+        //case D3D_SVT_FLOAT:
+        //  ezLog::Dev("%s: Type is FLOAT", std.Name);
+        //  break;
+
+        //case D3D_SVT_INT:
+        //  ezLog::Dev("%s: Type is INT", std.Name);
+        //  break;
+
+        //case D3D_SVT_BOOL:
+        //case D3D_SVT_UINT:
+        //case D3D_SVT_UINT8:
+        //case D3D_SVT_DOUBLE:
+
+        //default:
+        //  ezLog::Error("Unknown Type");
+        //}
+      }
+    }
 
   }
 

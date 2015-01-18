@@ -5,13 +5,14 @@
 #include <Foundation/IO/FileSystem/FileWriter.h>
 
 ezMap<ezUInt32, ezShaderStageBinary> ezShaderStageBinary::s_ShaderStageBinaries[ezGALShaderStage::ENUM_COUNT];
-ezDeque<ezGALShaderByteCode*> ezShaderStageBinary::s_GALByteCodes;
 
 ezShaderStageBinary::ezShaderStageBinary()
 {
   m_uiSourceHash = 0;
   m_Stage = ezGALShaderStage::ENUM_COUNT;
   m_pGALByteCode = nullptr;
+  m_uiMaterialCBSize = 0;
+  m_uiLastBufferModification = 0;
 }
 
 ezShaderStageBinary::~ezShaderStageBinary()
@@ -21,11 +22,15 @@ ezShaderStageBinary::~ezShaderStageBinary()
     ezGALShaderByteCode* pByteCode = m_pGALByteCode;
     m_pGALByteCode = nullptr;
 
-    //EZ_ASSERT(pByteCode->GetRefCount() == 0, "Shader Byte-code is still referenced.");
-
     if (pByteCode->GetRefCount() == 0)
       EZ_DEFAULT_DELETE(pByteCode);
   }
+}
+
+void ezShaderStageBinary::OnEngineShutdown()
+{
+  for (ezUInt32 stage = 0; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
+    s_ShaderStageBinaries[stage].Clear();
 }
 
 ezResult ezShaderStageBinary::Write(ezStreamWriterBase& Stream) const
@@ -59,6 +64,19 @@ ezResult ezShaderStageBinary::Write(ezStreamWriterBase& Stream) const
     Stream << r.m_Name.GetData();
     Stream << r.m_iSlot;
     Stream << (ezUInt8) r.m_Type;
+  }
+
+  Stream << m_uiMaterialCBSize;
+
+  ezUInt16 uiMaterialParams = m_MaterialParameters.GetCount();
+  Stream << uiMaterialParams;
+
+  for (const auto& mp : m_MaterialParameters)
+  {
+    Stream << mp.m_uiNameHash;
+    Stream << (ezUInt8) mp.m_Type;
+    Stream << mp.m_uiArrayElements;
+    Stream << mp.m_uiOffset;
   }
 
   return EZ_SUCCESS;
@@ -111,6 +129,29 @@ ezResult ezShaderStageBinary::Read(ezStreamReaderBase& Stream)
       ezUInt8 uiType = 0;
       Stream >> uiType;
       r.m_Type = (ezShaderStageResource::ResourceType) uiType;
+    }
+  }
+
+  m_uiMaterialCBSize = 0;
+  m_MaterialParameters.Clear();
+
+  if (uiVersion >= ezShaderStageBinary::Version3)
+  {
+    Stream >> m_uiMaterialCBSize;
+
+    ezUInt16 uiParameters = 0;
+    Stream >> uiParameters;
+
+    m_MaterialParameters.SetCount(uiParameters);
+
+    ezUInt8 uiTemp8;
+
+    for (auto& mp : m_MaterialParameters)
+    {
+      Stream >> mp.m_uiNameHash;
+      Stream >> uiTemp8; mp.m_Type = (ezShaderStageBinary::MaterialParameter::Type) uiTemp8;
+      Stream >> mp.m_uiArrayElements;
+      Stream >> mp.m_uiOffset;
     }
   }
 

@@ -28,6 +28,19 @@ struct ezConstantBufferResourceDescriptor : public ezConstantBufferResourceDescr
   STRUCT m_Data;
 };
 
+struct ezConstantBufferResourceDescriptorRawBytes : public ezConstantBufferResourceDescriptorBase
+{
+  ezConstantBufferResourceDescriptorRawBytes(ezUInt32 uiBytes)
+  {
+    m_Data.SetCount(uiBytes);
+
+    m_pBytes = m_Data.GetData();
+    m_uiSize = uiBytes;
+  }
+
+  ezDynamicArray<ezUInt8> m_Data;
+};
+
 class EZ_RENDERERCORE_DLL ezConstantBufferResource : public ezResource<ezConstantBufferResource, ezConstantBufferResourceDescriptorBase>
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezConstantBufferResource);

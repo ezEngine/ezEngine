@@ -2,6 +2,8 @@
 
 #include <RendererCore/ShaderCompiler/ShaderCompiler.h>
 
+struct ID3D11ShaderReflection;
+
 class ezShaderCompilerHLSL : public ezShaderProgramCompiler
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezShaderCompilerHLSL);
@@ -19,6 +21,7 @@ public:
 
 private:
   void ReflectShaderStage(ezShaderProgramData& inout_Data, ezGALShaderStage::Enum Stage);
+  void ReflectMaterialParameters(ezShaderProgramData& inout_Data, ezGALShaderStage::Enum Stage, ID3D11ShaderReflection* pReflector);
 };
 
 

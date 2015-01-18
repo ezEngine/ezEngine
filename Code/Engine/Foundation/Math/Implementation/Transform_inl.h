@@ -128,6 +128,19 @@ inline const ezTransformTemplate<Type> operator*(const ezMat4& t1, const ezTrans
 }
 
 template<typename Type>
+inline bool operator==(const ezTransformTemplate<Type>& t1, const ezTransformTemplate<Type>& t2)
+{
+  return t1.IsIdentical(t2);
+}
+
+template<typename Type>
+inline bool operator!=(const ezTransformTemplate<Type>& t1, const ezTransformTemplate<Type>& t2)
+{
+  return !t1.IsIdentical(t2);
+}
+
+
+template<typename Type>
 inline ezResult ezTransformTemplate<Type>::Invert(Type fEpsilon)
 {
   if (m_Rotation.Invert(fEpsilon).Failed())

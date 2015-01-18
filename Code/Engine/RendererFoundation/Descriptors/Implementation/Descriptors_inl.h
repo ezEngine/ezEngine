@@ -27,6 +27,20 @@ ezGALShaderCreationDescription::ezGALShaderCreationDescription()
 {
 }
 
+ezGALShaderCreationDescription::~ezGALShaderCreationDescription()
+{
+  for (ezUInt32 i = 0; i < ezGALShaderStage::ENUM_COUNT; ++i)
+  {
+    ezGALShaderByteCode* pByteCode = m_ByteCodes[i];
+    m_ByteCodes[i] = nullptr;
+
+    if (pByteCode != nullptr && pByteCode->GetRefCount() == 0)
+    {
+      EZ_DEFAULT_DELETE(pByteCode);
+    }
+  }
+}
+
 bool ezGALShaderCreationDescription::HasByteCodeForStage(ezGALShaderStage::Enum Stage) const
 {
   return m_ByteCodes[Stage] != nullptr && m_ByteCodes[Stage]->IsValid();

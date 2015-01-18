@@ -209,6 +209,15 @@ public:
 
     m_DebugBackBufferDT.EnableDataTransfer("Back Buffer");
 
+    ezRendererCore::SetMaterialParameter("MatColor", ezColor::GetRed());
+    ezRendererCore::SetMaterialParameter("MatFloat4", ezColor::GetBlue());
+
+    ezMat3 ColorTransform;
+    ColorTransform.SetIdentity();
+    ColorTransform.SetZero();
+    ColorTransform.Element(0, 1) = 1;
+    ezRendererCore::SetMaterialParameter("MatMat3", ColorTransform);
+
     ezStartup::StartupEngine();
   }
 
@@ -233,6 +242,9 @@ public:
       ezRendererCore::WriteGlobalConstants().AmbientColor = ObjectData->m_CustomColor;
 
       ezRendererCore::EndModifyConstantBuffer();
+
+      ezRendererCore::SetMaterialParameter("MatColor", ObjectData->m_CustomColor);
+      ezRendererCore::SetMaterialParameter("MatFloat4", ObjectData->m_CustomColor);
     }
 
     if (ezInputManager::GetInputActionState("Main", "ToggleShader") == ezKeyState::Pressed)

@@ -187,6 +187,24 @@ EZ_CREATE_SIMPLE_TEST(Math, Transform)
     EZ_TEST_BOOL(!t.IsIdentical(t3));
   }
 
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator == / !=")
+  {
+    ezTransformT t(ezVec3T(1, 2, 3));
+    t.m_Rotation.SetRotationMatrix(ezVec3T(0, 1, 0), ezAngle::Degree(90));
+
+    EZ_TEST_BOOL(t == t);
+
+    ezTransformT t2(ezVec3T(1, 2, 4));
+    t2.m_Rotation.SetRotationMatrix(ezVec3T(0, 1, 0), ezAngle::Degree(90));
+
+    EZ_TEST_BOOL(t != t2);
+
+    ezTransformT t3(ezVec3T(1, 2, 3));
+    t3.m_Rotation.SetRotationMatrix(ezVec3T(0, 1, 0), ezAngle::Degree(91));
+
+    EZ_TEST_BOOL(t != t3);
+  }
+
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsEqual")
   {
     ezTransformT t(ezVec3T(1, 2, 3));

@@ -12,6 +12,8 @@ ezMap<ezRendererCore::ShaderVertexDecl, ezGALVertexDeclarationHandle> ezRenderer
 
 void ezRendererCore::OnEngineShutdown()
 {
+  ezShaderStageBinary::OnEngineShutdown();
+
   s_ContextState.Clear();
   s_PermutationHashCache.Clear();
   s_AllowedPermutations.Clear();

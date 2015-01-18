@@ -5,6 +5,9 @@
 #include <Foundation/Containers/Map.h>
 #include <Foundation/IO/Stream.h>
 #include <Foundation/Strings/HashedString.h>
+#include <Core/ResourceManager/ResourceHandle.h>
+
+typedef ezResourceHandle<class ezConstantBufferResource> ezConstantBufferResourceHandle;
 
 struct ezShaderStageResource
 {
@@ -35,6 +38,7 @@ public:
     Version0,
     Version1,
     Version2,
+    Version3, // Added Material Parameters
 
     ENUM_COUNT,
     VersionCurrent = ENUM_COUNT - 1
@@ -46,6 +50,8 @@ public:
   ezResult Write(ezStreamWriterBase& Stream) const;
   ezResult Read(ezStreamReaderBase& Stream);
 
+  static void OnEngineShutdown();
+
 //private:
   ezUInt32 m_uiSourceHash;
   ezGALShaderStage::Enum m_Stage;
@@ -53,9 +59,52 @@ public:
   ezScopedRefPointer<ezGALShaderByteCode> m_pGALByteCode;
   ezHybridArray<ezShaderStageResource, 8> m_ShaderResourceBindings;
 
-  ezResult WriteStageBinary() const;
+  struct MaterialParameter
+  {
+    EZ_DECLARE_POD_TYPE();
 
-  static ezDeque<ezGALShaderByteCode*> s_GALByteCodes;
+    enum class Type : ezUInt8
+    {
+      Unknown,
+      Float1,
+      Float2,
+      Float3,
+      Float4,
+      Int1,
+      Int2,
+      Int3,
+      Int4,
+      Mat3x3,
+      Mat4x4,
+      Mat3x4,
+      ENUM_COUNT
+    };
+
+    static ezUInt32 s_TypeSize[(ezUInt32) Type::ENUM_COUNT];
+
+    MaterialParameter()
+    {
+      m_Type = Type::Unknown;
+      m_uiArrayElements = 0;
+      m_uiOffset = 0;
+      m_uiNameHash = 0;
+      m_pCachedValues = nullptr;
+    }
+    
+    Type m_Type;
+    ezUInt8 m_uiArrayElements;
+    ezUInt16 m_uiOffset;
+    ezUInt32 m_uiNameHash;
+    mutable void* m_pCachedValues;
+  };
+
+  /// \todo All the material cb data must be shareable across shaders, to enable reusing the same buffer if the layouts are identical
+  ezUInt32 m_uiMaterialCBSize;
+  ezHybridArray<MaterialParameter, 16> m_MaterialParameters;
+  mutable ezUInt64 m_uiLastBufferModification;
+  mutable ezConstantBufferResourceHandle m_hMaterialCB;
+
+  ezResult WriteStageBinary() const;
 
   static ezShaderStageBinary* LoadStageBinary(ezGALShaderStage::Enum Stage, ezUInt32 uiHash);
 

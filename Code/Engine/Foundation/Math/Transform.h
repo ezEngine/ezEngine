@@ -118,6 +118,12 @@ const ezTransformTemplate<Type> operator*(const ezTransformTemplate<Type>& t1, c
 template<typename Type>
 const ezTransformTemplate<Type> operator*(const ezMat4& t1, const ezTransformTemplate<Type>& t2); // [tested]
 
+template<typename Type>
+bool operator==(const ezTransformTemplate<Type>& t1, const ezTransformTemplate<Type>& t2); // [tested]
+
+template<typename Type>
+bool operator!=(const ezTransformTemplate<Type>& t1, const ezTransformTemplate<Type>& t2); // [tested]
+
 #include <Foundation/Math/Implementation/Transform_inl.h>
 
 
