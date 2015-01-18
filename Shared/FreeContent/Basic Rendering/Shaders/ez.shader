@@ -40,7 +40,7 @@ CONSTANT_BUFFER(MaterialCB, 3)
   COLOR(MatColor);
   FLOAT4(MatFloat4);
   INT1(MatInt1);
-  MAT3(MatMat3);
+  MAT4(MatMat3);
 };
 
 Texture2D TexDiffuse;
@@ -50,9 +50,10 @@ float4 main(PS_IN Input) : SV_Target
 {
 #if COLORED
   //return TexDiffuse.Sample(TexDiffuseSampler, Input.norm.xz * 4);
-  return CustomColor;//float4(1.0, 1.0, 0.0, 1.0);
+  return MatFloat4;//float4(1.0, 1.0, 0.0, 1.0);
 #else
-  return float4(mul(MatMat3, MatColor.rgb), 1.0);
+  return mul(MatMat3, MatColor);
+  return MatColor;
 #endif
 }
 

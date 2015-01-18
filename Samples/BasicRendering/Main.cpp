@@ -209,14 +209,14 @@ public:
 
     m_DebugBackBufferDT.EnableDataTransfer("Back Buffer");
 
-    ezRendererCore::SetMaterialParameter("MatColor", ezColor::GetRed());
+    ezRendererCore::SetMaterialParameter("MatColor", ezColor::GetGreen());
     ezRendererCore::SetMaterialParameter("MatFloat4", ezColor::GetBlue());
 
-    ezMat3 ColorTransform;
+    ezMat4 ColorTransform;
     ColorTransform.SetIdentity();
     ColorTransform.SetZero();
     ColorTransform.Element(0, 1) = 1;
-    ezRendererCore::SetMaterialParameter("MatMat3", ColorTransform);
+    ezRendererCore::SetMaterialParameter("MatMat3", ColorTransform); // Mat3 doesn't work right
 
     ezStartup::StartupEngine();
   }

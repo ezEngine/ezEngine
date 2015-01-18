@@ -113,12 +113,12 @@ void ezRendererCore::ApplyConstantBufferBindings(ezGALContext* pContext, const e
   const auto& cs = s_ContextState[pContext];
 
   // Update Material CB
-  if (pBinary->m_uiMaterialCBSize > 0)
+  if (pBinary->m_pMaterialParamCB && pBinary->m_pMaterialParamCB->m_uiMaterialCBSize > 0)
   {
     // if not yet existing, create the constant buffer
-    if (!pBinary->m_hMaterialCB.IsValid())
+    if (!pBinary->m_pMaterialParamCB->m_hMaterialCB.IsValid())
     {
-      ezConstantBufferResourceDescriptorRawBytes BufferDesc(pBinary->m_uiMaterialCBSize);
+      ezConstantBufferResourceDescriptorRawBytes BufferDesc(pBinary->m_pMaterialParamCB->m_uiMaterialCBSize);
 
       static ezUInt32 uiUniqueID = 0;
       ++uiUniqueID;
@@ -126,20 +126,20 @@ void ezRendererCore::ApplyConstantBufferBindings(ezGALContext* pContext, const e
       ezStringBuilder sTemp;
       sTemp.Format("MaterialCB_%u", uiUniqueID);
 
-      pBinary->m_hMaterialCB = ezResourceManager::CreateResource<ezConstantBufferResource>(sTemp, BufferDesc);
+      pBinary->m_pMaterialParamCB->m_hMaterialCB = ezResourceManager::CreateResource<ezConstantBufferResource>(sTemp, BufferDesc);
     }
 
     // now fill the buffer
-    if (pBinary->m_uiLastBufferModification < s_LastMaterialParamModification)
+    if (pBinary->m_pMaterialParamCB->m_uiLastBufferModification < s_LastMaterialParamModification)
     {
-      const ezUInt64 uiLastModTime = pBinary->m_uiLastBufferModification;
+      const ezUInt64 uiLastModTime = pBinary->m_pMaterialParamCB->m_uiLastBufferModification;
 
-      pBinary->m_uiLastBufferModification = s_LastMaterialParamModification;
+      pBinary->m_pMaterialParamCB->m_uiLastBufferModification = s_LastMaterialParamModification;
 
       ezUInt32 uiCurVar = 0;
-      for (; uiCurVar < pBinary->m_MaterialParameters.GetCount(); ++uiCurVar)
+      for (; uiCurVar < pBinary->m_pMaterialParamCB->m_MaterialParameters.GetCount(); ++uiCurVar)
       {
-        const auto& mp = pBinary->m_MaterialParameters[uiCurVar];
+        const auto& mp = pBinary->m_pMaterialParamCB->m_MaterialParameters[uiCurVar];
 
         const MaterialParam* pMatParam = GetMaterialParameterPointer(mp.m_uiNameHash);
 
@@ -152,12 +152,12 @@ void ezRendererCore::ApplyConstantBufferBindings(ezGALContext* pContext, const e
         // found at least one modified variable -> lock resource, update CB, etc.
         if (pMatParam->m_LastModification > uiLastModTime)
         {
-          ezUInt8* pBufferData = BeginModifyConstantBuffer<ezUInt8>(pBinary->m_hMaterialCB, pContext);
+          ezUInt8* pBufferData = BeginModifyConstantBuffer<ezUInt8>(pBinary->m_pMaterialParamCB->m_hMaterialCB, pContext);
 
           // go through the remaining variables (no need to update the previous ones)
-          for (; uiCurVar < pBinary->m_MaterialParameters.GetCount(); ++uiCurVar)
+          for (; uiCurVar < pBinary->m_pMaterialParamCB->m_MaterialParameters.GetCount(); ++uiCurVar)
           {
-            const auto& mp = pBinary->m_MaterialParameters[uiCurVar];
+            const auto& mp = pBinary->m_pMaterialParamCB->m_MaterialParameters[uiCurVar];
 
             // m_pCachedValues holds the cached pointer to the MaterialParam, to prevent map lookups (pointer stays valid forever)
             const MaterialParam* pMatParam = (const MaterialParam*) mp.m_pCachedValues;
@@ -175,8 +175,11 @@ void ezRendererCore::ApplyConstantBufferBindings(ezGALContext* pContext, const e
               continue;
             }
 
-            // copy the value from the registry into the constant buffer
-            ezMemoryUtils::Copy(&pBufferData[mp.m_uiOffset], reinterpret_cast<const ezUInt8*>(pMatParam) +sizeof(MaterialParam), pMatParam->m_uiDataSize);
+            if (pMatParam->m_LastModification > uiLastModTime)
+            {
+              // copy the value from the registry into the constant buffer
+              ezMemoryUtils::Copy(&pBufferData[mp.m_uiOffset], reinterpret_cast<const ezUInt8*>(pMatParam) + sizeof(MaterialParam), pMatParam->m_uiDataSize);
+            }
           }
 
           EndModifyConstantBuffer(pContext);
@@ -187,7 +190,7 @@ void ezRendererCore::ApplyConstantBufferBindings(ezGALContext* pContext, const e
     }
 
     // make sure "our" material CB is bound -> only works as long as all MaterialCB's are identical across vertex shader, pixel shader, etc.
-    BindConstantBuffer(pContext, "MaterialCB", pBinary->m_hMaterialCB);
+    BindConstantBuffer(pContext, "MaterialCB", pBinary->m_pMaterialParamCB->m_hMaterialCB);
   }
 
   for (const auto& rb : pBinary->m_ShaderResourceBindings)

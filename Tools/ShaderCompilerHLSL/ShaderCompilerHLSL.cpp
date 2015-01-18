@@ -151,7 +151,9 @@ void ezShaderCompilerHLSL::ReflectMaterialParameters(ezShaderProgramData& inout_
       EZ_LOG_BLOCK("Material Block", szMaterialCBName);
       ezLog::Debug("MaterialCB has %u variables, Size is %u", sbd.Variables, sbd.Size);
 
-      inout_Data.m_StageBinary[Stage].m_uiMaterialCBSize = sbd.Size;
+      ezShaderMaterialParamCB mcb;
+
+      mcb.m_uiMaterialCBSize = sbd.Size;
 
       for (ezUInt32 var = 0; var < sbd.Variables; ++var)
       {
@@ -165,8 +167,8 @@ void ezShaderCompilerHLSL::ReflectMaterialParameters(ezShaderProgramData& inout_
         D3D11_SHADER_TYPE_DESC std;
         pVar->GetType()->GetDesc(&std);
 
-        ezShaderStageBinary::MaterialParameter mp;
-        mp.m_Type = ezShaderStageBinary::MaterialParameter::Type::Unknown;
+        ezShaderMaterialParamCB::MaterialParameter mp;
+        mp.m_Type = ezShaderMaterialParamCB::MaterialParameter::Type::Unknown;
         mp.m_uiNameHash = ezTempHashedString(svd.Name).GetHash();
         mp.m_uiOffset = svd.StartOffset;
         mp.m_uiArrayElements = std.Elements;
@@ -176,10 +178,10 @@ void ezShaderCompilerHLSL::ReflectMaterialParameters(ezShaderProgramData& inout_
           switch (std.Type)
           {
           case D3D_SVT_FLOAT:
-            mp.m_Type = (ezShaderStageBinary::MaterialParameter::Type) ((ezInt32) ezShaderStageBinary::MaterialParameter::Type::Float1 + std.Columns - 1);
+            mp.m_Type = (ezShaderMaterialParamCB::MaterialParameter::Type) ((ezInt32) ezShaderMaterialParamCB::MaterialParameter::Type::Float1 + std.Columns - 1);
             break;
           case D3D_SVT_INT:
-            mp.m_Type = (ezShaderStageBinary::MaterialParameter::Type) ((ezInt32) ezShaderStageBinary::MaterialParameter::Type::Int1 + std.Columns - 1);
+            mp.m_Type = (ezShaderMaterialParamCB::MaterialParameter::Type) ((ezInt32) ezShaderMaterialParamCB::MaterialParameter::Type::Int1 + std.Columns - 1);
             break;
 
           default:
@@ -197,11 +199,11 @@ void ezShaderCompilerHLSL::ReflectMaterialParameters(ezShaderProgramData& inout_
           }
 
           if (std.Columns == 3 && std.Rows == 3)
-            mp.m_Type = ezShaderStageBinary::MaterialParameter::Type::Mat3x3;
+            mp.m_Type = ezShaderMaterialParamCB::MaterialParameter::Type::Mat3x3;
           else if (std.Columns == 4 && std.Rows == 4)
-            mp.m_Type = ezShaderStageBinary::MaterialParameter::Type::Mat4x4;
+            mp.m_Type = ezShaderMaterialParamCB::MaterialParameter::Type::Mat4x4;
           else if (std.Columns == 4 && std.Rows == 3)
-            mp.m_Type = ezShaderStageBinary::MaterialParameter::Type::Mat3x4;
+            mp.m_Type = ezShaderMaterialParamCB::MaterialParameter::Type::Mat3x4;
           else
           {
             ezLog::Error("Variable '%s': %ux%u matrices are not supported", svd.Name, std.Rows, std.Columns);
@@ -214,13 +216,13 @@ void ezShaderCompilerHLSL::ReflectMaterialParameters(ezShaderProgramData& inout_
           continue;
         }
 
-        if (mp.m_Type == ezShaderStageBinary::MaterialParameter::Type::Unknown)
+        if (mp.m_Type == ezShaderMaterialParamCB::MaterialParameter::Type::Unknown)
         {
           ezLog::Error("Variable '%s': Variable type is unknown / not supported", svd.Name);
           continue;
         }
 
-        inout_Data.m_StageBinary[Stage].m_MaterialParameters.PushBack(mp);
+        mcb.m_MaterialParameters.PushBack(mp);
 
         //ezLog::Dev("Variable '%s', Offset: %u, Size: %u", svd.Name, svd.StartOffset, svd.Size);
 
@@ -261,6 +263,8 @@ void ezShaderCompilerHLSL::ReflectMaterialParameters(ezShaderProgramData& inout_
         //  ezLog::Error("Unknown Type");
         //}
       }
+
+      inout_Data.m_StageBinary[Stage].CreateMaterialParamObject(mcb);
     }
 
   }

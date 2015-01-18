@@ -6,7 +6,7 @@
 ezUInt64 ezRendererCore::s_LastMaterialParamModification = 1;
 static ezMap<ezUInt32, ezDynamicArray<ezUInt8> > s_MaterialParameters;
 
-ezUInt32 ezShaderStageBinary::MaterialParameter::s_TypeSize[(ezUInt32) Type::ENUM_COUNT] =
+ezUInt32 ezShaderMaterialParamCB::MaterialParameter::s_TypeSize[(ezUInt32) Type::ENUM_COUNT] =
 {
   0,
   sizeof(float) * 1,
@@ -22,7 +22,7 @@ ezUInt32 ezShaderStageBinary::MaterialParameter::s_TypeSize[(ezUInt32) Type::ENU
   sizeof(float) * 12,
 };
 
-ezRendererCore::MaterialParam* ezRendererCore::InternalSetMaterialParameter(const ezTempHashedString& sName, ezShaderStageBinary::MaterialParameter::Type type, ezUInt32 uiMaxArrayElements)
+ezRendererCore::MaterialParam* ezRendererCore::InternalSetMaterialParameter(const ezTempHashedString& sName, ezShaderMaterialParamCB::MaterialParameter::Type type, ezUInt32 uiMaxArrayElements)
 {
   auto& p = s_MaterialParameters[sName.GetHash()];
 
@@ -32,14 +32,14 @@ ezRendererCore::MaterialParam* ezRendererCore::InternalSetMaterialParameter(cons
   {
     ++s_LastMaterialParamModification;
 
-    p.SetCount(sizeof(MaterialParam) + ezShaderStageBinary::MaterialParameter::s_TypeSize[(ezUInt32) type]);
+    p.SetCount(sizeof(MaterialParam) + ezShaderMaterialParamCB::MaterialParameter::s_TypeSize[(ezUInt32) type]);
 
     pData = reinterpret_cast<MaterialParam*>(p.GetData());
 
     pData->m_Type = type;
     pData->m_LastModification = s_LastMaterialParamModification;
     pData->m_uiArrayElements = uiMaxArrayElements;
-    pData->m_uiDataSize = ezShaderStageBinary::MaterialParameter::s_TypeSize[(ezUInt32) pData->m_Type] * pData->m_uiArrayElements;
+    pData->m_uiDataSize = ezShaderMaterialParamCB::MaterialParameter::s_TypeSize[(ezUInt32) pData->m_Type] * pData->m_uiArrayElements;
   }
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
@@ -56,7 +56,7 @@ ezRendererCore::MaterialParam* ezRendererCore::InternalSetMaterialParameter(cons
 #define SetMaterialParameterX(TypeType, TypeEnum, ArrayMax) \
   void ezRendererCore::SetMaterialParameter(const ezTempHashedString& sName, const TypeType& value) \
   { \
-    MaterialParam* pParam = InternalSetMaterialParameter(sName, ezShaderStageBinary::MaterialParameter::Type::TypeEnum, ArrayMax); \
+    MaterialParam* pParam = InternalSetMaterialParameter(sName, ezShaderMaterialParamCB::MaterialParameter::Type::TypeEnum, ArrayMax); \
     \
     if (pParam == nullptr) \
       return; \
@@ -81,7 +81,7 @@ SetMaterialParameterX(ezInt32, Int1, 1);
 SetMaterialParameterX(ezVec2I32, Int2, 1);
 SetMaterialParameterX(ezVec3I32, Int3, 1);
 SetMaterialParameterX(ezVec4I32, Int4, 1);
-SetMaterialParameterX(ezMat3, Mat3x3, 1);
+//SetMaterialParameterX(ezMat3, Mat3x3, 1);
 SetMaterialParameterX(ezMat4, Mat4x4, 1);
 SetMaterialParameterX(ezTransform, Mat3x4, 1);
 

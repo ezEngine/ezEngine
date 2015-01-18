@@ -30,35 +30,8 @@ struct ezShaderStageResource
   ezHashedString m_Name;
 };
 
-class EZ_RENDERERCORE_DLL ezShaderStageBinary
+struct EZ_RENDERERCORE_DLL ezShaderMaterialParamCB
 {
-public:
-  enum Version
-  {
-    Version0,
-    Version1,
-    Version2,
-    Version3, // Added Material Parameters
-
-    ENUM_COUNT,
-    VersionCurrent = ENUM_COUNT - 1
-  };
-
-  ezShaderStageBinary();
-  ~ezShaderStageBinary();
-
-  ezResult Write(ezStreamWriterBase& Stream) const;
-  ezResult Read(ezStreamReaderBase& Stream);
-
-  static void OnEngineShutdown();
-
-//private:
-  ezUInt32 m_uiSourceHash;
-  ezGALShaderStage::Enum m_Stage;
-  ezDynamicArray<ezUInt8> m_ByteCode;
-  ezScopedRefPointer<ezGALShaderByteCode> m_pGALByteCode;
-  ezHybridArray<ezShaderStageResource, 8> m_ShaderResourceBindings;
-
   struct MaterialParameter
   {
     EZ_DECLARE_POD_TYPE();
@@ -98,16 +71,54 @@ public:
     mutable void* m_pCachedValues;
   };
 
+  ezShaderMaterialParamCB();
+  ezUInt32 GetHash() const;
+
   /// \todo All the material cb data must be shareable across shaders, to enable reusing the same buffer if the layouts are identical
   ezUInt32 m_uiMaterialCBSize;
   ezHybridArray<MaterialParameter, 16> m_MaterialParameters;
   mutable ezUInt64 m_uiLastBufferModification;
   mutable ezConstantBufferResourceHandle m_hMaterialCB;
+};
+
+class EZ_RENDERERCORE_DLL ezShaderStageBinary
+{
+public:
+  enum Version
+  {
+    Version0,
+    Version1,
+    Version2,
+    Version3, // Added Material Parameters
+
+    ENUM_COUNT,
+    VersionCurrent = ENUM_COUNT - 1
+  };
+
+  ezShaderStageBinary();
+  ~ezShaderStageBinary();
+
+  ezResult Write(ezStreamWriterBase& Stream) const;
+  ezResult Read(ezStreamReaderBase& Stream);
+  void CreateMaterialParamObject(const ezShaderMaterialParamCB& matparams);
+
+  static void OnEngineShutdown();
+
+//private: // Shader Compilers etc. need access to all data
+
+  ezUInt32 m_uiSourceHash;
+  ezGALShaderStage::Enum m_Stage;
+  ezDynamicArray<ezUInt8> m_ByteCode;
+  ezScopedRefPointer<ezGALShaderByteCode> m_pGALByteCode;
+  ezHybridArray<ezShaderStageResource, 8> m_ShaderResourceBindings;
+
+  ezShaderMaterialParamCB* m_pMaterialParamCB;
 
   ezResult WriteStageBinary() const;
 
   static ezShaderStageBinary* LoadStageBinary(ezGALShaderStage::Enum Stage, ezUInt32 uiHash);
 
   static ezMap<ezUInt32, ezShaderStageBinary> s_ShaderStageBinaries[ezGALShaderStage::ENUM_COUNT];
+  static ezMap<ezUInt32, ezShaderMaterialParamCB> s_ShaderMaterialParamCBs;
 };
 

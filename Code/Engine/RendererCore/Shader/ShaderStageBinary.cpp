@@ -5,14 +5,33 @@
 #include <Foundation/IO/FileSystem/FileWriter.h>
 
 ezMap<ezUInt32, ezShaderStageBinary> ezShaderStageBinary::s_ShaderStageBinaries[ezGALShaderStage::ENUM_COUNT];
+ezMap<ezUInt32, ezShaderMaterialParamCB> ezShaderStageBinary::s_ShaderMaterialParamCBs;
+
+ezShaderMaterialParamCB::ezShaderMaterialParamCB()
+{
+  m_uiMaterialCBSize = 0;
+  m_uiLastBufferModification = 0;
+}
+
+ezUInt32 ezShaderMaterialParamCB::GetHash() const
+{
+  ezStringBuilder s;
+  s.AppendFormat("%u/%u", m_uiMaterialCBSize, m_MaterialParameters.GetCount());
+
+  for (const auto& v : m_MaterialParameters)
+  {
+    s.AppendFormat("_%u/%u/%u", v.m_uiOffset, v.m_uiNameHash, ezShaderMaterialParamCB::MaterialParameter::s_TypeSize[(ezUInt32) v.m_Type] * v.m_uiArrayElements);
+  }
+
+  return ezHashing::MurmurHash(s.GetData());
+}
 
 ezShaderStageBinary::ezShaderStageBinary()
 {
   m_uiSourceHash = 0;
   m_Stage = ezGALShaderStage::ENUM_COUNT;
   m_pGALByteCode = nullptr;
-  m_uiMaterialCBSize = 0;
-  m_uiLastBufferModification = 0;
+  m_pMaterialParamCB = nullptr;
 }
 
 ezShaderStageBinary::~ezShaderStageBinary()
@@ -29,6 +48,8 @@ ezShaderStageBinary::~ezShaderStageBinary()
 
 void ezShaderStageBinary::OnEngineShutdown()
 {
+  s_ShaderMaterialParamCBs.Clear();
+
   for (ezUInt32 stage = 0; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
     s_ShaderStageBinaries[stage].Clear();
 }
@@ -66,17 +87,28 @@ ezResult ezShaderStageBinary::Write(ezStreamWriterBase& Stream) const
     Stream << (ezUInt8) r.m_Type;
   }
 
-  Stream << m_uiMaterialCBSize;
-
-  ezUInt16 uiMaterialParams = m_MaterialParameters.GetCount();
-  Stream << uiMaterialParams;
-
-  for (const auto& mp : m_MaterialParameters)
+  if (m_pMaterialParamCB)
   {
-    Stream << mp.m_uiNameHash;
-    Stream << (ezUInt8) mp.m_Type;
-    Stream << mp.m_uiArrayElements;
-    Stream << mp.m_uiOffset;
+    Stream << m_pMaterialParamCB->m_uiMaterialCBSize;
+
+    ezUInt16 uiMaterialParams = m_pMaterialParamCB->m_MaterialParameters.GetCount();
+    Stream << uiMaterialParams;
+
+    for (const auto& mp : m_pMaterialParamCB->m_MaterialParameters)
+    {
+      Stream << mp.m_uiNameHash;
+      Stream << (ezUInt8) mp.m_Type;
+      Stream << mp.m_uiArrayElements;
+      Stream << mp.m_uiOffset;
+    }
+  }
+  else
+  {
+    ezUInt32 uiMaterialCBSize = 0;
+    Stream << uiMaterialCBSize;
+
+    ezUInt16 uiMaterialParams = 0;
+    Stream << uiMaterialParams;
   }
 
   return EZ_SUCCESS;
@@ -132,30 +164,46 @@ ezResult ezShaderStageBinary::Read(ezStreamReaderBase& Stream)
     }
   }
 
-  m_uiMaterialCBSize = 0;
-  m_MaterialParameters.Clear();
-
   if (uiVersion >= ezShaderStageBinary::Version3)
   {
-    Stream >> m_uiMaterialCBSize;
+    ezShaderMaterialParamCB mcb;
+
+    Stream >> mcb.m_uiMaterialCBSize;
 
     ezUInt16 uiParameters = 0;
     Stream >> uiParameters;
 
-    m_MaterialParameters.SetCount(uiParameters);
+    mcb.m_MaterialParameters.SetCount(uiParameters);
 
     ezUInt8 uiTemp8;
 
-    for (auto& mp : m_MaterialParameters)
+    for (auto& mp : mcb.m_MaterialParameters)
     {
       Stream >> mp.m_uiNameHash;
-      Stream >> uiTemp8; mp.m_Type = (ezShaderStageBinary::MaterialParameter::Type) uiTemp8;
+      Stream >> uiTemp8; mp.m_Type = (ezShaderMaterialParamCB::MaterialParameter::Type) uiTemp8;
       Stream >> mp.m_uiArrayElements;
       Stream >> mp.m_uiOffset;
     }
+
+    CreateMaterialParamObject(mcb);
   }
 
   return EZ_SUCCESS;
+}
+
+void ezShaderStageBinary::CreateMaterialParamObject(const ezShaderMaterialParamCB& matparams)
+{
+  ezUInt32 uiHash = matparams.GetHash();
+
+  bool bExisted = false;
+  auto it = s_ShaderMaterialParamCBs.FindOrAdd(uiHash, &bExisted);
+
+  if (!bExisted)
+  {
+    it.Value() = matparams;
+  }
+
+  m_pMaterialParamCB = &it.Value();
 }
 
 ezResult ezShaderStageBinary::WriteStageBinary() const

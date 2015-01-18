@@ -89,7 +89,7 @@ public:
   struct MaterialParam
   {
     ezUInt64 m_LastModification;
-    ezShaderStageBinary::MaterialParameter::Type m_Type;
+    ezShaderMaterialParamCB::MaterialParameter::Type m_Type;
     ezUInt8 m_uiArrayElements;
     ezUInt16 m_uiDataSize;
   };
@@ -103,7 +103,7 @@ public:
   static void SetMaterialParameter(const ezTempHashedString& sName, const ezVec2I32& value);
   static void SetMaterialParameter(const ezTempHashedString& sName, const ezVec3I32& value);
   static void SetMaterialParameter(const ezTempHashedString& sName, const ezVec4I32& value);
-  static void SetMaterialParameter(const ezTempHashedString& sName, const ezMat3& value);
+  //static void SetMaterialParameter(const ezTempHashedString& sName, const ezMat3& value); /// \todo ezMat3 does not work right, ezTransform maybe neither
   static void SetMaterialParameter(const ezTempHashedString& sName, const ezMat4& value);
   static void SetMaterialParameter(const ezTempHashedString& sName, const ezTransform& value);
   /// \todo Array versions of material parameters
@@ -172,7 +172,7 @@ private:
   static ezGALVertexDeclarationHandle GetVertexDeclaration(ezGALShaderHandle hShader, const ezVertexDeclarationInfo& decl);
   static ezUInt8* InternalBeginModifyConstantBuffer(ezConstantBufferResourceHandle hConstantBuffer, ezGALContext* pContext);
   static void UploadGlobalConstants(ezGALContext* pContext);
-  static MaterialParam* InternalSetMaterialParameter(const ezTempHashedString& sName, ezShaderStageBinary::MaterialParameter::Type type, ezUInt32 uiMaxArrayElements);
+  static MaterialParam* InternalSetMaterialParameter(const ezTempHashedString& sName, ezShaderMaterialParamCB::MaterialParameter::Type type, ezUInt32 uiMaxArrayElements);
 
   static ezPermutationGenerator s_AllowedPermutations;
   static bool s_bEnableRuntimeCompilation;
