@@ -41,6 +41,7 @@
 #include <RendererCore/ShaderCompiler/ShaderCompiler.h>
 #include <RendererCore/Shader/ShaderResource.h>
 #include <RendererCore/ConstantBuffers/ConstantBufferResource.h>
+#include <RendererCore/Material/MaterialResource.h>
 
 
 // This sample is a really simple low-level rendering demo showing how the high level renderer will interact with the GPU abstraction layer
@@ -189,6 +190,7 @@ public:
       m_pObj[i] = DontUse::MayaObj::LoadFromFile("ez.obj", m_pDevice, i);
 
     m_hShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/ez.shader");
+    m_hMaterial = ezResourceManager::LoadResource<ezMaterialResource>("Materials/Test.material");
 
     ezRendererCore::SetActiveShader(m_hShader);
     ezRendererCore::SetShaderPermutationVariable("COLORED", "1");
@@ -345,6 +347,8 @@ public:
 
     ezRendererCore::EndModifyConstantBuffer();
 
+    ezRendererCore::SetMaterialState(pContext, m_hMaterial);
+
     ezRendererCore::DrawMeshBuffer(pContext, m_pObj[m_iCurObject]->m_hMeshBuffer);
 
 
@@ -389,6 +393,7 @@ public:
     for (int i = 0; i < MaxObjs; ++i)
       EZ_DEFAULT_DELETE(m_pObj[i]);
 
+    m_hMaterial.Invalidate();
     m_hShader.Invalidate();
     m_hConstantBuffer.Invalidate();
     m_hColorConstantBuffer.Invalidate();
@@ -424,6 +429,7 @@ private:
   ezGALDepthStencilStateHandle m_hDepthStencilState;
 
   ezShaderResourceHandle m_hShader;
+  ezMaterialResourceHandle m_hMaterial;
 
   static const int MaxObjs = 7;
 

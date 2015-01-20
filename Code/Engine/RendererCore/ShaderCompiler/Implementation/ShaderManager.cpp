@@ -117,6 +117,7 @@ void ezRendererCore::SetShaderPermutationVariable(const char* szVariable, const 
     return;
   }
 
+  /// \todo Could we use hashed variable names here ?
   auto itVar = state.m_PermutationVariables.FindOrAdd(sVar);
 
   if (itVar.Value() != sVal)

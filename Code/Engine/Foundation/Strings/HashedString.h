@@ -139,6 +139,9 @@ public:
 
   /// \brief Copies the hash from the ezHashedString.
   ezTempHashedString(const ezHashedString& rhs); // [tested]
+
+  /// \brief Copies the hash from the integer.
+  ezTempHashedString(ezUInt32 uiHash);
   
   /// \brief The hash of the given string can be computed at compile time.
   template <size_t N>

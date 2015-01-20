@@ -13,7 +13,7 @@ ezLogInterface* ezLog::s_DefaultLogSystem = nullptr;
 ezGlobalLog* ezGlobalLog::GetInstance()
 {
   if (!ezThreadUtils::IsMainThread())
-    return nullptr;
+    return nullptr; /// \todo This is not so great, we should maybe somehow log this stuff
 
   static ezGlobalLog s_Log;
   return &s_Log;

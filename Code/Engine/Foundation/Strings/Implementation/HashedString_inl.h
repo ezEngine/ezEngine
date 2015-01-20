@@ -111,6 +111,11 @@ inline ezTempHashedString::ezTempHashedString(const ezHashedString& rhs)
   m_uiHash = rhs.GetHash();
 }
 
+inline ezTempHashedString::ezTempHashedString(ezUInt32 uiHash)
+{
+  m_uiHash = uiHash;
+}
+
 template <size_t N>
 inline void ezTempHashedString::operator= (const char(&szString)[N])
 {

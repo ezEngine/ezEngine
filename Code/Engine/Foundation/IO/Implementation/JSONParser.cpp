@@ -1,6 +1,7 @@
 #include <Foundation/PCH.h>
 #include <Foundation/IO/JSONParser.h>
 #include <Foundation/Utilities/ConversionUtils.h>
+#include <Foundation/Logging/Log.h>
 
 ezJSONParser::ezJSONParser()
 {
@@ -8,6 +9,7 @@ ezJSONParser::ezJSONParser()
   m_uiNextByte = '\0';
   m_pInput = nullptr;
   m_bSkippingMode = false;
+  m_pLogInterface = nullptr;
 }
 
 void ezJSONParser::SetInputStream(ezStreamReaderBase& stream)
@@ -91,6 +93,11 @@ void ezJSONParser::ParsingError(const char* szMessage, bool bFatal)
     m_uiCurByte = '\0';
     m_StateStack.Clear();
   }
+
+  if (bFatal)
+    ezLog::Error(m_pLogInterface, szMessage);
+  else
+    ezLog::Warning(m_pLogInterface, szMessage);
 
   OnParsingError(szMessage, bFatal);
 }

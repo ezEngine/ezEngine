@@ -85,6 +85,55 @@ SetMaterialParameterX(ezVec4I32, Int4, 1);
 SetMaterialParameterX(ezMat4, Mat4x4, 1);
 SetMaterialParameterX(ezTransform, Mat3x4, 1);
 
+void ezRendererCore::SetMaterialParameter(const ezTempHashedString& sName, const ezVariant& value)
+{
+  switch (value.GetType())
+  {
+  // case ezVariant::Type::Bool: /// \todo Bool parameters
+  /// \todo Int vector
+  case ezVariant::Type::Int8:
+  case ezVariant::Type::UInt8:
+  case ezVariant::Type::Int16:
+  case ezVariant::Type::UInt16:
+  case ezVariant::Type::Int32:
+  case ezVariant::Type::UInt32:
+  case ezVariant::Type::Int64:
+  case ezVariant::Type::UInt64:
+    SetMaterialParameter(sName, value.ConvertTo<ezInt32>());
+    return;
+  case ezVariant::Type::Float:
+    SetMaterialParameter(sName, value.Get<float>());
+    return;
+  case ezVariant::Type::Double:
+    SetMaterialParameter(sName, value.ConvertTo<float>());
+    return;
+  case ezVariant::Type::Color:
+    SetMaterialParameter(sName, value.Get<ezColor>());
+    return;
+  case ezVariant::Type::Vector2:
+    SetMaterialParameter(sName, value.Get<ezVec2>());
+    return;
+  case ezVariant::Type::Vector3:
+    SetMaterialParameter(sName, value.Get<ezVec3>());
+    return;
+  case ezVariant::Type::Vector4:
+    SetMaterialParameter(sName, value.Get<ezVec4>());
+    return;
+  //case ezVariant::Type::Matrix3: /// \todo fix this
+  //  SetMaterialParameter(sName, value.Get<ezMat3>());
+  //  return;
+  case ezVariant::Type::Matrix4:
+    SetMaterialParameter(sName, value.Get<ezMat4>());
+    return;
+
+  default:
+    {
+      ezLog::Debug("ezRendererCore::SetMaterialParameter: Variant contains invalid type of data");
+    }
+    return;
+  }
+}
+
 const ezRendererCore::MaterialParam* ezRendererCore::GetMaterialParameterPointer(ezUInt32 uiNameHash)
 {
   /// \todo Return array, not data pointer ? (only required, if array size may grow later on)

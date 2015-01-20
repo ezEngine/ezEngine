@@ -106,6 +106,7 @@ public:
   //static void SetMaterialParameter(const ezTempHashedString& sName, const ezMat3& value); /// \todo ezMat3 does not work right, ezTransform maybe neither
   static void SetMaterialParameter(const ezTempHashedString& sName, const ezMat4& value);
   static void SetMaterialParameter(const ezTempHashedString& sName, const ezTransform& value);
+  static void SetMaterialParameter(const ezTempHashedString& sName, const ezVariant& value);
   /// \todo Array versions of material parameters
 
 

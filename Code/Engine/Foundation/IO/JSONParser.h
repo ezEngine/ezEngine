@@ -4,6 +4,8 @@
 #include <Foundation/IO/Stream.h>
 #include <Foundation/Containers/HybridArray.h>
 
+class ezLogInterface;
+
 /// \brief A low level JSON parser that can incrementally parse the structure of a JSON document.
 ///
 /// The document structure is returned through virtual functions that need to be overridden. 
@@ -14,6 +16,8 @@ public:
   ezJSONParser();
 
   virtual ~ezJSONParser() { }
+
+  void SetLogInterface(ezLogInterface* pLog) { m_pLogInterface = pLog; }
 
 protected:
 
@@ -41,6 +45,8 @@ protected:
 
   /// \brief Outputs that a parsing error was detected (via OnParsingError) and stops further parsing, if bFatal is set to true.
   void ParsingError(const char* szMessage, bool bFatal);
+
+  ezLogInterface* m_pLogInterface;
 
 private:
 

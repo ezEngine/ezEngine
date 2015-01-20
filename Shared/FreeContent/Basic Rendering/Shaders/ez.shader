@@ -52,7 +52,7 @@ float4 main(PS_IN Input) : SV_Target
   //return TexDiffuse.Sample(TexDiffuseSampler, Input.norm.xz * 4);
   return MatFloat4;//float4(1.0, 1.0, 0.0, 1.0);
 #else
-  return mul(MatMat3, MatColor);
+  //return mul(MatMat3, MatColor);
   return MatColor;
 #endif
 }

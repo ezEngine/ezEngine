@@ -17,7 +17,28 @@ void ezRendererCore::SetMaterialState(ezGALContext* pContext, const ezMaterialRe
 
   ezResourceLock<ezMaterialResource> pMaterial(hMaterial);
 
-  ezRendererCore::SetActiveShader(pMaterial->GetShader(), pContext);
+  const ezMaterialResourceDescriptor&  md = pMaterial->GetDescriptor();
+
+  if (md.m_hBaseMaterial.IsValid())
+    SetMaterialState(pContext, md.m_hBaseMaterial);
+
+  if (md.m_hShader.IsValid())
+    ezRendererCore::SetActiveShader(md.m_hShader, pContext);
+
+  for (const auto& pv : md.m_PermutationVars)
+  {
+    ezRendererCore::SetShaderPermutationVariable(pv.m_Name, pv.m_Value, pContext);
+  }
+
+  for (const auto& sc : md.m_ShaderConstants)
+  {
+    ezRendererCore::SetMaterialParameter(ezTempHashedString(sc.m_NameHash), sc.m_Value);
+  }
+
+  for (const auto& tb : md.m_TextureBindings)
+  {
+    ezRendererCore::BindTexture(pContext, ezTempHashedString(tb.m_NameHash), tb.m_Value);
+  }
 }
 
 void ezRendererCore::OutputErrors(ezGALContext* pContext)

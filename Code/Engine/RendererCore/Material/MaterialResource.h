@@ -5,10 +5,42 @@
 #include <RendererCore/Shader/ShaderResource.h>
 
 typedef ezResourceHandle<class ezMaterialResource> ezMaterialResourceHandle;
+typedef ezResourceHandle<class ezTextureResource> ezTextureResourceHandle;
 
 struct ezMaterialResourceDescriptor
 {
+  struct PermutationVar
+  {
+    ezHashedString m_Name;
+    ezHashedString m_Value;
+  };
+
+  struct ShaderConstant
+  {
+    ezUInt32 m_NameHash;
+    ezVariant m_Value;
+  };
+
+  struct TextureBinding
+  {
+    ezUInt32 m_NameHash;
+    ezTextureResourceHandle m_Value;
+  };
+
+  void Clear()
+  {
+    m_hBaseMaterial.Invalidate();
+    m_hShader.Invalidate();
+    m_PermutationVars.Clear();
+    m_ShaderConstants.Clear();
+    m_TextureBindings.Clear();
+  }
+
+  ezMaterialResourceHandle m_hBaseMaterial;
   ezShaderResourceHandle m_hShader;
+  ezDynamicArray<PermutationVar> m_PermutationVars;
+  ezDynamicArray<ShaderConstant> m_ShaderConstants;
+  ezDynamicArray<TextureBinding> m_TextureBindings;
 };
 
 class EZ_RENDERERCORE_DLL ezMaterialResource : public ezResource<ezMaterialResource, ezMaterialResourceDescriptor>
@@ -18,9 +50,9 @@ class EZ_RENDERERCORE_DLL ezMaterialResource : public ezResource<ezMaterialResou
 public:
   ezMaterialResource();
 
-  EZ_FORCE_INLINE ezShaderResourceHandle GetShader()
+  EZ_FORCE_INLINE const ezMaterialResourceDescriptor& GetDescriptor()
   {
-    return m_hShader;
+    return m_Desc;
   }
 
 private:
@@ -30,18 +62,7 @@ private:
   virtual void CreateResource(const ezMaterialResourceDescriptor& descriptor) override;
 
 private:
-  struct PermutationVar
-  {
-    ezString m_Name;
-    ezString m_Value;
-  };
-
-  ezDynamicArray<PermutationVar> m_PermutationVars;
-
-  ezHashTable<ezHashedString, ezVariant> m_Parameter;
-  //ezHashTable<ezHashedString, ezTextureResourceHandle> m_Textures;
-
-  ezShaderResourceHandle m_hShader;
+  ezMaterialResourceDescriptor m_Desc;
 };
 
 
