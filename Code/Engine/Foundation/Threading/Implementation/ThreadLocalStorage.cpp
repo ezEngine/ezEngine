@@ -41,7 +41,7 @@ ezUInt32 ezThreadLocalStorage::AllocateSlot()
 
 void ezThreadLocalStorage::FreeSlot(ezUInt32 uiSlotIndex)
 {
-  EZ_ASSERT(uiSlotIndex < EZ_THREAD_LOCAL_STORAGE_SLOT_COUNT, "Invalid slot index passed!");
+  EZ_ASSERT_DEBUG(uiSlotIndex < EZ_THREAD_LOCAL_STORAGE_SLOT_COUNT, "Invalid slot index passed!");
 
   ezConditionalLock<ezMutex> Lock(g_TableManagementMutex, s_bInitialized);
 
@@ -57,20 +57,20 @@ void ezThreadLocalStorage::FreeSlot(ezUInt32 uiSlotIndex)
 
 void ezThreadLocalStorage::SetValueForSlot(ezUInt32 uiSlotIndex, void* pValue)
 {
-  EZ_ASSERT(uiSlotIndex < EZ_THREAD_LOCAL_STORAGE_SLOT_COUNT, "Invalid slot index passed!");
+  EZ_ASSERT_DEBUG(uiSlotIndex < EZ_THREAD_LOCAL_STORAGE_SLOT_COUNT, "Invalid slot index passed!");
 
   ezThreadLocalPointerTable* pThreadLocalPointerTable = GetPerThreadPointerTable();
-  EZ_ASSERT(pThreadLocalPointerTable != NULL, "Per thread local storage pointer table hasn't been set. The table for ezThread derived classes is set when calling Start().");
+  EZ_ASSERT_DEBUG(pThreadLocalPointerTable != NULL, "Per thread local storage pointer table hasn't been set. The table for ezThread derived classes is set when calling Start().");
 
   (*pThreadLocalPointerTable)[uiSlotIndex] = pValue;
 }
 
 void* ezThreadLocalStorage::GetValueForSlot(ezUInt32 uiSlotIndex)
 {
-  EZ_ASSERT(uiSlotIndex < EZ_THREAD_LOCAL_STORAGE_SLOT_COUNT, "Invalid slot index passed!");
+  EZ_ASSERT_DEBUG(uiSlotIndex < EZ_THREAD_LOCAL_STORAGE_SLOT_COUNT, "Invalid slot index passed!");
 
   ezThreadLocalPointerTable* pThreadLocalPointerTable = GetPerThreadPointerTable();
-  EZ_ASSERT(pThreadLocalPointerTable != NULL, "Per thread local storage pointer table hasn't been set. The table for ezThread derived classes is set when calling Start().");
+  EZ_ASSERT_DEBUG(pThreadLocalPointerTable != NULL, "Per thread local storage pointer table hasn't been set. The table for ezThread derived classes is set when calling Start().");
 
   return (*pThreadLocalPointerTable)[uiSlotIndex];
 }

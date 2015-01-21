@@ -89,7 +89,7 @@ void ezReflectedType::GetDependencies(ezSet<ezReflectedTypeHandle>& out_dependen
     queue.PopFront();
 
     const ezReflectedType* pType = handle.GetType();
-    EZ_ASSERT(pType != nullptr, "A dependency could not be resolved to an actual type!");
+    EZ_ASSERT_DEV(pType != nullptr, "A dependency could not be resolved to an actual type!");
     for (auto it = pType->m_Dependencies.GetIterator(); it.IsValid(); ++it)
     {
       if (!out_dependencies.Find(it.Key()).IsValid())
@@ -121,7 +121,7 @@ void ezReflectedType::RegisterProperties()
   for (ezUInt32 i = 0; i < uiPropertyCount; ++i)
   {
     const char* szPropertyName = m_Properties[i].m_sPropertyName.GetString().GetData();
-    EZ_ASSERT(!m_NameToIndex.Contains(szPropertyName), "A property with the name '%s' already exists!", szPropertyName);
+    EZ_ASSERT_DEV(!m_NameToIndex.Contains(szPropertyName), "A property with the name '%s' already exists!", szPropertyName);
     m_NameToIndex.Insert(szPropertyName, i);
   }
 }

@@ -18,7 +18,7 @@ inline ezStringView::ezStringView(const char* pStart)
 
 inline ezStringView::ezStringView(const char* pStart, const char* pEnd)
 {
-  EZ_ASSERT(pStart <= pEnd, "It should start BEFORE it ends.");
+  EZ_ASSERT_DEV(pStart <= pEnd, "It should start BEFORE it ends.");
 
   m_pStart = pStart;
   m_pEnd = pEnd;
@@ -99,7 +99,7 @@ inline bool ezStringView::IsValid() const
 
 inline void ezStringView::SetCurrentPosition(const char* szCurPos)
 {
-  EZ_ASSERT((szCurPos >= m_pStart) && (szCurPos <= m_pEnd), "New current position must still be inside the iterator's range.");
+  EZ_ASSERT_DEV((szCurPos >= m_pStart) && (szCurPos <= m_pEnd), "New current position must still be inside the iterator's range.");
 
   m_pCurrent = szCurPos;
   m_bValid = (m_pCurrent < m_pEnd);

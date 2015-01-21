@@ -84,7 +84,7 @@ ezResult ezGALTextureDX11::InitPlatform(ezGALDevice* pDevice, const ezArrayPtr<e
         if(pInitialData != nullptr)
         {
           const ezUInt32 uiInitialDataCount = (m_Description.m_uiMipSliceCount * (m_Description.m_Type  == ezGALTextureType::Texture2D ? 1 : 6));
-          EZ_ASSERT(pInitialData->GetCount() == uiInitialDataCount, "The array of initial data values is not equal to the amount of mip levels!");
+          EZ_ASSERT_DEV(pInitialData->GetCount() == uiInitialDataCount, "The array of initial data values is not equal to the amount of mip levels!");
 
           InitialData.SetCountUninitialized(uiInitialDataCount);
 

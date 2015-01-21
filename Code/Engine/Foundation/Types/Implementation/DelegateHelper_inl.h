@@ -17,7 +17,7 @@ public:
   EZ_FORCE_INLINE ezDelegate(Method method, Class* pInstance)
   {
     EZ_CHECK_AT_COMPILETIME_MSG(sizeof(Method) <= DATA_SIZE, "Member function pointer must not be bigger than 16 bytes");
-    EZ_ASSERT(ezMemoryUtils::IsAligned(&m_Data, EZ_ALIGNMENT_OF(Method)), "Wrong alignment. Expected %d bytes alignment", EZ_ALIGNMENT_OF(Method));
+    EZ_ASSERT_DEBUG(ezMemoryUtils::IsAligned(&m_Data, EZ_ALIGNMENT_OF(Method)), "Wrong alignment. Expected %d bytes alignment", EZ_ALIGNMENT_OF(Method));
 
     memcpy(m_Data, &method, sizeof(Method));
     memset(m_Data + sizeof(Method), 0, DATA_SIZE - sizeof(Method));
@@ -30,7 +30,7 @@ public:
   EZ_FORCE_INLINE ezDelegate(Method method, const Class* pInstance)
   {
     EZ_CHECK_AT_COMPILETIME_MSG(sizeof(Method) <= DATA_SIZE, "Member function pointer must not be bigger than 16 bytes");
-    EZ_ASSERT(ezMemoryUtils::IsAligned(&m_Data, EZ_ALIGNMENT_OF(Method)), "Wrong alignment. Expected %d bytes alignment", EZ_ALIGNMENT_OF(Method));
+    EZ_ASSERT_DEBUG(ezMemoryUtils::IsAligned(&m_Data, EZ_ALIGNMENT_OF(Method)), "Wrong alignment. Expected %d bytes alignment", EZ_ALIGNMENT_OF(Method));
 
     memcpy(m_Data, &method, sizeof(Method));
     memset(m_Data + sizeof(Method), 0, DATA_SIZE - sizeof(Method));
@@ -43,7 +43,7 @@ public:
   EZ_FORCE_INLINE ezDelegate(Function function)
   {
     EZ_CHECK_AT_COMPILETIME_MSG(sizeof(Function) <= DATA_SIZE, "Function object must not be bigger than 16 bytes");
-    EZ_ASSERT(ezMemoryUtils::IsAligned(&m_Data, EZ_ALIGNMENT_OF(Function)), "Wrong alignment. Expected %d bytes alignment", EZ_ALIGNMENT_OF(Function));
+    EZ_ASSERT_DEBUG(ezMemoryUtils::IsAligned(&m_Data, EZ_ALIGNMENT_OF(Function)), "Wrong alignment. Expected %d bytes alignment", EZ_ALIGNMENT_OF(Function));
 
     memcpy(m_Data, &function, sizeof(Function));
     memset(m_Data + sizeof(Function), 0, DATA_SIZE - sizeof(Function));
@@ -68,7 +68,7 @@ public:
   /// \brief Function call operator. This will call the function that is bound to the delegate, or assert if nothing was bound.
   EZ_FORCE_INLINE R operator()(EZ_PAIR_LIST(ARG, arg, ARG_COUNT))
   {
-    EZ_ASSERT(m_pDispatchFunction != nullptr, "Delegate is not bound.");
+    EZ_ASSERT_DEBUG(m_pDispatchFunction != nullptr, "Delegate is not bound.");
     return (*m_pDispatchFunction)(*this EZ_COMMA_IF(ARG_COUNT) EZ_LIST(arg, ARG_COUNT));
   }
 
@@ -100,7 +100,7 @@ private:
   template <typename Method, typename Class>
   static EZ_FORCE_INLINE R DispatchToMethod(SelfType& self EZ_COMMA_IF(ARG_COUNT) EZ_PAIR_LIST(ARG, arg, ARG_COUNT))
   {
-    EZ_ASSERT(self.m_pInstance.m_Ptr != nullptr, "Instance must not be null.");
+    EZ_ASSERT_DEBUG(self.m_pInstance.m_Ptr != nullptr, "Instance must not be null.");
     Method method = *reinterpret_cast<Method*>(&self.m_Data);
     return (static_cast<Class*>(self.m_pInstance.m_Ptr)->*method)(EZ_LIST(arg, ARG_COUNT));
   }
@@ -108,7 +108,7 @@ private:
   template <typename Method, typename Class>
   static EZ_FORCE_INLINE R DispatchToConstMethod(SelfType& self EZ_COMMA_IF(ARG_COUNT) EZ_PAIR_LIST(ARG, arg, ARG_COUNT))
   {
-    EZ_ASSERT(self.m_pInstance.m_ConstPtr != nullptr, "Instance must not be null.");
+    EZ_ASSERT_DEBUG(self.m_pInstance.m_ConstPtr != nullptr, "Instance must not be null.");
     Method method = *reinterpret_cast<Method*>(&self.m_Data);
     return (static_cast<const Class*>(self.m_pInstance.m_ConstPtr)->*method)(EZ_LIST(arg, ARG_COUNT));
   }

@@ -58,8 +58,8 @@ ezOSThread::ezOSThread(ezOSThreadEntryPoint pThreadEntryPoint, void* pUserData /
   s_iThreadCount.Increment();
 
   m_Handle = CreateThread(nullptr, uiStackSize, pThreadEntryPoint, pUserData, CREATE_SUSPENDED, nullptr);
-  EZ_ASSERT(m_Handle != INVALID_HANDLE_VALUE, "Thread creation failed!");
-  EZ_ASSERT(m_Handle != nullptr, "Thread creation failed!"); // makes the static code analysis happy
+  EZ_ASSERT_RELEASE(m_Handle != INVALID_HANDLE_VALUE, "Thread creation failed!");
+  EZ_ASSERT_RELEASE(m_Handle != nullptr, "Thread creation failed!"); // makes the static code analysis happy
 
   m_ThreadID = GetThreadId(m_Handle);
   

@@ -57,7 +57,7 @@ EZ_FORCE_INLINE bool ezStaticRingBuffer<T, C>::operator!=(const ezStaticRingBuff
 template <typename T, ezUInt32 C>
 void ezStaticRingBuffer<T, C>::PushBack(const T& element)
 {
-  EZ_ASSERT(CanAppend(), "The ring-buffer is full, no elements can be appended before removing one.");
+  EZ_ASSERT_DEV(CanAppend(), "The ring-buffer is full, no elements can be appended before removing one.");
 
   const ezUInt32 uiLastElement = (m_uiFirstElement + m_uiCount) % C;
 
@@ -68,7 +68,7 @@ void ezStaticRingBuffer<T, C>::PushBack(const T& element)
 template <typename T, ezUInt32 C>
 void ezStaticRingBuffer<T, C>::PopFront(ezUInt32 uiElements)
 {
-  EZ_ASSERT(m_uiCount >= uiElements, "The ring-buffer contains %i elements, cannot remove %i elements from it.", m_uiCount, uiElements);
+  EZ_ASSERT_DEV(m_uiCount >= uiElements, "The ring-buffer contains %i elements, cannot remove %i elements from it.", m_uiCount, uiElements);
 
   while (uiElements > 0)
   {
@@ -84,7 +84,7 @@ void ezStaticRingBuffer<T, C>::PopFront(ezUInt32 uiElements)
 template <typename T, ezUInt32 C>
 EZ_FORCE_INLINE const T& ezStaticRingBuffer<T, C>::PeekFront() const
 {
-  EZ_ASSERT(!IsEmpty(), "The ring-buffer is empty, cannot peek at the first element.");
+  EZ_ASSERT_DEV(!IsEmpty(), "The ring-buffer is empty, cannot peek at the first element.");
 
   return m_pElements[m_uiFirstElement];
 }
@@ -92,7 +92,7 @@ EZ_FORCE_INLINE const T& ezStaticRingBuffer<T, C>::PeekFront() const
 template <typename T, ezUInt32 C>
 EZ_FORCE_INLINE T& ezStaticRingBuffer<T, C>::PeekFront()
 {
-  EZ_ASSERT(!IsEmpty(), "The ring-buffer is empty, cannot peek at the first element.");
+  EZ_ASSERT_DEV(!IsEmpty(), "The ring-buffer is empty, cannot peek at the first element.");
 
   return m_pElements[m_uiFirstElement];
 }
@@ -100,7 +100,7 @@ EZ_FORCE_INLINE T& ezStaticRingBuffer<T, C>::PeekFront()
 template <typename T, ezUInt32 C>
 EZ_FORCE_INLINE const T& ezStaticRingBuffer<T, C>::operator[](ezUInt32 uiIndex) const
 {
-  EZ_ASSERT(uiIndex < m_uiCount, "The ring-buffer only has %i elements, cannot access element %i.", m_uiCount, uiIndex);
+  EZ_ASSERT_DEV(uiIndex < m_uiCount, "The ring-buffer only has %i elements, cannot access element %i.", m_uiCount, uiIndex);
 
   return m_pElements[(m_uiFirstElement + uiIndex) % C];
 }
@@ -108,7 +108,7 @@ EZ_FORCE_INLINE const T& ezStaticRingBuffer<T, C>::operator[](ezUInt32 uiIndex) 
 template <typename T, ezUInt32 C>
 EZ_FORCE_INLINE T& ezStaticRingBuffer<T, C>::operator[](ezUInt32 uiIndex)
 {
-  EZ_ASSERT(uiIndex < m_uiCount, "The ring-buffer only has %i elements, cannot access element %i.", m_uiCount, uiIndex);
+  EZ_ASSERT_DEV(uiIndex < m_uiCount, "The ring-buffer only has %i elements, cannot access element %i.", m_uiCount, uiIndex);
 
   return m_pElements[(m_uiFirstElement + uiIndex) % C];
 }

@@ -477,11 +477,11 @@ void ezHashTableBase<K, V, H>::SetFlags(ezUInt32 uiEntryIndex, ezUInt32 uiFlags)
 #if EZ_ENABLED(EZ_HASHTABLE_USE_BITFLAGS)
   const ezUInt32 uiIndex = uiEntryIndex / 16;
   const ezUInt32 uiSubIndex = (uiEntryIndex & 15) * 2;
-  EZ_ASSERT(uiIndex < GetFlagsCapacity(), "Out of bounds access");
+  EZ_ASSERT_DEV(uiIndex < GetFlagsCapacity(), "Out of bounds access");
   m_pEntryFlags[uiIndex] &= ~(FLAGS_MASK << uiSubIndex);
   m_pEntryFlags[uiIndex] |= (uiFlags << uiSubIndex);
 #else
-  EZ_ASSERT(uiEntryIndex < GetFlagsCapacity(), "Out of bounds access");
+  EZ_ASSERT_DEV(uiEntryIndex < GetFlagsCapacity(), "Out of bounds access");
   m_pEntryFlags[uiEntryIndex] = uiFlags;
 #endif
 }

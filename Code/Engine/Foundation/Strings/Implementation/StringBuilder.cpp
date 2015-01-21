@@ -72,11 +72,11 @@ void ezStringBuilder::Append(const char* pData1, const char* pData2, const char*
     uiMoreBytes += uiStrLen[i];
     m_uiCharacterCount += uiCharacters;
 
-    EZ_ASSERT(ezUnicodeUtils::IsValidUtf8(pStrings[i]), "Parameter %i is not a valid Utf8 sequence.", i + 1);
+    EZ_ASSERT_DEV(ezUnicodeUtils::IsValidUtf8(pStrings[i]), "Parameter %i is not a valid Utf8 sequence.", i + 1);
   }
 
   ezUInt32 uiPrevCount = m_Data.GetCount(); // already contains a 0 terminator
-  EZ_ASSERT(uiPrevCount > 0, "There should be a 0 terminator somewhere around here.");
+  EZ_ASSERT_DEBUG(uiPrevCount > 0, "There should be a 0 terminator somewhere around here.");
 
   // now resize
   m_Data.SetCount(uiPrevCount + uiMoreBytes);
@@ -119,11 +119,11 @@ void ezStringBuilder::Prepend(const char* pData1, const char* pData2, const char
     uiMoreBytes += uiStrLen[i];
     m_uiCharacterCount += uiCharacters;
 
-    EZ_ASSERT(ezUnicodeUtils::IsValidUtf8(pStrings[i]), "Parameter %i is not a valid Utf8 sequence.", i + 1);
+    EZ_ASSERT_DEV(ezUnicodeUtils::IsValidUtf8(pStrings[i]), "Parameter %i is not a valid Utf8 sequence.", i + 1);
   }
 
   ezUInt32 uiPrevCount = m_Data.GetCount(); // already contains a 0 terminator
-  EZ_ASSERT(uiPrevCount > 0, "There should be a 0 terminator somewhere around here.");
+  EZ_ASSERT_DEBUG(uiPrevCount > 0, "There should be a 0 terminator somewhere around here.");
 
   // now resize
   m_Data.SetCount(uiPrevCount + uiMoreBytes);
@@ -156,7 +156,7 @@ void ezStringBuilder::AppendFormatArgs(const char* szUtf8Format, va_list args0)
   char szTemp[TempBuffer];
   const ezInt32 iCount = ezStringUtils::vsnprintf(szTemp, TempBuffer - 1, szUtf8Format, args);
 
-  EZ_ASSERT(iCount != -1, "There was an error while formatting the string. Probably and unescaped usage of the %% sign.");
+  EZ_ASSERT_DEV(iCount != -1, "There was an error while formatting the string. Probably and unescaped usage of the %% sign.");
 
   if (iCount == -1)
   {
@@ -191,7 +191,7 @@ void ezStringBuilder::PrependFormatArgs(const char* szUtf8Format, va_list args0)
   char szTemp[TempBuffer];
   const ezInt32 iCount = ezStringUtils::vsnprintf(szTemp, TempBuffer - 1, szUtf8Format, args);
 
-  EZ_ASSERT(iCount != -1, "There was an error while formatting the string. Probably and unescaped usage of the %% sign.");
+  EZ_ASSERT_DEV(iCount != -1, "There was an error while formatting the string. Probably and unescaped usage of the %% sign.");
 
   if (iCount == -1)
   {
@@ -335,9 +335,9 @@ void ezStringBuilder::Shrink(ezUInt32 uiShrinkCharsFront, ezUInt32 uiShrinkChars
 
 void ezStringBuilder::ReplaceSubString(const char* szStartPos, const char* szEndPos, const ezStringView& szReplaceWith)
 {
-  EZ_ASSERT(ezMath::IsInRange(szStartPos, GetData(), GetData() + m_Data.GetCount()), "szStartPos is not inside this string.");
-  EZ_ASSERT(ezMath::IsInRange(szEndPos, GetData(), GetData() + m_Data.GetCount()), "szStartPos is not inside this string.");
-  EZ_ASSERT(szStartPos <= szEndPos, "ezStartPos must be before ezEndPos");
+  EZ_ASSERT_DEV(ezMath::IsInRange(szStartPos, GetData(), GetData() + m_Data.GetCount()), "szStartPos is not inside this string.");
+  EZ_ASSERT_DEV(ezMath::IsInRange(szEndPos, GetData(), GetData() + m_Data.GetCount()), "szStartPos is not inside this string.");
+  EZ_ASSERT_DEV(szStartPos <= szEndPos, "ezStartPos must be before ezEndPos");
 
   ezUInt32 uiWordChars = 0;
   ezUInt32 uiWordBytes = 0;
@@ -418,7 +418,7 @@ const char* ezStringBuilder::ReplaceFirst(const char* szSearchFor, const ezStrin
     szStartSearchAt = GetData();
   else
   {
-    EZ_ASSERT(ezMath::IsInRange(szStartSearchAt, GetData(), GetData() + m_Data.GetCount() - 1), "szStartSearchAt is not inside the string range.");
+    EZ_ASSERT_DEV(ezMath::IsInRange(szStartSearchAt, GetData(), GetData() + m_Data.GetCount() - 1), "szStartSearchAt is not inside the string range.");
   }
 
   const char* szFoundAt = ezStringUtils::FindSubString(szStartSearchAt, szSearchFor);
@@ -441,7 +441,7 @@ const char* ezStringBuilder::ReplaceLast(const char* szSearchFor, const ezString
     szStartSearchAt = GetData() + m_Data.GetCount() - 1;
   else
   {
-    EZ_ASSERT(ezMath::IsInRange(szStartSearchAt, GetData(), GetData() + m_Data.GetCount() - 1), "szStartSearchAt is not inside the string range.");
+    EZ_ASSERT_DEV(ezMath::IsInRange(szStartSearchAt, GetData(), GetData() + m_Data.GetCount() - 1), "szStartSearchAt is not inside the string range.");
   }
 
   const char* szFoundAt = ezStringUtils::FindLastSubString(GetData(), szSearchFor, szStartSearchAt);
@@ -493,7 +493,7 @@ const char* ezStringBuilder::ReplaceFirst_NoCase(const char* szSearchFor, const 
     szStartSearchAt = GetData();
   else
   {
-    EZ_ASSERT(ezMath::IsInRange(szStartSearchAt, GetData(), GetData() + m_Data.GetCount() - 1), "szStartSearchAt is not inside the string range.");
+    EZ_ASSERT_DEV(ezMath::IsInRange(szStartSearchAt, GetData(), GetData() + m_Data.GetCount() - 1), "szStartSearchAt is not inside the string range.");
   }
 
   const char* szFoundAt = ezStringUtils::FindSubString_NoCase(szStartSearchAt, szSearchFor);
@@ -516,7 +516,7 @@ const char* ezStringBuilder::ReplaceLast_NoCase(const char* szSearchFor, const e
     szStartSearchAt = GetData() + m_Data.GetCount() - 1;
   else
   {
-    EZ_ASSERT(ezMath::IsInRange(szStartSearchAt, GetData(), GetData() + m_Data.GetCount() - 1), "szStartSearchAt is not inside the string range.");
+    EZ_ASSERT_DEV(ezMath::IsInRange(szStartSearchAt, GetData(), GetData() + m_Data.GetCount() - 1), "szStartSearchAt is not inside the string range.");
   }
 
   const char* szFoundAt = ezStringUtils::FindLastSubString_NoCase(GetData(), szSearchFor, szStartSearchAt);
@@ -755,7 +755,7 @@ void ezStringBuilder::MakeCleanPath()
   const ezUInt32 uiPrevByteCount = m_Data.GetCount();
   const ezUInt32 uiNewByteCount  = (ezUInt32) (szCurWritePos - &m_Data[0]) + 1;
 
-  EZ_ASSERT(uiPrevByteCount >= uiNewByteCount, "It should not be possible that a path grows during cleanup. Old: %i Bytes, New: %i Bytes", uiPrevByteCount, uiNewByteCount);
+  EZ_ASSERT_DEBUG(uiPrevByteCount >= uiNewByteCount, "It should not be possible that a path grows during cleanup. Old: %i Bytes, New: %i Bytes", uiPrevByteCount, uiNewByteCount);
 
   // we will only remove characters and only ASCII ones (slash, backslash, dot)
   // so the number of characters shrinks equally to the number of bytes
@@ -771,7 +771,7 @@ void ezStringBuilder::MakeCleanPath()
 
 void ezStringBuilder::PathParentDirectory(ezUInt32 uiLevelsUp)
 {
-  EZ_ASSERT(uiLevelsUp > 0, "We have to do something!");
+  EZ_ASSERT_DEV(uiLevelsUp > 0, "We have to do something!");
 
   for (ezUInt32 i = 0; i < uiLevelsUp; ++i)
     AppendPath("../");
@@ -787,7 +787,7 @@ void ezStringBuilder::AppendPath(const char* szPath1, const char* szPath2, const
   {
     if (!ezStringUtils::IsNullOrEmpty(szPaths[i]))
     {
-      EZ_ASSERT(!ezPathUtils::IsPathSeparator(szPaths[i][0]) || IsEmpty() && ezPathUtils::IsAbsolutePath(szPaths[i]),
+      EZ_ASSERT_DEV(!ezPathUtils::IsPathSeparator(szPaths[i][0]) || IsEmpty() && ezPathUtils::IsAbsolutePath(szPaths[i]),
         "The paths to append must not start with a path separator or it must be absolute and the current value must be empty.");
 
       if (IsEmpty() || ezPathUtils::IsPathSeparator(GetIteratorBack().GetCharacter()))
@@ -814,7 +814,7 @@ void ezStringBuilder::ChangeFileNameAndExtension(const char* szNewFileNameWithEx
 
 void ezStringBuilder::ChangeFileExtension(const char* szNewExtension)
 {
-  EZ_ASSERT(!ezStringUtils::StartsWith(szNewExtension, "."), "The given extension string must not start with a dot.");
+  EZ_ASSERT_DEV(!ezStringUtils::StartsWith(szNewExtension, "."), "The given extension string must not start with a dot.");
 
   ezStringView it = ezPathUtils::GetFileExtension(GetData(), GetData() + m_Data.GetCount() - 1);
 
@@ -908,7 +908,7 @@ void ezStringBuilder::MakeRelativeTo(const char* szAbsolutePathToMakeThisRelativ
 /// IsFileBelowFolder ("", "") -> always false\n
 bool ezStringBuilder::IsPathBelowFolder(const char* szPathToFolder)
 {
-  EZ_ASSERT(!ezStringUtils::IsNullOrEmpty(szPathToFolder), "The given path must not be empty. Because is 'nothing' under the empty path, or 'everything' ?");
+  EZ_ASSERT_DEV(!ezStringUtils::IsNullOrEmpty(szPathToFolder), "The given path must not be empty. Because is 'nothing' under the empty path, or 'everything' ?");
 
   // a non-existing file is never in any folder
   if (IsEmpty())
@@ -972,7 +972,7 @@ void ezStringBuilder::RemoveDoubleSlashesInPath()
   const ezUInt32 uiPrevByteCount = m_Data.GetCount();
   const ezUInt32 uiNewByteCount  = (ezUInt32) (szCurWritePos - &m_Data[0]) + 1;
 
-  EZ_ASSERT(uiPrevByteCount >= uiNewByteCount, "It should not be possible that a path grows during cleanup. Old: %i Bytes, New: %i Bytes", uiPrevByteCount, uiNewByteCount);
+  EZ_ASSERT_DEBUG(uiPrevByteCount >= uiNewByteCount, "It should not be possible that a path grows during cleanup. Old: %i Bytes, New: %i Bytes", uiPrevByteCount, uiNewByteCount);
 
   // we will only remove characters and only ASCII ones (slash, backslash)
   // so the number of characters shrinks equally to the number of bytes

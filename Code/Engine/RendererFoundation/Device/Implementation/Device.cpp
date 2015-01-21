@@ -691,7 +691,7 @@ void ezGALDevice::GetQueryData(ezGALQueryHandle hQuery, ezUInt64* puiRendererdPi
 
 void ezGALDevice::Present(ezGALSwapChainHandle hSwapChain)
 {
-  EZ_ASSERT(m_bFrameBeginCalled, "You must have called ezGALDevice::Begin before you can call this function");
+  EZ_ASSERT_DEV(m_bFrameBeginCalled, "You must have called ezGALDevice::Begin before you can call this function");
 
   ezGALSwapChain* pSwapChain = nullptr;
 
@@ -718,7 +718,7 @@ ezGALTextureHandle ezGALDevice::GetBackBufferTextureFromSwapChain(ezGALSwapChain
 
 void ezGALDevice::BeginFrame()
 {
-  EZ_ASSERT(!m_bFrameBeginCalled, "You must call ezGALDevice::End before you can call ezGALDevice::BeginFrame again");
+  EZ_ASSERT_DEV(!m_bFrameBeginCalled, "You must call ezGALDevice::End before you can call ezGALDevice::BeginFrame again");
   m_bFrameBeginCalled = true;
 
   BeginFramePlatform();
@@ -727,7 +727,7 @@ void ezGALDevice::BeginFrame()
 
 void ezGALDevice::EndFrame()
 {
-  EZ_ASSERT(m_bFrameBeginCalled, "You must have called ezGALDevice::Begin before you can call ezGALDevice::EndFrame");
+  EZ_ASSERT_DEV(m_bFrameBeginCalled, "You must have called ezGALDevice::Begin before you can call ezGALDevice::EndFrame");
 
   EndFramePlatform();
 
@@ -736,14 +736,14 @@ void ezGALDevice::EndFrame()
 
 void ezGALDevice::Flush()
 {
-  EZ_ASSERT(m_bFrameBeginCalled, "You must have called ezGALDevice::Begin before you can call this function");
+  EZ_ASSERT_DEV(m_bFrameBeginCalled, "You must have called ezGALDevice::Begin before you can call this function");
 
   FlushPlatform();
 }
 
 void ezGALDevice::Finish()
 {
-  EZ_ASSERT(m_bFrameBeginCalled, "You must have called ezGALDevice::Begin before you can call this function");
+  EZ_ASSERT_DEV(m_bFrameBeginCalled, "You must have called ezGALDevice::Begin before you can call this function");
 
   FinishPlatform();
 }

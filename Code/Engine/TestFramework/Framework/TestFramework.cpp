@@ -225,8 +225,8 @@ ezTestAppRun ezTestFramework::RunTestExecutionLoop()
   {
     StartTests();
     m_iExecutingTest = 0;
-    EZ_ASSERT(m_iExecutingSubTest == -1, "Invalid test framework state");
-    EZ_ASSERT(!m_bSubTestInitialized, "Invalid test framework state");
+    EZ_ASSERT_DEV(m_iExecutingSubTest == -1, "Invalid test framework state");
+    EZ_ASSERT_DEV(!m_bSubTestInitialized, "Invalid test framework state");
   }
 
   ExecuteNextTest();
@@ -293,8 +293,8 @@ static void LogWriter(const ezLoggingEventData& e)
 
 void ezTestFramework::ExecuteNextTest()
 {
-  EZ_ASSERT(m_iExecutingTest >= 0, "Invalid current test.");
-  EZ_ASSERT(m_iExecutingTest < (ezInt32) GetTestCount(), "Invalid current test.");
+  EZ_ASSERT_DEV(m_iExecutingTest >= 0, "Invalid current test.");
+  EZ_ASSERT_DEV(m_iExecutingTest < (ezInt32) GetTestCount(), "Invalid current test.");
 
   if (!m_TestEntries[m_iExecutingTest].m_bEnableTest)
   {

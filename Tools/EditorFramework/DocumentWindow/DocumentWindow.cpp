@@ -130,7 +130,7 @@ void ezDocumentWindow::TriggerRedraw()
 
 void ezDocumentWindow::SlotRedraw()
 {
-  EZ_ASSERT(!m_bIsDrawingATM, "Implementation error");
+  EZ_ASSERT_DEV(!m_bIsDrawingATM, "Implementation error");
 
   m_bRedrawIsTriggered = false;
 

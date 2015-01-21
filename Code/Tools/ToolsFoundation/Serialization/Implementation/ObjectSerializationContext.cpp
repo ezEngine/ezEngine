@@ -24,7 +24,7 @@ void ezObjectSerializationContext::AddProperty(const char* szName, const ezVaria
 void ezObjectSerializationContext::AddProperty(ezPropertyPath& path, const ezVariant& value)
 {
   ezStringBuilder sPath;
-  EZ_ASSERT(!path.IsEmpty(), "Can't call AddProperty with an empty path!");
+  EZ_ASSERT_DEV(!path.IsEmpty(), "Can't call AddProperty with an empty path!");
   sPath = path[0];
   const ezUInt32 uiCount = path.GetCount();
   for (ezUInt32 i = 1; i < uiCount; i++)

@@ -82,7 +82,7 @@ ezStatus ezAddObjectCommand::Do(bool bRedo)
 
 ezStatus ezAddObjectCommand::Undo(bool bFireEvents)
 {
-  EZ_ASSERT(bFireEvents, "This command does not support temporary commands");
+  EZ_ASSERT_DEV(bFireEvents, "This command does not support temporary commands");
 
   ezDocumentBase* pDocument = GetDocument();
   if (!pDocument->GetObjectManager()->CanRemove(m_pObject))
@@ -144,7 +144,7 @@ ezStatus ezRemoveObjectCommand::Do(bool bRedo)
 
 ezStatus ezRemoveObjectCommand::Undo(bool bFireEvents)
 {
-  EZ_ASSERT(bFireEvents, "This command does not support temporary commands");
+  EZ_ASSERT_DEV(bFireEvents, "This command does not support temporary commands");
 
   ezDocumentBase* pDocument = GetDocument();
   if (!pDocument->GetObjectManager()->CanAdd(m_pObject->GetTypeAccessor().GetReflectedTypeHandle(), m_pParent))
@@ -207,7 +207,7 @@ ezStatus ezMoveObjectCommand::Do(bool bRedo)
 
 ezStatus ezMoveObjectCommand::Undo(bool bFireEvents)
 {
-  EZ_ASSERT(bFireEvents, "This command does not support temporary commands");
+  EZ_ASSERT_DEV(bFireEvents, "This command does not support temporary commands");
   
   ezDocumentBase* pDocument = GetDocument();
 

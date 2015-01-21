@@ -412,7 +412,7 @@ ezInt32 ezStringUtils::CompareN_NoCase(const char* pString1, const char* pString
 
 ezUInt32 ezStringUtils::Copy(char* szDest, ezUInt32 uiDstSize, const char* szSource, const char* pSourceEnd)
 {
-  EZ_ASSERT(szDest != nullptr && uiDstSize > 0, "Invalid output buffer.");
+  EZ_ASSERT_DEBUG(szDest != nullptr && uiDstSize > 0, "Invalid output buffer.");
 
   if (IsNullOrEmpty(szSource))
   {
@@ -453,7 +453,7 @@ ezUInt32 ezStringUtils::Copy(char* szDest, ezUInt32 uiDstSize, const char* szSou
 
 ezUInt32 ezStringUtils::CopyN(char* szDest, ezUInt32 uiDstSize, const char* szSource, ezUInt32 uiCharsToCopy, const char* pSourceEnd)
 {
-  EZ_ASSERT(szDest != nullptr && uiDstSize > 0, "Invalid output buffer.");
+  EZ_ASSERT_DEBUG(szDest != nullptr && uiDstSize > 0, "Invalid output buffer.");
 
   if (IsNullOrEmpty(szSource))
   {
@@ -744,7 +744,7 @@ const char* ezStringUtils::FindWholeWord_NoCase(const char* szString, const char
 
 const char* ezStringUtils::SkipCharacters(const char* szString, EZ_CHARACTER_FILTER SkipCharacterCB, bool bAlwaysSkipFirst)
 {
-  EZ_ASSERT(szString != nullptr, "Invalid string");
+  EZ_ASSERT_DEBUG(szString != nullptr, "Invalid string");
 
   while (*szString != '\0')
   {
@@ -760,7 +760,7 @@ const char* ezStringUtils::SkipCharacters(const char* szString, EZ_CHARACTER_FIL
 
 const char* ezStringUtils::FindWordEnd(const char* szString, EZ_CHARACTER_FILTER IsDelimiterCB, bool bAlwaysSkipFirst)
 {
-  EZ_ASSERT(szString != nullptr, "Invalid string");
+  EZ_ASSERT_DEBUG(szString != nullptr, "Invalid string");
 
   while (*szString != '\0')
   {

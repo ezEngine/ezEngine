@@ -137,7 +137,7 @@ ezStatus ezDocumentBase::InternalSaveDocument()
   writer.StartGroup("Header");
   {
     ezReflectedTypeHandle hType = ezReflectedTypeManager::GetTypeHandleByName(ezGetStaticRTTI<ezDocumentInfo>()->GetTypeName());
-    EZ_ASSERT(!hType.IsInvalidated(), "Need to register ezDocumentInfo at the ezReflectedTypeManager first!");
+    EZ_ASSERT_DEV(!hType.IsInvalidated(), "Need to register ezDocumentInfo at the ezReflectedTypeManager first!");
 
     ezReflectedTypeDirectAccessor acc(&m_documentInfo);
     ezSerializedTypeAccessorObjectWriter objectWriter(&acc);
@@ -181,7 +181,7 @@ ezStatus ezDocumentBase::InternalLoadDocument()
       if (sType.Compare(ezGetStaticRTTI<ezDocumentInfo>()->GetTypeName()) == 0)
       {
         ezReflectedTypeHandle hType = ezReflectedTypeManager::GetTypeHandleByName(ezGetStaticRTTI<ezDocumentInfo>()->GetTypeName());
-        EZ_ASSERT(!hType.IsInvalidated(), "Need to register ezDocumentInfo at the ezReflectedTypeManager first!");
+        EZ_ASSERT_DEV(!hType.IsInvalidated(), "Need to register ezDocumentInfo at the ezReflectedTypeManager first!");
 
         ezReflectedTypeDirectAccessor acc(&m_documentInfo);
         ezSerializedTypeAccessorObjectReader objectReader(&acc);

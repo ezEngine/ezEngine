@@ -50,7 +50,7 @@ void ezGameObject::ConstChildIterator::Next()
 
 void ezGameObject::operator=(const ezGameObject& other)
 {
-  EZ_ASSERT(m_pWorld == other.m_pWorld, "Cannot copy between worlds.");
+  EZ_ASSERT_DEV(m_pWorld == other.m_pWorld, "Cannot copy between worlds.");
 
   m_InternalId = other.m_InternalId;
   m_Flags = other.m_Flags;
@@ -76,7 +76,7 @@ void ezGameObject::operator=(const ezGameObject& other)
   for (ezUInt32 i = 0; i < m_Components.GetCount(); ++i)
   {
     ezComponent* pComponent = m_Components[i];
-    EZ_ASSERT(pComponent->m_pOwner == &other, "");
+    EZ_ASSERT_DEV(pComponent->m_pOwner == &other, "");
     pComponent->m_pOwner = this;
   }
 }
@@ -162,9 +162,9 @@ ezResult ezGameObject::AddComponent(const ezComponentHandle& component)
 
 ezResult ezGameObject::AddComponent(ezComponent* pComponent)
 {
-  EZ_ASSERT(pComponent->IsInitialized(), "Component must be initialized.");
-  EZ_ASSERT(pComponent->m_pOwner == nullptr, "Component must not be added twice.");
-  EZ_ASSERT(IsDynamic() || !pComponent->IsDynamic(),
+  EZ_ASSERT_DEV(pComponent->IsInitialized(), "Component must be initialized.");
+  EZ_ASSERT_DEV(pComponent->m_pOwner == nullptr, "Component must not be added twice.");
+  EZ_ASSERT_DEV(IsDynamic() || !pComponent->IsDynamic(),
     "Cannot attach a dynamic component to a static object. Call MakeDynamic() first.");
 
   pComponent->m_pOwner = this;
@@ -191,7 +191,7 @@ ezResult ezGameObject::RemoveComponent(const ezComponentHandle& component)
 
 ezResult ezGameObject::RemoveComponent(ezComponent* pComponent)
 {
-  EZ_ASSERT(pComponent->IsInitialized(), "Component must be initialized.");
+  EZ_ASSERT_DEV(pComponent->IsInitialized(), "Component must be initialized.");
 
   ezUInt32 uiIndex = m_Components.IndexOf(pComponent);
   if (uiIndex == ezInvalidIndex)
@@ -211,7 +211,7 @@ ezResult ezGameObject::RemoveComponent(ezComponent* pComponent)
 void ezGameObject::FixComponentPointer(ezComponent* pOldPtr, ezComponent* pNewPtr)
 {
   ezUInt32 uiIndex = m_Components.IndexOf(pOldPtr);
-  EZ_ASSERT(uiIndex != ezInvalidIndex, "Memory corruption?");
+  EZ_ASSERT_DEV(uiIndex != ezInvalidIndex, "Memory corruption?");
   m_Components[uiIndex] = pNewPtr;
 }
 

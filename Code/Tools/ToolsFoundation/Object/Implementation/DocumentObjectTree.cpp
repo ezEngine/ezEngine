@@ -32,8 +32,8 @@ void ezDocumentObjectTree::RecursiveRemoveGuids(ezDocumentObjectBase* pObject)
 
 void ezDocumentObjectTree::AddObject(ezDocumentObjectBase* pObject, ezDocumentObjectBase* pParent, ezInt32 iChildIndex)
 {
-  EZ_ASSERT(pObject->GetGuid().IsValid(), "Object Guid invalid! Object was not created via an ezObjectManagerBase!");
-  EZ_ASSERT(m_pDocument->GetObjectManager()->CanAdd(pObject->GetTypeAccessor().GetReflectedTypeHandle(), pParent), "Trying to execute invalid add!");
+  EZ_ASSERT_DEV(pObject->GetGuid().IsValid(), "Object Guid invalid! Object was not created via an ezObjectManagerBase!");
+  EZ_ASSERT_DEV(m_pDocument->GetObjectManager()->CanAdd(pObject->GetTypeAccessor().GetReflectedTypeHandle(), pParent), "Trying to execute invalid add!");
 
   if (pParent == nullptr)
     pParent = &m_RootObject;
@@ -41,7 +41,7 @@ void ezDocumentObjectTree::AddObject(ezDocumentObjectBase* pObject, ezDocumentOb
   if (iChildIndex < 0)
     iChildIndex = pParent->m_Children.GetCount();
 
-  EZ_ASSERT((ezUInt32)iChildIndex <= pParent->m_Children.GetCount(), "Child index to add to is out of bounds of the parent's children!");
+  EZ_ASSERT_DEV((ezUInt32)iChildIndex <= pParent->m_Children.GetCount(), "Child index to add to is out of bounds of the parent's children!");
 
   ezDocumentObjectTreeStructureEvent e;
   e.m_pObject = pObject;
@@ -63,7 +63,7 @@ void ezDocumentObjectTree::AddObject(ezDocumentObjectBase* pObject, ezDocumentOb
 
 void ezDocumentObjectTree::RemoveObject(ezDocumentObjectBase* pObject)
 {
-  EZ_ASSERT(m_pDocument->GetObjectManager()->CanRemove(pObject), "Trying to execute invalid remove!");
+  EZ_ASSERT_DEV(m_pDocument->GetObjectManager()->CanRemove(pObject), "Trying to execute invalid remove!");
 
   ezDocumentObjectTreeStructureEvent e;
   e.m_pObject = pObject;
@@ -84,7 +84,7 @@ void ezDocumentObjectTree::RemoveObject(ezDocumentObjectBase* pObject)
 
 void ezDocumentObjectTree::MoveObject(ezDocumentObjectBase* pObject, ezDocumentObjectBase* pNewParent, ezInt32 iChildIndex)
 {
-  EZ_ASSERT(m_pDocument->GetObjectManager()->CanMove(pObject, pNewParent, iChildIndex), "Trying to execute invalid move!");
+  EZ_ASSERT_DEV(m_pDocument->GetObjectManager()->CanMove(pObject, pNewParent, iChildIndex), "Trying to execute invalid move!");
 
   if (pNewParent == nullptr)
     pNewParent = &m_RootObject;
@@ -92,7 +92,7 @@ void ezDocumentObjectTree::MoveObject(ezDocumentObjectBase* pObject, ezDocumentO
   if (iChildIndex < 0)
     iChildIndex = pNewParent->m_Children.GetCount();
 
-  EZ_ASSERT((ezUInt32)iChildIndex <= pNewParent->m_Children.GetCount(), "Child index to insert to is out of bounds of the new parent's children!");
+  EZ_ASSERT_DEV((ezUInt32)iChildIndex <= pNewParent->m_Children.GetCount(), "Child index to insert to is out of bounds of the new parent's children!");
 
   ezDocumentObjectTreeStructureEvent e;
   e.m_pObject = pObject;

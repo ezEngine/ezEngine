@@ -56,7 +56,7 @@ public:
     EZ_FORCE_INLINE bool operator!=(const typename ezSetBase<KeyType, Comparer>::Iterator& it2) const { return (m_pElement != it2.m_pElement); }
 
     /// \brief Returns the 'key' of the element that this iterator points to.
-    EZ_FORCE_INLINE const KeyType&   Key ()  const { EZ_ASSERT(IsValid(), "Cannot access the 'key' of an invalid iterator."); return m_pElement->m_Key;   } // [tested]
+    EZ_FORCE_INLINE const KeyType&   Key ()  const { EZ_ASSERT_DEV(IsValid(), "Cannot access the 'key' of an invalid iterator."); return m_pElement->m_Key;   } // [tested]
 
     /// \brief Returns the 'key' of the element that this iterator points to.
     EZ_FORCE_INLINE const KeyType& operator*() { return Key(); }

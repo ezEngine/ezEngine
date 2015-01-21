@@ -11,7 +11,7 @@ ezResult ezWindow::Initialize()
   if (m_bInitialized)
     Destroy();
 
-  EZ_ASSERT_API(m_CreationDescription.m_ClientAreaSize.HasNonZeroArea(), "The client area size can't be zero sized!");
+  EZ_ASSERT_RELEASE(m_CreationDescription.m_ClientAreaSize.HasNonZeroArea(), "The client area size can't be zero sized!");
 
   m_WindowHandle = EZ_DEFAULT_NEW(sf::Window);
 

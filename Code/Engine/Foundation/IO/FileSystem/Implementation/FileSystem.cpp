@@ -35,7 +35,7 @@ ezMutex& ezFileSystem::GetFileSystemMutex()
 
 void ezFileSystem::RegisterEventHandler(ezEvent<const FileEvent&>::Handler handler)
 {
-  EZ_ASSERT(s_Data != nullptr, "FileSystem is not initialized.");
+  EZ_ASSERT_DEV(s_Data != nullptr, "FileSystem is not initialized.");
 
   EZ_LOCK(s_Data->m_Mutex);
 
@@ -44,7 +44,7 @@ void ezFileSystem::RegisterEventHandler(ezEvent<const FileEvent&>::Handler handl
 
 void ezFileSystem::UnregisterEventHandler(ezEvent<const FileEvent&>::Handler handler)
 {
-  EZ_ASSERT(s_Data != nullptr, "FileSystem is not initialized.");
+  EZ_ASSERT_DEV(s_Data != nullptr, "FileSystem is not initialized.");
 
   EZ_LOCK(s_Data->m_Mutex);
 
@@ -53,7 +53,7 @@ void ezFileSystem::UnregisterEventHandler(ezEvent<const FileEvent&>::Handler han
 
 ezResult ezFileSystem::AddDataDirectory(const char* szDataDirectory, DataDirUsage Usage, const char* szGroup, const char* szCategory)
 {
-  EZ_ASSERT(s_Data != nullptr, "FileSystem is not initialized.");
+  EZ_ASSERT_DEV(s_Data != nullptr, "FileSystem is not initialized.");
 
   EZ_LOCK(s_Data->m_Mutex);
 
@@ -104,7 +104,7 @@ ezResult ezFileSystem::AddDataDirectory(const char* szDataDirectory, DataDirUsag
 
 ezUInt32 ezFileSystem::RemoveDataDirectoryGroup(const char* szGroup)
 {
-  EZ_ASSERT(s_Data != nullptr, "FileSystem is not initialized.");
+  EZ_ASSERT_DEV(s_Data != nullptr, "FileSystem is not initialized.");
 
   EZ_LOCK(s_Data->m_Mutex);
 
@@ -137,7 +137,7 @@ ezUInt32 ezFileSystem::RemoveDataDirectoryGroup(const char* szGroup)
 
 void ezFileSystem::ClearAllDataDirectories()
 {
-  EZ_ASSERT(s_Data != nullptr, "FileSystem is not initialized.");
+  EZ_ASSERT_DEV(s_Data != nullptr, "FileSystem is not initialized.");
 
   EZ_LOCK(s_Data->m_Mutex);
 
@@ -160,14 +160,14 @@ void ezFileSystem::ClearAllDataDirectories()
 
 ezUInt32 ezFileSystem::GetNumDataDirectories()
 {
-  EZ_ASSERT(s_Data != nullptr, "FileSystem is not initialized.");
+  EZ_ASSERT_DEV(s_Data != nullptr, "FileSystem is not initialized.");
 
   return s_Data->m_DataDirectories.GetCount();
 }
 
 ezDataDirectoryType* ezFileSystem::GetDataDirectory(ezUInt32 uiDataDirIndex)
 {
-  EZ_ASSERT(s_Data != nullptr, "FileSystem is not initialized.");
+  EZ_ASSERT_DEV(s_Data != nullptr, "FileSystem is not initialized.");
 
   return s_Data->m_DataDirectories[uiDataDirIndex].m_pDataDirectory;
 }
@@ -198,7 +198,7 @@ const char* ezFileSystem::GetDataDirRelativePath(const char* szPath, ezUInt32 ui
 
 void ezFileSystem::DeleteFile(const char* szFile)
 {
-  EZ_ASSERT(s_Data != nullptr, "FileSystem is not initialized.");
+  EZ_ASSERT_DEV(s_Data != nullptr, "FileSystem is not initialized.");
 
   EZ_LOCK(s_Data->m_Mutex);
 
@@ -235,7 +235,7 @@ void ezFileSystem::DeleteFile(const char* szFile)
 
 bool ezFileSystem::ExistsFile(const char* szFile)
 {
-  EZ_ASSERT(s_Data != nullptr, "FileSystem is not initialized.");
+  EZ_ASSERT_DEV(s_Data != nullptr, "FileSystem is not initialized.");
 
   EZ_LOCK(s_Data->m_Mutex);
 
@@ -292,7 +292,7 @@ const char* ezFileSystem::ExtractDataDirsToSearch(const char* szPath, ezHybridAr
     ++it;
   }
 
-  EZ_ASSERT(!it.IsEmpty(), "Cannot parse the path \"%s\". The data-dir filter starts with a '<' but does not end with '>'.", szPath);
+  EZ_ASSERT_DEV(!it.IsEmpty(), "Cannot parse the path \"%s\". The data-dir filter starts with a '<' but does not end with '>'.", szPath);
 
   SearchDirs.PushBack(sCur);
   ++it;
@@ -302,7 +302,7 @@ const char* ezFileSystem::ExtractDataDirsToSearch(const char* szPath, ezHybridAr
 
 ezDataDirectoryReader* ezFileSystem::GetFileReader(const char* szFile, bool bAllowFileEvents)
 {
-  EZ_ASSERT(s_Data != nullptr, "FileSystem is not initialized.");
+  EZ_ASSERT_DEV(s_Data != nullptr, "FileSystem is not initialized.");
 
   EZ_LOCK(s_Data->m_Mutex);
 
@@ -369,7 +369,7 @@ ezDataDirectoryReader* ezFileSystem::GetFileReader(const char* szFile, bool bAll
 
 ezDataDirectoryWriter* ezFileSystem::GetFileWriter(const char* szFile, bool bAllowFileEvents)
 {
-  EZ_ASSERT(s_Data != nullptr, "FileSystem is not initialized.");
+  EZ_ASSERT_DEV(s_Data != nullptr, "FileSystem is not initialized.");
 
   EZ_LOCK(s_Data->m_Mutex);
 
@@ -438,7 +438,7 @@ ezDataDirectoryWriter* ezFileSystem::GetFileWriter(const char* szFile, bool bAll
 
 ezResult ezFileSystem::ResolvePath(const char* szPath, bool bForWriting, ezString* out_sAbsolutePath, ezString* out_sDataDirRelativePath)
 {
-  EZ_ASSERT(s_Data != nullptr, "FileSystem is not initialized.");
+  EZ_ASSERT_DEV(s_Data != nullptr, "FileSystem is not initialized.");
 
   EZ_LOCK(s_Data->m_Mutex);
 

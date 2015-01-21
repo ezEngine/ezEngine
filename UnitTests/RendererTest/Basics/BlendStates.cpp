@@ -34,7 +34,7 @@ ezTestAppRun ezRendererTestBasics::SubtestBlendStates()
   ClearScreen(clear);
 
   hState = m_pDevice->CreateBlendState(StateDesc);
-  EZ_ASSERT(!hState.IsInvalidated(), "Couldn't create blend state!");
+  EZ_ASSERT_DEV(!hState.IsInvalidated(), "Couldn't create blend state!");
 
   m_pDevice->GetPrimaryContext()->SetBlendState(hState);
 

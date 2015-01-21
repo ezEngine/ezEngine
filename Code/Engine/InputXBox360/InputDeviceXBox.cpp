@@ -202,7 +202,7 @@ void ezInputDeviceXBox360::UpdateInputSlotValues()
 
 bool ezInputDeviceXBox360::IsControllerConnected(ezUInt8 uiPhysical) const
 { 
-  EZ_ASSERT(uiPhysical < MaxControllers, "Invalid Controller Index %i", uiPhysical);
+  EZ_ASSERT_DEV(uiPhysical < MaxControllers, "Invalid Controller Index %i", uiPhysical);
   
   return m_bControllerConnected[uiPhysical];
 }

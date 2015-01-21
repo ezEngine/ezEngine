@@ -209,7 +209,7 @@ void ezTaskSystem::ExecuteSomeFrameTasks(ezUInt32 uiSomeFrameTasks, double fSmoo
 
 void ezTaskSystem::FinishFrameTasks(double fSmoothFrameMS)
 {
-  EZ_ASSERT(ezThreadUtils::IsMainThread(), "This function must be executed on the main thread.");
+  EZ_ASSERT_DEV(ezThreadUtils::IsMainThread(), "This function must be executed on the main thread.");
 
   FinishMainThreadTasks();
 

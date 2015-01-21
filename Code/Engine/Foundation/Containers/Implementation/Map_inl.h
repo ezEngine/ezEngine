@@ -14,7 +14,7 @@ void ezMapBase<KeyType, ValueType, Comparer>::ConstIterator::Next()
 
   if (m_pElement == nullptr)
   {
-    EZ_ASSERT(m_pElement != nullptr, "The Iterator is invalid (end).");
+    EZ_ASSERT_DEV(m_pElement != nullptr, "The Iterator is invalid (end).");
     return;
   }
 
@@ -68,7 +68,7 @@ void ezMapBase<KeyType, ValueType, Comparer>::ConstIterator::Prev()
 
   if (m_pElement == nullptr)
   {
-    EZ_ASSERT(m_pElement != nullptr, "The Iterator is invalid (end).");
+    EZ_ASSERT_DEV(m_pElement != nullptr, "The Iterator is invalid (end).");
     return;
   }
 
@@ -397,7 +397,7 @@ typename ezMapBase<KeyType, ValueType, Comparer>::Iterator ezMapBase<KeyType, Va
 
         dir = m_Comparer.Less(it->m_Key, key) ? 1 : 0;
 
-        EZ_ASSERT(top < STACK_SIZE, "ezMapBase's internal stack is not large enough to be able to sort %i elements.", GetCount());
+        EZ_ASSERT_DEBUG(top < STACK_SIZE, "ezMapBase's internal stack is not large enough to be able to sort %i elements.", GetCount());
         up[top++] = it;
 
         if (it->m_pLink[dir] == pNilNode)
@@ -437,7 +437,7 @@ typename ezMapBase<KeyType, ValueType, Comparer>::Iterator ezMapBase<KeyType, Va
     m_NilNode.m_pParent = pNilNode;
   }
 
-  EZ_ASSERT(pInsertedNode != nullptr, "Implementation Error.");
+  EZ_ASSERT_DEBUG(pInsertedNode != nullptr, "Implementation Error.");
 
   if (bExisted)
     *bExisted = false;
@@ -496,8 +496,8 @@ typename ezMapBase<KeyType, ValueType, Comparer>::Node* ezMapBase<KeyType, Value
 template <typename KeyType, typename ValueType, typename Comparer>
 void ezMapBase<KeyType, ValueType, Comparer>::ReleaseNode(Node* pNode)
 {
-  EZ_ASSERT(pNode != nullptr, "pNode is invalid.");
-  EZ_ASSERT(pNode != &m_NilNode, "pNode is invalid.");
+  EZ_ASSERT_DEV(pNode != nullptr, "pNode is invalid.");
+  EZ_ASSERT_DEV(pNode != &m_NilNode, "pNode is invalid.");
 
   ezMemoryUtils::Destruct<Node>(pNode, 1);
 
@@ -573,7 +573,7 @@ void ezMapBase<KeyType, ValueType, Comparer>::Insert(const KeyType& key, const V
 
     while (true)
     {
-      EZ_ASSERT(top >= 0 && top < STACK_SIZE, "Implementation error");
+      EZ_ASSERT_DEBUG(top >= 0 && top < STACK_SIZE, "Implementation error");
       up[top++] = it;
       dir = m_Comparer.Less(it->m_Key, key) ? 1 : 0;
 
@@ -600,23 +600,23 @@ void ezMapBase<KeyType, ValueType, Comparer>::Insert(const KeyType& key, const V
     {
       if (top != 0)
       {
-        EZ_ASSERT(top >= 1 && top < STACK_SIZE, "Implementation error");
+        EZ_ASSERT_DEBUG(top >= 1 && top < STACK_SIZE, "Implementation error");
         dir = up[top - 1]->m_pLink[1] == up[top];
       }
 
-      EZ_ASSERT(top >= 0 && top < STACK_SIZE, "Implementation error");
+      EZ_ASSERT_DEBUG(top >= 0 && top < STACK_SIZE, "Implementation error");
       up[top] = SkewNode(up[top]);
       up[top] = SplitNode(up[top]);
 
       if (top != 0)
       {
-        EZ_ASSERT(top >= 1 && top < STACK_SIZE, "Implementation error");
+        EZ_ASSERT_DEBUG(top >= 1 && top < STACK_SIZE, "Implementation error");
         up[top - 1]->m_pLink[dir] = up[top];
         up[top - 1]->m_pLink[dir]->m_pParent = up[top - 1];
       }
       else
       {
-        EZ_ASSERT(top >= 0 && top < STACK_SIZE, "Implementation error");
+        EZ_ASSERT_DEBUG(top >= 0 && top < STACK_SIZE, "Implementation error");
         root = up[top];
       }
     }
@@ -644,7 +644,7 @@ typename ezMapBase<KeyType, ValueType, Comparer>::Node* ezMapBase<KeyType, Value
 
     while (true)
     {
-      EZ_ASSERT(top >= 0 && top < STACK_SIZE, "Implementation error");
+      EZ_ASSERT_DEBUG(top >= 0 && top < STACK_SIZE, "Implementation error");
       up[top++] = it;
 
       if (it == &m_NilNode)
@@ -666,7 +666,7 @@ typename ezMapBase<KeyType, ValueType, Comparer>::Node* ezMapBase<KeyType, Value
 
       if (--top != 0)
       {
-        EZ_ASSERT(top >= 1 && top < STACK_SIZE, "Implementation error");
+        EZ_ASSERT_DEBUG(top >= 1 && top < STACK_SIZE, "Implementation error");
         up[top - 1]->m_pLink[dir] = it->m_pLink[dir2];
         up[top - 1]->m_pLink[dir]->m_pParent = up[top - 1];
       }
@@ -680,7 +680,7 @@ typename ezMapBase<KeyType, ValueType, Comparer>::Node* ezMapBase<KeyType, Value
 
       while (heir->m_pLink[0] != &m_NilNode)
       {
-        EZ_ASSERT(top >= 0 && top < STACK_SIZE, "Implementation error");
+        EZ_ASSERT_DEBUG(top >= 0 && top < STACK_SIZE, "Implementation error");
         up[top++] = prev = heir;
 
         heir = heir->m_pLink[0];
@@ -697,11 +697,11 @@ typename ezMapBase<KeyType, ValueType, Comparer>::Node* ezMapBase<KeyType, Value
     {
       if (top != 0)
       {
-        EZ_ASSERT(top >= 1 && top < STACK_SIZE, "Implementation error");
+        EZ_ASSERT_DEBUG(top >= 1 && top < STACK_SIZE, "Implementation error");
         dir = up[top - 1]->m_pLink[1] == up[top];
       }
 
-      EZ_ASSERT(top >= 0 && top < STACK_SIZE, "Implementation error");
+      EZ_ASSERT_DEBUG(top >= 0 && top < STACK_SIZE, "Implementation error");
 
       if ((up[top]->m_pLink[0]->m_uiLevel < up[top]->m_uiLevel - 1) || (up[top]->m_pLink[1]->m_uiLevel < up[top]->m_uiLevel - 1))
       {
@@ -720,14 +720,14 @@ typename ezMapBase<KeyType, ValueType, Comparer>::Node* ezMapBase<KeyType, Value
 
       if (top != 0)
       {
-        EZ_ASSERT(top >= 1 && top < STACK_SIZE, "Implementation error");
+        EZ_ASSERT_DEBUG(top >= 1 && top < STACK_SIZE, "Implementation error");
 
         up[top - 1]->m_pLink[dir] = up[top];
         up[top - 1]->m_pLink[dir]->m_pParent = up[top - 1];
       }
       else
       {
-        EZ_ASSERT(top >= 0 && top < STACK_SIZE, "Implementation error");
+        EZ_ASSERT_DEBUG(top >= 0 && top < STACK_SIZE, "Implementation error");
         root = up[top];
       }
     }
@@ -774,7 +774,7 @@ typename ezMapBase<KeyType, ValueType, Comparer>::Node* ezMapBase<KeyType, Value
 template <typename KeyType, typename ValueType, typename Comparer>
 typename ezMapBase<KeyType, ValueType, Comparer>::Iterator ezMapBase<KeyType, ValueType, Comparer>::Remove(const Iterator& pos)
 {
-  EZ_ASSERT(pos.m_pElement != nullptr, "The Iterator(pos) is invalid.");
+  EZ_ASSERT_DEV(pos.m_pElement != nullptr, "The Iterator(pos) is invalid.");
 
   Iterator temp(pos);
   ++temp;

@@ -91,9 +91,9 @@ void ezCamera::GetProjectionMatrix(float fAspectRatioWidthDivHeight, ezProjectio
 
 void ezCamera::CameraSettingsChanged()
 {
-  EZ_ASSERT(m_Mode != None, "Invalid Camera Mode.");
-  EZ_ASSERT(m_fNearPlane < m_fFarPlane, "Near and Far Plane are invalid.");
-  EZ_ASSERT(m_fFovOrDim > 0.0f, "FOV or Camera Dimension is invalid.");
+  EZ_ASSERT_DEV(m_Mode != None, "Invalid Camera Mode.");
+  EZ_ASSERT_DEV(m_fNearPlane < m_fFarPlane, "Near and Far Plane are invalid.");
+  EZ_ASSERT_DEV(m_fFovOrDim > 0.0f, "FOV or Camera Dimension is invalid.");
 }
 
 void ezCamera::MoveLocally (const ezVec3& vMove)

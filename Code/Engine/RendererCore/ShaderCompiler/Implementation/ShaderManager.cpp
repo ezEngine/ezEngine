@@ -180,7 +180,7 @@ void ezRendererCore::SetShaderContextState(ezGALContext* pContext, ContextState&
 
     state.m_PermGenerator.RemoveUnusedPermutations(pShader->GetUsedPermutationVars());
 
-    EZ_ASSERT(state.m_PermGenerator.GetPermutationCount() == 1, "Invalid shader setup");
+    EZ_ASSERT_DEV(state.m_PermGenerator.GetPermutationCount() == 1, "Invalid shader setup");
 
     ezHybridArray<ezPermutationGenerator::PermutationVar, 16> UsedPermVars;
     state.m_PermGenerator.GetPermutation(0, UsedPermVars);

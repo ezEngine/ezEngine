@@ -64,7 +64,7 @@ void ezHybridStringBase<Size>::Clear()
 template<ezUInt16 Size>
 EZ_FORCE_INLINE const char* ezHybridStringBase<Size>::GetData() const
 {
-  EZ_ASSERT(!m_Data.IsEmpty(), "ezHybridString has been corrupted, the array can never be empty.");
+  EZ_ASSERT_DEBUG(!m_Data.IsEmpty(), "ezHybridString has been corrupted, the array can never be empty.");
 
   return &m_Data[0];
 }
@@ -142,8 +142,8 @@ ezStringView ezHybridStringBase<Size>::GetIteratorBack() const
 template<ezUInt16 Size>
 ezStringView ezHybridStringBase<Size>::GetSubString(ezUInt32 uiFirstCharacter, ezUInt32 uiNumCharacters) const
 {
-  EZ_ASSERT(uiFirstCharacter < m_uiCharacterCount, "The string only has %i characters, cannot start a sub-string at character %i.", m_uiCharacterCount, uiFirstCharacter);
-  EZ_ASSERT(uiFirstCharacter + uiNumCharacters <= m_uiCharacterCount, "The string only has %i characters, cannot get a sub-string up to character %i.", m_uiCharacterCount, uiFirstCharacter + uiNumCharacters);
+  EZ_ASSERT_DEV(uiFirstCharacter < m_uiCharacterCount, "The string only has %i characters, cannot start a sub-string at character %i.", m_uiCharacterCount, uiFirstCharacter);
+  EZ_ASSERT_DEV(uiFirstCharacter + uiNumCharacters <= m_uiCharacterCount, "The string only has %i characters, cannot get a sub-string up to character %i.", m_uiCharacterCount, uiFirstCharacter + uiNumCharacters);
 
   const char* szStart = GetData();
   ezUnicodeUtils::MoveToNextUtf8(szStart, uiFirstCharacter);
@@ -163,7 +163,7 @@ ezStringView ezHybridStringBase<Size>::GetFirst(ezUInt32 uiNumCharacters) const
 template<ezUInt16 Size>
 ezStringView ezHybridStringBase<Size>::GetLast(ezUInt32 uiNumCharacters) const
 {
-  EZ_ASSERT(uiNumCharacters < m_uiCharacterCount, "The string only contains %i characters, cannot return the last %i characters.", m_uiCharacterCount, uiNumCharacters);
+  EZ_ASSERT_DEV(uiNumCharacters < m_uiCharacterCount, "The string only contains %i characters, cannot return the last %i characters.", m_uiCharacterCount, uiNumCharacters);
   return GetSubString(m_uiCharacterCount - uiNumCharacters, uiNumCharacters);
 }
 

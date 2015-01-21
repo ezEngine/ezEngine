@@ -73,7 +73,7 @@ EZ_FORCE_INLINE ezComponentHandle ezComponentManager<T>::CreateComponent(Compone
 template <typename T>
 EZ_FORCE_INLINE bool ezComponentManager<T>::TryGetComponent(const ezComponentHandle& component, ComponentType*& out_pComponent) const
 {
-  EZ_ASSERT(ComponentType::TypeId() == GetIdFromHandle(component).m_TypeId, 
+  EZ_ASSERT_DEBUG(ComponentType::TypeId() == GetIdFromHandle(component).m_TypeId, 
     "The given component handle is not of the expected type. Expected type id %d, got type id %d",
     ComponentType::TypeId(), GetIdFromHandle(component).m_TypeId);
 

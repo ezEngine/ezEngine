@@ -500,7 +500,7 @@ bool ezJSONParser::ReadCharacter(bool bSkipComments)
 
 void ezJSONParser::SkipWhitespace()
 {
-  EZ_ASSERT(m_pInput != nullptr, "Input Stream is not set up.");
+  EZ_ASSERT_DEBUG(m_pInput != nullptr, "Input Stream is not set up.");
 
   do
   {
@@ -514,7 +514,7 @@ void ezJSONParser::SkipWhitespace()
 
 void ezJSONParser::SkipString()
 {
-  EZ_ASSERT(m_pInput != nullptr, "Input Stream is not set up.");
+  EZ_ASSERT_DEBUG(m_pInput != nullptr, "Input Stream is not set up.");
 
   m_TempString.Clear();
   m_TempString.PushBack('\0');
@@ -540,7 +540,7 @@ void ezJSONParser::SkipString()
 
 void ezJSONParser::ReadString()
 {
-  EZ_ASSERT(m_pInput != nullptr, "Input Stream is not set up.");
+  EZ_ASSERT_DEBUG(m_pInput != nullptr, "Input Stream is not set up.");
 
   m_TempString.Clear();
 
@@ -615,7 +615,7 @@ void ezJSONParser::ReadString()
 
 void ezJSONParser::ReadWord()
 {
-  EZ_ASSERT(m_pInput != nullptr, "Input Stream is not set up.");
+  EZ_ASSERT_DEBUG(m_pInput != nullptr, "Input Stream is not set up.");
 
   m_TempString.Clear();
 
@@ -635,7 +635,7 @@ void ezJSONParser::ReadWord()
 
 double ezJSONParser::ReadNumber()
 {
-  EZ_ASSERT(m_pInput != nullptr, "Input Stream is not set up.");
+  EZ_ASSERT_DEBUG(m_pInput != nullptr, "Input Stream is not set up.");
 
   m_TempString.Clear();
 

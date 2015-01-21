@@ -117,7 +117,7 @@ ezResult ezPreprocessor::ProcessFile(const char* szFile, TokenStream& TokenOutpu
 
 ezResult ezPreprocessor::Process(const char* szMainFile, TokenStream& TokenOutput)
 {
-  EZ_ASSERT(m_FileLocatorCallback.IsValid(), "No file locator callback has been set.");
+  EZ_ASSERT_DEV(m_FileLocatorCallback.IsValid(), "No file locator callback has been set.");
 
   TokenOutput.Clear();
 

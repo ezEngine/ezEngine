@@ -115,6 +115,6 @@ EZ_FORCE_INLINE void ezGALDevice::SetDefaultDevice(ezGALDevice* pDefaultDevice)
 // static
 EZ_FORCE_INLINE ezGALDevice* ezGALDevice::GetDefaultDevice()
 {
-  EZ_ASSERT(s_pDefaultDevice != nullptr, "Default device not set.");
+  EZ_ASSERT_DEBUG(s_pDefaultDevice != nullptr, "Default device not set.");
   return s_pDefaultDevice;
 }

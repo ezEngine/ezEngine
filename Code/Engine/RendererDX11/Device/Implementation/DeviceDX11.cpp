@@ -92,7 +92,7 @@ ezResult ezGALDeviceDX11::InitPlatform()
 
   // Create primary context object
   m_pPrimaryContext = EZ_DEFAULT_NEW(ezGALContextDX11)(this, pImmediateContext);
-  EZ_ASSERT(m_pPrimaryContext != nullptr, "Couldn't create primary context!");
+  EZ_ASSERT_RELEASE(m_pPrimaryContext != nullptr, "Couldn't create primary context!");
 
   if(FAILED(m_pDevice->QueryInterface(__uuidof(IDXGIDevice1), (void **)&m_pDXGIDevice)))
   {

@@ -7,7 +7,7 @@ inline ezUInt8 ezFrustum::GetNumPlanes() const
 
 inline const ezPlane& ezFrustum::GetPlane(ezUInt8 uiPlane) const
 {
-  EZ_ASSERT(uiPlane < m_uiUsedPlanes, "Invalid plane index.");
+  EZ_ASSERT_DEV(uiPlane < m_uiUsedPlanes, "Invalid plane index.");
 
   return m_Planes[uiPlane];
 }

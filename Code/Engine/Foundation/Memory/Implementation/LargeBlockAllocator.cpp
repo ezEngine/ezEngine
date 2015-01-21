@@ -20,12 +20,12 @@ ezLargeBlockAllocator::ezLargeBlockAllocator(const char* szName, ezAllocatorBase
 
   const ezUInt32 uiPageSize = ezSystemInformation::Get().GetMemoryPageSize();
   EZ_IGNORE_UNUSED(uiPageSize);
-  EZ_ASSERT(uiPageSize <= BLOCK_SIZE_IN_BYTES, "Memory Page size is bigger than block size.");
+  EZ_ASSERT_DEV(uiPageSize <= BLOCK_SIZE_IN_BYTES, "Memory Page size is bigger than block size.");
 }
 
 ezLargeBlockAllocator::~ezLargeBlockAllocator()
 {
-  EZ_ASSERT_API(m_ThreadID == ezThreadUtils::GetCurrentThreadID(), "Allocator is deleted from another thread");
+  EZ_ASSERT_RELEASE(m_ThreadID == ezThreadUtils::GetCurrentThreadID(), "Allocator is deleted from another thread");
   ezMemoryTracker::DeregisterAllocator(m_Id);
 
   for (ezUInt32 i = 0; i < m_superBlocks.GetCount(); ++i)
@@ -46,7 +46,7 @@ const ezAllocatorBase::Stats& ezLargeBlockAllocator::GetStats() const
 
 void* ezLargeBlockAllocator::Allocate(size_t uiAlign)
 {
-  EZ_ASSERT_API(ezMath::IsPowerOf2((ezUInt32)uiAlign), "Alignment must be power of two");
+  EZ_ASSERT_RELEASE(ezMath::IsPowerOf2((ezUInt32)uiAlign), "Alignment must be power of two");
 
   EZ_LOCK(m_mutex);
 
@@ -112,7 +112,7 @@ void ezLargeBlockAllocator::Deallocate(void* ptr)
     }
   }
 
-  EZ_ASSERT(bFound, "'%p' was not allocated with this allocator", ptr);
+  EZ_ASSERT_DEV(bFound, "'%p' was not allocated with this allocator", ptr);
   
   SuperBlock& superBlock = m_superBlocks[uiSuperBlockIndex];
   --superBlock.m_uiUsedBlocks;

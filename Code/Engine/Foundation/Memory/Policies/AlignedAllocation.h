@@ -19,7 +19,7 @@ namespace ezMemoryPolicies
 
     void* Allocate(size_t uiSize, size_t uiAlign)
     {
-      EZ_ASSERT(uiAlign < (1 << 24), "Alignment of %d is too big. Maximum supported alignment is 16MB.", uiAlign);
+      EZ_ASSERT_DEV(uiAlign < (1 << 24), "Alignment of %d is too big. Maximum supported alignment is 16MB.", uiAlign);
 
       const ezUInt32 uiPadding = (ezUInt32)(uiAlign-1 + MetadataSize);
       const size_t uiAlignedSize = uiSize + uiPadding;

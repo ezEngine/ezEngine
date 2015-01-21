@@ -127,14 +127,14 @@ public:
   /// \brief Returns the referenced object (may be nullptr).
   const T* operator ->() const
   {
-    EZ_ASSERT(m_pReferencedObject != nullptr, "Pointer is nullptr.");
+    EZ_ASSERT_DEV(m_pReferencedObject != nullptr, "Pointer is nullptr.");
     return m_pReferencedObject;
   }
 
   /// \brief Returns the referenced object (may be nullptr)
   T* operator -> ()
   {
-    EZ_ASSERT(m_pReferencedObject != nullptr, "Pointer is nullptr.");
+    EZ_ASSERT_DEV(m_pReferencedObject != nullptr, "Pointer is nullptr.");
     return m_pReferencedObject;
   }
 

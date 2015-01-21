@@ -290,7 +290,7 @@ success:
       pPlugin = pPlugin->GetNextInstance();
     }
 
-    EZ_ASSERT_API(iNewPlugins == 1, "A plugin must contain exactly one instance of an ezPlugin. While loading plugin '%s' %i ezPlugin instances were found.", szPluginFile, iNewPlugins);
+    EZ_ASSERT_RELEASE(iNewPlugins == 1, "A plugin must contain exactly one instance of an ezPlugin. While loading plugin '%s' %i ezPlugin instances were found.", szPluginFile, iNewPlugins);
   }
 
   ezLog::Success("Plugin '%s' is loaded.", szPluginFile);

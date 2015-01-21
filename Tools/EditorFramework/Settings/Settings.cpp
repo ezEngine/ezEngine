@@ -51,35 +51,35 @@ void ezSettings::RegisterValueColor(const char* szKey, const ezColor& Default, e
 void ezSettings::SetValueBool(const char* szKey, bool value)
 {
   auto it = m_Settings.Find(szKey);
-  EZ_ASSERT(it.IsValid() && it.Value().m_Value.IsA<bool>(), "The setting '%s' has not been registered as type 'bool'", szKey);
+  EZ_ASSERT_DEV(it.IsValid() && it.Value().m_Value.IsA<bool>(), "The setting '%s' has not been registered as type 'bool'", szKey);
   m_Settings[szKey].m_Value = value;
 }
 
 void ezSettings::SetValueInt(const char* szKey, ezInt32 value)
 {
   auto it = m_Settings.Find(szKey);
-  EZ_ASSERT(it.IsValid() && it.Value().m_Value.IsA<ezInt32>(), "The setting '%s' has not been registered as type 'int'", szKey);
+  EZ_ASSERT_DEV(it.IsValid() && it.Value().m_Value.IsA<ezInt32>(), "The setting '%s' has not been registered as type 'int'", szKey);
   m_Settings[szKey].m_Value = value;
 }
 
 void ezSettings::SetValueFloat(const char* szKey, float value)
 {
   auto it = m_Settings.Find(szKey);
-  EZ_ASSERT(it.IsValid() && it.Value().m_Value.IsA<float>(), "The setting '%s' has not been registered as type 'float'", szKey);
+  EZ_ASSERT_DEV(it.IsValid() && it.Value().m_Value.IsA<float>(), "The setting '%s' has not been registered as type 'float'", szKey);
   m_Settings[szKey].m_Value = value;
 }
 
 void ezSettings::SetValueString(const char* szKey, const char* value)
 {
   auto it = m_Settings.Find(szKey);
-  EZ_ASSERT(it.IsValid() && it.Value().m_Value.IsA<ezString>(), "The setting '%s' has not been registered as type 'string'", szKey);
+  EZ_ASSERT_DEV(it.IsValid() && it.Value().m_Value.IsA<ezString>(), "The setting '%s' has not been registered as type 'string'", szKey);
   m_Settings[szKey].m_Value = value;
 }
 
 void ezSettings::SetValueColor(const char* szKey, const ezColor& value)
 {
   auto it = m_Settings.Find(szKey);
-  EZ_ASSERT(it.IsValid() && it.Value().m_Value.IsA<ezColor>(), "The setting '%s' has not been registered as type 'color'", szKey);
+  EZ_ASSERT_DEV(it.IsValid() && it.Value().m_Value.IsA<ezColor>(), "The setting '%s' has not been registered as type 'color'", szKey);
   m_Settings[szKey].m_Value = value;
 }
 
@@ -87,7 +87,7 @@ void ezSettings::SetValueColor(const char* szKey, const ezColor& value)
 bool ezSettings::GetValueBool(const char* szKey)
 {
   auto it = m_Settings.FindOrAdd(szKey);
-  EZ_ASSERT(it.IsValid() && it.Value().m_Flags.IsAnySet(ezSettingsFlags::Registered) && it.Value().m_Value.IsA<bool>(), "The setting '%s' has not been registered as type 'bool'", szKey);
+  EZ_ASSERT_DEV(it.IsValid() && it.Value().m_Flags.IsAnySet(ezSettingsFlags::Registered) && it.Value().m_Value.IsA<bool>(), "The setting '%s' has not been registered as type 'bool'", szKey);
 
   if (!it.IsValid())
     return false;
@@ -98,7 +98,7 @@ bool ezSettings::GetValueBool(const char* szKey)
 ezInt32 ezSettings::GetValueInt(const char* szKey)
 {
   auto it = m_Settings.FindOrAdd(szKey);
-  EZ_ASSERT(it.IsValid() && it.Value().m_Flags.IsAnySet(ezSettingsFlags::Registered) && it.Value().m_Value.IsA<ezInt32>(), "The setting '%s' has not been registered as type 'int'", szKey);
+  EZ_ASSERT_DEV(it.IsValid() && it.Value().m_Flags.IsAnySet(ezSettingsFlags::Registered) && it.Value().m_Value.IsA<ezInt32>(), "The setting '%s' has not been registered as type 'int'", szKey);
 
   if (!it.IsValid())
     return 0;
@@ -110,7 +110,7 @@ ezInt32 ezSettings::GetValueInt(const char* szKey)
 float ezSettings::GetValueFloat(const char* szKey)
 {
   auto it = m_Settings.FindOrAdd(szKey);
-  EZ_ASSERT(it.IsValid() && it.Value().m_Flags.IsAnySet(ezSettingsFlags::Registered) && it.Value().m_Value.IsA<float>(), "The setting '%s' has not been registered as type 'float'", szKey);
+  EZ_ASSERT_DEV(it.IsValid() && it.Value().m_Flags.IsAnySet(ezSettingsFlags::Registered) && it.Value().m_Value.IsA<float>(), "The setting '%s' has not been registered as type 'float'", szKey);
 
   if (!it.IsValid())
     return 0.0f;
@@ -122,7 +122,7 @@ float ezSettings::GetValueFloat(const char* szKey)
 ezString ezSettings::GetValueString(const char* szKey)
 {
   auto it = m_Settings.FindOrAdd(szKey);
-  EZ_ASSERT(it.IsValid() && it.Value().m_Flags.IsAnySet(ezSettingsFlags::Registered) && it.Value().m_Value.IsA<ezString>(), "The setting '%s' has not been registered as type 'string'", szKey);
+  EZ_ASSERT_DEV(it.IsValid() && it.Value().m_Flags.IsAnySet(ezSettingsFlags::Registered) && it.Value().m_Value.IsA<ezString>(), "The setting '%s' has not been registered as type 'string'", szKey);
 
   if (!it.IsValid())
     return "";
@@ -134,7 +134,7 @@ ezString ezSettings::GetValueString(const char* szKey)
 ezColor ezSettings::GetValueColor(const char* szKey)
 {
   auto it = m_Settings.FindOrAdd(szKey);
-  EZ_ASSERT(it.IsValid() && it.Value().m_Flags.IsAnySet(ezSettingsFlags::Registered) && it.Value().m_Value.IsA<ezColor>(), "The setting '%s' has not been registered as type 'color'", szKey);
+  EZ_ASSERT_DEV(it.IsValid() && it.Value().m_Flags.IsAnySet(ezSettingsFlags::Registered) && it.Value().m_Value.IsA<ezColor>(), "The setting '%s' has not been registered as type 'color'", szKey);
 
   if (!it.IsValid())
     return ezColor::GetBlack();
@@ -224,7 +224,7 @@ ezSettings& ezEditorApp::GetEditorSettings(const char* szPlugin)
 
 ezSettings& ezEditorApp::GetProjectSettings(const char* szPlugin)
 {
-  EZ_ASSERT(ezEditorProject::IsProjectOpen(), "No project is open");
+  EZ_ASSERT_DEV(ezEditorProject::IsProjectOpen(), "No project is open");
 
   return GetSettings(s_ProjectSettings, szPlugin, ezEditorApp::GetDocumentDataFolder(ezEditorProject::GetInstance()->GetProjectPath()));
 }
@@ -241,7 +241,7 @@ ezSettings& ezEditorApp::GetDocumentSettings(const char* szDocument, const char*
 
 ezSettings& ezEditorApp::GetSettings(ezMap<ezString, ezSettings>& SettingsMap, const char* szPlugin, const char* szSearchPath)
 {
-  EZ_ASSERT(s_SettingsPluginNames.Contains(szPlugin), "The plugin name '%s' has not been registered with 'ezEditorApp::RegisterPluginNameForSettings'", szPlugin);
+  EZ_ASSERT_DEV(s_SettingsPluginNames.Contains(szPlugin), "The plugin name '%s' has not been registered with 'ezEditorApp::RegisterPluginNameForSettings'", szPlugin);
 
   bool bExisted = false;
 

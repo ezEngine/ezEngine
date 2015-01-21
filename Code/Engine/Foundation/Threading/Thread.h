@@ -43,7 +43,7 @@ public:
   /// \brief Destructor checks if the thread is deleted while still running, which is not allowed as this is a data hazard
   virtual ~ezThread()
   {
-    EZ_ASSERT(!IsRunning(), "Thread deletion while still running detected!");
+    EZ_ASSERT_DEV(!IsRunning(), "Thread deletion while still running detected!");
   }
 
   /// \brief Returns the thread status

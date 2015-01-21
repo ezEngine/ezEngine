@@ -25,7 +25,7 @@ public:
 
   ~ezMemoryStreamStorage()
   {
-    EZ_ASSERT_API(!IsReferenced(), "Memory stream storage destroyed while there are still references by reader / writer object(s)!");
+    EZ_ASSERT_RELEASE(!IsReferenced(), "Memory stream storage destroyed while there are still references by reader / writer object(s)!");
   }
 
   /// \brief Returns the number of bytes that is currently stored.

@@ -6,7 +6,7 @@
 
 ezSerializedTypeAccessorObjectWriter::ezSerializedTypeAccessorObjectWriter(const ezIReflectedTypeAccessor* pObject) : m_pObject(pObject)
 {
-  EZ_ASSERT(pObject != nullptr, "Object passed to ezSerializedTypeAccessorObjectWriter must not be nullptr!");
+  EZ_ASSERT_DEV(pObject != nullptr, "Object passed to ezSerializedTypeAccessorObjectWriter must not be nullptr!");
 }
 
 ezSerializedTypeAccessorObjectWriter::~ezSerializedTypeAccessorObjectWriter()
@@ -26,7 +26,7 @@ ezUuid ezSerializedTypeAccessorObjectWriter::GetParentGuid() const
 const char* ezSerializedTypeAccessorObjectWriter::GetType(ezStringBuilder& builder) const
 {
   auto pType = m_pObject->GetReflectedTypeHandle().GetType();
-  EZ_ASSERT(pType != nullptr, "ezIReflectedTypeAccessor used for serialization has an unknown type!");
+  EZ_ASSERT_DEV(pType != nullptr, "ezIReflectedTypeAccessor used for serialization has an unknown type!");
   builder = pType->GetTypeName().GetData();
   return builder.GetData();
 }

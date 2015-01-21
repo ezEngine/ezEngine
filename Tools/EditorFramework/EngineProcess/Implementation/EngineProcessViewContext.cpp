@@ -12,7 +12,7 @@ ezEngineProcessViewContext* ezEngineProcessViewContext::GetViewContext(ezUInt32 
 
 void ezEngineProcessViewContext::AddViewContext(ezUInt32 uiViewID, ezEngineProcessViewContext* pView)
 {
-  EZ_ASSERT(!s_ViewContexts.Contains(uiViewID), "Cannot add a view with an index that already exists");
+  EZ_ASSERT_DEV(!s_ViewContexts.Contains(uiViewID), "Cannot add a view with an index that already exists");
   s_ViewContexts[uiViewID] = pView;
 }
 

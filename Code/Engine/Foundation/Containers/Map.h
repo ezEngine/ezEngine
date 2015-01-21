@@ -62,10 +62,10 @@ public:
     EZ_FORCE_INLINE bool operator!=(const typename ezMapBase<KeyType, ValueType, Comparer>::ConstIterator& it2) const { return (m_pElement != it2.m_pElement); }
 
     /// \brief Returns the 'key' of the element that this iterator points to.
-    EZ_FORCE_INLINE const KeyType&   Key ()  const { EZ_ASSERT(IsValid(), "Cannot access the 'key' of an invalid iterator."); return m_pElement->m_Key;   } // [tested]
+    EZ_FORCE_INLINE const KeyType&   Key ()  const { EZ_ASSERT_DEV(IsValid(), "Cannot access the 'key' of an invalid iterator."); return m_pElement->m_Key;   } // [tested]
 
     /// \brief Returns the 'value' of the element that this iterator points to.
-    EZ_FORCE_INLINE const ValueType& Value() const { EZ_ASSERT(IsValid(), "Cannot access the 'value' of an invalid iterator."); return m_pElement->m_Value; } // [tested]
+    EZ_FORCE_INLINE const ValueType& Value() const { EZ_ASSERT_DEV(IsValid(), "Cannot access the 'value' of an invalid iterator."); return m_pElement->m_Value; } // [tested]
 
     /// \brief Advances the iterator to the next element in the map. The iterator will not be valid anymore, if the end is reached.
     void Next(); // [tested]
@@ -105,7 +105,7 @@ public:
     EZ_FORCE_INLINE Iterator()                   : ConstIterator()      { }
 
     /// \brief Returns the 'value' of the element that this iterator points to.
-    EZ_FORCE_INLINE ValueType& Value() { EZ_ASSERT(this->IsValid(), "Cannot access the 'value' of an invalid iterator."); return this->m_pElement->m_Value; }
+    EZ_FORCE_INLINE ValueType& Value() { EZ_ASSERT_DEV(this->IsValid(), "Cannot access the 'value' of an invalid iterator."); return this->m_pElement->m_Value; }
 
     /// \brief Returns the 'value' of the element that this iterator points to.
     EZ_FORCE_INLINE ValueType& operator*() { return Value(); }

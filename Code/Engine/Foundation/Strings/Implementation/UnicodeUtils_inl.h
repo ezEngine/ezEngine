@@ -29,7 +29,7 @@ inline ezUInt32 ezUnicodeUtils::GetUtf8SequenceLength(char uiFirstByte)
     return 1;
 
   EZ_IGNORE_UNUSED(uiBit6);
-  EZ_ASSERT(uiBit6 != 0, "Invalid Leading UTF-8 Byte.");
+  EZ_ASSERT_DEV(uiBit6 != 0, "Invalid Leading UTF-8 Byte.");
 
   if (uiBit5 == 0) // '110xxxxx'
     return 2;
@@ -116,7 +116,7 @@ inline ezUInt32 ezUnicodeUtils::GetSizeForCharacterInUtf8(ezUInt32 uiCharacter)
   // however some committee agreed that never more than 4 bytes are used (no need for more than 21 Bits)
   // this implementation assumes in several places, that the UTF-8 encoding never uses more than 4 bytes
 
-  EZ_ASSERT(uiCharacter <= 0x0010ffff, "Invalid Unicode Codepoint %u", uiCharacter);
+  EZ_ASSERT_DEV(uiCharacter <= 0x0010ffff, "Invalid Unicode Codepoint %u", uiCharacter);
   return 4;
 }
 
@@ -127,7 +127,7 @@ inline bool ezUnicodeUtils::IsValidUtf8(const char* szString)
 
 inline bool ezUnicodeUtils::SkipUtf8Bom(const char*& szUtf8)
 {
-  EZ_ASSERT(szUtf8 != nullptr, "This function expects non nullptr pointers");
+  EZ_ASSERT_DEBUG(szUtf8 != nullptr, "This function expects non nullptr pointers");
 
   if (utf8::starts_with_bom(szUtf8, szUtf8 + 4))
   {
@@ -140,7 +140,7 @@ inline bool ezUnicodeUtils::SkipUtf8Bom(const char*& szUtf8)
 
 inline bool ezUnicodeUtils::SkipUtf16BomLE(const ezUInt16*& szUtf16)
 {
-  EZ_ASSERT(szUtf16 != nullptr, "This function expects non nullptr pointers");
+  EZ_ASSERT_DEBUG(szUtf16 != nullptr, "This function expects non nullptr pointers");
 
   if (*szUtf16 == ezUnicodeUtils::Utf16BomLE)
   {
@@ -153,7 +153,7 @@ inline bool ezUnicodeUtils::SkipUtf16BomLE(const ezUInt16*& szUtf16)
 
 inline bool ezUnicodeUtils::SkipUtf16BomBE(const ezUInt16*& szUtf16)
 {
-  EZ_ASSERT(szUtf16 != nullptr, "This function expects non nullptr pointers");
+  EZ_ASSERT_DEBUG(szUtf16 != nullptr, "This function expects non nullptr pointers");
 
   if (*szUtf16 == ezUnicodeUtils::Utf16BomBE)
   {
@@ -166,11 +166,11 @@ inline bool ezUnicodeUtils::SkipUtf16BomBE(const ezUInt16*& szUtf16)
 
 inline void ezUnicodeUtils::MoveToNextUtf8(const char*& szUtf8, ezUInt32 uiNumCharacters)
 {
-  EZ_ASSERT(szUtf8 != nullptr, "Bad programmer!");
+  EZ_ASSERT_DEBUG(szUtf8 != nullptr, "Bad programmer!");
 
   while (uiNumCharacters > 0)
   {
-    EZ_ASSERT(*szUtf8 != '\0', "The given string must not point to the zero terminator.");
+    EZ_ASSERT_DEV(*szUtf8 != '\0', "The given string must not point to the zero terminator.");
 
     do
     {
@@ -184,7 +184,7 @@ inline void ezUnicodeUtils::MoveToNextUtf8(const char*& szUtf8, ezUInt32 uiNumCh
 
 inline void ezUnicodeUtils::MoveToPriorUtf8(const char*& szUtf8, ezUInt32 uiNumCharacters)
 {
-  EZ_ASSERT(szUtf8 != nullptr, "Bad programmer!");
+  EZ_ASSERT_DEBUG(szUtf8 != nullptr, "Bad programmer!");
 
   while (uiNumCharacters > 0)
   {

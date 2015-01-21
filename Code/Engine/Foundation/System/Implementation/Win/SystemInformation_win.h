@@ -14,7 +14,7 @@ BOOL IsWow64()
   // and GetProcAddress to get a pointer to the function if available.
 
   HMODULE hModule = GetModuleHandle(TEXT("kernel32"));
-  EZ_ASSERT(hModule != nullptr, "Could not find Kernel32 DLL.");
+  EZ_ASSERT_RELEASE(hModule != nullptr, "Could not find Kernel32 DLL.");
 
   LPFN_ISWOW64PROCESS pfnIsWow64Process = (LPFN_ISWOW64PROCESS) GetProcAddress(hModule,"IsWow64Process");
 

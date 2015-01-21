@@ -9,8 +9,8 @@ ezArrayBase<T, Derived>::ezArrayBase()
 template <typename T, typename Derived>
 ezArrayBase<T, Derived>::~ezArrayBase()
 {
-  EZ_ASSERT(m_uiCount == 0, "The derived class did not destruct all objects. Count is %i.", m_uiCount);
-  EZ_ASSERT(m_pElements == nullptr, "The derived class did not free its memory.");
+  EZ_ASSERT_DEBUG(m_uiCount == 0, "The derived class did not destruct all objects. Count is %i.", m_uiCount);
+  EZ_ASSERT_DEBUG(m_pElements == nullptr, "The derived class did not free its memory.");
 }
 
 template <typename T, typename Derived>
@@ -64,14 +64,14 @@ EZ_FORCE_INLINE bool ezArrayBase<T, Derived>::operator!= (const ezArrayPtr<T>& r
 template <typename T, typename Derived>
 EZ_FORCE_INLINE const T& ezArrayBase<T, Derived>::operator[](const ezUInt32 uiIndex) const
 {
-  EZ_ASSERT(uiIndex < m_uiCount, "Out of bounds access. Array has %i elements, trying to access element at index %i.", m_uiCount, uiIndex);
+  EZ_ASSERT_DEV(uiIndex < m_uiCount, "Out of bounds access. Array has %i elements, trying to access element at index %i.", m_uiCount, uiIndex);
   return m_pElements[uiIndex];
 }
 
 template <typename T, typename Derived>
 EZ_FORCE_INLINE T& ezArrayBase<T, Derived>::operator[](const ezUInt32 uiIndex)
 {
-  EZ_ASSERT(uiIndex < m_uiCount, "Out of bounds access. Array has %i elements, trying to access element at index %i.", m_uiCount, uiIndex);
+  EZ_ASSERT_DEV(uiIndex < m_uiCount, "Out of bounds access. Array has %i elements, trying to access element at index %i.", m_uiCount, uiIndex);
   return m_pElements[uiIndex];
 }
 
@@ -141,7 +141,7 @@ bool ezArrayBase<T, Derived>::Contains(const T& value) const
 template <typename T, typename Derived>
 void ezArrayBase<T, Derived>::Insert(const T& value, ezUInt32 uiIndex)
 {
-  EZ_ASSERT(uiIndex <= m_uiCount, "Invalid index. Array has %i elements, trying to insert element at index %i.", m_uiCount, uiIndex);
+  EZ_ASSERT_DEV(uiIndex <= m_uiCount, "Invalid index. Array has %i elements, trying to insert element at index %i.", m_uiCount, uiIndex);
 
   static_cast<Derived*>(this)->Reserve(m_uiCount + 1);
 
@@ -178,7 +178,7 @@ bool ezArrayBase<T, Derived>::RemoveSwap(const T& value)
 template <typename T, typename Derived>
 void ezArrayBase<T, Derived>::RemoveAt(ezUInt32 uiIndex)
 {
-  EZ_ASSERT(uiIndex < m_uiCount, "Out of bounds access. Array has %i elements, trying to remove element at index %i.", m_uiCount, uiIndex);
+  EZ_ASSERT_DEV(uiIndex < m_uiCount, "Out of bounds access. Array has %i elements, trying to remove element at index %i.", m_uiCount, uiIndex);
 
   m_uiCount--;
   ezMemoryUtils::CopyOverlapped(m_pElements + uiIndex, m_pElements + uiIndex + 1, m_uiCount - uiIndex); 
@@ -188,7 +188,7 @@ void ezArrayBase<T, Derived>::RemoveAt(ezUInt32 uiIndex)
 template <typename T, typename Derived>
 void ezArrayBase<T, Derived>::RemoveAtSwap(ezUInt32 uiIndex)
 {
-  EZ_ASSERT(uiIndex < m_uiCount, "Out of bounds access. Array has %i elements, trying to remove element at index %i.", m_uiCount, uiIndex);
+  EZ_ASSERT_DEV(uiIndex < m_uiCount, "Out of bounds access. Array has %i elements, trying to remove element at index %i.", m_uiCount, uiIndex);
 
   m_uiCount--;
   if (m_uiCount != uiIndex)
@@ -246,7 +246,7 @@ void ezArrayBase<T, Derived>::PushBack(const T& value)
 template <typename T, typename Derived>
 void ezArrayBase<T, Derived>::PushBackUnchecked(const T& value)
 {
-  EZ_ASSERT(m_uiCount < m_uiCapacity, "Appending unchecked to array with insufficient capacity.");
+  EZ_ASSERT_DEV(m_uiCount < m_uiCapacity, "Appending unchecked to array with insufficient capacity.");
 
   ezMemoryUtils::Construct(m_pElements + m_uiCount, value, 1);
   m_uiCount++;
@@ -275,7 +275,7 @@ void ezArrayBase<T, Derived>::PushBackRange(const ezArrayPtr<const T>& range)
 template <typename T, typename Derived>
 void ezArrayBase<T, Derived>::PopBack(ezUInt32 uiCountToRemove /* = 1 */)
 {
-  EZ_ASSERT(m_uiCount >= uiCountToRemove, "Out of bounds access. Array has %i elements, trying to pop %i elements.", m_uiCount, uiCountToRemove);
+  EZ_ASSERT_DEV(m_uiCount >= uiCountToRemove, "Out of bounds access. Array has %i elements, trying to pop %i elements.", m_uiCount, uiCountToRemove);
 
   m_uiCount -= uiCountToRemove;
   ezMemoryUtils::Destruct(m_pElements + m_uiCount, uiCountToRemove);
@@ -284,14 +284,14 @@ void ezArrayBase<T, Derived>::PopBack(ezUInt32 uiCountToRemove /* = 1 */)
 template <typename T, typename Derived>
 EZ_FORCE_INLINE T& ezArrayBase<T, Derived>::PeekBack()
 {
-  EZ_ASSERT(m_uiCount > 0, "Out of bounds access. Trying to peek into an empty array.");
+  EZ_ASSERT_DEV(m_uiCount > 0, "Out of bounds access. Trying to peek into an empty array.");
   return m_pElements[m_uiCount - 1];
 }
 
 template <typename T, typename Derived>
 EZ_FORCE_INLINE const T& ezArrayBase<T, Derived>::PeekBack() const
 {
-  EZ_ASSERT(m_uiCount > 0, "Out of bounds access. Trying to peek into an empty array.");
+  EZ_ASSERT_DEV(m_uiCount > 0, "Out of bounds access. Trying to peek into an empty array.");
   return m_pElements[m_uiCount - 1];
 }
 

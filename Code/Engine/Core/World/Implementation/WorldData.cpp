@@ -44,7 +44,7 @@ WorldData::WorldData(const char* szWorldName) :
 
 WorldData::~WorldData()
 {
-  EZ_ASSERT(m_ComponentManagers.IsEmpty(), "Component managers should be cleaned up already.");
+  EZ_ASSERT_DEV(m_ComponentManagers.IsEmpty(), "Component managers should be cleaned up already.");
 
   // delete all transformation data
   for (ezUInt32 uiHierarchyIndex = 0; uiHierarchyIndex < HierarchyType::COUNT; ++uiHierarchyIndex)

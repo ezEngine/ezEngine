@@ -15,8 +15,8 @@ ezSettingsTab::ezSettingsTab() : ezDocumentWindow("Settings")
 
   m_sSelectedSettingDomain = "<Application>";
 
-  EZ_ASSERT(g_pInstance == nullptr, "");
-  EZ_ASSERT(centralWidget() != nullptr, "");
+  EZ_ASSERT_DEV(g_pInstance == nullptr, "");
+  EZ_ASSERT_DEV(centralWidget() != nullptr, "");
 
   g_pInstance = this;
   setupUi(centralWidget());

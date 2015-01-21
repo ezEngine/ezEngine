@@ -25,7 +25,7 @@ void ezEventBase<EventData, MutexType>::RemoveEventHandler(Handler handler) cons
 
   bool bResult = m_EventHandlers.Remove(handler);
   EZ_IGNORE_UNUSED(bResult);
-  EZ_ASSERT(bResult, "ezEvent::RemoveEventHandler: Handler %p has not been registered or already been unregistered.", &handler);
+  EZ_ASSERT_DEV(bResult, "ezEvent::RemoveEventHandler: Handler %p has not been registered or already been unregistered.", &handler);
 }
 
 /// The notification is sent to all event handlers in the order that they were registered.
@@ -34,7 +34,7 @@ void ezEventBase<EventData, MutexType>::Broadcast(EventData eventData)
 {
   EZ_LOCK(m_Mutex);
 
-  EZ_ASSERT(!m_bBroadcasting, "The event has been triggered recursively or from several threads simultaneously.");  
+  EZ_ASSERT_DEV(!m_bBroadcasting, "The event has been triggered recursively or from several threads simultaneously.");  
 
   if (m_bBroadcasting)
     return;

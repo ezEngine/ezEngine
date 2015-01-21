@@ -144,7 +144,7 @@ ezPositionOnPlane::Enum ezPlaneTemplate<Type>::GetObjectPosition(const ezBoundin
 template<typename Type>
 void ezMat3Template<Type>::SetRotationMatrix (const ezVec3Template<Type>& vAxis, ezAngle angle)
 {
-  EZ_ASSERT(vAxis.IsNormalized(), "vAxis must be normalized.");
+  EZ_ASSERT_DEBUG(vAxis.IsNormalized(), "vAxis must be normalized.");
 
   const Type cos = ezMath::Cos(angle);
   const Type sin = ezMath::Sin(angle);
@@ -211,8 +211,8 @@ ezResult ezMat3Template<Type>::Invert(Type fEpsilon)
 template<typename Type>
 void ezMat3Template<Type>::SetLookInDirectionMatrix (ezVec3Template<Type> vLookDir, ezVec3Template<Type> vUpDir)
 {
-  EZ_ASSERT(!vLookDir.IsZero(),"The look direction must not be zero.");
-  EZ_ASSERT(vUpDir.IsNormalized(), "The up-direction must be normalized.");
+  EZ_ASSERT_DEBUG(!vLookDir.IsZero(),"The look direction must not be zero.");
+  EZ_ASSERT_DEBUG(vUpDir.IsNormalized(), "The up-direction must be normalized.");
 
   vLookDir.NormalizeIfNotZero();
 
@@ -239,7 +239,7 @@ void ezMat3Template<Type>::SetLookInDirectionMatrix (ezVec3Template<Type> vLookD
 template<typename Type>
 void ezMat4Template<Type>::SetRotationMatrix(const ezVec3Template<Type>& vAxis, ezAngle angle)
 {
-  EZ_ASSERT(vAxis.IsNormalized(), "vAxis must be normalized.");
+  EZ_ASSERT_DEBUG(vAxis.IsNormalized(), "vAxis must be normalized.");
 
   const Type cos = ezMath::Cos(angle);
   const Type sin = ezMath::Sin(angle);

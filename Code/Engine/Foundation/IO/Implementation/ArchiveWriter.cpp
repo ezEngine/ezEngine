@@ -10,12 +10,12 @@ ezArchiveWriter::ezArchiveWriter(ezStreamWriterBase& stream) : ezChunkStreamWrit
 
 ezArchiveWriter::~ezArchiveWriter()
 {
-  EZ_ASSERT(!m_bWritingFile, "The stream is left in an invalid state. EndStream() has to be called before it may be destroyed.");
+  EZ_ASSERT_DEV(!m_bWritingFile, "The stream is left in an invalid state. EndStream() has to be called before it may be destroyed.");
 }
 
 ezResult ezArchiveWriter::WriteBytes(const void* pWriteBuffer, ezUInt64 uiBytesToWrite)
 {
-  EZ_ASSERT(m_bWritingFile, "You have to call BeginStream() before you can write to the archive");
+  EZ_ASSERT_DEV(m_bWritingFile, "You have to call BeginStream() before you can write to the archive");
 
   if (!m_Temp.IsEmpty())
   {
@@ -27,7 +27,7 @@ ezResult ezArchiveWriter::WriteBytes(const void* pWriteBuffer, ezUInt64 uiBytesT
 
 void ezArchiveWriter::RegisterTypeSerializer(const ezRTTI* pRttiBase, ezArchiveSerializer* pSerializer)
 {
-  EZ_ASSERT(!m_bWritingFile, "This function must be called before BeginStream()");
+  EZ_ASSERT_DEV(!m_bWritingFile, "This function must be called before BeginStream()");
 
   m_TypeSerializers[pRttiBase] = pSerializer;
 }
@@ -157,7 +157,7 @@ void ezArchiveWriter::EndTypedObject()
 
 void ezArchiveWriter::BeginStream()
 {
-  EZ_ASSERT(!m_bWritingFile, "This function cannot be called after BeginStream()");
+  EZ_ASSERT_DEV(!m_bWritingFile, "This function cannot be called after BeginStream()");
 
   m_bWritingFile = true;
 
@@ -166,8 +166,8 @@ void ezArchiveWriter::BeginStream()
 
 void ezArchiveWriter::EndStream()
 {
-  EZ_ASSERT(m_bWritingFile, "This function must be called after BeginStream()");
-  EZ_ASSERT(m_Temp.GetCount() == 0, "BeginTypedObject / EndTypedObject has not been called in tandem (%i)", m_Temp.GetCount());
+  EZ_ASSERT_DEV(m_bWritingFile, "This function must be called after BeginStream()");
+  EZ_ASSERT_DEV(m_Temp.GetCount() == 0, "BeginTypedObject / EndTypedObject has not been called in tandem (%i)", m_Temp.GetCount());
 
   m_bWritingFile = false;
 

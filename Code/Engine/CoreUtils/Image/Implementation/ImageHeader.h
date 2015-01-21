@@ -43,7 +43,7 @@ public:
   /// \brief Returns the image width for a given mip level, clamped to 1.
   ezUInt32 GetWidth(ezUInt32 uiMipLevel = 0) const
   {
-    EZ_ASSERT(uiMipLevel < m_uiNumMipLevels, "Invalid mip level");
+    EZ_ASSERT_DEV(uiMipLevel < m_uiNumMipLevels, "Invalid mip level");
     return ezMath::Max(m_uiWidth >> uiMipLevel, 1U);
   }
 
@@ -56,7 +56,7 @@ public:
   /// \brief Returns the image height for a given mip level, clamped to 1.
   ezUInt32 GetHeight(ezUInt32 uiMipLevel = 0) const
   {
-    EZ_ASSERT(uiMipLevel < m_uiNumMipLevels, "Invalid mip level");
+    EZ_ASSERT_DEV(uiMipLevel < m_uiNumMipLevels, "Invalid mip level");
     return ezMath::Max(m_uiHeight >> uiMipLevel, 1U);
   }
 
@@ -69,7 +69,7 @@ public:
   /// \brief Returns the image depth for a given mip level, clamped to 1.
   ezUInt32 GetDepth(ezUInt32 uiMipLevel = 0) const
   {
-    EZ_ASSERT(uiMipLevel < m_uiNumMipLevels, "Invalid mip level");
+    EZ_ASSERT_DEV(uiMipLevel < m_uiNumMipLevels, "Invalid mip level");
     return ezMath::Max(m_uiDepth >> uiMipLevel, 1U);
   }
 

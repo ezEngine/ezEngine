@@ -16,7 +16,7 @@ public:
 
   EZ_FORCE_INLINE void operator()(const void* pInstance, ezMessage& msg)
   {
-    EZ_ASSERT(m_bIsConst, "Calling a non const message handler with a const instance.");
+    EZ_ASSERT_DEV(m_bIsConst, "Calling a non const message handler with a const instance.");
     (*m_ConstDispatchFunc)(pInstance, msg);
   }
 

@@ -57,9 +57,9 @@ void ezImageConversionBase::RebuildConversionTable()
 
       if (subConversion.m_flags.IsSet(ezImageConversionFlags::InPlace))
       {
-        EZ_ASSERT(ezImageFormat::GetBitsPerPixel(subConversion.m_sourceFormat) == ezImageFormat::GetBitsPerPixel(subConversion.m_targetFormat),
+        EZ_ASSERT_DEBUG(ezImageFormat::GetBitsPerPixel(subConversion.m_sourceFormat) == ezImageFormat::GetBitsPerPixel(subConversion.m_targetFormat),
           "In-place conversions are only allowed between formats of the same number of bits per pixel");
-        EZ_ASSERT(ezImageFormat::GetType(subConversion.m_sourceFormat) == ezImageFormat::GetType(subConversion.m_targetFormat),
+        EZ_ASSERT_DEBUG(ezImageFormat::GetType(subConversion.m_sourceFormat) == ezImageFormat::GetType(subConversion.m_targetFormat),
           "In-place conversions are only allowed between formats of the same type");
       }
 

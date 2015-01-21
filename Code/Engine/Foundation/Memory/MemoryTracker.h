@@ -63,7 +63,7 @@ public:
     EZ_FORCE_INLINE  void SetStackTrace(ezArrayPtr<void*> stackTrace)
     {
       m_pStackTrace = stackTrace.GetPtr();
-      EZ_ASSERT(stackTrace.GetCount() < 0xFFFF, "stack trace too long");
+      EZ_ASSERT_DEV(stackTrace.GetCount() < 0xFFFF, "stack trace too long");
       m_uiStackTraceLength = (ezUInt16)stackTrace.GetCount();
     }
   };

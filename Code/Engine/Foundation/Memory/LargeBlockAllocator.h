@@ -26,13 +26,13 @@ struct ezDataBlock
 
   EZ_FORCE_INLINE T* ReserveBack()
   {
-    EZ_ASSERT(m_uiCount < CAPACITY, "Block is full.");
+    EZ_ASSERT_DEV(m_uiCount < CAPACITY, "Block is full.");
     return m_pData + m_uiCount++;
   }
 
   EZ_FORCE_INLINE T* PopBack()
   {
-    EZ_ASSERT(m_uiCount > 0, "Block is empty");
+    EZ_ASSERT_DEV(m_uiCount > 0, "Block is empty");
     --m_uiCount;
     return m_pData + m_uiCount;
   }
@@ -49,7 +49,7 @@ struct ezDataBlock
 
   EZ_FORCE_INLINE T& operator[](ezUInt32 uiIndex) const
   {
-    EZ_ASSERT(uiIndex < m_uiCount, "Out of bounds access. Data block has %i elements, trying to access element at index %i.", m_uiCount, uiIndex);
+    EZ_ASSERT_DEV(uiIndex < m_uiCount, "Out of bounds access. Data block has %i elements, trying to access element at index %i.", m_uiCount, uiIndex);
     return m_pData[uiIndex];
   }
 

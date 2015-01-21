@@ -19,7 +19,7 @@ EZ_FORCE_INLINE void ezBoundingBoxTemplate<Type>::SetElements(const ezVec3Templa
   m_vMin = vMin;
   m_vMax = vMax;
 
-  EZ_ASSERT(IsValid(), "The given values did not create a valid bounding box (%.2f | %.2f | %.2f - %.2f | %.2f | %.2f)", vMin.x, vMin.y, vMin.z, vMax.x, vMax.y, vMax.z);
+  EZ_ASSERT_DEBUG(IsValid(), "The given values did not create a valid bounding box (%.2f | %.2f | %.2f - %.2f | %.2f | %.2f)", vMin.x, vMin.y, vMin.z, vMax.x, vMax.y, vMax.z);
 }
 
 template<typename Type>
@@ -33,7 +33,7 @@ template<typename Type>
 void ezBoundingBoxTemplate<Type>::GetCorners(ezVec3Template<Type>* out_pCorners) const
 {
   EZ_NAN_ASSERT(this);
-  EZ_ASSERT(out_pCorners != nullptr, "Out Parameter must not be nullptr.");
+  EZ_ASSERT_DEBUG(out_pCorners != nullptr, "Out Parameter must not be nullptr.");
 
   out_pCorners[0].Set(m_vMin.x, m_vMin.y, m_vMin.z);
   out_pCorners[1].Set(m_vMin.x, m_vMin.y, m_vMax.z);
@@ -106,8 +106,8 @@ EZ_FORCE_INLINE void ezBoundingBoxTemplate<Type>::ExpandToInclude(const ezBoundi
 template<typename Type>
 void ezBoundingBoxTemplate<Type>::ExpandToInclude(const ezVec3Template<Type>* pPoints, ezUInt32 uiNumPoints, ezUInt32 uiStride)
 {
-  EZ_ASSERT(pPoints != nullptr, "Array may not be nullptr.");
-  EZ_ASSERT(uiStride >= sizeof(ezVec3Template<Type>), "Data may not overlap.");
+  EZ_ASSERT_DEBUG(pPoints != nullptr, "Array may not be nullptr.");
+  EZ_ASSERT_DEBUG(uiStride >= sizeof(ezVec3Template<Type>), "Data may not overlap.");
 
   const ezVec3Template<Type>* pCur = &pPoints[0];
 
@@ -134,12 +134,12 @@ void ezBoundingBoxTemplate<Type>::ExpandToCube()
 template<typename Type>
 EZ_FORCE_INLINE void ezBoundingBoxTemplate<Type>::Grow(const ezVec3Template<Type>& vDiff)
 {
-  EZ_ASSERT(IsValid(), "Cannot grow a box that is invalid.");
+  EZ_ASSERT_DEBUG(IsValid(), "Cannot grow a box that is invalid.");
 
   m_vMax += vDiff;
   m_vMin -= vDiff;
 
-  EZ_ASSERT(IsValid(), "The grown box has become invalid.");
+  EZ_ASSERT_DEBUG(IsValid(), "The grown box has become invalid.");
 }
 
 template<typename Type>
@@ -162,8 +162,8 @@ EZ_FORCE_INLINE bool ezBoundingBoxTemplate<Type>::Contains(const ezBoundingBoxTe
 template<typename Type>
 bool ezBoundingBoxTemplate<Type>::Contains(const ezVec3Template<Type>* pPoints, ezUInt32 uiNumPoints, ezUInt32 uiStride /* = sizeof(ezVec3Template<Type>) */) const
 {
-  EZ_ASSERT(pPoints != nullptr, "Array must not be NuLL.");
-  EZ_ASSERT(uiStride >= sizeof(ezVec3Template<Type>), "Data must not overlap.");
+  EZ_ASSERT_DEBUG(pPoints != nullptr, "Array must not be NuLL.");
+  EZ_ASSERT_DEBUG(uiStride >= sizeof(ezVec3Template<Type>), "Data must not overlap.");
 
   const ezVec3Template<Type>* pCur = &pPoints[0];
 
@@ -204,8 +204,8 @@ bool ezBoundingBoxTemplate<Type>::Overlaps(const ezBoundingBoxTemplate<Type>& rh
 template<typename Type>
 bool ezBoundingBoxTemplate<Type>::Overlaps(const ezVec3Template<Type>* pPoints, ezUInt32 uiNumPoints, ezUInt32 uiStride /* = sizeof(ezVec3Template<Type>) */) const
 {
-  EZ_ASSERT(pPoints != nullptr, "Array must not be NuLL.");
-  EZ_ASSERT(uiStride >= sizeof(ezVec3Template<Type>), "Data must not overlap.");
+  EZ_ASSERT_DEBUG(pPoints != nullptr, "Array must not be NuLL.");
+  EZ_ASSERT_DEBUG(uiStride >= sizeof(ezVec3Template<Type>), "Data must not overlap.");
 
   const ezVec3Template<Type>* pCur = &pPoints[0];
 
@@ -376,9 +376,9 @@ bool ezBoundingBoxTemplate<Type>::GetRayIntersection(const ezVec3Template<Type>&
   // Contrary to previous implementation, this one actually works with ray/box configurations
   // that produce division by zero and multiplication with infinity (which can produce NaNs).
 
-  EZ_ASSERT(ezMath::BasicType<Type>::SupportsInfinity(), "This type does not support infinite values, which is required for this algorithm.");
-  EZ_ASSERT(vStartPos.IsValid(), "Ray start position must be valid.");
-  EZ_ASSERT(vRayDir.IsValid(), "Ray direction must be valid.");
+  EZ_ASSERT_DEBUG(ezMath::BasicType<Type>::SupportsInfinity(), "This type does not support infinite values, which is required for this algorithm.");
+  EZ_ASSERT_DEBUG(vStartPos.IsValid(), "Ray start position must be valid.");
+  EZ_ASSERT_DEBUG(vRayDir.IsValid(), "Ray direction must be valid.");
 
   EZ_NAN_ASSERT(this);
 

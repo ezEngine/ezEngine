@@ -52,8 +52,8 @@ void ezInputManager::ClearInputMapping(const char* szInputSet, const char* szInp
 
 void ezInputManager::SetInputActionConfig(const char* szInputSet, const char* szAction, const ezInputActionConfig& Config, bool bClearPreviousInputMappings)
 {
-  EZ_ASSERT(!ezStringUtils::IsNullOrEmpty(szInputSet), "The InputSet name must not be empty.");
-  EZ_ASSERT(!ezStringUtils::IsNullOrEmpty(szAction), "No input action to map to was given.");
+  EZ_ASSERT_DEV(!ezStringUtils::IsNullOrEmpty(szInputSet), "The InputSet name must not be empty.");
+  EZ_ASSERT_DEV(!ezStringUtils::IsNullOrEmpty(szAction), "No input action to map to was given.");
 
   if (bClearPreviousInputMappings)
   {
@@ -173,7 +173,7 @@ ezInputManager::ezActionMap::Iterator ezInputManager::GetBestAction(ezActionMap&
 
 hell:
 
-    EZ_ASSERT(AltSlot >= 0 && AltSlot < ezInputActionConfig::MaxInputSlotAlternatives, "Alternate Slot out of bounds.");
+    EZ_ASSERT_DEV(AltSlot >= 0 && AltSlot < ezInputActionConfig::MaxInputSlotAlternatives, "Alternate Slot out of bounds.");
 
     // if the action had input in the last update AND wants to keep the focus, it will ALWAYS get the input, until the input slot gets inactive (key up)
     // independent from priority, overlap of areas etc.

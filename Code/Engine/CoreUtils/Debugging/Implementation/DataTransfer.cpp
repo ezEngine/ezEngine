@@ -17,12 +17,12 @@ ezDataTransferObject::ezDataTransferObject(ezDataTransfer& BelongsTo, const char
 
 ezDataTransferObject::~ezDataTransferObject()
 {
-  EZ_ASSERT(m_bHasBeenTransferred, "The data transfer object has never been transmitted.");
+  EZ_ASSERT_DEV(m_bHasBeenTransferred, "The data transfer object has never been transmitted.");
 }
 
 void ezDataTransferObject::Transmit()
 {
-  EZ_ASSERT(!m_bHasBeenTransferred, "The data transfer object has been transmitted already.");
+  EZ_ASSERT_DEV(!m_bHasBeenTransferred, "The data transfer object has been transmitted already.");
 
   if (m_bHasBeenTransferred)
     return;
@@ -90,7 +90,7 @@ void ezDataTransfer::EnableDataTransfer(const char* szDataName)
 
   m_sDataName = szDataName;
 
-  EZ_ASSERT(!m_sDataName.IsEmpty(), "The name for the data transfer must not be empty.");
+  EZ_ASSERT_DEV(!m_sDataName.IsEmpty(), "The name for the data transfer must not be empty.");
 
   m_bEnabled = true;
   SendStatus();

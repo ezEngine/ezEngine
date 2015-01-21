@@ -43,10 +43,10 @@ void ezViewContext::SetupRenderTarget(ezWindowHandle hWnd, ezUInt16 uiWidth, ezU
 
     m_hPrimarySwapChain = pDevice->CreateSwapChain(scd);
     const ezGALSwapChain* pPrimarySwapChain = pDevice->GetSwapChain(m_hPrimarySwapChain);
-    EZ_ASSERT(pPrimarySwapChain != nullptr, "Failed to init swapchain");
+    EZ_ASSERT_DEV(pPrimarySwapChain != nullptr, "Failed to init swapchain");
 
     m_hBBRT = pPrimarySwapChain->GetRenderTargetViewConfig();
-    EZ_ASSERT(!m_hBBRT.IsInvalidated(), "Failed to init render target");
+    EZ_ASSERT_DEV(!m_hBBRT.IsInvalidated(), "Failed to init render target");
   }
 
   ezGALRasterizerStateCreationDescription RasterStateDesc;
@@ -54,20 +54,20 @@ void ezViewContext::SetupRenderTarget(ezWindowHandle hWnd, ezUInt16 uiWidth, ezU
   RasterStateDesc.m_CullMode = ezGALCullMode::Back;
   RasterStateDesc.m_bFrontCounterClockwise = true;
   m_hRasterizerState = pDevice->CreateRasterizerState(RasterStateDesc);
-  EZ_ASSERT(!m_hRasterizerState.IsInvalidated(), "Couldn't create rasterizer state!");
+  EZ_ASSERT_DEV(!m_hRasterizerState.IsInvalidated(), "Couldn't create rasterizer state!");
 
   RasterStateDesc.m_bWireFrame = false;
   RasterStateDesc.m_CullMode = ezGALCullMode::Back;
   RasterStateDesc.m_bFrontCounterClockwise = true;
   m_hRasterizerStateGizmo = pDevice->CreateRasterizerState(RasterStateDesc);
-  EZ_ASSERT(!m_hRasterizerState.IsInvalidated(), "Couldn't create rasterizer state!");
+  EZ_ASSERT_DEV(!m_hRasterizerState.IsInvalidated(), "Couldn't create rasterizer state!");
   
 
   ezGALDepthStencilStateCreationDescription DepthStencilStateDesc;
   DepthStencilStateDesc.m_bDepthTest = true;
   DepthStencilStateDesc.m_bDepthWrite = true;
   m_hDepthStencilState = pDevice->CreateDepthStencilState(DepthStencilStateDesc);
-  EZ_ASSERT(!m_hDepthStencilState.IsInvalidated(), "Couldn't create depth-stencil state!");
+  EZ_ASSERT_DEV(!m_hDepthStencilState.IsInvalidated(), "Couldn't create depth-stencil state!");
 
 
   // Create a constant buffer for matrix upload

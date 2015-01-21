@@ -259,7 +259,7 @@ void ezTextureResource::UpdateContent(ezStreamReaderBase* Stream)
     if (pImage->GetNumFaces() == 6)
       TexDesc.m_Type = ezGALTextureType::TextureCube;
 
-    EZ_ASSERT(pImage->GetNumFaces() == 1 || pImage->GetNumFaces() == 6, "Invalid number of image faces (resource: '%s')", GetResourceID().GetData());
+    EZ_ASSERT_DEV(pImage->GetNumFaces() == 1 || pImage->GetNumFaces() == 6, "Invalid number of image faces (resource: '%s')", GetResourceID().GetData());
 
     TexDesc.m_Format = ImgToGalFormat(pImage->GetImageFormat(), bSRGB);
 
@@ -308,7 +308,7 @@ void ezTextureResource::UpdateContent(ezStreamReaderBase* Stream)
 
     m_hGALTexView = ezGALDevice::GetDefaultDevice()->CreateResourceView(TexViewDesc);
 
-    EZ_ASSERT(!m_hGALTexView.IsInvalidated(), "No resource view could be created for texture '%s'. Maybe the format table is incorrect?", GetResourceID().GetData());
+    EZ_ASSERT_DEV(!m_hGALTexView.IsInvalidated(), "No resource view could be created for texture '%s'. Maybe the format table is incorrect?", GetResourceID().GetData());
 
     /// \todo HACK
     {

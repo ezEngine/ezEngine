@@ -32,7 +32,7 @@ void ezRendererCore::OnEngineShutdown()
 
 void ezRendererCore::OnCoreShutdown()
 {
-  EZ_ASSERT(s_GALVertexDeclarations.IsEmpty(), "ezRendererCore::OnEngineShutdown has not been called. Either ezStartup::ShutdownEngine was not called or ezStartup::StartupEngine was not called at program start");
+  EZ_ASSERT_DEV(s_GALVertexDeclarations.IsEmpty(), "ezRendererCore::OnEngineShutdown has not been called. Either ezStartup::ShutdownEngine was not called or ezStartup::StartupEngine was not called at program start");
 
   for (ezUInt32 i = 0; i < ezGALShaderStage::ENUM_COUNT; ++i)
     ezShaderStageBinary::s_ShaderStageBinaries[i].Clear();

@@ -179,14 +179,14 @@ ezStatus ezDocumentManagerBase::CreateOrOpenDocument(bool bCreate, const char* s
   {
     if (DocumentTypes[i].m_sDocumentTypeName == szDocumentTypeName)
     {
-      EZ_ASSERT(DocumentTypes[i].m_bCanCreate, "This document manager cannot create the document type '%s'", szDocumentTypeName);
+      EZ_ASSERT_DEV(DocumentTypes[i].m_bCanCreate, "This document manager cannot create the document type '%s'", szDocumentTypeName);
 
       status = InternalCreateDocument(szDocumentTypeName, sPath, out_pDocument);
       if (out_pDocument != nullptr)
       {
         out_pDocument->m_documentInfo.m_DocumentID.CreateNewUuid();
       }
-      EZ_ASSERT(status.m_Result == EZ_FAILURE || out_pDocument != nullptr, "Status was success, but the document manager returned a nullptr document.");
+      EZ_ASSERT_DEV(status.m_Result == EZ_FAILURE || out_pDocument != nullptr, "Status was success, but the document manager returned a nullptr document.");
 
       if (status.m_Result.Succeeded())
       {
@@ -223,7 +223,7 @@ ezStatus ezDocumentManagerBase::OpenDocument(const char* szDocumentTypeName, con
 
 void ezDocumentManagerBase::CloseDocument(ezDocumentBase* pDocument)
 {
-  EZ_ASSERT(pDocument != nullptr, "Invalid document pointer");
+  EZ_ASSERT_DEV(pDocument != nullptr, "Invalid document pointer");
 
   pDocument->BroadcastSaveDocumentMetaState();
 

@@ -74,7 +74,7 @@ ezContainerWindow::~ezContainerWindow()
 QTabWidget* ezContainerWindow::GetTabWidget() const
 {
   QTabWidget* pTabs = (QTabWidget*) centralWidget();
-  EZ_ASSERT(pTabs != nullptr, "The central widget is NULL");
+  EZ_ASSERT_DEV(pTabs != nullptr, "The central widget is NULL");
 
   return pTabs;
 }
@@ -224,7 +224,7 @@ void ezContainerWindow::UpdateWindowDecoration(ezDocumentWindow* pDocWindow)
   QTabWidget* pTabs = GetTabWidget();
 
   int iTabIndex = pTabs->indexOf(pDocWindow);
-  EZ_ASSERT(iTabIndex >= 0, "Invalid document window to close");
+  EZ_ASSERT_DEV(iTabIndex >= 0, "Invalid document window to close");
 
   pTabs->setTabToolTip(iTabIndex, QString::fromUtf8(pDocWindow->GetDisplayName().GetData()));
   pTabs->setTabText(iTabIndex, QString::fromUtf8(pDocWindow->GetDisplayNameShort().GetData()));
@@ -241,7 +241,7 @@ void ezContainerWindow::RemoveDocumentWindowFromContainer(ezDocumentWindow* pDoc
   QTabWidget* pTabs = GetTabWidget();
 
   int iTabIndex = pTabs->indexOf(pDocWindow);
-  EZ_ASSERT(iTabIndex >= 0, "Invalid document window to close");
+  EZ_ASSERT_DEV(iTabIndex >= 0, "Invalid document window to close");
 
   pTabs->removeTab(iTabIndex);
 
@@ -258,7 +258,7 @@ void ezContainerWindow::MoveDocumentWindowToContainer(ezDocumentWindow* pDocWind
   if (pDocWindow->m_pContainerWindow != nullptr)
     pDocWindow->m_pContainerWindow->RemoveDocumentWindowFromContainer(pDocWindow);
 
-  EZ_ASSERT(pDocWindow->m_pContainerWindow == nullptr, "Implementation error");
+  EZ_ASSERT_DEV(pDocWindow->m_pContainerWindow == nullptr, "Implementation error");
 
   SetupDocumentTabArea();
 
@@ -536,7 +536,7 @@ void ezContainerWindow::CreateOrOpenDocument(bool bCreate, const char* szFile)
       return;
     }
 
-    EZ_ASSERT(pDocument != nullptr, "Creation of document type '%s' succeeded, but returned pointer is NULL", DescToCreate.m_sDocumentTypeName.GetData());
+    EZ_ASSERT_DEV(pDocument != nullptr, "Creation of document type '%s' succeeded, but returned pointer is NULL", DescToCreate.m_sDocumentTypeName.GetData());
   }
   else
   {

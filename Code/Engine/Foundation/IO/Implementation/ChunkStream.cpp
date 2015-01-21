@@ -9,7 +9,7 @@ ezChunkStreamWriter::ezChunkStreamWriter(ezStreamWriterBase& pStream) : m_Stream
 
 void ezChunkStreamWriter::BeginStream()
 {
-  EZ_ASSERT(!m_bWritingFile, "Already writing the file.");
+  EZ_ASSERT_DEV(!m_bWritingFile, "Already writing the file.");
 
   m_bWritingFile = true;
 
@@ -19,8 +19,8 @@ void ezChunkStreamWriter::BeginStream()
 
 void ezChunkStreamWriter::EndStream()
 {
-  EZ_ASSERT(m_bWritingFile, "Not writing to the file.");
-  EZ_ASSERT(!m_bWritingChunk, "A chunk is still open for writing: '%s'", m_sChunkName.GetData());
+  EZ_ASSERT_DEV(m_bWritingFile, "Not writing to the file.");
+  EZ_ASSERT_DEV(!m_bWritingChunk, "A chunk is still open for writing: '%s'", m_sChunkName.GetData());
 
   m_bWritingFile = false;
 
@@ -30,8 +30,8 @@ void ezChunkStreamWriter::EndStream()
 
 void ezChunkStreamWriter::BeginChunk(const char* szName, ezUInt32 uiVersion)
 {
-  EZ_ASSERT(m_bWritingFile, "Not writing to the file.");
-  EZ_ASSERT(!m_bWritingChunk, "A chunk is already open for writing: '%s'", m_sChunkName.GetData());
+  EZ_ASSERT_DEV(m_bWritingFile, "Not writing to the file.");
+  EZ_ASSERT_DEV(!m_bWritingChunk, "A chunk is already open for writing: '%s'", m_sChunkName.GetData());
 
   m_sChunkName = szName;
 
@@ -47,8 +47,8 @@ void ezChunkStreamWriter::BeginChunk(const char* szName, ezUInt32 uiVersion)
 
 void ezChunkStreamWriter::EndChunk()
 {
-  EZ_ASSERT(m_bWritingFile, "Not writing to the file.");
-  EZ_ASSERT(m_bWritingChunk, "No chunk is currently open.");
+  EZ_ASSERT_DEV(m_bWritingFile, "Not writing to the file.");
+  EZ_ASSERT_DEV(m_bWritingChunk, "No chunk is currently open.");
 
   m_bWritingChunk = false;
 
@@ -59,7 +59,7 @@ void ezChunkStreamWriter::EndChunk()
   {
     const ezUInt32 uiRange = m_Storage.GetContiguousRange(i);
 
-    EZ_ASSERT(uiRange > 0, "Invalid contiguous range");
+    EZ_ASSERT_DEBUG(uiRange > 0, "Invalid contiguous range");
 
     m_Stream.WriteBytes(&m_Storage[i], uiRange);
     i += uiRange;
@@ -70,7 +70,7 @@ void ezChunkStreamWriter::EndChunk()
 
 ezResult ezChunkStreamWriter::WriteBytes(const void* pWriteBuffer, ezUInt64 uiBytesToWrite)
 {
-  EZ_ASSERT(m_bWritingChunk, "No chunk is currently written to");
+  EZ_ASSERT_DEV(m_bWritingChunk, "No chunk is currently written to");
 
   const ezUInt8* pBytes = (const ezUInt8*) pWriteBuffer;
 
@@ -92,7 +92,7 @@ ezChunkStreamReader::ezChunkStreamReader(ezStreamReaderBase& stream) : m_Stream(
 
 ezUInt64 ezChunkStreamReader::ReadBytes(void* pReadBuffer, ezUInt64 uiBytesToRead)
 {
-  EZ_ASSERT(m_ChunkInfo.m_bValid, "No valid chunk available.");
+  EZ_ASSERT_DEV(m_ChunkInfo.m_bValid, "No valid chunk available.");
 
   uiBytesToRead = ezMath::Min<ezUInt64>(uiBytesToRead, m_ChunkInfo.m_uiUnreadChunkBytes);
   m_ChunkInfo.m_uiUnreadChunkBytes -= (ezUInt32) uiBytesToRead;
@@ -108,7 +108,7 @@ void ezChunkStreamReader::BeginStream()
   m_Stream.ReadBytes(szTag, 8);
   szTag[8] = '\0';
 
-  EZ_ASSERT(ezStringUtils::IsEqual(szTag, "BGN CHNK"), "Not a valid chunk file.");
+  EZ_ASSERT_DEV(ezStringUtils::IsEqual(szTag, "BGN CHNK"), "Not a valid chunk file.");
 
   TryReadChunkHeader();
 }

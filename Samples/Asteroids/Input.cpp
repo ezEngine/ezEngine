@@ -36,7 +36,7 @@ void SampleGameApp::UpdateInput(ezTime UpdateDiff)
   {
     ezLog::Info("Asserting");
 
-    EZ_ASSERT(false, "This is safe to ignore.");
+    EZ_ASSERT_DEV(false, "This is safe to ignore.");
   }
 
   if (ezInputManager::GetInputActionState("Main", "CVarUp") == ezKeyState::Pressed)

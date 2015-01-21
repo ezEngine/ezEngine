@@ -168,7 +168,7 @@ void ezDynamicOctree::FindObjectsInRange(const ezVec3& vPoint, EZ_VISIBLE_OBJ_CA
 
 void ezDynamicOctree::FindVisibleObjects(const ezFrustum& Viewfrustum, EZ_VISIBLE_OBJ_CALLBACK Callback, void* pPassThrough) const
 {
-  EZ_ASSERT(m_uiMaxTreeDepth > 0, "ezDynamicOctree::FindVisibleObjects: You have to first create the tree.");
+  EZ_ASSERT_DEV(m_uiMaxTreeDepth > 0, "ezDynamicOctree::FindVisibleObjects: You have to first create the tree.");
 
   if (m_NodeMap.IsEmpty())
     return;
@@ -363,7 +363,7 @@ bool ezDynamicOctree::FindObjectsInRange(const ezVec3& vPoint, EZ_VISIBLE_OBJ_CA
 
 void ezDynamicOctree::FindObjectsInRange(const ezVec3& vPoint, float fRadius, EZ_VISIBLE_OBJ_CALLBACK Callback, void* pPassThrough) const
 {
-  EZ_ASSERT(m_uiMaxTreeDepth > 0, "ezDynamicOctree::FindObjectsInRange: You have to first create the tree.");
+  EZ_ASSERT_DEV(m_uiMaxTreeDepth > 0, "ezDynamicOctree::FindObjectsInRange: You have to first create the tree.");
 
   if (m_NodeMap.IsEmpty())
     return;

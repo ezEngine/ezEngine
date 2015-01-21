@@ -58,7 +58,7 @@ EZ_FORCE_INLINE void ezBoundingSphereTemplate<Type>::SetElements(const ezVec3Tem
   m_vCenter = vCenter;
   m_fRadius = fRadius;
 
-  EZ_ASSERT(IsValid(), "The sphere was created with invalid values.");
+  EZ_ASSERT_DEBUG(IsValid(), "The sphere was created with invalid values.");
 }
 
 template<typename Type>
@@ -81,11 +81,11 @@ void ezBoundingSphereTemplate<Type>::ExpandToInclude(const ezBoundingSphereTempl
 template<typename Type>
 EZ_FORCE_INLINE void ezBoundingSphereTemplate<Type>::Grow(Type fDiff)
 {
-  EZ_ASSERT(IsValid(), "Cannot grow a sphere that is invalid.");
+  EZ_ASSERT_DEBUG(IsValid(), "Cannot grow a sphere that is invalid.");
 
   m_fRadius += fDiff;
 
-  EZ_ASSERT(IsValid(), "The grown sphere has become invalid.");
+  EZ_ASSERT_DEBUG(IsValid(), "The grown sphere has become invalid.");
 }
 
 template<typename Type>
@@ -121,7 +121,7 @@ EZ_FORCE_INLINE void ezBoundingSphereTemplate<Type>::Translate(const ezVec3Templ
 template<typename Type>
 EZ_FORCE_INLINE void ezBoundingSphereTemplate<Type>::ScaleFromCenter(Type fScale)
 {
-  EZ_ASSERT(fScale >= 0.0f, "Cannot invert the sphere.");
+  EZ_ASSERT_DEBUG(fScale >= 0.0f, "Cannot invert the sphere.");
 
   m_fRadius *= fScale;
 
@@ -131,9 +131,9 @@ EZ_FORCE_INLINE void ezBoundingSphereTemplate<Type>::ScaleFromCenter(Type fScale
 template<typename Type>
 void ezBoundingSphereTemplate<Type>::ScaleFromOrigin(const ezVec3Template<Type>& vScale)
 {
-  EZ_ASSERT(vScale.x >= 0.0f, "Cannot invert the sphere.");
-  EZ_ASSERT(vScale.y >= 0.0f, "Cannot invert the sphere.");
-  EZ_ASSERT(vScale.z >= 0.0f, "Cannot invert the sphere.");
+  EZ_ASSERT_DEBUG(vScale.x >= 0.0f, "Cannot invert the sphere.");
+  EZ_ASSERT_DEBUG(vScale.y >= 0.0f, "Cannot invert the sphere.");
+  EZ_ASSERT_DEBUG(vScale.z >= 0.0f, "Cannot invert the sphere.");
 
   m_vCenter = m_vCenter.CompMult(vScale);
 
@@ -210,9 +210,9 @@ const ezVec3Template<Type> ezBoundingSphereTemplate<Type>::GetClampedPoint(const
 template<typename Type>
 bool ezBoundingSphereTemplate<Type>::Contains(const ezVec3Template<Type>* pPoints, ezUInt32 uiNumPoints, ezUInt32 uiStride /* = sizeof(ezVec3Template) */) const
 {
-  EZ_ASSERT(pPoints != nullptr, "The array must not be empty.");
-  EZ_ASSERT(uiNumPoints > 0, "The array must contain at least one point.");
-  EZ_ASSERT(uiStride >= sizeof(ezVec3Template<Type>), "The data must not overlap.");
+  EZ_ASSERT_DEBUG(pPoints != nullptr, "The array must not be empty.");
+  EZ_ASSERT_DEBUG(uiNumPoints > 0, "The array must contain at least one point.");
+  EZ_ASSERT_DEBUG(uiStride >= sizeof(ezVec3Template<Type>), "The data must not overlap.");
 
   const Type fRadiusSQR = ezMath::Square(m_fRadius);
 
@@ -232,9 +232,9 @@ bool ezBoundingSphereTemplate<Type>::Contains(const ezVec3Template<Type>* pPoint
 template<typename Type>
 bool ezBoundingSphereTemplate<Type>::Overlaps(const ezVec3Template<Type>* pPoints, ezUInt32 uiNumPoints, ezUInt32 uiStride /* = sizeof(ezVec3Template) */) const
 {
-  EZ_ASSERT(pPoints != nullptr, "The array must not be empty.");
-  EZ_ASSERT(uiNumPoints > 0, "The array must contain at least one point.");
-  EZ_ASSERT(uiStride >= sizeof(ezVec3Template<Type>), "The data must not overlap.");
+  EZ_ASSERT_DEBUG(pPoints != nullptr, "The array must not be empty.");
+  EZ_ASSERT_DEBUG(uiNumPoints > 0, "The array must contain at least one point.");
+  EZ_ASSERT_DEBUG(uiStride >= sizeof(ezVec3Template<Type>), "The data must not overlap.");
 
   const Type fRadiusSQR = ezMath::Square(m_fRadius);
 
@@ -254,9 +254,9 @@ bool ezBoundingSphereTemplate<Type>::Overlaps(const ezVec3Template<Type>* pPoint
 template<typename Type>
 void ezBoundingSphereTemplate<Type>::SetFromPoints(const ezVec3Template<Type>* pPoints, ezUInt32 uiNumPoints, ezUInt32 uiStride /* = sizeof(ezVec3Template) */)
 {
-  EZ_ASSERT(pPoints != nullptr, "The array must not be empty.");
-  EZ_ASSERT(uiStride >= sizeof(ezVec3Template<Type>), "The data must not overlap.");
-  EZ_ASSERT(uiNumPoints > 0, "The array must contain at least one point.");
+  EZ_ASSERT_DEBUG(pPoints != nullptr, "The array must not be empty.");
+  EZ_ASSERT_DEBUG(uiStride >= sizeof(ezVec3Template<Type>), "The data must not overlap.");
+  EZ_ASSERT_DEBUG(uiNumPoints > 0, "The array must contain at least one point.");
 
   const ezVec3Template<Type>* pCur = &pPoints[0];
 
@@ -282,14 +282,14 @@ void ezBoundingSphereTemplate<Type>::SetFromPoints(const ezVec3Template<Type>* p
   m_vCenter = vCenter;
   m_fRadius = ezMath::Sqrt(fMaxDistSQR);
 
-  EZ_ASSERT(IsValid(), "The point cloud contained corrupted data.");
+  EZ_ASSERT_DEBUG(IsValid(), "The point cloud contained corrupted data.");
 }
 
 template<typename Type>
 void ezBoundingSphereTemplate<Type>::ExpandToInclude(const ezVec3Template<Type>* pPoints, ezUInt32 uiNumPoints, ezUInt32 uiStride /* = sizeof(ezVec3Template) */)
 {
-  EZ_ASSERT(pPoints != nullptr, "The array must not be empty.");
-  EZ_ASSERT(uiStride >= sizeof(ezVec3Template<Type>), "The data must not overlap.");
+  EZ_ASSERT_DEBUG(pPoints != nullptr, "The array must not be empty.");
+  EZ_ASSERT_DEBUG(uiStride >= sizeof(ezVec3Template<Type>), "The data must not overlap.");
 
   const ezVec3Template<Type>* pCur = &pPoints[0];
 
@@ -311,9 +311,9 @@ void ezBoundingSphereTemplate<Type>::ExpandToInclude(const ezVec3Template<Type>*
 template<typename Type>
 Type ezBoundingSphereTemplate<Type>::GetDistanceTo(const ezVec3Template<Type>* pPoints, ezUInt32 uiNumPoints, ezUInt32 uiStride /* = sizeof(ezVec3Template) */) const
 {
-  EZ_ASSERT(pPoints != nullptr, "The array must not be empty.");
-  EZ_ASSERT(uiNumPoints > 0, "The array must contain at least one point.");
-  EZ_ASSERT(uiStride >= sizeof(ezVec3Template<Type>), "The data must not overlap.");
+  EZ_ASSERT_DEBUG(pPoints != nullptr, "The array must not be empty.");
+  EZ_ASSERT_DEBUG(uiNumPoints > 0, "The array must contain at least one point.");
+  EZ_ASSERT_DEBUG(uiStride >= sizeof(ezVec3Template<Type>), "The data must not overlap.");
 
   const ezVec3Template<Type>* pCur = &pPoints[0];
 
@@ -334,7 +334,7 @@ Type ezBoundingSphereTemplate<Type>::GetDistanceTo(const ezVec3Template<Type>* p
 template<typename Type>
 bool ezBoundingSphereTemplate<Type>::GetRayIntersection(const ezVec3Template<Type>& vRayStartPos, const ezVec3Template<Type>& vRayDirNormalized, Type* out_fIntersection /* = nullptr */, ezVec3Template<Type>* out_vIntersection /* = nullptr */) const
 {
-  EZ_ASSERT(vRayDirNormalized.IsNormalized(), "The ray direction must be normalized.");
+  EZ_ASSERT_DEBUG(vRayDirNormalized.IsNormalized(), "The ray direction must be normalized.");
 
   // Ugly Code taken from 'Real Time Rendering First Edition' Page 299
 

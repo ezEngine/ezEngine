@@ -84,7 +84,7 @@ protected:
     if (pStream == m_pReaderStream)
       return;
 
-    EZ_ASSERT(m_pReaderStream == nullptr, "A serialization context can only be associated to one reader and one writer stream.");
+    EZ_ASSERT_DEV(m_pReaderStream == nullptr, "A serialization context can only be associated to one reader and one writer stream.");
 
     m_pReaderStream = pStream;
     s_ActiveReaderContexts[pStream] = (DERIVED*) this;
@@ -108,7 +108,7 @@ protected:
     if (pStream == m_pWriterStream)
       return;
 
-    EZ_ASSERT(m_pWriterStream == nullptr, "A serialization context can only be associated to one reader and one writer stream.");
+    EZ_ASSERT_DEV(m_pWriterStream == nullptr, "A serialization context can only be associated to one reader and one writer stream.");
 
     m_pWriterStream = pStream;
     s_ActiveWriterContexts[pStream] = (DERIVED*) this;
@@ -149,7 +149,7 @@ ezMap<ezStreamWriterBase*, DERIVED*> ezSerializationContext<DERIVED>::s_ActiveWr
 inline ezStreamWriterBase& operator<<(ezStreamWriterBase& stream, const TYPE type) \
 { \
   CONTEXT* pContext = CONTEXT::GetWriterContext(&stream); \
-  EZ_ASSERT(pContext != nullptr, "No serialization context of type '" #CONTEXT "' that handles type '" #TYPE "' is available."); \
+  EZ_ASSERT_DEV(pContext != nullptr, "No serialization context of type '" #CONTEXT "' that handles type '" #TYPE "' is available."); \
   \
   pContext->Write(stream, type); \
   \
@@ -159,7 +159,7 @@ inline ezStreamWriterBase& operator<<(ezStreamWriterBase& stream, const TYPE typ
 inline ezStreamReaderBase& operator>>(ezStreamReaderBase& stream, TYPE type) \
 { \
   CONTEXT* pContext = CONTEXT::GetReaderContext(&stream); \
-  EZ_ASSERT(pContext != nullptr, "No serialization context of type '" #CONTEXT "' that handles type '" #TYPE "' is available."); \
+  EZ_ASSERT_DEV(pContext != nullptr, "No serialization context of type '" #CONTEXT "' that handles type '" #TYPE "' is available."); \
 \
   pContext->Read(stream, type); \
 \

@@ -7,7 +7,7 @@ ezImage::ezImage()
 
 ezUInt32 ezImage::GetNumBlocksX(ezUInt32 uiMipLevel) const
 {
-  EZ_ASSERT(ezImageFormat::GetType(m_format) == ezImageFormatType::BLOCK_COMPRESSED,
+  EZ_ASSERT_DEV(ezImageFormat::GetType(m_format) == ezImageFormatType::BLOCK_COMPRESSED,
     "Number of blocks can only be retrieved for block compressed formats.");
   ezUInt32 uiBlockSize = 4;
   return (GetWidth(uiMipLevel) + uiBlockSize - 1) / uiBlockSize;
@@ -15,7 +15,7 @@ ezUInt32 ezImage::GetNumBlocksX(ezUInt32 uiMipLevel) const
 
 ezUInt32 ezImage::GetNumBlocksY(ezUInt32 uiMipLevel) const
 {
-  EZ_ASSERT(ezImageFormat::GetType(m_format) == ezImageFormatType::BLOCK_COMPRESSED,
+  EZ_ASSERT_DEV(ezImageFormat::GetType(m_format) == ezImageFormatType::BLOCK_COMPRESSED,
     "Number of blocks can only be retrieved for block compressed formats.");
   ezUInt32 uiBlockSize = 4;
   return (GetHeight(uiMipLevel) + uiBlockSize - 1) / uiBlockSize;
@@ -54,10 +54,10 @@ T* ezImage::GetSubImagePointer(ezUInt32 uiMipLevel, ezUInt32 uiFace, ezUInt32 ui
 template<typename T>
 const T* ezImage::GetPixelPointer(ezUInt32 uiMipLevel, ezUInt32 uiFace, ezUInt32 uiArrayIndex, ezUInt32 x, ezUInt32 y, ezUInt32 z) const
 {
-  EZ_ASSERT(ezImageFormat::GetType(m_format) == ezImageFormatType::LINEAR, "Pixel pointer can only be retrieved for linear formats.");
-  EZ_ASSERT(x < this->m_uiWidth, "x out of bounds");
-  EZ_ASSERT(y < this->m_uiHeight, "y out of bounds");
-  EZ_ASSERT(z < this->m_uiDepth, "z out of bounds");
+  EZ_ASSERT_DEBUG(ezImageFormat::GetType(m_format) == ezImageFormatType::LINEAR, "Pixel pointer can only be retrieved for linear formats.");
+  EZ_ASSERT_DEV(x < this->m_uiWidth, "x out of bounds");
+  EZ_ASSERT_DEV(y < this->m_uiHeight, "y out of bounds");
+  EZ_ASSERT_DEV(z < this->m_uiDepth, "z out of bounds");
 
   const ezUInt8* pPointer = GetSubImagePointer<ezUInt8>(uiMipLevel, uiFace, uiArrayIndex);
 
@@ -78,7 +78,7 @@ T* ezImage::GetPixelPointer(ezUInt32 uiMipLevel, ezUInt32 uiFace, ezUInt32 uiArr
 template<typename T>
 const T* ezImage::GetBlockPointer(ezUInt32 uiMipLevel, ezUInt32 uiFace, ezUInt32 uiArrayIndex, ezUInt32 uiBlockX, ezUInt32 uiBlockY, ezUInt32 z) const
 {
-  EZ_ASSERT(ezImageFormat::GetType(m_format) == ezImageFormatType::BLOCK_COMPRESSED,
+  EZ_ASSERT_DEBUG(ezImageFormat::GetType(m_format) == ezImageFormatType::BLOCK_COMPRESSED,
     "Block pointer can only be retrieved for block compressed formats.");
 
   const ezUInt8* basePointer = GetSubImagePointer<ezUInt8>(uiMipLevel, uiFace, uiArrayIndex);
@@ -117,14 +117,14 @@ ezImage::SubImage& ezImage::GetSubImage(ezUInt32 uiMipLevel, ezUInt32 uiFace, ez
 
 void ezImage::ValidateSubImageIndices(ezUInt32 uiMipLevel, ezUInt32 uiFace, ezUInt32 uiArrayIndex) const
 {
-  EZ_ASSERT(uiMipLevel < m_uiNumMipLevels, "Invalid mip level");
-  EZ_ASSERT(uiFace < m_uiNumFaces, "Invalid uiFace");
-  EZ_ASSERT(uiArrayIndex < m_uiNumArrayIndices, "Invalid array slice");
+  EZ_ASSERT_DEV(uiMipLevel < m_uiNumMipLevels, "Invalid mip level");
+  EZ_ASSERT_DEV(uiFace < m_uiNumFaces, "Invalid uiFace");
+  EZ_ASSERT_DEV(uiArrayIndex < m_uiNumArrayIndices, "Invalid array slice");
 }
 
 ezUInt32 ezImage::GetRowPitch(ezUInt32 uiMipLevel) const
 {
-  EZ_ASSERT(ezImageFormat::GetType(m_format) == ezImageFormatType::LINEAR, "Row pitch can only be retrieved for linear formats.");
+  EZ_ASSERT_DEBUG(ezImageFormat::GetType(m_format) == ezImageFormatType::LINEAR, "Row pitch can only be retrieved for linear formats.");
   return GetSubImage(uiMipLevel, 0, 0).m_uiRowPitch;
 }
 

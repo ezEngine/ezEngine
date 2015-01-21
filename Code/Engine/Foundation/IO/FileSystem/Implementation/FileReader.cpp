@@ -5,7 +5,7 @@
 
 ezResult ezFileReader::Open(const char* szFile, ezUInt32 uiCacheSize, bool bAllowFileEvents)
 {
-  EZ_ASSERT(m_pDataDirReader == nullptr, "The file reader is already open. (File: '%s')", szFile);
+  EZ_ASSERT_DEV(m_pDataDirReader == nullptr, "The file reader is already open. (File: '%s')", szFile);
 
   uiCacheSize = ezMath::Clamp<ezUInt32>(uiCacheSize, 1024, 1024 * 1024 * 32);
 
@@ -34,7 +34,7 @@ void ezFileReader::Close()
 
 ezUInt64 ezFileReader::ReadBytes(void* pReadBuffer, ezUInt64 uiBytesToRead)
 {
-  EZ_ASSERT(m_pDataDirReader != nullptr, "The file has not been opened (successfully).");
+  EZ_ASSERT_DEV(m_pDataDirReader != nullptr, "The file has not been opened (successfully).");
   if (m_bEOF)
     return 0;
 

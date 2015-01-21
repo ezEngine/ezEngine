@@ -17,7 +17,7 @@ public:
   /// \brief Constructor.
   ezBitflagsAccessorProperty(const char* szPropertyName, GetterFunc getter, SetterFunc setter) : ezTypedEnumProperty<EnumType>(szPropertyName)
   {
-    EZ_ASSERT(getter != nullptr, "The getter of a property cannot be nullptr.");
+    EZ_ASSERT_DEBUG(getter != nullptr, "The getter of a property cannot be nullptr.");
 
     m_Getter = getter;
     m_Setter = setter;
@@ -42,7 +42,7 @@ public:
 
   virtual void SetValue(void* pInstance, ezInt64 value) override // [tested]
   {
-    EZ_ASSERT(m_Setter != nullptr, "The property '%s' has no setter function, thus it is read-only.", ezAbstractProperty::GetPropertyName());
+    EZ_ASSERT_DEV(m_Setter != nullptr, "The property '%s' has no setter function, thus it is read-only.", ezAbstractProperty::GetPropertyName());
     if (m_Setter)
       (static_cast<Class*>(pInstance)->*m_Setter)((typename EnumType::Enum)value);
   }
@@ -65,7 +65,7 @@ public:
   /// \brief Constructor.
   ezBitflagsMemberProperty(const char* szPropertyName, GetterFunc getter, SetterFunc setter, PointerFunc pointer) : ezTypedEnumProperty<EnumType>(szPropertyName)
   {
-    EZ_ASSERT(getter != nullptr, "The getter of a property cannot be nullptr.");
+    EZ_ASSERT_DEBUG(getter != nullptr, "The getter of a property cannot be nullptr.");
 
     m_Getter = getter;
     m_Setter = setter;
@@ -90,7 +90,7 @@ public:
 
   virtual void SetValue(void* pInstance, ezInt64 value) override // [tested]
   {
-    EZ_ASSERT(m_Setter != nullptr, "The property '%s' has no setter function, thus it is read-only.", ezAbstractProperty::GetPropertyName());
+    EZ_ASSERT_DEV(m_Setter != nullptr, "The property '%s' has no setter function, thus it is read-only.", ezAbstractProperty::GetPropertyName());
 
     if (m_Setter)
       m_Setter(static_cast<Class*>(pInstance), (typename EnumType::Enum)value);

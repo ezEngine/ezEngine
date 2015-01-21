@@ -40,7 +40,7 @@ ezPlaneTemplate<Type>::ezPlaneTemplate(const ezVec3Template<Type>* const pVertic
 template<typename Type>
 void ezPlaneTemplate<Type>::SetFromNormalAndPoint(const ezVec3Template<Type>& vNormal, const ezVec3Template<Type>& vPointOnPlane)
 {
-  EZ_ASSERT(vNormal.IsNormalized(), "Normal must be normalized.");
+  EZ_ASSERT_DEBUG(vNormal.IsNormalized(), "Normal must be normalized.");
 
   m_vNormal = vNormal; 
   m_fNegDistance = -m_vNormal.Dot(vPointOnPlane);
@@ -335,8 +335,8 @@ ezPositionOnPlane::Enum ezPlaneTemplate<Type>::GetObjectPosition (const ezVec3Te
 template<typename Type>
 bool ezPlaneTemplate<Type>::GetRayIntersection(const ezVec3Template<Type>& vRayStartPos, const ezVec3Template<Type>& vRayDir, Type* out_fIntersection, ezVec3Template<Type>* out_vIntersection) const
 {
-  EZ_ASSERT(vRayStartPos.IsValid(), "Ray start position must be valid.");
-  EZ_ASSERT(vRayDir.IsValid(), "Ray direction must be valid.");
+  EZ_ASSERT_DEBUG(vRayStartPos.IsValid(), "Ray start position must be valid.");
+  EZ_ASSERT_DEBUG(vRayDir.IsValid(), "Ray direction must be valid.");
 
   const Type fPlaneSide = GetDistanceTo(vRayStartPos);
   const Type fCosAlpha = m_vNormal.Dot(vRayDir);
@@ -361,8 +361,8 @@ bool ezPlaneTemplate<Type>::GetRayIntersection(const ezVec3Template<Type>& vRayS
 template<typename Type>
 bool ezPlaneTemplate<Type>::GetRayIntersectionBiDirectional(const ezVec3Template<Type>& vRayStartPos, const ezVec3Template<Type>& vRayDir, Type* out_fIntersection, ezVec3Template<Type>* out_vIntersection) const
 {
-  EZ_ASSERT(vRayStartPos.IsValid(), "Ray start position must be valid.");
-  EZ_ASSERT(vRayDir.IsValid(), "Ray direction must be valid.");
+  EZ_ASSERT_DEBUG(vRayStartPos.IsValid(), "Ray start position must be valid.");
+  EZ_ASSERT_DEBUG(vRayDir.IsValid(), "Ray direction must be valid.");
 
   const Type fPlaneSide = GetDistanceTo(vRayStartPos);
   const Type fCosAlpha = m_vNormal.Dot(vRayDir);
@@ -398,9 +398,9 @@ bool ezPlaneTemplate<Type>::GetLineSegmentIntersection(const ezVec3Template<Type
 template<typename Type>
 Type ezPlaneTemplate<Type>::GetMinimumDistanceTo(const ezVec3Template<Type>* pPoints, ezUInt32 uiNumPoints, ezUInt32 uiStride /* = sizeof (ezVec3Template<Type>) */) const
 {
-  EZ_ASSERT(pPoints != nullptr, "Array may not be nullptr.");
-  EZ_ASSERT(uiStride >= sizeof (ezVec3Template<Type>), "Stride must be at least sizeof(ezVec3Template) to not have overlapping data.");
-  EZ_ASSERT(uiNumPoints >= 1, "Array must contain at least one point.");
+  EZ_ASSERT_DEBUG(pPoints != nullptr, "Array may not be nullptr.");
+  EZ_ASSERT_DEBUG(uiStride >= sizeof (ezVec3Template<Type>), "Stride must be at least sizeof(ezVec3Template) to not have overlapping data.");
+  EZ_ASSERT_DEBUG(uiNumPoints >= 1, "Array must contain at least one point.");
 
   Type fMinDist = ezMath::BasicType<Type>::MaxValue();
 
@@ -419,9 +419,9 @@ Type ezPlaneTemplate<Type>::GetMinimumDistanceTo(const ezVec3Template<Type>* pPo
 template<typename Type>
 void ezPlaneTemplate<Type>::GetMinMaxDistanceTo(Type &out_fMin, Type &out_fMax, const ezVec3Template<Type>* pPoints, ezUInt32 uiNumPoints, ezUInt32 uiStride /* = sizeof (ezVec3Template<Type>) */) const
 {
-  EZ_ASSERT(pPoints != nullptr, "Array may not be nullptr.");
-  EZ_ASSERT(uiStride >= sizeof (ezVec3Template<Type>), "Stride must be at least sizeof(ezVec3Template) to not have overlapping data.");
-  EZ_ASSERT(uiNumPoints >= 1, "Array must contain at least one point.");
+  EZ_ASSERT_DEBUG(pPoints != nullptr, "Array may not be nullptr.");
+  EZ_ASSERT_DEBUG(uiStride >= sizeof (ezVec3Template<Type>), "Stride must be at least sizeof(ezVec3Template) to not have overlapping data.");
+  EZ_ASSERT_DEBUG(uiNumPoints >= 1, "Array must contain at least one point.");
 
   out_fMin =  ezMath::BasicType<Type>::MaxValue();
   out_fMax = -ezMath::BasicType<Type>::MaxValue();

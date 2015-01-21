@@ -82,7 +82,7 @@ void ezShaderPermutationResource::UpdateContent(ezStreamReaderBase* Stream)
     // since it contains other useful information (resource bindings), that we need for shader binding
     m_pShaderStageBinaries[stage] = pStageBin;
 
-    EZ_ASSERT(pStageBin->m_Stage == stage, "Invalid shader stage! Expected stage %u, but loaded data is for stage %u", stage, pStageBin->m_Stage);
+    EZ_ASSERT_DEV(pStageBin->m_Stage == stage, "Invalid shader stage! Expected stage %u, but loaded data is for stage %u", stage, pStageBin->m_Stage);
 
     ShaderDesc.m_ByteCodes[stage] = pStageBin->m_pGALByteCode;
 
@@ -191,7 +191,7 @@ ezResult ezShaderPermutationResourceLoader::RunCompiler(const ezResourceBase* pR
 
     const ezPermutationGenerator* pGenerator = ezRendererCore::GetGeneratorForShaderPermutation(uiPermutationHash);
 
-    EZ_ASSERT(pGenerator != nullptr, "The permutation generator for permutation '%s' is unknown", sHash.GetData());
+    EZ_ASSERT_DEV(pGenerator != nullptr, "The permutation generator for permutation '%s' is unknown", sHash.GetData());
 
     ezShaderCompiler sc;
     return sc.CompileShaderPermutationsForPlatforms(sPermutationFile.GetData(), *pGenerator, ezRendererCore::GetShaderPlatform().GetData());

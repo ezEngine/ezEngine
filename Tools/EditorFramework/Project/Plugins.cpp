@@ -85,7 +85,7 @@ void ezEditorApp::ReadPluginsToBeLoaded()
 
 void ezEditorApp::LoadPlugins()
 {
-  EZ_ASSERT(s_EditorPluginsActive.m_Plugins.IsEmpty(), "Plugins were already loaded.");
+  EZ_ASSERT_DEV(s_EditorPluginsActive.m_Plugins.IsEmpty(), "Plugins were already loaded.");
 
   GetEditorPluginsAvailable();
   ReadPluginsToBeLoaded();

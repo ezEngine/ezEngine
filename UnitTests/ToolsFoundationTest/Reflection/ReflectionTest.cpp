@@ -422,7 +422,7 @@ ezUInt32 AccessorPropertiesTest(ezIReflectedTypeAccessor& accessor, ezReflectedT
     }
     else
     {
-      EZ_ASSERT(false, "Arrays and pointers are not tested yet!");
+      EZ_ASSERT_DEV(false, "Arrays and pointers are not tested yet!");
     }
   }
   return uiPropertiesSet;

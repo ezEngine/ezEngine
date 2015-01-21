@@ -228,14 +228,14 @@ ezFileSystemIterator::~ezFileSystemIterator()
 
 ezResult ezFileSystemIterator::StartSearch(const char* szSearchStart, bool bRecursive, bool bReportFolders)
 {
-  EZ_ASSERT(m_Data.m_Handles.IsEmpty(), "Cannot start another search.");
+  EZ_ASSERT_DEV(m_Data.m_Handles.IsEmpty(), "Cannot start another search.");
 
   ezStringBuilder sSearch = szSearchStart;
   sSearch.MakeCleanPath();
 
   m_sCurPath = sSearch.GetFileDirectory();
 
-  EZ_ASSERT(sSearch.IsAbsolutePath(), "The path '%s' is not absolute.", m_sCurPath.GetData());
+  EZ_ASSERT_DEV(sSearch.IsAbsolutePath(), "The path '%s' is not absolute.", m_sCurPath.GetData());
 
   m_bRecursive = bRecursive;
   m_bReportFolders = bReportFolders;
@@ -329,8 +329,8 @@ ezResult ezFileSystemIterator::Next()
 
 ezResult ezFileSystemIterator::SkipFolder()
 {
-  EZ_ASSERT(m_bRecursive, "SkipFolder has no meaning when the iterator is not set to be recursive.");
-  EZ_ASSERT(m_CurFile.m_bIsDirectory, "SkipFolder can only be called when the current object is a folder.");
+  EZ_ASSERT_DEV(m_bRecursive, "SkipFolder has no meaning when the iterator is not set to be recursive.");
+  EZ_ASSERT_DEV(m_CurFile.m_bIsDirectory, "SkipFolder can only be called when the current object is a folder.");
 
   m_bRecursive = false;
 

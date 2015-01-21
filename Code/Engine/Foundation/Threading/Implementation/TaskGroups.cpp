@@ -59,16 +59,16 @@ void ezTaskSystem::DebugCheckTaskGroup(ezTaskGroupID Group)
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   EZ_LOCK(s_TaskSystemMutex);
 
-  EZ_ASSERT(Group.m_pTaskGroup != nullptr, "TaskGroupID is invalid.");
-  EZ_ASSERT(Group.m_pTaskGroup->m_uiGroupCounter == Group.m_uiGroupCounter, "The given TaskGroupID is not valid anymore.");
-  EZ_ASSERT(!Group.m_pTaskGroup->m_bIsActive, "The given TaskGroupID is already started, you cannot modify it anymore.");
+  EZ_ASSERT_DEV(Group.m_pTaskGroup != nullptr, "TaskGroupID is invalid.");
+  EZ_ASSERT_DEV(Group.m_pTaskGroup->m_uiGroupCounter == Group.m_uiGroupCounter, "The given TaskGroupID is not valid anymore.");
+  EZ_ASSERT_DEV(!Group.m_pTaskGroup->m_bIsActive, "The given TaskGroupID is already started, you cannot modify it anymore.");
 #endif
 }
 
 void ezTaskSystem::AddTaskToGroup(ezTaskGroupID Group, ezTask* pTask)
 {
-  EZ_ASSERT(pTask != nullptr, "Cannot add nullptr tasks.");
-  EZ_ASSERT(pTask->IsTaskFinished(), "The task that is not finished! Cannot reuse a task before it is done.");
+  EZ_ASSERT_DEBUG(pTask != nullptr, "Cannot add nullptr tasks.");
+  EZ_ASSERT_DEV(pTask->IsTaskFinished(), "The task that is not finished! Cannot reuse a task before it is done.");
 
   DebugCheckTaskGroup(Group);
 

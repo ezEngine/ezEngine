@@ -49,7 +49,7 @@ void ezResourceManager::InternalPreloadResource(ezResourceBase* pResource, bool 
     return;
   }
 
-  EZ_ASSERT(!pResource->m_bIsPreloading, "");
+  EZ_ASSERT_DEV(!pResource->m_bIsPreloading, "");
   pResource->m_bIsPreloading = true;
 
   LoadingInfo li;
@@ -120,7 +120,7 @@ void ezResourceManager::UpdateLoadingDeadlines()
 
     if (m_RequireLoading[i].m_DueDate > tKickOut)
     {
-      EZ_ASSERT(m_RequireLoading[i].m_pResource->m_bIsPreloading == true, "");
+      EZ_ASSERT_DEV(m_RequireLoading[i].m_pResource->m_bIsPreloading == true, "");
       m_RequireLoading[i].m_pResource->m_bIsPreloading = false;
 
       m_RequireLoading.RemoveAtSwap(i);
@@ -141,8 +141,8 @@ void ezResourceManagerWorkerGPU::Execute()
   if (m_LoaderData.m_LoadedFileModificationDate.IsValid())
     m_pResourceToLoad->m_LoadedFileModificationTime = m_LoaderData.m_LoadedFileModificationDate;
 
-  EZ_ASSERT(m_pResourceToLoad->GetLoadingState() != ezResourceLoadState::Uninitialized, "The resource should have changed its loading state.");
-  EZ_ASSERT(m_pResourceToLoad->GetMaxQualityLevel() > 0, "The resource should have changed its max quality level (at least to 1).");
+  EZ_ASSERT_DEV(m_pResourceToLoad->GetLoadingState() != ezResourceLoadState::Uninitialized, "The resource should have changed its loading state.");
+  EZ_ASSERT_DEV(m_pResourceToLoad->GetMaxQualityLevel() > 0, "The resource should have changed its max quality level (at least to 1).");
 
   m_pResourceToLoad->UpdateMemoryUsage();
 
@@ -150,7 +150,7 @@ void ezResourceManagerWorkerGPU::Execute()
 
   {
     EZ_LOCK(ResourceMutex);
-    EZ_ASSERT(m_pResourceToLoad->m_bIsPreloading == true, "");
+    EZ_ASSERT_DEV(m_pResourceToLoad->m_bIsPreloading == true, "");
     m_pResourceToLoad->m_bIsPreloading = false;
   }
 
@@ -185,7 +185,7 @@ void ezResourceManagerWorker::Execute()
   if (pLoader == NULL)
     pLoader = pResourceToLoad->GetDefaultResourceTypeLoader();
 
-  EZ_ASSERT(pLoader != NULL, "No Loader function available for Resource Type '%s'", pResourceToLoad->GetDynamicRTTI()->GetTypeName());
+  EZ_ASSERT_DEV(pLoader != NULL, "No Loader function available for Resource Type '%s'", pResourceToLoad->GetDynamicRTTI()->GetTypeName());
 
   ezResourceLoadData LoaderData = pLoader->OpenDataStream(pResourceToLoad);
 
@@ -217,8 +217,8 @@ void ezResourceManagerWorker::Execute()
     if (LoaderData.m_LoadedFileModificationDate.IsValid())
       pResourceToLoad->m_LoadedFileModificationTime = LoaderData.m_LoadedFileModificationDate;
 
-    EZ_ASSERT(pResourceToLoad->GetLoadingState() != ezResourceLoadState::Uninitialized, "The resource should have changed its loading state.");
-    EZ_ASSERT(pResourceToLoad->GetMaxQualityLevel() > 0, "The resource should have changed its max quality level (at least to 1).");
+    EZ_ASSERT_DEV(pResourceToLoad->GetLoadingState() != ezResourceLoadState::Uninitialized, "The resource should have changed its loading state.");
+    EZ_ASSERT_DEV(pResourceToLoad->GetMaxQualityLevel() > 0, "The resource should have changed its max quality level (at least to 1).");
 
     pResourceToLoad->UpdateMemoryUsage();
 
@@ -233,7 +233,7 @@ void ezResourceManagerWorker::Execute()
 
     if (!bResourceIsPreloading)
     {
-      EZ_ASSERT(pResourceToLoad->m_bIsPreloading == true, "");
+      EZ_ASSERT_DEV(pResourceToLoad->m_bIsPreloading == true, "");
       pResourceToLoad->m_bIsPreloading = false;
     }
 
@@ -260,12 +260,12 @@ ezUInt32 ezResourceManager::FreeUnusedResources()
 
     const auto& CurKey = it.Key();
 
-    EZ_ASSERT(pReference->m_iLockCount == 0, "Resource '%s' has a refcount of zero, but is still in an acquired state.", pReference->GetResourceID().GetData());
+    EZ_ASSERT_DEV(pReference->m_iLockCount == 0, "Resource '%s' has a refcount of zero, but is still in an acquired state.", pReference->GetResourceID().GetData());
 
     ++uiUnloaded;
     pReference->UnloadData(true);
 
-    EZ_ASSERT(pReference->GetLoadingState() <= ezResourceLoadState::MetaInfoAvailable, "Resource '%s' should be in an unloaded state now.", pReference->GetResourceID().GetData());
+    EZ_ASSERT_DEV(pReference->GetLoadingState() <= ezResourceLoadState::MetaInfoAvailable, "Resource '%s' should be in an unloaded state now.", pReference->GetResourceID().GetData());
 
     // delete the resource via the RTTI provided allocator
     pReference->GetDynamicRTTI()->GetAllocator()->Deallocate(pReference);
@@ -335,7 +335,7 @@ void ezResourceManager::ReloadResource(ezResourceBase* pResource)
   // make sure existing data is purged
   pResource->UnloadData(true);
 
-  EZ_ASSERT(pResource->GetLoadingState() <= ezResourceLoadState::MetaInfoAvailable, "Resource '%s' should be in an unloaded state now.", pResource->GetResourceID().GetData());
+  EZ_ASSERT_DEV(pResource->GetLoadingState() <= ezResourceLoadState::MetaInfoAvailable, "Resource '%s' should be in an unloaded state now.", pResource->GetResourceID().GetData());
 
   if (bAllowPreloading)
   {

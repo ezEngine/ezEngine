@@ -11,7 +11,7 @@ ezEvent<const ezEditorEngineProcessConnection::Event&> ezEditorEngineProcessConn
 
 ezEditorEngineProcessConnection::ezEditorEngineProcessConnection()
 {
-  EZ_ASSERT(s_pInstance == nullptr, "Incorrect use of ezEditorEngineProcessConnection");
+  EZ_ASSERT_DEV(s_pInstance == nullptr, "Incorrect use of ezEditorEngineProcessConnection");
   s_pInstance = this;
   m_iNumViews = 0;
   m_uiNextEngineViewID = 0;
@@ -21,7 +21,7 @@ ezEditorEngineProcessConnection::ezEditorEngineProcessConnection()
 
 ezEditorEngineProcessConnection::~ezEditorEngineProcessConnection()
 {
-  EZ_ASSERT(m_iNumViews == 0, "There are still views open at shutdown");
+  EZ_ASSERT_DEV(m_iNumViews == 0, "There are still views open at shutdown");
 
   s_pInstance = nullptr;
 }

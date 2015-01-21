@@ -57,7 +57,7 @@ ezResult ezShaderPermutationBinary::Read(ezStreamReaderBase& Stream)
   if (Stream.ReadBytes(&uiVersion, sizeof(ezUInt8)) != sizeof(ezUInt8))
     return EZ_FAILURE;
 
-  EZ_ASSERT(uiVersion <= ezShaderPermutationBinaryVersion::Current, "Wrong Version %u", uiVersion);
+  EZ_ASSERT_DEV(uiVersion <= ezShaderPermutationBinaryVersion::Current, "Wrong Version %u", uiVersion);
 
   if (Stream.ReadDWordValue(&m_uiShaderStateHash).Failed())
     return EZ_FAILURE;

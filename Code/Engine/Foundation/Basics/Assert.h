@@ -6,24 +6,24 @@
 
 /// ***** Assert Usage Guidelines *****
 ///
-/// For your typical code, use EZ_ASSERT to check that vital preconditions are met.
-/// Be aware that EZ_ASSERT is removed in release builds, INCLUDING your code in the assert condition.
-/// If the code that you are checking must be executed, even in release builds, use EZ_VERIFY instead.
-/// EZ_ASSERT and EZ_VERIFY will trigger a breakpoint in debug builds, but will not interrupt the application 
+/// For your typical code, use EZ_ASSERT_DEV to check that vital preconditions are met.
+/// Be aware that EZ_ASSERT_DEV is removed in non-development builds (ie. when EZ_COMPILE_FOR_DEVELOPMENT is disabled), 
+/// INCLUDING your code in the assert condition.
+/// If the code that you are checking must be executed, even in non-development builds, use EZ_VERIFY instead.
+/// EZ_ASSERT_DEV and EZ_VERIFY will trigger a breakpoint in debug builds, but will not interrupt the application 
 /// in release builds.
 ///
+/// For conditions that are rarely violated or checking is very costly, use EZ_ASSERT_DEBUG. This assert is only active
+/// in debug builds. This allows to have extra checking while debugging a program, but not waste performance when a
+/// development release build is used.
+///
 /// If you need to check something that is so vital that the application can only fail (i.e. crash), if that condition 
-/// is not met, even in release builds, then use EZ_ASSERT_ALWAYS. Its condition will always be evaluated and it will
-/// always trigger a breakpoint (debug) or crash the application (release).
+/// is not met, even in release builds, then use EZ_ASSERT_RELEASE. This should not be used in frequently executed code, 
+/// as it is not stripped from non-development builds by default.
 ///
-/// To ensure that users are using your code correctly (e.g. they don't call certain functions before initializing the 
-/// sub-system) you can use EZ_ASSERT_API. This is always active (even in release builds) to ensure that such obvious 
-/// usage errors are detected. EZ_ASSERT_API should not be used in frequently executed code, as it is not stripped from 
-/// release builds by default.
-///
-/// If you need to squeeze the last bit of performance out of your code, EZ_ASSERT_API can be disabled, by defining 
-/// EZ_DISABLE_API_ASSERTS.
-/// Please be aware that EZ_ASSERT_API works like the other asserts, i.e. once it is deactivated, the code in the condition 
+/// If you need to squeeze the last bit of performance out of your code, EZ_ASSERT_RELEASE can be disabled, by defining 
+/// EZ_DISABLE_RELEASE_ASSERTS.
+/// Please be aware that EZ_ASSERT_RELEASE works like the other asserts, i.e. once it is deactivated, the code in the condition 
 /// is not executed anymore.
 ///
 
@@ -58,7 +58,25 @@ EZ_FOUNDATION_DLL bool ezFailedCheck(const char* szSourceFile, ezUInt32 uiLine, 
 /// \brief This type of assert can be used to mark code as 'not (yet) implemented' and makes it easier to find it later on by just searching for these asserts.
 #define EZ_ASSERT_NOT_IMPLEMENTED EZ_REPORT_FAILURE("Not implemented")
 
-// Occurrences of EZ_ASSERT are compiled out in non-development builds
+// Occurrences of EZ_ASSERT_DEBUG are compiled out in non-debug builds
+#if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
+  /// \brief Macro to raise an error, if a condition is not met.
+  ///
+  /// Allows to write a message using printf style.
+  /// Compiled out in non-debug builds.
+  /// The condition is not evaluated, when this is compiled out, so do not execute important code in it.
+  #define EZ_ASSERT_DEBUG EZ_ASSERT_ALWAYS
+#else
+  /// \brief Macro to raise an error, if a condition is not met.
+  ///
+  /// Allows to write a message using printf style.
+  /// Compiled out in non-debug builds.
+  /// The condition is not evaluated, when this is compiled out, so do not execute important code in it.
+  #define EZ_ASSERT_DEBUG(bCondition, szErrorMsg, ...) EZ_ANALYSIS_ASSUME(bCondition)
+#endif
+
+
+// Occurrences of EZ_ASSERT_DEV are compiled out in non-development builds
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
 
   /// \brief Macro to raise an error, if a condition is not met.
@@ -66,7 +84,7 @@ EZ_FOUNDATION_DLL bool ezFailedCheck(const char* szSourceFile, ezUInt32 uiLine, 
   /// Allows to write a message using printf style.
   /// Compiled out in non-development builds.
   /// The condition is not evaluated, when this is compiled out, so do not execute important code in it.
-  #define EZ_ASSERT EZ_ASSERT_ALWAYS
+  #define EZ_ASSERT_DEV EZ_ASSERT_ALWAYS
 
   /// \brief Macro to raise an error, if a condition is not met.
   ///
@@ -82,7 +100,7 @@ EZ_FOUNDATION_DLL bool ezFailedCheck(const char* szSourceFile, ezUInt32 uiLine, 
   /// Allows to write a message using printf style.
   /// Compiled out in non-development builds.
   /// The condition is not evaluated, when this is compiled out, so do not execute important code in it.
-  #define EZ_ASSERT(bCondition, szErrorMsg, ...) EZ_ANALYSIS_ASSUME(bCondition);
+  #define EZ_ASSERT_DEV(bCondition, szErrorMsg, ...) EZ_ANALYSIS_ASSUME(bCondition)
 
   /// \brief Macro to raise an error, if a condition is not met.
   ///
@@ -95,25 +113,23 @@ EZ_FOUNDATION_DLL bool ezFailedCheck(const char* szSourceFile, ezUInt32 uiLine, 
 
 #endif
 
-#if EZ_DISABLE_API_ASSERTS
+#if EZ_DISABLE_RELEASE_ASSERTS
 
-  /// \brief An assert to check the correct usage of API functions.
+  /// \brief An assert to check conditions even in release builds.
   ///
-  /// Should only be used inside engine code. 
   /// These asserts can be disabled (and then their condition will not be evaluated), 
-  /// but this needs to be specifically done by the user by defining EZ_DISABLE_API_ASSERTS.
+  /// but this needs to be specifically done by the user by defining EZ_DISABLE_RELEASE_ASSERTS.
   /// That should only be done, if you are intending to ship a product, and want get rid of all unnecessary overhead.
-  #define EZ_ASSERT_API(bCondition, szErrorMsg, ...) EZ_ANALYSIS_ASSUME(bCondition)
+  #define EZ_ASSERT_RELEASE(bCondition, szErrorMsg, ...) EZ_ANALYSIS_ASSUME(bCondition)
 
 #else
 
-  /// \brief An assert to check the correct usage of API functions.
+  /// \brief An assert to check conditions even in release builds.
   ///
-  /// Should only be used inside engine code. 
   /// These asserts can be disabled (and then their condition will not be evaluated), 
-  /// but this needs to be specifically done by the user by defining EZ_DISABLE_API_ASSERTS.
+  /// but this needs to be specifically done by the user by defining EZ_DISABLE_RELEASE_ASSERTS.
   /// That should only be done, if you are intending to ship a product, and want get rid of all unnecessary overhead.
-  #define EZ_ASSERT_API EZ_ASSERT_ALWAYS
+  #define EZ_ASSERT_RELEASE EZ_ASSERT_ALWAYS
 
 #endif
 

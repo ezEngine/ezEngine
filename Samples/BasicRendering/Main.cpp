@@ -200,14 +200,14 @@ public:
     RasterStateDesc.m_CullMode = ezGALCullMode::Back;
     RasterStateDesc.m_bFrontCounterClockwise = true;
     m_hRasterizerState = m_pDevice->CreateRasterizerState(RasterStateDesc);
-    EZ_ASSERT(!m_hRasterizerState.IsInvalidated(), "Couldn't create rasterizer state!");
+    EZ_ASSERT_DEV(!m_hRasterizerState.IsInvalidated(), "Couldn't create rasterizer state!");
 
 
     ezGALDepthStencilStateCreationDescription DepthStencilStateDesc;
     DepthStencilStateDesc.m_bDepthTest = true;
     DepthStencilStateDesc.m_bDepthWrite = true;
     m_hDepthStencilState = m_pDevice->CreateDepthStencilState(DepthStencilStateDesc);
-    EZ_ASSERT(!m_hDepthStencilState.IsInvalidated(), "Couldn't create depth-stencil state!");
+    EZ_ASSERT_DEV(!m_hDepthStencilState.IsInvalidated(), "Couldn't create depth-stencil state!");
 
     m_DebugBackBufferDT.EnableDataTransfer("Back Buffer");
 

@@ -21,14 +21,14 @@ EZ_FORCE_INLINE void ezMemoryUtils::Construct(T* pDestination, const T& copy, si
 template <typename T>
 EZ_FORCE_INLINE void ezMemoryUtils::CopyConstruct(T* pDestination, const T* pSource, size_t uiCount)
 {
-  EZ_ASSERT(pDestination < pSource || pSource + uiCount <= pDestination, "Memory regions must not overlap when using CopyConstruct.");
+  EZ_ASSERT_DEV(pDestination < pSource || pSource + uiCount <= pDestination, "Memory regions must not overlap when using CopyConstruct.");
   CopyConstruct(pDestination, pSource, uiCount, ezIsPodType<T>());
 }
 
 template <typename T>
 EZ_FORCE_INLINE void ezMemoryUtils::RelocateConstruct(T* pDestination, T* pSource, size_t uiCount)
 {
-  EZ_ASSERT(pDestination < pSource || pSource + uiCount <= pDestination, "Memory regions must not overlap when using RelocateConstruct.");
+  EZ_ASSERT_DEV(pDestination < pSource || pSource + uiCount <= pDestination, "Memory regions must not overlap when using RelocateConstruct.");
   RelocateConstruct(pDestination, pSource, uiCount, ezGetTypeClass<T>());
 }
 
@@ -50,7 +50,7 @@ EZ_FORCE_INLINE void ezMemoryUtils::DefaultConstruct(T* pDestination, size_t uiC
 template <typename T>
 EZ_FORCE_INLINE void ezMemoryUtils::Copy(T* pDestination, const T* pSource, size_t uiCount)
 {
-  EZ_ASSERT(pDestination < pSource || pSource + uiCount <= pDestination, "Memory regions must not overlap when using Copy. Use CopyOverlapped instead.");
+  EZ_ASSERT_DEV(pDestination < pSource || pSource + uiCount <= pDestination, "Memory regions must not overlap when using Copy. Use CopyOverlapped instead.");
   Copy(pDestination, pSource, uiCount, ezIsPodType<T>());
 }
 
@@ -63,7 +63,7 @@ EZ_FORCE_INLINE void ezMemoryUtils::CopyOverlapped(T* pDestination, const T* pSo
 template <typename T>
 EZ_FORCE_INLINE void ezMemoryUtils::Relocate(T* pDestination, T* pSource, size_t uiCount)
 {
-  EZ_ASSERT(pDestination < pSource || pSource + uiCount <= pDestination, "Memory regions must not overlap when using Relocate.");
+  EZ_ASSERT_DEV(pDestination < pSource || pSource + uiCount <= pDestination, "Memory regions must not overlap when using Relocate.");
   Relocate(pDestination, pSource, uiCount, ezGetTypeClass<T>());
 }
 

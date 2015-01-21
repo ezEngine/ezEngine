@@ -28,11 +28,11 @@ ezUInt32 ezGeometry::AddVertex(const ezVec3& vPos, const ezVec3& vNormal, const 
 
 void ezGeometry::AddPolygon(const ezArrayPtr<ezUInt32>& Vertices)
 {
-  EZ_ASSERT(Vertices.GetCount() >= 3, "Polygon must have at least 3 vertices, not %u", Vertices.GetCount());
+  EZ_ASSERT_DEV(Vertices.GetCount() >= 3, "Polygon must have at least 3 vertices, not %u", Vertices.GetCount());
 
   for (ezUInt32 v = 0; v < Vertices.GetCount(); ++v)
   {
-    EZ_ASSERT(Vertices[v] < m_Vertices.GetCount(), "Invalid vertex index %u, geometry only has %u vertices", Vertices[v], m_Vertices.GetCount());
+    EZ_ASSERT_DEV(Vertices[v] < m_Vertices.GetCount(), "Invalid vertex index %u, geometry only has %u vertices", Vertices[v], m_Vertices.GetCount());
   }
 
   m_Polygons.SetCount(m_Polygons.GetCount() + 1); // could use 'ExpandOne' here
@@ -42,8 +42,8 @@ void ezGeometry::AddPolygon(const ezArrayPtr<ezUInt32>& Vertices)
 
 void ezGeometry::AddLine(ezUInt32 uiStartVertex, ezUInt32 uiEndVertex)
 {
-  EZ_ASSERT(uiStartVertex < m_Vertices.GetCount(), "Invalid vertex index %u, geometry only has %u vertices", uiStartVertex, m_Vertices.GetCount());
-  EZ_ASSERT(uiEndVertex < m_Vertices.GetCount(), "Invalid vertex index %u, geometry only has %u vertices", uiEndVertex, m_Vertices.GetCount());
+  EZ_ASSERT_DEV(uiStartVertex < m_Vertices.GetCount(), "Invalid vertex index %u, geometry only has %u vertices", uiStartVertex, m_Vertices.GetCount());
+  EZ_ASSERT_DEV(uiEndVertex < m_Vertices.GetCount(), "Invalid vertex index %u, geometry only has %u vertices", uiEndVertex, m_Vertices.GetCount());
 
   Line l;
   l.m_uiStartVertex = uiStartVertex;
@@ -429,8 +429,8 @@ void ezGeometry::AddGeodesicSphere(float fRadius, ezUInt8 uiSubDivisions, const 
 
 void ezGeometry::AddCylinder(float fRadiusTop, float fRadiusBottom, float fHeight, bool bCapTop, bool bCapBottom, ezUInt16 uiSegments, const ezColor8UNorm& color, const ezMat4& mTransform, ezInt32 iCustomIndex, ezAngle fraction)
 {
-  EZ_ASSERT(uiSegments >= 3, "Cannot create a cylinder with only %u segments", uiSegments);
-  EZ_ASSERT(fraction.GetDegree() <= 360.0f, "A cylinder cannot be built with more than 360 degree");
+  EZ_ASSERT_DEV(uiSegments >= 3, "Cannot create a cylinder with only %u segments", uiSegments);
+  EZ_ASSERT_DEV(fraction.GetDegree() <= 360.0f, "A cylinder cannot be built with more than 360 degree");
 
   const bool bIsFraction = fraction.GetDegree() < 360.0f;
 
@@ -499,7 +499,7 @@ void ezGeometry::AddCylinder(float fRadiusTop, float fRadiusBottom, float fHeigh
 
 void ezGeometry::AddCone(float fRadius, float fHeight, bool bCap, ezUInt16 uiSegments, const ezColor8UNorm& color, const ezMat4& mTransform, ezInt32 iCustomIndex)
 {
-  EZ_ASSERT(uiSegments >= 3, "Cannot create a cone with only %u segments", uiSegments);
+  EZ_ASSERT_DEV(uiSegments >= 3, "Cannot create a cone with only %u segments", uiSegments);
 
   ezHybridArray<ezUInt32, 512> VertsBottom;
 
@@ -538,8 +538,8 @@ void ezGeometry::AddCone(float fRadius, float fHeight, bool bCap, ezUInt16 uiSeg
 
 void ezGeometry::AddSphere(float fRadius, ezUInt16 uiSegments, ezUInt16 uiStacks, const ezColor8UNorm& color, const ezMat4& mTransform, ezInt32 iCustomIndex)
 {
-  EZ_ASSERT(uiSegments >= 3, "Sphere must have at least 3 segments");
-  EZ_ASSERT(uiStacks >= 2, "Sphere must have at least 2 stacks");
+  EZ_ASSERT_DEV(uiSegments >= 3, "Sphere must have at least 3 segments");
+  EZ_ASSERT_DEV(uiStacks >= 2, "Sphere must have at least 2 stacks");
 
   const ezAngle fDegreeDiffSegments = ezAngle::Degree(360.0f / (float) (uiSegments));
   const ezAngle fDegreeDiffStacks = ezAngle::Degree(180.0f / (float) (uiStacks));
@@ -617,8 +617,8 @@ void ezGeometry::AddSphere(float fRadius, ezUInt16 uiSegments, ezUInt16 uiStacks
 
 void ezGeometry::AddHalfSphere(float fRadius, ezUInt16 uiSegments, ezUInt16 uiStacks, bool bCap, const ezColor8UNorm& color, const ezMat4& mTransform, ezInt32 iCustomIndex)
 {
-  EZ_ASSERT(uiSegments >= 3, "Sphere must have at least 3 segments");
-  EZ_ASSERT(uiStacks >= 1, "Sphere must have at least 1 stacks");
+  EZ_ASSERT_DEV(uiSegments >= 3, "Sphere must have at least 3 segments");
+  EZ_ASSERT_DEV(uiStacks >= 1, "Sphere must have at least 1 stacks");
 
   const ezAngle fDegreeDiffSegments = ezAngle::Degree(360.0f / (float) (uiSegments));
   const ezAngle fDegreeDiffStacks = ezAngle::Degree(90.0f / (float) (uiStacks));
@@ -695,9 +695,9 @@ void ezGeometry::AddHalfSphere(float fRadius, ezUInt16 uiSegments, ezUInt16 uiSt
 
 void ezGeometry::AddCapsule(float fRadius, float fHeight, ezUInt16 uiSegments, ezUInt16 uiStacks, const ezColor8UNorm& color, const ezMat4& mTransform, ezInt32 iCustomIndex)
 {
-  EZ_ASSERT(uiSegments >= 3, "Capsule must have at least 3 segments");
-  EZ_ASSERT(uiStacks >= 1, "Capsule must have at least 1 stacks");
-  EZ_ASSERT(fHeight >= 0.0f, "Height must be positive");
+  EZ_ASSERT_DEV(uiSegments >= 3, "Capsule must have at least 3 segments");
+  EZ_ASSERT_DEV(uiStacks >= 1, "Capsule must have at least 1 stacks");
+  EZ_ASSERT_DEV(fHeight >= 0.0f, "Height must be positive");
 
   const ezAngle fDegreeDiffSegments = ezAngle::Degree(360.0f / (float) (uiSegments));
   const ezAngle fDegreeDiffStacks = ezAngle::Degree(90.0f / (float) (uiStacks));
@@ -804,9 +804,9 @@ void ezGeometry::AddCapsule(float fRadius, float fHeight, ezUInt16 uiSegments, e
 
 void ezGeometry::AddTorus(float fInnerRadius, float fOuterRadius, ezUInt16 uiSegments, ezUInt16 uiSegmentDetail, const ezColor8UNorm& color, const ezMat4& mTransform, ezInt32 iCustomIndex)
 {
-  EZ_ASSERT(fInnerRadius < fOuterRadius, "Inner radius must be smaller than outer radius. Doh!");
-  EZ_ASSERT(uiSegments >= 3, "Invalid number of segments.");
-  EZ_ASSERT(uiSegmentDetail >= 3, "Invalid segment detail value.");
+  EZ_ASSERT_DEV(fInnerRadius < fOuterRadius, "Inner radius must be smaller than outer radius. Doh!");
+  EZ_ASSERT_DEV(uiSegments >= 3, "Invalid number of segments.");
+  EZ_ASSERT_DEV(uiSegmentDetail >= 3, "Invalid segment detail value.");
 
   const float fCylinderRadius = (fOuterRadius - fInnerRadius) * 0.5f;
   const float fLoopRadius = fInnerRadius + fCylinderRadius;

@@ -18,7 +18,7 @@ ezGALShaderByteCode::ezGALShaderByteCode(const void* pSource, ezUInt32 uiSize)
 
 void ezGALShaderByteCode::CopyFrom(const ezArrayPtr<const ezUInt8>& pByteCode)
 {
-  EZ_ASSERT(pByteCode.GetPtr() != nullptr && pByteCode.GetCount() != 0, "Byte code is invalid!");
+  EZ_ASSERT_DEV(pByteCode.GetPtr() != nullptr && pByteCode.GetCount() != 0, "Byte code is invalid!");
 
   m_Source.Clear();
 

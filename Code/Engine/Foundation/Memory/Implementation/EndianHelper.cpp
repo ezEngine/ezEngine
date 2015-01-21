@@ -3,8 +3,8 @@
 
 void ezEndianHelper::SwitchStruct(void* pDataPointer, const char* szFormat)
 {
-  EZ_ASSERT(pDataPointer != nullptr, "Data necessary!");
-  EZ_ASSERT(szFormat != nullptr && strlen(szFormat) > 0, "Struct format description necessary!");
+  EZ_ASSERT_DEBUG(pDataPointer != nullptr, "Data necessary!");
+  EZ_ASSERT_DEBUG(szFormat != nullptr && strlen(szFormat) > 0, "Struct format description necessary!");
 
   ezUInt8* pWorkPointer = static_cast<ezUInt8*>(pDataPointer);
   char cCurrentElement = *szFormat;
@@ -52,9 +52,9 @@ void ezEndianHelper::SwitchStruct(void* pDataPointer, const char* szFormat)
 
 void ezEndianHelper::SwitchStructs(void* pDataPointer, const char* szFormat, ezUInt32 uiStride, ezUInt32 uiCount)
 {
-  EZ_ASSERT(pDataPointer != nullptr, "Data necessary!");
-  EZ_ASSERT(szFormat != nullptr && strlen(szFormat) > 0, "Struct format description necessary!");
-  EZ_ASSERT(uiStride > 0, "Struct size necessary!");
+  EZ_ASSERT_DEBUG(pDataPointer != nullptr, "Data necessary!");
+  EZ_ASSERT_DEBUG(szFormat != nullptr && strlen(szFormat) > 0, "Struct format description necessary!");
+  EZ_ASSERT_DEBUG(uiStride > 0, "Struct size necessary!");
 
   for (ezUInt32 i = 0; i < uiCount; i++)
   {

@@ -31,38 +31,38 @@ ezInputDeviceController::ezInputDeviceController()
 
 void ezInputDeviceController::EnableVibration(ezUInt8 uiVirtual, bool bEnable)
 {
-  EZ_ASSERT(uiVirtual < MaxControllers, "Controller Index %i is larger than allowed (%i).", uiVirtual, MaxControllers);
+  EZ_ASSERT_DEV(uiVirtual < MaxControllers, "Controller Index %i is larger than allowed (%i).", uiVirtual, MaxControllers);
 
   m_bVibrationEnabled[uiVirtual] = bEnable;
 }
 
 bool ezInputDeviceController::IsVibrationEnabled(ezUInt8 uiVirtual) const
 {
-  EZ_ASSERT(uiVirtual < MaxControllers, "Controller Index %i is larger than allowed (%i).", uiVirtual, MaxControllers);
+  EZ_ASSERT_DEV(uiVirtual < MaxControllers, "Controller Index %i is larger than allowed (%i).", uiVirtual, MaxControllers);
 
   return m_bVibrationEnabled[uiVirtual];
 }
 
 void ezInputDeviceController::SetVibrationStrength(ezUInt8 uiVirtual, Motor::Enum eMotor, float fValue)
 {
-  EZ_ASSERT(uiVirtual < MaxControllers, "Controller Index %i is larger than allowed (%i).", uiVirtual, MaxControllers);
-  EZ_ASSERT(eMotor < Motor::ENUM_COUNT, "Invalid Vibration Motor Index.");
+  EZ_ASSERT_DEV(uiVirtual < MaxControllers, "Controller Index %i is larger than allowed (%i).", uiVirtual, MaxControllers);
+  EZ_ASSERT_DEV(eMotor < Motor::ENUM_COUNT, "Invalid Vibration Motor Index.");
 
   m_fVibrationStrength[uiVirtual][eMotor] = ezMath::Clamp(fValue, 0.0f, 1.0f);
 }
 
 float ezInputDeviceController::GetVibrationStrength(ezUInt8 uiVirtual, Motor::Enum eMotor)
 {
-  EZ_ASSERT(uiVirtual < MaxControllers, "Controller Index %i is larger than allowed (%i).", uiVirtual, MaxControllers);
-  EZ_ASSERT(eMotor < Motor::ENUM_COUNT, "Invalid Vibration Motor Index.");
+  EZ_ASSERT_DEV(uiVirtual < MaxControllers, "Controller Index %i is larger than allowed (%i).", uiVirtual, MaxControllers);
+  EZ_ASSERT_DEV(eMotor < Motor::ENUM_COUNT, "Invalid Vibration Motor Index.");
 
   return m_fVibrationStrength[uiVirtual][eMotor];
 }
 
 void ezInputDeviceController::SetControllerMapping(ezUInt8 uiVirtualController, ezInt8 iTakeInputFromPhysical)
 {
-  EZ_ASSERT(uiVirtualController < MaxControllers, "Virtual Controller Index %i is larger than allowed (%i).", uiVirtualController, MaxControllers);
-  EZ_ASSERT(iTakeInputFromPhysical < MaxControllers, "Physical Controller Index %i is larger than allowed (%i).", iTakeInputFromPhysical, MaxControllers);
+  EZ_ASSERT_DEV(uiVirtualController < MaxControllers, "Virtual Controller Index %i is larger than allowed (%i).", uiVirtualController, MaxControllers);
+  EZ_ASSERT_DEV(iTakeInputFromPhysical < MaxControllers, "Physical Controller Index %i is larger than allowed (%i).", iTakeInputFromPhysical, MaxControllers);
 
   if (iTakeInputFromPhysical < 0)
   {
@@ -88,7 +88,7 @@ void ezInputDeviceController::SetControllerMapping(ezUInt8 uiVirtualController, 
 
 ezInt8 ezInputDeviceController::GetControllerMapping(ezUInt8 uiVirtual) const
 {
-  EZ_ASSERT(uiVirtual < MaxControllers, "Virtual Controller Index %i is larger than allowed (%i).", uiVirtual, MaxControllers);
+  EZ_ASSERT_DEV(uiVirtual < MaxControllers, "Virtual Controller Index %i is larger than allowed (%i).", uiVirtual, MaxControllers);
 
   return m_iControllerMapping[uiVirtual];
 }

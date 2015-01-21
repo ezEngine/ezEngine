@@ -25,13 +25,13 @@ ezResult ezGALRenderTargetConfigDX11::InitPlatform(ezGALDevice* pDevice)
     for(ezUInt32 i = 0; i < m_Description.m_uiColorTargetCount; i++)
     {
       m_pRenderTargetViews[i] = static_cast<const ezGALRenderTargetViewDX11*>(pDevice->GetRenderTargetView(m_Description.m_hColorTargets[i]))->GetRenderTargetView();
-      EZ_ASSERT(m_pRenderTargetViews[i] != nullptr, "Invalid handle given for rendertarget view!");
+      EZ_ASSERT_DEV(m_pRenderTargetViews[i] != nullptr, "Invalid handle given for rendertarget view!");
     }
 
     if(!m_Description.m_hDepthStencilTarget.IsInvalidated())
     {
       m_pDepthStencilTargetView = static_cast<const ezGALRenderTargetViewDX11*>(pDevice->GetRenderTargetView(m_Description.m_hDepthStencilTarget))->GetDepthStencilView();
-      EZ_ASSERT(m_pDepthStencilTargetView != nullptr, "Invalid handle given for depth stencil view!");
+      EZ_ASSERT_DEV(m_pDepthStencilTargetView != nullptr, "Invalid handle given for depth stencil view!");
     }
 
     return EZ_SUCCESS;

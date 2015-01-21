@@ -11,8 +11,8 @@ ResourceType* ezResourceManager::GetResource(const char* szResourceID)
     return (ResourceType*) pResource;
 
   const ezRTTI* pRtti = ezGetStaticRTTI<ResourceType>();
-  EZ_ASSERT(pRtti != NULL, "There is no RTTI information available for the given resource type '%s'", EZ_STRINGIZE(ResourceType));
-  EZ_ASSERT(pRtti->GetAllocator() != NULL, "There is no RTTI allocator available for the given resource type '%s'", EZ_STRINGIZE(ResourceType));
+  EZ_ASSERT_DEV(pRtti != NULL, "There is no RTTI information available for the given resource type '%s'", EZ_STRINGIZE(ResourceType));
+  EZ_ASSERT_DEV(pRtti->GetAllocator() != NULL, "There is no RTTI allocator available for the given resource type '%s'", EZ_STRINGIZE(ResourceType));
 
   ResourceType* pNewResource = static_cast<ResourceType*>(pRtti->GetAllocator()->Allocate());
   pNewResource->SetUniqueID(szResourceID);
@@ -54,7 +54,7 @@ ezResourceHandle<ResourceType> ezResourceManager::GetCreatedResource(const char*
 
   if (m_LoadedResources.TryGetValue(sResourceHash, pResource))
   {
-    EZ_ASSERT(pResource->m_Flags.IsAnySet(ezResourceFlags::WasCreated), "This resource was not created but loaded, you should not use this function on resources that are loaded");
+    EZ_ASSERT_DEBUG(pResource->m_Flags.IsAnySet(ezResourceFlags::WasCreated), "This resource was not created but loaded, you should not use this function on resources that are loaded");
 
     return (ResourceType*) pResource;
   }
@@ -69,7 +69,7 @@ ezResourceHandle<ResourceType> ezResourceManager::CreateResource(const char* szR
 
   ResourceType* pResource = BeginAcquireResource(hResource, ezResourceAcquireMode::PointerOnly);
 
-  EZ_ASSERT(pResource->GetLoadingState() == ezResourceLoadState::Uninitialized, "CreateResource was called on a resource this is already created");
+  EZ_ASSERT_DEV(pResource->GetLoadingState() == ezResourceLoadState::Uninitialized, "CreateResource was called on a resource this is already created");
 
   // If this does not compile, you have forgotten to make ezResourceManager a friend of your resource class.
   // which probably means that you did not derive from ezResource, which you should do!
@@ -77,8 +77,8 @@ ezResourceHandle<ResourceType> ezResourceManager::CreateResource(const char* szR
 
   pResource->m_Flags.Add(ezResourceFlags::WasCreated);
 
-  EZ_ASSERT(pResource->GetLoadingState() != ezResourceLoadState::Uninitialized, "CreateResource did not set the loading state properly.");
-  EZ_ASSERT(pResource->GetMaxQualityLevel() > 0, "CreateResource did not set the max quality level properly.");
+  EZ_ASSERT_DEV(pResource->GetLoadingState() != ezResourceLoadState::Uninitialized, "CreateResource did not set the loading state properly.");
+  EZ_ASSERT_DEV(pResource->GetMaxQualityLevel() > 0, "CreateResource did not set the max quality level properly.");
 
   EndAcquireResource(pResource);
 
@@ -88,12 +88,12 @@ ezResourceHandle<ResourceType> ezResourceManager::CreateResource(const char* szR
 template<typename ResourceType>
 ResourceType* ezResourceManager::BeginAcquireResource(const ezResourceHandle<ResourceType>& hResource, ezResourceAcquireMode::Enum mode, ezResourcePriority::Enum Priority)
 {
-  EZ_ASSERT(hResource.IsValid(), "Cannot acquire a resource through an invalid handle!");
+  EZ_ASSERT_DEV(hResource.IsValid(), "Cannot acquire a resource through an invalid handle!");
 
   ResourceType* pResource = (ResourceType*) hResource.m_pResource;
 
-  EZ_ASSERT(pResource->m_iLockCount < 20, "You probably forgot somewhere to call 'EndAcquireResource' in sync with 'BeginAcquireResource'.");
-  EZ_ASSERT(pResource->GetDynamicRTTI() == ezGetStaticRTTI<ResourceType>(), "The requested resource does not have the same type ('%s') as the resource handle ('%s').", pResource->GetDynamicRTTI()->GetTypeName(), ezGetStaticRTTI<ResourceType>()->GetTypeName());
+  EZ_ASSERT_DEV(pResource->m_iLockCount < 20, "You probably forgot somewhere to call 'EndAcquireResource' in sync with 'BeginAcquireResource'.");
+  EZ_ASSERT_DEBUG(pResource->GetDynamicRTTI() == ezGetStaticRTTI<ResourceType>(), "The requested resource does not have the same type ('%s') as the resource handle ('%s').", pResource->GetDynamicRTTI()->GetTypeName(), ezGetStaticRTTI<ResourceType>()->GetTypeName());
 
   if (mode == ezResourceAcquireMode::PointerOnly ||
      (mode == ezResourceAcquireMode::MetaInfo && pResource->GetLoadingState() >= ezResourceLoadState::MetaInfoAvailable))
@@ -158,8 +158,8 @@ ResourceType* ezResourceManager::BeginAcquireResource(const ezResourceHandle<Res
 template<typename ResourceType>
 void ezResourceManager::EndAcquireResource(ResourceType* pResource)
 {
-  EZ_ASSERT(pResource != NULL, "Resource Pointer cannot be NULL.");
-  EZ_ASSERT(pResource->m_iLockCount > 0, "The resource lock counter is incorrect: %i", (ezInt32) pResource->m_iLockCount);
+  EZ_ASSERT_DEV(pResource != NULL, "Resource Pointer cannot be NULL.");
+  EZ_ASSERT_DEV(pResource->m_iLockCount > 0, "The resource lock counter is incorrect: %i", (ezInt32) pResource->m_iLockCount);
 
   pResource->m_iLockCount.Decrement();
 }

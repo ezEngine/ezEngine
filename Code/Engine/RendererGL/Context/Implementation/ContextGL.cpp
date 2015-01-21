@@ -178,7 +178,7 @@ ezGALContextGL::ScopedBufferBinding::ScopedBufferBinding(ezGALContextGL* pContex
   m_pContext(pContext),
   m_binding(binding)
 {
-  EZ_ASSERT(pContext != nullptr, "Context is nullptr!");
+  EZ_ASSERT_DEV(pContext != nullptr, "Context is nullptr!");
   m_bufferBefore = pContext->m_BufferBindings[binding];
   m_pContext->BindBuffer(binding, buffer);
 }
@@ -191,7 +191,7 @@ ezGALContextGL::ScopedBufferBinding::~ScopedBufferBinding()
 
 ezResult ezGALContextGL::BindTexture(ezGALTextureType::Enum textureType, glTextureId textureHandle, ezInt32 iBindingSlot)
 {
-  EZ_ASSERT(iBindingSlot < m_iMaxNumTextureBindings, "Can't bind texture on slot %i. Max number of texture slots available is %i!", iBindingSlot, m_iMaxNumTextureBindings);
+  EZ_ASSERT_DEV(iBindingSlot < m_iMaxNumTextureBindings, "Can't bind texture on slot %i. Max number of texture slots available is %i!", iBindingSlot, m_iMaxNumTextureBindings);
 
   if (iBindingSlot >= 0)
   {
@@ -210,7 +210,7 @@ ezGALContextGL::ScopedTextureBinding::ScopedTextureBinding(ezGALContextGL* pCont
   m_pContext(pContext),
   m_textureType(textureType) 
 {
-  EZ_ASSERT(pContext != nullptr, "Context is nullptr!");
+  EZ_ASSERT_DEV(pContext != nullptr, "Context is nullptr!");
 
   m_uiUsedSlot = pContext->m_uiActiveTextureUnit;
   m_textureBefore = pContext->m_TextureBindings[m_textureType][m_uiUsedSlot];
@@ -317,7 +317,7 @@ void ezGALContextGL::FlushDeferredStateChanges()
 {
   if (m_DeferredStateChanged.IsSet(ezGALGL::DeferredStateChanged::VertexBuffer) || m_DeferredStateChanged.IsSet(ezGALGL::DeferredStateChanged::VertexDeclaration))
   {
-    EZ_ASSERT(m_pBoundVertexAttributes != nullptr, "No vertex declaration is set!");
+    EZ_ASSERT_DEV(m_pBoundVertexAttributes != nullptr, "No vertex declaration is set!");
 
     /// \todo GL4 Together with glVertexAttribPointer
     //glBindVertexBuffers(0, EZ_GAL_MAX_VERTEX_BUFFER_COUNT, m_BoundVertexBuffers, nullptr, m_VertexBufferStrides);
@@ -394,7 +394,7 @@ void ezGALContextGL::SetIndexBufferPlatform(ezGALBuffer* pIndexBuffer)
       break;
     }
   }
-  EZ_ASSERT(m_IndexType != ezGALIndexType::ENUM_COUNT, "Invalid index buffer element size: %i", uiIndexSize);
+  EZ_ASSERT_DEV(m_IndexType != ezGALIndexType::ENUM_COUNT, "Invalid index buffer element size: %i", uiIndexSize);
 
   ezGALBufferGL* pIndexBufferGL = static_cast<ezGALBufferGL*>(pIndexBuffer);
   BindBuffer(GLBufferBinding::IndexBuffer, pIndexBufferGL->GetGLBufferHandle());

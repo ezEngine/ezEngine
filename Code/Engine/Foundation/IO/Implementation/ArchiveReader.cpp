@@ -9,12 +9,12 @@ ezArchiveReader::ezArchiveReader(ezStreamReaderBase& stream) : ezChunkStreamRead
 
 ezArchiveReader::~ezArchiveReader()
 {
-  EZ_ASSERT(m_bStreamFinished, "The stream is left in an invalid state. EndStream() has to be called before it may be destroyed.");
+  EZ_ASSERT_DEV(m_bStreamFinished, "The stream is left in an invalid state. EndStream() has to be called before it may be destroyed.");
 }
 
 void ezArchiveReader::RegisterTypeSerializer(const ezRTTI* pRttiBase, ezArchiveSerializer* pSerializer)
 {
-  EZ_ASSERT(m_bStreamFinished, "Cannot change the registered type serializers while reading the archive.");
+  EZ_ASSERT_DEV(m_bStreamFinished, "Cannot change the registered type serializers while reading the archive.");
 
   m_TypeSerializers[pRttiBase] = pSerializer;
 }
@@ -66,7 +66,7 @@ void* ezArchiveReader::GetObjectReferenceMapping(ezUInt32 uiObjectID) const
 
 ezUInt32 ezArchiveReader::ReadObjectReference(void** ppReference)
 {
-  EZ_ASSERT(!m_bStreamFinished, "The stream is in an invalid state.");
+  EZ_ASSERT_DEV(!m_bStreamFinished, "The stream is in an invalid state.");
 
   ObjectMapping om;
   om.m_pObjectWaiting = ppReference;
@@ -125,7 +125,7 @@ void ezArchiveReader::FinishReferenceMapping()
 
 void ezArchiveReader::CallOnDeserialized()
 {
-  EZ_ASSERT(m_bStreamFinished, "This function may only be called after reading from the archive has finished, ie. after EndStream() has been called.");
+  EZ_ASSERT_DEV(m_bStreamFinished, "This function may only be called after reading from the archive has finished, ie. after EndStream() has been called.");
 
   for (ezUInt32 i = 0; i < m_DeserializedReflected.GetCount(); ++i)
   {
@@ -135,19 +135,19 @@ void ezArchiveReader::CallOnDeserialized()
 
 void ezArchiveReader::BeginStream()
 {
-  EZ_ASSERT(m_bStreamFinished, "The stream is in an invalid state.");
+  EZ_ASSERT_DEV(m_bStreamFinished, "The stream is in an invalid state.");
 
   m_bStreamFinished = false;
 
   ezString sArchiveTag;
   m_InputStream >> sArchiveTag;
 
-  EZ_ASSERT(sArchiveTag == "ezArchive", "The given file is either not an ezArchive, or it has been corrupted.");
+  EZ_ASSERT_DEV(sArchiveTag == "ezArchive", "The given file is either not an ezArchive, or it has been corrupted.");
 
   ezUInt8 uiVersion = 0;
   m_InputStream >> uiVersion;
 
-  EZ_ASSERT(uiVersion <= ezArchiveVersion::CurrentVersion, "The ezArchive version %u is not supported, expected version %u or lower.", uiVersion, ezArchiveVersion::CurrentVersion);
+  EZ_ASSERT_DEV(uiVersion <= ezArchiveVersion::CurrentVersion, "The ezArchive version %u is not supported, expected version %u or lower.", uiVersion, ezArchiveVersion::CurrentVersion);
 
   ezUInt32 uiMaxReferences = 0;
   m_InputStream >> uiMaxReferences;
@@ -200,7 +200,7 @@ void ezArchiveReader::BeginStream()
 
 void ezArchiveReader::EndStream()
 {
-  EZ_ASSERT(!m_bStreamFinished, "The stream is in an invalid state.");
+  EZ_ASSERT_DEV(!m_bStreamFinished, "The stream is in an invalid state.");
 
   ezChunkStreamReader::EndStream();
 
@@ -219,7 +219,7 @@ ezReflectedClass* ezArchiveReader::ReadReflectedObject()
 
   ezReflectedClass* pReflected = (ezReflectedClass*) pObject;
 
-  EZ_ASSERT(pReflected->GetDynamicRTTI()->IsDerivedFrom<ezReflectedClass>(), "Invalid type was created during deserialization.");
+  EZ_ASSERT_DEBUG(pReflected->GetDynamicRTTI()->IsDerivedFrom<ezReflectedClass>(), "Invalid type was created during deserialization.");
 
   m_DeserializedReflected.PushBack(pReflected);
 
@@ -230,7 +230,7 @@ ezReflectedClass* ezArchiveReader::ReadReflectedObject()
 
 void* ezArchiveReader::ReadTypedObject(const ezRTTI** out_pRtti, ezUInt16* out_pTypeID)
 {
-  EZ_ASSERT(!m_bStreamFinished, "The stream is in an invalid state.");
+  EZ_ASSERT_DEV(!m_bStreamFinished, "The stream is in an invalid state.");
 
   // read the object's type ID
   ezUInt16 uiTypeID = 0;

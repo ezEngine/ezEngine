@@ -391,7 +391,7 @@ void ezReflectionUtils::GatherDependentTypes(const ezRTTI* pRtti, ezSet<const ez
         }
         else
         {
-          EZ_ASSERT(false, "Member property found that is not understood: Property '%s' of type '%s'!",
+          EZ_ASSERT_DEV(false, "Member property found that is not understood: Property '%s' of type '%s'!",
             memberProp->GetPropertyName(), pMemberPropRtti->GetTypeName());
         }
       }
@@ -399,7 +399,7 @@ void ezReflectionUtils::GatherDependentTypes(const ezRTTI* pRtti, ezSet<const ez
     case ezAbstractProperty::Function:
       break;
     case ezAbstractProperty::Array:
-      EZ_ASSERT(false, "Arrays are not supported yet!");
+      EZ_ASSERT_DEV(false, "Arrays are not supported yet!");
       break;
     }
   }

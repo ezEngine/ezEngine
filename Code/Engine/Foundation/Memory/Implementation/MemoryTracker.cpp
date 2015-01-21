@@ -60,21 +60,21 @@ namespace
     if (s_bIsInitialized)
       return;
 
-    EZ_ASSERT(!s_bIsInitializing, "MemoryTracker initialization entered recursively");
+    EZ_ASSERT_DEV(!s_bIsInitializing, "MemoryTracker initialization entered recursively");
     s_bIsInitializing = true;
 
     if (s_pTrackerDataAllocator == nullptr)
     {
       static ezUInt8 TrackerDataAllocatorBuffer[sizeof(TrackerDataAllocator)];
       s_pTrackerDataAllocator = new (TrackerDataAllocatorBuffer) TrackerDataAllocator("MemoryTracker");
-      EZ_ASSERT(s_pTrackerDataAllocator != nullptr, "MemoryTracker initialization failed");
+      EZ_ASSERT_DEV(s_pTrackerDataAllocator != nullptr, "MemoryTracker initialization failed");
     }
 
     if (s_pTrackerData == nullptr)
     {
       static ezUInt8 TrackerDataBuffer[sizeof(TrackerData)];
       s_pTrackerData = new (TrackerDataBuffer) TrackerData();
-      EZ_ASSERT(s_pTrackerData != nullptr, "MemoryTracker initialization failed");
+      EZ_ASSERT_DEV(s_pTrackerData != nullptr, "MemoryTracker initialization failed");
     }
 
     s_bIsInitialized = true;
@@ -189,8 +189,8 @@ void ezMemoryTracker::AddAllocation(ezAllocatorId allocatorId, const void* ptr, 
   data.m_Stats.m_uiAllocationSize += uiSize;
 
   AllocationInfo info;
-  EZ_ASSERT(uiSize < 0xFFFFFFFF, "Allocation size too big");
-  EZ_ASSERT(uiAlign < 0xFFFF, "Alignment too big");
+  EZ_ASSERT_DEV(uiSize < 0xFFFFFFFF, "Allocation size too big");
+  EZ_ASSERT_DEV(uiAlign < 0xFFFF, "Alignment too big");
   info.m_uiSize = (ezUInt32)uiSize;
   info.m_uiAlignment = (ezUInt16)uiAlign;
 
@@ -236,7 +236,7 @@ void ezMemoryTracker::ReplaceAllocation(ezAllocatorId allocatorId, const void* p
   AllocatorData& data = s_pTrackerData->m_AllocatorData[allocatorId];
   data.m_Stats.m_uiAllocationSize += (uiNewSize - uiOldSize);
 
-  EZ_ASSERT(uiNewSize < 0xFFFFFFFF, "new size is too big");
+  EZ_ASSERT_DEV(uiNewSize < 0xFFFFFFFF, "new size is too big");
   data.m_Allocations[ptr].m_uiSize = (ezUInt32)uiNewSize;
 }
 

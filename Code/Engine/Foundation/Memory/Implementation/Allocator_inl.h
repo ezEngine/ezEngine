@@ -55,7 +55,7 @@ EZ_FORCE_INLINE ezInternal::ezAllocatorImpl<A, TrackingFlags>::ezAllocatorImpl(c
 template <typename A, ezUInt32 TrackingFlags>
 ezInternal::ezAllocatorImpl<A, TrackingFlags>::~ezAllocatorImpl()
 {
-  EZ_ASSERT_API(m_ThreadID == ezThreadUtils::GetCurrentThreadID(), "Allocator is deleted from another thread");
+  EZ_ASSERT_RELEASE(m_ThreadID == ezThreadUtils::GetCurrentThreadID(), "Allocator is deleted from another thread");
 
   if ((TrackingFlags & ezMemoryTrackingFlags::EnableTracking) != 0)
   {
@@ -70,10 +70,10 @@ void* ezInternal::ezAllocatorImpl<A, TrackingFlags>::Allocate(size_t uiSize, siz
   if (uiSize == 0)
     return nullptr;
 
-  EZ_ASSERT_API(ezMath::IsPowerOf2((ezUInt32)uiAlign), "Alignment must be power of two");
+  EZ_ASSERT_DEV(ezMath::IsPowerOf2((ezUInt32)uiAlign), "Alignment must be power of two");
 
   void* ptr = m_allocator.Allocate(uiSize, uiAlign);
-  EZ_ASSERT(ptr != nullptr, "Could not allocate %d bytes. Out of memory?", uiSize);
+  EZ_ASSERT_DEBUG(ptr != nullptr, "Could not allocate %d bytes. Out of memory?", uiSize);
 
   if ((TrackingFlags & ezMemoryTrackingFlags::EnableTracking) != 0)
   {

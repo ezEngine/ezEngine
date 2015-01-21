@@ -101,7 +101,7 @@ ezUInt64 ezCompressedStreamReader::ReadBytes(void* pReadBuffer, ezUInt64 uiBytes
     }
 
     const int iRet = inflate(m_pZLibStream, Z_NO_FLUSH);
-    EZ_ASSERT(iRet == Z_OK || iRet == Z_STREAM_END, "Decompressing the stream failed: '%s'", m_pZLibStream->msg);
+    EZ_ASSERT_DEV(iRet == Z_OK || iRet == Z_STREAM_END, "Decompressing the stream failed: '%s'", m_pZLibStream->msg);
 
     if (iRet == Z_STREAM_END)
     {
@@ -113,8 +113,8 @@ ezUInt64 ezCompressedStreamReader::ReadBytes(void* pReadBuffer, ezUInt64 uiBytes
       ezUInt8 uiTerminator = 0;
       EZ_VERIFY(m_InputStream.ReadBytes(&uiTerminator, sizeof(ezUInt8)) == sizeof(ezUInt8), "Reading the compressed stream terminator failed.");
 
-      EZ_ASSERT(uiTerminator == 0, "Unexpected Stream Terminator: %i", uiTerminator);
-      EZ_ASSERT(m_pZLibStream->avail_in == 0, "The input buffer should be depleted, but %i bytes are still there.", m_pZLibStream->avail_in);
+      EZ_ASSERT_DEV(uiTerminator == 0, "Unexpected Stream Terminator: %i", uiTerminator);
+      EZ_ASSERT_DEV(m_pZLibStream->avail_in == 0, "The input buffer should be depleted, but %i bytes are still there.", m_pZLibStream->avail_in);
       return m_pZLibStream->total_out;
     }
   }
@@ -163,7 +163,7 @@ ezResult ezCompressedStreamWriter::CloseStream()
     }
 
     iRes = deflate(m_pZLibStream, Z_FINISH);
-    EZ_ASSERT(iRes == Z_STREAM_END || iRes == Z_OK, "Finishing the stream failed: '%s'", m_pZLibStream->msg);
+    EZ_ASSERT_DEV(iRes == Z_STREAM_END || iRes == Z_OK, "Finishing the stream failed: '%s'", m_pZLibStream->msg);
   }
 
   // one more flush to write out the last chunk
@@ -208,7 +208,7 @@ ezResult ezCompressedStreamWriter::Flush()
 
 ezResult ezCompressedStreamWriter::WriteBytes(const void* pWriteBuffer, ezUInt64 uiBytesToWrite)
 {
-  EZ_ASSERT(m_pZLibStream != nullptr, "The stream is already closed, you cannot write more data to it.");
+  EZ_ASSERT_DEV(m_pZLibStream != nullptr, "The stream is already closed, you cannot write more data to it.");
 
   m_uiUncompressedSize += static_cast<ezUInt32>(uiBytesToWrite);
 

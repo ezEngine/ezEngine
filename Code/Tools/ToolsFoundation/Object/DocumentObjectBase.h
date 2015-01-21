@@ -61,7 +61,7 @@ public:
 
   virtual ~ezDocumentObjectDirect()
   {
-    EZ_ASSERT(m_pObjectProperties == nullptr, "Object has not been destroyed.");
+    EZ_ASSERT_DEV(m_pObjectProperties == nullptr, "Object has not been destroyed.");
   }
 
   virtual const ezIReflectedTypeAccessor& GetTypeAccessor()       const override { return m_ObjectPropertiesAccessor; }

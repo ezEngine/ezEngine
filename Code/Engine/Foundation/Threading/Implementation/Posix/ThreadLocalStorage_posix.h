@@ -36,7 +36,7 @@ void ezThreadLocalStorage::SetPerThreadPointerTable(ezThreadLocalPointerTable* p
 
 ezThreadLocalPointerTable* ezThreadLocalStorage::GetPerThreadPointerTable()
 {
-  EZ_ASSERT(g_ThreadLocalManagmentTableKey != (pthread_key_t)0, "Invalid internal TLS index");
+  EZ_ASSERT_RELEASE(g_ThreadLocalManagmentTableKey != (pthread_key_t)0, "Invalid internal TLS index");
   
   return static_cast<ezThreadLocalPointerTable*>(pthread_getspecific(g_ThreadLocalManagmentTableKey));
 }

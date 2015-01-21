@@ -58,7 +58,7 @@ void ezDynamicQuadtree::CreateTree(const ezVec3& vCenter, const ezVec3& vHalfExt
 /// The min and max Y value of the tree's bounding box is updated, if the object lies above/below previously inserted objects.
 ezResult ezDynamicQuadtree::InsertObject(const ezVec3& vCenter, const ezVec3& vHalfExtents, ezInt32 iObjectType, ezInt32 iObjectInstance, ezDynamicTreeObject* out_Object, bool bOnlyIfInside)
 {
-  EZ_ASSERT(m_uiMaxTreeDepth > 0, "ezDynamicQuadtree::InsertObject: You have to first create the tree.");
+  EZ_ASSERT_DEV(m_uiMaxTreeDepth > 0, "ezDynamicQuadtree::InsertObject: You have to first create the tree.");
 
   if (out_Object)
     *out_Object = ezDynamicTreeObject();
@@ -197,7 +197,7 @@ bool ezDynamicQuadtree::InsertObject(const ezVec3& vCenter, const ezVec3& vHalfE
 
 void ezDynamicQuadtree::FindVisibleObjects(const ezFrustum& Viewfrustum, EZ_VISIBLE_OBJ_CALLBACK Callback, void* pPassThrough) const
 {
-  EZ_ASSERT(m_uiMaxTreeDepth > 0, "ezDynamicQuadtree::FindVisibleObjects: You have to first create the tree.");
+  EZ_ASSERT_DEV(m_uiMaxTreeDepth > 0, "ezDynamicQuadtree::FindVisibleObjects: You have to first create the tree.");
 
   if (m_NodeMap.IsEmpty())
     return;
@@ -290,7 +290,7 @@ void ezDynamicQuadtree::FindVisibleObjects(const ezFrustum& Viewfrustum, EZ_VISI
 
 void ezDynamicQuadtree::FindObjectsInRange(const ezVec3& vPoint, EZ_VISIBLE_OBJ_CALLBACK Callback, void* pPassThrough) const
 {
-  EZ_ASSERT(m_uiMaxTreeDepth > 0, "ezDynamicQuadtree::FindObjectsInRange: You have to first create the tree.");
+  EZ_ASSERT_DEV(m_uiMaxTreeDepth > 0, "ezDynamicQuadtree::FindObjectsInRange: You have to first create the tree.");
 
   if (m_NodeMap.IsEmpty())
     return;
@@ -369,7 +369,7 @@ bool ezDynamicQuadtree::FindObjectsInRange(const ezVec3& vPoint, EZ_VISIBLE_OBJ_
 
 void ezDynamicQuadtree::FindObjectsInRange(const ezVec3& vPoint, float fRadius, EZ_VISIBLE_OBJ_CALLBACK Callback, void* pPassThrough) const
 {
-  EZ_ASSERT(m_uiMaxTreeDepth > 0, "ezDynamicQuadtree::FindObjectsInRange: You have to first create the tree.");
+  EZ_ASSERT_DEV(m_uiMaxTreeDepth > 0, "ezDynamicQuadtree::FindObjectsInRange: You have to first create the tree.");
 
   if (m_NodeMap.IsEmpty())
     return;

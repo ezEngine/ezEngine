@@ -138,7 +138,7 @@ ezResult ezBmpFileFormat::WriteImage(ezStreamWriterBase& stream, const ezImage& 
     if (ezImageConversionBase::Convert(image, convertedImage, format) != EZ_SUCCESS)
     {
       // This should never happen
-      EZ_ASSERT(false, "ezImageConversion::Convert failed even though the conversion was to the format returned by FindClosestCompatibleFormat.");
+      EZ_ASSERT_DEV(false, "ezImageConversion::Convert failed even though the conversion was to the format returned by FindClosestCompatibleFormat.");
       return EZ_FAILURE;
     }
 
@@ -191,7 +191,7 @@ ezResult ezBmpFileFormat::WriteImage(ezStreamWriterBase& stream, const ezImage& 
     return EZ_FAILURE;
   }
 
-  EZ_ASSERT(!bWriteColorMask || uiHeaderVersion <= 3, "Internal bug");
+  EZ_ASSERT_DEV(!bWriteColorMask || uiHeaderVersion <= 3, "Internal bug");
 
   ezUInt32 uiFileInfoHeaderSize = sizeof(ezBmpFileInfoHeader);
   ezUInt32 uiHeaderSize = sizeof(ezBmpFileHeader);

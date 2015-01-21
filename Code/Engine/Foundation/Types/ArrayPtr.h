@@ -67,21 +67,21 @@ public:
   /// \brief Creates a sub-array from this array.
   EZ_FORCE_INLINE ezArrayPtr<T> GetSubArray(ezUInt32 uiStart, ezUInt32 uiCount) // [tested]
   {
-    EZ_ASSERT(uiStart + uiCount <= m_uiCount, "uiStart+uiCount (%i) has to be smaller or equal than the count (%i).", uiStart+uiCount, m_uiCount);
+    EZ_ASSERT_DEV(uiStart + uiCount <= m_uiCount, "uiStart+uiCount (%i) has to be smaller or equal than the count (%i).", uiStart+uiCount, m_uiCount);
     return ezArrayPtr<T>(m_ptr + uiStart, uiCount);
   }
 
   /// \brief Creates a sub-array from this array.
   EZ_FORCE_INLINE const ezArrayPtr<T> GetSubArray(ezUInt32 uiStart, ezUInt32 uiCount) const // [tested]
   {
-    EZ_ASSERT(uiStart + uiCount <= m_uiCount, "uiStart+uiCount (%i) has to be smaller or equal than the count (%i).", uiStart+uiCount, m_uiCount);
+    EZ_ASSERT_DEV(uiStart + uiCount <= m_uiCount, "uiStart+uiCount (%i) has to be smaller or equal than the count (%i).", uiStart+uiCount, m_uiCount);
     return ezArrayPtr<T>(m_ptr + uiStart, uiCount);
   }
 
   /// \brief Index access.
   EZ_FORCE_INLINE T& operator[](ezUInt32 uiIndex) const // [tested]
   {
-    EZ_ASSERT(uiIndex < m_uiCount, "Cannot access element %i, the array only holds %i elements.", uiIndex, m_uiCount);
+    EZ_ASSERT_DEV(uiIndex < m_uiCount, "Cannot access element %i, the array only holds %i elements.", uiIndex, m_uiCount);
     return m_ptr[uiIndex];
   }
 
@@ -118,7 +118,7 @@ public:
   /// \brief Copies the data from \a other into this array. The arrays must have the exact same size.
   inline void CopyFrom(const ezArrayPtr<T>& other) // [tested]
   {
-    EZ_ASSERT(m_uiCount == other.m_uiCount, "Count for copy does not match. Target has %d elements, source %d elements", m_uiCount, other.m_uiCount);
+    EZ_ASSERT_DEV(m_uiCount == other.m_uiCount, "Count for copy does not match. Target has %d elements, source %d elements", m_uiCount, other.m_uiCount);
 
     ezMemoryUtils::Copy(m_ptr, other.m_ptr, m_uiCount);
   }

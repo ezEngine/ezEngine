@@ -55,7 +55,7 @@ void ezTelemetry::FlushOutgoingQueues()
       Send(ezTelemetry::Reliable, it.Value().m_OutgoingQueue[i]); // Send() will already update the network
 
     // check that they have not been queue again
-    EZ_ASSERT(it.Value().m_OutgoingQueue.GetCount() == uiCurCount, "Implementation Error: When queued messages are flushed, they should not get queued again.");
+    EZ_ASSERT_DEV(it.Value().m_OutgoingQueue.GetCount() == uiCurCount, "Implementation Error: When queued messages are flushed, they should not get queued again.");
 
     it.Value().m_OutgoingQueue.Clear();
   }

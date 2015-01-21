@@ -55,7 +55,7 @@ bool ezDocumentObjectManagerBase::CanAdd(ezReflectedTypeHandle hType, const ezDo
     if (pObjectInTree == nullptr)
       return false;
 
-    EZ_ASSERT(pObjectInTree == pParent, "Tree Corruption!!!");
+    EZ_ASSERT_DEV(pObjectInTree == pParent, "Tree Corruption!!!");
   }
 
   return InternalCanAdd(hType, pParent);
@@ -68,7 +68,7 @@ bool ezDocumentObjectManagerBase::CanRemove(const ezDocumentObjectBase* pObject)
   if (pObjectInTree == nullptr)
     return false;
 
-  EZ_ASSERT(pObjectInTree == pObject, "Tree Corruption!!!");
+  EZ_ASSERT_DEV(pObjectInTree == pObject, "Tree Corruption!!!");
 
   return InternalCanRemove(pObject);
 }
@@ -86,7 +86,7 @@ bool ezDocumentObjectManagerBase::CanMove(const ezDocumentObjectBase* pObject, c
   if (pObjectInTree == nullptr)
     return false;
 
-  EZ_ASSERT(pObjectInTree == pObject, "Tree Corruption!!!");
+  EZ_ASSERT_DEV(pObjectInTree == pObject, "Tree Corruption!!!");
 
   if (pNewParent != m_pDocument->GetObjectTree()->GetRootObject())
   {
@@ -95,7 +95,7 @@ bool ezDocumentObjectManagerBase::CanMove(const ezDocumentObjectBase* pObject, c
     if (pNewParentInTree == nullptr)
       return false;
 
-    EZ_ASSERT(pNewParentInTree == pNewParent, "Tree Corruption!!!");
+    EZ_ASSERT_DEV(pNewParentInTree == pNewParent, "Tree Corruption!!!");
   }
 
   const ezDocumentObjectBase* pCurParent = pNewParent->GetParent();

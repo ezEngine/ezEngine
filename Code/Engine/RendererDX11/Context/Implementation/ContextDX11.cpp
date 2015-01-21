@@ -25,7 +25,7 @@ ezGALContextDX11::ezGALContextDX11(ezGALDevice* pDevice, ID3D11DeviceContext* pD
   m_pBoundDepthStencilTarget(nullptr),
   m_uiBoundRenderTargetCount(0)
 {
-  EZ_ASSERT(pDXContext != nullptr, "Invalid DX context!");
+  EZ_ASSERT_RELEASE(pDXContext != nullptr, "Invalid DX context!");
 
   for (ezUInt32 i = 0; i < EZ_GAL_MAX_RENDERTARGET_COUNT; i++)
   {
@@ -227,7 +227,7 @@ void ezGALContextDX11::SetIndexBufferPlatform(ezGALBuffer* pIndexBuffer)
 
 void ezGALContextDX11::SetVertexBufferPlatform(ezUInt32 uiSlot, ezGALBuffer* pVertexBuffer)
 {
-  EZ_ASSERT(uiSlot < EZ_GAL_MAX_VERTEX_BUFFER_COUNT, "Invalid slot index");
+  EZ_ASSERT_DEV(uiSlot < EZ_GAL_MAX_VERTEX_BUFFER_COUNT, "Invalid slot index");
 
   m_pBoundVertexBuffers[uiSlot] = pVertexBuffer != nullptr ? static_cast<ezGALBufferDX11*>(pVertexBuffer)->GetDXBuffer() : nullptr;
   m_VertexBufferStrides[uiSlot] = pVertexBuffer != nullptr ? pVertexBuffer->GetDescription().m_uiStructSize : 0;
@@ -394,7 +394,7 @@ void ezGALContextDX11::UpdateBufferPlatform(ezGALBuffer* pDestination, ezUInt32 
 
   if (pDXBuffer->GetDescription().m_BufferType == ezGALBufferType::ConstantBuffer)
   {
-    EZ_ASSERT(uiDestOffset == 0 && uiByteCount == pDXBuffer->GetSize(), "Constant buffers can't be updated partially (and we don't check for DX11.1)!");
+    EZ_ASSERT_DEV(uiDestOffset == 0 && uiByteCount == pDXBuffer->GetSize(), "Constant buffers can't be updated partially (and we don't check for DX11.1)!");
 
     D3D11_MAPPED_SUBRESOURCE MapResult;
     m_pDXContext->Map(pDXBuffer->GetDXBuffer(), 0, D3D11_MAP_WRITE_DISCARD, 0, &MapResult);
@@ -432,8 +432,8 @@ void ezGALContextDX11::ReadbackTexturePlatform(ezGALTexture* pTexture)
   // MSAA textures (e.g. backbuffers) need to be converted to non MSAA versions
   const bool bMSAASourceTexture = pDXTexture->GetDescription().m_SampleCount != ezGALMSAASampleCount::None;
 
-  EZ_ASSERT(pDXTexture->GetDXStagingTexture() != nullptr, "No staging resource available for read-back");
-  EZ_ASSERT(pDXTexture->GetDXTexture() != nullptr, "Texture object is invalid");
+  EZ_ASSERT_DEV(pDXTexture->GetDXStagingTexture() != nullptr, "No staging resource available for read-back");
+  EZ_ASSERT_DEV(pDXTexture->GetDXTexture() != nullptr, "Texture object is invalid");
 
   if (bMSAASourceTexture)
   {
@@ -451,7 +451,7 @@ void ezGALContextDX11::CopyTextureReadbackResultPlatform(ezGALTexture* pTexture,
 {
   ezGALTextureDX11* pDXTexture = static_cast<ezGALTextureDX11*>(pTexture);
 
-  EZ_ASSERT(pDXTexture->GetDXStagingTexture() != nullptr, "No staging resource available for read-back");
+  EZ_ASSERT_DEV(pDXTexture->GetDXStagingTexture() != nullptr, "No staging resource available for read-back");
 
   D3D11_MAPPED_SUBRESOURCE Mapped;
   if(SUCCEEDED(m_pDXContext->Map(pDXTexture->GetDXStagingTexture(), 0, D3D11_MAP_READ, 0, &Mapped)))

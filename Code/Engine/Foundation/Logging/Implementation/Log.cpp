@@ -34,8 +34,8 @@ void ezGlobalLog::HandleLogMessage(const ezLoggingEventData& le)
 
 void ezGlobalLog::SetLogLevel(ezLogMsgType::Enum LogLevel)
 {
-  EZ_ASSERT(LogLevel >= ezLogMsgType::None, "Invalid Log Level");
-  EZ_ASSERT(LogLevel <= ezLogMsgType::All, "Invalid Log Level");
+  EZ_ASSERT_DEV(LogLevel >= ezLogMsgType::None, "Invalid Log Level");
+  EZ_ASSERT_DEV(LogLevel <= ezLogMsgType::All, "Invalid Log Level");
 
   s_LogLevel = LogLevel;
 }
@@ -163,7 +163,7 @@ void ezLog::BroadcastLoggingEvent(ezLogInterface* pInterface, ezLogMsgType::Enum
 
 void ezLog::SetDefaultLogSystem(ezLogInterface* pInterface)
 {
-  EZ_ASSERT(pInterface != nullptr, "You cannot set a nullptr logging system. If you want to discard all log information, set a dummy system that does not do anything.");
+  EZ_ASSERT_DEV(pInterface != nullptr, "You cannot set a nullptr logging system. If you want to discard all log information, set a dummy system that does not do anything.");
 
   s_DefaultLogSystem = pInterface;
 }

@@ -11,9 +11,9 @@ ezReflectedTypeStorageAccessor::ezReflectedTypeStorageAccessor(ezReflectedTypeHa
 {
   
   const ezReflectedType* pType = hReflectedType.GetType();
-  EZ_ASSERT(pType != nullptr, "Trying to construct an ezReflectedTypeStorageAccessor for an invalid type!");
+  EZ_ASSERT_DEV(pType != nullptr, "Trying to construct an ezReflectedTypeStorageAccessor for an invalid type!");
   m_pMapping = ezReflectedTypeStorageManager::AddStorageAccessor(this);
-  EZ_ASSERT(m_pMapping != nullptr, "The type for this ezReflectedTypeStorageAccessor is unknown to the ezReflectedTypeStorageManager!");
+  EZ_ASSERT_DEV(m_pMapping != nullptr, "The type for this ezReflectedTypeStorageAccessor is unknown to the ezReflectedTypeStorageManager!");
 
   auto& indexTable = m_pMapping->m_PathToStorageInfoTable;
   const ezUInt32 uiProperties = indexTable.GetCount();

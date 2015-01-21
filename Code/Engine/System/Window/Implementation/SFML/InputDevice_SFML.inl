@@ -19,7 +19,7 @@ ezStandardInputDevice::ezStandardInputDevice(sf::Window* pWindow, ezUInt32 uiWin
 
   if (uiWindowNumber == 0)
   {
-    EZ_ASSERT_API(!s_bMainWindowUsed, "You cannot have two devices of Type ezStandardInputDevice with the window number zero.");
+    EZ_ASSERT_RELEASE(!s_bMainWindowUsed, "You cannot have two devices of Type ezStandardInputDevice with the window number zero.");
     ezStandardInputDevice::s_bMainWindowUsed = true;
   }
 }

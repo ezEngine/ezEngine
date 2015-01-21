@@ -4,12 +4,12 @@
 
 bool ezIntersectionUtils::RayPolygonIntersection(const ezVec3& vRayStartPos, const ezVec3& vRayDir, const ezVec3* pPolygonVertices, ezUInt32 uiNumVertices, float* out_fIntersectionTime, ezVec3* out_vIntersectionPoint, ezUInt32 uiVertexStride)
 {
-  EZ_ASSERT(uiNumVertices >= 3, "A polygon must have at least three vertices.");
-  EZ_ASSERT(uiVertexStride >= sizeof(ezVec3), "The vertex stride is invalid.");
+  EZ_ASSERT_DEBUG(uiNumVertices >= 3, "A polygon must have at least three vertices.");
+  EZ_ASSERT_DEBUG(uiVertexStride >= sizeof(ezVec3), "The vertex stride is invalid.");
 
   ezPlane p(*pPolygonVertices, *ezMemoryUtils::AddByteOffsetConst<ezVec3>(pPolygonVertices, uiVertexStride), *ezMemoryUtils::AddByteOffsetConst<ezVec3>(pPolygonVertices, uiVertexStride * 2));
 
-  EZ_ASSERT(p.IsValid(), "The given polygon's plane is invalid (computed from the first three vertices only).");
+  EZ_ASSERT_DEBUG(p.IsValid(), "The given polygon's plane is invalid (computed from the first three vertices only).");
 
   ezVec3 vIntersection;
 

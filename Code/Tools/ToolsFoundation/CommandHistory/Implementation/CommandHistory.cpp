@@ -9,12 +9,12 @@ EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 ezCommandTransaction::~ezCommandTransaction()
 {
-  EZ_ASSERT(m_ChildActions.IsEmpty(), "The list should be cleared in 'Cleanup'");
+  EZ_ASSERT_DEV(m_ChildActions.IsEmpty(), "The list should be cleared in 'Cleanup'");
 }
 
 ezStatus ezCommandTransaction::Do(bool bRedo)
 {
-  EZ_ASSERT(bRedo == true, "Implementation error");
+  EZ_ASSERT_DEV(bRedo == true, "Implementation error");
 
   const ezUInt32 uiChildActions = m_ChildActions.GetCount();
   for (ezUInt32 i = 0; i < uiChildActions; ++i)
@@ -24,7 +24,7 @@ ezStatus ezCommandTransaction::Do(bool bRedo)
       for (ezInt32 j = i - 1; j >= 0; --j)
       {
         ezStatus status = m_ChildActions[j]->Undo(true);
-        EZ_ASSERT(status.m_Result == EZ_SUCCESS, "Failed redo could not be recovered! Inconsistent state!");
+        EZ_ASSERT_DEV(status.m_Result == EZ_SUCCESS, "Failed redo could not be recovered! Inconsistent state!");
       }
       // A command that originally succeeded failed on redo!
       return ezStatus(EZ_FAILURE);
@@ -43,7 +43,7 @@ ezStatus ezCommandTransaction::Undo(bool bFireEvents)
       for (ezUInt32 j = i + 1; j < uiChildActions; ++j)
       {
         ezStatus status = m_ChildActions[j]->Do(true);
-        EZ_ASSERT(status.m_Result == EZ_SUCCESS, "Failed undo could not be recovered! Inconsistent state!");
+        EZ_ASSERT_DEV(status.m_Result == EZ_SUCCESS, "Failed undo could not be recovered! Inconsistent state!");
       }
       // A command that originally succeeded failed on redo!
       return ezStatus(EZ_FAILURE);
@@ -108,7 +108,7 @@ ezCommandHistory::ezCommandHistory(ezDocumentBase* pDocument) : m_pDocument(pDoc
 
 void ezCommandHistory::BeginTemporaryCommands()
 {
-  EZ_ASSERT(!m_bTemporaryMode, "Temporary Mode cannot be nested");
+  EZ_ASSERT_DEV(!m_bTemporaryMode, "Temporary Mode cannot be nested");
 
   if (m_TransactionStack.IsEmpty())
   {
@@ -121,7 +121,7 @@ void ezCommandHistory::BeginTemporaryCommands()
 
 void ezCommandHistory::EndTemporaryCommands(bool bCancel)
 {
-  EZ_ASSERT(m_bTemporaryMode, "Temporary Mode was not enabled");
+  EZ_ASSERT_DEV(m_bTemporaryMode, "Temporary Mode was not enabled");
 
   m_bTemporaryMode = false;
 
@@ -130,14 +130,14 @@ void ezCommandHistory::EndTemporaryCommands(bool bCancel)
     EndTransaction(bCancel);
     m_bTempTransaction = false;
 
-    EZ_ASSERT(m_TransactionStack.IsEmpty(), "Transaction stack should be empty now");
+    EZ_ASSERT_DEV(m_TransactionStack.IsEmpty(), "Transaction stack should be empty now");
   }
 }
 
 ezStatus ezCommandHistory::Undo()
 {
-  EZ_ASSERT(m_TransactionStack.IsEmpty(), "Can't undo with active transaction!");
-  EZ_ASSERT(!m_UndoHistory.IsEmpty(), "Can't undo with empty undo queue!");
+  EZ_ASSERT_DEV(m_TransactionStack.IsEmpty(), "Can't undo with active transaction!");
+  EZ_ASSERT_DEV(!m_UndoHistory.IsEmpty(), "Can't undo with empty undo queue!");
 
   ezCommandTransaction* pTransaction = m_UndoHistory.PeekBack();
   
@@ -155,8 +155,8 @@ ezStatus ezCommandHistory::Undo()
 
 ezStatus ezCommandHistory::Redo()
 {
-  EZ_ASSERT(m_TransactionStack.IsEmpty(), "Can't redo with active transaction!");
-  EZ_ASSERT(!m_RedoHistory.IsEmpty(), "Can't redo with empty undo queue!");
+  EZ_ASSERT_DEV(m_TransactionStack.IsEmpty(), "Can't redo with active transaction!");
+  EZ_ASSERT_DEV(!m_RedoHistory.IsEmpty(), "Can't redo with empty undo queue!");
 
   ezCommandTransaction* pTransaction = m_RedoHistory.PeekBack();
   
@@ -215,7 +215,7 @@ void ezCommandHistory::StartTransaction()
 
 void ezCommandHistory::EndTransaction(bool bCancel)
 {
-  EZ_ASSERT(!m_TransactionStack.IsEmpty(), "Trying to end transaction without starting one!");
+  EZ_ASSERT_DEV(!m_TransactionStack.IsEmpty(), "Trying to end transaction without starting one!");
 
   if (!bCancel)
   {
@@ -251,7 +251,7 @@ void ezCommandHistory::EndTransaction(bool bCancel)
 
 ezStatus ezCommandHistory::AddCommand(ezCommandBase& command)
 {
-  EZ_ASSERT(!m_TransactionStack.IsEmpty(), "Cannot add command while no transaction is started");
+  EZ_ASSERT_DEV(!m_TransactionStack.IsEmpty(), "Cannot add command while no transaction is started");
 
   return m_TransactionStack.PeekBack()->AddCommand(command);
 }

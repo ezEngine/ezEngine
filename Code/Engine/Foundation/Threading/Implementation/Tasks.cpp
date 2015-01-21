@@ -44,7 +44,7 @@ void ezTask::Run()
   }
 
   {
-    EZ_ASSERT(m_bProfilingIDGenerated, "Profiling id must be valid at this point.");
+    EZ_ASSERT_DEV(m_bProfilingIDGenerated, "Profiling id must be valid at this point.");
     EZ_PROFILE(m_ProfilingID);
 
     Execute();
@@ -105,7 +105,7 @@ ezTaskSystem::TaskData ezTaskSystem::GetNextTask(ezTaskPriority::Enum FirstPrior
   // queue, it will not be a problem. The function will return with 'no work' for the thread,  the thread will try to go to sleep, but the
   // thread-signal will be signaled already and thus the thread will loop again, call 'GetNextTask' a second time and THEN detect the new work item
 
-  EZ_ASSERT(FirstPriority >= ezTaskPriority::EarlyThisFrame && LastPriority < ezTaskPriority::ENUM_COUNT, "Priority Range is invalid: %i to %i", FirstPriority, LastPriority);
+  EZ_ASSERT_DEV(FirstPriority >= ezTaskPriority::EarlyThisFrame && LastPriority < ezTaskPriority::ENUM_COUNT, "Priority Range is invalid: %i to %i", FirstPriority, LastPriority);
 
   for (ezUInt32 i = FirstPriority; i <= (ezUInt32) LastPriority; ++i)
   {
@@ -242,7 +242,7 @@ ezResult ezTaskSystem::CancelTask(ezTask* pTask, ezOnTaskRunning::Enum OnTaskRun
 
   EZ_PROFILE(s_ProfileCancelTask);
 
-  EZ_ASSERT(pTask->m_BelongsToGroup.m_pTaskGroup->m_uiGroupCounter == pTask->m_BelongsToGroup.m_uiGroupCounter, "The task to be removed is in an invalid group.");
+  EZ_ASSERT_DEV(pTask->m_BelongsToGroup.m_pTaskGroup->m_uiGroupCounter == pTask->m_BelongsToGroup.m_uiGroupCounter, "The task to be removed is in an invalid group.");
 
   // we set the cancel flag, to make sure that tasks that support canceling will terminate asap
   pTask->m_bCancelExecution = true;

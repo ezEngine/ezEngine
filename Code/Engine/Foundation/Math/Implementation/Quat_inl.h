@@ -302,7 +302,7 @@ void ezQuatTemplate<Type>::SetShortestRotation(const ezVec3Template<Type>& vDirF
   const Type d = v0.Dot (v1);
   const Type s = ezMath::Sqrt(((Type) 1 + d) * (Type) 2);
 
-  EZ_ASSERT(c.IsValid (), "SetShortestRotation failed.");
+  EZ_ASSERT_DEBUG(c.IsValid (), "SetShortestRotation failed.");
 
   v = c / s;
   w = s / (Type) 2;
@@ -313,7 +313,7 @@ void ezQuatTemplate<Type>::SetShortestRotation(const ezVec3Template<Type>& vDirF
 template<typename Type>
 void ezQuatTemplate<Type>::SetSlerp(const ezQuatTemplate<Type>& qFrom, const ezQuatTemplate<Type>& qTo, Type t)
 {
-  EZ_ASSERT ((t >= (Type) 0) && (t <= (Type) 1), "Invalid lerp factor.");
+  EZ_ASSERT_DEBUG ((t >= (Type) 0) && (t <= (Type) 1), "Invalid lerp factor.");
 
   const Type one = 1;
   const Type qdelta = (Type) 1 - (Type) 0.001;

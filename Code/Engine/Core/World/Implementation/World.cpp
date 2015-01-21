@@ -69,7 +69,7 @@ ezGameObjectHandle ezWorld::CreateObject(const ezGameObjectDesc& desc, ezGameObj
     pParentData = pParentObject->m_pTransformationData;
     uiParentIndex = desc.m_Parent.m_InternalId.m_InstanceIndex;
     uiHierarchyLevel = pParentObject->m_uiHierarchyLevel;
-    EZ_ASSERT(uiHierarchyLevel < (1 << 12), "Max hierarchy level reached");
+    EZ_ASSERT_DEV(uiHierarchyLevel < (1 << 12), "Max hierarchy level reached");
     ++uiHierarchyLevel; // if there is a parent hierarchy level is parent level + 1
   }
 
@@ -142,7 +142,7 @@ void ezWorld::DeleteObject(const ezGameObjectHandle& object)
     ezComponent* pComponent = components[c];
     pComponent->GetManager()->DeleteComponent(pComponent->GetHandle());
   }
-  EZ_ASSERT(pObject->m_Components.GetCount() == 0, "Components should already be removed");
+  EZ_ASSERT_DEV(pObject->m_Components.GetCount() == 0, "Components should already be removed");
 
   // fix parent and siblings
   UnlinkFromParent(pObject);
@@ -183,7 +183,7 @@ void ezWorld::Update()
 {
   CheckForMultithreadedAccess();
 
-  EZ_ASSERT(m_Data.m_UnresolvedUpdateFunctions.IsEmpty(), "There are update functions with unresolved dependencies.");
+  EZ_ASSERT_DEV(m_Data.m_UnresolvedUpdateFunctions.IsEmpty(), "There are update functions with unresolved dependencies.");
 
   EZ_PROFILE(m_Data.m_UpdateProfilingID);
 
@@ -339,7 +339,7 @@ ezResult ezWorld::RegisterUpdateFunction(const ezComponentManagerBase::UpdateFun
 {
   CheckForMultithreadedAccess();
 
-  EZ_ASSERT(desc.m_Phase == ezComponentManagerBase::UpdateFunctionDesc::Async || desc.m_uiGranularity == 0, "Granularity must be 0 for synchronous update functions");
+  EZ_ASSERT_DEV(desc.m_Phase == ezComponentManagerBase::UpdateFunctionDesc::Async || desc.m_uiGranularity == 0, "Granularity must be 0 for synchronous update functions");
 
   ezDynamicArrayBase<ezInternal::WorldData::RegisteredUpdateFunction>& updateFunctions = m_Data.m_UpdateFunctions[desc.m_Phase];
 
@@ -354,7 +354,7 @@ ezResult ezWorld::RegisterUpdateFunction(const ezComponentManagerBase::UpdateFun
   }
   else
   {
-    EZ_ASSERT(desc.m_Phase != ezComponentManagerBase::UpdateFunctionDesc::Async, "Asynchronous update functions must not have dependencies");
+    EZ_ASSERT_DEV(desc.m_Phase != ezComponentManagerBase::UpdateFunctionDesc::Async, "Asynchronous update functions must not have dependencies");
 
     if (RegisterUpdateFunctionWithDependency(desc, true) == EZ_FAILURE)
       return EZ_FAILURE;

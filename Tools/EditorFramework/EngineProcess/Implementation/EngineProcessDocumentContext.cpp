@@ -12,7 +12,7 @@ ezEngineProcessDocumentContext* ezEngineProcessDocumentContext::GetDocumentConte
 
 void ezEngineProcessDocumentContext::AddDocumentContext(ezUuid guid, ezEngineProcessDocumentContext* pView)
 {
-  EZ_ASSERT(!s_DocumentContexts.Contains(guid), "Cannot add a view with an index that already exists");
+  EZ_ASSERT_DEV(!s_DocumentContexts.Contains(guid), "Cannot add a view with an index that already exists");
   s_DocumentContexts[guid] = pView;
 }
 

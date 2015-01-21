@@ -57,7 +57,7 @@ const char* ezStringBase<Derived>::FindSubString(const char* szStringToFind, con
   if (szStartSearchAt == nullptr)
     szStartSearchAt = InternalGetData();
 
-  EZ_ASSERT((szStartSearchAt >= InternalGetData()) && (szStartSearchAt <= InternalGetDataEnd()), "The given pointer to start searching at is not inside this strings valid range.");
+  EZ_ASSERT_DEV((szStartSearchAt >= InternalGetData()) && (szStartSearchAt <= InternalGetDataEnd()), "The given pointer to start searching at is not inside this strings valid range.");
 
   return ezStringUtils::FindSubString(szStartSearchAt, szStringToFind, InternalGetDataEnd());
 }
@@ -68,7 +68,7 @@ const char* ezStringBase<Derived>::FindSubString_NoCase(const char* szStringToFi
   if (szStartSearchAt == nullptr)
     szStartSearchAt = InternalGetData();
 
-  EZ_ASSERT((szStartSearchAt >= InternalGetData()) && (szStartSearchAt <= InternalGetDataEnd()), "The given pointer to start searching at is not inside this strings valid range.");
+  EZ_ASSERT_DEV((szStartSearchAt >= InternalGetData()) && (szStartSearchAt <= InternalGetDataEnd()), "The given pointer to start searching at is not inside this strings valid range.");
 
   return ezStringUtils::FindSubString_NoCase(szStartSearchAt, szStringToFind, InternalGetDataEnd());
 }
@@ -79,7 +79,7 @@ inline const char* ezStringBase<Derived>::FindLastSubString(const char* szString
   if (szStartSearchAt == nullptr)
     szStartSearchAt = InternalGetDataEnd();
 
-  EZ_ASSERT((szStartSearchAt >= InternalGetData()) && (szStartSearchAt <= InternalGetDataEnd()), "The given pointer to start searching at is not inside this strings valid range.");
+  EZ_ASSERT_DEV((szStartSearchAt >= InternalGetData()) && (szStartSearchAt <= InternalGetDataEnd()), "The given pointer to start searching at is not inside this strings valid range.");
 
   return ezStringUtils::FindLastSubString(InternalGetData(), szStringToFind, szStartSearchAt, InternalGetDataEnd());
 }
@@ -90,7 +90,7 @@ inline const char* ezStringBase<Derived>::FindLastSubString_NoCase(const char* s
   if (szStartSearchAt == nullptr)
     szStartSearchAt = InternalGetDataEnd();
 
-  EZ_ASSERT((szStartSearchAt >= InternalGetData()) && (szStartSearchAt <= InternalGetDataEnd()), "The given pointer to start searching at is not inside this strings valid range.");
+  EZ_ASSERT_DEV((szStartSearchAt >= InternalGetData()) && (szStartSearchAt <= InternalGetDataEnd()), "The given pointer to start searching at is not inside this strings valid range.");
 
   return ezStringUtils::FindLastSubString_NoCase(InternalGetData(), szStringToFind, szStartSearchAt, InternalGetDataEnd());
 }
@@ -101,7 +101,7 @@ inline const char* ezStringBase<Derived>::FindWholeWord(const char* szSearchFor,
   if (szStartSearchAt == nullptr)
     szStartSearchAt = InternalGetData();
 
-  EZ_ASSERT((szStartSearchAt >= InternalGetData()) && (szStartSearchAt <= InternalGetDataEnd()), "The given pointer to start searching at is not inside this strings valid range.");
+  EZ_ASSERT_DEV((szStartSearchAt >= InternalGetData()) && (szStartSearchAt <= InternalGetDataEnd()), "The given pointer to start searching at is not inside this strings valid range.");
 
   return ezStringUtils::FindWholeWord(szStartSearchAt, szSearchFor, IsDelimiterCB, InternalGetDataEnd());
 }
@@ -112,7 +112,7 @@ inline const char* ezStringBase<Derived>::FindWholeWord_NoCase(const char* szSea
   if (szStartSearchAt == nullptr)
     szStartSearchAt = InternalGetData();
 
-  EZ_ASSERT((szStartSearchAt >= InternalGetData()) && (szStartSearchAt <= InternalGetDataEnd()), "The given pointer to start searching at is not inside this strings valid range.");
+  EZ_ASSERT_DEV((szStartSearchAt >= InternalGetData()) && (szStartSearchAt <= InternalGetDataEnd()), "The given pointer to start searching at is not inside this strings valid range.");
 
   return ezStringUtils::FindWholeWord_NoCase(szStartSearchAt, szSearchFor, IsDelimiterCB, InternalGetDataEnd());
 }

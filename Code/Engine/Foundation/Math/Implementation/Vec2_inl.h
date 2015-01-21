@@ -189,7 +189,7 @@ EZ_FORCE_INLINE void ezVec2Template<Type>::operator/= (Type f)
 template<typename Type>
 inline void ezVec2Template<Type>::MakeOrthogonalTo (const ezVec2Template<Type>& vNormal)
 {
-  EZ_ASSERT(vNormal.IsNormalized (), "The normal must be normalized.");
+  EZ_ASSERT_DEBUG(vNormal.IsNormalized (), "The normal must be normalized.");
 
   const Type fDot = this->Dot (vNormal);
   *this -= fDot * vNormal;
@@ -199,7 +199,7 @@ template<typename Type>
 EZ_FORCE_INLINE const ezVec2Template<Type> ezVec2Template<Type>::GetOrthogonalVector() const
 {
   EZ_NAN_ASSERT(this);
-  EZ_ASSERT(!IsZero(ezMath::BasicType<Type>::SmallEpsilon()), "The vector must not be zero to be able to compute an orthogonal vector.");
+  EZ_ASSERT_DEBUG(!IsZero(ezMath::BasicType<Type>::SmallEpsilon()), "The vector must not be zero to be able to compute an orthogonal vector.");
 
   return ezVec2Template<Type>(-y, x);
 }
@@ -207,7 +207,7 @@ EZ_FORCE_INLINE const ezVec2Template<Type> ezVec2Template<Type>::GetOrthogonalVe
 template<typename Type>
 inline const ezVec2Template<Type> ezVec2Template<Type>::GetReflectedVector(const ezVec2Template<Type>& vNormal) const 
 {
-  EZ_ASSERT(vNormal.IsNormalized(), "vNormal must be normalized.");
+  EZ_ASSERT_DEBUG(vNormal.IsNormalized(), "vNormal must be normalized.");
 
   return ((*this) - (2 * this->Dot(vNormal) * vNormal));
 }
@@ -224,8 +224,8 @@ EZ_FORCE_INLINE Type ezVec2Template<Type>::Dot(const ezVec2Template<Type>& rhs) 
 template<typename Type>
 inline ezAngle ezVec2Template<Type>::GetAngleBetween(const ezVec2Template<Type>& rhs) const
 {
-  EZ_ASSERT (this->IsNormalized(), "This vector must be normalized.");
-  EZ_ASSERT (rhs.IsNormalized(), "The other vector must be normalized.");
+  EZ_ASSERT_DEBUG (this->IsNormalized(), "This vector must be normalized.");
+  EZ_ASSERT_DEBUG (rhs.IsNormalized(), "The other vector must be normalized.");
 
   return ezMath::ACos(ezMath::Clamp<Type>(this->Dot(rhs), (Type) -1, (Type) 1));
 }

@@ -83,7 +83,7 @@ ezUInt8* ezRendererCore::InternalBeginModifyConstantBuffer(ezConstantBufferResou
 
   ContextState& cs = s_ContextState[pContext];
 
-  EZ_ASSERT(cs.m_pCurrentlyModifyingBuffer == nullptr, "Only one buffer can be modified at a time. Call EndModifyConstantBuffer before updating another buffer.");
+  EZ_ASSERT_DEV(cs.m_pCurrentlyModifyingBuffer == nullptr, "Only one buffer can be modified at a time. Call EndModifyConstantBuffer before updating another buffer.");
 
   cs.m_pCurrentlyModifyingBuffer = ezResourceManager::BeginAcquireResource<ezConstantBufferResource>(hConstantBuffer);
 
@@ -97,7 +97,7 @@ void ezRendererCore::EndModifyConstantBuffer(ezGALContext* pContext)
 
   ContextState& cs = s_ContextState[pContext];
 
-  EZ_ASSERT(cs.m_pCurrentlyModifyingBuffer != nullptr, "No buffer is currently being modified. Call BeginModifyConstantBuffer before calling EndModifyConstantBuffer.");
+  EZ_ASSERT_DEV(cs.m_pCurrentlyModifyingBuffer != nullptr, "No buffer is currently being modified. Call BeginModifyConstantBuffer before calling EndModifyConstantBuffer.");
 
   cs.m_pCurrentlyModifyingBuffer->m_bHasBeenModified = true;
 

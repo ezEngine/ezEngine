@@ -79,11 +79,11 @@ namespace ezInternal
   template <typename T>
   EZ_FORCE_INLINE T* ExtendRawBuffer(T* ptr, ezAllocatorBase* pAllocator, size_t uiCurrentCount, size_t uiNewCount)
   {
-    EZ_ASSERT(uiCurrentCount < uiNewCount, "Shrinking of a buffer is not implemented yet");
-    EZ_ASSERT(!(uiCurrentCount == uiNewCount), "Same size passed in twice.");
+    EZ_ASSERT_DEV(uiCurrentCount < uiNewCount, "Shrinking of a buffer is not implemented yet");
+    EZ_ASSERT_DEV(!(uiCurrentCount == uiNewCount), "Same size passed in twice.");
     if (ptr == NULL)
     {
-      EZ_ASSERT(uiCurrentCount == 0, "current count must be 0 if ptr is NULL");
+      EZ_ASSERT_DEV(uiCurrentCount == 0, "current count must be 0 if ptr is NULL");
 
       return CreateRawBuffer<T>(pAllocator, uiNewCount);
     }

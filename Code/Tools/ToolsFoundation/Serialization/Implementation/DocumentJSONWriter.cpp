@@ -17,14 +17,14 @@ ezDocumentJSONWriter::~ezDocumentJSONWriter()
 
 void ezDocumentJSONWriter::StartGroup(const char* szName)
 {
-  EZ_ASSERT(!m_bInGroup, "Can't start another group while already in a group!");
+  EZ_ASSERT_DEV(!m_bInGroup, "Can't start another group while already in a group!");
   m_Writer.BeginArray(szName);
   m_bInGroup = true;
 }
 
 void ezDocumentJSONWriter::EndGroup()
 {
-  EZ_ASSERT(m_bInGroup, "Can't end a group if non was started!");
+  EZ_ASSERT_DEV(m_bInGroup, "Can't end a group if non was started!");
   m_Writer.EndArray();
   m_bInGroup = false;
 }
@@ -45,7 +45,7 @@ void ezDocumentJSONWriter::WriteObject(const ezSerializedObjectWriterBase& objec
 
 void ezDocumentJSONWriter::EndDocument()
 {
-  EZ_ASSERT(!m_bInGroup, "Can't end document if a group is still open!");
+  EZ_ASSERT_DEV(!m_bInGroup, "Can't end document if a group is still open!");
   m_Writer.EndObject();
 }
 

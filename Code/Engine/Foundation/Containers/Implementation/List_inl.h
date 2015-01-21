@@ -159,7 +159,7 @@ void ezListBase<T>::Clear()
 template <typename T>
 EZ_FORCE_INLINE T& ezListBase<T>::PeekFront()
 {
-  EZ_ASSERT(!IsEmpty(), "The container is empty.");
+  EZ_ASSERT_DEV(!IsEmpty(), "The container is empty.");
 
   return m_First.m_pNext->m_Data;
 }
@@ -167,7 +167,7 @@ EZ_FORCE_INLINE T& ezListBase<T>::PeekFront()
 template <typename T>
 EZ_FORCE_INLINE T& ezListBase<T>::PeekBack()
 {
-  EZ_ASSERT(!IsEmpty(), "The container is empty.");
+  EZ_ASSERT_DEV(!IsEmpty(), "The container is empty.");
 
   return m_Last.m_pPrev->m_Data;
 }
@@ -175,7 +175,7 @@ EZ_FORCE_INLINE T& ezListBase<T>::PeekBack()
 template <typename T>
 EZ_FORCE_INLINE const T& ezListBase<T>::PeekFront() const
 {
-  EZ_ASSERT(!IsEmpty(), "The container is empty.");
+  EZ_ASSERT_DEV(!IsEmpty(), "The container is empty.");
 
   return m_First.m_pNext->m_Data;
 }
@@ -183,7 +183,7 @@ EZ_FORCE_INLINE const T& ezListBase<T>::PeekFront() const
 template <typename T>
 EZ_FORCE_INLINE const T& ezListBase<T>::PeekBack() const
 {
-  EZ_ASSERT(!IsEmpty(), "The container is empty.");
+  EZ_ASSERT_DEV(!IsEmpty(), "The container is empty.");
 
   return m_Last.m_pPrev->m_Data;
 }
@@ -216,7 +216,7 @@ EZ_FORCE_INLINE void ezListBase<T>::PushFront(const T& element)
 template <typename T>
 EZ_FORCE_INLINE void ezListBase<T>::PopBack()
 {
-  EZ_ASSERT(!IsEmpty(), "The container is empty.");
+  EZ_ASSERT_DEV(!IsEmpty(), "The container is empty.");
 
   Remove(Iterator(m_Last.m_pPrev));
 }
@@ -224,7 +224,7 @@ EZ_FORCE_INLINE void ezListBase<T>::PopBack()
 template <typename T>
 void ezListBase<T>::PopFront()
 {
-  EZ_ASSERT(!IsEmpty(), "The container is empty.");
+  EZ_ASSERT_DEV(!IsEmpty(), "The container is empty.");
 
   Remove(Iterator(m_First.m_pNext));
 }
@@ -232,7 +232,7 @@ void ezListBase<T>::PopFront()
 template <typename T>
 typename ezListBase<T>::Iterator ezListBase<T>::Insert(const Iterator& pos, const T& data)
 {
-  EZ_ASSERT(pos.m_pElement != nullptr, "The iterator (pos) is invalid.");
+  EZ_ASSERT_DEV(pos.m_pElement != nullptr, "The iterator (pos) is invalid.");
 
   ++m_uiCount;
   ListElement* elem = AcquireNode(data);
@@ -249,9 +249,9 @@ typename ezListBase<T>::Iterator ezListBase<T>::Insert(const Iterator& pos, cons
 template <typename T>
 void ezListBase<T>::Insert(const Iterator& pos, ConstIterator first, const ConstIterator& last)
 {
-  EZ_ASSERT(pos.m_pElement != nullptr, "The iterator (pos) is invalid.");
-  EZ_ASSERT(first.m_pElement != nullptr, "The iterator (first) is invalid.");
-  EZ_ASSERT(last.m_pElement != nullptr, "The iterator (last) is invalid.");
+  EZ_ASSERT_DEV(pos.m_pElement != nullptr, "The iterator (pos) is invalid.");
+  EZ_ASSERT_DEV(first.m_pElement != nullptr, "The iterator (first) is invalid.");
+  EZ_ASSERT_DEV(last.m_pElement != nullptr, "The iterator (last) is invalid.");
 
   while (first != last)
   {
@@ -263,8 +263,8 @@ void ezListBase<T>::Insert(const Iterator& pos, ConstIterator first, const Const
 template <typename T>
 typename ezListBase<T>::Iterator ezListBase<T>::Remove(const Iterator& pos)
 {
-  EZ_ASSERT(!IsEmpty(), "The container is empty.");
-  EZ_ASSERT(pos.m_pElement != nullptr, "The iterator (pos) is invalid.");
+  EZ_ASSERT_DEV(!IsEmpty(), "The container is empty.");
+  EZ_ASSERT_DEV(pos.m_pElement != nullptr, "The iterator (pos) is invalid.");
 
   ListElement* pPrev = pos.m_pElement->m_pPrev;
   ListElement* pNext = pos.m_pElement->m_pNext;
@@ -280,9 +280,9 @@ typename ezListBase<T>::Iterator ezListBase<T>::Remove(const Iterator& pos)
 template <typename T>
 typename ezListBase<T>::Iterator ezListBase<T>::Remove(Iterator first, const Iterator& last)
 {
-  EZ_ASSERT(!IsEmpty(), "The container is empty.");
-  EZ_ASSERT(first.m_pElement != nullptr, "The iterator (first) is invalid.");
-  EZ_ASSERT(last.m_pElement != nullptr, "The iterator (last) is invalid.");
+  EZ_ASSERT_DEV(!IsEmpty(), "The container is empty.");
+  EZ_ASSERT_DEV(first.m_pElement != nullptr, "The iterator (first) is invalid.");
+  EZ_ASSERT_DEV(last.m_pElement != nullptr, "The iterator (last) is invalid.");
 
   while (first != last)
     first = Remove(first);

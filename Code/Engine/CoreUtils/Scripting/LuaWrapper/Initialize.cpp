@@ -25,7 +25,7 @@ ezLuaWrapper::~ezLuaWrapper()
 
 void ezLuaWrapper::Clear()
 {
-  EZ_ASSERT(m_bReleaseOnExit, "Cannot clear a script that did not create the Lua state itself.");
+  EZ_ASSERT_DEV(m_bReleaseOnExit, "Cannot clear a script that did not create the Lua state itself.");
 
   if (m_pState)
     lua_close(m_pState);
@@ -37,7 +37,7 @@ void ezLuaWrapper::Clear()
 
 ezResult ezLuaWrapper::ExecuteString(const char* szString, const char* szDebugChunkName, ezLogInterface* pLogInterface) const
 {
-  EZ_ASSERT(m_States.m_iLuaReturnValues == 0, "ezLuaWrapper::ExecuteString: You didn't discard the return-values of the previous script call. %d Return-values were expected.", m_States.m_iLuaReturnValues);
+  EZ_ASSERT_DEV(m_States.m_iLuaReturnValues == 0, "ezLuaWrapper::ExecuteString: You didn't discard the return-values of the previous script call. %d Return-values were expected.", m_States.m_iLuaReturnValues);
 
   if (!pLogInterface)
     pLogInterface = ezGlobalLog::GetInstance();

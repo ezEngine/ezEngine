@@ -31,7 +31,7 @@ void ezCommandLineUtils::SetCommandLine()
 
  LPWSTR* argvw = CommandLineToArgvW(GetCommandLineW(), &argc);
 
- EZ_ASSERT(argvw != nullptr, "CommandLineToArgvW failed");
+ EZ_ASSERT_RELEASE(argvw != nullptr, "CommandLineToArgvW failed");
 
  ezArrayPtr<ezStringUtf8> ArgvUtf8 = EZ_DEFAULT_NEW_ARRAY(ezStringUtf8, argc);
  ezArrayPtr<const char*> argv = EZ_DEFAULT_NEW_ARRAY(const char*, argc);
@@ -70,7 +70,7 @@ const char* ezCommandLineUtils::GetParameter(ezUInt32 uiParam) const
 
 ezInt32 ezCommandLineUtils::GetOptionIndex(const char* szOption, bool bCaseSensitive) const
 {
-  EZ_ASSERT(ezStringUtils::StartsWith(szOption, "-"), "All command line option names must start with a hyphen (e.g. -file)");
+  EZ_ASSERT_DEV(ezStringUtils::StartsWith(szOption, "-"), "All command line option names must start with a hyphen (e.g. -file)");
 
   for (ezUInt32 i = 0; i < m_Commands.GetCount(); ++i)
   {

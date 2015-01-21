@@ -65,12 +65,12 @@ namespace ezDataDirectory
   {
     for (ezUInt32 i = 0; i < m_Readers.GetCount(); ++i)
     {
-      EZ_ASSERT(!m_Readers[i]->m_bIsInUse, "Cannot remove a data directory while there are still files open in it.");
+      EZ_ASSERT_DEV(!m_Readers[i]->m_bIsInUse, "Cannot remove a data directory while there are still files open in it.");
     }
 
     for (ezUInt32 i = 0; i < m_Writers.GetCount(); ++i)
     {
-      EZ_ASSERT(!m_Writers[i]->m_bIsInUse, "Cannot remove a data directory while there are still files open in it.");
+      EZ_ASSERT_DEV(!m_Writers[i]->m_bIsInUse, "Cannot remove a data directory while there are still files open in it.");
     }
 
     FolderType* pThis = this;

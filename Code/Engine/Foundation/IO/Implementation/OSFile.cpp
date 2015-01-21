@@ -29,8 +29,8 @@ ezResult ezOSFile::Open(const char* szFile, ezFileMode::Enum OpenMode)
 {
   m_iFileID = s_FileCounter.Increment();
 
-  EZ_ASSERT(OpenMode >= ezFileMode::Read && OpenMode <= ezFileMode::Append, "Invalid Mode");
-  EZ_ASSERT(!IsOpen(), "The file has already been opened.");
+  EZ_ASSERT_DEV(OpenMode >= ezFileMode::Read && OpenMode <= ezFileMode::Append, "Invalid Mode");
+  EZ_ASSERT_DEV(!IsOpen(), "The file has already been opened.");
 
   const ezTime t0 = ezTime::Now();
 
@@ -110,8 +110,8 @@ void ezOSFile::Close()
 
 ezResult ezOSFile::Write(const void* pBuffer, ezUInt64 uiBytes)
 {
-  EZ_ASSERT((m_FileMode == ezFileMode::Write) || (m_FileMode == ezFileMode::Append), "The file is not opened for writing.");
-  EZ_ASSERT(pBuffer != nullptr, "pBuffer must not be nullptr.");
+  EZ_ASSERT_DEV((m_FileMode == ezFileMode::Write) || (m_FileMode == ezFileMode::Append), "The file is not opened for writing.");
+  EZ_ASSERT_DEV(pBuffer != nullptr, "pBuffer must not be nullptr.");
 
   const ezTime t0 = ezTime::Now();
 
@@ -135,8 +135,8 @@ ezResult ezOSFile::Write(const void* pBuffer, ezUInt64 uiBytes)
 
 ezUInt64 ezOSFile::Read(void* pBuffer, ezUInt64 uiBytes)
 {
-  EZ_ASSERT(m_FileMode == ezFileMode::Read, "The file is not opened for reading.");
-  EZ_ASSERT(pBuffer != nullptr, "pBuffer must not be nullptr.");
+  EZ_ASSERT_DEV(m_FileMode == ezFileMode::Read, "The file is not opened for reading.");
+  EZ_ASSERT_DEV(pBuffer != nullptr, "pBuffer must not be nullptr.");
 
   const ezTime t0 = ezTime::Now();
 
@@ -160,22 +160,22 @@ ezUInt64 ezOSFile::Read(void* pBuffer, ezUInt64 uiBytes)
 
 ezUInt64 ezOSFile::GetFilePosition() const
 {
-  EZ_ASSERT(IsOpen(), "The file must be open to tell the file pointer position.");
+  EZ_ASSERT_DEV(IsOpen(), "The file must be open to tell the file pointer position.");
 
   return InternalGetFilePosition();
 }
 
 void ezOSFile::SetFilePosition(ezInt64 iDistance, ezFilePos::Enum Pos) const
 {
-  EZ_ASSERT(IsOpen(), "The file must be open to tell the file pointer position.");
-  EZ_ASSERT(m_FileMode != ezFileMode::Append, "SetFilePosition is not possible on files that were opened for appending.");
+  EZ_ASSERT_DEV(IsOpen(), "The file must be open to tell the file pointer position.");
+  EZ_ASSERT_DEV(m_FileMode != ezFileMode::Append, "SetFilePosition is not possible on files that were opened for appending.");
 
   return InternalSetFilePosition(iDistance, Pos);
 }
 
 ezUInt64 ezOSFile::GetFileSize() const
 {
-  EZ_ASSERT(IsOpen(), "The file must be open to tell the file size.");
+  EZ_ASSERT_DEV(IsOpen(), "The file must be open to tell the file size.");
 
   const ezInt64 iCurPos = static_cast<ezInt64>(GetFilePosition());
 
@@ -249,7 +249,7 @@ ezResult ezOSFile::CreateDirectoryStructure(const char* szDirectory)
   s.MakeCleanPath();
   s.MakePathSeparatorsNative();
 
-  EZ_ASSERT(s.IsAbsolutePath(), "The path '%s' is not absolute.", s.GetData());
+  EZ_ASSERT_DEV(s.IsAbsolutePath(), "The path '%s' is not absolute.", s.GetData());
 
   ezStringBuilder sCurPath;
 
@@ -353,7 +353,7 @@ done:
     s.MakeCleanPath();
     s.MakePathSeparatorsNative();
 
-    EZ_ASSERT(s.IsAbsolutePath(), "The path '%s' is not absolute.", s.GetData());
+    EZ_ASSERT_DEV(s.IsAbsolutePath(), "The path '%s' is not absolute.", s.GetData());
 
     const ezResult Res = InternalGetFileStats(s.GetData(), out_Stats);
 
@@ -380,7 +380,7 @@ done:
     s.MakeCleanPath();
     s.MakePathSeparatorsNative();
 
-    EZ_ASSERT(s.IsAbsolutePath(), "The path '%s' is not absolute.", s.GetData());
+    EZ_ASSERT_DEV(s.IsAbsolutePath(), "The path '%s' is not absolute.", s.GetData());
 
     ezStringBuilder sCurPath;
 

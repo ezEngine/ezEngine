@@ -25,7 +25,7 @@ public:
 
   virtual void Deserialize(ezArchiveReader& stream) override
   {
-    EZ_ASSERT(stream.GetStoredTypeVersion<TypeA>() == 2, "Wrong version");
+    EZ_ASSERT_DEV(stream.GetStoredTypeVersion<TypeA>() == 2, "Wrong version");
 
     m_pReference = nullptr;
 
@@ -69,7 +69,7 @@ public:
 
   virtual void Deserialize(ezArchiveReader& stream) override
   {
-    EZ_ASSERT(stream.GetStoredTypeVersion<TypeAB>() == 3, "Wrong version");
+    EZ_ASSERT_DEV(stream.GetStoredTypeVersion<TypeAB>() == 3, "Wrong version");
 
     TypeA::Deserialize(stream);
 
@@ -122,15 +122,15 @@ public:
 
   virtual void Deserialize(ezArchiveReader& stream) override
   {
-    EZ_ASSERT(stream.GetStoredTypeVersion<TypeABD>() == 5, "Wrong version");
+    EZ_ASSERT_DEV(stream.GetStoredTypeVersion<TypeABD>() == 5, "Wrong version");
 
     TypeAB::Deserialize(stream);
 
     stream >> m_iDataABD;
 
     pA = stream.ReadReflectedObject();
-    EZ_ASSERT(pA != nullptr, "bla");
-    EZ_ASSERT(pA->GetDynamicRTTI() == ezGetStaticRTTI<TypeA>(), "Wrong type");
+    EZ_ASSERT_DEV(pA != nullptr, "bla");
+    EZ_ASSERT_DEV(pA->GetDynamicRTTI() == ezGetStaticRTTI<TypeA>(), "Wrong type");
   }
 
   virtual void OnDeserialized() override
@@ -163,12 +163,12 @@ public:
 
   virtual void Deserialize(ezArchiveReader& stream) override
   {
-    EZ_ASSERT(stream.GetStoredTypeVersion<TypeC>() == 4, "Wrong version");
+    EZ_ASSERT_DEV(stream.GetStoredTypeVersion<TypeC>() == 4, "Wrong version");
 
     stream >> m_iDataC;
 
     ezReflectedClass* pA = stream.ReadReflectedObject();
-    EZ_ASSERT(pA != nullptr, "bla");
+    EZ_ASSERT_DEV(pA != nullptr, "bla");
 
     pA->GetDynamicRTTI()->GetAllocator()->Deallocate(pA);
   }
@@ -196,7 +196,7 @@ public:
     ezString s;
     stream >> s;
 
-    EZ_ASSERT(s == pRtti->GetTypeName(), "Wrong type");
+    EZ_ASSERT_DEV(s == pRtti->GetTypeName(), "Wrong type");
 
     if (s == "TypeAB")
       return new TypeAB;

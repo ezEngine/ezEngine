@@ -10,7 +10,7 @@ ezFrustum::ezFrustum()
 
 void ezFrustum::SetFrustum(const ezVec3& vPosition, ezUInt8 uiNumPlanes, const ezPlane* pPlanes)
 {
-  EZ_ASSERT(uiNumPlanes <= 16, "The frustum cannot have more than 16 planes.");
+  EZ_ASSERT_DEBUG(uiNumPlanes <= 16, "The frustum cannot have more than 16 planes.");
 
   m_vPosition = vPosition;
 

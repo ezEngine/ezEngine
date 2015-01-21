@@ -10,7 +10,7 @@ struct ezImageConversionMixinBase : public ezImageConversionBase
   /// \brief Converts an image by iterating over all sub-images and calling the implementation.
   virtual ezResult DoConvert(const ezImage& source, ezImage& target, ezImageFormat::Enum targetFormat) const override
   {
-    EZ_ASSERT(
+    EZ_ASSERT_DEV(
       ezImageFormat::GetBitsPerPixel(source.GetImageFormat()) == Impl::s_uiSourceBpp &&
       ezImageFormat::GetBitsPerPixel(targetFormat) == Impl::s_uiTargetBpp,
       "Image format pixel size not supported by this conversion routine");
@@ -186,7 +186,7 @@ struct ezImageConversionMixinLinear : ezImageConversionMixinBase<Impl>
         pTarget += Impl::s_uiMultiConversionSize * uiTargetBytesPerPixel;
       }
 
-      EZ_ASSERT(uiLeadInElements + uiMiddleElements <= uiElements, "This will result in a memory access violation due to a variable underflow.");
+      EZ_ASSERT_DEV(uiLeadInElements + uiMiddleElements <= uiElements, "This will result in a memory access violation due to a variable underflow.");
 
       // Convert element-wise until the end
       const ezUInt32 uiLeadOutElements = uiElements - (uiLeadInElements + uiMiddleElements);

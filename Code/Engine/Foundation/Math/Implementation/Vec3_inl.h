@@ -223,7 +223,7 @@ ezResult ezVec3Template<Type>::CalculateNormal(const ezVec3Template<Type>& v1, c
 template<typename Type>
 void ezVec3Template<Type>::MakeOrthogonalTo(const ezVec3Template<Type>& vNormal)
 {
-  EZ_ASSERT(vNormal.IsNormalized(), "The vector to make this vector orthogonal to, must be normalized. It's length is %.3f", vNormal.GetLength());
+  EZ_ASSERT_DEBUG(vNormal.IsNormalized(), "The vector to make this vector orthogonal to, must be normalized. It's length is %.3f", vNormal.GetLength());
 
   ezVec3Template<Type> vOrtho = vNormal.Cross(*this);
   *this = vOrtho.Cross(vNormal);
@@ -232,7 +232,7 @@ void ezVec3Template<Type>::MakeOrthogonalTo(const ezVec3Template<Type>& vNormal)
 template<typename Type>
 const ezVec3Template<Type> ezVec3Template<Type>::GetOrthogonalVector() const
 {
-  EZ_ASSERT(!IsZero(ezMath::BasicType<Type>::SmallEpsilon()), "The vector must not be zero to be able to compute an orthogonal vector.");
+  EZ_ASSERT_DEBUG(!IsZero(ezMath::BasicType<Type>::SmallEpsilon()), "The vector must not be zero to be able to compute an orthogonal vector.");
 
   Type fDot = ezMath::Abs(this->Dot (ezVec3Template<Type> (0, 1, 0)));
   if (fDot < 0.999f)
@@ -244,7 +244,7 @@ const ezVec3Template<Type> ezVec3Template<Type>::GetOrthogonalVector() const
 template<typename Type>
 const ezVec3Template<Type> ezVec3Template<Type>::GetReflectedVector(const ezVec3Template<Type>& vNormal) const 
 {
-  EZ_ASSERT(vNormal.IsNormalized(), "vNormal must be normalized.");
+  EZ_ASSERT_DEBUG(vNormal.IsNormalized(), "vNormal must be normalized.");
 
   return ((*this) - ((Type) 2 * this->Dot (vNormal) * vNormal));
 }
@@ -272,8 +272,8 @@ const ezVec3Template<Type> ezVec3Template<Type>::Cross(const ezVec3Template<Type
 template<typename Type>
 ezAngle ezVec3Template<Type>::GetAngleBetween(const ezVec3Template<Type>& rhs) const
 {
-  EZ_ASSERT (this->IsNormalized(), "This vector must be normalized.");
-  EZ_ASSERT (rhs.IsNormalized(), "The other vector must be normalized.");
+  EZ_ASSERT_DEBUG (this->IsNormalized(), "This vector must be normalized.");
+  EZ_ASSERT_DEBUG (rhs.IsNormalized(), "The other vector must be normalized.");
 
   return ezMath::ACos(ezMath::Clamp(this->Dot (rhs), (Type) -1, (Type) 1));
 }
@@ -411,7 +411,7 @@ EZ_FORCE_INLINE bool operator< (const ezVec3Template<Type>& v1, const ezVec3Temp
 template<typename Type>
 const ezVec3Template<Type> ezVec3Template<Type>::GetRefractedVector (const ezVec3Template<Type>& vNormal, Type fRefIndex1, Type fRefIndex2) const
 {
-  EZ_ASSERT (vNormal.IsNormalized(), "vNormal must be normalized.");
+  EZ_ASSERT_DEBUG (vNormal.IsNormalized(), "vNormal must be normalized.");
 
   const Type n = fRefIndex1 / fRefIndex2;
   const Type cosI = this->Dot (vNormal);

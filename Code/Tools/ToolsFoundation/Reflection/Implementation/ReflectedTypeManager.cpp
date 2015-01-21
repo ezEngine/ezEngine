@@ -42,7 +42,7 @@ ezReflectedTypeHandle ezReflectedTypeManager::RegisterType(const ezReflectedType
   else
   {
     ezReflectedTypeHandle hParent = GetTypeHandleByName(desc.m_sParentTypeName.GetData());
-    EZ_ASSERT(!hParent.IsInvalidated(), "ezReflectedTypeManager::RegisterType: Can't register a type to which the parent type is not known yet!");
+    EZ_ASSERT_DEV(!hParent.IsInvalidated(), "ezReflectedTypeManager::RegisterType: Can't register a type to which the parent type is not known yet!");
     pType = EZ_DEFAULT_NEW(ezReflectedType)(desc.m_sTypeName.GetData(), desc.m_sPluginName.GetData(), hParent);
     pType->m_Dependencies.Insert(hParent);
   }
@@ -63,7 +63,7 @@ ezReflectedTypeHandle ezReflectedTypeManager::RegisterType(const ezReflectedType
     else
     {
       ezReflectedTypeHandle hProp = GetTypeHandleByName(propDesc.m_sType.GetData());
-      EZ_ASSERT(!hProp.IsInvalidated(), "ezReflectedTypeManager::RegisterType: Can't register a type to which a property's type is not known yet!");
+      EZ_ASSERT_DEV(!hProp.IsInvalidated(), "ezReflectedTypeManager::RegisterType: Can't register a type to which a property's type is not known yet!");
       pType->m_Properties.PushBack(ezReflectedProperty(propDesc.m_sName.GetData(), hProp, propDesc.m_Flags));
       pType->m_Dependencies.Insert(hProp);
     }
@@ -173,5 +173,5 @@ void ezReflectedTypeManager::Shutdown()
     UnregisterType(it.Id());
   }
 
-  EZ_ASSERT(m_Types.IsEmpty() && m_NameToHandle.IsEmpty(), "ezReflectedTypeManager::Shutdown: Removal of types failed!");
+  EZ_ASSERT_DEV(m_Types.IsEmpty() && m_NameToHandle.IsEmpty(), "ezReflectedTypeManager::Shutdown: Removal of types failed!");
 }

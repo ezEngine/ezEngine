@@ -174,7 +174,7 @@ public:
   /// \brief Returns one of the command line arguments that was passed to the application.
   const char* GetArgument(ezUInt32 uiArgument) const
   {
-    EZ_ASSERT(uiArgument < m_uiArgumentCount, "There are only %i arguments, cannot access argument %i.", m_uiArgumentCount, uiArgument);
+    EZ_ASSERT_DEV(uiArgument < m_uiArgumentCount, "There are only %i arguments, cannot access argument %i.", m_uiArgumentCount, uiArgument);
 
     return m_ppArguments[uiArgument];
   }

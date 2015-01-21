@@ -132,7 +132,7 @@ ezTestAppRun ezRendererTestBasics::SubtestRasterizerStates()
   ClearScreen(clear);
 
   hState = m_pDevice->CreateRasterizerState(RasterStateDesc);
-  EZ_ASSERT(!hState.IsInvalidated(), "Couldn't create rasterizer state!");
+  EZ_ASSERT_DEV(!hState.IsInvalidated(), "Couldn't create rasterizer state!");
 
   m_pDevice->GetPrimaryContext()->SetRasterizerState(hState);
 

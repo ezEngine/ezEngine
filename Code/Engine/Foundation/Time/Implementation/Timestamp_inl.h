@@ -27,38 +27,38 @@ inline bool ezTimestamp::IsValid() const
 
 inline void ezTimestamp::operator+=(const ezTime& timeSpan)
 {
-  EZ_ASSERT(IsValid(), "Arithmetics on invalid time stamps are not allowed!");
+  EZ_ASSERT_DEBUG(IsValid(), "Arithmetics on invalid time stamps are not allowed!");
   m_iTimestamp += (ezInt64)timeSpan.GetMicroseconds();
 }
 
 inline void ezTimestamp::operator-=(const ezTime& timeSpan)
 {
-  EZ_ASSERT(IsValid(), "Arithmetics on invalid time stamps are not allowed!");
+  EZ_ASSERT_DEBUG(IsValid(), "Arithmetics on invalid time stamps are not allowed!");
   m_iTimestamp -= (ezInt64)timeSpan.GetMicroseconds();
 }
 
 inline const ezTime ezTimestamp::operator-(const ezTimestamp& other) const
 {
-  EZ_ASSERT(IsValid(), "Arithmetics on invalid time stamps are not allowed!");
-  EZ_ASSERT(other.IsValid(), "Arithmetics on invalid time stamps are not allowed!");
+  EZ_ASSERT_DEBUG(IsValid(), "Arithmetics on invalid time stamps are not allowed!");
+  EZ_ASSERT_DEBUG(other.IsValid(), "Arithmetics on invalid time stamps are not allowed!");
   return ezTime::Microseconds((double)(m_iTimestamp - other.m_iTimestamp)); 
 }
 
 inline const ezTimestamp ezTimestamp::operator+(const ezTime& timeSpan) const
 {
-  EZ_ASSERT(IsValid(), "Arithmetics on invalid time stamps are not allowed!");
+  EZ_ASSERT_DEBUG(IsValid(), "Arithmetics on invalid time stamps are not allowed!");
   return ezTimestamp(m_iTimestamp + (ezInt64)timeSpan.GetMicroseconds(), ezSIUnitOfTime::Microsecond);
 }
 
 inline const ezTimestamp ezTimestamp::operator-(const ezTime& timeSpan) const
 {
-  EZ_ASSERT(IsValid(), "Arithmetics on invalid time stamps are not allowed!");
+  EZ_ASSERT_DEBUG(IsValid(), "Arithmetics on invalid time stamps are not allowed!");
   return ezTimestamp(m_iTimestamp - (ezInt64)timeSpan.GetMicroseconds(), ezSIUnitOfTime::Microsecond);
 }
 
 inline const ezTimestamp operator+ (const ezTime& timeSpan, const ezTimestamp& timestamp)
 {
-  EZ_ASSERT(timestamp.IsValid(), "Arithmetics on invalid time stamps are not allowed!");
+  EZ_ASSERT_DEBUG(timestamp.IsValid(), "Arithmetics on invalid time stamps are not allowed!");
   return ezTimestamp(timestamp.GetInt64(ezSIUnitOfTime::Microsecond) + (ezInt64)timeSpan.GetMicroseconds(), ezSIUnitOfTime::Microsecond);
 }
 

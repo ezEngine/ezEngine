@@ -10,12 +10,12 @@ ezEvent<ezEditorProject::Request&> ezEditorProject::s_Requests;
 
 ezEditorProject::ezEditorProject(const char* szProjectPath)
 {
-  EZ_ASSERT(s_pInstance == nullptr, "There can be only one");
+  EZ_ASSERT_DEV(s_pInstance == nullptr, "There can be only one");
   
   s_pInstance = this;
 
   m_sProjectPath = szProjectPath;
-  EZ_ASSERT(!m_sProjectPath.IsEmpty(), "Path cannot be empty.");
+  EZ_ASSERT_DEV(!m_sProjectPath.IsEmpty(), "Path cannot be empty.");
 }
 
 ezEditorProject::~ezEditorProject()

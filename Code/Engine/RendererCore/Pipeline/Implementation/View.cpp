@@ -17,7 +17,7 @@ void ezView::SetName(const char* szName)
 
 void ezView::ExtractData()
 {
-  EZ_ASSERT(IsValid(), "Cannot extract data from an invalid view");
+  EZ_ASSERT_DEV(IsValid(), "Cannot extract data from an invalid view");
 
   EZ_PROFILE(m_ExtractDataProfilingID);
 
@@ -26,7 +26,7 @@ void ezView::ExtractData()
 
 void ezView::Render(ezGALContext* pContext)
 {
-  EZ_ASSERT(IsValid(), "Cannot render an invalid view");
+  EZ_ASSERT_DEV(IsValid(), "Cannot render an invalid view");
 
   EZ_PROFILE(m_RenderProfilingID);
 

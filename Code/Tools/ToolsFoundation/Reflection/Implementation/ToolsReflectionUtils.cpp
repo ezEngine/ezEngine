@@ -76,7 +76,7 @@ ezVariant ezToolsReflectionUtils::GetDefaultVariantFromType(ezVariant::Type::Enu
 
 void ezToolsReflectionUtils::GetReflectedTypeDescriptorFromRtti(const ezRTTI* pRtti, ezReflectedTypeDescriptor& out_desc)
 {
-  EZ_ASSERT(pRtti != nullptr, "Type to process must not be null!");
+  EZ_ASSERT_DEV(pRtti != nullptr, "Type to process must not be null!");
   out_desc.m_sTypeName = pRtti->GetTypeName();
   out_desc.m_sPluginName = pRtti->GetPluginName();
   const ezRTTI* pParentRtti = pRtti->GetParentType();
@@ -114,7 +114,7 @@ void ezToolsReflectionUtils::GetReflectedTypeDescriptorFromRtti(const ezRTTI* pR
         }
         else
         {
-          EZ_ASSERT(false, "Arrays and pointers are not supported yet!");
+          EZ_ASSERT_DEV(false, "Arrays and pointers are not supported yet!");
         }
       }
       break;
@@ -143,7 +143,7 @@ ezPropertyPath ezToolsReflectionUtils::CreatePropertyPath(const char* pData1, co
 
 ezAbstractMemberProperty* ezToolsReflectionUtils::GetMemberPropertyByPath(const ezRTTI*& inout_pRtti, void*& inout_pData, const ezPropertyPath& path)
 {
-  EZ_ASSERT(path.GetCount() > 0, "ezReflectedTypeDirectAccessor: the given property path is empty!");
+  EZ_ASSERT_DEV(path.GetCount() > 0, "ezReflectedTypeDirectAccessor: the given property path is empty!");
 
   ezAbstractMemberProperty* pCurrentProp = ezReflectionUtils::GetMemberProperty(inout_pRtti, path[0]);
 
@@ -183,7 +183,7 @@ void ezToolsReflectionUtils::GetPropertyPathFromString(const char* szPath, ezPro
 
 ezString ezToolsReflectionUtils::GetStringFromPropertyPath(const ezPropertyPath& Path)
 {
-  EZ_ASSERT(Path.GetCount() > 0, "Path must not be empty");
+  EZ_ASSERT_DEV(Path.GetCount() > 0, "Path must not be empty");
 
   ezStringBuilder pathBuilder(Path[0]);
 

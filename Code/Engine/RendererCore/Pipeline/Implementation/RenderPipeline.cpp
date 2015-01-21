@@ -134,7 +134,7 @@ void ezRenderPipeline::ClearPipelineData(PipelineData* pPipeLineData)
 //static 
 ezRenderPassType ezRenderPipeline::RegisterPassType(const char* szPassTypeName)
 {
-  EZ_ASSERT(MAX_PASS_TYPES > s_uiNextPassType, "Reached the maximum of %d pass types.", MAX_PASS_TYPES);
+  EZ_ASSERT_RELEASE(MAX_PASS_TYPES > s_uiNextPassType, "Reached the maximum of %d pass types.", MAX_PASS_TYPES);
 
   ezRenderPassType newType = s_uiNextPassType;
   s_PassTypeData[newType].m_sName.Assign(szPassTypeName);

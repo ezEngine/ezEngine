@@ -5,7 +5,7 @@
 
 void ezStringWChar::operator=(const char* szUtf8)
 {
-  EZ_ASSERT(ezUnicodeUtils::IsValidUtf8(szUtf8), "Input Data is not a valid Utf8 string. Did you intend to use a Wide-String and forget the 'L' prefix?");
+  EZ_ASSERT_DEV(ezUnicodeUtils::IsValidUtf8(szUtf8), "Input Data is not a valid Utf8 string. Did you intend to use a Wide-String and forget the 'L' prefix?");
 
   m_Data.Clear();
 
@@ -38,7 +38,7 @@ void ezStringWChar::operator=(const ezUInt16* szUtf16)
   {
     // skip any Utf16 little endian Byte Order Mark
     ezUnicodeUtils::SkipUtf16BomLE(szUtf16);
-    EZ_ASSERT(!ezUnicodeUtils::SkipUtf16BomBE(szUtf16), "Utf-16 Big Endian is currently not supported.");
+    EZ_ASSERT_DEV(!ezUnicodeUtils::SkipUtf16BomBE(szUtf16), "Utf-16 Big Endian is currently not supported.");
 
     while (*szUtf16 != '\0')
     {
@@ -102,7 +102,7 @@ void ezStringWChar::operator=(const wchar_t* szWChar)
 
 void ezStringUtf8::operator=(const char* szUtf8)
 {
-  EZ_ASSERT(ezUnicodeUtils::IsValidUtf8(szUtf8), "Input Data is not a valid Utf8 string. Did you intend to use a Wide-String and forget the 'L' prefix?");
+  EZ_ASSERT_DEV(ezUnicodeUtils::IsValidUtf8(szUtf8), "Input Data is not a valid Utf8 string. Did you intend to use a Wide-String and forget the 'L' prefix?");
 
   m_Data.Clear();
 
@@ -131,7 +131,7 @@ void ezStringUtf8::operator=(const ezUInt16* szUtf16)
   {
     // skip any Utf16 little endian Byte Order Mark
     ezUnicodeUtils::SkipUtf16BomLE(szUtf16);
-    EZ_ASSERT(!ezUnicodeUtils::SkipUtf16BomBE(szUtf16), "Utf-16 Big Endian is currently not supported.");
+    EZ_ASSERT_DEV(!ezUnicodeUtils::SkipUtf16BomBE(szUtf16), "Utf-16 Big Endian is currently not supported.");
 
     while (*szUtf16 != '\0')
     {
@@ -199,7 +199,7 @@ void ezStringUtf8::operator=(const wchar_t* szWChar)
 
 void ezStringUtf16::operator=(const char* szUtf8)
 {
-  EZ_ASSERT(ezUnicodeUtils::IsValidUtf8(szUtf8), "Input Data is not a valid Utf8 string. Did you intend to use a Wide-String and forget the 'L' prefix?");
+  EZ_ASSERT_DEV(ezUnicodeUtils::IsValidUtf8(szUtf8), "Input Data is not a valid Utf8 string. Did you intend to use a Wide-String and forget the 'L' prefix?");
 
   m_Data.Clear();
 
@@ -232,7 +232,7 @@ void ezStringUtf16::operator=(const ezUInt16* szUtf16)
   {
     // skip any Utf16 little endian Byte Order Mark
     ezUnicodeUtils::SkipUtf16BomLE(szUtf16);
-    EZ_ASSERT(!ezUnicodeUtils::SkipUtf16BomBE(szUtf16), "Utf-16 Big Endian is currently not supported.");
+    EZ_ASSERT_DEV(!ezUnicodeUtils::SkipUtf16BomBE(szUtf16), "Utf-16 Big Endian is currently not supported.");
 
     while (*szUtf16 != '\0')
     {
@@ -298,7 +298,7 @@ void ezStringUtf16::operator=(const wchar_t* szWChar)
 
 void ezStringUtf32::operator=(const char* szUtf8)
 {
-  EZ_ASSERT(ezUnicodeUtils::IsValidUtf8(szUtf8), "Input Data is not a valid Utf8 string. Did you intend to use a Wide-String and forget the 'L' prefix?");
+  EZ_ASSERT_DEV(ezUnicodeUtils::IsValidUtf8(szUtf8), "Input Data is not a valid Utf8 string. Did you intend to use a Wide-String and forget the 'L' prefix?");
 
   m_Data.Clear();
 
@@ -327,7 +327,7 @@ void ezStringUtf32::operator=(const ezUInt16* szUtf16)
   {
     // skip any Utf16 little endian Byte Order Mark
     ezUnicodeUtils::SkipUtf16BomLE(szUtf16);
-    EZ_ASSERT(!ezUnicodeUtils::SkipUtf16BomBE(szUtf16), "Utf-16 Big Endian is currently not supported.");
+    EZ_ASSERT_DEV(!ezUnicodeUtils::SkipUtf16BomBE(szUtf16), "Utf-16 Big Endian is currently not supported.");
 
     while (*szUtf16 != '\0')
     {

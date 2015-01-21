@@ -844,7 +844,7 @@ int ezStringUtils::vsnprintf(char* szOutputBuffer, unsigned int uiBufferSize, co
   va_list args;
   va_copy(args, args0);
 
-  EZ_ASSERT(ezUnicodeUtils::IsValidUtf8(szFormat), "The sprintf format string must be valid Utf8.");
+  EZ_ASSERT_DEV(ezUnicodeUtils::IsValidUtf8(szFormat), "The sprintf format string must be valid Utf8.");
 
   // make sure the last character is a \0
   if ((szOutputBuffer) && (uiBufferSize > 0))

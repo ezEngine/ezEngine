@@ -51,7 +51,7 @@ namespace
       ezMemoryUtils::ZeroFill(this);
 
       kernel32Dll = LoadLibraryW(L"kernel32.dll");
-      EZ_ASSERT(kernel32Dll != nullptr, "StackTracer could not load kernel32.dll");
+      EZ_ASSERT_DEV(kernel32Dll != nullptr, "StackTracer could not load kernel32.dll");
       if (kernel32Dll != nullptr)
       {
         captureStackBackTrace = (CaptureStackBackTraceFunc)GetProcAddress(kernel32Dll, 
@@ -59,7 +59,7 @@ namespace
       }
 
       dbgHelpDll = LoadLibraryW(L"dbghelp.dll");
-      EZ_ASSERT(dbgHelpDll != nullptr, "StackTracer could not load dbghelp.dll");
+      EZ_ASSERT_DEV(dbgHelpDll != nullptr, "StackTracer could not load dbghelp.dll");
       if (dbgHelpDll != nullptr)
       {
         symbolInitialize = (SymbolInitializeFunc)GetProcAddress(dbgHelpDll, "SymInitializeW");
@@ -160,7 +160,7 @@ namespace
     {
       static ezUInt8 ImplementationBuffer[sizeof(StackTracerImplementation)];
       s_pImplementation = new (ImplementationBuffer) StackTracerImplementation();
-      EZ_ASSERT(s_pImplementation != nullptr, "StackTracer initialization failed");
+      EZ_ASSERT_DEV(s_pImplementation != nullptr, "StackTracer initialization failed");
 
       ezPlugin::s_PluginEvents.AddEventHandler(OnPluginEvent);
     }

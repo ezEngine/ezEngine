@@ -57,7 +57,7 @@ ezResult ezPreprocessor::ExpandOnce(const TokenStream& Tokens, TokenStream& Outp
 
   for (ezUInt32 uiCurToken = 0; uiCurToken < Tokens.GetCount();)
   {
-    EZ_ASSERT(Tokens[uiCurToken]->m_iType < s_MacroParameter0, "Implementation error");
+    EZ_ASSERT_DEV(Tokens[uiCurToken]->m_iType < s_MacroParameter0, "Implementation error");
 
     // if we are not inside some macro expansion, but on the top level, adjust the line counter
     if (bIsOutermost)
@@ -138,7 +138,7 @@ void ezPreprocessor::OutputNotExpandableMacro(MacroDefinition& Macro, TokenStrea
 {
   const ezString sMacroName = Macro.m_MacroIdentifier->m_DataView;
 
-  EZ_ASSERT(Macro.m_bCurrentlyExpanding, "Implementation Error.");
+  EZ_ASSERT_DEV(Macro.m_bCurrentlyExpanding, "Implementation Error.");
 
   ezToken* pNewToken = AddCustomToken(Macro.m_MacroIdentifier, sMacroName.GetData());
   pNewToken->m_uiCustomFlags = TokenFlags::NoFurtherExpansion;
@@ -166,7 +166,7 @@ ezResult ezPreprocessor::ExpandObjectMacro(MacroDefinition& Macro, TokenStream& 
 
   if (sMacroName == "__FILE__")
   {
-    EZ_ASSERT(!m_sCurrentFileStack.IsEmpty(), "Implementation error");
+    EZ_ASSERT_DEV(!m_sCurrentFileStack.IsEmpty(), "Implementation error");
 
     ezStringBuilder sName = "\"";
     sName.Append(m_sCurrentFileStack.PeekBack().m_sVirtualFileName.GetData(), "\"");
@@ -563,7 +563,7 @@ ezResult ezPreprocessor::ExpandFunctionMacro(MacroDefinition& Macro, const Macro
 
 ezResult ezPreprocessor::ExpandMacroParam(const ezToken& MacroToken, ezUInt32 uiParam, TokenStream& Output, const MacroDefinition& Macro)
 {
-  EZ_ASSERT(!m_MacroParamStack.IsEmpty(), "Implementation error.");
+  EZ_ASSERT_DEV(!m_MacroParamStack.IsEmpty(), "Implementation error.");
 
   const MacroParameters& ParamsExpanded = *m_MacroParamStackExpanded.PeekBack();
 

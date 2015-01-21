@@ -155,7 +155,7 @@ EZ_FORCE_INLINE void ezBlockStorage<T>::Delete(Entry entry)
 template <typename T>
 void ezBlockStorage<T>::Delete(Entry entry, T*& out_pMovedObject)
 {
-  EZ_ASSERT(entry.m_uiIndex < m_uiCount, "Out of bounds access. Block storage has %i objects, trying to remove object at index %i.", 
+  EZ_ASSERT_DEV(entry.m_uiIndex < m_uiCount, "Out of bounds access. Block storage has %i objects, trying to remove object at index %i.", 
     m_uiCount, entry.m_uiIndex);
 
   ezDataBlock<T>& lastBlock = m_Blocks.PeekBack();
@@ -168,7 +168,7 @@ void ezBlockStorage<T>::Delete(Entry entry, T*& out_pMovedObject)
     const ezUInt32 uiInnerIndex = entry.m_uiIndex - uiBlockIndex * ezDataBlock<T>::CAPACITY;
 
     ezDataBlock<T>& block = m_Blocks[uiBlockIndex];
-    EZ_ASSERT(&block[uiInnerIndex] == entry.m_Ptr, "Memory Corruption");
+    EZ_ASSERT_DEV(&block[uiInnerIndex] == entry.m_Ptr, "Memory Corruption");
 
     ezMemoryUtils::Copy(&block[uiInnerIndex], pLast, 1);
   }

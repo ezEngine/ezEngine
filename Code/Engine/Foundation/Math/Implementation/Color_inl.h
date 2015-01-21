@@ -165,9 +165,9 @@ inline ezVec3Template<Type> ezColor::ConvertToHSV() const
 template<typename Type>
 inline ezColor ezColor::FromHSV(Type hue, Type sat, Type val)
 {
-  EZ_ASSERT(hue <= 360 && hue >= 0, "HSV Hue value is in invalid range.");
-  EZ_ASSERT(sat <= 1 && val >= 0, "HSV saturation value is in invalid range.");
-  EZ_ASSERT(val <= 1 && val >= 0, "HSV value is in invalid range.");
+  EZ_ASSERT_DEBUG(hue <= 360 && hue >= 0, "HSV Hue value is in invalid range.");
+  EZ_ASSERT_DEBUG(sat <= 1 && val >= 0, "HSV saturation value is in invalid range.");
+  EZ_ASSERT_DEBUG(val <= 1 && val >= 0, "HSV value is in invalid range.");
 
   float c = static_cast<float>(sat * val);
   float x = c * (1.0f - ezMath::Abs(ezMath::Mod(hue / 60.0f, 2) - 1.0f));

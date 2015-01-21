@@ -141,7 +141,7 @@ ezResult ezGALRenderTargetConfigGL::AttachRenderTargetViewToFramebuffer(ezUInt32
   }
 
   glBindingTarget attachmentType = pRenderTargetView->GetBindingTarget() + index;
-  EZ_ASSERT(attachmentType != EZ_RENDERERGL_INVALID_ID, "Invalid framebuffer attachment type. Usually caused by broken RenderTargetViews."); // Assertion since this should already by reported much earlier.
+  EZ_ASSERT_DEV(attachmentType != EZ_RENDERERGL_INVALID_ID, "Invalid framebuffer attachment type. Usually caused by broken RenderTargetViews."); // Assertion since this should already by reported much earlier.
 
   if (targetViewDesc.m_uiFirstSlice > 0)
   {

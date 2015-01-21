@@ -25,23 +25,23 @@ const ezDynamicArray<ezUInt8>& ezMeshBufferResourceDescriptor::GetIndexBufferDat
 
 ezDynamicArray<ezUInt8>& ezMeshBufferResourceDescriptor::GetVertexBufferData()
 {
-  EZ_ASSERT(!m_VertexStreamData.IsEmpty(), "The vertex data must be allocated first");
+  EZ_ASSERT_DEV(!m_VertexStreamData.IsEmpty(), "The vertex data must be allocated first");
   return m_VertexStreamData;
 }
 
 ezDynamicArray<ezUInt8>& ezMeshBufferResourceDescriptor::GetIndexBufferData()
 {
-  EZ_ASSERT(!m_IndexBufferData.IsEmpty(), "The index data must be allocated first");
+  EZ_ASSERT_DEV(!m_IndexBufferData.IsEmpty(), "The index data must be allocated first");
   return m_IndexBufferData;
 }
 
 ezUInt32 ezMeshBufferResourceDescriptor::AddStream(ezGALVertexAttributeSemantic::Enum Semantic, ezGALResourceFormat::Enum Format)
 {
-  EZ_ASSERT(m_VertexStreamData.IsEmpty(), "This function can only be called before 'AllocateStreams' is called");
+  EZ_ASSERT_DEV(m_VertexStreamData.IsEmpty(), "This function can only be called before 'AllocateStreams' is called");
 
   for (ezUInt32 i = 0; i < m_VertexDeclaration.m_VertexStreams.GetCount(); ++i)
   {
-    EZ_ASSERT(m_VertexDeclaration.m_VertexStreams[i].m_Semantic != Semantic, "The given semantic %u is already used by a previous stream", Semantic);
+    EZ_ASSERT_DEV(m_VertexDeclaration.m_VertexStreams[i].m_Semantic != Semantic, "The given semantic %u is already used by a previous stream", Semantic);
   }
 
   ezVertexStreamInfo si;
@@ -52,7 +52,7 @@ ezUInt32 ezMeshBufferResourceDescriptor::AddStream(ezGALVertexAttributeSemantic:
   si.m_uiElementSize = ezGALResourceFormat::GetSize(Format);
   m_uiVertexSize += si.m_uiElementSize;
 
-  EZ_ASSERT(si.m_uiElementSize > 0, "Invalid Element Size. Format not supported?");
+  EZ_ASSERT_DEV(si.m_uiElementSize > 0, "Invalid Element Size. Format not supported?");
 
   if (!m_VertexDeclaration.m_VertexStreams.IsEmpty())
     si.m_uiOffset = m_VertexDeclaration.m_VertexStreams.PeekBack().m_uiOffset + m_VertexDeclaration.m_VertexStreams.PeekBack().m_uiElementSize;
@@ -64,7 +64,7 @@ ezUInt32 ezMeshBufferResourceDescriptor::AddStream(ezGALVertexAttributeSemantic:
 
 void ezMeshBufferResourceDescriptor::AllocateStreams(ezUInt32 uiNumVertices, ezUInt32 uiNumTriangles)
 {
-  EZ_ASSERT(!m_VertexDeclaration.m_VertexStreams.IsEmpty(), "You have to add streams via 'AddStream' before calling this function");
+  EZ_ASSERT_DEV(!m_VertexDeclaration.m_VertexStreams.IsEmpty(), "You have to add streams via 'AddStream' before calling this function");
 
   m_uiVertexCount = uiNumVertices;
   const ezUInt32 uiVertexStreamSize = m_uiVertexSize * uiNumVertices;
@@ -132,8 +132,8 @@ ezMeshBufferResource::ezMeshBufferResource()
 
 ezMeshBufferResource::~ezMeshBufferResource()
 {
-  EZ_ASSERT(m_hVertexBuffer.IsInvalidated(), "Implementation error");
-  EZ_ASSERT(m_hIndexBuffer.IsInvalidated(), "Implementation error");
+  EZ_ASSERT_DEBUG(m_hVertexBuffer.IsInvalidated(), "Implementation error");
+  EZ_ASSERT_DEBUG(m_hIndexBuffer.IsInvalidated(), "Implementation error");
 }
 
 void ezMeshBufferResource::UnloadData(bool bFullUnload)
@@ -170,8 +170,8 @@ void ezMeshBufferResource::UpdateMemoryUsage()
 
 void ezMeshBufferResource::CreateResource(const ezMeshBufferResourceDescriptor& descriptor)
 {
-  EZ_ASSERT(m_hVertexBuffer.IsInvalidated(), "Implementation error");
-  EZ_ASSERT(m_hIndexBuffer.IsInvalidated(), "Implementation error");
+  EZ_ASSERT_DEBUG(m_hVertexBuffer.IsInvalidated(), "Implementation error");
+  EZ_ASSERT_DEBUG(m_hIndexBuffer.IsInvalidated(), "Implementation error");
 
   m_VertexDeclaration = descriptor.GetVertexDeclaration();
   m_VertexDeclaration.ComputeHash();
@@ -200,7 +200,7 @@ void ezVertexDeclarationInfo::ComputeHash()
   {
     m_uiHash += vs.CalculateHash();
 
-    EZ_ASSERT(m_uiHash != 0, "Invalid Hash Value");
+    EZ_ASSERT_DEBUG(m_uiHash != 0, "Invalid Hash Value");
   }
 }
 
@@ -238,7 +238,7 @@ ezGALVertexDeclarationHandle ezRendererCore::GetVertexDeclaration(ezGALShaderHan
 
     ezGALVertexDeclarationHandle hDecl = ezGALDevice::GetDefaultDevice()->CreateVertexDeclaration(vd);
 
-    EZ_ASSERT(!hDecl.IsInvalidated(), "Failed to create vertex declaration");
+    EZ_ASSERT_RELEASE(!hDecl.IsInvalidated(), "Failed to create vertex declaration");
 
     it.Value() = hDecl;
   }

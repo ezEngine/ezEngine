@@ -38,10 +38,10 @@ static ezUInt32 GetError(const ezImage& Difference, ezUInt32 w, ezUInt32 h, ezUI
 
 void ezImageUtils::ComputeImageDifferenceABS(const ezImage& ImageA, const ezImage& ImageB, ezImage& out_Difference)
 {
-  EZ_ASSERT(ImageA.GetWidth()       == ImageB.GetWidth(),       "Dimensions do not match");
-  EZ_ASSERT(ImageA.GetHeight()      == ImageB.GetHeight(),      "Dimensions do not match");
-  EZ_ASSERT(ImageA.GetDepth()       == ImageB.GetDepth(),       "Dimensions do not match");
-  EZ_ASSERT(ImageA.GetImageFormat() == ImageB.GetImageFormat(), "Format does not match");
+  EZ_ASSERT_DEV(ImageA.GetWidth()       == ImageB.GetWidth(),       "Dimensions do not match");
+  EZ_ASSERT_DEV(ImageA.GetHeight()      == ImageB.GetHeight(),      "Dimensions do not match");
+  EZ_ASSERT_DEV(ImageA.GetDepth()       == ImageB.GetDepth(),       "Dimensions do not match");
+  EZ_ASSERT_DEV(ImageA.GetImageFormat() == ImageB.GetImageFormat(), "Format does not match");
 
   out_Difference.SetWidth(ImageA.GetWidth());
   out_Difference.SetHeight(ImageA.GetHeight());
@@ -91,7 +91,7 @@ void ezImageUtils::ComputeImageDifferenceABS(const ezImage& ImageA, const ezImag
 
 ezUInt32 ezImageUtils::ComputeMeanSquareError(const ezImage& DifferenceImage, ezUInt8 uiBlockSize, ezUInt32 offsetx, ezUInt32 offsety)
 {
-  EZ_ASSERT(uiBlockSize > 1, "Blocksize must be at least 2");
+  EZ_ASSERT_DEV(uiBlockSize > 1, "Blocksize must be at least 2");
 
   const ezUInt32 uiWidth  = ezMath::Min(DifferenceImage.GetWidth(),  offsetx + uiBlockSize) - offsetx;
   const ezUInt32 uiHeight = ezMath::Min(DifferenceImage.GetHeight(), offsety + uiBlockSize) - offsety;
@@ -144,7 +144,7 @@ ezUInt32 ezImageUtils::ComputeMeanSquareError(const ezImage& DifferenceImage, ez
 
 ezUInt32 ezImageUtils::ComputeMeanSquareError(const ezImage& DifferenceImage, ezUInt8 uiBlockSize)
 {
-  EZ_ASSERT(uiBlockSize > 1, "Blocksize must be at least 2");
+  EZ_ASSERT_DEV(uiBlockSize > 1, "Blocksize must be at least 2");
 
   const ezUInt32 uiHalfBlockSize = uiBlockSize / 2;
 
@@ -168,10 +168,10 @@ ezUInt32 ezImageUtils::ComputeMeanSquareError(const ezImage& DifferenceImage, ez
 
 void ezImageUtils::CropImage(const ezImage& input, const ezVec2I32& offset, const ezSizeU32& newsize, ezImage& output)
 {
-  EZ_ASSERT(offset.x >= 0, "Offset is invalid");
-  EZ_ASSERT(offset.y >= 0, "Offset is invalid");
-  EZ_ASSERT(offset.x < (ezInt32) input.GetWidth(), "Offset is invalid");
-  EZ_ASSERT(offset.y < (ezInt32) input.GetHeight(), "Offset is invalid");
+  EZ_ASSERT_DEV(offset.x >= 0, "Offset is invalid");
+  EZ_ASSERT_DEV(offset.y >= 0, "Offset is invalid");
+  EZ_ASSERT_DEV(offset.x < (ezInt32) input.GetWidth(), "Offset is invalid");
+  EZ_ASSERT_DEV(offset.y < (ezInt32) input.GetHeight(), "Offset is invalid");
 
   const ezUInt32 uiNewWidth  = ezMath::Min(offset.x + newsize.width, input.GetWidth())   - offset.x;
   const ezUInt32 uiNewHeight = ezMath::Min(offset.y + newsize.height, input.GetHeight()) - offset.y;
@@ -248,7 +248,7 @@ void ezImageUtils::ScaleDownHalf(const ezImage& Image, ezImage& out_Result)
     uiPixelBytes = 3;
   }
 
-  EZ_ASSERT(uiPixelBytes > 0, "The image format '%i' is not supported", Image.GetImageFormat());
+  EZ_ASSERT_DEV(uiPixelBytes > 0, "The image format '%i' is not supported", Image.GetImageFormat());
   
   ezUInt8* pDataRes = out_Result.GetPixelPointer<ezUInt8>(0, 0, 0, 0, 0);
   const ezUInt8* pDataImg = Image.GetPixelPointer<ezUInt8>(0, 0, 0, 0, 0);

@@ -9,7 +9,7 @@ ezDocumentJSONReader::ezDocumentJSONReader(ezStreamReaderBase* pInput) :
 {
   //m_Reader.SetInputStream(m_pInput);
   ezResult res = m_Reader.Parse(*m_pInput);
-  EZ_ASSERT(res == EZ_SUCCESS, "Reading JSON file failed!");
+  EZ_ASSERT_DEV(res == EZ_SUCCESS, "Reading JSON file failed!");
 }
 
 ezDocumentJSONReader::~ezDocumentJSONReader()
@@ -22,7 +22,7 @@ bool ezDocumentJSONReader::OpenGroup(const char* szName)
   ezVariant* pGroup = nullptr;
   if (root.TryGetValue(szName, pGroup))
   {
-    EZ_ASSERT(pGroup->GetType() == ezVariant::Type::VariantArray, "Group value found is not an array!");
+    EZ_ASSERT_DEV(pGroup->GetType() == ezVariant::Type::VariantArray, "Group value found is not an array!");
     m_pGroup = &pGroup->Get<ezVariantArray>();
     m_pObject = nullptr;
     m_uiObjextIndex = 0;
@@ -36,7 +36,7 @@ bool ezDocumentJSONReader::OpenGroup(const char* szName)
 
 bool ezDocumentJSONReader::PeekNextObject(ezUuid& out_objectGuid, ezStringBuilder& out_sType, ezUuid& out_parentGuid)
 {
-  EZ_ASSERT(m_pGroup != nullptr, "Need to call 'OpenGroup' first before reading objects!");
+  EZ_ASSERT_DEV(m_pGroup != nullptr, "Need to call 'OpenGroup' first before reading objects!");
   out_objectGuid = ezUuid();
   out_sType.Clear();
   out_parentGuid = ezUuid();
@@ -47,7 +47,7 @@ bool ezDocumentJSONReader::PeekNextObject(ezUuid& out_objectGuid, ezStringBuilde
   }
 
   const ezVariant& object = (*m_pGroup)[m_uiObjextIndex];
-  EZ_ASSERT(object.GetType() == ezVariant::Type::VariantDictionary, "Object value found is not a dictionary!");
+  EZ_ASSERT_DEV(object.GetType() == ezVariant::Type::VariantDictionary, "Object value found is not a dictionary!");
   m_pObject = &object.Get<ezVariantDictionary>();
 
   ezVariant* pVar = nullptr;
@@ -72,7 +72,7 @@ bool ezDocumentJSONReader::PeekNextObject(ezUuid& out_objectGuid, ezStringBuilde
 
 void ezDocumentJSONReader::ReadObject(ezSerializedObjectReaderBase& object)
 {
-  EZ_ASSERT(m_pObject != nullptr, "No object to read, call OpenGroup and then PeekNextObject!");
+  EZ_ASSERT_DEV(m_pObject != nullptr, "No object to read, call OpenGroup and then PeekNextObject!");
   ezVariant* pType = nullptr;
   ezHybridArray<ezString, 8> stack;
 

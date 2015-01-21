@@ -18,8 +18,8 @@ ezResult ezProcessCommunication::StartClientProcess(const char* szProcess, ezUIn
 {
   EZ_LOG_BLOCK("ezProcessCommunication::StartClientProcess");
 
-  EZ_ASSERT(m_pSharedMemory == nullptr, "ProcessCommunication object already in use");
-  EZ_ASSERT(m_pClientProcess == nullptr, "ProcessCommunication object already in use");
+  EZ_ASSERT_DEV(m_pSharedMemory == nullptr, "ProcessCommunication object already in use");
+  EZ_ASSERT_DEV(m_pClientProcess == nullptr, "ProcessCommunication object already in use");
 
   m_uiProcessID = 0xF0F0F0F0;
 
@@ -83,8 +83,8 @@ success:
 
 ezResult ezProcessCommunication::ConnectToHostProcess()
 {
-  EZ_ASSERT(m_pSharedMemory == nullptr, "ProcessCommunication object already in use");
-  EZ_ASSERT(m_pClientProcess == nullptr, "ProcessCommunication object already in use");
+  EZ_ASSERT_DEV(m_pSharedMemory == nullptr, "ProcessCommunication object already in use");
+  EZ_ASSERT_DEV(m_pClientProcess == nullptr, "ProcessCommunication object already in use");
 
   m_uiProcessID = 0x0A0A0A0A;
 
@@ -278,9 +278,9 @@ void ezProcessCommunication::DispatchMessages()
       const ezRTTI* pRtti = nullptr;
       ezProcessMessage* pObject = (ezProcessMessage*) ezReflectionUtils::ReadObjectFromJSON(reader, pRtti);
 
-      EZ_ASSERT(pRtti != nullptr, "Message Type unknown");
-      EZ_ASSERT(pObject != nullptr, "Object could not be allocated");
-      EZ_ASSERT(pRtti->IsDerivedFrom<ezProcessMessage>(), "Msg base type is invalid");
+      EZ_ASSERT_DEV(pRtti != nullptr, "Message Type unknown");
+      EZ_ASSERT_DEV(pObject != nullptr, "Object could not be allocated");
+      EZ_ASSERT_DEV(pRtti->IsDerivedFrom<ezProcessMessage>(), "Msg base type is invalid");
 
       Event e;
       e.m_pMessage = pObject;

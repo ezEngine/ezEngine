@@ -17,7 +17,7 @@ ezGALContext::ezGALContext(ezGALDevice* pDevice)
     m_uiStateChanges(0),
     m_uiRedundantStateChanges(0)
 {
-  EZ_ASSERT(pDevice != nullptr, "The context needs a valid device pointer!");
+  EZ_ASSERT_DEV(pDevice != nullptr, "The context needs a valid device pointer!");
 
   InvalidateState();
 }
@@ -72,7 +72,7 @@ void ezGALContext::DrawIndexedInstancedIndirect(ezGALBufferHandle hIndirectArgum
   /// \todo Assert offset < buffer size
 
   ezGALBuffer* pBuffer = m_pDevice->m_Buffers[hIndirectArgumentBuffer];
-  EZ_ASSERT(pBuffer != nullptr, "Invalid buffer handle for indirect arguments!");
+  EZ_ASSERT_DEV(pBuffer != nullptr, "Invalid buffer handle for indirect arguments!");
 
   /// \todo Assert that the buffer can be used for indirect arguments (flag in desc)
   DrawIndexedInstancedIndirectPlatform(pBuffer, uiArgumentOffsetInBytes);
@@ -100,7 +100,7 @@ void ezGALContext::DrawInstancedIndirect(ezGALBufferHandle hIndirectArgumentBuff
   /// \todo Assert offset < buffer size
 
   ezGALBuffer* pBuffer = m_pDevice->m_Buffers[hIndirectArgumentBuffer];
-  EZ_ASSERT(pBuffer != nullptr, "Invalid buffer handle for indirect arguments!");
+  EZ_ASSERT_DEV(pBuffer != nullptr, "Invalid buffer handle for indirect arguments!");
 
   /// \todo Assert that the buffer can be used for indirect arguments (flag in desc)
   DrawInstancedIndirectPlatform(pBuffer, uiArgumentOffsetInBytes);
@@ -153,7 +153,7 @@ void ezGALContext::DispatchIndirect(ezGALBufferHandle hIndirectArgumentBuffer, e
   /// \todo Assert offset < buffer size
 
   ezGALBuffer* pBuffer = m_pDevice->m_Buffers[hIndirectArgumentBuffer];
-  EZ_ASSERT(pBuffer != nullptr, "Invalid buffer handle for indirect arguments!");
+  EZ_ASSERT_DEV(pBuffer != nullptr, "Invalid buffer handle for indirect arguments!");
 
   /// \todo Assert that the buffer can be used for indirect arguments (flag in desc)
   DispatchIndirectPlatform(pBuffer, uiArgumentOffsetInBytes);
@@ -174,7 +174,7 @@ void ezGALContext::SetShader(ezGALShaderHandle hShader)
   }
 
   ezGALShader* pShader = m_pDevice->m_Shaders[hShader];
-  EZ_ASSERT(pShader != nullptr, "The given shader handle isn't valid, this may be a use after destroy!");
+  EZ_ASSERT_DEV(pShader != nullptr, "The given shader handle isn't valid, this may be a use after destroy!");
 
   SetShaderPlatform(pShader);
 
@@ -261,7 +261,7 @@ void ezGALContext::SetVertexDeclaration(ezGALVertexDeclarationHandle hVertexDecl
 void ezGALContext::SetConstantBuffer(ezUInt32 uiSlot, ezGALBufferHandle hBuffer)
 {
   AssertRenderingThread();
-  EZ_ASSERT_API(uiSlot < EZ_GAL_MAX_CONSTANT_BUFFER_COUNT, "Constant buffer slot index too big!");
+  EZ_ASSERT_RELEASE(uiSlot < EZ_GAL_MAX_CONSTANT_BUFFER_COUNT, "Constant buffer slot index too big!");
 
   if (m_State.m_hConstantBuffers[uiSlot] == hBuffer)
   {
@@ -285,7 +285,7 @@ void ezGALContext::SetConstantBuffer(ezUInt32 uiSlot, ezGALBufferHandle hBuffer)
 void ezGALContext::SetSamplerState(ezGALShaderStage::Enum Stage, ezUInt32 uiSlot, ezGALSamplerStateHandle hSamplerState)
 {
   AssertRenderingThread();
-  EZ_ASSERT_API(uiSlot < EZ_GAL_MAX_SHADER_RESOURCE_VIEW_COUNT, "Sampler state slot index too big!");
+  EZ_ASSERT_RELEASE(uiSlot < EZ_GAL_MAX_SHADER_RESOURCE_VIEW_COUNT, "Sampler state slot index too big!");
 
   if (m_State.m_hSamplerStates[Stage][uiSlot] == hSamplerState)
   {
@@ -533,8 +533,8 @@ void ezGALContext::CopyBufferRegion(ezGALBufferHandle hDest, ezUInt32 uiDestOffs
     const ezUInt32 uiDestSize = pDest->GetSize();
     const ezUInt32 uiSourceSize = pSource->GetSize();
 
-    EZ_ASSERT(uiDestSize >= uiDestOffset + uiByteCount, "Destination buffer too small (or offset too big)");
-    EZ_ASSERT(uiSourceSize >= uiSourceOffset + uiByteCount, "Source buffer too small (or offset too big)");
+    EZ_ASSERT_DEV(uiDestSize >= uiDestOffset + uiByteCount, "Destination buffer too small (or offset too big)");
+    EZ_ASSERT_DEV(uiSourceSize >= uiSourceOffset + uiByteCount, "Source buffer too small (or offset too big)");
 
     CopyBufferRegionPlatform(pDest, uiDestOffset, pSource, uiSourceOffset, uiByteCount);
   }
@@ -610,7 +610,7 @@ void ezGALContext::ReadbackTexture(ezGALTextureHandle hTexture)
 
   if (m_pDevice->m_Textures.TryGetValue(hTexture, pTexture))
   {
-    EZ_ASSERT_API(pTexture->GetDescription().m_ResourceAccess.m_bReadBack, "A texture supplied to readback needs to be created with the correct resource usage (m_bReadBack = true)!");
+    EZ_ASSERT_RELEASE(pTexture->GetDescription().m_ResourceAccess.m_bReadBack, "A texture supplied to readback needs to be created with the correct resource usage (m_bReadBack = true)!");
 
     ReadbackTexturePlatform(pTexture);
   }
@@ -624,7 +624,7 @@ void ezGALContext::CopyTextureReadbackResult(ezGALTextureHandle hTexture, const 
 
   if (m_pDevice->m_Textures.TryGetValue(hTexture, pTexture))
   {
-    EZ_ASSERT_API(pTexture->GetDescription().m_ResourceAccess.m_bReadBack, "A texture supplied to readback needs to be created with the correct resource usage (m_bReadBack = true)!");
+    EZ_ASSERT_RELEASE(pTexture->GetDescription().m_ResourceAccess.m_bReadBack, "A texture supplied to readback needs to be created with the correct resource usage (m_bReadBack = true)!");
 
     CopyTextureReadbackResultPlatform(pTexture, pData);
   }
@@ -636,7 +636,7 @@ void ezGALContext::PushMarker(const char* Marker)
 {
   AssertRenderingThread();
 
-  EZ_ASSERT(Marker != nullptr, "Invalid marker!");
+  EZ_ASSERT_DEV(Marker != nullptr, "Invalid marker!");
 
   PushMarkerPlatform(Marker);
 }
@@ -652,7 +652,7 @@ void ezGALContext::InsertEventMarker(const char* Marker)
 {
   AssertRenderingThread();
 
-  EZ_ASSERT(Marker != nullptr, "Invalid marker!");
+  EZ_ASSERT_DEV(Marker != nullptr, "Invalid marker!");
 
   InsertEventMarkerPlatform(Marker);
 }

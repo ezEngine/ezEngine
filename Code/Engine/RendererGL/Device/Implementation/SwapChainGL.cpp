@@ -56,7 +56,7 @@ ezResult ezGALSwapChainGL::InitPlatform(ezGALDevice* pDevice)
   ezGALRenderTargetConfigCreationDescription RTConfigDesc;
   RTConfigDesc.m_bHardwareBackBuffer = true;
   ezGALRenderTargetConfigHandle hRenderTargetConfig = pDevice->CreateRenderTargetConfig(RTConfigDesc);
-  EZ_ASSERT(!hRenderTargetConfig.IsInvalidated(), "Couldn't create backbuffer render target config!");
+  EZ_ASSERT_DEV(!hRenderTargetConfig.IsInvalidated(), "Couldn't create backbuffer render target config!");
 
 
   SetBackBufferObjects(hRenderTargetConfig, ezGALTextureHandle(), ezGALTextureHandle());
