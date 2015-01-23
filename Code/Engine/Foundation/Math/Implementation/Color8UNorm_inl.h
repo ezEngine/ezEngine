@@ -1,15 +1,15 @@
 #pragma once
 
-EZ_FORCE_INLINE ezColor8UNorm::ezColor8UNorm()
+EZ_FORCE_INLINE ezColorLinearUB::ezColorLinearUB(ezUInt8 R, ezUInt8 G, ezUInt8 B, ezUInt8 A /* = 255*/) : ezColorUnsignedByteBase(R, G, B, A)
 {
 }
 
-EZ_FORCE_INLINE ezColor8UNorm::ezColor8UNorm(ezUInt8 R, ezUInt8 G, ezUInt8 B, ezUInt8 A /* = 255*/) :
-  r(R), g(G), b(B), a(A)
+inline ezColorLinearUB::ezColorLinearUB(const ezColor& color)
 {
+  *this = color;
 }
 
-inline ezColor8UNorm::ezColor8UNorm(const ezColor& color)
+inline void ezColorLinearUB::operator=(const ezColor& color)
 {
   r = static_cast<ezUInt8>(ezMath::Min(255.0f, ((color.r * 255.0f) + 0.5f)));
   g = static_cast<ezUInt8>(ezMath::Min(255.0f, ((color.g * 255.0f) + 0.5f)));
@@ -17,74 +17,42 @@ inline ezColor8UNorm::ezColor8UNorm(const ezColor& color)
   a = static_cast<ezUInt8>(ezMath::Min(255.0f, ((color.a * 255.0f) + 0.5f)));
 }
 
-// *****************
-
-inline ezColor8UNorm::operator ezColor () const
+inline ezColor ezColorLinearUB::ToLinearFloat() const
 {
   return ezColor(r * (1.0f / 255.0f), g * (1.0f / 255.0f), b * (1.0f / 255.0f), a * (1.0f / 255.0f));
 }
 
-inline bool ezColor8UNorm::IsIdentical(const ezColor8UNorm& rhs) const
-{
-  return r == rhs.r && g == rhs.g && b == rhs.b && a == rhs.a;
-}
-
 // *****************
 
-inline bool operator== (const ezColor8UNorm& c1, const ezColor8UNorm& c2)
-{
-  return c1.IsIdentical(c2);
-}
-
-inline bool operator!= (const ezColor8UNorm& c1, const ezColor8UNorm& c2)
-{
-  return !c1.IsIdentical(c2);
-}
-
-
-
-
-
-
-
-EZ_FORCE_INLINE ezColorBgra8UNorm::ezColorBgra8UNorm()
+EZ_FORCE_INLINE ezColorGammaUB::ezColorGammaUB(ezUInt8 R, ezUInt8 G, ezUInt8 B, ezUInt8 A) : ezColorUnsignedByteBase(R, G, B, A)
 {
 }
 
-EZ_FORCE_INLINE ezColorBgra8UNorm::ezColorBgra8UNorm(ezUInt8 B, ezUInt8 G, ezUInt8 R, ezUInt8 A /* = 255*/) :
-b(B), g(G), r(R), a(A)
+inline ezColorGammaUB::ezColorGammaUB(const ezColor& color)
 {
+  *this = color;
 }
 
-inline ezColorBgra8UNorm::ezColorBgra8UNorm(const ezColor& color) :
-b(static_cast<ezUInt8>(color.b * 255)),
-g(static_cast<ezUInt8>(color.g * 255)),
-r(static_cast<ezUInt8>(color.r * 255)),
-a(static_cast<ezUInt8>(color.a * 255))
+inline void ezColorGammaUB::operator=(const ezColor& color)
 {
+  const ezVec3 gamma = ezColor::LinearToGamma(ezVec3(color.r, color.g, color.b));
+
+  r = static_cast<ezUInt8>(ezMath::Min(255.0f, ((gamma.x * 255.0f) + 0.5f)));
+  g = static_cast<ezUInt8>(ezMath::Min(255.0f, ((gamma.y * 255.0f) + 0.5f)));
+  b = static_cast<ezUInt8>(ezMath::Min(255.0f, ((gamma.z * 255.0f) + 0.5f)));
+  a = static_cast<ezUInt8>(ezMath::Min(255.0f, ((color.a * 255.0f) + 0.5f)));
 }
 
-// *****************
-
-inline ezColorBgra8UNorm::operator ezColor () const
+inline ezColor ezColorGammaUB::ToLinearFloat() const
 {
-  return ezColor(r * (1.0f / 255.0f), g * (1.0f / 255.0f), b * (1.0f / 255.0f), a * (1.0f / 255.0f));
+  ezVec3 gamma;
+  gamma.x = r * (1.0f / 255.0f);
+  gamma.y = g * (1.0f / 255.0f);
+  gamma.z = b * (1.0f / 255.0f);
+
+  const ezVec3 linear = ezColor::GammaToLinear(gamma);
+
+  return ezColor(linear.x, linear.y, linear.z, a * (1.0f / 255.0f));
 }
 
-inline bool ezColorBgra8UNorm::IsIdentical(const ezColorBgra8UNorm& rhs) const
-{
-  return r == rhs.r && g == rhs.g && b == rhs.b && a == rhs.a;
-}
-
-// *****************
-
-inline bool operator== (const ezColorBgra8UNorm& c1, const ezColorBgra8UNorm& c2)
-{
-  return c1.IsIdentical(c2);
-}
-
-inline bool operator!= (const ezColorBgra8UNorm& c1, const ezColorBgra8UNorm& c2)
-{
-  return !c1.IsIdentical(c2);
-}
 

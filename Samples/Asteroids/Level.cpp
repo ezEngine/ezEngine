@@ -12,7 +12,7 @@
 static ezMeshResourceHandle CreateAsteroidMesh()
 {
   ezGeometry geom;
-  geom.AddGeodesicSphere(1.0f, 1, ezColor::GetWhite());
+  geom.AddGeodesicSphere(1.0f, 1, ezColor(1, 1, 1));
   geom.ComputeFaceNormals();
   geom.ComputeSmoothVertexNormals();
 
@@ -30,7 +30,7 @@ static ezMeshResourceHandle CreateAsteroidMesh()
   {
     desc.SetVertexData<ezVec3>(0, v, vertices[v].m_vPosition);
     desc.SetVertexData<ezVec3>(1, v, vertices[v].m_vNormal);
-    desc.SetVertexData<ezColor8UNorm>(2, v, vertices[v].m_Color);
+    desc.SetVertexData<ezColorLinearUB>(2, v, vertices[v].m_Color);
   }
 
   for (ezUInt32 p = 0; p < polygons.GetCount(); ++p)

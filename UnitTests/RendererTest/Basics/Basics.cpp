@@ -53,13 +53,13 @@ ezTestAppRun ezRendererTestBasics::SubtestClearScreen()
   switch (m_iFrame)
   {
   case 0:
-    ClearScreen(ezColor::GetRed());
+    ClearScreen(ezColor(1,0,0));
     break;
   case 1:
-    ClearScreen(ezColor::GetGreen());
+    ClearScreen(ezColor(0,1,0));
     break;
   case 2:
-    ClearScreen(ezColor::GetBlue());
+    ClearScreen(ezColor(0,0,1));
     break;
   case 3:
     ClearScreen(ezColor(0.5f, 0.5f, 0.5f, 0.5f));

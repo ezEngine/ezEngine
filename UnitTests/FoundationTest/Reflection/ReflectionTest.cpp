@@ -558,7 +558,7 @@ EZ_CREATE_SIMPLE_TEST(Reflection, ReflectionUtils)
     c2.m_MyVector.Set(14, 16, 18);
     c2.m_Struct.m_fFloat1 = 128;
     c2.m_Struct.m_UInt8 = 234;
-    c2.m_Color.SetRGB(ezVec3(0.1f, 0.2f, 0.3f));
+    c2.m_Color = ezColor(0.1f, 0.2f, 0.3f);
     c2.m_Time = ezTime::Seconds(91.0f);
 
     ezReflectionUtils::WriteObjectToJSON(FileOut, c2.GetDynamicRTTI(), &c2, ezJSONWriter::WhitespaceMode::All);
@@ -578,7 +578,9 @@ EZ_CREATE_SIMPLE_TEST(Reflection, ReflectionUtils)
     EZ_TEST_STRING(c2.GetText(), "Hallo");
     EZ_TEST_VEC3(c2.m_MyVector, ezVec3(3, 4, 5), 0.0f);
     EZ_TEST_FLOAT(c2.m_Time.GetSeconds(), 91.0f, 0.0f);
-    EZ_TEST_VEC3(c2.m_Color.GetRGB<float>(), ezVec3(0.1f, 0.2f, 0.3f), 0.0f);
+    EZ_TEST_FLOAT(c2.m_Color.r, 0.1f, 0.0f);
+    EZ_TEST_FLOAT(c2.m_Color.g, 0.2f, 0.0f);
+    EZ_TEST_FLOAT(c2.m_Color.b, 0.3f, 0.0f);
     EZ_TEST_FLOAT(c2.m_Struct.m_fFloat1, 128, 0.0f);
     EZ_TEST_INT(c2.m_Struct.m_UInt8, 234);
   }
@@ -598,7 +600,9 @@ EZ_CREATE_SIMPLE_TEST(Reflection, ReflectionUtils)
     ezReflectionUtils::ReadObjectPropertiesFromJSON(FileIn, *c2.GetDynamicRTTI(), &c2);
 
     EZ_TEST_STRING(c2.GetText(), "Tut"); // not restored, different property name
-    EZ_TEST_VEC3(c2.m_Color.GetRGB<float>(), ezVec3(0.1f, 0.2f, 0.3f), 0.0f);
+    EZ_TEST_FLOAT(c2.m_Color.r, 0.1f, 0.0f);
+    EZ_TEST_FLOAT(c2.m_Color.g, 0.2f, 0.0f);
+    EZ_TEST_FLOAT(c2.m_Color.b, 0.3f, 0.0f);
     EZ_TEST_FLOAT(c2.m_Struct.m_fFloat1, 128, 0.0f);
     EZ_TEST_INT(c2.m_Struct.m_UInt8, 234);
   }
@@ -618,7 +622,9 @@ EZ_CREATE_SIMPLE_TEST(Reflection, ReflectionUtils)
     EZ_TEST_STRING(c2.GetText(), "Hallo");
     EZ_TEST_VEC3(c2.m_MyVector, ezVec3(3, 4, 5), 0.0f);
     EZ_TEST_FLOAT(c2.m_Time.GetSeconds(), 91.0f, 0.0f);
-    EZ_TEST_VEC3(c2.m_Color.GetRGB<float>(), ezVec3(0.1f, 0.2f, 0.3f), 0.0f);
+    EZ_TEST_FLOAT(c2.m_Color.r, 0.1f, 0.0f);
+    EZ_TEST_FLOAT(c2.m_Color.g, 0.2f, 0.0f);
+    EZ_TEST_FLOAT(c2.m_Color.b, 0.3f, 0.0f);
     EZ_TEST_FLOAT(c2.m_Struct.m_fFloat1, 128, 0.0f);
     EZ_TEST_INT(c2.m_Struct.m_UInt8, 234);
 

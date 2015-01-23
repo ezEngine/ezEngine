@@ -3,16 +3,11 @@
 #include <Foundation/Math/Math.h>
 #include <Foundation/Math/Color.h>
 
-/// \brief A 8bit per channel unsigned normalized (values interpreted as 0-1) color storage format.
-/// 
-/// For any calculations or conversions use ezColor.
-/// \see ezColor
-class EZ_FOUNDATION_DLL ezColor8UNorm
+class EZ_FOUNDATION_DLL ezColorUnsignedByteBase
 {
 public:
   // Means that colors can be copied using memcpy instead of copy construction.
   EZ_DECLARE_POD_TYPE();
-
 
   // *** Data ***
 public:
@@ -22,108 +17,76 @@ public:
   ezUInt8 b;
   ezUInt8 a;
 
-  // *** Constructors ***
+  // *** Functions ***
 public:
 
-  /// \brief default-constructed color is uninitialized (for speed)
-  ezColor8UNorm(); // [tested]
+  /// \brief Conversion to const ezUInt8*.
+  const ezUInt8* GetData() const { return &r; }
+
+  /// \brief Conversion to ezUInt8*
+  ezUInt8* GetData() { return &r; }
+
+protected:
+  EZ_FORCE_INLINE ezColorUnsignedByteBase() { }
+  EZ_FORCE_INLINE ezColorUnsignedByteBase(ezUInt8 R, ezUInt8 G, ezUInt8 B, ezUInt8 A) : r(R), g(G), b(B), a(A) { }
+
+};
+
+/// \brief A 8bit per channel unsigned normalized (values interpreted as 0-1) color storage format that represents colors in linear space.
+/// 
+/// For any calculations or conversions use ezColor.
+/// \see ezColor
+class EZ_FOUNDATION_DLL ezColorLinearUB : public ezColorUnsignedByteBase
+{
+public:
+
+  /// \brief Default-constructed color is uninitialized (for speed)
+  ezColorLinearUB() { }
 
   /// \brief Initializes the color with r, g, b, a
-  ezColor8UNorm(ezUInt8 r, ezUInt8 g, ezUInt8 b, ezUInt8 a = 255); // [tested]
+  ezColorLinearUB(ezUInt8 r, ezUInt8 g, ezUInt8 b, ezUInt8 a = 255);
 
   /// \brief Initializes the color with ezColor.
   /// Assumes that the given color is normalized.
   /// \see ezColor::IsNormalized
-  ezColor8UNorm(const ezColor& color); // [tested]
+  ezColorLinearUB(const ezColor& color);
 
-  // no copy-constructor and operator= since the default-generated ones will be faster
+  /// \brief Initializes the color with ezColor.
+  void operator=(const ezColor& color);
 
-  // *** Functions ***
-public:
-
-  /// \brief Conversion to ezColor.
-  operator ezColor () const; // [tested]
-
-  /// \brief Conversion to const ezUInt8*.
-  const ezUInt8* GetData() const { return &r; } // [tested]
-
-  /// \brief Conversion to ezUInt8* - use with care!
-  ezUInt8* GetData() { return &r; } // [tested]
-
-  /// \brief Equality Check (bitwise)
-  bool IsIdentical(const ezColor8UNorm& rhs) const; // [tested]
+  /// \brief Converts this color to ezColor.
+  ezColor ToLinearFloat() const;
 };
 
-/// \brief Returns true, if both colors are identical in all components.
-bool operator== (const ezColor8UNorm& c1, const ezColor8UNorm& c2); // [tested]
+EZ_CHECK_AT_COMPILETIME(sizeof(ezColorLinearUB) == 4);
 
-/// \brief Returns true, if both colors are not identical in all components.
-bool operator!= (const ezColor8UNorm& c1, const ezColor8UNorm& c2); // [tested]
-
-EZ_CHECK_AT_COMPILETIME(sizeof(ezColor8UNorm) == 4);
-
-
-
-
-/// \brief The same as ezColor8UNorm but with BGRA data layout which is needed for handling certain image formats.
+/// \brief A 8bit per channel unsigned normalized (values interpreted as 0-1) color storage format that represents colors in gamma space.
 /// 
 /// For any calculations or conversions use ezColor.
 /// \see ezColor
-class EZ_FOUNDATION_DLL ezColorBgra8UNorm
+class EZ_FOUNDATION_DLL ezColorGammaUB : public ezColorUnsignedByteBase
 {
 public:
-  // Means that colors can be copied using memcpy instead of copy construction.
-  EZ_DECLARE_POD_TYPE();
 
+  /// \brief Default-constructed color is uninitialized (for speed)
+  ezColorGammaUB() { }
 
-  // *** Data ***
-public:
+  /// \brief 
+  ezColorGammaUB(ezUInt8 uiGammaRed, ezUInt8 uiGammaGreen, ezUInt8 uiGammaBlue, ezUInt8 uiLinearAlpha = 255);
 
-  ezUInt8 b;
-  ezUInt8 g;
-  ezUInt8 r;
-  ezUInt8 a;
-
-  // *** Constructors ***
-public:
-
-  /// \brief default-constructed color is uninitialized (for speed)
-  ezColorBgra8UNorm(); // [tested]
-
-  /// \brief Initializes the color with b, g, r, a
-  ezColorBgra8UNorm(ezUInt8 b, ezUInt8 g, ezUInt8 r, ezUInt8 a = 255); // [tested]
-
-  /// \brief Initializes the color with ezColor.
+  /// \brief Initializes the color with ezColor. Converts the linear space color to gamma space.
   /// Assumes that the given color is normalized.
   /// \see ezColor::IsNormalized
-  ezColorBgra8UNorm(const ezColor& color); // [tested]
+  ezColorGammaUB(const ezColor& color);
 
-  // no copy-constructor and operator= since the default-generated ones will be faster
+  /// \brief Initializes the color with ezColor. Converts the linear space color to gamma space.
+  void operator=(const ezColor& color);
 
-  // *** Functions ***
-public:
-
-  /// \brief Conversion to ezColor.
-  operator ezColor () const; // [tested]
-
-  /// \brief Conversion to const ezUInt8*.
-  const ezUInt8* GetData() const { return &b; } // [tested]
-
-  /// \brief Conversion to ezUInt8* - use with care!
-  ezUInt8* GetData() { return &b; } // [tested]
-
-  /// \brief Equality Check (bitwise)
-  bool IsIdentical(const ezColorBgra8UNorm& rhs) const; // [tested]
+  /// \brief Converts this color to ezColor.
+  ezColor ToLinearFloat() const;
 };
 
-/// \brief Returns true, if both colors are identical in all components.
-bool operator== (const ezColorBgra8UNorm& c1, const ezColorBgra8UNorm& c2); // [tested]
-
-/// \brief Returns true, if both colors are not identical in all components.
-bool operator!= (const ezColorBgra8UNorm& c1, const ezColorBgra8UNorm& c2); // [tested]
-
-EZ_CHECK_AT_COMPILETIME(sizeof(ezColorBgra8UNorm) == 4);
-
+EZ_CHECK_AT_COMPILETIME(sizeof(ezColorGammaUB) == 4);
 
 
 #include <Foundation/Math/Implementation/Color8UNorm_inl.h>

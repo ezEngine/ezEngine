@@ -3,7 +3,9 @@
 #include <Foundation/Math/Math.h>
 #include <Foundation/Math/Vec4.h>
 
-/// \brief A floating point color.
+class ezColorLinearUB;
+class ezColorGammaUB;
+
 class EZ_FOUNDATION_DLL ezColor
 {
 public:
@@ -25,11 +27,11 @@ public:
   ezColor();  // [tested]
 
   /// \brief Initializes the color with r, g, b, a
-  ezColor(float r, float g, float b, float a = 1.0f);  // [tested]
+  ezColor(float fLinearRed, float fLinearGreen, float fLinearBlue, float fLinearAlpha = 1.0f);  // [tested]
 
-  /// \brief Initializes the color with an vec4 type. XYZW interpreted as RGBA
-  template<typename Type>
-  ezColor(const ezVec4Template<Type>& v); // [tested]
+  ezColor(const ezColorLinearUB& cc);
+
+  ezColor(const ezColorGammaUB& cc);
 
   // no copy-constructor and operator= since the default-generated ones will be faster
 
@@ -43,9 +45,19 @@ public:
   // *** Conversion Operators/Functions ***
 public:
 
-  /// Conversion to ezVec4Template
-  template<typename Type>
-  operator ezVec4Template<Type> () const;  // [tested]
+  /// \brief Sets this color from a color that is in linear color space and given in HSV format.
+  /// You should typically NOT use this functions, as most colors in HSV format are taken from some color picker, which will return a color in Gamma space.
+  void FromLinearHSV(float hue, float sat, float val); // [tested]
+
+  /// \brief Converts the color part to HSV format. The HSV color will be in linear space.
+  /// You should NOT use this functions when you want to display the HSV value in a UI element, as those should display colors in Gamma space.
+  /// You can use this function for procedural color modifications. E.g. GetComplementaryColor() is computed by rotating the hue value 180 degree.
+  /// In this case you also need to use FromLinearHSV() to convert the color back to RGB format.
+  void ToLinearHSV(float& hue, float& sat, float& val) const; // [tested]
+
+  void FromGammaHSV(float hue, float sat, float val);
+
+  void ToGammaHSV(float& hue, float& sat, float& val) const;
 
   /// Conversion to const float*
   const float* GetData() const { return &r; }  // [tested]
@@ -53,37 +65,8 @@ public:
   /// Conversion to float* - use with care!
   float* GetData() { return &r; }  // [tested]
 
-  /// \brief Returns RGB  as ezVec3.
-  template<typename Type>
-  ezVec3Template<Type> GetRGB() const;  // [tested]
-
-  /// \brief Returns BGR as ezVec3.
-  template<typename Type>
-  ezVec3Template<Type> GetBGR() const;  // [tested]
-
-  /// \brief Returns RGBA as ezVec4.
-  template<typename Type>
-  ezVec4Template<Type> GetRGBA() const;  // [tested]
-
-  /// \brief Returns BGRA as ezVec4.
-  template<typename Type>
-  ezVec4Template<Type> GetBGRA() const;  // [tested]
-
-  /// \brief Sets RGB from a ezVec3, interpreted as x=r, y=g, z=b. Sets alpha to 1.
-  template<typename Type>
-  void SetRGB(const ezVec3Template<Type>& rgb);  // [tested]
-
-  /// \brief Sets BGR from a ezVec3, interpreted as x=b, y=g, z=r. Sets alpha to 1.
-  template<typename Type>
-  void SetBGR(const ezVec3Template<Type>& bgr);  // [tested]
-
-  /// \brief Sets RGBA from a ezVec4, interpreted as x=r, y=g, z=b, w=a
-  template<typename Type>
-  void SetRGBA(const ezVec4Template<Type>& rgba);  // [tested]
-
-  /// \brief Sets BGRA from a ezVec4, interpreted as x=b, y=g, z=r, w=a
-  template<typename Type>
-  void SetBGRA(const ezVec4Template<Type>& bgra);  // [tested]
+  static ezVec3 GammaToLinear(const ezVec3& gamma);
+  static ezVec3 LinearToGamma(const ezVec3& gamma);
 
 
   // *** Color specific functions ***
@@ -92,23 +75,6 @@ public:
   /// Returns if the color is in the Range [0; 1] on all 4 channels.
   bool IsNormalized() const;  // [tested]
 
-  /// \brief Converts color part to HSV and returns as ezVec3.
-  /// Using this function on non-normalized colors will lead to invalid results.
-  /// Hue value is given by an angle in degree (0 degree - 360 degree)
-  /// \see ezColor::IsNormalized
-  template<typename Type>
-  ezVec3Template<Type> ConvertToHSV() const; // [tested]
-
-  /// \brief Sets rgb value converting a HSV color.
-  /// \param hue  Hue in degree (0 degree - 360 degree).
-  /// \param sat  Saturation from 0-1
-  /// \param val  Value from 0-1
-  template<typename Type>
-  static ezColor FromHSV(Type hue, Type sat, Type val); // [tested]
-
-  /// \copydoc ezColor::FromHSV
-  template<typename Type>
-  static ezColor FromHSV(ezVec3Template<Type> hsv) { return FromHSV(hsv.x, hsv.y, hsv.z); }
 
   /// \brief Computes saturation.
   float GetSaturation() const;
@@ -122,18 +88,8 @@ public:
   /// \see ezColor::IsNormalized
   ezColor GetInvertedColor() const;
 
-  /// \brief Converts color from linear to sRGB space. Will not touch alpha.
-  /// Using this function on non-normalized colors will lead to negative results
-  /// \see ezColor::IsNormalized
-  ezColor ConvertLinearToSRGB() const;
-
-  /// Converts color from sRGB to linear space. Will not touch alpha.
-  ezColor ConvertSRGBToLinear() const;
-
   /// Calculates the complementary color for this color (hue shifted by 180 degrees), complementary color will have the same alpha.
   ezColor GetComplementaryColor() const;
-
-  /// \todo Add nifty interpolation functions: InterpolateLinearInHSV, InterpolateLinearInRGB
 
   // *** Numeric properties ***
 public:
@@ -146,6 +102,10 @@ public:
 
   // *** Operators ***
 public:
+
+  void operator= (const ezColorLinearUB& cc);
+
+  void operator= (const ezColorGammaUB& cc);
 
   /// \brief Adds cc component-wise to this color.
   void operator+= (const ezColor& cc); // [tested]
@@ -164,18 +124,6 @@ public:
 
   /// \brief Equality Check with epsilon
   bool IsEqual(const ezColor& rhs, float fEpsilon) const; // [tested]
-
-  // *** Predefined Color values ***
-public:
-
-  static const ezColor GetRed()            { return ezColor(1.0f, 0.0f, 0.0f); }
-  static const ezColor GetGreen()          { return ezColor(0.0f, 1.0f, 0.0f); }
-  static const ezColor GetBlue()           { return ezColor(0.0f, 0.0f, 1.0f); }
-  static const ezColor GetPink()           { return ezColor(1.0f, 0.0f, 1.0f); }
-  static const ezColor GetYellow()         { return ezColor(1.0f, 1.0f, 0.0f); }
-  static const ezColor GetWhite()          { return ezColor(1.0f, 1.0f, 1.0f); }
-  static const ezColor GetBlack()          { return ezColor(0.0f, 0.0f, 0.0f); }
-  static const ezColor GetCornflowerBlue() { return ezColor(0.39f, 0.58f, 0.93f); }  // The original!
 };
 
 // *** Operators ***
@@ -187,16 +135,13 @@ const ezColor operator+ (const ezColor& c1, const ezColor& c2); // [tested]
 const ezColor operator- (const ezColor& c1, const ezColor& c2); // [tested]
 
 /// \brief Returns a scaled color.
-template<typename Type>
-const ezColor operator* (Type f, const ezColor& c); // [tested]
+const ezColor operator* (float f, const ezColor& c); // [tested]
 
 /// \brief Returns a scaled color. Will scale all components.
-template<typename Type>
-const ezColor operator* (const ezColor& c, Type f); // [tested]
+const ezColor operator* (const ezColor& c, float f); // [tested]
 
 /// \brief Returns a scaled color. Will scale all components.
-template<typename Type>
-const ezColor operator/ (const ezColor& c, Type f); // [tested]
+const ezColor operator/ (const ezColor& c, float f); // [tested]
 
 /// \brief Returns true, if both colors are identical in all components.
 bool operator== (const ezColor& c1, const ezColor& c2); // [tested]

@@ -49,7 +49,7 @@ public:
 
   ColorResource()
   {
-    m_Color.SetRGB(ezVec3(0, 0, 0));
+    m_Color = ezColor(0, 0, 0);
     m_uiMaxQualityLevel = MaxLod;
     m_Flags |= ezResourceFlags::UpdateOnMainThread;
     m_uiTextureID = 0;
@@ -143,14 +143,14 @@ private:
   {
     if (bFullUnload || m_uiLoadedQualityLevel == 1)
     {
-      m_Color.SetRGB(ezVec3(1, 0, 0));
+      m_Color = ezColor(1, 0, 0);
       m_LoadingState = ezResourceLoadState::Uninitialized;
       m_uiLoadedQualityLevel = 0;
     }
     else
     {
       --m_uiLoadedQualityLevel;
-      m_Color.SetRGB(ezVec3(1, 1, (float) GetLoadedQualityLevel() / (float) GetMaxQualityLevel()));
+      m_Color = ezColor(1, 1, (float) GetLoadedQualityLevel() / (float) GetMaxQualityLevel());
     }
 
     glEnable(GL_TEXTURE_2D);

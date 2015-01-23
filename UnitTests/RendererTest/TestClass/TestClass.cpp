@@ -14,6 +14,7 @@
 #include <Core/ResourceManager/ResourceManager.h>
 #include <RendererCore/Shader/ShaderResource.h>
 #include <RendererCore/RendererCore.h>
+#include <RendererCore/ConstantBuffers/ConstantBufferResource.h>
 
 
 
@@ -116,7 +117,8 @@ ezResult ezGraphicsTest::SetupRenderer(ezUInt32 uiResolutionX, ezUInt32 uiResolu
   m_hBlendState = m_pDevice->CreateBlendState(BlendStateDesc);
   EZ_ASSERT_DEV(!m_hBlendState.IsInvalidated(), "Couldn't create blend state!");
 
-  m_hObjectTransformCB = m_pDevice->CreateConstantBuffer(sizeof(ObjectCB));
+  ezConstantBufferResourceDescriptor<ObjectCB> desc;
+  m_hObjectTransformCB = ezResourceManager::CreateResource<ezConstantBufferResource>("{E74F00FD-8C0C-47B9-A63D-E3D2E77FCFB4}", desc);
 
   ezRendererCore::SetShaderPlatform("DX11_SM40", true);
 
@@ -132,6 +134,7 @@ ezResult ezGraphicsTest::SetupRenderer(ezUInt32 uiResolutionX, ezUInt32 uiResolu
 void ezGraphicsTest::ShutdownRenderer()
 {
   m_hShader.Invalidate();
+  m_hObjectTransformCB.Invalidate();
 
   ezStartup::ShutdownEngine();
 
@@ -141,7 +144,6 @@ void ezGraphicsTest::ShutdownRenderer()
 
   if (m_pDevice)
   {
-    m_pDevice->DestroyBuffer(m_hObjectTransformCB);
     m_pDevice->DestroyBlendState(m_hBlendState);
     m_pDevice->DestroyDepthStencilState(m_hDepthStencilState);
     m_pDevice->DestroyRasterizerState(m_hRasterizerState);
@@ -253,7 +255,7 @@ ezMeshBufferResourceHandle ezGraphicsTest::CreateMesh(const ezGeometry& geom, co
   for (ezUInt32 v = 0; v < geom.GetVertices().GetCount(); ++v)
   {
     desc.SetVertexData<ezVec3>(0, v, geom.GetVertices()[v].m_vPosition);
-    desc.SetVertexData<ezColor8UNorm>(1, v, geom.GetVertices()[v].m_Color);
+    desc.SetVertexData<ezColorLinearUB>(1, v, geom.GetVertices()[v].m_Color);
   }
 
   for (ezUInt32 t = 0; t < Indices.GetCount(); t += 3)
@@ -275,7 +277,7 @@ ezMeshBufferResourceHandle ezGraphicsTest::CreateSphere(ezInt32 iSubDivs, float 
   mTrans.SetIdentity();
 
   ezGeometry geom;
-  geom.AddGeodesicSphere(fRadius, iSubDivs, ezColor8UNorm(255, 255, 255), mTrans);
+  geom.AddGeodesicSphere(fRadius, iSubDivs, ezColorLinearUB(255, 255, 255), mTrans);
 
   ezStringBuilder sName;
   sName.Format("Sphere_%i", iSubDivs);
@@ -292,7 +294,7 @@ ezMeshBufferResourceHandle ezGraphicsTest::CreateTorus(ezInt32 iSubDivs, float f
   mTrans.SetIdentity();
 
   ezGeometry geom;
-  geom.AddTorus(fInnerRadius, fOuterRadius, iSubDivs, iSubDivs, ezColor8UNorm(255, 255, 255), mTrans);
+  geom.AddTorus(fInnerRadius, fOuterRadius, iSubDivs, iSubDivs, ezColorLinearUB(255, 255, 255), mTrans);
 
   ezStringBuilder sName;
   sName.Format("Torus_%i", iSubDivs);
@@ -309,7 +311,7 @@ ezMeshBufferResourceHandle ezGraphicsTest::CreateBox(float fWidth, float fHeight
   mTrans.SetIdentity();
 
   ezGeometry geom;
-  geom.AddBox(ezVec3(fWidth, fHeight, fDepth), ezColor8UNorm(255, 255, 255), mTrans);
+  geom.AddBox(ezVec3(fWidth, fHeight, fDepth), ezColorLinearUB(255, 255, 255), mTrans);
 
   ezStringBuilder sName;
   sName.Format("Box_%.1f_%.1f_%.1f", fWidth, fHeight, fDepth);
@@ -324,12 +326,13 @@ void ezGraphicsTest::RenderObject(ezMeshBufferResourceHandle hObject, const ezMa
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
   ezGALContext* pContext = pDevice->GetPrimaryContext();
 
-  ObjectCB ocb;
-  ocb.m_MVP = mTransform;
-  ocb.m_Color = color;
 
-  pContext->UpdateBuffer(m_hObjectTransformCB, 0, &ocb, sizeof(ObjectCB));
-  pContext->SetConstantBuffer(1, m_hObjectTransformCB);
+  ObjectCB* ocb = ezRendererCore::BeginModifyConstantBuffer<ObjectCB>(m_hObjectTransformCB, pContext);
+    ocb->m_MVP = mTransform;
+    ocb->m_Color = color;
+  ezRendererCore::EndModifyConstantBuffer(pContext);
+
+  ezRendererCore::BindConstantBuffer(pContext, "PerObject", m_hObjectTransformCB);
 
   ezRendererCore::DrawMeshBuffer(pContext, hObject);
 }

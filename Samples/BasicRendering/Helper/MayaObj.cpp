@@ -20,21 +20,21 @@ namespace DontUse
       ezMat4 m;
 
       ezGeometry geom;
-      //geom.AddRectXY(1.0f, 2.0f, ezColor8UNorm(255, 255, 0));
+      //geom.AddRectXY(1.0f, 2.0f, ezColorLinearUB(255, 255, 0));
 
       m.SetRotationMatrixY(ezAngle::Degree(90));
-      //geom.AddRectXY(2.0f, 1.0f, ezColor8UNorm(255, 255, 0), m);
+      //geom.AddRectXY(2.0f, 1.0f, ezColorLinearUB(255, 255, 0), m);
 
-      ezColor8UNorm col(0, 255, 0);
+      ezColor col(0, 1, 0);
 
       ezMat4 mTrans;
       mTrans.SetIdentity();
       mTrans.SetRotationMatrixZ(ezAngle::Degree(90));
       //mTrans.SetTranslationMatrix(ezVec3(1, 0, 0));
       //mTrans.SetScalingFactors(ezVec3(0.5f, 1, 0.3f));
-      //geom.AddGeodesicSphere(0.5f, i, ezColor8UNorm(0, 255, 0), mTrans);
+      //geom.AddGeodesicSphere(0.5f, i, ezColorLinearUB(0, 255, 0), mTrans);
 
-      //geom.AddBox(ezVec3(1, 2, 3), ezColor8UNorm(0, 255, 0), mTrans);
+      //geom.AddBox(ezVec3(1, 2, 3), ezColorLinearUB(0, 255, 0), mTrans);
       //geom.AddPyramid(ezVec3(1.0f, 1.5f, 2.0f), col);
       //geom.AddCylinder(1.0f, 1.0f, 1.1f, true, true, 3 * (i + 1), col, mTrans, 0, ezAngle::Degree(270));
       //geom.AddCone(-1.0f, 2.0f, true, 3 * (i + 1), col, mTrans);
@@ -54,7 +54,8 @@ namespace DontUse
         MayaObj::Vertex vert;
         vert.pos = geom.GetVertices()[v].m_vPosition;
         vert.norm = geom.GetVertices()[v].m_vNormal;
-        vert.tex0 = ezColor(geom.GetVertices()[v].m_Color).GetRGB<float>().GetAsVec2();
+        vert.tex0.x = geom.GetVertices()[v].m_Color.r;
+        vert.tex0.y = geom.GetVertices()[v].m_Color.g;
 
         Vertices.PushBack(vert);
       }

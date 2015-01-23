@@ -199,7 +199,7 @@ void ezStandardJSONWriter::WriteTime(ezTime value)
 
 void ezStandardJSONWriter::WriteColor(const ezColor& value)
 {
-  ezVec4 temp = value;
+  ezVec4 temp(value.r, value.g, value.b, value.a);
 
   ezEndianHelper::NativeToLittleEndian((ezUInt32*) &temp, sizeof(temp) / sizeof(float));
 

@@ -213,7 +213,7 @@ inline ezStreamReaderBase& operator >> (ezStreamReaderBase& Stream, ezColor& Val
 }
 
 // ezColor8Unorm
-inline ezStreamWriterBase& operator << (ezStreamWriterBase& Stream, const ezColor8UNorm& Value)
+inline ezStreamWriterBase& operator << (ezStreamWriterBase& Stream, const ezColorLinearUB& Value)
 {
   Stream << Value.r;
   Stream << Value.g;
@@ -222,7 +222,7 @@ inline ezStreamWriterBase& operator << (ezStreamWriterBase& Stream, const ezColo
   return Stream;
 }
 
-inline ezStreamReaderBase& operator >> (ezStreamReaderBase& Stream, ezColor8UNorm& Value)
+inline ezStreamReaderBase& operator >> (ezStreamReaderBase& Stream, ezColorLinearUB& Value)
 {
   Stream >> Value.r;
   Stream >> Value.g;

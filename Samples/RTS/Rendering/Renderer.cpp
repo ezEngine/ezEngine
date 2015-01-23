@@ -38,7 +38,7 @@ public:
 
     ezMemoryStreamWriter w(&pData->m_Storage);
     w << (ezInt32) (pResource->GetLoadedQualityLevel() + 1);
-    w << ezColor(ezVec4(1, 1, (float) pResource->GetLoadedQualityLevel() + 1.0f / (float) pResource->GetMaxQualityLevel(), 0));
+    w << ezColor(1, 1, (float) pResource->GetLoadedQualityLevel() + 1.0f / (float) pResource->GetMaxQualityLevel(), 0);
 
     while (true)
     {
@@ -130,11 +130,11 @@ void GameRenderer::SetupRenderer(GameWindow* pWindow, const Level* pLevel, const
   ezResourceManager::SetResourceTypeLoader<ColorResource>(&g_ColorLoader);
 
   ColorResourceDescriptor crd;
-  crd.m_Color.SetRGB(ezVec3(0, 0, 1));
+  crd.m_Color = ezColor(0, 0, 1);
 
   g_hColorFallback = ezResourceManager::CreateResource<ColorResource>("ColorFallback", crd);
   g_pColorFallback = ezResourceManager::BeginAcquireResource(g_hColorFallback, ezResourceAcquireMode::NoFallback);
-  g_pColorFallback->m_Color.SetRGB(ezVec3(1, 0, 0));
+  g_pColorFallback->m_Color = ezColor(1, 0, 0);
   ezResourceManager::EndAcquireResource(g_pColorFallback);
 
   UpdateState();
@@ -251,7 +251,7 @@ void GameRenderer::Render2DOverlays()
     glMatrixMode(GL_PROJECTION);
     glLoadMatrixf(mOrtho.m_fElementsCM);
 
-    RenderFormattedText(30, ALIGN_RIGHT, ezColor::GetWhite(), 780, 0, "FPS: %.0f", m_fFramesPerSecond);
+    RenderFormattedText(30, ALIGN_RIGHT, ezColor(1,1,1), 780, 0, "FPS: %.0f", m_fFramesPerSecond);
 
     /*
     RenderText(40, ALIGN_LEFT, ezColor::GetWhite(), 10, 40, "abcdefghijklmnopqrstuvwxyz");
@@ -307,7 +307,7 @@ void GameRenderer::RenderConsole(ezConsole* pConsole, bool bConsoleOpen)
     RenderFormattedText((float) iTextSize, ALIGN_LEFT, ezColor(1.0f, 0.7f, 0), 0, iOffset, ">%s", pConsole->GetInputLine());
 
     if (ezMath::Mod(ezTime::Now().GetMilliseconds(), 1000.0) < 500.0)
-      RenderText((float) iTextSize, ALIGN_LEFT, ezColor::GetGreen(), 5 + pConsole->GetCaretPosition() * (iTextSize / 2), iOffset, "|");
+      RenderText((float) iTextSize, ALIGN_LEFT, ezColor(0,1,0), 5 + pConsole->GetCaretPosition() * (iTextSize / 2), iOffset, "|");
 
     iOffset -= iTextSize;
   }

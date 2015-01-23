@@ -137,7 +137,7 @@ ezColor ezSettings::GetValueColor(const char* szKey)
   EZ_ASSERT_DEV(it.IsValid() && it.Value().m_Flags.IsAnySet(ezSettingsFlags::Registered) && it.Value().m_Value.IsA<ezColor>(), "The setting '%s' has not been registered as type 'color'", szKey);
 
   if (!it.IsValid())
-    return ezColor::GetBlack();
+    return ezColor(0,0,0);
 
   return it.Value().m_Value.ConvertTo<ezColor>();
 

@@ -6,7 +6,7 @@ void ezGALContextState::Invalidate()
 
   m_hBlendState = ezGALBlendStateHandle();
 
-  m_BlendFactor = ezColor::GetBlack();
+  m_BlendFactor = ezColor(0, 0, 0);
 
   m_uiSampleMask = 0x0;
 

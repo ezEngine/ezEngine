@@ -36,7 +36,7 @@ public:
     /// \brief If true, the application might show this string on screen when the console is not displayed.
     bool m_bShowOnScreen;
 
-    ConsoleString() { m_TextColor = ezColor::GetWhite(); m_bShowOnScreen = false; }
+    ConsoleString() { m_TextColor = ezColor(1,1,1); m_bShowOnScreen = false; }
     bool operator< (const ConsoleString& rhs) const { return m_sText < rhs.m_sText; }
   };
 
@@ -185,7 +185,7 @@ public:
   /// \brief Adds a string to the console.
   ///
   /// bShowOnScreen is a hint for the renderer to also display this string on screen, even if the console is not visible.
-  void AddConsoleString(const char* szText, const ezColor& color = ezColor::GetWhite(), bool bShowOnScreen = false);
+  void AddConsoleString(const char* szText, const ezColor& color = ezColor(1, 1, 1), bool bShowOnScreen = false);
 
   /// \brief Returns all current console strings. Use GetScrollPosition() to know which one should be displayed as the first one.
   const ezDeque<ConsoleString>& GetConsoleStrings() const { return m_ConsoleStrings; }

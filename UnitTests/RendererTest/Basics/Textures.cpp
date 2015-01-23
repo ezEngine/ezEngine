@@ -91,7 +91,7 @@ ezTestAppRun ezRendererTestBasics::SubtestTextures2D()
 
   ezRendererCore::BindTexture(nullptr, "TexDiffuse", m_hTexture);
 
-  ClearScreen(ezColor::GetBlack());
+  ClearScreen(ezColor(0,0,0));
 
   RenderObjects();
 
@@ -121,7 +121,7 @@ ezTestAppRun ezRendererTestBasics::SubtestTextures3D()
 
   ezRendererCore::BindTexture(nullptr, "TexDiffuse", m_hTexture);
 
-  ClearScreen(ezColor::GetBlack());
+  ClearScreen(ezColor(0,0,0));
 
   RenderObjects();
 
@@ -209,7 +209,7 @@ ezTestAppRun ezRendererTestBasics::SubtestTexturesCube()
 
   ezRendererCore::BindTexture(nullptr, "TexDiffuse", m_hTexture);
 
-  ClearScreen(ezColor::GetBlack());
+  ClearScreen(ezColor(0,0,0));
 
   RenderObjects();
 

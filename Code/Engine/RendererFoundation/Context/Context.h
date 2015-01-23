@@ -68,7 +68,7 @@ public:
 
   void SetUnorderedAccessView(ezUInt32 uiSlot, ezGALResourceViewHandle hResourceView);
 
-  void SetBlendState(ezGALBlendStateHandle hBlendState, const ezColor& BlendFactor = ezColor::GetWhite(), ezUInt32 uiSampleMask = 0xFFFFFFFFu);
+  void SetBlendState(ezGALBlendStateHandle hBlendState, const ezColor& BlendFactor = ezColor(1,1,1), ezUInt32 uiSampleMask = 0xFFFFFFFFu);
 
   void SetDepthStencilState(ezGALDepthStencilStateHandle hDepthStencilState, ezUInt8 uiStencilRefValue = 0xFFu);
 

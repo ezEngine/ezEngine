@@ -3,47 +3,47 @@
 #include <CoreUtils/Image/Conversions/ImageConversionMixin.h>
 #include <CoreUtils/Image/Conversions/PixelConversions.h>
 
-void ezDecompressBlockBC1(const ezUInt8* pSource, ezColorBgra8UNorm* pTarget, bool bForceFourColorMode)
+void ezDecompressBlockBC1(const ezUInt8* pSource, ezColorLinearUB* pTarget, bool bForceFourColorMode)
 {
   ezUInt16 uiColor0 = pSource[0] | (pSource[1] << 8);
   ezUInt16 uiColor1 = pSource[2] | (pSource[3] << 8);
 
-  ezColorBgra8UNorm colors[4];
+  ezColorLinearUB colors[4];
 
   colors[0] = ezDecompress565(pSource[0] | (pSource[1] << 8));
   colors[1] = ezDecompress565(pSource[2] | (pSource[3] << 8));
 
   if (uiColor0 > uiColor1 || bForceFourColorMode)
   {
-    colors[2] = ezColorBgra8UNorm(
-      (2 * colors[0].b + colors[1].b + 1) / 3,
-      (2 * colors[0].g + colors[1].g + 1) / 3,
+    colors[2] = ezColorLinearUB(
       (2 * colors[0].r + colors[1].r + 1) / 3,
+      (2 * colors[0].g + colors[1].g + 1) / 3,
+      (2 * colors[0].b + colors[1].b + 1) / 3,
       0xFF);
-    colors[3] = ezColorBgra8UNorm(
-      (colors[0].b + 2 * colors[1].b + 1) / 3,
-      (colors[0].g + 2 * colors[1].g + 1) / 3,
+    colors[3] = ezColorLinearUB(
       (colors[0].r + 2 * colors[1].r + 1) / 3,
+      (colors[0].g + 2 * colors[1].g + 1) / 3,
+      (colors[0].b + 2 * colors[1].b + 1) / 3,
       0xFF);
   }
   else
   {
-    colors[2] = ezColorBgra8UNorm(
-      (colors[0].b + colors[1].b) / 2,
-      (colors[0].g + colors[1].g) / 2,
+    colors[2] = ezColorLinearUB(
       (colors[0].r + colors[1].r) / 2,
+      (colors[0].g + colors[1].g) / 2,
+      (colors[0].b + colors[1].b) / 2,
       0xFF);
-    colors[3] = ezColorBgra8UNorm(0, 0, 0, 0);
+    colors[3] = ezColorLinearUB(0, 0, 0, 0);
   }
 
   for (ezUInt32 uiByteIdx = 0; uiByteIdx < 4; uiByteIdx++)
   {
     ezUInt8 uiIndices = pSource[4 + uiByteIdx];
 
-    pTarget[4 * uiByteIdx + 0] = colors[(uiIndices >> 0) & 0x03];
-    pTarget[4 * uiByteIdx + 1] = colors[(uiIndices >> 2) & 0x03];
-    pTarget[4 * uiByteIdx + 2] = colors[(uiIndices >> 4) & 0x03];
-    pTarget[4 * uiByteIdx + 3] = colors[(uiIndices >> 6) & 0x03];
+    pTarget[4 * uiByteIdx + 0] = colors[(uiIndices >> 4) & 0x03]; // R
+    pTarget[4 * uiByteIdx + 1] = colors[(uiIndices >> 2) & 0x03]; // G
+    pTarget[4 * uiByteIdx + 2] = colors[(uiIndices >> 0) & 0x03]; // B
+    pTarget[4 * uiByteIdx + 3] = colors[(uiIndices >> 6) & 0x03]; // A
   }
 }
 
@@ -80,14 +80,14 @@ void ezDecompressBlockBC4(const ezUInt8* pSource, ezUInt8* pTarget, ezUInt32 uiS
       pSource[2 + uiTripleIdx * 3 + 1] << 8 |
       pSource[2 + uiTripleIdx * 3 + 2] << 16;
 
-    pTarget[(8 * uiTripleIdx + 0) * uiStride] = uiAlphas[(uiIndices >> 0) & 0x07];
-    pTarget[(8 * uiTripleIdx + 1) * uiStride] = uiAlphas[(uiIndices >> 3) & 0x07];
-    pTarget[(8 * uiTripleIdx + 2) * uiStride] = uiAlphas[(uiIndices >> 6) & 0x07];
-    pTarget[(8 * uiTripleIdx + 3) * uiStride] = uiAlphas[(uiIndices >> 9) & 0x07];
-    pTarget[(8 * uiTripleIdx + 4) * uiStride] = uiAlphas[(uiIndices >> 12) & 0x07];
-    pTarget[(8 * uiTripleIdx + 5) * uiStride] = uiAlphas[(uiIndices >> 15) & 0x07];
-    pTarget[(8 * uiTripleIdx + 6) * uiStride] = uiAlphas[(uiIndices >> 18) & 0x07];
-    pTarget[(8 * uiTripleIdx + 7) * uiStride] = uiAlphas[(uiIndices >> 21) & 0x07];
+    pTarget[(8 * uiTripleIdx + 0) * uiStride] = uiAlphas[(uiIndices >> 6) & 0x07];  // R
+    pTarget[(8 * uiTripleIdx + 1) * uiStride] = uiAlphas[(uiIndices >> 3) & 0x07];  // G
+    pTarget[(8 * uiTripleIdx + 2) * uiStride] = uiAlphas[(uiIndices >> 0) & 0x07];  // B
+    pTarget[(8 * uiTripleIdx + 3) * uiStride] = uiAlphas[(uiIndices >> 9) & 0x07];  // A
+    pTarget[(8 * uiTripleIdx + 4) * uiStride] = uiAlphas[(uiIndices >> 18) & 0x07]; // R
+    pTarget[(8 * uiTripleIdx + 5) * uiStride] = uiAlphas[(uiIndices >> 15) & 0x07]; // G
+    pTarget[(8 * uiTripleIdx + 6) * uiStride] = uiAlphas[(uiIndices >> 12) & 0x07]; // B
+    pTarget[(8 * uiTripleIdx + 7) * uiStride] = uiAlphas[(uiIndices >> 21) & 0x07]; // A
   }
 }
 
@@ -98,7 +98,7 @@ public:
   static const ezUInt32 s_uiTargetBpp = 32;
 
   typedef ezUInt8 SourceType;
-  typedef ezColorBgra8UNorm TargetType;
+  typedef ezColorLinearUB TargetType;
 
   ezImageConversion_BC1_BGRA()
   {
@@ -118,7 +118,7 @@ public:
   static const ezUInt32 s_uiTargetBpp = 32;
 
   typedef ezUInt8 SourceType;
-  typedef ezColorBgra8UNorm TargetType;
+  typedef ezColorLinearUB TargetType;
 
   ezImageConversion_BC2_BGRA()
   {
@@ -146,7 +146,7 @@ public:
   static const ezUInt32 s_uiTargetBpp = 32;
 
   typedef ezUInt8 SourceType;
-  typedef ezColorBgra8UNorm TargetType;
+  typedef ezColorLinearUB TargetType;
 
   ezImageConversion_BC3_BGRA()
   {

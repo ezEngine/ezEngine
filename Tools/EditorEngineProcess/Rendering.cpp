@@ -37,7 +37,7 @@ ezMeshBufferResourceHandle CreateMeshResource(const ezGeometry& geom, const char
   for (ezUInt32 v = 0; v < geom.GetVertices().GetCount(); ++v)
   {
     desc.SetVertexData<ezVec3>(0, v, geom.GetVertices()[v].m_vPosition);
-    desc.SetVertexData<ezColor8UNorm>(1, v, geom.GetVertices()[v].m_Color);
+    desc.SetVertexData<ezColorLinearUB>(1, v, geom.GetVertices()[v].m_Color);
   }
 
   for (ezUInt32 t = 0; t < Indices.GetCount(); t += 3)
@@ -61,45 +61,45 @@ ezMeshBufferResourceHandle CreateTranslateGizmoMesh()
 
   ezGeometry geom;
 
-  //geom.AddGeodesicSphere(fThickness * 3.0f, 1, ezColor8UNorm(255, 255, 0), m, 0);
-  geom.AddBox(ezVec3(fThickness * 5.0f), ezColor8UNorm(255, 255, 0), m, 0);
+  //geom.AddGeodesicSphere(fThickness * 3.0f, 1, ezColorLinearUB(255, 255, 0), m, 0);
+  geom.AddBox(ezVec3(fThickness * 5.0f), ezColorLinearUB(255, 255, 0), m, 0);
 
   m.SetRotationMatrixZ(ezAngle::Degree(-90.0f));
-  geom.AddCylinder(fThickness, fThickness, fLength, false, true, 16, ezColor8UNorm(255, 0, 0), m, 1);
+  geom.AddCylinder(fThickness, fThickness, fLength, false, true, 16, ezColorLinearUB(255, 0, 0), m, 1);
 
   m.SetTranslationVector(ezVec3(fLength * 0.5f, 0, 0));
-  geom.AddCone(fThickness * 3.0f, fThickness * 6.0f, true, 16, ezColor8UNorm(255, 0, 0), m, 1);
+  geom.AddCone(fThickness * 3.0f, fThickness * 6.0f, true, 16, ezColorLinearUB(255, 0, 0), m, 1);
 
   m.SetIdentity();
-  geom.AddCylinder(fThickness, fThickness, fLength, false, true, 16, ezColor8UNorm(0, 255, 0), m, 2);
+  geom.AddCylinder(fThickness, fThickness, fLength, false, true, 16, ezColorLinearUB(0, 255, 0), m, 2);
 
   m.SetTranslationVector(ezVec3(0, fLength * 0.5f, 0));
-  geom.AddCone(fThickness * 3.0f, fThickness * 6.0f, true, 16, ezColor8UNorm(0, 255, 0), m, 2);
+  geom.AddCone(fThickness * 3.0f, fThickness * 6.0f, true, 16, ezColorLinearUB(0, 255, 0), m, 2);
 
   m.SetRotationMatrixX(ezAngle::Degree(90.0f));
-  geom.AddCylinder(fThickness, fThickness, fLength, false, true, 16, ezColor8UNorm(0, 0, 255), m, 3);
+  geom.AddCylinder(fThickness, fThickness, fLength, false, true, 16, ezColorLinearUB(0, 0, 255), m, 3);
 
   m.SetTranslationVector(ezVec3(0, 0, fLength * 0.5f));
-  geom.AddCone(fThickness * 3.0f, fThickness * 6.0f, true, 16, ezColor8UNorm(0, 0, 255), m, 3);
+  geom.AddCone(fThickness * 3.0f, fThickness * 6.0f, true, 16, ezColorLinearUB(0, 0, 255), m, 3);
 
 
   ezUInt8 uiDark = 200;
   ezUInt8 uiLight = 255;
 
   m.SetRotationMatrixY(ezAngle::Degree(-90.0f));
-  geom.AddRectXY(ezVec2(fRectSize), ezColor8UNorm(uiLight, uiDark, uiDark), m, 1);
+  geom.AddRectXY(ezVec2(fRectSize), ezColorLinearUB(uiLight, uiDark, uiDark), m, 1);
   m.SetRotationMatrixY(ezAngle::Degree( 90.0f));
-  geom.AddRectXY(ezVec2(fRectSize), ezColor8UNorm(uiLight, uiDark, uiDark), m, 1);
+  geom.AddRectXY(ezVec2(fRectSize), ezColorLinearUB(uiLight, uiDark, uiDark), m, 1);
 
   m.SetRotationMatrixX(ezAngle::Degree(-90.0f));
-  geom.AddRectXY(ezVec2(fRectSize), ezColor8UNorm(uiDark, uiLight, uiDark), m, 2);
+  geom.AddRectXY(ezVec2(fRectSize), ezColorLinearUB(uiDark, uiLight, uiDark), m, 2);
   m.SetRotationMatrixX(ezAngle::Degree( 90.0f));
-  geom.AddRectXY(ezVec2(fRectSize), ezColor8UNorm(uiDark, uiLight, uiDark), m, 2);
+  geom.AddRectXY(ezVec2(fRectSize), ezColorLinearUB(uiDark, uiLight, uiDark), m, 2);
 
   m.SetIdentity();
-  geom.AddRectXY(ezVec2(fRectSize), ezColor8UNorm(uiDark, uiDark, uiLight), m, 3);
+  geom.AddRectXY(ezVec2(fRectSize), ezColorLinearUB(uiDark, uiDark, uiLight), m, 3);
   m.SetRotationMatrixX(ezAngle::Degree(180.0f));
-  geom.AddRectXY(ezVec2(fRectSize), ezColor8UNorm(uiDark, uiDark, uiLight), m, 3);
+  geom.AddRectXY(ezVec2(fRectSize), ezColorLinearUB(uiDark, uiDark, uiLight), m, 3);
 
   return CreateMeshResource(geom, "TranslateGizmo");
 }
@@ -217,7 +217,7 @@ void ezViewContext::Redraw()
 
     pContext->SetRenderTargetConfig(m_hPickingRenderTargetCfg);
 
-    pContext->Clear(ezColor::GetBlack());
+    pContext->Clear(ezColor(0,0,0));
     ezRendererCore::SetShaderPermutationVariable("EDITOR_PICKING", "1");
 
     RenderScene();
@@ -226,7 +226,7 @@ void ezViewContext::Redraw()
   {
     pContext->SetRenderTargetConfig(m_hBBRT);
 
-    ezColor c = ezColor::GetCornflowerBlue() * 0.25f; // The original! * 0.25f
+    ezColor c = ezColor(0.39f, 0.58f, 0.93f) * 0.25f; // The original! * 0.25f
     pContext->Clear(c);
     ezRendererCore::SetShaderPermutationVariable("EDITOR_PICKING", "0");
 
@@ -313,14 +313,14 @@ namespace DontUse
     ezMat4 m;
     m.SetIdentity();
     
-    ezColor8UNorm col(0, 255, 0);
+    ezColorLinearUB col(0, 255, 0);
 
     ezMat4 mTrans;
     mTrans.SetIdentity();
     mTrans.SetRotationMatrixZ(ezAngle::Degree(90));
 
     ezGeometry geom;
-    geom.AddGeodesicSphere(0.5f, iMesh, ezColor8UNorm(0, 255, 0), mTrans);
+    geom.AddGeodesicSphere(0.5f, iMesh, ezColorLinearUB(0, 255, 0), mTrans);
 
     Vertices.Reserve(geom.GetVertices().GetCount());
     Indices.Reserve(geom.GetPolygons().GetCount() * 6);

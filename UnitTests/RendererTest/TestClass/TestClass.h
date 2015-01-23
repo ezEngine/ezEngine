@@ -38,7 +38,7 @@ protected:
 protected:
   ezResult SetupRenderer(ezUInt32 uiResolutionX = 960, ezUInt32 uiResolutionY = 540);
   void ShutdownRenderer();
-  void ClearScreen(const ezColor& color = ezColor::GetBlack());
+  void ClearScreen(const ezColor& color = ezColor(0,0,0));
 
   void BeginFrame();
   void EndFrame();
@@ -56,7 +56,7 @@ protected:
   ezGALRasterizerStateHandle m_hRasterizerState;
   ezGALDepthStencilStateHandle m_hDepthStencilState;
   ezGALBlendStateHandle m_hBlendState;
-  ezGALBufferHandle m_hObjectTransformCB;
+  ezConstantBufferResourceHandle m_hObjectTransformCB;
   ezShaderResourceHandle m_hShader;
 };
 

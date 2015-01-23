@@ -8,7 +8,7 @@ void ezGeometry::Clear()
   m_Lines.Clear();
 }
 
-ezUInt32 ezGeometry::AddVertex(const ezVec3& vPos, const ezVec3& vNormal, const ezColor8UNorm& color, ezInt32 iCustomIndex)
+ezUInt32 ezGeometry::AddVertex(const ezVec3& vPos, const ezVec3& vNormal, const ezColor& color, ezInt32 iCustomIndex)
 {
   Vertex v;
   v.m_vPosition = vPos;
@@ -21,7 +21,7 @@ ezUInt32 ezGeometry::AddVertex(const ezVec3& vPos, const ezVec3& vNormal, const 
   return m_Vertices.GetCount() - 1;
 }
 
-ezUInt32 ezGeometry::AddVertex(const ezVec3& vPos, const ezVec3& vNormal, const ezColor8UNorm& color, ezInt32 iCustomIndex, const ezMat4& mTransform)
+ezUInt32 ezGeometry::AddVertex(const ezVec3& vPos, const ezVec3& vNormal, const ezColor& color, ezInt32 iCustomIndex, const ezMat4& mTransform)
 {
   return AddVertex(mTransform.TransformPosition(vPos), mTransform.TransformDirection(vNormal), color, iCustomIndex);
 }
@@ -98,7 +98,7 @@ void ezGeometry::SetAllVertexCustomIndex(ezInt32 iCustomIndex, ezUInt32 uiFirstV
     m_Vertices[v].m_iCustomIndex = iCustomIndex;
 }
 
-void ezGeometry::SetAllVertexColor(const ezColor8UNorm& color, ezUInt32 uiFirstVertex)
+void ezGeometry::SetAllVertexColor(const ezColor& color, ezUInt32 uiFirstVertex)
 {
   for (ezUInt32 v = uiFirstVertex; v < m_Vertices.GetCount(); ++v)
     m_Vertices[v].m_Color = color;
@@ -159,7 +159,7 @@ void ezGeometry::Merge(const ezGeometry& other)
   }
 }
 
-void ezGeometry::AddRectXY(const ezVec2& size, const ezColor8UNorm& color, const ezMat4& mTransform, ezInt32 iCustomIndex)
+void ezGeometry::AddRectXY(const ezVec2& size, const ezColor& color, const ezMat4& mTransform, ezInt32 iCustomIndex)
 {
   const ezVec2 halfSize = size * 0.5f;
 
@@ -173,7 +173,7 @@ void ezGeometry::AddRectXY(const ezVec2& size, const ezColor8UNorm& color, const
   AddPolygon(idx);
 }
 
-void ezGeometry::AddBox(const ezVec3& size, const ezColor8UNorm& color, const ezMat4& mTransform, ezInt32 iCustomIndex)
+void ezGeometry::AddBox(const ezVec3& size, const ezColor& color, const ezMat4& mTransform, ezInt32 iCustomIndex)
 {
   const ezVec3 halfSize = size * 0.5f;
 
@@ -228,7 +228,7 @@ void ezGeometry::AddBox(const ezVec3& size, const ezColor8UNorm& color, const ez
   AddPolygon(poly);
 }
 
-void ezGeometry::AddPyramid(const ezVec3& size, const ezColor8UNorm& color, const ezMat4& mTransform, ezInt32 iCustomIndex)
+void ezGeometry::AddPyramid(const ezVec3& size, const ezColor& color, const ezMat4& mTransform, ezInt32 iCustomIndex)
 {
   const ezVec3 halfSize = size * 0.5f;
 
@@ -265,7 +265,7 @@ void ezGeometry::AddPyramid(const ezVec3& size, const ezColor8UNorm& color, cons
   AddPolygon(tri);
 }
 
-void ezGeometry::AddGeodesicSphere(float fRadius, ezUInt8 uiSubDivisions, const ezColor8UNorm& color, const ezMat4& mTransform, ezInt32 iCustomIndex)
+void ezGeometry::AddGeodesicSphere(float fRadius, ezUInt8 uiSubDivisions, const ezColor& color, const ezMat4& mTransform, ezInt32 iCustomIndex)
 {
   struct Triangle
   {
@@ -427,7 +427,7 @@ void ezGeometry::AddGeodesicSphere(float fRadius, ezUInt8 uiSubDivisions, const 
   TransformVertices(mTransform, uiFirstVertex);
 }
 
-void ezGeometry::AddCylinder(float fRadiusTop, float fRadiusBottom, float fHeight, bool bCapTop, bool bCapBottom, ezUInt16 uiSegments, const ezColor8UNorm& color, const ezMat4& mTransform, ezInt32 iCustomIndex, ezAngle fraction)
+void ezGeometry::AddCylinder(float fRadiusTop, float fRadiusBottom, float fHeight, bool bCapTop, bool bCapBottom, ezUInt16 uiSegments, const ezColor& color, const ezMat4& mTransform, ezInt32 iCustomIndex, ezAngle fraction)
 {
   EZ_ASSERT_DEV(uiSegments >= 3, "Cannot create a cylinder with only %u segments", uiSegments);
   EZ_ASSERT_DEV(fraction.GetDegree() <= 360.0f, "A cylinder cannot be built with more than 360 degree");
@@ -497,7 +497,7 @@ void ezGeometry::AddCylinder(float fRadiusTop, float fRadiusBottom, float fHeigh
 
 }
 
-void ezGeometry::AddCone(float fRadius, float fHeight, bool bCap, ezUInt16 uiSegments, const ezColor8UNorm& color, const ezMat4& mTransform, ezInt32 iCustomIndex)
+void ezGeometry::AddCone(float fRadius, float fHeight, bool bCap, ezUInt16 uiSegments, const ezColor& color, const ezMat4& mTransform, ezInt32 iCustomIndex)
 {
   EZ_ASSERT_DEV(uiSegments >= 3, "Cannot create a cone with only %u segments", uiSegments);
 
@@ -536,7 +536,7 @@ void ezGeometry::AddCone(float fRadius, float fHeight, bool bCap, ezUInt16 uiSeg
   }
 }
 
-void ezGeometry::AddSphere(float fRadius, ezUInt16 uiSegments, ezUInt16 uiStacks, const ezColor8UNorm& color, const ezMat4& mTransform, ezInt32 iCustomIndex)
+void ezGeometry::AddSphere(float fRadius, ezUInt16 uiSegments, ezUInt16 uiStacks, const ezColor& color, const ezMat4& mTransform, ezInt32 iCustomIndex)
 {
   EZ_ASSERT_DEV(uiSegments >= 3, "Sphere must have at least 3 segments");
   EZ_ASSERT_DEV(uiStacks >= 2, "Sphere must have at least 2 stacks");
@@ -615,7 +615,7 @@ void ezGeometry::AddSphere(float fRadius, ezUInt16 uiSegments, ezUInt16 uiStacks
   }
 }
 
-void ezGeometry::AddHalfSphere(float fRadius, ezUInt16 uiSegments, ezUInt16 uiStacks, bool bCap, const ezColor8UNorm& color, const ezMat4& mTransform, ezInt32 iCustomIndex)
+void ezGeometry::AddHalfSphere(float fRadius, ezUInt16 uiSegments, ezUInt16 uiStacks, bool bCap, const ezColor& color, const ezMat4& mTransform, ezInt32 iCustomIndex)
 {
   EZ_ASSERT_DEV(uiSegments >= 3, "Sphere must have at least 3 segments");
   EZ_ASSERT_DEV(uiStacks >= 1, "Sphere must have at least 1 stacks");
@@ -693,7 +693,7 @@ void ezGeometry::AddHalfSphere(float fRadius, ezUInt16 uiSegments, ezUInt16 uiSt
 
 }
 
-void ezGeometry::AddCapsule(float fRadius, float fHeight, ezUInt16 uiSegments, ezUInt16 uiStacks, const ezColor8UNorm& color, const ezMat4& mTransform, ezInt32 iCustomIndex)
+void ezGeometry::AddCapsule(float fRadius, float fHeight, ezUInt16 uiSegments, ezUInt16 uiStacks, const ezColor& color, const ezMat4& mTransform, ezInt32 iCustomIndex)
 {
   EZ_ASSERT_DEV(uiSegments >= 3, "Capsule must have at least 3 segments");
   EZ_ASSERT_DEV(uiStacks >= 1, "Capsule must have at least 1 stacks");
@@ -802,7 +802,7 @@ void ezGeometry::AddCapsule(float fRadius, float fHeight, ezUInt16 uiSegments, e
 
 }
 
-void ezGeometry::AddTorus(float fInnerRadius, float fOuterRadius, ezUInt16 uiSegments, ezUInt16 uiSegmentDetail, const ezColor8UNorm& color, const ezMat4& mTransform, ezInt32 iCustomIndex)
+void ezGeometry::AddTorus(float fInnerRadius, float fOuterRadius, ezUInt16 uiSegments, ezUInt16 uiSegmentDetail, const ezColor& color, const ezMat4& mTransform, ezInt32 iCustomIndex)
 {
   EZ_ASSERT_DEV(fInnerRadius < fOuterRadius, "Inner radius must be smaller than outer radius. Doh!");
   EZ_ASSERT_DEV(uiSegments >= 3, "Invalid number of segments.");
