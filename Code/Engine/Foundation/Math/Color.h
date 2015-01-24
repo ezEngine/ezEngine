@@ -8,7 +8,7 @@ class ezColorGammaUB;
 
 /// \brief ezColor represents and RGBA color in linear color space. Values are stored as float, allowing HDR values and full precision color modifications.
 ///
-/// ezColor is the central class to handle colors throughout the engine. With floating point precision it can handle any value.
+/// ezColor is the central class to handle colors throughout the engine. With floating point precision it can handle any value, including HDR colors.
 /// Since it is stored in linear space, doing color transformations (e.g. adding colors or multiplying them) work as expected.
 ///
 /// When you need to pass colors to the GPU you have multiple options.
@@ -46,28 +46,151 @@ public:
   // *** Predefined Colors ***
 public:
 
-  /// \brief Predefined color values.
+  /// \brief Predefined color values. You can preview the color palette at http://www.w3schools.com/cssref/css_colornames.asp
   enum Predefined
   {
-    // Predefined Colors in HTML (values given in gamma space)
-    Black,      ///< #000000
-    White,      ///< #FFFFFF
-    Red,        ///< #FF0000
-    Green,      ///< #008000
-    Yellow,     ///< #FFFF00
-    Blue,       ///< #0000FF
-    Fuchsia,    ///< #FF00FF
-    Aqua,       ///< #00FFFF
-    Gray,       ///< #808080
-    Lime,       ///< #00FF00
-    Maroon,     ///< #800000
-    Navy,       ///< #000080
-    Olive,      ///< #808000
-    Purple,     ///< #800080
-    Silver,     ///< #C0C0C0
-    Teal,       ///< #008080
-
-    CornflowerBlue,
+    // 140 CSS Color Names (values given in Gamma space)
+    AliceBlue,              ///< #F0F8FF
+    AntiqueWhite,           ///< #FAEBD7
+    Aqua,                   ///< #00FFFF
+    Aquamarine,             ///< #7FFFD4
+    Azure,                  ///< #F0FFFF
+    Beige,                  ///< #F5F5DC
+    Bisque,                 ///< #FFE4C4
+    Black,                  ///< #000000
+    BlanchedAlmond,         ///< #FFEBCD
+    Blue,                   ///< #0000FF
+    BlueViolet,             ///< #8A2BE2
+    Brown,                  ///< #A52A2A
+    BurlyWood,              ///< #DEB887
+    CadetBlue,              ///< #5F9EA0
+    Chartreuse,             ///< #7FFF00
+    Chocolate,              ///< #D2691E
+    Coral,                  ///< #FF7F50
+    CornflowerBlue,         ///< #6495ED  The original!
+    Cornsilk,               ///< #FFF8DC
+    Crimson,                ///< #DC143C
+    Cyan,                   ///< #00FFFF
+    DarkBlue,               ///< #00008B
+    DarkCyan,               ///< #008B8B
+    DarkGoldenRod,          ///< #B8860B
+    DarkGray,               ///< #A9A9A9
+    DarkGreen,              ///< #006400
+    DarkKhaki,              ///< #BDB76B
+    DarkMagenta,            ///< #8B008B
+    DarkOliveGreen,         ///< #556B2F
+    DarkOrange,             ///< #FF8C00
+    DarkOrchid,             ///< #9932CC
+    DarkRed,                ///< #8B0000
+    DarkSalmon,             ///< #E9967A
+    DarkSeaGreen,           ///< #8FBC8F
+    DarkSlateBlue,          ///< #483D8B
+    DarkSlateGray,          ///< #2F4F4F
+    DarkTurquoise,          ///< #00CED1
+    DarkViolet,             ///< #9400D3
+    DeepPink,               ///< #FF1493
+    DeepSkyBlue,            ///< #00BFFF
+    DimGray,                ///< #696969
+    DodgerBlue,             ///< #1E90FF
+    FireBrick,              ///< #B22222
+    FloralWhite,            ///< #FFFAF0
+    ForestGreen,            ///< #228B22
+    Fuchsia,                ///< #FF00FF
+    Gainsboro,              ///< #DCDCDC
+    GhostWhite,             ///< #F8F8FF
+    Gold,                   ///< #FFD700
+    GoldenRod,              ///< #DAA520
+    Gray,                   ///< #808080
+    Green,                  ///< #008000
+    GreenYellow,            ///< #ADFF2F
+    HoneyDew,               ///< #F0FFF0
+    HotPink,                ///< #FF69B4
+    IndianRed,              ///< #CD5C5C
+    Indigo,                 ///< #4B0082
+    Ivory,                  ///< #FFFFF0
+    Khaki,                  ///< #F0E68C
+    Lavender,               ///< #E6E6FA
+    LavenderBlush,          ///< #FFF0F5
+    LawnGreen,              ///< #7CFC00
+    LemonChiffon,           ///< #FFFACD
+    LightBlue,              ///< #ADD8E6
+    LightCoral,             ///< #F08080
+    LightCyan,              ///< #E0FFFF
+    LightGoldenRodYellow,   ///< #FAFAD2
+    LightGray,              ///< #D3D3D3
+    LightGreen,             ///< #90EE90
+    LightPink,              ///< #FFB6C1
+    LightSalmon,            ///< #FFA07A
+    LightSeaGreen,          ///< #20B2AA
+    LightSkyBlue,           ///< #87CEFA
+    LightSlateGray,         ///< #778899
+    LightSteelBlue,         ///< #B0C4DE
+    LightYellow,            ///< #FFFFE0
+    Lime,                   ///< #00FF00
+    LimeGreen,              ///< #32CD32
+    Linen,                  ///< #FAF0E6
+    Magenta,                ///< #FF00FF
+    Maroon,                 ///< #800000
+    MediumAquaMarine,       ///< #66CDAA
+    MediumBlue,             ///< #0000CD
+    MediumOrchid,           ///< #BA55D3
+    MediumPurple,           ///< #9370DB
+    MediumSeaGreen,         ///< #3CB371
+    MediumSlateBlue,        ///< #7B68EE
+    MediumSpringGreen,      ///< #00FA9A
+    MediumTurquoise,        ///< #48D1CC
+    MediumVioletRed,        ///< #C71585
+    MidnightBlue,           ///< #191970
+    MintCream,              ///< #F5FFFA
+    MistyRose,              ///< #FFE4E1
+    Moccasin,               ///< #FFE4B5
+    NavajoWhite,            ///< #FFDEAD
+    Navy,                   ///< #000080
+    OldLace,                ///< #FDF5E6
+    Olive,                  ///< #808000
+    OliveDrab,              ///< #6B8E23
+    Orange,                 ///< #FFA500
+    OrangeRed,              ///< #FF4500
+    Orchid,                 ///< #DA70D6
+    PaleGoldenRod,          ///< #EEE8AA
+    PaleGreen,              ///< #98FB98
+    PaleTurquoise,          ///< #AFEEEE
+    PaleVioletRed,          ///< #DB7093
+    PapayaWhip,             ///< #FFEFD5
+    PeachPuff,              ///< #FFDAB9
+    Peru,                   ///< #CD853F
+    Pink,                   ///< #FFC0CB
+    Plum,                   ///< #DDA0DD
+    PowderBlue,             ///< #B0E0E6
+    Purple,                 ///< #800080
+    RebeccaPurple,          ///< #663399
+    Red,                    ///< #FF0000
+    RosyBrown,              ///< #BC8F8F
+    RoyalBlue,              ///< #4169E1
+    SaddleBrown,            ///< #8B4513
+    Salmon,                 ///< #FA8072
+    SandyBrown,             ///< #F4A460
+    SeaGreen,               ///< #2E8B57
+    SeaShell,               ///< #FFF5EE
+    Sienna,                 ///< #A0522D
+    Silver,                 ///< #C0C0C0
+    SkyBlue,                ///< #87CEEB
+    SlateBlue,              ///< #6A5ACD
+    SlateGray,              ///< #708090
+    Snow,                   ///< #FFFAFA
+    SpringGreen,            ///< #00FF7F
+    SteelBlue,              ///< #4682B4
+    Tan,                    ///< #D2B48C
+    Teal,                   ///< #008080
+    Thistle,                ///< #D8BFD8
+    Tomato,                 ///< #FF6347
+    Turquoise,              ///< #40E0D0
+    Violet,                 ///< #EE82EE
+    Wheat,                  ///< #F5DEB3
+    White,                  ///< #FFFFFF
+    WhiteSmoke,             ///< #F5F5F5
+    Yellow,                 ///< #FFFF00
+    YellowGreen,            ///< #9ACD32
 
     ENUM_COUNT
   };
@@ -84,7 +207,7 @@ public:
 public:
 
   /// \brief default-constructed color is uninitialized (for speed)
-  ezColor(); 
+  ezColor();
 
   /// \brief Initializes the color with one of the predefined color values.
   ezColor(Predefined col);
@@ -93,7 +216,7 @@ public:
   ///
   /// To initialize the color from a Gamma color space, e.g. when using a color value that was determined with a color picker,
   /// use the constructor that takes a ezColorGammaUB object for initialization.
-  ezColor(float fLinearRed, float fLinearGreen, float fLinearBlue, float fLinearAlpha = 1.0f); 
+  ezColor(float fLinearRed, float fLinearGreen, float fLinearBlue, float fLinearAlpha = 1.0f);
 
   /// \brief Initializes this color from a ezColorLinearUB object.
   ///
@@ -139,10 +262,10 @@ public:
   void ToGammaHSV(float& hue, float& sat, float& val) const;
 
   /// \brief Conversion to const float*
-  const float* GetData() const { return &r; } 
+  const float* GetData() const { return &r; }
 
   /// \brief Conversion to float*
-  float* GetData() { return &r; } 
+  float* GetData() { return &r; }
 
   /// \brief Helper function to convert a float RGB color value from gamma space to linear color space.
   static ezVec3 GammaToLinear(const ezVec3& gamma);
@@ -154,7 +277,7 @@ public:
 public:
 
   /// \brief Returns if the color is in the Range [0; 1] on all 4 channels.
-  bool IsNormalized() const; 
+  bool IsNormalized() const;
 
   /// \brief Computes saturation.
   float GetSaturation() const;
@@ -200,7 +323,7 @@ public:
   /// \brief Subtracts \a rhs component-wise from this vector.
   void operator-= (const ezColor& rhs);
 
-    /// \brief Multiplies \a rhs component-wise with this color.
+  /// \brief Multiplies \a rhs component-wise with this color.
   void operator*= (const ezColor& rhs);
 
   /// \brief Multiplies all components of this color with f.
