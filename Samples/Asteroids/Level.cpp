@@ -12,7 +12,7 @@
 static ezMeshResourceHandle CreateAsteroidMesh()
 {
   ezGeometry geom;
-  geom.AddGeodesicSphere(1.0f, 1, ezColor(1, 1, 1));
+  geom.AddGeodesicSphere(1.0f, 1, ezColor::White);
   geom.ComputeFaceNormals();
   geom.ComputeSmoothVertexNormals();
 

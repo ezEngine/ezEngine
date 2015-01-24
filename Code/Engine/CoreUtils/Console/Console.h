@@ -36,7 +36,7 @@ public:
     /// \brief If true, the application might show this string on screen when the console is not displayed.
     bool m_bShowOnScreen;
 
-    ConsoleString() { m_TextColor = ezColor(1,1,1); m_bShowOnScreen = false; }
+    ConsoleString() { m_TextColor = ezColor::White; m_bShowOnScreen = false; }
     bool operator< (const ConsoleString& rhs) const { return m_sText < rhs.m_sText; }
   };
 

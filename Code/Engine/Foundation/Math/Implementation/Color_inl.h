@@ -79,6 +79,16 @@ inline void ezColor::operator-= (const ezColor& rhs)
   a -= rhs.a;
 }
 
+inline void ezColor::operator*= (const ezColor& rhs)
+{
+  EZ_NAN_ASSERT(this);
+  EZ_NAN_ASSERT(&rhs);
+
+  r *= rhs.r;
+  g *= rhs.g;
+  b *= rhs.b;
+  a *= rhs.a;
+}
 inline void ezColor::operator*= (float f)
 {
   r *= f;
@@ -97,6 +107,16 @@ inline bool ezColor::IsIdentical(const ezColor& rhs) const
   return r == rhs.r && g == rhs.g && b == rhs.b && a == rhs.a;
 }
 
+inline ezColor::ezColor(Predefined col)
+{
+  *this = s_PredefinedColors[(ezUInt32) col];
+}
+
+inline void ezColor::operator=(Predefined col)
+{
+  *this = s_PredefinedColors[(ezUInt32) col];
+}
+
 inline const ezColor operator+ (const ezColor& c1, const ezColor& c2)
 {
   EZ_NAN_ASSERT(&c1);
@@ -113,6 +133,14 @@ inline const ezColor operator- (const ezColor& c1, const ezColor& c2)
   return ezColor(c1.r - c2.r, c1.g - c2.g, c1.b - c2.b, c1.a - c2.a);
 }
 
+inline const ezColor operator* (const ezColor& c1, const ezColor& c2)
+{
+  EZ_NAN_ASSERT(&c1);
+  EZ_NAN_ASSERT(&c2);
+
+  return ezColor(c1.r * c2.r, c1.g * c2.g, c1.b * c2.b, c1.a * c2.a);
+}
+
 inline const ezColor operator* (float f, const ezColor& c)
 {
   EZ_NAN_ASSERT(&c);
@@ -125,6 +153,13 @@ inline const ezColor operator* (const ezColor& c, float f)
   EZ_NAN_ASSERT(&c);
 
   return ezColor(c.r * f, c.g * f, c.b * f, c.a * f);
+}
+
+inline const ezColor operator* (const ezMat4& lhs, const ezColor& rhs)
+{
+  ezColor r = rhs;
+  r *= lhs;
+  return r;
 }
 
 inline const ezColor operator/ (const ezColor& c, float f)

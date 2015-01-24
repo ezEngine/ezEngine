@@ -1,6 +1,7 @@
 #include <Foundation/PCH.h>
 #include <Foundation/Math/Color.h>
 #include <Foundation/Math/Color8UNorm.h>
+#include <Foundation/Math/Mat4.h>
 
 // ****** ezColor ******
 
@@ -19,7 +20,7 @@ bool ezColor::IsNormalized() const
   EZ_NAN_ASSERT(this);
 
   return r <= 1.0f && g <= 1.0f && b <= 1.0f && a <= 1.0f &&
-    r >= 0.0f && g >= 0.0f && b >= 0.0f && a >= 0.0f; 
+    r >= 0.0f && g >= 0.0f && b >= 0.0f && a >= 0.0f;
 }
 
 // http://en.literateprograms.org/RGB_to_HSV_color_space_conversion_%28C%29
@@ -33,7 +34,7 @@ void ezColor::ToLinearHSV(float& out_hue, float& out_sat, float& out_value) cons
     out_sat = 0.0f;
     out_value = 0.0f;
     return;
-  } 
+  }
 
   const float invV = 1.0f / out_value;
   float norm_r = r * invV;
@@ -85,7 +86,7 @@ void ezColor::FromLinearHSV(float hue, float sat, float val)
 
 
   a = 1.0f;
-  
+
   if (hue < 60)
   {
     r = c + m;
@@ -151,8 +152,8 @@ bool ezColor::IsEqual(const ezColor& rhs, float fEpsilon) const
   EZ_NAN_ASSERT(this);
   EZ_NAN_ASSERT(&rhs);
 
-  return (ezMath::IsEqual(r, rhs.r, fEpsilon) && 
-          ezMath::IsEqual(g, rhs.g, fEpsilon) && 
+  return (ezMath::IsEqual(r, rhs.r, fEpsilon) &&
+          ezMath::IsEqual(g, rhs.g, fEpsilon) &&
           ezMath::IsEqual(b, rhs.b, fEpsilon) &&
           ezMath::IsEqual(a, rhs.a, fEpsilon));
 }
@@ -166,6 +167,16 @@ void ezColor::operator/= (float f)
   a *= f_inv;
 
   EZ_NAN_ASSERT(this);
+}
+
+void ezColor::operator*= (const ezMat4& rhs)
+{
+  ezVec3 v(r, g, b);
+  v = rhs.TransformPosition(v);
+
+  r = v.x;
+  g = v.y;
+  b = v.z;
 }
 
 ezColor ezColor::GetComplementaryColor() const
@@ -215,4 +226,28 @@ ezVec3 ezColor::LinearToGamma(const ezVec3& linear)
                 linear.y <= 0.0031308f ? (12.92f * linear.y) : (1.055f * ezMath::Pow(linear.y, 1.0f / 2.4f) - 0.055f),
                 linear.z <= 0.0031308f ? (12.92f * linear.z) : (1.055f * ezMath::Pow(linear.z, 1.0f / 2.4f) - 0.055f));
 }
+
+ezColor ezColor::s_PredefinedColors[(ezUInt32) Predefined::ENUM_COUNT] =
+{
+  ezColor(0, 0, 0),
+  ezColor(1, 1, 1),
+  ezColor(1, 0, 0),
+  ezColorGammaUB(0, 128, 0),
+  ezColor(1, 1, 0),
+  ezColor(0, 0, 1),
+  ezColor(1, 0, 1),
+  ezColor(0, 1, 1),
+  ezColorGammaUB(128, 128, 128),
+  ezColor(0, 1, 0),
+  ezColorGammaUB(128, 0, 0),
+  ezColorGammaUB(0, 0, 128),
+  ezColorGammaUB(128, 128, 0),
+  ezColorGammaUB(128, 0, 128),
+  ezColorGammaUB(192, 192, 192),
+  ezColorGammaUB(0, 128, 128),
+
+  ezColor(0.39f, 0.58f, 0.93f), // CornflowerBlue: The original!
+};
+
+
 

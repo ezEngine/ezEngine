@@ -39,5 +39,5 @@ ezTestObjectProperties::ezTestObjectProperties()
   m_Int8 = 1;
   m_Int16 = 2;
   m_UInt32 = 3;
-  m_Color = ezColor(0.39f, 0.58f, 0.93f); // The original!
+  m_Color = ezColor::CornflowerBlue; // The original!
 }

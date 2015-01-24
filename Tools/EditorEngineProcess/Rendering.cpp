@@ -217,7 +217,7 @@ void ezViewContext::Redraw()
 
     pContext->SetRenderTargetConfig(m_hPickingRenderTargetCfg);
 
-    pContext->Clear(ezColor(0,0,0));
+    pContext->Clear(ezColor::Black);
     ezRendererCore::SetShaderPermutationVariable("EDITOR_PICKING", "1");
 
     RenderScene();
@@ -226,7 +226,7 @@ void ezViewContext::Redraw()
   {
     pContext->SetRenderTargetConfig(m_hBBRT);
 
-    ezColor c = ezColor(0.39f, 0.58f, 0.93f) * 0.25f; // The original! * 0.25f
+    ezColor c = ezColor(ezColor::CornflowerBlue) * 0.25f; // The original! * 0.25f
     pContext->Clear(c);
     ezRendererCore::SetShaderPermutationVariable("EDITOR_PICKING", "0");
 

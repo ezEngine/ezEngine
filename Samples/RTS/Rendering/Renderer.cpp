@@ -251,7 +251,7 @@ void GameRenderer::Render2DOverlays()
     glMatrixMode(GL_PROJECTION);
     glLoadMatrixf(mOrtho.m_fElementsCM);
 
-    RenderFormattedText(30, ALIGN_RIGHT, ezColor(1,1,1), 780, 0, "FPS: %.0f", m_fFramesPerSecond);
+    RenderFormattedText(30, ALIGN_RIGHT, ezColor::White, 780, 0, "FPS: %.0f", m_fFramesPerSecond);
 
     /*
     RenderText(40, ALIGN_LEFT, ezColor::GetWhite(), 10, 40, "abcdefghijklmnopqrstuvwxyz");

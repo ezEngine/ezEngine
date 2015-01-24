@@ -20,10 +20,10 @@
 
 const ezColor g_fShipColors[4] =
 {
-  ezColor(1, 0, 0),
-  ezColor(0, 1, 0),
-  ezColor(1, 0, 1),
-  ezColor(1, 1, 0)
+  ezColor::Red,
+  ezColor::Lime,
+  ezColor::Blue,
+  ezColor::Yellow
 };
 
 #if 0

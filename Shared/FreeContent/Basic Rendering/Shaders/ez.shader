@@ -53,7 +53,7 @@ float4 main(PS_IN Input) : SV_Target
   return MatFloat4;//float4(1.0, 1.0, 0.0, 1.0);
 #else
   //return mul(MatMat3, MatColor);
-  return MatColor;
+  return MatFloat4;
 #endif
 }
 

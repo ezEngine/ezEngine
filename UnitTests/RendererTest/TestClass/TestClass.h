@@ -38,7 +38,7 @@ protected:
 protected:
   ezResult SetupRenderer(ezUInt32 uiResolutionX = 960, ezUInt32 uiResolutionY = 540);
   void ShutdownRenderer();
-  void ClearScreen(const ezColor& color = ezColor(0,0,0));
+  void ClearScreen(const ezColor& color = ezColor::Black);
 
   void BeginFrame();
   void EndFrame();

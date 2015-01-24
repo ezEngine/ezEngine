@@ -83,8 +83,19 @@ struct ezGetStrongestTypeClass : public ezTraitInt <
 
 #ifdef __INTELLISENSE__
 
+  /// \brief Embed this into a class to mark it as a POD type.
+  /// POD types will get special treatment from allocators and container classes, such that they are faster to construct and copy.
   #define EZ_DECLARE_POD_TYPE()
+
+  /// \brief Embed this into a class to mark it as memory relocatable.
+  /// Memory relocatable types will get special treatment from allocators and container classes, such that they are faster to construct and copy.
+  /// A type is memory relocatable if it does not have any internal references. e.g: struct example { char[16] buffer; char* pCur; example() pCur(buffer) {} };
+  /// A memory relocatable type also must not give out any pointers to its own location. If these two conditions are met, a type is memory relocatable.
   #define EZ_DECLARE_MEM_RELOCATABLE_TYPE()
+
+  // \brief embed this into a class to automatically detect which type class it belongs to
+  // This macro is only guaranteed to work for classes / structs which don't have any constructor / destructor / assignment operator!
+  // As arguments you have to list the types of all the members of the class / struct.
   #define EZ_DETECT_TYPE_CLASS(...)
 
 #else

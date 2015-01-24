@@ -92,7 +92,7 @@ void ezConsole::SearchInputHistory(ezInt32 iHistoryUp)
 void ezConsole::LogHandler(const ezLoggingEventData& data)
 {
   bool bShow = false;
-  ezColor color = ezColor(1,1,1);
+  ezColor color = ezColor::White;
 
   switch (data.m_EventType)
   {

@@ -180,7 +180,7 @@ public:
     m_hConstantBuffer = ezResourceManager::CreateResource<ezConstantBufferResource>("MainCB", cbd);
 
     ezConstantBufferResourceDescriptor<ColorCB> cbd2;
-    cbd2.m_Data.m_CustomColor = ezColor(0.39f, 0.58f, 0.93f); // The original!
+    cbd2.m_Data.m_CustomColor = ezColor::CornflowerBlue; // The original!
     m_hColorConstantBuffer = ezResourceManager::CreateResource<ezConstantBufferResource>("ColorCB", cbd2);
 
     ezRendererCore::BindConstantBuffer(nullptr, "PerObject", m_hConstantBuffer);
@@ -312,7 +312,7 @@ public:
 
     pContext->SetRenderTargetConfig(m_hBBRT);
     pContext->SetViewport(0.0f, 0.0f, (float) g_uiWindowWidth, (float) g_uiWindowHeight, 0.0f, 1.0f);
-    pContext->Clear(ezColor(0,0,0));
+    pContext->Clear(ezColor::Black);
 
     pContext->SetRasterizerState(m_hRasterizerState);
     pContext->SetDepthStencilState(m_hDepthStencilState);
@@ -349,7 +349,7 @@ public:
 
     ezRendererCore::SetMaterialState(pContext, m_hMaterial);
 
-    ezRendererCore::SetMaterialParameter("MatFloat4", ezColorGammaUB(38, 146, 255).ToLinearFloat()); 
+    ezRendererCore::SetMaterialParameter("MatFloat4", ezColor(ezColor::Teal));
 
     ezRendererCore::DrawMeshBuffer(pContext, m_pObj[m_iCurObject]->m_hMeshBuffer);
 

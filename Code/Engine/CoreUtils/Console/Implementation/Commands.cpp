@@ -50,7 +50,7 @@ void ezConsole::ProcessCommand(const char* szCmd)
   if (m_CommandProcessor.IsValid())
     res = m_CommandProcessor(szCmd, this);
   else
-    AddConsoleString(szCmd, ezColor(1,1,1), true);
+    AddConsoleString(szCmd, ezColor::White, true);
 
   // Broadcast that we have processed a command
   {
