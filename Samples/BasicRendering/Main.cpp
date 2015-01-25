@@ -349,7 +349,7 @@ public:
 
     ezRendererCore::SetMaterialState(pContext, m_hMaterial);
 
-    ezRendererCore::SetMaterialParameter("MatFloat4", ezColor(ezColor::Teal));
+    ezRendererCore::SetMaterialParameter("MatFloat4", ezColor::Teal);
 
     ezRendererCore::DrawMeshBuffer(pContext, m_pObj[m_iCurObject]->m_hMeshBuffer);
 

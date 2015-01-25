@@ -227,150 +227,148 @@ ezVec3 ezColor::LinearToGamma(const ezVec3& linear)
                 linear.z <= 0.0031308f ? (12.92f * linear.z) : (1.055f * ezMath::Pow(linear.z, 1.0f / 2.4f) - 0.055f));
 }
 
-ezColor ezColor::s_PredefinedColors[(ezUInt32) Predefined::ENUM_COUNT] =
-{
-  ezColorGammaUB(0xF0, 0xF8, 0xFF),   // AliceBlue
-  ezColorGammaUB(0xFA, 0xEB, 0xD7),    // AntiqueWhite
-  ezColorGammaUB(0x00, 0xFF, 0xFF),    // Aqua
-  ezColorGammaUB(0x7F, 0xFF, 0xD4),    // Aquamarine
-  ezColorGammaUB(0xF0, 0xFF, 0xFF),    // Azure
-  ezColorGammaUB(0xF5, 0xF5, 0xDC),    // Beige
-  ezColorGammaUB(0xFF, 0xE4, 0xC4),    // Bisque
-  ezColorGammaUB(0x00, 0x00, 0x00),    // Black
-  ezColorGammaUB(0xFF, 0xEB, 0xCD),    // BlanchedAlmond
-  ezColorGammaUB(0x00, 0x00, 0xFF),    // Blue
-  ezColorGammaUB(0x8A, 0x2B, 0xE2),    // BlueViolet
-  ezColorGammaUB(0xA5, 0x2A, 0x2A),    // Brown
-  ezColorGammaUB(0xDE, 0xB8, 0x87),    // BurlyWood
-  ezColorGammaUB(0x5F, 0x9E, 0xA0),    // CadetBlue
-  ezColorGammaUB(0x7F, 0xFF, 0x00),    // Chartreuse
-  ezColorGammaUB(0xD2, 0x69, 0x1E),    // Chocolate
-  ezColorGammaUB(0xFF, 0x7F, 0x50),    // Coral
-  ezColorGammaUB(0x64, 0x95, 0xED),    // CornflowerBlue
-  ezColorGammaUB(0xFF, 0xF8, 0xDC),    // Cornsilk
-  ezColorGammaUB(0xDC, 0x14, 0x3C),    // Crimson
-  ezColorGammaUB(0x00, 0xFF, 0xFF),    // Cyan
-  ezColorGammaUB(0x00, 0x00, 0x8B),    // DarkBlue
-  ezColorGammaUB(0x00, 0x8B, 0x8B),    // DarkCyan
-  ezColorGammaUB(0xB8, 0x86, 0x0B),    // DarkGoldenRod
-  ezColorGammaUB(0xA9, 0xA9, 0xA9),    // DarkGray
-  ezColorGammaUB(0x00, 0x64, 0x00),    // DarkGreen
-  ezColorGammaUB(0xBD, 0xB7, 0x6B),    // DarkKhaki
-  ezColorGammaUB(0x8B, 0x00, 0x8B),    // DarkMagenta
-  ezColorGammaUB(0x55, 0x6B, 0x2F),    // DarkOliveGreen
-  ezColorGammaUB(0xFF, 0x8C, 0x00),    // DarkOrange
-  ezColorGammaUB(0x99, 0x32, 0xCC),    // DarkOrchid
-  ezColorGammaUB(0x8B, 0x00, 0x00),    // DarkRed
-  ezColorGammaUB(0xE9, 0x96, 0x7A),    // DarkSalmon
-  ezColorGammaUB(0x8F, 0xBC, 0x8F),    // DarkSeaGreen
-  ezColorGammaUB(0x48, 0x3D, 0x8B),    // DarkSlateBlue
-  ezColorGammaUB(0x2F, 0x4F, 0x4F),    // DarkSlateGray
-  ezColorGammaUB(0x00, 0xCE, 0xD1),    // DarkTurquoise
-  ezColorGammaUB(0x94, 0x00, 0xD3),    // DarkViolet
-  ezColorGammaUB(0xFF, 0x14, 0x93),    // DeepPink
-  ezColorGammaUB(0x00, 0xBF, 0xFF),    // DeepSkyBlue
-  ezColorGammaUB(0x69, 0x69, 0x69),    // DimGray
-  ezColorGammaUB(0x1E, 0x90, 0xFF),    // DodgerBlue
-  ezColorGammaUB(0xB2, 0x22, 0x22),    // FireBrick
-  ezColorGammaUB(0xFF, 0xFA, 0xF0),    // FloralWhite
-  ezColorGammaUB(0x22, 0x8B, 0x22),    // ForestGreen
-  ezColorGammaUB(0xFF, 0x00, 0xFF),    // Fuchsia
-  ezColorGammaUB(0xDC, 0xDC, 0xDC),    // Gainsboro
-  ezColorGammaUB(0xF8, 0xF8, 0xFF),    // GhostWhite
-  ezColorGammaUB(0xFF, 0xD7, 0x00),    // Gold
-  ezColorGammaUB(0xDA, 0xA5, 0x20),    // GoldenRod
-  ezColorGammaUB(0x80, 0x80, 0x80),    // Gray
-  ezColorGammaUB(0x00, 0x80, 0x00),    // Green
-  ezColorGammaUB(0xAD, 0xFF, 0x2F),    // GreenYellow
-  ezColorGammaUB(0xF0, 0xFF, 0xF0),    // HoneyDew
-  ezColorGammaUB(0xFF, 0x69, 0xB4),    // HotPink
-  ezColorGammaUB(0xCD, 0x5C, 0x5C),    // IndianRed
-  ezColorGammaUB(0x4B, 0x00, 0x82),    // Indigo
-  ezColorGammaUB(0xFF, 0xFF, 0xF0),    // Ivory
-  ezColorGammaUB(0xF0, 0xE6, 0x8C),    // Khaki
-  ezColorGammaUB(0xE6, 0xE6, 0xFA),    // Lavender
-  ezColorGammaUB(0xFF, 0xF0, 0xF5),    // LavenderBlush
-  ezColorGammaUB(0x7C, 0xFC, 0x00),    // LawnGreen
-  ezColorGammaUB(0xFF, 0xFA, 0xCD),    // LemonChiffon
-  ezColorGammaUB(0xAD, 0xD8, 0xE6),    // LightBlue
-  ezColorGammaUB(0xF0, 0x80, 0x80),    // LightCoral
-  ezColorGammaUB(0xE0, 0xFF, 0xFF),    // LightCyan
-  ezColorGammaUB(0xFA, 0xFA, 0xD2),    // LightGoldenRodYellow
-  ezColorGammaUB(0xD3, 0xD3, 0xD3),    // LightGray
-  ezColorGammaUB(0x90, 0xEE, 0x90),    // LightGreen
-  ezColorGammaUB(0xFF, 0xB6, 0xC1),    // LightPink
-  ezColorGammaUB(0xFF, 0xA0, 0x7A),    // LightSalmon
-  ezColorGammaUB(0x20, 0xB2, 0xAA),    // LightSeaGreen
-  ezColorGammaUB(0x87, 0xCE, 0xFA),    // LightSkyBlue
-  ezColorGammaUB(0x77, 0x88, 0x99),    // LightSlateGray
-  ezColorGammaUB(0xB0, 0xC4, 0xDE),    // LightSteelBlue
-  ezColorGammaUB(0xFF, 0xFF, 0xE0),    // LightYellow
-  ezColorGammaUB(0x00, 0xFF, 0x00),    // Lime
-  ezColorGammaUB(0x32, 0xCD, 0x32),    // LimeGreen
-  ezColorGammaUB(0xFA, 0xF0, 0xE6),    // Linen
-  ezColorGammaUB(0xFF, 0x00, 0xFF),    // Magenta
-  ezColorGammaUB(0x80, 0x00, 0x00),    // Maroon
-  ezColorGammaUB(0x66, 0xCD, 0xAA),    // MediumAquaMarine
-  ezColorGammaUB(0x00, 0x00, 0xCD),    // MediumBlue
-  ezColorGammaUB(0xBA, 0x55, 0xD3),    // MediumOrchid
-  ezColorGammaUB(0x93, 0x70, 0xDB),    // MediumPurple
-  ezColorGammaUB(0x3C, 0xB3, 0x71),    // MediumSeaGreen
-  ezColorGammaUB(0x7B, 0x68, 0xEE),    // MediumSlateBlue
-  ezColorGammaUB(0x00, 0xFA, 0x9A),    // MediumSpringGreen
-  ezColorGammaUB(0x48, 0xD1, 0xCC),    // MediumTurquoise
-  ezColorGammaUB(0xC7, 0x15, 0x85),    // MediumVioletRed
-  ezColorGammaUB(0x19, 0x19, 0x70),    // MidnightBlue
-  ezColorGammaUB(0xF5, 0xFF, 0xFA),    // MintCream
-  ezColorGammaUB(0xFF, 0xE4, 0xE1),    // MistyRose
-  ezColorGammaUB(0xFF, 0xE4, 0xB5),    // Moccasin
-  ezColorGammaUB(0xFF, 0xDE, 0xAD),    // NavajoWhite
-  ezColorGammaUB(0x00, 0x00, 0x80),    // Navy
-  ezColorGammaUB(0xFD, 0xF5, 0xE6),    // OldLace
-  ezColorGammaUB(0x80, 0x80, 0x00),    // Olive
-  ezColorGammaUB(0x6B, 0x8E, 0x23),    // OliveDrab
-  ezColorGammaUB(0xFF, 0xA5, 0x00),    // Orange
-  ezColorGammaUB(0xFF, 0x45, 0x00),    // OrangeRed
-  ezColorGammaUB(0xDA, 0x70, 0xD6),    // Orchid
-  ezColorGammaUB(0xEE, 0xE8, 0xAA),    // PaleGoldenRod
-  ezColorGammaUB(0x98, 0xFB, 0x98),    // PaleGreen
-  ezColorGammaUB(0xAF, 0xEE, 0xEE),    // PaleTurquoise
-  ezColorGammaUB(0xDB, 0x70, 0x93),    // PaleVioletRed
-  ezColorGammaUB(0xFF, 0xEF, 0xD5),    // PapayaWhip
-  ezColorGammaUB(0xFF, 0xDA, 0xB9),    // PeachPuff
-  ezColorGammaUB(0xCD, 0x85, 0x3F),    // Peru
-  ezColorGammaUB(0xFF, 0xC0, 0xCB),    // Pink
-  ezColorGammaUB(0xDD, 0xA0, 0xDD),    // Plum
-  ezColorGammaUB(0xB0, 0xE0, 0xE6),    // PowderBlue
-  ezColorGammaUB(0x80, 0x00, 0x80),    // Purple
-  ezColorGammaUB(0x66, 0x33, 0x99),    // RebeccaPurple
-  ezColorGammaUB(0xFF, 0x00, 0x00),    // Red
-  ezColorGammaUB(0xBC, 0x8F, 0x8F),    // RosyBrown
-  ezColorGammaUB(0x41, 0x69, 0xE1),    // RoyalBlue
-  ezColorGammaUB(0x8B, 0x45, 0x13),    // SaddleBrown
-  ezColorGammaUB(0xFA, 0x80, 0x72),    // Salmon
-  ezColorGammaUB(0xF4, 0xA4, 0x60),    // SandyBrown
-  ezColorGammaUB(0x2E, 0x8B, 0x57),    // SeaGreen
-  ezColorGammaUB(0xFF, 0xF5, 0xEE),    // SeaShell
-  ezColorGammaUB(0xA0, 0x52, 0x2D),    // Sienna
-  ezColorGammaUB(0xC0, 0xC0, 0xC0),    // Silver
-  ezColorGammaUB(0x87, 0xCE, 0xEB),    // SkyBlue
-  ezColorGammaUB(0x6A, 0x5A, 0xCD),    // SlateBlue
-  ezColorGammaUB(0x70, 0x80, 0x90),    // SlateGray
-  ezColorGammaUB(0xFF, 0xFA, 0xFA),    // Snow
-  ezColorGammaUB(0x00, 0xFF, 0x7F),    // SpringGreen
-  ezColorGammaUB(0x46, 0x82, 0xB4),    // SteelBlue
-  ezColorGammaUB(0xD2, 0xB4, 0x8C),    // Tan
-  ezColorGammaUB(0x00, 0x80, 0x80),    // Teal
-  ezColorGammaUB(0xD8, 0xBF, 0xD8),    // Thistle
-  ezColorGammaUB(0xFF, 0x63, 0x47),    // Tomato
-  ezColorGammaUB(0x40, 0xE0, 0xD0),    // Turquoise
-  ezColorGammaUB(0xEE, 0x82, 0xEE),    // Violet
-  ezColorGammaUB(0xF5, 0xDE, 0xB3),    // Wheat
-  ezColorGammaUB(0xFF, 0xFF, 0xFF),    // White
-  ezColorGammaUB(0xF5, 0xF5, 0xF5),    // WhiteSmoke
-  ezColorGammaUB(0xFF, 0xFF, 0x00),    // Yellow
-  ezColorGammaUB(0x9A, 0xCD, 0x32),    // YellowGreen
-};
+const ezColor ezColor::AliceBlue(ezColorGammaUB(0xF0, 0xF8, 0xFF));
+const ezColor ezColor::AntiqueWhite(ezColorGammaUB(0xFA, 0xEB, 0xD7));
+const ezColor ezColor::Aqua(ezColorGammaUB(0x00, 0xFF, 0xFF));
+const ezColor ezColor::Aquamarine(ezColorGammaUB(0x7F, 0xFF, 0xD4));
+const ezColor ezColor::Azure(ezColorGammaUB(0xF0, 0xFF, 0xFF));
+const ezColor ezColor::Beige(ezColorGammaUB(0xF5, 0xF5, 0xDC));
+const ezColor ezColor::Bisque(ezColorGammaUB(0xFF, 0xE4, 0xC4));
+const ezColor ezColor::Black(ezColorGammaUB(0x00, 0x00, 0x00));
+const ezColor ezColor::BlanchedAlmond(ezColorGammaUB(0xFF, 0xEB, 0xCD));
+const ezColor ezColor::Blue(ezColorGammaUB(0x00, 0x00, 0xFF));
+const ezColor ezColor::BlueViolet(ezColorGammaUB(0x8A, 0x2B, 0xE2));
+const ezColor ezColor::Brown(ezColorGammaUB(0xA5, 0x2A, 0x2A));
+const ezColor ezColor::BurlyWood(ezColorGammaUB(0xDE, 0xB8, 0x87));
+const ezColor ezColor::CadetBlue(ezColorGammaUB(0x5F, 0x9E, 0xA0));
+const ezColor ezColor::Chartreuse(ezColorGammaUB(0x7F, 0xFF, 0x00));
+const ezColor ezColor::Chocolate(ezColorGammaUB(0xD2, 0x69, 0x1E));
+const ezColor ezColor::Coral(ezColorGammaUB(0xFF, 0x7F, 0x50));
+const ezColor ezColor::CornflowerBlue(ezColorGammaUB(0x64, 0x95, 0xED));
+const ezColor ezColor::Cornsilk(ezColorGammaUB(0xFF, 0xF8, 0xDC));
+const ezColor ezColor::Crimson(ezColorGammaUB(0xDC, 0x14, 0x3C));
+const ezColor ezColor::Cyan(ezColorGammaUB(0x00, 0xFF, 0xFF));
+const ezColor ezColor::DarkBlue(ezColorGammaUB(0x00, 0x00, 0x8B));
+const ezColor ezColor::DarkCyan(ezColorGammaUB(0x00, 0x8B, 0x8B));
+const ezColor ezColor::DarkGoldenRod(ezColorGammaUB(0xB8, 0x86, 0x0B));
+const ezColor ezColor::DarkGray(ezColorGammaUB(0xA9, 0xA9, 0xA9));
+const ezColor ezColor::DarkGreen(ezColorGammaUB(0x00, 0x64, 0x00));
+const ezColor ezColor::DarkKhaki(ezColorGammaUB(0xBD, 0xB7, 0x6B));
+const ezColor ezColor::DarkMagenta(ezColorGammaUB(0x8B, 0x00, 0x8B));
+const ezColor ezColor::DarkOliveGreen(ezColorGammaUB(0x55, 0x6B, 0x2F));
+const ezColor ezColor::DarkOrange(ezColorGammaUB(0xFF, 0x8C, 0x00));
+const ezColor ezColor::DarkOrchid(ezColorGammaUB(0x99, 0x32, 0xCC));
+const ezColor ezColor::DarkRed(ezColorGammaUB(0x8B, 0x00, 0x00));
+const ezColor ezColor::DarkSalmon(ezColorGammaUB(0xE9, 0x96, 0x7A));
+const ezColor ezColor::DarkSeaGreen(ezColorGammaUB(0x8F, 0xBC, 0x8F));
+const ezColor ezColor::DarkSlateBlue(ezColorGammaUB(0x48, 0x3D, 0x8B));
+const ezColor ezColor::DarkSlateGray(ezColorGammaUB(0x2F, 0x4F, 0x4F));
+const ezColor ezColor::DarkTurquoise(ezColorGammaUB(0x00, 0xCE, 0xD1));
+const ezColor ezColor::DarkViolet(ezColorGammaUB(0x94, 0x00, 0xD3));
+const ezColor ezColor::DeepPink(ezColorGammaUB(0xFF, 0x14, 0x93));
+const ezColor ezColor::DeepSkyBlue(ezColorGammaUB(0x00, 0xBF, 0xFF));
+const ezColor ezColor::DimGray(ezColorGammaUB(0x69, 0x69, 0x69));
+const ezColor ezColor::DodgerBlue(ezColorGammaUB(0x1E, 0x90, 0xFF));
+const ezColor ezColor::FireBrick(ezColorGammaUB(0xB2, 0x22, 0x22));
+const ezColor ezColor::FloralWhite(ezColorGammaUB(0xFF, 0xFA, 0xF0));
+const ezColor ezColor::ForestGreen(ezColorGammaUB(0x22, 0x8B, 0x22));
+const ezColor ezColor::Fuchsia(ezColorGammaUB(0xFF, 0x00, 0xFF));
+const ezColor ezColor::Gainsboro(ezColorGammaUB(0xDC, 0xDC, 0xDC));
+const ezColor ezColor::GhostWhite(ezColorGammaUB(0xF8, 0xF8, 0xFF));
+const ezColor ezColor::Gold(ezColorGammaUB(0xFF, 0xD7, 0x00));
+const ezColor ezColor::GoldenRod(ezColorGammaUB(0xDA, 0xA5, 0x20));
+const ezColor ezColor::Gray(ezColorGammaUB(0x80, 0x80, 0x80));
+const ezColor ezColor::Green(ezColorGammaUB(0x00, 0x80, 0x00));
+const ezColor ezColor::GreenYellow(ezColorGammaUB(0xAD, 0xFF, 0x2F));
+const ezColor ezColor::HoneyDew(ezColorGammaUB(0xF0, 0xFF, 0xF0));
+const ezColor ezColor::HotPink(ezColorGammaUB(0xFF, 0x69, 0xB4));
+const ezColor ezColor::IndianRed(ezColorGammaUB(0xCD, 0x5C, 0x5C));
+const ezColor ezColor::Indigo(ezColorGammaUB(0x4B, 0x00, 0x82));
+const ezColor ezColor::Ivory(ezColorGammaUB(0xFF, 0xFF, 0xF0));
+const ezColor ezColor::Khaki(ezColorGammaUB(0xF0, 0xE6, 0x8C));
+const ezColor ezColor::Lavender(ezColorGammaUB(0xE6, 0xE6, 0xFA));
+const ezColor ezColor::LavenderBlush(ezColorGammaUB(0xFF, 0xF0, 0xF5));
+const ezColor ezColor::LawnGreen(ezColorGammaUB(0x7C, 0xFC, 0x00));
+const ezColor ezColor::LemonChiffon(ezColorGammaUB(0xFF, 0xFA, 0xCD));
+const ezColor ezColor::LightBlue(ezColorGammaUB(0xAD, 0xD8, 0xE6));
+const ezColor ezColor::LightCoral(ezColorGammaUB(0xF0, 0x80, 0x80));
+const ezColor ezColor::LightCyan(ezColorGammaUB(0xE0, 0xFF, 0xFF));
+const ezColor ezColor::LightGoldenRodYellow(ezColorGammaUB(0xFA, 0xFA, 0xD2));
+const ezColor ezColor::LightGray(ezColorGammaUB(0xD3, 0xD3, 0xD3));
+const ezColor ezColor::LightGreen(ezColorGammaUB(0x90, 0xEE, 0x90));
+const ezColor ezColor::LightPink(ezColorGammaUB(0xFF, 0xB6, 0xC1));
+const ezColor ezColor::LightSalmon(ezColorGammaUB(0xFF, 0xA0, 0x7A));
+const ezColor ezColor::LightSeaGreen(ezColorGammaUB(0x20, 0xB2, 0xAA));
+const ezColor ezColor::LightSkyBlue(ezColorGammaUB(0x87, 0xCE, 0xFA));
+const ezColor ezColor::LightSlateGray(ezColorGammaUB(0x77, 0x88, 0x99));
+const ezColor ezColor::LightSteelBlue(ezColorGammaUB(0xB0, 0xC4, 0xDE));
+const ezColor ezColor::LightYellow(ezColorGammaUB(0xFF, 0xFF, 0xE0));
+const ezColor ezColor::Lime(ezColorGammaUB(0x00, 0xFF, 0x00));
+const ezColor ezColor::LimeGreen(ezColorGammaUB(0x32, 0xCD, 0x32));
+const ezColor ezColor::Linen(ezColorGammaUB(0xFA, 0xF0, 0xE6));
+const ezColor ezColor::Magenta(ezColorGammaUB(0xFF, 0x00, 0xFF));
+const ezColor ezColor::Maroon(ezColorGammaUB(0x80, 0x00, 0x00));
+const ezColor ezColor::MediumAquaMarine(ezColorGammaUB(0x66, 0xCD, 0xAA));
+const ezColor ezColor::MediumBlue(ezColorGammaUB(0x00, 0x00, 0xCD));
+const ezColor ezColor::MediumOrchid(ezColorGammaUB(0xBA, 0x55, 0xD3));
+const ezColor ezColor::MediumPurple(ezColorGammaUB(0x93, 0x70, 0xDB));
+const ezColor ezColor::MediumSeaGreen(ezColorGammaUB(0x3C, 0xB3, 0x71));
+const ezColor ezColor::MediumSlateBlue(ezColorGammaUB(0x7B, 0x68, 0xEE));
+const ezColor ezColor::MediumSpringGreen(ezColorGammaUB(0x00, 0xFA, 0x9A));
+const ezColor ezColor::MediumTurquoise(ezColorGammaUB(0x48, 0xD1, 0xCC));
+const ezColor ezColor::MediumVioletRed(ezColorGammaUB(0xC7, 0x15, 0x85));
+const ezColor ezColor::MidnightBlue(ezColorGammaUB(0x19, 0x19, 0x70));
+const ezColor ezColor::MintCream(ezColorGammaUB(0xF5, 0xFF, 0xFA));
+const ezColor ezColor::MistyRose(ezColorGammaUB(0xFF, 0xE4, 0xE1));
+const ezColor ezColor::Moccasin(ezColorGammaUB(0xFF, 0xE4, 0xB5));
+const ezColor ezColor::NavajoWhite(ezColorGammaUB(0xFF, 0xDE, 0xAD));
+const ezColor ezColor::Navy(ezColorGammaUB(0x00, 0x00, 0x80));
+const ezColor ezColor::OldLace(ezColorGammaUB(0xFD, 0xF5, 0xE6));
+const ezColor ezColor::Olive(ezColorGammaUB(0x80, 0x80, 0x00));
+const ezColor ezColor::OliveDrab(ezColorGammaUB(0x6B, 0x8E, 0x23));
+const ezColor ezColor::Orange(ezColorGammaUB(0xFF, 0xA5, 0x00));
+const ezColor ezColor::OrangeRed(ezColorGammaUB(0xFF, 0x45, 0x00));
+const ezColor ezColor::Orchid(ezColorGammaUB(0xDA, 0x70, 0xD6));
+const ezColor ezColor::PaleGoldenRod(ezColorGammaUB(0xEE, 0xE8, 0xAA));
+const ezColor ezColor::PaleGreen(ezColorGammaUB(0x98, 0xFB, 0x98));
+const ezColor ezColor::PaleTurquoise(ezColorGammaUB(0xAF, 0xEE, 0xEE));
+const ezColor ezColor::PaleVioletRed(ezColorGammaUB(0xDB, 0x70, 0x93));
+const ezColor ezColor::PapayaWhip(ezColorGammaUB(0xFF, 0xEF, 0xD5));
+const ezColor ezColor::PeachPuff(ezColorGammaUB(0xFF, 0xDA, 0xB9));
+const ezColor ezColor::Peru(ezColorGammaUB(0xCD, 0x85, 0x3F));
+const ezColor ezColor::Pink(ezColorGammaUB(0xFF, 0xC0, 0xCB));
+const ezColor ezColor::Plum(ezColorGammaUB(0xDD, 0xA0, 0xDD));
+const ezColor ezColor::PowderBlue(ezColorGammaUB(0xB0, 0xE0, 0xE6));
+const ezColor ezColor::Purple(ezColorGammaUB(0x80, 0x00, 0x80));
+const ezColor ezColor::RebeccaPurple(ezColorGammaUB(0x66, 0x33, 0x99));
+const ezColor ezColor::Red(ezColorGammaUB(0xFF, 0x00, 0x00));
+const ezColor ezColor::RosyBrown(ezColorGammaUB(0xBC, 0x8F, 0x8F));
+const ezColor ezColor::RoyalBlue(ezColorGammaUB(0x41, 0x69, 0xE1));
+const ezColor ezColor::SaddleBrown(ezColorGammaUB(0x8B, 0x45, 0x13));
+const ezColor ezColor::Salmon(ezColorGammaUB(0xFA, 0x80, 0x72));
+const ezColor ezColor::SandyBrown(ezColorGammaUB(0xF4, 0xA4, 0x60));
+const ezColor ezColor::SeaGreen(ezColorGammaUB(0x2E, 0x8B, 0x57));
+const ezColor ezColor::SeaShell(ezColorGammaUB(0xFF, 0xF5, 0xEE));
+const ezColor ezColor::Sienna(ezColorGammaUB(0xA0, 0x52, 0x2D));
+const ezColor ezColor::Silver(ezColorGammaUB(0xC0, 0xC0, 0xC0));
+const ezColor ezColor::SkyBlue(ezColorGammaUB(0x87, 0xCE, 0xEB));
+const ezColor ezColor::SlateBlue(ezColorGammaUB(0x6A, 0x5A, 0xCD));
+const ezColor ezColor::SlateGray(ezColorGammaUB(0x70, 0x80, 0x90));
+const ezColor ezColor::Snow(ezColorGammaUB(0xFF, 0xFA, 0xFA));
+const ezColor ezColor::SpringGreen(ezColorGammaUB(0x00, 0xFF, 0x7F));
+const ezColor ezColor::SteelBlue(ezColorGammaUB(0x46, 0x82, 0xB4));
+const ezColor ezColor::Tan(ezColorGammaUB(0xD2, 0xB4, 0x8C));
+const ezColor ezColor::Teal(ezColorGammaUB(0x00, 0x80, 0x80));
+const ezColor ezColor::Thistle(ezColorGammaUB(0xD8, 0xBF, 0xD8));
+const ezColor ezColor::Tomato(ezColorGammaUB(0xFF, 0x63, 0x47));
+const ezColor ezColor::Turquoise(ezColorGammaUB(0x40, 0xE0, 0xD0));
+const ezColor ezColor::Violet(ezColorGammaUB(0xEE, 0x82, 0xEE));
+const ezColor ezColor::Wheat(ezColorGammaUB(0xF5, 0xDE, 0xB3));
+const ezColor ezColor::White(ezColorGammaUB(0xFF, 0xFF, 0xFF));
+const ezColor ezColor::WhiteSmoke(ezColorGammaUB(0xF5, 0xF5, 0xF5));
+const ezColor ezColor::Yellow(ezColorGammaUB(0xFF, 0xFF, 0x00));
+const ezColor ezColor::YellowGreen(ezColorGammaUB(0x9A, 0xCD, 0x32));
+
 
 
 

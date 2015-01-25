@@ -38,6 +38,10 @@ class ezColorGammaUB;
 ///
 /// Now the integer values in \a gamma can be used to e.g. populate a color picker and the color displayed on screen will show up the same, as
 /// in a gamma correct 3D rendering.
+///
+///
+///
+/// The predefined colors can be seen at http://www.w3schools.com/cssref/css_colornames.asp
 class EZ_FOUNDATION_DLL ezColor
 {
 public:
@@ -46,154 +50,148 @@ public:
   // *** Predefined Colors ***
 public:
 
-  /// \brief Predefined color values. You can preview the color palette at http://www.w3schools.com/cssref/css_colornames.asp
-  enum Predefined
-  {
-    // 140 CSS Color Names (values given in Gamma space)
-    AliceBlue,              ///< #F0F8FF
-    AntiqueWhite,           ///< #FAEBD7
-    Aqua,                   ///< #00FFFF
-    Aquamarine,             ///< #7FFFD4
-    Azure,                  ///< #F0FFFF
-    Beige,                  ///< #F5F5DC
-    Bisque,                 ///< #FFE4C4
-    Black,                  ///< #000000
-    BlanchedAlmond,         ///< #FFEBCD
-    Blue,                   ///< #0000FF
-    BlueViolet,             ///< #8A2BE2
-    Brown,                  ///< #A52A2A
-    BurlyWood,              ///< #DEB887
-    CadetBlue,              ///< #5F9EA0
-    Chartreuse,             ///< #7FFF00
-    Chocolate,              ///< #D2691E
-    Coral,                  ///< #FF7F50
-    CornflowerBlue,         ///< #6495ED  The original!
-    Cornsilk,               ///< #FFF8DC
-    Crimson,                ///< #DC143C
-    Cyan,                   ///< #00FFFF
-    DarkBlue,               ///< #00008B
-    DarkCyan,               ///< #008B8B
-    DarkGoldenRod,          ///< #B8860B
-    DarkGray,               ///< #A9A9A9
-    DarkGreen,              ///< #006400
-    DarkKhaki,              ///< #BDB76B
-    DarkMagenta,            ///< #8B008B
-    DarkOliveGreen,         ///< #556B2F
-    DarkOrange,             ///< #FF8C00
-    DarkOrchid,             ///< #9932CC
-    DarkRed,                ///< #8B0000
-    DarkSalmon,             ///< #E9967A
-    DarkSeaGreen,           ///< #8FBC8F
-    DarkSlateBlue,          ///< #483D8B
-    DarkSlateGray,          ///< #2F4F4F
-    DarkTurquoise,          ///< #00CED1
-    DarkViolet,             ///< #9400D3
-    DeepPink,               ///< #FF1493
-    DeepSkyBlue,            ///< #00BFFF
-    DimGray,                ///< #696969
-    DodgerBlue,             ///< #1E90FF
-    FireBrick,              ///< #B22222
-    FloralWhite,            ///< #FFFAF0
-    ForestGreen,            ///< #228B22
-    Fuchsia,                ///< #FF00FF
-    Gainsboro,              ///< #DCDCDC
-    GhostWhite,             ///< #F8F8FF
-    Gold,                   ///< #FFD700
-    GoldenRod,              ///< #DAA520
-    Gray,                   ///< #808080
-    Green,                  ///< #008000
-    GreenYellow,            ///< #ADFF2F
-    HoneyDew,               ///< #F0FFF0
-    HotPink,                ///< #FF69B4
-    IndianRed,              ///< #CD5C5C
-    Indigo,                 ///< #4B0082
-    Ivory,                  ///< #FFFFF0
-    Khaki,                  ///< #F0E68C
-    Lavender,               ///< #E6E6FA
-    LavenderBlush,          ///< #FFF0F5
-    LawnGreen,              ///< #7CFC00
-    LemonChiffon,           ///< #FFFACD
-    LightBlue,              ///< #ADD8E6
-    LightCoral,             ///< #F08080
-    LightCyan,              ///< #E0FFFF
-    LightGoldenRodYellow,   ///< #FAFAD2
-    LightGray,              ///< #D3D3D3
-    LightGreen,             ///< #90EE90
-    LightPink,              ///< #FFB6C1
-    LightSalmon,            ///< #FFA07A
-    LightSeaGreen,          ///< #20B2AA
-    LightSkyBlue,           ///< #87CEFA
-    LightSlateGray,         ///< #778899
-    LightSteelBlue,         ///< #B0C4DE
-    LightYellow,            ///< #FFFFE0
-    Lime,                   ///< #00FF00
-    LimeGreen,              ///< #32CD32
-    Linen,                  ///< #FAF0E6
-    Magenta,                ///< #FF00FF
-    Maroon,                 ///< #800000
-    MediumAquaMarine,       ///< #66CDAA
-    MediumBlue,             ///< #0000CD
-    MediumOrchid,           ///< #BA55D3
-    MediumPurple,           ///< #9370DB
-    MediumSeaGreen,         ///< #3CB371
-    MediumSlateBlue,        ///< #7B68EE
-    MediumSpringGreen,      ///< #00FA9A
-    MediumTurquoise,        ///< #48D1CC
-    MediumVioletRed,        ///< #C71585
-    MidnightBlue,           ///< #191970
-    MintCream,              ///< #F5FFFA
-    MistyRose,              ///< #FFE4E1
-    Moccasin,               ///< #FFE4B5
-    NavajoWhite,            ///< #FFDEAD
-    Navy,                   ///< #000080
-    OldLace,                ///< #FDF5E6
-    Olive,                  ///< #808000
-    OliveDrab,              ///< #6B8E23
-    Orange,                 ///< #FFA500
-    OrangeRed,              ///< #FF4500
-    Orchid,                 ///< #DA70D6
-    PaleGoldenRod,          ///< #EEE8AA
-    PaleGreen,              ///< #98FB98
-    PaleTurquoise,          ///< #AFEEEE
-    PaleVioletRed,          ///< #DB7093
-    PapayaWhip,             ///< #FFEFD5
-    PeachPuff,              ///< #FFDAB9
-    Peru,                   ///< #CD853F
-    Pink,                   ///< #FFC0CB
-    Plum,                   ///< #DDA0DD
-    PowderBlue,             ///< #B0E0E6
-    Purple,                 ///< #800080
-    RebeccaPurple,          ///< #663399
-    Red,                    ///< #FF0000
-    RosyBrown,              ///< #BC8F8F
-    RoyalBlue,              ///< #4169E1
-    SaddleBrown,            ///< #8B4513
-    Salmon,                 ///< #FA8072
-    SandyBrown,             ///< #F4A460
-    SeaGreen,               ///< #2E8B57
-    SeaShell,               ///< #FFF5EE
-    Sienna,                 ///< #A0522D
-    Silver,                 ///< #C0C0C0
-    SkyBlue,                ///< #87CEEB
-    SlateBlue,              ///< #6A5ACD
-    SlateGray,              ///< #708090
-    Snow,                   ///< #FFFAFA
-    SpringGreen,            ///< #00FF7F
-    SteelBlue,              ///< #4682B4
-    Tan,                    ///< #D2B48C
-    Teal,                   ///< #008080
-    Thistle,                ///< #D8BFD8
-    Tomato,                 ///< #FF6347
-    Turquoise,              ///< #40E0D0
-    Violet,                 ///< #EE82EE
-    Wheat,                  ///< #F5DEB3
-    White,                  ///< #FFFFFF
-    WhiteSmoke,             ///< #F5F5F5
-    Yellow,                 ///< #FFFF00
-    YellowGreen,            ///< #9ACD32
-
-    ENUM_COUNT
-  };
+  
+    static const ezColor AliceBlue;              ///< #F0F8FF
+    static const ezColor AntiqueWhite;           ///< #FAEBD7
+    static const ezColor Aqua;                   ///< #00FFFF
+    static const ezColor Aquamarine;             ///< #7FFFD4
+    static const ezColor Azure;                  ///< #F0FFFF
+    static const ezColor Beige;                  ///< #F5F5DC
+    static const ezColor Bisque;                 ///< #FFE4C4
+    static const ezColor Black;                  ///< #000000
+    static const ezColor BlanchedAlmond;         ///< #FFEBCD
+    static const ezColor Blue;                   ///< #0000FF
+    static const ezColor BlueViolet;             ///< #8A2BE2
+    static const ezColor Brown;                  ///< #A52A2A
+    static const ezColor BurlyWood;              ///< #DEB887
+    static const ezColor CadetBlue;              ///< #5F9EA0
+    static const ezColor Chartreuse;             ///< #7FFF00
+    static const ezColor Chocolate;              ///< #D2691E
+    static const ezColor Coral;                  ///< #FF7F50
+    static const ezColor CornflowerBlue;         ///< #6495ED  The original!
+    static const ezColor Cornsilk;               ///< #FFF8DC
+    static const ezColor Crimson;                ///< #DC143C
+    static const ezColor Cyan;                   ///< #00FFFF
+    static const ezColor DarkBlue;               ///< #00008B
+    static const ezColor DarkCyan;               ///< #008B8B
+    static const ezColor DarkGoldenRod;          ///< #B8860B
+    static const ezColor DarkGray;               ///< #A9A9A9
+    static const ezColor DarkGreen;              ///< #006400
+    static const ezColor DarkKhaki;              ///< #BDB76B
+    static const ezColor DarkMagenta;            ///< #8B008B
+    static const ezColor DarkOliveGreen;         ///< #556B2F
+    static const ezColor DarkOrange;             ///< #FF8C00
+    static const ezColor DarkOrchid;             ///< #9932CC
+    static const ezColor DarkRed;                ///< #8B0000
+    static const ezColor DarkSalmon;             ///< #E9967A
+    static const ezColor DarkSeaGreen;           ///< #8FBC8F
+    static const ezColor DarkSlateBlue;          ///< #483D8B
+    static const ezColor DarkSlateGray;          ///< #2F4F4F
+    static const ezColor DarkTurquoise;          ///< #00CED1
+    static const ezColor DarkViolet;             ///< #9400D3
+    static const ezColor DeepPink;               ///< #FF1493
+    static const ezColor DeepSkyBlue;            ///< #00BFFF
+    static const ezColor DimGray;                ///< #696969
+    static const ezColor DodgerBlue;             ///< #1E90FF
+    static const ezColor FireBrick;              ///< #B22222
+    static const ezColor FloralWhite;            ///< #FFFAF0
+    static const ezColor ForestGreen;            ///< #228B22
+    static const ezColor Fuchsia;                ///< #FF00FF
+    static const ezColor Gainsboro;              ///< #DCDCDC
+    static const ezColor GhostWhite;             ///< #F8F8FF
+    static const ezColor Gold;                   ///< #FFD700
+    static const ezColor GoldenRod;              ///< #DAA520
+    static const ezColor Gray;                   ///< #808080
+    static const ezColor Green;                  ///< #008000
+    static const ezColor GreenYellow;            ///< #ADFF2F
+    static const ezColor HoneyDew;               ///< #F0FFF0
+    static const ezColor HotPink;                ///< #FF69B4
+    static const ezColor IndianRed;              ///< #CD5C5C
+    static const ezColor Indigo;                 ///< #4B0082
+    static const ezColor Ivory;                  ///< #FFFFF0
+    static const ezColor Khaki;                  ///< #F0E68C
+    static const ezColor Lavender;               ///< #E6E6FA
+    static const ezColor LavenderBlush;          ///< #FFF0F5
+    static const ezColor LawnGreen;              ///< #7CFC00
+    static const ezColor LemonChiffon;           ///< #FFFACD
+    static const ezColor LightBlue;              ///< #ADD8E6
+    static const ezColor LightCoral;             ///< #F08080
+    static const ezColor LightCyan;              ///< #E0FFFF
+    static const ezColor LightGoldenRodYellow;   ///< #FAFAD2
+    static const ezColor LightGray;              ///< #D3D3D3
+    static const ezColor LightGreen;             ///< #90EE90
+    static const ezColor LightPink;              ///< #FFB6C1
+    static const ezColor LightSalmon;            ///< #FFA07A
+    static const ezColor LightSeaGreen;          ///< #20B2AA
+    static const ezColor LightSkyBlue;           ///< #87CEFA
+    static const ezColor LightSlateGray;         ///< #778899
+    static const ezColor LightSteelBlue;         ///< #B0C4DE
+    static const ezColor LightYellow;            ///< #FFFFE0
+    static const ezColor Lime;                   ///< #00FF00
+    static const ezColor LimeGreen;              ///< #32CD32
+    static const ezColor Linen;                  ///< #FAF0E6
+    static const ezColor Magenta;                ///< #FF00FF
+    static const ezColor Maroon;                 ///< #800000
+    static const ezColor MediumAquaMarine;       ///< #66CDAA
+    static const ezColor MediumBlue;             ///< #0000CD
+    static const ezColor MediumOrchid;           ///< #BA55D3
+    static const ezColor MediumPurple;           ///< #9370DB
+    static const ezColor MediumSeaGreen;         ///< #3CB371
+    static const ezColor MediumSlateBlue;        ///< #7B68EE
+    static const ezColor MediumSpringGreen;      ///< #00FA9A
+    static const ezColor MediumTurquoise;        ///< #48D1CC
+    static const ezColor MediumVioletRed;        ///< #C71585
+    static const ezColor MidnightBlue;           ///< #191970
+    static const ezColor MintCream;              ///< #F5FFFA
+    static const ezColor MistyRose;              ///< #FFE4E1
+    static const ezColor Moccasin;               ///< #FFE4B5
+    static const ezColor NavajoWhite;            ///< #FFDEAD
+    static const ezColor Navy;                   ///< #000080
+    static const ezColor OldLace;                ///< #FDF5E6
+    static const ezColor Olive;                  ///< #808000
+    static const ezColor OliveDrab;              ///< #6B8E23
+    static const ezColor Orange;                 ///< #FFA500
+    static const ezColor OrangeRed;              ///< #FF4500
+    static const ezColor Orchid;                 ///< #DA70D6
+    static const ezColor PaleGoldenRod;          ///< #EEE8AA
+    static const ezColor PaleGreen;              ///< #98FB98
+    static const ezColor PaleTurquoise;          ///< #AFEEEE
+    static const ezColor PaleVioletRed;          ///< #DB7093
+    static const ezColor PapayaWhip;             ///< #FFEFD5
+    static const ezColor PeachPuff;              ///< #FFDAB9
+    static const ezColor Peru;                   ///< #CD853F
+    static const ezColor Pink;                   ///< #FFC0CB
+    static const ezColor Plum;                   ///< #DDA0DD
+    static const ezColor PowderBlue;             ///< #B0E0E6
+    static const ezColor Purple;                 ///< #800080
+    static const ezColor RebeccaPurple;          ///< #663399
+    static const ezColor Red;                    ///< #FF0000
+    static const ezColor RosyBrown;              ///< #BC8F8F
+    static const ezColor RoyalBlue;              ///< #4169E1
+    static const ezColor SaddleBrown;            ///< #8B4513
+    static const ezColor Salmon;                 ///< #FA8072
+    static const ezColor SandyBrown;             ///< #F4A460
+    static const ezColor SeaGreen;               ///< #2E8B57
+    static const ezColor SeaShell;               ///< #FFF5EE
+    static const ezColor Sienna;                 ///< #A0522D
+    static const ezColor Silver;                 ///< #C0C0C0
+    static const ezColor SkyBlue;                ///< #87CEEB
+    static const ezColor SlateBlue;              ///< #6A5ACD
+    static const ezColor SlateGray;              ///< #708090
+    static const ezColor Snow;                   ///< #FFFAFA
+    static const ezColor SpringGreen;            ///< #00FF7F
+    static const ezColor SteelBlue;              ///< #4682B4
+    static const ezColor Tan;                    ///< #D2B48C
+    static const ezColor Teal;                   ///< #008080
+    static const ezColor Thistle;                ///< #D8BFD8
+    static const ezColor Tomato;                 ///< #FF6347
+    static const ezColor Turquoise;              ///< #40E0D0
+    static const ezColor Violet;                 ///< #EE82EE
+    static const ezColor Wheat;                  ///< #F5DEB3
+    static const ezColor White;                  ///< #FFFFFF
+    static const ezColor WhiteSmoke;             ///< #F5F5F5
+    static const ezColor Yellow;                 ///< #FFFF00
+    static const ezColor YellowGreen;            ///< #9ACD32
 
   // *** Data ***
 public:
@@ -208,9 +206,6 @@ public:
 
   /// \brief default-constructed color is uninitialized (for speed)
   ezColor();
-
-  /// \brief Initializes the color with one of the predefined color values.
-  ezColor(Predefined col);
 
   /// \brief Initializes the color with r, g, b, a. The color values must be given in a linear color space.
   ///
@@ -290,7 +285,7 @@ public:
   /// \brief Performs a simple (1.0 - color) inversion on all four channels.
   ///
   /// Using this function on non-normalized colors will lead to negative results.
-  /// \see ezColor::IsNormalized
+  /// \see ezColor IsNormalized
   ezColor GetInvertedColor() const;
 
   /// \brief Calculates the complementary color for this color (hue shifted by 180 degrees). The complementary color will have the same alpha.
@@ -307,9 +302,6 @@ public:
 
   // *** Operators ***
 public:
-
-  /// \brief Initializes the color with one of the predefined color values.
-  void operator=(Predefined col);
 
   /// \brief Converts the color from ezColorLinearUB to linear float values.
   void operator= (const ezColorLinearUB& cc);
@@ -342,9 +334,6 @@ public:
 
   /// \brief Equality Check with epsilon
   bool IsEqual(const ezColor& rhs, float fEpsilon) const;
-
-private:
-  static ezColor s_PredefinedColors[(ezUInt32) Predefined::ENUM_COUNT];
 };
 
 // *** Operators ***

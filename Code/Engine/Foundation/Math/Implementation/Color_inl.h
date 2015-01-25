@@ -107,16 +107,6 @@ inline bool ezColor::IsIdentical(const ezColor& rhs) const
   return r == rhs.r && g == rhs.g && b == rhs.b && a == rhs.a;
 }
 
-inline ezColor::ezColor(Predefined col)
-{
-  *this = s_PredefinedColors[(ezUInt32) col];
-}
-
-inline void ezColor::operator=(Predefined col)
-{
-  *this = s_PredefinedColors[(ezUInt32) col];
-}
-
 inline const ezColor operator+ (const ezColor& c1, const ezColor& c2)
 {
   EZ_NAN_ASSERT(&c1);

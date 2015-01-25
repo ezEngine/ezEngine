@@ -226,7 +226,7 @@ void ezViewContext::Redraw()
   {
     pContext->SetRenderTargetConfig(m_hBBRT);
 
-    ezColor c = ezColor(ezColor::CornflowerBlue) * 0.25f; // The original! * 0.25f
+    ezColor c = ezColor::CornflowerBlue * 0.25f; // The original! * 0.25f
     pContext->Clear(c);
     ezRendererCore::SetShaderPermutationVariable("EDITOR_PICKING", "0");
 
