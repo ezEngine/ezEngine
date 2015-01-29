@@ -1,0 +1,1 @@
+dmd -m64 -gc -op test.d ez/script/reflection.d -of"test.exe"
