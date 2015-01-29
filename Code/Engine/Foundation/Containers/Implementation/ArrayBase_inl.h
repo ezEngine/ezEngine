@@ -334,3 +334,14 @@ const T* ezArrayBase<T, Derived>::GetData() const
   return m_pElements;
 }
 
+template <typename T, typename Derived>
+ezArrayPtr<T> ezArrayBase<T, Derived>::GetArrayPtr()
+{
+    return ezArrayPtr<T>(GetData(), GetCount());
+}
+
+template <typename T, typename Derived>
+const ezArrayPtr<const T> ezArrayBase<T, Derived>::GetArrayPtr() const
+{
+    return ezArrayPtr<const T>(GetData(), GetCount());
+}

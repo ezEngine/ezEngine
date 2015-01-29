@@ -115,6 +115,12 @@ public:
   /// \brief Returns a pointer to the array data, or nullptr if the array is empty.
   const T* GetData() const;
 
+  /// \brief Returns a array pointer to the array data, or an empty array pointer if the array is empty.
+  ezArrayPtr<T> GetArrayPtr(); // [tested]
+
+  /// \brief Returns a array pointer to the array data, or an empty array pointer if the array is empty.
+  const ezArrayPtr<const T> GetArrayPtr() const; // [tested]
+
   typedef const_iterator_base<ezArrayBase<T, Derived>, T, false> const_iterator;
   typedef const_iterator_base<ezArrayBase<T, Derived>, T, true> const_reverse_iterator;
   typedef iterator_base<ezArrayBase<T, Derived>, T, false> iterator;

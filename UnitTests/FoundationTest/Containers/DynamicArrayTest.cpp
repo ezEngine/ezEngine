@@ -179,7 +179,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
     a1.SetCount(100);
 
     for (ezInt32 i = 0; i < 100; ++i)
-      a1[i] = i;;
+      a1[i] = i;
 
     for (ezInt32 i = 0; i < 100; ++i)
       EZ_TEST_INT(a1[i], i);
@@ -725,6 +725,20 @@ EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
     // STL lower bound
     auto lb = std::lower_bound(rbegin(a2), rend(a2), 400);
     EZ_TEST_BOOL(*lb == a2[1000 - 400 - 1]);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetArrayPtr")
+  {
+      ezDynamicArray<ezInt32> a1;
+      a1.SetCount(10);
+
+      EZ_TEST_BOOL(a1.GetArrayPtr().GetCount() == 10);
+      EZ_TEST_BOOL(a1.GetArrayPtr().GetPtr() == a1.GetData());
+
+      const ezDynamicArray<ezInt32>& a1ref = a1;
+
+      EZ_TEST_BOOL(a1ref.GetArrayPtr().GetCount() == 10);
+      EZ_TEST_BOOL(a1ref.GetArrayPtr().GetPtr() == a1ref.GetData());
   }
 }
 
