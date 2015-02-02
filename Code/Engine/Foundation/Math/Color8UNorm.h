@@ -3,6 +3,7 @@
 #include <Foundation/Math/Math.h>
 #include <Foundation/Math/Color.h>
 
+/// \brief Base class for ezColorLinearUB and ezColorGammaUB
 class EZ_FOUNDATION_DLL ezColorUnsignedByteBase
 {
 public:
@@ -41,18 +42,18 @@ class EZ_FOUNDATION_DLL ezColorLinearUB : public ezColorUnsignedByteBase
 public:
 
   /// \brief Default-constructed color is uninitialized (for speed)
-  ezColorLinearUB() { }
+  ezColorLinearUB() = default; // [tested]
 
   /// \brief Initializes the color with r, g, b, a
-  ezColorLinearUB(ezUInt8 r, ezUInt8 g, ezUInt8 b, ezUInt8 a = 255);
+  ezColorLinearUB(ezUInt8 r, ezUInt8 g, ezUInt8 b, ezUInt8 a = 255); // [tested]
 
   /// \brief Initializes the color with ezColor.
   /// Assumes that the given color is normalized.
   /// \see ezColor::IsNormalized
-  ezColorLinearUB(const ezColor& color);
+  ezColorLinearUB(const ezColor& color); // [tested]
 
   /// \brief Initializes the color with ezColor.
-  void operator=(const ezColor& color);
+  void operator=(const ezColor& color); // [tested]
 
   /// \brief Converts this color to ezColor.
   ezColor ToLinearFloat() const;
@@ -69,9 +70,9 @@ class EZ_FOUNDATION_DLL ezColorGammaUB : public ezColorUnsignedByteBase
 public:
 
   /// \brief Default-constructed color is uninitialized (for speed)
-  ezColorGammaUB() { }
+  ezColorGammaUB() = default; /// \test this is new
 
-  /// \brief 
+  /// \brief Copies the color values. RGB are assumed to be in Gamma space.
   ezColorGammaUB(ezUInt8 uiGammaRed, ezUInt8 uiGammaGreen, ezUInt8 uiGammaBlue, ezUInt8 uiLinearAlpha = 255);
 
   /// \brief Initializes the color with ezColor. Converts the linear space color to gamma space.

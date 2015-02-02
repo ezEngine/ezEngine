@@ -19,13 +19,6 @@ file (GLOB DIRS "${CMAKE_SOURCE_DIR}/Code/Engine/*/CMakeLists.txt")
 file (GLOB DIRS_TOOLS "${CMAKE_SOURCE_DIR}/Code/Tools/*/CMakeLists.txt")
 set (DIRS ${DIRS} ${DIRS_TOOLS})
 
-set (EZ_BUILD_EXPERIMENTAL OFF CACHE BOOL "Build experimental code.")
-
-if (EZ_BUILD_EXPERIMENTAL)
-  file (GLOB DIRS2 "${CMAKE_SOURCE_DIR}/Code/Experimental/*/CMakeLists.txt")
-  set (DIRS ${DIRS} ${DIRS2})
-endif()
-
 # setup the variable where all project-names are stored, that should be exported
 set_property (GLOBAL PROPERTY ALL_KNOWN_PROJECTS "")
 

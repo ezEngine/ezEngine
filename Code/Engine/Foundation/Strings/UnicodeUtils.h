@@ -3,7 +3,7 @@
 #include <Foundation/Basics.h>
 #include <ThirdParty/utf8/utf8.h>
 
-/// \brief Helper functions to work with unicode.
+/// \brief Helper functions to work with Unicode.
 class EZ_FOUNDATION_DLL ezUnicodeUtils
 {
 public:

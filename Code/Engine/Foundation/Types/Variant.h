@@ -166,7 +166,7 @@ public:
   /// other. It will also return true for all conversion from string to number types, and from all 'simple' types (not array or dictionary) to string.
   ///
   /// \note This function only returns whether a conversion between the stored TYPE and the desired TYPE is generally possible. It does NOT return
-  /// whether the stored VALUE is indeed convertible to the desired type. For example, a string is generally convertible to float, iff it stores
+  /// whether the stored VALUE is indeed convertible to the desired type. For example, a string is generally convertible to float, if it stores
   /// a string representation of a float value. If, however, it stores anything else, the conversion can still fail.
   ///
   /// The only way to figure out whether the stored data can be converted to some type, is to actually convert it, using ConvertTo(), and then

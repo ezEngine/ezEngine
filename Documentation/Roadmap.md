@@ -6,11 +6,10 @@ This is a list of our planned features for the foreseeable future.
 Soon:
   * More Game Objects improvements (Clemens)
   * Rendering Abstraction (Marc (DX11), Andreas (OpenGL))
-  * Resource Manager (Jan)
   * Higher level rendering features (Jan, Clemens, Marc)
 
 One of the next releases:
-  * Math: Simd
+  * Math: Simd (Christian)
 
 Unknown:
   * Per Object Type Memory Tracking (Clemens)

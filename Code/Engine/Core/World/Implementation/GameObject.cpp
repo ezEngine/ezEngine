@@ -33,7 +33,6 @@ public:
 };
 
 
-// TODO: Using references for the getters corrupts the stack when a non-reference wrapper function is used
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezGameObject, ezNoBase, 1, ezGameObjectDummyAllocator);
   EZ_BEGIN_PROPERTIES
     EZ_ACCESSOR_PROPERTY("Name", GetName, SetName),

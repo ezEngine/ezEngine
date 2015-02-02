@@ -77,8 +77,6 @@ void ezTokenizer::AddToken()
 
 void ezTokenizer::Tokenize(const ezDynamicArray<ezUInt8>& Data, ezLogInterface* pLog)
 {
-  /// \test Add unit test for this.
-
   m_Data.Clear();
   m_Data.Reserve(m_Data.GetCount() + 1);
   m_Data = Data;

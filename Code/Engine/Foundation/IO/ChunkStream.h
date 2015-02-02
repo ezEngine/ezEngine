@@ -12,22 +12,22 @@ class EZ_FOUNDATION_DLL ezChunkStreamWriter : public ezStreamWriterBase
 {
 public:
   /// \brief Pass the underlying stream writer to the constructor.
-  ezChunkStreamWriter(ezStreamWriterBase& stream);
+  ezChunkStreamWriter(ezStreamWriterBase& stream); // [tested]
 
   /// \brief Writes bytes directly to the stream. Only allowed when a chunk is open (between BeginChunk / EndChunk).
-  virtual ezResult WriteBytes(const void* pWriteBuffer, ezUInt64 uiBytesToWrite) override;
+  virtual ezResult WriteBytes(const void* pWriteBuffer, ezUInt64 uiBytesToWrite) override; // [tested]
 
   /// \brief Starts writing to the chunk file. Has to be the first thing that is called.
-  virtual void BeginStream();
+  virtual void BeginStream(); // [tested]
 
   /// \brief Stops writing to the chunk file. Has to be the last thing that is called.
-  virtual void EndStream();
+  virtual void EndStream(); // [tested]
 
   /// \brief Opens the next chunk for writing. Chunks cannot be nested (except by using multiple chunk format writers).
-  virtual void BeginChunk(const char* szName, ezUInt32 uiVersion);
+  virtual void BeginChunk(const char* szName, ezUInt32 uiVersion); // [tested]
 
   /// \brief Closes the current chunk.
-  virtual void EndChunk();
+  virtual void EndChunk(); // [tested]
 
 
 private:
@@ -46,11 +46,11 @@ class EZ_FOUNDATION_DLL ezChunkStreamReader : public ezStreamReaderBase
 {
 public:
   /// \brief Pass the underlying stream writer to the constructor.
-  ezChunkStreamReader(ezStreamReaderBase& stream);
+  ezChunkStreamReader(ezStreamReaderBase& stream); // [tested]
 
   /// \brief Reads bytes directly from the stream. Only allowed while a valid chunk is available.
   /// Returns 0 bytes when the end of a chunk is reached, even if there are more chunks to come.
-  virtual ezUInt64 ReadBytes(void* pReadBuffer, ezUInt64 uiBytesToRead) override;
+  virtual ezUInt64 ReadBytes(void* pReadBuffer, ezUInt64 uiBytesToRead) override; // [tested]
 
   enum class EndChunkFileMode
   { 
@@ -58,13 +58,13 @@ public:
     JustClose  ///< Just stops, leaving the stream at the last read position. This should be used if definitely nothing more needs to be read from all underlying streams.
   };
 
-  void SetEndChunkFileMode(EndChunkFileMode mode) { m_EndChunkFileMode = mode; }
+  void SetEndChunkFileMode(EndChunkFileMode mode) { m_EndChunkFileMode = mode; } // [tested]
 
   /// \brief Starts reading from the chunk file.
-  virtual void BeginStream();
+  virtual void BeginStream(); // [tested]
 
   /// \brief Stops reading from the chunk file. Optionally skips the remaining bytes, so that the underlying streams read position is after the chunk file content.
-  virtual void EndStream();
+  virtual void EndStream(); // [tested]
 
   /// \brief Describes the state of the current chunk.
   struct ChunkInfo
@@ -85,10 +85,10 @@ public:
   };
 
   /// \brief Returns information about the current chunk.
-  const ChunkInfo& GetCurrentChunk() const { return m_ChunkInfo; }
+  const ChunkInfo& GetCurrentChunk() const { return m_ChunkInfo; } // [tested]
 
   /// \brief Skips the rest of the current chunk and starts reading the next chunk.
-  void NextChunk();
+  void NextChunk(); // [tested]
 
 private:
   void TryReadChunkHeader();

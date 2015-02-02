@@ -22,22 +22,49 @@ inline ezColor::ezColor(float fLinearRed, float fLinearGreen, float fLinearBlue,
 
 inline ezColor::ezColor(const ezColorLinearUB& cc)
 {
+  /// \test this is new
+
   *this = cc;
 }
 
 inline ezColor::ezColor(const ezColorGammaUB& cc)
 {
+  /// \test this is new
+
   *this = cc;
+}
+
+inline void ezColor::SetRGB(float fLinearRed, float fLinearGreen, float fLinearBlue)
+{
+  /// \test this is new
+
+  r = fLinearRed;
+  g = fLinearGreen;
+  b = fLinearBlue;
+}
+
+inline void ezColor::SetRGBA(float fLinearRed, float fLinearGreen, float fLinearBlue, float fLinearAlpha /* = 1.0f */)
+{
+  /// \test this is new
+
+  r = fLinearRed;
+  g = fLinearGreen;
+  b = fLinearBlue;
+  a = fLinearAlpha;
 }
 
 // http://en.wikipedia.org/wiki/Luminance_%28relative%29
 EZ_FORCE_INLINE float ezColor::GetLuminance() const
 {
+  /// \test Add a test for this
+
   return 0.2126f * r + 0.7152f * g + 0.0722f * b;
 }
 
 inline ezColor ezColor::GetInvertedColor() const
 {
+  /// \test Add a test for this
+
   EZ_NAN_ASSERT(this);
 
   return ezColor(1.0f - r, 1.0f - g, 1.0f - b, 1.0f - a);
@@ -99,7 +126,17 @@ inline void ezColor::operator*= (float f)
   EZ_NAN_ASSERT(this);
 }
 
-inline bool ezColor::IsIdentical(const ezColor& rhs) const
+inline bool ezColor::IsIdenticalRGB(const ezColor& rhs) const
+{
+  /// \test this is new
+
+  EZ_NAN_ASSERT(this);
+  EZ_NAN_ASSERT(&rhs);
+
+  return r == rhs.r && g == rhs.g && b == rhs.b;
+}
+
+inline bool ezColor::IsIdenticalRGBA(const ezColor& rhs) const
 {
   EZ_NAN_ASSERT(this);
   EZ_NAN_ASSERT(&rhs);
@@ -147,6 +184,8 @@ inline const ezColor operator* (const ezColor& c, float f)
 
 inline const ezColor operator* (const ezMat4& lhs, const ezColor& rhs)
 {
+  /// \test this is new
+
   ezColor r = rhs;
   r *= lhs;
   return r;
@@ -162,12 +201,12 @@ inline const ezColor operator/ (const ezColor& c, float f)
 
 EZ_FORCE_INLINE bool operator== (const ezColor& c1, const ezColor& c2)
 {
-  return c1.IsIdentical(c2);
+  return c1.IsIdenticalRGBA(c2);
 }
 
 EZ_FORCE_INLINE bool operator!= (const ezColor& c1, const ezColor& c2)
 {
-  return !c1.IsIdentical(c2);
+  return !c1.IsIdenticalRGBA(c2);
 }
 
 

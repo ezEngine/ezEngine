@@ -38,7 +38,7 @@ void ezGALContext::Draw(ezUInt32 uiVertexCount, ezUInt32 uiStartVertex)
 {
   AssertRenderingThread();
 
-  /// \todo If platform indicates that non-indexed rendering is not possible bind a helper index buffer which contains continous indices (0, 1, 2, ..)
+  /// \todo If platform indicates that non-indexed rendering is not possible bind a helper index buffer which contains continuous indices (0, 1, 2, ..)
 
   DrawPlatform(uiVertexCount, uiStartVertex);
 
@@ -85,7 +85,7 @@ void ezGALContext::DrawInstanced(ezUInt32 uiVertexCountPerInstance, ezUInt32 uiI
   AssertRenderingThread();
   /// \todo Assert for instancing
 
-  /// \todo If platform indicates that non-indexed rendering is not possible bind a helper index buffer which contains continous indices (0, 1, 2, ..)
+  /// \todo If platform indicates that non-indexed rendering is not possible bind a helper index buffer which contains continuous indices (0, 1, 2, ..)
 
   DrawInstancedPlatform(uiVertexCountPerInstance, uiInstanceCount, uiStartVertex);
 
@@ -354,7 +354,7 @@ void ezGALContext::SetBlendState(ezGALBlendStateHandle hBlendState, const ezColo
 {
   AssertRenderingThread();
 
-  if (m_State.m_hBlendState == hBlendState && m_State.m_BlendFactor.IsEqual(BlendFactor, 0.001f) && m_State.m_uiSampleMask == uiSampleMask)
+  if (m_State.m_hBlendState == hBlendState && m_State.m_BlendFactor.IsEqualRGBA(BlendFactor, 0.001f) && m_State.m_uiSampleMask == uiSampleMask)
   {
     CountRedundantStateChange();
     return;
@@ -477,7 +477,7 @@ void ezGALContext::WaitForFence(ezGALFenceHandle hFence)
 {
   AssertRenderingThread();
 
-  m_pDevice->Flush(); /// \todo - make this toggleable
+  m_pDevice->Flush(); /// \todo - make this toggle-able
 
   ezGALFence* pPlatformSpecificFence = m_pDevice->m_Fences[hFence];
 
@@ -610,7 +610,7 @@ void ezGALContext::ReadbackTexture(ezGALTextureHandle hTexture)
 
   if (m_pDevice->m_Textures.TryGetValue(hTexture, pTexture))
   {
-    EZ_ASSERT_RELEASE(pTexture->GetDescription().m_ResourceAccess.m_bReadBack, "A texture supplied to readback needs to be created with the correct resource usage (m_bReadBack = true)!");
+    EZ_ASSERT_RELEASE(pTexture->GetDescription().m_ResourceAccess.m_bReadBack, "A texture supplied to read-back needs to be created with the correct resource usage (m_bReadBack = true)!");
 
     ReadbackTexturePlatform(pTexture);
   }
@@ -624,7 +624,7 @@ void ezGALContext::CopyTextureReadbackResult(ezGALTextureHandle hTexture, const 
 
   if (m_pDevice->m_Textures.TryGetValue(hTexture, pTexture))
   {
-    EZ_ASSERT_RELEASE(pTexture->GetDescription().m_ResourceAccess.m_bReadBack, "A texture supplied to readback needs to be created with the correct resource usage (m_bReadBack = true)!");
+    EZ_ASSERT_RELEASE(pTexture->GetDescription().m_ResourceAccess.m_bReadBack, "A texture supplied to read-back needs to be created with the correct resource usage (m_bReadBack = true)!");
 
     CopyTextureReadbackResultPlatform(pTexture, pData);
   }

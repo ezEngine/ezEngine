@@ -28,6 +28,7 @@ public:
 
   EZ_DECLARE_POD_TYPE();
 
+  /// \brief The default constructor sets the time to zero.
   ezTime() { m_fTime = 0.0; }
 
   /// \brief Sets the time value to zero.

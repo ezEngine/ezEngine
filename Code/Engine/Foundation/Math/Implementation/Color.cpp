@@ -7,11 +7,15 @@
 
 void ezColor::operator= (const ezColorLinearUB& cc)
 {
+  /// \test this is new
+
   *this = cc.ToLinearFloat();
 }
 
 void ezColor::operator= (const ezColorGammaUB& cc)
 {
+  /// \test this is new
+
   *this = cc.ToLinearFloat();
 }
 
@@ -127,6 +131,8 @@ void ezColor::FromLinearHSV(float hue, float sat, float val)
 
 float ezColor::GetSaturation() const
 {
+  /// \test Add a test for this
+
   float hue, sat, val;
   ToLinearHSV(hue, sat, val);
 
@@ -147,7 +153,19 @@ bool ezColor::IsValid() const
   return true;
 }
 
-bool ezColor::IsEqual(const ezColor& rhs, float fEpsilon) const
+bool ezColor::IsEqualRGB(const ezColor& rhs, float fEpsilon) const
+{
+  /// \test this is new
+
+  EZ_NAN_ASSERT(this);
+  EZ_NAN_ASSERT(&rhs);
+
+  return (ezMath::IsEqual(r, rhs.r, fEpsilon) &&
+          ezMath::IsEqual(g, rhs.g, fEpsilon) &&
+          ezMath::IsEqual(b, rhs.b, fEpsilon));
+}
+
+bool ezColor::IsEqualRGBA(const ezColor& rhs, float fEpsilon) const
 {
   EZ_NAN_ASSERT(this);
   EZ_NAN_ASSERT(&rhs);
@@ -181,6 +199,8 @@ void ezColor::operator*= (const ezMat4& rhs)
 
 ezColor ezColor::GetComplementaryColor() const
 {
+  /// \test Add a test for this
+
   float hue, sat, val;
   ToLinearHSV(hue, sat, val);
 
@@ -193,6 +213,8 @@ ezColor ezColor::GetComplementaryColor() const
 
 void ezColor::FromGammaHSV(float hue, float sat, float val)
 {
+  /// \test this is new
+
   ezColor gamma;
   gamma.FromLinearHSV(hue, sat, val);
 
@@ -206,6 +228,8 @@ void ezColor::FromGammaHSV(float hue, float sat, float val)
 
 void ezColor::ToGammaHSV(float& hue, float& sat, float& val) const
 {
+  /// \test this is new
+
   const ezVec3 gamma = LinearToGamma(ezVec3(r, g, b));
 
   ezColor ColorGamma(gamma.x, gamma.y, gamma.z, a);
@@ -214,6 +238,8 @@ void ezColor::ToGammaHSV(float& hue, float& sat, float& val) const
 
 ezVec3 ezColor::GammaToLinear(const ezVec3& gamma)
 {
+  /// \test Add a test for this
+
   return ezVec3(gamma.x <= 0.04045f ? (gamma.x / 12.92f) : (ezMath::Pow((gamma.x + 0.055f) / 1.055f, 2.4f)),
                 gamma.y <= 0.04045f ? (gamma.y / 12.92f) : (ezMath::Pow((gamma.y + 0.055f) / 1.055f, 2.4f)),
                 gamma.z <= 0.04045f ? (gamma.z / 12.92f) : (ezMath::Pow((gamma.z + 0.055f) / 1.055f, 2.4f)));
@@ -221,6 +247,8 @@ ezVec3 ezColor::GammaToLinear(const ezVec3& gamma)
 
 ezVec3 ezColor::LinearToGamma(const ezVec3& linear)
 {
+  /// \test Add a test for this
+
   // assuming we have linear color (not CIE xyY or CIE XYZ)
   return ezVec3(linear.x <= 0.0031308f ? (12.92f * linear.x) : (1.055f * ezMath::Pow(linear.x, 1.0f / 2.4f) - 0.055f),
                 linear.y <= 0.0031308f ? (12.92f * linear.y) : (1.055f * ezMath::Pow(linear.y, 1.0f / 2.4f) - 0.055f),

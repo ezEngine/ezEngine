@@ -488,20 +488,6 @@ MACRO(ADD_MSVC_PRECOMPILED_HEADER_APP)
 ENDMACRO(ADD_MSVC_PRECOMPILED_HEADER_APP)
 
 #########################################################################################
-## Macro to enable/disable experimental projects
-
-MACRO(BUILD_EXPERIMENTAL_PROJECT)
-  get_filename_component (PROJECT_NAME ${CMAKE_CURRENT_SOURCE_DIR} NAME_WE)
-  string(TOUPPER ${PROJECT_NAME} PROJECT_NAME_UPPER)
-  SET(EZ_BUILD_EXPERIMENTAL_PROJECT_${PROJECT_NAME_UPPER} OFF CACHE BOOL "Whether to build the experimental project '${PROJECT_NAME_UPPER}'")
-   
-  if (NOT EZ_BUILD_EXPERIMENTAL_PROJECT_${PROJECT_NAME_UPPER})
-    return ()
-  endif ()
-ENDMACRO()
-
-
-#########################################################################################
 ## Macro to enable/disable application projects
 
 MACRO(BUILD_APPLICATION_PROJECT)
@@ -600,11 +586,7 @@ ENDMACRO()
 
 MACRO(ADD_TO_TARGET_LIST)
   file(RELATIVE_PATH ADD_TO_TARGET_LIST_MACRO_FOLDERNAME ${CMAKE_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
-  if(${CMAKE_CURRENT_SOURCE_DIR} MATCHES "Experimental") 
-    file(APPEND ${CMAKE_BINARY_DIR}/Targets.txt "${PROJECT_NAME}|${ADD_TO_TARGET_LIST_MACRO_FOLDERNAME}|1|${LINK_LIBRARIES}\n")
-  else ()
-    file(APPEND ${CMAKE_BINARY_DIR}/Targets.txt "${PROJECT_NAME}|${ADD_TO_TARGET_LIST_MACRO_FOLDERNAME}|0|${LINK_LIBRARIES}\n")
-  endif ()
+  file(APPEND ${CMAKE_BINARY_DIR}/Targets.txt "${PROJECT_NAME}|${ADD_TO_TARGET_LIST_MACRO_FOLDERNAME}|0|${LINK_LIBRARIES}\n")
 ENDMACRO()
 
 
@@ -621,11 +603,7 @@ MACRO(ADD_TEST needs_hardware_access)
   
   get_filename_component (ADD_TEST_MACRO_FOLDERNAME ${CMAKE_CURRENT_SOURCE_DIR} NAME_WE)
   
-  if(${CMAKE_CURRENT_SOURCE_DIR} MATCHES "Experimental") 
-    file(APPEND ${CMAKE_BINARY_DIR}/Tests.txt "${ADD_TEST_MACRO_FOLDERNAME}|${ADD_TEST_MACRO_HWA}|1\n")
-  else ()
-    file(APPEND ${CMAKE_BINARY_DIR}/Tests.txt "${ADD_TEST_MACRO_FOLDERNAME}|${ADD_TEST_MACRO_HWA}|0\n")
-  endif ()
+  file(APPEND ${CMAKE_BINARY_DIR}/Tests.txt "${ADD_TEST_MACRO_FOLDERNAME}|${ADD_TEST_MACRO_HWA}|0\n")
 ENDMACRO()
 
 
@@ -639,12 +617,4 @@ include_directories ("${CMAKE_CURRENT_LIST_DIR}/../../../Tools")
 include_directories ("${CMAKE_CURRENT_LIST_DIR}/../../../Samples")
 include_directories ("${CMAKE_CURRENT_LIST_DIR}/../../../UnitTests")
 include_directories ("${CMAKE_CURRENT_LIST_DIR}/../../ThirdParty")
-
-if (EZ_BUILD_EXPERIMENTAL)
-  include_directories ("${CMAKE_CURRENT_LIST_DIR}/../../Experimental")   # this way it will also work for applications
-  include_directories ("${CMAKE_CURRENT_LIST_DIR}/../../../Projects/Experimental")      # different projects may need to include from each other
-endif()
-
-
-
 

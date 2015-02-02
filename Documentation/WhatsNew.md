@@ -9,6 +9,14 @@ Milestone 6
   * Added ezGeometry, a class with functions to generate basic geometric shapes.
   * Added ezChunkFormatReader / ezChunkFormatWriter to work with 'chunked' file formats.
   * Added ezArrayMap container, which is an associative container that is typically more efficient than ezMap.
+  * Added ezResourceManager, which allows to manage resources and stream data. This is still work in progress though.
+  * Refactored ezColor a bit. The interface is more streamlined. sRGB features have been moved into separate classes ezColorLinearUB and ezColorGammaUB.
+  * ezColor8UNorm has been renamed to ezColorLinearUB (UB == unsigned byte).
+  * Removed ezColorBgra8Unorm
+  * Added the 140 predefined colors of the CSS specification to ezColor.
+  * Added ezDirectoryWatcher. This class allows to watch a directory for file changes. It is currently only implemented on Windows.
+  * Added a few utilty functions to ezStringBuilder: Set, SetSubString_FromTo, SetSubString_ElementCount, SetSubString_CharacterCount, RemoveFileExtension
+  * Added ezUuid, a class that allows to generate uuid/guid values. Implemented on Windows and Posix systems.
 
 Milestone 5
 -----------

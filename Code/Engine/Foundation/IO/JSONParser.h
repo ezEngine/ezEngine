@@ -17,6 +17,7 @@ public:
 
   virtual ~ezJSONParser() { }
 
+  /// \brief Allows to specify an ezLogInterface through which errors and warnings are reported.
   void SetLogInterface(ezLogInterface* pLog) { m_pLogInterface = pLog; }
 
 protected:

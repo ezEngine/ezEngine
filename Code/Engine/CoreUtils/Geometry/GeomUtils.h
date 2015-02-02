@@ -1,6 +1,11 @@
 #pragma once
 
 #include <CoreUtils/Basics.h>
+#include <Foundation/Math/Vec3.h>
+#include <Foundation/Math/Mat4.h>
+#include <Foundation/Math/Color.h>
+#include <Foundation/Containers/HybridArray.h>
+#include <Foundation/Containers/Deque.h>
 
 /// \brief Provides functions to generate standard geometric shapes, such as boxes, spheres, cylinders, etc.
 ///
@@ -153,6 +158,7 @@ public:
   /// uiSegmentDetail is the number of segments around the torus ring (ie. the cylinder detail)
   void AddTorus(float fInnerRadius, float fOuterRadius, ezUInt16 uiSegments, ezUInt16 uiSegmentDetail, const ezColor& color, const ezMat4& mTransform = ezMat4::IdentityMatrix(), ezInt32 iCustomIndex = 0);
 
+  /// \todo GeomUtils improvements:
   // ThickLine
   // Part of a Torus
   // Arc
