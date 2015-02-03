@@ -593,7 +593,7 @@ void ezJSONParser::ReadString()
         break;
       case 'u':
         ParsingError("Unicode literals are not supported.", false);
-        /// \todo Support escaped unicode literals? (\u1234)
+        /// \todo Support escaped Unicode literals? (\u1234)
         break;
       default:
         {

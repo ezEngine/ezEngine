@@ -254,12 +254,12 @@ public:
   /// \brief Sets this color from a color that is in gamma space and given in HSV format.
   ///
   /// This method should be used when a color was determined through a color picker.
-  void FromGammaHSV(float hue, float sat, float val);
+  void FromGammaHSV(float hue, float sat, float val); // [tested]
 
   /// \brief Converts the color part to HSV format. The HSV color will be in gamma space.
   ///
   /// This should be used when you want to display the color as HSV in a color picker.
-  void ToGammaHSV(float& hue, float& sat, float& val) const;
+  void ToGammaHSV(float& hue, float& sat, float& val) const; // [tested]
 
   /// \brief Conversion to const float*
   const float* GetData() const { return &r; }
@@ -280,7 +280,7 @@ public:
   bool IsNormalized() const; // [tested]
 
   /// \brief Computes saturation.
-  float GetSaturation() const;
+  float GetSaturation() const; // [tested]
 
   /// \brief Computes the perceived luminance. Assumes linear color space (http://en.wikipedia.org/wiki/Luminance_%28relative%29).
   float GetLuminance() const; /// [tested]
@@ -330,7 +330,7 @@ public:
   /// \brief Transforms the RGB components by the matrix. Alpha has no influence on the computation and will stay unmodified. The fourth row of the matrix is ignored.
   ///
   /// This operation can be used to do basic color correction.
-  void operator*= (const ezMat4& rhs);
+  void operator*= (const ezMat4& rhs); // [tested]
 
   /// \brief Equality Check (bitwise). Only compares RGB, ignores Alpha.
   bool IsIdenticalRGB(const ezColor& rhs) const; // [tested]
@@ -368,7 +368,7 @@ const ezColor operator/ (const ezColor& c, float f); // [tested]
 /// \brief Transforms the RGB components by the matrix. Alpha has no influence on the computation and will stay unmodified. The fourth row of the matrix is ignored.
 ///
 /// This operation can be used to do basic color correction.
-const ezColor operator* (const ezMat4& lhs, const ezColor& rhs);
+const ezColor operator* (const ezMat4& lhs, const ezColor& rhs); // [tested]
 
 /// \brief Returns true, if both colors are identical in all components.
 bool operator== (const ezColor& c1, const ezColor& c2); // [tested]

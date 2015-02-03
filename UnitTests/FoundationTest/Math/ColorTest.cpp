@@ -1,6 +1,7 @@
 #include <PCH.h>
 #include <Foundation/Math/Color.h>
 #include <Foundation/Math/Color8UNorm.h>
+#include <Foundation/Math/Mat4.h>
 
 EZ_CREATE_SIMPLE_TEST(Math, Color)
 {
@@ -91,13 +92,6 @@ EZ_CREATE_SIMPLE_TEST(Math, Color)
       EZ_TEST_FLOAT(fromHSV.b, rgb[i].z, 0.01f);
     }
   }
-
-  /// \todo Missing ezColor Tests: Problem: Find good reference values
-  //float GetSaturation() const;
-  //float GetLuminance() const;
-  //ezColor GetInvertedColor() const;
-  //ezColor ConvertLinearToSRGB() const;
-  //ezColor ConvertSRGBToLinear() const;
 
   {
     if (ezMath::BasicType<ezMathTestType>::SupportsNaN())
@@ -346,6 +340,43 @@ EZ_CREATE_SIMPLE_TEST(Math, Color)
       EZ_TEST_BOOL(ezColor::Red.GetComplementaryColor().IsEqualRGBA(ezColor::Cyan, 0.001f));
       EZ_TEST_BOOL(ezColor::Lime.GetComplementaryColor().IsEqualRGBA(ezColor::Magenta, 0.001f));
       EZ_TEST_BOOL(ezColor::Blue.GetComplementaryColor().IsEqualRGBA(ezColor::Yellow, 0.001f));
+    }
+
+    EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetSaturation")
+    {
+      EZ_TEST_FLOAT(ezColor::Black.GetSaturation(), 0.0f, 0.001f);
+      EZ_TEST_FLOAT(ezColor::White.GetSaturation(), 0.0f, 0.001f);
+      EZ_TEST_FLOAT(ezColor::Red.GetSaturation(), 1.0f, 0.001f);
+      EZ_TEST_FLOAT(ezColor::Lime.GetSaturation(), 1.0f, 0.001f);;
+      EZ_TEST_FLOAT(ezColor::Blue.GetSaturation(), 1.0f, 0.001f);
+    }
+
+    EZ_TEST_BLOCK(ezTestBlock::Enabled, "FromGammaHSV / ToGammaHSV")
+    {
+      ezColor c1;
+      c1.FromGammaHSV(22, 0.54f, 1.0f);
+
+      ezColorGammaUB c2 = c1;
+      EZ_TEST_BOOL(c2 == ezColorGammaUB(255, 168, 117));
+
+      float h, s, v;
+      c1.ToGammaHSV(h, s, v);
+
+      EZ_TEST_FLOAT(h, 22.0f, 0.01f);
+      EZ_TEST_FLOAT(s, 0.54f, 0.01f);
+      EZ_TEST_FLOAT(v, 1.0f, 0.01f);
+    }
+
+    EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator * / *= (ezMat4)")
+    {
+      ezMat4 m;
+      m.SetIdentity();
+      m.SetScalingMatrix(ezVec3(0.5f, 0.75f, 0.25f));
+      m.SetTranslationVector(ezVec3(0.1f, 0.2f, 0.3f));
+
+      ezColor c1 = m * ezColor::White;
+
+      EZ_TEST_BOOL(c1.IsEqualRGBA(ezColor(0.6f, 0.95f, 0.55f, 1.0f), 0.01f));
     }
   }
 }

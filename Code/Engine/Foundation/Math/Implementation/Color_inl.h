@@ -171,8 +171,6 @@ inline const ezColor operator* (const ezColor& c, float f)
 
 inline const ezColor operator* (const ezMat4& lhs, const ezColor& rhs)
 {
-  /// \test this is new
-
   ezColor r = rhs;
   r *= lhs;
   return r;

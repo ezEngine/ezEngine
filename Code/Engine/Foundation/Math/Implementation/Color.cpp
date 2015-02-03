@@ -127,8 +127,6 @@ void ezColor::FromLinearHSV(float hue, float sat, float val)
 
 float ezColor::GetSaturation() const
 {
-  /// \test Add a test for this
-
   float hue, sat, val;
   ToLinearHSV(hue, sat, val);
 
@@ -205,8 +203,6 @@ ezColor ezColor::GetComplementaryColor() const
 
 void ezColor::FromGammaHSV(float hue, float sat, float val)
 {
-  /// \test this is new
-
   ezColor gamma;
   gamma.FromLinearHSV(hue, sat, val);
 
@@ -220,8 +216,6 @@ void ezColor::FromGammaHSV(float hue, float sat, float val)
 
 void ezColor::ToGammaHSV(float& hue, float& sat, float& val) const
 {
-  /// \test this is new
-
   const ezVec3 gamma = LinearToGamma(ezVec3(r, g, b));
 
   ezColor ColorGamma(gamma.x, gamma.y, gamma.z, a);
