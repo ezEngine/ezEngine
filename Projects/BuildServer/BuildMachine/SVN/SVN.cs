@@ -59,7 +59,7 @@ namespace BuildMachine
 
           if (_Result.ProcessRes.ExitCode != 0)
           {
-            if (iTry == 0 && _Result.ProcessRes.StdOut.Contains("lock"))
+            if (iTry == 0 && (_Result.ProcessRes.StdOut.Contains("lock") || _Result.ProcessRes.ErrorOut.Contains("lock")))
             {
               _Result.Error("SVN repository locked: trying cleanup...");
               ezProcessHelper.RunExternalExe("svn", "cleanup", _Settings.AbsCodePath, _Result);
