@@ -56,7 +56,7 @@ public:
   void operator=(const ezColor& color); // [tested]
 
   /// \brief Converts this color to ezColor.
-  ezColor ToLinearFloat() const;
+  ezColor ToLinearFloat() const; // [tested]
 };
 
 EZ_CHECK_AT_COMPILETIME(sizeof(ezColorLinearUB) == 4);
@@ -70,18 +70,18 @@ class EZ_FOUNDATION_DLL ezColorGammaUB : public ezColorUnsignedByteBase
 public:
 
   /// \brief Default-constructed color is uninitialized (for speed)
-  ezColorGammaUB() { }; /// \test this is new
+  ezColorGammaUB() { };
 
   /// \brief Copies the color values. RGB are assumed to be in Gamma space.
-  ezColorGammaUB(ezUInt8 uiGammaRed, ezUInt8 uiGammaGreen, ezUInt8 uiGammaBlue, ezUInt8 uiLinearAlpha = 255);
+  ezColorGammaUB(ezUInt8 uiGammaRed, ezUInt8 uiGammaGreen, ezUInt8 uiGammaBlue, ezUInt8 uiLinearAlpha = 255); // [tested]
 
   /// \brief Initializes the color with ezColor. Converts the linear space color to gamma space.
   /// Assumes that the given color is normalized.
   /// \see ezColor::IsNormalized
-  ezColorGammaUB(const ezColor& color);
+  ezColorGammaUB(const ezColor& color); // [tested]
 
   /// \brief Initializes the color with ezColor. Converts the linear space color to gamma space.
-  void operator=(const ezColor& color);
+  void operator=(const ezColor& color); // [tested]
 
   /// \brief Converts this color to ezColor.
   ezColor ToLinearFloat() const;

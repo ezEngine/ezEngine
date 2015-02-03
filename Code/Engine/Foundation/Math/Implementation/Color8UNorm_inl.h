@@ -19,29 +19,24 @@ inline void ezColorLinearUB::operator=(const ezColor& color)
 
 inline ezColor ezColorLinearUB::ToLinearFloat() const
 {
-  /// \test this is new
+  const float f = 1.0f / 255.0f;
 
-  return ezColor(r * (1.0f / 255.0f), g * (1.0f / 255.0f), b * (1.0f / 255.0f), a * (1.0f / 255.0f));
+  return ezColor(r * f, g * f, b * f, a * f);
 }
 
 // *****************
 
 EZ_FORCE_INLINE ezColorGammaUB::ezColorGammaUB(ezUInt8 R, ezUInt8 G, ezUInt8 B, ezUInt8 A) : ezColorUnsignedByteBase(R, G, B, A)
 {
-  /// \test this is new
 }
 
 inline ezColorGammaUB::ezColorGammaUB(const ezColor& color)
 {
-  /// \test this is new
-
   *this = color;
 }
 
 inline void ezColorGammaUB::operator=(const ezColor& color)
 {
-  /// \test this is new
-
   const ezVec3 gamma = ezColor::LinearToGamma(ezVec3(color.r, color.g, color.b));
 
   r = static_cast<ezUInt8>(ezMath::Min(255.0f, ((gamma.x * 255.0f) + 0.5f)));
@@ -52,8 +47,6 @@ inline void ezColorGammaUB::operator=(const ezColor& color)
 
 inline ezColor ezColorGammaUB::ToLinearFloat() const
 {
-  /// \test this is new
-
   ezVec3 gamma;
   gamma.x = r * (1.0f / 255.0f);
   gamma.y = g * (1.0f / 255.0f);

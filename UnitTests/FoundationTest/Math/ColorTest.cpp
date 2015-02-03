@@ -1,5 +1,6 @@
 #include <PCH.h>
 #include <Foundation/Math/Color.h>
+#include <Foundation/Math/Color8UNorm.h>
 
 EZ_CREATE_SIMPLE_TEST(Math, Color)
 {
@@ -145,6 +146,28 @@ EZ_CREATE_SIMPLE_TEST(Math, Color)
       ezColor(0.0f, 0.0f, 1.0f, 0.0f),
       ezColor(0.0f, 0.0f, 0.0f, 1.0f) };
 
+    EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetRGB / SetRGBA")
+    {
+      ezColor c1(0, 0, 0, 0);
+
+      c1.SetRGBA(1, 2, 3, 4);
+
+      EZ_TEST_BOOL(c1 == ezColor(1, 2, 3, 4));
+
+      c1.SetRGB(5, 6, 7);
+
+      EZ_TEST_BOOL(c1 == ezColor(5, 6, 7, 4));
+    }
+
+    EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsIdenticalRGB")
+    {
+      ezColor c1(0, 0, 0, 0);
+      ezColor c2(0, 0, 0, 1);
+
+      EZ_TEST_BOOL(c1.IsIdenticalRGB(c2));
+      EZ_TEST_BOOL(!c1.IsIdenticalRGBA(c2));
+    }
+
     EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsIdenticalRGBA")
     {
       EZ_TEST_BOOL(op1.IsIdenticalRGBA(op1));
@@ -153,6 +176,16 @@ EZ_CREATE_SIMPLE_TEST(Math, Color)
         EZ_TEST_BOOL(!op1.IsIdenticalRGBA(op1 + ezMath::BasicType<float>::SmallEpsilon() * compArray[i]));
         EZ_TEST_BOOL(!op1.IsIdenticalRGBA(op1 - ezMath::BasicType<float>::SmallEpsilon() * compArray[i]));
       }
+    }
+
+    EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsEqualRGB")
+    {
+      ezColor c1(0, 0, 0, 0);
+      ezColor c2(0, 0, 0.2f, 1);
+
+      EZ_TEST_BOOL(!c1.IsEqualRGB(c2, 0.1f));
+      EZ_TEST_BOOL(c1.IsEqualRGB(c2, 0.3f));
+      EZ_TEST_BOOL(!c1.IsEqualRGBA(c2, 0.3f));
     }
 
     EZ_TEST_BLOCK(ezTestBlock::Enabled, "IsEqualRGBA")
@@ -249,6 +282,70 @@ EZ_CREATE_SIMPLE_TEST(Math, Color)
         EZ_TEST_BOOL(op1 != (op1 + ezMath::BasicType<float>::SmallEpsilon() * compArray[i]));
         EZ_TEST_BOOL(op1 != (op1 - ezMath::BasicType<float>::SmallEpsilon() * compArray[i]));
       }
+    }
+
+    EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator= (ezColorLinearUB)")
+    {
+      ezColor c;
+      ezColorLinearUB lin(50, 100, 150, 255);
+ 
+      c = lin;
+
+      EZ_TEST_FLOAT(c.r, 50 / 255.0f, 0.001f);
+      EZ_TEST_FLOAT(c.g, 100 / 255.0f, 0.001f);
+      EZ_TEST_FLOAT(c.b, 150 / 255.0f, 0.001f);
+      EZ_TEST_FLOAT(c.a, 1.0f, 0.001f);
+    }
+
+    EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator= (ezColorGammaUB) / constructor(ezColorGammaUB)")
+    {
+      ezColor c;
+      ezColorGammaUB gamma(50, 100, 150, 255);
+ 
+      c = gamma;
+      ezColor c3 = gamma;
+
+      EZ_TEST_BOOL(c == c3);
+
+      EZ_TEST_BOOL(c.r != 50 / 255.0f);
+      EZ_TEST_BOOL(c.g != 100 / 255.0f);
+      EZ_TEST_BOOL(c.b != 150 / 255.0f);
+      EZ_TEST_BOOL(c.a == 1.0f);
+
+      ezColorGammaUB c2 = c;
+
+      EZ_TEST_INT(c2.r, 50);
+      EZ_TEST_INT(c2.g, 100);
+      EZ_TEST_INT(c2.b, 150);
+      EZ_TEST_INT(c2.a, 255);
+    }
+
+    EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetInvertedColor")
+    {
+      const ezColor c1(0.1f, 0.3f, 0.7f, 0.9f);
+
+      ezColor c2 = c1.GetInvertedColor();
+
+      EZ_TEST_BOOL(c2.IsEqualRGBA(ezColor(0.9f, 0.7f, 0.3f, 0.1f), 0.01f));
+    }
+
+    EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetLuminance")
+    {
+      EZ_TEST_FLOAT(ezColor::Black.GetLuminance(), 0.0f, 0.001f);
+      EZ_TEST_FLOAT(ezColor::White.GetLuminance(), 1.0f, 0.001f);
+
+      EZ_TEST_FLOAT(ezColor(0.5f, 0.5f, 0.5f).GetLuminance(), 0.2126f * 0.5f + 0.7152f * 0.5f + 0.0722f * 0.5f, 0.001f);
+    }
+
+    EZ_TEST_BLOCK(ezTestBlock::Enabled, "GetComplementaryColor")
+    {
+      // black and white have no complementary colors, or rather, they are their own complementary colors, apparently
+      EZ_TEST_BOOL(ezColor::Black.GetComplementaryColor().IsEqualRGBA(ezColor::Black, 0.001f));
+      EZ_TEST_BOOL(ezColor::White.GetComplementaryColor().IsEqualRGBA(ezColor::White, 0.001f));
+
+      EZ_TEST_BOOL(ezColor::Red.GetComplementaryColor().IsEqualRGBA(ezColor::Cyan, 0.001f));
+      EZ_TEST_BOOL(ezColor::Lime.GetComplementaryColor().IsEqualRGBA(ezColor::Magenta, 0.001f));
+      EZ_TEST_BOOL(ezColor::Blue.GetComplementaryColor().IsEqualRGBA(ezColor::Yellow, 0.001f));
     }
   }
 }

@@ -66,6 +66,24 @@ EZ_CREATE_SIMPLE_TEST(Math, Color8UNorm)
       EZ_TEST_BOOL(pUInts[0] == cornflowerBlue.r && pUInts[1] == cornflowerBlue.g && pUInts[2] == cornflowerBlue.b && pUInts[3] == cornflowerBlue.a);
     }
   }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezColorGammaUB: Constructor")
+  {
+    ezColorGammaUB c(50, 150, 200, 100);
+    EZ_TEST_INT(c.r, 50);
+    EZ_TEST_INT(c.g, 150);
+    EZ_TEST_INT(c.b, 200);
+    EZ_TEST_INT(c.a, 100);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezColorGammaUB: Constructor (ezColor)")
+  {
+    ezColorGammaUB c2 = ezColor::RebeccaPurple;
+
+    ezColor c3 = c2;
+
+    EZ_TEST_BOOL(c3.IsEqualRGBA(ezColor::RebeccaPurple, 0.001f));
+  }
 }
 
 

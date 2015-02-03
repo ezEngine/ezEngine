@@ -22,22 +22,16 @@ inline ezColor::ezColor(float fLinearRed, float fLinearGreen, float fLinearBlue,
 
 inline ezColor::ezColor(const ezColorLinearUB& cc)
 {
-  /// \test this is new
-
   *this = cc;
 }
 
 inline ezColor::ezColor(const ezColorGammaUB& cc)
 {
-  /// \test this is new
-
   *this = cc;
 }
 
 inline void ezColor::SetRGB(float fLinearRed, float fLinearGreen, float fLinearBlue)
 {
-  /// \test this is new
-
   r = fLinearRed;
   g = fLinearGreen;
   b = fLinearBlue;
@@ -45,8 +39,6 @@ inline void ezColor::SetRGB(float fLinearRed, float fLinearGreen, float fLinearB
 
 inline void ezColor::SetRGBA(float fLinearRed, float fLinearGreen, float fLinearBlue, float fLinearAlpha /* = 1.0f */)
 {
-  /// \test this is new
-
   r = fLinearRed;
   g = fLinearGreen;
   b = fLinearBlue;
@@ -56,16 +48,13 @@ inline void ezColor::SetRGBA(float fLinearRed, float fLinearGreen, float fLinear
 // http://en.wikipedia.org/wiki/Luminance_%28relative%29
 EZ_FORCE_INLINE float ezColor::GetLuminance() const
 {
-  /// \test Add a test for this
-
   return 0.2126f * r + 0.7152f * g + 0.0722f * b;
 }
 
 inline ezColor ezColor::GetInvertedColor() const
 {
-  /// \test Add a test for this
-
   EZ_NAN_ASSERT(this);
+  EZ_ASSERT_DEBUG(IsNormalized(), "Cannot invert a color that has values outside the [0; 1] range");
 
   return ezColor(1.0f - r, 1.0f - g, 1.0f - b, 1.0f - a);
 }
@@ -128,8 +117,6 @@ inline void ezColor::operator*= (float f)
 
 inline bool ezColor::IsIdenticalRGB(const ezColor& rhs) const
 {
-  /// \test this is new
-
   EZ_NAN_ASSERT(this);
   EZ_NAN_ASSERT(&rhs);
 

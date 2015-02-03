@@ -63,8 +63,8 @@ private:
 typedef ezBitfield<ezDynamicArray<ezUInt32> > ezDynamicBitfield;
 
 /// \brief An ezBitfield that uses a hybrid array as internal container.
-template<ezUInt32 Size>
-using ezHybridBitfield = ezBitfield<ezHybridArray<ezUInt32, Size> >;
+//template<ezUInt32 Size>
+//using ezHybridBitfield = ezBitfield<ezHybridArray<ezUInt32, Size> >;
 
 
 #include <Foundation/Containers/Implementation/Bitfield_inl.h>

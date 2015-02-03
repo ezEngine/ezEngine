@@ -220,7 +220,7 @@ public:
   /// \brief Initializes this color from a ezColorGammaUB object.
   ///
   /// This should be the preferred method when hardcoding colors in source code.
-  ezColor(const ezColorGammaUB& cc);
+  ezColor(const ezColorGammaUB& cc); // [tested]
 
 #if EZ_ENABLED(EZ_MATH_CHECK_FOR_NAN)
   void AssertNotNaN() const
@@ -230,10 +230,10 @@ public:
 #endif
 
   /// \brief Sets the RGB components, ignores alpha.
-  void SetRGB(float fLinearRed, float fLinearGreen, float fLinearBlue);
+  void SetRGB(float fLinearRed, float fLinearGreen, float fLinearBlue); // [tested]
 
   /// \brief Sets all four RGBA components.
-  void SetRGBA(float fLinearRed, float fLinearGreen, float fLinearBlue, float fLinearAlpha = 1.0f);
+  void SetRGBA(float fLinearRed, float fLinearGreen, float fLinearBlue, float fLinearAlpha = 1.0f); // [tested]
 
   // *** Conversion Operators/Functions ***
 public:
@@ -268,10 +268,10 @@ public:
   float* GetData() { return &r; }
 
   /// \brief Helper function to convert a float RGB color value from gamma space to linear color space.
-  static ezVec3 GammaToLinear(const ezVec3& gamma);
+  static ezVec3 GammaToLinear(const ezVec3& gamma); // [tested]
 
   /// \brief Helper function to convert a float RGB color value from linear space to gamma color space.
-  static ezVec3 LinearToGamma(const ezVec3& gamma);
+  static ezVec3 LinearToGamma(const ezVec3& gamma); // [tested]
 
   // *** Color specific functions ***
 public:
@@ -282,19 +282,17 @@ public:
   /// \brief Computes saturation.
   float GetSaturation() const;
 
-  /// \brief Computes luminance.
-  ///
-  /// Assumes linear color space (http://en.wikipedia.org/wiki/Luminance_%28relative%29).
-  float GetLuminance() const;
+  /// \brief Computes the perceived luminance. Assumes linear color space (http://en.wikipedia.org/wiki/Luminance_%28relative%29).
+  float GetLuminance() const; /// [tested]
 
   /// \brief Performs a simple (1.0 - color) inversion on all four channels.
   ///
   /// Using this function on non-normalized colors will lead to negative results.
   /// \see ezColor IsNormalized
-  ezColor GetInvertedColor() const;
+  ezColor GetInvertedColor() const; // [tested]
 
   /// \brief Calculates the complementary color for this color (hue shifted by 180 degrees). The complementary color will have the same alpha.
-  ezColor GetComplementaryColor() const;
+  ezColor GetComplementaryColor() const; // [tested]
 
   // *** Numeric properties ***
 public:
@@ -312,7 +310,7 @@ public:
   void operator= (const ezColorLinearUB& cc); // [tested]
 
   /// \brief Converts the color from ezColorGammaUB to linear float values. Gamma is correctly converted to linear space.
-  void operator= (const ezColorGammaUB& cc);
+  void operator= (const ezColorGammaUB& cc); // [tested]
 
   /// \brief Adds \a rhs component-wise to this color.
   void operator+= (const ezColor& rhs); // [tested]
@@ -335,13 +333,13 @@ public:
   void operator*= (const ezMat4& rhs);
 
   /// \brief Equality Check (bitwise). Only compares RGB, ignores Alpha.
-  bool IsIdenticalRGB(const ezColor& rhs) const;
+  bool IsIdenticalRGB(const ezColor& rhs) const; // [tested]
 
   /// \brief Equality Check (bitwise). Compares all four components.
   bool IsIdenticalRGBA(const ezColor& rhs) const; // [tested]
 
   /// \brief Equality Check with epsilon. Only compares RGB, ignores Alpha.
-  bool IsEqualRGB(const ezColor& rhs, float fEpsilon) const;
+  bool IsEqualRGB(const ezColor& rhs, float fEpsilon) const; // [tested]
 
   /// \brief Equality Check with epsilon. Compares all four components.
   bool IsEqualRGBA(const ezColor& rhs, float fEpsilon) const; // [tested]
