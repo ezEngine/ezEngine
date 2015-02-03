@@ -155,6 +155,12 @@ public:
   /// That means one can do a memcpy or memcmp from position uiStartIndex up until uiStartIndex + range.
   ezUInt32 GetContiguousRange(ezUInt32 uiStartIndex) const; // [tested]
 
+  /// \brief Comparison operator
+  bool operator==(const ezDequeBase<T, Construct>& rhs) const; // [tested]
+
+  /// \brief Comparison operator
+  bool operator!=(const ezDequeBase<T, Construct>& rhs) const; // [tested]
+
 private:
 
   /// \brief A common constructor function.

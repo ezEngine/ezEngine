@@ -4,8 +4,6 @@
 
 ezStringBuilder::ezStringBuilder(const char* pData1, const char* pData2, const char* pData3, const char* pData4, const char* pData5, const char* pData6)
 {
-  /// \test This is new
-
   m_uiCharacterCount = 0;
   AppendTerminator();
 
@@ -14,15 +12,14 @@ ezStringBuilder::ezStringBuilder(const char* pData1, const char* pData2, const c
 
 void ezStringBuilder::Set(const char* pData1, const char* pData2, const char* pData3, const char* pData4, const char* pData5, const char* pData6)
 {
-  /// \test This is new
-
   Clear();
   Append(pData1, pData2, pData3, pData4, pData5, pData6);
 }
 
 void ezStringBuilder::SetSubString_FromTo(const char* pStart, const char* pEnd)
 {
-  /// \test This is new
+  EZ_ASSERT_DEBUG(ezUnicodeUtils::IsValidUtf8(pStart), "Invalid substring, the start does not point to a valid Utf-8 character");
+  EZ_ASSERT_DEBUG(ezUnicodeUtils::IsValidUtf8(pEnd), "Invalid substring, the end does not point to a valid Utf-8 character");
 
   ezStringView view(pStart, pEnd);
   *this = view;
@@ -30,7 +27,9 @@ void ezStringBuilder::SetSubString_FromTo(const char* pStart, const char* pEnd)
 
 void ezStringBuilder::SetSubString_ElementCount(const char* pStart, ezUInt32 uiElementCount)
 {
-  /// \test This is new
+  EZ_ASSERT_DEBUG(ezStringUtils::GetStringElementCount(pStart) >= uiElementCount, "Invalid substring, it does not contain %u bytes", uiElementCount);
+  EZ_ASSERT_DEBUG(ezUnicodeUtils::IsValidUtf8(pStart), "Invalid substring, the start does not point to a valid Utf-8 character");
+  EZ_ASSERT_DEBUG(ezUnicodeUtils::IsValidUtf8(pStart + uiElementCount), "Invalid substring, the end does not point to a valid Utf-8 character");
 
   ezStringView view(pStart, pStart + uiElementCount);
   *this = view;
@@ -38,7 +37,8 @@ void ezStringBuilder::SetSubString_ElementCount(const char* pStart, ezUInt32 uiE
 
 void ezStringBuilder::SetSubString_CharacterCount(const char* pStart, ezUInt32 uiCharacterCount)
 {
-  /// \test This is new
+  EZ_ASSERT_DEBUG(ezUnicodeUtils::IsValidUtf8(pStart), "Invalid substring, the start does not point to a valid Utf-8 character");
+  EZ_ASSERT_DEBUG(ezStringUtils::GetCharacterCount(pStart) >= uiCharacterCount, "Invalid substring, it does not contain %u characters", uiCharacterCount);
 
   const char* pEnd = pStart;
   ezUnicodeUtils::MoveToNextUtf8(pEnd, uiCharacterCount);
@@ -818,7 +818,7 @@ void ezStringBuilder::ChangeFileExtension(const char* szNewExtension)
 
   ezStringView it = ezPathUtils::GetFileExtension(GetData(), GetData() + m_Data.GetCount() - 1);
 
-  if (it.IsEmpty())
+  if (it.IsEmpty() && !EndsWith("."))
     Append(".", szNewExtension);
   else
     ReplaceSubString(it.GetData(), it.GetEndPosition(), szNewExtension);
@@ -826,8 +826,6 @@ void ezStringBuilder::ChangeFileExtension(const char* szNewExtension)
 
 void ezStringBuilder::RemoveFileExtension()
 {
-  /// \test  This is new
-
   if (HasAnyExtension())
   {
     ChangeFileExtension("");

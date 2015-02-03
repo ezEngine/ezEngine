@@ -110,6 +110,27 @@ void ezDequeBase<T, Construct>::operator= (ezDequeBase<T, Construct>&& rhs)
 }
 
 template <typename T, bool Construct>
+bool ezDequeBase<T, Construct>::operator== (const ezDequeBase<T, Construct>& rhs) const
+{
+  if (GetCount() != rhs.GetCount())
+    return false;
+
+  for (ezUInt32 i = 0; i < GetCount(); ++i)
+  {
+    if ((*this)[i] != rhs[i])
+      return false;
+  }
+
+  return true;
+}
+
+template <typename T, bool Construct>
+bool ezDequeBase<T, Construct>::operator!= (const ezDequeBase<T, Construct>& rhs) const
+{
+  return !operator==(rhs);
+}
+
+template <typename T, bool Construct>
 void ezDequeBase<T, Construct>::Clear()
 {
   if (Construct)

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Foundation/Containers/DynamicArray.h>
+#include <Foundation/Containers/HybridArray.h>
 
 /// \brief A template interface, that turns any array class into a bitfield.
 ///
@@ -61,14 +62,10 @@ private:
 /// \brief This should be the main type of bitfield to use, although other internal container types are possible.
 typedef ezBitfield<ezDynamicArray<ezUInt32> > ezDynamicBitfield;
 
-// With C++ 11 we could do this, to declare an ezHybridBitfield<ezUInt32 Size>
-// But VS2010 does not support that yet.
-/*
-#include <Foundation/Containers/HybridArray.h>
-
+/// \brief An ezBitfield that uses a hybrid array as internal container.
 template<ezUInt32 Size>
 using ezHybridBitfield = ezBitfield<ezHybridArray<ezUInt32, Size> >;
-*/
+
 
 #include <Foundation/Containers/Implementation/Bitfield_inl.h>
 

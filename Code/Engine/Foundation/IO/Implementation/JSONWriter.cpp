@@ -73,8 +73,6 @@ void ezJSONWriter::AddVariableTime(const char* szName, ezTime value)
 
 void ezJSONWriter::AddVariableUuid(const char* szName, ezUuid value)
 {
-  /// \test this is new
-
   BeginVariable(szName);
   WriteUuid(value);
   EndVariable();

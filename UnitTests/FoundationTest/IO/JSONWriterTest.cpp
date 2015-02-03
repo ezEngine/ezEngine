@@ -146,6 +146,22 @@ EZ_CREATE_SIMPLE_TEST(IO, StandardJSONWriter)
     js.AddVariableTime("var2", ezTime::Seconds(2.25));
   }
 
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "AddVariableUuid")
+  {
+    ezUuid guid;
+    ezUInt64 val[2];
+    val[0] = 0x1122334455667788;
+    val[1] = 0x99AABBCCDDEEFF00;
+    ezMemoryUtils::Copy(reinterpret_cast<ezUInt64*>(&guid), val, sizeof(ezUInt64) * 2);
+    
+    StreamComparer sc("\"uuid_var\" : { \"$t\" : \"uuid\", \"$b\" : \"0x887766554433221100FFEEDDCCBBAA99\" }");
+
+    ezStandardJSONWriter js;
+    js.SetOutputStream(&sc);
+
+    js.AddVariableUuid("uuid_var", guid);
+  }
+
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "AddVariableColor")
   {
     StreamComparer sc("\"var1\" : { \"$t\" : \"color\", \"$v\" : \"(1.0000, 2.0000, 3.0000, 4.0000)\", \"$b\" : \"0x0000803F000000400000404000008040\" }");

@@ -79,6 +79,16 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     EZ_TEST_BOOL(s == ezStringUtf8(L"c äö").GetData());
   }
 
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Constructor(multiple)")
+  {
+    ezStringUtf8 sUtf8(L"⺅⻩⽇⿕〄㈷㑧䆴ظؼݻ༺");
+    ezStringUtf8 sUtf2(L"⺅⻩⽇⿕〄㈷㑧䆴ظؼݻ༺⺅⻩⽇⿕〄㈷㑧䆴ظؼݻ༺⺅⻩⽇⿕〄㈷㑧䆴ظؼݻ༺⺅⻩⽇⿕〄㈷㑧䆴ظؼݻ༺⺅⻩⽇⿕〄㈷㑧䆴ظؼݻ༺⺅⻩⽇⿕〄㈷㑧䆴ظؼݻ༺");
+
+    ezStringBuilder sb(sUtf8.GetData(), sUtf8.GetData(), sUtf8.GetData(), sUtf8.GetData(), sUtf8.GetData(), sUtf8.GetData());
+
+    EZ_TEST_STRING(sb.GetData(), sUtf2.GetData());
+  }
+
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator=(Utf8)")
   {
     ezStringUtf8 sUtf8(L"abc äöü € def");
@@ -238,6 +248,28 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     s = "pups";
     s.Append(nullptr, L"b", nullptr, L"d", nullptr, L"ü€");
     EZ_TEST_BOOL(s == ezStringUtf8(L"pupsbdü€").GetData());
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Append(multiple)")
+  {
+    ezStringUtf8 sUtf8(L"⺅⻩⽇⿕〄㈷㑧䆴ظؼݻ༺");
+    ezStringUtf8 sUtf2(L"Test⺅⻩⽇⿕〄㈷㑧䆴ظؼݻ༺⺅⻩⽇⿕〄㈷㑧䆴ظؼݻ༺⺅⻩⽇⿕〄㈷㑧䆴ظؼݻ༺⺅⻩⽇⿕〄㈷㑧䆴ظؼݻ༺⺅⻩⽇⿕〄㈷㑧䆴ظؼݻ༺Test2");
+
+    ezStringBuilder sb("Test");
+    sb.Append(sUtf8.GetData(), sUtf8.GetData(), sUtf8.GetData(), sUtf8.GetData(), sUtf8.GetData(), "Test2");
+
+    EZ_TEST_STRING(sb.GetData(), sUtf2.GetData());
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Set(multiple)")
+  {
+    ezStringUtf8 sUtf8(L"⺅⻩⽇⿕〄㈷㑧䆴ظؼݻ༺");
+    ezStringUtf8 sUtf2(L"⺅⻩⽇⿕〄㈷㑧䆴ظؼݻ༺⺅⻩⽇⿕〄㈷㑧䆴ظؼݻ༺⺅⻩⽇⿕〄㈷㑧䆴ظؼݻ༺⺅⻩⽇⿕〄㈷㑧䆴ظؼݻ༺⺅⻩⽇⿕〄㈷㑧䆴ظؼݻ༺Test2");
+
+    ezStringBuilder sb("Test");
+    sb.Set(sUtf8.GetData(), sUtf8.GetData(), sUtf8.GetData(), sUtf8.GetData(), sUtf8.GetData(), "Test2");
+
+    EZ_TEST_STRING(sb.GetData(), sUtf2.GetData());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "AppendFormat")
@@ -1291,6 +1323,56 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
     s.ReadAll(MemoryReader);
 
     EZ_TEST_BOOL(s == szText);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetSubString_FromTo")
+  {
+    ezStringBuilder sb = "basf";
+
+    const char* sz = "abcdefghijklmnopqrstuvwxyz";
+
+    sb.SetSubString_FromTo(sz + 5, sz + 13);
+    EZ_TEST_BOOL(sb == "fghijklm");
+
+    sb.SetSubString_FromTo(sz + 17, sz + 30);
+    EZ_TEST_BOOL(sb == "rstuvwxyz");
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetSubString_ElementCount")
+  {
+    ezStringBuilder sb = "basf";
+
+    ezStringUtf8 sz(L"aäbcödefügh");
+
+    sb.SetSubString_ElementCount(sz.GetData() + 5, 5);
+    EZ_TEST_BOOL(sb == ezStringUtf8(L"ödef").GetData());
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SetSubString_CharacterCount")
+  {
+    ezStringBuilder sb = "basf";
+
+    ezStringUtf8 sz(L"aäbcödefgh");
+
+    sb.SetSubString_CharacterCount(sz.GetData() + 5, 5);
+    EZ_TEST_BOOL(sb == ezStringUtf8(L"ödefg").GetData());
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "RemoveFileExtension")
+  {
+    ezStringBuilder sb = L"⺅⻩⽇⿕.〄㈷㑧䆴.ؼݻ༺.";
+
+    sb.RemoveFileExtension();
+    EZ_TEST_STRING(sb.GetData(), ezStringUtf8(L"⺅⻩⽇⿕.〄㈷㑧䆴.ؼݻ༺").GetData());
+
+    sb.RemoveFileExtension();
+    EZ_TEST_STRING(sb.GetData(), ezStringUtf8(L"⺅⻩⽇⿕.〄㈷㑧䆴").GetData());
+
+    sb.RemoveFileExtension();
+    EZ_TEST_STRING(sb.GetData(), ezStringUtf8(L"⺅⻩⽇⿕").GetData());
+
+    sb.RemoveFileExtension();
+    EZ_TEST_STRING(sb.GetData(), ezStringUtf8(L"⺅⻩⽇⿕").GetData());
   }
 }
 

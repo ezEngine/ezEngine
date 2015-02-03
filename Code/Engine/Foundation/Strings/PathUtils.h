@@ -5,7 +5,7 @@
 /// \brief Contains Helper functions to work with paths.
 ///
 /// Only functions that require read-only access to a string are provided here
-/// All functions that require to modify the path are provided by ezPathBuilder.
+/// All functions that require to modify the path are provided by ezStringBuilder.
 /// Many functions return ezStringView's, which will always be strict sub-strings of their input data.
 /// That allows that these functions can work without any additional memory allocations.
 class EZ_FOUNDATION_DLL ezPathUtils

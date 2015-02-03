@@ -365,13 +365,17 @@ EZ_CREATE_SIMPLE_TEST(Containers, Deque)
     EZ_TEST_BOOL(st::HasAllDestructed());
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator =")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator = / operator == / operator !=")
   {
     ezDeque<ezInt32> a1;
     ezDeque<ezInt32> a2;
 
+    EZ_TEST_BOOL(a1 == a2);
+
     for (ezInt32 i = 0; i < 100; ++i)
       a1.PushBack(i);
+
+    EZ_TEST_BOOL(a1 != a2);
 
     a2 = a1;
 
@@ -379,6 +383,9 @@ EZ_CREATE_SIMPLE_TEST(Containers, Deque)
 
     for (ezUInt32 i = 0; i < a1.GetCount(); ++i)
       EZ_TEST_BOOL(a1[i] == a2[i]);
+
+    EZ_TEST_BOOL(a1 == a2);
+    EZ_TEST_BOOL(a2 == a1);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Index operator")

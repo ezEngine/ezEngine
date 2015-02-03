@@ -60,7 +60,7 @@ public:
   ezStringBuilder(ezHybridString<Size, A>&& rhs);
 
   /// \brief Constructor that appends all the given strings.
-  ezStringBuilder(const char* pData1, const char* pData2, const char* pData3 = nullptr, const char* pData4 = nullptr, const char* pData5 = nullptr, const char* pData6 = nullptr);
+  ezStringBuilder(const char* pData1, const char* pData2, const char* pData3 = nullptr, const char* pData4 = nullptr, const char* pData5 = nullptr, const char* pData6 = nullptr); // [tested]
 
   /// \brief Copies the given Utf8 string into this one.
   /* implicit */ ezStringBuilder(const char* szUTF8, ezAllocatorBase* pAllocator = ezFoundation::GetDefaultAllocator()); // [tested]
@@ -334,7 +334,7 @@ public:
   void ChangeFileExtension(const char* szNewExtension); // [tested]
 
   /// \brief If any extension exists, it is removed, including the dot before it.
-  void RemoveFileExtension();
+  void RemoveFileExtension(); // [tested]
 
   /// \brief Converts this path into a relative path to the path with the awesome variable name 'szAbsolutePathToMakeThisRelativeTo'
   void MakeRelativeTo(const char* szAbsolutePathToMakeThisRelativeTo); // [tested]
