@@ -229,6 +229,22 @@ void ezMemoryTracker::RemoveAllocation(ezAllocatorId allocatorId, const void* pt
 }
 
 //static
+void ezMemoryTracker::RemoveAllAllocations(ezAllocatorId allocatorId)
+{
+  EZ_LOCK(*s_pTrackerData);
+  AllocatorData& data = s_pTrackerData->m_AllocatorData[allocatorId];
+  for (auto it = data.m_Allocations.GetIterator(); it.IsValid(); ++it)
+  {
+    auto& info = it.Value();
+    data.m_Stats.m_uiNumDeallocations++;
+    data.m_Stats.m_uiAllocationSize -= (ezUInt64)info.m_uiSize;
+
+    EZ_DELETE_ARRAY(s_pTrackerDataAllocator, info.GetStackTrace());
+  }
+  data.m_Allocations.Clear();
+}
+
+//static
 void ezMemoryTracker::ReplaceAllocation(ezAllocatorId allocatorId, const void* ptr, size_t uiOldSize, size_t uiNewSize)
 {
   EZ_LOCK(*s_pTrackerData);

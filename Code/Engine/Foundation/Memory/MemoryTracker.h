@@ -94,6 +94,7 @@ public:
 
   static void AddAllocation(ezAllocatorId allocatorId, const void* ptr, size_t uiSize, size_t uiAlign);
   static void RemoveAllocation(ezAllocatorId allocatorId, const void* ptr);
+  static void RemoveAllAllocations(ezAllocatorId allocatorId);
   static void ReplaceAllocation(ezAllocatorId allocatorId, const void* ptr, size_t uiOldSize, size_t uiNewSize);
 
   static const char* GetAllocatorName(ezAllocatorId allocatorId);

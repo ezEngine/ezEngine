@@ -1,6 +1,7 @@
 #include <PCH.h>
 #include <Foundation/Memory/CommonAllocators.h>
 #include <Foundation/Memory/LargeBlockAllocator.h>
+#include <Foundation/Memory/StackAllocator.h>
 
 struct NonAlignedVector
 {
@@ -152,5 +153,49 @@ EZ_CREATE_SIMPLE_TEST(Memory, Allocator)
 
     EZ_TEST_BOOL(stats.m_uiNumAllocations - stats.m_uiNumDeallocations == 0);
     EZ_TEST_BOOL(stats.m_uiAllocationSize == 0);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "StackAllocator")
+  {
+    ezStackAllocator<> allocator("TestStackAllocator", ezFoundation::GetDefaultAllocator());
+
+    void* blocks[8];
+    for (size_t i = 0; i < EZ_ARRAY_SIZE(blocks); i++)
+    {
+      size_t size = i + 1;
+      blocks[i] = allocator.Allocate(size, sizeof(void*));
+      EZ_TEST_BOOL(blocks[i] != nullptr);
+      if (i > 0)
+      {
+        EZ_TEST_BOOL((ezUInt8*)blocks[i - 1] + size <= blocks[i]);
+      }
+    }
+
+    for (size_t i = EZ_ARRAY_SIZE(blocks); i--;)
+    {
+      allocator.Deallocate(blocks[i]);
+    }
+
+    size_t sizes[] = { 1024, 4096, 1024, 1024, 16000, 512, 512, 768, 768, 16000, 16000, 16000, 16000 };
+    void* allocs[EZ_ARRAY_SIZE(sizes)];
+    for (size_t i = 0; i < EZ_ARRAY_SIZE(sizes); i++)
+    {
+      allocs[i] = allocator.Allocate(sizes[i], sizeof(void*));
+      EZ_TEST_BOOL(allocs[i] != nullptr);
+    }
+    for (size_t i = EZ_ARRAY_SIZE(sizes); i--;)
+    {
+      allocator.Deallocate(allocs[i]);
+    }
+
+    for (size_t i = 0; i < EZ_ARRAY_SIZE(sizes); i++)
+    {
+        allocs[i] = allocator.Allocate(sizes[i], sizeof(void*));
+        EZ_TEST_BOOL(allocs[i] != nullptr);
+    }
+    allocator.Reset();
+    allocs[0] = allocator.Allocate(8, sizeof(void*));
+    EZ_TEST_BOOL(allocs[0] < allocs[1]);
+    allocator.Deallocate(allocs[0]);
   }
 }
