@@ -42,7 +42,7 @@ class EZ_FOUNDATION_DLL ezColorLinearUB : public ezColorUnsignedByteBase
 public:
 
   /// \brief Default-constructed color is uninitialized (for speed)
-  ezColorLinearUB() = default; // [tested]
+  ezColorLinearUB() { }; // [tested]
 
   /// \brief Initializes the color with r, g, b, a
   ezColorLinearUB(ezUInt8 r, ezUInt8 g, ezUInt8 b, ezUInt8 a = 255); // [tested]
@@ -70,7 +70,7 @@ class EZ_FOUNDATION_DLL ezColorGammaUB : public ezColorUnsignedByteBase
 public:
 
   /// \brief Default-constructed color is uninitialized (for speed)
-  ezColorGammaUB() = default; /// \test this is new
+  ezColorGammaUB() { }; /// \test this is new
 
   /// \brief Copies the color values. RGB are assumed to be in Gamma space.
   ezColorGammaUB(ezUInt8 uiGammaRed, ezUInt8 uiGammaGreen, ezUInt8 uiGammaBlue, ezUInt8 uiLinearAlpha = 255);

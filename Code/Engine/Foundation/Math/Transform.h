@@ -34,7 +34,7 @@ public:
 public:
 
   /// \brief Default constructor: Does not do any initialization.
-  ezTransformTemplate() = default; // [tested]
+  ezTransformTemplate() { }; // [tested]
 
   /// \brief Sets position and rotation matrix, which might include scale as well.
   explicit ezTransformTemplate(const ezVec3Template<Type>& vPosition, const ezMat3Template<Type>& Rotation); // [tested]
