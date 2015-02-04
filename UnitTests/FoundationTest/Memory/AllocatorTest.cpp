@@ -176,7 +176,7 @@ EZ_CREATE_SIMPLE_TEST(Memory, Allocator)
       allocator.Deallocate(blocks[i]);
     }
 
-    size_t sizes[] = { 1024, 4096, 1024, 1024, 16000, 512, 512, 768, 768, 16000, 16000, 16000, 16000 };
+    size_t sizes[] = { 128, 128, 4096, 1024, 1024, 16000, 512, 512, 768, 768, 16000, 16000, 16000, 16000 };
     void* allocs[EZ_ARRAY_SIZE(sizes)];
     for (size_t i = 0; i < EZ_ARRAY_SIZE(sizes); i++)
     {

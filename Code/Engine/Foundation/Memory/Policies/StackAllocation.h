@@ -106,9 +106,10 @@ namespace ezMemoryPolicies
     {
       EZ_ASSERT_DEV(ptr >= m_currentBucket.GetPtr() && ptr <= m_pNextAllocation, "Invalid free");
       // does this empty the current bucket?
-      if (ptr == m_currentBucket.GetPtr() && m_uiCurrentBucketIndex > 0)
+      if (ptr == m_currentBucket.GetPtr())
       {
         m_pNextAllocation = (ezUInt8*)ptr;
+        m_buckets[m_uiCurrentBucketIndex].pLastAllocation = (ezUInt8*)ptr;
         while (m_pNextAllocation == m_currentBucket.GetPtr() && m_uiCurrentBucketIndex > 0)
         {
           m_uiCurrentBucketIndex--;
