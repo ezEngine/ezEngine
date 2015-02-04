@@ -16,8 +16,9 @@ include (${CMAKE_CURRENT_LIST_DIR}/CMAKE_GeneralConfig.txt)
 
 # find all cmake files below this directory
 file (GLOB DIRS "${CMAKE_SOURCE_DIR}/Code/Engine/*/CMakeLists.txt")
+file (GLOB DIRS_SCRIPT_D "${CMAKE_SOURCE_DIR}/Code/Engine/Script/D/*/CMakeLists.txt")
 file (GLOB DIRS_TOOLS "${CMAKE_SOURCE_DIR}/Code/Tools/*/CMakeLists.txt")
-set (DIRS ${DIRS} ${DIRS_TOOLS})
+set (DIRS ${DIRS} ${DIRS_TOOLS} ${DIRS_SCRIPT_D})
 
 # setup the variable where all project-names are stored, that should be exported
 set_property (GLOBAL PROPERTY ALL_KNOWN_PROJECTS "")
