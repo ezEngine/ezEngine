@@ -1,9 +1,25 @@
+module ez.Script.DGlue.Allocator;
 import ez.Foundation.Memory.AllocatorBase;
 
-extern(C++):
-
-class ezScriptReflectionAllocator : AllocatorBase
+extern(C++)
 {
-public:
-  void Reset();
-};
+  class ezScriptReflectionAllocator : ezAllocatorBase
+  {
+  public:
+    void Reset();
+  };
+
+  ezScriptReflectionAllocator ezGetDefaultScriptReflectionAllocator();
+  private void ezInitDefaultScriptReflectionAllocator();
+  private void ezDeinitDefaultScriptReflectionAllocator();
+}
+
+shared static this()
+{
+  ezInitDefaultScriptReflectionAllocator();
+}
+
+shared static ~this()
+{
+  ezDeinitDefaultScriptReflectionAllocator();
+}

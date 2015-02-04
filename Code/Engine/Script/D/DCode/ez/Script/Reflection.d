@@ -1,6 +1,26 @@
-module ez.script.reflection;
+module ez.Script.Reflection;
 
 export:
+
+extern (C++) interface ezReflectedDModule
+{
+  Variable[] variables();
+  TlsVariable[] tlsVariables();
+}
+
+class ReflectedType
+{
+}
+
+class BasicType : ReflectedType
+{
+  this(const(char)[] name)
+  {
+    name = name;
+  }
+
+  const(char)[] name;
+}
 
 struct Member
 {
@@ -24,21 +44,9 @@ struct TlsVariable
   TypeInfo type;
 }
 
-struct ReflectedType
-{
-  TypeInfo type;
-  Member[] members;
-}
-
 template ResolveType(T)
 {
   alias ResolveType = T;
-}
-
-class ReflectedModule
-{
-  abstract Variable[] variables();
-  abstract TlsVariable[] tlsVariables();
 }
 
 void PrintMembers(alias T)()

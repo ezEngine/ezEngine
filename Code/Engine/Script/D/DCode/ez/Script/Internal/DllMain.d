@@ -1,5 +1,5 @@
 module ez.script.internal.dllmain;
 
-import core.sys.windows.dll;
+//import core.sys.windows.dll;
 
-mixin SimpleDllMain!(DllUsedFromC.no);
+//mixin SimpleDllMain!(DllUsedFromC.no);

@@ -1,5 +1,5 @@
 module test;
-import ez.script.reflection;
+import ez.Script.Reflection;
 
 mixin ReflectModule;
 
