@@ -161,6 +161,9 @@ public:
   /// \brief Comparison operator
   bool operator!=(const ezDequeBase<T, Construct>& rhs) const; // [tested]
 
+  /// \brief Returns the amount of bytes that are currently allocated on the heap.
+  ezUInt64 GetHeapMemoryUsage() const; // [tested]
+
 private:
 
   /// \brief A common constructor function.

@@ -282,11 +282,15 @@ EZ_CREATE_SIMPLE_TEST(Containers, HashTable)
   {
     ezHashTable<ezInt32, st> a;
 
+    EZ_TEST_BOOL(a.GetHeapMemoryUsage() == 0);
+
     for (ezInt32 i = 0; i < 1000; ++i)
     {
       a.Insert(i, i);
       EZ_TEST_INT(a.GetCount(), i + 1);
     }
+
+    EZ_TEST_BOOL(a.GetHeapMemoryUsage() >= 1000 * (sizeof(ezInt32) + sizeof(st)));
 
     a.Compact();
 
@@ -305,6 +309,11 @@ EZ_CREATE_SIMPLE_TEST(Containers, HashTable)
 
     for (ezInt32 i = 500; i < 1000; ++i)
       EZ_TEST_INT(a[i].m_iData, i);
+
+    a.Clear();
+    a.Compact();
+
+    EZ_TEST_BOOL(a.GetHeapMemoryUsage() == 0);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator[]")

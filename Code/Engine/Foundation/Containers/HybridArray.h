@@ -44,6 +44,9 @@ public:
   /// \brief Returns the allocator that is used by this instance.
   ezAllocatorBase* GetAllocator() const { return m_pAllocator; }
 
+  /// \brief Returns the amount of bytes that are currently allocated on the heap.
+  ezUInt64 GetHeapMemoryUsage() const; // [tested]
+
 private:
   T* GetStaticArray();
 

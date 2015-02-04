@@ -197,6 +197,9 @@ public:
   /// \brief Comparison operator
   bool operator!=(const ezMapBase<KeyType, ValueType, Comparer>& rhs) const; // [tested]
 
+  /// \brief Returns the amount of bytes that are currently allocated on the heap.
+  ezUInt64 GetHeapMemoryUsage() const { return m_Elements.GetHeapMemoryUsage(); } // [tested]
+
 private:
   Node* Internal_Find(const KeyType& key) const;
   Node* Internal_LowerBound(const KeyType& key) const;

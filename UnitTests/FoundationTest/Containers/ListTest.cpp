@@ -8,7 +8,6 @@ EZ_CREATE_SIMPLE_TEST(Containers, List)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Constructor")
   {
     ezList<ezInt32> l;
-
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "PushBack() / PeekBack")
@@ -23,6 +22,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, List)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "PushBack(i) / GetCount")
   {
     ezList<ezInt32> l;
+    EZ_TEST_BOOL(l.GetHeapMemoryUsage() == 0);
 
     for (ezUInt32 i = 0; i < 1000; ++i)
     {
@@ -31,6 +31,8 @@ EZ_CREATE_SIMPLE_TEST(Containers, List)
       EZ_TEST_INT(l.GetCount(), i + 1);
       EZ_TEST_INT(l.PeekBack(), i);
     }
+
+    EZ_TEST_BOOL(l.GetHeapMemoryUsage() >= sizeof(ezInt32) * 1000);
 
     ezUInt32 i = 0;
     for (ezList<ezInt32>::Iterator it = l.GetIterator(); it != l.GetEndIterator(); ++it)

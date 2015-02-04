@@ -154,6 +154,14 @@ void ezHybridArrayBase<T, Size>::Compact()
   }
 }
 
+template <typename T, ezUInt32 Size>
+ezUInt64 ezHybridArrayBase<T, Size>::GetHeapMemoryUsage() const
+{
+  if (this->m_uiCapacity <= Size)
+    return 0;
+
+  return (ezUInt64) sizeof(T) * (ezUInt64) this->m_uiCapacity;
+}
 
 template <typename T, ezUInt32 Size, typename A>
 ezHybridArray<T, Size, A>::ezHybridArray() : ezHybridArrayBase<T, Size>(A::GetAllocator())

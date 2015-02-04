@@ -10,10 +10,14 @@ EZ_CREATE_SIMPLE_TEST(Containers, ArrayMap)
   {
     ezArrayMap<ezString, ezInt32> sa;
 
+    EZ_TEST_BOOL(sa.GetHeapMemoryUsage() == 0);
+
     EZ_TEST_INT(sa.GetCount(), 0);
     EZ_TEST_BOOL(sa.IsEmpty());
 
     sa.Reserve(10);
+
+    EZ_TEST_BOOL(sa.GetHeapMemoryUsage() >= 10 * (sizeof(ezString) + sizeof(ezInt32)));
 
     sa.Insert("z", 0);
     sa.Insert("y", 1);
@@ -42,7 +46,9 @@ EZ_CREATE_SIMPLE_TEST(Containers, ArrayMap)
     sa.Clear();
     EZ_TEST_BOOL(sa.IsEmpty());
 
+    EZ_TEST_BOOL(sa.GetHeapMemoryUsage() > 0);
     sa.Compact();
+    EZ_TEST_BOOL(sa.GetHeapMemoryUsage() == 0);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Insert / Find / = / == / != ")

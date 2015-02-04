@@ -72,8 +72,12 @@ EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
   {
     ezDynamicArray<ezInt32, ezTestAllocatorWrapper> a1;
 
+    EZ_TEST_BOOL(a1.GetHeapMemoryUsage() == 0);
+
     for (ezInt32 i = 0; i < 32; ++i)
       a1.PushBack(rand() % 100000);
+
+    EZ_TEST_BOOL(a1.GetHeapMemoryUsage() >= 32 * sizeof(ezInt32));
 
     ezDynamicArray<ezInt32> a2 = a1;
     ezDynamicArray<ezInt32> a3 (a1);
@@ -655,7 +659,9 @@ EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
     EZ_TEST_BOOL(st::HasDone(0, 200));
 
     // this will deallocate ALL memory
+    EZ_TEST_BOOL(a.GetHeapMemoryUsage() > 0);
     a.Compact();
+    EZ_TEST_BOOL(a.GetHeapMemoryUsage() == 0);
 
     a.SetCount(100);
     EZ_TEST_BOOL(st::HasDone(100, 0));

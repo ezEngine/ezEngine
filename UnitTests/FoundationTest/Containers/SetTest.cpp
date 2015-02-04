@@ -85,6 +85,8 @@ EZ_CREATE_SIMPLE_TEST(Containers, Set)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Insert")
   {
     ezSet<ezUInt32> m;
+    EZ_TEST_BOOL(m.GetHeapMemoryUsage() == 0);
+
     m.Insert(1);
     m.Insert(3);
     m.Insert(7);
@@ -94,6 +96,8 @@ EZ_CREATE_SIMPLE_TEST(Containers, Set)
     m.Insert(8);
     m.Insert(5);
     m.Insert(6);
+
+    EZ_TEST_BOOL(m.GetHeapMemoryUsage() >= sizeof(ezUInt32) * 1 * 9);
 
     EZ_TEST_BOOL(m.Find(1).IsValid());
     EZ_TEST_BOOL(m.Find(2).IsValid());

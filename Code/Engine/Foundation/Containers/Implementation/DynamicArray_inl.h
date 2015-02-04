@@ -108,6 +108,11 @@ void ezDynamicArrayBase<T>::Compact()
   }
 }
 
+template <typename T>
+ezUInt64 ezDynamicArrayBase<T>::GetHeapMemoryUsage() const
+{
+  return (ezUInt64) this->m_uiCapacity * (ezUInt64) sizeof(T);
+}
 
 template <typename T, typename A>
 ezDynamicArray<T, A>::ezDynamicArray() : ezDynamicArrayBase<T>(A::GetAllocator())

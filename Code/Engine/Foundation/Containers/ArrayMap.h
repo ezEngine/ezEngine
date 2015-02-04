@@ -105,6 +105,9 @@ public:
   /// \brief Compares the two containers for equality.
   bool operator!=(const ezArrayMapBase<KEY, VALUE>& rhs) const; // [tested]
 
+  /// \brief Returns the amount of bytes that are currently allocated on the heap.
+  ezUInt64 GetHeapMemoryUsage() const { return m_Data.GetHeapMemoryUsage(); } // [tested]
+
   // TODO
   // custom compare function (?)
   // lower bound

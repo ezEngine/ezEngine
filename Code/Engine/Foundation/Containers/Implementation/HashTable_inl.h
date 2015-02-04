@@ -387,6 +387,11 @@ EZ_FORCE_INLINE ezAllocatorBase* ezHashTableBase<K, V, H>::GetAllocator() const
   return m_pAllocator;
 }
 
+template <typename K, typename V, typename H>
+ezUInt64 ezHashTableBase<K, V, H>::GetHeapMemoryUsage() const
+{
+  return ((ezUInt64) m_uiCapacity * sizeof(Entry)) + (sizeof(ezUInt32) * (ezUInt64) GetFlagsCapacity());
+}
 
 // private methods
 template <typename K, typename V, typename H>

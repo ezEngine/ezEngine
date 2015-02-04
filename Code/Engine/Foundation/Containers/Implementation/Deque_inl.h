@@ -880,6 +880,25 @@ void ezDequeBase<T, Construct>::Sort()
     ezSorting::QuickSort(*this, ezCompareHelper<T>());
 }
 
+template <typename T, bool Construct>
+ezUInt64 ezDequeBase<T, Construct>::GetHeapMemoryUsage() const
+{
+  if (m_pChunks == nullptr)
+    return 0;
+
+  ezUInt64 res = m_uiChunks * sizeof(T*);
+
+  for (ezUInt32 i = 0; i < m_uiChunks; ++i)
+  {
+    if (m_pChunks[i] != nullptr)
+    {
+      res += (ezUInt64) (CHUNK_SIZE(T)) * (ezUInt64) sizeof(T);
+    }
+  }
+
+  return res;
+}
+
 #undef REDUCE_SIZE
 #undef RESERVE
 

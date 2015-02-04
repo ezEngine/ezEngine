@@ -40,8 +40,12 @@ EZ_CREATE_SIMPLE_TEST(Containers, Deque)
   {
     ezDeque<ezInt32> d;
 
+    EZ_TEST_BOOL(d.GetHeapMemoryUsage() == 0);
+
     for (ezInt32 i = 0; i < 10000; ++i)
       d.PushBack(i);
+
+    EZ_TEST_BOOL(d.GetHeapMemoryUsage() > 10000 * sizeof(ezInt32));
 
     for (ezInt32 i = 0; i < 10000; ++i)
       d.PopFront();
@@ -102,9 +106,13 @@ EZ_CREATE_SIMPLE_TEST(Containers, Deque)
     d1.SetCount(1);
     d1.Compact();
 
+    EZ_TEST_BOOL(d1.GetHeapMemoryUsage() > 0);
+
     d1.Clear();
 
     d1.Compact();
+
+    EZ_TEST_BOOL(d1.GetHeapMemoryUsage() == 0);
   }
 
   ezStartup::ShutdownCore();
