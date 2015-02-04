@@ -12,6 +12,7 @@ ezEngine has the following container classes:
   * `ezMap`
   * `ezSet`
   * `ezHashTable`
+  * `ezArrayMap`
 
 The following containers store their data as contiguous arrays:
 
@@ -19,6 +20,7 @@ The following containers store their data as contiguous arrays:
   * `ezHybridArray`
   * `ezDynamicArray`
   * `ezStaticRingBuffer`
+  * `ezArrayMap`
 
 The following containers are built on top of `ezDeque` and thus share some performance characteristics:
 
@@ -35,7 +37,7 @@ When to use which Container Type
   
     For arrays, `ezHybridArray`, `ezDynamicArray` and `ezDeque` are the most important containers.
   
-    If you know or have a guess how much data you will need, aways use this information in a call to `Reserve` to ensure that the containers can allocate data once (or at least much less), and do not need to reallocate several times.
+    If you know or have a guess how much data you will need, always use this information in a call to `Reserve` to ensure that the containers can allocate data once (or at least much less), and do not need to reallocate several times.
     
     Never remove an element in between (using `RemoveAt`), unless there is really no other way (and hopefully your array is small). Prefer `RemoveAtSwap` to replace the removed element by the last element in the array instead (this will destroy the order though).
     Similarly, never insert elements anywhere else than at the end.
@@ -127,13 +129,20 @@ When to use which Container Type
     
     Insertion, lookup and removal are all `O(log n)` operations, since they are red-black trees internally and thus always perfectly balanced.
     
-    `ezMap` and `ezSet` are well suited for very dynamic data sets (where a lot of insertions and removals are done, while also using it for lookup). If you have a use-case where you insert once and then lookup often, a sorted array or an `ezHashTable` might be more efficient.
+    `ezMap` and `ezSet` are well suited for very dynamic data sets (where a lot of insertions and removals are done, while also using it for lookup). If you have a use-case where you insert once and then lookup often, a sorted array, such as `ezArrayMap`, or an `ezHashTable` might be more efficient.
     
     `ezMap` and `ezSet` only require a simple comparer to be able to sort elements in a strictly weak ordering. As such they are well suited to handle objects that can be difficult to be hashed.
     
     Note that the nodes in the Map/Set each contain one element of their key/value type and those are stored in an `ezDeque`. As such, when you put an `ezHybridArray` (or an `ezString`) into an `ezMap`, only one allocation is needed to allocate all the memory for a chunk (in the `ezDeque`) of data, which holds a large number of nodes, which already embed the data of their keys/values (e.g. `ezHybridArray`). Thus you can get away with very few memory allocations.
     If however you store an `ezDynamicArray` in an `ezMap`, each element still needs to allocate its own internal storage, which means you will get one additional allocation per element.
 
+  #### `ezArrayMap` ####
+  
+    This container provides similar functionality as `ezMap` but should be more efficient in scenarios where elements are looked up more often than they are inserted or removed. The implementation simply uses an array that is kept sorted, such that lookups can be done in a more cache friendly manner.
+    
+    If all you need is an associative container and your use case consists of changing the container infrequently, but looking up elements frequently (which is very often the case), you should prefer this container.
+    
+    Note, however, that this container will rearrange elements in memory whenever it needs to be sorted. In contrast an `ezMap` guarantees that elements never move in memory, allowing to store pointers to the memory locations. Likewise the iterators of an `ezMap` stay valid as long as an elements resides in the map. For `ezArrayMap` this is not true, the index at which an element is stored can change whenever any element is added or removed.
 
   #### `ezHashTable` ####
 

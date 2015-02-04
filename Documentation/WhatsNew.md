@@ -17,6 +17,7 @@ Milestone 6
   * Added ezDirectoryWatcher. This class allows to watch a directory for file changes. It is currently only implemented on Windows.
   * Added a few utilty functions to ezStringBuilder: Set, SetSubString_FromTo, SetSubString_ElementCount, SetSubString_CharacterCount, RemoveFileExtension
   * Added ezUuid, a class that allows to generate uuid/guid values. Implemented on Windows and Posix systems.
+  * Added a CMake file "FindezEngine.cmake" (in "Code\BuildSystem\CMake") which you can use for easier integration of ezEngine into your own CMake based project. For more details see this: \ref HowToUseCMake
 
 Milestone 5
 -----------

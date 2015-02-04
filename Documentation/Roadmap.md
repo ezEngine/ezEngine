@@ -7,6 +7,7 @@ Soon:
   * More Game Objects improvements (Clemens)
   * Rendering Abstraction (Marc (DX11), Andreas (OpenGL))
   * Higher level rendering features (Jan, Clemens, Marc)
+  * Improvements to the resource manager (Jan)
 
 One of the next releases:
   * Math: Simd (Christian)
@@ -17,6 +18,7 @@ Unknown:
   * Math: Random Number Generators
   * Optimize container regarding construction/destruction, unnecessary operations (ask Clemens for more info)
   * Type-safe printf
+  * An Editor (Christopher, Jan)
 
 
 Known Bugs

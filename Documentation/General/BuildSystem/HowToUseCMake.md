@@ -22,10 +22,14 @@ How to use CMake {#HowToUseCMake}
   * Open up the solution, compile and have fun.
 
 
-
 Re-run CMake (ie. press "Configure" and "Generate") everytime changes have been done, that are not automatically detected (e.g. you added a file to a folder) -> Visual Studio will usually detect outside changes and reload the project. Usually that works without crashing ;-)
 
 Every once in a while you should clear the CMake cache ("File -> Delete Cache") and regenerate the solution completely, to ensure that no old stuff is still lying around (or just delete the entire workspace folder). This should only be necessary when major changes to the build system have been done.
 
 
+Using ezEngine with Custom CMake Based Applications {#CMakeFindEZ}
+---------------------------------------------------
 
+In "Code\BuildSystem\CMake" you can find the file "FindezEngine.cmake" which makes it easier to integrate ezEngine into a project that already uses CMake.
+
+Further usage details are given inside that file.

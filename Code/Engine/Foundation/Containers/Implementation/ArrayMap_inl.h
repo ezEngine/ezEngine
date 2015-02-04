@@ -79,9 +79,38 @@ ezUInt32 ezArrayMapBase<KEY, VALUE>::Find(const KEY& key) const
     {
       lb = middle + 1;
     }
-    else if (m_Data[middle].key == key)
+    else if (key < m_Data[middle].key)
+    {
+      ub = middle;
+    }
+    else // equal
     {
       return middle;
+    }
+  }
+
+  return ezInvalidIndex;
+}
+
+template<typename KEY, typename VALUE>
+ezUInt32 ezArrayMapBase<KEY, VALUE>::LowerBound(const KEY& key) const
+{
+  if (!m_bSorted)
+  {
+    m_bSorted = true;
+    m_Data.Sort();
+  }
+
+  ezUInt32 lb = 0;
+  ezUInt32 ub = m_Data.GetCount();
+
+  while (lb < ub)
+  {
+    const ezUInt32 middle = lb + ((ub - lb) >> 1);
+
+    if (m_Data[middle].key < key)
+    {
+      lb = middle + 1;
     }
     else
     {
@@ -89,7 +118,42 @@ ezUInt32 ezArrayMapBase<KEY, VALUE>::Find(const KEY& key) const
     }
   }
 
-  return ezInvalidIndex;
+  if (lb == m_Data.GetCount())
+    return ezInvalidIndex;
+
+  return lb;
+}
+
+template<typename KEY, typename VALUE>
+ezUInt32 ezArrayMapBase<KEY, VALUE>::UpperBound(const KEY& key) const
+{
+  if (!m_bSorted)
+  {
+    m_bSorted = true;
+    m_Data.Sort();
+  }
+
+  ezUInt32 lb = 0;
+  ezUInt32 ub = m_Data.GetCount();
+
+  while (lb < ub)
+  {
+    const ezUInt32 middle = lb + ((ub - lb) >> 1);
+
+    if (key < m_Data[middle].key)
+    {
+      ub = middle;
+    }
+    else
+    {
+      lb = middle + 1;
+    }
+  }
+
+  if (ub == m_Data.GetCount())
+    return ezInvalidIndex;
+
+  return ub;
 }
 
 template<typename KEY, typename VALUE>

@@ -241,5 +241,64 @@ EZ_CREATE_SIMPLE_TEST(Containers, ArrayMap)
 
     int breakpoint = 0;
   }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Lower Bound / Upper Bound")
+  {
+    ezArrayMap<ezInt32, ezInt32> sa;
+    sa[1 ] = 23;
+    sa[3 ] = 23;
+    sa[4 ] = 23;
+    sa[6 ] = 23;
+    sa[7 ] = 23;
+    sa[9 ] = 23;
+    sa[11] = 23;
+    sa[14] = 23;
+    sa[17] = 23;
+
+    EZ_TEST_INT(sa.LowerBound(0), 0);
+    EZ_TEST_INT(sa.LowerBound(1), 0);
+    EZ_TEST_INT(sa.LowerBound(2), 1);
+    EZ_TEST_INT(sa.LowerBound(3), 1);
+    EZ_TEST_INT(sa.LowerBound(4), 2);
+    EZ_TEST_INT(sa.LowerBound(5), 3);
+    EZ_TEST_INT(sa.LowerBound(6), 3);
+    EZ_TEST_INT(sa.LowerBound(7), 4);
+    EZ_TEST_INT(sa.LowerBound(8), 5);
+    EZ_TEST_INT(sa.LowerBound(9), 5);
+    EZ_TEST_INT(sa.LowerBound(10), 6);
+    EZ_TEST_INT(sa.LowerBound(11), 6);
+    EZ_TEST_INT(sa.LowerBound(12), 7);
+    EZ_TEST_INT(sa.LowerBound(13), 7);
+    EZ_TEST_INT(sa.LowerBound(14), 7);
+    EZ_TEST_INT(sa.LowerBound(15), 8);
+    EZ_TEST_INT(sa.LowerBound(16), 8);
+    EZ_TEST_INT(sa.LowerBound(17), 8);
+    EZ_TEST_INT(sa.LowerBound(18), ezInvalidIndex);
+    EZ_TEST_INT(sa.LowerBound(19), ezInvalidIndex);
+    EZ_TEST_INT(sa.LowerBound(20), ezInvalidIndex);
+
+    EZ_TEST_INT(sa.UpperBound(0), 0);
+    EZ_TEST_INT(sa.UpperBound(1), 1);
+    EZ_TEST_INT(sa.UpperBound(2), 1);
+    EZ_TEST_INT(sa.UpperBound(3), 2);
+    EZ_TEST_INT(sa.UpperBound(4), 3);
+    EZ_TEST_INT(sa.UpperBound(5), 3);
+    EZ_TEST_INT(sa.UpperBound(6), 4);
+    EZ_TEST_INT(sa.UpperBound(7), 5);
+    EZ_TEST_INT(sa.UpperBound(8), 5);
+    EZ_TEST_INT(sa.UpperBound(9), 6);
+    EZ_TEST_INT(sa.UpperBound(10), 6);
+    EZ_TEST_INT(sa.UpperBound(11), 7);
+    EZ_TEST_INT(sa.UpperBound(12), 7);
+    EZ_TEST_INT(sa.UpperBound(13), 7);
+    EZ_TEST_INT(sa.UpperBound(14), 8);
+    EZ_TEST_INT(sa.UpperBound(15), 8);
+    EZ_TEST_INT(sa.UpperBound(16), 8);
+    EZ_TEST_INT(sa.UpperBound(17), ezInvalidIndex);
+    EZ_TEST_INT(sa.UpperBound(18), ezInvalidIndex);
+    EZ_TEST_INT(sa.UpperBound(19), ezInvalidIndex);
+    EZ_TEST_INT(sa.UpperBound(20), ezInvalidIndex);
+
+  }
 }
 

@@ -11,6 +11,8 @@
 template<typename KEY, typename VALUE>
 class ezArrayMapBase
 {
+  /// \todo Custom comparer
+
 public:
   struct Pair
   {
@@ -57,6 +59,14 @@ public:
   /// \brief Returns an index to one element with the given key. If the key is inserted multiple times, there is no guarantee which one is returned.
   /// Returns ezInvalidIndex when no such element exists.
   ezUInt32 Find(const KEY& key) const; // [tested]
+
+  /// \brief Returns an index to the element with a key equal or larger than the given key.
+  /// Returns ezInvalidIndex when no such element exists.
+  ezUInt32 LowerBound(const KEY& key) const; // [tested]
+
+  /// \brief Returns an index to the element with a key that is LARGER than the given key.
+  /// Returns ezInvalidIndex when no such element exists.
+  ezUInt32 UpperBound(const KEY& key) const; // [tested]
 
   /// \brief Returns the key that is stored at the given index.
   const KEY& GetKey(ezUInt32 index) const; // [tested]
@@ -107,11 +117,6 @@ public:
 
   /// \brief Returns the amount of bytes that are currently allocated on the heap.
   ezUInt64 GetHeapMemoryUsage() const { return m_Data.GetHeapMemoryUsage(); } // [tested]
-
-  // TODO
-  // custom compare function (?)
-  // lower bound
-  // upper bound
 
 private:
 
