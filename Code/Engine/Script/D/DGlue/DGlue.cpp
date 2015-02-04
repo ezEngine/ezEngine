@@ -5,7 +5,7 @@ class ezScriptReflectionAllocator : public ezStackAllocator < >
 {
 public:
   ezScriptReflectionAllocator(const char* szName, ezAllocatorBase* pParent)
-    : ezStackAllocator(szName, pParent)
+    : ezStackAllocator<>(szName, pParent)
   {
 
   }

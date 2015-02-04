@@ -1,6 +1,6 @@
 template <ezUInt32 TrackingFlags>
 ezStackAllocator<TrackingFlags>::ezStackAllocator(const char* szName, ezAllocatorBase* pParent)
-    : ezAllocator(szName, pParent)
+  : ezAllocator<ezMemoryPolicies::ezStackAllocation, TrackingFlags>(szName, pParent)
 {
 
 }
