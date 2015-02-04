@@ -782,6 +782,36 @@ typename ezMapBase<KeyType, ValueType, Comparer>::Iterator ezMapBase<KeyType, Va
   return temp;
 }
 
+template <typename KeyType, typename ValueType, typename Comparer>
+bool ezMapBase<KeyType, ValueType, Comparer>::operator==(const ezMapBase<KeyType, ValueType, Comparer>& rhs) const
+{
+  if (GetCount() != rhs.GetCount())
+    return false;
+
+  auto itLhs = GetIterator();
+  auto itRhs = rhs.GetIterator();
+
+  while (itLhs.IsValid())
+  {
+    if (!m_Comparer.Equal(itLhs.Key(), itRhs.Key()))
+      return false;
+
+    if (itLhs.Value() != itRhs.Value())
+      return false;
+
+    ++itLhs;
+    ++itRhs;
+  }
+
+  return true;
+}
+
+template <typename KeyType, typename ValueType, typename Comparer>
+bool ezMapBase<KeyType, ValueType, Comparer>::operator!=(const ezMapBase<KeyType, ValueType, Comparer>& rhs) const
+{
+  return !operator==(rhs);
+}
+
 #undef STACK_SIZE
 
 

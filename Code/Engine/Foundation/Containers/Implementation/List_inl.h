@@ -303,6 +303,32 @@ void ezListBase<T>::SetCount(ezUInt32 uiNewSize)
     PushBack();
 }
 
+template <typename T>
+bool ezListBase<T>::operator==(const ezListBase<T>& rhs) const
+{
+  if (GetCount() != rhs.GetCount())
+    return false;
+
+  auto itLhs = GetIterator();
+  auto itRhs = rhs.GetIterator();
+
+  while (itLhs.IsValid())
+  {
+    if (*itLhs != *itRhs)
+      return false;
+
+    ++itLhs;
+    ++itRhs;
+  }
+
+  return true;
+}
+
+template <typename T>
+bool ezListBase<T>::operator!=(const ezListBase<T>& rhs) const
+{
+  return !operator==(rhs);
+}
 
 template <typename T, typename A>
 ezList<T, A>::ezList() : ezListBase<T>(A::GetAllocator())

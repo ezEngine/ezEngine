@@ -679,6 +679,34 @@ typename ezSetBase<KeyType, Comparer>::Iterator ezSetBase<KeyType, Comparer>::Re
   return temp;
 }
 
+template <typename KeyType, typename Comparer>
+bool ezSetBase<KeyType, Comparer>::operator==(const ezSetBase<KeyType, Comparer>& rhs) const
+{
+  if (GetCount() != rhs.GetCount())
+    return false;
+
+  auto itLhs = GetIterator();
+  auto itRhs = rhs.GetIterator();
+
+  while (itLhs.IsValid())
+  {
+    if (!m_Comparer.Equal(itLhs.Key(), itRhs.Key()))
+      return false;
+
+    ++itLhs;
+    ++itRhs;
+  }
+
+  return true;
+}
+
+template <typename KeyType, typename Comparer>
+bool ezSetBase<KeyType, Comparer>::operator!=(const ezSetBase<KeyType, Comparer>& rhs) const
+{
+  return !operator==(rhs);
+}
+
+
 
 template <typename KeyType, typename Comparer, typename AllocatorWrapper>
 ezSet<KeyType, Comparer, AllocatorWrapper>::ezSet() : ezSetBase<KeyType, Comparer>(Comparer(), AllocatorWrapper::GetAllocator())

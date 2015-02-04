@@ -191,6 +191,12 @@ public:
   /// \brief Returns the allocator that is used by this instance.
   ezAllocatorBase* GetAllocator() const { return m_Elements.GetAllocator(); }
 
+  /// \brief Comparison operator
+  bool operator==(const ezMapBase<KeyType, ValueType, Comparer>& rhs) const; // [tested]
+
+  /// \brief Comparison operator
+  bool operator!=(const ezMapBase<KeyType, ValueType, Comparer>& rhs) const; // [tested]
+
 private:
   Node* Internal_Find(const KeyType& key) const;
   Node* Internal_LowerBound(const KeyType& key) const;

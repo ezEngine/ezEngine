@@ -307,5 +307,22 @@ EZ_CREATE_SIMPLE_TEST(Containers, List)
 
     EZ_TEST_BOOL(st::HasAllDestructed());
   }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator == / !=")
+  {
+    ezList<ezInt32> l, l2;
+
+    EZ_TEST_BOOL(l == l2);
+
+    ezInt32 i = 0;
+    for (; i < 1000; ++i)
+      l.PushBack(i);
+
+    EZ_TEST_BOOL(l != l2);
+
+    l2 = l;
+
+    EZ_TEST_BOOL(l == l2);
+  }
 }
 

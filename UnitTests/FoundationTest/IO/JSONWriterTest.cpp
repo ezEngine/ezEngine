@@ -152,7 +152,7 @@ EZ_CREATE_SIMPLE_TEST(IO, StandardJSONWriter)
     ezUInt64 val[2];
     val[0] = 0x1122334455667788;
     val[1] = 0x99AABBCCDDEEFF00;
-    ezMemoryUtils::Copy(reinterpret_cast<ezUInt64*>(&guid), val, sizeof(ezUInt64) * 2);
+    ezMemoryUtils::Copy(reinterpret_cast<ezUInt64*>(&guid), val, 2);
     
     StreamComparer sc("\"uuid_var\" : { \"$t\" : \"uuid\", \"$b\" : \"0x887766554433221100FFEEDDCCBBAA99\" }");
 

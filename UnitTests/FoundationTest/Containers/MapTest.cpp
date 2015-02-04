@@ -416,6 +416,22 @@ EZ_CREATE_SIMPLE_TEST(Containers, Map)
 
     EZ_TEST_BOOL(m.IsEmpty());
   }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator == / !=")
+  {
+    ezMap<ezUInt32, ezUInt32> m, m2;
+
+    EZ_TEST_BOOL(m == m2);
+
+    for (ezInt32 i = 0; i < 1000; ++i)
+      m[i] = i * 10;
+
+    EZ_TEST_BOOL(m != m2);
+
+    m2 = m;
+
+    EZ_TEST_BOOL(m == m2);
+  }
 }
 
 

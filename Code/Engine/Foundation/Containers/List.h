@@ -188,6 +188,12 @@ public:
   /// \brief Returns the allocator that is used by this instance.
   ezAllocatorBase* GetAllocator() const { return m_Elements.GetAllocator(); }
 
+  /// \brief Comparison operator
+  bool operator==(const ezListBase<T>& rhs) const; // [tested]
+
+  /// \brief Comparison operator
+  bool operator!=(const ezListBase<T>& rhs) const; // [tested]
+
 private:
   /// \brief Sentinel node before the first element.
   ListElementBase m_First;
