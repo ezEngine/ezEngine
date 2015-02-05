@@ -24,7 +24,7 @@ private
     string result;
     foreach(t; LIST)
     {
-      result ~= "_builtinType_" ~ t.mangleof;
+      result ~= "_builtinType_" ~ t.mangleof ~ " = allocator.New!BasicType(\"t.stringof\")";
     }
   }
 }

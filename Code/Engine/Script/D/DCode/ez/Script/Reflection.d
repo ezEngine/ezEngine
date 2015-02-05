@@ -22,17 +22,53 @@ class BasicType : ReflectedType
   const(char)[] name;
 }
 
+class PointerType : ReflectedType
+{
+	ReflectedType next;
+}
+
+class ArrayType : ReflectedType
+{
+	ReflectedType next;
+}
+
 struct Member
 {
-  const(char)[] name;
-  TypeInfo type;
+	const(char)[] name;
+	size_t offset;
+	ReflectedType type;
+}
+
+struct StructTypeImpl
+{
+	const(char)[] name;
+	Member[] members;
+}
+
+class StructType : ReflectedType
+{
+	StructTypeImpl* oldType;
+	StructTypeImpl* newType;
+}
+
+struct ClassTypeImpl
+{
+	const(char)[] name;
+	ClassTypeImpl* baseClass;
+	Member[] members;
+}
+
+class ClassType : ReflectedType
+{
+	ClassTypeImpl* oldType;
+	ClassTypeImpl* newType;
 }
 
 struct Variable
 {
   const(char)[] name;
   void* address;
-  TypeInfo type;
+  ReflectedType type;
 }
 
 alias tlsVariableAccessor = void* function();
@@ -48,6 +84,52 @@ template ResolveType(T)
 {
   alias ResolveType = T;
 }
+
+struct TypeChainEnd {};
+
+template nextType(T)
+{
+	static if(is(T foo : U*, U))
+	{
+		alias type = U;
+		alias info = PointerType;
+	}
+	else static if(is(T foo : U[], U))
+	{
+		alias type = U;
+		alias info = ArrayType;
+	}
+	else static if(is(T == struct))
+	{
+		alias type = TypeChainEnd;
+		alias info = StructType;
+	}
+	else static if(is(T == class))
+	{
+		alias type = TypeChainEnd;
+		alias info = ClassType;
+	}
+	else
+	{
+		alias type = TypeChainEnd;
+		alias info = BasicType;
+	}
+}
+
+static assert(is(nextType!int.type == TypeChainEnd));
+static assert(is(nextType!int.info == BasicType));
+static assert(is(nextType!(int*).type == int));
+static assert(is(nextType!(int*).info == PointerType));
+static assert(is(nextType!(byte[]).type == byte));
+static assert(is(nextType!(byte[]).info == ArrayType));
+static assert(is(nextType!(TlsVariable*).type == TlsVariable));
+static assert(is(nextType!(TlsVariable*).info == PointerType));
+static assert(is(nextType!(TlsVariable).type == TypeChainEnd));
+static assert(is(nextType!(TlsVariable).info == StructType));
+static assert(is(nextType!(ReflectedType[]).type == ReflectedType));
+static assert(is(nextType!(ReflectedType[]).info == ArrayType));
+static assert(is(nextType!(ReflectedType).type == TypeChainEnd));
+static assert(is(nextType!(ReflectedType).info == ClassType));
 
 void PrintMembers(alias T)()
 {
