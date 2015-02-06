@@ -167,7 +167,7 @@ EZ_CREATE_SIMPLE_TEST(Memory, Allocator)
       EZ_TEST_BOOL(blocks[i] != nullptr);
       if (i > 0)
       {
-        EZ_TEST_BOOL((ezUInt8*)blocks[i - 1] + size <= blocks[i]);
+        EZ_TEST_BOOL((ezUInt8*)blocks[i - 1] + (size - 1) <= blocks[i]);
       }
     }
 
