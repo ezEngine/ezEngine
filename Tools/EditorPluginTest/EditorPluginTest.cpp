@@ -103,6 +103,9 @@ void OnDocumentManagerEvent(const ezDocumentManagerBase::Event& e)
 
 void OnLoadPlugin(bool bReloading)    
 {
+  RegisterType(ezGetStaticRTTI<ezEnumBase>());
+  RegisterType(ezGetStaticRTTI<ezExampleEnum>());
+  RegisterType(ezGetStaticRTTI<ezExampleBitflags>());
   RegisterType(ezGetStaticRTTI<ezTestEditorProperties>());
   RegisterType(ezGetStaticRTTI<ezTestObjectProperties>());
   RegisterType(ezGetStaticRTTI<ezGameObject>());

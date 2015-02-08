@@ -35,6 +35,16 @@ public:
   /// Read-only properties are not written out, as they cannot be restored anyway.
   static void WriteObjectToJSON(ezStreamWriterBase& stream, const ezIReflectedTypeAccessor& accessor, ezJSONWriter::WhitespaceMode::Enum WhitespaceMode = ezJSONWriter::WhitespaceMode::NewlinesOnly);
 
-
   static void ReadObjectPropertiesFromJSON(ezStreamReaderBase& stream, ezIReflectedTypeAccessor& accessor);
+
+  /// \brief Converts an enum or bitfield value into its string representation.
+  /// 
+  /// The type of pEnumerationRtti will be automatically detected. The syntax of out_sOutput equals MSVC debugger output.
+  static bool EnumerationToString(const ezReflectedType* pEnumerationRtti, ezInt64 iValue, ezStringBuilder& out_sOutput); // [tested]
+
+  /// \brief Converts an enum or bitfield in its string representation to its value.
+  /// 
+  /// The type of pEnumerationRtti will be automatically detected. The syntax of szValue must equal the MSVC debugger output.
+  static bool StringToEnumeration(const ezReflectedType* pEnumerationRtti, const char* szValue, ezInt64& out_iValue); // [tested]
+
 };

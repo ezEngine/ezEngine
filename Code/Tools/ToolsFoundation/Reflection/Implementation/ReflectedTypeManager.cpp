@@ -49,13 +49,26 @@ ezReflectedTypeHandle ezReflectedTypeManager::RegisterType(const ezReflectedType
 
   pType->m_sDefaultInitialization = desc.m_sDefaultInitialization;
 
+  ezUInt32 iPropertyCount = 0;
+  ezUInt32 iConstantCount = 0;
+  for (const ezReflectedPropertyDescriptor& propDesc : desc.m_Properties)
+  {
+    if (propDesc.m_Flags.IsSet(PropertyFlags::IsConstant))
+      iConstantCount++;
+    else
+      iPropertyCount++;
+  }
+
   // Convert properties
   const ezUInt32 iCount = desc.m_Properties.GetCount();
-  pType->m_Properties.Reserve(iCount);
+  pType->m_Properties.Reserve(iPropertyCount);
 
   for (ezUInt32 i = 0; i < iCount; i++)
   {
     const ezReflectedPropertyDescriptor& propDesc = desc.m_Properties[i];
+    if (propDesc.m_Flags.IsSet(PropertyFlags::IsConstant))
+      continue;
+
     if (propDesc.m_Type != ezVariant::Type::Invalid)
     {
       pType->m_Properties.PushBack(ezReflectedProperty(propDesc.m_sName.GetData(), propDesc.m_Type, propDesc.m_Flags));
@@ -69,6 +82,25 @@ ezReflectedTypeHandle ezReflectedTypeManager::RegisterType(const ezReflectedType
     }
   }
   pType->RegisterProperties();
+  
+  // Convert constants
+  pType->m_Constants.Reserve(iConstantCount);
+  for (ezUInt32 i = 0; i < iCount; i++)
+  {
+    const ezReflectedPropertyDescriptor& propDesc = desc.m_Properties[i];
+    if (!propDesc.m_Flags.IsSet(PropertyFlags::IsConstant))
+      continue;
+
+    if (propDesc.m_Type != ezVariant::Type::Invalid)
+    {
+      pType->m_Constants.PushBack(ezReflectedConstant(propDesc.m_sName.GetData(), propDesc.m_ConstantValue));
+    }
+    else
+    {
+      EZ_ASSERT_DEV(false, "Non-pod constants are not supported yet.");
+    }
+  }
+  pType->RegisterConstants();
 
   // Register finished Type
   ezReflectedTypeHandle hType = GetTypeHandleByName(desc.m_sTypeName.GetData());

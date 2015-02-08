@@ -105,6 +105,30 @@ void ezRawPropertyWidget::BuildUI(const ezIReflectedTypeAccessor& et, const ezRe
 
       ParentPath.PopBack();
     }
+    else if (pProp->m_Flags.IsAnySet(PropertyFlags::IsEnum | PropertyFlags::IsBitflags))
+    {
+      ParentPath.PushBack(pProp->m_sPropertyName.GetString().GetData());
+
+      ezPropertyEditorBaseWidget* pNewWidget = nullptr;
+      if (pProp->m_Flags.IsAnySet(PropertyFlags::IsEnum))
+      {
+        pNewWidget = new ezPropertyEditorEnumWidget(ParentPath, pProp->m_sPropertyName.GetString().GetData(), this, pProp->m_hTypeHandle);
+      }
+      else
+      {
+        pNewWidget = new ezPropertyEditorBitflagsWidget(ParentPath, pProp->m_sPropertyName.GetString().GetData(), this, pProp->m_hTypeHandle);
+      }
+      
+      ezString sPropertyPath = ezToolsReflectionUtils::GetStringFromPropertyPath(ParentPath);
+      m_PropertyWidgets[sPropertyPath] = pNewWidget;
+
+      pLayout->addWidget(pNewWidget);
+      pNewWidget->SetValue(et.GetValue(ParentPath));
+
+      pNewWidget->m_Events.AddEventHandler(ezDelegate<void (const ezPropertyEditorBaseWidget::Event&)>(&ezRawPropertyWidget::PropertyChangedHandler, this));
+      
+      ParentPath.PopBack();
+    }
     else
     {
       ParentPath.PushBack(pProp->m_sPropertyName.GetString().GetData());

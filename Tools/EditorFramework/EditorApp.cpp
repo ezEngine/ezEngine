@@ -71,10 +71,15 @@ ezEditorApp::ezEditorApp() :
   s_sUserName = "DefaultUser";
   s_pQtApplication = nullptr;
   s_pEngineViewProcess = nullptr;
+
+  m_pTimer = new QTimer(nullptr);
+
 }
 
 ezEditorApp::~ezEditorApp()
 {
+  delete m_pTimer;
+  m_pTimer = nullptr;
   s_pInstance = nullptr;
 }
 
@@ -145,7 +150,8 @@ void ezEditorApp::ShutdownEditor()
 
 ezInt32 ezEditorApp::RunEditor()
 {
-  QTimer::singleShot(0, this, SLOT(SlotTimedUpdate()));
+  connect(m_pTimer, SIGNAL(timeout()), this, SLOT(SlotTimedUpdate()), Qt::QueuedConnection);
+  m_pTimer->start(1);
 
   return s_pQtApplication->exec();
 }
@@ -155,7 +161,7 @@ void ezEditorApp::SlotTimedUpdate()
   if (ezEditorEngineProcessConnection::GetInstance())
     ezEditorEngineProcessConnection::GetInstance()->Update();
 
-  QTimer::singleShot(0, this, SLOT(SlotTimedUpdate()));
+  m_pTimer->start(1);
 }
 
 void ezEditorApp::DocumentManagerEventHandler(const ezDocumentManagerBase::Event& r)

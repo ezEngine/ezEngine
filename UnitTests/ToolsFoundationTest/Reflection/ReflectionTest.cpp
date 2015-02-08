@@ -183,6 +183,84 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMathClass, ezPODClass, 1, ezRTTIDefaultAllocat
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 
+struct ezExampleEnum
+{
+  typedef ezInt8 StorageType;
+  enum Enum
+  {
+    Value1 = 0,          // normal value
+    Value2 = -2,         // normal value
+    Value3 = 4,          // normal value
+    Default = Value1     // Default initialization value (required)
+  };
+};
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezExampleEnum);
+
+EZ_BEGIN_STATIC_REFLECTED_ENUM(ezExampleEnum, 1)
+  EZ_ENUM_CONSTANTS(ezExampleEnum::Value1, ezExampleEnum::Value2) 
+  EZ_ENUM_CONSTANT(ezExampleEnum::Value3),
+EZ_END_STATIC_REFLECTED_ENUM();
+
+
+struct ezExampleBitflags
+{
+  typedef ezUInt64 StorageType;
+  enum Enum : ezUInt64
+  {
+    Value1 = EZ_BIT(0),  // normal value
+    Value2 = EZ_BIT(31), // normal value
+    Value3 = EZ_BIT(63), // normal value
+    Default = Value1     // Default initialization value (required)
+  };
+
+  struct Bits
+  {
+    StorageType Value1 : 1;
+    StorageType Padding : 30;
+    StorageType Value2 : 1;
+    StorageType Padding2 : 31;
+    StorageType Value3 : 1;
+  };
+};
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezExampleBitflags);
+
+EZ_BEGIN_STATIC_REFLECTED_BITFLAGS(ezExampleBitflags, 1)
+  EZ_BITFLAGS_CONSTANTS(ezExampleBitflags::Value1, ezExampleBitflags::Value2) 
+  EZ_BITFLAGS_CONSTANT(ezExampleBitflags::Value3),
+EZ_END_STATIC_REFLECTED_BITFLAGS();
+
+
+class ezEnumerationsClass : public ezReflectedClass
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezEnumerationsClass);
+
+public:
+  ezEnumerationsClass()
+  {
+    m_enumClass = ezExampleEnum::Value2;
+    m_bitflagsClass = ezExampleBitflags::Value2;
+  }
+
+  void SetEnum(ezExampleEnum::Enum e) { m_enumClass = e; }
+  ezExampleEnum::Enum GetEnum() const { return m_enumClass; }
+  void SetBitflags(ezBitflags<ezExampleBitflags> e) { m_bitflagsClass = e; }
+  ezBitflags<ezExampleBitflags> GetBitflags() const { return m_bitflagsClass; }
+
+private:
+  ezEnum<ezExampleEnum> m_enumClass;
+  ezBitflags<ezExampleBitflags> m_bitflagsClass;
+};
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEnumerationsClass, ezReflectedClass, 1, ezRTTIDefaultAllocator<ezEnumerationsClass>);
+  EZ_BEGIN_PROPERTIES
+    EZ_ENUM_ACCESSOR_PROPERTY("Enum", ezExampleEnum, GetEnum, SetEnum),
+    EZ_BITFLAGS_ACCESSOR_PROPERTY("Bitflags", ezExampleBitflags, GetBitflags, SetBitflags),
+  EZ_END_PROPERTIES
+EZ_END_DYNAMIC_REFLECTED_TYPE();
+
+
 void VariantToPropertyTest(void* intStruct, const ezRTTI* pRttiInt, const char* szPropName, ezVariant::Type::Enum type)
 {
   ezAbstractMemberProperty* pProp = ezReflectionUtils::GetMemberProperty(pRttiInt, szPropName);
@@ -280,6 +358,18 @@ EZ_CREATE_SIMPLE_TEST(Reflection, ReflectionUtils)
     VariantToPropertyTest(&mathClass, pRttiMath, "Mat4", ezVariant::Type::Matrix4);
     EZ_TEST_BOOL(mathClass.GetMat4() == ezMat4::IdentityMatrix());
   }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Enumeration Properties")
+  {
+    ezEnumerationsClass enumClass;
+    ezRTTI* pRttiEnum = ezRTTI::FindTypeByName("ezEnumerationsClass");
+    EZ_TEST_BOOL(pRttiEnum != nullptr);
+
+    VariantToPropertyTest(&enumClass, pRttiEnum, "Enum", ezVariant::Type::Int64);
+    EZ_TEST_BOOL(enumClass.GetEnum() == ezExampleEnum::Value1);
+    VariantToPropertyTest(&enumClass, pRttiEnum, "Bitflags", ezVariant::Type::Int64);
+    EZ_TEST_BOOL(enumClass.GetBitflags() == 0);
+  }
 }
 
 ezReflectedTypeHandle RegisterTypeViaRtti(const ezRTTI* pRtti)
@@ -337,11 +427,12 @@ ezReflectedTypeHandle RegisterTypeViaRtti(const ezRTTI* pRtti)
   EZ_TEST_STRING(pType->GetTypeName().GetString().GetData(), pRtti->GetTypeName());
 
   // Type properties test
-  EZ_TEST_INT(pType->GetPropertyCount(), desc.m_Properties.GetCount());
+  EZ_TEST_INT(pType->GetPropertyCount() + pType->GetConstantCount(), desc.m_Properties.GetCount());
 
   const ezArrayPtr<ezAbstractProperty*>& rttiProps = pRtti->GetProperties();
   const ezUInt32 uiPropertyCount = rttiProps.GetCount();
   ezUInt32 uiFoundProperties = 0;
+  ezUInt32 uiFoundConstants = 0;
   for (ezUInt32 i = 0; i < uiPropertyCount; ++i)
   {
     ezAbstractProperty* prop = rttiProps[i];
@@ -365,8 +456,22 @@ ezReflectedTypeHandle RegisterTypeViaRtti(const ezRTTI* pRtti)
         EZ_TEST_BOOL(pReflectedProperty->m_hTypeHandle.IsInvalidated());
       }
     }
+    else if (prop->GetCategory() == ezAbstractProperty::Constant)
+    {
+      uiFoundConstants++;
+      ezAbstractConstantProperty* memberProp = static_cast<ezAbstractConstantProperty*>(prop);
+      const ezReflectedConstant* pReflectedProperty = pType->GetConstantByName(memberProp->GetPropertyName());
+      EZ_TEST_BOOL(pReflectedProperty != nullptr);
+      EZ_TEST_STRING(memberProp->GetPropertyName(), pReflectedProperty->m_sPropertyName.GetString().GetData());
+      if (memberProp->GetPropertyType()->GetVariantType() != ezVariant::Type::Invalid)
+      {
+        EZ_TEST_BOOL(pReflectedProperty->m_ConstantValue.GetType() == memberProp->GetPropertyType()->GetVariantType());
+        EZ_TEST_BOOL(pReflectedProperty->m_ConstantValue == ezReflectionUtils::GetConstantPropertyValue(memberProp));
+      }
+    }
   }
   EZ_TEST_INT(pType->GetPropertyCount(), uiFoundProperties);
+  EZ_TEST_INT(pType->GetConstantCount(), uiFoundConstants);
 
   return handle;
 }
@@ -410,7 +515,17 @@ ezUInt32 AccessorPropertiesTest(ezIReflectedTypeAccessor& accessor, ezReflectedT
     ezPropertyPath propPath = path;
     propPath.PushBack(pProp->m_sPropertyName.GetString().GetData());
 
-    if (pProp->m_Type == ezVariant::Type::Invalid)
+    if (pProp->m_Flags.IsSet(PropertyFlags::IsEnum))
+    {
+      AccessorPropertyTest(accessor, propPath, ezVariant::Type::Int64);
+      uiPropertiesSet++;
+    }
+    else if (pProp->m_Flags.IsSet(PropertyFlags::IsBitflags))
+    {
+      AccessorPropertyTest(accessor, propPath, ezVariant::Type::Int64);
+      uiPropertiesSet++;
+    }
+    else if (pProp->m_Type == ezVariant::Type::Invalid || pProp->m_Type == ezVariant::Type::ReflectedPointer)
     {
       // Recurs into sub-classes
       uiPropertiesSet += AccessorPropertiesTest(accessor, pProp->m_hTypeHandle, propPath);
@@ -439,6 +554,10 @@ EZ_CREATE_SIMPLE_TEST(Reflection, ReflectedType)
 {
   const ezRTTI* pRttiBase = ezRTTI::FindTypeByName("ezReflectedClass");
   ezReflectedTypeHandle baseHandle;
+  const ezRTTI* pRttiEnumBase = ezRTTI::FindTypeByName("ezEnumBase");
+  ezReflectedTypeHandle baseEnumHandle;
+  const ezRTTI* pRttiBitflagsBase = ezRTTI::FindTypeByName("ezBitflagsBase");
+  ezReflectedTypeHandle baseBitflagsHandle;
 
   const ezRTTI* pRttiInt = ezRTTI::FindTypeByName("ezIntegerStruct");
   ezReflectedTypeHandle intHandle;
@@ -448,15 +567,27 @@ EZ_CREATE_SIMPLE_TEST(Reflection, ReflectedType)
   ezReflectedTypeHandle podHandle;
   const ezRTTI* pRttiMath = ezRTTI::FindTypeByName("ezMathClass");
   ezReflectedTypeHandle mathHandle;
+  const ezRTTI* pRttiEnum = ezRTTI::FindTypeByName("ezExampleEnum");
+  ezReflectedTypeHandle enumHandle;
+  const ezRTTI* pRttiFlags = ezRTTI::FindTypeByName("ezExampleBitflags");
+  ezReflectedTypeHandle flagsHandle;
+  const ezRTTI* pRttiEnumerations = ezRTTI::FindTypeByName("ezEnumerationsClass");
+  ezReflectedTypeHandle enumerationsHandle;
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "RegisterType")
   {
     EZ_TEST_INT(ezReflectedTypeManager::GetTypeCount(), 0);
     baseHandle = RegisterTypeViaRtti(pRttiBase);
+    baseEnumHandle = RegisterTypeViaRtti(pRttiEnumBase);
+    baseBitflagsHandle = RegisterTypeViaRtti(pRttiBitflagsBase);
+
     intHandle = RegisterTypeViaRtti(pRttiInt);
     floatHandle = RegisterTypeViaRtti(pRttiFloat);
     podHandle = RegisterTypeViaRtti(pRttiPOD);
     mathHandle = RegisterTypeViaRtti(pRttiMath);
+    enumHandle = RegisterTypeViaRtti(pRttiEnum);
+    flagsHandle = RegisterTypeViaRtti(pRttiFlags);
+    enumerationsHandle = RegisterTypeViaRtti(pRttiEnumerations);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezReflectedTypeDirectAccessor")
@@ -480,6 +611,11 @@ EZ_CREATE_SIMPLE_TEST(Reflection, ReflectedType)
     ezReflectedTypeDirectAccessor mathAccessor(&mathClass);
     EZ_TEST_BOOL(mathAccessor.GetReflectedTypeHandle() == mathHandle);
     EZ_TEST_INT(AccessorPropertiesTest(mathAccessor), 20);
+
+    ezEnumerationsClass enumerationsClass;
+    ezReflectedTypeDirectAccessor enumerationsAccessor(&enumerationsClass);
+    EZ_TEST_BOOL(enumerationsAccessor.GetReflectedTypeHandle() == enumerationsHandle);
+    EZ_TEST_INT(AccessorPropertiesTest(enumerationsAccessor), 2);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezReflectedTypeStorageAccessor")
@@ -495,15 +631,24 @@ EZ_CREATE_SIMPLE_TEST(Reflection, ReflectedType)
 
     ezReflectedTypeStorageAccessor mathAccessor(mathHandle);
     EZ_TEST_INT(AccessorPropertiesTest(mathAccessor), 20);
+
+    ezReflectedTypeStorageAccessor enumerationsAccessor(enumerationsHandle);
+    EZ_TEST_INT(AccessorPropertiesTest(enumerationsAccessor), 2);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "UnregisterType")
   {
-    EZ_TEST_INT(ezReflectedTypeManager::GetTypeCount(), 5);
+    EZ_TEST_INT(ezReflectedTypeManager::GetTypeCount(), 10);
+    ezReflectedTypeManager::UnregisterType(enumerationsHandle);
+    ezReflectedTypeManager::UnregisterType(enumHandle);
+    ezReflectedTypeManager::UnregisterType(flagsHandle);
     ezReflectedTypeManager::UnregisterType(mathHandle);
     ezReflectedTypeManager::UnregisterType(podHandle);
     ezReflectedTypeManager::UnregisterType(floatHandle);
     ezReflectedTypeManager::UnregisterType(intHandle);
+
+    ezReflectedTypeManager::UnregisterType(baseEnumHandle);
+    ezReflectedTypeManager::UnregisterType(baseBitflagsHandle);
     ezReflectedTypeManager::UnregisterType(baseHandle);
     EZ_TEST_INT(ezReflectedTypeManager::GetTypeCount(), 0);
   }
@@ -589,7 +734,7 @@ EZ_CREATE_SIMPLE_TEST(Reflection, ReflectedTypeReloading)
     EZ_TEST_BLOCK(ezTestBlock::Enabled, "AddProperty")
     {
       // Say we reload the engine and the InnerStruct now has a second property: IP2.
-      descInner.m_Properties.PushBack(ezReflectedPropertyDescriptor("IP2", ezVariant::Type::Vector4, PropertyFlags::IsPOD));
+      descInner.m_Properties.PushBack(ezReflectedPropertyDescriptor("IP2", ezVariant::Type::Vector4, ezBitflags<PropertyFlags>(PropertyFlags::IsPOD)));
       ezReflectedTypeHandle NewInnerHandle = ezReflectedTypeManager::RegisterType(descInner);
       EZ_TEST_BOOL(NewInnerHandle == InnerHandle);
 

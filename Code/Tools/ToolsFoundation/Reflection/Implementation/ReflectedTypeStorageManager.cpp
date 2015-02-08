@@ -78,6 +78,24 @@ void ezReflectedTypeStorageManager::ReflectedTypeStorageMapping::AddPropertiesRe
         AddPropertyToInstances(uiIndex, pProperty);
       }
     }
+    else if (pProperty->m_Flags.IsAnySet(PropertyFlags::IsEnum | PropertyFlags::IsBitflags))
+    {
+      // Enum and bitflags types are added to the dictionary
+      StorageInfo* storageInfo = nullptr;
+      if (m_PathToStorageInfoTable.TryGetValue(path, storageInfo))
+      {
+        // Value already present, update type and instances
+        storageInfo->m_Type = ezVariant::Type::Int64;
+        UpdateInstances(storageInfo->m_uiIndex, pProperty);
+      }
+      else
+      {
+        ezUInt16 uiIndex = (ezUInt16)m_PathToStorageInfoTable.GetCount();
+        // Add value, new entries are appended as int64
+        m_PathToStorageInfoTable.Insert(path, StorageInfo(uiIndex, ezVariant::Type::Int64));
+        AddPropertyToInstances(uiIndex, pProperty);
+      }
+    }
     else
     {
       // Not POD type, recurse further
@@ -197,6 +215,16 @@ void ezReflectedTypeStorageManager::TypeChangedEvent(ezReflectedTypeChange& data
   EZ_ASSERT_DEV(pNewType != nullptr, "A type was updated but its handle is invalid!");
   ReflectedTypeStorageMapping* pMapping = m_ReflectedTypeToStorageMapping[data.m_hType];
   EZ_ASSERT_DEV(pMapping != nullptr, "A type was updated but no mapping exists for it!");
+
+  if (!pNewType->GetParentTypeHandle().IsInvalidated() && pNewType->GetParentTypeHandle().GetType()->GetTypeName().GetString() == "ezEnumBase")
+  {
+    EZ_ASSERT_DEV(false, "Updating enums not implemented yet!");
+  }
+  else if (!pNewType->GetParentTypeHandle().IsInvalidated() && pNewType->GetParentTypeHandle().GetType()->GetTypeName().GetString() == "ezBitflagsBase")
+  {
+    EZ_ASSERT_DEV(false, "Updating bitflags not implemented yet!");
+  }
+
   pMapping->AddProperties(pNewType);
 
   ezSet<ezReflectedTypeHandle> dependencies;

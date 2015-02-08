@@ -56,13 +56,25 @@ bool ezReflectedTypeStorageAccessor::SetValue(const ezPropertyPath& path, const 
   ezReflectedTypeStorageManager::ReflectedTypeStorageMapping::StorageInfo* storageInfo = nullptr;
   if (m_pMapping->m_PathToStorageInfoTable.TryGetValue(sPathString, storageInfo))
   {
-    // We are lenient here regarding the type, as we may have stored values in the undo-redo stack
-    // that may have a different type now as someone reloaded the type information and replaced a type.
-    if (value.CanConvertTo(storageInfo->m_Type))
+    if (value.IsA<ezString>())
     {
+      const ezReflectedProperty* pProp = GetReflectedTypeHandle().GetType()->GetPropertyByPath(path);
+      if (pProp == nullptr)
+        return false;
+
+      ezInt64 iValue;
+      ezToolsReflectionUtils::StringToEnumeration(pProp->m_hTypeHandle.GetType(), value.Get<ezString>(), iValue);
+      m_Data[storageInfo->m_uiIndex] = ezVariant(iValue).ConvertTo(storageInfo->m_Type);
+    }
+    else if (value.CanConvertTo(storageInfo->m_Type))
+    {
+      // We are lenient here regarding the type, as we may have stored values in the undo-redo stack
+      // that may have a different type now as someone reloaded the type information and replaced a type.
       m_Data[storageInfo->m_uiIndex] = value.ConvertTo(storageInfo->m_Type);
       return true;
     }
+    
+    
   }
   return false;
 }

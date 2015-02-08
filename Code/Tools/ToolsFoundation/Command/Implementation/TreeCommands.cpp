@@ -106,9 +106,10 @@ void ezAddObjectCommand::Cleanup(CommandState state)
 
 
 ezRemoveObjectCommand::ezRemoveObjectCommand() :
+  m_pParent(nullptr),
   m_iChildIndex(-1),
-  m_pObject(nullptr),
-  m_pParent(nullptr)
+  m_pObject(nullptr)
+
 {
 }
 

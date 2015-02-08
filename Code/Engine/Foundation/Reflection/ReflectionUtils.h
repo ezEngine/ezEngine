@@ -9,6 +9,9 @@ class ezJSONWriter;
 class EZ_FOUNDATION_DLL ezReflectionUtils
 {
 public:
+  // \brief Returns the constant value of the given property as an ezVariant. Returns invalid if the type can't be stored inside an ezVariant.
+  static ezVariant GetConstantPropertyValue(const ezAbstractConstantProperty* pProp); // [tested]
+
   static ezVariant GetMemberPropertyValue(const ezAbstractMemberProperty* pProp, const void* pObject); // [tested] via ToolsFoundation 
   static void SetMemberPropertyValue(ezAbstractMemberProperty* pProp, void* pObject, const ezVariant& value); // [tested] via ToolsFoundation 
 
@@ -68,4 +71,15 @@ public:
   /// the previous entries in the output.
   /// If circular dependencies are found the function returns false.
   static bool CreateDependencySortedTypeArray(const ezSet<const ezRTTI*> types, ezDynamicArray<const ezRTTI*>& out_sortedTypes);  
+
+  /// \brief Converts an enum or bitfield value into its string representation.
+  /// 
+  /// The type of pEnumerationRtti will be automatically detected. The syntax of out_sOutput equals MSVC debugger output.
+  static bool EnumerationToString(const ezRTTI* pEnumerationRtti, ezInt64 iValue, ezStringBuilder& out_sOutput); // [tested]
+
+  /// \brief Converts an enum or bitfield in its string representation to its value.
+  /// 
+  /// The type of pEnumerationRtti will be automatically detected. The syntax of szValue must equal the MSVC debugger output.
+  static bool StringToEnumeration(const ezRTTI* pEnumerationRtti, const char* szValue, ezInt64& out_iValue); // [tested]
+
 };

@@ -129,4 +129,5 @@ private:
 
   QApplication* s_pQtApplication;
   ezEditorEngineProcessConnection* s_pEngineViewProcess;
+  QTimer* m_pTimer;
 };

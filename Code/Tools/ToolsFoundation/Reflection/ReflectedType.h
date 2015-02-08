@@ -42,19 +42,22 @@ struct EZ_TOOLSFOUNDATION_DLL ezReflectedTypeChange
   const ezReflectedType* pNewType;
 };
 
-EZ_DECLARE_FLAGS(ezUInt8, PropertyFlags, IsPOD, IsReadOnly);
+EZ_DECLARE_FLAGS(ezUInt8, PropertyFlags, IsPOD, IsReadOnly, IsConstant, IsEnum, IsBitflags);
 
 /// \brief Stores the description of a reflected property in a serializable form, used by ezReflectedTypeDescriptor.
 struct EZ_TOOLSFOUNDATION_DLL ezReflectedPropertyDescriptor
 {
   ezReflectedPropertyDescriptor(const char* szName, const char* szType, ezBitflags<PropertyFlags> flags); // [tested]
   ezReflectedPropertyDescriptor(const char* szName, ezVariant::Type::Enum type, ezBitflags<PropertyFlags> flags); // [tested]
+  ezReflectedPropertyDescriptor(const char* szName, ezVariant::Type::Enum type, const ezVariant& constantValue);
 
   ezString m_sName;
   ezString m_sType;
   ezEnum<ezVariant::Type> m_Type;
   ezBitflags<PropertyFlags> m_Flags;
+  ezVariant m_ConstantValue;
 };
+
 
 /// \brief Stores the description of a reflected type in a serializable form. Used by ezReflectedTypeManager to add new types.
 struct EZ_TOOLSFOUNDATION_DLL ezReflectedTypeDescriptor
@@ -80,6 +83,16 @@ struct EZ_TOOLSFOUNDATION_DLL ezReflectedProperty
 };
 
 
+/// \brief Describes a reflected constant.
+struct EZ_TOOLSFOUNDATION_DLL ezReflectedConstant
+{
+  ezReflectedConstant(const char* szName, const ezVariant& constantValue);
+
+  ezHashedString m_sPropertyName;          ///< Name of the constant, must be unique inside an ezReflectedType.
+  ezVariant m_ConstantValue;               ///< Constant value.
+};
+
+
 /// \brief Describes the properties and functions of a reflected type.
 ///
 /// The content of this class describes what data needs to be stored to describe a class instance of the represented type.
@@ -95,6 +108,12 @@ public:
   const ezUInt32 GetPropertyCount() const { return m_Properties.GetCount(); } // [tested]
   const ezReflectedProperty* GetPropertyByIndex(ezUInt32 uiIndex) const; // [tested]
   const ezReflectedProperty* GetPropertyByName(const char* szPropertyName) const; // [tested]
+  const ezReflectedProperty* GetPropertyByPath(const ezPropertyPath& path) const;
+
+  const ezArrayPtr<ezReflectedConstant> GetConstants() const { return m_Constants; } // [tested]
+  const ezUInt32 GetConstantCount() const { return m_Constants.GetCount(); }
+  const ezReflectedConstant* GetConstantByIndex(ezUInt32 uiIndex) const;
+  const ezReflectedConstant* GetConstantByName(const char* szPropertyName) const;
 
   void GetDependencies(ezSet<ezReflectedTypeHandle>& out_dependencies, bool bTransitive = false) const;
   const ezString& GetDefaultInitialization() const { return m_sDefaultInitialization; }
@@ -103,6 +122,7 @@ private:
   EZ_DISALLOW_COPY_AND_ASSIGN(ezReflectedType);
   ezReflectedType(const char* szTypeName, const char* szPluginName, ezReflectedTypeHandle hParentType);
   void RegisterProperties();
+  void RegisterConstants();
 
 private:
   ezHashedString m_sTypeName;
@@ -112,7 +132,9 @@ private:
   ezString m_sDefaultInitialization;
 
   ezDynamicArray<ezReflectedProperty> m_Properties;
-  ezHashTable<const char*, ezUInt32> m_NameToIndex;
+  ezDynamicArray<ezReflectedConstant> m_Constants;
+  ezHashTable<const char*, ezUInt32> m_PropertyNameToIndex;
+  ezHashTable<const char*, ezUInt32> m_ConstantNameToIndex;
   ezSet<ezReflectedTypeHandle> m_Dependencies;
 };
 

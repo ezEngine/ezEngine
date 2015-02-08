@@ -14,13 +14,17 @@ class QLabel;
 class QHBoxLayout;
 class QLineEdit;
 class QPushButton;
-
+class QComboBox;
+class QStandardItemModel;
+class QStandardItem;
+class QMenu;
 /// *** BASE ***
 
 class EZ_EDITORFRAMEWORK_DLL ezPropertyEditorBaseWidget : public QWidget
 {
 public:
   ezPropertyEditorBaseWidget(const ezPropertyPath& path, const char* szName, QWidget* pParent);
+  virtual ~ezPropertyEditorBaseWidget();
 
   void SetValue(const ezVariant& value);
 
@@ -175,3 +179,50 @@ private:
 };
 
 
+/// *** ENUM COMBOBOX ***
+
+class EZ_EDITORFRAMEWORK_DLL ezPropertyEditorEnumWidget : public ezPropertyEditorBaseWidget
+{
+  Q_OBJECT
+
+public:
+  ezPropertyEditorEnumWidget(const ezPropertyPath& path, const char* szName, QWidget* pParent, const ezReflectedTypeHandle enumType);
+
+private slots:
+  void on_CurrentEnum_changed(int iEnum);
+
+private:
+  virtual void InternalSetValue(const ezVariant& value) override;
+
+  QHBoxLayout* m_pLayout;
+  QLabel* m_pLabel;
+  QComboBox* m_pWidget;
+  ezInt64 m_iCurrentEnum;
+};
+
+
+/// *** BITFLAGS COMBOBOX ***
+
+class EZ_EDITORFRAMEWORK_DLL ezPropertyEditorBitflagsWidget : public ezPropertyEditorBaseWidget
+{
+  Q_OBJECT
+
+public:
+  ezPropertyEditorBitflagsWidget(const ezPropertyPath& path, const char* szName, QWidget* pParent, const ezReflectedTypeHandle enumType);
+  virtual ~ezPropertyEditorBitflagsWidget();
+
+private slots:
+  void on_Menu_aboutToShow();
+  void on_Menu_aboutToHide();
+
+private:
+  virtual void InternalSetValue(const ezVariant& value) override;
+
+  
+  ezMap<ezInt64, QCheckBox*> m_Constants;
+  QHBoxLayout* m_pLayout;
+  QLabel* m_pLabel;
+  QPushButton* m_pWidget;
+  QMenu* m_pMenu;
+  ezInt64 m_iCurrentBitflags;
+};

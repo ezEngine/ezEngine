@@ -9,6 +9,11 @@
 #include <QSpinBox>
 #include <QPushButton>
 #include <QColor>
+#include <QComboBox>
+#include <QStandardItemModel>
+#include <QStyledItemDelegate>
+#include <QMenu>
+#include <QWidgetAction>
 #include <EditorFramework/GUI/QtHelpers.h>
 #include <EditorFramework/EditorGUI.moc.h>
 
@@ -18,6 +23,10 @@ ezPropertyEditorBaseWidget::ezPropertyEditorBaseWidget(const ezPropertyPath& pat
 {
   m_szDisplayName = szName;
   m_PropertyPath = path;
+}
+
+ezPropertyEditorBaseWidget::~ezPropertyEditorBaseWidget()
+{
 }
 
 void ezPropertyEditorBaseWidget::SetValue(const ezVariant& value)
@@ -378,3 +387,161 @@ void ezPropertyEditorColorWidget::on_Color_accepted()
 
   Broadcast(ezPropertyEditorBaseWidget::Event::Type::EndTemporary);
 }
+
+
+/// *** ENUM COMBOBOX ***
+
+ezPropertyEditorEnumWidget::ezPropertyEditorEnumWidget(const ezPropertyPath& path, const char* szName, QWidget* pParent, const ezReflectedTypeHandle enumType) : ezPropertyEditorBaseWidget(path, szName, pParent)
+{
+  m_pLayout = new QHBoxLayout(this);
+  m_pLayout->setMargin(0);
+  setLayout(m_pLayout);
+
+  m_pLabel = new QLabel(this);
+  m_pLabel->setText(QString::fromUtf8(szName));
+  m_pLabel->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
+
+  m_pWidget = new QComboBox(this);
+
+  const ezReflectedType* pType = enumType.GetType();
+  ezUInt32 uiCount = pType->GetConstantCount();
+  for (ezUInt32 i = 0; i < uiCount; ++i)
+  {
+    auto pConstant = pType->GetConstantByIndex(i);
+    m_pWidget->addItem(QString::fromUtf8(pConstant->m_sPropertyName.GetData()), pConstant->m_ConstantValue.ConvertTo<ezInt64>());
+  }
+
+  QSizePolicy policy = m_pLabel->sizePolicy();
+  policy.setHorizontalStretch(1);
+  m_pLabel->setSizePolicy(policy);
+  policy.setHorizontalStretch(2);
+  m_pWidget->setSizePolicy(policy);
+
+  m_pLayout->addWidget(m_pLabel);
+  m_pLayout->addWidget(m_pWidget);
+
+  connect(m_pWidget, SIGNAL( currentIndexChanged(int) ), this, SLOT( on_CurrentEnum_changed(int) ) );
+}
+
+void ezPropertyEditorEnumWidget::InternalSetValue(const ezVariant& value)
+{
+  ezQtBlockSignals b (m_pWidget);
+  ezInt32 iIndex = m_pWidget->findData(value.ConvertTo<ezInt64>());
+  EZ_ASSERT_DEV(iIndex != -1, "Enum widget is set to an invalid value!");
+  m_pWidget->setCurrentIndex(iIndex);
+}
+
+void ezPropertyEditorEnumWidget::on_CurrentEnum_changed(int iEnum)
+{
+  ezInt64 iValue = m_pWidget->itemData(iEnum).toLongLong();
+  BroadcastValueChanged(iValue);
+}
+
+
+/// *** BITFLAGS COMBOBOX ***
+
+ezPropertyEditorBitflagsWidget::ezPropertyEditorBitflagsWidget(const ezPropertyPath& path, const char* szName, QWidget* pParent, const ezReflectedTypeHandle enumType) : ezPropertyEditorBaseWidget(path, szName, pParent)
+{
+  m_pLayout = new QHBoxLayout(this);
+  m_pLayout->setMargin(0);
+  setLayout(m_pLayout);
+
+  m_pLabel = new QLabel(this);
+  m_pLabel->setText(QString::fromUtf8(szName));
+  m_pLabel->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
+
+  m_pWidget = new QPushButton(this);
+  m_pMenu = nullptr;
+  m_pMenu = new QMenu(m_pWidget);
+  m_pWidget->setMenu(m_pMenu);
+  const ezReflectedType* pType = enumType.GetType();
+  ezUInt32 uiCount = pType->GetConstantCount();
+  
+  for (ezUInt32 i = 0; i < uiCount; ++i)
+  {
+    auto pConstant = pType->GetConstantByIndex(i);
+    QWidgetAction* pAction = new QWidgetAction(m_pMenu);
+    QCheckBox* pCheckBox = new QCheckBox(QString::fromUtf8(pConstant->m_sPropertyName.GetData()), m_pMenu);
+    pCheckBox->setCheckable(true);
+    pCheckBox->setCheckState(Qt::Unchecked);
+    pAction->setDefaultWidget(pCheckBox);
+
+    m_Constants[pConstant->m_ConstantValue.ConvertTo<ezInt64>()] = pCheckBox;
+    m_pMenu->addAction(pAction);
+  }
+  
+  QSizePolicy policy = m_pLabel->sizePolicy();
+  policy.setHorizontalStretch(1);
+  m_pLabel->setSizePolicy(policy);
+  policy.setHorizontalStretch(2);
+  m_pWidget->setSizePolicy(policy);
+
+  m_pLayout->addWidget(m_pLabel);
+  m_pLayout->addWidget(m_pWidget);
+
+  connect(m_pMenu, SIGNAL( aboutToShow() ), this, SLOT( on_Menu_aboutToShow() ));
+  connect(m_pMenu, SIGNAL( aboutToHide() ), this, SLOT( on_Menu_aboutToHide() ));
+}
+
+ezPropertyEditorBitflagsWidget::~ezPropertyEditorBitflagsWidget()
+{
+  m_Constants.Clear();
+  m_pWidget->setMenu(nullptr);
+
+  delete m_pMenu;
+  m_pMenu = nullptr;
+}
+
+void ezPropertyEditorBitflagsWidget::InternalSetValue(const ezVariant& value)
+{
+  ezQtBlockSignals b (m_pWidget);
+  m_iCurrentBitflags = value.ConvertTo<ezInt64>();
+
+  QString sText;
+  for (auto it = m_Constants.GetIterator(); it.IsValid(); ++it)
+  {
+    bool bChecked = (it.Key() & m_iCurrentBitflags) != 0;
+    QString sName = it.Value()->text();
+    if (bChecked)
+    {
+      sText += sName + "|";
+    }
+    it.Value()->setCheckState(bChecked ? Qt::Checked : Qt::Unchecked);
+  }
+  if (!sText.isEmpty())
+    sText = sText.left(sText.size() - 1);
+
+  m_pWidget->setText(sText);
+}
+
+void ezPropertyEditorBitflagsWidget::on_Menu_aboutToShow()
+{
+  m_pMenu->setMinimumWidth(m_pWidget->geometry().width());
+}
+
+void ezPropertyEditorBitflagsWidget::on_Menu_aboutToHide()
+{
+  ezInt64 iValue = 0;
+  QString sText;
+  for (auto it = m_Constants.GetIterator(); it.IsValid(); ++it)
+  {
+    bool bChecked = it.Value()->checkState() == Qt::Checked;
+    QString sName = it.Value()->text();
+    if (bChecked)
+    {
+      sText += sName + "|";
+      iValue |= it.Key();
+    }
+  }
+  if (!sText.isEmpty())
+    sText = sText.left(sText.size() - 1);
+
+  m_pWidget->setText(sText);
+  
+  if (m_iCurrentBitflags != iValue)
+  {
+    m_iCurrentBitflags = iValue;
+    BroadcastValueChanged(m_iCurrentBitflags);
+  }
+}
+

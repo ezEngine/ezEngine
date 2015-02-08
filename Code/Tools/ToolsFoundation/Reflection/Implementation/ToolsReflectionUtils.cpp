@@ -93,6 +93,23 @@ void ezToolsReflectionUtils::GetReflectedTypeDescriptorFromRtti(const ezRTTI* pR
     
     switch (prop->GetCategory())
     {
+    case ezAbstractProperty::Constant:
+      {
+        ezAbstractConstantProperty* constantProp = static_cast<ezAbstractConstantProperty*>(prop);
+        const ezRTTI* pMemberPropRtti = constantProp->GetPropertyType();
+        ezVariant::Type::Enum memberType = pMemberPropRtti->GetVariantType();
+
+        if (memberType >= ezVariant::Type::Bool && memberType <= ezVariant::Type::Uuid)
+        {
+          ezVariant value = ezReflectionUtils::GetConstantPropertyValue(constantProp);
+          out_desc.m_Properties.PushBack(ezReflectedPropertyDescriptor(constantProp->GetPropertyName(), memberType, value));
+        }
+        else
+        {
+          EZ_ASSERT_DEV(false, "Non-pod constants are not supported yet!");
+        }
+      }
+      break;
     case ezAbstractProperty::Member:
       {
         ezAbstractMemberProperty* memberProp = static_cast<ezAbstractMemberProperty*>(prop);
@@ -102,6 +119,11 @@ void ezToolsReflectionUtils::GetReflectedTypeDescriptorFromRtti(const ezRTTI* pR
         ezBitflags<PropertyFlags> memberFlags;
         if (memberProp->IsReadOnly())
           memberFlags.Add(PropertyFlags::IsReadOnly);
+
+        if (pMemberPropRtti->IsDerivedFrom<ezEnumBase>())
+          memberFlags.Add(PropertyFlags::IsEnum);
+        else if (pMemberPropRtti->IsDerivedFrom<ezBitflagsBase>())
+          memberFlags.Add(PropertyFlags::IsBitflags);
 
         if (memberType == ezVariant::Type::Invalid || memberType == ezVariant::Type::ReflectedPointer)
         {
@@ -269,6 +291,16 @@ static void WriteProperties(ezJSONWriter& writer, const ezIReflectedTypeAccessor
       else IF_HANDLE_TYPE(ezVariant::Type::Uuid, ezUuid, AddVariableUuid)
       else IF_HANDLE_TYPE_STRING(ezVariant::Type::String, ezConstCharPtr, AddVariableString)
     }
+    else if (pProp->m_Flags.IsAnySet(PropertyFlags::IsEnum | PropertyFlags::IsBitflags))
+    {
+      ParentPath.PushBack(pProp->m_sPropertyName);
+      writer.BeginObject();
+      writer.AddVariableString("t", pProp->m_Flags.IsSet(PropertyFlags::IsEnum) ? "ezEnum" : "ezBitflags");
+      writer.AddVariableString("n", pProp->m_sPropertyName);
+      writer.AddVariableInt64("v", et.GetValue(ParentPath).ConvertTo<ezInt64>());
+      writer.EndObject();
+      ParentPath.PopBack();
+    }
     else
     {
       writer.BeginObject();
@@ -363,7 +395,6 @@ static void ReadJSONObject(const ezVariantDictionary& root, ezIReflectedTypeAcce
   }
 }
 
-
 void ezToolsReflectionUtils::ReadObjectPropertiesFromJSON(ezStreamReaderBase& stream, ezIReflectedTypeAccessor& accessor)
 {
   ezExtendedJSONReader reader;
@@ -376,4 +407,84 @@ void ezToolsReflectionUtils::ReadObjectPropertiesFromJSON(ezStreamReaderBase& st
   ReadJSONObject(root, accessor, path);
 }
 
+bool ezToolsReflectionUtils::EnumerationToString(const ezReflectedType* pEnumerationRtti, ezInt64 iValue, ezStringBuilder& out_sOutput)
+{
+  out_sOutput.Clear();
+  const ezReflectedType* pParentRtti = pEnumerationRtti->GetParentTypeHandle().GetType();
+  EZ_ASSERT_DEV(pParentRtti != nullptr, "Parent type does not exist!");
+  
+  // TODO: make this faster.
+  if (ezStringUtils::IsEqual(pParentRtti->GetTypeName().GetData(), "ezEnumBase"))
+  {
+    for (const ezReflectedConstant& constant : pEnumerationRtti->GetConstants())
+    {
+      if (constant.m_ConstantValue.ConvertTo<ezInt64>() == iValue)
+      {
+        out_sOutput = constant.m_sPropertyName.GetString();
+        return true;
+      }
+    }
+    return false;
+  }
+  else if (ezStringUtils::IsEqual(pParentRtti->GetTypeName().GetData(), "ezBitflagsBase"))
+  {
+    for (const ezReflectedConstant& constant : pEnumerationRtti->GetConstants())
+    {
+      if ((constant.m_ConstantValue.ConvertTo<ezInt64>() & iValue) != 0)
+      {
+        out_sOutput.Append(constant.m_sPropertyName.GetString(), "|");
+      }
+    }
+    out_sOutput.Shrink(0, 1);
+    return true;
+  }
+  else
+  {
+    EZ_ASSERT_DEV(false, "The RTTI class '%s' is not an enum or bitflags class", pEnumerationRtti->GetTypeName().GetData());
+    return false;
+  }
+}
+
+bool ezToolsReflectionUtils::StringToEnumeration(const ezReflectedType* pEnumerationRtti, const char* szValue, ezInt64& out_iValue)
+{
+  out_iValue = 0;
+  const ezReflectedType* pParentRtti = pEnumerationRtti->GetParentTypeHandle().GetType();
+  EZ_ASSERT_DEV(pParentRtti != nullptr, "Parent type does not exist!");
+  
+  // TODO: make this faster.
+  if (ezStringUtils::IsEqual(pParentRtti->GetTypeName().GetData(), "ezEnumBase"))
+  {
+    for (const ezReflectedConstant& constant : pEnumerationRtti->GetConstants())
+    {
+      if (ezStringUtils::IsEqual(constant.m_sPropertyName, szValue))
+      {
+        out_iValue = constant.m_ConstantValue.ConvertTo<ezInt64>();
+        return true;
+      }
+    }
+    return false;
+  }
+  else if (ezStringUtils::IsEqual(pParentRtti->GetTypeName().GetData(), "ezBitflagsBase"))
+  {
+    ezStringBuilder temp = szValue;
+    ezHybridArray<ezStringView, 32> values;
+    temp.Split(false, values, "|");
+    for (auto sValue : values)
+    {
+      for (const ezReflectedConstant& constant : pEnumerationRtti->GetConstants())
+      {
+        if (sValue.IsEqual(constant.m_sPropertyName))
+        {
+          out_iValue |= constant.m_ConstantValue.ConvertTo<ezInt64>();
+        }
+      }
+    }
+    return true;
+  }
+  else
+  {
+    EZ_ASSERT_DEV(false, "The RTTI class '%s' is not an enum or bitflags class", pEnumerationRtti->GetTypeName().GetData());
+    return false;
+  }
+}
 

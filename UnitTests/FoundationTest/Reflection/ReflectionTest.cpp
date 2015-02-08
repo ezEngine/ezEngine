@@ -11,7 +11,55 @@
 EZ_CREATE_SIMPLE_TEST_GROUP(Reflection);
 
 /// \todo Test Array Properties (once they are implemented)
-/// \todo Test Enum Property Type (when implemented)
+
+struct ezExampleEnum
+{
+  typedef ezInt8 StorageType;
+  enum Enum
+  {
+    Value1 = 1,          // normal value
+    Value2 = -2,         // normal value
+    Value3 = 4,          // normal value
+    Default = Value1     // Default initialization value (required)
+  };
+};
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezExampleEnum);
+
+EZ_BEGIN_STATIC_REFLECTED_ENUM(ezExampleEnum, 1)
+  EZ_ENUM_CONSTANTS(ezExampleEnum::Value1, ezExampleEnum::Value2) 
+  EZ_ENUM_CONSTANT(ezExampleEnum::Value3),
+EZ_END_STATIC_REFLECTED_ENUM();
+
+
+struct ezExampleBitflags
+{
+  typedef ezUInt64 StorageType;
+  enum Enum : ezUInt64
+  {
+    Value1 = EZ_BIT(0),  // normal value
+    Value2 = EZ_BIT(31), // normal value
+    Value3 = EZ_BIT(63), // normal value
+    Default = Value1     // Default initialization value (required)
+  };
+
+  struct Bits
+  {
+    StorageType Value1 : 1;
+    StorageType Padding : 30;
+    StorageType Value2 : 1;
+    StorageType Padding2 : 31;
+    StorageType Value3 : 1;
+  };
+};
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezExampleBitflags);
+
+EZ_BEGIN_STATIC_REFLECTED_BITFLAGS(ezExampleBitflags, 1)
+  EZ_BITFLAGS_CONSTANTS(ezExampleBitflags::Value1, ezExampleBitflags::Value2) 
+  EZ_BITFLAGS_CONSTANT(ezExampleBitflags::Value3),
+EZ_END_STATIC_REFLECTED_BITFLAGS();
+
 
 struct ezTestStruct
 {
@@ -122,6 +170,8 @@ public:
   void SetText(const char* sz) { m_Text = sz; }
 
   ezTime m_Time;
+  ezEnum<ezExampleEnum> m_enumClass;
+  ezBitflags<ezExampleBitflags> m_bitflagsClass;
 
 private:
   ezString m_Text;
@@ -154,7 +204,9 @@ ezInt32 ezTestClass2Allocator::m_iDeallocs = 0;
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTestClass2, ezTestClass1, 22, ezTestClass2Allocator);
   EZ_BEGIN_PROPERTIES
     EZ_ACCESSOR_PROPERTY("Text", GetText, SetText),
-    EZ_MEMBER_PROPERTY("Time", m_Time)
+    EZ_MEMBER_PROPERTY("Time", m_Time),
+    EZ_ENUM_MEMBER_PROPERTY("Enum", ezExampleEnum, m_enumClass),
+    EZ_BITFLAGS_MEMBER_PROPERTY("Bitflags", ezExampleBitflags, m_bitflagsClass),
   EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
@@ -247,19 +299,23 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Types)
       ezRTTI* pType = ezRTTI::FindTypeByName("ezTestClass2");
 
       auto Props = pType->GetProperties();
-      EZ_TEST_INT(Props.GetCount(), 2);
+      EZ_TEST_INT(Props.GetCount(), 4);
       EZ_TEST_STRING(Props[0]->GetPropertyName(), "Text");
       EZ_TEST_STRING(Props[1]->GetPropertyName(), "Time");
+      EZ_TEST_STRING(Props[2]->GetPropertyName(), "Enum");
+      EZ_TEST_STRING(Props[3]->GetPropertyName(), "Bitflags");
 
       ezHybridArray<ezAbstractProperty*, 32> AllProps;
       pType->GetAllProperties(AllProps);
 
-      EZ_TEST_INT(AllProps.GetCount(), 5);
+      EZ_TEST_INT(AllProps.GetCount(), 7);
       EZ_TEST_STRING(AllProps[0]->GetPropertyName(), "Sub Struct");
       EZ_TEST_STRING(AllProps[1]->GetPropertyName(), "Color");
       EZ_TEST_STRING(AllProps[2]->GetPropertyName(), "Sub Vector");
       EZ_TEST_STRING(AllProps[3]->GetPropertyName(), "Text");
       EZ_TEST_STRING(AllProps[4]->GetPropertyName(), "Time");
+      EZ_TEST_STRING(AllProps[5]->GetPropertyName(), "Enum");
+      EZ_TEST_STRING(AllProps[6]->GetPropertyName(), "Bitflags");
     }
   }
 
@@ -560,6 +616,8 @@ EZ_CREATE_SIMPLE_TEST(Reflection, ReflectionUtils)
     c2.m_Struct.m_UInt8 = 234;
     c2.m_Color = ezColor(0.1f, 0.2f, 0.3f);
     c2.m_Time = ezTime::Seconds(91.0f);
+    c2.m_enumClass = ezExampleEnum::Value3;
+    c2.m_bitflagsClass = ezExampleBitflags::Enum(ezExampleBitflags::Value1 | ezExampleBitflags::Value2 | ezExampleBitflags::Value3);
 
     ezReflectionUtils::WriteObjectToJSON(FileOut, c2.GetDynamicRTTI(), &c2, ezJSONWriter::WhitespaceMode::All);
   }
@@ -583,6 +641,8 @@ EZ_CREATE_SIMPLE_TEST(Reflection, ReflectionUtils)
     EZ_TEST_FLOAT(c2.m_Color.b, 0.3f, 0.0f);
     EZ_TEST_FLOAT(c2.m_Struct.m_fFloat1, 128, 0.0f);
     EZ_TEST_INT(c2.m_Struct.m_UInt8, 234);
+    EZ_TEST_BOOL(c2.m_enumClass == ezExampleEnum::Value3);
+    EZ_TEST_BOOL(c2.m_bitflagsClass == ezExampleBitflags::Enum(ezExampleBitflags::Value1 | ezExampleBitflags::Value2 | ezExampleBitflags::Value3));
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ReadObjectPropertiesFromJSON (different type)")
@@ -639,24 +699,6 @@ EZ_CREATE_SIMPLE_TEST(Reflection, ReflectionUtils)
 
 
 
-struct ezExampleEnum
-{
-  typedef ezInt8 StorageType;
-  enum Enum
-  {
-    Value1 = 1,          // normal value
-    Value2 = -2,         // normal value
-    Value3 = 4,          // normal value
-    Default = Value1     // Default initialization value (required)
-  };
-};
-
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezExampleEnum);
-
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezExampleEnum, 1)
-  EZ_ENUM_CONSTANTS(ezExampleEnum::Value1, ezExampleEnum::Value2) 
-  EZ_ENUM_CONSTANT(ezExampleEnum::Value3),
-EZ_END_STATIC_REFLECTED_ENUM();
 
 
 struct ezTestEnumStruct
@@ -748,6 +790,20 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Enum)
         ezTypedConstantProperty<ezInt8>* pConstantProp = static_cast<ezTypedConstantProperty<ezInt8>*>(pProp2);
         pEnumProp->SetValue(&data, pConstantProp->GetValue());
         EZ_TEST_INT(pEnumProp->GetValue(&data), pConstantProp->GetValue());
+
+        // Enum <-> string
+        ezStringBuilder sValue;
+        EZ_TEST_BOOL(ezReflectionUtils::EnumerationToString(pEnumPropertyRTTI, pConstantProp->GetValue(), sValue));
+        EZ_TEST_STRING(sValue, pConstantProp->GetPropertyName());
+
+        // Setting the value via a string also works.
+        pEnumProp->SetValue(&data, ezExampleEnum::Value1);
+        ezReflectionUtils::SetMemberPropertyValue(pEnumProp, &data, sValue.GetData());
+        EZ_TEST_INT(pEnumProp->GetValue(&data), pConstantProp->GetValue());
+
+        ezInt64 iValue = 0;
+        EZ_TEST_BOOL(ezReflectionUtils::StringToEnumeration(pEnumPropertyRTTI, sValue, iValue));
+        EZ_TEST_INT(iValue, pConstantProp->GetValue());
       }
     }
 
@@ -760,34 +816,6 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Enum)
 }
 
 
-
-struct ezExampleBitflags
-{
-  typedef ezUInt64 StorageType;
-  enum Enum : ezUInt64
-  {
-    Value1 = EZ_BIT(0),  // normal value
-    Value2 = EZ_BIT(31), // normal value
-    Value3 = EZ_BIT(63), // normal value
-    Default = Value1     // Default initialization value (required)
-  };
-
-  struct Bits
-  {
-    StorageType Value1 : 1;
-    StorageType Padding : 30;
-    StorageType Value2 : 1;
-    StorageType Padding2 : 31;
-    StorageType Value3 : 1;
-  };
-};
-
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezExampleBitflags);
-
-EZ_BEGIN_STATIC_REFLECTED_BITFLAGS(ezExampleBitflags, 1)
-  EZ_BITFLAGS_CONSTANTS(ezExampleBitflags::Value1, ezExampleBitflags::Value2) 
-  EZ_BITFLAGS_CONSTANT(ezExampleBitflags::Value3),
-EZ_END_STATIC_REFLECTED_BITFLAGS();
 
 
 struct ezTestBitflagsStruct
@@ -815,7 +843,7 @@ EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezTestBitflagsStruct);
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezTestBitflagsStruct, ezNoBase, 1, ezRTTINoAllocator);
   EZ_BEGIN_PROPERTIES
     EZ_BITFLAGS_MEMBER_PROPERTY("m_bitflagsClass", ezExampleBitflags, m_bitflagsClass),
-    EZ_BITFLAGS_ACCESSOR_PROPERTY("m_bitflagsClass2", ezExampleBitflags,  GetBitflagsClass, SetBitflagsClass),
+    EZ_BITFLAGS_ACCESSOR_PROPERTY("m_bitflagsClass2", ezExampleBitflags, GetBitflagsClass, SetBitflagsClass),
   EZ_END_PROPERTIES
 EZ_END_STATIC_REFLECTED_TYPE();
 
@@ -871,6 +899,10 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Bitflags)
                                static_cast<ezTypedConstantProperty<ezUInt64>*>(pBitflagsPropertyRTTI->GetProperties()[1])->GetValue(),
                                static_cast<ezTypedConstantProperty<ezUInt64>*>(pBitflagsPropertyRTTI->GetProperties()[2])->GetValue() };
 
+      const char* stringValues[] = {"", "ezExampleBitflags::Value1", "ezExampleBitflags::Value2",
+        "ezExampleBitflags::Value1|ezExampleBitflags::Value2", "ezExampleBitflags::Value3",
+        "ezExampleBitflags::Value1|ezExampleBitflags::Value3", "ezExampleBitflags::Value2|ezExampleBitflags::Value3",
+        "ezExampleBitflags::Value1|ezExampleBitflags::Value2|ezExampleBitflags::Value3"};
       for (ezInt32 i = 0; i < 8; ++i)
       {
         ezUInt64 uiBitflagValue = 0;
@@ -880,6 +912,20 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Bitflags)
 
         pBitflagsProp->SetValue(&data, uiBitflagValue);
         EZ_TEST_INT(pBitflagsProp->GetValue(&data), uiBitflagValue);
+
+        // Bitflags <-> string
+        ezStringBuilder sValue;
+        EZ_TEST_BOOL(ezReflectionUtils::EnumerationToString(pBitflagsPropertyRTTI, uiBitflagValue, sValue));
+        EZ_TEST_STRING(sValue, stringValues[i]);
+
+        // Setting the value via a string also works.
+        pBitflagsProp->SetValue(&data, 0);
+        ezReflectionUtils::SetMemberPropertyValue(pBitflagsProp, &data, sValue.GetData());
+        EZ_TEST_INT(pBitflagsProp->GetValue(&data), uiBitflagValue);
+
+        ezInt64 iValue = 0;
+        EZ_TEST_BOOL(ezReflectionUtils::StringToEnumeration(pBitflagsPropertyRTTI, sValue, iValue));
+        EZ_TEST_INT(iValue, uiBitflagValue);
       }
     }
 

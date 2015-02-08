@@ -26,6 +26,13 @@ ezReflectedPropertyDescriptor::ezReflectedPropertyDescriptor(const char* szName,
 {
 }
 
+ezReflectedPropertyDescriptor::ezReflectedPropertyDescriptor(const char* szName, ezVariant::Type::Enum type, const ezVariant& constantValue)
+  : m_sName(szName), m_sType(), m_Type(type), m_Flags(PropertyFlags::IsPOD | PropertyFlags::IsReadOnly | PropertyFlags::IsConstant)
+  , m_ConstantValue(constantValue)
+{
+}
+
+
 ////////////////////////////////////////////////////////////////////////
 // ezReflectedProperty functions
 ////////////////////////////////////////////////////////////////////////
@@ -38,6 +45,17 @@ ezReflectedProperty::ezReflectedProperty(const char* szName, ezVariant::Type::En
 
 ezReflectedProperty::ezReflectedProperty(const char* szName, ezReflectedTypeHandle m_hType, ezBitflags<PropertyFlags> flags)
   : m_hTypeHandle(m_hType), m_Type(ezVariant::Type::Invalid), m_Flags(flags)
+{
+  m_sPropertyName.Assign(szName);
+}
+
+
+////////////////////////////////////////////////////////////////////////
+// ezReflectedConstant functions
+////////////////////////////////////////////////////////////////////////
+
+ezReflectedConstant::ezReflectedConstant(const char* szName, const ezVariant& constantValue)
+  : m_ConstantValue(constantValue)
 {
   m_sPropertyName.Assign(szName);
 }
@@ -60,9 +78,48 @@ const ezReflectedProperty* ezReflectedType::GetPropertyByIndex(ezUInt32 uiIndex)
 const ezReflectedProperty* ezReflectedType::GetPropertyByName(const char* szPropertyName) const
 {
   ezUInt32 uiIndex = 0;
-  if (m_NameToIndex.TryGetValue(szPropertyName, uiIndex))
+  if (m_PropertyNameToIndex.TryGetValue(szPropertyName, uiIndex))
   {
     return &m_Properties[uiIndex];
+  }
+  
+  return nullptr;
+}
+
+const ezReflectedProperty* ezReflectedType::GetPropertyByPath(const ezPropertyPath& path) const
+{
+  const ezReflectedType* pCurrentType = this;
+  const ezReflectedProperty* pCurrentProperty = nullptr;
+  for (auto szPropertyName : path)
+  {
+    if (pCurrentType == nullptr)
+      return nullptr;
+
+    pCurrentProperty = pCurrentType->GetPropertyByName(szPropertyName);
+    if (pCurrentProperty == nullptr)
+      return nullptr;
+
+    pCurrentType = pCurrentProperty->m_hTypeHandle.GetType();
+  }
+  return pCurrentProperty;
+}
+
+const ezReflectedConstant* ezReflectedType::GetConstantByIndex(ezUInt32 uiIndex) const
+{
+  if (uiIndex < m_Constants.GetCount())
+  {
+    return &m_Constants[uiIndex];
+  }
+
+  return nullptr;
+}
+
+const ezReflectedConstant* ezReflectedType::GetConstantByName(const char* szPropertyName) const
+{
+  ezUInt32 uiIndex = 0;
+  if (m_ConstantNameToIndex.TryGetValue(szPropertyName, uiIndex))
+  {
+    return &m_Constants[uiIndex];
   }
   
   return nullptr;
@@ -121,7 +178,18 @@ void ezReflectedType::RegisterProperties()
   for (ezUInt32 i = 0; i < uiPropertyCount; ++i)
   {
     const char* szPropertyName = m_Properties[i].m_sPropertyName.GetString().GetData();
-    EZ_ASSERT_DEV(!m_NameToIndex.Contains(szPropertyName), "A property with the name '%s' already exists!", szPropertyName);
-    m_NameToIndex.Insert(szPropertyName, i);
+    EZ_ASSERT_DEV(!m_PropertyNameToIndex.Contains(szPropertyName), "A property with the name '%s' already exists!", szPropertyName);
+    m_PropertyNameToIndex.Insert(szPropertyName, i);
+  }
+}
+
+void ezReflectedType::RegisterConstants()
+{
+  const ezUInt32 uiPropertyCount = m_Constants.GetCount();
+  for (ezUInt32 i = 0; i < uiPropertyCount; ++i)
+  {
+    const char* szPropertyName = m_Constants[i].m_sPropertyName.GetString().GetData();
+    EZ_ASSERT_DEV(!m_ConstantNameToIndex.Contains(szPropertyName), "A constant with the name '%s' already exists!", szPropertyName);
+    m_ConstantNameToIndex.Insert(szPropertyName, i);
   }
 }

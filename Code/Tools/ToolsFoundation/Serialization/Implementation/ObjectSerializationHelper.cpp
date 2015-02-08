@@ -24,6 +24,16 @@ static void WriteTypeAccessorToContextRecursive(ezObjectSerializationContext& co
 
       ParentPath.PopBack();
     }
+    else if (pProp->m_Flags.IsAnySet(PropertyFlags::IsEnum | PropertyFlags::IsBitflags))
+    {
+      ParentPath.PushBack(pProp->m_sPropertyName.GetString().GetData());
+
+      ezStringBuilder sEnumValue;
+      ezToolsReflectionUtils::EnumerationToString(pProp->m_hTypeHandle.GetType(), et.GetValue(ParentPath).ConvertTo<ezInt64>(), sEnumValue);
+      context.AddProperty(ParentPath, sEnumValue.GetData());
+
+      ParentPath.PopBack();
+    }
     else
     {
       ParentPath.PushBack(pProp->m_sPropertyName.GetString().GetData());

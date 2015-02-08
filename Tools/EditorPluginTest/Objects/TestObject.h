@@ -14,6 +14,44 @@ public:
   float m_fLoat;
 };
 
+struct ezExampleEnum
+{
+  typedef ezInt8 StorageType;
+  enum Enum
+  {
+    Value1 = 0,          // normal value
+    Value2 = -2,         // normal value
+    Value3 = 4,          // normal value
+    Default = Value1     // Default initialization value (required)
+  };
+};
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezExampleEnum);
+
+struct ezExampleBitflags
+{
+  typedef ezUInt64 StorageType;
+  enum Enum : ezUInt64
+  {
+    Value1 = EZ_BIT(0),  // normal value
+    Value2 = EZ_BIT(31), // normal value
+    Value3 = EZ_BIT(63), // normal value
+    Default = Value1     // Default initialization value (required)
+  };
+
+  struct Bits
+  {
+    StorageType Value1 : 1;
+    StorageType Padding : 30;
+    StorageType Value2 : 1;
+    StorageType Padding2 : 31;
+    StorageType Value3 : 1;
+  };
+};
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezExampleBitflags);
+
+
 class ezTestObjectProperties : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezTestObjectProperties);
@@ -26,6 +64,8 @@ public:
   ezInt16 m_Int16;
   ezUInt32 m_UInt32;
   ezColor m_Color;
+  ezEnum<ezExampleEnum> m_Enum;
+  ezBitflags<ezExampleBitflags> m_Bitflags;
 
   ezTestEditorProperties m_EditorProps;
 };

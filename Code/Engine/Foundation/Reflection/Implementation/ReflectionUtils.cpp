@@ -18,6 +18,18 @@ namespace
     ezVariant m_Result;
   };
 
+  struct GetConstantValueFunc
+  {
+    template <typename T>
+    EZ_FORCE_INLINE void operator()()
+    {
+      m_Result = static_cast<const ezTypedConstantProperty<T>*>(m_pProp)->GetValue();
+    }
+
+    const ezAbstractConstantProperty* m_pProp;
+    ezVariant m_Result;
+  };
+
   struct SetValueFunc
   {
     template <typename T>
@@ -32,12 +44,36 @@ namespace
   };
 }
 
+ezVariant ezReflectionUtils::GetConstantPropertyValue(const ezAbstractConstantProperty* pProp)
+{
+  if (pProp != nullptr)
+  {
+    if (pProp->GetPropertyType() == ezGetStaticRTTI<const char*>())
+      return static_cast<const ezTypedConstantProperty<const char*>*>(pProp)->GetValue();
+
+    GetConstantValueFunc func;
+    func.m_pProp = pProp;
+
+    ezVariant::DispatchTo(func, pProp->GetPropertyType()->GetVariantType());
+
+    return func.m_Result;
+  }
+
+  return ezVariant();
+}
+
 ezVariant ezReflectionUtils::GetMemberPropertyValue(const ezAbstractMemberProperty* pProp, const void* pObject)
 {
   if (pProp != nullptr)
   {
     if (pProp->GetPropertyType() == ezGetStaticRTTI<const char*>())
       return static_cast<const ezTypedMemberProperty<const char*>*>(pProp)->GetValue(pObject);
+
+    if (pProp->GetPropertyType()->IsDerivedFrom<ezEnumBase>() || pProp->GetPropertyType()->IsDerivedFrom<ezBitflagsBase>())
+    {
+      const ezAbstractEnumerationProperty* pEnumerationProp = static_cast<const ezAbstractEnumerationProperty*>(pProp);
+      return pEnumerationProp->GetValue(pObject);
+    }
 
     GetValueFunc func;
     func.m_pProp = pProp;
@@ -58,6 +94,24 @@ void ezReflectionUtils::SetMemberPropertyValue(ezAbstractMemberProperty* pProp, 
     if (pProp->GetPropertyType() == ezGetStaticRTTI<const char*>())
     {
       static_cast<ezTypedMemberProperty<const char*>*>(pProp)->SetValue(pObject, value.ConvertTo<ezString>().GetData());
+      return;
+    }
+
+    if (pProp->GetPropertyType()->IsDerivedFrom<ezEnumBase>() || pProp->GetPropertyType()->IsDerivedFrom<ezBitflagsBase>())
+    {
+      ezAbstractEnumerationProperty* pEnumerationProp = static_cast<ezAbstractEnumerationProperty*>(pProp);
+
+      // Value can either be an integer or a string (human readable value)
+      if (value.IsA<ezString>())
+      {
+        ezInt64 iValue;
+        ezReflectionUtils::StringToEnumeration(pProp->GetPropertyType(), value.Get<ezString>(), iValue);
+        pEnumerationProp->SetValue(pObject, iValue);
+      }
+      else
+      {
+        pEnumerationProp->SetValue(pObject, value.Get<ezInt64>());
+      }
       return;
     }
 
@@ -169,6 +223,15 @@ static void WriteProperties(ezJSONWriter& writer, const ezRTTI* pRtti, const voi
       else IF_HANDLE_TYPE(ezConstCharPtr,  AddVariableString)
       else IF_HANDLE_TYPE(ezVariant,  AddVariableVariant)
 
+      else if (prop->GetPropertyType()->IsDerivedFrom<ezEnumBase>() || prop->GetPropertyType()->IsDerivedFrom<ezBitflagsBase>())
+      {
+        const ezAbstractEnumerationProperty* pEnumProp = static_cast<const ezAbstractEnumerationProperty*>(prop);
+        writer.BeginObject();
+        writer.AddVariableString("t", prop->GetPropertyType()->IsDerivedFrom<ezEnumBase>() ? "ezEnum" : "ezBitflags");
+        writer.AddVariableString("n", prop->GetPropertyName());
+        writer.AddVariableInt64("v", pEnumProp->GetValue(pObject));
+        writer.EndObject();
+      }
       else if (prop->GetPropertyType()->GetProperties().GetCount() > 0 && prop->GetPropertyPointer(pObject) != nullptr)
       {
         writer.BeginObject();
@@ -443,6 +506,95 @@ bool ezReflectionUtils::CreateDependencySortedTypeArray(const ezSet<const ezRTTI
   }
 
   return true;
+}
+
+bool ezReflectionUtils::EnumerationToString(const ezRTTI* pEnumerationRtti, ezInt64 iValue, ezStringBuilder& out_sOutput)
+{
+  out_sOutput.Clear();
+  if (pEnumerationRtti->IsDerivedFrom<ezEnumBase>())
+  {
+    for (auto pProp : pEnumerationRtti->GetProperties())
+    {
+      if (pProp->GetCategory() == ezAbstractProperty::Constant)
+      {
+        ezVariant value = ezReflectionUtils::GetConstantPropertyValue(static_cast<const ezAbstractConstantProperty*>(pProp));
+        if (value.ConvertTo<ezInt64>() == iValue)
+        {
+          out_sOutput = pProp->GetPropertyName();
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+  else if (pEnumerationRtti->IsDerivedFrom<ezBitflagsBase>())
+  {
+    for (auto pProp : pEnumerationRtti->GetProperties())
+    {
+      if (pProp->GetCategory() == ezAbstractProperty::Constant)
+      {
+        ezVariant value = ezReflectionUtils::GetConstantPropertyValue(static_cast<const ezAbstractConstantProperty*>(pProp));
+        if ((value.ConvertTo<ezInt64>() & iValue) != 0)
+        {
+          out_sOutput.Append(pProp->GetPropertyName(), "|");
+        }
+      }
+    }
+    out_sOutput.Shrink(0, 1);
+    return true;
+  }
+  else
+  {
+    EZ_ASSERT_DEV(false, "The RTTI class '%s' is not an enum or bitflags class", pEnumerationRtti->GetTypeName());
+    return false;
+  }
+}
+
+bool ezReflectionUtils::StringToEnumeration(const ezRTTI* pEnumerationRtti, const char* szValue, ezInt64& out_iValue)
+{
+  out_iValue = 0;
+  if (pEnumerationRtti->IsDerivedFrom<ezEnumBase>())
+  {
+    for (auto pProp : pEnumerationRtti->GetProperties())
+    {
+      if (pProp->GetCategory() == ezAbstractProperty::Constant)
+      {
+        if (ezStringUtils::IsEqual(pProp->GetPropertyName(), szValue))
+        {
+          ezVariant value = ezReflectionUtils::GetConstantPropertyValue(static_cast<const ezAbstractConstantProperty*>(pProp));
+          out_iValue = value.ConvertTo<ezInt64>();
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+  else if (pEnumerationRtti->IsDerivedFrom<ezBitflagsBase>())
+  {
+    ezStringBuilder temp = szValue;
+    ezHybridArray<ezStringView, 32> values;
+    temp.Split(false, values, "|");
+    for (auto sValue : values)
+    {
+      for (auto pProp : pEnumerationRtti->GetProperties())
+      {
+        if (pProp->GetCategory() == ezAbstractProperty::Constant)
+        {
+          if (sValue.IsEqual(pProp->GetPropertyName()))
+          {
+            ezVariant value = ezReflectionUtils::GetConstantPropertyValue(static_cast<const ezAbstractConstantProperty*>(pProp));
+            out_iValue |= value.ConvertTo<ezInt64>();
+          }
+        }
+      }
+    }
+    return true;
+  }
+  else
+  {
+    EZ_ASSERT_DEV(false, "The RTTI class '%s' is not an enum or bitflags class", pEnumerationRtti->GetTypeName());
+    return false;
+  }
 }
 
 

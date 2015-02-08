@@ -73,7 +73,7 @@ bool ezDocumentJSONReader::PeekNextObject(ezUuid& out_objectGuid, ezStringBuilde
 void ezDocumentJSONReader::ReadObject(ezSerializedObjectReaderBase& object)
 {
   EZ_ASSERT_DEV(m_pObject != nullptr, "No object to read, call OpenGroup and then PeekNextObject!");
-  ezVariant* pType = nullptr;
+
   ezHybridArray<ezString, 8> stack;
 
   for (auto it = m_pObject->GetIterator(); it.IsValid(); ++it)
