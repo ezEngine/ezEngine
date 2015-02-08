@@ -10,7 +10,7 @@ public:
 
   }
 
-  void Reset()
+  virtual void Reset()
   {
     ezStackAllocator<>::Reset();
   }

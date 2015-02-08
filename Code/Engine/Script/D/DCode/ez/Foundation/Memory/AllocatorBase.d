@@ -4,6 +4,8 @@ import ez.Foundation.Types.Types;
 import std.traits;
 import core.stdc.stdlib;
 
+private extern (C) void rt_finalize2(void* p, bool det = true, bool resetMemory = true);
+
 extern(C++) class ezAllocatorBase
 {
 protected:
@@ -66,8 +68,7 @@ T New(T, ARGS...)(ezAllocatorBase allocator, ARGS args)
     {
       scope(failure)
       {
-        //TODO: implement
-        //AllocatorDelete(allocator, result);
+        Delete(allocator, result);
       }
       result.__ctor(args);
     }
@@ -75,7 +76,7 @@ T New(T, ARGS...)(ezAllocatorBase allocator, ARGS args)
     {
       static assert(args.length == 0 && !is(typeof(&T.__ctor)),
                     "Don't know how to initialize an object of type "
-                    ~ T.stringof ~ " with arguments:\n" ~ ARGS.stringof ~ "\nAvailable ctors:\n" ~ ListAvailableCtors!T() );
+                    ~ T.stringof ~ " with arguments:\n" ~ ARGS.stringof); // TODO: ~ "\nAvailable ctors:\n" ~ ListAvailableCtors!T() );
     }
 
     static if(__traits(hasMember, T, "SetAllocator"))
@@ -149,4 +150,103 @@ auto NewArray(T)(ezAllocatorBase allocator, size_t size, InitializeMemoryWith in
       break;
   }
   return data;
+}
+
+void Delete(T)(ezAllocatorBase allocator, T obj)
+{
+  /*static if(is(T : RefCounted))
+  {
+    assert(obj.refcount == 0, "trying to delete reference counted object which is still referenced");
+  }*/
+  static if(is(T == class))
+  {
+    if(obj is null)
+      return;
+    rt_finalize2(cast(void*)obj, false, false);
+    allocator.Deallocate(cast(void*)obj);
+  }
+  else static if(is(T == interface))
+  {
+    if(obj is null)
+      return;
+    Object realObj = cast(Object)obj;
+    if(realObj is null)
+      return;
+    rt_finalize2(cast(void*)realObj, false, false);
+    allocator.Deallocate(cast(void*)realObj);
+  }
+  else static if(is(T P == U*, U))
+  {
+    if(obj is null)
+      return;
+    callDtor(obj);
+    allocator.Deallocate(cast(void*)obj);
+  }
+  else static if(is(T P == U[], U))
+  {
+    if(!obj)
+      return;
+    callDtor(obj);
+    allocator.FreeMemory(cast(void*)obj.ptr);    
+  }
+  else
+  {
+    static assert(0, "Can not delete " ~ T.stringof);
+  }
+}
+
+void callDtor(T)(T subject)
+{
+  static if(is(T U == V[], V))
+  {
+    static if(is(V == struct))
+    {
+      auto typeinfo = typeid(V);
+      if(typeinfo.xdtor !is null)
+      {
+        foreach(ref el; subject)
+        {
+          typeinfo.xdtor(&el);
+        }
+      }
+      //TODO: structs are currently only destroyable over a typeinfo object, fix
+      /*static if(is(typeof(subject[0].__fieldDtor)))
+      {
+        foreach(ref el; subject)
+          el.__fieldDtor();
+      }
+      else static if(is(typeof(subject[0].__dtor)))
+      {
+        foreach(ref el; subject)
+          el.__dtor();
+      }*/
+    }
+  }
+  else static if(is(T P == U*, U))
+  {
+    static if(is(U == struct))
+    {
+      auto typeinfo = typeid(U);
+      if(typeinfo.xdtor !is null)
+      {
+        typeinfo.xdtor(subject);
+      }
+      //TODO: structs are currently only destroyable over a type info object, fix
+      /*static if(is(typeof(subject.__fieldDtor)))
+      {
+        subject.__fieldDtor();
+      }
+      else static if(is(typeof(subject.__dtor)))
+      {
+        subject.__dtor();
+      }*/
+    }
+  }
+  else
+  {
+    static if(is(T == struct))
+    {
+      static assert(0, "can not destruct copy");
+    }
+  }
 }

@@ -16,7 +16,7 @@ class BasicType : ReflectedType
 {
   this(const(char)[] name)
   {
-    name = name;
+    this.name = name;
   }
 
   const(char)[] name;
@@ -24,12 +24,42 @@ class BasicType : ReflectedType
 
 class PointerType : ReflectedType
 {
+  this(ReflectedType next)
+  {
+    this.next = next;
+  }
+
 	ReflectedType next;
 }
 
 class ArrayType : ReflectedType
 {
+  this(ReflectedType next)
+  {
+    this.next = next;
+  }
+
 	ReflectedType next;
+}
+
+class ConstType : ReflectedType
+{
+  this(ReflectedType next)
+  {
+    this.next = next;
+  }
+
+  ReflectedType next;
+}
+
+class ImmutableType : ReflectedType
+{
+  this(ReflectedType next)
+  {
+    this.next = next;
+  }
+
+  ReflectedType next;
 }
 
 struct Member
@@ -99,6 +129,16 @@ template nextType(T)
 		alias type = U;
 		alias info = ArrayType;
 	}
+  else static if(is(T U == const U))
+  {
+    alias type = U;
+    alias info = ConstType;
+  }
+  else static if(is(T U == immutable U))
+  {
+    alias type = U;
+    alias info = ImmutableType;
+  }
 	else static if(is(T == struct))
 	{
 		alias type = TypeChainEnd;
@@ -130,6 +170,10 @@ static assert(is(nextType!(ReflectedType[]).type == ReflectedType));
 static assert(is(nextType!(ReflectedType[]).info == ArrayType));
 static assert(is(nextType!(ReflectedType).type == TypeChainEnd));
 static assert(is(nextType!(ReflectedType).info == ClassType));
+static assert(is(nextType!(const(int)).type == int));
+static assert(is(nextType!(const(int)).info == ConstType));
+static assert(is(nextType!(immutable(int)).type == int));
+static assert(is(nextType!(immutable(int)).info == ImmutableType));
 
 void PrintMembers(alias T)()
 {
