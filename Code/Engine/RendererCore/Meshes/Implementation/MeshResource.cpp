@@ -6,25 +6,42 @@
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshResource, ezResourceBase, 1, ezRTTIDefaultAllocator<ezMeshResource>);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
-void ezMeshResource::UnloadData(bool bFullUnload)
+ezMeshResource::ezMeshResource() : ezResource<ezMeshResource, ezMeshResourceDescriptor>(UpdateResource::OnAnyThread, 1)
+{
+}
+
+ezResourceLoadDesc ezMeshResource::UnloadData(Unload WhatToUnload)
 {
   m_Parts.Clear();
   m_uiMaterialCount = 0;
 
-  m_LoadingState = ezResourceLoadState::Uninitialized;
+  ezResourceLoadDesc res;
+  res.m_uiQualityLevelsDiscardable = 0;
+  res.m_uiQualityLevelsLoadable = 0;
+  res.m_State = ezResourceState::Unloaded;
+
+  return res;
 }
 
-void ezMeshResource::UpdateContent(ezStreamReaderBase* Stream)
+ezResourceLoadDesc ezMeshResource::UpdateContent(ezStreamReaderBase* Stream)
 {
+  EZ_ASSERT_NOT_IMPLEMENTED;
 
+  ezResourceLoadDesc res;
+  res.m_uiQualityLevelsDiscardable = 0;
+  res.m_uiQualityLevelsLoadable = 0;
+  res.m_State = ezResourceState::Unloaded;
+  
+  return res;
 }
 
-void ezMeshResource::UpdateMemoryUsage()
+void ezMeshResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
 {
+  EZ_ASSERT_NOT_IMPLEMENTED;
 
 }
 
-void ezMeshResource::CreateResource(const ezMeshResourceDescriptor& descriptor)
+ezResourceLoadDesc ezMeshResource::CreateResource(const ezMeshResourceDescriptor& descriptor)
 {
   /// \todo proper implementation
   ezResourceLock<ezMeshBufferResource> pMeshBuffer(descriptor.hMeshBuffer);
@@ -39,10 +56,12 @@ void ezMeshResource::CreateResource(const ezMeshResourceDescriptor& descriptor)
 
   m_uiMaterialCount = 1;
 
-  m_uiMaxQualityLevel = 1;
-  m_uiLoadedQualityLevel = 1;
+  ezResourceLoadDesc res;
+  res.m_uiQualityLevelsDiscardable = 0;
+  res.m_uiQualityLevelsLoadable = 0;
+  res.m_State = ezResourceState::Loaded;
 
-  m_LoadingState = ezResourceLoadState::Loaded;
+  return res;
 }
 
 

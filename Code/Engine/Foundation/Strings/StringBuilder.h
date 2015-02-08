@@ -350,6 +350,9 @@ public:
   /// This function will call 'MakeCleanPath' to be able to compare both paths, thus it might modify the data of this instance.
   bool IsPathBelowFolder(const char* szPathToFolder); // [tested]
 
+  /// \brief Returns the amount of bytes that are currently allocated on the heap.
+  ezUInt64 GetHeapMemoryUsage() const { return m_Data.GetHeapMemoryUsage(); }
+
 private:
   /// \brief Will remove all double path separators (slashes and backslashes) in a path, except if the path starts with two (back-)slashes, those are kept, as they might indicate a UNC path.
   void RemoveDoubleSlashesInPath(); // [tested]

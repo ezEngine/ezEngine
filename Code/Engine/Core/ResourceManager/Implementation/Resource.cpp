@@ -18,17 +18,17 @@ EZ_CORE_DLL void DecreaseResourceRefCount(ezResourceBase* pResource)
   pResource->m_iReferenceCount.Decrement();
 }
 
-ezResourceBase::ezResourceBase()
+ezResourceBase::ezResourceBase(UpdateResource ResourceUpdateThread, ezUInt8 uiQualityLevelsLoadable)
 {
+  m_Flags.AddOrRemove(ezResourceFlags::UpdateOnMainThread, ResourceUpdateThread == UpdateResource::OnMainThread);
+
   m_iReferenceCount = 0;
-  m_LoadingState = ezResourceLoadState::Uninitialized;
-  m_uiMaxQualityLevel = 0;
-  m_uiLoadedQualityLevel = 0;
+  m_LoadingState = ezResourceState::Unloaded;
+  m_uiQualityLevelsLoadable = uiQualityLevelsLoadable;
+  m_uiQualityLevelsDiscardable = 0;
   m_Priority = ezResourcePriority::Normal;
   m_bIsPreloading = false;
   SetDueDate();
-  m_uiMemoryCPU = 0;
-  m_uiMemoryGPU = 0;
 }
 
 void ezResourceBase::SetUniqueID(const ezString& UniqueID)
@@ -36,31 +36,58 @@ void ezResourceBase::SetUniqueID(const ezString& UniqueID)
   m_UniqueID = UniqueID;
 }
 
+void ezResourceBase::CallUnloadData(Unload WhatToUnload)
+{
+  ezResourceLoadDesc ld = UnloadData(WhatToUnload);
+
+  EZ_ASSERT_DEV(ld.m_State != ezResourceState::Invalid, "UnloadData() did not return a valid resource load state");
+  EZ_ASSERT_DEV(ld.m_uiQualityLevelsDiscardable != 0xFF, "UnloadData() did not fill out m_uiQualityLevelsDiscardable correctly");
+  EZ_ASSERT_DEV(ld.m_uiQualityLevelsLoadable != 0xFF, "UnloadData() did not fill out m_uiQualityLevelsLoadable correctly");
+
+  m_LoadingState = ld.m_State;
+  m_uiQualityLevelsDiscardable = ld.m_uiQualityLevelsDiscardable;
+  m_uiQualityLevelsLoadable = ld.m_uiQualityLevelsLoadable;
+}
+
+void ezResourceBase::CallUpdateContent(ezStreamReaderBase* Stream)
+{
+  ezResourceLoadDesc ld = UpdateContent(Stream);
+
+  EZ_ASSERT_DEV(ld.m_State != ezResourceState::Invalid, "UpdateContent() did not return a valid resource load state");
+  EZ_ASSERT_DEV(ld.m_uiQualityLevelsDiscardable != 0xFF, "UpdateContent() did not fill out m_uiQualityLevelsDiscardable correctly");
+  EZ_ASSERT_DEV(ld.m_uiQualityLevelsLoadable != 0xFF, "UpdateContent() did not fill out m_uiQualityLevelsLoadable correctly");
+
+  m_LoadingState = ld.m_State;
+  m_uiQualityLevelsDiscardable = ld.m_uiQualityLevelsDiscardable;
+  m_uiQualityLevelsLoadable = ld.m_uiQualityLevelsLoadable;
+}
+
 ezTime ezResourceBase::GetLoadingDeadline(ezTime tNow) const
 {
   ezTime DueDate = tNow;
 
-  /// \todo This needs to be tweaked.
-  /// Resources that are not loaded should ALWAYS take precedence before ALL others (unless not requested in a longer time).
+  ezTime tDelay;
 
-  if (GetLoadingState() != ezResourceLoadState::Loaded)
+  if (GetLoadingState() != ezResourceState::Loaded)
   {
     if (!GetBaseResourceFlags().IsAnySet(ezResourceFlags::ResourceHasFallback))
+    {
       DueDate = ezTime::Seconds(0.0);
-
-    DueDate += ezTime::Seconds((double) GetPriority() + 1.0);
+      tDelay = ezTime::Seconds(1.0); // to get a sorting by priority
+    }
+    else
+    {
+      tDelay += ezMath::Min((tNow - GetLastAcquireTime()) / 10.0, ezTime::Seconds(10.0));
+    }
   }
   else
   {
-    if (GetMaxQualityLevel() > 0)
-    {
-      double fQuality = (double) GetLoadedQualityLevel() / (double) GetMaxQualityLevel();
-      DueDate += ezTime::Seconds(fQuality * 5.0);
-    }
+    tDelay += ezTime::Seconds(GetNumQualityLevelsDiscardable() * 10.0);
 
-    DueDate += (ezTime::Seconds(1.0) + (tNow - GetLastAcquireTime())) * ((double) GetPriority() + 1.0);
-
+    tDelay += (tNow - GetLastAcquireTime()) * 2.0;
   }
+
+  DueDate += tDelay * ((double) GetPriority() + 1.0);
 
   return ezMath::Min(DueDate, m_DueDate);
 }

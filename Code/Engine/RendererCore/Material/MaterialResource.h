@@ -56,10 +56,10 @@ public:
   }
 
 private:
-  virtual void UnloadData(bool bFullUnload) override;
-  virtual void UpdateContent(ezStreamReaderBase* Stream) override;
-  virtual void UpdateMemoryUsage() override;
-  virtual void CreateResource(const ezMaterialResourceDescriptor& descriptor) override;
+  virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
+  virtual ezResourceLoadDesc UpdateContent(ezStreamReaderBase* Stream) override;
+  virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;
+  virtual ezResourceLoadDesc CreateResource(const ezMaterialResourceDescriptor& descriptor) override;
 
 private:
   ezMaterialResourceDescriptor m_Desc;

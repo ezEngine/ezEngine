@@ -31,14 +31,14 @@ public:
     ezFileReader File;
 
     ezStringBuilder sFile;
-    sFile.Format("Textures/Streaming%i.tga", ezMath::Pow2(pResource->GetLoadedQualityLevel()));
+    sFile.Format("Textures/Streaming%i.tga", ezMath::Pow2(pResource->GetNumQualityLevelsDiscardable()));
     EZ_VERIFY(File.Open(sFile.GetData()).Succeeded(), "Failed to load image '%s'", sFile.GetData());
 
     Data* pData = EZ_DEFAULT_NEW(Data);
 
     ezMemoryStreamWriter w(&pData->m_Storage);
-    w << (ezInt32) (pResource->GetLoadedQualityLevel() + 1);
-    w << ezColor(1, 1, (float) pResource->GetLoadedQualityLevel() + 1.0f / (float) pResource->GetMaxQualityLevel(), 0);
+    w << (ezInt32) (pResource->GetNumQualityLevelsDiscardable() + 1);
+    w << ezColor(1, 1, (float) pResource->GetNumQualityLevelsDiscardable() + 1.0f / (float) (pResource->GetNumQualityLevelsDiscardable() + pResource->GetNumQualityLevelsLoadable()), 0);
 
     while (true)
     {
@@ -401,5 +401,9 @@ void GameRenderer::RenderMousePicking()
 
 void GameRenderer::Present()
 {
+  m_pDevice->BeginFrame();
+
   m_pDevice->Present(m_pDevice->GetPrimarySwapChain());
+
+  m_pDevice->EndFrame();
 }

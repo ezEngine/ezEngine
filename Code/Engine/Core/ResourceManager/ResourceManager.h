@@ -12,6 +12,8 @@
 /// \todo Missing resource for one type
 /// \todo Events: Resource loaded / unloaded etc.
 /// \todo Prevent loading of resource that should get created
+/// \todo Quality levels (unload/recreate) for created resources (max == 0 -> not unloadable?)
+/// \todo "Unloadable Quality Levels" / "Loadable Quality Levels" instead of cur/max ?
 
 // Resource Flags:
 // Category / Group (Texture Sets)
@@ -57,7 +59,7 @@ public:
   static ezResourceHandle<ResourceType> LoadResource(const char* szResourceID);
 
   template<typename ResourceType>
-  static ezResourceHandle<ResourceType> LoadResource(const char* szResourceID, ezResourcePriority::Enum Priority, ezResourceHandle<ResourceType> hFallbackResource);
+  static ezResourceHandle<ResourceType> LoadResource(const char* szResourceID, ezResourcePriority Priority, ezResourceHandle<ResourceType> hFallbackResource);
 
   template<typename ResourceType>
   static ezResourceHandle<ResourceType> CreateResource(const char* szResourceID, const typename ResourceType::DescriptorType& descriptor);
@@ -66,7 +68,7 @@ public:
   static ezResourceHandle<ResourceType> GetCreatedResource(const char* szResourceID);
 
   template<typename ResourceType>
-  static ResourceType* BeginAcquireResource(const ezResourceHandle<ResourceType>& hResource, ezResourceAcquireMode::Enum mode = ezResourceAcquireMode::AllowFallback, ezResourcePriority::Enum Priority = ezResourcePriority::Unchanged);
+  static ResourceType* BeginAcquireResource(const ezResourceHandle<ResourceType>& hResource, ezResourceAcquireMode mode = ezResourceAcquireMode::AllowFallback, const ezResourceHandle<ResourceType>& hFallbackResource = ezResourceHandle<ResourceType>(), ezResourcePriority Priority = ezResourcePriority::Unchanged);
 
   template<typename ResourceType>
   static void EndAcquireResource(ResourceType* pResource);
@@ -87,9 +89,7 @@ public:
   template<typename ResourceType>
   static void PreloadResource(const ezResourceHandle<ResourceType>& hResource, ezTime tShouldBeAvailableIn);
 
-  static ezUInt32 FreeUnusedResources();
-
-  /// \todo ReloadResources of type / one / all (if necessary)
+  static ezUInt32 FreeUnusedResources(bool bFreeAllUnused);
 
   template<typename ResourceType>
   static void ReloadResource(const ezResourceHandle<ResourceType>& hResource);
@@ -102,6 +102,8 @@ public:
   static void ReloadAllResources();
 
   //static void CleanUpResources();
+
+  static void PerFrameUpdate();
   
 private:
   friend class ezResourceManagerWorker;
@@ -159,6 +161,7 @@ private:
   static ezInt8 m_iCurrentWorkerGPU;
   static ezInt8 m_iCurrentWorker;
   static ezTime m_LastDeadLineUpdate;
+  static ezTime m_LastFrameUpdate;
 };
 
 /// \brief Helper class to acquire and release a resource safely.
@@ -169,9 +172,9 @@ template<class RESOURCE_TYPE>
 class ezResourceLock
 {
 public:
-  ezResourceLock(const ezResourceHandle<RESOURCE_TYPE>& hResource, ezResourceAcquireMode::Enum mode = ezResourceAcquireMode::AllowFallback, ezResourcePriority::Enum Priority = ezResourcePriority::Unchanged)
+  ezResourceLock(const ezResourceHandle<RESOURCE_TYPE>& hResource, ezResourceAcquireMode mode = ezResourceAcquireMode::AllowFallback, const ezResourceHandle<RESOURCE_TYPE>& hFallbackResource = ezResourceHandle<RESOURCE_TYPE>(), ezResourcePriority Priority = ezResourcePriority::Unchanged)
   {
-    m_pResource = ezResourceManager::BeginAcquireResource(hResource, mode, Priority);
+    m_pResource = ezResourceManager::BeginAcquireResource(hResource, mode, hFallbackResource, Priority);
   }
 
   ~ezResourceLock()

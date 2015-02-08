@@ -127,7 +127,7 @@ ezApplication::ApplicationExecution SampleGameApp::Run()
     ezTaskSystem::FinishFrameTasks();
   }
 
-  ezResourceManager::FreeUnusedResources();
+  ezResourceManager::FreeUnusedResources(false);
 
   ezTelemetry::PerFrameUpdate();
 

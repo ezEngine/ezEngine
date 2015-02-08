@@ -29,11 +29,11 @@ ezResourceHandle<ResourceType> ezResourceManager::LoadResource(const char* szRes
 }
 
 template<typename ResourceType>
-ezResourceHandle<ResourceType> ezResourceManager::LoadResource(const char* szResourceID, ezResourcePriority::Enum Priority, ezResourceHandle<ResourceType> hFallbackResource)
+ezResourceHandle<ResourceType> ezResourceManager::LoadResource(const char* szResourceID, ezResourcePriority Priority, ezResourceHandle<ResourceType> hFallbackResource)
 {
   ezResourceHandle<ResourceType> hResource (GetResource<ResourceType>(szResourceID));
 
-  ResourceType* pResource = ezResourceManager::BeginAcquireResource(hResource, ezResourceAcquireMode::PointerOnly, Priority);
+  ResourceType* pResource = ezResourceManager::BeginAcquireResource(hResource, ezResourceAcquireMode::PointerOnly, ezResourceHandle<ResourceType>(), Priority);
 
   if (hFallbackResource.IsValid())
   {
@@ -69,16 +69,15 @@ ezResourceHandle<ResourceType> ezResourceManager::CreateResource(const char* szR
 
   ResourceType* pResource = BeginAcquireResource(hResource, ezResourceAcquireMode::PointerOnly);
 
-  EZ_ASSERT_DEV(pResource->GetLoadingState() == ezResourceLoadState::Uninitialized, "CreateResource was called on a resource this is already created");
+  EZ_ASSERT_DEV(pResource->GetLoadingState() == ezResourceState::Unloaded, "CreateResource was called on a resource that is already created");
 
   // If this does not compile, you have forgotten to make ezResourceManager a friend of your resource class.
   // which probably means that you did not derive from ezResource, which you should do!
-  static_cast<ezResource<ResourceType, typename ResourceType::DescriptorType>*>(pResource)->CreateResource(descriptor);
+  static_cast<ezResource<ResourceType, typename ResourceType::DescriptorType>*>(pResource)->CallCreateResource(descriptor);
 
   pResource->m_Flags.Add(ezResourceFlags::WasCreated);
 
-  EZ_ASSERT_DEV(pResource->GetLoadingState() != ezResourceLoadState::Uninitialized, "CreateResource did not set the loading state properly.");
-  EZ_ASSERT_DEV(pResource->GetMaxQualityLevel() > 0, "CreateResource did not set the max quality level properly.");
+  EZ_ASSERT_DEV(pResource->GetLoadingState() != ezResourceState::Unloaded, "CreateResource did not set the loading state properly.");
 
   EndAcquireResource(pResource);
 
@@ -86,7 +85,7 @@ ezResourceHandle<ResourceType> ezResourceManager::CreateResource(const char* szR
 }
 
 template<typename ResourceType>
-ResourceType* ezResourceManager::BeginAcquireResource(const ezResourceHandle<ResourceType>& hResource, ezResourceAcquireMode::Enum mode, ezResourcePriority::Enum Priority)
+ResourceType* ezResourceManager::BeginAcquireResource(const ezResourceHandle<ResourceType>& hResource, ezResourceAcquireMode mode, const ezResourceHandle<ResourceType>& hFallbackResource, ezResourcePriority Priority)
 {
   EZ_ASSERT_DEV(hResource.IsValid(), "Cannot acquire a resource through an invalid handle!");
 
@@ -96,16 +95,16 @@ ResourceType* ezResourceManager::BeginAcquireResource(const ezResourceHandle<Res
   EZ_ASSERT_DEBUG(pResource->GetDynamicRTTI() == ezGetStaticRTTI<ResourceType>(), "The requested resource does not have the same type ('%s') as the resource handle ('%s').", pResource->GetDynamicRTTI()->GetTypeName(), ezGetStaticRTTI<ResourceType>()->GetTypeName());
 
   if (mode == ezResourceAcquireMode::PointerOnly ||
-     (mode == ezResourceAcquireMode::MetaInfo && pResource->GetLoadingState() >= ezResourceLoadState::MetaInfoAvailable))
+     (mode == ezResourceAcquireMode::MetaInfo && pResource->GetLoadingState() >= ezResourceState::UnloadedMetaInfoAvailable))
   {
     pResource->m_iLockCount.Increment();
     return pResource;
   }
 
   // only set the last accessed time stamp, if it is actually needed, pointer-only access might not mean that the resource is used productively
-  pResource->m_LastAcquire = ezTime::Now();
+  pResource->m_LastAcquire = m_LastFrameUpdate;
 
-  if (pResource->GetLoadingState() != ezResourceLoadState::Loaded)
+  if (pResource->GetLoadingState() != ezResourceState::Loaded)
   {
     // only modify the priority, if the resource is not yet loaded
     if (Priority != ezResourcePriority::Unchanged)
@@ -115,16 +114,20 @@ ResourceType* ezResourceManager::BeginAcquireResource(const ezResourceHandle<Res
     // even after recalculating priorities, it will end up as top priority
     InternalPreloadResource(pResource, true);
 
-    if (mode == ezResourceAcquireMode::AllowFallback && pResource->m_hFallback.IsValid())
+    if (mode == ezResourceAcquireMode::AllowFallback && (hFallbackResource.IsValid() || pResource->m_hFallback.IsValid()))
     {
       // return the fallback resource for now, if there is one
-      return (ResourceType*) BeginAcquireResource(pResource->m_hFallback);
+
+      if (pResource->m_hFallback.IsValid())
+        return (ResourceType*) BeginAcquireResource(pResource->m_hFallback);
+      else
+        return (ResourceType*) BeginAcquireResource(hFallbackResource);
     }
 
-    const ezResourceLoadState::Enum RequestedState = (mode == ezResourceAcquireMode::MetaInfo) ? ezResourceLoadState::MetaInfoAvailable : ezResourceLoadState::Loaded;
+    const ezResourceState RequestedState = (mode == ezResourceAcquireMode::MetaInfo) ? ezResourceState::UnloadedMetaInfoAvailable : ezResourceState::Loaded;
 
     // help loading until the requested resource is available
-    while (pResource->GetLoadingState() < RequestedState)
+    while ((ezInt32) pResource->GetLoadingState() < (ezInt32) RequestedState)
     {
       if (!m_WorkerTask[m_iCurrentWorker].IsTaskFinished())
         ezTaskSystem::WaitForTask(&m_WorkerTask[m_iCurrentWorker]);
@@ -147,7 +150,7 @@ ResourceType* ezResourceManager::BeginAcquireResource(const ezResourceHandle<Res
   else
   {
     // as long as there are more quality levels available, schedule the resource for more loading
-    if (pResource->m_bIsPreloading == false && pResource->m_uiLoadedQualityLevel < pResource->m_uiMaxQualityLevel)
+    if (pResource->m_bIsPreloading == false && pResource->GetNumQualityLevelsLoadable() > 0)
       InternalPreloadResource(pResource, false);
   }
 

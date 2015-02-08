@@ -47,11 +47,9 @@ class ColorResource : public ezResource<ColorResource, ColorResourceDescriptor>
 public:
   static const int MaxLod = 7;
 
-  ColorResource()
+  ColorResource() : ezResource<ColorResource, ColorResourceDescriptor>(UpdateResource::OnMainThread, MaxLod)
   {
     m_Color = ezColor(0, 0, 0);
-    m_uiMaxQualityLevel = MaxLod;
-    m_Flags |= ezResourceFlags::UpdateOnMainThread;
     m_uiTextureID = 0;
   }
 
@@ -60,7 +58,7 @@ public:
 private:
   friend class ezResourceManager;
 
-  virtual void UpdateContent(ezStreamReaderBase* Stream) override 
+  virtual ezResourceLoadDesc UpdateContent(ezStreamReaderBase* Stream) override 
   {
     ezColor c;
     ezInt32 state;
@@ -69,8 +67,10 @@ private:
 
     m_Color = c;
 
-    m_LoadingState = ezResourceLoadState::Loaded;
-    m_uiLoadedQualityLevel = state;
+    ezResourceLoadDesc res;
+    res.m_State = ezResourceState::Loaded;
+    res.m_uiQualityLevelsDiscardable = state;
+    res.m_uiQualityLevelsLoadable = MaxLod - state;
 
     ezImage img0;
 
@@ -108,55 +108,72 @@ private:
     ezUInt32 uiWidth = img.GetWidth(0);
     ezUInt32 uiHeight = img.GetHeight(0);
     void* pPixelData = img.GetPixelPointer<void*>(0, 0, 0, 0, 0, 0);
-    glTexSubImage2D(GL_TEXTURE_2D, MaxLod - (m_uiLoadedQualityLevel - 1), 0, 0, uiWidth, uiHeight, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV, pPixelData);
+    glTexSubImage2D(GL_TEXTURE_2D, MaxLod - (GetNumQualityLevelsDiscardable() - 1), 0, 0, uiWidth, uiHeight, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV, pPixelData);
     //glTexImage2D(GL_TEXTURE_2D, MaxLod - (m_uiLoadedQualityLevel - 1), GL_RGBA8, uiWidth, uiHeight, 0, GL_BGRA, GL_UNSIGNED_INT_8_8_8_8_REV, pPixelData);
 
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, MaxLod - (m_uiLoadedQualityLevel - 1));
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, MaxLod - (res.m_uiQualityLevelsDiscardable - 1));
 
     glDisable(GL_TEXTURE_2D);
+
+    return res;
   }
 
-  virtual void CreateResource(const ColorResourceDescriptor& descriptor) override
+  virtual ezResourceLoadDesc CreateResource(const ColorResourceDescriptor& descriptor) override
   {
+    //EZ_ASSERT_NOT_IMPLEMENTED;
+
     m_Color = descriptor.m_Color;
-    m_uiMaxQualityLevel = 1;
-    m_uiLoadedQualityLevel = 1;
-    m_LoadingState = ezResourceLoadState::Loaded;
+
+    ezResourceLoadDesc res;
+    res.m_State = ezResourceState::Loaded;
+    res.m_uiQualityLevelsDiscardable = 0;
+    res.m_uiQualityLevelsLoadable = 0;
+
+    return res;
   }
 
-  virtual void UpdateMemoryUsage() override
+  virtual ezResourceLoadDesc UnloadData(ezResourceBase::Unload WhatToUnload) override
+  {
+    ezResourceLoadDesc res;
+    res.m_uiQualityLevelsDiscardable = GetNumQualityLevelsDiscardable();
+    res.m_uiQualityLevelsLoadable = GetNumQualityLevelsLoadable();
+
+    if (WhatToUnload == Unload::AllQualityLevels || res.m_uiQualityLevelsDiscardable == 1)
+    {
+      res.m_State = ezResourceState::Unloaded;
+      m_Color = ezColor(1, 0, 0);
+      res.m_uiQualityLevelsDiscardable = 0;
+      res.m_uiQualityLevelsLoadable = MaxLod;
+    }
+    else
+    {
+      res.m_State = ezResourceState::Loaded;
+      ++res.m_uiQualityLevelsLoadable;
+      --res.m_uiQualityLevelsDiscardable;
+      m_Color = ezColor(1, 1, (float) res.m_uiQualityLevelsDiscardable / (float) (res.m_uiQualityLevelsLoadable + res.m_uiQualityLevelsDiscardable));
+    }
+
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, m_uiTextureID);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, MaxLod - (res.m_uiQualityLevelsDiscardable - 1));
+    glDisable(GL_TEXTURE_2D);
+
+    return res;
+  }
+
+  virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override
   {
     ezUInt32 uiMemory = 0;
     ezUInt32 uiFactor = 4; // Lowest Mipmap is 1 pixel with 4 bytes
 
-    for (ezUInt32 i = 0; i < m_uiLoadedQualityLevel; ++i)
+    for (ezUInt32 i = 0; i < GetNumQualityLevelsDiscardable(); ++i)
     {
       uiMemory += uiFactor;
       uiFactor *= 4;
     }
 
-    SetMemoryUsageCPU(0);
-    SetMemoryUsageGPU(uiMemory);
-  }
-
-  virtual void UnloadData(bool bFullUnload) override
-  {
-    if (bFullUnload || m_uiLoadedQualityLevel == 1)
-    {
-      m_Color = ezColor(1, 0, 0);
-      m_LoadingState = ezResourceLoadState::Uninitialized;
-      m_uiLoadedQualityLevel = 0;
-    }
-    else
-    {
-      --m_uiLoadedQualityLevel;
-      m_Color = ezColor(1, 1, (float) GetLoadedQualityLevel() / (float) GetMaxQualityLevel());
-    }
-
-    glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, m_uiTextureID);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_BASE_LEVEL, MaxLod - (m_uiLoadedQualityLevel - 1));
-    glDisable(GL_TEXTURE_2D);
+    out_NewMemoryUsage.m_uiMemoryCPU = 0;
+    out_NewMemoryUsage.m_uiMemoryGPU = uiMemory;
   }
 
 public:

@@ -18,18 +18,44 @@ class EZ_CORE_DLL ezResourceBase : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezResourceBase);
 
-public:
+protected:
+  enum class UpdateResource
+  {
+    OnMainThread,
+    OnAnyThread
+  };
+
+  enum class Unload
+  {
+    AllQualityLevels,
+    OneQualityLevel
+  };
+
   /// \brief Default constructor.
-  ezResourceBase();
+  ezResourceBase(UpdateResource ResourceUpdateThread, ezUInt8 uiQualityLevelsLoadable);
 
   /// \brief virtual destructor.
   virtual ~ezResourceBase() { }
+
+public:
+
+  struct MemoryUsage
+  {
+    MemoryUsage()
+    {
+      m_uiMemoryCPU = 0;
+      m_uiMemoryGPU = 0;
+    }
+
+    ezUInt32 m_uiMemoryCPU;
+    ezUInt32 m_uiMemoryGPU;
+  };
 
   /// \brief Returns the unique ID that identifies this resource. On a file resource this might be a path. Can also be a GUID or any other scheme that uniquely identifies the resource.
   const ezString& GetResourceID() const { return m_UniqueID; }
 
   /// \brief Returns the current state in which this resource is in.
-  ezResourceLoadState::Enum GetLoadingState() const { return m_LoadingState; }
+  ezResourceState GetLoadingState() const { return m_LoadingState; }
 
   /// \brief Returns the current maximum quality level that the resource could have.
   ///
@@ -46,10 +72,10 @@ public:
   /// mipmap above that, which would result in 5 quality levels for a 1024*1024 texture.
   ///
   /// Most resource will have zero or one quality levels (which is the same) as they are either loaded or not.
-  ezUInt8 GetMaxQualityLevel() const { return m_uiMaxQualityLevel; }
+  ezUInt8 GetNumQualityLevelsDiscardable() const { return m_uiQualityLevelsDiscardable; }
 
-  /// \brief Returns the current quality level that is loaded for this resource. \see GetMaxQualityLevel
-  ezUInt8 GetLoadedQualityLevel() const { return m_uiLoadedQualityLevel; }
+  /// \brief Returns how many quality levels the resource may additionally load.
+  ezUInt8 GetNumQualityLevelsLoadable() const { return m_uiQualityLevelsLoadable; }
 
   /// \brief Sets the current priority of this resource.
   ///
@@ -67,10 +93,10 @@ public:
   /// Both can be combined. The due date always take precedence when it approaches, however as long as it is further away, priority has the most influence.
   ///
   /// \sa SetDueDate
-  void SetPriority(ezResourcePriority::Enum priority) { m_Priority = priority; }
+  void SetPriority(ezResourcePriority priority) { m_Priority = priority; }
 
   /// \brief Returns the currently user-specified priority of this resource. \see SetPriority
-  ezResourcePriority::Enum GetPriority() const { return m_Priority; }
+  ezResourcePriority GetPriority() const { return m_Priority; }
 
   /// \brief Specifies the time (usually in the future) at which this resource is needed and should be fully loaded.
   ///
@@ -98,11 +124,8 @@ public:
   /// \brief Returns the basic flags for the resource type. Mostly used the resource manager.
   const ezBitflags<ezResourceFlags>& GetBaseResourceFlags() const { return m_Flags; }
 
-  /// \brief Returns the CPU RAM used by the resource. This needs to be updated in UpdateMemoryUsage().
-  ezUInt32 GetMemoryUsageCPU() const { return m_uiMemoryCPU; }
-
-  /// \brief Returns the GPU memory used by the resource. This needs to be updated in UpdateMemoryUsage().
-  ezUInt32 GetMemoryUsageGPU() const { return m_uiMemoryGPU; }
+  /// \brief Returns the information about the current memory usage of the resource.
+  const MemoryUsage& GetMemoryUsage() const { return m_MemoryUsage; }
 
   /// \brief Returns the time at which the resource was (tried to be) acquired last.
   /// If a resource is acquired using ezResourceAcquireMode::PointerOnly, this does not update the last acquired time, since the resource is not acquired for full use.
@@ -125,15 +148,15 @@ private:
   /// \brief Called by ezResourceManager shortly after resource creation.
   void SetUniqueID(const ezString& UniqueID);
 
+  void CallUnloadData(Unload WhatToUnload);
+
   /// \brief Requests the resource to unload another quality level. If bFullUnload is true, the resource should unload all data, because it is going to be deleted afterwards.
-  virtual void UnloadData(bool bFullUnload) = 0;
+  virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) = 0;
+
+  void CallUpdateContent(ezStreamReaderBase* Stream);
 
   /// \brief Called whenever more data for the resource is available. The resource must read the stream to update it's data.
-  ///
-  /// Afterwards it must update the following data:
-  ///  m_uiLoadedQualityLevel and m_uiMaxQualityLevel (both are allowed to change)
-  ///  m_LoadingState (should be MetaInfoAvailable or Loaded afterwards)
-  virtual void UpdateContent(ezStreamReaderBase* Stream) = 0;
+  virtual ezResourceLoadDesc UpdateContent(ezStreamReaderBase* Stream) = 0;
 
   /// \brief Returns the resource type loader that should be used for this type of resource, unless it has been overridden on the ezResourceManager.
   ///
@@ -144,43 +167,40 @@ private:
   /// But in the default case, the resource defines which loader is used.
   virtual ezResourceTypeLoader* GetDefaultResourceTypeLoader() const;
 
+  volatile ezResourceState m_LoadingState;
+
+  ezUInt8 m_uiQualityLevelsDiscardable;
+  ezUInt8 m_uiQualityLevelsLoadable;
+
 protected:
 
-  // Derived classes MUST set these values properly when they update their data.
-
-  /// \brief Call this inside of UpdateMemoryUsage() to update the current memory usage.
-  void SetMemoryUsageCPU(ezUInt32 uiMemory) { m_uiMemoryCPU = uiMemory; }
-
-  /// \brief Call this inside of UpdateMemoryUsage() to update the current memory usage.
-  void SetMemoryUsageGPU(ezUInt32 uiMemory) { m_uiMemoryGPU = uiMemory; }
-
-  ezBitflags<ezResourceFlags> m_Flags;
-
-  volatile ezResourceLoadState::Enum m_LoadingState;
-
-  ezUInt8 m_uiMaxQualityLevel;
-  ezUInt8 m_uiLoadedQualityLevel;
+  /// \brief Non-const version for resources that want to write this variable directly.
+  MemoryUsage& ModifyMemoryUsage() { return m_MemoryUsage; }
 
 private:
   template<typename ResourceType>
   friend class ezResourceHandle;
+
+  template<typename SELF, typename SELF_DESCRIPTOR>
+  friend class ezResource;
 
   friend EZ_CORE_DLL void IncreaseResourceRefCount(ezResourceBase* pResource);
   friend EZ_CORE_DLL void DecreaseResourceRefCount(ezResourceBase* pResource);
 
   /// \brief This function must be overridden by all resource types.
   ///
-  /// It has to compute the CPU and GPU memory used by this resource, and set that via SetMemoryUsageCPU() and SetMemoryUsageGPU().
+  /// It has to compute the memory used by this resource.
   /// It is called by the resource manager whenever the resource's data has been loaded or unloaded.
-  virtual void UpdateMemoryUsage() = 0;
+  virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) = 0;
 
-  ezResourcePriority::Enum m_Priority;
+  ezBitflags<ezResourceFlags> m_Flags;
+
+  ezResourcePriority m_Priority;
   ezAtomicInteger32 m_iReferenceCount;
   ezAtomicInteger32 m_iLockCount;
   ezString m_UniqueID;
 
-  ezUInt32 m_uiMemoryCPU;
-  ezUInt32 m_uiMemoryGPU;
+  MemoryUsage m_MemoryUsage;
 
   bool m_bIsPreloading;
   
@@ -209,10 +229,32 @@ public:
     m_hFallback = hResource;
     m_Flags.AddOrRemove(ezResourceFlags::ResourceHasFallback, m_hFallback.IsValid());
   }
-  
+
+
+protected:
+
+  friend class ezResourceManager;
+
+  ezResource(UpdateResource ResourceUpdateThread, ezUInt8 uiQualityLevelsLoadable) : ezResourceBase(ResourceUpdateThread, uiQualityLevelsLoadable)
+  {
+  }
+
+  ~ezResource() { }
 
 private:
-  friend class ezResourceManager;
+
+  void CallCreateResource(const SELF_DESCRIPTOR& descriptor)
+  {
+    ezResourceLoadDesc ld = CreateResource(descriptor);
+
+    EZ_ASSERT_DEV(ld.m_State != ezResourceState::Invalid, "CreateResource() did not return a valid resource load state");
+    EZ_ASSERT_DEV(ld.m_uiQualityLevelsDiscardable != 0xFF, "CreateResource() did not fill out m_uiQualityLevelsDiscardable correctly");
+    EZ_ASSERT_DEV(ld.m_uiQualityLevelsLoadable != 0xFF, "CreateResource() did not fill out m_uiQualityLevelsLoadable correctly");
+
+    m_LoadingState = ld.m_State;
+    m_uiQualityLevelsDiscardable = ld.m_uiQualityLevelsDiscardable;
+    m_uiQualityLevelsLoadable = ld.m_uiQualityLevelsLoadable;
+  }
 
   /// \brief Override this function to implement resource creation. This is called by ezResourceManager::CreateResource.
   ///
@@ -226,9 +268,11 @@ private:
   /// Note that created resources should always set its loading state to 'Loaded' and its current and max quality to 1, otherwise
   /// the resource manager might try to load even more into the resource afterwards.
   /// However, since this might be a valid use case for some resource types, it is not enforced by the resource manager.
-  virtual void CreateResource(const SELF_DESCRIPTOR& descriptor)
+  virtual ezResourceLoadDesc CreateResource(const SELF_DESCRIPTOR& descriptor)
   {
     EZ_REPORT_FAILURE("The resource type '%s' does not support resource creation", GetDynamicRTTI()->GetTypeName());
+
+    return ezResourceLoadDesc();
   }
 
   ezResourceHandle<SELF> m_hFallback;

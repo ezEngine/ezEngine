@@ -13,6 +13,8 @@ class EZ_RENDERERCORE_DLL ezMeshResource : public ezResource<ezMeshResource, ezM
   EZ_ADD_DYNAMIC_REFLECTION(ezMeshResource);
 
 public:
+  ezMeshResource();
+
   struct Part
   {
     ezUInt32 m_uiPrimitiveCount;
@@ -32,10 +34,10 @@ public:
   }
 
 private:
-  virtual void UnloadData(bool bFullUnload) override;
-  virtual void UpdateContent(ezStreamReaderBase* Stream) override;
-  virtual void UpdateMemoryUsage() override;
-  virtual void CreateResource(const ezMeshResourceDescriptor& descriptor) override;
+  virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
+  virtual ezResourceLoadDesc UpdateContent(ezStreamReaderBase* Stream) override;
+  virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;
+  virtual ezResourceLoadDesc CreateResource(const ezMeshResourceDescriptor& descriptor) override;
 
   ezDynamicArray<Part> m_Parts;
   ezUInt32 m_uiMaterialCount;

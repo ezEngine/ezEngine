@@ -23,9 +23,9 @@ public:
   const ezString& GetUsedPermutationVars() const { return m_PermutationVarsUsed; }
 
 private:
-  virtual void UnloadData(bool bFullUnload) override;
-  virtual void UpdateContent(ezStreamReaderBase* Stream) override;
-  virtual void UpdateMemoryUsage() override;
+  virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
+  virtual ezResourceLoadDesc UpdateContent(ezStreamReaderBase* Stream) override;
+  virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;
 
 private:
   ezString m_PermutationVarsUsed;

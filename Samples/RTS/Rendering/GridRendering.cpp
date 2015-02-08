@@ -70,7 +70,7 @@ void GameRenderer::RenderGrid()
       {
         sColorResource.Format("Color%i%i", x, z);
 
-        ezResourcePriority::Enum iPriority = ezMath::Clamp((ezResourcePriority::Enum) (ezInt32) ((vCellPos - vCamPos).GetLength() / 10.0f), ezResourcePriority::Highest, ezResourcePriority::Lowest);
+        ezResourcePriority iPriority = ezMath::Clamp((ezResourcePriority) (ezInt32) ((vCellPos - vCamPos).GetLength() / 10.0f), ezResourcePriority::Highest, ezResourcePriority::Lowest);
 
         const_cast<GameCellData&>(cd).m_hColorResource = ezResourceManager::LoadResource<ColorResource>(sColorResource.GetData(), iPriority, g_pColorFallback);
       }
@@ -102,9 +102,9 @@ void GameRenderer::RenderGrid()
           RenderCube(m_pGrid->GetCellWorldSpaceOrigin(ezVec2I32(x, z)), vCellSize, true, fFade);
         else
         {
-          ezResourcePriority::Enum iPriority = ezMath::Clamp((ezResourcePriority::Enum) (ezInt32) ((vCellPos - vCamPos).GetLength() / 10.0f), ezResourcePriority::Highest, ezResourcePriority::Lowest);
+          ezResourcePriority iPriority = ezMath::Clamp((ezResourcePriority) (ezInt32) ((vCellPos - vCamPos).GetLength() / 10.0f), ezResourcePriority::Highest, ezResourcePriority::Lowest);
 
-          ColorResource* pColorRes = ezResourceManager::BeginAcquireResource(cd.m_hColorResource, ezResourceAcquireMode::AllowFallback, iPriority);
+          ColorResource* pColorRes = ezResourceManager::BeginAcquireResource(cd.m_hColorResource, ezResourceAcquireMode::AllowFallback, ColorResourceHandle(), iPriority);
           const ezColor c = pColorRes->m_Color;
 
           glColor3f(c.r, c.g, c.b);

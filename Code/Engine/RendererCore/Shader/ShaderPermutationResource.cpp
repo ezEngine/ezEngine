@@ -14,50 +14,54 @@ EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 static ezShaderPermutationResourceLoader g_PermutationResourceLoader;
 
-ezShaderPermutationResource::ezShaderPermutationResource()
+ezShaderPermutationResource::ezShaderPermutationResource() : ezResource<ezShaderPermutationResource, ezShaderPermutationResourceDescriptor>(UpdateResource::OnMainThread, 1)
 {
   m_bShaderPermutationValid = false;
-  m_uiMaxQualityLevel = 1;
-  m_Flags.Add(ezResourceFlags::UpdateOnMainThread);
 
   for (ezUInt32 e = ezGALShaderStage::VertexShader; e < ezGALShaderStage::ENUM_COUNT; ++e)
     m_pShaderStageBinaries[e] = nullptr;
 }
 
-void ezShaderPermutationResource::UnloadData(bool bFullUnload)
+ezResourceLoadDesc ezShaderPermutationResource::UnloadData(Unload WhatToUnload)
 {
   m_bShaderPermutationValid = false;
-  m_uiLoadedQualityLevel = 0;
-  m_LoadingState = ezResourceLoadState::Uninitialized;
-
+  
   if (!m_hShader.IsInvalidated())
   {
     ezGALDevice::GetDefaultDevice()->DestroyShader(m_hShader);
     m_hShader.Invalidate();
   }
+
+  ezResourceLoadDesc res;
+  res.m_State = ezResourceState::Unloaded;
+  res.m_uiQualityLevelsDiscardable = 0;
+  res.m_uiQualityLevelsLoadable = 0;
+
+  return res;
 }
 
-void ezShaderPermutationResource::UpdateContent(ezStreamReaderBase* Stream)
+ezResourceLoadDesc ezShaderPermutationResource::UpdateContent(ezStreamReaderBase* Stream)
 {
   ezUInt32 uiGPUMem = 0;
-  SetMemoryUsageGPU(0);
+  ModifyMemoryUsage().m_uiMemoryGPU = 0;
 
   m_bShaderPermutationValid = false;
 
-  m_LoadingState = ezResourceLoadState::Loaded;
-  m_uiLoadedQualityLevel = 1;
-  m_uiMaxQualityLevel = 1;
+  ezResourceLoadDesc res;
+  res.m_State = ezResourceState::Loaded;
+  res.m_uiQualityLevelsDiscardable = 0;
+  res.m_uiQualityLevelsLoadable = 0;
 
   if (Stream == nullptr)
   {
     ezLog::Error("Shader Permutation '%s': Data is not available", GetResourceID().GetData());
-    return;
+    return res; /// \todo Missing resource
   }
 
   if (m_PermutationBinary.Read(*Stream).Failed())
   {
     ezLog::Error("Shader Permutation '%s': Could not read shader permutation binary", GetResourceID().GetData());
-    return;
+    return res; /// \todo Missing resource
   }
 
   ezGALShaderCreationDescription ShaderDesc;
@@ -75,7 +79,7 @@ void ezShaderPermutationResource::UpdateContent(ezStreamReaderBase* Stream)
     if (pStageBin == nullptr)
     {
       ezLog::Error("Shader Permutation '%s': Stage %u could not be loaded", GetResourceID().GetData(), stage);
-      return;
+      return res; /// \todo Missing resource
     }
 
     // store not only the hash but also the pointer to the stage binary
@@ -94,17 +98,20 @@ void ezShaderPermutationResource::UpdateContent(ezStreamReaderBase* Stream)
   if (m_hShader.IsInvalidated())
   {
     ezLog::Error("Shader Permutation '%s': Shader program creation failed", GetResourceID().GetData());
-    return;
+    return res; /// \todo Missing resource
   }
 
   m_bShaderPermutationValid = true;
 
-  SetMemoryUsageGPU(uiGPUMem);
+  ModifyMemoryUsage().m_uiMemoryGPU = uiGPUMem;
+
+  return res;
 }
 
-void ezShaderPermutationResource::UpdateMemoryUsage()
+void ezShaderPermutationResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
 {
-  SetMemoryUsageCPU(sizeof(this));
+  out_NewMemoryUsage.m_uiMemoryCPU = 0;
+  out_NewMemoryUsage.m_uiMemoryGPU = ModifyMemoryUsage().m_uiMemoryGPU;
 }
 
 ezResourceTypeLoader* ezShaderPermutationResource::GetDefaultResourceTypeLoader() const

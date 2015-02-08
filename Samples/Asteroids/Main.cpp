@@ -94,7 +94,7 @@ void SampleGameApp::BeforeEngineShutdown()
   ezRenderPipeline* pRenderPipeline = m_View.GetRenderPipeline();
   EZ_DEFAULT_DELETE(pRenderPipeline);
 
-  while (ezResourceManager::FreeUnusedResources() > 0) { }
+  ezResourceManager::FreeUnusedResources(true);
 
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
   pDevice->Shutdown();

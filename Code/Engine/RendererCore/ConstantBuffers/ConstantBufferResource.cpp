@@ -12,44 +12,58 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezConstantBufferResource, ezResourceBase, 1, ezR
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 
-ezConstantBufferResource::ezConstantBufferResource()
+ezConstantBufferResource::ezConstantBufferResource() : ezResource<ezConstantBufferResource, ezConstantBufferResourceDescriptorBase>(UpdateResource::OnMainThread, 1)
 {
-  m_uiMaxQualityLevel = 1;
-  m_Flags |= ezResourceFlags::UpdateOnMainThread;
+
 }
 
-void ezConstantBufferResource::UnloadData(bool bFullUnload)
+ezResourceLoadDesc ezConstantBufferResource::UnloadData(Unload WhatToUnload)
 {
-  m_uiLoadedQualityLevel = 0;
-  m_LoadingState = ezResourceLoadState::Uninitialized;
-
   m_Bytes.Clear();
 
   ezGALDevice::GetDefaultDevice()->DestroyBuffer(m_hGALConstantBuffer);
   m_hGALConstantBuffer.Invalidate();
+
+  ezResourceLoadDesc res;
+  res.m_uiQualityLevelsDiscardable = 0;
+  res.m_uiQualityLevelsLoadable = 0; // not reloadable
+  res.m_State = ezResourceState::Unloaded;
+
+  return res;
 }
 
-void ezConstantBufferResource::UpdateContent(ezStreamReaderBase* Stream)
+void ezConstantBufferResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
+{
+  out_NewMemoryUsage.m_uiMemoryCPU = m_Bytes.GetCount();
+  out_NewMemoryUsage.m_uiMemoryGPU = m_Bytes.GetCount();
+}
+
+ezResourceLoadDesc ezConstantBufferResource::UpdateContent(ezStreamReaderBase* Stream)
 {
   EZ_REPORT_FAILURE("This resource type does not support loading data from file.");
+
+  ezResourceLoadDesc res;
+  res.m_uiQualityLevelsDiscardable = 0;
+  res.m_uiQualityLevelsLoadable = 0;
+  res.m_State = ezResourceState::Unloaded;
+
+  return res;
 }
 
-void ezConstantBufferResource::UpdateMemoryUsage()
-{
-  SetMemoryUsageCPU(m_Bytes.GetCount());
-  SetMemoryUsageGPU(m_Bytes.GetCount());
-}
-
-void ezConstantBufferResource::CreateResource(const ezConstantBufferResourceDescriptorBase& descriptor)
+ezResourceLoadDesc ezConstantBufferResource::CreateResource(const ezConstantBufferResourceDescriptorBase& descriptor)
 {
   m_bHasBeenModified = true;
   m_Bytes.SetCount(descriptor.m_uiSize);
   ezMemoryUtils::Copy<ezUInt8>(m_Bytes.GetData(), descriptor.m_pBytes, descriptor.m_uiSize);
 
-  m_uiLoadedQualityLevel = 1;
-  m_LoadingState = ezResourceLoadState::Loaded;
-
   m_hGALConstantBuffer = ezGALDevice::GetDefaultDevice()->CreateConstantBuffer(m_Bytes.GetCount());
+
+  ezResourceLoadDesc res;
+  res.m_uiQualityLevelsDiscardable = 0;
+  res.m_uiQualityLevelsLoadable = 0;
+  res.m_State = ezResourceState::Loaded;
+
+  return res;
 }
 
 void ezConstantBufferResource::UploadStateToGPU(ezGALContext* pContext)

@@ -90,7 +90,7 @@ private:
   ezDynamicArray<ezUInt8> m_IndexBufferData;
 };
 
-class EZ_RENDERERCORE_DLL ezMeshBufferResource : public ezResource < ezMeshBufferResource, ezMeshBufferResourceDescriptor >
+class EZ_RENDERERCORE_DLL ezMeshBufferResource : public ezResource<ezMeshBufferResource, ezMeshBufferResourceDescriptor>
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezMeshBufferResource);
 
@@ -117,10 +117,10 @@ public:
   const ezVertexDeclarationInfo& GetVertexDeclaration() const { return m_VertexDeclaration; }
 
 private:
-  virtual void UnloadData(bool bFullUnload) override;
-  virtual void UpdateContent(ezStreamReaderBase* Stream) override;
-  virtual void UpdateMemoryUsage() override;
-  virtual void CreateResource(const ezMeshBufferResourceDescriptor& descriptor) override;
+  virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
+  virtual ezResourceLoadDesc UpdateContent(ezStreamReaderBase* Stream) override;
+  virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;
+  virtual ezResourceLoadDesc CreateResource(const ezMeshBufferResourceDescriptor& descriptor) override;
 
   ezVertexDeclarationInfo m_VertexDeclaration;
   ezUInt32 m_uiPrimitiveCount;

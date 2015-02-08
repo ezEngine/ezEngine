@@ -97,11 +97,13 @@ public:
     m_pResource = NULL;
   }
 
+  /// \brief Checks whether the two handles point to the same resource.
   EZ_FORCE_INLINE bool operator==(const ezResourceHandle<ResourceType>& rhs) const
   {
     return m_pResource == rhs.m_pResource;
   }
 
+  /// \brief Checks whether the two handles point to the same resource.
   EZ_FORCE_INLINE bool operator!=(const ezResourceHandle<ResourceType>& rhs) const
   {
     return m_pResource != rhs.m_pResource;

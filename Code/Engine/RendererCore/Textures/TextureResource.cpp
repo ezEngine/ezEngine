@@ -44,17 +44,12 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureResource, ezResourceBase, 1, ezRTTIDefa
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 
-ezTextureResource::ezTextureResource()
+ezTextureResource::ezTextureResource() : ezResource<ezTextureResource, ezTextureResourceDescriptor>(UpdateResource::OnMainThread, 1)
 {
-  m_uiMaxQualityLevel = 1;
-  m_Flags |= ezResourceFlags::UpdateOnMainThread;
 }
 
-void ezTextureResource::UnloadData(bool bFullUnload)
+ezResourceLoadDesc ezTextureResource::UnloadData(Unload WhatToUnload)
 {
-  m_uiLoadedQualityLevel = 0;
-  m_LoadingState = ezResourceLoadState::Uninitialized;
-
   if (!m_hGALTexView.IsInvalidated())
   {
     ezGALDevice::GetDefaultDevice()->DestroyResourceView(m_hGALTexView);
@@ -72,6 +67,13 @@ void ezTextureResource::UnloadData(bool bFullUnload)
     ezGALDevice::GetDefaultDevice()->DestroySamplerState(m_hSamplerState);
     m_hSamplerState.Invalidate();
   }
+
+  ezResourceLoadDesc res;
+  res.m_uiQualityLevelsDiscardable = 0;
+  res.m_uiQualityLevelsLoadable = 0;
+  res.m_State = ezResourceState::Unloaded;
+
+  return res;
 }
 
 static ezGALResourceFormat::Enum ImgToGalFormat(ezImageFormat::Enum format, bool bSRGB)
@@ -232,7 +234,7 @@ static ezUInt32 GetBCnMemPitchFactor(ezImageFormat::Enum format)
   return 1;
 }
 
-void ezTextureResource::UpdateContent(ezStreamReaderBase* Stream)
+ezResourceLoadDesc ezTextureResource::UpdateContent(ezStreamReaderBase* Stream)
 {
   bool bSuccess = false;
   *Stream >> bSuccess;
@@ -337,12 +339,15 @@ void ezTextureResource::UpdateContent(ezStreamReaderBase* Stream)
     ezLog::Error("Loading the texture failed: '%s'", GetResourceID().GetData());
   }
 
-  m_LoadingState = ezResourceLoadState::Loaded;
-  m_uiLoadedQualityLevel = 1;
-  m_uiMaxQualityLevel = 1;
+  ezResourceLoadDesc res;
+  res.m_uiQualityLevelsDiscardable = 0;
+  res.m_uiQualityLevelsLoadable = 0;
+  res.m_State = ezResourceState::Loaded;
+
+  return res;
 }
 
-void ezTextureResource::UpdateMemoryUsage()
+void ezTextureResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
 {
   /// \todo Compute memory usage
 
@@ -350,10 +355,12 @@ void ezTextureResource::UpdateMemoryUsage()
   //SetMemoryUsageGPU(0);
 }
 
-void ezTextureResource::CreateResource(const ezTextureResourceDescriptor& descriptor)
+ezResourceLoadDesc ezTextureResource::CreateResource(const ezTextureResourceDescriptor& descriptor)
 {
   /// \todo Implement texture creation
   EZ_ASSERT_NOT_IMPLEMENTED;
+
+  return ezResourceLoadDesc();
 }
 
 ezResourceLoadData ezTextureResourceLoader::OpenDataStream(const ezResourceBase* pResource)

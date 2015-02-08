@@ -138,9 +138,7 @@ void ezGraphicsTest::ShutdownRenderer()
 
   ezStartup::ShutdownEngine();
 
-  while (ezResourceManager::FreeUnusedResources() > 0)
-  {
-  }
+  ezResourceManager::FreeUnusedResources(true);
 
   if (m_pDevice)
   {

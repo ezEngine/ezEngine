@@ -130,6 +130,9 @@ public:
   /// \brief Replaces the current string with the content from the stream. Reads the stream to its end.
   void ReadAll(ezStreamReaderBase& Stream);
 
+  /// \brief Returns the amount of bytes that are currently allocated on the heap.
+  ezUInt64 GetHeapMemoryUsage() const { return m_Data.GetHeapMemoryUsage(); }
+
 private:
   friend class ezStringBuilder;
 

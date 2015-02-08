@@ -6,28 +6,35 @@
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezShaderResource, ezResourceBase, 1, ezRTTIDefaultAllocator<ezShaderResource>);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
-ezShaderResource::ezShaderResource()
+ezShaderResource::ezShaderResource() : ezResource<ezShaderResource, ezShaderResourceDescriptor>(UpdateResource::OnAnyThread, 1)
 {
   m_bShaderResourceIsValid = false;
 }
 
-void ezShaderResource::UnloadData(bool bFullUnload)
+ezResourceLoadDesc ezShaderResource::UnloadData(Unload WhatToUnload)
 {
   m_bShaderResourceIsValid = false;
-  m_uiLoadedQualityLevel = 0;
   m_PermutationVarsUsed.Clear();
-  m_LoadingState = ezResourceLoadState::Uninitialized;
+  
+  ezResourceLoadDesc res;
+  res.m_uiQualityLevelsDiscardable = 0;
+  res.m_uiQualityLevelsLoadable = 0;
+  res.m_State = ezResourceState::Unloaded;
+
+  return res;
 }
 
-void ezShaderResource::UpdateContent(ezStreamReaderBase* Stream)
+ezResourceLoadDesc ezShaderResource::UpdateContent(ezStreamReaderBase* Stream)
 {
-  m_LoadingState = ezResourceLoadState::Loaded;
-  m_uiLoadedQualityLevel = 1;
-  m_uiMaxQualityLevel = 1;
+  ezResourceLoadDesc res;
+  res.m_uiQualityLevelsDiscardable = 0;
+  res.m_uiQualityLevelsLoadable = 0;
+  res.m_State = ezResourceState::Loaded;
+
   m_bShaderResourceIsValid = false;
 
   if (Stream == nullptr)
-    return;
+    return res; /// \todo Missing resource
 
   ezString sContent;
   sContent.ReadAll(*Stream);
@@ -38,12 +45,14 @@ void ezShaderResource::UpdateContent(ezStreamReaderBase* Stream)
   m_PermutationVarsUsed = Sections.GetSectionContent(ezShaderSections::PERMUTATIONS);
 
   m_bShaderResourceIsValid = true;
+
+  return res;
 }
 
-void ezShaderResource::UpdateMemoryUsage()
+void ezShaderResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
 {
-  SetMemoryUsageCPU(m_PermutationVarsUsed.GetElementCount());
-  SetMemoryUsageGPU(0);
+  out_NewMemoryUsage.m_uiMemoryCPU = (ezUInt32) m_PermutationVarsUsed.GetHeapMemoryUsage();
+  out_NewMemoryUsage.m_uiMemoryGPU = 0;
 }
 
 

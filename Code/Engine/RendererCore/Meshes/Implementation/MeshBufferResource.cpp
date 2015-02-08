@@ -123,11 +123,8 @@ ezUInt32 ezMeshBufferResourceDescriptor::GetPrimitiveCount() const
 }
 
 
-ezMeshBufferResource::ezMeshBufferResource()
+ezMeshBufferResource::ezMeshBufferResource() : ezResource<ezMeshBufferResource, ezMeshBufferResourceDescriptor>(UpdateResource::OnMainThread, 1)
 {
-  m_uiLoadedQualityLevel = 0;
-  m_uiMaxQualityLevel = 1;
-  m_Flags.Add(ezResourceFlags::UpdateOnMainThread);
 }
 
 ezMeshBufferResource::~ezMeshBufferResource()
@@ -136,7 +133,7 @@ ezMeshBufferResource::~ezMeshBufferResource()
   EZ_ASSERT_DEBUG(m_hIndexBuffer.IsInvalidated(), "Implementation error");
 }
 
-void ezMeshBufferResource::UnloadData(bool bFullUnload)
+ezResourceLoadDesc ezMeshBufferResource::UnloadData(Unload WhatToUnload)
 {
   if (!m_hVertexBuffer.IsInvalidated())
   {
@@ -152,23 +149,33 @@ void ezMeshBufferResource::UnloadData(bool bFullUnload)
 
   m_uiPrimitiveCount = 0;
 
-  m_uiMaxQualityLevel = 0; // cannot be reloaded
-  m_uiLoadedQualityLevel = 0;
-  m_LoadingState = ezResourceLoadState::Uninitialized;
+  // we cannot compute this in UpdateMemoryUsage(), so we only read the data there, therefore we need to update this information here
+  ModifyMemoryUsage().m_uiMemoryGPU = 0;
 
-  SetMemoryUsageGPU(0);
+  ezResourceLoadDesc res;
+  res.m_uiQualityLevelsDiscardable = 0;
+  res.m_uiQualityLevelsLoadable = 0;
+  res.m_State = ezResourceState::Unloaded;
+
+  return res;
 }
 
-void ezMeshBufferResource::UpdateContent(ezStreamReaderBase* Stream)
+ezResourceLoadDesc ezMeshBufferResource::UpdateContent(ezStreamReaderBase* Stream)
 {
   EZ_REPORT_FAILURE("This resource type does not support loading data from file.");
+
+  return ezResourceLoadDesc();
 }
 
-void ezMeshBufferResource::UpdateMemoryUsage()
+void ezMeshBufferResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
 {
+  // we cannot compute this data here, so we update it wherever we know the memory usage
+
+  out_NewMemoryUsage.m_uiMemoryCPU = 0;
+  out_NewMemoryUsage.m_uiMemoryGPU = ModifyMemoryUsage().m_uiMemoryGPU;
 }
 
-void ezMeshBufferResource::CreateResource(const ezMeshBufferResourceDescriptor& descriptor)
+ezResourceLoadDesc ezMeshBufferResource::CreateResource(const ezMeshBufferResourceDescriptor& descriptor)
 {
   EZ_ASSERT_DEBUG(m_hVertexBuffer.IsInvalidated(), "Implementation error");
   EZ_ASSERT_DEBUG(m_hIndexBuffer.IsInvalidated(), "Implementation error");
@@ -183,13 +190,15 @@ void ezMeshBufferResource::CreateResource(const ezMeshBufferResourceDescriptor& 
 
   m_uiPrimitiveCount = descriptor.GetPrimitiveCount();
 
-  m_uiMaxQualityLevel = 1;
-  m_uiLoadedQualityLevel = 1;
+  // we only know the memory usage here, so we write it back to the internal variable directly and then read it in UpdateMemoryUsage() again
+  ModifyMemoryUsage().m_uiMemoryGPU = descriptor.GetVertexBufferData().GetCount() + descriptor.GetIndexBufferData().GetCount();
 
-  m_LoadingState = ezResourceLoadState::Loaded;
+  ezResourceLoadDesc res;
+  res.m_uiQualityLevelsDiscardable = 0;
+  res.m_uiQualityLevelsLoadable = 0;
+  res.m_State = ezResourceState::Loaded;
 
-  SetMemoryUsageCPU(0);
-  SetMemoryUsageGPU(descriptor.GetVertexBufferData().GetCount() + descriptor.GetIndexBufferData().GetCount());
+  return res;
 }
 
 void ezVertexDeclarationInfo::ComputeHash()

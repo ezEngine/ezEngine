@@ -6,36 +6,41 @@
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMaterialResource, ezResourceBase, 1, ezRTTIDefaultAllocator<ezMaterialResource>);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
-ezMaterialResource::ezMaterialResource()
+ezMaterialResource::ezMaterialResource() : ezResource<ezMaterialResource, ezMaterialResourceDescriptor>(UpdateResource::OnAnyThread, 1)
 {
-  m_uiLoadedQualityLevel = 0;
-  m_uiMaxQualityLevel = 1;
 }
 
-void ezMaterialResource::UnloadData(bool bFullUnload)
+ezResourceLoadDesc ezMaterialResource::UnloadData(Unload WhatToUnload)
 {
   m_Desc.Clear();
 
-  m_LoadingState = ezResourceLoadState::Uninitialized;
+  ezResourceLoadDesc res;
+  res.m_uiQualityLevelsDiscardable = 0;
+  res.m_uiQualityLevelsLoadable = 0;
+  res.m_State = ezResourceState::Unloaded;
+
+  return res;
 }
 
-void ezMaterialResource::UpdateContent(ezStreamReaderBase* Stream)
+ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReaderBase* Stream)
 {
   m_Desc.Clear();
 
-  m_uiLoadedQualityLevel = 1;
-  m_LoadingState = ezResourceLoadState::Loaded;
+  ezResourceLoadDesc res;
+  res.m_uiQualityLevelsDiscardable = 0;
+  res.m_uiQualityLevelsLoadable = 0;
+  res.m_State = ezResourceState::Loaded;
 
   if (Stream == nullptr)
-    return; /// \todo need failure state for resources
+    return res; /// \todo need failure state for resources (Missing resource)
 
   ezExtendedJSONReader json;
   json.SetLogInterface(ezGlobalLog::GetInstance());
 
   if (json.Parse(*Stream).Failed())
   {
-    /// \todo Need failed resource loading state
-    return;
+     /// \todo need failure state for resources (Missing resource)
+    return res;
   }
 
   EZ_LOG_BLOCK("ezMaterialResource::UpdateContent", GetResourceID().GetData());
@@ -165,28 +170,30 @@ void ezMaterialResource::UpdateContent(ezStreamReaderBase* Stream)
       }
     }
   }
+
+  return res;
 }
 
-void ezMaterialResource::UpdateMemoryUsage()
+void ezMaterialResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
 {
-  /// \todo Need a function on containers to query the memory usage (including over-allocated elements)
+  out_NewMemoryUsage.m_uiMemoryCPU = (ezUInt32) (m_Desc.m_PermutationVars.GetHeapMemoryUsage() +
+                                                 m_Desc.m_ShaderConstants.GetHeapMemoryUsage() +
+                                                 m_Desc.m_TextureBindings.GetHeapMemoryUsage());
 
-  SetMemoryUsageCPU(sizeof(ezMaterialResource) +
-                    m_Desc.m_PermutationVars.GetCount() * sizeof(ezMaterialResourceDescriptor::PermutationVar) + 
-                    m_Desc.m_ShaderConstants.GetCount() * sizeof(ezMaterialResourceDescriptor::ShaderConstant) +
-                    m_Desc.m_TextureBindings.GetCount() * sizeof(ezMaterialResourceDescriptor::TextureBinding));
+  out_NewMemoryUsage.m_uiMemoryGPU = 0;
 
-  SetMemoryUsageGPU(0);
 }
 
-void ezMaterialResource::CreateResource(const ezMaterialResourceDescriptor& descriptor)
+ezResourceLoadDesc ezMaterialResource::CreateResource(const ezMaterialResourceDescriptor& descriptor)
 {
   m_Desc = descriptor;
 
-  m_uiMaxQualityLevel = 1;
-  m_uiLoadedQualityLevel = 1;
+  ezResourceLoadDesc res;
+  res.m_State = ezResourceState::Loaded;
+  res.m_uiQualityLevelsDiscardable = 0;
+  res.m_uiQualityLevelsLoadable = 0;
 
-  m_LoadingState = ezResourceLoadState::Loaded;
+  return res;
 }
 
 
