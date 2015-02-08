@@ -82,7 +82,13 @@ const ezReflectedProperty* ezReflectedType::GetPropertyByName(const char* szProp
   {
     return &m_Properties[uiIndex];
   }
-  
+
+  if (GetParentTypeHandle().GetType() != nullptr)
+  {
+    return GetParentTypeHandle().GetType()->GetPropertyByName(szPropertyName);
+
+  }
+
   return nullptr;
 }
 
@@ -97,8 +103,9 @@ const ezReflectedProperty* ezReflectedType::GetPropertyByPath(const ezPropertyPa
 
     pCurrentProperty = pCurrentType->GetPropertyByName(szPropertyName);
     if (pCurrentProperty == nullptr)
+    {
       return nullptr;
-
+    }
     pCurrentType = pCurrentProperty->m_hTypeHandle.GetType();
   }
   return pCurrentProperty;

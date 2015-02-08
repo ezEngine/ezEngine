@@ -62,9 +62,18 @@ bool ezReflectedTypeStorageAccessor::SetValue(const ezPropertyPath& path, const 
       if (pProp == nullptr)
         return false;
 
-      ezInt64 iValue;
-      ezToolsReflectionUtils::StringToEnumeration(pProp->m_hTypeHandle.GetType(), value.Get<ezString>(), iValue);
-      m_Data[storageInfo->m_uiIndex] = ezVariant(iValue).ConvertTo(storageInfo->m_Type);
+      if (pProp->m_Flags.IsAnySet(PropertyFlags::IsEnum | PropertyFlags::IsBitflags))
+      {
+        ezInt64 iValue;
+        ezToolsReflectionUtils::StringToEnumeration(pProp->m_hTypeHandle.GetType(), value.Get<ezString>(), iValue);
+        m_Data[storageInfo->m_uiIndex] = ezVariant(iValue).ConvertTo(storageInfo->m_Type);
+        return true;
+      }
+      else
+      {
+        m_Data[storageInfo->m_uiIndex] = value.ConvertTo(storageInfo->m_Type);
+        return true;
+      }
     }
     else if (value.CanConvertTo(storageInfo->m_Type))
     {
