@@ -18,6 +18,12 @@ class EZ_CORE_DLL ezResourceBase : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezResourceBase);
 
+public:
+  enum class ResourceEventType : ezInt32;
+  struct ResourceEvent;
+
+  static ezEvent<const ResourceEvent&, ezMutex> s_Event;
+
 protected:
   enum class UpdateResource
   {
@@ -93,7 +99,7 @@ public:
   /// Both can be combined. The due date always take precedence when it approaches, however as long as it is further away, priority has the most influence.
   ///
   /// \sa SetDueDate
-  void SetPriority(ezResourcePriority priority) { m_Priority = priority; }
+  void SetPriority(ezResourcePriority priority);
 
   /// \brief Returns the currently user-specified priority of this resource. \see SetPriority
   ezResourcePriority GetPriority() const { return m_Priority; }
@@ -110,7 +116,7 @@ public:
   /// Both can be combined. The due date always take precedence when it approaches, however as long as it is further away, priority has the most influence.
   ///
   /// \sa SetPriority
-  void SetDueDate(ezTime date = ezTime::Seconds(60.0 * 60.0 * 24.0 * 365.0 * 1000.0)) { m_DueDate = date; }
+  void SetDueDate(ezTime date = ezTime::Seconds(60.0 * 60.0 * 24.0 * 365.0 * 1000.0));
 
   /// \brief Returns the deadline (tNow + x) at which this resource is required to be loaded.
   ///
@@ -202,13 +208,28 @@ private:
 
   MemoryUsage m_MemoryUsage;
 
-  bool m_bIsPreloading;
-  
   ezTime m_LastAcquire;
   ezTime m_DueDate;
   ezTimestamp m_LoadedFileModificationTime;
 };
 
+enum class ezResourceBase::ResourceEventType
+{
+  Created,
+  Deleted,
+  ContentUpdated,
+  ContentUnloaded,
+  InPreloadQueue,
+  PriorityChanged,
+  DueDateChanged,
+};
+
+struct ezResourceBase::ResourceEvent
+{
+  ResourceEventType m_EventType;
+  const ezResourceBase* m_pResource;
+
+};
 
 /// \brief The class from which all resource types need to derive.
 ///
@@ -254,6 +275,11 @@ private:
     m_LoadingState = ld.m_State;
     m_uiQualityLevelsDiscardable = ld.m_uiQualityLevelsDiscardable;
     m_uiQualityLevelsLoadable = ld.m_uiQualityLevelsLoadable;
+
+    ResourceEvent e;
+    e.m_pResource = this;
+    e.m_EventType = ResourceEventType::ContentUpdated;
+    s_Event.Broadcast(e);
   }
 
   /// \brief Override this function to implement resource creation. This is called by ezResourceManager::CreateResource.

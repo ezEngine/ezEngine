@@ -7,22 +7,6 @@
 #include <Foundation/Containers/HashTable.h>
 #include <Foundation/Threading/TaskSystem.h>
 
-/// \todo Do not unload resources while they are acquired
-/// \todo Fallback resource for one type
-/// \todo Missing resource for one type
-/// \todo Events: Resource loaded / unloaded etc.
-/// \todo Prevent loading of resource that should get created
-/// \todo Quality levels (unload/recreate) for created resources (max == 0 -> not unloadable?)
-/// \todo "Unloadable Quality Levels" / "Loadable Quality Levels" instead of cur/max ?
-
-// Resource Flags:
-// Category / Group (Texture Sets)
-//  Max Loaded Quality (adjustable at runtime)
-
-// Resource Loader
-//   Requires No File Access -> on non-File Thread
-//   reload resource (if necessary)
-//   
 
 /// \brief [internal] Worker thread/task for loading resources from disk.
 class EZ_CORE_DLL ezResourceManagerWorker : public ezTask

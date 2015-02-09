@@ -48,6 +48,9 @@ void RemoveTelemetryAssertHandler();
 void AddFileSystemEventHandler();
 void RemoveFileSystemEventHandler();
 
+void AddResourceManagerEventHandler();
+void RemoveResourceManagerEventHandler();
+
 void SetAppStats();
 
 EZ_BEGIN_SUBSYSTEM_DECLARATION(InspectorPlugin, Main)
@@ -71,12 +74,14 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(InspectorPlugin, Main)
     AddOSFileEventHandler();
     AddTimeEventHandler();
     AddFileSystemEventHandler();
+    AddResourceManagerEventHandler();
 
     SetAppStats();
   }
 
   ON_CORE_SHUTDOWN
   {
+    RemoveResourceManagerEventHandler();
     RemoveFileSystemEventHandler();
     RemoveTimeEventHandler();
     RemoveOSFileEventHandler();

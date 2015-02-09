@@ -30,6 +30,7 @@ struct EZ_CORE_DLL ezResourceFlags
     /// \todo implement NoFileAccessRequired
     ResourceHasFallback   = EZ_BIT(2),  ///< Specifies whether this resource has a valid fallback resource that could be used. Automatically updated in ezResource::SetFallbackResource.
     WasCreated            = EZ_BIT(3),  ///< The resource was created, not loaded from file
+    IsPreloading          = EZ_BIT(4),
     Default               = 0,
   };
 

@@ -1,6 +1,45 @@
 #include <Core/PCH.h>
 #include <Core/ResourceManager/ResourceManager.h>
 
+/// \todo Do not unload resources while they are acquired
+/// \todo Fallback resource for one type
+/// \todo Missing resource for one type
+/// \todo Events: Resource loaded / unloaded etc.
+/// \todo Prevent loading of resource that should get created
+/// \todo Quality levels (unload/recreate) for created resources (max == 0 -> not unloadable?)
+/// \todo Resource Type Memory Thresholds
+
+/// Events:
+///   Resource created
+///   Resource deleted
+///   Content updated
+///   Content unloaded
+///   Resource in Preload Queue
+///   Resource being loaded (Task) -> loading time
+///   Resource Priority Changed
+///   Resource Due Date Changed
+
+/// Infos to Display:
+///   Type
+///   Unique ID
+///   Loaded State / Missing
+///   Loadable Quality Levels
+///   Discardable Quality Levels
+///   Memory Usage CPU / GPU
+///   Priority / Due Date
+///   Ref Count (max)
+///   Preloading state
+///   Fallback: Type / Instance
+
+/// Inspector -> Engine
+///   Resource to Preview
+
+// Resource Flags:
+// Category / Group (Texture Sets)
+
+// Resource Loader
+//   Requires No File Access -> on non-File Thread
+
 ezHashTable<ezTempHashedString, ezResourceBase*> ezResourceManager::m_LoadedResources;
 ezMap<ezString, ezResourceTypeLoader*> ezResourceManager::m_ResourceTypeLoader;
 ezResourceLoaderFromFile ezResourceManager::m_FileResourceLoader;
@@ -35,7 +74,7 @@ void ezResourceManager::InternalPreloadResource(ezResourceBase* pResource, bool 
 
   // if we are already preloading this resource, but now it has highest priority
   // and it is still in the task queue (so not yet started)
-  if (pResource->m_bIsPreloading)
+  if (pResource->m_Flags.IsSet(ezResourceFlags::IsPreloading))
   {
     if (bHighestPriority)
     {
@@ -51,8 +90,8 @@ void ezResourceManager::InternalPreloadResource(ezResourceBase* pResource, bool 
     return;
   }
 
-  EZ_ASSERT_DEV(!pResource->m_bIsPreloading, "");
-  pResource->m_bIsPreloading = true;
+  EZ_ASSERT_DEV(!pResource->m_Flags.IsSet(ezResourceFlags::IsPreloading), "");
+  pResource->m_Flags.Add(ezResourceFlags::IsPreloading);
 
   LoadingInfo li;
   li.m_pResource = pResource;
@@ -63,6 +102,11 @@ void ezResourceManager::InternalPreloadResource(ezResourceBase* pResource, bool 
     m_RequireLoading.PushFront(li);
   else
     m_RequireLoading.PushBack(li);
+
+  ezResourceBase::ResourceEvent e;
+  e.m_pResource = pResource;
+  e.m_EventType = ezResourceBase::ResourceEventType::InPreloadQueue;
+  ezResourceBase::s_Event.Broadcast(e);
 
   RunWorkerTask();
 }
@@ -122,8 +166,8 @@ void ezResourceManager::UpdateLoadingDeadlines()
 
     if (m_RequireLoading[i].m_DueDate > tKickOut)
     {
-      EZ_ASSERT_DEV(m_RequireLoading[i].m_pResource->m_bIsPreloading == true, "");
-      m_RequireLoading[i].m_pResource->m_bIsPreloading = false;
+      EZ_ASSERT_DEV(m_RequireLoading[i].m_pResource->m_Flags.IsSet(ezResourceFlags::IsPreloading) == true, "");
+      m_RequireLoading[i].m_pResource->m_Flags.Remove(ezResourceFlags::IsPreloading);
 
       m_RequireLoading.RemoveAtSwap(i);
       --uiCount;
@@ -162,8 +206,8 @@ void ezResourceManagerWorkerGPU::Execute()
 
   {
     EZ_LOCK(ResourceMutex);
-    EZ_ASSERT_DEV(m_pResourceToLoad->m_bIsPreloading == true, "");
-    m_pResourceToLoad->m_bIsPreloading = false;
+    EZ_ASSERT_DEV(m_pResourceToLoad->m_Flags.IsSet(ezResourceFlags::IsPreloading) == true, "");
+    m_pResourceToLoad->m_Flags.Remove(ezResourceFlags::IsPreloading);
   }
 
   m_pLoader = NULL;
@@ -253,8 +297,8 @@ void ezResourceManagerWorker::Execute()
 
     if (!bResourceIsPreloading)
     {
-      EZ_ASSERT_DEV(pResourceToLoad->m_bIsPreloading == true, "");
-      pResourceToLoad->m_bIsPreloading = false;
+      EZ_ASSERT_DEV(pResourceToLoad->m_Flags.IsSet(ezResourceFlags::IsPreloading) == true, "");
+      pResourceToLoad->m_Flags.Remove(ezResourceFlags::IsPreloading);
     }
 
     ezResourceManager::m_bTaskRunning = false;
@@ -292,6 +336,14 @@ ezUInt32 ezResourceManager::FreeUnusedResources(bool bFreeAllUnused)
       pReference->CallUnloadData(ezResourceBase::Unload::AllQualityLevels);
 
       EZ_ASSERT_DEV(pReference->GetLoadingState() <= ezResourceState::UnloadedMetaInfoAvailable, "Resource '%s' should be in an unloaded state now.", pReference->GetResourceID().GetData());
+
+      // broadcast that we are going to delete the resource
+      {
+        ezResourceBase::ResourceEvent e;
+        e.m_pResource = pReference;
+        e.m_EventType = ezResourceBase::ResourceEventType::Deleted;
+        ezResourceBase::s_Event.Broadcast(e);
+      }
 
       // delete the resource via the RTTI provided allocator
       pReference->GetDynamicRTTI()->GetAllocator()->Deallocate(pReference);
@@ -338,7 +390,7 @@ void ezResourceManager::ReloadResource(ezResourceBase* pResource)
   bool bAllowPreloading = true;
 
   // if the resource is already in the preloading queue we can just keep it there
-  if (pResource->m_bIsPreloading)
+  if (pResource->m_Flags.IsSet(ezResourceFlags::IsPreloading))
   {
     bAllowPreloading = false;
 

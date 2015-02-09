@@ -150,7 +150,7 @@ ResourceType* ezResourceManager::BeginAcquireResource(const ezResourceHandle<Res
   else
   {
     // as long as there are more quality levels available, schedule the resource for more loading
-    if (pResource->m_bIsPreloading == false && pResource->GetNumQualityLevelsLoadable() > 0)
+    if (pResource->m_Flags.IsSet(ezResourceFlags::IsPreloading) == false && pResource->GetNumQualityLevelsLoadable() > 0)
       InternalPreloadResource(pResource, false);
   }
 
