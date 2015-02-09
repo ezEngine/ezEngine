@@ -6,8 +6,7 @@ extern(C++)
   class ezScriptReflectionAllocator : ezAllocatorBase
   {
   public:
-    // DMD BUG: make this final
-    void Reset();
+    final void Reset();
   };
 
   ezScriptReflectionAllocator ezGetDefaultScriptReflectionAllocator();

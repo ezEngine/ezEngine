@@ -45,8 +45,8 @@
   <Dversion>2</Dversion>
   <ignoreUnsupportedPragmas>0</ignoreUnsupportedPragmas>
   <compiler>0</compiler>
-  <otherDMD>0</otherDMD>
-  <program>$(DMDInstallDir)windows\bin\dmd.exe</program>
+  <otherDMD>1</otherDMD>
+  <program>$(EZ_DMD_PATH)\windows\bin\dmd.exe</program>
   <imppath />
   <fileImppath />
   <outdir>$(ConfigurationName)</outdir>
@@ -140,8 +140,8 @@
   <Dversion>2.043</Dversion>
   <ignoreUnsupportedPragmas>0</ignoreUnsupportedPragmas>
   <compiler>0</compiler>
-  <otherDMD>0</otherDMD>
-  <program>$(DMDInstallDir)windows\bin\dmd.exe</program>
+  <otherDMD>1</otherDMD>
+  <program>$(EZ_DMD_PATH)\windows\bin\dmd.exe</program>
   <imppath />
   <fileImppath />
   <outdir>$(ConfigurationName)</outdir>
@@ -235,8 +235,8 @@
   <Dversion>2</Dversion>
   <ignoreUnsupportedPragmas>0</ignoreUnsupportedPragmas>
   <compiler>0</compiler>
-  <otherDMD>0</otherDMD>
-  <program>$(DMDInstallDir)windows\bin\dmd.exe</program>
+  <otherDMD>1</otherDMD>
+  <program>$(EZ_DMD_PATH)\windows\bin\dmd.exe</program>
   <imppath />
   <fileImppath />
   <outdir>$(ConfigurationName)</outdir>
@@ -330,8 +330,8 @@
   <Dversion>2.043</Dversion>
   <ignoreUnsupportedPragmas>0</ignoreUnsupportedPragmas>
   <compiler>0</compiler>
-  <otherDMD>0</otherDMD>
-  <program>$(DMDInstallDir)windows\bin\dmd.exe</program>
+  <otherDMD>1</otherDMD>
+  <program>$(EZ_DMD_PATH)\windows\bin\dmd.exe</program>
   <imppath />
   <fileImppath />
   <outdir>$(ConfigurationName)</outdir>
@@ -386,6 +386,9 @@
     <Folder name="Memory">
      <File path="ez\Foundation\Memory\AllocatorBase.d" />
     </Folder>
+    <Folder name="Strings">
+     <File path="ez\Foundation\Strings\StringBuilder.d" />
+    </Folder>
     <Folder name="Types">
      <File path="ez\Foundation\Types\Types.d" />
     </Folder>
@@ -395,11 +398,13 @@
     <Folder name="DGlue">
      <File path="ez\Script\DGlue\Allocator.d" />
     </Folder>
+    <Folder name="Reflection">
+     <File path="ez\Script\Reflection\Types.d" />
+     <File path="ez\Script\Reflection\Reflection.d" />
+    </Folder>
     <Folder name="Internal">
      <File path="ez\script\internal\dllmain.d" />
     </Folder>
-    <File path="ez\Script\DefaultTypes.d" />
-    <File path="ez\script\reflection.d" />
    </Folder>
   </Folder>
   <File path="test.d" />

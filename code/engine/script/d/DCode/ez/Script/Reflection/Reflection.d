@@ -1,4 +1,4 @@
-module ez.Script.Reflection;
+module ez.Script.Reflection.Reflection;
 
 export:
 
