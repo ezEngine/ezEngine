@@ -37,8 +37,8 @@ ezResourceLoadDesc ezMeshResource::UpdateContent(ezStreamReaderBase* Stream)
 
 void ezMeshResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
 {
-  EZ_ASSERT_NOT_IMPLEMENTED;
-
+  out_NewMemoryUsage.m_uiMemoryCPU = sizeof(ezMeshResource) + (ezUInt32) m_Parts.GetHeapMemoryUsage();
+  out_NewMemoryUsage.m_uiMemoryGPU = 0;
 }
 
 ezResourceLoadDesc ezMeshResource::CreateResource(const ezMeshResourceDescriptor& descriptor)

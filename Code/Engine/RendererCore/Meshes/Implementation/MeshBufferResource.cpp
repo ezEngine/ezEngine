@@ -171,7 +171,7 @@ void ezMeshBufferResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
 {
   // we cannot compute this data here, so we update it wherever we know the memory usage
 
-  out_NewMemoryUsage.m_uiMemoryCPU = 0;
+  out_NewMemoryUsage.m_uiMemoryCPU = sizeof(ezMeshBufferResource);
   out_NewMemoryUsage.m_uiMemoryGPU = ModifyMemoryUsage().m_uiMemoryGPU;
 }
 

@@ -176,7 +176,8 @@ ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReaderBase* Stream)
 
 void ezMaterialResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
 {
-  out_NewMemoryUsage.m_uiMemoryCPU = (ezUInt32) (m_Desc.m_PermutationVars.GetHeapMemoryUsage() +
+  out_NewMemoryUsage.m_uiMemoryCPU = sizeof(ezMaterialResource) +
+                                     (ezUInt32) (m_Desc.m_PermutationVars.GetHeapMemoryUsage() +
                                                  m_Desc.m_ShaderConstants.GetHeapMemoryUsage() +
                                                  m_Desc.m_TextureBindings.GetHeapMemoryUsage());
 

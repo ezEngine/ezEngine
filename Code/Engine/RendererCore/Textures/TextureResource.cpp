@@ -265,6 +265,8 @@ ezResourceLoadDesc ezTextureResource::UpdateContent(ezStreamReaderBase* Stream)
 
     TexDesc.m_Format = ImgToGalFormat(pImage->GetImageFormat(), bSRGB);
 
+    /// \todo If we are going to only load a subset of an image (mipmaps), we might need to adjust this
+    ModifyMemoryUsage().m_uiMemoryGPU = pImage->GetDataSize();
 
     ezHybridArray<ezGALSystemMemoryDescription, 32> InitData;
 
@@ -349,10 +351,8 @@ ezResourceLoadDesc ezTextureResource::UpdateContent(ezStreamReaderBase* Stream)
 
 void ezTextureResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
 {
-  /// \todo Compute memory usage
-
-  //SetMemoryUsageCPU(0);
-  //SetMemoryUsageGPU(0);
+  out_NewMemoryUsage.m_uiMemoryCPU = sizeof(ezTextureResource);
+  out_NewMemoryUsage.m_uiMemoryGPU = GetMemoryUsage().m_uiMemoryGPU;
 }
 
 ezResourceLoadDesc ezTextureResource::CreateResource(const ezTextureResourceDescriptor& descriptor)

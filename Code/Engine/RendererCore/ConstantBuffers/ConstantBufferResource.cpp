@@ -34,7 +34,7 @@ ezResourceLoadDesc ezConstantBufferResource::UnloadData(Unload WhatToUnload)
 
 void ezConstantBufferResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
 {
-  out_NewMemoryUsage.m_uiMemoryCPU = m_Bytes.GetCount();
+  out_NewMemoryUsage.m_uiMemoryCPU = sizeof(ezConstantBufferResource) + m_Bytes.GetCount();
   out_NewMemoryUsage.m_uiMemoryGPU = m_Bytes.GetCount();
 }
 

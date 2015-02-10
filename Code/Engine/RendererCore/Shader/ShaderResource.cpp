@@ -51,7 +51,7 @@ ezResourceLoadDesc ezShaderResource::UpdateContent(ezStreamReaderBase* Stream)
 
 void ezShaderResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
 {
-  out_NewMemoryUsage.m_uiMemoryCPU = (ezUInt32) m_PermutationVarsUsed.GetHeapMemoryUsage();
+  out_NewMemoryUsage.m_uiMemoryCPU = sizeof(ezShaderResource) + (ezUInt32) m_PermutationVarsUsed.GetHeapMemoryUsage();
   out_NewMemoryUsage.m_uiMemoryGPU = 0;
 }
 

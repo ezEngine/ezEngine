@@ -110,7 +110,7 @@ ezResourceLoadDesc ezShaderPermutationResource::UpdateContent(ezStreamReaderBase
 
 void ezShaderPermutationResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
 {
-  out_NewMemoryUsage.m_uiMemoryCPU = 0;
+  out_NewMemoryUsage.m_uiMemoryCPU = sizeof(ezShaderPermutationResource);
   out_NewMemoryUsage.m_uiMemoryGPU = ModifyMemoryUsage().m_uiMemoryGPU;
 }
 
