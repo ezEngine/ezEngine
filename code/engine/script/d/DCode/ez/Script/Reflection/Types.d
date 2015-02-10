@@ -11,7 +11,7 @@ import ez.Foundation.Basics;
 
 alias BuiltinTypes = TypeTuple!(void, char, wchar, dchar, byte, short, int, long, ubyte, ushort, uint, ulong, float, double,
                                 void[], char[], wchar[], dchar[], byte[], short[], int[], long[], ubyte[], ushort[], uint[], ulong[], float[], double[],
-                                const(char), immutable(char), const(char)[], string);
+                                const(char), immutable(char), const(char)[], string, Object);
 
 private __gshared ReflectedType[string] g_types;
 private __gshared Mutex g_typeLock;
@@ -42,7 +42,17 @@ private
   {
     alias tc = nextType!T;
     static if(is(tc.type == TypeChainEnd))
-      return allocator.New!(tc.info)(T.stringof);
+    {
+      static if(staticIndexOf!(T, BuiltinTypes) >= 0)
+        return allocator.New!(tc.info)(T.stringof);
+      else
+      {
+        auto identifier = __traits(identifier, T);
+        auto name = allocator.NewArray!char(identifier.length);
+        name[] = identifier[];
+        return allocator.New!(tc.info)(name);
+      }
+    }
     else
       return allocator.New!(tc.info)(allocator.MakeNext!(tc.type));
   }
@@ -87,11 +97,11 @@ private ReflectedType GetReflectedTypeImpl(const(char)[] mangledType)
   return null;
 }
 
-ReflectedType GetReflectedType(T)(ezAllocatorBase allocator)
+ReflectedType GetReflectedType(T)(ezScriptReflectionAllocator allocator)
 {
   static if(staticIndexOf!(T, BuiltinTypes) >= 0)
   {
-    return mixin("_builtinType_" ~ T.mangleof ~ ";");
+    mixin("return _builtinType_" ~ T.mangleof ~ ";");
   }
   else
   {
@@ -101,8 +111,10 @@ ReflectedType GetReflectedType(T)(ezAllocatorBase allocator)
       auto mangling = T.mangleof;
       auto nameCopy = ezGetDefaultScriptReflectionAllocator().NewArray!char(mangling.length);
       nameCopy[] = mangling[];
-      g_types[cast(string)nameCopy] = allocator.Make!T();
+      result = allocator.Make!T();
+      g_types[cast(string)nameCopy] = result;
     }
+    return result;
   }
 }
 

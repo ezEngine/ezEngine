@@ -1,11 +1,15 @@
 module ez.Script.Reflection.Reflection;
+import ez.Foundation.Memory.AllocatorBase;
+import std.conv;
+import std.traits;
 
 export:
 
-extern (C++) interface ezReflectedDModule
+class ReflectedDModule
 {
-  Variable[] variables();
-  TlsVariable[] tlsVariables();
+  abstract Variable[] variables();
+  abstract TlsVariable[] tlsVariables();
+  abstract ClassTypeImpl*[] classes();
 }
 
 class ReflectedType
@@ -77,21 +81,33 @@ struct StructTypeImpl
 
 class StructType : ReflectedType
 {
+  const(char)[] name;
 	StructTypeImpl* oldType;
 	StructTypeImpl* newType;
+
+  this(const(char)[] name)
+  {
+    this.name = name;
+  }
 }
 
 struct ClassTypeImpl
 {
 	const(char)[] name;
-	ClassTypeImpl* baseClass;
+	ClassType baseClass;
 	Member[] members;
 }
 
 class ClassType : ReflectedType
 {
+  const(char)[] name;
 	ClassTypeImpl* oldType;
 	ClassTypeImpl* newType;
+
+  this(const(char)[] name)
+  {
+    this.name = name;
+  }
 }
 
 struct Variable
@@ -107,7 +123,7 @@ struct TlsVariable
 {
   const(char)[] name;
   tlsVariableAccessor accessor;
-  TypeInfo type;
+  ReflectedType type;
 }
 
 template ResolveType(T)
@@ -175,8 +191,32 @@ static assert(is(nextType!(const(int)).info == ConstType));
 static assert(is(nextType!(immutable(int)).type == int));
 static assert(is(nextType!(immutable(int)).info == ImmutableType));
 
-void PrintMembers(alias T)()
+const(char)[] CopyString(ezAllocatorBase allocator, const(char)[] str)
 {
+  auto copy = allocator.NewArray!char(str.length);
+  copy[] = str[];
+  return copy;
+}
+
+string GenerateMembers(T)(string cur)
+{
+  string result;
+  size_t count;
+  foreach(index, type; typeof(T.tupleof))
+  {
+    result ~= "curMember = &"~cur~".members[" ~ to!string(count) ~ "];\n";
+    result ~= "curMember.name = \"" ~ T.tupleof[index].stringof ~ "\";\n";
+    result ~= "curMember.offset = " ~ to!string(T.tupleof[index].offsetof) ~ ";\n";
+    result ~= "curMember.type = allocator.GetReflectedType!(" ~ type.stringof ~ ");\n";
+    count++;
+  }
+  return cur ~ ".members = allocator.NewArray!Member(" ~ to!string(count) ~ ");\n" ~ result;
+}
+
+string GenerateReflection(alias T)()
+{
+  string classes;
+  size_t classNum = 0;
   foreach(m; __traits(allMembers, T))
   {
     static if(!__traits(compiles, typeof(__traits(getMember, T, m))))
@@ -187,7 +227,14 @@ void PrintMembers(alias T)()
         static if(is(type == class))
         {
           static if(type.stringof != "ReflectedModule")
+          {
             pragma(msg, "class " ~ type.stringof);
+            classes ~= "curClass = &s_classes[" ~ to!string(classNum) ~ "];\n";
+            classes ~= "curClass.name = allocator.CopyString(\"" ~ __traits(identifier, type) ~ "\");\n";
+            classes ~= "curClass.baseClass = cast(ClassType)allocator.GetReflectedType!(" ~ __traits(identifier, BaseTypeTuple!type[0]) ~ ");\n";
+            classes ~= GenerateMembers!type("curClass");
+            classNum++;
+          }
         }
         else static if(is(type == struct))
           pragma(msg, "struct " ~ type.stringof);
@@ -217,15 +264,25 @@ void PrintMembers(alias T)()
       }
     }
   }
+  classes = "s_classes = allocator.NewArray!ClassTypeImpl(" ~ to!string(classNum) ~ ");\n" ~ classes;
+  return classes;
 }
 
 mixin template ReflectModule()
 {
+  import ez.Foundation.Memory.AllocatorBase;
+  import ez.Script.DGlue.Allocator;
+
   class ReflectedModule
   {
-    this()
-    { 
-      PrintMembers!(__traits(parent, ReflectedModule))();
+    __gshared ClassTypeImpl[] s_classes;
+
+    void BuildReflection(ezScriptReflectionAllocator allocator)
+    {
+      ClassTypeImpl* curClass;
+      Member* curMember;
+      pragma(msg, GenerateReflection!(__traits(parent, ReflectedModule)));
+      mixin(GenerateReflection!(__traits(parent, ReflectedModule)));
     }
   }
 }

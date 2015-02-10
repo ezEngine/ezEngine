@@ -2,7 +2,7 @@ module test;
 import ez.Script.Reflection.Reflection;
 import ez.Script.Reflection.Types;
 
-//mixin ReflectModule;
+mixin ReflectModule;
 
 class SomeClass
 {
@@ -32,5 +32,6 @@ int g_tlsVar1;
 int main(string[] args)
 {
   GetReflectedAggregateType("ez.Foundation.Memory.AllocatorBase");
+  pragma(msg);
   return 0;
 }

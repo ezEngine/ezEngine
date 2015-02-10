@@ -40,6 +40,7 @@ enum InitializeMemoryWith
 
 T New(T, ARGS...)(ezAllocatorBase allocator, ARGS args)
 {
+  import core.stdc.string : memset, memcpy;
   static if(is(T == class))
   {
     size_t memSize = __traits(classInstanceSize,T);
@@ -109,12 +110,13 @@ T New(T, ARGS...)(ezAllocatorBase allocator, ARGS args)
   }
 }
 
-auto NewArray(T)(ezAllocatorBase allocator, size_t size, InitializeMemoryWith init = InitializeMemoryWith.INIT)
+auto NewArray(T)(ezAllocatorBase allocator, size_t size, InitializeMemoryWith init = InitializeMemoryWith.Init)
 {
+  import core.stdc.string : memset, memcpy;
   if(size == 0)
     return cast(T[])[];
   size_t memSize = T.sizeof * size;
-  void* mem = allocator.Allocate(memSize, T.alignof).ptr;
+  void* mem = allocator.Allocate(memSize, T.alignof);
 
   T[] data = (cast(T*)mem)[0..size];
   final switch(init)
