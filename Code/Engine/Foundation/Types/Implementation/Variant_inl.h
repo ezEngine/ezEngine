@@ -342,6 +342,7 @@ EZ_FORCE_INLINE void ezVariant::MoveFrom(ezVariant&& other)
 template <typename T>
 EZ_FORCE_INLINE T& ezVariant::Cast()
 {
+  EZ_CHECK_AT_COMPILETIME_MSG(TypeDeduction<T>::value != Type::Invalid, "Value of this type cannot be compared against a Variant");
   const bool validType = ezConversionTest<T, typename TypeDeduction<T>::StorageType>::sameType;
   EZ_CHECK_AT_COMPILETIME_MSG(validType, "Invalid Cast, can only cast to storage type");
 
@@ -353,6 +354,7 @@ EZ_FORCE_INLINE T& ezVariant::Cast()
 template <typename T>
 EZ_FORCE_INLINE const T& ezVariant::Cast() const
 {
+  EZ_CHECK_AT_COMPILETIME_MSG(TypeDeduction<T>::value != Type::Invalid, "Value of this type cannot be compared against a Variant");
   const bool validType = ezConversionTest<T, typename TypeDeduction<T>::StorageType>::sameType;
   EZ_CHECK_AT_COMPILETIME_MSG(validType, "Invalid Cast, can only cast to storage type");
 
