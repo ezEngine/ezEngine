@@ -39,6 +39,8 @@ struct EZ_CORE_DLL ezResourceFlags
     StorageType UpdateOnMainThread    : 1;
     StorageType NoFileAccessRequired  : 1;
     StorageType ResourceHasFallback   : 1;
+    StorageType WasCreated            : 1;
+    StorageType IsPreloading          : 1;
   };
 };
 

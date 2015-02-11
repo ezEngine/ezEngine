@@ -12,6 +12,7 @@
 #include <Inspector/GlobalEventsWidget.moc.h>
 #include <Inspector/StatVisWidget.moc.h>
 #include <Inspector/DataTransferWidget.moc.h>
+#include <Inspector/ResourceWidget.moc.h>
 #include <Foundation/Communication/Telemetry.h>
 #include <Foundation/Threading/ThreadUtils.h>
 #include <qlistwidget.h>
@@ -52,6 +53,7 @@ ezMainWindow::ezMainWindow() : QMainWindow()
   ezGlobalEventsWidget* pGlobalEventesWidget  = new ezGlobalEventsWidget(this);
   ezReflectionWidget*   pReflectionWidget     = new ezReflectionWidget(this);
   ezDataWidget*         pDataWidget           = new ezDataWidget(this);
+  ezResourceWidget*     pResourceWidget       = new ezResourceWidget(this);
 
   EZ_VERIFY(nullptr != QWidget::connect(pLogWidget,            SIGNAL(visibilityChanged(bool)), this, SLOT(DockWidgetVisibilityChanged(bool))), "");
   EZ_VERIFY(nullptr != QWidget::connect(pTimeWidget,           SIGNAL(visibilityChanged(bool)), this, SLOT(DockWidgetVisibilityChanged(bool))), "");
@@ -64,6 +66,7 @@ ezMainWindow::ezMainWindow() : QMainWindow()
   EZ_VERIFY(nullptr != QWidget::connect(pPluginsWidget,        SIGNAL(visibilityChanged(bool)), this, SLOT(DockWidgetVisibilityChanged(bool))), "");
   EZ_VERIFY(nullptr != QWidget::connect(pGlobalEventesWidget,  SIGNAL(visibilityChanged(bool)), this, SLOT(DockWidgetVisibilityChanged(bool))), "");
   EZ_VERIFY(nullptr != QWidget::connect(pDataWidget,           SIGNAL(visibilityChanged(bool)), this, SLOT(DockWidgetVisibilityChanged(bool))), "");
+  EZ_VERIFY(nullptr != QWidget::connect(pResourceWidget,       SIGNAL(visibilityChanged(bool)), this, SLOT(DockWidgetVisibilityChanged(bool))), "");
 
   addDockWidget(Qt::BottomDockWidgetArea, pMemoryWidget);
   addDockWidget(Qt::BottomDockWidgetArea, pFileWidget);
@@ -121,7 +124,10 @@ ezMainWindow::ezMainWindow() : QMainWindow()
 
   addDockWidget(Qt::RightDockWidgetArea, pDataWidget);
   tabifyDockWidget(pLogWidget, pDataWidget);
-  
+
+  addDockWidget(Qt::RightDockWidgetArea, pResourceWidget);
+  tabifyDockWidget(pLogWidget, pResourceWidget);
+
 
   pLogWidget->raise();
 
@@ -254,6 +260,7 @@ void ezMainWindow::UpdateNetwork()
     ezSubsystemsWidget::s_pWidget->ResetStats();
     ezGlobalEventsWidget::s_pWidget->ResetStats();
     ezDataWidget::s_pWidget->ResetStats();
+    ezResourceWidget::s_pWidget->ResetStats();
   }
   
   UpdateStats();
@@ -263,6 +270,7 @@ void ezMainWindow::UpdateNetwork()
   ezMemoryWidget::s_pWidget->UpdateStats();
   ezTimeWidget::s_pWidget->UpdateStats();
   ezFileWidget::s_pWidget->UpdateStats();
+  ezResourceWidget::s_pWidget->UpdateStats();
   //ezDataWidget::s_pWidget->UpdateStats();
 
   for (ezInt32 i = 0; i < 10; ++i)
@@ -284,6 +292,7 @@ void ezMainWindow::DockWidgetVisibilityChanged(bool bVisible)
   ActionShowWindowPlugins->setChecked(ezPluginsWidget::s_pWidget->isVisible());
   ActionShowWindowGlobalEvents->setChecked(ezGlobalEventsWidget::s_pWidget->isVisible());
   ActionShowWindowData->setChecked(ezDataWidget::s_pWidget->isVisible());
+  ActionShowWindowResource->setChecked(ezResourceWidget::s_pWidget->isVisible());
 
   for (ezInt32 i = 0; i < 10; ++i)
     m_pStatHistoryWidgets[i]->m_ShowWindowAction.setChecked(m_pStatHistoryWidgets[i]->isVisible());

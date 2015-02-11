@@ -11,6 +11,7 @@
 #include <Inspector/PluginsWidget.moc.h>
 #include <Inspector/GlobalEventsWidget.moc.h>
 #include <Inspector/DataTransferWidget.moc.h>
+#include <Inspector/ResourceWidget.moc.h>
 #include <Foundation/Communication/Telemetry.h>
 #include <qinputdialog.h>
 #include <QSettings>
@@ -81,6 +82,11 @@ void ezMainWindow::on_ActionShowWindowData_triggered()
   ezDataWidget::s_pWidget->raise();
 }
 
+void ezMainWindow::on_ActionShowWindowResource_triggered()
+{
+  ezResourceWidget::s_pWidget->setVisible(ActionShowWindowResource->isChecked());
+  ezResourceWidget::s_pWidget->raise();
+}
 
 void ezMainWindow::on_ActionOnTopWhenConnected_triggered()
 {

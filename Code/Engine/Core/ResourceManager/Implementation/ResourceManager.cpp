@@ -145,6 +145,8 @@ void ezResourceManager::RunWorkerTask()
 
 void ezResourceManager::UpdateLoadingDeadlines()
 {
+  // we are already in the ResourceMutex here
+
   /// \todo don't do this too often
 
   const ezTime tNow = m_LastFrameUpdate;
@@ -168,6 +170,11 @@ void ezResourceManager::UpdateLoadingDeadlines()
     {
       EZ_ASSERT_DEV(m_RequireLoading[i].m_pResource->m_Flags.IsSet(ezResourceFlags::IsPreloading) == true, "");
       m_RequireLoading[i].m_pResource->m_Flags.Remove(ezResourceFlags::IsPreloading);
+
+      ezResourceBase::ResourceEvent e;
+      e.m_pResource = m_RequireLoading[i].m_pResource;
+      e.m_EventType = ezResourceBase::ResourceEventType::OutOfPreloadQueue;
+      ezResourceBase::s_Event.Broadcast(e);
 
       m_RequireLoading.RemoveAtSwap(i);
       --uiCount;
@@ -208,6 +215,11 @@ void ezResourceManagerWorkerGPU::Execute()
     EZ_LOCK(ResourceMutex);
     EZ_ASSERT_DEV(m_pResourceToLoad->m_Flags.IsSet(ezResourceFlags::IsPreloading) == true, "");
     m_pResourceToLoad->m_Flags.Remove(ezResourceFlags::IsPreloading);
+
+    ezResourceBase::ResourceEvent e;
+    e.m_pResource = m_pResourceToLoad;
+    e.m_EventType = ezResourceBase::ResourceEventType::OutOfPreloadQueue;
+    ezResourceBase::s_Event.Broadcast(e);
   }
 
   m_pLoader = NULL;
@@ -299,6 +311,11 @@ void ezResourceManagerWorker::Execute()
     {
       EZ_ASSERT_DEV(pResourceToLoad->m_Flags.IsSet(ezResourceFlags::IsPreloading) == true, "");
       pResourceToLoad->m_Flags.Remove(ezResourceFlags::IsPreloading);
+
+      ezResourceBase::ResourceEvent e;
+      e.m_pResource = pResourceToLoad;
+      e.m_EventType = ezResourceBase::ResourceEventType::OutOfPreloadQueue;
+      ezResourceBase::s_Event.Broadcast(e);
     }
 
     ezResourceManager::m_bTaskRunning = false;
@@ -456,8 +473,20 @@ void ezResourceManager::PerFrameUpdate()
 {
   m_LastFrameUpdate = ezTime::Now();
 
+}
 
+void ezResourceManager::BroadcastExistsEvent()
+{
+  EZ_LOCK(ResourceMutex);
 
+  for (auto it = m_LoadedResources.GetIterator(); it.IsValid(); ++it)
+  {
+    ezResourceBase::ResourceEvent e;
+    e.m_EventType = ezResourceBase::ResourceEventType::Exists;
+    e.m_pResource = it.Value();
+
+    ezResourceBase::s_Event.Broadcast(e);
+  }
 }
 
 /* Not yet good enough for prime time

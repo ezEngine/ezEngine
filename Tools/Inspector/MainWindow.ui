@@ -247,6 +247,7 @@
     <addaction name="ActionShowWindowMemory"/>
     <addaction name="ActionShowWindowPlugins"/>
     <addaction name="ActionShowWindowReflection"/>
+    <addaction name="ActionShowWindowResource"/>
     <addaction name="ActionShowWindowSubsystems"/>
     <addaction name="ActionShowWindowTime"/>
    </widget>
@@ -423,6 +424,18 @@
    </property>
    <property name="text">
     <string>Data</string>
+   </property>
+  </action>
+  <action name="ActionShowWindowResource">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="resources.qrc">
+     <normaloff>:/Icons/Icons/Resources.png</normaloff>:/Icons/Icons/Resources.png</iconset>
+   </property>
+   <property name="text">
+    <string>Resources</string>
    </property>
   </action>
  </widget>

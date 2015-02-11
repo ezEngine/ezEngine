@@ -215,11 +215,13 @@ private:
 
 enum class ezResourceBase::ResourceEventType
 {
+  Exists,
   Created,
   Deleted,
   ContentUpdated,
   ContentUnloaded,
   InPreloadQueue,
+  OutOfPreloadQueue,
   PriorityChanged,
   DueDateChanged,
 };
@@ -275,6 +277,19 @@ private:
     m_LoadingState = ld.m_State;
     m_uiQualityLevelsDiscardable = ld.m_uiQualityLevelsDiscardable;
     m_uiQualityLevelsLoadable = ld.m_uiQualityLevelsLoadable;
+
+    // Update Memory Usage
+    {
+      ezResourceBase::MemoryUsage MemUsage;
+      MemUsage.m_uiMemoryCPU = 0xFFFFFFFF;
+      MemUsage.m_uiMemoryGPU = 0xFFFFFFFF;
+      UpdateMemoryUsage(MemUsage);
+
+      EZ_ASSERT_DEV(MemUsage.m_uiMemoryCPU != 0xFFFFFFFF, "Resource '%s' did not properly update its CPU memory usage", GetResourceID().GetData());
+      EZ_ASSERT_DEV(MemUsage.m_uiMemoryGPU != 0xFFFFFFFF, "Resource '%s' did not properly update its GPU memory usage", GetResourceID().GetData());
+
+      m_MemoryUsage = MemUsage;
+    }
 
     ResourceEvent e;
     e.m_pResource = this;

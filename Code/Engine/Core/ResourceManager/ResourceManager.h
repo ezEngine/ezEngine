@@ -89,6 +89,11 @@ public:
 
   static void PerFrameUpdate();
   
+
+  /// \brief Goes through all existing resources and broadcasts the 'Exists' event.
+  /// Used to announce all currently existing resources to interested event listeners.
+  static void BroadcastExistsEvent();
+
 private:
   friend class ezResourceManagerWorker;
   friend class ezResourceManagerWorkerGPU;

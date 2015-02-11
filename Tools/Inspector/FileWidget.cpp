@@ -320,6 +320,8 @@ void ezFileWidget::UpdateTable()
   if (ezTime::Now() - m_LastTableUpdate < ezTime::Seconds(0.3))
     return;
 
+  m_LastTableUpdate = ezTime::Now();
+
   m_bUpdateTable = false;
 
   Table->blockSignals(true);

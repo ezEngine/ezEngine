@@ -135,6 +135,10 @@ public:
     cfg.m_sInputSlotTrigger[0] = ezInputSlot_KeyC;
     ezInputManager::SetInputActionConfig("Main", "ChangeColor", cfg, true);
 
+    cfg = ezInputManager::GetInputActionConfig("Main", "FreeResources");
+    cfg.m_sInputSlotTrigger[0] = ezInputSlot_KeyF;
+    ezInputManager::SetInputActionConfig("Main", "FreeResources", cfg, true);
+
     // Create a window for rendering
     ezWindowCreationDesc WindowCreationDesc;
     WindowCreationDesc.m_ClientAreaSize.width = g_uiWindowWidth;
@@ -285,6 +289,11 @@ public:
       All.ReadFromFile("ShaderPermutations.txt", ezRendererCore::GetShaderPlatform().GetData());
 
       ezRendererCore::PreloadShaderPermutations(m_hShader, All, ezTime::Milliseconds(10000.0));
+    }
+
+    if (ezInputManager::GetInputActionState("Main", "FreeResources") == ezKeyState::Pressed)
+    {
+      ezResourceManager::FreeUnusedResources(false);
     }
 
     if (ezInputManager::GetInputActionState("Main", "ReloadShader") == ezKeyState::Pressed)

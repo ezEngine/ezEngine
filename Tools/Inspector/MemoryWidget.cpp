@@ -22,7 +22,7 @@ static QColor s_Colors[ezMemoryWidget::s_uiMaxColors] =
 void FormatSize(ezStringBuilder& s, const char* szPrefix, ezUInt64 uiSize)
 {
   if (uiSize < 1024)
-    s.Format("%s%llu Byte", szPrefix, uiSize);
+    s.Format("%s%llu Bytes", szPrefix, uiSize);
   else if (uiSize < 1024 * 1024)
     s.Format("%s%.1f KB", szPrefix, uiSize / 1024.0);
   else if (uiSize < 1024 * 1024 * 1024)
