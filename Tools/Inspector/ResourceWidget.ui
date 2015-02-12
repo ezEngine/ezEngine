@@ -70,7 +70,7 @@
           </widget>
          </item>
          <item>
-          <widget class="QComboBox" name="ComboThread">
+          <widget class="QComboBox" name="ComboResourceTypes">
            <property name="minimumSize">
             <size>
              <width>100</width>
@@ -79,6 +79,9 @@
            </property>
            <property name="currentIndex">
             <number>0</number>
+           </property>
+           <property name="sizeAdjustPolicy">
+            <enum>QComboBox::AdjustToContents</enum>
            </property>
            <property name="minimumContentsLength">
             <number>0</number>
@@ -92,6 +95,13 @@
               <normaloff>:/Icons/Icons/AllThreads.png</normaloff>:/Icons/Icons/AllThreads.png</iconset>
             </property>
            </item>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="CheckShowDeleted">
+           <property name="text">
+            <string>Show Deleted</string>
+           </property>
           </widget>
          </item>
          <item>

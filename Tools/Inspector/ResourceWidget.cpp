@@ -3,11 +3,10 @@
 #include <Foundation/Communication/Telemetry.h>
 #include <MainWindow.moc.h>
 #include <qgraphicsitem.h>
+#include <QComboBox>
 
 /// \todo Refcount ? (Max?)
 /// \todo Select Resource -> send to App for preview
-/// \todo Filter by Type
-/// \todo Filter by Name
 
 void FormatSize(ezStringBuilder& s, const char* szPrefix, ezUInt64 uiSize);
 
@@ -19,6 +18,8 @@ ezResourceWidget::ezResourceWidget(QWidget* parent) : QDockWidget(parent)
 
   setupUi(this);
 
+  m_bShowDeleted = true;
+
   ResetStats();
 }
 
@@ -27,6 +28,7 @@ void ezResourceWidget::ResetStats()
   m_Resources.Clear();
 
   m_bUpdateTable = true;
+  m_bUpdateTypeBox = true;
   m_LastTableUpdate = ezTime::Seconds(0);
 
   Table->clear();
@@ -50,6 +52,7 @@ void ezResourceWidget::ResetStats()
 
   Table->resizeColumnsToContents();
   Table->sortByColumn(0, Qt::DescendingOrder);
+  CheckShowDeleted->setChecked(m_bShowDeleted);
 }
 
 
@@ -85,6 +88,42 @@ void ezResourceWidget::UpdateTable()
   if (ezTime::Now() - m_LastTableUpdate < ezTime::Seconds(0.25))
     return;
 
+  bool bResizeFirstColumn = false;
+
+  if (m_bUpdateTypeBox)
+  {
+    ComboResourceTypes->blockSignals(true);
+
+    m_bUpdateTypeBox = false;
+
+    if (ComboResourceTypes->currentIndex() == 0)
+    {
+      m_sTypeFilter.Clear();
+    }
+    else
+    {
+      m_sTypeFilter = ComboResourceTypes->currentText().toUtf8().data();
+    }
+
+    ComboResourceTypes->clear();
+    ComboResourceTypes->addItem("All Resource Types");
+
+    ezUInt32 uiSelected = 0;
+    for (auto it = m_ResourceTypes.GetIterator(); it.IsValid(); ++it)
+    {
+      if (it.Key() == m_sTypeFilter)
+        uiSelected = ComboResourceTypes->count();
+
+      ComboResourceTypes->addItem(QLatin1String(it.Key().GetData()));
+    }
+
+    ComboResourceTypes->setCurrentIndex(uiSelected);
+
+    ComboResourceTypes->blockSignals(false);
+
+    bResizeFirstColumn = true;
+  }
+
   m_LastTableUpdate = ezTime::Now();
   m_bUpdateTable = false;
 
@@ -100,6 +139,33 @@ void ezResourceWidget::UpdateTable()
     if (res.m_bUpdate)
     {
       res.m_bUpdate = false;
+
+      bool bShowItem = true;
+
+      if (!m_bShowDeleted && res.m_LoadingState.m_State == ezResourceState::Invalid)
+      {
+        bShowItem = false;
+      }
+      else if (!m_sTypeFilter.IsEmpty() && res.m_sResourceType != m_sTypeFilter)
+      {
+        bShowItem = false;
+      }
+      else if (!m_sNameFilter.IsEmpty() && res.m_sResourceID.FindSubString_NoCase(m_sNameFilter) == nullptr)
+      {
+        bShowItem = false;
+      }
+
+      if (!bShowItem)
+      {
+        if (res.m_pMainItem != nullptr)
+        {
+          Table->removeRow(Table->row(res.m_pMainItem));
+          res.m_pMainItem = nullptr;
+        }
+
+        continue;
+      }
+
 
       QTableWidgetItem* pItem;
 
@@ -246,8 +312,46 @@ void ezResourceWidget::UpdateTable()
     }
   }
 
+  if (bResizeFirstColumn)
+  {
+    Table->resizeColumnToContents(0);
+  }
+
   Table->setSortingEnabled(true);
   Table->blockSignals(false);
+}
+
+void ezResourceWidget::UpdateAll()
+{
+  m_bUpdateTable = true;
+
+  for (auto it = m_Resources.GetIterator(); it.IsValid(); ++it)
+  {
+    it.Value().m_bUpdate = true;
+  }
+}
+
+void ezResourceWidget::on_LineFilterByName_textChanged()
+{
+  m_sNameFilter = LineFilterByName->text().toUtf8().data();
+  
+  UpdateAll();
+}
+
+void ezResourceWidget::on_ComboResourceTypes_currentIndexChanged(int state)
+{
+  if (state == 0)
+    m_sTypeFilter.Clear();
+  else
+    m_sTypeFilter = ComboResourceTypes->currentText().toUtf8().data();
+
+  UpdateAll();
+}
+
+void ezResourceWidget::on_CheckShowDeleted_toggled(bool checked)
+{
+  m_bShowDeleted = checked;
+  UpdateAll();
 }
 
 void ezResourceWidget::ProcessTelemetry(void* pUnuseed)
@@ -272,6 +376,12 @@ void ezResourceWidget::ProcessTelemetry(void* pUnuseed)
       Msg.GetReader() >> rd.m_sResourceID;
 
       Msg.GetReader() >> rd.m_sResourceType;
+
+      if (!s_pWidget->m_ResourceTypes.Contains(rd.m_sResourceType))
+      {
+        s_pWidget->m_bUpdateTypeBox = true;
+        s_pWidget->m_ResourceTypes.Insert(rd.m_sResourceType);
+      }
 
       ezUInt8 uiPriority = 0;
       Msg.GetReader() >> uiPriority;

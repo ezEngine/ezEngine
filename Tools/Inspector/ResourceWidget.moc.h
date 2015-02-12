@@ -20,10 +20,9 @@ public:
 
 private slots:
 
-  //virtual void on_SpinLimitToRecent_valueChanged(int val);
-  //virtual void on_SpinMinDuration_valueChanged(double val);
-  //virtual void on_LineFilterByName_textChanged();
-  //virtual void on_ComboThread_currentIndexChanged(int state);
+  virtual void on_LineFilterByName_textChanged();
+  virtual void on_ComboResourceTypes_currentIndexChanged(int state);
+  virtual void on_CheckShowDeleted_toggled(bool checked);
 
 public:
   static void ProcessTelemetry(void* pUnuseed);
@@ -34,6 +33,8 @@ public:
   void UpdateTable();
 
 private:
+  void UpdateAll();
+
   struct ResourceData
   {
     ResourceData()
@@ -52,9 +53,14 @@ private:
     ezResourceBase::MemoryUsage m_Memory;
   };
 
+  bool m_bShowDeleted;
+  ezString m_sTypeFilter;
+  ezString m_sNameFilter;
   ezTime m_LastTableUpdate;
   bool m_bUpdateTable;
 
+  bool m_bUpdateTypeBox;
+  ezSet<ezString> m_ResourceTypes;
   ezHashTable<ezUInt32, ResourceData> m_Resources;
 };
 
