@@ -156,9 +156,9 @@ public:
   Iterator Insert(const KeyType& key, const ValueType& value); // [tested]
 
   /// \brief Erases the key/value pair with the given key, if it exists. O(log n) operation.
-  void Remove(const KeyType& key); // [tested]
+  bool Remove(const KeyType& key); // [tested]
 
-  /// \brief Erases the key/value pair at the given Iterator. O(1) operation(nearly).
+  /// \brief Erases the key/value pair at the given Iterator. O(log n) operation. Returns an iterator to the element after the given iterator.
   Iterator Remove(const Iterator& pos); // [tested]
 
   /// \brief Searches for the given key and returns an iterator to it. If it did not exist yet, it is default-created. \a bExisted is set to true, if the key was found, false if it needed to be created.
@@ -219,7 +219,7 @@ private:
   Node* SkewNode(Node* root);
   Node* SplitNode(Node* root);
   void Insert(const KeyType& key, const ValueType& value, Node*& pInsertedNode);
-  Node* Remove(Node* root, const KeyType& key);
+  Node* Remove(Node* root, const KeyType& key, bool& bRemoved);
 
   /// \brief Returns the left-most node of the tree(smallest key).
   Node* GetLeftMost() const;

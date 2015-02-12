@@ -253,7 +253,7 @@ typename ezMapBase<KeyType, ValueType, Comparer>::Node* ezMapBase<KeyType, Value
 {
   Node* pNode = m_pRoot;
 
-  while (pNode != &m_NilNode)// && (pNode->m_Key != key))
+  while (pNode != &m_NilNode)
   {
     const ezInt32 dir = (ezInt32) m_Comparer.Less(pNode->m_Key, key);
     const ezInt32 dir2= (ezInt32) m_Comparer.Less(key, pNode->m_Key);
@@ -456,11 +456,14 @@ typename ezMapBase<KeyType, ValueType, Comparer>::Iterator ezMapBase<KeyType, Va
 }
 
 template <typename KeyType, typename ValueType, typename Comparer>
-void ezMapBase<KeyType, ValueType, Comparer>::Remove(const KeyType& key)
+bool ezMapBase<KeyType, ValueType, Comparer>::Remove(const KeyType& key)
 {
-  m_pRoot = Remove(m_pRoot, key);
+  bool bRemoved = true;
+  m_pRoot = Remove(m_pRoot, key, bRemoved);
   m_pRoot->m_pParent  = reinterpret_cast<Node*>(&m_NilNode);
   m_NilNode.m_pParent = reinterpret_cast<Node*>(&m_NilNode);
+
+  return bRemoved;
 }
 
 template <typename KeyType, typename ValueType, typename Comparer>
@@ -630,8 +633,10 @@ end:
 }
 
 template <typename KeyType, typename ValueType, typename Comparer>
-typename ezMapBase<KeyType, ValueType, Comparer>::Node* ezMapBase<KeyType, ValueType, Comparer>::Remove(Node* root, const KeyType& key)
+typename ezMapBase<KeyType, ValueType, Comparer>::Node* ezMapBase<KeyType, ValueType, Comparer>::Remove(Node* root, const KeyType& key, bool& bRemoved)
 {
+  bRemoved = false;
+
   Node* ToErase    = reinterpret_cast<Node*>(&m_NilNode);
   Node* ToOverride = reinterpret_cast<Node*>(&m_NilNode);
 
@@ -766,7 +771,10 @@ typename ezMapBase<KeyType, ValueType, Comparer>::Node* ezMapBase<KeyType, Value
 
   // remove the erased node
   if (ToOverride != &m_NilNode)
+  {
+    bRemoved = true;
     ReleaseNode(ToOverride);
+  }
 
   return root;
 }

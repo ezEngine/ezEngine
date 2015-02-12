@@ -260,13 +260,13 @@ EZ_CREATE_SIMPLE_TEST(Containers, Set)
     ezSet<ezUInt32> m;
 
     for (ezInt32 i = 0; i < 1000; ++i)
-      m.Remove(i);
+      EZ_TEST_BOOL(!m.Remove(i));
 
     for (ezInt32 i = 0; i < 1000; ++i)
       m.Insert(i);
 
     for (ezInt32 i = 0; i < 1000; ++i)
-      m.Remove(i + 500);
+      EZ_TEST_BOOL(m.Remove(i + 500) == i < 500);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Remove (Iterator)")
@@ -295,7 +295,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, Set)
 
     for (ezInt32 i = 0; i < 1000; ++i)
     {
-      m.Remove(i);
+      EZ_TEST_BOOL(m.Remove(i));
       EZ_TEST_BOOL(!m.Find(i).IsValid());
 
       EZ_TEST_INT(m.GetCount(), 1000 - 1 - i);
@@ -459,7 +459,7 @@ EZ_CREATE_SIMPLE_TEST(Containers, Set)
 
       // Remove
       for (ezUInt32 i = 0; i < 5000; ++i)
-        m.Remove(i);
+        EZ_TEST_BOOL(m.Remove(i));
 
       // Insert others
       for (ezUInt32 j = 1; j < 1000; ++j)
@@ -467,13 +467,13 @@ EZ_CREATE_SIMPLE_TEST(Containers, Set)
 
       // Remove
       for (ezUInt32 i = 0; i < 5000; ++i)
-        m.Remove(5000 + i);
+        EZ_TEST_BOOL(m.Remove(5000 + i));
 
       // Remove others
       for (ezUInt32 j = 1; j < 1000; ++j)
       {
         EZ_TEST_BOOL(m.Find(20000 * j).IsValid());
-        m.Remove(20000 * j);
+        EZ_TEST_BOOL(m.Remove(20000 * j));
       }
     }
 

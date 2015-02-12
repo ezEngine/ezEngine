@@ -385,11 +385,14 @@ typename ezSetBase<KeyType, Comparer>::Iterator ezSetBase<KeyType, Comparer>::In
 }
 
 template <typename KeyType, typename Comparer>
-void ezSetBase<KeyType, Comparer>::Remove(const KeyType& key)
+bool ezSetBase<KeyType, Comparer>::Remove(const KeyType& key)
 {
-  m_pRoot = Remove(m_pRoot, key);
+  bool bRemoved = true;
+  m_pRoot = Remove(m_pRoot, key, bRemoved);
   m_pRoot->m_pParent  = reinterpret_cast<Node*>(&m_NilNode);
   m_NilNode.m_pParent = reinterpret_cast<Node*>(&m_NilNode);
+
+  return bRemoved;
 }
 
 template <typename KeyType, typename Comparer>
@@ -538,8 +541,10 @@ typename ezSetBase<KeyType, Comparer>::Node* ezSetBase<KeyType, Comparer>::Inser
 }
 
 template <typename KeyType, typename Comparer>
-typename ezSetBase<KeyType, Comparer>::Node* ezSetBase<KeyType, Comparer>::Remove(Node* root, const KeyType& key)
+typename ezSetBase<KeyType, Comparer>::Node* ezSetBase<KeyType, Comparer>::Remove(Node* root, const KeyType& key, bool& bRemoved)
 {
+  bRemoved = false;
+
   Node* ToErase    = reinterpret_cast<Node*>(&m_NilNode);
   Node* ToOverride = reinterpret_cast<Node*>(&m_NilNode);
 
@@ -663,7 +668,10 @@ typename ezSetBase<KeyType, Comparer>::Node* ezSetBase<KeyType, Comparer>::Remov
 
   // remove the erased node
   if (ToOverride != &m_NilNode)
+  {
+    bRemoved = true;
     ReleaseNode(ToOverride);
+  }
 
   return root;
 }

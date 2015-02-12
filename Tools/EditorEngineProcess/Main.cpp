@@ -15,6 +15,13 @@ ezEditorProcessApp::ezEditorProcessApp()
 
 void ezEditorProcessApp::AfterEngineInit()
 {
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+  // Setting this flags prevents Windows from showing a dialog when the Engine process crashes
+  // this also speeds up process termination significantly (down to less than a second)
+  DWORD dwMode = SetErrorMode(SEM_NOGPFAULTERRORBOX);
+  SetErrorMode(dwMode | SEM_NOGPFAULTERRORBOX);
+#endif
+
   ezTelemetry::CreateServer();
 
   {
