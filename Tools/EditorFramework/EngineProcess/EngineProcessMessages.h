@@ -3,12 +3,23 @@
 #include <EditorFramework/Plugin.h>
 #include <EditorFramework/IPC/ProcessCommunication.h>
 
-class EZ_EDITORFRAMEWORK_DLL ezEngineProcessMsg : public ezProcessMessage
+class EZ_EDITORFRAMEWORK_DLL ezEditorEngineMsg : public ezProcessMessage
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezEngineProcessMsg);
+  EZ_ADD_DYNAMIC_REFLECTION(ezEditorEngineMsg);
 
 public:
-  ezEngineProcessMsg()
+  ezEditorEngineMsg()
+  {
+  }
+
+};
+
+class EZ_EDITORFRAMEWORK_DLL ezEditorEngineDocumentMsg : public ezProcessMessage
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezEditorEngineDocumentMsg);
+
+public:
+  ezEditorEngineDocumentMsg()
   {
     m_uiViewID = 0xFFFFFFFF;
   }
@@ -17,9 +28,9 @@ public:
   ezUInt32 m_uiViewID;
 };
 
-class EZ_EDITORFRAMEWORK_DLL ezEngineViewRedrawMsg : public ezEngineProcessMsg
+class EZ_EDITORFRAMEWORK_DLL ezViewRedrawMsgToEngine : public ezEditorEngineDocumentMsg
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezEngineViewRedrawMsg);
+  EZ_ADD_DYNAMIC_REFLECTION(ezViewRedrawMsgToEngine);
 
 public:
 
@@ -28,9 +39,9 @@ public:
   ezUInt16 m_uiWindowHeight;
 };
 
-class EZ_EDITORFRAMEWORK_DLL ezEngineViewCameraMsg : public ezEngineProcessMsg
+class EZ_EDITORFRAMEWORK_DLL ezViewCameraMsgToEngine : public ezEditorEngineDocumentMsg
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezEngineViewCameraMsg);
+  EZ_ADD_DYNAMIC_REFLECTION(ezViewCameraMsgToEngine);
 
 public:
 
@@ -47,9 +58,9 @@ public:
   ezMat4 m_ProjMatrix;
 };
 
-class EZ_EDITORFRAMEWORK_DLL ezEngineProcessEntityMsg : public ezEngineProcessMsg
+class EZ_EDITORFRAMEWORK_DLL ezEntityMsgToEngine : public ezEditorEngineDocumentMsg
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezEngineProcessEntityMsg);
+  EZ_ADD_DYNAMIC_REFLECTION(ezEntityMsgToEngine);
 
 public:
   enum Type
@@ -71,6 +82,17 @@ public:
   void SetObjectData(const char* s) { m_sObjectData = s; }
 };
 
+class EZ_EDITORFRAMEWORK_DLL ezLogMsgToEditor : public ezEditorEngineDocumentMsg
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezLogMsgToEditor);
+
+public:
+
+  const char* GetText() const { return m_sText; }
+  void SetText(const char* sz) { m_sText = sz; }
+
+  ezString m_sText;
+};
 
 
 

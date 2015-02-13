@@ -12,6 +12,9 @@
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
+#include <Foundation/Logging/Log.h>
+#include <Foundation/Logging/ConsoleWriter.h>
+#include <Foundation/Logging/VisualStudioWriter.h>
 #include <QMainWindow>
 #include <QSettings>
 #include <QTimer>
@@ -121,6 +124,13 @@ void ezEditorApp::StartupEditor(const char* szAppName, const char* szUserName, i
   ezFileSystem::AddDataDirectory("", ezFileSystem::AllowWrites, "App"); // for absolute paths
   ezFileSystem::AddDataDirectory(sAppDir.GetData(), ezFileSystem::AllowWrites, "App"); // for everything relative
 
+  m_LogHTML.BeginLog("Log_Editor.htm", "ezEditor");
+
+  ezGlobalLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);
+  ezGlobalLog::AddLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
+  ezGlobalLog::AddLogWriter(ezLoggingEvent::Handler(&ezLogWriter::HTML::LogMessageHandler, &m_LogHTML));
+ 
+
   ezEditorGUI::GetInstance()->LoadState();
 
   LoadRecentFiles();
@@ -146,6 +156,8 @@ void ezEditorApp::ShutdownEditor()
 
   delete s_pEngineViewProcess;
   delete s_pQtApplication;
+
+  m_LogHTML.EndLog();
 }
 
 ezInt32 ezEditorApp::RunEditor()

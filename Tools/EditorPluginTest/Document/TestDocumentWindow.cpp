@@ -15,7 +15,7 @@
 #include <QKeyEvent>
 #include <Foundation/Time/Time.h>
 
-ezTestDocumentWindow::ezTestDocumentWindow(ezDocumentBase* pDocument) : ezDocumentWindow(pDocument)
+ezTestDocumentWindow::ezTestDocumentWindow(ezDocumentBase* pDocument) : ezDocumentWindow3D(pDocument)
 {
   m_pCenterWidget = new ez3DViewWidget(this, this);
   m_pCenterWidget->m_MoveContext.m_pCamera = &m_Camera;
@@ -23,30 +23,13 @@ ezTestDocumentWindow::ezTestDocumentWindow(ezDocumentBase* pDocument) : ezDocume
   m_pCenterWidget->setAutoFillBackground(false);
   setCentralWidget(m_pCenterWidget);
 
-  m_pRestartButtonLayout = new QHBoxLayout(this);
-  m_pRestartButtonLayout->setMargin(0);
-
-  centralWidget()->setLayout(m_pRestartButtonLayout);
-
-  m_pRestartButton = new QPushButton(centralWidget());
-  m_pRestartButton->setText("Restart Engine View Process");
-  m_pRestartButton->setVisible(ezEditorEngineProcessConnection::GetInstance()->IsProcessCrashed());
-  m_pRestartButton->setMaximumWidth(200);
-  m_pRestartButton->setMinimumHeight(50);
-  m_pRestartButton->connect(m_pRestartButton, &QPushButton::clicked, this, &ezTestDocumentWindow::SlotRestartEngineProcess);
-
-  m_pRestartButtonLayout->addWidget(m_pRestartButton);
-
   SetTargetFramerate(24);
 
-  m_pEngineView = ezEditorEngineProcessConnection::GetInstance()->CreateEngineConnection(pDocument);
-  ezEditorEngineProcessConnection::s_Events.AddEventHandler(ezDelegate<void (const ezEditorEngineProcessConnection::Event&)>(&ezTestDocumentWindow::EngineViewProcessEventHandler, this));
+  
 
   GetDocument()->GetObjectTree()->m_StructureEvents.AddEventHandler(ezDelegate<void (const ezDocumentObjectTreeStructureEvent&)>(&ezTestDocumentWindow::DocumentTreeEventHandler, this));
   GetDocument()->GetObjectTree()->m_PropertyEvents.AddEventHandler(ezDelegate<void (const ezDocumentObjectTreePropertyEvent&)>(&ezTestDocumentWindow::PropertyEventHandler, this));
 
-  m_pEngineView->SendDocument();
-  
   m_Camera.SetCameraMode(ezCamera::CameraMode::PerspectiveFixedFovY, 80.0f, 0.1f, 1000.0f);
   m_Camera.LookAt(ezVec3(0.5f, 1.5f, 2.0f), ezVec3(0.0f, 0.5f, 0.0f), ezVec3(0.0f, 1.0f, 0.0f));
 
@@ -57,8 +40,6 @@ ezTestDocumentWindow::~ezTestDocumentWindow()
 {
   GetDocument()->GetObjectTree()->m_PropertyEvents.RemoveEventHandler(ezDelegate<void (const ezDocumentObjectTreePropertyEvent&)>(&ezTestDocumentWindow::PropertyEventHandler, this));
   GetDocument()->GetObjectTree()->m_StructureEvents.RemoveEventHandler(ezDelegate<void (const ezDocumentObjectTreeStructureEvent&)>(&ezTestDocumentWindow::DocumentTreeEventHandler, this));
-  ezEditorEngineProcessConnection::s_Events.RemoveEventHandler(ezDelegate<void (const ezEditorEngineProcessConnection::Event&)>(&ezTestDocumentWindow::EngineViewProcessEventHandler, this));
-  ezEditorEngineProcessConnection::GetInstance()->DestroyEngineConnection(m_pEngineView);
 }
 
 void ezTestDocumentWindow::PropertyEventHandler(const ezDocumentObjectTreePropertyEvent& e)
@@ -71,35 +52,6 @@ void ezTestDocumentWindow::DocumentTreeEventHandler(const ezDocumentObjectTreeSt
   m_pEngineView->SendDocumentTreeChange(e);
 }
 
-void ezTestDocumentWindow::EngineViewProcessEventHandler(const ezEditorEngineProcessConnection::Event& e)
-{
-  switch (e.m_Type)
-  {
-  case ezEditorEngineProcessConnection::Event::Type::ProcessCrashed:
-    {
-      m_pRestartButton->setVisible(true);
-      m_pRestartButton->update();
-    }
-    break;
-
-  case ezEditorEngineProcessConnection::Event::Type::ProcessStarted:
-    {
-      m_pRestartButton->setVisible(false);
-    }
-    break;
-
-  case ezEditorEngineProcessConnection::Event::Type::ProcessShutdown:
-    break;
-  }
-}
-
-void ezTestDocumentWindow::SlotRestartEngineProcess()
-{
-  ezEditorEngineProcessConnection::GetInstance()->RestartProcess();
-
-  m_pEngineView->SendDocument();
-}
-
 void ezTestDocumentWindow::InternalRedraw()
 {
   m_pCenterWidget->m_MoveContext.Update();
@@ -108,7 +60,7 @@ void ezTestDocumentWindow::InternalRedraw()
 
 void ezTestDocumentWindow::SendRedrawMsg()
 {
-  ezEngineViewCameraMsg cam;
+  ezViewCameraMsgToEngine cam;
   cam.m_fNearPlane = m_Camera.GetNearPlane();
   cam.m_fFarPlane = m_Camera.GetFarPlane();
   cam.m_iCameraMode = (ezInt8) m_Camera.GetCameraMode();
@@ -122,7 +74,7 @@ void ezTestDocumentWindow::SendRedrawMsg()
 
   m_pEngineView->SendMessage(&cam);
 
-  ezEngineViewRedrawMsg msg;
+  ezViewRedrawMsgToEngine msg;
   msg.m_uiHWND = (ezUInt32) m_pCenterWidget->winId();
   msg.m_uiWindowWidth = m_pCenterWidget->width();
   msg.m_uiWindowHeight = m_pCenterWidget->height();
@@ -153,6 +105,17 @@ void ezTestDocumentWindow::keyPressEvent(QKeyEvent* e)
   }
 
   ezDocumentWindow::keyPressEvent(e);
+}
+
+void ezTestDocumentWindow::HandleEngineMessage(const ezEditorEngineDocumentMsg* pMsg)
+{
+  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezLogMsgToEditor>())
+  {
+    const ezLogMsgToEditor* pLogMsg = static_cast<const ezLogMsgToEditor*>(pMsg);
+
+    ezLog::Info("Process (%u): '%s'", pLogMsg->m_uiViewID, pLogMsg->m_sText.GetData());
+  }
+
 }
 
 ezCameraMoveContext::ezCameraMoveContext()

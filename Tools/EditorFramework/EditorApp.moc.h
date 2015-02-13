@@ -8,6 +8,7 @@
 #include <Foundation/Strings/String.h>
 #include <Foundation/Communication/Event.h>
 #include <QApplication>
+#include <Foundation/Logging/HTMLWriter.h>
 
 class QMainWindow;
 class QWidget;
@@ -130,4 +131,6 @@ private:
   QApplication* s_pQtApplication;
   ezEditorEngineProcessConnection* s_pEngineViewProcess;
   QTimer* m_pTimer;
+
+  ezLogWriter::HTML m_LogHTML;
 };

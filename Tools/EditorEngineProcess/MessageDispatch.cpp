@@ -9,7 +9,7 @@
 
 void ezEditorProcessApp::EventHandlerIPC(const ezProcessCommunication::Event& e)
 {
-  const ezEngineProcessMsg* pMsg = (const ezEngineProcessMsg*) e.m_pMessage;
+  const ezEditorEngineDocumentMsg* pMsg = (const ezEditorEngineDocumentMsg*) e.m_pMessage;
 
   ezViewContext* pViewContext = (ezViewContext*) ezEngineProcessViewContext::GetViewContext(pMsg->m_uiViewID);
 
@@ -35,23 +35,23 @@ void ezEditorProcessApp::EventHandlerIPC(const ezProcessCommunication::Event& e)
     pDocumentContext->m_pWorld = EZ_DEFAULT_NEW(ezWorld)(ezConversionUtils::ToString(pMsg->m_DocumentGuid));
   }
 
-  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezEngineViewRedrawMsg>())
+  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezViewRedrawMsgToEngine>())
   {
-    ezEngineViewRedrawMsg* pRedrawMsg = (ezEngineViewRedrawMsg*) pMsg;
+    ezViewRedrawMsgToEngine* pRedrawMsg = (ezViewRedrawMsgToEngine*) pMsg;
 
     pViewContext->SetupRenderTarget((HWND) pRedrawMsg->m_uiHWND, pRedrawMsg->m_uiWindowWidth, pRedrawMsg->m_uiWindowHeight);
     pViewContext->Redraw();
   }
-  else if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezEngineProcessEntityMsg>())
+  else if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezEntityMsgToEngine>())
   {
-    ezEngineProcessEntityMsg* pEntityMsg = (ezEngineProcessEntityMsg*) pMsg;
+    ezEntityMsgToEngine* pEntityMsg = (ezEntityMsgToEngine*) pMsg;
 
     static ezHashTable<ezUuid, ezGameObjectHandle> g_AllObjects;
 
     const char* szDone = "unknown";
     switch (pEntityMsg->m_iMsgType)
     {
-    case ezEngineProcessEntityMsg::ObjectAdded:
+    case ezEntityMsgToEngine::ObjectAdded:
       {
         szDone = "Added";
 
@@ -78,7 +78,7 @@ void ezEditorProcessApp::EventHandlerIPC(const ezProcessCommunication::Event& e)
       }
       break;
 
-    case ezEngineProcessEntityMsg::ObjectMoved:
+    case ezEntityMsgToEngine::ObjectMoved:
       {
         szDone = "Moved";
 
@@ -98,7 +98,7 @@ void ezEditorProcessApp::EventHandlerIPC(const ezProcessCommunication::Event& e)
       }
       break;
 
-    case ezEngineProcessEntityMsg::ObjectRemoved:
+    case ezEntityMsgToEngine::ObjectRemoved:
       {
         szDone = "Removed";
 
@@ -106,7 +106,7 @@ void ezEditorProcessApp::EventHandlerIPC(const ezProcessCommunication::Event& e)
       }
       break;
 
-    case ezEngineProcessEntityMsg::PropertyChanged:
+    case ezEntityMsgToEngine::PropertyChanged:
       {
         szDone = "Property";
 
@@ -127,17 +127,24 @@ void ezEditorProcessApp::EventHandlerIPC(const ezProcessCommunication::Event& e)
       break;
     }
 
-    ezLog::Debug("%s: Entity %s, OldParent %s, NewParent %s, Child %u ", 
+    ezStringBuilder s;
+    s.Format("%s: Entity %s, OldParent %s, NewParent %s, Child %u ", 
                 szDone,
                 ezConversionUtils::ToString(pEntityMsg->m_ObjectGuid).GetData(),
                 ezConversionUtils::ToString(pEntityMsg->m_PreviousParentGuid).GetData(),
                 ezConversionUtils::ToString(pEntityMsg->m_NewParentGuid).GetData(),
                 pEntityMsg->m_uiNewChildIndex);
 
+    ezLogMsgToEditor lm;
+    lm.m_sText = s;
+    lm.m_uiViewID = pEntityMsg->m_uiViewID;
+    lm.m_DocumentGuid = pEntityMsg->m_DocumentGuid;
+
+    m_IPC.SendMessage(&lm);
   }
-  else if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezEngineViewCameraMsg>())
+  else if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezViewCameraMsgToEngine>())
   {
-    ezEngineViewCameraMsg* pCamMsg = (ezEngineViewCameraMsg*) pMsg;
+    ezViewCameraMsgToEngine* pCamMsg = (ezViewCameraMsgToEngine*) pMsg;
 
     pViewContext->SetCamera(pCamMsg);
   }

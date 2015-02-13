@@ -9,6 +9,7 @@ class ezDocumentBase;
 class ezDocumentObjectBase;
 struct ezDocumentObjectTreePropertyEvent;
 struct ezDocumentObjectTreeStructureEvent;
+class ezDocumentWindow3D;
 
 class EZ_EDITORFRAMEWORK_DLL ezEditorEngineProcessConnection
 {
@@ -24,8 +25,8 @@ public:
   void RestartProcess();
   bool IsProcessCrashed() const { return m_bProcessCrashed; }
 
-  ezEditorEngineConnection* CreateEngineConnection(ezDocumentBase* pDocument);
-  void DestroyEngineConnection(ezEditorEngineConnection* pView);
+  ezEditorEngineConnection* CreateEngineConnection(ezDocumentWindow3D* pWindow);
+  void DestroyEngineConnection(ezDocumentWindow3D* pWindow);
 
   void SendMessage(ezProcessMessage* pMessage);
 
@@ -33,33 +34,44 @@ public:
   {
     enum class Type
     {
+      Invalid,
       ProcessStarted,
       ProcessCrashed,
       ProcessShutdown,
+      ProcessMessage,
     };
 
+    Event()
+    {
+      m_Type = Type::Invalid;
+      m_pMsg = nullptr;
+    }
+
     Type m_Type;
+    const ezProcessMessage* m_pMsg;
   };
 
   static ezEvent<const Event&> s_Events;
 
+
 private:
   void Initialize();
   void Deinitialize();
+  void HandleIPCEvent(const ezProcessCommunication::Event& e);
 
   bool m_bProcessShouldBeRunning;
   bool m_bProcessCrashed;
   ezUInt32 m_uiNextEngineViewID;
   ezInt32 m_iNumViews;
   ezProcessCommunication m_IPC;
-  ezHashTable<ezUInt32, ezEditorEngineConnection*> m_EngineViewsByID;
+  ezHashTable<ezUInt32, ezDocumentWindow3D*> m_EngineViewsByID;
 };
 
 class EZ_EDITORFRAMEWORK_DLL ezEditorEngineConnection
 {
 public:
 
-  void SendMessage(ezEngineProcessMsg* pMessage);
+  void SendMessage(ezEditorEngineDocumentMsg* pMessage);
 
   void SendObjectProperties(const ezDocumentObjectTreePropertyEvent& e);
   void SendDocumentTreeChange(const ezDocumentObjectTreeStructureEvent& e);

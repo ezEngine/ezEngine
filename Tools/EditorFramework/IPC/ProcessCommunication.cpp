@@ -164,7 +164,7 @@ bool ezProcessCommunication::IsClientAlive() const
 
 void ezProcessCommunication::SendMessage(ezProcessMessage* pMessage)
 {
-  if (m_pClientProcess == nullptr)
+  if (m_pSharedMemory == nullptr)
     return;
 
   ezMemoryStreamStorage& storage = m_MessageSendQueue.ExpandAndGetRef();

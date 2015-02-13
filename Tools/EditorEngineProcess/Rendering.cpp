@@ -272,7 +272,7 @@ void ezViewContext::Redraw()
   ezTaskSystem::FinishFrameTasks();
 }
 
-void ezViewContext::SetCamera(ezEngineViewCameraMsg* pMsg)
+void ezViewContext::SetCamera(ezViewCameraMsgToEngine* pMsg)
 {
   m_Camera.SetCameraMode((ezCamera::CameraMode) pMsg->m_iCameraMode, pMsg->m_fFovOrDim, pMsg->m_fNearPlane, pMsg->m_fFarPlane);
 

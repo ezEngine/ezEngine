@@ -10,7 +10,7 @@
 #include <CoreUtils/Debugging/DataTransfer.h>
 
 class ezGameObject;
-class ezEngineViewCameraMsg;
+class ezViewCameraMsgToEngine;
 
 class ezPickingIDCache
 {
@@ -69,7 +69,7 @@ public:
 
   void Redraw();
 
-  void SetCamera(ezEngineViewCameraMsg* pMsg);
+  void SetCamera(ezViewCameraMsgToEngine* pMsg);
 
 private:
   void RenderObject(ezGameObject* pObject, const ezMat4& ViewProj);

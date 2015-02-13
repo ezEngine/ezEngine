@@ -1,5 +1,6 @@
 #include <PCH.h>
 #include <EditorFramework/EngineProcess/EngineProcessConnection.h>
+#include <EditorFramework/DocumentWindow/DocumentWindow3D.moc.h>
 #include <QMessageBox>
 #include <Foundation/Logging/Log.h>
 #include <ToolsFoundation/Document/Document.h>
@@ -17,17 +18,50 @@ ezEditorEngineProcessConnection::ezEditorEngineProcessConnection()
   m_uiNextEngineViewID = 0;
   m_bProcessShouldBeRunning = false;
   m_bProcessCrashed = false;
+
+  m_IPC.m_Events.AddEventHandler(ezDelegate<void (const ezProcessCommunication::Event&)>(&ezEditorEngineProcessConnection::HandleIPCEvent, this));
 }
 
 ezEditorEngineProcessConnection::~ezEditorEngineProcessConnection()
 {
   EZ_ASSERT_DEV(m_iNumViews == 0, "There are still views open at shutdown");
 
+  m_IPC.m_Events.RemoveEventHandler(ezDelegate<void (const ezProcessCommunication::Event&)>(&ezEditorEngineProcessConnection::HandleIPCEvent, this));
+
   s_pInstance = nullptr;
 }
 
-ezEditorEngineConnection* ezEditorEngineProcessConnection::CreateEngineConnection(ezDocumentBase* pDocument)
+void ezEditorEngineProcessConnection::HandleIPCEvent(const ezProcessCommunication::Event& e)
 {
+  if (e.m_pMessage->GetDynamicRTTI()->IsDerivedFrom<ezEditorEngineDocumentMsg>())
+  {
+    const ezEditorEngineDocumentMsg* pMsg = static_cast<const ezEditorEngineDocumentMsg*>(e.m_pMessage);
+
+    ezDocumentWindow3D* pWindow = m_EngineViewsByID[pMsg->m_uiViewID];
+
+    if (pWindow)
+    {
+      pWindow->HandleEngineMessage(pMsg);
+    }
+  }
+  else if (e.m_pMessage->GetDynamicRTTI()->IsDerivedFrom<ezEditorEngineMsg>())
+  {
+    Event ee;
+    ee.m_pMsg = static_cast<const ezEditorEngineMsg*>(e.m_pMessage);
+    ee.m_Type = Event::Type::ProcessMessage;
+
+    s_Events.Broadcast(ee);
+  }
+}
+
+ezEditorEngineConnection* ezEditorEngineProcessConnection::CreateEngineConnection(ezDocumentWindow3D* pWindow)
+{
+  ezEditorEngineConnection* pView = new ezEditorEngineConnection(pWindow->GetDocument(), m_uiNextEngineViewID);
+
+  m_EngineViewsByID[pView->m_iEngineViewID] = pWindow;
+
+  m_uiNextEngineViewID++;
+
   if (m_iNumViews == 0)
   {
     Initialize();
@@ -35,20 +69,16 @@ ezEditorEngineConnection* ezEditorEngineProcessConnection::CreateEngineConnectio
 
   ++m_iNumViews;
 
-  ezEditorEngineConnection* pView = new ezEditorEngineConnection(pDocument, m_uiNextEngineViewID);
 
-  m_EngineViewsByID[pView->m_iEngineViewID] = pView;
-
-  m_uiNextEngineViewID++;
 
   return pView;
 }
 
-void ezEditorEngineProcessConnection::DestroyEngineConnection(ezEditorEngineConnection* pView)
+void ezEditorEngineProcessConnection::DestroyEngineConnection(ezDocumentWindow3D* pWindow)
 {
-  m_EngineViewsByID.Remove(pView->m_iEngineViewID);
+  m_EngineViewsByID.Remove(pWindow->GetEditorEngineConnection()->m_iEngineViewID);
 
-  delete pView;
+  delete pWindow->GetEditorEngineConnection();
 
   --m_iNumViews;
 
@@ -123,7 +153,7 @@ void ezEditorEngineProcessConnection::Update()
   m_IPC.ProcessMessages();
 }
 
-void ezEditorEngineConnection::SendMessage(ezEngineProcessMsg* pMessage)
+void ezEditorEngineConnection::SendMessage(ezEditorEngineDocumentMsg* pMessage)
 {
   pMessage->m_uiViewID = m_iEngineViewID;
   pMessage->m_DocumentGuid = m_pDocument->GetGuid();
@@ -136,10 +166,10 @@ void ezEditorEngineConnection::SendObjectProperties(const ezDocumentObjectTreePr
   if (e.m_bEditorProperty)
     return;
 
-  ezEngineProcessEntityMsg msg;
+  ezEntityMsgToEngine msg;
   msg.m_DocumentGuid = m_pDocument->GetGuid();
   msg.m_ObjectGuid = e.m_pObject->GetGuid();
-  msg.m_iMsgType = ezEngineProcessEntityMsg::PropertyChanged;
+  msg.m_iMsgType = ezEntityMsgToEngine::PropertyChanged;
 
   ezMemoryStreamStorage storage;
   ezMemoryStreamWriter writer(&storage);
@@ -158,7 +188,7 @@ void ezEditorEngineConnection::SendObjectProperties(const ezDocumentObjectTreePr
 
 void ezEditorEngineConnection::SendDocumentTreeChange(const ezDocumentObjectTreeStructureEvent& e)
 {
-  ezEngineProcessEntityMsg msg;
+  ezEntityMsgToEngine msg;
   msg.m_DocumentGuid = m_pDocument->GetGuid();
   msg.m_ObjectGuid = e.m_pObject->GetGuid();
   msg.m_uiNewChildIndex = e.m_uiNewChildIndex;
@@ -172,7 +202,7 @@ void ezEditorEngineConnection::SendDocumentTreeChange(const ezDocumentObjectTree
   {
   case ezDocumentObjectTreeStructureEvent::Type::AfterObjectAdded:
     {
-      msg.m_iMsgType = ezEngineProcessEntityMsg::ObjectAdded;
+      msg.m_iMsgType = ezEntityMsgToEngine::ObjectAdded;
 
       ezMemoryStreamStorage storage;
       ezMemoryStreamWriter writer(&storage);
@@ -188,13 +218,13 @@ void ezEditorEngineConnection::SendDocumentTreeChange(const ezDocumentObjectTree
 
   case ezDocumentObjectTreeStructureEvent::Type::AfterObjectMoved:
     {
-      msg.m_iMsgType = ezEngineProcessEntityMsg::ObjectMoved;
+      msg.m_iMsgType = ezEntityMsgToEngine::ObjectMoved;
     }
     break;
 
   case ezDocumentObjectTreeStructureEvent::Type::BeforeObjectRemoved:
     {
-      msg.m_iMsgType = ezEngineProcessEntityMsg::ObjectRemoved;
+      msg.m_iMsgType = ezEntityMsgToEngine::ObjectRemoved;
     }
     break;
 

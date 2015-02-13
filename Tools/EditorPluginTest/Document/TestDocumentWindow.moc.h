@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Foundation/Basics.h>
-#include <EditorFramework/DocumentWindow/DocumentWindow.moc.h>
+#include <EditorFramework/DocumentWindow/DocumentWindow3D.moc.h>
 #include <EditorFramework/IPC/ProcessCommunication.h>
 #include <EditorFramework/EngineProcess/EngineProcessConnection.h>
 #include <RendererDX11/Device/DeviceDX11.h>
@@ -104,7 +104,7 @@ protected:
   ezDocumentWindow* m_pDocument;
 };
 
-class ezTestDocumentWindow : public ezDocumentWindow
+class ezTestDocumentWindow : public ezDocumentWindow3D
 {
   Q_OBJECT
 
@@ -116,19 +116,18 @@ protected:
   void keyPressEvent(QKeyEvent* e) override;
 
 private slots:
-  void SlotRestartEngineProcess();
+  
 
 private:
+  virtual void HandleEngineMessage(const ezEditorEngineDocumentMsg* pMsg) override;
+
   virtual void InternalRedraw() override;
-  void EngineViewProcessEventHandler(const ezEditorEngineProcessConnection::Event& e);
   void DocumentTreeEventHandler(const ezDocumentObjectTreeStructureEvent& e);
   void PropertyEventHandler(const ezDocumentObjectTreePropertyEvent& e);
 
   void SendRedrawMsg();
 
   ez3DViewWidget* m_pCenterWidget;
-  ezEditorEngineConnection* m_pEngineView;
-  QHBoxLayout* m_pRestartButtonLayout;
-  QPushButton* m_pRestartButton;
+  
   ezCamera m_Camera;
 };
