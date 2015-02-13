@@ -140,6 +140,9 @@ void ezEditorApp::StartupEditor(const char* szAppName, const char* szUserName, i
   LoadPlugins();
 
   s_ContainerWindows[0]->ShowSettingsTab();
+
+
+  ezEditorEngineProcessConnection::GetInstance()->RestartProcess();
 }
 
 void ezEditorApp::ShutdownEditor()

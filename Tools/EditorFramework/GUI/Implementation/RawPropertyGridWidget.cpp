@@ -168,7 +168,10 @@ void ezRawPropertyGridWidget::SetSelection(const ezDeque<const ezDocumentObjectB
     m_pGroups[1] = new QGroupBox(m_pMainContent);
 
     m_pGroups[0]->setTitle(QLatin1String("Editor Properties"));
-    m_pGroups[1]->setTitle(QLatin1String("Object Properties"));
+
+    ezStringBuilder sName;
+    sName.Format("Object Properties [%s]", m_Selection[0]->GetTypeAccessor().GetReflectedTypeHandle().GetType()->GetTypeName().GetData());
+    m_pGroups[1]->setTitle(QString::fromUtf8(sName));
 
 
     m_pLayout->addWidget(m_pGroups[0]);

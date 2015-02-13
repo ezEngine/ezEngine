@@ -21,21 +21,3 @@ public:
   ezInt32 m_iAmmoPerShot;
 };
 
-class MeshComponent;
-typedef ezComponentManagerSimple<MeshComponent> MeshComponentManager;
-
-class MeshComponent : public ezComponent
-{
-  EZ_DECLARE_COMPONENT_TYPE(MeshComponent, MeshComponentManager);
-
-  void Update() { }
-
-public:
-  MeshComponent();
-
-  const char* GetMeshFile() const { return m_sMeshFile; }
-  void SetMeshFile(const char* s) { m_sMeshFile = s; }
-  ezString m_sMeshFile;
-  ezString m_sMeshFile2;
-};
-

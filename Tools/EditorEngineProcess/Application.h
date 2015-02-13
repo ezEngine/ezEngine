@@ -7,6 +7,8 @@
 #include <EditorEngineProcess/ViewContext.h>
 #include <RendererFoundation/Device/Device.h>
 
+class ezEngineProcessDocumentContext;
+
 class ezEditorProcessApp : public ezApplication
 {
 public:
@@ -18,8 +20,13 @@ public:
   virtual ApplicationExecution Run() override;
 
 private:
+  void HandlerEntityMsg(ezEngineProcessDocumentContext* pDocumentContext, ezViewContext* pViewContext, ezEntityMsgToEngine* pMsg);
+  void UpdateProperties(ezEntityMsgToEngine* pMsg, void* pObject, const ezRTTI* pRtti);
+  void HandlerGameObjectMsg(ezEngineProcessDocumentContext* pDocumentContext, ezViewContext* pViewContext, ezEntityMsgToEngine* pMsg, ezRTTI* pRtti);
+  void HandleComponentMsg(ezEngineProcessDocumentContext* pDocumentContext, ezViewContext* pViewContext, ezEntityMsgToEngine* pMsg, ezRTTI* pRtti);
 
   void InitDevice();
+  void SendReflectionInformation();
 
   QApplication* m_pApp;
   ezProcessCommunication m_IPC;

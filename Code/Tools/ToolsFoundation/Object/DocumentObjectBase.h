@@ -91,9 +91,10 @@ public:
   virtual const ezIReflectedTypeAccessor& GetTypeAccessor()       const override { return m_ObjectPropertiesAccessor; }
   virtual const ezIReflectedTypeAccessor& GetEditorTypeAccessor() const override { return m_EditorPropertiesAccessor; }
 
-private:
+public:
   EditorProperties m_EditorProperties;
 
+private:
   ezReflectedTypeStorageAccessor m_ObjectPropertiesAccessor;
   ezReflectedTypeDirectAccessor m_EditorPropertiesAccessor;
 };

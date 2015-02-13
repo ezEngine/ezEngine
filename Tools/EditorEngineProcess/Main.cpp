@@ -51,6 +51,8 @@ void ezEditorProcessApp::AfterEngineInit()
   InitDevice();
 
   ezClock::SetNumGlobalClocks();
+
+  SendReflectionInformation();
 }
 
 void ezEditorProcessApp::BeforeEngineShutdown()

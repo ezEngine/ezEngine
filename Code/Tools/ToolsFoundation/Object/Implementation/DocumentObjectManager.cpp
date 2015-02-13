@@ -44,18 +44,18 @@ void ezDocumentObjectManagerBase::DestroyObject(ezDocumentObjectBase* pObject)
 
 bool ezDocumentObjectManagerBase::CanAdd(ezReflectedTypeHandle hType, const ezDocumentObjectBase* pParent) const
 {
-  if (pParent == nullptr)
-    pParent = m_pDocument->GetObjectTree()->GetRootObject();
-
   // Test whether parent exists in tree.
-  if (pParent != m_pDocument->GetObjectTree()->GetRootObject())
+  if (pParent == m_pDocument->GetObjectTree()->GetRootObject())
+    pParent = nullptr;
+
+  if (pParent != nullptr)
   {  
     const ezDocumentObjectBase* pObjectInTree = m_pDocument->GetObjectTree()->GetObject(pParent->GetGuid());
 
+    EZ_ASSERT_DEV(pObjectInTree == pParent, "Tree Corruption!!!");
+
     if (pObjectInTree == nullptr)
       return false;
-
-    EZ_ASSERT_DEV(pObjectInTree == pParent, "Tree Corruption!!!");
   }
 
   return InternalCanAdd(hType, pParent);
@@ -121,6 +121,9 @@ bool ezDocumentObjectManagerBase::CanMove(const ezDocumentObjectBase* pObject, c
     if (iChildIndex == iIndex || iChildIndex == iIndex + 1)
       return false;
   }
+
+  if (pNewParent == m_pDocument->GetObjectTree()->GetRootObject())
+    pNewParent = nullptr;
 
   return InternalCanMove(pObject, pNewParent, iChildIndex);
 }

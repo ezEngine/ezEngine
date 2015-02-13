@@ -4,6 +4,7 @@
 #include <Foundation/Containers/HybridArray.h>
 #include <Foundation/Containers/IdTable.h>
 #include <Foundation/Memory/BlockStorage.h>
+#include <Foundation/Reflection/Reflection.h>
 
 #include <Core/World/Declarations.h>
 #include <Core/World/Component.h>
@@ -38,6 +39,9 @@ public:
 
   /// \brief Deletes the given component. Note that the component will be invalidated first and the actual deletion is postponed.
   void DeleteComponent(const ezComponentHandle& component);
+
+  /// \brief Returns the rtti info of the component type that this manager handles.
+  virtual const ezRTTI* GetComponentType() const = 0;
 
 protected:
   friend class ezWorld;
@@ -134,6 +138,11 @@ public:
 
   /// \brief Returns an iterator over all components.
   typename ezBlockStorage<ComponentType>::Iterator GetComponents();
+
+  virtual const ezRTTI* GetComponentType() const override
+  {
+    return ezGetStaticRTTI<T>();
+  }
 
   /// \brief Returns the type id corresponding to the component type managed by this manager.
   static ezUInt16 TypeId();

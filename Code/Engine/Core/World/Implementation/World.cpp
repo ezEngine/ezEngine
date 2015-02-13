@@ -618,6 +618,16 @@ void ezWorld::UpdateHierarchy()
   m_Data.m_SetParentRequests.Clear();
 }
 
+ezComponentManagerBase* ezWorld::GetComponentManager(const ezRTTI* pRtti) const
+{
+  for (auto pMan : m_Data.m_ComponentManagers)
+  {
+    if (pMan != nullptr && pMan->GetComponentType() == pRtti)
+      return pMan;
+  }
+
+  return nullptr;
+}
 
 EZ_STATICLINK_FILE(Core, Core_World_Implementation_World);
 

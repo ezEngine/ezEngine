@@ -72,11 +72,6 @@ ezEditorEngineConnection* ezEditorEngineProcessConnection::CreateEngineConnectio
 
   m_uiNextEngineViewID++;
 
-  if (m_iNumViews == 0)
-  {
-    Initialize();
-  }
-
   ++m_iNumViews;
 
   SendDocumentOpenMessage(pView->m_iEngineViewID, pWindow->GetDocument()->GetGuid(), true);
@@ -93,11 +88,6 @@ void ezEditorEngineProcessConnection::DestroyEngineConnection(ezDocumentWindow3D
   delete pWindow->GetEditorEngineConnection();
 
   --m_iNumViews;
-
-  if (m_iNumViews == 0)
-  {
-    Deinitialize();
-  }
 }
 
 void ezEditorEngineProcessConnection::Initialize()
@@ -188,6 +178,7 @@ void ezEditorEngineConnection::SendObjectProperties(const ezDocumentObjectTreePr
   msg.m_DocumentGuid = m_pDocument->GetGuid();
   msg.m_ObjectGuid = e.m_pObject->GetGuid();
   msg.m_iMsgType = ezEntityMsgToEngine::PropertyChanged;
+  msg.m_sObjectType = e.m_pObject->GetTypeAccessor().GetReflectedTypeHandle().GetType()->GetTypeName().GetData();
 
   ezMemoryStreamStorage storage;
   ezMemoryStreamWriter writer(&storage);
@@ -199,7 +190,7 @@ void ezEditorEngineConnection::SendObjectProperties(const ezDocumentObjectTreePr
   ezStringBuilder sData;
   sData.ReadAll(reader);
 
-  msg.SetObjectData(sData);
+  msg.m_sObjectData = sData;
 
   SendMessage(&msg);
 }
@@ -209,6 +200,7 @@ void ezEditorEngineConnection::SendDocumentTreeChange(const ezDocumentObjectTree
   ezEntityMsgToEngine msg;
   msg.m_DocumentGuid = m_pDocument->GetGuid();
   msg.m_ObjectGuid = e.m_pObject->GetGuid();
+  msg.m_sObjectType = e.m_pObject->GetTypeAccessor().GetReflectedTypeHandle().GetType()->GetTypeName().GetData();
   msg.m_uiNewChildIndex = e.m_uiNewChildIndex;
 
   if (e.m_pPreviousParent)
@@ -230,7 +222,7 @@ void ezEditorEngineConnection::SendDocumentTreeChange(const ezDocumentObjectTree
       ezStringBuilder sData;
       sData.ReadAll(reader);
 
-      msg.SetObjectData(sData);
+      msg.m_sObjectData = sData;
     }
     break;
 

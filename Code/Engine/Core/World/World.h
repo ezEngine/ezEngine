@@ -80,6 +80,9 @@ public:
   template <typename ManagerType>
   ManagerType* GetComponentManager() const;
 
+  /// \brief Returns the component manager that handles the given rtti component type.
+  ezComponentManagerBase* GetComponentManager(const ezRTTI* pRtti) const;
+
   /// \brief Checks whether the given handle references a valid component.
   bool IsValidComponent(const ezComponentHandle& component) const;
   

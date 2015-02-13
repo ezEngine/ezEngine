@@ -7,6 +7,79 @@
 #include <EditorEngineProcess/Application.h>
 
 
+
+class MeshComponent;
+typedef ezComponentManagerSimple<MeshComponent> MeshComponentManager;
+
+class MeshComponent : public ezComponent
+{
+  EZ_DECLARE_COMPONENT_TYPE(MeshComponent, MeshComponentManager);
+
+  void Update() { }
+
+public:
+  MeshComponent()
+  {
+    ezLog::Info("Mesh Component Created");
+  }
+
+  const char* GetMeshFile() const { return m_sMeshFile; }
+  void SetMeshFile(const char* s) { m_sMeshFile = s; }
+  ezString m_sMeshFile;
+  ezString m_sMeshFile2;
+};
+
+EZ_BEGIN_COMPONENT_TYPE(MeshComponent, ezComponent, 1, MeshComponentManager);
+  EZ_BEGIN_PROPERTIES
+    EZ_ACCESSOR_PROPERTY("Mesh File", GetMeshFile, SetMeshFile),
+    EZ_MEMBER_PROPERTY("Mesh File 2", m_sMeshFile2),
+  EZ_END_PROPERTIES
+EZ_END_COMPONENT_TYPE();
+
+
+
+
+
+
+
+void ezEditorProcessApp::SendReflectionInformation()
+{
+  ezSet<const ezRTTI*> types;
+  ezReflectionUtils::GatherTypesDerivedFromClass(ezGetStaticRTTI<ezComponent>(), types, true);
+  ezDynamicArray<const ezRTTI*> sortedTypes;
+  ezReflectionUtils::CreateDependencySortedTypeArray(types, sortedTypes);
+
+  for (auto type : sortedTypes)
+  {
+    ezReflectedTypeDescriptor desc;
+    ezToolsReflectionUtils::GetReflectedTypeDescriptorFromRtti(type, desc);
+
+    ezUpdateReflectionTypeMsgToEditor TypeMsg;
+    TypeMsg.m_uiNumProperties = desc.m_Properties.GetCount();
+    TypeMsg.m_sTypeName = desc.m_sTypeName;
+    TypeMsg.m_sPluginName = desc.m_sPluginName;
+    TypeMsg.m_sParentTypeName = desc.m_sParentTypeName;
+    TypeMsg.m_sDefaultInitialization = desc.m_sDefaultInitialization;
+
+    m_IPC.SendMessage(&TypeMsg);
+
+    for (ezUInt32 i = 0; i < desc.m_Properties.GetCount(); ++i)
+    {
+      const auto& prop = desc.m_Properties[i];
+
+      ezUpdateReflectionPropertyMsgToEditor PropMsg;
+      PropMsg.m_uiPropertyIndex = i;
+      PropMsg.m_sName = prop.m_sName;
+      PropMsg.m_sType = prop.m_sType;
+      PropMsg.m_Type = prop.m_Type;
+      PropMsg.m_Flags = prop.m_Flags.GetValue();
+      PropMsg.m_ConstantValue = prop.m_ConstantValue;
+
+      m_IPC.SendMessage(&PropMsg);
+    }
+  }
+}
+
 void ezEditorProcessApp::EventHandlerIPC(const ezProcessCommunication::Event& e)
 {
   const ezEditorEngineDocumentMsg* pMsg = (const ezEditorEngineDocumentMsg*) e.m_pMessage;
@@ -37,6 +110,8 @@ void ezEditorProcessApp::EventHandlerIPC(const ezProcessCommunication::Event& e)
     ezEngineProcessDocumentContext::AddDocumentContext(pMsg->m_DocumentGuid, pDocumentContext);
 
     pDocumentContext->m_pWorld = EZ_DEFAULT_NEW(ezWorld)(ezConversionUtils::ToString(pMsg->m_DocumentGuid));
+
+    pDocumentContext->m_pWorld->CreateComponentManager<MeshComponentManager>();
   }
 
 
@@ -48,41 +123,6 @@ void ezEditorProcessApp::EventHandlerIPC(const ezProcessCommunication::Event& e)
 
     if (pRealMsg->m_bDocumentOpen)
     {
-      ezSet<const ezRTTI*> types;
-      ezReflectionUtils::GatherTypesDerivedFromClass(ezGetStaticRTTI<ezComponent>(), types, true);
-      ezDynamicArray<const ezRTTI*> sortedTypes;
-      ezReflectionUtils::CreateDependencySortedTypeArray(types, sortedTypes);
-
-      for (auto type : sortedTypes)
-      {
-        ezReflectedTypeDescriptor desc;
-        ezToolsReflectionUtils::GetReflectedTypeDescriptorFromRtti(type, desc);
-
-        ezUpdateReflectionTypeMsgToEditor TypeMsg;
-        TypeMsg.m_uiNumProperties = desc.m_Properties.GetCount();
-        TypeMsg.m_sTypeName = desc.m_sTypeName;
-        TypeMsg.m_sPluginName = desc.m_sPluginName;
-        TypeMsg.m_sParentTypeName = desc.m_sParentTypeName;
-        TypeMsg.m_sDefaultInitialization = desc.m_sDefaultInitialization;
-        
-        m_IPC.SendMessage(&TypeMsg);
-
-        for (ezUInt32 i = 0; i < desc.m_Properties.GetCount(); ++i)
-        {
-          const auto& prop = desc.m_Properties[i];
-
-          ezUpdateReflectionPropertyMsgToEditor PropMsg;
-          PropMsg.m_uiPropertyIndex = i;
-          PropMsg.m_sName           = prop.m_sName;
-          PropMsg.m_sType           = prop.m_sType;
-          PropMsg.m_Type            = prop.m_Type;
-          PropMsg.m_Flags           = prop.m_Flags.GetValue();
-          PropMsg.m_ConstantValue   = prop.m_ConstantValue;
-
-          m_IPC.SendMessage(&PropMsg);
-        }
-      }
-
       ezDocumentOpenResponseMsgToEditor m;
       m.m_uiViewID = pRealMsg->m_uiViewID;
       m.m_DocumentGuid = pRealMsg->m_DocumentGuid;
@@ -105,101 +145,8 @@ void ezEditorProcessApp::EventHandlerIPC(const ezProcessCommunication::Event& e)
   {
     ezEntityMsgToEngine* pEntityMsg = (ezEntityMsgToEngine*) pMsg;
 
-    static ezHashTable<ezUuid, ezGameObjectHandle> g_AllObjects;
+    HandlerEntityMsg(pDocumentContext, pViewContext, pEntityMsg);
 
-    const char* szDone = "unknown";
-    switch (pEntityMsg->m_iMsgType)
-    {
-    case ezEntityMsgToEngine::ObjectAdded:
-      {
-        szDone = "Added";
-
-        ezGameObjectDesc d;
-        d.m_sName.Assign(ezConversionUtils::ToString(pEntityMsg->m_ObjectGuid).GetData());
-
-        if (pEntityMsg->m_NewParentGuid.IsValid())
-          d.m_Parent = g_AllObjects[pEntityMsg->m_NewParentGuid];
-
-        ezGameObjectHandle hObject = pDocumentContext->m_pWorld->CreateObject(d);
-        g_AllObjects[pEntityMsg->m_ObjectGuid] = hObject;
-
-        ezGameObject* pObject;
-        if (pDocumentContext->m_pWorld->TryGetObject(hObject, pObject))
-        {
-          ezMemoryStreamStorage storage;
-          ezMemoryStreamWriter writer(&storage);
-          ezMemoryStreamReader reader(&storage);
-
-          writer.WriteBytes(pEntityMsg->m_sObjectData.GetData(), pEntityMsg->m_sObjectData.GetElementCount());
-
-          ezReflectionUtils::ReadObjectPropertiesFromJSON(reader, *ezGetStaticRTTI<ezGameObject>(), pObject);
-        }
-      }
-      break;
-
-    case ezEntityMsgToEngine::ObjectMoved:
-      {
-        szDone = "Moved";
-
-        ezGameObjectHandle hObject = g_AllObjects[pEntityMsg->m_ObjectGuid];
-
-        ezGameObjectHandle hNewParent;
-        if (pEntityMsg->m_NewParentGuid.IsValid())
-          hNewParent = g_AllObjects[pEntityMsg->m_NewParentGuid];
-
-        ezGameObject* pObject = nullptr;
-        if (pDocumentContext->m_pWorld->TryGetObject(hObject, pObject))
-        {
-          pObject->SetParent(hNewParent);
-        }
-        else
-          ezLog::Error("Couldn't access game object object %s in world %p", ezConversionUtils::ToString(pEntityMsg->m_ObjectGuid).GetData(), pDocumentContext->m_pWorld);
-      }
-      break;
-
-    case ezEntityMsgToEngine::ObjectRemoved:
-      {
-        szDone = "Removed";
-
-        pDocumentContext->m_pWorld->DeleteObject(g_AllObjects[pEntityMsg->m_ObjectGuid]);
-      }
-      break;
-
-    case ezEntityMsgToEngine::PropertyChanged:
-      {
-        szDone = "Property";
-
-        ezGameObjectHandle hObject = g_AllObjects[pEntityMsg->m_ObjectGuid];
-
-        ezGameObject* pObject;
-        if (pDocumentContext->m_pWorld->TryGetObject(hObject, pObject))
-        {
-          ezMemoryStreamStorage storage;
-          ezMemoryStreamWriter writer(&storage);
-          ezMemoryStreamReader reader(&storage);
-
-          writer.WriteBytes(pEntityMsg->m_sObjectData.GetData(), pEntityMsg->m_sObjectData.GetElementCount());
-
-          ezReflectionUtils::ReadObjectPropertiesFromJSON(reader, *ezGetStaticRTTI<ezGameObject>(), pObject);
-        }
-      }
-      break;
-    }
-
-    ezStringBuilder s;
-    s.Format("%s: Entity %s, OldParent %s, NewParent %s, Child %u ", 
-                szDone,
-                ezConversionUtils::ToString(pEntityMsg->m_ObjectGuid).GetData(),
-                ezConversionUtils::ToString(pEntityMsg->m_PreviousParentGuid).GetData(),
-                ezConversionUtils::ToString(pEntityMsg->m_NewParentGuid).GetData(),
-                pEntityMsg->m_uiNewChildIndex);
-
-    ezLogMsgToEditor lm;
-    lm.m_sText = s;
-    lm.m_uiViewID = pEntityMsg->m_uiViewID;
-    lm.m_DocumentGuid = pEntityMsg->m_DocumentGuid;
-
-    m_IPC.SendMessage(&lm);
   }
   else if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezViewCameraMsgToEngine>())
   {
@@ -208,5 +155,198 @@ void ezEditorProcessApp::EventHandlerIPC(const ezProcessCommunication::Event& e)
     pViewContext->SetCamera(pCamMsg);
   }
 }
+
+void ezEditorProcessApp::UpdateProperties(ezEntityMsgToEngine* pMsg, void* pObject, const ezRTTI* pRtti)
+{
+  ezMemoryStreamStorage storage;
+  ezMemoryStreamWriter writer(&storage);
+  ezMemoryStreamReader reader(&storage);
+
+  writer.WriteBytes(pMsg->m_sObjectData.GetData(), pMsg->m_sObjectData.GetElementCount());
+
+  ezReflectionUtils::ReadObjectPropertiesFromJSON(reader, *pRtti, pObject);
+}
+
+static ezHashTable<ezUuid, ezGameObjectHandle> g_AllObjects;
+
+void ezEditorProcessApp::HandlerGameObjectMsg(ezEngineProcessDocumentContext* pDocumentContext, ezViewContext* pViewContext, ezEntityMsgToEngine* pMsg, ezRTTI* pRtti)
+{
+  switch (pMsg->m_iMsgType)
+  {
+  case ezEntityMsgToEngine::ObjectAdded:
+    {
+      ezGameObjectDesc d;
+      d.m_sName.Assign(ezConversionUtils::ToString(pMsg->m_ObjectGuid).GetData());
+
+      if (pMsg->m_NewParentGuid.IsValid())
+        d.m_Parent = g_AllObjects[pMsg->m_NewParentGuid];
+
+      ezGameObjectHandle hObject = pDocumentContext->m_pWorld->CreateObject(d);
+      g_AllObjects[pMsg->m_ObjectGuid] = hObject;
+
+      ezGameObject* pObject;
+      if (pDocumentContext->m_pWorld->TryGetObject(hObject, pObject))
+      {
+        UpdateProperties(pMsg, pObject, ezGetStaticRTTI<ezGameObject>());
+      }
+    }
+    break;
+
+  case ezEntityMsgToEngine::ObjectMoved:
+    {
+      ezRTTI* pRtti = ezRTTI::FindTypeByName(pMsg->m_sObjectType);
+
+      if (pRtti == nullptr)
+      {
+        ezLog::Error("Cannot create object of type '%s', RTTI is unknown", pMsg->m_sObjectType.GetData());
+        break;
+      }
+
+      ezGameObjectHandle hObject = g_AllObjects[pMsg->m_ObjectGuid];
+
+      ezGameObjectHandle hNewParent;
+      if (pMsg->m_NewParentGuid.IsValid())
+        hNewParent = g_AllObjects[pMsg->m_NewParentGuid];
+
+      ezGameObject* pObject = nullptr;
+      if (pDocumentContext->m_pWorld->TryGetObject(hObject, pObject))
+      {
+        pObject->SetParent(hNewParent);
+      }
+      else
+        ezLog::Error("Couldn't access game object object %s in world %p", ezConversionUtils::ToString(pMsg->m_ObjectGuid).GetData(), pDocumentContext->m_pWorld);
+    }
+    break;
+
+  case ezEntityMsgToEngine::ObjectRemoved:
+    {
+      pDocumentContext->m_pWorld->DeleteObject(g_AllObjects[pMsg->m_ObjectGuid]);
+      g_AllObjects.Remove(pMsg->m_ObjectGuid);
+    }
+    break;
+
+  case ezEntityMsgToEngine::PropertyChanged:
+    {
+      ezGameObjectHandle hObject = g_AllObjects[pMsg->m_ObjectGuid];
+
+      ezGameObject* pObject;
+      if (pDocumentContext->m_pWorld->TryGetObject(hObject, pObject))
+      {
+        UpdateProperties(pMsg, pObject, ezGetStaticRTTI<ezGameObject>());
+      }
+    }
+    break;
+  }
+}
+
+void ezEditorProcessApp::HandleComponentMsg(ezEngineProcessDocumentContext* pDocumentContext, ezViewContext* pViewContext, ezEntityMsgToEngine* pMsg, ezRTTI* pRtti)
+{
+  static ezHashTable<ezUuid, ezComponentHandle> g_AllComponents;
+
+  ezComponentManagerBase* pMan = pDocumentContext->m_pWorld->GetComponentManager(pRtti);
+
+  if (pMan == nullptr)
+  {
+    ezLog::Error("Component of type '%s' cannot be created, no component manager is registered", pRtti->GetTypeName());
+    return;
+  }
+
+  switch (pMsg->m_iMsgType)
+  {
+  case ezEntityMsgToEngine::ObjectAdded:
+    {
+      ezComponentHandle hComponent = pMan->CreateComponent();
+
+      ezGameObjectHandle hParent = g_AllObjects[pMsg->m_NewParentGuid];
+      ezGameObject* pParent;
+      if (!pDocumentContext->m_pWorld->TryGetObject(hParent, pParent))
+        break;
+
+      ezComponent* pComponent;
+      if (pMan->TryGetComponent(hComponent, pComponent))
+      {
+        UpdateProperties(pMsg, pComponent, pComponent->GetDynamicRTTI());
+      }
+      else
+      {
+        ezLog::Error("Component of type '%s' cannot be found after creation", pRtti->GetTypeName());
+      }
+
+      pParent->AddComponent(hComponent);
+    }
+    break;
+
+  case ezEntityMsgToEngine::ObjectMoved:
+    {
+      ezGameObjectHandle hParent = g_AllObjects[pMsg->m_NewParentGuid];
+      ezGameObject* pParent;
+      if (!pDocumentContext->m_pWorld->TryGetObject(hParent, pParent))
+        break;
+
+      ezComponentHandle hComponent = g_AllComponents[pMsg->m_ObjectGuid];
+
+      ezComponent* pComponent;
+      if (pMan->TryGetComponent(hComponent, pComponent))
+      {
+        if (pComponent->GetOwner())
+          pComponent->GetOwner()->RemoveComponent(pComponent);
+      }
+
+      pParent->AddComponent(hComponent);
+    }
+    break;
+
+  case ezEntityMsgToEngine::ObjectRemoved:
+    {
+      ezComponentHandle hComponent = g_AllComponents[pMsg->m_ObjectGuid];
+      g_AllComponents.Remove(pMsg->m_ObjectGuid);
+
+      pMan->DeleteComponent(hComponent);
+    }
+    break;
+
+  case ezEntityMsgToEngine::PropertyChanged:
+    {
+      ezComponentHandle hComponent = g_AllComponents[pMsg->m_ObjectGuid];
+
+      ezComponent* pComponent;
+      if (pMan->TryGetComponent(hComponent, pComponent))
+      {
+        UpdateProperties(pMsg, pComponent, pComponent->GetDynamicRTTI());
+      }
+      else
+      {
+        ezLog::Error("Component of type '%s' cannot be found", pRtti->GetTypeName());
+      }
+    }
+    break;
+  }
+
+}
+
+void ezEditorProcessApp::HandlerEntityMsg(ezEngineProcessDocumentContext* pDocumentContext, ezViewContext* pViewContext, ezEntityMsgToEngine* pMsg)
+{
+
+  ezRTTI* pRtti = ezRTTI::FindTypeByName(pMsg->m_sObjectType);
+
+  if (pRtti == nullptr)
+  {
+    ezLog::Error("Cannot create object of type '%s', RTTI is unknown", pMsg->m_sObjectType.GetData());
+    return;
+  }
+
+  if (pRtti == ezGetStaticRTTI<ezGameObject>())
+  {
+    HandlerGameObjectMsg(pDocumentContext, pViewContext, pMsg, pRtti);
+  }
+
+  if (pRtti->IsDerivedFrom<ezComponent>())
+  {
+    HandleComponentMsg(pDocumentContext, pViewContext, pMsg, pRtti);
+  }
+
+}
+
+
 
 

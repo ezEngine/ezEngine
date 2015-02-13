@@ -130,10 +130,8 @@ public:
   ezUuid m_ObjectGuid;
   ezUuid m_PreviousParentGuid;
   ezUuid m_NewParentGuid;
+  ezString m_sObjectType;
   ezString m_sObjectData;
-
-  const char* GetObjectData() const { return m_sObjectData; }
-  void SetObjectData(const char* s) { m_sObjectData = s; }
 };
 
 class EZ_EDITORFRAMEWORK_DLL ezLogMsgToEditor : public ezEditorEngineDocumentMsg

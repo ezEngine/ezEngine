@@ -38,7 +38,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEntityMsgToEngine, ezEditorEngineDocumentMsg, 
     EZ_MEMBER_PROPERTY("ObjectGuid", m_ObjectGuid),
     EZ_MEMBER_PROPERTY("PreviousParentGuid", m_PreviousParentGuid),
     EZ_MEMBER_PROPERTY("NewParentGuid", m_NewParentGuid),
-    EZ_ACCESSOR_PROPERTY("ObjectData", GetObjectData, SetObjectData),
+    EZ_MEMBER_PROPERTY("ObjectType", m_sObjectType),
+    EZ_MEMBER_PROPERTY("ObjectData", m_sObjectData),
   EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
