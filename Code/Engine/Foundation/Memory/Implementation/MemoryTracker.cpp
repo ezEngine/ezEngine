@@ -284,7 +284,7 @@ const ezMemoryTracker::AllocationInfo& ezMemoryTracker::GetAllocationInfo(ezAllo
     return *info;
   }
 
-  static AllocationInfo invalidInfo = { 0 };
+  static AllocationInfo invalidInfo;
 
   EZ_REPORT_FAILURE("Could not find info for allocation %p", ptr);
   return invalidInfo;

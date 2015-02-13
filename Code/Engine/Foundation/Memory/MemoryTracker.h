@@ -45,6 +45,14 @@ public:
   {
     EZ_DECLARE_POD_TYPE();
 
+    EZ_FORCE_INLINE AllocationInfo()
+      : m_pStackTrace(nullptr)
+      , m_uiSize(0)
+      , m_uiAlignment(0)
+      , m_uiStackTraceLength(0)
+    {
+    }
+
     void** m_pStackTrace;
     ezUInt32 m_uiSize;
     ezUInt16 m_uiAlignment;
