@@ -222,6 +222,7 @@ static void WriteProperties(ezJSONWriter& writer, const ezRTTI* pRtti, const voi
       else IF_HANDLE_TYPE(ezUuid,  AddVariableUuid)
       else IF_HANDLE_TYPE(ezConstCharPtr,  AddVariableString)
       else IF_HANDLE_TYPE(ezVariant,  AddVariableVariant)
+      else IF_HANDLE_TYPE(ezString,  AddVariableString)
 
       else if (prop->GetPropertyType()->IsDerivedFrom<ezEnumBase>() || prop->GetPropertyType()->IsDerivedFrom<ezBitflagsBase>())
       {
@@ -468,7 +469,7 @@ void ezReflectionUtils::GatherDependentTypes(const ezRTTI* pRtti, ezSet<const ez
   }
 }
 
-bool ezReflectionUtils::CreateDependencySortedTypeArray(const ezSet<const ezRTTI*> types, ezDynamicArray<const ezRTTI*>& out_sortedTypes)
+bool ezReflectionUtils::CreateDependencySortedTypeArray(const ezSet<const ezRTTI*>& types, ezDynamicArray<const ezRTTI*>& out_sortedTypes)
 {
   out_sortedTypes.Clear();
   out_sortedTypes.Reserve(types.GetCount());
@@ -495,6 +496,7 @@ bool ezReflectionUtils::CreateDependencySortedTypeArray(const ezSet<const ezRTTI
         out_sortedTypes.PushBack(it.Key());
         bDeadEnd = false;
         dependencies.Remove(it);
+        accu.Insert(it.Key());
         break;
       }
     }

@@ -15,6 +15,7 @@
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Logging/ConsoleWriter.h>
 #include <Foundation/Logging/VisualStudioWriter.h>
+#include <ToolsFoundation/Reflection/ReflectedTypeManager.h>
 #include <QMainWindow>
 #include <QSettings>
 #include <QTimer>
@@ -111,6 +112,7 @@ void ezEditorApp::StartupEditor(const char* szAppName, const char* szUserName, i
   ezDocumentBase::s_EventsAny.AddEventHandler(ezDelegate<void (const ezDocumentBase::Event&)>(&ezEditorApp::DocumentEventHandler, this));
   ezEditorProject::s_Requests.AddEventHandler(ezDelegate<void (ezEditorProject::Request&)>(&ezEditorApp::ProjectRequestHandler, this));
   ezEditorProject::s_Events.AddEventHandler(ezDelegate<void (const ezEditorProject::Event&)>(&ezEditorApp::ProjectEventHandler, this));
+  ezEditorEngineProcessConnection::s_Events.AddEventHandler(ezDelegate<void (const ezEditorEngineProcessConnection::Event&)>(&ezEditorApp::EngineProcessMsgHandler, this));
 
   ezStartup::StartupCore();
 
@@ -144,6 +146,7 @@ void ezEditorApp::ShutdownEditor()
 {
   ezEditorProject::CloseProject();
 
+  ezEditorEngineProcessConnection::s_Events.RemoveEventHandler(ezDelegate<void (const ezEditorEngineProcessConnection::Event&)>(&ezEditorApp::EngineProcessMsgHandler, this));
   ezEditorProject::s_Requests.RemoveEventHandler(ezDelegate<void (ezEditorProject::Request&)>(&ezEditorApp::ProjectRequestHandler, this));
   ezEditorProject::s_Events.RemoveEventHandler(ezDelegate<void (const ezEditorProject::Event&)>(&ezEditorApp::ProjectEventHandler, this));
   ezDocumentBase::s_EventsAny.RemoveEventHandler(ezDelegate<void (const ezDocumentBase::Event&)>(&ezEditorApp::DocumentEventHandler, this));
@@ -251,6 +254,54 @@ void ezEditorApp::DocumentManagerRequestHandler(ezDocumentManagerBase::Request& 
         }
       }
     }
+    return;
+  }
+}
+
+void ezEditorApp::EngineProcessMsgHandler(const ezEditorEngineProcessConnection::Event& e)
+{
+  switch (e.m_Type)
+  {
+  case ezEditorEngineProcessConnection::Event::Type::ProcessMessage:
+    {
+      static ezReflectedTypeDescriptor s_TypeDesc;
+
+      if (e.m_pMsg->GetDynamicRTTI()->IsDerivedFrom<ezUpdateReflectionTypeMsgToEditor>())
+      {
+        const ezUpdateReflectionTypeMsgToEditor* pMsg = static_cast<const ezUpdateReflectionTypeMsgToEditor*>(e.m_pMsg);
+
+        s_TypeDesc.m_sTypeName = pMsg->m_sTypeName;
+        s_TypeDesc.m_sDefaultInitialization = pMsg->m_sDefaultInitialization;
+        s_TypeDesc.m_sParentTypeName = pMsg->m_sParentTypeName;
+        s_TypeDesc.m_sPluginName = pMsg->m_sPluginName;
+        s_TypeDesc.m_Properties.SetCount(pMsg->m_uiNumProperties);
+
+        if (pMsg->m_uiNumProperties == 0)
+        {
+          ezReflectedTypeManager::RegisterType(s_TypeDesc);
+        }
+      }
+      else if (e.m_pMsg->GetDynamicRTTI()->IsDerivedFrom<ezUpdateReflectionPropertyMsgToEditor>())
+      {
+        const ezUpdateReflectionPropertyMsgToEditor* pMsg = static_cast<const ezUpdateReflectionPropertyMsgToEditor*>(e.m_pMsg);
+
+        auto& ref = s_TypeDesc.m_Properties[pMsg->m_uiPropertyIndex];
+        ref.m_ConstantValue = pMsg->m_ConstantValue;
+        ref.m_Flags = ((PropertyFlags::Enum) pMsg->m_Flags);
+        ref.m_sName = pMsg->m_sName;
+        ref.m_Type = (ezVariant::Type::Enum) pMsg->m_Type;
+        ref.m_sType = pMsg->m_sType;
+
+        if (pMsg->m_uiPropertyIndex + 1 == s_TypeDesc.m_Properties.GetCount())
+        {
+          ezReflectedTypeManager::RegisterType(s_TypeDesc);
+          s_TypeDesc.m_Properties.Clear();
+        }
+      }
+    }
+    break;
+
+  default:
     return;
   }
 }

@@ -119,7 +119,7 @@ private slots:
   
 
 private:
-  virtual void HandleEngineMessage(const ezEditorEngineDocumentMsg* pMsg) override;
+  virtual bool HandleEngineMessage(const ezEditorEngineDocumentMsg* pMsg) override;
 
   virtual void InternalRedraw() override;
   void DocumentTreeEventHandler(const ezDocumentObjectTreeStructureEvent& e);

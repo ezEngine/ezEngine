@@ -206,7 +206,7 @@ void ezReflectedTypeStorageManager::RemoveStorageAccessor(ezReflectedTypeStorage
   pMapping->m_Instances.Remove(pInstance);
 }
 
-void ezReflectedTypeStorageManager::TypeAddedEvent(ezReflectedTypeChange& data)
+void ezReflectedTypeStorageManager::TypeAddedEvent(const ezReflectedTypeChange& data)
 {
   const ezReflectedType* pType = data.pNewType;
   EZ_ASSERT_DEV(pType != nullptr, "A type was added but it has an invalid handle!");
@@ -217,7 +217,7 @@ void ezReflectedTypeStorageManager::TypeAddedEvent(ezReflectedTypeChange& data)
   m_ReflectedTypeToStorageMapping.Insert(data.m_hType, pMapping);
 }
 
-void ezReflectedTypeStorageManager::TypeChangedEvent(ezReflectedTypeChange& data)
+void ezReflectedTypeStorageManager::TypeChangedEvent(const ezReflectedTypeChange& data)
 {
   const ezReflectedType* pNewType = data.pNewType;
   EZ_ASSERT_DEV(pNewType != nullptr, "A type was updated but its handle is invalid!");
@@ -254,7 +254,7 @@ void ezReflectedTypeStorageManager::TypeChangedEvent(ezReflectedTypeChange& data
   }
 }
 
-void ezReflectedTypeStorageManager::TypeRemovedEvent(ezReflectedTypeChange& data)
+void ezReflectedTypeStorageManager::TypeRemovedEvent(const ezReflectedTypeChange& data)
 {
   ReflectedTypeStorageMapping* pMapping = m_ReflectedTypeToStorageMapping[data.m_hType];
   EZ_ASSERT_DEV(pMapping != nullptr, "A type was removed but no mapping ever exited for it!");

@@ -20,6 +20,10 @@ void ezEditorProcessApp::EventHandlerIPC(const ezProcessCommunication::Event& e)
     pViewContext = EZ_DEFAULT_NEW(ezViewContext)(pMsg->m_uiViewID, pMsg->m_DocumentGuid);
 
     ezEngineProcessViewContext::AddViewContext(pMsg->m_uiViewID, pViewContext);
+
+    EZ_ASSERT_DEV(pMsg->GetDynamicRTTI()->IsDerivedFrom<ezDocumentOpenMsgToEngine>(), "The first message from a new view has to be of type ezDocumentOpenMsgToEngine. This message is of type '%s'", pMsg->GetDynamicRTTI()->GetTypeName());
+
+
   }
 
   ezEngineProcessDocumentContext* pDocumentContext = ezEngineProcessDocumentContext::GetDocumentContext(pMsg->m_DocumentGuid);
@@ -35,7 +39,62 @@ void ezEditorProcessApp::EventHandlerIPC(const ezProcessCommunication::Event& e)
     pDocumentContext->m_pWorld = EZ_DEFAULT_NEW(ezWorld)(ezConversionUtils::ToString(pMsg->m_DocumentGuid));
   }
 
-  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezViewRedrawMsgToEngine>())
+
+
+
+  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezDocumentOpenMsgToEngine>()) // Document was opened or closed
+  {
+    ezDocumentOpenMsgToEngine* pRealMsg = (ezDocumentOpenMsgToEngine*) pMsg;
+
+    if (pRealMsg->m_bDocumentOpen)
+    {
+      ezSet<const ezRTTI*> types;
+      ezReflectionUtils::GatherTypesDerivedFromClass(ezGetStaticRTTI<ezComponent>(), types, true);
+      ezDynamicArray<const ezRTTI*> sortedTypes;
+      ezReflectionUtils::CreateDependencySortedTypeArray(types, sortedTypes);
+
+      for (auto type : sortedTypes)
+      {
+        ezReflectedTypeDescriptor desc;
+        ezToolsReflectionUtils::GetReflectedTypeDescriptorFromRtti(type, desc);
+
+        ezUpdateReflectionTypeMsgToEditor TypeMsg;
+        TypeMsg.m_uiNumProperties = desc.m_Properties.GetCount();
+        TypeMsg.m_sTypeName = desc.m_sTypeName;
+        TypeMsg.m_sPluginName = desc.m_sPluginName;
+        TypeMsg.m_sParentTypeName = desc.m_sParentTypeName;
+        TypeMsg.m_sDefaultInitialization = desc.m_sDefaultInitialization;
+        
+        m_IPC.SendMessage(&TypeMsg);
+
+        for (ezUInt32 i = 0; i < desc.m_Properties.GetCount(); ++i)
+        {
+          const auto& prop = desc.m_Properties[i];
+
+          ezUpdateReflectionPropertyMsgToEditor PropMsg;
+          PropMsg.m_uiPropertyIndex = i;
+          PropMsg.m_sName           = prop.m_sName;
+          PropMsg.m_sType           = prop.m_sType;
+          PropMsg.m_Type            = prop.m_Type;
+          PropMsg.m_Flags           = prop.m_Flags.GetValue();
+          PropMsg.m_ConstantValue   = prop.m_ConstantValue;
+
+          m_IPC.SendMessage(&PropMsg);
+        }
+      }
+
+      ezDocumentOpenResponseMsgToEditor m;
+      m.m_uiViewID = pRealMsg->m_uiViewID;
+      m.m_DocumentGuid = pRealMsg->m_DocumentGuid;
+
+      m_IPC.SendMessage(&m);
+    }
+    else
+    {
+    }
+
+  }
+  else if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezViewRedrawMsgToEngine>())
   {
     ezViewRedrawMsgToEngine* pRedrawMsg = (ezViewRedrawMsgToEngine*) pMsg;
 

@@ -25,7 +25,7 @@ public:
 
   //static ezEvent<const Event&> s_Events;
 
-  virtual void HandleEngineMessage(const ezEditorEngineDocumentMsg* pMsg) { }
+  virtual bool HandleEngineMessage(const ezEditorEngineDocumentMsg* pMsg);
 
 public:
   ezDocumentWindow3D(ezDocumentBase* pDocument);

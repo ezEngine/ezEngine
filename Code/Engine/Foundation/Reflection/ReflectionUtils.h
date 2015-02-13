@@ -70,7 +70,7 @@ public:
   /// Types that have no dependences come first in the output followed by types that have their dependencies met by
   /// the previous entries in the output.
   /// If circular dependencies are found the function returns false.
-  static bool CreateDependencySortedTypeArray(const ezSet<const ezRTTI*> types, ezDynamicArray<const ezRTTI*>& out_sortedTypes);  
+  static bool CreateDependencySortedTypeArray(const ezSet<const ezRTTI*>& types, ezDynamicArray<const ezRTTI*>& out_sortedTypes);  
 
   /// \brief Converts an enum or bitfield value into its string representation.
   /// 

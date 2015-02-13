@@ -36,5 +36,6 @@ public:
   const char* GetMeshFile() const { return m_sMeshFile; }
   void SetMeshFile(const char* s) { m_sMeshFile = s; }
   ezString m_sMeshFile;
+  ezString m_sMeshFile2;
 };
 

@@ -4,6 +4,7 @@
 #include <EditorFramework/Settings/Settings.h>
 #include <EditorFramework/ContainerWindow/ContainerWindow.moc.h>
 #include <EditorFramework/Project/EditorProject.h>
+#include <EditorFramework/EngineProcess/EngineProcessConnection.h>
 #include <Foundation/Containers/Set.h>
 #include <Foundation/Strings/String.h>
 #include <Foundation/Communication/Event.h>
@@ -12,7 +13,6 @@
 
 class QMainWindow;
 class QWidget;
-class ezEditorEngineProcessConnection;
 
 struct EZ_EDITORFRAMEWORK_DLL ezPluginSet
 {
@@ -99,6 +99,7 @@ private:
   void DocumentEventHandler(const ezDocumentBase::Event& e);
   void ProjectRequestHandler(ezEditorProject::Request& r);
   void ProjectEventHandler(const ezEditorProject::Event& r);
+  void EngineProcessMsgHandler(const ezEditorEngineProcessConnection::Event& e);
 
   ezHybridArray<ezContainerWindow*, 4> s_ContainerWindows;
   ezMap<ezString, ezDocumentWindow*> s_DocumentWindows;

@@ -3,6 +3,8 @@
 #include <EditorFramework/Plugin.h>
 #include <EditorFramework/IPC/ProcessCommunication.h>
 
+///////////////////////////////////// ezEditorEngineMsg ///////////////////////////////////// 
+
 class EZ_EDITORFRAMEWORK_DLL ezEditorEngineMsg : public ezProcessMessage
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezEditorEngineMsg);
@@ -13,6 +15,35 @@ public:
   }
 
 };
+
+class EZ_EDITORFRAMEWORK_DLL ezUpdateReflectionTypeMsgToEditor : public ezEditorEngineMsg
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezUpdateReflectionTypeMsgToEditor);
+
+public:
+  
+  ezUInt32 m_uiNumProperties;
+  ezString m_sTypeName;
+  ezString m_sPluginName;
+  ezString m_sParentTypeName;
+  ezString m_sDefaultInitialization;
+};
+
+class EZ_EDITORFRAMEWORK_DLL ezUpdateReflectionPropertyMsgToEditor : public ezEditorEngineMsg
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezUpdateReflectionPropertyMsgToEditor);
+
+public:
+
+  ezUInt32 m_uiPropertyIndex;
+  ezString m_sName;
+  ezString m_sType;
+  ezUInt32 m_Type;
+  ezUInt32 m_Flags;
+  ezVariant m_ConstantValue;
+};
+
+///////////////////////////////////// ezEditorEngineDocumentMsg ///////////////////////////////////// 
 
 class EZ_EDITORFRAMEWORK_DLL ezEditorEngineDocumentMsg : public ezProcessMessage
 {
@@ -26,6 +57,29 @@ public:
 
   ezUuid m_DocumentGuid;
   ezUInt32 m_uiViewID;
+};
+
+class EZ_EDITORFRAMEWORK_DLL ezDocumentOpenMsgToEngine : public ezEditorEngineDocumentMsg
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezDocumentOpenMsgToEngine);
+
+public:
+  ezDocumentOpenMsgToEngine()
+  {
+    m_bDocumentOpen = false;
+  }
+
+  bool m_bDocumentOpen;
+};
+
+class EZ_EDITORFRAMEWORK_DLL ezDocumentOpenResponseMsgToEditor : public ezEditorEngineDocumentMsg
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezDocumentOpenResponseMsgToEditor);
+
+public:
+  ezDocumentOpenResponseMsgToEditor()
+  {
+  }
 };
 
 class EZ_EDITORFRAMEWORK_DLL ezViewRedrawMsgToEngine : public ezEditorEngineDocumentMsg
@@ -88,11 +142,12 @@ class EZ_EDITORFRAMEWORK_DLL ezLogMsgToEditor : public ezEditorEngineDocumentMsg
 
 public:
 
-  const char* GetText() const { return m_sText; }
-  void SetText(const char* sz) { m_sText = sz; }
+  //const char* GetText() const { return m_sText; }
+  //void SetText(const char* sz) { m_sText = sz; }
 
   ezString m_sText;
 };
+
 
 
 

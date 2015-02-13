@@ -174,7 +174,8 @@ void ezJSONWriter::WriteVariant(const ezVariant& value)
   switch (value.GetType())
   {
   case ezVariant::Type::Invalid:
-    EZ_REPORT_FAILURE("Variant of Type 'Invalid' cannot be written as JSON.");
+    //EZ_REPORT_FAILURE("Variant of Type 'Invalid' cannot be written as JSON.");
+    WriteNULL();
     return;
   case ezVariant::Type::Bool:
     WriteBool(value.Get<bool>());

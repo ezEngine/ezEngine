@@ -13,6 +13,7 @@ EZ_END_COMPONENT_TYPE();
 EZ_BEGIN_COMPONENT_TYPE(MeshComponent, ezComponent, 1, MeshComponentManager);
   EZ_BEGIN_PROPERTIES
     EZ_ACCESSOR_PROPERTY("Mesh File", GetMeshFile, SetMeshFile),
+    EZ_MEMBER_PROPERTY("Mesh File 2", m_sMeshFile2),
   EZ_END_PROPERTIES
 EZ_END_COMPONENT_TYPE();
 

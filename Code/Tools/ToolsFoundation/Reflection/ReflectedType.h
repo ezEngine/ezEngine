@@ -47,6 +47,7 @@ EZ_DECLARE_FLAGS(ezUInt8, PropertyFlags, IsPOD, IsReadOnly, IsConstant, IsEnum, 
 /// \brief Stores the description of a reflected property in a serializable form, used by ezReflectedTypeDescriptor.
 struct EZ_TOOLSFOUNDATION_DLL ezReflectedPropertyDescriptor
 {
+  ezReflectedPropertyDescriptor() {}
   ezReflectedPropertyDescriptor(const char* szName, const char* szType, ezBitflags<PropertyFlags> flags); // [tested]
   ezReflectedPropertyDescriptor(const char* szName, ezVariant::Type::Enum type, ezBitflags<PropertyFlags> flags); // [tested]
   ezReflectedPropertyDescriptor(const char* szName, ezVariant::Type::Enum type, const ezVariant& constantValue);
@@ -104,6 +105,7 @@ public:
   ezHashedString GetTypeName() const { return m_sTypeName; } // [tested]
   ezReflectedTypeHandle GetParentTypeHandle() const { return m_hParentType; } // [tested]
   ezReflectedTypeHandle GetTypeHandle() const { return m_hType; } // [tested]
+  bool IsDerivedFrom(ezReflectedTypeHandle hType) const;
 
   const ezUInt32 GetPropertyCount() const { return m_Properties.GetCount(); } // [tested]
   const ezReflectedProperty* GetPropertyByIndex(ezUInt32 uiIndex) const; // [tested]

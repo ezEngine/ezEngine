@@ -56,9 +56,9 @@ private:
   static void Shutdown();
 
 public:
-  static ezEvent<ezReflectedTypeChange&> m_TypeAddedEvent;
-  static ezEvent<ezReflectedTypeChange&> m_TypeChangedEvent;
-  static ezEvent<ezReflectedTypeChange&> m_TypeRemovedEvent;
+  static ezEvent<const ezReflectedTypeChange&> m_TypeAddedEvent;
+  static ezEvent<const ezReflectedTypeChange&> m_TypeChangedEvent;
+  static ezEvent<const ezReflectedTypeChange&> m_TypeRemovedEvent;
 
 private:
   static ReflectedTypeTable m_Types;

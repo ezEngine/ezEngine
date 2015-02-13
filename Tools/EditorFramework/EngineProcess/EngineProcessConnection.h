@@ -58,6 +58,7 @@ private:
   void Initialize();
   void Deinitialize();
   void HandleIPCEvent(const ezProcessCommunication::Event& e);
+  void SendDocumentOpenMessage(ezUInt32 uiViewID, const ezUuid& guid, bool bOpen);
 
   bool m_bProcessShouldBeRunning;
   bool m_bProcessCrashed;

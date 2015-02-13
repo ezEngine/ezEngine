@@ -31,6 +31,16 @@ ezEditorEngineProcessConnection::~ezEditorEngineProcessConnection()
   s_pInstance = nullptr;
 }
 
+void ezEditorEngineProcessConnection::SendDocumentOpenMessage(ezUInt32 uiViewID, const ezUuid& guid, bool bOpen)
+{
+  ezDocumentOpenMsgToEngine m;
+  m.m_uiViewID = uiViewID;
+  m.m_DocumentGuid = guid;
+  m.m_bDocumentOpen = bOpen;
+
+  SendMessage(&m);
+}
+
 void ezEditorEngineProcessConnection::HandleIPCEvent(const ezProcessCommunication::Event& e)
 {
   if (e.m_pMessage->GetDynamicRTTI()->IsDerivedFrom<ezEditorEngineDocumentMsg>())
@@ -69,13 +79,15 @@ ezEditorEngineConnection* ezEditorEngineProcessConnection::CreateEngineConnectio
 
   ++m_iNumViews;
 
-
+  SendDocumentOpenMessage(pView->m_iEngineViewID, pWindow->GetDocument()->GetGuid(), true);
 
   return pView;
 }
 
 void ezEditorEngineProcessConnection::DestroyEngineConnection(ezDocumentWindow3D* pWindow)
 {
+  SendDocumentOpenMessage(pWindow->GetEditorEngineConnection()->m_iEngineViewID, pWindow->GetDocument()->GetGuid(), false);
+
   m_EngineViewsByID.Remove(pWindow->GetEditorEngineConnection()->m_iEngineViewID);
 
   delete pWindow->GetEditorEngineConnection();
@@ -131,6 +143,12 @@ void ezEditorEngineProcessConnection::RestartProcess()
   Deinitialize();
 
   Initialize();
+
+  // resend all open documents
+  for (auto it = m_EngineViewsByID.GetIterator(); it.IsValid(); ++it)
+  {
+    SendDocumentOpenMessage(it.Value()->GetEditorEngineConnection()->m_iEngineViewID, it.Value()->GetDocument()->GetGuid(), true);
+  }
 }
 
 void ezEditorEngineProcessConnection::Update()

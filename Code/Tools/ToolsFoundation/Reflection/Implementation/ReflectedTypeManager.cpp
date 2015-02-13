@@ -3,9 +3,9 @@
 #include <Foundation/Memory/Allocator.h>
 #include <Foundation/Configuration/Startup.h>
 
-ezEvent<ezReflectedTypeChange&> ezReflectedTypeManager::m_TypeAddedEvent;
-ezEvent<ezReflectedTypeChange&> ezReflectedTypeManager::m_TypeChangedEvent;
-ezEvent<ezReflectedTypeChange&> ezReflectedTypeManager::m_TypeRemovedEvent;
+ezEvent<const ezReflectedTypeChange&> ezReflectedTypeManager::m_TypeAddedEvent;
+ezEvent<const ezReflectedTypeChange&> ezReflectedTypeManager::m_TypeChangedEvent;
+ezEvent<const ezReflectedTypeChange&> ezReflectedTypeManager::m_TypeRemovedEvent;
 
 ReflectedTypeTable ezReflectedTypeManager::m_Types;
 ezHashTable<const char*, ezReflectedTypeHandle> ezReflectedTypeManager::m_NameToHandle;

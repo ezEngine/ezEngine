@@ -60,6 +60,17 @@ void ezDocumentWindow3D::ShowRestartButton(bool bShow)
   }
 }
 
+bool ezDocumentWindow3D::HandleEngineMessage(const ezEditorEngineDocumentMsg* pMsg)
+{
+  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezDocumentOpenResponseMsgToEditor>())
+  {
+    m_pEngineView->SendDocument();
+    return true;
+  }
+
+  return false;
+}
+
 void ezDocumentWindow3D::EngineViewProcessEventHandler(const ezEditorEngineProcessConnection::Event& e)
 {
   switch (e.m_Type)
@@ -73,7 +84,6 @@ void ezDocumentWindow3D::EngineViewProcessEventHandler(const ezEditorEngineProce
   case ezEditorEngineProcessConnection::Event::Type::ProcessStarted:
     {
       ShowRestartButton(false);
-      m_pEngineView->SendDocument();
     }
     break;
 

@@ -107,15 +107,21 @@ void ezTestDocumentWindow::keyPressEvent(QKeyEvent* e)
   ezDocumentWindow::keyPressEvent(e);
 }
 
-void ezTestDocumentWindow::HandleEngineMessage(const ezEditorEngineDocumentMsg* pMsg)
+bool ezTestDocumentWindow::HandleEngineMessage(const ezEditorEngineDocumentMsg* pMsg)
 {
+  if (ezDocumentWindow3D::HandleEngineMessage(pMsg))
+    return true;
+
   if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezLogMsgToEditor>())
   {
     const ezLogMsgToEditor* pLogMsg = static_cast<const ezLogMsgToEditor*>(pMsg);
 
     ezLog::Info("Process (%u): '%s'", pLogMsg->m_uiViewID, pLogMsg->m_sText.GetData());
+
+    return true;
   }
 
+  return false;
 }
 
 ezCameraMoveContext::ezCameraMoveContext()

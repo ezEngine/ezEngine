@@ -65,6 +65,19 @@ ezReflectedConstant::ezReflectedConstant(const char* szName, const ezVariant& co
 // ezReflectedType public functions
 ////////////////////////////////////////////////////////////////////////
 
+bool ezReflectedType::IsDerivedFrom(ezReflectedTypeHandle hType) const
+{
+  ezReflectedTypeHandle type = m_hType;
+  while (!type.IsInvalidated())
+  {
+    if (hType == type)
+      return true;
+
+    type = type.GetType()->GetParentTypeHandle();
+  }
+  return false;
+}
+
 const ezReflectedProperty* ezReflectedType::GetPropertyByIndex(ezUInt32 uiIndex) const
 {
   if (uiIndex < m_Properties.GetCount())
