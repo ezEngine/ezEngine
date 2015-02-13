@@ -14,6 +14,17 @@ ezDocumentObjectTree::ezDocumentObjectTree(const ezDocumentBase* pDocument) :
 
 }
 
+void ezDocumentObjectTree::DestroyAllObjects(ezDocumentObjectManagerBase* pDocumentObjectManager)
+{
+  for (auto child : m_RootObject.m_Children)
+  {
+    pDocumentObjectManager->DestroyObject(child);
+  }
+
+  m_RootObject.m_Children.Clear();
+  m_GuidToObject.Clear();
+}
+
 void ezDocumentObjectTree::RecursiveAddGuids(ezDocumentObjectBase* pObject)
 {
   m_GuidToObject[pObject->m_Guid] = pObject;

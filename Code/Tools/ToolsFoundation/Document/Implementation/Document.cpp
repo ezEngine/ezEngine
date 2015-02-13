@@ -24,12 +24,12 @@ EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 ezEvent<const ezDocumentBase::Event&> ezDocumentBase::s_EventsAny;
 
-ezDocumentBase::ezDocumentBase(const char* szPath) :
+ezDocumentBase::ezDocumentBase(const char* szPath, ezDocumentObjectManagerBase* pDocumentObjectManagerImpl) :
   m_ObjectTree(this),
   m_CommandHistory(this)
 {
   m_sDocumentPath = szPath;
-  m_pObjectManager = nullptr;
+  m_pObjectManager = pDocumentObjectManagerImpl;
   m_SelectionManager.SetOwner(this);
 
   m_bModified = false;
@@ -39,6 +39,11 @@ ezDocumentBase::ezDocumentBase(const char* szPath) :
 ezDocumentBase::~ezDocumentBase()
 {
   m_SelectionManager.SetOwner(nullptr);
+
+  m_ObjectTree.DestroyAllObjects(GetObjectManager());
+
+  delete m_pObjectManager;
+  m_pObjectManager = nullptr;
 }
 
 static void WriteObjectRecursive(ezDocumentJSONWriter& writer, const ezDocumentObjectBase* pObject)

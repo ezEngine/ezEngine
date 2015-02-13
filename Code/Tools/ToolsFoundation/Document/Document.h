@@ -30,7 +30,7 @@ class EZ_TOOLSFOUNDATION_DLL ezDocumentBase : public ezReflectedClass
   EZ_ADD_DYNAMIC_REFLECTION(ezDocumentBase);
 
 public:
-  ezDocumentBase(const char* szPath);
+  ezDocumentBase(const char* szPath, ezDocumentObjectManagerBase* pDocumentObjectManagerImpl);
   virtual ~ezDocumentBase();
 
   bool IsModified() const { return m_bModified; }
@@ -82,7 +82,7 @@ protected:
   virtual ezStatus InternalSaveDocument();
   virtual ezStatus InternalLoadDocument();
 
-  ezDocumentObjectManagerBase* m_pObjectManager;
+  
   ezDocumentObjectTree m_ObjectTree;
   ezSelectionManager m_SelectionManager;
   mutable ezCommandHistory m_CommandHistory;
@@ -92,6 +92,7 @@ private:
   friend class ezCommandHistory;
 
   ezDocumentManagerBase* m_pDocumentManager;
+  ezDocumentObjectManagerBase* m_pObjectManager;
 
   ezString m_sDocumentPath;
   bool m_bModified;

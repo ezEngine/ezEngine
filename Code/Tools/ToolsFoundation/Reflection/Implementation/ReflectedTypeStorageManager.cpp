@@ -4,6 +4,7 @@
 #include <ToolsFoundation/Reflection/ReflectedTypeStorageAccessor.h>
 #include <ToolsFoundation/Reflection/ToolsReflectionUtils.h>
 #include <Foundation/Configuration/Startup.h>
+#include <Foundation/Logging/Log.h>
 
 ezMap<ezReflectedTypeHandle, ezReflectedTypeStorageManager::ReflectedTypeStorageMapping*> ezReflectedTypeStorageManager::m_ReflectedTypeToStorageMapping;
 
@@ -179,6 +180,13 @@ void ezReflectedTypeStorageManager::Shutdown()
   for(auto it = m_ReflectedTypeToStorageMapping.GetIterator(); it.IsValid(); ++it)
   {
     ReflectedTypeStorageMapping* pMapping = it.Value();
+
+    for (auto inst : pMapping->m_Instances)
+    {
+      const char* sz = inst->GetReflectedTypeHandle().GetType()->GetTypeName().GetData();
+      ezLog::Info("Type Name: %s", sz);
+    }
+
     EZ_ASSERT_DEV(pMapping->m_Instances.IsEmpty(), "A type was removed which still has instances using the type!");
     EZ_DEFAULT_DELETE(pMapping);
   }

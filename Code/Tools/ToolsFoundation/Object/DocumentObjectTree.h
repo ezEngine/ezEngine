@@ -83,7 +83,7 @@ public:
 
   const ezDocumentBase* GetDocument() const { return m_pDocument; }
 
-  
+  void DestroyAllObjects(ezDocumentObjectManagerBase* pDocumentObjectManager);
 
 private:
   ezDocumentObjectRoot m_RootObject;

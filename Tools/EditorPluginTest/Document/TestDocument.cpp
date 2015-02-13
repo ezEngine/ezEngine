@@ -7,15 +7,13 @@
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTestDocument, ezDocumentBase, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
-ezTestDocument::ezTestDocument(const char* szDocumentPath) : ezDocumentBase(szDocumentPath)
+ezTestDocument::ezTestDocument(const char* szDocumentPath) : ezDocumentBase(szDocumentPath, new ezTestObjectManager(this))
 {
-  m_pObjectManager = new ezTestObjectManager(this);
 
 }
 
 ezTestDocument::~ezTestDocument()
 {
-  delete m_pObjectManager;
 }
 
 ezStatus ezTestDocument::InternalSaveDocument()

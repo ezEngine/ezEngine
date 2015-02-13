@@ -12,6 +12,7 @@ if (EZ_ENABLE_QT_SUPPORT AND EZ_QTPROJECT)
     set (Qt5Core_DIR "" CACHE PATH "" FORCE)
     set (Qt5Gui_DIR "" CACHE PATH "" FORCE)
     set (Qt5Widgets_DIR "" CACHE PATH "" FORCE)
+    set (Qt5Network_DIR "" CACHE PATH "" FORCE)
     
     set (EZ_QT_DIR_FOUND ${EZ_QT_DIR} CACHE PATH "" FORCE)    
   endif()
