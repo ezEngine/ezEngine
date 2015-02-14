@@ -150,6 +150,22 @@ void ezProfilingSystem::SetThreadName(const char* szThreadName)
 {
 }
 
+void ezProfilingSystem::Initialize()
+{
+}
+
+void ezProfilingSystem::AddReference(const ezProfilingId& id)
+{
+}
+
+void ezProfilingSystem::ReleaseReference(const ezProfilingId& id)
+{
+}
+
+void ezProfilingSystem::Capture(ezStreamWriterBase& outputStream)
+{
+}
+
 #endif
 
 

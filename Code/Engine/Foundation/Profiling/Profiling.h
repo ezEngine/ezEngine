@@ -110,7 +110,8 @@ class ezProfilingId
 {
 public:
   EZ_FORCE_INLINE ezProfilingId() { }
-  EZ_FORCE_INLINE explicit ezProfilingId(const char* szName) { }
+  EZ_FORCE_INLINE ezProfilingId(const ezProfilingId& rhs) { }
+  EZ_FORCE_INLINE void operator=(const ezProfilingId& rhs) { }
 };
 
 #define EZ_PROFILE(Name)
