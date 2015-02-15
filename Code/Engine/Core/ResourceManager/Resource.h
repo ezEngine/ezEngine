@@ -136,9 +136,9 @@ template<typename SELF, typename SELF_DESCRIPTOR>
 bool ezResource<SELF, SELF_DESCRIPTOR>::s_bAddedManagerEventHandler = false;
 
 template<typename SELF, typename SELF_DESCRIPTOR>
-typename ezResourceHandle<SELF> ezResource<SELF, SELF_DESCRIPTOR>::s_TypeFallbackResource;
+ezResourceHandle<SELF> ezResource<SELF, SELF_DESCRIPTOR>::s_TypeFallbackResource;
 
 template<typename SELF, typename SELF_DESCRIPTOR>
-typename ezResourceHandle<SELF> ezResource<SELF, SELF_DESCRIPTOR>::s_TypeMissingResource;
+ezResourceHandle<SELF> ezResource<SELF, SELF_DESCRIPTOR>::s_TypeMissingResource;
 
 
