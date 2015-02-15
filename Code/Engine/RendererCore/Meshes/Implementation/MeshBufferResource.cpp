@@ -241,7 +241,7 @@ ezGALVertexDeclarationHandle ezRendererCore::GetVertexDeclaration(ezGALShaderHan
       gal.m_eFormat = stream.m_Format;
       gal.m_eSemantic = stream.m_Semantic;
       gal.m_uiOffset = stream.m_uiOffset;
-      gal.m_uiVertexBufferSlot = slot;
+      gal.m_uiVertexBufferSlot = 0;
       vd.m_VertexAttributes.PushBack(gal);
     }
 
