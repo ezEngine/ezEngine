@@ -29,7 +29,7 @@ struct EZ_CORE_DLL ezResourceFlags
     NoFileAccessRequired  = EZ_BIT(1),  ///< The resource 'loading' does not require file accesses and can therefore be done on one or several non-file-loading threads. Use this for procedurally generated data.
     /// \todo implement NoFileAccessRequired
     ResourceHasFallback   = EZ_BIT(2),  ///< Specifies whether this resource has a valid fallback resource that could be used. Automatically updated in ezResource::SetFallbackResource.
-    WasCreated            = EZ_BIT(3),  ///< The resource was created, not loaded from file
+    IsReloadable          = EZ_BIT(3),  ///< The resource was created, not loaded from file
     IsPreloading          = EZ_BIT(4),
     Default               = 0,
   };
@@ -39,7 +39,7 @@ struct EZ_CORE_DLL ezResourceFlags
     StorageType UpdateOnMainThread    : 1;
     StorageType NoFileAccessRequired  : 1;
     StorageType ResourceHasFallback   : 1;
-    StorageType WasCreated            : 1;
+    StorageType IsReloadable          : 1;
     StorageType IsPreloading          : 1;
   };
 };
@@ -51,9 +51,9 @@ enum class ezResourceState
 {
   Invalid,
   Unloaded,                 ///< The resource instance has been created, but no meta info about the resource is available and no data is loaded.
+  LoadedResourceMissing,    ///< The resource could not be loaded, use a 'Missing Resource' fallback if available
   UnloadedMetaInfoAvailable,///< Meta information about the resource is available (e.g. texture sizes, etc.) but no data is loaded so far.
-  /// \todo LoadedResourceMissing,
-  Loaded,             ///< The resource is fully loaded.
+  Loaded,                   ///< The resource is fully loaded.
   // no other state can follow, Loaded must be the highest value
 };
 

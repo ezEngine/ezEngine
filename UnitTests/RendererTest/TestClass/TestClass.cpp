@@ -226,7 +226,7 @@ void ezGraphicsTest::ClearScreen(const ezColor& color)
 ezMeshBufferResourceHandle ezGraphicsTest::CreateMesh(const ezGeometry& geom, const char* szResourceName)
 {
   ezMeshBufferResourceHandle hMesh;
-  hMesh = ezResourceManager::GetCreatedResource<ezMeshBufferResource>(szResourceName);
+  hMesh = ezResourceManager::GetExistingResource<ezMeshBufferResource>(szResourceName);
 
   if (hMesh.IsValid())
     return hMesh;

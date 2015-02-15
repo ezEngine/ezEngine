@@ -17,8 +17,6 @@ EZ_CORE_DLL void DecreaseResourceRefCount(ezResourceBase* pResource)
   pResource->m_iReferenceCount.Decrement();
 }
 
-ezEvent<const ezResourceBase::ResourceEvent&, ezMutex> ezResourceBase::s_Event;
-
 ezResourceBase::ezResourceBase(UpdateResource ResourceUpdateThread, ezUInt8 uiQualityLevelsLoadable)
 {
   m_Flags.AddOrRemove(ezResourceFlags::UpdateOnMainThread, ResourceUpdateThread == UpdateResource::OnMainThread);
@@ -37,10 +35,10 @@ void ezResourceBase::SetDueDate(ezTime date /* = ezTime::Seconds(60.0 * 60.0 * 2
   {
     m_DueDate = date;
 
-    ResourceEvent e;
+    ezResourceManager::ResourceEvent e;
     e.m_pResource = this;
-    e.m_EventType = ResourceEventType::DueDateChanged;
-    s_Event.Broadcast(e);
+    e.m_EventType = ezResourceManager::ResourceEventType::ResourceDueDateChanged;
+    ezResourceManager::s_ResourceEvents.Broadcast(e);
   }
 }
 
@@ -48,20 +46,21 @@ void ezResourceBase::SetPriority(ezResourcePriority priority)
 {
   m_Priority = priority;
 
-  ResourceEvent e;
+  ezResourceManager::ResourceEvent e;
   e.m_pResource = this;
-  e.m_EventType = ResourceEventType::PriorityChanged;
-  s_Event.Broadcast(e);
+  e.m_EventType = ezResourceManager::ResourceEventType::ResourcePriorityChanged;
+  ezResourceManager::s_ResourceEvents.Broadcast(e);
 }
 
-void ezResourceBase::SetUniqueID(const ezString& UniqueID)
+void ezResourceBase::SetUniqueID(const ezString& UniqueID, bool bIsReloadable)
 {
   m_UniqueID = UniqueID;
+  SetIsReloadable(bIsReloadable);
 
-  ResourceEvent e;
+  ezResourceManager::ResourceEvent e;
   e.m_pResource = this;
-  e.m_EventType = ResourceEventType::Created;
-  s_Event.Broadcast(e);
+  e.m_EventType = ezResourceManager::ResourceEventType::ResourceCreated;
+  ezResourceManager::s_ResourceEvents.Broadcast(e);
 }
 
 void ezResourceBase::CallUnloadData(Unload WhatToUnload)
@@ -76,10 +75,10 @@ void ezResourceBase::CallUnloadData(Unload WhatToUnload)
   m_uiQualityLevelsDiscardable = ld.m_uiQualityLevelsDiscardable;
   m_uiQualityLevelsLoadable = ld.m_uiQualityLevelsLoadable;
 
-  ResourceEvent e;
+  ezResourceManager::ResourceEvent e;
   e.m_pResource = this;
-  e.m_EventType = ResourceEventType::ContentUnloaded;
-  s_Event.Broadcast(e);
+  e.m_EventType = ezResourceManager::ResourceEventType::ResourceContentUnloaded;
+  ezResourceManager::s_ResourceEvents.Broadcast(e);
 }
 
 void ezResourceBase::CallUpdateContent(ezStreamReaderBase* Stream)
@@ -94,10 +93,10 @@ void ezResourceBase::CallUpdateContent(ezStreamReaderBase* Stream)
   m_uiQualityLevelsDiscardable = ld.m_uiQualityLevelsDiscardable;
   m_uiQualityLevelsLoadable = ld.m_uiQualityLevelsLoadable;
 
-  ResourceEvent e;
+  ezResourceManager::ResourceEvent e;
   e.m_pResource = this;
-  e.m_EventType = ResourceEventType::ContentUpdated;
-  s_Event.Broadcast(e);
+  e.m_EventType = ezResourceManager::ResourceEventType::ResourceContentUpdated;
+  ezResourceManager::s_ResourceEvents.Broadcast(e);
 }
 
 ezTime ezResourceBase::GetLoadingDeadline(ezTime tNow) const
@@ -134,10 +133,6 @@ ezResourceTypeLoader* ezResourceBase::GetDefaultResourceTypeLoader() const
 {
   return ezResourceManager::GetDefaultResourceLoader();
 }
-
-
-
-
 
 EZ_STATICLINK_FILE(Core, Core_ResourceManager_Implementation_Resource);
 

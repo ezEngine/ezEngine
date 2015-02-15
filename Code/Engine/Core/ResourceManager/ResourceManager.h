@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Core/Basics.h>
-#include <Core/ResourceManager/Resource.h>
+#include <Core/ResourceManager/ResourceBase.h>
 #include <Core/ResourceManager/ResourceHandle.h>
 #include <Core/ResourceManager/ResourceTypeLoader.h>
 #include <Foundation/Containers/HashTable.h>
@@ -34,11 +34,17 @@ private:
   virtual void Execute() override;
 };
 
-
-
 class EZ_CORE_DLL ezResourceManager
 {
 public:
+  enum class ResourceEventType;
+  enum class ManagerEventType;
+  struct ResourceEvent;
+  struct ManagerEvent;
+
+  static ezEvent<const ResourceEvent&> s_ResourceEvents;
+  static ezEvent<const ManagerEvent&> s_ManagerEvents;
+
   template<typename ResourceType>
   static ezResourceHandle<ResourceType> LoadResource(const char* szResourceID);
 
@@ -49,7 +55,7 @@ public:
   static ezResourceHandle<ResourceType> CreateResource(const char* szResourceID, const typename ResourceType::DescriptorType& descriptor);
 
   template<typename ResourceType>
-  static ezResourceHandle<ResourceType> GetCreatedResource(const char* szResourceID);
+  static ezResourceHandle<ResourceType> GetExistingResource(const char* szResourceID);
 
   template<typename ResourceType>
   static ResourceType* BeginAcquireResource(const ezResourceHandle<ResourceType>& hResource, ezResourceAcquireMode mode = ezResourceAcquireMode::AllowFallback, const ezResourceHandle<ResourceType>& hFallbackResource = ezResourceHandle<ResourceType>(), ezResourcePriority Priority = ezResourcePriority::Unchanged);
@@ -103,7 +109,7 @@ private:
   static void PreloadResource(ezResourceBase* pResource, ezTime tShouldBeAvailableIn);
 
   template<typename ResourceType>
-  static ResourceType* GetResource(const char* szResourceID);
+  static ResourceType* GetResource(const char* szResourceID, bool bIsReloadable);
 
   static void InternalPreloadResource(ezResourceBase* pResource, bool bHighestPriority);
 
@@ -151,6 +157,35 @@ private:
   static ezInt8 m_iCurrentWorker;
   static ezTime m_LastDeadLineUpdate;
   static ezTime m_LastFrameUpdate;
+};
+
+enum class ezResourceManager::ResourceEventType
+{
+  ResourceExists,
+  ResourceCreated,
+  ResourceDeleted,
+  ResourceContentUpdated,
+  ResourceContentUnloaded,
+  ResourceInPreloadQueue,
+  ResourceOutOfPreloadQueue,
+  ResourcePriorityChanged,
+  ResourceDueDateChanged,
+};
+
+enum class ezResourceManager::ManagerEventType
+{
+  ManagerShuttingDown,
+};
+
+struct ezResourceManager::ResourceEvent
+{
+  ResourceEventType m_EventType;
+  const ezResourceBase* m_pResource;
+};
+
+struct ezResourceManager::ManagerEvent
+{
+  ManagerEventType m_EventType;
 };
 
 /// \brief Helper class to acquire and release a resource safely.

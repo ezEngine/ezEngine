@@ -194,7 +194,10 @@ public:
       m_pObj[i] = DontUse::MayaObj::LoadFromFile("ez.obj", m_pDevice, i);
 
     m_hShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/ez.shader");
-    m_hMaterial = ezResourceManager::LoadResource<ezMaterialResource>("Materials/Test.material");
+    m_hMaterial = ezResourceManager::LoadResource<ezMaterialResource>("Materials/Test - wrong.material");
+    m_hMaterialMissing = ezResourceManager::LoadResource<ezMaterialResource>("Materials/Test.material");
+
+    ezMaterialResource::SetTypeMissingResource(m_hMaterialMissing);
 
     ezRendererCore::SetActiveShader(m_hShader);
     ezRendererCore::SetShaderPermutationVariable("COLORED", "1");
@@ -298,8 +301,7 @@ public:
 
     if (ezInputManager::GetInputActionState("Main", "ReloadShader") == ezKeyState::Pressed)
     {
-      ezResourceManager::ReloadResourcesOfType<ezShaderResource>();
-      ezResourceManager::ReloadResourcesOfType<ezShaderPermutationResource>();
+      ezResourceManager::ReloadAllResources();
 
       ezRendererCore::ApplyContextStates(nullptr, true); // force state resetting
     }
@@ -405,6 +407,7 @@ public:
       EZ_DEFAULT_DELETE(m_pObj[i]);
 
     m_hMaterial.Invalidate();
+    m_hMaterialMissing.Invalidate();
     m_hShader.Invalidate();
     m_hConstantBuffer.Invalidate();
     m_hColorConstantBuffer.Invalidate();
@@ -441,6 +444,7 @@ private:
 
   ezShaderResourceHandle m_hShader;
   ezMaterialResourceHandle m_hMaterial;
+  ezMaterialResourceHandle m_hMaterialMissing;
 
   static const int MaxObjs = 7;
 

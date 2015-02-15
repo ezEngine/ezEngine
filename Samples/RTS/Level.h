@@ -10,7 +10,7 @@
 #include <RTS/Components/AvoidObstacleSteeringComponent.h>
 #include <RTS/Components/ObstacleComponent.h>
 #include <GameUtils/GridAlgorithms/Rasterization.h>
-#include <Core/ResourceManager/ResourceManager.h>
+#include <Core/ResourceManager/Resource.h>
 #include <CoreUtils/Image/Image.h>
 #include <CoreUtils/Image/Formats/TgaFileFormat.h>
 #include <CoreUtils/Image/ImageConversion.h>

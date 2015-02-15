@@ -45,7 +45,7 @@ ezMeshBufferResourceHandle CreateMeshResource(const ezGeometry& geom, const char
     desc.SetTriangleIndices(t / 3, Indices[t], Indices[t + 1], Indices[t + 2]);
   }
 
-  ezMeshBufferResourceHandle hMesh = ezResourceManager::GetCreatedResource<ezMeshBufferResource>(szResourceName);
+  ezMeshBufferResourceHandle hMesh = ezResourceManager::GetExistingResource<ezMeshBufferResource>(szResourceName);
     
   if (!hMesh.IsValid())
     hMesh = ezResourceManager::CreateResource<ezMeshBufferResource>(szResourceName, desc);
@@ -365,7 +365,7 @@ namespace DontUse
       ezStringBuilder s;
       s.Format("MayaMesh%i", iMesh);
 
-      hMesh = ezResourceManager::GetCreatedResource<ezMeshBufferResource>(s);
+      hMesh = ezResourceManager::GetExistingResource<ezMeshBufferResource>(s);
 
       if (!hMesh.IsValid())
         hMesh = ezResourceManager::CreateResource<ezMeshBufferResource>(s.GetData(), desc);

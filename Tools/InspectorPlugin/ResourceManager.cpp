@@ -73,22 +73,22 @@ static void TelemetryEventsHandler(const ezTelemetry::TelemetryEventData& e)
   }
 }
 
-static void ResourceManagerEventHandler(const ezResourceBase::ResourceEvent& e)
+static void ResourceManagerEventHandler(const ezResourceManager::ResourceEvent& e)
 {
   if (!ezTelemetry::IsConnectedToClient())
     return;
 
-  if (e.m_EventType == ezResourceBase::ResourceEventType::Created ||
-      e.m_EventType == ezResourceBase::ResourceEventType::Exists)
+  if (e.m_EventType == ezResourceManager::ResourceEventType::ResourceCreated ||
+      e.m_EventType == ezResourceManager::ResourceEventType::ResourceExists)
   {
     SendFullResourceInfo(e.m_pResource);
     return;
   }
 
-  if (e.m_EventType == ezResourceBase::ResourceEventType::DueDateChanged) // ignore this
+  if (e.m_EventType == ezResourceManager::ResourceEventType::ResourceDueDateChanged) // ignore this
     return;
 
-  if (e.m_EventType == ezResourceBase::ResourceEventType::Deleted)
+  if (e.m_EventType == ezResourceManager::ResourceEventType::ResourceDeleted)
   {
     SendDeleteResourceInfo(e.m_pResource);
     return;
@@ -100,12 +100,12 @@ static void ResourceManagerEventHandler(const ezResourceBase::ResourceEvent& e)
 void AddResourceManagerEventHandler()
 {
   ezTelemetry::AddEventHandler(TelemetryEventsHandler);
-  ezResourceBase::s_Event.AddEventHandler(ResourceManagerEventHandler);
+  ezResourceManager::s_ResourceEvents.AddEventHandler(ResourceManagerEventHandler);
 }
 
 void RemoveResourceManagerEventHandler()
 {
-  ezResourceBase::s_Event.RemoveEventHandler(ResourceManagerEventHandler);
+  ezResourceManager::s_ResourceEvents.RemoveEventHandler(ResourceManagerEventHandler);
   ezTelemetry::RemoveEventHandler(TelemetryEventsHandler);
 }
 

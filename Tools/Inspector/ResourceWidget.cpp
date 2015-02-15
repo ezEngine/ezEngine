@@ -194,10 +194,15 @@ void ezResourceWidget::UpdateTable()
       pItem = Table->item(iTableRow, 7);
       pItem->setText(res.m_sResourceID.GetData());
 
-      if (res.m_Flags.IsAnySet(ezResourceFlags::WasCreated))
+      if (res.m_LoadingState.m_State == ezResourceState::LoadedResourceMissing)
+      {
+        pItem->setIcon(QIcon(":/Icons/Icons/ResourceMissing.png"));
+        pItem->setToolTip("The resource could not be loaded.");
+      }
+      else if (!res.m_Flags.IsAnySet(ezResourceFlags::IsReloadable))
       {
         pItem->setIcon(QIcon(":/Icons/Icons/ResourceCreated.png"));
-        pItem->setToolTip("Created from code, not loaded from file.");
+        pItem->setToolTip("Resource is not reloadable.");
       }
       else if (res.m_Flags.IsAnySet(ezResourceFlags::ResourceHasFallback))
       {
@@ -207,7 +212,7 @@ void ezResourceWidget::UpdateTable()
       else
       {
         pItem->setIcon(QIcon(":/Icons/Icons/Resource.png"));
-        pItem->setToolTip("Loaded from file.");
+        pItem->setToolTip("Resource is reloadable but no fallback is available.");
       }
 
       pItem = Table->item(iTableRow, 0);
@@ -266,10 +271,9 @@ void ezResourceWidget::UpdateTable()
         pItem->setText("Loaded");
         pItem->setTextColor(QColor::fromRgb(182, 255, 0));
         break;
-        //case ezResourceState::Missing:
-        //  pItem->setText("Missing");
-        //  pItem->setTextColor(QColor::fromRgb(255, 0, 0));
-        //  pItem->setIcon(QIcon(":/Icons/Icons/ResourceMissing.png"));
+      case ezResourceState::LoadedResourceMissing:
+        pItem->setText("Missing");
+        pItem->setTextColor(QColor::fromRgb(255, 0, 0));
         break;
       }
 
@@ -334,7 +338,7 @@ void ezResourceWidget::UpdateAll()
 void ezResourceWidget::on_LineFilterByName_textChanged()
 {
   m_sNameFilter = LineFilterByName->text().toUtf8().data();
-  
+
   UpdateAll();
 }
 

@@ -32,14 +32,17 @@ ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReaderBase* Stream)
   res.m_State = ezResourceState::Loaded;
 
   if (Stream == nullptr)
-    return res; /// \todo need failure state for resources (Missing resource)
+  {
+    res.m_State = ezResourceState::LoadedResourceMissing;
+    return res;
+  }
 
   ezExtendedJSONReader json;
   json.SetLogInterface(ezGlobalLog::GetInstance());
 
   if (json.Parse(*Stream).Failed())
   {
-     /// \todo need failure state for resources (Missing resource)
+     res.m_State = ezResourceState::LoadedResourceMissing;
     return res;
   }
 

@@ -1,7 +1,7 @@
 #pragma once
 
 template<typename ResourceType>
-ResourceType* ezResourceManager::GetResource(const char* szResourceID)
+ResourceType* ezResourceManager::GetResource(const char* szResourceID, bool bIsReloadable)
 {
   ezResourceBase* pResource = NULL;
 
@@ -15,7 +15,7 @@ ResourceType* ezResourceManager::GetResource(const char* szResourceID)
   EZ_ASSERT_DEV(pRtti->GetAllocator() != NULL, "There is no RTTI allocator available for the given resource type '%s'", EZ_STRINGIZE(ResourceType));
 
   ResourceType* pNewResource = static_cast<ResourceType*>(pRtti->GetAllocator()->Allocate());
-  pNewResource->SetUniqueID(szResourceID);
+  pNewResource->SetUniqueID(szResourceID, bIsReloadable);
 
   m_LoadedResources.Insert(sResourceHash, pNewResource);
 
@@ -25,13 +25,13 @@ ResourceType* ezResourceManager::GetResource(const char* szResourceID)
 template<typename ResourceType>
 ezResourceHandle<ResourceType> ezResourceManager::LoadResource(const char* szResourceID)
 {
-  return ezResourceHandle<ResourceType>(GetResource<ResourceType>(szResourceID));
+  return ezResourceHandle<ResourceType>(GetResource<ResourceType>(szResourceID, true));
 }
 
 template<typename ResourceType>
 ezResourceHandle<ResourceType> ezResourceManager::LoadResource(const char* szResourceID, ezResourcePriority Priority, ezResourceHandle<ResourceType> hFallbackResource)
 {
-  ezResourceHandle<ResourceType> hResource (GetResource<ResourceType>(szResourceID));
+  ezResourceHandle<ResourceType> hResource(GetResource<ResourceType>(szResourceID, true));
 
   ResourceType* pResource = ezResourceManager::BeginAcquireResource(hResource, ezResourceAcquireMode::PointerOnly, ezResourceHandle<ResourceType>(), Priority);
 
@@ -46,18 +46,14 @@ ezResourceHandle<ResourceType> ezResourceManager::LoadResource(const char* szRes
 }
 
 template<typename ResourceType>
-ezResourceHandle<ResourceType> ezResourceManager::GetCreatedResource(const char* szResourceID)
+ezResourceHandle<ResourceType> ezResourceManager::GetExistingResource(const char* szResourceID)
 {
   ezResourceBase* pResource = NULL;
 
   const ezTempHashedString sResourceHash(szResourceID);
 
   if (m_LoadedResources.TryGetValue(sResourceHash, pResource))
-  {
-    EZ_ASSERT_DEBUG(pResource->m_Flags.IsAnySet(ezResourceFlags::WasCreated), "This resource was not created but loaded, you should not use this function on resources that are loaded");
-
     return (ResourceType*) pResource;
-  }
 
   return ezResourceHandle<ResourceType>();
 }
@@ -65,7 +61,7 @@ ezResourceHandle<ResourceType> ezResourceManager::GetCreatedResource(const char*
 template<typename ResourceType>
 ezResourceHandle<ResourceType> ezResourceManager::CreateResource(const char* szResourceID, const typename ResourceType::DescriptorType& descriptor)
 {
-  ezResourceHandle<ResourceType> hResource(GetResource<ResourceType>(szResourceID));
+  ezResourceHandle<ResourceType> hResource(GetResource<ResourceType>(szResourceID, false));
 
   ResourceType* pResource = BeginAcquireResource(hResource, ezResourceAcquireMode::PointerOnly);
 
@@ -74,8 +70,6 @@ ezResourceHandle<ResourceType> ezResourceManager::CreateResource(const char* szR
   // If this does not compile, you have forgotten to make ezResourceManager a friend of your resource class.
   // which probably means that you did not derive from ezResource, which you should do!
   static_cast<ezResource<ResourceType, typename ResourceType::DescriptorType>*>(pResource)->CallCreateResource(descriptor);
-
-  pResource->m_Flags.Add(ezResourceFlags::WasCreated);
 
   EZ_ASSERT_DEV(pResource->GetLoadingState() != ezResourceState::Unloaded, "CreateResource did not set the loading state properly.");
 
@@ -95,7 +89,7 @@ ResourceType* ezResourceManager::BeginAcquireResource(const ezResourceHandle<Res
   EZ_ASSERT_DEBUG(pResource->GetDynamicRTTI() == ezGetStaticRTTI<ResourceType>(), "The requested resource does not have the same type ('%s') as the resource handle ('%s').", pResource->GetDynamicRTTI()->GetTypeName(), ezGetStaticRTTI<ResourceType>()->GetTypeName());
 
   if (mode == ezResourceAcquireMode::PointerOnly ||
-     (mode == ezResourceAcquireMode::MetaInfo && pResource->GetLoadingState() >= ezResourceState::UnloadedMetaInfoAvailable))
+      (mode == ezResourceAcquireMode::MetaInfo && pResource->GetLoadingState() >= ezResourceState::UnloadedMetaInfoAvailable))
   {
     pResource->m_iLockCount.Increment();
     return pResource;
@@ -104,54 +98,81 @@ ResourceType* ezResourceManager::BeginAcquireResource(const ezResourceHandle<Res
   // only set the last accessed time stamp, if it is actually needed, pointer-only access might not mean that the resource is used productively
   pResource->m_LastAcquire = m_LastFrameUpdate;
 
-  if (pResource->GetLoadingState() != ezResourceState::Loaded)
+  if (pResource->GetLoadingState() != ezResourceState::LoadedResourceMissing)
   {
-    // only modify the priority, if the resource is not yet loaded
-    if (Priority != ezResourcePriority::Unchanged)
-      pResource->SetPriority(Priority);
-
-    // will append this at the preload array, thus will be loaded immediately
-    // even after recalculating priorities, it will end up as top priority
-    InternalPreloadResource(pResource, true);
-
-    if (mode == ezResourceAcquireMode::AllowFallback && (hFallbackResource.IsValid() || pResource->m_hFallback.IsValid()))
+    if (pResource->GetLoadingState() != ezResourceState::Loaded)
     {
-      // return the fallback resource for now, if there is one
+      // only modify the priority, if the resource is not yet loaded
+      if (Priority != ezResourcePriority::Unchanged)
+        pResource->SetPriority(Priority);
 
-      if (pResource->m_hFallback.IsValid())
-        return (ResourceType*) BeginAcquireResource(pResource->m_hFallback);
-      else
-        return (ResourceType*) BeginAcquireResource(hFallbackResource);
-    }
+      // will append this at the preload array, thus will be loaded immediately
+      // even after recalculating priorities, it will end up as top priority
+      InternalPreloadResource(pResource, true);
 
-    const ezResourceState RequestedState = (mode == ezResourceAcquireMode::MetaInfo) ? ezResourceState::UnloadedMetaInfoAvailable : ezResourceState::Loaded;
-
-    // help loading until the requested resource is available
-    while ((ezInt32) pResource->GetLoadingState() < (ezInt32) RequestedState)
-    {
-      if (!m_WorkerTask[m_iCurrentWorker].IsTaskFinished())
-        ezTaskSystem::WaitForTask(&m_WorkerTask[m_iCurrentWorker]);
-      else
+      if (mode == ezResourceAcquireMode::AllowFallback && (pResource->m_hFallback.IsValid() || hFallbackResource.IsValid() || ResourceType::GetTypeFallbackResource().IsValid()))
       {
-        for (ezInt32 i = 0; i < 16; ++i)
-        {
-          // get the 'oldest' GPU task in the queue and try to finish that first
-          const ezInt32 iWorkerGPU = (ezResourceManager::m_iCurrentWorkerGPU + i) % 16;
+        // return the fallback resource for now, if there is one
 
-          if (!m_WorkerGPU[iWorkerGPU].IsTaskFinished())
+        // Fallback order is as follows:
+        //  1) Prefer any resource specific fallback resource
+        //  2) If not available, use the fallback that is given to BeginAcquireResource, as that is at least specific to the situation
+        //  3) If nothing else is available, take the fallback for the whole resource type
+
+        if (pResource->m_hFallback.IsValid())
+          return (ResourceType*) BeginAcquireResource(pResource->m_hFallback);
+        else if (hFallbackResource.IsValid())
+          return (ResourceType*) BeginAcquireResource(hFallbackResource);
+        else
+          return (ResourceType*) BeginAcquireResource(ResourceType::GetTypeFallbackResource());
+      }
+
+      const ezResourceState RequestedState = (mode == ezResourceAcquireMode::MetaInfo) ? ezResourceState::UnloadedMetaInfoAvailable : ezResourceState::Loaded;
+
+      // help loading until the requested resource is available
+      while ((ezInt32) pResource->GetLoadingState() < (ezInt32) RequestedState && (pResource->GetLoadingState() != ezResourceState::LoadedResourceMissing))
+      {
+        if (!m_WorkerTask[m_iCurrentWorker].IsTaskFinished())
+          ezTaskSystem::WaitForTask(&m_WorkerTask[m_iCurrentWorker]);
+        else
+        {
+          for (ezInt32 i = 0; i < 16; ++i)
           {
-            ezTaskSystem::WaitForTask(&m_WorkerGPU[iWorkerGPU]);
-            break; // we waited for one of them, that's enough for this round
+            // get the 'oldest' GPU task in the queue and try to finish that first
+            const ezInt32 iWorkerGPU = (ezResourceManager::m_iCurrentWorkerGPU + i) % 16;
+
+            if (!m_WorkerGPU[iWorkerGPU].IsTaskFinished())
+            {
+              ezTaskSystem::WaitForTask(&m_WorkerGPU[iWorkerGPU]);
+              break; // we waited for one of them, that's enough for this round
+            }
           }
         }
       }
     }
+    else
+    {
+      // as long as there are more quality levels available, schedule the resource for more loading
+      if (pResource->m_Flags.IsSet(ezResourceFlags::IsPreloading) == false && pResource->GetNumQualityLevelsLoadable() > 0)
+        InternalPreloadResource(pResource, false);
+    }
   }
-  else
+
+  if (pResource->GetLoadingState() == ezResourceState::LoadedResourceMissing)
   {
-    // as long as there are more quality levels available, schedule the resource for more loading
-    if (pResource->m_Flags.IsSet(ezResourceFlags::IsPreloading) == false && pResource->GetNumQualityLevelsLoadable() > 0)
-      InternalPreloadResource(pResource, false);
+    if (mode == ezResourceAcquireMode::AllowFallback && (hFallbackResource.IsValid() || ResourceType::GetTypeMissingResource().IsValid()))
+    {
+      // prefer the fallback given for this situation (might e.g. be a default normal map)
+      // use the type specific missing resource otherwise
+
+      if (hFallbackResource.IsValid())
+        return (ResourceType*) BeginAcquireResource(hFallbackResource);
+      else
+        return (ResourceType*) BeginAcquireResource(ResourceType::GetTypeMissingResource());
+    }
+
+    EZ_REPORT_FAILURE("The resource '%s' of type '%s' is missing and no fallback is available", pResource->GetResourceID().GetData(), ezGetStaticRTTI<ResourceType>()->GetTypeName());
+    return nullptr;
   }
 
   pResource->m_iLockCount.Increment();
