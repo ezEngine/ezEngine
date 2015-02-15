@@ -1,7 +1,7 @@
 #include <PCH.h>
 #include <EditorFramework/GUI/RawPropertyWidget.h>
 #include <EditorFramework/GUI/PropertyEditorBaseWidget.moc.h>
-#include <QGroupBox>
+#include <EditorFramework/GUI/CollapsibleGroupBox.moc.h>
 
 void ezRawPropertyWidget::PropertyChangedHandler(const ezPropertyEditorBaseWidget::Event& e)
 {
@@ -133,7 +133,7 @@ void ezRawPropertyWidget::BuildUI(const ezIReflectedTypeAccessor& et, const ezRe
     {
       ParentPath.PushBack(pProp->m_sPropertyName.GetString().GetData());
 
-      QGroupBox* pSubGroup = new QGroupBox((QWidget*) pLayout->parent());
+      ezCollapsibleGroupBox* pSubGroup = new ezCollapsibleGroupBox((QWidget*) pLayout->parent());
       pSubGroup->setTitle(QString::fromUtf8(pProp->m_sPropertyName.GetString().GetData()));
 
       QVBoxLayout* pSubLayout = new QVBoxLayout(pSubGroup);

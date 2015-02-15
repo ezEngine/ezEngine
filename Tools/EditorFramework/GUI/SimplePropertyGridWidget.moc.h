@@ -8,7 +8,6 @@
 #include <QWidget>
 #include <QLayout>
 
-class QGroupBox;
 class QScrollArea;
 
 class EZ_EDITORFRAMEWORK_DLL ezSimplePropertyGridWidget : public QWidget

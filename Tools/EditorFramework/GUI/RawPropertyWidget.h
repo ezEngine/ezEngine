@@ -6,8 +6,6 @@
 #include <QWidget>
 #include <QLayout>
 
-class QGroupBox;
-
 class EZ_EDITORFRAMEWORK_DLL ezRawPropertyWidget : public QWidget
 {
 public:

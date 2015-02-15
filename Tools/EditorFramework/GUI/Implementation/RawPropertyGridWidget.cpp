@@ -5,7 +5,7 @@
 #include <ToolsFoundation/Document/Document.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
 #include <ToolsFoundation/Reflection/ToolsReflectionUtils.h>
-#include <QGroupBox>
+#include <EditorFramework/GUI/CollapsibleGroupBox.moc.h>
 #include <QScrollArea>
 
 ezRawPropertyGridWidget::ezRawPropertyGridWidget(ezDocumentBase* pDocument, QWidget* pParent) : QWidget(pParent), m_pDocument(pDocument)
@@ -164,8 +164,8 @@ void ezRawPropertyGridWidget::SetSelection(const ezDeque<const ezDocumentObjectB
     return;
 
   {
-    m_pGroups[0] = new QGroupBox(m_pMainContent);
-    m_pGroups[1] = new QGroupBox(m_pMainContent);
+    m_pGroups[0] = new ezCollapsibleGroupBox(m_pMainContent);
+    m_pGroups[1] = new ezCollapsibleGroupBox(m_pMainContent);
 
     m_pGroups[0]->setTitle(QLatin1String("Editor Properties"));
 

@@ -9,7 +9,7 @@
 #include <QWidget>
 #include <QLayout>
 
-class QGroupBox;
+class ezCollapsibleGroupBox;
 class ezDocumentBase;
 struct ezDocumentObjectTreePropertyEvent;
 
@@ -32,7 +32,7 @@ private:
   ezDeque<const ezDocumentObjectBase*> m_Selection;
   QVBoxLayout* m_pLayout;
   QWidget* m_pMainContent;
-  QGroupBox* m_pGroups[2];
+  ezCollapsibleGroupBox* m_pGroups[2];
   ezRawPropertyWidget* m_pRawPropertyWidget[2];
   QSpacerItem* m_pSpacer;
   ezDocumentBase* m_pDocument;
