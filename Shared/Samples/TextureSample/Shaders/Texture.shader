@@ -13,7 +13,8 @@ ALL
 VS_OUT main(VS_IN Input)
 {
   VS_OUT RetVal;
-  RetVal.Position = mul(ModelViewProjection, float4(Input.Position, 1.0f));
+  float4 PosWS = mul(ModelMatrix, float4(Input.Position, 1.0f));
+  RetVal.Position = mul(ViewProjectionMatrix, PosWS);
   RetVal.TexCoord0 = Input.TexCoord0;
 
   return RetVal;

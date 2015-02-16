@@ -20,6 +20,7 @@
 #include <Core/ResourceManager/ResourceManager.h>
 
 #include <CoreUtils/Geometry/GeomUtils.h>
+#include <CoreUtils/Image/ImageConversion.h>
 
 #include <System/Window/Window.h>
 
@@ -34,6 +35,7 @@
 #include <RendererCore/ConstantBuffers/ConstantBufferResource.h>
 #include <RendererCore/Material/MaterialResource.h>
 #include <RendererCore/Meshes/MeshBufferResource.h>
+#include <RendererCore/Textures/TextureResource.h>
 
 class TextureSampleWindow : public ezWindow
 {
@@ -56,9 +58,25 @@ public:
 static ezUInt32 g_uiWindowWidth = 1280;
 static ezUInt32 g_uiWindowHeight = 720;
 
-class TextureSample : public ezApplication
+class CustomTextureResourceLoader : public ezTextureResourceLoader
 {
 public:
+  virtual ezResourceLoadData OpenDataStream(const ezResourceBase* pResource) override;
+};
+
+const ezInt32 g_iMaxHalfExtent = 20;
+const bool g_bForceImmediateLoading = false;
+
+class TextureSample : public ezApplication
+{
+  CustomTextureResourceLoader m_TextureResourceLoader;
+
+public:
+
+  TextureSample()
+  {
+    m_vCameraPosition.SetZero();
+  }
 
   void AfterEngineInit() override
   {
@@ -89,9 +107,36 @@ public:
     {
       ezInputActionConfig cfg;
 
+      //ezStandardInputDevice::
+
       cfg = ezInputManager::GetInputActionConfig("Main", "CloseApp");
       cfg.m_sInputSlotTrigger[0] = ezInputSlot_KeyEscape;
       ezInputManager::SetInputActionConfig("Main", "CloseApp", cfg, true);
+
+      cfg = ezInputManager::GetInputActionConfig("Main", "MovePosX");
+      cfg.m_sInputSlotTrigger[0] = ezInputSlot_MouseMovePosX;
+      cfg.m_bApplyTimeScaling = false;
+      ezInputManager::SetInputActionConfig("Main", "MovePosX", cfg, true);
+
+      cfg = ezInputManager::GetInputActionConfig("Main", "MoveNegX");
+      cfg.m_sInputSlotTrigger[0] = ezInputSlot_MouseMoveNegX;
+      cfg.m_bApplyTimeScaling = false;
+      ezInputManager::SetInputActionConfig("Main", "MoveNegX", cfg, true);
+
+      cfg = ezInputManager::GetInputActionConfig("Main", "MovePosY");
+      cfg.m_sInputSlotTrigger[0] = ezInputSlot_MouseMovePosY;
+      cfg.m_bApplyTimeScaling = false;
+      ezInputManager::SetInputActionConfig("Main", "MovePosY", cfg, true);
+
+      cfg = ezInputManager::GetInputActionConfig("Main", "MoveNegY");
+      cfg.m_sInputSlotTrigger[0] = ezInputSlot_MouseMoveNegY;
+      cfg.m_bApplyTimeScaling = false;
+      ezInputManager::SetInputActionConfig("Main", "MoveNegY", cfg, true);
+
+      cfg = ezInputManager::GetInputActionConfig("Main", "MouseDown");
+      cfg.m_sInputSlotTrigger[0] = ezInputSlot_MouseButton0;
+      cfg.m_bApplyTimeScaling = false;
+      ezInputManager::SetInputActionConfig("Main", "MouseDown", cfg, true);
     }
 
     // Create a window for rendering
@@ -155,13 +200,40 @@ public:
     {
       ezRendererCore::SetShaderPlatform("DX11_SM40", true);
 
-      m_hShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Texture.shader");
       m_hMaterial = ezResourceManager::LoadResource<ezMaterialResource>("Materials/Texture.material");
-
-      ezRendererCore::SetActiveShader(m_hShader);
 
       // Create the mesh that we use for rendering
       CreateSquareMesh();
+    }
+
+    // Setup default resources
+    {
+      ezTextureResourceHandle hFallback = ezResourceManager::LoadResource<ezTextureResource>("Textures/Fallback_D.dds");
+      ezTextureResourceHandle hMissing = ezResourceManager::LoadResource<ezTextureResource>("Textures/MissingTexture_D.dds");
+
+      ezTextureResource::SetTypeFallbackResource(hFallback);
+      ezTextureResource::SetTypeMissingResource(hMissing);
+
+      // redirect all texture load operations through our custom loader, so that we can duplicate the single source texture
+      // that we have as often as we like (to waste memory)
+      ezResourceManager::SetResourceTypeLoader<ezTextureResource>(&m_TextureResourceLoader);
+    }
+
+    // Pre-allocate all textures
+    {
+      // we only do this to be able to see the unloaded resources in the ezInspector
+      // this does NOT preload the resources
+
+      ezStringBuilder sResourceName;
+      for (ezInt32 y = -g_iMaxHalfExtent; y < g_iMaxHalfExtent; ++y)
+      {
+        for (ezInt32 x = -g_iMaxHalfExtent; x < g_iMaxHalfExtent; ++x)
+        {
+          sResourceName.Format("Loaded_%+03i_%+03i_D", x, y);
+
+          ezTextureResourceHandle hTexture = ezResourceManager::LoadResource<ezTextureResource>(sResourceName);
+        }
+      }
     }
   }
 
@@ -175,6 +247,21 @@ public:
 
     // make sure time goes on
     ezClock::UpdateAllGlobalClocks();
+
+    if (ezInputManager::GetInputActionState("Main", "MouseDown") == ezKeyState::Down)
+    {
+      float fInputValue = 0.0f;
+      const float fMouseSpeed = 0.5f;
+
+      if (ezInputManager::GetInputActionState("Main", "MovePosX", &fInputValue) != ezKeyState::Up)
+        m_vCameraPosition.x -= fInputValue * fMouseSpeed;
+      if (ezInputManager::GetInputActionState("Main", "MoveNegX", &fInputValue) != ezKeyState::Up)
+        m_vCameraPosition.x += fInputValue * fMouseSpeed;
+      if (ezInputManager::GetInputActionState("Main", "MovePosY", &fInputValue) != ezKeyState::Up)
+        m_vCameraPosition.y += fInputValue * fMouseSpeed;
+      if (ezInputManager::GetInputActionState("Main", "MoveNegY", &fInputValue) != ezKeyState::Up)
+        m_vCameraPosition.y -= fInputValue * fMouseSpeed;
+    }
 
     // update all input state
     ezInputManager::Update(ezClock::Get()->GetTimeDiff());
@@ -199,13 +286,47 @@ public:
 
       ezMat4 Proj;
       Proj.SetIdentity();
-      Proj.SetOrthographicProjectionMatrix((float) g_uiWindowWidth, (float) g_uiWindowHeight, -1.0f, 1.0f, ezProjectionDepthRange::ZeroToOne);
+      Proj.SetOrthographicProjectionMatrix(m_vCameraPosition.x + -(float) g_uiWindowWidth * 0.5f, m_vCameraPosition.x + (float) g_uiWindowWidth * 0.5f, m_vCameraPosition.y + -(float) g_uiWindowHeight * 0.5f, m_vCameraPosition.y + (float) g_uiWindowHeight * 0.5f, -1.0f, 1.0f, ezProjectionDepthRange::ZeroToOne);
 
-      ezRendererCore::SetMaterialParameter("ModelViewProjection", Proj);
+      ezRendererCore::SetMaterialParameter("ViewProjectionMatrix", Proj);
 
       ezRendererCore::SetMaterialState(pContext, m_hMaterial);
 
-      ezRendererCore::DrawMeshBuffer(pContext, m_hQuadMeshBuffer);
+      ezMat4 mTransform;
+      mTransform.SetIdentity();
+
+      ezInt32 iLeftBound = (ezInt32) ezMath::Floor((m_vCameraPosition.x - g_uiWindowWidth  * 0.5f) / 100.0f);
+      ezInt32 iLowerBound = (ezInt32) ezMath::Floor((m_vCameraPosition.y - g_uiWindowHeight * 0.5f) / 100.0f);
+      ezInt32 iRightBound = (ezInt32) ezMath::Ceil((m_vCameraPosition.x + g_uiWindowWidth  * 0.5f) / 100.0f) + 1;
+      ezInt32 iUpperBound = (ezInt32) ezMath::Ceil((m_vCameraPosition.y + g_uiWindowHeight * 0.5f) / 100.0f) + 1;
+
+      iLeftBound = ezMath::Max(iLeftBound, -g_iMaxHalfExtent);
+      iRightBound = ezMath::Min(iRightBound, g_iMaxHalfExtent);
+      iLowerBound = ezMath::Max(iLowerBound, -g_iMaxHalfExtent);
+      iUpperBound = ezMath::Min(iUpperBound, g_iMaxHalfExtent);
+
+      ezStringBuilder sResourceName;
+
+      for (ezInt32 y = iLowerBound; y < iUpperBound; ++y)
+      {
+        for (ezInt32 x = iLeftBound; x < iRightBound; ++x)
+        {
+          mTransform.SetTranslationVector(ezVec3((float) x * 100.0f, (float) y * 100.0f, 0));
+
+          ezRendererCore::SetMaterialParameter("ModelMatrix", mTransform);
+
+          sResourceName.Format("Loaded_%+03i_%+03i_D", x, y);
+
+          ezTextureResourceHandle hTexture = ezResourceManager::LoadResource<ezTextureResource>(sResourceName, ezResourcePriority::Highest, ezTextureResourceHandle());
+
+          // force immediate loading
+          if (g_bForceImmediateLoading)
+            ezResourceLock<ezTextureResource> l(hTexture, ezResourceAcquireMode::NoFallback);
+
+          ezRendererCore::BindTexture(pContext, "TexDiffuse", hTexture);
+          ezRendererCore::DrawMeshBuffer(pContext, m_hQuadMeshBuffer);
+        }
+      }
 
       m_pDevice->Present(m_pDevice->GetPrimarySwapChain());
 
@@ -226,7 +347,6 @@ public:
   void BeforeEngineShutdown() override
   {
     m_hMaterial.Invalidate();
-    m_hShader.Invalidate();
     m_hQuadMeshBuffer.Invalidate();
 
     // tell the engine that we are about to destroy window and graphics device,
@@ -305,9 +425,61 @@ private:
   ezGALRasterizerStateHandle m_hRasterizerState;
   ezGALDepthStencilStateHandle m_hDepthStencilState;
 
-  ezShaderResourceHandle m_hShader;
   ezMaterialResourceHandle m_hMaterial;
   ezMeshBufferResourceHandle m_hQuadMeshBuffer;
+
+  ezVec2 m_vCameraPosition;
 };
 
+ezResourceLoadData CustomTextureResourceLoader::OpenDataStream(const ezResourceBase* pResource)
+{
+  ezString sFileToLoad = pResource->GetResourceID();
+
+  if (sFileToLoad.StartsWith("Loaded"))
+  {
+    sFileToLoad = "Textures/Loaded_D.dds"; // redirect all "Loaded_XYZ" files to the same source file
+  }
+
+  // the entire rest is copied from ezTextureResourceLoader
+
+  bool bSuccess = false;
+
+  LoadedData* pData = EZ_DEFAULT_NEW(LoadedData);
+
+  if (pData->m_Image.LoadFrom(sFileToLoad).Succeeded())
+  {
+    bSuccess = true;
+
+    if (pData->m_Image.GetImageFormat() == ezImageFormat::B8G8R8_UNORM)
+    {
+      ezImageConversionBase::Convert(pData->m_Image, pData->m_Image, ezImageFormat::B8G8R8A8_UNORM);
+    }
+  }
+
+  ezMemoryStreamWriter w(&pData->m_Storage);
+  w << bSuccess;
+
+  if (bSuccess)
+  {
+    ezImage* pImage = &pData->m_Image;
+    w.WriteBytes(&pImage, sizeof(ezImage*));
+
+    /// \todo As long as we don't have a custom format or asset meta data, this is a hack to get the SRGB information for the texture
+
+    const ezStringBuilder sName = ezPathUtils::GetFileName(pResource->GetResourceID());
+
+    bool bSRGB = (sName.EndsWith_NoCase("_D") || sName.EndsWith_NoCase("_SRGB"));
+
+    w << bSRGB;
+  }
+
+  ezResourceLoadData LoaderData;
+  LoaderData.m_pDataStream = &pData->m_Reader;
+  LoaderData.m_pCustomLoaderData = pData;
+
+  return LoaderData;
+}
+
 EZ_CONSOLEAPP_ENTRY_POINT(TextureSample);
+
+

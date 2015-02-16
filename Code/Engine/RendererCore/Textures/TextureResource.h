@@ -40,7 +40,7 @@ private:
 };
 
 
-class ezTextureResourceLoader : public ezResourceTypeLoader
+class EZ_RENDERERCORE_DLL ezTextureResourceLoader : public ezResourceTypeLoader
 {
 public:
 

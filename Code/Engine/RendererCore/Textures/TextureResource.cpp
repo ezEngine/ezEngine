@@ -337,8 +337,12 @@ ezResourceLoadDesc ezTextureResource::UpdateContent(ezStreamReaderBase* Stream)
   }
   else
   {
-    /// \todo Setup fallback texture
-    ezLog::Error("Loading the texture failed: '%s'", GetResourceID().GetData());
+    ezResourceLoadDesc res;
+    res.m_uiQualityLevelsDiscardable = 0;
+    res.m_uiQualityLevelsLoadable = 0;
+    res.m_State = ezResourceState::LoadedResourceMissing;
+
+    return res;
   }
 
   ezResourceLoadDesc res;

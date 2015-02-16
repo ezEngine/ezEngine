@@ -5,7 +5,7 @@
 #include <Foundation/Time/Timestamp.h>
 
 /// \brief Data returned by ezResourceTypeLoader implementations.
-struct ezResourceLoadData
+struct EZ_CORE_DLL ezResourceLoadData
 {
   ezResourceLoadData()
   {
@@ -27,7 +27,7 @@ struct ezResourceLoadData
 ///
 /// A resource loader handles preparing the data before the resource is updated with the data.
 /// Resource loaders are always executed on a separate thread.
-class ezResourceTypeLoader
+class EZ_CORE_DLL ezResourceTypeLoader
 {
 public:
   ezResourceTypeLoader() { }
@@ -57,7 +57,7 @@ public:
 /// The loader will interpret the ezResourceBase 'resource ID' as a path, read that full file into a memory stream.
 /// The file modification data is stored as well.
 /// Resources that use this loader can update their data as if they were reading the file directly.
-class ezResourceLoaderFromFile : public ezResourceTypeLoader
+class EZ_CORE_DLL ezResourceLoaderFromFile : public ezResourceTypeLoader
 {
 public:
   virtual ezResourceLoadData OpenDataStream(const ezResourceBase* pResource) override;

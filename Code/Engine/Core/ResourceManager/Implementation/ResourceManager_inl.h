@@ -120,11 +120,11 @@ ResourceType* ezResourceManager::BeginAcquireResource(const ezResourceHandle<Res
         //  3) If nothing else is available, take the fallback for the whole resource type
 
         if (pResource->m_hFallback.IsValid())
-          return (ResourceType*) BeginAcquireResource(pResource->m_hFallback);
+          return (ResourceType*) BeginAcquireResource(pResource->m_hFallback, ezResourceAcquireMode::NoFallback);
         else if (hFallbackResource.IsValid())
-          return (ResourceType*) BeginAcquireResource(hFallbackResource);
+          return (ResourceType*) BeginAcquireResource(hFallbackResource, ezResourceAcquireMode::NoFallback);
         else
-          return (ResourceType*) BeginAcquireResource(ResourceType::GetTypeFallbackResource());
+          return (ResourceType*) BeginAcquireResource(ResourceType::GetTypeFallbackResource(), ezResourceAcquireMode::NoFallback);
       }
 
       const ezResourceState RequestedState = (mode == ezResourceAcquireMode::MetaInfo) ? ezResourceState::UnloadedMetaInfoAvailable : ezResourceState::Loaded;
@@ -160,15 +160,15 @@ ResourceType* ezResourceManager::BeginAcquireResource(const ezResourceHandle<Res
 
   if (pResource->GetLoadingState() == ezResourceState::LoadedResourceMissing)
   {
-    if (mode == ezResourceAcquireMode::AllowFallback && (hFallbackResource.IsValid() || ResourceType::GetTypeMissingResource().IsValid()))
+    if (/*mode == ezResourceAcquireMode::AllowFallback && (hFallbackResource.IsValid() || */ResourceType::GetTypeMissingResource().IsValid())//)
     {
       // prefer the fallback given for this situation (might e.g. be a default normal map)
       // use the type specific missing resource otherwise
 
-      if (hFallbackResource.IsValid())
-        return (ResourceType*) BeginAcquireResource(hFallbackResource);
-      else
-        return (ResourceType*) BeginAcquireResource(ResourceType::GetTypeMissingResource());
+      //if (hFallbackResource.IsValid())
+      //  return (ResourceType*) BeginAcquireResource(hFallbackResource, ezResourceAcquireMode::NoFallback);
+      //else
+        return (ResourceType*) BeginAcquireResource(ResourceType::GetTypeMissingResource(), ezResourceAcquireMode::NoFallback);
     }
 
     EZ_REPORT_FAILURE("The resource '%s' of type '%s' is missing and no fallback is available", pResource->GetResourceID().GetData(), ezGetStaticRTTI<ResourceType>()->GetTypeName());

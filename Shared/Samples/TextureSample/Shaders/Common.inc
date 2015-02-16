@@ -1,8 +1,9 @@
 #include <Shaders/Common/GlobalConstants.h>
 
-CONSTANT_BUFFER(MaterialCB, 1)
+CONSTANT_BUFFER(MaterialCB, 0)
 {
-  MAT4(ModelViewProjection);
+  MAT4(ModelMatrix);
+  MAT4(ViewProjectionMatrix);
 };
 
 #ifdef PLATFORM_DX11
