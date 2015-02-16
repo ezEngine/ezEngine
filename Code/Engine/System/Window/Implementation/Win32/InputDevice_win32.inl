@@ -305,6 +305,10 @@ void ezStandardInputDevice::SetClipMouseCursor(bool bEnable)
 
 void ezStandardInputDevice::WindowMessage(HWND hWnd, UINT Msg, WPARAM wParam, LPARAM lParam)
 {
+#if EZ_ENABLED(EZ_MOUSEBUTTON_COMPATIBILTY_MODE)
+  static ezInt32 s_iMouseCaptureCount = 0;
+#endif
+
   switch (Msg)
   {
   case WM_MOUSEWHEEL:
@@ -333,8 +337,6 @@ void ezStandardInputDevice::WindowMessage(HWND hWnd, UINT Msg, WPARAM wParam, LP
 
       m_InputSlotValues[ezInputSlot_MousePositionX] = (fPosX / uiResX) + m_uiWindowNumber;
       m_InputSlotValues[ezInputSlot_MousePositionY] = (fPosY / uiResY);
-
-
     }
     break;
 
@@ -374,25 +376,57 @@ void ezStandardInputDevice::WindowMessage(HWND hWnd, UINT Msg, WPARAM wParam, LP
 
   case WM_LBUTTONDOWN:
     m_InputSlotValues["mouse_button_0"] = 1.0f;
+
+    if (s_iMouseCaptureCount == 0)
+      SetCapture(hWnd);
+    ++s_iMouseCaptureCount;
+
     return;
+
   case WM_LBUTTONUP:
     m_InputSlotValues["mouse_button_0"] = 0.0f;
     SetClipRect(m_bClipCursor, hWnd);
+
+    --s_iMouseCaptureCount;
+    if (s_iMouseCaptureCount <= 0)
+      ReleaseCapture();
+
     return;
 
   case WM_RBUTTONDOWN:
     m_InputSlotValues["mouse_button_1"] = 1.0f;
+
+    if (s_iMouseCaptureCount == 0)
+      SetCapture(hWnd);
+    ++s_iMouseCaptureCount;
+
     return;
+
   case WM_RBUTTONUP:
     m_InputSlotValues["mouse_button_1"] = 0.0f;
     SetClipRect(m_bClipCursor, hWnd);
+
+    --s_iMouseCaptureCount;
+    if (s_iMouseCaptureCount <= 0)
+      ReleaseCapture();
+
     return;
 
   case WM_MBUTTONDOWN:
     m_InputSlotValues["mouse_button_2"] = 1.0f;
+
+    if (s_iMouseCaptureCount == 0)
+      SetCapture(hWnd);
+    ++s_iMouseCaptureCount;
     return;
+
   case WM_MBUTTONUP:
     m_InputSlotValues["mouse_button_2"] = 0.0f;
+
+    --s_iMouseCaptureCount;
+    if (s_iMouseCaptureCount <= 0)
+      ReleaseCapture();
+
     return;
 
   case WM_XBUTTONDOWN:
@@ -400,6 +434,11 @@ void ezStandardInputDevice::WindowMessage(HWND hWnd, UINT Msg, WPARAM wParam, LP
       m_InputSlotValues["mouse_button_3"] = 1.0f;
     if (GET_XBUTTON_WPARAM(wParam) == XBUTTON2)
       m_InputSlotValues["mouse_button_4"] = 1.0f;
+
+    if (s_iMouseCaptureCount == 0)
+      SetCapture(hWnd);
+    ++s_iMouseCaptureCount;
+
     return;
 
   case WM_XBUTTONUP:
@@ -407,6 +446,15 @@ void ezStandardInputDevice::WindowMessage(HWND hWnd, UINT Msg, WPARAM wParam, LP
       m_InputSlotValues["mouse_button_3"] = 0.0f;
     if (GET_XBUTTON_WPARAM(wParam) == XBUTTON2)
       m_InputSlotValues["mouse_button_4"] = 0.0f;
+
+    --s_iMouseCaptureCount;
+    if (s_iMouseCaptureCount <= 0)
+      ReleaseCapture();
+
+    return;
+
+  case WM_CAPTURECHANGED: // Sent to the window that is losing the mouse capture.
+    s_iMouseCaptureCount = 0;
     return;
 
 #else
