@@ -8,6 +8,16 @@
 
 #include <Foundation/Math/Math.h>
 
+EZ_FORCE_INLINE ezInt32 ezAtomicUtils::Read(volatile const ezInt32& src)
+{
+  return __sync_fetch_and_or(const_cast<volatile ezInt32*>(&src), 0);
+}
+
+EZ_FORCE_INLINE ezInt64 ezAtomicUtils::Read(volatile const ezInt64& src)
+{
+  return __sync_fetch_and_or_8(const_cast<volatile ezInt64*>(&src), 0);
+}
+
 EZ_FORCE_INLINE ezInt32 ezAtomicUtils::Increment(volatile ezInt32& dest)
 {  
   return __sync_add_and_fetch(&dest, 1);

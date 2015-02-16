@@ -7,6 +7,16 @@
 
 #include <Foundation/Math/Math.h>
 
+EZ_FORCE_INLINE ezInt32 ezAtomicUtils::Read(volatile const ezInt32& src)
+{
+  return InterlockedOr((volatile LONG*)(&src), 0);
+}
+
+EZ_FORCE_INLINE ezInt64 ezAtomicUtils::Read(volatile const ezInt64& src)
+{
+  return InterlockedOr64(const_cast<volatile ezInt64*>(&src), 0);
+}
+
 EZ_FORCE_INLINE ezInt32 ezAtomicUtils::Increment(volatile ezInt32& dest)
 {  
   return InterlockedIncrement(reinterpret_cast<volatile LONG*>(&dest));

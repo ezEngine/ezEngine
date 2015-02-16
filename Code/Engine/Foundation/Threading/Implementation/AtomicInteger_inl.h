@@ -99,6 +99,6 @@ EZ_FORCE_INLINE bool ezAtomicInteger<T>::TestAndSet(T expected, T x)
 template <typename T>
 EZ_FORCE_INLINE ezAtomicInteger<T>::operator T() const
 {
-  return m_value;
+  return ezAtomicUtils::Read(m_value);
 }
 

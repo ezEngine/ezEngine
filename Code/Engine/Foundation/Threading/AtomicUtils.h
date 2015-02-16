@@ -13,6 +13,12 @@
 /// integer instructions.
 struct EZ_FOUNDATION_DLL ezAtomicUtils
 {
+  /// \brief Returns src as an atomic operation and returns its value.
+  static ezInt32 Read(volatile const ezInt32& src); // [tested]
+
+  /// \brief Returns src as an atomic operation and returns its value.
+  static ezInt64 Read(volatile const ezInt64& src); // [tested]
+
   /// \brief Increments dest as an atomic operation and returns the new value.
   static ezInt32 Increment(volatile ezInt32& dest); // [tested]
   
