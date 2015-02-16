@@ -9,7 +9,11 @@
 
 EZ_FORCE_INLINE ezInt32 ezAtomicUtils::Read(volatile const ezInt32& src)
 {
+#if _MSC_VER < 1800
+    return _InterlockedOr((volatile LONG*)(&src), 0);
+#else
   return InterlockedOr((volatile LONG*)(&src), 0);
+#endif
 }
 
 EZ_FORCE_INLINE ezInt64 ezAtomicUtils::Read(volatile const ezInt64& src)
