@@ -107,7 +107,7 @@ private:
     ezResourceManager::ResourceEvent e;
     e.m_pResource = this;
     e.m_EventType = ezResourceManager::ResourceEventType::ResourceContentUpdated;
-    ezResourceManager::s_ResourceEvents.Broadcast(e);
+    ezResourceManager::BroadcastResourceEvent(e);
   }
 
   /// \brief Override this function to implement resource creation. This is called by ezResourceManager::CreateResource.

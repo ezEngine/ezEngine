@@ -45,6 +45,8 @@ public:
   static ezEvent<const ResourceEvent&> s_ResourceEvents;
   static ezEvent<const ManagerEvent&> s_ManagerEvents;
 
+  static void BroadcastResourceEvent(const ResourceEvent& e);
+
   template<typename ResourceType>
   static ezResourceHandle<ResourceType> LoadResource(const char* szResourceID);
 
@@ -99,6 +101,22 @@ public:
   /// \brief Goes through all existing resources and broadcasts the 'Exists' event.
   /// Used to announce all currently existing resources to interested event listeners.
   static void BroadcastExistsEvent();
+
+  struct ResourceCategory
+  {
+    ezString m_sName;
+    ezUInt64 m_uiMemoryLimitCPU;
+    ezUInt64 m_uiMemoryLimitGPU;
+    ezAtomicInteger64 m_uiMemoryUsageCPU;
+    ezAtomicInteger64 m_uiMemoryUsageGPU;
+  };
+
+  /// \brief Sets up a new or existing category of resources.
+  ///
+  /// Each resource can be assigned to one category. All resources with the same category share the same total memory limits.
+  static void ConfigureResourceCategory(const char* szCategoryName, ezUInt64 uiMemoryLimitCPU, ezUInt64 uiMemoryLimitGPU);
+
+  static const ResourceCategory& GetResourceCategory(const char* szCategoryName);
 
 private:
   friend class ezResourceManagerWorker;
@@ -157,6 +175,8 @@ private:
   static ezInt8 m_iCurrentWorker;
   static ezTime m_LastDeadLineUpdate;
   static ezTime m_LastFrameUpdate;
+  static bool m_bBroadcastExistsEvent;
+  static ezHashTable<ezUInt32, ResourceCategory> m_ResourceCategories;
 };
 
 enum class ezResourceManager::ResourceEventType
@@ -175,6 +195,7 @@ enum class ezResourceManager::ResourceEventType
 enum class ezResourceManager::ManagerEventType
 {
   ManagerShuttingDown,
+  ResourceCategoryChanged,
 };
 
 struct ezResourceManager::ResourceEvent
@@ -186,6 +207,7 @@ struct ezResourceManager::ResourceEvent
 struct ezResourceManager::ManagerEvent
 {
   ManagerEventType m_EventType;
+  const ResourceCategory* m_pCategory;
 };
 
 /// \brief Helper class to acquire and release a resource safely.

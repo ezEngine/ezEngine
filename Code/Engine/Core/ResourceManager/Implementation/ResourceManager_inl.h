@@ -224,3 +224,4 @@ inline void ezResourceManager::SetDefaultResourceLoader(ezResourceTypeLoader* pD
 {
   m_pDefaultResourceLoader = pDefaultLoader;
 }
+

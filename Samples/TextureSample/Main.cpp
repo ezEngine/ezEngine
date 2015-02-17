@@ -66,6 +66,7 @@ public:
 
 const ezInt32 g_iMaxHalfExtent = 20;
 const bool g_bForceImmediateLoading = false;
+const bool g_bPreloadAllTextures = false;
 
 class TextureSample : public ezApplication
 {
@@ -232,6 +233,9 @@ public:
           sResourceName.Format("Loaded_%+03i_%+03i_D", x, y);
 
           ezTextureResourceHandle hTexture = ezResourceManager::LoadResource<ezTextureResource>(sResourceName);
+
+          if (g_bPreloadAllTextures)
+            ezResourceManager::PreloadResource(hTexture, ezTime::Seconds(1.0));
         }
       }
     }
@@ -332,6 +336,9 @@ public:
 
       m_pDevice->EndFrame();
     }
+
+    // needs to be called once per frame
+    ezResourceManager::PerFrameUpdate();
 
     // dump all errors that might have occurred during rendering
     ezRendererCore::OutputErrors();

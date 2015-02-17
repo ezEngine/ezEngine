@@ -43,35 +43,55 @@ EZ_END_SUBSYSTEM_DECLARATION
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureResource, ezResourceBase, 1, ezRTTIDefaultAllocator<ezTextureResource>);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
+bool ezTextureResource::s_bForceFullQualityAlways = false;
 
-ezTextureResource::ezTextureResource() : ezResource<ezTextureResource, ezTextureResourceDescriptor>(UpdateResource::OnMainThread, 1)
+ezTextureResource::ezTextureResource() : ezResource<ezTextureResource, ezTextureResourceDescriptor>(UpdateResource::OnMainThread, s_bForceFullQualityAlways ? 1 : 2)
 {
+  m_uiLoadedTextures = 0;
+  m_uiMemoryGPU[0] = 0;
+  m_uiMemoryGPU[1] = 0;
 }
 
 ezResourceLoadDesc ezTextureResource::UnloadData(Unload WhatToUnload)
 {
-  if (!m_hGALTexView.IsInvalidated())
+  if (m_uiLoadedTextures > 0)
   {
-    ezGALDevice::GetDefaultDevice()->DestroyResourceView(m_hGALTexView);
-    m_hGALTexView.Invalidate();
+    for (ezInt32 r = 0; r < 2; ++r)
+    {
+      --m_uiLoadedTextures;
+
+      if (!m_hGALTexView[m_uiLoadedTextures].IsInvalidated())
+      {
+        ezGALDevice::GetDefaultDevice()->DestroyResourceView(m_hGALTexView[m_uiLoadedTextures]);
+        m_hGALTexView[m_uiLoadedTextures].Invalidate();
+      }
+
+      if (!m_hGALTexture[m_uiLoadedTextures].IsInvalidated())
+      {
+        ezGALDevice::GetDefaultDevice()->DestroyTexture(m_hGALTexture[m_uiLoadedTextures]);
+        m_hGALTexture[m_uiLoadedTextures].Invalidate();
+      }
+
+      m_uiMemoryGPU[m_uiLoadedTextures] = 0;
+
+      if (WhatToUnload == Unload::OneQualityLevel || m_uiLoadedTextures == 0)
+        break;
+    }
   }
 
-  if (!m_hGALTexture.IsInvalidated())
+  if (WhatToUnload == Unload::AllQualityLevels)
   {
-    ezGALDevice::GetDefaultDevice()->DestroyTexture(m_hGALTexture);
-    m_hGALTexture.Invalidate();
-  }
-
-  if (!m_hSamplerState.IsInvalidated())
-  {
-    ezGALDevice::GetDefaultDevice()->DestroySamplerState(m_hSamplerState);
-    m_hSamplerState.Invalidate();
+    if (!m_hSamplerState.IsInvalidated())
+    {
+      ezGALDevice::GetDefaultDevice()->DestroySamplerState(m_hSamplerState);
+      m_hSamplerState.Invalidate();
+    }
   }
 
   ezResourceLoadDesc res;
-  res.m_uiQualityLevelsDiscardable = 0;
-  res.m_uiQualityLevelsLoadable = 0;
-  res.m_State = ezResourceState::Unloaded;
+  res.m_uiQualityLevelsDiscardable = m_uiLoadedTextures;
+  res.m_uiQualityLevelsLoadable = 2 - m_uiLoadedTextures;
+  res.m_State = m_uiLoadedTextures == 0 ? ezResourceState::Unloaded : ezResourceState::Loaded;
 
   return res;
 }
@@ -247,12 +267,17 @@ ezResourceLoadDesc ezTextureResource::UpdateContent(ezStreamReaderBase* Stream)
     bool bSRGB = false;
     *Stream >> bSRGB;
 
+    const ezUInt32 uiNumMipmapsLowRes = s_bForceFullQualityAlways ? pImage->GetNumMipLevels() : 6;
+
+    const ezUInt32 uiNumMipLevels = ezMath::Min(m_uiLoadedTextures == 0 ? uiNumMipmapsLowRes : pImage->GetNumMipLevels(), pImage->GetNumMipLevels());
+    const ezUInt32 uiHighestMipLevel = pImage->GetNumMipLevels() - uiNumMipLevels;
+
     ezGALTextureCreationDescription TexDesc;
     TexDesc.m_Format = ezGALResourceFormat::RGBAUByteNormalized;
-    TexDesc.m_uiWidth  = pImage->GetWidth();
-    TexDesc.m_uiHeight = pImage->GetHeight();
-    TexDesc.m_uiDepth  = pImage->GetDepth();
-    TexDesc.m_uiMipSliceCount = pImage->GetNumMipLevels();
+    TexDesc.m_uiWidth = pImage->GetWidth(uiHighestMipLevel);
+    TexDesc.m_uiHeight = pImage->GetHeight(uiHighestMipLevel);
+    TexDesc.m_uiDepth = pImage->GetDepth(uiHighestMipLevel);
+    TexDesc.m_uiMipSliceCount = uiNumMipLevels;
     TexDesc.m_uiArraySize = pImage->GetNumArrayIndices();
 
     if (TexDesc.m_uiDepth > 1)
@@ -265,8 +290,7 @@ ezResourceLoadDesc ezTextureResource::UpdateContent(ezStreamReaderBase* Stream)
 
     TexDesc.m_Format = ImgToGalFormat(pImage->GetImageFormat(), bSRGB);
 
-    /// \todo If we are going to only load a subset of an image (mipmaps), we might need to adjust this
-    ModifyMemoryUsage().m_uiMemoryGPU = pImage->GetDataSize();
+    m_uiMemoryGPU[m_uiLoadedTextures] = 0;
 
     ezHybridArray<ezGALSystemMemoryDescription, 32> InitData;
 
@@ -275,7 +299,7 @@ ezResourceLoadDesc ezTextureResource::UpdateContent(ezStreamReaderBase* Stream)
     {
       for (ezUInt32 face = 0; face < pImage->GetNumFaces(); ++face)
       {
-        for (ezUInt32 mip = 0; mip < pImage->GetNumMipLevels(); ++mip)
+        for (ezUInt32 mip = uiHighestMipLevel; mip < pImage->GetNumMipLevels(); ++mip)
         {
           ezGALSystemMemoryDescription& id = InitData.ExpandAndGetRef();
 
@@ -286,35 +310,34 @@ ezResourceLoadDesc ezTextureResource::UpdateContent(ezStreamReaderBase* Stream)
             const ezUInt32 uiMemPitchFactor = GetBCnMemPitchFactor(pImage->GetImageFormat());
 
             id.m_uiRowPitch = pImage->GetWidth(mip) * uiMemPitchFactor;
-            id.m_uiSlicePitch = id.m_uiRowPitch * pImage->GetHeight(mip) / uiMemPitchFactor;
           }
           else
           {
             id.m_uiRowPitch = pImage->GetRowPitch(mip);
-            id.m_uiSlicePitch = pImage->GetDepthPitch(mip);
           }
+
+          id.m_uiSlicePitch = pImage->GetDepthPitch(mip);
+
+          m_uiMemoryGPU[m_uiLoadedTextures] += id.m_uiSlicePitch;
         }
       }
     }
 
     const ezArrayPtr<ezGALSystemMemoryDescription> InitDataPtr(InitData);
 
-    m_hGALTexture = ezGALDevice::GetDefaultDevice()->CreateTexture(TexDesc, &InitDataPtr);
+    m_hGALTexture[m_uiLoadedTextures] = ezGALDevice::GetDefaultDevice()->CreateTexture(TexDesc, &InitDataPtr);
 
-    if (m_hGALTexture.IsInvalidated())
-    {
-      /// \todo Fallback
-      ezLog::Error("Texture state error");
-    }
+    EZ_ASSERT_DEV(!m_hGALTexture[m_uiLoadedTextures].IsInvalidated(), "Texture Data could not be uploaded to the GPU");
 
     ezGALResourceViewCreationDescription TexViewDesc;
-    TexViewDesc.m_hTexture = m_hGALTexture;
+    TexViewDesc.m_hTexture = m_hGALTexture[m_uiLoadedTextures];
 
-    m_hGALTexView = ezGALDevice::GetDefaultDevice()->CreateResourceView(TexViewDesc);
+    m_hGALTexView[m_uiLoadedTextures] = ezGALDevice::GetDefaultDevice()->CreateResourceView(TexViewDesc);
 
-    EZ_ASSERT_DEV(!m_hGALTexView.IsInvalidated(), "No resource view could be created for texture '%s'. Maybe the format table is incorrect?", GetResourceID().GetData());
+    EZ_ASSERT_DEV(!m_hGALTexView[m_uiLoadedTextures].IsInvalidated(), "No resource view could be created for texture '%s'. Maybe the format table is incorrect?", GetResourceID().GetData());
 
     /// \todo HACK
+    if (m_hSamplerState.IsInvalidated())
     {
       ezGALSamplerStateCreationDescription SamplerDesc;
       SamplerDesc.m_MagFilter = ezGALTextureFilterMode::Linear;
@@ -329,10 +352,23 @@ ezResourceLoadDesc ezTextureResource::UpdateContent(ezStreamReaderBase* Stream)
 
       m_hSamplerState = ezGALDevice::GetDefaultDevice()->CreateSamplerState(SamplerDesc);
 
-      if (m_hSamplerState.IsInvalidated())
-      {
-        ezLog::Error("Sampler state error");
-      }
+      EZ_ASSERT_DEV(!m_hSamplerState.IsInvalidated(), "Sampler state error");
+    }
+
+    ++m_uiLoadedTextures;
+
+    {
+      ezResourceLoadDesc res;
+      res.m_uiQualityLevelsDiscardable = m_uiLoadedTextures;
+
+      if (uiHighestMipLevel == 0)
+        res.m_uiQualityLevelsLoadable = 0;
+      else
+        res.m_uiQualityLevelsLoadable = 1;
+
+      res.m_State = ezResourceState::Loaded;
+
+      return res;
     }
   }
   else
@@ -344,19 +380,12 @@ ezResourceLoadDesc ezTextureResource::UpdateContent(ezStreamReaderBase* Stream)
 
     return res;
   }
-
-  ezResourceLoadDesc res;
-  res.m_uiQualityLevelsDiscardable = 0;
-  res.m_uiQualityLevelsLoadable = 0;
-  res.m_State = ezResourceState::Loaded;
-
-  return res;
 }
 
 void ezTextureResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
 {
   out_NewMemoryUsage.m_uiMemoryCPU = sizeof(ezTextureResource);
-  out_NewMemoryUsage.m_uiMemoryGPU = GetMemoryUsage().m_uiMemoryGPU;
+  out_NewMemoryUsage.m_uiMemoryGPU = m_uiMemoryGPU[0] + m_uiMemoryGPU[1];
 }
 
 ezResourceLoadDesc ezTextureResource::CreateResource(const ezTextureResourceDescriptor& descriptor)

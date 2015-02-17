@@ -38,7 +38,7 @@ void ezResourceBase::SetDueDate(ezTime date /* = ezTime::Seconds(60.0 * 60.0 * 2
     ezResourceManager::ResourceEvent e;
     e.m_pResource = this;
     e.m_EventType = ezResourceManager::ResourceEventType::ResourceDueDateChanged;
-    ezResourceManager::s_ResourceEvents.Broadcast(e);
+    ezResourceManager::BroadcastResourceEvent(e);
   }
 }
 
@@ -49,7 +49,7 @@ void ezResourceBase::SetPriority(ezResourcePriority priority)
   ezResourceManager::ResourceEvent e;
   e.m_pResource = this;
   e.m_EventType = ezResourceManager::ResourceEventType::ResourcePriorityChanged;
-  ezResourceManager::s_ResourceEvents.Broadcast(e);
+  ezResourceManager::BroadcastResourceEvent(e);
 }
 
 void ezResourceBase::SetUniqueID(const ezString& UniqueID, bool bIsReloadable)
@@ -60,7 +60,7 @@ void ezResourceBase::SetUniqueID(const ezString& UniqueID, bool bIsReloadable)
   ezResourceManager::ResourceEvent e;
   e.m_pResource = this;
   e.m_EventType = ezResourceManager::ResourceEventType::ResourceCreated;
-  ezResourceManager::s_ResourceEvents.Broadcast(e);
+  ezResourceManager::BroadcastResourceEvent(e);
 }
 
 void ezResourceBase::CallUnloadData(Unload WhatToUnload)
@@ -78,7 +78,7 @@ void ezResourceBase::CallUnloadData(Unload WhatToUnload)
   ezResourceManager::ResourceEvent e;
   e.m_pResource = this;
   e.m_EventType = ezResourceManager::ResourceEventType::ResourceContentUnloaded;
-  ezResourceManager::s_ResourceEvents.Broadcast(e);
+  ezResourceManager::BroadcastResourceEvent(e);
 }
 
 void ezResourceBase::CallUpdateContent(ezStreamReaderBase* Stream)
@@ -96,7 +96,7 @@ void ezResourceBase::CallUpdateContent(ezStreamReaderBase* Stream)
   ezResourceManager::ResourceEvent e;
   e.m_pResource = this;
   e.m_EventType = ezResourceManager::ResourceEventType::ResourceContentUpdated;
-  ezResourceManager::s_ResourceEvents.Broadcast(e);
+  ezResourceManager::BroadcastResourceEvent(e);
 }
 
 ezTime ezResourceBase::GetLoadingDeadline(ezTime tNow) const

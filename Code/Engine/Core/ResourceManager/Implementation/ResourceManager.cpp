@@ -3,6 +3,8 @@
 
 /// \todo Do not unload resources while they are acquired
 /// \todo Resource Type Memory Thresholds
+/// \todo Preload does not load all quality levels
+/// \todo Priority change on acquire not visible in inspector
 
 /// Events:
 ///   Resource being loaded (Task) -> loading time
@@ -10,6 +12,7 @@
 /// Infos to Display:
 ///   Ref Count (max)
 ///   Fallback: Type / Instance
+///   Loading Time
 
 /// Inspector -> Engine
 ///   Resource to Preview
@@ -19,6 +22,8 @@
 
 // Resource Loader
 //   Requires No File Access -> on non-File Thread
+
+
 
 ezHashTable<ezTempHashedString, ezResourceBase*> ezResourceManager::m_LoadedResources;
 ezMap<ezString, ezResourceTypeLoader*> ezResourceManager::m_ResourceTypeLoader;
@@ -33,6 +38,8 @@ ezInt8 ezResourceManager::m_iCurrentWorkerGPU = 0;
 ezInt8 ezResourceManager::m_iCurrentWorker = 0;
 ezTime ezResourceManager::m_LastDeadLineUpdate;
 ezTime ezResourceManager::m_LastFrameUpdate;
+bool ezResourceManager::m_bBroadcastExistsEvent = false;
+ezHashTable<ezUInt32, ezResourceManager::ResourceCategory> ezResourceManager::m_ResourceCategories;
 ezEvent<const ezResourceManager::ResourceEvent&> ezResourceManager::s_ResourceEvents;
 ezEvent<const ezResourceManager::ManagerEvent&> ezResourceManager::s_ManagerEvents;
 
@@ -42,6 +49,13 @@ ezResourceTypeLoader* ezResourceManager::GetResourceTypeLoader(const ezRTTI* pRT
 }
 
 ezMutex ResourceMutex;
+
+void ezResourceManager::BroadcastResourceEvent(const ResourceEvent& e)
+{
+  EZ_LOCK(ResourceMutex);
+
+  s_ResourceEvents.Broadcast(e);
+}
 
 void ezResourceManager::InternalPreloadResource(ezResourceBase* pResource, bool bHighestPriority)
 {
@@ -88,7 +102,7 @@ void ezResourceManager::InternalPreloadResource(ezResourceBase* pResource, bool 
   ezResourceManager::ResourceEvent e;
   e.m_pResource = pResource;
   e.m_EventType = ezResourceManager::ResourceEventType::ResourceInPreloadQueue;
-  ezResourceManager::s_ResourceEvents.Broadcast(e);
+  ezResourceManager::BroadcastResourceEvent(e);
 
   RunWorkerTask();
 }
@@ -156,7 +170,7 @@ void ezResourceManager::UpdateLoadingDeadlines()
       ezResourceManager::ResourceEvent e;
       e.m_pResource = m_RequireLoading[i].m_pResource;
       e.m_EventType = ezResourceManager::ResourceEventType::ResourceOutOfPreloadQueue;
-      ezResourceManager::s_ResourceEvents.Broadcast(e);
+      ezResourceManager::BroadcastResourceEvent(e);
 
       m_RequireLoading.RemoveAtSwap(i);
       --uiCount;
@@ -201,7 +215,7 @@ void ezResourceManagerWorkerGPU::Execute()
     ezResourceManager::ResourceEvent e;
     e.m_pResource = m_pResourceToLoad;
     e.m_EventType = ezResourceManager::ResourceEventType::ResourceOutOfPreloadQueue;
-    ezResourceManager::s_ResourceEvents.Broadcast(e);
+    ezResourceManager::BroadcastResourceEvent(e);
   }
 
   m_pLoader = NULL;
@@ -297,7 +311,7 @@ void ezResourceManagerWorker::Execute()
       ezResourceManager::ResourceEvent e;
       e.m_pResource = pResourceToLoad;
       e.m_EventType = ezResourceManager::ResourceEventType::ResourceOutOfPreloadQueue;
-      ezResourceManager::s_ResourceEvents.Broadcast(e);
+      ezResourceManager::BroadcastResourceEvent(e);
     }
 
     ezResourceManager::m_bTaskRunning = false;
@@ -341,7 +355,7 @@ ezUInt32 ezResourceManager::FreeUnusedResources(bool bFreeAllUnused)
         ezResourceManager::ResourceEvent e;
         e.m_pResource = pReference;
         e.m_EventType = ezResourceManager::ResourceEventType::ResourceDeleted;
-        ezResourceManager::s_ResourceEvents.Broadcast(e);
+        ezResourceManager::BroadcastResourceEvent(e);
       }
 
       // delete the resource via the RTTI provided allocator
@@ -461,20 +475,53 @@ void ezResourceManager::PerFrameUpdate()
 {
   m_LastFrameUpdate = ezTime::Now();
 
+  if (m_bBroadcastExistsEvent)
+  {
+    EZ_LOCK(ResourceMutex);
+
+    m_bBroadcastExistsEvent = false;
+
+    for (auto it = m_LoadedResources.GetIterator(); it.IsValid(); ++it)
+    {
+      ezResourceManager::ResourceEvent e;
+      e.m_EventType = ezResourceManager::ResourceEventType::ResourceExists;
+      e.m_pResource = it.Value();
+
+      ezResourceManager::BroadcastResourceEvent(e);
+    }
+  }
 }
 
 void ezResourceManager::BroadcastExistsEvent()
 {
-  EZ_LOCK(ResourceMutex);
+  m_bBroadcastExistsEvent = true;
+}
 
-  for (auto it = m_LoadedResources.GetIterator(); it.IsValid(); ++it)
-  {
-    ezResourceManager::ResourceEvent e;
-    e.m_EventType = ezResourceManager::ResourceEventType::ResourceExists;
-    e.m_pResource = it.Value();
+void ezResourceManager::ConfigureResourceCategory(const char* szCategoryName, ezUInt64 uiMemoryLimitCPU, ezUInt64 uiMemoryLimitGPU)
+{
+  ezTempHashedString sHash(szCategoryName);
 
-    ezResourceManager::s_ResourceEvents.Broadcast(e);
-  }
+  auto& cat = m_ResourceCategories[sHash.GetHash()];
+
+  cat.m_sName = szCategoryName;
+  cat.m_uiMemoryLimitCPU = uiMemoryLimitCPU;
+  cat.m_uiMemoryLimitGPU = uiMemoryLimitGPU;
+
+  ManagerEvent e;
+  e.m_EventType = ManagerEventType::ResourceCategoryChanged;
+  e.m_pCategory = &cat;
+
+  s_ManagerEvents.Broadcast(e);
+}
+
+const ezResourceManager::ResourceCategory& ezResourceManager::GetResourceCategory(const char* szCategoryName)
+{
+  ezTempHashedString sHash(szCategoryName);
+
+  ResourceCategory* pCat = nullptr;
+  EZ_VERIFY(m_ResourceCategories.TryGetValue(sHash.GetHash(), pCat), "Resource Category '%s' does not exist", szCategoryName);
+
+  return *pCat;
 }
 
 /* Not yet good enough for prime time

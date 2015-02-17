@@ -20,6 +20,8 @@ class EZ_RENDERERCORE_DLL ezTextureResource : public ezResource<ezTextureResourc
 public:
   ezTextureResource();
 
+  static bool s_bForceFullQualityAlways;
+
 private:
   virtual ezResourceLoadDesc UnloadData(Unload WhatToUnload) override;
   virtual ezResourceLoadDesc UpdateContent(ezStreamReaderBase* Stream) override;
@@ -29,13 +31,15 @@ private:
 private:
   friend class ezRendererCore;
 
-  const ezGALResourceViewHandle& GetGALTextureView() const { return m_hGALTexView; }
-  const ezGALTextureHandle& GetGALTexture() const { return m_hGALTexture; }
+  const ezGALResourceViewHandle& GetGALTextureView() const { return m_hGALTexView[m_uiLoadedTextures - 1]; }
+  const ezGALTextureHandle& GetGALTexture() const { return m_hGALTexture[m_uiLoadedTextures - 1]; }
   const ezGALSamplerStateHandle& GetGALSamplerState() const { return m_hSamplerState; }
 
 private:
-  ezGALTextureHandle m_hGALTexture;
-  ezGALResourceViewHandle m_hGALTexView;
+  ezUInt8 m_uiLoadedTextures;
+  ezGALTextureHandle m_hGALTexture[2];
+  ezGALResourceViewHandle m_hGALTexView[2];
+  ezUInt32 m_uiMemoryGPU[2];
   ezGALSamplerStateHandle m_hSamplerState; // HACK
 };
 
