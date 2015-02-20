@@ -1,6 +1,6 @@
 
 template <typename R EZ_COMMA_IF(ARG_COUNT) EZ_LIST(typename ARG, ARG_COUNT)>
-class ezDelegate<R (EZ_LIST(ARG, ARG_COUNT))> : public ezDelegateBase
+struct ezDelegate<R (EZ_LIST(ARG, ARG_COUNT))> : public ezDelegateBase
 {
 private:
   typedef ezDelegate<R (EZ_LIST(ARG, ARG_COUNT))> SelfType;

@@ -281,7 +281,7 @@ mixin template ReflectModule()
     {
       ClassTypeImpl* curClass;
       Member* curMember;
-      pragma(msg, GenerateReflection!(__traits(parent, ReflectedModule)));
+      //pragma(msg, GenerateReflection!(__traits(parent, ReflectedModule)));
       mixin(GenerateReflection!(__traits(parent, ReflectedModule)));
     }
   }

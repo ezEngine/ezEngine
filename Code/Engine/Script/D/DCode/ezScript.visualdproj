@@ -390,6 +390,7 @@
      <File path="ez\Foundation\Strings\StringBuilder.d" />
     </Folder>
     <Folder name="Types">
+     <File path="ez\Foundation\Types\Delegate.d" />
      <File path="ez\Foundation\Types\Types.d" />
     </Folder>
     <File path="ez\Foundation\Basics.d" />
@@ -398,12 +399,12 @@
     <Folder name="DGlue">
      <File path="ez\Script\DGlue\Allocator.d" />
     </Folder>
-    <Folder name="Reflection">
-     <File path="ez\Script\Reflection\Types.d" />
-     <File path="ez\Script\Reflection\Reflection.d" />
-    </Folder>
     <Folder name="Internal">
      <File path="ez\script\internal\dllmain.d" />
+    </Folder>
+    <Folder name="Reflection">
+     <File path="ez\Script\Reflection\Reflection.d" />
+     <File path="ez\Script\Reflection\Types.d" />
     </Folder>
    </Folder>
   </Folder>
