@@ -32,14 +32,14 @@ ezRawPropertyGridWidget::ezRawPropertyGridWidget(ezDocumentBase* pDocument, QWid
   m_pGroups[1] = nullptr;
   m_pSpacer = nullptr;
 
-  m_pDocument->GetSelectionManager()->m_Events.AddEventHandler(ezDelegate<void (const ezSelectionManager::Event&)>(&ezRawPropertyGridWidget::SelectionEventHandler, this));
-  m_pDocument->GetObjectTree()->m_PropertyEvents.AddEventHandler(ezDelegate<void (const ezDocumentObjectTreePropertyEvent&)>(&ezRawPropertyGridWidget::PropertyEventHandler, this));
+  m_pDocument->GetSelectionManager()->m_Events.AddEventHandler(ezMakeDelegate(&ezRawPropertyGridWidget::SelectionEventHandler, this));
+  m_pDocument->GetObjectTree()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezRawPropertyGridWidget::PropertyEventHandler, this));
 }
 
 ezRawPropertyGridWidget::~ezRawPropertyGridWidget()
 {
-  m_pDocument->GetSelectionManager()->m_Events.RemoveEventHandler(ezDelegate<void (const ezSelectionManager::Event&)>(&ezRawPropertyGridWidget::SelectionEventHandler, this));
-  m_pDocument->GetObjectTree()->m_PropertyEvents.RemoveEventHandler(ezDelegate<void (const ezDocumentObjectTreePropertyEvent&)>(&ezRawPropertyGridWidget::PropertyEventHandler, this));
+  m_pDocument->GetSelectionManager()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezRawPropertyGridWidget::SelectionEventHandler, this));
+  m_pDocument->GetObjectTree()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezRawPropertyGridWidget::PropertyEventHandler, this));
 }
 
 void ezRawPropertyGridWidget::SelectionEventHandler(const ezSelectionManager::Event& e)
@@ -193,8 +193,8 @@ void ezRawPropertyGridWidget::SetSelection(const ezDeque<const ezDocumentObjectB
   }
 
    // TODO: Multi selection
-  m_pRawPropertyWidget[1]->m_PropertyChanged.AddEventHandler(ezDelegate<void (const ezPropertyEditorBaseWidget::Event&)> (&ezRawPropertyGridWidget::ObjectPropertyChangedHandler, this));
-  m_pRawPropertyWidget[0]->m_PropertyChanged.AddEventHandler(ezDelegate<void (const ezPropertyEditorBaseWidget::Event&)> (&ezRawPropertyGridWidget::EditorPropertyChangedHandler, this));
+  m_pRawPropertyWidget[1]->m_PropertyChanged.AddEventHandler(ezMakeDelegate(&ezRawPropertyGridWidget::ObjectPropertyChangedHandler, this));
+  m_pRawPropertyWidget[0]->m_PropertyChanged.AddEventHandler(ezMakeDelegate(&ezRawPropertyGridWidget::EditorPropertyChangedHandler, this));
 
   m_pSpacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
   

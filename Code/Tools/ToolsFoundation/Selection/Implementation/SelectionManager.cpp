@@ -11,12 +11,12 @@ void ezSelectionManager::SetOwner(const ezDocumentBase* pDocument)
 {
   if (pDocument)
   {
-    pDocument->GetObjectTree()->m_StructureEvents.AddEventHandler(ezDelegate<void (const ezDocumentObjectTreeStructureEvent&)>(&ezSelectionManager::TreeEventHandler, this));
+    pDocument->GetObjectTree()->m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezSelectionManager::TreeEventHandler, this));
 
   }
   else
   {
-    m_pDocument->GetObjectTree()->m_StructureEvents.RemoveEventHandler(ezDelegate<void (const ezDocumentObjectTreeStructureEvent&)>(&ezSelectionManager::TreeEventHandler, this));
+    m_pDocument->GetObjectTree()->m_StructureEvents.RemoveEventHandler(ezMakeDelegate(&ezSelectionManager::TreeEventHandler, this));
   }
 
   m_pDocument = pDocument;

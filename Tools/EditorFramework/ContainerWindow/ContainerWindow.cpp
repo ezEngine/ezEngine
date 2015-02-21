@@ -57,8 +57,8 @@ ezContainerWindow::ezContainerWindow()
   //m_pActionOpenDocument->setEnabled(ezEditorProject::IsProjectOpen());
   m_pActionCloseProject->setEnabled(ezEditorProject::IsProjectOpen());
 
-  ezDocumentWindow::s_Events.AddEventHandler(ezDelegate<void (const ezDocumentWindow::Event&)>(&ezContainerWindow::DocumentWindowEventHandler, this));
-  ezEditorProject::s_Events.AddEventHandler(ezDelegate<void (const ezEditorProject::Event&)>(&ezContainerWindow::ProjectEventHandler, this));
+  ezDocumentWindow::s_Events.AddEventHandler(ezMakeDelegate(&ezContainerWindow::DocumentWindowEventHandler, this));
+  ezEditorProject::s_Events.AddEventHandler(ezMakeDelegate(&ezContainerWindow::ProjectEventHandler, this));
 
   UpdateWindowTitle();
 }
@@ -67,8 +67,8 @@ ezContainerWindow::~ezContainerWindow()
 {
   s_AllContainerWindows.Remove(this);
 
-  ezDocumentWindow::s_Events.RemoveEventHandler(ezDelegate<void (const ezDocumentWindow::Event&)>(&ezContainerWindow::DocumentWindowEventHandler, this));
-  ezEditorProject::s_Events.RemoveEventHandler(ezDelegate<void (const ezEditorProject::Event&)>(&ezContainerWindow::ProjectEventHandler, this));
+  ezDocumentWindow::s_Events.RemoveEventHandler(ezMakeDelegate(&ezContainerWindow::DocumentWindowEventHandler, this));
+  ezEditorProject::s_Events.RemoveEventHandler(ezMakeDelegate(&ezContainerWindow::ProjectEventHandler, this));
 }
 
 QTabWidget* ezContainerWindow::GetTabWidget() const

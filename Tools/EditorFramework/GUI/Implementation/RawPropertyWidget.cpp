@@ -100,7 +100,7 @@ void ezRawPropertyWidget::BuildUI(const ezIReflectedTypeAccessor& et, const ezRe
         pLayout->addWidget(pNewWidget);
         pNewWidget->SetValue(et.GetValue(ParentPath));
 
-        pNewWidget->m_Events.AddEventHandler(ezDelegate<void (const ezPropertyEditorBaseWidget::Event&)>(&ezRawPropertyWidget::PropertyChangedHandler, this));
+        pNewWidget->m_Events.AddEventHandler(ezMakeDelegate(&ezRawPropertyWidget::PropertyChangedHandler, this));
       }
 
       ParentPath.PopBack();
@@ -125,7 +125,7 @@ void ezRawPropertyWidget::BuildUI(const ezIReflectedTypeAccessor& et, const ezRe
       pLayout->addWidget(pNewWidget);
       pNewWidget->SetValue(et.GetValue(ParentPath));
 
-      pNewWidget->m_Events.AddEventHandler(ezDelegate<void (const ezPropertyEditorBaseWidget::Event&)>(&ezRawPropertyWidget::PropertyChangedHandler, this));
+      pNewWidget->m_Events.AddEventHandler(ezMakeDelegate(&ezRawPropertyWidget::PropertyChangedHandler, this));
       
       ParentPath.PopBack();
     }

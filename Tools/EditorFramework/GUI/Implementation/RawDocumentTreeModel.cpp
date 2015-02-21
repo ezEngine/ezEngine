@@ -14,16 +14,16 @@ ezRawDocumentTreeModel::ezRawDocumentTreeModel(const ezDocumentObjectTree* pTree
 {
   m_pDocumentTree = pTree;
 
-  m_pDocumentTree->m_StructureEvents.AddEventHandler(ezDelegate<void (const ezDocumentObjectTreeStructureEvent&)>(&ezRawDocumentTreeModel::TreeEventHandler, this));
-  m_pDocumentTree->m_PropertyEvents.AddEventHandler(ezDelegate<void (const ezDocumentObjectTreePropertyEvent&)>(&ezRawDocumentTreeModel::TreePropertyEventHandler, this));
+  m_pDocumentTree->m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezRawDocumentTreeModel::TreeEventHandler, this));
+  m_pDocumentTree->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezRawDocumentTreeModel::TreePropertyEventHandler, this));
 
   
 }
 
 ezRawDocumentTreeModel::~ezRawDocumentTreeModel()
 {
-  m_pDocumentTree->m_StructureEvents.RemoveEventHandler(ezDelegate<void (const ezDocumentObjectTreeStructureEvent&)>(&ezRawDocumentTreeModel::TreeEventHandler, this));
-  m_pDocumentTree->m_PropertyEvents.RemoveEventHandler(ezDelegate<void (const ezDocumentObjectTreePropertyEvent&)>(&ezRawDocumentTreeModel::TreePropertyEventHandler, this));
+  m_pDocumentTree->m_StructureEvents.RemoveEventHandler(ezMakeDelegate(&ezRawDocumentTreeModel::TreeEventHandler, this));
+  m_pDocumentTree->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezRawDocumentTreeModel::TreePropertyEventHandler, this));
 }
 
 void ezRawDocumentTreeModel::TreePropertyEventHandler(const ezDocumentObjectTreePropertyEvent& e)

@@ -8,18 +8,18 @@ ezTestObjectCreatorWidget::ezTestObjectCreatorWidget(const ezDocumentObjectManag
 {
   m_pManager = pManager;
 
-  ezReflectedTypeManager::m_TypeAddedEvent.AddEventHandler(ezDelegate<void (const ezReflectedTypeChange&)>(&ezTestObjectCreatorWidget::TypeChanged, this));
-  ezReflectedTypeManager::m_TypeChangedEvent.AddEventHandler(ezDelegate<void (const ezReflectedTypeChange&)>(&ezTestObjectCreatorWidget::TypeChanged, this));
-  ezReflectedTypeManager::m_TypeRemovedEvent.AddEventHandler(ezDelegate<void (const ezReflectedTypeChange&)>(&ezTestObjectCreatorWidget::TypeChanged, this));
+  ezReflectedTypeManager::m_TypeAddedEvent.AddEventHandler(ezMakeDelegate(&ezTestObjectCreatorWidget::TypeChanged, this));
+  ezReflectedTypeManager::m_TypeChangedEvent.AddEventHandler(ezMakeDelegate(&ezTestObjectCreatorWidget::TypeChanged, this));
+  ezReflectedTypeManager::m_TypeRemovedEvent.AddEventHandler(ezMakeDelegate(&ezTestObjectCreatorWidget::TypeChanged, this));
 
   TypeChanged(ezReflectedTypeChange());
 }
 
 ezTestObjectCreatorWidget::~ezTestObjectCreatorWidget()
 {
-  ezReflectedTypeManager::m_TypeAddedEvent.RemoveEventHandler(ezDelegate<void (const ezReflectedTypeChange&)>(&ezTestObjectCreatorWidget::TypeChanged, this));
-  ezReflectedTypeManager::m_TypeChangedEvent.RemoveEventHandler(ezDelegate<void (const ezReflectedTypeChange&)>(&ezTestObjectCreatorWidget::TypeChanged, this));
-  ezReflectedTypeManager::m_TypeRemovedEvent.RemoveEventHandler(ezDelegate<void (const ezReflectedTypeChange&)>(&ezTestObjectCreatorWidget::TypeChanged, this));
+  ezReflectedTypeManager::m_TypeAddedEvent.RemoveEventHandler(ezMakeDelegate(&ezTestObjectCreatorWidget::TypeChanged, this));
+  ezReflectedTypeManager::m_TypeChangedEvent.RemoveEventHandler(ezMakeDelegate(&ezTestObjectCreatorWidget::TypeChanged, this));
+  ezReflectedTypeManager::m_TypeRemovedEvent.RemoveEventHandler(ezMakeDelegate(&ezTestObjectCreatorWidget::TypeChanged, this));
 }
 
 void ezTestObjectCreatorWidget::TypeChanged(const ezReflectedTypeChange& data)

@@ -142,11 +142,11 @@ void ezConsole::EnableLogOutput(bool bEnable)
 
   if (bEnable)
   {
-    ezGlobalLog::AddLogWriter(ezDelegate<void (const ezLoggingEventData& data)>(&ezConsole::LogHandler, this));
+    ezGlobalLog::AddLogWriter(ezMakeDelegate(&ezConsole::LogHandler, this));
   }
   else
   {
-    ezGlobalLog::RemoveLogWriter(ezDelegate<void (const ezLoggingEventData& data)>(&ezConsole::LogHandler, this));
+    ezGlobalLog::RemoveLogWriter(ezMakeDelegate(&ezConsole::LogHandler, this));
   }
 }
 

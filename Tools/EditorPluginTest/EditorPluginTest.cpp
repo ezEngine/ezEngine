@@ -113,7 +113,7 @@ void OnLoadPlugin(bool bReloading)
   // TODO: HACK: Need to find a place to register this poor guy.
   RegisterType(ezGetStaticRTTI<ezDocumentInfo>());
 
-  ezDocumentManagerBase::s_Events.AddEventHandler(ezDelegate<void (const ezDocumentManagerBase::Event&)>(OnDocumentManagerEvent));
+  ezDocumentManagerBase::s_Events.AddEventHandler(ezMakeDelegate(OnDocumentManagerEvent));
 
   ezEditorApp::GetInstance()->RegisterPluginNameForSettings("TestPlugin");
 
@@ -121,7 +121,7 @@ void OnLoadPlugin(bool bReloading)
 
 void OnUnloadPlugin(bool bReloading)  
 {
-  ezDocumentManagerBase::s_Events.RemoveEventHandler(ezDelegate<void (const ezDocumentManagerBase::Event&)>(OnDocumentManagerEvent));
+  ezDocumentManagerBase::s_Events.RemoveEventHandler(ezMakeDelegate(OnDocumentManagerEvent));
 }
 
 ezPlugin g_Plugin(false, OnLoadPlugin, OnUnloadPlugin);

@@ -19,14 +19,14 @@ ezEditorEngineProcessConnection::ezEditorEngineProcessConnection()
   m_bProcessShouldBeRunning = false;
   m_bProcessCrashed = false;
 
-  m_IPC.m_Events.AddEventHandler(ezDelegate<void (const ezProcessCommunication::Event&)>(&ezEditorEngineProcessConnection::HandleIPCEvent, this));
+  m_IPC.m_Events.AddEventHandler(ezMakeDelegate(&ezEditorEngineProcessConnection::HandleIPCEvent, this));
 }
 
 ezEditorEngineProcessConnection::~ezEditorEngineProcessConnection()
 {
   EZ_ASSERT_DEV(m_iNumViews == 0, "There are still views open at shutdown");
 
-  m_IPC.m_Events.RemoveEventHandler(ezDelegate<void (const ezProcessCommunication::Event&)>(&ezEditorEngineProcessConnection::HandleIPCEvent, this));
+  m_IPC.m_Events.RemoveEventHandler(ezMakeDelegate(&ezEditorEngineProcessConnection::HandleIPCEvent, this));
 
   s_pInstance = nullptr;
 }

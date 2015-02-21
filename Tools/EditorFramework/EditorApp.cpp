@@ -107,12 +107,12 @@ void ezEditorApp::StartupEditor(const char* szAppName, const char* szUserName, i
   s_ContainerWindows.PushBack(new ezContainerWindow());
   s_ContainerWindows[0]->show();
 
-  ezDocumentManagerBase::s_Requests.AddEventHandler(ezDelegate<void (ezDocumentManagerBase::Request&)>(&ezEditorApp::DocumentManagerRequestHandler, this));
-  ezDocumentManagerBase::s_Events.AddEventHandler(ezDelegate<void (const ezDocumentManagerBase::Event&)>(&ezEditorApp::DocumentManagerEventHandler, this));
-  ezDocumentBase::s_EventsAny.AddEventHandler(ezDelegate<void (const ezDocumentBase::Event&)>(&ezEditorApp::DocumentEventHandler, this));
-  ezEditorProject::s_Requests.AddEventHandler(ezDelegate<void (ezEditorProject::Request&)>(&ezEditorApp::ProjectRequestHandler, this));
-  ezEditorProject::s_Events.AddEventHandler(ezDelegate<void (const ezEditorProject::Event&)>(&ezEditorApp::ProjectEventHandler, this));
-  ezEditorEngineProcessConnection::s_Events.AddEventHandler(ezDelegate<void (const ezEditorEngineProcessConnection::Event&)>(&ezEditorApp::EngineProcessMsgHandler, this));
+  ezDocumentManagerBase::s_Requests.AddEventHandler(ezMakeDelegate(&ezEditorApp::DocumentManagerRequestHandler, this));
+  ezDocumentManagerBase::s_Events.AddEventHandler(ezMakeDelegate(&ezEditorApp::DocumentManagerEventHandler, this));
+  ezDocumentBase::s_EventsAny.AddEventHandler(ezMakeDelegate(&ezEditorApp::DocumentEventHandler, this));
+  ezEditorProject::s_Requests.AddEventHandler(ezMakeDelegate(&ezEditorApp::ProjectRequestHandler, this));
+  ezEditorProject::s_Events.AddEventHandler(ezMakeDelegate(&ezEditorApp::ProjectEventHandler, this));
+  ezEditorEngineProcessConnection::s_Events.AddEventHandler(ezMakeDelegate(&ezEditorApp::EngineProcessMsgHandler, this));
 
   ezStartup::StartupCore();
 
@@ -149,12 +149,12 @@ void ezEditorApp::ShutdownEditor()
 {
   ezEditorProject::CloseProject();
 
-  ezEditorEngineProcessConnection::s_Events.RemoveEventHandler(ezDelegate<void (const ezEditorEngineProcessConnection::Event&)>(&ezEditorApp::EngineProcessMsgHandler, this));
-  ezEditorProject::s_Requests.RemoveEventHandler(ezDelegate<void (ezEditorProject::Request&)>(&ezEditorApp::ProjectRequestHandler, this));
-  ezEditorProject::s_Events.RemoveEventHandler(ezDelegate<void (const ezEditorProject::Event&)>(&ezEditorApp::ProjectEventHandler, this));
-  ezDocumentBase::s_EventsAny.RemoveEventHandler(ezDelegate<void (const ezDocumentBase::Event&)>(&ezEditorApp::DocumentEventHandler, this));
-  ezDocumentManagerBase::s_Requests.RemoveEventHandler(ezDelegate<void (ezDocumentManagerBase::Request&)>(&ezEditorApp::DocumentManagerRequestHandler, this));
-  ezDocumentManagerBase::s_Events.RemoveEventHandler(ezDelegate<void (const ezDocumentManagerBase::Event&)>(&ezEditorApp::DocumentManagerEventHandler, this));
+  ezEditorEngineProcessConnection::s_Events.RemoveEventHandler(ezMakeDelegate(&ezEditorApp::EngineProcessMsgHandler, this));
+  ezEditorProject::s_Requests.RemoveEventHandler(ezMakeDelegate(&ezEditorApp::ProjectRequestHandler, this));
+  ezEditorProject::s_Events.RemoveEventHandler(ezMakeDelegate(&ezEditorApp::ProjectEventHandler, this));
+  ezDocumentBase::s_EventsAny.RemoveEventHandler(ezMakeDelegate(&ezEditorApp::DocumentEventHandler, this));
+  ezDocumentManagerBase::s_Requests.RemoveEventHandler(ezMakeDelegate(&ezEditorApp::DocumentManagerRequestHandler, this));
+  ezDocumentManagerBase::s_Events.RemoveEventHandler(ezMakeDelegate(&ezEditorApp::DocumentManagerEventHandler, this));
 
   SaveSettings();
 

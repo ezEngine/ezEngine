@@ -15,14 +15,14 @@ ezDocumentWindow3D::ezDocumentWindow3D(ezDocumentBase* pDocument) : ezDocumentWi
   
   
   
-  ezEditorEngineProcessConnection::s_Events.AddEventHandler(ezDelegate<void (const ezEditorEngineProcessConnection::Event&)>(&ezDocumentWindow3D::EngineViewProcessEventHandler, this));
+  ezEditorEngineProcessConnection::s_Events.AddEventHandler(ezMakeDelegate(&ezDocumentWindow3D::EngineViewProcessEventHandler, this));
 
   m_pEngineView->SendDocument();
 }
 
 ezDocumentWindow3D::~ezDocumentWindow3D()
 {
-  ezEditorEngineProcessConnection::s_Events.RemoveEventHandler(ezDelegate<void (const ezEditorEngineProcessConnection::Event&)>(&ezDocumentWindow3D::EngineViewProcessEventHandler, this));
+  ezEditorEngineProcessConnection::s_Events.RemoveEventHandler(ezMakeDelegate(&ezDocumentWindow3D::EngineViewProcessEventHandler, this));
 
   ezEditorEngineProcessConnection::GetInstance()->DestroyEngineConnection(this);
 }

@@ -32,18 +32,18 @@ ezSettingsTab::ezSettingsTab() : ezDocumentWindow("Settings")
   EZ_VERIFY(connect(ButtonPluginConfig, SIGNAL(clicked()), this, SLOT(SlotButtonPluginConfig())) != nullptr, "signal/slot connection failed");
   EZ_VERIFY(connect(ComboSettingsDomain, SIGNAL(currentIndexChanged(int)), this, SLOT(SlotComboSettingsDomainIndexChanged(int))) != nullptr, "signal/slot connection failed");
 
-  ezPlugin::s_PluginEvents.AddEventHandler(ezDelegate<void (const ezPlugin::PluginEvent& e)>(&ezSettingsTab::PluginEventHandler, this));
-  ezEditorProject::s_Events.AddEventHandler(ezDelegate<void (const ezEditorProject::Event&)>(&ezSettingsTab::ProjectEventHandler, this));
-  ezDocumentManagerBase::s_Events.AddEventHandler(ezDelegate<void (const ezDocumentManagerBase::Event&)>(&ezSettingsTab::DocumentManagerEventHandler, this));
+  ezPlugin::s_PluginEvents.AddEventHandler(ezMakeDelegate(&ezSettingsTab::PluginEventHandler, this));
+  ezEditorProject::s_Events.AddEventHandler(ezMakeDelegate(&ezSettingsTab::ProjectEventHandler, this));
+  ezDocumentManagerBase::s_Events.AddEventHandler(ezMakeDelegate(&ezSettingsTab::DocumentManagerEventHandler, this));
 
   UpdateSettings();
 }
 
 ezSettingsTab::~ezSettingsTab()
 {
-  ezEditorProject::s_Events.RemoveEventHandler(ezDelegate<void (const ezEditorProject::Event&)>(&ezSettingsTab::ProjectEventHandler, this));
-  ezDocumentManagerBase::s_Events.RemoveEventHandler(ezDelegate<void (const ezDocumentManagerBase::Event&)>(&ezSettingsTab::DocumentManagerEventHandler, this));
-  ezPlugin::s_PluginEvents.RemoveEventHandler(ezDelegate<void (const ezPlugin::PluginEvent& e)>(&ezSettingsTab::PluginEventHandler, this));
+  ezEditorProject::s_Events.RemoveEventHandler(ezMakeDelegate(&ezSettingsTab::ProjectEventHandler, this));
+  ezDocumentManagerBase::s_Events.RemoveEventHandler(ezMakeDelegate(&ezSettingsTab::DocumentManagerEventHandler, this));
+  ezPlugin::s_PluginEvents.RemoveEventHandler(ezMakeDelegate(&ezSettingsTab::PluginEventHandler, this));
 
   g_pInstance = nullptr;
 }

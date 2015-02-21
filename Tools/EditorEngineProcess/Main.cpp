@@ -46,7 +46,7 @@ void ezEditorProcessApp::AfterEngineInit()
 
   EZ_VERIFY(m_IPC.ConnectToHostProcess().Succeeded(), "Could not connect to host");
 
-  m_IPC.m_Events.AddEventHandler(ezDelegate<void(const ezProcessCommunication::Event&)>(&ezEditorProcessApp::EventHandlerIPC, this));
+  m_IPC.m_Events.AddEventHandler(ezMakeDelegate(&ezEditorProcessApp::EventHandlerIPC, this));
 
   InitDevice();
 
@@ -59,7 +59,7 @@ void ezEditorProcessApp::BeforeEngineShutdown()
 {
   ezTelemetry::CloseConnection();
 
-  m_IPC.m_Events.RemoveEventHandler(ezDelegate<void(const ezProcessCommunication::Event&)>(&ezEditorProcessApp::EventHandlerIPC, this));
+  m_IPC.m_Events.RemoveEventHandler(ezMakeDelegate(&ezEditorProcessApp::EventHandlerIPC, this));
 
   delete m_pApp;
 }
