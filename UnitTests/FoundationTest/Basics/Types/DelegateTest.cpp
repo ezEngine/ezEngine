@@ -128,4 +128,14 @@ EZ_CREATE_SIMPLE_TEST(Basics, Delegate)
     EZ_TEST_INT(d(3), 3);
     EZ_TEST_INT(c, 5);
   }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ezMakeDelegate")
+  {
+    auto d1 = ezMakeDelegate(&Function);
+
+    TestType instance;
+    auto d2 = ezMakeDelegate(&TestType::Method, &instance);
+    auto d3 = ezMakeDelegate(&TestType::ConstMethod, &instance);
+    auto d4 = ezMakeDelegate(&TestType::VirtualMethod, &instance);
+  }
 }

@@ -1,4 +1,10 @@
 
+template <typename T>
+struct ezMakeDelegateHelper
+{
+
+};
+
 #define ARG_COUNT 0
 #include <Foundation/Types/Implementation/DelegateHelper_inl.h>
 #undef ARG_COUNT
@@ -27,3 +33,14 @@
 #include <Foundation/Types/Implementation/DelegateHelper_inl.h>
 #undef ARG_COUNT
 
+template <typename Function>
+typename ezDelegate<Function> ezMakeDelegate(Function* function)
+{
+  return ezDelegate<Function>(function);
+}
+
+template <typename Method, typename Class>
+typename ezMakeDelegateHelper<Method>::delegate_t ezMakeDelegate(Method method, Class* pClass)
+{
+  return typename ezMakeDelegateHelper<Method>::delegate_t(method, pClass);
+}

@@ -52,6 +52,7 @@ extern(C++) void Test1(ezDelegate!(Signature!(void function())) func)
 int main(string[] args)
 {
   ezDelegate!(Signature!(void function())) test;
+  Test1(test);
   //ezDelegate!(Signature!(int function(int, float))) test2;
   CallTest1();
   //GetReflectedAggregateType("ez.Foundation.Memory.AllocatorBase");

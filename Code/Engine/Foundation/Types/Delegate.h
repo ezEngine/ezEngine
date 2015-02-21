@@ -81,5 +81,31 @@ class ezDelegate : public ezDelegateBase
 
 };
 
+template <typename T>
+struct ezMakeDelegateHelper;
+
+/// \brief A helper function to create delegates from function pointers.
+///
+/// \code{.cpp}
+///   void foo() { }
+///   auto delegate = ezMakeDelegate(&foo);
+/// \endcode
+template <typename Function>
+typename ezMakeDelegateHelper<Function>::delegate_t ezMakeDelegate(Function function);
+
+/// \brief A helper function to create delegates from methods.
+///
+/// \code{.cpp}
+///   class Example
+///   {
+///   public:
+///     void foo() {}
+///   };
+///   Example instance;
+///   auto delegate = ezMakeDelegate(&Example::foo, &instance);
+/// \endcode
+template <typename Method, typename Class>
+typename ezMakeDelegateHelper<Method>::delegate_t ezMakeDelegate(Method method, Class* pClass);
+
 #include <Foundation/Types/Implementation/Delegate_inl.h>
 

@@ -5,7 +5,8 @@ import core.stdc.string : memcpy;
 
 template Signature(T)
 {
-  alias Signature = typeof(*(T.init));
+  alias CT = ReturnType!T function(ParameterTypeTuple!T);
+  alias Signature = typeof(*(CT.init));
 }
 
 struct ezDelegate(T)
