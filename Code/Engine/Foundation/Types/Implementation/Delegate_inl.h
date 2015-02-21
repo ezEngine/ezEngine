@@ -34,7 +34,7 @@ struct ezMakeDelegateHelper
 #undef ARG_COUNT
 
 template <typename Function>
-typename ezDelegate<Function> ezMakeDelegate(Function* function)
+ezDelegate<Function> ezMakeDelegate(Function* function)
 {
   return ezDelegate<Function>(function);
 }
