@@ -10,7 +10,7 @@ class ezTestBaseClass;
 /// \brief Stores the identification of a sub-test.
 struct ezSubTestEntry
 {
-  ezSubTestEntry() : m_iSubTestIdentifier(-1), m_szSubTestName("") { }
+  ezSubTestEntry() : m_iSubTestIdentifier(-1), m_szSubTestName(""), m_bEnableTest(true) { }
 
   ezInt32 m_iSubTestIdentifier;
   const char* m_szSubTestName;
@@ -20,7 +20,7 @@ struct ezSubTestEntry
 /// \brief Stores the identification of a test.
 struct ezTestEntry
 {
-  ezTestEntry() : m_pTest(nullptr), m_szTestName("") { }
+  ezTestEntry() : m_pTest(nullptr), m_szTestName(""), m_bEnableTest(true) { }
 
   ezTestBaseClass* m_pTest;
   const char* m_szTestName;
