@@ -129,6 +129,9 @@ void ezWorld::DeleteObject(const ezGameObjectHandle& object)
 
   ezGameObject* pObject = storageEntry.m_Ptr;
 
+  // set object to inactive so components and children know that they shouldn't access the object anymore.
+  pObject->m_Flags.Remove(ezObjectFlags::Active);
+
   // delete children
   for (auto it = pObject->GetChildren(); it.IsValid(); ++it)
   {
@@ -149,7 +152,6 @@ void ezWorld::DeleteObject(const ezGameObjectHandle& object)
 
   // invalidate and remove from id table
   pObject->m_InternalId.Invalidate();
-  pObject->m_Flags.Remove(ezObjectFlags::Active);
   m_Data.m_DeadObjects.PushBack(storageEntry);
   EZ_VERIFY(m_Data.m_Objects.Remove(object), "Implementation error.");
 }
@@ -419,17 +421,34 @@ ezResult ezWorld::DeregisterUpdateFunction(const ezComponentManagerBase::UpdateF
 
   ezDynamicArrayBase<ezInternal::WorldData::RegisteredUpdateFunction>& updateFunctions = m_Data.m_UpdateFunctions[desc.m_Phase];
 
-  for (ezUInt32 i = 0; i < updateFunctions.GetCount(); ++i)
+  for (ezUInt32 i = updateFunctions.GetCount(); i-- > 0;)
   {
     if (updateFunctions[i].m_Function == desc.m_Function)
     {
       updateFunctions.RemoveAt(i);
-      --i;
       result = EZ_SUCCESS;
     }
   }
 
   return result;
+}
+
+void ezWorld::DeregisterUpdateFunctions(ezComponentManagerBase* pManager)
+{
+  CheckForMultithreadedAccess();
+
+  for (ezUInt32 phase = ezComponentManagerBase::UpdateFunctionDesc::PreAsync; phase < ezComponentManagerBase::UpdateFunctionDesc::PHASE_COUNT; ++phase)
+  {
+    ezDynamicArrayBase<ezInternal::WorldData::RegisteredUpdateFunction>& updateFunctions = m_Data.m_UpdateFunctions[phase];
+
+    for (ezUInt32 i = updateFunctions.GetCount(); i-- > 0;)
+    {
+      if (updateFunctions[i].m_Function.GetInstance() == pManager)
+      {
+        updateFunctions.RemoveAt(i);
+      }
+    }
+  }
 }
 
 void ezWorld::UpdateSynchronous(const ezArrayPtr<ezInternal::WorldData::RegisteredUpdateFunction>& updateFunctions)
