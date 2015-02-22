@@ -5,18 +5,19 @@ This is a list of our planned features for the foreseeable future.
 
 Soon:
   * More Game Objects improvements (Clemens)
-  * Rendering Abstraction (Marc (DX11), Andreas (OpenGL))
+  * Rendering Abstraction (Marc (DX11))
   * Higher level rendering features (Jan, Clemens, Marc)
   * Improvements to the resource manager (Jan)
 
 One of the next releases:
   * Math: Simd (Christian)
-
-Unknown:
-  * Per Object Type Memory Tracking (Clemens)
-  * ezMap, ezSet Comparer mit dem Comparer in Algorithm ersetzen; auﬂerdem < und == sinnvoller verwenden (-1, 0, 1 vergleich etc.) (Clemens :-P )
+  * Integration of D as a scripting language (Benjamin)
   * Math: Random Number Generators
-  * Optimize container regarding construction/destruction, unnecessary operations (ask Clemens for more info)
+  
+Unknown:
+  * Per Object Type Memory Tracking
+  * Replace ezMap, ezSet Comparer with the Comparer in Algorithm; use < and == better (-1, 0, 1 comparison)
+  * Optimize container regarding construction/destruction, remove unnecessary operations
   * Type-safe printf
   * An Editor (Christopher, Jan)
 

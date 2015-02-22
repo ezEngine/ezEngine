@@ -1,7 +1,7 @@
 VS2012 debugger variable inspection using natvis {#DebuggerVarInsp}
 ===============
 
-![Example image for Variable inspection in VS2012 Debugger using provided natvis file](../../Documentation/General/natvis/natvissample.png)
+![Example image for Variable inspection in VS2012 Debugger using provided natvis file](../../../Documentation/General/natvis/natvissample.png)
 
 About natvis
 ---------------

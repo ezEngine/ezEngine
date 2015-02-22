@@ -17,6 +17,7 @@ The current version allows to monitor the following data:
   * __Time__: Displays all ezClock instances that are active. Shows the raw time step and the filtered time step, which allows to see hiccups and general performance characteristics of the application.
   * __Reflection__: Shows all reflected types and their class hierarchy. Also shows which properties each reflected type provides.
   * __Data Transfer__: This panel allows to pull data from an application. What data can be pulled is determined by what the application provides. For example an application might provide the G-Buffer as a set of images to be pulled. See ezDataTransfer for further details.
+  * __Resources__:* This panel shows all loaded resources. You can filter by type and name and you can sort the resources by various criteria.
 
 
 Setting up your game to support ezInspector

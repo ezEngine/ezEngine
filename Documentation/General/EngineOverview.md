@@ -47,7 +47,7 @@ In **Foundation\\Strings** you will find all the string classes and utilities. e
 
   
 
-In **Foundation\\Math** you will find lots of math classes, e.g. classes to do vector arithmetic (ezVec3, ezMat4, ezQuat, ezPlane, etc.), classes to work with colors (ezColor, ezColor8UNorm, ezColor16f), classes to work with bounding volumes (ezBoundingBox, ezBoundingSphere) and do culling (ezFrustum), utility functions for intersection tests (ezIntersectionUtils) and a class to work with angles efficiently (ezAngle). There is even an implementation for a fixed point type (ezFixedPoint).
+In **Foundation\\Math** you will find lots of math classes, e.g. classes to do vector arithmetic (ezVec3, ezMat4, ezQuat, ezPlane, etc.), classes to work with colors (ezColor, ezColorGammaUB, ezColorLinear16f), classes to work with bounding volumes (ezBoundingBox, ezBoundingSphere) and do culling (ezFrustum), utility functions for intersection tests (ezIntersectionUtils) and a class to work with angles efficiently (ezAngle). There is even an implementation for a fixed point type (ezFixedPoint).
 
   
 
@@ -110,6 +110,8 @@ In **Core** you will find the core engine infrastructure.
 In **Core\\Application** you can find code to more easily set up your application loop in a platform independent way.
 
 In **Core\\Input** you will find ezInputManager which can be used for retrieving input from various different devices, e.g. mouse, keyboard, gamepad or virtual thumbstick. The system is easily extensible to include custom devices.
+
+In **Core\\ResourceManager** you will find the static class ezResourceManager which is the central class for resource loading (e.g. textures, shaders, etc.). For implementing custom resource types you need to derive from ezResource and for customizing the loading procedure you may need to implement a custom ezResourceTypeLoader. All resources are referenced through ezResourceHandle types, which implement reference counting.
 
 In **Core\\World** you will find the game object system. ezGameObject is the class to use to manage entities, ezComponent is the base component class that allows to implement and attach components to your entities. All entities belong to an instance of ezWorld, which represents your scene graph.
 

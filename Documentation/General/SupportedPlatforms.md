@@ -1,7 +1,7 @@
 Supported Platforms {#SupportedPlatforms}
 ===================
 
-ezEngine is developed primarily on Windows 7, using Visual Studio 2010 and 2012 typically in 64 Bit builds. As such those are the best tested and therefore most stable platforms.
+ezEngine is developed primarily on Windows 7, using Visual Studio 2012 and 2013 typically in 64 Bit builds. As such those are the best tested and therefore most stable platforms.
 
 
 Windows

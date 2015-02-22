@@ -5,7 +5,7 @@ The ezEngine project is a spare time project of a few guys from the games indust
 
 To get informed about ezEngine news, follow us on Twitter: <a href="https://Twitter.com/ezEngineProject">https://Twitter.com/ezEngineProject</a>
 
-The ezEngine source can also be found on <a href="https://github.com/ezengine"<GitHub</a>. This may include changes that are not yet available through the latest package.
+The ezEngine source can also be found on <a href="https://github.com/ezengine">GitHub</a>. This may include changes that are not yet available through the latest package.
 
 To contact us, send us a mail. You can find the contact on our website at <a href="http://ezEngine.net">ezEngine.net</a>
 
