@@ -38,14 +38,13 @@ private:
 
   extern(C++) static ReturnType DispatchDFunction(ref typeof(this) self, ParameterTypes args)
   {
-    auto func = cast(ReturnType function(ParameterTypes))(cast(void*)self.m_Data.ptr);
+    auto func = *cast(ReturnType function(ParameterTypes)*)(cast(void*)self.m_Data.ptr);
     return func(args);
   }
 
   extern(C++) static ReturnType DispatchDDelegate(ref typeof(this) self, ParameterTypes args)
   {
-    ReturnType delegate(ParameterTypes) del;
-    memcpy(&del, self.m_Data.ptr, del.sizeof);
+    auto del = *cast(ReturnType delegate(ParameterTypes)*)(cast(void*)self.m_Data.ptr);
     return del(args);
   }
 
@@ -54,3 +53,9 @@ private:
   enum size_t DATA_SIZE = 16;
   ezUInt8 m_Data[DATA_SIZE];
 };
+
+auto ezMakeDelegate(T)(T func)
+{
+  static assert(isFunctionPointer!T || isDelegate!T, T.stringof ~ " is neither a function pointer nor a delegate.");
+  return ezDelegate!(Signature!T)(func);
+}

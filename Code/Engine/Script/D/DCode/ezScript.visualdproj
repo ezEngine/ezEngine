@@ -399,6 +399,9 @@
     <Folder name="DGlue">
      <File path="ez\Script\DGlue\Allocator.d" />
     </Folder>
+    <Folder name="Serialization">
+     <File path="ez\Script\Serialization\Serialization.d" />
+    </Folder>
     <Folder name="Internal">
      <File path="ez\script\internal\dllmain.d" />
     </Folder>

@@ -9,6 +9,8 @@ import ez.Foundation.Strings.StringBuilder;
 import ez.Foundation.Memory.AllocatorBase;
 import ez.Foundation.Basics;
 
+alias BasicTypes = TypeTuple!(void, char, wchar, dchar, byte, short, int, long, ubyte, ushort, uint, ulong, float, double);
+
 alias BuiltinTypes = TypeTuple!(void, char, wchar, dchar, byte, short, int, long, ubyte, ushort, uint, ulong, float, double,
                                 void[], char[], wchar[], dchar[], byte[], short[], int[], long[], ubyte[], ushort[], uint[], ulong[], float[], double[],
                                 const(char), immutable(char), const(char)[], string, Object);
@@ -38,12 +40,48 @@ private
     return result;
   }
 
+  BasicType.Type MapBasicType(T)()
+  {
+    static if(is(T == void))
+      return BasicType.Type.Void;
+    else static if(is(T == char))
+      return BasicType.Type.Char;
+    else static if(is(T == wchar))
+      return BasicType.Type.Wchar;
+    else static if(is(T == dchar))
+      return BasicType.Type.Dchar;
+    else static if(is(T == byte))
+      return BasicType.Type.Byte;
+    else static if(is(T == short))
+      return BasicType.Type.Short;
+    else static if(is(T == int))
+      return BasicType.Type.Int;
+    else static if(is(T == long))
+      return BasicType.Type.Long;
+    else static if(is(T == ubyte))
+      return BasicType.Type.Ubyte;
+    else static if(is(T == ushort))
+      return BasicType.Type.Ushort;
+    else static if(is(T == uint))
+      return BasicType.Type.Uint;
+    else static if(is(T == ulong))
+      return BasicType.Type.Ulong;
+    else static if(is(T == float))
+      return BasicType.Type.Float;
+    else static if(is(T == double))
+      return BasicType.Type.Double;
+    else
+      static assert(0, T.stringof ~ " is not a basic type");
+  }
+
   auto Make(T)(ezScriptReflectionAllocator allocator)
   {
     alias tc = nextType!T;
     static if(is(tc.type == TypeChainEnd))
     {
-      static if(staticIndexOf!(T, BuiltinTypes) >= 0)
+      static if(staticIndexOf!(T, BasicTypes) >= 0)
+        return allocator.New!(tc.info)(T.stringof, MapBasicType!T);
+      else static if(staticIndexOf!(T, BuiltinTypes) >= 0)
         return allocator.New!(tc.info)(T.stringof);
       else
       {
@@ -97,7 +135,7 @@ private ReflectedType GetReflectedTypeImpl(const(char)[] mangledType)
   return null;
 }
 
-ReflectedType GetReflectedType(T)(ezScriptReflectionAllocator allocator)
+ReflectedType GetReflectedType(T)()
 {
   static if(staticIndexOf!(T, BuiltinTypes) >= 0)
   {
@@ -108,10 +146,14 @@ ReflectedType GetReflectedType(T)(ezScriptReflectionAllocator allocator)
     auto result = GetReflectedTypeImpl(T.mangleof);
     if(result is null)
     {
+      auto allocator = ezGetDefaultScriptReflectionAllocator();
       auto mangling = T.mangleof;
-      auto nameCopy = ezGetDefaultScriptReflectionAllocator().NewArray!char(mangling.length);
+      auto nameCopy = allocator.NewArray!char(mangling.length);
       nameCopy[] = mangling[];
-      result = allocator.Make!T();
+      auto newType = allocator.Make!T();
+      static if(is(T == struct))
+        newType.size = T.sizeof;
+      result = newType;
       g_types[cast(string)nameCopy] = result;
     }
     return result;

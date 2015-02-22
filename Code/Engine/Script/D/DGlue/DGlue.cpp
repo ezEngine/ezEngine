@@ -69,25 +69,3 @@ void ezDestroyStringBuilder(ezStringBuilder& builder)
 {
   builder.~ezStringBuilder();
 }
-
-/*void DelegateTest(ezDelegate<void()> func)
-{
-  func();
-}
-
-void DelegateTest2(ezDelegate<int(float, double)> func)
-{
-  func(1.0f, 2.0);
-}*/
-
-void Test1(ezDelegate<void()>);
-
-void Printf1()
-{
-  printf("it works!");
-}
-
-void CallTest1()
-{
-  Test1(ezDelegate<void()>(&Printf1));
-}
