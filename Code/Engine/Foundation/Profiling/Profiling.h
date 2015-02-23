@@ -51,7 +51,7 @@ private:
   static void SetThreadName(const char* szThreadName);
 };
 
-#if EZ_ENABLED(EZ_USE_PROFILING)
+#if EZ_ENABLED(EZ_USE_PROFILING) || defined(EZ_DOCS)
 
 /// \brief Small helper class to represent a profiling id.
 ///

@@ -21,7 +21,7 @@ ezDirectoryWatcher::ezDirectoryWatcher()
 {
 }
 
-ezResult ezDirectoryWatcher::OpenDirectory(ezString path, ezBitflags<Watch> whatToWatch)
+ezResult ezDirectoryWatcher::OpenDirectory(const ezString& path, ezBitflags<Watch> whatToWatch)
 {
   m_pImpl->m_watchSubdirs = whatToWatch.IsSet(Watch::Subdirectories);
   m_pImpl->m_filter = 0;

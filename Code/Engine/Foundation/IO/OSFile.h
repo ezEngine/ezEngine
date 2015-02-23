@@ -59,7 +59,7 @@ struct EZ_FOUNDATION_DLL ezFileStats
   bool m_bIsDirectory;
 };
 
-#if EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS)
+#if EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS) || defined(EZ_DOCS)
 
   struct ezFileIterationData;
 
@@ -181,7 +181,7 @@ public:
   /// \brief Copies the source file into the destination file.
   static ezResult CopyFile(const char* szSource, const char* szDestination); // [tested]
 
-#if EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
+#if EZ_ENABLED(EZ_SUPPORTS_FILE_STATS) || defined(EZ_DOCS)
   /// \brief Gets the stats about the given file or folder. Returns false, if the stats could not be determined.
   static ezResult GetFileStats(const char* szFileOrFolder, ezFileStats& out_Stats); // [tested]
 

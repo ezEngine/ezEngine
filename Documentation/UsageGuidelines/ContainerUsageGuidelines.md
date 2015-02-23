@@ -119,8 +119,7 @@ When to use which Container Type
 ### Associative Containers ###
 
   #### `ezMap` and `ezSet` ####
-  
-  
+
     Both containers are basically the same, except that `ezMap` stores a 'value' for each 'key', whereas a set only stores 'keys'.
     
     Use `ezMap` whenever you need to be able to look up an entry with a key. Use `ezSet` whenever you simply need to know whether some element is present or to merge data-sets down to all the unique elements.

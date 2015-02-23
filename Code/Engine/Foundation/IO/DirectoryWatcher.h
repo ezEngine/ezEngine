@@ -54,7 +54,7 @@ public:
   ///   Opens the directory at \p path for watching. \p whatToWatch controls what exactly should be watched.
   ///
   /// \note A instance of ezDirectoryWatcher can only watch one directory at a time.
-  ezResult OpenDirectory(ezString path, ezBitflags<Watch> whatToWatch);
+  ezResult OpenDirectory(const ezString& path, ezBitflags<Watch> whatToWatch);
 
   /// \brief
   ///   Closes the currently watched directory if any.

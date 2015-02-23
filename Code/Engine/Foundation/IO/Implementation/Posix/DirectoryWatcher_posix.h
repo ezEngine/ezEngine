@@ -12,7 +12,7 @@ ezDirectoryWatcher::ezDirectoryWatcher()
 {
 }
 
-ezResult ezDirectoryWatcher::OpenDirectory(ezString path, ezBitflags<Watch> whatToWatch)
+ezResult ezDirectoryWatcher::OpenDirectory(const ezString& path, ezBitflags<Watch> whatToWatch)
 {
   EZ_ASSERT_NOT_IMPLEMENTED
   return EZ_FAILURE;
