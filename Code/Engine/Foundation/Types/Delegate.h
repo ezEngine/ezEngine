@@ -105,7 +105,7 @@ ezDelegate<Function> ezMakeDelegate(Function* function);
 ///   auto delegate = ezMakeDelegate(&Example::foo, &instance);
 /// \endcode
 template <typename Method, typename Class>
-typename ezMakeDelegateHelper<Method>::delegate_t ezMakeDelegate(Method method, Class* pClass);
+typename ezMakeDelegateHelper<Method>::DelegateType ezMakeDelegate(Method method, Class* pClass);
 
 #include <Foundation/Types/Implementation/Delegate_inl.h>
 

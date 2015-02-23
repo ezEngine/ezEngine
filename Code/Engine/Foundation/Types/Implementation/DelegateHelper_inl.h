@@ -130,11 +130,11 @@ private:
 template <typename Class, typename R EZ_COMMA_IF(ARG_COUNT) EZ_LIST(typename ARG, ARG_COUNT)>
 struct ezMakeDelegateHelper< R(Class::*)(EZ_LIST(ARG, ARG_COUNT)) >
 {
-  typedef ezDelegate<R(EZ_LIST(ARG, ARG_COUNT))> delegate_t;
+  typedef ezDelegate<R(EZ_LIST(ARG, ARG_COUNT))> DelegateType;
 };
 
 template <typename Class, typename R EZ_COMMA_IF(ARG_COUNT) EZ_LIST(typename ARG, ARG_COUNT)>
 struct ezMakeDelegateHelper< R(Class::*)(EZ_LIST(ARG, ARG_COUNT)) const >
 {
-  typedef ezDelegate<R(EZ_LIST(ARG, ARG_COUNT))> delegate_t;
+  typedef ezDelegate<R(EZ_LIST(ARG, ARG_COUNT))> DelegateType;
 };

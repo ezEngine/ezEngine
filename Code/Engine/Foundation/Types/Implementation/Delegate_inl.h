@@ -40,7 +40,7 @@ ezDelegate<Function> ezMakeDelegate(Function* function)
 }
 
 template <typename Method, typename Class>
-typename ezMakeDelegateHelper<Method>::delegate_t ezMakeDelegate(Method method, Class* pClass)
+typename ezMakeDelegateHelper<Method>::DelegateType ezMakeDelegate(Method method, Class* pClass)
 {
-  return typename ezMakeDelegateHelper<Method>::delegate_t(method, pClass);
+  return typename ezMakeDelegateHelper<Method>::DelegateType(method, pClass);
 }
