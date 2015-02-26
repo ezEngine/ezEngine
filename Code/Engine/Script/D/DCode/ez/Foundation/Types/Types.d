@@ -1,5 +1,11 @@
 module ez.Foundation.Types.Types;
 
+enum GcSupport : bool
+{
+  No = false,
+  Yes = true
+}
+
 extern(C++):
 
 alias ubyte     ezUInt8;

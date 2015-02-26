@@ -1,0 +1,12 @@
+#cmake
+
+add_library (DScript SHARED IMPORTED)
+set_target_properties(DScript PROPERTIES IMPORTED_LOCATION_DEBUG "${OUTPUT_BIN_DEBUG}/DScript.dll")
+set_target_properties(DScript PROPERTIES IMPORTED_LOCATION_RELEASE "${OUTPUT_BIN_RELEASE}/DScript.dll")
+set_target_properties(DScript PROPERTIES IMPORTED_LOCATION_MINSIZEREL "${OUTPUT_BIN_MINSIZE}/DScript.dll")
+set_target_properties(DScript PROPERTIES IMPORTED_LOCATION_RELWITHDEBINFO "${OUTPUT_BIN_RELWITHDEB}/DScript.dll")
+
+set_target_properties(DScript PROPERTIES IMPORTED_IMPLIB_DEBUG "${OUTPUT_LIB_DEBUG}/DScript.lib")
+set_target_properties(DScript PROPERTIES IMPORTED_IMPLIB_RELEASE "${OUTPUT_LIB_RELEASE}/DScript.lib")
+set_target_properties(DScript PROPERTIES IMPORTED_IMPLIB_MINSIZEREL "${OUTPUT_LIB_MINSIZE}/DScript.lib")
+set_target_properties(DScript PROPERTIES IMPORTED_IMPLIB_RELWITHDEBINFO "${OUTPUT_LIB_RELWITHDEB}/DScript.lib")

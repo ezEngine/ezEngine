@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2010
-Project("{002A2DE9-8BB6-484D-9802-7E4AD4084715}") = "ezScript", "DCode\ezScript.visualdproj", "{CE4F3549-1C49-4AD2-9639-CC96D508FE75}"
+Project("{002A2DE9-8BB6-484D-9802-7E4AD4084715}") = "DScript", "DCode\DScript.visualdproj", "{CE4F3549-1C49-4AD2-9639-CC96D508FE75}"
 EndProject
 Project("{002A2DE9-8BB6-484D-9802-7E4AD4084715}") = "ezScriptHook", "DCode\ezScriptHook.visualdproj", "{060B21ED-4D6E-4E30-A862-1AEDE7FC2ABD}"
 EndProject

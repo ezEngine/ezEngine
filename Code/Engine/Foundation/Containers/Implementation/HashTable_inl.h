@@ -221,7 +221,7 @@ void ezHashTableBase<K, V, H>::Clear()
 }
 
 template <typename K, typename V, typename H>
-bool ezHashTableBase<K, V, H>::Insert(const K& key, const V& value, V* out_oldValue /*= nullptr*/)
+bool ezHashTableBase<K, V, H>::Insert(K key, V value, V* out_oldValue /*= nullptr*/)
 {
   Reserve(m_uiCount + 1);
 
@@ -239,7 +239,7 @@ bool ezHashTableBase<K, V, H>::Insert(const K& key, const V& value, V* out_oldVa
     else if (H::Equal(m_pEntries[uiIndex].key, key))
     {
       if (out_oldValue != nullptr)
-        *out_oldValue = m_pEntries[uiIndex].value;
+        *out_oldValue = std::move(m_pEntries[uiIndex].value);
 
       m_pEntries[uiIndex].value = value;
       return true;
@@ -254,8 +254,8 @@ bool ezHashTableBase<K, V, H>::Insert(const K& key, const V& value, V* out_oldVa
   // new entry
   uiIndex = uiDeletedIndex != ezInvalidIndex ? uiDeletedIndex : uiIndex;
 
-  ezMemoryUtils::Construct(&m_pEntries[uiIndex].key, key, 1);
-  ezMemoryUtils::Construct(&m_pEntries[uiIndex].value, value, 1);
+  ezMemoryUtils::MoveConstruct(&m_pEntries[uiIndex].key, std::move(key));
+  ezMemoryUtils::MoveConstruct(&m_pEntries[uiIndex].value, std::move(value));
   MarkEntryAsValid(uiIndex);
   ++m_uiCount;
 
@@ -269,7 +269,7 @@ bool ezHashTableBase<K, V, H>::Remove(const K& key, V* out_oldValue /*= nullptr*
   if (uiIndex != ezInvalidIndex)
   {
     if (out_oldValue != nullptr)
-      *out_oldValue = m_pEntries[uiIndex].value;
+      *out_oldValue = std::move(m_pEntries[uiIndex].value);
 
     ezMemoryUtils::Destruct(&m_pEntries[uiIndex].key, 1);
     ezMemoryUtils::Destruct(&m_pEntries[uiIndex].value, 1);

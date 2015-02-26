@@ -32,6 +32,9 @@ public:
   template <typename T>
   static void RelocateConstruct(T* pDestination, T* pSource, size_t uiCount);
 
+  template <typename T>
+  static void MoveConstruct(T* pDestination, T&& source);
+
   /// \brief Destructs \a uiCount objects of type T at \a pDestination.
   template <typename T>
   static void Destruct(T* pDestination, size_t uiCount); // [tested]

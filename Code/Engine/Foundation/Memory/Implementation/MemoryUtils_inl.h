@@ -33,6 +33,12 @@ EZ_FORCE_INLINE void ezMemoryUtils::RelocateConstruct(T* pDestination, T* pSourc
 }
 
 template <typename T>
+EZ_FORCE_INLINE void ezMemoryUtils::MoveConstruct(T* pDestination, T&& source)
+{
+  ::new(pDestination) T(source);
+}
+
+template <typename T>
 EZ_FORCE_INLINE void ezMemoryUtils::Destruct(T* pDestination, size_t uiCount)
 {
   Destruct(pDestination, uiCount, ezIsPodType<T>());

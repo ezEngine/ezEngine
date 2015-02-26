@@ -239,8 +239,8 @@
   <program>$(EZ_DMD_PATH)\windows\bin\dmd.exe</program>
   <imppath />
   <fileImppath />
-  <outdir>$(ConfigurationName)</outdir>
-  <objdir>$(OutDir)</objdir>
+  <outdir>$(ProjectDir)\..\..\..\..\..\Output\Bin\WinVs2013Debug64</outdir>
+  <objdir>$(Configuration)</objdir>
   <objname />
   <libname />
   <doDocComments>0</doDocComments>
@@ -380,11 +380,18 @@
   <postBuildCommand />
   <filesToClean>*.obj;*.cmd;*.build;*.json;*.dep</filesToClean>
  </Config>
- <Folder name="ezScript">
+ <Folder name="DScript">
   <Folder name="ez">
    <Folder name="Foundation">
+    <Folder name="Containers">
+     <File path="ez\Foundation\Containers\HashTable.d" />
+    </Folder>
+    <Folder name="Math">
+     <File path="ez\Foundation\Math\Math.d" />
+    </Folder>
     <Folder name="Memory">
      <File path="ez\Foundation\Memory\AllocatorBase.d" />
+     <File path="ez\Foundation\Memory\MemoryUtils.d" />
     </Folder>
     <Folder name="Strings">
      <File path="ez\Foundation\Strings\StringBuilder.d" />
@@ -399,15 +406,15 @@
     <Folder name="DGlue">
      <File path="ez\Script\DGlue\Allocator.d" />
     </Folder>
-    <Folder name="Serialization">
-     <File path="ez\Script\Serialization\Serialization.d" />
-    </Folder>
     <Folder name="Internal">
      <File path="ez\script\internal\dllmain.d" />
     </Folder>
     <Folder name="Reflection">
      <File path="ez\Script\Reflection\Reflection.d" />
      <File path="ez\Script\Reflection\Types.d" />
+    </Folder>
+    <Folder name="Serialization">
+     <File path="ez\Script\Serialization\Serialization.d" />
     </Folder>
    </Folder>
   </Folder>

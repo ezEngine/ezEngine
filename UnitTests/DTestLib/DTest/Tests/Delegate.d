@@ -1,0 +1,2 @@
+module DTest.Tests.Delegate;
+
