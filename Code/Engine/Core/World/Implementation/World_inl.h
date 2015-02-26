@@ -36,12 +36,12 @@ EZ_FORCE_INLINE ezUInt32 ezWorld::GetObjectCount() const
   return m_Data.m_ObjectStorage.GetCount();
 }
 
-EZ_FORCE_INLINE ezBlockStorage<ezGameObject>::Iterator ezWorld::GetObjects()
+EZ_FORCE_INLINE ezInternal::WorldData::ObjectStorage::Iterator ezWorld::GetObjects()
 {
   return m_Data.m_ObjectStorage.GetIterator(0);
 }
 
-EZ_FORCE_INLINE ezBlockStorage<ezGameObject>::ConstIterator ezWorld::GetObjects() const
+EZ_FORCE_INLINE ezInternal::WorldData::ObjectStorage::ConstIterator ezWorld::GetObjects() const
 {
   return m_Data.m_ObjectStorage.GetIterator(0);
 }
@@ -182,7 +182,7 @@ EZ_FORCE_INLINE ezAllocatorBase* ezWorld::GetAllocator()
   return &m_Data.m_Allocator;
 }
 
-EZ_FORCE_INLINE ezLargeBlockAllocator* ezWorld::GetBlockAllocator()
+EZ_FORCE_INLINE ezInternal::WorldLargeBlockAllocator* ezWorld::GetBlockAllocator()
 {
   return &m_Data.m_BlockAllocator;
 }

@@ -23,10 +23,10 @@ namespace ezMemoryPolicies
 
     EZ_FORCE_INLINE void* Reallocate(void* ptr, size_t uiCurrentSize, size_t uiNewSize, size_t uiAlign)
     {
-        void* result = realloc(ptr, uiNewSize);
-        EZ_CHECK_ALIGNMENT(result, uiAlign);
+      void* result = realloc(ptr, uiNewSize);
+      EZ_CHECK_ALIGNMENT(result, uiAlign);
 
-        return result;
+      return result;
     }
 
     EZ_FORCE_INLINE void Deallocate(void* ptr)

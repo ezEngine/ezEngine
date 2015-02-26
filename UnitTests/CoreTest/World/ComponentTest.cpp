@@ -133,6 +133,9 @@ EZ_CREATE_SIMPLE_TEST(World, Components)
     ezComponentHandle handle;
     EZ_TEST_BOOL(!world.TryGetComponent(handle, pComponent));
 
+    // Update with no components created
+    world.Update();
+
     handle = TestComponent::CreateComponent(&world, pComponent);
     TestComponent* pTest = nullptr;
     EZ_TEST_BOOL(world.TryGetComponent(handle, pTest));
@@ -254,8 +257,9 @@ EZ_CREATE_SIMPLE_TEST(World, Components)
     EZ_TEST_BOOL(world.TryGetObject(hObjectA, pObjectA));
     EZ_TEST_BOOL(world.TryGetObject(hObjectC, pObjectC));
 
-    EZ_TEST_BOOL(world.TryGetComponent(hComponentA, pComponentA));
-    EZ_TEST_BOOL(world.TryGetComponent(hComponentC, pComponentC));
+    // Since we're not recompacting storage for components, pointer should still be valid.
+    //EZ_TEST_BOOL(world.TryGetComponent(hComponentA, pComponentA));
+    //EZ_TEST_BOOL(world.TryGetComponent(hComponentC, pComponentC));
 
     EZ_TEST_BOOL(pObjectA->IsActive());
     EZ_TEST_BOOL(pComponentA->IsActive());
@@ -264,5 +268,10 @@ EZ_CREATE_SIMPLE_TEST(World, Components)
     EZ_TEST_BOOL(pObjectC->IsActive());
     EZ_TEST_BOOL(pComponentC->IsActive());
     EZ_TEST_BOOL(pComponentC->GetOwner() == pObjectC);
+
+    // creating a new component should reuse memory from component B
+    TestComponent* pComponentB2 = nullptr;
+    ezComponentHandle hComponentB2 = TestComponent::CreateComponent(&world, pComponentB2);
+    EZ_TEST_BOOL(pComponentB2 == pComponentB);
   }
 }

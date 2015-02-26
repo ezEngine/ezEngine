@@ -10,6 +10,13 @@ namespace ezInternal
 {
   class SpatialData;
   class WorldData;
+
+  enum
+  {
+    DEFAULT_BLOCK_SIZE = 4096
+  };
+
+  typedef ezLargeBlockAllocator<DEFAULT_BLOCK_SIZE> WorldLargeBlockAllocator;
 }
 
 class ezGameObject;

@@ -85,7 +85,7 @@ ezAllocatorBase* ezComponentManagerBase::GetAllocator()
   return m_pWorld->GetAllocator();
 }
 
-ezLargeBlockAllocator* ezComponentManagerBase::GetBlockAllocator()
+ezInternal::WorldLargeBlockAllocator* ezComponentManagerBase::GetBlockAllocator()
 {
   return m_pWorld->GetBlockAllocator();
 }

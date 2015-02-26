@@ -15,11 +15,9 @@ void GameRenderer::RenderAllUnits()
 {
   UnitComponentManager* pManager = m_pLevel->GetWorld()->GetComponentManager<UnitComponentManager>();
 
-  ezBlockStorage<UnitComponent>::Iterator it = pManager->GetComponents();
-
-  for ( ; it.IsValid(); ++it)
+  for (auto it = pManager->GetComponents(); it.IsValid(); ++it)
   {
-    RenderUnit((*it).GetOwner(), &(*it));
+    RenderUnit(it->GetOwner(), it);
   }
 }
 

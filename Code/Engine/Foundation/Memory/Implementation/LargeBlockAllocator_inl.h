@@ -1,29 +1,64 @@
-#include <Foundation/PCH.h>
-#include <Foundation/Memory/LargeBlockAllocator.h>
-#include <Foundation/System/SystemInformation.h>
-#include <Foundation/Threading/ThreadUtils.h>
 
-namespace
+template <typename T, ezUInt32 SizeInBytes>
+EZ_FORCE_INLINE ezDataBlock<T, SizeInBytes>::ezDataBlock(T* pData, ezUInt32 uiCount)
 {
-  enum
-  {
-    BLOCK_SIZE_IN_BYTES = ezDataBlock<int>::SIZE_IN_BYTES
-  };
+  m_pData = pData;
+  m_uiCount = uiCount;
 }
 
-ezLargeBlockAllocator::ezLargeBlockAllocator(const char* szName, ezAllocatorBase* pParent, ezBitflags<ezMemoryTrackingFlags> flags) : 
+template <typename T, ezUInt32 SizeInBytes>
+EZ_FORCE_INLINE T* ezDataBlock<T, SizeInBytes>::ReserveBack()
+{
+  EZ_ASSERT_DEV(m_uiCount < CAPACITY, "Block is full.");
+  return m_pData + m_uiCount++;
+}
+
+template <typename T, ezUInt32 SizeInBytes>
+EZ_FORCE_INLINE T* ezDataBlock<T, SizeInBytes>::PopBack()
+{
+  EZ_ASSERT_DEV(m_uiCount > 0, "Block is empty");
+  --m_uiCount;
+  return m_pData + m_uiCount;
+}
+
+template <typename T, ezUInt32 SizeInBytes>
+EZ_FORCE_INLINE bool ezDataBlock<T, SizeInBytes>::IsEmpty() const
+{
+  return m_uiCount == 0;
+}
+
+template <typename T, ezUInt32 SizeInBytes>
+EZ_FORCE_INLINE bool ezDataBlock<T, SizeInBytes>::IsFull() const
+{
+  return m_uiCount == CAPACITY;
+}
+
+template <typename T, ezUInt32 SizeInBytes>
+EZ_FORCE_INLINE T& ezDataBlock<T, SizeInBytes>::operator[](ezUInt32 uiIndex) const
+{
+  EZ_ASSERT_DEV(uiIndex < m_uiCount, "Out of bounds access. Data block has %i elements, trying to access element at index %i.", m_uiCount, uiIndex);
+  return m_pData[uiIndex];
+}
+
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+template <ezUInt32 BlockSize>
+ezLargeBlockAllocator<BlockSize>::ezLargeBlockAllocator(const char* szName, ezAllocatorBase* pParent, ezBitflags<ezMemoryTrackingFlags> flags) : 
   m_superBlocks(pParent),
   m_freeBlocks(pParent)
 {
+  EZ_CHECK_AT_COMPILETIME_MSG(BlockSize >= 4096, "Block size must be 4096 or bigger");
+
   m_Id = ezMemoryTracker::RegisterAllocator(szName, flags);
   m_ThreadID = ezThreadUtils::GetCurrentThreadID();
 
   const ezUInt32 uiPageSize = ezSystemInformation::Get().GetMemoryPageSize();
   EZ_IGNORE_UNUSED(uiPageSize);
-  EZ_ASSERT_DEV(uiPageSize <= BLOCK_SIZE_IN_BYTES, "Memory Page size is bigger than block size.");
+  EZ_ASSERT_DEV(uiPageSize <= BlockSize, "Memory Page size is bigger than block size.");
 }
 
-ezLargeBlockAllocator::~ezLargeBlockAllocator()
+template <ezUInt32 BlockSize>
+ezLargeBlockAllocator<BlockSize>::~ezLargeBlockAllocator()
 {
   EZ_ASSERT_RELEASE(m_ThreadID == ezThreadUtils::GetCurrentThreadID(), "Allocator is deleted from another thread");
   ezMemoryTracker::DeregisterAllocator(m_Id);
@@ -34,17 +69,54 @@ ezLargeBlockAllocator::~ezLargeBlockAllocator()
   }
 }
 
-const char* ezLargeBlockAllocator::GetName() const
+template <ezUInt32 BlockSize>
+template <typename T>
+EZ_FORCE_INLINE ezDataBlock<T, BlockSize> ezLargeBlockAllocator<BlockSize>::AllocateBlock()
+{
+  struct Helper
+  {
+    enum
+    {
+      BLOCK_CAPACITY = ezDataBlock<T, BlockSize>::CAPACITY
+    };
+  };
+
+  EZ_CHECK_AT_COMPILETIME_MSG(Helper::BLOCK_CAPACITY >= 1,
+    "Type is too big for block allocation. Consider using regular heap allocation instead or increase the block size.");
+
+  ezDataBlock<T, BlockSize> block(static_cast<T*>(Allocate(EZ_ALIGNMENT_OF(T))), 0);
+  return block;
+}
+
+template <ezUInt32 BlockSize>
+template <typename T>
+EZ_FORCE_INLINE void ezLargeBlockAllocator<BlockSize>::DeallocateBlock(ezDataBlock<T, BlockSize>& block)
+{
+  Deallocate(block.m_pData);
+  block.m_pData = nullptr;
+  block.m_uiCount = 0;
+}
+
+template <ezUInt32 BlockSize>
+EZ_FORCE_INLINE const char* ezLargeBlockAllocator<BlockSize>::GetName() const
 {
   return ezMemoryTracker::GetAllocatorName(m_Id);
 }
 
-const ezAllocatorBase::Stats& ezLargeBlockAllocator::GetStats() const
+template <ezUInt32 BlockSize>
+EZ_FORCE_INLINE ezAllocatorId ezLargeBlockAllocator<BlockSize>::GetId() const
+{
+  return m_Id;
+}
+
+template <ezUInt32 BlockSize>
+EZ_FORCE_INLINE const ezAllocatorBase::Stats& ezLargeBlockAllocator<BlockSize>::GetStats() const
 {
   return ezMemoryTracker::GetAllocatorStats(m_Id);
 }
 
-void* ezLargeBlockAllocator::Allocate(size_t uiAlign)
+template <ezUInt32 BlockSize>
+void* ezLargeBlockAllocator<BlockSize>::Allocate(size_t uiAlign)
 {
   EZ_ASSERT_RELEASE(ezMath::IsPowerOf2((ezUInt32)uiAlign), "Alignment must be power of two");
 
@@ -63,7 +135,7 @@ void* ezLargeBlockAllocator::Allocate(size_t uiAlign)
     SuperBlock& superBlock = m_superBlocks[uiSuperBlockIndex];
     ++superBlock.m_uiUsedBlocks;
 
-    ptr = ezMemoryUtils::AddByteOffset(superBlock.m_pBasePtr, uiInnerBlockIndex * BLOCK_SIZE_IN_BYTES);
+    ptr = ezMemoryUtils::AddByteOffset(superBlock.m_pBasePtr, uiInnerBlockIndex * BlockSize);
   }
   else
   {
@@ -86,12 +158,13 @@ void* ezLargeBlockAllocator::Allocate(size_t uiAlign)
     ptr = pMemory;
   }
 
-  ezMemoryTracker::AddAllocation(m_Id, ptr, BLOCK_SIZE_IN_BYTES, uiAlign);
+  ezMemoryTracker::AddAllocation(m_Id, ptr, BlockSize, uiAlign);
 
   return ptr;
 }
 
-void ezLargeBlockAllocator::Deallocate(void* ptr)
+template <ezUInt32 BlockSize>
+void ezLargeBlockAllocator<BlockSize>::Deallocate(void* ptr)
 {
   EZ_LOCK(m_mutex);
 
@@ -147,11 +220,8 @@ void ezLargeBlockAllocator::Deallocate(void* ptr)
   else
   {
     // add block to free list
-    const ezUInt32 uiInnerBlockIndex = (ezUInt32)(diff / BLOCK_SIZE_IN_BYTES);
+    const ezUInt32 uiInnerBlockIndex = (ezUInt32)(diff / BlockSize);
     m_freeBlocks.PushBack(uiSuperBlockIndex * SuperBlock::NUM_BLOCKS + uiInnerBlockIndex);
   }
 }
-
-
-EZ_STATICLINK_FILE(Foundation, Foundation_Memory_Implementation_LargeBlockAllocator);
 

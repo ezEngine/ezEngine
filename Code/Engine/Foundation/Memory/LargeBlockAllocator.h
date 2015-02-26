@@ -3,89 +3,56 @@
 #include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/Memory/PageAllocator.h>
 #include <Foundation/Memory/MemoryTracker.h>
+#include <Foundation/System/SystemInformation.h>
 #include <Foundation/Threading/Lock.h>
 #include <Foundation/Threading/Mutex.h>
+#include <Foundation/Threading/ThreadUtils.h>
 
-/// \brief This struct represents a 4k block of type T.
-template <typename T>
+/// \brief This struct represents a block of type T, typically 4kb.
+template <typename T, ezUInt32 SizeInBytes>
 struct ezDataBlock
 {
   EZ_DECLARE_POD_TYPE();
 
   enum 
   { 
-    SIZE_IN_BYTES = 4096, 
+    SIZE_IN_BYTES = SizeInBytes,
     CAPACITY = SIZE_IN_BYTES / sizeof(T) 
   };
 
-  EZ_FORCE_INLINE ezDataBlock(T* pData, ezUInt32 uiCount)
-  {
-    m_pData = pData;
-    m_uiCount = uiCount;
-  }
-
-  EZ_FORCE_INLINE T* ReserveBack()
-  {
-    EZ_ASSERT_DEV(m_uiCount < CAPACITY, "Block is full.");
-    return m_pData + m_uiCount++;
-  }
-
-  EZ_FORCE_INLINE T* PopBack()
-  {
-    EZ_ASSERT_DEV(m_uiCount > 0, "Block is empty");
-    --m_uiCount;
-    return m_pData + m_uiCount;
-  }
-
-  EZ_FORCE_INLINE bool IsEmpty() const
-  {
-    return m_uiCount == 0;
-  }
-
-  EZ_FORCE_INLINE bool IsFull() const
-  {
-    return m_uiCount == CAPACITY;
-  }
-
-  EZ_FORCE_INLINE T& operator[](ezUInt32 uiIndex) const
-  {
-    EZ_ASSERT_DEV(uiIndex < m_uiCount, "Out of bounds access. Data block has %i elements, trying to access element at index %i.", m_uiCount, uiIndex);
-    return m_pData[uiIndex];
-  }
-
+  ezDataBlock(T* pData, ezUInt32 uiCount);
+  
+  T* ReserveBack();
+  T* PopBack();
+  
+  bool IsEmpty() const;
+  bool IsFull() const;
+  
+  T& operator[](ezUInt32 uiIndex) const;
+  
   T* m_pData;
   ezUInt32 m_uiCount;
 };
 
-/// \brief A block allocator which can only allocates 4k blocks of memory at once.
-class EZ_FOUNDATION_DLL ezLargeBlockAllocator
+/// \brief A block allocator which can only allocates blocks of memory at once.
+template <ezUInt32 BlockSizeInByte>
+class ezLargeBlockAllocator
 {
 public:
   ezLargeBlockAllocator(const char* szName, ezAllocatorBase* pParent, ezBitflags<ezMemoryTrackingFlags> flags = ezMemoryTrackingFlags::Default);
   ~ezLargeBlockAllocator();
 
   template <typename T>
-  EZ_FORCE_INLINE ezDataBlock<T> AllocateBlock()
-  {
-    ezDataBlock<T> block(static_cast<T*>(Allocate(EZ_ALIGNMENT_OF(T))), 0);
-    return block;
-  }
-
+  ezDataBlock<T, BlockSizeInByte> AllocateBlock();
+  
   template <typename T>
-  EZ_FORCE_INLINE void DeallocateBlock(ezDataBlock<T>& block)
-  {
-    Deallocate(block.m_pData);
-    block.m_pData = nullptr;
-    block.m_uiCount = 0;
-  }
+  void DeallocateBlock(ezDataBlock<T, BlockSizeInByte>& block);
+  
 
   const char* GetName() const;
   
-  EZ_FORCE_INLINE ezAllocatorId GetId() const
-  {
-    return m_Id;
-  }
-
+  ezAllocatorId GetId() const;
+  
   const ezAllocatorBase::Stats& GetStats() const;
   
 private:
@@ -104,7 +71,7 @@ private:
     enum
     {
       NUM_BLOCKS = 16,
-      SIZE_IN_BYTES = ezDataBlock<int>::SIZE_IN_BYTES * NUM_BLOCKS
+      SIZE_IN_BYTES = BlockSizeInByte * NUM_BLOCKS
     };
 
     void* m_pBasePtr;
@@ -116,3 +83,4 @@ private:
   ezDynamicArray<ezUInt32> m_freeBlocks;
 };
 
+#include <Foundation/Memory/Implementation/LargeBlockAllocator_inl.h>

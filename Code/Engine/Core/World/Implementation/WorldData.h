@@ -23,16 +23,16 @@ namespace ezInternal
     ezHashedString m_sName;
     ezProxyAllocator m_Allocator;
     ezLocalAllocatorWrapper m_AllocatorWrapper;
-    ezLargeBlockAllocator m_BlockAllocator;
+    ezInternal::WorldLargeBlockAllocator m_BlockAllocator;
 
     enum
     {
-      GAME_OBJECTS_PER_BLOCK = ezDataBlock<ezGameObject>::CAPACITY,
-      TRANSFORMATION_DATA_PER_BLOCK = ezDataBlock<ezGameObject::TransformationData>::CAPACITY
+      GAME_OBJECTS_PER_BLOCK = ezDataBlock<ezGameObject, ezInternal::DEFAULT_BLOCK_SIZE>::CAPACITY,
+      TRANSFORMATION_DATA_PER_BLOCK = ezDataBlock<ezGameObject::TransformationData, ezInternal::DEFAULT_BLOCK_SIZE>::CAPACITY
     };
 
     // object storage
-    typedef ezBlockStorage<ezGameObject> ObjectStorage;
+    typedef ezBlockStorage<ezGameObject, ezInternal::DEFAULT_BLOCK_SIZE, true> ObjectStorage;
     ezIdTable<ezGameObjectId, ObjectStorage::Entry, ezLocalAllocatorWrapper> m_Objects;
     ObjectStorage m_ObjectStorage;
 
@@ -49,7 +49,7 @@ namespace ezInternal
     // hierarchy structures
     struct Hierarchy
     {
-      typedef ezDataBlock<ezGameObject::TransformationData> DataBlock;
+      typedef ezDataBlock<ezGameObject::TransformationData, ezInternal::DEFAULT_BLOCK_SIZE> DataBlock;
       typedef ezDynamicArray<DataBlock> DataBlockArray;
 
       ezHybridArray<DataBlockArray*, 8, ezLocalAllocatorWrapper> m_Data;

@@ -49,10 +49,10 @@ public:
   ezUInt32 GetObjectCount() const;
 
   /// \brief Returns an iterator over all objects in this world in no specific order.
-  ezBlockStorage<ezGameObject>::Iterator GetObjects();
+  ezInternal::WorldData::ObjectStorage::Iterator GetObjects();
 
   /// \brief Returns an iterator over all objects in this world in no specific order.
-  ezBlockStorage<ezGameObject>::ConstIterator GetObjects() const;
+  ezInternal::WorldData::ObjectStorage::ConstIterator GetObjects() const;
 
   /// \brief Defines a visitor function that is called for every game-object when using the traverse method. 
   /// The function takes a pointer to the game object as argument and returns a bool which indicates whether to continue (true) or abort (false) traversal.
@@ -117,7 +117,7 @@ public:
   ezAllocatorBase* GetAllocator();
 
   /// \brief Returns the block allocator used by this world.
-  ezLargeBlockAllocator* GetBlockAllocator();
+  ezInternal::WorldLargeBlockAllocator* GetBlockAllocator();
 
   /// \brief Transfers ownership of the world to the calling thread. Use with care!
   /// Call this method if you want to update the world in a workerthread. Make sure that the world is not accessed by multiple threads at the same time.

@@ -86,16 +86,16 @@ EZ_CREATE_SIMPLE_TEST(Memory, Allocator)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "LargeBlockAllocator")
   {
-    enum { BLOCK_SIZE_IN_BYTES = ezDataBlock<int>::SIZE_IN_BYTES };
+    enum { BLOCK_SIZE_IN_BYTES = 4096 * 2 };
 
-    ezLargeBlockAllocator allocator("Test", ezFoundation::GetDefaultAllocator());
+    ezLargeBlockAllocator<BLOCK_SIZE_IN_BYTES> allocator("Test", ezFoundation::GetDefaultAllocator());
 
-    ezDynamicArray<ezDataBlock<int> > blocks;
+    ezDynamicArray<ezDataBlock<int, BLOCK_SIZE_IN_BYTES> > blocks;
     blocks.Reserve(1000);
 
     for (ezUInt32 i = 0; i < 17; ++i)
     {
-      ezDataBlock<int> block = allocator.AllocateBlock<int>();
+      auto block = allocator.AllocateBlock<int>();
       EZ_TEST_BOOL(ezMemoryUtils::IsAligned(block.m_pData, BLOCK_SIZE_IN_BYTES)); // test page alignment
       EZ_TEST_INT(block.m_uiCount, 0);
 
@@ -110,7 +110,7 @@ EZ_CREATE_SIMPLE_TEST(Memory, Allocator)
 
     for (ezUInt32 i = 0; i < 200; ++i)
     {
-      ezDataBlock<int> block = allocator.AllocateBlock<int>();
+      auto block = allocator.AllocateBlock<int>();
       blocks.PushBack(block);
     }
 
@@ -136,7 +136,7 @@ EZ_CREATE_SIMPLE_TEST(Memory, Allocator)
       else if (blocks.GetCount() > 0)
       {
         ezUInt32 uiIndex = rand() % blocks.GetCount();
-        ezDataBlock<int> block = blocks[uiIndex];
+        auto block = blocks[uiIndex];
 
         allocator.DeallocateBlock(block);
 

@@ -57,9 +57,7 @@ void ShipComponent::Update()
   {
     CollidableComponentManager* pCollidableManager = GetWorld()->GetComponentManager<CollidableComponentManager>();
 
-    ezBlockStorage<CollidableComponent>::Iterator it = pCollidableManager->GetComponents();
-
-    for ( ; it.IsValid(); ++it)
+    for (auto it = pCollidableManager->GetComponents(); it.IsValid(); ++it)
     {
       CollidableComponent& Collider = *it;
       ezGameObject* pColliderObject = Collider.GetOwner();

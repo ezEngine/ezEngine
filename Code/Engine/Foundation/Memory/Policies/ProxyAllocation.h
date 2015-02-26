@@ -23,6 +23,11 @@ namespace ezMemoryPolicies
       return m_pParent->Allocate(uiSize, uiAlign);
     }
 
+    EZ_FORCE_INLINE void* Reallocate(void* ptr, size_t uiCurrentSize, size_t uiNewSize, size_t uiAlign)
+    {
+      return m_pParent->Reallocate(ptr, uiCurrentSize, uiNewSize, uiAlign);
+    }
+
     EZ_FORCE_INLINE void Deallocate(void* ptr)
     {
       m_pParent->Deallocate(ptr);
