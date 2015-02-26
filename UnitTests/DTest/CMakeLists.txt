@@ -14,6 +14,8 @@
 # add_definitions (-DMY_PREPROCESS_DEFINITION_1)
 # add_definitions (-DMY_PREPROCESS_DEFINITION_2)
 
+BUILD_CONDITIONAL(${EZ_USE_VISUALD})
+
 add_library (DTestLib STATIC IMPORTED)
 set_target_properties(DTestLib PROPERTIES IMPORTED_LOCATION_DEBUG "${OUTPUT_LIB_DEBUG}/ezDTestLib.lib")
 set_target_properties(DTestLib PROPERTIES IMPORTED_LOCATION_RELEASE "${OUTPUT_LIB_RELEASE}/ezDTestLib.lib")
