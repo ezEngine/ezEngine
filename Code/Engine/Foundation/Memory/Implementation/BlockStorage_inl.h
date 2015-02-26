@@ -182,7 +182,7 @@ typename ezBlockStorage<T, BlockSize, CompactStorage>::Entry ezBlockStorage<T, B
 
     if (pBlock == nullptr || pBlock->IsFull())
     {
-      m_Blocks.PushBack(m_pBlockAllocator->AllocateBlock<T>());
+      m_Blocks.PushBack(m_pBlockAllocator->template AllocateBlock<T>());
       pBlock = &m_Blocks.PeekBack();
     }
 

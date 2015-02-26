@@ -48,7 +48,6 @@ EZ_STATICLINK_LIBRARY(Foundation)
   EZ_STATICLINK_REFERENCE(Foundation_Memory_Implementation_AllocatorBase);
   EZ_STATICLINK_REFERENCE(Foundation_Memory_Implementation_AllocatorWrapper);
   EZ_STATICLINK_REFERENCE(Foundation_Memory_Implementation_EndianHelper);
-  EZ_STATICLINK_REFERENCE(Foundation_Memory_Implementation_LargeBlockAllocator);
   EZ_STATICLINK_REFERENCE(Foundation_Memory_Implementation_MemoryTracker);
   EZ_STATICLINK_REFERENCE(Foundation_Memory_Implementation_MemoryUtils);
   EZ_STATICLINK_REFERENCE(Foundation_Memory_Implementation_PageAllocator);
