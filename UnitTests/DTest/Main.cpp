@@ -33,6 +33,7 @@ void ezDeinitDTests();
 
 int main(int argc, char **argv)
 {
+  ezInitDTests();
   ezTestSetup::InitTestFramework("FoundationTest", "Foundation Tests", argc, (const char**) argv);
   
   // *** Add additional output handlers and configurations here. ***
@@ -44,5 +45,6 @@ int main(int argc, char **argv)
   const ezInt32 iFailedTests = ezTestSetup::GetFailedTestCount();
   
   ezTestSetup::DeInitTestFramework();
+  ezDeinitDTests();
   return iFailedTests;
 }

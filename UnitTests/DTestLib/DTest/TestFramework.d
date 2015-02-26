@@ -32,9 +32,35 @@ extern(C++)
 	}
 }
 
+template Resolve(alias T)
+{
+	alias Resolve = T;
+}
+
 mixin template TestGroup(string GroupName)
 {
+	public import ez.Script.Uda;
 
+	__gshared ezSimpleTestGroup _TestGroup;
+	__gshared ezRegisterSimpleTestHelper[] _RegisterTestHelpers;
+
+	shared static this()
+	{
+		_TestGroup = ezCreateSimpleTestGroup((GroupName ~ "\0").ptr);
+		
+		alias mod = Resolve!(__traits(parent, _TestGroup));
+		foreach(memberName; __traits(allMembers, mod))
+		{
+			alias member = Resolve!(__traits(getMember, mod, memberName));
+			static if(__traits(compiles, typeof(member)))
+			{
+				static if(hasAttribute!(member, Test))
+				{
+					_RegisterTestHelpers ~= ezCreateRegisterSimpleTestHelper(_TestGroup, getAttribute!(member, Test).name ~ "\0", &member);
+				}
+			}
+		}
+	}
 }
 
 // UDA

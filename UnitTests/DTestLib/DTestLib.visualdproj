@@ -53,9 +53,9 @@
   <cccmd>$(CC) -c</cccmd>
   <ccTransOpt>1</ccTransOpt>
   <program>$(EZ_DMD_PATH)\windows\bin\dmd.exe</program>
-  <imppath />
+  <imppath>$(ProjectDir)\..\..\Code\Engine\Script\D\DCode</imppath>
   <fileImppath />
-  <outdir>$(ProjectDir)\..\..\..\Output\Lib\WinVs2013Debug64</outdir>
+  <outdir>$(ProjectDir)\..\..\Output\Lib\WinVs2013Debug64</outdir>
   <objdir>$(ProjectDir)\$(ConfigurationName)</objdir>
   <objname />
   <libname />
@@ -93,7 +93,7 @@
   <libpaths />
   <deffile />
   <resfile />
-  <exefile>$(OutDir)\$(ProjectName).lib</exefile>
+  <exefile>$(OutDir)\ez$(ProjectName).lib</exefile>
   <useStdLibPath>1</useStdLibPath>
   <cRuntime>4</cRuntime>
   <additionalOptions />
