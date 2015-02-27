@@ -87,6 +87,7 @@ EZ_CREATE_SIMPLE_TEST(Memory, Allocator)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "LargeBlockAllocator")
   {
     enum { BLOCK_SIZE_IN_BYTES = 4096 * 2 };
+    const ezUInt32 uiPageSize = ezSystemInformation::Get().GetMemoryPageSize();
 
     ezLargeBlockAllocator<BLOCK_SIZE_IN_BYTES> allocator("Test", ezFoundation::GetDefaultAllocator());
 
@@ -96,7 +97,7 @@ EZ_CREATE_SIMPLE_TEST(Memory, Allocator)
     for (ezUInt32 i = 0; i < 17; ++i)
     {
       auto block = allocator.AllocateBlock<int>();
-      EZ_TEST_BOOL(ezMemoryUtils::IsAligned(block.m_pData, BLOCK_SIZE_IN_BYTES)); // test page alignment
+      EZ_TEST_BOOL(ezMemoryUtils::IsAligned(block.m_pData, uiPageSize)); // test page alignment
       EZ_TEST_INT(block.m_uiCount, 0);
 
       blocks.PushBack(block);

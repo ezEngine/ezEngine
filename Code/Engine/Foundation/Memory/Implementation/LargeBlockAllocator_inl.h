@@ -55,6 +55,7 @@ ezLargeBlockAllocator<BlockSize>::ezLargeBlockAllocator(const char* szName, ezAl
   const ezUInt32 uiPageSize = ezSystemInformation::Get().GetMemoryPageSize();
   EZ_IGNORE_UNUSED(uiPageSize);
   EZ_ASSERT_DEV(uiPageSize <= BlockSize, "Memory Page size is bigger than block size.");
+  EZ_ASSERT_DEV(BlockSize % uiPageSize == 0, "Blocksize (%u) must be a multiple of page size (%u)", BlockSize, uiPageSize);
 }
 
 template <ezUInt32 BlockSize>
