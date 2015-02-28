@@ -75,7 +75,7 @@ protected:
 /// \note If you are wondering where the code is, the delegate is implemented with macro and template magic in
 /// Delegate_inl.h and DelegateHelper_inl.h.
 template <typename T>
-class ezDelegate : public ezDelegateBase
+struct ezDelegate : public ezDelegateBase
 {
 
 

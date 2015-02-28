@@ -3,7 +3,7 @@
  <Config name="Debug" platform="x64">
   <obj>0</obj>
   <link>0</link>
-  <lib>1</lib>
+  <lib>0</lib>
   <subsystem>0</subsystem>
   <multiobj>0</multiobj>
   <singleFileCompilation>0</singleFileCompilation>
@@ -55,7 +55,7 @@
   <program>$(EZ_DMD_PATH)\windows\bin\dmd.exe</program>
   <imppath>$(ProjectDir)\..\..\Code\Engine\Script\D\DCode</imppath>
   <fileImppath />
-  <outdir>$(ProjectDir)\..\..\Output\Lib\WinVs2013Debug64</outdir>
+  <outdir>$(ProjectDir)\..\..\Output\Bin\WinVs2013Debug64</outdir>
   <objdir>$(ProjectDir)\$(ConfigurationName)</objdir>
   <objname />
   <libname />
@@ -89,11 +89,11 @@
   <cv2pdbOptions />
   <objfiles />
   <linkswitches />
-  <libfiles />
-  <libpaths />
+  <libfiles>ezFoundation.lib ezTestFramework.lib ezDTest.lib</libfiles>
+  <libpaths>$(ProjectDir)\..\..\Output\Lib\WinVs2013Debug64</libpaths>
   <deffile />
   <resfile />
-  <exefile>$(OutDir)\ez$(ProjectName).lib</exefile>
+  <exefile>$(OutDir)\ez$(ProjectName).exe</exefile>
   <useStdLibPath>1</useStdLibPath>
   <cRuntime>4</cRuntime>
   <additionalOptions />
@@ -206,8 +206,10 @@
   <Folder name="DTest">
    <Folder name="Tests">
     <File path="DTest\Tests\Delegate.d" />
+    <File path="DTest\Tests\Sizeof.d" />
    </Folder>
    <File path="DTest\TestFramework.d" />
   </Folder>
+  <File path="main.d" />
  </Folder>
 </DProject>

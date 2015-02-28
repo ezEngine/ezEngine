@@ -1,11 +1,6 @@
-#include <PCH.h>
+#include <DTest/PCH.h>
 #include <TestFramework/Framework/TestFramework.h>
 #include <TestFramework/Utilities/TestSetup.h>
-
-ezInt32 ezConstructionCounter::s_iConstructions = 0;
-ezInt32 ezConstructionCounter::s_iDestructions = 0;
-ezInt32 ezConstructionCounter::s_iConstructionsLast = 0;
-ezInt32 ezConstructionCounter::s_iDestructionsLast = 0;
 
 ezSimpleTestGroup* ezCreateSimpleTestGroup(const char* szName)
 {
@@ -27,13 +22,18 @@ void ezDestroyRegisterSimpleTestHelper(ezRegisterSimpleTestHelper* pHelper)
   EZ_DEFAULT_DELETE(pHelper);
 }
 
-// Defined on D side
-void ezInitDTests();
-void ezDeinitDTests(); 
-
-int main(int argc, char **argv)
+void ezSetTestBlockName(const char* szTestBlockName)
 {
-  ezInitDTests();
+  ezTestFramework::s_szTestBlockName = szTestBlockName;
+}
+
+void ezIncreaseAssertCount()
+{
+  ezTestFramework::s_iAssertCounter++;
+}
+
+int ezTestMain(int argc, char **argv)
+{
   ezTestSetup::InitTestFramework("FoundationTest", "Foundation Tests", argc, (const char**) argv);
   
   // *** Add additional output handlers and configurations here. ***
@@ -45,6 +45,5 @@ int main(int argc, char **argv)
   const ezInt32 iFailedTests = ezTestSetup::GetFailedTestCount();
   
   ezTestSetup::DeInitTestFramework();
-  ezDeinitDTests();
   return iFailedTests;
 }

@@ -16,23 +16,13 @@
 
 BUILD_CONDITIONAL(${EZ_USE_VISUALD})
 
-add_library (DTestLib STATIC IMPORTED)
-set_target_properties(DTestLib PROPERTIES IMPORTED_LOCATION_DEBUG "${OUTPUT_LIB_DEBUG}/ezDTestLib.lib")
-set_target_properties(DTestLib PROPERTIES IMPORTED_LOCATION_RELEASE "${OUTPUT_LIB_RELEASE}/ezDTestLib.lib")
-set_target_properties(DTestLib PROPERTIES IMPORTED_LOCATION_MINSIZEREL "${OUTPUT_LIB_MINSIZE}/ezDTestLib.lib")
-set_target_properties(DTestLib PROPERTIES IMPORTED_LOCATION_RELWITHDEBINFO "${OUTPUT_LIB_RELWITHDEB}/ezDTestLib.lib")
-
 # Add all the libraries that this project needs to link against here
 SET (LINK_LIBRARIES
   Foundation      # Example: Another library build with cmake
   TestFramework
-  DTestLib
 )
 
-include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/CMAKE_Application.txt)
+# we want this library to always end up as a static library
+set (EZ_COMPILE_ENGINE_AS_DLL 0)
 
-add_dependencies(DTest DTestLib_dproj)
-
-# Adds this project to 'Tests.txt', notifying the build server to run this as a test.
-# The first parameter sets whether this tests needs direct hardware access to the GPU.
-ADD_TEST(OFF)
+include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/CMAKE_Library.txt)
