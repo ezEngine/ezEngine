@@ -112,7 +112,7 @@ public:
   /// \brief Inserts the key value pair or replaces value if an entry with the given key already exists. 
   ///
   /// Returns if an existing value was replaced and optionally writes out the old value to out_oldValue.
-  bool Insert(KeyType key, ValueType value, ValueType* out_oldValue = nullptr); // [tested]
+  bool Insert(const KeyType& key, const ValueType& value, ValueType* out_oldValue = nullptr); // [tested]
 
   /// \brief Removes the entry with the given key. Returns if an entry was removed and optionally writes out the old value to out_oldValue.
   bool Remove(const KeyType& key, ValueType* out_oldValue = nullptr); // [tested]
