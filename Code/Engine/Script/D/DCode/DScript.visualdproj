@@ -205,7 +205,7 @@
  <Config name="Debug" platform="x64">
   <obj>0</obj>
   <link>0</link>
-  <lib>0</lib>
+  <lib>2</lib>
   <subsystem>0</subsystem>
   <multiobj>0</multiobj>
   <singleFileCompilation>0</singleFileCompilation>
@@ -295,12 +295,12 @@
   <libpaths>$(ProjectDir)\..\..\..\..\..\Output\Lib\WinVs2013Debug64</libpaths>
   <deffile />
   <resfile />
-  <exefile>$(OutDir)\$(ProjectName).exe</exefile>
+  <exefile>$(OutDir)\$(ProjectName).dll</exefile>
   <useStdLibPath>1</useStdLibPath>
   <cRuntime>4</cRuntime>
-  <additionalOptions>-op</additionalOptions>
+  <additionalOptions>-shared -op -defaultlib=&quot;druntime64ds.lib&quot; phobos64ds.lib -L/NODEFAULTLIB:msvcrt -L/NODEFAULTLIB:libcmt -L/IMPLIB:&quot;$(ProjectDir)\..\..\..\..\..\Output\Lib\WinVs2013Debug64\ezDScript.lib&quot; -L/DLL</additionalOptions>
   <preBuildCommand />
-  <postBuildCommand />
+  <postBuildCommand>xcopy /Y /D %EZ_DMD_PATH%\windows\bin64\* $(ProjectDir)\..\..\..\..\..\Output\Bin\WinVs2013Debug64</postBuildCommand>
   <filesToClean>*.obj;*.cmd;*.build;*.json;*.dep</filesToClean>
  </Config>
  <Config name="Release" platform="x64">
@@ -407,6 +407,9 @@
  <Folder name="DScript">
   <Folder name="ez">
    <Folder name="Foundation">
+    <Folder name="Algorithm">
+     <File path="ez\foundation\Algorithm\Hashing.d" />
+    </Folder>
     <Folder name="Containers">
      <File path="ez\Foundation\Containers\HashTable.d" />
     </Folder>

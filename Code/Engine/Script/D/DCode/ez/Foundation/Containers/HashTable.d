@@ -232,4 +232,87 @@ private:
   }
 
   enum ezUInt32 CAPACITY_ALIGNMENT = 32;
+
+  version = EZ_HASHTABLE_USE_BITFLAGS;
+
+  ezUInt32 GetFlagsCapacity() const
+  {
+    version(EZ_HASHTABLE_USE_BITFLAGS)
+      return (m_uiCapacity + 15) / 16;
+    else
+      return m_uiCapacity;
+  }
+
+  ezUInt32 GetFlags(ezUInt32* pFlags, ezUInt32 uiEntryIndex) const
+  {
+    version(EZ_HASHTABLE_USE_BITFLAGS)
+    {
+      const ezUInt32 uiIndex = uiEntryIndex / 16;
+      const ezUInt32 uiSubIndex = (uiEntryIndex & 15) * 2;
+      return (pFlags[uiIndex] >> uiSubIndex) & FLAGS_MASK;
+    }
+    else
+      return pFlags[uiEntryIndex] & FLAGS_MASK;
+  }
+
+  void SetFlags(ezUInt32 uiEntryIndex, ezUInt32 uiFlags)
+  {
+    version(EZ_HASHTABLE_USE_BITFLAGS)
+    {
+      const ezUInt32 uiIndex = uiEntryIndex / 16;
+      const ezUInt32 uiSubIndex = (uiEntryIndex & 15) * 2;
+      EZ_ASSERT_DEV(uiIndex < GetFlagsCapacity(), "Out of bounds access");
+      m_pEntryFlags[uiIndex] &= ~(FLAGS_MASK << uiSubIndex);
+      m_pEntryFlags[uiIndex] |= (uiFlags << uiSubIndex);
+    }
+    else
+    {
+      EZ_ASSERT_DEV(uiEntryIndex < GetFlagsCapacity(), "Out of bounds access");
+      m_pEntryFlags[uiEntryIndex] = uiFlags;
+    }
+  }
+
+  bool IsFreeEntry(ezUInt32 uiEntryIndex) const
+  {
+    return GetFlags(m_pEntryFlags, uiEntryIndex) == FREE_ENTRY;
+  }
+
+  bool IsValidEntry(ezUInt32 uiEntryIndex) const
+  {
+    return GetFlags(m_pEntryFlags, uiEntryIndex) == VALID_ENTRY;
+  }
+
+  bool IsDeletedEntry(ezUInt32 uiEntryIndex) const
+  {
+    return GetFlags(m_pEntryFlags, uiEntryIndex) == DELETED_ENTRY;
+  }
+
+  void MarkEntryAsFree(ezUInt32 uiEntryIndex)
+  {
+    SetFlags(uiEntryIndex, FREE_ENTRY);
+  }
+
+  void eMarkEntryAsValid(ezUInt32 uiEntryIndex)
+  {
+    SetFlags(uiEntryIndex, VALID_ENTRY);
+  }
+
+  void MarkEntryAsDeleted(ezUInt32 uiEntryIndex)
+  {
+    SetFlags(uiEntryIndex, DELETED_ENTRY);
+  }
+}
+
+struct ezHashTable(KeyType, ValueType, Hasher = ezHashHelper!KeyType, AllocatorWrapper = ezDefaultAllocatorWrapper) 
+{
+public:
+  ezHashTableBase!(KeyType, ValueType, Hasher) m_impl;
+
+  alias m_impl this;
+
+  @disable this();
+  this(ezAllocatorBase pAllocator)
+  {
+    m_impl(pAllocator);
+  }
 }

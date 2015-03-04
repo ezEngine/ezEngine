@@ -89,14 +89,14 @@
   <cv2pdbOptions />
   <objfiles />
   <linkswitches />
-  <libfiles>ezFoundation.lib ezTestFramework.lib ezDTest.lib</libfiles>
+  <libfiles>ezFoundation.lib ezTestFramework.lib ezDTest.lib ezDScript.lib</libfiles>
   <libpaths>$(ProjectDir)\..\..\Output\Lib\WinVs2013Debug64</libpaths>
   <deffile />
   <resfile />
   <exefile>$(OutDir)\ez$(ProjectName).exe</exefile>
   <useStdLibPath>1</useStdLibPath>
   <cRuntime>4</cRuntime>
-  <additionalOptions />
+  <additionalOptions>-defaultlib=&quot;druntime64ds.lib&quot; phobos64ds.lib -L/NODEFAULTLIB:libcmt</additionalOptions>
   <preBuildCommand />
   <postBuildCommand />
   <filesToClean>*.obj;*.cmd;*.build;*.json;*.dep</filesToClean>
@@ -206,8 +206,10 @@
   <Folder name="DTest">
    <Folder name="Tests">
     <File path="DTest\Tests\Delegate.d" />
+    <File path="DTest\Tests\HashTable.d" />
     <File path="DTest\Tests\Sizeof.d" />
    </Folder>
+   <File path="DTest\ConstructionCounter.d" />
    <File path="DTest\TestFramework.d" />
   </Folder>
   <File path="main.d" />

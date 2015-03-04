@@ -21,16 +21,6 @@ extern(C++)
 
 	ezRegisterSimpleTestHelper ezCreateRegisterSimpleTestHelper(ezSimpleTestGroup pTestGroup, const(char)* szTestName, ezSimpleTestGroup.SimpleTestFunc Func);
 	void ezDestroyRegisterSimpleTestHelper(ezRegisterSimpleTestHelper pHelper);
-
-	void ezInitDTests()
-	{
-		Runtime.initialize();
-	}
-
-	void ezDeinitDTests()
-	{
-		Runtime.terminate();
-	}
 }
 
 template Resolve(alias T)
@@ -72,14 +62,17 @@ mixin template TestGroup(string GroupName)
 		alias mod = Resolve!(__traits(parent, _TestGroup));
 		foreach(memberName; __traits(allMembers, mod))
 		{
-			alias member = Resolve!(__traits(getMember, mod, memberName));
-			static if(__traits(compiles, typeof(member)))
-			{
-				static if(hasAttribute!(member, Test))
-				{
-					_RegisterTestHelpers ~= ezCreateRegisterSimpleTestHelper(_TestGroup, getAttribute!(member, Test).name ~ "\0", &WrapTestFunction!member);
-				}
-			}
+      static if(memberName[0] != '_')
+      {
+			  alias member = Resolve!(__traits(getMember, mod, memberName));
+			  static if(__traits(compiles, typeof(member)))
+			  {
+				  static if(hasAttribute!(member, Test))
+				  {
+					  _RegisterTestHelpers ~= ezCreateRegisterSimpleTestHelper(_TestGroup, getAttribute!(member, Test).name ~ "\0", &WrapTestFunction!member);
+				  }
+			  }
+      }
 		}
 	}
 }
