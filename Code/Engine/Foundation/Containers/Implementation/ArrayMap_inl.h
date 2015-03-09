@@ -203,7 +203,7 @@ EZ_FORCE_INLINE const typename ezArrayMapBase<KEY, VALUE>::Pair& ezArrayMapBase<
 }
 
 template<typename KEY, typename VALUE>
-void ezArrayMapBase<KEY, VALUE>::Remove(ezUInt32 index, bool bKeepSorted)
+void ezArrayMapBase<KEY, VALUE>::RemoveAt(ezUInt32 index, bool bKeepSorted)
 {
   if (bKeepSorted && m_bSorted)
   {
@@ -224,7 +224,7 @@ bool ezArrayMapBase<KEY, VALUE>::Remove(const KEY& key, bool bKeepSorted)
   if (uiIndex == ezInvalidIndex)
     return false;
 
-  Remove(uiIndex, bKeepSorted);
+  RemoveAt(uiIndex, bKeepSorted);
   return true;
 }
 

@@ -174,13 +174,13 @@ EZ_CREATE_SIMPLE_TEST(Containers, ArrayMap)
     EZ_TEST_INT(sa.Find("a"), 0);
     EZ_TEST_INT(sa.Find("c"), 1);
 
-    sa.Remove(1);
+    sa.RemoveAt(1);
     EZ_TEST_INT(sa.GetCount(), 1);
 
     EZ_TEST_INT(sa.Find("a"), 0);
     EZ_TEST_INT(sa.Find("c"), ezInvalidIndex);
 
-    sa.Remove(0);
+    sa.RemoveAt(0);
     EZ_TEST_INT(sa.GetCount(), 0);
 
     EZ_TEST_INT(sa.Find("a"), ezInvalidIndex);

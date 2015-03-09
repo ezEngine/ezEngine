@@ -91,7 +91,7 @@ public:
   /// If the map is sorted and bKeepSorted is true, the element will be removed such that the map stays sorted.
   /// This is only useful, if only a single (or very few) elements are removed before the next lookup. If multiple values
   /// are removed, or new values are going to be inserted, as well, \a bKeepSorted should be left to false.
-  void Remove(ezUInt32 index, bool bKeepSorted = false);
+  void RemoveAt(ezUInt32 index, bool bKeepSorted = false);
 
   /// \brief Removes one element with the given key. Returns true, if one was found and removed. If the same key exists multiple times, you need to call this function multiple times to remove them all.
   ///
