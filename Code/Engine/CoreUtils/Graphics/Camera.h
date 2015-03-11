@@ -103,10 +103,22 @@ public:
   /// \brief Calculates the projection matrix from the current camera properties and stores it in out_projectionMatrix.
   void GetProjectionMatrix(float fAspectRatioWidthDivHeight, ezMat4& out_projectionMatrix, ezProjectionDepthRange::Enum depthRange = ezProjectionDepthRange::Default) const;
 
+  /// \brief Returns a counter that is increased every time the camera settings are modified.
+  ///
+  /// The camera settings are used to compute the projection matrix. This counter can be used to determine whether the projection matrix
+  /// has changed and thus whether cached values need to be updated.
+  ezUInt32 GetSettingsModificationCounter() const { return m_uiSettingsModificationCounter; }
+
+  /// \brief Returns a counter that is increased every time the camera orientation is modified.
+  ///
+  /// The camera orientation is used to compute the view matrix. This counter can be used to determine whether the view matrix
+  /// has changed and thus whether cached values need to be updated.
+  ezUInt32 GetOrientationModificationCounter() const { return m_uiOrientationModificationCounter; }
+
 private:
   /// \brief This function is called whenever the camera position or rotation changed.
   /// Override this function to implement restrictions on the camera position or rotation.
-  virtual void CameraOrientationChanged(bool bPosition, bool bRotation) { }
+  virtual void CameraOrientationChanged(bool bPosition, bool bRotation) { ++m_uiOrientationModificationCounter; }
 
   /// \brief This function is called when the camera mode changes (e.g. SetCameraMode was called).
   /// Override this to do sanity checks or restrict certain values.
@@ -127,6 +139,9 @@ private:
   ezVec3 m_vDirForwards;
   ezVec3 m_vDirUp;
   ezVec3 m_vDirRight;
+
+  ezUInt32 m_uiSettingsModificationCounter;
+  ezUInt32 m_uiOrientationModificationCounter;
 };
 
 

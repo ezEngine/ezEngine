@@ -7,6 +7,16 @@ inline ezView::ezView(const char* szName)
   m_pRenderPipeline = nullptr;
   m_pLogicCamera = nullptr;
   m_pRenderCamera = nullptr;
+
+  m_uiLastCameraSettingsModification = 0;
+  m_uiLastCameraOrientationModification = 0;
+  m_fLastViewportAspectRatio = 1.0f;
+  m_ViewMatrix.SetIdentity();
+  m_InverseViewMatrix.SetIdentity();
+  m_ProjectionMatrix.SetIdentity();
+  m_InverseProjectionMatrix.SetIdentity();
+  m_ViewProjectionMatrix.SetIdentity();
+  m_InverseViewProjectionMatrix.SetIdentity();
 }
 
 EZ_FORCE_INLINE const char* ezView::GetName() const

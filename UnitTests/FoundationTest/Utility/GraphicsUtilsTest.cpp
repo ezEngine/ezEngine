@@ -14,12 +14,12 @@ EZ_CREATE_SIMPLE_TEST(Utility, GraphicsUtils)
       for (ezUInt32 x = 0; x < 50; ++x)
       {
         ezVec3 vPoint, vDir;
-        EZ_TEST_BOOL(ezGraphicsUtils::ConvertScreenPosToWorldPos(mProjInv, ezProjectionDepthRange::MinusOneToOne, 0, 0, 50, 25, ezVec3((float) x, (float) y, 0.5f), vPoint, &vDir).Succeeded());
+        EZ_TEST_BOOL(ezGraphicsUtils::ConvertScreenPosToWorldPos(mProjInv, 0, 0, 50, 25, ezVec3((float) x, (float) y, 0.5f), vPoint, &vDir, ezProjectionDepthRange::MinusOneToOne).Succeeded());
 
         EZ_TEST_VEC3(vDir, vPoint.GetNormalized(), 0.01f);
 
         ezVec3 vScreen;
-        EZ_TEST_BOOL(ezGraphicsUtils::ConvertWorldPosToScreenPos(mProj, ezProjectionDepthRange::MinusOneToOne, 0, 0, 50, 25, vPoint, vScreen).Succeeded());
+        EZ_TEST_BOOL(ezGraphicsUtils::ConvertWorldPosToScreenPos(mProj, 0, 0, 50, 25, vPoint, vScreen, ezProjectionDepthRange::MinusOneToOne).Succeeded());
 
         EZ_TEST_VEC3(vScreen, ezVec3((float) x, (float) y, 0.5f), 0.01f);
       }
@@ -37,12 +37,12 @@ EZ_CREATE_SIMPLE_TEST(Utility, GraphicsUtils)
       for (ezUInt32 x = 0; x < 50; ++x)
       {
         ezVec3 vPoint, vDir;
-        EZ_TEST_BOOL(ezGraphicsUtils::ConvertScreenPosToWorldPos(mProjInv, ezProjectionDepthRange::ZeroToOne, 0, 0, 50, 25, ezVec3((float) x, (float) y, 0.5f), vPoint, &vDir).Succeeded());
+        EZ_TEST_BOOL(ezGraphicsUtils::ConvertScreenPosToWorldPos(mProjInv, 0, 0, 50, 25, ezVec3((float) x, (float) y, 0.5f), vPoint, &vDir, ezProjectionDepthRange::ZeroToOne).Succeeded());
 
         EZ_TEST_VEC3(vDir, vPoint.GetNormalized(), 0.01f);
 
         ezVec3 vScreen;
-        EZ_TEST_BOOL(ezGraphicsUtils::ConvertWorldPosToScreenPos(mProj, ezProjectionDepthRange::ZeroToOne, 0, 0, 50, 25, vPoint, vScreen).Succeeded());
+        EZ_TEST_BOOL(ezGraphicsUtils::ConvertWorldPosToScreenPos(mProj, 0, 0, 50, 25, vPoint, vScreen, ezProjectionDepthRange::ZeroToOne).Succeeded());
 
         EZ_TEST_VEC3(vScreen, ezVec3((float) x, (float) y, 0.5f), 0.01f);
       }
@@ -60,12 +60,12 @@ EZ_CREATE_SIMPLE_TEST(Utility, GraphicsUtils)
       for (ezUInt32 x = 0; x < 50; ++x)
       {
         ezVec3 vPoint, vDir;
-        EZ_TEST_BOOL(ezGraphicsUtils::ConvertScreenPosToWorldPos(mProjInv, ezProjectionDepthRange::MinusOneToOne, 0, 0, 50, 25, ezVec3((float) x, (float) y, 0.5f), vPoint, &vDir).Succeeded());
+        EZ_TEST_BOOL(ezGraphicsUtils::ConvertScreenPosToWorldPos(mProjInv, 0, 0, 50, 25, ezVec3((float) x, (float) y, 0.5f), vPoint, &vDir, ezProjectionDepthRange::MinusOneToOne).Succeeded());
 
         EZ_TEST_VEC3(vDir, ezVec3(0, 0, -1.0f), 0.01f);
 
         ezVec3 vScreen;
-        EZ_TEST_BOOL(ezGraphicsUtils::ConvertWorldPosToScreenPos(mProj, ezProjectionDepthRange::MinusOneToOne, 0, 0, 50, 25, vPoint, vScreen).Succeeded());
+        EZ_TEST_BOOL(ezGraphicsUtils::ConvertWorldPosToScreenPos(mProj, 0, 0, 50, 25, vPoint, vScreen, ezProjectionDepthRange::MinusOneToOne).Succeeded());
 
         EZ_TEST_VEC3(vScreen, ezVec3((float) x, (float) y, 0.5f), 0.01f);
       }
@@ -83,12 +83,12 @@ EZ_CREATE_SIMPLE_TEST(Utility, GraphicsUtils)
       for (ezUInt32 x = 0; x < 50; ++x)
       {
         ezVec3 vPoint, vDir;
-        EZ_TEST_BOOL(ezGraphicsUtils::ConvertScreenPosToWorldPos(mProjInv, ezProjectionDepthRange::ZeroToOne, 0, 0, 50, 25, ezVec3((float) x, (float) y, 0.5f), vPoint, &vDir).Succeeded());
+        EZ_TEST_BOOL(ezGraphicsUtils::ConvertScreenPosToWorldPos(mProjInv, 0, 0, 50, 25, ezVec3((float) x, (float) y, 0.5f), vPoint, &vDir, ezProjectionDepthRange::ZeroToOne).Succeeded());
 
         EZ_TEST_VEC3(vDir, ezVec3(0, 0, -1.0f), 0.01f);
 
         ezVec3 vScreen;
-        EZ_TEST_BOOL(ezGraphicsUtils::ConvertWorldPosToScreenPos(mProj, ezProjectionDepthRange::ZeroToOne, 0, 0, 50, 25, vPoint, vScreen).Succeeded());
+        EZ_TEST_BOOL(ezGraphicsUtils::ConvertWorldPosToScreenPos(mProj, 0, 0, 50, 25, vPoint, vScreen, ezProjectionDepthRange::ZeroToOne).Succeeded());
 
         EZ_TEST_VEC3(vScreen, ezVec3((float) x, (float) y, 0.5f), 0.01f);
       }

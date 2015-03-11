@@ -34,26 +34,49 @@ void ezView::Render(ezGALContext* pContext)
   m_pRenderPipeline->Render(*m_pRenderCamera, pContext);
 }
 
-ezResult ezView::GetPickingRay(float fScreenPosX, float fScreenPosY, ezVec3& out_RayStartPos, ezVec3& out_RayDir)
+ezResult ezView::ComputePickingRay(float fScreenPosX, float fScreenPosY, ezVec3& out_RayStartPos, ezVec3& out_RayDir)
 {
+  UpdateCachedMatrices();
+
   ezVec3 vScreenPos;
   vScreenPos.x = fScreenPosX;
   vScreenPos.y = 1.0f - fScreenPosY;
   vScreenPos.z = 0.0f;
 
-  const ezRectFloat vp = m_pRenderPipeline->GetViewport();
+  return ezGraphicsUtils::ConvertScreenPosToWorldPos(m_InverseViewProjectionMatrix, 0, 0, 1, 1, vScreenPos, out_RayStartPos, &out_RayDir);
+}
 
-  /// \todo I don't know whether we can cache this somewhere
-  /// ezRenderPipeline only updates its matrices upon Render, which might not be sufficient (ie. we might call this code before any rendering from that view is done)
-  /// and the camera could change in between
-  ezMat4 mProj, mView, mViewProj, mInverseViewProj;
-  m_pRenderCamera->GetProjectionMatrix(vp.width / vp.height, mProj); // always use the render camera, not the logic camera
-  m_pRenderCamera->GetViewMatrix(mView);
-  mViewProj = mProj * mView;
+void ezView::UpdateCachedMatrices() const
+{
+  EZ_ASSERT_DEV(m_pRenderCamera != nullptr, "Render camera is not set");
 
-  mInverseViewProj = mViewProj.GetInverse();
+  bool bUpdateVP = false;
 
-  return ezGraphicsUtils::ConvertScreenPosToWorldPos(mInverseViewProj, 0, 0, 1, 1, vScreenPos, out_RayStartPos, &out_RayDir);
+  if (m_uiLastCameraOrientationModification != m_pRenderCamera->GetOrientationModificationCounter())
+  {
+    bUpdateVP = true;
+    m_uiLastCameraOrientationModification = m_pRenderCamera->GetOrientationModificationCounter();
+
+    m_pRenderCamera->GetViewMatrix(m_ViewMatrix);
+    m_InverseViewMatrix = m_ViewMatrix.GetInverse();
+  }
+
+  if (m_uiLastCameraSettingsModification != m_pRenderCamera->GetSettingsModificationCounter() ||
+      m_fLastViewportAspectRatio != m_pRenderPipeline->GetViewport().width / m_pRenderPipeline->GetViewport().height)
+  {
+    bUpdateVP = true;
+    m_uiLastCameraSettingsModification = m_pRenderCamera->GetSettingsModificationCounter();
+    m_fLastViewportAspectRatio = m_pRenderPipeline->GetViewport().width / m_pRenderPipeline->GetViewport().height;
+
+    m_pRenderCamera->GetProjectionMatrix(m_fLastViewportAspectRatio, m_ProjectionMatrix);
+    m_InverseProjectionMatrix = m_ProjectionMatrix.GetInverse();
+  }
+
+  if (bUpdateVP)
+  {
+    m_ViewProjectionMatrix = m_ProjectionMatrix * m_ViewMatrix;
+    m_InverseViewProjectionMatrix = m_ViewProjectionMatrix.GetInverse();
+  }
 }
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Pipeline_Implementation_View);

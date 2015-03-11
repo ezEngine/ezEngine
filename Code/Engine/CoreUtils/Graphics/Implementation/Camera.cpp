@@ -4,6 +4,8 @@
 ezCamera::ezCamera()
 {
   m_Mode = None;
+  m_uiSettingsModificationCounter = 0;
+  m_uiOrientationModificationCounter = 0;
 }
 
 ezAngle ezCamera::GetFovX(float fAspectRatioWidthDivHeight) const
@@ -32,6 +34,13 @@ ezAngle ezCamera::GetFovY(float fAspectRatioWidthDivHeight) const
 
 void ezCamera::SetCameraMode(CameraMode Mode, float fFovOrDim, float fNearPlane, float fFarPlane)
 {
+  // early out if no change
+  if (m_Mode == Mode &&
+      m_fFovOrDim == fFovOrDim &&
+      m_fNearPlane == fNearPlane &&
+      m_fFarPlane == fFarPlane)
+      return;
+
   m_Mode = Mode;
   m_fFovOrDim = fFovOrDim;
   m_fNearPlane = fNearPlane;
@@ -94,6 +103,8 @@ void ezCamera::CameraSettingsChanged()
   EZ_ASSERT_DEV(m_Mode != None, "Invalid Camera Mode.");
   EZ_ASSERT_DEV(m_fNearPlane < m_fFarPlane, "Near and Far Plane are invalid.");
   EZ_ASSERT_DEV(m_fFovOrDim > 0.0f, "FOV or Camera Dimension is invalid.");
+
+  ++m_uiSettingsModificationCounter;
 }
 
 void ezCamera::MoveLocally (const ezVec3& vMove)

@@ -169,7 +169,7 @@ void ezViewContext::RenderScene()
 
   ezMat4 mViewMatrix, mProjectionMatrix, mViewProjection;
   m_Camera.GetViewMatrix(mViewMatrix);
-  m_Camera.GetProjectionMatrix((float) wndsize.width / (float) wndsize.height, ezProjectionDepthRange::ZeroToOne, mProjectionMatrix);
+  m_Camera.GetProjectionMatrix((float) wndsize.width / (float) wndsize.height, mProjectionMatrix);
   
   mViewProjection = mProjectionMatrix * mViewMatrix;
   //mViewProjection = m_ProjectionMatrix * m_ViewMatrix;

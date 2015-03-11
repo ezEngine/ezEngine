@@ -70,7 +70,7 @@ void ezTestDocumentWindow::SendRedrawMsg()
   cam.m_vDirRight = m_Camera.GetCenterDirRight();
   cam.m_vPosition = m_Camera.GetCenterPosition();
   m_Camera.GetViewMatrix(cam.m_ViewMatrix);
-  m_Camera.GetProjectionMatrix((float) m_pCenterWidget->width() / (float) m_pCenterWidget->height(), ezProjectionDepthRange::ZeroToOne, cam.m_ProjMatrix);
+  m_Camera.GetProjectionMatrix((float) m_pCenterWidget->width() / (float) m_pCenterWidget->height(), cam.m_ProjMatrix);
 
   m_pEngineView->SendMessage(&cam);
 

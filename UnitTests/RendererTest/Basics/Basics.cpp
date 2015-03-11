@@ -79,7 +79,7 @@ void ezRendererTestBasics::RenderObjects()
   cam.SetCameraMode(ezCamera::PerspectiveFixedFovX, 90, 0.5f, 1000.0f);
   cam.LookAt(ezVec3(0, 0, 0), ezVec3(0, 0, -1));
   ezMat4 mProj, mView;
-  cam.GetProjectionMatrix((float) GetResolution().width / (float) GetResolution().height, ezProjectionDepthRange::ZeroToOne, mProj);
+  cam.GetProjectionMatrix((float) GetResolution().width / (float) GetResolution().height, mProj);
   cam.GetViewMatrix(mView);
 
   ezMat4 mTransform, mOther;
