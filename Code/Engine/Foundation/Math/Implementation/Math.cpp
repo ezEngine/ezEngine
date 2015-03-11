@@ -1,6 +1,13 @@
 #include <Foundation/PCH.h>
 #include <Foundation/Math/Math.h>
 
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+  ezProjectionDepthRange::Enum ezProjectionDepthRange::Default = ezProjectionDepthRange::ZeroToOne; // Default on Windows is D3D convention
+#else
+  ezProjectionDepthRange::Enum ezProjectionDepthRange::Default = ezProjectionDepthRange::MinusOneToOne; // Default everywhere else is OpenGL convention
+#endif
+
+
 bool ezMath::IsPowerOf(ezInt32 value, ezInt32 base)
 {
   if (value == 1)

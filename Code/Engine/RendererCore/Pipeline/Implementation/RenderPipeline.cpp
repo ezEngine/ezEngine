@@ -83,8 +83,7 @@ void ezRenderPipeline::Render(const ezCamera& camera, ezGALContext* pContext)
 
   // calculate camera matrices
   camera.GetViewMatrix(m_ViewMatrix);
-  /// \todo get depth range from device?
-  camera.GetProjectionMatrix(m_ViewPortRect.width / m_ViewPortRect.height, ezProjectionDepthRange::ZeroToOne, m_ProjectionMatrix);
+  camera.GetProjectionMatrix(m_ViewPortRect.width / m_ViewPortRect.height, m_ProjectionMatrix);
   m_ViewProjectionMatrix = m_ProjectionMatrix * m_ViewMatrix;
 
   pContext->SetViewport(m_ViewPortRect.x, m_ViewPortRect.y, m_ViewPortRect.width, m_ViewPortRect.height, 0.0f, 1.0f);

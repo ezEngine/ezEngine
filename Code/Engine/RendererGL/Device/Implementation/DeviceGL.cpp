@@ -191,6 +191,8 @@ ezResult ezGALDeviceGL::InitPlatform()
 
   // Can't do anything OpenGL related here since glewInit will be called in the primary swap chain
 
+  ezProjectionDepthRange::Default = ezProjectionDepthRange::MinusOneToOne;
+
   return EZ_SUCCESS;
 }
 

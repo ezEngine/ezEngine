@@ -65,7 +65,7 @@ void ezCamera::GetViewMatrix(ezMat4& out_viewMatrix) const
   out_viewMatrix.SetLookAtMatrix(m_vPosition, m_vPosition + m_vDirForwards, m_vDirUp);
 }
 
-void ezCamera::GetProjectionMatrix(float fAspectRatioWidthDivHeight, ezProjectionDepthRange::Enum depthRange, ezMat4& out_projectionMatrix) const
+void ezCamera::GetProjectionMatrix(float fAspectRatioWidthDivHeight, ezMat4& out_projectionMatrix, ezProjectionDepthRange::Enum depthRange) const
 {
   if (m_Mode == PerspectiveFixedFovX)
   {

@@ -32,6 +32,12 @@ public:
   void SetRenderCamera(const ezCamera* pCamera);
   const ezCamera* GetRenderCamera() const;
 
+  /// \brief Returns the start position and direction (in world space) of the picking ray through the screen position in this view.
+  ///
+  /// fScreenPosX and fScreenPosY are expected to be in [0; 1] range (normalized pixel coordinates).
+  /// If no ray can be computed, EZ_FAILURE is returned.
+  ezResult GetPickingRay(float fScreenPosX, float fScreenPosY, ezVec3& out_RayStartPos, ezVec3& out_RayDir);
+
   bool IsValid() const;
   
   /// \brief Extracts all relevant data from the world to render the view.

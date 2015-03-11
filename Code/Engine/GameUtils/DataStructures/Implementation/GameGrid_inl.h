@@ -62,7 +62,8 @@ ezVec2I32 ezGameGrid<CellData>::GetCellAtWorldPosition(const ezVec3& vWorldSpace
 {
   const ezVec3 vCell = m_RotateToGridspace * ((vWorldSpacePos - m_vWorldSpaceOrigin).CompMult(m_vInverseWorldSpaceCellSize));
 
-  return ezVec2I32((ezInt32) vCell.x, (ezInt32) vCell.y);
+  // Without the Floor, the border case when the position is outside (-1 / -1) is not immediately detected
+  return ezVec2I32((ezInt32) ezMath::Floor(vCell.x), (ezInt32) ezMath::Floor(vCell.y));
 }
 
 template<class CellData>

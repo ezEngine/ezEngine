@@ -115,6 +115,8 @@ ezResult ezGALDeviceDX11::InitPlatform()
 
   /// \todo Get features of the device (depending on feature level, CheckFormat* functions etc.)
 
+  ezProjectionDepthRange::Default = ezProjectionDepthRange::ZeroToOne;
+
   return EZ_SUCCESS;
 }
 

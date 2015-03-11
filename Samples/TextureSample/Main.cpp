@@ -290,7 +290,7 @@ public:
 
       ezMat4 Proj;
       Proj.SetIdentity();
-      Proj.SetOrthographicProjectionMatrix(m_vCameraPosition.x + -(float) g_uiWindowWidth * 0.5f, m_vCameraPosition.x + (float) g_uiWindowWidth * 0.5f, m_vCameraPosition.y + -(float) g_uiWindowHeight * 0.5f, m_vCameraPosition.y + (float) g_uiWindowHeight * 0.5f, -1.0f, 1.0f, ezProjectionDepthRange::ZeroToOne);
+      Proj.SetOrthographicProjectionMatrix(m_vCameraPosition.x + -(float) g_uiWindowWidth * 0.5f, m_vCameraPosition.x + (float) g_uiWindowWidth * 0.5f, m_vCameraPosition.y + -(float) g_uiWindowHeight * 0.5f, m_vCameraPosition.y + (float) g_uiWindowHeight * 0.5f, -1.0f, 1.0f);
 
       ezRendererCore::SetMaterialParameter("ViewProjectionMatrix", Proj);
 

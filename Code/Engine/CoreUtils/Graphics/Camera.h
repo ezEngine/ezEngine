@@ -101,7 +101,7 @@ public:
   void GetViewMatrix(ezMat4& out_viewMatrix) const;
 
   /// \brief Calculates the projection matrix from the current camera properties and stores it in out_projectionMatrix.
-  void GetProjectionMatrix(float fAspectRatioWidthDivHeight, ezProjectionDepthRange::Enum depthRange, ezMat4& out_projectionMatrix) const;
+  void GetProjectionMatrix(float fAspectRatioWidthDivHeight, ezMat4& out_projectionMatrix, ezProjectionDepthRange::Enum depthRange = ezProjectionDepthRange::Default) const;
 
 private:
   /// \brief This function is called whenever the camera position or rotation changed.
