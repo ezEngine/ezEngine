@@ -7,6 +7,7 @@
 #include <Foundation/Threading/TaskSystem.h>
 #include <EditorFramework/EngineProcess/EngineProcessDocumentContext.h>
 #include <EditorFramework/EngineProcess/EngineProcessMessages.h>
+#include <EditorFramework/Gizmos/GizmoHandle.h>
 #include <RendererCore/Meshes/MeshBufferResource.h>
 #include <CoreUtils/Geometry/GeomUtils.h>
 #include <Core/ResourceManager/ResourceManager.h>
@@ -194,7 +195,19 @@ void ezViewContext::RenderScene()
     }
   }
 
-  RenderTranslateGizmo(ezMat4::IdentityMatrix());
+  ezEditorEngineSyncObject* pSyncObject = ezEditorEngineSyncObject::GetFirstInstance();
+
+  while (pSyncObject)
+  {
+    if (pSyncObject->GetDynamicRTTI()->IsDerivedFrom<ezEditorGizmoHandle>())
+    {
+      ezEditorGizmoHandle* pGizmoHandle = static_cast<ezEditorGizmoHandle*>(pSyncObject);
+
+      RenderTranslateGizmo(pGizmoHandle->GetTransformation());
+    }
+
+    pSyncObject = pSyncObject->GetNextInstance();
+  }
 }
 
 void ezViewContext::Redraw()

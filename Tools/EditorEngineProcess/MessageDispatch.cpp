@@ -11,6 +11,7 @@
 class MeshComponent;
 typedef ezComponentManagerSimple<MeshComponent> MeshComponentManager;
 
+/// DUMMY for testing component creation
 class MeshComponent : public ezComponent
 {
   EZ_DECLARE_COMPONENT_TYPE(MeshComponent, MeshComponentManager);
@@ -82,34 +83,34 @@ void ezEditorProcessApp::SendReflectionInformation()
 
 void ezEditorProcessApp::EventHandlerIPC(const ezProcessCommunication::Event& e)
 {
-  const ezEditorEngineDocumentMsg* pMsg = (const ezEditorEngineDocumentMsg*) e.m_pMessage;
+  const ezEditorEngineDocumentMsg* pDocMsg = (const ezEditorEngineDocumentMsg*) e.m_pMessage;
 
-  ezViewContext* pViewContext = (ezViewContext*) ezEngineProcessViewContext::GetViewContext(pMsg->m_uiViewID);
+  ezViewContext* pViewContext = (ezViewContext*) ezEngineProcessViewContext::GetViewContext(pDocMsg->m_uiViewID);
 
-  if (pViewContext == nullptr && pMsg->m_uiViewID != 0xFFFFFFFF)
+  if (pViewContext == nullptr && pDocMsg->m_uiViewID != 0xFFFFFFFF)
   {
-    ezLog::Info("Created new View 0x%08X for document %s", pMsg->m_uiViewID, ezConversionUtils::ToString(pMsg->m_DocumentGuid).GetData());
+    ezLog::Info("Created new View 0x%08X for document %s", pDocMsg->m_uiViewID, ezConversionUtils::ToString(pDocMsg->m_DocumentGuid).GetData());
 
-    pViewContext = EZ_DEFAULT_NEW(ezViewContext)(pMsg->m_uiViewID, pMsg->m_DocumentGuid);
+    pViewContext = EZ_DEFAULT_NEW(ezViewContext)(pDocMsg->m_uiViewID, pDocMsg->m_DocumentGuid);
 
-    ezEngineProcessViewContext::AddViewContext(pMsg->m_uiViewID, pViewContext);
+    ezEngineProcessViewContext::AddViewContext(pDocMsg->m_uiViewID, pViewContext);
 
-    EZ_ASSERT_DEV(pMsg->GetDynamicRTTI()->IsDerivedFrom<ezDocumentOpenMsgToEngine>(), "The first message from a new view has to be of type ezDocumentOpenMsgToEngine. This message is of type '%s'", pMsg->GetDynamicRTTI()->GetTypeName());
+    EZ_ASSERT_DEV(pDocMsg->GetDynamicRTTI()->IsDerivedFrom<ezDocumentOpenMsgToEngine>(), "The first message from a new view has to be of type ezDocumentOpenMsgToEngine. This message is of type '%s'", pDocMsg->GetDynamicRTTI()->GetTypeName());
 
 
   }
 
-  ezEngineProcessDocumentContext* pDocumentContext = ezEngineProcessDocumentContext::GetDocumentContext(pMsg->m_DocumentGuid);
+  ezEngineProcessDocumentContext* pDocumentContext = ezEngineProcessDocumentContext::GetDocumentContext(pDocMsg->m_DocumentGuid);
 
-  if (pDocumentContext == nullptr && pMsg->m_DocumentGuid.IsValid())
+  if (pDocumentContext == nullptr && pDocMsg->m_DocumentGuid.IsValid())
   {
-    ezLog::Info("Created new Document context for Guid %s", ezConversionUtils::ToString(pMsg->m_DocumentGuid).GetData());
+    ezLog::Info("Created new Document context for Guid %s", ezConversionUtils::ToString(pDocMsg->m_DocumentGuid).GetData());
 
     pDocumentContext = EZ_DEFAULT_NEW(ezEngineProcessDocumentContext);
 
-    ezEngineProcessDocumentContext::AddDocumentContext(pMsg->m_DocumentGuid, pDocumentContext);
+    ezEngineProcessDocumentContext::AddDocumentContext(pDocMsg->m_DocumentGuid, pDocumentContext);
 
-    pDocumentContext->m_pWorld = EZ_DEFAULT_NEW(ezWorld)(ezConversionUtils::ToString(pMsg->m_DocumentGuid));
+    pDocumentContext->m_pWorld = EZ_DEFAULT_NEW(ezWorld)(ezConversionUtils::ToString(pDocMsg->m_DocumentGuid));
 
     pDocumentContext->m_pWorld->CreateComponentManager<MeshComponentManager>();
   }
@@ -117,15 +118,15 @@ void ezEditorProcessApp::EventHandlerIPC(const ezProcessCommunication::Event& e)
 
 
 
-  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezDocumentOpenMsgToEngine>()) // Document was opened or closed
+  if (pDocMsg->GetDynamicRTTI()->IsDerivedFrom<ezDocumentOpenMsgToEngine>()) // Document was opened or closed
   {
-    ezDocumentOpenMsgToEngine* pRealMsg = (ezDocumentOpenMsgToEngine*) pMsg;
+    ezDocumentOpenMsgToEngine* pMsg = (ezDocumentOpenMsgToEngine*) pDocMsg;
 
-    if (pRealMsg->m_bDocumentOpen)
+    if (pMsg->m_bDocumentOpen)
     {
       ezDocumentOpenResponseMsgToEditor m;
-      m.m_uiViewID = pRealMsg->m_uiViewID;
-      m.m_DocumentGuid = pRealMsg->m_DocumentGuid;
+      m.m_uiViewID = pMsg->m_uiViewID;
+      m.m_DocumentGuid = pMsg->m_DocumentGuid;
 
       m_IPC.SendMessage(&m);
     }
@@ -134,25 +135,31 @@ void ezEditorProcessApp::EventHandlerIPC(const ezProcessCommunication::Event& e)
     }
 
   }
-  else if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezViewRedrawMsgToEngine>())
+  else if (pDocMsg->GetDynamicRTTI()->IsDerivedFrom<ezViewRedrawMsgToEngine>())
   {
-    ezViewRedrawMsgToEngine* pRedrawMsg = (ezViewRedrawMsgToEngine*) pMsg;
+    ezViewRedrawMsgToEngine* pMsg = (ezViewRedrawMsgToEngine*) pDocMsg;
 
-    pViewContext->SetupRenderTarget((HWND) pRedrawMsg->m_uiHWND, pRedrawMsg->m_uiWindowWidth, pRedrawMsg->m_uiWindowHeight);
+    pViewContext->SetupRenderTarget((HWND) pMsg->m_uiHWND, pMsg->m_uiWindowWidth, pMsg->m_uiWindowHeight);
     pViewContext->Redraw();
   }
-  else if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezEntityMsgToEngine>())
+  else if (pDocMsg->GetDynamicRTTI()->IsDerivedFrom<ezEntityMsgToEngine>())
   {
-    ezEntityMsgToEngine* pEntityMsg = (ezEntityMsgToEngine*) pMsg;
+    ezEntityMsgToEngine* pMsg = (ezEntityMsgToEngine*) pDocMsg;
 
-    HandlerEntityMsg(pDocumentContext, pViewContext, pEntityMsg);
+    HandlerEntityMsg(pDocumentContext, pViewContext, pMsg);
 
   }
-  else if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezViewCameraMsgToEngine>())
+  else if (pDocMsg->GetDynamicRTTI()->IsDerivedFrom<ezViewCameraMsgToEngine>())
   {
-    ezViewCameraMsgToEngine* pCamMsg = (ezViewCameraMsgToEngine*) pMsg;
+    ezViewCameraMsgToEngine* pMsg = (ezViewCameraMsgToEngine*) pDocMsg;
 
-    pViewContext->SetCamera(pCamMsg);
+    pViewContext->SetCamera(pMsg);
+  }
+  else if (pDocMsg->GetDynamicRTTI()->IsDerivedFrom<ezEditorEngineSyncObjectMsg>())
+  {
+    ezEditorEngineSyncObjectMsg* pMsg = (ezEditorEngineSyncObjectMsg*) pDocMsg;
+
+    pDocumentContext->ProcessEditorEngineSyncObjectMsg(*pMsg);
   }
 }
 

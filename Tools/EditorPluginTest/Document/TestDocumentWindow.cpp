@@ -54,6 +54,8 @@ void ezTestDocumentWindow::DocumentTreeEventHandler(const ezDocumentObjectTreeSt
 
 void ezTestDocumentWindow::InternalRedraw()
 {
+  ezDocumentWindow3D::SyncObjects();
+
   m_pCenterWidget->m_MoveContext.Update();
   SendRedrawMsg();
 }

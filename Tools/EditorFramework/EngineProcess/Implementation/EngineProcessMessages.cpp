@@ -85,3 +85,13 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezUpdateReflectionPropertyMsgToEditor, ezEditorE
   EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditorEngineSyncObjectMsg, ezEditorEngineDocumentMsg, 1, ezRTTIDefaultAllocator<ezEditorEngineSyncObjectMsg> );
+  EZ_BEGIN_PROPERTIES
+    EZ_MEMBER_PROPERTY("ObjectGuid", m_ObjectGuid),
+    EZ_MEMBER_PROPERTY("ObjectType", m_sObjectType),
+    EZ_ACCESSOR_PROPERTY("ObjectData", GetObjectData, SetObjectData),
+  EZ_END_PROPERTIES
+EZ_END_DYNAMIC_REFLECTED_TYPE();
+
+
+

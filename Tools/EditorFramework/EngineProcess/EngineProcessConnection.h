@@ -78,6 +78,8 @@ public:
   void SendDocumentTreeChange(const ezDocumentObjectTreeStructureEvent& e);
   void SendDocument();
 
+  ezDocumentBase* GetDocument() const { return m_pDocument; }
+
 private:
   friend class ezEditorEngineProcessConnection;
   ezEditorEngineConnection(ezDocumentBase* pDocument, ezInt32 iEngineViewID) { m_pDocument = pDocument; m_iEngineViewID = iEngineViewID; }

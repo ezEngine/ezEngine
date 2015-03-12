@@ -83,7 +83,9 @@ void ezDocumentWindow::SetVisibleInContainer(bool bVisible)
   if (m_bIsVisibleInContainer)
   {
     // if the window is now visible, immediately do a redraw and trigger the timers
+    m_bIsDrawingATM = true;
     InternalRedraw();
+    m_bIsDrawingATM = false;
 
     if (m_iTargetFramerate != 0)
       TriggerRedraw();

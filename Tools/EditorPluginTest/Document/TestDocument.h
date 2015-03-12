@@ -1,6 +1,7 @@
 #pragma once
 
 #include <ToolsFoundation/Document/Document.h>
+#include <EditorFramework/Gizmos/GizmoHandle.h>
 
 class ezTestDocument : public ezDocumentBase
 {
@@ -13,4 +14,8 @@ public:
   virtual const char* GetDocumentTypeDisplayString() const override { return "Scene"; }
 
   virtual ezStatus InternalSaveDocument() override;
+
+  void SelectionManagerEventHandler(const ezSelectionManager::Event& e);
+
+  ezEditorGizmoHandle m_Gizmo;
 };

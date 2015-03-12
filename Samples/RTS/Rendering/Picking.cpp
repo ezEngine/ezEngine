@@ -11,7 +11,7 @@ bool GameRenderer::GetPickingRay(float fMousePosX, float fMousePosY, ezVec3& out
   vScreenPos.y = 1.0f - fMousePosY;
   vScreenPos.z = 0.0f;
 
-  if (ezGraphicsUtils::ConvertScreenPosToWorldPos(m_InverseModelViewProjectionMatrix, ezProjectionDepthRange::MinusOneToOne, 0, 0, 1, 1, vScreenPos, out_RayPos, &out_RayDir) == EZ_SUCCESS)
+  if (ezGraphicsUtils::ConvertScreenPosToWorldPos(m_InverseModelViewProjectionMatrix, 0, 0, 1, 1, vScreenPos, out_RayPos, &out_RayDir) == EZ_SUCCESS)
     return true;
 
   return false;

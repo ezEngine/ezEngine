@@ -1,5 +1,6 @@
 #include <PCH.h>
 #include <EditorFramework/DocumentWindow/DocumentWindow3D.moc.h>
+#include <EditorFramework/IPC/SyncObject.h>
 #include <QPushButton>
 #include <qlayout.h>
 
@@ -30,6 +31,17 @@ ezDocumentWindow3D::~ezDocumentWindow3D()
 void ezDocumentWindow3D::SlotRestartEngineProcess()
 {
   ezEditorEngineProcessConnection::GetInstance()->RestartProcess();
+}
+
+void ezDocumentWindow3D::SyncObjects()
+{
+  ezEditorEngineSyncObject::SyncObjectsToEngine(*m_pEngineView, false);
+}
+
+void ezDocumentWindow3D::InternalRedraw()
+{
+  // TODO: Move this to a better place (some kind of regular update function, not redraw)
+  SyncObjects();
 }
 
 void ezDocumentWindow3D::ShowRestartButton(bool bShow)

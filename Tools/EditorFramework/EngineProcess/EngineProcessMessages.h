@@ -5,6 +5,7 @@
 
 ///////////////////////////////////// ezEditorEngineMsg ///////////////////////////////////// 
 
+/// \brief Base class for all messages between editor and engine that are not bound to any document
 class EZ_EDITORFRAMEWORK_DLL ezEditorEngineMsg : public ezProcessMessage
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezEditorEngineMsg);
@@ -45,6 +46,7 @@ public:
 
 ///////////////////////////////////// ezEditorEngineDocumentMsg ///////////////////////////////////// 
 
+/// \brief Base class for all messages that are tied to some document.
 class EZ_EDITORFRAMEWORK_DLL ezEditorEngineDocumentMsg : public ezProcessMessage
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezEditorEngineDocumentMsg);
@@ -147,7 +149,19 @@ public:
 };
 
 
+class EZ_EDITORFRAMEWORK_DLL ezEditorEngineSyncObjectMsg : public ezEditorEngineDocumentMsg
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezEditorEngineSyncObjectMsg);
 
+public:
+  
+  ezUuid m_ObjectGuid;
+  ezString m_sObjectType;
+  ezString m_sObjectData;
+
+  const char* GetObjectData() const { return m_sObjectData; }
+  void SetObjectData(const char* s) { m_sObjectData = s; }
+};
 
 
 

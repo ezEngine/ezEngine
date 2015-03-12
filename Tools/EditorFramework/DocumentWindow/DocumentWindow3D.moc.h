@@ -39,7 +39,11 @@ private slots:
 protected:
   ezEditorEngineConnection* m_pEngineView;
 
+  void SyncObjects();
+
 private:
+  virtual void InternalRedraw() override;
+
   void ShowRestartButton(bool bShow);
   void EngineViewProcessEventHandler(const ezEditorEngineProcessConnection::Event& e);
 
