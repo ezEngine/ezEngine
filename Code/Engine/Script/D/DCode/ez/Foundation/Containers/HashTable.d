@@ -5,6 +5,11 @@ import ez.Foundation.Memory.MemoryUtils;
 import std.algorithm : max;
 import core.exception;
 
+public import ez.Foundation.Memory.AllocatorWrapper;
+public import ez.Foundation.Algorithm.Hashing;
+
+version = EZ_HASHTABLE_USE_BITFLAGS;
+
 struct ezHashTableBase(KeyType, ValueType, Hasher)
 {
 public:
@@ -19,8 +24,16 @@ public:
   ~this()
   {
     Clear();
-    m_allocator.Deallocate(m_pEntries); m_pEntries = null;
-    m_allocator.Deallocate(m_pEntryFlags); m_pEntryFlags = null;
+    if(m_pEntries !is null)
+    {
+      m_allocator.Deallocate(m_pEntries); 
+      m_pEntries = null;
+    }
+    if(m_pEntryFlags !is null)
+    {
+      m_allocator.Deallocate(m_pEntryFlags); 
+      m_pEntryFlags = null;
+    }
     m_uiCapacity = 0;
   }
 
@@ -67,8 +80,8 @@ public:
     {
       if (IsValidEntry(i))
       {
-        ezMemoryUtils.Destruct(&m_pEntries[i].key, 1);
-        ezMemoryUtils.Destruct(&m_pEntries[i].value, 1);
+        ezMemoryUtils.Destruct(&m_pEntries[i].key);
+        ezMemoryUtils.Destruct(&m_pEntries[i].value);
       }
     }
 
@@ -76,7 +89,7 @@ public:
     m_uiCount = 0;
   }
 
-  bool Insert(Key key, Value value, Value* out_oldValue = null)
+  bool Insert(KeyType key, ValueType value, ValueType* out_oldValue = null)
   {
     Reserve(m_uiCount + 1);
 
@@ -93,7 +106,7 @@ public:
       }
       else if (Hasher.Equal(m_pEntries[uiIndex].key, key))
       {
-        if (out_oldValue != nullptr)
+        if (out_oldValue !is null)
           move(m_pEntries[uiIndex].value, *out_oldValue); // move the old value out as we don't need it anymore
 
         move(value, m_pEntries[uiIndex].value); // move the new value in
@@ -109,8 +122,8 @@ public:
     // new entry
     uiIndex = uiDeletedIndex != ezInvalidIndex ? uiDeletedIndex : uiIndex;
 
-    ezMemoryUtils.MoveConstruct(&m_pEntries[uiIndex].key, key, 1);
-    ezMemoryUtils.MoveConstruct(&m_pEntries[uiIndex].value, value, 1);
+    ezMemoryUtils.MoveConstruct(&m_pEntries[uiIndex].key, key);
+    ezMemoryUtils.MoveConstruct(&m_pEntries[uiIndex].value, value);
     MarkEntryAsValid(uiIndex);
     ++m_uiCount;
 
@@ -197,7 +210,7 @@ public:
     throw new RangeError();
   }
 
-  void opIndexAssign(V value, K key)
+  void opIndexAssign(ValueType value, KeyType key)
   {
     Insert(move(key), move(value), null);
   }
@@ -208,6 +221,8 @@ public:
   }
 
 private:
+
+  enum ezUInt32 ezInvalidIndex = 0xFFFFFFFF;
 
   struct Entry
   {
@@ -233,7 +248,32 @@ private:
 
   enum ezUInt32 CAPACITY_ALIGNMENT = 32;
 
-  version = EZ_HASHTABLE_USE_BITFLAGS;
+  void SetCapacity(ezUInt32 uiCapacity)
+  {
+    const ezUInt32 uiOldCapacity = m_uiCapacity;
+    m_uiCapacity = uiCapacity;
+
+    Entry* pOldEntries = m_pEntries;
+    ezUInt32* pOldEntryFlags = m_pEntryFlags;
+
+    m_pEntries = m_allocator.NewArray!Entry(m_uiCapacity, InitializeMemoryWith.Nothing).ptr;
+    m_pEntryFlags = m_allocator.NewArray!ezUInt32(GetFlagsCapacity(), InitializeMemoryWith.Null).ptr;
+
+    m_uiCount = 0;
+    for (ezUInt32 i = 0; i < uiOldCapacity; ++i)
+    {
+      if (GetFlags(pOldEntryFlags, i) == VALID_ENTRY)
+      {
+        assert(!Insert(pOldEntries[i].key, pOldEntries[i].value), "Implementation error");
+
+        ezMemoryUtils.Destruct(&pOldEntries[i].key);
+        ezMemoryUtils.Destruct(&pOldEntries[i].value);
+      }
+    }
+
+    m_allocator.Deallocate(pOldEntries);
+    m_allocator.Deallocate(pOldEntryFlags);
+  }
 
   ezUInt32 GetFlagsCapacity() const
   {
@@ -243,7 +283,7 @@ private:
       return m_uiCapacity;
   }
 
-  ezUInt32 GetFlags(ezUInt32* pFlags, ezUInt32 uiEntryIndex) const
+  ezUInt32 GetFlags(const(ezUInt32)* pFlags, ezUInt32 uiEntryIndex) const
   {
     version(EZ_HASHTABLE_USE_BITFLAGS)
     {
@@ -261,7 +301,7 @@ private:
     {
       const ezUInt32 uiIndex = uiEntryIndex / 16;
       const ezUInt32 uiSubIndex = (uiEntryIndex & 15) * 2;
-      EZ_ASSERT_DEV(uiIndex < GetFlagsCapacity(), "Out of bounds access");
+      assert(uiIndex < GetFlagsCapacity(), "Out of bounds access");
       m_pEntryFlags[uiIndex] &= ~(FLAGS_MASK << uiSubIndex);
       m_pEntryFlags[uiIndex] |= (uiFlags << uiSubIndex);
     }
@@ -292,7 +332,7 @@ private:
     SetFlags(uiEntryIndex, FREE_ENTRY);
   }
 
-  void eMarkEntryAsValid(ezUInt32 uiEntryIndex)
+  void MarkEntryAsValid(ezUInt32 uiEntryIndex)
   {
     SetFlags(uiEntryIndex, VALID_ENTRY);
   }
@@ -311,8 +351,13 @@ public:
   alias m_impl this;
 
   @disable this();
+  this(DefaultCtor)
+  {
+    this(AllocatorWrapper.GetAllocator());
+  }
+
   this(ezAllocatorBase pAllocator)
   {
-    m_impl(pAllocator);
+    m_impl = typeof(m_impl)(pAllocator);
   }
 }

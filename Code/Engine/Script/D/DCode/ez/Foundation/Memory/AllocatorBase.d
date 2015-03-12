@@ -6,7 +6,7 @@ import core.stdc.stdlib;
 
 private extern (C) void rt_finalize2(void* p, bool det = true, bool resetMemory = true);
 
-extern(C++) class ezAllocatorBase
+export extern(C++) class ezAllocatorBase
 {
 protected:
   abstract void __dtor(); // destructor member to match c++ vtable layout

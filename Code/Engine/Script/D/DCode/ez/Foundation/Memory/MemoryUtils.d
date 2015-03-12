@@ -1,4 +1,7 @@
 module ez.Foundation.Memory.MemoryUtils;
+import std.traits;
+import core.stdc.string : memcpy;
+import std.string : endsWith;
 
 struct ezMemoryUtils
 {
@@ -36,7 +39,7 @@ struct ezMemoryUtils
         auto typeinfo = typeid(U);
         if(typeinfo.xdtor !is null)
         {
-          typeinfo.xdtor(subject);
+          typeinfo.xdtor(obj);
         }
         //TODO: structs are currently only destroyable over a type info object, fix
         /*static if(is(typeof(subject.__fieldDtor)))
@@ -58,13 +61,13 @@ struct ezMemoryUtils
     }
   }
 
-  void ZeroFill(T)(T* pDestination, size_t uiCount = 1)
+  static void ZeroFill(T)(T* pDestination, size_t uiCount = 1)
   {
     import core.stdc.string : memset;
     memset(pDestination, 0, uiCount * T.sizeof);
   }
 
-  void MoveConstruct(T)(T* target, ref T source)
+  static void MoveConstruct(T)(T* target, ref T source)
   {
     if(is(T == struct))
     {
@@ -79,15 +82,15 @@ struct ezMemoryUtils
       {
         // Can avoid destructing result.
         static if (hasElaborateAssign!T || !isAssignable!T)
-          memcpy(&target, &copy, T.sizeof);
+          memcpy(&target, &source, T.sizeof);
         else
-          result = source;
+          *target = source;
 
         // If the source defines a destructor or a postblit hook, we must obliterate the
         // object in order to avoid double freeing and undue aliasing
         static if (hasElaborateDestructor!T || hasElaborateCopyConstructor!T)
         {
-          __gshared immutable T empty;
+          __gshared immutable T empty = T.init;
           static if (T.tupleof.length > 0 &&
                      T.tupleof[$-1].stringof.endsWith("this"))
           {

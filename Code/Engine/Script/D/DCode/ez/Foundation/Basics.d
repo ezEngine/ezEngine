@@ -116,6 +116,9 @@ T move(T)(ref T source)
   }
 }
 
+struct DefaultCtor {};
+enum defaultCtor = DefaultCtor();
+
 extern(C++):
 
 class ezFoundation
