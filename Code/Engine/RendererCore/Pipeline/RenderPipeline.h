@@ -5,9 +5,7 @@
 #include <RendererFoundation/Context/Context.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererCore/Pipeline/RenderPipelinePass.h>
-
-class ezWorld;
-class ezCamera;
+#include <RendererCore/Pipeline/View.h>
 
 class EZ_RENDERERCORE_DLL ezRenderPipeline
 {
@@ -21,46 +19,11 @@ public:
   ezRenderPipeline(Mode mode);
   ~ezRenderPipeline();
 
-  void ExtractData(const ezWorld& world, const ezCamera& camera);
-  void Render(const ezCamera& camera, ezGALContext* pContext);
+  void ExtractData(const ezView& view);
+  void Render(const ezView& view, ezGALContext* pGALContext);
 
   void AddPass(ezRenderPipelinePass* pPass);
   void RemovePass(ezRenderPipelinePass* pPass);
-
-  EZ_FORCE_INLINE void SetViewport(const ezRectFloat& viewport)
-  {
-    m_ViewPortRect = viewport;
-  }
-
-  EZ_FORCE_INLINE const ezRectFloat& GetViewport() const
-  {
-    return m_ViewPortRect;
-  }
-
-  EZ_FORCE_INLINE const ezMat4& GetViewMatrix() const
-  {
-    return m_ViewMatrix;
-  }
-
-  EZ_FORCE_INLINE const ezMat4& GetProjectionMatrix() const
-  {
-    return m_ProjectionMatrix;
-  }
-
-  EZ_FORCE_INLINE const ezMat4& GetViewProjectionMatrix() const
-  {
-    return m_ViewProjectionMatrix;
-  }
-
-  EZ_FORCE_INLINE const ezCamera* GetCurrentCamera() const
-  {
-    return m_pCurrentCamera;
-  }
-
-  EZ_FORCE_INLINE ezGALContext* GetCurrentContext()
-  {
-    return m_pCurrentContext;
-  }
 
   template <typename T>
   T* CreateRenderData(ezRenderPassType passType, ezGameObject* pOwner)
@@ -96,7 +59,7 @@ public:
     return renderData;
   }
 
-  static ezRenderPassType RegisterPassType(const char* szPassTypeName);
+  static ezRenderPassType FindOrRegisterPassType(const char* szPassTypeName);
 
   EZ_FORCE_INLINE static const char* GetPassTypeName(ezRenderPassType passType)
   {
@@ -131,14 +94,6 @@ private:
   static void ClearPipelineData(PipelineData* pPipeLineData);
 
   ezDynamicArray<ezRenderPipelinePass*> m_Passes;
-
-  ezRectFloat m_ViewPortRect;
-  ezMat4 m_ViewMatrix;
-  ezMat4 m_ProjectionMatrix;
-  ezMat4 m_ViewProjectionMatrix;
-
-  const ezCamera* m_pCurrentCamera;
-  ezGALContext* m_pCurrentContext;
 
   static ezRenderPassType s_uiNextPassType;
 

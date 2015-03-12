@@ -5,9 +5,16 @@
 #include <RendererCore/Basics.h>
 
 class ezGameObject;
-class ezCamera;
+class ezView;
 class ezRenderPipeline;
 class ezRenderPipelinePass;
+class ezGALContext;
+
+struct ezRenderContext
+{
+  const ezView* m_pView;
+  ezGALContext* m_pGALContext;
+};
 
 class EZ_RENDERERCORE_DLL ezRenderData : public ezReflectedClass
 {
@@ -40,7 +47,7 @@ public:
   virtual void GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& types) = 0;
 
   /// \brief Should return the number of objects which have been rendered
-  virtual ezUInt32 Render(ezRenderPipelinePass* pPass, const ezArrayPtr<const ezRenderData*>& renderData) = 0;
+  virtual ezUInt32 Render(const ezRenderContext& renderContext, ezRenderPipelinePass* pPass, const ezArrayPtr<const ezRenderData*>& renderData) = 0;
 };
 
 
@@ -49,5 +56,5 @@ struct ezExtractRenderDataMessage : public ezMessage
   EZ_DECLARE_MESSAGE_TYPE(ezExtractRenderDataMessage);
 
   ezRenderPipeline* m_pRenderPipeline;
-  const ezCamera* m_pCamera;
+  const ezView* m_pView;
 };

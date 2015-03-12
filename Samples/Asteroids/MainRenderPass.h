@@ -7,5 +7,5 @@ class MainRenderPass : public ezRenderPipelinePass
 public:
   MainRenderPass();
 
-  virtual void Execute() override;
+  virtual void Execute(const ezRenderContext& renderContext) override;
 };

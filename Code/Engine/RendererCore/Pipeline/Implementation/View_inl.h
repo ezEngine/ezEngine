@@ -8,6 +8,8 @@ inline ezView::ezView(const char* szName)
   m_pLogicCamera = nullptr;
   m_pRenderCamera = nullptr;
 
+  m_ViewPortRect = ezRectFloat(0.0f, 0.0f);
+
   m_uiLastCameraSettingsModification = 0;
   m_uiLastCameraOrientationModification = 0;
   m_fLastViewportAspectRatio = 1.0f;
@@ -70,7 +72,53 @@ EZ_FORCE_INLINE const ezCamera* ezView::GetRenderCamera() const
   return m_pRenderCamera;
 }
 
+EZ_FORCE_INLINE void ezView::SetViewport(const ezRectFloat& viewport)
+{
+  m_ViewPortRect = viewport;
+}
+
+EZ_FORCE_INLINE const ezRectFloat& ezView::GetViewport() const
+{
+  return m_ViewPortRect;
+}
+
 EZ_FORCE_INLINE bool ezView::IsValid() const
 {
-  return m_pWorld != nullptr && m_pRenderPipeline != nullptr && m_pLogicCamera != nullptr && m_pRenderCamera != nullptr;
+  return m_pWorld != nullptr && m_pRenderPipeline != nullptr && m_pLogicCamera != nullptr && m_pRenderCamera != nullptr && m_ViewPortRect.HasNonZeroArea();
+}
+
+EZ_FORCE_INLINE const ezMat4& ezView::GetProjectionMatrix() const 
+{ 
+  UpdateCachedMatrices(); 
+  return m_ProjectionMatrix; 
+}
+
+EZ_FORCE_INLINE const ezMat4& ezView::GetInverseProjectionMatrix() const 
+{ 
+  UpdateCachedMatrices(); 
+  return m_InverseProjectionMatrix;
+}
+
+EZ_FORCE_INLINE const ezMat4& ezView::GetViewMatrix() const 
+{ 
+  UpdateCachedMatrices(); 
+  return m_ViewMatrix;
+}
+
+EZ_FORCE_INLINE const ezMat4& ezView::GetInverseViewMatrix() const 
+{ 
+  UpdateCachedMatrices(); 
+  return m_InverseViewMatrix;
+}
+
+EZ_FORCE_INLINE const ezMat4& ezView::GetViewProjectionMatrix() const 
+{ 
+  UpdateCachedMatrices(); 
+  return m_ViewProjectionMatrix;
+}
+
+EZ_FORCE_INLINE const ezMat4& ezView::GetInverseViewProjectionMatrix() const 
+{ 
+  UpdateCachedMatrices(); 
+  return m_InverseViewProjectionMatrix;
 }

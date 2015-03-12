@@ -93,11 +93,10 @@ void SampleGameApp::InitRendering()
 
   ezRenderPipeline* pRenderPipeline = EZ_DEFAULT_NEW(ezRenderPipeline)(ezRenderPipeline::Asynchronous);
   pRenderPipeline->AddPass(EZ_DEFAULT_NEW(MainRenderPass));
+  m_View.SetRenderPipeline(pRenderPipeline);
 
   ezSizeU32 size = m_pWindow->GetClientAreaSize();
-  pRenderPipeline->SetViewport(ezRectFloat(0.0f, 0.0f, (float)size.width, (float)size.height));
-
-  m_View.SetRenderPipeline(pRenderPipeline);
+  m_View.SetViewport(ezRectFloat(0.0f, 0.0f, (float)size.width, (float)size.height));
 }
 
 #if 0

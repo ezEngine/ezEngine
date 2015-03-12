@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Foundation/Math/Rect.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Strings/HashedString.h>
 #include <RendererCore/Basics.h>
@@ -32,13 +33,16 @@ public:
   void SetRenderCamera(const ezCamera* pCamera);
   const ezCamera* GetRenderCamera() const;
 
+  void SetViewport(const ezRectFloat& viewport);
+  const ezRectFloat& GetViewport() const;
+
+  bool IsValid() const;
+
   /// \brief Returns the start position and direction (in world space) of the picking ray through the screen position in this view.
   ///
   /// fScreenPosX and fScreenPosY are expected to be in [0; 1] range (normalized pixel coordinates).
   /// If no ray can be computed, EZ_FAILURE is returned.
   ezResult ComputePickingRay(float fScreenPosX, float fScreenPosY, ezVec3& out_RayStartPos, ezVec3& out_RayDir);
-
-  bool IsValid() const;
   
   /// \brief Extracts all relevant data from the world to render the view.
   void ExtractData();
@@ -46,23 +50,37 @@ public:
   /// \brief Renders the extracted data with the view's pipeline.
   void Render(ezGALContext* pContext);
 
+  
   /// \brief Returns the current projection matrix.
-  const ezMat4& GetProjectionMatrix() const { UpdateCachedMatrices(); return m_ProjectionMatrix; }
+  const ezMat4& GetProjectionMatrix() const;
 
   /// \brief Returns the current inverse projection matrix.
-  const ezMat4& GetInverseProjectionMatrix() const { UpdateCachedMatrices(); return m_InverseProjectionMatrix; }
+  const ezMat4& GetInverseProjectionMatrix() const;
 
   /// \brief Returns the current view matrix (camera orientation).
-  const ezMat4& GetViewMatrix() const { UpdateCachedMatrices(); return m_ViewMatrix; }
+  const ezMat4& GetViewMatrix() const;
 
   /// \brief Returns the current inverse view matrix (inverse camera orientation).
-  const ezMat4& GetInverseViewMatrix() const { UpdateCachedMatrices(); return m_InverseViewMatrix; }
+  const ezMat4& GetInverseViewMatrix() const;
 
   /// \brief Returns the current view-projection matrix.
-  const ezMat4& GetViewProjectionMatrix() const { UpdateCachedMatrices(); return m_ViewProjectionMatrix; }
+  const ezMat4& GetViewProjectionMatrix() const;
 
   /// \brief Returns the current inverse view-projection matrix.
-  const ezMat4& GetInverseViewProjectionMatrix() const { UpdateCachedMatrices(); return m_InverseViewProjectionMatrix; }
+  const ezMat4& GetInverseViewProjectionMatrix() const;
+
+private:
+  ezHashedString m_sName;
+
+  ezProfilingId m_ExtractDataProfilingID;
+  ezProfilingId m_RenderProfilingID;
+
+  const ezWorld* m_pWorld; 
+  ezRenderPipeline* m_pRenderPipeline;
+  const ezCamera* m_pLogicCamera;
+  const ezCamera* m_pRenderCamera;
+
+  ezRectFloat m_ViewPortRect;
 
 private:
   void UpdateCachedMatrices() const;
@@ -77,16 +95,6 @@ private:
   mutable ezMat4 m_ViewProjectionMatrix;
   mutable ezMat4 m_InverseViewProjectionMatrix;
 
-private:
-  ezHashedString m_sName;
-
-  ezProfilingId m_ExtractDataProfilingID;
-  ezProfilingId m_RenderProfilingID;
-
-  const ezWorld* m_pWorld; 
-  ezRenderPipeline* m_pRenderPipeline;
-  const ezCamera* m_pLogicCamera;
-  const ezCamera* m_pRenderCamera;
 };
 
 #include <RendererCore/Pipeline/Implementation/View_inl.h>

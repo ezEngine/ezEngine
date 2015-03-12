@@ -22,7 +22,7 @@ void ezView::ExtractData()
 
   EZ_PROFILE(m_ExtractDataProfilingID);
 
-  m_pRenderPipeline->ExtractData(*m_pWorld, *m_pLogicCamera);
+  m_pRenderPipeline->ExtractData(*this);
 }
 
 void ezView::Render(ezGALContext* pContext)
@@ -31,7 +31,7 @@ void ezView::Render(ezGALContext* pContext)
 
   EZ_PROFILE(m_RenderProfilingID);
 
-  m_pRenderPipeline->Render(*m_pRenderCamera, pContext);
+  m_pRenderPipeline->Render(*this, pContext);
 }
 
 ezResult ezView::ComputePickingRay(float fScreenPosX, float fScreenPosY, ezVec3& out_RayStartPos, ezVec3& out_RayDir)
@@ -62,11 +62,11 @@ void ezView::UpdateCachedMatrices() const
   }
 
   if (m_uiLastCameraSettingsModification != m_pRenderCamera->GetSettingsModificationCounter() ||
-      m_fLastViewportAspectRatio != m_pRenderPipeline->GetViewport().width / m_pRenderPipeline->GetViewport().height)
+      m_fLastViewportAspectRatio != m_ViewPortRect.width / m_ViewPortRect.height)
   {
     bUpdateVP = true;
     m_uiLastCameraSettingsModification = m_pRenderCamera->GetSettingsModificationCounter();
-    m_fLastViewportAspectRatio = m_pRenderPipeline->GetViewport().width / m_pRenderPipeline->GetViewport().height;
+    m_fLastViewportAspectRatio = m_ViewPortRect.width / m_ViewPortRect.height;
 
     m_pRenderCamera->GetProjectionMatrix(m_fLastViewportAspectRatio, m_ProjectionMatrix);
     m_InverseProjectionMatrix = m_ProjectionMatrix.GetInverse();

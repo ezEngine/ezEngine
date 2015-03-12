@@ -20,14 +20,14 @@ void ezRenderPipelinePass::AddRenderer(ezRenderer* pRenderer)
   }
 }
 
-void ezRenderPipelinePass::Run()
+void ezRenderPipelinePass::Run(const ezRenderContext& renderContext)
 {
   EZ_PROFILE(m_ProfilingID);
 
-  Execute();
+  Execute(renderContext);
 }
 
-void ezRenderPipelinePass::RenderDataWithPassType(ezRenderPassType passType)
+void ezRenderPipelinePass::RenderDataWithPassType(const ezRenderContext& renderContext, ezRenderPassType passType)
 {
   EZ_PROFILE(m_pPipeline->GetPassTypeProfilingID(passType));
 
@@ -42,7 +42,7 @@ void ezRenderPipelinePass::RenderDataWithPassType(ezRenderPassType passType)
     ezRenderer* pRenderer = nullptr;
     if (m_Renderer.TryGetValue(pType, pRenderer))
     {
-      uiDataRendered = pRenderer->Render(this, renderData);
+      uiDataRendered = pRenderer->Render(renderContext, this, renderData);
     }
     else
     {

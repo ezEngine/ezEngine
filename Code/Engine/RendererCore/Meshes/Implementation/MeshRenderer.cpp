@@ -22,9 +22,9 @@ void ezMeshRenderer::GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>
   types.PushBack(ezGetStaticRTTI<ezMeshRenderData>());
 }
 
-ezUInt32 ezMeshRenderer::Render(ezRenderPipelinePass* pPass, const ezArrayPtr<const ezRenderData*>& renderData)
+ezUInt32 ezMeshRenderer::Render(const ezRenderContext& renderContext, ezRenderPipelinePass* pPass, const ezArrayPtr<const ezRenderData*>& renderData)
 {
-  ezGALContext* pContext = pPass->GetPipeline()->GetCurrentContext();
+  ezGALContext* pContext = renderContext.m_pGALContext;
 
   if (s_hPerObjectBuffer.IsInvalidated())
   {
@@ -41,7 +41,7 @@ ezUInt32 ezMeshRenderer::Render(ezRenderPipelinePass* pPass, const ezArrayPtr<co
     pContext->SetRasterizerState(s_hRasterizerState);
   }
 
-  const ezMat4& ViewProj = pPass->GetPipeline()->GetViewProjectionMatrix();
+  const ezMat4& ViewProj = renderContext.m_pView->GetViewProjectionMatrix();
   ezMaterialResourceHandle hLastMaterial;
   
   ezUInt32 uiDataRendered = 0;

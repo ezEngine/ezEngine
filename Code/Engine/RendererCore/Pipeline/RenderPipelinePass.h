@@ -15,11 +15,11 @@ public:
   void AddRenderer(ezRenderer* pRenderer);
   void RemoveRenderer(ezRenderer* pRenderer);
 
-  virtual void Execute() = 0;
+  virtual void Execute(const ezRenderContext& renderContext) = 0;
 
-  void Run();
+  void Run(const ezRenderContext& renderContext);
 
-  void RenderDataWithPassType(ezRenderPassType passType);
+  void RenderDataWithPassType(const ezRenderContext& renderContext, ezRenderPassType passType);
 
   EZ_FORCE_INLINE ezRenderPipeline* GetPipeline()
   {

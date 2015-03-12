@@ -1,7 +1,6 @@
 #include <RendererCore/PCH.h>
 #include <RendererCore/Pipeline/RenderPipeline.h>
 #include <Core/World/World.h>
-#include <CoreUtils/Graphics/Camera.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRenderData, ezReflectedClass, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
@@ -33,10 +32,6 @@ ezRenderPipeline::ezRenderPipeline(Mode mode)
 
   m_pExtractedData = &m_Data[0];
   m_pRenderData = m_Mode == Asynchronous ? &m_Data[1] : &m_Data[0];
-
-  m_ViewPortRect = ezRectFloat(0.0f, 0.0f);
-  m_pCurrentCamera = nullptr;
-  m_pCurrentContext = nullptr;  
 }
 
 ezRenderPipeline::~ezRenderPipeline()
@@ -45,7 +40,7 @@ ezRenderPipeline::~ezRenderPipeline()
   ClearPipelineData(m_pRenderData);
 }
 
-void ezRenderPipeline::ExtractData(const ezWorld& world, const ezCamera& camera)
+void ezRenderPipeline::ExtractData(const ezView& view)
 {
   // swap data
   if (m_Mode == Asynchronous)
@@ -55,12 +50,12 @@ void ezRenderPipeline::ExtractData(const ezWorld& world, const ezCamera& camera)
 
   ezExtractRenderDataMessage msg;
   msg.m_pRenderPipeline = this;
-  msg.m_pCamera = &camera;
+  msg.m_pView = &view;
 
   ClearPipelineData(m_pExtractedData);
 
   /// \todo use spatial data to do visibility culling etc.
-  for (auto it = world.GetObjects(); it.IsValid(); ++it)
+  for (auto it = view.GetWorld()->GetObjects(); it.IsValid(); ++it)
   {
     const ezGameObject* pObject = it;
     pObject->SendMessage(msg);
@@ -73,7 +68,7 @@ void ezRenderPipeline::ExtractData(const ezWorld& world, const ezCamera& camera)
   }
 }
 
-void ezRenderPipeline::Render(const ezCamera& camera, ezGALContext* pContext)
+void ezRenderPipeline::Render(const ezView& view, ezGALContext* pGALContext)
 {
   // swap data
   if (m_Mode == Asynchronous)
@@ -82,22 +77,17 @@ void ezRenderPipeline::Render(const ezCamera& camera, ezGALContext* pContext)
   }
 
   // calculate camera matrices
-  camera.GetViewMatrix(m_ViewMatrix);
-  camera.GetProjectionMatrix(m_ViewPortRect.width / m_ViewPortRect.height, m_ProjectionMatrix);
-  m_ViewProjectionMatrix = m_ProjectionMatrix * m_ViewMatrix;
+  const ezRectFloat& viewPortRect = view.GetViewport();
+  pGALContext->SetViewport(viewPortRect.x, viewPortRect.y, viewPortRect.width, viewPortRect.height, 0.0f, 1.0f);
 
-  pContext->SetViewport(m_ViewPortRect.x, m_ViewPortRect.y, m_ViewPortRect.width, m_ViewPortRect.height, 0.0f, 1.0f);
-
-  m_pCurrentCamera = &camera;
-  m_pCurrentContext = pContext;
+  ezRenderContext renderContext;
+  renderContext.m_pView = &view;
+  renderContext.m_pGALContext = pGALContext;
 
   for (ezUInt32 i = 0; i < m_Passes.GetCount(); ++i)
   {
-    m_Passes[i]->Run();
+    m_Passes[i]->Run(renderContext);
   }
-
-  m_pCurrentCamera = nullptr;
-  m_pCurrentContext = nullptr;
 }
 
 void ezRenderPipeline::AddPass(ezRenderPipelinePass* pPass)
@@ -109,7 +99,9 @@ void ezRenderPipeline::AddPass(ezRenderPipelinePass* pPass)
 
 void ezRenderPipeline::RemovePass(ezRenderPipelinePass* pPass)
 {
+  m_Passes.Remove(pPass);
 
+  pPass->m_pPipeline = nullptr;
 }
 
 // static
@@ -131,9 +123,17 @@ void ezRenderPipeline::ClearPipelineData(PipelineData* pPipeLineData)
 }
 
 //static 
-ezRenderPassType ezRenderPipeline::RegisterPassType(const char* szPassTypeName)
+ezRenderPassType ezRenderPipeline::FindOrRegisterPassType(const char* szPassTypeName)
 {
   EZ_ASSERT_RELEASE(MAX_PASS_TYPES > s_uiNextPassType, "Reached the maximum of %d pass types.", MAX_PASS_TYPES);
+  
+  ezTempHashedString passTypeName(szPassTypeName);
+
+  for (ezRenderPassType type = 0; type < MAX_PASS_TYPES; ++type)
+  {
+    if (s_PassTypeData[type].m_sName == passTypeName)
+      return type;
+  }
 
   ezRenderPassType newType = s_uiNextPassType;
   s_PassTypeData[newType].m_sName.Assign(szPassTypeName);
@@ -143,9 +143,9 @@ ezRenderPassType ezRenderPipeline::RegisterPassType(const char* szPassTypeName)
   return newType;
 }
 
-ezRenderPassType ezDefaultPassTypes::Opaque = ezRenderPipeline::RegisterPassType("Opaque");
-ezRenderPassType ezDefaultPassTypes::Masked = ezRenderPipeline::RegisterPassType("Masked");
-ezRenderPassType ezDefaultPassTypes::Transparent = ezRenderPipeline::RegisterPassType("Transparent");
+ezRenderPassType ezDefaultPassTypes::Opaque = ezRenderPipeline::FindOrRegisterPassType("Opaque");
+ezRenderPassType ezDefaultPassTypes::Masked = ezRenderPipeline::FindOrRegisterPassType("Masked");
+ezRenderPassType ezDefaultPassTypes::Transparent = ezRenderPipeline::FindOrRegisterPassType("Transparent");
 
 
 

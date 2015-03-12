@@ -10,15 +10,15 @@ MainRenderPass::MainRenderPass() : ezRenderPipelinePass("MainRenderPass")
   AddRenderer(EZ_DEFAULT_NEW(ezMeshRenderer));
 }
 
-void MainRenderPass::Execute()
+void MainRenderPass::Execute(const ezRenderContext& renderContext)
 {
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-  ezGALContext* pContext = GetPipeline()->GetCurrentContext();
+  ezGALContext* pContext = renderContext.m_pGALContext;
 
   const ezGALSwapChain* pSwapChain = pDevice->GetSwapChain(pDevice->GetPrimarySwapChain());
 
   pContext->SetRenderTargetConfig(pSwapChain->GetRenderTargetViewConfig());
   pContext->Clear(ezColor(0.0f, 0.0f, 0.1f));
 
-  RenderDataWithPassType(ezDefaultPassTypes::Opaque);
+  RenderDataWithPassType(renderContext, ezDefaultPassTypes::Opaque);
 }
