@@ -106,7 +106,7 @@ static ezGALResourceFormat::Enum ImgToGalFormat(ezImageFormat::Enum format, bool
     else
       return ezGALResourceFormat::RGBAUByteNormalized;
 
-  //case ezImageFormat::R8G8B8A8_TYPELESS:
+    //case ezImageFormat::R8G8B8A8_TYPELESS:
   case ezImageFormat::R8G8B8A8_UNORM_SRGB:
     return ezGALResourceFormat::RGBAUByteNormalizedsRGB;
 
@@ -131,17 +131,17 @@ static ezGALResourceFormat::Enum ImgToGalFormat(ezImageFormat::Enum format, bool
     else
       return ezGALResourceFormat::BGRAUByteNormalized;
 
-  //case ezImageFormat::B8G8R8A8_TYPELESS:
+    //case ezImageFormat::B8G8R8A8_TYPELESS:
   case ezImageFormat::B8G8R8A8_UNORM_SRGB:
     return ezGALResourceFormat::BGRAUByteNormalizedsRGB;
 
-  //case ezImageFormat::B8G8R8X8_TYPELESS:
+    //case ezImageFormat::B8G8R8X8_TYPELESS:
   case ezImageFormat::B8G8R8X8_UNORM_SRGB:
     return ezGALResourceFormat::BGRAUByteNormalizedsRGB;
 
-  //case ezImageFormat::B8G8R8_UNORM:
+    //case ezImageFormat::B8G8R8_UNORM:
 
-  //case ezImageFormat::BC1_TYPELESS:
+    //case ezImageFormat::BC1_TYPELESS:
   case ezImageFormat::BC1_UNORM:
     if (bSRGB)
       return ezGALResourceFormat::BC1sRGB;
@@ -151,7 +151,7 @@ static ezGALResourceFormat::Enum ImgToGalFormat(ezImageFormat::Enum format, bool
   case ezImageFormat::BC1_UNORM_SRGB:
     return ezGALResourceFormat::BC1sRGB;
 
-  //case ezImageFormat::BC2_TYPELESS:
+    //case ezImageFormat::BC2_TYPELESS:
   case ezImageFormat::BC2_UNORM:
     if (bSRGB)
       return ezGALResourceFormat::BC2sRGB;
@@ -161,7 +161,7 @@ static ezGALResourceFormat::Enum ImgToGalFormat(ezImageFormat::Enum format, bool
   case ezImageFormat::BC2_UNORM_SRGB:
     return ezGALResourceFormat::BC2sRGB;
 
-  //case ezImageFormat::BC3_TYPELESS:
+    //case ezImageFormat::BC3_TYPELESS:
   case ezImageFormat::BC3_UNORM:
     if (bSRGB)
       return ezGALResourceFormat::BC3sRGB;
@@ -171,28 +171,28 @@ static ezGALResourceFormat::Enum ImgToGalFormat(ezImageFormat::Enum format, bool
   case ezImageFormat::BC3_UNORM_SRGB:
     return ezGALResourceFormat::BC3sRGB;
 
-  //case ezImageFormat::BC4_TYPELESS:
+    //case ezImageFormat::BC4_TYPELESS:
   case ezImageFormat::BC4_UNORM:
     return ezGALResourceFormat::BC4UNormalized;
 
   case ezImageFormat::BC4_SNORM:
     return ezGALResourceFormat::BC4Normalized;
 
-  //case ezImageFormat::BC5_TYPELESS:
+    //case ezImageFormat::BC5_TYPELESS:
   case ezImageFormat::BC5_UNORM:
     return ezGALResourceFormat::BC5UNormalized;
 
   case ezImageFormat::BC5_SNORM:
     return ezGALResourceFormat::BC5Normalized;
 
-  //case ezImageFormat::BC6H_TYPELESS:
+    //case ezImageFormat::BC6H_TYPELESS:
   case ezImageFormat::BC6H_UF16:
     return ezGALResourceFormat::BC6UFloat;
 
   case ezImageFormat::BC6H_SF16:
     return ezGALResourceFormat::BC6Float;
 
-  //case ezImageFormat::BC7_TYPELESS:
+    //case ezImageFormat::BC7_TYPELESS:
   case ezImageFormat::BC7_UNORM:
     if (bSRGB)
       return ezGALResourceFormat::BC7UNormalizedsRGB;
@@ -325,37 +325,44 @@ ezResourceLoadDesc ezTextureResource::UpdateContent(ezStreamReaderBase* Stream)
 
     const ezArrayPtr<ezGALSystemMemoryDescription> InitDataPtr(InitData);
 
-    m_hGALTexture[m_uiLoadedTextures] = ezGALDevice::GetDefaultDevice()->CreateTexture(TexDesc, &InitDataPtr);
+    ezTextureResourceDescriptor td;
+    td.m_DescGAL = TexDesc;
+    td.m_InitialContent = InitDataPtr;
+    
+    // ignore its return value here, we build our own
+    CreateResource(td);
 
-    EZ_ASSERT_DEV(!m_hGALTexture[m_uiLoadedTextures].IsInvalidated(), "Texture Data could not be uploaded to the GPU");
+    //m_hGALTexture[m_uiLoadedTextures] = ezGALDevice::GetDefaultDevice()->CreateTexture(TexDesc, &InitDataPtr);
 
-    ezGALResourceViewCreationDescription TexViewDesc;
-    TexViewDesc.m_hTexture = m_hGALTexture[m_uiLoadedTextures];
+    //EZ_ASSERT_DEV(!m_hGALTexture[m_uiLoadedTextures].IsInvalidated(), "Texture Data could not be uploaded to the GPU");
 
-    m_hGALTexView[m_uiLoadedTextures] = ezGALDevice::GetDefaultDevice()->CreateResourceView(TexViewDesc);
+    //ezGALResourceViewCreationDescription TexViewDesc;
+    //TexViewDesc.m_hTexture = m_hGALTexture[m_uiLoadedTextures];
 
-    EZ_ASSERT_DEV(!m_hGALTexView[m_uiLoadedTextures].IsInvalidated(), "No resource view could be created for texture '%s'. Maybe the format table is incorrect?", GetResourceID().GetData());
+    //m_hGALTexView[m_uiLoadedTextures] = ezGALDevice::GetDefaultDevice()->CreateResourceView(TexViewDesc);
 
-    /// \todo HACK
-    if (m_hSamplerState.IsInvalidated())
-    {
-      ezGALSamplerStateCreationDescription SamplerDesc;
-      SamplerDesc.m_MagFilter = ezGALTextureFilterMode::Linear;
-      SamplerDesc.m_MinFilter = ezGALTextureFilterMode::Point;
-      SamplerDesc.m_MipFilter = ezGALTextureFilterMode::Point;
+    //EZ_ASSERT_DEV(!m_hGALTexView[m_uiLoadedTextures].IsInvalidated(), "No resource view could be created for texture '%s'. Maybe the format table is incorrect?", GetResourceID().GetData());
 
-      if (pImage->GetNumMipLevels() > 1)
-      {
-        SamplerDesc.m_MinFilter = ezGALTextureFilterMode::Linear;
-        SamplerDesc.m_MipFilter = ezGALTextureFilterMode::Linear;
-      }
+    ///// \todo HACK
+    //if (m_hSamplerState.IsInvalidated())
+    //{
+    //  ezGALSamplerStateCreationDescription SamplerDesc;
+    //  SamplerDesc.m_MagFilter = ezGALTextureFilterMode::Linear;
+    //  SamplerDesc.m_MinFilter = ezGALTextureFilterMode::Point;
+    //  SamplerDesc.m_MipFilter = ezGALTextureFilterMode::Point;
 
-      m_hSamplerState = ezGALDevice::GetDefaultDevice()->CreateSamplerState(SamplerDesc);
+    //  if (pImage->GetNumMipLevels() > 1)
+    //  {
+    //    SamplerDesc.m_MinFilter = ezGALTextureFilterMode::Linear;
+    //    SamplerDesc.m_MipFilter = ezGALTextureFilterMode::Linear;
+    //  }
 
-      EZ_ASSERT_DEV(!m_hSamplerState.IsInvalidated(), "Sampler state error");
-    }
+    //  m_hSamplerState = ezGALDevice::GetDefaultDevice()->CreateSamplerState(SamplerDesc);
 
-    ++m_uiLoadedTextures;
+    //  EZ_ASSERT_DEV(!m_hSamplerState.IsInvalidated(), "Sampler state error");
+    //}
+
+    //++m_uiLoadedTextures;
 
     {
       ezResourceLoadDesc res;
@@ -390,10 +397,44 @@ void ezTextureResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
 
 ezResourceLoadDesc ezTextureResource::CreateResource(const ezTextureResourceDescriptor& descriptor)
 {
-  /// \todo Implement texture creation
-  EZ_ASSERT_NOT_IMPLEMENTED;
+  ezResourceLoadDesc ret;
+  ret.m_uiQualityLevelsDiscardable = descriptor.m_uiQualityLevelsDiscardable;
+  ret.m_uiQualityLevelsLoadable = descriptor.m_uiQualityLevelsLoadable;
+  ret.m_State = ezResourceState::Loaded;
 
-  return ezResourceLoadDesc();
+  m_hGALTexture[m_uiLoadedTextures] = ezGALDevice::GetDefaultDevice()->CreateTexture(descriptor.m_DescGAL, &descriptor.m_InitialContent);
+
+  EZ_ASSERT_DEV(!m_hGALTexture[m_uiLoadedTextures].IsInvalidated(), "Texture Data could not be uploaded to the GPU");
+
+  ezGALResourceViewCreationDescription TexViewDesc;
+  TexViewDesc.m_hTexture = m_hGALTexture[m_uiLoadedTextures];
+
+  m_hGALTexView[m_uiLoadedTextures] = ezGALDevice::GetDefaultDevice()->CreateResourceView(TexViewDesc);
+
+  EZ_ASSERT_DEV(!m_hGALTexView[m_uiLoadedTextures].IsInvalidated(), "No resource view could be created for texture '%s'. Maybe the format table is incorrect?", GetResourceID().GetData());
+
+  /// \todo HACK
+  if (m_hSamplerState.IsInvalidated())
+  {
+    ezGALSamplerStateCreationDescription SamplerDesc;
+    SamplerDesc.m_MagFilter = ezGALTextureFilterMode::Linear;
+    SamplerDesc.m_MinFilter = ezGALTextureFilterMode::Point;
+    SamplerDesc.m_MipFilter = ezGALTextureFilterMode::Point;
+
+    if (descriptor.m_DescGAL.m_uiMipSliceCount > 1)
+    {
+      SamplerDesc.m_MinFilter = ezGALTextureFilterMode::Linear;
+      SamplerDesc.m_MipFilter = ezGALTextureFilterMode::Linear;
+    }
+
+    m_hSamplerState = ezGALDevice::GetDefaultDevice()->CreateSamplerState(SamplerDesc);
+
+    EZ_ASSERT_DEV(!m_hSamplerState.IsInvalidated(), "Sampler state error");
+  }
+
+  ++m_uiLoadedTextures;
+
+  return ret;
 }
 
 ezResourceLoadData ezTextureResourceLoader::OpenDataStream(const ezResourceBase* pResource)

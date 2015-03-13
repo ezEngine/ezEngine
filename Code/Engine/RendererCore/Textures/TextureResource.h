@@ -6,11 +6,30 @@
 #include <Foundation/IO/MemoryStream.h>
 #include <CoreUtils/Image/Image.h>
 #include <RendererFoundation/Basics.h>
+#include <RendererFoundation/Descriptors/Descriptors.h>
 
 typedef ezResourceHandle<class ezTextureResource> ezTextureResourceHandle;
 
+/// \brief Use this descriptor in calls to ezResourceManager::CreateResource<ezTextureResource> to create textures from data in memory.
 struct ezTextureResourceDescriptor
 {
+  ezTextureResourceDescriptor()
+  {
+    m_uiQualityLevelsDiscardable = 0;
+    m_uiQualityLevelsLoadable = 0;
+  }
+
+  /// Describes the texture format, etc.
+  ezGALTextureCreationDescription m_DescGAL;
+
+  /// How many quality levels can be discarded and reloaded. For created textures this can currently only be 0 or 1.
+  ezUInt8 m_uiQualityLevelsDiscardable;
+
+  /// How many additional quality levels can be loaded (typically from file).
+  ezUInt8 m_uiQualityLevelsLoadable;
+
+  /// One memory desc per (array * faces * mipmap) (in that order) (array is outer loop, mipmap is inner loop). Can be empty to not initialize data.
+  ezArrayPtr<ezGALSystemMemoryDescription> m_InitialContent;
 };
 
 class EZ_RENDERERCORE_DLL ezTextureResource : public ezResource<ezTextureResource, ezTextureResourceDescriptor>
@@ -20,6 +39,7 @@ class EZ_RENDERERCORE_DLL ezTextureResource : public ezResource<ezTextureResourc
 public:
   ezTextureResource();
 
+  /// \brief If enabled, textures are always loaded to full quality immediately. Mostly necessary for image comparison unit tests.
   static bool s_bForceFullQualityAlways;
 
 private:
