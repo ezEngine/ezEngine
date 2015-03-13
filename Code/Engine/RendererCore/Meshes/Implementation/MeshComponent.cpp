@@ -46,6 +46,8 @@ void ezMeshComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) const
     ezMeshRenderData* pRenderData = pRenderPipeline->CreateRenderData<ezMeshRenderData>(ezDefaultPassTypes::Opaque, GetOwner());
     pRenderData->m_WorldTransform = GetOwner()->GetWorldTransform();
     pRenderData->m_hMesh = m_hMesh;
+
+    /// \todo We should check here whether the component has a custom material assignment and otherwise pass on the default mesh material assignment
     pRenderData->m_hMaterial = m_Materials[parts[uiPartIndex].m_uiMaterialIndex];
     pRenderData->m_uiPartIndex = uiPartIndex;
   }

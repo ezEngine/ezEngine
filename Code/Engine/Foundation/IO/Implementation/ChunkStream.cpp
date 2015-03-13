@@ -54,6 +54,7 @@ void ezChunkStreamWriter::EndChunk()
 
   const ezUInt32 uiStorageSize = m_Storage.GetCount();
   m_Stream << uiStorageSize;
+  /// \todo Write Chunk CRC
 
   for (ezUInt32 i = 0; i < uiStorageSize; )
   {

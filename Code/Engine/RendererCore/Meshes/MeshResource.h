@@ -20,7 +20,7 @@ public:
     ezUInt32 m_uiPrimitiveCount;
     ezUInt32 m_uiFirstPrimitive;
     ezUInt32 m_uiMaterialIndex;
-    ezMeshBufferResourceHandle m_hMeshBuffer;
+    ezMeshBufferResourceHandle m_hMeshBuffer; /// \todo: (Clemens?) Should a mesh resource be able to reference multiple different mesh buffers? I would say it should just have one.
   };
 
   const ezDynamicArray<Part>& GetParts() const
@@ -41,6 +41,9 @@ private:
 
   ezDynamicArray<Part> m_Parts;
   ezUInt32 m_uiMaterialCount;
+
+  /// \todo We should also store a default material assignment in the mesh resource
+  //ezDynamicArray<ezMaterialResourceHandle> m_Materials;
 };
 
 typedef ezResourceHandle<ezMeshResource> ezMeshResourceHandle;
