@@ -1,6 +1,12 @@
 #include <PCH.h>
 #include <Foundation/Containers/DynamicArray.h>
 
+static void testArrayPtr(ezArrayPtr<ezInt32> ints, ezInt32* pExtectedPtr, ezUInt32 uiExpectedCount)
+{
+  EZ_TEST_BOOL(ints.GetPtr() == pExtectedPtr);
+  EZ_TEST_INT(ints.GetCount(), uiExpectedCount);
+}
+
 EZ_CREATE_SIMPLE_TEST(Basics, ArrayPtr)
 {
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Empty Constructor")
@@ -30,6 +36,15 @@ EZ_CREATE_SIMPLE_TEST(Basics, ArrayPtr)
     ezArrayPtr<ezInt32> ap4(ap);
     EZ_TEST_BOOL(ap4.GetPtr() == pIntData);
     EZ_TEST_BOOL(ap4.GetCount() == 3);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "szMakeArrayPtr")
+  {
+    ezInt32 pIntData[] = { 1, 2, 3, 4, 5 };
+
+    testArrayPtr(ezMakeArrayPtr(pIntData, 3), pIntData, 3);
+    testArrayPtr(ezMakeArrayPtr(pIntData, 0), nullptr, 0);
+    testArrayPtr(ezMakeArrayPtr(pIntData), pIntData, 5);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "operator=")

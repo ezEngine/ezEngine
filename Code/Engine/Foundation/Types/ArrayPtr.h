@@ -140,6 +140,20 @@ private:
   ezUInt32 m_uiCount;
 };
 
+/// \brief Helper function to create ezArrayPtr from a pointer of some type and a count.
+template<typename T>
+EZ_FORCE_INLINE ezArrayPtr<T> ezMakeArrayPtr(T* ptr, ezUInt32 uiCount)
+{
+  return ezArrayPtr<T>(ptr, uiCount);
+}
+
+/// \brief Helper function to create ezArrayPtr from a static array the a size known at compile-time.
+template<typename T, ezUInt32 N>
+EZ_FORCE_INLINE ezArrayPtr<T> ezMakeArrayPtr(T(&staticArray)[N])
+{
+  return ezArrayPtr<T>(staticArray);
+}
+
 template <typename T>
 typename ezArrayPtr<T>::iterator begin(ezArrayPtr<T>& container) { return typename ezArrayPtr<T>::iterator(container, (size_t) 0); }
 
