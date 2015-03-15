@@ -1,57 +1,61 @@
 #include <Core/ResourceManager/ResourceManager.h>
 #include <CoreUtils/Geometry/GeomUtils.h>
 #include <CoreUtils/Graphics/Camera.h>
+#include <Foundation/Logging/Log.h>
 #include <RendererCore/Meshes/MeshComponent.h>
-#include <RendererCore/Meshes/MeshFormat.h>
+#include <RendererCore/Meshes/MeshResourceDescriptor.h>
 #include "Level.h"
 #include "Application.h"
 #include "ShipComponent.h"
 #include "ProjectileComponent.h"
 #include "AsteroidComponent.h"
 #include "CollidableComponent.h"
+#include <Foundation/IO/FileSystem/FileSystem.h>
 
 static ezMeshResourceHandle CreateAsteroidMesh()
 {
-  ezGeometry geom;
-  geom.AddGeodesicSphere(1.0f, 1, ezColor::White);
-  geom.ComputeFaceNormals();
-  geom.ComputeSmoothVertexNormals();
-
-  ezMeshFormatBuilder mfb;
-
-  mfb.MeshBufferDesc().AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
-  mfb.MeshBufferDesc().AddStream(ezGALVertexAttributeSemantic::Normal, ezGALResourceFormat::XYZFloat);
-  mfb.MeshBufferDesc().AddStream(ezGALVertexAttributeSemantic::Color, ezGALResourceFormat::RGBAByteNormalized);
-
-  const ezDeque<ezGeometry::Vertex>& vertices = geom.GetVertices();
-  const ezDeque<ezGeometry::Polygon>& polygons = geom.GetPolygons();
-
-  mfb.MeshBufferDesc().AllocateStreams(vertices.GetCount(), polygons.GetCount());
-
-  for (ezUInt32 v = 0; v < vertices.GetCount(); ++v)
+  if (!ezFileSystem::ExistsFile("Meshes/Asteroid.ezm"))
   {
-    mfb.MeshBufferDesc().SetVertexData<ezVec3>(0, v, vertices[v].m_vPosition);
-    mfb.MeshBufferDesc().SetVertexData<ezVec3>(1, v, vertices[v].m_vNormal);
-    mfb.MeshBufferDesc().SetVertexData<ezColorLinearUB>(2, v, vertices[v].m_Color);
+    ezGeometry geom;
+    geom.AddGeodesicSphere(1.0f, 1, ezColor::White);
+    geom.ComputeFaceNormals();
+    geom.ComputeSmoothVertexNormals();
+
+    ezMeshResourceDescriptor mfb;
+
+    if (mfb.Load("Meshes/Asteroid.ezm").Failed())
+    {
+      mfb.MeshBufferDesc().AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
+      mfb.MeshBufferDesc().AddStream(ezGALVertexAttributeSemantic::Normal, ezGALResourceFormat::XYZFloat);
+      mfb.MeshBufferDesc().AddStream(ezGALVertexAttributeSemantic::Color, ezGALResourceFormat::RGBAByteNormalized);
+
+      const ezDeque<ezGeometry::Vertex>& vertices = geom.GetVertices();
+      const ezDeque<ezGeometry::Polygon>& polygons = geom.GetPolygons();
+
+      mfb.MeshBufferDesc().AllocateStreams(vertices.GetCount(), polygons.GetCount());
+
+      for (ezUInt32 v = 0; v < vertices.GetCount(); ++v)
+      {
+        mfb.MeshBufferDesc().SetVertexData<ezVec3>(0, v, vertices[v].m_vPosition);
+        mfb.MeshBufferDesc().SetVertexData<ezVec3>(1, v, vertices[v].m_vNormal);
+        mfb.MeshBufferDesc().SetVertexData<ezColorLinearUB>(2, v, vertices[v].m_Color);
+      }
+
+      for (ezUInt32 p = 0; p < polygons.GetCount(); ++p)
+      {
+        mfb.MeshBufferDesc().SetTriangleIndices(p, polygons[p].m_Vertices[0], polygons[p].m_Vertices[1], polygons[p].m_Vertices[2]);
+      }
+
+      mfb.AddSubMesh(polygons.GetCount(), 0, 0);
+      mfb.SetMaterial(0, "Materials/Asteroid.material");
+      mfb.Save("Meshes/Asteroid.ezm");
+    }
   }
 
-  for (ezUInt32 p = 0; p < polygons.GetCount(); ++p)
-  {
-    mfb.MeshBufferDesc().SetTriangleIndices(p, polygons[p].m_Vertices[0], polygons[p].m_Vertices[1], polygons[p].m_Vertices[2]);
-  }
+  return ezResourceManager::LoadResource<ezMeshResource>("Meshes/Asteroid.ezm");
 
-  mfb.AddSubMesh(polygons.GetCount(), 0, 0);
-  mfb.SetMaterial(0, "Materials/Asteroid.material");
-  mfb.WriteMeshFormat("Meshes/Asteroid.ezm");
-
-  ezMeshBufferResourceHandle hMeshBuffer = ezResourceManager::CreateResource<ezMeshBufferResource>("AsteroidMeshBuffer", mfb.MeshBufferDesc());
-
-  ezMeshResourceDescriptor mrdesc;
-  mrdesc.hMeshBuffer = hMeshBuffer;
-
-  ezMeshResourceHandle hMesh = ezResourceManager::CreateResource<ezMeshResource>("AsteroidMesh", mrdesc);
-
-  return hMesh;
+  //ezMeshResourceHandle hMesh = ezResourceManager::CreateResource<ezMeshResource>("AsteroidMesh", mfb);
+  //return hMesh;
 
 
 }

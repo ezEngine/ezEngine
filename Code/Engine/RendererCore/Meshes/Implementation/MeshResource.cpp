@@ -1,5 +1,6 @@
 #include <RendererCore/PCH.h>
 #include <RendererCore/Meshes/MeshResource.h>
+#include <RendererCore/Material/MaterialResource.h>
 
 #include <Core/ResourceManager/ResourceManager.h>
 
@@ -12,49 +13,76 @@ ezMeshResource::ezMeshResource() : ezResource<ezMeshResource, ezMeshResourceDesc
 
 ezResourceLoadDesc ezMeshResource::UnloadData(Unload WhatToUnload)
 {
-  m_Parts.Clear();
-  m_uiMaterialCount = 0;
-
   ezResourceLoadDesc res;
-  res.m_uiQualityLevelsDiscardable = 0;
-  res.m_uiQualityLevelsLoadable = 0;
-  res.m_State = ezResourceState::Unloaded;
+  res.m_State = GetLoadingState();
+  res.m_uiQualityLevelsDiscardable = GetNumQualityLevelsDiscardable();
+  res.m_uiQualityLevelsLoadable = GetNumQualityLevelsLoadable();
+
+  // we currently can only unload the entire mesh
+  //if (WhatToUnload == Unload::AllQualityLevels)
+  {
+    m_SubMeshes.Clear();
+    m_hMeshBuffer.Invalidate();
+    m_Materials.Clear();
+
+    res.m_uiQualityLevelsDiscardable = 0;
+    res.m_uiQualityLevelsLoadable = 0;
+    res.m_State = ezResourceState::Unloaded;
+  }
 
   return res;
 }
 
 ezResourceLoadDesc ezMeshResource::UpdateContent(ezStreamReaderBase* Stream)
 {
-  EZ_ASSERT_NOT_IMPLEMENTED;
-
+  ezMeshResourceDescriptor desc;
   ezResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
   res.m_uiQualityLevelsLoadable = 0;
-  res.m_State = ezResourceState::Unloaded;
-  
-  return res;
+
+  if (Stream == nullptr || desc.Load(*Stream).Failed())
+  {
+    res.m_State = ezResourceState::LoadedResourceMissing;
+    return res;
+  }
+
+  return CreateResource(desc);
 }
 
 void ezMeshResource::UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage)
 {
-  out_NewMemoryUsage.m_uiMemoryCPU = sizeof(ezMeshResource) + (ezUInt32) m_Parts.GetHeapMemoryUsage();
+  out_NewMemoryUsage.m_uiMemoryCPU = sizeof(ezMeshResource) + (ezUInt32) m_SubMeshes.GetHeapMemoryUsage();
   out_NewMemoryUsage.m_uiMemoryGPU = 0;
 }
 
-ezResourceLoadDesc ezMeshResource::CreateResource(const ezMeshResourceDescriptor& descriptor)
+ezResourceLoadDesc ezMeshResource::CreateResource(const ezMeshResourceDescriptor& desc)
 {
-  /// \todo proper implementation
-  ezResourceLock<ezMeshBufferResource> pMeshBuffer(descriptor.hMeshBuffer);
+  // if there is an existing mesh buffer to use, take that
+  m_hMeshBuffer = desc.GetExistingMeshBuffer();
 
-  Part part;
-  part.m_uiPrimitiveCount = pMeshBuffer->GetPrimitiveCount();
-  part.m_uiFirstPrimitive = 0;  
-  part.m_uiMaterialIndex = 0;
-  part.m_hMeshBuffer = descriptor.hMeshBuffer;
+  // otherwise create a new mesh buffer from the descriptor
+  if (!m_hMeshBuffer.IsValid())
+  {
+    ezStringBuilder sMbName(GetResourceID(), " [MeshBuffer]");
 
-  m_Parts.PushBack(part);
+    m_hMeshBuffer = ezResourceManager::CreateResource<ezMeshBufferResource>(sMbName, desc.MeshBufferDesc());
+  }
 
-  m_uiMaterialCount = 1;
+  m_SubMeshes = desc.GetSubMeshes();
+
+  m_Materials.Clear();
+  m_Materials.Reserve(desc.GetMaterials().GetCount());
+
+  // copy all the material assignments and load the materials
+  for (const auto& mat : desc.GetMaterials())
+  {
+    ezMaterialResourceHandle hMat;
+
+    if (!mat.m_sPath.IsEmpty())
+      hMat = ezResourceManager::LoadResource<ezMaterialResource>(mat.m_sPath);
+
+    m_Materials.PushBack(hMat); // may be an invalid handle
+  }
 
   ezResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;

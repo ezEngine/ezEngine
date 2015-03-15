@@ -55,7 +55,7 @@ ezUInt32 ezMeshRenderer::Render(const ezRenderContext& renderContext, ezRenderPi
     pContext->UpdateBuffer(s_hPerObjectBuffer, 0, &cb, sizeof(PerObjectCB));
 
     ezResourceLock<ezMeshResource> pMesh(pRenderData->m_hMesh);
-    const ezMeshResource::Part& meshPart = pMesh->GetParts()[pRenderData->m_uiPartIndex];
+    const ezMeshResourceDescriptor::SubMesh& meshPart = pMesh->GetSubMeshes()[pRenderData->m_uiPartIndex];
 
     if (pRenderData->m_hMaterial != hLastMaterial)
     {
@@ -63,7 +63,7 @@ ezUInt32 ezMeshRenderer::Render(const ezRenderContext& renderContext, ezRenderPi
       hLastMaterial = pRenderData->m_hMaterial;
     }
 
-    ezRendererCore::DrawMeshBuffer(pContext, meshPart.m_hMeshBuffer, meshPart.m_uiPrimitiveCount, meshPart.m_uiFirstPrimitive);
+    ezRendererCore::DrawMeshBuffer(pContext, pMesh->GetMeshBuffer(), meshPart.m_uiPrimitiveCount, meshPart.m_uiFirstPrimitive);
     
     ++uiDataRendered;
   }

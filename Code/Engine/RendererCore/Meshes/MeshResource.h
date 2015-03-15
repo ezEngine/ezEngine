@@ -1,12 +1,9 @@
 #pragma once
 
 #include <RendererCore/Meshes/MeshBufferResource.h>
+#include <RendererCore/Meshes/MeshResourceDescriptor.h>
 
-/// \todo: proper implementation
-struct ezMeshResourceDescriptor
-{
-  ezMeshBufferResourceHandle hMeshBuffer;
-};
+typedef ezResourceHandle<class ezMaterialResource> ezMaterialResourceHandle;
 
 class EZ_RENDERERCORE_DLL ezMeshResource : public ezResource<ezMeshResource, ezMeshResourceDescriptor>
 {
@@ -15,22 +12,22 @@ class EZ_RENDERERCORE_DLL ezMeshResource : public ezResource<ezMeshResource, ezM
 public:
   ezMeshResource();
 
-  struct Part
+  /// \brief Returns the array of sub-meshes in this mesh.
+  const ezDynamicArray<ezMeshResourceDescriptor::SubMesh>& GetSubMeshes() const
   {
-    ezUInt32 m_uiPrimitiveCount;
-    ezUInt32 m_uiFirstPrimitive;
-    ezUInt32 m_uiMaterialIndex;
-    ezMeshBufferResourceHandle m_hMeshBuffer; /// \todo: (Clemens?) Should a mesh resource be able to reference multiple different mesh buffers? I would say it should just have one.
-  };
-
-  const ezDynamicArray<Part>& GetParts() const
-  {
-    return m_Parts;
+    return m_SubMeshes;
   }
 
-  ezUInt32 GetMaterialCount() const
+  /// \brief Returns the mesh buffer that is used by this resource.
+  const ezMeshBufferResourceHandle& GetMeshBuffer() const
   {
-    return m_uiMaterialCount;
+    return m_hMeshBuffer;
+  }
+
+  /// \brief Returns the default materials for this mesh.
+  const ezDynamicArray<ezMaterialResourceHandle>& GetMaterials() const
+  {
+    return m_Materials;
   }
 
 private:
@@ -39,11 +36,9 @@ private:
   virtual void UpdateMemoryUsage(MemoryUsage& out_NewMemoryUsage) override;
   virtual ezResourceLoadDesc CreateResource(const ezMeshResourceDescriptor& descriptor) override;
 
-  ezDynamicArray<Part> m_Parts;
-  ezUInt32 m_uiMaterialCount;
-
-  /// \todo We should also store a default material assignment in the mesh resource
-  //ezDynamicArray<ezMaterialResourceHandle> m_Materials;
+  ezDynamicArray<ezMeshResourceDescriptor::SubMesh> m_SubMeshes;
+  ezMeshBufferResourceHandle m_hMeshBuffer;
+  ezDynamicArray<ezMaterialResourceHandle> m_Materials;
 };
 
 typedef ezResourceHandle<ezMeshResource> ezMeshResourceHandle;

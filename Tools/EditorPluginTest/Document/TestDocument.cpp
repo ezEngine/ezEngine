@@ -3,6 +3,7 @@
 #include <EditorPluginTest/Objects/TestObject.h>
 #include <EditorPluginTest/Objects/TestObjectManager.h>
 #include <EditorFramework/EditorApp.moc.h>
+#include <ToolsFoundation/Reflection/ReflectedTypeManager.h>
 #include <Core/World/GameObject.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTestDocument, ezDocumentBase, 1, ezRTTINoAllocator);
@@ -40,10 +41,11 @@ void ezTestDocument::SelectionManagerEventHandler(const ezSelectionManager::Even
     {
       m_Gizmo.SetVisible(true);
       
-      if (GetSelectionManager()->GetSelection()[0]->GetTypeAccessor().GetReflectedTypeHandle().GetType()->GetTypeName().GetString() == "ezGameObject")
+      if (GetSelectionManager()->GetSelection()[0]->GetTypeAccessor().GetReflectedTypeHandle() == ezReflectedTypeManager::GetTypeHandleByName("ezGameObject"))
       {
+        ezVec3 vPos = GetSelectionManager()->GetSelection()[0]->GetTypeAccessor().GetValue("Position").ConvertTo<ezVec3>();
         ezMat4 m;
-        m.SetTranslationMatrix(ezVec3(1, 1, 1));
+        m.SetTranslationMatrix(vPos);
         m_Gizmo.SetTransformation(m);
       }
     }

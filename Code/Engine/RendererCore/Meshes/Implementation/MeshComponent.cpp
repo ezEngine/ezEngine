@@ -21,7 +21,7 @@ void ezMeshComponent::SetMesh(const ezMeshResourceHandle& hMesh)
   m_hMesh = hMesh;
 
   ezResourceLock<ezMeshResource> pMesh(m_hMesh);
-  m_Materials.SetCount(pMesh->GetMaterialCount());
+  m_Materials.SetCount(pMesh->GetMaterials().GetCount());
 }
 
 ezResult ezMeshComponent::OnAttachedToObject()
@@ -39,7 +39,7 @@ void ezMeshComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) const
   ezRenderPipeline* pRenderPipeline = msg.m_pRenderPipeline;
 
   ezResourceLock<ezMeshResource> pMesh(m_hMesh);
-  const ezDynamicArray<ezMeshResource::Part>& parts = pMesh->GetParts();
+  const ezDynamicArray<ezMeshResourceDescriptor::SubMesh>& parts = pMesh->GetSubMeshes();
 
   for (ezUInt32 uiPartIndex = 0; uiPartIndex < parts.GetCount(); ++uiPartIndex)
   {
@@ -47,8 +47,15 @@ void ezMeshComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) const
     pRenderData->m_WorldTransform = GetOwner()->GetWorldTransform();
     pRenderData->m_hMesh = m_hMesh;
 
-    /// \todo We should check here whether the component has a custom material assignment and otherwise pass on the default mesh material assignment
-    pRenderData->m_hMaterial = m_Materials[parts[uiPartIndex].m_uiMaterialIndex];
+    const ezUInt32 uiMaterialIndex = parts[uiPartIndex].m_uiMaterialIndex;
+
+    // if we have a material override, use that
+    // otherwise use the default mesh material
+    if (m_Materials[parts[uiPartIndex].m_uiMaterialIndex].IsValid())
+      pRenderData->m_hMaterial = m_Materials[uiMaterialIndex];
+    else
+      pRenderData->m_hMaterial = pMesh->GetMaterials()[uiMaterialIndex];
+
     pRenderData->m_uiPartIndex = uiPartIndex;
   }
 }
