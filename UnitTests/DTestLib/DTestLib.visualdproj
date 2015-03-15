@@ -93,7 +93,7 @@
   <libpaths>$(ProjectDir)\..\..\Output\Lib\WinVs2013Debug64</libpaths>
   <deffile />
   <resfile />
-  <exefile>$(OutDir)\ez$(ProjectName).exe</exefile>
+  <exefile>$(OutDir)\$(ProjectName).exe</exefile>
   <useStdLibPath>1</useStdLibPath>
   <cRuntime>4</cRuntime>
   <additionalOptions>-defaultlib=&quot;druntime64ds.lib&quot; phobos64ds.lib -L/NODEFAULTLIB:libcmt</additionalOptions>
@@ -295,7 +295,7 @@
   <libpaths>$(ProjectDir)\..\..\Output\Lib\WinVs2013RelDeb64</libpaths>
   <deffile />
   <resfile />
-  <exefile>$(OutDir)\ez$(ProjectName).exe</exefile>
+  <exefile>$(OutDir)\$(ProjectName).exe</exefile>
   <useStdLibPath>1</useStdLibPath>
   <cRuntime>4</cRuntime>
   <additionalOptions>-defaultlib=&quot;druntime64s.lib&quot; phobos64s.lib -L/NODEFAULTLIB:libcmt</additionalOptions>
