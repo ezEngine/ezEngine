@@ -6,18 +6,12 @@ using BuildShared;
 
 namespace BuildMachine
 {
-  public enum VSVersion
-  {
-    VS2012,
-    VS2013
-  };
-
   /// <summary>
-  /// Build template implementation for the Visual Studio compiler.
+  /// Build template implementation for the Visual D compiler project.
   /// </summary>
-  public class ezBuildWinVS : ezBuildTemplate
+  public class ezBuildWinD : ezBuildTemplate
   {
-    public ezBuildWinVS(BuildMachineSettings settings, VSVersion version, bool bIs64Bit)
+    public ezBuildWinD(BuildMachineSettings settings, VSVersion version, bool bIs64Bit)
     {
       _settings = settings;
       _Version = version;
@@ -36,9 +30,7 @@ namespace BuildMachine
         return res;
       }
 
-      CleanupErrorsAndWarnings(sAbsWorkingDir);
       res.ProcessRes = ezProcessHelper.RunExternalExe("cmd", "/c build.bat", sAbsWorkingDir, res);
-      ReadErrorsAndWarnings(res, sAbsWorkingDir);
       res.Success = (res.ProcessRes.ExitCode == 0);
       return res;
     }
@@ -78,7 +70,7 @@ namespace BuildMachine
       try
       {
         string sBatFileContent = GetVisualStudioCommandlineInit();
-        sBatFileContent += string.Format("msbuild \"ezEngine.sln\" /p:Configuration={0} /t:clean", _settings.BuildType);
+        sBatFileContent += string.Format("devenv /clean {0} \"ezEngine.sln\"\r\n", _settings.BuildType);
 
         string sAbsFilePath = System.IO.Path.Combine(sAbsWorkingDir, "build.bat");
         System.IO.File.WriteAllText(sAbsFilePath, sBatFileContent, Encoding.ASCII);
@@ -98,7 +90,7 @@ namespace BuildMachine
         string sBatFileContent = GetVisualStudioCommandlineInit();
 
         string sProjectDirectory = System.IO.Path.Combine(target.RelativePath, target.Name + ".vcxproj");
-        sBatFileContent += string.Format("msbuild /p:Configuration={0};BuildProjectReferences=false /t:build {1} /flp1:logfile=errors.txt;errorsonly /flp2:logfile=warnings.txt;warningsonly /verbosity:m /clp:NoSummary\n", _settings.BuildType, sProjectDirectory);
+        sBatFileContent += string.Format("devenv /build {0} /project {1} \"ezEngine.sln\"\r\n", _settings.BuildType, target.Name);
 
         string sAbsFilePath = System.IO.Path.Combine(sAbsWorkingDir, "build.bat");
         System.IO.File.WriteAllText(sAbsFilePath, sBatFileContent, Encoding.ASCII);
@@ -109,69 +101,6 @@ namespace BuildMachine
         return false;
       }
       return true;
-    }
-
-    void CleanupErrorsAndWarnings(string sAbsWorkingDir)
-    {
-      try
-      {
-        string sAbsErrorsPath = System.IO.Path.Combine(sAbsWorkingDir, "errors.txt");
-        if (System.IO.File.Exists(sAbsErrorsPath))
-        {
-          System.IO.File.Delete(sAbsErrorsPath);
-        }
-      }
-      catch (Exception ex)
-      {
-        Console.WriteLine("Deleting errors.txt failed: {0}", ex.Message);
-      }
-
-      try
-      {
-        string sAbsWarningsPath = System.IO.Path.Combine(sAbsWorkingDir, "warnings.txt");
-        if (System.IO.File.Exists(sAbsWarningsPath))
-        {
-          System.IO.File.Delete(sAbsWarningsPath);
-        }
-      }
-      catch (Exception ex)
-      {
-        Console.WriteLine("Deleting warnings.txt failed: {0}", ex.Message);
-      }
-    }
-
-    void ReadErrorsAndWarnings(ezBuild.BuildTargetResult res, string sAbsWorkingDir)
-    {
-      if (res.ProcessRes == null)
-        return;
-
-      try
-      {
-        string sAbsErrorsPath = System.IO.Path.Combine(sAbsWorkingDir, "errors.txt");
-        if (System.IO.File.Exists(sAbsErrorsPath))
-        {
-          string sErrors = System.IO.File.ReadAllText(sAbsErrorsPath, Encoding.UTF8);
-          res.ProcessRes.ErrorOut += sErrors;
-        }
-      }
-      catch (Exception ex)
-      {
-        Console.WriteLine("Reading errors.txt failed: {0}", ex.Message);
-      }
-
-      try
-      {
-        string sAbsWarningsPath = System.IO.Path.Combine(sAbsWorkingDir, "warnings.txt");
-        if (System.IO.File.Exists(sAbsWarningsPath))
-        {
-          string sWarnings = System.IO.File.ReadAllText(sAbsWarningsPath, Encoding.UTF8);
-          res.ProcessRes.ErrorOut += sWarnings;
-        }
-      }
-      catch (Exception ex)
-      {
-        Console.WriteLine("Reading warnings.txt failed: {0}", ex.Message);
-      }
     }
 
     #endregion Private Functions

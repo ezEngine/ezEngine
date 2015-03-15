@@ -11,8 +11,9 @@ namespace BuildMachine
   /// </summary>
   public class BuildOsxXcode : ezBuildTemplate
   {
-    public BuildOsxXcode()
+    public BuildOsxXcode(BuildMachineSettings settings)
     {
+      _settings = settings;
     }
 
     public ezBuild.BuildTargetResult BuildTarget(ezCMake.BuildTarget target, string sAbsWorkingDir)
@@ -21,7 +22,7 @@ namespace BuildMachine
       res.Experimental = target.Experimental;
       res.Name = target.Name;
 
-      res.ProcessRes = ezProcessHelper.RunExternalExe("xcodebuild", string.Format("-configuration RelWithDebInfo -target {0}", target.Name), sAbsWorkingDir, res);
+      res.ProcessRes = ezProcessHelper.RunExternalExe("xcodebuild", string.Format("-configuration {0} -target {1}", _settings.BuildType, target.Name), sAbsWorkingDir, res);
       res.Success = (res.ProcessRes.ExitCode == 0);
       CleanUpXcodeOutput(res.ProcessRes);
       return res;
@@ -64,5 +65,10 @@ namespace BuildMachine
       processRes.StdOut = newStdOut;
     }
 
+    #region Private Members
+
+    BuildMachineSettings _settings;
+
+    #endregion Private Members
   }
 }

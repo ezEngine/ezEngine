@@ -36,6 +36,24 @@ namespace BuildShared
     /// <returns>Return value is never null.</returns>
     public static ProcessResult RunExternalExe(string sFilename, string sArguments, string sWorkingDirectory, BuildStepResults errorHandler, int iTimeoutMS = 10 * 60 * 1000)
     {
+      OperatingSystem os = Environment.OSVersion;
+      PlatformID pid = os.Platform;
+
+      if (pid == PlatformID.Win32Windows || pid == PlatformID.Win32NT)
+      {
+        using (var setter = new ezWindowsErrorModeSetter())
+        {
+          return RunExternalExe_private(sFilename, sArguments, sWorkingDirectory, errorHandler, iTimeoutMS);
+        }
+      }
+      else
+      {
+        return RunExternalExe_private(sFilename, sArguments, sWorkingDirectory, errorHandler, iTimeoutMS);
+      }
+    }
+
+    private static ProcessResult RunExternalExe_private(string sFilename, string sArguments, string sWorkingDirectory, BuildStepResults errorHandler, int iTimeoutMS = 10 * 60 * 1000)
+    {
       // TODO: test if file exists, or interpret thrown Win32Exception
       Stopwatch sw = new Stopwatch();
       sw.Start();

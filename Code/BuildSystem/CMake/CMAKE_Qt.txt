@@ -9,11 +9,7 @@ if (EZ_ENABLE_QT_SUPPORT AND EZ_QTPROJECT)
   if (NOT ${EZ_QT_DIR} STREQUAL ${EZ_QT_DIR_FOUND})
     # Need to reset qt vars now so that 'find_package' is re-executed
     # Additional entries required once more than 'Widgets' is used.
-    set (Qt5Core_DIR "" CACHE PATH "" FORCE)
-    set (Qt5Gui_DIR "" CACHE PATH "" FORCE)
-    set (Qt5Widgets_DIR "" CACHE PATH "" FORCE)
-    set (Qt5Network_DIR "" CACHE PATH "" FORCE)
-    
+  
     set (EZ_QT_DIR_FOUND ${EZ_QT_DIR} CACHE PATH "" FORCE)    
   endif()
   

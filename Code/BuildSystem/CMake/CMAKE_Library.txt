@@ -117,7 +117,7 @@ endif ()
 QT_ADD_MODULES()
 DX11_COPY_DLLS()
 # Add to target list
-ADD_TO_TARGET_LIST()
+ADD_TO_TARGET_LIST(C++)
 
 #########################################################################################
 ## Libraries that everyone should be able to link to

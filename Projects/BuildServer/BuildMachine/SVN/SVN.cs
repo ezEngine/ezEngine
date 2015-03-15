@@ -52,10 +52,17 @@ namespace BuildMachine
       try
       {
         // Run SVN update
-        string sParams = string.Format("update -r {0} --username {1} --password {2}" /*tf"*/, iRevision, _Settings.SVNUsername, _Settings.SVNPassword);
+        string sParams;
+        if (iRevision < 0)
+          sParams = string.Format("update --username {0} --password {1}" /*tf"*/, _Settings.SVNUsername, _Settings.SVNPassword);
+        else
+          sParams = string.Format("update -r {0} --username {1} --password {2}" /*tf"*/, iRevision, _Settings.SVNUsername, _Settings.SVNPassword);
+
         for (int iTry = 0; iTry < 2; ++iTry)
         {
           _Result.ProcessRes = ezProcessHelper.RunExternalExe("svn", sParams, _Settings.AbsCodePath, _Result);
+          _Result.ProcessRes.StdOut = _Result.ProcessRes.StdOut.Replace(_Settings.SVNPassword, "***");
+          _Result.ProcessRes.ErrorOut = _Result.ProcessRes.ErrorOut.Replace(_Settings.SVNPassword, "***");
 
           if (_Result.ProcessRes.ExitCode != 0)
           {

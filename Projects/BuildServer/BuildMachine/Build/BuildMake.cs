@@ -11,8 +11,9 @@ namespace BuildMachine
   /// </summary>
   public class BuildMake : ezBuildTemplate
   {
-    public BuildMake()
+    public BuildMake(BuildMachineSettings settings)
     {
+      _settings = settings;
     }
 
     public ezBuild.BuildTargetResult BuildTarget(ezCMake.BuildTarget target, string sAbsWorkingDir)
@@ -31,5 +32,11 @@ namespace BuildMachine
       ezProcessHelper.ProcessResult res = ezProcessHelper.RunExternalExe("make", "clean", sAbsWorkingDir, null);
       return res.ExitCode == 0;
     }
+
+    #region Private Members
+
+    BuildMachineSettings _settings;
+
+    #endregion Private Members
   }
 }

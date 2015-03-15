@@ -41,8 +41,8 @@ namespace BuildMachine
         // Run process to get configuration and code dir.
         ezProcessHelper.ProcessResult res = ezProcessHelper.RunExternalExe("cmake", ".", _Settings.AbsCMakeWorkspace, _Result);
 
-        // Determine the configuration this server is taking care of.
-        if (!DetermineConfiguration())
+        // Determine the configuration this server is taking care of if non is set.
+        if (String.IsNullOrEmpty(_Settings.Configuration) && !DetermineConfiguration())
           return false;
 
         Console.WriteLine("CMake Init: Configuration: '{0}'.", _Settings.Configuration);
@@ -212,7 +212,7 @@ namespace BuildMachine
         foreach (string line in lines)
         {
           string[] parts = line.Split('|');
-          if (parts.Length != 4)
+          if (parts.Length != 5)
           {
             _Result.Error("CMake Run warning: Target line is invalid: '{0}'!", line);
             continue;
@@ -228,7 +228,8 @@ namespace BuildMachine
           target.Name = parts[0];
           target.RelativePath = parts[1];
           target.Experimental = parts[2] == "1";
-          target.Dependencies = parts[3].Split(';').ToList();
+          target.BuildType = parts[3];
+          target.Dependencies = parts[4].Split(';').ToList();
           targetNames.Add(parts[0]);
           targets.Add(target);
         }
@@ -351,6 +352,7 @@ namespace BuildMachine
     public class BuildTarget
     {
       public string Name { get; set; }
+      public string BuildType { get; set; }
       public bool Experimental { get; set; }
       public string RelativePath { get; set; }
       public List<string> Dependencies { get; set; }

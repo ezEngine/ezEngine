@@ -16,43 +16,56 @@ namespace BuildMachine
     /// </summary>
     /// <param name="sConfiguration">Configuration as returned by CMake.</param>
     /// <returns></returns>
-    public static ezBuildTemplate Create(string sConfiguration)
+    public static ezBuildTemplate Create(BuildMachineSettings settings, string sBuildType)
     {
-      if (sConfiguration.StartsWith("WinVs"))
+      if (sBuildType == "C++")
       {
-        bool bIs64Bit = sConfiguration.Contains("64");
-        if (sConfiguration.Contains("2010"))
+        if (settings.Configuration.StartsWith("WinVs"))
         {
-          return new ezBuildWinVS(VSVersion.VS2010, bIs64Bit);
+          bool bIs64Bit = settings.Configuration.Contains("64");
+          if (settings.Configuration.Contains("2012"))
+          {
+            return new ezBuildWinVS(settings, VSVersion.VS2012, bIs64Bit);
+          }
+          else if (settings.Configuration.Contains("2013"))
+          {
+            return new ezBuildWinVS(settings, VSVersion.VS2013, bIs64Bit);
+          }
         }
-        else if (sConfiguration.Contains("2012"))
+        else if (settings.Configuration.StartsWith("Osx"))
         {
-          return new ezBuildWinVS(VSVersion.VS2012, bIs64Bit);
+          if (settings.Configuration.Contains("MakeClang"))
+          {
+            return new BuildMake(settings);
+          }
+          else if (settings.Configuration.Contains("XcodeClang"))
+          {
+            return new BuildOsxXcode(settings);
+          }
         }
-        else if (sConfiguration.Contains("2013"))
+        else if (settings.Configuration.StartsWith("Linux"))
         {
-          return new ezBuildWinVS(VSVersion.VS2013, bIs64Bit);
+          if (settings.Configuration.Contains("MakeGcc"))
+          {
+            return new BuildMake(settings);
+          }
         }
       }
-      else if (sConfiguration.StartsWith("Osx"))
+      else if (sBuildType == "D")
       {
-        if (sConfiguration.Contains("MakeClang"))
+        if (settings.Configuration.StartsWith("WinVs"))
         {
-          return new BuildMake();
-        }
-        else if (sConfiguration.Contains("XcodeClang"))
-        {
-          return new BuildOsxXcode();
+          bool bIs64Bit = settings.Configuration.Contains("64");
+          if (settings.Configuration.Contains("2012"))
+          {
+            return new ezBuildWinD(settings, VSVersion.VS2012, bIs64Bit);
+          }
+          else if (settings.Configuration.Contains("2013"))
+          {
+            return new ezBuildWinD(settings, VSVersion.VS2013, bIs64Bit);
+          }
         }
       }
-      else if (sConfiguration.StartsWith("Linux"))
-      {
-        if (sConfiguration.Contains("MakeGcc"))
-        {
-          return new BuildMake();
-        }
-      }
-
       return null;
     }
   }

@@ -88,8 +88,11 @@ namespace BuildShared
     public string SVNPassword { get; set; }
     [ezPrivateAttribute, ezUserDefinedAttribute]
     public string ServerAddress { get; set; }
+    [ezPrivateAttribute]
+    public string PreBuildStep { get; set; }
 
     public string Configuration { get; set; }
+    public string BuildType { get; set; }
     [ezUserDefinedAttribute]
     public string ConfigurationName { get; set; }
     public bool DirectHardwareAccess { get; set; }

@@ -53,6 +53,7 @@
     <Compile Include="Build\BuildMake.cs" />
     <Compile Include="Build\BuildOsxXcode.cs" />
     <Compile Include="Build\BuildTemplate.cs" />
+    <Compile Include="Build\BuildWinD.cs" />
     <Compile Include="Build\BuildWinVS.cs" />
     <Compile Include="CMake\CMake.cs" />
     <Compile Include="Program.cs" />

@@ -28,19 +28,24 @@ namespace BuildMachine
 
       Console.WriteLine("*** Starting Build ***");
 
-      List<ezCMake.BuildTarget> targets = cmakeResults.BuildTargets;
-      ezBuildTemplate buildTemplate = ezBuildTemplateFactory.Create(_Settings.Configuration);
-
       if (!cmakeResults.Success)
       {
         _Result.Error("Build failed: CMake step failed, aborting!");
         return _Result;
       }
 
-      if (buildTemplate == null)
+      List<ezCMake.BuildTarget> targets = cmakeResults.BuildTargets;
+      var buildTypes = targets.Select(x => x.BuildType).Distinct();
+      Dictionary<string, ezBuildTemplate> buildTemplates = new Dictionary<string, ezBuildTemplate>();
+      foreach (string sType in buildTypes)
       {
-        _Result.Error("Build failed: No build template available for the desired configuration ({0})!", _Settings.Configuration);
-        return _Result;
+        buildTemplates[sType] = ezBuildTemplateFactory.Create(_Settings, sType);
+        if (buildTemplates[sType] == null)
+        {
+          _Result.Error("Build failed: No build template available for the desired configuration ({0}) and build type ({1})!",
+            _Settings.Configuration, sType);
+          return _Result;
+        }
       }
 
       Stopwatch sw = new Stopwatch();
@@ -49,8 +54,11 @@ namespace BuildMachine
       if (bClean)
       {
         Console.WriteLine("** Cleaning Solution **");
-        if (!buildTemplate.CleanSolution(_Settings.AbsCMakeWorkspace))
-          _Result.Error("Build clean: failed.");
+        foreach (ezBuildTemplate buildTemplate in buildTemplates.Values)
+        {
+          if (!buildTemplate.CleanSolution(_Settings.AbsCMakeWorkspace))
+            _Result.Error("Build clean: failed.");
+        }
       }
 
       List<string> successfulTargets = new List<string>();
@@ -62,7 +70,7 @@ namespace BuildMachine
         bool bMeetDependencies = !target.Dependencies.Except(successfulTargets).Any();
         if (bMeetDependencies)
         {
-          BuildTargetResult targetResult = buildTemplate.BuildTarget(target, _Settings.AbsCMakeWorkspace);
+          BuildTargetResult targetResult = buildTemplates[target.BuildType].BuildTarget(target, _Settings.AbsCMakeWorkspace);
           targetResult.Duration = targetResult.ProcessRes.Duration;
 
           if (targetResult.ProcessRes.ExitCode == 0)

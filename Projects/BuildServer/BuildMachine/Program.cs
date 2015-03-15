@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Net;
 using System.Text;
+using System.Linq;
 using System.Threading.Tasks;
 using BuildShared;
 
@@ -17,7 +18,19 @@ namespace BuildMachine
         return;
       }
 
-      ezBuildMachine buildMachine = new ezBuildMachine(args[0]);
+      if (args.Any(x => x == "-test"))
+      {
+        BuildProcess process = new BuildProcess(args[args.Length - 1]);
+        if (!process.Init())
+          return;
+
+        bool bRes = process.Run(-1, false);
+        string sResults = process.GetJSON();
+        System.IO.File.WriteAllText("test.json", sResults, Encoding.UTF8);
+        return;
+      }
+
+      ezBuildMachine buildMachine = new ezBuildMachine(args[args.Length - 1]);
       if (!buildMachine.Init())
         return;
 

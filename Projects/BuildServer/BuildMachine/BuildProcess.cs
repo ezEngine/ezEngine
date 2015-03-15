@@ -72,6 +72,12 @@ namespace BuildMachine
       Stopwatch sw = new Stopwatch();
       sw.Start();
 
+      ///
+      if (!String.IsNullOrEmpty(_Result.Settings.PreBuildStep))
+      {
+        ezProcessHelper.RunExternalExe(_Result.Settings.PreBuildStep, "", _Result.Settings.AbsCMakeWorkspace, null);
+      }
+      ///
       _Result.SVNResult = _SVN.Run(iRevision);
       _Result.CMakeResult = _CMake.Run(_Result.SVNResult);
       _Result.BuildResult = _Build.Run(_Result.CMakeResult, bClean);
@@ -192,6 +198,8 @@ namespace BuildMachine
         // We take the whole settings except for the 'AbsCMakeWorkspace' which is the only parameter that is given to as as
         // a command line parameter and could differ if someone copied the settings from another build machine.
         settings.AbsCMakeWorkspace = _Result.Settings.AbsCMakeWorkspace;
+        if (String.IsNullOrEmpty(settings.BuildType))
+          settings.BuildType = "RelWithDebInfo";
         _Result.Settings = settings;
 
         if (!CheckSettings())
