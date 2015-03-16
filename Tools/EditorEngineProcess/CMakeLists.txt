@@ -45,6 +45,12 @@ SET (LINK_LIBRARIES
   EditorFramework
 )
 
+SET (ADDITIONAL_DEPENDENCIES
+  EnginePluginTest
+  ShaderCompilerGLSL
+  ShaderCompilerHLSL
+)
+
 include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/CMAKE_Application.txt)
 
 

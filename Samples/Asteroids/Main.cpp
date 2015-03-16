@@ -45,7 +45,7 @@ void SampleGameApp::AfterEngineInit()
   ezFileSystem::AddDataDirectory(ezOSFile::GetApplicationDirectory());
 
   ezStringBuilder sReadDir = BUILDSYSTEM_OUTPUT_FOLDER;
-  sReadDir.AppendPath("../../Shared/FreeContent/Asteroids/");
+  sReadDir.AppendPath("../../Shared/Samples/Asteroids/");
 
   ezFileSystem::AddDataDirectory(sReadDir.GetData(), ezFileSystem::AllowWrites, "Asteroids Content");
 

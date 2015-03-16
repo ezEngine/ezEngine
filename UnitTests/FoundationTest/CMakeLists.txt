@@ -21,8 +21,8 @@ SET (LINK_LIBRARIES
 )
 
 SET (ADDITIONAL_DEPENDENCIES
-     FoundationTest_Plugin1
-	 FoundationTest_Plugin2
+  FoundationTest_Plugin1
+  FoundationTest_Plugin2
 )
 
 include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/CMAKE_Application.txt)

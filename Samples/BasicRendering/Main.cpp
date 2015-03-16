@@ -90,7 +90,7 @@ public:
     ezFileSystem::AddDataDirectory("");
 
     ezStringBuilder sReadDir = BUILDSYSTEM_OUTPUT_FOLDER;
-    sReadDir.AppendPath("../../Shared/FreeContent/Basic Rendering/");
+    sReadDir.AppendPath("../../Shared/Samples/Basic Rendering/");
 
     ezStringBuilder sBaseDir = BUILDSYSTEM_OUTPUT_FOLDER;
     sBaseDir.AppendPath("../../Shared/Data/");
