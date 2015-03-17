@@ -681,6 +681,8 @@ void ezStringBuilder::MakeCleanPath()
   if (IsEmpty())
     return;
 
+  RemoveDoubleSlashesInPath();
+
   const char* szStartPos = &m_Data[0];
   const char* szEndPos = &m_Data[m_Data.GetCount() - 1];
   const char* szCurReadPos = &m_Data[0];
@@ -764,9 +766,7 @@ void ezStringBuilder::MakeCleanPath()
   // make sure to write the terminating \0 and reset the count
   *szCurWritePos = '\0';
   m_Data.SetCount(uiNewByteCount);
-
-
-  RemoveDoubleSlashesInPath();
+   
 }
 
 void ezStringBuilder::PathParentDirectory(ezUInt32 uiLevelsUp)

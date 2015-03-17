@@ -851,7 +851,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
 
     p = "\\//temp/../bla\\\\blub///..\\temp//tut/tat/..\\\\..\\//ploep";
     p.MakeCleanPath();
-    EZ_TEST_BOOL(p == "//bla/blub/temp/tut/ploep");
+    EZ_TEST_BOOL(p == "//bla/temp/ploep");
 
     p = "a/b/c/../../../../e/f";
     p.MakeCleanPath();
@@ -901,7 +901,7 @@ EZ_CREATE_SIMPLE_TEST(Strings, StringBuilder)
 
     p = "C:\\temp/temp//tut\\\\";
     p.PathParentDirectory();
-    EZ_TEST_BOOL(p == "C:/temp/temp/tut/");
+    EZ_TEST_BOOL(p == "C:/temp/temp/");
 
     p = "file";
     p.PathParentDirectory();
