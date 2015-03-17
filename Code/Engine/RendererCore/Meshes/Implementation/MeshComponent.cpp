@@ -20,8 +20,8 @@ void ezMeshComponent::SetMesh(const ezMeshResourceHandle& hMesh)
 {
   m_hMesh = hMesh;
 
-  ezResourceLock<ezMeshResource> pMesh(m_hMesh);
-  m_Materials.SetCount(pMesh->GetMaterials().GetCount());
+  //ezResourceLock<ezMeshResource> pMesh(m_hMesh);
+  //m_Materials.SetCount(pMesh->GetMaterials().GetCount());
 }
 
 ezResult ezMeshComponent::OnAttachedToObject()
@@ -51,7 +51,7 @@ void ezMeshComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) const
 
     // if we have a material override, use that
     // otherwise use the default mesh material
-    if (m_Materials[parts[uiPartIndex].m_uiMaterialIndex].IsValid())
+    if (GetMaterial(parts[uiPartIndex].m_uiMaterialIndex).IsValid())
       pRenderData->m_hMaterial = m_Materials[uiMaterialIndex];
     else
       pRenderData->m_hMaterial = pMesh->GetMaterials()[uiMaterialIndex];

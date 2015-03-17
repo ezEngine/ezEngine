@@ -34,11 +34,17 @@ public:
 
   EZ_FORCE_INLINE void SetMaterial(ezUInt32 uiIndex, const ezMaterialResourceHandle& hMaterial)
   {
+    if (uiIndex >= m_Materials.GetCount())
+      m_Materials.SetCount(uiIndex + 1);
+
     m_Materials[uiIndex] = hMaterial;
   }
 
-  EZ_FORCE_INLINE ezMaterialResourceHandle GetMaterial(ezUInt32 uiIndex)
+  EZ_FORCE_INLINE ezMaterialResourceHandle GetMaterial(ezUInt32 uiIndex) const
   {
+    if (uiIndex >= m_Materials.GetCount())
+      return ezMaterialResourceHandle();
+
     return m_Materials[uiIndex];
   }
 

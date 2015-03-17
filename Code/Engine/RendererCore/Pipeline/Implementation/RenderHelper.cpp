@@ -70,9 +70,9 @@ void ezRendererCore::DrawMeshBuffer(ezGALContext* pContext, const ezMeshBufferRe
     return;
   }
 
-  EZ_ASSERT_DEV(uiFirstPrimitive < uiPrimitiveCount, "Invalid primitive range: first primitive (%d) can't be larger than number of primitives (%d)", uiFirstPrimitive, uiPrimitiveCount);
-
   ezResourceLock<ezMeshBufferResource> pMeshBuffer(hMeshBuffer);
+
+  EZ_ASSERT_DEV(uiFirstPrimitive < pMeshBuffer->GetPrimitiveCount(), "Invalid primitive range: first primitive (%d) can't be larger than number of primitives (%d)", uiFirstPrimitive, uiPrimitiveCount);
 
   uiPrimitiveCount = ezMath::Min(uiPrimitiveCount, pMeshBuffer->GetPrimitiveCount() - uiFirstPrimitive);
   EZ_ASSERT_DEV(uiPrimitiveCount > 0, "Invalid primitive range: number of primitives can't be zero.");
