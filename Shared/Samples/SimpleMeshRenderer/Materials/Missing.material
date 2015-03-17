@@ -1,0 +1,8 @@
+{
+  "BaseMaterial" : "Materials/Base.material",
+  
+  "Textures" :
+  {
+    "TexDiffuse" : "Textures/MissingTexture_D.dds"
+  }  
+}
