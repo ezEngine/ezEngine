@@ -1,0 +1,9 @@
+{
+  "BaseMaterial" : "Materials/BaseAlphaTest.material",
+  
+  "Textures" :
+  {
+    "TexDiffuse" : "Textures/sponza_thorn_diff.dds",
+    "TexAlphaMask" : "Textures/sponza_thorn_mask.dds"
+  }  
+}

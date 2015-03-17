@@ -1,0 +1,8 @@
+{
+  "BaseMaterial" : "Materials/Base.material",
+  
+  "Textures" :
+  {
+    "TexDiffuse" : "Textures/sponza_flagpole_diff.dds",
+  }  
+}

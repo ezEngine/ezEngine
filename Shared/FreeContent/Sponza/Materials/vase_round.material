@@ -1,0 +1,8 @@
+{
+  "BaseMaterial" : "Materials/Base.material",
+  
+  "Textures" :
+  {
+    "TexDiffuse" : "Textures/vase_round.dds",
+  }  
+}
