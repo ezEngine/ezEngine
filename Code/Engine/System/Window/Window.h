@@ -51,9 +51,15 @@ struct EZ_SYSTEM_DLL ezWindowCreationDesc
     m_bResizable(false),
     m_bWindowsUseDevmodeFullscreen(false)
   {
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+    // Magic number on windows that positions the window at a 'good default position'
+    m_WindowPosition.Set(0x80000000, 0x80000000);
+#else
+    m_WindowPosition.SetZero();
+#endif
   }
 
-  ezVec2U32 m_WindowPosition;
+  ezVec2I32 m_WindowPosition;
   ezSizeU32 m_ClientAreaSize;
 
   ezHybridString<64> m_Title;

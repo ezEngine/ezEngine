@@ -15,15 +15,6 @@ static LRESULT CALLBACK ezWindowsMessageFuncTrampoline(HWND hWnd, UINT Msg, WPAR
 
     switch (Msg)
     {
-      // do this really always by default?
-    case WM_PAINT:
-      {
-        PAINTSTRUCT ps;
-        BeginPaint(hWnd, &ps);
-        EndPaint(hWnd, &ps);
-      }
-      return 0;
-      
     case WM_CLOSE:
       pWindow->OnClickCloseMessage();
       return 0;
@@ -38,7 +29,7 @@ static LRESULT CALLBACK ezWindowsMessageFuncTrampoline(HWND hWnd, UINT Msg, WPAR
 
     case WM_SIZE:
       {
-        ezSizeU32 size(LOWORD (LParam), HIWORD (LParam));
+        ezSizeU32 size(LOWORD(LParam), HIWORD(LParam));
         pWindow->OnResizeMessage(size);
         ezLog::Info("Window resized to (%i, %i)", size.width, size.height);
       }
@@ -46,7 +37,7 @@ static LRESULT CALLBACK ezWindowsMessageFuncTrampoline(HWND hWnd, UINT Msg, WPAR
     }
 
     pWindow->OnWindowMessage(hWnd, Msg, WParam, LParam);
-  } 
+  }
 
   return DefWindowProcW(hWnd, Msg, WParam, LParam);
 }
@@ -63,14 +54,14 @@ ezResult ezWindow::Initialize()
   // Initialize window class
   WNDCLASSEXW windowClass;
   ezMemoryUtils::ZeroFill(&windowClass);
-  windowClass.cbSize         = sizeof(WNDCLASSEXW);
-  windowClass.style          = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
-  windowClass.hInstance      = GetModuleHandleW(nullptr);
-  windowClass.hIcon          = LoadIcon(nullptr, IDI_APPLICATION); /// \todo Expose icon functionality somehow
-  windowClass.hCursor        = LoadCursor(nullptr, IDC_ARROW);
-  windowClass.hbrBackground  = static_cast<HBRUSH>(GetStockObject(BLACK_BRUSH));
-  windowClass.lpszClassName  = L"ezWin32Window";
-  windowClass.lpfnWndProc    = ezWindowsMessageFuncTrampoline;
+  windowClass.cbSize = sizeof(WNDCLASSEXW);
+  windowClass.style = CS_HREDRAW | CS_VREDRAW;
+  windowClass.hInstance = GetModuleHandleW(nullptr);
+  windowClass.hIcon = LoadIcon(nullptr, IDI_APPLICATION); /// \todo Expose icon functionality somehow
+  windowClass.hCursor = LoadCursor(nullptr, IDC_ARROW);
+  windowClass.hbrBackground = static_cast<HBRUSH>(GetStockObject(BLACK_BRUSH));
+  windowClass.lpszClassName = L"ezWin32Window";
+  windowClass.lpfnWndProc = ezWindowsMessageFuncTrampoline;
 
   if (!RegisterClassExW(&windowClass)) /// \todo test & support for multiple windows
   {
@@ -86,7 +77,7 @@ ezResult ezWindow::Initialize()
     DEVMODEW dmScreenSettings;
 
     ezMemoryUtils::ZeroFill(&dmScreenSettings);
-    dmScreenSettings.dmSize = sizeof (DEVMODEW);
+    dmScreenSettings.dmSize = sizeof(DEVMODEW);
     dmScreenSettings.dmPelsWidth = m_CreationDescription.m_ClientAreaSize.width;
     dmScreenSettings.dmPelsHeight = m_CreationDescription.m_ClientAreaSize.height;
     dmScreenSettings.dmBitsPerPel = 32;
@@ -95,10 +86,10 @@ ezResult ezWindow::Initialize()
     if (ChangeDisplaySettingsW(&dmScreenSettings, CDS_FULLSCREEN) != DISP_CHANGE_SUCCESSFUL)
     {
       m_CreationDescription.m_bFullscreenWindow = false;
-      ezLog::SeriousWarning("Failed to created fullscreen window. Falling back to non-fullscreen mode."); 
+      ezLog::SeriousWarning("Failed to created fullscreen window. Falling back to non-fullscreen mode.");
     }
   }
-  
+
 
   // setup window style
   DWORD dwExStyle = WS_EX_APPWINDOW;
@@ -121,7 +112,7 @@ ezResult ezWindow::Initialize()
     dwWindowStyle |= WS_MAXIMIZEBOX | WS_THICKFRAME;
   }
 
- 
+
   // Create rectangle for window
   RECT Rect = {0, 0, m_CreationDescription.m_ClientAreaSize.width, m_CreationDescription.m_ClientAreaSize.height};
 
@@ -145,26 +136,27 @@ ezResult ezWindow::Initialize()
     RECT RectWorkArea = {0};
     SystemParametersInfoW(SPI_GETWORKAREA, 0, &RectWorkArea, 0);
 
-		Rect.left += RectWorkArea.left;
-		Rect.right += RectWorkArea.left;
-		Rect.top += RectWorkArea.top;
-		Rect.bottom += RectWorkArea.top;
+    Rect.left += RectWorkArea.left;
+    Rect.right += RectWorkArea.left;
+    Rect.top += RectWorkArea.top;
+    Rect.bottom += RectWorkArea.top;
   }
 
-  const int iLeft   = Rect.left;
-  const int iTop    = Rect.top;
-  const int iWidth  = Rect.right - Rect.left;
+  const int iLeft = Rect.left;
+  const int iTop = Rect.top;
+  const int iWidth = Rect.right - Rect.left;
   const int iHeight = Rect.bottom - Rect.top;
 
-  ezLog::Info("Window Dimensions: %i * %i at left/top origin (%i, %i).", iWidth, iHeight, iLeft, iTop);
+  ezLog::Info("Window Dimensions: %i * %i at left/top origin (%i, %i).", iWidth, iHeight, m_CreationDescription.m_WindowPosition.x, m_CreationDescription.m_WindowPosition.y);
 
 
   // create window
   ezStringWChar sTitelWChar(m_CreationDescription.m_Title.GetData());
   const wchar_t* sTitelWCharRaw = sTitelWChar.GetData();
-  m_WindowHandle = CreateWindowExW(dwExStyle, windowClass.lpszClassName, sTitelWCharRaw, dwWindowStyle, 
-                                  iLeft, iTop, iWidth, iHeight, 
-                                  nullptr, nullptr, windowClass.hInstance, nullptr);
+  m_WindowHandle = CreateWindowExW(dwExStyle, windowClass.lpszClassName, sTitelWCharRaw, dwWindowStyle,
+                                   m_CreationDescription.m_WindowPosition.x, m_CreationDescription.m_WindowPosition.y, iWidth, iHeight,
+                                   nullptr, nullptr, windowClass.hInstance, nullptr);
+
   if (m_WindowHandle == INVALID_HANDLE_VALUE)
   {
     ezLog::Error("Failed to create window.");
@@ -175,13 +167,16 @@ ezResult ezWindow::Initialize()
   SetWindowLongPtrW(m_WindowHandle, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
 
   // activate window
-  ShowWindow(m_WindowHandle, SW_SHOW);
   SetActiveWindow(m_WindowHandle);
-  SetForegroundWindow(m_WindowHandle);
   SetFocus(m_WindowHandle);
 
+  RECT r;
+  GetClientRect(m_WindowHandle, &r);
+  m_CreationDescription.m_ClientAreaSize.width = r.right - r.left;
+  m_CreationDescription.m_ClientAreaSize.height = r.bottom - r.top;
+
   m_bInitialized = true;
-  ezLog::Success("Created window successfully.");
+  ezLog::Success("Created window successfully. Resolution is %u * %u", GetClientAreaSize().width, GetClientAreaSize().height);
 
   m_pInputDevice = EZ_DEFAULT_NEW(ezStandardInputDevice)(m_CreationDescription.m_uiWindowNumber);
 
@@ -236,7 +231,7 @@ void ezWindow::ProcessWindowMessages()
     return;
 
   MSG msg = {0};
-  while (PeekMessageW(&msg, m_WindowHandle, 0, 0, PM_REMOVE))	
+  while (PeekMessageW(&msg, NULL, 0, 0, PM_REMOVE))
   {
     if (msg.message == WM_QUIT)
     {
