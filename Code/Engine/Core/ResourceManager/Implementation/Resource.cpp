@@ -65,6 +65,8 @@ void ezResourceBase::SetUniqueID(const ezString& UniqueID, bool bIsReloadable)
 
 void ezResourceBase::CallUnloadData(Unload WhatToUnload)
 {
+  EZ_LOG_BLOCK("ezResource::UnloadData", GetResourceID().GetData());
+
   ezResourceLoadDesc ld = UnloadData(WhatToUnload);
 
   EZ_ASSERT_DEV(ld.m_State != ezResourceState::Invalid, "UnloadData() did not return a valid resource load state");
@@ -83,11 +85,16 @@ void ezResourceBase::CallUnloadData(Unload WhatToUnload)
 
 void ezResourceBase::CallUpdateContent(ezStreamReaderBase* Stream)
 {
+  EZ_LOG_BLOCK("ezResource::UpdateContent", GetResourceID().GetData());
+
   ezResourceLoadDesc ld = UpdateContent(Stream);
 
   EZ_ASSERT_DEV(ld.m_State != ezResourceState::Invalid, "UpdateContent() did not return a valid resource load state");
   EZ_ASSERT_DEV(ld.m_uiQualityLevelsDiscardable != 0xFF, "UpdateContent() did not fill out m_uiQualityLevelsDiscardable correctly");
   EZ_ASSERT_DEV(ld.m_uiQualityLevelsLoadable != 0xFF, "UpdateContent() did not fill out m_uiQualityLevelsLoadable correctly");
+
+  if (ld.m_State == ezResourceState::LoadedResourceMissing)
+    ezLog::Error("Missing Resource: '%s'", GetResourceID().GetData());
 
   m_LoadingState = ld.m_State;
   m_uiQualityLevelsDiscardable = ld.m_uiQualityLevelsDiscardable;

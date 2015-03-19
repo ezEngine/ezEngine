@@ -1,5 +1,7 @@
 #pragma once
 
+#include <Foundation/Logging/Log.h>
+
 template<typename ResourceType>
 ResourceType* ezResourceManager::GetResource(const char* szResourceID, bool bIsReloadable)
 {
@@ -61,6 +63,8 @@ ezResourceHandle<ResourceType> ezResourceManager::GetExistingResource(const char
 template<typename ResourceType>
 ezResourceHandle<ResourceType> ezResourceManager::CreateResource(const char* szResourceID, const typename ResourceType::DescriptorType& descriptor)
 {
+  EZ_LOG_BLOCK("ezResourceManager::CreateResource", szResourceID);
+
   ezResourceHandle<ResourceType> hResource(GetResource<ResourceType>(szResourceID, false));
 
   ResourceType* pResource = BeginAcquireResource(hResource, ezResourceAcquireMode::PointerOnly);

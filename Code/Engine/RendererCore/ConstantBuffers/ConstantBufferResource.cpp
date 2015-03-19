@@ -217,7 +217,7 @@ void ezRendererCore::ApplyConstantBufferBindings(ezGALContext* pContext, const e
     ezConstantBufferResourceHandle* hResource;
     if (!cs.m_BoundConstantBuffers.TryGetValue(uiResourceHash, hResource))
     {
-      //ezLog::Error("No resource is bound for constant buffer slot '%s'", rb.m_Name.GetData());
+      ezLog::Error("No resource is bound for constant buffer slot '%s'", rb.m_Name.GetData());
       continue;
     }
 

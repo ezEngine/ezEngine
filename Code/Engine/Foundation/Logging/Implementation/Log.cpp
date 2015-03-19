@@ -3,20 +3,25 @@
 #include <Foundation/Threading/ThreadUtils.h>
 
 
-ezGlobalLog* ezGlobalLog::s_pInstance = nullptr;
+ezThreadLocalPointer<ezGlobalLog> ezGlobalLog::s_pInstances;
 ezLogMsgType::Enum ezGlobalLog::s_LogLevel = ezLogMsgType::All;
 ezAtomicInteger32 ezGlobalLog::s_uiMessageCount[ezLogMsgType::ENUM_COUNT];
 ezLoggingEvent ezGlobalLog::s_LoggingEvent;
 
-ezLogInterface* ezLog::s_DefaultLogSystem = nullptr;
+ezThreadLocalPointer<ezLogInterface> ezLog::s_DefaultLogSystem;
 
 ezGlobalLog* ezGlobalLog::GetInstance()
 {
-  if (!ezThreadUtils::IsMainThread())
-    return nullptr; /// \todo This is not so great, we should maybe somehow log this stuff
+  ezGlobalLog* pLog = s_pInstances;
 
-  static ezGlobalLog s_Log;
-  return &s_Log;
+  if (pLog == nullptr)
+  {
+    // use new, not EZ_DEFAULT_NEW, to prevent tracking
+    s_pInstances = new ezGlobalLog;
+    return s_pInstances;
+  }
+  
+  return pLog;
 }
 
 void ezGlobalLog::HandleLogMessage(const ezLoggingEventData& le)

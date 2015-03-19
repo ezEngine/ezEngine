@@ -499,7 +499,6 @@ void ezStandardInputDevice::WindowMessage(HWND hWnd, UINT Msg, WPARAM wParam, LP
 
         if (uiScanCode == 42 && bIsExtended) // 42 has to be special I guess
         {
-          //ezLog::Info("Ignored Key: Value: %i, Flags: 0x%X", raw->data.keyboard.MakeCode, raw->data.keyboard.Flags);
           bWasStupidLeftShift = true;
           return;
         }

@@ -69,8 +69,6 @@ static int LUAFUNC_ConsoleFunc(lua_State* state)
   else
     pFunc->Call(ezArrayPtr<ezVariant>(nullptr, 0));
 
-  //ezLog::Info("Called Console Function: '%s'", pFunc->GetName());
-
   return s.ReturnToScript();
 }
 

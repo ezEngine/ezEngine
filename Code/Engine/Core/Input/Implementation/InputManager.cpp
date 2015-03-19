@@ -49,7 +49,7 @@ void ezInputManager::RegisterInputSlot(const char* szInputSlot, const char* szDe
   }
 
 
-  ezLog::Dev("Registered Input Slot: '%s'", szInputSlot);
+  ezLog::Debug("Registered Input Slot: '%s'", szInputSlot);
 
   ezInputSlot& sm = GetInternals().s_InputSlots[szInputSlot];
 

@@ -99,8 +99,6 @@ void ezRendererCore::SetShaderPermutationVariable(const char* szVariable, const 
   if (pContext == nullptr)
     pContext = ezGALDevice::GetDefaultDevice()->GetPrimaryContext();
 
-  //ezLog::Debug("Setting '%s' to '%s'", szVariable, szValue);
-
   ContextState& state = s_ContextState[pContext];
 
   ezStringBuilder sVar, sVal;

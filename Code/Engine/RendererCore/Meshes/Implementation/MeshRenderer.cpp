@@ -3,12 +3,13 @@
 #include <RendererCore/Meshes/MeshRenderer.h>
 #include <RendererCore/RendererCore.h>
 #include <RendererCore/Pipeline/RenderPipeline.h>
+#include <RendererCore/ConstantBuffers/ConstantBufferResource.h>
 #include <Core/ResourceManager/ResourceManager.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshRenderer, ezRenderer, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
-static ezGALBufferHandle s_hPerObjectBuffer;
+static ezConstantBufferResourceHandle s_hObjectTransformCB; /// \todo handle these things more elegantly
 static ezGALRasterizerStateHandle s_hRasterizerState;
 
 struct PerObjectCB
@@ -26,10 +27,12 @@ ezUInt32 ezMeshRenderer::Render(const ezRenderContext& renderContext, ezRenderPi
 {
   ezGALContext* pContext = renderContext.m_pGALContext;
 
-  if (s_hPerObjectBuffer.IsInvalidated())
+  if (!s_hObjectTransformCB.IsValid())
   {
-    s_hPerObjectBuffer = ezGALDevice::GetDefaultDevice()->CreateConstantBuffer(sizeof(PerObjectCB));
-    pContext->SetConstantBuffer(1, s_hPerObjectBuffer);
+    ezConstantBufferResourceDescriptor<PerObjectCB> desc;
+    s_hObjectTransformCB = ezResourceManager::CreateResource<ezConstantBufferResource>("{34204E49-441A-49D6-AB09-9E8DE38BC803}", desc);
+
+    ezRendererCore::BindConstantBuffer(pContext, "PerObject", s_hObjectTransformCB);
   }
 
   if (s_hRasterizerState.IsInvalidated())
@@ -49,10 +52,10 @@ ezUInt32 ezMeshRenderer::Render(const ezRenderContext& renderContext, ezRenderPi
   { 
     const ezMeshRenderData* pRenderData = static_cast<const ezMeshRenderData*>(renderData[uiDataRendered]);
 
-    PerObjectCB cb;
-    cb.world = pRenderData->m_WorldTransform.GetAsMat4();
-    cb.mvp = ViewProj * cb.world;
-    pContext->UpdateBuffer(s_hPerObjectBuffer, 0, &cb, sizeof(PerObjectCB));
+    PerObjectCB* cb = ezRendererCore::BeginModifyConstantBuffer<PerObjectCB>(s_hObjectTransformCB, pContext);
+      cb->world = pRenderData->m_WorldTransform.GetAsMat4();
+      cb->mvp = ViewProj * cb->world;
+    ezRendererCore::EndModifyConstantBuffer(pContext);
 
     ezResourceLock<ezMeshResource> pMesh(pRenderData->m_hMesh);
     const ezMeshResourceDescriptor::SubMesh& meshPart = pMesh->GetSubMeshes()[pRenderData->m_uiPartIndex];

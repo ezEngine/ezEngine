@@ -41,19 +41,14 @@ void ezRendererCore::SetMaterialState(ezGALContext* pContext, const ezMaterialRe
   }
 }
 
-void ezRendererCore::OutputErrors(ezGALContext* pContext)
+ezUInt32 ezRendererCore::RetrieveFailedDrawcalls(ezGALContext* pContext)
 {
   if (pContext == nullptr)
     pContext = ezGALDevice::GetDefaultDevice()->GetPrimaryContext();
 
   ContextState& state = s_ContextState[pContext];
 
-  if (state.m_uiFailedDrawcalls > 0)
-  {
-    ezLog::Error("%u drawcalls failed because of an invalid pipeline state", state.m_uiFailedDrawcalls);
-
-    state.m_uiFailedDrawcalls = 0;
-  }
+  return state.m_uiFailedDrawcalls;
 }
 
 // static 

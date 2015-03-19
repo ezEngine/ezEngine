@@ -65,7 +65,7 @@ public:
 
   static ezShaderPermutationResourceHandle PreloadSingleShaderPermutation(ezShaderResourceHandle hShader, const ezHybridArray<ezPermutationGenerator::PermutationVar, 16>& UsedPermVars, ezTime tShouldBeAvailableIn);
 
-  static void OutputErrors(ezGALContext* pContext = nullptr);
+  static ezUInt32 RetrieveFailedDrawcalls(ezGALContext* pContext = nullptr);
 
   template<typename STRUCT>
   static STRUCT* BeginModifyConstantBuffer(ezConstantBufferResourceHandle hConstantBuffer, ezGALContext* pContext = nullptr)

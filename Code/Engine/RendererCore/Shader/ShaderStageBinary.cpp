@@ -243,7 +243,7 @@ ezShaderStageBinary* ezShaderStageBinary::LoadStageBinary(ezGALShaderStage::Enum
     ezFileReader StageFileIn;
     if (StageFileIn.Open(sShaderStageFile.GetData()).Failed())
     {
-      //ezLog::Error("Could not open shader stage file '%s' for reading", sShaderStageFile.GetData());
+      ezLog::Debug("Could not open shader stage file '%s' for reading", sShaderStageFile.GetData());
       return nullptr;
     }
 

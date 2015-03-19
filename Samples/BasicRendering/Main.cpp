@@ -396,7 +396,12 @@ public:
 
     m_pDevice->EndFrame();
 
-    ezRendererCore::OutputErrors();
+    const ezUInt32 uiFailedDrawcalls = ezRendererCore::RetrieveFailedDrawcalls();
+    if (uiFailedDrawcalls > 0)
+    {
+      // it would be best to render this on screen
+      // spamming the log is not helpful though
+    }
 
     return ezApplication::Continue;
   }

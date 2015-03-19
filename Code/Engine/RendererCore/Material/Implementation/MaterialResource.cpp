@@ -46,8 +46,6 @@ ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReaderBase* Stream)
     return res;
   }
 
-  EZ_LOG_BLOCK("ezMaterialResource::UpdateContent", GetResourceID().GetData());
-
   ezResult Conversion(EZ_FAILURE);
 
   // Read the base material

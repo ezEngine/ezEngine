@@ -2,6 +2,7 @@
 
 #include <Foundation/Communication/Event.h>
 #include <Foundation/Threading/AtomicInteger.h>
+#include <Foundation/Threading/ThreadLocalPointer.h>
 #include <Foundation/Strings/StringUtils.h>
 
 /// \brief Use this helper macro to easily create a scoped logging group. Will generate unique variable names to make the static code analysis happy.
@@ -110,7 +111,7 @@ private:
 
   ezGlobalLog() { }
 
-  static ezGlobalLog* s_pInstance;
+  static ezThreadLocalPointer<ezGlobalLog> s_pInstances;
 };
 
 /// \brief Static class that allows to write out logging information.
@@ -196,7 +197,7 @@ private:
   friend class ezLogBlock;
 
   /// \brief The log system that messages are sent to when the user specifies no system himself.
-  static ezLogInterface* s_DefaultLogSystem;
+  static ezThreadLocalPointer<ezLogInterface> s_DefaultLogSystem;
 
   /// \brief Ends grouping log messages.
   static void EndLogBlock(ezLogInterface* pInterface, ezLogBlock* pBlock);
