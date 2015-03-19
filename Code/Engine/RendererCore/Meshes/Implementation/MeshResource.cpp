@@ -7,6 +7,8 @@
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshResource, ezResourceBase, 1, ezRTTIDefaultAllocator<ezMeshResource>);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
+ezUInt32 ezMeshResource::s_MeshBufferNameSuffix = 0;
+
 ezMeshResource::ezMeshResource() : ezResource<ezMeshResource, ezMeshResourceDescriptor>(UpdateResource::OnAnyThread, 1)
 {
 }
@@ -63,7 +65,9 @@ ezResourceLoadDesc ezMeshResource::CreateResource(const ezMeshResourceDescriptor
   // otherwise create a new mesh buffer from the descriptor
   if (!m_hMeshBuffer.IsValid())
   {
-    ezStringBuilder sMbName(GetResourceID(), " [MeshBuffer]");
+    s_MeshBufferNameSuffix++;
+    ezStringBuilder sMbName;
+    sMbName.Format("%s  [MeshBuffer %04X]", GetResourceID().GetData(), s_MeshBufferNameSuffix);
 
     m_hMeshBuffer = ezResourceManager::CreateResource<ezMeshBufferResource>(sMbName, desc.MeshBufferDesc());
   }

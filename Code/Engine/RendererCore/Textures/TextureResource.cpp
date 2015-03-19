@@ -256,134 +256,129 @@ static ezUInt32 GetBCnMemPitchFactor(ezImageFormat::Enum format)
 
 ezResourceLoadDesc ezTextureResource::UpdateContent(ezStreamReaderBase* Stream)
 {
-  bool bSuccess = false;
-  *Stream >> bSuccess;
-
-  if (bSuccess)
-  {
-    ezImage* pImage = nullptr;
-    Stream->ReadBytes(&pImage, sizeof(ezImage*));
-
-    bool bSRGB = false;
-    *Stream >> bSRGB;
-
-    const ezUInt32 uiNumMipmapsLowRes = s_bForceFullQualityAlways ? pImage->GetNumMipLevels() : 6;
-
-    const ezUInt32 uiNumMipLevels = ezMath::Min(m_uiLoadedTextures == 0 ? uiNumMipmapsLowRes : pImage->GetNumMipLevels(), pImage->GetNumMipLevels());
-    const ezUInt32 uiHighestMipLevel = pImage->GetNumMipLevels() - uiNumMipLevels;
-
-    ezGALTextureCreationDescription TexDesc;
-    TexDesc.m_Format = ezGALResourceFormat::RGBAUByteNormalized;
-    TexDesc.m_uiWidth = pImage->GetWidth(uiHighestMipLevel);
-    TexDesc.m_uiHeight = pImage->GetHeight(uiHighestMipLevel);
-    TexDesc.m_uiDepth = pImage->GetDepth(uiHighestMipLevel);
-    TexDesc.m_uiMipSliceCount = uiNumMipLevels;
-    TexDesc.m_uiArraySize = pImage->GetNumArrayIndices();
-
-    if (TexDesc.m_uiDepth > 1)
-      TexDesc.m_Type = ezGALTextureType::Texture3D;
-
-    if (pImage->GetNumFaces() == 6)
-      TexDesc.m_Type = ezGALTextureType::TextureCube;
-
-    EZ_ASSERT_DEV(pImage->GetNumFaces() == 1 || pImage->GetNumFaces() == 6, "Invalid number of image faces (resource: '%s')", GetResourceID().GetData());
-
-    TexDesc.m_Format = ImgToGalFormat(pImage->GetImageFormat(), bSRGB);
-
-    m_uiMemoryGPU[m_uiLoadedTextures] = 0;
-
-    ezHybridArray<ezGALSystemMemoryDescription, 32> InitData;
-
-    /// \todo Figure out the correct order of the arrays/faces/mips
-    for (ezUInt32 array_index = 0; array_index < pImage->GetNumArrayIndices(); ++array_index)
-    {
-      for (ezUInt32 face = 0; face < pImage->GetNumFaces(); ++face)
-      {
-        for (ezUInt32 mip = uiHighestMipLevel; mip < pImage->GetNumMipLevels(); ++mip)
-        {
-          ezGALSystemMemoryDescription& id = InitData.ExpandAndGetRef();
-
-          id.m_pData = pImage->GetDataPointer<ezUInt8>() + pImage->GetDataOffSet(mip, face, array_index);
-
-          if (ezImageFormat::GetType(pImage->GetImageFormat()) == ezImageFormatType::BLOCK_COMPRESSED)
-          {
-            const ezUInt32 uiMemPitchFactor = GetBCnMemPitchFactor(pImage->GetImageFormat());
-
-            id.m_uiRowPitch = pImage->GetWidth(mip) * uiMemPitchFactor;
-          }
-          else
-          {
-            id.m_uiRowPitch = pImage->GetRowPitch(mip);
-          }
-
-          id.m_uiSlicePitch = pImage->GetDepthPitch(mip);
-
-          m_uiMemoryGPU[m_uiLoadedTextures] += id.m_uiSlicePitch;
-        }
-      }
-    }
-
-    const ezArrayPtr<ezGALSystemMemoryDescription> InitDataPtr(InitData);
-
-    ezTextureResourceDescriptor td;
-    td.m_DescGAL = TexDesc;
-    td.m_InitialContent = InitDataPtr;
-    
-    // ignore its return value here, we build our own
-    CreateResource(td);
-
-    //m_hGALTexture[m_uiLoadedTextures] = ezGALDevice::GetDefaultDevice()->CreateTexture(TexDesc, &InitDataPtr);
-
-    //EZ_ASSERT_DEV(!m_hGALTexture[m_uiLoadedTextures].IsInvalidated(), "Texture Data could not be uploaded to the GPU");
-
-    //ezGALResourceViewCreationDescription TexViewDesc;
-    //TexViewDesc.m_hTexture = m_hGALTexture[m_uiLoadedTextures];
-
-    //m_hGALTexView[m_uiLoadedTextures] = ezGALDevice::GetDefaultDevice()->CreateResourceView(TexViewDesc);
-
-    //EZ_ASSERT_DEV(!m_hGALTexView[m_uiLoadedTextures].IsInvalidated(), "No resource view could be created for texture '%s'. Maybe the format table is incorrect?", GetResourceID().GetData());
-
-    ///// \todo HACK
-    //if (m_hSamplerState.IsInvalidated())
-    //{
-    //  ezGALSamplerStateCreationDescription SamplerDesc;
-    //  SamplerDesc.m_MagFilter = ezGALTextureFilterMode::Linear;
-    //  SamplerDesc.m_MinFilter = ezGALTextureFilterMode::Point;
-    //  SamplerDesc.m_MipFilter = ezGALTextureFilterMode::Point;
-
-    //  if (pImage->GetNumMipLevels() > 1)
-    //  {
-    //    SamplerDesc.m_MinFilter = ezGALTextureFilterMode::Linear;
-    //    SamplerDesc.m_MipFilter = ezGALTextureFilterMode::Linear;
-    //  }
-
-    //  m_hSamplerState = ezGALDevice::GetDefaultDevice()->CreateSamplerState(SamplerDesc);
-
-    //  EZ_ASSERT_DEV(!m_hSamplerState.IsInvalidated(), "Sampler state error");
-    //}
-
-    //++m_uiLoadedTextures;
-
-    {
-      ezResourceLoadDesc res;
-      res.m_uiQualityLevelsDiscardable = m_uiLoadedTextures;
-
-      if (uiHighestMipLevel == 0)
-        res.m_uiQualityLevelsLoadable = 0;
-      else
-        res.m_uiQualityLevelsLoadable = 1;
-
-      res.m_State = ezResourceState::Loaded;
-
-      return res;
-    }
-  }
-  else
+  if (Stream == nullptr)
   {
     ezResourceLoadDesc res;
     res.m_uiQualityLevelsDiscardable = 0;
     res.m_uiQualityLevelsLoadable = 0;
     res.m_State = ezResourceState::LoadedResourceMissing;
+
+    return res;
+  }
+
+  ezImage* pImage = nullptr;
+  Stream->ReadBytes(&pImage, sizeof(ezImage*));
+
+  bool bSRGB = false;
+  *Stream >> bSRGB;
+
+  const ezUInt32 uiNumMipmapsLowRes = s_bForceFullQualityAlways ? pImage->GetNumMipLevels() : 6;
+
+  const ezUInt32 uiNumMipLevels = ezMath::Min(m_uiLoadedTextures == 0 ? uiNumMipmapsLowRes : pImage->GetNumMipLevels(), pImage->GetNumMipLevels());
+  const ezUInt32 uiHighestMipLevel = pImage->GetNumMipLevels() - uiNumMipLevels;
+
+  ezGALTextureCreationDescription TexDesc;
+  TexDesc.m_Format = ezGALResourceFormat::RGBAUByteNormalized;
+  TexDesc.m_uiWidth = pImage->GetWidth(uiHighestMipLevel);
+  TexDesc.m_uiHeight = pImage->GetHeight(uiHighestMipLevel);
+  TexDesc.m_uiDepth = pImage->GetDepth(uiHighestMipLevel);
+  TexDesc.m_uiMipSliceCount = uiNumMipLevels;
+  TexDesc.m_uiArraySize = pImage->GetNumArrayIndices();
+
+  if (TexDesc.m_uiDepth > 1)
+    TexDesc.m_Type = ezGALTextureType::Texture3D;
+
+  if (pImage->GetNumFaces() == 6)
+    TexDesc.m_Type = ezGALTextureType::TextureCube;
+
+  EZ_ASSERT_DEV(pImage->GetNumFaces() == 1 || pImage->GetNumFaces() == 6, "Invalid number of image faces (resource: '%s')", GetResourceID().GetData());
+
+  TexDesc.m_Format = ImgToGalFormat(pImage->GetImageFormat(), bSRGB);
+
+  m_uiMemoryGPU[m_uiLoadedTextures] = 0;
+
+  ezHybridArray<ezGALSystemMemoryDescription, 32> InitData;
+
+  /// \todo Figure out the correct order of the arrays/faces/mips
+  for (ezUInt32 array_index = 0; array_index < pImage->GetNumArrayIndices(); ++array_index)
+  {
+    for (ezUInt32 face = 0; face < pImage->GetNumFaces(); ++face)
+    {
+      for (ezUInt32 mip = uiHighestMipLevel; mip < pImage->GetNumMipLevels(); ++mip)
+      {
+        ezGALSystemMemoryDescription& id = InitData.ExpandAndGetRef();
+
+        id.m_pData = pImage->GetDataPointer<ezUInt8>() + pImage->GetDataOffSet(mip, face, array_index);
+
+        if (ezImageFormat::GetType(pImage->GetImageFormat()) == ezImageFormatType::BLOCK_COMPRESSED)
+        {
+          const ezUInt32 uiMemPitchFactor = GetBCnMemPitchFactor(pImage->GetImageFormat());
+
+          id.m_uiRowPitch = pImage->GetWidth(mip) * uiMemPitchFactor;
+        }
+        else
+        {
+          id.m_uiRowPitch = pImage->GetRowPitch(mip);
+        }
+
+        id.m_uiSlicePitch = pImage->GetDepthPitch(mip);
+
+        m_uiMemoryGPU[m_uiLoadedTextures] += id.m_uiSlicePitch;
+      }
+    }
+  }
+
+  const ezArrayPtr<ezGALSystemMemoryDescription> InitDataPtr(InitData);
+
+  ezTextureResourceDescriptor td;
+  td.m_DescGAL = TexDesc;
+  td.m_InitialContent = InitDataPtr;
+
+  // ignore its return value here, we build our own
+  CreateResource(td);
+
+  //m_hGALTexture[m_uiLoadedTextures] = ezGALDevice::GetDefaultDevice()->CreateTexture(TexDesc, &InitDataPtr);
+
+  //EZ_ASSERT_DEV(!m_hGALTexture[m_uiLoadedTextures].IsInvalidated(), "Texture Data could not be uploaded to the GPU");
+
+  //ezGALResourceViewCreationDescription TexViewDesc;
+  //TexViewDesc.m_hTexture = m_hGALTexture[m_uiLoadedTextures];
+
+  //m_hGALTexView[m_uiLoadedTextures] = ezGALDevice::GetDefaultDevice()->CreateResourceView(TexViewDesc);
+
+  //EZ_ASSERT_DEV(!m_hGALTexView[m_uiLoadedTextures].IsInvalidated(), "No resource view could be created for texture '%s'. Maybe the format table is incorrect?", GetResourceID().GetData());
+
+  ///// \todo HACK
+  //if (m_hSamplerState.IsInvalidated())
+  //{
+  //  ezGALSamplerStateCreationDescription SamplerDesc;
+  //  SamplerDesc.m_MagFilter = ezGALTextureFilterMode::Linear;
+  //  SamplerDesc.m_MinFilter = ezGALTextureFilterMode::Point;
+  //  SamplerDesc.m_MipFilter = ezGALTextureFilterMode::Point;
+
+  //  if (pImage->GetNumMipLevels() > 1)
+  //  {
+  //    SamplerDesc.m_MinFilter = ezGALTextureFilterMode::Linear;
+  //    SamplerDesc.m_MipFilter = ezGALTextureFilterMode::Linear;
+  //  }
+
+  //  m_hSamplerState = ezGALDevice::GetDefaultDevice()->CreateSamplerState(SamplerDesc);
+
+  //  EZ_ASSERT_DEV(!m_hSamplerState.IsInvalidated(), "Sampler state error");
+  //}
+
+  //++m_uiLoadedTextures;
+
+  {
+    ezResourceLoadDesc res;
+    res.m_uiQualityLevelsDiscardable = m_uiLoadedTextures;
+
+    if (uiHighestMipLevel == 0)
+      res.m_uiQualityLevelsLoadable = 0;
+    else
+      res.m_uiQualityLevelsLoadable = 1;
+
+    res.m_State = ezResourceState::Loaded;
 
     return res;
   }
@@ -439,42 +434,50 @@ ezResourceLoadDesc ezTextureResource::CreateResource(const ezTextureResourceDesc
 
 ezResourceLoadData ezTextureResourceLoader::OpenDataStream(const ezResourceBase* pResource)
 {
-  bool bSuccess = false;
-
   LoadedData* pData = EZ_DEFAULT_NEW(LoadedData);
 
-  if (pData->m_Image.LoadFrom(pResource->GetResourceID()).Succeeded())
-  {
-    bSuccess = true;
+  ezResourceLoadData res;
 
-    if (pData->m_Image.GetImageFormat() == ezImageFormat::B8G8R8_UNORM)
+#if EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
+  {
+    ezFileReader File;
+    if (File.Open(pResource->GetResourceID().GetData()).Failed())
+      return res;
+
+    ezFileStats stat;
+    if (ezOSFile::GetFileStats(File.GetFilePathAbsolute(), stat).Succeeded())
     {
-      ezImageConversionBase::Convert(pData->m_Image, pData->m_Image, ezImageFormat::B8G8R8A8_UNORM);
+      res.m_LoadedFileModificationDate = stat.m_LastModificationTime;
     }
+  }
+#endif
+
+
+  if (pData->m_Image.LoadFrom(pResource->GetResourceID()).Failed())
+    return res;
+
+  if (pData->m_Image.GetImageFormat() == ezImageFormat::B8G8R8_UNORM)
+  {
+    ezImageConversionBase::Convert(pData->m_Image, pData->m_Image, ezImageFormat::B8G8R8A8_UNORM);
   }
 
   ezMemoryStreamWriter w(&pData->m_Storage);
-  w << bSuccess;
 
-  if (bSuccess)
-  {
-    ezImage* pImage = &pData->m_Image;
-    w.WriteBytes(&pImage, sizeof(ezImage*));
+  ezImage* pImage = &pData->m_Image;
+  w.WriteBytes(&pImage, sizeof(ezImage*));
 
-    /// \todo As long as we don't have a custom format or asset meta data, this is a hack to get the SRGB information for the texture
+  /// \todo As long as we don't have a custom format or asset meta data, this is a hack to get the SRGB information for the texture
 
-    const ezStringBuilder sName = ezPathUtils::GetFileName(pResource->GetResourceID());
+  const ezStringBuilder sName = ezPathUtils::GetFileName(pResource->GetResourceID());
 
-    bool bSRGB = (sName.EndsWith_NoCase("_D") || sName.EndsWith_NoCase("_SRGB") || sName.EndsWith_NoCase("_diff"));
+  bool bSRGB = (sName.EndsWith_NoCase("_D") || sName.EndsWith_NoCase("_SRGB") || sName.EndsWith_NoCase("_diff"));
 
-    w << bSRGB;
-  }
+  w << bSRGB;
 
-  ezResourceLoadData LoaderData;
-  LoaderData.m_pDataStream = &pData->m_Reader;
-  LoaderData.m_pCustomLoaderData = pData;
+  res.m_pDataStream = &pData->m_Reader;
+  res.m_pCustomLoaderData = pData;
 
-  return LoaderData;
+  return res;
 }
 
 void ezTextureResourceLoader::CloseDataStream(const ezResourceBase* pResource, const ezResourceLoadData& LoaderData)
@@ -482,6 +485,27 @@ void ezTextureResourceLoader::CloseDataStream(const ezResourceBase* pResource, c
   LoadedData* pData = (LoadedData*) LoaderData.m_pCustomLoaderData;
 
   EZ_DEFAULT_DELETE(pData);
+}
+
+bool ezTextureResourceLoader::IsResourceOutdated(const ezResourceBase* pResource) const
+{
+#if EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
+  if (pResource->GetLoadedFileModificationTime().IsValid())
+  {
+    ezString sAbs;
+    if (ezFileSystem::ResolvePath(pResource->GetResourceID(), false, &sAbs, nullptr).Failed())
+      return false;
+
+    ezFileStats stat;
+    if (ezOSFile::GetFileStats(sAbs, stat).Failed())
+      return false;
+  
+    return !stat.m_LastModificationTime.IsEqual(pResource->GetLoadedFileModificationTime(), ezTimestamp::CompareMode::FileTime);
+  }
+
+#endif
+
+  return true;
 }
 
 

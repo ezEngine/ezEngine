@@ -39,6 +39,8 @@ private:
   ezDynamicArray<ezMeshResourceDescriptor::SubMesh> m_SubMeshes;
   ezMeshBufferResourceHandle m_hMeshBuffer;
   ezDynamicArray<ezMaterialResourceHandle> m_Materials;
+
+  static ezUInt32 s_MeshBufferNameSuffix;
 };
 
 typedef ezResourceHandle<ezMeshResource> ezMeshResourceHandle;
