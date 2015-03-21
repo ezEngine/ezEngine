@@ -322,6 +322,7 @@ void ezResourceManagerWorker::Execute()
 ezUInt32 ezResourceManager::FreeUnusedResources(bool bFreeAllUnused)
 {
   EZ_LOCK(ResourceMutex);
+  EZ_LOG_BLOCK("ezResourceManager::FreeUnusedResources");
 
   ezUInt32 uiUnloaded = 0;
   bool bUnloadedAny = false;
@@ -453,6 +454,7 @@ void ezResourceManager::ReloadResource(ezResourceBase* pResource)
 void ezResourceManager::ReloadResourcesOfType(const ezRTTI* pType)
 {
   EZ_LOCK(ResourceMutex);
+  EZ_LOG_BLOCK("ezResourceManager::ReloadResourcesOfType", pType->GetTypeName());
 
   for (auto it = m_LoadedResources.GetIterator(); it.IsValid(); ++it)
   {
@@ -464,6 +466,7 @@ void ezResourceManager::ReloadResourcesOfType(const ezRTTI* pType)
 void ezResourceManager::ReloadAllResources()
 {
   EZ_LOCK(ResourceMutex);
+  EZ_LOG_BLOCK("ezResourceManager::ReloadAllResources");
 
   for (auto it = m_LoadedResources.GetIterator(); it.IsValid(); ++it)
   {

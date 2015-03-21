@@ -84,20 +84,12 @@ ezResult ezShaderCompiler::CompileShaderPermutationsForPlatforms(const char* szF
 {
   ezStringBuilder sFileContent, sTemp;
 
-  ezInt64 iMainFileTimeStamp = 0;
-
   {
     ezFileReader File;
     if (File.Open(szFile).Failed())
       return EZ_FAILURE;
     
     sFileContent.ReadAll(File);
-
-#if EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
-    ezFileStats stats;
-    if (ezOSFile::GetFileStats(File.GetFilePathAbsolute().GetData(), stats).Succeeded())
-      iMainFileTimeStamp = stats.m_LastModificationTime.GetInt64(ezSIUnitOfTime::Second);
-#endif
   }
 
 
@@ -145,7 +137,7 @@ ezResult ezShaderCompiler::CompileShaderPermutationsForPlatforms(const char* szF
     {
       ezShaderProgramCompiler* pCompiler = static_cast<ezShaderProgramCompiler*>(pAllocator->Allocate());
 
-      RunShaderCompilerForPermutations(szFile, Generator, szPlatform, pCompiler, iMainFileTimeStamp);
+      RunShaderCompilerForPermutations(szFile, Generator, szPlatform, pCompiler);
 
       pAllocator->Deallocate(pCompiler);
     }
@@ -156,7 +148,7 @@ ezResult ezShaderCompiler::CompileShaderPermutationsForPlatforms(const char* szF
   return EZ_SUCCESS;
 }
 
-void ezShaderCompiler::RunShaderCompilerForPermutations(const char* szFile, const ezPermutationGenerator& Generator, const char* szPlatform, ezShaderProgramCompiler* pCompiler, ezInt64 iMainFileTimeStamp)
+void ezShaderCompiler::RunShaderCompilerForPermutations(const char* szFile, const ezPermutationGenerator& Generator, const char* szPlatform, ezShaderProgramCompiler* pCompiler)
 {
   EZ_LOG_BLOCK("Compiling Shader", szFile);
 
@@ -240,7 +232,7 @@ void ezShaderCompiler::RunShaderCompilerForPermutations(const char* szFile, cons
       }
 
       // if compilation failed, the stage binary for the source hash will simply not exist and therefore cannot be loaded
-      // the .permutation file should be updated, however, to store the new source hash to the broken shader
+      // the .ezPermutation file should be updated, however, to store the new source hash to the broken shader
       if (pCompiler->Compile(spd, ezGlobalLog::GetInstance()).Failed())
         ezLog::Error("Shader compilation failed.");
       else
@@ -264,19 +256,13 @@ void ezShaderCompiler::RunShaderCompilerForPermutations(const char* szFile, cons
       sTemp.ChangeFileExtension("");
       if (sTemp.EndsWith("."))
         sTemp.Shrink(0, 1);
-      sTemp.AppendFormat("%08X.permutation", uiPermutationHash);
+      sTemp.AppendFormat("%08X.ezPermutation", uiPermutationHash);
 
-      spb.m_IncludeFiles.Clear();
-      spb.m_IncludeFiles.Reserve(m_IncludeFiles.GetCount());
-
-      spb.m_IncludeFiles.PushBack(szFile);
-      spb.m_iMaxTimeStamp = iMainFileTimeStamp;
+      spb.m_DependencyFile.Clear();
+      spb.m_DependencyFile.AddFileDependency(szFile);
 
       for (auto it = m_IncludeFiles.GetIterator(); it.IsValid(); ++it)
-      {
-        spb.m_IncludeFiles.PushBack(it.Key());
-        spb.m_iMaxTimeStamp = ezMath::Max(spb.m_iMaxTimeStamp, m_FileCache.Lookup(it.Key()).Value().m_Timestamp.GetInt64(ezSIUnitOfTime::Second));
-      }
+        spb.m_DependencyFile.AddFileDependency(it.Key());
 
       ezFileWriter PermutationFileOut;
       if (PermutationFileOut.Open(sTemp.GetData()).Failed())

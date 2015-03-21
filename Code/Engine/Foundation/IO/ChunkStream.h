@@ -1,6 +1,6 @@
 #pragma once
 
-#include <CoreUtils/Basics.h>
+#include <Foundation/Basics.h>
 #include <Foundation/IO/Stream.h>
 #include <Foundation/Containers/Deque.h>
 

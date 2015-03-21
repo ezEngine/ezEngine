@@ -53,7 +53,7 @@ public:
 
 private:
 
-  void RunShaderCompilerForPermutations(const char* szFile, const ezPermutationGenerator& Generator, const char* szPlatform, ezShaderProgramCompiler* pCompiler, ezInt64 iMainFileTimeStamp);
+  void RunShaderCompilerForPermutations(const char* szFile, const ezPermutationGenerator& Generator, const char* szPlatform, ezShaderProgramCompiler* pCompiler);
 
   bool PassThroughUnknownCommandCB(const char* szCmd)
   {

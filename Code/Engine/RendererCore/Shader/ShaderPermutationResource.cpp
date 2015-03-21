@@ -129,33 +129,6 @@ struct ShaderPermutationResourceLoadData
   ezMemoryStreamReader m_Reader;
 };
 
-ezTimestamp ezShaderPermutationResourceLoader::GetFileTimestamp(const char* szFile)
-{
-#if EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
-  bool bExisted = false;
-  auto it = m_FileTimestamps.FindOrAdd(szFile, &bExisted);
-
-  if (!bExisted || it.Value().m_LastCheck + ezTime::Seconds(2.0) < ezTime::Now())
-  {
-    it.Value().m_LastCheck = ezTime::Now();
-
-    ezString sAbsPath;
-    if (ezFileSystem::ResolvePath(szFile, false, &sAbsPath, nullptr).Succeeded())
-    {
-      ezFileStats stats;
-      if (ezOSFile::GetFileStats(sAbsPath.GetData(), stats).Succeeded())
-      {
-        it.Value().m_FileTimestamp = stats.m_LastModificationTime;
-      }
-    }
-  }
-
-  return it.Value().m_FileTimestamp;
-#else
-  return ezTimestamp();
-#endif
-}
-
 ezResult ezShaderPermutationResourceLoader::RunCompiler(const ezResourceBase* pResource, ezShaderPermutationBinary& BinaryInfo, bool bForce)
 {
   if (ezRendererCore::IsRuntimeShaderCompilationEnabled())
@@ -163,17 +136,9 @@ ezResult ezShaderPermutationResourceLoader::RunCompiler(const ezResourceBase* pR
     if (!bForce)
     {
       // check whether any dependent file has changed, and trigger a recompilation if necessary
-      for (ezUInt32 inc = 0; inc < BinaryInfo.m_IncludeFiles.GetCount(); ++inc)
+      if (BinaryInfo.m_DependencyFile.HasAnyFileChanged())
       {
-        ezTimestamp stamp = GetFileTimestamp(BinaryInfo.m_IncludeFiles[inc].GetData());
-
-        if (stamp.GetInt64(ezSIUnitOfTime::Second) > BinaryInfo.m_iMaxTimeStamp)
-        {
-          ezLog::Info("Detected file change in '%s' (ts %lli > ts max %lli)", BinaryInfo.m_IncludeFiles[inc].GetData(), stamp.GetInt64(ezSIUnitOfTime::Second), BinaryInfo.m_iMaxTimeStamp);
-
-          bForce = true;
-          break;
-        }
+        bForce = true;
       }
     }
 
@@ -213,6 +178,15 @@ ezResult ezShaderPermutationResourceLoader::RunCompiler(const ezResourceBase* pR
   }
 
   return EZ_SUCCESS;
+}
+
+bool ezShaderPermutationResourceLoader::IsResourceOutdated(const ezResourceBase* pResource) const
+{
+  ezDependencyFile dep;
+  if (dep.ReadDependencyFile(pResource->GetResourceID()).Failed())
+    return true;
+
+  return dep.HasAnyFileChanged();
 }
 
 ezResourceLoadData ezShaderPermutationResourceLoader::OpenDataStream(const ezResourceBase* pResource)
@@ -272,7 +246,7 @@ ezResourceLoadData ezShaderPermutationResourceLoader::OpenDataStream(const ezRes
 
   ezMemoryStreamWriter w(&pData->m_Storage);
 
-  // preload the files that are referenced in the .permutation file
+  // preload the files that are referenced in the .ezPermutation file
   {
     // write the permutation file info back to the output stream, so that the resource can read it as well
     permutationBinary.Write(w);

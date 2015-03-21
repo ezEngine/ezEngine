@@ -5,8 +5,6 @@
 enum ezShaderPermutationBinaryVersion
 {
   Version1 = 1,
-  Version2,     ///< Added include depencency information
-  Version3,     ///< Added that when the version changes, the dependent files check always returns that something changed and recompilation is triggered
 
   ENUM_COUNT,
   Current = ENUM_COUNT - 1
@@ -20,8 +18,12 @@ ezShaderPermutationBinary::ezShaderPermutationBinary()
     m_uiShaderStageHashes[stage] = 0;
 }
 
-ezResult ezShaderPermutationBinary::Write(ezStreamWriterBase& Stream) const
+ezResult ezShaderPermutationBinary::Write(ezStreamWriterBase& Stream)
 {
+  // write this at the beginning so that the file can be read as an ezDependencyFile
+  m_DependencyFile.StoreCurrentTimeStamp();
+  m_DependencyFile.WriteDependencyFile(Stream);
+
   const ezUInt8 uiVersion = ezShaderPermutationBinaryVersion::Current;
 
   if (Stream.WriteBytes(&uiVersion, sizeof(ezUInt8)).Failed())
@@ -36,22 +38,13 @@ ezResult ezShaderPermutationBinary::Write(ezStreamWriterBase& Stream) const
       return EZ_FAILURE;
   }
 
-  // Version 2
-
-  Stream << m_IncludeFiles.GetCount();
-
-  for (ezUInt32 i = 0; i < m_IncludeFiles.GetCount(); ++i)
-  {
-    Stream << m_IncludeFiles[i];
-  }
-
-  Stream << m_iMaxTimeStamp;
-
   return EZ_SUCCESS;
 }
 
 ezResult ezShaderPermutationBinary::Read(ezStreamReaderBase& Stream)
 {
+  m_DependencyFile.ReadDependencyFile(Stream);
+
   ezUInt8 uiVersion = 0;
 
   if (Stream.ReadBytes(&uiVersion, sizeof(ezUInt8)) != sizeof(ezUInt8))
@@ -66,28 +59,6 @@ ezResult ezShaderPermutationBinary::Read(ezStreamReaderBase& Stream)
   {
     if (Stream.ReadDWordValue(&m_uiShaderStageHashes[stage]).Failed())
       return EZ_FAILURE;
-  }
-
-  if (uiVersion >= ezShaderPermutationBinaryVersion::Version2)
-  {
-    ezUInt32 uiIncludes = 0;
-    Stream >> uiIncludes;
-    m_IncludeFiles.SetCount(uiIncludes);
-
-    for (ezUInt32 i = 0; i < m_IncludeFiles.GetCount(); ++i)
-    {
-      Stream >> m_IncludeFiles[i];
-    }
-  }
-
-  Stream >> m_iMaxTimeStamp;
-
-  // if this is an older version, make sure the dependent files check will always return that something changed
-  if (uiVersion < ezShaderPermutationBinaryVersion::Current)
-  {
-    m_iMaxTimeStamp = 0;
-
-    ezLog::Warning("Shader Permutation Binary version is outdated (%u of %u), recompilation will be triggered, if available", uiVersion, ezShaderPermutationBinaryVersion::Current);
   }
 
   return EZ_SUCCESS;

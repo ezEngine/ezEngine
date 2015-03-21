@@ -48,18 +48,10 @@ public:
   virtual ezResourceLoadData OpenDataStream(const ezResourceBase* pResource) override;
   virtual void CloseDataStream(const ezResourceBase* pResource, const ezResourceLoadData& LoaderData) override;
 
-  virtual bool IsResourceOutdated(const ezResourceBase* pResource) const override { return true; }
+  virtual bool IsResourceOutdated(const ezResourceBase* pResource) const override;
 
 private:
 
   ezResult RunCompiler(const ezResourceBase* pResource, ezShaderPermutationBinary& BinaryInfo, bool bForce);
-  ezTimestamp GetFileTimestamp(const char* szFile);
 
-  struct FileCheckCache
-  {
-    ezTimestamp m_FileTimestamp;
-    ezTime m_LastCheck;
-  };
-
-  ezMap<ezString, FileCheckCache> m_FileTimestamps;
 };

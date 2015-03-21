@@ -1,6 +1,6 @@
 #pragma once
 
-#include <CoreUtils/Basics.h>
+#include <Foundation/Basics.h>
 #include <Foundation/IO/ChunkStream.h>
 #include <Foundation/Reflection/Reflection.h>
 #include <Foundation/IO/MemoryStream.h>

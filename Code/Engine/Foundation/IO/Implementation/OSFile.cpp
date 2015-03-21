@@ -347,6 +347,8 @@ done:
 
   ezResult ezOSFile::GetFileStats(const char* szFileOrFolder, ezFileStats& out_Stats)
   {
+    /// \todo We should implement this also on ezFileSystem, to be able to support stats through virtual filesystems
+
     const ezTime t0 = ezTime::Now();
 
     ezStringBuilder s = szFileOrFolder;
@@ -374,6 +376,8 @@ done:
 
   ezResult ezOSFile::GetFileCasing(const char* szFileOrFolder, ezStringBuilder& out_sCorrectSpelling)
   {
+    /// \todo We should implement this also on ezFileSystem, to be able to support stats through virtual filesystems
+
     const ezTime t0 = ezTime::Now();
 
     ezStringBuilder s(szFileOrFolder);
