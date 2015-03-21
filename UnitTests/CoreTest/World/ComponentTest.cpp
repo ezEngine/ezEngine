@@ -62,6 +62,11 @@ namespace
 
     virtual ezResult OnDetachedFromObject() override
     {
+      if (s_bGOInactiveCheck)
+      {
+        EZ_TEST_BOOL(!GetOwner()->IsActive());
+      }
+
       --s_iAttachCounter;
       return EZ_SUCCESS;
     }
@@ -80,10 +85,12 @@ namespace
 
     static ezInt32 s_iInitCounter;
     static ezInt32 s_iAttachCounter;
+    static bool s_bGOInactiveCheck;
   };
 
   ezInt32 TestComponent::s_iInitCounter = 0;
   ezInt32 TestComponent::s_iAttachCounter = 0;
+  bool TestComponent::s_bGOInactiveCheck = false;
 
   EZ_BEGIN_COMPONENT_TYPE(TestComponent, ezComponent, 1, TestComponentManager);
   EZ_END_COMPONENT_TYPE();
@@ -217,6 +224,8 @@ EZ_CREATE_SIMPLE_TEST(World, Components)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Delete Objects with Component")
   {
+    TestComponent::s_bGOInactiveCheck = true;
+
     world.CreateComponentManager<TestComponentManager>();
 
     ezGameObject* pObjectA = nullptr;

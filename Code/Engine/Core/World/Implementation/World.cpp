@@ -40,6 +40,12 @@ ezWorld::~ezWorld()
 {
   CheckForMultithreadedAccess();
 
+  // set all objects to inactive so components and children know that they shouldn't access the objects anymore.
+  for (auto it = m_Data.m_ObjectStorage.GetIterator(); it.IsValid(); it.Next())
+  {
+    it->m_Flags.Remove(ezObjectFlags::Active);
+  }
+
   // delete all component manager before we invalidate the world. Components can still access the world during deinitialization.
   for (ezUInt32 i = 0; i < m_Data.m_ComponentManagers.GetCount(); ++i)
   {
@@ -187,6 +193,7 @@ void ezWorld::Update()
 
   EZ_ASSERT_DEV(m_Data.m_UnresolvedUpdateFunctions.IsEmpty(), "There are update functions with unresolved dependencies.");
 
+  EZ_LOG_BLOCK(m_Data.m_sName.GetData());
   EZ_PROFILE(m_Data.m_UpdateProfilingID);
 
   // pre-async phase
