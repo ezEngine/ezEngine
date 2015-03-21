@@ -1,9 +1,0 @@
-{
-  "BaseMaterial" : "Materials/BaseAlphaTest.material",
-  
-  "Textures" :
-  {
-    "TexDiffuse" : "Textures/chain_texture_diff.dds",
-    "TexAlphaMask" : "Textures/chain_texture_mask.dds"
-  }  
-}

@@ -1,0 +1,8 @@
+{
+  "BaseMaterial" : "Materials/Base.ezMaterial",
+  
+  "Textures" :
+  {
+    "TexDiffuse" : "Sponza/Textures/vase_hanging_diff.dds",
+  }  
+}

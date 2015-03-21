@@ -1,8 +1,0 @@
-{
-  "BaseMaterial" : "Materials/Base.material",
-  
-  "Textures" :
-  {
-    "TexDiffuse" : "Textures/spnza_bricks_a_diff.dds",
-  }  
-}

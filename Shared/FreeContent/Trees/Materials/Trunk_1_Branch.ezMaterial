@@ -1,0 +1,8 @@
+{
+  "BaseMaterial" : "Materials/Base.ezMaterial",
+  
+  "Textures" :
+  {
+    "TexDiffuse" : "Trees/Textures/Bark/deviantart.com/Pinetree_D.dds",
+  }  
+}

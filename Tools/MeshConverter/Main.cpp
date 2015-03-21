@@ -36,6 +36,7 @@ class ezMeshConverterApp : public ezApplication
 private:
   ezString m_sInputFile;
   ezString m_sOutputFile;
+  ezString m_sMaterialPath;
 
 public:
 
@@ -44,8 +45,8 @@ public:
     ezGlobalLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);
     ezGlobalLog::AddLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
 
-    if (GetArgumentCount() != 3)
-      ezLog::Error("This tool requires exactly two command-line argument: An absolute path to the input and the output mesh.");
+    if (GetArgumentCount() != 4)
+      ezLog::Error("This tool requires exactly three command-line argument: An absolute path to the input and the output mesh, and a relative path from the data directory to the material folder.");
 
     // pass the absolute path to the directory that should be scanned as the first parameter to this application
     {
@@ -58,6 +59,7 @@ public:
       m_sInputFile = sFile;
     }
 
+    // output filename
     {
       ezStringBuilder sFile = GetArgument(2);
       sFile.MakeCleanPath();
@@ -66,6 +68,17 @@ public:
         ezLog::Error("The given path is not absolute: '%s'", sFile.GetData());
 
       m_sOutputFile = sFile;
+    }
+
+    // Argument 3 is a relative path prepended to the material file name
+    {
+      ezStringBuilder sFile = GetArgument(3);
+      sFile.MakeCleanPath();
+
+      //if (!ezPathUtils::IsAbsolutePath(sFile))
+        //ezLog::Error("The given path is not absolute: '%s'", sFile.GetData());
+
+      m_sMaterialPath = sFile;
     }
 
     // Add standard folder factory
@@ -97,7 +110,7 @@ public:
     {
       EZ_LOG_BLOCK("Importing Mesh", m_sInputFile.GetData());
 
-      scene = importer.ReadFile(m_sInputFile.GetData(), aiProcess_Triangulate | aiProcess_JoinIdenticalVertices | aiProcess_SortByPType | aiProcess_PreTransformVertices | aiProcess_RemoveRedundantMaterials);
+      scene = importer.ReadFile(m_sInputFile.GetData(), aiProcess_Triangulate | aiProcess_JoinIdenticalVertices | aiProcess_SortByPType | aiProcess_PreTransformVertices);
 
       if (!scene)
       {
@@ -126,6 +139,9 @@ public:
       uiTriangles += scene->mMeshes[i]->mNumFaces;
     }
 
+    ezLog::Info("Number of Vertices: %u", uiVertices);
+    ezLog::Info("Number of Triangles: %u", uiTriangles);
+
     desc.MeshBufferDesc().AllocateStreams(uiVertices, uiTriangles);
 
     ezUInt32 uiCurVertex = 0;
@@ -144,7 +160,7 @@ public:
 
 
       mat->Get(AI_MATKEY_NAME, name);
-      sMatName.Format("Materials/%s.material", name.C_Str());
+      sMatName.Format("%s/%s.ezMaterial", m_sMaterialPath.GetData(), name.C_Str());
       desc.SetMaterial(scene->mMeshes[i]->mMaterialIndex, sMatName);
 
       for (ezUInt32 f = 0; f < scene->mMeshes[i]->mNumFaces; ++f, ++uiCurTriangle)

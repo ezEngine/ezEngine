@@ -1,0 +1,20 @@
+{
+  "BaseMaterial" : "Materials/Default.ezMaterial",
+  //"Shader" : "Shaders/ez.shader",
+  
+/*
+  "Permutations" : 
+  {
+    "COLORED" : 0
+  },
+*/  
+  "Constants" :
+  {
+    "MatColor" : { "$t" : "color", "$v" : "(0.9, 0.6, 0, 0)" }
+  },
+  
+  "Textures" :
+  {
+    "TexDiffuse" : "Textures/ezLogo_ABGR_Mips_D.dds"
+  }  
+}

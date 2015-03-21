@@ -201,7 +201,7 @@ public:
     {
       ezRendererCore::SetShaderPlatform("DX11_SM40", true);
 
-      m_hMaterial = ezResourceManager::LoadResource<ezMaterialResource>("Materials/Texture.material");
+      m_hMaterial = ezResourceManager::LoadResource<ezMaterialResource>("Materials/Texture.ezMaterial");
 
       // Create the mesh that we use for rendering
       CreateSquareMesh();

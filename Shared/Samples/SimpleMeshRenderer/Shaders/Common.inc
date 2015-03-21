@@ -17,12 +17,14 @@ CONSTANT_BUFFER(PerObject, 1)
 struct VS_IN
 {
   float3 Position : POSITION;
+  float3 Normal : NORMAL;
   float2 TexCoord0 : TEXCOORD0;
 };
 
 struct VS_OUT
 {
   float4 Position : SV_Position;
+  float3 Normal : NORMAL;
   float2 TexCoord0 : TEXCOORD0;
 };
 

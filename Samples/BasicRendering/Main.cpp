@@ -194,8 +194,8 @@ public:
       m_pObj[i] = DontUse::MayaObj::LoadFromFile("ez.obj", m_pDevice, i);
 
     m_hShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/ez.shader");
-    m_hMaterial = ezResourceManager::LoadResource<ezMaterialResource>("Materials/Test - wrong.material");
-    m_hMaterialMissing = ezResourceManager::LoadResource<ezMaterialResource>("Materials/Test.material");
+    m_hMaterial = ezResourceManager::LoadResource<ezMaterialResource>("Materials/Test - wrong.ez.Material");
+    m_hMaterialMissing = ezResourceManager::LoadResource<ezMaterialResource>("Materials/Test.ezMaterial");
 
     ezMaterialResource::SetTypeMissingResource(m_hMaterialMissing);
 

@@ -47,7 +47,7 @@ static ezMeshResourceHandle CreateAsteroidMesh()
       }
 
       mfb.AddSubMesh(polygons.GetCount(), 0, 0);
-      mfb.SetMaterial(0, "Materials/Asteroid.material");
+      mfb.SetMaterial(0, "Materials/Asteroid.ezMaterial");
       mfb.Save("Meshes/Asteroid.ezm");
     }
   }

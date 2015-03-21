@@ -1,8 +1,0 @@
-{
-  "BaseMaterial" : "Materials/Base.material",
-  
-  "Textures" :
-  {
-    "TexDiffuse" : "Textures/vase_hanging_diff.dds",
-  }  
-}

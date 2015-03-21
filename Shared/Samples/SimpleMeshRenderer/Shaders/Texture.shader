@@ -12,11 +12,12 @@ ALL
 
 VS_OUT main(VS_IN Input)
 {
-  VS_OUT RetVal;
-  RetVal.Position = mul(mvp, float4(Input.Position, 1.0f));
-  RetVal.TexCoord0 = Input.TexCoord0;
+  VS_OUT Output;
+  Output.Position = mul(mvp, float4(Input.Position, 1.0f));
+  Output.Normal = Input.Normal;
+  Output.TexCoord0 = Input.TexCoord0;
 
-  return RetVal;
+  return Output;
 }
 
 #endif

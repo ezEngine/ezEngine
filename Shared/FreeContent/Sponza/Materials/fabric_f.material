@@ -1,8 +1,0 @@
-{
-  "BaseMaterial" : "Materials/Base.material",
-  
-  "Textures" :
-  {
-    "TexDiffuse" : "Textures/sponza_curtain_green_diff.dds",
-  }  
-}

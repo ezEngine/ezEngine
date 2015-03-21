@@ -1,0 +1,16 @@
+{
+  "Shader" : "Shaders/Texture.shader",
+  
+  "Permutations" : 
+  {
+  },
+
+  "Constants" :
+  {
+  },
+  
+  "Textures" :
+  {
+    "TexDiffuse" : "Textures/Default_D.dds"
+  }  
+}

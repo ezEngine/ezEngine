@@ -1,0 +1,8 @@
+{
+  "BaseMaterial" : "Materials/Base.ezMaterial",
+  
+  "Textures" :
+  {
+    "TexDiffuse" : "Sponza/Textures/sponza_roof_diff.dds",
+  }  
+}

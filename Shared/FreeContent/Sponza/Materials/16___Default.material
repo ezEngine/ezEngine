@@ -1,8 +1,0 @@
-{
-  "BaseMaterial" : "Materials/Base.material",
-  
-  "Textures" :
-  {
-    "TexDiffuse" : "Textures/Flag_D.dds",
-  }  
-}

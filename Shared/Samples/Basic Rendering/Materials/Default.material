@@ -1,8 +1,0 @@
-{
-  "Shader" : "Shaders/ez.shader",
-  
-  "Permutations" : 
-  {
-    "COLORED" : 0
-  },
-}

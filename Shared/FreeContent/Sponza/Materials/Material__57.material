@@ -1,9 +1,0 @@
-{
-  "BaseMaterial" : "Materials/BaseAlphaTest.material",
-  
-  "Textures" :
-  {
-    "TexDiffuse" : "Textures/vase_plant_diff.dds",
-    "TexAlphaMask" : "Textures/vase_plant_mask.dds"
-  }  
-}

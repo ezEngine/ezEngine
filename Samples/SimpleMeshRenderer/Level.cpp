@@ -21,21 +21,44 @@ void SampleApp::CreateGameLevel()
 
   ezGameObjectDesc obj;
   ezGameObject* pObj;
-
-  m_pWorld->CreateObject(obj, pObj);
   ezMeshComponent* pMesh;
-  pMeshCompMan->CreateComponent(pMesh);
-  pObj->AddComponent(pMesh);
 
-  ezMaterialResourceHandle hMat = ezResourceManager::LoadResource<ezMaterialResource>("Materials/Base.material");
-  ezMeshResourceHandle hMesh = ezResourceManager::LoadResource<ezMeshResource>("Meshes/Sponza.ezmesh");
+  ezMaterialResourceHandle hMat = ezResourceManager::LoadResource<ezMaterialResource>("Materials/Base.ezMaterial");
+  ezMeshResourceHandle hMesh = ezResourceManager::LoadResource<ezMeshResource>("Meshes/Sponza.ezMesh");
+  ezMeshResourceHandle hMeshTree = ezResourceManager::LoadResource<ezMeshResource>("Trees/Meshes/Tree5.ezMesh");
 
-  //pMesh->SetMaterial(0, hMat);
-  pMesh->SetMesh(hMesh);
+  // World Mesh
+  {
+    m_pWorld->CreateObject(obj, pObj);
+    pMeshCompMan->CreateComponent(pMesh);
+    pObj->AddComponent(pMesh);
+    pMesh->SetMesh(hMesh);
+  }
+
+  // Tree Mesh
+  {
+    obj.m_LocalScaling.Set(70.0f);
+    obj.m_LocalPosition.x = -500;
+    m_pWorld->CreateObject(obj, pObj);
+    pMeshCompMan->CreateComponent(pMesh);
+    pObj->AddComponent(pMesh);
+    pMesh->SetMesh(hMeshTree);
+  }
+
+  // Tree Mesh
+  {
+    obj.m_LocalScaling.Set(60.0f);
+    obj.m_LocalRotation.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(75));
+    obj.m_LocalPosition.x = 500;
+    m_pWorld->CreateObject(obj, pObj);
+    pMeshCompMan->CreateComponent(pMesh);
+    pObj->AddComponent(pMesh);
+    pMesh->SetMesh(hMeshTree);
+  }
 
   m_Camera.LookAt(ezVec3(0.0f, 0.0f, 0.0f), ezVec3(0.0f, 0.0f, -1.0f));
   m_Camera.SetCameraMode(ezCamera::PerspectiveFixedFovY, 60.0f, 1.0f, 5000.0f);
-  
+
   m_View.SetWorld(m_pWorld);
   m_View.SetLogicCamera(&m_Camera);
 }

@@ -51,7 +51,7 @@ void SampleApp::InitRendering()
   {
     ezTextureResourceHandle hFallbackTexture = ezResourceManager::LoadResource<ezTextureResource>("Textures/Fallback_D.dds");
     ezTextureResourceHandle hMissingTexture = ezResourceManager::LoadResource<ezTextureResource>("Textures/MissingTexture_D.dds");
-    ezMaterialResourceHandle hMissingMaterial = ezResourceManager::LoadResource<ezMaterialResource>("Materials/Missing.material");
+    ezMaterialResourceHandle hMissingMaterial = ezResourceManager::LoadResource<ezMaterialResource>("Materials/Missing.ezMaterial");
 
     ezTextureResource::SetTypeFallbackResource(hFallbackTexture);
     ezTextureResource::SetTypeMissingResource(hMissingTexture);

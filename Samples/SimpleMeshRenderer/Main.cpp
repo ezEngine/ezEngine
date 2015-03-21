@@ -50,7 +50,7 @@ void SampleApp::AfterEngineInit()
   sReadDir.AppendPath("../../Shared/Samples/SimpleMeshRenderer/");
 
   ezStringBuilder sObjectDir = BUILDSYSTEM_OUTPUT_FOLDER;
-  sObjectDir.AppendPath("../../Shared/FreeContent/Sponza/");
+  sObjectDir.AppendPath("../../Shared/FreeContent/");
 
   ezStringBuilder sBaseDir = BUILDSYSTEM_OUTPUT_FOLDER;
   sBaseDir.AppendPath("../../Shared/Data/");
