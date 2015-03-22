@@ -177,14 +177,14 @@ public:
 
   ezInt32 m_iExpectedParsingErrors;
 
-  virtual void OnParsingError(const char* szMessage, bool bFatal) override
+  virtual void OnParsingError(const char* szMessage, bool bFatal, ezUInt32 uiLine, ezUInt32 uiColumn) override
   {
     --m_iExpectedParsingErrors;
 
     if (m_iExpectedParsingErrors >= 0)
       return;
 
-    EZ_TEST_FAILURE("JSON Parsing Error: %s", szMessage);
+    EZ_TEST_FAILURE("JSON Parsing Error", "(%u, %u): %s", uiLine, uiColumn, szMessage);
   }
 
   bool m_bSkipObject;

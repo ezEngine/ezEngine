@@ -10,14 +10,18 @@ ezJSONParser::ezJSONParser()
   m_pInput = nullptr;
   m_bSkippingMode = false;
   m_pLogInterface = nullptr;
+  m_uiCurLine = 1;
+  m_uiCurColumn = 0;
 }
 
-void ezJSONParser::SetInputStream(ezStreamReaderBase& stream)
+void ezJSONParser::SetInputStream(ezStreamReaderBase& stream, ezUInt32 uiFirstLineOffset)
 {
   m_StateStack.Clear();
   m_uiCurByte = '\0';
   m_TempString.Clear();
   m_bSkippingMode = false;
+  m_uiCurLine = 1 + uiFirstLineOffset;
+  m_uiCurColumn = 0;
 
   m_pInput = &stream;
 
@@ -95,11 +99,11 @@ void ezJSONParser::ParsingError(const char* szMessage, bool bFatal)
   }
 
   if (bFatal)
-    ezLog::Error(m_pLogInterface, szMessage);
+    ezLog::Error(m_pLogInterface, "Line %u (%u): %s", m_uiCurLine, m_uiCurColumn, szMessage);
   else
     ezLog::Warning(m_pLogInterface, szMessage);
 
-  OnParsingError(szMessage, bFatal);
+  OnParsingError(szMessage, bFatal, m_uiCurLine, m_uiCurColumn);
 }
 
 void ezJSONParser::SkipObject()
@@ -453,12 +457,25 @@ void ezJSONParser::ContinueSeparator()
   }
 }
 
+void ezJSONParser::ReadNextByte()
+{
+  m_pInput->ReadBytes(&m_uiNextByte, sizeof(ezUInt8));
+
+  if (m_uiNextByte == '\n')
+  {
+    ++m_uiCurLine;
+    m_uiCurColumn = 0;
+  }
+  else
+    ++m_uiCurColumn;
+}
+
 bool ezJSONParser::ReadCharacter(bool bSkipComments)
 {
   m_uiCurByte = m_uiNextByte;
 
   m_uiNextByte = '\0';
-  m_pInput->ReadBytes(&m_uiNextByte, sizeof(ezUInt8));
+  ReadNextByte();
 
   // skip comments
   if (m_uiCurByte == '/' && bSkipComments)
@@ -469,7 +486,7 @@ bool ezJSONParser::ReadCharacter(bool bSkipComments)
       while (m_uiNextByte != '\0' && m_uiNextByte != '\n')
       {
         m_uiNextByte = '\0';
-        m_pInput->ReadBytes(&m_uiNextByte, sizeof(ezUInt8));
+        ReadNextByte();
       }
 
       ReadCharacter(true);
@@ -483,7 +500,7 @@ bool ezJSONParser::ReadCharacter(bool bSkipComments)
         m_uiCurByte = m_uiNextByte;
 
         m_uiNextByte = '\0';
-        m_pInput->ReadBytes(&m_uiNextByte, sizeof(ezUInt8));
+        ReadNextByte();
       }
 
       // replace the current end-comment by whitespace

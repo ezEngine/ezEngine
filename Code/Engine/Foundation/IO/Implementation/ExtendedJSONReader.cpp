@@ -219,7 +219,7 @@ void ezExtendedJSONReader::OnEndObject()
     if (result.Failed())
     {
       ezStringBuilder s;
-      s.Format("The extended type variable '%s' could not be read converted. $t = '%s', $v = '%s', $b = '%s'", Child.m_sName.GetData(), Type.ConvertTo<ezString>().GetData(), Value.ConvertTo<ezString>().GetData(), Binary.ConvertTo<ezString>().GetData());
+      s.Format("The extended type variable '%s' could not be converted. $t = '%s', $v = '%s', $b = '%s'", Child.m_sName.GetData(), Type.ConvertTo<ezString>().GetData(), Value.ConvertTo<ezString>().GetData(), Binary.ConvertTo<ezString>().GetData());
       ParsingError(s.GetData(), false);
     }
 

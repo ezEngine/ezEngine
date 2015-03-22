@@ -1,13 +1,13 @@
 #include <Foundation/PCH.h>
 #include <Foundation/IO/JSONReader.h>
 
-ezResult ezJSONReader::Parse(ezStreamReaderBase& InputStream)
+ezResult ezJSONReader::Parse(ezStreamReaderBase& InputStream, ezUInt32 uiFirstLineOffset)
 {
   m_bParsingError = false;
   m_Stack.Clear();
   m_sLastName.Clear();
 
-  SetInputStream(InputStream);
+  SetInputStream(InputStream, uiFirstLineOffset);
 
   while (!m_bParsingError && ContinueParsing())
   {

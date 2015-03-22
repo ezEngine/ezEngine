@@ -15,7 +15,7 @@ class EZ_FOUNDATION_DLL ezJSONReader : public ezJSONParser
 public:
 
   /// \brief Reads the entire stream and creates the internal data structure that represents the JSON document. Returns EZ_FAILURE if any parsing error occurred.
-  ezResult Parse(ezStreamReaderBase& pInput);
+  ezResult Parse(ezStreamReaderBase& pInput, ezUInt32 uiFirstLineOffset = 0);
 
   /// \brief Returns the top-level object of the JSON document.
   const ezVariantDictionary& GetTopLevelObject() const
@@ -52,7 +52,7 @@ private:
   /// \brief [internal] Do not override further.
   virtual void OnEndArray() override;
 
-  virtual void OnParsingError(const char* szMessage, bool bFatal) { m_bParsingError = true;  }
+  virtual void OnParsingError(const char* szMessage, bool bFatal, ezUInt32 uiLine, ezUInt32 uiColumn) override { m_bParsingError = true;  }
 
 protected:
 

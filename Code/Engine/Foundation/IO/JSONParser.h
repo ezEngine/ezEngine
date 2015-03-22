@@ -23,7 +23,7 @@ public:
 protected:
 
   /// \brief Resets the parser to the start state and configures it to read from the given stream.
-  void SetInputStream(ezStreamReaderBase& stream);
+  void SetInputStream(ezStreamReaderBase& stream, ezUInt32 uiFirstLineOffset = 0);
 
   /// \brief Does one parsing step.
   ///
@@ -97,7 +97,7 @@ private:
   /// If bFatal is true, the error has left the parser in an unrecoverable state and thus it not continue parsing.
   /// In that case client code will need to clean up it's open state, as no further OnEndObject() / OnEndArray() will be called.
   /// If bFatal is false, the document does not contain valid JSON, but the parser is able to continue still.
-  virtual void OnParsingError(const char* szMessage, bool bFatal) { }
+  virtual void OnParsingError(const char* szMessage, bool bFatal, ezUInt32 uiLine, ezUInt32 uiColumn) { }
 
 private:
   enum State
@@ -134,11 +134,14 @@ private:
   void ContinueSeparator();
 
   bool ReadCharacter(bool bSkipComments);
+  void ReadNextByte();
 
   void SkipStack(State s);
 
   ezUInt8 m_uiCurByte;
   ezUInt8 m_uiNextByte;
+  ezUInt32 m_uiCurLine;
+  ezUInt32 m_uiCurColumn;
 
   ezStreamReaderBase* m_pInput;
   ezHybridArray<JSONState, 32> m_StateStack;
