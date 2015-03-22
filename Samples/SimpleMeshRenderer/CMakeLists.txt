@@ -28,7 +28,6 @@ SET (LINK_LIBRARIES
   RendererFoundation
   RendererCore
   RendererDX11
-  RendererGL3
 )
 
 SET (ADDITIONAL_DEPENDENCIES

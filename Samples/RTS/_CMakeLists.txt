@@ -22,14 +22,13 @@ SET (LINK_LIBRARIES
   Foundation
   Core
   System
-  OpenGL32
-  glu32
   InputXBox360
   ThirdParty
   CoreUtils
   GameUtils
   RendererFoundation
-  RendererGL3
+  RendererCore
+  RendererDX11
 )
 
 include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/CMAKE_Application.txt)

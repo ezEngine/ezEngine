@@ -148,7 +148,7 @@ ezResult ezShaderPermutationResourceLoader::RunCompiler(const ezResourceBase* pR
     ezStringBuilder sPermutationFile = pResource->GetResourceID();
 
     sPermutationFile.ChangeFileExtension("");
-    sPermutationFile.Shrink(ezRendererCore::GetShaderCacheDirectory().GetCharacterCount() + ezRendererCore::GetShaderPlatform().GetCharacterCount() + 2, 1);
+    sPermutationFile.Shrink(ezRendererCore::GetShaderCacheDirectory().GetCharacterCount() + ezRendererCore::GetActiveShaderPlatform().GetCharacterCount() + 2, 1);
 
     ezStringView itBack = sPermutationFile.GetIteratorBack();
 
@@ -166,7 +166,7 @@ ezResult ezShaderPermutationResourceLoader::RunCompiler(const ezResourceBase* pR
     EZ_ASSERT_DEV(pGenerator != nullptr, "The permutation generator for permutation '%s' is unknown", sHash.GetData());
 
     ezShaderCompiler sc;
-    return sc.CompileShaderPermutationsForPlatforms(sPermutationFile.GetData(), *pGenerator, ezRendererCore::GetShaderPlatform().GetData());
+    return sc.CompileShaderPermutationsForPlatforms(sPermutationFile.GetData(), *pGenerator, ezRendererCore::GetActiveShaderPlatform().GetData());
   }
   else
   {

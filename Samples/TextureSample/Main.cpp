@@ -199,7 +199,7 @@ public:
 
     // Setup Shaders and Materials
     {
-      ezRendererCore::SetShaderPlatform("DX11_SM40", true);
+      ezRendererCore::ConfigureShaderSystem("DX11_SM40", true);
 
       m_hMaterial = ezResourceManager::LoadResource<ezMaterialResource>("Materials/Texture.ezMaterial");
 
@@ -453,42 +453,50 @@ ezResourceLoadData CustomTextureResourceLoader::OpenDataStream(const ezResourceB
 
   // the entire rest is copied from ezTextureResourceLoader
 
-  bool bSuccess = false;
-
   LoadedData* pData = EZ_DEFAULT_NEW(LoadedData);
 
-  if (pData->m_Image.LoadFrom(sFileToLoad).Succeeded())
-  {
-    bSuccess = true;
+  ezResourceLoadData res;
 
-    if (pData->m_Image.GetImageFormat() == ezImageFormat::B8G8R8_UNORM)
+#if EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
+  {
+    ezFileReader File;
+    if (File.Open(sFileToLoad).Failed())
+      return res;
+
+    ezFileStats stat;
+    if (ezOSFile::GetFileStats(File.GetFilePathAbsolute(), stat).Succeeded())
     {
-      ezImageConversionBase::Convert(pData->m_Image, pData->m_Image, ezImageFormat::B8G8R8A8_UNORM);
+      res.m_LoadedFileModificationDate = stat.m_LastModificationTime;
     }
+  }
+#endif
+
+
+  if (pData->m_Image.LoadFrom(sFileToLoad).Failed())
+    return res;
+
+  if (pData->m_Image.GetImageFormat() == ezImageFormat::B8G8R8_UNORM)
+  {
+    ezImageConversionBase::Convert(pData->m_Image, pData->m_Image, ezImageFormat::B8G8R8A8_UNORM);
   }
 
   ezMemoryStreamWriter w(&pData->m_Storage);
-  w << bSuccess;
 
-  if (bSuccess)
-  {
-    ezImage* pImage = &pData->m_Image;
-    w.WriteBytes(&pImage, sizeof(ezImage*));
+  ezImage* pImage = &pData->m_Image;
+  w.WriteBytes(&pImage, sizeof(ezImage*));
 
-    /// \todo As long as we don't have a custom format or asset meta data, this is a hack to get the SRGB information for the texture
+  /// \todo As long as we don't have a custom format or asset meta data, this is a hack to get the SRGB information for the texture
 
-    const ezStringBuilder sName = ezPathUtils::GetFileName(pResource->GetResourceID());
+  const ezStringBuilder sName = ezPathUtils::GetFileName(sFileToLoad);
 
-    bool bSRGB = (sName.EndsWith_NoCase("_D") || sName.EndsWith_NoCase("_SRGB"));
+  bool bSRGB = (sName.EndsWith_NoCase("_D") || sName.EndsWith_NoCase("_SRGB") || sName.EndsWith_NoCase("_diff"));
 
-    w << bSRGB;
-  }
+  w << bSRGB;
 
-  ezResourceLoadData LoaderData;
-  LoaderData.m_pDataStream = &pData->m_Reader;
-  LoaderData.m_pCustomLoaderData = pData;
+  res.m_pDataStream = &pData->m_Reader;
+  res.m_pCustomLoaderData = pData;
 
-  return LoaderData;
+  return res;
 }
 
 EZ_CONSOLEAPP_ENTRY_POINT(TextureSample);

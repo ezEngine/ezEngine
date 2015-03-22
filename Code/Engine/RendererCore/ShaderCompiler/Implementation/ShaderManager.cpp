@@ -60,7 +60,7 @@ ezShaderPermutationResourceHandle ezRendererCore::PreloadSingleShaderPermutation
   }
 
   ezStringBuilder sShaderFile = GetShaderCacheDirectory();
-  sShaderFile.AppendPath(GetShaderPlatform().GetData());
+  sShaderFile.AppendPath(GetActiveShaderPlatform().GetData());
   sShaderFile.AppendPath(pShader->GetResourceID().GetData());
   sShaderFile.ChangeFileExtension("");
   if (sShaderFile.EndsWith("."))
@@ -74,9 +74,12 @@ ezShaderPermutationResourceHandle ezRendererCore::PreloadSingleShaderPermutation
   return hShaderPermutation;
 }
 
-void ezRendererCore::SetShaderPlatform(const char* szPlatform, bool bEnableRuntimeCompilation)
+void ezRendererCore::ConfigureShaderSystem(const char* szActivePlatform, bool bEnableRuntimeCompilation, const char* szShaderCacheDirectory, const char* szPermVarSubDirectory)
 {
-  ezStringBuilder s = szPlatform;
+  s_ShaderCacheDirectory = szShaderCacheDirectory;
+  s_sPermVarSubDir = szPermVarSubDirectory;
+
+  ezStringBuilder s = szActivePlatform;
   s.ToUpper();
 
   s_bEnableRuntimeCompilation = bEnableRuntimeCompilation;

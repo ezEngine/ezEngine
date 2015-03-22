@@ -38,9 +38,11 @@ public:
 
   static ezResult ApplyContextStates(ezGALContext* pContext = nullptr, bool bForce = false);
 
-  static void SetShaderPlatform(const char* szPlatform, bool bEnableRuntimeCompilation);
+  static void ConfigureShaderSystem(const char* szActivePlatform, bool bEnableRuntimeCompilation, const char* szShaderCacheDirectory = "ShaderBins", const char* szPermVarSubDirectory = "Shaders/PermutationVars");
 
-  static const ezString& GetShaderPlatform() { return s_sPlatform; }
+  static const ezString& GetPermutationVarSubDirectory() { return s_sPermVarSubDir; }
+
+  static const ezString& GetActiveShaderPlatform() { return s_sPlatform; }
 
   static void SetShaderPermutationVariable(const char* szVariable, const char* szValue, ezGALContext* pContext = nullptr);
 
@@ -52,8 +54,6 @@ public:
   /// \brief Evaluates the currently active shader program and then returns that.
   /// Can be used to determine the shader that needs to be used to create a vertex declaration.
   static ezGALShaderHandle GetActiveGALShader(ezGALContext* pContext = nullptr);
-
-  static void SetShaderCacheDirectory(const char* szDirectory) { s_ShaderCacheDirectory = szDirectory; }
 
   static const ezString& GetShaderCacheDirectory() { return s_ShaderCacheDirectory; }
 
@@ -178,6 +178,7 @@ private:
   static ezPermutationGenerator s_AllowedPermutations;
   static bool s_bEnableRuntimeCompilation;
   static ezString s_sPlatform;
+  static ezString s_sPermVarSubDir;
   static ezMap<ezGALContext*, ContextState> s_ContextState;
   static ezString s_ShaderCacheDirectory;
   static ezMap<ezUInt32, ezPermutationGenerator> s_PermutationHashCache;

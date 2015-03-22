@@ -120,7 +120,7 @@ ezResult ezGraphicsTest::SetupRenderer(ezUInt32 uiResolutionX, ezUInt32 uiResolu
   ezConstantBufferResourceDescriptor<ObjectCB> desc;
   m_hObjectTransformCB = ezResourceManager::CreateResource<ezConstantBufferResource>("{E74F00FD-8C0C-47B9-A63D-E3D2E77FCFB4}", desc);
 
-  ezRendererCore::SetShaderPlatform("DX11_SM40", true);
+  ezRendererCore::ConfigureShaderSystem("DX11_SM40", true);
 
   EZ_VERIFY(ezPlugin::LoadPlugin("ezShaderCompilerHLSL").Succeeded(), "Compiler Plugin not found");
 

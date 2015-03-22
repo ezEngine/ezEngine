@@ -85,11 +85,7 @@ void SampleGameApp::InitRendering()
 
   ezGALDevice::SetDefaultDevice(pDevice);
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-  ezRendererCore::SetShaderPlatform("DX11_SM40", true);
-#else
-  ezRendererCore::SetShaderPlatform("GL3", true);
-#endif
+  ezRendererCore::ConfigureShaderSystem("DX11_SM40", true);
 
   ezRenderPipeline* pRenderPipeline = EZ_DEFAULT_NEW(ezRenderPipeline)(ezRenderPipeline::Asynchronous);
   pRenderPipeline->AddPass(EZ_DEFAULT_NEW(MainRenderPass));

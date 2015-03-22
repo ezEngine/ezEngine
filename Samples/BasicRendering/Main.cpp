@@ -173,11 +173,7 @@ public:
 
     m_hBBRT = pPrimarySwapChain->GetRenderTargetViewConfig();
 
-#if EZ_ENABLED(DEMO_GL)
-    ezRendererCore::SetShaderPlatform("GL3", true);
-#else
-    ezRendererCore::SetShaderPlatform("DX11_SM40", true);
-#endif
+    ezRendererCore::ConfigureShaderSystem("DX11_SM40", true);
 
     ezConstantBufferResourceDescriptor<TestCB> cbd;
     cbd.m_Data.mvp.SetIdentity();
@@ -289,7 +285,7 @@ public:
     if (ezInputManager::GetInputActionState("Main", "PreloadShader") == ezKeyState::Pressed)
     {
       ezPermutationGenerator All;
-      All.ReadFromFile("ShaderPermutations.txt", ezRendererCore::GetShaderPlatform().GetData());
+      All.ReadFromFile("ShaderPermutations.txt", ezRendererCore::GetActiveShaderPlatform().GetData());
 
       ezRendererCore::PreloadShaderPermutations(m_hShader, All, ezTime::Milliseconds(10000.0));
     }

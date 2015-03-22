@@ -5,6 +5,7 @@
 
 ezPermutationGenerator ezRendererCore::s_AllowedPermutations;
 ezString ezRendererCore::s_sPlatform;
+ezString ezRendererCore::s_sPermVarSubDir;
 bool ezRendererCore::s_bEnableRuntimeCompilation = false;
 ezString ezRendererCore::s_ShaderCacheDirectory = "ShaderBins";
 ezMap<ezUInt32, ezPermutationGenerator> ezRendererCore::s_PermutationHashCache;

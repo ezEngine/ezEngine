@@ -204,7 +204,7 @@ void ezShaderCompiler::RunShaderCompilerForPermutations(const char* szFile, cons
         pp.SetFileOpenFunction(ezPreprocessor::FileOpenCB(&ezShaderCompiler::FileOpen, this));
         pp.SetPassThroughPragma(true);
         pp.SetPassThroughUnknownCmdsCB(ezMakeDelegate(&ezShaderCompiler::PassThroughUnknownCommandCB, this));
-        pp.SetPassThroughLine(true);
+        pp.SetPassThroughLine(false);
 
         sTemp = Platforms[p];
         sTemp.ToUpper();
@@ -274,7 +274,7 @@ void ezShaderCompiler::RunShaderCompilerForPermutations(const char* szFile, cons
           {
             ezStringBuilder sShaderStageFile = ezRendererCore::GetShaderCacheDirectory();
 
-            sShaderStageFile.AppendPath(ezRendererCore::GetShaderPlatform().GetData());
+            sShaderStageFile.AppendPath(ezRendererCore::GetActiveShaderPlatform().GetData());
             sShaderStageFile.AppendFormat("/%08X.failed", spd.m_StageBinary[stage].m_uiSourceHash);
 
             ezFileWriter StageFileOut;

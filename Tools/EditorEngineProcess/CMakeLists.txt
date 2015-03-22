@@ -47,7 +47,6 @@ SET (LINK_LIBRARIES
 
 SET (ADDITIONAL_DEPENDENCIES
   EnginePluginTest
-  ShaderCompilerGLSL
   ShaderCompilerHLSL
 )
 

@@ -73,7 +73,7 @@ void ezViewContext::SetupRenderTarget(ezWindowHandle hWnd, ezUInt16 uiWidth, ezU
   // Create a constant buffer for matrix upload
   m_hCB = pDevice->CreateConstantBuffer(sizeof(ObjectData));
 
-  ezRendererCore::SetShaderPlatform("DX11_SM40", true);
+  ezRendererCore::ConfigureShaderSystem("DX11_SM40", true);
 
   m_hShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Wireframe.shader");
   m_hGizmoShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Gizmo.shader");

@@ -34,9 +34,7 @@ void SampleApp::InitRendering()
 
   ezGALDevice::SetDefaultDevice(pDevice);
 
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-  ezRendererCore::SetShaderPlatform("DX11_SM40", true);
-#endif
+  ezRendererCore::ConfigureShaderSystem("DX11_SM40", true);
 
   m_pRenderPipeline = EZ_DEFAULT_NEW(ezRenderPipeline)(ezRenderPipeline::Asynchronous);
   m_pMainRenderPass = EZ_DEFAULT_NEW(MainRenderPass);
