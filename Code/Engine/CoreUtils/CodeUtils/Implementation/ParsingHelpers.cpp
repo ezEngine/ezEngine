@@ -219,21 +219,82 @@ void ezPreprocessor::CombineRelevantTokensToString(const TokenStream& Tokens, ez
   }
 }
 
-void ezPreprocessor::CombineTokensToString(const TokenStream& Tokens, ezUInt32 uiCurToken, ezStringBuilder& sResult, bool bKeepComments)
+
+void ezPreprocessor::CreateCleanTokenStream(const TokenStream& Tokens, ezUInt32 uiCurToken, TokenStream& Destination, bool bKeepComments)
 {
-  sResult.Clear();
-  ezStringBuilder sTemp;
+  SkipWhitespace(Tokens, uiCurToken);
 
   for (ezUInt32 t = uiCurToken; t < Tokens.GetCount(); ++t)
   {
-    if (Tokens[t]->m_iType == ezTokenType::EndOfFile)
-        return;
+    if (Tokens[t]->m_iType == ezTokenType::Newline)
+    {
+      // remove all whitespace before a newline
+      while (!Destination.IsEmpty() && Destination.PeekBack()->m_iType == ezTokenType::Whitespace)
+        Destination.PopBack();
 
+      // if there is already a newline stored, discard the new one
+      if (!Destination.IsEmpty() && Destination.PeekBack()->m_iType == ezTokenType::Newline)
+        continue;
+    }
+
+    Destination.PushBack(Tokens[t]);
+  }
+}
+
+void ezPreprocessor::CombineTokensToString(const TokenStream& Tokens0, ezUInt32 uiCurToken, ezStringBuilder& sResult, bool bKeepComments, bool bRemoveRedundantWhitespace, bool bInsertLine)
+{
+  TokenStream Tokens;
+
+  if (bRemoveRedundantWhitespace)
+  {
+    CreateCleanTokenStream(Tokens0, uiCurToken, Tokens, bKeepComments);
+    uiCurToken = 0;
+  }
+  else
+    Tokens = Tokens0;
+
+  sResult.Clear();
+  ezStringBuilder sTemp;
+
+  ezUInt32 uiCurLine = 0xFFFFFFFF;
+  ezHashedString sCurFile;
+
+  for (ezUInt32 t = uiCurToken; t < Tokens.GetCount(); ++t)
+  {
     // skip all comments, if not desired
     if ((Tokens[t]->m_iType == ezTokenType::BlockComment ||
-        Tokens[t]->m_iType == ezTokenType::LineComment) &&
-        !bKeepComments)
-        continue;
+      Tokens[t]->m_iType == ezTokenType::LineComment) &&
+      !bKeepComments)
+      continue;
+
+    if (Tokens[t]->m_iType == ezTokenType::EndOfFile)
+      return;
+
+    if (bInsertLine)
+    {
+      if (sResult.IsEmpty())
+      {
+        sResult.AppendFormat("#line %u \"%s\"\n", Tokens[t]->m_uiLine, Tokens[t]->m_File.GetData());
+        uiCurLine = Tokens[t]->m_uiLine;
+        sCurFile = Tokens[t]->m_File;
+      }
+
+      if (Tokens[t]->m_iType == ezTokenType::Newline)
+      {
+        ++uiCurLine;
+      }
+
+      if (t > 0 && Tokens[t - 1]->m_iType == ezTokenType::Newline)
+      {
+        if (Tokens[t]->m_uiLine != uiCurLine ||
+            Tokens[t]->m_File != sCurFile)
+        {
+          sResult.AppendFormat("\n#line %u \"%s\"\n", Tokens[t]->m_uiLine, Tokens[t]->m_File.GetData());
+          uiCurLine = Tokens[t]->m_uiLine;
+          sCurFile = Tokens[t]->m_File;
+        }
+      }
+    }
 
     sTemp = Tokens[t]->m_DataView;
     sResult.Append(sTemp.GetData());

@@ -42,7 +42,8 @@ ezResourceLoadDesc ezShaderResource::UpdateContent(ezStreamReaderBase* Stream)
   ezTextSectionizer Sections;
   GetShaderSections(sContent.GetData(), Sections);
 
-  m_PermutationVarsUsed = Sections.GetSectionContent(ezShaderSections::PERMUTATIONS);
+  ezUInt32 uiFirstLine = 0;
+  m_PermutationVarsUsed = Sections.GetSectionContent(ezShaderSections::PERMUTATIONS, uiFirstLine);
 
   m_bShaderResourceIsValid = true;
 

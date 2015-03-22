@@ -88,7 +88,7 @@ private:
 };
 
 
-struct ezGALShaderStage
+struct EZ_RENDERERFOUNDATION_DLL ezGALShaderStage
 {
   enum Enum
   {
@@ -103,6 +103,7 @@ struct ezGALShaderStage
     ENUM_COUNT
   };
 
+  static const char* Names[ENUM_COUNT];
 };
 
 struct ezGALMSAASampleCount

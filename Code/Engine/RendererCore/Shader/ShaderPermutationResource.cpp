@@ -78,7 +78,7 @@ ezResourceLoadDesc ezShaderPermutationResource::UpdateContent(ezStreamReaderBase
 
     if (pStageBin == nullptr)
     {
-      ezLog::Error("Shader Permutation '%s': Stage %u could not be loaded", GetResourceID().GetData(), stage);
+      ezLog::Error("Shader Permutation '%s': Stage '%s' could not be loaded", GetResourceID().GetData(), ezGALShaderStage::Names[stage]);
       return res; /// \todo Missing resource
     }
 
@@ -86,7 +86,7 @@ ezResourceLoadDesc ezShaderPermutationResource::UpdateContent(ezStreamReaderBase
     // since it contains other useful information (resource bindings), that we need for shader binding
     m_pShaderStageBinaries[stage] = pStageBin;
 
-    EZ_ASSERT_DEV(pStageBin->m_Stage == stage, "Invalid shader stage! Expected stage %u, but loaded data is for stage %u", stage, pStageBin->m_Stage);
+    EZ_ASSERT_DEV(pStageBin->m_Stage == stage, "Invalid shader stage! Expected stage '%s', but loaded data is for stage '%s'", ezGALShaderStage::Names[stage], ezGALShaderStage::Names[pStageBin->m_Stage]);
 
     ShaderDesc.m_ByteCodes[stage] = pStageBin->m_pGALByteCode;
 

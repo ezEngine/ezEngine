@@ -12,7 +12,7 @@ public:
 
   void Process(const char* szText);
 
-  ezStringView GetSectionContent(ezUInt32 uiSection) const;
+  ezStringView GetSectionContent(ezUInt32 uiSection, ezUInt32& out_uiFirstLine) const;
 
 private:
 
@@ -22,17 +22,20 @@ private:
     {
       m_sName = szName;
       m_szSectionStart = nullptr;
+      m_uiFirstLine = 0;
     }
 
     void Reset()
     {
       m_szSectionStart = nullptr;
       m_Content = ezStringView();
+      m_uiFirstLine = 0;
     }
 
     ezString m_sName;
     const char* m_szSectionStart;
     ezStringView m_Content;
+    ezUInt32 m_uiFirstLine;
   };
 
   ezStringBuilder m_sText;

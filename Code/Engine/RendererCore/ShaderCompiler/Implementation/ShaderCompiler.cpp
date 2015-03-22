@@ -7,7 +7,7 @@
 #include <Foundation/IO/OSFile.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezShaderProgramCompiler, ezNoBase, 1, ezRTTINoAllocator);
-  // no properties or message handlers
+// no properties or message handlers
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 ezResult ezShaderCompiler::FileOpen(const char* szAbsoluteFile, ezDynamicArray<ezUInt8>& FileContent, ezTimestamp& out_FileModification)
@@ -88,7 +88,7 @@ ezResult ezShaderCompiler::CompileShaderPermutationsForPlatforms(const char* szF
     ezFileReader File;
     if (File.Open(szFile).Failed())
       return EZ_FAILURE;
-    
+
     sFileContent.ReadAll(File);
   }
 
@@ -96,17 +96,26 @@ ezResult ezShaderCompiler::CompileShaderPermutationsForPlatforms(const char* szF
   ezTextSectionizer Sections;
   GetShaderSections(sFileContent.GetData(), Sections);
 
-  sTemp = Sections.GetSectionContent(ezShaderSections::PLATFORMS);
+  ezUInt32 uiFirstLine = 0;
+  sTemp = Sections.GetSectionContent(ezShaderSections::PLATFORMS, uiFirstLine);
   sTemp.ToUpper();
 
   m_ShaderData.m_Platforms = sTemp;
-  m_ShaderData.m_Permutations = Sections.GetSectionContent(ezShaderSections::PERMUTATIONS);
+  m_ShaderData.m_Permutations = Sections.GetSectionContent(ezShaderSections::PERMUTATIONS, uiFirstLine);
 
   ezPermutationGenerator Generator = MainGenerator;
   Generator.RemoveUnusedPermutations(m_ShaderData.m_Permutations);
 
   for (ezUInt32 stage = ezGALShaderStage::VertexShader; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
-    m_ShaderData.m_ShaderStageSource[stage] = Sections.GetSectionContent(ezShaderSections::VERTEXSHADER + stage);
+  {
+    sTemp = Sections.GetSectionContent(ezShaderSections::VERTEXSHADER + stage, uiFirstLine);
+
+    // later code checks whether the string is empty, to see whether we have any shader source, so this has to be kept empty
+    if (!sTemp.IsEmpty())
+      sTemp.PrependFormat("#line %u\n", uiFirstLine);
+
+    m_ShaderData.m_ShaderStageSource[stage] = sTemp;
+  }
 
   m_StageSourceFile[ezGALShaderStage::VertexShader] = szFile;
   m_StageSourceFile[ezGALShaderStage::VertexShader].ChangeFileExtension("vs");
@@ -183,8 +192,12 @@ void ezShaderCompiler::RunShaderCompilerForPermutations(const char* szFile, cons
 
       m_IncludeFiles.Clear();
 
+      bool bSuccess = true;
+
       for (ezUInt32 stage = ezGALShaderStage::VertexShader; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
       {
+        EZ_LOG_BLOCK("Preprocessing", m_StageSourceFile[stage].GetData());
+
         ezPreprocessor pp;
         pp.SetCustomFileCache(&m_FileCache);
         pp.SetLogInterface(ezGlobalLog::GetInstance());
@@ -204,9 +217,15 @@ void ezShaderCompiler::RunShaderCompilerForPermutations(const char* szFile, cons
           pp.AddCustomDefine(sTemp.GetData());
         }
 
-        pp.Process(m_StageSourceFile[stage].GetData(), sProcessed[stage], true);
-
-        spd.m_szShaderSource[stage] = sProcessed[stage].GetData();
+        if (pp.Process(m_StageSourceFile[stage].GetData(), sProcessed[stage], true, true, true).Failed())
+        {
+          bSuccess = false;
+          ezLog::Error("Shader preprocessing failed");
+        }
+        else
+        {
+          spd.m_szShaderSource[stage] = sProcessed[stage].GetData();
+        }
 
         spd.m_StageBinary[stage].m_Stage = (ezGALShaderStage::Enum) stage;
         spd.m_StageBinary[stage].m_uiSourceHash = ezHashing::MurmurHash(ezHashing::StringWrapper(sProcessed[stage].GetData()));
@@ -233,18 +252,36 @@ void ezShaderCompiler::RunShaderCompilerForPermutations(const char* szFile, cons
 
       // if compilation failed, the stage binary for the source hash will simply not exist and therefore cannot be loaded
       // the .ezPermutation file should be updated, however, to store the new source hash to the broken shader
-      if (pCompiler->Compile(spd, ezGlobalLog::GetInstance()).Failed())
-        ezLog::Error("Shader compilation failed.");
-      else
+      if (bSuccess && pCompiler->Compile(spd, ezGlobalLog::GetInstance()).Failed())
       {
-        for (ezUInt32 stage = ezGALShaderStage::VertexShader; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
+        ezLog::Error("Shader compilation failed.");
+        bSuccess = false;
+      }
+
+      for (ezUInt32 stage = ezGALShaderStage::VertexShader; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
+      {
+        if (spd.m_StageBinary[stage].m_uiSourceHash != 0 && spd.m_bWriteToDisk[stage])
         {
-          if (spd.m_StageBinary[stage].m_uiSourceHash != 0 && spd.m_bWriteToDisk[stage])
+          if (bSuccess)
           {
             if (spd.m_StageBinary[stage].WriteStageBinary().Failed())
             {
               ezLog::Error("Writing stage binary failed");
               continue;
+            }
+          }
+          else
+          {
+            ezStringBuilder sShaderStageFile = ezRendererCore::GetShaderCacheDirectory();
+
+            sShaderStageFile.AppendPath(ezRendererCore::GetShaderPlatform().GetData());
+            sShaderStageFile.AppendFormat("/%08X.failed", spd.m_StageBinary[stage].m_uiSourceHash);
+
+            ezFileWriter StageFileOut;
+            if (StageFileOut.Open(sShaderStageFile.GetData()).Succeeded())
+            {
+              StageFileOut.WriteBytes(spd.m_szShaderSource[stage], ezStringUtils::GetStringElementCount(spd.m_szShaderSource[stage]));
+              ezLog::Info("Failed shader source written to '%s'", sShaderStageFile.GetData());
             }
           }
         }
@@ -267,7 +304,7 @@ void ezShaderCompiler::RunShaderCompilerForPermutations(const char* szFile, cons
       ezFileWriter PermutationFileOut;
       if (PermutationFileOut.Open(sTemp.GetData()).Failed())
       {
-        ezLog::Error("Could open file for writing: '%s'", sTemp.GetData());
+        ezLog::Error("Could not open file for writing: '%s'", sTemp.GetData());
       }
       else
       {

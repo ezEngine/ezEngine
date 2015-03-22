@@ -333,7 +333,7 @@ ezResult ezShaderCompilerHLSL::Compile(ezShaderProgramData& inout_Data, ezLogInt
     // shader already compiled
     if (!inout_Data.m_StageBinary[stage].m_ByteCode.IsEmpty())
     {
-      ezLog::Dev("Shader for stage %u is already compiled.", stage);
+      ezLog::Debug("Shader for stage '%s' is already compiled.", ezGALShaderStage::Names[stage]);
       continue;
     }
 

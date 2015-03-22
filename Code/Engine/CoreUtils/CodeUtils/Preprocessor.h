@@ -176,7 +176,7 @@ public:
   ///
   /// This function creates a string from the tokenized result. If \a bKeepComments is true, all block and line comments
   /// are included in the output string, otherwise they are removed.
-  ezResult Process(const char* szMainFile, ezStringBuilder& sOutput, bool bKeepComments = true);
+  ezResult Process(const char* szMainFile, ezStringBuilder& sOutput, bool bKeepComments = true, bool bRemoveRedundantWhitespace = false, bool bInsertLine = false);
 
 
 private:
@@ -304,8 +304,9 @@ private: // *** Parsing ***
   ezResult ExpectEndOfLine(const TokenStream& Tokens, ezUInt32& uiCurToken);
 
   void CopyTokensReplaceParams(const TokenStream& Source, ezUInt32 uiFirstSourceToken, TokenStream& Destination, const ezHybridArray<ezString, 16>& parameters);
-  void CombineTokensToString(const TokenStream& Tokens, ezUInt32 uiCurToken, ezStringBuilder& sResult, bool bKeepComments = true);
+  void CombineTokensToString(const TokenStream& Tokens, ezUInt32 uiCurToken, ezStringBuilder& sResult, bool bKeepComments = true, bool bRemoveRedundantWhitespace = false, bool bInsertLine = false);
   void CombineRelevantTokensToString(const TokenStream& Tokens, ezUInt32 uiCurToken, ezStringBuilder& sResult);
+  void CreateCleanTokenStream(const TokenStream& Tokens, ezUInt32 uiCurToken, TokenStream& Destination, bool bKeepComments);
 
 private: // *** Macro Expansion ***
   ezResult Expand(const TokenStream& Tokens, TokenStream& Output);

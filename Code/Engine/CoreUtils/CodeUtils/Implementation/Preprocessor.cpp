@@ -179,7 +179,7 @@ ezResult ezPreprocessor::Process(const char* szMainFile, TokenStream& TokenOutpu
   return EZ_SUCCESS;
 }
 
-ezResult ezPreprocessor::Process(const char* szMainFile, ezStringBuilder& sOutput, bool bKeepComments)
+ezResult ezPreprocessor::Process(const char* szMainFile, ezStringBuilder& sOutput, bool bKeepComments, bool bRemoveRedundantWhitespace, bool bInsertLine)
 {
   sOutput.Clear();
 
@@ -188,7 +188,7 @@ ezResult ezPreprocessor::Process(const char* szMainFile, ezStringBuilder& sOutpu
     return EZ_FAILURE;
 
   // generate the final text output
-  CombineTokensToString(TokenOutput, 0, sOutput, bKeepComments);
+  CombineTokensToString(TokenOutput, 0, sOutput, bKeepComments, bRemoveRedundantWhitespace, bInsertLine);
 
   return EZ_SUCCESS;
 }

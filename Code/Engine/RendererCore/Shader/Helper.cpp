@@ -34,6 +34,19 @@ void ezTextSectionizer::Process(const char* szText)
     if (m_Sections[s].m_szSectionStart == nullptr)
       continue;
 
+    ezUInt32 uiLine = 1;
+
+    const char* sz = m_sText.GetData();
+    while (sz < m_Sections[s].m_szSectionStart)
+    {
+      if (*sz == '\n')
+        ++uiLine;
+
+      ++sz;
+    }
+
+    m_Sections[s].m_uiFirstLine = uiLine;
+
     for (ezUInt32 s2 = 0; s2 < m_Sections.GetCount(); ++s2)
     {
       if (s == s2)
@@ -51,8 +64,9 @@ void ezTextSectionizer::Process(const char* szText)
 
 }
 
-ezStringView ezTextSectionizer::GetSectionContent(ezUInt32 uiSection) const
+ezStringView ezTextSectionizer::GetSectionContent(ezUInt32 uiSection, ezUInt32& out_uiFirstLine) const
 {
+  out_uiFirstLine = m_Sections[uiSection].m_uiFirstLine;
   return m_Sections[uiSection].m_Content;
 }
 
