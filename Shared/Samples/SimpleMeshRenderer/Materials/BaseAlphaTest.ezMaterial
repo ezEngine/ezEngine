@@ -1,8 +1,9 @@
 {
-  "Shader" : "Shaders/TextureAlphaTest.shader",
+  "Shader" : "Shaders/Texture.shader",
   
   "Permutations" : 
   {
+	"ALPHATEST" : "1"
   },
 
   "Constants" :

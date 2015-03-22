@@ -21,6 +21,18 @@ const ezPermutationGenerator* ezRendererCore::GetGeneratorForShaderPermutation(e
   return nullptr;
 }
 
+void ezRendererCore::LoadShaderPermutationVarConfig(const char* szVariable)
+{
+  ezStringBuilder sPath;
+  sPath.Format("%s/%s.ezPermVar", s_sPermVarSubDir.GetData(), szVariable);
+
+  // clear earlier data
+  s_AllowedPermutations.RemoveVariable(szVariable);
+
+  if (s_AllowedPermutations.ReadFromFile(sPath, s_sPlatform).Failed())
+    ezLog::Error("Could not read shader permutation variable '%s' from file '%s'", szVariable, sPath.GetData());
+}
+
 void ezRendererCore::PreloadShaderPermutations(ezShaderResourceHandle hShader, const ezPermutationGenerator& MainGenerator, ezTime tShouldBeAvailableIn)
 {
   ezResourceLock<ezShaderResource> pShader(hShader, ezResourceAcquireMode::NoFallback);
@@ -85,9 +97,6 @@ void ezRendererCore::ConfigureShaderSystem(const char* szActivePlatform, bool bE
   s_bEnableRuntimeCompilation = bEnableRuntimeCompilation;
   s_sPlatform = s;
 
-  /// \todo This is a bit hardcoded...
-  s_AllowedPermutations.ReadFromFile("ShaderPermutations.txt", s.GetData());
-
   s_ContextState.Clear();
 
   // initialize all permutation variables
@@ -111,15 +120,26 @@ void ezRendererCore::SetShaderPermutationVariable(const char* szVariable, const 
   sVar.ToUpper();
   sVal.ToUpper();
 
-  /// \todo This cannot be checked here anymore, once permutation vars are read from the shader
-  if (!s_AllowedPermutations.IsValueAllowed(sVar.GetData(), sVal.GetData()))
+  /// \todo Could we use hashed variable names here ?
+  bool bExisted = false;
+  auto itVar = state.m_PermutationVariables.FindOrAdd(sVar, &bExisted);
+
+  if (!bExisted)
   {
-    ezLog::Error("Invalid Shader Permutation: '%s' cannot be set to value '%s'", sVar.GetData(), sVal.GetData());
-    return;
+    LoadShaderPermutationVarConfig(sVar);
   }
 
-  /// \todo Could we use hashed variable names here ?
-  auto itVar = state.m_PermutationVariables.FindOrAdd(sVar);
+  if (s_bEnableRuntimeCompilation && !s_AllowedPermutations.IsValueAllowed(sVar.GetData(), sVal.GetData()))
+  {
+    ezLog::Debug("Invalid Shader Permutation: '%s' cannot be set to value '%s' -> reloading config for variable", sVar.GetData(), sVal.GetData());
+    LoadShaderPermutationVarConfig(sVar);
+
+    if (!s_AllowedPermutations.IsValueAllowed(sVar.GetData(), sVal.GetData()))
+    {
+      ezLog::Error("Invalid Shader Permutation: '%s' cannot be set to value '%s'", sVar.GetData(), sVal.GetData());
+      return;
+    }
+  }
 
   if (itVar.Value() != sVal)
     state.m_bShaderStateChanged = true;

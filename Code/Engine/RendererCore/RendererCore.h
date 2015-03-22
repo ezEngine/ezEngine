@@ -46,6 +46,8 @@ public:
 
   static void SetShaderPermutationVariable(const char* szVariable, const char* szValue, ezGALContext* pContext = nullptr);
 
+  static void LoadShaderPermutationVarConfig(const char* szVariable);
+
   /// \brief Sets the currently active shader on the given render context. If pContext is null, the state is set for the primary context.
   ///
   /// This function has no effect until the next drawcall on the context.

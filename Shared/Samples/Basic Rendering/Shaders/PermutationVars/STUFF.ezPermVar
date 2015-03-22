@@ -1,0 +1,8 @@
+add("STUFF", "0")
+add("STUFF", "1")
+
+#if DX11_SM50
+
+  add("STUFF", "2")
+
+#endif

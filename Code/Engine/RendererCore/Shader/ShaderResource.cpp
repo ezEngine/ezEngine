@@ -1,6 +1,7 @@
 #include <RendererCore/PCH.h>
 #include <RendererCore/Shader/ShaderResource.h>
 #include <RendererCore/Shader/Helper.h>
+#include <RendererCore/RendererCore.h>
 #include <Foundation/Logging/Log.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezShaderResource, ezResourceBase, 1, ezRTTIDefaultAllocator<ezShaderResource>);
@@ -29,12 +30,14 @@ ezResourceLoadDesc ezShaderResource::UpdateContent(ezStreamReaderBase* Stream)
   ezResourceLoadDesc res;
   res.m_uiQualityLevelsDiscardable = 0;
   res.m_uiQualityLevelsLoadable = 0;
-  res.m_State = ezResourceState::Loaded;
 
   m_bShaderResourceIsValid = false;
 
   if (Stream == nullptr)
-    return res; /// \todo Missing resource
+  {
+    res.m_State = ezResourceState::LoadedResourceMissing;
+    return res;
+  }
 
   ezString sContent;
   sContent.ReadAll(*Stream);
@@ -45,6 +48,7 @@ ezResourceLoadDesc ezShaderResource::UpdateContent(ezStreamReaderBase* Stream)
   ezUInt32 uiFirstLine = 0;
   m_PermutationVarsUsed = Sections.GetSectionContent(ezShaderSections::PERMUTATIONS, uiFirstLine);
 
+  res.m_State = ezResourceState::Loaded;
   m_bShaderResourceIsValid = true;
 
   return res;
