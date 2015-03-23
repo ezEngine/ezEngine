@@ -5,6 +5,12 @@ ALL
 
 ALPHATEST
 
+[RENDERSTATE]
+
+#if ALPHATEST
+	some text containing the word 'wireframe' (this is obviously a bit hacky)
+#endif
+
 [VERTEXSHADER]
 
 #include "Common.inc"
@@ -39,7 +45,7 @@ SamplerState TexDiffuseSampler;
 
 float4 main(PS_IN Input) : SV_Target
 {
-#if ALPHATEST == 2
+#if ALPHATEST == 1
   float fMask = TexAlphaMask.Sample(TexAlphaMaskSampler, Input.TexCoord0).r;
   clip(fMask < 0.1f ? -1 : 1);
 #endif

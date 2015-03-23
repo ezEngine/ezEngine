@@ -1,13 +1,13 @@
 #include <RendererCore/PCH.h>
 #include <RendererCore/Shader/ShaderResource.h>
-#include <RendererCore/Shader/Helper.h>
+#include <RendererCore/Shader/Implementation/Helper.h>
 #include <RendererCore/RendererCore.h>
 #include <Foundation/Logging/Log.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezShaderResource, ezResourceBase, 1, ezRTTIDefaultAllocator<ezShaderResource>);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
-ezShaderResource::ezShaderResource() : ezResource<ezShaderResource, ezShaderResourceDescriptor>(UpdateResource::OnAnyThread, 1)
+ezShaderResource::ezShaderResource() : ezResource<ezShaderResource, ezShaderResourceDescriptor>(DoUpdate::OnAnyThread, 1)
 {
   m_bShaderResourceIsValid = false;
 }

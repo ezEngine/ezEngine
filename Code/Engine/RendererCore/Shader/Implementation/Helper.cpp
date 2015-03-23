@@ -1,5 +1,5 @@
 #include <RendererCore/PCH.h>
-#include <RendererCore/Shader/Helper.h>
+#include <RendererCore/Shader/Implementation/Helper.h>
 #include <Foundation/Utilities/ConversionUtils.h>
 
 void ezTextSectionizer::Clear()
@@ -76,6 +76,7 @@ void GetShaderSections(const char* szContent, ezTextSectionizer& out_Sections)
 
   out_Sections.AddSection("[PLATFORMS]");
   out_Sections.AddSection("[PERMUTATIONS]");
+  out_Sections.AddSection("[RENDERSTATE]");
   out_Sections.AddSection("[VERTEXSHADER]");
   out_Sections.AddSection("[HULLSHADER]");
   out_Sections.AddSection("[DOMAINSHADER]");

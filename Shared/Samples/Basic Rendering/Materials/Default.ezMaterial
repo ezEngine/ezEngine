@@ -1,5 +1,5 @@
 {
-  "Shader" : "Shaders/ez.shader",
+  "Shader" : "Shaders/ez.ezShader",
   
   "Permutations" : 
   {

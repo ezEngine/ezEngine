@@ -151,7 +151,7 @@ ezResult ezDependencyFile::RetrieveFileTimeStamp(const char* szFile, ezTimestamp
 
 #endif
 
-  return EZ_SUCCESS;
+  return out_Result.IsValid() ? EZ_SUCCESS : EZ_FAILURE;
 }
 
 ezResult ezDependencyFile::WriteDependencyFile(const char* szFile) const

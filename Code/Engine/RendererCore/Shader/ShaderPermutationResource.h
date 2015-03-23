@@ -8,6 +8,7 @@
 #include <Foundation/Time/Timestamp.h>
 
 typedef ezResourceHandle<class ezShaderPermutationResource> ezShaderPermutationResourceHandle;
+typedef ezResourceHandle<class ezShaderStateResource> ezShaderStateResourceHandle;
 
 struct ezShaderPermutationResourceDescriptor
 {
@@ -22,6 +23,7 @@ public:
 
   ezGALShaderHandle GetGALShader() const { return m_hShader; }
   const ezShaderStageBinary* GetShaderStageBinary(ezGALShaderStage::Enum stage) const { return m_pShaderStageBinaries[stage]; }
+  ezShaderStateResourceHandle GetShaderStateResource() const { return m_hShaderStateResource; }
 
   bool IsShaderValid() const { return m_bShaderPermutationValid; }
 
@@ -38,6 +40,7 @@ private:
 
   bool m_bShaderPermutationValid;
   ezGALShaderHandle m_hShader;
+  ezShaderStateResourceHandle m_hShaderStateResource;
 };
 
 

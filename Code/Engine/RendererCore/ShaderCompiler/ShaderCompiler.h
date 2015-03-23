@@ -1,7 +1,7 @@
 #pragma once
 
 #include <RendererCore/Basics.h>
-#include <RendererCore/Shader/Helper.h>
+#include <RendererCore/Shader/Implementation/Helper.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Strings/String.h>
@@ -64,6 +64,7 @@ private:
   {
     ezString m_Platforms;
     ezString m_Permutations;
+    ezString m_StateSource;
     ezString m_ShaderStageSource[ezGALShaderStage::ENUM_COUNT];
   };
 

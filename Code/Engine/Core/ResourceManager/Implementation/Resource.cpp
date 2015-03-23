@@ -17,9 +17,9 @@ EZ_CORE_DLL void DecreaseResourceRefCount(ezResourceBase* pResource)
   pResource->m_iReferenceCount.Decrement();
 }
 
-ezResourceBase::ezResourceBase(UpdateResource ResourceUpdateThread, ezUInt8 uiQualityLevelsLoadable)
+ezResourceBase::ezResourceBase(DoUpdate ResourceUpdateThread, ezUInt8 uiQualityLevelsLoadable)
 {
-  m_Flags.AddOrRemove(ezResourceFlags::UpdateOnMainThread, ResourceUpdateThread == UpdateResource::OnMainThread);
+  m_Flags.AddOrRemove(ezResourceFlags::UpdateOnMainThread, ResourceUpdateThread == DoUpdate::OnMainThread);
 
   m_iReferenceCount = 0;
   m_LoadingState = ezResourceState::Unloaded;

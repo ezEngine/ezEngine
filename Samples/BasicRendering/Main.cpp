@@ -189,7 +189,7 @@ public:
     for (int i = 0; i < MaxObjs; ++i)
       m_pObj[i] = DontUse::MayaObj::LoadFromFile("ez.obj", m_pDevice, i);
 
-    m_hShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/ez.shader");
+    m_hShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/ez.ezShader");
     m_hMaterial = ezResourceManager::LoadResource<ezMaterialResource>("Materials/Test - wrong.ezMaterial");
     m_hMaterialMissing = ezResourceManager::LoadResource<ezMaterialResource>("Materials/Test.ezMaterial");
 

@@ -124,7 +124,7 @@ ezResult ezGraphicsTest::SetupRenderer(ezUInt32 uiResolutionX, ezUInt32 uiResolu
 
   EZ_VERIFY(ezPlugin::LoadPlugin("ezShaderCompilerHLSL").Succeeded(), "Compiler Plugin not found");
 
-  m_hShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Default.shader");
+  m_hShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Default.ezShader");
 
   ezStartup::StartupEngine();
 

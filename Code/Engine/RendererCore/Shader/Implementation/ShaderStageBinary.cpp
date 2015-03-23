@@ -211,7 +211,7 @@ ezResult ezShaderStageBinary::WriteStageBinary() const
   ezStringBuilder sShaderStageFile = ezRendererCore::GetShaderCacheDirectory();
 
   sShaderStageFile.AppendPath(ezRendererCore::GetActiveShaderPlatform().GetData());
-  sShaderStageFile.AppendFormat("/%08X", m_uiSourceHash);
+  sShaderStageFile.AppendFormat("/%08X.ezShaderStage", m_uiSourceHash);
 
   ezFileWriter StageFileOut;
   if (StageFileOut.Open(sShaderStageFile.GetData()).Failed())
@@ -238,7 +238,7 @@ ezShaderStageBinary* ezShaderStageBinary::LoadStageBinary(ezGALShaderStage::Enum
     ezStringBuilder sShaderStageFile = ezRendererCore::GetShaderCacheDirectory();
 
     sShaderStageFile.AppendPath(ezRendererCore::GetActiveShaderPlatform().GetData());
-    sShaderStageFile.AppendFormat("/%08X", uiHash);
+    sShaderStageFile.AppendFormat("/%08X.ezShaderStage", uiHash);
 
     ezFileReader StageFileIn;
     if (StageFileIn.Open(sShaderStageFile.GetData()).Failed())

@@ -13,7 +13,7 @@ ezTestAppRun ezRendererTestBasics::SubtestTextures2D()
 
   const ezInt32 iNumFrames = 10;
 
-  m_hShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Textured.shader");
+  m_hShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Textured.ezShader");
 
   if (m_iFrame == 0)
   {
@@ -111,7 +111,7 @@ ezTestAppRun ezRendererTestBasics::SubtestTextures3D()
 
   const ezInt32 iNumFrames = 1;
 
-  m_hShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/TexturedVolume.shader");
+  m_hShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/TexturedVolume.ezShader");
 
   if (m_iFrame == 0)
   {
@@ -141,7 +141,7 @@ ezTestAppRun ezRendererTestBasics::SubtestTexturesCube()
 
   const ezInt32 iNumFrames = 10;
 
-  m_hShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/TexturedCube.shader");
+  m_hShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/TexturedCube.ezShader");
 
   if (m_iFrame == 0)
   {

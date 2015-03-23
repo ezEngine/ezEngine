@@ -75,8 +75,8 @@ void ezViewContext::SetupRenderTarget(ezWindowHandle hWnd, ezUInt16 uiWidth, ezU
 
   ezRendererCore::ConfigureShaderSystem("DX11_SM40", true);
 
-  m_hShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Wireframe.shader");
-  m_hGizmoShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Gizmo.shader");
+  m_hShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Wireframe.ezShader");
+  m_hGizmoShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Gizmo.ezShader");
 
   // Create render target for picking
   {

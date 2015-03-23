@@ -10,6 +10,7 @@
 #include <RendererCore/Shader/ShaderResource.h>
 #include <RendererCore/Shader/ShaderPermutationResource.h>
 #include <RendererCore/ConstantBuffers/ConstantBufferResource.h>
+#include <RendererCore/Shader/ShaderStateResource.h>
 
 const ezPermutationGenerator* ezRendererCore::GetGeneratorForShaderPermutation(ezUInt32 uiPermutationHash)
 {
@@ -222,6 +223,18 @@ void ezRendererCore::SetShaderContextState(ezGALContext* pContext, ContextState&
     state.m_hActiveGALShader = pShaderPermutation->GetGALShader();
 
     pContext->SetShader(state.m_hActiveGALShader);
+
+    // Set render state from shader
+    {
+      /// \todo Only apply certain states? (mask at 'SetActiveShader' ?)
+      /// \todo Apply these states at every drawcall ?
+      /// \todo Allow to set override states, to be able to ignore the shader state ??
+
+      ezResourceLock<ezShaderStateResource> state(pShaderPermutation->GetShaderStateResource());
+      pContext->SetBlendState(state->GetBlendState()); /// \todo Additional parameters (blend factor etc.) from somewhere (?)
+      pContext->SetRasterizerState(state->GetRasterizerState());
+      pContext->SetDepthStencilState(state->GetDepthStencilState()); /// \todo Additional parameters  (stencil ref value)
+    }
 
     state.m_bShaderStateValid = true;
   }

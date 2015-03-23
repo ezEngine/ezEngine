@@ -12,7 +12,7 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezConstantBufferResource, ezResourceBase, 1, ezR
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 
-ezConstantBufferResource::ezConstantBufferResource() : ezResource<ezConstantBufferResource, ezConstantBufferResourceDescriptorBase>(UpdateResource::OnMainThread, 1)
+ezConstantBufferResource::ezConstantBufferResource() : ezResource<ezConstantBufferResource, ezConstantBufferResourceDescriptorBase>(DoUpdate::OnMainThread, 1)
 {
 
 }

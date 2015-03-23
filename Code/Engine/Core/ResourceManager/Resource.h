@@ -59,7 +59,7 @@ protected:
 
   friend class ezResourceManager;
 
-  ezResource(UpdateResource ResourceUpdateThread, ezUInt8 uiQualityLevelsLoadable) : ezResourceBase(ResourceUpdateThread, uiQualityLevelsLoadable)
+  ezResource(DoUpdate ResourceUpdateThread, ezUInt8 uiQualityLevelsLoadable) : ezResourceBase(ResourceUpdateThread, uiQualityLevelsLoadable)
   {
   }
 

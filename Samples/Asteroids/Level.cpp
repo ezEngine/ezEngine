@@ -63,7 +63,7 @@ static ezMeshResourceHandle CreateAsteroidMesh()
 static ezMaterialResourceHandle CreateAsteroidMaterial()
 {
   ezMaterialResourceDescriptor desc;
-  desc.m_hShader = ezResourceManager::LoadResource<ezShaderResource>("Generic.shader");
+  desc.m_hShader = ezResourceManager::LoadResource<ezShaderResource>("Generic.ezShader");
 
   ezMaterialResourceHandle hMaterial = ezResourceManager::CreateResource<ezMaterialResource>("AsteroidMaterial", desc);
 

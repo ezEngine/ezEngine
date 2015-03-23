@@ -9,7 +9,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 ezUInt32 ezMeshResource::s_MeshBufferNameSuffix = 0;
 
-ezMeshResource::ezMeshResource() : ezResource<ezMeshResource, ezMeshResourceDescriptor>(UpdateResource::OnAnyThread, 1)
+ezMeshResource::ezMeshResource() : ezResource<ezMeshResource, ezMeshResourceDescriptor>(DoUpdate::OnAnyThread, 1)
 {
 }
 

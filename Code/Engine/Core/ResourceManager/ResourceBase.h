@@ -19,7 +19,7 @@ class EZ_CORE_DLL ezResourceBase : public ezReflectedClass
   EZ_ADD_DYNAMIC_REFLECTION(ezResourceBase);
 
 protected:
-  enum class UpdateResource
+  enum class DoUpdate
   {
     OnMainThread,
     OnAnyThread
@@ -32,7 +32,7 @@ protected:
   };
 
   /// \brief Default constructor.
-  ezResourceBase(UpdateResource ResourceUpdateThread, ezUInt8 uiQualityLevelsLoadable);
+  ezResourceBase(DoUpdate ResourceUpdateThread, ezUInt8 uiQualityLevelsLoadable);
 
   /// \brief virtual destructor.
   virtual ~ezResourceBase() { }

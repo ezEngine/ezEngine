@@ -1,7 +1,8 @@
 #include <RendererCore/PCH.h>
 #include <RendererCore/ShaderCompiler/ShaderCompiler.h>
 #include <RendererCore/RendererCore.h>
-#include <RendererCore/Shader/Helper.h>
+#include <RendererCore/Shader/Implementation/Helper.h>
+#include <RendererCore/Shader/ShaderStateResource.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/IO/OSFile.h>
@@ -12,6 +13,20 @@ EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 ezResult ezShaderCompiler::FileOpen(const char* szAbsoluteFile, ezDynamicArray<ezUInt8>& FileContent, ezTimestamp& out_FileModification)
 {
+  if (ezStringUtils::IsEqual(szAbsoluteFile, "ShaderRenderState"))
+  {
+    const ezString& sData = m_ShaderData.m_StateSource;
+    const ezUInt32 uiCount = sData.GetElementCount();
+    const char* szString = sData.GetData();
+
+    FileContent.SetCount(uiCount);
+
+    for (ezUInt32 i = 0; i < uiCount; ++i)
+      FileContent[i] = (ezUInt8) (szString[i]);
+
+    return EZ_SUCCESS;
+  }
+
   for (ezUInt32 stage = 0; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
   {
     if (m_StageSourceFile[stage] == szAbsoluteFile)
@@ -106,6 +121,8 @@ ezResult ezShaderCompiler::CompileShaderPermutationsForPlatforms(const char* szF
   ezPermutationGenerator Generator = MainGenerator;
   Generator.RemoveUnusedPermutations(m_ShaderData.m_Permutations);
 
+  m_ShaderData.m_StateSource = Sections.GetSectionContent(ezShaderSections::RENDERSTATE, uiFirstLine);
+
   for (ezUInt32 stage = ezGALShaderStage::VertexShader; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
   {
     sTemp = Sections.GetSectionContent(ezShaderSections::VERTEXSHADER + stage, uiFirstLine);
@@ -194,6 +211,67 @@ void ezShaderCompiler::RunShaderCompilerForPermutations(const char* szFile, cons
 
       bool bSuccess = true;
 
+      ezShaderPermutationBinary spb;
+
+      // Generate Shader State Source
+      {
+        EZ_LOG_BLOCK("Preprocessing Shader State Source");
+
+        ezPreprocessor pp;
+        pp.SetCustomFileCache(&m_FileCache);
+        pp.SetLogInterface(ezGlobalLog::GetInstance());
+        pp.SetFileOpenFunction(ezPreprocessor::FileOpenCB(&ezShaderCompiler::FileOpen, this));
+        pp.SetPassThroughPragma(false);
+        pp.SetPassThroughLine(false);
+
+        sTemp = Platforms[p];
+        sTemp.ToUpper();
+
+        pp.AddCustomDefine(sTemp.GetData());
+
+        for (ezUInt32 pv = 0; pv < m_PermVars.GetCount(); ++pv)
+        {
+          sTemp.Format("%s %s", m_PermVars[pv].m_sVariable.GetData(), m_PermVars[pv].m_sValue.GetData());
+          pp.AddCustomDefine(sTemp.GetData());
+        }
+
+        ezStringBuilder sOutput;
+        if (pp.Process("ShaderRenderState", sOutput).Failed())
+        {
+          bSuccess = false;
+          ezLog::Error("Preprocessing the Shader State block failed");
+        }
+        else
+        {
+          ezShaderStateResourceDescriptor state;
+          if (state.Load(sOutput).Failed())
+          {
+            ezLog::Error("Failed to interpret the shader state block");
+            bSuccess = false;
+          }
+          else
+          {
+            spb.m_uiShaderStateHash = state.CalculateHash();
+
+            ezStringBuilder sStateFile;
+            sStateFile = ezRendererCore::GetShaderCacheDirectory();
+            sStateFile.AppendPath("RenderStates");
+            sStateFile.AppendFormat("/%08X.ezRenderState", spb.m_uiShaderStateHash);
+
+            ezFileWriter file;
+            if (file.Open(sStateFile).Failed())
+            {
+              ezLog::Error("Failed to open file for writing: '%s'", sStateFile.GetData());
+              bSuccess = false;
+            }
+            else
+            {
+              state.Save(file);
+            }
+          }
+        }
+      }
+
       for (ezUInt32 stage = ezGALShaderStage::VertexShader; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
       {
         EZ_LOG_BLOCK("Preprocessing", m_StageSourceFile[stage].GetData());
@@ -242,8 +320,6 @@ void ezShaderCompiler::RunShaderCompilerForPermutations(const char* szFile, cons
         }
       }
 
-      ezShaderPermutationBinary spb;
-
       // copy the source hashes
       for (ezUInt32 stage = ezGALShaderStage::VertexShader; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
       {
@@ -275,7 +351,7 @@ void ezShaderCompiler::RunShaderCompilerForPermutations(const char* szFile, cons
             ezStringBuilder sShaderStageFile = ezRendererCore::GetShaderCacheDirectory();
 
             sShaderStageFile.AppendPath(ezRendererCore::GetActiveShaderPlatform().GetData());
-            sShaderStageFile.AppendFormat("/%08X.failed", spd.m_StageBinary[stage].m_uiSourceHash);
+            sShaderStageFile.AppendFormat("/%08X.ezShaderSource", spd.m_StageBinary[stage].m_uiSourceHash);
 
             ezFileWriter StageFileOut;
             if (StageFileOut.Open(sShaderStageFile.GetData()).Succeeded())

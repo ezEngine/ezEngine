@@ -123,7 +123,7 @@ ezUInt32 ezMeshBufferResourceDescriptor::GetPrimitiveCount() const
 }
 
 
-ezMeshBufferResource::ezMeshBufferResource() : ezResource<ezMeshBufferResource, ezMeshBufferResourceDescriptor>(UpdateResource::OnMainThread, 1)
+ezMeshBufferResource::ezMeshBufferResource() : ezResource<ezMeshBufferResource, ezMeshBufferResourceDescriptor>(DoUpdate::OnMainThread, 1)
 {
 }
 
