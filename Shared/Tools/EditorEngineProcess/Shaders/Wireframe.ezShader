@@ -5,6 +5,8 @@ ALL
 
 EDITOR_PICKING
 
+[RENDERSTATE]
+
 [VERTEXSHADER]
 
 #include "Common.inc"

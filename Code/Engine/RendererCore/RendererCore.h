@@ -38,7 +38,7 @@ public:
 
   static ezResult ApplyContextStates(ezGALContext* pContext = nullptr, bool bForce = false);
 
-  static void ConfigureShaderSystem(const char* szActivePlatform, bool bEnableRuntimeCompilation, const char* szShaderCacheDirectory = "ShaderBins", const char* szPermVarSubDirectory = "Shaders/PermutationVars");
+  static void ConfigureShaderSystem(const char* szActivePlatform, bool bEnableRuntimeCompilation, const char* szShaderCacheDirectory = "ShaderCache", const char* szPermVarSubDirectory = "Shaders/PermutationVars");
 
   static const ezString& GetPermutationVarSubDirectory() { return s_sPermVarSubDir; }
 
