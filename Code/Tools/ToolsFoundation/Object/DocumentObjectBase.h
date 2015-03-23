@@ -48,18 +48,45 @@ private:
 };
 
 
-template<typename EditorProperties>
-class ezDocumentObjectDirect : public ezDocumentObjectBase
+template<typename EditorProperties, typename DirectMemberProperties>
+class ezDocumentObjectDirectMember : public ezDocumentObjectBase
 {
 public:
-  ezDocumentObjectDirect(ezReflectedClass* pObjectProperties) : 
+  ezDocumentObjectDirectMember() : 
+    m_ObjectPropertiesAccessor(&m_MemberProperties, ezGetStaticRTTI<EditorProperties>()),
+    m_EditorPropertiesAccessor(&m_EditorProperties, ezGetStaticRTTI<DirectMemberProperties>())
+  {
+  }
+
+  virtual ~ezDocumentObjectDirectMember()
+  {
+  }
+
+  virtual const ezIReflectedTypeAccessor& GetTypeAccessor()       const override { return m_ObjectPropertiesAccessor; }
+  virtual const ezIReflectedTypeAccessor& GetEditorTypeAccessor() const override { return m_EditorPropertiesAccessor; }
+
+public:
+  DirectMemberProperties m_MemberProperties;
+  EditorProperties m_EditorProperties;
+
+private:
+  ezReflectedTypeDirectAccessor m_ObjectPropertiesAccessor;
+  ezReflectedTypeDirectAccessor m_EditorPropertiesAccessor;
+};
+
+
+template<typename EditorProperties>
+class ezDocumentObjectDirectPtr : public ezDocumentObjectBase
+{
+public:
+  ezDocumentObjectDirectPtr(ezReflectedClass* pObjectProperties) : 
     m_pObjectProperties(pObjectProperties),
     m_ObjectPropertiesAccessor(pObjectProperties),
     m_EditorPropertiesAccessor(&m_EditorProperties)
   {
   }
 
-  virtual ~ezDocumentObjectDirect()
+  virtual ~ezDocumentObjectDirectPtr()
   {
     EZ_ASSERT_DEV(m_pObjectProperties == nullptr, "Object has not been destroyed.");
   }
@@ -67,7 +94,7 @@ public:
   virtual const ezIReflectedTypeAccessor& GetTypeAccessor()       const override { return m_ObjectPropertiesAccessor; }
   virtual const ezIReflectedTypeAccessor& GetEditorTypeAccessor() const override { return m_EditorPropertiesAccessor; }
 
-protected:
+public:
   ezReflectedClass* m_pObjectProperties;
 
 private:

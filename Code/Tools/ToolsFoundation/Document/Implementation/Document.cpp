@@ -26,12 +26,15 @@ EZ_END_DYNAMIC_REFLECTED_TYPE();
 ezEvent<const ezDocumentBase::Event&> ezDocumentBase::s_EventsAny;
 
 ezDocumentBase::ezDocumentBase(const char* szPath, ezDocumentObjectManagerBase* pDocumentObjectManagerImpl) :
-  m_ObjectTree(this),
   m_CommandHistory(this)
 {
   m_sDocumentPath = szPath;
   m_pObjectManager = pDocumentObjectManagerImpl;
+  m_pObjectTree = new ezDocumentObjectTree;
+
   m_SelectionManager.SetOwner(this);
+  m_pObjectTree->SetOwner(this);
+  m_pObjectManager->SetObjectTree(m_pObjectTree);
 
   m_bModified = false;
   m_bReadOnly = false;
@@ -41,7 +44,7 @@ ezDocumentBase::~ezDocumentBase()
 {
   m_SelectionManager.SetOwner(nullptr);
 
-  m_ObjectTree.DestroyAllObjects(GetObjectManager());
+  m_pObjectTree->DestroyAllObjects(GetObjectManager());
 
   delete m_pObjectManager;
   m_pObjectManager = nullptr;

@@ -4,7 +4,7 @@
 #include <ToolsFoundation/Reflection/ReflectedTypeManager.h>
 #include <Core/World/GameObject.h>
 
-ezTestObjectManager::ezTestObjectManager(const ezDocumentBase* pDocument) : ezDocumentObjectManagerBase(pDocument)
+ezTestObjectManager::ezTestObjectManager() : ezDocumentObjectManagerBase()
 {
 }
 

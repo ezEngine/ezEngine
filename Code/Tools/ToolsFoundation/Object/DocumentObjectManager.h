@@ -4,14 +4,15 @@
 #include <ToolsFoundation/Reflection/ReflectedType.h>
 #include <ToolsFoundation/Object/DocumentObjectBase.h>
 
-class ezDocumentBase;
+class ezDocumentObjectTree;
 
 class EZ_TOOLSFOUNDATION_DLL ezDocumentObjectManagerBase
 {
 public:
-  ezDocumentObjectManagerBase(const ezDocumentBase* pDocument);
+  ezDocumentObjectManagerBase();
   virtual ~ezDocumentObjectManagerBase() { }
 
+  void SetObjectTree(const ezDocumentObjectTree* pDocumentTree);
   ezDocumentObjectBase* CreateObject(ezReflectedTypeHandle hType, ezUuid guid = ezUuid());
   void DestroyObject(ezDocumentObjectBase* pObject);
 
@@ -28,5 +29,5 @@ private:
   virtual bool InternalCanRemove(const ezDocumentObjectBase* pObject) const = 0;
   virtual bool InternalCanMove(const ezDocumentObjectBase* pObject, const ezDocumentObjectBase* pNewParent, ezInt32 iChildIndex) const = 0;
 
-  const ezDocumentBase* m_pDocument;
+  const ezDocumentObjectTree* m_pDocumentTree;
 };

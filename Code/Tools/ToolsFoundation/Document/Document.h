@@ -39,12 +39,12 @@ public:
   virtual const char* GetDocumentTypeDisplayString() const = 0;
 
   const ezDocumentObjectManagerBase* GetObjectManager() const { return m_pObjectManager; }
-  const ezDocumentObjectTree* GetObjectTree() const { return &m_ObjectTree; }
+  const ezDocumentObjectTree* GetObjectTree() const { return m_pObjectTree; }
   const ezSelectionManager* GetSelectionManager() const { return &m_SelectionManager; }
   ezCommandHistory* GetCommandHistory() const { return &m_CommandHistory; }
 
   ezDocumentObjectManagerBase* GetObjectManager() { return m_pObjectManager; }
-  ezDocumentObjectTree* GetObjectTree() { return &m_ObjectTree; }
+  ezDocumentObjectTree* GetObjectTree() { return m_pObjectTree; }
   ezSelectionManager* GetSelectionManager() { return &m_SelectionManager; }
 
   const char* GetDocumentPath() const { return m_sDocumentPath; }
@@ -82,8 +82,6 @@ protected:
   virtual ezStatus InternalSaveDocument();
   virtual ezStatus InternalLoadDocument();
 
-  
-  ezDocumentObjectTree m_ObjectTree;
   ezSelectionManager m_SelectionManager;
   mutable ezCommandHistory m_CommandHistory;
 
@@ -91,6 +89,7 @@ private:
   friend class ezDocumentManagerBase;
   friend class ezCommandHistory;
 
+  ezDocumentObjectTree* m_pObjectTree;
   ezDocumentManagerBase* m_pDocumentManager;
   ezDocumentObjectManagerBase* m_pObjectManager;
 

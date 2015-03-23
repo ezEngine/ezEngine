@@ -70,10 +70,10 @@ public:
   ezTestEditorProperties m_EditorProps;
 };
 
-class ezTestObject : public ezDocumentObjectDirect<ezTestEditorProperties>
+class ezTestObject : public ezDocumentObjectDirectPtr<ezTestEditorProperties>
 {
 public:
-  ezTestObject(ezReflectedClass* pObjectProperties) : ezDocumentObjectDirect<ezTestEditorProperties>(pObjectProperties)
+  ezTestObject(ezReflectedClass* pObjectProperties) : ezDocumentObjectDirectPtr<ezTestEditorProperties>(pObjectProperties)
   {
   }
 

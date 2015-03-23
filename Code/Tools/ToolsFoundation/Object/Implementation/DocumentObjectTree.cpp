@@ -8,10 +8,14 @@ EZ_END_DYNAMIC_REFLECTED_TYPE();
 ezEmptyProperties ezDocumentObjectRoot::s_Properties;
 ezReflectedTypeDirectAccessor ezDocumentObjectRoot::s_Accessor(&ezDocumentObjectRoot::s_Properties);
 
-ezDocumentObjectTree::ezDocumentObjectTree(const ezDocumentBase* pDocument) :
-  m_pDocument(pDocument)
+ezDocumentObjectTree::ezDocumentObjectTree() :
+  m_pDocument(nullptr)
 {
+}
 
+void ezDocumentObjectTree::SetOwner(const ezDocumentBase* pDocument)
+{
+  m_pDocument = pDocument;
 }
 
 void ezDocumentObjectTree::DestroyAllObjects(ezDocumentObjectManagerBase* pDocumentObjectManager)
@@ -44,7 +48,7 @@ void ezDocumentObjectTree::RecursiveRemoveGuids(ezDocumentObjectBase* pObject)
 void ezDocumentObjectTree::AddObject(ezDocumentObjectBase* pObject, ezDocumentObjectBase* pParent, ezInt32 iChildIndex)
 {
   EZ_ASSERT_DEV(pObject->GetGuid().IsValid(), "Object Guid invalid! Object was not created via an ezObjectManagerBase!");
-  EZ_ASSERT_DEV(m_pDocument->GetObjectManager()->CanAdd(pObject->GetTypeAccessor().GetReflectedTypeHandle(), pParent), "Trying to execute invalid add!");
+  EZ_ASSERT_DEV(m_pDocument == nullptr || m_pDocument->GetObjectManager()->CanAdd(pObject->GetTypeAccessor().GetReflectedTypeHandle(), pParent), "Trying to execute invalid add!");
 
   if (pParent == nullptr)
     pParent = &m_RootObject;
@@ -74,7 +78,7 @@ void ezDocumentObjectTree::AddObject(ezDocumentObjectBase* pObject, ezDocumentOb
 
 void ezDocumentObjectTree::RemoveObject(ezDocumentObjectBase* pObject)
 {
-  EZ_ASSERT_DEV(m_pDocument->GetObjectManager()->CanRemove(pObject), "Trying to execute invalid remove!");
+  EZ_ASSERT_DEV(m_pDocument == nullptr || m_pDocument->GetObjectManager()->CanRemove(pObject), "Trying to execute invalid remove!");
 
   ezDocumentObjectTreeStructureEvent e;
   e.m_pObject = pObject;
@@ -95,7 +99,7 @@ void ezDocumentObjectTree::RemoveObject(ezDocumentObjectBase* pObject)
 
 void ezDocumentObjectTree::MoveObject(ezDocumentObjectBase* pObject, ezDocumentObjectBase* pNewParent, ezInt32 iChildIndex)
 {
-  EZ_ASSERT_DEV(m_pDocument->GetObjectManager()->CanMove(pObject, pNewParent, iChildIndex), "Trying to execute invalid move!");
+  EZ_ASSERT_DEV(m_pDocument == nullptr || m_pDocument->GetObjectManager()->CanMove(pObject, pNewParent, iChildIndex), "Trying to execute invalid move!");
 
   if (pNewParent == nullptr)
     pNewParent = &m_RootObject;

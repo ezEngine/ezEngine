@@ -9,7 +9,7 @@ class ezDocumentBase;
 class ezTestObjectManager : public ezDocumentObjectManagerBase
 {
 public:
-  ezTestObjectManager(const ezDocumentBase* pDocument);
+  ezTestObjectManager();
   virtual void GetCreateableTypes(ezHybridArray<ezReflectedTypeHandle, 32>& Types) const override;
 
 private:

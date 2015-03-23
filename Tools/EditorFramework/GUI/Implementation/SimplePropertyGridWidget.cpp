@@ -26,6 +26,7 @@ ezSimplePropertyGridWidget::ezSimplePropertyGridWidget(QWidget* pParent) : QWidg
 
   m_pLayout = new QVBoxLayout(m_pMainContent);
   m_pLayout->setSpacing(1);
+  m_pLayout->setSizeConstraint(QLayout::SetMinAndMaxSize);
   m_pMainContent->setLayout(m_pLayout);
 }
 
@@ -37,7 +38,7 @@ void ezSimplePropertyGridWidget::ClearProperties()
 {
   m_Properties.Clear();
 
-  delete m_pMainContent;
+  m_pMainContent->deleteLater();
 
   m_pMainContent = new QWidget(this);
   m_pScrollArea->setWidget(m_pMainContent);
@@ -46,6 +47,7 @@ void ezSimplePropertyGridWidget::ClearProperties()
 
   m_pLayout = new QVBoxLayout(m_pMainContent);
   m_pLayout->setSpacing(1);
+  m_pLayout->setSizeConstraint(QLayout::SetMinAndMaxSize);
   m_pMainContent->setLayout(m_pLayout);
 }
 

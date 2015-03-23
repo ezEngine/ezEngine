@@ -67,7 +67,9 @@ public:
   ezEvent<const ezDocumentObjectTreeStructureEvent&> m_StructureEvents;
   ezEvent<const ezDocumentObjectTreePropertyEvent&> m_PropertyEvents;
 
-  ezDocumentObjectTree(const ezDocumentBase* pDocument);
+  ezDocumentObjectTree();
+
+  void SetOwner(const ezDocumentBase* pDocument);
 
   const ezDocumentObjectBase* GetRootObject() const { return &m_RootObject; }
 
