@@ -20,10 +20,10 @@ void ezDocumentActions::RegisterActions()
   ezHashedString sCategory;
   sCategory.Assign("Document");
 
-  s_hSave     = ezActionManager::RegisterAction(ezActionDescriptor(ezActionType::Action, ezActionScope::Document, "Save", sCategory, &CreateSaveAction, &DeleteDocumentAction));
-  s_hSaveAs   = ezActionManager::RegisterAction(ezActionDescriptor(ezActionType::Action, ezActionScope::Document, "Save As", sCategory, &CreateSaveAsAction, &DeleteDocumentAction));
-  s_hSaveAll  = ezActionManager::RegisterAction(ezActionDescriptor(ezActionType::Action, ezActionScope::Document, "Save All", sCategory, &CreateSaveAllAction, &DeleteDocumentAction));
-  s_hClose    = ezActionManager::RegisterAction(ezActionDescriptor(ezActionType::Action, ezActionScope::Document, "Close", sCategory, &CreateCloseAction, &DeleteDocumentAction));
+  s_hSave     = ezActionManager::RegisterAction(ezActionDescriptor(ezActionType::Action, ezActionScope::Document, "Save", sCategory, &CreateSaveAction));
+  s_hSaveAs   = ezActionManager::RegisterAction(ezActionDescriptor(ezActionType::Action, ezActionScope::Document, "Save As", sCategory, &CreateSaveAsAction));
+  s_hSaveAll  = ezActionManager::RegisterAction(ezActionDescriptor(ezActionType::Action, ezActionScope::Document, "Save All", sCategory, &CreateSaveAllAction));
+  s_hClose    = ezActionManager::RegisterAction(ezActionDescriptor(ezActionType::Action, ezActionScope::Document, "Close", sCategory, &CreateCloseAction));
 
 }
 
@@ -40,10 +40,10 @@ void ezDocumentActions::UnregisterActions()
   s_hClose.Invalidate();
 }
 
-void ezDocumentActions::MapActions(const ezHashedString& sMapping, const ezHashedString& sPath)
+void ezDocumentActions::MapActions(const char* szMapping, const ezHashedString& sPath)
 {
-  ezActionMap* pMap = ezActionMapManager::GetActionMap(sMapping);
-  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('%s') does not exist, mapping the documents actions failed!", sMapping.GetData());
+  ezActionMap* pMap = ezActionMapManager::GetActionMap(szMapping);
+  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('%s') does not exist, mapping the documents actions failed!", szMapping);
 
   ezActionMapDescriptor desc;
   desc.m_sPath = sPath;
@@ -84,12 +84,6 @@ ezAction* ezDocumentActions::CreateCloseAction(const ezActionContext& context)
 {
   return EZ_DEFAULT_NEW(ezDocumentAction)(context, "Close", ezDocumentAction::DocumentButton::Close);
 }
-
-void ezDocumentActions::DeleteDocumentAction(ezAction* pAction)
-{
-  EZ_DEFAULT_DELETE(pAction);
-}
-
 
 ////////////////////////////////////////////////////////////////////////
 // ezDocumentAction
@@ -132,7 +126,7 @@ void ezDocumentAction::DocumentEventHandler(const ezDocumentBase::Event& e)
   }
 }
 
-ezResult ezDocumentAction::Execute(const ezVariant& value)
+void ezDocumentAction::Execute(const ezVariant& value)
 {
   switch (m_ButtonType)
   {
@@ -167,7 +161,5 @@ ezResult ezDocumentAction::Execute(const ezVariant& value)
     m_Context.m_pDocument->GetDocumentManager()->CloseDocument(m_Context.m_pDocument);
     break;
   }
-
-  return EZ_SUCCESS;
 }
 

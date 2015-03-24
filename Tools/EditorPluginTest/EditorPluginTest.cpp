@@ -15,6 +15,8 @@
 #include <Core/World/GameObject.h>
 #include <qmainwindow.h>
 #include <QMessageBox>
+#include <GuiFoundation/Action/ActionMapManager.h>
+#include <EditorFramework/Actions/ProjectActions.h>
 
 void RegisterType(const ezRTTI* pRtti)
 {
@@ -117,6 +119,9 @@ void OnLoadPlugin(bool bReloading)
 
   ezEditorApp::GetInstance()->RegisterPluginNameForSettings("TestPlugin");
 
+
+  ezActionMapManager::RegisterActionMap("EditorTestDocumentMenuModel");
+  ezProjectActions::MapActions("EditorTestDocumentMenuModel");
 }
 
 void OnUnloadPlugin(bool bReloading)  

@@ -2,7 +2,7 @@
 #include <GuiFoundation/Action/ActionMapManager.h>
 #include <Foundation/Configuration/Startup.h>
 
-ezMap<ezHashedString, ezActionMap*> ezActionMapManager::s_Mappings;
+ezMap<ezString, ezActionMap*> ezActionMapManager::s_Mappings;
 
 EZ_BEGIN_SUBSYSTEM_DECLARATION(GuiFoundation, ActionMapManager)
 
@@ -26,19 +26,19 @@ EZ_END_SUBSYSTEM_DECLARATION
 // ezActionMapManager public functions
 ////////////////////////////////////////////////////////////////////////
 
-ezResult ezActionMapManager::RegisterActionMap(const ezHashedString& sMapping)
+ezResult ezActionMapManager::RegisterActionMap(const char* szMapping)
 {
-  auto it = s_Mappings.Find(sMapping);
+  auto it = s_Mappings.Find(szMapping);
   if (it.IsValid())
     return EZ_FAILURE;
 
-  s_Mappings.Insert(sMapping, EZ_DEFAULT_NEW(ezActionMap));
+  s_Mappings.Insert(szMapping, EZ_DEFAULT_NEW(ezActionMap));
   return EZ_SUCCESS;
 }
 
-ezResult ezActionMapManager::UnregisterActionMap(const ezHashedString& sMapping)
+ezResult ezActionMapManager::UnregisterActionMap(const char* szMapping)
 {
-  auto it = s_Mappings.Find(sMapping);
+  auto it = s_Mappings.Find(szMapping);
   if (!it.IsValid())
     return EZ_FAILURE;
 
@@ -47,9 +47,9 @@ ezResult ezActionMapManager::UnregisterActionMap(const ezHashedString& sMapping)
   return EZ_SUCCESS;
 }
 
-ezActionMap* ezActionMapManager::GetActionMap(const ezHashedString& sMapping)
+ezActionMap* ezActionMapManager::GetActionMap(const char* szMapping)
 {
-  auto it = s_Mappings.Find(sMapping);
+  auto it = s_Mappings.Find(szMapping);
   if (!it.IsValid())
     return nullptr;
 
@@ -67,13 +67,9 @@ void ezActionMapManager::Startup()
 
 void ezActionMapManager::Shutdown()
 {
-  for (auto it = s_Mappings.GetIterator(); it.IsValid();)
+  while (!s_Mappings.IsEmpty())
   {
-    auto oldIt = it;
-    ezResult res = UnregisterActionMap(oldIt.Key());
+    ezResult res = UnregisterActionMap(s_Mappings.GetIterator().Key());
     EZ_ASSERT_DEV(res == EZ_SUCCESS, "Failed to call UnregisterActionMap successfully!");
-    ++it;
   }
-  EZ_ASSERT_DEV(s_Mappings.IsEmpty(), "ezActionMapManager::Shutdown did not remove all action maps!");
-  s_Mappings.Clear();
 }

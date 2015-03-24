@@ -1,6 +1,9 @@
 #pragma once
 
 #include <GuiFoundation/Basics.h>
+#include <Foundation/Containers/HybridArray.h>
+#include <Foundation/Strings/String.h>
+#include <Foundation/Types/Variant.h>
 #include <QObject>
 
 class QAction;
@@ -46,7 +49,7 @@ public:
 
   virtual QMenu* GetQMenu();
 
-private:
+protected:
   QMenu* m_pMenu;
 };
 
@@ -71,4 +74,20 @@ private:
 
 private:
   QAction* m_pQtAction;
+};
+
+
+class EZ_GUIFOUNDATION_DLL ezQtLRUMenuProxy : public ezQtMenuProxy
+{
+  Q_OBJECT
+
+public:
+  virtual void SetAction(ezAction* pAction) override;
+
+private slots:
+  void SlotMenuAboutToShow();
+  void SlotMenuEntryTriggered();
+
+private:
+  ezHybridArray<std::pair<ezString, ezVariant>, 16> m_Entries;
 };

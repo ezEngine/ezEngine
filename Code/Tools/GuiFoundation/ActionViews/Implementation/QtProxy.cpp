@@ -17,6 +17,11 @@ static ezQtProxy* QtButtonProxyCreator(const ezRTTI* pRtti)
   return EZ_DEFAULT_NEW(ezQtButtonProxy);
 }
 
+static ezQtProxy* QtLRUMenuProxyCreator(const ezRTTI* pRtti)
+{
+  return EZ_DEFAULT_NEW(ezQtLRUMenuProxy);
+}
+
 EZ_BEGIN_SUBSYSTEM_DECLARATION(GuiFoundation, QtProxies)
 
   BEGIN_SUBSYSTEM_DEPENDENCIES
@@ -27,6 +32,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(GuiFoundation, QtProxies)
   ON_CORE_STARTUP
   {
     ezRttiMappedObjectFactory<ezQtProxy>::RegisterCreator(ezGetStaticRTTI<ezMenuAction>(), QtMenuProxyCreator);
+    ezRttiMappedObjectFactory<ezQtProxy>::RegisterCreator(ezGetStaticRTTI<ezLRUMenuAction>(), QtLRUMenuProxyCreator);
     ezRttiMappedObjectFactory<ezQtProxy>::RegisterCreator(ezGetStaticRTTI<ezButtonAction>(), QtButtonProxyCreator);
   }
 
@@ -136,5 +142,47 @@ void ezQtButtonProxy::StatusUpdateEventHandler(ezAction* pAction)
 void ezQtButtonProxy::OnTriggered()
 {
   m_pAction->Execute(m_pQtAction->isChecked());
+}
+
+void ezQtLRUMenuProxy::SetAction(ezAction* pAction)
+{
+  ezQtMenuProxy::SetAction(pAction);
+
+  EZ_VERIFY(connect(m_pMenu, SIGNAL(aboutToShow()), this, SLOT(SlotMenuAboutToShow())) != nullptr, "signal/slot connection failed");
+}
+
+void ezQtLRUMenuProxy::SlotMenuAboutToShow()
+{
+  m_pMenu->clear();
+
+  static_cast<ezLRUMenuAction*>(m_pAction)->GetEntries(m_Entries);
+
+  if (m_Entries.IsEmpty())
+  {
+    m_pMenu->addAction("<empty>")->setEnabled(false);
+  }
+  else
+  {
+    for (ezUInt32 i = 0; i < m_Entries.GetCount(); ++i)
+    {
+      const auto& p = m_Entries[i];
+
+      auto pAction = m_pMenu->addAction(QString::fromUtf8(p.first.GetData()));
+      pAction->setData(i);
+
+      EZ_VERIFY(connect(pAction, SIGNAL(triggered()), this, SLOT(SlotMenuEntryTriggered())) != nullptr, "signal/slot connection failed");
+    }
+  }
+}
+
+void ezQtLRUMenuProxy::SlotMenuEntryTriggered()
+{
+  QAction* pAction = qobject_cast<QAction*>(sender());
+  if (!pAction)
+    return;
+
+  ezUInt32 index = pAction->data().toUInt();
+  m_pAction->Execute(m_Entries[index].second);
+
 }
 

@@ -130,18 +130,15 @@ ezStatus ezEditorProject::CreateOrOpenProject(const char* szProjectPath, bool bC
     return ret;
   }
 
+  ezEditorEngineProcessConnection::GetInstance()->RestartProcess();
+  ezEditorEngineProcessConnection::GetInstance()->WaitForMessage(ezGetStaticRTTI<ezProjectReadyMsgToEditor>());
+
   return ezStatus(EZ_SUCCESS);
 }
 
 ezStatus ezEditorProject::OpenProject(const char* szProjectPath)
 {
   ezStatus status = CreateOrOpenProject(szProjectPath, false);
-
-  if (status.m_Result.Succeeded())
-  {
-    ezEditorEngineProcessConnection::GetInstance()->RestartProcess();
-    ezEditorEngineProcessConnection::GetInstance()->WaitForMessage(ezGetStaticRTTI<ezProjectReadyMsgToEditor>());
-  }
 
   return status;
 }

@@ -2,6 +2,8 @@
 
 #include <EditorFramework/Plugin.h>
 #include <EditorFramework/Settings/Settings.h>
+#include <Foundation/Communication/Event.h>
+#include <ToolsFoundation/Basics/Status.h>
 
 class EZ_EDITORFRAMEWORK_DLL ezEditorProject
 {

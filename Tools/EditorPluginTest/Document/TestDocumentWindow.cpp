@@ -14,6 +14,7 @@
 #include <Core/World/GameObject.h>
 #include <QKeyEvent>
 #include <Foundation/Time/Time.h>
+#include <GuiFoundation/ActionViews/MenuBarActionMapView.moc.h>
 
 ezTestDocumentWindow::ezTestDocumentWindow(ezDocumentBase* pDocument) : ezDocumentWindow3D(pDocument)
 {
@@ -34,6 +35,12 @@ ezTestDocumentWindow::ezTestDocumentWindow(ezDocumentBase* pDocument) : ezDocume
   m_Camera.LookAt(ezVec3(0.5f, 1.5f, 2.0f), ezVec3(0.0f, 0.5f, 0.0f), ezVec3(0.0f, 1.0f, 0.0f));
 
   m_pCenterWidget->m_MoveContext.LoadState();
+
+  ezMenuBarActionMapView* pMenuBar = static_cast<ezMenuBarActionMapView*>(menuBar());
+  ezActionContext context;
+  context.m_sMapping = "EditorTestDocumentMenuModel";
+  context.m_pDocument = nullptr;
+  pMenuBar->SetActionContext(context);
 }
 
 ezTestDocumentWindow::~ezTestDocumentWindow()

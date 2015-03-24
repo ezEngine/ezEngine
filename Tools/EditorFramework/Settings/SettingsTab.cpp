@@ -1,6 +1,7 @@
 #include <PCH.h>
 #include <EditorFramework/Settings/SettingsTab.moc.h>
 #include <EditorFramework/EditorApp.moc.h>
+#include <GuiFoundation/ActionViews/MenuBarActionMapView.moc.h>
 
 static ezSettingsTab* g_pInstance = nullptr;
 
@@ -37,6 +38,12 @@ ezSettingsTab::ezSettingsTab() : ezDocumentWindow("Settings")
   ezDocumentManagerBase::s_Events.AddEventHandler(ezMakeDelegate(&ezSettingsTab::DocumentManagerEventHandler, this));
 
   UpdateSettings();
+
+  ezMenuBarActionMapView* pMenuBar = static_cast<ezMenuBarActionMapView*>(menuBar());
+  ezActionContext context;
+  context.m_sMapping = "SettingsDocument";
+  context.m_pDocument = nullptr;
+  pMenuBar->SetActionContext(context);
 }
 
 ezSettingsTab::~ezSettingsTab()

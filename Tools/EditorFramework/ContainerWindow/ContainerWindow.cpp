@@ -25,11 +25,8 @@ ezDynamicArray<ezContainerWindow*> ezContainerWindow::s_AllContainerWindows;
 
 ezContainerWindow::ezContainerWindow()
 {
-  ezHashedString sGlobalMenu;
-  sGlobalMenu.Assign("RootMenu");
-
-  ezActionMapManager::RegisterActionMap(sGlobalMenu);
-  ezDocumentActions::MapActions(sGlobalMenu, ezHashedString());
+  ezActionMapManager::RegisterActionMap("RootMenu");
+  ezDocumentActions::MapActions("RootMenu", ezHashedString());
 
   setObjectName(QLatin1String(GetUniqueName())); // todo
   setWindowIcon(QIcon(QLatin1String(":/Icons/Icons/ezEditor16.png")));
@@ -384,6 +381,11 @@ void ezContainerWindow::ProjectEventHandler(const ezEditorProject::Event& e)
 
 void ezContainerWindow::SlotSettings()
 {
+  ShowSettingsDocument();
+}
+
+void ezContainerWindow::ShowSettingsDocument()
+{
   ezSettingsTab* pSettingsTab = ezSettingsTab::GetInstance();
 
   if (pSettingsTab == nullptr)
@@ -396,7 +398,7 @@ void ezContainerWindow::SlotSettings()
   pSettingsTab->EnsureVisible();
 }
 
-ezString ezContainerWindow::BuildDocumentTypeFileFilter(bool bForCreation) const
+ezString ezContainerWindow::BuildDocumentTypeFileFilter(bool bForCreation)
 {
   ezStringBuilder sAllFilters;
   const char* sepsep = "";
@@ -440,7 +442,7 @@ ezString ezContainerWindow::BuildDocumentTypeFileFilter(bool bForCreation) const
   return sAllFilters;
 }
 
-ezResult ezContainerWindow::FindDocumentTypeFromPath(const char* szPath, bool bForCreation, ezDocumentManagerBase*& out_pTypeManager, ezDocumentTypeDescriptor& out_TypeDesc) const
+ezResult ezContainerWindow::FindDocumentTypeFromPath(const char* szPath, bool bForCreation, ezDocumentManagerBase*& out_pTypeManager, ezDocumentTypeDescriptor& out_TypeDesc)
 {
   const ezString sFileExt = ezPathUtils::GetFileExtension(szPath);
 
@@ -486,9 +488,9 @@ void ezContainerWindow::CreateOrOpenDocument(bool bCreate)
   ezString sFile;
   
   if (bCreate)
-    sFile = QFileDialog::getSaveFileName(this, QLatin1String("Create Document"), sDir, QString::fromUtf8(sAllFilters.GetData()), &sSelectedExt).toUtf8().data();
+    sFile = QFileDialog::getSaveFileName(QApplication::activeWindow(), QLatin1String("Create Document"), sDir, QString::fromUtf8(sAllFilters.GetData()), &sSelectedExt).toUtf8().data();
   else
-    sFile = QFileDialog::getOpenFileName(this, QLatin1String("Open Document"), sDir, QString::fromUtf8(sAllFilters.GetData()), &sSelectedExt).toUtf8().data();
+    sFile = QFileDialog::getOpenFileName(QApplication::activeWindow(), QLatin1String("Open Document"), sDir, QString::fromUtf8(sAllFilters.GetData()), &sSelectedExt).toUtf8().data();
 
   if (sFile.IsEmpty())
     return;
@@ -576,9 +578,9 @@ void ezContainerWindow::CreateOrOpenProject(bool bCreate)
   const char* szFilter = "ezEditor Project (*.project)";
   
   if (bCreate)
-    sFile = QFileDialog::getSaveFileName(this, QLatin1String("Create Project"), sDir, QLatin1String(szFilter)).toUtf8().data();
+    sFile = QFileDialog::getSaveFileName(QApplication::activeWindow(), QLatin1String("Create Project"), sDir, QLatin1String(szFilter)).toUtf8().data();
   else
-    sFile = QFileDialog::getOpenFileName(this, QLatin1String("Open Project"), sDir, QLatin1String(szFilter)).toUtf8().data();
+    sFile = QFileDialog::getOpenFileName(QApplication::activeWindow(), QLatin1String("Open Project"), sDir, QLatin1String(szFilter)).toUtf8().data();
 
   if (sFile.IsEmpty())
     return;
@@ -659,7 +661,7 @@ void ezContainerWindow::SlotTabsContextMenuRequested(const QPoint& pos)
     ezMenuActionMapView menu;
 
     ezActionContext context;
-    context.m_sMapping.Assign("RootMenu");
+    context.m_sMapping = "RootMenu";
     context.m_pDocument = pDoc->GetDocument();
     menu.SetActionContext(context);
 

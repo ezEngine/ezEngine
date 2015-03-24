@@ -25,6 +25,13 @@ public:
 
   void ShowSettingsTab() { SlotSettings(); }
 
+  static void CreateOrOpenDocument(bool bCreate);
+  static void CreateOrOpenProject(bool bCreate);
+  static void CreateOrOpenDocument(bool bCreate, const char* szFile);
+  static void CreateOrOpenProject(bool bCreate, const char* szFile);
+  static void ShowSettingsDocument();
+
+
 private:
   friend class ezDocumentWindow;
 
@@ -55,12 +62,8 @@ private slots:
 
 private:
   QTabWidget* GetTabWidget() const;
-  ezString BuildDocumentTypeFileFilter(bool bForCreation) const;
-  ezResult FindDocumentTypeFromPath(const char* szPath, bool bForCreation, ezDocumentManagerBase*& out_pTypeManager, ezDocumentTypeDescriptor& out_TypeDesc) const;
-  void CreateOrOpenDocument(bool bCreate);
-  void CreateOrOpenDocument(bool bCreate, const char* szFile);
-  void CreateOrOpenProject(bool bCreate);
-  void CreateOrOpenProject(bool bCreate, const char* szFile);
+  static ezString BuildDocumentTypeFileFilter(bool bForCreation);
+  static ezResult FindDocumentTypeFromPath(const char* szPath, bool bForCreation, ezDocumentManagerBase*& out_pTypeManager, ezDocumentTypeDescriptor& out_TypeDesc);
 
   void SaveWindowLayout();
   void RestoreWindowLayout();

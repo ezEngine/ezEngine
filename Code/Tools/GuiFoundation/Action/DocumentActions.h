@@ -10,7 +10,7 @@ public:
   static void RegisterActions();
   static void UnregisterActions();
 
-  static void MapActions(const ezHashedString& sMapping, const ezHashedString& sPath);
+  static void MapActions(const char* szMapping, const ezHashedString& sPath);
 
   static ezActionDescriptorHandle s_hSave;
   static ezActionDescriptorHandle s_hSaveAs;
@@ -22,7 +22,6 @@ private:
   static ezAction* CreateSaveAsAction(const ezActionContext& context);
   static ezAction* CreateSaveAllAction(const ezActionContext& context);
   static ezAction* CreateCloseAction(const ezActionContext& context);
-  static void DeleteDocumentAction(ezAction* pAction);
 };
 
 
@@ -41,7 +40,7 @@ public:
   ezDocumentAction(const ezActionContext& context, const char* szName, DocumentButton button);
   ~ezDocumentAction();
 
-  virtual ezResult Execute(const ezVariant& value) override;
+  virtual void Execute(const ezVariant& value) override;
 
 private:
   void DocumentEventHandler(const ezDocumentBase::Event& e);

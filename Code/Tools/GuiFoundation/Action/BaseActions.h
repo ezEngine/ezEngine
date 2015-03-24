@@ -28,7 +28,7 @@ class EZ_GUIFOUNDATION_DLL ezCategoryAction : public ezNamedAction
 public:
   ezCategoryAction(const ezActionContext& context, const char* szName) : ezNamedAction(context, szName) {}
 
-  virtual ezResult Execute(const ezVariant& value) override { return EZ_SUCCESS; };
+  virtual void Execute(const ezVariant& value) override { };
 };
 
 ///
@@ -38,7 +38,16 @@ class EZ_GUIFOUNDATION_DLL ezMenuAction : public ezNamedAction
 public:
   ezMenuAction(const ezActionContext& context, const char* szName) : ezNamedAction(context, szName) {}
 
-  virtual ezResult Execute(const ezVariant& value) override { return EZ_SUCCESS; };
+  virtual void Execute(const ezVariant& value) override { };
+};
+
+///
+class EZ_GUIFOUNDATION_DLL ezLRUMenuAction : public ezMenuAction
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezLRUMenuAction);
+public:
+  ezLRUMenuAction(const ezActionContext& context, const char* szName) : ezMenuAction(context, szName) {}
+  virtual void GetEntries(ezHybridArray<std::pair<ezString, ezVariant>, 16>& out_Entries) = 0;
 };
 
 ///

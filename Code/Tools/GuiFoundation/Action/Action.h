@@ -61,7 +61,7 @@ struct ezActionType
 struct EZ_GUIFOUNDATION_DLL ezActionContext
 {
   ezDocumentBase* m_pDocument;
-  ezHashedString m_sMapping;
+  ezString m_sMapping;
 };
 
 
@@ -70,7 +70,7 @@ struct EZ_GUIFOUNDATION_DLL ezActionDescriptor
 {
   ezActionDescriptor() {};
   ezActionDescriptor(ezActionType::Enum type, ezActionScope::Enum scope, const char* szName, ezHashedString sCategoryPath,
-    CreateActionFunc createAction, DeleteActionFunc deleteAction);
+    CreateActionFunc createAction, DeleteActionFunc deleteAction = nullptr);
 
   ezActionDescriptorHandle m_Handle;
   ezEnum<ezActionType> m_Type;
@@ -98,7 +98,7 @@ class EZ_GUIFOUNDATION_DLL ezAction : public ezReflectedClass
   EZ_DISALLOW_COPY_AND_ASSIGN(ezAction);
 public:
   ezAction(const ezActionContext& context) { m_Context = context; }
-  virtual ezResult Execute(const ezVariant& value) = 0;
+  virtual void Execute(const ezVariant& value) = 0;
 
   void TriggerUpdate();
 

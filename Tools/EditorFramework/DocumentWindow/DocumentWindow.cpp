@@ -6,6 +6,7 @@
 #include <QSettings>
 #include <QMessageBox>
 #include <QTimer>
+#include <GuiFoundation/ActionViews/MenuBarActionMapView.moc.h>
 
 ezEvent<const ezDocumentWindow::Event&> ezDocumentWindow::s_Events;
 
@@ -38,6 +39,10 @@ void ezDocumentWindow::Constructor()
   m_iTargetFramerate = 0;
 
   setDockNestingEnabled(true);
+
+  ezMenuBarActionMapView* pMenuBar = new ezMenuBarActionMapView(this);
+  setMenuBar(pMenuBar);
+
 }
 
 ezDocumentWindow::ezDocumentWindow(ezDocumentBase* pDocument)

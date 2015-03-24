@@ -27,7 +27,12 @@ ezAction* ezActionDescriptor::CreateAction(const ezActionContext& context) const
 
 void ezActionDescriptor::DeleteAction(ezAction* pAction) const
 {
-  m_DeleteAction(pAction);
+  if (m_DeleteAction == nullptr)
+  {
+    EZ_DEFAULT_DELETE(pAction);
+  }
+  else
+    m_DeleteAction(pAction);
 }
 
 void ezAction::TriggerUpdate()
