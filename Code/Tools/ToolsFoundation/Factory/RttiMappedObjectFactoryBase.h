@@ -18,15 +18,15 @@ public:
   ~ezRttiMappedObjectFactoryBase();
 
   typedef Object* (*CreateObjectFunc)(const RttiType type);
-  struct Creator
-  {
-    EZ_DECLARE_POD_TYPE();
-    CreateObjectFunc m_CreateObject;
-  };
+  //struct Creator
+  //{
+  //  EZ_DECLARE_POD_TYPE();
+  //  CreateObjectFunc m_CreateObject;
+  //};
 
-  ezResult RegisterCreator(RttiType type, Creator& creator);
-  ezResult UnregisterCreator(RttiType type);
-  Object* CreateObject(RttiType type);
+  static ezResult RegisterCreator(RttiType type, CreateObjectFunc creator);
+  static ezResult UnregisterCreator(RttiType type);
+  static Object* CreateObject(RttiType type);
 
   struct Event
   {
@@ -40,11 +40,10 @@ public:
     RttiType m_RttiType;
   };
 
-  ezEvent<const Event&> m_Events;
+  static ezEvent<const Event&> s_Events;
 
 private:
-  ezHashTable<RttiType, Creator> m_Creators;
-  TypeTraverser m_TypeTraverser;
+  static ezHashTable<RttiType, CreateObjectFunc> s_Creators;
 };
 
 #include <ToolsFoundation/Factory/Implementation/RttiMappedObjectFactoryBase_inl.h>

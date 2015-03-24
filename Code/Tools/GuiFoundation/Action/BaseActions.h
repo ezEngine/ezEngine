@@ -8,7 +8,7 @@ class EZ_GUIFOUNDATION_DLL ezNamedAction : public ezAction
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezNamedAction);
 public:
-  ezNamedAction(const char* szText) : ezAction(), m_sText(szText) {}
+  ezNamedAction(const ezActionContext& context, const char* szText) : ezAction(context), m_sText(szText) {}
 
   const char* GetText() const { return m_sText; }
   void SetText(const char* szName) { m_sText = szName; }
@@ -26,9 +26,8 @@ class EZ_GUIFOUNDATION_DLL ezCategoryAction : public ezNamedAction
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezCategoryAction);
 public:
-  ezCategoryAction(const char* szName) : ezNamedAction(szName) {}
+  ezCategoryAction(const ezActionContext& context, const char* szName) : ezNamedAction(context, szName) {}
 
-  virtual ezResult Init(const ezActionContext& context) override { return EZ_SUCCESS; };
   virtual ezResult Execute(const ezVariant& value) override { return EZ_SUCCESS; };
 };
 
@@ -37,9 +36,8 @@ class EZ_GUIFOUNDATION_DLL ezMenuAction : public ezNamedAction
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezMenuAction);
 public:
-  ezMenuAction(const char* szName) : ezNamedAction(szName) {}
+  ezMenuAction(const ezActionContext& context, const char* szName) : ezNamedAction(context, szName) {}
 
-  virtual ezResult Init(const ezActionContext& context) override { return EZ_SUCCESS; };
   virtual ezResult Execute(const ezVariant& value) override { return EZ_SUCCESS; };
 };
 
@@ -48,7 +46,10 @@ class EZ_GUIFOUNDATION_DLL ezButtonAction : public ezNamedAction
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezButtonAction);
 public:
-  ezButtonAction(const char* szName, bool bCheckable) : ezNamedAction(szName) {}
+  ezButtonAction(const ezActionContext& context, const char* szName, bool bCheckable);
+
+  bool IsEnabled() const { return m_bEnabled; }
+  void SetEnabled(bool bEnable) { m_bEnabled = bEnable; }
 
   bool IsCheckable() const { return m_bCheckable; }
   void SetCheckable(bool bCheckable) { m_bCheckable = bCheckable; }
@@ -59,4 +60,5 @@ public:
 protected:
   bool m_bCheckable;
   bool m_bChecked;
+  bool m_bEnabled;
 };

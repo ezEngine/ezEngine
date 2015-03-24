@@ -1,5 +1,6 @@
 #include <GuiFoundation/PCH.h>
 #include <GuiFoundation/Action/ActionManager.h>
+#include <GuiFoundation/Action/DocumentActions.h>
 #include <Foundation/Configuration/Startup.h>
 
 EZ_BEGIN_SUBSYSTEM_DECLARATION(GuiFoundation, ActionManager)
@@ -28,9 +29,9 @@ ezMap<ezHashedString, ezActionManager::CategoryData> ezActionManager::s_Category
 // ezActionManager public functions
 ////////////////////////////////////////////////////////////////////////
 
-ezActionHandle ezActionManager::RegisterAction(const ezActionDescriptor& desc)
+ezActionDescriptorHandle ezActionManager::RegisterAction(const ezActionDescriptor& desc)
 {
-  ezActionHandle hType = GetActionHandle(desc.m_sCategoryPath, desc.m_sActionName);
+  ezActionDescriptorHandle hType = GetActionHandle(desc.m_sCategoryPath, desc.m_sActionName);
   EZ_ASSERT_DEV(hType.IsInvalidated(), "The action '%s' in category '%s' was already registered!", desc.m_sActionName.GetData(), desc.m_sCategoryPath.GetData());
 
   ezActionDescriptor* pDesc = CreateActionDesc(desc);
@@ -51,7 +52,7 @@ ezActionHandle ezActionManager::RegisterAction(const ezActionDescriptor& desc)
   return hType;
 }
 
-bool ezActionManager::UnregisterAction(ezActionHandle hAction)
+bool ezActionManager::UnregisterAction(ezActionDescriptorHandle hAction)
 {
   ezActionDescriptor* pDesc = nullptr;
   if (!s_ActionTable.TryGetValue(hAction, pDesc))
@@ -71,7 +72,7 @@ bool ezActionManager::UnregisterAction(ezActionHandle hAction)
   return true;
 }
 
-const ezActionDescriptor* ezActionManager::GetActionDescriptor(ezActionHandle hAction)
+const ezActionDescriptor* ezActionManager::GetActionDescriptor(ezActionDescriptorHandle hAction)
 {
   ezActionDescriptor* pDesc = nullptr;
   if (s_ActionTable.TryGetValue(hAction, pDesc))
@@ -85,9 +86,9 @@ const ezIdTable<ezActionId, ezActionDescriptor*>::ConstIterator ezActionManager:
   return s_ActionTable.GetIterator();
 }
 
-ezActionHandle ezActionManager::GetActionHandle(const ezHashedString& sCategoryPath, const char* szActionName)
+ezActionDescriptorHandle ezActionManager::GetActionHandle(const ezHashedString& sCategoryPath, const char* szActionName)
 {
-  ezActionHandle hAction;
+  ezActionDescriptorHandle hAction;
   auto it = s_CategoryPathToActions.Find(sCategoryPath);
   if (!it.IsValid())
     return hAction;
@@ -104,12 +105,12 @@ ezActionHandle ezActionManager::GetActionHandle(const ezHashedString& sCategoryP
 
 void ezActionManager::Startup()
 {
-  // TODO: Add standard actions
+  ezDocumentActions::RegisterActions();
 }
 
 void ezActionManager::Shutdown()
 {
-  // TODO: Remove standard actions
+  ezDocumentActions::UnregisterActions();
 }
 
 ezActionDescriptor* ezActionManager::CreateActionDesc(const ezActionDescriptor& desc)

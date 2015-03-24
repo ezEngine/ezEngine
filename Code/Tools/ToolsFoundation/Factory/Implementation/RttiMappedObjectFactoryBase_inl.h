@@ -1,33 +1,28 @@
 
 template <typename RttiType, typename Object, typename TypeTraverser>
-ezRttiMappedObjectFactoryBase<RttiType, Object, TypeTraverser>::ezRttiMappedObjectFactoryBase()
-  : m_TypeTraverser(TypeTraverser())
-{
-}
+ezHashTable<RttiType, typename ezRttiMappedObjectFactoryBase<RttiType, Object, TypeTraverser>::CreateObjectFunc> ezRttiMappedObjectFactoryBase<RttiType, Object, TypeTraverser>::s_Creators;
 
 template <typename RttiType, typename Object, typename TypeTraverser>
-ezRttiMappedObjectFactoryBase<RttiType, Object, TypeTraverser>::~ezRttiMappedObjectFactoryBase()
-{
-}
+ezEvent<const typename ezRttiMappedObjectFactoryBase<RttiType, Object, TypeTraverser>::Event&> ezRttiMappedObjectFactoryBase<RttiType, Object, TypeTraverser>::s_Events;
 
 template <typename RttiType, typename Object, typename TypeTraverser>
-ezResult ezRttiMappedObjectFactoryBase<RttiType, Object, TypeTraverser>::RegisterCreator(RttiType type, Creator& creator)
+ezResult ezRttiMappedObjectFactoryBase<RttiType, Object, TypeTraverser>::RegisterCreator(RttiType type, CreateObjectFunc creator)
 {
-  if (m_Creators.Contains(type))
+  if (s_Creators.Contains(type))
     return EZ_FAILURE;
 
-  m_Creators.Insert(type, creator);
+  s_Creators.Insert(type, creator);
   Event e;
   e.m_Type = Event::Type::CreatorAdded;
   e.m_RttiType = type;
-  m_Events.Broadcast(e);
+  s_Events.Broadcast(e);
   return EZ_SUCCESS;
 }
 
 template <typename RttiType, typename Object, typename TypeTraverser>
 ezResult ezRttiMappedObjectFactoryBase<RttiType, Object, TypeTraverser>::UnregisterCreator(RttiType type)
 {
-  if (!m_Creators.Remove())
+  if (!s_Creators.Remove())
   {
     return EZ_FAILURE;
   }
@@ -35,21 +30,21 @@ ezResult ezRttiMappedObjectFactoryBase<RttiType, Object, TypeTraverser>::Unregis
   Event e;
   e.m_Type = Event::Type::CreatorRemoved;
   e.m_RttiType = type;
-  m_Events.Broadcast(e);
+  s_Events.Broadcast(e);
   return EZ_SUCCESS;
 }
 
 template <typename RttiType, typename Object, typename TypeTraverser>
 Object* ezRttiMappedObjectFactoryBase<RttiType, Object, TypeTraverser>::CreateObject(RttiType type)
 {
-  Creator* creator = nullptr;
-  while (m_TypeTraverser.IsValid(type))
+  CreateObjectFunc* creator = nullptr;
+  while (TypeTraverser::IsValid(type))
   {
-    if (m_Creators.TryGetValue(type, creator))
+    if (s_Creators.TryGetValue(type, creator))
     {
-      return creator->m_CreateObject();
+      return (*creator)(type);
     }
-    type = m_TypeTraverser.GetParentType(type);
+    type = TypeTraverser::GetParentType(type);
   }
   return nullptr;
 }

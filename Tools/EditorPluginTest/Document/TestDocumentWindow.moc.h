@@ -13,6 +13,7 @@
 #include <QProcess>
 #include <QSharedMemory>
 #include <CoreUtils/Graphics/Camera.h>
+#include <QPaintEvent>
 
 class QWidget;
 class QHBoxLayout;
@@ -86,6 +87,8 @@ public:
   ez3DViewWidget(QWidget* pParent, ezDocumentWindow* pDocument);
 
   ezQtCameraMoveContext m_MoveContext;
+
+  virtual void paintEvent(QPaintEvent* event) override { event->accept(); }
 
 protected:
   virtual void resizeEvent(QResizeEvent* event) override

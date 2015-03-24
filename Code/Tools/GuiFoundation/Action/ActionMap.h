@@ -8,7 +8,7 @@
 
 struct EZ_GUIFOUNDATION_DLL ezActionMapDescriptor
 {
-  ezActionHandle m_hAction;  ///< Action to be mapped
+  ezActionDescriptorHandle m_hAction;  ///< Action to be mapped
   ezHashedString m_sPath; ///< Path where the action should be mapped excluding the action's name, e.g. "File/New" for a menu item "File -> New -> Project..." .
   float m_fOrder; ///< Ordering key to sort actions in the mapping path.
 };

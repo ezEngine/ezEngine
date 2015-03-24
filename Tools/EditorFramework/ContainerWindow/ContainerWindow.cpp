@@ -7,6 +7,9 @@
 #include <ToolsFoundation/Document/DocumentManager.h>
 #include <EditorFramework/EditorGUI.moc.h>
 #include <Foundation/IO/OSFile.h>
+#include <GuiFoundation/Action/ActionMapManager.h>
+#include <GuiFoundation/Action/DocumentActions.h>
+#include <GuiFoundation/ActionViews/MenuActionMapView.moc.h>
 #include <QSettings>
 #include <QMenu>
 #include <QMenuBar>
@@ -22,6 +25,12 @@ ezDynamicArray<ezContainerWindow*> ezContainerWindow::s_AllContainerWindows;
 
 ezContainerWindow::ezContainerWindow()
 {
+  ezHashedString sGlobalMenu;
+  sGlobalMenu.Assign("RootMenu");
+
+  ezActionMapManager::RegisterActionMap(sGlobalMenu);
+  ezDocumentActions::MapActions(sGlobalMenu, ezHashedString());
+
   setObjectName(QLatin1String(GetUniqueName())); // todo
   setWindowIcon(QIcon(QLatin1String(":/Icons/Icons/ezEditor16.png")));
 
@@ -644,6 +653,19 @@ void ezContainerWindow::SlotTabsContextMenuRequested(const QPoint& pos)
 
     ezDocumentWindow* pDoc = (ezDocumentWindow*) pTabs->currentWidget();
 
+    if (pDoc->GetDocument() == nullptr)
+      return;
+
+    ezMenuActionMapView menu;
+
+    ezActionContext context;
+    context.m_sMapping.Assign("RootMenu");
+    context.m_pDocument = pDoc->GetDocument();
+    menu.SetActionContext(context);
+
+    menu.exec(pTabs->tabBar()->mapToGlobal(pos));
+
+    /*
     QMenu m;
 
     if (pDoc->GetDocument() && !pDoc->GetDocument()->IsReadOnly())
@@ -657,6 +679,7 @@ void ezContainerWindow::SlotTabsContextMenuRequested(const QPoint& pos)
       m.addAction(m_pActionCurrentTabOpenFolder);
 
     m.exec(pTabs->tabBar()->mapToGlobal(pos));
+    */
   }
 }
 

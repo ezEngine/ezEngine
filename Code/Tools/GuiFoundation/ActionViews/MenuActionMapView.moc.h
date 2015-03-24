@@ -8,6 +8,8 @@
 class QWidget;
 class ezActionMap;
 class QAction;
+class ezQtProxy;
+
 
 class EZ_GUIFOUNDATION_DLL ezMenuActionMapView : public QMenu
 {
@@ -17,22 +19,19 @@ public:
   explicit ezMenuActionMapView(QWidget* parent = nullptr);
   ~ezMenuActionMapView();
 
-  ezResult SetActionMap(const ezHashedString& sMapping);
+  ezResult SetActionContext(const ezActionContext& context);
 
 private:
   void TreeEventHandler(const ezDocumentObjectTreeStructureEvent& e);
   void TreePropertyEventHandler(const ezDocumentObjectTreePropertyEvent& e);
 
-public:
-  static ezRttiMappedObjectFactory<QMenu> s_MenuFactory;
-  static ezRttiMappedObjectFactory<QAction> s_CategoryFactory;
-  static ezRttiMappedObjectFactory<QAction> s_ActionFactory;
+  void ClearView();
+  void CreateView();
+  void AddDocumentObjectToMenu(QMenu* pCurrentRoot, ezDocumentObjectBase* pObject);
 
 private:
-  ezHashTable<ezUuid, QMenu*> m_Menus;
-  ezHashTable<ezUuid, QAction*> m_Actions;
+  ezHashTable<ezUuid, ezQtProxy*> m_Proxies;
 
-  ezHashedString m_sMapping;
+  ezActionContext m_Context;
   ezActionMap* m_pActionMap;
-
 };

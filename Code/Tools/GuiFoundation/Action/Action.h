@@ -21,18 +21,18 @@ typedef void (*DeleteActionFunc)(ezAction* pAction);
 /// \brief Handle for a ezAction.
 ///
 /// ezAction can be invalidated at runtime so don't store them.
-class EZ_GUIFOUNDATION_DLL ezActionHandle
+class EZ_GUIFOUNDATION_DLL ezActionDescriptorHandle
 {
 public:
   typedef ezUInt32 StorageType;
-  EZ_DECLARE_HANDLE_TYPE(ezActionHandle, ezActionId);
+  EZ_DECLARE_HANDLE_TYPE(ezActionDescriptorHandle, ezActionId);
   friend class ezActionManager;
 public:
   const ezActionDescriptor* GetDescriptor() const;
 };
 
 ///
-struct ActionScope
+struct ezActionScope
 {
   enum Enum
   {
@@ -45,7 +45,7 @@ struct ActionScope
 };
 
 ///
-struct ActionType
+struct ezActionType
 {
   enum Enum
   {
@@ -60,7 +60,7 @@ struct ActionType
 ///
 struct EZ_GUIFOUNDATION_DLL ezActionContext
 {
-  ezUuid m_Document;
+  ezDocumentBase* m_pDocument;
   ezHashedString m_sMapping;
 };
 
@@ -69,18 +69,22 @@ struct EZ_GUIFOUNDATION_DLL ezActionContext
 struct EZ_GUIFOUNDATION_DLL ezActionDescriptor
 {
   ezActionDescriptor() {};
-  ezActionDescriptor(ActionType::Enum type, ActionScope::Enum scope, const char* szName, ezHashedString sCategoryPath,
+  ezActionDescriptor(ezActionType::Enum type, ezActionScope::Enum scope, const char* szName, ezHashedString sCategoryPath,
     CreateActionFunc createAction, DeleteActionFunc deleteAction);
 
-  ezActionHandle m_Handle;
-  ezEnum<ActionType> m_Type;
+  ezActionDescriptorHandle m_Handle;
+  ezEnum<ezActionType> m_Type;
 
-  ezEnum<ActionScope> m_Scope;
+  ezEnum<ezActionScope> m_Scope;
   ezString m_sActionName; ///< Unique within category path, shown in key configuration dialog
   ezHashedString m_sCategoryPath; ///< Category in key configuration dialog, e.g. "Tree View" or "File"
   
   // Default shortcut
 
+  ezAction* CreateAction(const ezActionContext& context) const;
+  void DeleteAction(ezAction* pAction) const;
+
+private:
   CreateActionFunc m_CreateAction;
   DeleteActionFunc m_DeleteAction;
 };
@@ -93,12 +97,22 @@ class EZ_GUIFOUNDATION_DLL ezAction : public ezReflectedClass
   EZ_ADD_DYNAMIC_REFLECTION(ezAction);
   EZ_DISALLOW_COPY_AND_ASSIGN(ezAction);
 public:
-  ezAction() {}
-  virtual ezResult Init(const ezActionContext& context) = 0;
+  ezAction(const ezActionContext& context) { m_Context = context; }
   virtual ezResult Execute(const ezVariant& value) = 0;
+
+  void TriggerUpdate();
+
+  ezActionDescriptorHandle GetDescriptorHandle() { return m_DescriptorHandle; }
 
 public:
   ezEvent<ezAction*> m_StatusUpdateEvent; ///< Fire when the state of the action changes (enabled, value etc...)
+
+protected:
+  ezActionContext m_Context;
+
+private:
+  friend struct ezActionDescriptor;
+  ezActionDescriptorHandle m_DescriptorHandle;
 };
 
 

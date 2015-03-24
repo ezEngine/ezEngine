@@ -74,19 +74,26 @@ ezActionMap::~ezActionMap()
 
 ezUuid ezActionMap::MapAction(const ezActionMapDescriptor& desc)
 {
-  ezUuid parent;
-  if (!FindObjectByPath(desc.m_sPath, parent))
+  ezUuid ParentGUID;
+  if (!FindObjectByPath(desc.m_sPath, ParentGUID))
   {
     return ezUuid();
   }
   
 
-  ezDocumentObjectBase* pParent = GetObject(parent);
-  const ezActionMapDescriptor* pDesc = GetDescriptor(pParent);
-  if (pDesc->m_hAction.GetDescriptor()->m_Type == ActionType::Action)
+  ezDocumentObjectBase* pParent = GetObject(ParentGUID);
+  if (desc.m_sPath.GetString().IsEmpty())
   {
-    ezLog::Error("Can't map descriptor '%s' as its parent is an action itself and thus can't have any children.", desc.m_hAction.GetDescriptor()->m_sActionName.GetData());
-    return ezUuid();
+    pParent = GetRootObject();
+  }
+  else
+  {
+    const ezActionMapDescriptor* pDesc = GetDescriptor(pParent);
+    if (pDesc->m_hAction.GetDescriptor()->m_Type == ezActionType::Action)
+    {
+      ezLog::Error("Can't map descriptor '%s' as its parent is an action itself and thus can't have any children.", desc.m_hAction.GetDescriptor()->m_sActionName.GetData());
+      return ezUuid();
+    }
   }
 
   const ezDocumentObjectBase* pChild = GetChildByName(pParent, desc.m_hAction.GetDescriptor()->m_sActionName);
@@ -100,16 +107,13 @@ ezUuid ezActionMap::MapAction(const ezActionMapDescriptor& desc)
   pCastObject->m_MemberProperties = desc;
 
   ezInt32 iIndex = 0;
-  for(ezUInt32 i = 0; i < pParent->GetChildren().GetCount(); ++i)
+  for(iIndex = 0; iIndex < (ezInt32) pParent->GetChildren().GetCount(); ++iIndex)
   {
-    const ezDocumentObjectBase* pChild = pParent->GetChildren()[i];
+    const ezDocumentObjectBase* pChild = pParent->GetChildren()[iIndex];
     const ezActionMapDescriptor* pDesc = GetDescriptor(pChild);
 
     if (desc.m_fOrder < pDesc->m_fOrder)
-    {
-      iIndex = i;
       break;
-    }
   }
 
   AddObject(pCastObject, pParent, iIndex);

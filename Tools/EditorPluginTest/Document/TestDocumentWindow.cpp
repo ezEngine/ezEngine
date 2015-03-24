@@ -205,6 +205,8 @@ void ezCameraMoveContext::Update()
 ez3DViewWidget::ez3DViewWidget(QWidget* pParent, ezDocumentWindow* pDocument) : QWidget(pParent), m_pDocument(pDocument), m_MoveContext(this, pDocument->GetDocument())
 {
   setFocusPolicy(Qt::FocusPolicy::StrongFocus);
+  setAttribute(Qt::WA_OpaquePaintEvent);
+  setAutoFillBackground(false);
 }
 
 void ez3DViewWidget::keyReleaseEvent(QKeyEvent* e)

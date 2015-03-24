@@ -72,6 +72,7 @@ public:
   void SetOwner(const ezDocumentBase* pDocument);
 
   const ezDocumentObjectBase* GetRootObject() const { return &m_RootObject; }
+  ezDocumentObjectBase* GetRootObject() { return &m_RootObject; }
 
   void AddObject(ezDocumentObjectBase* pObject, ezDocumentObjectBase* pParent, ezInt32 iChildIndex = -1);
 

@@ -4,22 +4,25 @@
 #include <GuiFoundation/Action/BaseActions.h>
 
 ///
-class ezDocumentActions
+class EZ_GUIFOUNDATION_DLL ezDocumentActions
 {
 public:
   static void RegisterActions();
   static void UnregisterActions();
 
-  static void MapActions(const ezHashedString& sMapping);
+  static void MapActions(const ezHashedString& sMapping, const ezHashedString& sPath);
 
-  static ezActionHandle s_hSave;
-  static ezActionHandle s_hSaveAs;
-  static ezActionHandle s_hSaveAll;
-  static ezActionHandle s_hClose;
+  static ezActionDescriptorHandle s_hSave;
+  static ezActionDescriptorHandle s_hSaveAs;
+  static ezActionDescriptorHandle s_hSaveAll;
+  static ezActionDescriptorHandle s_hClose;
 
 private:
-  ezAction* CreateSaveAction(const ezActionContext& context);
-  void DeleteSaveAction(ezAction* pAction);
+  static ezAction* CreateSaveAction(const ezActionContext& context);
+  static ezAction* CreateSaveAsAction(const ezActionContext& context);
+  static ezAction* CreateSaveAllAction(const ezActionContext& context);
+  static ezAction* CreateCloseAction(const ezActionContext& context);
+  static void DeleteDocumentAction(ezAction* pAction);
 };
 
 
@@ -35,11 +38,13 @@ public:
     SaveAll,
     Close
   };
-  ezDocumentAction(const char* szName, DocumentButton button);
+  ezDocumentAction(const ezActionContext& context, const char* szName, DocumentButton button);
+  ~ezDocumentAction();
 
-  virtual ezResult Init(const ezActionContext& context) override;
   virtual ezResult Execute(const ezVariant& value) override;
 
 private:
+  void DocumentEventHandler(const ezDocumentBase::Event& e);
 
+  DocumentButton m_ButtonType;
 };

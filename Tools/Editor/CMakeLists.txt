@@ -36,6 +36,7 @@ SET (LINK_LIBRARIES
   ThirdParty
   EditorFramework
   ToolsFoundation
+  GuiFoundation
 )
 
 SET (ADDITIONAL_DEPENDENCIES
