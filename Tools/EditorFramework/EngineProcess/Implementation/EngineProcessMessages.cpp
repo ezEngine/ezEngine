@@ -74,6 +74,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezUpdateReflectionTypeMsgToEditor, ezEditorEngin
   EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProjectReadyMsgToEditor, ezEditorEngineMsg, 1, ezRTTIDefaultAllocator<ezProjectReadyMsgToEditor> );
+EZ_END_DYNAMIC_REFLECTED_TYPE();
+
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezUpdateReflectionPropertyMsgToEditor, ezEditorEngineMsg, 1, ezRTTIDefaultAllocator<ezUpdateReflectionPropertyMsgToEditor> );
   EZ_BEGIN_PROPERTIES
     EZ_MEMBER_PROPERTY("Index", m_uiPropertyIndex),

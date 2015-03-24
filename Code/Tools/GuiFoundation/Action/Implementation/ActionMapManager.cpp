@@ -4,7 +4,7 @@
 
 ezMap<ezHashedString, ezActionMap*> ezActionMapManager::s_Mappings;
 
-EZ_BEGIN_SUBSYSTEM_DECLARATION(Core, ActionMapManager)
+EZ_BEGIN_SUBSYSTEM_DECLARATION(GuiFoundation, ActionMapManager)
 
   BEGIN_SUBSYSTEM_DEPENDENCIES
     "ActionManager"

@@ -40,7 +40,11 @@ EZ_END_COMPONENT_TYPE();
 
 
 
-
+void ezEditorProcessApp::SendProjectReadyMessage()
+{
+  ezProjectReadyMsgToEditor msg;
+  m_IPC.SendMessage(&msg);
+}
 
 
 void ezEditorProcessApp::SendReflectionInformation()

@@ -110,7 +110,7 @@ void ezEditorEngineProcessConnection::Initialize()
   }
 }
 
-void ezEditorEngineProcessConnection::Deinitialize()
+void ezEditorEngineProcessConnection::ShutdownProcess()
 {
   if (!m_bProcessShouldBeRunning)
     return;
@@ -128,9 +128,14 @@ void ezEditorEngineProcessConnection::SendMessage(ezProcessMessage* pMessage)
   m_IPC.SendMessage(pMessage);
 }
 
+void ezEditorEngineProcessConnection::WaitForMessage(const ezRTTI* pMessageType)
+{
+  m_IPC.WaitForMessage(pMessageType);
+}
+
 void ezEditorEngineProcessConnection::RestartProcess()
 {
-  Deinitialize();
+  ShutdownProcess();
 
   Initialize();
 
@@ -148,7 +153,7 @@ void ezEditorEngineProcessConnection::Update()
 
   if (!m_IPC.IsClientAlive())
   {
-    Deinitialize();
+    ShutdownProcess();
     m_bProcessCrashed = true;
 
     Event e;

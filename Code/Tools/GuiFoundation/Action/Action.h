@@ -61,7 +61,6 @@ struct ActionType
 struct EZ_GUIFOUNDATION_DLL ezActionContext
 {
   ezUuid m_Document;
-  ezHashedString m_sWindow;
   ezHashedString m_sMapping;
 };
 
@@ -75,6 +74,7 @@ struct EZ_GUIFOUNDATION_DLL ezActionDescriptor
 
   ezActionHandle m_Handle;
   ezEnum<ActionType> m_Type;
+
   ezEnum<ActionScope> m_Scope;
   ezString m_sActionName; ///< Unique within category path, shown in key configuration dialog
   ezHashedString m_sCategoryPath; ///< Category in key configuration dialog, e.g. "Tree View" or "File"

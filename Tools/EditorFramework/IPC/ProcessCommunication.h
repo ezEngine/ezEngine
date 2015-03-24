@@ -34,6 +34,8 @@ public:
 
   void SendMessage(ezProcessMessage* pMessage);
 
+  void WaitForMessage(const ezRTTI* pMessageType);
+
   void ProcessMessages();
 
   struct Event
@@ -48,6 +50,7 @@ private:
   void WriteMessages();
   void DispatchMessages();
 
+  const ezRTTI* m_pWaitForMessageType;
   ezInt64 m_iHostPID;
   ezUInt32 m_uiProcessID;
   QProcess* m_pClientProcess;

@@ -49,7 +49,7 @@ public:
   static const ezReflectedType* GetType(ezReflectedTypeHandle hType); // [tested]
 
 private:
-  EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(Core, ReflectedTypeManager);
+  EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(ToolsFoundation, ReflectedTypeManager);
 
   static ezReflectedType* GetTypeInternal(ezReflectedTypeHandle hType);
   static void Startup();

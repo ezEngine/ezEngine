@@ -27,6 +27,7 @@ private:
 
   void InitDevice();
   void SendReflectionInformation();
+  void SendProjectReadyMessage();
 
   QApplication* m_pApp;
   ezProcessCommunication m_IPC;

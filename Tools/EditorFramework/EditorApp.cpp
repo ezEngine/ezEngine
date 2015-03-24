@@ -142,7 +142,7 @@ void ezEditorApp::StartupEditor(const char* szAppName, const char* szUserName, i
   s_ContainerWindows[0]->ShowSettingsTab();
 
 
-  ezEditorEngineProcessConnection::GetInstance()->RestartProcess();
+  
 }
 
 void ezEditorApp::ShutdownEditor()
@@ -283,6 +283,12 @@ void ezEditorApp::EngineProcessMsgHandler(const ezEditorEngineProcessConnection:
         {
           ezReflectedTypeManager::RegisterType(s_TypeDesc);
         }
+      }
+      else if (e.m_pMsg->GetDynamicRTTI()->IsDerivedFrom<ezProjectReadyMsgToEditor>())
+      {
+        //const ezProjectReadyMsgToEditor* pMsg = static_cast<const ezProjectReadyMsgToEditor*>(e.m_pMsg);
+
+
       }
       else if (e.m_pMsg->GetDynamicRTTI()->IsDerivedFrom<ezUpdateReflectionPropertyMsgToEditor>())
       {

@@ -42,7 +42,7 @@ private:
     ezHashTable<ezString, StorageInfo> m_PathToStorageInfoTable;
   };
 
-  EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(Core, ReflectedTypeStorageManager);
+  EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(ToolsFoundation, ReflectedTypeStorageManager);
   friend class ezReflectedTypeStorageAccessor;
 
   static void Startup();

@@ -93,6 +93,8 @@ void ezEditorProject::CloseProject()
 
     e.m_Type = Event::Type::ProjectClosed;
     s_Events.Broadcast(e);
+
+    ezEditorEngineProcessConnection::GetInstance()->ShutdownProcess();
   }
 }
 
@@ -133,7 +135,15 @@ ezStatus ezEditorProject::CreateOrOpenProject(const char* szProjectPath, bool bC
 
 ezStatus ezEditorProject::OpenProject(const char* szProjectPath)
 {
-  return CreateOrOpenProject(szProjectPath, false);
+  ezStatus status = CreateOrOpenProject(szProjectPath, false);
+
+  if (status.m_Result.Succeeded())
+  {
+    ezEditorEngineProcessConnection::GetInstance()->RestartProcess();
+    ezEditorEngineProcessConnection::GetInstance()->WaitForMessage(ezGetStaticRTTI<ezProjectReadyMsgToEditor>());
+  }
+
+  return status;
 }
 
 ezStatus ezEditorProject::CreateProject(const char* szProjectPath)

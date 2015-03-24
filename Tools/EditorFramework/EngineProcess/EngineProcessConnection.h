@@ -23,12 +23,14 @@ public:
 
   void Update();
   void RestartProcess();
+  void ShutdownProcess();
   bool IsProcessCrashed() const { return m_bProcessCrashed; }
 
   ezEditorEngineConnection* CreateEngineConnection(ezDocumentWindow3D* pWindow);
   void DestroyEngineConnection(ezDocumentWindow3D* pWindow);
 
   void SendMessage(ezProcessMessage* pMessage);
+  void WaitForMessage(const ezRTTI* pMessageType);
 
   struct Event
   {
@@ -56,7 +58,6 @@ public:
 
 private:
   void Initialize();
-  void Deinitialize();
   void HandleIPCEvent(const ezProcessCommunication::Event& e);
   void SendDocumentOpenMessage(ezUInt32 uiViewID, const ezUuid& guid, bool bOpen);
 

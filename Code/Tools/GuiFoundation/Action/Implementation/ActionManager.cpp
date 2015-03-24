@@ -2,10 +2,10 @@
 #include <GuiFoundation/Action/ActionManager.h>
 #include <Foundation/Configuration/Startup.h>
 
-EZ_BEGIN_SUBSYSTEM_DECLARATION(Core, ActionManager)
+EZ_BEGIN_SUBSYSTEM_DECLARATION(GuiFoundation, ActionManager)
 
   BEGIN_SUBSYSTEM_DEPENDENCIES
-    "Foundation"
+    "ToolsFoundation"
   END_SUBSYSTEM_DEPENDENCIES
 
   ON_CORE_STARTUP

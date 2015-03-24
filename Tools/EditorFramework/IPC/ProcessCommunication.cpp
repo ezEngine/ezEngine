@@ -12,6 +12,7 @@ ezProcessCommunication::ezProcessCommunication()
   m_pClientProcess = nullptr;
   m_pSharedMemory = nullptr;
   m_uiProcessID = 0;
+  m_pWaitForMessageType = nullptr;
 }
 
 ezResult ezProcessCommunication::StartClientProcess(const char* szProcess, ezUInt32 uiMemSize)
@@ -258,6 +259,16 @@ bool ezProcessCommunication::ReadMessages()
   return true;
 }
 
+void ezProcessCommunication::WaitForMessage(const ezRTTI* pMessageType)
+{
+  m_pWaitForMessageType = pMessageType;
+
+  while (m_pWaitForMessageType != nullptr)
+  {
+    ProcessMessages();
+  }
+}
+
 void ezProcessCommunication::DispatchMessages()
 {
   while (!m_MessageReadQueue.IsEmpty())
@@ -277,6 +288,9 @@ void ezProcessCommunication::DispatchMessages()
 
       const ezRTTI* pRtti = nullptr;
       ezProcessMessage* pObject = (ezProcessMessage*) ezReflectionUtils::ReadObjectFromJSON(reader, pRtti);
+
+      if (m_pWaitForMessageType != nullptr && pObject->GetDynamicRTTI()->IsDerivedFrom(m_pWaitForMessageType))
+        m_pWaitForMessageType = nullptr;
 
       EZ_ASSERT_DEV(pRtti != nullptr, "Message Type unknown");
       EZ_ASSERT_DEV(pObject != nullptr, "Object could not be allocated");

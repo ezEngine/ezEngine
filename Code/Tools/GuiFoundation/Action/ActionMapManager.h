@@ -12,7 +12,7 @@ public:
   static ezActionMap* GetActionMap(const ezHashedString& sMapping);
 
 private:
-  EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(Core, ActionMapManager);
+  EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(GuiFoundation, ActionMapManager);
 
   static void Startup();
   static void Shutdown();

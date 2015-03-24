@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Foundation/Basics.h>
+#include <GuiFoundation/Basics.h>
 #include <GuiFoundation/Action/Action.h>
 #include <ToolsFoundation/Object/DocumentObjectTree.h>
 #include <ToolsFoundation/Object/DocumentObjectManager.h>

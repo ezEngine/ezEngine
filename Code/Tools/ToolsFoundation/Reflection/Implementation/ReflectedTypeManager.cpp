@@ -10,10 +10,10 @@ ezEvent<const ezReflectedTypeChange&> ezReflectedTypeManager::m_TypeRemovedEvent
 ReflectedTypeTable ezReflectedTypeManager::m_Types;
 ezHashTable<const char*, ezReflectedTypeHandle> ezReflectedTypeManager::m_NameToHandle;
 
-EZ_BEGIN_SUBSYSTEM_DECLARATION(Core, ReflectedTypeManager)
+EZ_BEGIN_SUBSYSTEM_DECLARATION(ToolsFoundation, ReflectedTypeManager)
 
   BEGIN_SUBSYSTEM_DEPENDENCIES
-    "Foundation"
+    "Core"
   END_SUBSYSTEM_DEPENDENCIES
 
   ON_CORE_STARTUP

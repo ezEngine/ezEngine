@@ -8,10 +8,10 @@
 
 ezMap<ezReflectedTypeHandle, ezReflectedTypeStorageManager::ReflectedTypeStorageMapping*> ezReflectedTypeStorageManager::m_ReflectedTypeToStorageMapping;
 
-EZ_BEGIN_SUBSYSTEM_DECLARATION(Core, ReflectedTypeStorageManager)
+EZ_BEGIN_SUBSYSTEM_DECLARATION(ToolsFoundation, ReflectedTypeStorageManager)
 
   BEGIN_SUBSYSTEM_DEPENDENCIES
-    "Foundation",
+    "Core",
     "ReflectedTypeManager"
   END_SUBSYSTEM_DEPENDENCIES
 

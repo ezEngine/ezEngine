@@ -32,7 +32,7 @@ public:
   static ezEvent<const Event&> s_Events;
 
 private:
-  EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(Core, ActionManager);
+  EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(GuiFoundation, ActionManager);
 
   static void Startup();
   static void Shutdown();

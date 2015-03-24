@@ -44,6 +44,14 @@ public:
   ezVariant m_ConstantValue;
 };
 
+class EZ_EDITORFRAMEWORK_DLL ezProjectReadyMsgToEditor : public ezEditorEngineMsg
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezProjectReadyMsgToEditor);
+
+public:
+
+};
+
 ///////////////////////////////////// ezEditorEngineDocumentMsg ///////////////////////////////////// 
 
 /// \brief Base class for all messages that are tied to some document.
