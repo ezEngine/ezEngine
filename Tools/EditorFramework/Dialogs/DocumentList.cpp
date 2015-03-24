@@ -1,6 +1,6 @@
 #include <PCH.h>
 #include <EditorFramework/Dialogs/DocumentList.moc.h>
-#include <EditorFramework/EditorApp.moc.h>
+#include <EditorFramework/Project/EditorProject.h>
 
 DocumentList::DocumentList(QWidget* parent, const ezHybridArray<ezDocumentBase*, 32>& ModifiedDocs) : QDialog(parent)
 {

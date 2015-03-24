@@ -23,8 +23,6 @@ public:
 
   void MoveDocumentWindowToContainer(ezDocumentWindow* pDocWindow);
 
-  void ShowSettingsTab() { SlotSettings(); }
-
   static void CreateOrOpenDocument(bool bCreate);
   static void CreateOrOpenProject(bool bCreate);
   static void CreateOrOpenDocument(bool bCreate, const char* szFile);
@@ -43,21 +41,11 @@ private:
 private slots:
   void SlotDocumentTabCloseRequested(int index);
   void SlotRestoreLayout();
-  void SlotSettings();
-  void SlotCreateDocument();
-  void SlotOpenDocument();
-  void SlotCreateProject();
-  void SlotOpenProject();
-  void SlotCloseProject();
   void SlotTabsContextMenuRequested(const QPoint& pos);
   void SlotCurrentTabSave();
   void SlotCurrentTabSaveAll();
   void SlotCurrentTabClose();
   void SlotCurrentTabOpenFolder();
-  void SlotRecentDocumentsMenu();
-  void SlotRecentProjectsMenu();
-  void SlotRecentProject();
-  void SlotRecentDocument();
   void SlotDocumentTabCurrentChanged(int index);
 
 private:
@@ -85,19 +73,10 @@ private:
 private:
   ezDynamicArray<ezDocumentWindow*> m_DocumentWindows;
 
-  QAction* m_pActionSettings;
-  QAction* m_pActionCreateDocument;
-  QAction* m_pActionOpenDocument;
-  QAction* m_pActionCreateProject;
-  QAction* m_pActionOpenProject;
-  QAction* m_pActionCloseProject;
   QAction* m_pActionCurrentTabSave;
   QAction* m_pActionCurrentTabSaveAll;
   QAction* m_pActionCurrentTabClose;
   QAction* m_pActionCurrentTabOpenFolder;
-
-  QMenu* m_pMenuRecentDocuments;
-  QMenu* m_pMenuRecentProjects;
 
   static ezDynamicArray<ezContainerWindow*> s_AllContainerWindows;
 };

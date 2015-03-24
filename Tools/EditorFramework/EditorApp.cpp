@@ -139,10 +139,7 @@ void ezEditorApp::StartupEditor(const char* szAppName, const char* szUserName, i
 
   LoadPlugins();
 
-  s_ContainerWindows[0]->ShowSettingsTab();
-
-
-  
+  ezContainerWindow::ShowSettingsDocument();
 }
 
 void ezEditorApp::ShutdownEditor()
@@ -320,6 +317,12 @@ void ezEditorApp::ProjectEventHandler(const ezEditorProject::Event& r)
   switch (r.m_Type)
   {
   case ezEditorProject::Event::Type::ProjectOpened:
+    {
+      ezEditorEngineProcessConnection::GetInstance()->RestartProcess();
+      ezEditorEngineProcessConnection::GetInstance()->WaitForMessage(ezGetStaticRTTI<ezProjectReadyMsgToEditor>());
+    }
+    // fall through
+
   case ezEditorProject::Event::Type::ProjectClosing:
     {
       s_RecentProjects.Insert(ezEditorProject::GetInstance()->GetProjectPath());
@@ -328,6 +331,8 @@ void ezEditorApp::ProjectEventHandler(const ezEditorProject::Event& r)
     break;
   case ezEditorProject::Event::Type::ProjectClosed:
     {
+      ezEditorEngineProcessConnection::GetInstance()->ShutdownProcess();
+
       // make sure to clear all project settings when a project is closed
       s_ProjectSettings.Clear();
     }

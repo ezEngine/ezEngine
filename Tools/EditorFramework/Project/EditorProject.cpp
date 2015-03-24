@@ -1,8 +1,8 @@
 #include <PCH.h>
-#include <EditorFramework/EditorApp.moc.h>
 #include <EditorFramework/Project/EditorProject.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/IO/OSFile.h>
+#include <ToolsFoundation/Document/DocumentManager.h>
 
 ezEditorProject* ezEditorProject::s_pInstance = nullptr;
 ezEvent<const ezEditorProject::Event&> ezEditorProject::s_Events;
@@ -93,8 +93,6 @@ void ezEditorProject::CloseProject()
 
     e.m_Type = Event::Type::ProjectClosed;
     s_Events.Broadcast(e);
-
-    ezEditorEngineProcessConnection::GetInstance()->ShutdownProcess();
   }
 }
 
@@ -129,9 +127,6 @@ ezStatus ezEditorProject::CreateOrOpenProject(const char* szProjectPath, bool bC
     delete s_pInstance;
     return ret;
   }
-
-  ezEditorEngineProcessConnection::GetInstance()->RestartProcess();
-  ezEditorEngineProcessConnection::GetInstance()->WaitForMessage(ezGetStaticRTTI<ezProjectReadyMsgToEditor>());
 
   return ezStatus(EZ_SUCCESS);
 }

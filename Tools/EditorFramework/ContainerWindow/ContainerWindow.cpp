@@ -45,24 +45,6 @@ ezContainerWindow::ezContainerWindow()
   EZ_VERIFY(connect(m_pActionCurrentTabClose,      SIGNAL(triggered()), this, SLOT(SlotCurrentTabClose()))       != nullptr, "signal/slot connection failed");
   EZ_VERIFY(connect(m_pActionCurrentTabOpenFolder, SIGNAL(triggered()), this, SLOT(SlotCurrentTabOpenFolder()))  != nullptr, "signal/slot connection failed");
 
-  m_pActionSettings       = new QAction("Settings", this);
-  m_pActionCreateDocument = new QAction("Create Document", this);
-  m_pActionOpenDocument   = new QAction("Open Document", this);
-  m_pActionCreateProject  = new QAction("Create Project", this);
-  m_pActionOpenProject    = new QAction("Open Project", this);
-  m_pActionCloseProject   = new QAction("Close Project", this);
-
-  EZ_VERIFY(connect(m_pActionSettings,        SIGNAL(triggered()), this, SLOT(SlotSettings()))        != nullptr, "signal/slot connection failed");
-  EZ_VERIFY(connect(m_pActionCreateDocument,  SIGNAL(triggered()), this, SLOT(SlotCreateDocument()))  != nullptr, "signal/slot connection failed");
-  EZ_VERIFY(connect(m_pActionOpenDocument,    SIGNAL(triggered()), this, SLOT(SlotOpenDocument()))    != nullptr, "signal/slot connection failed");
-  EZ_VERIFY(connect(m_pActionCreateProject,   SIGNAL(triggered()), this, SLOT(SlotCreateProject()))   != nullptr, "signal/slot connection failed");
-  EZ_VERIFY(connect(m_pActionOpenProject,     SIGNAL(triggered()), this, SLOT(SlotOpenProject()))     != nullptr, "signal/slot connection failed");
-  EZ_VERIFY(connect(m_pActionCloseProject,    SIGNAL(triggered()), this, SLOT(SlotCloseProject()))    != nullptr, "signal/slot connection failed");
-
-  //m_pActionCreateDocument->setEnabled(ezEditorProject::IsProjectOpen());
-  //m_pActionOpenDocument->setEnabled(ezEditorProject::IsProjectOpen());
-  m_pActionCloseProject->setEnabled(ezEditorProject::IsProjectOpen());
-
   ezDocumentWindow::s_Events.AddEventHandler(ezMakeDelegate(&ezContainerWindow::DocumentWindowEventHandler, this));
   ezEditorProject::s_Events.AddEventHandler(ezMakeDelegate(&ezContainerWindow::ProjectEventHandler, this));
 
@@ -190,32 +172,6 @@ void ezContainerWindow::SetupDocumentTabArea()
 
   EZ_VERIFY(connect(pTabs, SIGNAL(tabCloseRequested(int)), this, SLOT(SlotDocumentTabCloseRequested(int))) != nullptr, "signal/slot connection failed");
   EZ_VERIFY(connect(pTabs, SIGNAL(currentChanged(int)), this, SLOT(SlotDocumentTabCurrentChanged(int))) != nullptr, "signal/slot connection failed");
-
-  QToolButton* pButton = new QToolButton();
-  pButton->setText("+");
-  pButton->setIcon(QIcon(QLatin1String(":/Icons/Icons/ezEditor16.png")));
-  pButton->setAutoRaise(true);
-  pButton->setToolButtonStyle(Qt::ToolButtonStyle::ToolButtonTextOnly);
-  pButton->setPopupMode(QToolButton::ToolButtonPopupMode::InstantPopup);
-  pButton->setArrowType(Qt::ArrowType::NoArrow);
-  pButton->setStyleSheet("QToolButton::menu-indicator { image: none; }");
-  pButton->setMenu(new QMenu());
-  pButton->menu()->addAction(m_pActionCreateDocument);
-  pButton->menu()->addAction(m_pActionOpenDocument);
-  m_pMenuRecentDocuments = pButton->menu()->addMenu("Recent Documents");
-  
-  pButton->menu()->addSeparator();
-  pButton->menu()->addAction(m_pActionCreateProject);
-  pButton->menu()->addAction(m_pActionOpenProject);
-  m_pMenuRecentProjects = pButton->menu()->addMenu("Recent Projects");
-  pButton->menu()->addAction(m_pActionCloseProject);
-  pButton->menu()->addSeparator();
-  pButton->menu()->addAction(m_pActionSettings);
-
-  pTabs->setCornerWidget(pButton, Qt::Corner::TopLeftCorner);
-
-  EZ_VERIFY(connect(m_pMenuRecentDocuments, SIGNAL(aboutToShow()), this, SLOT(SlotRecentDocumentsMenu())) != nullptr, "signal/slot connection failed");
-  EZ_VERIFY(connect(m_pMenuRecentProjects, SIGNAL(aboutToShow()), this, SLOT(SlotRecentProjectsMenu())) != nullptr, "signal/slot connection failed");
 
   setCentralWidget(pTabs);
 }
@@ -356,7 +312,7 @@ void ezContainerWindow::DocumentWindowEventHandler(const ezDocumentWindow::Event
     RemoveDocumentWindowFromContainer(e.m_pWindow);
 
     if (m_DocumentWindows.IsEmpty())
-      ShowSettingsTab();
+      ShowSettingsDocument();
 
     break;
   case ezDocumentWindow::Event::Type::WindowDecorationChanged:
@@ -371,17 +327,9 @@ void ezContainerWindow::ProjectEventHandler(const ezEditorProject::Event& e)
   {
   case ezEditorProject::Event::Type::ProjectOpened:
   case ezEditorProject::Event::Type::ProjectClosed:
-    //m_pActionCreateDocument->setEnabled(ezEditorProject::IsProjectOpen());
-    //m_pActionOpenDocument->setEnabled(ezEditorProject::IsProjectOpen());
-    m_pActionCloseProject->setEnabled(ezEditorProject::IsProjectOpen());
     UpdateWindowTitle();
     break;
   }
-}
-
-void ezContainerWindow::SlotSettings()
-{
-  ShowSettingsDocument();
 }
 
 void ezContainerWindow::ShowSettingsDocument()
@@ -560,16 +508,6 @@ void ezContainerWindow::CreateOrOpenDocument(bool bCreate, const char* szFile)
   ezContainerWindow::EnsureVisibleAnyContainer(pDocument);
 }
 
-void ezContainerWindow::SlotCreateDocument()
-{
-  CreateOrOpenDocument(true);
-}
-
-void ezContainerWindow::SlotOpenDocument()
-{
-  CreateOrOpenDocument(false);
-}
-
 void ezContainerWindow::CreateOrOpenProject(bool bCreate)
 {
   static QString sDir = ezOSFile::GetApplicationDirectory();
@@ -616,25 +554,6 @@ void ezContainerWindow::CreateOrOpenProject(bool bCreate, const char* szFile)
     return;
   }
 }
-
-void ezContainerWindow::SlotCreateProject()
-{
-  CreateOrOpenProject(true);
-}
-
-void ezContainerWindow::SlotOpenProject()
-{
-  CreateOrOpenProject(false);
-}
-
-void ezContainerWindow::SlotCloseProject()
-{
-  if (ezEditorProject::CanCloseProject())
-  {
-    ezEditorProject::CloseProject();
-  }
-}
-
 
 void ezContainerWindow::SlotTabsContextMenuRequested(const QPoint& pos)
 {
@@ -740,91 +659,5 @@ void ezContainerWindow::SlotCurrentTabOpenFolder()
   QStringList args;
   args << "/select," << QDir::toNativeSeparators(sPath.GetData());
   QProcess::startDetached("explorer", args);
-}
-
-void ezContainerWindow::SlotRecentDocumentsMenu()
-{
-  m_pMenuRecentDocuments->clear();
-
-  if (ezEditorApp::GetInstance()->GetRecentDocumentsList().GetFileList().IsEmpty())
-  {
-    QAction* pAction = m_pMenuRecentDocuments->addAction(QLatin1String("<empty>"));
-    pAction->setEnabled(false);
-    return;
-  }
-
-  ezInt32 iMaxDocumentsToAdd = 10;
-  for (ezString s : ezEditorApp::GetInstance()->GetRecentDocumentsList().GetFileList())
-  {
-    QAction* pAction = nullptr;
-
-    if (!ezOSFile::Exists(s))
-      continue;
-
-    if (ezEditorProject::IsProjectOpen())
-    {
-      ezString sRelativePath;
-      if (!ezEditorProject::GetInstance()->IsDocumentInProject(s, &sRelativePath))
-        continue;
-
-      pAction = m_pMenuRecentDocuments->addAction(QString::fromUtf8(sRelativePath.GetData()));
-    }
-    else
-    {
-      pAction = m_pMenuRecentDocuments->addAction(QString::fromUtf8(s.GetData()));
-    }
-
-    pAction->setData(QString::fromUtf8(s.GetData()));
-    EZ_VERIFY(connect(pAction, SIGNAL(triggered()), this, SLOT(SlotRecentDocument())) != nullptr, "signal/slot connection failed");
-
-    --iMaxDocumentsToAdd;
-
-    if (iMaxDocumentsToAdd <= 0)
-      break;
-  }
-}
-
-void ezContainerWindow::SlotRecentProjectsMenu()
-{
-  m_pMenuRecentProjects->clear();
-
-  if (ezEditorApp::GetInstance()->GetRecentProjectsList().GetFileList().IsEmpty())
-  {
-    QAction* pAction = m_pMenuRecentProjects->addAction(QLatin1String("<empty>"));
-    pAction->setEnabled(false);
-    return;
-  }
-
-  for (ezString s : ezEditorApp::GetInstance()->GetRecentProjectsList().GetFileList())
-  {
-    if (!ezOSFile::Exists(s))
-      continue;
-
-    QAction* pAction = m_pMenuRecentProjects->addAction(QString::fromUtf8(s.GetData()));
-    pAction->setData(QString::fromUtf8(s.GetData()));
-    EZ_VERIFY(connect(pAction, SIGNAL(triggered()), this, SLOT(SlotRecentProject())) != nullptr, "signal/slot connection failed");
-  }
-}
-
-void ezContainerWindow::SlotRecentProject()
-{
-  QAction* pAction = qobject_cast<QAction*>(sender());
-  if (!pAction)
-    return;
-
-  ezString sFile = pAction->data().toString().toUtf8().data();
-
-  CreateOrOpenProject(false, sFile);
-}
-
-void ezContainerWindow::SlotRecentDocument()
-{
-  QAction* pAction = qobject_cast<QAction*>(sender());
-  if (!pAction)
-    return;
-
-  ezString sFile = pAction->data().toString().toUtf8().data();
-
-  CreateOrOpenDocument(false, sFile);
 }
 
