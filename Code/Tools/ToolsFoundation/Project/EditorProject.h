@@ -1,10 +1,10 @@
 #pragma once
 
-#include <EditorFramework/Plugin.h>
+#include <ToolsFoundation/Basics.h>
 #include <Foundation/Communication/Event.h>
 #include <ToolsFoundation/Basics/Status.h>
 
-class EZ_EDITORFRAMEWORK_DLL ezEditorProject
+class EZ_TOOLSFOUNDATION_DLL ezToolsProject
 {
 public:
   struct Event
@@ -35,7 +35,7 @@ public:
   static ezEvent<Request&> s_Requests;
 
 public:
-  static ezEditorProject* GetInstance() { return s_pInstance; }
+  static ezToolsProject* GetInstance() { return s_pInstance; }
 
   static bool IsProjectOpen() { return s_pInstance != nullptr; }
   static void CloseProject();
@@ -54,13 +54,13 @@ private:
   static ezStatus CreateOrOpenProject(const char* szProjectPath, bool bCreate);
 
 private:
-  ezEditorProject(const char* szProjectPath);
-  ~ezEditorProject();
+  ezToolsProject(const char* szProjectPath);
+  ~ezToolsProject();
 
   ezStatus Create();
   ezStatus Open();
 
-  static ezEditorProject* s_pInstance;
+  static ezToolsProject* s_pInstance;
 
 private:
   ezString m_sProjectPath;

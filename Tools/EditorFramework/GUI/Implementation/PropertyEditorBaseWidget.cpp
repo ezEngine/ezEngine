@@ -15,7 +15,7 @@
 #include <QMenu>
 #include <QWidgetAction>
 #include <EditorFramework/GUI/QtHelpers.h>
-#include <EditorFramework/EditorGUI.moc.h>
+#include <GuiFoundation/UIServices/UIServices.moc.h>
 
 /// *** BASE ***
 
@@ -356,7 +356,7 @@ void ezPropertyEditorColorWidget::on_Button_triggered()
 
   Broadcast(ezPropertyEditorBaseWidget::Event::Type::BeginTemporary);
 
-  ezEditorGUI::GetInstance()->ShowColorDialog(m_CurrentColor, true, this, SLOT(on_CurrentColor_changed(const QColor&)), SLOT(on_Color_accepted()), SLOT(on_Color_reset()));
+  ezUIServices::GetInstance()->ShowColorDialog(m_CurrentColor, true, this, SLOT(on_CurrentColor_changed(const QColor&)), SLOT(on_Color_accepted()), SLOT(on_Color_reset()));
 }
 
 void ezPropertyEditorColorWidget::on_CurrentColor_changed(const QColor& color)

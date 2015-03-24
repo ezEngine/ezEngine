@@ -1,8 +1,8 @@
-#include <PCH.h>
-#include <EditorFramework/Dialogs/DocumentList.moc.h>
-#include <EditorFramework/Project/EditorProject.h>
+#include <GuiFoundation/PCH.h>
+#include <GuiFoundation/Dialogs/ModifiedDocumentsDlg.moc.h>
+#include <ToolsFoundation/Project/EditorProject.h>
 
-DocumentList::DocumentList(QWidget* parent, const ezHybridArray<ezDocumentBase*, 32>& ModifiedDocs) : QDialog(parent)
+ezModifiedDocumentsDlg::ezModifiedDocumentsDlg(QWidget* parent, const ezHybridArray<ezDocumentBase*, 32>& ModifiedDocs) : QDialog(parent)
 {
   m_ModifiedDocs = ModifiedDocs;
 
@@ -25,7 +25,7 @@ DocumentList::DocumentList(QWidget* parent, const ezHybridArray<ezDocumentBase*,
   TableDocuments->setSortingEnabled(true);
   EZ_VERIFY(connect(TableDocuments, SIGNAL(currentCellChanged(int, int, int, int)), this, SLOT(SlotSelectionChanged(int, int, int, int))) != nullptr, "signal/slot connection failed");
 
-  ezStringBuilder sPath = ezPathUtils::GetFileDirectory(ezEditorProject::GetInstance()->GetProjectPath());
+  ezStringBuilder sPath = ezPathUtils::GetFileDirectory(ezToolsProject::GetInstance()->GetProjectPath());
   ezInt32 iTrimStart = sPath.GetCharacterCount();
 
   ezInt32 iRow = 0;
@@ -59,7 +59,7 @@ DocumentList::DocumentList(QWidget* parent, const ezHybridArray<ezDocumentBase*,
   TableDocuments->blockSignals(false);
 }
 
-ezResult DocumentList::SaveDocument(ezDocumentBase* pDoc)
+ezResult ezModifiedDocumentsDlg::SaveDocument(ezDocumentBase* pDoc)
 {
   if (pDoc->SaveDocument().m_Result.Failed())
   {
@@ -71,7 +71,7 @@ ezResult DocumentList::SaveDocument(ezDocumentBase* pDoc)
   return EZ_SUCCESS;
 }
 
-void DocumentList::SlotSaveDocument()
+void ezModifiedDocumentsDlg::SlotSaveDocument()
 {
   QPushButton* pButtonSave = qobject_cast<QPushButton*>(sender());
 
@@ -85,7 +85,7 @@ void DocumentList::SlotSaveDocument()
   pButtonSave->setEnabled(pDoc->IsModified());
 }
 
-void DocumentList::SlotSelectionChanged(int currentRow, int currentColumn, int previousRow, int previousColumn)
+void ezModifiedDocumentsDlg::SlotSelectionChanged(int currentRow, int currentColumn, int previousRow, int previousColumn)
 {
   QPushButton* pButtonSave = qobject_cast<QPushButton*>(TableDocuments->cellWidget(currentRow, 0));
   
@@ -97,7 +97,7 @@ void DocumentList::SlotSelectionChanged(int currentRow, int currentColumn, int p
   pDoc->EnsureVisible();
 }
 
-void DocumentList::on_ButtonSaveSelected_clicked()
+void ezModifiedDocumentsDlg::on_ButtonSaveSelected_clicked()
 {
   for (ezDocumentBase* pDoc : m_ModifiedDocs)
   {
@@ -108,12 +108,12 @@ void DocumentList::on_ButtonSaveSelected_clicked()
   accept();
 }
 
-void DocumentList::on_ButtonDontSave_clicked()
+void ezModifiedDocumentsDlg::on_ButtonDontSave_clicked()
 {
   accept();
 }
 
-void DocumentList::on_ButtonCancel_clicked()
+void ezModifiedDocumentsDlg::on_ButtonCancel_clicked()
 {
   reject();
 }

@@ -1,7 +1,7 @@
 #include <PCH.h>
 #include <EditorFramework/EditorApp.moc.h>
-#include <EditorFramework/EditorGUI.moc.h>
-#include <EditorFramework/Dialogs/DocumentList.moc.h>
+#include <GuiFoundation/UIServices/UIServices.moc.h>
+#include <GuiFoundation/Dialogs/ModifiedDocumentsDlg.moc.h>
 #include <EditorFramework/EngineProcess/EngineProcessConnection.h>
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
@@ -90,6 +90,8 @@ ezEditorApp::~ezEditorApp()
 void ezEditorApp::StartupEditor(const char* szAppName, const char* szUserName, int argc, char** argv)
 {
   s_sApplicationName = ezCommandLineUtils::GetInstance()->GetStringOption("-appname", 0, szAppName);
+  ezUIServices::SetMessageBoxTitle(s_sApplicationName);
+
   s_sUserName = szUserName;
 
   RegisterPluginNameForSettings("-Main-");
@@ -110,8 +112,8 @@ void ezEditorApp::StartupEditor(const char* szAppName, const char* szUserName, i
   ezDocumentManagerBase::s_Requests.AddEventHandler(ezMakeDelegate(&ezEditorApp::DocumentManagerRequestHandler, this));
   ezDocumentManagerBase::s_Events.AddEventHandler(ezMakeDelegate(&ezEditorApp::DocumentManagerEventHandler, this));
   ezDocumentBase::s_EventsAny.AddEventHandler(ezMakeDelegate(&ezEditorApp::DocumentEventHandler, this));
-  ezEditorProject::s_Requests.AddEventHandler(ezMakeDelegate(&ezEditorApp::ProjectRequestHandler, this));
-  ezEditorProject::s_Events.AddEventHandler(ezMakeDelegate(&ezEditorApp::ProjectEventHandler, this));
+  ezToolsProject::s_Requests.AddEventHandler(ezMakeDelegate(&ezEditorApp::ProjectRequestHandler, this));
+  ezToolsProject::s_Events.AddEventHandler(ezMakeDelegate(&ezEditorApp::ProjectEventHandler, this));
   ezEditorEngineProcessConnection::s_Events.AddEventHandler(ezMakeDelegate(&ezEditorApp::EngineProcessMsgHandler, this));
 
   ezStartup::StartupCore();
@@ -133,7 +135,7 @@ void ezEditorApp::StartupEditor(const char* szAppName, const char* szUserName, i
   ezGlobalLog::AddLogWriter(ezLoggingEvent::Handler(&ezLogWriter::HTML::LogMessageHandler, &m_LogHTML));
  
 
-  ezEditorGUI::GetInstance()->LoadState();
+  ezUIServices::GetInstance()->LoadState();
 
   LoadRecentFiles();
 
@@ -144,18 +146,18 @@ void ezEditorApp::StartupEditor(const char* szAppName, const char* szUserName, i
 
 void ezEditorApp::ShutdownEditor()
 {
-  ezEditorProject::CloseProject();
+  ezToolsProject::CloseProject();
 
   ezEditorEngineProcessConnection::s_Events.RemoveEventHandler(ezMakeDelegate(&ezEditorApp::EngineProcessMsgHandler, this));
-  ezEditorProject::s_Requests.RemoveEventHandler(ezMakeDelegate(&ezEditorApp::ProjectRequestHandler, this));
-  ezEditorProject::s_Events.RemoveEventHandler(ezMakeDelegate(&ezEditorApp::ProjectEventHandler, this));
+  ezToolsProject::s_Requests.RemoveEventHandler(ezMakeDelegate(&ezEditorApp::ProjectRequestHandler, this));
+  ezToolsProject::s_Events.RemoveEventHandler(ezMakeDelegate(&ezEditorApp::ProjectEventHandler, this));
   ezDocumentBase::s_EventsAny.RemoveEventHandler(ezMakeDelegate(&ezEditorApp::DocumentEventHandler, this));
   ezDocumentManagerBase::s_Requests.RemoveEventHandler(ezMakeDelegate(&ezEditorApp::DocumentManagerRequestHandler, this));
   ezDocumentManagerBase::s_Events.RemoveEventHandler(ezMakeDelegate(&ezEditorApp::DocumentManagerEventHandler, this));
 
   SaveSettings();
 
-  ezEditorGUI::GetInstance()->SaveState();
+  ezUIServices::GetInstance()->SaveState();
 
   delete s_pEngineViewProcess;
   delete s_pQtApplication;
@@ -220,11 +222,11 @@ void ezEditorApp::DocumentManagerRequestHandler(ezDocumentManagerBase::Request& 
       if (r.m_RequestStatus.m_Result.Failed())
         return;
 
-      if (!ezEditorProject::IsProjectOpen())
+      if (!ezToolsProject::IsProjectOpen())
       {
         // if no project is open yet, try to open the corresponding one
 
-        ezString sProjectPath = ezEditorProject::FindProjectForDocument(r.m_sDocumentPath);
+        ezString sProjectPath = ezToolsProject::FindProjectForDocument(r.m_sDocumentPath);
 
         // if no project could be located, just reject the request
         if (sProjectPath.IsEmpty())
@@ -235,7 +237,7 @@ void ezEditorApp::DocumentManagerRequestHandler(ezDocumentManagerBase::Request& 
         else
         {
           // if a project could be found, try to open it
-          ezStatus res = ezEditorProject::OpenProject(sProjectPath);
+          ezStatus res = ezToolsProject::OpenProject(sProjectPath);
 
           // if project opening failed, relay that error message
           if (res.m_Result.Failed())
@@ -247,7 +249,7 @@ void ezEditorApp::DocumentManagerRequestHandler(ezDocumentManagerBase::Request& 
       }
       else
       {
-        if (!ezEditorProject::GetInstance()->IsDocumentInProject(r.m_sDocumentPath))
+        if (!ezToolsProject::GetInstance()->IsDocumentInProject(r.m_sDocumentPath))
         {
           r.m_RequestStatus = ezStatus("The document is not part of the currently open project");
           return;
@@ -312,24 +314,24 @@ void ezEditorApp::EngineProcessMsgHandler(const ezEditorEngineProcessConnection:
   }
 }
 
-void ezEditorApp::ProjectEventHandler(const ezEditorProject::Event& r)
+void ezEditorApp::ProjectEventHandler(const ezToolsProject::Event& r)
 {
   switch (r.m_Type)
   {
-  case ezEditorProject::Event::Type::ProjectOpened:
+  case ezToolsProject::Event::Type::ProjectOpened:
     {
       ezEditorEngineProcessConnection::GetInstance()->RestartProcess();
       ezEditorEngineProcessConnection::GetInstance()->WaitForMessage(ezGetStaticRTTI<ezProjectReadyMsgToEditor>());
     }
     // fall through
 
-  case ezEditorProject::Event::Type::ProjectClosing:
+  case ezToolsProject::Event::Type::ProjectClosing:
     {
-      s_RecentProjects.Insert(ezEditorProject::GetInstance()->GetProjectPath());
+      s_RecentProjects.Insert(ezToolsProject::GetInstance()->GetProjectPath());
       SaveSettings();
     }
     break;
-  case ezEditorProject::Event::Type::ProjectClosed:
+  case ezToolsProject::Event::Type::ProjectClosed:
     {
       ezEditorEngineProcessConnection::GetInstance()->ShutdownProcess();
 
@@ -340,11 +342,11 @@ void ezEditorApp::ProjectEventHandler(const ezEditorProject::Event& r)
   }
 }
 
-void ezEditorApp::ProjectRequestHandler(ezEditorProject::Request& r)
+void ezEditorApp::ProjectRequestHandler(ezToolsProject::Request& r)
 {
   switch (r.m_Type)
   {
-    case ezEditorProject::Request::Type::CanProjectClose:
+    case ezToolsProject::Request::Type::CanProjectClose:
     {
       if (r.m_bProjectCanClose == false)
         return;
@@ -362,7 +364,7 @@ void ezEditorApp::ProjectRequestHandler(ezEditorProject::Request& r)
 
       if (!ModifiedDocs.IsEmpty())
       {
-        DocumentList dlg(s_ContainerWindows[0], ModifiedDocs);
+        ezModifiedDocumentsDlg dlg(s_ContainerWindows[0], ModifiedDocs);
         if (dlg.exec() == 0)
           r.m_bProjectCanClose = false;
       }

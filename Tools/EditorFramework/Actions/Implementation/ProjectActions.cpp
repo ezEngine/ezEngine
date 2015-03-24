@@ -1,6 +1,6 @@
 #include <PCH.h>
 #include <EditorFramework/Actions/ProjectActions.h>
-#include <EditorFramework/Project/EditorProject.h>
+#include <ToolsFoundation/Project/EditorProject.h>
 #include <EditorFramework/Settings/SettingsTab.moc.h>
 #include <EditorFramework/EditorApp.moc.h>
 #include <EditorFramework/ContainerWindow/ContainerWindow.moc.h>
@@ -137,10 +137,10 @@ void ezRecentDocumentsMenuAction::GetEntries(ezHybridArray<std::pair<ezString, e
     if (!ezOSFile::Exists(s))
       continue;
 
-    if (ezEditorProject::IsProjectOpen())
+    if (ezToolsProject::IsProjectOpen())
     {
       ezString sRelativePath;
-      if (!ezEditorProject::GetInstance()->IsDocumentInProject(s, &sRelativePath))
+      if (!ezToolsProject::GetInstance()->IsDocumentInProject(s, &sRelativePath))
         continue;
 
       out_Entries.PushBack(std::pair<ezString, ezVariant>(sRelativePath, s));
@@ -206,9 +206,9 @@ ezProjectAction::ezProjectAction(const ezActionContext& context, const char* szN
 
   if (m_ButtonType == ButtonType::CloseProject)
   {
-    SetEnabled(ezEditorProject::IsProjectOpen());
+    SetEnabled(ezToolsProject::IsProjectOpen());
 
-    ezEditorProject::s_Events.AddEventHandler(ezMakeDelegate(&ezProjectAction::ProjectEventHandler, this));
+    ezToolsProject::s_Events.AddEventHandler(ezMakeDelegate(&ezProjectAction::ProjectEventHandler, this));
   }
 }
 
@@ -216,13 +216,13 @@ ezProjectAction::~ezProjectAction()
 {
   if (m_ButtonType == ButtonType::CloseProject)
   {
-    ezEditorProject::s_Events.RemoveEventHandler(ezMakeDelegate(&ezProjectAction::ProjectEventHandler, this));
+    ezToolsProject::s_Events.RemoveEventHandler(ezMakeDelegate(&ezProjectAction::ProjectEventHandler, this));
   }
 }
 
-void ezProjectAction::ProjectEventHandler(const ezEditorProject::Event& e)
+void ezProjectAction::ProjectEventHandler(const ezToolsProject::Event& e)
 {
-  SetEnabled(ezEditorProject::IsProjectOpen());
+  SetEnabled(ezToolsProject::IsProjectOpen());
   TriggerUpdate();
 }
 
@@ -248,8 +248,8 @@ void ezProjectAction::Execute(const ezVariant& value)
 
   case ezProjectAction::ButtonType::CloseProject:
     {
-      if (ezEditorProject::CanCloseProject())
-        ezEditorProject::CloseProject();
+      if (ezToolsProject::CanCloseProject())
+        ezToolsProject::CloseProject();
     }
     break;
 

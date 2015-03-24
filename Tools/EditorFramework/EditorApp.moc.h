@@ -1,9 +1,9 @@
 #pragma once
 
 #include <EditorFramework/Plugin.h>
-#include <EditorFramework/Settings/Settings.h>
+#include <ToolsFoundation/Settings/Settings.h>
 #include <EditorFramework/ContainerWindow/ContainerWindow.moc.h>
-#include <EditorFramework/Project/EditorProject.h>
+#include <ToolsFoundation/Project/EditorProject.h>
 #include <EditorFramework/EngineProcess/EngineProcessConnection.h>
 #include <Foundation/Containers/Set.h>
 #include <Foundation/Strings/String.h>
@@ -97,8 +97,8 @@ private:
   void DocumentManagerRequestHandler(ezDocumentManagerBase::Request& r);
   void DocumentManagerEventHandler(const ezDocumentManagerBase::Event& r);
   void DocumentEventHandler(const ezDocumentBase::Event& e);
-  void ProjectRequestHandler(ezEditorProject::Request& r);
-  void ProjectEventHandler(const ezEditorProject::Event& r);
+  void ProjectRequestHandler(ezToolsProject::Request& r);
+  void ProjectEventHandler(const ezToolsProject::Event& r);
   void EngineProcessMsgHandler(const ezEditorEngineProcessConnection::Event& e);
 
   ezHybridArray<ezContainerWindow*, 4> s_ContainerWindows;

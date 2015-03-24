@@ -1,14 +1,14 @@
-#include <PCH.h>
-#include <EditorFramework/Project/EditorProject.h>
+#include <ToolsFoundation/PCH.h>
+#include <ToolsFoundation/Project/EditorProject.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/IO/OSFile.h>
 #include <ToolsFoundation/Document/DocumentManager.h>
 
-ezEditorProject* ezEditorProject::s_pInstance = nullptr;
-ezEvent<const ezEditorProject::Event&> ezEditorProject::s_Events;
-ezEvent<ezEditorProject::Request&> ezEditorProject::s_Requests;
+ezToolsProject* ezToolsProject::s_pInstance = nullptr;
+ezEvent<const ezToolsProject::Event&> ezToolsProject::s_Events;
+ezEvent<ezToolsProject::Request&> ezToolsProject::s_Requests;
 
-ezEditorProject::ezEditorProject(const char* szProjectPath)
+ezToolsProject::ezToolsProject(const char* szProjectPath)
 {
   EZ_ASSERT_DEV(s_pInstance == nullptr, "There can be only one");
   
@@ -18,12 +18,12 @@ ezEditorProject::ezEditorProject(const char* szProjectPath)
   EZ_ASSERT_DEV(!m_sProjectPath.IsEmpty(), "Path cannot be empty.");
 }
 
-ezEditorProject::~ezEditorProject()
+ezToolsProject::~ezToolsProject()
 {
   s_pInstance = nullptr;
 }
 
-ezStatus ezEditorProject::Create()
+ezStatus ezToolsProject::Create()
 {
   {
     ezOSFile ProjectFile;
@@ -60,7 +60,7 @@ ezStatus ezEditorProject::Create()
   return Open();
 }
 
-ezStatus ezEditorProject::Open()
+ezStatus ezToolsProject::Open()
 {
   ezOSFile ProjectFile;
   if (ProjectFile.Open(m_sProjectPath, ezFileMode::Read).Failed())
@@ -79,7 +79,7 @@ ezStatus ezEditorProject::Open()
   return ezStatus(EZ_SUCCESS);
 }
 
-void ezEditorProject::CloseProject()
+void ezToolsProject::CloseProject()
 {
   if (s_pInstance)
   {
@@ -96,7 +96,7 @@ void ezEditorProject::CloseProject()
   }
 }
 
-bool ezEditorProject::CanCloseProject()
+bool ezToolsProject::CanCloseProject()
 {
   if (GetInstance() == nullptr)
     return true;
@@ -109,11 +109,11 @@ bool ezEditorProject::CanCloseProject()
   return e.m_bProjectCanClose;
 }
 
-ezStatus ezEditorProject::CreateOrOpenProject(const char* szProjectPath, bool bCreate)
+ezStatus ezToolsProject::CreateOrOpenProject(const char* szProjectPath, bool bCreate)
 {
   CloseProject();
 
-  new ezEditorProject(szProjectPath);
+  new ezToolsProject(szProjectPath);
 
   ezStatus ret;
   
@@ -131,19 +131,19 @@ ezStatus ezEditorProject::CreateOrOpenProject(const char* szProjectPath, bool bC
   return ezStatus(EZ_SUCCESS);
 }
 
-ezStatus ezEditorProject::OpenProject(const char* szProjectPath)
+ezStatus ezToolsProject::OpenProject(const char* szProjectPath)
 {
   ezStatus status = CreateOrOpenProject(szProjectPath, false);
 
   return status;
 }
 
-ezStatus ezEditorProject::CreateProject(const char* szProjectPath)
+ezStatus ezToolsProject::CreateProject(const char* szProjectPath)
 {
   return CreateOrOpenProject(szProjectPath, true);
 }
 
-bool ezEditorProject::IsDocumentInProject(const char* szDocumentPath, ezString* out_RelativePath) const
+bool ezToolsProject::IsDocumentInProject(const char* szDocumentPath, ezString* out_RelativePath) const
 {
   ezStringBuilder sProjectFolder = m_sProjectPath;
   sProjectFolder.PathParentDirectory();
@@ -165,7 +165,7 @@ bool ezEditorProject::IsDocumentInProject(const char* szDocumentPath, ezString* 
   return true;
 }
 
-ezString ezEditorProject::FindProjectForDocument(const char* szDocumentPath)
+ezString ezToolsProject::FindProjectForDocument(const char* szDocumentPath)
 {
 #if EZ_ENABLED(EZ_SUPPORTS_FILE_ITERATORS)
   ezStringBuilder sPath = szDocumentPath;

@@ -1,7 +1,7 @@
 #include <PCH.h>
 #include <EditorFramework/GUI/RawPropertyGridWidget.h>
 #include <EditorFramework/GUI/PropertyEditorBaseWidget.moc.h>
-#include <EditorFramework/EditorGUI.moc.h>
+#include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <ToolsFoundation/Document/Document.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
 #include <ToolsFoundation/Reflection/ToolsReflectionUtils.h>
@@ -87,7 +87,7 @@ void ezRawPropertyGridWidget::PropertyChangedHandler(const ezPropertyEditorBaseW
       m_pDocument->GetCommandHistory()->StartTransaction();
       ezStatus res = m_pDocument->GetCommandHistory()->AddCommand(cmd);
 
-      ezEditorGUI::GetInstance()->MessageBoxStatus(res, "Changing the property failed.");
+      ezUIServices::GetInstance()->MessageBoxStatus(res, "Changing the property failed.");
 
       m_pDocument->GetCommandHistory()->EndTransaction(res.m_Result.Failed());
 

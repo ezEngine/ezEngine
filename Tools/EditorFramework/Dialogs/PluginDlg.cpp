@@ -1,7 +1,7 @@
 #include <PCH.h>
 #include <EditorFramework/Dialogs/PluginDlg.moc.h>
 #include <EditorFramework/EditorApp.moc.h>
-#include <EditorFramework/EditorGUI.moc.h>
+#include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <Foundation/IO/OSFile.h>
 #include <QMessageBox>
 
@@ -83,7 +83,7 @@ void PluginDlg::on_ButtonOK_clicked()
 
   if (bDifferent)
   {
-    ezEditorGUI::MessageBoxInformation("Plugins are only loaded at startup.\n\nYou need to restart the program for this change to take effect.");
+    ezUIServices::MessageBoxInformation("Plugins are only loaded at startup.\n\nYou need to restart the program for this change to take effect.");
 
     ezEditorApp::GetInstance()->SetEditorPluginsToBeLoaded(ToBeLoaded);
   }

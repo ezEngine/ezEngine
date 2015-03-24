@@ -1,10 +1,10 @@
-#include <PCH.h>
-#include <EditorFramework/EditorGUI.moc.h>
+#include <GuiFoundation/PCH.h>
+#include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <QWidget>
 #include <QColor>
 #include <QColorDialog>
 
-void ezEditorGUI::ShowColorDialog(const ezColor& color, bool bAlpha, QWidget* pParent, const char* slotCurColChanged, const char* slotAccept, const char* slotReject)
+void ezUIServices::ShowColorDialog(const ezColor& color, bool bAlpha, QWidget* pParent, const char* slotCurColChanged, const char* slotAccept, const char* slotReject)
 {
   QColor col;
   col.setRgbF(color.r, color.g, color.b, color.a);
@@ -20,7 +20,7 @@ void ezEditorGUI::ShowColorDialog(const ezColor& color, bool bAlpha, QWidget* pP
   m_pColorDlg->open(pParent, slotCurColChanged);
 }
 
-void ezEditorGUI::SlotColorDialogClosed()
+void ezUIServices::SlotColorDialogClosed()
 {
   m_ColorDlgPos = m_pColorDlg->pos();
   m_pColorDlg = nullptr;

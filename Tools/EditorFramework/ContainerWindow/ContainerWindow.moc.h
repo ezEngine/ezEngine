@@ -5,7 +5,7 @@
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Containers/DynamicArray.h>
 #include <EditorFramework/DocumentWindow/DocumentWindow.moc.h>
-#include <EditorFramework/Project/EditorProject.h>
+#include <ToolsFoundation/Project/EditorProject.h>
 #include <QMainWindow>
 
 class ezDocumentManagerBase;
@@ -66,7 +66,7 @@ private:
   const char* GetUniqueName() const { return "ezEditor"; /* todo */ }
 
   void DocumentWindowEventHandler(const ezDocumentWindow::Event& e);
-  void ProjectEventHandler(const ezEditorProject::Event& e);
+  void ProjectEventHandler(const ezToolsProject::Event& e);
 
   void closeEvent(QCloseEvent* e);
 

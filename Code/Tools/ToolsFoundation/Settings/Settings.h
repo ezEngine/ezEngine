@@ -1,6 +1,6 @@
 #pragma once
 
-#include <EditorFramework/Plugin.h>
+#include <ToolsFoundation/Basics.h>
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Types/Variant.h>
 #include <Foundation/Types/Bitflags.h>
@@ -29,7 +29,7 @@ struct ezSettingsFlags
 
 EZ_DECLARE_FLAGS_OPERATORS(ezSettingsFlags);
 
-class EZ_EDITORFRAMEWORK_DLL ezSettings
+class EZ_TOOLSFOUNDATION_DLL ezSettings
 {
 
 public:

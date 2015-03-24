@@ -2,7 +2,7 @@
 #include <EditorFramework/DocumentWindow/DocumentWindow.moc.h>
 #include <EditorFramework/EditorApp.moc.h>
 #include <ToolsFoundation/Document/Document.h>
-#include <EditorFramework/EditorGUI.moc.h>
+#include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <QSettings>
 #include <QMessageBox>
 #include <QTimer>
@@ -267,7 +267,7 @@ ezStatus ezDocumentWindow::SaveDocument()
     s.Format("Failed to save document:\n'%s'", m_pDocument->GetDocumentPath());
     s2.Format("Successfully saved document:\n'%s'", m_pDocument->GetDocumentPath());
 
-    ezEditorGUI::MessageBoxStatus(res, s, s2);
+    ezUIServices::MessageBoxStatus(res, s, s2);
 
     if (res.m_Result.Failed())
       return res;

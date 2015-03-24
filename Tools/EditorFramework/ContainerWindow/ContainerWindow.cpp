@@ -3,9 +3,9 @@
 #include <EditorFramework/DocumentWindow/DocumentWindow.moc.h>
 #include <EditorFramework/EditorApp.moc.h>
 #include <EditorFramework/Settings/SettingsTab.moc.h>
-#include <EditorFramework/Project/EditorProject.h>
+#include <ToolsFoundation/Project/EditorProject.h>
 #include <ToolsFoundation/Document/DocumentManager.h>
-#include <EditorFramework/EditorGUI.moc.h>
+#include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <Foundation/IO/OSFile.h>
 #include <GuiFoundation/Action/ActionMapManager.h>
 #include <GuiFoundation/Action/DocumentActions.h>
@@ -46,7 +46,7 @@ ezContainerWindow::ezContainerWindow()
   EZ_VERIFY(connect(m_pActionCurrentTabOpenFolder, SIGNAL(triggered()), this, SLOT(SlotCurrentTabOpenFolder()))  != nullptr, "signal/slot connection failed");
 
   ezDocumentWindow::s_Events.AddEventHandler(ezMakeDelegate(&ezContainerWindow::DocumentWindowEventHandler, this));
-  ezEditorProject::s_Events.AddEventHandler(ezMakeDelegate(&ezContainerWindow::ProjectEventHandler, this));
+  ezToolsProject::s_Events.AddEventHandler(ezMakeDelegate(&ezContainerWindow::ProjectEventHandler, this));
 
   UpdateWindowTitle();
 }
@@ -56,7 +56,7 @@ ezContainerWindow::~ezContainerWindow()
   s_AllContainerWindows.Remove(this);
 
   ezDocumentWindow::s_Events.RemoveEventHandler(ezMakeDelegate(&ezContainerWindow::DocumentWindowEventHandler, this));
-  ezEditorProject::s_Events.RemoveEventHandler(ezMakeDelegate(&ezContainerWindow::ProjectEventHandler, this));
+  ezToolsProject::s_Events.RemoveEventHandler(ezMakeDelegate(&ezContainerWindow::ProjectEventHandler, this));
 }
 
 QTabWidget* ezContainerWindow::GetTabWidget() const
@@ -71,9 +71,9 @@ void ezContainerWindow::UpdateWindowTitle()
 {
   ezStringBuilder sTitle;
 
-  if (ezEditorProject::IsProjectOpen())
+  if (ezToolsProject::IsProjectOpen())
   {
-    sTitle = ezPathUtils::GetFileName(ezEditorProject::GetInstance()->GetProjectPath());
+    sTitle = ezPathUtils::GetFileName(ezToolsProject::GetInstance()->GetProjectPath());
     sTitle.Append(" - ");
   }
   
@@ -89,13 +89,13 @@ void ezContainerWindow::SlotRestoreLayout()
 
 void ezContainerWindow::closeEvent(QCloseEvent* e)
 {
-  if (!ezEditorProject::CanCloseProject())
+  if (!ezToolsProject::CanCloseProject())
   {
     e->setAccepted(false);
     return;
   }
 
-  ezEditorProject::CloseProject();
+  ezToolsProject::CloseProject();
   SaveWindowLayout();
 }
 
@@ -321,12 +321,12 @@ void ezContainerWindow::DocumentWindowEventHandler(const ezDocumentWindow::Event
   }
 }
 
-void ezContainerWindow::ProjectEventHandler(const ezEditorProject::Event& e)
+void ezContainerWindow::ProjectEventHandler(const ezToolsProject::Event& e)
 {
   switch (e.m_Type)
   {
-  case ezEditorProject::Event::Type::ProjectOpened:
-  case ezEditorProject::Event::Type::ProjectClosed:
+  case ezToolsProject::Event::Type::ProjectOpened:
+  case ezToolsProject::Event::Type::ProjectClosed:
     UpdateWindowTitle();
     break;
   }
@@ -427,7 +427,7 @@ void ezContainerWindow::CreateOrOpenDocument(bool bCreate)
 
   if (sAllFilters.IsEmpty())
   {
-    ezEditorGUI::MessageBoxInformation("No file types are currently known. Load plugins to add file types.");
+    ezUIServices::MessageBoxInformation("No file types are currently known. Load plugins to add file types.");
     return;
   }
 
@@ -463,7 +463,7 @@ void ezContainerWindow::CreateOrOpenDocument(bool bCreate, const char* szFile)
 
   if (FindDocumentTypeFromPath(szFile, bCreate, pManToCreate, DescToCreate).Failed())
   {
-    ezEditorGUI::MessageBoxWarning("The selected file extension is not registered with any known type.");
+    ezUIServices::MessageBoxWarning("The selected file extension is not registered with any known type.");
     return;
   }
 
@@ -491,7 +491,7 @@ void ezContainerWindow::CreateOrOpenDocument(bool bCreate, const char* szFile)
       ezStringBuilder s;
       s.Format("Failed to open document: \n'%s'", szFile);
 
-      ezEditorGUI::MessageBoxStatus(res, s);
+      ezUIServices::MessageBoxStatus(res, s);
       return;
     }
 
@@ -501,7 +501,7 @@ void ezContainerWindow::CreateOrOpenDocument(bool bCreate, const char* szFile)
   {
     if (bCreate)
     {
-      ezEditorGUI::MessageBoxInformation("The selected document is already open. You need to close the document before you can re-create it.");
+      ezUIServices::MessageBoxInformation("The selected document is already open. You need to close the document before you can re-create it.");
     }
   }
 
@@ -530,27 +530,27 @@ void ezContainerWindow::CreateOrOpenProject(bool bCreate)
 
 void ezContainerWindow::CreateOrOpenProject(bool bCreate, const char* szFile)
 {
-  if (ezEditorProject::IsProjectOpen() && ezEditorProject::GetInstance()->GetProjectPath() == szFile)
+  if (ezToolsProject::IsProjectOpen() && ezToolsProject::GetInstance()->GetProjectPath() == szFile)
   {
-    ezEditorGUI::MessageBoxInformation("The selected project is already open");
+    ezUIServices::MessageBoxInformation("The selected project is already open");
     return;
   }
 
-  if (!ezEditorProject::CanCloseProject())
+  if (!ezToolsProject::CanCloseProject())
     return;
 
   ezStatus res;
   if (bCreate)
-    res = ezEditorProject::CreateProject(szFile);
+    res = ezToolsProject::CreateProject(szFile);
   else
-    res = ezEditorProject::OpenProject(szFile);
+    res = ezToolsProject::OpenProject(szFile);
 
   if (res.m_Result.Failed())
   {
     ezStringBuilder s;
     s.Format("Failed to open project:\n'%s'", szFile);
 
-    ezEditorGUI::MessageBoxStatus(res, s);
+    ezUIServices::MessageBoxStatus(res, s);
     return;
   }
 }
@@ -648,8 +648,8 @@ void ezContainerWindow::SlotCurrentTabOpenFolder()
 
   if (!pDocument)
   {
-    if (ezEditorProject::IsProjectOpen())
-      sPath = ezEditorProject::GetInstance()->GetProjectPath();
+    if (ezToolsProject::IsProjectOpen())
+      sPath = ezToolsProject::GetInstance()->GetProjectPath();
     else
       sPath = ezOSFile::GetApplicationDirectory();
   }

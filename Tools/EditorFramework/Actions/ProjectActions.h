@@ -1,7 +1,7 @@
 #pragma once
 
 #include <EditorFramework/Plugin.h>
-#include <EditorFramework/Project/EditorProject.h>
+#include <ToolsFoundation/Project/EditorProject.h>
 #include <GuiFoundation/Action/BaseActions.h>
 
 ///
@@ -65,7 +65,7 @@ public:
   virtual void Execute(const ezVariant& value) override;
 
 private:
-  void ProjectEventHandler(const ezEditorProject::Event& e);
+  void ProjectEventHandler(const ezToolsProject::Event& e);
 
   ButtonType m_ButtonType;
 };

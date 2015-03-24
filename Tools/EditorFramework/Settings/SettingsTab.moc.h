@@ -2,7 +2,7 @@
 
 #include <EditorFramework/DocumentWindow/DocumentWindow.moc.h>
 #include <EditorFramework/GUI/SimplePropertyGridWidget.moc.h>
-#include <EditorFramework/Project/EditorProject.h>
+#include <ToolsFoundation/Project/EditorProject.h>
 #include <Tools/EditorFramework/ui_SettingsTab.h>
 #include <Foundation/Configuration/Plugin.h>
 
@@ -29,7 +29,7 @@ private:
 
   void PluginEventHandler(const ezPlugin::PluginEvent& e);
   void UpdateSettings();
-  void ProjectEventHandler(const ezEditorProject::Event& e);
+  void ProjectEventHandler(const ezToolsProject::Event& e);
   void DocumentManagerEventHandler(const ezDocumentManagerBase::Event& e);
 
   ezString m_sSelectedSettingDomain;

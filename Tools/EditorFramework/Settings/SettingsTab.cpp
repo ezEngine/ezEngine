@@ -34,7 +34,7 @@ ezSettingsTab::ezSettingsTab() : ezDocumentWindow("Settings")
   EZ_VERIFY(connect(ComboSettingsDomain, SIGNAL(currentIndexChanged(int)), this, SLOT(SlotComboSettingsDomainIndexChanged(int))) != nullptr, "signal/slot connection failed");
 
   ezPlugin::s_PluginEvents.AddEventHandler(ezMakeDelegate(&ezSettingsTab::PluginEventHandler, this));
-  ezEditorProject::s_Events.AddEventHandler(ezMakeDelegate(&ezSettingsTab::ProjectEventHandler, this));
+  ezToolsProject::s_Events.AddEventHandler(ezMakeDelegate(&ezSettingsTab::ProjectEventHandler, this));
   ezDocumentManagerBase::s_Events.AddEventHandler(ezMakeDelegate(&ezSettingsTab::DocumentManagerEventHandler, this));
 
   UpdateSettings();
@@ -48,7 +48,7 @@ ezSettingsTab::ezSettingsTab() : ezDocumentWindow("Settings")
 
 ezSettingsTab::~ezSettingsTab()
 {
-  ezEditorProject::s_Events.RemoveEventHandler(ezMakeDelegate(&ezSettingsTab::ProjectEventHandler, this));
+  ezToolsProject::s_Events.RemoveEventHandler(ezMakeDelegate(&ezSettingsTab::ProjectEventHandler, this));
   ezDocumentManagerBase::s_Events.RemoveEventHandler(ezMakeDelegate(&ezSettingsTab::DocumentManagerEventHandler, this));
   ezPlugin::s_PluginEvents.RemoveEventHandler(ezMakeDelegate(&ezSettingsTab::PluginEventHandler, this));
 
@@ -68,12 +68,12 @@ void ezSettingsTab::PluginEventHandler(const ezPlugin::PluginEvent& e)
   }
 }
 
-void ezSettingsTab::ProjectEventHandler(const ezEditorProject::Event& e)
+void ezSettingsTab::ProjectEventHandler(const ezToolsProject::Event& e)
 {
   switch (e.m_Type)
   {
-  case ezEditorProject::Event::Type::ProjectClosed:
-  case ezEditorProject::Event::Type::ProjectOpened:
+  case ezToolsProject::Event::Type::ProjectClosed:
+  case ezToolsProject::Event::Type::ProjectOpened:
     UpdateSettings();
     break;
   }
@@ -100,7 +100,7 @@ void ezSettingsTab::UpdateSettings()
   int iSelected = 0;
   ComboSettingsDomain->addItem("<Application>", QString("<Application>"));
 
-  if (ezEditorProject::IsProjectOpen())
+  if (ezToolsProject::IsProjectOpen())
   {
     ComboSettingsDomain->addItem("<Project>", QString("<Project>"));
 
@@ -113,7 +113,7 @@ void ezSettingsTab::UpdateSettings()
       for (auto doc : dm->GetAllDocuments())
       {
         ezString sRel;
-        if (!ezEditorProject::GetInstance()->IsDocumentInProject(doc->GetDocumentPath(), &sRel))
+        if (!ezToolsProject::GetInstance()->IsDocumentInProject(doc->GetDocumentPath(), &sRel))
           continue;
 
         ComboSettingsDomain->addItem(sRel.GetData(), QString(doc->GetDocumentPath()));

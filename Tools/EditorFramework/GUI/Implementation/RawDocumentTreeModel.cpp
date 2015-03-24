@@ -1,6 +1,6 @@
 #include <PCH.h>
 #include <EditorFramework/GUI/RawDocumentTreeModel.moc.h>
-#include <EditorFramework/EditorGUI.moc.h>
+#include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <ToolsFoundation/Reflection/ToolsReflectionUtils.h>
 #include <ToolsFoundation/Reflection/ReflectedTypeManager.h>
 #include <ToolsFoundation/Document/Document.h>
@@ -243,7 +243,7 @@ bool ezRawDocumentTreeModel::dropMimeData(const QMimeData* data, Qt::DropAction 
 
         if (!bCanMove)
         {
-          ezEditorGUI::MessageBoxInformation("Cannot move an object to one of its own children");
+          ezUIServices::MessageBoxInformation("Cannot move an object to one of its own children");
           return false;
         }
       }
