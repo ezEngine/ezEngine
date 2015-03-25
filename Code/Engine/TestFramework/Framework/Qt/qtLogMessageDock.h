@@ -21,6 +21,7 @@ public:
   virtual ~ezQtLogMessageDock();
 
 public slots:
+  void restModel();
   void currentTestResultChanged(const ezTestResultData* pTestResult);
   void currentTestSelectionChanged(const ezTestResultData* pTestResult);
 
@@ -35,6 +36,8 @@ class EZ_TEST_DLL ezQtLogMessageModel : public QAbstractItemModel
 public:
   ezQtLogMessageModel(QObject* pParent, const ezTestFrameworkResult* pResult);
   virtual ~ezQtLogMessageModel();
+  
+  void resetModel();
   QModelIndex GetFirstIndexOfTestSelection();
   QModelIndex GetLastIndexOfTestSelection();
 

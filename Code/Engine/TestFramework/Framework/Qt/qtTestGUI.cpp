@@ -159,7 +159,7 @@ void ezQtTestGUI::on_actionRunTests_triggered()
 
   // make sure we start with a clean state
   m_pTestFramework->ResetTests();
-
+  m_pMessageLogDock->restModel();
   while (m_pTestFramework->RunTestExecutionLoop() == ezTestAppRun::Continue)
   {
     UpdateButtonStates();

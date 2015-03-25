@@ -25,6 +25,11 @@ ezQtLogMessageDock::~ezQtLogMessageDock()
   m_pModel = nullptr;
 }
 
+void ezQtLogMessageDock::restModel()
+{
+  m_pModel->resetModel();
+}
+
 void ezQtLogMessageDock::currentTestResultChanged(const ezTestResultData* pTestResult)
 {
   m_pModel->currentTestResultChanged(pTestResult);
@@ -49,6 +54,13 @@ ezQtLogMessageModel::ezQtLogMessageModel(QObject* pParent, const ezTestFramework
 
 ezQtLogMessageModel::~ezQtLogMessageModel()
 {
+}
+
+void ezQtLogMessageModel::resetModel()
+{
+  beginResetModel();
+  currentTestResultChanged(nullptr);
+  endResetModel();
 }
 
 QModelIndex ezQtLogMessageModel::GetFirstIndexOfTestSelection()
