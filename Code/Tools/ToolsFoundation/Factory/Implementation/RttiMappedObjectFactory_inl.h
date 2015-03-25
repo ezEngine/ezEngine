@@ -30,7 +30,6 @@ EZ_FORCE_INLINE ezReflectedTypeHandle ezReflectedTypeHandleTraverser::GetParentT
 
 
 template <typename Object>
-ezReflectedTypeMappedObjectFactory<Object>::ezReflectedTypeMappedObjectFactory() : ezRttiMappedObjectFactoryBase<ezRTTI*, Object, ezReflectedTypeHandleTraverser>
+ezReflectedTypeMappedObjectFactory<Object>::ezReflectedTypeMappedObjectFactory() : ezRttiMappedObjectFactoryBase<ezReflectedTypeHandle, Object, ezReflectedTypeHandleTraverser>()
 {
 }
-
