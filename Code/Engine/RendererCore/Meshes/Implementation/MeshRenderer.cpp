@@ -9,9 +9,6 @@
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshRenderer, ezRenderer, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
-static ezConstantBufferResourceHandle s_hObjectTransformCB; /// \todo handle these things more elegantly
-static ezGALRasterizerStateHandle s_hRasterizerState;
-
 struct PerObjectCB
 {
   ezMat4 world;
@@ -27,22 +24,22 @@ ezUInt32 ezMeshRenderer::Render(const ezRenderContext& renderContext, ezRenderPi
 {
   ezGALContext* pContext = renderContext.m_pGALContext;
 
-  if (!s_hObjectTransformCB.IsValid())
+  if (!m_hObjectTransformCB.IsValid())
   {
-    ezConstantBufferResourceDescriptor<PerObjectCB> desc;
-    s_hObjectTransformCB = ezResourceManager::CreateResource<ezConstantBufferResource>("{34204E49-441A-49D6-AB09-9E8DE38BC803}", desc);
+    /// \todo Not sure ezMeshRenderer should create the PerObject CB, probably this should be centralized somewhere else
 
-    ezRendererCore::BindConstantBuffer(pContext, "PerObject", s_hObjectTransformCB);
+    // this always accesses the same constant buffer (same GUID), but every ezMeshRenderer holds its own reference to it
+    m_hObjectTransformCB = ezResourceManager::GetExistingResource<ezConstantBufferResource>("{34204E49-441A-49D6-AB09-9E8DE38BC803}");
+
+    if (!m_hObjectTransformCB.IsValid())
+    {
+      // only create this constant buffer, when it does not yet exist
+      ezConstantBufferResourceDescriptor<PerObjectCB> desc;
+      m_hObjectTransformCB = ezResourceManager::CreateResource<ezConstantBufferResource>("{34204E49-441A-49D6-AB09-9E8DE38BC803}", desc);
+    }
   }
 
-  if (s_hRasterizerState.IsInvalidated())
-  {
-    ezGALRasterizerStateCreationDescription RasterStateDesc;
-    RasterStateDesc.m_CullMode = ezGALCullMode::Back;
-    RasterStateDesc.m_bFrontCounterClockwise = true;
-    s_hRasterizerState = ezGALDevice::GetDefaultDevice()->CreateRasterizerState(RasterStateDesc);
-    pContext->SetRasterizerState(s_hRasterizerState);
-  }
+  ezRendererCore::BindConstantBuffer(pContext, "PerObject", m_hObjectTransformCB);
 
   const ezMat4& ViewProj = renderContext.m_pView->GetViewProjectionMatrix();
   ezMaterialResourceHandle hLastMaterial;
@@ -52,7 +49,7 @@ ezUInt32 ezMeshRenderer::Render(const ezRenderContext& renderContext, ezRenderPi
   { 
     const ezMeshRenderData* pRenderData = static_cast<const ezMeshRenderData*>(renderData[uiDataRendered]);
 
-    PerObjectCB* cb = ezRendererCore::BeginModifyConstantBuffer<PerObjectCB>(s_hObjectTransformCB, pContext);
+    PerObjectCB* cb = ezRendererCore::BeginModifyConstantBuffer<PerObjectCB>(m_hObjectTransformCB, pContext);
       cb->world = pRenderData->m_WorldTransform.GetAsMat4();
       cb->mvp = ViewProj * cb->world;
     ezRendererCore::EndModifyConstantBuffer(pContext);

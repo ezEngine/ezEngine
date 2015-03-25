@@ -59,8 +59,8 @@ struct ezGALRenderTargetBlendDescription : public ezHashableStruct<ezGALRenderTa
   ezGALBlend::Enum m_DestBlendAlpha;
   ezGALBlendOp::Enum m_BlendOpAlpha;
 
-  ezUInt8 m_uiWriteMask;
-  bool m_bBlendingEnabled;
+  ezUInt8 m_uiWriteMask;      ///< Enables writes to color channels. Bit1 = Red Channel, Bit2 = Green Channel, Bit3 = Blue Channel, Bit4 = Alpha Channel, Bit 5-8 are unused
+  bool m_bBlendingEnabled;    ///< If enabled, the color will be blended into the render target. Otherwise it will overwrite the render target. Set m_uiWriteMask to 0 to disable all writes to the render target.
 };
 
 struct ezGALBlendStateCreationDescription : public ezHashableStruct<ezGALBlendStateCreationDescription>

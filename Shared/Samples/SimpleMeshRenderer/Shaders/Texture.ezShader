@@ -8,7 +8,10 @@ ALPHATEST
 [RENDERSTATE]
 
 #if ALPHATEST
-	some text containing the word 'wireframe' (this is obviously a bit hacky)
+	BlendingEnabled0 = false
+	BlendOp0 = BlendOp_Add
+	SourceBlend0 = Blend_SrcAlpha
+	DestBlend0 = Blend_InvSrcAlpha
 #endif
 
 [VERTEXSHADER]

@@ -236,7 +236,7 @@ void ezShaderCompiler::RunShaderCompilerForPermutations(const char* szFile, cons
         }
 
         ezStringBuilder sOutput;
-        if (pp.Process("ShaderRenderState", sOutput).Failed())
+        if (pp.Process("ShaderRenderState", sOutput, false).Failed())
         {
           bSuccess = false;
           ezLog::Error("Preprocessing the Shader State block failed");
