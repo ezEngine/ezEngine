@@ -47,7 +47,7 @@ protected:
   ezMeshBufferResourceHandle CreateSphere(ezInt32 iSubDivs, float fRadius);
   ezMeshBufferResourceHandle CreateTorus(ezInt32 iSubDivs, float fInnerRadius, float fOuterRadius);
   ezMeshBufferResourceHandle CreateBox(float fWidth, float fHeight, float fDepth);
-  void RenderObject(ezMeshBufferResourceHandle hObject, const ezMat4& mTransform, const ezColor& color);
+  void RenderObject(ezMeshBufferResourceHandle hObject, const ezMat4& mTransform, const ezColor& color, ezBitflags<ezShaderBindFlags> ShaderBindFlags = ezShaderBindFlags::Default);
 
   ezWindow* m_pWindow;
   ezGALDevice* m_pDevice;

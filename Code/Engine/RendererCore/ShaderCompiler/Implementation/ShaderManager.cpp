@@ -148,14 +148,16 @@ void ezRendererCore::SetShaderPermutationVariable(const char* szVariable, const 
   itVar.Value() = sVal;
 }
 
-void ezRendererCore::SetActiveShader(ezShaderResourceHandle hShader, ezGALContext* pContext)
+void ezRendererCore::SetActiveShader(ezShaderResourceHandle hShader, ezGALContext* pContext, ezBitflags<ezShaderBindFlags> flags)
 {
   if (pContext == nullptr)
     pContext = ezGALDevice::GetDefaultDevice()->GetPrimaryContext();
 
   ContextState& state = s_ContextState[pContext];
 
-  if (state.m_hActiveShader != hShader)
+  state.m_ShaderBindFlags = flags;
+
+  if (flags.IsAnySet(ezShaderBindFlags::ForceRebind) || state.m_hActiveShader != hShader)
     state.m_bShaderStateChanged = true;
 
   state.m_hActiveShader = hShader;
@@ -224,16 +226,19 @@ void ezRendererCore::SetShaderContextState(ezGALContext* pContext, ContextState&
 
     pContext->SetShader(state.m_hActiveGALShader);
 
-    // Set render state from shader
+    // Set render state from shader (unless they are all deactivated)
+    if (!state.m_ShaderBindFlags.AreAllSet(ezShaderBindFlags::NoBlendState | ezShaderBindFlags::NoRasterizerState | ezShaderBindFlags::NoDepthStencilState))
     {
-      /// \todo Only apply certain states? (mask at 'SetActiveShader' ?)
-      /// \todo Apply these states at every drawcall ?
-      /// \todo Allow to set override states, to be able to ignore the shader state ??
+      ezResourceLock<ezShaderStateResource> StateRes(pShaderPermutation->GetShaderStateResource());
 
-      ezResourceLock<ezShaderStateResource> state(pShaderPermutation->GetShaderStateResource());
-      pContext->SetBlendState(state->GetBlendState()); /// \todo Additional parameters (blend factor etc.) from somewhere (?)
-      pContext->SetRasterizerState(state->GetRasterizerState());
-      pContext->SetDepthStencilState(state->GetDepthStencilState()); /// \todo Additional parameters  (stencil ref value)
+      if (!state.m_ShaderBindFlags.IsSet(ezShaderBindFlags::NoBlendState))
+        pContext->SetBlendState(StateRes->GetBlendState());
+
+      if (!state.m_ShaderBindFlags.IsSet(ezShaderBindFlags::NoRasterizerState))
+        pContext->SetRasterizerState(StateRes->GetRasterizerState());
+
+      if (!state.m_ShaderBindFlags.IsSet(ezShaderBindFlags::NoDepthStencilState))
+        pContext->SetDepthStencilState(StateRes->GetDepthStencilState());
     }
 
     state.m_bShaderStateValid = true;

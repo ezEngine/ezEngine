@@ -24,6 +24,32 @@ typedef ezResourceHandle<class ezMaterialResource> ezMaterialResourceHandle;
 typedef ezResourceHandle<class ezShaderResource> ezShaderResourceHandle;
 typedef ezResourceHandle<class ezShaderPermutationResource> ezShaderPermutationResourceHandle;
 
+struct ezShaderBindFlags
+{
+  typedef ezUInt32 StorageType;
+
+  enum Enum
+  {
+    None = 0,                           ///< No flags causes the default shader binding behavior (all render states are applied)
+    ForceRebind         = EZ_BIT(0),    ///< Executes shader binding (and state setting), even if the shader hasn't changed. Use this, when the same shader was previously used with custom bound states
+    NoRasterizerState   = EZ_BIT(1),    ///< The rasterizer state that is associated with the shader will not be bound. Use this when you intend to bind a custom rasterizer state.
+    NoDepthStencilState = EZ_BIT(2),    ///< The depth-stencil state that is associated with the shader will not be bound. Use this when you intend to bind a custom depth-stencil state.
+    NoBlendState        = EZ_BIT(3),    ///< The blend state that is associated with the shader will not be bound. Use this when you intend to bind a custom blend state.
+    NoStateBinding      = NoRasterizerState | NoDepthStencilState | NoBlendState,
+
+    Default = None
+  };
+
+  struct Bits
+  {
+    StorageType NoRasterizerState   : 1;
+    StorageType NoDepthStencilState : 1;
+    StorageType NoBlendState        : 1;
+  };
+};
+
+EZ_DECLARE_FLAGS_OPERATORS(ezShaderBindFlags);
+
 class EZ_RENDERERCORE_DLL ezRendererCore
 {
 public:
@@ -51,7 +77,7 @@ public:
   /// \brief Sets the currently active shader on the given render context. If pContext is null, the state is set for the primary context.
   ///
   /// This function has no effect until the next drawcall on the context.
-  static void SetActiveShader(ezShaderResourceHandle hShader, ezGALContext* pContext = nullptr);
+  static void SetActiveShader(ezShaderResourceHandle hShader, ezGALContext* pContext = nullptr, ezBitflags<ezShaderBindFlags> flags = ezShaderBindFlags::Default);
 
   /// \brief Evaluates the currently active shader program and then returns that.
   /// Can be used to determine the shader that needs to be used to create a vertex declaration.
@@ -144,6 +170,7 @@ private:
     ezPermutationGenerator m_PermGenerator;
     ezShaderPermutationResourceHandle m_hActiveShaderPermutation;
     ezConstantBufferResource* m_pCurrentlyModifyingBuffer;
+    ezBitflags<ezShaderBindFlags> m_ShaderBindFlags;
 
     ezHashTable<ezUInt32, ezTextureResourceHandle> m_BoundTextures;
     ezHashTable<ezUInt32, ezConstantBufferResourceHandle> m_BoundConstantBuffers;
