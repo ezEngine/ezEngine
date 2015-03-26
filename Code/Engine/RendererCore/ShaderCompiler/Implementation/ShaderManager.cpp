@@ -10,7 +10,6 @@
 #include <RendererCore/Shader/ShaderResource.h>
 #include <RendererCore/Shader/ShaderPermutationResource.h>
 #include <RendererCore/ConstantBuffers/ConstantBufferResource.h>
-#include <RendererCore/Shader/ShaderStateResource.h>
 
 const ezPermutationGenerator* ezRendererCore::GetGeneratorForShaderPermutation(ezUInt32 uiPermutationHash)
 {
@@ -229,16 +228,14 @@ void ezRendererCore::SetShaderContextState(ezGALContext* pContext, ContextState&
     // Set render state from shader (unless they are all deactivated)
     if (!state.m_ShaderBindFlags.AreAllSet(ezShaderBindFlags::NoBlendState | ezShaderBindFlags::NoRasterizerState | ezShaderBindFlags::NoDepthStencilState))
     {
-      ezResourceLock<ezShaderStateResource> StateRes(pShaderPermutation->GetShaderStateResource());
-
       if (!state.m_ShaderBindFlags.IsSet(ezShaderBindFlags::NoBlendState))
-        pContext->SetBlendState(StateRes->GetBlendState());
+        pContext->SetBlendState(pShaderPermutation->GetBlendState());
 
       if (!state.m_ShaderBindFlags.IsSet(ezShaderBindFlags::NoRasterizerState))
-        pContext->SetRasterizerState(StateRes->GetRasterizerState());
+        pContext->SetRasterizerState(pShaderPermutation->GetRasterizerState());
 
       if (!state.m_ShaderBindFlags.IsSet(ezShaderBindFlags::NoDepthStencilState))
-        pContext->SetDepthStencilState(StateRes->GetDepthStencilState());
+        pContext->SetDepthStencilState(pShaderPermutation->GetDepthStencilState());
     }
 
     state.m_bShaderStateValid = true;

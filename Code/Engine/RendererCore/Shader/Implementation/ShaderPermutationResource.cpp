@@ -3,7 +3,6 @@
 #include <RendererCore/Shader/Implementation/Helper.h>
 #include <RendererCore/RendererCore.h>
 #include <RendererCore/ShaderCompiler/ShaderCompiler.h>
-#include <RendererCore/Shader/ShaderStateResource.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/OSFile.h>
@@ -26,12 +25,33 @@ ezShaderPermutationResource::ezShaderPermutationResource() : ezResource<ezShader
 ezResourceLoadDesc ezShaderPermutationResource::UnloadData(Unload WhatToUnload)
 {
   m_bShaderPermutationValid = false;
-  
+
+  auto pDevice = ezGALDevice::GetDefaultDevice();
+
   if (!m_hShader.IsInvalidated())
   {
-    ezGALDevice::GetDefaultDevice()->DestroyShader(m_hShader);
+    pDevice->DestroyShader(m_hShader);
     m_hShader.Invalidate();
   }
+
+  if (!m_hBlendState.IsInvalidated())
+  {
+    pDevice->DestroyBlendState(m_hBlendState);
+    m_hBlendState.Invalidate();
+  }
+
+  if (!m_hDepthStencilState.IsInvalidated())
+  {
+    pDevice->DestroyDepthStencilState(m_hDepthStencilState);
+    m_hDepthStencilState.Invalidate();
+  }
+
+  if (!m_hRasterizerState.IsInvalidated())
+  {
+    pDevice->DestroyRasterizerState(m_hRasterizerState);
+    m_hRasterizerState.Invalidate();
+  }
+
 
   ezResourceLoadDesc res;
   res.m_State = ezResourceState::Unloaded;
@@ -59,19 +79,21 @@ ezResourceLoadDesc ezShaderPermutationResource::UpdateContent(ezStreamReaderBase
     return res;
   }
 
-  if (m_PermutationBinary.Read(*Stream).Failed())
+  ezShaderPermutationBinary PermutationBinary;
+
+  if (PermutationBinary.Read(*Stream).Failed())
   {
     ezLog::Error("Shader Permutation '%s': Could not read shader permutation binary", GetResourceID().GetData());
     return res;
   }
 
+  auto pDevice = ezGALDevice::GetDefaultDevice();
+
   // get the shader render state object
   {
-    ezStringBuilder sStateFile = ezRendererCore::GetShaderCacheDirectory();
-    sStateFile.AppendPath("RenderStates");
-    sStateFile.AppendFormat("/%08X.ezRenderState", m_PermutationBinary.m_uiShaderStateHash);
-
-    m_hShaderStateResource = ezResourceManager::LoadResource<ezShaderStateResource>(sStateFile);
+    m_hBlendState = pDevice->CreateBlendState(PermutationBinary.m_StateDescriptor.m_BlendDesc);
+    m_hDepthStencilState = pDevice->CreateDepthStencilState(PermutationBinary.m_StateDescriptor.m_DepthStencilDesc);
+    m_hRasterizerState = pDevice->CreateRasterizerState(PermutationBinary.m_StateDescriptor.m_RasterizerDesc);
   }
 
   ezGALShaderCreationDescription ShaderDesc;
@@ -79,7 +101,7 @@ ezResourceLoadDesc ezShaderPermutationResource::UpdateContent(ezStreamReaderBase
   // iterate over all shader stages, add them to the descriptor
   for (ezUInt32 stage = ezGALShaderStage::VertexShader; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
   {
-    const ezUInt32 uiStageHash = m_PermutationBinary.m_uiShaderStageHashes[stage];
+    const ezUInt32 uiStageHash = PermutationBinary.m_uiShaderStageHashes[stage];
 
     if (uiStageHash == 0) // not used
       continue;
@@ -103,7 +125,7 @@ ezResourceLoadDesc ezShaderPermutationResource::UpdateContent(ezStreamReaderBase
     uiGPUMem += pStageBin->m_ByteCode.GetCount();
   }
 
-  m_hShader = ezGALDevice::GetDefaultDevice()->CreateShader(ShaderDesc);
+  m_hShader = pDevice->CreateShader(ShaderDesc);
 
   if (m_hShader.IsInvalidated())
   {

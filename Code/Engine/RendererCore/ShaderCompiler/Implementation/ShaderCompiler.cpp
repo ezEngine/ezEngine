@@ -2,7 +2,6 @@
 #include <RendererCore/ShaderCompiler/ShaderCompiler.h>
 #include <RendererCore/RendererCore.h>
 #include <RendererCore/Shader/Implementation/Helper.h>
-#include <RendererCore/Shader/ShaderStateResource.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/IO/OSFile.h>
@@ -243,31 +242,10 @@ void ezShaderCompiler::RunShaderCompilerForPermutations(const char* szFile, cons
         }
         else
         {
-          ezShaderStateResourceDescriptor state;
-          if (state.Load(sOutput).Failed())
+          if (spb.m_StateDescriptor.Load(sOutput).Failed())
           {
             ezLog::Error("Failed to interpret the shader state block");
             bSuccess = false;
-          }
-          else
-          {
-            spb.m_uiShaderStateHash = state.CalculateHash();
-
-            ezStringBuilder sStateFile;
-            sStateFile = ezRendererCore::GetShaderCacheDirectory();
-            sStateFile.AppendPath("RenderStates");
-            sStateFile.AppendFormat("/%08X.ezRenderState", spb.m_uiShaderStateHash);
-
-            ezFileWriter file;
-            if (file.Open(sStateFile).Failed())
-            {
-              ezLog::Error("Failed to open file for writing: '%s'", sStateFile.GetData());
-              bSuccess = false;
-            }
-            else
-            {
-              state.Save(file);
-            }
           }
         }
       }

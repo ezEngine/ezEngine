@@ -23,7 +23,10 @@ public:
 
   ezGALShaderHandle GetGALShader() const { return m_hShader; }
   const ezShaderStageBinary* GetShaderStageBinary(ezGALShaderStage::Enum stage) const { return m_pShaderStageBinaries[stage]; }
-  ezShaderStateResourceHandle GetShaderStateResource() const { return m_hShaderStateResource; }
+
+  ezGALBlendStateHandle GetBlendState() const { return m_hBlendState; }
+  ezGALDepthStencilStateHandle GetDepthStencilState() const { return m_hDepthStencilState; }
+  ezGALRasterizerStateHandle GetRasterizerState() const { return m_hRasterizerState; }
 
   bool IsShaderValid() const { return m_bShaderPermutationValid; }
 
@@ -35,12 +38,14 @@ private:
 
 private:
 
-  ezShaderPermutationBinary m_PermutationBinary;
   ezShaderStageBinary* m_pShaderStageBinaries[ezGALShaderStage::ENUM_COUNT];
 
   bool m_bShaderPermutationValid;
   ezGALShaderHandle m_hShader;
-  ezShaderStateResourceHandle m_hShaderStateResource;
+
+  ezGALBlendStateHandle m_hBlendState;
+  ezGALDepthStencilStateHandle m_hDepthStencilState;
+  ezGALRasterizerStateHandle m_hRasterizerState;
 };
 
 
