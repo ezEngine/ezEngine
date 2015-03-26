@@ -3,6 +3,8 @@ ALL
 
 [PERMUTATIONS]
 
+[RENDERSTATES]
+
 [VERTEXSHADER]
 
 #include "Common.inc"
