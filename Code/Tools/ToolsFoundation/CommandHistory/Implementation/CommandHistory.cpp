@@ -106,6 +106,12 @@ ezCommandHistory::ezCommandHistory(ezDocumentBase* pDocument) : m_pDocument(pDoc
   m_bTemporaryMode = false;
 }
 
+ezCommandHistory::~ezCommandHistory()
+{
+  EZ_ASSERT_ALWAYS(m_UndoHistory.IsEmpty(), "Must clear history before destructor as object manager will be dead already");
+  EZ_ASSERT_ALWAYS(m_RedoHistory.IsEmpty(), "Must clear history before destructor as object manager will be dead already");
+}
+
 void ezCommandHistory::BeginTemporaryCommands()
 {
   EZ_ASSERT_DEV(!m_bTemporaryMode, "Temporary Mode cannot be nested");

@@ -30,6 +30,7 @@ class EZ_TOOLSFOUNDATION_DLL ezCommandHistory
 {
 public:
   ezCommandHistory(ezDocumentBase* pDocument);
+  ~ezCommandHistory();
    
   ezStatus Undo();
   ezStatus Redo();
@@ -45,8 +46,6 @@ public:
 
   ezStatus AddCommand(ezCommandBase& command);
 
-
-private:
   void ClearUndoHistory();
   void ClearRedoHistory();
 

@@ -30,7 +30,7 @@ ezDocumentBase::ezDocumentBase(const char* szPath, ezDocumentObjectManagerBase* 
 {
   m_sDocumentPath = szPath;
   m_pObjectManager = pDocumentObjectManagerImpl;
-  m_pObjectTree = new ezDocumentObjectTree;
+  m_pObjectTree = EZ_DEFAULT_NEW(ezDocumentObjectTree);
 
   m_SelectionManager.SetOwner(this);
   m_pObjectTree->SetOwner(this);
@@ -46,8 +46,18 @@ ezDocumentBase::~ezDocumentBase()
 
   m_pObjectTree->DestroyAllObjects(GetObjectManager());
 
-  delete m_pObjectManager;
+  m_CommandHistory.ClearRedoHistory();
+  m_CommandHistory.ClearUndoHistory();
+
+  EZ_DEFAULT_DELETE(m_pObjectTree);
+  m_pObjectTree = nullptr;
+
+  EZ_DEFAULT_DELETE(m_pObjectManager);
   m_pObjectManager = nullptr;
+
+
+
+
 }
 
 static void WriteObjectRecursive(ezDocumentJSONWriter& writer, const ezDocumentObjectBase* pObject)
