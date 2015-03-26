@@ -5,45 +5,22 @@
 #include <ToolsFoundation/Document/DocumentManager.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <Foundation/IO/OSFile.h>
-#include <GuiFoundation/Action/ActionMapManager.h>
-#include <GuiFoundation/Action/DocumentActions.h>
-#include <GuiFoundation/ActionViews/MenuActionMapView.moc.h>
 #include <QSettings>
-#include <QMenu>
-#include <QMenuBar>
 #include <QTimer>
-#include <QPushButton>
-#include <QToolButton>
-#include <QMessageBox>
 #include <QFileDialog>
-#include <QProcess>
 #include <QCloseEvent>
-#include <QTabWidget>
 #include <QTabBar>
 
 ezDynamicArray<ezContainerWindow*> ezContainerWindow::s_AllContainerWindows;
 
 ezContainerWindow::ezContainerWindow()
 {
-  ezActionMapManager::RegisterActionMap("RootMenu");
-  ezDocumentActions::MapActions("RootMenu", ezHashedString());
-
   setObjectName(QLatin1String(GetUniqueName())); // todo
   setWindowIcon(QIcon(QLatin1String(":/Icons/Icons/ezEditor16.png"))); /// \todo Make icon configurable
 
   QTimer::singleShot(0, this, SLOT(SlotRestoreLayout()));
 
   s_AllContainerWindows.PushBack(this);
-
-  m_pActionCurrentTabSave       = new QAction("Save", this);
-  m_pActionCurrentTabSaveAll    = new QAction("Save All", this);
-  m_pActionCurrentTabClose      = new QAction("Close", this);
-  m_pActionCurrentTabOpenFolder = new QAction("Open Containing Folder", this);
-
-  EZ_VERIFY(connect(m_pActionCurrentTabSave,       SIGNAL(triggered()), this, SLOT(SlotCurrentTabSave()))        != nullptr, "signal/slot connection failed");
-  EZ_VERIFY(connect(m_pActionCurrentTabSaveAll,    SIGNAL(triggered()), this, SLOT(SlotCurrentTabSaveAll()))     != nullptr, "signal/slot connection failed");
-  EZ_VERIFY(connect(m_pActionCurrentTabClose,      SIGNAL(triggered()), this, SLOT(SlotCurrentTabClose()))       != nullptr, "signal/slot connection failed");
-  EZ_VERIFY(connect(m_pActionCurrentTabOpenFolder, SIGNAL(triggered()), this, SLOT(SlotCurrentTabOpenFolder()))  != nullptr, "signal/slot connection failed");
 
   ezDocumentWindow::s_Events.AddEventHandler(ezMakeDelegate(&ezContainerWindow::DocumentWindowEventHandler, this));
   ezToolsProject::s_Events.AddEventHandler(ezMakeDelegate(&ezContainerWindow::ProjectEventHandler, this));
@@ -76,7 +53,7 @@ void ezContainerWindow::UpdateWindowTitle()
     sTitle = ezPathUtils::GetFileName(ezToolsProject::GetInstance()->GetProjectPath());
     sTitle.Append(" - ");
   }
-  
+
   sTitle.Append(ezUIServices::GetApplicationName());
 
   setWindowTitle(QString::fromUtf8(sTitle.GetData()));
@@ -282,7 +259,7 @@ void ezContainerWindow::SlotDocumentTabCurrentChanged(int index)
 {
   QTabWidget* pTabs = GetTabWidget();
 
-  ezDocumentWindow* pNowCurrentWindow = nullptr; 
+  ezDocumentWindow* pNowCurrentWindow = nullptr;
 
   if (index >= 0)
     pNowCurrentWindow = (ezDocumentWindow*) pTabs->widget(index);
@@ -411,7 +388,7 @@ void ezContainerWindow::CreateOrOpenDocument(bool bCreate)
   static QString sSelectedExt;
   static QString sDir = ezOSFile::GetApplicationDirectory();
   ezString sFile;
-  
+
   if (bCreate)
     sFile = QFileDialog::getSaveFileName(QApplication::activeWindow(), QLatin1String("Create Document"), sDir, QString::fromUtf8(sAllFilters.GetData()), &sSelectedExt).toUtf8().data();
   else
@@ -450,7 +427,7 @@ void ezContainerWindow::CreateOrOpenDocument(bool bCreate, const char* szFile)
   if (!pDocument)
   {
     ezStatus res;
-  
+
     if (bCreate)
       res = pManToCreate->CreateDocument(DescToCreate.m_sDocumentTypeName, szFile, pDocument);
     else
@@ -491,7 +468,7 @@ void ezContainerWindow::CreateOrOpenProject(bool bCreate)
   ezString sFile;
 
   const char* szFilter = "ezEditor Project (*.project)";
-  
+
   if (bCreate)
     sFile = QFileDialog::getSaveFileName(QApplication::activeWindow(), QLatin1String("Create Project"), sDir, QLatin1String(szFilter)).toUtf8().data();
   else
@@ -539,102 +516,14 @@ void ezContainerWindow::SlotTabsContextMenuRequested(const QPoint& pos)
   int iTab = pTabs->tabBar()->tabAt(pos);
 
   if (iTab < 0)
-  {
-    // general menu
-  }
-  else
-  {
-    pTabs->setCurrentIndex(iTab);
+    return;
 
-    if (!pTabs->currentWidget())
-      return;
-
-    ezDocumentWindow* pDoc = (ezDocumentWindow*) pTabs->currentWidget();
-
-    if (pDoc->GetDocument() == nullptr)
-      return;
-
-    ezMenuActionMapView menu;
-
-    ezActionContext context;
-    context.m_sMapping = "RootMenu";
-    context.m_pDocument = pDoc->GetDocument();
-    menu.SetActionContext(context);
-
-    menu.exec(pTabs->tabBar()->mapToGlobal(pos));
-
-    /*
-    QMenu m;
-
-    if (pDoc->GetDocument() && !pDoc->GetDocument()->IsReadOnly())
-      m.addAction(m_pActionCurrentTabSave);
-
-    m.addAction(m_pActionCurrentTabSaveAll);
-    m.addAction(m_pActionCurrentTabClose);
-    m.addSeparator();
-
-    //if (pDoc->GetDocument())
-      m.addAction(m_pActionCurrentTabOpenFolder);
-
-    m.exec(pTabs->tabBar()->mapToGlobal(pos));
-    */
-  }
-}
-
-void ezContainerWindow::SlotCurrentTabSave()
-{
-  QTabWidget* pTabs = GetTabWidget();
+  pTabs->setCurrentIndex(iTab);
 
   if (!pTabs->currentWidget())
     return;
 
   ezDocumentWindow* pDoc = (ezDocumentWindow*) pTabs->currentWidget();
-  pDoc->SaveDocument();
+
+  pDoc->RequestWindowTabContextMenu(pTabs->tabBar()->mapToGlobal(pos));
 }
-
-void ezContainerWindow::SlotCurrentTabSaveAll()
-{
-  for (ezContainerWindow* pWnd : s_AllContainerWindows)
-  {
-    for (ezDocumentWindow* pDocWnd : pWnd->m_DocumentWindows)
-    {
-      if (pDocWnd->SaveDocument().m_Result.Failed())
-        break;
-    }
-  }
-}
-
-void ezContainerWindow::SlotCurrentTabClose()
-{
-  QTabWidget* pTabs = GetTabWidget();
-
-  SlotDocumentTabCloseRequested(pTabs->currentIndex());
-}
-
-void ezContainerWindow::SlotCurrentTabOpenFolder()
-{
-  QTabWidget* pTabs = GetTabWidget();
-
-  if (!pTabs->currentWidget())
-    return;
-
-  ezDocumentWindow* pDocWnd = (ezDocumentWindow*) pTabs->currentWidget();
-
-  ezDocumentBase* pDocument = pDocWnd->GetDocument();
-  ezString sPath;
-
-  if (!pDocument)
-  {
-    if (ezToolsProject::IsProjectOpen())
-      sPath = ezToolsProject::GetInstance()->GetProjectPath();
-    else
-      sPath = ezOSFile::GetApplicationDirectory();
-  }
-  else
-    sPath = pDocument->GetDocumentPath();
-
-  QStringList args;
-  args << "/select," << QDir::toNativeSeparators(sPath.GetData());
-  QProcess::startDetached("explorer", args);
-}
-

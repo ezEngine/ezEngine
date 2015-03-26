@@ -3,16 +3,25 @@
 #include <GuiFoundation/ContainerWindow/ContainerWindow.moc.h>
 #include <ToolsFoundation/Document/Document.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
+#include <GuiFoundation/Action/DocumentActions.h>
+#include <GuiFoundation/Action/ActionMapManager.h>
+#include <GuiFoundation/ActionViews/MenuBarActionMapView.moc.h>
+#include <GuiFoundation/ActionViews/MenuActionMapView.moc.h>
 #include <QSettings>
 #include <QMessageBox>
 #include <QTimer>
-#include <GuiFoundation/ActionViews/MenuBarActionMapView.moc.h>
 
 ezEvent<const ezDocumentWindow::Event&> ezDocumentWindow::s_Events;
 ezDynamicArray<ezDocumentWindow*> ezDocumentWindow::s_AllDocumentWindows;
 
 void ezDocumentWindow::Constructor()
 {
+  if (s_AllDocumentWindows.IsEmpty())
+  {
+    ezActionMapManager::RegisterActionMap("DocumentWindowTabMenu");
+    ezDocumentActions::MapActions("DocumentWindowTabMenu", ezHashedString());
+  }
+
   s_AllDocumentWindows.PushBack(this);
 
   m_pContainerWindow = nullptr;
@@ -56,6 +65,11 @@ ezDocumentWindow::ezDocumentWindow(const char* szUniqueName)
 ezDocumentWindow::~ezDocumentWindow()
 {
   s_AllDocumentWindows.RemoveSwap(this);
+
+  if (s_AllDocumentWindows.IsEmpty())
+  {
+    ezActionMapManager::UnregisterActionMap("DocumentWindowTabMenu");
+  }
 
   if (m_pDocument)
   {
@@ -249,7 +263,7 @@ ezStatus ezDocumentWindow::SaveDocument()
   {
     ezStatus res = m_pDocument->SaveDocument();
 
-    
+
     ezStringBuilder s, s2;
     s.Format("Failed to save document:\n'%s'", m_pDocument->GetDocumentPath());
     s2.Format("Successfully saved document:\n'%s'", m_pDocument->GetDocumentPath());
@@ -326,5 +340,18 @@ void ezDocumentWindow::EnsureVisible()
 {
   m_pContainerWindow->EnsureVisible(this);
 }
+
+void ezDocumentWindow::RequestWindowTabContextMenu(const QPoint& GlobalPos)
+{
+  ezMenuActionMapView menu;
+
+  ezActionContext context;
+  context.m_sMapping = "DocumentWindowTabMenu";
+  context.m_pDocument = GetDocument();
+  menu.SetActionContext(context);
+
+  menu.exec(GlobalPos);
+}
+
 
 

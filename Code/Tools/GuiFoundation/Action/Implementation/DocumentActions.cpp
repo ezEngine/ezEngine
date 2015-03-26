@@ -2,6 +2,10 @@
 #include <GuiFoundation/Action/DocumentActions.h>
 #include <GuiFoundation/Action/ActionManager.h>
 #include <GuiFoundation/Action/ActionMapManager.h>
+#include <ToolsFoundation/Project/ToolsProject.h>
+#include <Foundation/IO/OSFile.h>
+#include <QProcess>
+#include <QDir>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezDocumentAction, ezButtonAction, 0, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
@@ -14,16 +18,18 @@ ezActionDescriptorHandle ezDocumentActions::s_hSave;
 ezActionDescriptorHandle ezDocumentActions::s_hSaveAs;
 ezActionDescriptorHandle ezDocumentActions::s_hSaveAll;
 ezActionDescriptorHandle ezDocumentActions::s_hClose;
+ezActionDescriptorHandle ezDocumentActions::s_hOpenContainingFolder;
 
 void ezDocumentActions::RegisterActions()
 {
   ezHashedString sCategory;
   sCategory.Assign("Document");
 
-  s_hSave     = ezActionManager::RegisterAction(ezActionDescriptor(ezActionType::Action, ezActionScope::Document, "Save", sCategory, &CreateSaveAction));
-  s_hSaveAs   = ezActionManager::RegisterAction(ezActionDescriptor(ezActionType::Action, ezActionScope::Document, "Save As", sCategory, &CreateSaveAsAction));
-  s_hSaveAll  = ezActionManager::RegisterAction(ezActionDescriptor(ezActionType::Action, ezActionScope::Document, "Save All", sCategory, &CreateSaveAllAction));
-  s_hClose    = ezActionManager::RegisterAction(ezActionDescriptor(ezActionType::Action, ezActionScope::Document, "Close", sCategory, &CreateCloseAction));
+  s_hSave = ezActionManager::RegisterAction(ezActionDescriptor(ezActionType::Action, ezActionScope::Document, "Save", sCategory, &CreateSaveAction));
+  s_hSaveAs = ezActionManager::RegisterAction(ezActionDescriptor(ezActionType::Action, ezActionScope::Document, "Save As", sCategory, &CreateSaveAsAction));
+  s_hSaveAll = ezActionManager::RegisterAction(ezActionDescriptor(ezActionType::Action, ezActionScope::Document, "Save All", sCategory, &CreateSaveAllAction));
+  s_hClose = ezActionManager::RegisterAction(ezActionDescriptor(ezActionType::Action, ezActionScope::Document, "Close", sCategory, &CreateCloseAction));
+  s_hOpenContainingFolder = ezActionManager::RegisterAction(ezActionDescriptor(ezActionType::Action, ezActionScope::Document, "Open Containing Folder", sCategory, &CreateOpenContainingFolderAction));
 
 }
 
@@ -33,11 +39,13 @@ void ezDocumentActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hSaveAs);
   ezActionManager::UnregisterAction(s_hSaveAll);
   ezActionManager::UnregisterAction(s_hClose);
+  ezActionManager::UnregisterAction(s_hOpenContainingFolder);
 
   s_hSave.Invalidate();
   s_hSaveAs.Invalidate();
   s_hSaveAll.Invalidate();
   s_hClose.Invalidate();
+  s_hOpenContainingFolder.Invalidate();
 }
 
 void ezDocumentActions::MapActions(const char* szMapping, const ezHashedString& sPath)
@@ -63,6 +71,10 @@ void ezDocumentActions::MapActions(const char* szMapping, const ezHashedString& 
   desc.m_hAction = s_hClose;
   desc.m_fOrder = 4.0f;
   EZ_VERIFY(pMap->MapAction(desc).IsValid(), "Mapping failed");
+
+  desc.m_hAction = s_hOpenContainingFolder;
+  desc.m_fOrder = 5.0f;
+  EZ_VERIFY(pMap->MapAction(desc).IsValid(), "Mapping failed");
 }
 
 ezAction* ezDocumentActions::CreateSaveAction(const ezActionContext& context)
@@ -85,6 +97,11 @@ ezAction* ezDocumentActions::CreateCloseAction(const ezActionContext& context)
   return EZ_DEFAULT_NEW(ezDocumentAction)(context, "Close", ezDocumentAction::DocumentButton::Close);
 }
 
+ezAction* ezDocumentActions::CreateOpenContainingFolderAction(const ezActionContext& context)
+{
+  return EZ_DEFAULT_NEW(ezDocumentAction)(context, "Open Containing Folder", ezDocumentAction::DocumentButton::OpenContainingFolder);
+}
+
 ////////////////////////////////////////////////////////////////////////
 // ezDocumentAction
 ////////////////////////////////////////////////////////////////////////
@@ -92,21 +109,34 @@ ezAction* ezDocumentActions::CreateCloseAction(const ezActionContext& context)
 ezDocumentAction::ezDocumentAction(const ezActionContext& context, const char* szName, DocumentButton button)
   : ezButtonAction(context, szName, false)
 {
-  EZ_ASSERT_DEV(context.m_pDocument != nullptr, "Invalid context");
-
   m_ButtonType = button;
 
-  m_Context.m_pDocument->m_EventsOne.AddEventHandler(ezMakeDelegate(&ezDocumentAction::DocumentEventHandler, this));
-
-  if (m_ButtonType == DocumentButton::Save)
+  if (context.m_pDocument == nullptr)
   {
-    SetEnabled(m_Context.m_pDocument->IsModified());
+    if (button == DocumentButton::Save || button == DocumentButton::SaveAs)
+    {
+      // for actions that require a document, hide them
+      SetVisible(false);
+    }
+  }
+  else
+  {
+    m_Context.m_pDocument->m_EventsOne.AddEventHandler(ezMakeDelegate(&ezDocumentAction::DocumentEventHandler, this));
+
+    if (m_ButtonType == DocumentButton::Save)
+    {
+      SetVisible(!m_Context.m_pDocument->IsReadOnly());
+      SetEnabled(m_Context.m_pDocument->IsModified());
+    }
   }
 }
 
 ezDocumentAction::~ezDocumentAction()
 {
-  m_Context.m_pDocument->m_EventsOne.RemoveEventHandler(ezMakeDelegate(&ezDocumentAction::DocumentEventHandler, this));
+  if (m_Context.m_pDocument)
+  {
+    m_Context.m_pDocument->m_EventsOne.RemoveEventHandler(ezMakeDelegate(&ezDocumentAction::DocumentEventHandler, this));
+  }
 }
 
 void ezDocumentAction::DocumentEventHandler(const ezDocumentBase::Event& e)
@@ -131,9 +161,11 @@ void ezDocumentAction::Execute(const ezVariant& value)
   switch (m_ButtonType)
   {
   case ezDocumentAction::DocumentButton::Save:
-    if (m_Context.m_pDocument->SaveDocument().m_Result.Failed())
     {
-      /// \todo Error box
+      if (m_Context.m_pDocument->SaveDocument().m_Result.Failed())
+      {
+        /// \todo Error box
+      }
     }
     break;
 
@@ -157,8 +189,34 @@ void ezDocumentAction::Execute(const ezVariant& value)
     break;
 
   case ezDocumentAction::DocumentButton::Close:
-    /// \todo Use the window
-    m_Context.m_pDocument->GetDocumentManager()->CloseDocument(m_Context.m_pDocument);
+    {
+      /// \todo Use the window
+      if (m_Context.m_pDocument)
+      {
+        m_Context.m_pDocument->GetDocumentManager()->CloseDocument(m_Context.m_pDocument);
+      }
+    }
+    break;
+
+  case ezDocumentAction::DocumentButton::OpenContainingFolder:
+    {
+      ezString sPath;
+
+      if (!m_Context.m_pDocument)
+      {
+        if (ezToolsProject::IsProjectOpen())
+          sPath = ezToolsProject::GetInstance()->GetProjectPath();
+        else
+          sPath = ezOSFile::GetApplicationDirectory();
+      }
+      else
+        sPath = m_Context.m_pDocument->GetDocumentPath();
+
+      QStringList args;
+      args << "/select," << QDir::toNativeSeparators(sPath.GetData());
+      QProcess::startDetached("explorer", args);
+
+    }
     break;
   }
 }

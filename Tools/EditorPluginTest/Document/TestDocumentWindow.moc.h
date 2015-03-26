@@ -115,6 +115,8 @@ public:
   ezTestDocumentWindow(ezDocumentBase* pDocument);
   ~ezTestDocumentWindow();
 
+  virtual const char* GetGroupName() const { return "Scene"; }
+
 protected:
   void keyPressEvent(QKeyEvent* e) override;
 

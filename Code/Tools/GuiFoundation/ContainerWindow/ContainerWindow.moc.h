@@ -41,10 +41,6 @@ private slots:
   void SlotDocumentTabCloseRequested(int index);
   void SlotRestoreLayout();
   void SlotTabsContextMenuRequested(const QPoint& pos);
-  void SlotCurrentTabSave();
-  void SlotCurrentTabSaveAll();
-  void SlotCurrentTabClose();
-  void SlotCurrentTabOpenFolder();
   void SlotDocumentTabCurrentChanged(int index);
 
 private:
@@ -71,11 +67,6 @@ private:
 
 private:
   ezDynamicArray<ezDocumentWindow*> m_DocumentWindows;
-
-  QAction* m_pActionCurrentTabSave;
-  QAction* m_pActionCurrentTabSaveAll;
-  QAction* m_pActionCurrentTabClose;
-  QAction* m_pActionCurrentTabOpenFolder;
 
   static ezDynamicArray<ezContainerWindow*> s_AllContainerWindows;
 };

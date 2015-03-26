@@ -25,7 +25,7 @@ ezQtLogMessageDock::~ezQtLogMessageDock()
   m_pModel = nullptr;
 }
 
-void ezQtLogMessageDock::restModel()
+void ezQtLogMessageDock::resetModel()
 {
   m_pModel->resetModel();
 }

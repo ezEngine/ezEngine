@@ -16,12 +16,15 @@ public:
   static ezActionDescriptorHandle s_hSaveAs;
   static ezActionDescriptorHandle s_hSaveAll;
   static ezActionDescriptorHandle s_hClose;
+  static ezActionDescriptorHandle s_hOpenContainingFolder;
 
 private:
   static ezAction* CreateSaveAction(const ezActionContext& context);
   static ezAction* CreateSaveAsAction(const ezActionContext& context);
   static ezAction* CreateSaveAllAction(const ezActionContext& context);
   static ezAction* CreateCloseAction(const ezActionContext& context);
+  static ezAction* CreateOpenContainingFolderAction(const ezActionContext& context);
+  
 };
 
 
@@ -35,7 +38,8 @@ public:
     Save,
     SaveAs,
     SaveAll,
-    Close
+    Close,
+    OpenContainingFolder
   };
   ezDocumentAction(const ezActionContext& context, const char* szName, DocumentButton button);
   ~ezDocumentAction();

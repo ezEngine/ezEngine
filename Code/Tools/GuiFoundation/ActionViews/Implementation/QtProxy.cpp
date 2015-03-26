@@ -115,6 +115,7 @@ void ezQtButtonProxy::Update()
   m_pQtAction->setCheckable(pButton->IsCheckable());
   m_pQtAction->setChecked(pButton->IsChecked());
   m_pQtAction->setEnabled(pButton->IsEnabled());
+  m_pQtAction->setVisible(pButton->IsVisible());
 
   EZ_VERIFY(connect(m_pQtAction, SIGNAL(triggered(bool)), this, SLOT(OnTriggered())) != nullptr, "connection failed");
 }

@@ -17,7 +17,7 @@ public:
   static ezSettingsTab* GetInstance();
 
   virtual const char* GetGroupName() const override { return "Settings"; }
-
+  
 private slots:
   void SlotSettingsChanged();
   void SlotButtonPluginConfig();

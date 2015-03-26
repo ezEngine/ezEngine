@@ -21,7 +21,7 @@ public:
   virtual ~ezQtLogMessageDock();
 
 public slots:
-  void restModel();
+  void resetModel();
   void currentTestResultChanged(const ezTestResultData* pTestResult);
   void currentTestSelectionChanged(const ezTestResultData* pTestResult);
 

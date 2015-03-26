@@ -66,8 +66,12 @@ public:
   bool IsChecked() const { return m_bChecked; }
   void SetChecked(bool bChecked) { m_bChecked = bChecked; }
 
+  bool IsVisible() const { return m_bVisible; }
+  void SetVisible(bool bVisible) { m_bVisible = bVisible; }
+
 protected:
   bool m_bCheckable;
   bool m_bChecked;
   bool m_bEnabled;
+  bool m_bVisible;
 };

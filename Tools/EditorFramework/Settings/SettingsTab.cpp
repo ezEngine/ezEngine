@@ -217,4 +217,3 @@ void ezSettingsTab::SlotComboSettingsDomainIndexChanged(int iIndex)
     ComboSettingsDomain->itemText(iIndex);
   }
 }
-

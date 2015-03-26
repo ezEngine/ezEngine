@@ -44,7 +44,9 @@ public:
   virtual ezString GetDisplayNameShort() const;
 
   const char* GetUniqueName() const { return m_sUniqueName; }
-  virtual const char* GetGroupName() const { return "Scene"; }
+
+  /// \brief The 'GroupName' is used for serializing window layouts. It should be unique among different window types.
+  virtual const char* GetGroupName() const { return "DocumentWindow"; }
 
   ezDocumentBase* GetDocument() const { return m_pDocument; }
 
@@ -59,6 +61,8 @@ public:
   void SetTargetFramerate(ezInt8 iTargetFPS);
 
   void TriggerRedraw();
+
+  virtual void RequestWindowTabContextMenu(const QPoint& GlobalPos);
 
   static const ezDynamicArray<ezDocumentWindow*>& GetAllDocumentWindows() { return s_AllDocumentWindows; }
 

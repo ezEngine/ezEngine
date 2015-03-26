@@ -21,4 +21,5 @@ ezButtonAction::ezButtonAction(const ezActionContext& context, const char* szNam
   m_bCheckable = false;
   m_bChecked = false;
   m_bEnabled = true;
+  m_bVisible = true;
 }
