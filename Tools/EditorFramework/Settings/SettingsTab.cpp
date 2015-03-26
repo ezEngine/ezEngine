@@ -1,9 +1,22 @@
 #include <PCH.h>
 #include <EditorFramework/Settings/SettingsTab.moc.h>
-#include <EditorFramework/EditorApp.moc.h>
+#include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <GuiFoundation/ActionViews/MenuBarActionMapView.moc.h>
+#include <GuiFoundation/UIServices/UIServices.moc.h>
 
 static ezSettingsTab* g_pInstance = nullptr;
+
+void ezEditorApp::ShowSettingsDocument()
+{
+  ezSettingsTab* pSettingsTab = ezSettingsTab::GetInstance();
+
+  if (pSettingsTab == nullptr)
+  {
+    pSettingsTab = new ezSettingsTab();
+  }
+
+  pSettingsTab->EnsureVisible();
+}
 
 ezSettingsTab* ezSettingsTab::GetInstance()
 {
@@ -23,7 +36,7 @@ ezSettingsTab::ezSettingsTab() : ezDocumentWindow("Settings")
   setupUi(centralWidget());
 
   ezStringBuilder sTitle;
-  sTitle.Format("<html><head/><body><p><span style=\" font-size:18pt; font-weight:600;\">%s</span></p></body></html>", ezEditorApp::GetInstance()->GetApplicationName().GetData());
+  sTitle.Format("<html><head/><body><p><span style=\" font-size:18pt; font-weight:600;\">%s</span></p></body></html>", ezUIServices::GetApplicationName());
   LabelAppName->setText(QString::fromUtf8(sTitle.GetData()));
 
   m_pSettingsGrid = new ezSimplePropertyGridWidget(this);
@@ -166,12 +179,13 @@ void ezSettingsTab::UpdateSettings()
   m_pSettingsGrid->EndProperties();
 }
 
-bool ezSettingsTab::InternalCanClose()
+bool ezSettingsTab::InternalCanCloseWindow()
 {
-  return true;
+  // if this is the last window, prevent closing it
+  return ezDocumentWindow::GetAllDocumentWindows().GetCount() > 1;
 }
 
-void ezSettingsTab::InternalCloseDocument()
+void ezSettingsTab::InternalCloseDocumentWindow()
 {
   // make sure this instance isn't used anymore
   g_pInstance = nullptr;

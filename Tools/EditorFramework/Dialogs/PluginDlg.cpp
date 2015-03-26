@@ -1,6 +1,6 @@
 #include <PCH.h>
 #include <EditorFramework/Dialogs/PluginDlg.moc.h>
-#include <EditorFramework/EditorApp.moc.h>
+#include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <Foundation/IO/OSFile.h>
 #include <QMessageBox>

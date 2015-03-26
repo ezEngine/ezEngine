@@ -14,17 +14,6 @@ class EZ_EDITORFRAMEWORK_DLL ezDocumentWindow3D : public ezDocumentWindow
 
 public:
 
-  struct Event
-  {
-    //enum Type
-    //{
-    //  WindowClosed,
-    //  WindowDecorationChanged,
-    //};
-  };
-
-  //static ezEvent<const Event&> s_Events;
-
   virtual bool HandleEngineMessage(const ezEditorEngineDocumentMsg* pMsg);
 
 public:

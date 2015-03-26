@@ -1,6 +1,6 @@
 #include <GuiFoundation/PCH.h>
 #include <GuiFoundation/Dialogs/ModifiedDocumentsDlg.moc.h>
-#include <ToolsFoundation/Project/EditorProject.h>
+#include <ToolsFoundation/Project/ToolsProject.h>
 
 ezModifiedDocumentsDlg::ezModifiedDocumentsDlg(QWidget* parent, const ezHybridArray<ezDocumentBase*, 32>& ModifiedDocs) : QDialog(parent)
 {

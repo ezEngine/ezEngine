@@ -2,7 +2,7 @@
 
 #include <EditorFramework/DocumentWindow/DocumentWindow.moc.h>
 #include <EditorFramework/GUI/SimplePropertyGridWidget.moc.h>
-#include <ToolsFoundation/Project/EditorProject.h>
+#include <ToolsFoundation/Project/ToolsProject.h>
 #include <Tools/EditorFramework/ui_SettingsTab.h>
 #include <Foundation/Configuration/Plugin.h>
 
@@ -24,8 +24,8 @@ private slots:
   void SlotComboSettingsDomainIndexChanged(int iIndex);
 
 private:
-  virtual bool InternalCanClose();
-  virtual void InternalCloseDocument();
+  virtual bool InternalCanCloseWindow() override;
+  virtual void InternalCloseDocumentWindow() override;
 
   void PluginEventHandler(const ezPlugin::PluginEvent& e);
   void UpdateSettings();

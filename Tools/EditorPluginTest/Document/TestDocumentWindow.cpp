@@ -1,5 +1,5 @@
 #include <PCH.h>
-#include <EditorFramework/EditorApp.moc.h>
+#include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorPluginTest/Document/TestDocumentWindow.moc.h>
 #include <Core/ResourceManager/ResourceManager.h>
 #include <RendererCore/Meshes/MeshBufferResource.h>

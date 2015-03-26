@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Core/Application/Application.h>
-#include <EditorFramework/EditorApp.moc.h>
+#include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <QApplication>
 #include <EditorFramework/IPC/ProcessCommunication.h>
 #include <EditorEngineProcess/ViewContext.h>

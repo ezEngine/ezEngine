@@ -20,8 +20,9 @@ public:
   {
     enum Type
     {
-      WindowClosed,
-      WindowDecorationChanged,
+      WindowClosing,            ///< Sent shortly before the window is being deleted
+      WindowClosed,             ///< Sent AFTER the window has been deleted. The pointer is given, but not valid anymore!
+      WindowDecorationChanged,  ///< Window title or icon has changed
     };
 
     Type m_Type;
@@ -59,6 +60,8 @@ public:
 
   void TriggerRedraw();
 
+  static const ezDynamicArray<ezDocumentWindow*>& GetAllDocumentWindows() { return s_AllDocumentWindows; }
+
 private slots:
   void SlotRestoreLayout();
   void SlotRedraw();
@@ -94,6 +97,8 @@ private:
   virtual void InternalRedraw() { }
 
   ezString m_sUniqueName;
+
+  static ezDynamicArray<ezDocumentWindow*> s_AllDocumentWindows;
 };
 
 

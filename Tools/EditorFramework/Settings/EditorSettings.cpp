@@ -1,5 +1,5 @@
 #include <PCH.h>
-#include <EditorFramework/EditorApp.moc.h>
+#include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <ToolsFoundation/Settings/Settings.h>
 #include <Foundation/IO/JSONWriter.h>
 #include <Foundation/IO/ExtendedJSONWriter.h>

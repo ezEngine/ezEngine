@@ -1,8 +1,8 @@
 #include <PCH.h>
 #include <EditorFramework/Actions/ProjectActions.h>
-#include <ToolsFoundation/Project/EditorProject.h>
+#include <ToolsFoundation/Project/ToolsProject.h>
 #include <EditorFramework/Settings/SettingsTab.moc.h>
-#include <EditorFramework/EditorApp.moc.h>
+#include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/ContainerWindow/ContainerWindow.moc.h>
 #include <GuiFoundation/Action/ActionMapManager.h>
 #include <GuiFoundation/Action/ActionManager.h>
@@ -254,7 +254,7 @@ void ezProjectAction::Execute(const ezVariant& value)
     break;
 
   case ezProjectAction::ButtonType::ProjectSettings:
-    ezContainerWindow::ShowSettingsDocument();
+    ezEditorApp::GetInstance()->ShowSettingsDocument();
     break;
   }
 

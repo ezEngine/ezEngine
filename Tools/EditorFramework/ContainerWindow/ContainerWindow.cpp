@@ -1,9 +1,7 @@
 #include <PCH.h>
 #include <EditorFramework/ContainerWindow/ContainerWindow.moc.h>
 #include <EditorFramework/DocumentWindow/DocumentWindow.moc.h>
-#include <EditorFramework/EditorApp.moc.h>
-#include <EditorFramework/Settings/SettingsTab.moc.h>
-#include <ToolsFoundation/Project/EditorProject.h>
+#include <ToolsFoundation/Project/ToolsProject.h>
 #include <ToolsFoundation/Document/DocumentManager.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <Foundation/IO/OSFile.h>
@@ -20,6 +18,8 @@
 #include <QFileDialog>
 #include <QProcess>
 #include <QCloseEvent>
+#include <QTabWidget>
+#include <QTabBar>
 
 ezDynamicArray<ezContainerWindow*> ezContainerWindow::s_AllContainerWindows;
 
@@ -53,7 +53,7 @@ ezContainerWindow::ezContainerWindow()
 
 ezContainerWindow::~ezContainerWindow()
 {
-  s_AllContainerWindows.Remove(this);
+  s_AllContainerWindows.RemoveSwap(this);
 
   ezDocumentWindow::s_Events.RemoveEventHandler(ezMakeDelegate(&ezContainerWindow::DocumentWindowEventHandler, this));
   ezToolsProject::s_Events.RemoveEventHandler(ezMakeDelegate(&ezContainerWindow::ProjectEventHandler, this));
@@ -77,7 +77,7 @@ void ezContainerWindow::UpdateWindowTitle()
     sTitle.Append(" - ");
   }
   
-  sTitle.Append(ezEditorApp::GetInstance()->GetApplicationName());
+  sTitle.Append(ezUIServices::GetApplicationName());
 
   setWindowTitle(QString::fromUtf8(sTitle.GetData()));
 }
@@ -272,11 +272,6 @@ void ezContainerWindow::SlotDocumentTabCloseRequested(int index)
 
   ezDocumentWindow* pDocWindow = (ezDocumentWindow*) pTabs->widget(index);
 
-  // Prevent closing the only tab
-  // this is not necessary, since a new settings tab would be created, but it is a bit cleaner
-  if (m_DocumentWindows.GetCount() == 1 && pDocWindow == ezSettingsTab::GetInstance())
-    return;
-
   if (!pDocWindow->CanCloseWindow())
     return;
 
@@ -308,12 +303,8 @@ void ezContainerWindow::DocumentWindowEventHandler(const ezDocumentWindow::Event
 {
   switch (e.m_Type)
   {
-  case ezDocumentWindow::Event::Type::WindowClosed:
+  case ezDocumentWindow::Event::Type::WindowClosing:
     RemoveDocumentWindowFromContainer(e.m_pWindow);
-
-    if (m_DocumentWindows.IsEmpty())
-      ShowSettingsDocument();
-
     break;
   case ezDocumentWindow::Event::Type::WindowDecorationChanged:
     UpdateWindowDecoration(e.m_pWindow);
@@ -330,20 +321,6 @@ void ezContainerWindow::ProjectEventHandler(const ezToolsProject::Event& e)
     UpdateWindowTitle();
     break;
   }
-}
-
-void ezContainerWindow::ShowSettingsDocument()
-{
-  ezSettingsTab* pSettingsTab = ezSettingsTab::GetInstance();
-
-  if (pSettingsTab == nullptr)
-  {
-    pSettingsTab = new ezSettingsTab();
-
-    ezEditorApp::GetInstance()->AddDocumentWindow(pSettingsTab);
-  }
-
-  pSettingsTab->EnsureVisible();
 }
 
 ezString ezContainerWindow::BuildDocumentTypeFileFilter(bool bForCreation)

@@ -1,5 +1,5 @@
 #include <ToolsFoundation/PCH.h>
-#include <ToolsFoundation/Project/EditorProject.h>
+#include <ToolsFoundation/Project/ToolsProject.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/IO/OSFile.h>
 #include <ToolsFoundation/Document/DocumentManager.h>

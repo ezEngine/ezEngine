@@ -1,6 +1,6 @@
 #include <PCH.h>
 #include <EditorFramework/DocumentWindow/DocumentWindow.moc.h>
-#include <EditorFramework/EditorApp.moc.h>
+#include <EditorFramework/ContainerWindow/ContainerWindow.moc.h>
 #include <ToolsFoundation/Document/Document.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <QSettings>
@@ -9,29 +9,13 @@
 #include <GuiFoundation/ActionViews/MenuBarActionMapView.moc.h>
 
 ezEvent<const ezDocumentWindow::Event&> ezDocumentWindow::s_Events;
-
-ezDocumentWindow* ezEditorApp::GetDocumentWindow(const char* szUniqueName)
-{
-  auto it = s_DocumentWindows.Find(szUniqueName);
-
-  if (it.IsValid())
-    return it.Value();
-
-  return nullptr;
-}
-
-void ezEditorApp::AddDocumentWindow(ezDocumentWindow* pWindow)
-{
-  s_DocumentWindows[pWindow->GetUniqueName()] = pWindow;
-  s_ContainerWindows[0]->MoveDocumentWindowToContainer(pWindow);
-
-  pWindow->ScheduleRestoreWindowLayout();
-}
+ezDynamicArray<ezDocumentWindow*> ezDocumentWindow::s_AllDocumentWindows;
 
 void ezDocumentWindow::Constructor()
 {
+  s_AllDocumentWindows.PushBack(this);
+
   m_pContainerWindow = nullptr;
-  m_pDocument = nullptr;
   m_bIsVisibleInContainer = false;
   m_bRedrawIsTriggered = false;
   m_bIsDrawingATM = false;
@@ -43,16 +27,17 @@ void ezDocumentWindow::Constructor()
   ezMenuBarActionMapView* pMenuBar = new ezMenuBarActionMapView(this);
   setMenuBar(pMenuBar);
 
+  ezContainerWindow::GetAllContainerWindows()[0]->MoveDocumentWindowToContainer(this);
+  ScheduleRestoreWindowLayout();
 }
 
 ezDocumentWindow::ezDocumentWindow(ezDocumentBase* pDocument)
 {
-  Constructor();
-
   m_pDocument = pDocument;
   m_sUniqueName = m_pDocument->GetDocumentPath();
-
   setObjectName(GetUniqueName());
+
+  Constructor();
 
   pDocument->GetDocumentManager()->s_Events.AddEventHandler(ezMakeDelegate(&ezDocumentWindow::DocumentManagerEventHandler, this));
   pDocument->m_EventsOne.AddEventHandler(ezMakeDelegate(&ezDocumentWindow::DocumentEventHandler, this));
@@ -60,16 +45,18 @@ ezDocumentWindow::ezDocumentWindow(ezDocumentBase* pDocument)
 
 ezDocumentWindow::ezDocumentWindow(const char* szUniqueName)
 {
-  Constructor();
-
+  m_pDocument = nullptr;
   m_sUniqueName = szUniqueName;
-
   setObjectName(GetUniqueName());
+
+  Constructor();
 }
 
 
 ezDocumentWindow::~ezDocumentWindow()
 {
+  s_AllDocumentWindows.RemoveSwap(this);
+
   if (m_pDocument)
   {
     m_pDocument->m_EventsOne.RemoveEventHandler(ezMakeDelegate(&ezDocumentWindow::DocumentEventHandler, this));
@@ -322,10 +309,13 @@ void ezDocumentWindow::ShutdownDocumentWindow()
 
   Event e;
   e.m_pWindow = this;
-  e.m_Type = Event::Type::WindowClosed;
+  e.m_Type = Event::Type::WindowClosing;
   s_Events.Broadcast(e);
 
   InternalDeleteThis();
+
+  e.m_Type = Event::Type::WindowClosed;
+  s_Events.Broadcast(e);
 }
 
 void ezDocumentWindow::InternalCloseDocumentWindow()

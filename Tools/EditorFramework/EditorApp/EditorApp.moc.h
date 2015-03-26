@@ -3,7 +3,7 @@
 #include <EditorFramework/Plugin.h>
 #include <ToolsFoundation/Settings/Settings.h>
 #include <EditorFramework/ContainerWindow/ContainerWindow.moc.h>
-#include <ToolsFoundation/Project/EditorProject.h>
+#include <ToolsFoundation/Project/ToolsProject.h>
 #include <EditorFramework/EngineProcess/EngineProcessConnection.h>
 #include <Foundation/Containers/Set.h>
 #include <Foundation/Strings/String.h>
@@ -48,9 +48,6 @@ public:
 
   static ezEditorApp* GetInstance() { return s_pInstance; }
 
-  QMainWindow* GetMainWindow();
-
-  const ezString& GetApplicationName() { return s_sApplicationName; }
   const ezString& GetApplicationUserName() { return s_sUserName; }
 
   const ezPluginSet& GetEditorPluginsAvailable();
@@ -78,15 +75,14 @@ public:
   void LoadPlugins();
   void UnloadPlugins();
 
-  ezDocumentWindow* GetDocumentWindow(const char* szUniqueName);
-  void AddDocumentWindow(ezDocumentWindow* pWindow);
-
   ezRecentFilesList& GetRecentProjectsList()   { return s_RecentProjects;  }
   ezRecentFilesList& GetRecentDocumentsList()  { return s_RecentDocuments; }
 
   ezString GetDocumentDataFolder(const char* szDocument);
 
   ezEditorEngineProcessConnection* GetEngineViewProcess() { return s_pEngineViewProcess; }
+
+  void ShowSettingsDocument();
 
 private slots:
   void SlotTimedUpdate();
@@ -97,16 +93,13 @@ private:
   void DocumentManagerRequestHandler(ezDocumentManagerBase::Request& r);
   void DocumentManagerEventHandler(const ezDocumentManagerBase::Event& r);
   void DocumentEventHandler(const ezDocumentBase::Event& e);
+  void DocumentWindowEventHandler(const ezDocumentWindow::Event& e);
   void ProjectRequestHandler(ezToolsProject::Request& r);
   void ProjectEventHandler(const ezToolsProject::Event& r);
   void EngineProcessMsgHandler(const ezEditorEngineProcessConnection::Event& e);
 
-  ezHybridArray<ezContainerWindow*, 4> s_ContainerWindows;
-  ezMap<ezString, ezDocumentWindow*> s_DocumentWindows;
-
   void ReadPluginsToBeLoaded();
 
-  ezString s_sApplicationName;
   ezString s_sUserName;
 
   ezSet<ezString> s_RestartRequiredReasons;

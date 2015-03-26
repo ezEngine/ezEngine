@@ -1,5 +1,5 @@
 #include <PCH.h>
-#include <EditorFramework/EditorApp.moc.h>
+#include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <GuiFoundation/Dialogs/ModifiedDocumentsDlg.moc.h>
 #include <EditorFramework/EngineProcess/EngineProcessConnection.h>
@@ -22,11 +22,6 @@
 #include <qstylefactory.h>
 
 ezEditorApp* ezEditorApp::s_pInstance = nullptr;
-
-QMainWindow* ezEditorApp::GetMainWindow()
-{
-  return s_ContainerWindows[0];
-}
 
 void SetStyleSheet()
 {
@@ -71,7 +66,7 @@ ezEditorApp::ezEditorApp() :
 {
   s_pInstance = this;
 
-  s_sApplicationName = "ezEditor";
+  ezUIServices::SetApplicationName("ezEditor");
   s_sUserName = "DefaultUser";
   s_pQtApplication = nullptr;
   s_pEngineViewProcess = nullptr;
@@ -89,8 +84,8 @@ ezEditorApp::~ezEditorApp()
 
 void ezEditorApp::StartupEditor(const char* szAppName, const char* szUserName, int argc, char** argv)
 {
-  s_sApplicationName = ezCommandLineUtils::GetInstance()->GetStringOption("-appname", 0, szAppName);
-  ezUIServices::SetMessageBoxTitle(s_sApplicationName);
+  ezString sApplicationName = ezCommandLineUtils::GetInstance()->GetStringOption("-appname", 0, szAppName);
+  ezUIServices::SetApplicationName(sApplicationName);
 
   s_sUserName = szUserName;
 
@@ -101,13 +96,13 @@ void ezEditorApp::StartupEditor(const char* szAppName, const char* szUserName, i
 
   QCoreApplication::setOrganizationDomain("www.ezEngine.net");
   QCoreApplication::setOrganizationName("ezEngine Project");
-  QCoreApplication::setApplicationName(GetApplicationName().GetData());
+  QCoreApplication::setApplicationName(ezUIServices::GetApplicationName());
   QCoreApplication::setApplicationVersion("1.0.0");
 
   SetStyleSheet();
 
-  s_ContainerWindows.PushBack(new ezContainerWindow());
-  s_ContainerWindows[0]->show();
+  ezContainerWindow* pContainer = new ezContainerWindow();
+  pContainer->show();
 
   ezDocumentManagerBase::s_Requests.AddEventHandler(ezMakeDelegate(&ezEditorApp::DocumentManagerRequestHandler, this));
   ezDocumentManagerBase::s_Events.AddEventHandler(ezMakeDelegate(&ezEditorApp::DocumentManagerEventHandler, this));
@@ -115,11 +110,12 @@ void ezEditorApp::StartupEditor(const char* szAppName, const char* szUserName, i
   ezToolsProject::s_Requests.AddEventHandler(ezMakeDelegate(&ezEditorApp::ProjectRequestHandler, this));
   ezToolsProject::s_Events.AddEventHandler(ezMakeDelegate(&ezEditorApp::ProjectEventHandler, this));
   ezEditorEngineProcessConnection::s_Events.AddEventHandler(ezMakeDelegate(&ezEditorApp::EngineProcessMsgHandler, this));
+  ezDocumentWindow::s_Events.AddEventHandler(ezMakeDelegate(&ezEditorApp::DocumentWindowEventHandler, this));
 
   ezStartup::StartupCore();
 
   ezStringBuilder sAppDir = ezOSFile::GetApplicationDirectory();
-  sAppDir.AppendPath("../../../Shared/Tools", GetApplicationName().GetData());
+  sAppDir.AppendPath("../../../Shared/Tools", ezUIServices::GetApplicationName());
 
   ezOSFile osf;
   osf.CreateDirectoryStructure(sAppDir);
@@ -141,7 +137,7 @@ void ezEditorApp::StartupEditor(const char* szAppName, const char* szUserName, i
 
   LoadPlugins();
 
-  ezContainerWindow::ShowSettingsDocument();
+  ShowSettingsDocument();
 }
 
 void ezEditorApp::ShutdownEditor()
@@ -154,6 +150,7 @@ void ezEditorApp::ShutdownEditor()
   ezDocumentBase::s_EventsAny.RemoveEventHandler(ezMakeDelegate(&ezEditorApp::DocumentEventHandler, this));
   ezDocumentManagerBase::s_Requests.RemoveEventHandler(ezMakeDelegate(&ezEditorApp::DocumentManagerRequestHandler, this));
   ezDocumentManagerBase::s_Events.RemoveEventHandler(ezMakeDelegate(&ezEditorApp::DocumentManagerEventHandler, this));
+  ezDocumentWindow::s_Events.RemoveEventHandler(ezMakeDelegate(&ezEditorApp::DocumentWindowEventHandler, this));
 
   SaveSettings();
 
@@ -207,6 +204,20 @@ void ezEditorApp::DocumentEventHandler(const ezDocumentBase::Event& e)
   case ezDocumentBase::Event::Type::SaveDocumentMetaState:
     {
       SaveDocumentSettings(e.m_pDocument);
+    }
+    break;
+  }
+}
+
+void ezEditorApp::DocumentWindowEventHandler(const ezDocumentWindow::Event& e)
+{
+  switch (e.m_Type)
+  {
+  case ezDocumentWindow::Event::WindowClosed:
+    {
+      // if all windows are closed, show at least the settings window
+      if (ezDocumentWindow::GetAllDocumentWindows().GetCount() == 0)
+        ShowSettingsDocument();
     }
     break;
   }
@@ -364,7 +375,7 @@ void ezEditorApp::ProjectRequestHandler(ezToolsProject::Request& r)
 
       if (!ModifiedDocs.IsEmpty())
       {
-        ezModifiedDocumentsDlg dlg(s_ContainerWindows[0], ModifiedDocs);
+        ezModifiedDocumentsDlg dlg(QApplication::activeWindow(), ModifiedDocs);
         if (dlg.exec() == 0)
           r.m_bProjectCanClose = false;
       }

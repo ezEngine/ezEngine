@@ -1,6 +1,6 @@
 #include <PCH.h>
 #include <Core/Application/Application.h>
-#include <EditorFramework/EditorApp.moc.h>
+#include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <QApplication>
 #include <QSettings>
 #include <QtNetwork/QHostInfo>

@@ -1,7 +1,7 @@
 #include <PCH.h>
 #include <EditorPluginTest/EditorPluginTest.h>
 #include <EditorPluginTest/Panels/TestPanel.moc.h>
-#include <EditorFramework/EditorApp.moc.h>
+#include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/GUI/RawPropertyGridWidget.h>
 #include <EditorFramework/GUI/RawDocumentTreeWidget.moc.h>
 #include <ToolsFoundation/Reflection/ToolsReflectionUtils.h>
@@ -95,8 +95,6 @@ void OnDocumentManagerEvent(const ezDocumentManagerBase::Event& e)
           pDocWnd->addDockWidget(Qt::DockWidgetArea::LeftDockWidgetArea, pPanelTree);
           pDocWnd->addDockWidget(Qt::DockWidgetArea::LeftDockWidgetArea, pPanelCreator);
         }
-
-        ezEditorApp::GetInstance()->AddDocumentWindow(pDocWnd);
       }
     }
     break;

@@ -1,5 +1,5 @@
 #include <PCH.h>
-#include <EditorFramework/EditorApp.moc.h>
+#include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/IPC/ProcessCommunication.h>
 #include <EditorFramework/EngineProcess/EngineProcessMessages.h>
 #include <EditorFramework/EngineProcess/EngineProcessViewContext.h>

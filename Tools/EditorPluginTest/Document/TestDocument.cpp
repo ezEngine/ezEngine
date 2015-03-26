@@ -2,7 +2,7 @@
 #include <EditorPluginTest/Document/TestDocument.h>
 #include <EditorPluginTest/Objects/TestObject.h>
 #include <EditorPluginTest/Objects/TestObjectManager.h>
-#include <EditorFramework/EditorApp.moc.h>
+#include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <ToolsFoundation/Reflection/ReflectedTypeManager.h>
 #include <Core/World/GameObject.h>
 

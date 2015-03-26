@@ -1,6 +1,6 @@
 #pragma once
 
-#include <EditorFramework/EditorApp.moc.h>
+#include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/EngineProcess/EngineProcessViewContext.h>
 #include <System/Window/Window.h>
 #include <RendererFoundation/Device/Device.h>
