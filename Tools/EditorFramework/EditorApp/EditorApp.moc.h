@@ -2,7 +2,7 @@
 
 #include <EditorFramework/Plugin.h>
 #include <ToolsFoundation/Settings/Settings.h>
-#include <EditorFramework/ContainerWindow/ContainerWindow.moc.h>
+#include <GuiFoundation/ContainerWindow/ContainerWindow.moc.h>
 #include <ToolsFoundation/Project/ToolsProject.h>
 #include <EditorFramework/EngineProcess/EngineProcessConnection.h>
 #include <Foundation/Containers/Set.h>

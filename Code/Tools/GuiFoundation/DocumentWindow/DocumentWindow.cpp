@@ -1,6 +1,6 @@
-#include <PCH.h>
-#include <EditorFramework/DocumentWindow/DocumentWindow.moc.h>
-#include <EditorFramework/ContainerWindow/ContainerWindow.moc.h>
+#include <GuiFoundation/PCH.h>
+#include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
+#include <GuiFoundation/ContainerWindow/ContainerWindow.moc.h>
 #include <ToolsFoundation/Document/Document.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <QSettings>

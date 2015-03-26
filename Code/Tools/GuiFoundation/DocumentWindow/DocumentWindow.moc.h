@@ -1,6 +1,6 @@
 #pragma once
 
-#include <EditorFramework/Plugin.h>
+#include <GuiFoundation/Basics.h>
 #include <Foundation/Strings/String.h>
 #include <Foundation/Communication/Event.h>
 #include <ToolsFoundation/Basics/Status.h>
@@ -10,7 +10,7 @@
 class ezContainerWindow;
 class ezDocumentBase;
 
-class EZ_EDITORFRAMEWORK_DLL ezDocumentWindow : public QMainWindow
+class EZ_GUIFOUNDATION_DLL ezDocumentWindow : public QMainWindow
 {
   Q_OBJECT
 

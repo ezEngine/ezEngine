@@ -3,7 +3,7 @@
 #include <ToolsFoundation/Project/ToolsProject.h>
 #include <EditorFramework/Settings/SettingsTab.moc.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
-#include <EditorFramework/ContainerWindow/ContainerWindow.moc.h>
+#include <GuiFoundation/ContainerWindow/ContainerWindow.moc.h>
 #include <GuiFoundation/Action/ActionMapManager.h>
 #include <GuiFoundation/Action/ActionManager.h>
 #include <Foundation/IO/OSFile.h>

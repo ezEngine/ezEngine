@@ -1,5 +1,5 @@
 #include <PCH.h>
-#include <EditorFramework/DocumentWindow/DocumentWindow3D.moc.h>
+#include <EditorFramework/DocumentWindow3D/DocumentWindow3D.moc.h>
 #include <EditorFramework/IPC/SyncObject.h>
 #include <QPushButton>
 #include <qlayout.h>
@@ -13,12 +13,8 @@ ezDocumentWindow3D::ezDocumentWindow3D(ezDocumentBase* pDocument) : ezDocumentWi
   m_pEngineView = nullptr;
 
   m_pEngineView = ezEditorEngineProcessConnection::GetInstance()->CreateEngineConnection(this);
-  
-  
-  
-  ezEditorEngineProcessConnection::s_Events.AddEventHandler(ezMakeDelegate(&ezDocumentWindow3D::EngineViewProcessEventHandler, this));
 
-  m_pEngineView->SendDocument();
+  ezEditorEngineProcessConnection::s_Events.AddEventHandler(ezMakeDelegate(&ezDocumentWindow3D::EngineViewProcessEventHandler, this));
 }
 
 ezDocumentWindow3D::~ezDocumentWindow3D()

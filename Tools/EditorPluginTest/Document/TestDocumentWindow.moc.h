@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Foundation/Basics.h>
-#include <EditorFramework/DocumentWindow/DocumentWindow3D.moc.h>
+#include <EditorFramework/DocumentWindow3D/DocumentWindow3D.moc.h>
 #include <EditorFramework/IPC/ProcessCommunication.h>
 #include <EditorFramework/EngineProcess/EngineProcessConnection.h>
 #include <RendererDX11/Device/DeviceDX11.h>

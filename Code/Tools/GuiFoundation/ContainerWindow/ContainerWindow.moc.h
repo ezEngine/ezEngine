@@ -1,10 +1,10 @@
 #pragma once
 
-#include <EditorFramework/Plugin.h>
+#include <GuiFoundation/Basics.h>
 #include <Foundation/Strings/String.h>
 #include <Foundation/Containers/Map.h>
 #include <Foundation/Containers/DynamicArray.h>
-#include <EditorFramework/DocumentWindow/DocumentWindow.moc.h>
+#include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
 #include <ToolsFoundation/Project/ToolsProject.h>
 #include <QMainWindow>
 
@@ -12,7 +12,7 @@ class ezDocumentManagerBase;
 class ezDocumentBase;
 struct ezDocumentTypeDescriptor;
 
-class EZ_EDITORFRAMEWORK_DLL ezContainerWindow : public QMainWindow
+class EZ_GUIFOUNDATION_DLL ezContainerWindow : public QMainWindow
 {
   Q_OBJECT
 

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <EditorFramework/Plugin.h>
-#include <EditorFramework/DocumentWindow/DocumentWindow.moc.h>
+#include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
 #include <EditorFramework/EngineProcess/EngineProcessConnection.h>
 
 class QWidget;

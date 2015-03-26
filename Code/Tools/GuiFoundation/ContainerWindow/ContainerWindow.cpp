@@ -1,6 +1,6 @@
-#include <PCH.h>
-#include <EditorFramework/ContainerWindow/ContainerWindow.moc.h>
-#include <EditorFramework/DocumentWindow/DocumentWindow.moc.h>
+#include <GuiFoundation/PCH.h>
+#include <GuiFoundation/ContainerWindow/ContainerWindow.moc.h>
+#include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
 #include <ToolsFoundation/Project/ToolsProject.h>
 #include <ToolsFoundation/Document/DocumentManager.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
@@ -29,7 +29,7 @@ ezContainerWindow::ezContainerWindow()
   ezDocumentActions::MapActions("RootMenu", ezHashedString());
 
   setObjectName(QLatin1String(GetUniqueName())); // todo
-  setWindowIcon(QIcon(QLatin1String(":/Icons/Icons/ezEditor16.png")));
+  setWindowIcon(QIcon(QLatin1String(":/Icons/Icons/ezEditor16.png"))); /// \todo Make icon configurable
 
   QTimer::singleShot(0, this, SLOT(SlotRestoreLayout()));
 
