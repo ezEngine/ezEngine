@@ -148,9 +148,31 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProjectAction, ezButtonAction, 0, ezRTTINoAllo
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 ezProjectAction::ezProjectAction(const ezActionContext& context, const char* szName, ButtonType button)
-  : ezButtonAction(context, szName, false)
+  : ezButtonAction(context, szName, false, "")
 {
   m_ButtonType = button;
+
+  switch (m_ButtonType)
+  {
+  case ezProjectAction::ButtonType::CreateDocument:
+    SetIconPath(":/GuiFoundation/Icons/DocumentAdd16.png");
+    break;
+  case ezProjectAction::ButtonType::OpenDocument:
+    SetIconPath(":/GuiFoundation/Icons/Document16.png");
+    break;
+  case ezProjectAction::ButtonType::CreateProject:
+    SetIconPath(":/GuiFoundation/Icons/ProjectAdd16.png");
+    break;
+  case ezProjectAction::ButtonType::OpenProject:
+    SetIconPath(":/GuiFoundation/Icons/Project16.png");
+    break;
+  case ezProjectAction::ButtonType::CloseProject:
+    SetIconPath(":/GuiFoundation/Icons/ProjectClose16.png");
+    break;
+  case ezProjectAction::ButtonType::ProjectSettings:
+    SetIconPath(":/GuiFoundation/Icons/Settings16.png");
+    break;
+  }
 
   if (m_ButtonType == ButtonType::CloseProject)
   {

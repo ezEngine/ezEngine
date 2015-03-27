@@ -38,7 +38,7 @@ public:
 
   void EnsureVisible();
 
-  virtual ezString GetTypeIcon() const { return ":/Icons/Icons/ezEditor16.png"; }
+  virtual ezString GetTypeIcon() const { return ":/GuiFoundation/Icons/ezEditor16.png"; }
 
   virtual ezString GetDisplayName() const { return GetUniqueName(); }
   virtual ezString GetDisplayNameShort() const;

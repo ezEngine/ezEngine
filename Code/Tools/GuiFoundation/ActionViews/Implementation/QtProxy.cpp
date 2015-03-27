@@ -67,6 +67,7 @@ ezQtMenuProxy::ezQtMenuProxy()
 
 ezQtMenuProxy::~ezQtMenuProxy()
 {
+  m_pMenu->deleteLater();
   delete m_pMenu;
 }
 
@@ -74,6 +75,7 @@ void ezQtMenuProxy::Update()
 {
   auto pMenu = static_cast<ezMenuAction*>(m_pAction);
 
+  m_pMenu->setIcon(QIcon(QString::fromUtf8(pMenu->GetIconPath())));
   m_pMenu->setTitle(QString::fromUtf8(pMenu->GetText()));
 }
 
@@ -82,7 +84,6 @@ void ezQtMenuProxy::SetAction(ezAction* pAction)
   ezQtProxy::SetAction(pAction);
 
   m_pMenu = new QMenu();
-
   Update();
 }
 
@@ -104,13 +105,15 @@ ezQtButtonProxy::~ezQtButtonProxy()
 
   m_pAction->m_StatusUpdateEvent.RemoveEventHandler(ezMakeDelegate(&ezQtButtonProxy::StatusUpdateEventHandler, this));
 
-  delete m_pQtAction;
+  m_pQtAction->deleteLater();
+  m_pQtAction = nullptr;
 }
 
 void ezQtButtonProxy::Update()
 {
   auto pButton = static_cast<ezButtonAction*>(m_pAction);
 
+  m_pQtAction->setIcon(QIcon(QString::fromUtf8(pButton->GetIconPath())));
   m_pQtAction->setText(QString::fromUtf8(pButton->GetText()));
   m_pQtAction->setCheckable(pButton->IsCheckable());
   m_pQtAction->setChecked(pButton->IsChecked());

@@ -10,7 +10,7 @@ public:
   static void RegisterActions();
   static void UnregisterActions();
 
-  static void MapActions(const char* szMapping, const char* szPath);
+  static void MapActions(const char* szMapping, const char* szPath, bool bForToolbar);
 
   static ezActionDescriptorHandle s_hSave;
   static ezActionDescriptorHandle s_hSaveAs;

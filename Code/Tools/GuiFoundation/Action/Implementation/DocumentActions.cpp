@@ -39,7 +39,7 @@ void ezDocumentActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hOpenContainingFolder);
 }
 
-void ezDocumentActions::MapActions(const char* szMapping, const char* szPath)
+void ezDocumentActions::MapActions(const char* szMapping, const char* szPath, bool bForToolbar)
 {
   ezActionMap* pMap = ezActionMapManager::GetActionMap(szMapping);
   EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('%s') does not exist, mapping the documents actions failed!", szMapping);
@@ -47,8 +47,12 @@ void ezDocumentActions::MapActions(const char* szMapping, const char* szPath)
   pMap->MapAction(s_hSave, szPath, 1.0f);
   //pMap->MapAction(s_hSaveAs, szPath, 2.0f);
   pMap->MapAction(s_hSaveAll, szPath, 3.0f);
-  pMap->MapAction(s_hClose, szPath, 4.0f);
-  pMap->MapAction(s_hOpenContainingFolder, szPath, 5.0f);
+
+  if (!bForToolbar)
+  {
+    pMap->MapAction(s_hClose, szPath, 4.0f);
+    pMap->MapAction(s_hOpenContainingFolder, szPath, 5.0f);
+  }
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -56,9 +60,28 @@ void ezDocumentActions::MapActions(const char* szMapping, const char* szPath)
 ////////////////////////////////////////////////////////////////////////
 
 ezDocumentAction::ezDocumentAction(const ezActionContext& context, const char* szName, ButtonType button)
-  : ezButtonAction(context, szName, false)
+  : ezButtonAction(context, szName, false, "")
 {
   m_ButtonType = button;
+
+  switch (m_ButtonType)
+  {
+  case ezDocumentAction::ButtonType::Save:
+    SetIconPath(":/GuiFoundation/Icons/Save16.png");
+    break;
+  case ezDocumentAction::ButtonType::SaveAs:
+    SetIconPath("");
+    break;
+  case ezDocumentAction::ButtonType::SaveAll:
+    SetIconPath(":/GuiFoundation/Icons/SaveAll16.png");
+    break;
+  case ezDocumentAction::ButtonType::Close:
+    SetIconPath("");
+    break;
+  case ezDocumentAction::ButtonType::OpenContainingFolder:
+    SetIconPath(":/GuiFoundation/Icons/OpenFolder16.png");
+    break;
+  }
 
   if (context.m_pDocument == nullptr)
   {

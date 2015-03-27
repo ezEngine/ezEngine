@@ -124,12 +124,12 @@ void OnLoadPlugin(bool bReloading)
   ezActionMapManager::RegisterActionMap("EditorTestDocumentMenuBar");
   ezProjectActions::MapActions("EditorTestDocumentMenuBar");
   ezStandardMenus::MapActions("EditorTestDocumentMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit);
-  ezDocumentActions::MapActions("EditorTestDocumentMenuBar", "File");
+  ezDocumentActions::MapActions("EditorTestDocumentMenuBar", "File", false);
   ezCommandHistoryActions::MapActions("EditorTestDocumentMenuBar", "Edit");
 
   // Tool Bar
   ezActionMapManager::RegisterActionMap("EditorTestDocumentToolBar");
-  ezDocumentActions::MapActions("EditorTestDocumentToolBar", "");
+  ezDocumentActions::MapActions("EditorTestDocumentToolBar", "", true);
   ezCommandHistoryActions::MapActions("EditorTestDocumentToolBar", "");
 }
 

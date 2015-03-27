@@ -3,6 +3,7 @@
 #include <GuiFoundation/Action/ActionMapManager.h>
 #include <GuiFoundation/Action/ActionManager.h>
 #include <GuiFoundation/ActionViews/QtProxy.moc.h>
+#include <GuiFoundation/ActionViews/MenuActionMapView.moc.h>
 
 ezMenuBarActionMapView::ezMenuBarActionMapView(QWidget* parent) : QMenuBar(parent)
 {
@@ -10,6 +11,7 @@ ezMenuBarActionMapView::ezMenuBarActionMapView(QWidget* parent) : QMenuBar(paren
 
 ezMenuBarActionMapView::~ezMenuBarActionMapView()
 {
+  ClearView();
 }
 
 ezResult ezMenuBarActionMapView::SetActionContext(const ezActionContext& context)
@@ -29,46 +31,12 @@ ezResult ezMenuBarActionMapView::SetActionContext(const ezActionContext& context
 
 void ezMenuBarActionMapView::ClearView()
 {
-}
-
-void ezMenuBarActionMapView::AddDocumentObjectToMenu(QMenu* pCurrentRoot, ezDocumentObjectBase* pObject)
-{
-  if (pObject == nullptr)
-    return;
-
-  for (auto pChild : pObject->GetChildren())
+  for (auto it = m_Proxies.GetIterator(); it.IsValid(); ++it)
   {
-    auto pDesc = m_pActionMap->GetDescriptor(pChild);
-    auto pAction = pDesc->m_hAction.GetDescriptor()->CreateAction(m_Context);
-
-    ezQtProxy* pProxy = ezRttiMappedObjectFactory<ezQtProxy>::CreateObject(pAction->GetDynamicRTTI());
-    m_Proxies[pChild->GetGuid()] = pProxy;
-
-    pProxy->SetAction(pAction);
-
-    switch (pDesc->m_hAction.GetDescriptor()->m_Type)
-    {
-    case ezActionType::Action:
-      {
-        QAction* pQtAction = static_cast<ezQtActionProxy*>(pProxy)->GetQAction();
-        pCurrentRoot->addAction(pQtAction);
-      }
-      break;
-
-    case ezActionType::Category:
-      EZ_ASSERT_NOT_IMPLEMENTED;
-      break;
-
-    case ezActionType::Menu:
-      {
-        QMenu* pQtMenu = static_cast<ezQtMenuProxy*>(pProxy)->GetQMenu();
-        pCurrentRoot->addMenu(pQtMenu);
-
-        AddDocumentObjectToMenu(pQtMenu, pChild);
-      }
-      break;
-    }
+    ezQtProxy* pProxy = it.Value();
+    pProxy->deleteLater();
   }
+  m_Proxies.Clear();
 }
 
 void ezMenuBarActionMapView::CreateView()
@@ -84,7 +52,7 @@ void ezMenuBarActionMapView::CreateView()
 
     ezQtProxy* pProxy = ezRttiMappedObjectFactory<ezQtProxy>::CreateObject(pAction->GetDynamicRTTI());
     m_Proxies[pChild->GetGuid()] = pProxy;
-
+    pProxy->setParent(this);
     pProxy->SetAction(pAction);
 
     switch (pDesc->m_hAction.GetDescriptor()->m_Type)
@@ -106,7 +74,7 @@ void ezMenuBarActionMapView::CreateView()
         QMenu* pQtMenu = static_cast<ezQtMenuProxy*>(pProxy)->GetQMenu();
         addMenu(pQtMenu);
 
-        AddDocumentObjectToMenu(pQtMenu, pChild);
+        ezMenuActionMapView::AddDocumentObjectToMenu(m_Proxies, m_Context, m_pActionMap, pQtMenu, pChild);
       }
       break;
     }

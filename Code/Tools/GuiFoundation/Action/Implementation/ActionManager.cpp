@@ -37,8 +37,9 @@ ezActionDescriptorHandle ezActionManager::RegisterAction(const ezActionDescripto
   EZ_ASSERT_DEV(hType.IsInvalidated(), "The action '%s' in category '%s' was already registered!", desc.m_sActionName.GetData(), desc.m_sCategoryPath.GetData());
 
   ezActionDescriptor* pDesc = CreateActionDesc(desc);
-  pDesc->m_Handle = hType;
+  
   hType = s_ActionTable.Insert(pDesc);
+  pDesc->m_Handle = hType;
 
   auto it = s_CategoryPathToActions.FindOrAdd(pDesc->m_sCategoryPath);
   it.Value().m_Actions.Insert(hType);

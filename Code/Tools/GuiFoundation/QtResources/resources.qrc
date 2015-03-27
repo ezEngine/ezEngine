@@ -1,5 +1,17 @@
 <RCC>
-  <qresource prefix="Icons">
+  <qresource prefix="GuiFoundation">
+    <file>Icons/Document16.png</file>
+    <file>Icons/DocumentAdd16.png</file>
+    <file>Icons/DocumentSave16.png</file>
+    <file>Icons/OpenFolder16.png</file>
+    <file>Icons/Project16.png</file>
+    <file>Icons/ProjectAdd16.png</file>
+    <file>Icons/ProjectClose16.png</file>
+    <file>Icons/Save16.png</file>
+    <file>Icons/SaveAll16.png</file>
+    <file>Icons/Settings16.png</file>
+    <file>Icons/Undo16.png</file>
+    <file>Icons/Redo16.png</file>
     <file>Icons/ezEditor16.png</file>
   </qresource>
 </RCC>

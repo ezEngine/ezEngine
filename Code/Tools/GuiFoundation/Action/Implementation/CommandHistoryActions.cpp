@@ -32,9 +32,19 @@ void ezCommandHistoryActions::MapActions(const char* szMapping, const char* szPa
   pMap->MapAction(s_hRedo, szPath, 2.0f);
 }
 
-ezCommandHistoryAction::ezCommandHistoryAction(const ezActionContext& context, const char* szName, ButtonType button) : ezButtonAction(context, szName, false)
+ezCommandHistoryAction::ezCommandHistoryAction(const ezActionContext& context, const char* szName, ButtonType button) : ezButtonAction(context, szName, false, "")
 {
   m_ButtonType = button;
+
+  switch (m_ButtonType)
+  {
+  case ezCommandHistoryAction::ButtonType::Undo:
+    SetIconPath(":/GuiFoundation/Icons/Undo16.png");
+    break;
+  case ezCommandHistoryAction::ButtonType::Redo:
+    SetIconPath(":/GuiFoundation/Icons/Redo16.png");
+    break;
+  }
 
   m_Context.m_pDocument->GetCommandHistory()->m_Events.AddEventHandler(ezMakeDelegate(&ezCommandHistoryAction::CommandHistoryEventHandler, this));
 

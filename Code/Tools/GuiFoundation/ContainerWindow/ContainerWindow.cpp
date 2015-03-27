@@ -16,7 +16,7 @@ ezDynamicArray<ezContainerWindow*> ezContainerWindow::s_AllContainerWindows;
 ezContainerWindow::ezContainerWindow()
 {
   setObjectName(QLatin1String(GetUniqueName())); // todo
-  setWindowIcon(QIcon(QLatin1String(":/Icons/Icons/ezEditor16.png"))); /// \todo Make icon configurable
+  setWindowIcon(QIcon(QLatin1String(":/GuiFoundation/Icons/ezEditor16.png"))); /// \todo Make icon configurable
 
   QTimer::singleShot(0, this, SLOT(SlotRestoreLayout()));
 

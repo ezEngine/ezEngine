@@ -8,7 +8,7 @@ class EZ_GUIFOUNDATION_DLL ezNamedAction : public ezAction
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezNamedAction);
 public:
-  ezNamedAction(const ezActionContext& context, const char* szText) : ezAction(context), m_sText(szText) {}
+  ezNamedAction(const ezActionContext& context, const char* szText, const char* szIconPath) : ezAction(context), m_sText(szText), m_sIconPath(szIconPath) {}
 
   const char* GetText() const { return m_sText; }
   void SetText(const char* szName) { m_sText = szName; }
@@ -26,7 +26,7 @@ class EZ_GUIFOUNDATION_DLL ezCategoryAction : public ezNamedAction
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezCategoryAction);
 public:
-  ezCategoryAction(const ezActionContext& context, const char* szName) : ezNamedAction(context, szName) {}
+  ezCategoryAction(const ezActionContext& context, const char* szName) : ezNamedAction(context, szName, "") {}
 
   virtual void Execute(const ezVariant& value) override { };
 };
@@ -36,7 +36,7 @@ class EZ_GUIFOUNDATION_DLL ezMenuAction : public ezNamedAction
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezMenuAction);
 public:
-  ezMenuAction(const ezActionContext& context, const char* szName) : ezNamedAction(context, szName) {}
+  ezMenuAction(const ezActionContext& context, const char* szName, const char* szIconPath) : ezNamedAction(context, szName, szIconPath) {}
 
   virtual void Execute(const ezVariant& value) override { };
 };
@@ -46,7 +46,7 @@ class EZ_GUIFOUNDATION_DLL ezLRUMenuAction : public ezMenuAction
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezLRUMenuAction);
 public:
-  ezLRUMenuAction(const ezActionContext& context, const char* szName) : ezMenuAction(context, szName) {}
+  ezLRUMenuAction(const ezActionContext& context, const char* szName, const char* szIconPath) : ezMenuAction(context, szName, szIconPath) {}
   virtual void GetEntries(ezHybridArray<std::pair<ezString, ezVariant>, 16>& out_Entries) = 0;
 };
 
@@ -55,7 +55,7 @@ class EZ_GUIFOUNDATION_DLL ezButtonAction : public ezNamedAction
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezButtonAction);
 public:
-  ezButtonAction(const ezActionContext& context, const char* szName, bool bCheckable);
+  ezButtonAction(const ezActionContext& context, const char* szName, bool bCheckable, const char* szIconPath);
 
   bool IsEnabled() const { return m_bEnabled; }
   void SetEnabled(bool bEnable, bool bTriggerUpdate = true) { m_bEnabled = bEnable; if (bTriggerUpdate) TriggerUpdate(); }

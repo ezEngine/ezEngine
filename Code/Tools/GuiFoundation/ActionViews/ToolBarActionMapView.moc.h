@@ -27,7 +27,6 @@ private:
 
   void ClearView();
   void CreateView();
-  void AddDocumentObjectToMenu(QMenu* pCurrentRoot, ezDocumentObjectBase* pObject);
 
 private:
   ezHashTable<ezUuid, ezQtProxy*> m_Proxies;

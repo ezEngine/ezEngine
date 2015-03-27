@@ -29,7 +29,7 @@ class EZ_EDITORFRAMEWORK_DLL ezRecentDocumentsMenuAction : public ezLRUMenuActio
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezRecentDocumentsMenuAction);
 public:
-  ezRecentDocumentsMenuAction(const ezActionContext& context, const char* szName) : ezLRUMenuAction(context, szName) {}
+  ezRecentDocumentsMenuAction(const ezActionContext& context, const char* szName) : ezLRUMenuAction(context, szName, "") {}
   virtual void GetEntries(ezHybridArray<std::pair<ezString, ezVariant>, 16>& out_Entries) override;
   virtual void Execute(const ezVariant& value) override;
 };
@@ -39,7 +39,7 @@ class EZ_EDITORFRAMEWORK_DLL ezRecentProjectsMenuAction : public ezLRUMenuAction
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezRecentProjectsMenuAction);
 public:
-  ezRecentProjectsMenuAction(const ezActionContext& context, const char* szName) : ezLRUMenuAction(context, szName) {}
+  ezRecentProjectsMenuAction(const ezActionContext& context, const char* szName) : ezLRUMenuAction(context, szName, "") {}
   virtual void GetEntries(ezHybridArray<std::pair<ezString, ezVariant>, 16>& out_Entries) override;
   virtual void Execute(const ezVariant& value) override;
 };

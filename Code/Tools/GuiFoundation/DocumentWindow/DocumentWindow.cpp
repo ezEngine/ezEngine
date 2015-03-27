@@ -19,7 +19,7 @@ void ezDocumentWindow::Constructor()
   if (s_AllDocumentWindows.IsEmpty())
   {
     ezActionMapManager::RegisterActionMap("DocumentWindowTabMenu");
-    ezDocumentActions::MapActions("DocumentWindowTabMenu", "");
+    ezDocumentActions::MapActions("DocumentWindowTabMenu", "", false);
   }
 
   s_AllDocumentWindows.PushBack(this);

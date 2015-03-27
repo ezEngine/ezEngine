@@ -20,6 +20,7 @@ ezActionDescriptor::ezActionDescriptor(ezActionType::Enum type, ezActionScope::E
 
 ezAction* ezActionDescriptor::CreateAction(const ezActionContext& context) const
 {
+  EZ_ASSERT_DEV(!m_Handle.IsInvalidated(), "Handle invalid!");
   auto pAction = m_CreateAction(context);
   pAction->m_DescriptorHandle = m_Handle;
   return pAction;

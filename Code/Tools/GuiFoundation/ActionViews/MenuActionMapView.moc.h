@@ -21,14 +21,15 @@ public:
 
   ezResult SetActionContext(const ezActionContext& context);
 
+  static void AddDocumentObjectToMenu(ezHashTable<ezUuid, ezQtProxy*>& Proxies, ezActionContext& Context, ezActionMap* pActionMap, QMenu* pCurrentRoot, ezDocumentObjectBase* pObject);
+
 private:
   void TreeEventHandler(const ezDocumentObjectTreeStructureEvent& e);
   void TreePropertyEventHandler(const ezDocumentObjectTreePropertyEvent& e);
 
   void ClearView();
   void CreateView();
-  void AddDocumentObjectToMenu(QMenu* pCurrentRoot, ezDocumentObjectBase* pObject);
-
+  
 private:
   ezHashTable<ezUuid, ezQtProxy*> m_Proxies;
 

@@ -49,6 +49,7 @@ ezTestDocumentWindow::ezTestDocumentWindow(ezDocumentBase* pDocument) : ezDocume
   {
     // Tool Bar
     ezToolBarActionMapView* pToolBar = new ezToolBarActionMapView(this);
+    pToolBar->setIconSize(QSize(16, 16));
     ezActionContext context;
     context.m_sMapping = "EditorTestDocumentToolBar";
     context.m_pDocument = pDocument;

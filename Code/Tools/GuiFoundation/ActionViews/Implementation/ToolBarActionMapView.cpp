@@ -3,6 +3,7 @@
 #include <GuiFoundation/Action/ActionMapManager.h>
 #include <GuiFoundation/Action/ActionManager.h>
 #include <GuiFoundation/ActionViews/QtProxy.moc.h>
+#include <GuiFoundation/ActionViews/MenuActionMapView.moc.h>
 #include <QMenu>
 #include <QToolButton>
 
@@ -32,46 +33,12 @@ ezResult ezToolBarActionMapView::SetActionContext(const ezActionContext& context
 
 void ezToolBarActionMapView::ClearView()
 {
-}
-
-void ezToolBarActionMapView::AddDocumentObjectToMenu(QMenu* pCurrentRoot, ezDocumentObjectBase* pObject)
-{
-  if (pObject == nullptr)
-    return;
-
-  for (auto pChild : pObject->GetChildren())
+  for (auto it = m_Proxies.GetIterator(); it.IsValid(); ++it)
   {
-    auto pDesc = m_pActionMap->GetDescriptor(pChild);
-    auto pAction = pDesc->m_hAction.GetDescriptor()->CreateAction(m_Context);
-
-    ezQtProxy* pProxy = ezRttiMappedObjectFactory<ezQtProxy>::CreateObject(pAction->GetDynamicRTTI());
-    m_Proxies[pChild->GetGuid()] = pProxy;
-
-    pProxy->SetAction(pAction);
-
-    switch (pDesc->m_hAction.GetDescriptor()->m_Type)
-    {
-    case ezActionType::Action:
-      {
-        QAction* pQtAction = static_cast<ezQtActionProxy*>(pProxy)->GetQAction();
-        pCurrentRoot->addAction(pQtAction);
-      }
-      break;
-
-    case ezActionType::Category:
-      EZ_ASSERT_NOT_IMPLEMENTED;
-      break;
-
-    case ezActionType::Menu:
-      {
-        QMenu* pQtMenu = static_cast<ezQtMenuProxy*>(pProxy)->GetQMenu();
-        pCurrentRoot->addMenu(pQtMenu);
-
-        AddDocumentObjectToMenu(pQtMenu, pChild);
-      }
-      break;
-    }
+    ezQtProxy* pProxy = it.Value();
+    pProxy->deleteLater();
   }
+  m_Proxies.Clear();
 }
 
 void ezToolBarActionMapView::CreateView()
@@ -87,7 +54,7 @@ void ezToolBarActionMapView::CreateView()
 
     ezQtProxy* pProxy = ezRttiMappedObjectFactory<ezQtProxy>::CreateObject(pAction->GetDynamicRTTI());
     m_Proxies[pChild->GetGuid()] = pProxy;
-
+    pProxy->setParent(this);
     pProxy->SetAction(pAction);
 
     switch (pDesc->m_hAction.GetDescriptor()->m_Type)
@@ -112,13 +79,15 @@ void ezToolBarActionMapView::CreateView()
         // TODO pButton leaks!
         QToolButton* pButton = new QToolButton(this);
         pButton->setMenu(pQtMenu);
-        pButton->setPopupMode(QToolButton::ToolButtonPopupMode::MenuButtonPopup);
+        pButton->setPopupMode(QToolButton::ToolButtonPopupMode::InstantPopup);
+        pButton->setText(pQtMenu->title());
 
         // TODO addWidget return value of QAction leaks!
-        addWidget(pButton);
-        pQtMenu->setParent(pButton);
+        QAction* pToolButtonAction = addWidget(pButton);
+        pToolButtonAction->setParent(pQtMenu);
+        //pButton->setParent(pQtMenu);
 
-        //AddDocumentObjectToMenu(pQtMenu, pChild);
+        ezMenuActionMapView::AddDocumentObjectToMenu(m_Proxies, m_Context, m_pActionMap, pQtMenu, pChild);
       }
       break;
     }

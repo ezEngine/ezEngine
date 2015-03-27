@@ -21,7 +21,12 @@
 
 #define EZ_REGISTER_MENU(ActionName, Label) \
   ezActionManager::RegisterAction(ezActionDescriptor(ezActionType::Menu, ezActionScope::Default, ActionName, "", \
-    [](const ezActionContext& context)->ezAction*{ return EZ_DEFAULT_NEW(ezMenuAction)(context, Label); }));
+    [](const ezActionContext& context)->ezAction*{ return EZ_DEFAULT_NEW(ezMenuAction)(context, Label, ""); }));
+
+#define EZ_REGISTER_MENU_WITH_ICON(ActionName, Label, IconPath) \
+  ezActionManager::RegisterAction(ezActionDescriptor(ezActionType::Menu, ezActionScope::Default, ActionName, "", \
+    [](const ezActionContext& context)->ezAction*{ return EZ_DEFAULT_NEW(ezMenuAction)(context, Label, IconPath); }));
+
 
 ///
 class EZ_GUIFOUNDATION_DLL ezActionManager
