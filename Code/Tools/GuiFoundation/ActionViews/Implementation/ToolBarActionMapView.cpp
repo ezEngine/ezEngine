@@ -47,15 +47,31 @@ void ezToolBarActionMapView::CreateView()
 
   auto pObject = m_pActionMap->GetRootObject();
 
+  CreateView(pObject);
+
+  if (!actions().isEmpty() && actions().back()->isSeparator())
+  {
+    QAction* pAction = actions().back();
+    removeAction(pAction);
+    pAction->deleteLater();
+  }
+}
+
+void ezToolBarActionMapView::CreateView(ezDocumentObjectBase* pObject)
+{
   for (auto pChild : pObject->GetChildren())
   {
     auto pDesc = m_pActionMap->GetDescriptor(pChild);
     auto pAction = pDesc->m_hAction.GetDescriptor()->CreateAction(m_Context);
 
     ezQtProxy* pProxy = ezRttiMappedObjectFactory<ezQtProxy>::CreateObject(pAction->GetDynamicRTTI());
-    m_Proxies[pChild->GetGuid()] = pProxy;
-    pProxy->setParent(this);
-    pProxy->SetAction(pAction);
+
+    if (pProxy != nullptr)
+    {
+      m_Proxies[pChild->GetGuid()] = pProxy;
+      pProxy->setParent(this);
+      pProxy->SetAction(pAction);
+    }
 
     switch (pDesc->m_hAction.GetDescriptor()->m_Type)
     {
@@ -69,7 +85,13 @@ void ezToolBarActionMapView::CreateView()
 
     case ezActionType::Category:
       {
-        EZ_REPORT_FAILURE("Cannot map category in a toolbar view!");
+        if (!actions().isEmpty() && !actions().back()->isSeparator())
+          addSeparator();
+
+        CreateView(pChild);
+
+        if (!actions().isEmpty() && !actions().back()->isSeparator())
+          addSeparator();
       }
       break;
 

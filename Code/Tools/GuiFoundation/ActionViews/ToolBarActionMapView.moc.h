@@ -27,6 +27,7 @@ private:
 
   void ClearView();
   void CreateView();
+  void CreateView(ezDocumentObjectBase* pRoot);
 
 private:
   ezHashTable<ezUuid, ezQtProxy*> m_Proxies;

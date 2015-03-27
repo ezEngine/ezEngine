@@ -137,7 +137,15 @@ void ezEditorApp::StartupEditor(const char* szAppName, const char* szUserName, i
 
   LoadPlugins();
 
-  ShowSettingsDocument();
+  if (!s_RecentDocuments.GetFileList().IsEmpty())
+  {
+    ezContainerWindow::CreateOrOpenDocument(false, s_RecentDocuments.GetFileList()[0]);
+  }
+
+  if (ezDocumentWindow::GetAllDocumentWindows().IsEmpty())
+  {
+    ShowSettingsDocument();
+  }
 }
 
 void ezEditorApp::ShutdownEditor()

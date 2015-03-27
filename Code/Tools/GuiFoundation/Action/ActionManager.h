@@ -27,6 +27,9 @@
   ezActionManager::RegisterAction(ezActionDescriptor(ezActionType::Menu, ezActionScope::Default, ActionName, "", \
     [](const ezActionContext& context)->ezAction*{ return EZ_DEFAULT_NEW(ezMenuAction)(context, Label, IconPath); }));
 
+#define EZ_REGISTER_CATEGORY(CategoryName) \
+  ezActionManager::RegisterAction(ezActionDescriptor(ezActionType::Category, ezActionScope::Default, CategoryName, "", \
+    [](const ezActionContext& context)->ezAction*{ return EZ_DEFAULT_NEW(ezCategoryAction)(context); }));
 
 ///
 class EZ_GUIFOUNDATION_DLL ezActionManager

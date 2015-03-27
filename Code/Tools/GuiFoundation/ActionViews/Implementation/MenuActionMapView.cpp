@@ -49,9 +49,13 @@ void ezMenuActionMapView::AddDocumentObjectToMenu(ezHashTable<ezUuid, ezQtProxy*
     auto pAction = pDesc->m_hAction.GetDescriptor()->CreateAction(Context);
 
     ezQtProxy* pProxy = ezRttiMappedObjectFactory<ezQtProxy>::CreateObject(pAction->GetDynamicRTTI());
-    Proxies[pChild->GetGuid()] = pProxy;
-    pProxy->setParent(pCurrentRoot);
-    pProxy->SetAction(pAction);
+
+    if (pProxy != nullptr)
+    {
+      Proxies[pChild->GetGuid()] = pProxy;
+      pProxy->setParent(pCurrentRoot);
+      pProxy->SetAction(pAction);
+    }
 
     switch (pDesc->m_hAction.GetDescriptor()->m_Type)
     {
@@ -64,7 +68,13 @@ void ezMenuActionMapView::AddDocumentObjectToMenu(ezHashTable<ezUuid, ezQtProxy*
       break;
 
     case ezActionType::Category:
-      EZ_ASSERT_NOT_IMPLEMENTED;
+      {
+        pCurrentRoot->addSeparator();
+
+        AddDocumentObjectToMenu(Proxies, Context, pActionMap, pCurrentRoot, pChild);
+
+        pCurrentRoot->addSeparator();
+      }
       break;
 
     case ezActionType::Menu:

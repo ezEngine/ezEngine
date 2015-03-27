@@ -9,39 +9,53 @@
 #include <Foundation/IO/OSFile.h>
 
 ezActionDescriptorHandle ezProjectActions::s_hEditorMenu;
+
+ezActionDescriptorHandle ezProjectActions::s_hDocumentCategory;
 ezActionDescriptorHandle ezProjectActions::s_hCreateDocument;
 ezActionDescriptorHandle ezProjectActions::s_hOpenDocument;
 ezActionDescriptorHandle ezProjectActions::s_hRecentDocuments;
+
+ezActionDescriptorHandle ezProjectActions::s_hProjectCategory;
 ezActionDescriptorHandle ezProjectActions::s_hCreateProject;
 ezActionDescriptorHandle ezProjectActions::s_hOpenProject;
 ezActionDescriptorHandle ezProjectActions::s_hRecentProjects;
 ezActionDescriptorHandle ezProjectActions::s_hCloseProject;
+
+ezActionDescriptorHandle ezProjectActions::s_hSettingsCategory;
 ezActionDescriptorHandle ezProjectActions::s_hProjectSettings;
 
 void ezProjectActions::RegisterActions()
 {
-    s_hEditorMenu = EZ_REGISTER_MENU("EditorMenu", "Editor");
+  s_hEditorMenu = EZ_REGISTER_MENU("EditorMenu", "Editor");
 
+  s_hDocumentCategory = EZ_REGISTER_CATEGORY("DocumentCategory");
   s_hCreateDocument = EZ_REGISTER_ACTION_1("Create Document", "Create Document", ezActionScope::Global, "Project", ezProjectAction, ezProjectAction::ButtonType::CreateDocument);
   s_hOpenDocument = EZ_REGISTER_ACTION_1("Open Document", "Open Document", ezActionScope::Global, "Project", ezProjectAction, ezProjectAction::ButtonType::OpenDocument);
   s_hRecentDocuments = EZ_REGISTER_LRU_MENU("Recent Documents", "Recent Documents", ezRecentDocumentsMenuAction);
+
+  s_hProjectCategory = EZ_REGISTER_CATEGORY("ProjectCategory");
   s_hCreateProject = EZ_REGISTER_ACTION_1("Create Project", "Create Project", ezActionScope::Global, "Project", ezProjectAction, ezProjectAction::ButtonType::CreateProject);
   s_hOpenProject = EZ_REGISTER_ACTION_1("Open Project", "Open Project", ezActionScope::Global, "Project", ezProjectAction, ezProjectAction::ButtonType::OpenProject);
   s_hRecentProjects = EZ_REGISTER_LRU_MENU("Recent Projects", "Recent Projects", ezRecentProjectsMenuAction);
   s_hCloseProject = EZ_REGISTER_ACTION_1("Close Project", "Close Project", ezActionScope::Global, "Project", ezProjectAction, ezProjectAction::ButtonType::CloseProject);
+
+  s_hSettingsCategory = EZ_REGISTER_CATEGORY("SettingsCategory");
   s_hProjectSettings = EZ_REGISTER_ACTION_1("Settings", "Settings", ezActionScope::Global, "Project", ezProjectAction, ezProjectAction::ButtonType::ProjectSettings);
 }
 
 void ezProjectActions::UnregisterActions()
 {
   ezActionManager::UnregisterAction(s_hEditorMenu);
+  ezActionManager::UnregisterAction(s_hDocumentCategory);
   ezActionManager::UnregisterAction(s_hCreateDocument);
   ezActionManager::UnregisterAction(s_hOpenDocument);
   ezActionManager::UnregisterAction(s_hRecentDocuments);
+  ezActionManager::UnregisterAction(s_hProjectCategory);
   ezActionManager::UnregisterAction(s_hCreateProject);
   ezActionManager::UnregisterAction(s_hOpenProject);
   ezActionManager::UnregisterAction(s_hRecentProjects);
   ezActionManager::UnregisterAction(s_hCloseProject);
+  ezActionManager::UnregisterAction(s_hSettingsCategory);
   ezActionManager::UnregisterAction(s_hProjectSettings);
 }
 
@@ -52,14 +66,19 @@ void ezProjectActions::MapActions(const char* szMapping)
 
   pMap->MapAction(s_hEditorMenu, "", -1000000000.0f);
 
-  pMap->MapAction(s_hCreateDocument, "EditorMenu", 1.0f);
-  pMap->MapAction(s_hOpenDocument, "EditorMenu", 2.0f);
-  pMap->MapAction(s_hRecentDocuments, "EditorMenu", 3.0f);
-  pMap->MapAction(s_hCreateProject, "EditorMenu", 4.0f);
-  pMap->MapAction(s_hOpenProject, "EditorMenu", 5.0f);
-  pMap->MapAction(s_hRecentProjects, "EditorMenu", 6.0f);
-  pMap->MapAction(s_hCloseProject, "EditorMenu", 7.0f);
-  pMap->MapAction(s_hProjectSettings, "EditorMenu", 8.0f);
+  pMap->MapAction(s_hDocumentCategory, "EditorMenu", 1.0f);
+  pMap->MapAction(s_hCreateDocument, "EditorMenu/DocumentCategory", 1.0f);
+  pMap->MapAction(s_hOpenDocument, "EditorMenu/DocumentCategory", 2.0f);
+  pMap->MapAction(s_hRecentDocuments, "EditorMenu/DocumentCategory", 3.0f);
+
+  pMap->MapAction(s_hProjectCategory, "EditorMenu", 2.0f);
+  pMap->MapAction(s_hCreateProject, "EditorMenu/ProjectCategory", 1.0f);
+  pMap->MapAction(s_hOpenProject, "EditorMenu/ProjectCategory", 2.0f);
+  pMap->MapAction(s_hRecentProjects, "EditorMenu/ProjectCategory", 3.0f);
+  pMap->MapAction(s_hCloseProject, "EditorMenu/ProjectCategory", 4.0f);
+
+  pMap->MapAction(s_hSettingsCategory, "EditorMenu", 3.0f);
+  pMap->MapAction(s_hProjectSettings, "EditorMenu/SettingsCategory", 1.0f);
 }
 
 ////////////////////////////////////////////////////////////////////////

@@ -7,11 +7,13 @@
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCommandHistoryAction, ezButtonAction, 0, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
+ezActionDescriptorHandle ezCommandHistoryActions::s_hCommandHistoryCategory;
 ezActionDescriptorHandle ezCommandHistoryActions::s_hUndo;
 ezActionDescriptorHandle ezCommandHistoryActions::s_hRedo;
 
 void ezCommandHistoryActions::RegisterActions()
 {
+  s_hCommandHistoryCategory = EZ_REGISTER_CATEGORY("CmdHistoryCategory");
   s_hUndo = EZ_REGISTER_ACTION_1("Undo", "Undo", ezActionScope::Document, "Document", ezCommandHistoryAction, ezCommandHistoryAction::ButtonType::Undo);
   s_hRedo = EZ_REGISTER_ACTION_1("Redo", "Redo", ezActionScope::Document, "Document", ezCommandHistoryAction, ezCommandHistoryAction::ButtonType::Redo);
 
@@ -19,6 +21,7 @@ void ezCommandHistoryActions::RegisterActions()
 
 void ezCommandHistoryActions::UnregisterActions()
 {
+  ezActionManager::UnregisterAction(s_hCommandHistoryCategory);
   ezActionManager::UnregisterAction(s_hUndo);
   ezActionManager::UnregisterAction(s_hRedo);
 }
@@ -28,8 +31,11 @@ void ezCommandHistoryActions::MapActions(const char* szMapping, const char* szPa
   ezActionMap* pMap = ezActionMapManager::GetActionMap(szMapping);
   EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('%s') does not exist, mapping the actions failed!", szMapping);
 
-  pMap->MapAction(s_hUndo, szPath, 1.0f);
-  pMap->MapAction(s_hRedo, szPath, 2.0f);
+  ezStringBuilder sSubPath(szPath, "/CmdHistoryCategory");
+
+  pMap->MapAction(s_hCommandHistoryCategory, szPath, 3.0f);
+  pMap->MapAction(s_hUndo, sSubPath, 1.0f);
+  pMap->MapAction(s_hRedo, sSubPath, 2.0f);
 }
 
 ezCommandHistoryAction::ezCommandHistoryAction(const ezActionContext& context, const char* szName, ButtonType button) : ezButtonAction(context, szName, false, "")

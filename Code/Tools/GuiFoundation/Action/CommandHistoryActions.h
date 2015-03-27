@@ -13,6 +13,7 @@ public:
 
   static void MapActions(const char* szMapping, const char* szPath);
 
+  static ezActionDescriptorHandle s_hCommandHistoryCategory;
   static ezActionDescriptorHandle s_hUndo;
   static ezActionDescriptorHandle s_hRedo;
 

@@ -22,11 +22,11 @@ protected:
 };
 
 ///
-class EZ_GUIFOUNDATION_DLL ezCategoryAction : public ezNamedAction
+class EZ_GUIFOUNDATION_DLL ezCategoryAction : public ezAction
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezCategoryAction);
 public:
-  ezCategoryAction(const ezActionContext& context, const char* szName) : ezNamedAction(context, szName, "") {}
+  ezCategoryAction(const ezActionContext& context) : ezAction(context) {}
 
   virtual void Execute(const ezVariant& value) override { };
 };

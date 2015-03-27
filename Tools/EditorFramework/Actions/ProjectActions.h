@@ -14,13 +14,19 @@ public:
   static void MapActions(const char* szMapping);
 
   static ezActionDescriptorHandle s_hEditorMenu;
+
+  static ezActionDescriptorHandle s_hDocumentCategory;
   static ezActionDescriptorHandle s_hCreateDocument;
   static ezActionDescriptorHandle s_hOpenDocument;
   static ezActionDescriptorHandle s_hRecentDocuments;
+
+  static ezActionDescriptorHandle s_hProjectCategory;
   static ezActionDescriptorHandle s_hCreateProject;
   static ezActionDescriptorHandle s_hOpenProject;
   static ezActionDescriptorHandle s_hRecentProjects;
   static ezActionDescriptorHandle s_hCloseProject;
+
+  static ezActionDescriptorHandle s_hSettingsCategory;
   static ezActionDescriptorHandle s_hProjectSettings;
 };
 

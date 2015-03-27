@@ -12,9 +12,12 @@ public:
 
   static void MapActions(const char* szMapping, const char* szPath, bool bForToolbar);
 
+  static ezActionDescriptorHandle s_hSaveCategory;
   static ezActionDescriptorHandle s_hSave;
   static ezActionDescriptorHandle s_hSaveAs;
   static ezActionDescriptorHandle s_hSaveAll;
+
+  static ezActionDescriptorHandle s_hCloseCategory;
   static ezActionDescriptorHandle s_hClose;
   static ezActionDescriptorHandle s_hOpenContainingFolder;
 };

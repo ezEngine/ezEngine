@@ -15,26 +15,32 @@ EZ_END_DYNAMIC_REFLECTED_TYPE();
 // ezDocumentActions
 ////////////////////////////////////////////////////////////////////////
 
+ezActionDescriptorHandle ezDocumentActions::s_hSaveCategory;
 ezActionDescriptorHandle ezDocumentActions::s_hSave;
 ezActionDescriptorHandle ezDocumentActions::s_hSaveAs;
 ezActionDescriptorHandle ezDocumentActions::s_hSaveAll;
+ezActionDescriptorHandle ezDocumentActions::s_hCloseCategory;
 ezActionDescriptorHandle ezDocumentActions::s_hClose;
 ezActionDescriptorHandle ezDocumentActions::s_hOpenContainingFolder;
 
 void ezDocumentActions::RegisterActions()
 {
+  s_hSaveCategory = EZ_REGISTER_CATEGORY("SaveCategory");
   s_hSave = EZ_REGISTER_ACTION_1("Save", "Save", ezActionScope::Document, "Document", ezDocumentAction, ezDocumentAction::ButtonType::Save);
   s_hSaveAll = EZ_REGISTER_ACTION_1("Save All", "Save All", ezActionScope::Document, "Document", ezDocumentAction, ezDocumentAction::ButtonType::SaveAll);
   s_hSaveAs = EZ_REGISTER_ACTION_1("Save As", "Save As...", ezActionScope::Document, "Document", ezDocumentAction, ezDocumentAction::ButtonType::SaveAs);
+  s_hCloseCategory = EZ_REGISTER_CATEGORY("CloseCategory");
   s_hClose = EZ_REGISTER_ACTION_1("Close", "Close", ezActionScope::Document, "Document", ezDocumentAction, ezDocumentAction::ButtonType::Close);
   s_hOpenContainingFolder = EZ_REGISTER_ACTION_1("Open Containing Folder", "Open Containing Folder", ezActionScope::Document, "Document", ezDocumentAction, ezDocumentAction::ButtonType::OpenContainingFolder);
 }
 
 void ezDocumentActions::UnregisterActions()
 {
+  ezActionManager::UnregisterAction(s_hSaveCategory);
   ezActionManager::UnregisterAction(s_hSave);
   ezActionManager::UnregisterAction(s_hSaveAs);
   ezActionManager::UnregisterAction(s_hSaveAll);
+  ezActionManager::UnregisterAction(s_hCloseCategory);
   ezActionManager::UnregisterAction(s_hClose);
   ezActionManager::UnregisterAction(s_hOpenContainingFolder);
 }
@@ -44,14 +50,20 @@ void ezDocumentActions::MapActions(const char* szMapping, const char* szPath, bo
   ezActionMap* pMap = ezActionMapManager::GetActionMap(szMapping);
   EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('%s') does not exist, mapping the documents actions failed!", szMapping);
 
-  pMap->MapAction(s_hSave, szPath, 1.0f);
-  //pMap->MapAction(s_hSaveAs, szPath, 2.0f);
-  pMap->MapAction(s_hSaveAll, szPath, 3.0f);
+  ezStringBuilder sSubPath(szPath, "/SaveCategory");
+
+  pMap->MapAction(s_hSaveCategory, szPath, 1.0f);
+
+  pMap->MapAction(s_hSave, sSubPath, 1.0f);
+  //pMap->MapAction(s_hSaveAs, sSubPath, 2.0f);
+  pMap->MapAction(s_hSaveAll, sSubPath, 3.0f);
 
   if (!bForToolbar)
   {
-    pMap->MapAction(s_hClose, szPath, 4.0f);
-    pMap->MapAction(s_hOpenContainingFolder, szPath, 5.0f);
+    sSubPath.Set(szPath, "/CloseCategory");
+    pMap->MapAction(s_hCloseCategory, szPath, 2.0f);
+    pMap->MapAction(s_hClose, sSubPath, 1.0f);
+    pMap->MapAction(s_hOpenContainingFolder, sSubPath, 2.0f);
   }
 }
 
