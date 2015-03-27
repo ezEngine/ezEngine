@@ -7,12 +7,13 @@ const ezActionDescriptor* ezActionDescriptorHandle::GetDescriptor() const
   return ezActionManager::GetActionDescriptor(*this);
 }
 
-ezActionDescriptor::ezActionDescriptor(ezActionType::Enum type, ezActionScope::Enum scope, const char* szName, const char* szCategoryPath,
+ezActionDescriptor::ezActionDescriptor(ezActionType::Enum type, ezActionScope::Enum scope, const char* szName, const char* szCategoryPath, const char* szShortcut,
                                        CreateActionFunc createAction, DeleteActionFunc deleteAction)
   : m_Type(type)
   , m_Scope(scope)
   , m_sActionName(szName)
   , m_sCategoryPath(szCategoryPath)
+  , m_sShortcut(szShortcut)
   , m_CreateAction(createAction)
   , m_DeleteAction(deleteAction)
 {

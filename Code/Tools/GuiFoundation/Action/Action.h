@@ -9,6 +9,7 @@
 #include <Foundation/Containers/Set.h>
 #include <Foundation/Containers/Map.h>
 #include <ToolsFoundation/Document/DocumentManager.h>
+#include <QKeySequence>
 
 struct ezActionDescriptor;
 class ezAction;
@@ -69,7 +70,7 @@ struct EZ_GUIFOUNDATION_DLL ezActionContext
 struct EZ_GUIFOUNDATION_DLL ezActionDescriptor
 {
   ezActionDescriptor() {};
-  ezActionDescriptor(ezActionType::Enum type, ezActionScope::Enum scope, const char* szName, const char* szCategoryPath,
+  ezActionDescriptor(ezActionType::Enum type, ezActionScope::Enum scope, const char* szName, const char* szCategoryPath, const char* szShortcut,
     CreateActionFunc createAction, DeleteActionFunc deleteAction = nullptr);
 
   ezActionDescriptorHandle m_Handle;
@@ -79,7 +80,7 @@ struct EZ_GUIFOUNDATION_DLL ezActionDescriptor
   ezString m_sActionName; ///< Unique within category path, shown in key configuration dialog
   ezString m_sCategoryPath; ///< Category in key configuration dialog, e.g. "Tree View" or "File"
   
-  // Default shortcut
+  ezString m_sShortcut;
 
   ezAction* CreateAction(const ezActionContext& context) const;
   void DeleteAction(ezAction* pAction) const;

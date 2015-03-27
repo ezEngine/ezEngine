@@ -109,26 +109,6 @@ void ezTestDocumentWindow::SendRedrawMsg()
 
 void ezTestDocumentWindow::keyPressEvent(QKeyEvent* e)
 {
-  if (e->modifiers() == Qt::KeyboardModifier::ControlModifier)
-  {
-    if (e->key() == Qt::Key_Z)
-    {
-      if (GetDocument()->GetCommandHistory()->CanUndo())
-      {
-        GetDocument()->GetCommandHistory()->Undo();
-        return;
-      }
-    }
-    else if (e->key() == Qt::Key_Y)
-    {
-      if (GetDocument()->GetCommandHistory()->CanRedo())
-      {
-        GetDocument()->GetCommandHistory()->Redo();
-        return;
-      }
-    }
-  }
-
   ezDocumentWindow::keyPressEvent(e);
 }
 

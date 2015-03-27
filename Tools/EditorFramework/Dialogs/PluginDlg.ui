@@ -14,8 +14,8 @@
    <string>Plugin Configuration</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="../QtResources/resources.qrc">
-    <normaloff>:/Icons/Icons/ezEditor16.png</normaloff>:/Icons/Icons/ezEditor16.png</iconset>
+   <iconset resource="../../../Code/Tools/GuiFoundation/QtResources/resources.qrc">
+    <normaloff>:/GuiFoundation/Icons/ezEditor16.png</normaloff>:/GuiFoundation/Icons/ezEditor16.png</iconset>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
@@ -77,7 +77,7 @@
   </layout>
  </widget>
  <resources>
-  <include location="../QtResources/resources.qrc"/>
+  <include location="../../../Code/Tools/GuiFoundation/QtResources/resources.qrc"/>
  </resources>
  <connections/>
 </ui>

@@ -53,7 +53,7 @@ ezQtProxy::~ezQtProxy()
     ezActionManager::GetActionDescriptor(m_pAction->GetDescriptorHandle())->DeleteAction(m_pAction);
 }
 
-void ezQtProxy::SetAction(ezAction* pAction)
+void ezQtProxy::SetAction(ezAction* pAction, bool bSetShortcut)
 {
   m_pAction = pAction;
 }
@@ -71,7 +71,7 @@ ezQtMenuProxy::~ezQtMenuProxy()
   delete m_pMenu;
 }
 
-void ezQtMenuProxy::Update()
+void ezQtMenuProxy::Update(bool bSetShortcut)
 {
   auto pMenu = static_cast<ezMenuAction*>(m_pAction);
 
@@ -79,12 +79,12 @@ void ezQtMenuProxy::Update()
   m_pMenu->setTitle(QString::fromUtf8(pMenu->GetText()));
 }
 
-void ezQtMenuProxy::SetAction(ezAction* pAction)
+void ezQtMenuProxy::SetAction(ezAction* pAction, bool bSetShortcut)
 {
-  ezQtProxy::SetAction(pAction);
+  ezQtProxy::SetAction(pAction, bSetShortcut);
 
   m_pMenu = new QMenu();
-  Update();
+  Update(bSetShortcut);
 }
 
 QMenu* ezQtMenuProxy::GetQMenu()
@@ -109,9 +109,15 @@ ezQtButtonProxy::~ezQtButtonProxy()
   m_pQtAction = nullptr;
 }
 
-void ezQtButtonProxy::Update()
+void ezQtButtonProxy::Update(bool bSetShortcut)
 {
   auto pButton = static_cast<ezButtonAction*>(m_pAction);
+
+  if (bSetShortcut)
+  {
+    m_pQtAction->setShortcut(QKeySequence(QString::fromUtf8(m_pAction->GetDescriptorHandle().GetDescriptor()->m_sShortcut.GetData())));
+    m_pQtAction->setShortcutContext(Qt::ShortcutContext::ApplicationShortcut);
+  }
 
   m_pQtAction->setIcon(QIcon(QString::fromUtf8(pButton->GetIconPath())));
   m_pQtAction->setText(QString::fromUtf8(pButton->GetText()));
@@ -121,17 +127,17 @@ void ezQtButtonProxy::Update()
   m_pQtAction->setVisible(pButton->IsVisible());
 }
 
-void ezQtButtonProxy::SetAction(ezAction* pAction)
+void ezQtButtonProxy::SetAction(ezAction* pAction, bool bSetShortcut)
 {
   EZ_ASSERT_DEV(m_pAction == nullptr, "Es darf nicht sein, es kann nicht sein!");
 
-  ezQtProxy::SetAction(pAction);
+  ezQtProxy::SetAction(pAction, bSetShortcut);
   m_pAction->m_StatusUpdateEvent.AddEventHandler(ezMakeDelegate(&ezQtButtonProxy::StatusUpdateEventHandler, this));
 
   m_pQtAction = new QAction(nullptr);
   
   EZ_VERIFY(connect(m_pQtAction, SIGNAL(triggered(bool)), this, SLOT(OnTriggered())) != nullptr, "connection failed");
-  Update();
+  Update(bSetShortcut);
 }
 
 QAction* ezQtButtonProxy::GetQAction()
@@ -141,7 +147,7 @@ QAction* ezQtButtonProxy::GetQAction()
 
 void ezQtButtonProxy::StatusUpdateEventHandler(ezAction* pAction)
 {
-  Update();
+  Update(false);
 }
 
 void ezQtButtonProxy::OnTriggered()
@@ -149,9 +155,9 @@ void ezQtButtonProxy::OnTriggered()
   m_pAction->Execute(m_pQtAction->isChecked());
 }
 
-void ezQtLRUMenuProxy::SetAction(ezAction* pAction)
+void ezQtLRUMenuProxy::SetAction(ezAction* pAction, bool bSetShortcut)
 {
-  ezQtMenuProxy::SetAction(pAction);
+  ezQtMenuProxy::SetAction(pAction, bSetShortcut);
 
   EZ_VERIFY(connect(m_pMenu, SIGNAL(aboutToShow()), this, SLOT(SlotMenuAboutToShow())) != nullptr, "signal/slot connection failed");
 }

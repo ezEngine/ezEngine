@@ -70,7 +70,7 @@ void ezToolBarActionMapView::CreateView(ezDocumentObjectBase* pObject)
     {
       m_Proxies[pChild->GetGuid()] = pProxy;
       pProxy->setParent(this);
-      pProxy->SetAction(pAction);
+      pProxy->SetAction(pAction, false);
     }
 
     switch (pDesc->m_hAction.GetDescriptor()->m_Type)

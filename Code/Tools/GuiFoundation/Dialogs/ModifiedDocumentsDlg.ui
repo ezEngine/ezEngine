@@ -15,7 +15,7 @@
   </property>
   <property name="windowIcon">
    <iconset resource="../QtResources/resources.qrc">
-    <normaloff>:/Icons/Icons/ezEditor16.png</normaloff>:/Icons/Icons/ezEditor16.png</iconset>
+    <normaloff>:/GuiFoundation/Icons/ezEditor16.png</normaloff>:/GuiFoundation/Icons/ezEditor16.png</iconset>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
@@ -105,13 +105,13 @@
         </size>
        </property>
        <property name="toolTip">
-        <string>Shortcut: CTRL+S</string>
+        <string>Shortcut: Ctrl+Shift+S</string>
        </property>
        <property name="text">
         <string>Save All</string>
        </property>
        <property name="shortcut">
-        <string>Ctrl+S</string>
+        <string>Ctrl+Shift+S</string>
        </property>
       </widget>
      </item>
@@ -131,7 +131,7 @@
      <item>
       <widget class="QPushButton" name="ButtonDontSave">
        <property name="toolTip">
-        <string>Shortcut: CRTL+Q</string>
+        <string>Shortcut: Ctrl+Q</string>
        </property>
        <property name="text">
         <string>Don't Save</string>

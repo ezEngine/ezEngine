@@ -53,7 +53,7 @@ void ezMenuBarActionMapView::CreateView()
     ezQtProxy* pProxy = ezRttiMappedObjectFactory<ezQtProxy>::CreateObject(pAction->GetDynamicRTTI());
     m_Proxies[pChild->GetGuid()] = pProxy;
     pProxy->setParent(this);
-    pProxy->SetAction(pAction);
+    pProxy->SetAction(pAction, false);
 
     switch (pDesc->m_hAction.GetDescriptor()->m_Type)
     {

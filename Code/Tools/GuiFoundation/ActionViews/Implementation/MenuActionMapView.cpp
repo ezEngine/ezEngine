@@ -54,7 +54,7 @@ void ezMenuActionMapView::AddDocumentObjectToMenu(ezHashTable<ezUuid, ezQtProxy*
     {
       Proxies[pChild->GetGuid()] = pProxy;
       pProxy->setParent(pCurrentRoot);
-      pProxy->SetAction(pAction);
+      pProxy->SetAction(pAction, true);
     }
 
     switch (pDesc->m_hAction.GetDescriptor()->m_Type)

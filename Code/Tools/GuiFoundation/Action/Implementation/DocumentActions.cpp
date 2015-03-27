@@ -26,12 +26,12 @@ ezActionDescriptorHandle ezDocumentActions::s_hOpenContainingFolder;
 void ezDocumentActions::RegisterActions()
 {
   s_hSaveCategory = EZ_REGISTER_CATEGORY("SaveCategory");
-  s_hSave = EZ_REGISTER_ACTION_1("Save", "Save", ezActionScope::Document, "Document", ezDocumentAction, ezDocumentAction::ButtonType::Save);
-  s_hSaveAll = EZ_REGISTER_ACTION_1("Save All", "Save All", ezActionScope::Document, "Document", ezDocumentAction, ezDocumentAction::ButtonType::SaveAll);
-  s_hSaveAs = EZ_REGISTER_ACTION_1("Save As", "Save As...", ezActionScope::Document, "Document", ezDocumentAction, ezDocumentAction::ButtonType::SaveAs);
+  s_hSave = EZ_REGISTER_ACTION_1("Save", "Save", ezActionScope::Document, "Document", "Ctrl+S", ezDocumentAction, ezDocumentAction::ButtonType::Save);
+  s_hSaveAll = EZ_REGISTER_ACTION_1("Save All", "Save All", ezActionScope::Document, "Document", "Ctrl+Shift+S", ezDocumentAction, ezDocumentAction::ButtonType::SaveAll);
+  s_hSaveAs = EZ_REGISTER_ACTION_1("Save As", "Save As...", ezActionScope::Document, "Document", "", ezDocumentAction, ezDocumentAction::ButtonType::SaveAs);
   s_hCloseCategory = EZ_REGISTER_CATEGORY("CloseCategory");
-  s_hClose = EZ_REGISTER_ACTION_1("Close", "Close", ezActionScope::Document, "Document", ezDocumentAction, ezDocumentAction::ButtonType::Close);
-  s_hOpenContainingFolder = EZ_REGISTER_ACTION_1("Open Containing Folder", "Open Containing Folder", ezActionScope::Document, "Document", ezDocumentAction, ezDocumentAction::ButtonType::OpenContainingFolder);
+  s_hClose = EZ_REGISTER_ACTION_1("Close", "Close", ezActionScope::Document, "Document", "Ctrl+W", ezDocumentAction, ezDocumentAction::ButtonType::Close);
+  s_hOpenContainingFolder = EZ_REGISTER_ACTION_1("Open Containing Folder", "Open Containing Folder", ezActionScope::Document, "Document", "", ezDocumentAction, ezDocumentAction::ButtonType::OpenContainingFolder);
 }
 
 void ezDocumentActions::UnregisterActions()
