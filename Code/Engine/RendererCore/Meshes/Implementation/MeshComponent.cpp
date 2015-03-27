@@ -7,6 +7,9 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshRenderData, ezRenderData, 1, ezRTTINoAlloc
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 EZ_BEGIN_COMPONENT_TYPE(ezMeshComponent, ezComponent, 1, ezMeshComponentManager);
+  EZ_BEGIN_PROPERTIES
+    EZ_ACCESSOR_PROPERTY("MeshFile", GetMeshFile, SetMeshFile),
+  EZ_END_PROPERTIES
   EZ_BEGIN_MESSAGEHANDLERS
     EZ_MESSAGE_HANDLER(ezExtractRenderDataMessage, OnExtractRenderData)
   EZ_END_MESSAGEHANDLERS
@@ -60,7 +63,19 @@ void ezMeshComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) const
   }
 }
 
+void ezMeshComponent::SetMeshFile(const char* szFile)
+{
+  m_hMesh = ezResourceManager::LoadResource<ezMeshResource>(szFile);
+}
 
+const char* ezMeshComponent::GetMeshFile() const
+{
+  if (!m_hMesh.IsValid())
+    return "";
+
+  ezResourceLock<ezMeshResource> pMesh(m_hMesh);
+  return pMesh->GetResourceID();
+}
 
 EZ_STATICLINK_FILE(RendererCore, RendererCore_Meshes_Implementation_MeshComponent);
 

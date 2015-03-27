@@ -72,6 +72,16 @@ ezActionMap::~ezActionMap()
 {
 }
 
+void ezActionMap::MapAction(ezActionDescriptorHandle hAction, const char* szPath, float fOrder)
+{
+  ezActionMapDescriptor d;
+  d.m_hAction = hAction;
+  d.m_sPath = szPath;
+  d.m_fOrder = fOrder;
+
+  EZ_VERIFY(MapAction(d).IsValid(), "Mapping Failed");
+}
+
 ezUuid ezActionMap::MapAction(const ezActionMapDescriptor& desc)
 {
   ezUuid ParentGUID;
@@ -82,7 +92,7 @@ ezUuid ezActionMap::MapAction(const ezActionMapDescriptor& desc)
   
 
   ezDocumentObjectBase* pParent = GetObject(ParentGUID);
-  if (desc.m_sPath.GetString().IsEmpty())
+  if (desc.m_sPath.IsEmpty())
   {
     pParent = GetRootObject();
   }

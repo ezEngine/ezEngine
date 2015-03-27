@@ -58,16 +58,16 @@ public:
   ezButtonAction(const ezActionContext& context, const char* szName, bool bCheckable);
 
   bool IsEnabled() const { return m_bEnabled; }
-  void SetEnabled(bool bEnable) { m_bEnabled = bEnable; }
+  void SetEnabled(bool bEnable, bool bTriggerUpdate = true) { m_bEnabled = bEnable; if (bTriggerUpdate) TriggerUpdate(); }
 
   bool IsCheckable() const { return m_bCheckable; }
-  void SetCheckable(bool bCheckable) { m_bCheckable = bCheckable; }
+  void SetCheckable(bool bCheckable, bool bTriggerUpdate = true) { m_bCheckable = bCheckable; if (bTriggerUpdate) TriggerUpdate(); }
 
   bool IsChecked() const { return m_bChecked; }
-  void SetChecked(bool bChecked) { m_bChecked = bChecked; }
+  void SetChecked(bool bChecked, bool bTriggerUpdate = true) { m_bChecked = bChecked; if (bTriggerUpdate) TriggerUpdate(); }
 
   bool IsVisible() const { return m_bVisible; }
-  void SetVisible(bool bVisible) { m_bVisible = bVisible; }
+  void SetVisible(bool bVisible, bool bTriggerUpdate = true) { m_bVisible = bVisible; if (bTriggerUpdate) TriggerUpdate(); }
 
 protected:
   bool m_bCheckable;

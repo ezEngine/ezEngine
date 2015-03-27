@@ -153,6 +153,11 @@ ezStatus ezCommandHistory::Undo()
     m_RedoHistory.PushBack(pTransaction);
 
     m_pDocument->SetModified(true);
+
+    Event e;
+    e.m_Type = Event::Type::ExecutedUndo;
+    m_Events.Broadcast(e);
+
     return ezStatus(EZ_SUCCESS);
   }
   
@@ -172,6 +177,11 @@ ezStatus ezCommandHistory::Redo()
     m_UndoHistory.PushBack(pTransaction);
 
     m_pDocument->SetModified(true);
+
+    Event e;
+    e.m_Type = Event::Type::ExecutedRedo;
+    m_Events.Broadcast(e);
+
     return ezStatus(EZ_SUCCESS);
   }
   
@@ -236,6 +246,10 @@ void ezCommandHistory::EndTransaction(bool bCancel)
       ClearRedoHistory();
 
       m_pDocument->SetModified(true);
+
+      Event e;
+      e.m_Type = Event::Type::NewTransation;
+      m_Events.Broadcast(e);
     }
   }
   else
@@ -251,8 +265,6 @@ void ezCommandHistory::EndTransaction(bool bCancel)
       pTransaction->GetDynamicRTTI()->GetAllocator()->Deallocate(pTransaction);
     }
   }
-
-  // TODO: Fire event
 }
 
 ezStatus ezCommandHistory::AddCommand(ezCommandBase& command)

@@ -66,9 +66,12 @@ public:
 
   static const ezDynamicArray<ezDocumentWindow*>& GetAllDocumentWindows() { return s_AllDocumentWindows; }
 
+  static ezDocumentWindow* FindWindowByDocument(const ezDocumentBase* pDocument);
+
 private slots:
   void SlotRestoreLayout();
   void SlotRedraw();
+  void SlotQueuedDelete();
 
 private:
   void SaveWindowLayout();

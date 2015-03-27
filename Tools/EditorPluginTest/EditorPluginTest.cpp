@@ -17,6 +17,9 @@
 #include <QMessageBox>
 #include <GuiFoundation/Action/ActionMapManager.h>
 #include <EditorFramework/Actions/ProjectActions.h>
+#include <GuiFoundation/Action/StandardMenus.h>
+#include <GuiFoundation/Action/DocumentActions.h>
+#include <GuiFoundation/Action/CommandHistoryActions.h>
 
 void RegisterType(const ezRTTI* pRtti)
 {
@@ -117,9 +120,17 @@ void OnLoadPlugin(bool bReloading)
 
   ezEditorApp::GetInstance()->RegisterPluginNameForSettings("TestPlugin");
 
+  // Menu Bar
+  ezActionMapManager::RegisterActionMap("EditorTestDocumentMenuBar");
+  ezProjectActions::MapActions("EditorTestDocumentMenuBar");
+  ezStandardMenus::MapActions("EditorTestDocumentMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit);
+  ezDocumentActions::MapActions("EditorTestDocumentMenuBar", "File");
+  ezCommandHistoryActions::MapActions("EditorTestDocumentMenuBar", "Edit");
 
-  ezActionMapManager::RegisterActionMap("EditorTestDocumentMenuModel");
-  ezProjectActions::MapActions("EditorTestDocumentMenuModel");
+  // Tool Bar
+  ezActionMapManager::RegisterActionMap("EditorTestDocumentToolBar");
+  ezDocumentActions::MapActions("EditorTestDocumentToolBar", "");
+  ezCommandHistoryActions::MapActions("EditorTestDocumentToolBar", "");
 }
 
 void OnUnloadPlugin(bool bReloading)  

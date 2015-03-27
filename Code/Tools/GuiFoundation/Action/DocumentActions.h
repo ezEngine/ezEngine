@@ -10,21 +10,13 @@ public:
   static void RegisterActions();
   static void UnregisterActions();
 
-  static void MapActions(const char* szMapping, const ezHashedString& sPath);
+  static void MapActions(const char* szMapping, const char* szPath);
 
   static ezActionDescriptorHandle s_hSave;
   static ezActionDescriptorHandle s_hSaveAs;
   static ezActionDescriptorHandle s_hSaveAll;
   static ezActionDescriptorHandle s_hClose;
   static ezActionDescriptorHandle s_hOpenContainingFolder;
-
-private:
-  static ezAction* CreateSaveAction(const ezActionContext& context);
-  static ezAction* CreateSaveAsAction(const ezActionContext& context);
-  static ezAction* CreateSaveAllAction(const ezActionContext& context);
-  static ezAction* CreateCloseAction(const ezActionContext& context);
-  static ezAction* CreateOpenContainingFolderAction(const ezActionContext& context);
-  
 };
 
 
@@ -33,7 +25,7 @@ class EZ_GUIFOUNDATION_DLL ezDocumentAction : public ezButtonAction
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezDocumentAction);
 public:
-  enum class DocumentButton
+  enum class ButtonType
   {
     Save,
     SaveAs,
@@ -41,7 +33,7 @@ public:
     Close,
     OpenContainingFolder
   };
-  ezDocumentAction(const ezActionContext& context, const char* szName, DocumentButton button);
+  ezDocumentAction(const ezActionContext& context, const char* szName, ButtonType button);
   ~ezDocumentAction();
 
   virtual void Execute(const ezVariant& value) override;
@@ -49,5 +41,5 @@ public:
 private:
   void DocumentEventHandler(const ezDocumentBase::Event& e);
 
-  DocumentButton m_ButtonType;
+  ButtonType m_ButtonType;
 };

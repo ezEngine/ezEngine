@@ -18,30 +18,18 @@ ezActionDescriptorHandle ezProjectActions::s_hRecentProjects;
 ezActionDescriptorHandle ezProjectActions::s_hCloseProject;
 ezActionDescriptorHandle ezProjectActions::s_hProjectSettings;
 
-#define REGISTER_ACTION(name, type) \
-  ezActionManager::RegisterAction(ezActionDescriptor(ezActionType::Action, ezActionScope::Global, name, sCategory,  \
-    [](const ezActionContext& context)->ezAction* { return EZ_DEFAULT_NEW(ezProjectAction)(context, name, type); }));
-
-#define REGISTER_LRU(name, type) \
-  ezActionManager::RegisterAction(ezActionDescriptor(ezActionType::Menu, ezActionScope::Global, name, sCategory,  \
-    [](const ezActionContext& context)->ezAction* { return EZ_DEFAULT_NEW(type)(context, name); }));
-
 void ezProjectActions::RegisterActions()
 {
-  ezHashedString sCategory;
-  sCategory.Assign("Project");
+    s_hEditorMenu = EZ_REGISTER_MENU("EditorMenu", "Editor");
 
-  s_hEditorMenu = ezActionManager::RegisterAction(ezActionDescriptor(ezActionType::Menu, ezActionScope::Global, "EditorMenu", sCategory,
-    [](const ezActionContext& context)->ezAction* { return EZ_DEFAULT_NEW(ezMenuAction)(context, "Editor"); }));
-
-  s_hCreateDocument = REGISTER_ACTION("Create Document", ezProjectAction::ButtonType::CreateDocument);
-  s_hOpenDocument = REGISTER_ACTION("Open Document", ezProjectAction::ButtonType::OpenDocument);
-  s_hRecentDocuments = REGISTER_LRU("Recent Documents", ezRecentDocumentsMenuAction);
-  s_hCreateProject = REGISTER_ACTION("Create Project", ezProjectAction::ButtonType::CreateProject);
-  s_hOpenProject = REGISTER_ACTION("Open Project", ezProjectAction::ButtonType::OpenProject);
-  s_hRecentProjects = REGISTER_LRU("Recent Projects", ezRecentProjectsMenuAction);
-  s_hCloseProject = REGISTER_ACTION("Close Project", ezProjectAction::ButtonType::CloseProject);
-  s_hProjectSettings = REGISTER_ACTION("Settings", ezProjectAction::ButtonType::ProjectSettings);
+  s_hCreateDocument = EZ_REGISTER_ACTION_1("Create Document", "Create Document", ezActionScope::Global, "Project", ezProjectAction, ezProjectAction::ButtonType::CreateDocument);
+  s_hOpenDocument = EZ_REGISTER_ACTION_1("Open Document", "Open Document", ezActionScope::Global, "Project", ezProjectAction, ezProjectAction::ButtonType::OpenDocument);
+  s_hRecentDocuments = EZ_REGISTER_LRU_MENU("Recent Documents", "Recent Documents", ezRecentDocumentsMenuAction);
+  s_hCreateProject = EZ_REGISTER_ACTION_1("Create Project", "Create Project", ezActionScope::Global, "Project", ezProjectAction, ezProjectAction::ButtonType::CreateProject);
+  s_hOpenProject = EZ_REGISTER_ACTION_1("Open Project", "Open Project", ezActionScope::Global, "Project", ezProjectAction, ezProjectAction::ButtonType::OpenProject);
+  s_hRecentProjects = EZ_REGISTER_LRU_MENU("Recent Projects", "Recent Projects", ezRecentProjectsMenuAction);
+  s_hCloseProject = EZ_REGISTER_ACTION_1("Close Project", "Close Project", ezActionScope::Global, "Project", ezProjectAction, ezProjectAction::ButtonType::CloseProject);
+  s_hProjectSettings = EZ_REGISTER_ACTION_1("Settings", "Settings", ezActionScope::Global, "Project", ezProjectAction, ezProjectAction::ButtonType::ProjectSettings);
 }
 
 void ezProjectActions::UnregisterActions()
@@ -55,16 +43,6 @@ void ezProjectActions::UnregisterActions()
   ezActionManager::UnregisterAction(s_hRecentProjects);
   ezActionManager::UnregisterAction(s_hCloseProject);
   ezActionManager::UnregisterAction(s_hProjectSettings);
-
-  s_hEditorMenu.Invalidate();
-  s_hCreateDocument.Invalidate();
-  s_hOpenDocument.Invalidate();
-  s_hRecentDocuments.Invalidate();
-  s_hCreateProject.Invalidate();
-  s_hOpenProject.Invalidate();
-  s_hRecentProjects.Invalidate();
-  s_hCloseProject.Invalidate();
-  s_hProjectSettings.Invalidate();
 }
 
 void ezProjectActions::MapActions(const char* szMapping)
@@ -72,46 +50,16 @@ void ezProjectActions::MapActions(const char* szMapping)
   ezActionMap* pMap = ezActionMapManager::GetActionMap(szMapping);
   EZ_ASSERT_DEV(pMap != nullptr, "The given mapping ('%s') does not exist, mapping the actions failed!", szMapping);
 
-  ezActionMapDescriptor desc;
+  pMap->MapAction(s_hEditorMenu, "", -1000000000.0f);
 
-  desc.m_hAction = s_hEditorMenu;
-  desc.m_fOrder = -1000000000.0f;
-  EZ_VERIFY(pMap->MapAction(desc).IsValid(), "Mapping failed");
-
-  desc.m_sPath.Assign("EditorMenu");
-
-  desc.m_hAction = s_hCreateDocument;
-  desc.m_fOrder = 1.0f;
-  EZ_VERIFY(pMap->MapAction(desc).IsValid(), "Mapping failed");
-
-  desc.m_hAction = s_hOpenDocument;
-  desc.m_fOrder = 2.0f;
-  EZ_VERIFY(pMap->MapAction(desc).IsValid(), "Mapping failed");
-
-  desc.m_hAction = s_hRecentDocuments;
-  desc.m_fOrder = 2.5f;
-  EZ_VERIFY(pMap->MapAction(desc).IsValid(), "Mapping failed");
-
-  desc.m_hAction = s_hCreateProject;
-  desc.m_fOrder = 3.0f;
-  EZ_VERIFY(pMap->MapAction(desc).IsValid(), "Mapping failed");
-
-  desc.m_hAction = s_hOpenProject;
-  desc.m_fOrder = 4.0f;
-  EZ_VERIFY(pMap->MapAction(desc).IsValid(), "Mapping failed");
-
-  desc.m_hAction = s_hRecentProjects;
-  desc.m_fOrder = 4.5f;
-  EZ_VERIFY(pMap->MapAction(desc).IsValid(), "Mapping failed");
-
-  desc.m_hAction = s_hCloseProject;
-  desc.m_fOrder = 5.0f;
-  EZ_VERIFY(pMap->MapAction(desc).IsValid(), "Mapping failed");
-
-  desc.m_hAction = s_hProjectSettings;
-  desc.m_fOrder = 6.0f;
-  EZ_VERIFY(pMap->MapAction(desc).IsValid(), "Mapping failed");
-
+  pMap->MapAction(s_hCreateDocument, "EditorMenu", 1.0f);
+  pMap->MapAction(s_hOpenDocument, "EditorMenu", 2.0f);
+  pMap->MapAction(s_hRecentDocuments, "EditorMenu", 3.0f);
+  pMap->MapAction(s_hCreateProject, "EditorMenu", 4.0f);
+  pMap->MapAction(s_hOpenProject, "EditorMenu", 5.0f);
+  pMap->MapAction(s_hRecentProjects, "EditorMenu", 6.0f);
+  pMap->MapAction(s_hCloseProject, "EditorMenu", 7.0f);
+  pMap->MapAction(s_hProjectSettings, "EditorMenu", 8.0f);
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -223,7 +171,6 @@ ezProjectAction::~ezProjectAction()
 void ezProjectAction::ProjectEventHandler(const ezToolsProject::Event& e)
 {
   SetEnabled(ezToolsProject::IsProjectOpen());
-  TriggerUpdate();
 }
 
 void ezProjectAction::Execute(const ezVariant& value)

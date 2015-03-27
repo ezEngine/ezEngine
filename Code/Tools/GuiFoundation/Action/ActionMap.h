@@ -9,7 +9,7 @@
 struct EZ_GUIFOUNDATION_DLL ezActionMapDescriptor
 {
   ezActionDescriptorHandle m_hAction;  ///< Action to be mapped
-  ezHashedString m_sPath; ///< Path where the action should be mapped excluding the action's name, e.g. "File/New" for a menu item "File -> New -> Project..." .
+  ezString m_sPath; ///< Path where the action should be mapped excluding the action's name, e.g. "File/New" for a menu item "File -> New -> Project..." .
   float m_fOrder; ///< Ordering key to sort actions in the mapping path.
 };
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_NO_LINKAGE, ezActionMapDescriptor);
@@ -38,6 +38,7 @@ public:
   ezActionMap();
   ~ezActionMap();
 
+  void MapAction(ezActionDescriptorHandle hAction, const char* szPath, float m_fOrder);
   ezUuid MapAction(const ezActionMapDescriptor& desc);
   ezResult UnmapAction(const ezUuid& guid);
 

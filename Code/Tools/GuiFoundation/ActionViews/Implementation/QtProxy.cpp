@@ -116,17 +116,18 @@ void ezQtButtonProxy::Update()
   m_pQtAction->setChecked(pButton->IsChecked());
   m_pQtAction->setEnabled(pButton->IsEnabled());
   m_pQtAction->setVisible(pButton->IsVisible());
-
-  EZ_VERIFY(connect(m_pQtAction, SIGNAL(triggered(bool)), this, SLOT(OnTriggered())) != nullptr, "connection failed");
 }
 
 void ezQtButtonProxy::SetAction(ezAction* pAction)
 {
+  EZ_ASSERT_DEV(m_pAction == nullptr, "Es darf nicht sein, es kann nicht sein!");
+
   ezQtProxy::SetAction(pAction);
   m_pAction->m_StatusUpdateEvent.AddEventHandler(ezMakeDelegate(&ezQtButtonProxy::StatusUpdateEventHandler, this));
 
   m_pQtAction = new QAction(nullptr);
   
+  EZ_VERIFY(connect(m_pQtAction, SIGNAL(triggered(bool)), this, SLOT(OnTriggered())) != nullptr, "connection failed");
   Update();
 }
 

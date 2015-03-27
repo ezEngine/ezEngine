@@ -15,8 +15,8 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, EditorFrameworkMain)
   {
     ezProjectActions::RegisterActions();
 
-    ezActionMapManager::RegisterActionMap("SettingsDocument");
-    ezProjectActions::MapActions("SettingsDocument");
+    ezActionMapManager::RegisterActionMap("SettingsTabMenuBar");
+    ezProjectActions::MapActions("SettingsTabMenuBar");
   }
 
   ON_CORE_SHUTDOWN

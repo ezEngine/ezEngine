@@ -53,6 +53,9 @@ public:
 
   void OnExtractRenderData(ezExtractRenderDataMessage& msg) const;
 
+  void SetMeshFile(const char* szFile);
+  const char* GetMeshFile() const;
+
 private:
   ezMeshResourceHandle m_hMesh;
   ezDynamicArray<ezMaterialResourceHandle> m_Materials;

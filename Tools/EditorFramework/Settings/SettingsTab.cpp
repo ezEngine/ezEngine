@@ -54,7 +54,7 @@ ezSettingsTab::ezSettingsTab() : ezDocumentWindow("Settings")
 
   ezMenuBarActionMapView* pMenuBar = static_cast<ezMenuBarActionMapView*>(menuBar());
   ezActionContext context;
-  context.m_sMapping = "SettingsDocument";
+  context.m_sMapping = "SettingsTabMenuBar";
   context.m_pDocument = nullptr;
   pMenuBar->SetActionContext(context);
 }

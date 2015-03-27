@@ -19,7 +19,7 @@ void ezDocumentWindow::Constructor()
   if (s_AllDocumentWindows.IsEmpty())
   {
     ezActionMapManager::RegisterActionMap("DocumentWindowTabMenu");
-    ezDocumentActions::MapActions("DocumentWindowTabMenu", ezHashedString());
+    ezDocumentActions::MapActions("DocumentWindowTabMenu", "");
   }
 
   s_AllDocumentWindows.PushBack(this);
@@ -304,6 +304,11 @@ bool ezDocumentWindow::InternalCanCloseWindow()
 
 void ezDocumentWindow::CloseDocumentWindow()
 {
+  QMetaObject::invokeMethod(this, "SlotQueuedDelete", Qt::ConnectionType::QueuedConnection);
+}
+
+void ezDocumentWindow::SlotQueuedDelete()
+{
   if (m_pDocument)
   {
     m_pDocument->GetDocumentManager()->CloseDocument(m_pDocument);
@@ -353,5 +358,15 @@ void ezDocumentWindow::RequestWindowTabContextMenu(const QPoint& GlobalPos)
   menu.exec(GlobalPos);
 }
 
+ezDocumentWindow* ezDocumentWindow::FindWindowByDocument(const ezDocumentBase* pDocument)
+{
+  for (auto pWnd : s_AllDocumentWindows)
+  {
+    if (pWnd->GetDocument() == pDocument)
+      return pWnd;
+  }
+
+  return nullptr;
+}
 
 

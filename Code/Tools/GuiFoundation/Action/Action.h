@@ -69,7 +69,7 @@ struct EZ_GUIFOUNDATION_DLL ezActionContext
 struct EZ_GUIFOUNDATION_DLL ezActionDescriptor
 {
   ezActionDescriptor() {};
-  ezActionDescriptor(ezActionType::Enum type, ezActionScope::Enum scope, const char* szName, ezHashedString sCategoryPath,
+  ezActionDescriptor(ezActionType::Enum type, ezActionScope::Enum scope, const char* szName, const char* szCategoryPath,
     CreateActionFunc createAction, DeleteActionFunc deleteAction = nullptr);
 
   ezActionDescriptorHandle m_Handle;
@@ -77,7 +77,7 @@ struct EZ_GUIFOUNDATION_DLL ezActionDescriptor
 
   ezEnum<ezActionScope> m_Scope;
   ezString m_sActionName; ///< Unique within category path, shown in key configuration dialog
-  ezHashedString m_sCategoryPath; ///< Category in key configuration dialog, e.g. "Tree View" or "File"
+  ezString m_sCategoryPath; ///< Category in key configuration dialog, e.g. "Tree View" or "File"
   
   // Default shortcut
 

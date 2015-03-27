@@ -15,18 +15,19 @@
 #include <QKeyEvent>
 #include <Foundation/Time/Time.h>
 #include <GuiFoundation/ActionViews/MenuBarActionMapView.moc.h>
+#include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
 
 ezTestDocumentWindow::ezTestDocumentWindow(ezDocumentBase* pDocument) : ezDocumentWindow3D(pDocument)
 {
   m_pCenterWidget = new ez3DViewWidget(this, this);
   m_pCenterWidget->m_MoveContext.m_pCamera = &m_Camera;
-  
+
   m_pCenterWidget->setAutoFillBackground(false);
   setCentralWidget(m_pCenterWidget);
 
   SetTargetFramerate(24);
 
-  
+
 
   GetDocument()->GetObjectTree()->m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezTestDocumentWindow::DocumentTreeEventHandler, this));
   GetDocument()->GetObjectTree()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezTestDocumentWindow::PropertyEventHandler, this));
@@ -36,11 +37,25 @@ ezTestDocumentWindow::ezTestDocumentWindow(ezDocumentBase* pDocument) : ezDocume
 
   m_pCenterWidget->m_MoveContext.LoadState();
 
-  ezMenuBarActionMapView* pMenuBar = static_cast<ezMenuBarActionMapView*>(menuBar());
-  ezActionContext context;
-  context.m_sMapping = "EditorTestDocumentMenuModel";
-  context.m_pDocument = nullptr;
-  pMenuBar->SetActionContext(context);
+  {
+    // Menu Bar
+    ezMenuBarActionMapView* pMenuBar = static_cast<ezMenuBarActionMapView*>(menuBar());
+    ezActionContext context;
+    context.m_sMapping = "EditorTestDocumentMenuBar";
+    context.m_pDocument = pDocument;
+    pMenuBar->SetActionContext(context);
+  }
+
+  {
+    // Tool Bar
+    ezToolBarActionMapView* pToolBar = new ezToolBarActionMapView(this);
+    ezActionContext context;
+    context.m_sMapping = "EditorTestDocumentToolBar";
+    context.m_pDocument = pDocument;
+    pToolBar->SetActionContext(context);
+    pToolBar->setObjectName("Test Document Window Tool Bar");
+    addToolBar(pToolBar);
+  }
 }
 
 ezTestDocumentWindow::~ezTestDocumentWindow()
@@ -588,7 +603,7 @@ bool ezQtCameraMoveContext::mouseMoveEvent(QMouseEvent* e)
     const QPointF diff = e->globalPos() - m_LastMousePos;
 
     float fMoveY = -diff.y() * fMouseMoveSensitivity;
-    float fMoveX =  diff.x() * fMouseMoveSensitivity;
+    float fMoveX = diff.x() * fMouseMoveSensitivity;
 
     m_pCamera->MoveLocally(ezVec3(fMoveX, fMoveY, 0));
 
@@ -628,7 +643,7 @@ bool ezQtCameraMoveContext::mouseMoveEvent(QMouseEvent* e)
   {
     const QPointF diff = e->globalPos() - m_LastMousePos;
 
-    float fMoveX =  diff.x() * fMouseMoveSensitivity;
+    float fMoveX = diff.x() * fMouseMoveSensitivity;
     float fMoveZ = -diff.y() * fMouseMoveSensitivity;
 
     m_pCamera->MoveLocally(ezVec3(fMoveX, 0, 0));

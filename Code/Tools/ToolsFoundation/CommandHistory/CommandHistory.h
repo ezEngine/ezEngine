@@ -29,6 +29,22 @@ private:
 class EZ_TOOLSFOUNDATION_DLL ezCommandHistory
 {
 public:
+
+  struct Event
+  {
+    enum class Type
+    {
+      ExecutedUndo,
+      ExecutedRedo,
+      NewTransation,
+    };
+
+    Type m_Type;
+  };
+
+  ezEvent<const Event&> m_Events;
+
+public:
   ezCommandHistory(ezDocumentBase* pDocument);
   ~ezCommandHistory();
    

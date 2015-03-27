@@ -1,6 +1,8 @@
 #include <GuiFoundation/PCH.h>
 #include <GuiFoundation/Action/ActionManager.h>
 #include <GuiFoundation/Action/DocumentActions.h>
+#include <GuiFoundation/Action/StandardMenus.h>
+#include <GuiFoundation/Action/CommandHistoryActions.h>
 #include <Foundation/Configuration/Startup.h>
 
 EZ_BEGIN_SUBSYSTEM_DECLARATION(GuiFoundation, ActionManager)
@@ -23,7 +25,7 @@ EZ_END_SUBSYSTEM_DECLARATION
 
 ezEvent<const ezActionManager::Event&> ezActionManager::s_Events;
 ezIdTable<ezActionId, ezActionDescriptor*> ezActionManager::s_ActionTable;
-ezMap<ezHashedString, ezActionManager::CategoryData> ezActionManager::s_CategoryPathToActions;
+ezMap<ezString, ezActionManager::CategoryData> ezActionManager::s_CategoryPathToActions;
 
 ////////////////////////////////////////////////////////////////////////
 // ezActionManager public functions
@@ -52,11 +54,14 @@ ezActionDescriptorHandle ezActionManager::RegisterAction(const ezActionDescripto
   return hType;
 }
 
-bool ezActionManager::UnregisterAction(ezActionDescriptorHandle hAction)
+bool ezActionManager::UnregisterAction(ezActionDescriptorHandle& hAction)
 {
   ezActionDescriptor* pDesc = nullptr;
   if (!s_ActionTable.TryGetValue(hAction, pDesc))
+  {
+    hAction.Invalidate();
     return false;
+  }
 
   auto it = s_CategoryPathToActions.Find(pDesc->m_sCategoryPath);
   EZ_ASSERT_DEV(it.IsValid(), "Action is present but not mapped in its category path!");
@@ -69,6 +74,7 @@ bool ezActionManager::UnregisterAction(ezActionDescriptorHandle hAction)
 
   s_ActionTable.Remove(hAction);
   DeleteActionDesc(pDesc);
+  hAction.Invalidate();
   return true;
 }
 
@@ -86,10 +92,10 @@ const ezIdTable<ezActionId, ezActionDescriptor*>::ConstIterator ezActionManager:
   return s_ActionTable.GetIterator();
 }
 
-ezActionDescriptorHandle ezActionManager::GetActionHandle(const ezHashedString& sCategoryPath, const char* szActionName)
+ezActionDescriptorHandle ezActionManager::GetActionHandle(const char* szCategoryPath, const char* szActionName)
 {
   ezActionDescriptorHandle hAction;
-  auto it = s_CategoryPathToActions.Find(sCategoryPath);
+  auto it = s_CategoryPathToActions.Find(szCategoryPath);
   if (!it.IsValid())
     return hAction;
 
@@ -106,11 +112,15 @@ ezActionDescriptorHandle ezActionManager::GetActionHandle(const ezHashedString& 
 void ezActionManager::Startup()
 {
   ezDocumentActions::RegisterActions();
+  ezStandardMenus::RegisterActions();
+  ezCommandHistoryActions::RegisterActions();
 }
 
 void ezActionManager::Shutdown()
 {
   ezDocumentActions::UnregisterActions();
+  ezStandardMenus::UnregisterActions();
+  ezCommandHistoryActions::UnregisterActions();
 }
 
 ezActionDescriptor* ezActionManager::CreateActionDesc(const ezActionDescriptor& desc)
