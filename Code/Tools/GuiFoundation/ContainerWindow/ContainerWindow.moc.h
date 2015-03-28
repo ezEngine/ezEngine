@@ -46,7 +46,6 @@ private slots:
 private:
   QTabWidget* GetTabWidget() const;
   static ezString BuildDocumentTypeFileFilter(bool bForCreation);
-  static ezResult FindDocumentTypeFromPath(const char* szPath, bool bForCreation, ezDocumentManagerBase*& out_pTypeManager, ezDocumentTypeDescriptor& out_TypeDesc);
 
   void SaveWindowLayout();
   void RestoreWindowLayout();

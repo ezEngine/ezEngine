@@ -258,5 +258,40 @@ ezDocumentBase* ezDocumentManagerBase::GetDocumentByPath(const char* szPath) con
   return nullptr;
 }
 
+
+ezResult ezDocumentManagerBase::FindDocumentTypeFromPath(const char* szPath, bool bForCreation, ezDocumentManagerBase*& out_pTypeManager, ezDocumentTypeDescriptor* out_pTypeDesc)
+{
+  const ezString sFileExt = ezPathUtils::GetFileExtension(szPath);
+
+  out_pTypeManager = nullptr;
+
+  for (ezDocumentManagerBase* pMan : ezDocumentManagerBase::GetAllDocumentManagers())
+  {
+    ezHybridArray<ezDocumentTypeDescriptor, 4> Types;
+    pMan->GetSupportedDocumentTypes(Types);
+
+    for (const ezDocumentTypeDescriptor& desc : Types)
+    {
+      if (bForCreation && !desc.m_bCanCreate)
+        continue;
+
+      for (const ezString& ext : desc.m_sFileExtensions)
+      {
+        if (ext.IsEqual_NoCase(sFileExt))
+        {
+          out_pTypeManager = pMan;
+
+          if (out_pTypeDesc != nullptr)
+            *out_pTypeDesc = desc;
+
+          return EZ_SUCCESS;
+        }
+      }
+    }
+  }
+
+  return EZ_FAILURE;
+}
+
 // todo on close doc: remove from m_AllDocuments
 

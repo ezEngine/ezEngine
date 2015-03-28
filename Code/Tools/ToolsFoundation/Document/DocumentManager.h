@@ -20,6 +20,8 @@ public:
 
   static const ezHybridArray<ezDocumentManagerBase*, 16>& GetAllDocumentManagers() { return s_AllDocumentManagers; }
 
+  static ezResult FindDocumentTypeFromPath(const char* szPath, bool bForCreation, ezDocumentManagerBase*& out_pTypeManager, ezDocumentTypeDescriptor* out_pTypeDesc = nullptr);
+
   void GetSupportedDocumentTypes(ezHybridArray<ezDocumentTypeDescriptor, 4>& out_DocumentTypes) const;
 
   ezStatus CanOpenDocument(const char* szFilePath) const;

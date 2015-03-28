@@ -72,7 +72,6 @@ void ezContainerWindow::closeEvent(QCloseEvent* e)
     return;
   }
 
-  ezToolsProject::CloseProject();
   SaveWindowLayout();
 }
 
@@ -344,37 +343,6 @@ ezString ezContainerWindow::BuildDocumentTypeFileFilter(bool bForCreation)
   return sAllFilters;
 }
 
-ezResult ezContainerWindow::FindDocumentTypeFromPath(const char* szPath, bool bForCreation, ezDocumentManagerBase*& out_pTypeManager, ezDocumentTypeDescriptor& out_TypeDesc)
-{
-  const ezString sFileExt = ezPathUtils::GetFileExtension(szPath);
-
-  out_pTypeManager = nullptr;
-
-  for (ezDocumentManagerBase* pMan : ezDocumentManagerBase::GetAllDocumentManagers())
-  {
-    ezHybridArray<ezDocumentTypeDescriptor, 4> Types;
-    pMan->GetSupportedDocumentTypes(Types);
-
-    for (const ezDocumentTypeDescriptor& desc : Types)
-    {
-      if (bForCreation && !desc.m_bCanCreate)
-        continue;
-
-      for (const ezString& ext : desc.m_sFileExtensions)
-      {
-        if (ext.IsEqual_NoCase(sFileExt))
-        {
-          out_pTypeManager = pMan;
-          out_TypeDesc = desc;
-          return EZ_SUCCESS;
-        }
-      }
-    }
-  }
-
-  return EZ_FAILURE;
-}
-
 void ezContainerWindow::CreateOrOpenDocument(bool bCreate)
 {
   const ezString sAllFilters = BuildDocumentTypeFileFilter(bCreate);
@@ -402,7 +370,7 @@ void ezContainerWindow::CreateOrOpenDocument(bool bCreate)
   ezDocumentManagerBase* pManToCreate = nullptr;
   ezDocumentTypeDescriptor DescToCreate;
 
-  if (FindDocumentTypeFromPath(sFile, bCreate, pManToCreate, DescToCreate).Succeeded())
+  if (ezDocumentManagerBase::FindDocumentTypeFromPath(sFile, bCreate, pManToCreate, &DescToCreate).Succeeded())
   {
     sSelectedExt = DescToCreate.m_sDocumentTypeName;
   }
@@ -415,7 +383,7 @@ void ezContainerWindow::CreateOrOpenDocument(bool bCreate, const char* szFile)
   ezDocumentManagerBase* pManToCreate = nullptr;
   ezDocumentTypeDescriptor DescToCreate;
 
-  if (FindDocumentTypeFromPath(szFile, bCreate, pManToCreate, DescToCreate).Failed())
+  if (ezDocumentManagerBase::FindDocumentTypeFromPath(szFile, bCreate, pManToCreate, &DescToCreate).Failed())
   {
     ezUIServices::MessageBoxWarning("The selected file extension is not registered with any known type.");
     return;
@@ -464,6 +432,8 @@ void ezContainerWindow::CreateOrOpenDocument(bool bCreate, const char* szFile)
 
 void ezContainerWindow::CreateOrOpenProject(bool bCreate)
 {
+  /// \todo Move this into the EditorApp
+
   static QString sDir = ezOSFile::GetApplicationDirectory();
   ezString sFile;
 

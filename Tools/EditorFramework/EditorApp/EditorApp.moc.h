@@ -10,6 +10,7 @@
 #include <Foundation/Communication/Event.h>
 #include <QApplication>
 #include <Foundation/Logging/HTMLWriter.h>
+#include <EditorFramework/Assets/AssetCurator.h>
 
 class QMainWindow;
 class QWidget;
@@ -84,8 +85,11 @@ public:
 
   void ShowSettingsDocument();
 
+  void CloseProject();
+
 private slots:
   void SlotTimedUpdate();
+  void SlotQueuedCloseProject();
 
 private:
   ezSettings& GetSettings(ezMap<ezString, ezSettings>& SettingsMap, const char* szPlugin, const char* szSearchPath);
@@ -127,4 +131,6 @@ private:
   QTimer* m_pTimer;
 
   ezLogWriter::HTML m_LogHTML;
+
+  ezAssetCurator m_AssetCurator;
 };

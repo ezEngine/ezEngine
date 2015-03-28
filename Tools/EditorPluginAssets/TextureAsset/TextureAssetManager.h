@@ -1,9 +1,9 @@
 #pragma once
 
-#include <ToolsFoundation/Document/DocumentManager.h>
+#include <EditorFramework/Assets/AssetDocumentManager.h>
 #include <ToolsFoundation/Basics/Status.h>
 
-class ezTextureAssetDocumentManager : public ezDocumentManagerBase
+class ezTextureAssetDocumentManager : public ezAssetDocumentManager
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezTextureAssetDocumentManager);
 

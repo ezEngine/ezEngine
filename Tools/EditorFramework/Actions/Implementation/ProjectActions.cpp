@@ -237,7 +237,7 @@ void ezProjectAction::Execute(const ezVariant& value)
   case ezProjectAction::ButtonType::CloseProject:
     {
       if (ezToolsProject::CanCloseProject())
-        ezToolsProject::CloseProject();
+        ezEditorApp::GetInstance()->CloseProject();
     }
     break;
 

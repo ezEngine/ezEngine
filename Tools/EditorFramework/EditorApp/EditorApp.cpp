@@ -175,7 +175,20 @@ ezInt32 ezEditorApp::RunEditor()
   connect(m_pTimer, SIGNAL(timeout()), this, SLOT(SlotTimedUpdate()), Qt::QueuedConnection);
   m_pTimer->start(1);
 
-  return s_pQtApplication->exec();
+  ezInt32 ret = s_pQtApplication->exec();
+
+  ezToolsProject::CloseProject();
+  return ret;
+}
+
+void ezEditorApp::CloseProject()
+{
+  QMetaObject::invokeMethod(this, "SlotQueuedCloseProject", Qt::ConnectionType::QueuedConnection);
+}
+
+void ezEditorApp::SlotQueuedCloseProject()
+{
+  ezToolsProject::CloseProject();
 }
 
 void ezEditorApp::SlotTimedUpdate()
