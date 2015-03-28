@@ -15,6 +15,8 @@ public:
   /// \brief Creates a ReflectedTypeDescriptor from an ezRTTI instance that can be serialized and registered at the ezReflectedTypeManager.
   static void GetReflectedTypeDescriptorFromRtti(const ezRTTI* pRtti, ezReflectedTypeDescriptor& out_desc); // [tested]
 
+  static void RegisterType(const ezRTTI* pRtti, bool bIncludeDerived = false);
+
   static void GetPropertyPathFromString(const char* szPath, ezPropertyPath& out_Path, ezHybridArray<ezString, 6>& out_Storage);
 
   static ezString GetStringFromPropertyPath(const ezPropertyPath& Path);

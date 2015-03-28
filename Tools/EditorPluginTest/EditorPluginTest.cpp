@@ -21,32 +21,6 @@
 #include <GuiFoundation/Action/DocumentActions.h>
 #include <GuiFoundation/Action/CommandHistoryActions.h>
 
-void RegisterType(const ezRTTI* pRtti)
-{
-  if (pRtti->GetParentType() != nullptr)
-    RegisterType(pRtti->GetParentType());
-
-  ezReflectedTypeDescriptor desc;
-
-  if (pRtti->GetAllocator()->CanAllocate())
-  {
-    void* pObject = pRtti->GetAllocator()->Allocate();
-
-    ezMemoryStreamStorage storage;
-    ezMemoryStreamWriter writer(&storage);
-    ezMemoryStreamReader reader(&storage);
-
-    ezReflectionUtils::WriteObjectToJSON(writer, pRtti, pObject);
-
-    pRtti->GetAllocator()->Deallocate(pObject);
-
-    desc.m_sDefaultInitialization.ReadAll(reader);
-  }
-  
-  ezToolsReflectionUtils::GetReflectedTypeDescriptorFromRtti(pRtti, desc);
-  ezReflectedTypeManager::RegisterType(desc);
-}
-
 void OnDocumentManagerEvent(const ezDocumentManagerBase::Event& e)
 {
   switch (e.m_Type)
@@ -106,15 +80,10 @@ void OnDocumentManagerEvent(const ezDocumentManagerBase::Event& e)
 
 void OnLoadPlugin(bool bReloading)    
 {
-  RegisterType(ezGetStaticRTTI<ezEnumBase>());
-  RegisterType(ezGetStaticRTTI<ezExampleEnum>());
-  RegisterType(ezGetStaticRTTI<ezExampleBitflags>());
-  RegisterType(ezGetStaticRTTI<ezTestEditorProperties>());
-  RegisterType(ezGetStaticRTTI<ezTestObjectProperties>());
-  RegisterType(ezGetStaticRTTI<ezGameObject>());
-
-  // TODO: HACK: Need to find a place to register this poor guy.
-  RegisterType(ezGetStaticRTTI<ezDocumentInfo>());
+  ezToolsReflectionUtils::RegisterType(ezRTTI::FindTypeByName("ezAssetDocumentInfo"));
+  ezToolsReflectionUtils::RegisterType(ezGetStaticRTTI<ezTestEditorProperties>());
+  ezToolsReflectionUtils::RegisterType(ezGetStaticRTTI<ezTestObjectProperties>());
+  ezToolsReflectionUtils::RegisterType(ezGetStaticRTTI<ezGameObject>());
 
   ezDocumentManagerBase::s_Events.AddEventHandler(ezMakeDelegate(OnDocumentManagerEvent));
 

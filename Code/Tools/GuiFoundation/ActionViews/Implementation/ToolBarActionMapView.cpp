@@ -9,6 +9,7 @@
 
 ezToolBarActionMapView::ezToolBarActionMapView(QWidget* parent) : QToolBar(parent)
 {
+  setIconSize(QSize(16, 16));
 }
 
 ezToolBarActionMapView::~ezToolBarActionMapView()
@@ -16,19 +17,16 @@ ezToolBarActionMapView::~ezToolBarActionMapView()
   ClearView();
 }
 
-ezResult ezToolBarActionMapView::SetActionContext(const ezActionContext& context)
+void ezToolBarActionMapView::SetActionContext(const ezActionContext& context)
 {
   auto pMap = ezActionMapManager::GetActionMap(context.m_sMapping);
 
-  if (pMap == nullptr)
-    return EZ_FAILURE;
+  EZ_ASSERT_DEV(pMap != nullptr, "The given mapping '%s' does not exist", context.m_sMapping.GetData());
 
   m_pActionMap = pMap;
   m_Context = context;
 
   CreateView();
-
-  return EZ_SUCCESS;
 }
 
 void ezToolBarActionMapView::ClearView()

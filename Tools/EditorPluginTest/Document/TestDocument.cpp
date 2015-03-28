@@ -13,6 +13,12 @@ ezTestDocument::ezTestDocument(const char* szDocumentPath) : ezDocumentBase(szDo
 {
   GetSelectionManager()->m_Events.AddEventHandler(ezMakeDelegate(&ezTestDocument::SelectionManagerEventHandler, this));
 
+}
+
+void ezTestDocument::Initialize()
+{
+  ezDocumentBase::Initialize();
+
   m_Gizmo.SetDocumentGuid(GetGuid());
 }
 

@@ -1,6 +1,7 @@
 #include <ToolsFoundation/PCH.h>
 #include <ToolsFoundation/Reflection/ReflectedType.h>
 #include <ToolsFoundation/Reflection/ToolsReflectionUtils.h>
+#include <ToolsFoundation/Reflection/ReflectedTypeManager.h>
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/IO/ExtendedJSONWriter.h>
 #include <Foundation/IO/ExtendedJSONReader.h>
@@ -144,6 +145,32 @@ void ezToolsReflectionUtils::GetReflectedTypeDescriptorFromRtti(const ezRTTI* pR
     case ezAbstractProperty::Array:
       break;
     }
+  }
+}
+
+void ezToolsReflectionUtils::RegisterType(const ezRTTI* pRtti, bool bIncludeDerived)
+{
+  EZ_ASSERT_DEV(pRtti != nullptr, "Invalid type !!");
+
+  ezSet<const ezRTTI*> types;
+  types.Insert(pRtti);
+  if (bIncludeDerived)
+  {
+    ezReflectionUtils::GatherTypesDerivedFromClass(pRtti, types, true);
+  }
+  else
+  {
+    ezReflectionUtils::GatherDependentTypes(pRtti, types);
+  }
+
+  ezDynamicArray<const ezRTTI*> sortedTypes;
+  ezReflectionUtils::CreateDependencySortedTypeArray(types, sortedTypes);
+
+  for (auto type : sortedTypes)
+  {
+    ezReflectedTypeDescriptor desc;
+    ezToolsReflectionUtils::GetReflectedTypeDescriptorFromRtti(type, desc);
+    ezReflectedTypeManager::RegisterType(desc);
   }
 }
 

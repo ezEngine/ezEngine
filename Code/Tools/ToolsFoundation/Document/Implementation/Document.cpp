@@ -28,6 +28,7 @@ ezEvent<const ezDocumentBase::Event&> ezDocumentBase::s_EventsAny;
 ezDocumentBase::ezDocumentBase(const char* szPath, ezDocumentObjectManagerBase* pDocumentObjectManagerImpl) :
   m_CommandHistory(this)
 {
+  m_pDocumentInfo = nullptr;
   m_sDocumentPath = szPath;
   m_pObjectManager = pDocumentObjectManagerImpl;
   m_pObjectTree = EZ_DEFAULT_NEW(ezDocumentObjectTree);
@@ -36,7 +37,7 @@ ezDocumentBase::ezDocumentBase(const char* szPath, ezDocumentObjectManagerBase* 
   m_pObjectTree->SetOwner(this);
   m_pObjectManager->SetObjectTree(m_pObjectTree);
 
-  m_bModified = false;
+  m_bModified = true;
   m_bReadOnly = false;
 }
 
@@ -50,14 +51,15 @@ ezDocumentBase::~ezDocumentBase()
   m_CommandHistory.ClearUndoHistory();
 
   EZ_DEFAULT_DELETE(m_pObjectTree);
-  m_pObjectTree = nullptr;
-
   EZ_DEFAULT_DELETE(m_pObjectManager);
-  m_pObjectManager = nullptr;
+  EZ_DEFAULT_DELETE(m_pDocumentInfo);
+}
 
+void ezDocumentBase::Initialize()
+{
+  m_pDocumentInfo = CreateDocumentInfo();
 
-
-
+  EZ_ASSERT_DEV(m_pDocumentInfo != nullptr, "invalid document info");
 }
 
 static void WriteObjectRecursive(ezDocumentJSONWriter& writer, const ezDocumentObjectBase* pObject)
@@ -155,10 +157,10 @@ ezStatus ezDocumentBase::InternalSaveDocument()
 
   writer.StartGroup("Header");
   {
-    ezReflectedTypeHandle hType = ezReflectedTypeManager::GetTypeHandleByName(ezGetStaticRTTI<ezDocumentInfo>()->GetTypeName());
+    ezReflectedTypeHandle hType = ezReflectedTypeManager::GetTypeHandleByName(m_pDocumentInfo->GetDynamicRTTI()->GetTypeName());
     EZ_ASSERT_DEV(!hType.IsInvalidated(), "Need to register ezDocumentInfo at the ezReflectedTypeManager first!");
 
-    ezReflectedTypeDirectAccessor acc(&m_documentInfo);
+    ezReflectedTypeDirectAccessor acc(m_pDocumentInfo);
     ezSerializedTypeAccessorObjectWriter objectWriter(&acc);
     writer.WriteObject(objectWriter);
   }
@@ -190,19 +192,19 @@ ezStatus ezDocumentBase::InternalLoadDocument()
 
   ezDocumentJSONReader reader(&file);
 
-  if (reader.OpenGroup("ObjectTree"))
+  if (reader.OpenGroup("Header"))
   {
     ezUuid objectGuid;
     ezStringBuilder sType;
     ezUuid parentGuid;
     while (reader.PeekNextObject(objectGuid, sType, parentGuid))
     {
-      if (sType.Compare(ezGetStaticRTTI<ezDocumentInfo>()->GetTypeName()) == 0)
+      if (sType == m_pDocumentInfo->GetDynamicRTTI()->GetTypeName())
       {
-        ezReflectedTypeHandle hType = ezReflectedTypeManager::GetTypeHandleByName(ezGetStaticRTTI<ezDocumentInfo>()->GetTypeName());
+        ezReflectedTypeHandle hType = ezReflectedTypeManager::GetTypeHandleByName(m_pDocumentInfo->GetDynamicRTTI()->GetTypeName());
         EZ_ASSERT_DEV(!hType.IsInvalidated(), "Need to register ezDocumentInfo at the ezReflectedTypeManager first!");
 
-        ezReflectedTypeDirectAccessor acc(&m_documentInfo);
+        ezReflectedTypeDirectAccessor acc(m_pDocumentInfo);
         ezSerializedTypeAccessorObjectReader objectReader(&acc);
         reader.ReadObject(objectReader);
       }
@@ -249,5 +251,6 @@ ezStatus ezDocumentBase::InternalLoadDocument()
     }
   }
 
+  SetModified(false);
   return ezStatus(EZ_SUCCESS);
 }

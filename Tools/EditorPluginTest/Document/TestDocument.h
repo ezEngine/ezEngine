@@ -18,4 +18,10 @@ public:
   void SelectionManagerEventHandler(const ezSelectionManager::Event& e);
 
   ezEditorGizmoHandle m_Gizmo;
+
+protected:
+  virtual void Initialize() override;
+
+private:
+  virtual ezDocumentInfo* CreateDocumentInfo() override { return EZ_DEFAULT_NEW(ezDocumentInfo); }
 };

@@ -115,17 +115,6 @@ void ezDocumentManagerBase::GetSupportedDocumentTypes(ezHybridArray<ezDocumentTy
   out_DocumentTypes.Clear();
   InternalGetSupportedDocumentTypes(out_DocumentTypes);
 
-  ezStringBuilder sTemp;
-  for (ezUInt32 i = 0; i < out_DocumentTypes.GetCount(); ++i)
-  {
-    for (ezUInt32 e = 0; e < out_DocumentTypes[i].m_sFileExtensions.GetCount(); ++e)
-    {
-      sTemp = out_DocumentTypes[i].m_sFileExtensions[e];
-      sTemp.ToLower();
-
-      out_DocumentTypes[i].m_sFileExtensions[e] = sTemp;
-    }
-  }
 }
 
 ezStatus ezDocumentManagerBase::CanOpenDocument(const char* szFilePath) const
@@ -142,7 +131,7 @@ ezStatus ezDocumentManagerBase::CanOpenDocument(const char* szFilePath) const
   {
     for (ezUInt32 e = 0; e < DocumentTypes[i].m_sFileExtensions.GetCount(); ++e)
     {
-      if (DocumentTypes[i].m_sFileExtensions[e].IsEqual(sExt))
+      if (DocumentTypes[i].m_sFileExtensions[e].IsEqual_NoCase(sExt))
       {
         return InternalCanOpenDocument(DocumentTypes[i].m_sDocumentTypeName, szFilePath);
       }
@@ -186,6 +175,8 @@ ezStatus ezDocumentManagerBase::CreateOrOpenDocument(bool bCreate, const char* s
 
       if (status.m_Result.Succeeded())
       {
+        out_pDocument->Initialize();
+
         out_pDocument->m_pDocumentManager = this;
         m_AllDocuments.PushBack(out_pDocument);
 

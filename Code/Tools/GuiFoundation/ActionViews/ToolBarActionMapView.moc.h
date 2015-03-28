@@ -19,7 +19,7 @@ public:
   explicit ezToolBarActionMapView(QWidget* parent = nullptr);
   ~ezToolBarActionMapView();
 
-  ezResult SetActionContext(const ezActionContext& context);
+  void SetActionContext(const ezActionContext& context);
 
 private:
   void TreeEventHandler(const ezDocumentObjectTreeStructureEvent& e);

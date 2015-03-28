@@ -18,7 +18,7 @@ public:
   explicit ezMenuBarActionMapView(QWidget* parent = nullptr);
   ~ezMenuBarActionMapView();
 
-  ezResult SetActionContext(const ezActionContext& context);
+  void SetActionContext(const ezActionContext& context);
 
 private:
   void TreeEventHandler(const ezDocumentObjectTreeStructureEvent& e);

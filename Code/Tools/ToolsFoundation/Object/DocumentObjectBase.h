@@ -6,19 +6,6 @@
 #include <Foundation/Strings/HashedString.h>
 #include <Foundation/Types/Uuid.h>
 
-class EZ_TOOLSFOUNDATION_DLL ezDocumentObjectBaseProperties : public ezReflectedClass
-{
-  EZ_ADD_DYNAMIC_REFLECTION(ezDocumentObjectBaseProperties);
-
-public:
-
-  void SetName(const char* szName) { m_sName.Assign(szName); }
-  const char* GetName() const { return m_sName.GetString().GetData(); }
-
-protected:
-  ezHashedString m_sName;
-};
-
 class EZ_TOOLSFOUNDATION_DLL ezDocumentObjectBase
 {
 public:

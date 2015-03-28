@@ -13,19 +13,16 @@ ezMenuActionMapView::~ezMenuActionMapView()
   ClearView();
 }
 
-ezResult ezMenuActionMapView::SetActionContext(const ezActionContext& context)
+void ezMenuActionMapView::SetActionContext(const ezActionContext& context)
 {
   auto pMap = ezActionMapManager::GetActionMap(context.m_sMapping);
 
-  if (pMap == nullptr)
-    return EZ_FAILURE;
+   EZ_ASSERT_DEV(pMap != nullptr, "The given mapping '%s' does not exist", context.m_sMapping.GetData());
 
   m_pActionMap = pMap;
   m_Context = context;
 
   CreateView();
-
-  return EZ_SUCCESS;
 }
 
 void ezMenuActionMapView::ClearView()

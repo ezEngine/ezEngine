@@ -35,7 +35,7 @@ public:
 
   bool IsModified() const { return m_bModified; }
   bool IsReadOnly() const { return m_bReadOnly; }
-  const ezUuid& GetGuid() const { return m_documentInfo.m_DocumentID; }
+  const ezUuid& GetGuid() const { return m_pDocumentInfo->m_DocumentID; }
   virtual const char* GetDocumentTypeDisplayString() const = 0;
 
   const ezDocumentObjectManagerBase* GetObjectManager() const { return m_pObjectManager; }
@@ -81,6 +81,9 @@ protected:
   void SetReadOnly(bool b);
   virtual ezStatus InternalSaveDocument();
   virtual ezStatus InternalLoadDocument();
+  virtual ezDocumentInfo* CreateDocumentInfo() = 0;
+
+  virtual void Initialize();
 
   ezSelectionManager m_SelectionManager;
   mutable ezCommandHistory m_CommandHistory;
@@ -96,5 +99,5 @@ private:
   ezString m_sDocumentPath;
   bool m_bModified;
   bool m_bReadOnly;
-  ezDocumentInfo m_documentInfo;
+  ezDocumentInfo* m_pDocumentInfo;
 };

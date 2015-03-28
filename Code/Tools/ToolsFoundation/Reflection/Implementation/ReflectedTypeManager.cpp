@@ -1,5 +1,7 @@
 #include <ToolsFoundation/PCH.h>
 #include <ToolsFoundation/Reflection/ReflectedTypeManager.h>
+#include <ToolsFoundation/Reflection/ToolsReflectionUtils.h>
+#include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Memory/Allocator.h>
 #include <Foundation/Configuration/Startup.h>
 
@@ -194,7 +196,7 @@ ezReflectedType* ezReflectedTypeManager::GetTypeInternal(ezReflectedTypeHandle h
 
 void ezReflectedTypeManager::Startup()
 {
-  // Add all foundation types.
+
 }
 
 void ezReflectedTypeManager::Shutdown()

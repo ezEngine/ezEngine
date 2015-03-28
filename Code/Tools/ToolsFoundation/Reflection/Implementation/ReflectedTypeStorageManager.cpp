@@ -169,6 +169,10 @@ void ezReflectedTypeStorageManager::Startup()
   ezReflectedTypeManager::m_TypeAddedEvent.AddEventHandler(TypeAddedEvent);
   ezReflectedTypeManager::m_TypeChangedEvent.AddEventHandler(TypeChangedEvent);
   ezReflectedTypeManager::m_TypeRemovedEvent.AddEventHandler(TypeRemovedEvent);
+
+  ezToolsReflectionUtils::RegisterType(ezGetStaticRTTI<ezEnumBase>());
+  ezToolsReflectionUtils::RegisterType(ezGetStaticRTTI<ezBitflagsBase>());
+  ezToolsReflectionUtils::RegisterType(ezRTTI::FindTypeByName("ezDocumentInfo"));
 }
 
 void ezReflectedTypeStorageManager::Shutdown()

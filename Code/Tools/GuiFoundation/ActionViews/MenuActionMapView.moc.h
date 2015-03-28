@@ -19,7 +19,7 @@ public:
   explicit ezMenuActionMapView(QWidget* parent = nullptr);
   ~ezMenuActionMapView();
 
-  ezResult SetActionContext(const ezActionContext& context);
+  void SetActionContext(const ezActionContext& context);
 
   static void AddDocumentObjectToMenu(ezHashTable<ezUuid, ezQtProxy*>& Proxies, ezActionContext& Context, ezActionMap* pActionMap, QMenu* pCurrentRoot, ezDocumentObjectBase* pObject);
 

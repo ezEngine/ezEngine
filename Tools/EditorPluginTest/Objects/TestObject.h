@@ -3,7 +3,7 @@
 #include <ToolsFoundation/Object/DocumentObjectBase.h>
 #include <ToolsFoundation/Reflection/ReflectedTypeDirectAccessor.h>
 
-class ezTestEditorProperties : public ezDocumentObjectBaseProperties
+class ezTestEditorProperties : public ezReflectedClass
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezTestEditorProperties);
 
@@ -12,6 +12,13 @@ public:
 
   bool m_bAwesome;
   float m_fLoat;
+
+  void SetName(const char* szName) { m_sName.Assign(szName); }
+  const char* GetName() const { return m_sName.GetString().GetData(); }
+
+protected:
+  ezHashedString m_sName;
+
 };
 
 struct ezExampleEnum

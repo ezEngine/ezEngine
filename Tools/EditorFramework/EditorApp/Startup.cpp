@@ -13,6 +13,8 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, EditorFrameworkMain)
 
   ON_CORE_STARTUP
   {
+    ezToolsReflectionUtils::RegisterType(ezRTTI::FindTypeByName("ezAssetDocumentInfo"));
+
     ezProjectActions::RegisterActions();
 
     ezActionMapManager::RegisterActionMap("SettingsTabMenuBar");
