@@ -574,12 +574,12 @@ EZ_CREATE_SIMPLE_TEST(Reflection, ReflectedType)
   const ezRTTI* pRttiEnumerations = ezRTTI::FindTypeByName("ezEnumerationsClass");
   ezReflectedTypeHandle enumerationsHandle;
 
+  ezUInt32 uiRegisteredBaseTypes = ezReflectedTypeManager::GetTypeCount();
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "RegisterType")
   {
-    EZ_TEST_INT(ezReflectedTypeManager::GetTypeCount(), 0);
-    baseHandle = RegisterTypeViaRtti(pRttiBase);
-    baseEnumHandle = RegisterTypeViaRtti(pRttiEnumBase);
-    baseBitflagsHandle = RegisterTypeViaRtti(pRttiBitflagsBase);
+    baseHandle = ezReflectedTypeManager::GetTypeHandleByName(pRttiBase->GetTypeName());
+    baseEnumHandle = ezReflectedTypeManager::GetTypeHandleByName(pRttiEnumBase->GetTypeName());
+    baseBitflagsHandle = ezReflectedTypeManager::GetTypeHandleByName(pRttiBitflagsBase->GetTypeName());
 
     intHandle = RegisterTypeViaRtti(pRttiInt);
     floatHandle = RegisterTypeViaRtti(pRttiFloat);
@@ -638,7 +638,7 @@ EZ_CREATE_SIMPLE_TEST(Reflection, ReflectedType)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "UnregisterType")
   {
-    EZ_TEST_INT(ezReflectedTypeManager::GetTypeCount(), 10);
+    EZ_TEST_INT(ezReflectedTypeManager::GetTypeCount(), uiRegisteredBaseTypes + 7);
     ezReflectedTypeManager::UnregisterType(enumerationsHandle);
     ezReflectedTypeManager::UnregisterType(enumHandle);
     ezReflectedTypeManager::UnregisterType(flagsHandle);
@@ -646,11 +646,7 @@ EZ_CREATE_SIMPLE_TEST(Reflection, ReflectedType)
     ezReflectedTypeManager::UnregisterType(podHandle);
     ezReflectedTypeManager::UnregisterType(floatHandle);
     ezReflectedTypeManager::UnregisterType(intHandle);
-
-    ezReflectedTypeManager::UnregisterType(baseEnumHandle);
-    ezReflectedTypeManager::UnregisterType(baseBitflagsHandle);
-    ezReflectedTypeManager::UnregisterType(baseHandle);
-    EZ_TEST_INT(ezReflectedTypeManager::GetTypeCount(), 0);
+    EZ_TEST_INT(ezReflectedTypeManager::GetTypeCount(), uiRegisteredBaseTypes);
   }
 }
 
@@ -699,10 +695,11 @@ EZ_CREATE_SIMPLE_TEST(Reflection, ReflectedTypeReloading)
   ezReflectedTypeHandle OuterHandle;
   ezReflectedTypeDescriptor descOuter;
 
+  ezUInt32 uiRegisteredBaseTypes = ezReflectedTypeManager::GetTypeCount();
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "RegisterType")
   {
     const ezRTTI* pRttiBase = ezRTTI::FindTypeByName("ezReflectedClass");
-    reflectedTypeHandle = RegisterTypeViaRtti(pRttiBase);
+    reflectedTypeHandle = ezReflectedTypeManager::GetTypeHandleByName(pRttiBase->GetTypeName());
 
     EZ_TEST_BOOL(pRttiInner != nullptr);
     ezToolsReflectionUtils::GetReflectedTypeDescriptorFromRtti(pRttiInner, descInner);
@@ -840,10 +837,9 @@ EZ_CREATE_SIMPLE_TEST(Reflection, ReflectedTypeReloading)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "UnregisterType")
   {
-    EZ_TEST_INT(ezReflectedTypeManager::GetTypeCount(), 3);
+    EZ_TEST_INT(ezReflectedTypeManager::GetTypeCount(), uiRegisteredBaseTypes + 2);
     ezReflectedTypeManager::UnregisterType(OuterHandle);
     ezReflectedTypeManager::UnregisterType(InnerHandle);
-    ezReflectedTypeManager::UnregisterType(reflectedTypeHandle);
-    EZ_TEST_INT(ezReflectedTypeManager::GetTypeCount(), 0);
+    EZ_TEST_INT(ezReflectedTypeManager::GetTypeCount(), uiRegisteredBaseTypes);
   }
 }
