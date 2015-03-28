@@ -109,6 +109,11 @@
        <property name="title">
         <string/>
        </property>
+       <layout class="QHBoxLayout" name="horizontalLayout_5">
+        <item>
+         <widget class="ezAssetBrowser" name="widget" native="true"/>
+        </item>
+       </layout>
       </widget>
      </item>
      <item>
@@ -167,6 +172,14 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ezAssetBrowser</class>
+   <extends>QWidget</extends>
+   <header location="global">EditorFramework/Assets/AssetBrowser.moc.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

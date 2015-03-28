@@ -235,7 +235,7 @@ ezAssetCurator::AssetInfoCache* ezAssetCurator::UpdateAssetInfo(const char* szAb
       if (uiRead == 0)
         break;
 
-      stat.m_uiHash = ezHashing::MurmurHash64(uiCache, uiRead, stat.m_uiHash);
+      stat.m_uiHash = ezHashing::MurmurHash64(uiCache, (size_t) uiRead, stat.m_uiHash);
 
       MemWriter.WriteBytes(uiCache, uiRead);
     }

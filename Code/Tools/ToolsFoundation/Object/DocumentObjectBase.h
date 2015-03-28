@@ -25,9 +25,13 @@ public:
 
   const ezUuid& GetGuid() const { return m_Guid; }
 
+  void ComputeObjectHash(ezUInt64& uiHash) const;
+
 private:
   friend class ezDocumentObjectTree;
   friend class ezDocumentObjectManagerBase;
+
+  void HashPropertiesRecursive(const ezIReflectedTypeAccessor& acc, ezUInt64& uiHash, const ezReflectedType* pType, const char* szPath) const;
 
   ezUuid m_Guid;
   ezDocumentObjectBase* m_pParent;
@@ -40,8 +44,8 @@ class ezDocumentObjectDirectMember : public ezDocumentObjectBase
 {
 public:
   ezDocumentObjectDirectMember() : 
-    m_ObjectPropertiesAccessor(&m_MemberProperties, ezGetStaticRTTI<EditorProperties>()),
-    m_EditorPropertiesAccessor(&m_EditorProperties, ezGetStaticRTTI<DirectMemberProperties>())
+    m_ObjectPropertiesAccessor(&m_MemberProperties, ezGetStaticRTTI<DirectMemberProperties>()),
+    m_EditorPropertiesAccessor(&m_EditorProperties, ezGetStaticRTTI<EditorProperties>())
   {
   }
 

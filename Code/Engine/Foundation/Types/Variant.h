@@ -197,6 +197,9 @@ public:
   template <typename Functor>
   static void DispatchTo(Functor& functor, Type::Enum type); // [tested]
 
+  /// \brief Computes the hash value of the stored data. Returns uiSeed (unchanged) for an invalid Variant.
+  ezUInt64 ComputeHash(ezUInt64 uiSeed = 0) const;
+
 private:
 
   friend class ezVariantHelper;

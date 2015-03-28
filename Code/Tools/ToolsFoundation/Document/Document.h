@@ -87,6 +87,7 @@ protected:
 
   ezSelectionManager m_SelectionManager;
   mutable ezCommandHistory m_CommandHistory;
+  ezDocumentInfo* m_pDocumentInfo;
 
 private:
   friend class ezDocumentManagerBase;
@@ -99,5 +100,5 @@ private:
   ezString m_sDocumentPath;
   bool m_bModified;
   bool m_bReadOnly;
-  ezDocumentInfo* m_pDocumentInfo;
+  
 };

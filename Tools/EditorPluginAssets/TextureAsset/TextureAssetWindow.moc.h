@@ -3,6 +3,8 @@
 #include <Foundation/Basics.h>
 #include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
 
+class QLabel;
+
 class ezTextureAssetDocumentWindow : public ezDocumentWindow
 {
   Q_OBJECT
@@ -17,6 +19,8 @@ private slots:
   
 
 private:
-  //void DocumentTreeEventHandler(const ezDocumentObjectTreeStructureEvent& e);
-  //void PropertyEventHandler(const ezDocumentObjectTreePropertyEvent& e);
+  void UpdatePreview();
+  void PropertyEventHandler(const ezDocumentObjectTreePropertyEvent& e);
+
+  QLabel* m_pImageLabel;
 };

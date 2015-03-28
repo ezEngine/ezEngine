@@ -1,6 +1,5 @@
 #include <PCH.h>
 #include <EditorPluginTest/EditorPluginTest.h>
-#include <EditorPluginTest/Panels/TestPanel.moc.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <EditorFramework/GUI/RawPropertyGridWidget.h>
 #include <EditorFramework/GUI/RawDocumentTreeWidget.moc.h>
@@ -20,6 +19,7 @@
 #include <GuiFoundation/Action/StandardMenus.h>
 #include <GuiFoundation/Action/DocumentActions.h>
 #include <GuiFoundation/Action/CommandHistoryActions.h>
+#include <GuiFoundation/DockWindow/DockWindow.moc.h>
 
 void OnDocumentManagerEvent(const ezDocumentManagerBase::Event& e)
 {
@@ -32,31 +32,23 @@ void OnDocumentManagerEvent(const ezDocumentManagerBase::Event& e)
         ezDocumentWindow* pDocWnd = new ezTestDocumentWindow(e.m_pDocument);
 
         {
-          ezTestPanel* pPropertyPanel = new ezTestPanel(pDocWnd);
+          ezDockWindow* pPropertyPanel = new ezDockWindow(pDocWnd);
           pPropertyPanel->setObjectName("PropertyPanel");
           pPropertyPanel->setWindowTitle("Properties");
           pPropertyPanel->show();
 
-          ezTestPanel* pPropertyPanel2 = new ezTestPanel(pDocWnd);
-          pPropertyPanel2->setObjectName("PropertyPanel2");
-          pPropertyPanel2->setWindowTitle("Properties 2");
-          pPropertyPanel2->show();
-
-          ezTestPanel* pPanelTree = new ezTestPanel(pDocWnd);
+          ezDockWindow* pPanelTree = new ezDockWindow(pDocWnd);
           pPanelTree->setObjectName("TreePanel");
           pPanelTree->setWindowTitle("Hierarchy");
           pPanelTree->show();
 
-          ezTestPanel* pPanelCreator = new ezTestPanel(pDocWnd);
+          ezDockWindow* pPanelCreator = new ezDockWindow(pDocWnd);
           pPanelCreator->setObjectName("CreatorPanel");
           pPanelCreator->setWindowTitle("Object Creator");
           pPanelCreator->show();
 
           ezRawPropertyGridWidget* pPropertyGrid = new ezRawPropertyGridWidget(e.m_pDocument, pPropertyPanel);
           pPropertyPanel->setWidget(pPropertyGrid);
-
-          ezRawPropertyGridWidget* pPropertyGrid2 = new ezRawPropertyGridWidget(e.m_pDocument, pPropertyPanel2);
-          pPropertyPanel2->setWidget(pPropertyGrid2);
 
           ezRawDocumentTreeWidget* pTreeWidget = new ezRawDocumentTreeWidget(pPanelTree, e.m_pDocument);
           pPanelTree->setWidget(pTreeWidget);
@@ -68,7 +60,6 @@ void OnDocumentManagerEvent(const ezDocumentManagerBase::Event& e)
           //((ezDocumentObjectTree*) e.m_pDocument->GetObjectTree())->AddObject(pTestObject1, nullptr);
 
           pDocWnd->addDockWidget(Qt::DockWidgetArea::RightDockWidgetArea, pPropertyPanel);
-          pDocWnd->addDockWidget(Qt::DockWidgetArea::RightDockWidgetArea, pPropertyPanel2);
           pDocWnd->addDockWidget(Qt::DockWidgetArea::LeftDockWidgetArea, pPanelTree);
           pDocWnd->addDockWidget(Qt::DockWidgetArea::LeftDockWidgetArea, pPanelCreator);
         }

@@ -99,6 +99,8 @@ void ezRawPropertyWidget::BuildUI(const ezIReflectedTypeAccessor& et, const ezRe
 
         pLayout->addWidget(pNewWidget);
         pNewWidget->SetValue(et.GetValue(ParentPath));
+        pNewWidget->setEnabled(!pProp->m_Flags.IsSet(PropertyFlags::IsReadOnly));
+
 
         pNewWidget->m_Events.AddEventHandler(ezMakeDelegate(&ezRawPropertyWidget::PropertyChangedHandler, this));
       }
