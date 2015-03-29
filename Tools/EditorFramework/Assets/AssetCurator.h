@@ -6,6 +6,10 @@
 #include <ToolsFoundation/Document/DocumentManager.h>
 #include <Foundation/Containers/HashTable.h>
 #include <Foundation/Time/Timestamp.h>
+#include <Foundation/Threading/Mutex.h>
+
+class ezHashingTask;
+class ezTask;
 
 class EZ_EDITORFRAMEWORK_DLL ezAssetCurator
 {
@@ -80,6 +84,8 @@ private:
   void SetAllAssetStatusUnknown();
   void RemoveStaleFileInfos();
   void ClearCache();
+  void QueueFilesForHashing();
+  void QueueFileForHashing(const ezString& sFile);
 
   AssetInfoCache* UpdateAssetInfo(const char* szAbsFilePath, FileStatus& stat);
 
@@ -90,6 +96,17 @@ private:
 
   ezHashTable<ezUuid, AssetInfoCache*> m_KnownAssets;
   ezMap<ezString, FileStatus> m_ReferencedFiles;
+  ezSet<ezString> m_FileHashingQueue;
+
+private:
+  friend class ezHashingTask;
+
+  ezString GetNextFileToHash();
+  static void OnHashingTaskFinished(ezTask* pTask, void* pPassThrough);
+  void RunNextHashingTask();
+
+  ezMutex m_HashingMutex;
+  ezHashingTask* m_pHashingTask;
 
 private:
   static ezAssetCurator* s_pInstance;

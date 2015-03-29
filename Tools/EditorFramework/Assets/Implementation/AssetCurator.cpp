@@ -163,6 +163,7 @@ void ezAssetCurator::CheckFileSystem()
   }
 
   RemoveStaleFileInfos();
+  QueueFilesForHashing();
 
   // Broadcast reset.
   {

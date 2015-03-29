@@ -50,10 +50,10 @@ void ezTextureAssetDocumentWindow::UpdatePreview()
     return;
 
   ezImage Target;
-  if (ezImageConversionBase::Convert(pObject->m_MemberProperties.GetImage(), Target, ezImageFormat::R8G8B8A8_UNORM).Failed())
+  if (ezImageConversionBase::Convert(pObject->m_MemberProperties.GetImage(), Target, ezImageFormat::B8G8R8A8_UNORM).Failed())
     return;
 
-  QImage img(Target.GetPixelPointer<ezUInt8>(), Target.GetWidth(), Target.GetHeight(), QImage::Format::Format_RGBA8888);
+  QImage img(Target.GetPixelPointer<ezUInt8>(), Target.GetWidth(), Target.GetHeight(), QImage::Format_ARGB32);
 
   QPixmap pix = QPixmap::fromImage(img);
 
