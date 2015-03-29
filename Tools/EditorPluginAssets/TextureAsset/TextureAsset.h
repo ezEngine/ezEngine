@@ -20,6 +20,7 @@ protected:
   virtual void Initialize() override;
   virtual ezStatus InternalLoadDocument() override;
   virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) override;
+  virtual ezStatus InternalTransformAsset(ezStreamWriterBase& stream) override;
 
 private:
   void EnsureSettingsObjectExist();

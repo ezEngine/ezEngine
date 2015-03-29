@@ -29,11 +29,14 @@ public:
   ezAssetDocument(const char* szDocumentPath, ezDocumentObjectManagerBase* pObjectManager);
   ~ezAssetDocument();
 
+  ezStatus TransformAsset();
+
 protected:
   ezUInt64 GetDocumentHash() const;
   void GetChildHash(const ezDocumentObjectBase* pObject, ezUInt64& uiHash) const;
   virtual ezStatus InternalSaveDocument() override;
   virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) = 0;
+  virtual ezStatus InternalTransformAsset(ezStreamWriterBase& stream) = 0;
 
 private:
   virtual ezDocumentInfo* CreateDocumentInfo() override;

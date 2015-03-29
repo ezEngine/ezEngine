@@ -6,6 +6,7 @@
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <GuiFoundation/Action/ActionMapManager.h>
 #include <EditorFramework/Actions/ProjectActions.h>
+#include <EditorFramework/Actions/AssetActions.h>
 #include <GuiFoundation/Action/StandardMenus.h>
 #include <GuiFoundation/Action/DocumentActions.h>
 #include <GuiFoundation/Action/CommandHistoryActions.h>
@@ -30,6 +31,7 @@ void OnLoadPlugin(bool bReloading)
     ezActionMapManager::RegisterActionMap("TextureAssetToolBar");
     ezDocumentActions::MapActions("TextureAssetToolBar", "", true);
     ezCommandHistoryActions::MapActions("TextureAssetToolBar", "");
+    ezAssetActions::MapActions("TextureAssetToolBar", true);
   }
 }
 

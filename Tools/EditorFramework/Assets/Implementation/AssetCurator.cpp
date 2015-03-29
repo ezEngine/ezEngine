@@ -8,6 +8,7 @@
 #include <Foundation/IO/MemoryStream.h>
 #include <Foundation/Threading/TaskSystem.h>
 #include <Foundation/Algorithm/Hashing.h>
+#include <Foundation/IO/FileSystem/FileWriter.h>
 #include <ToolsFoundation/Serialization/DocumentJSONReader.h>
 #include <ToolsFoundation/Serialization/SerializedTypeAccessorObject.h>
 #include <ToolsFoundation/Object/SerializedDocumentObject.h>
@@ -25,7 +26,7 @@ ezAssetCurator::ezAssetCurator()
 
 ezAssetCurator::~ezAssetCurator()
 {
-  ClearCache();
+  DeInitCurator();
 
   ezDocumentManagerBase::s_Events.RemoveEventHandler(ezMakeDelegate(&ezAssetCurator::DocumentManagerEventHandler, this));
   ezToolsProject::s_Events.RemoveEventHandler(ezMakeDelegate(&ezAssetCurator::ProjectEventHandler, this));
@@ -159,7 +160,14 @@ void ezAssetCurator::RemoveStaleFileInfos()
   }
 }
 
-void ezAssetCurator::ClearCache()
+void ezAssetCurator::InitCurator()
+{
+  m_bActive = true;
+
+  CheckFileSystem();
+}
+
+void ezAssetCurator::DeInitCurator()
 {
   {
     ezLock<ezMutex> ml(m_HashingMutex);
@@ -197,9 +205,22 @@ void ezAssetCurator::ClearCache()
 
 void ezAssetCurator::CheckFileSystem()
 {
+  {
+    ezLock<ezMutex> ml(m_HashingMutex);
+    m_FileHashingQueue.Clear();
+  }
+
+  if (m_pHashingTask)
+  {
+    ezTaskSystem::WaitForTask((ezTask*) m_pHashingTask);
+
+    ezLock<ezMutex> ml(m_HashingMutex);
+    EZ_ASSERT_DEV(m_pHashingTask->IsTaskFinished(), "task should not have started again");
+    EZ_DEFAULT_DELETE(m_pHashingTask);
+  }
+
   ezLock<ezMutex> ml(m_HashingMutex);
 
-  m_bActive = true;
   ezSet<ezString> validExtensions;
   BuildFileExtensionSet(validExtensions);
   SetAllAssetStatusUnknown();
@@ -223,8 +244,77 @@ void ezAssetCurator::CheckFileSystem()
   }
 }
 
-void ezAssetCurator::WriteAssetTables()
+ezResult ezAssetCurator::WriteAssetTables()
 {
+  ezStringBuilder sProjectDir = ezToolsProject::GetInstance()->GetProjectPath();
+  sProjectDir.PathParentDirectory();
+
+  ezStringBuilder sFinalPath(sProjectDir, "/AssetCache/LookupTable.ezAsset");
+  sFinalPath.MakeCleanPath();
+
+  ezFileWriter file;
+  if (file.Open(sFinalPath).Failed())
+  {
+    ezLog::Error("Could not write asset lookup table ('%s')", sFinalPath.GetData());
+    return EZ_FAILURE;
+  }
+
+  ezStringBuilder sLine;
+  ezString sResourcePath;
+
+  for (auto it = m_KnownAssets.GetIterator(); it.IsValid(); ++it)
+  {
+    ezUInt64 low, high;
+    it.Key().GetValues(low, high);
+
+    sResourcePath = it.Value()->m_pManager->GenerateRelativeResourceFileName(it.Value()->m_sPath);
+
+    sLine.Format("%08X-%08X;%s\n", low, high, sResourcePath.GetData());
+
+    file.WriteBytes(sLine.GetData(), sLine.GetElementCount());
+  }
+
+  return EZ_SUCCESS;
+}
+
+void ezAssetCurator::MainThreadTick()
+{
+  ezLock<ezMutex> ml(m_HashingMutex);
+
+  for (auto it = m_KnownAssets.GetIterator(); it.IsValid();)
+  {
+    if (it.Value()->m_State == ezAssetCurator::AssetInfo::State::New)
+    {
+      it.Value()->m_State = ezAssetCurator::AssetInfo::State::Default;
+
+      // Broadcast reset.
+      Event e;
+      e.m_AssetGuid = it.Key();
+      e.m_pInfo = it.Value();
+      e.m_Type = Event::Type::AssetAdded;
+      m_Events.Broadcast(e);
+
+      ++it;
+    }
+    else if (it.Value()->m_State == ezAssetCurator::AssetInfo::State::ToBeDeleted)
+    {
+      // Broadcast reset.
+      Event e;
+      e.m_AssetGuid = it.Key();
+      e.m_pInfo = it.Value();
+      e.m_Type = Event::Type::AssetRemoved;
+      m_Events.Broadcast(e);
+
+      // Remove asset
+      auto oldIt = it;
+      ++it;
+
+      EZ_DEFAULT_DELETE(oldIt.Value());
+      m_KnownAssets.Remove(oldIt.Key());
+    }
+    else
+      ++it;
+  }
 }
 
 const ezAssetCurator::AssetInfo* ezAssetCurator::GetAssetInfo(const ezUuid& assetGuid) const
@@ -288,10 +378,12 @@ ezResult ezAssetCurator::UpdateAssetInfo(const char* szAbsFilePath, ezAssetCurat
     assetInfo.m_State = AssetInfo::State::New;
   }
 
-  if (assetInfo.m_pManager == nullptr && ezDocumentManagerBase::FindDocumentTypeFromPath(szAbsFilePath, false, assetInfo.m_pManager).Failed())
+  ezDocumentManagerBase* pDocMan = assetInfo.m_pManager;
+  if (assetInfo.m_pManager == nullptr && ezDocumentManagerBase::FindDocumentTypeFromPath(szAbsFilePath, false, pDocMan).Failed())
   {
     EZ_REPORT_FAILURE("Invalid asset setup");
   }
+  assetInfo.m_pManager = static_cast<ezAssetDocumentManager*>(pDocMan);
 
   ezMemoryStreamStorage storage;
   ezMemoryStreamReader MemReader(&storage);
@@ -301,6 +393,7 @@ ezResult ezAssetCurator::UpdateAssetInfo(const char* szAbsFilePath, ezAssetCurat
   file.Close();
 
   ReadAssetDocumentInfo(&assetInfo.m_Info, MemReader);
+  stat.m_AssetGuid = assetInfo.m_Info.m_DocumentID;
   return EZ_SUCCESS;
 }
 
@@ -318,11 +411,15 @@ void ezAssetCurator::ProjectEventHandler(const ezToolsProject::Event& e)
 {
   if (e.m_Type == ezToolsProject::Event::Type::ProjectOpened)
   {
-    CheckFileSystem();
+    InitCurator();
+  }
+  if (e.m_Type == ezToolsProject::Event::Type::ProjectClosing)
+  {
+    // Write cache to file.
   }
   if (e.m_Type == ezToolsProject::Event::Type::ProjectClosed)
   {
-    ClearCache();
+    DeInitCurator();
   }
 }
 

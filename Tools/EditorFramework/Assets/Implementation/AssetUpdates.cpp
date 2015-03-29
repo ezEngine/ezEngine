@@ -166,3 +166,58 @@ void ezAssetCurator::QueueFilesForHashing()
   RunNextHashingTask();
 }
 
+ezUInt64 ezAssetCurator::GetAssetDependencyHash(ezUuid assetGuid)
+{
+  ezLock<ezMutex> ml(m_HashingMutex);
+
+  ezAssetCurator::AssetInfo* pInfo = nullptr;
+  if (!m_KnownAssets.TryGetValue(assetGuid, pInfo))
+    return 0;
+
+  FileStatus& status = m_ReferencedFiles[pInfo->m_sPath];
+
+  ezFileStats stat;
+
+  {
+    ezFileReader file;
+    if (file.Open(pInfo->m_sPath).Failed())
+      return 0;
+
+    if (ezOSFile::GetFileStats(file.GetFilePathAbsolute(), stat).Failed())
+      return 0;
+  }
+
+  if (!stat.m_LastModificationTime.IsEqual(status.m_Timestamp, ezTimestamp::CompareMode::Identical))
+  {
+    // Update asset
+    UpdateAssetInfo(pInfo->m_sPath, status, *pInfo);
+  }
+
+  ezUInt64 uiHashResult = pInfo->m_Info.m_uiSettingsHash;
+
+  // Iterate dependencies
+  for (const auto& dep : pInfo->m_Info.m_FileDependencies)
+  {
+    ezFileReader file;
+    if (file.Open(dep).Failed())
+      return 0;
+
+    if (ezOSFile::GetFileStats(file.GetFilePathAbsolute(), stat).Failed())
+      return 0;
+
+    auto& fileref = m_ReferencedFiles[dep];
+
+    if (!fileref.m_Timestamp.IsEqual(stat.m_LastModificationTime, ezTimestamp::CompareMode::Identical))
+    {
+      // Update file status
+      fileref.m_Timestamp = stat.m_LastModificationTime;
+      fileref.m_uiHash = ezAssetCurator::HashFile(file, nullptr);
+      fileref.m_Status = ezAssetCurator::FileStatus::Status::Valid;
+    }
+
+    uiHashResult += fileref.m_uiHash;
+  }
+
+  return uiHashResult;
+}
+

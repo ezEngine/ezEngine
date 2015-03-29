@@ -33,6 +33,7 @@ public:
   ezUInt32 GetWidth() const { return m_Image.GetWidth(); }
   ezUInt32 GetHeight() const { return m_Image.GetHeight(); }
   ezUInt32 GetDepth() const { return m_Image.GetDepth(); }
+  bool IsSRGB() const { return m_bIsSRGB; }
   bool IsCubemap() const { return m_Image.GetNumFaces() == 6; }
   const ezImage& GetImage() const { return m_Image; }
   ezString GetFormatString() const;

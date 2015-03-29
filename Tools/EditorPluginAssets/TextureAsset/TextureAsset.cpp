@@ -4,6 +4,9 @@
 #include <EditorPluginAssets/TextureAsset/TextureAssetManager.h>
 #include <EditorPluginAssets/TextureAsset/TextureAssetObjectsManager.h>
 #include <ToolsFoundation/Reflection/ReflectedTypeManager.h>
+#include <EditorFramework/Assets/AssetCurator.h>
+#include <Foundation/IO/FileSystem/FileWriter.h>
+#include <CoreUtils/Image/Formats/DdsFileFormat.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureAssetDocument, ezAssetDocument, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
@@ -65,3 +68,19 @@ void ezTextureAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo)
 
   pInfo->m_uiSettingsHash = GetDocumentHash();
 }
+
+ezStatus ezTextureAssetDocument::InternalTransformAsset(ezStreamWriterBase& stream)
+{
+  const ezImage& img = GetProperties()->GetImage();
+
+  stream << GetProperties()->IsSRGB();
+
+  ezDdsFileFormat writer;
+  if (writer.WriteImage(stream, img, ezGlobalLog::GetInstance()).Failed())
+  {
+    return ezStatus("Writing the image data as DDS failed");
+  }
+
+  return ezStatus(EZ_SUCCESS);
+}
+

@@ -1,12 +1,18 @@
 #include <PCH.h>
 #include <EditorFramework/Assets/AssetDocument.h>
+#include <ToolsFoundation/Project/ToolsProject.h>
+#include <Foundation/IO/FileSystem/FileReader.h>
+#include <EditorFramework/Assets/AssetCurator.h>
+#include <Foundation/IO/FileSystem/FileWriter.h>
+#include <Foundation/Logging/Log.h>
+#include <EditorFramework/Assets/AssetDocumentManager.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAssetDocumentInfo, ezDocumentInfo, 1, ezRTTINoAllocator);
-  EZ_BEGIN_PROPERTIES
-    EZ_ACCESSOR_PROPERTY("Dependencies", GetDependencies, SetDependencies),
-    EZ_ACCESSOR_PROPERTY("References", GetReferences, SetReferences),
-    EZ_MEMBER_PROPERTY("Hash", m_uiSettingsHash),
-  EZ_END_PROPERTIES
+EZ_BEGIN_PROPERTIES
+EZ_ACCESSOR_PROPERTY("Dependencies", GetDependencies, SetDependencies),
+EZ_ACCESSOR_PROPERTY("References", GetReferences, SetReferences),
+EZ_MEMBER_PROPERTY("Hash", m_uiSettingsHash),
+EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAssetDocument, ezDocumentBase, 1, ezRTTINoAllocator);
@@ -102,4 +108,28 @@ void ezAssetDocument::GetChildHash(const ezDocumentObjectBase* pObject, ezUInt64
   }
 }
 
+ezStatus ezAssetDocument::TransformAsset()
+{
+  ezUInt64 uiHash = ezAssetCurator::GetInstance()->GetAssetDependencyHash(GetGuid());
+
+  EZ_ASSERT_DEV(uiHash != 0, "Something went wrong");
+
+  const ezString sResourceFile = static_cast<ezAssetDocumentManager*>(GetDocumentManager())->GenerateResourceFileName(GetDocumentPath(), "PC");
+
+  if (ezAssetDocumentManager::IsResourceUpToDate(uiHash, sResourceFile))
+    return ezStatus(EZ_SUCCESS);
+
+  // Write resource
+  ezFileWriter file;
+
+  if (file.Open(sResourceFile).Failed())
+  {
+    ezLog::Error("Could not open file for writing: '%s'", sResourceFile.GetData());
+    return ezStatus("Opening the asset output file failed");
+  }
+
+  file << uiHash;
+
+  return InternalTransformAsset(file);
+}
 

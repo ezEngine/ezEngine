@@ -11,6 +11,8 @@ public:
   ezTextureAssetDocumentManager();
   ~ezTextureAssetDocumentManager();
 
+  virtual ezString GetResourceTypeExtension() const override { return "ezTex"; }
+
 private:
   void OnDocumentManagerEvent(const ezDocumentManagerBase::Event& e);
 

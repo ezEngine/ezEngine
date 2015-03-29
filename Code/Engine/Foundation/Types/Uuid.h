@@ -31,6 +31,8 @@ public:
   /// \brief Creates a new Uuid and stores is it in this object.
   void CreateNewUuid();
 
+  void GetValues(ezUInt64& uiLow, ezUInt64& uiHigh) const { uiHigh = m_uiHigh; uiLow = m_uiLow; }
+
 private:
 
   friend EZ_FOUNDATION_DLL void operator>> (ezStreamReaderBase& Stream, ezUuid& Value);

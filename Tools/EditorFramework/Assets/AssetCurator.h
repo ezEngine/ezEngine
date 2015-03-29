@@ -11,6 +11,7 @@
 
 class ezHashingTask;
 class ezTask;
+class ezAssetDocumentManager;
 
 class EZ_EDITORFRAMEWORK_DLL ezAssetCurator
 {
@@ -34,16 +35,18 @@ public:
     } 
 
     State m_State;
-    ezDocumentManagerBase* m_pManager;
+    ezAssetDocumentManager* m_pManager;
     ezString m_sPath;
     ezAssetDocumentInfo m_Info;
   };
 
   void CheckFileSystem();
-  void WriteAssetTables();
+  ezResult WriteAssetTables();
+  void MainThreadTick();
 
   const AssetInfo* GetAssetInfo(const ezUuid& assetGuid) const;
   const ezHashTable<ezUuid, AssetInfo*>& GetKnownAssets() const;
+  ezUInt64 GetAssetDependencyHash(ezUuid assetGuid);
 
   // TODO: Background filesystem watcher and main thread update tick to add background info to main data
   // TODO: Hash changed in different thread
@@ -95,7 +98,8 @@ private:
   void IterateDataDirectory(const char* szDataDir, const ezSet<ezString>& validExtensions);
   void SetAllAssetStatusUnknown();
   void RemoveStaleFileInfos();
-  void ClearCache();
+  void InitCurator();
+  void DeInitCurator();
   void QueueFilesForHashing();
   void QueueFileForHashing(const ezString& sFile);
 
@@ -123,7 +127,7 @@ private:
 
   void RunNextHashingTask();
 
-  ezMutex m_HashingMutex;
+  mutable ezMutex m_HashingMutex;
   ezHashingTask* m_pHashingTask;
 
 private:

@@ -4,6 +4,7 @@
 #include <GuiFoundation/Action/ActionMapManager.h>
 #include <GuiFoundation/Action/BaseActions.h>
 #include <EditorFramework/Actions/ProjectActions.h>
+#include <EditorFramework/Actions/AssetActions.h>
 
 EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, EditorFrameworkMain)
 
@@ -16,9 +17,13 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(EditorFramework, EditorFrameworkMain)
     ezToolsReflectionUtils::RegisterType(ezRTTI::FindTypeByName("ezAssetDocumentInfo"));
 
     ezProjectActions::RegisterActions();
+    ezAssetActions::RegisterActions();
 
     ezActionMapManager::RegisterActionMap("SettingsTabMenuBar");
     ezProjectActions::MapActions("SettingsTabMenuBar");
+    
+    ezActionMapManager::RegisterActionMap("AssetBrowserToolBar");
+    ezAssetActions::MapActions("AssetBrowserToolBar", false);
   }
 
   ON_CORE_SHUTDOWN
