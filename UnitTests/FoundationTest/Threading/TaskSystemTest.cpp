@@ -30,7 +30,7 @@ private:
 
   bool m_bStarted;
   bool m_bDone;
-  
+
   virtual void Execute() override
   {
     if (m_iTaskID >= 0)
@@ -60,17 +60,22 @@ private:
   }
 };
 
-void TaskFinished(ezTask* pTask, void* pPassThrough)
+class TaskCallbacks
 {
-  ezAtomicInteger32* pInt = (ezAtomicInteger32*) pPassThrough;
-  pInt->Increment();
-}
+public:
 
-void TaskGroupFinished(void* pPassThrough)
-{
-  ezAtomicInteger32* pInt = (ezAtomicInteger32*) pPassThrough;
-  pInt->Increment();
-}
+  void TaskFinished(ezTask* pTask)
+  {
+    m_pInt->Increment();
+  }
+
+  void TaskGroupFinished()
+  {
+    m_pInt->Increment();
+  }
+
+  ezAtomicInteger32* m_pInt;
+};
 
 EZ_CREATE_SIMPLE_TEST(Threading, TaskSystem)
 {
@@ -87,7 +92,7 @@ EZ_CREATE_SIMPLE_TEST(Threading, TaskSystem)
     t[0].SetTaskName("Task 0");
     t[1].SetTaskName("Task 1");
     t[2].SetTaskName("Task 2");
-   
+
     ezTaskSystem::StartSingleTask(&t[0], ezTaskPriority::LateThisFrame);
     ezTaskSystem::StartSingleTask(&t[1], ezTaskPriority::ThisFrame);
     ezTaskSystem::StartSingleTask(&t[2], ezTaskPriority::EarlyThisFrame);
@@ -105,7 +110,7 @@ EZ_CREATE_SIMPLE_TEST(Threading, TaskSystem)
   {
     ezTestTask t[4];
     ezTaskGroupID g[4];
-   
+
     g[0] = ezTaskSystem::StartSingleTask(&t[0], ezTaskPriority::LateThisFrame);
     g[1] = ezTaskSystem::StartSingleTask(&t[1], ezTaskPriority::ThisFrame, g[0]);
     g[2] = ezTaskSystem::StartSingleTask(&t[2], ezTaskPriority::EarlyThisFrame, g[1]);
@@ -127,10 +132,16 @@ EZ_CREATE_SIMPLE_TEST(Threading, TaskSystem)
     ezAtomicInteger32 GroupsFinished;
     ezAtomicInteger32 TasksFinished;
 
-    g[0] = ezTaskSystem::CreateTaskGroup(ezTaskPriority::ThisFrame, TaskGroupFinished, &GroupsFinished);
-    g[1] = ezTaskSystem::CreateTaskGroup(ezTaskPriority::ThisFrame, TaskGroupFinished, &GroupsFinished);
-    g[2] = ezTaskSystem::CreateTaskGroup(ezTaskPriority::ThisFrame, TaskGroupFinished, &GroupsFinished);
-    g[3] = ezTaskSystem::CreateTaskGroup(ezTaskPriority::ThisFrame, TaskGroupFinished, &GroupsFinished);
+    TaskCallbacks callbackGroup;
+    callbackGroup.m_pInt = &GroupsFinished;
+
+    TaskCallbacks callbackTask;
+    callbackTask.m_pInt = &TasksFinished;
+
+    g[0] = ezTaskSystem::CreateTaskGroup(ezTaskPriority::ThisFrame, ezMakeDelegate(&TaskCallbacks::TaskGroupFinished, &callbackGroup));
+    g[1] = ezTaskSystem::CreateTaskGroup(ezTaskPriority::ThisFrame, ezMakeDelegate(&TaskCallbacks::TaskGroupFinished, &callbackGroup));
+    g[2] = ezTaskSystem::CreateTaskGroup(ezTaskPriority::ThisFrame, ezMakeDelegate(&TaskCallbacks::TaskGroupFinished, &callbackGroup));
+    g[3] = ezTaskSystem::CreateTaskGroup(ezTaskPriority::ThisFrame, ezMakeDelegate(&TaskCallbacks::TaskGroupFinished, &callbackGroup));
 
     for (int i = 0; i < 4; ++i)
       EZ_TEST_BOOL(!ezTaskSystem::IsTaskGroupFinished(g[i]));
@@ -153,7 +164,7 @@ EZ_CREATE_SIMPLE_TEST(Threading, TaskSystem)
       EZ_TEST_BOOL(!t[i].IsTaskFinished());
       EZ_TEST_BOOL(!t[i].IsDone());
 
-      t[i].SetOnTaskFinished(TaskFinished, &TasksFinished);
+      t[i].SetOnTaskFinished(ezMakeDelegate(&TaskCallbacks::TaskFinished, &callbackTask));
     }
 
     ezTaskSystem::StartTaskGroup(g[3]);
@@ -397,6 +408,6 @@ EZ_CREATE_SIMPLE_TEST(Threading, TaskSystem)
   ezFileWriter fileWriter;
   if (fileWriter.Open("profiling.json") == EZ_SUCCESS)
   {
-    ezProfilingSystem::Capture(fileWriter);
+  ezProfilingSystem::Capture(fileWriter);
   }*/
 }

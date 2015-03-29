@@ -33,8 +33,11 @@ ezString ezTextureAssetProperties::GetFormatString() const
 
 void ezTextureAssetProperties::SetInputFile(const char* szFile)
 {
-  m_Input = szFile;
-  if (m_Image.LoadFrom(szFile).Succeeded())
+  ezStringBuilder sTemp = szFile;
+  sTemp.MakeCleanPath();
+
+  m_Input = sTemp;
+  if (m_Image.LoadFrom(m_Input).Succeeded())
   {
   }
 }

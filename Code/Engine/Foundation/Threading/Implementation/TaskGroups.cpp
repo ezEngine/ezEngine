@@ -16,11 +16,9 @@ ezTaskGroup::ezTaskGroup()
   m_bIsActive = false;
   m_uiGroupCounter = 1;
   m_Priority = ezTaskPriority::ThisFrame;
-  m_OnFinishedCallback = nullptr;
-  m_pCallbackPassThrough = nullptr;
 }
 
-ezTaskGroupID ezTaskSystem::CreateTaskGroup(ezTaskPriority::Enum Priority, ezTaskGroup::OnTaskGroupFinished Callback, void* pPassThrough)
+ezTaskGroupID ezTaskSystem::CreateTaskGroup(ezTaskPriority::Enum Priority, ezTaskGroup::OnTaskGroupFinished Callback)
 {
   EZ_LOCK(s_TaskSystemMutex);
 
@@ -46,7 +44,6 @@ foundtaskgroup:
   s_TaskGroups[i].m_OthersDependingOnMe.Clear();
   s_TaskGroups[i].m_Priority = Priority;
   s_TaskGroups[i].m_OnFinishedCallback = Callback;
-  s_TaskGroups[i].m_pCallbackPassThrough = pPassThrough;
 
   ezTaskGroupID id;
   id.m_pTaskGroup = &s_TaskGroups[i];

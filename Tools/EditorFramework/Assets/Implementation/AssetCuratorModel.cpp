@@ -60,7 +60,7 @@ QVariant ezAssetCuratorModel::data(const QModelIndex& index, int role) const
     return QVariant();
 
   const ezUuid AssetGuid = m_AssetsToDisplay[iRow];
-  const ezAssetCurator::AssetInfoCache* pAssetInfo = ezAssetCurator::GetInstance()->GetAssetInfo(AssetGuid);
+  const ezAssetCurator::AssetInfo* pAssetInfo = ezAssetCurator::GetInstance()->GetAssetInfo(AssetGuid);
 
   EZ_ASSERT_DEV(pAssetInfo != nullptr, "Invalid Pointer !!!!`1`1sonceleven");
 

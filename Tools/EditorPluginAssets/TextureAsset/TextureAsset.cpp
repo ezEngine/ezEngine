@@ -57,7 +57,11 @@ void ezTextureAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo)
   pInfo->m_FileDependencies.Clear();
 
   const ezTextureAssetProperties* pProp = GetProperties();
-  pInfo->m_FileDependencies.PushBack(pProp->GetInputFile());
+
+  ezStringBuilder sTemp = pProp->GetInputFile();
+  sTemp.MakeCleanPath();
+
+  pInfo->m_FileDependencies.PushBack(sTemp);
 
   pInfo->m_uiSettingsHash = GetDocumentHash();
 }

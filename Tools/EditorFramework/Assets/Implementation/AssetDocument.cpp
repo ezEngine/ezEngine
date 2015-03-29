@@ -35,6 +35,7 @@ void ezAssetDocumentInfo::SetDependencies(ezString s)
   m_FileDependencies.Clear();
 
   ezStringBuilder sTemp = s;
+  sTemp.MakeCleanPath();
   sTemp.Split(false, m_FileDependencies, ";");
 }
 

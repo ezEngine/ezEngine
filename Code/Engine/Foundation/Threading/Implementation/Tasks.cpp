@@ -11,8 +11,6 @@ ezTask::ezTask()
   m_bIsFinished = true;
   m_bProfilingIDGenerated = false; 
   m_sTaskName = "Unnamed Task";
-  m_OnTaskFinished = nullptr;
-  m_pCallbackPassThrough = nullptr;
 }
 
 void ezTask::Reset()
@@ -28,10 +26,9 @@ void ezTask::SetTaskName(const char* szName)
   m_bProfilingIDGenerated = false;
 }
 
-void ezTask::SetOnTaskFinished(OnTaskFinished Callback, void* pPassThrough)
+void ezTask::SetOnTaskFinished(OnTaskFinished Callback)
 {
   m_OnTaskFinished = Callback;
-  m_pCallbackPassThrough = pPassThrough;
 }
 
 void ezTask::Run() 
@@ -68,8 +65,8 @@ const ezProfilingId& ezTask::CreateProfilingID()
 void ezTaskSystem::TaskHasFinished(ezTask* pTask, ezTaskGroup* pGroup)
 {
   // this might deallocate the task, make sure not to reference it later anymore
-  if (pTask && pTask->m_OnTaskFinished)
-    pTask->m_OnTaskFinished(pTask, pTask->m_pCallbackPassThrough);
+  if (pTask && pTask->m_OnTaskFinished.IsValid())
+    pTask->m_OnTaskFinished(pTask);
 
   if (pGroup->m_iRemainingTasks.Decrement() == 0)
   {
@@ -85,8 +82,8 @@ void ezTaskSystem::TaskHasFinished(ezTask* pTask, ezTaskGroup* pGroup)
       }
     }
 
-    if (pGroup->m_OnFinishedCallback)
-      pGroup->m_OnFinishedCallback(pGroup->m_pCallbackPassThrough);
+    if (pGroup->m_OnFinishedCallback.IsValid())
+      pGroup->m_OnFinishedCallback();
 
     // set this task group to be finished and available for reuse
     pGroup->m_uiGroupCounter += 2;

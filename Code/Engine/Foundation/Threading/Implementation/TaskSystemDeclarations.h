@@ -8,6 +8,7 @@
 #include <Foundation/Strings/StringBuilder.h>
 #include <Foundation/Threading/ThreadSignal.h>
 #include <Foundation/Time/Time.h>
+#include <Foundation/Types/Delegate.h>
 
 
 class ezTaskGroup;
@@ -133,7 +134,7 @@ class ezTaskGroup
 {
 public:
   /// \brief The function type to use when one wants to get informed when a task group has been finished.
-  typedef void(*OnTaskGroupFinished)(void* pPassThrough);
+  typedef ezDelegate<void ()> OnTaskGroupFinished;
 
 private:
   friend class ezTaskSystem;
@@ -150,6 +151,5 @@ private:
   ezAtomicInteger32 m_iRemainingTasks;
   ezTaskPriority::Enum m_Priority;
   OnTaskGroupFinished m_OnFinishedCallback;
-  void* m_pCallbackPassThrough;
 };
 

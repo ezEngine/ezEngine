@@ -7,6 +7,7 @@
 #include <Foundation/Containers/HashTable.h>
 #include <Foundation/Time/Timestamp.h>
 #include <Foundation/Threading/Mutex.h>
+#include <Foundation/Threading/TaskSystem.h>
 
 class ezHashingTask;
 class ezTask;
@@ -18,10 +19,21 @@ public:
   ~ezAssetCurator();
   static ezAssetCurator* GetInstance() { return s_pInstance; }
 
-  struct AssetInfoCache
+  struct AssetInfo
   {
-    AssetInfoCache() : m_pManager(nullptr) {} 
+    enum class State
+    {
+      New,
+      Default,
+      ToBeDeleted
+    };
 
+    AssetInfo() : m_pManager(nullptr) 
+    {
+      m_State = State::New;
+    } 
+
+    State m_State;
     ezDocumentManagerBase* m_pManager;
     ezString m_sPath;
     ezAssetDocumentInfo m_Info;
@@ -30,8 +42,8 @@ public:
   void CheckFileSystem();
   void WriteAssetTables();
 
-  const AssetInfoCache* GetAssetInfo(const ezUuid& assetGuid) const;
-  const ezHashTable<ezUuid, AssetInfoCache*>& GetKnownAssets() const;
+  const AssetInfo* GetAssetInfo(const ezUuid& assetGuid) const;
+  const ezHashTable<ezUuid, AssetInfo*>& GetKnownAssets() const;
 
   // TODO: Background filesystem watcher and main thread update tick to add background info to main data
   // TODO: Hash changed in different thread
@@ -48,7 +60,7 @@ public:
     };
 
     ezUuid m_AssetGuid;
-    AssetInfoCache* m_pInfo;
+    AssetInfo* m_pInfo;
     Type m_Type;
   };
 
@@ -87,22 +99,28 @@ private:
   void QueueFilesForHashing();
   void QueueFileForHashing(const ezString& sFile);
 
-  AssetInfoCache* UpdateAssetInfo(const char* szAbsFilePath, FileStatus& stat);
+  static ezResult UpdateAssetInfo(const char* szAbsFilePath, ezAssetCurator::FileStatus& stat, ezAssetCurator::AssetInfo& assetInfo);
 
 private:
+  bool m_bActive;
   ezSet<ezUuid> m_NeedsCheck;
   ezSet<ezUuid> m_NeedsTransform;
   ezSet<ezUuid> m_Done;
 
-  ezHashTable<ezUuid, AssetInfoCache*> m_KnownAssets;
-  ezMap<ezString, FileStatus> m_ReferencedFiles;
-  ezSet<ezString> m_FileHashingQueue;
+  ezHashTable<ezUuid, AssetInfo*> m_KnownAssets;
+  ezMap<ezString, FileStatus, ezCompareString_NoCase<ezString> > m_ReferencedFiles;
+
+  ezMap<ezString, FileStatus> m_FileHashingQueue;
 
 private:
   friend class ezHashingTask;
 
-  ezString GetNextFileToHash();
-  static void OnHashingTaskFinished(ezTask* pTask, void* pPassThrough);
+  static ezUInt64 HashFile(ezStreamReaderBase& InputStream, ezStreamWriterBase* pPassThroughStream);
+  static void ReadAssetDocumentInfo(ezAssetDocumentInfo* pInfo, ezStreamReaderBase& stream);
+
+  bool GetNextFileToHash(ezStringBuilder& sFile, FileStatus& status);
+  void OnHashingTaskFinished(ezTask* pTask);
+
   void RunNextHashingTask();
 
   ezMutex m_HashingMutex;
@@ -110,4 +128,19 @@ private:
 
 private:
   static ezAssetCurator* s_pInstance;
+};
+
+class ezHashingTask : public ezTask
+{
+public:
+  ezHashingTask();
+
+  ezStringBuilder m_sFileToHash;
+  ezResult m_Result;
+
+  ezAssetCurator::FileStatus m_FileStatus;
+  ezAssetCurator::AssetInfo m_AssetInfo;
+
+private:
+  virtual void Execute() override;
 };

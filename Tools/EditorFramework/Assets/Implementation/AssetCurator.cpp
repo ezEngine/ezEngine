@@ -6,6 +6,7 @@
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/IO/MemoryStream.h>
+#include <Foundation/Threading/TaskSystem.h>
 #include <Foundation/Algorithm/Hashing.h>
 #include <ToolsFoundation/Serialization/DocumentJSONReader.h>
 #include <ToolsFoundation/Serialization/SerializedTypeAccessorObject.h>
@@ -16,6 +17,7 @@ ezAssetCurator* ezAssetCurator::s_pInstance = nullptr;
 
 ezAssetCurator::ezAssetCurator()
 {
+  m_bActive = false;
   s_pInstance = this;
   ezDocumentManagerBase::s_Events.AddEventHandler(ezMakeDelegate(&ezAssetCurator::DocumentManagerEventHandler, this));
   ezToolsProject::s_Events.AddEventHandler(ezMakeDelegate(&ezAssetCurator::ProjectEventHandler, this));
@@ -75,6 +77,7 @@ void ezAssetCurator::IterateDataDirectory(const char* szDataDir, const ezSet<ezS
 
     sPath = iterator.GetCurrentPath();
     sPath.AppendPath(iterator.GetStats().m_sFileName);
+    sPath.MakeCleanPath();
 
     auto& RefFile = m_ReferencedFiles[sPath];
     RefFile.m_Status = FileStatus::Status::Valid;
@@ -91,7 +94,36 @@ void ezAssetCurator::IterateDataDirectory(const char* szDataDir, const ezSet<ezS
     if (RefFile.m_AssetGuid.IsValid() && RefFile.m_uiHash != 0)
       continue;
 
-    UpdateAssetInfo(sPath, RefFile);
+    // Find Asset Info
+    AssetInfo* pAssetInfo = nullptr;
+    ezUuid oldGuid = RefFile.m_AssetGuid;
+    bool bNew = false;
+    if (RefFile.m_AssetGuid.IsValid())
+    {
+      EZ_VERIFY(m_KnownAssets.TryGetValue(RefFile.m_AssetGuid, pAssetInfo), "guid set in file-status but no asset is actually known under that guid");
+    }
+    else
+    {
+      bNew = true;
+      pAssetInfo = EZ_DEFAULT_NEW(AssetInfo);
+    }
+
+    // Update
+    UpdateAssetInfo(sPath, RefFile, *pAssetInfo); // ignore return value
+
+    if (bNew)
+    {
+      EZ_ASSERT_DEV(pAssetInfo->m_Info.m_DocumentID.IsValid(), "Asset header read for '%s', but its GUID is invalid! Corrupted document?", sPath.GetData());
+      m_KnownAssets[pAssetInfo->m_Info.m_DocumentID] = pAssetInfo;
+    }
+    else
+    {
+      if (oldGuid != RefFile.m_AssetGuid)
+      {
+        m_KnownAssets.Remove(oldGuid);
+        m_KnownAssets.Insert(RefFile.m_AssetGuid, pAssetInfo);
+      }
+    }
   }
   while (iterator.Next().Succeeded());
 }
@@ -106,13 +138,13 @@ void ezAssetCurator::SetAllAssetStatusUnknown()
 
 void ezAssetCurator::RemoveStaleFileInfos()
 {
-  for (auto it = m_ReferencedFiles.GetIterator(); it.IsValid(); )
+  for (auto it = m_ReferencedFiles.GetIterator(); it.IsValid();)
   {
     if (it.Value().m_Status == FileStatus::Status::Unknown)
     {
       if (it.Value().m_AssetGuid.IsValid())
       {
-        AssetInfoCache* pCache = m_KnownAssets[it.Value().m_AssetGuid];
+        AssetInfo* pCache = m_KnownAssets[it.Value().m_AssetGuid];
 
         if (it.Key() == pCache->m_sPath)
         {
@@ -129,16 +161,30 @@ void ezAssetCurator::RemoveStaleFileInfos()
 
 void ezAssetCurator::ClearCache()
 {
-  m_ReferencedFiles.Clear();
-
-  for (auto it = m_KnownAssets.GetIterator(); it.IsValid(); ++it)
   {
-    EZ_DEFAULT_DELETE(it.Value());
+    ezLock<ezMutex> ml(m_HashingMutex);
+
+    m_bActive = false;
+    m_ReferencedFiles.Clear();
+    m_FileHashingQueue.Clear();
+
+    for (auto it = m_KnownAssets.GetIterator(); it.IsValid(); ++it)
+    {
+      EZ_DEFAULT_DELETE(it.Value());
+    }
+    m_KnownAssets.Clear();
+    m_NeedsCheck.Clear();
+    m_NeedsTransform.Clear();
+    m_Done.Clear();
   }
-  m_KnownAssets.Clear();
-  m_NeedsCheck.Clear();
-  m_NeedsTransform.Clear();
-  m_Done.Clear();
+
+  if (m_pHashingTask)
+  {
+    ezTaskSystem::WaitForTask((ezTask*) m_pHashingTask);
+
+    ezLock<ezMutex> ml(m_HashingMutex);
+    EZ_DEFAULT_DELETE(m_pHashingTask);
+  }
 
   // Broadcast reset.
   {
@@ -151,6 +197,9 @@ void ezAssetCurator::ClearCache()
 
 void ezAssetCurator::CheckFileSystem()
 {
+  ezLock<ezMutex> ml(m_HashingMutex);
+
+  m_bActive = true;
   ezSet<ezString> validExtensions;
   BuildFileExtensionSet(validExtensions);
   SetAllAssetStatusUnknown();
@@ -178,16 +227,40 @@ void ezAssetCurator::WriteAssetTables()
 {
 }
 
-const ezAssetCurator::AssetInfoCache* ezAssetCurator::GetAssetInfo(const ezUuid& assetGuid) const
+const ezAssetCurator::AssetInfo* ezAssetCurator::GetAssetInfo(const ezUuid& assetGuid) const
 {
-  AssetInfoCache* pAssetInfo = nullptr;
+  AssetInfo* pAssetInfo = nullptr;
   if (m_KnownAssets.TryGetValue(assetGuid, pAssetInfo))
     return pAssetInfo;
 
   return nullptr;
 }
 
-ezAssetCurator::AssetInfoCache* ezAssetCurator::UpdateAssetInfo(const char* szAbsFilePath, ezAssetCurator::FileStatus& stat)
+void ezAssetCurator::ReadAssetDocumentInfo(ezAssetDocumentInfo* pInfo, ezStreamReaderBase& stream)
+{
+  ezDocumentJSONReader reader(&stream);
+
+  if (reader.OpenGroup("Header"))
+  {
+    ezUuid objectGuid;
+    ezStringBuilder sType;
+    ezUuid parentGuid;
+    while (reader.PeekNextObject(objectGuid, sType, parentGuid))
+    {
+      if (sType == pInfo->GetDynamicRTTI()->GetTypeName())
+      {
+        ezReflectedTypeHandle hType = ezReflectedTypeManager::GetTypeHandleByName(pInfo->GetDynamicRTTI()->GetTypeName());
+        EZ_ASSERT_DEV(!hType.IsInvalidated(), "Need to register ezDocumentInfo at the ezReflectedTypeManager first!");
+
+        ezReflectedTypeDirectAccessor acc(pInfo);
+        ezSerializedTypeAccessorObjectReader objectReader(&acc);
+        reader.ReadObject(objectReader);
+      }
+    }
+  }
+}
+
+ezResult ezAssetCurator::UpdateAssetInfo(const char* szAbsFilePath, ezAssetCurator::FileStatus& stat, ezAssetCurator::AssetInfo& assetInfo)
 {
   ezFileReader file;
   if (file.Open(szAbsFilePath) == EZ_FAILURE)
@@ -197,25 +270,25 @@ ezAssetCurator::AssetInfoCache* ezAssetCurator::UpdateAssetInfo(const char* szAb
     stat.m_Status = FileStatus::Status::FileLocked;
 
     ezLog::Error("Failed to open asset file '%s'", szAbsFilePath);
-    return nullptr;
+    return EZ_FAILURE;
   }
 
-  AssetInfoCache* pAssetInfo = nullptr;
-
-  bool bNew = false;
-  if (stat.m_AssetGuid.IsValid())
+  // Update time stamp
   {
-    EZ_VERIFY(m_KnownAssets.TryGetValue(stat.m_AssetGuid, pAssetInfo), "guid set in filestatus but no asset is actually known under that guid");
+    ezFileStats fs;
+    if (ezOSFile::GetFileStats(file.GetFilePathAbsolute(), fs).Failed())
+      return EZ_FAILURE;
+
+    stat.m_Timestamp = fs.m_LastModificationTime;
   }
-  else
+
+  assetInfo.m_sPath = szAbsFilePath;
+  if (assetInfo.m_State == AssetInfo::State::ToBeDeleted)
   {
-    bNew = true;
-    pAssetInfo = EZ_DEFAULT_NEW(AssetInfoCache);
+    assetInfo.m_State = AssetInfo::State::New;
   }
 
-  pAssetInfo->m_sPath = szAbsFilePath;
-
-  if (ezDocumentManagerBase::FindDocumentTypeFromPath(szAbsFilePath, false, pAssetInfo->m_pManager).Failed())
+  if (assetInfo.m_pManager == nullptr && ezDocumentManagerBase::FindDocumentTypeFromPath(szAbsFilePath, false, assetInfo.m_pManager).Failed())
   {
     EZ_REPORT_FAILURE("Invalid asset setup");
   }
@@ -224,58 +297,14 @@ ezAssetCurator::AssetInfoCache* ezAssetCurator::UpdateAssetInfo(const char* szAb
   ezMemoryStreamReader MemReader(&storage);
   ezMemoryStreamWriter MemWriter(&storage);
 
+  stat.m_uiHash = ezAssetCurator::HashFile(file, &MemWriter);
+  file.Close();
 
-  {
-    ezUInt8 uiCache[1024 * 10];
-    stat.m_uiHash = 0;
-    
-    while (true)
-    {
-      ezUInt64 uiRead = file.ReadBytes(uiCache, EZ_ARRAY_SIZE(uiCache));
-
-      if (uiRead == 0)
-        break;
-
-      stat.m_uiHash = ezHashing::MurmurHash64(uiCache, (size_t) uiRead, stat.m_uiHash);
-
-      MemWriter.WriteBytes(uiCache, uiRead);
-    }
-
-    file.Close();
-  }
-
-
-  ezDocumentJSONReader reader(&MemReader);
-
-  if (reader.OpenGroup("Header"))
-  {
-    ezUuid objectGuid;
-    ezStringBuilder sType;
-    ezUuid parentGuid;
-    while (reader.PeekNextObject(objectGuid, sType, parentGuid))
-    {
-      if (sType == pAssetInfo->m_Info.GetDynamicRTTI()->GetTypeName())
-      {
-        ezReflectedTypeHandle hType = ezReflectedTypeManager::GetTypeHandleByName(pAssetInfo->m_Info.GetDynamicRTTI()->GetTypeName());
-        EZ_ASSERT_DEV(!hType.IsInvalidated(), "Need to register ezDocumentInfo at the ezReflectedTypeManager first!");
-
-        ezReflectedTypeDirectAccessor acc(&pAssetInfo->m_Info);
-        ezSerializedTypeAccessorObjectReader objectReader(&acc);
-        reader.ReadObject(objectReader);
-      }
-    }
-  }
-
-  if (bNew)
-  {
-    EZ_ASSERT_DEV(pAssetInfo->m_Info.m_DocumentID.IsValid(), "Asset header read for '%s', but its GUID is invalid! Corrupted document?", szAbsFilePath);
-    m_KnownAssets[pAssetInfo->m_Info.m_DocumentID] = pAssetInfo;
-  }
- 
-  return pAssetInfo;
+  ReadAssetDocumentInfo(&assetInfo.m_Info, MemReader);
+  return EZ_SUCCESS;
 }
 
-const ezHashTable<ezUuid, ezAssetCurator::AssetInfoCache*>& ezAssetCurator::GetKnownAssets() const
+const ezHashTable<ezUuid, ezAssetCurator::AssetInfo*>& ezAssetCurator::GetKnownAssets() const
 {
   return m_KnownAssets;
 }
