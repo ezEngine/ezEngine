@@ -3,6 +3,7 @@
 #include <ToolsFoundation/Reflection/ReflectedTypeManager.h>
 #include <ToolsFoundation/Reflection/ReflectedTypeStorageAccessor.h>
 #include <ToolsFoundation/Reflection/ToolsReflectionUtils.h>
+#include <ToolsFoundation/Document/Document.h>
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/Logging/Log.h>
 
@@ -172,7 +173,7 @@ void ezReflectedTypeStorageManager::Startup()
 
   ezToolsReflectionUtils::RegisterType(ezGetStaticRTTI<ezEnumBase>());
   ezToolsReflectionUtils::RegisterType(ezGetStaticRTTI<ezBitflagsBase>());
-  ezToolsReflectionUtils::RegisterType(ezRTTI::FindTypeByName("ezDocumentInfo"));
+  ezToolsReflectionUtils::RegisterType(ezGetStaticRTTI<ezDocumentInfo>());
 }
 
 void ezReflectedTypeStorageManager::Shutdown()
