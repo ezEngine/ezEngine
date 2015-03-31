@@ -186,6 +186,26 @@ void ezEditorApp::CloseProject()
   QMetaObject::invokeMethod(this, "SlotQueuedCloseProject", Qt::ConnectionType::QueuedConnection);
 }
 
+void ezEditorApp::OpenProject(const char* szProject)
+{
+  QMetaObject::invokeMethod(this, "SlotQueuedOpenProject", Qt::ConnectionType::QueuedConnection,  Q_ARG(QString, szProject));
+}
+
+void ezEditorApp::OpenDocument(const char* szDocument)
+{
+  QMetaObject::invokeMethod(this, "SlotQueuedOpenDocument", Qt::ConnectionType::QueuedConnection,  Q_ARG(QString, szDocument));
+}
+
+void ezEditorApp::SlotQueuedOpenProject(QString sProject)
+{
+  ezContainerWindow::CreateOrOpenProject(false, sProject.toUtf8().data());
+}
+
+void ezEditorApp::SlotQueuedOpenDocument(QString sProject)
+{
+  ezContainerWindow::CreateOrOpenDocument(false, sProject.toUtf8().data());
+}
+
 void ezEditorApp::SlotQueuedCloseProject()
 {
   ezToolsProject::CloseProject();

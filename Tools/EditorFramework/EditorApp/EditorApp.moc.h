@@ -86,10 +86,14 @@ public:
   void ShowSettingsDocument();
 
   void CloseProject();
+  void OpenProject(const char* szProject);
+  void OpenDocument(const char* szDocument);
 
 private slots:
   void SlotTimedUpdate();
   void SlotQueuedCloseProject();
+  void SlotQueuedOpenProject(QString sProject);
+  void SlotQueuedOpenDocument(QString sProject);
 
 private:
   ezSettings& GetSettings(ezMap<ezString, ezSettings>& SettingsMap, const char* szPlugin, const char* szSearchPath);

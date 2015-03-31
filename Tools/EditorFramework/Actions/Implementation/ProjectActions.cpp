@@ -126,7 +126,7 @@ void ezRecentDocumentsMenuAction::GetEntries(ezHybridArray<std::pair<ezString, e
 
 void ezRecentDocumentsMenuAction::Execute(const ezVariant& value)
 {
-  ezContainerWindow::CreateOrOpenDocument(false, value.ConvertTo<ezString>());
+  ezEditorApp::GetInstance()->OpenDocument(value.ConvertTo<ezString>());
 }
 
 
@@ -156,7 +156,7 @@ void ezRecentProjectsMenuAction::GetEntries(ezHybridArray<std::pair<ezString, ez
 
 void ezRecentProjectsMenuAction::Execute(const ezVariant& value)
 {
-  ezContainerWindow::CreateOrOpenProject(false, value.ConvertTo<ezString>());
+  ezEditorApp::GetInstance()->OpenProject(value.ConvertTo<ezString>());
 }
 
 ////////////////////////////////////////////////////////////////////////
