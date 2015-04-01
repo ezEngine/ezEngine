@@ -1,6 +1,8 @@
 #include <PCH.h>
 #include <EditorFramework/Settings/SettingsTab.moc.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
+#include <EditorFramework/Dialogs/DataDirsDlg.moc.h>
+#include <EditorFramework/Dialogs/PluginDlg.moc.h>
 #include <GuiFoundation/ActionViews/MenuBarActionMapView.moc.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 
@@ -34,16 +36,12 @@ ezSettingsTab::ezSettingsTab() : ezDocumentWindow("Settings")
 
   g_pInstance = this;
   setupUi(centralWidget());
-
-  ezStringBuilder sTitle;
-  sTitle.Format("<html><head/><body><p><span style=\" font-size:18pt; font-weight:600;\">%s</span></p></body></html>", ezUIServices::GetApplicationName());
-  LabelAppName->setText(QString::fromUtf8(sTitle.GetData()));
+  QMetaObject::connectSlotsByName(this);
 
   m_pSettingsGrid = new ezSimplePropertyGridWidget(this);
   GroupSettings->layout()->addWidget(m_pSettingsGrid);
 
   EZ_VERIFY(connect(m_pSettingsGrid, SIGNAL(value_changed()), this, SLOT(SlotSettingsChanged())) != nullptr, "signal/slot connection failed");
-  EZ_VERIFY(connect(ButtonPluginConfig, SIGNAL(clicked()), this, SLOT(SlotButtonPluginConfig())) != nullptr, "signal/slot connection failed");
   EZ_VERIFY(connect(ComboSettingsDomain, SIGNAL(currentIndexChanged(int)), this, SLOT(SlotComboSettingsDomainIndexChanged(int))) != nullptr, "signal/slot connection failed");
 
   ezPlugin::s_PluginEvents.AddEventHandler(ezMakeDelegate(&ezSettingsTab::PluginEventHandler, this));
@@ -106,6 +104,8 @@ void ezSettingsTab::DocumentManagerEventHandler(const ezDocumentManagerBase::Eve
 void ezSettingsTab::UpdateSettings()
 {
   ezStringBuilder sTemp;
+
+  GroupProject->setEnabled(ezToolsProject::IsProjectOpen());
 
   ComboSettingsDomain->blockSignals(true);
   ComboSettingsDomain->clear();
@@ -195,9 +195,10 @@ void ezSettingsTab::SlotSettingsChanged()
 {
 }
 
-void ezSettingsTab::SlotButtonPluginConfig()
+void ezSettingsTab::on_ButtonPluginConfig_clicked()
 {
-  ezEditorApp::GetInstance()->ShowPluginConfigDialog();
+  PluginDlg dlg(nullptr);
+  dlg.exec();
 }
 
 void ezSettingsTab::SlotComboSettingsDomainIndexChanged(int iIndex)
@@ -217,3 +218,13 @@ void ezSettingsTab::SlotComboSettingsDomainIndexChanged(int iIndex)
     ComboSettingsDomain->itemText(iIndex);
   }
 }
+
+void ezSettingsTab::on_ButtonDataDirConfig_clicked()
+{
+  DataDirsDlg dlg(this, ezEditorApp::GetInstance()->GetFileSystemConfig());
+  if (dlg.exec() == QDialog::Accepted)
+  {
+    ezEditorApp::GetInstance()->SetFileSystemConfig(dlg.GetResult());
+  }
+}
+

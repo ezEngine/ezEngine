@@ -121,6 +121,9 @@ void ezEditorApp::SaveSettings()
 
   if (ezToolsProject::IsProjectOpen())
   {
+    m_FileSystemConfig.Save();
+    m_EnginePluginConfig.Save();
+
     StoreSettings(s_ProjectSettings, GetDocumentDataFolder(ezToolsProject::GetInstance()->GetProjectPath()));
   }
 }

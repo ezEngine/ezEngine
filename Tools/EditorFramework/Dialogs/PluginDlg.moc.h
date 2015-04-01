@@ -14,8 +14,8 @@ public:
 
 
 private slots:
-  virtual void on_ButtonOK_clicked();
-  virtual void on_ButtonCancel_clicked();
+  void on_ButtonOK_clicked();
+  void on_ButtonCancel_clicked();
 
 private:
   void FillPluginList();

@@ -1,5 +1,9 @@
 <RCC>
   <qresource prefix="GuiFoundation">
+    <file>Icons/DataDirAdd16.png</file>
+    <file>Icons/Delete16.png</file>
+    <file>Icons/MoveDown16.png</file>
+    <file>Icons/MoveUp16.png</file>
     <file>Icons/CheckFileSystem16.png</file>
     <file>Icons/TransformAssets16.png</file>
     <file>Icons/WriteLookupTable16.png</file>

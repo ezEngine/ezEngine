@@ -19,6 +19,8 @@ ezResult ezApplicationPluginConfig::Save()
   ezStandardJSONWriter json;
   json.SetOutputStream(&file);
 
+  json.BeginObject();
+
   json.BeginArray("Plugins");
 
   for (ezUInt32 i = 0; i < m_Plugins.GetCount(); ++i)
@@ -31,6 +33,8 @@ ezResult ezApplicationPluginConfig::Save()
   }
 
   json.EndArray();
+
+  json.EndObject();
 
   return EZ_SUCCESS;
 }

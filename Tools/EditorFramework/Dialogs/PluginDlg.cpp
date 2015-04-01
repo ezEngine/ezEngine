@@ -5,12 +5,6 @@
 #include <Foundation/IO/OSFile.h>
 #include <QMessageBox>
 
-void ezEditorApp::ShowPluginConfigDialog()
-{
-  PluginDlg dlg(nullptr);
-  dlg.exec();
-}
-
 PluginDlg::PluginDlg(QWidget* parent) : QDialog(parent)
 {
   setupUi(this);

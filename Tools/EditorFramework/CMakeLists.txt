@@ -29,6 +29,7 @@ BUILD_REQUIRES_QT()
 # Add all the libraries that this project needs to link against here
 SET (LINK_LIBRARIES
   Foundation
+  Core
   ToolsFoundation
   RendererFoundation
   RendererCore

@@ -18,6 +18,8 @@ ezResult ezApplicationFileSystemConfig::Save()
   ezStandardJSONWriter json;
   json.SetOutputStream(&file);
 
+  json.BeginObject();
+
   json.BeginArray("DataDirectories");
 
   for (ezUInt32 i = 0; i < m_DataDirs.GetCount(); ++i)
@@ -31,6 +33,8 @@ ezResult ezApplicationFileSystemConfig::Save()
   }
 
   json.EndArray();
+
+  json.EndObject();
 
   return EZ_SUCCESS;
 }

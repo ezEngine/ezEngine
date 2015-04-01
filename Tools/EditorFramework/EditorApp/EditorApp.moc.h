@@ -11,6 +11,8 @@
 #include <QApplication>
 #include <Foundation/Logging/HTMLWriter.h>
 #include <EditorFramework/Assets/AssetCurator.h>
+#include <Core/Application/Config/FileSystemConfig.h>
+#include <Core/Application/Config/PluginConfig.h>
 
 class QMainWindow;
 class QWidget;
@@ -59,8 +61,6 @@ public:
   void AddRestartRequiredReason(const char* szReason) { s_RestartRequiredReasons.Insert(szReason); }
   const ezSet<ezString>& GetRestartRequiredReasons() { return s_RestartRequiredReasons; }
 
-  void ShowPluginConfigDialog();
-
   void RegisterPluginNameForSettings(const char* szPluginName);
   const ezSet<ezString>& GetRegisteredPluginNamesForSettings() { return s_SettingsPluginNames; }
   ezSettings& GetEditorSettings(const char* szPluginName = "-Main-");
@@ -88,6 +88,13 @@ public:
   void CloseProject();
   void OpenProject(const char* szProject);
   void OpenDocument(const char* szDocument);
+
+  const ezApplicationFileSystemConfig& GetFileSystemConfig() const { return m_FileSystemConfig; }
+  const ezApplicationPluginConfig& GetEnginePluginConfig() const { return m_EnginePluginConfig; }
+
+  void SetFileSystemConfig(const ezApplicationFileSystemConfig& cfg) { m_FileSystemConfig = cfg; }
+  void SetEnginePluginConfig(const ezApplicationPluginConfig& cfg) { m_EnginePluginConfig = cfg; }
+
 
 private slots:
   void SlotTimedUpdate();
@@ -137,4 +144,7 @@ private:
   ezLogWriter::HTML m_LogHTML;
 
   ezAssetCurator m_AssetCurator;
+
+  ezApplicationFileSystemConfig m_FileSystemConfig;
+  ezApplicationPluginConfig m_EnginePluginConfig;
 };

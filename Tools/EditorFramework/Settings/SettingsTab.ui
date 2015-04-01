@@ -13,162 +13,153 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout_3">
+  <layout class="QVBoxLayout" name="verticalLayout_5">
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_2">
-     <item>
-      <spacer name="horizontalSpacer_3">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>37</width>
-         <height>17</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item>
-      <widget class="QLabel" name="LabelAppName">
-       <property name="text">
-        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:18pt; font-weight:600;&quot;&gt;ezEditor&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <spacer name="horizontalSpacer_2">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>37</width>
-         <height>17</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-    </layout>
-   </item>
-   <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_3">
-     <item>
-      <widget class="QGroupBox" name="GroupSettings">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-         <horstretch>1</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="title">
-        <string>Settings</string>
-       </property>
-       <layout class="QVBoxLayout" name="verticalLayout">
-        <item>
-         <layout class="QHBoxLayout" name="horizontalLayout">
+    <widget class="QSplitter" name="splitter">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="childrenCollapsible">
+      <bool>false</bool>
+     </property>
+     <widget class="QWidget" name="">
+      <layout class="QVBoxLayout" name="verticalLayout_3">
+       <item>
+        <widget class="QGroupBox" name="GroupEditor">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+           <horstretch>1</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="title">
+          <string>Editor Configuration</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_2">
           <item>
-           <spacer name="horizontalSpacer_4">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item>
-           <widget class="QComboBox" name="ComboSettingsDomain">
-            <property name="minimumSize">
-             <size>
-              <width>120</width>
-              <height>0</height>
-             </size>
-            </property>
-            <property name="maxVisibleItems">
-             <number>20</number>
-            </property>
-           </widget>
+           <layout class="QHBoxLayout" name="horizontalLayout_4">
+            <item>
+             <spacer name="horizontalSpacer">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QPushButton" name="ButtonPluginConfig">
+              <property name="text">
+               <string>Configure Editor Plugins</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </item>
          </layout>
-        </item>
-       </layout>
-      </widget>
-     </item>
-     <item>
-      <widget class="QGroupBox" name="groupBox">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-         <horstretch>1</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="title">
-        <string/>
-       </property>
-       <layout class="QHBoxLayout" name="horizontalLayout_5">
-        <item>
-         <widget class="ezAssetBrowser" name="widget" native="true"/>
-        </item>
-       </layout>
-      </widget>
-     </item>
-     <item>
-      <widget class="QGroupBox" name="groupBox_2">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-         <horstretch>1</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
-       <property name="title">
-        <string/>
-       </property>
-       <layout class="QVBoxLayout" name="verticalLayout_2">
-        <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_4">
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="GroupProject">
+         <property name="title">
+          <string>Project Configuration</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_4">
           <item>
-           <spacer name="horizontalSpacer">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
-          </item>
-          <item>
-           <widget class="QPushButton" name="ButtonPluginConfig">
-            <property name="text">
-             <string>Configure Editor Plugins</string>
-            </property>
-           </widget>
+           <layout class="QHBoxLayout" name="horizontalLayout_6">
+            <item>
+             <spacer name="horizontalSpacer_5">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QPushButton" name="ButtonDataDirConfig">
+              <property name="text">
+               <string>Configure Data Directories</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
           </item>
          </layout>
-        </item>
-        <item>
-         <spacer name="verticalSpacer_2">
-          <property name="orientation">
-           <enum>Qt::Vertical</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>186</width>
-            <height>640</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-       </layout>
-      </widget>
-     </item>
-    </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="GroupSettings">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+           <horstretch>1</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="title">
+          <string>Settings</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout">
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout">
+            <item>
+             <spacer name="horizontalSpacer_4">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>40</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item>
+             <widget class="QComboBox" name="ComboSettingsDomain">
+              <property name="minimumSize">
+               <size>
+                <width>120</width>
+                <height>0</height>
+               </size>
+              </property>
+              <property name="maxVisibleItems">
+               <number>20</number>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QGroupBox" name="groupBox">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+        <horstretch>1</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="title">
+       <string/>
+      </property>
+      <layout class="QHBoxLayout" name="horizontalLayout_5" stretch="0">
+       <item>
+        <widget class="ezAssetBrowser" name="AssetBrowserWidget" native="true"/>
+       </item>
+      </layout>
+     </widget>
+    </widget>
    </item>
   </layout>
  </widget>

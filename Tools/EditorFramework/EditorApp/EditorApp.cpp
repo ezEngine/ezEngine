@@ -199,6 +199,8 @@ void ezEditorApp::OpenDocument(const char* szDocument)
 void ezEditorApp::SlotQueuedOpenProject(QString sProject)
 {
   ezContainerWindow::CreateOrOpenProject(false, sProject.toUtf8().data());
+
+
 }
 
 void ezEditorApp::SlotQueuedOpenDocument(QString sProject)
@@ -372,6 +374,12 @@ void ezEditorApp::ProjectEventHandler(const ezToolsProject::Event& r)
   {
   case ezToolsProject::Event::Type::ProjectOpened:
     {
+      ezStringBuilder sPath = ezToolsProject::GetInstance()->GetProjectPath();
+      sPath.PathParentDirectory();
+
+      ezApplicationConfig::SetProjectDirectory(sPath);
+      m_FileSystemConfig.Load();
+
       ezEditorEngineProcessConnection::GetInstance()->RestartProcess();
       ezEditorEngineProcessConnection::GetInstance()->WaitForMessage(ezGetStaticRTTI<ezProjectReadyMsgToEditor>());
     }
@@ -389,6 +397,8 @@ void ezEditorApp::ProjectEventHandler(const ezToolsProject::Event& r)
 
       // make sure to clear all project settings when a project is closed
       s_ProjectSettings.Clear();
+
+      ezApplicationConfig::SetProjectDirectory("");
     }
     break;
   }

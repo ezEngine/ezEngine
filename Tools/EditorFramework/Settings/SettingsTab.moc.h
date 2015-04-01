@@ -20,8 +20,9 @@ public:
   
 private slots:
   void SlotSettingsChanged();
-  void SlotButtonPluginConfig();
+  void on_ButtonPluginConfig_clicked();
   void SlotComboSettingsDomainIndexChanged(int iIndex);
+  void on_ButtonDataDirConfig_clicked();
 
 private:
   virtual bool InternalCanCloseWindow() override;
