@@ -19,6 +19,9 @@ Compilers:
   * Visual Studio 2013 32 Bit
   * Visual Studio 2013 64 Bit
 
+Dependencies:
+  * Qt5.4.1 (optional)
+ 
 Not supported anymore, but might still work:
   * Visual Studio 2010 32 Bit
   * Visual Studio 2010 64 Bit
@@ -36,8 +39,12 @@ Versions:
 
 Compilers:
   * Makefiles 64 Bit
-  * XCode (GCC / Clang) 64 Bit
+  * XCode 5.1.1 or higher (GCC / Clang) 64 Bit
 
+Dependencies:
+  * XQuartz 2.7.5 or higher
+  * Qt5.4.1 (optional)
+  
 Not Supported (and never will be):
   * 32 Bit builds
 
@@ -51,6 +58,10 @@ Versions:
 Compilers:
   * GCC 4.8 64 Bit
 
+Dependencies:
+  * uuid-dev
+  * Qt5.4.1 (optional)
+  
 Not Supported (and never will be):
   * 32 Bit builds
 
