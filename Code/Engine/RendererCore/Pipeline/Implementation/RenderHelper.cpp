@@ -7,61 +7,45 @@
 #include <RendererCore/Textures/TextureResource.h>
 #include <RendererCore/ConstantBuffers/ConstantBufferResource.h>
 
-ezMap<ezGALContext*, ezRendererCore::ContextState> ezRendererCore::s_ContextState;
-
-// static
-void ezRendererCore::SetMaterialState(ezGALContext* pContext, const ezMaterialResourceHandle& hMaterial)
+void ezRendererCore::SetMaterialState(const ezMaterialResourceHandle& hMaterial)
 {
-  if (pContext == nullptr)
-    pContext = ezGALDevice::GetDefaultDevice()->GetPrimaryContext();
-
   ezResourceLock<ezMaterialResource> pMaterial(hMaterial);
 
   const ezMaterialResourceDescriptor&  md = pMaterial->GetDescriptor();
 
   if (md.m_hBaseMaterial.IsValid())
-    SetMaterialState(pContext, md.m_hBaseMaterial);
+    SetMaterialState(md.m_hBaseMaterial);
 
   if (md.m_hShader.IsValid())
-    ezRendererCore::SetActiveShader(md.m_hShader, pContext);
+    SetActiveShader(md.m_hShader);
 
   for (const auto& pv : md.m_PermutationVars)
   {
-    ezRendererCore::SetShaderPermutationVariable(pv.m_Name, pv.m_Value, pContext);
+    SetShaderPermutationVariable(pv.m_Name, pv.m_Value);
   }
 
   for (const auto& sc : md.m_ShaderConstants)
   {
-    ezRendererCore::SetMaterialParameter(ezTempHashedString(sc.m_NameHash), sc.m_Value);
+    SetMaterialParameter(ezTempHashedString(sc.m_NameHash), sc.m_Value);
   }
 
   for (const auto& tb : md.m_TextureBindings)
   {
-    ezRendererCore::BindTexture(pContext, ezTempHashedString(tb.m_NameHash), tb.m_Value);
+    BindTexture(ezTempHashedString(tb.m_NameHash), tb.m_Value);
   }
 }
 
-ezUInt32 ezRendererCore::RetrieveFailedDrawcalls(ezGALContext* pContext)
+ezUInt32 ezRendererCore::RetrieveFailedDrawcalls()
 {
-  if (pContext == nullptr)
-    pContext = ezGALDevice::GetDefaultDevice()->GetPrimaryContext();
-
-  ContextState& state = s_ContextState[pContext];
-
-  return state.m_uiFailedDrawcalls;
+  return m_ContextState.m_uiFailedDrawcalls;
 }
 
 // static 
-void ezRendererCore::DrawMeshBuffer(ezGALContext* pContext, const ezMeshBufferResourceHandle& hMeshBuffer, ezUInt32 uiPrimitiveCount, ezUInt32 uiFirstPrimitive, ezUInt32 uiInstanceCount)
+void ezRendererCore::DrawMeshBuffer(const ezMeshBufferResourceHandle& hMeshBuffer, ezUInt32 uiPrimitiveCount, ezUInt32 uiFirstPrimitive, ezUInt32 uiInstanceCount)
 {
-  if (pContext == nullptr)
-    pContext = ezGALDevice::GetDefaultDevice()->GetPrimaryContext();
-
-  if (ApplyContextStates(pContext).Failed())
+  if (ApplyContextStates().Failed())
   {
-    ContextState& state = s_ContextState[pContext];
-    state.m_uiFailedDrawcalls++;
-
+    m_ContextState.m_uiFailedDrawcalls++;
     return;
   }
 
@@ -72,58 +56,51 @@ void ezRendererCore::DrawMeshBuffer(ezGALContext* pContext, const ezMeshBufferRe
   uiPrimitiveCount = ezMath::Min(uiPrimitiveCount, pMeshBuffer->GetPrimitiveCount() - uiFirstPrimitive);
   EZ_ASSERT_DEV(uiPrimitiveCount > 0, "Invalid primitive range: number of primitives can't be zero.");
 
-  pContext->SetVertexBuffer(0, pMeshBuffer->GetVertexBuffer());
+  m_pGALContext->SetVertexBuffer(0, pMeshBuffer->GetVertexBuffer());
 
   ezGALBufferHandle hIndexBuffer = pMeshBuffer->GetIndexBuffer();
   if (!hIndexBuffer.IsInvalidated())
-    pContext->SetIndexBuffer(hIndexBuffer);
+    m_pGALContext->SetIndexBuffer(hIndexBuffer);
 
-  pContext->SetPrimitiveTopology(ezGALPrimitiveTopology::Triangles);
+  m_pGALContext->SetPrimitiveTopology(ezGALPrimitiveTopology::Triangles);
   uiPrimitiveCount *= 3;
   uiFirstPrimitive *= 3;
 
   {
-    ContextState& state = s_ContextState[pContext];
-    pContext->SetVertexDeclaration(GetVertexDeclaration(state.m_hActiveGALShader, pMeshBuffer->GetVertexDeclaration()));
+    m_pGALContext->SetVertexDeclaration(GetVertexDeclaration(m_ContextState.m_hActiveGALShader, pMeshBuffer->GetVertexDeclaration()));
   }
 
   if (uiInstanceCount > 1)
   {
     if (!hIndexBuffer.IsInvalidated())
     {
-      pContext->DrawIndexedInstanced(uiPrimitiveCount, uiInstanceCount, uiFirstPrimitive);
+      m_pGALContext->DrawIndexedInstanced(uiPrimitiveCount, uiInstanceCount, uiFirstPrimitive);
     }
     else
     {
-      pContext->DrawInstanced(uiPrimitiveCount, uiInstanceCount, uiFirstPrimitive);
+      m_pGALContext->DrawInstanced(uiPrimitiveCount, uiInstanceCount, uiFirstPrimitive);
     }
   }
   else
   {
     if (!hIndexBuffer.IsInvalidated())
     {
-      pContext->DrawIndexed(uiPrimitiveCount, uiFirstPrimitive);
+      m_pGALContext->DrawIndexed(uiPrimitiveCount, uiFirstPrimitive);
     }
     else
     {
-      pContext->Draw(uiPrimitiveCount, uiFirstPrimitive);
+      m_pGALContext->Draw(uiPrimitiveCount, uiFirstPrimitive);
     }
   }
 }
 
-ezResult ezRendererCore::ApplyContextStates(ezGALContext* pContext, bool bForce)
+ezResult ezRendererCore::ApplyContextStates(bool bForce)
 {
-  if (pContext == nullptr)
-    pContext = ezGALDevice::GetDefaultDevice()->GetPrimaryContext();
-
-  ContextState& state = s_ContextState[pContext];
-
   // make sure the internal state is up to date
-  SetShaderContextState(pContext, state, bForce);
+  SetShaderContextState(bForce);
 
-  if (!state.m_bShaderStateValid)
+  if (!m_ContextState.m_bShaderStateValid)
     return EZ_FAILURE;
-
 
   return EZ_SUCCESS;
 }

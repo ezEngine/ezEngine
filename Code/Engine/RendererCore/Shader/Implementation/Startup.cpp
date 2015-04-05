@@ -15,7 +15,10 @@ void ezRendererCore::OnEngineShutdown()
 {
   ezShaderStageBinary::OnEngineShutdown();
 
-  s_ContextState.Clear();
+  for (auto rc : s_Instances)
+    EZ_DEFAULT_DELETE(rc);
+  
+  s_Instances.Clear();
   s_PermutationHashCache.Clear();
   s_AllowedPermutations.Clear();
   s_hGlobalConstantBuffer.Invalidate();

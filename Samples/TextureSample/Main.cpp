@@ -294,7 +294,7 @@ public:
 
       ezRendererCore::SetMaterialParameter("ViewProjectionMatrix", Proj);
 
-      ezRendererCore::SetMaterialState(pContext, m_hMaterial);
+      ezRendererCore::GetDefaultInstance()->SetMaterialState(m_hMaterial);
 
       ezMat4 mTransform;
       mTransform.SetIdentity();
@@ -327,8 +327,8 @@ public:
           if (g_bForceImmediateLoading)
             ezResourceLock<ezTextureResource> l(hTexture, ezResourceAcquireMode::NoFallback);
 
-          ezRendererCore::BindTexture(pContext, "TexDiffuse", hTexture);
-          ezRendererCore::DrawMeshBuffer(pContext, m_hQuadMeshBuffer);
+          ezRendererCore::GetDefaultInstance()->BindTexture("TexDiffuse", hTexture);
+          ezRendererCore::GetDefaultInstance()->DrawMeshBuffer(m_hQuadMeshBuffer);
         }
       }
 
@@ -340,7 +340,7 @@ public:
     // needs to be called once per frame
     ezResourceManager::PerFrameUpdate();
 
-    const ezUInt32 uiFailedDrawcalls = ezRendererCore::RetrieveFailedDrawcalls();
+    const ezUInt32 uiFailedDrawcalls = ezRendererCore::GetDefaultInstance()->RetrieveFailedDrawcalls();
     if (uiFailedDrawcalls > 0)
     {
       // it would be best to render this on screen

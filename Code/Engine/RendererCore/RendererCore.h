@@ -32,9 +32,9 @@ struct ezShaderBindFlags
   {
     None = 0,                           ///< No flags causes the default shader binding behavior (all render states are applied)
     ForceRebind         = EZ_BIT(0),    ///< Executes shader binding (and state setting), even if the shader hasn't changed. Use this, when the same shader was previously used with custom bound states
-    NoRasterizerState   = EZ_BIT(1),    ///< The rasterizer state that is associated with the shader will not be bound. Use this when you intend to bind a custom rasterizer state.
-    NoDepthStencilState = EZ_BIT(2),    ///< The depth-stencil state that is associated with the shader will not be bound. Use this when you intend to bind a custom depth-stencil state.
-    NoBlendState        = EZ_BIT(3),    ///< The blend state that is associated with the shader will not be bound. Use this when you intend to bind a custom blend state.
+    NoRasterizerState   = EZ_BIT(1),    ///< The rasterizer state that is associated with the shader will not be bound. Use this when you intend to bind a custom rasterizer m_ContextState.
+    NoDepthStencilState = EZ_BIT(2),    ///< The depth-stencil state that is associated with the shader will not be bound. Use this when you intend to bind a custom depth-stencil m_ContextState.
+    NoBlendState        = EZ_BIT(3),    ///< The blend state that is associated with the shader will not be bound. Use this when you intend to bind a custom blend m_ContextState.
     NoStateBinding      = NoRasterizerState | NoDepthStencilState | NoBlendState,
 
     Default = None
@@ -52,56 +52,61 @@ EZ_DECLARE_FLAGS_OPERATORS(ezShaderBindFlags);
 
 class EZ_RENDERERCORE_DLL ezRendererCore
 {
+private:
+  ezRendererCore();
+  ~ezRendererCore();
+  friend class ezMemoryUtils;
+
+  static ezRendererCore* s_DefaultInstance;
+  static ezHybridArray<ezRendererCore*, 4> s_Instances;
+
 public:
-  static void SetMaterialState(ezGALContext* pContext, const ezMaterialResourceHandle& hMaterial);
+  static ezRendererCore* GetDefaultInstance();
+  static ezRendererCore* CreateInstance();
+  static void DestroyInstance(ezRendererCore* pRenderer);
 
-  static void DrawMeshBuffer(ezGALContext* pContext, const ezMeshBufferResourceHandle& hMeshBuffer,
-    ezUInt32 uiPrimitiveCount = 0xFFFFFFFF, ezUInt32 uiFirstPrimitive = 0, ezUInt32 uiInstanceCount = 1);
+  void SetGALContext(ezGALContext* pContext);
+  ezGALContext* GetGALContext() const { return m_pGALContext; }
 
-  static void BindTexture(ezGALContext* pContext, const ezTempHashedString& sSlotName, const ezTextureResourceHandle& hTexture);
-
-  static void BindConstantBuffer(ezGALContext* pContext, const ezTempHashedString& sSlotName, const ezConstantBufferResourceHandle& hConstantBuffer);
-
-  static ezResult ApplyContextStates(ezGALContext* pContext = nullptr, bool bForce = false);
-
-  static void ConfigureShaderSystem(const char* szActivePlatform, bool bEnableRuntimeCompilation, const char* szShaderCacheDirectory = "ShaderCache", const char* szPermVarSubDirectory = "Shaders/PermutationVars");
-
-  static const ezString& GetPermutationVarSubDirectory() { return s_sPermVarSubDir; }
-
-  static const ezString& GetActiveShaderPlatform() { return s_sPlatform; }
-
-  static void SetShaderPermutationVariable(const char* szVariable, const char* szValue, ezGALContext* pContext = nullptr);
-
-  static void LoadShaderPermutationVarConfig(const char* szVariable);
+  // Member Functions
+  void SetShaderPermutationVariable(const char* szVariable, const char* szValue);
+  void BindTexture(const ezTempHashedString& sSlotName, const ezTextureResourceHandle& hTexture);
+  void SetMaterialState(const ezMaterialResourceHandle& hMaterial);
+  void BindConstantBuffer(const ezTempHashedString& sSlotName, const ezConstantBufferResourceHandle& hConstantBuffer);
+  void DrawMeshBuffer(const ezMeshBufferResourceHandle& hMeshBuffer, ezUInt32 uiPrimitiveCount = 0xFFFFFFFF, ezUInt32 uiFirstPrimitive = 0, ezUInt32 uiInstanceCount = 1);
+  ezResult ApplyContextStates(bool bForce = false);
+  ezUInt32 RetrieveFailedDrawcalls();
 
   /// \brief Sets the currently active shader on the given render context. If pContext is null, the state is set for the primary context.
   ///
   /// This function has no effect until the next drawcall on the context.
-  static void SetActiveShader(ezShaderResourceHandle hShader, ezGALContext* pContext = nullptr, ezBitflags<ezShaderBindFlags> flags = ezShaderBindFlags::Default);
+  void SetActiveShader(ezShaderResourceHandle hShader, ezBitflags<ezShaderBindFlags> flags = ezShaderBindFlags::Default);
 
   /// \brief Evaluates the currently active shader program and then returns that.
   /// Can be used to determine the shader that needs to be used to create a vertex declaration.
-  static ezGALShaderHandle GetActiveGALShader(ezGALContext* pContext = nullptr);
-
-  static const ezString& GetShaderCacheDirectory() { return s_ShaderCacheDirectory; }
-
-  static bool IsRuntimeShaderCompilationEnabled() { return s_bEnableRuntimeCompilation; }
-
-  static const ezPermutationGenerator* GetGeneratorForShaderPermutation(ezUInt32 uiPermutationHash);
-
-  static void PreloadShaderPermutations(ezShaderResourceHandle hShader, const ezPermutationGenerator& Generator, ezTime tShouldBeAvailableIn);
-
-  static ezShaderPermutationResourceHandle PreloadSingleShaderPermutation(ezShaderResourceHandle hShader, const ezHybridArray<ezPermutationGenerator::PermutationVar, 16>& UsedPermVars, ezTime tShouldBeAvailableIn);
-
-  static ezUInt32 RetrieveFailedDrawcalls(ezGALContext* pContext = nullptr);
+  ezGALShaderHandle GetActiveGALShader();
 
   template<typename STRUCT>
-  static STRUCT* BeginModifyConstantBuffer(ezConstantBufferResourceHandle hConstantBuffer, ezGALContext* pContext = nullptr)
+  STRUCT* BeginModifyConstantBuffer(ezConstantBufferResourceHandle hConstantBuffer)
   {
-    return reinterpret_cast<STRUCT*>(InternalBeginModifyConstantBuffer(hConstantBuffer, pContext));
+    return reinterpret_cast<STRUCT*>(InternalBeginModifyConstantBuffer(hConstantBuffer));
   }
 
-  static void EndModifyConstantBuffer(ezGALContext* pContext = nullptr);
+  void EndModifyConstantBuffer();
+
+  // Static Functions
+  static void ConfigureShaderSystem(const char* szActivePlatform, bool bEnableRuntimeCompilation, const char* szShaderCacheDirectory = "ShaderCache", const char* szPermVarSubDirectory = "Shaders/PermutationVars");
+  static const ezString& GetPermutationVarSubDirectory() { return s_sPermVarSubDir; }
+  static const ezString& GetActiveShaderPlatform() { return s_sPlatform; }
+  static const ezString& GetShaderCacheDirectory() { return s_ShaderCacheDirectory; }
+  static bool IsRuntimeShaderCompilationEnabled() { return s_bEnableRuntimeCompilation; }
+
+public:
+  
+  static void LoadShaderPermutationVarConfig(const char* szVariable);
+  static const ezPermutationGenerator* GetGeneratorForShaderPermutation(ezUInt32 uiPermutationHash);
+  static void PreloadShaderPermutations(ezShaderResourceHandle hShader, const ezPermutationGenerator& Generator, ezTime tShouldBeAvailableIn);
+  static ezShaderPermutationResourceHandle PreloadSingleShaderPermutation(ezShaderResourceHandle hShader, const ezHybridArray<ezPermutationGenerator::PermutationVar, 16>& UsedPermVars, ezTime tShouldBeAvailableIn);
 
   static GlobalConstants& WriteGlobalConstants()
   {
@@ -196,19 +201,15 @@ private:
     }
   };
 
-  static void SetShaderContextState(ezGALContext* pContext, ContextState& state, bool bForce);
-  static void ApplyTextureBindings(ezGALContext* pContext, ezGALShaderStage::Enum stage, const ezShaderStageBinary* pBinary);
-  static void ApplyConstantBufferBindings(ezGALContext* pContext, const ezShaderStageBinary* pBinary);
   static ezGALVertexDeclarationHandle GetVertexDeclaration(ezGALShaderHandle hShader, const ezVertexDeclarationInfo& decl);
-  static ezUInt8* InternalBeginModifyConstantBuffer(ezConstantBufferResourceHandle hConstantBuffer, ezGALContext* pContext);
-  static void UploadGlobalConstants(ezGALContext* pContext);
+  ezUInt8* InternalBeginModifyConstantBuffer(ezConstantBufferResourceHandle hConstantBuffer);
+  
   static MaterialParam* InternalSetMaterialParameter(const ezTempHashedString& sName, ezShaderMaterialParamCB::MaterialParameter::Type type, ezUInt32 uiMaxArrayElements);
 
   static ezPermutationGenerator s_AllowedPermutations;
   static bool s_bEnableRuntimeCompilation;
   static ezString s_sPlatform;
   static ezString s_sPermVarSubDir;
-  static ezMap<ezGALContext*, ContextState> s_ContextState;
   static ezString s_ShaderCacheDirectory;
   static ezMap<ezUInt32, ezPermutationGenerator> s_PermutationHashCache;
   static ezMap<ShaderVertexDecl, ezGALVertexDeclarationHandle> s_GALVertexDeclarations;
@@ -217,5 +218,15 @@ private:
   static bool s_bGlobalConstantsModified;
   static GlobalConstants s_GlobalConstants;
   static ezConstantBufferResourceHandle s_hGlobalConstantBuffer;
+
+private: // Per Renderer States
+  ezGALContext* m_pGALContext;
+  ContextState m_ContextState;
+
+  // Member Functions
+  void UploadGlobalConstants();
+  void SetShaderContextState(bool bForce);
+  void ApplyTextureBindings(ezGALShaderStage::Enum stage, const ezShaderStageBinary* pBinary);
+  void ApplyConstantBufferBindings(const ezShaderStageBinary* pBinary);
 };
 

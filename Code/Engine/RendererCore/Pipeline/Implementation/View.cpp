@@ -25,13 +25,13 @@ void ezView::ExtractData()
   m_pRenderPipeline->ExtractData(*this);
 }
 
-void ezView::Render(ezGALContext* pContext)
+void ezView::Render(ezRendererCore* pRenderer)
 {
   EZ_ASSERT_DEV(IsValid(), "Cannot render an invalid view");
 
   EZ_PROFILE(m_RenderProfilingID);
 
-  m_pRenderPipeline->Render(*this, pContext);
+  m_pRenderPipeline->Render(*this, pRenderer);
 }
 
 ezResult ezView::ComputePickingRay(float fScreenPosX, float fScreenPosY, ezVec3& out_RayStartPos, ezVec3& out_RayDir)

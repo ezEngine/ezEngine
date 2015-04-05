@@ -9,11 +9,12 @@ class ezView;
 class ezRenderPipeline;
 class ezRenderPipelinePass;
 class ezGALContext;
+class ezRendererCore;
 
 struct ezRenderContext
 {
   const ezView* m_pView;
-  ezGALContext* m_pGALContext;
+  ezRendererCore* m_pRenderer;
 };
 
 class EZ_RENDERERCORE_DLL ezRenderData : public ezReflectedClass

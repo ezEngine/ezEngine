@@ -22,8 +22,6 @@ void ezMeshRenderer::GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>
 
 ezUInt32 ezMeshRenderer::Render(const ezRenderContext& renderContext, ezRenderPipelinePass* pPass, const ezArrayPtr<const ezRenderData*>& renderData)
 {
-  ezGALContext* pContext = renderContext.m_pGALContext;
-
   if (!m_hObjectTransformCB.IsValid())
   {
     /// \todo Not sure ezMeshRenderer should create the PerObject CB, probably this should be centralized somewhere else
@@ -39,7 +37,7 @@ ezUInt32 ezMeshRenderer::Render(const ezRenderContext& renderContext, ezRenderPi
     }
   }
 
-  ezRendererCore::BindConstantBuffer(pContext, "PerObject", m_hObjectTransformCB);
+  renderContext.m_pRenderer->BindConstantBuffer("PerObject", m_hObjectTransformCB);
 
   const ezMat4& ViewProj = renderContext.m_pView->GetViewProjectionMatrix();
   ezMaterialResourceHandle hLastMaterial;
@@ -49,21 +47,21 @@ ezUInt32 ezMeshRenderer::Render(const ezRenderContext& renderContext, ezRenderPi
   { 
     const ezMeshRenderData* pRenderData = static_cast<const ezMeshRenderData*>(renderData[uiDataRendered]);
 
-    PerObjectCB* cb = ezRendererCore::BeginModifyConstantBuffer<PerObjectCB>(m_hObjectTransformCB, pContext);
+    PerObjectCB* cb = renderContext.m_pRenderer->BeginModifyConstantBuffer<PerObjectCB>(m_hObjectTransformCB);
       cb->world = pRenderData->m_WorldTransform.GetAsMat4();
       cb->mvp = ViewProj * cb->world;
-    ezRendererCore::EndModifyConstantBuffer(pContext);
+    renderContext.m_pRenderer->EndModifyConstantBuffer();
 
     ezResourceLock<ezMeshResource> pMesh(pRenderData->m_hMesh);
     const ezMeshResourceDescriptor::SubMesh& meshPart = pMesh->GetSubMeshes()[pRenderData->m_uiPartIndex];
 
     if (pRenderData->m_hMaterial != hLastMaterial)
     {
-      ezRendererCore::SetMaterialState(pContext, pRenderData->m_hMaterial);
+      ezRendererCore::GetDefaultInstance()->SetMaterialState(pRenderData->m_hMaterial);
       hLastMaterial = pRenderData->m_hMaterial;
     }
 
-    ezRendererCore::DrawMeshBuffer(pContext, pMesh->GetMeshBuffer(), meshPart.m_uiPrimitiveCount, meshPart.m_uiFirstPrimitive);
+    renderContext.m_pRenderer->DrawMeshBuffer(pMesh->GetMeshBuffer(), meshPart.m_uiPrimitiveCount, meshPart.m_uiFirstPrimitive);
     
     ++uiDataRendered;
   }

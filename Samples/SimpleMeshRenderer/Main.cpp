@@ -129,7 +129,7 @@ ezApplication::ApplicationExecution SampleApp::Run()
   {
     pDevice->BeginFrame();
 
-    m_View.Render(pDevice->GetPrimaryContext());
+    m_View.Render(ezRendererCore::GetDefaultInstance());
 
     pDevice->Present(pDevice->GetPrimarySwapChain());
 
@@ -139,7 +139,7 @@ ezApplication::ApplicationExecution SampleApp::Run()
   // needs to be called once per frame
   ezResourceManager::PerFrameUpdate();
 
-  const ezUInt32 uiFailedDrawcalls = ezRendererCore::RetrieveFailedDrawcalls();
+  const ezUInt32 uiFailedDrawcalls = ezRendererCore::GetDefaultInstance()->RetrieveFailedDrawcalls();
   if (uiFailedDrawcalls > 0)
   {
     // it would be best to render this on screen

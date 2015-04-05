@@ -78,54 +78,36 @@ void ezConstantBufferResource::UploadStateToGPU(ezGALContext* pContext)
   pContext->UpdateBuffer(m_hGALConstantBuffer, 0, m_Bytes.GetData(), m_Bytes.GetCount());
 }
 
-void ezRendererCore::BindConstantBuffer(ezGALContext* pContext, const ezTempHashedString& sSlotName, const ezConstantBufferResourceHandle& hConstantBuffer)
+void ezRendererCore::BindConstantBuffer(const ezTempHashedString& sSlotName, const ezConstantBufferResourceHandle& hConstantBuffer)
 {
-  if (pContext == nullptr)
-    pContext = ezGALDevice::GetDefaultDevice()->GetPrimaryContext();
+  m_ContextState.m_BoundConstantBuffers[sSlotName.GetHash()] = hConstantBuffer;
 
-  ContextState& cs = s_ContextState[pContext];
-
-  cs.m_BoundConstantBuffers[sSlotName.GetHash()] = hConstantBuffer;
-
-  cs.m_bConstantBufferBindingsChanged = true;
+  m_ContextState.m_bConstantBufferBindingsChanged = true;
 }
 
-ezUInt8* ezRendererCore::InternalBeginModifyConstantBuffer(ezConstantBufferResourceHandle hConstantBuffer, ezGALContext* pContext)
+ezUInt8* ezRendererCore::InternalBeginModifyConstantBuffer(ezConstantBufferResourceHandle hConstantBuffer)
 {
-  if (pContext == nullptr)
-    pContext = ezGALDevice::GetDefaultDevice()->GetPrimaryContext();
+  EZ_ASSERT_DEV(m_ContextState.m_pCurrentlyModifyingBuffer == nullptr, "Only one buffer can be modified at a time. Call EndModifyConstantBuffer before updating another buffer.");
 
-  ContextState& cs = s_ContextState[pContext];
+  m_ContextState.m_pCurrentlyModifyingBuffer = ezResourceManager::BeginAcquireResource<ezConstantBufferResource>(hConstantBuffer);
 
-  EZ_ASSERT_DEV(cs.m_pCurrentlyModifyingBuffer == nullptr, "Only one buffer can be modified at a time. Call EndModifyConstantBuffer before updating another buffer.");
-
-  cs.m_pCurrentlyModifyingBuffer = ezResourceManager::BeginAcquireResource<ezConstantBufferResource>(hConstantBuffer);
-
-  return cs.m_pCurrentlyModifyingBuffer->m_Bytes.GetData();
+  return m_ContextState.m_pCurrentlyModifyingBuffer->m_Bytes.GetData();
 }
 
-void ezRendererCore::EndModifyConstantBuffer(ezGALContext* pContext)
+void ezRendererCore::EndModifyConstantBuffer()
 {
-  if (pContext == nullptr)
-    pContext = ezGALDevice::GetDefaultDevice()->GetPrimaryContext();
+  EZ_ASSERT_DEV(m_ContextState.m_pCurrentlyModifyingBuffer != nullptr, "No buffer is currently being modified. Call BeginModifyConstantBuffer before calling EndModifyConstantBuffer.");
 
-  ContextState& cs = s_ContextState[pContext];
+  m_ContextState.m_pCurrentlyModifyingBuffer->m_bHasBeenModified = true;
 
-  EZ_ASSERT_DEV(cs.m_pCurrentlyModifyingBuffer != nullptr, "No buffer is currently being modified. Call BeginModifyConstantBuffer before calling EndModifyConstantBuffer.");
+  ezResourceManager::EndAcquireResource(m_ContextState.m_pCurrentlyModifyingBuffer);
 
-  cs.m_pCurrentlyModifyingBuffer->m_bHasBeenModified = true;
-
-  ezResourceManager::EndAcquireResource(cs.m_pCurrentlyModifyingBuffer);
-
-  cs.m_bConstantBufferBindingsChanged = true; // make sure the next drawcall triggers an upload
-  cs.m_pCurrentlyModifyingBuffer = nullptr;
-  /// \todo Upload immediately ?
+  m_ContextState.m_bConstantBufferBindingsChanged = true; // make sure the next drawcall triggers an upload
+  m_ContextState.m_pCurrentlyModifyingBuffer = nullptr;
 }
 
-void ezRendererCore::ApplyConstantBufferBindings(ezGALContext* pContext, const ezShaderStageBinary* pBinary)
+void ezRendererCore::ApplyConstantBufferBindings(const ezShaderStageBinary* pBinary)
 {
-  const auto& cs = s_ContextState[pContext];
-
   // Update Material CB
   if (pBinary->m_pMaterialParamCB && pBinary->m_pMaterialParamCB->m_uiMaterialCBSize > 0)
   {
@@ -166,7 +148,7 @@ void ezRendererCore::ApplyConstantBufferBindings(ezGALContext* pContext, const e
         // found at least one modified variable -> lock resource, update CB, etc.
         if (pMatParam->m_LastModification > uiLastModTime)
         {
-          ezUInt8* pBufferData = BeginModifyConstantBuffer<ezUInt8>(pBinary->m_pMaterialParamCB->m_hMaterialCB, pContext);
+          ezUInt8* pBufferData = BeginModifyConstantBuffer<ezUInt8>(pBinary->m_pMaterialParamCB->m_hMaterialCB);
 
           // go through the remaining variables (no need to update the previous ones)
           for (; uiCurVar < pBinary->m_pMaterialParamCB->m_MaterialParameters.GetCount(); ++uiCurVar)
@@ -196,7 +178,7 @@ void ezRendererCore::ApplyConstantBufferBindings(ezGALContext* pContext, const e
             }
           }
 
-          EndModifyConstantBuffer(pContext);
+          EndModifyConstantBuffer();
 
           break;
         }
@@ -204,7 +186,7 @@ void ezRendererCore::ApplyConstantBufferBindings(ezGALContext* pContext, const e
     }
 
     // make sure "our" material CB is bound -> only works as long as all MaterialCB's are identical across vertex shader, pixel shader, etc.
-    BindConstantBuffer(pContext, "MaterialCB", pBinary->m_pMaterialParamCB->m_hMaterialCB);
+    BindConstantBuffer("MaterialCB", pBinary->m_pMaterialParamCB->m_hMaterialCB);
   }
 
   for (const auto& rb : pBinary->m_ShaderResourceBindings)
@@ -215,7 +197,7 @@ void ezRendererCore::ApplyConstantBufferBindings(ezGALContext* pContext, const e
     const ezUInt32 uiResourceHash = rb.m_Name.GetHash();
 
     ezConstantBufferResourceHandle* hResource;
-    if (!cs.m_BoundConstantBuffers.TryGetValue(uiResourceHash, hResource))
+    if (!m_ContextState.m_BoundConstantBuffers.TryGetValue(uiResourceHash, hResource))
     {
       ezLog::Error("No resource is bound for constant buffer slot '%s'", rb.m_Name.GetData());
       continue;
@@ -229,9 +211,9 @@ void ezRendererCore::ApplyConstantBufferBindings(ezGALContext* pContext, const e
 
     ezResourceLock<ezConstantBufferResource> l(*hResource, ezResourceAcquireMode::AllowFallback);
 
-    l->UploadStateToGPU(pContext);
+    l->UploadStateToGPU(m_pGALContext);
 
-    pContext->SetConstantBuffer(rb.m_iSlot, l->GetGALBufferHandle());
+    m_pGALContext->SetConstantBuffer(rb.m_iSlot, l->GetGALBufferHandle());
   }
 }
 

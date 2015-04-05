@@ -112,7 +112,7 @@ void ezViewContext::RenderTranslateGizmo(const ezMat4& mTransformation)
 {
   ezUInt32 uiPickingID = m_PickingCache.GeneratePickingID(nullptr, "ezTranslateGizmo");
 
-  ezRendererCore::SetActiveShader(m_hGizmoShader);
+  ezRendererCore::GetDefaultInstance()->SetActiveShader(m_hGizmoShader);
 
   ObjectData od;
   od.m_ModelView = m_ProjectionMatrix * m_ViewMatrix * mTransformation;
@@ -130,14 +130,15 @@ void ezViewContext::RenderTranslateGizmo(const ezMat4& mTransformation)
 
   pContext->SetConstantBuffer(1, m_hCB);
 
-  ezRendererCore::DrawMeshBuffer(pContext, m_hTranslateGizmo);
+  /// \todo The ViewContext probably should have an ezRendererCore as a member, instead of using the default
+  ezRendererCore::GetDefaultInstance()->DrawMeshBuffer(m_hTranslateGizmo);
 }
 
 void ezViewContext::RenderObject(ezGameObject* pObject, const ezMat4& ViewProj)
 {
   ezUInt32 uiPickingID = m_PickingCache.GeneratePickingID(pObject, "ezGameObject");
 
-  ezRendererCore::SetActiveShader(m_hShader);
+  ezRendererCore::GetDefaultInstance()->SetActiveShader(m_hShader);
 
   const ezVec3 vPos = pObject->GetWorldPosition();
 
@@ -159,7 +160,7 @@ void ezViewContext::RenderObject(ezGameObject* pObject, const ezMat4& ViewProj)
 
   pContext->SetConstantBuffer(1, m_hCB);
 
-  ezRendererCore::DrawMeshBuffer(pContext, m_hSphere);
+  ezRendererCore::GetDefaultInstance()->DrawMeshBuffer(m_hSphere);
 }
 
 void ezViewContext::RenderScene()
@@ -234,7 +235,7 @@ void ezViewContext::Redraw()
     pContext->SetRenderTargetConfig(m_hPickingRenderTargetCfg);
 
     pContext->Clear(ezColor::Black);
-    ezRendererCore::SetShaderPermutationVariable("EDITOR_PICKING", "1");
+    ezRendererCore::GetDefaultInstance()->SetShaderPermutationVariable("EDITOR_PICKING", "1");
 
     RenderScene();
   }
@@ -244,7 +245,7 @@ void ezViewContext::Redraw()
 
     ezColor c = ezColor::CornflowerBlue * 0.25f; // The original! * 0.25f
     pContext->Clear(c);
-    ezRendererCore::SetShaderPermutationVariable("EDITOR_PICKING", "0");
+    ezRendererCore::GetDefaultInstance()->SetShaderPermutationVariable("EDITOR_PICKING", "0");
 
     RenderScene();
   }

@@ -509,22 +509,15 @@ bool ezTextureResourceLoader::IsResourceOutdated(const ezResourceBase* pResource
 }
 
 
-void ezRendererCore::BindTexture(ezGALContext* pContext, const ezTempHashedString& sSlotName, const ezTextureResourceHandle& hTexture)
+void ezRendererCore::BindTexture(const ezTempHashedString& sSlotName, const ezTextureResourceHandle& hTexture)
 {
-  if (pContext == nullptr)
-    pContext = ezGALDevice::GetDefaultDevice()->GetPrimaryContext();
+  m_ContextState.m_BoundTextures[sSlotName.GetHash()] = hTexture;
 
-  ContextState& cs = s_ContextState[pContext];
-
-  cs.m_BoundTextures[sSlotName.GetHash()] = hTexture;
-
-  cs.m_bTextureBindingsChanged = true;
+  m_ContextState.m_bTextureBindingsChanged = true;
 }
 
-void ezRendererCore::ApplyTextureBindings(ezGALContext* pContext, ezGALShaderStage::Enum stage, const ezShaderStageBinary* pBinary)
+void ezRendererCore::ApplyTextureBindings(ezGALShaderStage::Enum stage, const ezShaderStageBinary* pBinary)
 {
-  const auto& cs = s_ContextState[pContext];
-
   for (const auto& rb : pBinary->m_ShaderResourceBindings)
   {
     if (rb.m_Type == ezShaderStageResource::ConstantBuffer)
@@ -533,7 +526,7 @@ void ezRendererCore::ApplyTextureBindings(ezGALContext* pContext, ezGALShaderSta
     const ezUInt32 uiResourceHash = rb.m_Name.GetHash();
 
     ezTextureResourceHandle* hTexture;
-    if (!cs.m_BoundTextures.TryGetValue(uiResourceHash, hTexture))
+    if (!m_ContextState.m_BoundTextures.TryGetValue(uiResourceHash, hTexture))
     {
       ezLog::Error("No resource is bound for shader slot '%s'", rb.m_Name.GetData());
       continue;
@@ -547,8 +540,8 @@ void ezRendererCore::ApplyTextureBindings(ezGALContext* pContext, ezGALShaderSta
 
     ezResourceLock<ezTextureResource> l(*hTexture, ezResourceAcquireMode::AllowFallback);
 
-    pContext->SetResourceView(stage, rb.m_iSlot, l->GetGALTextureView());
-    pContext->SetSamplerState(stage, rb.m_iSlot, l->GetGALSamplerState());
+    m_pGALContext->SetResourceView(stage, rb.m_iSlot, l->GetGALTextureView());
+    m_pGALContext->SetSamplerState(stage, rb.m_iSlot, l->GetGALSamplerState());
   }
 }
 

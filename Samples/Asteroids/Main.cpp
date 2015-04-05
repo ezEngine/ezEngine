@@ -14,6 +14,7 @@
 
 #include <RendererGL/Device/DeviceGL.h>
 #include <RendererCore/Pipeline/RenderPipeline.h>
+#include <RendererCore/RendererCore.h>
 
 SampleGameApp::WorldUpdateTask::WorldUpdateTask(SampleGameApp* pApp)
 {
@@ -126,7 +127,7 @@ ezApplication::ApplicationExecution SampleGameApp::Run()
   {
     pDevice->BeginFrame();
 
-    m_View.Render(pDevice->GetPrimaryContext());
+    m_View.Render(ezRendererCore::GetDefaultInstance());
 
     pDevice->Present(pDevice->GetPrimarySwapChain());
 

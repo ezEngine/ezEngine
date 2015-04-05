@@ -6,7 +6,7 @@ GlobalConstants ezRendererCore::s_GlobalConstants;
 bool ezRendererCore::s_bGlobalConstantsModified = true;
 ezConstantBufferResourceHandle ezRendererCore::s_hGlobalConstantBuffer;
 
-void ezRendererCore::UploadGlobalConstants(ezGALContext* pContext)
+void ezRendererCore::UploadGlobalConstants()
 {
   if (!s_bGlobalConstantsModified)
     return;
@@ -15,11 +15,11 @@ void ezRendererCore::UploadGlobalConstants(ezGALContext* pContext)
 
   if (s_hGlobalConstantBuffer.IsValid())
   {
-    GlobalConstants* pBuffer = BeginModifyConstantBuffer<GlobalConstants>(s_hGlobalConstantBuffer, pContext);
+    GlobalConstants* pBuffer = BeginModifyConstantBuffer<GlobalConstants>(s_hGlobalConstantBuffer);
 
     ezMemoryUtils::Copy(pBuffer, &s_GlobalConstants, 1);
 
-    EndModifyConstantBuffer(pContext);
+    EndModifyConstantBuffer();
   }
   else
   {
@@ -28,7 +28,7 @@ void ezRendererCore::UploadGlobalConstants(ezGALContext* pContext)
     s_hGlobalConstantBuffer = ezResourceManager::CreateResource<ezConstantBufferResource>("ezGlobalConstantBuffer", rd);
   }
 
-  BindConstantBuffer(pContext, "GlobalConstants", s_hGlobalConstantBuffer);
+  BindConstantBuffer("GlobalConstants", s_hGlobalConstantBuffer);
 }
 
 

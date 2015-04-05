@@ -2,6 +2,7 @@
 #include <RendererFoundation/Device/SwapChain.h>
 #include <RendererCore/Meshes/MeshRenderer.h>
 #include <RendererCore/Pipeline/RenderPipeline.h>
+#include <RendererCore/RendererCore.h>
 
 #include "MainRenderPass.h"
 
@@ -19,7 +20,7 @@ MainRenderPass::~MainRenderPass()
 void MainRenderPass::Execute(const ezRenderContext& renderContext)
 {
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-  ezGALContext* pContext = renderContext.m_pGALContext;
+  ezGALContext* pContext = renderContext.m_pRenderer->GetGALContext();
 
   const ezGALSwapChain* pSwapChain = pDevice->GetSwapChain(pDevice->GetPrimarySwapChain());
 

@@ -1,4 +1,5 @@
 #include <RendererCore/PCH.h>
+#include <RendererCore/RendererCore.h>
 #include <RendererCore/Pipeline/RenderPipeline.h>
 #include <Core/World/World.h>
 
@@ -68,7 +69,7 @@ void ezRenderPipeline::ExtractData(const ezView& view)
   }
 }
 
-void ezRenderPipeline::Render(const ezView& view, ezGALContext* pGALContext)
+void ezRenderPipeline::Render(const ezView& view, ezRendererCore* pRenderer)
 {
   // swap data
   if (m_Mode == Asynchronous)
@@ -78,11 +79,11 @@ void ezRenderPipeline::Render(const ezView& view, ezGALContext* pGALContext)
 
   // calculate camera matrices
   const ezRectFloat& viewPortRect = view.GetViewport();
-  pGALContext->SetViewport(viewPortRect.x, viewPortRect.y, viewPortRect.width, viewPortRect.height, 0.0f, 1.0f);
+  pRenderer->GetGALContext()->SetViewport(viewPortRect.x, viewPortRect.y, viewPortRect.width, viewPortRect.height, 0.0f, 1.0f);
 
   ezRenderContext renderContext;
   renderContext.m_pView = &view;
-  renderContext.m_pGALContext = pGALContext;
+  renderContext.m_pRenderer = pRenderer;
 
   for (ezUInt32 i = 0; i < m_Passes.GetCount(); ++i)
   {
