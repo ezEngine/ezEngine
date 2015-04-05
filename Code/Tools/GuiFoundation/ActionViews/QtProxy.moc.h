@@ -36,6 +36,13 @@ public:
 
 };
 
+class EZ_GUIFOUNDATION_DLL ezQtCategoryProxy : public ezQtProxy
+{
+  Q_OBJECT
+public:
+  virtual void Update(bool bSetShortcut) override {}
+};
+
 class EZ_GUIFOUNDATION_DLL ezQtMenuProxy : public ezQtProxy
 {
   Q_OBJECT

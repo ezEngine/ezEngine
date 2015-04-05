@@ -9,17 +9,22 @@
 
 static ezQtProxy* QtMenuProxyCreator(const ezRTTI* pRtti)
 {
-  return EZ_DEFAULT_NEW(ezQtMenuProxy);
+  return new(ezQtMenuProxy);
+}
+
+static ezQtProxy* QtCategoryProxyCreator(const ezRTTI* pRtti)
+{
+  return new(ezQtCategoryProxy);
 }
 
 static ezQtProxy* QtButtonProxyCreator(const ezRTTI* pRtti)
 {
-  return EZ_DEFAULT_NEW(ezQtButtonProxy);
+  return new(ezQtButtonProxy);
 }
 
 static ezQtProxy* QtLRUMenuProxyCreator(const ezRTTI* pRtti)
 {
-  return EZ_DEFAULT_NEW(ezQtLRUMenuProxy);
+  return new(ezQtLRUMenuProxy);
 }
 
 EZ_BEGIN_SUBSYSTEM_DECLARATION(GuiFoundation, QtProxies)
@@ -32,6 +37,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(GuiFoundation, QtProxies)
   ON_CORE_STARTUP
   {
     ezRttiMappedObjectFactory<ezQtProxy>::RegisterCreator(ezGetStaticRTTI<ezMenuAction>(), QtMenuProxyCreator);
+    ezRttiMappedObjectFactory<ezQtProxy>::RegisterCreator(ezGetStaticRTTI<ezCategoryAction>(), QtCategoryProxyCreator);
     ezRttiMappedObjectFactory<ezQtProxy>::RegisterCreator(ezGetStaticRTTI<ezLRUMenuAction>(), QtLRUMenuProxyCreator);
     ezRttiMappedObjectFactory<ezQtProxy>::RegisterCreator(ezGetStaticRTTI<ezButtonAction>(), QtButtonProxyCreator);
   }

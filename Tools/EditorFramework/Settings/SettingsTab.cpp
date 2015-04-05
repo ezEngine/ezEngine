@@ -20,6 +20,16 @@ void ezEditorApp::ShowSettingsDocument()
   pSettingsTab->EnsureVisible();
 }
 
+void ezEditorApp::CloseSettingsDocument()
+{
+  ezSettingsTab* pSettingsTab = ezSettingsTab::GetInstance();
+
+  if (pSettingsTab != nullptr)
+  {
+    pSettingsTab->CloseDocumentWindow();
+  }
+}
+
 ezSettingsTab* ezSettingsTab::GetInstance()
 {
   return g_pInstance;

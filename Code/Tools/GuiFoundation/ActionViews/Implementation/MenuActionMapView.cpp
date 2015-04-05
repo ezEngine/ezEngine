@@ -46,13 +46,11 @@ void ezMenuActionMapView::AddDocumentObjectToMenu(ezHashTable<ezUuid, ezQtProxy*
     auto pAction = pDesc->m_hAction.GetDescriptor()->CreateAction(Context);
 
     ezQtProxy* pProxy = ezRttiMappedObjectFactory<ezQtProxy>::CreateObject(pAction->GetDynamicRTTI());
+    EZ_ASSERT_DEBUG(pProxy != nullptr, "No proxy assigned to action '%s'", pDesc->m_hAction.GetDescriptor()->m_sActionName.GetData());
 
-    if (pProxy != nullptr)
-    {
-      Proxies[pChild->GetGuid()] = pProxy;
-      pProxy->setParent(pCurrentRoot);
-      pProxy->SetAction(pAction, true);
-    }
+    Proxies[pChild->GetGuid()] = pProxy;
+    pProxy->setParent(pCurrentRoot);
+    pProxy->SetAction(pAction, true);
 
     switch (pDesc->m_hAction.GetDescriptor()->m_Type)
     {

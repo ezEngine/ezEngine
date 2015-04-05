@@ -164,7 +164,19 @@ void ezEditorApp::ShutdownEditor()
 
   ezUIServices::GetInstance()->SaveState();
 
+  CloseSettingsDocument();
+
+  while (!ezContainerWindow::GetAllContainerWindows().IsEmpty())
+  {
+    delete ezContainerWindow::GetAllContainerWindows()[0];
+  }
+  QCoreApplication::sendPostedEvents();
+  qApp->processEvents();
+
   delete s_pEngineViewProcess;
+
+  UnloadPlugins();
+
   delete s_pQtApplication;
 
   m_LogHTML.EndLog();
@@ -335,6 +347,8 @@ void ezEditorApp::EngineProcessMsgHandler(const ezEditorEngineProcessConnection:
         if (pMsg->m_uiNumProperties == 0)
         {
           ezReflectedTypeManager::RegisterType(s_TypeDesc);
+          s_TypeDesc.m_Properties.Clear();
+          s_TypeDesc.m_Properties.Compact();
         }
       }
       else if (e.m_pMsg->GetDynamicRTTI()->IsDerivedFrom<ezProjectReadyMsgToEditor>())
@@ -358,6 +372,7 @@ void ezEditorApp::EngineProcessMsgHandler(const ezEditorEngineProcessConnection:
         {
           ezReflectedTypeManager::RegisterType(s_TypeDesc);
           s_TypeDesc.m_Properties.Clear();
+          s_TypeDesc.m_Properties.Compact();
         }
       }
     }

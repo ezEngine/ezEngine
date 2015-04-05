@@ -12,7 +12,7 @@ class ezEditorApplication : public ezApplication
 public:
   ezEditorApplication()
   {
-    EnableMemoryLeakReporting(false);
+    EnableMemoryLeakReporting(true);
   }
 
   virtual ApplicationExecution Run() override

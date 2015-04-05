@@ -84,6 +84,7 @@ public:
   ezEditorEngineProcessConnection* GetEngineViewProcess() { return s_pEngineViewProcess; }
 
   void ShowSettingsDocument();
+  void CloseSettingsDocument();
 
   void CloseProject();
   void OpenProject(const char* szProject);

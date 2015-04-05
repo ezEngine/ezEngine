@@ -63,13 +63,11 @@ void ezToolBarActionMapView::CreateView(ezDocumentObjectBase* pObject)
     auto pAction = pDesc->m_hAction.GetDescriptor()->CreateAction(m_Context);
 
     ezQtProxy* pProxy = ezRttiMappedObjectFactory<ezQtProxy>::CreateObject(pAction->GetDynamicRTTI());
+    EZ_ASSERT_DEBUG(pProxy != nullptr, "No proxy assigned to action '%s'", pDesc->m_hAction.GetDescriptor()->m_sActionName.GetData());
 
-    if (pProxy != nullptr)
-    {
-      m_Proxies[pChild->GetGuid()] = pProxy;
-      pProxy->setParent(this);
-      pProxy->SetAction(pAction, false);
-    }
+    m_Proxies[pChild->GetGuid()] = pProxy;
+    pProxy->setParent(this);
+    pProxy->SetAction(pAction, false);
 
     switch (pDesc->m_hAction.GetDescriptor()->m_Type)
     {
@@ -84,12 +82,12 @@ void ezToolBarActionMapView::CreateView(ezDocumentObjectBase* pObject)
     case ezActionType::Category:
       {
         if (!actions().isEmpty() && !actions().back()->isSeparator())
-          addSeparator();
+          addSeparator()->setParent(pProxy);
 
         CreateView(pChild);
 
         if (!actions().isEmpty() && !actions().back()->isSeparator())
-          addSeparator();
+          addSeparator()->setParent(pProxy);
       }
       break;
 
