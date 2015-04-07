@@ -14,7 +14,7 @@
 
 #include <RendererGL/Device/DeviceGL.h>
 #include <RendererCore/Pipeline/RenderPipeline.h>
-#include <RendererCore/RendererCore.h>
+#include <RendererCore/RenderContext/RenderContext.h>
 
 SampleApp::WorldUpdateTask::WorldUpdateTask(SampleApp* pApp)
 {
@@ -129,7 +129,7 @@ ezApplication::ApplicationExecution SampleApp::Run()
   {
     pDevice->BeginFrame();
 
-    m_View.Render(ezRendererCore::GetDefaultInstance());
+    m_View.Render(ezRenderContext::GetDefaultInstance());
 
     pDevice->Present(pDevice->GetPrimarySwapChain());
 
@@ -139,7 +139,7 @@ ezApplication::ApplicationExecution SampleApp::Run()
   // needs to be called once per frame
   ezResourceManager::PerFrameUpdate();
 
-  const ezUInt32 uiFailedDrawcalls = ezRendererCore::GetDefaultInstance()->RetrieveFailedDrawcalls();
+  const ezUInt32 uiFailedDrawcalls = ezRenderContext::GetDefaultInstance()->RetrieveFailedDrawcalls();
   if (uiFailedDrawcalls > 0)
   {
     // it would be best to render this on screen

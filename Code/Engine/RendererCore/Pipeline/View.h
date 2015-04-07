@@ -9,7 +9,7 @@ class ezWorld;
 class ezCamera;
 class ezGALContext;
 class ezRenderPipeline;
-class ezRendererCore;
+class ezRenderContext;
 
 /// \brief Encapsulates a view on the given world through the given camera and rendered with the specified RenderPipeline.
 class EZ_RENDERERCORE_DLL ezView
@@ -49,7 +49,7 @@ public:
   void ExtractData();
 
   /// \brief Renders the extracted data with the view's pipeline.
-  void Render(ezRendererCore* pRenderer);
+  void Render(ezRenderContext* pRenderer);
 
   
   /// \brief Returns the current projection matrix.

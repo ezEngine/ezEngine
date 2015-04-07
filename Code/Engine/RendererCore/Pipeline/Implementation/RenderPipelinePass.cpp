@@ -20,14 +20,14 @@ void ezRenderPipelinePass::AddRenderer(ezRenderer* pRenderer)
   }
 }
 
-void ezRenderPipelinePass::Run(const ezRenderContext& renderContext)
+void ezRenderPipelinePass::Run(const ezRenderViewContext& renderContext)
 {
   EZ_PROFILE(m_ProfilingID);
 
   Execute(renderContext);
 }
 
-void ezRenderPipelinePass::RenderDataWithPassType(const ezRenderContext& renderContext, ezRenderPassType passType)
+void ezRenderPipelinePass::RenderDataWithPassType(const ezRenderViewContext& renderContext, ezRenderPassType passType)
 {
   EZ_PROFILE(m_pPipeline->GetPassTypeProfilingID(passType));
 

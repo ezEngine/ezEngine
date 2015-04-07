@@ -1,5 +1,5 @@
 #include <RendererCore/PCH.h>
-#include <RendererCore/RendererCore.h>
+#include <RendererCore/RenderContext/RenderContext.h>
 #include <Core/ResourceManager/ResourceManager.h>
 #include <RendererFoundation/Context/Context.h>
 #include <RendererCore/Material/MaterialResource.h>
@@ -7,7 +7,7 @@
 #include <RendererCore/Textures/TextureResource.h>
 #include <RendererCore/ConstantBuffers/ConstantBufferResource.h>
 
-void ezRendererCore::SetMaterialState(const ezMaterialResourceHandle& hMaterial)
+void ezRenderContext::SetMaterialState(const ezMaterialResourceHandle& hMaterial)
 {
   ezResourceLock<ezMaterialResource> pMaterial(hMaterial);
 
@@ -35,13 +35,13 @@ void ezRendererCore::SetMaterialState(const ezMaterialResourceHandle& hMaterial)
   }
 }
 
-ezUInt32 ezRendererCore::RetrieveFailedDrawcalls()
+ezUInt32 ezRenderContext::RetrieveFailedDrawcalls()
 {
   return m_ContextState.m_uiFailedDrawcalls;
 }
 
 // static 
-void ezRendererCore::DrawMeshBuffer(const ezMeshBufferResourceHandle& hMeshBuffer, ezUInt32 uiPrimitiveCount, ezUInt32 uiFirstPrimitive, ezUInt32 uiInstanceCount)
+void ezRenderContext::DrawMeshBuffer(const ezMeshBufferResourceHandle& hMeshBuffer, ezUInt32 uiPrimitiveCount, ezUInt32 uiFirstPrimitive, ezUInt32 uiInstanceCount)
 {
   if (ApplyContextStates().Failed())
   {
@@ -94,7 +94,7 @@ void ezRendererCore::DrawMeshBuffer(const ezMeshBufferResourceHandle& hMeshBuffe
   }
 }
 
-ezResult ezRendererCore::ApplyContextStates(bool bForce)
+ezResult ezRenderContext::ApplyContextStates(bool bForce)
 {
   // make sure the internal state is up to date
   SetShaderContextState(bForce);

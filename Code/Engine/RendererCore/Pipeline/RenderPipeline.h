@@ -7,7 +7,7 @@
 #include <RendererCore/Pipeline/RenderPipelinePass.h>
 #include <RendererCore/Pipeline/View.h>
 
-class ezRendererCore;
+class ezRenderContext;
 
 class EZ_RENDERERCORE_DLL ezRenderPipeline
 {
@@ -22,7 +22,7 @@ public:
   ~ezRenderPipeline();
 
   void ExtractData(const ezView& view);
-  void Render(const ezView& view, ezRendererCore* pRenderer);
+  void Render(const ezView& view, ezRenderContext* pRenderer);
 
   void AddPass(ezRenderPipelinePass* pPass);
   void RemovePass(ezRenderPipelinePass* pPass);

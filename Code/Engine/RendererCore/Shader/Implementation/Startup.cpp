@@ -1,17 +1,17 @@
 #include <RendererCore/PCH.h>
 #include <RendererCore/Shader/ShaderStageBinary.h>
-#include <RendererCore/RendererCore.h>
+#include <RendererCore/RenderContext/RenderContext.h>
 #include <Foundation/Configuration/Startup.h>
 
-ezPermutationGenerator ezRendererCore::s_AllowedPermutations;
-ezString ezRendererCore::s_sPlatform;
-ezString ezRendererCore::s_sPermVarSubDir;
-bool ezRendererCore::s_bEnableRuntimeCompilation = false;
-ezString ezRendererCore::s_ShaderCacheDirectory = "ShaderCache";
-ezMap<ezUInt32, ezPermutationGenerator> ezRendererCore::s_PermutationHashCache;
-ezMap<ezRendererCore::ShaderVertexDecl, ezGALVertexDeclarationHandle> ezRendererCore::s_GALVertexDeclarations;
+ezPermutationGenerator ezRenderContext::s_AllowedPermutations;
+ezString ezRenderContext::s_sPlatform;
+ezString ezRenderContext::s_sPermVarSubDir;
+bool ezRenderContext::s_bEnableRuntimeCompilation = false;
+ezString ezRenderContext::s_ShaderCacheDirectory = "ShaderCache";
+ezMap<ezUInt32, ezPermutationGenerator> ezRenderContext::s_PermutationHashCache;
+ezMap<ezRenderContext::ShaderVertexDecl, ezGALVertexDeclarationHandle> ezRenderContext::s_GALVertexDeclarations;
 
-void ezRendererCore::OnEngineShutdown()
+void ezRenderContext::OnEngineShutdown()
 {
   ezShaderStageBinary::OnEngineShutdown();
 
@@ -34,9 +34,9 @@ void ezRendererCore::OnEngineShutdown()
   ezMemoryUtils::Construct(&s_GlobalConstants, 1);
 }
 
-void ezRendererCore::OnCoreShutdown()
+void ezRenderContext::OnCoreShutdown()
 {
-  EZ_ASSERT_DEV(s_GALVertexDeclarations.IsEmpty(), "ezRendererCore::OnEngineShutdown has not been called. Either ezStartup::ShutdownEngine was not called or ezStartup::StartupEngine was not called at program start");
+  EZ_ASSERT_DEV(s_GALVertexDeclarations.IsEmpty(), "ezRenderContext::OnEngineShutdown has not been called. Either ezStartup::ShutdownEngine was not called or ezStartup::StartupEngine was not called at program start");
 
   for (ezUInt32 i = 0; i < ezGALShaderStage::ENUM_COUNT; ++i)
     ezShaderStageBinary::s_ShaderStageBinaries[i].Clear();
@@ -55,7 +55,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Graphics, RendererCore)
  
   ON_CORE_SHUTDOWN
   {
-    ezRendererCore::OnCoreShutdown();
+    ezRenderContext::OnCoreShutdown();
   }
 
   ON_ENGINE_STARTUP
@@ -64,7 +64,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Graphics, RendererCore)
  
   ON_ENGINE_SHUTDOWN
   {
-    ezRendererCore::OnEngineShutdown();
+    ezRenderContext::OnEngineShutdown();
   }
  
 EZ_END_SUBSYSTEM_DECLARATION

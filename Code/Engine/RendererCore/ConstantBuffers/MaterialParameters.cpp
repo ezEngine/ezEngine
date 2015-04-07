@@ -1,9 +1,9 @@
 #include <RendererCore/PCH.h>
-#include <RendererCore/RendererCore.h>
+#include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/ConstantBuffers/ConstantBufferResource.h>
 #include <RendererCore/Shader/ShaderStageBinary.h>
 
-ezUInt64 ezRendererCore::s_LastMaterialParamModification = 1;
+ezUInt64 ezRenderContext::s_LastMaterialParamModification = 1;
 static ezMap<ezUInt32, ezDynamicArray<ezUInt8> > s_MaterialParameters;
 
 ezUInt32 ezShaderMaterialParamCB::MaterialParameter::s_TypeSize[(ezUInt32) Type::ENUM_COUNT] =
@@ -22,7 +22,7 @@ ezUInt32 ezShaderMaterialParamCB::MaterialParameter::s_TypeSize[(ezUInt32) Type:
   sizeof(float) * 12,
 };
 
-ezRendererCore::MaterialParam* ezRendererCore::InternalSetMaterialParameter(const ezTempHashedString& sName, ezShaderMaterialParamCB::MaterialParameter::Type type, ezUInt32 uiMaxArrayElements)
+ezRenderContext::MaterialParam* ezRenderContext::InternalSetMaterialParameter(const ezTempHashedString& sName, ezShaderMaterialParamCB::MaterialParameter::Type type, ezUInt32 uiMaxArrayElements)
 {
   auto& p = s_MaterialParameters[sName.GetHash()];
 
@@ -45,7 +45,7 @@ ezRendererCore::MaterialParam* ezRendererCore::InternalSetMaterialParameter(cons
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   if (pData->m_Type != type)
   {
-    ezLog::Error("ezRendererCore::SetMaterialParameter(0x%08X): Parameter is used with different types (%u and %u)", (ezUInt32) pData->m_Type, (ezUInt32) type);
+    ezLog::Error("ezRenderContext::SetMaterialParameter(0x%08X): Parameter is used with different types (%u and %u)", (ezUInt32) pData->m_Type, (ezUInt32) type);
     return nullptr;
   }
 #endif
@@ -54,7 +54,7 @@ ezRendererCore::MaterialParam* ezRendererCore::InternalSetMaterialParameter(cons
 }
 
 #define SetMaterialParameterX(TypeType, TypeEnum, ArrayMax) \
-  void ezRendererCore::SetMaterialParameter(const ezTempHashedString& sName, const TypeType& value) \
+  void ezRenderContext::SetMaterialParameter(const ezTempHashedString& sName, const TypeType& value) \
   { \
     MaterialParam* pParam = InternalSetMaterialParameter(sName, ezShaderMaterialParamCB::MaterialParameter::Type::TypeEnum, ArrayMax); \
     \
@@ -85,7 +85,7 @@ SetMaterialParameterX(ezVec4I32, Int4, 1);
 SetMaterialParameterX(ezMat4, Mat4x4, 1);
 SetMaterialParameterX(ezTransform, Mat3x4, 1);
 
-void ezRendererCore::SetMaterialParameter(const ezTempHashedString& sName, const ezVariant& value)
+void ezRenderContext::SetMaterialParameter(const ezTempHashedString& sName, const ezVariant& value)
 {
   switch (value.GetType())
   {
@@ -128,13 +128,13 @@ void ezRendererCore::SetMaterialParameter(const ezTempHashedString& sName, const
 
   default:
     {
-      ezLog::Debug("ezRendererCore::SetMaterialParameter: Variant contains invalid type of data");
+      ezLog::Debug("ezRenderContext::SetMaterialParameter: Variant contains invalid type of data");
     }
     return;
   }
 }
 
-const ezRendererCore::MaterialParam* ezRendererCore::GetMaterialParameterPointer(ezUInt32 uiNameHash)
+const ezRenderContext::MaterialParam* ezRenderContext::GetMaterialParameterPointer(ezUInt32 uiNameHash)
 {
   /// \todo Return array, not data pointer ? (only required, if array size may grow later on)
 

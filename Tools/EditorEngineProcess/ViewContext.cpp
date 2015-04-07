@@ -2,7 +2,7 @@
 #include <EditorEngineProcess/ViewContext.h>
 #include <RendererFoundation/Device/SwapChain.h>
 #include <Core/ResourceManager/ResourceManager.h>
-#include <RendererCore/RendererCore.h>
+#include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/Shader/ShaderResource.h>
 
 ezMeshBufferResourceHandle CreateTranslateGizmoMesh();
@@ -73,7 +73,7 @@ void ezViewContext::SetupRenderTarget(ezWindowHandle hWnd, ezUInt16 uiWidth, ezU
   // Create a constant buffer for matrix upload
   m_hCB = pDevice->CreateConstantBuffer(sizeof(ObjectData));
 
-  ezRendererCore::ConfigureShaderSystem("DX11_SM40", true);
+  ezRenderContext::ConfigureShaderSystem("DX11_SM40", true);
 
   m_hShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Wireframe.ezShader");
   m_hGizmoShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Gizmo.ezShader");

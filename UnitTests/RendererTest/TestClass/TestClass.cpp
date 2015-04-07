@@ -13,7 +13,7 @@
 #include <Foundation/Memory/MemoryTracker.h>
 #include <Core/ResourceManager/ResourceManager.h>
 #include <RendererCore/Shader/ShaderResource.h>
-#include <RendererCore/RendererCore.h>
+#include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/ConstantBuffers/ConstantBufferResource.h>
 
 
@@ -120,7 +120,7 @@ ezResult ezGraphicsTest::SetupRenderer(ezUInt32 uiResolutionX, ezUInt32 uiResolu
   ezConstantBufferResourceDescriptor<ObjectCB> desc;
   m_hObjectTransformCB = ezResourceManager::CreateResource<ezConstantBufferResource>("{E74F00FD-8C0C-47B9-A63D-E3D2E77FCFB4}", desc);
 
-  ezRendererCore::ConfigureShaderSystem("DX11_SM40", true);
+  ezRenderContext::ConfigureShaderSystem("DX11_SM40", true);
 
   EZ_VERIFY(ezPlugin::LoadPlugin("ezShaderCompilerHLSL").Succeeded(), "Compiler Plugin not found");
 
@@ -319,19 +319,19 @@ ezMeshBufferResourceHandle ezGraphicsTest::CreateBox(float fWidth, float fHeight
 
 void ezGraphicsTest::RenderObject(ezMeshBufferResourceHandle hObject, const ezMat4& mTransform, const ezColor& color, ezBitflags<ezShaderBindFlags> ShaderBindFlags)
 {
-  ezRendererCore::GetDefaultInstance()->SetActiveShader(m_hShader, ShaderBindFlags);
+  ezRenderContext::GetDefaultInstance()->SetActiveShader(m_hShader, ShaderBindFlags);
 
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
   ezGALContext* pContext = pDevice->GetPrimaryContext();
 
 
-  ObjectCB* ocb = ezRendererCore::GetDefaultInstance()->BeginModifyConstantBuffer<ObjectCB>(m_hObjectTransformCB);
+  ObjectCB* ocb = ezRenderContext::GetDefaultInstance()->BeginModifyConstantBuffer<ObjectCB>(m_hObjectTransformCB);
     ocb->m_MVP = mTransform;
     ocb->m_Color = color;
-    ezRendererCore::GetDefaultInstance()->EndModifyConstantBuffer();
+    ezRenderContext::GetDefaultInstance()->EndModifyConstantBuffer();
 
-  ezRendererCore::GetDefaultInstance()->BindConstantBuffer("PerObject", m_hObjectTransformCB);
+  ezRenderContext::GetDefaultInstance()->BindConstantBuffer("PerObject", m_hObjectTransformCB);
 
-  ezRendererCore::GetDefaultInstance()->DrawMeshBuffer(hObject);
+  ezRenderContext::GetDefaultInstance()->DrawMeshBuffer(hObject);
 }
 

@@ -50,20 +50,20 @@ struct ezShaderBindFlags
 
 EZ_DECLARE_FLAGS_OPERATORS(ezShaderBindFlags);
 
-class EZ_RENDERERCORE_DLL ezRendererCore
+class EZ_RENDERERCORE_DLL ezRenderContext
 {
 private:
-  ezRendererCore();
-  ~ezRendererCore();
+  ezRenderContext();
+  ~ezRenderContext();
   friend class ezMemoryUtils;
 
-  static ezRendererCore* s_DefaultInstance;
-  static ezHybridArray<ezRendererCore*, 4> s_Instances;
+  static ezRenderContext* s_DefaultInstance;
+  static ezHybridArray<ezRenderContext*, 4> s_Instances;
 
 public:
-  static ezRendererCore* GetDefaultInstance();
-  static ezRendererCore* CreateInstance();
-  static void DestroyInstance(ezRendererCore* pRenderer);
+  static ezRenderContext* GetDefaultInstance();
+  static ezRenderContext* CreateInstance();
+  static void DestroyInstance(ezRenderContext* pRenderer);
 
   void SetGALContext(ezGALContext* pContext);
   ezGALContext* GetGALContext() const { return m_pGALContext; }

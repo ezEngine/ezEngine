@@ -49,7 +49,7 @@ private:
   virtual ezResourceLoadDesc CreateResource(const ezTextureResourceDescriptor& descriptor) override;
 
 private:
-  friend class ezRendererCore;
+  friend class ezRenderContext;
 
   const ezGALResourceViewHandle& GetGALTextureView() const { return m_hGALTexView[m_uiLoadedTextures - 1]; }
   const ezGALTextureHandle& GetGALTexture() const { return m_hGALTexture[m_uiLoadedTextures - 1]; }

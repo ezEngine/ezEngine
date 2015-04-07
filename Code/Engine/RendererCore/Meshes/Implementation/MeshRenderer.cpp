@@ -1,7 +1,7 @@
 #include <RendererCore/PCH.h>
 #include <RendererCore/Meshes/MeshComponent.h>
 #include <RendererCore/Meshes/MeshRenderer.h>
-#include <RendererCore/RendererCore.h>
+#include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/Pipeline/RenderPipeline.h>
 #include <RendererCore/ConstantBuffers/ConstantBufferResource.h>
 #include <Core/ResourceManager/ResourceManager.h>
@@ -20,7 +20,7 @@ void ezMeshRenderer::GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>
   types.PushBack(ezGetStaticRTTI<ezMeshRenderData>());
 }
 
-ezUInt32 ezMeshRenderer::Render(const ezRenderContext& renderContext, ezRenderPipelinePass* pPass, const ezArrayPtr<const ezRenderData*>& renderData)
+ezUInt32 ezMeshRenderer::Render(const ezRenderViewContext& renderContext, ezRenderPipelinePass* pPass, const ezArrayPtr<const ezRenderData*>& renderData)
 {
   if (!m_hObjectTransformCB.IsValid())
   {
@@ -57,7 +57,7 @@ ezUInt32 ezMeshRenderer::Render(const ezRenderContext& renderContext, ezRenderPi
 
     if (pRenderData->m_hMaterial != hLastMaterial)
     {
-      ezRendererCore::GetDefaultInstance()->SetMaterialState(pRenderData->m_hMaterial);
+      ezRenderContext::GetDefaultInstance()->SetMaterialState(pRenderData->m_hMaterial);
       hLastMaterial = pRenderData->m_hMaterial;
     }
 

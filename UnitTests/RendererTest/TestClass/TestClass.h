@@ -7,7 +7,7 @@
 #include <RendererCore/Meshes/MeshBufferResource.h>
 #include <CoreUtils/Geometry/GeomUtils.h>
 #include <RendererCore/ShaderCompiler/ShaderCompiler.h>
-#include <RendererCore/RendererCore.h>
+#include <RendererCore/RenderContext/RenderContext.h>
 
 class ezImage;
 

@@ -7,7 +7,7 @@
 #include <RendererDX11/Device/DeviceDX11.h>
 #include <RendererFoundation/Device/SwapChain.h>
 #include <RendererFoundation/Context/Context.h>
-#include <RendererCore/RendererCore.h>
+#include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/ShaderCompiler/ShaderCompiler.h>
 #include <System/Window/Window.h>
 #include <QProcess>

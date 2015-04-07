@@ -1,12 +1,12 @@
 #include <RendererCore/PCH.h>
-#include <RendererCore/RendererCore.h>
+#include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/ConstantBuffers/ConstantBufferResource.h>
 
-GlobalConstants ezRendererCore::s_GlobalConstants;
-bool ezRendererCore::s_bGlobalConstantsModified = true;
-ezConstantBufferResourceHandle ezRendererCore::s_hGlobalConstantBuffer;
+GlobalConstants ezRenderContext::s_GlobalConstants;
+bool ezRenderContext::s_bGlobalConstantsModified = true;
+ezConstantBufferResourceHandle ezRenderContext::s_hGlobalConstantBuffer;
 
-void ezRendererCore::UploadGlobalConstants()
+void ezRenderContext::UploadGlobalConstants()
 {
   if (!s_bGlobalConstantsModified)
     return;

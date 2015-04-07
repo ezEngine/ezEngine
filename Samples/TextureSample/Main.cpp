@@ -29,7 +29,7 @@
 #include <RendererFoundation/Device/SwapChain.h>
 #include <RendererFoundation/Context/Context.h>
 
-#include <RendererCore/RendererCore.h>
+#include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/ShaderCompiler/ShaderCompiler.h>
 #include <RendererCore/Shader/ShaderResource.h>
 #include <RendererCore/ConstantBuffers/ConstantBufferResource.h>
@@ -199,7 +199,7 @@ public:
 
     // Setup Shaders and Materials
     {
-      ezRendererCore::ConfigureShaderSystem("DX11_SM40", true);
+      ezRenderContext::ConfigureShaderSystem("DX11_SM40", true);
 
       m_hMaterial = ezResourceManager::LoadResource<ezMaterialResource>("Materials/Texture.ezMaterial");
 
@@ -292,9 +292,9 @@ public:
       Proj.SetIdentity();
       Proj.SetOrthographicProjectionMatrix(m_vCameraPosition.x + -(float) g_uiWindowWidth * 0.5f, m_vCameraPosition.x + (float) g_uiWindowWidth * 0.5f, m_vCameraPosition.y + -(float) g_uiWindowHeight * 0.5f, m_vCameraPosition.y + (float) g_uiWindowHeight * 0.5f, -1.0f, 1.0f);
 
-      ezRendererCore::SetMaterialParameter("ViewProjectionMatrix", Proj);
+      ezRenderContext::SetMaterialParameter("ViewProjectionMatrix", Proj);
 
-      ezRendererCore::GetDefaultInstance()->SetMaterialState(m_hMaterial);
+      ezRenderContext::GetDefaultInstance()->SetMaterialState(m_hMaterial);
 
       ezMat4 mTransform;
       mTransform.SetIdentity();
@@ -317,7 +317,7 @@ public:
         {
           mTransform.SetTranslationVector(ezVec3((float) x * 100.0f, (float) y * 100.0f, 0));
 
-          ezRendererCore::SetMaterialParameter("ModelMatrix", mTransform);
+          ezRenderContext::SetMaterialParameter("ModelMatrix", mTransform);
 
           sResourceName.Format("Loaded_%+03i_%+03i_D", x, y);
 
@@ -327,8 +327,8 @@ public:
           if (g_bForceImmediateLoading)
             ezResourceLock<ezTextureResource> l(hTexture, ezResourceAcquireMode::NoFallback);
 
-          ezRendererCore::GetDefaultInstance()->BindTexture("TexDiffuse", hTexture);
-          ezRendererCore::GetDefaultInstance()->DrawMeshBuffer(m_hQuadMeshBuffer);
+          ezRenderContext::GetDefaultInstance()->BindTexture("TexDiffuse", hTexture);
+          ezRenderContext::GetDefaultInstance()->DrawMeshBuffer(m_hQuadMeshBuffer);
         }
       }
 
@@ -340,7 +340,7 @@ public:
     // needs to be called once per frame
     ezResourceManager::PerFrameUpdate();
 
-    const ezUInt32 uiFailedDrawcalls = ezRendererCore::GetDefaultInstance()->RetrieveFailedDrawcalls();
+    const ezUInt32 uiFailedDrawcalls = ezRenderContext::GetDefaultInstance()->RetrieveFailedDrawcalls();
     if (uiFailedDrawcalls > 0)
     {
       // it would be best to render this on screen

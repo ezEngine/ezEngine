@@ -1,6 +1,6 @@
 #include <RendererCore/PCH.h>
 #include <RendererCore/ConstantBuffers/ConstantBufferResource.h>
-#include <RendererCore/RendererCore.h>
+#include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/Shader/ShaderPermutationBinary.h>
 #include <Foundation/Logging/Log.h>
 #include <Core/ResourceManager/ResourceManager.h>
@@ -78,14 +78,14 @@ void ezConstantBufferResource::UploadStateToGPU(ezGALContext* pContext)
   pContext->UpdateBuffer(m_hGALConstantBuffer, 0, m_Bytes.GetData(), m_Bytes.GetCount());
 }
 
-void ezRendererCore::BindConstantBuffer(const ezTempHashedString& sSlotName, const ezConstantBufferResourceHandle& hConstantBuffer)
+void ezRenderContext::BindConstantBuffer(const ezTempHashedString& sSlotName, const ezConstantBufferResourceHandle& hConstantBuffer)
 {
   m_ContextState.m_BoundConstantBuffers[sSlotName.GetHash()] = hConstantBuffer;
 
   m_ContextState.m_bConstantBufferBindingsChanged = true;
 }
 
-ezUInt8* ezRendererCore::InternalBeginModifyConstantBuffer(ezConstantBufferResourceHandle hConstantBuffer)
+ezUInt8* ezRenderContext::InternalBeginModifyConstantBuffer(ezConstantBufferResourceHandle hConstantBuffer)
 {
   EZ_ASSERT_DEV(m_ContextState.m_pCurrentlyModifyingBuffer == nullptr, "Only one buffer can be modified at a time. Call EndModifyConstantBuffer before updating another buffer.");
 
@@ -94,7 +94,7 @@ ezUInt8* ezRendererCore::InternalBeginModifyConstantBuffer(ezConstantBufferResou
   return m_ContextState.m_pCurrentlyModifyingBuffer->m_Bytes.GetData();
 }
 
-void ezRendererCore::EndModifyConstantBuffer()
+void ezRenderContext::EndModifyConstantBuffer()
 {
   EZ_ASSERT_DEV(m_ContextState.m_pCurrentlyModifyingBuffer != nullptr, "No buffer is currently being modified. Call BeginModifyConstantBuffer before calling EndModifyConstantBuffer.");
 
@@ -106,7 +106,7 @@ void ezRendererCore::EndModifyConstantBuffer()
   m_ContextState.m_pCurrentlyModifyingBuffer = nullptr;
 }
 
-void ezRendererCore::ApplyConstantBufferBindings(const ezShaderStageBinary* pBinary)
+void ezRenderContext::ApplyConstantBufferBindings(const ezShaderStageBinary* pBinary)
 {
   // Update Material CB
   if (pBinary->m_pMaterialParamCB && pBinary->m_pMaterialParamCB->m_uiMaterialCBSize > 0)

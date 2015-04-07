@@ -1,5 +1,5 @@
 #include <RendererCore/PCH.h>
-#include <RendererCore/RendererCore.h>
+#include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/ShaderCompiler/ShaderCompiler.h>
 #include <RendererCore/Shader/ShaderPermutationResource.h>
 #include <Foundation/Logging/Log.h>
@@ -11,7 +11,7 @@
 #include <RendererCore/Shader/ShaderPermutationResource.h>
 #include <RendererCore/ConstantBuffers/ConstantBufferResource.h>
 
-const ezPermutationGenerator* ezRendererCore::GetGeneratorForShaderPermutation(ezUInt32 uiPermutationHash)
+const ezPermutationGenerator* ezRenderContext::GetGeneratorForShaderPermutation(ezUInt32 uiPermutationHash)
 {
   auto it = s_PermutationHashCache.Find(uiPermutationHash);
 
@@ -21,7 +21,7 @@ const ezPermutationGenerator* ezRendererCore::GetGeneratorForShaderPermutation(e
   return nullptr;
 }
 
-void ezRendererCore::LoadShaderPermutationVarConfig(const char* szVariable)
+void ezRenderContext::LoadShaderPermutationVarConfig(const char* szVariable)
 {
   ezStringBuilder sPath;
   sPath.Format("%s/%s.ezPermVar", s_sPermVarSubDir.GetData(), szVariable);
@@ -33,7 +33,7 @@ void ezRendererCore::LoadShaderPermutationVarConfig(const char* szVariable)
     ezLog::Error("Could not read shader permutation variable '%s' from file '%s'", szVariable, sPath.GetData());
 }
 
-void ezRendererCore::PreloadShaderPermutations(ezShaderResourceHandle hShader, const ezPermutationGenerator& MainGenerator, ezTime tShouldBeAvailableIn)
+void ezRenderContext::PreloadShaderPermutations(ezShaderResourceHandle hShader, const ezPermutationGenerator& MainGenerator, ezTime tShouldBeAvailableIn)
 {
   ezResourceLock<ezShaderResource> pShader(hShader, ezResourceAcquireMode::NoFallback);
 
@@ -50,7 +50,7 @@ void ezRendererCore::PreloadShaderPermutations(ezShaderResourceHandle hShader, c
   }
 }
 
-ezShaderPermutationResourceHandle ezRendererCore::PreloadSingleShaderPermutation(ezShaderResourceHandle hShader, const ezHybridArray<ezPermutationGenerator::PermutationVar, 16>& UsedPermVars, ezTime tShouldBeAvailableIn)
+ezShaderPermutationResourceHandle ezRenderContext::PreloadSingleShaderPermutation(ezShaderResourceHandle hShader, const ezHybridArray<ezPermutationGenerator::PermutationVar, 16>& UsedPermVars, ezTime tShouldBeAvailableIn)
 {
   ezResourceLock<ezShaderResource> pShader(hShader, ezResourceAcquireMode::NoFallback);
 
@@ -86,7 +86,7 @@ ezShaderPermutationResourceHandle ezRendererCore::PreloadSingleShaderPermutation
   return hShaderPermutation;
 }
 
-void ezRendererCore::ConfigureShaderSystem(const char* szActivePlatform, bool bEnableRuntimeCompilation, const char* szShaderCacheDirectory, const char* szPermVarSubDirectory)
+void ezRenderContext::ConfigureShaderSystem(const char* szActivePlatform, bool bEnableRuntimeCompilation, const char* szShaderCacheDirectory, const char* szPermVarSubDirectory)
 {
   s_ShaderCacheDirectory = szShaderCacheDirectory;
   s_sPermVarSubDir = szPermVarSubDirectory;
@@ -98,7 +98,7 @@ void ezRendererCore::ConfigureShaderSystem(const char* szActivePlatform, bool bE
   s_sPlatform = s;
 }
 
-void ezRendererCore::SetShaderPermutationVariable(const char* szVariable, const char* szValue)
+void ezRenderContext::SetShaderPermutationVariable(const char* szVariable, const char* szValue)
 {
   ezStringBuilder sVar, sVal;
   sVar = szVariable;
@@ -134,7 +134,7 @@ void ezRendererCore::SetShaderPermutationVariable(const char* szVariable, const 
   itVar.Value() = sVal;
 }
 
-void ezRendererCore::SetActiveShader(ezShaderResourceHandle hShader, ezBitflags<ezShaderBindFlags> flags)
+void ezRenderContext::SetActiveShader(ezShaderResourceHandle hShader, ezBitflags<ezShaderBindFlags> flags)
 {
   m_ContextState.m_ShaderBindFlags = flags;
 
@@ -144,7 +144,7 @@ void ezRendererCore::SetActiveShader(ezShaderResourceHandle hShader, ezBitflags<
   m_ContextState.m_hActiveShader = hShader;
 }
 
-ezGALShaderHandle ezRendererCore::GetActiveGALShader()
+ezGALShaderHandle ezRenderContext::GetActiveGALShader()
 {
   // make sure the internal state is up to date
   SetShaderContextState(false);
@@ -155,7 +155,7 @@ ezGALShaderHandle ezRendererCore::GetActiveGALShader()
   return m_ContextState.m_hActiveGALShader;
 }
 
-void ezRendererCore::SetShaderContextState(bool bForce)
+void ezRenderContext::SetShaderContextState(bool bForce)
 {
   ezShaderPermutationResource* pShaderPermutation = nullptr;
 

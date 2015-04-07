@@ -1,6 +1,6 @@
 #include <RendererCore/PCH.h>
 #include <RendererCore/Textures/TextureResource.h>
-#include <RendererCore/RendererCore.h>
+#include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/Shader/ShaderPermutationBinary.h>
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Configuration/Startup.h>
@@ -509,14 +509,14 @@ bool ezTextureResourceLoader::IsResourceOutdated(const ezResourceBase* pResource
 }
 
 
-void ezRendererCore::BindTexture(const ezTempHashedString& sSlotName, const ezTextureResourceHandle& hTexture)
+void ezRenderContext::BindTexture(const ezTempHashedString& sSlotName, const ezTextureResourceHandle& hTexture)
 {
   m_ContextState.m_BoundTextures[sSlotName.GetHash()] = hTexture;
 
   m_ContextState.m_bTextureBindingsChanged = true;
 }
 
-void ezRendererCore::ApplyTextureBindings(ezGALShaderStage::Enum stage, const ezShaderStageBinary* pBinary)
+void ezRenderContext::ApplyTextureBindings(ezGALShaderStage::Enum stage, const ezShaderStageBinary* pBinary)
 {
   for (const auto& rb : pBinary->m_ShaderResourceBindings)
   {

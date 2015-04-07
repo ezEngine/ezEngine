@@ -1,6 +1,6 @@
 #include <RendererCore/PCH.h>
 #include <RendererCore/ShaderCompiler/ShaderCompiler.h>
-#include <RendererCore/RendererCore.h>
+#include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/Shader/Implementation/Helper.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
@@ -326,9 +326,9 @@ void ezShaderCompiler::RunShaderCompilerForPermutations(const char* szFile, cons
           }
           else
           {
-            ezStringBuilder sShaderStageFile = ezRendererCore::GetShaderCacheDirectory();
+            ezStringBuilder sShaderStageFile = ezRenderContext::GetShaderCacheDirectory();
 
-            sShaderStageFile.AppendPath(ezRendererCore::GetActiveShaderPlatform().GetData());
+            sShaderStageFile.AppendPath(ezRenderContext::GetActiveShaderPlatform().GetData());
             sShaderStageFile.AppendFormat("/%08X.ezShaderSource", spd.m_StageBinary[stage].m_uiSourceHash);
 
             ezFileWriter StageFileOut;
@@ -341,7 +341,7 @@ void ezShaderCompiler::RunShaderCompilerForPermutations(const char* szFile, cons
         }
       }
 
-      sTemp = ezRendererCore::GetShaderCacheDirectory();
+      sTemp = ezRenderContext::GetShaderCacheDirectory();
       sTemp.AppendPath(Platforms[p].GetData());
       sTemp.AppendPath(szFile);
       sTemp.ChangeFileExtension("");

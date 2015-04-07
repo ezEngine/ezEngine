@@ -37,7 +37,7 @@
 
 #include <CoreUtils/Debugging/DataTransfer.h>
 
-#include <RendererCore/RendererCore.h>
+#include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/ShaderCompiler/ShaderCompiler.h>
 #include <RendererCore/Shader/ShaderResource.h>
 #include <RendererCore/ConstantBuffers/ConstantBufferResource.h>
@@ -173,7 +173,7 @@ public:
 
     m_hBBRT = pPrimarySwapChain->GetRenderTargetViewConfig();
 
-    ezRendererCore::ConfigureShaderSystem("DX11_SM40", true);
+    ezRenderContext::ConfigureShaderSystem("DX11_SM40", true);
 
     ezConstantBufferResourceDescriptor<TestCB> cbd;
     cbd.m_Data.mvp.SetIdentity();
@@ -183,8 +183,8 @@ public:
     cbd2.m_Data.m_CustomColor = ezColor::CornflowerBlue; // The original!
     m_hColorConstantBuffer = ezResourceManager::CreateResource<ezConstantBufferResource>("ColorCB", cbd2);
 
-    ezRendererCore::GetDefaultInstance()->BindConstantBuffer("PerObject", m_hConstantBuffer);
-    ezRendererCore::GetDefaultInstance()->BindConstantBuffer("ColorBuffer", m_hColorConstantBuffer);
+    ezRenderContext::GetDefaultInstance()->BindConstantBuffer("PerObject", m_hConstantBuffer);
+    ezRenderContext::GetDefaultInstance()->BindConstantBuffer("ColorBuffer", m_hColorConstantBuffer);
 
     for (int i = 0; i < MaxObjs; ++i)
       m_pObj[i] = DontUse::MayaObj::LoadFromFile("ez.obj", m_pDevice, i);
@@ -195,8 +195,8 @@ public:
 
     ezMaterialResource::SetTypeMissingResource(m_hMaterialMissing);
 
-    ezRendererCore::GetDefaultInstance()->SetActiveShader(m_hShader);
-    ezRendererCore::GetDefaultInstance()->SetShaderPermutationVariable("COLORED", "1");
+    ezRenderContext::GetDefaultInstance()->SetActiveShader(m_hShader);
+    ezRenderContext::GetDefaultInstance()->SetShaderPermutationVariable("COLORED", "1");
 
     ezGALRasterizerStateCreationDescription RasterStateDesc;
     RasterStateDesc.m_bWireFrame = true;
@@ -214,14 +214,14 @@ public:
 
     m_DebugBackBufferDT.EnableDataTransfer("Back Buffer");
 
-    ezRendererCore::SetMaterialParameter("MatColor", ezColor(0, 1, 0));
-    ezRendererCore::SetMaterialParameter("MatFloat4", ezColor(0, 0, 1));
+    ezRenderContext::SetMaterialParameter("MatColor", ezColor(0, 1, 0));
+    ezRenderContext::SetMaterialParameter("MatFloat4", ezColor(0, 0, 1));
 
     ezMat4 ColorTransform;
     ColorTransform.SetIdentity();
     ColorTransform.SetZero();
     ColorTransform.Element(0, 1) = 1;
-    ezRendererCore::SetMaterialParameter("MatMat3", ColorTransform); // Mat3 doesn't work right
+    ezRenderContext::SetMaterialParameter("MatMat3", ColorTransform); // Mat3 doesn't work right
 
     ezStartup::StartupEngine();
   }
@@ -234,22 +234,22 @@ public:
     if (m_pWindow->m_bCloseRequested)
       return ApplicationExecution::Quit;
 
-    ezRendererCore::WriteGlobalConstants().GameTime = (float) ezClock::Get()->GetAccumulatedTime().GetSeconds();
+    ezRenderContext::WriteGlobalConstants().GameTime = (float) ezClock::Get()->GetAccumulatedTime().GetSeconds();
 
     if (ezInputManager::GetInputActionState("Main", "CloseApp") == ezKeyState::Pressed)
       return ApplicationExecution::Quit;
 
     if (ezInputManager::GetInputActionState("Main", "ChangeColor") == ezKeyState::Pressed)
     {
-      auto ObjectData = ezRendererCore::GetDefaultInstance()->BeginModifyConstantBuffer<ColorCB>(m_hColorConstantBuffer);
+      auto ObjectData = ezRenderContext::GetDefaultInstance()->BeginModifyConstantBuffer<ColorCB>(m_hColorConstantBuffer);
       ObjectData->m_CustomColor = ObjectData->m_CustomColor.GetInvertedColor();
 
-      ezRendererCore::WriteGlobalConstants().AmbientColor = ObjectData->m_CustomColor;
+      ezRenderContext::WriteGlobalConstants().AmbientColor = ObjectData->m_CustomColor;
 
-      ezRendererCore::GetDefaultInstance()->EndModifyConstantBuffer();
+      ezRenderContext::GetDefaultInstance()->EndModifyConstantBuffer();
 
-      ezRendererCore::SetMaterialParameter("MatColor", ObjectData->m_CustomColor);
-      ezRendererCore::SetMaterialParameter("MatFloat4", ObjectData->m_CustomColor);
+      ezRenderContext::SetMaterialParameter("MatColor", ObjectData->m_CustomColor);
+      ezRenderContext::SetMaterialParameter("MatFloat4", ObjectData->m_CustomColor);
     }
 
     if (ezInputManager::GetInputActionState("Main", "ToggleShader") == ezKeyState::Pressed)
@@ -260,15 +260,15 @@ public:
       switch (iPerm)
       {
       case 0:
-        ezRendererCore::GetDefaultInstance()->SetShaderPermutationVariable("COLORED", "0");
+        ezRenderContext::GetDefaultInstance()->SetShaderPermutationVariable("COLORED", "0");
         break;
       case 1:
-        ezRendererCore::GetDefaultInstance()->SetShaderPermutationVariable("COLORED", "1");
+        ezRenderContext::GetDefaultInstance()->SetShaderPermutationVariable("COLORED", "1");
 
         //if (iColorValue > 250)
         //  iColorValue = 10;
 
-        //ezRendererCore::SetShaderPermutationVariable("COLORVALUE", ezConversionUtils::ToString(iColorValue).GetData());
+        //ezRenderContext::SetShaderPermutationVariable("COLORVALUE", ezConversionUtils::ToString(iColorValue).GetData());
 
         //iColorValue += 10;
 
@@ -285,9 +285,9 @@ public:
     if (ezInputManager::GetInputActionState("Main", "PreloadShader") == ezKeyState::Pressed)
     {
       ezPermutationGenerator All;
-      All.ReadFromFile("ShaderPermutations.txt", ezRendererCore::GetActiveShaderPlatform().GetData());
+      All.ReadFromFile("ShaderPermutations.txt", ezRenderContext::GetActiveShaderPlatform().GetData());
 
-      ezRendererCore::PreloadShaderPermutations(m_hShader, All, ezTime::Milliseconds(10000.0));
+      ezRenderContext::PreloadShaderPermutations(m_hShader, All, ezTime::Milliseconds(10000.0));
     }
 
     if (ezInputManager::GetInputActionState("Main", "FreeResources") == ezKeyState::Pressed)
@@ -299,7 +299,7 @@ public:
     {
       ezResourceManager::ReloadAllResources();
 
-      ezRendererCore::GetDefaultInstance()->ApplyContextStates(true); // force state resetting
+      ezRenderContext::GetDefaultInstance()->ApplyContextStates(true); // force state resetting
     }
 
     ezClock::UpdateAllGlobalClocks();
@@ -349,16 +349,16 @@ public:
 #endif
       );
 
-    auto ObjectData = ezRendererCore::GetDefaultInstance()->BeginModifyConstantBuffer<TestCB>(m_hConstantBuffer);
+    auto ObjectData = ezRenderContext::GetDefaultInstance()->BeginModifyConstantBuffer<TestCB>(m_hConstantBuffer);
     ObjectData->mvp = Proj * View * Model * ModelRot;
 
-    ezRendererCore::GetDefaultInstance()->EndModifyConstantBuffer();
+    ezRenderContext::GetDefaultInstance()->EndModifyConstantBuffer();
 
-    ezRendererCore::GetDefaultInstance()->SetMaterialState(m_hMaterial);
+    ezRenderContext::GetDefaultInstance()->SetMaterialState(m_hMaterial);
 
-    ezRendererCore::SetMaterialParameter("MatFloat4", ezColor::Teal);
+    ezRenderContext::SetMaterialParameter("MatFloat4", ezColor::Teal);
 
-    ezRendererCore::GetDefaultInstance()->DrawMeshBuffer(m_pObj[m_iCurObject]->m_hMeshBuffer);
+    ezRenderContext::GetDefaultInstance()->DrawMeshBuffer(m_pObj[m_iCurObject]->m_hMeshBuffer);
 
 
     // Readback: Currently not supported for MSAA since Resolve() is not implemented
@@ -392,7 +392,7 @@ public:
 
     m_pDevice->EndFrame();
 
-    const ezUInt32 uiFailedDrawcalls = ezRendererCore::GetDefaultInstance()->RetrieveFailedDrawcalls();
+    const ezUInt32 uiFailedDrawcalls = ezRenderContext::GetDefaultInstance()->RetrieveFailedDrawcalls();
     if (uiFailedDrawcalls > 0)
     {
       // it would be best to render this on screen

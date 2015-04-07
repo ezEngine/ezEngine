@@ -16,7 +16,7 @@
 #endif
 
 #include <RendererCore/Pipeline/RenderPipeline.h>
-#include <RendererCore/RendererCore.h>
+#include <RendererCore/RenderContext/RenderContext.h>
 
 const ezColor g_fShipColors[4] =
 {
@@ -85,7 +85,7 @@ void SampleGameApp::InitRendering()
 
   ezGALDevice::SetDefaultDevice(pDevice);
 
-  ezRendererCore::ConfigureShaderSystem("DX11_SM40", true);
+  ezRenderContext::ConfigureShaderSystem("DX11_SM40", true);
 
   ezRenderPipeline* pRenderPipeline = EZ_DEFAULT_NEW(ezRenderPipeline)(ezRenderPipeline::Asynchronous);
   pRenderPipeline->AddPass(EZ_DEFAULT_NEW(MainRenderPass));

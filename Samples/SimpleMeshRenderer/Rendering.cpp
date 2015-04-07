@@ -13,7 +13,7 @@ typedef ezGALDeviceDX11 ezGALDeviceDefault;
 #endif
 
 #include <RendererCore/Pipeline/RenderPipeline.h>
-#include <RendererCore/RendererCore.h>
+#include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/Textures/TextureResource.h>
 #include <RendererCore/Material/MaterialResource.h>
 
@@ -34,7 +34,7 @@ void SampleApp::InitRendering()
 
   ezGALDevice::SetDefaultDevice(pDevice);
 
-  ezRendererCore::ConfigureShaderSystem("DX11_SM40", true);
+  ezRenderContext::ConfigureShaderSystem("DX11_SM40", true);
 
   m_pRenderPipeline = EZ_DEFAULT_NEW(ezRenderPipeline)(ezRenderPipeline::Asynchronous);
   m_pMainRenderPass = EZ_DEFAULT_NEW(MainRenderPass);

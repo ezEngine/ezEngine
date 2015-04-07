@@ -56,7 +56,7 @@ private:
 
 
 private:
-  friend class ezRendererCore;
+  friend class ezRenderContext;
   ezGALBufferHandle GetGALBufferHandle() const { return m_hGALConstantBuffer; }
 
   void UploadStateToGPU(ezGALContext* pContext);

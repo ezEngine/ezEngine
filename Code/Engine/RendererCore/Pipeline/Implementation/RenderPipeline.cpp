@@ -1,5 +1,5 @@
 #include <RendererCore/PCH.h>
-#include <RendererCore/RendererCore.h>
+#include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/Pipeline/RenderPipeline.h>
 #include <Core/World/World.h>
 
@@ -69,7 +69,7 @@ void ezRenderPipeline::ExtractData(const ezView& view)
   }
 }
 
-void ezRenderPipeline::Render(const ezView& view, ezRendererCore* pRenderer)
+void ezRenderPipeline::Render(const ezView& view, ezRenderContext* pRenderer)
 {
   // swap data
   if (m_Mode == Asynchronous)
@@ -81,7 +81,7 @@ void ezRenderPipeline::Render(const ezView& view, ezRendererCore* pRenderer)
   const ezRectFloat& viewPortRect = view.GetViewport();
   pRenderer->GetGALContext()->SetViewport(viewPortRect.x, viewPortRect.y, viewPortRect.width, viewPortRect.height, 0.0f, 1.0f);
 
-  ezRenderContext renderContext;
+  ezRenderViewContext renderContext;
   renderContext.m_pView = &view;
   renderContext.m_pRenderer = pRenderer;
 

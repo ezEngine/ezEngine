@@ -2,7 +2,7 @@
 #include <RendererFoundation/Device/SwapChain.h>
 #include <RendererCore/Meshes/MeshRenderer.h>
 #include <RendererCore/Pipeline/RenderPipeline.h>
-#include <RendererCore/RendererCore.h>
+#include <RendererCore/RenderContext/RenderContext.h>
 
 #include "MainRenderPass.h"
 
@@ -17,7 +17,7 @@ MainRenderPass::~MainRenderPass()
   EZ_DEFAULT_DELETE(m_pMeshRenderer);
 }
 
-void MainRenderPass::Execute(const ezRenderContext& renderContext)
+void MainRenderPass::Execute(const ezRenderViewContext& renderContext)
 {
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
   ezGALContext* pContext = renderContext.m_pRenderer->GetGALContext();

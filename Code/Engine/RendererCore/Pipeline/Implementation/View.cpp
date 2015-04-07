@@ -25,7 +25,7 @@ void ezView::ExtractData()
   m_pRenderPipeline->ExtractData(*this);
 }
 
-void ezView::Render(ezRendererCore* pRenderer)
+void ezView::Render(ezRenderContext* pRenderer)
 {
   EZ_ASSERT_DEV(IsValid(), "Cannot render an invalid view");
 

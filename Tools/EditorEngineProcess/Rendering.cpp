@@ -3,7 +3,7 @@
 #include <RendererFoundation/Context/Context.h>
 #include <RendererFoundation/Device/SwapChain.h>
 #include <RendererDX11/Device/DeviceDX11.h>
-#include <RendererCore/RendererCore.h>
+#include <RendererCore/RenderContext/RenderContext.h>
 #include <Foundation/Threading/TaskSystem.h>
 #include <EditorFramework/EngineProcess/EngineProcessDocumentContext.h>
 #include <EditorFramework/EngineProcess/EngineProcessMessages.h>
@@ -112,7 +112,7 @@ void ezViewContext::RenderTranslateGizmo(const ezMat4& mTransformation)
 {
   ezUInt32 uiPickingID = m_PickingCache.GeneratePickingID(nullptr, "ezTranslateGizmo");
 
-  ezRendererCore::GetDefaultInstance()->SetActiveShader(m_hGizmoShader);
+  ezRenderContext::GetDefaultInstance()->SetActiveShader(m_hGizmoShader);
 
   ObjectData od;
   od.m_ModelView = m_ProjectionMatrix * m_ViewMatrix * mTransformation;
@@ -130,15 +130,15 @@ void ezViewContext::RenderTranslateGizmo(const ezMat4& mTransformation)
 
   pContext->SetConstantBuffer(1, m_hCB);
 
-  /// \todo The ViewContext probably should have an ezRendererCore as a member, instead of using the default
-  ezRendererCore::GetDefaultInstance()->DrawMeshBuffer(m_hTranslateGizmo);
+  /// \todo The ViewContext probably should have an ezRenderContext as a member, instead of using the default
+  ezRenderContext::GetDefaultInstance()->DrawMeshBuffer(m_hTranslateGizmo);
 }
 
 void ezViewContext::RenderObject(ezGameObject* pObject, const ezMat4& ViewProj)
 {
   ezUInt32 uiPickingID = m_PickingCache.GeneratePickingID(pObject, "ezGameObject");
 
-  ezRendererCore::GetDefaultInstance()->SetActiveShader(m_hShader);
+  ezRenderContext::GetDefaultInstance()->SetActiveShader(m_hShader);
 
   const ezVec3 vPos = pObject->GetWorldPosition();
 
@@ -160,7 +160,7 @@ void ezViewContext::RenderObject(ezGameObject* pObject, const ezMat4& ViewProj)
 
   pContext->SetConstantBuffer(1, m_hCB);
 
-  ezRendererCore::GetDefaultInstance()->DrawMeshBuffer(m_hSphere);
+  ezRenderContext::GetDefaultInstance()->DrawMeshBuffer(m_hSphere);
 }
 
 void ezViewContext::RenderScene()
@@ -235,7 +235,7 @@ void ezViewContext::Redraw()
     pContext->SetRenderTargetConfig(m_hPickingRenderTargetCfg);
 
     pContext->Clear(ezColor::Black);
-    ezRendererCore::GetDefaultInstance()->SetShaderPermutationVariable("EDITOR_PICKING", "1");
+    ezRenderContext::GetDefaultInstance()->SetShaderPermutationVariable("EDITOR_PICKING", "1");
 
     RenderScene();
   }
@@ -245,7 +245,7 @@ void ezViewContext::Redraw()
 
     ezColor c = ezColor::CornflowerBlue * 0.25f; // The original! * 0.25f
     pContext->Clear(c);
-    ezRendererCore::GetDefaultInstance()->SetShaderPermutationVariable("EDITOR_PICKING", "0");
+    ezRenderContext::GetDefaultInstance()->SetShaderPermutationVariable("EDITOR_PICKING", "0");
 
     RenderScene();
   }

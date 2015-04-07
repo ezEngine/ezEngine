@@ -8,7 +8,7 @@ public:
   MainRenderPass();
   ~MainRenderPass();
 
-  virtual void Execute(const ezRenderContext& renderContext) override;
+  virtual void Execute(const ezRenderViewContext& renderContext) override;
 
 private:
   ezRenderer* m_pMeshRenderer;

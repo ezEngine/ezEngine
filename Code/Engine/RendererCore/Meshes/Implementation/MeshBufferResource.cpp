@@ -2,7 +2,7 @@
 #include <RendererCore/Meshes/MeshBufferResource.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Context/Context.h>
-#include <RendererCore/RendererCore.h>
+#include <RendererCore/RenderContext/RenderContext.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezMeshBufferResource, ezResourceBase, 1, ezRTTIDefaultAllocator<ezMeshBufferResource>);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
@@ -213,7 +213,7 @@ void ezVertexDeclarationInfo::ComputeHash()
   }
 }
 
-ezGALVertexDeclarationHandle ezRendererCore::GetVertexDeclaration(ezGALShaderHandle hShader, const ezVertexDeclarationInfo& decl)
+ezGALVertexDeclarationHandle ezRenderContext::GetVertexDeclaration(ezGALShaderHandle hShader, const ezVertexDeclarationInfo& decl)
 {
   ShaderVertexDecl svd;
   svd.m_hShader = hShader;
