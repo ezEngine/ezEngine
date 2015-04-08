@@ -1,6 +1,6 @@
 #pragma once
 
-#include <RendererCore/Basics.h>
+#include <RendererCore/Declarations.h>
 #include <Foundation/Strings/HashedString.h>
 #include <RendererCore/ShaderCompiler/PermutationGenerator.h>
 #include <Foundation/Strings/String.h>
@@ -13,42 +13,6 @@
 #include <RendererCore/../../../Shared/Data/Shaders/Common/GlobalConstants.h>
 #include <RendererCore/Shader/ShaderStageBinary.h>
 
-class ezGALContext;
-class ezShaderStageBinary;
-struct ezVertexDeclarationInfo;
-
-typedef ezResourceHandle<class ezTextureResource> ezTextureResourceHandle;
-typedef ezResourceHandle<class ezConstantBufferResource> ezConstantBufferResourceHandle;
-typedef ezResourceHandle<class ezMeshBufferResource> ezMeshBufferResourceHandle;
-typedef ezResourceHandle<class ezMaterialResource> ezMaterialResourceHandle;
-typedef ezResourceHandle<class ezShaderResource> ezShaderResourceHandle;
-typedef ezResourceHandle<class ezShaderPermutationResource> ezShaderPermutationResourceHandle;
-
-struct ezShaderBindFlags
-{
-  typedef ezUInt32 StorageType;
-
-  enum Enum
-  {
-    None = 0,                           ///< No flags causes the default shader binding behavior (all render states are applied)
-    ForceRebind         = EZ_BIT(0),    ///< Executes shader binding (and state setting), even if the shader hasn't changed. Use this, when the same shader was previously used with custom bound states
-    NoRasterizerState   = EZ_BIT(1),    ///< The rasterizer state that is associated with the shader will not be bound. Use this when you intend to bind a custom rasterizer m_ContextState.
-    NoDepthStencilState = EZ_BIT(2),    ///< The depth-stencil state that is associated with the shader will not be bound. Use this when you intend to bind a custom depth-stencil m_ContextState.
-    NoBlendState        = EZ_BIT(3),    ///< The blend state that is associated with the shader will not be bound. Use this when you intend to bind a custom blend m_ContextState.
-    NoStateBinding      = NoRasterizerState | NoDepthStencilState | NoBlendState,
-
-    Default = None
-  };
-
-  struct Bits
-  {
-    StorageType NoRasterizerState   : 1;
-    StorageType NoDepthStencilState : 1;
-    StorageType NoBlendState        : 1;
-  };
-};
-
-EZ_DECLARE_FLAGS_OPERATORS(ezShaderBindFlags);
 
 class EZ_RENDERERCORE_DLL ezRenderContext
 {
@@ -68,19 +32,30 @@ public:
   void SetGALContext(ezGALContext* pContext);
   ezGALContext* GetGALContext() const { return m_pGALContext; }
 
+public:
+  struct Statistics
+  {
+    Statistics();
+    void Reset();
+
+    ezUInt32 m_uiFailedDrawcalls;
+  };
+
+
   // Member Functions
   void SetShaderPermutationVariable(const char* szVariable, const char* szValue);
   void BindTexture(const ezTempHashedString& sSlotName, const ezTextureResourceHandle& hTexture);
   void SetMaterialState(const ezMaterialResourceHandle& hMaterial);
   void BindConstantBuffer(const ezTempHashedString& sSlotName, const ezConstantBufferResourceHandle& hConstantBuffer);
-  void DrawMeshBuffer(const ezMeshBufferResourceHandle& hMeshBuffer, ezUInt32 uiPrimitiveCount = 0xFFFFFFFF, ezUInt32 uiFirstPrimitive = 0, ezUInt32 uiInstanceCount = 1);
+  void BindMeshBuffer(const ezMeshBufferResourceHandle& hMeshBuffer);
+  void DrawMeshBuffer(ezUInt32 uiPrimitiveCount = 0xFFFFFFFF, ezUInt32 uiFirstPrimitive = 0, ezUInt32 uiInstanceCount = 1);
   ezResult ApplyContextStates(bool bForce = false);
-  ezUInt32 RetrieveFailedDrawcalls();
+  Statistics GetAndResetStatistics();
 
   /// \brief Sets the currently active shader on the given render context. If pContext is null, the state is set for the primary context.
   ///
   /// This function has no effect until the next drawcall on the context.
-  void SetActiveShader(ezShaderResourceHandle hShader, ezBitflags<ezShaderBindFlags> flags = ezShaderBindFlags::Default);
+  void BindShader(ezShaderResourceHandle hShader, ezBitflags<ezShaderBindFlags> flags = ezShaderBindFlags::Default);
 
   /// \brief Evaluates the currently active shader program and then returns that.
   /// Can be used to determine the shader that needs to be used to create a vertex declaration.
@@ -102,7 +77,7 @@ public:
   static bool IsRuntimeShaderCompilationEnabled() { return s_bEnableRuntimeCompilation; }
 
 public:
-  
+
   static void LoadShaderPermutationVarConfig(const char* szVariable);
   static const ezPermutationGenerator* GetGeneratorForShaderPermutation(ezUInt32 uiPermutationHash);
   static void PreloadShaderPermutations(ezShaderResourceHandle hShader, const ezPermutationGenerator& Generator, ezTime tShouldBeAvailableIn);
@@ -152,34 +127,21 @@ private:
   static void OnCoreShutdown();
 
 private:
-  struct ContextState
-  {
-    ContextState()
-    {
-      m_bShaderStateChanged = true;
-      m_bShaderStateValid = false;
-      m_bTextureBindingsChanged = true;
-      m_bConstantBufferBindingsChanged = true;
-      m_uiFailedDrawcalls = 0;
-      m_pCurrentlyModifyingBuffer = nullptr;
-    }
 
-    ezUInt32 m_uiFailedDrawcalls;
-    bool m_bShaderStateChanged;
-    bool m_bShaderStateValid;
-    bool m_bTextureBindingsChanged;
-    bool m_bConstantBufferBindingsChanged;
-    ezShaderResourceHandle m_hActiveShader;
-    ezGALShaderHandle m_hActiveGALShader;
-    ezMap<ezString, ezString> m_PermutationVariables;
-    ezPermutationGenerator m_PermGenerator;
-    ezShaderPermutationResourceHandle m_hActiveShaderPermutation;
-    ezConstantBufferResource* m_pCurrentlyModifyingBuffer;
-    ezBitflags<ezShaderBindFlags> m_ShaderBindFlags;
+  Statistics m_Statistics;
+  ezBitflags<ezRenderContextFlags> m_StateFlags;
+  ezShaderResourceHandle m_hActiveShader;
+  ezGALShaderHandle m_hActiveGALShader;
+  ezMap<ezString, ezString> m_PermutationVariables;
+  ezPermutationGenerator m_PermGenerator;
+  ezShaderPermutationResourceHandle m_hActiveShaderPermutation;
+  ezConstantBufferResource* m_pCurrentlyModifyingBuffer;
+  ezBitflags<ezShaderBindFlags> m_ShaderBindFlags;
+  ezMeshBufferResourceHandle m_hMeshBuffer;
+  ezUInt32 m_uiMeshBufferPrimitiveCount;
 
-    ezHashTable<ezUInt32, ezTextureResourceHandle> m_BoundTextures;
-    ezHashTable<ezUInt32, ezConstantBufferResourceHandle> m_BoundConstantBuffers;
-  };
+  ezHashTable<ezUInt32, ezTextureResourceHandle> m_BoundTextures;
+  ezHashTable<ezUInt32, ezConstantBufferResourceHandle> m_BoundConstantBuffers;
 
   struct ShaderVertexDecl
   {
@@ -203,7 +165,7 @@ private:
 
   static ezGALVertexDeclarationHandle GetVertexDeclaration(ezGALShaderHandle hShader, const ezVertexDeclarationInfo& decl);
   ezUInt8* InternalBeginModifyConstantBuffer(ezConstantBufferResourceHandle hConstantBuffer);
-  
+
   static MaterialParam* InternalSetMaterialParameter(const ezTempHashedString& sName, ezShaderMaterialParamCB::MaterialParameter::Type type, ezUInt32 uiMaxArrayElements);
 
   static ezPermutationGenerator s_AllowedPermutations;
@@ -221,11 +183,9 @@ private:
 
 private: // Per Renderer States
   ezGALContext* m_pGALContext;
-  ContextState m_ContextState;
 
   // Member Functions
   void UploadGlobalConstants();
-  void SetShaderContextState(bool bForce);
   void ApplyTextureBindings(ezGALShaderStage::Enum stage, const ezShaderStageBinary* pBinary);
   void ApplyConstantBufferBindings(const ezShaderStageBinary* pBinary);
 };

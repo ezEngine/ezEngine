@@ -190,7 +190,7 @@ struct EZ_COREUTILS_DLL ezImageFormat
   static ezImageFormat::Enum FromPixelMask(ezUInt32 uiRedMask, ezUInt32 uiGreenMask, ezUInt32 uiBlueMask, ezUInt32 uiAlphaMask);
 
 private:
-  EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(Core, Image);
+  EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(CoreUtils, Image);
 
   static void Startup();
   static void Shutdown();

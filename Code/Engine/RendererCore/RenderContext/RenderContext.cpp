@@ -25,11 +25,16 @@ void ezRenderContext::DestroyInstance(ezRenderContext* pRenderer)
 ezRenderContext::ezRenderContext()
 {
   if (s_DefaultInstance == nullptr)
+  {
+    SetGALContext(ezGALDevice::GetDefaultDevice()->GetPrimaryContext()); // set up with the default device
     s_DefaultInstance = this;
+  }
 
   s_Instances.PushBack(this);
 
-  SetGALContext(ezGALDevice::GetDefaultDevice()->GetPrimaryContext()); // set up with the default device
+  m_StateFlags = ezRenderContextFlags::AllStatesInvalid;
+  m_pCurrentlyModifyingBuffer = nullptr;
+  m_uiMeshBufferPrimitiveCount = 0;
 }
 
 ezRenderContext::~ezRenderContext()
@@ -43,4 +48,23 @@ ezRenderContext::~ezRenderContext()
 void ezRenderContext::SetGALContext(ezGALContext* pContext)
 {
   m_pGALContext = pContext;
+}
+
+void ezRenderContext::BindMeshBuffer(const ezMeshBufferResourceHandle& hMeshBuffer)
+{
+  if (m_hMeshBuffer == hMeshBuffer)
+    return;
+
+  m_StateFlags.Add(ezRenderContextFlags::MeshBufferBindingChanged);
+  m_hMeshBuffer = hMeshBuffer;
+}
+
+ezRenderContext::Statistics::Statistics()
+{
+  Reset();
+}
+
+void ezRenderContext::Statistics::Reset()
+{
+  m_uiFailedDrawcalls = 0;
 }

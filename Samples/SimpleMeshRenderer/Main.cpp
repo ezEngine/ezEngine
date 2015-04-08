@@ -139,13 +139,6 @@ ezApplication::ApplicationExecution SampleApp::Run()
   // needs to be called once per frame
   ezResourceManager::PerFrameUpdate();
 
-  const ezUInt32 uiFailedDrawcalls = ezRenderContext::GetDefaultInstance()->RetrieveFailedDrawcalls();
-  if (uiFailedDrawcalls > 0)
-  {
-    // it would be best to render this on screen
-    // spamming the log is not helpful though
-  }
-
   // tell the task system to finish its work for this frame
   // this has to be done at the very end, so that the task system will only use up the time that is left in this frame for
   // uploading GPU data etc.

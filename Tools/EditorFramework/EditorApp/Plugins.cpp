@@ -105,7 +105,7 @@ void ezEditorApp::LoadPlugins()
 
 void ezEditorApp::UnloadPlugins()
 {
-  for (auto it = s_EditorPluginsActive.m_Plugins.GetIterator(); it.IsValid(); ++it)
+  for (auto it = s_EditorPluginsActive.m_Plugins.GetLastIterator(); it.IsValid(); --it)
   {
     ezPlugin::UnloadPlugin(it.Key().GetData());
   }

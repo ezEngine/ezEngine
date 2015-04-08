@@ -17,7 +17,7 @@ void ezRenderContext::SetMaterialState(const ezMaterialResourceHandle& hMaterial
     SetMaterialState(md.m_hBaseMaterial);
 
   if (md.m_hShader.IsValid())
-    SetActiveShader(md.m_hShader);
+    BindShader(md.m_hShader);
 
   for (const auto& pv : md.m_PermutationVars)
   {
@@ -35,44 +35,35 @@ void ezRenderContext::SetMaterialState(const ezMaterialResourceHandle& hMaterial
   }
 }
 
-ezUInt32 ezRenderContext::RetrieveFailedDrawcalls()
+ezRenderContext::Statistics ezRenderContext::GetAndResetStatistics()
 {
-  return m_ContextState.m_uiFailedDrawcalls;
+  ezRenderContext::Statistics ret = m_Statistics;
+  ret.Reset();
+
+  return ret;
 }
 
 // static 
-void ezRenderContext::DrawMeshBuffer(const ezMeshBufferResourceHandle& hMeshBuffer, ezUInt32 uiPrimitiveCount, ezUInt32 uiFirstPrimitive, ezUInt32 uiInstanceCount)
+void ezRenderContext::DrawMeshBuffer(ezUInt32 uiPrimitiveCount, ezUInt32 uiFirstPrimitive, ezUInt32 uiInstanceCount)
 {
   if (ApplyContextStates().Failed())
   {
-    m_ContextState.m_uiFailedDrawcalls++;
+    m_Statistics.m_uiFailedDrawcalls++;
     return;
   }
 
-  ezResourceLock<ezMeshBufferResource> pMeshBuffer(hMeshBuffer);
+  EZ_ASSERT_DEV(uiFirstPrimitive < m_uiMeshBufferPrimitiveCount, "Invalid primitive range: first primitive (%d) can't be larger than number of primitives (%d)", uiFirstPrimitive, uiPrimitiveCount);
 
-  EZ_ASSERT_DEV(uiFirstPrimitive < pMeshBuffer->GetPrimitiveCount(), "Invalid primitive range: first primitive (%d) can't be larger than number of primitives (%d)", uiFirstPrimitive, uiPrimitiveCount);
-
-  uiPrimitiveCount = ezMath::Min(uiPrimitiveCount, pMeshBuffer->GetPrimitiveCount() - uiFirstPrimitive);
+  uiPrimitiveCount = ezMath::Min(uiPrimitiveCount, m_uiMeshBufferPrimitiveCount - uiFirstPrimitive);
   EZ_ASSERT_DEV(uiPrimitiveCount > 0, "Invalid primitive range: number of primitives can't be zero.");
 
-  m_pGALContext->SetVertexBuffer(0, pMeshBuffer->GetVertexBuffer());
 
-  ezGALBufferHandle hIndexBuffer = pMeshBuffer->GetIndexBuffer();
-  if (!hIndexBuffer.IsInvalidated())
-    m_pGALContext->SetIndexBuffer(hIndexBuffer);
-
-  m_pGALContext->SetPrimitiveTopology(ezGALPrimitiveTopology::Triangles);
   uiPrimitiveCount *= 3;
   uiFirstPrimitive *= 3;
 
-  {
-    m_pGALContext->SetVertexDeclaration(GetVertexDeclaration(m_ContextState.m_hActiveGALShader, pMeshBuffer->GetVertexDeclaration()));
-  }
-
   if (uiInstanceCount > 1)
   {
-    if (!hIndexBuffer.IsInvalidated())
+    if (m_StateFlags.IsSet(ezRenderContextFlags::MeshBufferHasIndexBuffer))
     {
       m_pGALContext->DrawIndexedInstanced(uiPrimitiveCount, uiInstanceCount, uiFirstPrimitive);
     }
@@ -83,7 +74,7 @@ void ezRenderContext::DrawMeshBuffer(const ezMeshBufferResourceHandle& hMeshBuff
   }
   else
   {
-    if (!hIndexBuffer.IsInvalidated())
+    if (m_StateFlags.IsSet(ezRenderContextFlags::MeshBufferHasIndexBuffer))
     {
       m_pGALContext->DrawIndexed(uiPrimitiveCount, uiFirstPrimitive);
     }
@@ -96,11 +87,129 @@ void ezRenderContext::DrawMeshBuffer(const ezMeshBufferResourceHandle& hMeshBuff
 
 ezResult ezRenderContext::ApplyContextStates(bool bForce)
 {
-  // make sure the internal state is up to date
-  SetShaderContextState(bForce);
+  ezShaderPermutationResource* pShaderPermutation = nullptr;
 
-  if (!m_ContextState.m_bShaderStateValid)
-    return EZ_FAILURE;
+  if (bForce || m_StateFlags.IsSet(ezRenderContextFlags::ShaderStateChanged))
+  {
+    m_StateFlags.Remove(ezRenderContextFlags::ShaderStateChanged | ezRenderContextFlags::ShaderStateValid);
+    m_StateFlags.Add(ezRenderContextFlags::TextureBindingChanged | ezRenderContextFlags::ConstantBufferBindingChanged);
+
+    if (!m_hActiveShader.IsValid())
+      return EZ_FAILURE;
+
+    ezResourceLock<ezShaderResource> pShader(m_hActiveShader, ezResourceAcquireMode::AllowFallback);
+
+    if (!pShader->IsShaderValid())
+      return EZ_FAILURE;
+
+    m_PermGenerator.Clear();
+    for (auto itPerm = m_PermutationVariables.GetIterator(); itPerm.IsValid(); ++itPerm)
+      m_PermGenerator.AddPermutation(itPerm.Key().GetData(), itPerm.Value().GetData());
+
+    m_PermGenerator.RemoveUnusedPermutations(pShader->GetUsedPermutationVars());
+
+    EZ_ASSERT_DEV(m_PermGenerator.GetPermutationCount() == 1, "Invalid shader setup");
+
+    ezHybridArray<ezPermutationGenerator::PermutationVar, 16> UsedPermVars;
+    m_PermGenerator.GetPermutation(0, UsedPermVars);
+
+    m_hActiveShaderPermutation = PreloadSingleShaderPermutation(m_hActiveShader, UsedPermVars, ezTime::Seconds(0.0));
+
+    if (!m_hActiveShaderPermutation.IsValid())
+      return EZ_FAILURE;
+
+    pShaderPermutation = ezResourceManager::BeginAcquireResource(m_hActiveShaderPermutation, ezResourceAcquireMode::AllowFallback);
+
+    if (!pShaderPermutation->IsShaderValid())
+    {
+      ezResourceManager::EndAcquireResource(pShaderPermutation);
+      return EZ_FAILURE;
+    }
+
+    m_hActiveGALShader = pShaderPermutation->GetGALShader();
+    EZ_ASSERT_DEV(!m_hActiveGALShader.IsInvalidated(), "Invalid GAL Shader handle.");
+
+    m_pGALContext->SetShader(m_hActiveGALShader);
+
+    // Set render state from shader (unless they are all deactivated)
+    if (!m_ShaderBindFlags.AreAllSet(ezShaderBindFlags::NoBlendState | ezShaderBindFlags::NoRasterizerState | ezShaderBindFlags::NoDepthStencilState))
+    {
+      if (!m_ShaderBindFlags.IsSet(ezShaderBindFlags::NoBlendState))
+        m_pGALContext->SetBlendState(pShaderPermutation->GetBlendState());
+
+      if (!m_ShaderBindFlags.IsSet(ezShaderBindFlags::NoRasterizerState))
+        m_pGALContext->SetRasterizerState(pShaderPermutation->GetRasterizerState());
+
+      if (!m_ShaderBindFlags.IsSet(ezShaderBindFlags::NoDepthStencilState))
+        m_pGALContext->SetDepthStencilState(pShaderPermutation->GetDepthStencilState());
+    }
+
+    m_StateFlags.Add(ezRenderContextFlags::ShaderStateValid);
+  }
+
+  if ((bForce || m_StateFlags.IsSet(ezRenderContextFlags::TextureBindingChanged)) && m_hActiveShaderPermutation.IsValid())
+  {
+    m_StateFlags.Remove(ezRenderContextFlags::TextureBindingChanged);
+
+    if (pShaderPermutation == nullptr)
+      pShaderPermutation = ezResourceManager::BeginAcquireResource(m_hActiveShaderPermutation, ezResourceAcquireMode::AllowFallback);
+
+    for (ezUInt32 stage = 0; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
+    {
+      auto pBin = pShaderPermutation->GetShaderStageBinary((ezGALShaderStage::Enum) stage);
+
+      if (pBin == nullptr)
+        continue;
+
+      ApplyTextureBindings((ezGALShaderStage::Enum) stage, pBin);
+    }
+  }
+
+  UploadGlobalConstants();
+
+  if ((bForce || m_StateFlags.IsSet(ezRenderContextFlags::ConstantBufferBindingChanged)) && m_hActiveShaderPermutation.IsValid())
+  {
+    m_StateFlags.Remove(ezRenderContextFlags::ConstantBufferBindingChanged);
+
+    if (pShaderPermutation == nullptr)
+      pShaderPermutation = ezResourceManager::BeginAcquireResource(m_hActiveShaderPermutation, ezResourceAcquireMode::AllowFallback);
+
+    for (ezUInt32 stage = 0; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
+    {
+      auto pBin = pShaderPermutation->GetShaderStageBinary((ezGALShaderStage::Enum) stage);
+
+      if (pBin == nullptr)
+        continue;
+
+      ApplyConstantBufferBindings(pBin);
+    }
+  }
+
+  if (pShaderPermutation != nullptr)
+    ezResourceManager::EndAcquireResource(pShaderPermutation);
+
+  if (bForce || m_StateFlags.IsSet(ezRenderContextFlags::MeshBufferBindingChanged))
+  {
+    EZ_ASSERT_DEV(m_hMeshBuffer.IsValid(), "No valid Mesh Buffer has been bound through ezRenderContext::BindMeshBuffer");
+
+    ezResourceLock<ezMeshBufferResource> pMeshBuffer(m_hMeshBuffer);
+    m_uiMeshBufferPrimitiveCount = pMeshBuffer->GetPrimitiveCount();
+
+    m_pGALContext->SetVertexBuffer(0, pMeshBuffer->GetVertexBuffer());
+
+    ezGALBufferHandle hIndexBuffer = pMeshBuffer->GetIndexBuffer();
+
+    // store whether we have an index buffer (needed during drawcalls)
+    m_StateFlags.AddOrRemove(ezRenderContextFlags::MeshBufferHasIndexBuffer, !hIndexBuffer.IsInvalidated());
+
+    if (!hIndexBuffer.IsInvalidated())
+      m_pGALContext->SetIndexBuffer(hIndexBuffer);
+
+    EZ_ASSERT_DEV(!m_hActiveGALShader.IsInvalidated(), "Invalid GAL Shader handle.");
+
+    m_pGALContext->SetPrimitiveTopology(ezGALPrimitiveTopology::Triangles);
+    m_pGALContext->SetVertexDeclaration(GetVertexDeclaration(m_hActiveGALShader, pMeshBuffer->GetVertexDeclaration()));
+  }
 
   return EZ_SUCCESS;
 }

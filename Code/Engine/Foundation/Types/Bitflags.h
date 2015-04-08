@@ -146,27 +146,27 @@ public:
   }
 
   /// \brief Sets the given flag.
-  EZ_FORCE_INLINE void Add(Enum flag) // [tested]
+  EZ_FORCE_INLINE void Add(const ezBitflags<T>& rhs) // [tested]
   {
-    m_Value |= flag;
+    m_Value |= rhs.m_Value;
   }
 
   /// \brief Removes the given flag.
-  EZ_FORCE_INLINE void Remove(Enum flag) // [tested]
+  EZ_FORCE_INLINE void Remove(const ezBitflags<T>& rhs) // [tested]
   {
-    m_Value &= (~flag);
+    m_Value &= (~rhs.m_Value);
   }
 
   /// \brief Toggles the state of the given flag.
-  EZ_FORCE_INLINE void Toggle(Enum flag) // [tested]
+  EZ_FORCE_INLINE void Toggle(const ezBitflags<T>& rhs) // [tested]
   {
-    m_Value ^= flag;
+    m_Value ^= rhs.m_Value;
   }
 
   /// \brief Sets or clears the given flag.
-  EZ_FORCE_INLINE void AddOrRemove(Enum flag, bool state) // [tested]
+  EZ_FORCE_INLINE void AddOrRemove(const ezBitflags<T>& rhs, bool state) // [tested]
   {
-    m_Value = (state) ? m_Value | flag : m_Value & (~flag);
+    m_Value = (state) ? m_Value | rhs.m_Value : m_Value & (~rhs.m_Value);
   }
 
   /// \brief Returns an object that has the flags of \a this and \a rhs combined.

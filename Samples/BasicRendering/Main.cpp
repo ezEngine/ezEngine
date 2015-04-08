@@ -195,7 +195,7 @@ public:
 
     ezMaterialResource::SetTypeMissingResource(m_hMaterialMissing);
 
-    ezRenderContext::GetDefaultInstance()->SetActiveShader(m_hShader);
+    ezRenderContext::GetDefaultInstance()->BindShader(m_hShader);
     ezRenderContext::GetDefaultInstance()->SetShaderPermutationVariable("COLORED", "1");
 
     ezGALRasterizerStateCreationDescription RasterStateDesc;
@@ -358,7 +358,9 @@ public:
 
     ezRenderContext::SetMaterialParameter("MatFloat4", ezColor::Teal);
 
-    ezRenderContext::GetDefaultInstance()->DrawMeshBuffer(m_pObj[m_iCurObject]->m_hMeshBuffer);
+    ezRenderContext::GetDefaultInstance()->BindMeshBuffer(m_pObj[m_iCurObject]->m_hMeshBuffer);
+
+    ezRenderContext::GetDefaultInstance()->DrawMeshBuffer();
 
 
     // Readback: Currently not supported for MSAA since Resolve() is not implemented
@@ -391,13 +393,6 @@ public:
     m_pDevice->Present(m_pDevice->GetPrimarySwapChain());
 
     m_pDevice->EndFrame();
-
-    const ezUInt32 uiFailedDrawcalls = ezRenderContext::GetDefaultInstance()->RetrieveFailedDrawcalls();
-    if (uiFailedDrawcalls > 0)
-    {
-      // it would be best to render this on screen
-      // spamming the log is not helpful though
-    }
 
     return ezApplication::Continue;
   }

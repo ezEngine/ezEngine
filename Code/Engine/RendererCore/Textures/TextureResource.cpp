@@ -511,9 +511,9 @@ bool ezTextureResourceLoader::IsResourceOutdated(const ezResourceBase* pResource
 
 void ezRenderContext::BindTexture(const ezTempHashedString& sSlotName, const ezTextureResourceHandle& hTexture)
 {
-  m_ContextState.m_BoundTextures[sSlotName.GetHash()] = hTexture;
+  m_BoundTextures[sSlotName.GetHash()] = hTexture;
 
-  m_ContextState.m_bTextureBindingsChanged = true;
+  m_StateFlags.Add(ezRenderContextFlags::TextureBindingChanged);
 }
 
 void ezRenderContext::ApplyTextureBindings(ezGALShaderStage::Enum stage, const ezShaderStageBinary* pBinary)
@@ -526,7 +526,7 @@ void ezRenderContext::ApplyTextureBindings(ezGALShaderStage::Enum stage, const e
     const ezUInt32 uiResourceHash = rb.m_Name.GetHash();
 
     ezTextureResourceHandle* hTexture;
-    if (!m_ContextState.m_BoundTextures.TryGetValue(uiResourceHash, hTexture))
+    if (!m_BoundTextures.TryGetValue(uiResourceHash, hTexture))
     {
       ezLog::Error("No resource is bound for shader slot '%s'", rb.m_Name.GetData());
       continue;

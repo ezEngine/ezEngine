@@ -64,7 +64,10 @@
       FormatMessage(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, nullptr,
           err, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), (LPTSTR) &lpMsgBuf, 0, nullptr);
 
-      ezLog::Error("Could not load plugin '%s'. Error-Code %u (\"%s\")", szPluginFile, err, lpMsgBuf);
+      if (ezUnicodeUtils::IsValidUtf8((const char*) lpMsgBuf)) // happens on localized systems
+        ezLog::Error("Could not load plugin '%s'. Error-Code %u / 0x%08X (\"%s\")", szPluginFile, err, err, lpMsgBuf);
+      else
+        ezLog::Error("Could not load plugin '%s'. Error-Code %u / 0x%08X", szPluginFile, err, err);
 
       LocalFree(lpMsgBuf);
 

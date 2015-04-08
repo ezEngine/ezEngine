@@ -61,7 +61,9 @@ ezUInt32 ezMeshRenderer::Render(const ezRenderViewContext& renderContext, ezRend
       hLastMaterial = pRenderData->m_hMaterial;
     }
 
-    renderContext.m_pRenderer->DrawMeshBuffer(pMesh->GetMeshBuffer(), meshPart.m_uiPrimitiveCount, meshPart.m_uiFirstPrimitive);
+    renderContext.m_pRenderer->BindMeshBuffer(pMesh->GetMeshBuffer());
+
+    renderContext.m_pRenderer->DrawMeshBuffer(meshPart.m_uiPrimitiveCount, meshPart.m_uiFirstPrimitive);
     
     ++uiDataRendered;
   }

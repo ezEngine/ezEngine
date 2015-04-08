@@ -112,7 +112,7 @@ void ezViewContext::RenderTranslateGizmo(const ezMat4& mTransformation)
 {
   ezUInt32 uiPickingID = m_PickingCache.GeneratePickingID(nullptr, "ezTranslateGizmo");
 
-  ezRenderContext::GetDefaultInstance()->SetActiveShader(m_hGizmoShader);
+  ezRenderContext::GetDefaultInstance()->BindShader(m_hGizmoShader);
 
   ObjectData od;
   od.m_ModelView = m_ProjectionMatrix * m_ViewMatrix * mTransformation;
@@ -131,14 +131,15 @@ void ezViewContext::RenderTranslateGizmo(const ezMat4& mTransformation)
   pContext->SetConstantBuffer(1, m_hCB);
 
   /// \todo The ViewContext probably should have an ezRenderContext as a member, instead of using the default
-  ezRenderContext::GetDefaultInstance()->DrawMeshBuffer(m_hTranslateGizmo);
+  ezRenderContext::GetDefaultInstance()->BindMeshBuffer(m_hTranslateGizmo);
+  ezRenderContext::GetDefaultInstance()->DrawMeshBuffer();
 }
 
 void ezViewContext::RenderObject(ezGameObject* pObject, const ezMat4& ViewProj)
 {
   ezUInt32 uiPickingID = m_PickingCache.GeneratePickingID(pObject, "ezGameObject");
 
-  ezRenderContext::GetDefaultInstance()->SetActiveShader(m_hShader);
+  ezRenderContext::GetDefaultInstance()->BindShader(m_hShader);
 
   const ezVec3 vPos = pObject->GetWorldPosition();
 
@@ -160,7 +161,8 @@ void ezViewContext::RenderObject(ezGameObject* pObject, const ezMat4& ViewProj)
 
   pContext->SetConstantBuffer(1, m_hCB);
 
-  ezRenderContext::GetDefaultInstance()->DrawMeshBuffer(m_hSphere);
+  ezRenderContext::GetDefaultInstance()->BindMeshBuffer(m_hSphere);
+  ezRenderContext::GetDefaultInstance()->DrawMeshBuffer();
 }
 
 void ezViewContext::RenderScene()

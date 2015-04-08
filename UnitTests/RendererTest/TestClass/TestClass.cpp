@@ -319,7 +319,7 @@ ezMeshBufferResourceHandle ezGraphicsTest::CreateBox(float fWidth, float fHeight
 
 void ezGraphicsTest::RenderObject(ezMeshBufferResourceHandle hObject, const ezMat4& mTransform, const ezColor& color, ezBitflags<ezShaderBindFlags> ShaderBindFlags)
 {
-  ezRenderContext::GetDefaultInstance()->SetActiveShader(m_hShader, ShaderBindFlags);
+  ezRenderContext::GetDefaultInstance()->BindShader(m_hShader, ShaderBindFlags);
 
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
   ezGALContext* pContext = pDevice->GetPrimaryContext();
@@ -332,6 +332,7 @@ void ezGraphicsTest::RenderObject(ezMeshBufferResourceHandle hObject, const ezMa
 
   ezRenderContext::GetDefaultInstance()->BindConstantBuffer("PerObject", m_hObjectTransformCB);
 
-  ezRenderContext::GetDefaultInstance()->DrawMeshBuffer(hObject);
+  ezRenderContext::GetDefaultInstance()->BindMeshBuffer(hObject);
+  ezRenderContext::GetDefaultInstance()->DrawMeshBuffer();
 }
 

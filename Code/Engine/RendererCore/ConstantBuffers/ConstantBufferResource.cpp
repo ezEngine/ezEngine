@@ -80,30 +80,32 @@ void ezConstantBufferResource::UploadStateToGPU(ezGALContext* pContext)
 
 void ezRenderContext::BindConstantBuffer(const ezTempHashedString& sSlotName, const ezConstantBufferResourceHandle& hConstantBuffer)
 {
-  m_ContextState.m_BoundConstantBuffers[sSlotName.GetHash()] = hConstantBuffer;
+  m_BoundConstantBuffers[sSlotName.GetHash()] = hConstantBuffer;
 
-  m_ContextState.m_bConstantBufferBindingsChanged = true;
+  m_StateFlags.Add(ezRenderContextFlags::ConstantBufferBindingChanged);
 }
 
 ezUInt8* ezRenderContext::InternalBeginModifyConstantBuffer(ezConstantBufferResourceHandle hConstantBuffer)
 {
-  EZ_ASSERT_DEV(m_ContextState.m_pCurrentlyModifyingBuffer == nullptr, "Only one buffer can be modified at a time. Call EndModifyConstantBuffer before updating another buffer.");
+  EZ_ASSERT_DEV(m_pCurrentlyModifyingBuffer == nullptr, "Only one buffer can be modified at a time. Call EndModifyConstantBuffer before updating another buffer.");
 
-  m_ContextState.m_pCurrentlyModifyingBuffer = ezResourceManager::BeginAcquireResource<ezConstantBufferResource>(hConstantBuffer);
+  m_pCurrentlyModifyingBuffer = ezResourceManager::BeginAcquireResource<ezConstantBufferResource>(hConstantBuffer);
 
-  return m_ContextState.m_pCurrentlyModifyingBuffer->m_Bytes.GetData();
+  return m_pCurrentlyModifyingBuffer->m_Bytes.GetData();
 }
 
 void ezRenderContext::EndModifyConstantBuffer()
 {
-  EZ_ASSERT_DEV(m_ContextState.m_pCurrentlyModifyingBuffer != nullptr, "No buffer is currently being modified. Call BeginModifyConstantBuffer before calling EndModifyConstantBuffer.");
+  EZ_ASSERT_DEV(m_pCurrentlyModifyingBuffer != nullptr, "No buffer is currently being modified. Call BeginModifyConstantBuffer before calling EndModifyConstantBuffer.");
 
-  m_ContextState.m_pCurrentlyModifyingBuffer->m_bHasBeenModified = true;
+  m_pCurrentlyModifyingBuffer->m_bHasBeenModified = true;
 
-  ezResourceManager::EndAcquireResource(m_ContextState.m_pCurrentlyModifyingBuffer);
+  ezResourceManager::EndAcquireResource(m_pCurrentlyModifyingBuffer);
 
-  m_ContextState.m_bConstantBufferBindingsChanged = true; // make sure the next drawcall triggers an upload
-  m_ContextState.m_pCurrentlyModifyingBuffer = nullptr;
+  // make sure the next drawcall triggers an upload
+  m_StateFlags.Add(ezRenderContextFlags::ConstantBufferBindingChanged);
+
+  m_pCurrentlyModifyingBuffer = nullptr;
 }
 
 void ezRenderContext::ApplyConstantBufferBindings(const ezShaderStageBinary* pBinary)
@@ -197,7 +199,7 @@ void ezRenderContext::ApplyConstantBufferBindings(const ezShaderStageBinary* pBi
     const ezUInt32 uiResourceHash = rb.m_Name.GetHash();
 
     ezConstantBufferResourceHandle* hResource;
-    if (!m_ContextState.m_BoundConstantBuffers.TryGetValue(uiResourceHash, hResource))
+    if (!m_BoundConstantBuffers.TryGetValue(uiResourceHash, hResource))
     {
       ezLog::Error("No resource is bound for constant buffer slot '%s'", rb.m_Name.GetData());
       continue;

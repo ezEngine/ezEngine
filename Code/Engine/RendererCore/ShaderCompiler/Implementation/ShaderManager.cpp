@@ -1,4 +1,5 @@
 #include <RendererCore/PCH.h>
+#include <RendererCore/Declarations.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/ShaderCompiler/ShaderCompiler.h>
 #include <RendererCore/Shader/ShaderPermutationResource.h>
@@ -109,7 +110,7 @@ void ezRenderContext::SetShaderPermutationVariable(const char* szVariable, const
 
   /// \todo Could we use hashed variable names here ?
   bool bExisted = false;
-  auto itVar = m_ContextState.m_PermutationVariables.FindOrAdd(sVar, &bExisted);
+  auto itVar = m_PermutationVariables.FindOrAdd(sVar, &bExisted);
 
   if (!bExisted)
   {
@@ -129,135 +130,30 @@ void ezRenderContext::SetShaderPermutationVariable(const char* szVariable, const
   }
 
   if (itVar.Value() != sVal)
-    m_ContextState.m_bShaderStateChanged = true;
+    m_StateFlags.Add(ezRenderContextFlags::ShaderStateChanged);
 
   itVar.Value() = sVal;
 }
 
-void ezRenderContext::SetActiveShader(ezShaderResourceHandle hShader, ezBitflags<ezShaderBindFlags> flags)
+void ezRenderContext::BindShader(ezShaderResourceHandle hShader, ezBitflags<ezShaderBindFlags> flags)
 {
-  m_ContextState.m_ShaderBindFlags = flags;
+  m_ShaderBindFlags = flags;
 
-  if (flags.IsAnySet(ezShaderBindFlags::ForceRebind) || m_ContextState.m_hActiveShader != hShader)
-    m_ContextState.m_bShaderStateChanged = true;
+  if (flags.IsAnySet(ezShaderBindFlags::ForceRebind) || m_hActiveShader != hShader)
+    m_StateFlags.Add(ezRenderContextFlags::ShaderStateChanged);
 
-  m_ContextState.m_hActiveShader = hShader;
+  m_hActiveShader = hShader;
 }
 
 ezGALShaderHandle ezRenderContext::GetActiveGALShader()
 {
   // make sure the internal state is up to date
-  SetShaderContextState(false);
+  ApplyContextStates(false);
 
-  if (!m_ContextState.m_bShaderStateValid)
+  if (!m_StateFlags.IsSet(ezRenderContextFlags::ShaderStateValid))
     return ezGALShaderHandle(); // invalid handle
 
-  return m_ContextState.m_hActiveGALShader;
-}
-
-void ezRenderContext::SetShaderContextState(bool bForce)
-{
-  ezShaderPermutationResource* pShaderPermutation = nullptr;
-
-  if (bForce || m_ContextState.m_bShaderStateChanged)
-  {
-    m_ContextState.m_bShaderStateChanged = false;
-    m_ContextState.m_bShaderStateValid = false;
-    m_ContextState.m_bTextureBindingsChanged = true;
-    m_ContextState.m_bConstantBufferBindingsChanged = true;
-
-    if (!m_ContextState.m_hActiveShader.IsValid())
-      return;
-
-    ezResourceLock<ezShaderResource> pShader(m_ContextState.m_hActiveShader, ezResourceAcquireMode::AllowFallback);
-
-    if (!pShader->IsShaderValid())
-      return;
-
-    m_ContextState.m_PermGenerator.Clear();
-    for (auto itPerm = m_ContextState.m_PermutationVariables.GetIterator(); itPerm.IsValid(); ++itPerm)
-      m_ContextState.m_PermGenerator.AddPermutation(itPerm.Key().GetData(), itPerm.Value().GetData());
-
-    m_ContextState.m_PermGenerator.RemoveUnusedPermutations(pShader->GetUsedPermutationVars());
-
-    EZ_ASSERT_DEV(m_ContextState.m_PermGenerator.GetPermutationCount() == 1, "Invalid shader setup");
-
-    ezHybridArray<ezPermutationGenerator::PermutationVar, 16> UsedPermVars;
-    m_ContextState.m_PermGenerator.GetPermutation(0, UsedPermVars);
-
-    m_ContextState.m_hActiveShaderPermutation = PreloadSingleShaderPermutation(m_ContextState.m_hActiveShader, UsedPermVars, ezTime::Seconds(0.0));
-
-    if (!m_ContextState.m_hActiveShaderPermutation.IsValid())
-      return;
-
-    pShaderPermutation = ezResourceManager::BeginAcquireResource(m_ContextState.m_hActiveShaderPermutation, ezResourceAcquireMode::AllowFallback);
-
-    if (!pShaderPermutation->IsShaderValid())
-    {
-      ezResourceManager::EndAcquireResource(pShaderPermutation);
-      return;
-    }
-
-    m_ContextState.m_hActiveGALShader = pShaderPermutation->GetGALShader();
-
-    m_pGALContext->SetShader(m_ContextState.m_hActiveGALShader);
-
-    // Set render state from shader (unless they are all deactivated)
-    if (!m_ContextState.m_ShaderBindFlags.AreAllSet(ezShaderBindFlags::NoBlendState | ezShaderBindFlags::NoRasterizerState | ezShaderBindFlags::NoDepthStencilState))
-    {
-      if (!m_ContextState.m_ShaderBindFlags.IsSet(ezShaderBindFlags::NoBlendState))
-        m_pGALContext->SetBlendState(pShaderPermutation->GetBlendState());
-
-      if (!m_ContextState.m_ShaderBindFlags.IsSet(ezShaderBindFlags::NoRasterizerState))
-        m_pGALContext->SetRasterizerState(pShaderPermutation->GetRasterizerState());
-
-      if (!m_ContextState.m_ShaderBindFlags.IsSet(ezShaderBindFlags::NoDepthStencilState))
-        m_pGALContext->SetDepthStencilState(pShaderPermutation->GetDepthStencilState());
-    }
-
-    m_ContextState.m_bShaderStateValid = true;
-  }
-
-  if ((bForce || m_ContextState.m_bTextureBindingsChanged) && m_ContextState.m_hActiveShaderPermutation.IsValid())
-  {
-    m_ContextState.m_bTextureBindingsChanged = false;
-
-    if (pShaderPermutation == nullptr)
-      pShaderPermutation = ezResourceManager::BeginAcquireResource(m_ContextState.m_hActiveShaderPermutation, ezResourceAcquireMode::AllowFallback);
-
-    for (ezUInt32 stage = 0; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
-    {
-      auto pBin = pShaderPermutation->GetShaderStageBinary((ezGALShaderStage::Enum) stage);
-
-      if (pBin == nullptr)
-        continue;
-
-      ApplyTextureBindings((ezGALShaderStage::Enum) stage, pBin);
-    }
-  }
-
-  UploadGlobalConstants();
-
-  if ((bForce || m_ContextState.m_bConstantBufferBindingsChanged) && m_ContextState.m_hActiveShaderPermutation.IsValid())
-  {
-    m_ContextState.m_bConstantBufferBindingsChanged = false;
-
-    if (pShaderPermutation == nullptr)
-      pShaderPermutation = ezResourceManager::BeginAcquireResource(m_ContextState.m_hActiveShaderPermutation, ezResourceAcquireMode::AllowFallback);
-
-    for (ezUInt32 stage = 0; stage < ezGALShaderStage::ENUM_COUNT; ++stage)
-    {
-      auto pBin = pShaderPermutation->GetShaderStageBinary((ezGALShaderStage::Enum) stage);
-
-      if (pBin == nullptr)
-        continue;
-
-      ApplyConstantBufferBindings(pBin);
-    }
-  }
-
-  if (pShaderPermutation != nullptr)
-    ezResourceManager::EndAcquireResource(pShaderPermutation);
+  return m_hActiveGALShader;
 }
 
 
