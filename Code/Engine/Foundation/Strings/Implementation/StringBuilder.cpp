@@ -64,7 +64,7 @@ void ezStringBuilder::Append(const char* pData1, const char* pData2, const char*
   {
     if (ezStringUtils::IsNullOrEmpty(pStrings[i]))
       continue;
-  
+
     ezUnicodeUtils::SkipUtf8Bom(pStrings[i]);
 
     ezUInt32 uiCharacters = 0;
@@ -88,7 +88,7 @@ void ezStringBuilder::Append(const char* pData1, const char* pData2, const char*
       continue;
 
     // make enough room to copy the entire string, including the T-800
-    ezStringUtils::Copy(&m_Data[uiPrevCount-1], uiStrLen[i] + 1, pStrings[i], pStrings[i] + uiStrLen[i]);
+    ezStringUtils::Copy(&m_Data[uiPrevCount - 1], uiStrLen[i] + 1, pStrings[i], pStrings[i] + uiStrLen[i]);
 
     uiPrevCount += uiStrLen[i];
   }
@@ -111,7 +111,7 @@ void ezStringBuilder::Prepend(const char* pData1, const char* pData2, const char
   {
     if (ezStringUtils::IsNullOrEmpty(pStrings[i]))
       continue;
-  
+
     ezUnicodeUtils::SkipUtf8Bom(pStrings[i]);
 
     ezUInt32 uiCharacters = 0;
@@ -244,7 +244,7 @@ void ezStringBuilder::ChangeCharacterNonASCII(ezStringView& It, ezUInt32 uiChara
 
     // how much has changed
     const ezUInt32 uiDifference = uiOldCharLength - uiNewCharLength;
-    const ezUInt32 uiTrailStringBytes = (ezUInt32) (It.GetEndPosition() - It.GetData() - uiOldCharLength + 1); // ???
+    const ezUInt32 uiTrailStringBytes = (ezUInt32)(It.GetEndPosition() - It.GetData() - uiOldCharLength + 1); // ???
 
     // move the trailing characters forwards
     ezMemoryUtils::CopyOverlapped(pPos, pPos + uiDifference, uiTrailStringBytes);
@@ -264,7 +264,7 @@ void ezStringBuilder::ChangeCharacterNonASCII(ezStringView& It, ezUInt32 uiChara
 
     // how much has changed
     const ezUInt32 uiDifference = uiNewCharLength - uiOldCharLength;
-    const ezUInt32 uiTrailStringBytes = (ezUInt32) (It.GetEndPosition() - It.GetData() - uiOldCharLength + 1);
+    const ezUInt32 uiTrailStringBytes = (ezUInt32)(It.GetEndPosition() - It.GetData() - uiOldCharLength + 1);
 
     // resize the array
     m_Data.SetCount(m_Data.GetCount() + uiDifference);
@@ -275,7 +275,7 @@ void ezStringBuilder::ChangeCharacterNonASCII(ezStringView& It, ezUInt32 uiChara
     NewIt.SetCurrentPosition(pPos);
 
     It = NewIt;
-    
+
     // move the trailing string backwards
     ezMemoryUtils::CopyOverlapped(pPos + uiNewCharLength, pPos + uiOldCharLength, uiTrailStringBytes);
 
@@ -312,7 +312,7 @@ void ezStringBuilder::Shrink(ezUInt32 uiShrinkCharsFront, ezUInt32 uiShrinkChars
       const char* szNewEnd = szEnd;
       ezUnicodeUtils::MoveToPriorUtf8(szNewEnd, uiShrinkCharsBack);
 
-      const ezUInt32 uiLessBytes = (ezUInt32) (szEnd - szNewEnd);
+      const ezUInt32 uiLessBytes = (ezUInt32)(szEnd - szNewEnd);
 
       m_Data.PopBack(uiLessBytes + 1);
       AppendTerminator();
@@ -323,7 +323,7 @@ void ezStringBuilder::Shrink(ezUInt32 uiShrinkCharsFront, ezUInt32 uiShrinkChars
 
   if (szNewStart > &m_Data[0])
   {
-    const ezUInt32 uiLessBytes = (ezUInt32) (szNewStart - &m_Data[0]);
+    const ezUInt32 uiLessBytes = (ezUInt32)(szNewStart - &m_Data[0]);
 
     ezMemoryUtils::CopyOverlapped(&m_Data[0], szNewStart, m_Data.GetCount() - uiLessBytes);
     m_Data.PopBack(uiLessBytes);
@@ -343,7 +343,7 @@ void ezStringBuilder::ReplaceSubString(const char* szStartPos, const char* szEnd
   ezUInt32 uiWordBytes = 0;
   ezStringUtils::GetCharacterAndElementCount(szReplaceWith.GetData(), uiWordChars, uiWordBytes, szReplaceWith.GetEndPosition());
 
-  const ezUInt32 uiSubStringBytes = (ezUInt32) (szEndPos - szStartPos);
+  const ezUInt32 uiSubStringBytes = (ezUInt32)(szEndPos - szStartPos);
 
   char* szWritePos = const_cast<char*>(szStartPos); // szStartPos points into our own data anyway
   const char* szReadPos = szReplaceWith.GetData();
@@ -426,7 +426,7 @@ const char* ezStringBuilder::ReplaceFirst(const char* szSearchFor, const ezStrin
   if (szFoundAt == nullptr)
     return nullptr;
 
-  const ezUInt32 uiOffset = (ezUInt32) (szFoundAt - GetData());
+  const ezUInt32 uiOffset = (ezUInt32)(szFoundAt - GetData());
 
   const ezUInt32 uiSearchStrLength = ezStringUtils::GetStringElementCount(szSearchFor);
 
@@ -449,7 +449,7 @@ const char* ezStringBuilder::ReplaceLast(const char* szSearchFor, const ezString
   if (szFoundAt == nullptr)
     return nullptr;
 
-  const ezUInt32 uiOffset = (ezUInt32) (szFoundAt - GetData());
+  const ezUInt32 uiOffset = (ezUInt32)(szFoundAt - GetData());
 
   const ezUInt32 uiSearchStrLength = ezStringUtils::GetStringElementCount(szSearchFor);
 
@@ -501,7 +501,7 @@ const char* ezStringBuilder::ReplaceFirst_NoCase(const char* szSearchFor, const 
   if (szFoundAt == nullptr)
     return nullptr;
 
-  const ezUInt32 uiOffset = (ezUInt32) (szFoundAt - GetData());
+  const ezUInt32 uiOffset = (ezUInt32)(szFoundAt - GetData());
 
   const ezUInt32 uiSearchStrLength = ezStringUtils::GetStringElementCount(szSearchFor);
 
@@ -524,7 +524,7 @@ const char* ezStringBuilder::ReplaceLast_NoCase(const char* szSearchFor, const e
   if (szFoundAt == nullptr)
     return nullptr;
 
-  const ezUInt32 uiOffset = (ezUInt32) (szFoundAt - GetData());
+  const ezUInt32 uiOffset = (ezUInt32)(szFoundAt - GetData());
 
   const ezUInt32 uiSearchStrLength = ezStringUtils::GetStringElementCount(szSearchFor);
 
@@ -700,32 +700,32 @@ void ezStringBuilder::MakeCleanPath()
       if (FoundPathUp == NotStarted)
         FoundPathUp = OneDot;
       else
-      if (FoundPathUp == OneDot)
-        FoundPathUp = TwoDots;
-      else
-        FoundPathUp = Invalid;
+        if (FoundPathUp == OneDot)
+          FoundPathUp = TwoDots;
+        else
+          FoundPathUp = Invalid;
     }
     else
-    if (ezPathUtils::IsPathSeparator(CurChar))
-    {
-      CurChar = '/';
+      if (ezPathUtils::IsPathSeparator(CurChar))
+      {
+        CurChar = '/';
 
-      if (FoundPathUp == OneDot)
-      {
-        szCurWritePos -= 2; // go back, skip two dots, one slash
-        FoundPathUp = NotStarted;
+        if (FoundPathUp == OneDot)
+        {
+          szCurWritePos -= 2; // go back, skip two dots, one slash
+          FoundPathUp = NotStarted;
+        }
+        else
+          if (FoundPathUp == TwoDots)
+            FoundPathUp = FoundIt;
+          else
+          {
+            ++iLevelsDown;
+            FoundPathUp = NotStarted;
+          }
       }
       else
-      if (FoundPathUp == TwoDots)
-        FoundPathUp = FoundIt;
-      else
-      {
-        ++iLevelsDown;
         FoundPathUp = NotStarted;
-      }
-    }
-    else
-      FoundPathUp = NotStarted;
 
     if (FoundPathUp == FoundIt)
     {
@@ -734,7 +734,7 @@ void ezStringBuilder::MakeCleanPath()
         --iLevelsDown;
         szCurWritePos -= 3; // go back, skip two dots, one slash
 
-        while ((szCurWritePos > szStartPos) && (*(szCurWritePos-1) != '/'))
+        while ((szCurWritePos > szStartPos) && (*(szCurWritePos - 1) != '/'))
           --szCurWritePos;
       }
       else
@@ -755,7 +755,7 @@ void ezStringBuilder::MakeCleanPath()
   }
 
   const ezUInt32 uiPrevByteCount = m_Data.GetCount();
-  const ezUInt32 uiNewByteCount  = (ezUInt32) (szCurWritePos - &m_Data[0]) + 1;
+  const ezUInt32 uiNewByteCount = (ezUInt32)(szCurWritePos - &m_Data[0]) + 1;
 
   EZ_ASSERT_DEBUG(uiPrevByteCount >= uiNewByteCount, "It should not be possible that a path grows during cleanup. Old: %i Bytes, New: %i Bytes", uiPrevByteCount, uiNewByteCount);
 
@@ -766,7 +766,7 @@ void ezStringBuilder::MakeCleanPath()
   // make sure to write the terminating \0 and reset the count
   *szCurWritePos = '\0';
   m_Data.SetCount(uiNewByteCount);
-   
+
 }
 
 void ezStringBuilder::PathParentDirectory(ezUInt32 uiLevelsUp)
@@ -788,7 +788,7 @@ void ezStringBuilder::AppendPath(const char* szPath1, const char* szPath2, const
     if (!ezStringUtils::IsNullOrEmpty(szPaths[i]))
     {
       EZ_ASSERT_DEV(!ezPathUtils::IsPathSeparator(szPaths[i][0]) || IsEmpty() && ezPathUtils::IsAbsolutePath(szPaths[i]),
-        "The paths to append must not start with a path separator or it must be absolute and the current value must be empty.");
+                    "The paths to append must not start with a path separator or it must be absolute and the current value must be empty.");
 
       if (IsEmpty() || ezPathUtils::IsPathSeparator(GetIteratorBack().GetCharacter()))
         Append(szPaths[i]);
@@ -844,7 +844,7 @@ void ezStringBuilder::MakeRelativeTo(const char* szAbsolutePathToMakeThisRelativ
     return;
   }
 
-  if (!sAbsBase.EndsWith ("/"))
+  if (!sAbsBase.EndsWith("/"))
     sAbsBase.Append("/");
 
   if (!sAbsThis.EndsWith("/"))
@@ -920,7 +920,7 @@ bool ezStringBuilder::IsPathBelowFolder(const char* szPathToFolder)
   if (IsEqual_NoCase(sBasePath.GetData()))
     return true;
 
-  if (!sBasePath.EndsWith ("/"))
+  if (!sBasePath.EndsWith("/"))
     sBasePath.Append("/");
 
   return StartsWith_NoCase(sBasePath.GetData());
@@ -968,7 +968,7 @@ void ezStringBuilder::RemoveDoubleSlashesInPath()
 
 
   const ezUInt32 uiPrevByteCount = m_Data.GetCount();
-  const ezUInt32 uiNewByteCount  = (ezUInt32) (szCurWritePos - &m_Data[0]) + 1;
+  const ezUInt32 uiNewByteCount = (ezUInt32)(szCurWritePos - &m_Data[0]) + 1;
 
   EZ_ASSERT_DEBUG(uiPrevByteCount >= uiNewByteCount, "It should not be possible that a path grows during cleanup. Old: %i Bytes, New: %i Bytes", uiPrevByteCount, uiNewByteCount);
 
@@ -989,10 +989,10 @@ void ezStringBuilder::ReadAll(ezStreamReaderBase& Stream)
 
   ezHybridArray<ezUInt8, 1024 * 4> Bytes(m_Data.GetAllocator());
   ezUInt8 Temp[1024];
-  
+
   while (true)
   {
-    const ezUInt32 uiRead = (ezUInt32) Stream.ReadBytes(Temp, 1024);
+    const ezUInt32 uiRead = (ezUInt32)Stream.ReadBytes(Temp, 1024);
 
     if (uiRead == 0)
       break;
@@ -1002,10 +1002,74 @@ void ezStringBuilder::ReadAll(ezStreamReaderBase& Stream)
 
   Bytes.PushBack('\0');
 
-  *this = (const char*) &Bytes[0];
+  *this = (const char*)&Bytes[0];
 }
 
+void ezStringBuilder::Trim(const char* szTrimCharsStart, const char* szTrimCharsEnd)
+{
+  /// \test This function is new
 
+  bool bFoundAny = true;
+
+  if (!ezStringUtils::IsNullOrEmpty(szTrimCharsEnd))
+  {
+    while (bFoundAny)
+    {
+      bFoundAny = false;
+
+      ezStringView v = szTrimCharsEnd;
+
+      while (v.IsValid())
+      {
+        // create a Utf-32 string
+        ezUInt32 uiString32[2] = { v.GetCharacter(), 0 };
+
+        // convert that to Utf-8 and compare
+        ezStringUtf8 sUtf8(uiString32);
+
+        // remove all occurrences of this character, that are in a sequence
+        while (EndsWith(sUtf8.GetData()))
+        {
+          bFoundAny = true;
+          Shrink(0, 1);
+        }
+
+        ++v;
+      }
+    }
+  }
+
+  // repeat for the front part of the string
+  if (!ezStringUtils::IsNullOrEmpty(szTrimCharsStart))
+  {
+    bFoundAny = true;
+
+    while (bFoundAny)
+    {
+      bFoundAny = false;
+
+      ezStringView v = szTrimCharsStart;
+
+      while (v.IsValid())
+      {
+        // create a Utf-32 string
+        ezUInt32 uiString32[2] = { v.GetCharacter(), 0 };
+
+        // convert that to Utf-8 and compare
+        ezStringUtf8 sUtf8(uiString32);
+
+        // remove all occurrences of this character, that are in a sequence
+        while (StartsWith(sUtf8.GetData()))
+        {
+          bFoundAny = true;
+          Shrink(1, 0);
+        }
+
+        ++v;
+      }
+    }
+  }
+}
 
 
 

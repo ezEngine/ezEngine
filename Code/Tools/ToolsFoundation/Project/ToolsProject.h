@@ -13,6 +13,7 @@ public:
     {
       ProjectCreated,
       ProjectOpened,
+      ProjectOpened2,
       ProjectClosing,
       ProjectClosed,
     };
@@ -47,7 +48,9 @@ public:
 
   static ezString FindProjectForDocument(const char* szDocumentPath);
 
-  bool IsDocumentInProject(const char* szDocumentPath, ezString* out_RelativePath = nullptr) const;
+  bool IsDocumentInAllowedRoot(const char* szDocumentPath, ezString* out_RelativePath = nullptr) const;
+
+  void AddAllowedDocumentRoot(const char* szPath);
 
 private:
 
@@ -64,6 +67,7 @@ private:
 
 private:
   ezString m_sProjectPath;
+  ezHybridArray<ezString, 4> m_AllowedDocumentRoots;
 };
 
 

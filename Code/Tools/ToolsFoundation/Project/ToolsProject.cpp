@@ -11,7 +11,7 @@ ezEvent<ezToolsProject::Request&> ezToolsProject::s_Requests;
 ezToolsProject::ezToolsProject(const char* szProjectPath)
 {
   EZ_ASSERT_DEV(s_pInstance == nullptr, "There can be only one");
-  
+
   s_pInstance = this;
 
   m_sProjectPath = szProjectPath;
@@ -76,6 +76,9 @@ ezStatus ezToolsProject::Open()
   e.m_Type = Event::Type::ProjectOpened;
   s_Events.Broadcast(e);
 
+  e.m_Type = Event::Type::ProjectOpened2;
+  s_Events.Broadcast(e);
+
   return ezStatus(EZ_SUCCESS);
 }
 
@@ -116,7 +119,7 @@ ezStatus ezToolsProject::CreateOrOpenProject(const char* szProjectPath, bool bCr
   new ezToolsProject(szProjectPath);
 
   ezStatus ret;
-  
+
   if (bCreate)
     ret = s_pInstance->Create();
   else
@@ -143,26 +146,40 @@ ezStatus ezToolsProject::CreateProject(const char* szProjectPath)
   return CreateOrOpenProject(szProjectPath, true);
 }
 
-bool ezToolsProject::IsDocumentInProject(const char* szDocumentPath, ezString* out_RelativePath) const
+void ezToolsProject::AddAllowedDocumentRoot(const char* szPath)
 {
-  ezStringBuilder sProjectFolder = m_sProjectPath;
-  sProjectFolder.PathParentDirectory();
+  ezStringBuilder s = szPath;
+  s.MakeCleanPath();
+  s.Trim("", "/");
+  
+  m_AllowedDocumentRoots.PushBack(s);
+}
 
-  ezStringBuilder s = szDocumentPath;
-  if (!s.IsPathBelowFolder(sProjectFolder))
-    return false;
 
-  if (out_RelativePath)
+bool ezToolsProject::IsDocumentInAllowedRoot(const char* szDocumentPath, ezString* out_RelativePath) const
+{
+  for (ezUInt32 i = m_AllowedDocumentRoots.GetCount(); i > 0; --i)
   {
-    ezInt32 iTrimStart = sProjectFolder.GetCharacterCount();
+    const auto& root = m_AllowedDocumentRoots[i - 1];
 
-    ezStringBuilder sText = szDocumentPath;
-    sText.Shrink(iTrimStart, 0);
+    ezStringBuilder s = szDocumentPath;
+    if (!s.IsPathBelowFolder(root))
+      continue;
 
-    *out_RelativePath = sText;
+    if (out_RelativePath)
+    {
+      const ezInt32 iTrimStart = root.GetCharacterCount();
+
+      ezStringBuilder sText = szDocumentPath;
+      sText.MakeRelativeTo(root);
+
+      *out_RelativePath = sText;
+    }
+
+    return true;
   }
 
-  return true;
+  return false;
 }
 
 ezString ezToolsProject::FindProjectForDocument(const char* szDocumentPath)

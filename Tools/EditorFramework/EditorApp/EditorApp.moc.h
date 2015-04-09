@@ -123,6 +123,7 @@ private:
   void EngineProcessMsgHandler(const ezEditorEngineProcessConnection::Event& e);
 
   void ReadPluginsToBeLoaded();
+  void SetupDataDirectories();
 
   ezString s_sUserName;
 

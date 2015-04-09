@@ -44,6 +44,20 @@
    <item row="2" column="0">
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
+      <widget class="QPushButton" name="ButtonOpenFolder">
+       <property name="toolTip">
+        <string>Show the selected directory on disk</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset resource="../../../Code/Tools/GuiFoundation/QtResources/resources.qrc">
+         <normaloff>:/GuiFoundation/Icons/OpenFolder16.png</normaloff>:/GuiFoundation/Icons/OpenFolder16.png</iconset>
+       </property>
+      </widget>
+     </item>
+     <item>
       <spacer name="horizontalSpacer">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
@@ -76,6 +90,9 @@
     <layout class="QVBoxLayout" name="verticalLayout">
      <item>
       <widget class="QPushButton" name="ButtonAdd">
+       <property name="toolTip">
+        <string>Add another folder as a data directory</string>
+       </property>
        <property name="text">
         <string/>
        </property>
@@ -87,6 +104,9 @@
      </item>
      <item>
       <widget class="QPushButton" name="ButtonRemove">
+       <property name="toolTip">
+        <string>Remove the selected data directory</string>
+       </property>
        <property name="text">
         <string/>
        </property>
@@ -111,6 +131,9 @@
      </item>
      <item>
       <widget class="QPushButton" name="ButtonUp">
+       <property name="toolTip">
+        <string>Move the selected directoy up (it gets lower priority)</string>
+       </property>
        <property name="text">
         <string/>
        </property>
@@ -122,6 +145,9 @@
      </item>
      <item>
       <widget class="QPushButton" name="ButtonDown">
+       <property name="toolTip">
+        <string>Move the selected directoy down (it gets higher priority)</string>
+       </property>
        <property name="text">
         <string/>
        </property>

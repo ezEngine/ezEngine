@@ -16,6 +16,9 @@ public:
   /// \brief Default constructor. Constructed Uuid will be invalid. [tested]
   EZ_FORCE_INLINE ezUuid();
 
+  /// \brief Constructs the Uuid from existing values
+  EZ_FORCE_INLINE ezUuid(ezUInt64 uiLow, ezUInt64 uiHigh) { m_uiLow = uiLow; m_uiHigh = uiHigh; }
+
   /// \brief Comparison operator. [tested]
   EZ_FORCE_INLINE bool operator == (const ezUuid& Other) const;
 
@@ -31,6 +34,7 @@ public:
   /// \brief Creates a new Uuid and stores is it in this object.
   void CreateNewUuid();
 
+  /// \brief Returns the internal 128 Bit of data
   void GetValues(ezUInt64& uiLow, ezUInt64& uiHigh) const { uiHigh = m_uiHigh; uiLow = m_uiLow; }
 
 private:

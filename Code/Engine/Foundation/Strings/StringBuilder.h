@@ -353,6 +353,9 @@ public:
   /// \brief Returns the amount of bytes that are currently allocated on the heap.
   ezUInt64 GetHeapMemoryUsage() const { return m_Data.GetHeapMemoryUsage(); }
 
+  /// \brief Removes all characters from the start and/or end that appear in the given strings.
+  void Trim(const char* szTrimCharsStart, const char* szTrimCharsEnd);
+
 private:
   /// \brief Will remove all double path separators (slashes and backslashes) in a path, except if the path starts with two (back-)slashes, those are kept, as they might indicate a UNC path.
   void RemoveDoubleSlashesInPath(); // [tested]

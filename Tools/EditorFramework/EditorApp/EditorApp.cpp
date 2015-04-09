@@ -137,6 +137,13 @@ void ezEditorApp::StartupEditor(const char* szAppName, const char* szUserName, i
 
   LoadPlugins();
 
+  // first open the project, so that the data directory list is read
+  if (!s_RecentProjects.GetFileList().IsEmpty())
+  {
+    ezContainerWindow::CreateOrOpenProject(false, s_RecentProjects.GetFileList()[0]);
+  }
+
+  // now open the last document, which might be outside the main project folder, but in an allowed data directory
   if (!s_RecentDocuments.GetFileList().IsEmpty())
   {
     ezContainerWindow::CreateOrOpenDocument(false, s_RecentDocuments.GetFileList()[0]);
@@ -315,7 +322,7 @@ void ezEditorApp::DocumentManagerRequestHandler(ezDocumentManagerBase::Request& 
       }
       else
       {
-        if (!ezToolsProject::GetInstance()->IsDocumentInProject(r.m_sDocumentPath))
+        if (!ezToolsProject::GetInstance()->IsDocumentInAllowedRoot(r.m_sDocumentPath))
         {
           r.m_RequestStatus = ezStatus("The document is not part of the currently open project");
           return;
@@ -389,19 +396,19 @@ void ezEditorApp::ProjectEventHandler(const ezToolsProject::Event& r)
   {
   case ezToolsProject::Event::Type::ProjectOpened:
     {
-      ezStringBuilder sPath = ezToolsProject::GetInstance()->GetProjectPath();
-      sPath.PathParentDirectory();
-
-      ezApplicationConfig::SetProjectDirectory(sPath);
-      m_FileSystemConfig.Load();
+      SetupDataDirectories();
 
       ezEditorEngineProcessConnection::GetInstance()->RestartProcess();
       ezEditorEngineProcessConnection::GetInstance()->WaitForMessage(ezGetStaticRTTI<ezProjectReadyMsgToEditor>());
+
+      m_AssetCurator.Initialize(m_FileSystemConfig);
     }
     // fall through
 
   case ezToolsProject::Event::Type::ProjectClosing:
     {
+      // TODO: Write asset cache to file.
+
       s_RecentProjects.Insert(ezToolsProject::GetInstance()->GetProjectPath());
       SaveSettings();
     }
@@ -409,6 +416,8 @@ void ezEditorApp::ProjectEventHandler(const ezToolsProject::Event& r)
   case ezToolsProject::Event::Type::ProjectClosed:
     {
       ezEditorEngineProcessConnection::GetInstance()->ShutdownProcess();
+
+      m_AssetCurator.Deinitialize();
 
       // make sure to clear all project settings when a project is closed
       s_ProjectSettings.Clear();

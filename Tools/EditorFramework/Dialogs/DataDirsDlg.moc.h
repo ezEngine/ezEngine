@@ -20,7 +20,9 @@ private slots:
   void on_ButtonDown_clicked();
   void on_ButtonAdd_clicked();
   void on_ButtonRemove_clicked();
+  void on_ButtonOpenFolder_clicked();
   void on_ListDataDirs_itemSelectionChanged();
+  void on_ListDataDirs_itemDoubleClicked(QListWidgetItem* pItem);
 
 private:
   void FillList();

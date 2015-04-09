@@ -107,7 +107,7 @@ void ezRecentDocumentsMenuAction::GetEntries(ezHybridArray<std::pair<ezString, e
     if (ezToolsProject::IsProjectOpen())
     {
       ezString sRelativePath;
-      if (!ezToolsProject::GetInstance()->IsDocumentInProject(s, &sRelativePath))
+      if (!ezToolsProject::GetInstance()->IsDocumentInAllowedRoot(s, &sRelativePath))
         continue;
 
       out_Entries.PushBack(std::pair<ezString, ezVariant>(sRelativePath, s));

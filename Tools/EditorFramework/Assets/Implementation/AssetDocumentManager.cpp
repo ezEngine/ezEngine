@@ -34,14 +34,11 @@ ezString ezAssetDocumentManager::GenerateResourceFileName(const char* szDocument
   return sFinalPath;
 }
 
-ezString ezAssetDocumentManager::GenerateRelativeResourceFileName(const char* szDocumentPath) const
+ezString ezAssetDocumentManager::GenerateRelativeResourceFileName(const char* szDataDirectory, const char* szDocumentPath) const
 {
-  ezStringBuilder sProjectDir = ezToolsProject::GetInstance()->GetProjectPath();
-  sProjectDir.PathParentDirectory();
-
   ezStringBuilder sRelativePath = szDocumentPath;
 
-  sRelativePath.MakeRelativeTo(sProjectDir);
+  sRelativePath.MakeRelativeTo(szDataDirectory);
   sRelativePath.ChangeFileExtension(GetResourceTypeExtension());
   sRelativePath.MakeCleanPath();
 

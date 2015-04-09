@@ -8,6 +8,7 @@
 #include <Foundation/Time/Timestamp.h>
 #include <Foundation/Threading/Mutex.h>
 #include <Foundation/Threading/TaskSystem.h>
+#include <Core/Application/Config/FileSystemConfig.h>
 
 class ezHashingTask;
 class ezTask;
@@ -43,6 +44,9 @@ public:
   void CheckFileSystem();
   ezResult WriteAssetTables();
   void MainThreadTick();
+
+  void Initialize(const ezApplicationFileSystemConfig& cfg);
+  void Deinitialize();
 
   const AssetInfo* GetAssetInfo(const ezUuid& assetGuid) const;
   const ezHashTable<ezUuid, AssetInfo*>& GetKnownAssets() const;
@@ -93,13 +97,10 @@ private:
   };
 
   void DocumentManagerEventHandler(const ezDocumentManagerBase::Event& r);
-  void ProjectEventHandler(const ezToolsProject::Event& e);
   static void BuildFileExtensionSet(ezSet<ezString>& AllExtensions);
   void IterateDataDirectory(const char* szDataDir, const ezSet<ezString>& validExtensions);
   void SetAllAssetStatusUnknown();
   void RemoveStaleFileInfos();
-  void InitCurator();
-  void DeInitCurator();
   void QueueFilesForHashing();
   void QueueFileForHashing(const ezString& sFile);
 
@@ -115,6 +116,7 @@ private:
   ezMap<ezString, FileStatus, ezCompareString_NoCase<ezString> > m_ReferencedFiles;
 
   ezMap<ezString, FileStatus> m_FileHashingQueue;
+  ezApplicationFileSystemConfig m_FileSystemConfig;
 
 private:
   friend class ezHashingTask;
@@ -124,6 +126,7 @@ private:
 
   bool GetNextFileToHash(ezStringBuilder& sFile, FileStatus& status);
   void OnHashingTaskFinished(ezTask* pTask);
+  ezResult WriteAssetTable(const char* szDataDirectory);
 
   void RunNextHashingTask();
 

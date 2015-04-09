@@ -136,7 +136,7 @@ void ezSettingsTab::UpdateSettings()
       for (auto doc : dm->GetAllDocuments())
       {
         ezString sRel;
-        if (!ezToolsProject::GetInstance()->IsDocumentInProject(doc->GetDocumentPath(), &sRel))
+        if (!ezToolsProject::GetInstance()->IsDocumentInAllowedRoot(doc->GetDocumentPath(), &sRel))
           continue;
 
         ComboSettingsDomain->addItem(sRel.GetData(), QString(doc->GetDocumentPath()));

@@ -134,4 +134,20 @@ void DataDirsDlg::on_ListDataDirs_itemSelectionChanged()
   ButtonDown->setEnabled(m_iSelection != -1 && m_iSelection < (ezInt32) m_Config.m_DataDirs.GetCount() - 1);
 }
 
+void DataDirsDlg::on_ButtonOpenFolder_clicked()
+{
+  if (m_iSelection < 0)
+    return;
 
+  ezStringBuilder sPath(ezApplicationFileSystemConfig::GetProjectDirectory(), "/", m_Config.m_DataDirs[m_iSelection].m_sRelativePath);
+  sPath.MakeCleanPath();
+
+  QStringList args;
+  args << "/select," << QDir::toNativeSeparators(sPath.GetData());
+  QProcess::startDetached("explorer", args);
+}
+
+void DataDirsDlg::on_ListDataDirs_itemDoubleClicked(QListWidgetItem* pItem)
+{
+  on_ButtonOpenFolder_clicked();
+}
