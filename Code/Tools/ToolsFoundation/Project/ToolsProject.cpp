@@ -176,7 +176,7 @@ ezString ezToolsProject::FindProjectForDocument(const char* szDocumentPath)
   while (!sPath.IsEmpty())
   {
     sTemp = sPath;
-    sTemp.AppendPath("*.project");
+    sTemp.AppendPath("*.ezProject");
 
     ezFileSystemIterator it;
     if (it.StartSearch(sTemp, false, false).Succeeded())

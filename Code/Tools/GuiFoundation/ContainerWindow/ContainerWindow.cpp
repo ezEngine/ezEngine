@@ -10,11 +10,15 @@
 #include <QFileDialog>
 #include <QCloseEvent>
 #include <QTabBar>
+#include <QStatusBar>
+#include <QLabel>
 
 ezDynamicArray<ezContainerWindow*> ezContainerWindow::s_AllContainerWindows;
 
 ezContainerWindow::ezContainerWindow()
 {
+  m_pStatusBarLabel = nullptr;
+
   setObjectName(QLatin1String(GetUniqueName())); // todo
   setWindowIcon(QIcon(QLatin1String(":/GuiFoundation/Icons/ezEditor16.png"))); /// \todo Make icon configurable
 
@@ -24,6 +28,7 @@ ezContainerWindow::ezContainerWindow()
 
   ezDocumentWindow::s_Events.AddEventHandler(ezMakeDelegate(&ezContainerWindow::DocumentWindowEventHandler, this));
   ezToolsProject::s_Events.AddEventHandler(ezMakeDelegate(&ezContainerWindow::ProjectEventHandler, this));
+  ezUIServices::s_Events.AddEventHandler(ezMakeDelegate(&ezContainerWindow::UIServicesEventHandler, this));
 
   UpdateWindowTitle();
 }
@@ -34,11 +39,12 @@ ezContainerWindow::~ezContainerWindow()
 
   ezDocumentWindow::s_Events.RemoveEventHandler(ezMakeDelegate(&ezContainerWindow::DocumentWindowEventHandler, this));
   ezToolsProject::s_Events.RemoveEventHandler(ezMakeDelegate(&ezContainerWindow::ProjectEventHandler, this));
+  ezUIServices::s_Events.RemoveEventHandler(ezMakeDelegate(&ezContainerWindow::UIServicesEventHandler, this));
 }
 
 QTabWidget* ezContainerWindow::GetTabWidget() const
 {
-  QTabWidget* pTabs = (QTabWidget*) centralWidget();
+  QTabWidget* pTabs = (QTabWidget*)centralWidget();
   EZ_ASSERT_DEV(pTabs != nullptr, "The central widget is NULL");
 
   return pTabs;
@@ -84,7 +90,7 @@ void ezContainerWindow::SaveWindowLayout()
 
   if (pTabs->currentWidget())
   {
-    ezDocumentWindow* pDoc = (ezDocumentWindow*) pTabs->currentWidget();
+    ezDocumentWindow* pDoc = (ezDocumentWindow*)pTabs->currentWidget();
     pDoc->SaveWindowLayout();
   }
 
@@ -246,7 +252,7 @@ void ezContainerWindow::SlotDocumentTabCloseRequested(int index)
 {
   QTabWidget* pTabs = GetTabWidget();
 
-  ezDocumentWindow* pDocWindow = (ezDocumentWindow*) pTabs->widget(index);
+  ezDocumentWindow* pDocWindow = (ezDocumentWindow*)pTabs->widget(index);
 
   if (!pDocWindow->CanCloseWindow())
     return;
@@ -261,7 +267,7 @@ void ezContainerWindow::SlotDocumentTabCurrentChanged(int index)
   ezDocumentWindow* pNowCurrentWindow = nullptr;
 
   if (index >= 0)
-    pNowCurrentWindow = (ezDocumentWindow*) pTabs->widget(index);
+    pNowCurrentWindow = (ezDocumentWindow*)pTabs->widget(index);
 
   for (ezDocumentWindow* pWnd : m_DocumentWindows)
   {
@@ -295,6 +301,32 @@ void ezContainerWindow::ProjectEventHandler(const ezToolsProject::Event& e)
   case ezToolsProject::Event::Type::ProjectOpened:
   case ezToolsProject::Event::Type::ProjectClosed:
     UpdateWindowTitle();
+    break;
+  }
+}
+
+void ezContainerWindow::UIServicesEventHandler(const ezUIServices::Event& e)
+{
+  switch (e.m_Type)
+  {
+  case ezUIServices::Event::Type::ShowGlobalStatusBarText:
+    {
+      if (statusBar() == nullptr)
+        setStatusBar(new QStatusBar());
+
+      if (m_pStatusBarLabel == nullptr)
+      {
+        m_pStatusBarLabel = new QLabel();
+        statusBar()->addWidget(m_pStatusBarLabel);
+
+        QPalette pal = m_pStatusBarLabel->palette();
+        pal.setColor(QPalette::WindowText, QColor(Qt::red));
+        m_pStatusBarLabel->setPalette(pal);
+      }
+
+      statusBar()->setHidden(e.m_sText.IsEmpty());
+      m_pStatusBarLabel->setText(QString::fromUtf8(e.m_sText.GetData()));
+    }
     break;
   }
 }
@@ -385,7 +417,12 @@ void ezContainerWindow::CreateOrOpenDocument(bool bCreate, const char* szFile)
 
   if (ezDocumentManagerBase::FindDocumentTypeFromPath(szFile, bCreate, pManToCreate, &DescToCreate).Failed())
   {
-    ezUIServices::MessageBoxWarning("The selected file extension is not registered with any known type.");
+    ezStringBuilder sTemp = szFile;
+    ezStringBuilder sExt = sTemp.GetFileExtension();
+
+    sTemp.Format("The selected file extension '%s' is not registered with any known type.\nCannot open file '%s'", sExt.GetData(), szFile);
+
+    ezUIServices::MessageBoxWarning(sTemp);
     return;
   }
 
@@ -437,7 +474,7 @@ void ezContainerWindow::CreateOrOpenProject(bool bCreate)
   static QString sDir = ezOSFile::GetApplicationDirectory();
   ezString sFile;
 
-  const char* szFilter = "ezEditor Project (*.project)";
+  const char* szFilter = "ezEditor Project (*.ezProject)";
 
   if (bCreate)
     sFile = QFileDialog::getSaveFileName(QApplication::activeWindow(), QLatin1String("Create Project"), sDir, QLatin1String(szFilter)).toUtf8().data();
@@ -493,7 +530,7 @@ void ezContainerWindow::SlotTabsContextMenuRequested(const QPoint& pos)
   if (!pTabs->currentWidget())
     return;
 
-  ezDocumentWindow* pDoc = (ezDocumentWindow*) pTabs->currentWidget();
+  ezDocumentWindow* pDoc = (ezDocumentWindow*)pTabs->currentWidget();
 
   pDoc->RequestWindowTabContextMenu(pTabs->tabBar()->mapToGlobal(pos));
 }

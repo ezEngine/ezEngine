@@ -56,31 +56,7 @@ void PluginDlg::on_ButtonOK_clicked()
     }
   }
 
-  const ezPluginSet& PluginsToBeLoaded = ezEditorApp::GetInstance()->GetEditorPluginsToBeLoaded();
-
-  auto it1 = PluginsToBeLoaded.m_Plugins.GetIterator();
-  auto it2 = ToBeLoaded.m_Plugins.GetIterator(); 
-
-  bool bDifferent = false;
-
-  for ( ; it1.IsValid() && it2.IsValid(); ++it1, ++it2)
-  {
-    if (it1.Key() != it2.Key())
-    {
-      bDifferent = true;
-      break;
-    }
-  }
-
-  if (it1.IsValid() != it2.IsValid())
-    bDifferent = true;
-
-  if (bDifferent)
-  {
-    ezUIServices::MessageBoxInformation("Plugins are only loaded at startup.\n\nYou need to restart the program for this change to take effect.");
-
-    ezEditorApp::GetInstance()->SetEditorPluginsToBeLoaded(ToBeLoaded);
-  }
+  ezEditorApp::GetInstance()->SetEditorPluginsToBeLoaded(ToBeLoaded);
 
   accept();
 }

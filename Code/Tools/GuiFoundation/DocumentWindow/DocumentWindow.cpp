@@ -10,6 +10,7 @@
 #include <QSettings>
 #include <QMessageBox>
 #include <QTimer>
+#include <QStatusBar>
 
 ezEvent<const ezDocumentWindow::Event&> ezDocumentWindow::s_Events;
 ezDynamicArray<ezDocumentWindow*> ezDocumentWindow::s_AllDocumentWindows;
@@ -23,6 +24,8 @@ void ezDocumentWindow::Constructor()
   }
 
   s_AllDocumentWindows.PushBack(this);
+
+  setStatusBar(new QStatusBar());
 
   m_pContainerWindow = nullptr;
   m_bIsVisibleInContainer = false;
@@ -38,6 +41,8 @@ void ezDocumentWindow::Constructor()
 
   ezContainerWindow::GetAllContainerWindows()[0]->MoveDocumentWindowToContainer(this);
   ScheduleRestoreWindowLayout();
+
+  ezUIServices::s_Events.AddEventHandler(ezMakeDelegate(&ezDocumentWindow::UIServicesEventHandler, this));
 }
 
 ezDocumentWindow::ezDocumentWindow(ezDocumentBase* pDocument)
@@ -64,6 +69,8 @@ ezDocumentWindow::ezDocumentWindow(const char* szUniqueName)
 
 ezDocumentWindow::~ezDocumentWindow()
 {
+  ezUIServices::s_Events.RemoveEventHandler(ezMakeDelegate(&ezDocumentWindow::UIServicesEventHandler, this));
+
   s_AllDocumentWindows.RemoveSwap(this);
 
   if (s_AllDocumentWindows.IsEmpty())
@@ -191,6 +198,22 @@ void ezDocumentWindow::DocumentManagerEventHandler(const ezDocumentManagerBase::
   }
 }
 
+void ezDocumentWindow::UIServicesEventHandler(const ezUIServices::Event& e)
+{
+  switch (e.m_Type)
+  {
+  case ezUIServices::Event::Type::ShowDocumentStatusBarText:
+    {
+      if (statusBar() == nullptr)
+        setStatusBar(new QStatusBar());
+
+      statusBar()->setHidden(e.m_sText.IsEmpty());
+      statusBar()->showMessage(QString::fromUtf8(e.m_sText.GetData()), (int) e.m_Time.GetMilliseconds());
+    }
+    break;
+  }
+}
+
 ezString ezDocumentWindow::GetDisplayNameShort() const
 {
   ezStringBuilder s = GetDisplayName();
@@ -271,9 +294,13 @@ ezStatus ezDocumentWindow::SaveDocument()
     ezUIServices::MessageBoxStatus(res, s, s2);
 
     if (res.m_Result.Failed())
+    {
+      statusBar()->showMessage("Failed to save document", 10000);
       return res;
+    }
   }
 
+  statusBar()->showMessage("Document saved", 5000);
   return ezStatus(EZ_SUCCESS);
 
 }

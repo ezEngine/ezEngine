@@ -20,6 +20,9 @@ class QWidget;
 struct EZ_EDITORFRAMEWORK_DLL ezPluginSet
 {
   ezSet<ezString> m_Plugins;
+
+  bool operator==(const ezPluginSet& rhs) const { return m_Plugins == rhs.m_Plugins; }
+  bool operator!=(const ezPluginSet& rhs) const { return !(*this == rhs); }
 };
 
 class EZ_EDITORFRAMEWORK_DLL ezRecentFilesList
@@ -58,8 +61,11 @@ public:
   const ezPluginSet& GetEditorPluginsToBeLoaded() { return s_EditorPluginsToBeLoaded; }
   void SetEditorPluginsToBeLoaded(const ezPluginSet& plugins);
 
-  void AddRestartRequiredReason(const char* szReason) { s_RestartRequiredReasons.Insert(szReason); }
+  void AddRestartRequiredReason(const char* szReason);
   const ezSet<ezString>& GetRestartRequiredReasons() { return s_RestartRequiredReasons; }
+
+  void AddReloadProjectRequiredReason(const char* szReason);
+  const ezSet<ezString>& GetReloadProjectRequiredReason() { return s_ReloadProjectRequiredReasons; }
 
   void RegisterPluginNameForSettings(const char* szPluginName);
   const ezSet<ezString>& GetRegisteredPluginNamesForSettings() { return s_SettingsPluginNames; }
@@ -93,8 +99,8 @@ public:
   const ezApplicationFileSystemConfig& GetFileSystemConfig() const { return m_FileSystemConfig; }
   const ezApplicationPluginConfig& GetEnginePluginConfig() const { return m_EnginePluginConfig; }
 
-  void SetFileSystemConfig(const ezApplicationFileSystemConfig& cfg) { m_FileSystemConfig = cfg; }
-  void SetEnginePluginConfig(const ezApplicationPluginConfig& cfg) { m_EnginePluginConfig = cfg; }
+  void SetFileSystemConfig(const ezApplicationFileSystemConfig& cfg);
+  void SetEnginePluginConfig(const ezApplicationPluginConfig& cfg);
 
 
 private slots:
@@ -105,6 +111,8 @@ private slots:
 
 private:
   ezSettings& GetSettings(ezMap<ezString, ezSettings>& SettingsMap, const char* szPlugin, const char* szSearchPath);
+
+  void UpdateGlobalStatusBarMessage();
 
   void DocumentManagerRequestHandler(ezDocumentManagerBase::Request& r);
   void DocumentManagerEventHandler(const ezDocumentManagerBase::Event& r);
@@ -119,6 +127,7 @@ private:
   ezString s_sUserName;
 
   ezSet<ezString> s_RestartRequiredReasons;
+  ezSet<ezString> s_ReloadProjectRequiredReasons;
 
   ezPluginSet s_EditorPluginsAvailable;
   ezPluginSet s_EditorPluginsActive;

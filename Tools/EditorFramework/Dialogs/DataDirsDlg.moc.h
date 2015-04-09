@@ -11,9 +11,7 @@ public:
   Q_OBJECT
 
 public:
-  DataDirsDlg(QWidget* parent, const ezApplicationFileSystemConfig& cfg);
-
-  const ezApplicationFileSystemConfig& GetResult() const { return m_Config; }
+  DataDirsDlg(QWidget* parent);
 
 private slots:
   void on_ButtonOK_clicked();

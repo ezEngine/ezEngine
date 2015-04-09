@@ -35,7 +35,11 @@ const ezPluginSet& ezEditorApp::GetEditorPluginsAvailable()
 
 void ezEditorApp::SetEditorPluginsToBeLoaded(const ezPluginSet& plugins)
 {
+  if (s_EditorPluginsToBeLoaded == plugins)
+    return;
+
   s_EditorPluginsToBeLoaded = plugins;
+
   AddRestartRequiredReason("The set of active plugins has changed.");
 
   ezFileWriter FileOut;

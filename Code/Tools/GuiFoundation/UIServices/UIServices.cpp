@@ -2,6 +2,7 @@
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <QSettings>
 
+ezEvent<const ezUIServices::Event&> ezUIServices::s_Events;
 
 ezUIServices* ezUIServices::GetInstance()
 {
@@ -34,4 +35,22 @@ void ezUIServices::LoadState()
   Settings.endGroup();
 }
 
+void ezUIServices::ShowAllDocumentsStatusBarMessage(const char* szMsg, ezTime timeOut)
+{
+  Event e;
+  e.m_Type = Event::ShowDocumentStatusBarText;
+  e.m_sText = szMsg;
+  e.m_Time = timeOut;
 
+  s_Events.Broadcast(e);
+}
+
+void ezUIServices::ShowGlobalStatusBarMessage(const char* szMsg)
+{
+  Event e;
+  e.m_Type = Event::ShowGlobalStatusBarText;
+  e.m_sText = szMsg;
+  e.m_Time = ezTime::Seconds(0);
+
+  s_Events.Broadcast(e);
+}

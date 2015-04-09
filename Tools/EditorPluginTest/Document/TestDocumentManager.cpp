@@ -45,11 +45,12 @@ void ezTestDocumentManager::InternalGetSupportedDocumentTypes(ezHybridArray<ezDo
     ezDocumentTypeDescriptor td;
     td.m_bCanCreate = true;
     td.m_sDocumentTypeName = "ezScene";
-    td.m_sFileExtensions.PushBack("scene");
+    td.m_sFileExtensions.PushBack("ezScene");
 
     out_DocumentTypes.PushBack(td);
   }
 
+  /*
   {
     ezDocumentTypeDescriptor td;
     td.m_bCanCreate = true;
@@ -58,6 +59,7 @@ void ezTestDocumentManager::InternalGetSupportedDocumentTypes(ezHybridArray<ezDo
 
     out_DocumentTypes.PushBack(td);
   }
+  */
 }
 
 

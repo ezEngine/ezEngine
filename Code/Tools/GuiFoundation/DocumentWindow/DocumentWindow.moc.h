@@ -1,6 +1,7 @@
 #pragma once
 
 #include <GuiFoundation/Basics.h>
+#include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <Foundation/Strings/String.h>
 #include <Foundation/Communication/Event.h>
 #include <ToolsFoundation/Basics/Status.h>
@@ -96,6 +97,7 @@ private:
   void Constructor();
   void DocumentManagerEventHandler(const ezDocumentManagerBase::Event& e);
   void DocumentEventHandler(const ezDocumentBase::Event& e);
+  void UIServicesEventHandler(const ezUIServices::Event& e);
 
   virtual void InternalDeleteThis() { delete this; }
   virtual bool InternalCanCloseWindow();

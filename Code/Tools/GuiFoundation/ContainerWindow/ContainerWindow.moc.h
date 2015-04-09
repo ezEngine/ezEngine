@@ -6,11 +6,13 @@
 #include <Foundation/Containers/DynamicArray.h>
 #include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
 #include <ToolsFoundation/Project/ToolsProject.h>
+#include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <QMainWindow>
 
 class ezDocumentManagerBase;
 class ezDocumentBase;
 struct ezDocumentTypeDescriptor;
+class QLabel;
 
 class EZ_GUIFOUNDATION_DLL ezContainerWindow : public QMainWindow
 {
@@ -61,10 +63,12 @@ private:
 
   void DocumentWindowEventHandler(const ezDocumentWindow::Event& e);
   void ProjectEventHandler(const ezToolsProject::Event& e);
+  void UIServicesEventHandler(const ezUIServices::Event& e);
 
   void closeEvent(QCloseEvent* e);
 
 private:
+  QLabel* m_pStatusBarLabel;
   ezDynamicArray<ezDocumentWindow*> m_DocumentWindows;
 
   static ezDynamicArray<ezContainerWindow*> s_AllContainerWindows;

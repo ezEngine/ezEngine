@@ -11,11 +11,17 @@ public:
 
   virtual void Apply() override;
 
+  ezResult CreateDataDirStubFiles();
+
   struct DataDirConfig
   {
     ezString m_sRelativePath;
     bool m_bWritable;
+
+    bool operator==(const DataDirConfig& rhs) const { return m_bWritable == rhs.m_bWritable && m_sRelativePath == rhs.m_sRelativePath;  }
   };
+
+  bool operator==(const ezApplicationFileSystemConfig& rhs) const { return m_DataDirs == rhs.m_DataDirs; }
 
   ezHybridArray<DataDirConfig, 4> m_DataDirs;
 };

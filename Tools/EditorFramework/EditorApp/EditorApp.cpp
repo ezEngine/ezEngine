@@ -414,6 +414,9 @@ void ezEditorApp::ProjectEventHandler(const ezToolsProject::Event& r)
       s_ProjectSettings.Clear();
 
       ezApplicationConfig::SetProjectDirectory("");
+
+      s_ReloadProjectRequiredReasons.Clear();
+      UpdateGlobalStatusBarMessage();
     }
     break;
   }

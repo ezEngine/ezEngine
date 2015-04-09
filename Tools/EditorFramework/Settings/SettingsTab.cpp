@@ -231,10 +231,7 @@ void ezSettingsTab::SlotComboSettingsDomainIndexChanged(int iIndex)
 
 void ezSettingsTab::on_ButtonDataDirConfig_clicked()
 {
-  DataDirsDlg dlg(this, ezEditorApp::GetInstance()->GetFileSystemConfig());
-  if (dlg.exec() == QDialog::Accepted)
-  {
-    ezEditorApp::GetInstance()->SetFileSystemConfig(dlg.GetResult());
-  }
+  DataDirsDlg dlg(this);
+  dlg.exec();
 }
 

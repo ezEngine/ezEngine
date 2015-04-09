@@ -6,11 +6,11 @@
 #include <QMessageBox>
 #include <QFileDialog>
 
-DataDirsDlg::DataDirsDlg(QWidget* parent, const ezApplicationFileSystemConfig& cfg) : QDialog(parent)
+DataDirsDlg::DataDirsDlg(QWidget* parent) : QDialog(parent)
 {
   setupUi(this);
 
-  m_Config = cfg;
+  m_Config = ezEditorApp::GetInstance()->GetFileSystemConfig();
   m_iSelection = -1;
   FillList();
 }
@@ -32,7 +32,10 @@ void DataDirsDlg::FillList()
     QListWidgetItem* pItem = new QListWidgetItem(ListDataDirs);
     pItem->setFlags(Qt::ItemFlag::ItemIsEnabled | Qt::ItemFlag::ItemIsSelectable /*| Qt::ItemFlag::ItemIsUserCheckable*/);
 
-    pItem->setText(QString::fromUtf8(dd.m_sRelativePath.GetData()));
+    QString sPath = QLatin1String("<Project>/");
+    sPath += QString::fromUtf8(dd.m_sRelativePath.GetData());
+
+    pItem->setText(sPath);
   //  pItem->setCheckState(bToBeLoaded ? Qt::CheckState::Checked : Qt::CheckState::Unchecked);
     ListDataDirs->addItem(pItem);
   }
@@ -51,6 +54,13 @@ void DataDirsDlg::FillList()
 
 void DataDirsDlg::on_ButtonOK_clicked()
 {
+  if (m_Config.CreateDataDirStubFiles().Failed())
+  {
+    ezUIServices::MessageBoxWarning("Failed to create all data dir stub files ('DataDir.ezManifest'). Please review the selected folders, some might not be accessible. See the log for more details.");
+    return;
+  }
+
+  ezEditorApp::GetInstance()->SetFileSystemConfig(m_Config);
   accept();
 }
 

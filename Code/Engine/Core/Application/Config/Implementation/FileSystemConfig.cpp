@@ -9,7 +9,7 @@ ezResult ezApplicationFileSystemConfig::Save()
 {
   ezStringBuilder sPath;
   sPath = GetProjectDirectory();
-  sPath.AppendPath("DataDirs.ezManifest");
+  sPath.AppendPath("DataDirectories.ezManifest");
 
   ezFileWriter file;
   if (file.Open(sPath).Failed())
@@ -47,7 +47,7 @@ void ezApplicationFileSystemConfig::Load()
 
   ezStringBuilder sPath;
   sPath = GetProjectDirectory();
-  sPath.AppendPath("DataDirs.ezManifest");
+  sPath.AppendPath("DataDirectories.ezManifest");
 
   ezFileReader file;
   if (file.Open(sPath).Failed())
@@ -65,7 +65,7 @@ void ezApplicationFileSystemConfig::Load()
   }
 
   const auto& tree = json.GetTopLevelObject();
-  
+
   ezVariant* dirs;
   if (!tree.TryGetValue("DataDirectories", dirs) || !dirs->IsA<ezVariantArray>())
   {
@@ -98,10 +98,40 @@ void ezApplicationFileSystemConfig::Apply()
 {
   EZ_LOG_BLOCK("ezApplicationFileSystemConfig::Apply");
 
+  ezStringBuilder s;
+
   for (const auto& var : m_DataDirs)
   {
-    ezFileSystem::AddDataDirectory(var.m_sRelativePath, var.m_bWritable ? ezFileSystem::DataDirUsage::AllowWrites : ezFileSystem::DataDirUsage::ReadOnly, "AppFileSystemConfig");
+    s = GetProjectDirectory();
+    s.AppendPath(var.m_sRelativePath);
+    s.MakeCleanPath();
+
+    ezFileSystem::AddDataDirectory(s, var.m_bWritable ? ezFileSystem::DataDirUsage::AllowWrites : ezFileSystem::DataDirUsage::ReadOnly, "AppFileSystemConfig");
   }
 }
 
+ezResult ezApplicationFileSystemConfig::CreateDataDirStubFiles()
+{
+  EZ_LOG_BLOCK("ezApplicationFileSystemConfig::CreateDataDirStubFiles");
+
+  ezStringBuilder s;
+  ezResult res = EZ_SUCCESS;
+
+  for (const auto& var : m_DataDirs)
+  {
+    s = GetProjectDirectory();
+    s.AppendPath(var.m_sRelativePath);
+    s.AppendPath("DataDir.ezManifest");
+    s.MakeCleanPath();
+
+    ezOSFile file;
+    if (file.Open(s, ezFileMode::Write).Failed())
+    {
+      ezLog::Error("Failed to create stub file '%s'", s.GetData());
+      res = EZ_FAILURE;
+    }
+  }
+
+  return EZ_SUCCESS;
+}
 
