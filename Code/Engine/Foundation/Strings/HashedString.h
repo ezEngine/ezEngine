@@ -85,10 +85,10 @@ public:
   /// \brief \see operator==
   bool operator!= (const ezTempHashedString& rhs) const; // [tested]
 
-  /// \brief This operator allows soring objects by hash value, not by alphabetical order.
+  /// \brief This operator allows sorting objects by hash value, not by alphabetical order.
   bool operator< (const ezHashedString& rhs) const; // [tested]
 
-  /// \brief This operator allows soring objects by hash value, not by alphabetical order.
+  /// \brief This operator allows sorting objects by hash value, not by alphabetical order.
   bool operator< (const ezTempHashedString& rhs) const; // [tested]
 
   /// \brief Gives access to the actual string data, so you can do all the typical (read-only) string operations on it.
