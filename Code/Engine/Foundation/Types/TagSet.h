@@ -20,8 +20,6 @@ template<typename BlockStorageAllocator = ezDefaultAllocatorWrapper> class ezTag
 {
 public:
 
-  typedef ezUInt64 BlockStorageType;
-
   EZ_FORCE_INLINE ezTagSetTemplate();
 
   /// \brief Adds the given tag to the set.
@@ -42,7 +40,7 @@ private:
 
   EZ_FORCE_INLINE void Reallocate(ezUInt32 uiNewTagBlockStart, ezUInt32 uiNewMaxBlockIndex);
 
-  ezHybridArray<BlockStorageType, 1, BlockStorageAllocator> m_TagBlocks;
+  ezHybridArray<ezTagSetBlockStorage, 1, BlockStorageAllocator> m_TagBlocks;
 
   ezUInt32 m_uiTagBlockStart;
 

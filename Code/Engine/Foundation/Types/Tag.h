@@ -2,7 +2,8 @@
 #pragma once
 
 #include <Foundation/Strings/HashedString.h>
-#include <Foundation/Types/TagSet.h>
+
+typedef ezUInt64 ezTagSetBlockStorage;
 
 /// \brief The tag class stores the necessary lookup information for a single tag which can be used in conjunction with the tag set.
 ///
@@ -40,7 +41,9 @@ private:
   ezUInt32 m_uiBlockIndex;
   
   /// Stores a pre-shifted version of 1u << uiBitIndex
-  ezTagSet::BlockStorageType m_uiPreshiftedBit;
+  ezTagSetBlockStorage m_uiPreshiftedBit;
 };
+
+#include <Foundation/Types/TagSet.h>
 
 #include <Foundation/Types/Implementation/Tag_inl.h>

@@ -4,7 +4,7 @@
 #include <Foundation/Types/Tag.h>
 
 template<typename BlockStorageAllocator>
-ezTagSetTemplate<typename BlockStorageAllocator>::ezTagSetTemplate()
+ezTagSetTemplate<BlockStorageAllocator>::ezTagSetTemplate()
   : m_uiTagBlockStart(0xFFFFFFFFu)
 {
 }
