@@ -1,6 +1,6 @@
 #include <PCH.h>
-#include <Foundation/Types/TagSet.h>
 #include <Foundation/Types/Tag.h>
+#include <Foundation/Types/TagSet.h>
 #include <Foundation/Types/TagRegistry.h>
 #include <Foundation/IO/MemoryStream.h>
 
