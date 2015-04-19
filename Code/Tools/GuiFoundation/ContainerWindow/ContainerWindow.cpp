@@ -387,6 +387,15 @@ void ezContainerWindow::CreateOrOpenDocument(bool bCreate)
 
   static QString sSelectedExt;
   static QString sDir = ezOSFile::GetApplicationDirectory();
+  
+  if (ezToolsProject::IsProjectOpen())
+  {
+    ezStringBuilder sTempDir;
+    sTempDir = ezToolsProject::GetInstance()->GetProjectPath();
+    sTempDir.PathParentDirectory();
+    sDir = QString::fromUtf8(sTempDir);
+  }
+
   ezString sFile;
 
   if (bCreate)

@@ -80,7 +80,7 @@
 			<Item Name="count">m_uiCount</Item>
 			<IndexListItems>
 				<Size>m_uiCount</Size>
-				<ValueNode>m_pChunks[(m_iFirstElement + $i) / m_uiChunkSize][(m_iFirstElement + $i) % m_uiChunkSize]</ValueNode>
+				<ValueNode>m_pChunks[(m_uiFirstElement + $i) / m_uiChunkSize][(m_uiFirstElement + $i) % m_uiChunkSize]</ValueNode>
 			</IndexListItems>
 		</Expand>
 	</Type>
