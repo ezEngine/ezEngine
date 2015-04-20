@@ -28,21 +28,21 @@ void ezTagRegistry::RegisterTag(const char* szTagString, ezTag* ResultTag /*= nu
 
 void ezTagRegistry::RegisterTag(const ezHashedString& TagString, ezTag* ResultTag /*= nullptr*/)
 {
-  // Early out if the tag is already registered
-  if (ResultTag)
-  {
-    ezTag TempTag;
-    if (GetTag(TagString, TempTag).Succeeded())
-    {
-      *ResultTag = TempTag;
-      return;
-    }
-  }
-
   EZ_LOCK(m_TagRegistryMutex);
 
-  // Build temp tag
+  // Early out if the tag is already registered
   ezTag TempTag;
+  if (GetTag(TagString, TempTag).Succeeded())
+  {
+    if (ResultTag)
+    {
+      *ResultTag = TempTag;
+    }
+	
+    return;
+  }
+
+  // Build temp tag
   TempTag.m_uiBlockIndex = m_uiNextTagIndex / (sizeof(ezTagSetBlockStorage) * 8);
   TempTag.m_uiBitIndex = m_uiNextTagIndex - (TempTag.m_uiBlockIndex * sizeof(ezTagSetBlockStorage) * 8);
   TempTag.m_uiPreshiftedBit = (static_cast<ezTagSetBlockStorage>(1) << static_cast<ezTagSetBlockStorage>(TempTag.m_uiBitIndex));
