@@ -52,8 +52,14 @@ public:
   const ezHashTable<ezUuid, AssetInfo*>& GetKnownAssets() const;
   ezUInt64 GetAssetDependencyHash(ezUuid assetGuid);
 
+  /// \brief Iterates over all known data directories and returns the absolute path to the directory in which this asset is located
+  ezString FindDataDirectoryForAsset(const char* szAbsoluteAssetPath) const;
+
   // TODO: Background filesystem watcher and main thread update tick to add background info to main data
   // TODO: Hash changed in different thread
+
+  const char* GetActivePlatform() const { return m_sActivePlatform; }
+  void SetActivePlatform(const char* szPlatform) { m_sActivePlatform = szPlatform; /* TODO: send an event */ }
 
 public:
   struct Event
@@ -117,6 +123,7 @@ private:
 
   ezMap<ezString, FileStatus> m_FileHashingQueue;
   ezApplicationFileSystemConfig m_FileSystemConfig;
+  ezString m_sActivePlatform;
 
 private:
   friend class ezHashingTask;

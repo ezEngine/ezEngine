@@ -2,6 +2,7 @@
 #include <EditorFramework/Assets/AssetDocumentManager.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <ToolsFoundation/Project/ToolsProject.h>
+#include <EditorFramework/Assets/AssetCurator.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAssetDocumentManager, ezDocumentManagerBase, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
@@ -20,8 +21,7 @@ bool ezAssetDocumentManager::IsResourceUpToDate(ezUInt64 uiHash, const char* szR
 
 ezString ezAssetDocumentManager::GenerateResourceFileName(const char* szDocumentPath, const char* szPlatform) const
 {
-  ezStringBuilder sProjectDir = ezToolsProject::GetInstance()->GetProjectPath();
-  sProjectDir.PathParentDirectory();
+  ezStringBuilder sProjectDir = ezAssetCurator::GetInstance()->FindDataDirectoryForAsset(szDocumentPath);;
 
   ezStringBuilder sRelativePath = szDocumentPath;
 

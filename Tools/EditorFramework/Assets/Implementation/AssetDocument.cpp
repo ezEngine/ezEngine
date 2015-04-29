@@ -108,13 +108,18 @@ void ezAssetDocument::GetChildHash(const ezDocumentObjectBase* pObject, ezUInt64
   }
 }
 
-ezStatus ezAssetDocument::TransformAsset()
+ezStatus ezAssetDocument::TransformAsset(const char* szPlatform)
 {
+  ezString sPlatform = szPlatform;
+
+  if (sPlatform.IsEmpty())
+    sPlatform = ezAssetCurator::GetInstance()->GetActivePlatform();
+
   ezUInt64 uiHash = ezAssetCurator::GetInstance()->GetAssetDependencyHash(GetGuid());
 
   EZ_ASSERT_DEV(uiHash != 0, "Something went wrong");
 
-  const ezString sResourceFile = static_cast<ezAssetDocumentManager*>(GetDocumentManager())->GenerateResourceFileName(GetDocumentPath(), "PC");
+  const ezString sResourceFile = static_cast<ezAssetDocumentManager*>(GetDocumentManager())->GenerateResourceFileName(GetDocumentPath(), sPlatform);
 
   if (ezAssetDocumentManager::IsResourceUpToDate(uiHash, sResourceFile))
     return ezStatus(EZ_SUCCESS);
@@ -130,6 +135,6 @@ ezStatus ezAssetDocument::TransformAsset()
 
   file << uiHash;
 
-  return InternalTransformAsset(file);
+  return InternalTransformAsset(file, sPlatform);
 }
 

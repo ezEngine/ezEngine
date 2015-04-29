@@ -69,8 +69,10 @@ void ezTextureAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo)
   pInfo->m_uiSettingsHash = GetDocumentHash();
 }
 
-ezStatus ezTextureAssetDocument::InternalTransformAsset(ezStreamWriterBase& stream)
+ezStatus ezTextureAssetDocument::InternalTransformAsset(ezStreamWriterBase& stream, const char* szPlatform)
 {
+  EZ_ASSERT_DEV(ezStringUtils::IsEqual(szPlatform, "PC"), "Platform '%s' is not supported", szPlatform);
+
   const ezImage& img = GetProperties()->GetImage();
 
   stream << GetProperties()->IsSRGB();

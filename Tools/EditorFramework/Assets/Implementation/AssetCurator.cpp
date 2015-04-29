@@ -168,6 +168,7 @@ void ezAssetCurator::Initialize(const ezApplicationFileSystemConfig& cfg)
 {
   m_bActive = true;
   m_FileSystemConfig = cfg;
+  m_sActivePlatform = "PC";
 
   CheckFileSystem();
 }
@@ -248,6 +249,22 @@ void ezAssetCurator::CheckFileSystem()
     e.m_Type = Event::Type::AssetListReset;
     m_Events.Broadcast(e);
   }
+}
+
+ezString ezAssetCurator::FindDataDirectoryForAsset(const char* szAbsoluteAssetPath) const
+{
+  ezStringBuilder sAssetPath(szAbsoluteAssetPath);
+
+  for (const auto& dd : m_FileSystemConfig.m_DataDirs)
+  {
+    ezStringBuilder sDataDir(ezApplicationFileSystemConfig::GetProjectDirectory(), "/", dd.m_sRelativePath);
+
+    if (sAssetPath.IsPathBelowFolder(sDataDir))
+      return sDataDir;
+  }
+
+  EZ_REPORT_FAILURE("Could not find data directory for asset '%s", szAbsoluteAssetPath);
+  return ezApplicationFileSystemConfig::GetProjectDirectory();
 }
 
 ezResult ezAssetCurator::WriteAssetTable(const char* szDataDirectory)
