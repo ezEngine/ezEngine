@@ -3,6 +3,8 @@
 
 namespace ezDataDirectory
 {
+  ezString FolderType::s_sRedirectionFile;
+  ezString FolderType::s_sRedirectionPrefix;
 
   ezResult FolderReader::InternalOpen()
   {
@@ -112,6 +114,53 @@ namespace ezDataDirectory
 
 #endif
 
+    m_FileRedirection.Clear();
+
+    if (!s_sRedirectionFile.IsEmpty())
+    {
+      ezStringBuilder sRedirectionFile(szDirectory, "/", s_sRedirectionFile);
+
+      ezOSFile file;
+      if (file.Open(sRedirectionFile, ezFileMode::Read).Succeeded())
+      {
+        ezHybridArray<char, 1024 * 10> content;
+        char uiTemp[4096];
+
+        ezUInt64 uiRead = 0;
+        
+        do
+        {
+          uiRead = file.Read(uiTemp, EZ_ARRAY_SIZE(uiTemp));
+          content.PushBackRange(ezArrayPtr<char>(uiTemp, (ezUInt32)uiRead));
+        }
+        while (uiRead == EZ_ARRAY_SIZE(uiTemp));
+
+        content.PushBack(0); // make sure the string is terminated
+
+        const char* szLineStart = content.GetData();
+        const char* szSeparator = nullptr;
+        const char* szLineEnd = nullptr;
+
+        ezStringBuilder sFileToRedirect, sRedirection;
+
+        while (true)
+        {
+          szSeparator = ezStringUtils::FindSubString(szLineStart, ";");
+          szLineEnd = ezStringUtils::FindSubString(szSeparator, "\n");
+
+          if (szLineStart == nullptr || szSeparator == nullptr || szLineEnd == nullptr)
+            break;
+
+          sFileToRedirect.SetSubString_FromTo(szLineStart, szSeparator);
+          sRedirection.SetSubString_FromTo(szSeparator + 1, szLineEnd);
+
+          m_FileRedirection[sFileToRedirect] = sRedirection;
+
+          szLineStart = szLineEnd + 1;
+        }
+      }
+    }
+
     return EZ_SUCCESS;
   }
 
@@ -145,8 +194,21 @@ namespace ezDataDirectory
       pReader = m_Readers.PeekBack();
     }
 
+    ezStringBuilder sFileToOpen;
+
+    // Check if we now about a file redirection for this
+    auto it = m_FileRedirection.Find(szFile);
+
+    if (it.IsValid())
+    {
+      // if available, open the file that is mentioned in the redirection file instead
+      sFileToOpen.Set(s_sRedirectionPrefix, it.Value());
+    }
+    else
+      sFileToOpen = szFile;
+
     // if opening the file fails, the reader state is never set to 'used', so nothing else needs to be done
-    if (pReader->Open(szFile, this) == EZ_FAILURE)
+    if (pReader->Open(sFileToOpen, this) == EZ_FAILURE)
       return nullptr;
 
     // if it succeeds, we return the reader

@@ -3,6 +3,7 @@
 #include <Foundation/IO/FileSystem/Implementation/DataDirType.h>
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/Containers/HybridArray.h>
+#include <Foundation/Containers/Map.h>
 
 namespace ezDataDirectory
 {
@@ -19,6 +20,17 @@ namespace ezDataDirectory
 
     /// \brief The factory that can be registered at ezFileSystem to create data directories of this type.
     static ezDataDirectoryType* Factory(const char* szDataDirectory);
+
+    /// A 'redirection file' is an optional file located inside a data directory that lists which file access is redirected to which other file lookup.
+    /// Each redirection is one line in the file (terminated by a \n).
+    /// Each line consists of the 'key' string, a semicolon and a 'value' string. No unnecessary whitespace is allowed.
+    /// When a file that matches 'key' is accessed through a mounted data directory, the file access will be replaced by 'value' (plus s_sRedirectionPrefix)
+    /// 'key' may be anything (e.g. a GUID string), 'value' should be a valid relative path into the SAME data directory.
+    /// The redirection file can be used to implement an asset lookup, where assets are identified by GUIDs and need to be mapped to the actual asset file.
+    static ezString s_sRedirectionFile;
+
+    /// If a redirection file is used AND the redirection lookup was successful, s_sRedirectionPrefix is prepended to the redirected file access.
+    static ezString s_sRedirectionPrefix;
 
   protected:
     // The implementations of the abstract functions.
@@ -37,6 +49,8 @@ namespace ezDataDirectory
 
     ezHybridArray<ezDataDirectory::FolderReader*, 4> m_Readers;
     ezHybridArray<ezDataDirectory::FolderWriter*, 4> m_Writers;
+
+    ezMap<ezString, ezString> m_FileRedirection;
   };
 
 
