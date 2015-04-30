@@ -5,7 +5,12 @@
 
 #define EZ_STACKTRACER_WIN_INL_H_INCLUDED
 
+#define EZ_MSVC_WARNING_NUMBER 4091
+#include <Foundation/Basics/Compiler/DisableWarning.h>
+
 #include <DbgHelp.h>
+
+#include <Foundation/Basics/Compiler/RestoreWarning.h>
 
 #include <Foundation/Configuration/Plugin.h>
 #include <Foundation/IO/OSFile.h>

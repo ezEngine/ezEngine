@@ -143,7 +143,7 @@ void ezEditorProcessApp::EventHandlerIPC(const ezProcessCommunication::Event& e)
   {
     ezViewRedrawMsgToEngine* pMsg = (ezViewRedrawMsgToEngine*) pDocMsg;
 
-    pViewContext->SetupRenderTarget((HWND) pMsg->m_uiHWND, pMsg->m_uiWindowWidth, pMsg->m_uiWindowHeight);
+    pViewContext->SetupRenderTarget(reinterpret_cast<HWND>(pMsg->m_uiHWND), pMsg->m_uiWindowWidth, pMsg->m_uiWindowHeight);
     pViewContext->Redraw();
   }
   else if (pDocMsg->GetDynamicRTTI()->IsDerivedFrom<ezEntityMsgToEngine>())

@@ -99,7 +99,7 @@ void ezTestDocumentWindow::SendRedrawMsg()
   m_pEngineView->SendMessage(&cam);
 
   ezViewRedrawMsgToEngine msg;
-  msg.m_uiHWND = (ezUInt32) m_pCenterWidget->winId();
+  msg.m_uiHWND = (ezUInt64)(m_pCenterWidget->winId());
   msg.m_uiWindowWidth = m_pCenterWidget->width();
   msg.m_uiWindowHeight = m_pCenterWidget->height();
 

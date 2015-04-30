@@ -106,7 +106,7 @@ void ezTaskSystem::StartTaskGroup(ezTaskGroupID Group)
       // if the counters still match, the other task group has not yet been finished, and thus is a real dependency
       if (!IsTaskGroupFinished(tg.m_DependsOn[i]))
       {
-        // add this task group to that the list of the dependency, such that when that group finishes, this task group can get woken up
+        // add this task group to the list of dependencies, such that when that group finishes, this task group can get woken up
         Dependency.m_OthersDependingOnMe.PushBack(Group);
 
         // count how many other groups need to finish before this task group can be executed

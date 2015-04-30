@@ -138,7 +138,11 @@ if (BUILDSYSTEM_MSVC)
   message (STATUS "Compiler is MSVC (BUILDSYSTEM_COMPILER_MSVC)")
   set (BUILDSYSTEM_COMPILER_MSVC ON)
   
-  if (MSVC12)
+  if (MSVC14) # nobody knows what happened to MSVC13
+    message (STATUS "Compiler is Visual Studio 2015 (BUILDSYSTEM_COMPILER_MSVC_140)")
+    set (BUILDSYSTEM_COMPILER_MSVC_140 ON)
+    set (COMPILER_POSTFIX "2015")
+  elseif (MSVC12)
     message (STATUS "Compiler is Visual Studio 2013 (BUILDSYSTEM_COMPILER_MSVC_120)")
     set (BUILDSYSTEM_COMPILER_MSVC_120 ON)
     set (COMPILER_POSTFIX "2013")

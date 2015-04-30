@@ -98,7 +98,7 @@ class EZ_EDITORFRAMEWORK_DLL ezViewRedrawMsgToEngine : public ezEditorEngineDocu
 
 public:
 
-  ezUInt32 m_uiHWND;
+  ezUInt64 m_uiHWND;
   ezUInt16 m_uiWindowWidth;
   ezUInt16 m_uiWindowHeight;
 };

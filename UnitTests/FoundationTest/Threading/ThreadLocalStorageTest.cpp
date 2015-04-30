@@ -72,7 +72,7 @@ EZ_CREATE_SIMPLE_TEST(Threading, ThreadLocalStorage)
     EZ_TEST_BOOL(ezThreadLocalStorage::GetValueForSlot(uiVarIndex) == nullptr);
 
     // Place a pointer there
-    void* pBogusPointer = reinterpret_cast<void*>(0xBAADF00D);
+    void* pBogusPointer = reinterpret_cast<void*>(static_cast<size_t>(0xBAADF00D));
     ezThreadLocalStorage::SetValueForSlot(uiVarIndex, pBogusPointer);
 
     EZ_TEST_BOOL(ezThreadLocalStorage::GetValueForSlot(uiVarIndex) == pBogusPointer);

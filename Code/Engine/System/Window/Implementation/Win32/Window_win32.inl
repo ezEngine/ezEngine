@@ -114,7 +114,7 @@ ezResult ezWindow::Initialize()
 
 
   // Create rectangle for window
-  RECT Rect = {0, 0, m_CreationDescription.m_ClientAreaSize.width, m_CreationDescription.m_ClientAreaSize.height};
+  RECT Rect = {0, 0, (LONG) m_CreationDescription.m_ClientAreaSize.width, (LONG)m_CreationDescription.m_ClientAreaSize.height};
 
   // Account for left or top placed task bars
   if (!m_CreationDescription.m_bFullscreenWindow)
