@@ -6,7 +6,7 @@
 
 #include <Foundation/Memory/BlockStorage.h>
 #include <Foundation/Memory/CommonAllocators.h>
-#include <Foundation/Threading/TaskSystem.h>
+#include <Foundation/Threading/DelegateTask.h>
 
 #include <Core/World/GameObject.h>
 
@@ -113,8 +113,6 @@ namespace ezInternal
       ezUInt32 m_uiStartIndex;
       ezUInt32 m_uiCount;
     };
-
-    ezProfilingId m_UpdateProfilingID;
 
     ezDynamicArray<RegisteredUpdateFunction, ezLocalAllocatorWrapper> m_UpdateFunctions[ezComponentManagerBase::UpdateFunctionDesc::PHASE_COUNT];
     ezDynamicArray<ezComponentManagerBase::UpdateFunctionDesc, ezLocalAllocatorWrapper> m_UnresolvedUpdateFunctions;

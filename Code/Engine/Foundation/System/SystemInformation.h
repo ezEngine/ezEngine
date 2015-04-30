@@ -52,6 +52,9 @@ public:
   /// \brief Allows access to the current system configuration.
   static const ezSystemInformation& Get()
   {
+    if (!s_SystemInformation.m_bIsInitialized)
+      Initialize();
+
     return s_SystemInformation;
   }
 
@@ -64,14 +67,10 @@ private:
   const char* m_szBuildConfiguration;
   char m_sHostName[256];
   bool m_b64BitOS;
+  bool m_bIsInitialized;
 
-
-
-  EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(Foundation, SystemInformation);
 
   static void Initialize();
-
-  static void Shutdown();
 
   static ezSystemInformation s_SystemInformation;
 

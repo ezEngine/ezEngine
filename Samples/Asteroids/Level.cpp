@@ -12,6 +12,8 @@
 #include "CollidableComponent.h"
 #include <Foundation/IO/FileSystem/FileSystem.h>
 
+extern const char* szPlayerActions[MaxPlayerActions];
+
 static ezMeshResourceHandle CreateAsteroidMesh()
 {
   if (!ezFileSystem::ExistsFile("Meshes/Asteroid.ezm"))
@@ -81,9 +83,9 @@ Level::~Level()
   EZ_DEFAULT_DELETE(m_pWorld);
 }
 
-void Level::SetupLevel(const char* szLevelName)
+void Level::SetupLevel(ezWorld* pWorld)
 {
-  m_pWorld = EZ_DEFAULT_NEW(ezWorld)(szLevelName);
+  m_pWorld = pWorld;
 
   m_pWorld->CreateComponentManager<ezMeshComponentManager>();
   m_pWorld->CreateComponentManager<ShipComponentManager>();
@@ -99,6 +101,85 @@ void Level::SetupLevel(const char* szLevelName)
 
   m_Camera.LookAt(ezVec3(0.0f, 0.0f, 100.0f), ezVec3(0.0f));
   m_Camera.SetCameraMode(ezCamera::OrthoFixedWidth, 45.0f, 0.0f, 500.0f);
+}
+
+void Level::UpdatePlayerInput(ezInt32 iPlayer)
+{
+  float fVal = 0.0f;
+
+  ezGameObject* pShip = nullptr;
+  if (!m_pWorld->TryGetObject(m_hPlayerShips[iPlayer], pShip))
+    return;
+
+  ShipComponent* pShipComponent = nullptr;
+  if (!pShip->TryGetComponentOfBaseType(pShipComponent))
+    return;
+
+  ezVec3 vVelocity(0.0f);
+
+  const ezQuat qRot = pShip->GetLocalRotation();
+  const ezVec3 vShipDir = qRot * ezVec3(0, 1, 0);
+
+  ezStringBuilder sControls[MaxPlayerActions];
+
+  for (ezInt32 iAction = 0; iAction < MaxPlayerActions; ++iAction)
+    sControls[iAction].Format("Player%i_%s", iPlayer, szPlayerActions[iAction]);
+
+
+  if (ezInputManager::GetInputActionState("Game", sControls[0].GetData(), &fVal) != ezKeyState::Up)
+  {
+    ezVec3 vPos = pShip->GetLocalPosition();
+    //vVelocity += 0.1f * vShipDir * fVal;
+    vVelocity += 0.1f * ezVec3(0, 1, 0) * fVal * 60.0f;
+  }
+
+  if (ezInputManager::GetInputActionState("Game", sControls[1].GetData(), &fVal) != ezKeyState::Up)
+  {
+    ezVec3 vPos = pShip->GetLocalPosition();
+    //vVelocity -= 0.1f * vShipDir * fVal;
+    vVelocity += 0.1f * ezVec3(0, -1, 0) * fVal * 60.0f;
+  }
+
+  if (ezInputManager::GetInputActionState("Game", sControls[2].GetData(), &fVal) != ezKeyState::Up)
+  {
+    ezVec3 vPos = pShip->GetLocalPosition();
+    //vVelocity += 0.1f * vShipDir * fVal;
+    vVelocity += 0.1f * ezVec3(-1, 0, 0) * fVal * 60.0f;
+  }
+
+  if (ezInputManager::GetInputActionState("Game", sControls[3].GetData(), &fVal) != ezKeyState::Up)
+  {
+    ezVec3 vPos = pShip->GetLocalPosition();
+    //vVelocity -= 0.1f * vShipDir * fVal;
+    vVelocity += 0.1f * ezVec3(1, 0, 0) * fVal * 60.0f;
+  }
+
+  if (ezInputManager::GetInputActionState("Game", sControls[4].GetData(), &fVal) != ezKeyState::Up)
+  {
+    ezQuat qRotation;
+    qRotation.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(3.0f * fVal * 60.0f));
+
+    ezQuat qNewRot = qRotation * pShip->GetLocalRotation();
+    pShip->SetLocalRotation(qNewRot);
+  }
+
+  if (ezInputManager::GetInputActionState("Game", sControls[5].GetData(), &fVal) != ezKeyState::Up)
+  {
+    ezQuat qRotation;
+    qRotation.SetFromAxisAndAngle(ezVec3(0, 0, 1), ezAngle::Degree(-3.0f * fVal * 60.0f));
+
+    ezQuat qNewRot = qRotation * pShip->GetLocalRotation();
+    pShip->SetLocalRotation(qNewRot);
+  }
+
+  if (!vVelocity.IsZero())
+    pShipComponent->SetVelocity(vVelocity);
+
+
+  if (ezInputManager::GetInputActionState("Game", sControls[6].GetData(), &fVal) != ezKeyState::Up)
+    pShipComponent->SetIsShooting(true);
+  else
+    pShipComponent->SetIsShooting(false);
 }
 
 void Level::CreatePlayerShip(ezInt32 iPlayer)
@@ -180,22 +261,5 @@ void Level::Update()
 
   for (ezInt32 iPlayer = 0; iPlayer < MaxPlayers; ++iPlayer)
     UpdatePlayerInput(iPlayer);
-}
-
-
-
-void SampleGameApp::CreateGameLevel()
-{
-  m_pLevel = EZ_DEFAULT_NEW(Level);
-
-  m_pLevel->SetupLevel("Asteroids - World");
-
-  m_View.SetWorld(m_pLevel->GetWorld());
-  m_View.SetLogicCamera(m_pLevel->GetCamera());
-}
-
-void SampleGameApp::DestroyGameLevel()
-{
-  EZ_DEFAULT_DELETE(m_pLevel);
 }
 

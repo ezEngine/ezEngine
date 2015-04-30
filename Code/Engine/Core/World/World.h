@@ -108,6 +108,9 @@ public:
   /// See ezWorld for a detailed description of the update phases.
   void Update();
 
+  /// \brief Returns a task implementation that calls Update on this world.
+  ezTask* GetUpdateTask();
+
 
   /// \brief
   const ezInternal::SpatialData& GetSpatialData() const;
@@ -156,6 +159,7 @@ private:
   ezResult DeregisterUpdateFunction(const ezComponentManagerBase::UpdateFunctionDesc& desc);
   void DeregisterUpdateFunctions(ezComponentManagerBase* pManager);
 
+  void UpdateFromThread();
   void UpdateSynchronous(const ezArrayPtr<ezInternal::WorldData::RegisteredUpdateFunction>& updateFunctions);
   void UpdateAsynchronous();
   void DeleteDeadObjects();
@@ -163,6 +167,9 @@ private:
 
   void PatchHierarchyData(ezGameObject* pObject);
   void UpdateHierarchy();
+
+  ezProfilingId m_UpdateProfilingID;
+  ezDelegateTask<void> m_UpdateTask;
 
   ezInternal::WorldData m_Data;
   typedef ezInternal::WorldData::ObjectStorage::Entry ObjectStorageEntry;

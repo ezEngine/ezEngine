@@ -38,6 +38,8 @@ public:
 
   virtual ezSizeU32 GetClientAreaSize() const = 0;
   virtual ezWindowHandle GetNativeWindowHandle() const = 0;
+
+  virtual void ProcessWindowMessages() = 0;
 };
 
 struct EZ_SYSTEM_DLL ezWindowCreationDesc
@@ -119,6 +121,11 @@ public:
     return m_WindowHandle;
   }
 
+  /// \brief Runs the platform specific message pump.
+  ///
+  /// You should call ProcessWindowMessages every frame to keep the window responsive.
+  virtual void ProcessWindowMessages() override;
+
   /// \brief Creates a new platform specific window with the current settings
   ///
   /// Will automatically call ezWindow::Destroy if window is already initialized.
@@ -148,11 +155,6 @@ public:
 
   /// \brief Destroys the window.
   ezResult Destroy();
-
-  /// \brief Runs the platform specific message pump.
-  ///
-  /// You should call ProcessWindowMessages every frame to keep the window responsive.
-  void ProcessWindowMessages();
 
   /// \brief Called on window resize messages.
   ///

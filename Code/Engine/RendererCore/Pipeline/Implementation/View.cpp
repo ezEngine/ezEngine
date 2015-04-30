@@ -11,6 +11,9 @@ void ezView::SetName(const char* szName)
   sb.Append(".ExtractData");
   m_ExtractDataProfilingID = ezProfilingSystem::CreateId(sb.GetData());
 
+  sb.Append(" Task");
+  m_ExtractTask.SetTaskName(sb);
+
   sb = szName;
   sb.Append(".Render");
   m_RenderProfilingID = ezProfilingSystem::CreateId(sb.GetData());

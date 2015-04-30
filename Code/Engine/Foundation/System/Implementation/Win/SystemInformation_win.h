@@ -49,6 +49,9 @@ bool Is64BitWindows()
 
 void ezSystemInformation::Initialize()
 {
+  if (s_SystemInformation.m_bIsInitialized)
+    return;
+
   // Get system information via various APIs
   SYSTEM_INFO sysInfo;
   ZeroMemory(&sysInfo, sizeof(sysInfo));
@@ -79,5 +82,6 @@ void ezSystemInformation::Initialize()
     strcpy(s_SystemInformation.m_sHostName, "");
   }
 
+  s_SystemInformation.m_bIsInitialized = true;
 }
 

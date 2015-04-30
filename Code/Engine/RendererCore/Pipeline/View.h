@@ -3,6 +3,7 @@
 #include <Foundation/Math/Rect.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Strings/HashedString.h>
+#include <Foundation/Threading/DelegateTask.h>
 #include <RendererCore/Basics.h>
 
 class ezWorld;
@@ -14,15 +15,17 @@ class ezRenderContext;
 /// \brief Encapsulates a view on the given world through the given camera and rendered with the specified RenderPipeline.
 class EZ_RENDERERCORE_DLL ezView
 {
-  EZ_DECLARE_POD_TYPE();
+private:
+  /// \brief Use ezRenderLoop::CreateView to create a view.
+  ezView();
+  ~ezView();
 
 public:
-  ezView(const char* szName);
-
   void SetName(const char* szName);
   const char* GetName() const;
   
-  void SetWorld(const ezWorld* pWorld);
+  void SetWorld(ezWorld* pWorld);
+  ezWorld* GetWorld();
   const ezWorld* GetWorld() const;
 
   void SetRenderPipeline(ezRenderPipeline* pRenderPipeline);
@@ -48,6 +51,9 @@ public:
   /// \brief Extracts all relevant data from the world to render the view.
   void ExtractData();
 
+  /// \brief Returns a task implementation that calls ExtractData on this view.
+  ezTask* GetExtractTask();
+
   /// \brief Renders the extracted data with the view's pipeline.
   void Render(ezRenderContext* pRenderer);
 
@@ -71,12 +77,16 @@ public:
   const ezMat4& GetInverseViewProjectionMatrix() const;
 
 private:
+  friend class ezMemoryUtils;
+
   ezHashedString m_sName;
 
   ezProfilingId m_ExtractDataProfilingID;
   ezProfilingId m_RenderProfilingID;
 
-  const ezWorld* m_pWorld; 
+  ezDelegateTask<void> m_ExtractTask;
+
+  ezWorld* m_pWorld; 
   ezRenderPipeline* m_pRenderPipeline;
   const ezCamera* m_pLogicCamera;
   const ezCamera* m_pRenderCamera;

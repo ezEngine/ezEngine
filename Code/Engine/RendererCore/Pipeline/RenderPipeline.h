@@ -12,13 +12,7 @@ class ezRenderContext;
 class EZ_RENDERERCORE_DLL ezRenderPipeline
 {
 public:
-  enum Mode
-  {
-    Synchronous,
-    Asynchronous
-  };
-
-  ezRenderPipeline(Mode mode);
+  ezRenderPipeline();
   ~ezRenderPipeline();
 
   void ExtractData(const ezView& view);
@@ -39,12 +33,13 @@ public:
     pRenderData->m_pOwner = pOwner;
   #endif
     
-    if (passType >= m_pExtractedData->m_PassData.GetCount())
+    PipelineData* pPipelineData = GetPipelineDataForExtraction();
+    if (passType >= pPipelineData->m_PassData.GetCount())
     {
-      m_pExtractedData->m_PassData.SetCount(passType + 1);
+      pPipelineData->m_PassData.SetCount(passType + 1);
     }
 
-    m_pExtractedData->m_PassData[passType].m_RenderData.PushBack(pRenderData);
+    pPipelineData->m_PassData[passType].m_RenderData.PushBack(pRenderData);
 
     return pRenderData;
   }
@@ -53,9 +48,10 @@ public:
   {
     ezArrayPtr<const ezRenderData*> renderData;
 
-    if (m_pRenderData->m_PassData.GetCount() > passType)
+    PipelineData* pPipelineData = GetPipelineDataForRendering();
+    if (pPipelineData->m_PassData.GetCount() > passType)
     {
-      renderData = m_pRenderData->m_PassData[passType].m_RenderData;
+      renderData = pPipelineData->m_PassData[passType].m_RenderData;
     }
 
     return renderData;
@@ -86,14 +82,16 @@ private:
     ezHybridArray<PassData, 8> m_PassData;
   };
 
-  Mode m_Mode;
-
   PipelineData m_Data[2];
 
-  PipelineData* m_pExtractedData;
-  PipelineData* m_pRenderData;
+  PipelineData* GetPipelineDataForExtraction();
+  PipelineData* GetPipelineDataForRendering();
+
+  ezUInt32 m_uiLastExtractionFrame;
+  ezUInt32 m_uiLastRenderFrame;
 
   static void ClearPipelineData(PipelineData* pPipeLineData);
+  static bool IsPipelineDataEmpty(PipelineData* pPipeLineData);
 
   ezDynamicArray<ezRenderPipelinePass*> m_Passes;
 

@@ -42,7 +42,7 @@ void ezRenderContext::OnCoreShutdown()
     ezShaderStageBinary::s_ShaderStageBinaries[i].Clear();
 }
 
-EZ_BEGIN_SUBSYSTEM_DECLARATION(Graphics, RendererCore)
+EZ_BEGIN_SUBSYSTEM_DECLARATION(Graphics, RendererContext)
 
   BEGIN_SUBSYSTEM_DEPENDENCIES
     "Foundation",

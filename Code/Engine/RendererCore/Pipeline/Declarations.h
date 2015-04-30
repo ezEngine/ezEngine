@@ -14,7 +14,7 @@ class ezRenderContext;
 struct ezRenderViewContext
 {
   const ezView* m_pView;
-  ezRenderContext* m_pRenderer;
+  ezRenderContext* m_pRenderContext;
 };
 
 class EZ_RENDERERCORE_DLL ezRenderData : public ezReflectedClass
@@ -48,7 +48,7 @@ public:
   virtual void GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& types) = 0;
 
   /// \brief Should return the number of objects which have been rendered
-  virtual ezUInt32 Render(const ezRenderViewContext& renderContext, ezRenderPipelinePass* pPass, const ezArrayPtr<const ezRenderData*>& renderData) = 0;
+  virtual ezUInt32 Render(const ezRenderViewContext& renderViewContext, ezRenderPipelinePass* pPass, const ezArrayPtr<const ezRenderData*>& renderData) = 0;
 };
 
 

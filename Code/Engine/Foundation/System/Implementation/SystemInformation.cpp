@@ -1,19 +1,6 @@
 
 #include <Foundation/PCH.h>
 #include <Foundation/System/SystemInformation.h>
-#include <Foundation/Configuration/Startup.h>
-
-EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, SystemInformation)
-
-  // no dependencies
-
-  ON_BASE_STARTUP
-  {
-    ezSystemInformation::Initialize();
-  }
-
-EZ_END_SUBSYSTEM_DECLARATION
-
 
 // Storage for the current configuration
 ezSystemInformation ezSystemInformation::s_SystemInformation;

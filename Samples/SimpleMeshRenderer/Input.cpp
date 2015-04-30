@@ -9,16 +9,6 @@
 #include <Foundation/Configuration/CVar.h>
 #include <Foundation/Utilities/GraphicsUtils.h>
 
-void SampleApp::UpdateInputSystem(ezTime UpdateDiff)
-{
-  ezInputManager::Update(UpdateDiff);
-
-  if (ezInputManager::GetInputActionState("Main", "ReloadResources") == ezKeyState::Pressed)
-    ezResourceManager::ReloadAllResources();  
-  if (ezInputManager::GetInputActionState("Main", "CloseApp") == ezKeyState::Pressed)
-    m_bActiveRenderLoop = false;
-}
-
 static void RegisterInputAction(const char* szInputSet, const char* szInputAction, const char* szKey1, const char* szKey2 = nullptr, const char* szKey3 = nullptr)
 {
   ezInputActionConfig cfg;
@@ -56,8 +46,10 @@ void SampleApp::SetupInput()
   RegisterInputAction("Game", "TurnDown", ezInputSlot_KeyDown);
 }
 
-void SampleApp::UpdateGameInput()
+void SampleApp::UpdateInput()
 {
+  ezGameApplication::UpdateInput();
+
   float fRotateSpeed = 180.0f;
   float fMoveSpeed = 100.0f;
   float fInput = 0.0f;

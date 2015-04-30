@@ -20,7 +20,7 @@ void ezMeshRenderer::GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>
   types.PushBack(ezGetStaticRTTI<ezMeshRenderData>());
 }
 
-ezUInt32 ezMeshRenderer::Render(const ezRenderViewContext& renderContext, ezRenderPipelinePass* pPass, const ezArrayPtr<const ezRenderData*>& renderData)
+ezUInt32 ezMeshRenderer::Render(const ezRenderViewContext& renderViewContext, ezRenderPipelinePass* pPass, const ezArrayPtr<const ezRenderData*>& renderData)
 {
   if (!m_hObjectTransformCB.IsValid())
   {
@@ -37,9 +37,9 @@ ezUInt32 ezMeshRenderer::Render(const ezRenderViewContext& renderContext, ezRend
     }
   }
 
-  renderContext.m_pRenderer->BindConstantBuffer("PerObject", m_hObjectTransformCB);
+  renderViewContext.m_pRenderContext->BindConstantBuffer("PerObject", m_hObjectTransformCB);
 
-  const ezMat4& ViewProj = renderContext.m_pView->GetViewProjectionMatrix();
+  const ezMat4& ViewProj = renderViewContext.m_pView->GetViewProjectionMatrix();
   ezMaterialResourceHandle hLastMaterial;
   
   ezUInt32 uiDataRendered = 0;
@@ -47,10 +47,10 @@ ezUInt32 ezMeshRenderer::Render(const ezRenderViewContext& renderContext, ezRend
   { 
     const ezMeshRenderData* pRenderData = static_cast<const ezMeshRenderData*>(renderData[uiDataRendered]);
 
-    PerObjectCB* cb = renderContext.m_pRenderer->BeginModifyConstantBuffer<PerObjectCB>(m_hObjectTransformCB);
-      cb->world = pRenderData->m_WorldTransform.GetAsMat4();
-      cb->mvp = ViewProj * cb->world;
-    renderContext.m_pRenderer->EndModifyConstantBuffer();
+    PerObjectCB* cb = renderViewContext.m_pRenderContext->BeginModifyConstantBuffer<PerObjectCB>(m_hObjectTransformCB);
+    cb->world = pRenderData->m_WorldTransform.GetAsMat4();
+    cb->mvp = ViewProj * cb->world;
+    renderViewContext.m_pRenderContext->EndModifyConstantBuffer();
 
     ezResourceLock<ezMeshResource> pMesh(pRenderData->m_hMesh);
     const ezMeshResourceDescriptor::SubMesh& meshPart = pMesh->GetSubMeshes()[pRenderData->m_uiPartIndex];
@@ -61,9 +61,9 @@ ezUInt32 ezMeshRenderer::Render(const ezRenderViewContext& renderContext, ezRend
       hLastMaterial = pRenderData->m_hMaterial;
     }
 
-    renderContext.m_pRenderer->BindMeshBuffer(pMesh->GetMeshBuffer());
+    renderViewContext.m_pRenderContext->BindMeshBuffer(pMesh->GetMeshBuffer());
 
-    renderContext.m_pRenderer->DrawMeshBuffer(meshPart.m_uiPrimitiveCount, meshPart.m_uiFirstPrimitive);
+    renderViewContext.m_pRenderContext->DrawMeshBuffer(meshPart.m_uiPrimitiveCount, meshPart.m_uiFirstPrimitive);
     
     ++uiDataRendered;
   }

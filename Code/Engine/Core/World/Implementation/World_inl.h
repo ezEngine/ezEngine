@@ -172,6 +172,11 @@ EZ_FORCE_INLINE void ezWorld::SendMessage(const ezGameObjectHandle& receiverObje
   }
 }
 
+EZ_FORCE_INLINE ezTask* ezWorld::GetUpdateTask()
+{
+  return &m_UpdateTask;
+}
+
 EZ_FORCE_INLINE const ezInternal::SpatialData& ezWorld::GetSpatialData() const
 {
   return m_SpatialData;

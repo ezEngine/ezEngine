@@ -28,6 +28,7 @@ SET (LINK_LIBRARIES
   RendererFoundation
   RendererCore
   RendererDX11
+  GameFoundation
 )
 
 include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/CMAKE_Application.txt)

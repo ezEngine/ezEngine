@@ -472,7 +472,7 @@ void ezGALDeviceDX11::FillCapabilitiesPlatform()
   switch (m_FeatureLevel)
   {
   case D3D_FEATURE_LEVEL_11_1:
-	  m_Capabilities.m_bB5G6R5Textures = true;
+    m_Capabilities.m_bB5G6R5Textures = true;
   case D3D_FEATURE_LEVEL_11_0:
     m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::VertexShader] = true;
     m_Capabilities.m_bShaderStageSupported[ezGALShaderStage::HullShader] = true;
@@ -854,7 +854,7 @@ void ezGALDeviceDX11::FillFormatLookupTable()
     ezGALFormatLookupEntryDX11(DXGI_FORMAT_R16_TYPELESS).
       RT(DXGI_FORMAT_R16_FLOAT).
       VA(DXGI_FORMAT_R16_FLOAT).
-	  RV(DXGI_FORMAT_R16_FLOAT)
+      RV(DXGI_FORMAT_R16_FLOAT)
       );
 
   m_FormatLookupTable.SetFormatInfo(
@@ -870,8 +870,8 @@ void ezGALDeviceDX11::FillFormatLookupTable()
     ezGALFormatLookupEntryDX11(DXGI_FORMAT_R16_TYPELESS).
       RT(DXGI_FORMAT_R16_UNORM).
       VA(DXGI_FORMAT_R16_UNORM).
-	  RV(DXGI_FORMAT_R16_UNORM).
-	  D(DXGI_FORMAT_D16_UNORM)
+      RV(DXGI_FORMAT_R16_UNORM).
+      D(DXGI_FORMAT_D16_UNORM)
       );
 
   m_FormatLookupTable.SetFormatInfo(

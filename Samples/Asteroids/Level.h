@@ -1,10 +1,13 @@
 #pragma once
 
-#include "Main.h"
 #include <Core/World/World.h>
 #include <CoreUtils/Graphics/Camera.h>
 #include <RendererCore/Material/MaterialResource.h>
 #include <RendererCore/Meshes/MeshResource.h>
+
+#define MaxPlayers 4
+#define MaxAsteroids 30
+#define MaxPlayerActions 7
 
 class Level
 {
@@ -12,7 +15,7 @@ public:
   Level();
   ~Level();
 
-  void SetupLevel(const char* szLevelName);
+  void SetupLevel(ezWorld* pWorld);
   void Update();
 
   ezWorld* GetWorld() const { return m_pWorld; }

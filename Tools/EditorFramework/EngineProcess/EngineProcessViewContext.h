@@ -17,6 +17,7 @@ public:
 
   virtual ezSizeU32 GetClientAreaSize() const override { return ezSizeU32(m_uiWidth, m_uiHeight); }
   virtual ezWindowHandle GetNativeWindowHandle() const override { return m_hWnd; }
+  virtual void ProcessWindowMessages() override { }
 
   ezWindowHandle m_hWnd;
   ezUInt16 m_uiWidth;

@@ -30,10 +30,6 @@ WorldData::WorldData(const char* szWorldName) :
 
   m_sName.Assign(szWorldName);
 
-  ezStringBuilder sb = szWorldName;
-  sb.Append(".Update");
-  m_UpdateProfilingID = ezProfilingSystem::CreateId(sb.GetData());
-
   // insert dummy entry to save some checks
   ObjectStorage::Entry entry = { nullptr };
   m_Objects.Insert(entry);

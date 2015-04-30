@@ -14,8 +14,16 @@ static ezProfilingId s_DeleteDeadObjectsProfilingID = ezProfilingSystem::CreateI
 ezStaticArray<ezWorld*, 64> ezWorld::s_Worlds;
 
 ezWorld::ezWorld(const char* szWorldName) :
+  m_UpdateTask("", ezMakeDelegate(&ezWorld::UpdateFromThread, this)),
   m_Data(szWorldName)
 {
+  ezStringBuilder sb = szWorldName;
+  sb.Append(".Update");
+  m_UpdateProfilingID = ezProfilingSystem::CreateId(sb.GetData());
+
+  sb.Append(" Task");
+  m_UpdateTask.SetTaskName(sb);
+
   m_uiIndex = ezInvalidIndex;
 
   // find a free world slot
@@ -194,7 +202,7 @@ void ezWorld::Update()
   EZ_ASSERT_DEV(m_Data.m_UnresolvedUpdateFunctions.IsEmpty(), "There are update functions with unresolved dependencies.");
 
   EZ_LOG_BLOCK(m_Data.m_sName.GetData());
-  EZ_PROFILE(m_Data.m_UpdateProfilingID);
+  EZ_PROFILE(m_UpdateProfilingID);
 
   // pre-async phase
   {
@@ -456,6 +464,12 @@ void ezWorld::DeregisterUpdateFunctions(ezComponentManagerBase* pManager)
       }
     }
   }
+}
+
+void ezWorld::UpdateFromThread()
+{
+  TransferThreadOwnership();
+  Update();
 }
 
 void ezWorld::UpdateSynchronous(const ezArrayPtr<ezInternal::WorldData::RegisteredUpdateFunction>& updateFunctions)

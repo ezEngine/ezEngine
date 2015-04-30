@@ -121,7 +121,7 @@ public:
   static const MaterialParam* GetMaterialParameterPointer(ezUInt32 uiNameHash);
 
 private:
-  EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(Graphics, RendererCore);
+  EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(Graphics, RendererContext);
 
   static void OnEngineShutdown();
   static void OnCoreShutdown();

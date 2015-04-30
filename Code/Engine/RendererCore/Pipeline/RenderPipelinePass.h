@@ -11,15 +11,16 @@ class EZ_RENDERERCORE_DLL ezRenderPipelinePass
 {
 public:
   ezRenderPipelinePass(const char* szName);
+  ~ezRenderPipelinePass();
 
   void AddRenderer(ezRenderer* pRenderer);
   void RemoveRenderer(ezRenderer* pRenderer);
 
-  virtual void Execute(const ezRenderViewContext& renderContext) = 0;
+  virtual void Execute(const ezRenderViewContext& renderViewContext) = 0;
 
-  void Run(const ezRenderViewContext& renderContext);
+  void Run(const ezRenderViewContext& renderViewContext);
 
-  void RenderDataWithPassType(const ezRenderViewContext& renderContext, ezRenderPassType passType);
+  void RenderDataWithPassType(const ezRenderViewContext& renderViewContext, ezRenderPassType passType);
 
   EZ_FORCE_INLINE ezRenderPipeline* GetPipeline()
   {

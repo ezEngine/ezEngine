@@ -3,6 +3,9 @@
 
 void ezSystemInformation::Initialize()
 {
+  if (s_SystemInformation.m_bIsInitialized)
+    return;
+
   // Get system information via various APIs
   s_SystemInformation.m_uiCPUCoreCount = sysconf(_SC_NPROCESSORS_ONLN);
 
@@ -38,5 +41,7 @@ void ezSystemInformation::Initialize()
   {
     strcpy(s_SystemInformation.m_sHostName, "");
   }
+
+  s_SystemInformation.m_bIsInitialized = true;
 }
 

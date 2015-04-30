@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Main.h"
 #include <Core/World/World.h>
 
 class ProjectileComponent;

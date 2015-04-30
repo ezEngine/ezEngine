@@ -1,6 +1,10 @@
 #include <RendererCore/PCH.h>
-#include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/Pipeline/RenderPipeline.h>
+#include <RendererCore/RenderContext/RenderContext.h>
+#include <RendererCore/RenderLoop/RenderLoop.h>
+
+#include <Foundation/Configuration/CVar.h>
+
 #include <Core/World/World.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRenderData, ezReflectedClass, 1, ezRTTINoAllocator);
@@ -10,6 +14,8 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezRenderer, ezReflectedClass, 1, ezRTTINoAllocat
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 EZ_IMPLEMENT_MESSAGE_TYPE(ezExtractRenderDataMessage);
+
+extern ezCVarBool CVarMultithreadedRendering;
 
 ezRenderPassType ezRenderPipeline::s_uiNextPassType = 0;
 ezRenderPipeline::PassTypeData ezRenderPipeline::s_PassTypeData[MAX_PASS_TYPES];
@@ -27,33 +33,41 @@ void ezRenderPipeline::PassData::SortRenderData()
   m_RenderData.Sort(RenderDataComparer());
 }
 
-ezRenderPipeline::ezRenderPipeline(Mode mode)
+ezRenderPipeline::ezRenderPipeline()
 {
-  m_Mode = mode;
-
-  m_pExtractedData = &m_Data[0];
-  m_pRenderData = m_Mode == Asynchronous ? &m_Data[1] : &m_Data[0];
+  m_uiLastExtractionFrame = -1;
+  m_uiLastRenderFrame = -1;
 }
 
 ezRenderPipeline::~ezRenderPipeline()
 {
-  ClearPipelineData(m_pExtractedData);
-  ClearPipelineData(m_pRenderData);
+  ClearPipelineData(&m_Data[0]);
+  ClearPipelineData(&m_Data[1]);
+
+  /// \todo: this will crash if passes are not allocated with the default allocator. We need a better mechanism here.
+  for (auto pPass : m_Passes)
+  {
+    EZ_DEFAULT_DELETE(pPass);
+  }
+  m_Passes.Clear();
 }
 
 void ezRenderPipeline::ExtractData(const ezView& view)
 {
-  // swap data
-  if (m_Mode == Asynchronous)
-  {
-    m_pExtractedData = (m_pExtractedData == &m_Data[0]) ? &m_Data[1] : &m_Data[0];
-  }
+  // Is this view already extracted?
+  if (m_uiLastExtractionFrame == ezRenderLoop::GetFrameCounter())
+    return;
+
+  m_uiLastExtractionFrame = ezRenderLoop::GetFrameCounter();
+
+  PipelineData* pPipelineData = GetPipelineDataForExtraction();
+
+  // Usually clear is not needed, only if the multithreading flag is switched during runtime.
+  ClearPipelineData(pPipelineData);
 
   ezExtractRenderDataMessage msg;
   msg.m_pRenderPipeline = this;
   msg.m_pView = &view;
-
-  ClearPipelineData(m_pExtractedData);
 
   /// \todo use spatial data to do visibility culling etc.
   for (auto it = view.GetWorld()->GetObjects(); it.IsValid(); ++it)
@@ -62,33 +76,32 @@ void ezRenderPipeline::ExtractData(const ezView& view)
     pObject->SendMessage(msg);
   }
 
-  for (ezUInt32 uiPassIndex = 0; uiPassIndex < m_pExtractedData->m_PassData.GetCount(); ++uiPassIndex)
+  for (ezUInt32 uiPassIndex = 0; uiPassIndex < pPipelineData->m_PassData.GetCount(); ++uiPassIndex)
   {
-    PassData& data = m_pExtractedData->m_PassData[uiPassIndex];
+    PassData& data = pPipelineData->m_PassData[uiPassIndex];
     data.SortRenderData();
   }
 }
 
-void ezRenderPipeline::Render(const ezView& view, ezRenderContext* pRenderer)
+void ezRenderPipeline::Render(const ezView& view, ezRenderContext* pRendererContext)
 {
-  // swap data
-  if (m_Mode == Asynchronous)
-  {
-    m_pRenderData = (m_pRenderData == &m_Data[0]) ? &m_Data[1] : &m_Data[0];
-  }
+  EZ_ASSERT_DEV(m_uiLastRenderFrame != ezRenderLoop::GetFrameCounter(), "Render must not be called multiple times per frame.");
+  m_uiLastRenderFrame = ezRenderLoop::GetFrameCounter();
 
   // calculate camera matrices
   const ezRectFloat& viewPortRect = view.GetViewport();
-  pRenderer->GetGALContext()->SetViewport(viewPortRect.x, viewPortRect.y, viewPortRect.width, viewPortRect.height, 0.0f, 1.0f);
+  pRendererContext->GetGALContext()->SetViewport(viewPortRect.x, viewPortRect.y, viewPortRect.width, viewPortRect.height, 0.0f, 1.0f);
 
-  ezRenderViewContext renderContext;
-  renderContext.m_pView = &view;
-  renderContext.m_pRenderer = pRenderer;
+  ezRenderViewContext renderViewContext;
+  renderViewContext.m_pView = &view;
+  renderViewContext.m_pRenderContext = pRendererContext;
 
   for (ezUInt32 i = 0; i < m_Passes.GetCount(); ++i)
   {
-    m_Passes[i]->Run(renderContext);
+    m_Passes[i]->Run(renderViewContext);
   }
+
+  ClearPipelineData(GetPipelineDataForRendering());
 }
 
 void ezRenderPipeline::AddPass(ezRenderPipelinePass* pPass)
@@ -104,6 +117,18 @@ void ezRenderPipeline::RemovePass(ezRenderPipelinePass* pPass)
 
   pPass->m_pPipeline = nullptr;
 }
+
+ezRenderPipeline::PipelineData* ezRenderPipeline::GetPipelineDataForExtraction()
+{
+  return &m_Data[ezRenderLoop::GetFrameCounter() & 1];
+}
+
+ezRenderPipeline::PipelineData* ezRenderPipeline::GetPipelineDataForRendering()
+{
+  const ezUInt32 uiFrameCounter = ezRenderLoop::GetFrameCounter() + (CVarMultithreadedRendering ? 1 : 0);
+  return &m_Data[uiFrameCounter & 1];
+}
+
 
 // static
 void ezRenderPipeline::ClearPipelineData(PipelineData* pPipeLineData)
@@ -121,6 +146,18 @@ void ezRenderPipeline::ClearPipelineData(PipelineData* pPipeLineData)
 
     data.m_RenderData.Clear();
   }
+}
+
+// static 
+bool ezRenderPipeline::IsPipelineDataEmpty(PipelineData* pPipeLineData)
+{
+  for (ezUInt32 uiPassIndex = 0; uiPassIndex < pPipeLineData->m_PassData.GetCount(); ++uiPassIndex)
+  {
+    if (!pPipeLineData->m_PassData[uiPassIndex].m_RenderData.IsEmpty())
+      return false;
+  }
+
+  return true;
 }
 
 //static 
