@@ -26,18 +26,13 @@ public:
 
   void MoveDocumentWindowToContainer(ezDocumentWindow* pDocWindow);
 
-  static void CreateOrOpenDocument(bool bCreate);
-  static void CreateOrOpenProject(bool bCreate);
-  static ezDocumentBase* CreateOrOpenDocument(bool bCreate, const char* szFile, bool bRequestWindow = true);
-  static void CreateOrOpenProject(bool bCreate, const char* szFile);
+  static ezResult EnsureVisibleAnyContainer(ezDocumentBase* pDocument);
 
 private:
   friend class ezDocumentWindow;
 
   ezResult EnsureVisible(ezDocumentWindow* pDocWindow);
   ezResult EnsureVisible(ezDocumentBase* pDocument);
-
-  static ezResult EnsureVisibleAnyContainer(ezDocumentBase* pDocument);
 
 private slots:
   void SlotDocumentTabCloseRequested(int index);
@@ -47,7 +42,6 @@ private slots:
 
 private:
   QTabWidget* GetTabWidget() const;
-  static ezString BuildDocumentTypeFileFilter(bool bForCreation);
 
   void SaveWindowLayout();
   void RestoreWindowLayout();

@@ -94,7 +94,16 @@ public:
 
   void CloseProject();
   void OpenProject(const char* szProject);
+
+  void GuiCreateDocument();
+  void GuiOpenDocument();
+
+  void GuiCreateProject();
+  void GuiOpenProject();
+
   void OpenDocument(const char* szDocument);
+  ezDocumentBase* OpenDocumentImmediate(const char* szDocument, bool bRequestWindow = true);
+  
 
   const ezApplicationFileSystemConfig& GetFileSystemConfig() const { return m_FileSystemConfig; }
   const ezApplicationPluginConfig& GetEnginePluginConfig() const { return m_EnginePluginConfig; }
@@ -105,6 +114,14 @@ public:
   bool MakeDataDirectoryRelativePathAbsolute(ezString& sPath) const;
   bool MakePathDataDirectoryRelative(ezString& sPath) const;
 
+private:
+  ezString BuildDocumentTypeFileFilter(bool bForCreation);
+  
+  void GuiCreateOrOpenDocument(bool bCreate);
+  void GuiCreateOrOpenProject(bool bCreate);
+
+  ezDocumentBase* CreateOrOpenDocument(bool bCreate, const char* szFile, bool bRequestWindow = true);
+  void CreateOrOpenProject(bool bCreate, const char* szFile);
 
 private slots:
   void SlotTimedUpdate();

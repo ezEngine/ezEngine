@@ -1,7 +1,7 @@
 #include <PCH.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/Assets/AssetDocumentManager.h>
-#include <GuiFoundation/ContainerWindow/ContainerWindow.moc.h>
+#include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
@@ -309,7 +309,7 @@ void ezAssetCurator::TransformAllAssets()
 {
   for (auto it = m_KnownAssets.GetIterator(); it.IsValid(); ++it)
   {
-    ezDocumentBase* pDoc = ezContainerWindow::CreateOrOpenDocument(false, it.Value()->m_sPath, false);
+    ezDocumentBase* pDoc = ezEditorApp::GetInstance()->OpenDocumentImmediate(it.Value()->m_sPath, false);
 
     if (pDoc == nullptr)
     {

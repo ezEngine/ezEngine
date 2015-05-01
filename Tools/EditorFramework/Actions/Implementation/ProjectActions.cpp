@@ -219,19 +219,19 @@ void ezProjectAction::Execute(const ezVariant& value)
   switch (m_ButtonType)
   {
   case ezProjectAction::ButtonType::CreateDocument:
-    ezContainerWindow::CreateOrOpenDocument(true);
+    ezEditorApp::GetInstance()->GuiCreateDocument();
     break;
 
   case ezProjectAction::ButtonType::OpenDocument:
-    ezContainerWindow::CreateOrOpenDocument(false);
+    ezEditorApp::GetInstance()->GuiOpenDocument();
     break;
 
   case ezProjectAction::ButtonType::CreateProject:
-    ezContainerWindow::CreateOrOpenProject(true);
+    ezEditorApp::GetInstance()->GuiCreateProject();
     break;
 
   case ezProjectAction::ButtonType::OpenProject:
-    ezContainerWindow::CreateOrOpenProject(false);
+    ezEditorApp::GetInstance()->GuiOpenProject();
     break;
 
   case ezProjectAction::ButtonType::CloseProject:

@@ -2,6 +2,7 @@
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <GuiFoundation/Dialogs/ModifiedDocumentsDlg.moc.h>
+#include <GuiFoundation/ContainerWindow/ContainerWindow.moc.h>
 #include <EditorFramework/EngineProcess/EngineProcessConnection.h>
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
@@ -20,6 +21,7 @@
 #include <QSettings>
 #include <QTimer>
 #include <qstylefactory.h>
+#include <QFileDialog>
 
 ezEditorApp* ezEditorApp::s_pInstance = nullptr;
 
@@ -140,13 +142,13 @@ void ezEditorApp::StartupEditor(const char* szAppName, const char* szUserName, i
   // first open the project, so that the data directory list is read
   if (!s_RecentProjects.GetFileList().IsEmpty())
   {
-    ezContainerWindow::CreateOrOpenProject(false, s_RecentProjects.GetFileList()[0]);
+    CreateOrOpenProject(false, s_RecentProjects.GetFileList()[0]);
   }
 
   // now open the last document, which might be outside the main project folder, but in an allowed data directory
   if (!s_RecentDocuments.GetFileList().IsEmpty())
   {
-    ezContainerWindow::CreateOrOpenDocument(false, s_RecentDocuments.GetFileList()[0]);
+    CreateOrOpenDocument(false, s_RecentDocuments.GetFileList()[0]);
   }
 
   if (ezDocumentWindow::GetAllDocumentWindows().IsEmpty())
@@ -200,14 +202,19 @@ ezInt32 ezEditorApp::RunEditor()
   return ret;
 }
 
-void ezEditorApp::CloseProject()
-{
-  QMetaObject::invokeMethod(this, "SlotQueuedCloseProject", Qt::ConnectionType::QueuedConnection);
-}
-
 void ezEditorApp::OpenProject(const char* szProject)
 {
   QMetaObject::invokeMethod(this, "SlotQueuedOpenProject", Qt::ConnectionType::QueuedConnection,  Q_ARG(QString, szProject));
+}
+
+void ezEditorApp::GuiCreateDocument()
+{
+  GuiCreateOrOpenDocument(true);
+}
+
+void ezEditorApp::GuiOpenDocument()
+{
+  GuiCreateOrOpenDocument(false);
 }
 
 void ezEditorApp::OpenDocument(const char* szDocument)
@@ -215,16 +222,34 @@ void ezEditorApp::OpenDocument(const char* szDocument)
   QMetaObject::invokeMethod(this, "SlotQueuedOpenDocument", Qt::ConnectionType::QueuedConnection,  Q_ARG(QString, szDocument));
 }
 
+ezDocumentBase* ezEditorApp::OpenDocumentImmediate(const char* szDocument, bool bRequestWindow)
+{
+  return CreateOrOpenDocument(false, szDocument, bRequestWindow);
+}
+
+void ezEditorApp::GuiCreateProject()
+{
+  GuiCreateOrOpenProject(true);
+}
+
+void ezEditorApp::GuiOpenProject()
+{
+  GuiCreateOrOpenProject(false);
+}
+
+void ezEditorApp::CloseProject()
+{
+  QMetaObject::invokeMethod(this, "SlotQueuedCloseProject", Qt::ConnectionType::QueuedConnection);
+}
+
 void ezEditorApp::SlotQueuedOpenProject(QString sProject)
 {
-  ezContainerWindow::CreateOrOpenProject(false, sProject.toUtf8().data());
-
-
+  CreateOrOpenProject(false, sProject.toUtf8().data());
 }
 
 void ezEditorApp::SlotQueuedOpenDocument(QString sProject)
 {
-  ezContainerWindow::CreateOrOpenDocument(false, sProject.toUtf8().data());
+  CreateOrOpenDocument(false, sProject.toUtf8().data());
 }
 
 void ezEditorApp::SlotQueuedCloseProject()
@@ -517,6 +542,202 @@ ezString ezEditorApp::GetDocumentDataFolder(const char* szDocument)
   return sPath;
 }
 
+ezString ezEditorApp::BuildDocumentTypeFileFilter(bool bForCreation)
+{
+  ezStringBuilder sAllFilters;
+  const char* sepsep = "";
+
+  if (!bForCreation)
+  {
+    sAllFilters = "All Files (*.*)";
+    sepsep = ";;";
+  }
+
+  for (ezDocumentManagerBase* pMan : ezDocumentManagerBase::GetAllDocumentManagers())
+  {
+    ezHybridArray<ezDocumentTypeDescriptor, 4> Types;
+    pMan->GetSupportedDocumentTypes(Types);
+
+    for (const ezDocumentTypeDescriptor& desc : Types)
+    {
+      if (bForCreation && !desc.m_bCanCreate)
+        continue;
+
+      if (desc.m_sFileExtensions.IsEmpty())
+        continue;
+
+      sAllFilters.Append(sepsep, desc.m_sDocumentTypeName, " (");
+      sepsep = ";;";
+
+      const char* sep = "";
+
+      for (const ezString& ext : desc.m_sFileExtensions)
+      {
+        sAllFilters.Append(sep, "*.", ext);
+        sep = "; ";
+      }
+
+      sAllFilters.Append(")");
+
+      desc.m_sDocumentTypeName;
+    }
+  }
+
+  return sAllFilters;
+}
+
+void ezEditorApp::GuiCreateOrOpenDocument(bool bCreate)
+{
+  const ezString sAllFilters = BuildDocumentTypeFileFilter(bCreate);
+
+  if (sAllFilters.IsEmpty())
+  {
+    ezUIServices::MessageBoxInformation("No file types are currently known. Load plugins to add file types.");
+    return;
+  }
+
+  static QString sSelectedExt;
+  static QString sDir = ezOSFile::GetApplicationDirectory();
+
+  // this is pretty annoying
+  //if (ezToolsProject::IsProjectOpen())
+  //{
+  //  ezStringBuilder sTempDir;
+  //  sTempDir = ezToolsProject::GetInstance()->GetProjectPath();
+  //  sTempDir.PathParentDirectory();
+  //  sDir = QString::fromUtf8(sTempDir);
+  //}
+
+  ezString sFile;
+
+  if (bCreate)
+    sFile = QFileDialog::getSaveFileName(QApplication::activeWindow(), QLatin1String("Create Document"), sDir, QString::fromUtf8(sAllFilters.GetData()), &sSelectedExt).toUtf8().data();
+  else
+    sFile = QFileDialog::getOpenFileName(QApplication::activeWindow(), QLatin1String("Open Document"), sDir, QString::fromUtf8(sAllFilters.GetData()), &sSelectedExt).toUtf8().data();
+
+  if (sFile.IsEmpty())
+    return;
+
+  sDir = ezString(ezPathUtils::GetFileDirectory(sFile)).GetData();
+
+  ezDocumentManagerBase* pManToCreate = nullptr;
+  ezDocumentTypeDescriptor DescToCreate;
+
+  if (ezDocumentManagerBase::FindDocumentTypeFromPath(sFile, bCreate, pManToCreate, &DescToCreate).Succeeded())
+  {
+    sSelectedExt = DescToCreate.m_sDocumentTypeName;
+  }
+
+  CreateOrOpenDocument(bCreate, sFile);
+}
+
+ezDocumentBase* ezEditorApp::CreateOrOpenDocument(bool bCreate, const char* szFile, bool bRequestWindow)
+{
+  ezDocumentManagerBase* pManToCreate = nullptr;
+  ezDocumentTypeDescriptor DescToCreate;
+
+  if (ezDocumentManagerBase::FindDocumentTypeFromPath(szFile, bCreate, pManToCreate, &DescToCreate).Failed())
+  {
+    ezStringBuilder sTemp = szFile;
+    ezStringBuilder sExt = sTemp.GetFileExtension();
+
+    sTemp.Format("The selected file extension '%s' is not registered with any known type.\nCannot open file '%s'", sExt.GetData(), szFile);
+
+    ezUIServices::MessageBoxWarning(sTemp);
+    return nullptr;
+  }
+
+  // does the same document already exist and is open ?
+  ezDocumentBase* pDocument = pManToCreate->GetDocumentByPath(szFile);
+
+  if (!pDocument)
+  {
+    ezStatus res;
+
+    if (bCreate)
+      res = pManToCreate->CreateDocument(DescToCreate.m_sDocumentTypeName, szFile, pDocument, bRequestWindow);
+    else
+    {
+      res = pManToCreate->CanOpenDocument(szFile);
+
+      if (res.m_Result.Succeeded())
+      {
+        res = pManToCreate->OpenDocument(DescToCreate.m_sDocumentTypeName, szFile, pDocument, bRequestWindow);
+      }
+    }
+
+    if (res.m_Result.Failed())
+    {
+      ezStringBuilder s;
+      s.Format("Failed to open document: \n'%s'", szFile);
+
+      ezUIServices::MessageBoxStatus(res, s);
+      return nullptr;
+    }
+
+    EZ_ASSERT_DEV(pDocument != nullptr, "Creation of document type '%s' succeeded, but returned pointer is NULL", DescToCreate.m_sDocumentTypeName.GetData());
+  }
+  else
+  {
+    if (bCreate)
+    {
+      ezUIServices::MessageBoxInformation("The selected document is already open. You need to close the document before you can re-create it.");
+      return nullptr;
+    }
+  }
+
+  if (bRequestWindow)
+    ezContainerWindow::EnsureVisibleAnyContainer(pDocument);
+
+  return pDocument;
+}
+
+void ezEditorApp::GuiCreateOrOpenProject(bool bCreate)
+{
+  static QString sDir = ezOSFile::GetApplicationDirectory();
+  ezString sFile;
+
+  const char* szFilter = "ezEditor Project (*.ezProject)";
+
+  if (bCreate)
+    sFile = QFileDialog::getSaveFileName(QApplication::activeWindow(), QLatin1String("Create Project"), sDir, QLatin1String(szFilter)).toUtf8().data();
+  else
+    sFile = QFileDialog::getOpenFileName(QApplication::activeWindow(), QLatin1String("Open Project"), sDir, QLatin1String(szFilter)).toUtf8().data();
+
+  if (sFile.IsEmpty())
+    return;
+
+  sDir = ezString(ezPathUtils::GetFileDirectory(sFile)).GetData();
+
+  CreateOrOpenProject(bCreate, sFile);
+}
+
+void ezEditorApp::CreateOrOpenProject(bool bCreate, const char* szFile)
+{
+  if (ezToolsProject::IsProjectOpen() && ezToolsProject::GetInstance()->GetProjectPath() == szFile)
+  {
+    ezUIServices::MessageBoxInformation("The selected project is already open");
+    return;
+  }
+
+  if (!ezToolsProject::CanCloseProject())
+    return;
+
+  ezStatus res;
+  if (bCreate)
+    res = ezToolsProject::CreateProject(szFile);
+  else
+    res = ezToolsProject::OpenProject(szFile);
+
+  if (res.m_Result.Failed())
+  {
+    ezStringBuilder s;
+    s.Format("Failed to open project:\n'%s'", szFile);
+
+    ezUIServices::MessageBoxStatus(res, s);
+    return;
+  }
+}
 
 
 

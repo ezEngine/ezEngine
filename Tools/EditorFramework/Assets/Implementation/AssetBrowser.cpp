@@ -1,6 +1,6 @@
 #include <PCH.h>
 #include <EditorFramework/Assets/AssetBrowser.moc.h>
-#include <GuiFoundation/ContainerWindow/ContainerWindow.moc.h>
+#include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
 #include <QVBoxLayout>
 
@@ -31,7 +31,7 @@ ezAssetBrowser::~ezAssetBrowser()
 
 void ezAssetBrowser::on_ListAssets_doubleClicked(const QModelIndex& index)
 {
-  ezContainerWindow::CreateOrOpenDocument(false, m_pModel->data(index, Qt::UserRole + 1).toString().toUtf8().data());
+  ezEditorApp::GetInstance()->OpenDocument(m_pModel->data(index, Qt::UserRole + 1).toString().toUtf8().data());
 
 }
 

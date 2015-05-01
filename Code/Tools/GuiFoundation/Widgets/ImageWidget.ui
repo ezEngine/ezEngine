@@ -51,13 +51,13 @@
          </spacer>
         </item>
         <item>
-         <widget class="QPushButton" name="ButtonZoomOut">
+         <widget class="QPushButton" name="ButtonZoomIn">
           <property name="text">
            <string/>
           </property>
           <property name="icon">
            <iconset resource="../QtResources/resources.qrc">
-            <normaloff>:/GuiFoundation/Icons/ZoomOut16.png</normaloff>:/GuiFoundation/Icons/ZoomOut16.png</iconset>
+            <normaloff>:/GuiFoundation/Icons/ZoomIn16.png</normaloff>:/GuiFoundation/Icons/ZoomIn16.png</iconset>
           </property>
          </widget>
         </item>
@@ -73,13 +73,13 @@
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="ButtonZoomIn">
+         <widget class="QPushButton" name="ButtonZoomOut">
           <property name="text">
            <string/>
           </property>
           <property name="icon">
            <iconset resource="../QtResources/resources.qrc">
-            <normaloff>:/GuiFoundation/Icons/ZoomIn16.png</normaloff>:/GuiFoundation/Icons/ZoomIn16.png</iconset>
+            <normaloff>:/GuiFoundation/Icons/ZoomOut16.png</normaloff>:/GuiFoundation/Icons/ZoomOut16.png</iconset>
           </property>
          </widget>
         </item>
