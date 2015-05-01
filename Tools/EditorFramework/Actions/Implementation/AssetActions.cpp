@@ -100,7 +100,6 @@ void ezAssetAction::Execute(const ezVariant& value)
   case ezAssetAction::ButtonType::TransformAllAssets:
     {
       ezAssetCurator::GetInstance()->TransformAllAssets();
-      ezAssetCurator::GetInstance()->WriteAssetTables();
     }
     break;
 

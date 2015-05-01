@@ -14,6 +14,7 @@
 #include <ToolsFoundation/Serialization/SerializedTypeAccessorObject.h>
 #include <ToolsFoundation/Object/SerializedDocumentObject.h>
 #include <ToolsFoundation/Reflection/ReflectedTypeManager.h>
+#include <GuiFoundation/UIServices/ProgressBar.h>
 
 ezAssetCurator* ezAssetCurator::s_pInstance = nullptr;
 
@@ -217,6 +218,8 @@ void ezAssetCurator::CheckFileSystem()
     m_FileHashingQueue.Clear();
   }
 
+  QtProgressBar progress("Check Filesystem for Assets", m_FileSystemConfig.m_DataDirs.GetCount(), false);
+
   if (m_pHashingTask)
   {
     ezTaskSystem::WaitForTask((ezTask*)m_pHashingTask);
@@ -236,6 +239,8 @@ void ezAssetCurator::CheckFileSystem()
   {
     ezStringBuilder sTemp = m_FileSystemConfig.GetProjectDirectory();
     sTemp.AppendPath(dd.m_sRelativePath);
+
+    progress.WorkingOnNextItem(dd.m_sRelativePath);
 
     IterateDataDirectory(sTemp, validExtensions);
   }
@@ -307,8 +312,15 @@ ezResult ezAssetCurator::WriteAssetTable(const char* szDataDirectory)
 
 void ezAssetCurator::TransformAllAssets()
 {
+  QtProgressBar progress("Transforming Assets", 1 + m_KnownAssets.GetCount(), true);
+
   for (auto it = m_KnownAssets.GetIterator(); it.IsValid(); ++it)
   {
+    if (progress.WasProgressBarCanceled())
+      break;
+
+    progress.WorkingOnNextItem(ezPathUtils::GetFileNameAndExtension(it.Value()->m_sPath).GetData());
+
     ezDocumentBase* pDoc = ezEditorApp::GetInstance()->OpenDocumentImmediate(it.Value()->m_sPath, false);
 
     if (pDoc == nullptr)
@@ -325,6 +337,9 @@ void ezAssetCurator::TransformAllAssets()
     if (!pDoc->HasWindowBeenRequested())
       pDoc->GetDocumentManager()->CloseDocument(pDoc);
   }
+
+  progress.WorkingOnNextItem("Writing Lookup Tables");
+  ezAssetCurator::GetInstance()->WriteAssetTables();
 }
 
 ezResult ezAssetCurator::WriteAssetTables()
