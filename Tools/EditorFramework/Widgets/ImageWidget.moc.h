@@ -8,7 +8,7 @@ class EZ_EDITORFRAMEWORK_DLL QtImageWidget : public QWidget, public Ui_ImageWidg
   Q_OBJECT
 
 public:
-  QtImageWidget(QWidget* parent);
+  QtImageWidget(QWidget* parent, bool bShowButtons = true);
   ~QtImageWidget();
 
   void SetImage(QPixmap pixmap);

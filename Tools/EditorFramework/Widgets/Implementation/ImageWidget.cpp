@@ -1,17 +1,21 @@
 #include <PCH.h>
 #include <EditorFramework/Widgets/ImageWidget.moc.h>
+#include <Foundation/Math/Math.h>
 #include <QScrollArea>
 #include <QScrollBar>
 #include <QLabel>
 
 
-QtImageWidget::QtImageWidget(QWidget* parent) : QWidget(parent)
+QtImageWidget::QtImageWidget(QWidget* parent, bool bShowButtons) : QWidget(parent)
 {
   setupUi(this);
 
   m_fCurrentScale = 1.0f;
   ScrollArea->setWidgetResizable(false);
   LabelImage->setScaledContents(false);
+
+  if (!bShowButtons)
+    ButtonBar->setVisible(false);
 }
 
 QtImageWidget::~QtImageWidget()
@@ -30,11 +34,15 @@ void QtImageWidget::SetImageSize(float fScale)
 
 void QtImageWidget::ScaleImage(float fFactor)
 {
-  m_fCurrentScale *= fFactor;
+  float fPrevScale = m_fCurrentScale;
+  m_fCurrentScale = ezMath::Clamp(m_fCurrentScale * fFactor, 0.2f, 5.0f);
+
+  fFactor = m_fCurrentScale / fPrevScale;
+
   ImageApplyScale();
   
-  //ScrollImage->horizontalScrollBar()->setValue(int(fFactor * ScrollImage->horizontalScrollBar()->value() + ((fFactor - 1) * ScrollImage->horizontalScrollBar()->pageStep() / 2)));
-  //ScrollImage->verticalScrollBar()->setValue(int(fFactor * ScrollImage->verticalScrollBar()->value() + ((fFactor - 1) * ScrollImage->verticalScrollBar()->pageStep() / 2)));
+  ScrollArea->horizontalScrollBar()->setValue(int(fFactor * ScrollArea->horizontalScrollBar()->value() + ((fFactor - 1) * ScrollArea->horizontalScrollBar()->pageStep() / 2)));
+  ScrollArea->verticalScrollBar()->setValue(int(fFactor * ScrollArea->verticalScrollBar()->value() + ((fFactor - 1) * ScrollArea->verticalScrollBar()->pageStep() / 2)));
 }
 
 void QtImageWidget::ImageApplyScale()
