@@ -121,10 +121,10 @@ public:
   /// \brief Returns a array pointer to the array data, or an empty array pointer if the array is empty.
   const ezArrayPtr<const T> GetArrayPtr() const; // [tested]
 
-  typedef const_iterator_base<ezArrayBase<T, Derived>, T, false> const_iterator;
-  typedef const_iterator_base<ezArrayBase<T, Derived>, T, true> const_reverse_iterator;
-  typedef iterator_base<ezArrayBase<T, Derived>, T, false> iterator;
-  typedef iterator_base<ezArrayBase<T, Derived>, T, true> reverse_iterator;
+  typedef T const * const_iterator;
+  typedef const_reverse_pointer_iterator<T> const_reverse_iterator;
+  typedef T * iterator;
+  typedef reverse_pointer_iterator<T> reverse_iterator;
 
 
 protected:
@@ -140,40 +140,40 @@ protected:
 };
 
 template <typename T, typename Derived>
-typename ezArrayBase<T, Derived>::iterator begin(ezArrayBase<T, Derived>& container) { return typename ezArrayBase<T, Derived>::iterator(container, (size_t) 0); }
+typename ezArrayBase<T, Derived>::iterator begin(ezArrayBase<T, Derived>& container) { return container.GetData(); }
 
 template <typename T, typename Derived>
-typename ezArrayBase<T, Derived>::const_iterator  begin(const ezArrayBase<T, Derived>& container) { return typename ezArrayBase<T, Derived>::const_iterator(container, (size_t) 0); }
+typename ezArrayBase<T, Derived>::const_iterator  begin(const ezArrayBase<T, Derived>& container) { return container.GetData(); }
 
 template <typename T, typename Derived>
-typename ezArrayBase<T, Derived>::const_iterator cbegin(const ezArrayBase<T, Derived>& container) { return typename ezArrayBase<T, Derived>::const_iterator(container, (size_t) 0); }
+typename ezArrayBase<T, Derived>::const_iterator cbegin(const ezArrayBase<T, Derived>& container) { return container.GetData(); }
 
 template <typename T, typename Derived>
-typename ezArrayBase<T, Derived>::reverse_iterator rbegin(ezArrayBase<T, Derived>& container) { return typename ezArrayBase<T, Derived>::reverse_iterator(container, (size_t) 0); }
+typename ezArrayBase<T, Derived>::reverse_iterator rbegin(ezArrayBase<T, Derived>& container) { return typename ezArrayBase<T, Derived>::reverse_iterator(container.GetData() + container.GetCount() - 1); }
 
 template <typename T, typename Derived>
-typename ezArrayBase<T, Derived>::const_reverse_iterator rbegin(const ezArrayBase<T, Derived>& container) { return typename ezArrayBase<T, Derived>::const_reverse_iterator(container, (size_t) 0); }
+typename ezArrayBase<T, Derived>::const_reverse_iterator rbegin(const ezArrayBase<T, Derived>& container) { return typename ezArrayBase<T, Derived>::const_reverse_iterator(container.GetData() + container.GetCount() - 1); }
 
 template <typename T, typename Derived>
-typename ezArrayBase<T, Derived>::const_reverse_iterator crbegin(const ezArrayBase<T, Derived>& container) { return typename ezArrayBase<T, Derived>::const_reverse_iterator(container, (size_t) 0); }
+typename ezArrayBase<T, Derived>::const_reverse_iterator crbegin(const ezArrayBase<T, Derived>& container) { return typename ezArrayBase<T, Derived>::const_reverse_iterator(container.GetData() + container.GetCount() - 1); }
 
 template <typename T, typename Derived>
-typename ezArrayBase<T, Derived>::iterator end(ezArrayBase<T, Derived>& container) { return typename ezArrayBase<T, Derived>::iterator(container, (size_t) container.GetCount()); }
+typename ezArrayBase<T, Derived>::iterator end(ezArrayBase<T, Derived>& container) { return container.GetData() + container.GetCount(); }
 
 template <typename T, typename Derived>
-typename ezArrayBase<T, Derived>::const_iterator end(const ezArrayBase<T, Derived>& container) { return typename ezArrayBase<T, Derived>::const_iterator(container, (size_t) container.GetCount()); }
+typename ezArrayBase<T, Derived>::const_iterator end(const ezArrayBase<T, Derived>& container) { return container.GetData() + container.GetCount(); }
 
 template <typename T, typename Derived>
-typename ezArrayBase<T, Derived>::const_iterator cend(const ezArrayBase<T, Derived>& container) { return typename ezArrayBase<T, Derived>::const_iterator(container, (size_t) container.GetCount()); }
+typename ezArrayBase<T, Derived>::const_iterator cend(const ezArrayBase<T, Derived>& container) { return container.GetData() + container.GetCount(); }
 
 template <typename T, typename Derived>
-typename ezArrayBase<T, Derived>::reverse_iterator rend(ezArrayBase<T, Derived>& container) { return typename ezArrayBase<T, Derived>::reverse_iterator(container, (size_t) container.GetCount()); }
+typename ezArrayBase<T, Derived>::reverse_iterator rend(ezArrayBase<T, Derived>& container) { return typename ezArrayBase<T, Derived>::reverse_iterator(container.GetData() - 1); }
 
 template <typename T, typename Derived>
-typename ezArrayBase<T, Derived>::const_reverse_iterator  rend(const ezArrayBase<T, Derived>& container) { return typename ezArrayBase<T, Derived>::const_reverse_iterator(container, (size_t) container.GetCount()); }
+typename ezArrayBase<T, Derived>::const_reverse_iterator  rend(const ezArrayBase<T, Derived>& container) { return typename ezArrayBase<T, Derived>::const_reverse_iterator(container.GetData() - 1); }
 
 template <typename T, typename Derived>
-typename ezArrayBase<T, Derived>::const_reverse_iterator crend(const ezArrayBase<T, Derived>& container) { return typename ezArrayBase<T, Derived>::const_reverse_iterator(container, (size_t) container.GetCount()); }
+typename ezArrayBase<T, Derived>::const_reverse_iterator crend(const ezArrayBase<T, Derived>& container) { return typename ezArrayBase<T, Derived>::const_reverse_iterator(container.GetData() - 1); }
 
 
 #include <Foundation/Containers/Implementation/ArrayBase_inl.h>

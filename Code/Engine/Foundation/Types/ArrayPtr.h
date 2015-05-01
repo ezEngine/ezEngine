@@ -130,10 +130,10 @@ public:
     m_uiCount = 0;
   }
 
-  typedef const_iterator_base<ezArrayPtr<T>, T, false> const_iterator;
-  typedef const_iterator_base<ezArrayPtr<T>, T, true> const_reverse_iterator;
-  typedef iterator_base<ezArrayPtr<T>, T, false> iterator;
-  typedef iterator_base<ezArrayPtr<T>, T, true> reverse_iterator;
+  typedef T const * const_iterator;
+  typedef const_reverse_pointer_iterator<T> const_reverse_iterator;
+  typedef T * iterator;
+  typedef reverse_pointer_iterator<T> reverse_iterator;
 
 private:
   T* m_ptr;
@@ -155,39 +155,39 @@ EZ_FORCE_INLINE ezArrayPtr<T> ezMakeArrayPtr(T(&staticArray)[N])
 }
 
 template <typename T>
-typename ezArrayPtr<T>::iterator begin(ezArrayPtr<T>& container) { return typename ezArrayPtr<T>::iterator(container, (size_t) 0); }
+typename ezArrayPtr<T>::iterator begin(ezArrayPtr<T>& container) { return container.GetPtr(); }
 
 template <typename T>
-typename ezArrayPtr<T>::const_iterator  begin(const ezArrayPtr<T>& container) { return typename ezArrayPtr<T>::const_iterator(container, (size_t) 0); }
+typename ezArrayPtr<T>::const_iterator  begin(const ezArrayPtr<T>& container) { return container.GetPtr(); }
 
 template <typename T>
-typename ezArrayPtr<T>::const_iterator cbegin(const ezArrayPtr<T>& container) { return typename ezArrayPtr<T>::const_iterator(container, (size_t) 0); }
+typename ezArrayPtr<T>::const_iterator cbegin(const ezArrayPtr<T>& container) { return container.GetPtr(); }
 
 template <typename T>
-typename ezArrayPtr<T>::reverse_iterator rbegin(ezArrayPtr<T>& container) { return typename ezArrayPtr<T>::reverse_iterator(container, (size_t) 0); }
+typename ezArrayPtr<T>::reverse_iterator rbegin(ezArrayPtr<T>& container) { return typename ezArrayPtr<T>::reverse_iterator(container.GetPtr() + container.GetCount() - 1); }
 
 template <typename T>
-typename ezArrayPtr<T>::const_reverse_iterator rbegin(const ezArrayPtr<T>& container) { return typename ezArrayPtr<T>::const_reverse_iterator(container, (size_t) 0); }
+typename ezArrayPtr<T>::const_reverse_iterator rbegin(const ezArrayPtr<T>& container) { return typename ezArrayPtr<T>::const_reverse_iterator(container.GetPtr() + container.GetCount() - 1); }
 
 template <typename T>
-typename ezArrayPtr<T>::const_reverse_iterator crbegin(const ezArrayPtr<T>& container) { return typename ezArrayPtr<T>::const_reverse_iterator(container, (size_t) 0); }
+typename ezArrayPtr<T>::const_reverse_iterator crbegin(const ezArrayPtr<T>& container) { return typename ezArrayPtr<T>::const_reverse_iterator(container.GetPtr() + container.GetCount() - 1); }
 
 template <typename T>
-typename ezArrayPtr<T>::iterator end(ezArrayPtr<T>& container) { return typename ezArrayPtr<T>::iterator(container, (size_t) container.GetCount()); }
+typename ezArrayPtr<T>::iterator end(ezArrayPtr<T>& container) { return container.GetPtr() + container.GetCount(); }
 
 template <typename T>
-typename ezArrayPtr<T>::const_iterator end(const ezArrayPtr<T>& container) { return typename ezArrayPtr<T>::const_iterator(container, (size_t) container.GetCount()); }
+typename ezArrayPtr<T>::const_iterator end(const ezArrayPtr<T>& container) { return container.GetPtr() + container.GetCount(); }
 
 template <typename T>
-typename ezArrayPtr<T>::const_iterator cend(const ezArrayPtr<T>& container) { return typename ezArrayPtr<T>::const_iterator(container, (size_t) container.GetCount()); }
+typename ezArrayPtr<T>::const_iterator cend(const ezArrayPtr<T>& container) { return container.GetPtr() + container.GetCount(); }
 
 template <typename T>
-typename ezArrayPtr<T>::reverse_iterator rend(ezArrayPtr<T>& container) { return typename ezArrayPtr<T>::reverse_iterator(container, (size_t) container.GetCount()); }
+typename ezArrayPtr<T>::reverse_iterator rend(ezArrayPtr<T>& container) { return typename ezArrayPtr<T>::reverse_iterator(container.GetPtr() - 1); }
 
 template <typename T>
-typename ezArrayPtr<T>::const_reverse_iterator  rend(const ezArrayPtr<T>& container) { return typename ezArrayPtr<T>::const_reverse_iterator(container, (size_t) container.GetCount()); }
+typename ezArrayPtr<T>::const_reverse_iterator  rend(const ezArrayPtr<T>& container) { return typename ezArrayPtr<T>::const_reverse_iterator(container.GetPtr() - 1); }
 
 template <typename T>
-typename ezArrayPtr<T>::const_reverse_iterator crend(const ezArrayPtr<T>& container) { return typename ezArrayPtr<T>::const_reverse_iterator(container, (size_t) container.GetCount()); }
+typename ezArrayPtr<T>::const_reverse_iterator crend(const ezArrayPtr<T>& container) { return typename ezArrayPtr<T>::const_reverse_iterator(container.GetPtr() - 1); }
 
 

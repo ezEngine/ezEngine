@@ -687,12 +687,26 @@ EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
     }
 
     // foreach
-    ezUInt32 prev = 0;
-    for(ezUInt32 val : a1)
+    ezInt32 prev = 0;
+    ezInt32 sum1 = 0;
+    for (ezInt32 val : a1)
     {
       EZ_TEST_BOOL(prev <= val);
       prev = val;
+      sum1 += val;
     }
+
+    prev = 1000;
+    const auto endIt = rend(a1);
+    ezInt32 sum2 = 0;
+    for (auto it = rbegin(a1); it != endIt; ++it)
+    {
+      EZ_TEST_BOOL(prev > (*it));
+      prev = (*it);
+      sum2 += (*it);
+    }
+
+    EZ_TEST_BOOL(sum1 == sum2);
 
     // const array
     const ezDynamicArray<ezInt32>& a2 = a1;
