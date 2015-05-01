@@ -2,6 +2,21 @@
 
 #include <EditorFramework/Plugin.h>
 #include <Tools/EditorFramework/ui_ImageWidget.h>
+#include <QGraphicsScene>
+
+class QGraphicsPixmapItem;
+
+class EZ_EDITORFRAMEWORK_DLL QtImageScene : public QGraphicsScene
+{
+public:
+  QtImageScene(QObject* pParent = NULL);
+
+  void SetImage(QPixmap pixmap);
+
+private:
+  QPixmap m_pixmap;
+  QGraphicsPixmapItem* m_pImageItem;
+};
 
 class EZ_EDITORFRAMEWORK_DLL QtImageWidget : public QWidget, public Ui_ImageWidget
 {
@@ -26,6 +41,7 @@ private:
 
   void ImageApplyScale();
 
+  QtImageScene* m_pScene;
   float m_fCurrentScale;
 
 };
