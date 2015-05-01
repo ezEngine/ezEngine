@@ -58,8 +58,11 @@ public:
 private:
   static QProgressDialog* s_pQtProgressBar;
   static QtProgressBar* s_pActiveRange;
+
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   static QWinTaskbarButton* s_pWinTaskBarButton;
   static QWinTaskbarProgress* s_pWinTaskBarProgress;
+#endif
 
   void InternalUpdate(const char* szSubText, ezUInt32 uiWorkingOnItems);
   void UpdateDisplay();

@@ -22,7 +22,11 @@ SET (LINK_LIBRARIES
 )
 
 # Enables the use of Qt in this library and sets up the required modules.
-QT_MODULES(Core Gui Widgets WinExtras)
+if (BUILDSYSTEM_PLATFORM_WINDOWS)
+  QT_MODULES(Core Gui Widgets WinExtras)
+else()
+  QT_MODULES(Core Gui Widgets)
+endif()
 
 # Call this in case this library does not function without Qt.
 #BUILD_REQUIRES_QT()

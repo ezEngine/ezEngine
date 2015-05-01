@@ -3,13 +3,17 @@
 #include <Foundation/Math/Math.h>
 #include <QProgressDialog>
 #include <QApplication>
-#include <QtWinExtras/QWinTaskbarButton>
-#include <QtWinExtras/QWinTaskbarProgress>
+
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
+  #include <QtWinExtras/QWinTaskbarButton>
+  #include <QtWinExtras/QWinTaskbarProgress>
+
+  QWinTaskbarButton* QtProgressBar::s_pWinTaskBarButton = nullptr;
+  QWinTaskbarProgress* QtProgressBar::s_pWinTaskBarProgress = nullptr;
+#endif
 
 QtProgressBar* QtProgressBar::s_pActiveRange = nullptr;
 QProgressDialog* QtProgressBar::s_pQtProgressBar = nullptr;
-QWinTaskbarButton* QtProgressBar::s_pWinTaskBarButton = nullptr;
-QWinTaskbarProgress* QtProgressBar::s_pWinTaskBarProgress = nullptr;
 
 ezEvent<const QtProgressBar::Event&> QtProgressBar::s_Events;
 
@@ -44,8 +48,6 @@ QtProgressBar::QtProgressBar(const char* szMainText, ezUInt32 uiItems, bool bCan
 
   if (!s_pQtProgressBar)
   {
-    QApplication::setOverrideCursor(Qt::WaitCursor);
-
     s_pQtProgressBar = new QProgressDialog("                                                                                ",
                                            "Cancel", 0, 1000, QApplication::activeWindow());
 
@@ -56,6 +58,7 @@ QtProgressBar::QtProgressBar(const char* szMainText, ezUInt32 uiItems, bool bCan
 
     if (QApplication::activeWindow())
     {
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
       s_pWinTaskBarButton = new QWinTaskbarButton(QApplication::activeWindow());
       s_pWinTaskBarButton->setWindow(QApplication::activeWindow()->windowHandle());
 
@@ -66,6 +69,7 @@ QtProgressBar::QtProgressBar(const char* szMainText, ezUInt32 uiItems, bool bCan
       s_pWinTaskBarProgress->reset();
       s_pWinTaskBarProgress->show();
       s_pWinTaskBarProgress->setVisible(true);
+#endif
     }
   }
 
@@ -88,6 +92,7 @@ QtProgressBar::~QtProgressBar()
     delete s_pQtProgressBar;
     s_pQtProgressBar = nullptr;
 
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
     if (s_pWinTaskBarProgress)
     {
       s_pWinTaskBarProgress->hide();
@@ -96,8 +101,7 @@ QtProgressBar::~QtProgressBar()
 
     delete s_pWinTaskBarButton;
     s_pWinTaskBarButton = nullptr;
-
-    QApplication::restoreOverrideCursor();
+#endif
 
     Event e;
     e.m_Type = Event::Type::ProgressEnded;
@@ -140,8 +144,10 @@ void QtProgressBar::InternalUpdate(const char* szSubText, ezUInt32 uiWorkingOnIt
   {
     s_pQtProgressBar->setValue(uiProMille);
 
+#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
     if (s_pWinTaskBarProgress)
       s_pWinTaskBarProgress->setValue(uiProMille);
+#endif
 
     Event e;
     e.m_Type = Event::Type::ProgressChanged;
