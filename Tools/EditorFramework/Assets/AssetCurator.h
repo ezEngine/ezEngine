@@ -42,6 +42,8 @@ public:
   };
 
   void CheckFileSystem();
+
+  void TransformAllAssets();
   ezResult WriteAssetTables();
   void MainThreadTick();
 

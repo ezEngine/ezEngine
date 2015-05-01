@@ -141,7 +141,20 @@ ezStatus ezDocumentManagerBase::CanOpenDocument(const char* szFilePath) const
   return ezStatus("File extension is not handled by any registered type");
 }
 
-ezStatus ezDocumentManagerBase::CreateOrOpenDocument(bool bCreate, const char* szDocumentTypeName, const char* szPath, ezDocumentBase*& out_pDocument)
+void ezDocumentManagerBase::EnsureWindowRequested(ezDocumentBase* pDocument)
+{
+  if (pDocument->m_bWindowRequested)
+    return;
+
+  pDocument->m_bWindowRequested = true;
+
+  Event e;
+  e.m_pDocument = pDocument;
+  e.m_Type = Event::Type::DocumentWindowRequested;
+  s_Events.Broadcast(e);
+}
+
+ezStatus ezDocumentManagerBase::CreateOrOpenDocument(bool bCreate, const char* szDocumentTypeName, const char* szPath, ezDocumentBase*& out_pDocument, bool bRequestWindow)
 {
   ezStringBuilder sPath = szPath;
   sPath.MakeCleanPath();
@@ -188,6 +201,9 @@ ezStatus ezDocumentManagerBase::CreateOrOpenDocument(bool bCreate, const char* s
         e.m_Type = Event::Type::DocumentOpened;
 
         s_Events.Broadcast(e);
+
+        if (bRequestWindow)
+          EnsureWindowRequested(out_pDocument);
       }
 
       return status;
@@ -198,14 +214,14 @@ ezStatus ezDocumentManagerBase::CreateOrOpenDocument(bool bCreate, const char* s
   return status;
 }
 
-ezStatus ezDocumentManagerBase::CreateDocument(const char* szDocumentTypeName, const char* szPath, ezDocumentBase*& out_pDocument)
+ezStatus ezDocumentManagerBase::CreateDocument(const char* szDocumentTypeName, const char* szPath, ezDocumentBase*& out_pDocument, bool bRequestWindow)
 {
-  return CreateOrOpenDocument(true, szDocumentTypeName, szPath, out_pDocument);
+  return CreateOrOpenDocument(true, szDocumentTypeName, szPath, out_pDocument, bRequestWindow);
 }
 
-ezStatus ezDocumentManagerBase::OpenDocument(const char* szDocumentTypeName, const char* szPath, ezDocumentBase*& out_pDocument)
+ezStatus ezDocumentManagerBase::OpenDocument(const char* szDocumentTypeName, const char* szPath, ezDocumentBase*& out_pDocument, bool bRequestWindow)
 {
-  return CreateOrOpenDocument(false, szDocumentTypeName, szPath, out_pDocument);
+  return CreateOrOpenDocument(false, szDocumentTypeName, szPath, out_pDocument, bRequestWindow);
 }
 
 void ezDocumentManagerBase::CloseDocument(ezDocumentBase* pDocument)

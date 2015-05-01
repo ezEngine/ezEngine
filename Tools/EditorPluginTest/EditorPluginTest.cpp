@@ -25,7 +25,7 @@ void OnDocumentManagerEvent(const ezDocumentManagerBase::Event& e)
 {
   switch (e.m_Type)
   {
-  case ezDocumentManagerBase::Event::Type::DocumentOpened:
+  case ezDocumentManagerBase::Event::Type::DocumentWindowRequested:
     {
       if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezTestDocument>())
       {

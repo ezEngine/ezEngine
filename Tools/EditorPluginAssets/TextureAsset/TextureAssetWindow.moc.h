@@ -2,10 +2,10 @@
 
 #include <Foundation/Basics.h>
 #include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
-#include <EditorFramework/Widgets/ImageWidget.moc.h>
 
 class QLabel;
 class QScrollArea;
+class QtImageWidget;
 
 class ezTextureAssetDocumentWindow : public ezDocumentWindow
 {

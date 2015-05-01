@@ -1,0 +1,10 @@
+{
+  "DataDirectories" : [ {
+      "Path" : "",
+      "Writable" : true
+    },
+    {
+      "Path" : "../../FreeContent",
+      "Writable" : false
+    } ]
+}

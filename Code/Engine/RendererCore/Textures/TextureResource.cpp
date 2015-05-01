@@ -9,6 +9,7 @@
 #include <RendererFoundation/Device/Device.h>
 #include <RendererFoundation/Context/Context.h>
 #include <CoreUtils/Image/ImageConversion.h>
+#include <CoreUtils/Image/Formats/DdsFileFormat.h>
 
 static ezTextureResourceLoader s_TextureResourceLoader;
 
@@ -438,39 +439,54 @@ ezResourceLoadData ezTextureResourceLoader::OpenDataStream(const ezResourceBase*
 
   ezResourceLoadData res;
 
+  ezFileReader File;
+  if (File.Open(pResource->GetResourceID().GetData()).Failed())
+    return res;
+
+  const ezStringBuilder sAbsolutePath = File.GetFilePathAbsolute();
+
 #if EZ_ENABLED(EZ_SUPPORTS_FILE_STATS)
   {
-    ezFileReader File;
-    if (File.Open(pResource->GetResourceID().GetData()).Failed())
-      return res;
-
     ezFileStats stat;
-    if (ezOSFile::GetFileStats(File.GetFilePathAbsolute(), stat).Succeeded())
+    if (ezOSFile::GetFileStats(sAbsolutePath, stat).Succeeded())
     {
       res.m_LoadedFileModificationDate = stat.m_LastModificationTime;
     }
   }
 #endif
 
+  /// In case this is not a proper asset (ezTex format), this is a hack to get the SRGB information for the texture
+  const ezStringBuilder sName = ezPathUtils::GetFileName(sAbsolutePath);
+  bool bSRGB = (sName.EndsWith_NoCase("_D") || sName.EndsWith_NoCase("_SRGB") || sName.EndsWith_NoCase("_diff"));
 
-  if (pData->m_Image.LoadFrom(pResource->GetResourceID()).Failed())
-    return res;
-
-  if (pData->m_Image.GetImageFormat() == ezImageFormat::B8G8R8_UNORM)
+  if (sAbsolutePath.HasExtension("ezTex"))
   {
-    ezImageConversionBase::Convert(pData->m_Image, pData->m_Image, ezImageFormat::B8G8R8A8_UNORM);
+    // read the ezTex file format
+    File >> bSRGB;
+
+    ezDdsFileFormat fmt;
+    if (fmt.ReadImage(File, pData->m_Image, ezGlobalLog::GetInstance()).Failed())
+      return res;
+  }
+  else
+  {
+    // read whatever format, as long as ezImage supports it
+    File.Close();
+
+    if (pData->m_Image.LoadFrom(pResource->GetResourceID()).Failed())
+      return res;
+
+    if (pData->m_Image.GetImageFormat() == ezImageFormat::B8G8R8_UNORM)
+    {
+      ezLog::Warning("Texture resource uses inefficient BGR format, converting to BGRA: '%s'", sAbsolutePath.GetData());
+      ezImageConversionBase::Convert(pData->m_Image, pData->m_Image, ezImageFormat::B8G8R8A8_UNORM);
+    }
   }
 
   ezMemoryStreamWriter w(&pData->m_Storage);
 
   ezImage* pImage = &pData->m_Image;
   w.WriteBytes(&pImage, sizeof(ezImage*));
-
-  /// \todo As long as we don't have a custom format or asset meta data, this is a hack to get the SRGB information for the texture
-
-  const ezStringBuilder sName = ezPathUtils::GetFileName(pResource->GetResourceID());
-
-  bool bSRGB = (sName.EndsWith_NoCase("_D") || sName.EndsWith_NoCase("_SRGB") || sName.EndsWith_NoCase("_diff"));
 
   w << bSRGB;
 

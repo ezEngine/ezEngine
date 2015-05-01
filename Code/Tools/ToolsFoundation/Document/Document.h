@@ -57,6 +57,8 @@ public:
 
   ezDocumentManagerBase* GetDocumentManager() const { return m_pDocumentManager; }
 
+  bool HasWindowBeenRequested() const { return m_bWindowRequested; }
+
 public:
   struct Event
   {
@@ -100,5 +102,5 @@ private:
   ezString m_sDocumentPath;
   bool m_bModified;
   bool m_bReadOnly;
-  
+  bool m_bWindowRequested;
 };

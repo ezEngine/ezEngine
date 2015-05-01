@@ -14,6 +14,7 @@ public:
 
   static ezActionDescriptorHandle s_hAssetCategory;
   static ezActionDescriptorHandle s_hTransformAsset;
+  static ezActionDescriptorHandle s_hTransformAllAssets;
   static ezActionDescriptorHandle s_hCheckFileSystem;
   static ezActionDescriptorHandle s_hWriteLookupTable;
 };
@@ -26,6 +27,7 @@ public:
   enum class ButtonType
   {
     TransformAsset,
+    TransformAllAssets,
     CheckFileSystem,
     WriteLookupTable,
   };

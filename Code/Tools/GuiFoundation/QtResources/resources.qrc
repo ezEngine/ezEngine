@@ -1,10 +1,14 @@
 <RCC>
   <qresource prefix="GuiFoundation">
+    <file>Icons/ZoomIn16.png</file>
+    <file>Icons/ZoomOut16.png</file>
+    <file>Icons/ZoomReset16.png</file>
     <file>Icons/DataDirAdd16.png</file>
     <file>Icons/Delete16.png</file>
     <file>Icons/MoveDown16.png</file>
     <file>Icons/MoveUp16.png</file>
     <file>Icons/CheckFileSystem16.png</file>
+    <file>Icons/TransformAllAssets16.png</file>
     <file>Icons/TransformAssets16.png</file>
     <file>Icons/WriteLookupTable16.png</file>
     <file>Icons/Document16.png</file>

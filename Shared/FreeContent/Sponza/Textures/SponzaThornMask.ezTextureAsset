@@ -1,0 +1,31 @@
+{
+  "Header" : [ {
+      "Type" : "ezAssetDocumentInfo",
+      "ID" : { "$t" : "uuid", "$b" : "0x00000000000000000000000000000000" },
+      "ParentID" : { "$t" : "uuid", "$b" : "0x00000000000000000000000000000000" },
+      "TypeData" : {
+        "DocumentID" : { "$t" : "uuid", "$b" : "0x76B8DC429A89354383BD0356B609A1A3" },
+        "Dependencies" : "Sponza/Textures/sponza_thorn_mask.dds",
+        "References" : "",
+        "Hash" : { "$t" : "uint64", "$v" : "615469867068372534", "$b" : "0x3636914C95968A08" }
+      }
+    } ],
+  "ObjectTree" : [ {
+      "Type" : "ezTextureAssetProperties",
+      "ID" : { "$t" : "uuid", "$b" : "0xBDCE4DDB4602C34593FB7BA84FB667AA" },
+      "ParentID" : { "$t" : "uuid", "$b" : "0x00000000000000000000000000000000" },
+      "TypeData" : {
+        "Texture File" : "Sponza/Textures/sponza_thorn_mask.dds",
+        "sRGB" : false,
+        "Usage" : "ezTextureUsageEnum::DiffuseMap",
+        "Format" : "BC1_UNORM",
+        "Width" : { "$t" : "uint32", "$v" : "512", "$b" : "0x00020000" },
+        "Height" : { "$t" : "uint32", "$v" : "512", "$b" : "0x00020000" },
+        "Depth" : { "$t" : "uint32", "$v" : "1", "$b" : "0x01000000" },
+        "Is Cubemap" : false
+      },
+      "EditorTypeData" : {
+        
+      }
+    } ]
+}

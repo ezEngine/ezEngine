@@ -1,5 +1,5 @@
-#include <PCH.h>
-#include <EditorFramework/Widgets/ImageWidget.moc.h>
+#include <GuiFoundation/PCH.h>
+#include <GuiFoundation/Widgets/ImageWidget.moc.h>
 #include <Foundation/Math/Math.h>
 #include <QScrollArea>
 #include <QScrollBar>

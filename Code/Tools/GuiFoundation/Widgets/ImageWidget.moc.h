@@ -1,12 +1,12 @@
 #pragma once
 
-#include <EditorFramework/Plugin.h>
-#include <Tools/EditorFramework/ui_ImageWidget.h>
+#include <GuiFoundation/Basics.h>
+#include <Code/Tools/GuiFoundation/ui_ImageWidget.h>
 #include <QGraphicsScene>
 
 class QGraphicsPixmapItem;
 
-class EZ_EDITORFRAMEWORK_DLL QtImageScene : public QGraphicsScene
+class EZ_GUIFOUNDATION_DLL QtImageScene : public QGraphicsScene
 {
 public:
   QtImageScene(QObject* pParent = NULL);
@@ -18,7 +18,7 @@ private:
   QGraphicsPixmapItem* m_pImageItem;
 };
 
-class EZ_EDITORFRAMEWORK_DLL QtImageWidget : public QWidget, public Ui_ImageWidget
+class EZ_GUIFOUNDATION_DLL QtImageWidget : public QWidget, public Ui_ImageWidget
 {
   Q_OBJECT
 

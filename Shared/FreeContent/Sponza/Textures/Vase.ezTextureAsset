@@ -1,0 +1,31 @@
+{
+  "Header" : [ {
+      "Type" : "ezAssetDocumentInfo",
+      "ID" : { "$t" : "uuid", "$b" : "0x00000000000000000000000000000000" },
+      "ParentID" : { "$t" : "uuid", "$b" : "0x00000000000000000000000000000000" },
+      "TypeData" : {
+        "DocumentID" : { "$t" : "uuid", "$b" : "0xE0B3EBAC73093340944731D7FF0E1BEC" },
+        "Dependencies" : "Sponza/Textures/vase_diff.dds",
+        "References" : "",
+        "Hash" : { "$t" : "uint64", "$v" : "18259469533189189323", "$b" : "0xCB2ECF30CCAA66FD" }
+      }
+    } ],
+  "ObjectTree" : [ {
+      "Type" : "ezTextureAssetProperties",
+      "ID" : { "$t" : "uuid", "$b" : "0xEC82D92FD4BABB40AD1E730ED11AEE54" },
+      "ParentID" : { "$t" : "uuid", "$b" : "0x00000000000000000000000000000000" },
+      "TypeData" : {
+        "Texture File" : "Sponza/Textures/vase_diff.dds",
+        "sRGB" : true,
+        "Usage" : "ezTextureUsageEnum::DiffuseMap",
+        "Format" : "BC1_UNORM",
+        "Width" : { "$t" : "uint32", "$v" : "1024", "$b" : "0x00040000" },
+        "Height" : { "$t" : "uint32", "$v" : "1024", "$b" : "0x00040000" },
+        "Depth" : { "$t" : "uint32", "$v" : "1", "$b" : "0x01000000" },
+        "Is Cubemap" : false
+      },
+      "EditorTypeData" : {
+        
+      }
+    } ]
+}

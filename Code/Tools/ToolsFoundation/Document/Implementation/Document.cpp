@@ -37,6 +37,7 @@ ezDocumentBase::ezDocumentBase(const char* szPath, ezDocumentObjectManagerBase* 
   m_pObjectTree->SetOwner(this);
   m_pObjectManager->SetObjectTree(m_pObjectTree);
 
+  m_bWindowRequested = false;
   m_bModified = true;
   m_bReadOnly = false;
 }

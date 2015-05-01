@@ -239,6 +239,9 @@ ezResult ezContainerWindow::EnsureVisible(ezDocumentBase* pDocument)
 
 ezResult ezContainerWindow::EnsureVisibleAnyContainer(ezDocumentBase* pDocument)
 {
+  // make sure there is a window to make visible in the first place
+  pDocument->GetDocumentManager()->EnsureWindowRequested(pDocument);
+
   for (auto cont : s_AllContainerWindows)
   {
     if (cont->EnsureVisible(pDocument).Succeeded())
@@ -387,14 +390,15 @@ void ezContainerWindow::CreateOrOpenDocument(bool bCreate)
 
   static QString sSelectedExt;
   static QString sDir = ezOSFile::GetApplicationDirectory();
-  
-  if (ezToolsProject::IsProjectOpen())
-  {
-    ezStringBuilder sTempDir;
-    sTempDir = ezToolsProject::GetInstance()->GetProjectPath();
-    sTempDir.PathParentDirectory();
-    sDir = QString::fromUtf8(sTempDir);
-  }
+
+  // this is pretty annoying
+  //if (ezToolsProject::IsProjectOpen())
+  //{
+  //  ezStringBuilder sTempDir;
+  //  sTempDir = ezToolsProject::GetInstance()->GetProjectPath();
+  //  sTempDir.PathParentDirectory();
+  //  sDir = QString::fromUtf8(sTempDir);
+  //}
 
   ezString sFile;
 
@@ -419,7 +423,7 @@ void ezContainerWindow::CreateOrOpenDocument(bool bCreate)
   CreateOrOpenDocument(bCreate, sFile);
 }
 
-void ezContainerWindow::CreateOrOpenDocument(bool bCreate, const char* szFile)
+ezDocumentBase* ezContainerWindow::CreateOrOpenDocument(bool bCreate, const char* szFile, bool bRequestWindow)
 {
   ezDocumentManagerBase* pManToCreate = nullptr;
   ezDocumentTypeDescriptor DescToCreate;
@@ -432,7 +436,7 @@ void ezContainerWindow::CreateOrOpenDocument(bool bCreate, const char* szFile)
     sTemp.Format("The selected file extension '%s' is not registered with any known type.\nCannot open file '%s'", sExt.GetData(), szFile);
 
     ezUIServices::MessageBoxWarning(sTemp);
-    return;
+    return nullptr;
   }
 
   // does the same document already exist and is open ?
@@ -443,14 +447,14 @@ void ezContainerWindow::CreateOrOpenDocument(bool bCreate, const char* szFile)
     ezStatus res;
 
     if (bCreate)
-      res = pManToCreate->CreateDocument(DescToCreate.m_sDocumentTypeName, szFile, pDocument);
+      res = pManToCreate->CreateDocument(DescToCreate.m_sDocumentTypeName, szFile, pDocument, bRequestWindow);
     else
     {
       res = pManToCreate->CanOpenDocument(szFile);
 
       if (res.m_Result.Succeeded())
       {
-        res = pManToCreate->OpenDocument(DescToCreate.m_sDocumentTypeName, szFile, pDocument);
+        res = pManToCreate->OpenDocument(DescToCreate.m_sDocumentTypeName, szFile, pDocument, bRequestWindow);
       }
     }
 
@@ -460,7 +464,7 @@ void ezContainerWindow::CreateOrOpenDocument(bool bCreate, const char* szFile)
       s.Format("Failed to open document: \n'%s'", szFile);
 
       ezUIServices::MessageBoxStatus(res, s);
-      return;
+      return nullptr;
     }
 
     EZ_ASSERT_DEV(pDocument != nullptr, "Creation of document type '%s' succeeded, but returned pointer is NULL", DescToCreate.m_sDocumentTypeName.GetData());
@@ -470,10 +474,14 @@ void ezContainerWindow::CreateOrOpenDocument(bool bCreate, const char* szFile)
     if (bCreate)
     {
       ezUIServices::MessageBoxInformation("The selected document is already open. You need to close the document before you can re-create it.");
+      return nullptr;
     }
   }
 
-  ezContainerWindow::EnsureVisibleAnyContainer(pDocument);
+  if (bRequestWindow)
+    ezContainerWindow::EnsureVisibleAnyContainer(pDocument);
+
+  return pDocument;
 }
 
 void ezContainerWindow::CreateOrOpenProject(bool bCreate)

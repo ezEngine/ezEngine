@@ -1,0 +1,31 @@
+{
+  "Header" : [ {
+      "Type" : "ezAssetDocumentInfo",
+      "ID" : { "$t" : "uuid", "$b" : "0x00000000000000000000000000000000" },
+      "ParentID" : { "$t" : "uuid", "$b" : "0x00000000000000000000000000000000" },
+      "TypeData" : {
+        "DocumentID" : { "$t" : "uuid", "$b" : "0x624C76B69CC21F40ADD69BFE54523A8A" },
+        "Dependencies" : "Sponza/Textures/sponza_ceiling_a_diff.dds",
+        "References" : "",
+        "Hash" : { "$t" : "uint64", "$v" : "18443062445436893399", "$b" : "0xD7F89C1E94EBF2FF" }
+      }
+    } ],
+  "ObjectTree" : [ {
+      "Type" : "ezTextureAssetProperties",
+      "ID" : { "$t" : "uuid", "$b" : "0x77B280018CC6DF4197714444D971C311" },
+      "ParentID" : { "$t" : "uuid", "$b" : "0x00000000000000000000000000000000" },
+      "TypeData" : {
+        "Texture File" : "Sponza/Textures/sponza_ceiling_a_diff.dds",
+        "sRGB" : true,
+        "Usage" : "ezTextureUsageEnum::DiffuseMap",
+        "Format" : "BC1_UNORM",
+        "Width" : { "$t" : "uint32", "$v" : "1024", "$b" : "0x00040000" },
+        "Height" : { "$t" : "uint32", "$v" : "1024", "$b" : "0x00040000" },
+        "Depth" : { "$t" : "uint32", "$v" : "1", "$b" : "0x01000000" },
+        "Is Cubemap" : false
+      },
+      "EditorTypeData" : {
+        
+      }
+    } ]
+}

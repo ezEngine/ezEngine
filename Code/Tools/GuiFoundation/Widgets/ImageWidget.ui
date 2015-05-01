@@ -51,23 +51,35 @@
          </spacer>
         </item>
         <item>
-         <widget class="QPushButton" name="ButtonZoomIn">
-          <property name="text">
-           <string>+</string>
-          </property>
-         </widget>
-        </item>
-        <item>
          <widget class="QPushButton" name="ButtonZoomOut">
           <property name="text">
-           <string>-</string>
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset resource="../QtResources/resources.qrc">
+            <normaloff>:/GuiFoundation/Icons/ZoomOut16.png</normaloff>:/GuiFoundation/Icons/ZoomOut16.png</iconset>
           </property>
          </widget>
         </item>
         <item>
          <widget class="QPushButton" name="ButtonResetZoom">
           <property name="text">
-           <string>Normal</string>
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset resource="../QtResources/resources.qrc">
+            <normaloff>:/GuiFoundation/Icons/ZoomReset16.png</normaloff>:/GuiFoundation/Icons/ZoomReset16.png</iconset>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="ButtonZoomIn">
+          <property name="text">
+           <string/>
+          </property>
+          <property name="icon">
+           <iconset resource="../QtResources/resources.qrc">
+            <normaloff>:/GuiFoundation/Icons/ZoomIn16.png</normaloff>:/GuiFoundation/Icons/ZoomIn16.png</iconset>
           </property>
          </widget>
         </item>
@@ -92,7 +104,7 @@
   </layout>
  </widget>
  <resources>
-  <include location="../../../Code/Tools/GuiFoundation/QtResources/resources.qrc"/>
+  <include location="../QtResources/resources.qrc"/>
  </resources>
  <connections/>
 </ui>

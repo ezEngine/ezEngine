@@ -1,0 +1,31 @@
+{
+  "Header" : [ {
+      "Type" : "ezAssetDocumentInfo",
+      "ID" : { "$t" : "uuid", "$b" : "0x00000000000000000000000000000000" },
+      "ParentID" : { "$t" : "uuid", "$b" : "0x00000000000000000000000000000000" },
+      "TypeData" : {
+        "DocumentID" : { "$t" : "uuid", "$b" : "0xBA30E74D80FE2A48B70C37F31F040DFD" },
+        "Dependencies" : "Sponza/Textures/sponza_curtain_blue_diff.dds",
+        "References" : "",
+        "Hash" : { "$t" : "uint64", "$v" : "16716403610454624411", "$b" : "0x9B8834338498FCE7" }
+      }
+    } ],
+  "ObjectTree" : [ {
+      "Type" : "ezTextureAssetProperties",
+      "ID" : { "$t" : "uuid", "$b" : "0x46EF6F08DAB61C4FB60528A789F5A5BA" },
+      "ParentID" : { "$t" : "uuid", "$b" : "0x00000000000000000000000000000000" },
+      "TypeData" : {
+        "Texture File" : "Sponza/Textures/sponza_curtain_blue_diff.dds",
+        "sRGB" : true,
+        "Usage" : "ezTextureUsageEnum::DiffuseMap",
+        "Format" : "BC1_UNORM",
+        "Width" : { "$t" : "uint32", "$v" : "2048", "$b" : "0x00080000" },
+        "Height" : { "$t" : "uint32", "$v" : "2048", "$b" : "0x00080000" },
+        "Depth" : { "$t" : "uint32", "$v" : "1", "$b" : "0x01000000" },
+        "Is Cubemap" : false
+      },
+      "EditorTypeData" : {
+        
+      }
+    } ]
+}

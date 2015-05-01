@@ -22,7 +22,7 @@ void ezTextureAssetDocumentManager::OnDocumentManagerEvent(const ezDocumentManag
 {
   switch (e.m_Type)
   {
-  case ezDocumentManagerBase::Event::Type::DocumentOpened:
+  case ezDocumentManagerBase::Event::Type::DocumentWindowRequested:
     {
       if (e.m_pDocument->GetDynamicRTTI() == ezGetStaticRTTI<ezTextureAssetDocument>())
       {

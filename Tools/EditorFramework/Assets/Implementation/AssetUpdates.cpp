@@ -1,5 +1,6 @@
 #include <PCH.h>
 #include <EditorFramework/Assets/AssetCurator.h>
+#include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
@@ -198,8 +199,13 @@ ezUInt64 ezAssetCurator::GetAssetDependencyHash(ezUuid assetGuid)
   // Iterate dependencies
   for (const auto& dep : pInfo->m_Info.m_FileDependencies)
   {
+    ezString sPath = dep;
+
+    if (!ezEditorApp::GetInstance()->MakeDataDirectoryRelativePathAbsolute(sPath))
+      return 0;
+
     ezFileReader file;
-    if (file.Open(dep).Failed())
+    if (file.Open(sPath).Failed())
       return 0;
 
     if (ezOSFile::GetFileStats(file.GetFilePathAbsolute(), stat).Failed())

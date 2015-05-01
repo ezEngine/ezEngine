@@ -44,6 +44,14 @@ void SampleApp::AfterEngineInit()
   ezStringBuilder sBaseDir = BUILDSYSTEM_OUTPUT_FOLDER;
   sBaseDir.AppendPath("../../Shared/Data/");
 
+  // setup the 'asset management system'
+  {
+    // which redirection table to search
+    ezDataDirectory::FolderType::s_sRedirectionFile = "AssetCache/LookupTable.ezAsset";
+    // which platform assets to use
+    ezDataDirectory::FolderType::s_sRedirectionPrefix = "AssetCache/PC/";
+  }
+
   ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
   ezFileSystem::AddDataDirectory(sBaseDir.GetData(), ezFileSystem::ReadOnly, "Shared");
   ezFileSystem::AddDataDirectory(sReadDir.GetData(), ezFileSystem::AllowWrites, "Game");

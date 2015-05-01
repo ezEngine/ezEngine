@@ -28,7 +28,7 @@ public:
 
   static void CreateOrOpenDocument(bool bCreate);
   static void CreateOrOpenProject(bool bCreate);
-  static void CreateOrOpenDocument(bool bCreate, const char* szFile);
+  static ezDocumentBase* CreateOrOpenDocument(bool bCreate, const char* szFile, bool bRequestWindow = true);
   static void CreateOrOpenProject(bool bCreate, const char* szFile);
 
 private:

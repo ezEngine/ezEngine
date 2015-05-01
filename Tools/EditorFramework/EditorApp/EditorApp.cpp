@@ -244,7 +244,7 @@ void ezEditorApp::DocumentManagerEventHandler(const ezDocumentManagerBase::Event
 {
   switch (r.m_Type)
   {
-  case ezDocumentManagerBase::Event::Type::DocumentOpened:
+  case ezDocumentManagerBase::Event::Type::DocumentWindowRequested:
     {
       s_RecentDocuments.Insert(r.m_pDocument->GetDocumentPath());
       SaveSettings();

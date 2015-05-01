@@ -1,0 +1,26 @@
+{
+  "Header" : [ {
+      "Type" : "ezDocumentInfo",
+      "ID" : { "$t" : "uuid", "$b" : "0x00000000000000000000000000000000" },
+      "ParentID" : { "$t" : "uuid", "$b" : "0x00000000000000000000000000000000" },
+      "TypeData" : {
+        "DocumentID" : { "$t" : "uuid", "$b" : "0x8B9BCB96FF5E81438C42C09066B47F9D" }
+      }
+    } ],
+  "ObjectTree" : [ {
+      "Type" : "ezGameObject",
+      "ID" : { "$t" : "uuid", "$b" : "0x6E4D54E0617D234CA5FF1A05850E3180" },
+      "ParentID" : { "$t" : "uuid", "$b" : "0x00000000000000000000000000000000" },
+      "TypeData" : {
+        "Name" : "",
+        "Position" : { "$t" : "vec3", "$v" : "(0.0000, 0.0000, 0.0000)", "$b" : "0x000000000000000000000000" },
+        "Rotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
+        "Scaling" : { "$t" : "vec3", "$v" : "(0.0000, 0.0000, 0.0000)", "$b" : "0x000000000000000000000000" }
+      },
+      "EditorTypeData" : {
+        "Name" : "ezGameObject 000",
+        "Awesome" : true,
+        "Pfloat" : { "$t" : "float", "$v" : "23.0000", "$b" : "0x0000B841" }
+      }
+    } ]
+}

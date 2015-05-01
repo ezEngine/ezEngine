@@ -1,6 +1,7 @@
 #include <PCH.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/Assets/AssetDocumentManager.h>
+#include <GuiFoundation/ContainerWindow/ContainerWindow.moc.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
@@ -302,6 +303,28 @@ ezResult ezAssetCurator::WriteAssetTable(const char* szDataDirectory)
   }
 
   return EZ_SUCCESS;
+}
+
+void ezAssetCurator::TransformAllAssets()
+{
+  for (auto it = m_KnownAssets.GetIterator(); it.IsValid(); ++it)
+  {
+    ezDocumentBase* pDoc = ezContainerWindow::CreateOrOpenDocument(false, it.Value()->m_sPath, false);
+
+    if (pDoc == nullptr)
+    {
+      ezLog::Error("Could not open asset document '%s'", it.Value()->m_sPath.GetData());
+      continue;
+    }
+
+    EZ_ASSERT_DEV(pDoc->GetDynamicRTTI()->IsDerivedFrom<ezAssetDocument>(), "Asset document does not derive from correct base class ('%s')", it.Value()->m_sPath.GetData());
+
+    ezAssetDocument* pAsset = static_cast<ezAssetDocument*>(pDoc);
+    pAsset->TransformAsset();
+
+    if (!pDoc->HasWindowBeenRequested())
+      pDoc->GetDocumentManager()->CloseDocument(pDoc);
+  }
 }
 
 ezResult ezAssetCurator::WriteAssetTables()

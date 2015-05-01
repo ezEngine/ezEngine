@@ -26,9 +26,10 @@ public:
 
   ezStatus CanOpenDocument(const char* szFilePath) const;
 
-  ezStatus CreateDocument(const char* szDocumentTypeName, const char* szPath, ezDocumentBase*& out_pDocument);
-  ezStatus OpenDocument(const char* szDocumentTypeName, const char* szPath, ezDocumentBase*& out_pDocument);
+  ezStatus CreateDocument(const char* szDocumentTypeName, const char* szPath, ezDocumentBase*& out_pDocument, bool bRequestWindow = true);
+  ezStatus OpenDocument(const char* szDocumentTypeName, const char* szPath, ezDocumentBase*& out_pDocument, bool bRequestWindow = true);
   void CloseDocument(ezDocumentBase* pDocument);
+  void EnsureWindowRequested(ezDocumentBase* pDocument);
 
   const ezDynamicArray<ezDocumentBase*>& GetAllDocuments() const { return m_AllDocuments; }
 
@@ -45,6 +46,7 @@ public:
       DocumentTypesRemoved,
       DocumentTypesAdded,
       DocumentOpened,
+      DocumentWindowRequested,
       DocumentClosing,
       DocumentClosed, // this will not point to a valid document anymore, as the document is deleted, use DocumentClosing to get the event before it is deleted
     };
@@ -75,7 +77,7 @@ private:
   virtual void InternalGetSupportedDocumentTypes(ezHybridArray<ezDocumentTypeDescriptor, 4>& out_DocumentTypes) const = 0;
 
 private:
-  ezStatus CreateOrOpenDocument(bool bCreate, const char* szDocumentTypeName, const char* szPath, ezDocumentBase*& out_pDocument);
+  ezStatus CreateOrOpenDocument(bool bCreate, const char* szDocumentTypeName, const char* szPath, ezDocumentBase*& out_pDocument, bool bRequestWindow);
 
 private:
   EZ_MAKE_SUBSYSTEM_STARTUP_FRIEND(ToolsFoundation, DocumentManager);
