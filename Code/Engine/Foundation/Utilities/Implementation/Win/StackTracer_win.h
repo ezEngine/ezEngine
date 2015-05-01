@@ -167,7 +167,7 @@ namespace
       s_pImplementation = new (ImplementationBuffer) StackTracerImplementation();
       EZ_ASSERT_DEV(s_pImplementation != nullptr, "StackTracer initialization failed");
 
-      ezPlugin::s_PluginEvents.AddEventHandler(OnPluginEvent);
+      //ezPlugin::s_PluginEvents.AddEventHandler(OnPluginEvent);
     }
   }
 }

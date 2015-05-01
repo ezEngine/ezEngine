@@ -4,6 +4,7 @@
 
 #include <Foundation/Communication/Telemetry.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
+#include <Foundation/Memory/FrameAllocator.h>
 
 #include <Core/Input/InputManager.h>
 #include <Core/World/World.h>
@@ -24,7 +25,8 @@
 
 namespace
 {
-  ezProfilingId g_UpdateInputProfilingId = ezProfilingSystem::CreateId("Update Input");
+  ezProfilingId g_UpdateInputProfilingId = ezProfilingSystem::CreateId("GameApplication.UpdateInput");
+  ezProfilingId g_PresentProfilingId = ezProfilingSystem::CreateId("GameApplication.Present");
   const char* g_szInputSet = "GameApp";
   const char* g_szCloseAppAction = "CloseApp";
   const char* g_szReloadResourcesAction = "ReloadResources";
@@ -89,6 +91,7 @@ void ezGameApplication::Initialize()
 
 void ezGameApplication::Deinitialize()
 {
+  ezFrameAllocator::Reset();
   ezResourceManager::FreeUnusedResources(true);
 
   // deinit rendering
@@ -191,9 +194,12 @@ ezApplication::ApplicationExecution ezGameApplication::Run()
     ezTelemetry::PerFrameUpdate();
     ezResourceManager::PerFrameUpdate();
 
-    for (ezUInt32 i = 0; i < m_Windows.GetCount(); ++i)
     {
-      pDevice->Present(m_Windows[i].m_hSwapChain);
+      EZ_PROFILE(g_PresentProfilingId);
+      for (ezUInt32 i = 0; i < m_Windows.GetCount(); ++i)
+      {
+        pDevice->Present(m_Windows[i].m_hSwapChain);
+      }
     }
 
     pDevice->EndFrame();
@@ -202,6 +208,7 @@ ezApplication::ApplicationExecution ezGameApplication::Run()
   ezTaskSystem::FinishFrameTasks(16.6);
 
   ezRenderLoop::FinishFrame();
+  ezFrameAllocator::Swap();
 
   return m_bShouldRun ? ezApplication::Continue : ezApplication::Quit;
 }

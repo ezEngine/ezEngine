@@ -137,27 +137,8 @@ void ezRenderPipeline::ClearPipelineData(PipelineData* pPipeLineData)
   {
     PassData& data = pPipeLineData->m_PassData[uiPassIndex];
 
-    /// \todo not needed once we use a proper allocator
-    for (ezUInt32 i = 0; i < data.m_RenderData.GetCount(); ++i)
-    {
-      ezRenderData* pRenderData = const_cast<ezRenderData*>(data.m_RenderData[i]);
-      EZ_DEFAULT_DELETE(pRenderData);
-    }
-
     data.m_RenderData.Clear();
   }
-}
-
-// static 
-bool ezRenderPipeline::IsPipelineDataEmpty(PipelineData* pPipeLineData)
-{
-  for (ezUInt32 uiPassIndex = 0; uiPassIndex < pPipeLineData->m_PassData.GetCount(); ++uiPassIndex)
-  {
-    if (!pPipeLineData->m_PassData[uiPassIndex].m_RenderData.IsEmpty())
-      return false;
-  }
-
-  return true;
 }
 
 //static 

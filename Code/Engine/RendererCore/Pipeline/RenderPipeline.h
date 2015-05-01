@@ -2,6 +2,7 @@
 
 #include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/Containers/HybridArray.h>
+#include <Foundation/Memory/FrameAllocator.h>
 #include <RendererFoundation/Context/Context.h>
 #include <RendererFoundation/Device/Device.h>
 #include <RendererCore/Pipeline/RenderPipelinePass.h>
@@ -26,7 +27,7 @@ public:
   {
     EZ_CHECK_AT_COMPILETIME(EZ_IS_DERIVED_FROM_STATIC(ezRenderData, T));
 
-    T* pRenderData = EZ_DEFAULT_NEW(T);
+    T* pRenderData = EZ_NEW(ezFrameAllocator::GetCurrentAllocator(), T)();
     pRenderData->m_uiSortingKey = 0; /// \todo implement sorting
 
   #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)

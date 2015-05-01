@@ -1,5 +1,6 @@
 #include <Core/PCH.h>
 
+#include <Foundation/Memory/FrameAllocator.h>
 #include <Foundation/Time/Clock.h>
 
 #include <Core/World/World.h>
@@ -177,8 +178,7 @@ void ezWorld::PostMessage(const ezGameObjectHandle& receiverObject, ezMessage& m
   metaData.m_ReceiverObject = receiverObject;
   metaData.m_Routing = routing;
 
-  /// \todo temp allocator
-  ezMessage* pMsgCopy = msg.Clone(&m_Data.m_Allocator);
+  ezMessage* pMsgCopy = msg.Clone(ezFrameAllocator::GetCurrentAllocator());
   m_Data.m_MessageQueues[queueType].Enqueue(pMsgCopy, metaData);
 }
 
@@ -190,9 +190,8 @@ void ezWorld::PostMessage(const ezGameObjectHandle& receiverObject, ezMessage& m
   metaData.m_Routing = routing;
   metaData.m_Due = ezClock::Get(ezGlobalClock_GameLogic)->GetAccumulatedTime() + delay;
 
-  /// \todo separate queues
   ezMessage* pMsgCopy = msg.Clone(&m_Data.m_Allocator);
-  m_Data.m_MessageQueues[queueType].Enqueue(pMsgCopy, metaData);
+  m_Data.m_TimedMessageQueues[queueType].Enqueue(pMsgCopy, metaData);
 }
 
 void ezWorld::Update()
@@ -327,26 +326,48 @@ void ezWorld::ProcessQueuedMessages(ezObjectMsgQueueType::Enum queueType)
     }
   };
 
-  ezInternal::WorldData::MessageQueue& queue = m_Data.m_MessageQueues[queueType];
-  queue.Sort(MessageComparer());
-
-  ezTime now = ezClock::Get(ezGlobalClock_GameLogic)->GetAccumulatedTime();
-
-  while (!queue.IsEmpty())
+  // regular messages
   {
-    ezInternal::WorldData::MessageQueue::Entry& entry = queue.Peek();
-    if (entry.m_MetaData.m_Due > now)
-      break;
+    ezInternal::WorldData::MessageQueue& queue = m_Data.m_MessageQueues[queueType];
+    queue.Sort(MessageComparer());
 
-    ezGameObject* pReceiverObject = nullptr;
-    if (TryGetObject(entry.m_MetaData.m_ReceiverObject, pReceiverObject))
+    for (ezUInt32 i = 0; i < queue.GetCount(); ++i)
     {
-      pReceiverObject->SendMessage(*entry.m_pMessage, entry.m_MetaData.m_Routing);
+      auto& entry = queue[i];
+
+      ezGameObject* pReceiverObject = nullptr;
+      if (TryGetObject(entry.m_MetaData.m_ReceiverObject, pReceiverObject))
+      {
+        pReceiverObject->SendMessage(*entry.m_pMessage, entry.m_MetaData.m_Routing);
+      }
     }
 
-    EZ_DELETE(&m_Data.m_Allocator, entry.m_pMessage);
+    queue.Clear();
+  }
 
-    queue.Dequeue();
+  // timed messages
+  {
+    ezInternal::WorldData::MessageQueue& queue = m_Data.m_TimedMessageQueues[queueType];
+    queue.Sort(MessageComparer());
+
+    ezTime now = ezClock::Get(ezGlobalClock_GameLogic)->GetAccumulatedTime();
+
+    while (!queue.IsEmpty())
+    {
+      auto& entry = queue.Peek();
+      if (entry.m_MetaData.m_Due > now)
+        break;
+
+      ezGameObject* pReceiverObject = nullptr;
+      if (TryGetObject(entry.m_MetaData.m_ReceiverObject, pReceiverObject))
+      {
+        pReceiverObject->SendMessage(*entry.m_pMessage, entry.m_MetaData.m_Routing);
+      }
+
+      EZ_DELETE(&m_Data.m_Allocator, entry.m_pMessage);
+
+      queue.Dequeue();
+    }
   }
 }
 

@@ -128,6 +128,7 @@ namespace ezInternal
 
     typedef ezMessageQueue<QueuedMsgMetaData, ezLocalAllocatorWrapper> MessageQueue;
     MessageQueue m_MessageQueues[ezObjectMsgQueueType::COUNT];
+    MessageQueue m_TimedMessageQueues[ezObjectMsgQueueType::COUNT];
 
     ezThreadID m_ThreadID;
     bool m_bIsInAsyncPhase;

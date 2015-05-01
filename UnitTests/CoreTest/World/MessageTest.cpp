@@ -1,5 +1,6 @@
 #include <PCH.h>
 #include <Foundation/Time/Clock.h>
+#include <Foundation/Memory/FrameAllocator.h>
 #include <Core/World/World.h>
 
 namespace
@@ -263,6 +264,8 @@ EZ_CREATE_SIMPLE_TEST(World, Messaging)
     pRoot->TryGetComponentOfBaseType(pComponent);
     EZ_TEST_INT(pComponent->m_iSomeData, 46);
     EZ_TEST_INT(pComponent->m_iSomeData2, 92);
+
+    ezFrameAllocator::Reset();
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Queuing with delay")
@@ -298,5 +301,7 @@ EZ_CREATE_SIMPLE_TEST(World, Messaging)
       EZ_TEST_INT(pComponent->m_iSomeData, iDesiredValue);
       EZ_TEST_INT(pComponent->m_iSomeData2, iDesiredValue2);
     }
+
+    ezFrameAllocator::Reset();
   }
 }

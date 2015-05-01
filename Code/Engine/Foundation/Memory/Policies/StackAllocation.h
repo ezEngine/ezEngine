@@ -117,7 +117,12 @@ namespace ezMemoryPolicies
         bucket.pLastAllocation = bucket.memory.GetPtr();
       }
       m_uiCurrentBucketIndex = 0;
-      m_currentBucket = m_buckets[0].memory;
+
+      if (!m_buckets.IsEmpty())
+        m_currentBucket = m_buckets[0].memory;
+      else
+        m_currentBucket.Reset();
+
       m_pNextAllocation = m_currentBucket.GetPtr();
     }
 
