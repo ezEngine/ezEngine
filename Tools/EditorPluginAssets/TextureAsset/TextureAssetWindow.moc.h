@@ -2,8 +2,10 @@
 
 #include <Foundation/Basics.h>
 #include <GuiFoundation/DocumentWindow/DocumentWindow.moc.h>
+#include <EditorFramework/Widgets/ImageWidget.moc.h>
 
 class QLabel;
+class QScrollArea;
 
 class ezTextureAssetDocumentWindow : public ezDocumentWindow
 {
@@ -22,5 +24,5 @@ private:
   void UpdatePreview();
   void PropertyEventHandler(const ezDocumentObjectTreePropertyEvent& e);
 
-  QLabel* m_pImageLabel;
+  QtImageWidget* m_pImageWidget;
 };

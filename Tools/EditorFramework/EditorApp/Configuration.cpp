@@ -1,6 +1,7 @@
 #include <PCH.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
+#include <Foundation/IO/OSFile.h>
 
 void ezEditorApp::SetFileSystemConfig(const ezApplicationFileSystemConfig& cfg)
 {
@@ -16,6 +17,59 @@ void ezEditorApp::SetFileSystemConfig(const ezApplicationFileSystemConfig& cfg)
 void ezEditorApp::SetEnginePluginConfig(const ezApplicationPluginConfig& cfg)
 {
   m_EnginePluginConfig = cfg;
+}
+
+bool ezEditorApp::MakeDataDirectoryRelativePathAbsolute(ezString & sPath) const
+{
+  ezStringBuilder sTemp;
+
+  for (ezUInt32 i = m_FileSystemConfig.m_DataDirs.GetCount(); i > 0; --i)
+  {
+    const auto& dd = m_FileSystemConfig.m_DataDirs[i - 1];
+
+    sTemp = m_FileSystemConfig.GetProjectDirectory();
+    sTemp.AppendPath(dd.m_sRelativePath, sPath);
+
+    if (ezOSFile::Exists(sTemp))
+    {
+      sPath = sTemp;
+      return true;
+    }
+  }
+
+  if (!m_FileSystemConfig.m_DataDirs.IsEmpty())
+  {
+    sTemp = m_FileSystemConfig.GetProjectDirectory();
+    sTemp.AppendPath(m_FileSystemConfig.m_DataDirs[0].m_sRelativePath, sPath);
+  }
+
+  return false;
+}
+
+bool ezEditorApp::MakePathDataDirectoryRelative(ezString & sPath) const
+{
+  ezStringBuilder sTemp;
+  ezStringBuilder sResult = sPath;
+
+  for (ezUInt32 i = m_FileSystemConfig.m_DataDirs.GetCount(); i > 0; --i)
+  {
+    const auto& dd = m_FileSystemConfig.m_DataDirs[i - 1];
+
+    sTemp = m_FileSystemConfig.GetProjectDirectory();
+    sTemp.AppendPath(dd.m_sRelativePath);
+
+    if (sResult.IsPathBelowFolder(sTemp))
+    {
+      sResult.MakeRelativeTo(sTemp);
+      sPath = sResult;
+      return true;
+    }
+  }
+
+  sResult.MakeRelativeTo(m_FileSystemConfig.GetProjectDirectory());
+  sPath = sResult;
+
+  return false;
 }
 
 void ezEditorApp::SetupDataDirectories()

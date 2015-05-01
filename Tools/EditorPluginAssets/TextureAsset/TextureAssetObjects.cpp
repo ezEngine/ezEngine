@@ -1,5 +1,6 @@
 #include <PCH.h>
 #include <EditorPluginAssets/TextureAsset/TextureAssetObjects.h>
+#include <EditorFramework/EditorApp/EditorApp.moc.h>
 
 
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezTextureUsageEnum, 1)
@@ -16,8 +17,6 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTextureAssetProperties, ezReflectedClass, 1, e
     EZ_ACCESSOR_PROPERTY_READ_ONLY("Height", GetHeight),
     EZ_ACCESSOR_PROPERTY_READ_ONLY("Depth", GetDepth),
     EZ_ACCESSOR_PROPERTY_READ_ONLY("Is Cubemap", IsCubemap),
-
-
   EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
@@ -36,8 +35,15 @@ void ezTextureAssetProperties::SetInputFile(const char* szFile)
   ezStringBuilder sTemp = szFile;
   sTemp.MakeCleanPath();
 
+  ezString sPath = sTemp;
+
+  if (!sTemp.IsAbsolutePath())
+  {
+    ezEditorApp::GetInstance()->MakeDataDirectoryRelativePathAbsolute(sPath);
+  }
+
   m_Input = sTemp;
-  if (m_Image.LoadFrom(m_Input).Succeeded())
+  if (m_Image.LoadFrom(sPath).Succeeded())
   {
   }
 }

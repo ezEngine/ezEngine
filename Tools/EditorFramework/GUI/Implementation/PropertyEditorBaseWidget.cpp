@@ -14,8 +14,12 @@
 #include <QStyledItemDelegate>
 #include <QMenu>
 #include <QWidgetAction>
+#include <QToolButton>
+#include <QFileDialog>
 #include <EditorFramework/GUI/QtHelpers.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
+#include <EditorFramework/EditorApp/EditorApp.moc.h>
+#include <Foundation/IO/FileSystem/FileReader.h>
 
 /// *** BASE ***
 
@@ -281,6 +285,10 @@ ezPropertyEditorLineEditWidget::ezPropertyEditorLineEditWidget(const ezPropertyP
   m_pLabel->setText(QString::fromUtf8(szName));
   m_pLabel->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
 
+  m_pButton = new QToolButton(this);
+  m_pButton->setToolButtonStyle(Qt::ToolButtonStyle::ToolButtonTextOnly);
+  m_pButton->setText("...");
+
   m_pWidget = new QLineEdit(this);
 
   QSizePolicy policy = m_pLabel->sizePolicy();
@@ -291,8 +299,10 @@ ezPropertyEditorLineEditWidget::ezPropertyEditorLineEditWidget(const ezPropertyP
 
   m_pLayout->addWidget(m_pLabel);
   m_pLayout->addWidget(m_pWidget);
+  m_pLayout->addWidget(m_pButton);
 
   connect(m_pWidget, SIGNAL(editingFinished()), this, SLOT(on_TextFinished_triggered()));
+  connect(m_pButton, SIGNAL(clicked()), this, SLOT(on_BrowseFile_clicked()));
 }
 
 void ezPropertyEditorLineEditWidget::InternalSetValue(const ezVariant& value)
@@ -309,6 +319,30 @@ void ezPropertyEditorLineEditWidget::on_TextChanged_triggered(const QString& val
 void ezPropertyEditorLineEditWidget::on_TextFinished_triggered()
 {
   BroadcastValueChanged(m_pWidget->text().toUtf8().data());
+}
+
+void ezPropertyEditorLineEditWidget::on_BrowseFile_clicked()
+{
+  ezString sFile = m_pWidget->text().toUtf8().data();
+  
+
+  if (!sFile.IsEmpty())
+  {
+    ezString sFileAbs = sFile;
+
+    if (ezEditorApp::GetInstance()->MakeDataDirectoryRelativePathAbsolute(sFileAbs))
+      sFile = sFileAbs;
+  }
+    
+  sFile = QFileDialog::getOpenFileName(QApplication::activeWindow(), QLatin1String("Browse Files"), sFile.GetData()).toUtf8().data();
+
+  if (sFile.IsEmpty())
+    return;
+
+  ezEditorApp::GetInstance()->MakePathDataDirectoryRelative(sFile);
+
+  m_pWidget->setText(sFile.GetData());
+  on_TextFinished_triggered();
 }
 
 /// *** COLOR ***

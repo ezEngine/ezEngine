@@ -17,6 +17,7 @@ class QPushButton;
 class QComboBox;
 class QStandardItemModel;
 class QStandardItem;
+class QToolButton;
 class QMenu;
 /// *** BASE ***
 
@@ -144,6 +145,7 @@ public:
 private slots:
   void on_TextChanged_triggered(const QString& value);
   void on_TextFinished_triggered();
+  void on_BrowseFile_clicked();
 
 private:
   virtual void InternalSetValue(const ezVariant& value) override;
@@ -151,6 +153,7 @@ private:
   QHBoxLayout* m_pLayout;
   QLabel* m_pLabel;
   QLineEdit* m_pWidget;
+  QToolButton* m_pButton;
 };
 
 

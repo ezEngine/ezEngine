@@ -102,6 +102,9 @@ public:
   void SetFileSystemConfig(const ezApplicationFileSystemConfig& cfg);
   void SetEnginePluginConfig(const ezApplicationPluginConfig& cfg);
 
+  bool MakeDataDirectoryRelativePathAbsolute(ezString& sPath) const;
+  bool MakePathDataDirectoryRelative(ezString& sPath) const;
+
 
 private slots:
   void SlotTimedUpdate();

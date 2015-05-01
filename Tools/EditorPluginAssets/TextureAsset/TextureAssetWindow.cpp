@@ -4,6 +4,7 @@
 #include <GuiFoundation/ActionViews/MenuBarActionMapView.moc.h>
 #include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
 #include <QLabel>
+#include <QLayout>
 #include <CoreUtils/Image/ImageConversion.h>
 
 ezTextureAssetDocumentWindow::ezTextureAssetDocumentWindow(ezDocumentBase* pDocument) : ezDocumentWindow(pDocument)
@@ -31,8 +32,8 @@ ezTextureAssetDocumentWindow::ezTextureAssetDocumentWindow(ezDocumentBase* pDocu
     addToolBar(pToolBar);
   }
 
-  m_pImageLabel = new QLabel(this);
-  setCentralWidget(m_pImageLabel);
+  m_pImageWidget = new QtImageWidget(this);
+  setCentralWidget(m_pImageWidget);
 
   UpdatePreview();
 }
@@ -44,7 +45,7 @@ ezTextureAssetDocumentWindow::~ezTextureAssetDocumentWindow()
 
 void ezTextureAssetDocumentWindow::UpdatePreview()
 {
-  ezTextureAssetObject* pObject = (ezTextureAssetObject*) GetDocument()->GetObjectTree()->GetRootObject()->GetChildren()[0];
+  ezTextureAssetObject* pObject = (ezTextureAssetObject*)GetDocument()->GetObjectTree()->GetRootObject()->GetChildren()[0];
 
   if (pObject->m_MemberProperties.GetImage().GetDataSize() == 0)
     return;
@@ -53,11 +54,9 @@ void ezTextureAssetDocumentWindow::UpdatePreview()
   if (ezImageConversionBase::Convert(pObject->m_MemberProperties.GetImage(), Target, ezImageFormat::B8G8R8A8_UNORM).Failed())
     return;
 
-  QImage img(Target.GetPixelPointer<ezUInt8>(), Target.GetWidth(), Target.GetHeight(), QImage::Format_ARGB32);
+  QImage img(Target.GetPixelPointer<ezUInt8>(), Target.GetWidth(), Target.GetHeight(), QImage::Format_RGBA8888);
 
-  QPixmap pix = QPixmap::fromImage(img);
-
-  m_pImageLabel->setPixmap(pix);
+  m_pImageWidget->SetImage(QPixmap::fromImage(img));
 }
 
 void ezTextureAssetDocumentWindow::PropertyEventHandler(const ezDocumentObjectTreePropertyEvent& e)
@@ -70,8 +69,6 @@ void ezTextureAssetDocumentWindow::PropertyEventHandler(const ezDocumentObjectTr
     UpdatePreview();
   }
 }
-
-
 
 
 
