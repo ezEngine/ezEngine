@@ -16,6 +16,18 @@ public:
   ezInt32 m_iData;
 };
 
+struct PODTest
+{
+  EZ_DECLARE_POD_TYPE();
+
+  PODTest()
+  {
+    m_iData = -1;
+  }
+
+  ezInt32 m_iData;
+};
+
 static const ezUInt32 uiSize = sizeof(ezConstructTest);
 
 EZ_CREATE_SIMPLE_TEST(Memory, MemoryUtils)
@@ -34,16 +46,57 @@ EZ_CREATE_SIMPLE_TEST(Memory, MemoryUtils)
     EZ_TEST_INT(pTest[4].m_iData, 0);
   }
 
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "MakeConstructorFunction")
+  {
+    ezMemoryUtils::ConstructorFunction func = ezMemoryUtils::MakeConstructorFunction<ezConstructTest>();
+    EZ_TEST_BOOL(func != nullptr);
+
+    ezUInt8 uiRawData[uiSize] = { 0 };
+    ezConstructTest* pTest = (ezConstructTest*)(uiRawData);
+
+    (*func)(pTest);
+
+    EZ_TEST_INT(pTest->m_iData, 42);
+
+    func = ezMemoryUtils::MakeConstructorFunction<PODTest>();
+    EZ_TEST_BOOL(func != nullptr);
+
+    func = ezMemoryUtils::MakeConstructorFunction<ezInt32>();
+    EZ_TEST_BOOL(func == nullptr);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "DefaultConstruct")
+  {
+    ezUInt32 uiRawData[5]; // not initialized here
+
+    ezMemoryUtils::DefaultConstruct(uiRawData + 1, 2);
+
+    EZ_TEST_INT(uiRawData[1], 0);
+    EZ_TEST_INT(uiRawData[2], 0);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "MakeDefaultConstructorFunction")
+  {
+    ezMemoryUtils::ConstructorFunction func = ezMemoryUtils::MakeDefaultConstructorFunction<ezInt32>();
+    EZ_TEST_BOOL(func != nullptr);
+
+    ezInt32 iTest = 2;
+
+    (*func)(&iTest);
+
+    EZ_TEST_INT(iTest, 0);
+  }
+
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Construct Copy(Array)")
   {
     ezUInt8 uiRawData[uiSize * 5] = { 0 };
     ezConstructTest* pTest = (ezConstructTest*)(uiRawData);
 
-    ezConstructTest Copy[2];
-    Copy[0].m_iData = 43;
-    Copy[1].m_iData = 44;
+    ezConstructTest copy[2];
+    copy[0].m_iData = 43;
+    copy[1].m_iData = 44;
 
-    ezMemoryUtils::CopyConstruct<ezConstructTest>(pTest + 1, Copy, 2);
+    ezMemoryUtils::CopyConstruct<ezConstructTest>(pTest + 1, copy, 2);
 
     EZ_TEST_INT(pTest[0].m_iData, 0);
     EZ_TEST_INT(pTest[1].m_iData, 43);
@@ -57,16 +110,38 @@ EZ_CREATE_SIMPLE_TEST(Memory, MemoryUtils)
     ezUInt8 uiRawData[uiSize * 5] = { 0 };
     ezConstructTest* pTest = (ezConstructTest*)(uiRawData);
 
-    ezConstructTest Copy;
-    Copy.m_iData = 43;
+    ezConstructTest copy;
+    copy.m_iData = 43;
 
-    ezMemoryUtils::Construct<ezConstructTest>(pTest + 1, Copy, 2);
+    ezMemoryUtils::CopyConstruct<ezConstructTest>(pTest + 1, copy, 2);
 
     EZ_TEST_INT(pTest[0].m_iData, 0);
     EZ_TEST_INT(pTest[1].m_iData, 43);
     EZ_TEST_INT(pTest[2].m_iData, 43);
     EZ_TEST_INT(pTest[3].m_iData, 0);
     EZ_TEST_INT(pTest[4].m_iData, 0);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "MakeCopyConstructorFunction")
+  {
+    ezMemoryUtils::CopyConstructorFunction func = ezMemoryUtils::MakeCopyConstructorFunction<ezConstructTest>();
+    EZ_TEST_BOOL(func != nullptr);
+
+    ezUInt8 uiRawData[uiSize] = { 0 };
+    ezConstructTest* pTest = (ezConstructTest*)(uiRawData);
+
+    ezConstructTest copy;
+    copy.m_iData = 43;
+
+    (*func)(pTest, &copy);
+
+    EZ_TEST_INT(pTest->m_iData, 43);
+
+    func = ezMemoryUtils::MakeCopyConstructorFunction<PODTest>();
+    EZ_TEST_BOOL(func != nullptr);
+
+    func = ezMemoryUtils::MakeCopyConstructorFunction<ezInt32>();
+    EZ_TEST_BOOL(func != nullptr);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Destruct")
@@ -91,14 +166,26 @@ EZ_CREATE_SIMPLE_TEST(Memory, MemoryUtils)
     EZ_TEST_INT(pTest[4].m_iData, 0);
   }
 
-  EZ_TEST_BLOCK(ezTestBlock::Enabled, "DefaultConstruct")
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "MakeDestructorFunction")
   {
-    ezUInt32 uiRawData[5]; // not initialized here
-    
-    ezMemoryUtils::DefaultConstruct(uiRawData + 1, 2);
+    ezMemoryUtils::DestructorFunction func = ezMemoryUtils::MakeDestructorFunction<ezConstructTest>();
+    EZ_TEST_BOOL(func != nullptr);
 
-    EZ_TEST_INT(uiRawData[1], 0);
-    EZ_TEST_INT(uiRawData[2], 0);
+    ezUInt8 uiRawData[uiSize] = { 0 };
+    ezConstructTest* pTest = (ezConstructTest*)(uiRawData);
+
+    ezMemoryUtils::Construct(pTest, 1);
+    EZ_TEST_INT(pTest->m_iData, 42);
+
+    (*func)(pTest);
+
+    EZ_TEST_INT(pTest->m_iData, 23);
+
+    func = ezMemoryUtils::MakeDestructorFunction<PODTest>();
+    EZ_TEST_BOOL(func == nullptr);
+
+    func = ezMemoryUtils::MakeDestructorFunction<ezInt32>();
+    EZ_TEST_BOOL(func == nullptr);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Copy")

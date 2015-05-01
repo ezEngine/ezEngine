@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Foundation/Containers/Set.h>
 #include <Foundation/Reflection/Reflection.h>
 #include <Foundation/IO/JSONWriter.h>
 

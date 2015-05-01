@@ -14,19 +14,39 @@
 class ezMemoryUtils
 {
 public:
+  typedef void(*ConstructorFunction)(void* pDestination);
+  typedef void(*CopyConstructorFunction)(void* pDestination, const void* pSource);
+  typedef void(*DestructorFunction)(void* pDestination);
+
   /// \brief Constructs \a uiCount objects of type T in a raw buffer at \a pDestination.
   ///
   /// You should use 'DefaultConstruct' instead if default construction is needed for trivial types as well.
   template <typename T>
   static void Construct(T* pDestination, size_t uiCount); // [tested]
 
+  /// \brief Returns a function pointer to construct an instance of T. Returns nullptr for trivial types.
+  template <typename T>
+  static ConstructorFunction MakeConstructorFunction(); // [tested]
+
+  /// \brief Default constructs \a uiCount objects of type T in a raw buffer at \a pDestination regardless of T being a class, POD or trivial.
+  template <typename T>
+  static void DefaultConstruct(T* pDestination, size_t uiCount); // [tested]
+
+  /// \brief Returns a function pointer to construct an instance of T. Always returns a constructor function regardless of T being a class, POD or trivial.
+  template <typename T>
+  static ConstructorFunction MakeDefaultConstructorFunction(); // [tested]
+
   /// \brief Constructs \a uiCount objects of type T in a raw buffer at \a pDestination, by creating \a uiCount copies of \a copy.
   template <typename T>
-  static void Construct(T* pDestination, const T& copy, size_t uiCount); // [tested]
+  static void CopyConstruct(T* pDestination, const T& copy, size_t uiCount); // [tested]
 
   /// \brief Constructs \a uiCount objects of type T in a raw buffer at \a pDestination from an existing array of objects at \a pSource by using copy construction.
   template <typename T>
   static void CopyConstruct(T* pDestination, const T* pSource, size_t uiCount); // [tested]
+
+  /// \brief Returns a function pointer to copy construct an instance of T.
+  template <typename T>
+  static CopyConstructorFunction MakeCopyConstructorFunction(); // [tested]
 
   /// brief Constructs \a uiCount objects of type T in a raw buffer at \a pDestionation from an existing array of objects at \a pSource by using move construction.
   template <typename T>
@@ -39,9 +59,9 @@ public:
   template <typename T>
   static void Destruct(T* pDestination, size_t uiCount); // [tested]
 
-  /// \brief Default constructs \a uiCount objects of type T in a raw buffer at \a pDestination regardless of T being a class, POD or trivial.
+  /// \brief Returns a function pointer to destruct an instance of T. Returns nullptr for POD-types.
   template <typename T>
-  static void DefaultConstruct(T* pDestination, size_t uiCount); // [tested]
+  static DestructorFunction MakeDestructorFunction(); // [tested]
 
   /// \brief Copies objects of type T from \a pSource to \a pDestination.
   ///
@@ -112,9 +132,14 @@ private:
   static void Construct(T* pDestination, size_t uiCount, ezTypeIsClass);
 
   template <typename T>
-  static void Construct(T* pDestination, const T& copy, size_t uiCount, ezTypeIsPod);
+  static ConstructorFunction MakeConstructorFunction(ezTypeIsPod);
   template <typename T>
-  static void Construct(T* pDestination, const T& copy, size_t uiCount, ezTypeIsClass);
+  static ConstructorFunction MakeConstructorFunction(ezTypeIsClass);
+
+  template <typename T>
+  static void CopyConstruct(T* pDestination, const T& copy, size_t uiCount, ezTypeIsPod);
+  template <typename T>
+  static void CopyConstruct(T* pDestination, const T& copy, size_t uiCount, ezTypeIsClass);
 
   template <typename T>
   static void CopyConstruct(T* pDestination, const T* pSource, size_t uiCount, ezTypeIsPod);
@@ -132,6 +157,11 @@ private:
   static void Destruct(T* pDestination, size_t uiCount, ezTypeIsPod);
   template <typename T>
   static void Destruct(T* pDestination, size_t uiCount, ezTypeIsClass);
+
+  template <typename T>
+  static DestructorFunction MakeDestructorFunction(ezTypeIsPod);
+  template <typename T>
+  static DestructorFunction MakeDestructorFunction(ezTypeIsClass);
 
   template <typename T>
   static void Copy(T* pDestination, const T* pSource, size_t uiCount, ezTypeIsPod);

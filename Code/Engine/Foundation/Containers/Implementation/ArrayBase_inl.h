@@ -225,7 +225,7 @@ T& ezArrayBase<T, Derived>::ExpandAndGetRef()
 {
   static_cast<Derived*>(this)->Reserve(m_uiCount + 1);
 
-  ezMemoryUtils::DefaultConstruct(m_pElements + m_uiCount, 1);
+  ezMemoryUtils::Construct(m_pElements + m_uiCount, 1);
 
   T& ReturnRef = *(m_pElements + m_uiCount);
 
@@ -239,7 +239,7 @@ void ezArrayBase<T, Derived>::PushBack(const T& value)
 {
   static_cast<Derived*>(this)->Reserve(m_uiCount + 1);
 
-  ezMemoryUtils::Construct(m_pElements + m_uiCount, value, 1);
+  ezMemoryUtils::CopyConstruct(m_pElements + m_uiCount, value, 1);
   m_uiCount++;
 }
 
@@ -248,7 +248,7 @@ void ezArrayBase<T, Derived>::PushBackUnchecked(const T& value)
 {
   EZ_ASSERT_DEV(m_uiCount < m_uiCapacity, "Appending unchecked to array with insufficient capacity.");
 
-  ezMemoryUtils::Construct(m_pElements + m_uiCount, value, 1);
+  ezMemoryUtils::CopyConstruct(m_pElements + m_uiCount, value, 1);
   m_uiCount++;
 }
 

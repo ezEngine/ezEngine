@@ -452,7 +452,7 @@ EZ_FORCE_INLINE void ezDequeBase<T, Construct>::PushBack(const T& element)
   RESERVE(m_uiCount + 1);
   ++m_uiCount;
 
-  ezMemoryUtils::Construct(&ElementAt(m_uiCount - 1), element, 1);
+  ezMemoryUtils::CopyConstruct(&ElementAt(m_uiCount - 1), element, 1);
 }
 
 template <typename T, bool Construct>

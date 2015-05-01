@@ -34,7 +34,7 @@ public:
   virtual ~ezAllocatorBase();
 
   /// \brief Interface, do not use this directly, always use the new/delete macros below
-  virtual void* Allocate(size_t uiSize, size_t uiAlign) = 0;
+  virtual void* Allocate(size_t uiSize, size_t uiAlign, ezMemoryUtils::DestructorFunction destructorFunc = nullptr) = 0;
   virtual void Deallocate(void* ptr) = 0;
   virtual void* Reallocate(void* ptr, size_t uiCurrentSize, size_t uiNewSize, size_t uiAlign);
   virtual size_t AllocatedSize(const void* ptr) = 0;
@@ -49,7 +49,7 @@ private:
 
 /// \brief creates a new instance of type using the given allocator
 #define EZ_NEW(allocator, type) \
-  new ((allocator)->Allocate(sizeof(type), EZ_ALIGNMENT_OF(type))) type
+  new ((allocator)->Allocate(sizeof(type), EZ_ALIGNMENT_OF(type), ezMemoryUtils::MakeDestructorFunction<type>())) type
 
 /// \brief deletes the instance stored in ptr using the given allocator and sets ptr to nullptr
 #define EZ_DELETE(allocator, ptr) \

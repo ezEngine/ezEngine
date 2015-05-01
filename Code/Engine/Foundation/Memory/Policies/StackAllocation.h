@@ -1,9 +1,6 @@
 #pragma once
 
-#include <Foundation/Basics.h>
 #include <Foundation/Containers/HybridArray.h>
-#include <Foundation/Memory/AllocatorBase.h>
-#include <Foundation/Memory/MemoryUtils.h>
 
 namespace ezMemoryPolicies
 {
@@ -15,20 +12,6 @@ namespace ezMemoryPolicies
   /// \see ezAllocator
   class ezStackAllocation
   {
-  private:
-    struct Bucket
-    {
-      ezArrayPtr<ezUInt8> memory;
-      ezUInt8* pLastAllocation;
-    };
-
-    ezAllocatorBase* m_pParent;
-    ezUInt32 m_uiCurrentBucketIndex;
-    ezUInt32 m_uiCurrentBucketSize;
-    ezArrayPtr<ezUInt8> m_currentBucket;
-    ezUInt8* m_pNextAllocation;
-    ezHybridArray<Bucket, 4> m_buckets;
-
   public:
     enum
     {
@@ -104,7 +87,10 @@ namespace ezMemoryPolicies
 
     EZ_FORCE_INLINE void Deallocate(void* ptr)
     {
-      EZ_ASSERT_DEV(ptr >= m_currentBucket.GetPtr() && ptr <= m_pNextAllocation, "Invalid free");
+      // ptr is not on top of the stack, can't deallocate now
+      if (ptr < m_currentBucket.GetPtr() || ptr > m_pNextAllocation)
+        return;
+
       // does this empty the current bucket?
       if (ptr == m_currentBucket.GetPtr())
       {
@@ -136,5 +122,19 @@ namespace ezMemoryPolicies
     }
 
     EZ_FORCE_INLINE ezAllocatorBase* GetParent() const { return m_pParent; }
+
+  private:
+    struct Bucket
+    {
+      ezArrayPtr<ezUInt8> memory;
+      ezUInt8* pLastAllocation;
+    };
+
+    ezAllocatorBase* m_pParent;
+    ezUInt32 m_uiCurrentBucketIndex;
+    ezUInt32 m_uiCurrentBucketSize;
+    ezArrayPtr<ezUInt8> m_currentBucket;
+    ezUInt8* m_pNextAllocation;
+    ezHybridArray<Bucket, 4> m_buckets;
   };
 }

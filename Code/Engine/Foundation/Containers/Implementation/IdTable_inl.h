@@ -134,7 +134,7 @@ void ezIdTableBase<IdType, ValueType>::operator= (const ezIdTableBase<IdType, Va
     entry.id = rhs.m_pEntries[i].id;
     if (entry.id.m_InstanceIndex == i)
     {
-      ezMemoryUtils::Construct(&entry.value, rhs.m_pEntries[i].value, 1);
+      ezMemoryUtils::CopyConstruct(&entry.value, rhs.m_pEntries[i].value, 1);
     }
   }
 
@@ -196,7 +196,7 @@ IdType ezIdTableBase<IdType, ValueType>::Insert(const ValueType& value)
 
   m_uiFreelistDequeue = entry.id.m_InstanceIndex;
   entry.id.m_InstanceIndex = uiNewIndex;
-  ezMemoryUtils::Construct(&entry.value, value, 1);
+  ezMemoryUtils::CopyConstruct(&entry.value, value, 1);
 
   ++m_uiCount;
 

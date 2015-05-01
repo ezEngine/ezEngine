@@ -4,8 +4,6 @@
 
 #include <Foundation/Reflection/Implementation/StaticRTTI.h>
 #include <Foundation/IO/SerializationContext.h>
-#include <Foundation/Containers/Set.h>
-#include <Foundation/Containers/Map.h>
 
 /// \brief This needs to be put into the class declaration of EVERY dynamically reflectable class.
 ///

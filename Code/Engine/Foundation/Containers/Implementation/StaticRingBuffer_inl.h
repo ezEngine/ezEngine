@@ -61,7 +61,7 @@ void ezStaticRingBuffer<T, C>::PushBack(const T& element)
 
   const ezUInt32 uiLastElement = (m_uiFirstElement + m_uiCount) % C;
 
-  ezMemoryUtils::Construct(&m_pElements[uiLastElement], element, 1);
+  ezMemoryUtils::CopyConstruct(&m_pElements[uiLastElement], element, 1);
   ++m_uiCount;
 }
 

@@ -164,7 +164,7 @@ EZ_CREATE_SIMPLE_TEST(Memory, Allocator)
     for (size_t i = 0; i < EZ_ARRAY_SIZE(blocks); i++)
     {
       size_t size = i + 1;
-      blocks[i] = allocator.Allocate(size, sizeof(void*));
+      blocks[i] = allocator.Allocate(size, sizeof(void*), nullptr);
       EZ_TEST_BOOL(blocks[i] != nullptr);
       if (i > 0)
       {
@@ -181,7 +181,7 @@ EZ_CREATE_SIMPLE_TEST(Memory, Allocator)
     void* allocs[EZ_ARRAY_SIZE(sizes)];
     for (size_t i = 0; i < EZ_ARRAY_SIZE(sizes); i++)
     {
-      allocs[i] = allocator.Allocate(sizes[i], sizeof(void*));
+      allocs[i] = allocator.Allocate(sizes[i], sizeof(void*), nullptr);
       EZ_TEST_BOOL(allocs[i] != nullptr);
     }
     for (size_t i = EZ_ARRAY_SIZE(sizes); i--;)
@@ -191,12 +191,43 @@ EZ_CREATE_SIMPLE_TEST(Memory, Allocator)
 
     for (size_t i = 0; i < EZ_ARRAY_SIZE(sizes); i++)
     {
-        allocs[i] = allocator.Allocate(sizes[i], sizeof(void*));
+        allocs[i] = allocator.Allocate(sizes[i], sizeof(void*), nullptr);
         EZ_TEST_BOOL(allocs[i] != nullptr);
     }
     allocator.Reset();
-    allocs[0] = allocator.Allocate(8, sizeof(void*));
+    allocs[0] = allocator.Allocate(8, sizeof(void*), nullptr);
     EZ_TEST_BOOL(allocs[0] < allocs[1]);
     allocator.Deallocate(allocs[0]);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "StackAllocator with non-PODs")
+  {
+    ezStackAllocator<> allocator("TestStackAllocator", ezFoundation::GetDefaultAllocator());
+
+    ezDynamicArray<ezConstructionCounter*> counters;
+    counters.Reserve(100);
+
+    for (ezUInt32 i = 0; i < 100; ++i)
+    {
+      counters.PushBack(EZ_NEW(&allocator, ezConstructionCounter)());
+    }
+
+    for (ezUInt32 i = 0; i < 100; ++i)
+    {
+      EZ_NEW(&allocator, NonAlignedVector)();
+    }
+
+    EZ_TEST_BOOL(ezConstructionCounter::HasConstructed(100));
+
+    for (ezUInt32 i = 0; i < 50; ++i)
+    {
+      EZ_DELETE(&allocator, counters[i * 2]);
+    }
+
+    EZ_TEST_BOOL(ezConstructionCounter::HasDestructed(50));
+
+    allocator.Reset();
+
+    EZ_TEST_BOOL(ezConstructionCounter::HasDestructed(50));
   }
 }

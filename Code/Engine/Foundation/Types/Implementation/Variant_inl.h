@@ -290,7 +290,7 @@ template <typename StorageType, typename T>
 EZ_FORCE_INLINE void ezVariant::Store(const T& value, ezTraitInt<0>)
 {
   EZ_CHECK_AT_COMPILETIME_MSG(ezIsPodType<T>::value, "in place data needs to be POD");
-  ezMemoryUtils::Construct(reinterpret_cast<T*>(&m_Data), value, 1);
+  ezMemoryUtils::CopyConstruct(reinterpret_cast<T*>(&m_Data), value, 1);
   m_bIsShared = false;
 }
 

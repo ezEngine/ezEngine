@@ -1,8 +1,8 @@
 #pragma once
 
-#include <Foundation/Basics.h>
-#include <Foundation/IO/ChunkStream.h>
+#include <Foundation/Containers/Set.h>
 #include <Foundation/Reflection/Reflection.h>
+#include <Foundation/IO/ChunkStream.h>
 #include <Foundation/IO/MemoryStream.h>
 #include <Foundation/Logging/Log.h>
 

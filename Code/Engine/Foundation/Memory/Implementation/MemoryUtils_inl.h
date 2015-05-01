@@ -13,9 +13,38 @@ EZ_FORCE_INLINE void ezMemoryUtils::Construct(T* pDestination, size_t uiCount)
 }
 
 template <typename T>
-EZ_FORCE_INLINE void ezMemoryUtils::Construct(T* pDestination, const T& copy, size_t uiCount)
+EZ_FORCE_INLINE ezMemoryUtils::ConstructorFunction ezMemoryUtils::MakeConstructorFunction()
 {
-  Construct(pDestination, copy, uiCount, ezIsPodType<T>());
+  return MakeConstructorFunction<T>(ezTraitInt<ezIsPodType<T>::value && std::is_trivial<T>::value>());
+}
+
+template <typename T>
+EZ_FORCE_INLINE void ezMemoryUtils::DefaultConstruct(T* pDestination, size_t uiCount)
+{
+  for (size_t i = 0; i < uiCount; i++)
+  {
+    ::new (pDestination + i) T();
+  }
+}
+
+template <typename T>
+EZ_FORCE_INLINE ezMemoryUtils::ConstructorFunction ezMemoryUtils::MakeDefaultConstructorFunction()
+{
+  struct Helper
+  {
+    static void DefaultConstruct(void* pDestination)
+    {
+      ezMemoryUtils::DefaultConstruct(static_cast<T*>(pDestination), 1);
+    }
+  };
+
+  return &Helper::DefaultConstruct;
+}
+
+template <typename T>
+EZ_FORCE_INLINE void ezMemoryUtils::CopyConstruct(T* pDestination, const T& copy, size_t uiCount)
+{
+  CopyConstruct(pDestination, copy, uiCount, ezIsPodType<T>());
 }
 
 template <typename T>
@@ -23,6 +52,20 @@ EZ_FORCE_INLINE void ezMemoryUtils::CopyConstruct(T* pDestination, const T* pSou
 {
   EZ_ASSERT_DEV(pDestination < pSource || pSource + uiCount <= pDestination, "Memory regions must not overlap when using CopyConstruct.");
   CopyConstruct(pDestination, pSource, uiCount, ezIsPodType<T>());
+}
+
+template <typename T>
+EZ_FORCE_INLINE ezMemoryUtils::CopyConstructorFunction ezMemoryUtils::MakeCopyConstructorFunction()
+{
+  struct Helper
+  {
+    static void CopyConstruct(void* pDestination, const void* pSource)
+    {
+      ezMemoryUtils::CopyConstruct(static_cast<T*>(pDestination), *static_cast<const T*>(pSource), 1);
+    }
+  };
+
+  return &Helper::CopyConstruct;
 }
 
 template <typename T>
@@ -45,12 +88,9 @@ EZ_FORCE_INLINE void ezMemoryUtils::Destruct(T* pDestination, size_t uiCount)
 }
 
 template <typename T>
-EZ_FORCE_INLINE void ezMemoryUtils::DefaultConstruct(T* pDestination, size_t uiCount)
+EZ_FORCE_INLINE ezMemoryUtils::DestructorFunction ezMemoryUtils::MakeDestructorFunction()
 {
-  for (size_t i = 0; i < uiCount; i++)
-  {
-    ::new (pDestination + i) T();
-  }
+  return MakeDestructorFunction<T>(ezIsPodType<T>());
 }
 
 template <typename T>
@@ -126,7 +166,7 @@ EZ_FORCE_INLINE bool ezMemoryUtils::IsAligned(const T* ptr, size_t uiAlignment)
 template <typename T>
 EZ_FORCE_INLINE void ezMemoryUtils::Construct(T* pDestination, size_t uiCount, ezTypeIsPod)
 {
-  EZ_CHECK_AT_COMPILETIME_MSG(std::is_trivial<T>::value, "This method should only be called for 'real' pod types");
+  EZ_CHECK_AT_COMPILETIME_MSG(std::is_trivial<T>::value, "This method should only be called for 'real' pod aka trivial types");
 }
 
 template <typename T>
@@ -141,7 +181,30 @@ EZ_FORCE_INLINE void ezMemoryUtils::Construct(T* pDestination, size_t uiCount, e
 }
 
 template <typename T>
-EZ_FORCE_INLINE void ezMemoryUtils::Construct(T* pDestination, const T& copy, size_t uiCount, ezTypeIsPod)
+EZ_FORCE_INLINE ezMemoryUtils::ConstructorFunction ezMemoryUtils::MakeConstructorFunction(ezTypeIsPod)
+{
+  EZ_CHECK_AT_COMPILETIME_MSG(std::is_trivial<T>::value, "This method should only be called for 'real' pod aka trivial types");
+  return nullptr;
+}
+
+template <typename T>
+EZ_FORCE_INLINE ezMemoryUtils::ConstructorFunction ezMemoryUtils::MakeConstructorFunction(ezTypeIsClass)
+{
+  EZ_CHECK_CLASS(T);
+
+  struct Helper
+  {
+    static void Construct(void* pDestination)
+    {
+      ezMemoryUtils::Construct(static_cast<T*>(pDestination), 1, ezTypeIsClass());
+    }
+  };
+
+  return &Helper::Construct;
+}
+
+template <typename T>
+EZ_FORCE_INLINE void ezMemoryUtils::CopyConstruct(T* pDestination, const T& copy, size_t uiCount, ezTypeIsPod)
 {
   for (size_t i = 0; i < uiCount; i++)
   {
@@ -150,7 +213,7 @@ EZ_FORCE_INLINE void ezMemoryUtils::Construct(T* pDestination, const T& copy, si
 }
 
 template <typename T>
-EZ_FORCE_INLINE void ezMemoryUtils::Construct(T* pDestination, const T& copy, size_t uiCount, ezTypeIsClass)
+EZ_FORCE_INLINE void ezMemoryUtils::CopyConstruct(T* pDestination, const T& copy, size_t uiCount, ezTypeIsClass)
 {
   EZ_CHECK_CLASS(T);
 
@@ -216,6 +279,28 @@ EZ_FORCE_INLINE void ezMemoryUtils::Destruct(T* pDestination, size_t uiCount, ez
   {
     pDestination[i].~T();
   }
+}
+
+template <typename T>
+EZ_FORCE_INLINE ezMemoryUtils::DestructorFunction ezMemoryUtils::MakeDestructorFunction(ezTypeIsPod)
+{
+  return nullptr;
+}
+
+template <typename T>
+EZ_FORCE_INLINE ezMemoryUtils::DestructorFunction ezMemoryUtils::MakeDestructorFunction(ezTypeIsClass)
+{
+  EZ_CHECK_CLASS(T);
+
+  struct Helper
+  {
+    static void Destruct(void* pDestination)
+    {
+      ezMemoryUtils::Destruct(static_cast<T*>(pDestination), 1, ezTypeIsClass());
+    }
+  };
+
+  return &Helper::Destruct;
 }
 
 template <typename T>

@@ -3,7 +3,7 @@
 #include <Foundation/Basics.h>
 #include <QDockWidget>
 #include <Tools/Inspector/ui_ResourceWidget.h>
-#include <Foundation/Containers/Map.h>
+#include <Foundation/Containers/Set.h>
 #include <Foundation/Strings/String.h>
 #include <Foundation/Time/Time.h>
 #include <Core/ResourceManager/Resource.h>
