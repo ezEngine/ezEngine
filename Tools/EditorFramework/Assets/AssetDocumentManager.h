@@ -14,6 +14,8 @@ public:
 
   virtual ezString GetResourceTypeExtension() const = 0;
 
+  virtual void QuerySupportedAssetTypes(ezSet<ezString>& inout_AssetTypeNames) const = 0;
+
   static bool IsResourceUpToDate(ezUInt64 uiHash, const char* szResourceFile);
   ezString GenerateResourceFileName(const char* szDocumentPath, const char* szPlatform) const;
   static ezString GenerateResourceThumbnailPath(const char* szDocumentPath);

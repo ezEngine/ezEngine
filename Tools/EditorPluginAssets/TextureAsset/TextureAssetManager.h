@@ -13,6 +13,13 @@ public:
 
   virtual ezString GetResourceTypeExtension() const override { return "ezTex"; }
 
+  virtual void QuerySupportedAssetTypes(ezSet<ezString>& inout_AssetTypeNames) const override
+  {
+    inout_AssetTypeNames.Insert("Texture 2D");
+    inout_AssetTypeNames.Insert("Texture 3D");
+    inout_AssetTypeNames.Insert("Texture Cube");
+  }
+
 private:
   void OnDocumentManagerEvent(const ezDocumentManagerBase::Event& e);
 

@@ -1,7 +1,9 @@
 #include <PCH.h>
 #include <EditorFramework/Assets/AssetBrowser.moc.h>
+#include <EditorFramework/Assets/AssetDocumentManager.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
+#include <GuiFoundation/Basics.h>
 #include <QVBoxLayout>
 #include <QScrollBar>
 
@@ -14,6 +16,9 @@ ezAssetBrowser::ezAssetBrowser(QWidget* parent) : QWidget(parent)
   ListAssets->setModel(m_pModel);
   ListAssets->SetIconScale(IconSizeSlider->value());
   on_ButtonIconMode_clicked();
+
+  splitter->setStretchFactor(0, 0);
+  splitter->setStretchFactor(1, 1);
 
   //connect(ListAssets, SIGNAL(ViewZoomed(ezInt32 iDelta)), this, SLOT());
 #if (QT_VERSION < QT_VERSION_CHECK(5, 3, 0))
@@ -35,6 +40,38 @@ ezAssetBrowser::ezAssetBrowser(QWidget* parent) : QWidget(parent)
     pToolBar->SetActionContext(context);
     pToolBar->setObjectName("TextureAssetWindowToolBar");
     ToolBarLayout->insertWidget(0, pToolBar);
+  }
+
+  EZ_VERIFY(connect(m_pModel, SIGNAL(TextFilterChanged()), this, SLOT(OnTextFilterChanged())) != nullptr, "signal/slot connection failed");
+
+  ezSet<ezString> KnownAssetTypes;
+
+  for (auto docman : ezDocumentManagerBase::GetAllDocumentManagers())
+  {
+    if (!docman->GetDynamicRTTI()->IsDerivedFrom<ezAssetDocumentManager>())
+      continue;
+
+    const ezAssetDocumentManager* pAssetDocMan = static_cast<const ezAssetDocumentManager*>(docman);
+
+    pAssetDocMan->QuerySupportedAssetTypes(KnownAssetTypes);
+  }
+
+  {
+    QtScopedBlockSignals block(ListTypeFilter);
+
+    ezStringBuilder sIconName;
+
+    for (const auto& key : KnownAssetTypes)
+    {
+      sIconName.Set(":/AssetIcons/", key);
+      sIconName.ReplaceAll(" ", "_");
+
+      QListWidgetItem* pItem = new QListWidgetItem(QIcon(QString::fromUtf8(sIconName.GetData())), QString::fromUtf8(key.GetData()));
+      pItem->setFlags(Qt::ItemFlag::ItemIsEnabled | Qt::ItemFlag::ItemIsSelectable | Qt::ItemFlag::ItemIsUserCheckable);
+      pItem->setCheckState(Qt::CheckState::Unchecked);
+
+      ListTypeFilter->addItem(pItem);
+    }
   }
 }
 
@@ -87,3 +124,19 @@ void ezAssetBrowser::on_ListAssets_ViewZoomed(ezInt32 iIconSizePercentage)
   QtScopedBlockSignals block(IconSizeSlider);
   IconSizeSlider->setValue(iIconSizePercentage);
 }
+
+void ezAssetBrowser::OnTextFilterChanged()
+{
+  LineSearchFilter->setText(QString::fromUtf8(m_pModel->GetTextFilter()));
+}
+
+void ezAssetBrowser::on_LineSearchFilter_textEdited(const QString& text)
+{
+  m_pModel->SetTextFilter(text.toUtf8().data());
+}
+
+void ezAssetBrowser::on_ButtonClearSearch_clicked()
+{
+  m_pModel->SetTextFilter("");
+}
+

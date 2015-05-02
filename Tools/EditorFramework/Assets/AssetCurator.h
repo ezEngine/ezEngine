@@ -37,7 +37,8 @@ public:
 
     State m_State;
     ezAssetDocumentManager* m_pManager;
-    ezString m_sPath;
+    ezString m_sAbsolutePath;
+    ezString m_sRelativePath;
     ezAssetDocumentInfo m_Info;
   };
 

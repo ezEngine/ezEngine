@@ -153,7 +153,7 @@ void ezAssetCurator::RemoveStaleFileInfos()
       {
         AssetInfo* pCache = m_KnownAssets[it.Value().m_AssetGuid];
 
-        if (it.Key() == pCache->m_sPath)
+        if (it.Key() == pCache->m_sAbsolutePath)
         {
           m_KnownAssets.Remove(pCache->m_Info.m_DocumentID);
           EZ_DEFAULT_DELETE(pCache);
@@ -293,7 +293,7 @@ ezResult ezAssetCurator::WriteAssetTable(const char* szDataDirectory)
 
   for (auto it = m_KnownAssets.GetIterator(); it.IsValid(); ++it)
   {
-    sTemp = it.Value()->m_sPath;
+    sTemp = it.Value()->m_sAbsolutePath;
 
     // ignore all assets that are not located in this data directory
     if (!sTemp.IsPathBelowFolder(sDataDir))
@@ -319,17 +319,17 @@ void ezAssetCurator::TransformAllAssets()
     if (progress.WasProgressBarCanceled())
       break;
 
-    progress.WorkingOnNextItem(ezPathUtils::GetFileNameAndExtension(it.Value()->m_sPath).GetData());
+    progress.WorkingOnNextItem(ezPathUtils::GetFileNameAndExtension(it.Value()->m_sRelativePath).GetData());
 
-    ezDocumentBase* pDoc = ezEditorApp::GetInstance()->OpenDocumentImmediate(it.Value()->m_sPath, false);
+    ezDocumentBase* pDoc = ezEditorApp::GetInstance()->OpenDocumentImmediate(it.Value()->m_sAbsolutePath, false);
 
     if (pDoc == nullptr)
     {
-      ezLog::Error("Could not open asset document '%s'", it.Value()->m_sPath.GetData());
+      ezLog::Error("Could not open asset document '%s'", it.Value()->m_sRelativePath.GetData());
       continue;
     }
 
-    EZ_ASSERT_DEV(pDoc->GetDynamicRTTI()->IsDerivedFrom<ezAssetDocument>(), "Asset document does not derive from correct base class ('%s')", it.Value()->m_sPath.GetData());
+    EZ_ASSERT_DEV(pDoc->GetDynamicRTTI()->IsDerivedFrom<ezAssetDocument>(), "Asset document does not derive from correct base class ('%s')", it.Value()->m_sRelativePath.GetData());
 
     ezAssetDocument* pAsset = static_cast<ezAssetDocument*>(pDoc);
     pAsset->TransformAsset();
@@ -456,7 +456,16 @@ ezResult ezAssetCurator::UpdateAssetInfo(const char* szAbsFilePath, ezAssetCurat
     stat.m_Timestamp = fs.m_LastModificationTime;
   }
 
-  assetInfo.m_sPath = szAbsFilePath;
+  // update the paths
+  {
+    const ezStringBuilder sDataDir = GetInstance()->FindDataDirectoryForAsset(szAbsFilePath);
+    ezStringBuilder sRelPath = szAbsFilePath;
+    sRelPath.MakeRelativeTo(sDataDir);
+
+    assetInfo.m_sRelativePath = sRelPath;
+    assetInfo.m_sAbsolutePath = szAbsFilePath;
+  }
+
   if (assetInfo.m_State == AssetInfo::State::ToBeDeleted)
   {
     assetInfo.m_State = AssetInfo::State::New;

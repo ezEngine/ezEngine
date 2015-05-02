@@ -368,7 +368,7 @@ private:
   friend class ezHybridStringBase;
 
   ezUInt32 m_uiCharacterCount;
-  ezHybridArray<char, 256> m_Data;
+  ezHybridArray<char, 128> m_Data;
 };
 
 #include <Foundation/Strings/Implementation/StringBuilder_inl.h>

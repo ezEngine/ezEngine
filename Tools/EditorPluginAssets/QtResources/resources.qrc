@@ -1,0 +1,8 @@
+<RCC>
+  <qresource prefix="AssetIcons">
+	<file>Texture_2D.png</file>
+	<file>Texture_3D.png</file>
+	<file>Texture_Cube.png</file>
+  </qresource>
+</RCC>
+

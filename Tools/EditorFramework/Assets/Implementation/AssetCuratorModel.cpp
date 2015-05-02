@@ -34,6 +34,21 @@ void ezAssetCuratorModel::AssetCuratorEventHandler(const ezAssetCurator::Event& 
   }
 }
 
+void ezAssetCuratorModel::SetTextFilter(const char* szText)
+{
+  ezStringBuilder sCleanText = szText;
+  sCleanText.MakeCleanPath();
+
+  if (m_sTextFilter == sCleanText)
+    return;
+
+  m_sTextFilter = sCleanText;
+
+  resetModel();
+
+  emit TextFilterChanged();
+}
+
 void ezAssetCuratorModel::resetModel()
 {
   beginResetModel();
@@ -45,6 +60,13 @@ void ezAssetCuratorModel::resetModel()
 
   for (auto it = AllAssets.GetIterator(); it.IsValid(); ++it)
   {
+    if (!m_sTextFilter.IsEmpty())
+    {
+      // if the string is not found in the path, ignore this asset
+      if (it.Value()->m_sRelativePath.FindSubString_NoCase(m_sTextFilter) == nullptr)
+        continue;
+    }
+
     m_AssetsToDisplay.PushBack(it.Key());
   }
 
@@ -88,16 +110,19 @@ QVariant ezAssetCuratorModel::data(const QModelIndex& index, int role) const
   {
   case Qt::DisplayRole:
     {
-      ezStringBuilder sFilename = ezPathUtils::GetFileName(pAssetInfo->m_sPath);
+      ezStringBuilder sFilename = ezPathUtils::GetFileName(pAssetInfo->m_sRelativePath);
       return QString::fromUtf8(sFilename);
     }
     break;
+
+  case Qt::ToolTipRole:
+    return QString::fromUtf8(pAssetInfo->m_sRelativePath.GetData());
 
   case Qt::DecorationRole:
     {
       if (m_bIconMode)
       {
-        ezStringBuilder sThumbnailPath = ezAssetDocumentManager::GenerateResourceThumbnailPath(pAssetInfo->m_sPath);
+        ezStringBuilder sThumbnailPath = ezAssetDocumentManager::GenerateResourceThumbnailPath(pAssetInfo->m_sAbsolutePath);
 
         ezUInt64 uiUserData1, uiUserData2;
         AssetGuid.GetValues(uiUserData1, uiUserData2);
@@ -111,7 +136,7 @@ QVariant ezAssetCuratorModel::data(const QModelIndex& index, int role) const
 
   case Qt::UserRole + 1:
     {
-      return QString::fromUtf8(pAssetInfo->m_sPath);
+      return QString::fromUtf8(pAssetInfo->m_sAbsolutePath);
     }
     break;
   }

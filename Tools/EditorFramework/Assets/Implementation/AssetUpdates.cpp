@@ -156,7 +156,7 @@ void ezAssetCurator::QueueFilesForHashing()
 
   for (auto it = m_KnownAssets.GetIterator(); it.IsValid(); ++it)
   {
-    QueueFileForHashing(it.Value()->m_sPath);
+    QueueFileForHashing(it.Value()->m_sAbsolutePath);
 
     for (const auto& dep : it.Value()->m_Info.m_FileDependencies)
     {
@@ -175,13 +175,13 @@ ezUInt64 ezAssetCurator::GetAssetDependencyHash(ezUuid assetGuid)
   if (!m_KnownAssets.TryGetValue(assetGuid, pInfo))
     return 0;
 
-  FileStatus& status = m_ReferencedFiles[pInfo->m_sPath];
+  FileStatus& status = m_ReferencedFiles[pInfo->m_sAbsolutePath];
 
   ezFileStats stat;
 
   {
     ezFileReader file;
-    if (file.Open(pInfo->m_sPath).Failed())
+    if (file.Open(pInfo->m_sAbsolutePath).Failed())
       return 0;
 
     if (ezOSFile::GetFileStats(file.GetFilePathAbsolute(), stat).Failed())
@@ -191,7 +191,7 @@ ezUInt64 ezAssetCurator::GetAssetDependencyHash(ezUuid assetGuid)
   if (!stat.m_LastModificationTime.IsEqual(status.m_Timestamp, ezTimestamp::CompareMode::Identical))
   {
     // Update asset
-    UpdateAssetInfo(pInfo->m_sPath, status, *pInfo);
+    UpdateAssetInfo(pInfo->m_sAbsolutePath, status, *pInfo);
   }
 
   ezUInt64 uiHashResult = pInfo->m_Info.m_uiSettingsHash;

@@ -16,6 +16,7 @@ public:
 
   virtual const char* GetDocumentTypeDisplayString() const override { return "Texture Asset"; }
 
+
 protected:
   virtual void Initialize() override;
   virtual ezStatus InternalLoadDocument() override;
