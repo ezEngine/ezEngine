@@ -16,7 +16,8 @@ public:
   void resetModel();
   void SetIconMode(bool bIconMode) { m_bIconMode = bIconMode; }
 
-public slots:
+private slots:
+  void ThumbnailLoaded(QString sPath, QModelIndex index, QVariant UserData1, QVariant UserData2);
 
 public: //QAbstractItemModel interface
   virtual QVariant data(const QModelIndex& index, int role) const override;

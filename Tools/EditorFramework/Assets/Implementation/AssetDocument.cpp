@@ -3,6 +3,7 @@
 #include <ToolsFoundation/Project/ToolsProject.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <EditorFramework/Assets/AssetCurator.h>
+#include <GuiFoundation/UIServices/ImageCache.moc.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/Logging/Log.h>
 #include <EditorFramework/Assets/AssetDocumentManager.h>
@@ -206,5 +207,7 @@ void ezAssetDocument::SaveThumbnail(const ezImage& img)
     ezLog::Error("Could not save asset thumbnail: '%s'", sResourceFile.GetData());
     return;
   }
+
+  QtImageCache::InvalidateCache(sResourceFile);
 }
 

@@ -4,6 +4,7 @@
 #include <QApplication>
 #include <QSettings>
 #include <QtNetwork/QHostInfo>
+#include <GuiFoundation/UIServices/ImageCache.moc.h>
 
 static ezEditorApp g_EditorApp;
 

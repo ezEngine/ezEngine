@@ -2,7 +2,9 @@
 #include <EditorFramework/Assets/AssetCuratorModel.moc.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/Assets/AssetDocumentManager.h>
-#include <QPixmapCache>
+#include <GuiFoundation/UIServices/ImageCache.moc.h>
+#include <Foundation/Types/Uuid.h>
+#include <QPixmap>
 
 ////////////////////////////////////////////////////////////////////////
 // ezAssetCuratorModel public functions
@@ -53,6 +55,21 @@ void ezAssetCuratorModel::resetModel()
 // ezAssetCuratorModel QAbstractItemModel functions
 ////////////////////////////////////////////////////////////////////////
 
+void ezAssetCuratorModel::ThumbnailLoaded(QString sPath, QModelIndex index, QVariant UserData1, QVariant UserData2)
+{
+  const ezUuid guid(UserData1.toULongLong(), UserData2.toULongLong());
+
+  for (ezUInt32 i = 0; i < m_AssetsToDisplay.GetCount(); ++i)
+  {
+    if (m_AssetsToDisplay[i] == guid)
+    {
+      QModelIndex idx = createIndex(i, 0);
+      emit dataChanged(idx, idx);
+      return;
+    }
+  }
+}
+
 QVariant ezAssetCuratorModel::data(const QModelIndex& index, int role) const
 {
   if (!index.isValid() || index.column() != 0)
@@ -82,20 +99,10 @@ QVariant ezAssetCuratorModel::data(const QModelIndex& index, int role) const
       {
         ezStringBuilder sThumbnailPath = ezAssetDocumentManager::GenerateResourceThumbnailPath(pAssetInfo->m_sPath);
 
-        QString sQtThumbnailPath = QString::fromUtf8(sThumbnailPath.GetData());
-        
-        QPixmap* pThumbnailPixmap = QPixmapCache::find(sQtThumbnailPath);
+        ezUInt64 uiUserData1, uiUserData2;
+        AssetGuid.GetValues(uiUserData1, uiUserData2);
 
-        if (pThumbnailPixmap == nullptr)
-        {
-          QImage img(sQtThumbnailPath);
-          QPixmap PixmapThumbnail = QPixmap::fromImage(img);
-          QPixmapCache::insert(sQtThumbnailPath, PixmapThumbnail);
-
-          pThumbnailPixmap = QPixmapCache::find(sQtThumbnailPath);
-        }
-
-        EZ_ASSERT_DEV(pThumbnailPixmap != nullptr, "Pixmap should now be valid");
+        QPixmap* pThumbnailPixmap = QtImageCache::QueryPixmap(sThumbnailPath, this, SLOT(ThumbnailLoaded(QString, QModelIndex, QVariant, QVariant)), index, QVariant(uiUserData1), QVariant(uiUserData2));
 
         return *pThumbnailPixmap;
       }

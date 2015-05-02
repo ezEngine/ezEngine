@@ -3,6 +3,7 @@
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <GuiFoundation/Dialogs/ModifiedDocumentsDlg.moc.h>
 #include <GuiFoundation/ContainerWindow/ContainerWindow.moc.h>
+#include <GuiFoundation/UIServices/ImageCache.moc.h>
 #include <EditorFramework/EngineProcess/EngineProcessConnection.h>
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
@@ -186,6 +187,9 @@ void ezEditorApp::ShutdownEditor()
 
   UnloadPlugins();
 
+  // make sure no one tries to load any further images in parallel
+  QtImageCache::StopRequestProcessing(true);
+
   delete s_pQtApplication;
 
   m_LogHTML.EndLog();
@@ -254,7 +258,13 @@ void ezEditorApp::SlotQueuedOpenDocument(QString sProject)
 
 void ezEditorApp::SlotQueuedCloseProject()
 {
+  // purge the image loading queue when a project is closed, but keep the existing cache
+  QtImageCache::StopRequestProcessing(false);
+
   ezToolsProject::CloseProject();
+
+  // enable image loading again, the queue is purged now
+  QtImageCache::EnableRequestProcessing();
 }
 
 void ezEditorApp::SlotTimedUpdate()

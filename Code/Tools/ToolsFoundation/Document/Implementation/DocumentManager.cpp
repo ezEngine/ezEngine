@@ -228,6 +228,9 @@ void ezDocumentManagerBase::CloseDocument(ezDocumentBase* pDocument)
 {
   EZ_ASSERT_DEV(pDocument != nullptr, "Invalid document pointer");
 
+  if (!m_AllDocuments.Remove(pDocument))
+    return;
+
   pDocument->BroadcastSaveDocumentMetaState();
 
   Event e;
@@ -235,8 +238,6 @@ void ezDocumentManagerBase::CloseDocument(ezDocumentBase* pDocument)
   e.m_Type = Event::Type::DocumentClosing;
   s_Events.Broadcast(e);
   
-  EZ_VERIFY(m_AllDocuments.Remove(pDocument), "Document was not found in this document manager");
-
   delete pDocument;
 
   e.m_pDocument = nullptr;
