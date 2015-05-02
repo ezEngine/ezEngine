@@ -140,12 +140,12 @@ public:
   using const_reverse_pointer_iterator<T>::operator+;
   using const_reverse_pointer_iterator<T>::operator-;
 
-  EZ_FORCE_INLINE reverse_pointer_iterator operator+(ptrdiff_t rhs) const { return reverse_pointer_iterator(m_ptr - rhs); }
-  EZ_FORCE_INLINE reverse_pointer_iterator operator-(ptrdiff_t rhs) const { return reverse_pointer_iterator(m_ptr + rhs); }
+  EZ_FORCE_INLINE reverse_pointer_iterator operator+(ptrdiff_t rhs) const { return reverse_pointer_iterator(this->m_ptr - rhs); }
+  EZ_FORCE_INLINE reverse_pointer_iterator operator-(ptrdiff_t rhs) const { return reverse_pointer_iterator(this->m_ptr + rhs); }
 
   using const_reverse_pointer_iterator<T>::operator*;
-  EZ_FORCE_INLINE T& operator*() { return *m_ptr; }
+  EZ_FORCE_INLINE T& operator*() { return *(this->m_ptr); }
   using const_reverse_pointer_iterator<T>::operator->;
-  EZ_FORCE_INLINE T* operator->() { return m_ptr; }
+  EZ_FORCE_INLINE T* operator->() { return this->m_ptr; }
 
 };
