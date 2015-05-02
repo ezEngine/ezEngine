@@ -171,7 +171,10 @@ QSize QtIconViewDelegate::ItemSize() const
 QFont QtIconViewDelegate::GetFont() const
 {
   QFont font = QApplication::font();
-  font.setPointSizeF(font.pointSizeF() + font.pointSizeF() * m_iIconSizePercentage / 100.0f);
+
+  float fScaleFactor = ezMath::Clamp((1.0f + (m_iIconSizePercentage / 100.0f)) * 0.75f, 0.75f, 1.25f);
+
+  font.setPointSizeF(font.pointSizeF() * fScaleFactor);
   return font;
 }
 

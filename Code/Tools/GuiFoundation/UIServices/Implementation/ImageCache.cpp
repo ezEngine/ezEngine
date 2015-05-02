@@ -154,7 +154,7 @@ void QtImageCache::LoadingTask(QString sPath, QModelIndex index, QVariant UserDa
   QImage Image(sPath);
 
   /// \todo Remove this Sleep (needed for testing)
-  Sleep(25);
+  ezThreadUtils::Sleep(25);
 
   EZ_LOCK(s_Mutex);
 

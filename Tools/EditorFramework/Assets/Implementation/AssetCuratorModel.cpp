@@ -88,7 +88,7 @@ QVariant ezAssetCuratorModel::data(const QModelIndex& index, int role) const
   {
   case Qt::DisplayRole:
     {
-      ezStringBuilder sFilename = ezPathUtils::GetFileNameAndExtension(pAssetInfo->m_sPath);
+      ezStringBuilder sFilename = ezPathUtils::GetFileName(pAssetInfo->m_sPath);
       return QString::fromUtf8(sFilename);
     }
     break;
