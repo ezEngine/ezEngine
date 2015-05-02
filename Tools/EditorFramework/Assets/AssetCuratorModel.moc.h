@@ -14,6 +14,7 @@ public:
   ~ezAssetCuratorModel();
   
   void resetModel();
+  void SetIconMode(bool bIconMode) { m_bIconMode = bIconMode; }
 
 public slots:
 
@@ -27,6 +28,7 @@ public: //QAbstractItemModel interface
   virtual int columnCount(const QModelIndex& parent = QModelIndex()) const override;
 
 private:
+  bool m_bIconMode;
   void AssetCuratorEventHandler(const ezAssetCurator::Event& e);
 
   ezDeque<ezUuid> m_AssetsToDisplay;

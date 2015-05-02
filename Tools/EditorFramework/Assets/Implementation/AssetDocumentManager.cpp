@@ -34,7 +34,7 @@ ezString ezAssetDocumentManager::GenerateResourceFileName(const char* szDocument
   return sFinalPath;
 }
 
-ezString ezAssetDocumentManager::GenerateResourceThumbnailPath(const char* szDocumentPath) const
+ezString ezAssetDocumentManager::GenerateResourceThumbnailPath(const char* szDocumentPath)
 {
   ezStringBuilder sProjectDir = ezAssetCurator::GetInstance()->FindDataDirectoryForAsset(szDocumentPath);;
 

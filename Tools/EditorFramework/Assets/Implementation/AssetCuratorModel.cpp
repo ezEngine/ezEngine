@@ -1,6 +1,8 @@
 #include <PCH.h>
 #include <EditorFramework/Assets/AssetCuratorModel.moc.h>
 #include <EditorFramework/Assets/AssetCurator.h>
+#include <EditorFramework/Assets/AssetDocumentManager.h>
+#include <QPixmapCache>
 
 ////////////////////////////////////////////////////////////////////////
 // ezAssetCuratorModel public functions
@@ -12,6 +14,7 @@ ezAssetCuratorModel::ezAssetCuratorModel(QObject* pParent)
   ezAssetCurator::GetInstance()->m_Events.AddEventHandler(ezMakeDelegate(&ezAssetCuratorModel::AssetCuratorEventHandler, this));
 
   resetModel();
+  SetIconMode(true);
 }
 
 ezAssetCuratorModel::~ezAssetCuratorModel()
@@ -70,6 +73,32 @@ QVariant ezAssetCuratorModel::data(const QModelIndex& index, int role) const
     {
       ezStringBuilder sFilename = ezPathUtils::GetFileNameAndExtension(pAssetInfo->m_sPath);
       return QString::fromUtf8(sFilename);
+    }
+    break;
+
+  case Qt::DecorationRole:
+    {
+      if (m_bIconMode)
+      {
+        ezStringBuilder sThumbnailPath = ezAssetDocumentManager::GenerateResourceThumbnailPath(pAssetInfo->m_sPath);
+
+        QString sQtThumbnailPath = QString::fromUtf8(sThumbnailPath.GetData());
+        
+        QPixmap* pThumbnailPixmap = QPixmapCache::find(sQtThumbnailPath);
+
+        if (pThumbnailPixmap == nullptr)
+        {
+          QImage img(sQtThumbnailPath);
+          QPixmap PixmapThumbnail = QPixmap::fromImage(img);
+          QPixmapCache::insert(sQtThumbnailPath, PixmapThumbnail);
+
+          pThumbnailPixmap = QPixmapCache::find(sQtThumbnailPath);
+        }
+
+        EZ_ASSERT_DEV(pThumbnailPixmap != nullptr, "Pixmap should now be valid");
+
+        return *pThumbnailPixmap;
+      }
     }
     break;
 

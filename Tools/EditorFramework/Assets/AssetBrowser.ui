@@ -6,29 +6,65 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>501</width>
-    <height>413</height>
+    <width>662</width>
+    <height>640</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
   <layout class="QVBoxLayout" name="RootLayout">
-   <property name="spacing">
-    <number>0</number>
-   </property>
-   <property name="leftMargin">
-    <number>2</number>
-   </property>
-   <property name="topMargin">
-    <number>2</number>
-   </property>
-   <property name="rightMargin">
-    <number>2</number>
-   </property>
-   <property name="bottomMargin">
-    <number>2</number>
-   </property>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="ButtonListMode">
+       <property name="toolTip">
+        <string>Display Items as a List</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset resource="../../../Code/Tools/GuiFoundation/QtResources/resources.qrc">
+         <normaloff>:/GuiFoundation/Icons/ListView16.png</normaloff>:/GuiFoundation/Icons/ListView16.png</iconset>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="ButtonIconMode">
+       <property name="toolTip">
+        <string>Display Items as Icons</string>
+       </property>
+       <property name="text">
+        <string/>
+       </property>
+       <property name="icon">
+        <iconset resource="../../../Code/Tools/GuiFoundation/QtResources/resources.qrc">
+         <normaloff>:/GuiFoundation/Icons/IconView16.png</normaloff>:/GuiFoundation/Icons/IconView16.png</iconset>
+       </property>
+       <property name="checkable">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
    <item>
     <widget class="ezAssetCuratorView" name="ListAssets"/>
    </item>
@@ -41,6 +77,8 @@
    <header location="global">EditorFramework/Assets/AssetCuratorView.moc.h</header>
   </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="../../../Code/Tools/GuiFoundation/QtResources/resources.qrc"/>
+ </resources>
  <connections/>
 </ui>

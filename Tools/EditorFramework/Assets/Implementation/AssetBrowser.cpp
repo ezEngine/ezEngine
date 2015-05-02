@@ -3,6 +3,7 @@
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
 #include <QVBoxLayout>
+#include <QScrollBar>
 
 ezAssetBrowser::ezAssetBrowser(QWidget* parent) : QWidget(parent)
 {
@@ -11,6 +12,17 @@ ezAssetBrowser::ezAssetBrowser(QWidget* parent) : QWidget(parent)
   m_pModel = new ezAssetCuratorModel(this);
 
   ListAssets->setModel(m_pModel);
+  on_ButtonIconMode_clicked();
+
+#if (QT_VERSION < QT_VERSION_CHECK(5, 3, 0))
+  // Qt 5.2's scroll speed in list views is kinda broken
+  // https://bugreports.qt.io/browse/QTBUG-34378
+
+  /// \todo Remove this once we are on Qt Version 5.4 or so
+
+  ListAssets->setVerticalScrollMode(QAbstractItemView::ScrollPerPixel);
+  ListAssets->verticalScrollBar()->setSingleStep(64);
+#endif
 
   // Tool Bar
   {
@@ -35,3 +47,30 @@ void ezAssetBrowser::on_ListAssets_doubleClicked(const QModelIndex& index)
 
 }
 
+void ezAssetBrowser::on_ButtonListMode_clicked()
+{
+  m_pModel->SetIconMode(false);
+  ListAssets->setViewMode(QListView::ViewMode::ListMode);
+
+  QModelIndexList selection = ListAssets->selectionModel()->selectedIndexes();
+
+  if (!selection.isEmpty())
+    ListAssets->scrollTo(selection[0]);
+
+  ButtonListMode->setChecked(true);
+  ButtonIconMode->setChecked(false);
+}
+
+void ezAssetBrowser::on_ButtonIconMode_clicked()
+{
+  m_pModel->SetIconMode(true);
+  ListAssets->setViewMode(QListView::ViewMode::IconMode);
+
+  QModelIndexList selection = ListAssets->selectionModel()->selectedIndexes();
+
+  if (!selection.isEmpty())
+    ListAssets->scrollTo(selection[0]);
+
+  ButtonListMode->setChecked(false);
+  ButtonIconMode->setChecked(true);
+}

@@ -1,5 +1,7 @@
 <RCC>
   <qresource prefix="GuiFoundation">
+    <file>Icons/IconView16.png</file>
+    <file>Icons/ListView16.png</file>
     <file>Icons/ZoomIn16.png</file>
     <file>Icons/ZoomOut16.png</file>
     <file>Icons/ZoomReset16.png</file>

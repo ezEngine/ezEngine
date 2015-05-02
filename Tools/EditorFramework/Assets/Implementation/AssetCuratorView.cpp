@@ -5,8 +5,9 @@ ezAssetCuratorView::ezAssetCuratorView(QWidget* parent) : QListView(parent)
 {
   setSelectionBehavior(QAbstractItemView::SelectionBehavior::SelectItems);
   setSelectionMode(QAbstractItemView::SelectionMode::ExtendedSelection);
-  setViewMode(QListView::ViewMode::ListMode);
+  setViewMode(QListView::ViewMode::IconMode);
   setUniformItemSizes(true);
+  setResizeMode(QListView::ResizeMode::Adjust);
 }
 
 

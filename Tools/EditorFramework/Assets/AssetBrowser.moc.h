@@ -14,6 +14,8 @@ public:
 
 private slots:
   void on_ListAssets_doubleClicked(const QModelIndex& index);
+  void on_ButtonListMode_clicked();
+  void on_ButtonIconMode_clicked();
 
 private:
   ezAssetCuratorModel* m_pModel;
