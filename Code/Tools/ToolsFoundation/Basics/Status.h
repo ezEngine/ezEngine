@@ -2,6 +2,7 @@
 
 #include <ToolsFoundation/Basics.h>
 #include <Foundation/Strings/String.h>
+#include <Foundation/Strings/StringBuilder.h>
 
 struct ezStatus
 {
@@ -17,9 +18,17 @@ struct ezStatus
   {
   }
 
-  ezStatus(const char* szError) : m_Result(EZ_FAILURE)
+  ezStatus(const char* szError, ...) : m_Result(EZ_FAILURE)
   {
-    m_sError = szError;
+    va_list args;
+    va_start(args, szError);
+
+    ezStringBuilder sMsg;
+    sMsg.FormatArgs(szError, args);
+
+    va_end(args);
+
+    m_sError = sMsg;
   }
 
   ezResult m_Result;

@@ -16,5 +16,6 @@ public:
 
   static bool IsResourceUpToDate(ezUInt64 uiHash, const char* szResourceFile);
   ezString GenerateResourceFileName(const char* szDocumentPath, const char* szPlatform) const;
+  ezString GenerateResourceThumbnailPath(const char* szDocumentPath) const;
   ezString GenerateRelativeResourceFileName(const char* szDataDirectory, const char* szDocumentPath) const;
 };

@@ -478,8 +478,11 @@ ezResourceLoadData ezTextureResourceLoader::OpenDataStream(const ezResourceBase*
 
     if (pData->m_Image.GetImageFormat() == ezImageFormat::B8G8R8_UNORM)
     {
-      ezLog::Warning("Texture resource uses inefficient BGR format, converting to BGRA: '%s'", sAbsolutePath.GetData());
-      ezImageConversionBase::Convert(pData->m_Image, pData->m_Image, ezImageFormat::B8G8R8A8_UNORM);
+      /// \todo A conversion to B8G8R8X8_UNORM currently fails
+
+      ezLog::Warning("Texture resource uses inefficient BGR format, converting to BGRX: '%s'", sAbsolutePath.GetData());
+      if (ezImageConversionBase::Convert(pData->m_Image, pData->m_Image, ezImageFormat::B8G8R8A8_UNORM).Failed())
+        return res;
     }
   }
 

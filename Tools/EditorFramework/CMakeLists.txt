@@ -35,6 +35,7 @@ SET (LINK_LIBRARIES
   RendererCore
   System
   GuiFoundation
+  CoreUtils
 )
 
 include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/CMAKE_Plugin.txt)

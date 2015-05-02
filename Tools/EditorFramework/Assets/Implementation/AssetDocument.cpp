@@ -6,6 +6,11 @@
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/Logging/Log.h>
 #include <EditorFramework/Assets/AssetDocumentManager.h>
+#include <CoreUtils/Image/Image.h>
+#include <CoreUtils/Image/ImageConversion.h>
+#include <QImage>
+#include <QPainter>
+#include <Foundation/IO/OSFile.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAssetDocumentInfo, ezDocumentInfo, 1, ezRTTINoAllocator);
 EZ_BEGIN_PROPERTIES
@@ -136,5 +141,70 @@ ezStatus ezAssetDocument::TransformAsset(const char* szPlatform)
   file << uiHash;
 
   return InternalTransformAsset(file, sPlatform);
+}
+
+void ezAssetDocument::SaveThumbnail(const ezImage& img)
+{
+  const ezStringBuilder sResourceFile = static_cast<ezAssetDocumentManager*>(GetDocumentManager())->GenerateResourceThumbnailPath(GetDocumentPath());
+
+  EZ_LOG_BLOCK("Save Asset Thumbnail", sResourceFile.GetData());
+
+  ezImage converted;
+
+  // make sure the thumbnail is in a format that Qt understands
+
+  /// \todo A conversion to B8G8R8X8_UNORM currently fails
+
+  if (ezImageConversionBase::Convert(img, converted, ezImageFormat::B8G8R8A8_UNORM).Failed())
+  {
+    ezLog::Error("Could not convert asset thumbnail to target format: '%s'", sResourceFile.GetData());
+    return;
+  }
+
+  /// \todo Fix format once ezImage is fixed
+  QImage qimg(converted.GetPixelPointer<ezUInt8>(), converted.GetWidth(), converted.GetHeight(), QImage::Format_RGBA8888);
+
+  if (converted.GetWidth() == converted.GetHeight())
+  {
+    // if necessary scale the image to the proper size
+    if (converted.GetWidth() != 256)
+      qimg = qimg.scaled(256, 256, Qt::AspectRatioMode::IgnoreAspectRatio, Qt::TransformationMode::SmoothTransformation);
+  }
+  else
+  {
+    // center the image in a square canvas
+
+    // scale the longer edge to 256
+    if (converted.GetWidth() > converted.GetHeight())
+      qimg = qimg.scaledToWidth(256, Qt::TransformationMode::SmoothTransformation);
+    else
+      qimg = qimg.scaledToHeight(256, Qt::TransformationMode::SmoothTransformation);
+
+    /// \todo Fix format once ezImage is fixed
+
+    // create a black canvas
+    QImage img2(256, 256, QImage::Format_RGBA8888);
+    img2.fill(Qt::GlobalColor::black);
+
+    QPoint destPos = QPoint((256 - qimg.width()) / 2, (256 - qimg.height()) / 2);
+
+    // paint the smaller image such that it ends up centered
+    QPainter painter(&img2);
+    painter.drawImage(destPos, qimg);
+    painter.end();
+
+    qimg = img2;
+  }
+
+  // make sure the directory exists, Qt will not create sub-folders
+  const ezStringBuilder sDir = sResourceFile.GetFileDirectory();
+  ezOSFile::CreateDirectoryStructure(sDir);
+
+  // save to JPEG
+  if (!qimg.save(QString::fromUtf8(sResourceFile.GetData()), nullptr, 90))
+  {
+    ezLog::Error("Could not save asset thumbnail: '%s'", sResourceFile.GetData());
+    return;
+  }
 }
 

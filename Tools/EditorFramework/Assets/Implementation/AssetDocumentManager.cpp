@@ -34,6 +34,22 @@ ezString ezAssetDocumentManager::GenerateResourceFileName(const char* szDocument
   return sFinalPath;
 }
 
+ezString ezAssetDocumentManager::GenerateResourceThumbnailPath(const char* szDocumentPath) const
+{
+  ezStringBuilder sProjectDir = ezAssetCurator::GetInstance()->FindDataDirectoryForAsset(szDocumentPath);;
+
+  ezStringBuilder sRelativePath = szDocumentPath;
+
+  sRelativePath.MakeRelativeTo(sProjectDir);
+  sRelativePath.ChangeFileExtension("jpg");
+
+  ezStringBuilder sFinalPath(sProjectDir, "/AssetCache/Thumbnails/", sRelativePath);
+  sFinalPath.MakeCleanPath();
+
+  return sFinalPath;
+
+}
+
 ezString ezAssetDocumentManager::GenerateRelativeResourceFileName(const char* szDataDirectory, const char* szDocumentPath) const
 {
   ezStringBuilder sRelativePath = szDocumentPath;

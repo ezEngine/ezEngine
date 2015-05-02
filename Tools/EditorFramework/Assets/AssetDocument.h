@@ -3,6 +3,8 @@
 #include <EditorFramework/Plugin.h>
 #include <ToolsFoundation/Document/Document.h>
 
+class ezImage;
+
 class EZ_EDITORFRAMEWORK_DLL ezAssetDocumentInfo : public ezDocumentInfo
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezAssetDocumentInfo);
@@ -37,6 +39,8 @@ protected:
   virtual ezStatus InternalSaveDocument() override;
   virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) = 0;
   virtual ezStatus InternalTransformAsset(ezStreamWriterBase& stream, const char* szPlatform) = 0;
+
+  void SaveThumbnail(const ezImage& img);
 
 private:
   virtual ezDocumentInfo* CreateDocumentInfo() override;
