@@ -12,8 +12,10 @@ ezAssetBrowser::ezAssetBrowser(QWidget* parent) : QWidget(parent)
   m_pModel = new ezAssetCuratorModel(this);
 
   ListAssets->setModel(m_pModel);
+  ListAssets->SetIconScale(IconSizeSlider->value());
   on_ButtonIconMode_clicked();
 
+  //connect(ListAssets, SIGNAL(ViewZoomed(ezInt32 iDelta)), this, SLOT());
 #if (QT_VERSION < QT_VERSION_CHECK(5, 3, 0))
   // Qt 5.2's scroll speed in list views is kinda broken
   // https://bugreports.qt.io/browse/QTBUG-34378
@@ -32,7 +34,7 @@ ezAssetBrowser::ezAssetBrowser(QWidget* parent) : QWidget(parent)
     context.m_pDocument = nullptr;
     pToolBar->SetActionContext(context);
     pToolBar->setObjectName("TextureAssetWindowToolBar");
-    RootLayout->insertWidget(0, pToolBar);
+    ToolBarLayout->insertWidget(0, pToolBar);
   }
 }
 
@@ -50,7 +52,7 @@ void ezAssetBrowser::on_ListAssets_doubleClicked(const QModelIndex& index)
 void ezAssetBrowser::on_ButtonListMode_clicked()
 {
   m_pModel->SetIconMode(false);
-  ListAssets->setViewMode(QListView::ViewMode::ListMode);
+  ListAssets->SetIconMode(false);
 
   QModelIndexList selection = ListAssets->selectionModel()->selectedIndexes();
 
@@ -64,7 +66,7 @@ void ezAssetBrowser::on_ButtonListMode_clicked()
 void ezAssetBrowser::on_ButtonIconMode_clicked()
 {
   m_pModel->SetIconMode(true);
-  ListAssets->setViewMode(QListView::ViewMode::IconMode);
+  ListAssets->SetIconMode(true);
 
   QModelIndexList selection = ListAssets->selectionModel()->selectedIndexes();
 
@@ -73,4 +75,15 @@ void ezAssetBrowser::on_ButtonIconMode_clicked()
 
   ButtonListMode->setChecked(false);
   ButtonIconMode->setChecked(true);
+}
+
+void ezAssetBrowser::on_IconSizeSlider_valueChanged(int iValue)
+{
+  ListAssets->SetIconScale(iValue);
+}
+
+void ezAssetBrowser::on_ListAssets_ViewZoomed(ezInt32 iIconSizePercentage)
+{
+  QtScopedBlockSignals block(IconSizeSlider);
+  IconSizeSlider->setValue(iIconSizePercentage);
 }
