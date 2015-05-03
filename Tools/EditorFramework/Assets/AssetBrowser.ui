@@ -57,6 +57,15 @@
        </item>
        <item>
         <widget class="QTreeWidget" name="TreeFolderFilter">
+         <property name="uniformRowHeights">
+          <bool>true</bool>
+         </property>
+         <property name="sortingEnabled">
+          <bool>true</bool>
+         </property>
+         <property name="headerHidden">
+          <bool>true</bool>
+         </property>
          <column>
           <property name="text">
            <string notr="true">1</string>
@@ -66,7 +75,7 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="layoutWidget">
+     <widget class="QWidget" name="layoutWidget2">
       <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,0">
        <item>
         <layout class="QHBoxLayout" name="ToolBarLayout">

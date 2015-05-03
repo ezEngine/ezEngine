@@ -19,12 +19,16 @@ public:
   void SetTextFilter(const char* szText);
   const char* GetTextFilter() const { return m_sTextFilter; }
 
+  void SetPathFilter(const char* szPath);
+  const char* GetPathFilter() const { return m_sPathFilter; }
+
   void SetTypeFilter(const char* szTypes);
   const char* GetTypeFilter() const { return m_sTypeFilter; }
 
 signals:
   void TextFilterChanged();
   void TypeFilterChanged();
+  void PathFilterChanged();
 
 private slots:
   void ThumbnailLoaded(QString sPath, QModelIndex index, QVariant UserData1, QVariant UserData2);
@@ -42,6 +46,6 @@ private:
   bool m_bIconMode;
   void AssetCuratorEventHandler(const ezAssetCurator::Event& e);
 
-  ezString m_sTextFilter, m_sTypeFilter;
+  ezString m_sTextFilter, m_sTypeFilter, m_sPathFilter;
   ezDeque<ezUuid> m_AssetsToDisplay;
 };

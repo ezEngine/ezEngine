@@ -9,6 +9,8 @@
 
 ezAssetBrowser::ezAssetBrowser(QWidget* parent) : QWidget(parent)
 {
+  m_uiKnownAssetFolderCount = 0;
+
   setupUi(this);
 
   m_pModel = new ezAssetCuratorModel(this);
@@ -44,6 +46,7 @@ ezAssetBrowser::ezAssetBrowser(QWidget* parent) : QWidget(parent)
 
   EZ_VERIFY(connect(m_pModel, SIGNAL(TextFilterChanged()), this, SLOT(OnTextFilterChanged())) != nullptr, "signal/slot connection failed");
   EZ_VERIFY(connect(m_pModel, SIGNAL(TypeFilterChanged()), this, SLOT(OnTypeFilterChanged())) != nullptr, "signal/slot connection failed");
+  EZ_VERIFY(connect(m_pModel, SIGNAL(PathFilterChanged()), this, SLOT(OnPathFilterChanged())) != nullptr, "signal/slot connection failed");
 
   ezSet<ezString> KnownAssetTypes;
 
@@ -83,10 +86,16 @@ ezAssetBrowser::ezAssetBrowser(QWidget* parent) : QWidget(parent)
       ListTypeFilter->addItem(pItem);
     }
   }
+
+  UpdateDirectoryTree();
+
+  ezAssetCurator::GetInstance()->m_Events.AddEventHandler(ezMakeDelegate(&ezAssetBrowser::AssetCuratorEventHandler, this));
 }
 
 ezAssetBrowser::~ezAssetBrowser()
 {
+  ezAssetCurator::GetInstance()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezAssetBrowser::AssetCuratorEventHandler, this));
+
   ListAssets->setModel(nullptr);
 }
 
@@ -217,4 +226,129 @@ void ezAssetBrowser::on_ListTypeFilter_itemChanged(QListWidgetItem* item)
   }
 
   m_pModel->SetTypeFilter(sFilter);
+}
+
+void ezAssetBrowser::AssetCuratorEventHandler(const ezAssetCurator::Event& e)
+{
+  switch (e.m_Type)
+  {
+  case ezAssetCurator::Event::Type::AssetListReset:
+  case ezAssetCurator::Event::Type::AssetAdded:
+  case ezAssetCurator::Event::Type::AssetRemoved:
+    UpdateDirectoryTree();
+    break;
+  }
+}
+
+void ezAssetBrowser::UpdateDirectoryTree()
+{
+  QtScopedBlockSignals block(TreeFolderFilter);
+
+  if (TreeFolderFilter->topLevelItemCount() == 0)
+  {
+    QTreeWidgetItem* pNewParent = new QTreeWidgetItem();
+    pNewParent->setText(0, QLatin1String("<root>"));
+
+    TreeFolderFilter->addTopLevelItem(pNewParent);
+  }
+
+  const ezSet<ezString>& Folders = ezAssetCurator::GetInstance()->GetAllAssetFolders();
+
+  if (m_uiKnownAssetFolderCount == Folders.GetCount())
+    return;
+
+  m_uiKnownAssetFolderCount = Folders.GetCount();
+
+  for (auto sDir : Folders)
+  {
+    if (!ezEditorApp::GetInstance()->MakePathDataDirectoryRelative(sDir))
+      continue;
+
+    BuildDirectoryTree(sDir, TreeFolderFilter->topLevelItem(0), "");
+  }
+
+  TreeFolderFilter->setSortingEnabled(true);
+  TreeFolderFilter->sortItems(0, Qt::SortOrder::AscendingOrder);
+}
+
+void ezAssetBrowser::BuildDirectoryTree(const char* szCurPath, QTreeWidgetItem* pParent, const char* szCurPathToItem)
+{
+  if (ezStringUtils::IsNullOrEmpty(szCurPath))
+    return;
+
+  const char* szNextSep = ezStringUtils::FindSubString(szCurPath, "/");
+
+  QTreeWidgetItem* pNewParent = nullptr;
+
+  ezString sFolderName;
+
+  if (szNextSep == nullptr)
+    sFolderName = szCurPath;
+  else
+    sFolderName = ezStringView(szCurPath, szNextSep);
+
+  ezStringBuilder sCurPath = szCurPathToItem;
+  sCurPath.AppendPath(sFolderName);
+
+  const QString sQtFolderName = QString::fromUtf8(sFolderName.GetData());
+
+  for (ezInt32 i = 0; i < pParent->childCount(); ++i)
+  {
+    if (pParent->child(i)->text(0) == sQtFolderName)
+    {
+      // item already exists
+      pNewParent = pParent->child(i);
+      goto godown;
+    }
+  }
+
+  pNewParent = new QTreeWidgetItem();
+  pNewParent->setText(0, sQtFolderName);
+  pNewParent->setData(0, Qt::UserRole + 1, QString::fromUtf8(sCurPath.GetData()));
+
+  pParent->addChild(pNewParent);
+
+godown:
+
+  if (szNextSep == nullptr)
+    return;
+
+  BuildDirectoryTree(szNextSep + 1, pNewParent, sCurPath);
+}
+
+void ezAssetBrowser::on_TreeFolderFilter_itemSelectionChanged()
+{
+  ezStringBuilder sCurPath;
+
+  if (!TreeFolderFilter->selectedItems().isEmpty())
+  {
+    sCurPath = TreeFolderFilter->selectedItems()[0]->data(0, Qt::UserRole + 1).toString().toUtf8().data();
+  }
+
+  m_pModel->SetPathFilter(sCurPath);
+}
+
+void ezAssetBrowser::OnPathFilterChanged()
+{
+  const QString sPath = QString::fromUtf8(m_pModel->GetPathFilter());
+
+  if (TreeFolderFilter->topLevelItemCount() == 1)
+    SelectPathFilter(TreeFolderFilter->topLevelItem(0), sPath);
+}
+
+bool ezAssetBrowser::SelectPathFilter(QTreeWidgetItem* pParent, const QString& sPath)
+{
+  if (pParent->data(0, Qt::UserRole + 1).toString() == sPath)
+  {
+    pParent->setSelected(true);
+    return true;
+  }
+
+  for (ezInt32 i = 0; i < pParent->childCount(); ++i)
+  {
+    if (SelectPathFilter(pParent->child(i), sPath))
+      return true;
+  }
+
+  return false;
 }

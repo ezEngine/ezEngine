@@ -129,9 +129,10 @@ ezStatus ezAssetDocument::TransformAsset(const char* szPlatform)
   if (sPlatform.IsEmpty())
     sPlatform = ezAssetCurator::GetInstance()->GetActivePlatform();
 
-  ezUInt64 uiHash = ezAssetCurator::GetInstance()->GetAssetDependencyHash(GetGuid());
+  const ezUInt64 uiHash = ezAssetCurator::GetInstance()->GetAssetDependencyHash(GetGuid());
 
-  EZ_ASSERT_DEV(uiHash != 0, "Something went wrong");
+  if (uiHash == 0)
+    return ezStatus("Computing the hash for this asset or any dependency failed");
 
   const ezString sResourceFile = static_cast<ezAssetDocumentManager*>(GetDocumentManager())->GenerateResourceFileName(GetDocumentPath(), sPlatform);
 

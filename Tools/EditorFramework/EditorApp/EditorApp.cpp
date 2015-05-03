@@ -303,6 +303,12 @@ void ezEditorApp::DocumentEventHandler(const ezDocumentBase::Event& e)
       SaveDocumentSettings(e.m_pDocument);
     }
     break;
+
+  case ezDocumentBase::Event::Type::DocumentSaved:
+    {
+      ezAssetCurator::GetInstance()->NotifyOfPotentialAsset(e.m_pDocument->GetDocumentPath());
+    }
+    break;
   }
 }
 

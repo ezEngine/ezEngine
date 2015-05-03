@@ -15,6 +15,7 @@ public:
 private slots:
   void OnTextFilterChanged();
   void OnTypeFilterChanged();
+  void OnPathFilterChanged();
   void on_ListAssets_doubleClicked(const QModelIndex& index);
   void on_ButtonListMode_clicked();
   void on_ButtonIconMode_clicked();
@@ -23,8 +24,16 @@ private slots:
   void on_LineSearchFilter_textEdited(const QString& text);
   void on_ButtonClearSearch_clicked();
   void on_ListTypeFilter_itemChanged(QListWidgetItem* item);
+  void on_TreeFolderFilter_itemSelectionChanged();
 
 private:
+  void AssetCuratorEventHandler(const ezAssetCurator::Event& e);
+  void UpdateDirectoryTree();
+  void BuildDirectoryTree(const char* szCurPath, QTreeWidgetItem* pParent, const char* szCurPathToItem);
+  bool SelectPathFilter(QTreeWidgetItem* pParent, const QString& sPath);
+
+  ezUInt32 m_uiKnownAssetFolderCount;
+
   ezAssetCuratorModel* m_pModel;
 
 };

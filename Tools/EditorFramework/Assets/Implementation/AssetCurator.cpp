@@ -36,6 +36,7 @@ ezAssetCurator::~ezAssetCurator()
 void ezAssetCurator::BuildFileExtensionSet(ezSet<ezString>& AllExtensions)
 {
   ezStringBuilder sTemp;
+  AllExtensions.Clear();
 
   for (auto pMan : ezDocumentManagerBase::GetAllDocumentManagers())
   {
@@ -58,6 +59,106 @@ void ezAssetCurator::BuildFileExtensionSet(ezSet<ezString>& AllExtensions)
   }
 }
 
+void ezAssetCurator::NotifyOfPotentialAsset(const char* szAbsolutePath)
+{
+  HandleSingleFile(szAbsolutePath);
+
+  /// \todo Move this into a regularly running thread or so
+  MainThreadTick();
+}
+
+void ezAssetCurator::HandleSingleFile(const ezString& sAbsolutePath)
+{
+  ezFileStats Stats;
+  if (ezOSFile::GetFileStats(sAbsolutePath, Stats).Failed())
+    return;
+
+  // make sure the set exists, but don't update it
+  // this is only updated in CheckFileSystem
+  if (m_ValidAssetExtensions.IsEmpty())
+    BuildFileExtensionSet(m_ValidAssetExtensions);
+
+  HandleSingleFile(sAbsolutePath, m_ValidAssetExtensions, Stats);
+}
+
+void ezAssetCurator::HandleSingleFile(const ezString& sAbsolutePath, const ezSet<ezString>& validExtensions, const ezFileStats& FileStat)
+{
+  ezStringBuilder sExt = ezPathUtils::GetFileExtension(sAbsolutePath);
+  sExt.ToLower();
+
+  // store information for every file, even when it is no asset, it might be a dependency for some asset
+  auto& RefFile = m_ReferencedFiles[sAbsolutePath];
+
+  // mark the file as valid (ie. we saw it on disk, so it hasn't been deleted or such)
+  RefFile.m_Status = FileStatus::Status::Valid;
+
+  // if the time stamp changed, reset the hash, such that the file will be hashed again later
+  if (!RefFile.m_Timestamp.IsEqual(FileStat.m_LastModificationTime, ezTimestamp::CompareMode::Identical))
+  {
+    RefFile.m_Timestamp = FileStat.m_LastModificationTime;
+    RefFile.m_uiHash = 0;
+  }
+
+  // check that this is an asset type that we know
+  if (!validExtensions.Contains(sExt))
+    return;
+
+  // the file is a known asset type
+  // so make sure it gets a valid GUID assigned
+
+  if (RefFile.m_AssetGuid.IsValid() && RefFile.m_uiHash != 0)
+    return;
+
+  // store the folder of the asset
+  {
+    ezStringBuilder sAssetFolder = sAbsolutePath;
+    sAssetFolder = sAssetFolder.GetFileDirectory();
+
+    m_AssetFolders.Insert(sAssetFolder);
+  }
+
+  // Find Asset Info
+  AssetInfo* pAssetInfo = nullptr;
+  ezUuid oldGuid = RefFile.m_AssetGuid;
+  bool bNew = false;
+
+  // if it already has a valid GUID, an AssetInfo object must exist
+  if (RefFile.m_AssetGuid.IsValid())
+  {
+    EZ_VERIFY(m_KnownAssets.TryGetValue(RefFile.m_AssetGuid, pAssetInfo), "guid set in file-status but no asset is actually known under that guid");
+  }
+  else
+  {
+    // otherwise create a new AssetInfo object
+
+    bNew = true;
+    pAssetInfo = EZ_DEFAULT_NEW(AssetInfo);
+  }
+
+  // this will update m_AssetGuid by reading it from the asset JSON file
+  UpdateAssetInfo(sAbsolutePath, RefFile, *pAssetInfo, &FileStat); // ignore return value
+
+  if (bNew)
+  {
+    // now the GUID must be valid
+    EZ_ASSERT_DEV(pAssetInfo->m_Info.m_DocumentID.IsValid(), "Asset header read for '%s', but its GUID is invalid! Corrupted document?", sAbsolutePath.GetData());
+
+    // and we can store the new AssetInfo data under that GUID
+    m_KnownAssets[pAssetInfo->m_Info.m_DocumentID] = pAssetInfo;
+  }
+  else
+  {
+    // in case the previous GUID is different to what UpdateAssetInfo read from file, get rid of the old GUID
+    // and point the new one to the existing AssetInfo
+    if (oldGuid != RefFile.m_AssetGuid)
+    {
+      m_KnownAssets.Remove(oldGuid);
+      m_KnownAssets.Insert(RefFile.m_AssetGuid, pAssetInfo);
+    }
+  }
+
+}
+
 void ezAssetCurator::IterateDataDirectory(const char* szDataDir, const ezSet<ezString>& validExtensions)
 {
   ezStringBuilder sDataDir = szDataDir;
@@ -74,69 +175,23 @@ void ezAssetCurator::IterateDataDirectory(const char* szDataDir, const ezSet<ezS
     return;
 
   ezStringBuilder sPath;
-  ezString sExt;
 
   do
   {
-    sPath = iterator.GetStats().m_sFileName.GetFileExtension();
-    sPath.ToLower();
-    sExt = sPath;
-
     sPath = iterator.GetCurrentPath();
     sPath.AppendPath(iterator.GetStats().m_sFileName);
     sPath.MakeCleanPath();
 
-    auto& RefFile = m_ReferencedFiles[sPath];
-    RefFile.m_Status = FileStatus::Status::Valid;
-
-    if (!RefFile.m_Timestamp.IsEqual(iterator.GetStats().m_LastModificationTime, ezTimestamp::CompareMode::Identical))
-    {
-      RefFile.m_Timestamp = iterator.GetStats().m_LastModificationTime;
-      RefFile.m_uiHash = 0;
-    }
-
-    if (!validExtensions.Contains(sExt))
-      continue;
-
-    if (RefFile.m_AssetGuid.IsValid() && RefFile.m_uiHash != 0)
-      continue;
-
-    // Find Asset Info
-    AssetInfo* pAssetInfo = nullptr;
-    ezUuid oldGuid = RefFile.m_AssetGuid;
-    bool bNew = false;
-    if (RefFile.m_AssetGuid.IsValid())
-    {
-      EZ_VERIFY(m_KnownAssets.TryGetValue(RefFile.m_AssetGuid, pAssetInfo), "guid set in file-status but no asset is actually known under that guid");
-    }
-    else
-    {
-      bNew = true;
-      pAssetInfo = EZ_DEFAULT_NEW(AssetInfo);
-    }
-
-    // Update
-    UpdateAssetInfo(sPath, RefFile, *pAssetInfo); // ignore return value
-
-    if (bNew)
-    {
-      EZ_ASSERT_DEV(pAssetInfo->m_Info.m_DocumentID.IsValid(), "Asset header read for '%s', but its GUID is invalid! Corrupted document?", sPath.GetData());
-      m_KnownAssets[pAssetInfo->m_Info.m_DocumentID] = pAssetInfo;
-    }
-    else
-    {
-      if (oldGuid != RefFile.m_AssetGuid)
-      {
-        m_KnownAssets.Remove(oldGuid);
-        m_KnownAssets.Insert(RefFile.m_AssetGuid, pAssetInfo);
-      }
-    }
+    HandleSingleFile(sPath, validExtensions, iterator.GetStats());
   }
   while (iterator.Next().Succeeded());
 }
 
 void ezAssetCurator::SetAllAssetStatusUnknown()
 {
+  // tags all known files as unknown, such that we can later remove files
+  // that can not be found anymore
+
   for (auto it = m_ReferencedFiles.GetIterator(); it.IsValid(); ++it)
   {
     it.Value().m_Status = FileStatus::Status::Unknown;
@@ -147,18 +202,24 @@ void ezAssetCurator::RemoveStaleFileInfos()
 {
   for (auto it = m_ReferencedFiles.GetIterator(); it.IsValid();)
   {
+    // search for files that existed previously but have not been found anymore recently
     if (it.Value().m_Status == FileStatus::Status::Unknown)
     {
+      // if it was a full asset, not just any kind of reference
       if (it.Value().m_AssetGuid.IsValid())
       {
+        // retrieve the AssetInfo data for this file
         AssetInfo* pCache = m_KnownAssets[it.Value().m_AssetGuid];
 
+        // sanity check: if the AssetInfo really belongs to this file, remove it as well
         if (it.Key() == pCache->m_sAbsolutePath)
         {
           m_KnownAssets.Remove(pCache->m_Info.m_DocumentID);
           EZ_DEFAULT_DELETE(pCache);
         }
       }
+
+      // remove the file from the list
       it = m_ReferencedFiles.Remove(it);
     }
     else
@@ -213,6 +274,7 @@ void ezAssetCurator::Deinitialize()
 
 void ezAssetCurator::CheckFileSystem()
 {
+  // reset the queue of assets to be hashed
   {
     ezLock<ezMutex> ml(m_HashingMutex);
     m_FileHashingQueue.Clear();
@@ -220,6 +282,7 @@ void ezAssetCurator::CheckFileSystem()
 
   QtProgressBar progress("Check Filesystem for Assets", m_FileSystemConfig.m_DataDirs.GetCount(), false);
 
+  // make sure the hashing task has finished
   if (m_pHashingTask)
   {
     ezTaskSystem::WaitForTask((ezTask*)m_pHashingTask);
@@ -231,10 +294,11 @@ void ezAssetCurator::CheckFileSystem()
 
   ezLock<ezMutex> ml(m_HashingMutex);
 
-  ezSet<ezString> validExtensions;
-  BuildFileExtensionSet(validExtensions);
   SetAllAssetStatusUnknown();
 
+  BuildFileExtensionSet(m_ValidAssetExtensions);
+
+  // check every data directory
   for (auto dd : m_FileSystemConfig.m_DataDirs)
   {
     ezStringBuilder sTemp = m_FileSystemConfig.GetProjectDirectory();
@@ -242,7 +306,7 @@ void ezAssetCurator::CheckFileSystem()
 
     progress.WorkingOnNextItem(dd.m_sRelativePath);
 
-    IterateDataDirectory(sTemp, validExtensions);
+    IterateDataDirectory(sTemp, m_ValidAssetExtensions);
   }
 
   RemoveStaleFileInfos();
@@ -363,6 +427,8 @@ ezResult ezAssetCurator::WriteAssetTables()
 
 void ezAssetCurator::MainThreadTick()
 {
+  /// \todo This function is never called anywhere
+
   ezLock<ezMutex> ml(m_HashingMutex);
 
   for (auto it = m_KnownAssets.GetIterator(); it.IsValid();)
@@ -421,7 +487,7 @@ void ezAssetCurator::ReadAssetDocumentInfo(ezAssetDocumentInfo* pInfo, ezStreamR
     ezUuid parentGuid;
     while (reader.PeekNextObject(objectGuid, sType, parentGuid))
     {
-      if (sType == pInfo->GetDynamicRTTI()->GetTypeName())
+      if (sType == pInfo->GetDynamicRTTI()->GetTypeName()) // this should always be "ezAssetDocumentInfo"
       {
         ezReflectedTypeHandle hType = ezReflectedTypeManager::GetTypeHandleByName(pInfo->GetDynamicRTTI()->GetTypeName());
         EZ_ASSERT_DEV(!hType.IsInvalidated(), "Need to register ezDocumentInfo at the ezReflectedTypeManager first!");
@@ -434,8 +500,9 @@ void ezAssetCurator::ReadAssetDocumentInfo(ezAssetDocumentInfo* pInfo, ezStreamR
   }
 }
 
-ezResult ezAssetCurator::UpdateAssetInfo(const char* szAbsFilePath, ezAssetCurator::FileStatus& stat, ezAssetCurator::AssetInfo& assetInfo)
+ezResult ezAssetCurator::UpdateAssetInfo(const char* szAbsFilePath, ezAssetCurator::FileStatus& stat, ezAssetCurator::AssetInfo& assetInfo, const ezFileStats* pFileStat)
 {
+  // try to read the asset JSON file
   ezFileReader file;
   if (file.Open(szAbsFilePath) == EZ_FAILURE)
   {
@@ -447,13 +514,20 @@ ezResult ezAssetCurator::UpdateAssetInfo(const char* szAbsFilePath, ezAssetCurat
     return EZ_FAILURE;
   }
 
+
   // Update time stamp
   {
     ezFileStats fs;
-    if (ezOSFile::GetFileStats(file.GetFilePathAbsolute(), fs).Failed())
-      return EZ_FAILURE;
 
-    stat.m_Timestamp = fs.m_LastModificationTime;
+    if (pFileStat == nullptr)
+    {
+      if (ezOSFile::GetFileStats(szAbsFilePath, fs).Failed())
+        return EZ_FAILURE;
+
+      pFileStat = &fs;
+    }
+
+    stat.m_Timestamp = pFileStat->m_LastModificationTime;
   }
 
   // update the paths
@@ -466,27 +540,39 @@ ezResult ezAssetCurator::UpdateAssetInfo(const char* szAbsFilePath, ezAssetCurat
     assetInfo.m_sAbsolutePath = szAbsFilePath;
   }
 
+  // if the file was previously tagged as "deleted", it is now "new" again (to ensure the proper events are sent)
   if (assetInfo.m_State == AssetInfo::State::ToBeDeleted)
   {
     assetInfo.m_State = AssetInfo::State::New;
   }
 
-  ezDocumentManagerBase* pDocMan = assetInfo.m_pManager;
-  if (assetInfo.m_pManager == nullptr && ezDocumentManagerBase::FindDocumentTypeFromPath(szAbsFilePath, false, pDocMan).Failed())
+  // figure out which manager should handle this asset type
   {
-    EZ_REPORT_FAILURE("Invalid asset setup");
+    ezDocumentManagerBase* pDocMan = assetInfo.m_pManager;
+    if (assetInfo.m_pManager == nullptr && ezDocumentManagerBase::FindDocumentTypeFromPath(szAbsFilePath, false, pDocMan).Failed())
+    {
+      EZ_REPORT_FAILURE("Invalid asset setup");
+    }
+    assetInfo.m_pManager = static_cast<ezAssetDocumentManager*>(pDocMan);
   }
-  assetInfo.m_pManager = static_cast<ezAssetDocumentManager*>(pDocMan);
 
   ezMemoryStreamStorage storage;
   ezMemoryStreamReader MemReader(&storage);
   ezMemoryStreamWriter MemWriter(&storage);
 
+  // compute the hash for the asset JSON file
   stat.m_uiHash = ezAssetCurator::HashFile(file, &MemWriter);
   file.Close();
 
-  ReadAssetDocumentInfo(&assetInfo.m_Info, MemReader);
-  stat.m_AssetGuid = assetInfo.m_Info.m_DocumentID;
+  // and finally actually read the asset JSON file (header only) and store the information in the ezAssetDocumentInfo member
+  {
+    ReadAssetDocumentInfo(&assetInfo.m_Info, MemReader);
+
+    // here we get the GUID out of the JSON document
+    // this links the 'file' to the 'asset'
+    stat.m_AssetGuid = assetInfo.m_Info.m_DocumentID;
+  }
+
   return EZ_SUCCESS;
 }
 

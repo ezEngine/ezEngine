@@ -29,6 +29,8 @@ void ezAssetCuratorModel::AssetCuratorEventHandler(const ezAssetCurator::Event& 
   switch (e.m_Type)
   {
   case ezAssetCurator::Event::Type::AssetListReset:
+  case ezAssetCurator::Event::Type::AssetAdded:
+  case ezAssetCurator::Event::Type::AssetRemoved:
     resetModel();
     break;
   }
@@ -47,6 +49,21 @@ void ezAssetCuratorModel::SetTextFilter(const char* szText)
   resetModel();
 
   emit TextFilterChanged();
+}
+
+void ezAssetCuratorModel::SetPathFilter(const char* szPath)
+{
+  ezStringBuilder sCleanText = szPath;
+  sCleanText.MakeCleanPath();
+
+  if (m_sPathFilter == sCleanText)
+    return;
+
+  m_sPathFilter = sCleanText;
+
+  resetModel();
+
+  emit PathFilterChanged();
 }
 
 void ezAssetCuratorModel::SetTypeFilter(const char* szTypes)
@@ -74,6 +91,13 @@ void ezAssetCuratorModel::resetModel()
 
   for (auto it = AllAssets.GetIterator(); it.IsValid(); ++it)
   {
+    if (!m_sPathFilter.IsEmpty())
+    {
+      // if the string is not found in the path, ignore this asset
+      if (!it.Value()->m_sRelativePath.StartsWith_NoCase(m_sPathFilter))
+        continue;
+    }
+
     if (!m_sTextFilter.IsEmpty())
     {
       // if the string is not found in the path, ignore this asset
