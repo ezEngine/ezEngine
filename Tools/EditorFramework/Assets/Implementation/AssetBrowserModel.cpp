@@ -1,5 +1,5 @@
 #include <PCH.h>
-#include <EditorFramework/Assets/AssetCuratorModel.moc.h>
+#include <EditorFramework/Assets/AssetBrowserModel.moc.h>
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <EditorFramework/Assets/AssetDocumentManager.h>
 #include <GuiFoundation/UIServices/ImageCache.moc.h>
@@ -7,24 +7,24 @@
 #include <QPixmap>
 
 ////////////////////////////////////////////////////////////////////////
-// ezAssetCuratorModel public functions
+// ezAssetBrowserModel public functions
 ////////////////////////////////////////////////////////////////////////
 
-ezAssetCuratorModel::ezAssetCuratorModel(QObject* pParent)
+ezAssetBrowserModel::ezAssetBrowserModel(QObject* pParent)
   : QAbstractItemModel(pParent)
 {
-  ezAssetCurator::GetInstance()->m_Events.AddEventHandler(ezMakeDelegate(&ezAssetCuratorModel::AssetCuratorEventHandler, this));
+  ezAssetCurator::GetInstance()->m_Events.AddEventHandler(ezMakeDelegate(&ezAssetBrowserModel::AssetCuratorEventHandler, this));
 
   resetModel();
   SetIconMode(true);
 }
 
-ezAssetCuratorModel::~ezAssetCuratorModel()
+ezAssetBrowserModel::~ezAssetBrowserModel()
 {
-  ezAssetCurator::GetInstance()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezAssetCuratorModel::AssetCuratorEventHandler, this));
+  ezAssetCurator::GetInstance()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezAssetBrowserModel::AssetCuratorEventHandler, this));
 }
 
-void ezAssetCuratorModel::AssetCuratorEventHandler(const ezAssetCurator::Event& e)
+void ezAssetBrowserModel::AssetCuratorEventHandler(const ezAssetCurator::Event& e)
 {
   switch (e.m_Type)
   {
@@ -36,7 +36,7 @@ void ezAssetCuratorModel::AssetCuratorEventHandler(const ezAssetCurator::Event& 
   }
 }
 
-void ezAssetCuratorModel::SetTextFilter(const char* szText)
+void ezAssetBrowserModel::SetTextFilter(const char* szText)
 {
   ezStringBuilder sCleanText = szText;
   sCleanText.MakeCleanPath();
@@ -51,7 +51,7 @@ void ezAssetCuratorModel::SetTextFilter(const char* szText)
   emit TextFilterChanged();
 }
 
-void ezAssetCuratorModel::SetPathFilter(const char* szPath)
+void ezAssetBrowserModel::SetPathFilter(const char* szPath)
 {
   ezStringBuilder sCleanText = szPath;
   sCleanText.MakeCleanPath();
@@ -66,7 +66,7 @@ void ezAssetCuratorModel::SetPathFilter(const char* szPath)
   emit PathFilterChanged();
 }
 
-void ezAssetCuratorModel::SetTypeFilter(const char* szTypes)
+void ezAssetBrowserModel::SetTypeFilter(const char* szTypes)
 {
   if (m_sTypeFilter == szTypes)
     return;
@@ -78,7 +78,7 @@ void ezAssetCuratorModel::SetTypeFilter(const char* szTypes)
   emit TypeFilterChanged();
 }
 
-void ezAssetCuratorModel::resetModel()
+void ezAssetBrowserModel::resetModel()
 {
   beginResetModel();
 
@@ -120,10 +120,10 @@ void ezAssetCuratorModel::resetModel()
 }
 
 ////////////////////////////////////////////////////////////////////////
-// ezAssetCuratorModel QAbstractItemModel functions
+// ezAssetBrowserModel QAbstractItemModel functions
 ////////////////////////////////////////////////////////////////////////
 
-void ezAssetCuratorModel::ThumbnailLoaded(QString sPath, QModelIndex index, QVariant UserData1, QVariant UserData2)
+void ezAssetBrowserModel::ThumbnailLoaded(QString sPath, QModelIndex index, QVariant UserData1, QVariant UserData2)
 {
   const ezUuid guid(UserData1.toULongLong(), UserData2.toULongLong());
 
@@ -138,7 +138,7 @@ void ezAssetCuratorModel::ThumbnailLoaded(QString sPath, QModelIndex index, QVar
   }
 }
 
-QVariant ezAssetCuratorModel::data(const QModelIndex& index, int role) const
+QVariant ezAssetBrowserModel::data(const QModelIndex& index, int role) const
 {
   if (!index.isValid() || index.column() != 0)
     return QVariant();
@@ -190,7 +190,7 @@ QVariant ezAssetCuratorModel::data(const QModelIndex& index, int role) const
   return QVariant();
 }
 
-Qt::ItemFlags ezAssetCuratorModel::flags(const QModelIndex& index) const
+Qt::ItemFlags ezAssetBrowserModel::flags(const QModelIndex& index) const
 {
   if (!index.isValid())
     return 0;
@@ -198,7 +198,7 @@ Qt::ItemFlags ezAssetCuratorModel::flags(const QModelIndex& index) const
   return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
 }
 
-QVariant ezAssetCuratorModel::headerData(int section, Qt::Orientation orientation, int role) const
+QVariant ezAssetBrowserModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
   if (orientation == Qt::Horizontal && role == Qt::DisplayRole)
   {
@@ -211,7 +211,7 @@ QVariant ezAssetCuratorModel::headerData(int section, Qt::Orientation orientatio
   return QVariant();
 }
 
-QModelIndex ezAssetCuratorModel::index(int row, int column, const QModelIndex& parent) const
+QModelIndex ezAssetBrowserModel::index(int row, int column, const QModelIndex& parent) const
 {
   if (parent.isValid() || column != 0)
     return QModelIndex();
@@ -219,12 +219,12 @@ QModelIndex ezAssetCuratorModel::index(int row, int column, const QModelIndex& p
   return createIndex(row, column);
 }
 
-QModelIndex ezAssetCuratorModel::parent(const QModelIndex& index) const
+QModelIndex ezAssetBrowserModel::parent(const QModelIndex& index) const
 {
   return QModelIndex();
 }
 
-int ezAssetCuratorModel::rowCount(const QModelIndex& parent) const
+int ezAssetBrowserModel::rowCount(const QModelIndex& parent) const
 {
   if (parent.isValid())
     return 0;
@@ -232,7 +232,7 @@ int ezAssetCuratorModel::rowCount(const QModelIndex& parent) const
   return (int) m_AssetsToDisplay.GetCount();
 }
 
-int ezAssetCuratorModel::columnCount(const QModelIndex& parent) const
+int ezAssetBrowserModel::columnCount(const QModelIndex& parent) const
 {
   return 1;
 }

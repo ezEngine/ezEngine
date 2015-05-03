@@ -6,12 +6,12 @@
 
 class QtIconViewDelegate;
 
-class ezAssetCuratorView : public QListView
+class ezAssetBrowserView : public QListView
 {
   Q_OBJECT
 
 public:
-  ezAssetCuratorView(QWidget* pParent);
+  ezAssetBrowserView(QWidget* pParent);
 
   void SetIconMode(bool bIconMode);
   void SetIconScale(ezInt32 iIconSizePercentage);
@@ -33,7 +33,7 @@ class QtIconViewDelegate : public QItemDelegate
 {
   Q_OBJECT
 public:
-  QtIconViewDelegate(ezAssetCuratorView* pParent = nullptr);
+  QtIconViewDelegate(ezAssetBrowserView* pParent = nullptr);
 
   void SetIconScale(ezInt32 iIconSizePercentage);
   QSize ItemSize() const;
@@ -57,5 +57,5 @@ private:
   };
 
   ezInt32 m_iIconSizePercentage;
-  ezAssetCuratorView* m_pView;
+  ezAssetBrowserView* m_pView;
 };

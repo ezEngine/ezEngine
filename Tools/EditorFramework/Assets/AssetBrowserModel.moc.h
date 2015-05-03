@@ -4,14 +4,14 @@
 #include <EditorFramework/Assets/AssetCurator.h>
 #include <QAbstractItemModel>
 
-class EZ_EDITORFRAMEWORK_DLL ezAssetCuratorModel : public QAbstractItemModel
+class EZ_EDITORFRAMEWORK_DLL ezAssetBrowserModel : public QAbstractItemModel
 {
   Q_OBJECT
 
 public:
 
-  ezAssetCuratorModel(QObject* pParent);
-  ~ezAssetCuratorModel();
+  ezAssetBrowserModel(QObject* pParent);
+  ~ezAssetBrowserModel();
   
   void resetModel();
   void SetIconMode(bool bIconMode) { m_bIconMode = bIconMode; }

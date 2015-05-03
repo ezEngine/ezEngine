@@ -1,10 +1,10 @@
 #pragma once
 
 #include <EditorFramework/Plugin.h>
-#include <Tools/EditorFramework/ui_AssetBrowser.h>
-#include <EditorFramework/Assets/AssetCuratorModel.moc.h>
+#include <Tools/EditorFramework/ui_AssetBrowserWidget.h>
+#include <EditorFramework/Assets/AssetBrowserModel.moc.h>
 
-class ezAssetBrowser : public QWidget, public Ui_AssetBrowser
+class ezAssetBrowser : public QWidget, public Ui_AssetBrowserWidget
 {
   Q_OBJECT
 
@@ -34,7 +34,7 @@ private:
 
   ezUInt32 m_uiKnownAssetFolderCount;
 
-  ezAssetCuratorModel* m_pModel;
+  ezAssetBrowserModel* m_pModel;
 
   /// \todo Broken delegates
   ezDelegate<void(const ezAssetCurator::Event&)> m_DelegateAssetCuratorEvents;

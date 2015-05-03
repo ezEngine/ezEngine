@@ -1,5 +1,5 @@
 #include <PCH.h>
-#include <EditorFramework/Assets/AssetBrowser.moc.h>
+#include <EditorFramework/Assets/AssetBrowserWidget.moc.h>
 #include <EditorFramework/Assets/AssetDocumentManager.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
@@ -13,7 +13,7 @@ ezAssetBrowser::ezAssetBrowser(QWidget* parent) : QWidget(parent)
 
   setupUi(this);
 
-  m_pModel = new ezAssetCuratorModel(this);
+  m_pModel = new ezAssetBrowserModel(this);
 
   IconSizeSlider->setValue(50);
 

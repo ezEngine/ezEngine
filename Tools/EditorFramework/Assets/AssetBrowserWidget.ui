@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>AssetBrowser</class>
- <widget class="QWidget" name="AssetBrowser">
+ <class>AssetBrowserWidget</class>
+ <widget class="QWidget" name="AssetBrowserWidget">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -154,7 +154,14 @@
         </layout>
        </item>
        <item>
-        <widget class="ezAssetCuratorView" name="ListAssets"/>
+        <widget class="ezAssetBrowserView" name="ListAssets">
+         <property name="alternatingRowColors">
+          <bool>true</bool>
+         </property>
+         <property name="verticalScrollMode">
+          <enum>QAbstractItemView::ScrollPerPixel</enum>
+         </property>
+        </widget>
        </item>
       </layout>
      </widget>
@@ -164,9 +171,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>ezAssetCuratorView</class>
+   <class>ezAssetBrowserView</class>
    <extends>QListView</extends>
-   <header location="global">EditorFramework/Assets/AssetCuratorView.moc.h</header>
+   <header location="global">EditorFramework/Assets/AssetBrowserView.moc.h</header>
   </customwidget>
  </customwidgets>
  <resources>

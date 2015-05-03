@@ -1,12 +1,12 @@
 #include <PCH.h>
-#include <EditorFramework/Assets/AssetCuratorView.moc.h>
+#include <EditorFramework/Assets/AssetBrowserView.moc.h>
 #include <Foundation/Math/Math.h>
 
 #include <QWheelEvent>
 #include <QApplication>
 #include <QPainter>
 
-ezAssetCuratorView::ezAssetCuratorView(QWidget* parent) : QListView(parent)
+ezAssetBrowserView::ezAssetBrowserView(QWidget* parent) : QListView(parent)
 {
   m_iIconSizePercentage = 100;
 
@@ -21,7 +21,7 @@ ezAssetCuratorView::ezAssetCuratorView(QWidget* parent) : QListView(parent)
   SetIconScale(m_iIconSizePercentage);
 }
 
-void ezAssetCuratorView::SetIconMode(bool bIconMode)
+void ezAssetBrowserView::SetIconMode(bool bIconMode)
 {
   if (bIconMode)
   {
@@ -35,7 +35,7 @@ void ezAssetCuratorView::SetIconMode(bool bIconMode)
   }
 }
 
-void ezAssetCuratorView::SetIconScale(ezInt32 iIconSizePercentage)
+void ezAssetBrowserView::SetIconScale(ezInt32 iIconSizePercentage)
 {
   m_iIconSizePercentage = ezMath::Clamp(iIconSizePercentage, 10, 100);
   m_pDelegate->SetIconScale(m_iIconSizePercentage);
@@ -46,13 +46,13 @@ void ezAssetCuratorView::SetIconScale(ezInt32 iIconSizePercentage)
   setGridSize(m_pDelegate->sizeHint(QStyleOptionViewItem(), QModelIndex()));
 }
 
-ezInt32 ezAssetCuratorView::GetIconScale() const
+ezInt32 ezAssetBrowserView::GetIconScale() const
 {
   return m_iIconSizePercentage;
 }
 
 
-void ezAssetCuratorView::wheelEvent(QWheelEvent* pEvent)
+void ezAssetBrowserView::wheelEvent(QWheelEvent* pEvent)
 {
   if(pEvent->modifiers() == Qt::CTRL)
   {
@@ -66,7 +66,7 @@ void ezAssetCuratorView::wheelEvent(QWheelEvent* pEvent)
 }
 
 
-QtIconViewDelegate::QtIconViewDelegate(ezAssetCuratorView* pParent) : QItemDelegate(pParent)
+QtIconViewDelegate::QtIconViewDelegate(ezAssetBrowserView* pParent) : QItemDelegate(pParent)
 {
   m_iIconSizePercentage = 100;
   m_pView = pParent;
