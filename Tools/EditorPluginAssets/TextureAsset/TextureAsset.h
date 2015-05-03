@@ -16,6 +16,7 @@ public:
 
   virtual const char* GetDocumentTypeDisplayString() const override { return "Texture Asset"; }
 
+  virtual const char* QueryAssetType() const override;
 
 protected:
   virtual void Initialize() override;

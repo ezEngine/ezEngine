@@ -49,6 +49,18 @@ void ezAssetCuratorModel::SetTextFilter(const char* szText)
   emit TextFilterChanged();
 }
 
+void ezAssetCuratorModel::SetTypeFilter(const char* szTypes)
+{
+  if (m_sTypeFilter == szTypes)
+    return;
+
+  m_sTypeFilter = szTypes;
+
+  resetModel();
+
+  emit TypeFilterChanged();
+}
+
 void ezAssetCuratorModel::resetModel()
 {
   beginResetModel();
@@ -58,12 +70,22 @@ void ezAssetCuratorModel::resetModel()
   m_AssetsToDisplay.Clear();
   m_AssetsToDisplay.Reserve(AllAssets.GetCount());
 
+  ezStringBuilder sTemp;
+
   for (auto it = AllAssets.GetIterator(); it.IsValid(); ++it)
   {
     if (!m_sTextFilter.IsEmpty())
     {
       // if the string is not found in the path, ignore this asset
       if (it.Value()->m_sRelativePath.FindSubString_NoCase(m_sTextFilter) == nullptr)
+        continue;
+    }
+
+    if (!m_sTypeFilter.IsEmpty())
+    {
+      sTemp.Set(";", it.Value()->m_Info.m_sAssetTypeName, ";");
+
+      if (!m_sTypeFilter.FindSubString(sTemp))
         continue;
     }
 

@@ -31,10 +31,10 @@ void ezRawPropertyWidget::BuildUI(const ezIReflectedTypeAccessor& et, const ezRe
   {
     const ezReflectedProperty* pProp = pType->GetPropertyByIndex(i);
 
+    ParentPath.PushBack(pProp->m_sPropertyName.GetString().GetData());
+
     if (pProp->m_Flags.IsAnySet(PropertyFlags::IsPOD))
     {
-      ParentPath.PushBack(pProp->m_sPropertyName.GetString().GetData());
-
       ezPropertyEditorBaseWidget* pNewWidget = nullptr;
 
       switch (pProp->m_Type)
@@ -104,13 +104,9 @@ void ezRawPropertyWidget::BuildUI(const ezIReflectedTypeAccessor& et, const ezRe
 
         pNewWidget->m_Events.AddEventHandler(ezMakeDelegate(&ezRawPropertyWidget::PropertyChangedHandler, this));
       }
-
-      ParentPath.PopBack();
     }
     else if (pProp->m_Flags.IsAnySet(PropertyFlags::IsEnum | PropertyFlags::IsBitflags))
     {
-      ParentPath.PushBack(pProp->m_sPropertyName.GetString().GetData());
-
       ezPropertyEditorBaseWidget* pNewWidget = nullptr;
       if (pProp->m_Flags.IsAnySet(PropertyFlags::IsEnum))
       {
@@ -126,15 +122,12 @@ void ezRawPropertyWidget::BuildUI(const ezIReflectedTypeAccessor& et, const ezRe
 
       pLayout->addWidget(pNewWidget);
       pNewWidget->SetValue(et.GetValue(ParentPath));
+      pNewWidget->setEnabled(!pProp->m_Flags.IsSet(PropertyFlags::IsReadOnly));
 
       pNewWidget->m_Events.AddEventHandler(ezMakeDelegate(&ezRawPropertyWidget::PropertyChangedHandler, this));
-      
-      ParentPath.PopBack();
     }
     else
     {
-      ParentPath.PushBack(pProp->m_sPropertyName.GetString().GetData());
-
       ezCollapsibleGroupBox* pSubGroup = new ezCollapsibleGroupBox((QWidget*) pLayout->parent());
       pSubGroup->setTitle(QString::fromUtf8(pProp->m_sPropertyName.GetString().GetData()));
 
@@ -143,11 +136,14 @@ void ezRawPropertyWidget::BuildUI(const ezIReflectedTypeAccessor& et, const ezRe
       pSubGroup->setLayout(pSubLayout);
 
       pLayout->addWidget(pSubGroup);
+      
+      /// \todo read-only flag ?
+      //pNewWidget->setEnabled(!pProp->m_Flags.IsSet(PropertyFlags::IsReadOnly));
 
       BuildUI(et, pProp->m_hTypeHandle.GetType(), ParentPath, pSubLayout);
-
-      ParentPath.PopBack();
     }
+
+    ParentPath.PopBack();
   }
 }
 

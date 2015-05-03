@@ -28,7 +28,7 @@
      <property name="childrenCollapsible">
       <bool>false</bool>
      </property>
-     <widget class="QWidget" name="">
+     <widget class="QWidget" name="layoutWidget">
       <layout class="QVBoxLayout" name="verticalLayout" stretch="0,1,3">
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout">
@@ -66,7 +66,7 @@
        </item>
       </layout>
      </widget>
-     <widget class="QWidget" name="">
+     <widget class="QWidget" name="layoutWidget">
       <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,0">
        <item>
         <layout class="QHBoxLayout" name="ToolBarLayout">

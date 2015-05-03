@@ -21,6 +21,7 @@ public:
   ezUInt64 m_uiSettingsHash; ///< Current hash over all settings in the document, used to check resulting resource for being up-to-date in combination with dependency hashes.
   ezHybridArray<ezString, 16> m_FileDependencies;   ///< Files that are required to generate the asset, ie. if one changes, the asset needs to be recreated
   ezHybridArray<ezString, 16> m_FileReferences;     ///< Other files that are used at runtime together with this asset, e.g. materials for a mesh
+  ezString m_sAssetTypeName;
 };
 
 class EZ_EDITORFRAMEWORK_DLL ezAssetDocument : public ezDocumentBase
@@ -30,6 +31,15 @@ class EZ_EDITORFRAMEWORK_DLL ezAssetDocument : public ezDocumentBase
 public:
   ezAssetDocument(const char* szDocumentPath, ezDocumentObjectManagerBase* pObjectManager);
   ~ezAssetDocument();
+
+  /// \brief Returns one of the strings that ezAssetDocumentManager::QuerySupportedAssetTypes returned.
+  ///
+  /// This can be different for each instance of the same asset document type.
+  /// E.g. one texture resource may return 'Texture 2D' and another 'Texture 3D'.
+  /// Likewise completely different asset document types may use the same 'asset types'.
+  ///
+  /// This is mostly used for sorting and filtering in the asset browser.
+  virtual const char* QueryAssetType() const = 0;
 
   ezStatus TransformAsset(const char* szPlatform = "");
 

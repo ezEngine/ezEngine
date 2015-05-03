@@ -27,4 +27,7 @@
     <file>Icons/Redo16.png</file>
     <file>Icons/ezEditor16.png</file>
   </qresource>
+  <qresource prefix="AssetIcons">
+    <file>All.png</file>
+  </qresource>
 </RCC>

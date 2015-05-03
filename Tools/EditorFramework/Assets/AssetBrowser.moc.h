@@ -14,6 +14,7 @@ public:
 
 private slots:
   void OnTextFilterChanged();
+  void OnTypeFilterChanged();
   void on_ListAssets_doubleClicked(const QModelIndex& index);
   void on_ButtonListMode_clicked();
   void on_ButtonIconMode_clicked();
@@ -21,6 +22,7 @@ private slots:
   void on_ListAssets_ViewZoomed(ezInt32 iIconSizePercentage);
   void on_LineSearchFilter_textEdited(const QString& text);
   void on_ButtonClearSearch_clicked();
+  void on_ListTypeFilter_itemChanged(QListWidgetItem* item);
 
 private:
   ezAssetCuratorModel* m_pModel;

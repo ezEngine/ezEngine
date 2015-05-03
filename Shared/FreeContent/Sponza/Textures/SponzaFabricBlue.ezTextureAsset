@@ -7,7 +7,8 @@
         "DocumentID" : { "$t" : "uuid", "$b" : "0x233D74E871C2DC4BBA5B9563C002E8C4" },
         "Dependencies" : "Sponza/Textures/sponza_fabric_blue_diff.dds",
         "References" : "",
-        "Hash" : { "$t" : "uint64", "$v" : "5797958995681091596", "$b" : "0x0C20DAD7FC7C7650" }
+        "Hash" : { "$t" : "uint64", "$v" : "17344377087800905551", "$b" : "0x4F0FCC20119BB3F0" },
+        "AssetType" : "Texture 2D"
       }
     } ],
   "ObjectTree" : [ {
@@ -16,13 +17,13 @@
       "ParentID" : { "$t" : "uuid", "$b" : "0x00000000000000000000000000000000" },
       "TypeData" : {
         "Texture File" : "Sponza/Textures/sponza_fabric_blue_diff.dds",
-        "sRGB" : true,
-        "Usage" : "ezTextureUsageEnum::DiffuseMap",
+        "Usage" : "ezTextureUsageEnum::Diffuse",
+        "sRGB-Mode" : "ezSRGBModeEnum::Unknown",
+        "Type" : "ezTextureTypeEnum::Texture2D",
         "Format" : "BC1_UNORM",
         "Width" : { "$t" : "uint32", "$v" : "1024", "$b" : "0x00040000" },
         "Height" : { "$t" : "uint32", "$v" : "1024", "$b" : "0x00040000" },
-        "Depth" : { "$t" : "uint32", "$v" : "1", "$b" : "0x01000000" },
-        "Is Cubemap" : false
+        "Depth" : { "$t" : "uint32", "$v" : "1", "$b" : "0x01000000" }
       },
       "EditorTypeData" : {
         

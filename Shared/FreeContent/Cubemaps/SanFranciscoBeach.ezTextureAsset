@@ -4,23 +4,23 @@
       "ID" : { "$t" : "uuid", "$b" : "0x00000000000000000000000000000000" },
       "ParentID" : { "$t" : "uuid", "$b" : "0x00000000000000000000000000000000" },
       "TypeData" : {
-        "DocumentID" : { "$t" : "uuid", "$b" : "0x0E3DD682C9DE574BA8BA080FA6B3BB3E" },
-        "Dependencies" : "Sponza/Textures/sponza_column_a_diff.dds",
+        "DocumentID" : { "$t" : "uuid", "$b" : "0x5DB76CBA6757094599C742EE599607A3" },
+        "Dependencies" : "Cubemaps/SanFranciscoBeach.dds",
         "References" : "",
-        "Hash" : { "$t" : "uint64", "$v" : "14156065098537218459", "$b" : "0x9BB19D7F347274C4" },
-        "AssetType" : "Texture 2D"
+        "Hash" : { "$t" : "uint64", "$v" : "2440840715667210825", "$b" : "0x4982A7E2B29BDF21" },
+        "AssetType" : "Texture Cube"
       }
     } ],
   "ObjectTree" : [ {
       "Type" : "ezTextureAssetProperties",
-      "ID" : { "$t" : "uuid", "$b" : "0x6DE81F5A19496349ABAD9E0E21BC63A2" },
+      "ID" : { "$t" : "uuid", "$b" : "0x4DC2B35C8C73544A888F5908D9462A64" },
       "ParentID" : { "$t" : "uuid", "$b" : "0x00000000000000000000000000000000" },
       "TypeData" : {
-        "Texture File" : "Sponza/Textures/sponza_column_a_diff.dds",
-        "Usage" : "ezTextureUsageEnum::Diffuse",
+        "Texture File" : "Cubemaps/SanFranciscoBeach.dds",
+        "Usage" : "ezTextureUsageEnum::Unknown",
         "sRGB-Mode" : "ezSRGBModeEnum::Unknown",
-        "Type" : "ezTextureTypeEnum::Texture2D",
-        "Format" : "BC1_UNORM",
+        "Type" : "ezTextureTypeEnum::TextureCube",
+        "Format" : "B8G8R8X8_UNORM",
         "Width" : { "$t" : "uint32", "$v" : "1024", "$b" : "0x00040000" },
         "Height" : { "$t" : "uint32", "$v" : "1024", "$b" : "0x00040000" },
         "Depth" : { "$t" : "uint32", "$v" : "1", "$b" : "0x01000000" }

@@ -43,6 +43,7 @@ ezAssetBrowser::ezAssetBrowser(QWidget* parent) : QWidget(parent)
   }
 
   EZ_VERIFY(connect(m_pModel, SIGNAL(TextFilterChanged()), this, SLOT(OnTextFilterChanged())) != nullptr, "signal/slot connection failed");
+  EZ_VERIFY(connect(m_pModel, SIGNAL(TypeFilterChanged()), this, SLOT(OnTypeFilterChanged())) != nullptr, "signal/slot connection failed");
 
   ezSet<ezString> KnownAssetTypes;
 
@@ -60,6 +61,15 @@ ezAssetBrowser::ezAssetBrowser(QWidget* parent) : QWidget(parent)
     QtScopedBlockSignals block(ListTypeFilter);
 
     ezStringBuilder sIconName;
+
+    // 'All' Filter
+    {
+      QListWidgetItem* pItem = new QListWidgetItem(QIcon(QLatin1String(":/AssetIcons/All")), QLatin1String("<All>"));
+      pItem->setFlags(Qt::ItemFlag::ItemIsEnabled | Qt::ItemFlag::ItemIsSelectable | Qt::ItemFlag::ItemIsUserCheckable);
+      pItem->setCheckState(Qt::CheckState::Checked);
+
+      ListTypeFilter->addItem(pItem);
+    }
 
     for (const auto& key : KnownAssetTypes)
     {
@@ -130,6 +140,26 @@ void ezAssetBrowser::OnTextFilterChanged()
   LineSearchFilter->setText(QString::fromUtf8(m_pModel->GetTextFilter()));
 }
 
+void ezAssetBrowser::OnTypeFilterChanged()
+{
+  ezStringBuilder sTemp;
+  const ezStringBuilder sFilter = m_pModel->GetTypeFilter();
+
+  bool bAnyChecked = false;
+
+  for (ezInt32 i = 1; i < ListTypeFilter->count(); ++i)
+  {
+    sTemp.Set(";", ListTypeFilter->item(i)->text().toUtf8().data(), ";");
+
+    bool bChecked = sFilter.FindSubString(sTemp) != nullptr;
+
+    if (bChecked)
+      bAnyChecked = true;
+  }
+
+  ListTypeFilter->item(0)->setCheckState(bAnyChecked ? Qt::Unchecked : Qt::Checked);
+}
+
 void ezAssetBrowser::on_LineSearchFilter_textEdited(const QString& text)
 {
   m_pModel->SetTextFilter(text.toUtf8().data());
@@ -140,3 +170,51 @@ void ezAssetBrowser::on_ButtonClearSearch_clicked()
   m_pModel->SetTextFilter("");
 }
 
+void ezAssetBrowser::on_ListTypeFilter_itemChanged(QListWidgetItem* item)
+{
+  QtScopedBlockSignals block(ListTypeFilter);
+
+  if (item->text() == "<All>")
+  {
+    if (item->checkState() == Qt::Checked)
+    {
+      // deactivate all others
+      for (ezInt32 i = 1; i < ListTypeFilter->count(); ++i)
+      {
+        ListTypeFilter->item(i)->setCheckState(Qt::Unchecked);
+      }
+    }
+  }
+  else
+  {
+    if (item->checkState() == Qt::Checked)
+    {
+      // deactivate the 'all' button
+      ListTypeFilter->item(0)->setCheckState(Qt::Unchecked);
+    }
+    else
+    {
+      bool bAnyChecked = false;
+
+      for (ezInt32 i = 1; i < ListTypeFilter->count(); ++i)
+      {
+        if (ListTypeFilter->item(i)->checkState() == Qt::Checked)
+          bAnyChecked = true;
+      }
+
+      // activate the 'All' item
+      if (!bAnyChecked)
+        ListTypeFilter->item(0)->setCheckState(Qt::Checked);
+    }
+  }
+
+  ezStringBuilder sFilter;
+
+  for (ezInt32 i = 1; i < ListTypeFilter->count(); ++i)
+  {
+    if (ListTypeFilter->item(i)->checkState() == Qt::Checked)
+      sFilter.Append(";", ListTypeFilter->item(i)->text().toUtf8().data(), ";");
+  }
+
+  m_pModel->SetTypeFilter(sFilter);
+}

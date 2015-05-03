@@ -58,16 +58,12 @@ ezStatus ezTextureAssetDocument::InternalLoadDocument()
 
 void ezTextureAssetDocument::UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo)
 {
-  pInfo->m_FileDependencies.Clear();
-
   const ezTextureAssetProperties* pProp = GetProperties();
 
   ezStringBuilder sTemp = pProp->GetInputFile();
   sTemp.MakeCleanPath();
 
   pInfo->m_FileDependencies.PushBack(sTemp);
-
-  pInfo->m_uiSettingsHash = GetDocumentHash();
 }
 
 ezStatus ezTextureAssetDocument::InternalTransformAsset(ezStreamWriterBase& stream, const char* szPlatform)
@@ -112,3 +108,17 @@ ezStatus ezTextureAssetDocument::InternalTransformAsset(ezStreamWriterBase& stre
   return ezStatus(EZ_SUCCESS);
 }
 
+const char* ezTextureAssetDocument::QueryAssetType() const
+{
+  switch (GetProperties()->GetTextureType())
+  {
+  case ezTextureTypeEnum::Texture2D:
+    return "Texture 2D";
+  case ezTextureTypeEnum::Texture3D:
+    return "Texture 3D";
+  case ezTextureTypeEnum::TextureCube:
+    return "Texture Cube";
+  }
+
+  return "Unknown";
+}

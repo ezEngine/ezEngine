@@ -18,6 +18,7 @@ EZ_BEGIN_PROPERTIES
 EZ_ACCESSOR_PROPERTY("Dependencies", GetDependencies, SetDependencies),
 EZ_ACCESSOR_PROPERTY("References", GetReferences, SetReferences),
 EZ_MEMBER_PROPERTY("Hash", m_uiSettingsHash),
+EZ_MEMBER_PROPERTY("AssetType", m_sAssetTypeName),
 EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
@@ -89,7 +90,14 @@ ezDocumentInfo* ezAssetDocument::CreateDocumentInfo()
 
 ezStatus ezAssetDocument::InternalSaveDocument()
 {
-  UpdateAssetDocumentInfo(static_cast<ezAssetDocumentInfo*>(m_pDocumentInfo));
+  ezAssetDocumentInfo* pInfo = static_cast<ezAssetDocumentInfo*>(m_pDocumentInfo);
+
+  pInfo->m_FileDependencies.Clear();
+  pInfo->m_uiSettingsHash = GetDocumentHash();
+  pInfo->m_sAssetTypeName = QueryAssetType();
+
+  UpdateAssetDocumentInfo(pInfo);
+
   return ezDocumentBase::InternalSaveDocument();
 }
 
