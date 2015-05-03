@@ -23,6 +23,8 @@ private slots:
   void on_ButtonPluginConfig_clicked();
   void SlotComboSettingsDomainIndexChanged(int iIndex);
   void on_ButtonDataDirConfig_clicked();
+  void on_ButtonAssetBrowserDlg_clicked();
+  void SlotAssetChosen(QString sAssetPath);
 
 private:
   virtual bool InternalCanCloseWindow() override;

@@ -100,6 +100,8 @@ void QtImageCache::RunLoadingTask()
     }
     else
     {
+      s_Requests.Remove(it);
+
       // inform the requester that his request has been fulfilled
       g_ImageCacheSingleton.EmitLoadedSignal(sQtPath, req.m_Index, req.m_UserData1, req.m_UserData2);
     }

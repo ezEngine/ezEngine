@@ -4,13 +4,19 @@
 #include <Tools/EditorFramework/ui_AssetBrowserWidget.h>
 #include <EditorFramework/Assets/AssetBrowserModel.moc.h>
 
-class ezAssetBrowser : public QWidget, public Ui_AssetBrowserWidget
+class ezAssetBrowserWidget : public QWidget, public Ui_AssetBrowserWidget
 {
   Q_OBJECT
 
 public:
-  ezAssetBrowser(QWidget* parent);
-  ~ezAssetBrowser();
+  ezAssetBrowserWidget(QWidget* parent);
+  ~ezAssetBrowserWidget();
+
+  void SetSelectedAsset(const char* szAssetPath);
+  void ShowOnlyTheseTypeFilters(const char* szFilters);
+
+signals:
+  void ItemChosen(QString sAssetPath);
 
 private slots:
   void OnTextFilterChanged();
@@ -25,6 +31,7 @@ private slots:
   void on_ButtonClearSearch_clicked();
   void on_ListTypeFilter_itemChanged(QListWidgetItem* item);
   void on_TreeFolderFilter_itemSelectionChanged();
+  void OnScrollToItem(QString sPath);
 
 private:
   void AssetCuratorEventHandler(const ezAssetCurator::Event& e);
@@ -34,6 +41,7 @@ private:
 
   ezUInt32 m_uiKnownAssetFolderCount;
 
+  ezString m_sAllTypesFilter;
   ezAssetBrowserModel* m_pModel;
 
   /// \todo Broken delegates

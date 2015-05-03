@@ -5,6 +5,7 @@
 #include <EditorFramework/Dialogs/PluginDlg.moc.h>
 #include <GuiFoundation/ActionViews/MenuBarActionMapView.moc.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
+#include <EditorFramework/Assets/AssetBrowserDlg.moc.h>
 
 static ezSettingsTab* g_pInstance = nullptr;
 
@@ -53,6 +54,7 @@ ezSettingsTab::ezSettingsTab() : ezDocumentWindow("Settings")
 
   EZ_VERIFY(connect(m_pSettingsGrid, SIGNAL(value_changed()), this, SLOT(SlotSettingsChanged())) != nullptr, "signal/slot connection failed");
   EZ_VERIFY(connect(ComboSettingsDomain, SIGNAL(currentIndexChanged(int)), this, SLOT(SlotComboSettingsDomainIndexChanged(int))) != nullptr, "signal/slot connection failed");
+  EZ_VERIFY(connect(AssetBrowserWidget, SIGNAL(ItemChosen(QString)), this, SLOT(SlotAssetChosen(QString))) != nullptr, "signal/slot connection failed");
 
   m_DelegatePluginEvents = ezMakeDelegate(&ezSettingsTab::PluginEventHandler, this);
   m_DelegateProjectEvents = ezMakeDelegate(&ezSettingsTab::ProjectEventHandler, this);
@@ -215,6 +217,11 @@ void ezSettingsTab::on_ButtonPluginConfig_clicked()
   dlg.exec();
 }
 
+void ezSettingsTab::SlotAssetChosen(QString sAssetPath)
+{
+  ezEditorApp::GetInstance()->OpenDocument(sAssetPath.toUtf8().data());
+}
+
 void ezSettingsTab::SlotComboSettingsDomainIndexChanged(int iIndex)
 {
   m_sSelectedSettingDomain = ComboSettingsDomain->itemData(iIndex, Qt::UserRole).toString().toUtf8().data();
@@ -237,5 +244,12 @@ void ezSettingsTab::on_ButtonDataDirConfig_clicked()
 {
   DataDirsDlg dlg(this);
   dlg.exec();
+}
+
+void ezSettingsTab::on_ButtonAssetBrowserDlg_clicked()
+{
+  ezAssetBrowserDlg dlg(this, "Sponza/Textures/VasePlant.ezTextureAsset", "Texture 2D;Texture Cube");
+  dlg.exec();
+
 }
 

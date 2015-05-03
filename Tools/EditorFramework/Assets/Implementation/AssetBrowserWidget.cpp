@@ -6,8 +6,9 @@
 #include <GuiFoundation/Basics.h>
 #include <QVBoxLayout>
 #include <QScrollBar>
+#include <QTimer>
 
-ezAssetBrowser::ezAssetBrowser(QWidget* parent) : QWidget(parent)
+ezAssetBrowserWidget::ezAssetBrowserWidget(QWidget* parent) : QWidget(parent)
 {
   m_uiKnownAssetFolderCount = 0;
 
@@ -91,25 +92,25 @@ ezAssetBrowser::ezAssetBrowser(QWidget* parent) : QWidget(parent)
 
   UpdateDirectoryTree();
 
-  m_DelegateAssetCuratorEvents = ezMakeDelegate(&ezAssetBrowser::AssetCuratorEventHandler, this);
+  m_DelegateAssetCuratorEvents = ezMakeDelegate(&ezAssetBrowserWidget::AssetCuratorEventHandler, this);
 
   ezAssetCurator::GetInstance()->m_Events.AddEventHandler(m_DelegateAssetCuratorEvents);
 }
 
-ezAssetBrowser::~ezAssetBrowser()
+ezAssetBrowserWidget::~ezAssetBrowserWidget()
 {
   ezAssetCurator::GetInstance()->m_Events.RemoveEventHandler(m_DelegateAssetCuratorEvents);
 
   ListAssets->setModel(nullptr);
 }
 
-void ezAssetBrowser::on_ListAssets_doubleClicked(const QModelIndex& index)
+void ezAssetBrowserWidget::on_ListAssets_doubleClicked(const QModelIndex& index)
 {
-  ezEditorApp::GetInstance()->OpenDocument(m_pModel->data(index, Qt::UserRole + 1).toString().toUtf8().data());
-
+  emit ItemChosen(m_pModel->data(index, Qt::UserRole + 1).toString());
+  //ezEditorApp::GetInstance()->OpenDocument(m_pModel->data(index, Qt::UserRole + 1).toString().toUtf8().data());
 }
 
-void ezAssetBrowser::on_ButtonListMode_clicked()
+void ezAssetBrowserWidget::on_ButtonListMode_clicked()
 {
   m_pModel->SetIconMode(false);
   ListAssets->SetIconMode(false);
@@ -123,7 +124,7 @@ void ezAssetBrowser::on_ButtonListMode_clicked()
   ButtonIconMode->setChecked(false);
 }
 
-void ezAssetBrowser::on_ButtonIconMode_clicked()
+void ezAssetBrowserWidget::on_ButtonIconMode_clicked()
 {
   m_pModel->SetIconMode(true);
   ListAssets->SetIconMode(true);
@@ -137,26 +138,26 @@ void ezAssetBrowser::on_ButtonIconMode_clicked()
   ButtonIconMode->setChecked(true);
 }
 
-void ezAssetBrowser::on_IconSizeSlider_valueChanged(int iValue)
+void ezAssetBrowserWidget::on_IconSizeSlider_valueChanged(int iValue)
 {
   ListAssets->SetIconScale(iValue);
 }
 
-void ezAssetBrowser::on_ListAssets_ViewZoomed(ezInt32 iIconSizePercentage)
+void ezAssetBrowserWidget::on_ListAssets_ViewZoomed(ezInt32 iIconSizePercentage)
 {
   QtScopedBlockSignals block(IconSizeSlider);
   IconSizeSlider->setValue(iIconSizePercentage);
 }
 
-void ezAssetBrowser::OnTextFilterChanged()
+void ezAssetBrowserWidget::OnTextFilterChanged()
 {
   LineSearchFilter->setText(QString::fromUtf8(m_pModel->GetTextFilter()));
 }
 
-void ezAssetBrowser::OnTypeFilterChanged()
+void ezAssetBrowserWidget::OnTypeFilterChanged()
 {
   ezStringBuilder sTemp;
-  const ezStringBuilder sFilter = m_pModel->GetTypeFilter();
+  const ezStringBuilder sFilter(";", m_pModel->GetTypeFilter(), ";");
 
   bool bAnyChecked = false;
 
@@ -173,17 +174,17 @@ void ezAssetBrowser::OnTypeFilterChanged()
   ListTypeFilter->item(0)->setCheckState(bAnyChecked ? Qt::Unchecked : Qt::Checked);
 }
 
-void ezAssetBrowser::on_LineSearchFilter_textEdited(const QString& text)
+void ezAssetBrowserWidget::on_LineSearchFilter_textEdited(const QString& text)
 {
   m_pModel->SetTextFilter(text.toUtf8().data());
 }
 
-void ezAssetBrowser::on_ButtonClearSearch_clicked()
+void ezAssetBrowserWidget::on_ButtonClearSearch_clicked()
 {
   m_pModel->SetTextFilter("");
 }
 
-void ezAssetBrowser::on_ListTypeFilter_itemChanged(QListWidgetItem* item)
+void ezAssetBrowserWidget::on_ListTypeFilter_itemChanged(QListWidgetItem* item)
 {
   QtScopedBlockSignals block(ListTypeFilter);
 
@@ -229,10 +230,13 @@ void ezAssetBrowser::on_ListTypeFilter_itemChanged(QListWidgetItem* item)
       sFilter.Append(";", ListTypeFilter->item(i)->text().toUtf8().data(), ";");
   }
 
+  if (sFilter.IsEmpty()) // all filters enabled
+    sFilter = m_sAllTypesFilter; // might be different for dialogs
+
   m_pModel->SetTypeFilter(sFilter);
 }
 
-void ezAssetBrowser::AssetCuratorEventHandler(const ezAssetCurator::Event& e)
+void ezAssetBrowserWidget::AssetCuratorEventHandler(const ezAssetCurator::Event& e)
 {
   switch (e.m_Type)
   {
@@ -244,7 +248,7 @@ void ezAssetBrowser::AssetCuratorEventHandler(const ezAssetCurator::Event& e)
   }
 }
 
-void ezAssetBrowser::UpdateDirectoryTree()
+void ezAssetBrowserWidget::UpdateDirectoryTree()
 {
   QtScopedBlockSignals block(TreeFolderFilter);
 
@@ -254,6 +258,8 @@ void ezAssetBrowser::UpdateDirectoryTree()
     pNewParent->setText(0, QLatin1String("<root>"));
 
     TreeFolderFilter->addTopLevelItem(pNewParent);
+
+    pNewParent->setExpanded(true);
   }
 
   const ezSet<ezString>& Folders = ezAssetCurator::GetInstance()->GetAllAssetFolders();
@@ -275,7 +281,7 @@ void ezAssetBrowser::UpdateDirectoryTree()
   TreeFolderFilter->sortItems(0, Qt::SortOrder::AscendingOrder);
 }
 
-void ezAssetBrowser::BuildDirectoryTree(const char* szCurPath, QTreeWidgetItem* pParent, const char* szCurPathToItem)
+void ezAssetBrowserWidget::BuildDirectoryTree(const char* szCurPath, QTreeWidgetItem* pParent, const char* szCurPathToItem)
 {
   if (ezStringUtils::IsNullOrEmpty(szCurPath))
     return;
@@ -320,7 +326,7 @@ godown:
   BuildDirectoryTree(szNextSep + 1, pNewParent, sCurPath);
 }
 
-void ezAssetBrowser::on_TreeFolderFilter_itemSelectionChanged()
+void ezAssetBrowserWidget::on_TreeFolderFilter_itemSelectionChanged()
 {
   ezStringBuilder sCurPath;
 
@@ -332,7 +338,7 @@ void ezAssetBrowser::on_TreeFolderFilter_itemSelectionChanged()
   m_pModel->SetPathFilter(sCurPath);
 }
 
-void ezAssetBrowser::OnPathFilterChanged()
+void ezAssetBrowserWidget::OnPathFilterChanged()
 {
   const QString sPath = QString::fromUtf8(m_pModel->GetPathFilter());
 
@@ -340,7 +346,7 @@ void ezAssetBrowser::OnPathFilterChanged()
     SelectPathFilter(TreeFolderFilter->topLevelItem(0), sPath);
 }
 
-bool ezAssetBrowser::SelectPathFilter(QTreeWidgetItem* pParent, const QString& sPath)
+bool ezAssetBrowserWidget::SelectPathFilter(QTreeWidgetItem* pParent, const QString& sPath)
 {
   if (pParent->data(0, Qt::UserRole + 1).toString() == sPath)
   {
@@ -356,3 +362,54 @@ bool ezAssetBrowser::SelectPathFilter(QTreeWidgetItem* pParent, const QString& s
 
   return false;
 }
+
+void ezAssetBrowserWidget::SetSelectedAsset(const char* szAssetPath)
+{
+  if (ezStringUtils::IsNullOrEmpty(szAssetPath))
+    return;
+
+  const QString sPath = QString::fromUtf8(szAssetPath);
+
+  // cannot do this immediately, since the UI is probably still building up
+  // ListAssets->scrollTo either hangs, or has no effect
+  // so we put this into the message queue, and do it later
+  QMetaObject::invokeMethod(this, "OnScrollToItem", Qt::ConnectionType::QueuedConnection, Q_ARG(QString, sPath));
+}
+
+void ezAssetBrowserWidget::OnScrollToItem(QString sPath)
+{
+  for (ezInt32 i = 0; i < m_pModel->rowCount(); ++i)
+  {
+    if (m_pModel->data(m_pModel->index(i, 0), Qt::UserRole + 2) == sPath)
+    {
+      ListAssets->selectionModel()->select(m_pModel->index(i, 0), QItemSelectionModel::SelectionFlag::ClearAndSelect);
+      ListAssets->scrollTo(m_pModel->index(i, 0), QAbstractItemView::ScrollHint::EnsureVisible);
+      return;
+    }
+  }
+}
+
+void ezAssetBrowserWidget::ShowOnlyTheseTypeFilters(const char* szFilters)
+{
+  return;
+
+  {
+    QtScopedBlockSignals block(ListTypeFilter);
+
+    ezStringBuilder sFilter;
+    const ezStringBuilder sAllFilters(";", szFilters, ";");
+
+    m_sAllTypesFilter = sAllFilters;
+
+    for (ezInt32 i = 1; i < ListTypeFilter->count(); ++i)
+    {
+      sFilter.Set(";", ListTypeFilter->item(i)->text().toUtf8().data(), ";");
+
+      if (sAllFilters.FindSubString(sFilter) == nullptr)
+        ListTypeFilter->item(i)->setHidden(true);
+    }
+  }
+
+  m_pModel->SetTypeFilter(m_sAllTypesFilter);
+}
+

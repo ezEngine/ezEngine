@@ -15,6 +15,13 @@
   </property>
   <layout class="QVBoxLayout" name="verticalLayout_5">
    <item>
+    <widget class="QPushButton" name="ButtonAssetBrowserDlg">
+     <property name="text">
+      <string>MORE ASSET BROWSERS !!!11one</string>
+     </property>
+    </widget>
+   </item>
+   <item>
     <widget class="QSplitter" name="splitter">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
@@ -155,7 +162,7 @@
       </property>
       <layout class="QHBoxLayout" name="horizontalLayout_5" stretch="0">
        <item>
-        <widget class="ezAssetBrowser" name="AssetBrowserWidget" native="true"/>
+        <widget class="ezAssetBrowserWidget" name="AssetBrowserWidget" native="true"/>
        </item>
       </layout>
      </widget>
@@ -165,7 +172,7 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>ezAssetBrowser</class>
+   <class>ezAssetBrowserWidget</class>
    <extends>QWidget</extends>
    <header location="global">EditorFramework/Assets/AssetBrowserWidget.moc.h</header>
    <container>1</container>

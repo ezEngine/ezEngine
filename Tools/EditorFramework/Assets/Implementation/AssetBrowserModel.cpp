@@ -185,6 +185,12 @@ QVariant ezAssetBrowserModel::data(const QModelIndex& index, int role) const
       return QString::fromUtf8(pAssetInfo->m_sAbsolutePath);
     }
     break;
+
+  case Qt::UserRole + 2:
+    {
+      return QString::fromUtf8(pAssetInfo->m_sRelativePath);
+    }
+    break;
   }
 
   return QVariant();
