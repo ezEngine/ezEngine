@@ -12,19 +12,12 @@
 #include <Foundation/Reflection/Implementation/EnumProperty.h>
 #include <Foundation/Reflection/Implementation/BitflagsProperty.h>
 #include <Foundation/Reflection/Implementation/ArrayProperty.h>
+#include <Foundation/Reflection/Implementation/SetProperty.h>
 #include <Foundation/Reflection/Implementation/MessageHandler.h>
 
 #include <Foundation/Reflection/Implementation/StandardTypes.h>
 
-/// \todo Reflection: Array Properties
+/// \todo Reflection: Map Properties
 /// \todo Reflection: Property Hints: Editor Only
 
-// Array:
-//   can insert at
-//   insert at
-//   remove at
-//   can remove at
-//   get item count
-//   get item
-//   get item type
 

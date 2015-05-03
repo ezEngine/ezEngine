@@ -36,13 +36,13 @@ public:
   QtIconViewDelegate(ezAssetBrowserView* pParent = nullptr);
 
   void SetIconScale(ezInt32 iIconSizePercentage);
-  QSize ItemSize() const;
-
+  
 public:
   virtual void paint(QPainter* painter, const QStyleOptionViewItem& opt, const QModelIndex& index) const override;
   virtual QSize	sizeHint(const QStyleOptionViewItem& opt, const QModelIndex& index) const override;
 
 private:
+  QSize ItemSize() const;
   QFont GetFont() const;
   ezUInt32 ThumbnailSize() const;
   bool IsInIconMode() const;

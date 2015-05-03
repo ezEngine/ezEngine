@@ -42,23 +42,24 @@ struct EZ_TOOLSFOUNDATION_DLL ezReflectedTypeChange
   const ezReflectedType* pNewType;
 };
 
-EZ_DECLARE_FLAGS(ezUInt8, PropertyFlags, IsPOD, IsReadOnly, IsConstant, IsEnum, IsBitflags);
-
 /// \brief Stores the description of a reflected property in a serializable form, used by ezReflectedTypeDescriptor.
 struct EZ_TOOLSFOUNDATION_DLL ezReflectedPropertyDescriptor
 {
   ezReflectedPropertyDescriptor() {}
-  ezReflectedPropertyDescriptor(const char* szName, const char* szType, ezBitflags<PropertyFlags> flags); // [tested]
-  ezReflectedPropertyDescriptor(const char* szName, ezVariant::Type::Enum type, ezBitflags<PropertyFlags> flags); // [tested]
-  ezReflectedPropertyDescriptor(const char* szName, ezVariant::Type::Enum type, const ezVariant& constantValue);
+  ezReflectedPropertyDescriptor(ezPropertyCategory::Enum category, const char* szName, const char* szType, ezVariant::Type::Enum type, ezBitflags<ezPropertyFlags> flags); // [tested]
+  ezReflectedPropertyDescriptor(const char* szName, ezVariant::Type::Enum type, const ezVariant& constantValue); // [tested]
 
+  ezEnum<ezPropertyCategory> m_Category;
   ezString m_sName;
+
   ezString m_sType;
-  ezEnum<ezVariant::Type> m_Type;
-  ezBitflags<PropertyFlags> m_Flags;
+  ezEnum<ezVariantType> m_Type;
+
+  ezBitflags<ezPropertyFlags> m_Flags;
+
   ezVariant m_ConstantValue;
 };
-
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_TOOLSFOUNDATION_DLL, ezReflectedPropertyDescriptor);
 
 /// \brief Stores the description of a reflected type in a serializable form. Used by ezReflectedTypeManager to add new types.
 struct EZ_TOOLSFOUNDATION_DLL ezReflectedTypeDescriptor
@@ -67,20 +68,23 @@ struct EZ_TOOLSFOUNDATION_DLL ezReflectedTypeDescriptor
   ezString m_sPluginName;
   ezString m_sParentTypeName;
   ezString m_sDefaultInitialization;
+  ezBitflags<ezTypeFlags> m_Flags;
   ezDynamicArray<ezReflectedPropertyDescriptor> m_Properties;
 };
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_TOOLSFOUNDATION_DLL, ezReflectedTypeDescriptor);
 
 
 /// \brief Describes a reflected property - what type it is and what name and access rights it has.
 struct EZ_TOOLSFOUNDATION_DLL ezReflectedProperty
 {
-  ezReflectedProperty(const char* szName, ezVariant::Type::Enum type, ezBitflags<PropertyFlags> flags); // [tested]
-  ezReflectedProperty(const char* szName, ezReflectedTypeHandle m_hType, ezBitflags<PropertyFlags> flags); // [tested]
+  ezReflectedProperty(ezPropertyCategory::Enum category, const char* szName, ezVariant::Type::Enum type, ezBitflags<ezPropertyFlags> flags); // [tested]
+  ezReflectedProperty(ezPropertyCategory::Enum category, const char* szName, ezReflectedTypeHandle hType, ezBitflags<ezPropertyFlags> flags); // [tested]
 
+  ezEnum<ezPropertyCategory> m_Category;
   ezHashedString m_sPropertyName;          ///< Name of the property, must be unique inside an ezReflectedType.
   ezReflectedTypeHandle m_hTypeHandle;     ///< invalid for any type that is directly storable in a ezVariant.
   ezEnum<ezVariant::Type> m_Type;          ///< POD type storable in an ezVariant. If m_pType is set, this value is set to 'Invalid'.
-  ezBitflags<PropertyFlags> m_Flags;       ///< Property flags (IsPOD, IsReadOnly).
+  ezBitflags<ezPropertyFlags> m_Flags;     ///< Property flags.
 };
 
 
@@ -122,7 +126,7 @@ public:
 
 private:
   EZ_DISALLOW_COPY_AND_ASSIGN(ezReflectedType);
-  ezReflectedType(const char* szTypeName, const char* szPluginName, ezReflectedTypeHandle hParentType);
+  ezReflectedType(const char* szTypeName, const char* szPluginName, ezReflectedTypeHandle hParentType, ezBitflags<ezTypeFlags> flags);
   void RegisterProperties();
   void RegisterConstants();
 
@@ -132,6 +136,7 @@ private:
   ezReflectedTypeHandle m_hParentType;
   ezReflectedTypeHandle m_hType;
   ezString m_sDefaultInitialization;
+  ezBitflags<ezTypeFlags> m_Flags;
 
   ezDynamicArray<ezReflectedProperty> m_Properties;
   ezDynamicArray<ezReflectedConstant> m_Constants;

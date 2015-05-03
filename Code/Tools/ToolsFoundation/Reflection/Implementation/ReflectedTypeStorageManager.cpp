@@ -62,7 +62,7 @@ void ezReflectedTypeStorageManager::ReflectedTypeStorageMapping::AddPropertiesRe
     pathBuilder.Append(pProperty->m_sPropertyName.GetString().GetData());
     ezString path = pathBuilder;
 
-    if (pProperty->m_Flags.IsSet(PropertyFlags::IsPOD))
+    if (pProperty->m_Flags.IsSet(ezPropertyFlags::StandardType))
     {
       // POD types are added to the dictionary
       StorageInfo* storageInfo = nullptr;
@@ -80,7 +80,7 @@ void ezReflectedTypeStorageManager::ReflectedTypeStorageMapping::AddPropertiesRe
         AddPropertyToInstances(uiIndex, pProperty);
       }
     }
-    else if (pProperty->m_Flags.IsAnySet(PropertyFlags::IsEnum | PropertyFlags::IsBitflags))
+    else if (pProperty->m_Flags.IsAnySet(ezPropertyFlags::IsEnum | ezPropertyFlags::Bitflags))
     {
       // Enum and bitflags types are added to the dictionary
       StorageInfo* storageInfo = nullptr;

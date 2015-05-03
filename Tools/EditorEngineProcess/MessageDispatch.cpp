@@ -56,32 +56,9 @@ void ezEditorProcessApp::SendReflectionInformation()
 
   for (auto type : sortedTypes)
   {
-    ezReflectedTypeDescriptor desc;
-    ezToolsReflectionUtils::GetReflectedTypeDescriptorFromRtti(type, desc);
-
     ezUpdateReflectionTypeMsgToEditor TypeMsg;
-    TypeMsg.m_uiNumProperties = desc.m_Properties.GetCount();
-    TypeMsg.m_sTypeName = desc.m_sTypeName;
-    TypeMsg.m_sPluginName = desc.m_sPluginName;
-    TypeMsg.m_sParentTypeName = desc.m_sParentTypeName;
-    TypeMsg.m_sDefaultInitialization = desc.m_sDefaultInitialization;
-
+    ezToolsReflectionUtils::GetReflectedTypeDescriptorFromRtti(type, TypeMsg.m_desc);
     m_IPC.SendMessage(&TypeMsg);
-
-    for (ezUInt32 i = 0; i < desc.m_Properties.GetCount(); ++i)
-    {
-      const auto& prop = desc.m_Properties[i];
-
-      ezUpdateReflectionPropertyMsgToEditor PropMsg;
-      PropMsg.m_uiPropertyIndex = i;
-      PropMsg.m_sName = prop.m_sName;
-      PropMsg.m_sType = prop.m_sType;
-      PropMsg.m_Type = prop.m_Type;
-      PropMsg.m_Flags = prop.m_Flags.GetValue();
-      PropMsg.m_ConstantValue = prop.m_ConstantValue;
-
-      m_IPC.SendMessage(&PropMsg);
-    }
   }
 }
 

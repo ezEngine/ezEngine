@@ -13,38 +13,60 @@ const ezReflectedType* ezReflectedTypeHandle::GetType() const
 
 
 ////////////////////////////////////////////////////////////////////////
-// ezReflectedPropertyDescriptor functions
+// ezReflectedPropertyDescriptor
 ////////////////////////////////////////////////////////////////////////
 
-ezReflectedPropertyDescriptor::ezReflectedPropertyDescriptor(const char* szName, const char* szType, ezBitflags<PropertyFlags> flags)
-  : m_sName(szName), m_sType(szType), m_Type(ezVariant::Type::Invalid), m_Flags(flags)
-{
-}
+EZ_BEGIN_STATIC_REFLECTED_TYPE(ezReflectedPropertyDescriptor, ezNoBase, 1, ezRTTIDefaultAllocator<ezReflectedPropertyDescriptor>);
+EZ_BEGIN_PROPERTIES
+  EZ_ENUM_MEMBER_PROPERTY("Category", ezPropertyCategory, m_Category),
+  EZ_MEMBER_PROPERTY("Name", m_sName),
+  EZ_MEMBER_PROPERTY("Type", m_sType),
+  EZ_ENUM_MEMBER_PROPERTY("VariantType", ezVariantType, m_Type),
+  EZ_BITFLAGS_MEMBER_PROPERTY("Flags", ezPropertyFlags, m_Flags),
+  EZ_MEMBER_PROPERTY("ConstantValue", m_ConstantValue),
+EZ_END_PROPERTIES
+EZ_END_STATIC_REFLECTED_TYPE();
 
-ezReflectedPropertyDescriptor::ezReflectedPropertyDescriptor(const char* szName, ezVariant::Type::Enum type, ezBitflags<PropertyFlags> flags)
-  : m_sName(szName), m_sType(), m_Type(type), m_Flags(flags)
+ezReflectedPropertyDescriptor::ezReflectedPropertyDescriptor(ezPropertyCategory::Enum category, const char* szName, const char* szType, ezVariant::Type::Enum type, ezBitflags<ezPropertyFlags> flags)
+  : m_Category(category), m_sName(szName), m_sType(szType), m_Type(type), m_Flags(flags)
 {
 }
 
 ezReflectedPropertyDescriptor::ezReflectedPropertyDescriptor(const char* szName, ezVariant::Type::Enum type, const ezVariant& constantValue)
-  : m_sName(szName), m_sType(), m_Type(type), m_Flags(PropertyFlags::IsPOD | PropertyFlags::IsReadOnly | PropertyFlags::IsConstant)
+  : m_Category(ezPropertyCategory::Constant), m_sName(szName), m_sType(), m_Type(type), m_Flags(ezPropertyFlags::StandardType | ezPropertyFlags::ReadOnly | ezPropertyFlags::Constant)
   , m_ConstantValue(constantValue)
 {
 }
 
 
 ////////////////////////////////////////////////////////////////////////
+// ezReflectedTypeDescriptor
+////////////////////////////////////////////////////////////////////////
+
+EZ_BEGIN_STATIC_REFLECTED_TYPE(ezReflectedTypeDescriptor, ezNoBase, 1, ezRTTIDefaultAllocator<ezReflectedTypeDescriptor>);
+EZ_BEGIN_PROPERTIES
+  EZ_MEMBER_PROPERTY("TypeName", m_sTypeName),
+  EZ_MEMBER_PROPERTY("PluginName", m_sPluginName),
+  EZ_MEMBER_PROPERTY("ParentTypeName", m_sParentTypeName),
+  EZ_MEMBER_PROPERTY("DefaultInitialization", m_sDefaultInitialization),
+  EZ_BITFLAGS_MEMBER_PROPERTY("Flags", ezTypeFlags, m_Flags),
+  EZ_ARRAY_MEMBER_PROPERTY("Properties", m_Properties),
+EZ_END_PROPERTIES
+EZ_END_STATIC_REFLECTED_TYPE();
+
+
+////////////////////////////////////////////////////////////////////////
 // ezReflectedProperty functions
 ////////////////////////////////////////////////////////////////////////
 
-ezReflectedProperty::ezReflectedProperty(const char* szName, ezVariant::Type::Enum type, ezBitflags<PropertyFlags> flags)
-  : m_hTypeHandle(), m_Type(type), m_Flags(flags)
+ezReflectedProperty::ezReflectedProperty(ezPropertyCategory::Enum category, const char* szName, ezVariant::Type::Enum type, ezBitflags<ezPropertyFlags> flags)
+  : m_Category(category), m_hTypeHandle(), m_Type(type), m_Flags(flags)
 {
   m_sPropertyName.Assign(szName);
 }
 
-ezReflectedProperty::ezReflectedProperty(const char* szName, ezReflectedTypeHandle m_hType, ezBitflags<PropertyFlags> flags)
-  : m_hTypeHandle(m_hType), m_Type(ezVariant::Type::Invalid), m_Flags(flags)
+ezReflectedProperty::ezReflectedProperty(ezPropertyCategory::Enum category, const char* szName, ezReflectedTypeHandle hType, ezBitflags<ezPropertyFlags> flags)
+  : m_Category(category), m_hTypeHandle(hType), m_Type(ezVariant::Type::Invalid), m_Flags(flags)
 {
   m_sPropertyName.Assign(szName);
 }
@@ -185,8 +207,8 @@ void ezReflectedType::GetDependencies(ezSet<ezReflectedTypeHandle>& out_dependen
 // ezReflectedType public functions
 ////////////////////////////////////////////////////////////////////////
 
-ezReflectedType::ezReflectedType(const char* szTypeName, const char* szPluginName, ezReflectedTypeHandle hParentType)
-  : m_hParentType(hParentType)
+ezReflectedType::ezReflectedType(const char* szTypeName, const char* szPluginName, ezReflectedTypeHandle hParentType, ezBitflags<ezTypeFlags> flags)
+  : m_hParentType(hParentType), m_Flags(flags)
 {
   m_sTypeName.Assign(szTypeName);
   m_sPluginName.Assign(szPluginName);

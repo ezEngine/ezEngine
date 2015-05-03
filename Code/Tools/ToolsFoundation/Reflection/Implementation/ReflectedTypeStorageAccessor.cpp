@@ -9,7 +9,6 @@
 
 ezReflectedTypeStorageAccessor::ezReflectedTypeStorageAccessor(ezReflectedTypeHandle hReflectedType) : ezIReflectedTypeAccessor(hReflectedType)
 {
-  
   const ezReflectedType* pType = hReflectedType.GetType();
   EZ_ASSERT_DEV(pType != nullptr, "Trying to construct an ezReflectedTypeStorageAccessor for an invalid type!");
   m_pMapping = ezReflectedTypeStorageManager::AddStorageAccessor(this);
@@ -62,7 +61,7 @@ bool ezReflectedTypeStorageAccessor::SetValue(const ezPropertyPath& path, const 
       if (pProp == nullptr)
         return false;
 
-      if (pProp->m_Flags.IsAnySet(PropertyFlags::IsEnum | PropertyFlags::IsBitflags))
+      if (pProp->m_Flags.IsAnySet(ezPropertyFlags::IsEnum | ezPropertyFlags::Bitflags))
       {
         ezInt64 iValue;
         ezToolsReflectionUtils::StringToEnumeration(pProp->m_hTypeHandle.GetType(), value.Get<ezString>(), iValue);

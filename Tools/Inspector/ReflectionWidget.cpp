@@ -72,7 +72,7 @@ void ezReflectionWidget::ProcessTelemetry(void* pUnuseed)
           msg.GetReader() >> pd.m_sPropertyName;
           msg.GetReader() >> pd.m_iCategory;
 
-          if (pd.m_iCategory == ezAbstractProperty::Member || pd.m_iCategory == ezAbstractProperty::Array)
+          if (pd.m_iCategory == ezPropertyCategory::Member || pd.m_iCategory == ezPropertyCategory::Array)
             msg.GetReader() >> pd.m_sType;
 
           for (ezUInt32 j = 0; j < sd.m_Properties.GetCount(); ++j)
@@ -155,15 +155,15 @@ bool ezReflectionWidget::UpdateTree()
           pProperty->setText(0, "Message");
           pProperty->setIcon(0, QIcon(":/Icons/Icons/Message.png"));
           break;
-        case ezAbstractProperty::Member:
+        case ezPropertyCategory::Member:
           pProperty->setText(0, it.Value().m_Properties[i].m_sType.GetData());
           pProperty->setIcon(0, QIcon(":/Icons/Icons/Member.png"));
           break;
-        case ezAbstractProperty::Function:
+        case ezPropertyCategory::Function:
           pProperty->setText(0, "Function");
           pProperty->setIcon(0, QIcon(":/Icons/Icons/Function.png"));
           break;
-        case ezAbstractProperty::Array:
+        case ezPropertyCategory::Array:
           pProperty->setText(0, it.Value().m_Properties[i].m_sType.GetData());
           pProperty->setIcon(0, QIcon(":/Icons/Icons/Array.png"));
           break;

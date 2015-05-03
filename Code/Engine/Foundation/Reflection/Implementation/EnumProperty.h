@@ -24,6 +24,10 @@ public:
   ///
   /// \note Make sure the property is not read-only before calling this, otherwise an assert will fire.
   virtual void SetValue(void* pInstance, ezInt64 value) = 0;
+
+  virtual void GetValuePtr(const void* pInstance, void* pObject) const override { EZ_ASSERT_NOT_IMPLEMENTED };
+
+  virtual void SetValuePtr(void* pInstance, void* pObject) override { EZ_ASSERT_NOT_IMPLEMENTED };
 };
 
 
@@ -60,20 +64,19 @@ public:
   ezEnumAccessorProperty(const char* szPropertyName, GetterFunc getter, SetterFunc setter) : ezTypedEnumProperty<EnumType>(szPropertyName)
   {
     EZ_ASSERT_DEBUG(getter != nullptr, "The getter of a property cannot be nullptr.");
+    ezAbstractMemberProperty::m_Flags.Add(ezPropertyFlags::IsEnum);
 
     m_Getter = getter;
     m_Setter = setter;
+
+    if (m_Setter == nullptr)
+      ezAbstractMemberProperty::m_Flags.Add(ezPropertyFlags::ReadOnly);
   }
 
   virtual void* GetPropertyPointer(const void* pInstance) const override
   {
     // No access to sub-properties, if we have accessors for this property
     return nullptr;
-  }
-
-  virtual bool IsReadOnly() const override
-  {
-    return m_Setter == nullptr;
   }
 
   virtual ezInt64 GetValue(const void* pInstance) const override // [tested]
@@ -108,20 +111,19 @@ public:
   ezEnumMemberProperty(const char* szPropertyName, GetterFunc getter, SetterFunc setter, PointerFunc pointer) : ezTypedEnumProperty<EnumType>(szPropertyName)
   {
     EZ_ASSERT_DEBUG(getter != nullptr, "The getter of a property cannot be nullptr.");
+    ezAbstractMemberProperty::m_Flags.Add(ezPropertyFlags::IsEnum);
 
     m_Getter = getter;
     m_Setter = setter;
     m_Pointer = pointer;
+
+    if (m_Setter == nullptr)
+      ezAbstractMemberProperty::m_Flags.Add(ezPropertyFlags::ReadOnly);
   }
 
   virtual void* GetPropertyPointer(const void* pInstance) const override
   {
     return m_Pointer(static_cast<const Class*>(pInstance));
-  }
-
-  virtual bool IsReadOnly() const override
-  {
-    return m_Setter == nullptr;
   }
 
   virtual ezInt64 GetValue(const void* pInstance) const override // [tested]

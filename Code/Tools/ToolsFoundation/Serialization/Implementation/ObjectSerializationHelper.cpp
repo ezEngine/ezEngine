@@ -16,7 +16,7 @@ static void WriteTypeAccessorToContextRecursive(ezObjectSerializationContext& co
   {
     const ezReflectedProperty* pProp = pType->GetPropertyByIndex(i);
 
-    if (pProp->m_Flags.IsAnySet(PropertyFlags::IsPOD))
+    if (pProp->m_Flags.IsAnySet(ezPropertyFlags::StandardType))
     {
       ParentPath.PushBack(pProp->m_sPropertyName.GetString().GetData());
 
@@ -24,7 +24,7 @@ static void WriteTypeAccessorToContextRecursive(ezObjectSerializationContext& co
 
       ParentPath.PopBack();
     }
-    else if (pProp->m_Flags.IsAnySet(PropertyFlags::IsEnum | PropertyFlags::IsBitflags))
+    else if (pProp->m_Flags.IsAnySet(ezPropertyFlags::IsEnum | ezPropertyFlags::Bitflags))
     {
       ParentPath.PushBack(pProp->m_sPropertyName.GetString().GetData());
 

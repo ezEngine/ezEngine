@@ -53,15 +53,15 @@ void ezDocumentObjectBase::HashPropertiesRecursive(const ezIReflectedTypeAccesso
     pathBuilder.Append(pProperty->m_sPropertyName.GetString().GetData());
     ezString path = pathBuilder;
 
-    if (pProperty->m_Flags.IsSet(PropertyFlags::IsReadOnly))
+    if (pProperty->m_Flags.IsSet(ezPropertyFlags::ReadOnly))
       continue;
 
-    if (pProperty->m_Flags.IsSet(PropertyFlags::IsPOD))
+    if (pProperty->m_Flags.IsSet(ezPropertyFlags::StandardType))
     {
       ezVariant var = acc.GetValue(path);
       uiHash = var.ComputeHash(uiHash);
     }
-    else if (pProperty->m_Flags.IsAnySet(PropertyFlags::IsEnum | PropertyFlags::IsBitflags))
+    else if (pProperty->m_Flags.IsAnySet(ezPropertyFlags::IsEnum | ezPropertyFlags::Bitflags))
     {
       ezVariant var = acc.GetValue(path);
       uiHash = var.ComputeHash(uiHash);

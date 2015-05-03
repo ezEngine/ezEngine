@@ -1,10 +1,13 @@
 #include <Foundation/PCH.h>
 #include <Foundation/Reflection/Implementation/RTTI.h>
+#include <Foundation/Containers/Set.h>
+#include <Foundation/Containers/Deque.h>
+#include <Foundation/Containers/DynamicArray.h>
 #include <Foundation/Reflection/Implementation/AbstractProperty.h>
 #include <Foundation/Reflection/Implementation/DynamicRTTI.h>
 #include <Foundation/Reflection/Implementation/MessageHandler.h>
 #include <Foundation/Configuration/Startup.h>
-#include <Foundation/Containers/Set.h>
+
 #include <Foundation/Strings/String.h>
 
 EZ_ENUMERABLE_CLASS_IMPLEMENTATION(ezRTTI);
@@ -28,7 +31,7 @@ EZ_BEGIN_SUBSYSTEM_DECLARATION(Foundation, Reflection)
 
 EZ_END_SUBSYSTEM_DECLARATION
 
-ezRTTI::ezRTTI(const char* szName, const ezRTTI* pParentType, ezUInt32 uiTypeSize, ezUInt32 uiTypeVersion, ezUInt32 uiVariantType,
+ezRTTI::ezRTTI(const char* szName, const ezRTTI* pParentType, ezUInt32 uiTypeSize, ezUInt32 uiTypeVersion, ezUInt32 uiVariantType, ezBitflags<ezTypeFlags> flags,
   ezRTTIAllocator* pAllocator, ezArrayPtr<ezAbstractProperty*> properties, ezArrayPtr<ezAbstractMessageHandler*> messageHandlers)
 {
   m_szPluginName = nullptr;
@@ -37,6 +40,7 @@ ezRTTI::ezRTTI(const char* szName, const ezRTTI* pParentType, ezUInt32 uiTypeSiz
   m_uiVariantType = uiVariantType;
   m_uiTypeSize = uiTypeSize;
   m_uiTypeVersion = uiTypeVersion;
+  m_TypeFlags = flags;
   m_pAllocator = pAllocator;
   m_Properties = properties;
   m_MessageHandlers = messageHandlers;  

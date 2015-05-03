@@ -22,7 +22,7 @@
      <property name="childrenCollapsible">
       <bool>false</bool>
      </property>
-     <widget class="QWidget" name="">
+     <widget class="QWidget" name="layoutWidget">
       <layout class="QVBoxLayout" name="verticalLayout_3">
        <item>
         <widget class="QGroupBox" name="GroupEditor">
@@ -167,7 +167,7 @@
   <customwidget>
    <class>ezAssetBrowser</class>
    <extends>QWidget</extends>
-   <header location="global">EditorFramework/Assets/AssetBrowser.moc.h</header>
+   <header location="global">EditorFramework/Assets/AssetBrowserWidget.moc.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

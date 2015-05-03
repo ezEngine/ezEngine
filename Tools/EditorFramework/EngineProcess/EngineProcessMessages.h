@@ -2,6 +2,7 @@
 
 #include <EditorFramework/Plugin.h>
 #include <EditorFramework/IPC/ProcessCommunication.h>
+#include <ToolsFoundation/Reflection/ReflectedType.h>
 
 ///////////////////////////////////// ezEditorEngineMsg ///////////////////////////////////// 
 
@@ -22,26 +23,7 @@ class EZ_EDITORFRAMEWORK_DLL ezUpdateReflectionTypeMsgToEditor : public ezEditor
   EZ_ADD_DYNAMIC_REFLECTION(ezUpdateReflectionTypeMsgToEditor);
 
 public:
-  
-  ezUInt32 m_uiNumProperties;
-  ezString m_sTypeName;
-  ezString m_sPluginName;
-  ezString m_sParentTypeName;
-  ezString m_sDefaultInitialization;
-};
-
-class EZ_EDITORFRAMEWORK_DLL ezUpdateReflectionPropertyMsgToEditor : public ezEditorEngineMsg
-{
-  EZ_ADD_DYNAMIC_REFLECTION(ezUpdateReflectionPropertyMsgToEditor);
-
-public:
-
-  ezUInt32 m_uiPropertyIndex;
-  ezString m_sName;
-  ezString m_sType;
-  ezUInt32 m_Type;
-  ezUInt32 m_Flags;
-  ezVariant m_ConstantValue;
+  ezReflectedTypeDescriptor m_desc;
 };
 
 class EZ_EDITORFRAMEWORK_DLL ezProjectReadyMsgToEditor : public ezEditorEngineMsg

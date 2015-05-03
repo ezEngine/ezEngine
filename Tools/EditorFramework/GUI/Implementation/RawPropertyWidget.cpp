@@ -33,7 +33,7 @@ void ezRawPropertyWidget::BuildUI(const ezIReflectedTypeAccessor& et, const ezRe
 
     ParentPath.PushBack(pProp->m_sPropertyName.GetString().GetData());
 
-    if (pProp->m_Flags.IsAnySet(PropertyFlags::IsPOD))
+    if (pProp->m_Flags.IsAnySet(ezPropertyFlags::StandardType))
     {
       ezPropertyEditorBaseWidget* pNewWidget = nullptr;
 
@@ -99,16 +99,16 @@ void ezRawPropertyWidget::BuildUI(const ezIReflectedTypeAccessor& et, const ezRe
 
         pLayout->addWidget(pNewWidget);
         pNewWidget->SetValue(et.GetValue(ParentPath));
-        pNewWidget->setEnabled(!pProp->m_Flags.IsSet(PropertyFlags::IsReadOnly));
+        pNewWidget->setEnabled(!pProp->m_Flags.IsSet(ezPropertyFlags::ReadOnly));
 
 
         pNewWidget->m_Events.AddEventHandler(ezMakeDelegate(&ezRawPropertyWidget::PropertyChangedHandler, this));
       }
     }
-    else if (pProp->m_Flags.IsAnySet(PropertyFlags::IsEnum | PropertyFlags::IsBitflags))
+    else if (pProp->m_Flags.IsAnySet(ezPropertyFlags::IsEnum | ezPropertyFlags::Bitflags))
     {
       ezPropertyEditorBaseWidget* pNewWidget = nullptr;
-      if (pProp->m_Flags.IsAnySet(PropertyFlags::IsEnum))
+      if (pProp->m_Flags.IsAnySet(ezPropertyFlags::IsEnum))
       {
         pNewWidget = new ezPropertyEditorEnumWidget(ParentPath, pProp->m_sPropertyName.GetString().GetData(), this, pProp->m_hTypeHandle);
       }
@@ -122,7 +122,7 @@ void ezRawPropertyWidget::BuildUI(const ezIReflectedTypeAccessor& et, const ezRe
 
       pLayout->addWidget(pNewWidget);
       pNewWidget->SetValue(et.GetValue(ParentPath));
-      pNewWidget->setEnabled(!pProp->m_Flags.IsSet(PropertyFlags::IsReadOnly));
+      pNewWidget->setEnabled(!pProp->m_Flags.IsSet(ezPropertyFlags::ReadOnly));
 
       pNewWidget->m_Events.AddEventHandler(ezMakeDelegate(&ezRawPropertyWidget::PropertyChangedHandler, this));
     }

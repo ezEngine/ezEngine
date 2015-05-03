@@ -39,13 +39,13 @@ ezReflectedTypeHandle ezReflectedTypeManager::RegisterType(const ezReflectedType
   ezReflectedType* pType;
   if (ezStringUtils::IsNullOrEmpty(desc.m_sParentTypeName.GetData()))
   {
-    pType = EZ_DEFAULT_NEW(ezReflectedType)(desc.m_sTypeName.GetData(), desc.m_sPluginName.GetData(), ezReflectedTypeHandle());
+    pType = EZ_DEFAULT_NEW(ezReflectedType)(desc.m_sTypeName.GetData(), desc.m_sPluginName.GetData(), ezReflectedTypeHandle(), desc.m_Flags);
   }
   else
   {
     ezReflectedTypeHandle hParent = GetTypeHandleByName(desc.m_sParentTypeName.GetData());
     EZ_ASSERT_DEV(!hParent.IsInvalidated(), "ezReflectedTypeManager::RegisterType: Can't register a type to which the parent type is not known yet!");
-    pType = EZ_DEFAULT_NEW(ezReflectedType)(desc.m_sTypeName.GetData(), desc.m_sPluginName.GetData(), hParent);
+    pType = EZ_DEFAULT_NEW(ezReflectedType)(desc.m_sTypeName.GetData(), desc.m_sPluginName.GetData(), hParent, desc.m_Flags);
     pType->m_Dependencies.Insert(hParent);
   }
 
@@ -55,7 +55,7 @@ ezReflectedTypeHandle ezReflectedTypeManager::RegisterType(const ezReflectedType
   ezUInt32 iConstantCount = 0;
   for (const ezReflectedPropertyDescriptor& propDesc : desc.m_Properties)
   {
-    if (propDesc.m_Flags.IsSet(PropertyFlags::IsConstant))
+    if (propDesc.m_Flags.IsSet(ezPropertyFlags::Constant))
       iConstantCount++;
     else
       iPropertyCount++;
@@ -68,18 +68,18 @@ ezReflectedTypeHandle ezReflectedTypeManager::RegisterType(const ezReflectedType
   for (ezUInt32 i = 0; i < iCount; i++)
   {
     const ezReflectedPropertyDescriptor& propDesc = desc.m_Properties[i];
-    if (propDesc.m_Flags.IsSet(PropertyFlags::IsConstant))
+    if (propDesc.m_Flags.IsSet(ezPropertyFlags::Constant))
       continue;
 
-    if (propDesc.m_Type != ezVariant::Type::Invalid)
+    if (propDesc.m_Flags.IsSet(ezPropertyFlags::StandardType))
     {
-      pType->m_Properties.PushBack(ezReflectedProperty(propDesc.m_sName.GetData(), propDesc.m_Type, propDesc.m_Flags));
+      pType->m_Properties.PushBack(ezReflectedProperty(propDesc.m_Category, propDesc.m_sName.GetData(), propDesc.m_Type, propDesc.m_Flags));
     }
     else
     {
       ezReflectedTypeHandle hProp = GetTypeHandleByName(propDesc.m_sType.GetData());
       EZ_ASSERT_DEV(!hProp.IsInvalidated(), "ezReflectedTypeManager::RegisterType: Can't register a type to which a property's type is not known yet!");
-      pType->m_Properties.PushBack(ezReflectedProperty(propDesc.m_sName.GetData(), hProp, propDesc.m_Flags));
+      pType->m_Properties.PushBack(ezReflectedProperty(propDesc.m_Category, propDesc.m_sName.GetData(), hProp, propDesc.m_Flags));
       pType->m_Dependencies.Insert(hProp);
     }
   }
@@ -90,7 +90,7 @@ ezReflectedTypeHandle ezReflectedTypeManager::RegisterType(const ezReflectedType
   for (ezUInt32 i = 0; i < iCount; i++)
   {
     const ezReflectedPropertyDescriptor& propDesc = desc.m_Properties[i];
-    if (!propDesc.m_Flags.IsSet(PropertyFlags::IsConstant))
+    if (!propDesc.m_Flags.IsSet(ezPropertyFlags::Constant))
       continue;
 
     if (propDesc.m_Type != ezVariant::Type::Invalid)

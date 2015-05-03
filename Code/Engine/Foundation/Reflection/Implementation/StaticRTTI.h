@@ -4,9 +4,37 @@
 
 #include <Foundation/Basics.h>
 #include <Foundation/Types/Variant.h>
+#include <type_traits>
+#include <Foundation/Types/Bitflags.h>
 
 class ezRTTI;
 class ezReflectedClass;
+
+/// \brief Flags that describe a reflected type. 
+struct ezTypeFlags
+{
+  typedef ezUInt8 StorageType;
+
+  enum Enum
+  {
+    StandardType = EZ_BIT(0), ///< Anything that can be stored inside an ezVariant except for pointers and containers.
+    Abstract = EZ_BIT(1),     ///< Type is abstract.
+    IsEnum = EZ_BIT(2),       ///< enum struct used for ezEnum.
+    Bitflags = EZ_BIT(3),     ///< bitflags struct used for ezBitflags.
+    Default = 0
+  };
+
+  struct Bits
+  {
+    StorageType StandardType   : 1;
+    StorageType Abstract  : 1;
+    StorageType IsEnum   : 1;
+    StorageType Bitflags   : 1;
+  };
+};
+
+EZ_DECLARE_FLAGS_OPERATORS(ezTypeFlags)
+
 
 // ****************************************************
 // ***** Templates for accessing static RTTI data *****
@@ -43,6 +71,26 @@ namespace ezInternal
     // actually return the same RTTI object, which would not be possible with a purely macro based solution
 
     return ezStaticRTTI<T>::GetRTTI();
+  }
+
+  template <typename Type>
+  ezBitflags<ezTypeFlags> DetermineTypeFlags()
+  {
+    ezBitflags<ezTypeFlags> flags;
+    ezVariant::Type::Enum type = static_cast<ezVariant::Type::Enum>(ezVariant::TypeDeduction<typename ezTypeTraits<Type>::NonConstReferenceType>::value);
+    if (type >= ezVariant::Type::Bool && type <= ezVariant::Type::Uuid)
+      flags.Add(ezTypeFlags::StandardType);
+
+    if (std::is_abstract<Type>::value)
+      flags.Add(ezTypeFlags::Abstract);
+
+    return flags;
+  }
+
+  template <>
+  EZ_FORCE_INLINE ezBitflags<ezTypeFlags> DetermineTypeFlags<ezVariant>()
+  {
+    return ezTypeFlags::StandardType;
   }
 }
 
@@ -105,6 +153,7 @@ EZ_FORCE_INLINE const ezRTTI* ezGetStaticRTTI()
   ezRTTI ezRTTInfo_##Type::GetRTTI()                                  \
   {                                                                   \
     static AllocatorType Allocator;                                   \
+    static ezBitflags<ezTypeFlags> flags = ezInternal::DetermineTypeFlags<Type>();\
     static ezArrayPtr<ezAbstractProperty*> Properties;                \
     static ezArrayPtr<ezAbstractMessageHandler*> MessageHandlers      \
 
@@ -136,6 +185,7 @@ EZ_FORCE_INLINE const ezRTTI* ezGetStaticRTTI()
       sizeof(OwnType),                                              \
       GetTypeVersion(),                                             \
       ezVariant::TypeDeduction<OwnType>::value,                     \
+      flags,                                         \
       &Allocator, Properties, MessageHandlers);                     \
   }
 
@@ -178,14 +228,67 @@ EZ_FORCE_INLINE const ezRTTI* ezGetStaticRTTI()
 /// \note There does not actually need to be a variable for this type of properties, as all accesses go through functions.
 /// Thus you can for example expose a 'vector' property that is actually stored as a column of a matrix.
 #define EZ_ACCESSOR_PROPERTY(PropertyName, Getter, Setter)                    \
-  new ezAccessorProperty<OwnType, EZ_GETTER_TYPE(OwnType, OwnType::Getter)>   \
-    (PropertyName, &OwnType::Getter, &OwnType::Setter)                        \
+  (new ezAccessorProperty<OwnType, EZ_GETTER_TYPE(OwnType, OwnType::Getter)>   \
+    (PropertyName, &OwnType::Getter, &OwnType::Setter))                        \
 
 /// \brief Same as EZ_ACCESSOR_PROPERTY, but no setter is provided, thus making the property read-only.
 #define EZ_ACCESSOR_PROPERTY_READ_ONLY(PropertyName, Getter)                  \
-  new ezAccessorProperty<OwnType, EZ_GETTER_TYPE(OwnType, OwnType::Getter)>   \
-    (PropertyName, &OwnType::Getter, nullptr)                                    \
+  (new ezAccessorProperty<OwnType, EZ_GETTER_TYPE(OwnType, OwnType::Getter)>   \
+    (PropertyName, &OwnType::Getter, nullptr))                                    \
 
+// [internal] Helper macro to get the return type of a array getter function.
+#define EZ_ARRAY_GETTER_TYPE(Class, GetterFunc)                                     \
+  decltype(((Class*) nullptr)->GetterFunc(0))
+
+/// \brief Within a EZ_BEGIN_PROPERTIES / EZ_END_PROPERTIES block, this adds a property that uses custom functions to access an array.
+///
+/// \param PropertyName
+///   The unique (in this class) name under which the property should be registered.
+/// \param GetCount
+///   Function signature: ezUInt32 GetCount() const;
+/// \param Getter
+///   Function signature: Type GetValue(ezUInt32 uiIndex) const;
+/// \param Setter
+///   Function signature: void SetValue(ezUInt32 uiIndex, Type value);
+/// \param Insert
+///   Function signature: void Insert(ezUInt32 uiIndex, Type value);
+/// \param Remove
+///   Function signature: void Remove(ezUInt32 uiIndex);
+#define EZ_ARRAY_ACCESSOR_PROPERTY(PropertyName, GetCount, Getter, Setter, Insert, Remove)   \
+  (new ezAccessorArrayProperty<OwnType, EZ_ARRAY_GETTER_TYPE(OwnType, OwnType::Getter)>   \
+    (PropertyName, &OwnType::GetCount, &OwnType::Getter, &OwnType::Setter, &OwnType::Insert, &OwnType::Remove)) \
+
+/// \brief Same as EZ_ARRAY_ACCESSOR_PROPERTY, but no setter is provided, thus making the property read-only.
+#define EZ_ARRAY_ACCESSOR_PROPERTY_READ_ONLY(PropertyName, GetCount, Getter)   \
+  (new ezAccessorArrayProperty<OwnType, EZ_ARRAY_GETTER_TYPE(OwnType, OwnType::Getter)>   \
+    (PropertyName, &OwnType::GetCount, &OwnType::Getter, nullptr, nullptr, nullptr)) \
+
+#define EZ_SET_CONTAINER_TYPE(Class, GetterFunc)                                     \
+  decltype(((Class*) nullptr)->GetterFunc())
+
+#define EZ_SET_CONTAINER_SUB_TYPE(Class, GetterFunc)                 \
+  ezContainerSubTypeResolver<ezTypeTraits<decltype(((Class*) nullptr)->GetterFunc())>::NonConstReferenceType>::Type
+
+/// \brief Within a EZ_BEGIN_PROPERTIES / EZ_END_PROPERTIES block, this adds a property that uses custom functions to access a set.
+///
+/// \param PropertyName
+///   The unique (in this class) name under which the property should be registered.
+/// \param GetValues
+///   Function signature: Container<Type> GetValues() const;
+/// \param Insert
+///   Function signature: void Insert(Type value);
+/// \param Remove
+///   Function signature: void Remove(Type value);
+///
+/// \note Container<Type> can be any container that can be iterated via range based for loops.
+#define EZ_SET_ACCESSOR_PROPERTY(PropertyName, GetValues, Insert, Remove)   \
+  (new ezAccessorSetProperty<OwnType, ezMemberFunctionParameterTypeResolver<decltype(&OwnType::Insert)>::ParameterType, EZ_SET_CONTAINER_TYPE(OwnType, GetValues)>   \
+    (PropertyName, &OwnType::GetValues, &OwnType::Insert, &OwnType::Remove)) \
+
+/// \brief Same as EZ_SET_ACCESSOR_PROPERTY, but no setter is provided, thus making the property read-only.
+#define EZ_SET_ACCESSOR_PROPERTY_READ_ONLY(PropertyName, GetValues)   \
+  (new ezAccessorSetProperty<OwnType, EZ_SET_CONTAINER_SUB_TYPE(OwnType, GetValues), EZ_SET_CONTAINER_TYPE(OwnType, GetValues)>   \
+    (PropertyName, &OwnType::GetValues, nullptr, nullptr)) \
 
 /// \brief Within a EZ_BEGIN_PROPERTIES / EZ_END_PROPERTIES block, this adds a property that uses custom getter / setter functions.
 ///
@@ -197,32 +300,32 @@ EZ_FORCE_INLINE const ezRTTI* ezGetStaticRTTI()
 ///   The getter function for this property.
 /// \param Setter
 ///   The setter function for this property.
-///
-/// \note There does not actually need to be a variable for this type of properties, as all accesses go through functions.
-/// Thus you can for example expose a 'vector' property that is actually stored as a column of a matrix.
 #define EZ_ENUM_ACCESSOR_PROPERTY(PropertyName, EnumType, Getter, Setter)                    \
-  new ezEnumAccessorProperty<OwnType, EnumType, EZ_GETTER_TYPE(OwnType, OwnType::Getter)>    \
-    (PropertyName, &OwnType::Getter, &OwnType::Setter)                                       \
+  (new ezEnumAccessorProperty<OwnType, EnumType, EZ_GETTER_TYPE(OwnType, OwnType::Getter)>    \
+    (PropertyName, &OwnType::Getter, &OwnType::Setter))                                       \
 
 /// \brief Same as EZ_ENUM_ACCESSOR_PROPERTY, but no setter is provided, thus making the property read-only.
 #define EZ_ENUM_ACCESSOR_PROPERTY_READ_ONLY(PropertyName, EnumType, Getter)                  \
-  new ezEnumAccessorProperty<OwnType, EnumType, EZ_GETTER_TYPE(OwnType, OwnType::Getter)>    \
-    (PropertyName, &OwnType::Getter, nullptr)                                                \
+  (new ezEnumAccessorProperty<OwnType, EnumType, EZ_GETTER_TYPE(OwnType, OwnType::Getter)>    \
+    (PropertyName, &OwnType::Getter, nullptr))                                                \
 
 /// \brief Same as EZ_ENUM_ACCESSOR_PROPERTY, but for bitfields.
 #define EZ_BITFLAGS_ACCESSOR_PROPERTY(PropertyName, BitflagsType, Getter, Setter)                    \
-  new ezBitflagsAccessorProperty<OwnType, BitflagsType, EZ_GETTER_TYPE(OwnType, OwnType::Getter)>    \
-    (PropertyName, &OwnType::Getter, &OwnType::Setter)                                               \
+  (new ezBitflagsAccessorProperty<OwnType, BitflagsType, EZ_GETTER_TYPE(OwnType, OwnType::Getter)>    \
+    (PropertyName, &OwnType::Getter, &OwnType::Setter))                                               \
 
 /// \brief Same as EZ_BITFLAGS_ACCESSOR_PROPERTY, but no setter is provided, thus making the property read-only.
 #define EZ_BITFLAGS_ACCESSOR_PROPERTY_READ_ONLY(PropertyName, BitflagsType, Getter)                  \
-  new ezBitflagsAccessorProperty<OwnType, BitflagsType, EZ_GETTER_TYPE(OwnType, OwnType::Getter)>    \
-    (PropertyName, &OwnType::Getter, nullptr)                                                        \
+  (new ezBitflagsAccessorProperty<OwnType, BitflagsType, EZ_GETTER_TYPE(OwnType, OwnType::Getter)>    \
+    (PropertyName, &OwnType::Getter, nullptr))                                                        \
 
 
 // [internal] Helper macro to get the type of a class member.
 #define EZ_MEMBER_TYPE(Class, Member)                                         \
   decltype(((Class*) nullptr)->Member)
+
+#define EZ_MEMBER_CONTAINER_SUB_TYPE(Class, Member)                 \
+  ezContainerSubTypeResolver<ezTypeTraits<decltype(((Class*) nullptr)->Member)>::NonConstReferenceType>::Type
 
 /// \brief Within a EZ_BEGIN_PROPERTIES / EZ_END_PROPERTIES block, this adds a property that actually exists as a member.
 ///
@@ -235,21 +338,47 @@ EZ_FORCE_INLINE const ezRTTI* ezGetStaticRTTI()
 /// no custom limits to the values can be applied. If that becomes necessary, just add getter / setter functions and
 /// expose the property as a EZ_ENUM_ACCESSOR_PROPERTY instead.
 #define EZ_MEMBER_PROPERTY(PropertyName, MemberName)                          \
-  new ezMemberProperty<OwnType, EZ_MEMBER_TYPE(OwnType, MemberName)>          \
+  (new ezMemberProperty<OwnType, EZ_MEMBER_TYPE(OwnType, MemberName)>          \
     (PropertyName,                                                            \
     &ezPropertyAccessor<OwnType, EZ_MEMBER_TYPE(OwnType, MemberName), &OwnType::MemberName>::GetValue,            \
     &ezPropertyAccessor<OwnType, EZ_MEMBER_TYPE(OwnType, MemberName), &OwnType::MemberName>::SetValue,            \
-    &ezPropertyAccessor<OwnType, EZ_MEMBER_TYPE(OwnType, MemberName), &OwnType::MemberName>::GetPropertyPointer)  \
+    &ezPropertyAccessor<OwnType, EZ_MEMBER_TYPE(OwnType, MemberName), &OwnType::MemberName>::GetPropertyPointer))  \
 
 /// \brief Same as EZ_MEMBER_PROPERTY, but the property is read-only.
 #define EZ_MEMBER_PROPERTY_READ_ONLY(PropertyName, MemberName)                \
-  new ezMemberProperty<OwnType, EZ_MEMBER_TYPE(OwnType, MemberName)>          \
+  (new ezMemberProperty<OwnType, EZ_MEMBER_TYPE(OwnType, MemberName)>          \
     (PropertyName,                                                            \
     &ezPropertyAccessor<OwnType, EZ_MEMBER_TYPE(OwnType, MemberName), &OwnType::MemberName>::GetValue,            \
     nullptr,                                                                     \
-    &ezPropertyAccessor<OwnType, EZ_MEMBER_TYPE(OwnType, MemberName), &OwnType::MemberName>::GetPropertyPointer)  \
+    &ezPropertyAccessor<OwnType, EZ_MEMBER_TYPE(OwnType, MemberName), &OwnType::MemberName>::GetPropertyPointer))  \
 
+/// \brief Same as EZ_MEMBER_PROPERTY, but the property is an array (ezHybridArray, ezDynamicArray or ezDeque).
+#define EZ_ARRAY_MEMBER_PROPERTY(PropertyName, MemberName)                          \
+  (new ezMemberArrayProperty<OwnType, EZ_MEMBER_TYPE(OwnType, MemberName), EZ_MEMBER_CONTAINER_SUB_TYPE(OwnType, MemberName)>          \
+    (PropertyName,                                                            \
+    &ezArrayPropertyAccessor<OwnType, EZ_MEMBER_TYPE(OwnType, MemberName), &OwnType::MemberName>::GetConstContainer, \
+    &ezArrayPropertyAccessor<OwnType, EZ_MEMBER_TYPE(OwnType, MemberName), &OwnType::MemberName>::GetContainer))  \
 
+/// \brief Same as EZ_MEMBER_PROPERTY, but the property is a read-only array (ezHybridArray, ezDynamicArray or ezDeque).
+#define EZ_ARRAY_MEMBER_PROPERTY_READ_ONLY(PropertyName, MemberName)                          \
+  (new ezMemberArrayProperty<OwnType, EZ_MEMBER_TYPE(OwnType, MemberName), EZ_MEMBER_CONTAINER_SUB_TYPE(OwnType, MemberName)>          \
+    (PropertyName,                                                            \
+    &ezArrayPropertyAccessor<OwnType, EZ_MEMBER_TYPE(OwnType, MemberName), &OwnType::MemberName>::GetConstContainer, \
+    nullptr))  \
+
+/// \brief Same as EZ_MEMBER_PROPERTY, but the property is a set (ezSet).
+#define EZ_SET_MEMBER_PROPERTY(PropertyName, MemberName)                          \
+  (new ezMemberSetProperty<OwnType, EZ_MEMBER_TYPE(OwnType, MemberName), EZ_MEMBER_CONTAINER_SUB_TYPE(OwnType, MemberName)>          \
+    (PropertyName,                                                            \
+    &ezSetPropertyAccessor<OwnType, EZ_MEMBER_TYPE(OwnType, MemberName), &OwnType::MemberName>::GetConstContainer, \
+    &ezSetPropertyAccessor<OwnType, EZ_MEMBER_TYPE(OwnType, MemberName), &OwnType::MemberName>::GetContainer))  \
+
+/// \brief Same as EZ_MEMBER_PROPERTY, but the property is a read-only set (ezSet).
+#define EZ_SET_MEMBER_PROPERTY_READ_ONLY(PropertyName, MemberName)                          \
+  (new ezMemberSetProperty<OwnType, EZ_MEMBER_TYPE(OwnType, MemberName), EZ_MEMBER_CONTAINER_SUB_TYPE(OwnType, MemberName)>          \
+    (PropertyName,                                                            \
+    &ezSetPropertyAccessor<OwnType, EZ_MEMBER_TYPE(OwnType, MemberName), &OwnType::MemberName>::GetConstContainer, \
+    nullptr))  \
 
 /// \brief Within a EZ_BEGIN_PROPERTIES / EZ_END_PROPERTIES block, this adds a property that actually exists as a member.
 ///
@@ -264,35 +393,35 @@ EZ_FORCE_INLINE const ezRTTI* ezGetStaticRTTI()
 /// no custom limits to the values can be applied. If that becomes necessary, just add getter / setter functions and
 /// expose the property as a EZ_ACCESSOR_PROPERTY instead.
 #define EZ_ENUM_MEMBER_PROPERTY(PropertyName, EnumType, MemberName)                                               \
-  new ezEnumMemberProperty<OwnType, EnumType, EZ_MEMBER_TYPE(OwnType, MemberName)>                                \
+  (new ezEnumMemberProperty<OwnType, EnumType, EZ_MEMBER_TYPE(OwnType, MemberName)>                                \
     (PropertyName,                                                                                                \
     &ezPropertyAccessor<OwnType, EZ_MEMBER_TYPE(OwnType, MemberName), &OwnType::MemberName>::GetValue,            \
     &ezPropertyAccessor<OwnType, EZ_MEMBER_TYPE(OwnType, MemberName), &OwnType::MemberName>::SetValue,            \
-    &ezPropertyAccessor<OwnType, EZ_MEMBER_TYPE(OwnType, MemberName), &OwnType::MemberName>::GetPropertyPointer)  \
+    &ezPropertyAccessor<OwnType, EZ_MEMBER_TYPE(OwnType, MemberName), &OwnType::MemberName>::GetPropertyPointer))  \
 
 /// \brief Same as EZ_ENUM_MEMBER_PROPERTY, but the property is read-only.
 #define EZ_ENUM_MEMBER_PROPERTY_READ_ONLY(PropertyName, EnumType, MemberName)                                     \
-  new ezEnumMemberProperty<OwnType, EnumType, EZ_MEMBER_TYPE(OwnType, MemberName)>                                \
+  (new ezEnumMemberProperty<OwnType, EnumType, EZ_MEMBER_TYPE(OwnType, MemberName)>                                \
     (PropertyName,                                                                                                \
     &ezPropertyAccessor<OwnType, EZ_MEMBER_TYPE(OwnType, MemberName), &OwnType::MemberName>::GetValue,            \
     nullptr,                                                                                                      \
-    &ezPropertyAccessor<OwnType, EZ_MEMBER_TYPE(OwnType, MemberName), &OwnType::MemberName>::GetPropertyPointer)  \
+    &ezPropertyAccessor<OwnType, EZ_MEMBER_TYPE(OwnType, MemberName), &OwnType::MemberName>::GetPropertyPointer))  \
 
 /// \brief Same as EZ_ENUM_MEMBER_PROPERTY, but for bitfields.
 #define EZ_BITFLAGS_MEMBER_PROPERTY(PropertyName, BitflagsType, MemberName)                                       \
-  new ezBitflagsMemberProperty<OwnType, BitflagsType, EZ_MEMBER_TYPE(OwnType, MemberName)>                        \
+  (new ezBitflagsMemberProperty<OwnType, BitflagsType, EZ_MEMBER_TYPE(OwnType, MemberName)>                        \
     (PropertyName,                                                                                                \
     &ezPropertyAccessor<OwnType, EZ_MEMBER_TYPE(OwnType, MemberName), &OwnType::MemberName>::GetValue,            \
     &ezPropertyAccessor<OwnType, EZ_MEMBER_TYPE(OwnType, MemberName), &OwnType::MemberName>::SetValue,            \
-    &ezPropertyAccessor<OwnType, EZ_MEMBER_TYPE(OwnType, MemberName), &OwnType::MemberName>::GetPropertyPointer)  \
+    &ezPropertyAccessor<OwnType, EZ_MEMBER_TYPE(OwnType, MemberName), &OwnType::MemberName>::GetPropertyPointer))  \
 
 /// \brief Same as EZ_ENUM_MEMBER_PROPERTY_READ_ONLY, but for bitfields.
 #define EZ_BITFLAGS_MEMBER_PROPERTY_READ_ONLY(PropertyName, BitflagsType, MemberName)                             \
-  new ezBitflagsMemberProperty<OwnType, BitflagsType, EZ_MEMBER_TYPE(OwnType, MemberName)>                        \
+  (new ezBitflagsMemberProperty<OwnType, BitflagsType, EZ_MEMBER_TYPE(OwnType, MemberName)>                        \
     (PropertyName,                                                                                                \
     &ezPropertyAccessor<OwnType, EZ_MEMBER_TYPE(OwnType, MemberName), &OwnType::MemberName>::GetValue,            \
     nullptr,                                                                                                      \
-    &ezPropertyAccessor<OwnType, EZ_MEMBER_TYPE(OwnType, MemberName), &OwnType::MemberName>::GetPropertyPointer)  \
+    &ezPropertyAccessor<OwnType, EZ_MEMBER_TYPE(OwnType, MemberName), &OwnType::MemberName>::GetPropertyPointer))  \
 
 
 
@@ -303,8 +432,8 @@ EZ_FORCE_INLINE const ezRTTI* ezGetStaticRTTI()
 /// \param Value
 ///   The constant value to be stored.
 #define EZ_CONSTANT_PROPERTY(PropertyName, Value)                             \
-  new ezConstantProperty<decltype(Value)>                                     \
-    (PropertyName, Value)                                                     \
+  (new ezConstantProperty<decltype(Value)>                                     \
+    (PropertyName, Value))                                                     \
 
 
 
@@ -347,6 +476,7 @@ EZ_CONSTANT_PROPERTY(EZ_STRINGIZE(Value), (Storage)Value)                     \
 
 #define EZ_END_STATIC_REFLECTED_ENUM()                                        \
   EZ_END_PROPERTIES                                                           \
+  flags |= ezTypeFlags::IsEnum;                                               \
   EZ_END_STATIC_REFLECTED_TYPE();                                             \
 
 
@@ -363,6 +493,7 @@ EZ_CONSTANT_PROPERTY(EZ_STRINGIZE(Value), (Storage)Value)                     \
 
 #define EZ_END_STATIC_REFLECTED_BITFLAGS()                                    \
   EZ_END_PROPERTIES                                                           \
+  flags |= ezTypeFlags::Bitflags;                                             \
   EZ_END_STATIC_REFLECTED_TYPE();                                             \
 
 

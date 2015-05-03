@@ -66,26 +66,11 @@ EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezUpdateReflectionTypeMsgToEditor, ezEditorEngineMsg, 1, ezRTTIDefaultAllocator<ezUpdateReflectionTypeMsgToEditor> );
   EZ_BEGIN_PROPERTIES
-    EZ_MEMBER_PROPERTY("NumProperties", m_uiNumProperties),
-    EZ_MEMBER_PROPERTY("TypeName", m_sTypeName),
-    EZ_MEMBER_PROPERTY("PluginName", m_sPluginName),
-    EZ_MEMBER_PROPERTY("ParentTypeName", m_sParentTypeName),
-    EZ_MEMBER_PROPERTY("DefaultInit", m_sDefaultInitialization),
+    EZ_MEMBER_PROPERTY("Descriptor", m_desc),
   EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProjectReadyMsgToEditor, ezEditorEngineMsg, 1, ezRTTIDefaultAllocator<ezProjectReadyMsgToEditor> );
-EZ_END_DYNAMIC_REFLECTED_TYPE();
-
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezUpdateReflectionPropertyMsgToEditor, ezEditorEngineMsg, 1, ezRTTIDefaultAllocator<ezUpdateReflectionPropertyMsgToEditor> );
-  EZ_BEGIN_PROPERTIES
-    EZ_MEMBER_PROPERTY("Index", m_uiPropertyIndex),
-    EZ_MEMBER_PROPERTY("Name", m_sName),
-    EZ_MEMBER_PROPERTY("TypeName", m_sType),
-    EZ_MEMBER_PROPERTY("TypeEnum", m_Type),
-    EZ_MEMBER_PROPERTY("Flags", m_Flags),
-    EZ_MEMBER_PROPERTY("ConstantValue", m_ConstantValue),
-  EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditorEngineSyncObjectMsg, ezEditorEngineDocumentMsg, 1, ezRTTIDefaultAllocator<ezEditorEngineSyncObjectMsg> );

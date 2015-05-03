@@ -10,14 +10,27 @@ class ezJSONWriter;
 class EZ_FOUNDATION_DLL ezReflectionUtils
 {
 public:
+  // \brief Returns whether a type can be stored directly inside a ezVariant.
+  static bool IsBasicType(const ezRTTI* pRtti);
+
   // \brief Returns the constant value of the given property as an ezVariant. Returns invalid if the type can't be stored inside an ezVariant.
   static ezVariant GetConstantPropertyValue(const ezAbstractConstantProperty* pProp); // [tested]
 
   static ezVariant GetMemberPropertyValue(const ezAbstractMemberProperty* pProp, const void* pObject); // [tested] via ToolsFoundation 
   static void SetMemberPropertyValue(ezAbstractMemberProperty* pProp, void* pObject, const ezVariant& value); // [tested] via ToolsFoundation 
 
+  static ezVariant GetArrayPropertyValue(const ezAbstractArrayProperty* pProp, const void* pObject, ezUInt32 uiIndex);
+  static void SetArrayPropertyValue(ezAbstractArrayProperty* pProp, void* pObject, ezUInt32 uiIndex, const ezVariant& value);
+
+  static void InsertSetPropertyValue(ezAbstractSetProperty* pProp, void* pObject, ezVariant& value);
+  static void RemoveSetPropertyValue(ezAbstractSetProperty* pProp, void* pObject, ezVariant& value);
+
   static ezAbstractMemberProperty* GetMemberProperty(const ezRTTI* pRtti, ezUInt32 uiPropertyIndex);
   static ezAbstractMemberProperty* GetMemberProperty(const ezRTTI* pRtti, const char* szPropertyName); // [tested] via ToolsFoundation 
+
+  static void WritePropertyToJSON(ezJSONWriter& writer, const ezAbstractProperty* pProp, const ezRTTI* pRtti, const void* pObject);
+  static void ReadPropertyFromJSON(const ezVariantDictionary& prop, const ezRTTI* pRtti, void* pObject);
+
 
   /// \brief Writes all property values of the reflected \a pObject of type \a pRtti to \a stream in (extended) JSON format.
   ///
@@ -51,6 +64,7 @@ public:
   /// The object itself will not be reset to the default state before the properties are set, so properties that do not appear
   /// in the JSON data, or cannot be matched, will not be affected.
   static void ReadObjectPropertiesFromJSON(ezStreamReaderBase& stream, const ezRTTI& rtti, void* pObject);
+
 
   /// \brief Gathers all RTTI types that are derived from pRtti.
   ///

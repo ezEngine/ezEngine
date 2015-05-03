@@ -46,7 +46,8 @@
       ezGetStaticRTTI<OwnBaseType>(),                               \
       sizeof(OwnType),                                              \
       GetTypeVersion(),                                             \
-      ezVariant::TypeDeduction<ezReflectedClass*>::value,           \
+      ezVariant::TypeDeduction<OwnType>::value,                     \
+      flags,                                         \
       &Allocator, Properties, MessageHandlers);                     \
   }
 

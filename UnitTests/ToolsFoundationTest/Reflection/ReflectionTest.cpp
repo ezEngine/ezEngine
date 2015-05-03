@@ -436,14 +436,14 @@ ezReflectedTypeHandle RegisterTypeViaRtti(const ezRTTI* pRtti)
   for (ezUInt32 i = 0; i < uiPropertyCount; ++i)
   {
     ezAbstractProperty* prop = rttiProps[i];
-    if (prop->GetCategory() == ezAbstractProperty::Member)
+    if (prop->GetCategory() == ezPropertyCategory::Member)
     {
       uiFoundProperties++;
       ezAbstractMemberProperty* memberProp = static_cast<ezAbstractMemberProperty*>(prop);
       const ezReflectedProperty* pReflectedProperty = pType->GetPropertyByName(memberProp->GetPropertyName());
       EZ_TEST_BOOL(pReflectedProperty != nullptr);
       EZ_TEST_STRING(memberProp->GetPropertyName(), pReflectedProperty->m_sPropertyName.GetString().GetData());
-      EZ_TEST_BOOL(memberProp->IsReadOnly() == pReflectedProperty->m_Flags.IsSet(PropertyFlags::IsReadOnly));
+      EZ_TEST_BOOL(memberProp->GetFlags().IsSet(ezPropertyFlags::ReadOnly) == pReflectedProperty->m_Flags.IsSet(ezPropertyFlags::ReadOnly));
       if (memberProp->GetPropertyType()->GetVariantType() == ezVariant::Type::Invalid)
       {
         EZ_TEST_BOOL(pReflectedProperty->m_Type == ezVariant::Type::Invalid);
@@ -456,7 +456,7 @@ ezReflectedTypeHandle RegisterTypeViaRtti(const ezRTTI* pRtti)
         EZ_TEST_BOOL(pReflectedProperty->m_hTypeHandle.IsInvalidated());
       }
     }
-    else if (prop->GetCategory() == ezAbstractProperty::Constant)
+    else if (prop->GetCategory() == ezPropertyCategory::Constant)
     {
       uiFoundConstants++;
       ezAbstractConstantProperty* memberProp = static_cast<ezAbstractConstantProperty*>(prop);
@@ -515,12 +515,12 @@ ezUInt32 AccessorPropertiesTest(ezIReflectedTypeAccessor& accessor, ezReflectedT
     ezPropertyPath propPath = path;
     propPath.PushBack(pProp->m_sPropertyName.GetString().GetData());
 
-    if (pProp->m_Flags.IsSet(PropertyFlags::IsEnum))
+    if (pProp->m_Flags.IsSet(ezPropertyFlags::IsEnum))
     {
       AccessorPropertyTest(accessor, propPath, ezVariant::Type::Int64);
       uiPropertiesSet++;
     }
-    else if (pProp->m_Flags.IsSet(PropertyFlags::IsBitflags))
+    else if (pProp->m_Flags.IsSet(ezPropertyFlags::Bitflags))
     {
       AccessorPropertyTest(accessor, propPath, ezVariant::Type::Int64);
       uiPropertiesSet++;
@@ -731,7 +731,7 @@ EZ_CREATE_SIMPLE_TEST(Reflection, ReflectedTypeReloading)
     EZ_TEST_BLOCK(ezTestBlock::Enabled, "AddProperty")
     {
       // Say we reload the engine and the InnerStruct now has a second property: IP2.
-      descInner.m_Properties.PushBack(ezReflectedPropertyDescriptor("IP2", ezVariant::Type::Vector4, ezBitflags<PropertyFlags>(PropertyFlags::IsPOD)));
+      descInner.m_Properties.PushBack(ezReflectedPropertyDescriptor(ezPropertyCategory::Member, "IP2", "ezVec4", ezVariant::Type::Vector4, ezBitflags<ezPropertyFlags>(ezPropertyFlags::StandardType)));
       ezReflectedTypeHandle NewInnerHandle = ezReflectedTypeManager::RegisterType(descInner);
       EZ_TEST_BOOL(NewInnerHandle == InnerHandle);
 

@@ -79,6 +79,18 @@ struct ezGetStrongestTypeClass : public ezTraitInt <
     : EZ_COMPILE_TIME_MAX(T1::value, T2::value) > { };
 
 
+/// \brief Determines whether a type is a pointer.
+template<typename T>
+struct ezIsPointer 
+{
+  static const bool value = false;
+};
+
+template<typename T>
+struct ezIsPointer<T*>
+{
+  static const bool value = true; 
+};
 
 
 #ifdef __INTELLISENSE__
@@ -182,6 +194,18 @@ private:
     typedef U type;
   };
 
+  template <typename U>
+  struct RemovePointer
+  {
+    typedef U type;
+  };
+
+  template <typename U>
+  struct RemovePointer<U*>
+  {
+    typedef U type;
+  };
+
 public:
   /// \brief removes const qualifier
   typedef typename RemoveConst<T>::type NonConstType;
@@ -189,8 +213,16 @@ public:
   /// \brief removes reference
   typedef typename RemoveReference<T>::type NonReferenceType;
 
+  /// \brief removes pointer
+  typedef typename RemovePointer<T>::type NonPointerType;
+
   /// \brief removes reference and const qualifier
   typedef typename RemoveConst<typename RemoveReference<T>::type>::type NonConstReferenceType;
+
+  /// \brief removes reference, const and pointer qualifier
+  /// Note that this removes the const and reference of the type pointed too, not of the pointer.
+  typedef typename RemoveConst<typename RemoveReference<typename RemovePointer<T>::type>::type>::type NonConstReferencePointerType;
+
 };
 
 /// generates a template named 'checkerName' which checks for the existence of a member function with 

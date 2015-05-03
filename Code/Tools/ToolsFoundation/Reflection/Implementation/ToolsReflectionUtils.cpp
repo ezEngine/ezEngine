@@ -80,6 +80,7 @@ void ezToolsReflectionUtils::GetReflectedTypeDescriptorFromRtti(const ezRTTI* pR
   EZ_ASSERT_DEV(pRtti != nullptr, "Type to process must not be null!");
   out_desc.m_sTypeName = pRtti->GetTypeName();
   out_desc.m_sPluginName = pRtti->GetPluginName();
+  out_desc.m_Flags = pRtti->GetTypeFlags();
   const ezRTTI* pParentRtti = pRtti->GetParentType();
   out_desc.m_sParentTypeName = pParentRtti ? pParentRtti->GetTypeName() : nullptr;
 
@@ -91,16 +92,16 @@ void ezToolsReflectionUtils::GetReflectedTypeDescriptorFromRtti(const ezRTTI* pR
   for (ezUInt32 i = 0; i < uiCount; ++i)
   {
     ezAbstractProperty* prop = rttiProps[i];
-    
+
     switch (prop->GetCategory())
     {
-    case ezAbstractProperty::Constant:
+    case ezPropertyCategory::Constant:
       {
         ezAbstractConstantProperty* constantProp = static_cast<ezAbstractConstantProperty*>(prop);
         const ezRTTI* pMemberPropRtti = constantProp->GetPropertyType();
         ezVariant::Type::Enum memberType = pMemberPropRtti->GetVariantType();
 
-        if (memberType >= ezVariant::Type::Bool && memberType <= ezVariant::Type::Uuid)
+        if (ezReflectionUtils::IsBasicType(pMemberPropRtti))
         {
           ezVariant value = ezReflectionUtils::GetConstantPropertyValue(constantProp);
           out_desc.m_Properties.PushBack(ezReflectedPropertyDescriptor(constantProp->GetPropertyName(), memberType, value));
@@ -111,38 +112,31 @@ void ezToolsReflectionUtils::GetReflectedTypeDescriptorFromRtti(const ezRTTI* pR
         }
       }
       break;
-    case ezAbstractProperty::Member:
+    case ezPropertyCategory::Member:
       {
         ezAbstractMemberProperty* memberProp = static_cast<ezAbstractMemberProperty*>(prop);
         const ezRTTI* pMemberPropRtti = memberProp->GetPropertyType();
         ezVariant::Type::Enum memberType = pMemberPropRtti->GetVariantType();
-
-        ezBitflags<PropertyFlags> memberFlags;
-        if (memberProp->IsReadOnly())
-          memberFlags.Add(PropertyFlags::IsReadOnly);
-
-        if (pMemberPropRtti->IsDerivedFrom<ezEnumBase>())
-          memberFlags.Add(PropertyFlags::IsEnum);
-        else if (pMemberPropRtti->IsDerivedFrom<ezBitflagsBase>())
-          memberFlags.Add(PropertyFlags::IsBitflags);
-
-        if (memberType == ezVariant::Type::Invalid || memberType == ezVariant::Type::ReflectedPointer)
-        {
-          out_desc.m_Properties.PushBack(ezReflectedPropertyDescriptor(memberProp->GetPropertyName(), pMemberPropRtti->GetTypeName(), memberFlags));
-        }
-        else if (memberType >= ezVariant::Type::Bool && memberType <= ezVariant::Type::Uuid)
-        {
-          memberFlags.Add(PropertyFlags::IsPOD);
-          out_desc.m_Properties.PushBack(ezReflectedPropertyDescriptor(memberProp->GetPropertyName(), memberType, memberFlags));
-        }
-        else
-        {
-          EZ_ASSERT_DEV(false, "Arrays and pointers are not supported yet!");
-        }
+        out_desc.m_Properties.PushBack(ezReflectedPropertyDescriptor(ezPropertyCategory::Member, memberProp->GetPropertyName(), pMemberPropRtti->GetTypeName(), memberType, memberProp->GetFlags()));
       }
       break;
-    case ezAbstractProperty::Function:
-    case ezAbstractProperty::Array:
+    case ezPropertyCategory::Function:
+      break;
+    case ezPropertyCategory::Array:
+      {
+        ezAbstractArrayProperty* arrayProp = static_cast<ezAbstractArrayProperty*>(prop);
+        const ezRTTI* pArrayPropRtti = arrayProp->GetElementType();
+        ezVariant::Type::Enum arrayType = pArrayPropRtti->GetVariantType();
+        out_desc.m_Properties.PushBack(ezReflectedPropertyDescriptor(ezPropertyCategory::Array, arrayProp->GetPropertyName(), pArrayPropRtti->GetTypeName(), arrayType, arrayProp->GetFlags()));
+      }
+      break;
+    case ezPropertyCategory::Set:
+      {
+        ezAbstractSetProperty* setProp = static_cast<ezAbstractSetProperty*>(prop);
+        const ezRTTI* pSetPropRtti = setProp->GetElementType();
+        ezVariant::Type::Enum setType = pSetPropRtti->GetVariantType();
+        out_desc.m_Properties.PushBack(ezReflectedPropertyDescriptor(ezPropertyCategory::Set, setProp->GetPropertyName(), pSetPropRtti->GetTypeName(), setType, setProp->GetFlags()));
+      }
       break;
     }
   }
@@ -207,7 +201,7 @@ ezAbstractMemberProperty* ezToolsReflectionUtils::GetMemberPropertyByPath(const 
     inout_pData = pCurrentProp->GetPropertyPointer(inout_pData);
     if (inout_pData == nullptr)
       return nullptr;
-    
+
     pCurrentProp = ezReflectionUtils::GetMemberProperty(inout_pRtti, path[i]);
   }
 
@@ -249,27 +243,27 @@ ezString ezToolsReflectionUtils::GetStringFromPropertyPath(const ezPropertyPath&
 
 #define IF_HANDLE_TYPE(VAR_TYPE, TYPE, FUNC) \
   if (pProp->m_Type == VAR_TYPE) \
-  { \
-    ParentPath.PushBack(pProp->m_sPropertyName); \
-    writer.BeginObject(); \
-    writer.AddVariableString("t", #TYPE); \
-    writer.AddVariableString("n", pProp->m_sPropertyName); \
-    writer.FUNC("v", et.GetValue(ParentPath).ConvertTo<TYPE>()); \
-    writer.EndObject(); \
-    ParentPath.PopBack(); \
-  } 
+{ \
+  ParentPath.PushBack(pProp->m_sPropertyName); \
+  writer.BeginObject(); \
+  writer.AddVariableString("t", #TYPE); \
+  writer.AddVariableString("n", pProp->m_sPropertyName); \
+  writer.FUNC("v", et.GetValue(ParentPath).ConvertTo<TYPE>()); \
+  writer.EndObject(); \
+  ParentPath.PopBack(); \
+} 
 
 #define IF_HANDLE_TYPE_STRING(VAR_TYPE, TYPE, FUNC) \
   if (pProp->m_Type == VAR_TYPE) \
-  { \
-    ParentPath.PushBack(pProp->m_sPropertyName); \
-    writer.BeginObject(); \
-    writer.AddVariableString("t", #TYPE); \
-    writer.AddVariableString("n", pProp->m_sPropertyName); \
-    writer.FUNC("v", et.GetValue(ParentPath).ConvertTo<ezString>()); \
-    writer.EndObject(); \
-    ParentPath.PopBack(); \
-  } 
+{ \
+  ParentPath.PushBack(pProp->m_sPropertyName); \
+  writer.BeginObject(); \
+  writer.AddVariableString("t", #TYPE); \
+  writer.AddVariableString("n", pProp->m_sPropertyName); \
+  writer.FUNC("v", et.GetValue(ParentPath).ConvertTo<ezString>()); \
+  writer.EndObject(); \
+  ParentPath.PopBack(); \
+} 
 
 static void WriteJSONObject(ezJSONWriter& writer, const ezIReflectedTypeAccessor& et, const ezReflectedType* pType, ezPropertyPath& ParentPath, const char* szObjectName);
 
@@ -284,20 +278,20 @@ static void WriteProperties(ezJSONWriter& writer, const ezIReflectedTypeAccessor
   {
     const ezReflectedProperty* pProp = pType->GetPropertyByIndex(p);
 
-    if (pProp->m_Flags.IsAnySet(PropertyFlags::IsReadOnly))
+    if (pProp->m_Flags.IsAnySet(ezPropertyFlags::ReadOnly))
       continue;
 
-    if (pProp->m_Flags.IsAnySet(PropertyFlags::IsPOD))
+    if (pProp->m_Flags.IsAnySet(ezPropertyFlags::StandardType))
     {
 
       IF_HANDLE_TYPE(ezVariant::Type::Bool, bool, AddVariableBool)
 
-      else IF_HANDLE_TYPE(ezVariant::Type::Int8, ezInt8, AddVariableInt32)
-      else IF_HANDLE_TYPE(ezVariant::Type::Int16, ezInt16, AddVariableInt32)
-      else IF_HANDLE_TYPE(ezVariant::Type::Int32, ezInt32, AddVariableInt32)
-      else IF_HANDLE_TYPE(ezVariant::Type::Int64, ezInt64, AddVariableInt64)
+    else IF_HANDLE_TYPE(ezVariant::Type::Int8, ezInt8, AddVariableInt32)
+    else IF_HANDLE_TYPE(ezVariant::Type::Int16, ezInt16, AddVariableInt32)
+  else IF_HANDLE_TYPE(ezVariant::Type::Int32, ezInt32, AddVariableInt32)
+  else IF_HANDLE_TYPE(ezVariant::Type::Int64, ezInt64, AddVariableInt64)
 
-      else IF_HANDLE_TYPE(ezVariant::Type::UInt8, ezUInt8, AddVariableUInt32)
+  else IF_HANDLE_TYPE(ezVariant::Type::UInt8, ezUInt8, AddVariableUInt32)
       else IF_HANDLE_TYPE(ezVariant::Type::UInt16, ezUInt16, AddVariableUInt32)
       else IF_HANDLE_TYPE(ezVariant::Type::UInt32, ezUInt32, AddVariableUInt32)
       else IF_HANDLE_TYPE(ezVariant::Type::UInt64, ezUInt64, AddVariableUInt64)
@@ -318,11 +312,11 @@ static void WriteProperties(ezJSONWriter& writer, const ezIReflectedTypeAccessor
       else IF_HANDLE_TYPE(ezVariant::Type::Uuid, ezUuid, AddVariableUuid)
       else IF_HANDLE_TYPE_STRING(ezVariant::Type::String, ezConstCharPtr, AddVariableString)
     }
-    else if (pProp->m_Flags.IsAnySet(PropertyFlags::IsEnum | PropertyFlags::IsBitflags))
+    else if (pProp->m_Flags.IsAnySet(ezPropertyFlags::IsEnum | ezPropertyFlags::Bitflags))
     {
       ParentPath.PushBack(pProp->m_sPropertyName);
       writer.BeginObject();
-      writer.AddVariableString("t", pProp->m_Flags.IsSet(PropertyFlags::IsEnum) ? "ezEnum" : "ezBitflags");
+      writer.AddVariableString("t", pProp->m_Flags.IsSet(ezPropertyFlags::IsEnum) ? "ezEnum" : "ezBitflags");
       writer.AddVariableString("n", pProp->m_sPropertyName);
       writer.AddVariableInt64("v", et.GetValue(ParentPath).ConvertTo<ezInt64>());
       writer.EndObject();
@@ -377,7 +371,7 @@ static void ReadJSONObject(const ezVariantDictionary& root, ezIReflectedTypeAcce
     return;
 
   ezVariantArray va = pVal->ConvertTo<ezVariantArray>();
-  
+
   for (ezUInt32 prop = 0; prop < va.GetCount(); ++prop)
   {
     if (va[prop].GetType() != ezVariant::Type::VariantDictionary)
@@ -439,7 +433,7 @@ bool ezToolsReflectionUtils::EnumerationToString(const ezReflectedType* pEnumera
   out_sOutput.Clear();
   const ezReflectedType* pParentRtti = pEnumerationRtti->GetParentTypeHandle().GetType();
   EZ_ASSERT_DEV(pParentRtti != nullptr, "Parent type does not exist!");
-  
+
   // TODO: make this faster.
   if (ezStringUtils::IsEqual(pParentRtti->GetTypeName().GetData(), "ezEnumBase"))
   {
@@ -477,7 +471,7 @@ bool ezToolsReflectionUtils::StringToEnumeration(const ezReflectedType* pEnumera
   out_iValue = 0;
   const ezReflectedType* pParentRtti = pEnumerationRtti->GetParentTypeHandle().GetType();
   EZ_ASSERT_DEV(pParentRtti != nullptr, "Parent type does not exist!");
-  
+
   // TODO: make this faster.
   if (ezStringUtils::IsEqual(pParentRtti->GetTypeName().GetData(), "ezEnumBase"))
   {

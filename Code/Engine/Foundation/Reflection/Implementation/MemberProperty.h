@@ -4,12 +4,13 @@
 
 #include <Foundation/Reflection/Implementation/AbstractProperty.h>
 #include <Foundation/Reflection/Implementation/StaticRTTI.h>
+#include <Foundation/Types/Variant.h>
 
 // ***********************************************
 // ***** Base class for accessing properties *****
 
 
-/// \brief The base class for all typed member properties. Ie. once the type of a property is determined, it can be cast to the proper version of this.
+/// \brief The base class for all typed member properties. I.e. once the type of a property is determined, it can be cast to the proper version of this.
 ///
 /// For example, when you have a pointer to an ezAbstractMemberProperty and it returns that the property is of type 'int', you can cast the pointer
 /// to an pointer to ezTypedMemberProperty<int> which then allows you to access its values.
@@ -21,12 +22,18 @@ public:
   /// \brief Passes the property name through to ezAbstractMemberProperty.
   ezTypedMemberProperty(const char* szPropertyName) : ezAbstractMemberProperty(szPropertyName)
   {
+    ezVariant::Type::Enum type = static_cast<ezVariant::Type::Enum>(ezVariant::TypeDeduction<typename ezTypeTraits<Type>::NonConstReferenceType>::value);
+    if (type >= ezVariant::Type::Bool && type <= ezVariant::Type::Uuid)
+      m_Flags.Add(ezPropertyFlags::StandardType);
+
+    if (type == ezVariant::Type::VoidPointer || type == ezVariant::Type::ReflectedPointer)
+      m_Flags.Add(ezPropertyFlags::Pointer);
   }
 
   /// \brief Returns the actual type of the property. You can then compare that with known types, eg. compare it to ezGetStaticRTTI<int>() to see whether this is an int property.
   virtual const ezRTTI* GetPropertyType() const override // [tested]
   {
-    return ezGetStaticRTTI<typename ezTypeTraits<Type>::NonConstReferenceType>();
+    return ezGetStaticRTTI<typename ezTypeTraits<Type>::NonConstReferencePointerType>();
   }
 
   /// \brief Returns the value of the property. Pass the instance pointer to the surrounding class along.
@@ -36,6 +43,34 @@ public:
   ///
   /// \note Make sure the property is not read-only before calling this, otherwise an assert will fire.
   virtual void SetValue(void* pInstance, Type value) = 0; // [tested]
+
+  virtual void GetValuePtr(const void* pInstance, void* pObject) const override { *static_cast<Type*>(pObject) = GetValue(pInstance); };
+  virtual void SetValuePtr(void* pInstance, void* pObject) override { SetValue(pInstance, *static_cast<Type*>(pObject)); };
+};
+
+/// \brief Specialization of ezTypedMemberProperty for const char*.
+///
+/// This works because ezTypedMemberProperty< typename ezTypeTraits<Type>::NonConstReferenceType > in ezAccessorProperty
+/// does not actually remove the constness of the type but of the pointer, so const char* is not affected.
+template <>
+class ezTypedMemberProperty<const char*> : public ezAbstractMemberProperty
+{
+public:
+  ezTypedMemberProperty(const char* szPropertyName) : ezAbstractMemberProperty(szPropertyName)
+  {
+    // We treat const char* as a basic type and not a pointer.
+    m_Flags.Add(ezPropertyFlags::StandardType);
+  }
+
+  virtual const ezRTTI* GetPropertyType() const override // [tested]
+  {
+    return ezGetStaticRTTI<const char*>();
+  }
+
+  virtual const char* GetValue(const void* pInstance) const = 0;
+  virtual void SetValue(void* pInstance, const char* value) = 0;
+  virtual void GetValuePtr(const void* pInstance, void* pObject) const override { *static_cast<const char**>(pObject) = GetValue(pInstance); };
+  virtual void SetValuePtr(void* pInstance, void* pObject) override { SetValue(pInstance, *static_cast<const char**>(pObject)); };
 };
 
 
@@ -58,6 +93,9 @@ public:
 
     m_Getter = getter;
     m_Setter = setter;
+
+    if (m_Setter == nullptr)
+      ezAbstractMemberProperty::m_Flags.Add(ezPropertyFlags::ReadOnly);
   }
 
   /// \brief Always returns nullptr; once a property is modified through accessors, there is no point in giving more direct access to others.
@@ -67,13 +105,7 @@ public:
     return nullptr;
   }
 
-  /// \brief Returns whether the property can be modified or is read-only.
-  virtual bool IsReadOnly() const override // [tested]
-  {
-    return m_Setter == nullptr;
-  }
-
-    /// \brief Returns the value of the property. Pass the instance pointer to the surrounding class along.
+  /// \brief Returns the value of the property. Pass the instance pointer to the surrounding class along.
   virtual RealType GetValue(const void* pInstance) const override // [tested]
   {
     return (static_cast<const Class*>(pInstance)->*m_Getter)();
@@ -137,6 +169,9 @@ public:
     m_Getter = getter;
     m_Setter = setter;
     m_Pointer = pointer;
+
+    if (m_Setter == nullptr)
+      ezAbstractMemberProperty::m_Flags.Add(ezPropertyFlags::ReadOnly);
   }
 
   /// \brief Returns a pointer to the member property.
@@ -145,13 +180,7 @@ public:
     return m_Pointer(static_cast<const Class*>(pInstance));
   }
 
-  /// \brief Returns whether the property can be modified or is read-only.
-  virtual bool IsReadOnly() const override
-  {
-    return m_Setter == nullptr;
-  }
-
-    /// \brief Returns the value of the property. Pass the instance pointer to the surrounding class along.
+  /// \brief Returns the value of the property. Pass the instance pointer to the surrounding class along.
   virtual Type GetValue(const void* pInstance) const override
   {
     return m_Getter(static_cast<const Class*>(pInstance));

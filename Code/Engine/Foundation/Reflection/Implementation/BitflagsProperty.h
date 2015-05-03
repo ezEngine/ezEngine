@@ -18,20 +18,19 @@ public:
   ezBitflagsAccessorProperty(const char* szPropertyName, GetterFunc getter, SetterFunc setter) : ezTypedEnumProperty<EnumType>(szPropertyName)
   {
     EZ_ASSERT_DEBUG(getter != nullptr, "The getter of a property cannot be nullptr.");
+    ezAbstractMemberProperty::m_Flags.Add(ezPropertyFlags::Bitflags);
 
     m_Getter = getter;
     m_Setter = setter;
+
+    if (m_Setter == nullptr)
+        ezAbstractMemberProperty::m_Flags.Add(ezPropertyFlags::ReadOnly);
   }
 
   virtual void* GetPropertyPointer(const void* pInstance) const override
   {
     // No access to sub-properties, if we have accessors for this property
     return nullptr;
-  }
-
-  virtual bool IsReadOnly() const override
-  {
-    return m_Setter == nullptr;
   }
 
   virtual ezInt64 GetValue(const void* pInstance) const override // [tested]
@@ -66,20 +65,19 @@ public:
   ezBitflagsMemberProperty(const char* szPropertyName, GetterFunc getter, SetterFunc setter, PointerFunc pointer) : ezTypedEnumProperty<EnumType>(szPropertyName)
   {
     EZ_ASSERT_DEBUG(getter != nullptr, "The getter of a property cannot be nullptr.");
+    ezAbstractMemberProperty::m_Flags.Add(ezPropertyFlags::Bitflags);
 
     m_Getter = getter;
     m_Setter = setter;
     m_Pointer = pointer;
+
+    if (m_Setter == nullptr)
+        ezAbstractMemberProperty::m_Flags.Add(ezPropertyFlags::ReadOnly);
   }
 
   virtual void* GetPropertyPointer(const void* pInstance) const override
   {
     return m_Pointer(static_cast<const Class*>(pInstance));
-  }
-
-  virtual bool IsReadOnly() const override
-  {
-    return m_Setter == nullptr;
   }
 
   virtual ezInt64 GetValue(const void* pInstance) const override // [tested]

@@ -380,48 +380,14 @@ void ezEditorApp::EngineProcessMsgHandler(const ezEditorEngineProcessConnection:
   {
   case ezEditorEngineProcessConnection::Event::Type::ProcessMessage:
     {
-      static ezReflectedTypeDescriptor s_TypeDesc;
-
       if (e.m_pMsg->GetDynamicRTTI()->IsDerivedFrom<ezUpdateReflectionTypeMsgToEditor>())
       {
         const ezUpdateReflectionTypeMsgToEditor* pMsg = static_cast<const ezUpdateReflectionTypeMsgToEditor*>(e.m_pMsg);
-
-        s_TypeDesc.m_sTypeName = pMsg->m_sTypeName;
-        s_TypeDesc.m_sDefaultInitialization = pMsg->m_sDefaultInitialization;
-        s_TypeDesc.m_sParentTypeName = pMsg->m_sParentTypeName;
-        s_TypeDesc.m_sPluginName = pMsg->m_sPluginName;
-        s_TypeDesc.m_Properties.SetCount(pMsg->m_uiNumProperties);
-
-        if (pMsg->m_uiNumProperties == 0)
-        {
-          ezReflectedTypeManager::RegisterType(s_TypeDesc);
-          s_TypeDesc.m_Properties.Clear();
-          s_TypeDesc.m_Properties.Compact();
-        }
+        ezReflectedTypeManager::RegisterType(pMsg->m_desc);
       }
       else if (e.m_pMsg->GetDynamicRTTI()->IsDerivedFrom<ezProjectReadyMsgToEditor>())
       {
         //const ezProjectReadyMsgToEditor* pMsg = static_cast<const ezProjectReadyMsgToEditor*>(e.m_pMsg);
-
-
-      }
-      else if (e.m_pMsg->GetDynamicRTTI()->IsDerivedFrom<ezUpdateReflectionPropertyMsgToEditor>())
-      {
-        const ezUpdateReflectionPropertyMsgToEditor* pMsg = static_cast<const ezUpdateReflectionPropertyMsgToEditor*>(e.m_pMsg);
-
-        auto& ref = s_TypeDesc.m_Properties[pMsg->m_uiPropertyIndex];
-        ref.m_ConstantValue = pMsg->m_ConstantValue;
-        ref.m_Flags = ((PropertyFlags::Enum) pMsg->m_Flags);
-        ref.m_sName = pMsg->m_sName;
-        ref.m_Type = (ezVariant::Type::Enum) pMsg->m_Type;
-        ref.m_sType = pMsg->m_sType;
-
-        if (pMsg->m_uiPropertyIndex + 1 == s_TypeDesc.m_Properties.GetCount())
-        {
-          ezReflectedTypeManager::RegisterType(s_TypeDesc);
-          s_TypeDesc.m_Properties.Clear();
-          s_TypeDesc.m_Properties.Compact();
-        }
       }
     }
     break;
