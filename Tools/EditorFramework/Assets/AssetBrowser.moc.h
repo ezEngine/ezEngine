@@ -36,4 +36,6 @@ private:
 
   ezAssetCuratorModel* m_pModel;
 
+  /// \todo Broken delegates
+  ezDelegate<void(const ezAssetCurator::Event&)> m_DelegateAssetCuratorEvents;
 };

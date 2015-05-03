@@ -135,4 +135,8 @@ private:
   ez3DViewWidget* m_pCenterWidget;
   
   ezCamera m_Camera;
+
+  /// \todo Broken delegates
+  ezDelegate<void(const ezDocumentObjectTreePropertyEvent&)> m_DelegatePropertyEvents;
+  ezDelegate<void(const ezDocumentObjectTreeStructureEvent&)> m_DelegateDocumentTreeEvents;
 };

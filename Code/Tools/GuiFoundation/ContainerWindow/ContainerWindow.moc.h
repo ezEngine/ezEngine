@@ -66,6 +66,12 @@ private:
   ezDynamicArray<ezDocumentWindow*> m_DocumentWindows;
 
   static ezDynamicArray<ezContainerWindow*> s_AllContainerWindows;
+
+
+  /// \todo Broken delegates
+  ezDelegate<void(const ezDocumentWindow::Event&)> m_DelegateDocumentWindowEvents;
+  ezDelegate<void(const ezToolsProject::Event&)> m_DelegateProjectEvents;
+  ezDelegate<void(const ezUIServices::Event&)> m_DelegateUIServicesEvents;
 };
 
 

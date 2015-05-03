@@ -42,7 +42,9 @@ void ezDocumentWindow::Constructor()
   ezContainerWindow::GetAllContainerWindows()[0]->MoveDocumentWindowToContainer(this);
   ScheduleRestoreWindowLayout();
 
-  ezUIServices::s_Events.AddEventHandler(ezMakeDelegate(&ezDocumentWindow::UIServicesEventHandler, this));
+  m_DelegateUIServicesEvents = ezMakeDelegate(&ezDocumentWindow::UIServicesEventHandler, this);
+
+  ezUIServices::s_Events.AddEventHandler(m_DelegateUIServicesEvents);
 }
 
 ezDocumentWindow::ezDocumentWindow(ezDocumentBase* pDocument)
@@ -53,8 +55,11 @@ ezDocumentWindow::ezDocumentWindow(ezDocumentBase* pDocument)
 
   Constructor();
 
-  pDocument->GetDocumentManager()->s_Events.AddEventHandler(ezMakeDelegate(&ezDocumentWindow::DocumentManagerEventHandler, this));
-  pDocument->m_EventsOne.AddEventHandler(ezMakeDelegate(&ezDocumentWindow::DocumentEventHandler, this));
+  m_DelegateDocumentManagerEvents = ezMakeDelegate(&ezDocumentWindow::DocumentManagerEventHandler, this);
+  m_DelegateDocumentEvents = ezMakeDelegate(&ezDocumentWindow::DocumentEventHandler, this);
+
+  ezDocumentManagerBase::s_Events.AddEventHandler(m_DelegateDocumentManagerEvents);
+  pDocument->m_EventsOne.AddEventHandler(m_DelegateDocumentEvents);
 }
 
 ezDocumentWindow::ezDocumentWindow(const char* szUniqueName)
@@ -69,7 +74,7 @@ ezDocumentWindow::ezDocumentWindow(const char* szUniqueName)
 
 ezDocumentWindow::~ezDocumentWindow()
 {
-  ezUIServices::s_Events.RemoveEventHandler(ezMakeDelegate(&ezDocumentWindow::UIServicesEventHandler, this));
+  ezUIServices::s_Events.RemoveEventHandler(m_DelegateUIServicesEvents);
 
   s_AllDocumentWindows.RemoveSwap(this);
 
@@ -80,8 +85,8 @@ ezDocumentWindow::~ezDocumentWindow()
 
   if (m_pDocument)
   {
-    m_pDocument->m_EventsOne.RemoveEventHandler(ezMakeDelegate(&ezDocumentWindow::DocumentEventHandler, this));
-    m_pDocument->GetDocumentManager()->s_Events.RemoveEventHandler(ezMakeDelegate(&ezDocumentWindow::DocumentManagerEventHandler, this));
+    m_pDocument->m_EventsOne.RemoveEventHandler(m_DelegateDocumentEvents);
+    ezDocumentManagerBase::s_Events.RemoveEventHandler(m_DelegateDocumentManagerEvents);
   }
 }
 

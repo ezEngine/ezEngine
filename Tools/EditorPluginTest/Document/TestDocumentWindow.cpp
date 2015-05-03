@@ -27,10 +27,11 @@ ezTestDocumentWindow::ezTestDocumentWindow(ezDocumentBase* pDocument) : ezDocume
 
   SetTargetFramerate(24);
 
+  m_DelegatePropertyEvents = ezMakeDelegate(&ezTestDocumentWindow::PropertyEventHandler, this);
+  m_DelegateDocumentTreeEvents = ezMakeDelegate(&ezTestDocumentWindow::DocumentTreeEventHandler, this);
 
-
-  GetDocument()->GetObjectTree()->m_StructureEvents.AddEventHandler(ezMakeDelegate(&ezTestDocumentWindow::DocumentTreeEventHandler, this));
-  GetDocument()->GetObjectTree()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezTestDocumentWindow::PropertyEventHandler, this));
+  GetDocument()->GetObjectTree()->m_StructureEvents.AddEventHandler(m_DelegateDocumentTreeEvents);
+  GetDocument()->GetObjectTree()->m_PropertyEvents.AddEventHandler(m_DelegatePropertyEvents);
 
   m_Camera.SetCameraMode(ezCamera::CameraMode::PerspectiveFixedFovY, 80.0f, 0.1f, 1000.0f);
   m_Camera.LookAt(ezVec3(0.5f, 1.5f, 2.0f), ezVec3(0.0f, 0.5f, 0.0f), ezVec3(0.0f, 1.0f, 0.0f));
@@ -60,8 +61,8 @@ ezTestDocumentWindow::ezTestDocumentWindow(ezDocumentBase* pDocument) : ezDocume
 
 ezTestDocumentWindow::~ezTestDocumentWindow()
 {
-  GetDocument()->GetObjectTree()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezTestDocumentWindow::PropertyEventHandler, this));
-  GetDocument()->GetObjectTree()->m_StructureEvents.RemoveEventHandler(ezMakeDelegate(&ezTestDocumentWindow::DocumentTreeEventHandler, this));
+  GetDocument()->GetObjectTree()->m_PropertyEvents.RemoveEventHandler(m_DelegatePropertyEvents);
+  GetDocument()->GetObjectTree()->m_StructureEvents.RemoveEventHandler(m_DelegateDocumentTreeEvents);
 }
 
 void ezTestDocumentWindow::PropertyEventHandler(const ezDocumentObjectTreePropertyEvent& e)

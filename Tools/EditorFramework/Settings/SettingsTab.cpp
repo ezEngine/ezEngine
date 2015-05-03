@@ -54,9 +54,13 @@ ezSettingsTab::ezSettingsTab() : ezDocumentWindow("Settings")
   EZ_VERIFY(connect(m_pSettingsGrid, SIGNAL(value_changed()), this, SLOT(SlotSettingsChanged())) != nullptr, "signal/slot connection failed");
   EZ_VERIFY(connect(ComboSettingsDomain, SIGNAL(currentIndexChanged(int)), this, SLOT(SlotComboSettingsDomainIndexChanged(int))) != nullptr, "signal/slot connection failed");
 
-  ezPlugin::s_PluginEvents.AddEventHandler(ezMakeDelegate(&ezSettingsTab::PluginEventHandler, this));
-  ezToolsProject::s_Events.AddEventHandler(ezMakeDelegate(&ezSettingsTab::ProjectEventHandler, this));
-  ezDocumentManagerBase::s_Events.AddEventHandler(ezMakeDelegate(&ezSettingsTab::DocumentManagerEventHandler, this));
+  m_DelegatePluginEvents = ezMakeDelegate(&ezSettingsTab::PluginEventHandler, this);
+  m_DelegateProjectEvents = ezMakeDelegate(&ezSettingsTab::ProjectEventHandler, this);
+  m_DelegateDocumentManagerEvents = ezMakeDelegate(&ezSettingsTab::DocumentManagerEventHandler, this);
+
+  ezPlugin::s_PluginEvents.AddEventHandler(m_DelegatePluginEvents);
+  ezToolsProject::s_Events.AddEventHandler(m_DelegateProjectEvents);
+  ezDocumentManagerBase::s_Events.AddEventHandler(m_DelegateDocumentManagerEvents);
 
   UpdateSettings();
 
@@ -69,9 +73,9 @@ ezSettingsTab::ezSettingsTab() : ezDocumentWindow("Settings")
 
 ezSettingsTab::~ezSettingsTab()
 {
-  ezToolsProject::s_Events.RemoveEventHandler(ezMakeDelegate(&ezSettingsTab::ProjectEventHandler, this));
-  ezDocumentManagerBase::s_Events.RemoveEventHandler(ezMakeDelegate(&ezSettingsTab::DocumentManagerEventHandler, this));
-  ezPlugin::s_PluginEvents.RemoveEventHandler(ezMakeDelegate(&ezSettingsTab::PluginEventHandler, this));
+  ezToolsProject::s_Events.RemoveEventHandler(m_DelegateProjectEvents);
+  ezDocumentManagerBase::s_Events.RemoveEventHandler(m_DelegateDocumentManagerEvents);
+  ezPlugin::s_PluginEvents.RemoveEventHandler(m_DelegatePluginEvents);
 
   g_pInstance = nullptr;
 }

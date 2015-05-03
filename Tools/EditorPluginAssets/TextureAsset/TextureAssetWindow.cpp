@@ -10,11 +10,11 @@
 
 ezTextureAssetDocumentWindow::ezTextureAssetDocumentWindow(ezDocumentBase* pDocument) : ezDocumentWindow(pDocument)
 {
-  GetDocument()->GetObjectTree()->m_PropertyEvents.AddEventHandler(ezMakeDelegate(&ezTextureAssetDocumentWindow::PropertyEventHandler, this));
+  m_DelegatePropertyEvents = ezMakeDelegate(&ezTextureAssetDocumentWindow::PropertyEventHandler, this);
+  GetDocument()->GetObjectTree()->m_PropertyEvents.AddEventHandler(m_DelegatePropertyEvents);
 
   // Menu Bar
   {
-
     ezMenuBarActionMapView* pMenuBar = static_cast<ezMenuBarActionMapView*>(menuBar());
     ezActionContext context;
     context.m_sMapping = "TextureAssetMenuBar";
@@ -41,7 +41,7 @@ ezTextureAssetDocumentWindow::ezTextureAssetDocumentWindow(ezDocumentBase* pDocu
 
 ezTextureAssetDocumentWindow::~ezTextureAssetDocumentWindow()
 {
-  GetDocument()->GetObjectTree()->m_PropertyEvents.RemoveEventHandler(ezMakeDelegate(&ezTextureAssetDocumentWindow::PropertyEventHandler, this));
+  GetDocument()->GetObjectTree()->m_PropertyEvents.RemoveEventHandler(m_DelegatePropertyEvents);
 }
 
 void ezTextureAssetDocumentWindow::UpdatePreview()

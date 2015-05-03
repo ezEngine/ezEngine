@@ -90,4 +90,5 @@ private:
 
   ezDocumentBase* m_pDocument;
   ezInt32 m_iEngineViewID;
+
 };

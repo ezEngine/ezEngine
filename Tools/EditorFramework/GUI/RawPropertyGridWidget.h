@@ -36,6 +36,10 @@ private:
   ezRawPropertyWidget* m_pRawPropertyWidget[2];
   QSpacerItem* m_pSpacer;
   ezDocumentBase* m_pDocument;
+
+  /// \todo Broken delegate stuff
+  ezDelegate<void(const ezSelectionManager::Event&)> m_DelegateSelectionEvents;
+  ezDelegate<void(const ezDocumentObjectTreePropertyEvent&)> m_DelegatePropertyEvents;
 };
 
 

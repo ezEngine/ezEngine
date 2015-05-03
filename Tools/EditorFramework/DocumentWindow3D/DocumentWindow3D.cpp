@@ -14,12 +14,13 @@ ezDocumentWindow3D::ezDocumentWindow3D(ezDocumentBase* pDocument) : ezDocumentWi
 
   m_pEngineView = ezEditorEngineProcessConnection::GetInstance()->CreateEngineConnection(this);
 
-  ezEditorEngineProcessConnection::s_Events.AddEventHandler(ezMakeDelegate(&ezDocumentWindow3D::EngineViewProcessEventHandler, this));
+  m_DelegateEngineViewProcessEvents = ezMakeDelegate(&ezDocumentWindow3D::EngineViewProcessEventHandler, this);
+  ezEditorEngineProcessConnection::s_Events.AddEventHandler(m_DelegateEngineViewProcessEvents);
 }
 
 ezDocumentWindow3D::~ezDocumentWindow3D()
 {
-  ezEditorEngineProcessConnection::s_Events.RemoveEventHandler(ezMakeDelegate(&ezDocumentWindow3D::EngineViewProcessEventHandler, this));
+  ezEditorEngineProcessConnection::s_Events.RemoveEventHandler(m_DelegateEngineViewProcessEvents);
 
   ezEditorEngineProcessConnection::GetInstance()->DestroyEngineConnection(this);
 }

@@ -22,6 +22,9 @@ private:
 private:
   const ezDocumentObjectManagerBase* m_pManager;
 
+
+  /// \todo Broken delegates
+  ezDelegate<void(const ezReflectedTypeChange&)> m_DelegateTypeChanged;
 };
 
 

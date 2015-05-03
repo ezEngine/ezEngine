@@ -15,6 +15,8 @@ ezAssetBrowser::ezAssetBrowser(QWidget* parent) : QWidget(parent)
 
   m_pModel = new ezAssetCuratorModel(this);
 
+  IconSizeSlider->setValue(50);
+
   ListAssets->setModel(m_pModel);
   ListAssets->SetIconScale(IconSizeSlider->value());
   on_ButtonIconMode_clicked();
@@ -89,12 +91,14 @@ ezAssetBrowser::ezAssetBrowser(QWidget* parent) : QWidget(parent)
 
   UpdateDirectoryTree();
 
-  ezAssetCurator::GetInstance()->m_Events.AddEventHandler(ezMakeDelegate(&ezAssetBrowser::AssetCuratorEventHandler, this));
+  m_DelegateAssetCuratorEvents = ezMakeDelegate(&ezAssetBrowser::AssetCuratorEventHandler, this);
+
+  ezAssetCurator::GetInstance()->m_Events.AddEventHandler(m_DelegateAssetCuratorEvents);
 }
 
 ezAssetBrowser::~ezAssetBrowser()
 {
-  ezAssetCurator::GetInstance()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezAssetBrowser::AssetCuratorEventHandler, this));
+  ezAssetCurator::GetInstance()->m_Events.RemoveEventHandler(m_DelegateAssetCuratorEvents);
 
   ListAssets->setModel(nullptr);
 }
