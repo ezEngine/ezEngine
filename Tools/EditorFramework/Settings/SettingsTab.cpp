@@ -71,10 +71,14 @@ ezSettingsTab::ezSettingsTab() : ezDocumentWindow("Settings")
   context.m_sMapping = "SettingsTabMenuBar";
   context.m_pDocument = nullptr;
   pMenuBar->SetActionContext(context);
+
+  AssetBrowserWidget->RestoreState("AssetBrowserPanel");
 }
 
 ezSettingsTab::~ezSettingsTab()
 {
+  AssetBrowserWidget->SaveState("AssetBrowserPanel");
+
   ezToolsProject::s_Events.RemoveEventHandler(m_DelegateProjectEvents);
   ezDocumentManagerBase::s_Events.RemoveEventHandler(m_DelegateDocumentManagerEvents);
   ezPlugin::s_PluginEvents.RemoveEventHandler(m_DelegatePluginEvents);
@@ -248,7 +252,7 @@ void ezSettingsTab::on_ButtonDataDirConfig_clicked()
 
 void ezSettingsTab::on_ButtonAssetBrowserDlg_clicked()
 {
-  ezAssetBrowserDlg dlg(this, "Sponza/Textures/VasePlant.ezTextureAsset", "Texture 2D;Texture Cube");
+  ezAssetBrowserDlg dlg(this, "Sponza/Textures/VasePlant.ezTextureAsset", "Texture 2D");
   dlg.exec();
 
 }

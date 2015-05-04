@@ -15,6 +15,9 @@ public:
   void SetSelectedAsset(const char* szAssetPath);
   void ShowOnlyTheseTypeFilters(const char* szFilters);
 
+  void SaveState(const char* szSettingsName);
+  void RestoreState(const char* szSettingsName);
+
 signals:
   void ItemChosen(QString sAssetPath);
 

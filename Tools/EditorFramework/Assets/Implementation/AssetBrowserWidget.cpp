@@ -7,6 +7,7 @@
 #include <QVBoxLayout>
 #include <QScrollBar>
 #include <QTimer>
+#include <QSettings>
 
 ezAssetBrowserWidget::ezAssetBrowserWidget(QWidget* parent) : QWidget(parent)
 {
@@ -104,6 +105,36 @@ ezAssetBrowserWidget::~ezAssetBrowserWidget()
   ListAssets->setModel(nullptr);
 }
 
+void ezAssetBrowserWidget::SaveState(const char* szSettingsName)
+{
+  QSettings Settings;
+  Settings.beginGroup(QLatin1String(szSettingsName));
+  {
+    Settings.setValue("SplitterGeometry", splitter->saveGeometry());
+    Settings.setValue("SplitterState", splitter->saveState());
+    Settings.setValue("IconSize", IconSizeSlider->value());
+    Settings.setValue("IconMode", ListAssets->viewMode() == QListView::ViewMode::IconMode);
+  }
+  Settings.endGroup();
+}
+
+void ezAssetBrowserWidget::RestoreState(const char* szSettingsName)
+{
+  QSettings Settings;
+  Settings.beginGroup(QLatin1String(szSettingsName));
+  {
+    splitter->restoreGeometry(Settings.value("SplitterGeometry", splitter->saveGeometry()).toByteArray());
+    splitter->restoreState(Settings.value("SplitterState", splitter->saveState()).toByteArray());
+    IconSizeSlider->setValue(Settings.value("IconSize", IconSizeSlider->value()).toInt());
+
+    if (Settings.value("IconMode", ListAssets->viewMode() == QListView::ViewMode::IconMode).toBool())
+      on_ButtonIconMode_clicked();
+    else
+      on_ButtonListMode_clicked();
+  }
+  Settings.endGroup();
+}
+
 void ezAssetBrowserWidget::on_ListAssets_doubleClicked(const QModelIndex& index)
 {
   emit ItemChosen(m_pModel->data(index, Qt::UserRole + 1).toString());
@@ -165,7 +196,9 @@ void ezAssetBrowserWidget::OnTypeFilterChanged()
   {
     sTemp.Set(";", ListTypeFilter->item(i)->text().toUtf8().data(), ";");
 
-    bool bChecked = sFilter.FindSubString(sTemp) != nullptr;
+    const bool bChecked = sFilter.FindSubString(sTemp) != nullptr;
+
+    ListTypeFilter->item(i)->setCheckState(bChecked ? Qt::Checked : Qt::Unchecked);
 
     if (bChecked)
       bAnyChecked = true;
@@ -196,6 +229,26 @@ void ezAssetBrowserWidget::on_ListTypeFilter_itemChanged(QListWidgetItem* item)
       for (ezInt32 i = 1; i < ListTypeFilter->count(); ++i)
       {
         ListTypeFilter->item(i)->setCheckState(Qt::Unchecked);
+      }
+    }
+    else
+    {
+      ezStringBuilder sFilter;
+
+      // activate all others
+      for (ezInt32 i = 1; i < ListTypeFilter->count(); ++i)
+      {
+        if (!m_sAllTypesFilter.IsEmpty())
+        {
+          sFilter.Set(";", ListTypeFilter->item(i)->text().toUtf8().data(), ";");
+
+          if (m_sAllTypesFilter.FindSubString(sFilter) != nullptr)
+            ListTypeFilter->item(i)->setCheckState(Qt::Checked);
+          else
+            ListTypeFilter->item(i)->setCheckState(Qt::Unchecked);
+        }
+        else
+          ListTypeFilter->item(i)->setCheckState(Qt::Checked);
       }
     }
   }
@@ -391,8 +444,6 @@ void ezAssetBrowserWidget::OnScrollToItem(QString sPath)
 
 void ezAssetBrowserWidget::ShowOnlyTheseTypeFilters(const char* szFilters)
 {
-  return;
-
   {
     QtScopedBlockSignals block(ListTypeFilter);
 
@@ -407,6 +458,7 @@ void ezAssetBrowserWidget::ShowOnlyTheseTypeFilters(const char* szFilters)
 
       if (sAllFilters.FindSubString(sFilter) == nullptr)
         ListTypeFilter->item(i)->setHidden(true);
+        //ListTypeFilter->item(i)->setFlags(Qt::ItemFlag::ItemIsUserCheckable);
     }
   }
 
