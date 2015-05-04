@@ -40,6 +40,46 @@ namespace
     }
   };
 
+  struct BaseA
+  {
+    virtual ~BaseA() {}
+    virtual void bar() {}
+
+    int m_i1;
+  };
+
+  struct BaseB
+  {
+    virtual ~BaseB() {}
+    virtual void foo(){}
+    int m_i2;
+  };
+
+  struct ComplexClass : public BaseA, public BaseB
+  {
+    ComplexClass()
+    {
+      m_ctorDel = ezMakeDelegate(&ComplexClass::nonVirtualFunc, this);
+    }
+
+    virtual ~ComplexClass()
+    {
+      m_dtorDel = ezMakeDelegate(&ComplexClass::nonVirtualFunc, this);
+      EZ_TEST_BOOL(m_ctorDel == m_dtorDel);
+    }
+    virtual void bar() override {}
+    virtual void foo() override {}
+
+
+
+    void nonVirtualFunc() { m_i1 = 1; m_i2 = 2; m_i3 = 3; }
+
+    int m_i3;
+
+    ezDelegate<void()> m_ctorDel;
+    ezDelegate<void()> m_dtorDel;
+  };
+
   static ezInt32 Function(ezInt32 b)
   {
     return b + 2;
@@ -52,7 +92,7 @@ EZ_CREATE_SIMPLE_TEST(Basics, Delegate)
   TestDelegate d;
 
 #if EZ_ENABLED(EZ_PLATFORM_64BIT)
-  EZ_TEST_BOOL(sizeof(d) == 32);
+  EZ_TEST_BOOL(sizeof(d) == 40);
 #endif
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Method")
@@ -65,6 +105,12 @@ EZ_CREATE_SIMPLE_TEST(Basics, Delegate)
 
     d = TestDelegate(&TestTypeDerived::Method, &test);
     EZ_TEST_INT(d(4), 8);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Complex Class")
+  {
+    ComplexClass *c = new ComplexClass();
+    delete c;
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Const Method")

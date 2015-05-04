@@ -33,4 +33,12 @@ void DelegateTest()
     auto context = WithContext(5);
     EZ_TEST_INT(8, CallDelegate(ezMakeDelegate(&context.TargetFunction), 1.0f, 2.0));
   }
+
+  if(EZ_TEST_BLOCK(ezTestBlock.Enabled, "Delegate comparison"))
+  {
+    auto context = WithContext(10);
+    EZ_TEST_BOOL(ezMakeDelegate(&TargetFunction) == ezMakeDelegate(&TargetFunction));
+
+    EZ_TEST_BOOL(ezMakeDelegate(&context.TargetFunction) == ezMakeDelegate(&context.TargetFunction));
+  }
 }

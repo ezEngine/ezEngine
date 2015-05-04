@@ -8,8 +8,16 @@ private:
 public:
   EZ_DECLARE_POD_TYPE();
 
-  EZ_FORCE_INLINE ezDelegate() : m_pDispatchFunction(nullptr)
+  EZ_FORCE_INLINE ezDelegate() : m_pDispatchFunction(nullptr), m_pCompareFunction(nullptr)
   {
+  }
+
+  EZ_FORCE_INLINE ezDelegate(const SelfType& other)
+  {
+    m_pInstance = other.m_pInstance;
+    m_pDispatchFunction = other.m_pDispatchFunction;
+    m_pCompareFunction = other.m_pCompareFunction;
+    memcpy(m_Data, other.m_Data, DATA_SIZE);
   }
 
   /// \brief Constructs the delegate from a member function type and takes the class instance on which to call the function later.
@@ -23,6 +31,7 @@ public:
     memset(m_Data + sizeof(Method), 0, DATA_SIZE - sizeof(Method));
     m_pInstance.m_Ptr = pInstance;
     m_pDispatchFunction = &DispatchToMethod<Method, Class>;
+    m_pCompareFunction = &CompareMethod<Method, Class>;
   }
 
   /// \brief Constructs the delegate from a member function type and takes the (const) class instance on which to call the function later.
@@ -36,6 +45,7 @@ public:
     memset(m_Data + sizeof(Method), 0, DATA_SIZE - sizeof(Method));
     m_pInstance.m_ConstPtr = pInstance;
     m_pDispatchFunction = &DispatchToConstMethod<Method, Class>;
+    m_pCompareFunction = &CompareMethod<Method, Class>;
   }
 
   /// \brief Constructs the delegate from a regular C function type.
@@ -48,12 +58,14 @@ public:
     memcpy(m_Data, &function, sizeof(Function));
     memset(m_Data + sizeof(Function), 0, DATA_SIZE - sizeof(Function));
     m_pDispatchFunction = &DispatchToFunction<Function>;
+    m_pCompareFunction = &CompareFunction<Function>;
   }
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEBUG)
   EZ_FORCE_INLINE ~ezDelegate()
   {
     m_pDispatchFunction = nullptr;
+    m_pCompareFunction = nullptr;
   }
 #endif
 
@@ -62,6 +74,7 @@ public:
   {
     m_pInstance = other.m_pInstance;
     m_pDispatchFunction = other.m_pDispatchFunction;
+    m_pCompareFunction = other.m_pCompareFunction;
     memcpy(m_Data, other.m_Data, DATA_SIZE);
   }
 
@@ -75,7 +88,7 @@ public:
   /// \brief Checks whether two delegates are bound to the exact same function, including the class instance.
   EZ_FORCE_INLINE bool operator==(const SelfType& other) const
   {
-    return memcmp(m_Data, other.m_Data, DATA_SIZE) == 0 && m_pInstance.m_Ptr == other.m_pInstance.m_Ptr;
+    return (this->m_pInstance.m_ConstPtr == other.m_pInstance.m_ConstPtr) && (this->m_pCompareFunction == other.m_pCompareFunction) && m_pCompareFunction(*this, other);
   }
 
   /// \brief Checks whether two delegates are bound to the exact same function, including the class instance.
@@ -119,9 +132,27 @@ private:
     return (*reinterpret_cast<Function*>(&self.m_Data))(EZ_LIST(arg, ARG_COUNT));
   }
 
-
   typedef R (*DispatchFunction)(SelfType& self EZ_COMMA_IF(ARG_COUNT) EZ_LIST(ARG, ARG_COUNT));
   DispatchFunction m_pDispatchFunction;
+
+  template <typename Method, typename Class>
+  static EZ_FORCE_INLINE bool CompareMethod(const SelfType& lhs, const SelfType& rhs)
+  {
+    Method lhsMethod = *reinterpret_cast<Method*>(const_cast<ezUInt8*>(&lhs.m_Data[0]));
+    Method rhsMethod = *reinterpret_cast<Method*>(const_cast<ezUInt8*>(&rhs.m_Data[0]));
+    return (lhsMethod == rhsMethod);
+  }
+
+  template <typename Function>
+  static EZ_FORCE_INLINE bool CompareFunction(const SelfType& lhs, const SelfType& rhs)
+  {
+    Function *lhsFunction = reinterpret_cast<Function*>(const_cast<ezUInt8*>(&lhs.m_Data[0]));
+    Function *rhsFunction = reinterpret_cast<Function*>(const_cast<ezUInt8*>(&rhs.m_Data[0]));
+    return (lhsFunction == rhsFunction);
+  }
+
+  typedef bool(*CompareFunc)(const SelfType&, const SelfType&);
+  CompareFunc m_pCompareFunction;
 
   enum { DATA_SIZE = 16 };
   ezUInt8 m_Data[DATA_SIZE];
