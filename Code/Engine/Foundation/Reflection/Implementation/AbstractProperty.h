@@ -311,7 +311,7 @@ struct ezContainerSubTypeResolver<ezDynamicArray<T> >
   typedef typename ezTypeTraits<T>::NonConstReferenceType Type;
 };
 
-template <typename T, int Size>
+template <typename T, ezUInt32 Size>
 struct ezContainerSubTypeResolver<ezHybridArray<T, Size> >
 {
   typedef typename ezTypeTraits<T>::NonConstReferenceType Type;
