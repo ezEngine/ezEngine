@@ -4,6 +4,8 @@
 #include <Tools/EditorFramework/ui_AssetBrowserWidget.h>
 #include <EditorFramework/Assets/AssetBrowserModel.moc.h>
 
+class ezToolBarActionMapView;
+
 class ezAssetBrowserWidget : public QWidget, public Ui_AssetBrowserWidget
 {
   Q_OBJECT
@@ -12,6 +14,7 @@ public:
   ezAssetBrowserWidget(QWidget* parent);
   ~ezAssetBrowserWidget();
 
+  void SetDialogMode();
   void SetSelectedAsset(const char* szAssetPath);
   void ShowOnlyTheseTypeFilters(const char* szFilters);
 
@@ -20,12 +23,15 @@ public:
 
 signals:
   void ItemChosen(QString sAssetPath);
+  void ItemSelected(QString sAssetPath);
 
 private slots:
   void OnTextFilterChanged();
   void OnTypeFilterChanged();
   void OnPathFilterChanged();
   void on_ListAssets_doubleClicked(const QModelIndex& index);
+  void on_ListAssets_activated(const QModelIndex & index);
+  void on_ListAssets_clicked(const QModelIndex & index);
   void on_ButtonListMode_clicked();
   void on_ButtonIconMode_clicked();
   void on_IconSizeSlider_valueChanged(int iValue);
@@ -44,6 +50,7 @@ private:
 
   ezUInt32 m_uiKnownAssetFolderCount;
 
+  ezToolBarActionMapView* m_pToolbar;
   ezString m_sAllTypesFilter;
   ezAssetBrowserModel* m_pModel;
 

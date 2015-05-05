@@ -39,13 +39,13 @@ ezAssetBrowserWidget::ezAssetBrowserWidget(QWidget* parent) : QWidget(parent)
 
   // Tool Bar
   {
-    ezToolBarActionMapView* pToolBar = new ezToolBarActionMapView(this);
+    m_pToolbar = new ezToolBarActionMapView(this);
     ezActionContext context;
     context.m_sMapping = "AssetBrowserToolBar";
     context.m_pDocument = nullptr;
-    pToolBar->SetActionContext(context);
-    pToolBar->setObjectName("TextureAssetWindowToolBar");
-    ToolBarLayout->insertWidget(0, pToolBar);
+    m_pToolbar->SetActionContext(context);
+    m_pToolbar->setObjectName("TextureAssetWindowToolBar");
+    ToolBarLayout->insertWidget(0, m_pToolbar);
   }
 
   EZ_VERIFY(connect(m_pModel, SIGNAL(TextFilterChanged()), this, SLOT(OnTextFilterChanged())) != nullptr, "signal/slot connection failed");
@@ -105,6 +105,11 @@ ezAssetBrowserWidget::~ezAssetBrowserWidget()
   ListAssets->setModel(nullptr);
 }
 
+void ezAssetBrowserWidget::SetDialogMode()
+{
+  m_pToolbar->hide();
+}
+
 void ezAssetBrowserWidget::SaveState(const char* szSettingsName)
 {
   QSettings Settings;
@@ -133,6 +138,16 @@ void ezAssetBrowserWidget::RestoreState(const char* szSettingsName)
       on_ButtonListMode_clicked();
   }
   Settings.endGroup();
+}
+
+void ezAssetBrowserWidget::on_ListAssets_clicked(const QModelIndex & index)
+{
+  emit ItemSelected(m_pModel->data(index, Qt::UserRole + 1).toString());
+}
+
+void ezAssetBrowserWidget::on_ListAssets_activated(const QModelIndex & index)
+{
+  emit ItemSelected(m_pModel->data(index, Qt::UserRole + 1).toString());
 }
 
 void ezAssetBrowserWidget::on_ListAssets_doubleClicked(const QModelIndex& index)

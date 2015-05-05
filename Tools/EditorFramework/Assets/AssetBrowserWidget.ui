@@ -14,6 +14,9 @@
    <string>Form</string>
   </property>
   <layout class="QHBoxLayout" name="RootLayout" stretch="0">
+   <property name="margin">
+    <number>0</number>
+   </property>
    <item>
     <widget class="QSplitter" name="splitter">
      <property name="sizePolicy">
