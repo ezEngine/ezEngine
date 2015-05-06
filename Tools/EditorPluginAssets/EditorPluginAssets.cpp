@@ -1,6 +1,7 @@
 #include <PCH.h>
 #include <EditorPluginAssets/EditorPluginAssets.h>
 #include <EditorPluginAssets/TextureAsset/TextureAssetObjects.h>
+#include <EditorPluginAssets/MaterialAsset/MaterialAssetObjects.h>
 #include <ToolsFoundation/Reflection/ToolsReflectionUtils.h>
 #include <Foundation/Reflection/Reflection.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
@@ -14,24 +15,48 @@
 void OnLoadPlugin(bool bReloading)
 {
   ezToolsReflectionUtils::RegisterType(ezGetStaticRTTI<ezTextureAssetProperties>());
+  ezToolsReflectionUtils::RegisterType(ezGetStaticRTTI<ezMaterialAssetProperties>());
 
   ezEditorApp::GetInstance()->RegisterPluginNameForSettings("AssetsPlugin");
 
-  // Menu Bar
+  // Texture Asset
   {
-    ezActionMapManager::RegisterActionMap("TextureAssetMenuBar");
-    ezProjectActions::MapActions("TextureAssetMenuBar");
-    ezStandardMenus::MapActions("TextureAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit);
-    ezDocumentActions::MapActions("TextureAssetMenuBar", "File", false);
-    ezCommandHistoryActions::MapActions("TextureAssetMenuBar", "Edit");
+    // Menu Bar
+    {
+      ezActionMapManager::RegisterActionMap("TextureAssetMenuBar");
+      ezProjectActions::MapActions("TextureAssetMenuBar");
+      ezStandardMenus::MapActions("TextureAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit);
+      ezDocumentActions::MapActions("TextureAssetMenuBar", "File", false);
+      ezCommandHistoryActions::MapActions("TextureAssetMenuBar", "Edit");
+    }
+
+    // Tool Bar
+    {
+      ezActionMapManager::RegisterActionMap("TextureAssetToolBar");
+      ezDocumentActions::MapActions("TextureAssetToolBar", "", true);
+      ezCommandHistoryActions::MapActions("TextureAssetToolBar", "");
+      ezAssetActions::MapActions("TextureAssetToolBar", true);
+    }
   }
 
-  // Tool Bar
+  // Material Asset
   {
-    ezActionMapManager::RegisterActionMap("TextureAssetToolBar");
-    ezDocumentActions::MapActions("TextureAssetToolBar", "", true);
-    ezCommandHistoryActions::MapActions("TextureAssetToolBar", "");
-    ezAssetActions::MapActions("TextureAssetToolBar", true);
+    // Menu Bar
+    {
+      ezActionMapManager::RegisterActionMap("MaterialAssetMenuBar");
+      ezProjectActions::MapActions("MaterialAssetMenuBar");
+      ezStandardMenus::MapActions("MaterialAssetMenuBar", ezStandardMenuTypes::File | ezStandardMenuTypes::Edit);
+      ezDocumentActions::MapActions("MaterialAssetMenuBar", "File", false);
+      ezCommandHistoryActions::MapActions("MaterialAssetMenuBar", "Edit");
+    }
+
+    // Tool Bar
+    {
+      ezActionMapManager::RegisterActionMap("MaterialAssetToolBar");
+      ezDocumentActions::MapActions("MaterialAssetToolBar", "", true);
+      ezCommandHistoryActions::MapActions("MaterialAssetToolBar", "");
+      ezAssetActions::MapActions("MaterialAssetToolBar", true);
+    }
   }
 }
 
