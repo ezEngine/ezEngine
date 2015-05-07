@@ -98,11 +98,3 @@ bool ezTextureAssetProperties::IsSRGB() const
   return (m_sRGBMode == ezSRGBModeEnum::Unknown || m_sRGBMode == ezSRGBModeEnum::sRGB || m_sRGBMode == ezSRGBModeEnum::sRGB_Auto);
 }
 
-ezTextureAssetObject::ezTextureAssetObject()
-{
-}
-
-ezTextureAssetObject::~ezTextureAssetObject()
-{
-}
-

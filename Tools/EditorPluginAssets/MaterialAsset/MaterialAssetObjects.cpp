@@ -11,11 +11,3 @@ ezMaterialAssetProperties::ezMaterialAssetProperties()
 {
 }
 
-ezMaterialAssetObject::ezMaterialAssetObject()
-{
-}
-
-ezMaterialAssetObject::~ezMaterialAssetObject()
-{
-}
-

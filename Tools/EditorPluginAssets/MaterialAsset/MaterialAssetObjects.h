@@ -2,6 +2,7 @@
 
 #include <ToolsFoundation/Object/DocumentObjectBase.h>
 #include <ToolsFoundation/Reflection/ReflectedTypeDirectAccessor.h>
+#include <EditorFramework/Assets/SimpleAssetDocument.h>
 
 class ezMaterialAssetProperties : public ezReflectedClass
 {
@@ -18,10 +19,17 @@ private:
 class ezMaterialAssetObject : public ezDocumentObjectDirectMember<ezReflectedClass, ezMaterialAssetProperties>
 {
 public:
-  ezMaterialAssetObject();
-  ~ezMaterialAssetObject();
-
+  ezMaterialAssetObject()
+  {
+  }
 
 };
+
+class ezMaterialAssetObjectManager : public ezSimpleDocumentObjectManager<ezMaterialAssetProperties, ezMaterialAssetObject>
+{
+public:
+
+};
+
 
 

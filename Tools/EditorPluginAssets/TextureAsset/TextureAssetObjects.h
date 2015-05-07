@@ -2,6 +2,7 @@
 
 #include <ToolsFoundation/Object/DocumentObjectBase.h>
 #include <ToolsFoundation/Reflection/ReflectedTypeDirectAccessor.h>
+#include <EditorFramework/Assets/SimpleAssetDocument.h>
 #include <CoreUtils/Image/Image.h>
 
 struct ezTextureUsageEnum
@@ -84,13 +85,18 @@ private:
   ezImage m_Image;
 };
 
-class ezTextureAssetObject : public ezDocumentObjectDirectMember < ezReflectedClass, ezTextureAssetProperties >
+class ezTextureAssetObject : public ezDocumentObjectDirectMember<ezReflectedClass, ezTextureAssetProperties>
 {
 public:
-  ezTextureAssetObject();
-  ~ezTextureAssetObject();
-
+  ezTextureAssetObject() 
+  {
+  }
 
 };
 
 
+class ezTextureAssetObjectManager : public ezSimpleDocumentObjectManager<ezTextureAssetProperties, ezTextureAssetObject>
+{
+public:
+
+};

@@ -1,31 +1,21 @@
 #pragma once
 
-#include <EditorFramework/Assets/AssetDocument.h>
+#include <EditorFramework/Assets/SimpleAssetDocument.h>
+#include <EditorPluginAssets/TextureAsset/TextureAssetObjects.h>
 
-class ezTextureAssetProperties;
-
-class ezTextureAssetDocument : public ezAssetDocument
+class ezTextureAssetDocument : public ezSimpleAssetDocument<ezTextureAssetProperties, ezTextureAssetObject, ezTextureAssetObjectManager>
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezTextureAssetDocument);
 
 public:
   ezTextureAssetDocument(const char* szDocumentPath);
-  ~ezTextureAssetDocument();
-
-  const ezTextureAssetProperties* GetProperties() const;
 
   virtual const char* GetDocumentTypeDisplayString() const override { return "Texture Asset"; }
 
   virtual const char* QueryAssetType() const override;
 
 protected:
-  virtual void Initialize() override;
-  virtual ezStatus InternalLoadDocument() override;
   virtual void UpdateAssetDocumentInfo(ezAssetDocumentInfo* pInfo) override;
   virtual ezStatus InternalTransformAsset(ezStreamWriterBase& stream, const char* szPlatform) override;
 
-private:
-  void EnsureSettingsObjectExist();
-
-  virtual ezDocumentInfo* CreateDocumentInfo() override { return EZ_DEFAULT_NEW(ezAssetDocumentInfo); }
 };
