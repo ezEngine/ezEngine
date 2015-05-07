@@ -18,6 +18,8 @@ class EZ_GUIFOUNDATION_DLL QtImageCache : public QObject
 
 public:
 
+  static void SetFallbackImages(const char* szLoading, const char* szUnavailable);
+
   static QPixmap* QueryPixmap(const char* szAbsolutePath, const QObject* pSignalMe = nullptr, const char* szSlot = nullptr, QModelIndex index = QModelIndex(), QVariant UserData1 = QVariant(), QVariant UserData2 = QVariant());
   static void InvalidateCache(const char* szAbsolutePath);
 
@@ -72,6 +74,8 @@ private:
   static ezTime s_LastCleanupTime;
   static ezInt64 s_iMemoryUsageThreshold;
   static ezInt64 s_iCurrentMemoryUsage;
+  static QPixmap* s_pImageLoading;
+  static QPixmap* s_pImageUnavailable;
 
   struct CacheEntry
   {

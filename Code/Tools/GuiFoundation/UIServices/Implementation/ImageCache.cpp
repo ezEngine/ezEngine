@@ -13,8 +13,19 @@ ezMap<QString, QtImageCache::CacheEntry> QtImageCache::s_ImageCache;
 ezTime QtImageCache::s_LastCleanupTime;
 ezInt64 QtImageCache::s_iMemoryUsageThreshold = 30 * 1024 * 1024; // 30 MB
 ezInt64 QtImageCache::s_iCurrentMemoryUsage = 0;
+QPixmap* QtImageCache::s_pImageLoading = NULL;
+QPixmap* QtImageCache::s_pImageUnavailable = NULL;
 
 static QtImageCache g_ImageCacheSingleton;
+
+void QtImageCache::SetFallbackImages(const char* szLoading, const char* szUnavailable)
+{
+  delete s_pImageLoading;
+  s_pImageLoading = new QPixmap(szLoading);
+
+  delete s_pImageUnavailable;
+  s_pImageUnavailable = new QPixmap(szUnavailable);
+}
 
 void QtImageCache::InvalidateCache(const char* szAbsolutePath)
 {
@@ -30,6 +41,9 @@ void QtImageCache::InvalidateCache(const char* szAbsolutePath)
 
 QPixmap* QtImageCache::QueryPixmap(const char* szAbsolutePath, const QObject* pSignalMe, const char* szSlot, QModelIndex index, QVariant UserData1, QVariant UserData2)
 {
+  if (s_pImageLoading == NULL)
+    SetFallbackImages(":/GuiFoundation/ThumbnailLoading.png", ":/GuiFoundation/ThumbnailUnavailable.png");
+
   ezStringBuilder sCleanPath = szAbsolutePath;
   sCleanPath.MakeCleanPath();
 
@@ -49,7 +63,7 @@ QPixmap* QtImageCache::QueryPixmap(const char* szAbsolutePath, const QObject* pS
 
   // do not queue any further requests, when the cache is disabled
   if (!s_bCacheEnabled)
-    return nullptr;
+    return s_pImageLoading;
 
   if (pSignalMe != nullptr && szSlot != nullptr)
     EZ_VERIFY(connect(&g_ImageCacheSingleton, SIGNAL(ImageLoaded(QString, QModelIndex, QVariant, QVariant)), pSignalMe, szSlot, Qt::ConnectionType::QueuedConnection) != nullptr, "signal/slot connection failed");
@@ -68,7 +82,7 @@ QPixmap* QtImageCache::QueryPixmap(const char* szAbsolutePath, const QObject* pS
 
   RunLoadingTask();
 
-  return nullptr;
+  return s_pImageLoading;
 }
 
 void QtImageCache::RunLoadingTask()
@@ -153,10 +167,11 @@ void QtImageCache::EmitLoadedSignal(QString sPath, QModelIndex index, QVariant U
 
 void QtImageCache::LoadingTask(QString sPath, QModelIndex index, QVariant UserData1, QVariant UserData2)
 {
-  QImage Image(sPath);
+  QImage Image;
+  const bool bImageAvailable = Image.load(sPath);
 
   /// \todo Remove this Sleep (needed for testing)
-  ezThreadUtils::Sleep(25);
+  ezThreadUtils::Sleep(100);
 
   EZ_LOCK(s_Mutex);
 
@@ -176,13 +191,16 @@ void QtImageCache::LoadingTask(QString sPath, QModelIndex index, QVariant UserDa
   if (!s_bCacheEnabled)
     return;
 
-  QPixmap pm = QPixmap::fromImage(Image);
-
   auto& entry = s_ImageCache[sPath];
 
   s_iCurrentMemoryUsage -= entry.m_Pixmap.width() * entry.m_Pixmap.height() * 4;
 
-  entry.m_Pixmap = pm;
+  if (bImageAvailable)
+    entry.m_Pixmap = QPixmap::fromImage(Image);
+  else
+  if (s_pImageUnavailable)
+    entry.m_Pixmap = *s_pImageUnavailable;
+
   entry.m_LastAccess = ezTime::Now();
 
   s_iCurrentMemoryUsage += entry.m_Pixmap.width() * entry.m_Pixmap.height() * 4;
