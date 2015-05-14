@@ -9,6 +9,8 @@
 
 class ezRTTI;
 
+
+/// \brief Flags used to describe a property and its type.
 struct ezPropertyFlags
 {
   typedef ezUInt8 StorageType;

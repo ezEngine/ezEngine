@@ -18,24 +18,59 @@ Supported Types
 Some of them are implicit by parent types, more types could be affected.
 "Alias" means that the file handles this type explicitly, but has it noted as alternative name for the type listed above 
 
+**Strings**
 - ezHybridStringBase
     - ezStringBuilder (alias)  
     - ezString
     - ezHybridString
+- ezStringView
+- ezHashedString
+
+**Containers**
 - ezArrayBase
     - ezDynamicArray
     - ezDynamicArrayBase
     - ezStaticArray
+- ezHashTableBase (partial due to natvis limitations)
+    - ezHashTable
 - ezListBase
     - ezList
+- ezDequeBase
+    - ezDeque
 - ezMapBase
     - ezSet (alias)  
     - ezMap
 - ezStaticRingBuffer (wrong element order)
 - ezArrayPtr
-- ezStringView
-- ezHashedString
-- ezHashTable
+
+**Basic Types**
+- ezVariant
+- ezEnum
+- ezBitflags
+- ezVec2Template
+    - ezVec2
+    - ezVec2d
+- ezVec3Template
+    - ezVec3
+    - ezVec3d
+- ezVec4Template
+    - ezVec4
+    - ezVec4d
+- ezQuatTemplate
+    - ezQuat
+    - ezQuatd
+- ezPlaneTemplate
+    - ezPlane
+    - ezPlaned
+- ezMat3Template
+    - ezMat3
+    - ezMat3d
+- ezMat4Template
+    - ezMat4
+    - ezMat4d
+- ezColor
+- ezTime
+
 
 natvis_samplecode.cpp
 ---------------

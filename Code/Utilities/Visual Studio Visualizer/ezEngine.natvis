@@ -180,6 +180,10 @@
 		<DisplayString>{{ x={v.x}, y={v.y}, z={v.z}, w={w} }}</DisplayString>
 	</Type>
 	
+  <Type Name="ezPlaneTemplate&lt;*&gt;">
+		<DisplayString>{{ nx={m_vNormal.x}, ny={m_vNormal.y}, nz={m_vNormal.z}, negDist={m_fNegDistance} }}</DisplayString>
+	</Type>
+  
 	<Type Name="ezColor">
 		<DisplayString>{{ r={r}, g={g}, b={b}, a={a} }}</DisplayString>
 	</Type>
