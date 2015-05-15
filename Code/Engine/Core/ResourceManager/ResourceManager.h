@@ -177,6 +177,7 @@ private:
   static ezTime m_LastFrameUpdate;
   static bool m_bBroadcastExistsEvent;
   static ezHashTable<ezUInt32, ResourceCategory> m_ResourceCategories;
+  static ezMutex s_ResourceMutex;
 };
 
 enum class ezResourceManager::ResourceEventType

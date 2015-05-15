@@ -196,6 +196,12 @@ ezResult ezPlugin::LoadPluginInternal(const char* szPluginFile, bool bLoadCopy, 
   ezStringBuilder sOldPlugin, sNewPlugin;
   GetPluginPaths(szPluginFile, sOldPlugin, sNewPlugin, uiFileNumber);
 
+  if (!ezOSFile::Exists(sOldPlugin))
+  {
+    ezLog::Error("The plugin '%s' does not exist.", szPluginFile);
+    return EZ_FAILURE;
+  }
+
   if (bLoadCopy)
   {
     // create a copy of the original plugin file

@@ -42,17 +42,18 @@ bool ezResourceManager::m_bBroadcastExistsEvent = false;
 ezHashTable<ezUInt32, ezResourceManager::ResourceCategory> ezResourceManager::m_ResourceCategories;
 ezEvent<const ezResourceManager::ResourceEvent&> ezResourceManager::s_ResourceEvents;
 ezEvent<const ezResourceManager::ManagerEvent&> ezResourceManager::s_ManagerEvents;
+ezMutex ezResourceManager::s_ResourceMutex;
 
 ezResourceTypeLoader* ezResourceManager::GetResourceTypeLoader(const ezRTTI* pRTTI)
 {
   return m_ResourceTypeLoader[pRTTI->GetTypeName()];
 }
 
-ezMutex ResourceMutex;
+
 
 void ezResourceManager::BroadcastResourceEvent(const ResourceEvent& e)
 {
-  EZ_LOCK(ResourceMutex);
+  EZ_LOCK(s_ResourceMutex);
 
   s_ResourceEvents.Broadcast(e);
 }
@@ -62,7 +63,7 @@ void ezResourceManager::InternalPreloadResource(ezResourceBase* pResource, bool 
   if (m_bStop)
     return;
 
-  EZ_LOCK(ResourceMutex);
+  EZ_LOCK(s_ResourceMutex);
 
   // if there is nothing else that could be loaded, just return right away
   if (pResource->GetLoadingState() == ezResourceState::Loaded && pResource->GetNumQualityLevelsLoadable() == 0)
@@ -112,7 +113,7 @@ void ezResourceManager::RunWorkerTask()
   if (m_bStop)
     return;
 
-  EZ_LOCK(ResourceMutex);
+  EZ_LOCK(s_ResourceMutex);
 
   static bool bTaskNamesInitialized = false;
 
@@ -141,7 +142,7 @@ void ezResourceManager::RunWorkerTask()
 
 void ezResourceManager::UpdateLoadingDeadlines()
 {
-  // we are already in the ResourceMutex here
+  // we are already in the s_ResourceMutex here
 
   /// \todo don't do this too often
 
@@ -208,7 +209,7 @@ void ezResourceManagerWorkerGPU::Execute()
   m_pLoader->CloseDataStream(m_pResourceToLoad, m_LoaderData);
 
   {
-    EZ_LOCK(ResourceMutex);
+    EZ_LOCK(ezResourceManager::s_ResourceMutex);
     EZ_ASSERT_DEV(m_pResourceToLoad->m_Flags.IsSet(ezResourceFlags::IsPreloading) == true, "");
     m_pResourceToLoad->m_Flags.Remove(ezResourceFlags::IsPreloading);
 
@@ -227,7 +228,7 @@ void ezResourceManagerWorker::Execute()
   ezResourceBase* pResourceToLoad = NULL;
 
   {
-    EZ_LOCK(ResourceMutex);
+    EZ_LOCK(ezResourceManager::s_ResourceMutex);
 
     ezResourceManager::UpdateLoadingDeadlines();
 
@@ -301,7 +302,7 @@ void ezResourceManagerWorker::Execute()
 
 
   {
-    EZ_LOCK(ResourceMutex);
+    EZ_LOCK(ezResourceManager::s_ResourceMutex);
 
     if (!bResourceIsPreloading)
     {
@@ -321,7 +322,7 @@ void ezResourceManagerWorker::Execute()
 
 ezUInt32 ezResourceManager::FreeUnusedResources(bool bFreeAllUnused)
 {
-  EZ_LOCK(ResourceMutex);
+  EZ_LOCK(s_ResourceMutex);
   EZ_LOG_BLOCK("ezResourceManager::FreeUnusedResources");
 
   ezUInt32 uiUnloaded = 0;
@@ -383,7 +384,7 @@ void ezResourceManager::PreloadResource(ezResourceBase* pResource, ezTime tShoul
 
 void ezResourceManager::ReloadResource(ezResourceBase* pResource)
 {
-  EZ_LOCK(ResourceMutex);
+  EZ_LOCK(s_ResourceMutex);
 
   if (!pResource->m_Flags.IsAnySet(ezResourceFlags::IsReloadable))
     return;
@@ -453,7 +454,7 @@ void ezResourceManager::ReloadResource(ezResourceBase* pResource)
 
 void ezResourceManager::ReloadResourcesOfType(const ezRTTI* pType)
 {
-  EZ_LOCK(ResourceMutex);
+  EZ_LOCK(s_ResourceMutex);
   EZ_LOG_BLOCK("ezResourceManager::ReloadResourcesOfType", pType->GetTypeName());
 
   for (auto it = m_LoadedResources.GetIterator(); it.IsValid(); ++it)
@@ -465,7 +466,7 @@ void ezResourceManager::ReloadResourcesOfType(const ezRTTI* pType)
 
 void ezResourceManager::ReloadAllResources()
 {
-  EZ_LOCK(ResourceMutex);
+  EZ_LOCK(s_ResourceMutex);
   EZ_LOG_BLOCK("ezResourceManager::ReloadAllResources");
 
   for (auto it = m_LoadedResources.GetIterator(); it.IsValid(); ++it)
@@ -480,7 +481,7 @@ void ezResourceManager::PerFrameUpdate()
 
   if (m_bBroadcastExistsEvent)
   {
-    EZ_LOCK(ResourceMutex);
+    EZ_LOCK(s_ResourceMutex);
 
     m_bBroadcastExistsEvent = false;
 
@@ -502,6 +503,8 @@ void ezResourceManager::BroadcastExistsEvent()
 
 void ezResourceManager::ConfigureResourceCategory(const char* szCategoryName, ezUInt64 uiMemoryLimitCPU, ezUInt64 uiMemoryLimitGPU)
 {
+  EZ_LOCK(s_ResourceMutex);
+
   ezTempHashedString sHash(szCategoryName);
 
   auto& cat = m_ResourceCategories[sHash.GetHash()];
@@ -545,7 +548,7 @@ void ezResourceManager::CleanUpResources()
   }
 
   /// \todo Lock ?
-  EZ_LOCK(ResourceMutex);
+  EZ_LOCK(s_ResourceMutex);
 
   for (auto it = m_LoadedResources.GetIterator(); it.IsValid();)
   {
@@ -602,7 +605,7 @@ void ezResourceManager::CleanUpResources()
 
 void ezResourceManager::OnCoreStartup()
 {
-  EZ_LOCK(ResourceMutex);
+  EZ_LOCK(s_ResourceMutex);
   m_bTaskRunning = false;
   m_bStop = false;
 }
@@ -614,7 +617,7 @@ void ezResourceManager::OnEngineShutdown()
   s_ManagerEvents.Broadcast(e);
 
   {
-    EZ_LOCK(ResourceMutex);
+    EZ_LOCK(s_ResourceMutex);
     m_RequireLoading.Clear();
     m_bTaskRunning = true;
     m_bStop = true;
