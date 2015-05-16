@@ -220,6 +220,7 @@ void ezEditorProcessApp::HandleComponentMsg(ezEngineProcessDocumentContext* pDoc
       ezComponent* pComponent;
       if (pMan->TryGetComponent(hComponent, pComponent))
       {
+        g_AllComponents[pMsg->m_ObjectGuid] = hComponent;
         UpdateProperties(pMsg, pComponent, pComponent->GetDynamicRTTI());
       }
       else
