@@ -50,5 +50,15 @@ EZ_CREATE_SIMPLE_TEST(Basics, Uuid)
 
     EZ_TEST_BOOL(ReadBack == Uuid);
   }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Stable Uuid From String")
+  {
+	  ezUuid uuid1 = ezUuid::StableUuidForString("TEST 1");
+	  ezUuid uuid2 = ezUuid::StableUuidForString("TEST 2");
+	  ezUuid uuid3 = ezUuid::StableUuidForString("TEST 1");
+
+	  EZ_TEST_BOOL(uuid1 == uuid3);
+	  EZ_TEST_BOOL(uuid1 != uuid2);
+  }
 }
 

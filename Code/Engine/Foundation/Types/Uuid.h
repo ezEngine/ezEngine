@@ -37,6 +37,8 @@ public:
   /// \brief Returns the internal 128 Bit of data
   void GetValues(ezUInt64& uiLow, ezUInt64& uiHigh) const { uiHigh = m_uiHigh; uiLow = m_uiLow; }
 
+  static ezUuid StableUuidForString(const char* szString);
+
 private:
 
   friend EZ_FOUNDATION_DLL void operator>> (ezStreamReaderBase& Stream, ezUuid& Value);
