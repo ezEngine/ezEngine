@@ -10,15 +10,11 @@ class ezTestEditorProperties : public ezReflectedClass
 public:
   ezTestEditorProperties();
 
-  bool m_bAwesome;
-  float m_fLoat;
-
   void SetName(const char* szName) { m_sName.Assign(szName); }
   const char* GetName() const { return m_sName.GetString().GetData(); }
 
 protected:
   ezHashedString m_sName;
-
 };
 
 struct ezExampleEnum

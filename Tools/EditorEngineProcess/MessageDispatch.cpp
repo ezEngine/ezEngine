@@ -5,40 +5,7 @@
 #include <EditorFramework/EngineProcess/EngineProcessViewContext.h>
 #include <EditorFramework/EngineProcess/EngineProcessDocumentContext.h>
 #include <EditorEngineProcess/Application.h>
-
-
-
-class MeshComponent;
-typedef ezComponentManagerSimple<MeshComponent> MeshComponentManager;
-
-/// DUMMY for testing component creation
-class MeshComponent : public ezComponent
-{
-  EZ_DECLARE_COMPONENT_TYPE(MeshComponent, MeshComponentManager);
-
-  void Update() { }
-
-public:
-  MeshComponent()
-  {
-    ezLog::Info("Mesh Component Created");
-  }
-
-  const char* GetMeshFile() const { return m_sMeshFile; }
-  void SetMeshFile(const char* s) { m_sMeshFile = s; }
-  ezString m_sMeshFile;
-  ezString m_sMeshFile2;
-};
-
-EZ_BEGIN_COMPONENT_TYPE(MeshComponent, ezComponent, 1, MeshComponentManager);
-  EZ_BEGIN_PROPERTIES
-    EZ_ACCESSOR_PROPERTY("Mesh File", GetMeshFile, SetMeshFile),
-    EZ_MEMBER_PROPERTY("Mesh File 2", m_sMeshFile2),
-  EZ_END_PROPERTIES
-EZ_END_COMPONENT_TYPE();
-
-
-
+#include <GameUtils/Components/TransformComponent.h>
 
 void ezEditorProcessApp::SendProjectReadyMessage()
 {
@@ -93,7 +60,7 @@ void ezEditorProcessApp::EventHandlerIPC(const ezProcessCommunication::Event& e)
 
     pDocumentContext->m_pWorld = EZ_DEFAULT_NEW(ezWorld)(ezConversionUtils::ToString(pDocMsg->m_DocumentGuid));
 
-    pDocumentContext->m_pWorld->CreateComponentManager<MeshComponentManager>();
+    pDocumentContext->m_pWorld->CreateComponentManager<ezRotorTransformComponentManager>();
   }
 
 

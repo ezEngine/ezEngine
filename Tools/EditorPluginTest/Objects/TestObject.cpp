@@ -4,8 +4,6 @@
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTestEditorProperties, ezReflectedClass, 1, ezRTTINoAllocator);
   EZ_BEGIN_PROPERTIES
     EZ_ACCESSOR_PROPERTY("Name", GetName, SetName),
-    EZ_MEMBER_PROPERTY("Awesome", m_bAwesome),
-    EZ_MEMBER_PROPERTY("Pfloat", m_fLoat),
   EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
@@ -18,8 +16,6 @@ ezTestEditorProperties::ezTestEditorProperties()
   s.Format("Object %i", bla);
 
   SetName(s.GetData());
-  m_bAwesome = true;
-  m_fLoat = 23.0f;
 }
 
 EZ_BEGIN_STATIC_REFLECTED_ENUM(ezExampleEnum, 1)

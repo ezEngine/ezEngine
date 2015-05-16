@@ -11,6 +11,7 @@
 #include <RendererCore/Meshes/MeshBufferResource.h>
 #include <CoreUtils/Geometry/GeomUtils.h>
 #include <Core/ResourceManager/ResourceManager.h>
+#include <Foundation/Time/Clock.h>
 
 ezDataTransfer ezViewContext::m_PickingRenderTargetDT;
 
@@ -141,10 +142,7 @@ void ezViewContext::RenderObject(ezGameObject* pObject, const ezMat4& ViewProj)
 
   ezRenderContext::GetDefaultInstance()->BindShader(m_hShader);
 
-  const ezVec3 vPos = pObject->GetWorldPosition();
-
-  ezMat4 Model;
-  Model.SetTranslationMatrix(vPos);
+  const ezMat4 Model = pObject->GetWorldTransform().GetAsMat4();
 
   ObjectData od;
   od.m_ModelView = ViewProj * Model;
@@ -168,6 +166,8 @@ void ezViewContext::RenderObject(ezGameObject* pObject, const ezMat4& ViewProj)
 void ezViewContext::RenderScene()
 {
   ezSizeU32 wndsize = GetEditorWindow().GetClientAreaSize();
+
+  ezClock::UpdateAllGlobalClocks();
 
   ezEngineProcessDocumentContext* pDocumentContext = ezEngineProcessDocumentContext::GetDocumentContext(GetDocumentGuid());
 
@@ -339,7 +339,7 @@ namespace DontUse
     mTrans.SetRotationMatrixZ(ezAngle::Degree(90));
 
     ezGeometry geom;
-    geom.AddGeodesicSphere(0.5f, iMesh, ezColorLinearUB(0, 255, 0), mTrans);
+    geom.AddGeodesicSphere(0.5f, 1, ezColorLinearUB(0, 255, 0), mTrans);
 
     Vertices.Reserve(geom.GetVertices().GetCount());
     Indices.Reserve(geom.GetPolygons().GetCount() * 6);

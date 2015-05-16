@@ -43,6 +43,7 @@ SET (LINK_LIBRARIES
   RendererCore
   CoreUtils
   EditorFramework
+  GameUtils
 )
 
 SET (ADDITIONAL_DEPENDENCIES
