@@ -3,13 +3,9 @@
 
 float CalculateAcceleratedMovement(float fDistanceInMeters, float fAcceleration, float fMaxVelocity, float fDeceleration, float fTimeSinceStartInSec);
 
-EZ_BEGIN_STATIC_REFLECTED_ENUM(ezRotorComponentAxis, 1)
-  EZ_ENUM_CONSTANTS(ezRotorComponentAxis::PosX, ezRotorComponentAxis::PosY, ezRotorComponentAxis::PosZ, ezRotorComponentAxis::NegX, ezRotorComponentAxis::NegY, ezRotorComponentAxis::NegZ)
-EZ_END_STATIC_REFLECTED_ENUM()
-
 EZ_BEGIN_COMPONENT_TYPE(ezRotorComponent, ezTransformComponent, 1, ezRotorComponentManager);
   EZ_BEGIN_PROPERTIES
-    EZ_ENUM_MEMBER_PROPERTY("Axis", ezRotorComponentAxis, m_Axis),
+    EZ_ENUM_MEMBER_PROPERTY("Axis", ezTransformComponentAxis, m_Axis),
     EZ_MEMBER_PROPERTY("Degrees to Rotate", m_iDegreeToRotate),
     EZ_MEMBER_PROPERTY("Acceleration", m_fAcceleration),
     EZ_MEMBER_PROPERTY("Deceleration", m_fDeceleration),
@@ -32,22 +28,22 @@ void ezRotorComponent::Update()
 
     switch (m_Axis)
     {
-    case ezRotorComponentAxis::PosX:
+    case ezTransformComponentAxis::PosX:
       vAxis.Set(1, 0, 0);
       break;
-    case ezRotorComponentAxis::PosY:
+    case ezTransformComponentAxis::PosY:
       vAxis.Set(0, 1, 0);
       break;
-    case ezRotorComponentAxis::PosZ:
+    case ezTransformComponentAxis::PosZ:
       vAxis.Set(0, 0, 1);
       break;
-    case ezRotorComponentAxis::NegX:
+    case ezTransformComponentAxis::NegX:
       vAxis.Set(-1, 0, 0);
       break;
-    case ezRotorComponentAxis::NegY:
+    case ezTransformComponentAxis::NegY:
       vAxis.Set(0, -1, 0);
       break;
-    case ezRotorComponentAxis::NegZ:
+    case ezTransformComponentAxis::NegZ:
       vAxis.Set(0, 0, -1);
       break;
     }
@@ -115,11 +111,10 @@ void ezRotorComponent::Update()
     {
       m_AnimationTime += ezClock::Get()->GetTimeDiff();
 
+      /// \todo This will probably give precision issues pretty quickly
+
       ezQuat qRot;
       qRot.SetFromAxisAndAngle(vAxis, ezAngle::Degree(m_fAnimationSpeed * (float)m_AnimationTime.GetSeconds()));
-
-      if (m_AnimationTime.GetSeconds() > m_fAnimationSpeed)
-        m_AnimationTime -= ezTime::Seconds(m_fAnimationSpeed);
 
       GetOwner()->SetLocalRotation(qRot * -m_LastRotation * GetOwner()->GetLocalRotation());
       m_LastRotation = qRot;

@@ -233,12 +233,17 @@ ezDocumentBase* ezEditorApp::OpenDocumentImmediate(const char* szDocument, bool 
 
 void ezEditorApp::GuiCreateProject()
 {
-  GuiCreateOrOpenProject(true);
+  QMetaObject::invokeMethod(this, "SlotQueuedCreateOrOpenProject", Qt::ConnectionType::QueuedConnection, Q_ARG(bool, true));
 }
 
 void ezEditorApp::GuiOpenProject()
 {
-  GuiCreateOrOpenProject(false);
+  QMetaObject::invokeMethod(this, "SlotQueuedCreateOrOpenProject", Qt::ConnectionType::QueuedConnection, Q_ARG(bool, false));
+}
+
+void ezEditorApp::SlotQueuedCreateOrOpenProject(bool bCreate)
+{
+  GuiCreateOrOpenProject(bCreate);
 }
 
 void ezEditorApp::CloseProject()
@@ -671,17 +676,20 @@ ezDocumentBase* ezEditorApp::CreateOrOpenDocument(bool bCreate, const char* szFi
 void ezEditorApp::GuiCreateOrOpenProject(bool bCreate)
 {
   const QString sDir = QString::fromUtf8(m_sLastProjectFolder.GetData());
-  ezString sFile;
+  ezStringBuilder sFile;
 
-  const char* szFilter = "ezEditor Project (*.ezProject)";
+  const char* szFilter = "ezProject (ezProject)";
 
   if (bCreate)
-    sFile = QFileDialog::getSaveFileName(QApplication::activeWindow(), QLatin1String("Create Project"), sDir, QLatin1String(szFilter)).toUtf8().data();
+    sFile = QFileDialog::getExistingDirectory(QApplication::activeWindow(), QLatin1String("Choose Folder for New Project"), sDir).toUtf8().data();
   else
     sFile = QFileDialog::getOpenFileName(QApplication::activeWindow(), QLatin1String("Open Project"), sDir, QLatin1String(szFilter)).toUtf8().data();
 
   if (sFile.IsEmpty())
     return;
+
+  if (bCreate)
+    sFile.AppendPath("ezProject");
 
   m_sLastProjectFolder = ezPathUtils::GetFileDirectory(sFile);
 

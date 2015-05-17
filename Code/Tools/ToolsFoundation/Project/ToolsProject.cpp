@@ -193,16 +193,10 @@ ezString ezToolsProject::FindProjectForDocument(const char* szDocumentPath)
   while (!sPath.IsEmpty())
   {
     sTemp = sPath;
-    sTemp.AppendPath("*.ezProject");
+    sTemp.AppendPath("ezProject");
 
-    ezFileSystemIterator it;
-    if (it.StartSearch(sTemp, false, false).Succeeded())
-    {
-      ezStringBuilder sProjectPath = it.GetCurrentPath();
-      sProjectPath.AppendPath(it.GetStats().m_sFileName);
-
-      return sProjectPath;
-    }
+    if (ezOSFile::Exists(sTemp))
+      return sTemp;
 
     sPath.PathParentDirectory();
   }

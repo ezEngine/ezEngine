@@ -31,7 +31,7 @@
         "Reverse at Start" : true,
         "Reverse at End" : true,
         "Auto-Toggle Direction" : true,
-        "Axis" : "ezRotorComponentAxis::PosY",
+        "Axis" : "ezTransformComponentAxis::PosX",
         "Degrees to Rotate" : { "$t" : "int32", "$v" : "0", "$b" : "0x00000000" },
         "Acceleration" : { "$t" : "float", "$v" : "0.0000", "$b" : "0x00000000" },
         "Deceleration" : { "$t" : "float", "$v" : "0.0000", "$b" : "0x00000000" }
@@ -64,7 +64,8 @@
         "Reverse at Start" : true,
         "Reverse at End" : true,
         "Auto-Toggle Direction" : true,
-        "Distance" : { "$t" : "float", "$v" : "10.0000", "$b" : "0x00002041" },
+        "Axis" : "ezTransformComponentAxis::PosZ",
+        "Distance" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
         "Acceleration" : { "$t" : "float", "$v" : "30.0000", "$b" : "0x0000F041" },
         "Deceleration" : { "$t" : "float", "$v" : "30.0000", "$b" : "0x0000F041" }
       },

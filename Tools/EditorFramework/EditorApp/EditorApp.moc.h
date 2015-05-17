@@ -128,6 +128,7 @@ private slots:
   void SlotQueuedCloseProject();
   void SlotQueuedOpenProject(QString sProject);
   void SlotQueuedOpenDocument(QString sProject);
+  void SlotQueuedCreateOrOpenProject(bool bCreate);
 
 private:
   ezSettings& GetSettings(ezMap<ezString, ezSettings>& SettingsMap, const char* szPlugin, const char* szSearchPath);

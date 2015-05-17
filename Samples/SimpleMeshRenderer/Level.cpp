@@ -8,6 +8,8 @@
 #include <RendererCore/Textures/TextureResource.h>
 #include <RendererCore/Material/MaterialResource.h>
 
+#include <GameUtils/Components/RotorComponent.h>
+
 #include "Application.h"
 #include "Window.h"
 
@@ -16,10 +18,12 @@ void SampleApp::CreateGameLevelAndRenderPipeline(ezGALRenderTargetConfigHandle h
   m_pWorld = EZ_DEFAULT_NEW(ezWorld)("Level");
 
   ezMeshComponentManager* pMeshCompMan = m_pWorld->CreateComponentManager<ezMeshComponentManager>();
+  ezRotorComponentManager* pRotorCompMan = m_pWorld->CreateComponentManager<ezRotorComponentManager>();
 
   ezGameObjectDesc obj;
   ezGameObject* pObj;
   ezMeshComponent* pMesh;
+  ezRotorComponent* pRotor;
 
   ezMaterialResourceHandle hMat = ezResourceManager::LoadResource<ezMaterialResource>("Materials/Base.ezMaterial");
   ezMeshResourceHandle hMesh = ezResourceManager::LoadResource<ezMeshResource>("Meshes/Sponza.ezMesh");
@@ -41,6 +45,11 @@ void SampleApp::CreateGameLevelAndRenderPipeline(ezGALRenderTargetConfigHandle h
     pMeshCompMan->CreateComponent(pMesh);
     pObj->AddComponent(pMesh);
     pMesh->SetMesh(hMeshTree);
+    pRotorCompMan->CreateComponent(pRotor);
+    pRotor->m_fAnimationSpeed = 5.0f;
+    pRotor->SetAnimatingAtStartup(true);
+    pRotor->m_Axis = ezTransformComponentAxis::PosY;
+    pObj->AddComponent(pRotor);
   }
 
   // Tree Mesh

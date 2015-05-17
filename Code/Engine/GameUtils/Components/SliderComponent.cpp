@@ -5,7 +5,7 @@ float CalculateAcceleratedMovement(float fDistanceInMeters, float fAcceleration,
 
 EZ_BEGIN_COMPONENT_TYPE(ezSliderComponent, ezTransformComponent, 1, ezSliderComponentManager);
   EZ_BEGIN_PROPERTIES
-  //  EZ_ENUM_MEMBER_PROPERTY("Axis", ezRotorComponentAxis, m_Axis),
+    EZ_ENUM_MEMBER_PROPERTY("Axis", ezTransformComponentAxis, m_Axis),
     EZ_MEMBER_PROPERTY("Distance", m_fDistanceToTravel),
     EZ_MEMBER_PROPERTY("Acceleration", m_fAcceleration),
     EZ_MEMBER_PROPERTY("Deceleration", m_fDeceleration),
@@ -24,6 +24,30 @@ void ezSliderComponent::Update()
 {
   if (m_Flags.IsAnySet(ezTransformComponentFlags::Autorun) && !m_Flags.IsAnySet(ezTransformComponentFlags::Paused))
   {
+    ezVec3 vAxis;
+
+    switch (m_Axis)
+    {
+    case ezTransformComponentAxis::PosX:
+      vAxis.Set(1, 0, 0);
+      break;
+    case ezTransformComponentAxis::PosY:
+      vAxis.Set(0, 1, 0);
+      break;
+    case ezTransformComponentAxis::PosZ:
+      vAxis.Set(0, 0, 1);
+      break;
+    case ezTransformComponentAxis::NegX:
+      vAxis.Set(-1, 0, 0);
+      break;
+    case ezTransformComponentAxis::NegY:
+      vAxis.Set(0, -1, 0);
+      break;
+    case ezTransformComponentAxis::NegZ:
+      vAxis.Set(0, 0, -1);
+      break;
+    }
+
     ezTime fTime = m_AnimationTime;
 
     if (m_Flags.IsAnySet(ezTransformComponentFlags::AnimationReversed))
@@ -36,7 +60,7 @@ void ezSliderComponent::Update()
     const float fDistanceDiff = fNewDistance - m_fLastDistance;
 
     ezVec3 vPos = GetOwner()->GetLocalPosition();
-    vPos += GetOwner()->GetLocalRotation() * ezVec3(0, 0, fDistanceDiff);
+    vPos += GetOwner()->GetLocalRotation() * (vAxis * fDistanceDiff);
     GetOwner()->SetLocalPosition(vPos);
 
     m_AnimationTime = fTime;
