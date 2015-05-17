@@ -5,9 +5,6 @@
 #include <Core/World/Component.h>
 #include <Foundation/Time/Time.h>
 
-class ezRotorTransformComponent;
-typedef ezComponentManagerSimple<ezRotorTransformComponent> ezRotorTransformComponentManager;
-
 struct ezTransformComponentFlags
 {
   typedef ezUInt16 StorageType;
@@ -74,45 +71,3 @@ public:
   bool IsDirectionForwards() const;
   bool IsAnimationRunning() const;
 };
-
-struct EZ_GAMEUTILS_DLL ezRotorComponentAxis
-{
-  typedef ezUInt8 StorageType;
-
-  enum Enum
-  {
-    PosX,
-    PosY,
-    PosZ,
-    NegX,
-    NegY,
-    NegZ,
-
-    Default = PosY
-  };
-};
-
-EZ_DECLARE_REFLECTABLE_TYPE(EZ_GAMEUTILS_DLL, ezRotorComponentAxis);
-
-class EZ_GAMEUTILS_DLL ezRotorTransformComponent : public ezTransformComponent
-{
-  EZ_DECLARE_COMPONENT_TYPE(ezRotorTransformComponent, ezRotorTransformComponentManager);
-
-public:
-  ezRotorTransformComponent();
-
-  void Update();
-
-  // ************************************* PROPERTIES ***********************************
-
-public:
-  ezInt32 m_iDegreeToRotate;
-  float m_fAcceleration;
-  float m_fDeceleration;
-  ezEnum<ezRotorComponentAxis> m_Axis;
-
-private:
-  ezQuat m_LastRotation;
-};
-
-

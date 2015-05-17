@@ -178,4 +178,8 @@ private:
 
   ezApplicationFileSystemConfig m_FileSystemConfig;
   ezApplicationPluginConfig m_EnginePluginConfig;
+
+  // *** Recent Paths ***
+  ezString m_sLastDocumentFolder;
+  ezString m_sLastProjectFolder;
 };

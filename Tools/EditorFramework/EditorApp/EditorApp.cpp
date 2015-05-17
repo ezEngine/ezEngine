@@ -409,6 +409,9 @@ void ezEditorApp::ProjectEventHandler(const ezToolsProject::Event& r)
       ezEditorEngineProcessConnection::GetInstance()->WaitForMessage(ezGetStaticRTTI<ezProjectReadyMsgToEditor>());
 
       m_AssetCurator.Initialize(m_FileSystemConfig);
+
+      m_sLastDocumentFolder = ezToolsProject::GetInstance()->GetProjectPath();
+      m_sLastProjectFolder = ezToolsProject::GetInstance()->GetProjectPath();
     }
     // fall through
 
@@ -579,16 +582,7 @@ void ezEditorApp::GuiCreateOrOpenDocument(bool bCreate)
   }
 
   static QString sSelectedExt;
-  static QString sDir = ezOSFile::GetApplicationDirectory();
-
-  // this is pretty annoying
-  //if (ezToolsProject::IsProjectOpen())
-  //{
-  //  ezStringBuilder sTempDir;
-  //  sTempDir = ezToolsProject::GetInstance()->GetProjectPath();
-  //  sTempDir.PathParentDirectory();
-  //  sDir = QString::fromUtf8(sTempDir);
-  //}
+  const QString sDir = QString::fromUtf8(m_sLastDocumentFolder.GetData());
 
   ezString sFile;
 
@@ -600,7 +594,7 @@ void ezEditorApp::GuiCreateOrOpenDocument(bool bCreate)
   if (sFile.IsEmpty())
     return;
 
-  sDir = ezString(ezPathUtils::GetFileDirectory(sFile)).GetData();
+  m_sLastDocumentFolder = ezPathUtils::GetFileDirectory(sFile);
 
   ezDocumentManagerBase* pManToCreate = nullptr;
   ezDocumentTypeDescriptor DescToCreate;
@@ -676,7 +670,7 @@ ezDocumentBase* ezEditorApp::CreateOrOpenDocument(bool bCreate, const char* szFi
 
 void ezEditorApp::GuiCreateOrOpenProject(bool bCreate)
 {
-  static QString sDir = ezOSFile::GetApplicationDirectory();
+  const QString sDir = QString::fromUtf8(m_sLastProjectFolder.GetData());
   ezString sFile;
 
   const char* szFilter = "ezEditor Project (*.ezProject)";
@@ -689,7 +683,7 @@ void ezEditorApp::GuiCreateOrOpenProject(bool bCreate)
   if (sFile.IsEmpty())
     return;
 
-  sDir = ezString(ezPathUtils::GetFileDirectory(sFile)).GetData();
+  m_sLastProjectFolder = ezPathUtils::GetFileDirectory(sFile);
 
   CreateOrOpenProject(bCreate, sFile);
 }

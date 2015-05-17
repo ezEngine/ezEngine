@@ -4,199 +4,40 @@
       "ID" : { "$t" : "uuid", "$b" : "0x00000000000000000000000000000000" },
       "ParentID" : { "$t" : "uuid", "$b" : "0x00000000000000000000000000000000" },
       "TypeData" : {
-        "DocumentID" : { "$t" : "uuid", "$b" : "0x8B9BCB96FF5E81438C42C09066B47F9D" }
+        "DocumentID" : { "$t" : "uuid", "$b" : "0x97623D221645CE4DB3F7455A36D502C3" }
       }
     } ],
   "ObjectTree" : [ {
       "Type" : "ezGameObject",
-      "ID" : { "$t" : "uuid", "$b" : "0x184C3BE3CB21424DAD569CC119A0E5EA" },
+      "ID" : { "$t" : "uuid", "$b" : "0x198E7E77444B354C9C387153B8CDA4C9" },
       "ParentID" : { "$t" : "uuid", "$b" : "0x00000000000000000000000000000000" },
       "TypeData" : {
-        "Name" : "test",
+        "Name" : "",
         "Position" : { "$t" : "vec3", "$v" : "(0.0000, 0.0000, 0.0000)", "$b" : "0x000000000000000000000000" },
         "Rotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
-        "Scaling" : { "$t" : "vec3", "$v" : "(1.0000, 2.0000, 1.0000)", "$b" : "0x0000803F000000400000803F" }
+        "Scaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 2.0000)", "$b" : "0x0000803F0000803F00000040" }
       },
       "EditorTypeData" : {
-        "Name" : "ezGameObject 002"
+        "Name" : "ezGameObject 000"
       }
     },
     {
-      "Type" : "ezRotorTransformComponent",
-      "ID" : { "$t" : "uuid", "$b" : "0x46F4D3F0ED47B1448BFCEBED8B48F8FA" },
-      "ParentID" : { "$t" : "uuid", "$b" : "0x184C3BE3CB21424DAD569CC119A0E5EA" },
+      "Type" : "ezRotorComponent",
+      "ID" : { "$t" : "uuid", "$b" : "0xE37B3D42F89B1644859E9CD3EAA3A720" },
+      "ParentID" : { "$t" : "uuid", "$b" : "0x198E7E77444B354C9C387153B8CDA4C9" },
       "TypeData" : {
-        "Speed" : { "$t" : "float", "$v" : "180.0000", "$b" : "0x00003443" },
-        "Run at Startup" : true,
-        "Reverse at Start" : false,
-        "Reverse at End" : false,
-        "Auto-Toggle Direction" : true,
-        "Axis" : "ezRotorComponentAxis::PosZ",
-        "Degrees to Rotate" : { "$t" : "int32", "$v" : "90", "$b" : "0x5A000000" },
-        "Acceleration" : { "$t" : "float", "$v" : "0.0000", "$b" : "0x00000000" },
-        "Deceleration" : { "$t" : "float", "$v" : "0.0000", "$b" : "0x00000000" }
-      },
-      "EditorTypeData" : {
-        "Name" : "ezRotorTransformComponent 002"
-      }
-    },
-    {
-      "Type" : "ezGameObject",
-      "ID" : { "$t" : "uuid", "$b" : "0x6ADE5FAD5719714D81A3C7153A296361" },
-      "ParentID" : { "$t" : "uuid", "$b" : "0x184C3BE3CB21424DAD569CC119A0E5EA" },
-      "TypeData" : {
-        "Name" : "",
-        "Position" : { "$t" : "vec3", "$v" : "(3.0000, 0.0000, 0.0000)", "$b" : "0x000040400000000000000000" },
-        "Rotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
-        "Scaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" }
-      },
-      "EditorTypeData" : {
-        "Name" : "ezGameObject 004"
-      }
-    },
-    {
-      "Type" : "ezGameObject",
-      "ID" : { "$t" : "uuid", "$b" : "0xBBC882386FA82D49B29940EAED1820FE" },
-      "ParentID" : { "$t" : "uuid", "$b" : "0x00000000000000000000000000000000" },
-      "TypeData" : {
-        "Name" : "",
-        "Position" : { "$t" : "vec3", "$v" : "(0.0000, 0.0000, -3.0000)", "$b" : "0x0000000000000000000040C0" },
-        "Rotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
-        "Scaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" }
-      },
-      "EditorTypeData" : {
-        "Name" : "ezGameObject 003"
-      }
-    },
-    {
-      "Type" : "ezGameObject",
-      "ID" : { "$t" : "uuid", "$b" : "0x2D42F2551006724094623AC86FF20848" },
-      "ParentID" : { "$t" : "uuid", "$b" : "0x00000000000000000000000000000000" },
-      "TypeData" : {
-        "Name" : "",
-        "Position" : { "$t" : "vec3", "$v" : "(3.0000, 0.0000, 0.0000)", "$b" : "0x000040400000000000000000" },
-        "Rotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
-        "Scaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" }
-      },
-      "EditorTypeData" : {
-        "Name" : "ezGameObject 004"
-      }
-    },
-    {
-      "Type" : "ezGameObject",
-      "ID" : { "$t" : "uuid", "$b" : "0xA73FA2E7263720458CA9B1AE6A4AFFE8" },
-      "ParentID" : { "$t" : "uuid", "$b" : "0x00000000000000000000000000000000" },
-      "TypeData" : {
-        "Name" : "",
-        "Position" : { "$t" : "vec3", "$v" : "(0.0000, 0.0000, 3.0000)", "$b" : "0x000000000000000000004040" },
-        "Rotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
-        "Scaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" }
-      },
-      "EditorTypeData" : {
-        "Name" : "ezGameObject 005"
-      }
-    },
-    {
-      "Type" : "ezGameObject",
-      "ID" : { "$t" : "uuid", "$b" : "0xF834C7C05BEC9242952D2E5D52A01068" },
-      "ParentID" : { "$t" : "uuid", "$b" : "0x00000000000000000000000000000000" },
-      "TypeData" : {
-        "Name" : "",
-        "Position" : { "$t" : "vec3", "$v" : "(-3.0000, 0.0000, 0.0000)", "$b" : "0x000040C00000000000000000" },
-        "Rotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
-        "Scaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" }
-      },
-      "EditorTypeData" : {
-        "Name" : "ezGameObject 006"
-      }
-    },
-    {
-      "Type" : "ezGameObject",
-      "ID" : { "$t" : "uuid", "$b" : "0x897D1699D7C9E04588D6083E0CDE97B0" },
-      "ParentID" : { "$t" : "uuid", "$b" : "0x00000000000000000000000000000000" },
-      "TypeData" : {
-        "Name" : "",
-        "Position" : { "$t" : "vec3", "$v" : "(8.0000, 0.0000, 0.0000)", "$b" : "0x000000410000000000000000" },
-        "Rotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
-        "Scaling" : { "$t" : "vec3", "$v" : "(1.0000, 2.0000, 1.0000)", "$b" : "0x0000803F000000400000803F" }
-      },
-      "EditorTypeData" : {
-        "Name" : "ezGameObject 007"
-      }
-    },
-    {
-      "Type" : "ezGameObject",
-      "ID" : { "$t" : "uuid", "$b" : "0x38BCB62D12F2534AB022B5FCBB83AB3C" },
-      "ParentID" : { "$t" : "uuid", "$b" : "0x897D1699D7C9E04588D6083E0CDE97B0" },
-      "TypeData" : {
-        "Name" : "",
-        "Position" : { "$t" : "vec3", "$v" : "(1.0000, 0.0000, 0.0000)", "$b" : "0x0000803F0000000000000000" },
-        "Rotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
-        "Scaling" : { "$t" : "vec3", "$v" : "(1.0000, 0.0000, 0.5000)", "$b" : "0x0000803F000000000000003F" }
-      },
-      "EditorTypeData" : {
-        "Name" : "ezGameObject 008"
-      }
-    },
-    {
-      "Type" : "ezRotorTransformComponent",
-      "ID" : { "$t" : "uuid", "$b" : "0xF179293F25C00745A3FA16B0F34EE004" },
-      "ParentID" : { "$t" : "uuid", "$b" : "0x897D1699D7C9E04588D6083E0CDE97B0" },
-      "TypeData" : {
-        "Speed" : { "$t" : "float", "$v" : "360.0000", "$b" : "0x0000B443" },
+        "Speed" : { "$t" : "float", "$v" : "90.0000", "$b" : "0x0000B442" },
         "Run at Startup" : true,
         "Reverse at Start" : true,
         "Reverse at End" : true,
         "Auto-Toggle Direction" : true,
         "Axis" : "ezRotorComponentAxis::PosY",
-        "Degrees to Rotate" : { "$t" : "int32", "$v" : "360", "$b" : "0x68010000" },
-        "Acceleration" : { "$t" : "float", "$v" : "500.0000", "$b" : "0x0000FA43" },
-        "Deceleration" : { "$t" : "float", "$v" : "500.0000", "$b" : "0x0000FA43" }
+        "Degrees to Rotate" : { "$t" : "int32", "$v" : "0", "$b" : "0x00000000" },
+        "Acceleration" : { "$t" : "float", "$v" : "0.0000", "$b" : "0x00000000" },
+        "Deceleration" : { "$t" : "float", "$v" : "0.0000", "$b" : "0x00000000" }
       },
       "EditorTypeData" : {
-        "Name" : "ezRotorTransformComponent 009"
-      }
-    },
-    {
-      "Type" : "ezGameObject",
-      "ID" : { "$t" : "uuid", "$b" : "0xE085863E6D5D524FB6D61938D7DB0E83" },
-      "ParentID" : { "$t" : "uuid", "$b" : "0x897D1699D7C9E04588D6083E0CDE97B0" },
-      "TypeData" : {
-        "Name" : "",
-        "Position" : { "$t" : "vec3", "$v" : "(-1.0000, 0.0000, 0.0000)", "$b" : "0x000080BF0000000000000000" },
-        "Rotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
-        "Scaling" : { "$t" : "vec3", "$v" : "(1.0000, 0.0000, 0.5000)", "$b" : "0x0000803F000000000000003F" }
-      },
-      "EditorTypeData" : {
-        "Name" : "ezGameObject 010"
-      }
-    },
-    {
-      "Type" : "ezGameObject",
-      "ID" : { "$t" : "uuid", "$b" : "0xC744B357FAF5824ABFD45788BCC98F24" },
-      "ParentID" : { "$t" : "uuid", "$b" : "0x897D1699D7C9E04588D6083E0CDE97B0" },
-      "TypeData" : {
-        "Name" : "",
-        "Position" : { "$t" : "vec3", "$v" : "(0.0000, 0.0000, 1.0000)", "$b" : "0x00000000000000000000803F" },
-        "Rotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
-        "Scaling" : { "$t" : "vec3", "$v" : "(0.5000, 0.0000, 1.0000)", "$b" : "0x0000003F000000000000803F" }
-      },
-      "EditorTypeData" : {
-        "Name" : "ezGameObject 011"
-      }
-    },
-    {
-      "Type" : "ezGameObject",
-      "ID" : { "$t" : "uuid", "$b" : "0x382AF73FDA150F4CBB4FBFB973F83423" },
-      "ParentID" : { "$t" : "uuid", "$b" : "0x897D1699D7C9E04588D6083E0CDE97B0" },
-      "TypeData" : {
-        "Name" : "",
-        "Position" : { "$t" : "vec3", "$v" : "(0.0000, 0.0000, -1.0000)", "$b" : "0x0000000000000000000080BF" },
-        "Rotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
-        "Scaling" : { "$t" : "vec3", "$v" : "(0.5000, 0.0000, 1.0000)", "$b" : "0x0000003F000000000000803F" }
-      },
-      "EditorTypeData" : {
-        "Name" : "ezGameObject 012"
+        "Name" : "ezRotorComponent 001"
       }
     } ]
 }

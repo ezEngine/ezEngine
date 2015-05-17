@@ -5,7 +5,8 @@
 #include <EditorFramework/EngineProcess/EngineProcessViewContext.h>
 #include <EditorFramework/EngineProcess/EngineProcessDocumentContext.h>
 #include <EditorEngineProcess/Application.h>
-#include <GameUtils/Components/TransformComponent.h>
+#include <GameUtils/Components/RotorComponent.h>
+#include <GameUtils/Components/SliderComponent.h>
 
 void ezEditorProcessApp::SendProjectReadyMessage()
 {
@@ -60,7 +61,8 @@ void ezEditorProcessApp::EventHandlerIPC(const ezProcessCommunication::Event& e)
 
     pDocumentContext->m_pWorld = EZ_DEFAULT_NEW(ezWorld)(ezConversionUtils::ToString(pDocMsg->m_DocumentGuid));
 
-    pDocumentContext->m_pWorld->CreateComponentManager<ezRotorTransformComponentManager>();
+    pDocumentContext->m_pWorld->CreateComponentManager<ezRotorComponentManager>();
+    pDocumentContext->m_pWorld->CreateComponentManager<ezSliderComponentManager>();
   }
 
 

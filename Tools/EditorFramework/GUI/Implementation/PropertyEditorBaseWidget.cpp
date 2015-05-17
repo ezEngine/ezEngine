@@ -437,12 +437,21 @@ ezPropertyEditorEnumWidget::ezPropertyEditorEnumWidget(const ezPropertyPath& pat
 
   m_pWidget = new QComboBox(this);
 
+  ezStringBuilder sTemp;
+
   const ezReflectedType* pType = enumType.GetType();
   ezUInt32 uiCount = pType->GetConstantCount();
   for (ezUInt32 i = 0; i < uiCount; ++i)
   {
     auto pConstant = pType->GetConstantByIndex(i);
-    m_pWidget->addItem(QString::fromUtf8(pConstant->m_sPropertyName.GetData()), pConstant->m_ConstantValue.ConvertTo<ezInt64>());
+
+    // If this is a qualified C++ name, skip everything before the last colon
+    sTemp = pConstant->m_sPropertyName.GetString();
+    const char* szColon = sTemp.FindLastSubString(":");
+    if (szColon != nullptr)
+      sTemp = szColon + 1;
+
+    m_pWidget->addItem(QString::fromUtf8(sTemp.GetData()), pConstant->m_ConstantValue.ConvertTo<ezInt64>());
   }
 
   QSizePolicy policy = m_pLabel->sizePolicy();
