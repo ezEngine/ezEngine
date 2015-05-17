@@ -115,11 +115,11 @@ void ezRotorComponent::Update()
     {
       m_AnimationTime += ezClock::Get()->GetTimeDiff();
 
-      /// \todo To make this stable over time, it should probably only rotate piece-wise
-      /// but for that to work, we need to be able to reset the animation to zero properly
-
       ezQuat qRot;
       qRot.SetFromAxisAndAngle(vAxis, ezAngle::Degree(m_fAnimationSpeed * (float)m_AnimationTime.GetSeconds()));
+
+      if (m_AnimationTime.GetSeconds() > m_fAnimationSpeed)
+        m_AnimationTime -= ezTime::Seconds(m_fAnimationSpeed);
 
       GetOwner()->SetLocalRotation(qRot * -m_LastRotation * GetOwner()->GetLocalRotation());
       m_LastRotation = qRot;

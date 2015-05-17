@@ -18,8 +18,12 @@ public:
   // ************************************* PROPERTIES ***********************************
 
 public:
+  float m_fDistanceToTravel;
+  float m_fAcceleration;
+  float m_fDeceleration;
 
-
+private:
+  float m_fLastDistance;
 };
 
 
