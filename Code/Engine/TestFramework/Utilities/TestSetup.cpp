@@ -55,13 +55,14 @@ ezTestAppRun ezTestSetup::RunTests()
   }
 
   // Setup Qt Application
-  ezQtTestGUI::SetDarkTheme();
+  
   int argc = s_argc;
   char** argv = const_cast<char**>(s_argv);
   QApplication app(argc, argv);
 
   app.setApplicationName(pTestFramework->GetTestName());
   
+  ezQtTestGUI::SetDarkTheme();
   // Create main window
   ezQtTestGUI mainWindow(*static_cast<ezQtTestFramework*>(pTestFramework));
   mainWindow.show();
