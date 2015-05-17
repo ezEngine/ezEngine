@@ -109,6 +109,7 @@ public:
   ezHashedString GetTypeName() const { return m_sTypeName; } // [tested]
   ezReflectedTypeHandle GetParentTypeHandle() const { return m_hParentType; } // [tested]
   ezReflectedTypeHandle GetTypeHandle() const { return m_hType; } // [tested]
+  ezBitflags<ezTypeFlags> GetFlags() const { return m_Flags; }
   bool IsDerivedFrom(ezReflectedTypeHandle hType) const;
 
   const ezUInt32 GetPropertyCount() const { return m_Properties.GetCount(); } // [tested]

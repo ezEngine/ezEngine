@@ -33,7 +33,7 @@ void ezTestObjectManager::GetCreateableTypes(ezHybridArray<ezReflectedTypeHandle
   ezReflectedTypeHandle hComponent = ezReflectedTypeManager::GetTypeHandleByName(ezGetStaticRTTI<ezComponent>()->GetTypeName());
   for (auto it = ezReflectedTypeManager::GetTypeIterator(); it.IsValid(); ++it)
   {
-    if (it.Value()->IsDerivedFrom(hComponent))
+    if (it.Value()->IsDerivedFrom(hComponent) && !it.Value()->GetFlags().IsSet(ezTypeFlags::Abstract))
       Types.PushBack(it.Value()->GetTypeHandle());
   }
 
