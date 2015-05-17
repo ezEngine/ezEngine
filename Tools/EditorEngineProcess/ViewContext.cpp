@@ -69,10 +69,6 @@ void ezViewContext::SetupRenderTarget(ezWindowHandle hWnd, ezUInt16 uiWidth, ezU
   m_hDepthStencilState = pDevice->CreateDepthStencilState(DepthStencilStateDesc);
   EZ_ASSERT_DEV(!m_hDepthStencilState.IsInvalidated(), "Couldn't create depth-stencil state!");
 
-
-  // Create a constant buffer for matrix upload
-  m_hCB = pDevice->CreateConstantBuffer(sizeof(ObjectData));
-
   ezRenderContext::ConfigureShaderSystem("DX11_SM40", true);
 
   m_hShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Wireframe.ezShader");

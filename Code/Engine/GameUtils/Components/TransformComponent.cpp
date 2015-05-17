@@ -19,8 +19,44 @@ ezTransformComponent::ezTransformComponent()
   m_AnimationTime.SetZero();
 }
 
+void ezTransformComponent::ResumeAnimation()
+{
+  m_Flags.Add(ezTransformComponentFlags::Autorun);
+  m_Flags.Remove(ezTransformComponentFlags::Paused);
+}
+
+void ezTransformComponent::SetAnimationPaused(bool bPaused)
+{
+  m_Flags.AddOrRemove(ezTransformComponentFlags::Paused, bPaused);
+}
+
+void ezTransformComponent::SetDirectionForwards(bool bForwards)
+{
+  m_Flags.AddOrRemove(ezTransformComponentFlags::AnimationReversed, !bForwards);
+}
+
+void ezTransformComponent::ReverseDirection()
+{
+  m_Flags.AddOrRemove(ezTransformComponentFlags::AnimationReversed, !m_Flags.IsAnySet(ezTransformComponentFlags::AnimationReversed));
+}
+
+bool ezTransformComponent::IsDirectionForwards() const
+{
+  return !m_Flags.IsAnySet(ezTransformComponentFlags::AnimationReversed);
+}
+
+bool ezTransformComponent::IsAnimationRunning() const
+{
+  return m_Flags.IsAnySet(ezTransformComponentFlags::Autorun);
+}
+
+EZ_BEGIN_STATIC_REFLECTED_ENUM(ezRotorComponentAxis, 1)
+  EZ_ENUM_CONSTANTS(ezRotorComponentAxis::PosX, ezRotorComponentAxis::PosY, ezRotorComponentAxis::PosZ, ezRotorComponentAxis::NegX, ezRotorComponentAxis::NegY, ezRotorComponentAxis::NegZ)
+EZ_END_STATIC_REFLECTED_ENUM()
+
 EZ_BEGIN_COMPONENT_TYPE(ezRotorTransformComponent, ezTransformComponent, 1, ezRotorTransformComponentManager);
   EZ_BEGIN_PROPERTIES
+    EZ_ENUM_MEMBER_PROPERTY("Axis", ezRotorComponentAxis, m_Axis),
     EZ_MEMBER_PROPERTY("Degrees to Rotate", m_iDegreeToRotate),
     EZ_MEMBER_PROPERTY("Acceleration", m_fAcceleration),
     EZ_MEMBER_PROPERTY("Deceleration", m_fDeceleration),
@@ -29,6 +65,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 ezRotorTransformComponent::ezRotorTransformComponent()
 {
+  m_LastRotation.SetIdentity();
   m_iDegreeToRotate = 0;
   m_fAcceleration = 1.0f;
   m_fDeceleration = 1.0f;
@@ -38,6 +75,30 @@ void ezRotorTransformComponent::Update()
 {
   if (m_Flags.IsAnySet(ezTransformComponentFlags::Autorun) && !m_Flags.IsAnySet(ezTransformComponentFlags::Paused))
   {
+    ezVec3 vAxis;
+
+    switch (m_Axis)
+    {
+    case ezRotorComponentAxis::PosX:
+      vAxis.Set(1, 0, 0);
+      break;
+    case ezRotorComponentAxis::PosY:
+      vAxis.Set(0, 1, 0);
+      break;
+    case ezRotorComponentAxis::PosZ:
+      vAxis.Set(0, 0, 1);
+      break;
+    case ezRotorComponentAxis::NegX:
+      vAxis.Set(-1, 0, 0);
+      break;
+    case ezRotorComponentAxis::NegY:
+      vAxis.Set(0, -1, 0);
+      break;
+    case ezRotorComponentAxis::NegZ:
+      vAxis.Set(0, 0, -1);
+      break;
+    }
+
     if (m_iDegreeToRotate > 0)
     {
       ezTime fTime = m_AnimationTime;
@@ -47,20 +108,20 @@ void ezRotorTransformComponent::Update()
       else
         fTime += ezClock::Get()->GetTimeDiff();
 
-      float fDistance1 = CalculateAcceleratedMovement((float)m_iDegreeToRotate, m_fAcceleration, m_fAnimationSpeed, m_fDeceleration, (float) m_AnimationTime.GetSeconds());
-      float fDistance2 = CalculateAcceleratedMovement((float)m_iDegreeToRotate, m_fAcceleration, m_fAnimationSpeed, m_fDeceleration, (float) fTime.GetSeconds());
+      const float fNewDistance = CalculateAcceleratedMovement((float)m_iDegreeToRotate, m_fAcceleration, m_fAnimationSpeed, m_fDeceleration, (float) fTime.GetSeconds());
 
       m_AnimationTime = fTime;
 
-      ezQuat q1, q2;
-      q1.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(-fDistance1));
-      q2.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree( fDistance2));
+      ezQuat qRotation;
+      qRotation.SetFromAxisAndAngle(vAxis, ezAngle::Degree(fNewDistance));
 
-      GetOwner()->SetLocalRotation(GetOwner()->GetLocalRotation() * q1 * q2);
+      GetOwner()->SetLocalRotation(qRotation * -m_LastRotation * GetOwner()->GetLocalRotation());
+
+      m_LastRotation = qRotation;
 
       if (!m_Flags.IsAnySet(ezTransformComponentFlags::AnimationReversed))
       {
-        if (fDistance2 == m_iDegreeToRotate)
+        if (fNewDistance >= m_iDegreeToRotate)
         {
           if (m_Flags.IsAnySet(ezTransformComponentFlags::AutoReturnEnd))
             m_Flags.Add(ezTransformComponentFlags::AnimationReversed);
@@ -79,7 +140,7 @@ void ezRotorTransformComponent::Update()
       }
       else
       {
-        if (fDistance2 == 0.0f)
+        if (fNewDistance <= 0.0f)
         {
           if (m_Flags.IsAnySet(ezTransformComponentFlags::AutoReturnStart))
             m_Flags.Remove(ezTransformComponentFlags::AnimationReversed);
@@ -100,7 +161,7 @@ void ezRotorTransformComponent::Update()
     else
     {
       ezQuat qRot;
-      qRot.SetFromAxisAndAngle(ezVec3(0, 1, 0), ezAngle::Degree(m_fAnimationSpeed * (float) ezClock::Get()->GetTimeDiff().GetSeconds()));
+      qRot.SetFromAxisAndAngle(vAxis, ezAngle::Degree(m_fAnimationSpeed * (float) ezClock::Get()->GetTimeDiff().GetSeconds()));
 
       GetOwner()->SetLocalRotation(qRot * GetOwner()->GetLocalRotation());
     }
@@ -121,11 +182,11 @@ float CalculateAcceleratedMovement(float fDistanceInMeters, float fAcceleration,
 {
   // linear motion, if no acceleration or deceleration is present
   if ((fAcceleration <= 0.0f) && (fDeceleration <= 0.0f))
-    return (ezMath::Clamp(fMaxVelocity * fTimeSinceStartInSec, 0.0f, fDistanceInMeters));
+    return ezMath::Clamp(fMaxVelocity * fTimeSinceStartInSec, 0.0f, fDistanceInMeters);
 
   // do some sanity-checks
   if ((fTimeSinceStartInSec <= 0.0f) || (fMaxVelocity <= 0.0f) || (fDistanceInMeters <= 0.0f))
-    return (0.0f);
+    return 0.0f;
 
   // calculate the duration and distance of accelerated movement
   float fAccTime = 0.0f;
@@ -161,7 +222,7 @@ float CalculateAcceleratedMovement(float fDistanceInMeters, float fAcceleration,
 
   // if the time is still within the acceleration phase, return accelerated distance
   if (fTimeSinceStartInSec <= fAccTime)
-    return (0.5f * fAcceleration * ezMath::Square(fTimeSinceStartInSec));
+    return 0.5f * fAcceleration * ezMath::Square(fTimeSinceStartInSec);
 
   // calculate duration and length of the path, that has maximum velocity
   const float fMaxVelDistance = fDistanceInMeters - (fAccDist + fDecDist);
@@ -169,15 +230,15 @@ float CalculateAcceleratedMovement(float fDistanceInMeters, float fAcceleration,
 
   // if the time is within this phase, return the accelerated path plus the constant velocity path
   if (fTimeSinceStartInSec <= fAccTime + fMaxVelTime)
-    return (fAccDist + (fTimeSinceStartInSec - fAccTime) * fMaxVelocity);
+    return fAccDist + (fTimeSinceStartInSec - fAccTime) * fMaxVelocity;
 
   // if the time is, however, outside the whole path, just return the upper end
   if (fTimeSinceStartInSec >= fAccTime + fMaxVelTime + fDecTime)
-    return (fDistanceInMeters);
+    return fDistanceInMeters;
 
   // calculate the time into the decelerated movement
   const float fDecTime2 = fTimeSinceStartInSec - (fAccTime + fMaxVelTime);
 
   // return the distance with the decelerated movement
-  return (fDistanceInMeters - 0.5f * fDeceleration * ezMath::Square(fDecTime - fDecTime2));
+  return fDistanceInMeters - 0.5f * fDeceleration * ezMath::Square(fDecTime - fDecTime2);
 }

@@ -12,6 +12,8 @@
 #include <CoreUtils/Geometry/GeomUtils.h>
 #include <Core/ResourceManager/ResourceManager.h>
 #include <Foundation/Time/Clock.h>
+#include <RendererCore/RenderContext/RenderContext.h>
+#include <RendererCore/ConstantBuffers/ConstantBufferResource.h>
 
 ezDataTransfer ezViewContext::m_PickingRenderTargetDT;
 
@@ -122,18 +124,42 @@ void ezViewContext::RenderTranslateGizmo(const ezMat4& mTransformation)
   od.m_PickingID[2] = ((uiPickingID & 0xFF0000) >> 16) / 255.0f;
   od.m_PickingID[3] = ((uiPickingID & 0xFF000000) >> 24) / 255.0f;
 
+  UpdateConstantBuffer(od);
+
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
   ezGALContext* pContext = pDevice->GetPrimaryContext();
 
   pContext->SetRasterizerState(m_hRasterizerStateGizmo);
 
-  pContext->UpdateBuffer(m_hCB, 0, &od, sizeof(ObjectData));
-
-  pContext->SetConstantBuffer(1, m_hCB);
-
   /// \todo The ViewContext probably should have an ezRenderContext as a member, instead of using the default
   ezRenderContext::GetDefaultInstance()->BindMeshBuffer(m_hTranslateGizmo);
   ezRenderContext::GetDefaultInstance()->DrawMeshBuffer();
+}
+
+void ezViewContext::UpdateConstantBuffer(const ObjectData& od)
+{
+  if (!m_hObjectTransformCB.IsValid())
+  {
+    /// \todo Not sure ezMeshRenderer should create the PerObject CB, probably this should be centralized somewhere else
+
+    // this always accesses the same constant buffer (same GUID), but every ezMeshRenderer holds its own reference to it
+    m_hObjectTransformCB = ezResourceManager::GetExistingResource<ezConstantBufferResource>("{4FED3393-4C92-4019-BF4F-962448DEF917}");
+
+    if (!m_hObjectTransformCB.IsValid())
+    {
+      // only create this constant buffer, when it does not yet exist
+      ezConstantBufferResourceDescriptor<ObjectData> desc;
+      m_hObjectTransformCB = ezResourceManager::CreateResource<ezConstantBufferResource>("{4FED3393-4C92-4019-BF4F-962448DEF917}", desc);
+    }
+  }
+
+  ObjectData* pOD = ezRenderContext::GetDefaultInstance()->BeginModifyConstantBuffer<ObjectData>(m_hObjectTransformCB);
+
+  *pOD = od;
+
+  ezRenderContext::GetDefaultInstance()->EndModifyConstantBuffer();
+
+  ezRenderContext::GetDefaultInstance()->BindConstantBuffer("PerObject", m_hObjectTransformCB);
 }
 
 void ezViewContext::RenderObject(ezGameObject* pObject, const ezMat4& ViewProj)
@@ -145,19 +171,14 @@ void ezViewContext::RenderObject(ezGameObject* pObject, const ezMat4& ViewProj)
   const ezMat4 Model = pObject->GetWorldTransform().GetAsMat4();
 
   ObjectData od;
+
   od.m_ModelView = ViewProj * Model;
   od.m_PickingID[0] = (uiPickingID & 0xFF) / 255.0f;
   od.m_PickingID[1] = ((uiPickingID & 0xFF00) >> 8) / 255.0f;
   od.m_PickingID[2] = ((uiPickingID & 0xFF0000) >> 16) / 255.0f;
   od.m_PickingID[3] = ((uiPickingID & 0xFF000000) >> 24) / 255.0f;
 
-
-  ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-  ezGALContext* pContext = pDevice->GetPrimaryContext();
-
-  pContext->UpdateBuffer(m_hCB, 0, &od, sizeof(ObjectData));
-
-  pContext->SetConstantBuffer(1, m_hCB);
+  UpdateConstantBuffer(od);
 
   ezRenderContext::GetDefaultInstance()->BindMeshBuffer(m_hSphere);
   ezRenderContext::GetDefaultInstance()->DrawMeshBuffer();

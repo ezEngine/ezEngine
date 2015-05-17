@@ -75,9 +75,10 @@ private:
   void RenderObject(ezGameObject* pObject, const ezMat4& ViewProj);
   void RenderTranslateGizmo(const ezMat4& mTransformation);
   void RenderScene();
+  void UpdateConstantBuffer(const ObjectData& od);
 
   ezGALRenderTargetConfigHandle m_hBBRT;
-  ezGALBufferHandle m_hCB;
+  ezConstantBufferResourceHandle m_hObjectTransformCB;
   ezGALRasterizerStateHandle m_hRasterizerState;
   ezGALRasterizerStateHandle m_hRasterizerStateGizmo;
   ezGALDepthStencilStateHandle m_hDepthStencilState;

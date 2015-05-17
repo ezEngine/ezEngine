@@ -44,6 +44,8 @@ class EZ_GAMEUTILS_DLL ezTransformComponent : public ezComponent
 public:
   ezTransformComponent();
 
+  // ************************************* PROPERTIES ***********************************
+
   bool GetAnimatingAtStartup(void) const { return (m_Flags.IsAnySet(ezTransformComponentFlags::Autorun)); }
   void SetAnimatingAtStartup(bool b) { m_Flags.AddOrRemove(ezTransformComponentFlags::Autorun, b); }
 
@@ -57,10 +59,40 @@ public:
   void SetAutoToggleDirection(bool b) { m_Flags.AddOrRemove(ezTransformComponentFlags::AutoToggleDirection, b); }
 
   float m_fAnimationSpeed;
-  ezTime m_AnimationTime;
+
+protected:
   ezBitflags<ezTransformComponentFlags> m_Flags;
+  ezTime m_AnimationTime;
+
+  // ************************************* FUNCTIONS *****************************
+
+public:
+  void ResumeAnimation();
+  void SetAnimationPaused(bool bPaused);
+  void SetDirectionForwards(bool bForwards);
+  void ReverseDirection();
+  bool IsDirectionForwards() const;
+  bool IsAnimationRunning() const;
 };
 
+struct EZ_GAMEUTILS_DLL ezRotorComponentAxis
+{
+  typedef ezUInt8 StorageType;
+
+  enum Enum
+  {
+    PosX,
+    PosY,
+    PosZ,
+    NegX,
+    NegY,
+    NegZ,
+
+    Default = PosY
+  };
+};
+
+EZ_DECLARE_REFLECTABLE_TYPE(EZ_GAMEUTILS_DLL, ezRotorComponentAxis);
 
 class EZ_GAMEUTILS_DLL ezRotorTransformComponent : public ezTransformComponent
 {
@@ -71,9 +103,16 @@ public:
 
   void Update();
 
+  // ************************************* PROPERTIES ***********************************
+
+public:
   ezInt32 m_iDegreeToRotate;
   float m_fAcceleration;
   float m_fDeceleration;
+  ezEnum<ezRotorComponentAxis> m_Axis;
+
+private:
+  ezQuat m_LastRotation;
 };
 
 
