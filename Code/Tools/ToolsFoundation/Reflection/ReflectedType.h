@@ -79,6 +79,8 @@ struct EZ_TOOLSFOUNDATION_DLL ezReflectedProperty
 {
   ezReflectedProperty(ezPropertyCategory::Enum category, const char* szName, ezVariant::Type::Enum type, ezBitflags<ezPropertyFlags> flags); // [tested]
   ezReflectedProperty(ezPropertyCategory::Enum category, const char* szName, ezReflectedTypeHandle hType, ezBitflags<ezPropertyFlags> flags); // [tested]
+  bool operator== (const ezReflectedProperty& rhs) const;
+  bool operator!= (const ezReflectedProperty& rhs) const { return !(*this == rhs);}
 
   ezEnum<ezPropertyCategory> m_Category;
   ezHashedString m_sPropertyName;          ///< Name of the property, must be unique inside an ezReflectedType.
@@ -92,6 +94,8 @@ struct EZ_TOOLSFOUNDATION_DLL ezReflectedProperty
 struct EZ_TOOLSFOUNDATION_DLL ezReflectedConstant
 {
   ezReflectedConstant(const char* szName, const ezVariant& constantValue);
+  bool operator== (const ezReflectedConstant& rhs) const;
+  bool operator!= (const ezReflectedConstant& rhs) const { return !(*this == rhs);}
 
   ezHashedString m_sPropertyName;          ///< Name of the constant, must be unique inside an ezReflectedType.
   ezVariant m_ConstantValue;               ///< Constant value.
@@ -105,6 +109,9 @@ class EZ_TOOLSFOUNDATION_DLL ezReflectedType
 {
   friend class ezReflectedTypeManager;
 public:
+  bool operator== (const ezReflectedType& rhs) const;
+  bool operator!= (const ezReflectedType& rhs) const { return !(*this == rhs);}
+
   ezHashedString GetPluginName() const { return m_sPluginName; } // [tested]
   ezHashedString GetTypeName() const { return m_sTypeName; } // [tested]
   ezReflectedTypeHandle GetParentTypeHandle() const { return m_hParentType; } // [tested]

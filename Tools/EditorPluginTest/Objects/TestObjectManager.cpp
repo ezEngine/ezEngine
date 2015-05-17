@@ -36,9 +36,6 @@ void ezTestObjectManager::GetCreateableTypes(ezHybridArray<ezReflectedTypeHandle
     if (it.Value()->IsDerivedFrom(hComponent) && !it.Value()->GetFlags().IsSet(ezTypeFlags::Abstract))
       Types.PushBack(it.Value()->GetTypeHandle());
   }
-
-  //Types.PushBack(ezReflectedTypeManager::GetTypeHandleByName(ezGetStaticRTTI<ezTestObjectProperties>()->GetTypeName()));
-  //Types.PushBack(ezReflectedTypeManager::GetTypeHandleByName(ezGetStaticRTTI<ezTestEditorProperties>()->GetTypeName()));
 }
 
 bool ezTestObjectManager::InternalCanAdd(ezReflectedTypeHandle hType, const ezDocumentObjectBase* pParent) const

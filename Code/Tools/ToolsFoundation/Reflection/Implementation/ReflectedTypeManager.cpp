@@ -15,26 +15,26 @@ ezHashTable<const char*, ezReflectedTypeHandle> ezReflectedTypeManager::m_NameTo
 EZ_BEGIN_SUBSYSTEM_DECLARATION(ToolsFoundation, ReflectedTypeManager)
 
   BEGIN_SUBSYSTEM_DEPENDENCIES
-    "Core"
+  "Core"
   END_SUBSYSTEM_DEPENDENCIES
 
   ON_CORE_STARTUP
-  {
-    ezReflectedTypeManager::Startup();
-  }
+{
+  ezReflectedTypeManager::Startup();
+}
 
-  ON_CORE_SHUTDOWN
-  {
-    ezReflectedTypeManager::Shutdown();
-  }
+ON_CORE_SHUTDOWN
+{
+  ezReflectedTypeManager::Shutdown();
+}
 
 EZ_END_SUBSYSTEM_DECLARATION
 
-////////////////////////////////////////////////////////////////////////
-// ezReflectedTypeManager public functions
-////////////////////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////////////////
+  // ezReflectedTypeManager public functions
+  ////////////////////////////////////////////////////////////////////////
 
-ezReflectedTypeHandle ezReflectedTypeManager::RegisterType(const ezReflectedTypeDescriptor& desc)
+  ezReflectedTypeHandle ezReflectedTypeManager::RegisterType(const ezReflectedTypeDescriptor& desc)
 {
   ezReflectedType* pType;
   if (ezStringUtils::IsNullOrEmpty(desc.m_sParentTypeName.GetData()))
@@ -84,7 +84,7 @@ ezReflectedTypeHandle ezReflectedTypeManager::RegisterType(const ezReflectedType
     }
   }
   pType->RegisterProperties();
-  
+
   // Convert constants
   pType->m_Constants.Reserve(iConstantCount);
   for (ezUInt32 i = 0; i < iCount; i++)
@@ -111,17 +111,24 @@ ezReflectedTypeHandle ezReflectedTypeManager::RegisterType(const ezReflectedType
     // Type already present, swap type definition and broadcast changed event.
     pType->m_hType = hType;
     ezReflectedType* pOldType = m_Types[hType];
-    m_Types[hType] = pType;
 
+    if (*pType == *pOldType)
     {
-      ezReflectedTypeChange msg;
-      msg.m_hType = hType;
-      msg.pOldType = pOldType;
-      msg.pNewType = pType;
-      m_TypeChangedEvent.Broadcast(msg);
+      // Type hasn't actually changed, delete new one and skip event. 
+      EZ_DEFAULT_DELETE(pType);
     }
-
-    EZ_DEFAULT_DELETE(pOldType);
+    else
+    {
+      m_Types[hType] = pType;
+      {
+        ezReflectedTypeChange msg;
+        msg.m_hType = hType;
+        msg.pOldType = pOldType;
+        msg.pNewType = pType;
+        m_TypeChangedEvent.Broadcast(msg);
+      }
+      EZ_DEFAULT_DELETE(pOldType);
+    }
   }
   else
   {

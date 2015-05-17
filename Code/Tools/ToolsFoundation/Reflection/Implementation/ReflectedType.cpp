@@ -71,6 +71,17 @@ ezReflectedProperty::ezReflectedProperty(ezPropertyCategory::Enum category, cons
   m_sPropertyName.Assign(szName);
 }
 
+bool ezReflectedProperty::operator== (const ezReflectedProperty& rhs) const
+{
+  if (m_Category != rhs.m_Category || m_sPropertyName != rhs.m_sPropertyName || m_hTypeHandle != rhs.m_hTypeHandle)
+    return false;
+
+  if (m_Type != rhs.m_Type || m_Flags != rhs.m_Flags)
+    return false;
+
+  return true;
+}
+
 
 ////////////////////////////////////////////////////////////////////////
 // ezReflectedConstant functions
@@ -82,10 +93,29 @@ ezReflectedConstant::ezReflectedConstant(const char* szName, const ezVariant& co
   m_sPropertyName.Assign(szName);
 }
 
+bool ezReflectedConstant::operator== (const ezReflectedConstant& rhs) const
+{
+  return (m_sPropertyName == rhs.m_sPropertyName || m_ConstantValue == rhs.m_ConstantValue);
+}
+
 
 ////////////////////////////////////////////////////////////////////////
 // ezReflectedType public functions
 ////////////////////////////////////////////////////////////////////////
+
+bool ezReflectedType::operator== (const ezReflectedType& rhs) const
+{
+  if (m_sTypeName != rhs.m_sTypeName || m_sPluginName != rhs.m_sPluginName || m_hParentType != rhs.m_hParentType)
+    return false;
+
+  if (m_sDefaultInitialization != rhs.m_sDefaultInitialization || m_Flags != rhs.m_Flags)
+    return false;
+
+  if (m_Properties != rhs.m_Properties || m_Constants != rhs.m_Constants)
+    return false;
+
+  return true;
+}
 
 bool ezReflectedType::IsDerivedFrom(ezReflectedTypeHandle hType) const
 {
