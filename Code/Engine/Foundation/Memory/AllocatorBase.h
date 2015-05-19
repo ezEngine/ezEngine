@@ -49,7 +49,7 @@ private:
 
 /// \brief creates a new instance of type using the given allocator
 #define EZ_NEW(allocator, type, ...) \
-  ezInternal::NewInstance<type>(new ((allocator)->Allocate(sizeof(type), EZ_ALIGNMENT_OF(type), ezMemoryUtils::MakeDestructorFunction<type>())) type(##__VA_ARGS__), (allocator))
+  ezInternal::NewInstance<type>(new ((allocator)->Allocate(sizeof(type), EZ_ALIGNMENT_OF(type), ezMemoryUtils::MakeDestructorFunction<type>())) type(__VA_ARGS__), (allocator))
 
 /// \brief deletes the instance stored in ptr using the given allocator and sets ptr to nullptr
 #define EZ_DELETE(allocator, ptr) \

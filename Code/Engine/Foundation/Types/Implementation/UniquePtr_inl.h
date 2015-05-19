@@ -121,37 +121,37 @@ EZ_FORCE_INLINE bool ezUniquePtr<T>::operator>=(const ezUniquePtr<T>& rhs) const
 }
 
 template <typename T>
-EZ_FORCE_INLINE bool ezUniquePtr<T>::operator==(nullptr_t) const
+EZ_FORCE_INLINE bool ezUniquePtr<T>::operator==(std::nullptr_t) const
 {
   return m_pInstance == nullptr;
 }
 
 template <typename T>
-EZ_FORCE_INLINE bool ezUniquePtr<T>::operator!=(nullptr_t) const
+EZ_FORCE_INLINE bool ezUniquePtr<T>::operator!=(std::nullptr_t) const
 {
   return m_pInstance != nullptr;
 }
 
 template <typename T>
-EZ_FORCE_INLINE bool ezUniquePtr<T>::operator<(nullptr_t) const
+EZ_FORCE_INLINE bool ezUniquePtr<T>::operator<(std::nullptr_t) const
 {
   return m_pInstance < nullptr;
 }
 
 template <typename T>
-EZ_FORCE_INLINE bool ezUniquePtr<T>::operator<=(nullptr_t) const
+EZ_FORCE_INLINE bool ezUniquePtr<T>::operator<=(std::nullptr_t) const
 {
   return m_pInstance <= nullptr;
 }
 
 template <typename T>
-EZ_FORCE_INLINE bool ezUniquePtr<T>::operator>(nullptr_t) const
+EZ_FORCE_INLINE bool ezUniquePtr<T>::operator>(std::nullptr_t) const
 {
   return m_pInstance > nullptr;
 }
 
 template <typename T>
-EZ_FORCE_INLINE bool ezUniquePtr<T>::operator>=(nullptr_t) const
+EZ_FORCE_INLINE bool ezUniquePtr<T>::operator>=(std::nullptr_t) const
 {
   return m_pInstance >= nullptr;
 }

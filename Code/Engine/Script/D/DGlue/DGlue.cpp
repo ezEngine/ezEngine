@@ -52,7 +52,7 @@ ezScriptReflectionAllocator* ezGetDefaultScriptReflectionAllocator()
 void ezInitDefaultScriptReflectionAllocator()
 {
   auto size = sizeof(ezStringBuilder);
-  g_pDefaultScriptReflectionAllocator = EZ_DEFAULT_NEW(ezScriptReflectionAllocator)("DefaultScriptReflectionAllocator", ezFoundation::GetDefaultAllocator());
+  g_pDefaultScriptReflectionAllocator = EZ_DEFAULT_NEW(ezScriptReflectionAllocator, "DefaultScriptReflectionAllocator", ezFoundation::GetDefaultAllocator());
 }
 
 void ezDeinitDefaultScriptReflectionAllocator()

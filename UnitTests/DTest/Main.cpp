@@ -4,7 +4,7 @@
 
 ezSimpleTestGroup* ezCreateSimpleTestGroup(const char* szName)
 {
-  return EZ_DEFAULT_NEW(ezSimpleTestGroup)(szName);
+  return EZ_DEFAULT_NEW(ezSimpleTestGroup, szName);
 }
 
 void ezDestroySimpleTestGroup(ezSimpleTestGroup* pTestGroup)
@@ -14,7 +14,7 @@ void ezDestroySimpleTestGroup(ezSimpleTestGroup* pTestGroup)
 
 ezRegisterSimpleTestHelper* ezCreateRegisterSimpleTestHelper(ezSimpleTestGroup* pTestGroup, const char* szTestName, ezSimpleTestGroup::SimpleTestFunc Func)
 {
-  return EZ_DEFAULT_NEW(ezRegisterSimpleTestHelper)(pTestGroup, szTestName, Func);
+  return EZ_DEFAULT_NEW(ezRegisterSimpleTestHelper, pTestGroup, szTestName, Func);
 }
 
 void ezDestroyRegisterSimpleTestHelper(ezRegisterSimpleTestHelper* pHelper)
