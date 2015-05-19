@@ -1,7 +1,7 @@
 #include <GameUtils/PCH.h>
 #include <GameUtils/Components/RotorComponent.h>
 
-float CalculateAcceleratedMovement(float fDistanceInMeters, float fAcceleration, float fMaxVelocity, float fDeceleration, float fTimeSinceStartInSec);
+float CalculateAcceleratedMovement(float fDistanceInMeters, float fAcceleration, float fMaxVelocity, float fDeceleration, ezTime& fTimeSinceStartInSec);
 
 EZ_BEGIN_COMPONENT_TYPE(ezRotorComponent, ezTransformComponent, 1, ezRotorComponentManager);
   EZ_BEGIN_PROPERTIES
@@ -50,16 +50,12 @@ void ezRotorComponent::Update()
 
     if (m_iDegreeToRotate > 0)
     {
-      ezTime fTime = m_AnimationTime;
-
       if (m_Flags.IsAnySet(ezTransformComponentFlags::AnimationReversed))
-        fTime -= ezClock::Get()->GetTimeDiff();
+        m_AnimationTime -= ezClock::Get()->GetTimeDiff();
       else
-        fTime += ezClock::Get()->GetTimeDiff();
+        m_AnimationTime += ezClock::Get()->GetTimeDiff();
 
-      const float fNewDistance = CalculateAcceleratedMovement((float)m_iDegreeToRotate, m_fAcceleration, m_fAnimationSpeed, m_fDeceleration, (float) fTime.GetSeconds());
-
-      m_AnimationTime = fTime;
+      const float fNewDistance = CalculateAcceleratedMovement((float)m_iDegreeToRotate, m_fAcceleration, m_fAnimationSpeed, m_fDeceleration, m_AnimationTime);
 
       ezQuat qRotation;
       qRotation.SetFromAxisAndAngle(vAxis, ezAngle::Degree(fNewDistance));

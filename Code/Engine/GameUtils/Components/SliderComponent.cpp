@@ -1,7 +1,7 @@
 #include <GameUtils/PCH.h>
 #include <GameUtils/Components/SliderComponent.h>
 
-float CalculateAcceleratedMovement(float fDistanceInMeters, float fAcceleration, float fMaxVelocity, float fDeceleration, float fTimeSinceStartInSec);
+float CalculateAcceleratedMovement(float fDistanceInMeters, float fAcceleration, float fMaxVelocity, float fDeceleration, ezTime& fTimeSinceStartInSec);
 
 EZ_BEGIN_COMPONENT_TYPE(ezSliderComponent, ezTransformComponent, 1, ezSliderComponentManager);
   EZ_BEGIN_PROPERTIES
@@ -48,22 +48,17 @@ void ezSliderComponent::Update()
       break;
     }
 
-    ezTime fTime = m_AnimationTime;
-
     if (m_Flags.IsAnySet(ezTransformComponentFlags::AnimationReversed))
-      fTime -= ezClock::Get()->GetTimeDiff();
+      m_AnimationTime -= ezClock::Get()->GetTimeDiff();
     else
-      fTime += ezClock::Get()->GetTimeDiff();
+      m_AnimationTime += ezClock::Get()->GetTimeDiff();
 
-    const float fNewDistance = CalculateAcceleratedMovement(m_fDistanceToTravel, m_fAcceleration, m_fAnimationSpeed, m_fDeceleration, (float) fTime.GetSeconds());
+    const float fNewDistance = CalculateAcceleratedMovement(m_fDistanceToTravel, m_fAcceleration, m_fAnimationSpeed, m_fDeceleration, m_AnimationTime);
 
     const float fDistanceDiff = fNewDistance - m_fLastDistance;
 
-    ezVec3 vPos = GetOwner()->GetLocalPosition();
-    vPos += GetOwner()->GetLocalRotation() * (vAxis * fDistanceDiff);
-    GetOwner()->SetLocalPosition(vPos);
+    GetOwner()->SetLocalPosition(GetOwner()->GetLocalPosition() + vAxis * fDistanceDiff);
 
-    m_AnimationTime = fTime;
     m_fLastDistance = fNewDistance;
 
     if (!m_Flags.IsAnySet(ezTransformComponentFlags::AnimationReversed))

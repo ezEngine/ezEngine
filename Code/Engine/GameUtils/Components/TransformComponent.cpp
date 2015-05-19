@@ -58,14 +58,24 @@ the absolute value is used. Distance, acceleration, max velocity and time need t
 The returned value is 0, if time is negative. It is clamped to fDistanceInMeters, if time is too big.
 */
 
-float CalculateAcceleratedMovement(float fDistanceInMeters, float fAcceleration, float fMaxVelocity, float fDeceleration, float fTimeSinceStartInSec)
+float CalculateAcceleratedMovement(float fDistanceInMeters, float fAcceleration, float fMaxVelocity, float fDeceleration, ezTime& fTimeSinceStartInSec)
 {
   // linear motion, if no acceleration or deceleration is present
   if ((fAcceleration <= 0.0f) && (fDeceleration <= 0.0f))
-    return ezMath::Clamp(fMaxVelocity * fTimeSinceStartInSec, 0.0f, fDistanceInMeters);
+  {
+    const float fDist = fMaxVelocity * (float)fTimeSinceStartInSec.GetSeconds();
+
+    if (fDist > fDistanceInMeters)
+    {
+      fTimeSinceStartInSec = ezTime::Seconds(fDistanceInMeters / fMaxVelocity);
+      return fDistanceInMeters;
+    }
+
+    return ezMath::Max(0.0f, fDist);
+  }
 
   // do some sanity-checks
-  if ((fTimeSinceStartInSec <= 0.0f) || (fMaxVelocity <= 0.0f) || (fDistanceInMeters <= 0.0f))
+  if ((fTimeSinceStartInSec.GetSeconds() <= 0.0) || (fMaxVelocity <= 0.0f) || (fDistanceInMeters <= 0.0f))
     return 0.0f;
 
   // calculate the duration and distance of accelerated movement
@@ -101,23 +111,26 @@ float CalculateAcceleratedMovement(float fDistanceInMeters, float fAcceleration,
   }
 
   // if the time is still within the acceleration phase, return accelerated distance
-  if (fTimeSinceStartInSec <= fAccTime)
-    return 0.5f * fAcceleration * ezMath::Square(fTimeSinceStartInSec);
+  if (fTimeSinceStartInSec.GetSeconds() <= fAccTime)
+    return 0.5f * fAcceleration * ezMath::Square((float) fTimeSinceStartInSec.GetSeconds());
 
   // calculate duration and length of the path, that has maximum velocity
   const float fMaxVelDistance = fDistanceInMeters - (fAccDist + fDecDist);
   const float fMaxVelTime = fMaxVelDistance / fMaxVelocity;
 
   // if the time is within this phase, return the accelerated path plus the constant velocity path
-  if (fTimeSinceStartInSec <= fAccTime + fMaxVelTime)
-    return fAccDist + (fTimeSinceStartInSec - fAccTime) * fMaxVelocity;
+  if (fTimeSinceStartInSec.GetSeconds() <= fAccTime + fMaxVelTime)
+    return fAccDist + ((float) fTimeSinceStartInSec.GetSeconds() - fAccTime) * fMaxVelocity;
 
   // if the time is, however, outside the whole path, just return the upper end
-  if (fTimeSinceStartInSec >= fAccTime + fMaxVelTime + fDecTime)
+  if (fTimeSinceStartInSec.GetSeconds() >= fAccTime + fMaxVelTime + fDecTime)
+  {
+    fTimeSinceStartInSec = ezTime::Seconds(fAccTime + fMaxVelTime + fDecTime); // clamp the time
     return fDistanceInMeters;
+  }
 
   // calculate the time into the decelerated movement
-  const float fDecTime2 = fTimeSinceStartInSec - (fAccTime + fMaxVelTime);
+  const float fDecTime2 = (float) fTimeSinceStartInSec.GetSeconds() - (fAccTime + fMaxVelTime);
 
   // return the distance with the decelerated movement
   return fDistanceInMeters - 0.5f * fDeceleration * ezMath::Square(fDecTime - fDecTime2);
