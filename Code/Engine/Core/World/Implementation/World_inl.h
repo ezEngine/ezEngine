@@ -74,7 +74,7 @@ ManagerType* ezWorld::CreateComponentManager()
   ManagerType* pManager = static_cast<ManagerType*>(m_Data.m_ComponentManagers[uiTypeId]);
   if (pManager == nullptr)
   {
-    pManager = EZ_NEW(&m_Data.m_Allocator, ManagerType)(this);
+    pManager = EZ_NEW(&m_Data.m_Allocator, ManagerType, this);
     pManager->Initialize();
     
     m_Data.m_ComponentManagers[uiTypeId] = pManager;

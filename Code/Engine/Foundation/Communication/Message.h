@@ -70,7 +70,7 @@ protected:
     \
     virtual ezMessage* Clone(ezAllocatorBase* pAllocator) const override \
     { \
-      return EZ_NEW(pAllocator, messageType)(*static_cast<const messageType*>(this)); \
+      return EZ_NEW(pAllocator, messageType, *static_cast<const messageType*>(this)); \
     }
 
 /// \brief Implements the given message type. Add this macro to a cpp outside of the type declaration.

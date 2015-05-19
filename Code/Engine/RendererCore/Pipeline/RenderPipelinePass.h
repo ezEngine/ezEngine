@@ -3,6 +3,7 @@
 #include <Foundation/Containers/HashTable.h>
 #include <Foundation/Profiling/Profiling.h>
 #include <Foundation/Strings/HashedString.h>
+#include <Foundation/Types/UniquePtr.h>
 #include <RendererCore/Pipeline/Declarations.h>
 
 class ezRenderPipeline;
@@ -13,8 +14,8 @@ public:
   ezRenderPipelinePass(const char* szName);
   ~ezRenderPipelinePass();
 
-  void AddRenderer(ezRenderer* pRenderer);
-  void RemoveRenderer(ezRenderer* pRenderer);
+  void AddRenderer(ezUniquePtr<ezRenderer>&& pRenderer);
+  void RemoveRenderer(ezUniquePtr<ezRenderer>&& pRenderer);
 
   virtual void Execute(const ezRenderViewContext& renderViewContext) = 0;
 
@@ -27,6 +28,8 @@ public:
     return m_pPipeline;
   }
 
+  EZ_DISALLOW_COPY_AND_ASSIGN(ezRenderPipelinePass);
+
 private:
   friend class ezRenderPipeline;
 
@@ -35,6 +38,7 @@ private:
 
   ezRenderPipeline* m_pPipeline;
 
-  ezHashTable<const ezRTTI*, ezRenderer*> m_Renderer;
+  ezHashTable<const ezRTTI*, ezUInt32> m_TypeToRendererIndex;
+  ezDynamicArray<ezUniquePtr<ezRenderer>> m_Renderer;
 };
 

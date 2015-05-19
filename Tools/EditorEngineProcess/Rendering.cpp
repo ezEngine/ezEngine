@@ -333,7 +333,7 @@ void ezEditorProcessApp::InitDevice()
   DeviceInit.m_bCreatePrimarySwapChain = false;
   DeviceInit.m_bDebugDevice = true;
 
-  s_pDevice = EZ_DEFAULT_NEW(ezGALDeviceDX11)(DeviceInit);
+  s_pDevice = EZ_DEFAULT_NEW(ezGALDeviceDX11, DeviceInit);
 
   EZ_VERIFY(s_pDevice->Init() == EZ_SUCCESS, "Device init failed!");
 

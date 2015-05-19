@@ -5,31 +5,31 @@
 
 #define EZ_REGISTER_ACTION_0(ActionName, Label, Scope, CategoryName, ShortCut, ActionClass) \
   ezActionManager::RegisterAction(ezActionDescriptor(ezActionType::Action, Scope, ActionName, CategoryName, ShortCut, \
-    [](const ezActionContext& context)->ezAction* { return EZ_DEFAULT_NEW(ActionClass)(context, Label); }));
+    [](const ezActionContext& context)->ezAction* { return EZ_DEFAULT_NEW(ActionClass, context, Label); }));
 
 #define EZ_REGISTER_ACTION_1(ActionName, Label, Scope, CategoryName, ShortCut, ActionClass, Param1) \
   ezActionManager::RegisterAction(ezActionDescriptor(ezActionType::Action, Scope, ActionName, CategoryName, ShortCut, \
-    [](const ezActionContext& context)->ezAction* { return EZ_DEFAULT_NEW(ActionClass)(context, Label, Param1); }));
+    [](const ezActionContext& context)->ezAction* { return EZ_DEFAULT_NEW(ActionClass, context, Label, Param1); }));
 
 #define EZ_REGISTER_ACTION_2(ActionName, Label, Scope, CategoryName, ShortCut, ActionClass, Param1, Param2) \
   ezActionManager::RegisterAction(ezActionDescriptor(ezActionType::Action, Scope, ActionName, CategoryName, ShortCut, \
-    [](const ezActionContext& context)->ezAction* { return EZ_DEFAULT_NEW(ActionClass)(context, Label, Param1, Param2); }));
+    [](const ezActionContext& context)->ezAction* { return EZ_DEFAULT_NEW(ActionClass, context, Label, Param1, Param2); }));
 
 #define EZ_REGISTER_LRU_MENU(ActionName, Label, ActionClass) \
   ezActionManager::RegisterAction(ezActionDescriptor(ezActionType::Menu, ezActionScope::Default, ActionName, "", "", \
-    [](const ezActionContext& context)->ezAction* { return EZ_DEFAULT_NEW(ActionClass)(context, Label); }));
+    [](const ezActionContext& context)->ezAction* { return EZ_DEFAULT_NEW(ActionClass, context, Label); }));
 
 #define EZ_REGISTER_MENU(ActionName, Label) \
   ezActionManager::RegisterAction(ezActionDescriptor(ezActionType::Menu, ezActionScope::Default, ActionName, "", "", \
-    [](const ezActionContext& context)->ezAction*{ return EZ_DEFAULT_NEW(ezMenuAction)(context, Label, ""); }));
+    [](const ezActionContext& context)->ezAction*{ return EZ_DEFAULT_NEW(ezMenuAction, context, Label, ""); }));
 
 #define EZ_REGISTER_MENU_WITH_ICON(ActionName, Label, IconPath) \
   ezActionManager::RegisterAction(ezActionDescriptor(ezActionType::Menu, ezActionScope::Default, ActionName, "", "", \
-    [](const ezActionContext& context)->ezAction*{ return EZ_DEFAULT_NEW(ezMenuAction)(context, Label, IconPath); }));
+    [](const ezActionContext& context)->ezAction*{ return EZ_DEFAULT_NEW(ezMenuAction, context, Label, IconPath); }));
 
 #define EZ_REGISTER_CATEGORY(CategoryName) \
   ezActionManager::RegisterAction(ezActionDescriptor(ezActionType::Category, ezActionScope::Default, CategoryName, "", "", \
-    [](const ezActionContext& context)->ezAction*{ return EZ_DEFAULT_NEW(ezCategoryAction)(context); }));
+    [](const ezActionContext& context)->ezAction*{ return EZ_DEFAULT_NEW(ezCategoryAction, context); }));
 
 ///
 class EZ_GUIFOUNDATION_DLL ezActionManager

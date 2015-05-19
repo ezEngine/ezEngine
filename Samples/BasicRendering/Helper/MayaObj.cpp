@@ -102,7 +102,7 @@ namespace DontUse
       }
     }
 
-    MayaObj* Obj = EZ_DEFAULT_NEW(MayaObj)(Vertices, Indices, pDevice, i);
+    MayaObj* Obj = EZ_DEFAULT_NEW(MayaObj, Vertices, Indices, pDevice, i);
     return Obj;
   }
 

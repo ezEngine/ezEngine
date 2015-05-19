@@ -31,4 +31,9 @@ SET (LINK_LIBRARIES
   GameFoundation
 )
 
+SET (ADDITIONAL_DEPENDENCIES
+  ShaderCompilerHLSL
+  InspectorPlugin
+)
+
 include (${CMAKE_SOURCE_DIR}/Code/BuildSystem/CMake/CMAKE_Application.txt)

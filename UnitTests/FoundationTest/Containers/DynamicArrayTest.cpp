@@ -1,6 +1,7 @@
 #include <PCH.h>
 #include <Foundation/Memory/CommonAllocators.h>
 #include <Foundation/Containers/DynamicArray.h>
+#include <Foundation/Types/UniquePtr.h>
 
 typedef ezConstructionCounter st;
 
@@ -292,6 +293,24 @@ EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
 
     for (ezInt32 i = 0; i < 100; ++i)
       EZ_TEST_INT(a1[i], 99 - i);
+
+    ezUniquePtr<st> ptr = EZ_DEFAULT_NEW(st);
+    EZ_TEST_BOOL(st::HasConstructed(1));
+
+    {
+      ezDynamicArray<ezUniquePtr<st>> a2;
+      for (ezUInt32 i = 0; i < 10; ++i)
+        a2.Insert(ezUniquePtr<st>(), 0);
+
+      a2.Insert(std::move(ptr), 0);
+      EZ_TEST_BOOL(ptr == nullptr);
+      EZ_TEST_BOOL(a2[0] != nullptr);
+
+      for (ezUInt32 i = 1; i < a2.GetCount(); ++i)
+        EZ_TEST_BOOL(a2[i] == nullptr);
+    }
+
+    EZ_TEST_BOOL(st::HasAllDestructed());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Remove")
@@ -347,6 +366,25 @@ EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
 
     for (ezInt32 i = 0; i < 5; ++i)
       EZ_TEST_INT(a1[i], i * 2);
+
+    ezUniquePtr<st> ptr = EZ_DEFAULT_NEW(st);
+    EZ_TEST_BOOL(st::HasConstructed(1));
+
+    {
+      ezDynamicArray<ezUniquePtr<st>> a2;
+      for (ezUInt32 i = 0; i < 10; ++i)
+        a2.Insert(ezUniquePtr<st>(), 0);
+
+      a2.PushBack(std::move(ptr));
+      EZ_TEST_BOOL(ptr == nullptr);
+      EZ_TEST_BOOL(a2[10] != nullptr);
+
+      a2.RemoveAt(0);
+      EZ_TEST_BOOL(a2[9] != nullptr);
+      EZ_TEST_BOOL(st::HasDone(0, 0));
+    }
+
+    EZ_TEST_BOOL(st::HasAllDestructed());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "RemoveAtSwap")
@@ -366,6 +404,24 @@ EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
 
     for (ezInt32 i = 0; i < 5; ++i)
       EZ_TEST_BOOL(ezMath::IsEven(a1[i]));
+
+    ezUniquePtr<st> ptr = EZ_DEFAULT_NEW(st);
+    EZ_TEST_BOOL(st::HasConstructed(1));
+
+    {
+      ezDynamicArray<ezUniquePtr<st>> a2;
+      for (ezUInt32 i = 0; i < 10; ++i)
+        a2.Insert(ezUniquePtr<st>(), 0);
+
+      a2.PushBack(std::move(ptr));
+      EZ_TEST_BOOL(ptr == nullptr);
+      EZ_TEST_BOOL(a2[10] != nullptr);
+
+      a2.RemoveAtSwap(0);
+      EZ_TEST_BOOL(a2[0] != nullptr);
+    }
+
+    EZ_TEST_BOOL(st::HasAllDestructed());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "PushBack / PopBack / PeekBack")
@@ -470,11 +526,9 @@ EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
     }
     list.Sort();
 
-    ezUInt32 last = 0;
-    for (ezUInt32 i = 0; i < list.GetCount(); i++)
+    for (ezUInt32 i = 1; i < list.GetCount(); i++)
     {
-      EZ_TEST_BOOL(last <= list[i]);
-      last = list[i];
+      EZ_TEST_BOOL(list[i - 1] <= list[i]);
     }
   }
 
@@ -489,12 +543,32 @@ EZ_CREATE_SIMPLE_TEST(Containers, DynamicArray)
     }
     list.Sort();
 
-    Dummy last = 0;
-    for (ezUInt32 i = 0; i < list.GetCount(); i++)
+    for (ezUInt32 i = 1; i < list.GetCount(); i++)
     {
-      EZ_TEST_BOOL(last <= list[i]);
-      last = list[i];
+      EZ_TEST_BOOL(list[i - 1] <= list[i]);
+      EZ_TEST_BOOL(list[i].s == "Test");
     }
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "SortingMovableObjects")
+  {
+    {
+      ezDynamicArray<ezUniquePtr<st>> list;
+      list.Reserve(128);
+
+      for (ezUInt32 i = 0; i < 100; i++)
+      {
+        list.PushBack(EZ_DEFAULT_NEW(st));
+      }
+      list.Sort();
+
+      for (ezUInt32 i = 1; i < list.GetCount(); i++)
+      {
+        EZ_TEST_BOOL(list[i - 1] <= list[i]);
+      }
+    }
+
+    EZ_TEST_BOOL(st::HasAllDestructed());
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Various")

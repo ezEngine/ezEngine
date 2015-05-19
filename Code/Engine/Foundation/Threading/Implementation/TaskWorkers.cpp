@@ -135,7 +135,7 @@ void ezTaskSystem::SetWorkThreadCount(ezInt8 iShortTasks, ezInt8 iLongTasks)
   {
     for (ezUInt32 i = 0; i < s_WorkerThreads[type].GetCount(); ++i)
     {
-      s_WorkerThreads[type][i] = EZ_DEFAULT_NEW(ezTaskWorkerThread)((ezWorkerThreadType::Enum) type, i);
+      s_WorkerThreads[type][i] = EZ_DEFAULT_NEW(ezTaskWorkerThread, (ezWorkerThreadType::Enum) type, i);
       s_WorkerThreads[type][i]->Start();
     }
   }

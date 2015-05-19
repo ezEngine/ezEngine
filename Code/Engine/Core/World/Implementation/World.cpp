@@ -530,7 +530,7 @@ void ezWorld::UpdateAsynchronous()
       }
       else
       {
-        pTask = EZ_NEW(&m_Data.m_Allocator, ezInternal::WorldData::UpdateTask)();
+        pTask = EZ_NEW(&m_Data.m_Allocator, ezInternal::WorldData::UpdateTask);
         m_Data.m_UpdateTasks.PushBack(pTask);
       }
             

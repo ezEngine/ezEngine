@@ -145,9 +145,18 @@ void ezArrayBase<T, Derived>::Insert(const T& value, ezUInt32 uiIndex)
 
   static_cast<Derived*>(this)->Reserve(m_uiCount + 1);
 
-  ezMemoryUtils::Construct(m_pElements + m_uiCount, 1);
-  ezMemoryUtils::CopyOverlapped(m_pElements + uiIndex + 1, m_pElements + uiIndex, m_uiCount - uiIndex);
-  m_pElements[uiIndex] = value;
+  ezMemoryUtils::Prepend(m_pElements + uiIndex, value, m_uiCount - uiIndex);
+  m_uiCount++;
+}
+
+template <typename T, typename Derived>
+void ezArrayBase<T, Derived>::Insert(T&& value, ezUInt32 uiIndex)
+{
+  EZ_ASSERT_DEV(uiIndex <= m_uiCount, "Invalid index. Array has %i elements, trying to insert element at index %i.", m_uiCount, uiIndex);
+
+  static_cast<Derived*>(this)->Reserve(m_uiCount + 1);
+
+  ezMemoryUtils::Prepend(m_pElements + uiIndex, std::move(value), m_uiCount - uiIndex);
   m_uiCount++;
 }
 
@@ -181,8 +190,7 @@ void ezArrayBase<T, Derived>::RemoveAt(ezUInt32 uiIndex)
   EZ_ASSERT_DEV(uiIndex < m_uiCount, "Out of bounds access. Array has %i elements, trying to remove element at index %i.", m_uiCount, uiIndex);
 
   m_uiCount--;
-  ezMemoryUtils::CopyOverlapped(m_pElements + uiIndex, m_pElements + uiIndex + 1, m_uiCount - uiIndex); 
-  ezMemoryUtils::Destruct(m_pElements + m_uiCount, 1);
+  ezMemoryUtils::RelocateOverlapped(m_pElements + uiIndex, m_pElements + uiIndex + 1, m_uiCount - uiIndex);
 }
 
 template <typename T, typename Derived>
@@ -193,7 +201,7 @@ void ezArrayBase<T, Derived>::RemoveAtSwap(ezUInt32 uiIndex)
   m_uiCount--;
   if (m_uiCount != uiIndex)
   {
-    m_pElements[uiIndex] = m_pElements[m_uiCount];
+    m_pElements[uiIndex] = std::move(m_pElements[m_uiCount]);
   }
   ezMemoryUtils::Destruct(m_pElements + m_uiCount, 1);
 }
@@ -244,11 +252,29 @@ void ezArrayBase<T, Derived>::PushBack(const T& value)
 }
 
 template <typename T, typename Derived>
+void ezArrayBase<T, Derived>::PushBack(T&& value)
+{
+  static_cast<Derived*>(this)->Reserve(m_uiCount + 1);
+
+  ezMemoryUtils::MoveConstruct<T>(m_pElements + m_uiCount, std::move(value));
+  m_uiCount++;
+}
+
+template <typename T, typename Derived>
 void ezArrayBase<T, Derived>::PushBackUnchecked(const T& value)
 {
   EZ_ASSERT_DEV(m_uiCount < m_uiCapacity, "Appending unchecked to array with insufficient capacity.");
 
   ezMemoryUtils::CopyConstruct(m_pElements + m_uiCount, value, 1);
+  m_uiCount++;
+}
+
+template <typename T, typename Derived>
+void ezArrayBase<T, Derived>::PushBackUnchecked(T&& value)
+{
+  EZ_ASSERT_DEV(m_uiCount < m_uiCapacity, "Appending unchecked to array with insufficient capacity.");
+
+  ezMemoryUtils::MoveConstruct<T>(m_pElements + m_uiCount, std::move(value));
   m_uiCount++;
 }
 

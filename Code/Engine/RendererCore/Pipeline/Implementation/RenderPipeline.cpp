@@ -43,13 +43,6 @@ ezRenderPipeline::~ezRenderPipeline()
 {
   ClearPipelineData(&m_Data[0]);
   ClearPipelineData(&m_Data[1]);
-
-  /// \todo: this will crash if passes are not allocated with the default allocator. We need a better mechanism here.
-  for (auto pPass : m_Passes)
-  {
-    EZ_DEFAULT_DELETE(pPass);
-  }
-  m_Passes.Clear();
 }
 
 void ezRenderPipeline::ExtractData(const ezView& view)
@@ -104,14 +97,14 @@ void ezRenderPipeline::Render(const ezView& view, ezRenderContext* pRendererCont
   ClearPipelineData(GetPipelineDataForRendering());
 }
 
-void ezRenderPipeline::AddPass(ezRenderPipelinePass* pPass)
+void ezRenderPipeline::AddPass(ezUniquePtr<ezRenderPipelinePass>&& pPass)
 {
   pPass->m_pPipeline = this;
 
-  m_Passes.PushBack(pPass);
+  m_Passes.PushBack(std::move(pPass));
 }
 
-void ezRenderPipeline::RemovePass(ezRenderPipelinePass* pPass)
+void ezRenderPipeline::RemovePass(ezUniquePtr<ezRenderPipelinePass>&& pPass)
 {
   m_Passes.Remove(pPass);
 

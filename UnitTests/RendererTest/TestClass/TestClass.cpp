@@ -69,7 +69,7 @@ ezResult ezGraphicsTest::SetupRenderer(ezUInt32 uiResolutionX, ezUInt32 uiResolu
   ezWindowCreationDesc WindowCreationDesc;
   WindowCreationDesc.m_ClientAreaSize.width = uiResolutionX;
   WindowCreationDesc.m_ClientAreaSize.height = uiResolutionY;
-  m_pWindow = EZ_DEFAULT_NEW(ezWindow)();
+  m_pWindow = EZ_DEFAULT_NEW(ezWindow);
   if (m_pWindow->Initialize(WindowCreationDesc).Failed())
     return EZ_FAILURE;
 
@@ -84,7 +84,7 @@ ezResult ezGraphicsTest::SetupRenderer(ezUInt32 uiResolutionX, ezUInt32 uiResolu
   DeviceInit.m_PrimarySwapChainDescription.m_bAllowScreenshots = true;
   DeviceInit.m_PrimarySwapChainDescription.m_bVerticalSynchronization = true;
 
-  m_pDevice = EZ_DEFAULT_NEW(ezGALDeviceDX11)(DeviceInit);
+  m_pDevice = EZ_DEFAULT_NEW(ezGALDeviceDX11, DeviceInit);
 
   if (m_pDevice->Init().Failed())
     return EZ_FAILURE;

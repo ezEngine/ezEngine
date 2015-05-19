@@ -178,7 +178,7 @@ ezResult ezWindow::Initialize()
   m_bInitialized = true;
   ezLog::Success("Created window successfully. Resolution is %u * %u", GetClientAreaSize().width, GetClientAreaSize().height);
 
-  m_pInputDevice = EZ_DEFAULT_NEW(ezStandardInputDevice)(m_CreationDescription.m_uiWindowNumber);
+  m_pInputDevice = EZ_DEFAULT_NEW(ezStandardInputDevice, m_CreationDescription.m_uiWindowNumber);
 
   return EZ_SUCCESS;
 }

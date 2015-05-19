@@ -4,6 +4,7 @@
 #include <RendererFoundation/Basics.h>
 #include <Foundation/Containers/IdTable.h>
 #include <Foundation/Containers/Map.h>
+#include <Foundation/Memory/CommonAllocators.h>
 #include <RendererFoundation/Descriptors/Descriptors.h>
 #include <RendererFoundation/Device/DeviceCapabilities.h>
 
@@ -170,33 +171,36 @@ protected:
 
   virtual ~ezGALDevice();
 
-  typedef ezIdTable<ezGALShaderHandle::IdType, ezGALShader*> ShaderTable;
+  ezProxyAllocator m_Allocator;
+  ezLocalAllocatorWrapper m_AllocatorWrapper;
 
-  typedef ezIdTable<ezGALBlendStateHandle::IdType, ezGALBlendState*> BlendStateTable;
+  typedef ezIdTable<ezGALShaderHandle::IdType, ezGALShader*, ezLocalAllocatorWrapper> ShaderTable;
 
-  typedef ezIdTable<ezGALDepthStencilStateHandle::IdType, ezGALDepthStencilState*> DepthStencilStateTable;
+  typedef ezIdTable<ezGALBlendStateHandle::IdType, ezGALBlendState*, ezLocalAllocatorWrapper> BlendStateTable;
 
-  typedef ezIdTable<ezGALRasterizerStateHandle::IdType, ezGALRasterizerState*> RasterizerStateTable;
+  typedef ezIdTable<ezGALDepthStencilStateHandle::IdType, ezGALDepthStencilState*, ezLocalAllocatorWrapper> DepthStencilStateTable;
 
-  typedef ezIdTable<ezGALBufferHandle::IdType, ezGALBuffer*> BufferTable;
+  typedef ezIdTable<ezGALRasterizerStateHandle::IdType, ezGALRasterizerState*, ezLocalAllocatorWrapper> RasterizerStateTable;
 
-  typedef ezIdTable<ezGALTextureHandle::IdType, ezGALTexture*> TextureTable;
+  typedef ezIdTable<ezGALBufferHandle::IdType, ezGALBuffer*, ezLocalAllocatorWrapper> BufferTable;
 
-  typedef ezIdTable<ezGALResourceViewHandle::IdType, ezGALResourceView*> ResourceViewTable;
+  typedef ezIdTable<ezGALTextureHandle::IdType, ezGALTexture*, ezLocalAllocatorWrapper> TextureTable;
 
-  typedef ezIdTable<ezGALSamplerStateHandle::IdType, ezGALSamplerState*> SamplerStateTable;
+  typedef ezIdTable<ezGALResourceViewHandle::IdType, ezGALResourceView*, ezLocalAllocatorWrapper> ResourceViewTable;
 
-  typedef ezIdTable<ezGALRenderTargetViewHandle::IdType, ezGALRenderTargetView*> RenderTargetViewTable;
+  typedef ezIdTable<ezGALSamplerStateHandle::IdType, ezGALSamplerState*, ezLocalAllocatorWrapper> SamplerStateTable;
 
-  typedef ezIdTable<ezGALSwapChainHandle::IdType, ezGALSwapChain*> SwapChainTable;
+  typedef ezIdTable<ezGALRenderTargetViewHandle::IdType, ezGALRenderTargetView*, ezLocalAllocatorWrapper> RenderTargetViewTable;
 
-  typedef ezIdTable<ezGALFenceHandle::IdType, ezGALFence*> FenceTable;
+  typedef ezIdTable<ezGALSwapChainHandle::IdType, ezGALSwapChain*, ezLocalAllocatorWrapper> SwapChainTable;
 
-  typedef ezIdTable<ezGALQueryHandle::IdType, ezGALQuery*> QueryTable;
+  typedef ezIdTable<ezGALFenceHandle::IdType, ezGALFence*, ezLocalAllocatorWrapper> FenceTable;
 
-  typedef ezIdTable<ezGALRenderTargetConfigHandle::IdType, ezGALRenderTargetConfig*> RenderTargetConfigTable;
+  typedef ezIdTable<ezGALQueryHandle::IdType, ezGALQuery*, ezLocalAllocatorWrapper> QueryTable;
 
-  typedef ezIdTable<ezGALVertexDeclarationHandle::IdType, ezGALVertexDeclaration*> VertexDeclarationTable;
+  typedef ezIdTable<ezGALRenderTargetConfigHandle::IdType, ezGALRenderTargetConfig*, ezLocalAllocatorWrapper> RenderTargetConfigTable;
+
+  typedef ezIdTable<ezGALVertexDeclarationHandle::IdType, ezGALVertexDeclaration*, ezLocalAllocatorWrapper> VertexDeclarationTable;
 
   ShaderTable m_Shaders;
 
@@ -228,14 +232,14 @@ protected:
 
 
   // Hash maps used to prevent state object duplication
-  ezMap<ezUInt32, ezGALBlendStateHandle> m_BlendStateMap;
-  ezMap<ezUInt32, ezGALDepthStencilStateHandle> m_DepthStencilStateMap;
-  ezMap<ezUInt32, ezGALRasterizerStateHandle> m_RasterizerStateMap;
-  ezMap<ezUInt32, ezGALResourceViewHandle> m_ResourceViewMap;
-  ezMap<ezUInt32, ezGALSamplerStateHandle> m_SamplerStateMap;
-  ezMap<ezUInt32, ezGALRenderTargetViewHandle> m_RenderTargetViewMap;
-  ezMap<ezUInt32, ezGALRenderTargetConfigHandle> m_RenderTargetConfigMap;
-  ezMap<ezUInt32, ezGALVertexDeclarationHandle> m_VertexDeclarationMap;
+  ezMap<ezUInt32, ezGALBlendStateHandle, ezCompareHelper<ezUInt32>, ezLocalAllocatorWrapper> m_BlendStateMap;
+  ezMap<ezUInt32, ezGALDepthStencilStateHandle, ezCompareHelper<ezUInt32>, ezLocalAllocatorWrapper> m_DepthStencilStateMap;
+  ezMap<ezUInt32, ezGALRasterizerStateHandle, ezCompareHelper<ezUInt32>, ezLocalAllocatorWrapper> m_RasterizerStateMap;
+  ezMap<ezUInt32, ezGALResourceViewHandle, ezCompareHelper<ezUInt32>, ezLocalAllocatorWrapper> m_ResourceViewMap;
+  ezMap<ezUInt32, ezGALSamplerStateHandle, ezCompareHelper<ezUInt32>, ezLocalAllocatorWrapper> m_SamplerStateMap;
+  ezMap<ezUInt32, ezGALRenderTargetViewHandle, ezCompareHelper<ezUInt32>, ezLocalAllocatorWrapper> m_RenderTargetViewMap;
+  ezMap<ezUInt32, ezGALRenderTargetConfigHandle, ezCompareHelper<ezUInt32>, ezLocalAllocatorWrapper> m_RenderTargetConfigMap;
+  ezMap<ezUInt32, ezGALVertexDeclarationHandle, ezCompareHelper<ezUInt32>, ezLocalAllocatorWrapper> m_VertexDeclarationMap;
 
 
   ezGALDeviceCreationDescription m_Description;

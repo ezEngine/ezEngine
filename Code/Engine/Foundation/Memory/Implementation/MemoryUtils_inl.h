@@ -78,7 +78,7 @@ EZ_FORCE_INLINE void ezMemoryUtils::RelocateConstruct(T* pDestination, T* pSourc
 template <typename T>
 EZ_FORCE_INLINE void ezMemoryUtils::MoveConstruct(T* pDestination, T&& source)
 {
-  ::new(pDestination) T(source);
+  ::new(pDestination) T(std::move(source));
 }
 
 template <typename T>
@@ -111,6 +111,24 @@ EZ_FORCE_INLINE void ezMemoryUtils::Relocate(T* pDestination, T* pSource, size_t
 {
   EZ_ASSERT_DEV(pDestination < pSource || pSource + uiCount <= pDestination, "Memory regions must not overlap when using Relocate.");
   Relocate(pDestination, pSource, uiCount, ezGetTypeClass<T>());
+}
+
+template <typename T>
+EZ_FORCE_INLINE void ezMemoryUtils::RelocateOverlapped(T* pDestination, T* pSource, size_t uiCount)
+{
+  RelocateOverlapped(pDestination, pSource, uiCount, ezGetTypeClass<T>());
+}
+
+template <typename T>
+EZ_FORCE_INLINE void ezMemoryUtils::Prepend(T* pDestination, const T& source, size_t uiCount)
+{
+  Prepend(pDestination, source, uiCount, ezGetTypeClass<T>());
+}
+
+template <typename T>
+EZ_FORCE_INLINE void ezMemoryUtils::Prepend(T* pDestination, T&& source, size_t uiCount)
+{
+  Prepend(pDestination, std::move(source), uiCount, ezGetTypeClass<T>());
 }
 
 template <typename T>
@@ -372,6 +390,120 @@ EZ_FORCE_INLINE void ezMemoryUtils::Relocate(T* pDestination, T* pSource, size_t
     pDestination[i] = std::move(pSource[i]);
   }
   Destruct(pSource, uiCount, ezTypeIsClass());
+}
+
+template <typename T>
+EZ_FORCE_INLINE void ezMemoryUtils::RelocateOverlapped(T* pDestination, T* pSource, size_t uiCount, ezTypeIsPod)
+{
+  memmove(pDestination, pSource, uiCount * sizeof(T));
+}
+
+template <typename T>
+EZ_FORCE_INLINE void ezMemoryUtils::RelocateOverlapped(T* pDestination, T* pSource, size_t uiCount, ezTypeIsMemRelocatable)
+{
+  memmove(pDestination, pSource, uiCount * sizeof(T));
+}
+
+template <typename T>
+EZ_FORCE_INLINE void ezMemoryUtils::RelocateOverlapped(T* pDestination, T* pSource, size_t uiCount, ezTypeIsClass)
+{
+  EZ_CHECK_CLASS(T);
+
+  if (pDestination == pSource)
+    return;
+
+  if (pDestination < pSource)
+  {
+    for (size_t i = 0; i < uiCount; i++)
+    {
+      pDestination[i] = std::move(pSource[i]);
+    }
+
+    size_t uiDestructCount = pSource - pDestination;
+    Destruct(pSource + uiCount - uiDestructCount, uiDestructCount, ezTypeIsClass());
+  }
+  else
+  {
+    for (size_t i = uiCount; i-- > 0;)
+    {
+      pDestination[i] = std::move(pSource[i]);
+    }
+
+    size_t uiDestructCount = pDestination - pSource;
+    Destruct(pSource, uiDestructCount, ezTypeIsClass());
+  }
+}
+
+template <typename T>
+EZ_FORCE_INLINE void ezMemoryUtils::Prepend(T* pDestination, const T& source, size_t uiCount, ezTypeIsPod)
+{
+  memmove(pDestination + 1, pDestination, uiCount * sizeof(T));
+  CopyConstruct(pDestination, source, 1, ezTypeIsPod());
+}
+
+template <typename T>
+EZ_FORCE_INLINE void ezMemoryUtils::Prepend(T* pDestination, const T& source, size_t uiCount, ezTypeIsMemRelocatable)
+{
+  memmove(pDestination + 1, pDestination, uiCount * sizeof(T));
+  CopyConstruct(pDestination, source, 1, ezTypeIsClass());
+}
+
+template <typename T>
+EZ_FORCE_INLINE void ezMemoryUtils::Prepend(T* pDestination, const T& source, size_t uiCount, ezTypeIsClass)
+{
+  EZ_CHECK_CLASS(T);
+
+  if (uiCount > 0)
+  {
+    MoveConstruct(pDestination + uiCount, std::move(pDestination[uiCount - 1]));
+
+    for (size_t i = uiCount - 1; i-- > 0;)
+    {
+      pDestination[i + 1] = std::move(pDestination[i]);
+    }
+
+    *pDestination = source;
+  }
+  else
+  {
+    CopyConstruct(pDestination, source, 1, ezTypeIsClass());
+  }
+}
+
+template <typename T>
+EZ_FORCE_INLINE void ezMemoryUtils::Prepend(T* pDestination, T&& source, size_t uiCount, ezTypeIsPod)
+{
+  memmove(pDestination + 1, pDestination, uiCount * sizeof(T));
+  MoveConstruct(pDestination, std::move(source));
+}
+
+template <typename T>
+EZ_FORCE_INLINE void ezMemoryUtils::Prepend(T* pDestination, T&& source, size_t uiCount, ezTypeIsMemRelocatable)
+{
+  memmove(pDestination + 1, pDestination, uiCount * sizeof(T));
+  MoveConstruct(pDestination, std::move(source));
+}
+
+template <typename T>
+EZ_FORCE_INLINE void ezMemoryUtils::Prepend(T* pDestination, T&& source, size_t uiCount, ezTypeIsClass)
+{
+  EZ_CHECK_CLASS(T);
+
+  if (uiCount > 0)
+  {
+    MoveConstruct(pDestination + uiCount, std::move(pDestination[uiCount - 1]));
+
+    for (size_t i = uiCount - 1; i-- > 0;)
+    {
+      pDestination[i + 1] = std::move(pDestination[i]);
+    }
+
+    *pDestination = std::move(source);
+  }
+  else
+  {
+    MoveConstruct(pDestination, std::move(source));
+  }
 }
 
 template <typename T>

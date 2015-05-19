@@ -40,7 +40,7 @@ void ezEditorProcessApp::EventHandlerIPC(const ezProcessCommunication::Event& e)
   {
     ezLog::Info("Created new View 0x%08X for document %s", pDocMsg->m_uiViewID, ezConversionUtils::ToString(pDocMsg->m_DocumentGuid).GetData());
 
-    pViewContext = EZ_DEFAULT_NEW(ezViewContext)(pDocMsg->m_uiViewID, pDocMsg->m_DocumentGuid);
+    pViewContext = EZ_DEFAULT_NEW(ezViewContext, pDocMsg->m_uiViewID, pDocMsg->m_DocumentGuid);
 
     ezEngineProcessViewContext::AddViewContext(pDocMsg->m_uiViewID, pViewContext);
 
@@ -59,7 +59,7 @@ void ezEditorProcessApp::EventHandlerIPC(const ezProcessCommunication::Event& e)
 
     ezEngineProcessDocumentContext::AddDocumentContext(pDocMsg->m_DocumentGuid, pDocumentContext);
 
-    pDocumentContext->m_pWorld = EZ_DEFAULT_NEW(ezWorld)(ezConversionUtils::ToString(pDocMsg->m_DocumentGuid));
+    pDocumentContext->m_pWorld = EZ_DEFAULT_NEW(ezWorld, ezConversionUtils::ToString(pDocMsg->m_DocumentGuid));
 
     pDocumentContext->m_pWorld->CreateComponentManager<ezRotorComponentManager>();
     pDocumentContext->m_pWorld->CreateComponentManager<ezSliderComponentManager>();

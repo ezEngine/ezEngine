@@ -11,23 +11,19 @@ ezRenderPipelinePass::ezRenderPipelinePass(const char* szName)
 
 ezRenderPipelinePass::~ezRenderPipelinePass()
 {
-  /// \todo: this will crash if passes are not allocated with the default allocator or support more than one type. We need a better mechanism here.
-  for (auto it = m_Renderer.GetIterator(); it.IsValid(); ++it)
-  {
-    ezRenderer* pRenderer = it.Value();
-    EZ_DEFAULT_DELETE(pRenderer);
-  }
-  m_Renderer.Clear();
 }
 
-void ezRenderPipelinePass::AddRenderer(ezRenderer* pRenderer)
+void ezRenderPipelinePass::AddRenderer(ezUniquePtr<ezRenderer>&& pRenderer)
 {
   ezHybridArray<const ezRTTI*, 8> supportedTypes;
   pRenderer->GetSupportedRenderDataTypes(supportedTypes);
 
+  ezUInt32 uiIndex = m_Renderer.GetCount();
+  m_Renderer.PushBack(std::move(pRenderer));
+
   for (ezUInt32 i = 0; i < supportedTypes.GetCount(); ++i)
   {
-    m_Renderer.Insert(supportedTypes[i], pRenderer);
+    m_TypeToRendererIndex.Insert(supportedTypes[i], uiIndex);
   }
 }
 
@@ -50,10 +46,10 @@ void ezRenderPipelinePass::RenderDataWithPassType(const ezRenderViewContext& ren
     const ezUInt32 uiDataLeft = renderData.GetCount();
     ezUInt32 uiDataRendered = 1;
 
-    ezRenderer* pRenderer = nullptr;
-    if (m_Renderer.TryGetValue(pType, pRenderer))
+    ezUInt32 uiRendererIndex = ezInvalidIndex;
+    if (m_TypeToRendererIndex.TryGetValue(pType, uiRendererIndex))
     {
-      uiDataRendered = pRenderer->Render(renderViewContext, this, renderData);
+      uiDataRendered = m_Renderer[uiRendererIndex]->Render(renderViewContext, this, renderData);
     }
     else
     {

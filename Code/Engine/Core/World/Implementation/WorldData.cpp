@@ -87,7 +87,7 @@ ezUInt32 WorldData::CreateTransformationData(const ezBitflags<ezObjectFlags>& ob
   
   if (uiHierarchyLevel >= hierarchy.m_Data.GetCount())
   {
-    hierarchy.m_Data.PushBack(EZ_NEW(&m_Allocator, Hierarchy::DataBlockArray)(&m_Allocator));
+    hierarchy.m_Data.PushBack(EZ_NEW(&m_Allocator, Hierarchy::DataBlockArray, &m_Allocator));
   }
 
   Hierarchy::DataBlockArray& blocks = *hierarchy.m_Data[uiHierarchyLevel];

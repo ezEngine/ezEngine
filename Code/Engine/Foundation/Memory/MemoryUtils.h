@@ -7,7 +7,8 @@
 /// \details
 ///   The following concepts are realized:
 ///   Copy: Copying a object from a to b means that two equivalent objects will exists in both a and b.
-///   Relocate: Relocating an object from a to b means that the object will exist in b afterwards but will no longer exist in a. 
+///   Relocate: Relocating an object from a to b means that the object will exist in b afterwards but will no longer exist in a, which means a will be destructed.
+///   Move: Moving an object from a to b menas that the object will exist in b afterwards but a will be empty afterwards, but not destructed.
 ///   Construct: Constructing assumes that the destination does not contain a valid object.
 ///   Overlapped: The source and destination range may overlap for the operation to be performed.
 ///   The above mentioned concepts can be combined, e.g. RelocateConstruct for relocating to an uninitialized buffer.
@@ -48,12 +49,13 @@ public:
   template <typename T>
   static CopyConstructorFunction MakeCopyConstructorFunction(); // [tested]
 
-  /// brief Constructs \a uiCount objects of type T in a raw buffer at \a pDestionation from an existing array of objects at \a pSource by using move construction.
+  /// \brief Constructs \a uiCount objects of type T in a raw buffer at \a pDestionation from an existing array of objects at \a pSource by using move construction.
   template <typename T>
   static void RelocateConstruct(T* pDestination, T* pSource, size_t uiCount);
 
+  /// \brief Constructs an object of type T in a raw buffer at \a pDestionation, by using move construction from \a source.
   template <typename T>
-  static void MoveConstruct(T* pDestination, T&& source);
+  static void MoveConstruct(T* pDestination, T&& source); // [tested]
 
   /// \brief Destructs \a uiCount objects of type T at \a pDestination.
   template <typename T>
@@ -78,6 +80,20 @@ public:
   /// \brief Moves objects of type T from \a pSource to \a pDestination.
   template <typename T>
   static void Relocate(T* pDestination, T* pSource, size_t uiCount); // [tested]
+
+  /// \brief Moves objects of type T from \a pSource to \a pDestination.
+  ///
+  /// The two buffers may overlap when using this method.
+  template <typename T>
+  static void RelocateOverlapped(T* pDestination, T* pSource, size_t uiCount); // [tested]
+
+  /// \brief Moves \a uiCount objects in \a pDestination by one object and copies \a source to the free space.
+  template <typename T>
+  static void Prepend(T* pDestination, const T& source, size_t uiCount);
+
+  /// \brief Moves \a uiCount objects in \a pDestination by one object and moves \a source to the free space.
+  template <typename T>
+  static void Prepend(T* pDestination, T&& source, size_t uiCount);
 
   /// \brief Tests if objects of type T from \a pSource and \a pDestination are equal.
   template <typename T>
@@ -179,6 +195,27 @@ private:
   static void Relocate(T* pDestination, T* pSource, size_t uiCount, ezTypeIsMemRelocatable);
   template <typename T>
   static void Relocate(T* pDestination, T* pSource, size_t uiCount, ezTypeIsClass);
+
+  template <typename T>
+  static void RelocateOverlapped(T* pDestination, T* pSource, size_t uiCount, ezTypeIsPod);
+  template <typename T>
+  static void RelocateOverlapped(T* pDestination, T* pSource, size_t uiCount, ezTypeIsMemRelocatable);
+  template <typename T>
+  static void RelocateOverlapped(T* pDestination, T* pSource, size_t uiCount, ezTypeIsClass);
+
+  template <typename T>
+  static void Prepend(T* pDestination, const T& source, size_t uiCount, ezTypeIsPod);
+  template <typename T>
+  static void Prepend(T* pDestination, const T& source, size_t uiCount, ezTypeIsMemRelocatable);
+  template <typename T>
+  static void Prepend(T* pDestination, const T& source, size_t uiCount, ezTypeIsClass);
+
+  template <typename T>
+  static void Prepend(T* pDestination, T&& source, size_t uiCount, ezTypeIsPod);
+  template <typename T>
+  static void Prepend(T* pDestination, T&& source, size_t uiCount, ezTypeIsMemRelocatable);
+  template <typename T>
+  static void Prepend(T* pDestination, T&& source, size_t uiCount, ezTypeIsClass);
 
   template <typename T>
   static bool IsEqual(const T* a, const T* b, size_t uiCount, ezTypeIsPod);

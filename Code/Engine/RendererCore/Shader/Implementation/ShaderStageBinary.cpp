@@ -263,7 +263,7 @@ ezShaderStageBinary* ezShaderStageBinary::LoadStageBinary(ezGALShaderStage::Enum
   ezShaderStageBinary* pBin = &itStage.Value();
 
   if (pBin->m_pGALByteCode == nullptr && !pBin->m_ByteCode.IsEmpty())
-    pBin->m_pGALByteCode = EZ_DEFAULT_NEW(ezGALShaderByteCode)(&pBin->m_ByteCode[0], pBin->m_ByteCode.GetCount());
+    pBin->m_pGALByteCode = EZ_DEFAULT_NEW(ezGALShaderByteCode, &pBin->m_ByteCode[0], pBin->m_ByteCode.GetCount());
 
   return pBin;
 }

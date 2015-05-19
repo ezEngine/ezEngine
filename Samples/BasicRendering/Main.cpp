@@ -143,7 +143,7 @@ public:
     ezWindowCreationDesc WindowCreationDesc;
     WindowCreationDesc.m_ClientAreaSize.width = g_uiWindowWidth;
     WindowCreationDesc.m_ClientAreaSize.height = g_uiWindowHeight;
-    m_pWindow = EZ_DEFAULT_NEW(TestWindow)();
+    m_pWindow = EZ_DEFAULT_NEW(TestWindow);
     m_pWindow->Initialize(WindowCreationDesc);
 
 
@@ -159,9 +159,9 @@ public:
     DeviceInit.m_PrimarySwapChainDescription.m_bVerticalSynchronization = true;
 
 #if EZ_ENABLED(DEMO_GL)
-    m_pDevice = EZ_DEFAULT_NEW(ezGALDeviceGL)(DeviceInit);
+    m_pDevice = EZ_DEFAULT_NEW(ezGALDeviceGL, DeviceInit);
 #else
-    m_pDevice = EZ_DEFAULT_NEW(ezGALDeviceDX11)(DeviceInit);
+    m_pDevice = EZ_DEFAULT_NEW(ezGALDeviceDX11, DeviceInit);
 #endif
     EZ_VERIFY(m_pDevice->Init() == EZ_SUCCESS, "Device init failed!");
 

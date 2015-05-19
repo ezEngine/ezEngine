@@ -60,6 +60,9 @@ public:
   /// \brief Inserts value at index by shifting all following elements.
   void Insert(const T& value, ezUInt32 uiIndex); // [tested]
 
+  /// \brief Inserts value at index by shifting all following elements.
+  void Insert(T&& value, ezUInt32 uiIndex); // [tested]
+
   /// \brief Removes the first occurrence of value and fills the gap by shifting all following elements
   bool Remove(const T& value); // [tested]
 
@@ -84,8 +87,14 @@ public:
   /// \brief Pushes value at the end of the array.
   void PushBack(const T& value); // [tested]
 
+  /// \brief Pushes value at the end of the array.
+  void PushBack(T&& value); // [tested]
+
   /// \brief Pushes value at the end of the array. Does NOT ensure capacity.
   void PushBackUnchecked(const T& value); // [tested]
+
+  /// \brief Pushes value at the end of the array. Does NOT ensure capacity.
+  void PushBackUnchecked(T&& value); // [tested]
 
   /// \brief Pushes all elements in range at the end of the array. Increases the capacity if necessary.
   void PushBackRange(const ezArrayPtr<typename ezTypeTraits<T>::NonConstType>& range); // [tested]

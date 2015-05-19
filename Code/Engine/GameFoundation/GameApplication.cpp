@@ -54,7 +54,7 @@ void ezGameApplication::Initialize()
     DeviceInit.m_bCreatePrimarySwapChain = false;
     DeviceInit.m_bDebugDevice = true;
 
-    ezGALDevice* pDevice = EZ_DEFAULT_NEW(ezGALDeviceDefault)(DeviceInit);
+    ezGALDevice* pDevice = EZ_DEFAULT_NEW(ezGALDeviceDefault, DeviceInit);
     EZ_VERIFY(pDevice->Init() == EZ_SUCCESS, "Device init failed!");
 
     ezGALDevice::SetDefaultDevice(pDevice);

@@ -15,7 +15,7 @@
 
 void SampleApp::CreateGameLevelAndRenderPipeline(ezGALRenderTargetConfigHandle hRTConfig)
 {
-  m_pWorld = EZ_DEFAULT_NEW(ezWorld)("Level");
+  m_pWorld = EZ_DEFAULT_NEW(ezWorld, "Level");
 
   ezMeshComponentManager* pMeshCompMan = m_pWorld->CreateComponentManager<ezMeshComponentManager>();
   ezRotorComponentManager* pRotorCompMan = m_pWorld->CreateComponentManager<ezRotorComponentManager>();
@@ -69,8 +69,8 @@ void SampleApp::CreateGameLevelAndRenderPipeline(ezGALRenderTargetConfigHandle h
   m_pView = ezRenderLoop::CreateView("Asteroids - View");
   ezRenderLoop::AddMainView(m_pView);
 
-  ezRenderPipeline* pRenderPipeline = EZ_DEFAULT_NEW(ezRenderPipeline)();
-  pRenderPipeline->AddPass(EZ_DEFAULT_NEW(ezSimpleRenderPass)(hRTConfig));
+  ezRenderPipeline* pRenderPipeline = EZ_DEFAULT_NEW(ezRenderPipeline);
+  pRenderPipeline->AddPass(EZ_DEFAULT_NEW(ezSimpleRenderPass, hRTConfig));
   m_pView->SetRenderPipeline(pRenderPipeline);
 
   ezSizeU32 size = m_pWindow->GetClientAreaSize();

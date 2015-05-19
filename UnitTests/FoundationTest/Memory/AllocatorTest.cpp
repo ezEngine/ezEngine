@@ -209,12 +209,12 @@ EZ_CREATE_SIMPLE_TEST(Memory, Allocator)
 
     for (ezUInt32 i = 0; i < 100; ++i)
     {
-      counters.PushBack(EZ_NEW(&allocator, ezConstructionCounter)());
+      counters.PushBack(EZ_NEW(&allocator, ezConstructionCounter));
     }
 
     for (ezUInt32 i = 0; i < 100; ++i)
     {
-      EZ_NEW(&allocator, NonAlignedVector)();
+      EZ_NEW(&allocator, NonAlignedVector);
     }
 
     EZ_TEST_BOOL(ezConstructionCounter::HasConstructed(100));

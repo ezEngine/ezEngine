@@ -145,7 +145,7 @@ public:
       ezWindowCreationDesc WindowCreationDesc;
       WindowCreationDesc.m_ClientAreaSize.width = g_uiWindowWidth;
       WindowCreationDesc.m_ClientAreaSize.height = g_uiWindowHeight;
-      m_pWindow = EZ_DEFAULT_NEW(TextureSampleWindow)();
+      m_pWindow = EZ_DEFAULT_NEW(TextureSampleWindow);
       m_pWindow->Initialize(WindowCreationDesc);
     }
 
@@ -161,7 +161,7 @@ public:
       DeviceInit.m_PrimarySwapChainDescription.m_bAllowScreenshots = true;
       DeviceInit.m_PrimarySwapChainDescription.m_bVerticalSynchronization = true;
 
-      m_pDevice = EZ_DEFAULT_NEW(ezGALDeviceDX11)(DeviceInit);
+      m_pDevice = EZ_DEFAULT_NEW(ezGALDeviceDX11, DeviceInit);
       EZ_VERIFY(m_pDevice->Init() == EZ_SUCCESS, "Device init failed!");
 
       ezGALDevice::SetDefaultDevice(m_pDevice);

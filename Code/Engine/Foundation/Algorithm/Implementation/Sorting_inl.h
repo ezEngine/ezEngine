@@ -93,14 +93,13 @@ template <typename T, typename Comparer>
 ezUInt32 ezSorting::Partition(ezArrayPtr<T>& arrayPtr, ezUInt32 uiLeft, ezUInt32 uiRight, const Comparer& comparer)
 {
   const ezUInt32 uiPivotIndex = (uiLeft + uiRight) / 2;
-  
-  T pivotValue = arrayPtr[uiPivotIndex];
+
   ezMath::Swap(arrayPtr[uiPivotIndex], arrayPtr[uiRight]); // move pivot to right
 
   ezUInt32 uiIndex = uiLeft;
   for (ezUInt32 i = uiLeft; i < uiRight; ++i)
   {
-    if (comparer.Less(arrayPtr[i], pivotValue))
+    if (comparer.Less(arrayPtr[i], arrayPtr[uiRight]))
     {
       ezMath::Swap(arrayPtr[i], arrayPtr[uiIndex]);
       ++uiIndex;
@@ -130,12 +129,14 @@ void ezSorting::InsertionSort(Container& container, ezUInt32 uiStartIndex, ezUIn
 template <typename T, typename Comparer>
 void ezSorting::InsertionSort(ezArrayPtr<T>& arrayPtr, ezUInt32 uiStartIndex, ezUInt32 uiEndIndex, const Comparer& comparer)
 {
+  T* ptr = arrayPtr.GetPtr();
+
   for (ezUInt32 i = uiStartIndex + 1; i <= uiEndIndex; ++i)
   { 
     ezUInt32 uiHoleIndex = i;
-    T valueToInsert = arrayPtr[uiHoleIndex];
+    T valueToInsert = std::move(ptr[uiHoleIndex]);
 
-    while (uiHoleIndex > uiStartIndex && comparer.Less(valueToInsert, arrayPtr[uiHoleIndex - 1]))
+    while (uiHoleIndex > uiStartIndex && comparer.Less(valueToInsert, ptr[uiHoleIndex - 1]))
     {
       --uiHoleIndex;
     }
@@ -143,8 +144,12 @@ void ezSorting::InsertionSort(ezArrayPtr<T>& arrayPtr, ezUInt32 uiStartIndex, ez
     const ezUInt32 uiMoveCount = i - uiHoleIndex;
     if (uiMoveCount > 0)
     {
-      ezMemoryUtils::CopyOverlapped(&arrayPtr[uiHoleIndex + 1], &arrayPtr[uiHoleIndex], uiMoveCount);
-      arrayPtr[uiHoleIndex] = valueToInsert;
+      ezMemoryUtils::RelocateOverlapped(ptr + uiHoleIndex + 1, ptr + uiHoleIndex, uiMoveCount);
+      ezMemoryUtils::MoveConstruct(ptr + uiHoleIndex, std::move(valueToInsert));
+    }
+    else
+    {
+      ptr[uiHoleIndex] = std::move(valueToInsert);
     }
   }
 }

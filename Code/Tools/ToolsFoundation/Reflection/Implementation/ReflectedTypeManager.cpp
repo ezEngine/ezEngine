@@ -39,13 +39,13 @@ EZ_END_SUBSYSTEM_DECLARATION
   ezReflectedType* pType;
   if (ezStringUtils::IsNullOrEmpty(desc.m_sParentTypeName.GetData()))
   {
-    pType = EZ_DEFAULT_NEW(ezReflectedType)(desc.m_sTypeName.GetData(), desc.m_sPluginName.GetData(), ezReflectedTypeHandle(), desc.m_Flags);
+    pType = EZ_DEFAULT_NEW(ezReflectedType, desc.m_sTypeName.GetData(), desc.m_sPluginName.GetData(), ezReflectedTypeHandle(), desc.m_Flags);
   }
   else
   {
     ezReflectedTypeHandle hParent = GetTypeHandleByName(desc.m_sParentTypeName.GetData());
     EZ_ASSERT_DEV(!hParent.IsInvalidated(), "ezReflectedTypeManager::RegisterType: Can't register a type to which the parent type is not known yet!");
-    pType = EZ_DEFAULT_NEW(ezReflectedType)(desc.m_sTypeName.GetData(), desc.m_sPluginName.GetData(), hParent, desc.m_Flags);
+    pType = EZ_DEFAULT_NEW(ezReflectedType, desc.m_sTypeName.GetData(), desc.m_sPluginName.GetData(), hParent, desc.m_Flags);
     pType->m_Dependencies.Insert(hParent);
   }
 

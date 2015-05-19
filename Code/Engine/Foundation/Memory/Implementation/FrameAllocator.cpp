@@ -44,8 +44,8 @@ void ezFrameAllocator::Reset()
 // static
 void ezFrameAllocator::Startup()
 {
-  g_Allocators[0] = EZ_DEFAULT_NEW(ezStackAllocator<0>)("FrameAllocator0", ezFoundation::GetDefaultAllocator());
-  g_Allocators[1] = EZ_DEFAULT_NEW(ezStackAllocator<0>)("FrameAllocator1", ezFoundation::GetDefaultAllocator());
+  g_Allocators[0] = EZ_DEFAULT_NEW(ezStackAllocator<0>, "FrameAllocator0", ezFoundation::GetDefaultAllocator());
+  g_Allocators[1] = EZ_DEFAULT_NEW(ezStackAllocator<0>, "FrameAllocator1", ezFoundation::GetDefaultAllocator());
 
   s_pCurrentAllocator = g_Allocators[0];
 }

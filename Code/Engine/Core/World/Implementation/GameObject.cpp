@@ -12,7 +12,7 @@ public:
   virtual void* Allocate() override
   {
     if (g_DummyWorld == nullptr)
-      g_DummyWorld = EZ_DEFAULT_NEW(ezWorld)("Dummy");
+      g_DummyWorld = EZ_DEFAULT_NEW(ezWorld, "Dummy");
 
     ezGameObject* pObject = nullptr;
 

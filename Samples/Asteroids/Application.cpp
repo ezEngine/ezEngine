@@ -211,13 +211,13 @@ void SampleGameApp::SetupInput()
 void SampleGameApp::CreateGameLevelAndRenderPipeline(ezGALRenderTargetConfigHandle hRTConfig)
 {
   m_pLevel = EZ_DEFAULT_NEW(Level);
-  m_pLevel->SetupLevel(EZ_DEFAULT_NEW(ezWorld)("Asteroids - World"));
+  m_pLevel->SetupLevel(EZ_DEFAULT_NEW(ezWorld, "Asteroids - World"));
 
   ezView* pView = ezRenderLoop::CreateView("Asteroids - View");
   ezRenderLoop::AddMainView(pView);
 
-  ezRenderPipeline* pRenderPipeline = EZ_DEFAULT_NEW(ezRenderPipeline)();
-  pRenderPipeline->AddPass(EZ_DEFAULT_NEW(ezSimpleRenderPass)(hRTConfig));
+  ezRenderPipeline* pRenderPipeline = EZ_DEFAULT_NEW(ezRenderPipeline);
+  pRenderPipeline->AddPass(EZ_DEFAULT_NEW(ezSimpleRenderPass, hRTConfig));
   pView->SetRenderPipeline(pRenderPipeline);
 
   ezSizeU32 size = m_pWindow->GetClientAreaSize();

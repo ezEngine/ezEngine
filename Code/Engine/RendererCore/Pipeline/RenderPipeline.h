@@ -19,15 +19,15 @@ public:
   void ExtractData(const ezView& view);
   void Render(const ezView& view, ezRenderContext* pRenderer);
 
-  void AddPass(ezRenderPipelinePass* pPass);
-  void RemovePass(ezRenderPipelinePass* pPass);
+  void AddPass(ezUniquePtr<ezRenderPipelinePass>&& pPass);
+  void RemovePass(ezUniquePtr<ezRenderPipelinePass>&& pPass);
 
   template <typename T>
   T* CreateRenderData(ezRenderPassType passType, ezGameObject* pOwner)
   {
     EZ_CHECK_AT_COMPILETIME(EZ_IS_DERIVED_FROM_STATIC(ezRenderData, T));
 
-    T* pRenderData = EZ_NEW(ezFrameAllocator::GetCurrentAllocator(), T)();
+    T* pRenderData = EZ_NEW(ezFrameAllocator::GetCurrentAllocator(), T);
     pRenderData->m_uiSortingKey = 0; /// \todo implement sorting
 
   #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
@@ -70,6 +70,8 @@ public:
     return s_PassTypeData[passType].m_ProfilingID;
   }
 
+  EZ_DISALLOW_COPY_AND_ASSIGN(ezRenderPipeline);
+
 private:
   struct PassData
   {
@@ -94,7 +96,7 @@ private:
   static void ClearPipelineData(PipelineData* pPipeLineData);
   static bool IsPipelineDataEmpty(PipelineData* pPipeLineData);
 
-  ezDynamicArray<ezRenderPipelinePass*> m_Passes;
+  ezDynamicArray<ezUniquePtr<ezRenderPipelinePass>> m_Passes;
 
   static ezRenderPassType s_uiNextPassType;
 

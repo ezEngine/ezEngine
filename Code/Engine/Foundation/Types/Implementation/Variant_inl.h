@@ -297,7 +297,7 @@ EZ_FORCE_INLINE void ezVariant::Store(const T& value, ezTraitInt<0>)
 template <typename StorageType, typename T>
 EZ_FORCE_INLINE void ezVariant::Store(const T& value, ezTraitInt<1>)
 {
-  m_Data.shared = EZ_DEFAULT_NEW(TypedSharedData<StorageType>)(value);
+  m_Data.shared = EZ_DEFAULT_NEW(TypedSharedData<StorageType>, value);
   m_bIsShared = true;
 }
 

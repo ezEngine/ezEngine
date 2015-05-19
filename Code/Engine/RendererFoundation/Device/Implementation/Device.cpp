@@ -12,7 +12,9 @@
 ezGALDevice* ezGALDevice::s_pDefaultDevice = nullptr;
 
 ezGALDevice::ezGALDevice(const ezGALDeviceCreationDescription& Description)
-  : m_Description(Description),
+  : m_Allocator("GALDevice", ezFoundation::GetDefaultAllocator()),
+    m_AllocatorWrapper(&m_Allocator),
+    m_Description(Description),
     m_pPrimaryContext(nullptr),
     m_bFrameBeginCalled(false)
 {
