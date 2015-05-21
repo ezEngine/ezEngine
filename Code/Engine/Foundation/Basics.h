@@ -83,6 +83,7 @@ public:
 
 private:
   friend class ezStartup;
+  friend struct ezStaticAllocatorWrapper;
 
   static void Initialize();
 

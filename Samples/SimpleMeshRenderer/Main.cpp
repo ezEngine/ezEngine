@@ -1,5 +1,5 @@
 #include "Main.h"
-#include "Application.h"
+#include "GameState.h"
 #include "Window.h"
 #include <Foundation/Logging/ConsoleWriter.h>
 #include <Foundation/Logging/VisualStudioWriter.h>
@@ -16,7 +16,7 @@
 #include <RendererCore/Pipeline/RenderPipeline.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 
-SampleApp::SampleApp()
+GameState::GameState()
 {
   m_pWindow = nullptr;
   m_pRenderPipeline = nullptr;
@@ -24,13 +24,9 @@ SampleApp::SampleApp()
   m_pView = nullptr;
 }
 
-void SampleApp::AfterEngineInit()
+void GameState::Activate()
 {
-  EZ_LOG_BLOCK("SampleGameApp::AfterEngineInit");
-
-  // Setup the logging system
-  ezGlobalLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);
-  ezGlobalLog::AddLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
+  EZ_LOG_BLOCK("GameState::Activate");
 
   ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
   ezFileSystem::AddDataDirectory("");
@@ -57,23 +53,8 @@ void SampleApp::AfterEngineInit()
   ezFileSystem::AddDataDirectory(sReadDir.GetData(), ezFileSystem::AllowWrites, "Game");
   ezFileSystem::AddDataDirectory(sObjectDir.GetData(), ezFileSystem::ReadOnly, "Object");
 
-  ezTelemetry::CreateServer();
-
-  if (ezPlugin::LoadPlugin("ezInspectorPlugin") == EZ_SUCCESS)
-  {
-
-  }
-
-#if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
-  EZ_VERIFY(ezPlugin::LoadPlugin("ezShaderCompilerHLSL").Succeeded(), "Compiler Plugin not found");
-#endif
-
-  ezGameApplication::Initialize();
-
   m_pWindow = EZ_DEFAULT_NEW(GameWindow);
-  ezGALSwapChainHandle hSwapChain = AddWindow(m_pWindow);
-
-  ezStartup::StartupEngine();
+  ezGALSwapChainHandle hSwapChain = GetApplication()->AddWindow(m_pWindow);
 
   // Map the input keys to actions
   SetupInput();
@@ -82,22 +63,13 @@ void SampleApp::AfterEngineInit()
   CreateGameLevelAndRenderPipeline(pSwapChain->GetRenderTargetViewConfig());
 }
 
-void SampleApp::BeforeEngineShutdown()
+void GameState::Deactivate()
 {
-  EZ_LOG_BLOCK("SampleGameApp::BeforeEngineShutdown");
+  EZ_LOG_BLOCK("GameState::Deactivate");
 
   DestroyGameLevel();
-
-  ezStartup::ShutdownEngine();
-
-  ezGameApplication::Deinitialize();
 
   EZ_DEFAULT_DELETE(m_pWindow);
 }
 
-EZ_CONSOLEAPP_ENTRY_POINT(SampleApp);
-
-
-
-
-
+EZ_CONSOLEAPP_ENTRY_POINT(ezGameApplication, *EZ_DEFAULT_NEW(GameState));

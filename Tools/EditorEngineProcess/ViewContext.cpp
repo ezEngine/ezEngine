@@ -2,8 +2,11 @@
 #include <EditorEngineProcess/ViewContext.h>
 #include <RendererFoundation/Device/SwapChain.h>
 #include <Core/ResourceManager/ResourceManager.h>
-#include <RendererCore/RenderContext/RenderContext.h>
-#include <RendererCore/Shader/ShaderResource.h>
+#include <RendererCore/RenderLoop/RenderLoop.h>
+#include <RendererCore/Pipeline/RenderPipeline.h>
+#include <RendererCore/Pipeline/SimpleRenderPass.h>
+#include <GameFoundation/GameApplication.h>
+#include <EditorFramework/EngineProcess/EngineProcessDocumentContext.h>
 
 ezMeshBufferResourceHandle CreateTranslateGizmoMesh();
 
@@ -18,11 +21,6 @@ void ezViewContext::SetupRenderTarget(ezWindowHandle hWnd, ezUInt16 uiWidth, ezU
     pDevice->DestroySwapChain(m_hPrimarySwapChain);
     m_hPrimarySwapChain.Invalidate();
   }
-  else
-  {
-    m_hSphere = DontUse::CreateSphereMesh(3);
-    m_hTranslateGizmo = CreateTranslateGizmoMesh();
-  }
 
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
 
@@ -33,15 +31,7 @@ void ezViewContext::SetupRenderTarget(ezWindowHandle hWnd, ezUInt16 uiWidth, ezU
   ezLog::Debug("Creating Swapchain with size %u * %u", uiWidth, uiHeight);
 
   {
-    ezGALSwapChainCreationDescription scd;
-    scd.m_pWindow = &GetEditorWindow();
-    scd.m_SampleCount = ezGALMSAASampleCount::None;
-    scd.m_bCreateDepthStencilBuffer = true;
-    scd.m_DepthStencilBufferFormat = ezGALResourceFormat::D24S8;
-    scd.m_bAllowScreenshots = true;
-    scd.m_bVerticalSynchronization = true;
-
-    m_hPrimarySwapChain = pDevice->CreateSwapChain(scd);
+    m_hPrimarySwapChain = static_cast<ezGameApplication*>(ezApplication::GetApplicationInstance())->AddWindow(&GetEditorWindow());
     const ezGALSwapChain* pPrimarySwapChain = pDevice->GetSwapChain(m_hPrimarySwapChain);
     EZ_ASSERT_DEV(pPrimarySwapChain != nullptr, "Failed to init swapchain");
 
@@ -49,30 +39,27 @@ void ezViewContext::SetupRenderTarget(ezWindowHandle hWnd, ezUInt16 uiWidth, ezU
     EZ_ASSERT_DEV(!m_hBBRT.IsInvalidated(), "Failed to init render target");
   }
 
-  ezGALRasterizerStateCreationDescription RasterStateDesc;
-  RasterStateDesc.m_bWireFrame = true;
-  RasterStateDesc.m_CullMode = ezGALCullMode::Back;
-  RasterStateDesc.m_bFrontCounterClockwise = true;
-  m_hRasterizerState = pDevice->CreateRasterizerState(RasterStateDesc);
-  EZ_ASSERT_DEV(!m_hRasterizerState.IsInvalidated(), "Couldn't create rasterizer state!");
+  // setup view
+  {
+    if (m_pView != nullptr)
+    {
+      ezRenderPipeline* pRenderPipeline = m_pView->GetRenderPipeline();
+      EZ_DEFAULT_DELETE(pRenderPipeline);
+      EZ_DEFAULT_DELETE(m_pView);
+    }
 
-  RasterStateDesc.m_bWireFrame = false;
-  RasterStateDesc.m_CullMode = ezGALCullMode::Back;
-  RasterStateDesc.m_bFrontCounterClockwise = true;
-  m_hRasterizerStateGizmo = pDevice->CreateRasterizerState(RasterStateDesc);
-  EZ_ASSERT_DEV(!m_hRasterizerState.IsInvalidated(), "Couldn't create rasterizer state!");
-  
+    m_pView = ezRenderLoop::CreateView("Asteroids - View");
 
-  ezGALDepthStencilStateCreationDescription DepthStencilStateDesc;
-  DepthStencilStateDesc.m_bDepthTest = true;
-  DepthStencilStateDesc.m_bDepthWrite = true;
-  m_hDepthStencilState = pDevice->CreateDepthStencilState(DepthStencilStateDesc);
-  EZ_ASSERT_DEV(!m_hDepthStencilState.IsInvalidated(), "Couldn't create depth-stencil state!");
+    ezRenderPipeline* pRenderPipeline = EZ_DEFAULT_NEW(ezRenderPipeline);
+    pRenderPipeline->AddPass(EZ_DEFAULT_NEW(ezSimpleRenderPass, m_hBBRT));
+    m_pView->SetRenderPipeline(pRenderPipeline);
 
-  ezRenderContext::ConfigureShaderSystem("DX11_SM40", true);
+    m_pView->SetViewport(ezRectFloat(0.0f, 0.0f, (float)uiWidth, (float)uiHeight));
 
-  m_hShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Wireframe.ezShader");
-  m_hGizmoShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Gizmo.ezShader");
+    ezEngineProcessDocumentContext* pDocumentContext = ezEngineProcessDocumentContext::GetDocumentContext(GetDocumentGuid());
+    m_pView->SetWorld(pDocumentContext->m_pWorld);
+    m_pView->SetLogicCamera(&m_Camera);
+  }
 
   // Create render target for picking
   {
@@ -132,5 +119,10 @@ void ezViewContext::SetupRenderTarget(ezWindowHandle hWnd, ezUInt16 uiWidth, ezU
     m_PickingRenderTargetDT.EnableDataTransfer("Picking RT");
   }
 
+}
+
+void ezViewContext::Redraw()
+{
+  ezRenderLoop::AddMainView(m_pView);
 }
 

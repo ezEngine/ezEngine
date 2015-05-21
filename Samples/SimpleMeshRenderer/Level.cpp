@@ -10,10 +10,10 @@
 
 #include <GameUtils/Components/RotorComponent.h>
 
-#include "Application.h"
+#include "GameState.h"
 #include "Window.h"
 
-void SampleApp::CreateGameLevelAndRenderPipeline(ezGALRenderTargetConfigHandle hRTConfig)
+void GameState::CreateGameLevelAndRenderPipeline(ezGALRenderTargetConfigHandle hRTConfig)
 {
   m_pWorld = EZ_DEFAULT_NEW(ezWorld, "Level");
 
@@ -91,7 +91,7 @@ void SampleApp::CreateGameLevelAndRenderPipeline(ezGALRenderTargetConfigHandle h
   }
 }
 
-void SampleApp::DestroyGameLevel()
+void GameState::DestroyGameLevel()
 {
   /// \todo: we need some better cleanup mechanism here
   auto views = ezRenderLoop::GetMainViews();

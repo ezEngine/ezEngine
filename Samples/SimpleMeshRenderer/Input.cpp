@@ -1,5 +1,5 @@
 #include "Main.h"
-#include "Application.h"
+#include "GameState.h"
 #include "Window.h"
 
 #include <Foundation/Logging/Log.h>
@@ -23,7 +23,7 @@ static void RegisterInputAction(const char* szInputSet, const char* szInputActio
   ezInputManager::SetInputActionConfig(szInputSet, szInputAction, cfg, true);
 }
 
-void SampleApp::SetupInput()
+void GameState::SetupInput()
 {
   m_pWindow->GetInputDevice()->SetClipMouseCursor(true);
   m_pWindow->GetInputDevice()->SetShowMouseCursor(false);
@@ -46,10 +46,8 @@ void SampleApp::SetupInput()
   RegisterInputAction("Game", "TurnDown", ezInputSlot_KeyDown);
 }
 
-void SampleApp::UpdateInput()
+void GameState::BeforeWorldUpdate()
 {
-  ezGameApplication::UpdateInput();
-
   float fRotateSpeed = 180.0f;
   float fMoveSpeed = 100.0f;
   float fInput = 0.0f;

@@ -1,11 +1,11 @@
 #include <Core/ResourceManager/ResourceManager.h>
 #include <CoreUtils/Geometry/GeomUtils.h>
 #include <CoreUtils/Graphics/Camera.h>
+#include <Core/Input/InputManager.h>
 #include <Foundation/Logging/Log.h>
 #include <RendererCore/Meshes/MeshComponent.h>
 #include <RendererCore/Meshes/MeshResourceDescriptor.h>
 #include "Level.h"
-#include "Application.h"
 #include "ShipComponent.h"
 #include "ProjectileComponent.h"
 #include "AsteroidComponent.h"
@@ -253,6 +253,7 @@ void Level::CreateAsteroid()
   }
 }
 
+#if 0
 void Level::Update()
 {
   m_pWorld->TransferThreadOwnership();
@@ -262,4 +263,4 @@ void Level::Update()
   for (ezInt32 iPlayer = 0; iPlayer < MaxPlayers; ++iPlayer)
     UpdatePlayerInput(iPlayer);
 }
-
+#endif

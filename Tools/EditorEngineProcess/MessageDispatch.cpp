@@ -4,18 +4,20 @@
 #include <EditorFramework/EngineProcess/EngineProcessMessages.h>
 #include <EditorFramework/EngineProcess/EngineProcessViewContext.h>
 #include <EditorFramework/EngineProcess/EngineProcessDocumentContext.h>
-#include <EditorEngineProcess/Application.h>
+#include <EditorEngineProcess/GameState.h>
+
+#include <RendererCore/Meshes/MeshComponent.h>
 #include <GameUtils/Components/RotorComponent.h>
 #include <GameUtils/Components/SliderComponent.h>
 
-void ezEditorProcessApp::SendProjectReadyMessage()
+void ezEditorGameState::SendProjectReadyMessage()
 {
   ezProjectReadyMsgToEditor msg;
   m_IPC.SendMessage(&msg);
 }
 
 
-void ezEditorProcessApp::SendReflectionInformation()
+void ezEditorGameState::SendReflectionInformation()
 {
   ezSet<const ezRTTI*> types;
   ezReflectionUtils::GatherTypesDerivedFromClass(ezGetStaticRTTI<ezComponent>(), types, true);
@@ -30,7 +32,7 @@ void ezEditorProcessApp::SendReflectionInformation()
   }
 }
 
-void ezEditorProcessApp::EventHandlerIPC(const ezProcessCommunication::Event& e)
+void ezEditorGameState::EventHandlerIPC(const ezProcessCommunication::Event& e)
 {
   const ezEditorEngineDocumentMsg* pDocMsg = (const ezEditorEngineDocumentMsg*) e.m_pMessage;
 
@@ -50,7 +52,7 @@ void ezEditorProcessApp::EventHandlerIPC(const ezProcessCommunication::Event& e)
   }
 
   ezEngineProcessDocumentContext* pDocumentContext = ezEngineProcessDocumentContext::GetDocumentContext(pDocMsg->m_DocumentGuid);
-
+  
   if (pDocumentContext == nullptr && pDocMsg->m_DocumentGuid.IsValid())
   {
     ezLog::Info("Created new Document context for Guid %s", ezConversionUtils::ToString(pDocMsg->m_DocumentGuid).GetData());
@@ -61,11 +63,12 @@ void ezEditorProcessApp::EventHandlerIPC(const ezProcessCommunication::Event& e)
 
     pDocumentContext->m_pWorld = EZ_DEFAULT_NEW(ezWorld, ezConversionUtils::ToString(pDocMsg->m_DocumentGuid));
 
+    pDocumentContext->m_pWorld->CreateComponentManager<ezMeshComponentManager>();
     pDocumentContext->m_pWorld->CreateComponentManager<ezRotorComponentManager>();
     pDocumentContext->m_pWorld->CreateComponentManager<ezSliderComponentManager>();
   }
 
-
+  pDocumentContext->m_pWorld->TransferThreadOwnership();
 
 
   if (pDocMsg->GetDynamicRTTI()->IsDerivedFrom<ezDocumentOpenMsgToEngine>()) // Document was opened or closed
@@ -113,7 +116,7 @@ void ezEditorProcessApp::EventHandlerIPC(const ezProcessCommunication::Event& e)
   }
 }
 
-void ezEditorProcessApp::UpdateProperties(ezEntityMsgToEngine* pMsg, void* pObject, const ezRTTI* pRtti)
+void ezEditorGameState::UpdateProperties(ezEntityMsgToEngine* pMsg, void* pObject, const ezRTTI* pRtti)
 {
   ezMemoryStreamStorage storage;
   ezMemoryStreamWriter writer(&storage);
@@ -126,7 +129,7 @@ void ezEditorProcessApp::UpdateProperties(ezEntityMsgToEngine* pMsg, void* pObje
 
 static ezHashTable<ezUuid, ezGameObjectHandle> g_AllObjects;
 
-void ezEditorProcessApp::HandlerGameObjectMsg(ezEngineProcessDocumentContext* pDocumentContext, ezViewContext* pViewContext, ezEntityMsgToEngine* pMsg, ezRTTI* pRtti)
+void ezEditorGameState::HandlerGameObjectMsg(ezEngineProcessDocumentContext* pDocumentContext, ezViewContext* pViewContext, ezEntityMsgToEngine* pMsg, ezRTTI* pRtti)
 {
   switch (pMsg->m_iMsgType)
   {
@@ -196,7 +199,7 @@ void ezEditorProcessApp::HandlerGameObjectMsg(ezEngineProcessDocumentContext* pD
   }
 }
 
-void ezEditorProcessApp::HandleComponentMsg(ezEngineProcessDocumentContext* pDocumentContext, ezViewContext* pViewContext, ezEntityMsgToEngine* pMsg, ezRTTI* pRtti)
+void ezEditorGameState::HandleComponentMsg(ezEngineProcessDocumentContext* pDocumentContext, ezViewContext* pViewContext, ezEntityMsgToEngine* pMsg, ezRTTI* pRtti)
 {
   static ezHashTable<ezUuid, ezComponentHandle> g_AllComponents;
 
@@ -282,7 +285,7 @@ void ezEditorProcessApp::HandleComponentMsg(ezEngineProcessDocumentContext* pDoc
 
 }
 
-void ezEditorProcessApp::HandlerEntityMsg(ezEngineProcessDocumentContext* pDocumentContext, ezViewContext* pViewContext, ezEntityMsgToEngine* pMsg)
+void ezEditorGameState::HandlerEntityMsg(ezEngineProcessDocumentContext* pDocumentContext, ezViewContext* pViewContext, ezEntityMsgToEngine* pMsg)
 {
 
   ezRTTI* pRtti = ezRTTI::FindTypeByName(pMsg->m_sObjectType);

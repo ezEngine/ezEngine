@@ -1,6 +1,7 @@
 #pragma once
 
 #include <GameFoundation/Basics.h>
+#include <GameFoundation/GameState.h>
 
 #include <Foundation/Time/DefaultTimeStepSmoothing.h>
 #include <Foundation/Threading/DelegateTask.h>
@@ -15,26 +16,23 @@ class ezWorld;
 class EZ_GAMEFOUNDATION_DLL ezGameApplication : public ezApplication
 {
 public:
-  ezGameApplication();
+  ezGameApplication(ezGameStateBase& initialGameState);
   ~ezGameApplication();
-
-  /// \brief Typically called in application's AfterEngineInit()
-  virtual void Initialize();
-
-  /// \brief Typically called in application's BeforeEngineShutdown()
-  virtual void Deinitialize();
 
   ezGALSwapChainHandle AddWindow(ezWindowBase* pWindow);
   void RemoveWindow(ezWindowBase* pWindow);
 
-protected:
+  void SetCurrentGameState(ezGameStateBase& currentGameState);
 
-  virtual void UpdateInput();
+  void RequestQuit();
 
 private:
 
+  virtual void AfterEngineInit() override;
+  virtual void BeforeEngineShutdown() override;
   virtual ezApplication::ApplicationExecution Run() override;
 
+  void UpdateInput();
   void UpdateWorldsAndExtractViews();
   ezDelegateTask<void> m_UpdateTask;
 
@@ -47,6 +45,8 @@ private:
   ezDynamicArray<WindowContext> m_Windows;
 
   ezDefaultTimeStepSmoothing m_TimeStepSmoother;
+
+  ezGameStateBase* m_pCurrentGameState;
 
   bool m_bShouldRun;
 };

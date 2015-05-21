@@ -2,11 +2,11 @@
 #include <Foundation/Communication/Telemetry.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
 
+static ezInt32 s_iDataDirCounter = 0;
+static ezMap<ezString, ezInt32, ezCompareHelper<ezString>, ezStaticAllocatorWrapper> s_KnownDataDirs;
+
 static void FileSystemEventHandler(const ezFileSystem::FileEvent& e)
 {
-  static ezInt32 s_iDataDirCounter = 0;
-  static ezMap<ezString, ezInt32> s_KnownDataDirs;
-
   switch (e.m_EventType)
   {
   case ezFileSystem::FileEventType::AddDataDirectorySucceeded:

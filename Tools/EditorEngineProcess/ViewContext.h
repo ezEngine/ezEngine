@@ -9,6 +9,7 @@
 #include <CoreUtils/Graphics/Camera.h>
 #include <CoreUtils/Debugging/DataTransfer.h>
 
+class ezView;
 class ezGameObject;
 class ezViewCameraMsgToEngine;
 
@@ -63,6 +64,7 @@ class ezViewContext : public ezEngineProcessViewContext
 public:
   ezViewContext(ezInt32 iViewIndex, ezUuid DocumentGuid) : ezEngineProcessViewContext(iViewIndex, DocumentGuid)
   {
+    m_pView = nullptr;
   }
 
   void SetupRenderTarget(ezWindowHandle hWnd, ezUInt16 uiWidth, ezUInt16 uiHeight);
@@ -93,17 +95,9 @@ private:
   ezGALRenderTargetConfigHandle m_hPickingRenderTargetCfg;
   ezPickingIDCache m_PickingCache;
 
-  ezMat4 m_ViewMatrix;
-  ezMat4 m_ProjectionMatrix;
   ezCamera m_Camera;
+  ezView* m_pView;
 
   static ezDataTransfer m_PickingRenderTargetDT;
 };
-
-namespace DontUse
-{
-  ezMeshBufferResourceHandle CreateMeshResource(const ezArrayPtr<ezVec3>& pVertices, const ezArrayPtr<ezUInt16>& pIndices, ezInt32 iMesh);
-
-  ezMeshBufferResourceHandle CreateSphereMesh(ezInt32 iMesh);
-}
 

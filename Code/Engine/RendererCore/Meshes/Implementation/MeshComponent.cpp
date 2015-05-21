@@ -39,6 +39,9 @@ ezResult ezMeshComponent::OnDetachedFromObject()
 
 void ezMeshComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) const
 {
+  if (!m_hMesh.IsValid())
+    return;
+
   ezRenderPipeline* pRenderPipeline = msg.m_pRenderPipeline;
 
   ezResourceLock<ezMeshResource> pMesh(m_hMesh);
@@ -65,7 +68,14 @@ void ezMeshComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) const
 
 void ezMeshComponent::SetMeshFile(const char* szFile)
 {
-  m_hMesh = ezResourceManager::LoadResource<ezMeshResource>(szFile);
+  if (ezStringUtils::IsNullOrEmpty(szFile))
+  {
+    m_hMesh.Invalidate();
+  }
+  else
+  {
+    m_hMesh = ezResourceManager::LoadResource<ezMeshResource>(szFile);
+  }
 }
 
 const char* ezMeshComponent::GetMeshFile() const

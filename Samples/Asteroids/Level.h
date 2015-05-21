@@ -16,7 +16,6 @@ public:
   ~Level();
 
   void SetupLevel(ezWorld* pWorld);
-  void Update();
 
   ezWorld* GetWorld() const { return m_pWorld; }
   const ezCamera* GetCamera() const { return &m_Camera; }

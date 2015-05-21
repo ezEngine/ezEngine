@@ -36,14 +36,19 @@ void ezRenderLoop::AddMainView(ezView* pView)
 {
   EZ_ASSERT_DEV(!s_bInExtract, "Cannot add main view during extraction");
 
-  s_MainViews.PushBack(pView);
+  if (!s_MainViews.Contains(pView))
+    s_MainViews.PushBack(pView);
 }
 
 void ezRenderLoop::AddMainViews(const ezArrayPtr<ezView*>& views)
 {
   EZ_ASSERT_DEV(!s_bInExtract, "Cannot add main views during extraction");
 
-  s_MainViews.PushBackRange(views);
+  for (auto pView : views)
+  {
+    if (!s_MainViews.Contains(pView))
+      s_MainViews.PushBack(pView);
+  }
 }
 
 void ezRenderLoop::RemoveMainView(ezView* pView)

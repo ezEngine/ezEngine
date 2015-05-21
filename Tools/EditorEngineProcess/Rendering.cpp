@@ -1,5 +1,5 @@
 #include <PCH.h>
-#include <EditorEngineProcess/Application.h>
+#include <EditorEngineProcess/GameState.h>
 #include <RendererFoundation/Context/Context.h>
 #include <RendererFoundation/Device/SwapChain.h>
 #include <RendererDX11/Device/DeviceDX11.h>
@@ -17,6 +17,7 @@
 
 ezDataTransfer ezViewContext::m_PickingRenderTargetDT;
 
+#if 0
 ezMeshBufferResourceHandle CreateMeshResource(const ezGeometry& geom, const char* szResourceName)
 {
   ezDynamicArray<ezUInt16> Indices;
@@ -305,9 +306,9 @@ void ezViewContext::Redraw()
   }
 
   pDevice->EndFrame();
-
-  ezTaskSystem::FinishFrameTasks();
 }
+
+#endif
 
 void ezViewContext::SetCamera(ezViewCameraMsgToEngine* pMsg)
 {
@@ -320,96 +321,5 @@ void ezViewContext::SetCamera(ezViewCameraMsgToEngine* pMsg)
   m_Camera.SetFromMatrix(mOri);
 
   m_Camera.LookAt(pMsg->m_vPosition, pMsg->m_vPosition + pMsg->m_vDirForwards, pMsg->m_vDirUp);
-  
-
-  m_ViewMatrix = pMsg->m_ViewMatrix;
-  m_ProjectionMatrix = pMsg->m_ProjMatrix;
-}
-
-void ezEditorProcessApp::InitDevice()
-{
-  // Create a device
-  ezGALDeviceCreationDescription DeviceInit;
-  DeviceInit.m_bCreatePrimarySwapChain = false;
-  DeviceInit.m_bDebugDevice = true;
-
-  s_pDevice = EZ_DEFAULT_NEW(ezGALDeviceDX11, DeviceInit);
-
-  EZ_VERIFY(s_pDevice->Init() == EZ_SUCCESS, "Device init failed!");
-
-  ezGALDevice::SetDefaultDevice(s_pDevice);
-}
-
-#include <CoreUtils/Geometry/GeomUtils.h>
-#include <Core/ResourceManager/ResourceManager.h>
-
-namespace DontUse
-{
-  ezMeshBufferResourceHandle CreateSphereMesh(ezInt32 iMesh)
-  {
-    ezDynamicArray<ezVec3> Vertices;
-    ezDynamicArray<ezUInt16> Indices;
-
-    ezMat4 m;
-    m.SetIdentity();
-    
-    ezColorLinearUB col(0, 255, 0);
-
-    ezMat4 mTrans;
-    mTrans.SetIdentity();
-    mTrans.SetRotationMatrixZ(ezAngle::Degree(90));
-
-    ezGeometry geom;
-    geom.AddGeodesicSphere(0.5f, 1, ezColorLinearUB(0, 255, 0), mTrans);
-
-    Vertices.Reserve(geom.GetVertices().GetCount());
-    Indices.Reserve(geom.GetPolygons().GetCount() * 6);
-
-    for (ezUInt32 v = 0; v < geom.GetVertices().GetCount(); ++v)
-    {
-      Vertices.PushBack(geom.GetVertices()[v].m_vPosition);
-    }
-
-    for (ezUInt32 p = 0; p < geom.GetPolygons().GetCount(); ++p)
-    {
-      for (ezUInt32 v = 0; v < geom.GetPolygons()[p].m_Vertices.GetCount() - 2; ++v)
-      {
-        Indices.PushBack(geom.GetPolygons()[p].m_Vertices[0]);
-        Indices.PushBack(geom.GetPolygons()[p].m_Vertices[v + 1]);
-        Indices.PushBack(geom.GetPolygons()[p].m_Vertices[v + 2]);
-      }
-    }
-
-
-    return CreateMeshResource(Vertices, Indices, iMesh);
-  }
-
-  ezMeshBufferResourceHandle CreateMeshResource(const ezArrayPtr<ezVec3>& pVertices, const ezArrayPtr<ezUInt16>& pIndices, ezInt32 iMesh)
-  {
-    ezMeshBufferResourceDescriptor desc;
-    desc.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
-
-    desc.AllocateStreams(pVertices.GetCount(), pIndices.GetCount() / 3);
-
-    for (ezUInt32 v = 0; v < pVertices.GetCount(); ++v)
-      desc.SetVertexData<ezVec3>(0, v, pVertices[v]);
-
-    for (ezUInt32 t = 0; t < pIndices.GetCount(); t += 3)
-      desc.SetTriangleIndices(t / 3, pIndices[t], pIndices[t + 1], pIndices[t + 2]);
-
-    ezMeshBufferResourceHandle hMesh;
-    {
-      ezStringBuilder s;
-      s.Format("MayaMesh%i", iMesh);
-
-      hMesh = ezResourceManager::GetExistingResource<ezMeshBufferResource>(s);
-
-      if (!hMesh.IsValid())
-        hMesh = ezResourceManager::CreateResource<ezMeshBufferResource>(s.GetData(), desc);
-    }
-
-    return hMesh;
-  }
-
 }
 
