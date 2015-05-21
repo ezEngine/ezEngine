@@ -201,13 +201,11 @@ inline ezStreamReaderBase& operator >> (ezStreamReaderBase& Stream, ezHybridStri
 
 // ezStringBuilder
 
-template<ezUInt16 Size, typename AllocatorWrapper>
 inline ezStreamWriterBase& operator << (ezStreamWriterBase& Stream, const ezStringBuilder& sValue)
 {
   return Stream << sValue.GetData();
 }
 
-template<ezUInt16 Size, typename AllocatorWrapper>
 inline ezStreamReaderBase& operator >> (ezStreamReaderBase& Stream, ezStringBuilder& sValue)
 {
   ezUInt32 uiLength = 0;

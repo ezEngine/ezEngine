@@ -6,5 +6,9 @@
     {
       "Path" : "../../FreeContent",
       "Writable" : false
+    },
+    {
+      "Path" : "../../Data",
+      "Writable" : false
     } ]
 }

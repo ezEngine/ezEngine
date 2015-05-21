@@ -29,6 +29,9 @@ void ezDependencyFile::Clear()
 
 void ezDependencyFile::AddFileDependency(const char* szFile)
 {
+  if (ezStringUtils::IsNullOrEmpty(szFile))
+    return;
+
   m_FileDependencies.PushBack(szFile);
 }
 

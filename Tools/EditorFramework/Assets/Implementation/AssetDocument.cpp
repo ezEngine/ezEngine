@@ -36,7 +36,8 @@ ezString ezAssetDocumentInfo::GetDependencies() const
 
   for (const auto& dep : m_FileDependencies)
   {
-    s.AppendFormat("%s;", dep.GetData());
+    if (!dep.IsEmpty())
+      s.AppendFormat("%s;", dep.GetData());
   }
 
   s.Shrink(0, 1);

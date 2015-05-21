@@ -15,7 +15,7 @@ struct EZ_CORE_DLL ezInputActionConfig
 
   /// \brief If this is set to true, the value of the action is scaled by the time difference since the last input update. Default is true.
   ///
-  /// You should enable this, if the value of the triggered action is used to modify how much to e.g. move an or rotate something.
+  /// You should enable this, if the value of the triggered action is used to modify how much to e.g. move or rotate something.
   /// For example, if an action 'RotateLeft' will rotate the player to the left, then he should rotate each frame an amount that is dependent on how
   /// much time has passed since the last update and by how much the button is pressed (e.g. a thumb-stick can be pressed only slightly).
   /// Mouse input, however, should not get scaled, because when the user moved the mouse one centimeter in the last frame, then that is an absolute

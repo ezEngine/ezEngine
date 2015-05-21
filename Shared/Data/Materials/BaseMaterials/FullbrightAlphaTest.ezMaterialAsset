@@ -4,22 +4,22 @@
       "ID" : { "$t" : "uuid", "$b" : "0x00000000000000000000000000000000" },
       "ParentID" : { "$t" : "uuid", "$b" : "0x00000000000000000000000000000000" },
       "TypeData" : {
-        "DocumentID" : { "$t" : "uuid", "$b" : "0xCB76C5260BE66E47A0F5330826893652" },
-        "Dependencies" : "Materials/BaseMaterials/Fullbright.ezMaterialAsset;Sponza/Textures/background_diff.dds",
+        "DocumentID" : { "$t" : "uuid", "$b" : "0x41D300485B756743A175FFA5DD17BD29" },
+        "Dependencies" : "",
         "References" : "",
-        "Hash" : { "$t" : "uint64", "$v" : "667279704393134049", "$b" : "0xE12F2E125BA74209" },
+        "Hash" : { "$t" : "uint64", "$v" : "5434269211383710770", "$b" : "0x32445E460E676A4B" },
         "AssetType" : "Material"
       }
     } ],
   "ObjectTree" : [ {
       "Type" : "ezMaterialAssetProperties",
-      "ID" : { "$t" : "uuid", "$b" : "0xF107C02C49A8FC4E807079A3C80D56D1" },
+      "ID" : { "$t" : "uuid", "$b" : "0xC98D85B2F145AC4F9DA867E075EBD605" },
       "ParentID" : { "$t" : "uuid", "$b" : "0x00000000000000000000000000000000" },
       "TypeData" : {
-        "Base Material" : "Materials/BaseMaterials/Fullbright.ezMaterialAsset",
-        "Shader" : "",
-        "Permutations" : "",
-        "Diffuse Texture" : "Sponza/Textures/background_diff.dds",
+        "Base Material" : "",
+        "Shader" : "Shaders/Materials/Fullbright.ezShader",
+        "Permutations" : "ALPHATEST=1",
+        "Diffuse Texture" : "",
         "Mask Texture" : "",
         "Normal Map" : ""
       },

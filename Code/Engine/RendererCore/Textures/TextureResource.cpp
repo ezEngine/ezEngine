@@ -461,6 +461,10 @@ ezResourceLoadData ezTextureResourceLoader::OpenDataStream(const ezResourceBase*
 
   if (sAbsolutePath.HasExtension("ezTex"))
   {
+    // read the hash, ignore it
+    ezUInt64 uiAssetHash = 0;
+    File >> uiAssetHash;
+
     // read the ezTex file format
     File >> bSRGB;
 

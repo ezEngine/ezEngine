@@ -70,6 +70,9 @@ ezUInt64 ezAssetCurator::HashFile(ezStreamReaderBase& InputStream, ezStreamWrite
 
 void ezAssetCurator::QueueFileForHashing(const ezString& sFile)
 {
+  if (sFile.IsEmpty())
+    return;
+
   const auto& ref = m_ReferencedFiles[sFile];
 
   if (ref.m_uiHash != 0 || ref.m_Status == FileStatus::Status::FileLocked)
@@ -212,6 +215,9 @@ ezUInt64 ezAssetCurator::GetAssetDependencyHash(ezUuid assetGuid)
   for (const auto& dep : pInfo->m_Info.m_FileDependencies)
   {
     ezString sPath = dep;
+
+    if (sPath.IsEmpty())
+      continue;
 
     if (!ezEditorApp::GetInstance()->MakeDataDirectoryRelativePathAbsolute(sPath))
     {

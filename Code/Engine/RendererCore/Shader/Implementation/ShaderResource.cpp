@@ -39,6 +39,12 @@ ezResourceLoadDesc ezShaderResource::UpdateContent(ezStreamReaderBase* Stream)
     return res;
   }
 
+  // skip the absolute file path data that the standard file reader writes into the stream
+  {
+    ezString sAbsFilePath;
+    (*Stream) >> sAbsFilePath;
+  }
+
   ezString sContent;
   sContent.ReadAll(*Stream);
 

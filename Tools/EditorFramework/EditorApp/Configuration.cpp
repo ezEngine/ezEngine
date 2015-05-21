@@ -29,6 +29,7 @@ bool ezEditorApp::MakeDataDirectoryRelativePathAbsolute(ezString & sPath) const
 
     sTemp = m_FileSystemConfig.GetProjectDirectory();
     sTemp.AppendPath(dd.m_sRelativePath, sPath);
+    sTemp.MakeCleanPath();
 
     if (ezOSFile::Exists(sTemp))
     {
@@ -41,6 +42,7 @@ bool ezEditorApp::MakeDataDirectoryRelativePathAbsolute(ezString & sPath) const
   {
     sTemp = m_FileSystemConfig.GetProjectDirectory();
     sTemp.AppendPath(m_FileSystemConfig.m_DataDirs[0].m_sRelativePath, sPath);
+    sTemp.MakeCleanPath();
   }
 
   return false;

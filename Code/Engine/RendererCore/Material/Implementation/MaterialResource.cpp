@@ -37,136 +37,212 @@ ezResourceLoadDesc ezMaterialResource::UpdateContent(ezStreamReaderBase* Stream)
     return res;
   }
 
-  ezExtendedJSONReader json;
-  json.SetLogInterface(ezGlobalLog::GetInstance());
+  ezStringBuilder sAbsFilePath;
+  (*Stream) >> sAbsFilePath;
 
-  if (json.Parse(*Stream).Failed())
+  if (sAbsFilePath.HasExtension("ezMaterialBin"))
   {
-     res.m_State = ezResourceState::LoadedResourceMissing;
-    return res;
-  }
+    ezStringBuilder sTemp, sTemp2;
 
-  ezResult Conversion(EZ_FAILURE);
+    ezUInt64 uiAssetHash = 0;
+    (*Stream) >> uiAssetHash;
 
-  // Read the base material
-  {
-    ezVariant* pValue = nullptr;
-    if (json.GetTopLevelObject().TryGetValue("BaseMaterial", pValue))
+    ezUInt8 uiVersion = 0;
+    (*Stream) >> uiVersion;
+    EZ_ASSERT_DEV(uiVersion == 1, "Unknown ezMaterialBin version %u", uiVersion);
+
+    // Base material
     {
-      ezString sValue = pValue->ConvertTo<ezString>(&Conversion);
+      (*Stream) >> sTemp;
 
-      if (Conversion.Failed())
-      {
-        ezLog::Error("'BaseMaterial' variable is malformed.");
-      }
-      else if (!sValue.IsEmpty())
-      {
-        m_Desc.m_hBaseMaterial = ezResourceManager::LoadResource<ezMaterialResource>(sValue);
-      }
+      if (!sTemp.IsEmpty())
+        m_Desc.m_hBaseMaterial = ezResourceManager::LoadResource<ezMaterialResource>(sTemp);
     }
-  }
 
-  // Read the shader
-  {
-    ezVariant* pValue = nullptr;
-    if (json.GetTopLevelObject().TryGetValue("Shader", pValue))
+    // Shader
     {
-      ezString sValue = pValue->ConvertTo<ezString>(&Conversion);
+      (*Stream) >> sTemp;
 
-      if (Conversion.Failed())
-      {
-        ezLog::Error("'Shader' variable is malformed.");
-      }
-      else if (!sValue.IsEmpty())
-      {
-        m_Desc.m_hShader = ezResourceManager::LoadResource<ezShaderResource>(sValue);
-      }
+      if (!sTemp.IsEmpty())
+        m_Desc.m_hShader = ezResourceManager::LoadResource<ezShaderResource>(sTemp);
     }
-  }
 
-  // Read the shader permutation variables
-  {
-    ezVariant* pValue = nullptr;
-    if (json.GetTopLevelObject().TryGetValue("Permutations", pValue))
+    // Permutation Variables
     {
-      if (!pValue->IsA<ezVariantDictionary>())
-      {
-        ezLog::Error("'Permutations' variable is not an object");
-      }
-      else
-      {
-        const ezVariantDictionary& dict = pValue->Get<ezVariantDictionary>();
+      ezUInt16 uiPermVars;
+      (*Stream) >> uiPermVars;
 
-        m_Desc.m_PermutationVars.Reserve(dict.GetCount());
-        for (auto it = dict.GetIterator(); it.IsValid(); ++it)
+      m_Desc.m_PermutationVars.Reserve(uiPermVars);
+
+      for (ezUInt16 i = 0; i < uiPermVars; ++i)
+      {
+        (*Stream) >> sTemp;
+        (*Stream) >> sTemp2;
+
+        if (!sTemp.IsEmpty() && !sTemp2.IsEmpty())
         {
           ezMaterialResourceDescriptor::PermutationVar& pv = m_Desc.m_PermutationVars.ExpandAndGetRef();
-          pv.m_Name.Assign(it.Key().GetData());
-          pv.m_Value.Assign(it.Value().ConvertTo<ezString>(&Conversion).GetData());
-
-          if (Conversion.Failed())
-          {
-            ezLog::Error("'Permutations' object has member '%s' that is not convertible to a string", it.Key().GetData());
-            m_Desc.m_PermutationVars.PopBack();
-          }
+          pv.m_Name.Assign(sTemp.GetData());
+          pv.m_Value.Assign(sTemp2.GetData());
         }
+      }
+    }
+
+    // Textures
+    {
+      ezUInt16 uiTextures = 0;
+      (*Stream) >> uiTextures;
+
+      m_Desc.m_TextureBindings.Reserve(uiTextures);
+
+      for (ezUInt16 i = 0; i < uiTextures; ++i)
+      {
+        (*Stream) >> sTemp;
+        (*Stream) >> sTemp2;
+
+        if (sTemp.IsEmpty() || sTemp2.IsEmpty())
+          continue;
+
+        ezMaterialResourceDescriptor::TextureBinding& tc = m_Desc.m_TextureBindings.ExpandAndGetRef();
+        tc.m_NameHash = ezTempHashedString(sTemp.GetData()).GetHash();
+        tc.m_Value = ezResourceManager::LoadResource<ezTextureResource>(sTemp2);
       }
     }
   }
 
-  // Read the shader constants
+  if (sAbsFilePath.HasExtension("ezMaterial"))
   {
-    ezVariant* pValue = nullptr;
-    if (json.GetTopLevelObject().TryGetValue("Constants", pValue))
-    {
-      if (!pValue->IsA<ezVariantDictionary>())
-      {
-        ezLog::Error("'Constants' variable is not an object");
-      }
-      else
-      {
-        const ezVariantDictionary& dict = pValue->Get<ezVariantDictionary>();
+    ezExtendedJSONReader json;
+    json.SetLogInterface(ezGlobalLog::GetInstance());
 
-        m_Desc.m_ShaderConstants.Reserve(dict.GetCount());
-        for (auto it = dict.GetIterator(); it.IsValid(); ++it)
+    if (json.Parse(*Stream).Failed())
+    {
+      res.m_State = ezResourceState::LoadedResourceMissing;
+      return res;
+    }
+
+    ezResult Conversion(EZ_FAILURE);
+
+    // Read the base material
+    {
+      ezVariant* pValue = nullptr;
+      if (json.GetTopLevelObject().TryGetValue("BaseMaterial", pValue))
+      {
+        ezString sValue = pValue->ConvertTo<ezString>(&Conversion);
+
+        if (Conversion.Failed())
         {
-          ezMaterialResourceDescriptor::ShaderConstant& sc = m_Desc.m_ShaderConstants.ExpandAndGetRef();
-          sc.m_NameHash = ezTempHashedString(it.Key().GetData()).GetHash();
-          sc.m_Value = it.Value();
+          ezLog::Error("'BaseMaterial' variable is malformed.");
+        }
+        else if (!sValue.IsEmpty())
+        {
+          m_Desc.m_hBaseMaterial = ezResourceManager::LoadResource<ezMaterialResource>(sValue);
         }
       }
     }
-  }
 
-  // Read the texture references
-  {
-    ezVariant* pValue = nullptr;
-    if (json.GetTopLevelObject().TryGetValue("Textures", pValue))
+    // Read the shader
     {
-      if (!pValue->IsA<ezVariantDictionary>())
+      ezVariant* pValue = nullptr;
+      if (json.GetTopLevelObject().TryGetValue("Shader", pValue))
       {
-        ezLog::Error("'Textures' variable is not an object");
-      }
-      else
-      {
-        const ezVariantDictionary& dict = pValue->Get<ezVariantDictionary>();
+        ezString sValue = pValue->ConvertTo<ezString>(&Conversion);
 
-        m_Desc.m_TextureBindings.Reserve(dict.GetCount());
-        for (auto it = dict.GetIterator(); it.IsValid(); ++it)
+        if (Conversion.Failed())
         {
-          ezMaterialResourceDescriptor::TextureBinding& tc = m_Desc.m_TextureBindings.ExpandAndGetRef();
-          tc.m_NameHash = ezTempHashedString(it.Key().GetData()).GetHash();
+          ezLog::Error("'Shader' variable is malformed.");
+        }
+        else if (!sValue.IsEmpty())
+        {
+          m_Desc.m_hShader = ezResourceManager::LoadResource<ezShaderResource>(sValue);
+        }
+      }
+    }
 
-          const ezString sTextureRef = it.Value().ConvertTo<ezString>(&Conversion);
+    // Read the shader permutation variables
+    {
+      ezVariant* pValue = nullptr;
+      if (json.GetTopLevelObject().TryGetValue("Permutations", pValue))
+      {
+        if (!pValue->IsA<ezVariantDictionary>())
+        {
+          ezLog::Error("'Permutations' variable is not an object");
+        }
+        else
+        {
+          const ezVariantDictionary& dict = pValue->Get<ezVariantDictionary>();
 
-          if (Conversion.Failed())
+          m_Desc.m_PermutationVars.Reserve(dict.GetCount());
+          for (auto it = dict.GetIterator(); it.IsValid(); ++it)
           {
-            ezLog::Error("'Textures' object has member '%s' that is not convertible to a string", it.Key().GetData());
-            m_Desc.m_TextureBindings.PopBack();
-            continue;
-          }
+            ezMaterialResourceDescriptor::PermutationVar& pv = m_Desc.m_PermutationVars.ExpandAndGetRef();
+            pv.m_Name.Assign(it.Key().GetData());
+            pv.m_Value.Assign(it.Value().ConvertTo<ezString>(&Conversion).GetData());
 
-          tc.m_Value = ezResourceManager::LoadResource<ezTextureResource>(sTextureRef);
+            if (Conversion.Failed())
+            {
+              ezLog::Error("'Permutations' object has member '%s' that is not convertible to a string", it.Key().GetData());
+              m_Desc.m_PermutationVars.PopBack();
+            }
+          }
+        }
+      }
+    }
+
+    // Read the shader constants
+    {
+      ezVariant* pValue = nullptr;
+      if (json.GetTopLevelObject().TryGetValue("Constants", pValue))
+      {
+        if (!pValue->IsA<ezVariantDictionary>())
+        {
+          ezLog::Error("'Constants' variable is not an object");
+        }
+        else
+        {
+          const ezVariantDictionary& dict = pValue->Get<ezVariantDictionary>();
+
+          m_Desc.m_ShaderConstants.Reserve(dict.GetCount());
+          for (auto it = dict.GetIterator(); it.IsValid(); ++it)
+          {
+            ezMaterialResourceDescriptor::ShaderConstant& sc = m_Desc.m_ShaderConstants.ExpandAndGetRef();
+            sc.m_NameHash = ezTempHashedString(it.Key().GetData()).GetHash();
+            sc.m_Value = it.Value();
+          }
+        }
+      }
+    }
+
+    // Read the texture references
+    {
+      ezVariant* pValue = nullptr;
+      if (json.GetTopLevelObject().TryGetValue("Textures", pValue))
+      {
+        if (!pValue->IsA<ezVariantDictionary>())
+        {
+          ezLog::Error("'Textures' variable is not an object");
+        }
+        else
+        {
+          const ezVariantDictionary& dict = pValue->Get<ezVariantDictionary>();
+
+          m_Desc.m_TextureBindings.Reserve(dict.GetCount());
+          for (auto it = dict.GetIterator(); it.IsValid(); ++it)
+          {
+            ezMaterialResourceDescriptor::TextureBinding& tc = m_Desc.m_TextureBindings.ExpandAndGetRef();
+            tc.m_NameHash = ezTempHashedString(it.Key().GetData()).GetHash();
+
+            const ezString sTextureRef = it.Value().ConvertTo<ezString>(&Conversion);
+
+            if (Conversion.Failed())
+            {
+              ezLog::Error("'Textures' object has member '%s' that is not convertible to a string", it.Key().GetData());
+              m_Desc.m_TextureBindings.PopBack();
+              continue;
+            }
+
+            tc.m_Value = ezResourceManager::LoadResource<ezTextureResource>(sTextureRef);
+          }
         }
       }
     }

@@ -1,6 +1,7 @@
 #include <RendererCore/PCH.h>
 #include <RendererCore/Meshes/MeshResource.h>
 #include <RendererCore/Material/MaterialResource.h>
+#include <Foundation/Strings/StringBuilder.h>
 
 #include <Core/ResourceManager/ResourceManager.h>
 
@@ -42,7 +43,19 @@ ezResourceLoadDesc ezMeshResource::UpdateContent(ezStreamReaderBase* Stream)
   res.m_uiQualityLevelsDiscardable = 0;
   res.m_uiQualityLevelsLoadable = 0;
 
-  if (Stream == nullptr || desc.Load(*Stream).Failed())
+  if (Stream == nullptr)
+  {
+    res.m_State = ezResourceState::LoadedResourceMissing;
+    return res;
+  }
+
+  // skip the absolute file path data that the standard file reader writes into the stream
+  {
+    ezString sAbsFilePath;
+    (*Stream) >> sAbsFilePath;
+  }
+    
+  if (desc.Load(*Stream).Failed())
   {
     res.m_State = ezResourceState::LoadedResourceMissing;
     return res;

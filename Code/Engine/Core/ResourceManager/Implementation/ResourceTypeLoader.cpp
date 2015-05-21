@@ -37,6 +37,9 @@ ezResourceLoadData ezResourceLoaderFromFile::OpenDataStream(const ezResourceBase
 
   ezMemoryStreamWriter w(&pData->m_Storage);
 
+  // write the absolute path to the read file into the memory stream
+  w << File.GetFilePathAbsolute();
+
   ezUInt8 uiTemp[1024];
 
   while (true)
