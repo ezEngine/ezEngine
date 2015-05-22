@@ -48,7 +48,7 @@ void ezViewContext::SetupRenderTarget(ezWindowHandle hWnd, ezUInt16 uiWidth, ezU
       EZ_DEFAULT_DELETE(m_pView);
     }
 
-    m_pView = ezRenderLoop::CreateView("Asteroids - View");
+    m_pView = ezRenderLoop::CreateView("Editor - View");
 
     ezRenderPipeline* pRenderPipeline = EZ_DEFAULT_NEW(ezRenderPipeline);
     pRenderPipeline->AddPass(EZ_DEFAULT_NEW(ezSimpleRenderPass, m_hBBRT));
