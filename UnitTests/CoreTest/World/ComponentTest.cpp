@@ -139,6 +139,9 @@ EZ_CREATE_SIMPLE_TEST(World, Components)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Component Init")
   {
+    // test recursive write lock
+    EZ_LOCK(world.GetWriteMarker());
+
     ezComponentHandle handle;
     EZ_TEST_BOOL(!world.TryGetComponent(handle, pComponent));
 

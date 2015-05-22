@@ -131,6 +131,7 @@ namespace ezInternal
     MessageQueue m_TimedMessageQueues[ezObjectMsgQueueType::COUNT];
 
     ezThreadID m_WriteThreadID;
+    ezInt32 m_iWriteCounter;
     mutable ezAtomicInteger32 m_iReadCounter;
 
   public:

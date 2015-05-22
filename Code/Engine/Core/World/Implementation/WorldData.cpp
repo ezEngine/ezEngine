@@ -23,6 +23,7 @@ WorldData::WorldData(const char* szWorldName) :
   m_BlockAllocator(szWorldName, &m_Allocator),
   m_ObjectStorage(&m_BlockAllocator, &m_Allocator),
   m_WriteThreadID((ezThreadID)0),
+  m_iWriteCounter(0),
   m_ReadMarker(*this),
   m_WriteMarker(*this),
   m_pUserData(nullptr)
