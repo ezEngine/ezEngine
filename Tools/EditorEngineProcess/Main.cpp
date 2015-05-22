@@ -15,7 +15,7 @@ ezEditorGameState::ezEditorGameState()
 
 void ezEditorGameState::Activate()
 {
-  //while (!IsDebuggerPresent());
+  while (!IsDebuggerPresent());
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   // Setting this flags prevents Windows from showing a dialog when the Engine process crashes

@@ -62,13 +62,14 @@ void ezEditorGameState::EventHandlerIPC(const ezProcessCommunication::Event& e)
     ezEngineProcessDocumentContext::AddDocumentContext(pDocMsg->m_DocumentGuid, pDocumentContext);
 
     pDocumentContext->m_pWorld = EZ_DEFAULT_NEW(ezWorld, ezConversionUtils::ToString(pDocMsg->m_DocumentGuid));
+    EZ_LOCK(pDocumentContext->m_pWorld->GetWriteMarker());
 
     pDocumentContext->m_pWorld->CreateComponentManager<ezMeshComponentManager>();
     pDocumentContext->m_pWorld->CreateComponentManager<ezRotorComponentManager>();
     pDocumentContext->m_pWorld->CreateComponentManager<ezSliderComponentManager>();
   }
 
-  pDocumentContext->m_pWorld->TransferThreadOwnership();
+  EZ_LOCK(pDocumentContext->m_pWorld->GetWriteMarker());
 
 
   if (pDocMsg->GetDynamicRTTI()->IsDerivedFrom<ezDocumentOpenMsgToEngine>()) // Document was opened or closed

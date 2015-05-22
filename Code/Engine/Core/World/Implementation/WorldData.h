@@ -130,8 +130,39 @@ namespace ezInternal
     MessageQueue m_MessageQueues[ezObjectMsgQueueType::COUNT];
     MessageQueue m_TimedMessageQueues[ezObjectMsgQueueType::COUNT];
 
-    ezThreadID m_ThreadID;
-    bool m_bIsInAsyncPhase;
+    ezThreadID m_WriteThreadID;
+    mutable ezAtomicInteger32 m_iReadCounter;
+
+  public:
+    class ReadMarker
+    {
+    public:
+      void Acquire();
+      void Release();
+
+    private:
+      friend class ::ezInternal::WorldData;
+
+      ReadMarker(const WorldData& data);
+      const WorldData& m_Data;
+    };    
+
+    class WriteMarker
+    {
+    public:
+      void Acquire();
+      void Release();
+
+    private:
+      friend class ::ezInternal::WorldData;
+
+      WriteMarker(WorldData& data);
+      WorldData& m_Data;
+    };
+
+  private:
+    mutable ReadMarker m_ReadMarker;
+    WriteMarker m_WriteMarker;
 
     void* m_pUserData;
   };

@@ -74,6 +74,8 @@ EZ_CREATE_SIMPLE_TEST(World, Messaging)
 {
   ezClock::SetNumGlobalClocks();
   ezWorld world("Test");
+  EZ_LOCK(world.GetWriteMarker());
+
   TestComponentMsgManager* pManager = world.CreateComponentManager<TestComponentMsgManager>();
 
   ezGameObjectDesc desc;

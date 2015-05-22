@@ -80,6 +80,7 @@ EZ_CREATE_SIMPLE_TEST(World, World)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "GameObject parenting")
   {
     ezWorld world("Test");
+    EZ_LOCK(world.GetWriteMarker());
 
     const float eps = ezMath::BasicType<float>::DefaultEpsilon();
     ezQuat q; q.SetFromAxisAndAngle(ezVec3(0.0f, 0.0f, 1.0f), ezAngle::Degree(90.0f));
@@ -178,6 +179,8 @@ EZ_CREATE_SIMPLE_TEST(World, World)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Re-parenting 1")
   {
     ezWorld world("Test");
+    EZ_LOCK(world.GetWriteMarker());
+
     TestWorldObjects o = CreateTestWorld(world);
 
     o.pParent1->AddChild(o.pParent2->GetHandle());
@@ -209,6 +212,8 @@ EZ_CREATE_SIMPLE_TEST(World, World)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Re-parenting 2")
   {
     ezWorld world("Test");
+    EZ_LOCK(world.GetWriteMarker());
+
     TestWorldObjects o = CreateTestWorld(world);
 
     o.pChild21->SetParent(ezGameObjectHandle());
@@ -235,6 +240,8 @@ EZ_CREATE_SIMPLE_TEST(World, World)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Traversal")
   {
     ezWorld world("Test");
+    EZ_LOCK(world.GetWriteMarker());
+
     TestWorldObjects o = CreateTestWorld(world);
 
     {
@@ -300,7 +307,10 @@ EZ_CREATE_SIMPLE_TEST(World, World)
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Multiple Worlds")
   {
     ezWorld world1("Test1");
+    EZ_LOCK(world1.GetWriteMarker());
+
     ezWorld world2("Test2");
+    EZ_LOCK(world2.GetWriteMarker());
 
     ezGameObjectDesc desc;
     desc.m_sName.Assign("Obj1");

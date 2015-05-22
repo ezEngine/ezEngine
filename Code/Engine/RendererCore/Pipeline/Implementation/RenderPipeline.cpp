@@ -62,11 +62,15 @@ void ezRenderPipeline::ExtractData(const ezView& view)
   msg.m_pRenderPipeline = this;
   msg.m_pView = &view;
 
-  /// \todo use spatial data to do visibility culling etc.
-  for (auto it = view.GetWorld()->GetObjects(); it.IsValid(); ++it)
   {
-    const ezGameObject* pObject = it;
-    pObject->SendMessage(msg);
+    EZ_LOCK(view.GetWorld()->GetReadMarker());
+
+    /// \todo use spatial data to do visibility culling etc.
+    for (auto it = view.GetWorld()->GetObjects(); it.IsValid(); ++it)
+    {
+      const ezGameObject* pObject = it;
+      pObject->SendMessage(msg);
+    }
   }
 
   for (ezUInt32 uiPassIndex = 0; uiPassIndex < pPipelineData->m_PassData.GetCount(); ++uiPassIndex)

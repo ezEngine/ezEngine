@@ -47,8 +47,6 @@ ezWorld::ezWorld(const char* szWorldName) :
 
 ezWorld::~ezWorld()
 {
-  CheckForMultithreadedAccess();
-
   // set all objects to inactive so components and children know that they shouldn't access the objects anymore.
   for (auto it = m_Data.m_ObjectStorage.GetIterator(); it.IsValid(); it.Next())
   {
@@ -72,7 +70,7 @@ ezWorld::~ezWorld()
 
 ezGameObjectHandle ezWorld::CreateObject(const ezGameObjectDesc& desc, ezGameObject*& out_pObject)
 {
-  CheckForMultithreadedAccess();
+  CheckForWriteAccess();
 
   ezGameObject* pParentObject = nullptr;
   ezGameObject::TransformationData* pParentData = nullptr;
@@ -136,7 +134,7 @@ ezGameObjectHandle ezWorld::CreateObject(const ezGameObjectDesc& desc, ezGameObj
 
 void ezWorld::DeleteObject(const ezGameObjectHandle& object)
 {
-  CheckForMultithreadedAccess();
+  CheckForWriteAccess();
 
   ObjectStorageEntry storageEntry;
   if (!m_Data.m_Objects.TryGetValue(object, storageEntry))
@@ -171,9 +169,24 @@ void ezWorld::DeleteObject(const ezGameObjectHandle& object)
   EZ_VERIFY(m_Data.m_Objects.Remove(object), "Implementation error.");
 }
 
+ezComponentManagerBase* ezWorld::GetComponentManager(const ezRTTI* pRtti) const
+{
+  CheckForReadAccess();
+
+  for (auto pMan : m_Data.m_ComponentManagers)
+  {
+    if (pMan != nullptr && pMan->GetComponentType() == pRtti)
+      return pMan;
+  }
+
+  return nullptr;
+}
+
 void ezWorld::PostMessage(const ezGameObjectHandle& receiverObject, ezMessage& msg, 
   ezObjectMsgQueueType::Enum queueType, ezObjectMsgRouting::Enum routing)
 {
+  // This method is allowed to be called from multiple threads.
+
   QueuedMsgMetaData metaData;
   metaData.m_ReceiverObject = receiverObject;
   metaData.m_Routing = routing;
@@ -185,6 +198,8 @@ void ezWorld::PostMessage(const ezGameObjectHandle& receiverObject, ezMessage& m
 void ezWorld::PostMessage(const ezGameObjectHandle& receiverObject, ezMessage& msg, 
   ezObjectMsgQueueType::Enum queueType, ezTime delay, ezObjectMsgRouting::Enum routing)
 {
+  // This method is allowed to be called from multiple threads.
+
   QueuedMsgMetaData metaData;
   metaData.m_ReceiverObject = receiverObject;
   metaData.m_Routing = routing;
@@ -196,8 +211,7 @@ void ezWorld::PostMessage(const ezGameObjectHandle& receiverObject, ezMessage& m
 
 void ezWorld::Update()
 {
-  CheckForMultithreadedAccess();
-
+  CheckForWriteAccess();
   EZ_ASSERT_DEV(m_Data.m_UnresolvedUpdateFunctions.IsEmpty(), "There are update functions with unresolved dependencies.");
 
   EZ_LOG_BLOCK(m_Data.m_sName.GetData());
@@ -212,8 +226,14 @@ void ezWorld::Update()
 
   // async phase
   {
+    // remove write marker but keep the read marker. Thus no one can mark the world for writing now. Only reading is allowed in async phase.
+    m_Data.m_WriteThreadID = (ezThreadID)0;
+
     EZ_PROFILE(s_AsyncProfilingID);
     UpdateAsynchronous();
+
+    // restore write marker
+    m_Data.m_WriteThreadID = ezThreadUtils::GetCurrentThreadID();
   }
 
   // post-async phase
@@ -249,7 +269,7 @@ void ezWorld::Update()
 
 void ezWorld::SetParent(ezGameObject* pObject, ezGameObject* pNewParent)
 {
-  CheckForMultithreadedAccess();
+  CheckForWriteAccess();
 
   if (GetObjectUnchecked(pObject->m_ParentIndex) == pNewParent)
     return;
@@ -375,7 +395,7 @@ void ezWorld::ProcessQueuedMessages(ezObjectMsgQueueType::Enum queueType)
 
 ezResult ezWorld::RegisterUpdateFunction(const ezComponentManagerBase::UpdateFunctionDesc& desc)
 {
-  CheckForMultithreadedAccess();
+  CheckForWriteAccess();
 
   EZ_ASSERT_DEV(desc.m_Phase == ezComponentManagerBase::UpdateFunctionDesc::Async || desc.m_uiGranularity == 0, "Granularity must be 0 for synchronous update functions");
 
@@ -451,7 +471,7 @@ ezResult ezWorld::RegisterUpdateFunctionWithDependency(const ezComponentManagerB
 
 ezResult ezWorld::DeregisterUpdateFunction(const ezComponentManagerBase::UpdateFunctionDesc& desc)
 {
-  CheckForMultithreadedAccess();
+  CheckForWriteAccess();
 
   ezResult result = EZ_FAILURE;
 
@@ -471,7 +491,7 @@ ezResult ezWorld::DeregisterUpdateFunction(const ezComponentManagerBase::UpdateF
 
 void ezWorld::DeregisterUpdateFunctions(ezComponentManagerBase* pManager)
 {
-  CheckForMultithreadedAccess();
+  CheckForWriteAccess();
 
   for (ezUInt32 phase = ezComponentManagerBase::UpdateFunctionDesc::PreAsync; phase < ezComponentManagerBase::UpdateFunctionDesc::PHASE_COUNT; ++phase)
   {
@@ -489,7 +509,8 @@ void ezWorld::DeregisterUpdateFunctions(ezComponentManagerBase* pManager)
 
 void ezWorld::UpdateFromThread()
 {
-  TransferThreadOwnership();
+  EZ_LOCK(GetWriteMarker());
+
   Update();
 }
 
@@ -503,8 +524,6 @@ void ezWorld::UpdateSynchronous(const ezArrayPtr<ezInternal::WorldData::Register
 
 void ezWorld::UpdateAsynchronous()
 {
-  m_Data.m_bIsInAsyncPhase = true;
-
   ezTaskGroupID taskGroupId = ezTaskSystem::CreateTaskGroup(ezTaskPriority::EarlyThisFrame);
 
   ezDynamicArrayBase<ezInternal::WorldData::RegisteredUpdateFunction>& updateFunctions = 
@@ -547,8 +566,6 @@ void ezWorld::UpdateAsynchronous()
 
   ezTaskSystem::StartTaskGroup(taskGroupId);
   ezTaskSystem::WaitForGroup(taskGroupId);
-
-  m_Data.m_bIsInAsyncPhase = false;
 }
 
 void ezWorld::DeleteDeadObjects()
@@ -677,17 +694,6 @@ void ezWorld::UpdateHierarchy()
   }
 
   m_Data.m_SetParentRequests.Clear();
-}
-
-ezComponentManagerBase* ezWorld::GetComponentManager(const ezRTTI* pRtti) const
-{
-  for (auto pMan : m_Data.m_ComponentManagers)
-  {
-    if (pMan != nullptr && pMan->GetComponentType() == pRtti)
-      return pMan;
-  }
-
-  return nullptr;
 }
 
 EZ_STATICLINK_FILE(Core, Core_World_Implementation_World);

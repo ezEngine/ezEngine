@@ -1,7 +1,7 @@
 
 EZ_FORCE_INLINE const char* ezWorld::GetName() const
 { 
-  return m_Data.m_sName.GetString().GetData(); 
+  return m_Data.m_sName.GetData(); 
 }
 
 EZ_FORCE_INLINE ezGameObjectHandle ezWorld::CreateObject(const ezGameObjectDesc& desc)
@@ -12,7 +12,7 @@ EZ_FORCE_INLINE ezGameObjectHandle ezWorld::CreateObject(const ezGameObjectDesc&
 
 EZ_FORCE_INLINE bool ezWorld::IsValidObject(const ezGameObjectHandle& object) const
 {
-  CheckForMultithreadedAccess();
+  CheckForReadAccess();
   EZ_ASSERT_DEV(object.IsInvalidated() || object.m_InternalId.m_WorldIndex == m_uiIndex,
     "Object does not belong to this world. Expected world id %d got id %d", m_uiIndex, object.m_InternalId.m_WorldIndex);
 
@@ -21,7 +21,7 @@ EZ_FORCE_INLINE bool ezWorld::IsValidObject(const ezGameObjectHandle& object) co
 
 EZ_FORCE_INLINE bool ezWorld::TryGetObject(const ezGameObjectHandle& object, ezGameObject*& out_pObject) const
 {
-  CheckForMultithreadedAccess();
+  CheckForReadAccess();
   EZ_ASSERT_DEV(object.IsInvalidated() || object.m_InternalId.m_WorldIndex == m_uiIndex,
     "Object does not belong to this world. Expected world id %d got id %d", m_uiIndex, object.m_InternalId.m_WorldIndex);
 
@@ -33,21 +33,26 @@ EZ_FORCE_INLINE bool ezWorld::TryGetObject(const ezGameObjectHandle& object, ezG
 
 EZ_FORCE_INLINE ezUInt32 ezWorld::GetObjectCount() const
 {
+  CheckForReadAccess();
   return m_Data.m_ObjectStorage.GetCount();
 }
 
 EZ_FORCE_INLINE ezInternal::WorldData::ObjectStorage::Iterator ezWorld::GetObjects()
 {
+  CheckForWriteAccess();
   return m_Data.m_ObjectStorage.GetIterator(0);
 }
 
 EZ_FORCE_INLINE ezInternal::WorldData::ObjectStorage::ConstIterator ezWorld::GetObjects() const
 {
+  CheckForReadAccess();
   return m_Data.m_ObjectStorage.GetIterator(0);
 }
 
 EZ_FORCE_INLINE void ezWorld::Traverse(VisitorFunc visitorFunc, TraversalMethod method /*= DepthFirst*/)
 {
+  CheckForWriteAccess();
+
   if (method == DepthFirst)
   {
     m_Data.TraverseDepthFirst(visitorFunc);
@@ -61,7 +66,7 @@ EZ_FORCE_INLINE void ezWorld::Traverse(VisitorFunc visitorFunc, TraversalMethod 
 template <typename ManagerType>
 ManagerType* ezWorld::CreateComponentManager()
 {
-  CheckForMultithreadedAccess();
+  CheckForWriteAccess();
   EZ_CHECK_AT_COMPILETIME_MSG(EZ_IS_DERIVED_FROM_STATIC(ezComponentManagerBase, ManagerType), 
     "Not a valid component manager type");
 
@@ -86,7 +91,7 @@ ManagerType* ezWorld::CreateComponentManager()
 template <typename ManagerType>
 void ezWorld::DeleteComponentManager()
 {
-  CheckForMultithreadedAccess();
+  CheckForWriteAccess();
 
   const ezUInt16 uiTypeId = ManagerType::TypeId();
   if (uiTypeId < m_Data.m_ComponentManagers.GetCount())
@@ -105,7 +110,7 @@ void ezWorld::DeleteComponentManager()
 template <typename ManagerType>
 EZ_FORCE_INLINE ManagerType* ezWorld::GetComponentManager() const
 {
-  CheckForMultithreadedAccess();
+  CheckForReadAccess();
   EZ_CHECK_AT_COMPILETIME_MSG(EZ_IS_DERIVED_FROM_STATIC(ezComponentManagerBase, ManagerType), 
     "Not a valid component manager type");
 
@@ -123,7 +128,7 @@ EZ_FORCE_INLINE ManagerType* ezWorld::GetComponentManager() const
 
 inline bool ezWorld::IsValidComponent(const ezComponentHandle& component) const
 {
-  CheckForMultithreadedAccess();
+  CheckForReadAccess();
   const ezUInt16 uiTypeId = component.m_InternalId.m_TypeId;
 
   if (uiTypeId < m_Data.m_ComponentManagers.GetCount())
@@ -140,7 +145,7 @@ inline bool ezWorld::IsValidComponent(const ezComponentHandle& component) const
 template <typename ComponentType>
 inline bool ezWorld::TryGetComponent(const ezComponentHandle& component, ComponentType*& out_pComponent) const
 {
-  CheckForMultithreadedAccess();
+  CheckForReadAccess();
   EZ_CHECK_AT_COMPILETIME_MSG(EZ_IS_DERIVED_FROM_STATIC(ezComponent, ComponentType),
     "Not a valid component type");
 
@@ -163,7 +168,7 @@ inline bool ezWorld::TryGetComponent(const ezComponentHandle& component, Compone
 EZ_FORCE_INLINE void ezWorld::SendMessage(const ezGameObjectHandle& receiverObject, ezMessage& msg,
   ezObjectMsgRouting::Enum routing /*= ezObjectMsgRouting::Default*/)
 {
-  CheckForMultithreadedAccess();
+  CheckForWriteAccess();
 
   ezGameObject* pReceiverObject = NULL;
   if (TryGetObject(receiverObject, pReceiverObject))
@@ -179,6 +184,8 @@ EZ_FORCE_INLINE ezTask* ezWorld::GetUpdateTask()
 
 EZ_FORCE_INLINE const ezInternal::SpatialData& ezWorld::GetSpatialData() const
 {
+  CheckForReadAccess();
+
   return m_SpatialData;
 }
 
@@ -192,18 +199,27 @@ EZ_FORCE_INLINE ezInternal::WorldLargeBlockAllocator* ezWorld::GetBlockAllocator
   return &m_Data.m_BlockAllocator;
 }
 
-EZ_FORCE_INLINE void ezWorld::TransferThreadOwnership()
+EZ_FORCE_INLINE ezInternal::WorldData::ReadMarker& ezWorld::GetReadMarker() const
 {
-  m_Data.m_ThreadID = ezThreadUtils::GetCurrentThreadID();
+  return m_Data.m_ReadMarker;
+}
+
+EZ_FORCE_INLINE ezInternal::WorldData::WriteMarker& ezWorld::GetWriteMarker()
+{
+  return m_Data.m_WriteMarker;
 }
 
 EZ_FORCE_INLINE void ezWorld::SetUserData(void* pUserData)
 {
+  CheckForWriteAccess();
+
   m_Data.m_pUserData = pUserData;
 }
 
 EZ_FORCE_INLINE void* ezWorld::GetUserData() const
 {
+  CheckForReadAccess();
+
   return m_Data.m_pUserData;
 }
 
@@ -219,10 +235,14 @@ EZ_FORCE_INLINE ezWorld* ezWorld::GetWorld(ezUInt32 uiIndex)
   return s_Worlds[uiIndex];
 }
 
-EZ_FORCE_INLINE void ezWorld::CheckForMultithreadedAccess() const
+EZ_FORCE_INLINE void ezWorld::CheckForReadAccess() const
 {
-  EZ_ASSERT_DEV(!m_Data.m_bIsInAsyncPhase, "World must not be accessed while in async update phase.");
-  EZ_ASSERT_DEV(m_Data.m_ThreadID == ezThreadUtils::GetCurrentThreadID(), "World must not be accessed from another thread than the creation thread.");
+  EZ_ASSERT_DEV(m_Data.m_iReadCounter > 0, "Trying to read from World '%s', but it is not marked for reading.", GetName());
+}
+
+EZ_FORCE_INLINE void ezWorld::CheckForWriteAccess() const
+{
+  EZ_ASSERT_DEV(m_Data.m_WriteThreadID == ezThreadUtils::GetCurrentThreadID(), "Trying to write to World '%s', but it is not marked for writing.", GetName());
 }
 
 EZ_FORCE_INLINE ezGameObject* ezWorld::GetObjectUnchecked(ezUInt32 uiIndex) const

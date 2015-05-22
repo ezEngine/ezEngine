@@ -122,9 +122,11 @@ public:
   /// \brief Returns the block allocator used by this world.
   ezInternal::WorldLargeBlockAllocator* GetBlockAllocator();
 
-  /// \brief Transfers ownership of the world to the calling thread. Use with care!
-  /// Call this method if you want to update the world in a workerthread. Make sure that the world is not accessed by multiple threads at the same time.
-  void TransferThreadOwnership();
+  /// \brief Mark the world for reading by using EZ_LOCK(world.GetReadMarker()). Multiple threads can read simultaneously if none is writing. 
+  ezInternal::WorldData::ReadMarker& GetReadMarker() const;
+
+  /// \brief Mark the world for writing by using EZ_LOCK(world.GetWriteMarker()). Only one thread can write at a time.
+  ezInternal::WorldData::WriteMarker& GetWriteMarker();
 
 
   /// \brief Associates the given user data with the world. The user is responsible for the life time of user data.
@@ -144,7 +146,8 @@ private:
   friend class ezGameObject;
   friend class ezComponentManagerBase;
 
-  void CheckForMultithreadedAccess() const;
+  void CheckForReadAccess() const;
+  void CheckForWriteAccess() const;
 
   ezGameObject* GetObjectUnchecked(ezUInt32 uiIndex) const;
 

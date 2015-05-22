@@ -16,6 +16,7 @@
 void GameState::CreateGameLevelAndRenderPipeline(ezGALRenderTargetConfigHandle hRTConfig)
 {
   m_pWorld = EZ_DEFAULT_NEW(ezWorld, "Level");
+  EZ_LOCK(m_pWorld->GetWriteMarker());
 
   ezMeshComponentManager* pMeshCompMan = m_pWorld->CreateComponentManager<ezMeshComponentManager>();
   ezRotorComponentManager* pRotorCompMan = m_pWorld->CreateComponentManager<ezRotorComponentManager>();
@@ -106,7 +107,6 @@ void GameState::DestroyGameLevel()
 
   ezRenderLoop::ClearMainViews();
 
-  m_pWorld->TransferThreadOwnership();
   EZ_DEFAULT_DELETE(m_pWorld);
 }
 

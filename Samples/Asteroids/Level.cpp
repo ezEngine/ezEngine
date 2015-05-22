@@ -79,13 +79,13 @@ Level::Level()
 
 Level::~Level()
 {
-  m_pWorld->TransferThreadOwnership();
   EZ_DEFAULT_DELETE(m_pWorld);
 }
 
 void Level::SetupLevel(ezWorld* pWorld)
 {
   m_pWorld = pWorld;
+  EZ_LOCK(m_pWorld->GetWriteMarker());
 
   m_pWorld->CreateComponentManager<ezMeshComponentManager>();
   m_pWorld->CreateComponentManager<ShipComponentManager>();

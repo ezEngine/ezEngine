@@ -192,6 +192,7 @@ ezApplication::ApplicationExecution ezGameApplication::Run()
     m_Windows[i].m_pWindow->ProcessWindowMessages();
   }
 
+  ///\todo: there should also be a clock per world
   ezClock::UpdateAllGlobalClocks();
 
   ezTaskGroupID updateTaskID;
@@ -295,7 +296,8 @@ void ezGameApplication::UpdateWorldsAndExtractViews()
     for (ezUInt32 i = 0; i < worldsToUpdate.GetCount(); ++i)
     {
       ezWorld* pWorld = worldsToUpdate[i];
-      pWorld->TransferThreadOwnership();
+      EZ_LOCK(pWorld->GetWriteMarker());
+
       pWorld->Update();
     }
   }
