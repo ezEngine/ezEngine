@@ -23,38 +23,37 @@ void ezDocumentObjectBase::ComputeObjectHash(ezUInt64& uiHash) const
   {
     const ezIReflectedTypeAccessor& acc = GetEditorTypeAccessor();
     auto pType = acc.GetReflectedTypeHandle().GetType();
-    HashPropertiesRecursive(acc, uiHash, pType, "");
+    ezPropertyPath path;
+    HashPropertiesRecursive(acc, uiHash, pType, path);
   }
 
   {
     const ezIReflectedTypeAccessor& acc = GetTypeAccessor();
     auto pType = acc.GetReflectedTypeHandle().GetType();
-    HashPropertiesRecursive(acc, uiHash, pType, "");
+    ezPropertyPath path;
+    HashPropertiesRecursive(acc, uiHash, pType, path);
   }
 }
 
 
-void ezDocumentObjectBase::HashPropertiesRecursive(const ezIReflectedTypeAccessor& acc, ezUInt64& uiHash, const ezReflectedType* pType, const char* szPath) const
+void ezDocumentObjectBase::HashPropertiesRecursive(const ezIReflectedTypeAccessor& acc, ezUInt64& uiHash, const ezReflectedType* pType, ezPropertyPath& path) const
 {
   // Parse parent class
   ezReflectedTypeHandle hParent = pType->GetParentTypeHandle();
   if (!hParent.IsInvalidated())
-    HashPropertiesRecursive(acc, uiHash, hParent.GetType(), szPath);
+    HashPropertiesRecursive(acc, uiHash, hParent.GetType(), path);
   
   // Parse properties
   ezUInt32 uiPropertyCount = pType->GetPropertyCount();
   for (ezUInt32 i = 0; i < uiPropertyCount; ++i)
   {
     const ezReflectedProperty* pProperty = pType->GetPropertyByIndex(i);
-    // Build property path
-    ezStringBuilder pathBuilder(szPath);
-    if (!pathBuilder.IsEmpty())
-      pathBuilder.Append("/");
-    pathBuilder.Append(pProperty->m_sPropertyName.GetString().GetData());
-    ezString path = pathBuilder;
 
     if (pProperty->m_Flags.IsSet(ezPropertyFlags::ReadOnly))
       continue;
+
+    // Build property path
+    path.PushBack(pProperty->m_sPropertyName.GetString().GetData());
 
     if (pProperty->m_Flags.IsSet(ezPropertyFlags::StandardType))
     {
@@ -75,8 +74,10 @@ void ezDocumentObjectBase::HashPropertiesRecursive(const ezIReflectedTypeAccesso
       }
       else
       {
-        HashPropertiesRecursive(acc, uiHash, pProperty->m_hTypeHandle.GetType(), path.GetData());
+        HashPropertiesRecursive(acc, uiHash, pProperty->m_hTypeHandle.GetType(), path);
       }
     }
+
+    path.PopBack();
   }
 }

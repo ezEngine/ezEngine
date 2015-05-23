@@ -5,6 +5,20 @@
 #include <Foundation/IO/FileSystem/FileWriter.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 
+EZ_BEGIN_STATIC_REFLECTED_TYPE(ezApplicationFileSystemConfig, ezApplicationConfig, 1, ezRTTIDefaultAllocator<ezApplicationFileSystemConfig> );
+  EZ_BEGIN_PROPERTIES
+    EZ_ARRAY_MEMBER_PROPERTY("DataDirs", m_DataDirs),
+  EZ_END_PROPERTIES
+EZ_END_STATIC_REFLECTED_TYPE();
+
+EZ_BEGIN_STATIC_REFLECTED_TYPE(ezApplicationFileSystemConfig_DataDirConfig, ezNoBase, 1, ezRTTIDefaultAllocator<ezApplicationFileSystemConfig_DataDirConfig> );
+  EZ_BEGIN_PROPERTIES
+    EZ_MEMBER_PROPERTY("RelativePath", m_sRelativePath),
+    EZ_MEMBER_PROPERTY("Writable", m_bWritable),
+  EZ_END_PROPERTIES
+EZ_END_STATIC_REFLECTED_TYPE();
+
+
 ezResult ezApplicationFileSystemConfig::Save()
 {
   ezStringBuilder sPath;

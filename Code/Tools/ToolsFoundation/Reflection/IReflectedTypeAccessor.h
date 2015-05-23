@@ -20,12 +20,8 @@ public:
   /// \brief Returns the value of the property defined by its path. Return value is invalid iff the path was invalid.
   virtual const ezVariant GetValue(const ezPropertyPath& path) const = 0;
 
-  virtual const ezVariant GetValue(const char* szPath) const;
-
   /// \brief Sets a property defined by its path to the given value. Returns whether the operation was successful.
   virtual bool SetValue(const ezPropertyPath& path, const ezVariant& value) = 0;
-
-  virtual bool SetValue(const char* szPath, const ezVariant& value);
 
 private:
   ezReflectedTypeHandle m_hReflectedType;

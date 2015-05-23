@@ -3,6 +3,7 @@
 #include <EditorFramework/Plugin.h>
 #include <EditorFramework/IPC/ProcessCommunication.h>
 #include <ToolsFoundation/Reflection/ReflectedType.h>
+#include <Core/Application/Config/FileSystemConfig.h>
 
 ///////////////////////////////////// ezEditorEngineMsg ///////////////////////////////////// 
 
@@ -24,6 +25,15 @@ class EZ_EDITORFRAMEWORK_DLL ezUpdateReflectionTypeMsgToEditor : public ezEditor
 
 public:
   ezReflectedTypeDescriptor m_desc;
+};
+
+class EZ_EDITORFRAMEWORK_DLL ezSetupProjectMsgToEditor : public ezEditorEngineMsg
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezSetupProjectMsgToEditor);
+
+public:
+  ezString m_sProjectDir;
+  ezApplicationFileSystemConfig m_Config;
 };
 
 class EZ_EDITORFRAMEWORK_DLL ezProjectReadyMsgToEditor : public ezEditorEngineMsg

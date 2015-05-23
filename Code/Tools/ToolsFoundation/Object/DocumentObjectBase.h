@@ -31,7 +31,7 @@ private:
   friend class ezDocumentObjectTree;
   friend class ezDocumentObjectManagerBase;
 
-  void HashPropertiesRecursive(const ezIReflectedTypeAccessor& acc, ezUInt64& uiHash, const ezReflectedType* pType, const char* szPath) const;
+  void HashPropertiesRecursive(const ezIReflectedTypeAccessor& acc, ezUInt64& uiHash, const ezReflectedType* pType, ezPropertyPath& path) const;
 
   ezUuid m_Guid;
   ezDocumentObjectBase* m_pParent;

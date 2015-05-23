@@ -17,9 +17,8 @@ void ezViewContext::SetupRenderTarget(ezWindowHandle hWnd, ezUInt16 uiWidth, ezU
     if (GetEditorWindow().m_uiWidth == uiWidth && GetEditorWindow().m_uiHeight == uiHeight)
       return;
 
-    ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();
-    pDevice->DestroySwapChain(m_hPrimarySwapChain);
     m_hPrimarySwapChain.Invalidate();
+    static_cast<ezGameApplication*>(ezApplication::GetApplicationInstance())->RemoveWindow(&GetEditorWindow());
   }
 
   ezGALDevice* pDevice = ezGALDevice::GetDefaultDevice();

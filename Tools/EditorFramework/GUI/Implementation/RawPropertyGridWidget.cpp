@@ -84,7 +84,7 @@ void ezRawPropertyGridWidget::PropertyChangedHandler(const ezPropertyEditorBaseW
       cmd.m_bEditorProperty = bEditor;
       cmd.m_Object = m_Selection[0]->GetGuid(); // TODO: Multi selection
       cmd.m_NewValue = ed.m_Value;
-      cmd.SetPropertyPath(ezToolsReflectionUtils::GetStringFromPropertyPath(*ed.m_pPropertyPath));
+      cmd.SetPropertyPath(ed.m_pPropertyPath->GetPathString());
 
 
       m_pDocument->GetCommandHistory()->StartTransaction();

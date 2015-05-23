@@ -4,8 +4,29 @@
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcessMessage, ezReflectedClass, 1, ezRTTINoAllocator );
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
+///////////////////////////////////// ezEditorEngineMsg ///////////////////////////////////// 
+
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditorEngineMsg, ezProcessMessage, 1, ezRTTINoAllocator );
 EZ_END_DYNAMIC_REFLECTED_TYPE();
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezUpdateReflectionTypeMsgToEditor, ezEditorEngineMsg, 1, ezRTTIDefaultAllocator<ezUpdateReflectionTypeMsgToEditor> );
+  EZ_BEGIN_PROPERTIES
+    EZ_MEMBER_PROPERTY("Descriptor", m_desc),
+  EZ_END_PROPERTIES
+EZ_END_DYNAMIC_REFLECTED_TYPE();
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezSetupProjectMsgToEditor, ezEditorEngineMsg, 1, ezRTTIDefaultAllocator<ezSetupProjectMsgToEditor> );
+  EZ_BEGIN_PROPERTIES
+    EZ_MEMBER_PROPERTY("ProjectDir", m_sProjectDir),
+    EZ_MEMBER_PROPERTY("Config", m_Config),
+  EZ_END_PROPERTIES
+EZ_END_DYNAMIC_REFLECTED_TYPE();
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProjectReadyMsgToEditor, ezEditorEngineMsg, 1, ezRTTIDefaultAllocator<ezProjectReadyMsgToEditor> );
+EZ_END_DYNAMIC_REFLECTED_TYPE();
+
+
+///////////////////////////////////// ezEditorEngineDocumentMsg ///////////////////////////////////// 
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditorEngineDocumentMsg, ezProcessMessage, 1, ezRTTINoAllocator );
   EZ_BEGIN_PROPERTIES
@@ -64,14 +85,6 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLogMsgToEditor, ezEditorEngineDocumentMsg, 1, 
   EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezUpdateReflectionTypeMsgToEditor, ezEditorEngineMsg, 1, ezRTTIDefaultAllocator<ezUpdateReflectionTypeMsgToEditor> );
-  EZ_BEGIN_PROPERTIES
-    EZ_MEMBER_PROPERTY("Descriptor", m_desc),
-  EZ_END_PROPERTIES
-EZ_END_DYNAMIC_REFLECTED_TYPE();
-
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProjectReadyMsgToEditor, ezEditorEngineMsg, 1, ezRTTIDefaultAllocator<ezProjectReadyMsgToEditor> );
-EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditorEngineSyncObjectMsg, ezEditorEngineDocumentMsg, 1, ezRTTIDefaultAllocator<ezEditorEngineSyncObjectMsg> );
   EZ_BEGIN_PROPERTIES

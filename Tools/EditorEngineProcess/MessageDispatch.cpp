@@ -34,6 +34,21 @@ void ezEditorGameState::SendReflectionInformation()
 
 void ezEditorGameState::EventHandlerIPC(const ezProcessCommunication::Event& e)
 {
+  // Project Messages:
+  if (e.m_pMessage->GetDynamicRTTI()->IsDerivedFrom<ezSetupProjectMsgToEditor>())
+  {
+    const ezSetupProjectMsgToEditor* pSetupMsg = static_cast<const ezSetupProjectMsgToEditor*>(e.m_pMessage);
+    ezApplicationConfig::SetProjectDirectory(pSetupMsg->m_sProjectDir);
+
+    const_cast<ezSetupProjectMsgToEditor*>(pSetupMsg)->m_Config.Apply();
+    // Project setup, we are now ready to accept document messages.
+    SendProjectReadyMessage();
+    return;
+  }
+
+  // Document Messages:
+  if (!e.m_pMessage->GetDynamicRTTI()->IsDerivedFrom<ezEditorEngineDocumentMsg>())
+    return;
   const ezEditorEngineDocumentMsg* pDocMsg = (const ezEditorEngineDocumentMsg*) e.m_pMessage;
 
   ezViewContext* pViewContext = (ezViewContext*) ezEngineProcessViewContext::GetViewContext(pDocMsg->m_uiViewID);

@@ -170,6 +170,7 @@ void ezToolsReflectionUtils::RegisterType(const ezRTTI* pRtti, bool bIncludeDeri
 
 ezPropertyPath ezToolsReflectionUtils::CreatePropertyPath(const char* pData1, const char* pData2, const char* pData3, const char* pData4, const char* pData5, const char* pData6)
 {
+  ezPropertyPath path;
   const ezUInt32 uiMaxParams = 6;
   const char* pStrings[uiMaxParams] = { pData1, pData2, pData3, pData4, pData5, pData6 };
   ezUInt32 uiUsedParams = 0;
@@ -178,10 +179,10 @@ ezPropertyPath ezToolsReflectionUtils::CreatePropertyPath(const char* pData1, co
     if (ezStringUtils::IsNullOrEmpty(pStrings[i]))
       break;
 
-    uiUsedParams++;
+    path.PushBack(pStrings[i]);
   }
 
-  return ezPropertyPath(ezArrayPtr<const char*>(pStrings, uiUsedParams));
+  return path;
 }
 
 ezAbstractMemberProperty* ezToolsReflectionUtils::GetMemberPropertyByPath(const ezRTTI*& inout_pRtti, void*& inout_pData, const ezPropertyPath& path)
@@ -211,40 +212,13 @@ ezAbstractMemberProperty* ezToolsReflectionUtils::GetMemberPropertyByPath(const 
   return pCurrentProp;
 }
 
-void ezToolsReflectionUtils::GetPropertyPathFromString(const char* szPath, ezPropertyPath& out_Path, ezHybridArray<ezString, 6>& out_Storage)
-{
-  ezStringBuilder temp = szPath;
-  temp.Split(false, out_Storage, "/");
-
-  const ezUInt32 uiCount = out_Storage.GetCount();
-
-  for (ezUInt32 i = 0; i < uiCount; i++)
-  {
-    out_Path.PushBack(out_Storage[i]);
-  }
-}
-
-ezString ezToolsReflectionUtils::GetStringFromPropertyPath(const ezPropertyPath& Path)
-{
-  EZ_ASSERT_DEV(Path.GetCount() > 0, "Path must not be empty");
-
-  ezStringBuilder pathBuilder(Path[0]);
-
-  const ezUInt32 pathLength = Path.GetCount();
-  for (ezUInt32 i = 1; i < pathLength; ++i)
-  {
-    pathBuilder.Append("/", Path[i]);
-  }
-
-  return pathBuilder;
-}
 
 
 
 #define IF_HANDLE_TYPE(VAR_TYPE, TYPE, FUNC) \
   if (pProp->m_Type == VAR_TYPE) \
 { \
-  ParentPath.PushBack(pProp->m_sPropertyName); \
+  ParentPath.PushBack(pProp->m_sPropertyName.GetData()); \
   writer.BeginObject(); \
   writer.AddVariableString("t", #TYPE); \
   writer.AddVariableString("n", pProp->m_sPropertyName); \
@@ -256,7 +230,7 @@ ezString ezToolsReflectionUtils::GetStringFromPropertyPath(const ezPropertyPath&
 #define IF_HANDLE_TYPE_STRING(VAR_TYPE, TYPE, FUNC) \
   if (pProp->m_Type == VAR_TYPE) \
 { \
-  ParentPath.PushBack(pProp->m_sPropertyName); \
+  ParentPath.PushBack(pProp->m_sPropertyName.GetData()); \
   writer.BeginObject(); \
   writer.AddVariableString("t", #TYPE); \
   writer.AddVariableString("n", pProp->m_sPropertyName); \
@@ -314,7 +288,7 @@ static void WriteProperties(ezJSONWriter& writer, const ezIReflectedTypeAccessor
     }
     else if (pProp->m_Flags.IsAnySet(ezPropertyFlags::IsEnum | ezPropertyFlags::Bitflags))
     {
-      ParentPath.PushBack(pProp->m_sPropertyName);
+      ParentPath.PushBack(pProp->m_sPropertyName.GetData());
       writer.BeginObject();
       writer.AddVariableString("t", pProp->m_Flags.IsSet(ezPropertyFlags::IsEnum) ? "ezEnum" : "ezBitflags");
       writer.AddVariableString("n", pProp->m_sPropertyName);
@@ -328,7 +302,7 @@ static void WriteProperties(ezJSONWriter& writer, const ezIReflectedTypeAccessor
       writer.AddVariableString("t", "$s"); // struct property
       writer.AddVariableString("n", pProp->m_sPropertyName);
 
-      ParentPath.PushBack(pProp->m_sPropertyName);
+      ParentPath.PushBack(pProp->m_sPropertyName.GetData());
       WriteJSONObject(writer, et, pProp->m_hTypeHandle.GetType(), ParentPath, "v");
       ParentPath.PopBack();
 

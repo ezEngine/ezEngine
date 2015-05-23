@@ -35,7 +35,7 @@ ezReflectedTypeStorageAccessor::~ezReflectedTypeStorageAccessor()
 
 const ezVariant ezReflectedTypeStorageAccessor::GetValue(const ezPropertyPath& path) const
 {
-  ezString sPathString = ezToolsReflectionUtils::GetStringFromPropertyPath(path);
+  ezStringBuilder sPathString = path.GetPathString();
 
   ezReflectedTypeStorageManager::ReflectedTypeStorageMapping::StorageInfo* storageInfo = nullptr;
   if (m_pMapping->m_PathToStorageInfoTable.TryGetValue(sPathString, storageInfo))
@@ -50,7 +50,7 @@ const ezVariant ezReflectedTypeStorageAccessor::GetValue(const ezPropertyPath& p
 
 bool ezReflectedTypeStorageAccessor::SetValue(const ezPropertyPath& path, const ezVariant& value)
 {
-  ezString sPathString = ezToolsReflectionUtils::GetStringFromPropertyPath(path);
+  ezStringBuilder sPathString = path.GetPathString();
 
   ezReflectedTypeStorageManager::ReflectedTypeStorageMapping::StorageInfo* storageInfo = nullptr;
   if (m_pMapping->m_PathToStorageInfoTable.TryGetValue(sPathString, storageInfo))

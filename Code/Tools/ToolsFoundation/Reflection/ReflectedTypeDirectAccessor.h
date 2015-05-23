@@ -22,6 +22,8 @@ public:
   virtual const ezVariant GetValue(const ezPropertyPath& path) const override; // [tested]
   virtual bool SetValue(const ezPropertyPath& path, const ezVariant& value) override; // [tested]
 
+
+
 private:
   const ezRTTI* m_pRtti;
   void* m_pInstance;

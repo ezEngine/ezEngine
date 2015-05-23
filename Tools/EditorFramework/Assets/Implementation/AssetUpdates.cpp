@@ -119,7 +119,7 @@ void ezAssetCurator::OnHashingTaskFinished(ezTask* pTask)
 
           auto& newAsset = m_KnownAssets[pHashTask->m_FileStatus.m_AssetGuid];
           if (newAsset == nullptr)
-            newAsset = EZ_DEFAULT_NEW(ezAssetCurator::AssetInfo);
+            newAsset = EZ_DEFAULT_NEW(AssetInfo);
 
           *newAsset = pHashTask->m_AssetInfo;
         }

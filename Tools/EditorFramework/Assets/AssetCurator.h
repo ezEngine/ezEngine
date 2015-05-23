@@ -34,7 +34,7 @@ public:
     AssetInfo() : m_pManager(nullptr) 
     {
       m_State = State::New;
-    } 
+    }
 
     State m_State;
     ezAssetDocumentManager* m_pManager;

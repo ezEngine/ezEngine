@@ -142,8 +142,9 @@ void ezAssetCurator::HandleSingleFile(const ezString& sAbsolutePath, const ezSet
   {
     // now the GUID must be valid
     EZ_ASSERT_DEV(pAssetInfo->m_Info.m_DocumentID.IsValid(), "Asset header read for '%s', but its GUID is invalid! Corrupted document?", sAbsolutePath.GetData());
-
+    EZ_ASSERT_DEV(RefFile.m_AssetGuid == pAssetInfo->m_Info.m_DocumentID, "UpdateAssetInfo broke the GUID!");
     // and we can store the new AssetInfo data under that GUID
+    EZ_ASSERT_DEV(!m_KnownAssets.Contains(pAssetInfo->m_Info.m_DocumentID), "The assets '%s' and '%s' share the same GUID!", pAssetInfo->m_sAbsolutePath.GetData(), m_KnownAssets[pAssetInfo->m_Info.m_DocumentID]->m_sAbsolutePath.GetData());
     m_KnownAssets[pAssetInfo->m_Info.m_DocumentID] = pAssetInfo;
   }
   else
@@ -214,6 +215,7 @@ void ezAssetCurator::RemoveStaleFileInfos()
         // sanity check: if the AssetInfo really belongs to this file, remove it as well
         if (it.Key() == pCache->m_sAbsolutePath)
         {
+          EZ_ASSERT_DEBUG(pCache->m_Info.m_DocumentID == it.Value().m_AssetGuid, "GUID mismatch, curator state probably corrupt!");
           m_KnownAssets.Remove(pCache->m_Info.m_DocumentID);
           EZ_DEFAULT_DELETE(pCache);
         }
@@ -299,7 +301,7 @@ void ezAssetCurator::CheckFileSystem()
   BuildFileExtensionSet(m_ValidAssetExtensions);
 
   // check every data directory
-  for (auto dd : m_FileSystemConfig.m_DataDirs)
+  for (auto& dd : m_FileSystemConfig.m_DataDirs)
   {
     ezStringBuilder sTemp = m_FileSystemConfig.GetProjectDirectory();
     sTemp.AppendPath(dd.m_sRelativePath);

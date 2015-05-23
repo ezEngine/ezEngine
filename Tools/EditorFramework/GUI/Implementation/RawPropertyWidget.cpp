@@ -94,7 +94,8 @@ void ezRawPropertyWidget::BuildUI(const ezIReflectedTypeAccessor& et, const ezRe
 
       if (pNewWidget)
       {
-        ezString sPropertyPath = ezToolsReflectionUtils::GetStringFromPropertyPath(ParentPath);
+        ezStringBuilder sPropertyPath = ParentPath.GetPathString();
+
         m_PropertyWidgets[sPropertyPath] = pNewWidget;
 
         pLayout->addWidget(pNewWidget);
@@ -117,7 +118,7 @@ void ezRawPropertyWidget::BuildUI(const ezIReflectedTypeAccessor& et, const ezRe
         pNewWidget = new ezPropertyEditorBitflagsWidget(ParentPath, pProp->m_sPropertyName.GetString().GetData(), this, pProp->m_hTypeHandle);
       }
       
-      ezString sPropertyPath = ezToolsReflectionUtils::GetStringFromPropertyPath(ParentPath);
+      ezStringBuilder sPropertyPath = ParentPath.GetPathString();
       m_PropertyWidgets[sPropertyPath] = pNewWidget;
 
       pLayout->addWidget(pNewWidget);

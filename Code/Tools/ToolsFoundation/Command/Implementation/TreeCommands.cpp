@@ -235,6 +235,7 @@ ezSetObjectPropertyCommand::ezSetObjectPropertyCommand()
 ezStatus ezSetObjectPropertyCommand::Do(bool bRedo)
 {
   ezDocumentBase* pDocument = GetDocument();
+  ezPropertyPath path(m_sPropertyPath);
 
   if (!bRedo)
   {
@@ -249,12 +250,12 @@ ezStatus ezSetObjectPropertyCommand::Do(bool bRedo)
 
     ezIReflectedTypeAccessor& accessor0 = m_bEditorProperty ? m_pObject->GetEditorTypeAccessor() : m_pObject->GetTypeAccessor();
 
-    m_OldValue = accessor0.GetValue(m_sPropertyPath);
+    m_OldValue = accessor0.GetValue(path);
   }
 
   ezIReflectedTypeAccessor& accessor = m_bEditorProperty ? m_pObject->GetEditorTypeAccessor() : m_pObject->GetTypeAccessor();
 
-  if (!accessor.SetValue(m_sPropertyPath, m_NewValue))
+  if (!accessor.SetValue(path, m_NewValue))
   {
     ezStringBuilder s;
     s.Format("Set Property: The property '%s' does not exist", m_sPropertyPath.GetData());
@@ -275,8 +276,9 @@ ezStatus ezSetObjectPropertyCommand::Do(bool bRedo)
 ezStatus ezSetObjectPropertyCommand::Undo(bool bFireEvents)
 {
   ezIReflectedTypeAccessor& accessor = m_bEditorProperty ? m_pObject->GetEditorTypeAccessor() : m_pObject->GetTypeAccessor();
+  ezPropertyPath path(m_sPropertyPath);
 
-  if (!accessor.SetValue(m_sPropertyPath, m_OldValue))
+  if (!accessor.SetValue(path, m_OldValue))
   {
     ezStringBuilder s;
     s.Format("Set Property: The property '%s' does not exist", m_sPropertyPath.GetData());
