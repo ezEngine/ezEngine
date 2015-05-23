@@ -169,6 +169,9 @@ EZ_CREATE_SIMPLE_TEST(World, Components)
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Component Update")
   {
+    // test recursive read lock
+    EZ_LOCK(world.GetReadMarker());
+
     world.Update();
 
     ezUInt32 uiCounter = 0;

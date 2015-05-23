@@ -57,7 +57,8 @@ namespace ezInternal
 
   EZ_FORCE_INLINE void WorldData::ReadMarker::Acquire()
   {
-    EZ_ASSERT_DEV(m_Data.m_WriteThreadID == (ezThreadID)0, "World '%s' cannot be marked for reading because it is already marked for writing.", m_Data.m_sName.GetData());
+    EZ_ASSERT_DEV(m_Data.m_WriteThreadID == (ezThreadID)0 || m_Data.m_WriteThreadID == ezThreadUtils::GetCurrentThreadID(),
+      "World '%s' cannot be marked for reading because it is already marked for writing by another thread.", m_Data.m_sName.GetData());
     m_Data.m_iReadCounter.Increment();
   }
 
