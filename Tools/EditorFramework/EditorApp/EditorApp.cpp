@@ -410,16 +410,8 @@ void ezEditorApp::ProjectEventHandler(const ezToolsProject::Event& r)
     {
       SetupDataDirectories();
 
+      ezEditorEngineProcessConnection::GetInstance()->SetFileSystemConfig(m_FileSystemConfig);
       ezEditorEngineProcessConnection::GetInstance()->RestartProcess();
-
-      {
-        // Send project setup. 
-        ezSetupProjectMsgToEditor msg;
-        msg.m_sProjectDir = m_FileSystemConfig.GetProjectDirectory();
-        msg.m_Config = m_FileSystemConfig;
-        ezEditorEngineProcessConnection::GetInstance()->SendMessage(&msg);
-      }
-      ezEditorEngineProcessConnection::GetInstance()->WaitForMessage(ezGetStaticRTTI<ezProjectReadyMsgToEditor>());
 
       m_AssetCurator.Initialize(m_FileSystemConfig);
 

@@ -21,6 +21,7 @@ public:
 
   static ezEditorEngineProcessConnection* GetInstance() { return s_pInstance; }
 
+  void SetFileSystemConfig(const ezApplicationFileSystemConfig& cfg) { m_FileSystemConfig = cfg; }
   void Update();
   void RestartProcess();
   void ShutdownProcess();
@@ -66,6 +67,7 @@ private:
   ezUInt32 m_uiNextEngineViewID;
   ezInt32 m_iNumViews;
   ezProcessCommunication m_IPC;
+  ezApplicationFileSystemConfig m_FileSystemConfig;
   ezHashTable<ezUInt32, ezDocumentWindow3D*> m_EngineViewsByID;
 };
 

@@ -139,6 +139,15 @@ void ezEditorEngineProcessConnection::RestartProcess()
 
   Initialize();
 
+  {
+    // Send project setup. 
+    ezSetupProjectMsgToEditor msg;
+    msg.m_sProjectDir = m_FileSystemConfig.GetProjectDirectory();
+    msg.m_Config = m_FileSystemConfig;
+    ezEditorEngineProcessConnection::GetInstance()->SendMessage(&msg);
+  }
+  ezEditorEngineProcessConnection::GetInstance()->WaitForMessage(ezGetStaticRTTI<ezProjectReadyMsgToEditor>());
+
   // resend all open documents
   for (auto it = m_EngineViewsByID.GetIterator(); it.IsValid(); ++it)
   {
