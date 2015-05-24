@@ -2,6 +2,7 @@
 #include <EditorFramework/EngineProcess/EngineProcessDocumentContext.h>
 #include <EditorFramework/EngineProcess/EngineProcessMessages.h>
 #include <Foundation/Reflection/ReflectionUtils.h>
+#include <Foundation/Reflection/ReflectionSerializer.h>
 #include <Foundation/Logging/Log.h>
 
 ezHashTable<ezUuid, ezEngineProcessDocumentContext*> ezEngineProcessDocumentContext::s_DocumentContexts;
@@ -58,6 +59,6 @@ void ezEngineProcessDocumentContext::ProcessEditorEngineSyncObjectMsg(const ezEd
     ezLog::Debug("Allocated Sync object '%s'", msg.m_sObjectType.GetData());
   }
 
-  ezReflectionUtils::ReadObjectPropertiesFromJSON(reader, *pRtti, pSyncObject);
+  ezReflectionSerializer::ReadObjectPropertiesFromJSON(reader, *pRtti, pSyncObject);
 }
 

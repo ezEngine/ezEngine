@@ -5,6 +5,7 @@
 #include <EditorFramework/EngineProcess/EngineProcessViewContext.h>
 #include <EditorFramework/EngineProcess/EngineProcessDocumentContext.h>
 #include <EditorEngineProcess/GameState.h>
+#include <Foundation/Reflection/ReflectionSerializer.h>
 
 #include <RendererCore/Meshes/MeshComponent.h>
 #include <GameUtils/Components/RotorComponent.h>
@@ -140,7 +141,7 @@ void ezEditorGameState::UpdateProperties(ezEntityMsgToEngine* pMsg, void* pObjec
 
   writer.WriteBytes(pMsg->m_sObjectData.GetData(), pMsg->m_sObjectData.GetElementCount());
 
-  ezReflectionUtils::ReadObjectPropertiesFromJSON(reader, *pRtti, pObject);
+  ezReflectionSerializer::ReadObjectPropertiesFromJSON(reader, *pRtti, pObject);
 }
 
 static ezHashTable<ezUuid, ezGameObjectHandle> g_AllObjects;

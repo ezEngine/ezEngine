@@ -1,6 +1,7 @@
 #include <PCH.h>
 #include <EditorFramework/IPC/SyncObject.h>
 #include <ToolsFoundation/Document/Document.h>
+#include <Foundation/Reflection/ReflectionSerializer.h>
 
 EZ_ENUMERABLE_CLASS_IMPLEMENTATION(ezEditorEngineSyncObject);
 
@@ -28,7 +29,7 @@ void ezEditorEngineSyncObject::SyncObjectsToEngine(ezEditorEngineConnection& con
       ezMemoryStreamWriter writer(&storage);
       ezMemoryStreamReader reader(&storage);
 
-      ezReflectionUtils::WriteObjectToJSON(writer, pObject->GetDynamicRTTI(), pObject);
+      ezReflectionSerializer::WriteObjectToJSON(writer, pObject->GetDynamicRTTI(), pObject);
 
       ezStringBuilder sData;
       sData.ReadAll(reader);

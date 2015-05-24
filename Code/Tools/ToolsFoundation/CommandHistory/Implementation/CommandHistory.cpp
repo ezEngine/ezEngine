@@ -1,7 +1,7 @@
 #include <ToolsFoundation/PCH.h>
 #include <ToolsFoundation/CommandHistory/CommandHistory.h>
 #include <ToolsFoundation/Document/Document.h>
-#include <Foundation/Reflection/ReflectionUtils.h>
+#include <Foundation/Reflection/ReflectionSerializer.h>
 #include <Foundation/IO/MemoryStream.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezCommandTransaction, ezCommandBase, 1, ezRTTIDefaultAllocator<ezCommandTransaction>);
@@ -69,10 +69,10 @@ ezStatus ezCommandTransaction::AddCommand(ezCommandBase& command)
   ezMemoryStreamWriter writer(&storage);
   ezMemoryStreamReader reader(&storage);
 
-  ezReflectionUtils::WriteObjectToJSON(writer, command.GetDynamicRTTI(), &command, ezJSONWriter::WhitespaceMode::None);
+  ezReflectionSerializer::WriteObjectToJSON(writer, command.GetDynamicRTTI(), &command, ezJSONWriter::WhitespaceMode::None);
 
   const ezRTTI* pRtti;
-  ezCommandBase* pCommand = (ezCommandBase*) ezReflectionUtils::ReadObjectFromJSON(reader, pRtti);
+  ezCommandBase* pCommand = (ezCommandBase*) ezReflectionSerializer::ReadObjectFromJSON(reader, pRtti);
 
   pCommand->m_pDocument = m_pDocument;
   ezStatus ret = pCommand->Do(false);

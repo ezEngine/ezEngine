@@ -1,6 +1,7 @@
 #include <PCH.h>
 #include <FoundationTest/Reflection/ReflectionTestClasses.h>
 #include <Foundation/Reflection/ReflectionUtils.h>
+#include <Foundation/Reflection/ReflectionSerializer.h>
 #include <Foundation/IO/MemoryStream.h>
 #include <Foundation/IO/FileSystem/FileSystem.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
@@ -371,7 +372,7 @@ EZ_CREATE_SIMPLE_TEST(Reflection, ReflectionUtils)
     c2.m_array.PushBack(5.0f);
     c2.m_array.PushBack(10.0f);
 
-    ezReflectionUtils::WriteObjectToJSON(FileOut, c2.GetDynamicRTTI(), &c2, ezJSONWriter::WhitespaceMode::All);
+    ezReflectionSerializer::WriteObjectToJSON(FileOut, c2.GetDynamicRTTI(), &c2, ezJSONWriter::WhitespaceMode::All);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ReadObjectPropertiesFromJSON")
@@ -383,7 +384,7 @@ EZ_CREATE_SIMPLE_TEST(Reflection, ReflectionUtils)
 
     ezTestClass2 c2;
 
-    ezReflectionUtils::ReadObjectPropertiesFromJSON(FileIn, *c2.GetDynamicRTTI(), &c2);
+    ezReflectionSerializer::ReadObjectPropertiesFromJSON(FileIn, *c2.GetDynamicRTTI(), &c2);
 
     EZ_TEST_STRING(c2.GetText(), "Hallo");
     EZ_TEST_VEC3(c2.m_MyVector, ezVec3(3, 4, 5), 0.0f);
@@ -415,7 +416,7 @@ EZ_CREATE_SIMPLE_TEST(Reflection, ReflectionUtils)
 
     ezTestClass2b c2;
 
-    ezReflectionUtils::ReadObjectPropertiesFromJSON(FileIn, *c2.GetDynamicRTTI(), &c2);
+    ezReflectionSerializer::ReadObjectPropertiesFromJSON(FileIn, *c2.GetDynamicRTTI(), &c2);
 
     EZ_TEST_STRING(c2.GetText(), "Tut"); // not restored, different property name
     EZ_TEST_FLOAT(c2.m_Color.r, 0.1f, 0.0f);
@@ -433,7 +434,7 @@ EZ_CREATE_SIMPLE_TEST(Reflection, ReflectionUtils)
     //EZ_TEST_BOOL(FileIn.Open("JSON.txt") == EZ_SUCCESS);
 
     const ezRTTI* pRtti;
-    void* pObject = ezReflectionUtils::ReadObjectFromJSON(FileIn, pRtti);
+    void* pObject = ezReflectionSerializer::ReadObjectFromJSON(FileIn, pRtti);
 
     ezTestClass2& c2 = *((ezTestClass2*) pObject);
 
@@ -753,14 +754,14 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Arrays)
   {
     ezMemoryStreamWriter FileOut(&StreamStorage);
 
-    ezReflectionUtils::WriteObjectToJSON(FileOut, containers.GetDynamicRTTI(), &containers, ezJSONWriter::WhitespaceMode::All);
+    ezReflectionSerializer::WriteObjectToJSON(FileOut, containers.GetDynamicRTTI(), &containers, ezJSONWriter::WhitespaceMode::All);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ReadObjectPropertiesFromJSON")
   {
     ezMemoryStreamReader FileIn(&StreamStorage);
     ezTestArrays data;
-    ezReflectionUtils::ReadObjectPropertiesFromJSON(FileIn, *data.GetDynamicRTTI(), &data);
+    ezReflectionSerializer::ReadObjectPropertiesFromJSON(FileIn, *data.GetDynamicRTTI(), &data);
 
     EZ_TEST_BOOL(data == containers);
   }
@@ -770,7 +771,7 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Arrays)
     ezMemoryStreamReader FileIn(&StreamStorage);
 
     const ezRTTI* pRtti;
-    void* pObject = ezReflectionUtils::ReadObjectFromJSON(FileIn, pRtti);
+    void* pObject = ezReflectionSerializer::ReadObjectFromJSON(FileIn, pRtti);
 
     ezTestArrays& c2 = *((ezTestArrays*) pObject);
 
@@ -885,14 +886,14 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Sets)
   {
     ezMemoryStreamWriter FileOut(&StreamStorage);
 
-    ezReflectionUtils::WriteObjectToJSON(FileOut, containers.GetDynamicRTTI(), &containers, ezJSONWriter::WhitespaceMode::All);
+    ezReflectionSerializer::WriteObjectToJSON(FileOut, containers.GetDynamicRTTI(), &containers, ezJSONWriter::WhitespaceMode::All);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ReadObjectPropertiesFromJSON")
   {
     ezMemoryStreamReader FileIn(&StreamStorage);
     ezTestSets data;
-    ezReflectionUtils::ReadObjectPropertiesFromJSON(FileIn, *data.GetDynamicRTTI(), &data);
+    ezReflectionSerializer::ReadObjectPropertiesFromJSON(FileIn, *data.GetDynamicRTTI(), &data);
 
     EZ_TEST_BOOL(data == containers);
   }
@@ -902,7 +903,7 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Sets)
     ezMemoryStreamReader FileIn(&StreamStorage);
 
     const ezRTTI* pRtti;
-    void* pObject = ezReflectionUtils::ReadObjectFromJSON(FileIn, pRtti);
+    void* pObject = ezReflectionSerializer::ReadObjectFromJSON(FileIn, pRtti);
 
     ezTestSets& c2 = *((ezTestSets*) pObject);
 

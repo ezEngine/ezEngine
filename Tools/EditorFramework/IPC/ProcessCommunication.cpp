@@ -4,6 +4,7 @@
 #include <Foundation/IO/OSFile.h>
 #include <Foundation/Utilities/CommandLineUtils.h>
 #include <Foundation/Reflection/ReflectionUtils.h>
+#include <Foundation/Reflection/ReflectionSerializer.h>
 #include <Foundation/Logging/Log.h>
 #include <QCoreApplication>
 
@@ -171,7 +172,7 @@ void ezProcessCommunication::SendMessage(ezProcessMessage* pMessage)
   ezMemoryStreamStorage& storage = m_MessageSendQueue.ExpandAndGetRef();
   ezMemoryStreamWriter writer(&storage);
 
-  ezReflectionUtils::WriteObjectToJSON(writer, pMessage->GetDynamicRTTI(), pMessage);
+  ezReflectionSerializer::WriteObjectToJSON(writer, pMessage->GetDynamicRTTI(), pMessage);
 }
 
 void ezProcessCommunication::ProcessMessages()
@@ -287,7 +288,7 @@ void ezProcessCommunication::DispatchMessages()
       }
 
       const ezRTTI* pRtti = nullptr;
-      ezProcessMessage* pObject = (ezProcessMessage*) ezReflectionUtils::ReadObjectFromJSON(reader, pRtti);
+      ezProcessMessage* pObject = (ezProcessMessage*) ezReflectionSerializer::ReadObjectFromJSON(reader, pRtti);
 
       if (m_pWaitForMessageType != nullptr && pObject->GetDynamicRTTI()->IsDerivedFrom(m_pWaitForMessageType))
         m_pWaitForMessageType = nullptr;

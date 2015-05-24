@@ -140,7 +140,7 @@ void ezEditorEngineProcessConnection::RestartProcess()
   Initialize();
 
   {
-    // Send project setup. 
+    // Send project setup.
     ezSetupProjectMsgToEditor msg;
     msg.m_sProjectDir = m_FileSystemConfig.GetProjectDirectory();
     msg.m_Config = m_FileSystemConfig;
