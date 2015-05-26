@@ -1,5 +1,5 @@
 {
-  "BaseMaterial" : "Materials/BaseAlphaTest.ezMaterial",
+  "BaseMaterial" : "Materials/BaseMaterials/FullbrightAlphaTest.ezMaterial",
   
   "Textures" :
   {

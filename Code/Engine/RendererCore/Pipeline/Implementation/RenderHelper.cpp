@@ -13,7 +13,7 @@ void ezRenderContext::SetMaterialState(const ezMaterialResourceHandle& hMaterial
 
   const ezMaterialResourceDescriptor&  md = pMaterial->GetDescriptor();
 
-  if (md.m_hBaseMaterial.IsValid())
+  if (md.m_hBaseMaterial.IsValid() && md.m_hBaseMaterial != hMaterial)
     SetMaterialState(md.m_hBaseMaterial);
 
   if (md.m_hShader.IsValid())

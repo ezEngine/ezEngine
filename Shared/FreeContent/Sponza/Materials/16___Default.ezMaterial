@@ -1,8 +1,8 @@
 {
-  "BaseMaterial" : "Materials/Base.ezMaterial",
+  "BaseMaterial" : "Materials/BaseMaterials/Fullbright.ezMaterial",
   
   "Textures" :
   {
-    "TexDiffuse" : "Textures/Flag_D.dds",
+    "TexDiffuse" : "Sponza/Textures/ezFlag_D.dds",
   }  
 }

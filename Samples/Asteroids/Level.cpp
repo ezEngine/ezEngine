@@ -16,56 +16,44 @@ extern const char* szPlayerActions[MaxPlayerActions];
 
 static ezMeshResourceHandle CreateAsteroidMesh()
 {
-  if (!ezFileSystem::ExistsFile("Meshes/Asteroid.ezm"))
+  ezGeometry geom;
+  geom.AddGeodesicSphere(1.0f, 1, ezColor::White);
+  geom.ComputeFaceNormals();
+  geom.ComputeSmoothVertexNormals();
+
+  ezMeshResourceDescriptor mfb;
+
+  mfb.MeshBufferDesc().AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
+  mfb.MeshBufferDesc().AddStream(ezGALVertexAttributeSemantic::Normal, ezGALResourceFormat::XYZFloat);
+  mfb.MeshBufferDesc().AddStream(ezGALVertexAttributeSemantic::TexCoord0, ezGALResourceFormat::UVFloat);
+
+  const ezDeque<ezGeometry::Vertex>& vertices = geom.GetVertices();
+  const ezDeque<ezGeometry::Polygon>& polygons = geom.GetPolygons();
+
+  mfb.MeshBufferDesc().AllocateStreams(vertices.GetCount(), polygons.GetCount());
+
+  for (ezUInt32 v = 0; v < vertices.GetCount(); ++v)
   {
-    ezGeometry geom;
-    geom.AddGeodesicSphere(1.0f, 1, ezColor::White);
-    geom.ComputeFaceNormals();
-    geom.ComputeSmoothVertexNormals();
-
-    ezMeshResourceDescriptor mfb;
-
-    if (mfb.Load("Meshes/Asteroid.ezm").Failed())
-    {
-      mfb.MeshBufferDesc().AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
-      mfb.MeshBufferDesc().AddStream(ezGALVertexAttributeSemantic::Normal, ezGALResourceFormat::XYZFloat);
-      mfb.MeshBufferDesc().AddStream(ezGALVertexAttributeSemantic::Color, ezGALResourceFormat::RGBAByteNormalized);
-
-      const ezDeque<ezGeometry::Vertex>& vertices = geom.GetVertices();
-      const ezDeque<ezGeometry::Polygon>& polygons = geom.GetPolygons();
-
-      mfb.MeshBufferDesc().AllocateStreams(vertices.GetCount(), polygons.GetCount());
-
-      for (ezUInt32 v = 0; v < vertices.GetCount(); ++v)
-      {
-        mfb.MeshBufferDesc().SetVertexData<ezVec3>(0, v, vertices[v].m_vPosition);
-        mfb.MeshBufferDesc().SetVertexData<ezVec3>(1, v, vertices[v].m_vNormal);
-        mfb.MeshBufferDesc().SetVertexData<ezColorLinearUB>(2, v, vertices[v].m_Color);
-      }
-
-      for (ezUInt32 p = 0; p < polygons.GetCount(); ++p)
-      {
-        mfb.MeshBufferDesc().SetTriangleIndices(p, polygons[p].m_Vertices[0], polygons[p].m_Vertices[1], polygons[p].m_Vertices[2]);
-      }
-
-      mfb.AddSubMesh(polygons.GetCount(), 0, 0);
-      mfb.SetMaterial(0, "Materials/Asteroid.ezMaterial");
-      mfb.Save("Meshes/Asteroid.ezm");
-    }
+    mfb.MeshBufferDesc().SetVertexData<ezVec3>(0, v, vertices[v].m_vPosition);
+    mfb.MeshBufferDesc().SetVertexData<ezVec3>(1, v, vertices[v].m_vNormal);
+    mfb.MeshBufferDesc().SetVertexData<ezVec2>(2, v, ezVec2(0, 0));
   }
 
-  return ezResourceManager::LoadResource<ezMeshResource>("Meshes/Asteroid.ezm");
+  for (ezUInt32 p = 0; p < polygons.GetCount(); ++p)
+  {
+    mfb.MeshBufferDesc().SetTriangleIndices(p, polygons[p].m_Vertices[0], polygons[p].m_Vertices[1], polygons[p].m_Vertices[2]);
+  }
 
-  //ezMeshResourceHandle hMesh = ezResourceManager::CreateResource<ezMeshResource>("AsteroidMesh", mfb);
-  //return hMesh;
+  mfb.AddSubMesh(polygons.GetCount(), 0, 0);
+  mfb.SetMaterial(0, "Materials/Asteroid.ezMaterial");
 
-
+  return ezResourceManager::CreateResource<ezMeshResource>("AsteroidMesh", mfb);
 }
 
 static ezMaterialResourceHandle CreateAsteroidMaterial()
 {
   ezMaterialResourceDescriptor desc;
-  desc.m_hShader = ezResourceManager::LoadResource<ezShaderResource>("Generic.ezShader");
+  desc.m_hShader = ezResourceManager::LoadResource<ezShaderResource>("Shaders/Materials/Fullbright.ezShader");
 
   ezMaterialResourceHandle hMaterial = ezResourceManager::CreateResource<ezMaterialResource>("AsteroidMaterial", desc);
 

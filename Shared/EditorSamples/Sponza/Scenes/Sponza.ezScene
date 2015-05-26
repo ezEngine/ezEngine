@@ -9,68 +9,27 @@
     } ],
   "ObjectTree" : [ {
       "Type" : "ezGameObject",
-      "ID" : { "$t" : "uuid", "$b" : "0x198E7E77444B354C9C387153B8CDA4C9" },
+      "ID" : { "$t" : "uuid", "$b" : "0xA3012D2DA796094388EA7CCED5F0DF40" },
       "ParentID" : { "$t" : "uuid", "$b" : "0x00000000000000000000000000000000" },
       "TypeData" : {
         "Name" : "",
         "Position" : { "$t" : "vec3", "$v" : "(0.0000, 0.0000, 0.0000)", "$b" : "0x000000000000000000000000" },
         "Rotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
-        "Scaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 2.0000)", "$b" : "0x0000803F0000803F00000040" }
-      },
-      "EditorTypeData" : {
-        "Name" : "ezGameObject 000"
-      }
-    },
-    {
-      "Type" : "ezRotorComponent",
-      "ID" : { "$t" : "uuid", "$b" : "0xE37B3D42F89B1644859E9CD3EAA3A720" },
-      "ParentID" : { "$t" : "uuid", "$b" : "0x198E7E77444B354C9C387153B8CDA4C9" },
-      "TypeData" : {
-        "Speed" : { "$t" : "float", "$v" : "90.0000", "$b" : "0x0000B442" },
-        "Run at Startup" : true,
-        "Reverse at Start" : true,
-        "Reverse at End" : true,
-        "Auto-Toggle Direction" : true,
-        "Axis" : "ezTransformComponentAxis::PosX",
-        "Degrees to Rotate" : { "$t" : "int32", "$v" : "0", "$b" : "0x00000000" },
-        "Acceleration" : { "$t" : "float", "$v" : "0.0000", "$b" : "0x00000000" },
-        "Deceleration" : { "$t" : "float", "$v" : "0.0000", "$b" : "0x00000000" }
-      },
-      "EditorTypeData" : {
-        "Name" : "ezRotorComponent 001"
-      }
-    },
-    {
-      "Type" : "ezGameObject",
-      "ID" : { "$t" : "uuid", "$b" : "0xA3012D2DA796094388EA7CCED5F0DF40" },
-      "ParentID" : { "$t" : "uuid", "$b" : "0x00000000000000000000000000000000" },
-      "TypeData" : {
-        "Name" : "",
-        "Position" : { "$t" : "vec3", "$v" : "(5.0000, 0.0000, -2.0000)", "$b" : "0x0000A04000000000000000C0" },
-        "Rotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
-        "Scaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" }
+        "Scaling" : { "$t" : "vec3", "$v" : "(0.1000, 0.1000, 0.1000)", "$b" : "0xCDCCCC3DCDCCCC3DCDCCCC3D" }
       },
       "EditorTypeData" : {
         "Name" : "ezGameObject 002"
       }
     },
     {
-      "Type" : "ezSliderComponent",
-      "ID" : { "$t" : "uuid", "$b" : "0x30033B65FC9C004891B9AB1402F5BF59" },
+      "Type" : "ezMeshComponent",
+      "ID" : { "$t" : "uuid", "$b" : "0xD18065A6250117428C5E173FBEC55EFF" },
       "ParentID" : { "$t" : "uuid", "$b" : "0xA3012D2DA796094388EA7CCED5F0DF40" },
       "TypeData" : {
-        "Speed" : { "$t" : "float", "$v" : "10.0000", "$b" : "0x00002041" },
-        "Run at Startup" : true,
-        "Reverse at Start" : true,
-        "Reverse at End" : true,
-        "Auto-Toggle Direction" : true,
-        "Axis" : "ezTransformComponentAxis::PosZ",
-        "Distance" : { "$t" : "float", "$v" : "1.0000", "$b" : "0x0000803F" },
-        "Acceleration" : { "$t" : "float", "$v" : "30.0000", "$b" : "0x0000F041" },
-        "Deceleration" : { "$t" : "float", "$v" : "30.0000", "$b" : "0x0000F041" }
+        "MeshFile" : "Sponza/Meshes/Sponza.ezmesh"
       },
       "EditorTypeData" : {
-        "Name" : "ezSliderComponent 003"
+        "Name" : "ezMeshComponent 004"
       }
     } ]
 }

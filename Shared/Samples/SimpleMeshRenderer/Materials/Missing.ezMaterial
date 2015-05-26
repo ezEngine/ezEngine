@@ -1,8 +1,0 @@
-{
-  "BaseMaterial" : "Materials/Base.ezMaterial",
-  
-  "Textures" :
-  {
-    "TexDiffuse" : "Textures/MissingTexture_D.dds"
-  }  
-}

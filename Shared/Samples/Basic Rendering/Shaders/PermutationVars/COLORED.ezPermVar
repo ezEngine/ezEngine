@@ -1,9 +1,0 @@
-
-add("COLORED", "0")
-add("COLORED", "1")
-
-#if DX11_SM50
-
-  add("COLORED", "2")
-
-#endif

@@ -26,8 +26,7 @@ void GameState::CreateGameLevelAndRenderPipeline(ezGALRenderTargetConfigHandle h
   ezMeshComponent* pMesh;
   ezRotorComponent* pRotor;
 
-  ezMaterialResourceHandle hMat = ezResourceManager::LoadResource<ezMaterialResource>("Materials/Base.ezMaterial");
-  ezMeshResourceHandle hMesh = ezResourceManager::LoadResource<ezMeshResource>("Meshes/Sponza.ezMesh");
+  ezMeshResourceHandle hMesh = ezResourceManager::LoadResource<ezMeshResource>("Sponza/Meshes/Sponza.ezMesh");
   ezMeshResourceHandle hMeshTree = ezResourceManager::LoadResource<ezMeshResource>("Trees/Meshes/Tree5.ezMesh");
 
   // World Mesh
@@ -82,12 +81,14 @@ void GameState::CreateGameLevelAndRenderPipeline(ezGALRenderTargetConfigHandle h
 
   // Setup default resources
   {
-    ezTextureResourceHandle hFallbackTexture = ezResourceManager::LoadResource<ezTextureResource>("Textures/Fallback_D.dds");
+    ezTextureResourceHandle hFallbackTexture = ezResourceManager::LoadResource<ezTextureResource>("Textures/LoadingTexture_D.dds");
     ezTextureResourceHandle hMissingTexture = ezResourceManager::LoadResource<ezTextureResource>("Textures/MissingTexture_D.dds");
-    ezMaterialResourceHandle hMissingMaterial = ezResourceManager::LoadResource<ezMaterialResource>("Materials/Missing.ezMaterial");
+    ezMaterialResourceHandle hMissingMaterial = ezResourceManager::LoadResource<ezMaterialResource>("Materials/BaseMaterials/Missing.ezMaterial");
+    ezMaterialResourceHandle hFallbackMaterial = ezResourceManager::LoadResource<ezMaterialResource>("Materials/BaseMaterials/Fallback.ezMaterial");
 
     ezTextureResource::SetTypeFallbackResource(hFallbackTexture);
     ezTextureResource::SetTypeMissingResource(hMissingTexture);
+    ezMaterialResource::SetTypeFallbackResource(hFallbackMaterial); // not working yet
     ezMaterialResource::SetTypeMissingResource(hMissingMaterial);
   }
 }

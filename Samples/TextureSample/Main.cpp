@@ -18,6 +18,7 @@
 #include <Core/Application/Application.h>
 #include <Core/Input/InputManager.h>
 #include <Core/ResourceManager/ResourceManager.h>
+#include <Core/Application/Config/ApplicationConfig.h>
 
 #include <CoreUtils/Geometry/GeomUtils.h>
 #include <CoreUtils/Image/ImageConversion.h>
@@ -81,18 +82,28 @@ public:
 
   void AfterEngineInit() override
   {
-    ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
-    ezFileSystem::AddDataDirectory("");
-
-    ezStringBuilder sReadDir = BUILDSYSTEM_OUTPUT_FOLDER;
-    sReadDir.AppendPath("../../Shared/Samples/TextureSample/");
-
     ezStringBuilder sBaseDir = BUILDSYSTEM_OUTPUT_FOLDER;
     sBaseDir.AppendPath("../../Shared/Data/");
 
+    ezStringBuilder sSharedDir = BUILDSYSTEM_OUTPUT_FOLDER;
+    sSharedDir.AppendPath("../../Shared/FreeContent/");
+
+    ezStringBuilder sProjectDir = BUILDSYSTEM_OUTPUT_FOLDER;
+    sProjectDir.AppendPath("../../Shared/Samples/TextureSample");
+
+    // setup the 'asset management system'
+    {
+      // which redirection table to search
+      ezDataDirectory::FolderType::s_sRedirectionFile = "AssetCache/LookupTable.ezAsset";
+      // which platform assets to use
+      ezDataDirectory::FolderType::s_sRedirectionPrefix = "AssetCache/PC/";
+    }
+
     ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
-    ezFileSystem::AddDataDirectory(sBaseDir.GetData(), ezFileSystem::ReadOnly, "Shared");
-    ezFileSystem::AddDataDirectory(sReadDir.GetData(), ezFileSystem::AllowWrites, "Sample");
+    ezFileSystem::AddDataDirectory("");
+    ezFileSystem::AddDataDirectory(sBaseDir.GetData(), ezFileSystem::ReadOnly, "Base");
+    ezFileSystem::AddDataDirectory(sSharedDir.GetData(), ezFileSystem::ReadOnly, "Shared");
+    ezFileSystem::AddDataDirectory(sProjectDir.GetData(), ezFileSystem::AllowWrites, "Project");
 
     ezGlobalLog::AddLogWriter(ezLogWriter::Console::LogMessageHandler);
     ezGlobalLog::AddLogWriter(ezLogWriter::VisualStudio::LogMessageHandler);
@@ -209,7 +220,7 @@ public:
 
     // Setup default resources
     {
-      ezTextureResourceHandle hFallback = ezResourceManager::LoadResource<ezTextureResource>("Textures/Fallback_D.dds");
+      ezTextureResourceHandle hFallback = ezResourceManager::LoadResource<ezTextureResource>("Textures/Reference_D.dds");
       ezTextureResourceHandle hMissing = ezResourceManager::LoadResource<ezTextureResource>("Textures/MissingTexture_D.dds");
 
       ezTextureResource::SetTypeFallbackResource(hFallback);
@@ -390,6 +401,7 @@ public:
 
     ezMeshBufferResourceDescriptor desc;
     desc.AddStream(ezGALVertexAttributeSemantic::Position, ezGALResourceFormat::XYZFloat);
+    desc.AddStream(ezGALVertexAttributeSemantic::Normal, ezGALResourceFormat::XYZFloat);
     desc.AddStream(ezGALVertexAttributeSemantic::TexCoord0, ezGALResourceFormat::UVFloat);
 
     desc.AllocateStreams(geom.GetVertices().GetCount(), geom.GetPolygons().GetCount() * 2);
@@ -400,7 +412,8 @@ public:
       tc += ezVec2(0.5f);
 
       desc.SetVertexData<ezVec3>(0, v, geom.GetVertices()[v].m_vPosition);
-      desc.SetVertexData<ezVec2>(1, v, tc);
+      desc.SetVertexData<ezVec3>(1, v, ezVec3(0, 0, -1));
+      desc.SetVertexData<ezVec2>(2, v, tc);
     }
 
     ezUInt32 t = 0;

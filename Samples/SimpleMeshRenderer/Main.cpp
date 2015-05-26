@@ -11,6 +11,7 @@
 #include <Foundation/Configuration/Plugin.h>
 #include <Foundation/Time/Clock.h>
 #include <Core/ResourceManager/ResourceManager.h>
+#include <Core/Application/Config/ApplicationConfig.h>
 
 #include <RendererGL/Device/DeviceGL.h>
 #include <RendererCore/Pipeline/RenderPipeline.h>
@@ -28,17 +29,14 @@ void GameState::Activate()
 {
   EZ_LOG_BLOCK("GameState::Activate");
 
-  ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
-  ezFileSystem::AddDataDirectory("");
-
-  ezStringBuilder sReadDir = BUILDSYSTEM_OUTPUT_FOLDER;
-  sReadDir.AppendPath("../../Shared/Samples/SimpleMeshRenderer/");
-
-  ezStringBuilder sObjectDir = BUILDSYSTEM_OUTPUT_FOLDER;
-  sObjectDir.AppendPath("../../Shared/FreeContent/");
-
   ezStringBuilder sBaseDir = BUILDSYSTEM_OUTPUT_FOLDER;
   sBaseDir.AppendPath("../../Shared/Data/");
+
+  ezStringBuilder sSharedDir = BUILDSYSTEM_OUTPUT_FOLDER;
+  sSharedDir.AppendPath("../../Shared/FreeContent/");
+
+  ezStringBuilder sProjectDir = BUILDSYSTEM_OUTPUT_FOLDER;
+  sProjectDir.AppendPath("../../Shared/Samples/SimpleMeshRenderer");
 
   // setup the 'asset management system'
   {
@@ -49,9 +47,12 @@ void GameState::Activate()
   }
 
   ezFileSystem::RegisterDataDirectoryFactory(ezDataDirectory::FolderType::Factory);
-  ezFileSystem::AddDataDirectory(sBaseDir.GetData(), ezFileSystem::ReadOnly, "Shared");
-  ezFileSystem::AddDataDirectory(sReadDir.GetData(), ezFileSystem::AllowWrites, "Game");
-  ezFileSystem::AddDataDirectory(sObjectDir.GetData(), ezFileSystem::ReadOnly, "Object");
+  ezFileSystem::AddDataDirectory("");
+  ezFileSystem::AddDataDirectory(sBaseDir.GetData(), ezFileSystem::ReadOnly, "Base");
+  ezFileSystem::AddDataDirectory(sSharedDir.GetData(), ezFileSystem::ReadOnly, "Shared");
+  ezFileSystem::AddDataDirectory(sProjectDir.GetData(), ezFileSystem::AllowWrites, "Project");
+
+  ezApplicationConfig::SetProjectDirectory(sProjectDir);
 
   m_pWindow = EZ_DEFAULT_NEW(GameWindow);
   ezGALSwapChainHandle hSwapChain = GetApplication()->AddWindow(m_pWindow);

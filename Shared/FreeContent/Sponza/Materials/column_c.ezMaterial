@@ -1,5 +1,5 @@
 {
-  "BaseMaterial" : "Materials/Base.ezMaterial",
+  "BaseMaterial" : "Materials/BaseMaterials/Fullbright.ezMaterial",
   
   "Textures" :
   {

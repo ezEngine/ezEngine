@@ -1,0 +1,16 @@
+{
+  "Shader" : "Shaders/Materials/Fullbright.ezShader",
+  
+  "Permutations" : 
+  {
+  },
+
+  "Constants" :
+  {
+  },
+  
+  "Textures" :
+  {
+    "TexDiffuse" : "Textures/LoadingTexture_D.dds"
+  }  
+}
