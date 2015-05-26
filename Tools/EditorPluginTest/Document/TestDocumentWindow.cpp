@@ -654,7 +654,7 @@ void ezQtCameraMoveContext::SetMoveSpeed(ezInt32 iSpeed)
 
 bool ezQtCameraMoveContext::wheelEvent(QWheelEvent* e)
 {
-  if (e->modifiers() != Qt::KeyboardModifier::NoModifier)
+  if (e->modifiers() != Qt::KeyboardModifier::ControlModifier)
     return false;
 
   if (e->delta() > 0)

@@ -459,6 +459,9 @@ void ezAssetBrowserWidget::OnScrollToItem(QString sPath)
 
 void ezAssetBrowserWidget::ShowOnlyTheseTypeFilters(const char* szFilters)
 {
+  m_sAllTypesFilter.Clear();
+
+  if (!ezStringUtils::IsNullOrEmpty(szFilters))
   {
     QtScopedBlockSignals block(ListTypeFilter);
 

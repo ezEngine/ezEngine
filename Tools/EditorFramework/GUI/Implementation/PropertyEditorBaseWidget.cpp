@@ -1,5 +1,6 @@
 #include <PCH.h>
 #include <EditorFramework/GUI/PropertyEditorBaseWidget.moc.h>
+#include <EditorFramework/Assets/AssetBrowserDlg.moc.h>
 #include <qcheckbox.h>
 #include <qspinbox.h>
 #include <qlayout.h>
@@ -324,17 +325,12 @@ void ezPropertyEditorLineEditWidget::on_TextFinished_triggered()
 void ezPropertyEditorLineEditWidget::on_BrowseFile_clicked()
 {
   ezString sFile = m_pWidget->text().toUtf8().data();
-  
 
-  if (!sFile.IsEmpty())
-  {
-    ezString sFileAbs = sFile;
+  ezAssetBrowserDlg dlg(this, sFile, "");
+  if (dlg.exec() == 0)
+    return;
 
-    if (ezEditorApp::GetInstance()->MakeDataDirectoryRelativePathAbsolute(sFileAbs))
-      sFile = sFileAbs;
-  }
-    
-  sFile = QFileDialog::getOpenFileName(QApplication::activeWindow(), QLatin1String("Browse Files"), sFile.GetData()).toUtf8().data();
+  sFile = dlg.GetSelectedPath();
 
   if (sFile.IsEmpty())
     return;
