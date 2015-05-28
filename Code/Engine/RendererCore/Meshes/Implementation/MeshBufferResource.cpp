@@ -213,7 +213,7 @@ void ezVertexDeclarationInfo::ComputeHash()
   }
 }
 
-ezGALVertexDeclarationHandle ezRenderContext::GetVertexDeclaration(ezGALShaderHandle hShader, const ezVertexDeclarationInfo& decl)
+ezResult ezRenderContext::GetVertexDeclaration(ezGALShaderHandle hShader, const ezVertexDeclarationInfo& decl, ezGALVertexDeclarationHandle& out_Declaration)
 {
   ShaderVertexDecl svd;
   svd.m_hShader = hShader;
@@ -245,14 +245,19 @@ ezGALVertexDeclarationHandle ezRenderContext::GetVertexDeclaration(ezGALShaderHa
       vd.m_VertexAttributes.PushBack(gal);
     }
 
-    ezGALVertexDeclarationHandle hDecl = ezGALDevice::GetDefaultDevice()->CreateVertexDeclaration(vd);
+    out_Declaration = ezGALDevice::GetDefaultDevice()->CreateVertexDeclaration(vd);
 
-    EZ_ASSERT_RELEASE(!hDecl.IsInvalidated(), "Failed to create vertex declaration");
+    if (out_Declaration.IsInvalidated())
+    {
+      ezLog::Error("Failed to create vertex declaration");
+      return EZ_FAILURE;
+    }
 
-    it.Value() = hDecl;
+    it.Value() = out_Declaration;
   }
 
-  return it.Value();
+  out_Declaration = it.Value();
+  return EZ_SUCCESS;
 }
 
 

@@ -91,7 +91,9 @@ ezResult ezRenderContext::ApplyContextStates(bool bForce)
 
   if (bForce || m_StateFlags.IsSet(ezRenderContextFlags::ShaderStateChanged))
   {
-    m_StateFlags.Remove(ezRenderContextFlags::ShaderStateChanged | ezRenderContextFlags::ShaderStateValid);
+    m_hActiveGALShader.Invalidate();
+
+    m_StateFlags.Remove(ezRenderContextFlags::ShaderStateValid);
     m_StateFlags.Add(ezRenderContextFlags::TextureBindingChanged | ezRenderContextFlags::ConstantBufferBindingChanged);
 
     if (!m_hActiveShader.IsValid())
@@ -144,13 +146,12 @@ ezResult ezRenderContext::ApplyContextStates(bool bForce)
         m_pGALContext->SetDepthStencilState(pShaderPermutation->GetDepthStencilState());
     }
 
+    m_StateFlags.Remove(ezRenderContextFlags::ShaderStateChanged);
     m_StateFlags.Add(ezRenderContextFlags::ShaderStateValid);
   }
 
   if ((bForce || m_StateFlags.IsSet(ezRenderContextFlags::TextureBindingChanged)) && m_hActiveShaderPermutation.IsValid())
   {
-    m_StateFlags.Remove(ezRenderContextFlags::TextureBindingChanged);
-
     if (pShaderPermutation == nullptr)
       pShaderPermutation = ezResourceManager::BeginAcquireResource(m_hActiveShaderPermutation, ezResourceAcquireMode::AllowFallback);
 
@@ -163,14 +164,14 @@ ezResult ezRenderContext::ApplyContextStates(bool bForce)
 
       ApplyTextureBindings((ezGALShaderStage::Enum) stage, pBin);
     }
+
+    m_StateFlags.Remove(ezRenderContextFlags::TextureBindingChanged);
   }
 
   UploadGlobalConstants();
 
   if ((bForce || m_StateFlags.IsSet(ezRenderContextFlags::ConstantBufferBindingChanged)) && m_hActiveShaderPermutation.IsValid())
   {
-    m_StateFlags.Remove(ezRenderContextFlags::ConstantBufferBindingChanged);
-
     if (pShaderPermutation == nullptr)
       pShaderPermutation = ezResourceManager::BeginAcquireResource(m_hActiveShaderPermutation, ezResourceAcquireMode::AllowFallback);
 
@@ -183,6 +184,8 @@ ezResult ezRenderContext::ApplyContextStates(bool bForce)
 
       ApplyConstantBufferBindings(pBin);
     }
+
+    m_StateFlags.Remove(ezRenderContextFlags::ConstantBufferBindingChanged);
   }
 
   if (pShaderPermutation != nullptr)
@@ -190,7 +193,11 @@ ezResult ezRenderContext::ApplyContextStates(bool bForce)
 
   if (bForce || m_StateFlags.IsSet(ezRenderContextFlags::MeshBufferBindingChanged))
   {
-    EZ_ASSERT_DEV(m_hMeshBuffer.IsValid(), "No valid Mesh Buffer has been bound through ezRenderContext::BindMeshBuffer");
+    if (!m_hMeshBuffer.IsValid())
+      return EZ_FAILURE;
+
+    if (m_hActiveGALShader.IsInvalidated())
+      return EZ_FAILURE;
 
     ezResourceLock<ezMeshBufferResource> pMeshBuffer(m_hMeshBuffer);
     m_uiMeshBufferPrimitiveCount = pMeshBuffer->GetPrimitiveCount();
@@ -205,10 +212,15 @@ ezResult ezRenderContext::ApplyContextStates(bool bForce)
     if (!hIndexBuffer.IsInvalidated())
       m_pGALContext->SetIndexBuffer(hIndexBuffer);
 
-    EZ_ASSERT_DEV(!m_hActiveGALShader.IsInvalidated(), "Invalid GAL Shader handle.");
-
     m_pGALContext->SetPrimitiveTopology(ezGALPrimitiveTopology::Triangles);
-    m_pGALContext->SetVertexDeclaration(GetVertexDeclaration(m_hActiveGALShader, pMeshBuffer->GetVertexDeclaration()));
+
+    ezGALVertexDeclarationHandle hVertexDeclaration;
+    if (GetVertexDeclaration(m_hActiveGALShader, pMeshBuffer->GetVertexDeclaration(), hVertexDeclaration).Failed())
+      return EZ_FAILURE;
+
+    m_pGALContext->SetVertexDeclaration(hVertexDeclaration);
+
+    m_StateFlags.Remove(ezRenderContextFlags::MeshBufferBindingChanged);
   }
 
   return EZ_SUCCESS;

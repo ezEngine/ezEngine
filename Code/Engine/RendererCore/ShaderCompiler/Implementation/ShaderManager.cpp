@@ -148,7 +148,10 @@ void ezRenderContext::BindShader(ezShaderResourceHandle hShader, ezBitflags<ezSh
 ezGALShaderHandle ezRenderContext::GetActiveGALShader()
 {
   // make sure the internal state is up to date
-  ApplyContextStates(false);
+  if (ApplyContextStates(false).Failed())
+  {
+    // return invalid handle ?
+  }
 
   if (!m_StateFlags.IsSet(ezRenderContextFlags::ShaderStateValid))
     return ezGALShaderHandle(); // invalid handle
