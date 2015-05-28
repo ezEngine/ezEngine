@@ -277,6 +277,10 @@ void ezShaderCompiler::RunShaderCompilerForPermutations(const char* szFile, cons
         {
           bSuccess = false;
           ezLog::Error("Shader preprocessing failed");
+
+          sProcessed[stage].Clear();
+          
+          spd.m_szShaderSource[stage] = m_StageSourceFile[stage].GetData();
         }
         else
         {
@@ -284,7 +288,7 @@ void ezShaderCompiler::RunShaderCompilerForPermutations(const char* szFile, cons
         }
 
         spd.m_StageBinary[stage].m_Stage = (ezGALShaderStage::Enum) stage;
-        spd.m_StageBinary[stage].m_uiSourceHash = ezHashing::MurmurHash(ezHashing::StringWrapper(sProcessed[stage].GetData()));
+        spd.m_StageBinary[stage].m_uiSourceHash = ezHashing::MurmurHash(ezHashing::StringWrapper(spd.m_szShaderSource[stage]));
 
         if (spd.m_StageBinary[stage].m_uiSourceHash != 0)
         {

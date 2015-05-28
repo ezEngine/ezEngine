@@ -9,7 +9,7 @@ ALPHATEST
 
 [VERTEXSHADER]
 
-#include <Shaders/Materials/Materials.inc
+#include <Shaders/Materials/Materials.inc>
 
 #ifdef PLATFORM_DX11
 
