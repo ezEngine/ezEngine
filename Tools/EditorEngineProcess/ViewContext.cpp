@@ -7,8 +7,9 @@
 #include <RendererCore/Pipeline/SimpleRenderPass.h>
 #include <GameFoundation/GameApplication.h>
 #include <EditorFramework/EngineProcess/EngineProcessDocumentContext.h>
-
-ezMeshBufferResourceHandle CreateTranslateGizmoMesh();
+#include <EditorEngineProcess/PickingRenderPass.h>
+#include <EditorEngineProcess/GameState.h>
+#include <RendererCore/RenderContext/RenderContext.h>
 
 void ezViewContext::SetupRenderTarget(ezWindowHandle hWnd, ezUInt16 uiWidth, ezUInt16 uiHeight)
 {
@@ -36,28 +37,6 @@ void ezViewContext::SetupRenderTarget(ezWindowHandle hWnd, ezUInt16 uiWidth, ezU
 
     m_hBBRT = pPrimarySwapChain->GetRenderTargetViewConfig();
     EZ_ASSERT_DEV(!m_hBBRT.IsInvalidated(), "Failed to init render target");
-  }
-
-  // setup view
-  {
-    if (m_pView != nullptr)
-    {
-      ezRenderPipeline* pRenderPipeline = m_pView->GetRenderPipeline();
-      EZ_DEFAULT_DELETE(pRenderPipeline);
-      EZ_DEFAULT_DELETE(m_pView);
-    }
-
-    m_pView = ezRenderLoop::CreateView("Editor - View");
-
-    ezRenderPipeline* pRenderPipeline = EZ_DEFAULT_NEW(ezRenderPipeline);
-    pRenderPipeline->AddPass(EZ_DEFAULT_NEW(ezSimpleRenderPass, m_hBBRT));
-    m_pView->SetRenderPipeline(pRenderPipeline);
-
-    m_pView->SetViewport(ezRectFloat(0.0f, 0.0f, (float)uiWidth, (float)uiHeight));
-
-    ezEngineProcessDocumentContext* pDocumentContext = ezEngineProcessDocumentContext::GetDocumentContext(GetDocumentGuid());
-    m_pView->SetWorld(pDocumentContext->m_pWorld);
-    m_pView->SetLogicCamera(&m_Camera);
   }
 
   // Create render target for picking
@@ -115,13 +94,98 @@ void ezViewContext::SetupRenderTarget(ezWindowHandle hWnd, ezUInt16 uiWidth, ezU
 
     m_hPickingRenderTargetCfg = pDevice->CreateRenderTargetConfig(rtd);
 
-    m_PickingRenderTargetDT.EnableDataTransfer("Picking RT");
+    //m_PickingRenderTargetDT.EnableDataTransfer("Picking RT");
   }
 
+  // setup view
+  {
+    if (m_pView != nullptr)
+    {
+      ezRenderPipeline* pRenderPipeline = m_pView->GetRenderPipeline();
+      EZ_DEFAULT_DELETE(pRenderPipeline);
+      EZ_DEFAULT_DELETE(m_pView);
+    }
+
+    m_pView = ezRenderLoop::CreateView("Editor - View");
+
+    ezRenderPipeline* pRenderPipeline = EZ_DEFAULT_NEW(ezRenderPipeline);
+    pRenderPipeline->AddPass(EZ_DEFAULT_NEW(ezSimpleRenderPass, m_hBBRT));
+    pRenderPipeline->AddPass(EZ_DEFAULT_NEW(ezPickingRenderPass, m_hPickingRenderTargetCfg));
+    m_pView->SetRenderPipeline(pRenderPipeline);
+
+    m_pView->SetViewport(ezRectFloat(0.0f, 0.0f, (float)uiWidth, (float)uiHeight));
+
+    ezEngineProcessDocumentContext* pDocumentContext = ezEngineProcessDocumentContext::GetDocumentContext(GetDocumentGuid());
+    m_pView->SetWorld(pDocumentContext->m_pWorld);
+    m_pView->SetLogicCamera(&m_Camera);
+  }
+}
+
+void ezViewContext::SendViewMessage(ezEditorEngineDocumentMsg* pViewMsg)
+{
+  pViewMsg->m_DocumentGuid = GetDocumentGuid();
+  pViewMsg->m_uiViewID = GetViewIndex();
+
+  ezEngineProcessGameState::GetInstance()->ProcessCommunication().SendMessage(pViewMsg);
+}
+
+void ezViewContext::PickObjectAt(ezUInt16 x, ezUInt16 y)
+{
+  ezViewPickingResultMsgToEditor res;
+
+  const ezUInt32 uiIndex = (y * GetEditorWindow().m_uiWidth) + x;
+
+  if (uiIndex > m_PickingResultsComponentID.GetCount())
+  {
+    ezLog::Error("Picking position %u, %u is outside the available picking area of %u * %u", x, y, GetEditorWindow().m_uiWidth, GetEditorWindow().m_uiHeight);
+  }
+  else
+  {
+    const ezUInt32 uiComponentID = m_PickingResultsComponentID[uiIndex];
+
+    //ezComponentHandle hComponent()
+
+    /// \todo Passing around handles as ints is tedious
+    const ezGameObjectHandle hObject = ezGameObjectHandle(ezGameObjectId(uiComponentID));
+
+    res.m_ObjectGuid = ezEngineProcessGameState::GetInstance()->m_GameObjectMap.GetGuid(hObject);
+
+    ezLog::Info("Picked component at %u, %u with ID %u and GUID %s", x, y, uiComponentID, ezConversionUtils::ToString(res.m_ObjectGuid).GetData());
+  }
+
+  SendViewMessage(&res);
 }
 
 void ezViewContext::Redraw()
 {
   ezRenderLoop::AddMainView(m_pView);
+
+  //if (m_PickingRenderTargetDT.IsTransferRequested())
+  {
+    ezGALDevice::GetDefaultDevice()->GetPrimaryContext()->ReadbackTexture(m_hPickingRT);
+
+    m_PickingResultsComponentID.Clear();
+    m_PickingResultsComponentID.SetCount(GetEditorWindow().m_uiWidth * GetEditorWindow().m_uiHeight);
+
+    ezGALSystemMemoryDescription MemDesc;
+    MemDesc.m_pData = m_PickingResultsComponentID.GetData();
+    MemDesc.m_uiRowPitch = 4 * GetEditorWindow().m_uiWidth;
+    MemDesc.m_uiSlicePitch = 4 * GetEditorWindow().m_uiWidth * GetEditorWindow().m_uiHeight;
+
+    ezArrayPtr<ezGALSystemMemoryDescription> SysMemDescs(&MemDesc, 1);
+    ezGALDevice::GetDefaultDevice()->GetPrimaryContext()->CopyTextureReadbackResult(m_hPickingRT, &SysMemDescs);
+
+    //for (ezUInt32 i = 0; i < ImageContent.GetCount(); i += 4)
+    //{
+    //  ezMath::Swap(ImageContent[i + 0], ImageContent[i + 2]);
+    //}
+
+    //ezDataTransferObject DataObject(m_PickingRenderTargetDT, "Picking IDs", "image/rgba8", "rgba");
+    //DataObject.GetWriter() << GetEditorWindow().m_uiWidth;
+    //DataObject.GetWriter() << GetEditorWindow().m_uiHeight;
+    //DataObject.GetWriter().WriteBytes(ImageContent.GetData(), ImageContent.GetCount());
+
+    //DataObject.Transmit();
+  }
 }
 

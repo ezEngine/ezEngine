@@ -14,8 +14,9 @@
 #include <Foundation/Time/Clock.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/ConstantBuffers/ConstantBufferResource.h>
+#include "ViewContext.h"
 
-ezDataTransfer ezViewContext::m_PickingRenderTargetDT;
+//ezDataTransfer ezViewContext::m_PickingRenderTargetDT;
 
 #if 0
 ezMeshBufferResourceHandle CreateMeshResource(const ezGeometry& geom, const char* szResourceName)

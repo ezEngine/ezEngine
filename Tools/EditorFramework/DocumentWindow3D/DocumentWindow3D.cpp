@@ -25,6 +25,19 @@ ezDocumentWindow3D::~ezDocumentWindow3D()
   ezEditorEngineProcessConnection::GetInstance()->DestroyEngineConnection(this);
 }
 
+const ezObjectPickingResult& ezDocumentWindow3D::PickObject(ezUInt16 uiScreenPosX, ezUInt16 uiScreenPosY) const
+{
+  ezViewPickingMsgToEngine msg;
+  msg.m_uiPickPosX = uiScreenPosX;
+  msg.m_uiPickPosY = uiScreenPosY;
+
+  m_pEngineView->SendMessage(&msg);
+
+  ezEditorEngineProcessConnection::GetInstance()->WaitForMessage(ezGetStaticRTTI<ezViewPickingResultMsgToEditor>());
+
+  return m_LastPickingResult;
+}
+
 void ezDocumentWindow3D::SlotRestartEngineProcess()
 {
   ezEditorEngineProcessConnection::GetInstance()->RestartProcess();
@@ -74,6 +87,15 @@ bool ezDocumentWindow3D::HandleEngineMessage(const ezEditorEngineDocumentMsg* pM
   if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezDocumentOpenResponseMsgToEditor>())
   {
     m_pEngineView->SendDocument();
+    return true;
+  }
+
+  if (pMsg->GetDynamicRTTI()->IsDerivedFrom<ezViewPickingResultMsgToEditor>())
+  {
+    const ezViewPickingResultMsgToEditor* pFullMsg = static_cast<const ezViewPickingResultMsgToEditor*>(pMsg);
+
+    m_LastPickingResult.m_PickedObject = pFullMsg->m_ObjectGuid;
+    
     return true;
   }
 

@@ -25,4 +25,3 @@ void ezEngineProcessViewContext::DestroyViewContext(ezUInt32 uiViewID)
   }
 }
 
-

@@ -14,6 +14,8 @@ public:
   ezMeshResourceHandle m_hMesh;
   ezMaterialResourceHandle m_hMaterial;
   ezUInt32 m_uiPartIndex;
+  //ezComponentHandle m_hOwner;
+  ezGameObjectHandle m_hOwner; /// \todo this is supposed to be a component handle, but that does not fit into 32 Bit !
 };
 
 class ezMeshComponent;

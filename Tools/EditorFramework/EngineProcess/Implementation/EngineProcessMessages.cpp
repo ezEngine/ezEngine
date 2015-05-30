@@ -79,6 +79,19 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezViewCameraMsgToEngine, ezEditorEngineDocumentM
   EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezViewPickingMsgToEngine, ezEditorEngineDocumentMsg, 1, ezRTTIDefaultAllocator<ezViewPickingMsgToEngine>);
+  EZ_BEGIN_PROPERTIES
+    EZ_MEMBER_PROPERTY("PickPosX", m_uiPickPosX),
+    EZ_MEMBER_PROPERTY("PickPosY", m_uiPickPosY),
+  EZ_END_PROPERTIES
+EZ_END_DYNAMIC_REFLECTED_TYPE();
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezViewPickingResultMsgToEditor, ezEditorEngineDocumentMsg, 1, ezRTTIDefaultAllocator<ezViewPickingResultMsgToEditor>);
+  EZ_BEGIN_PROPERTIES
+    EZ_MEMBER_PROPERTY("ObjectGuid", m_ObjectGuid),
+  EZ_END_PROPERTIES
+EZ_END_DYNAMIC_REFLECTED_TYPE();
+
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLogMsgToEditor, ezEditorEngineDocumentMsg, 1, ezRTTIDefaultAllocator<ezLogMsgToEditor> );
   EZ_BEGIN_PROPERTIES
     EZ_MEMBER_PROPERTY("Text", m_sText),

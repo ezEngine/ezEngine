@@ -456,7 +456,7 @@ void ezGALContextDX11::CopyTextureReadbackResultPlatform(ezGALTexture* pTexture,
   D3D11_MAPPED_SUBRESOURCE Mapped;
   if(SUCCEEDED(m_pDXContext->Map(pDXTexture->GetDXStagingTexture(), 0, D3D11_MAP_READ, 0, &Mapped)))
   {
-    ezLog::Info("Warning: CopyTextureReadbackResult() is not 100%% correctly implemented at the current time!");
+    //ezLog::Info("Warning: CopyTextureReadbackResult() is not 100%% correctly implemented at the current time!");
 
     if (Mapped.RowPitch == (*pData)[0].m_uiRowPitch)
     {

@@ -40,15 +40,18 @@ public:
   bool m_bMoveDown;
   bool m_bMoveForwardsInPlane;
   bool m_bMoveBackwardsInPlane;
+  bool m_bDidMoveMouse[3]; // Left Click, Right Click, Middle Click
 
 private:
   ezTime m_LastUpdate;
 };
 
+class ezDocumentWindow3D;
+
 class ezQtCameraMoveContext : public ezCameraMoveContext
 {
 public:
-  ezQtCameraMoveContext(QWidget* pParentWidget, ezDocumentBase* pDocument);
+  ezQtCameraMoveContext(QWidget* pParentWidget, ezDocumentBase* pDocument, ezDocumentWindow3D* pDocumentWindow);
 
   virtual void Reset() override;
 
@@ -63,6 +66,7 @@ public:
 
 protected:
   ezDocumentBase* m_pDocument;
+  ezDocumentWindow3D* m_pDocumentWindow;
 
 private:
   void SetMoveSpeed(ezInt32 iSpeed);
@@ -84,7 +88,7 @@ private:
 class ez3DViewWidget : public QWidget
 {
 public:
-  ez3DViewWidget(QWidget* pParent, ezDocumentWindow* pDocument);
+  ez3DViewWidget(QWidget* pParent, ezDocumentWindow3D* pDocument);
 
   ezQtCameraMoveContext m_MoveContext;
 

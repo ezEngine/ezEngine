@@ -31,5 +31,55 @@
       "EditorTypeData" : {
         "Name" : "ezMeshComponent 004"
       }
+    },
+    {
+      "Type" : "ezGameObject",
+      "ID" : { "$t" : "uuid", "$b" : "0x170A9CF51D46F6448F2F00AE39136E22" },
+      "ParentID" : { "$t" : "uuid", "$b" : "0x00000000000000000000000000000000" },
+      "TypeData" : {
+        "Name" : "",
+        "Position" : { "$t" : "vec3", "$v" : "(9.0000, 0.0000, 0.0000)", "$b" : "0x000010410000000000000000" },
+        "Rotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
+        "Scaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" }
+      },
+      "EditorTypeData" : {
+        "Name" : "ezGameObject 002"
+      }
+    },
+    {
+      "Type" : "ezMeshComponent",
+      "ID" : { "$t" : "uuid", "$b" : "0x8F02EED67942D44CB53A55E05EDBDFD8" },
+      "ParentID" : { "$t" : "uuid", "$b" : "0x170A9CF51D46F6448F2F00AE39136E22" },
+      "TypeData" : {
+        "MeshFile" : "Trees/Meshes/Tree5.ezMesh"
+      },
+      "EditorTypeData" : {
+        "Name" : "ezMeshComponent 003"
+      }
+    },
+    {
+      "Type" : "ezGameObject",
+      "ID" : { "$t" : "uuid", "$b" : "0x74970CB5BC6DD545B55572D4CA03757D" },
+      "ParentID" : { "$t" : "uuid", "$b" : "0x00000000000000000000000000000000" },
+      "TypeData" : {
+        "Name" : "",
+        "Position" : { "$t" : "vec3", "$v" : "(-6.0000, 0.0000, 0.0000)", "$b" : "0x0000C0C00000000000000000" },
+        "Rotation" : { "$t" : "quat", "$b" : "0x0000000000000000000000000000803F" },
+        "Scaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" }
+      },
+      "EditorTypeData" : {
+        "Name" : "ezGameObject 004"
+      }
+    },
+    {
+      "Type" : "ezMeshComponent",
+      "ID" : { "$t" : "uuid", "$b" : "0x02DFB5F6997FB940AF0A3C3EBE611533" },
+      "ParentID" : { "$t" : "uuid", "$b" : "0x74970CB5BC6DD545B55572D4CA03757D" },
+      "TypeData" : {
+        "MeshFile" : "Trees/Meshes/Tree5.ezMesh"
+      },
+      "EditorTypeData" : {
+        "Name" : "ezMeshComponent 005"
+      }
     } ]
 }

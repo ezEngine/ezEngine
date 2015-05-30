@@ -11,6 +11,7 @@ CONSTANT_BUFFER(PerObject, 1)
 {
   MAT4(world);
   MAT4(mvp);
+  INT1(GameObjectID);
 };
 
 #ifdef PLATFORM_DX11

@@ -205,7 +205,7 @@ void ezCameraMoveContext::Update()
 
 }
 
-ez3DViewWidget::ez3DViewWidget(QWidget* pParent, ezDocumentWindow* pDocument) : QWidget(pParent), m_pDocument(pDocument), m_MoveContext(this, pDocument->GetDocument())
+ez3DViewWidget::ez3DViewWidget(QWidget* pParent, ezDocumentWindow3D* pDocument) : QWidget(pParent), m_pDocument(pDocument), m_MoveContext(this, pDocument->GetDocument(), pDocument)
 {
   setFocusPolicy(Qt::FocusPolicy::StrongFocus);
   setAttribute(Qt::WA_OpaquePaintEvent);
@@ -311,7 +311,7 @@ static const float s_fMoveSpeed[31] =
   256.0f,
 };
 
-ezQtCameraMoveContext::ezQtCameraMoveContext(QWidget* pParentWidget, ezDocumentBase* pDocument)
+ezQtCameraMoveContext::ezQtCameraMoveContext(QWidget* pParentWidget, ezDocumentBase* pDocument, ezDocumentWindow3D* pDocumentWindow)
 {
   m_pDocument = pDocument;
   m_pParentWidget = pParentWidget;
@@ -319,6 +319,7 @@ ezQtCameraMoveContext::ezQtCameraMoveContext(QWidget* pParentWidget, ezDocumentB
   m_bMoveCamera = false;
   m_bMoveCameraInPlane = false;
   m_bTempMousePosition = false;
+  m_pDocumentWindow = pDocumentWindow;
 
   // do not use SetMoveSpeed here, that would save that value to the settings
   m_iMoveSpeed = 15;
@@ -455,6 +456,7 @@ bool ezQtCameraMoveContext::mousePressEvent(QMouseEvent* e)
   {
     m_bRotateCamera = true;
     m_LastMousePos = e->globalPos();
+    m_bDidMoveMouse[1] = false;
     return true;
   }
 
@@ -462,6 +464,7 @@ bool ezQtCameraMoveContext::mousePressEvent(QMouseEvent* e)
   {
     m_bMoveCamera = true;
     m_LastMousePos = e->globalPos();
+    m_bDidMoveMouse[0] = false;
     return true;
   }
 
@@ -469,6 +472,7 @@ bool ezQtCameraMoveContext::mousePressEvent(QMouseEvent* e)
   {
     m_bMoveCameraInPlane = true;
     m_LastMousePos = e->globalPos();
+    m_bDidMoveMouse[2] = false;
     return true;
   }
 
@@ -539,8 +543,19 @@ bool ezQtCameraMoveContext::mouseReleaseEvent(QMouseEvent* e)
   if (e->button() == Qt::MouseButton::LeftButton)
   {
     m_bMoveCamera = false;
-
     ResetCursor();
+
+    if (!m_bDidMoveMouse[0])
+    {
+      const ezObjectPickingResult& res = m_pDocumentWindow->PickObject(e->pos().x(), e->pos().y());
+
+      if (res.m_PickedObject.IsValid())
+      {
+        const ezDocumentObjectBase* pObject = m_pDocument->GetObjectTree()->GetObject(res.m_PickedObject);
+        m_pDocument->GetSelectionManager()->SetSelection(pObject);
+      }
+    }
+
     return true;
   }
 
@@ -557,6 +572,10 @@ bool ezQtCameraMoveContext::mouseReleaseEvent(QMouseEvent* e)
 
 bool ezQtCameraMoveContext::mouseMoveEvent(QMouseEvent* e)
 {
+  // store that the mouse has been moved since the last click
+  for (ezInt32 i = 0; i < EZ_ARRAY_SIZE(m_bDidMoveMouse); ++i)
+    m_bDidMoveMouse[i] = true;
+
   if (m_pCamera == nullptr)
     return false;
 

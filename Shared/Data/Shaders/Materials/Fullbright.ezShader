@@ -4,6 +4,7 @@ ALL
 [PERMUTATIONS]
 
 ALPHATEST
+PICKING
 
 [RENDERSTATE]
 
@@ -47,7 +48,17 @@ float4 main(PS_IN Input) : SV_Target
   clip(fMask < 0.1f ? -1 : 1);
 #endif
 
+#if PICKING == 1
+  float4 IdCol;
+  IdCol.r = (GameObjectID & 255) / 255.0;
+  IdCol.g = (GameObjectID >> 8 & 255) / 255.0;
+  IdCol.b = (GameObjectID >> 16 & 255) / 255.0;
+  IdCol.a = (GameObjectID >> 24 & 255) / 255.0;
+  
+  return IdCol;
+#else
   return TexDiffuse.Sample(TexDiffuseSampler, Input.TexCoord0);
+#endif
 }
 
 #endif

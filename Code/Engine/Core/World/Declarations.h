@@ -88,6 +88,7 @@ struct ezComponentId : public ezGenericComponentId
     m_TypeId = typeId;
   }
 
+  /// \todo ezComponentHandle becomes 8 (6 + padding) bytes large due to this. Was that intended?
   ezUInt16 m_TypeId;
 };
 

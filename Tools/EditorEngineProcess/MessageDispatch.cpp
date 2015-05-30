@@ -11,14 +11,14 @@
 #include <GameUtils/Components/RotorComponent.h>
 #include <GameUtils/Components/SliderComponent.h>
 
-void ezEditorGameState::SendProjectReadyMessage()
+void ezEngineProcessGameState::SendProjectReadyMessage()
 {
   ezProjectReadyMsgToEditor msg;
   m_IPC.SendMessage(&msg);
 }
 
 
-void ezEditorGameState::SendReflectionInformation()
+void ezEngineProcessGameState::SendReflectionInformation()
 {
   ezSet<const ezRTTI*> types;
   ezReflectionUtils::GatherTypesDerivedFromClass(ezGetStaticRTTI<ezComponent>(), types, true);
@@ -33,7 +33,7 @@ void ezEditorGameState::SendReflectionInformation()
   }
 }
 
-void ezEditorGameState::EventHandlerIPC(const ezProcessCommunication::Event& e)
+void ezEngineProcessGameState::EventHandlerIPC(const ezProcessCommunication::Event& e)
 {
   // Project Messages:
   if (e.m_pMessage->GetDynamicRTTI()->IsDerivedFrom<ezSetupProjectMsgToEditor>())
@@ -131,9 +131,15 @@ void ezEditorGameState::EventHandlerIPC(const ezProcessCommunication::Event& e)
 
     pDocumentContext->ProcessEditorEngineSyncObjectMsg(*pMsg);
   }
+  else if (pDocMsg->GetDynamicRTTI()->IsDerivedFrom<ezViewPickingMsgToEngine>())
+  {
+    ezViewPickingMsgToEngine* pMsg = (ezViewPickingMsgToEngine*)pDocMsg;
+
+    pViewContext->PickObjectAt(pMsg->m_uiPickPosX, pMsg->m_uiPickPosY);
+  }
 }
 
-void ezEditorGameState::UpdateProperties(ezEntityMsgToEngine* pMsg, void* pObject, const ezRTTI* pRtti)
+void ezEngineProcessGameState::UpdateProperties(ezEntityMsgToEngine* pMsg, void* pObject, const ezRTTI* pRtti)
 {
   ezMemoryStreamStorage storage;
   ezMemoryStreamWriter writer(&storage);
@@ -144,9 +150,7 @@ void ezEditorGameState::UpdateProperties(ezEntityMsgToEngine* pMsg, void* pObjec
   ezReflectionSerializer::ReadObjectPropertiesFromJSON(reader, *pRtti, pObject);
 }
 
-static ezHashTable<ezUuid, ezGameObjectHandle> g_AllObjects;
-
-void ezEditorGameState::HandlerGameObjectMsg(ezEngineProcessDocumentContext* pDocumentContext, ezViewContext* pViewContext, ezEntityMsgToEngine* pMsg, ezRTTI* pRtti)
+void ezEngineProcessGameState::HandlerGameObjectMsg(ezEngineProcessDocumentContext* pDocumentContext, ezViewContext* pViewContext, ezEntityMsgToEngine* pMsg, ezRTTI* pRtti)
 {
   switch (pMsg->m_iMsgType)
   {
@@ -156,10 +160,10 @@ void ezEditorGameState::HandlerGameObjectMsg(ezEngineProcessDocumentContext* pDo
       d.m_sName.Assign(ezConversionUtils::ToString(pMsg->m_ObjectGuid).GetData());
 
       if (pMsg->m_NewParentGuid.IsValid())
-        d.m_Parent = g_AllObjects[pMsg->m_NewParentGuid];
+        d.m_Parent = m_GameObjectMap.GetHandle(pMsg->m_NewParentGuid);
 
       ezGameObjectHandle hObject = pDocumentContext->m_pWorld->CreateObject(d);
-      g_AllObjects[pMsg->m_ObjectGuid] = hObject;
+      m_GameObjectMap.RegisterObject(pMsg->m_ObjectGuid, hObject);
 
       ezGameObject* pObject;
       if (pDocumentContext->m_pWorld->TryGetObject(hObject, pObject))
@@ -179,11 +183,11 @@ void ezEditorGameState::HandlerGameObjectMsg(ezEngineProcessDocumentContext* pDo
         break;
       }
 
-      ezGameObjectHandle hObject = g_AllObjects[pMsg->m_ObjectGuid];
+      ezGameObjectHandle hObject = m_GameObjectMap.GetHandle(pMsg->m_ObjectGuid);
 
       ezGameObjectHandle hNewParent;
       if (pMsg->m_NewParentGuid.IsValid())
-        hNewParent = g_AllObjects[pMsg->m_NewParentGuid];
+        hNewParent = m_GameObjectMap.GetHandle(pMsg->m_NewParentGuid);
 
       ezGameObject* pObject = nullptr;
       if (pDocumentContext->m_pWorld->TryGetObject(hObject, pObject))
@@ -197,14 +201,14 @@ void ezEditorGameState::HandlerGameObjectMsg(ezEngineProcessDocumentContext* pDo
 
   case ezEntityMsgToEngine::ObjectRemoved:
     {
-      pDocumentContext->m_pWorld->DeleteObject(g_AllObjects[pMsg->m_ObjectGuid]);
-      g_AllObjects.Remove(pMsg->m_ObjectGuid);
+      pDocumentContext->m_pWorld->DeleteObject(m_GameObjectMap.GetHandle(pMsg->m_ObjectGuid));
+      m_GameObjectMap.UnregisterObject(pMsg->m_ObjectGuid);
     }
     break;
 
   case ezEntityMsgToEngine::PropertyChanged:
     {
-      ezGameObjectHandle hObject = g_AllObjects[pMsg->m_ObjectGuid];
+      ezGameObjectHandle hObject = m_GameObjectMap.GetHandle(pMsg->m_ObjectGuid);
 
       ezGameObject* pObject;
       if (pDocumentContext->m_pWorld->TryGetObject(hObject, pObject))
@@ -216,10 +220,8 @@ void ezEditorGameState::HandlerGameObjectMsg(ezEngineProcessDocumentContext* pDo
   }
 }
 
-void ezEditorGameState::HandleComponentMsg(ezEngineProcessDocumentContext* pDocumentContext, ezViewContext* pViewContext, ezEntityMsgToEngine* pMsg, ezRTTI* pRtti)
+void ezEngineProcessGameState::HandleComponentMsg(ezEngineProcessDocumentContext* pDocumentContext, ezViewContext* pViewContext, ezEntityMsgToEngine* pMsg, ezRTTI* pRtti)
 {
-  static ezHashTable<ezUuid, ezComponentHandle> g_AllComponents;
-
   ezComponentManagerBase* pMan = pDocumentContext->m_pWorld->GetComponentManager(pRtti);
 
   if (pMan == nullptr)
@@ -234,7 +236,7 @@ void ezEditorGameState::HandleComponentMsg(ezEngineProcessDocumentContext* pDocu
     {
       ezComponentHandle hComponent = pMan->CreateComponent();
 
-      ezGameObjectHandle hParent = g_AllObjects[pMsg->m_NewParentGuid];
+      ezGameObjectHandle hParent = m_GameObjectMap.GetHandle(pMsg->m_NewParentGuid);
       ezGameObject* pParent;
       if (!pDocumentContext->m_pWorld->TryGetObject(hParent, pParent))
         break;
@@ -242,7 +244,7 @@ void ezEditorGameState::HandleComponentMsg(ezEngineProcessDocumentContext* pDocu
       ezComponent* pComponent;
       if (pMan->TryGetComponent(hComponent, pComponent))
       {
-        g_AllComponents[pMsg->m_ObjectGuid] = hComponent;
+        m_ComponentMap.RegisterObject(pMsg->m_ObjectGuid, hComponent);
         UpdateProperties(pMsg, pComponent, pComponent->GetDynamicRTTI());
       }
       else
@@ -256,12 +258,12 @@ void ezEditorGameState::HandleComponentMsg(ezEngineProcessDocumentContext* pDocu
 
   case ezEntityMsgToEngine::ObjectMoved:
     {
-      ezGameObjectHandle hParent = g_AllObjects[pMsg->m_NewParentGuid];
+      ezGameObjectHandle hParent = m_GameObjectMap.GetHandle(pMsg->m_NewParentGuid);
       ezGameObject* pParent;
       if (!pDocumentContext->m_pWorld->TryGetObject(hParent, pParent))
         break;
 
-      ezComponentHandle hComponent = g_AllComponents[pMsg->m_ObjectGuid];
+      ezComponentHandle hComponent = m_ComponentMap.GetHandle(pMsg->m_ObjectGuid);
 
       ezComponent* pComponent;
       if (pMan->TryGetComponent(hComponent, pComponent))
@@ -276,8 +278,8 @@ void ezEditorGameState::HandleComponentMsg(ezEngineProcessDocumentContext* pDocu
 
   case ezEntityMsgToEngine::ObjectRemoved:
     {
-      ezComponentHandle hComponent = g_AllComponents[pMsg->m_ObjectGuid];
-      g_AllComponents.Remove(pMsg->m_ObjectGuid);
+      ezComponentHandle hComponent = m_ComponentMap.GetHandle(pMsg->m_ObjectGuid);
+      m_ComponentMap.UnregisterObject(pMsg->m_ObjectGuid);
 
       pMan->DeleteComponent(hComponent);
     }
@@ -285,7 +287,7 @@ void ezEditorGameState::HandleComponentMsg(ezEngineProcessDocumentContext* pDocu
 
   case ezEntityMsgToEngine::PropertyChanged:
     {
-      ezComponentHandle hComponent = g_AllComponents[pMsg->m_ObjectGuid];
+      ezComponentHandle hComponent = m_ComponentMap.GetHandle(pMsg->m_ObjectGuid);
 
       ezComponent* pComponent;
       if (pMan->TryGetComponent(hComponent, pComponent))
@@ -302,7 +304,7 @@ void ezEditorGameState::HandleComponentMsg(ezEngineProcessDocumentContext* pDocu
 
 }
 
-void ezEditorGameState::HandlerEntityMsg(ezEngineProcessDocumentContext* pDocumentContext, ezViewContext* pViewContext, ezEntityMsgToEngine* pMsg)
+void ezEngineProcessGameState::HandlerEntityMsg(ezEngineProcessDocumentContext* pDocumentContext, ezViewContext* pViewContext, ezEntityMsgToEngine* pMsg)
 {
 
   ezRTTI* pRtti = ezRTTI::FindTypeByName(pMsg->m_sObjectType);

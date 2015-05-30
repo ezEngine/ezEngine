@@ -8,6 +8,12 @@ class QWidget;
 class QHBoxLayout;
 class QPushButton;
 
+struct ezObjectPickingResult
+{
+  ezUuid m_PickedObject;
+
+};
+
 class EZ_EDITORFRAMEWORK_DLL ezDocumentWindow3D : public ezDocumentWindow
 {
   Q_OBJECT
@@ -21,6 +27,8 @@ public:
   virtual ~ezDocumentWindow3D();
 
   ezEditorEngineConnection* GetEditorEngineConnection() const { return m_pEngineView; }
+
+  const ezObjectPickingResult& PickObject(ezUInt16 uiScreenPosX, ezUInt16 uiScreenPosY) const;
 
 private slots:
   void SlotRestartEngineProcess();
@@ -42,6 +50,7 @@ private:
   /// \todo Broken delegates
   ezDelegate<void(const ezEditorEngineProcessConnection::Event&)> m_DelegateEngineViewProcessEvents;
 
+  ezObjectPickingResult m_LastPickingResult;
 };
 
 

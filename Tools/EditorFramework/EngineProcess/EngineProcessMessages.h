@@ -136,6 +136,25 @@ public:
   ezString m_sObjectData;
 };
 
+class EZ_EDITORFRAMEWORK_DLL ezViewPickingMsgToEngine : public ezEditorEngineDocumentMsg
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezViewPickingMsgToEngine);
+
+public:
+
+  ezUInt16 m_uiPickPosX;
+  ezUInt16 m_uiPickPosY;
+};
+
+class EZ_EDITORFRAMEWORK_DLL ezViewPickingResultMsgToEditor : public ezEditorEngineDocumentMsg
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezViewPickingResultMsgToEditor);
+
+public:
+  ezUuid m_ObjectGuid;
+};
+
+
 class EZ_EDITORFRAMEWORK_DLL ezLogMsgToEditor : public ezEditorEngineDocumentMsg
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezLogMsgToEditor);

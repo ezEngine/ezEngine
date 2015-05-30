@@ -6,14 +6,19 @@
 #include <Foundation/Time/Clock.h>
 #include <RendererCore/RenderLoop/RenderLoop.h>
 
-EZ_APPLICATION_ENTRY_POINT(ezGameApplication, *EZ_DEFAULT_NEW(ezEditorGameState));
+EZ_APPLICATION_ENTRY_POINT(ezGameApplication, *EZ_DEFAULT_NEW(ezEngineProcessGameState));
 
-ezEditorGameState::ezEditorGameState()
+ezEngineProcessGameState* ezEngineProcessGameState::s_pInstance = nullptr;
+
+ezEngineProcessGameState::ezEngineProcessGameState()
 {
+  EZ_ASSERT_DEV(s_pInstance == nullptr, "ezEngineProcessGameState must be a singleton");
+
   m_pApp = nullptr;
+  s_pInstance = this;
 }
 
-void ezEditorGameState::Activate()
+void ezEngineProcessGameState::Activate()
 {
   //while (!IsDebuggerPresent());
 
@@ -44,21 +49,21 @@ void ezEditorGameState::Activate()
 
   EZ_VERIFY(m_IPC.ConnectToHostProcess().Succeeded(), "Could not connect to host");
 
-  m_IPC.m_Events.AddEventHandler(ezMakeDelegate(&ezEditorGameState::EventHandlerIPC, this));
+  m_IPC.m_Events.AddEventHandler(ezMakeDelegate(&ezEngineProcessGameState::EventHandlerIPC, this));
 
   SendReflectionInformation();
 
   m_IPC.WaitForMessage(ezGetStaticRTTI<ezSetupProjectMsgToEditor>());
 }
 
-void ezEditorGameState::Deactivate()
+void ezEngineProcessGameState::Deactivate()
 {
-  m_IPC.m_Events.RemoveEventHandler(ezMakeDelegate(&ezEditorGameState::EventHandlerIPC, this));
+  m_IPC.m_Events.RemoveEventHandler(ezMakeDelegate(&ezEngineProcessGameState::EventHandlerIPC, this));
 
   delete m_pApp;
 }
 
-void ezEditorGameState::BeforeWorldUpdate()
+void ezEngineProcessGameState::BeforeWorldUpdate()
 {
   ezRenderLoop::ClearMainViews();
 

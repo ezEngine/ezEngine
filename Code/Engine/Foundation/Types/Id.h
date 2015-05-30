@@ -11,6 +11,7 @@
   static const StorageType INDEX_AND_GENERATION_MASK = (1ULL << (instanceIndexBits + generationBits)) - 1; \
   EZ_DECLARE_POD_TYPE(); \
   EZ_FORCE_INLINE name() { m_Data = INVALID_INSTANCE_INDEX; } \
+  EZ_FORCE_INLINE name(StorageType internalData) { m_Data = internalData; } \
   EZ_FORCE_INLINE bool operator==(const name other) const { return m_Data == other.m_Data; } \
   EZ_FORCE_INLINE bool operator!=(const name other) const { return m_Data != other.m_Data; } \
   EZ_FORCE_INLINE bool operator<(const name other) const { return m_Data < other.m_Data; } \
@@ -52,14 +53,15 @@ struct ezGenericId
   public: \
     EZ_DECLARE_POD_TYPE(); \
     EZ_FORCE_INLINE name() { } \
+    EZ_FORCE_INLINE name(idType internalId) : m_InternalId(internalId) { } \
     EZ_FORCE_INLINE bool operator==(const name other) const { return m_InternalId == other.m_InternalId; } \
     EZ_FORCE_INLINE bool operator!=(const name other) const { return m_InternalId != other.m_InternalId; } \
     EZ_FORCE_INLINE bool operator<(const name other) const { return m_InternalId < other.m_InternalId; } \
     EZ_FORCE_INLINE void Invalidate() { m_InternalId.Invalidate(); } \
     EZ_FORCE_INLINE bool IsInvalidated() const { return m_InternalId == idType(); } \
+    EZ_FORCE_INLINE idType GetInternalID() const { return m_InternalId; } \
     typedef idType IdType; \
   protected: \
-    EZ_FORCE_INLINE name(idType internalId) : m_InternalId(internalId) { } \
     idType m_InternalId; \
     operator idType () { return m_InternalId; } \
     operator const idType () const { return m_InternalId; }
