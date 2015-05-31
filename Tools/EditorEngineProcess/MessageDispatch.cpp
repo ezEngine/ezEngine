@@ -246,6 +246,13 @@ void ezEngineProcessGameState::HandleComponentMsg(ezEngineProcessDocumentContext
       {
         m_ComponentMap.RegisterObject(pMsg->m_ObjectGuid, hComponent);
         UpdateProperties(pMsg, pComponent, pComponent->GetDynamicRTTI());
+
+
+        static ezUInt32 uiNextComponentPickingID = 0;
+        ++uiNextComponentPickingID;
+
+        pComponent->m_uiEditorPickingID = uiNextComponentPickingID;
+        m_ComponentPickingMap.RegisterObject(pMsg->m_ObjectGuid, pComponent->m_uiEditorPickingID);
       }
       else
       {
@@ -280,6 +287,7 @@ void ezEngineProcessGameState::HandleComponentMsg(ezEngineProcessDocumentContext
     {
       ezComponentHandle hComponent = m_ComponentMap.GetHandle(pMsg->m_ObjectGuid);
       m_ComponentMap.UnregisterObject(pMsg->m_ObjectGuid);
+      m_ComponentPickingMap.UnregisterObject(pMsg->m_ObjectGuid);
 
       pMan->DeleteComponent(hComponent);
     }

@@ -11,7 +11,10 @@ class QPushButton;
 struct ezObjectPickingResult
 {
   ezUuid m_PickedObject;
-
+  ezUuid m_PickedComponent;
+  ezUInt32 m_uiPartIndex;
+  ezVec3 m_vPickedPosition;
+  ezVec3 m_vPickingRayStart;
 };
 
 class EZ_EDITORFRAMEWORK_DLL ezDocumentWindow3D : public ezDocumentWindow

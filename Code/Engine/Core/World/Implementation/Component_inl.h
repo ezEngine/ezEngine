@@ -3,7 +3,8 @@ EZ_FORCE_INLINE ezComponent::ezComponent() :
   m_pManager(nullptr),
   m_Flags(ezObjectFlags::Default),
   m_pOwner(nullptr)
-{ 
+{
+  m_uiEditorPickingID = 0xFFFFFFFF;
 }
 
 EZ_FORCE_INLINE ezComponent::~ezComponent() 

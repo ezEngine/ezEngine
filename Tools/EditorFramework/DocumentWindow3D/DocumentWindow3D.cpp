@@ -95,6 +95,10 @@ bool ezDocumentWindow3D::HandleEngineMessage(const ezEditorEngineDocumentMsg* pM
     const ezViewPickingResultMsgToEditor* pFullMsg = static_cast<const ezViewPickingResultMsgToEditor*>(pMsg);
 
     m_LastPickingResult.m_PickedObject = pFullMsg->m_ObjectGuid;
+    m_LastPickingResult.m_PickedComponent = pFullMsg->m_ComponentGuid;
+    m_LastPickingResult.m_uiPartIndex = pFullMsg->m_uiPartIndex;
+    m_LastPickingResult.m_vPickedPosition = pFullMsg->m_vPickedPosition;
+    m_LastPickingResult.m_vPickingRayStart = pFullMsg->m_vPickingRayStartPosition;
     
     return true;
   }

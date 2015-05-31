@@ -549,10 +549,21 @@ bool ezQtCameraMoveContext::mouseReleaseEvent(QMouseEvent* e)
     {
       const ezObjectPickingResult& res = m_pDocumentWindow->PickObject(e->pos().x(), e->pos().y());
 
-      if (res.m_PickedObject.IsValid())
+      if (e->modifiers() == Qt::KeyboardModifier::AltModifier)
       {
-        const ezDocumentObjectBase* pObject = m_pDocument->GetObjectTree()->GetObject(res.m_PickedObject);
-        m_pDocument->GetSelectionManager()->SetSelection(pObject);
+        if (res.m_PickedComponent.IsValid())
+        {
+          const ezDocumentObjectBase* pObject = m_pDocument->GetObjectTree()->GetObject(res.m_PickedComponent);
+          m_pDocument->GetSelectionManager()->SetSelection(pObject);
+        }
+      }
+      else
+      {
+        if (res.m_PickedObject.IsValid())
+        {
+          const ezDocumentObjectBase* pObject = m_pDocument->GetObjectTree()->GetObject(res.m_PickedObject);
+          m_pDocument->GetSelectionManager()->SetSelection(pObject);
+        }
       }
     }
 

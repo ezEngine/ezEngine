@@ -14,6 +14,7 @@ struct PerObjectCB
   ezMat4 world;
   ezMat4 mvp;
   ezUInt32 GameObjectID;
+  ezUInt32 PartIndex;
 };
 
 void ezMeshRenderer::GetSupportedRenderDataTypes(ezHybridArray<const ezRTTI*, 8>& types)
@@ -51,11 +52,9 @@ ezUInt32 ezMeshRenderer::Render(const ezRenderViewContext& renderViewContext, ez
     PerObjectCB* cb = renderViewContext.m_pRenderContext->BeginModifyConstantBuffer<PerObjectCB>(m_hObjectTransformCB);
     cb->world = pRenderData->m_WorldTransform.GetAsMat4();
     cb->mvp = ViewProj * cb->world;
-
-    //EZ_CHECK_AT_COMPILETIME(sizeof(pRenderData->m_hOwner) == sizeof(ezUInt32));
-    EZ_CHECK_AT_COMPILETIME(sizeof(ezGameObjectHandle) == sizeof(ezUInt32));
-
-    cb->GameObjectID = pRenderData->m_hOwner.GetInternalID().m_Data;
+    cb->GameObjectID = pRenderData->m_uiEditorPickingID;
+    cb->PartIndex = pRenderData->m_uiPartIndex;
+    
     renderViewContext.m_pRenderContext->EndModifyConstantBuffer();
 
     ezResourceLock<ezMeshResource> pMesh(pRenderData->m_hMesh);

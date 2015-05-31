@@ -63,6 +63,7 @@ public:
 
   ezEditorGuidEngineHandleMap<ezGameObjectHandle> m_GameObjectMap;
   ezEditorGuidEngineHandleMap<ezComponentHandle> m_ComponentMap;
+  ezEditorGuidEngineHandleMap<ezUInt32> m_ComponentPickingMap;
 
 private:
   virtual void Activate() override;

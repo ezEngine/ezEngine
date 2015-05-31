@@ -145,12 +145,24 @@ void ezViewContext::PickObjectAt(ezUInt16 x, ezUInt16 y)
     const ezUInt32 uiComponentID = m_PickingResultsComponentID[uiIndex];
     const float fDepth = m_PickingResultsDepth[uiIndex];
 
-    //ezComponentHandle hComponent()
+    res.m_ComponentGuid = ezEngineProcessGameState::GetInstance()->m_ComponentPickingMap.GetGuid(uiComponentID);
 
-    /// \todo Passing around handles as ints is tedious
-    const ezGameObjectHandle hObject = ezGameObjectHandle(ezGameObjectId(uiComponentID));
+    ezComponentHandle hComponent = ezEngineProcessGameState::GetInstance()->m_ComponentMap.GetHandle(res.m_ComponentGuid);
 
-    res.m_ObjectGuid = ezEngineProcessGameState::GetInstance()->m_GameObjectMap.GetGuid(hObject);
+    ezEngineProcessDocumentContext* pDocumentContext = ezEngineProcessDocumentContext::GetDocumentContext(GetDocumentGuid());
+
+    // check whether the component is still valid
+    ezComponent* pComponent = nullptr;
+    if (pDocumentContext->m_pWorld->TryGetComponent<ezComponent>(hComponent, pComponent))
+    {
+      // if yes, fill out the parent game object guid
+      res.m_ObjectGuid = ezEngineProcessGameState::GetInstance()->m_GameObjectMap.GetGuid(pComponent->GetOwner()->GetHandle());
+      res.m_uiPartIndex = 0; /// TODO
+    }
+    else
+    {
+      res.m_ComponentGuid = ezUuid();
+    }
 
     /// \todo Add an enum that defines in which direction the window Y coordinate points ?
     ezGraphicsUtils::ConvertScreenPosToWorldPos(m_PickingInverseViewProjectionMatrix, 0, 0, uiWindowWidth, uiWindowHeight, ezVec3(x, uiWindowHeight - y, fDepth), res.m_vPickedPosition);

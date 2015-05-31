@@ -10,48 +10,7 @@
 #include <CoreUtils/Debugging/DataTransfer.h>
 
 class ezView;
-class ezGameObject;
 class ezViewCameraMsgToEngine;
-
-//class ezPickingIDCache
-//{
-//public:
-//  struct ObjectInfo
-//  {
-//    EZ_DECLARE_POD_TYPE();
-//
-//    void* m_pObject;
-//    const char* m_szObjectType;
-//    ezUInt32 m_uiObjectID;
-//  };
-//
-//  ezUInt32 GeneratePickingID(void* pObject, const char* szObjectType)
-//  {
-//    bool bExisted = false;
-//    auto it = m_ObjectToID.FindOrAdd(pObject, &bExisted);
-//
-//    if (!bExisted)
-//    {
-//      it.Value() = (m_IDtoObject.GetCount() + 1) << 8;
-//      auto& ref = m_IDtoObject.ExpandAndGetRef();
-//      ref.m_pObject = pObject;
-//      ref.m_szObjectType = szObjectType;
-//      ref.m_uiObjectID = it.Value();
-//    }
-//
-//    return it.Value();
-//  }
-//
-//  ezUInt32 GenerateCombinedPickingID(ezUInt32 uiObjectPickingID, ezUInt8 uiPartID) { return uiObjectPickingID | (ezUInt32) uiPartID; }
-//
-//  const ObjectInfo& GetObjectInfo(ezUInt32 uiPickingID) { return m_IDtoObject[(uiPickingID >> 8) - 1]; }
-//
-//  void Clear() { m_ObjectToID.Clear(); m_IDtoObject.Clear(); }
-//
-//private:
-//  ezMap<void*, ezUInt32> m_ObjectToID;
-//  ezDeque<ObjectInfo> m_IDtoObject;
-//};
 
 struct ObjectData
 {

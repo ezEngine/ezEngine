@@ -52,6 +52,8 @@ public:
   /// \brief Gets the next component id for a new type. Internal use only.
   static ezUInt16 GetNextTypeId();
 
+  ezUInt32 m_uiEditorPickingID;
+
 protected:
   friend class ezWorld;
   friend class ezGameObject;

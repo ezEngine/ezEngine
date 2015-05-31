@@ -52,7 +52,7 @@ void ezMeshComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) const
     ezMeshRenderData* pRenderData = pRenderPipeline->CreateRenderData<ezMeshRenderData>(ezDefaultPassTypes::Opaque, GetOwner());
     pRenderData->m_WorldTransform = GetOwner()->GetWorldTransform();
     pRenderData->m_hMesh = m_hMesh;
-    pRenderData->m_hOwner = GetOwner()->GetHandle();
+    pRenderData->m_uiEditorPickingID = m_uiEditorPickingID;
 
     const ezUInt32 uiMaterialIndex = parts[uiPartIndex].m_uiMaterialIndex;
 

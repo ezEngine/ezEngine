@@ -18,7 +18,7 @@
         "Scaling" : { "$t" : "vec3", "$v" : "(0.1000, 0.1000, 0.1000)", "$b" : "0xCDCCCC3DCDCCCC3DCDCCCC3D" }
       },
       "EditorTypeData" : {
-        "Name" : "ezGameObject 002"
+        "Name" : "Sponza"
       }
     },
     {
@@ -29,7 +29,7 @@
         "MeshFile" : "Sponza/Meshes/Sponza.ezmesh"
       },
       "EditorTypeData" : {
-        "Name" : "ezMeshComponent 004"
+        "Name" : "Sponza Mesh"
       }
     },
     {
@@ -43,7 +43,7 @@
         "Scaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" }
       },
       "EditorTypeData" : {
-        "Name" : "ezGameObject 002"
+        "Name" : "Right Tree"
       }
     },
     {
@@ -54,7 +54,7 @@
         "MeshFile" : "Trees/Meshes/Tree5.ezMesh"
       },
       "EditorTypeData" : {
-        "Name" : "ezMeshComponent 003"
+        "Name" : "Right Tree Mesh"
       }
     },
     {
@@ -68,7 +68,7 @@
         "Scaling" : { "$t" : "vec3", "$v" : "(1.0000, 1.0000, 1.0000)", "$b" : "0x0000803F0000803F0000803F" }
       },
       "EditorTypeData" : {
-        "Name" : "ezGameObject 004"
+        "Name" : "Left Tree"
       }
     },
     {
@@ -79,7 +79,7 @@
         "MeshFile" : "Trees/Meshes/Tree5.ezMesh"
       },
       "EditorTypeData" : {
-        "Name" : "ezMeshComponent 005"
+        "Name" : "Left Tree Mesh"
       }
     } ]
 }
