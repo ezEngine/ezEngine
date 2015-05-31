@@ -1,0 +1,15 @@
+{
+  "Shader" : "Shaders/Editor/GizmoHandle.ezShader",
+  
+  "Permutations" : 
+  {
+  },
+
+  "Constants" :
+  {
+  },
+  
+  "Textures" :
+  {
+  }  
+}

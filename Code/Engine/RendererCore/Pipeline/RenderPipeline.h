@@ -120,5 +120,6 @@ public:
   static ezRenderPassType Opaque;
   static ezRenderPassType Masked;
   static ezRenderPassType Transparent;
+  static ezRenderPassType Foreground;
 };
 

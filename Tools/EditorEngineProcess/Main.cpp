@@ -5,6 +5,8 @@
 #include <Foundation/IO/FileSystem/DataDirTypeFolder.h>
 #include <Foundation/Time/Clock.h>
 #include <RendererCore/RenderLoop/RenderLoop.h>
+#include <EditorFramework/Gizmos/GizmoHandle.h>
+#include <EditorFramework/EngineProcess/EngineProcessDocumentContext.h>
 
 EZ_APPLICATION_ENTRY_POINT(ezGameApplication, *EZ_DEFAULT_NEW(ezEngineProcessGameState));
 
@@ -71,6 +73,32 @@ void ezEngineProcessGameState::BeforeWorldUpdate()
   
   if (!m_IPC.IsHostAlive())
     GetApplication()->RequestQuit();
+
+  ezEditorEngineSyncObject* pSyncObject = ezEditorEngineSyncObject::GetFirstInstance();
+
+  while (pSyncObject)
+  {
+    if (pSyncObject->GetDynamicRTTI()->IsDerivedFrom<ezEditorGizmoHandle>())
+    {
+      ezEditorGizmoHandle* pGizmoHandle = static_cast<ezEditorGizmoHandle*>(pSyncObject);
+
+      if (pSyncObject->GetDocumentGuid().IsValid())
+      {
+        ezEngineProcessDocumentContext* pContext = ezEngineProcessDocumentContext::GetDocumentContext(pSyncObject->GetDocumentGuid());
+
+        if (pContext)
+        {
+          EZ_LOCK(pContext->m_pWorld->GetWriteMarker());
+
+          pGizmoHandle->SetupForEngine(pContext->m_pWorld);
+          pGizmoHandle->UpdateForEngine(pContext->m_pWorld);
+        }
+      }
+    }
+
+
+    pSyncObject = pSyncObject->GetNextInstance();
+  }
 
   ezThreadUtils::Sleep(1);
 }

@@ -27,4 +27,5 @@ void ezSimpleRenderPass::Execute(const ezRenderViewContext& renderViewContext)
   RenderDataWithPassType(renderViewContext, ezDefaultPassTypes::Opaque);
   RenderDataWithPassType(renderViewContext, ezDefaultPassTypes::Masked);
   RenderDataWithPassType(renderViewContext, ezDefaultPassTypes::Transparent);
+  RenderDataWithPassType(renderViewContext, ezDefaultPassTypes::Foreground);
 }

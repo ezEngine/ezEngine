@@ -12,6 +12,13 @@
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <Foundation/Utilities/GraphicsUtils.h>
 
+void ezViewContext::SetCamera(ezViewCameraMsgToEngine* pMsg)
+{
+  m_Camera.SetCameraMode((ezCamera::CameraMode) pMsg->m_iCameraMode, pMsg->m_fFovOrDim, pMsg->m_fNearPlane, pMsg->m_fFarPlane);
+
+  m_Camera.LookAt(pMsg->m_vPosition, pMsg->m_vPosition + pMsg->m_vDirForwards, pMsg->m_vDirUp);
+}
+
 void ezViewContext::SetupRenderTarget(ezWindowHandle hWnd, ezUInt16 uiWidth, ezUInt16 uiHeight)
 {
   if (GetEditorWindow().m_hWnd != 0)

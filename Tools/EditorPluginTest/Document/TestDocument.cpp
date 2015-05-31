@@ -44,8 +44,11 @@ void ezTestDocument::SelectionManagerEventHandler(const ezSelectionManager::Even
     break;
 
   case ezSelectionManager::Event::Type::SelectionSet:
+  case ezSelectionManager::Event::Type::ObjectAdded:
     {
       m_Gizmo.SetVisible(true);
+      m_Gizmo.SetDocumentGuid(GetGuid()); /// \todo Hack / Fix, this should work without it
+
       
       if (GetSelectionManager()->GetSelection()[0]->GetTypeAccessor().GetReflectedTypeHandle() == ezReflectedTypeManager::GetTypeHandleByName("ezGameObject"))
       {

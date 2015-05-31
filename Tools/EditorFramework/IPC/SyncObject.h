@@ -14,6 +14,7 @@ public:
   ezEditorEngineSyncObject() { m_SyncObjectGuid.CreateNewUuid(); m_bModified = true; }
 
   void SetDocumentGuid(const ezUuid& guid) { m_DocumentGuid = guid; }
+  ezUuid GetDocumentGuid() const { return m_DocumentGuid; }
   void SetModified(bool b = true) { m_bModified = b; }
   bool GetModified() const { return m_bModified; }
 

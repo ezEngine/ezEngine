@@ -49,6 +49,11 @@ public:
     return m_Materials[uiIndex];
   }
 
+  EZ_FORCE_INLINE void SetRenderPass(ezRenderPassType renderpass)
+  {
+    m_iRenderPass = renderpass;
+  }
+
   virtual ezResult OnAttachedToObject() override;
   virtual ezResult OnDetachedFromObject() override;
 
@@ -58,6 +63,7 @@ public:
   const char* GetMeshFile() const;
 
 private:
+  ezRenderPassType m_iRenderPass;
   ezMeshResourceHandle m_hMesh;
   ezDynamicArray<ezMaterialResourceHandle> m_Materials;
 };

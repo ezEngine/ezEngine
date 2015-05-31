@@ -1,6 +1,7 @@
 #include <PCH.h>
 #include <EditorFramework/EngineProcess/EngineProcessDocumentContext.h>
 #include <EditorFramework/EngineProcess/EngineProcessMessages.h>
+#include <EditorFramework/IPC/SyncObject.h>
 #include <Foundation/Reflection/ReflectionUtils.h>
 #include <Foundation/Reflection/ReflectionSerializer.h>
 #include <Foundation/Logging/Log.h>
@@ -54,6 +55,7 @@ void ezEngineProcessDocumentContext::ProcessEditorEngineSyncObjectMsg(const ezEd
     void* pObject = pRtti->GetAllocator()->Allocate();
 
     pSyncObject = static_cast<ezEditorEngineSyncObject*>(pObject);
+    pSyncObject->SetDocumentGuid(msg.m_DocumentGuid);
     m_pSyncObjects[msg.m_ObjectGuid] = pSyncObject;
 
     ezLog::Debug("Allocated Sync object '%s'", msg.m_sObjectType.GetData());

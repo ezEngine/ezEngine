@@ -28,6 +28,7 @@ void ezPickingRenderPass::Execute(const ezRenderViewContext& renderViewContext)
 
   RenderDataWithPassType(renderViewContext, ezDefaultPassTypes::Opaque);
   RenderDataWithPassType(renderViewContext, ezDefaultPassTypes::Masked);
+  RenderDataWithPassType(renderViewContext, ezDefaultPassTypes::Foreground);
 
   renderViewContext.m_pRenderContext->SetShaderPermutationVariable("PICKING", "0");
 }

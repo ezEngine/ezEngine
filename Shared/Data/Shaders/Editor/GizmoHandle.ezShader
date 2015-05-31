@@ -1,0 +1,54 @@
+[PLATFORMS] 
+ALL
+
+[PERMUTATIONS]
+
+PICKING
+
+[RENDERSTATE]
+
+DepthTest = true
+DepthWrite = true
+DepthTestFunc = CompareFunc_Always
+
+[VERTEXSHADER]
+
+#include <Shaders/Materials/Materials.inc>
+
+#ifdef PLATFORM_DX11
+
+VS_OUT_COLORED main(VS_IN_COLORED Input)
+{
+  VS_OUT_COLORED RetVal;
+  RetVal.Position = mul(mvp, float4(Input.Position, 1.0f));
+  RetVal.Color = Input.Color;
+
+  return RetVal;
+}
+
+#endif
+
+
+[PIXELSHADER]
+
+#include <Shaders/Materials/Materials.inc>
+
+#ifdef PLATFORM_DX11
+
+float4 main(PS_IN_COLORED Input) : SV_Target
+{
+#if PICKING == 1
+  float4 IdCol;
+  IdCol.r = (GameObjectID & 255) / 255.0;
+  IdCol.g = (GameObjectID >> 8 & 255) / 255.0;
+  IdCol.b = (GameObjectID >> 16 & 255) / 255.0;
+  IdCol.a = (GameObjectID >> 24 & 255) / 255.0;
+  
+  return IdCol;
+#else
+  return Input.Color;
+#endif
+}
+
+#endif
+
