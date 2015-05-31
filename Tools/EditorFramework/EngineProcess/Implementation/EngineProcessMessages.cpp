@@ -89,6 +89,8 @@ EZ_END_DYNAMIC_REFLECTED_TYPE();
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezViewPickingResultMsgToEditor, ezEditorEngineDocumentMsg, 1, ezRTTIDefaultAllocator<ezViewPickingResultMsgToEditor>);
   EZ_BEGIN_PROPERTIES
     EZ_MEMBER_PROPERTY("ObjectGuid", m_ObjectGuid),
+    EZ_MEMBER_PROPERTY("PickedPos", m_vPickedPosition),
+    EZ_MEMBER_PROPERTY("PickRayStart", m_vPickingRayStartPosition),
   EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 

@@ -152,6 +152,9 @@ class EZ_EDITORFRAMEWORK_DLL ezViewPickingResultMsgToEditor : public ezEditorEng
 
 public:
   ezUuid m_ObjectGuid;
+
+  ezVec3 m_vPickedPosition;
+  ezVec3 m_vPickingRayStartPosition;
 };
 
 

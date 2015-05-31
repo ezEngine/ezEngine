@@ -61,7 +61,7 @@ void ezCamera::LookAt(const ezVec3& vCameraPos, const ezVec3& vTargetPos, const 
 
 void ezCamera::SetFromMatrix(const ezMat4& mLookAtMatrix)
 {
-  m_vPosition    = -mLookAtMatrix.GetTranslationVector();
+  m_vPosition    = -(mLookAtMatrix.GetRotationalPart().GetTranspose() * mLookAtMatrix.GetTranslationVector());
   m_vDirRight    =  mLookAtMatrix.GetRow(0).GetAsVec3();
   m_vDirUp       =  mLookAtMatrix.GetRow(1).GetAsVec3();
   m_vDirForwards = -mLookAtMatrix.GetRow(2).GetAsVec3();

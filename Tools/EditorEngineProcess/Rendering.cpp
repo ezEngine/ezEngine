@@ -315,12 +315,6 @@ void ezViewContext::SetCamera(ezViewCameraMsgToEngine* pMsg)
 {
   m_Camera.SetCameraMode((ezCamera::CameraMode) pMsg->m_iCameraMode, pMsg->m_fFovOrDim, pMsg->m_fNearPlane, pMsg->m_fFarPlane);
 
-  ezMat4 mOri;
-  mOri.SetLookAtMatrix(pMsg->m_vPosition, pMsg->m_vPosition + pMsg->m_vDirForwards, pMsg->m_vDirUp);
-
-  // TODO: This is somehow buggy
-  m_Camera.SetFromMatrix(mOri);
-
   m_Camera.LookAt(pMsg->m_vPosition, pMsg->m_vPosition + pMsg->m_vDirForwards, pMsg->m_vDirUp);
 }
 

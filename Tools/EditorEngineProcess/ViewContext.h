@@ -78,33 +78,19 @@ public:
   void SendViewMessage(ezEditorEngineDocumentMsg* pViewMsg);
 
 private:
-  //void RenderObject(ezGameObject* pObject, const ezMat4& ViewProj);
-  //void RenderTranslateGizmo(const ezMat4& mTransformation);
-  //void RenderScene();
-  //void UpdateConstantBuffer(const ObjectData& od);
-
   ezGALRenderTargetConfigHandle m_hBBRT;
-  //ezConstantBufferResourceHandle m_hObjectTransformCB;
-  //ezGALRasterizerStateHandle m_hRasterizerState;
-  //ezGALRasterizerStateHandle m_hRasterizerStateGizmo;
-  //ezGALDepthStencilStateHandle m_hDepthStencilState;
   ezGALSwapChainHandle m_hPrimarySwapChain;
 
-  //ezShaderResourceHandle m_hShader;
-  //ezShaderResourceHandle m_hGizmoShader;
-  //ezMeshBufferResourceHandle m_hSphere;
-  //ezMeshBufferResourceHandle m_hTranslateGizmo;
   ezGALTextureHandle m_hPickingRT;
   ezGALTextureHandle m_hPickingDepthRT;
   ezGALRenderTargetConfigHandle m_hPickingRenderTargetCfg;
-  //ezPickingIDCache m_PickingCache;
 
   ezCamera m_Camera;
   ezView* m_pView;
 
+  ezMat4 m_PickingInverseViewProjectionMatrix;
+  ezDynamicArray<float> m_PickingResultsDepth;
   ezDynamicArray<ezUInt32> m_PickingResultsComponentID;
   ezDynamicArray<ezUInt16> m_PickingResultsPartIndex;
-
-  //static ezDataTransfer m_PickingRenderTargetDT;
 };
 
