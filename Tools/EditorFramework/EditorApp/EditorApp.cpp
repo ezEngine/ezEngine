@@ -97,6 +97,8 @@ void ezEditorApp::StartupEditor(const char* szAppName, const char* szUserName, i
   s_pQtApplication = new QApplication(argc, argv);
   s_pEngineViewProcess = new ezEditorEngineProcessConnection;
 
+  s_pEngineViewProcess->SetWaitForDebugger(ezCommandLineUtils::GetInstance()->GetBoolOption("-debug"));
+
   QCoreApplication::setOrganizationDomain("www.ezEngine.net");
   QCoreApplication::setOrganizationName("ezEngine Project");
   QCoreApplication::setApplicationName(ezUIServices::GetApplicationName());

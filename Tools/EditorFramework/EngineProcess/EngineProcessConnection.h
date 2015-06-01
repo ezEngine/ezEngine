@@ -33,6 +33,9 @@ public:
   void SendMessage(ezProcessMessage* pMessage);
   void WaitForMessage(const ezRTTI* pMessageType);
 
+  void SetWaitForDebugger(bool bWait) { m_bProcessShouldWaitForDebugger = bWait; }
+  bool GetWaitForDebugger() const { return m_bProcessShouldWaitForDebugger; }
+
   struct Event
   {
     enum class Type
@@ -62,6 +65,7 @@ private:
   void HandleIPCEvent(const ezProcessCommunication::Event& e);
   void SendDocumentOpenMessage(ezUInt32 uiViewID, const ezUuid& guid, bool bOpen);
 
+  bool m_bProcessShouldWaitForDebugger;
   bool m_bProcessShouldBeRunning;
   bool m_bProcessCrashed;
   ezUInt32 m_uiNextEngineViewID;

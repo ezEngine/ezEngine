@@ -16,7 +16,7 @@ ezProcessCommunication::ezProcessCommunication()
   m_pWaitForMessageType = nullptr;
 }
 
-ezResult ezProcessCommunication::StartClientProcess(const char* szProcess, ezUInt32 uiMemSize)
+ezResult ezProcessCommunication::StartClientProcess(const char* szProcess, const char* szArguments, ezUInt32 uiMemSize)
 {
   EZ_LOG_BLOCK("ezProcessCommunication::StartClientProcess");
 
@@ -64,6 +64,9 @@ success:
   arguments << QLatin1String(sMemName.GetData());
   arguments << "-PID";
   arguments << sPID.GetData();
+
+  if (!ezStringUtils::IsNullOrEmpty(szArguments))
+    arguments << QString::fromUtf8(szArguments);
 
   m_pClientProcess = new QProcess();
   m_pClientProcess->start(QString::fromUtf8(sPath.GetData()), arguments);

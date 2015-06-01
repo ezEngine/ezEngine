@@ -22,7 +22,13 @@ ezEngineProcessGameState::ezEngineProcessGameState()
 
 void ezEngineProcessGameState::Activate()
 {
-  //while (!IsDebuggerPresent());
+  if (ezCommandLineUtils::GetInstance()->GetBoolOption("-debug"))
+  {
+    while (!IsDebuggerPresent())
+    {
+      ezThreadUtils::Sleep(10);
+    }
+  }
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   // Setting this flags prevents Windows from showing a dialog when the Engine process crashes

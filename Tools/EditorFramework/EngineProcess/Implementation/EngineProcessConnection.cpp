@@ -98,7 +98,7 @@ void ezEditorEngineProcessConnection::Initialize()
   m_bProcessShouldBeRunning = true;
   m_bProcessCrashed = false;
 
-  if (m_IPC.StartClientProcess("EditorEngineProcess.exe").Failed())
+  if (m_IPC.StartClientProcess("EditorEngineProcess.exe", m_bProcessShouldWaitForDebugger ? "-debug" : "").Failed())
   {
     m_bProcessCrashed = true;
   }

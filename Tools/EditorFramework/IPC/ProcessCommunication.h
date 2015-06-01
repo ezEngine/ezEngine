@@ -22,7 +22,7 @@ class EZ_EDITORFRAMEWORK_DLL ezProcessCommunication
 public:
   ezProcessCommunication();
 
-  ezResult StartClientProcess(const char* szProcess, ezUInt32 uiMemSize = 1024 * 1024 * 10);
+  ezResult StartClientProcess(const char* szProcess, const char* szArguments = nullptr, ezUInt32 uiMemSize = 1024 * 1024 * 10);
 
   ezResult ConnectToHostProcess();
 
