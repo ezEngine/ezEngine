@@ -40,16 +40,23 @@ private:
   ezGALRenderTargetConfigHandle m_hBBRT;
   ezGALSwapChainHandle m_hPrimarySwapChain;
 
-  ezGALTextureHandle m_hPickingRT;
-  ezGALTextureHandle m_hPickingDepthRT;
-  ezGALRenderTargetConfigHandle m_hPickingRenderTargetCfg;
-
   ezCamera m_Camera;
   ezView* m_pView;
 
+  ezGALTextureHandle m_hPickingIdRT;
+  ezGALTextureHandle m_hPickingDepthRT;
+  ezGALRenderTargetConfigHandle m_hPickingRenderTargetCfg;
+
+  /// we need this matrix to compute the world space position of picked pixels
   ezMat4 m_PickingInverseViewProjectionMatrix;
+
+  /// stores the 2D depth buffer image (32 Bit depth precision), to compute pixel positions from
   ezDynamicArray<float> m_PickingResultsDepth;
-  ezDynamicArray<ezUInt32> m_PickingResultsComponentID;
+
+  /// Stores the 32 Bit picking ID values of each pixel. This can lead back to the ezComponent, etc. that rendered to that pixel
+  ezDynamicArray<ezUInt32> m_PickingResultsID;
+
+  /// Stores the optional/additional "part index" of a pickable object. E.g. for a mesh this can be the sub-mesh or material index
   ezDynamicArray<ezUInt16> m_PickingResultsPartIndex;
 };
 

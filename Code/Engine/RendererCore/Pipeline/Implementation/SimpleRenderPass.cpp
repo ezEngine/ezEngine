@@ -27,5 +27,8 @@ void ezSimpleRenderPass::Execute(const ezRenderViewContext& renderViewContext)
   RenderDataWithPassType(renderViewContext, ezDefaultPassTypes::Opaque);
   RenderDataWithPassType(renderViewContext, ezDefaultPassTypes::Masked);
   RenderDataWithPassType(renderViewContext, ezDefaultPassTypes::Transparent);
+
+  pGALContext->Clear(ezColor(0.0f, 0.0f, 0.0f, 0.0f), 0); // only clear depth
+
   RenderDataWithPassType(renderViewContext, ezDefaultPassTypes::Foreground);
 }

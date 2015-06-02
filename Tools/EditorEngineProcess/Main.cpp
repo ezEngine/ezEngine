@@ -18,6 +18,7 @@ ezEngineProcessGameState::ezEngineProcessGameState()
 
   m_pApp = nullptr;
   s_pInstance = this;
+  m_uiNextComponentPickingID = 1;
 }
 
 void ezEngineProcessGameState::Activate()
@@ -96,7 +97,12 @@ void ezEngineProcessGameState::BeforeWorldUpdate()
         {
           EZ_LOCK(pContext->m_pWorld->GetWriteMarker());
 
-          pGizmoHandle->SetupForEngine(pContext->m_pWorld);
+          if (pGizmoHandle->SetupForEngine(pContext->m_pWorld, m_uiNextComponentPickingID))
+          {
+            m_OtherPickingMap.RegisterObject(pGizmoHandle->GetGuid(), m_uiNextComponentPickingID);
+            ++m_uiNextComponentPickingID;
+          }
+
           pGizmoHandle->UpdateForEngine(pContext->m_pWorld);
         }
       }

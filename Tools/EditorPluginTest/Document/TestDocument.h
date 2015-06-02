@@ -17,7 +17,9 @@ public:
 
   void SelectionManagerEventHandler(const ezSelectionManager::Event& e);
 
-  ezEditorGizmoHandle m_Gizmo;
+  ezEditorGizmoHandle m_GizmoX;
+  ezEditorGizmoHandle m_GizmoY;
+  ezEditorGizmoHandle m_GizmoZ;
 
 protected:
   virtual void Initialize() override;

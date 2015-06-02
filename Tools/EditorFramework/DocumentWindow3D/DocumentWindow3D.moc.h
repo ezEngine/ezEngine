@@ -12,6 +12,7 @@ struct ezObjectPickingResult
 {
   ezUuid m_PickedObject;
   ezUuid m_PickedComponent;
+  ezUuid m_PickedOther;
   ezUInt32 m_uiPartIndex;
   ezVec3 m_vPickedPosition;
   ezVec3 m_vPickingRayStart;
@@ -30,6 +31,8 @@ public:
   virtual ~ezDocumentWindow3D();
 
   ezEditorEngineConnection* GetEditorEngineConnection() const { return m_pEngineView; }
+
+  void SendMessageToEngine(ezEditorEngineDocumentMsg* pMessage) const;
 
   const ezObjectPickingResult& PickObject(ezUInt16 uiScreenPosX, ezUInt16 uiScreenPosY) const;
 

@@ -17,10 +17,12 @@
 #include <GuiFoundation/ActionViews/MenuBarActionMapView.moc.h>
 #include <GuiFoundation/ActionViews/ToolBarActionMapView.moc.h>
 
+ezEditorInputContext* ezEditorInputContext::s_pActiveInputContext = nullptr;
+
 ezTestDocumentWindow::ezTestDocumentWindow(ezDocumentBase* pDocument) : ezDocumentWindow3D(pDocument)
 {
   m_pCenterWidget = new ez3DViewWidget(this, this);
-  m_pCenterWidget->m_MoveContext.m_pCamera = &m_Camera;
+  m_pCenterWidget->m_MoveContext.SetCamera(&m_Camera);
 
   m_pCenterWidget->setAutoFillBackground(false);
   setCentralWidget(m_pCenterWidget);
@@ -79,7 +81,8 @@ void ezTestDocumentWindow::InternalRedraw()
 {
   ezDocumentWindow3D::SyncObjects();
 
-  m_pCenterWidget->m_MoveContext.Update();
+  ezEditorInputContext::UpdateActiveInputContext();
+
   SendRedrawMsg();
 }
 
@@ -88,14 +91,14 @@ void ezTestDocumentWindow::SendRedrawMsg()
   ezViewCameraMsgToEngine cam;
   cam.m_fNearPlane = m_Camera.GetNearPlane();
   cam.m_fFarPlane = m_Camera.GetFarPlane();
-  cam.m_iCameraMode = (ezInt8) m_Camera.GetCameraMode();
+  cam.m_iCameraMode = (ezInt8)m_Camera.GetCameraMode();
   cam.m_fFovOrDim = m_Camera.GetFovOrDim();
   cam.m_vDirForwards = m_Camera.GetCenterDirForwards();
   cam.m_vDirUp = m_Camera.GetCenterDirUp();
   cam.m_vDirRight = m_Camera.GetCenterDirRight();
   cam.m_vPosition = m_Camera.GetCenterPosition();
   m_Camera.GetViewMatrix(cam.m_ViewMatrix);
-  m_Camera.GetProjectionMatrix((float) m_pCenterWidget->width() / (float) m_pCenterWidget->height(), cam.m_ProjMatrix);
+  m_Camera.GetProjectionMatrix((float)m_pCenterWidget->width() / (float)m_pCenterWidget->height(), cam.m_ProjMatrix);
 
   m_pEngineView->SendMessage(&cam);
 
@@ -105,11 +108,6 @@ void ezTestDocumentWindow::SendRedrawMsg()
   msg.m_uiWindowHeight = m_pCenterWidget->height();
 
   m_pEngineView->SendMessage(&msg);
-}
-
-void ezTestDocumentWindow::keyPressEvent(QKeyEvent* e)
-{
-  ezDocumentWindow::keyPressEvent(e);
 }
 
 bool ezTestDocumentWindow::HandleEngineMessage(const ezEditorEngineDocumentMsg* pMsg)
@@ -129,91 +127,36 @@ bool ezTestDocumentWindow::HandleEngineMessage(const ezEditorEngineDocumentMsg* 
   return false;
 }
 
-ezCameraMoveContext::ezCameraMoveContext()
-{
-  m_pCamera = nullptr;
-  m_fMoveSpeed = 1.0f;
 
-  m_bRun = false;
-  m_bSlowDown = false;
-  m_bMoveForwards = false;
-  m_bMoveBackwards = false;
-  m_bMoveRight = false;
-  m_bMoveLeft = false;
-  m_bMoveUp = false;
-  m_bMoveDown = false;
-  m_bMoveForwardsInPlane = false;
-  m_bMoveBackwardsInPlane = false;
 
-  m_LastUpdate = ezTime::Now();
-}
-
-void ezCameraMoveContext::Reset()
-{
-  m_bRun = false;
-  m_bSlowDown = false;
-  m_bMoveForwards = false;
-  m_bMoveBackwards = false;
-  m_bMoveRight = false;
-  m_bMoveLeft = false;
-  m_bMoveUp = false;
-  m_bMoveDown = false;
-  m_bMoveForwardsInPlane = false;
-  m_bMoveBackwardsInPlane = false;
-}
-
-void ezCameraMoveContext::Update()
-{
-  ezTime diff = ezTime::Now() - m_LastUpdate;
-  m_LastUpdate = ezTime::Now();
-
-  const double TimeDiff = ezMath::Min(diff.GetSeconds(), 0.1);
-
-  float fSpeedFactor = m_fMoveSpeed * TimeDiff;
-
-  if (m_bRun)
-    fSpeedFactor *= 5.0f;
-  if (m_bSlowDown)
-    fSpeedFactor *= 0.2f;
-
-  if (m_bMoveForwards)
-    m_pCamera->MoveLocally(ezVec3(0, 0, -1) * fSpeedFactor);
-  if (m_bMoveBackwards)
-    m_pCamera->MoveLocally(ezVec3(0, 0, 1) * fSpeedFactor);
-  if (m_bMoveRight)
-    m_pCamera->MoveLocally(ezVec3(1, 0, 0) * fSpeedFactor);
-  if (m_bMoveLeft)
-    m_pCamera->MoveLocally(ezVec3(-1, 0, 0) * fSpeedFactor);
-  if (m_bMoveUp)
-    m_pCamera->MoveGlobally(ezVec3(0, 1, 0) * fSpeedFactor);
-  if (m_bMoveDown)
-    m_pCamera->MoveGlobally(ezVec3(0, -1, 0) * fSpeedFactor);
-  if (m_bMoveForwardsInPlane)
-  {
-    ezVec3 vDir = m_pCamera->GetCenterDirForwards();
-    vDir.y = 0.0f;
-    vDir.NormalizeIfNotZero(ezVec3::ZeroVector());
-    m_pCamera->MoveGlobally(vDir * fSpeedFactor);
-  }
-  if (m_bMoveBackwardsInPlane)
-  {
-    ezVec3 vDir = m_pCamera->GetCenterDirForwards();
-    vDir.y = 0.0f;
-    vDir.NormalizeIfNotZero(ezVec3::ZeroVector());
-    m_pCamera->MoveGlobally(vDir * -fSpeedFactor);
-  }
-
-}
-
-ez3DViewWidget::ez3DViewWidget(QWidget* pParent, ezDocumentWindow3D* pDocument) : QWidget(pParent), m_pDocument(pDocument), m_MoveContext(this, pDocument->GetDocument(), pDocument)
+ez3DViewWidget::ez3DViewWidget(QWidget* pParent, ezDocumentWindow3D* pDocument) 
+  : QWidget(pParent)
+  , m_pDocumentWindow(pDocument)
+  , m_MoveContext(this, pDocument->GetDocument(), pDocument)
+  , m_SelectionContext(this, pDocument->GetDocument(), pDocument)
 {
   setFocusPolicy(Qt::FocusPolicy::StrongFocus);
   setAttribute(Qt::WA_OpaquePaintEvent);
   setAutoFillBackground(false);
+  setMouseTracking(true);
 }
 
 void ez3DViewWidget::keyReleaseEvent(QKeyEvent* e)
 {
+  // if a context is active, it gets exclusive access to the input data
+  if (ezEditorInputContext::IsAnyInputContextActive())
+  {
+    if (ezEditorInputContext::GetActiveInputContext()->keyReleaseEvent(e))
+      return;
+  }
+
+  if (ezEditorInputContext::IsAnyInputContextActive())
+    return;
+
+  // if no context is active, pass the input through in a certain order, until someone handles it
+  if (m_SelectionContext.keyReleaseEvent(e))
+    return;
+
   if (m_MoveContext.keyReleaseEvent(e))
     return;
 
@@ -222,6 +165,20 @@ void ez3DViewWidget::keyReleaseEvent(QKeyEvent* e)
 
 void ez3DViewWidget::keyPressEvent(QKeyEvent* e)
 {
+  // if a context is active, it gets exclusive access to the input data
+  if (ezEditorInputContext::IsAnyInputContextActive())
+  {
+    if (ezEditorInputContext::GetActiveInputContext()->keyPressEvent(e))
+      return;
+  }
+
+  if (ezEditorInputContext::IsAnyInputContextActive())
+    return;
+
+  // if no context is active, pass the input through in a certain order, until someone handles it
+  if (m_SelectionContext.keyPressEvent(e))
+    return;
+
   if (m_MoveContext.keyPressEvent(e))
     return;
 
@@ -230,6 +187,20 @@ void ez3DViewWidget::keyPressEvent(QKeyEvent* e)
 
 void ez3DViewWidget::mousePressEvent(QMouseEvent* e)
 {
+  // if a context is active, it gets exclusive access to the input data
+  if (ezEditorInputContext::IsAnyInputContextActive())
+  {
+    if (ezEditorInputContext::GetActiveInputContext()->mousePressEvent(e))
+      return;
+  }
+
+  if (ezEditorInputContext::IsAnyInputContextActive())
+    return;
+
+  // if no context is active, pass the input through in a certain order, until someone handles it
+  if (m_SelectionContext.mousePressEvent(e))
+    return;
+
   if (m_MoveContext.mousePressEvent(e))
     return;
 
@@ -238,6 +209,20 @@ void ez3DViewWidget::mousePressEvent(QMouseEvent* e)
 
 void ez3DViewWidget::mouseReleaseEvent(QMouseEvent* e)
 {
+  // if a context is active, it gets exclusive access to the input data
+  if (ezEditorInputContext::IsAnyInputContextActive())
+  {
+    if (ezEditorInputContext::GetActiveInputContext()->mouseReleaseEvent(e))
+      return;
+  }
+
+  if (ezEditorInputContext::IsAnyInputContextActive())
+    return;
+
+  // if no context is active, pass the input through in a certain order, until someone handles it
+  if (m_SelectionContext.mouseReleaseEvent(e))
+    return;
+
   if (m_MoveContext.mouseReleaseEvent(e))
     return;
 
@@ -246,6 +231,20 @@ void ez3DViewWidget::mouseReleaseEvent(QMouseEvent* e)
 
 void ez3DViewWidget::mouseMoveEvent(QMouseEvent* e)
 {
+  // if a context is active, it gets exclusive access to the input data
+  if (ezEditorInputContext::IsAnyInputContextActive())
+  {
+    if (ezEditorInputContext::GetActiveInputContext()->mouseMoveEvent(e))
+      return;
+  }
+
+  if (ezEditorInputContext::IsAnyInputContextActive())
+    return;
+
+  // if no context is active, pass the input through in a certain order, until someone handles it
+  if (m_SelectionContext.mouseMoveEvent(e))
+    return;
+
   if (m_MoveContext.mouseMoveEvent(e))
     return;
 
@@ -254,20 +253,93 @@ void ez3DViewWidget::mouseMoveEvent(QMouseEvent* e)
 
 void ez3DViewWidget::wheelEvent(QWheelEvent* e)
 {
-  if (m_MoveContext.wheelEvent(e))
+  // if a context is active, it gets exclusive access to the input data
+  if (ezEditorInputContext::IsAnyInputContextActive())
   {
-    e->accept();
-    return;
+    if (ezEditorInputContext::GetActiveInputContext()->wheelEvent(e))
+      return;
   }
+
+  if (ezEditorInputContext::IsAnyInputContextActive())
+    return;
+
+  // if no context is active, pass the input through in a certain order, until someone handles it
+  if (m_SelectionContext.wheelEvent(e))
+    return;
+
+  if (m_MoveContext.wheelEvent(e))
+    return;
 
   QWidget::wheelEvent(e);
 }
 
 void ez3DViewWidget::focusOutEvent(QFocusEvent* e)
 {
-  m_MoveContext.Reset();
+  if (ezEditorInputContext::IsAnyInputContextActive())
+  {
+    ezEditorInputContext::GetActiveInputContext()->FocusLost();
+    ezEditorInputContext::SetActiveInputContext(nullptr);
+  }
 
   QWidget::focusOutEvent(e);
+}
+
+ezSelectionContext::ezSelectionContext(QWidget* pParentWidget, ezDocumentBase* pDocument, ezDocumentWindow3D* pDocumentWindow)
+  : ezEditorInputContext(pParentWidget, pDocument, pDocumentWindow)
+{
+
+}
+
+bool ezSelectionContext::mouseReleaseEvent(QMouseEvent* e)
+{
+  if (e->button() == Qt::MouseButton::LeftButton)
+  {
+    const ezObjectPickingResult& res = m_pDocumentWindow->PickObject(e->pos().x(), e->pos().y());
+
+    if (e->modifiers() == Qt::KeyboardModifier::AltModifier)
+    {
+      if (res.m_PickedComponent.IsValid())
+      {
+        const ezDocumentObjectBase* pObject = m_pDocument->GetObjectTree()->GetObject(res.m_PickedComponent);
+        m_pDocument->GetSelectionManager()->SetSelection(pObject);
+      }
+    }
+    else
+    {
+      if (res.m_PickedObject.IsValid())
+      {
+        const ezDocumentObjectBase* pObject = m_pDocument->GetObjectTree()->GetObject(res.m_PickedObject);
+        m_pDocument->GetSelectionManager()->SetSelection(pObject);
+      }
+    }
+
+    // we handled the mouse click event
+    // but this is it, we don't stay active
+    return true;
+  }
+
+  return false;
+}
+
+bool ezSelectionContext::mouseMoveEvent(QMouseEvent* e)
+{
+  ezViewHighlightMsgToEngine msg;
+
+  {
+    const ezObjectPickingResult& res = m_pDocumentWindow->PickObject(e->pos().x(), e->pos().y());
+
+    if (res.m_PickedComponent.IsValid())
+      msg.m_HighlightObject = res.m_PickedComponent;
+    else if (res.m_PickedOther.IsValid())
+      msg.m_HighlightObject = res.m_PickedOther;
+    else
+      msg.m_HighlightObject = res.m_PickedObject;
+  }
+
+  msg.SendHighlightObjectMessage(m_pDocumentWindow->GetEditorEngineConnection());
+
+  // we only updated the highlight, so others may do additional stuff, if they like
+  return false;
 }
 
 static const float s_fMoveSpeed[31] =
@@ -311,22 +383,37 @@ static const float s_fMoveSpeed[31] =
   256.0f,
 };
 
-ezQtCameraMoveContext::ezQtCameraMoveContext(QWidget* pParentWidget, ezDocumentBase* pDocument, ezDocumentWindow3D* pDocumentWindow)
+ezCameraMoveContext::ezCameraMoveContext(QWidget* pParentWidget, ezDocumentBase* pDocument, ezDocumentWindow3D* pDocumentWindow)
+  : ezEditorInputContext(pParentWidget, pDocument, pDocumentWindow)
 {
-  m_pDocument = pDocument;
-  m_pParentWidget = pParentWidget;
+  m_pCamera = nullptr;
+  m_fMoveSpeed = 1.0f;
+
+  m_bRun = false;
+  m_bSlowDown = false;
+  m_bMoveForwards = false;
+  m_bMoveBackwards = false;
+  m_bMoveRight = false;
+  m_bMoveLeft = false;
+  m_bMoveUp = false;
+  m_bMoveDown = false;
+  m_bMoveForwardsInPlane = false;
+  m_bMoveBackwardsInPlane = false;
+
+  m_LastUpdate = ezTime::Now();
+
   m_bRotateCamera = false;
   m_bMoveCamera = false;
   m_bMoveCameraInPlane = false;
   m_bTempMousePosition = false;
-  m_pDocumentWindow = pDocumentWindow;
+
 
   // do not use SetMoveSpeed here, that would save that value to the settings
   m_iMoveSpeed = 15;
   m_fMoveSpeed = s_fMoveSpeed[m_iMoveSpeed];
 }
 
-void ezQtCameraMoveContext::Reset()
+void ezCameraMoveContext::FocusLost()
 {
   m_bRotateCamera = false;
   m_bMoveCamera = false;
@@ -334,22 +421,81 @@ void ezQtCameraMoveContext::Reset()
 
   ResetCursor();
 
-  ezCameraMoveContext::Reset();
+  m_bRun = false;
+  m_bSlowDown = false;
+  m_bMoveForwards = false;
+  m_bMoveBackwards = false;
+  m_bMoveRight = false;
+  m_bMoveLeft = false;
+  m_bMoveUp = false;
+  m_bMoveDown = false;
+  m_bMoveForwardsInPlane = false;
+  m_bMoveBackwardsInPlane = false;
 }
 
-void ezQtCameraMoveContext::LoadState()
+void ezCameraMoveContext::LoadState()
 {
   ezEditorApp::GetInstance()->GetDocumentSettings(m_pDocument->GetDocumentPath(), "TestPlugin").RegisterValueInt("CameraSpeed", 15, ezSettingsFlags::User);
   SetMoveSpeed(ezEditorApp::GetInstance()->GetDocumentSettings(m_pDocument->GetDocumentPath(), "TestPlugin").GetValueInt("CameraSpeed"));
 }
 
-bool ezQtCameraMoveContext::keyReleaseEvent(QKeyEvent* e)
+void ezCameraMoveContext::UpdateContext()
 {
+  m_bRun = QApplication::keyboardModifiers() == Qt::KeyboardModifier::ShiftModifier;
+  m_bSlowDown = QApplication::keyboardModifiers() == Qt::KeyboardModifier::AltModifier;
+
+
+
+  ezTime diff = ezTime::Now() - m_LastUpdate;
+  m_LastUpdate = ezTime::Now();
+
+  const double TimeDiff = ezMath::Min(diff.GetSeconds(), 0.1);
+
+  float fSpeedFactor = m_fMoveSpeed * TimeDiff;
+
+  if (m_bRun)
+    fSpeedFactor *= 5.0f;
+  if (m_bSlowDown)
+    fSpeedFactor *= 0.2f;
+
+  if (m_bMoveForwards)
+    m_pCamera->MoveLocally(ezVec3(0, 0, -1) * fSpeedFactor);
+  if (m_bMoveBackwards)
+    m_pCamera->MoveLocally(ezVec3(0, 0, 1) * fSpeedFactor);
+  if (m_bMoveRight)
+    m_pCamera->MoveLocally(ezVec3(1, 0, 0) * fSpeedFactor);
+  if (m_bMoveLeft)
+    m_pCamera->MoveLocally(ezVec3(-1, 0, 0) * fSpeedFactor);
+  if (m_bMoveUp)
+    m_pCamera->MoveGlobally(ezVec3(0, 1, 0) * fSpeedFactor);
+  if (m_bMoveDown)
+    m_pCamera->MoveGlobally(ezVec3(0, -1, 0) * fSpeedFactor);
+  if (m_bMoveForwardsInPlane)
+  {
+    ezVec3 vDir = m_pCamera->GetCenterDirForwards();
+    vDir.y = 0.0f;
+    vDir.NormalizeIfNotZero(ezVec3::ZeroVector());
+    m_pCamera->MoveGlobally(vDir * fSpeedFactor);
+  }
+  if (m_bMoveBackwardsInPlane)
+  {
+    ezVec3 vDir = m_pCamera->GetCenterDirForwards();
+    vDir.y = 0.0f;
+    vDir.NormalizeIfNotZero(ezVec3::ZeroVector());
+    m_pCamera->MoveGlobally(vDir * -fSpeedFactor);
+  }
+}
+
+bool ezCameraMoveContext::keyReleaseEvent(QKeyEvent* e)
+{
+  if (!IsActiveInputContext())
+    return false;
+
   if (m_pCamera == nullptr)
     return false;
 
-  m_bRun = (e->modifiers() == Qt::KeyboardModifier::ShiftModifier);
-  m_bSlowDown = (e->modifiers() == Qt::KeyboardModifier::AltModifier);
+  //m_bRun = (e->modifiers() == Qt::KeyboardModifier::ShiftModifier);
+  //m_bSlowDown = (e->modifiers() == Qt::KeyboardModifier::AltModifier);
 
   switch (e->key())
   {
@@ -388,7 +534,7 @@ bool ezQtCameraMoveContext::keyReleaseEvent(QKeyEvent* e)
   return false;
 }
 
-bool ezQtCameraMoveContext::keyPressEvent(QKeyEvent* e)
+bool ezCameraMoveContext::keyPressEvent(QKeyEvent* e)
 {
   if (m_pCamera == nullptr)
     return false;
@@ -396,26 +542,31 @@ bool ezQtCameraMoveContext::keyPressEvent(QKeyEvent* e)
   if (e->modifiers() == Qt::KeyboardModifier::ControlModifier)
     return false;
 
-  m_bRun = (e->modifiers() == Qt::KeyboardModifier::ShiftModifier);
-  m_bSlowDown = (e->modifiers() == Qt::KeyboardModifier::AltModifier);
+  //m_bRun = (e->modifiers() == Qt::KeyboardModifier::ShiftModifier);
+  //m_bSlowDown = (e->modifiers() == Qt::KeyboardModifier::AltModifier);
 
   switch (e->key())
   {
-  case Qt::Key_Alt:
-  case Qt::Key_Shift:
-    return true;
+    //case Qt::Key_Alt:
+    //case Qt::Key_Shift:
+    //  SetActiveInputContext(this);
+    //  return true;
 
   case Qt::Key_Left:
     m_bMoveLeft = true;
+    SetActiveInputContext(this);
     return true;
   case Qt::Key_Right:
     m_bMoveRight = true;
+    SetActiveInputContext(this);
     return true;
   case Qt::Key_Up:
     m_bMoveForwardsInPlane = true;
+    SetActiveInputContext(this);
     return true;
   case Qt::Key_Down:
     m_bMoveBackwardsInPlane = true;
+    SetActiveInputContext(this);
     return true;
   }
 
@@ -447,7 +598,7 @@ bool ezQtCameraMoveContext::keyPressEvent(QKeyEvent* e)
   return false;
 }
 
-bool ezQtCameraMoveContext::mousePressEvent(QMouseEvent* e)
+bool ezCameraMoveContext::mousePressEvent(QMouseEvent* e)
 {
   if (m_pCamera == nullptr)
     return false;
@@ -457,6 +608,7 @@ bool ezQtCameraMoveContext::mousePressEvent(QMouseEvent* e)
     m_bRotateCamera = true;
     m_LastMousePos = e->globalPos();
     m_bDidMoveMouse[1] = false;
+    MakeActiveInputContext();
     return true;
   }
 
@@ -465,6 +617,7 @@ bool ezQtCameraMoveContext::mousePressEvent(QMouseEvent* e)
     m_bMoveCamera = true;
     m_LastMousePos = e->globalPos();
     m_bDidMoveMouse[0] = false;
+    MakeActiveInputContext();
     return true;
   }
 
@@ -473,13 +626,14 @@ bool ezQtCameraMoveContext::mousePressEvent(QMouseEvent* e)
     m_bMoveCameraInPlane = true;
     m_LastMousePos = e->globalPos();
     m_bDidMoveMouse[2] = false;
+    MakeActiveInputContext();
     return true;
   }
 
   return false;
 }
 
-void ezQtCameraMoveContext::ResetCursor()
+void ezCameraMoveContext::ResetCursor()
 {
   if (!m_bRotateCamera && !m_bMoveCamera && !m_bMoveCameraInPlane)
   {
@@ -490,10 +644,11 @@ void ezQtCameraMoveContext::ResetCursor()
     }
 
     m_pParentWidget->setCursor(QCursor(Qt::ArrowCursor));
+    MakeActiveInputContext(false);
   }
 }
 
-void ezQtCameraMoveContext::SetBlankCursor()
+void ezCameraMoveContext::SetBlankCursor()
 {
   if (m_bRotateCamera || m_bMoveCamera || m_bMoveCameraInPlane)
   {
@@ -501,7 +656,7 @@ void ezQtCameraMoveContext::SetBlankCursor()
   }
 }
 
-void ezQtCameraMoveContext::SetCursorToWindowCenter()
+void ezCameraMoveContext::SetCursorToWindowCenter()
 {
   if (!m_bTempMousePosition)
   {
@@ -520,8 +675,11 @@ void ezQtCameraMoveContext::SetCursorToWindowCenter()
   QCursor::setPos(center);
 }
 
-bool ezQtCameraMoveContext::mouseReleaseEvent(QMouseEvent* e)
+bool ezCameraMoveContext::mouseReleaseEvent(QMouseEvent* e)
 {
+  if (!IsActiveInputContext())
+    return false;
+
   if (m_pCamera == nullptr)
     return false;
 
@@ -547,24 +705,28 @@ bool ezQtCameraMoveContext::mouseReleaseEvent(QMouseEvent* e)
 
     if (!m_bDidMoveMouse[0])
     {
-      const ezObjectPickingResult& res = m_pDocumentWindow->PickObject(e->pos().x(), e->pos().y());
+      // not really handled, so make this context inactive and tell the surrounding code that it may pass
+      // the event to the next handler
+      return false;
 
-      if (e->modifiers() == Qt::KeyboardModifier::AltModifier)
-      {
-        if (res.m_PickedComponent.IsValid())
-        {
-          const ezDocumentObjectBase* pObject = m_pDocument->GetObjectTree()->GetObject(res.m_PickedComponent);
-          m_pDocument->GetSelectionManager()->SetSelection(pObject);
-        }
-      }
-      else
-      {
-        if (res.m_PickedObject.IsValid())
-        {
-          const ezDocumentObjectBase* pObject = m_pDocument->GetObjectTree()->GetObject(res.m_PickedObject);
-          m_pDocument->GetSelectionManager()->SetSelection(pObject);
-        }
-      }
+      //const ezObjectPickingResult& res = m_pDocumentWindow->PickObject(e->pos().x(), e->pos().y());
+
+      //if (e->modifiers() == Qt::KeyboardModifier::AltModifier)
+      //{
+      //  if (res.m_PickedComponent.IsValid())
+      //  {
+      //    const ezDocumentObjectBase* pObject = m_pDocument->GetObjectTree()->GetObject(res.m_PickedComponent);
+      //    m_pDocument->GetSelectionManager()->SetSelection(pObject);
+      //  }
+      //}
+      //else
+      //{
+      //  if (res.m_PickedObject.IsValid())
+      //  {
+      //    const ezDocumentObjectBase* pObject = m_pDocument->GetObjectTree()->GetObject(res.m_PickedObject);
+      //    m_pDocument->GetSelectionManager()->SetSelection(pObject);
+      //  }
+      //}
     }
 
     return true;
@@ -581,11 +743,19 @@ bool ezQtCameraMoveContext::mouseReleaseEvent(QMouseEvent* e)
   return false;
 }
 
-bool ezQtCameraMoveContext::mouseMoveEvent(QMouseEvent* e)
+bool ezCameraMoveContext::mouseMoveEvent(QMouseEvent* e)
 {
+  // do nothing, unless this is an active context
+  if (!IsActiveInputContext())
+    return false;
+
   // store that the mouse has been moved since the last click
   for (ezInt32 i = 0; i < EZ_ARRAY_SIZE(m_bDidMoveMouse); ++i)
     m_bDidMoveMouse[i] = true;
+
+  // send a message to clear any highlight
+  ezViewHighlightMsgToEngine msg;
+  msg.SendHighlightObjectMessage(m_pDocumentWindow->GetEditorEngineConnection());
 
   if (m_pCamera == nullptr)
     return false;
@@ -599,15 +769,15 @@ bool ezQtCameraMoveContext::mouseMoveEvent(QMouseEvent* e)
   if (m_bSlowDown)
     fBoost = 0.1f;
 
-  const float fAspectRatio = (float) m_pParentWidget->size().width() / (float) m_pParentWidget->size().height();
+  const float fAspectRatio = (float)m_pParentWidget->size().width() / (float)m_pParentWidget->size().height();
   const ezAngle fFovX = m_pCamera->GetFovX(fAspectRatio);
   const ezAngle fFovY = m_pCamera->GetFovY(fAspectRatio);
 
   const float fMouseScale = 4.0f;
 
   const float fMouseMoveSensitivity = 0.002f * m_fMoveSpeed * fBoost;
-  const float fMouseRotateSensitivityX = (fFovX.GetRadian() / (float) m_pParentWidget->size().width()) * fBoost * fMouseScale;
-  const float fMouseRotateSensitivityY = (fFovY.GetRadian() / (float) m_pParentWidget->size().height()) * fBoost * fMouseScale;
+  const float fMouseRotateSensitivityX = (fFovX.GetRadian() / (float)m_pParentWidget->size().width()) * fBoost * fMouseScale;
+  const float fMouseRotateSensitivityY = (fFovY.GetRadian() / (float)m_pParentWidget->size().height()) * fBoost * fMouseScale;
 
   if (m_bRotateCamera && m_bMoveCamera) // left & right mouse button -> pan
   {
@@ -673,7 +843,7 @@ bool ezQtCameraMoveContext::mouseMoveEvent(QMouseEvent* e)
   return false;
 }
 
-void ezQtCameraMoveContext::SetMoveSpeed(ezInt32 iSpeed)
+void ezCameraMoveContext::SetMoveSpeed(ezInt32 iSpeed)
 {
   m_iMoveSpeed = ezMath::Clamp(iSpeed, 0, 30);
   m_fMoveSpeed = s_fMoveSpeed[m_iMoveSpeed];
@@ -682,7 +852,7 @@ void ezQtCameraMoveContext::SetMoveSpeed(ezInt32 iSpeed)
     ezEditorApp::GetInstance()->GetDocumentSettings(m_pDocument->GetDocumentPath(), "TestPlugin").SetValueInt("CameraSpeed", m_iMoveSpeed);
 }
 
-bool ezQtCameraMoveContext::wheelEvent(QWheelEvent* e)
+bool ezCameraMoveContext::wheelEvent(QWheelEvent* e)
 {
   if (e->modifiers() != Qt::KeyboardModifier::ControlModifier)
     return false;
@@ -696,6 +866,7 @@ bool ezQtCameraMoveContext::wheelEvent(QWheelEvent* e)
     SetMoveSpeed(m_iMoveSpeed - 1);
   }
 
+  // handled, independent of whether we are the active context or not
   return true;
 }
 

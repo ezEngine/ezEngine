@@ -49,10 +49,10 @@ void ezViewContext::SetupRenderTarget(ezWindowHandle hWnd, ezUInt16 uiWidth, ezU
 
   // Create render target for picking
   {
-    if (!m_hPickingRT.IsInvalidated())
+    if (!m_hPickingIdRT.IsInvalidated())
     {
-      pDevice->DestroyTexture(m_hPickingRT);
-      m_hPickingRT.Invalidate();
+      pDevice->DestroyTexture(m_hPickingIdRT);
+      m_hPickingIdRT.Invalidate();
     }
 
     if (!m_hPickingDepthRT.IsInvalidated())
@@ -78,7 +78,7 @@ void ezViewContext::SetupRenderTarget(ezWindowHandle hWnd, ezUInt16 uiWidth, ezU
     tcd.m_uiWidth = uiWidth;
     tcd.m_uiHeight = uiHeight;
 
-    m_hPickingRT = pDevice->CreateTexture(tcd);
+    m_hPickingIdRT = pDevice->CreateTexture(tcd);
 
     tcd.m_Format = ezGALResourceFormat::DFloat;
     tcd.m_ResourceAccess.m_bReadBack = true;
@@ -86,7 +86,7 @@ void ezViewContext::SetupRenderTarget(ezWindowHandle hWnd, ezUInt16 uiWidth, ezU
     m_hPickingDepthRT = pDevice->CreateTexture(tcd);
 
     ezGALRenderTargetViewCreationDescription rtvd;
-    rtvd.m_hTexture = m_hPickingRT;
+    rtvd.m_hTexture = m_hPickingIdRT;
     rtvd.m_RenderTargetType = ezGALRenderTargetType::Color;
     ezGALRenderTargetViewHandle hRTVcol = pDevice->CreateRenderTargetView(rtvd);
 
@@ -143,39 +143,43 @@ void ezViewContext::PickObjectAt(ezUInt16 x, ezUInt16 y)
   const ezUInt32 uiWindowHeight = GetEditorWindow().m_uiHeight;
   const ezUInt32 uiIndex = (y * uiWindowWidth) + x;
 
-  if (uiIndex > m_PickingResultsComponentID.GetCount())
+  if (uiIndex > m_PickingResultsID.GetCount())
   {
     ezLog::Error("Picking position %u, %u is outside the available picking area of %u * %u", x, y, uiWindowWidth, uiWindowHeight);
   }
   else
   {
-    const ezUInt32 uiComponentID = m_PickingResultsComponentID[uiIndex];
+    const ezUInt32 uiComponentID = m_PickingResultsID[uiIndex];
     const float fDepth = m_PickingResultsDepth[uiIndex];
 
     res.m_ComponentGuid = ezEngineProcessGameState::GetInstance()->m_ComponentPickingMap.GetGuid(uiComponentID);
+    res.m_OtherGuid = ezEngineProcessGameState::GetInstance()->m_OtherPickingMap.GetGuid(uiComponentID);
 
-    ezComponentHandle hComponent = ezEngineProcessGameState::GetInstance()->m_ComponentMap.GetHandle(res.m_ComponentGuid);
-
-    ezEngineProcessDocumentContext* pDocumentContext = ezEngineProcessDocumentContext::GetDocumentContext(GetDocumentGuid());
-
-    // check whether the component is still valid
-    ezComponent* pComponent = nullptr;
-    if (pDocumentContext->m_pWorld->TryGetComponent<ezComponent>(hComponent, pComponent))
+    if (res.m_ComponentGuid.IsValid())
     {
-      // if yes, fill out the parent game object guid
-      res.m_ObjectGuid = ezEngineProcessGameState::GetInstance()->m_GameObjectMap.GetGuid(pComponent->GetOwner()->GetHandle());
-      res.m_uiPartIndex = 0; /// TODO
-    }
-    else
-    {
-      res.m_ComponentGuid = ezUuid();
+      ezComponentHandle hComponent = ezEngineProcessGameState::GetInstance()->m_ComponentMap.GetHandle(res.m_ComponentGuid);
+
+      ezEngineProcessDocumentContext* pDocumentContext = ezEngineProcessDocumentContext::GetDocumentContext(GetDocumentGuid());
+
+      // check whether the component is still valid
+      ezComponent* pComponent = nullptr;
+      if (pDocumentContext->m_pWorld->TryGetComponent<ezComponent>(hComponent, pComponent))
+      {
+        // if yes, fill out the parent game object guid
+        res.m_ObjectGuid = ezEngineProcessGameState::GetInstance()->m_GameObjectMap.GetGuid(pComponent->GetOwner()->GetHandle());
+        res.m_uiPartIndex = 0; /// TODO
+      }
+      else
+      {
+        res.m_ComponentGuid = ezUuid();
+      }
     }
 
     /// \todo Add an enum that defines in which direction the window Y coordinate points ?
     ezGraphicsUtils::ConvertScreenPosToWorldPos(m_PickingInverseViewProjectionMatrix, 0, 0, uiWindowWidth, uiWindowHeight, ezVec3(x, uiWindowHeight - y, fDepth), res.m_vPickedPosition);
     ezGraphicsUtils::ConvertScreenPosToWorldPos(m_PickingInverseViewProjectionMatrix, 0, 0, uiWindowWidth, uiWindowHeight, ezVec3(x, uiWindowHeight - y, 0), res.m_vPickingRayStartPosition);
 
-    ezLog::Info("Picked at %u, %u, %.2f, ID %u and GUID %s, Pos: %.2f | %.2f | %.2f, Start: %.2f | %.2f | %.2f", x, y, fDepth, uiComponentID, ezConversionUtils::ToString(res.m_ObjectGuid).GetData(), res.m_vPickedPosition.x, res.m_vPickedPosition.y, res.m_vPickedPosition.z, res.m_vPickingRayStartPosition.x, res.m_vPickingRayStartPosition.y, res.m_vPickingRayStartPosition.z);
+    //ezLog::Info("Picked at %u, %u, %.2f, ID %u and GUID %s, Pos: %.2f | %.2f | %.2f, Start: %.2f | %.2f | %.2f", x, y, fDepth, uiComponentID, ezConversionUtils::ToString(res.m_ObjectGuid).GetData(), res.m_vPickedPosition.x, res.m_vPickedPosition.y, res.m_vPickedPosition.z, res.m_vPickingRayStartPosition.x, res.m_vPickingRayStartPosition.y, res.m_vPickingRayStartPosition.z);
   }
 
   SendViewMessage(&res);
@@ -185,6 +189,8 @@ void ezViewContext::Redraw()
 {
   ezRenderLoop::AddMainView(m_pView);
 
+  // download the picking information from the GPU
+  //if (false)
   {
     ezMat4 mProj, mView;
 
@@ -193,11 +199,8 @@ void ezViewContext::Redraw()
 
     m_PickingInverseViewProjectionMatrix = (mProj * mView).GetInverse();
 
-    ezGALDevice::GetDefaultDevice()->GetPrimaryContext()->ReadbackTexture(m_hPickingRT);
-    ezGALDevice::GetDefaultDevice()->GetPrimaryContext()->ReadbackTexture(m_hPickingDepthRT);
-
-    m_PickingResultsComponentID.Clear();
-    m_PickingResultsComponentID.SetCount(GetEditorWindow().m_uiWidth * GetEditorWindow().m_uiHeight);
+    m_PickingResultsID.Clear();
+    m_PickingResultsID.SetCount(GetEditorWindow().m_uiWidth * GetEditorWindow().m_uiHeight);
 
     m_PickingResultsDepth.Clear();
     m_PickingResultsDepth.SetCount(GetEditorWindow().m_uiWidth * GetEditorWindow().m_uiHeight);
@@ -206,9 +209,13 @@ void ezViewContext::Redraw()
     MemDesc.m_uiRowPitch = 4 * GetEditorWindow().m_uiWidth;
     MemDesc.m_uiSlicePitch = 4 * GetEditorWindow().m_uiWidth * GetEditorWindow().m_uiHeight;
 
-    MemDesc.m_pData = m_PickingResultsComponentID.GetData();
+    ezGALDevice::GetDefaultDevice()->GetPrimaryContext()->ReadbackTexture(m_hPickingIdRT);
+
+    MemDesc.m_pData = m_PickingResultsID.GetData();
     ezArrayPtr<ezGALSystemMemoryDescription> SysMemDescs(&MemDesc, 1);
-    ezGALDevice::GetDefaultDevice()->GetPrimaryContext()->CopyTextureReadbackResult(m_hPickingRT, &SysMemDescs);
+    ezGALDevice::GetDefaultDevice()->GetPrimaryContext()->CopyTextureReadbackResult(m_hPickingIdRT, &SysMemDescs);
+
+    ezGALDevice::GetDefaultDevice()->GetPrimaryContext()->ReadbackTexture(m_hPickingDepthRT);
 
     MemDesc.m_pData = m_PickingResultsDepth.GetData();
     ezArrayPtr<ezGALSystemMemoryDescription> SysMemDescsDepth(&MemDesc, 1);

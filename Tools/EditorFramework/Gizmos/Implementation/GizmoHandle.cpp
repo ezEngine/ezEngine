@@ -12,6 +12,7 @@ EZ_BEGIN_PROPERTIES
 EZ_MEMBER_PROPERTY("Visible", m_bVisible),
 EZ_MEMBER_PROPERTY("Transformation", m_Transformation),
 EZ_MEMBER_PROPERTY("HandleType", m_iHandleType),
+EZ_MEMBER_PROPERTY("Color", m_Color),
 EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
@@ -59,8 +60,8 @@ static ezMeshBufferResourceHandle CreateMeshBufferArrow()
   if (hMesh.IsValid())
     return hMesh;
 
-  const float fThickness = 0.05f;
-  const float fLength = 1.0f;
+  const float fThickness = 0.04f;
+  const float fLength = 2.0f;
 
   ezMat4 m;
   m.SetIdentity();
@@ -91,10 +92,10 @@ static ezMeshResourceHandle CreateMeshResource(const char* szMeshResourceName, e
   return ezResourceManager::CreateResource<ezMeshResource>(szMeshResourceName, md);
 }
 
-void ezEditorGizmoHandle::SetupForEngine(ezWorld* pWorld)
+bool ezEditorGizmoHandle::SetupForEngine(ezWorld* pWorld, ezUInt32 uiNextComponentPickingID)
 {
   if (!m_hGameObject.IsInvalidated())
-    return;
+    return false;
 
   ezMeshBufferResourceHandle hMeshBuffer = CreateMeshBufferArrow();
   ezMeshResourceHandle hMesh = CreateMeshResource("{9D02CF27-7A15-44EA-A372-C417AF2A8E9B}", hMeshBuffer, "Materials/Editor/GizmoHandle.ezMaterial");
@@ -112,10 +113,14 @@ void ezEditorGizmoHandle::SetupForEngine(ezWorld* pWorld)
   ezMeshComponent* pMeshComponent;
   pMeshCompMan->CreateComponent(pMeshComponent);
 
+  pMeshComponent->m_MeshColor = m_Color;
   pMeshComponent->SetMesh(hMesh);
   pMeshComponent->SetRenderPass(ezDefaultPassTypes::Foreground);
+  pMeshComponent->m_uiEditorPickingID = uiNextComponentPickingID;
 
   pObject->AddComponent(pMeshComponent);
+
+  return true;
 }
 
 void ezEditorGizmoHandle::UpdateForEngine(ezWorld* pWorld)

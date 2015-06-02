@@ -15,6 +15,7 @@ public:
   ezMaterialResourceHandle m_hMaterial;
   ezUInt32 m_uiPartIndex;
   ezUInt32 m_uiEditorPickingID;
+  ezColor m_MeshColor;
 };
 
 class ezMeshComponent;
@@ -61,6 +62,8 @@ public:
 
   void SetMeshFile(const char* szFile);
   const char* GetMeshFile() const;
+
+  ezColor m_MeshColor;
 
 private:
   ezRenderPassType m_iRenderPass;

@@ -19,13 +19,110 @@ class QWidget;
 class QHBoxLayout;
 class QPushButton;
 
-class ezCameraMoveContext
+class ezDocumentWindow3D;
+
+class ezEditorInputContext
 {
 public:
-  ezCameraMoveContext();
-  void Update();
-  virtual void Reset();
-  virtual void LoadState() { }
+  ezEditorInputContext(QWidget* pParentWidget, ezDocumentBase* pDocument, ezDocumentWindow3D* pDocumentWindow) 
+  {
+    m_pDocument = pDocument;
+    m_pParentWidget = pParentWidget;
+    m_pDocumentWindow = pDocumentWindow;
+  }
+
+  virtual ~ezEditorInputContext() {}
+
+  virtual void FocusLost() {}
+
+  virtual bool keyPressEvent(QKeyEvent* e) { return false; }
+  virtual bool keyReleaseEvent(QKeyEvent* e) { return false; }
+  virtual bool mousePressEvent(QMouseEvent* e) { return false; }
+  virtual bool mouseReleaseEvent(QMouseEvent* e) { return false; }
+  virtual bool mouseMoveEvent(QMouseEvent* e) { return false; }
+  virtual bool wheelEvent(QWheelEvent* e) { return false; }
+
+  static void SetActiveInputContext(ezEditorInputContext* pContext) { s_pActiveInputContext = pContext; }
+
+  void MakeActiveInputContext(bool bActive = true)
+  {
+    if (bActive)
+      s_pActiveInputContext = this;
+    else
+      s_pActiveInputContext = nullptr;
+  }
+
+  static bool IsAnyInputContextActive() { return s_pActiveInputContext != nullptr; }
+
+  static ezEditorInputContext* GetActiveInputContext() { return s_pActiveInputContext; }
+
+  static void UpdateActiveInputContext()
+  {
+    if (s_pActiveInputContext != nullptr)
+      s_pActiveInputContext->UpdateContext();
+  }
+
+  bool IsActiveInputContext() const
+  {
+    return s_pActiveInputContext == this;
+  }
+
+protected:
+  ezDocumentBase* m_pDocument;
+  ezDocumentWindow3D* m_pDocumentWindow;
+  QWidget* m_pParentWidget;
+
+private:
+  static ezEditorInputContext* s_pActiveInputContext;
+
+  virtual void UpdateContext() {}
+};
+
+class ezSelectionContext : public ezEditorInputContext
+{
+public:
+  ezSelectionContext(QWidget* pParentWidget, ezDocumentBase* pDocument, ezDocumentWindow3D* pDocumentWindow);
+
+  virtual bool mouseReleaseEvent(QMouseEvent* e) override;
+  virtual bool mouseMoveEvent(QMouseEvent* e) override;
+};
+
+class ezCameraMoveContext : public ezEditorInputContext
+{
+public:
+  ezCameraMoveContext(QWidget* pParentWidget, ezDocumentBase* pDocument, ezDocumentWindow3D* pDocumentWindow);
+
+
+  virtual void FocusLost() override;
+
+  void LoadState();
+
+  virtual bool keyPressEvent(QKeyEvent* e) override;
+  virtual bool keyReleaseEvent(QKeyEvent* e) override;
+  virtual bool mousePressEvent(QMouseEvent* e) override;
+  virtual bool mouseReleaseEvent(QMouseEvent* e) override;
+  virtual bool mouseMoveEvent(QMouseEvent* e) override;
+  virtual bool wheelEvent(QWheelEvent* e) override;
+
+  void SetCamera(ezCamera* pCamera) { m_pCamera = pCamera; }
+
+
+private:
+  virtual void UpdateContext() override;
+
+  void SetMoveSpeed(ezInt32 iSpeed);
+  void ResetCursor();
+  void SetBlankCursor();
+  void SetCursorToWindowCenter();
+
+  QPoint m_LastMousePos;
+  QPoint m_OriginalMousePos;
+  bool m_bTempMousePosition;
+
+  bool m_bRotateCamera;
+  bool m_bMoveCamera;
+  bool m_bMoveCameraInPlane;
+  ezInt32 m_iMoveSpeed;
 
   ezCamera* m_pCamera;
   float m_fMoveSpeed;
@@ -42,47 +139,7 @@ public:
   bool m_bMoveBackwardsInPlane;
   bool m_bDidMoveMouse[3]; // Left Click, Right Click, Middle Click
 
-private:
   ezTime m_LastUpdate;
-};
-
-class ezDocumentWindow3D;
-
-class ezQtCameraMoveContext : public ezCameraMoveContext
-{
-public:
-  ezQtCameraMoveContext(QWidget* pParentWidget, ezDocumentBase* pDocument, ezDocumentWindow3D* pDocumentWindow);
-
-  virtual void Reset() override;
-
-  virtual void LoadState() override;
-
-  bool keyPressEvent(QKeyEvent* e);
-  bool keyReleaseEvent(QKeyEvent* e);
-  bool mousePressEvent(QMouseEvent* e);
-  bool mouseReleaseEvent(QMouseEvent* e);
-  bool mouseMoveEvent(QMouseEvent* e);
-  bool wheelEvent(QWheelEvent* e);
-
-protected:
-  ezDocumentBase* m_pDocument;
-  ezDocumentWindow3D* m_pDocumentWindow;
-
-private:
-  void SetMoveSpeed(ezInt32 iSpeed);
-  void ResetCursor();
-  void SetBlankCursor();
-  void SetCursorToWindowCenter();
-
-  QWidget* m_pParentWidget;
-  QPoint m_LastMousePos;
-  QPoint m_OriginalMousePos;
-  bool m_bTempMousePosition;
-
-  bool m_bRotateCamera;
-  bool m_bMoveCamera;
-  bool m_bMoveCameraInPlane;
-  ezInt32 m_iMoveSpeed;
 };
 
 class ez3DViewWidget : public QWidget
@@ -90,14 +147,15 @@ class ez3DViewWidget : public QWidget
 public:
   ez3DViewWidget(QWidget* pParent, ezDocumentWindow3D* pDocument);
 
-  ezQtCameraMoveContext m_MoveContext;
+  ezSelectionContext m_SelectionContext;
+  ezCameraMoveContext m_MoveContext;
 
   virtual void paintEvent(QPaintEvent* event) override { event->accept(); }
 
 protected:
   virtual void resizeEvent(QResizeEvent* event) override
   {
-    m_pDocument->TriggerRedraw();
+    m_pDocumentWindow->TriggerRedraw();
   }
 
   virtual void keyPressEvent(QKeyEvent* e) override;
@@ -107,8 +165,8 @@ protected:
   virtual void mouseMoveEvent(QMouseEvent* e) override;
   virtual void wheelEvent(QWheelEvent* e) override;
   virtual void focusOutEvent(QFocusEvent* e) override;
-  
-  ezDocumentWindow* m_pDocument;
+
+  ezDocumentWindow3D* m_pDocumentWindow;
 };
 
 class ezTestDocumentWindow : public ezDocumentWindow3D
@@ -121,11 +179,8 @@ public:
 
   virtual const char* GetGroupName() const { return "Scene"; }
 
-protected:
-  void keyPressEvent(QKeyEvent* e) override;
+  private slots:
 
-private slots:
-  
 
 private:
   virtual bool HandleEngineMessage(const ezEditorEngineDocumentMsg* pMsg) override;
@@ -137,7 +192,7 @@ private:
   void SendRedrawMsg();
 
   ez3DViewWidget* m_pCenterWidget;
-  
+
   ezCamera m_Camera;
 
   /// \todo Broken delegates

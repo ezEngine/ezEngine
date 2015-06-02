@@ -25,13 +25,18 @@ ezDocumentWindow3D::~ezDocumentWindow3D()
   ezEditorEngineProcessConnection::GetInstance()->DestroyEngineConnection(this);
 }
 
+void ezDocumentWindow3D::SendMessageToEngine(ezEditorEngineDocumentMsg* pMessage) const
+{
+  m_pEngineView->SendMessage(pMessage);
+}
+
 const ezObjectPickingResult& ezDocumentWindow3D::PickObject(ezUInt16 uiScreenPosX, ezUInt16 uiScreenPosY) const
 {
   ezViewPickingMsgToEngine msg;
   msg.m_uiPickPosX = uiScreenPosX;
   msg.m_uiPickPosY = uiScreenPosY;
 
-  m_pEngineView->SendMessage(&msg);
+  SendMessageToEngine(&msg);
 
   ezEditorEngineProcessConnection::GetInstance()->WaitForMessage(ezGetStaticRTTI<ezViewPickingResultMsgToEditor>());
 
@@ -96,6 +101,7 @@ bool ezDocumentWindow3D::HandleEngineMessage(const ezEditorEngineDocumentMsg* pM
 
     m_LastPickingResult.m_PickedObject = pFullMsg->m_ObjectGuid;
     m_LastPickingResult.m_PickedComponent = pFullMsg->m_ComponentGuid;
+    m_LastPickingResult.m_PickedOther = pFullMsg->m_OtherGuid;
     m_LastPickingResult.m_uiPartIndex = pFullMsg->m_uiPartIndex;
     m_LastPickingResult.m_vPickedPosition = pFullMsg->m_vPickedPosition;
     m_LastPickingResult.m_vPickingRayStart = pFullMsg->m_vPickingRayStartPosition;

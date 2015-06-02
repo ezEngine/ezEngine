@@ -19,6 +19,7 @@ void ezEngineProcessDocumentContext::AddDocumentContext(ezUuid guid, ezEnginePro
 {
   EZ_ASSERT_DEV(!s_DocumentContexts.Contains(guid), "Cannot add a view with an index that already exists");
   s_DocumentContexts[guid] = pView;
+  pView->m_DocumentGuid = guid;
 }
 
 void ezEngineProcessDocumentContext::DestroyDocumentContext(ezUuid guid)
@@ -30,11 +31,46 @@ void ezEngineProcessDocumentContext::DestroyDocumentContext(ezUuid guid)
   }
 }
 
+ezEngineProcessDocumentContext::~ezEngineProcessDocumentContext()
+{
+  CleanUpContextSyncObjects();
+}
+
+void ezEngineProcessDocumentContext::CleanUpContextSyncObjects()
+{
+  ezEditorEngineSyncObject* pSyncObject = ezEditorEngineSyncObject::GetFirstInstance();
+
+  while (pSyncObject)
+  {
+    ezEditorEngineSyncObject* pNextSyncObject = pSyncObject->GetNextInstance();
+
+    // remove all sync objects that are linked to the same document
+    if (pSyncObject->GetDocumentGuid() == m_DocumentGuid)
+    {
+      pSyncObject->GetDynamicRTTI()->GetAllocator()->Deallocate(pSyncObject);
+    }
+
+    pSyncObject = pNextSyncObject;
+  }
+}
+
 void ezEngineProcessDocumentContext::ProcessEditorEngineSyncObjectMsg(const ezEditorEngineSyncObjectMsg& msg)
 {
-  const ezRTTI* pRtti = ezRTTI::FindTypeByName(msg.m_sObjectType);
+  ezEditorEngineSyncObject* pSyncObject = nullptr;
+  m_pSyncObjects.TryGetValue(msg.m_ObjectGuid, pSyncObject);
 
-  ezLog::Debug("Sync object message: '%s'", msg.m_sObjectType.GetData());
+  if (msg.m_sObjectType.IsEmpty())
+  {
+    // object has been deleted!
+    if (pSyncObject != nullptr)
+    {
+      pSyncObject->GetDynamicRTTI()->GetAllocator()->Deallocate(pSyncObject);
+    }
+
+    return;
+  }
+
+  const ezRTTI* pRtti = ezRTTI::FindTypeByName(msg.m_sObjectType);
 
   if (pRtti == nullptr)
   {
@@ -47,8 +83,7 @@ void ezEngineProcessDocumentContext::ProcessEditorEngineSyncObjectMsg(const ezEd
   ezMemoryStreamReader reader(&storage);
   writer.WriteBytes(msg.m_sObjectData.GetData(), msg.m_sObjectData.GetElementCount());
 
-  ezEditorEngineSyncObject* pSyncObject = nullptr;
-  if (!m_pSyncObjects.TryGetValue(msg.m_ObjectGuid, pSyncObject))
+  if (pSyncObject == nullptr)
   {
     // object does not yet exist
     EZ_ASSERT_DEV(pRtti->GetAllocator() != nullptr, "Sync object of type '%s' does not have a default allocator", msg.m_sObjectType.GetData());
@@ -57,8 +92,6 @@ void ezEngineProcessDocumentContext::ProcessEditorEngineSyncObjectMsg(const ezEd
     pSyncObject = static_cast<ezEditorEngineSyncObject*>(pObject);
     pSyncObject->SetDocumentGuid(msg.m_DocumentGuid);
     m_pSyncObjects[msg.m_ObjectGuid] = pSyncObject;
-
-    ezLog::Debug("Allocated Sync object '%s'", msg.m_sObjectType.GetData());
   }
 
   ezReflectionSerializer::ReadObjectPropertiesFromJSON(reader, *pRtti, pSyncObject);

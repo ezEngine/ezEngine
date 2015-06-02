@@ -9,11 +9,17 @@ PICKING
 
 DepthTest = true
 DepthWrite = true
-DepthTestFunc = CompareFunc_Always
+
+#if PICKING == 1
+	DepthTestFunc = CompareFunc_Always
+#else
+	DepthTestFunc = CompareFunc_Less
+#endif
 
 [VERTEXSHADER]
 
 #include <Shaders/Materials/Materials.inc>
+#include <Shaders/Materials/DefaultMaterialCB.inc>
 
 #ifdef PLATFORM_DX11
 
@@ -21,7 +27,7 @@ VS_OUT_COLORED main(VS_IN_COLORED Input)
 {
   VS_OUT_COLORED RetVal;
   RetVal.Position = mul(mvp, float4(Input.Position, 1.0f));
-  RetVal.Color = Input.Color;
+  RetVal.Color = MeshColor;
 
   return RetVal;
 }
@@ -32,6 +38,7 @@ VS_OUT_COLORED main(VS_IN_COLORED Input)
 [PIXELSHADER]
 
 #include <Shaders/Materials/Materials.inc>
+#include <Shaders/Materials/DefaultMaterialCB.inc>
 
 #ifdef PLATFORM_DX11
 
@@ -46,7 +53,11 @@ float4 main(PS_IN_COLORED Input) : SV_Target
   
   return IdCol;
 #else
-  return Input.Color;
+
+  if (GameObjectID == PickingHighlightID)
+	return MeshColor * 2;
+
+  return MeshColor;
 #endif
 }
 

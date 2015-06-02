@@ -36,14 +36,19 @@ public:
     m_HandleToGuid.Remove(handle);
   }
 
-  HandleType GetHandle(ezUuid guid)
+  HandleType GetHandle(ezUuid guid) const
   {
-    return m_GuidToHandle[guid];
+    HandleType res;
+    m_GuidToHandle.TryGetValue(guid, res);
+    return res;
   }
 
-  ezUuid GetGuid(HandleType handle)
+  ezUuid GetGuid(HandleType handle) const
   {
-    return m_HandleToGuid[handle];
+    auto it = m_HandleToGuid.Find(handle);
+    if (it.IsValid())
+      return it.Value();
+    return ezUuid();
   }
 
 private:
@@ -64,6 +69,8 @@ public:
   ezEditorGuidEngineHandleMap<ezGameObjectHandle> m_GameObjectMap;
   ezEditorGuidEngineHandleMap<ezComponentHandle> m_ComponentMap;
   ezEditorGuidEngineHandleMap<ezUInt32> m_ComponentPickingMap;
+  ezEditorGuidEngineHandleMap<ezUInt32> m_OtherPickingMap;
+  ezUInt32 m_uiNextComponentPickingID;
 
 private:
   virtual void Activate() override;
@@ -75,7 +82,6 @@ private:
   void HandlerGameObjectMsg(ezEngineProcessDocumentContext* pDocumentContext, ezViewContext* pViewContext, ezEntityMsgToEngine* pMsg, ezRTTI* pRtti);
   void HandleComponentMsg(ezEngineProcessDocumentContext* pDocumentContext, ezViewContext* pViewContext, ezEntityMsgToEngine* pMsg, ezRTTI* pRtti);
 
-  void InitDevice();
   void SendReflectionInformation();
   void SendProjectReadyMessage();
 

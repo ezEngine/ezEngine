@@ -153,12 +153,26 @@ class EZ_EDITORFRAMEWORK_DLL ezViewPickingResultMsgToEditor : public ezEditorEng
 public:
   ezUuid m_ObjectGuid;
   ezUuid m_ComponentGuid;
+  ezUuid m_OtherGuid;
   ezUInt32 m_uiPartIndex;
 
   ezVec3 m_vPickedPosition;
   ezVec3 m_vPickingRayStartPosition;
 };
 
+class ezEditorEngineConnection;
+
+class EZ_EDITORFRAMEWORK_DLL ezViewHighlightMsgToEngine : public ezEditorEngineDocumentMsg
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezViewHighlightMsgToEngine);
+
+public:
+  void SendHighlightObjectMessage(ezEditorEngineConnection* pConnection);
+
+  ezUuid m_HighlightObject;
+  // currently used for highlighting which object the mouse hovers over
+  // extend this message if other types of highlighting become necessary
+};
 
 class EZ_EDITORFRAMEWORK_DLL ezLogMsgToEditor : public ezEditorEngineDocumentMsg
 {

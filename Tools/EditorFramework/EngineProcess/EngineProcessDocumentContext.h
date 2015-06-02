@@ -15,7 +15,7 @@ class EZ_EDITORFRAMEWORK_DLL ezEngineProcessDocumentContext
 {
 public:
   ezEngineProcessDocumentContext() { }
-  virtual ~ezEngineProcessDocumentContext() { }
+  virtual ~ezEngineProcessDocumentContext();
 
   static ezEngineProcessDocumentContext* GetDocumentContext(ezUuid guid);
   static void AddDocumentContext(ezUuid guid, ezEngineProcessDocumentContext* pView);
@@ -29,6 +29,10 @@ private:
   // Maps a document guid to the corresponding context that handles that document on the engine side
   static ezHashTable<ezUuid, ezEngineProcessDocumentContext*> s_DocumentContexts;
 
+  /// Removes all sync objects that are tied to this context
+  void CleanUpContextSyncObjects();
+
+  ezUuid m_DocumentGuid;
   ezHashTable<ezUuid, ezEditorEngineSyncObject*> m_pSyncObjects;
 };
 

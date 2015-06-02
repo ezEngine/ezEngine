@@ -9,6 +9,7 @@ EZ_END_DYNAMIC_REFLECTED_TYPE();
 EZ_BEGIN_COMPONENT_TYPE(ezMeshComponent, ezComponent, 1, ezMeshComponentManager);
   EZ_BEGIN_PROPERTIES
     EZ_ACCESSOR_PROPERTY("MeshFile", GetMeshFile, SetMeshFile),
+    EZ_MEMBER_PROPERTY("Mesh Color", m_MeshColor),
   EZ_END_PROPERTIES
   EZ_BEGIN_MESSAGEHANDLERS
     EZ_MESSAGE_HANDLER(ezExtractRenderDataMessage, OnExtractRenderData)
@@ -18,6 +19,7 @@ EZ_END_COMPONENT_TYPE();
 ezMeshComponent::ezMeshComponent()
 {
   m_iRenderPass = -1;
+  m_MeshColor = ezColor::White;
 }
 
 void ezMeshComponent::SetMesh(const ezMeshResourceHandle& hMesh)
@@ -54,6 +56,7 @@ void ezMeshComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) const
     pRenderData->m_WorldTransform = GetOwner()->GetWorldTransform();
     pRenderData->m_hMesh = m_hMesh;
     pRenderData->m_uiEditorPickingID = m_uiEditorPickingID;
+    pRenderData->m_MeshColor = m_MeshColor;
 
     const ezUInt32 uiMaterialIndex = parts[uiPartIndex].m_uiMaterialIndex;
 

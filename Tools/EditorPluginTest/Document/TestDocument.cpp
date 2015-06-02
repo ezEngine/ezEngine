@@ -19,7 +19,14 @@ void ezTestDocument::Initialize()
 {
   ezDocumentBase::Initialize();
 
-  m_Gizmo.SetDocumentGuid(GetGuid());
+  m_GizmoX.SetDocumentGuid(GetGuid());
+  m_GizmoX.SetColor(ezColorLinearUB(128, 0, 0));
+
+  m_GizmoY.SetDocumentGuid(GetGuid());
+  m_GizmoY.SetColor(ezColorLinearUB(0, 128, 0));
+
+  m_GizmoZ.SetDocumentGuid(GetGuid());
+  m_GizmoZ.SetColor(ezColorLinearUB(0, 0, 128));
 }
 
 ezTestDocument::~ezTestDocument()
@@ -38,24 +45,41 @@ void ezTestDocument::SelectionManagerEventHandler(const ezSelectionManager::Even
   {
   case ezSelectionManager::Event::Type::SelectionCleared:
     {
-      m_Gizmo.SetVisible(false);
-      m_Gizmo.SetTransformation(ezMat4::IdentityMatrix());
+      m_GizmoX.SetVisible(false);
+      m_GizmoY.SetVisible(false);
+      m_GizmoZ.SetVisible(false);
     }
     break;
 
   case ezSelectionManager::Event::Type::SelectionSet:
   case ezSelectionManager::Event::Type::ObjectAdded:
     {
-      m_Gizmo.SetVisible(true);
-      m_Gizmo.SetDocumentGuid(GetGuid()); /// \todo Hack / Fix, this should work without it
+      m_GizmoX.SetVisible(true);
+      m_GizmoY.SetVisible(true);
+      m_GizmoZ.SetVisible(true);
+
+      /// \todo Hack / Fix, this should work without it
+      m_GizmoX.SetDocumentGuid(GetGuid());
+      m_GizmoY.SetDocumentGuid(GetGuid());
+      m_GizmoZ.SetDocumentGuid(GetGuid());
 
       
       if (GetSelectionManager()->GetSelection()[0]->GetTypeAccessor().GetReflectedTypeHandle() == ezReflectedTypeManager::GetTypeHandleByName("ezGameObject"))
       {
         ezVec3 vPos = GetSelectionManager()->GetSelection()[0]->GetTypeAccessor().GetValue("Position").ConvertTo<ezVec3>();
+        ezMat4 mt;
+        mt.SetTranslationMatrix(vPos);
+
         ezMat4 m;
-        m.SetTranslationMatrix(vPos);
-        m_Gizmo.SetTransformation(m);
+
+        m.SetRotationMatrixZ(ezAngle::Degree(-90));
+        m_GizmoX.SetTransformation(mt * m);
+
+        m.SetIdentity();
+        m_GizmoY.SetTransformation(mt * m);
+
+        m.SetRotationMatrixX(ezAngle::Degree(90));
+        m_GizmoZ.SetTransformation(mt * m);
       }
     }
     break;

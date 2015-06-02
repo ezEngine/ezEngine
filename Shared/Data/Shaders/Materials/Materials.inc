@@ -1,12 +1,5 @@
 #include <Shaders/Common/GlobalConstants.h>
 
-CONSTANT_BUFFER(MaterialCB, 0)
-{
-  MAT4(ModelMatrix);
-  MAT4(ViewProjectionMatrix);
-  FLOAT4(AddColor);
-};
-
 CONSTANT_BUFFER(PerObject, 1)
 {
   MAT4(world);

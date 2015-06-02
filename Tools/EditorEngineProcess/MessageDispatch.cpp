@@ -8,6 +8,7 @@
 #include <Foundation/Reflection/ReflectionSerializer.h>
 
 #include <RendererCore/Meshes/MeshComponent.h>
+#include <RendererCore/RenderContext/RenderContext.h>
 #include <GameUtils/Components/RotorComponent.h>
 #include <GameUtils/Components/SliderComponent.h>
 
@@ -102,8 +103,8 @@ void ezEngineProcessGameState::EventHandlerIPC(const ezProcessCommunication::Eve
     }
     else
     {
+      ezEngineProcessDocumentContext::DestroyDocumentContext(pDocMsg->m_DocumentGuid);
     }
-
   }
   else if (pDocMsg->GetDynamicRTTI()->IsDerivedFrom<ezViewRedrawMsgToEngine>())
   {
@@ -136,6 +137,16 @@ void ezEngineProcessGameState::EventHandlerIPC(const ezProcessCommunication::Eve
     ezViewPickingMsgToEngine* pMsg = (ezViewPickingMsgToEngine*)pDocMsg;
 
     pViewContext->PickObjectAt(pMsg->m_uiPickPosX, pMsg->m_uiPickPosY);
+  }
+  else if (pDocMsg->GetDynamicRTTI()->IsDerivedFrom<ezViewHighlightMsgToEngine>())
+  {
+    ezViewHighlightMsgToEngine* pMsg = (ezViewHighlightMsgToEngine*)pDocMsg;
+
+    ezUInt32 uiPickingID = m_OtherPickingMap.GetHandle(pMsg->m_HighlightObject);
+    
+    ezRenderContext::GetDefaultInstance()->SetMaterialParameter("PickingHighlightID", (ezInt32) uiPickingID);
+
+    //ezLog::Info("Picking: GUID = %s, ID = %u", ezConversionUtils::ToString(pMsg->m_HighlightObject).GetData(), uiPickingID);
   }
 }
 
@@ -247,11 +258,8 @@ void ezEngineProcessGameState::HandleComponentMsg(ezEngineProcessDocumentContext
         m_ComponentMap.RegisterObject(pMsg->m_ObjectGuid, hComponent);
         UpdateProperties(pMsg, pComponent, pComponent->GetDynamicRTTI());
 
+        pComponent->m_uiEditorPickingID = m_uiNextComponentPickingID++;
 
-        static ezUInt32 uiNextComponentPickingID = 0;
-        ++uiNextComponentPickingID;
-
-        pComponent->m_uiEditorPickingID = uiNextComponentPickingID;
         m_ComponentPickingMap.RegisterObject(pMsg->m_ObjectGuid, pComponent->m_uiEditorPickingID);
       }
       else

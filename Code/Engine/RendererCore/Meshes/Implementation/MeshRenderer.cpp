@@ -66,6 +66,8 @@ ezUInt32 ezMeshRenderer::Render(const ezRenderViewContext& renderViewContext, ez
       hLastMaterial = pRenderData->m_hMaterial;
     }
 
+    renderViewContext.m_pRenderContext->SetMaterialParameter("MeshColor", pRenderData->m_MeshColor);
+
     renderViewContext.m_pRenderContext->BindMeshBuffer(pMesh->GetMeshBuffer());
 
     renderViewContext.m_pRenderContext->DrawMeshBuffer(meshPart.m_uiPrimitiveCount, meshPart.m_uiFirstPrimitive);

@@ -11,6 +11,7 @@ PICKING
 [VERTEXSHADER]
 
 #include <Shaders/Materials/Materials.inc>
+#include <Shaders/Materials/DefaultMaterialCB.inc>
 
 #ifdef PLATFORM_DX11
 
@@ -30,6 +31,7 @@ VS_OUT main(VS_IN Input)
 [PIXELSHADER]
 
 #include <Shaders/Materials/Materials.inc>
+#include <Shaders/Materials/DefaultMaterialCB.inc>
 
 #ifdef PLATFORM_DX11
 
@@ -57,7 +59,7 @@ float4 main(PS_IN Input) : SV_Target
   
   return IdCol;
 #else
-  return TexDiffuse.Sample(TexDiffuseSampler, Input.TexCoord0);
+  return TexDiffuse.Sample(TexDiffuseSampler, Input.TexCoord0) * MeshColor;
 #endif
 }
 

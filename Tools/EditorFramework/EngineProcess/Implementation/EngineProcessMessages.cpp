@@ -1,5 +1,6 @@
 #include <PCH.h>
 #include <EditorFramework/EngineProcess/EngineProcessMessages.h>
+#include <EditorFramework/EngineProcess/EngineProcessConnection.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezProcessMessage, ezReflectedClass, 1, ezRTTINoAllocator );
 EZ_END_DYNAMIC_REFLECTED_TYPE();
@@ -90,11 +91,33 @@ EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezViewPickingResultMsgToEditor, ezEditorEngineDo
   EZ_BEGIN_PROPERTIES
     EZ_MEMBER_PROPERTY("ObjectGuid", m_ObjectGuid),
     EZ_MEMBER_PROPERTY("ComponentGuid", m_ComponentGuid),
+    EZ_MEMBER_PROPERTY("OtherGuid", m_OtherGuid),
     EZ_MEMBER_PROPERTY("PartIndex", m_uiPartIndex),
     EZ_MEMBER_PROPERTY("PickedPos", m_vPickedPosition),
     EZ_MEMBER_PROPERTY("PickRayStart", m_vPickingRayStartPosition),
   EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezViewHighlightMsgToEngine, ezEditorEngineDocumentMsg, 1, ezRTTIDefaultAllocator<ezViewHighlightMsgToEngine>);
+  EZ_BEGIN_PROPERTIES
+    EZ_MEMBER_PROPERTY("HighlightObject", m_HighlightObject),
+  EZ_END_PROPERTIES
+EZ_END_DYNAMIC_REFLECTED_TYPE();
+
+void ezViewHighlightMsgToEngine::SendHighlightObjectMessage(ezEditorEngineConnection* pConnection)
+{
+  // without this check there will be so many messages, that the editor comes to a crawl (< 10 FPS)
+  // This happens because Qt sends hundreds of mouse-move events and since each 'SendMessageToEngine'
+  // requires a round-trip to the engine process, doing this too often will be sloooow
+
+  static ezUuid LastHighlightGuid;
+
+  if (LastHighlightGuid == m_HighlightObject)
+    return;
+
+  LastHighlightGuid = m_HighlightObject;
+  pConnection->SendMessage(this);
+}
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezLogMsgToEditor, ezEditorEngineDocumentMsg, 1, ezRTTIDefaultAllocator<ezLogMsgToEditor> );
   EZ_BEGIN_PROPERTIES
