@@ -10,16 +10,4 @@ extern(C++)
   };
 
   ezScriptReflectionAllocator ezGetDefaultScriptReflectionAllocator();
-  private void ezInitDefaultScriptReflectionAllocator();
-  private void ezDeinitDefaultScriptReflectionAllocator();
-}
-
-shared static this()
-{
-  ezInitDefaultScriptReflectionAllocator();
-}
-
-shared static ~this()
-{
-  ezDeinitDefaultScriptReflectionAllocator();
 }

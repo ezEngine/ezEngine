@@ -45,7 +45,7 @@ struct ezHashHelper(T)
     }
     else static if(isPointer!T || is(T == class))
     {
-      return cast(ezUInt32)((cast(size_t)(value) << 4) * 2654435761U);
+      return cast(ezUInt32)((cast(size_t)cast(void*)(value) << 4) * 2654435761U);
     }
     else
     {

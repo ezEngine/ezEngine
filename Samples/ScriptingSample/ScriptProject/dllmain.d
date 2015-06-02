@@ -1,4 +1,4 @@
-module ez.script.internal.dllmain;
+module dllmain;
 
 import core.sys.windows.dll;
 

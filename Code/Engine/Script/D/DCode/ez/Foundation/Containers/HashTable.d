@@ -130,7 +130,7 @@ public:
     return false;
   }
 
-  bool Remove(T)(auto ref T key, V* out_oldValue = null)
+  bool Remove(T)(auto ref T key, ValueType* out_oldValue = null)
   {
     ezUInt32 uiIndex = FindEntry(key);
     if (uiIndex != ezInvalidIndex)
@@ -176,7 +176,7 @@ public:
     return false;
   }
 
-  bool TryGetValue(T)(auto ref T key, ref Value out_value) //TODO const (inout) ?
+  bool TryGetValue(T)(auto ref T key, ref ValueType out_value) //TODO const (inout) ?
   {
     ezUInt32 uiIndex = FindEntry(key);
     if (uiIndex != ezInvalidIndex)
@@ -188,7 +188,7 @@ public:
     return false;
   }
 
-  bool TryGetValue(T)(auto ref T key, ref V* out_pValue) // TODO const (inout) ?
+  bool TryGetValue(T)(auto ref T key, ref ValueType* out_pValue) // TODO const (inout) ?
   {
     ezUInt32 uiIndex = FindEntry(key);
     if (uiIndex != ezInvalidIndex)
@@ -310,6 +310,33 @@ private:
       EZ_ASSERT_DEV(uiEntryIndex < GetFlagsCapacity(), "Out of bounds access");
       m_pEntryFlags[uiEntryIndex] = uiFlags;
     }
+  }
+
+  ezUInt32 FindEntry(ref const(KeyType) key) const
+  {
+    return FindEntry(Hasher.Hash(key), key);
+  }
+
+  ezUInt32 FindEntry(ezUInt32 uiHash, ref const(KeyType) key) const
+  {
+    if (m_uiCapacity > 0)
+    {
+      ezUInt32 uiIndex = uiHash % m_uiCapacity;
+      ezUInt32 uiCounter = 0;
+      while (!IsFreeEntry(uiIndex) && uiCounter < m_uiCapacity)
+      {
+        if (IsValidEntry(uiIndex) && Hasher.Equal(m_pEntries[uiIndex].key, key))
+          return uiIndex;
+
+        ++uiIndex;
+        if (uiIndex == m_uiCapacity)
+          uiIndex = 0;
+
+        ++uiCounter;
+      }
+    }
+    // not found
+    return ezInvalidIndex;
   }
 
   bool IsFreeEntry(ezUInt32 uiEntryIndex) const

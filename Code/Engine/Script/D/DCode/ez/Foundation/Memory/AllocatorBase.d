@@ -23,7 +23,7 @@ public:
   //~ezAllocatorBase();
 
   /// \brief Interface, do not use this directly, always use the new/delete macros below
-  abstract void* Allocate(size_t uiSize, size_t uiAlign);
+  abstract void* Allocate(size_t uiSize, size_t uiAlign, void* destructorFunc = null); // TODO implement destructorFunc
   abstract void Deallocate(void* ptr);
   abstract void* Reallocate(void* ptr, size_t uiCurrentSize, size_t uiNewSize, size_t uiAlign);
   abstract size_t AllocatedSize(const void* ptr);

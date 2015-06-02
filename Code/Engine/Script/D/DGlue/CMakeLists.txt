@@ -17,7 +17,7 @@
 #  OpenGL32.lib    # Example: A library that can be found in any lib path, but was not built with cmake
 # )
 
-BUILD_CONDITIONAL(${EZ_USE_VISUALD})
+BUILD_CONDITIONAL(EZ_ENABLE_D_SCRIPT AND BUILDSYSTEM_PLATFORM_WINDOWS AND BUILDSYSTEM_PLATFORM_64BIT)
 
 SET (LINK_LIBRARIES 
   Foundation

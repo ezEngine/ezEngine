@@ -18,43 +18,96 @@ enum DataType : uint
   Wchar  = BasicType.Type.Wchar,
   Dchar  = BasicType.Type.Dchar,
   Bool   = BasicType.Type.Bool,
+  Pointer,
   Array,
   Class,
   Memcpy
 }
 
-size_t GetDataTypeSize(DataType type)
+DataType ToDataType(ReflectedType reflectedType)
+{
+  outer: while(true)
+  {
+    final switch(reflectedType.metaType)
+    {
+      case ReflectedType.Type.BasicType:
+        auto basicType = reflectedType.castTo!BasicType;
+        final switch(basicType.type)
+        {
+          case BasicType.Type.Void:
+            assert(0, "should not happen");
+          case BasicType.Type.Byte:
+          case BasicType.Type.Short:
+          case BasicType.Type.Int:
+          case BasicType.Type.Long:
+          case BasicType.Type.Ubyte:
+          case BasicType.Type.Ushort:
+          case BasicType.Type.Uint:
+          case BasicType.Type.Ulong:
+          case BasicType.Type.Char:
+          case BasicType.Type.Wchar:
+          case BasicType.Type.Dchar:
+          case BasicType.Type.Bool:
+          case BasicType.Type.Float:
+          case BasicType.Type.Double:
+            return cast(DataType)basicType.type;
+          case BasicType.Type.Object:
+            return DataType.Class;
+        }
+        break;
+      case ReflectedType.Type.PointerType:
+        return DataType.Pointer;
+      case ReflectedType.Type.ArrayType:
+        return DataType.Array;
+      case ReflectedType.Type.ConstType:
+        reflectedType = reflectedType.castTo!ConstType.next;
+        continue outer;
+      case ReflectedType.Type.ImmutableType:
+        reflectedType = reflectedType.castTo!ImmutableType.next;
+        continue outer;
+      case ReflectedType.Type.StructType:
+        assert(0, "Should not happen");
+      case ReflectedType.Type.ClassType:
+        return DataType.Class;
+    }
+  }
+  assert(0, "should not be reached");
+}
+
+uint GetDataTypeSize(DataType type)
 {
   final switch(type)
   {
     case DataType.Byte:
-      return byte.sizeof;
+      return cast(uint)byte.sizeof;
     case DataType.Short:
-      return short.sizeof;
+      return cast(uint)short.sizeof;
     case DataType.Int:
-      return int.sizeof;
+      return cast(uint)int.sizeof;
     case DataType.Long:
-      return long.sizeof;
+      return cast(uint)long.sizeof;
     case DataType.Ubyte:
-      return ubyte.sizeof;
+      return cast(uint)ubyte.sizeof;
     case DataType.Ushort:
-      return ushort.sizeof;
+      return cast(uint)ushort.sizeof;
     case DataType.Uint:
-      return uint.sizeof;
+      return cast(uint)uint.sizeof;
     case DataType.Ulong:
-      return ulong.sizeof;
+      return cast(uint)ulong.sizeof;
     case DataType.Char:
-      return char.sizeof;
+      return cast(uint)char.sizeof;
     case DataType.Wchar:
-      return wchar.sizeof;
+      return cast(uint)wchar.sizeof;
     case DataType.Dchar:
-      return dchar.sizeof;
+      return cast(uint)dchar.sizeof;
     case DataType.Bool:
-      return bool.sizeof;
+      return cast(uint)bool.sizeof;
+    case DataType.Pointer:
+      return cast(uint)(void*).sizeof;
     case DataType.Array:
-      return (void[]).sizeof;
+      return cast(uint)(void[]).sizeof;
     case DataType.Class:
-      return Object.sizeof;
+      return cast(uint)Object.sizeof;
     case DataType.Memcpy:
       return 0;
   }
@@ -112,6 +165,9 @@ void Serialize(void[] read, void[] write, SerializationStep[] instructions)
       case DataType.Bool:
         *cast(bool*)(write.ptr + inst.writeOffset) = *cast(bool*)(read.ptr + inst.readOffset);
         break;
+      case DataType.Pointer:
+        *cast(void**)(write.ptr + inst.writeOffset) = *cast(void**)(read.ptr + inst.readOffset);
+        break;
       case DataType.Array:
         *cast(void[]*)(write.ptr + inst.writeOffset) = *cast(void[]*)(read.ptr + inst.readOffset);
         break;
@@ -149,11 +205,11 @@ void BuildSerializationInstructions(ezAllocatorBase allocator, StructType st)
   {
     auto oldMembers = st.curType.members;
     auto newMembers = (st.newType is null) ? st.curType.members : st.newType.members;
-    st.serialization = BuildSerializationInstructions(allocator, oldMembers, newMembers);
+    st.serialization = BuildConversionInstructions(allocator, oldMembers, newMembers);
   }
 }
 
-SerializationStep[] BuildSerializationInstructions(ezAllocatorBase allocator, Member[] oldMembers, Member[] newMembers)
+SerializationStep[] BuildConversionInstructions(ezAllocatorBase allocator, Member[] oldMembers, Member[] newMembers)
 {
   size_t numSteps = 0;
   outer: foreach(ref oldMember; oldMembers)
@@ -191,14 +247,29 @@ SerializationStep[] BuildSerializationInstructions(ezAllocatorBase allocator, Me
         {
           StructType st = oldMember.type.castTo!StructType;
           steps[numSteps..numSteps+st.serialization.length] = st.serialization[];
+          foreach(ref step; steps[numSteps..numSteps+st.serialization.length])
+          {
+            step.readOffset += oldMember.offset;
+            step.writeOffset += newMember.offset;
+          }
           numSteps += st.serialization.length;
         }
         else
         {
+          with(steps[numSteps])
+          {
+            readOffset = cast(uint)oldMember.offset;
+            writeOffset = cast(uint)newMember.offset;
+            type = ToDataType(newMember.type);
+            size = GetDataTypeSize(type);
+          }
         }
         continue outer2;
       }
     }
   }
+
+  // TODO optimize instructions
+
   return steps;
 }

@@ -1,16 +1,28 @@
-module ez.script.hook.hook;
+module ez.Script.Hook.Hook;
 
 import core.sys.windows.dll;
 import core.sys.windows.windows;
 import core.sys.windows.dllfixup;
 import core.sync.mutex;
 
+import ez.Script.Reflection.Reflection;
+import ez.Foundation.Containers.HashTable;
+
+
+
 private:
+
+alias void delegate(Object) DEvent;
+extern (C) void rt_attachDisposeEvent(Object h, DEvent e);
+extern (C) void rt_detachDisposeEvent(Object h, DEvent e);
+
+alias TypeMap = ezHashTable!(void*, const(ClassTypeImpl)*);
+alias AllocationMap = ezHashTable!(void*, const(ClassTypeImpl)*);
 
 __gshared void[__traits(classInstanceSize, Mutex)] g_mutexMem;
 __gshared Mutex g_mutex;
-__gshared const(ClassInfo)[void*] g_allocations;
-__gshared const(ReflectedType*)[void*] g_types,
+__gshared AllocationMap* g_allocations;
+__gshared TypeMap* g_types;
 
 extern(C)
 {
@@ -22,13 +34,28 @@ __gshared _d_newclass_t _d_newclass_org;
 extern (C) Object _d_newclass(const ClassInfo ci)
 {
   Object result = _d_newclass_org(ci);
-  g_allocations[cast(void*)result] = ci;
+  const(ClassTypeImpl)* reflectedType;
+  if(g_types.TryGetValue(cast(void*)ci, reflectedType))
+  {
+    (*g_allocations)[cast(void*)result] = reflectedType;
+    rt_attachDisposeEvent(result, &g_deleteHelper.DeleteClass);
+  }
   return result;
 }
 
-extern(C) void _ez_script_register_type(ClassInfo c, ReflectedType* info)
+struct DeleteHelper
 {
-  
+  void DeleteClass(Object o)
+  {
+    g_allocations.Remove(cast(void*)o);
+  }
+}
+
+DeleteHelper g_deleteHelper;
+
+extern(C) void _ez_script_register_class_type(const(ClassInfo) c, ClassTypeImpl* info)
+{
+  (*g_types)[cast(void*)c] = info;
 }
 
 bool init()
@@ -37,7 +64,14 @@ bool init()
   g_mutex = cast(Mutex)g_mutexMem.ptr;
   g_mutex.__ctor();
 
-  auto druntime = LoadLibraryA("druntime64s.dll");
+  debug
+  {
+    auto druntime = LoadLibraryA("druntime64ds.dll");
+  }
+  else
+  {
+    auto druntime = LoadLibraryA("druntime64s.dll");
+  }
   if(druntime is null)
     return false;
   

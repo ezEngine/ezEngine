@@ -286,6 +286,8 @@ void[] CopyInitData(ezAllocatorBase allocator, TypeInfo info)
   return data;
 }
 
+private extern(C) void _ez_script_register_type(const(ClassInfo) c, ReflectedType* info);
+
 string GenerateMembers(T)(string cur)
 {
   string result;
@@ -323,8 +325,9 @@ string GenerateReflection(alias T)()
             classes ~= "curClass.name = allocator.CopyString(\"" ~ __traits(identifier, type) ~ "\");\n";
             classes ~= "curClass.size = " ~ to!string(__traits(classInstanceSize, type)) ~ ";\n";
             classes ~= "curClass.baseClass = cast(ClassType)GetReflectedType!(" ~ __traits(identifier, BaseTypeTuple!type[0]) ~ ");\n";
-            classes ~= "curClass.initializer = allocator.CopyInitData(typeid(" ~ fullyQualifiedName!type ~ "));\n";
+            classes ~= "curClass.initializer = allocator.CopyInitData(typeid(" ~ __traits(identifier, type) ~ "));\n";
             classes ~= GenerateMembers!type("curClass");
+            classes ~= "_ez_script_register_class_type(typeid(" ~ __traits(identifier, type) ~ "), curClass);";
             classNum++;
           }
         }

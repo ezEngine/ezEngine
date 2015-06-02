@@ -30,7 +30,6 @@ template Resolve(alias T)
 
 template WrapTestFunction(alias func)
 {
-	pragma(mangle, "_" ~ func.mangleof)
 	extern(C++) void WrapTestFunction()
 	{
 		try

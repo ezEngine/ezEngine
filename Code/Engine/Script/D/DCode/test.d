@@ -1,5 +1,5 @@
 module bla.test;
-import ez.Script.Reflection.Reflection;
+/*import ez.Script.Reflection.Reflection;
 import ez.Script.Reflection.Types;
 import ez.Foundation.Types.Delegate;
 import core.stdc.stdio;
@@ -38,4 +38,9 @@ int main(string[] args)
   auto m = GetReflectedModule("test");
   assert(m !is null);
   return 0;
-}
+}*/
+
+/*int main(string[] args)
+{
+  return 0;
+}*/

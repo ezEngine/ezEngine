@@ -25,7 +25,7 @@ private
     string result;
     foreach(t; LIST)
     {
-      result ~= "__gshared "~ nextType!t.info.stringof ~ " _builtinType_" ~ t.mangleof ~ ";\n";
+      result ~= "export __gshared "~ nextType!t.info.stringof ~ " _builtinType_" ~ t.mangleof ~ ";\n";
     }
     return result;
   }
@@ -110,19 +110,34 @@ struct test {};
 shared static this()
 {
   g_typeLock = new Mutex();
-  auto allocator = ezGetDefaultScriptReflectionAllocator();
-  //pragma(msg, generateBuiltinTypeInitializations!BuiltinTypes);
-  mixin(generateBuiltinTypeInitializations!BuiltinTypes);
-  pragma(msg, test.mangleof);
   import std.stdio;
-  writefln("%s", typeid(test).name);
+  //writefln("%s", "bla");
 }
 
 shared static ~this()
 {
+  g_typeLock = null;
+}
+
+extern(C++)
+{
+  private void ezInitDefaultScriptReflectionAllocator();
+  private void ezDeinitDefaultScriptReflectionAllocator();
+}
+
+void InitializeScriptReflection()
+{
+  ezInitDefaultScriptReflectionAllocator();
+  auto allocator = ezGetDefaultScriptReflectionAllocator();
+  //pragma(msg, generateBuiltinTypeInitializations!BuiltinTypes);
+  mixin(generateBuiltinTypeInitializations!BuiltinTypes);
+}
+
+void ShutdownScriptReflection()
+{
   auto allocator = ezGetDefaultScriptReflectionAllocator();
   allocator.Reset();
-  g_typeLock = null;
+  ezDeinitDefaultScriptReflectionAllocator();
 }
 
 private ReflectedType GetReflectedTypeImpl(const(char)[] mangledType)
