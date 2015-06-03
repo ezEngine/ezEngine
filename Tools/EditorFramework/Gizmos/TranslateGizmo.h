@@ -2,23 +2,28 @@
 
 #include <ToolsFoundation/Basics.h>
 #include <EditorFramework/Gizmos/GizmoHandle.h>
+#include <EditorFramework/Gizmos/GizmoBase.h>
 
-class EZ_EDITORFRAMEWORK_DLL ezTranslateGizmo
+class EZ_EDITORFRAMEWORK_DLL ezTranslateGizmo : public ezGizmoBase
 {
+  EZ_ADD_DYNAMIC_REFLECTION(ezTranslateGizmo);
+
 public:
   ezTranslateGizmo();
 
-  void SetDocumentGuid(const ezUuid& guid);
+  virtual void SetDocumentGuid(const ezUuid& guid) override;
 
-  void SetVisible(bool bVisible);
-  void SetTransformation(const ezMat4& transform);
+  virtual bool mousePressEvent(QMouseEvent* e) override;
+  virtual bool mouseReleaseEvent(QMouseEvent* e) override;
+  virtual bool mouseMoveEvent(QMouseEvent* e) override;
+
+protected:
+  virtual void OnVisibleChanged(bool bVisible) override;
+  virtual void OnTransformationChanged(const ezMat4& transform) override;
 
 private:
-  bool m_bVisible;
-  ezMat4 m_Transformation;
-
-  ezEditorGizmoHandle m_AxisX;
-  ezEditorGizmoHandle m_AxisY;
-  ezEditorGizmoHandle m_AxisZ;
+  ezGizmoHandle m_AxisX;
+  ezGizmoHandle m_AxisY;
+  ezGizmoHandle m_AxisZ;
 
 };

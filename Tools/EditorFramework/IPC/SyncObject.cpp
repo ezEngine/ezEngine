@@ -8,7 +8,29 @@ EZ_ENUMERABLE_CLASS_IMPLEMENTATION(ezEditorEngineSyncObject);
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditorEngineSyncObject, ezReflectedClass, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 
+ezHashTable<ezUuid, ezEditorEngineSyncObject*> ezEditorEngineSyncObject::s_AllSyncObjects;
 ezMap<ezUuid, ezHybridArray<ezUuid, 32> > ezEditorEngineSyncObject::s_DeletedObjects;
+
+ezEditorEngineSyncObject::ezEditorEngineSyncObject()
+{
+  m_SyncObjectGuid.CreateNewUuid();
+  m_bModified = true;
+
+  s_AllSyncObjects[m_SyncObjectGuid] = this;
+}
+
+ezEditorEngineSyncObject::~ezEditorEngineSyncObject()
+{
+  s_DeletedObjects[m_DocumentGuid].PushBack(m_SyncObjectGuid);
+  s_AllSyncObjects.Remove(m_SyncObjectGuid);
+}
+
+void ezEditorEngineSyncObject::ChangeObjectGuid(const ezUuid& guid)
+{
+  s_AllSyncObjects.Remove(m_SyncObjectGuid);
+  m_SyncObjectGuid = guid;
+  s_AllSyncObjects[m_SyncObjectGuid] = this;
+}
 
 void ezEditorEngineSyncObject::SyncObjectsToEngine(ezEditorEngineConnection& connection, bool bSyncAll)
 {
@@ -58,5 +80,12 @@ void ezEditorEngineSyncObject::SyncObjectsToEngine(ezEditorEngineConnection& con
 
     pObject = pObject->GetNextInstance();
   }
+}
+
+ezEditorEngineSyncObject* ezEditorEngineSyncObject::FindSyncObject(const ezUuid & guid)
+{
+  ezEditorEngineSyncObject* pRes = nullptr;
+  s_AllSyncObjects.TryGetValue(guid, pRes);
+  return pRes;
 }
 

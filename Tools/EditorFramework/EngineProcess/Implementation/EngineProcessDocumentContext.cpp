@@ -56,8 +56,7 @@ void ezEngineProcessDocumentContext::CleanUpContextSyncObjects()
 
 void ezEngineProcessDocumentContext::ProcessEditorEngineSyncObjectMsg(const ezEditorEngineSyncObjectMsg& msg)
 {
-  ezEditorEngineSyncObject* pSyncObject = nullptr;
-  m_pSyncObjects.TryGetValue(msg.m_ObjectGuid, pSyncObject);
+  ezEditorEngineSyncObject* pSyncObject = ezEditorEngineSyncObject::FindSyncObject(msg.m_ObjectGuid);
 
   if (msg.m_sObjectType.IsEmpty())
   {
@@ -90,8 +89,8 @@ void ezEngineProcessDocumentContext::ProcessEditorEngineSyncObjectMsg(const ezEd
     void* pObject = pRtti->GetAllocator()->Allocate();
 
     pSyncObject = static_cast<ezEditorEngineSyncObject*>(pObject);
+    pSyncObject->ChangeObjectGuid(msg.m_ObjectGuid);
     pSyncObject->SetDocumentGuid(msg.m_DocumentGuid);
-    m_pSyncObjects[msg.m_ObjectGuid] = pSyncObject;
   }
 
   ezReflectionSerializer::ReadObjectPropertiesFromJSON(reader, *pRtti, pSyncObject);

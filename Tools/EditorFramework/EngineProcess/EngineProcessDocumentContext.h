@@ -33,6 +33,5 @@ private:
   void CleanUpContextSyncObjects();
 
   ezUuid m_DocumentGuid;
-  ezHashTable<ezUuid, ezEditorEngineSyncObject*> m_pSyncObjects;
 };
 

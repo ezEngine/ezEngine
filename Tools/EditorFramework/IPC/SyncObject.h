@@ -11,9 +11,10 @@ class EZ_EDITORFRAMEWORK_DLL ezEditorEngineSyncObject : public ezEnumerable<ezEd
   EZ_ADD_DYNAMIC_REFLECTION(ezEditorEngineSyncObject);
 
 public:
-  ezEditorEngineSyncObject() { m_SyncObjectGuid.CreateNewUuid(); m_bModified = true; }
-  ~ezEditorEngineSyncObject() { s_DeletedObjects[m_DocumentGuid].PushBack(m_SyncObjectGuid); }
+  ezEditorEngineSyncObject();
+  ~ezEditorEngineSyncObject();
 
+  void ChangeObjectGuid(const ezUuid& guid);
   void SetDocumentGuid(const ezUuid& guid) { m_DocumentGuid = guid; }
   ezUuid GetDocumentGuid() const { return m_DocumentGuid; }
   void SetModified(bool b = true) { m_bModified = b; }
@@ -23,10 +24,13 @@ public:
 
   static void SyncObjectsToEngine(ezEditorEngineConnection& connection, bool bSyncAll);
 
+  static ezEditorEngineSyncObject* FindSyncObject(const ezUuid& guid);
+
 private:
   bool m_bModified;
   ezUuid m_SyncObjectGuid;
   ezUuid m_DocumentGuid;
 
+  static ezHashTable<ezUuid, ezEditorEngineSyncObject*> s_AllSyncObjects;
   static ezMap<ezUuid, ezHybridArray<ezUuid, 32> > s_DeletedObjects;
 };

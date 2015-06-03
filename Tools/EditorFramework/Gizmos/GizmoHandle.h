@@ -7,6 +7,7 @@
 
 class ezWorld;
 class ezMeshComponent;
+class ezGizmoBase;
 
 enum class ezGizmoHandleType
 {
@@ -17,15 +18,30 @@ enum class ezGizmoHandleType
   Piston,
 };
 
-class EZ_EDITORFRAMEWORK_DLL ezEditorGizmoHandle : public ezEditorEngineSyncObject
+class EZ_EDITORFRAMEWORK_DLL ezGizmoHandleBase : public ezEditorEngineSyncObject
 {
-  EZ_ADD_DYNAMIC_REFLECTION(ezEditorGizmoHandle);
+  EZ_ADD_DYNAMIC_REFLECTION(ezGizmoHandleBase);
 
 public:
-  ezEditorGizmoHandle();
-  virtual ~ezEditorGizmoHandle() { }
+  ezGizmoHandleBase(){}
 
-  void Configure(ezGizmoHandleType type, const ezColor& col);
+  ezGizmoBase* GetParentGizmo() const { return m_pParentGizmo; }
+
+protected:
+  void SetParentGizmo(ezGizmoBase* pParentGizmo) { m_pParentGizmo = pParentGizmo; }
+
+private:
+  ezGizmoBase* m_pParentGizmo;
+};
+
+class EZ_EDITORFRAMEWORK_DLL ezGizmoHandle : public ezGizmoHandleBase
+{
+  EZ_ADD_DYNAMIC_REFLECTION(ezGizmoHandle);
+
+public:
+  ezGizmoHandle();
+
+  void Configure(ezGizmoBase* pParentGizmo, ezGizmoHandleType type, const ezColor& col);
 
   void SetVisible(bool bVisible) { m_bVisible = bVisible; SetModified(true); }
 
@@ -37,8 +53,6 @@ public:
 
   bool SetupForEngine(ezWorld* pWorld, ezUInt32 uiNextComponentPickingID);
   void UpdateForEngine(ezWorld* pWorld);
-
-  
 
 protected:
   bool m_bVisible;

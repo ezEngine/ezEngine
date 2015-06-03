@@ -7,7 +7,10 @@
 #include <CoreUtils/Geometry/GeomUtils.h>
 #include <Core/World/World.h>
 
-EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezEditorGizmoHandle, ezEditorEngineSyncObject, 1, ezRTTIDefaultAllocator<ezEditorGizmoHandle>);
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGizmoHandleBase, ezEditorEngineSyncObject, 1, ezRTTINoAllocator);
+EZ_END_DYNAMIC_REFLECTED_TYPE();
+
+EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezGizmoHandle, ezGizmoHandleBase, 1, ezRTTIDefaultAllocator<ezGizmoHandle>);
 EZ_BEGIN_PROPERTIES
 EZ_MEMBER_PROPERTY("Visible", m_bVisible),
 EZ_MEMBER_PROPERTY("Transformation", m_Transformation),
@@ -92,20 +95,23 @@ static ezMeshResourceHandle CreateMeshResource(const char* szMeshResourceName, e
   return ezResourceManager::CreateResource<ezMeshResource>(szMeshResourceName, md);
 }
 
-ezEditorGizmoHandle::ezEditorGizmoHandle()
+ezGizmoHandle::ezGizmoHandle()
 {
   m_bVisible = false;
   m_Transformation.SetIdentity();
   m_Color = ezColor::CornflowerBlue; /* The Original! */
+  m_pMeshComponent = nullptr;
 }
 
-void ezEditorGizmoHandle::Configure(ezGizmoHandleType type, const ezColor& col)
+void ezGizmoHandle::Configure(ezGizmoBase* pParentGizmo, ezGizmoHandleType type, const ezColor& col)
 {
+  SetParentGizmo(pParentGizmo);
+
   m_iHandleType = (int)type;
   m_Color = col;
 }
 
-bool ezEditorGizmoHandle::SetupForEngine(ezWorld* pWorld, ezUInt32 uiNextComponentPickingID)
+bool ezGizmoHandle::SetupForEngine(ezWorld* pWorld, ezUInt32 uiNextComponentPickingID)
 {
   if (!m_hGameObject.IsInvalidated())
     return false;
@@ -134,7 +140,7 @@ bool ezEditorGizmoHandle::SetupForEngine(ezWorld* pWorld, ezUInt32 uiNextCompone
   return true;
 }
 
-void ezEditorGizmoHandle::UpdateForEngine(ezWorld* pWorld)
+void ezGizmoHandle::UpdateForEngine(ezWorld* pWorld)
 {
   if (m_hGameObject.IsInvalidated())
     return;

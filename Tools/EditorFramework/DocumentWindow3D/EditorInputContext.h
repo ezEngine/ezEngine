@@ -1,6 +1,7 @@
 #pragma once
 
 #include <EditorFramework/Plugin.h>
+#include <Foundation/Reflection/Reflection.h>
 
 class QWidget;
 class QKeyEvent;
@@ -9,14 +10,16 @@ class QWheelEvent;
 class ezDocumentBase;
 class ezDocumentWindow3D;
 
-class EZ_EDITORFRAMEWORK_DLL ezEditorInputContext
+class EZ_EDITORFRAMEWORK_DLL ezEditorInputContext : public ezReflectedClass
 {
+  EZ_ADD_DYNAMIC_REFLECTION(ezEditorInputContext);
+
 public:
   ezEditorInputContext()
   {
   }
 
-  virtual ~ezEditorInputContext() {}
+  virtual ~ezEditorInputContext();
 
   virtual void FocusLost() {}
 

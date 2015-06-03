@@ -1,12 +1,42 @@
 #include <PCH.h>
 #include <EditorPluginTest/InputContexts/SelectionContext.h>
 #include <EditorFramework/DocumentWindow3D/DocumentWindow3D.moc.h>
+#include <EditorFramework/IPC/SyncObject.h>
+#include <EditorFramework/Gizmos/GizmoHandle.h>
+#include <EditorFramework/Gizmos/GizmoBase.h>
+#include <Foundation/Logging/Log.h>
 #include <QKeyEvent>
 
 ezSelectionContext::ezSelectionContext(ezDocumentBase* pDocument, ezDocumentWindow3D* pDocumentWindow)
 {
   m_pDocument = pDocument;
   m_pDocumentWindow = pDocumentWindow;
+}
+
+bool ezSelectionContext::mousePressEvent(QMouseEvent* e)
+{
+  if (e->button() == Qt::MouseButton::LeftButton)
+  {
+    const ezObjectPickingResult& res = m_pDocumentWindow->PickObject(e->pos().x(), e->pos().y());
+
+    if (res.m_PickedOther.IsValid())
+    {
+      auto pSO = ezEditorEngineSyncObject::FindSyncObject(res.m_PickedOther);
+
+      if (pSO != nullptr)
+      {
+        if (pSO->GetDynamicRTTI()->IsDerivedFrom<ezGizmoHandleBase>())
+        {
+          ezGizmoHandleBase* pGizmoHandle = static_cast<ezGizmoHandleBase*>(pSO);
+          ezGizmoBase* pGizmo = pGizmoHandle->GetParentGizmo();
+          pGizmo->ConfigureInteraction(pGizmoHandle);
+          return pGizmo->mousePressEvent(e);
+        }
+      }
+    }
+  }
+
+  return false;
 }
 
 bool ezSelectionContext::mouseReleaseEvent(QMouseEvent* e)

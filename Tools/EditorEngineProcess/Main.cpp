@@ -85,9 +85,9 @@ void ezEngineProcessGameState::BeforeWorldUpdate()
 
   while (pSyncObject)
   {
-    if (pSyncObject->GetDynamicRTTI()->IsDerivedFrom<ezEditorGizmoHandle>())
+    if (pSyncObject->GetDynamicRTTI()->IsDerivedFrom<ezGizmoHandle>())
     {
-      ezEditorGizmoHandle* pGizmoHandle = static_cast<ezEditorGizmoHandle*>(pSyncObject);
+      ezGizmoHandle* pGizmoHandle = static_cast<ezGizmoHandle*>(pSyncObject);
 
       if (pSyncObject->GetDocumentGuid().IsValid())
       {
