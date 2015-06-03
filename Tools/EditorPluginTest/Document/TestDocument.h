@@ -1,7 +1,7 @@
 #pragma once
 
 #include <ToolsFoundation/Document/Document.h>
-#include <EditorFramework/Gizmos/GizmoHandle.h>
+#include <EditorFramework/Gizmos/TranslateGizmo.h>
 
 class ezTestDocument : public ezDocumentBase
 {
@@ -17,12 +17,10 @@ public:
 
   void SelectionManagerEventHandler(const ezSelectionManager::Event& e);
 
-  ezEditorGizmoHandle m_GizmoX;
-  ezEditorGizmoHandle m_GizmoY;
-  ezEditorGizmoHandle m_GizmoZ;
+  ezTranslateGizmo m_TranslateGizmo;
 
 protected:
-  virtual void Initialize() override;
+  virtual void InitializeAfterLoading() override;
 
 private:
   virtual ezDocumentInfo* CreateDocumentInfo() override { return EZ_DEFAULT_NEW(ezDocumentInfo); }

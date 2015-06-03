@@ -19,9 +19,9 @@ public:
   }
 
 protected:
-  virtual void Initialize() override
+  virtual void InitializeAfterLoading() override
   {
-    ezAssetDocument::Initialize();
+    ezAssetDocument::InitializeAfterLoading();
 
     EnsureSettingsObjectExist();
   }

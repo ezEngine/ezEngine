@@ -56,7 +56,7 @@ ezDocumentBase::~ezDocumentBase()
   EZ_DEFAULT_DELETE(m_pDocumentInfo);
 }
 
-void ezDocumentBase::Initialize()
+void ezDocumentBase::SetupDocumentInfo()
 {
   m_pDocumentInfo = CreateDocumentInfo();
 

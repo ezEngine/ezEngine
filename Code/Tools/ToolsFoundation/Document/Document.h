@@ -85,7 +85,8 @@ protected:
   virtual ezStatus InternalLoadDocument();
   virtual ezDocumentInfo* CreateDocumentInfo() = 0;
 
-  virtual void Initialize();
+  virtual void InitializeBeforeLoading() { }
+  virtual void InitializeAfterLoading() { }
 
   ezSelectionManager m_SelectionManager;
   mutable ezCommandHistory m_CommandHistory;
@@ -94,6 +95,8 @@ protected:
 private:
   friend class ezDocumentManagerBase;
   friend class ezCommandHistory;
+
+  void SetupDocumentInfo();
 
   ezDocumentObjectTree* m_pObjectTree;
   ezDocumentManagerBase* m_pDocumentManager;

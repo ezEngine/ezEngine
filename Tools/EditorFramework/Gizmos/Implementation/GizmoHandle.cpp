@@ -92,6 +92,19 @@ static ezMeshResourceHandle CreateMeshResource(const char* szMeshResourceName, e
   return ezResourceManager::CreateResource<ezMeshResource>(szMeshResourceName, md);
 }
 
+ezEditorGizmoHandle::ezEditorGizmoHandle()
+{
+  m_bVisible = false;
+  m_Transformation.SetIdentity();
+  m_Color = ezColor::CornflowerBlue; /* The Original! */
+}
+
+void ezEditorGizmoHandle::Configure(ezGizmoHandleType type, const ezColor& col)
+{
+  m_iHandleType = (int)type;
+  m_Color = col;
+}
+
 bool ezEditorGizmoHandle::SetupForEngine(ezWorld* pWorld, ezUInt32 uiNextComponentPickingID)
 {
   if (!m_hGameObject.IsInvalidated())
@@ -109,16 +122,14 @@ bool ezEditorGizmoHandle::SetupForEngine(ezWorld* pWorld, ezUInt32 uiNextCompone
   m_hGameObject = pWorld->CreateObject(god, pObject);
 
   ezMeshComponentManager* pMeshCompMan = pWorld->GetComponentManager<ezMeshComponentManager>();
+  pMeshCompMan->CreateComponent(m_pMeshComponent);
 
-  ezMeshComponent* pMeshComponent;
-  pMeshCompMan->CreateComponent(pMeshComponent);
+  m_pMeshComponent->m_MeshColor = m_Color;
+  m_pMeshComponent->SetMesh(hMesh);
+  m_pMeshComponent->SetRenderPass(ezDefaultPassTypes::Foreground);
+  m_pMeshComponent->m_uiEditorPickingID = uiNextComponentPickingID;
 
-  pMeshComponent->m_MeshColor = m_Color;
-  pMeshComponent->SetMesh(hMesh);
-  pMeshComponent->SetRenderPass(ezDefaultPassTypes::Foreground);
-  pMeshComponent->m_uiEditorPickingID = uiNextComponentPickingID;
-
-  pObject->AddComponent(pMeshComponent);
+  pObject->AddComponent(m_pMeshComponent);
 
   return true;
 }
@@ -138,4 +149,6 @@ void ezEditorGizmoHandle::UpdateForEngine(ezWorld* pWorld)
   pObject->SetLocalPosition(m_Transformation.GetTranslationVector());
   pObject->SetLocalRotation(qRot);
   pObject->SetLocalScaling(m_Transformation.GetScalingFactors());
+
+  m_pMeshComponent->SetActive(m_bVisible);
 }

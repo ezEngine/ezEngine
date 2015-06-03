@@ -6,14 +6,26 @@
 #include <Core/World/GameObject.h>
 
 class ezWorld;
+class ezMeshComponent;
+
+enum class ezGizmoHandleType
+{
+  Arrow,
+  Ring,
+  Rect,
+  Box,
+  Piston,
+};
 
 class EZ_EDITORFRAMEWORK_DLL ezEditorGizmoHandle : public ezEditorEngineSyncObject
 {
   EZ_ADD_DYNAMIC_REFLECTION(ezEditorGizmoHandle);
 
 public:
-  ezEditorGizmoHandle() { m_bVisible = false; m_Transformation.SetIdentity(); m_Color = ezColor::CornflowerBlue; /* The Original! */ }
+  ezEditorGizmoHandle();
   virtual ~ezEditorGizmoHandle() { }
+
+  void Configure(ezGizmoHandleType type, const ezColor& col);
 
   void SetVisible(bool bVisible) { m_bVisible = bVisible; SetModified(true); }
 
@@ -26,13 +38,14 @@ public:
   bool SetupForEngine(ezWorld* pWorld, ezUInt32 uiNextComponentPickingID);
   void UpdateForEngine(ezWorld* pWorld);
 
-  void SetColor(const ezColor& col) { m_Color = col; }
+  
 
 protected:
   bool m_bVisible;
   ezMat4 m_Transformation;
   ezInt32 m_iHandleType;
   ezGameObjectHandle m_hGameObject;
+  ezMeshComponent* m_pMeshComponent;
   ezColor m_Color;
 
 private:

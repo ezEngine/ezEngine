@@ -7,6 +7,11 @@ EZ_END_DYNAMIC_REFLECTED_TYPE();
 ezUInt16 ezComponent::TYPE_ID = ezComponent::GetNextTypeId();
 ezUInt16 ezComponent::s_uiNextTypeId;
 
+void ezComponent::SetActive(bool bActive)
+{
+  m_Flags.AddOrRemove(ezObjectFlags::Active, bActive);
+}
+
 void ezComponent::Activate()
 {
   m_Flags.Add(ezObjectFlags::Active);

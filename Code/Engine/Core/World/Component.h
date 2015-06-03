@@ -28,6 +28,9 @@ public:
   /// \brief Returns whether this component is dynamic and thus can only be attached to dynamic game objects.
   bool IsDynamic() const;
 
+  /// \brief Sets the active state of the component. Note that it is up to the manager if he differentiates between active and inactive components.
+  void SetActive(bool bActive);
+
   /// \brief Activates the component. Note that it is up to the manager if he differentiates between active and inactive components.
   void Activate();
 

@@ -42,6 +42,9 @@ ezResult ezMeshComponent::OnDetachedFromObject()
 
 void ezMeshComponent::OnExtractRenderData(ezExtractRenderDataMessage& msg) const
 {
+  if (!IsActive())
+    return;
+
   if (!m_hMesh.IsValid())
     return;
 

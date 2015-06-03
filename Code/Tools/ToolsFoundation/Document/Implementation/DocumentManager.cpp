@@ -188,13 +188,17 @@ ezStatus ezDocumentManagerBase::CreateOrOpenDocument(bool bCreate, const char* s
 
       if (status.m_Result.Succeeded())
       {
-        out_pDocument->Initialize();
+        out_pDocument->SetupDocumentInfo();
 
         out_pDocument->m_pDocumentManager = this;
         m_AllDocuments.PushBack(out_pDocument);
 
+        out_pDocument->InitializeBeforeLoading();
+
         if (!bCreate)
           status = out_pDocument->LoadDocument();
+
+        out_pDocument->InitializeAfterLoading();
 
         Event e;
         e.m_pDocument = out_pDocument;
