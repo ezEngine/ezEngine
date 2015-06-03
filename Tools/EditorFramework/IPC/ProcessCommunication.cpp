@@ -138,6 +138,9 @@ void ezProcessCommunication::CloseConnection()
 
 bool ezProcessCommunication::IsHostAlive() const
 {
+  if (m_iHostPID == 0)
+    return false;
+
   bool bValid = true;
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
@@ -149,8 +152,6 @@ bool ezProcessCommunication::IsHostAlive() const
     bValid = false;
 
   CloseHandle(hProcess); 
-
-  
 #endif
 
   return bValid;

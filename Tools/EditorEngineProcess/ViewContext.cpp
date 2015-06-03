@@ -190,8 +190,10 @@ void ezViewContext::Redraw()
   ezRenderLoop::AddMainView(m_pView);
 
   // download the picking information from the GPU
-  //if (false)
   {
+    ezGALDevice::GetDefaultDevice()->GetPrimaryContext()->ReadbackTexture(m_hPickingIdRT);
+    ezGALDevice::GetDefaultDevice()->GetPrimaryContext()->ReadbackTexture(m_hPickingDepthRT);
+
     ezMat4 mProj, mView;
 
     m_Camera.GetProjectionMatrix(GetEditorWindow().m_uiWidth / GetEditorWindow().m_uiHeight, mProj);
@@ -209,13 +211,9 @@ void ezViewContext::Redraw()
     MemDesc.m_uiRowPitch = 4 * GetEditorWindow().m_uiWidth;
     MemDesc.m_uiSlicePitch = 4 * GetEditorWindow().m_uiWidth * GetEditorWindow().m_uiHeight;
 
-    ezGALDevice::GetDefaultDevice()->GetPrimaryContext()->ReadbackTexture(m_hPickingIdRT);
-
     MemDesc.m_pData = m_PickingResultsID.GetData();
     ezArrayPtr<ezGALSystemMemoryDescription> SysMemDescs(&MemDesc, 1);
     ezGALDevice::GetDefaultDevice()->GetPrimaryContext()->CopyTextureReadbackResult(m_hPickingIdRT, &SysMemDescs);
-
-    ezGALDevice::GetDefaultDevice()->GetPrimaryContext()->ReadbackTexture(m_hPickingDepthRT);
 
     MemDesc.m_pData = m_PickingResultsDepth.GetData();
     ezArrayPtr<ezGALSystemMemoryDescription> SysMemDescsDepth(&MemDesc, 1);

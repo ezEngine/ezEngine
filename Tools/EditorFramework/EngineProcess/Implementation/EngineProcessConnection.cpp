@@ -18,6 +18,7 @@ ezEditorEngineProcessConnection::ezEditorEngineProcessConnection()
   m_uiNextEngineViewID = 0;
   m_bProcessShouldBeRunning = false;
   m_bProcessCrashed = false;
+  m_bClientIsConfigured = false;
 
   m_IPC.m_Events.AddEventHandler(ezMakeDelegate(&ezEditorEngineProcessConnection::HandleIPCEvent, this));
 }
@@ -97,6 +98,7 @@ void ezEditorEngineProcessConnection::Initialize()
 
   m_bProcessShouldBeRunning = true;
   m_bProcessCrashed = false;
+  m_bClientIsConfigured = false;
 
   if (m_IPC.StartClientProcess("EditorEngineProcess.exe", m_bProcessShouldWaitForDebugger ? "-debug" : "").Failed())
   {
@@ -115,6 +117,7 @@ void ezEditorEngineProcessConnection::ShutdownProcess()
   if (!m_bProcessShouldBeRunning)
     return;
 
+  m_bClientIsConfigured = false;
   m_bProcessShouldBeRunning = false;
   m_IPC.CloseConnection();
 
@@ -153,6 +156,8 @@ void ezEditorEngineProcessConnection::RestartProcess()
   {
     SendDocumentOpenMessage(it.Value()->GetEditorEngineConnection()->m_iEngineViewID, it.Value()->GetDocument()->GetGuid(), true);
   }
+
+  m_bClientIsConfigured = true;
 }
 
 void ezEditorEngineProcessConnection::Update()

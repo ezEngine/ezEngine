@@ -4,8 +4,6 @@
 #include <QPushButton>
 #include <qlayout.h>
 
-//ezEvent<const ezDocumentWindow::Event&> ezDocumentWindow::s_Events;
-
 ezDocumentWindow3D::ezDocumentWindow3D(ezDocumentBase* pDocument) : ezDocumentWindow(pDocument)
 {
   m_pRestartButtonLayout = nullptr;
@@ -32,13 +30,24 @@ void ezDocumentWindow3D::SendMessageToEngine(ezEditorEngineDocumentMsg* pMessage
 
 const ezObjectPickingResult& ezDocumentWindow3D::PickObject(ezUInt16 uiScreenPosX, ezUInt16 uiScreenPosY) const
 {
-  ezViewPickingMsgToEngine msg;
-  msg.m_uiPickPosX = uiScreenPosX;
-  msg.m_uiPickPosY = uiScreenPosY;
+  m_LastPickingResult.m_PickedComponent = ezUuid();
+  m_LastPickingResult.m_PickedObject = ezUuid();
+  m_LastPickingResult.m_PickedOther = ezUuid();
+  m_LastPickingResult.m_uiPartIndex = 0;
+  m_LastPickingResult.m_vPickedPosition.SetZero();
+  m_LastPickingResult.m_vPickingRayStart.SetZero();
 
-  SendMessageToEngine(&msg);
+  // do not send picking messages while the engine process isn't fully configured yet
+  if (ezEditorEngineProcessConnection::GetInstance()->IsEngineSetup())
+  {
+    ezViewPickingMsgToEngine msg;
+    msg.m_uiPickPosX = uiScreenPosX;
+    msg.m_uiPickPosY = uiScreenPosY;
 
-  ezEditorEngineProcessConnection::GetInstance()->WaitForMessage(ezGetStaticRTTI<ezViewPickingResultMsgToEditor>());
+    SendMessageToEngine(&msg);
+
+    ezEditorEngineProcessConnection::GetInstance()->WaitForMessage(ezGetStaticRTTI<ezViewPickingResultMsgToEditor>());
+  }
 
   return m_LastPickingResult;
 }

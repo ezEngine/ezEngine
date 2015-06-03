@@ -36,6 +36,8 @@ public:
   void SetWaitForDebugger(bool bWait) { m_bProcessShouldWaitForDebugger = bWait; }
   bool GetWaitForDebugger() const { return m_bProcessShouldWaitForDebugger; }
 
+  bool IsEngineSetup() const { return m_bClientIsConfigured; }
+
   struct Event
   {
     enum class Type
@@ -68,6 +70,7 @@ private:
   bool m_bProcessShouldWaitForDebugger;
   bool m_bProcessShouldBeRunning;
   bool m_bProcessCrashed;
+  bool m_bClientIsConfigured;
   ezUInt32 m_uiNextEngineViewID;
   ezInt32 m_iNumViews;
   ezProcessCommunication m_IPC;

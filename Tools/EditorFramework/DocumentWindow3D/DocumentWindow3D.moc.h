@@ -56,7 +56,7 @@ private:
   /// \todo Broken delegates
   ezDelegate<void(const ezEditorEngineProcessConnection::Event&)> m_DelegateEngineViewProcessEvents;
 
-  ezObjectPickingResult m_LastPickingResult;
+  mutable ezObjectPickingResult m_LastPickingResult;
 };
 
 
