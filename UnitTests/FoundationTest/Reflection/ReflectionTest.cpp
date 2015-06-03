@@ -93,17 +93,18 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Types)
       ezRTTI* pType = ezRTTI::FindTypeByName("ezTestClass2");
 
       auto Props = pType->GetProperties();
-      EZ_TEST_INT(Props.GetCount(), 5);
+      EZ_TEST_INT(Props.GetCount(), 6);
       EZ_TEST_STRING(Props[0]->GetPropertyName(), "Text");
       EZ_TEST_STRING(Props[1]->GetPropertyName(), "Time");
       EZ_TEST_STRING(Props[2]->GetPropertyName(), "Enum");
       EZ_TEST_STRING(Props[3]->GetPropertyName(), "Bitflags");
       EZ_TEST_STRING(Props[4]->GetPropertyName(), "Array");
+      EZ_TEST_STRING(Props[5]->GetPropertyName(), "Variant");
 
       ezHybridArray<ezAbstractProperty*, 32> AllProps;
       pType->GetAllProperties(AllProps);
 
-      EZ_TEST_INT(AllProps.GetCount(), 8);
+      EZ_TEST_INT(AllProps.GetCount(), 9);
       EZ_TEST_STRING(AllProps[0]->GetPropertyName(), "Sub Struct");
       EZ_TEST_STRING(AllProps[1]->GetPropertyName(), "Color");
       EZ_TEST_STRING(AllProps[2]->GetPropertyName(), "Sub Vector");
@@ -112,6 +113,7 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Types)
       EZ_TEST_STRING(AllProps[5]->GetPropertyName(), "Enum");
       EZ_TEST_STRING(AllProps[6]->GetPropertyName(), "Bitflags");
       EZ_TEST_STRING(AllProps[7]->GetPropertyName(), "Array");
+      EZ_TEST_STRING(AllProps[8]->GetPropertyName(), "Variant");
     }
   }
 
@@ -371,6 +373,7 @@ EZ_CREATE_SIMPLE_TEST(Reflection, ReflectionUtils)
     c2.m_bitflagsClass = ezExampleBitflags::Enum(ezExampleBitflags::Value1 | ezExampleBitflags::Value2 | ezExampleBitflags::Value3);
     c2.m_array.PushBack(5.0f);
     c2.m_array.PushBack(10.0f);
+    c2.m_Variant = ezVec3(1.0f, 2.0f, 3.0f);
 
     ezReflectionSerializer::WriteObjectToJSON(FileOut, c2.GetDynamicRTTI(), &c2, ezJSONWriter::WhitespaceMode::All);
   }
@@ -402,6 +405,7 @@ EZ_CREATE_SIMPLE_TEST(Reflection, ReflectionUtils)
       EZ_TEST_FLOAT(c2.m_array[0], 5.0f, 0.0f);
       EZ_TEST_FLOAT(c2.m_array[1], 10.0f, 0.0f);
     }
+    EZ_TEST_VEC3(c2.m_Variant.Get<ezVec3>(), ezVec3(1.0f, 2.0f, 3.0f), 0.0f);
   }
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "ReadObjectPropertiesFromJSON (different type)")
@@ -454,6 +458,7 @@ EZ_CREATE_SIMPLE_TEST(Reflection, ReflectionUtils)
       EZ_TEST_FLOAT(c2.m_array[0], 5.0f, 0.0f);
       EZ_TEST_FLOAT(c2.m_array[1], 10.0f, 0.0f);
     }
+    EZ_TEST_VEC3(c2.m_Variant.Get<ezVec3>(), ezVec3(1.0f, 2.0f, 3.0f), 0.0f);
 
     if (pObject)
     {

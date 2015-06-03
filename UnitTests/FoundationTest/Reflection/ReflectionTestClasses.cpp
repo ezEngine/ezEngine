@@ -57,6 +57,7 @@ EZ_BEGIN_PROPERTIES
   EZ_ENUM_MEMBER_PROPERTY("Enum", ezExampleEnum, m_enumClass),
   EZ_BITFLAGS_MEMBER_PROPERTY("Bitflags", ezExampleBitflags, m_bitflagsClass),
   EZ_ARRAY_MEMBER_PROPERTY("Array", m_array),
+  EZ_MEMBER_PROPERTY("Variant", m_Variant),
   EZ_END_PROPERTIES
   EZ_END_DYNAMIC_REFLECTED_TYPE();
 

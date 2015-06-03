@@ -4,108 +4,114 @@
 #include <Foundation/IO/ExtendedJSONWriter.h>
 #include <Foundation/IO/ExtendedJSONReader.h>
 
-
-
-static void WriteJSONObject(ezJSONWriter& writer, const ezRTTI* pRtti, const void* pObject, const char* szObjectName);
-
-void ezReflectionSerializer::WritePropertyToJSON(ezJSONWriter& writer, const ezAbstractProperty* pProp, const ezRTTI* pRtti, const void* pObject)
+ezReflectionSerializer::ezReflectionSerializer(ezReflectionAdapter* pAdapter) : m_pAdapter(pAdapter)
 {
-  switch (pProp->GetCategory())
+  m_pContext = pAdapter->GetContext();
+}
+
+
+
+
+void ezReflectionSerializer::WritePropertyToJSON(ezJSONWriter& writer, const ezReflectedPropertyWrapper& prop, const ezReflectedObjectWrapper& object)
+{
+  switch (prop.m_Category)
   {
   case ezPropertyCategory::Member:
     {
-      const ezAbstractMemberProperty* prop = static_cast<const ezAbstractMemberProperty*>(pProp);
-      const ezRTTI* pPropRtti = prop->GetPropertyType();
+      //const ezAbstractMemberProperty* prop = static_cast<const ezAbstractMemberProperty*>(pProp);
+      //const ezRTTI* pPropRtti = prop->GetPropertyType();
 
-      if (prop->GetFlags().IsSet(ezPropertyFlags::ReadOnly))
+      if (prop.m_Flags.IsSet(ezPropertyFlags::ReadOnly))
         return;
 
-      if (pPropRtti->GetTypeFlags().IsAnySet(ezTypeFlags::IsEnum | ezTypeFlags::Bitflags))
+      ezReflectedTypeWrapper propType = m_pAdapter->GetTypeInfo(prop.m_pType);
+
+      if (propType.m_Flags.IsAnySet(ezTypeFlags::IsEnum | ezTypeFlags::Bitflags))
       {
-        const ezAbstractEnumerationProperty* pEnumProp = static_cast<const ezAbstractEnumerationProperty*>(prop);
         writer.BeginObject();
-        writer.AddVariableString("t", pPropRtti->GetTypeFlags().IsSet(ezTypeFlags::IsEnum) ? "ezEnum" : "ezBitflags");
-        writer.AddVariableString("n", prop->GetPropertyName());
-        writer.AddVariableInt64("v", pEnumProp->GetValue(pObject));
+        writer.AddVariableString("t", propType.m_Flags.IsSet(ezTypeFlags::IsEnum) ? "ezEnum" : "ezBitflags");
+        writer.AddVariableString("n", prop.m_szName);
+        writer.AddVariableInt64("v", m_pAdapter->GetPropertyValue(object, prop, ezVariant()).ConvertTo<ezInt64>());
         writer.EndObject();
       }
-      else if (ezReflectionUtils::IsBasicType(pPropRtti) || pPropRtti == ezGetStaticRTTI<ezVariant>())
+      else if (m_pAdapter->IsStandardType(prop.m_pType))
       {
-        ezVariant value = ezReflectionUtils::GetMemberPropertyValue(prop, pObject);
+        ezVariant value = m_pAdapter->GetPropertyValue(object, prop, ezVariant());
         writer.BeginObject();
-        writer.AddVariableString("t", prop->GetPropertyType()->GetTypeName());
-        writer.AddVariableString("n", prop->GetPropertyName());
+        writer.AddVariableString("t", propType.m_szName);
+        writer.AddVariableString("n", prop.m_szName);
         writer.AddVariableVariant("v", value);
         writer.EndObject();
       }
-      else if (pPropRtti->GetProperties().GetCount() > 0)
+      else if (m_pAdapter->GetPropertyCount(prop.m_pType) > 0)
       {
         // Do we have direct access to the property?
-        if (prop->GetPropertyPointer(pObject) != nullptr)
+        if (m_pAdapter->CanGetDirectPropertyPointer(object, prop, ezVariant()))
         {
           writer.BeginObject();
           writer.AddVariableString("t", "$s"); // struct property
-          writer.AddVariableString("n", prop->GetPropertyName());
+          writer.AddVariableString("n", prop.m_szName);
 
-          WriteJSONObject(writer, pPropRtti, prop->GetPropertyPointer(pObject), "v");
+          const ezReflectedObjectWrapper propObject = m_pAdapter->GetDirectPropertyPointer(object, prop, ezVariant());
+          WriteJSONObject(writer, propObject, "v");
 
           writer.EndObject();
         }
         // If the property is behind an accessor, we need to retrieve it first.
-        else if (pPropRtti->GetAllocator()->CanAllocate())
+        else if (m_pAdapter->CanCreateObject(prop.m_pType))
         {
-          void* pTempObject = pPropRtti->GetAllocator()->Allocate();
-          prop->GetValuePtr(pObject, pTempObject);
+          ezReflectedObjectWrapper propObject = m_pAdapter->CreateObject(prop.m_pType);
+          m_pAdapter->GetPropertyObject(object, prop, ezVariant(), propObject);
 
           writer.BeginObject();
           writer.AddVariableString("t", "$s"); // struct property
-          writer.AddVariableString("n", prop->GetPropertyName());
+          writer.AddVariableString("n", prop.m_szName);
 
-          WriteJSONObject(writer, pPropRtti, pTempObject, "v");
+          WriteJSONObject(writer, propObject, "v");
 
           writer.EndObject();
-          pPropRtti->GetAllocator()->Deallocate(pTempObject);
+          m_pAdapter->DeleteObject(propObject);
         }
       }
     }
     break;
   case ezPropertyCategory::Array:
     {
-      const ezAbstractArrayProperty* prop = static_cast<const ezAbstractArrayProperty*>(pProp);
-      const ezRTTI* pElemRtti = prop->GetElementType();
-
-      if (prop->GetFlags().IsSet(ezPropertyFlags::ReadOnly))
+      if (prop.m_Flags.IsSet(ezPropertyFlags::ReadOnly))
         return;
+
+      ezReflectedTypeWrapper propType = m_pAdapter->GetTypeInfo(prop.m_pType);
 
       writer.BeginObject();
       writer.AddVariableString("t", "$array");
-      writer.AddVariableString("n", prop->GetPropertyName());
+      writer.AddVariableString("n", prop.m_szName);
       writer.BeginArray("v");
 
-      ezUInt32 uiCount = prop->GetCount(pObject);
-      if (ezReflectionUtils::IsBasicType(pElemRtti) || pElemRtti == ezGetStaticRTTI<ezVariant>())
+      ezUInt32 uiCount = m_pAdapter->GetArrayElementCount(object, prop);
+      if (m_pAdapter->IsStandardType(prop.m_pType))
       {
         for (ezUInt32 i = 0; i < uiCount; ++i)
         {
           writer.BeginObject();
-          writer.AddVariableString("t", pElemRtti->GetTypeName());
-          ezVariant value = ezReflectionUtils::GetArrayPropertyValue(prop, pObject, i);
+          writer.AddVariableString("t", propType.m_szName);
+          ezVariant value = m_pAdapter->GetPropertyValue(object, prop, i);
           writer.AddVariableVariant("v", value);
           writer.EndObject();
         }
       }
-      else if (pElemRtti->GetAllocator()->CanAllocate())
+      else if (m_pAdapter->CanCreateObject(prop.m_pType))
       {
-        void* pTempObject = pElemRtti->GetAllocator()->Allocate();
+        ezReflectedObjectWrapper propObject = m_pAdapter->CreateObject(prop.m_pType);
+        
         for (ezUInt32 i = 0; i < uiCount; ++i)
         {
-          prop->GetValue(pObject, i, pTempObject);
+          m_pAdapter->GetPropertyObject(object, prop, i, propObject);
           writer.BeginObject();
           writer.AddVariableString("t", "$s"); // struct property
-          WriteJSONObject(writer, pElemRtti, pTempObject, "v");
+          WriteJSONObject(writer, propObject, "v");
           writer.EndObject();
         }
-        pElemRtti->GetAllocator()->Deallocate(pTempObject);
+        m_pAdapter->DeleteObject(propObject);
       }
 
       writer.EndArray();
@@ -114,25 +120,25 @@ void ezReflectionSerializer::WritePropertyToJSON(ezJSONWriter& writer, const ezA
     break;
   case ezPropertyCategory::Set:
     {
-      const ezAbstractSetProperty* prop = static_cast<const ezAbstractSetProperty*>(pProp);
-      const ezRTTI* pElemRtti = prop->GetElementType();
-
-      if (prop->GetFlags().IsSet(ezPropertyFlags::ReadOnly))
+      if (prop.m_Flags.IsSet(ezPropertyFlags::ReadOnly))
         return;
+
+      ezReflectedTypeWrapper propType = m_pAdapter->GetTypeInfo(prop.m_pType);
 
       writer.BeginObject();
       writer.AddVariableString("t", "$set");
-      writer.AddVariableString("n", prop->GetPropertyName());
+      writer.AddVariableString("n", prop.m_szName);
       writer.BeginArray("v");
 
-      if (ezReflectionUtils::IsBasicType(pElemRtti) || pElemRtti == ezGetStaticRTTI<ezVariant>())
+      if (m_pAdapter->IsStandardType(prop.m_pType))
       {
         ezHybridArray<ezVariant, 16> keys;
-        prop->GetValues(pObject, keys);
+        m_pAdapter->GetSetContent(object, prop, keys);
+
         for (ezUInt32 i = 0; i < keys.GetCount(); ++i)
         {
           writer.BeginObject();
-          writer.AddVariableString("t", pElemRtti->GetTypeName());
+          writer.AddVariableString("t", propType.m_szName);
           writer.AddVariableVariant("v", keys[i]);
           writer.EndObject();
         }
@@ -152,7 +158,6 @@ void ezReflectionSerializer::WritePropertyToJSON(ezJSONWriter& writer, const ezA
   }
 }
 
-static void ReadJSONObject(const ezVariantDictionary& root, const ezRTTI* pRtti, void* pObject);
 
 void ezReflectionSerializer::ReadPropertyFromJSON(const ezVariantDictionary& prop, const ezRTTI* pRtti, void* pObject)
 {
@@ -296,33 +301,37 @@ void ezReflectionSerializer::ReadPropertyFromJSON(const ezVariantDictionary& pro
 }
 
 
-static void WriteProperties(ezJSONWriter& writer, const ezRTTI* pRtti, const void* pObject)
+void ezReflectionSerializer::WriteProperties(ezJSONWriter& writer, const ezReflectedObjectWrapper& object)
 {
-  if (pRtti->GetParentType() != nullptr)
+  if (m_pAdapter->GetParentType(object.m_pType) != nullptr)
   {
-    WriteProperties(writer, pRtti->GetParentType(), pObject);
+    ezReflectedObjectWrapper parentObject(m_pAdapter->GetParentType(object.m_pType), object.m_pObject);
+    WriteProperties(writer, parentObject);
   }
 
-  const auto& props = pRtti->GetProperties();
+  const ezUInt32 uiPropertyCount = m_pAdapter->GetPropertyCount(object.m_pType);
 
-  for (ezUInt32 p = 0; p < props.GetCount(); ++p)
+  for (ezUInt32 p = 0; p < uiPropertyCount; ++p)
   {
-    ezReflectionSerializer::WritePropertyToJSON(writer, props[p], pRtti, pObject);
+    void* pProp = m_pAdapter->GetProperty(object.m_pType, p);
+    const ezReflectedPropertyWrapper prop = m_pAdapter->GetPropertyInfo(pProp);
+    ezReflectionSerializer::WritePropertyToJSON(writer, prop, object);
   }
 }
 
 
-static void WriteJSONObject(ezJSONWriter& writer, const ezRTTI* pRtti, const void* pObject, const char* szObjectName)
+void ezReflectionSerializer::WriteJSONObject(ezJSONWriter& writer, const ezReflectedObjectWrapper& object, const char* szObjectName)
 {
+  ezReflectedTypeWrapper type = m_pAdapter->GetTypeInfo(object.m_pType);
   writer.BeginObject(szObjectName);
 
-  if (pRtti != nullptr && pObject != nullptr)
+  if (object.m_pType != nullptr && object.m_pObject != nullptr)
   {
-    writer.AddVariableString("t", pRtti->GetTypeName());
+    writer.AddVariableString("t", type.m_szName);
 
     writer.BeginArray("p");
 
-    WriteProperties(writer, pRtti, pObject);
+    WriteProperties(writer, object);
 
     writer.EndArray();
   }
@@ -334,16 +343,8 @@ static void WriteJSONObject(ezJSONWriter& writer, const ezRTTI* pRtti, const voi
   writer.EndObject();
 }
 
-void ezReflectionSerializer::WriteObjectToJSON(ezStreamWriterBase& stream, const ezRTTI* pRtti, const void* pObject, ezJSONWriter::WhitespaceMode::Enum WhitespaceMode)
-{
-  ezExtendedJSONWriter writer;
-  writer.SetOutputStream(&stream);
-  writer.SetWhitespaceMode(WhitespaceMode);
 
-  WriteJSONObject(writer, pRtti, pObject, nullptr);
-}
-
-static void ReadJSONObject(const ezVariantDictionary& root, const ezRTTI* pRtti, void* pObject)
+void ezReflectionSerializer::ReadJSONObject(const ezVariantDictionary& root, const ezRTTI* pRtti, void* pObject)
 {
   ezVariant* pVal;
 
@@ -362,15 +363,23 @@ static void ReadJSONObject(const ezVariantDictionary& root, const ezRTTI* pRtti,
   }
 }
 
-void ezReflectionSerializer::ReadObjectPropertiesFromJSON(ezStreamReaderBase& stream, const ezRTTI& rtti, void* pObject)
+
+
+
+////////////////////////////////////////////////////////////////////////
+// ezReflectionSerializer public static functions
+////////////////////////////////////////////////////////////////////////
+
+void ezReflectionSerializer::WriteObjectToJSON(ezStreamWriterBase& stream, const ezRTTI* pRtti, const void* pObject, ezJSONWriter::WhitespaceMode::Enum WhitespaceMode)
 {
-  ezExtendedJSONReader reader;
-  if (reader.Parse(stream).Failed())
-    return;
+  ezExtendedJSONWriter writer;
+  writer.SetOutputStream(&stream);
+  writer.SetWhitespaceMode(WhitespaceMode);
 
-  const ezVariantDictionary& root = reader.GetTopLevelObject();
-
-  ReadJSONObject(root, &rtti, pObject);
+  ezRttiSerializationContext context;
+  ezRttiAdapter adapter(&context);
+  ezReflectionSerializer serializer(&adapter);
+  serializer.WriteJSONObject(writer, ezReflectedObjectWrapper(pRtti, const_cast<void*>(pObject)), nullptr);
 }
 
 void* ezReflectionSerializer::ReadObjectFromJSON(ezStreamReaderBase& stream, const ezRTTI*& pRtti, TypeAllocator Allocator)
@@ -412,7 +421,24 @@ void* ezReflectionSerializer::ReadObjectFromJSON(ezStreamReaderBase& stream, con
     pObject = pRtti->GetAllocator()->Allocate();
   }
 
-  ReadJSONObject(root, pRtti, pObject);
+  ezRttiSerializationContext context;
+  ezRttiAdapter adapter(&context);
+  ezReflectionSerializer serializer(&adapter);
+  serializer.ReadJSONObject(root, pRtti, pObject);
 
   return pObject;
+}
+
+void ezReflectionSerializer::ReadObjectPropertiesFromJSON(ezStreamReaderBase& stream, const ezRTTI& rtti, void* pObject)
+{
+  ezExtendedJSONReader reader;
+  if (reader.Parse(stream).Failed())
+    return;
+
+  const ezVariantDictionary& root = reader.GetTopLevelObject();
+
+  ezRttiSerializationContext context;
+  ezRttiAdapter adapter(&context);
+  ezReflectionSerializer serializer(&adapter);
+  serializer.ReadJSONObject(root, &rtti, pObject);
 }

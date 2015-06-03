@@ -20,7 +20,7 @@ public:
   static ezVariant GetArrayPropertyValue(const ezAbstractArrayProperty* pProp, const void* pObject, ezUInt32 uiIndex);
   static void SetArrayPropertyValue(ezAbstractArrayProperty* pProp, void* pObject, ezUInt32 uiIndex, const ezVariant& value);
 
-  static void InsertSetPropertyValue(ezAbstractSetProperty* pProp, void* pObject, ezVariant& value);
+  static void InsertSetPropertyValue(ezAbstractSetProperty* pProp, void* pObject, const ezVariant& value);
   static void RemoveSetPropertyValue(ezAbstractSetProperty* pProp, void* pObject, ezVariant& value);
 
   static ezAbstractMemberProperty* GetMemberProperty(const ezRTTI* pRtti, ezUInt32 uiPropertyIndex);

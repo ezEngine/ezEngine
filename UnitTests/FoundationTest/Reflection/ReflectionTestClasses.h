@@ -159,6 +159,7 @@ public:
   ezEnum<ezExampleEnum> m_enumClass;
   ezBitflags<ezExampleBitflags> m_bitflagsClass;
   ezHybridArray<float, 4> m_array;
+  ezVariant m_Variant;
 
 private:
   ezString m_Text;

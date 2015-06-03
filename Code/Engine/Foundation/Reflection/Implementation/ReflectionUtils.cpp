@@ -264,7 +264,7 @@ void ezReflectionUtils::SetArrayPropertyValue(ezAbstractArrayProperty* pProp, vo
   }
 }
 
-void ezReflectionUtils::InsertSetPropertyValue(ezAbstractSetProperty* pProp, void* pObject, ezVariant& value)
+void ezReflectionUtils::InsertSetPropertyValue(ezAbstractSetProperty* pProp, void* pObject, const ezVariant& value)
 {
   if (pProp == nullptr || pProp->GetFlags().IsSet(ezPropertyFlags::ReadOnly))
   {
