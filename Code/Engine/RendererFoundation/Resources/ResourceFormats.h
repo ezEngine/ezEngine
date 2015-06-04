@@ -99,10 +99,8 @@ struct ezGALResourceFormat
 
   // General format Meta-Informations:
 
-  /// \brief The size in bytes of a single element of the given resource format.
-  ///
-  /// Note that for compressed formats an "element" can contain more than one pixel.
-  EZ_RENDERERFOUNDATION_DLL static ezUInt8 GetSize(ezGALResourceFormat::Enum format)          { return Size[format]; }
+  /// \brief The size in bits per element (usually pixels, except for mesh stream elements) of a single element of the given resource format.
+  EZ_RENDERERFOUNDATION_DLL static ezUInt32 GetBitsPerElement(ezGALResourceFormat::Enum format)          { return BitsPerElement[format]; }
 
   /// \brief The number of color channels this format contains.
   EZ_RENDERERFOUNDATION_DLL static ezUInt8 GetChannelCount(ezGALResourceFormat::Enum format)  { return ChannelCount[format]; }
@@ -112,7 +110,7 @@ struct ezGALResourceFormat
 
 private:
   
-  static const ezUInt8 Size[ezGALResourceFormat::ENUM_COUNT];
+  static const ezUInt8 BitsPerElement[ezGALResourceFormat::ENUM_COUNT];
 
   static const ezUInt8 ChannelCount[ezGALResourceFormat::ENUM_COUNT];
 };

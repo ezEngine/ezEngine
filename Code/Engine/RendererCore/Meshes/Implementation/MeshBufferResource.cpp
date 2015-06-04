@@ -49,7 +49,7 @@ ezUInt32 ezMeshBufferResourceDescriptor::AddStream(ezGALVertexAttributeSemantic:
   si.m_Semantic = Semantic;
   si.m_Format = Format;
   si.m_uiOffset = 0;
-  si.m_uiElementSize = ezGALResourceFormat::GetSize(Format);
+  si.m_uiElementSize = ezGALResourceFormat::GetBitsPerElement(Format) / 8;
   m_uiVertexSize += si.m_uiElementSize;
 
   EZ_ASSERT_DEV(si.m_uiElementSize > 0, "Invalid Element Size. Format not supported?");

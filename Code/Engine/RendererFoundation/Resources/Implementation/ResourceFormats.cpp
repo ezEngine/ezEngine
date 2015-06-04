@@ -1,90 +1,90 @@
 #include <RendererFoundation/PCH.h>
 #include <RendererFoundation/Resources/ResourceFormats.h>
 
-const ezUInt8 ezGALResourceFormat::Size[ezGALResourceFormat::ENUM_COUNT] =
+const ezUInt8 ezGALResourceFormat::BitsPerElement[ezGALResourceFormat::ENUM_COUNT] =
 {
-  16, // RGBAFloat, XYZWFloat
-  16, // RGBAUInt
-  16, // RGBAInt
+  128, // RGBAFloat, XYZWFloat
+  128, // RGBAUInt
+  128, // RGBAInt
 
-  12, // RGBFloat, XYZFloat, UVWFloat
-  12, // RGBUInt
-  12, // RGBInt
+  128, // RGBFloat, XYZFloat, UVWFloat
+  128, // RGBUInt
+  128, // RGBInt
 
-  2, // B5G6R5UNormalized
+  16, // B5G6R5UNormalized
 
-  4, // BGRAUByteNormalized
-  4, // BGRAUByteNormalizedsRGB
+  32, // BGRAUByteNormalized
+  32, // BGRAUByteNormalizedsRGB
 
-  8, // RGBAHalf, XYZWHalf
-  8, // RGBAUShort
-  8, // RGBAUShortNormalized
-  8, // RGBAShort
-  8, // RGBAShortNormalized
+  64, // RGBAHalf, XYZWHalf
+  64, // RGBAUShort
+  64, // RGBAUShortNormalized
+  64, // RGBAShort
+  64, // RGBAShortNormalized
 
-  8, // RGFloat, XYFloat, UVFloat
-  8, // RGUInt
-  8, // RGInt
+  64, // RGFloat, XYFloat, UVFloat
+  64, // RGUInt
+  64, // RGInt
 
-  4, // RGB10A2UInt
-  4, // RGB10A2UIntNormalized
-  4, // RG11B10Float
+  32, // RGB10A2UInt
+  32, // RGB10A2UIntNormalized
+  32, // RG11B10Float
 
-  4, // RGBAUByteNormalized
-  4, // RGBAUByteNormalizedsRGB
-  4, // RGBAUByte
-  4, // RGBAByteNormalized
-  4, // RGBAByte
+  32, // RGBAUByteNormalized
+  32, // RGBAUByteNormalizedsRGB
+  32, // RGBAUByte
+  32, // RGBAByteNormalized
+  32, // RGBAByte
 
-  4, // RGHalf, XYHalf, UVHalf
-  4, // RGUShort
-  4, // RGUShortNormalized
-  4, // RGShort
-  4, // RGShortNormalized
+  32, // RGHalf, XYHalf, UVHalf
+  32, // RGUShort
+  32, // RGUShortNormalized
+  32, // RGShort
+  32, // RGShortNormalized
 
-  2, // RGUByte
-  2, // RGUByteNormalized
-  2, // RGByte
-  2, // RGByteNormalized
+  16, // RGUByte
+  16, // RGUByteNormalized
+  16, // RGByte
+  16, // RGByteNormalized
 
-  4, // DFloat
-  4, // RFloat
-  4, // RUInt
-  4, // RInt
+  32, // DFloat
+  32, // RFloat
+  32, // RUInt
+  32, // RInt
 
-  2, // RHalf
-  2, // RUShort
-  2, // RUShortNormalized
-  2, // RShort
-  2, // RShortNormalized
+  16, // RHalf
+  16, // RUShort
+  16, // RUShortNormalized
+  16, // RShort
+  16, // RShortNormalized
 
-  1, // RUByte
-  1, // RUByteNormalized
-  1, // RByte
-  1, // RByteNormalized
-  1, // AUByteNormalized
+  8, // RUByte
+  8, // RUByteNormalized
+  8, // RByte
+  8, // RByteNormalized
+  8, // AUByteNormalized
 
-  4, // D24S8
+  32, // D24S8
 
   // For compressed formats see: http://msdn.microsoft.com/en-us/library/windows/desktop/hh308955%28v=vs.85%29.aspx
 
-  8, // BC1
-  8, // BC1sRGB
+  4, // BC1
+  4, // BC1sRGB
 
-  16, // BC2
-  16, // BC2sRGB
-  16, // BC3
-  16, // BC3sRGB
+  8, // BC2
+  8, // BC2sRGB
+  8, // BC3
+  8, // BC3sRGB
 
-  8, // BC4UNormalized
-  8, // BC4Normalized
+  4, // BC4UNormalized
+  4, // BC4Normalized
 
-  16, // BC5UNormalized
-  16, // BC5Normalized
-  16, // BC6UFloat
-  16, // BC6Float
-  16, // BC7UNormalized
-  16  // BC7UNormalizedsRGB
+  8, // BC5UNormalized
+  8, // BC5Normalized
+  8, // BC6UFloat
+  8, // BC6Float
+  8, // BC7UNormalized
+  8  // BC7UNormalizedsRGB
 };
 
 const ezUInt8 ezGALResourceFormat::ChannelCount[ezGALResourceFormat::ENUM_COUNT] =

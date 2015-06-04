@@ -18,6 +18,7 @@
 #include <RendererCore/Pipeline/View.h>
 #include <RendererCore/RenderContext/RenderContext.h>
 #include <RendererCore/RenderLoop/RenderLoop.h>
+#include <RendererCore/GPUResourcePool/GPUResourcePool.h>
 
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
   #include <RendererDX11/Device/DeviceDX11.h>
@@ -107,6 +108,10 @@ void ezGameApplication::AfterEngineInit()
 
     ezGALDevice::SetDefaultDevice(pDevice);
 
+    // Create GPU resource pool
+    ezGPUResourcePool* pResourcePool = EZ_DEFAULT_NEW(ezGPUResourcePool);
+    ezGPUResourcePool::SetDefaultInstance(pResourcePool);
+
 #if EZ_ENABLED(EZ_PLATFORM_WINDOWS)
     ezRenderContext::ConfigureShaderSystem("DX11_SM40", true);
 #else
@@ -176,6 +181,9 @@ void ezGameApplication::BeforeEngineShutdown()
     {
       pDevice->DestroySwapChain(m_Windows[i].m_hSwapChain);
     }
+
+    // Cleanup resource pool
+    ezGPUResourcePool::SetDefaultInstance(nullptr);
 
     pDevice->Shutdown();
     EZ_DEFAULT_DELETE(pDevice);

@@ -771,6 +771,30 @@ const ezGALDeviceCapabilities& ezGALDevice::GetCapabilities() const
   return m_Capabilities;
 }
 
+ezUInt64 ezGALDevice::GetMemoryConsumptionForTexture(const ezGALTextureCreationDescription& Description) const
+{
+  // This generic implementation is only an approximation, but it can be overridden by specific devices
+  // to give an accurate memory consumption figure.
+  ezUInt64 uiMemory = ezUInt64(Description.m_uiWidth) * ezUInt64(Description.m_uiHeight) * ezUInt64(Description.m_uiDepth);
+  uiMemory *= Description.m_uiArraySize;
+  uiMemory *= ezGALResourceFormat::GetBitsPerElement(Description.m_Format);
+  uiMemory /= 8; // Bits per pixel
+  uiMemory *= Description.m_SampleCount;
+  
+  // Also account for mip maps
+  if (Description.m_uiMipSliceCount > 1)
+  {
+    uiMemory = static_cast<ezUInt64>(uiMemory * (1.0 / 3.0) * uiMemory);
+  }
+
+  return uiMemory;
+}
+
+
+ezUInt64 ezGALDevice::GetMemoryConsumptionForBuffer(const ezGALBufferCreationDescription& Description) const
+{
+  return Description.m_uiTotalSize;
+}
 
 
 EZ_STATICLINK_FILE(RendererFoundation, RendererFoundation_Device_Implementation_Device);

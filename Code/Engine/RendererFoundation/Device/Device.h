@@ -48,8 +48,6 @@ public:
 
   ezGALShaderHandle CreateShader(const ezGALShaderCreationDescription& Description);
 
-
-
   void DestroyShader(ezGALShaderHandle hShader);
 
   ezGALBufferHandle CreateBuffer(const ezGALBufferCreationDescription& Description, const void* pInitialData);
@@ -154,6 +152,9 @@ public:
   const ezGALRenderTargetView* GetRenderTargetView(ezGALRenderTargetViewHandle hRenderTargetView) const;
 
   const ezGALDeviceCapabilities& GetCapabilities() const;
+
+  virtual ezUInt64 GetMemoryConsumptionForTexture(const ezGALTextureCreationDescription& Description) const;
+  virtual ezUInt64 GetMemoryConsumptionForBuffer(const ezGALBufferCreationDescription& Description) const;
 
   static void SetDefaultDevice(ezGALDevice* pDefaultDevice);
   static ezGALDevice* GetDefaultDevice();
