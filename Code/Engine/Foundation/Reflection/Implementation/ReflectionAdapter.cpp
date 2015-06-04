@@ -214,29 +214,13 @@ ezVariant ezRttiAdapter::GetPropertyValue(const ezReflectedObjectWrapper& object
   case ezPropertyCategory::Member:
     {
       ezAbstractMemberProperty* pProp3 = static_cast<ezAbstractMemberProperty*>(pProp);
-      if (pProp3->GetFlags().IsSet(ezPropertyFlags::Pointer))
-      {
-        ezVariant ptr = ezReflectionUtils::GetMemberPropertyValue(pProp3, object.m_pObject);
-        return m_pContext->EnqueObject(ptr.Get<void*>(), pProp3->GetPropertyType());
-      }
-      else
-      {
-        return ezReflectionUtils::GetMemberPropertyValue(pProp3, object.m_pObject);
-      }
+      return ezReflectionUtils::GetMemberPropertyValue(pProp3, object.m_pObject);
     }
     break;
   case ezPropertyCategory::Array:
     {
       ezAbstractArrayProperty* pProp3 = static_cast<ezAbstractArrayProperty*>(pProp);
-      if (pProp3->GetFlags().IsSet(ezPropertyFlags::Pointer))
-      {
-        ezVariant ptr = ezReflectionUtils::GetArrayPropertyValue(pProp3, object.m_pObject, index.ConvertTo<ezUInt32>());
-        return m_pContext->EnqueObject(ptr.Get<void*>(), pProp3->GetElementType());
-      }
-      else
-      {
-        return ezReflectionUtils::GetArrayPropertyValue(pProp3, object.m_pObject, index.ConvertTo<ezUInt32>());
-      }
+      return ezReflectionUtils::GetArrayPropertyValue(pProp3, object.m_pObject, index.ConvertTo<ezUInt32>());
     }
     break;
   default:
@@ -254,31 +238,13 @@ void ezRttiAdapter::SetPropertyValue(const ezReflectedObjectWrapper& object, con
   case ezPropertyCategory::Member:
     {
       ezAbstractMemberProperty* pProp3 = static_cast<ezAbstractMemberProperty*>(pProp);
-      if (pProp3->GetFlags().IsSet(ezPropertyFlags::Pointer))
-      {
-        ezVariant ptrValue = m_pContext->GetObjectByGUID(value.Get<ezUuid>());
-        ezReflectionUtils::SetMemberPropertyValue(pProp3, object.m_pObject, ptrValue);
-      }
-      else
-      {
-        ezReflectionUtils::SetMemberPropertyValue(pProp3, object.m_pObject, value);
-        return;
-      }
+      ezReflectionUtils::SetMemberPropertyValue(pProp3, object.m_pObject, value);
     }
     break;
   case ezPropertyCategory::Array:
     {
       ezAbstractArrayProperty* pProp3 = static_cast<ezAbstractArrayProperty*>(pProp);
-      if (pProp3->GetFlags().IsSet(ezPropertyFlags::Pointer))
-      {
-        ezVariant ptrValue = m_pContext->GetObjectByGUID(value.Get<ezUuid>());
-        ezReflectionUtils::SetArrayPropertyValue(pProp3, object.m_pObject, index.ConvertTo<ezUInt32>(), ptrValue);
-      }
-      else
-      {
-        ezReflectionUtils::SetArrayPropertyValue(pProp3, object.m_pObject, index.ConvertTo<ezUInt32>(), value);
-        return;
-      }
+      ezReflectionUtils::SetArrayPropertyValue(pProp3, object.m_pObject, index.ConvertTo<ezUInt32>(), value);
     }
     break;
   default:
@@ -383,15 +349,6 @@ void ezRttiAdapter::GetSetContent(const ezReflectedObjectWrapper& object, const 
 
   ezAbstractSetProperty* pProp3 = static_cast<ezAbstractSetProperty*>(pProp);
   pProp3->GetValues(object.m_pObject, out_Keys);
-
-  if (pProp3->GetFlags().IsSet(ezPropertyFlags::Pointer))
-  {
-    // Convert to GUID and enqueue pointer
-    for (ezVariant& var : out_Keys)
-    {
-      var = m_pContext->EnqueObject(var.ConvertTo<void*>(), pProp3->GetElementType());
-    }
-  }
 }
 
 void ezRttiAdapter::SetSetContent(const ezReflectedObjectWrapper& object, const ezReflectedPropertyWrapper& prop, const ezHybridArray<ezVariant, 16>& keys)
@@ -402,23 +359,10 @@ void ezRttiAdapter::SetSetContent(const ezReflectedObjectWrapper& object, const 
   ezAbstractSetProperty* pProp3 = static_cast<ezAbstractSetProperty*>(pProp);
   pProp3->Clear(object.m_pObject);
 
-  if (pProp3->GetFlags().IsSet(ezPropertyFlags::Pointer))
+  for (const ezVariant& var : keys)
   {
-    for (const ezVariant& var : keys)
-    {
-      EZ_ASSERT_DEBUG(var.GetType() == ezVariant::Type::Uuid, "Pointers must be serialized as GUIDs!");
-      ezVariant ptr = m_pContext->GetObjectByGUID(var.Get<ezUuid>());
-      ezReflectionUtils::InsertSetPropertyValue(pProp3, object.m_pObject, ptr);
-    }
+    ezReflectionUtils::InsertSetPropertyValue(pProp3, object.m_pObject, var);
   }
-  else
-  {
-    for (const ezVariant& var : keys)
-    {
-      ezReflectionUtils::InsertSetPropertyValue(pProp3, object.m_pObject, var);
-    }
-  }
-
 }
 
 // Allocate
