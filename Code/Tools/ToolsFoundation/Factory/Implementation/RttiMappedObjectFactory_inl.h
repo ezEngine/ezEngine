@@ -17,19 +17,3 @@ ezRttiMappedObjectFactory<Object>::ezRttiMappedObjectFactory() : ezRttiMappedObj
 }
 
 
-EZ_FORCE_INLINE bool ezReflectedTypeHandleTraverser::IsValid(ezReflectedTypeHandle hType)
-{
-  return !hType.IsInvalidated();
-}
-
-EZ_FORCE_INLINE ezReflectedTypeHandle ezReflectedTypeHandleTraverser::GetParentType(ezReflectedTypeHandle hType)
-{
-  EZ_ASSERT_DEBUG(!hType.IsInvalidated(), "Argument to GetParentType must not be invalid!");
-  return hType.GetType()->GetParentTypeHandle();
-}
-
-
-template <typename Object>
-ezReflectedTypeMappedObjectFactory<Object>::ezReflectedTypeMappedObjectFactory() : ezRttiMappedObjectFactoryBase<ezReflectedTypeHandle, Object, ezReflectedTypeHandleTraverser>()
-{
-}

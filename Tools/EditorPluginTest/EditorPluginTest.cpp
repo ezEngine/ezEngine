@@ -56,7 +56,7 @@ void OnDocumentManagerEvent(const ezDocumentManagerBase::Event& e)
           ezTestObjectCreatorWidget* pCreatorWidget = new ezTestObjectCreatorWidget(e.m_pDocument->GetObjectManager(), pPanelCreator);
           pPanelCreator->setWidget(pCreatorWidget);
 
-          //ezDocumentObjectBase* pTestObject1 = ((ezDocumentObjectManagerBase*) e.m_pDocument->GetObjectManager())->CreateObject(ezReflectedTypeManager::GetTypeHandleByName(ezGetStaticRTTI<ezTestObjectProperties>()->GetTypeName()));
+          //ezDocumentObjectBase* pTestObject1 = ((ezDocumentObjectManagerBase*) e.m_pDocument->GetObjectManager())->CreateObject(ezRTTI::FindTypeByName(ezGetStaticRTTI<ezTestObjectProperties>()->GetTypeName()));
           //((ezDocumentObjectTree*) e.m_pDocument->GetObjectTree())->AddObject(pTestObject1, nullptr);
 
           pDocWnd->addDockWidget(Qt::DockWidgetArea::RightDockWidgetArea, pPropertyPanel);

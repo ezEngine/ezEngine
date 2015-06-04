@@ -8,13 +8,13 @@ ezTestObjectManager::ezTestObjectManager() : ezDocumentObjectManagerBase()
 {
 }
 
-ezDocumentObjectBase* ezTestObjectManager::InternalCreateObject(ezReflectedTypeHandle hType)
+ezDocumentObjectBase* ezTestObjectManager::InternalCreateObject(const ezRTTI* pRtti)
 {
   static int iCount = 0;
-  ezDocumentObjectStorage<ezTestEditorProperties>* pObj = new ezDocumentObjectStorage<ezTestEditorProperties>(hType);
+  ezDocumentObjectStorage<ezTestEditorProperties>* pObj = new ezDocumentObjectStorage<ezTestEditorProperties>(pRtti);
   
   ezStringBuilder sName;
-  sName.Format("%s %03d", hType.GetType()->GetTypeName().GetData(), iCount);
+  sName.Format("%s %03d", pRtti->GetTypeName(), iCount);
   iCount++;
   pObj->m_EditorProperties.SetName(sName);
   
@@ -26,36 +26,37 @@ void ezTestObjectManager::InternalDestroyObject(ezDocumentObjectBase* pObject)
   delete pObject;
 }
 
-void ezTestObjectManager::GetCreateableTypes(ezHybridArray<ezReflectedTypeHandle, 32>& Types) const
+void ezTestObjectManager::GetCreateableTypes(ezHybridArray<ezRTTI*, 32>& Types) const
 {
-  Types.PushBack(ezReflectedTypeManager::GetTypeHandleByName(ezGetStaticRTTI<ezGameObject>()->GetTypeName()));
+  Types.PushBack(ezRTTI::FindTypeByName(ezGetStaticRTTI<ezGameObject>()->GetTypeName()));
 
-  ezReflectedTypeHandle hComponent = ezReflectedTypeManager::GetTypeHandleByName(ezGetStaticRTTI<ezComponent>()->GetTypeName());
-  for (auto it = ezReflectedTypeManager::GetTypeIterator(); it.IsValid(); ++it)
+  const ezRTTI* pComponentType = ezRTTI::FindTypeByName(ezGetStaticRTTI<ezComponent>()->GetTypeName());
+  
+  for (auto it = ezRTTI::GetFirstInstance(); it != nullptr; it = it->GetNextInstance())
   {
-    if (it.Value()->IsDerivedFrom(hComponent) && !it.Value()->GetFlags().IsSet(ezTypeFlags::Abstract))
-      Types.PushBack(it.Value()->GetTypeHandle());
+    if (it->IsDerivedFrom(pComponentType) && !it->GetTypeFlags().IsSet(ezTypeFlags::Abstract))
+      Types.PushBack(it);
   }
 }
 
-bool ezTestObjectManager::InternalCanAdd(ezReflectedTypeHandle hType, const ezDocumentObjectBase* pParent) const
+bool ezTestObjectManager::InternalCanAdd(const ezRTTI* pRtti, const ezDocumentObjectBase* pParent) const
 {
-  ezReflectedTypeHandle hGameObject = ezReflectedTypeManager::GetTypeHandleByName(ezGetStaticRTTI<ezGameObject>()->GetTypeName());
-  ezReflectedTypeHandle hComponent  = ezReflectedTypeManager::GetTypeHandleByName(ezGetStaticRTTI<ezComponent>()->GetTypeName());
+  const ezRTTI* pGameObjectType = ezRTTI::FindTypeByName(ezGetStaticRTTI<ezGameObject>()->GetTypeName());
+  const ezRTTI* pComponentType  = ezRTTI::FindTypeByName(ezGetStaticRTTI<ezComponent>()->GetTypeName());
 
-  if (hType.GetType()->IsDerivedFrom(hGameObject))
+  if (pRtti->IsDerivedFrom(pGameObjectType))
   {
     if (pParent == nullptr)
       return true;
 
-    return (pParent->GetTypeAccessor().GetReflectedTypeHandle() == hGameObject);
+    return (pParent->GetTypeAccessor().GetType() == pGameObjectType);
   }
-  else if (hType.GetType()->IsDerivedFrom(hComponent))
+  else if (pRtti->IsDerivedFrom(pComponentType))
   {
     if (pParent == nullptr)
       return false;
 
-    return (pParent->GetTypeAccessor().GetReflectedTypeHandle() == hGameObject);
+    return (pParent->GetTypeAccessor().GetType() == pGameObjectType);
   }
   return false;
 }
@@ -67,5 +68,5 @@ bool ezTestObjectManager::InternalCanRemove(const ezDocumentObjectBase* pObject)
 
 bool ezTestObjectManager::InternalCanMove(const ezDocumentObjectBase* pObject, const ezDocumentObjectBase* pNewParent, ezInt32 iChildIndex) const
 {
-  return InternalCanAdd(pObject->GetTypeAccessor().GetReflectedTypeHandle(), pNewParent);
+  return InternalCanAdd(pObject->GetTypeAccessor().GetType(), pNewParent);
 }

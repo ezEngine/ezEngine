@@ -18,9 +18,9 @@ ezActionObjectManager::ezActionObjectManager() : ezDocumentObjectManagerBase()
 {
 }
 
-void ezActionObjectManager::GetCreateableTypes(ezHybridArray<ezReflectedTypeHandle, 32>& Types) const
+void ezActionObjectManager::GetCreateableTypes(ezHybridArray<ezRTTI*, 32>& Types) const
 {
-  Types.PushBack(ezReflectedTypeManager::GetTypeHandleByName(ezGetStaticRTTI<ezActionMapDescriptor>()->GetTypeName()));
+  Types.PushBack(ezRTTI::FindTypeByName(ezGetStaticRTTI<ezActionMapDescriptor>()->GetTypeName()));
 }
 
 
@@ -28,7 +28,7 @@ void ezActionObjectManager::GetCreateableTypes(ezHybridArray<ezReflectedTypeHand
 // ezActionObjectManager private functions
 ////////////////////////////////////////////////////////////////////////
 
-ezDocumentObjectBase* ezActionObjectManager::InternalCreateObject(ezReflectedTypeHandle hType)
+ezDocumentObjectBase* ezActionObjectManager::InternalCreateObject(const ezRTTI* pRtti)
 {
   return new ezActionMap::ObjectType;
 }
@@ -38,7 +38,7 @@ void ezActionObjectManager::InternalDestroyObject(ezDocumentObjectBase* pObject)
   delete pObject;
 }
 
-bool ezActionObjectManager::InternalCanAdd(ezReflectedTypeHandle hType, const ezDocumentObjectBase* pParent) const
+bool ezActionObjectManager::InternalCanAdd(const ezRTTI* pRtti, const ezDocumentObjectBase* pParent) const
 {
   return true;
 }
@@ -65,7 +65,7 @@ ezActionMap::ezActionMap() : ezDocumentObjectTree()
 
   ezReflectedTypeDescriptor desc;
   ezToolsReflectionUtils::GetReflectedTypeDescriptorFromRtti(ezGetStaticRTTI<ezActionMapDescriptor>(), desc);
-  m_hDesc = ezReflectedTypeManager::RegisterType(desc);
+  m_pRtti = ezReflectedTypeManager::RegisterType(desc);
 }
 
 ezActionMap::~ezActionMap()
@@ -113,7 +113,7 @@ ezUuid ezActionMap::MapAction(const ezActionMapDescriptor& desc)
     return ezUuid();
   }
 
-  ObjectType* pCastObject = static_cast<ObjectType*>(m_Manager.CreateObject(m_hDesc));
+  ObjectType* pCastObject = static_cast<ObjectType*>(m_Manager.CreateObject(m_pRtti));
   pCastObject->m_MemberProperties = desc;
 
   ezInt32 iIndex = 0;

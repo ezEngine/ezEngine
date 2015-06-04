@@ -109,24 +109,6 @@ bool ezReflectionUtils::IsBasicType(const ezRTTI* pRtti)
   return type >= ezVariant::Type::Bool && type <= ezVariant::Type::Uuid;
 }
 
-ezVariant ezReflectionUtils::GetConstantPropertyValue(const ezAbstractConstantProperty* pProp)
-{
-  if (pProp != nullptr)
-  {
-    if (pProp->GetPropertyType() == ezGetStaticRTTI<const char*>())
-      return static_cast<const ezTypedConstantProperty<const char*>*>(pProp)->GetValue();
-
-    GetConstantValueFunc func;
-    func.m_pProp = pProp;
-
-    ezVariant::DispatchTo(func, pProp->GetPropertyType()->GetVariantType());
-
-    return func.m_Result;
-  }
-
-  return ezVariant();
-}
-
 ezVariant ezReflectionUtils::GetMemberPropertyValue(const ezAbstractMemberProperty* pProp, const void* pObject)
 {
   if (pProp != nullptr)
@@ -448,7 +430,7 @@ bool ezReflectionUtils::EnumerationToString(const ezRTTI* pEnumerationRtti, ezIn
     {
       if (pProp->GetCategory() == ezPropertyCategory::Constant)
       {
-        ezVariant value = ezReflectionUtils::GetConstantPropertyValue(static_cast<const ezAbstractConstantProperty*>(pProp));
+        ezVariant value = static_cast<const ezAbstractConstantProperty*>(pProp)->GetConstant();
         if (value.ConvertTo<ezInt64>() == iValue)
         {
           out_sOutput = pProp->GetPropertyName();
@@ -464,7 +446,7 @@ bool ezReflectionUtils::EnumerationToString(const ezRTTI* pEnumerationRtti, ezIn
     {
       if (pProp->GetCategory() == ezPropertyCategory::Constant)
       {
-        ezVariant value = ezReflectionUtils::GetConstantPropertyValue(static_cast<const ezAbstractConstantProperty*>(pProp));
+        ezVariant value = static_cast<const ezAbstractConstantProperty*>(pProp)->GetConstant();
         if ((value.ConvertTo<ezInt64>() & iValue) != 0)
         {
           out_sOutput.Append(pProp->GetPropertyName(), "|");
@@ -492,7 +474,7 @@ bool ezReflectionUtils::StringToEnumeration(const ezRTTI* pEnumerationRtti, cons
       {
         if (ezStringUtils::IsEqual(pProp->GetPropertyName(), szValue))
         {
-          ezVariant value = ezReflectionUtils::GetConstantPropertyValue(static_cast<const ezAbstractConstantProperty*>(pProp));
+          ezVariant value = static_cast<const ezAbstractConstantProperty*>(pProp)->GetConstant();
           out_iValue = value.ConvertTo<ezInt64>();
           return true;
         }
@@ -513,7 +495,7 @@ bool ezReflectionUtils::StringToEnumeration(const ezRTTI* pEnumerationRtti, cons
         {
           if (sValue.IsEqual(pProp->GetPropertyName()))
           {
-            ezVariant value = ezReflectionUtils::GetConstantPropertyValue(static_cast<const ezAbstractConstantProperty*>(pProp));
+            ezVariant value = static_cast<const ezAbstractConstantProperty*>(pProp)->GetConstant();
             out_iValue |= value.ConvertTo<ezInt64>();
           }
         }

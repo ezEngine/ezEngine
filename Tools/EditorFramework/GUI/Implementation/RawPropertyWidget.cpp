@@ -15,77 +15,79 @@ ezRawPropertyWidget::ezRawPropertyWidget(QWidget* pParent, const ezIReflectedTyp
   setLayout(m_pLayout);
 
   ezPropertyPath path;
-  BuildUI(accessor, accessor.GetReflectedTypeHandle().GetType(), path, m_pLayout);
+  BuildUI(accessor, accessor.GetType(), path, m_pLayout);
 }
 
-void ezRawPropertyWidget::BuildUI(const ezIReflectedTypeAccessor& et, const ezReflectedType* pType, ezPropertyPath& ParentPath, QLayout* pLayout)
+void ezRawPropertyWidget::BuildUI(const ezIReflectedTypeAccessor& et, const ezRTTI* pType, ezPropertyPath& ParentPath, QLayout* pLayout)
 {
-  ezReflectedTypeHandle hParent = pType->GetParentTypeHandle();
-  if (!hParent.IsInvalidated())
-    BuildUI(et, hParent.GetType(), ParentPath, pLayout);
+  const ezRTTI* pParentType = pType->GetParentType();
+  if (pParentType != nullptr)
+    BuildUI(et, pParentType, ParentPath, pLayout);
 
-  if (pType->GetPropertyCount() == 0)
+  if (pType->GetProperties().GetCount() == 0)
     return;
 
-  for (ezUInt32 i = 0; i < pType->GetPropertyCount(); ++i)
+  for (ezUInt32 i = 0; i < pType->GetProperties().GetCount(); ++i)
   {
-    const ezReflectedProperty* pProp = pType->GetPropertyByIndex(i);
+    const ezAbstractProperty* pProp = pType->GetProperties()[i];
 
-    ParentPath.PushBack(pProp->m_sPropertyName.GetString().GetData());
+    ParentPath.PushBack(pProp->GetPropertyName());
 
-    if (pProp->m_Flags.IsAnySet(ezPropertyFlags::StandardType))
+    if (pProp->GetFlags().IsAnySet(ezPropertyFlags::StandardType) && pProp->GetCategory() == ezPropertyCategory::Member)
     {
+      const ezAbstractMemberProperty* pMember = static_cast<const ezAbstractMemberProperty*>(pProp);
+
       ezPropertyEditorBaseWidget* pNewWidget = nullptr;
 
-      switch (pProp->m_Type)
+      switch (pMember->GetPropertyType()->GetVariantType())
       {
       case ezVariant::Type::Bool:
-        pNewWidget = new ezPropertyEditorCheckboxWidget(ParentPath, pProp->m_sPropertyName.GetString().GetData(), this);
+        pNewWidget = new ezPropertyEditorCheckboxWidget(ParentPath, pProp->GetPropertyName(), this);
         break;
 
       case ezVariant::Type::Time:
       case ezVariant::Type::Float:
       case ezVariant::Type::Double:
-        pNewWidget = new ezPropertyEditorDoubleSpinboxWidget(ParentPath, pProp->m_sPropertyName.GetString().GetData(), this, 1);
+        pNewWidget = new ezPropertyEditorDoubleSpinboxWidget(ParentPath, pProp->GetPropertyName(), this, 1);
         break;
 
       case ezVariant::Type::Vector2:
-        pNewWidget = new ezPropertyEditorDoubleSpinboxWidget(ParentPath, pProp->m_sPropertyName.GetString().GetData(), this, 2);
+        pNewWidget = new ezPropertyEditorDoubleSpinboxWidget(ParentPath, pProp->GetPropertyName(), this, 2);
         break;
       case ezVariant::Type::Vector3:
-        pNewWidget = new ezPropertyEditorDoubleSpinboxWidget(ParentPath, pProp->m_sPropertyName.GetString().GetData(), this, 3);
+        pNewWidget = new ezPropertyEditorDoubleSpinboxWidget(ParentPath, pProp->GetPropertyName(), this, 3);
         break;
       case ezVariant::Type::Vector4:
-        pNewWidget = new ezPropertyEditorDoubleSpinboxWidget(ParentPath, pProp->m_sPropertyName.GetString().GetData(), this, 4);
+        pNewWidget = new ezPropertyEditorDoubleSpinboxWidget(ParentPath, pProp->GetPropertyName(), this, 4);
         break;
 
       case ezVariant::Type::Int8:
-        pNewWidget = new ezPropertyEditorIntSpinboxWidget(ParentPath, pProp->m_sPropertyName.GetString().GetData(), this, -127, 127);
+        pNewWidget = new ezPropertyEditorIntSpinboxWidget(ParentPath, pProp->GetPropertyName(), this, -127, 127);
         break;
       case ezVariant::Type::UInt8:
-        pNewWidget = new ezPropertyEditorIntSpinboxWidget(ParentPath, pProp->m_sPropertyName.GetString().GetData(), this, 0, 255);
+        pNewWidget = new ezPropertyEditorIntSpinboxWidget(ParentPath, pProp->GetPropertyName(), this, 0, 255);
         break;
       case ezVariant::Type::Int16:
-        pNewWidget = new ezPropertyEditorIntSpinboxWidget(ParentPath, pProp->m_sPropertyName.GetString().GetData(), this, -32767, 32767);
+        pNewWidget = new ezPropertyEditorIntSpinboxWidget(ParentPath, pProp->GetPropertyName(), this, -32767, 32767);
         break;
       case ezVariant::Type::UInt16:
-        pNewWidget = new ezPropertyEditorIntSpinboxWidget(ParentPath, pProp->m_sPropertyName.GetString().GetData(), this, 0, 65535);
+        pNewWidget = new ezPropertyEditorIntSpinboxWidget(ParentPath, pProp->GetPropertyName(), this, 0, 65535);
         break;
       case ezVariant::Type::Int32:
       case ezVariant::Type::Int64:
-        pNewWidget = new ezPropertyEditorIntSpinboxWidget(ParentPath, pProp->m_sPropertyName.GetString().GetData(), this, -2147483645, 2147483645);
+        pNewWidget = new ezPropertyEditorIntSpinboxWidget(ParentPath, pProp->GetPropertyName(), this, -2147483645, 2147483645);
         break;
       case ezVariant::Type::UInt32:
       case ezVariant::Type::UInt64:
-        pNewWidget = new ezPropertyEditorIntSpinboxWidget(ParentPath, pProp->m_sPropertyName.GetString().GetData(), this, 0, 2147483645);
+        pNewWidget = new ezPropertyEditorIntSpinboxWidget(ParentPath, pProp->GetPropertyName(), this, 0, 2147483645);
         break;
 
       case ezVariant::Type::String:
-        pNewWidget = new ezPropertyEditorLineEditWidget(ParentPath, pProp->m_sPropertyName.GetString().GetData(), this);
+        pNewWidget = new ezPropertyEditorLineEditWidget(ParentPath, pProp->GetPropertyName(), this);
         break;
 
       case ezVariant::Type::Color:
-        pNewWidget = new ezPropertyEditorColorWidget(ParentPath, pProp->m_sPropertyName.GetString().GetData(), this);
+        pNewWidget = new ezPropertyEditorColorWidget(ParentPath, pProp->GetPropertyName(), this);
         break;
 
       default:
@@ -100,22 +102,24 @@ void ezRawPropertyWidget::BuildUI(const ezIReflectedTypeAccessor& et, const ezRe
 
         pLayout->addWidget(pNewWidget);
         pNewWidget->SetValue(et.GetValue(ParentPath));
-        pNewWidget->setEnabled(!pProp->m_Flags.IsSet(ezPropertyFlags::ReadOnly));
+        pNewWidget->setEnabled(!pProp->GetFlags().IsSet(ezPropertyFlags::ReadOnly));
 
 
         pNewWidget->m_Events.AddEventHandler(ezMakeDelegate(&ezRawPropertyWidget::PropertyChangedHandler, this));
       }
     }
-    else if (pProp->m_Flags.IsAnySet(ezPropertyFlags::IsEnum | ezPropertyFlags::Bitflags))
+    else if (pProp->GetFlags().IsAnySet(ezPropertyFlags::IsEnum | ezPropertyFlags::Bitflags))
     {
+      const ezAbstractMemberProperty* pMember = static_cast<const ezAbstractMemberProperty*>(pProp);
+
       ezPropertyEditorBaseWidget* pNewWidget = nullptr;
-      if (pProp->m_Flags.IsAnySet(ezPropertyFlags::IsEnum))
+      if (pProp->GetFlags().IsAnySet(ezPropertyFlags::IsEnum))
       {
-        pNewWidget = new ezPropertyEditorEnumWidget(ParentPath, pProp->m_sPropertyName.GetString().GetData(), this, pProp->m_hTypeHandle);
+        pNewWidget = new ezPropertyEditorEnumWidget(ParentPath, pProp->GetPropertyName(), this, pMember->GetPropertyType());
       }
       else
       {
-        pNewWidget = new ezPropertyEditorBitflagsWidget(ParentPath, pProp->m_sPropertyName.GetString().GetData(), this, pProp->m_hTypeHandle);
+        pNewWidget = new ezPropertyEditorBitflagsWidget(ParentPath, pProp->GetPropertyName(), this, pMember->GetPropertyType());
       }
       
       ezStringBuilder sPropertyPath = ParentPath.GetPathString();
@@ -123,14 +127,16 @@ void ezRawPropertyWidget::BuildUI(const ezIReflectedTypeAccessor& et, const ezRe
 
       pLayout->addWidget(pNewWidget);
       pNewWidget->SetValue(et.GetValue(ParentPath));
-      pNewWidget->setEnabled(!pProp->m_Flags.IsSet(ezPropertyFlags::ReadOnly));
+      pNewWidget->setEnabled(!pProp->GetFlags().IsSet(ezPropertyFlags::ReadOnly));
 
       pNewWidget->m_Events.AddEventHandler(ezMakeDelegate(&ezRawPropertyWidget::PropertyChangedHandler, this));
     }
-    else
+    else if (pProp->GetCategory() == ezPropertyCategory::Member)
     {
+      const ezAbstractMemberProperty* pMember = static_cast<const ezAbstractMemberProperty*>(pProp);
+
       ezCollapsibleGroupBox* pSubGroup = new ezCollapsibleGroupBox((QWidget*) pLayout->parent());
-      pSubGroup->setTitle(QString::fromUtf8(pProp->m_sPropertyName.GetString().GetData()));
+      pSubGroup->setTitle(QString::fromUtf8(pProp->GetPropertyName()));
 
       QVBoxLayout* pSubLayout = new QVBoxLayout(pSubGroup);
       pSubLayout->setSpacing(1);
@@ -139,9 +145,9 @@ void ezRawPropertyWidget::BuildUI(const ezIReflectedTypeAccessor& et, const ezRe
       pLayout->addWidget(pSubGroup);
       
       /// \todo read-only flag ?
-      //pNewWidget->setEnabled(!pProp->m_Flags.IsSet(PropertyFlags::IsReadOnly));
+      //pNewWidget->setEnabled(!pProp->GetFlags().IsSet(PropertyFlags::IsReadOnly));
 
-      BuildUI(et, pProp->m_hTypeHandle.GetType(), ParentPath, pSubLayout);
+      BuildUI(et, pMember->GetPropertyType(), ParentPath, pSubLayout);
     }
 
     ParentPath.PopBack();

@@ -90,7 +90,7 @@ public:
 class ezTestObject2 : public ezDocumentObjectStorage<ezTestEditorProperties>
 {
 public:
-  ezTestObject2(ezReflectedTypeHandle hObjectProperties) : ezDocumentObjectStorage<ezTestEditorProperties>(hObjectProperties)
+  ezTestObject2(ezRTTI* hObjectProperties) : ezDocumentObjectStorage<ezTestEditorProperties>(hObjectProperties)
   {
   }
 

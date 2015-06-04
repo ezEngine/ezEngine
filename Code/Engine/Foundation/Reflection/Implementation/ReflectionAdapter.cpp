@@ -8,6 +8,12 @@
 
 void* ezRttiSerializationContext::CreateObject(const ezUuid& guid, const void* pType)
 {
+  ezReflectedObjectWrapper* pWrapper = GetObjectByGUID(guid);
+  if (pWrapper != nullptr)
+  {
+    return pWrapper->m_pObject;
+  }
+
   const ezRTTI* pRtti = static_cast<const ezRTTI*>(pType);
   if (!pRtti->GetAllocator()->CanAllocate())
     return nullptr;
@@ -45,12 +51,21 @@ void ezRttiSerializationContext::DeleteObject(const ezUuid& guid)
   pRtti->GetAllocator()->Deallocate(pObject);
 }
 
-void* ezRttiSerializationContext::GetObjectByGUID(const ezUuid& guid) const
+void ezRttiSerializationContext::RegisterObject(const ezUuid& guid, const void* pType, void* pObject)
+{
+  ezReflectedObjectWrapper object;
+  object.m_pObject = pObject;
+  object.m_pType = pType;
+  m_Objects.Insert(guid, object);
+  m_PtrLookup.Insert(object.m_pObject, guid);
+}
+
+ezReflectedObjectWrapper* ezRttiSerializationContext::GetObjectByGUID(const ezUuid& guid) const
 {
   ezReflectedObjectWrapper* pObjectWrapper = nullptr;
   if (m_Objects.TryGetValue(guid, pObjectWrapper))
   {
-    return pObjectWrapper->m_pObject;
+    return pObjectWrapper;
   }
   return nullptr;
 }
@@ -208,7 +223,7 @@ ezVariant ezRttiAdapter::GetPropertyValue(const ezReflectedObjectWrapper& object
   case ezPropertyCategory::Constant:
     {
       ezAbstractConstantProperty* pProp3 = static_cast<ezAbstractConstantProperty*>(pProp);
-      return ezReflectionUtils::GetConstantPropertyValue(pProp3);
+      return pProp3->GetConstant();
     }
     break;
   case ezPropertyCategory::Member:

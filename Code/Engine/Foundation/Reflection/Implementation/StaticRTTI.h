@@ -21,6 +21,7 @@ struct ezTypeFlags
     Abstract = EZ_BIT(1),     ///< Type is abstract.
     IsEnum = EZ_BIT(2),       ///< enum struct used for ezEnum.
     Bitflags = EZ_BIT(3),     ///< bitflags struct used for ezBitflags.
+    Phantom = EZ_BIT(4),
     Default = 0
   };
 
@@ -30,6 +31,7 @@ struct ezTypeFlags
     StorageType Abstract  : 1;
     StorageType IsEnum   : 1;
     StorageType Bitflags   : 1;
+    StorageType Phantom : 1;
   };
 };
 

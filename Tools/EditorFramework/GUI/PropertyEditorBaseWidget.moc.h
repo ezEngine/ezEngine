@@ -189,7 +189,7 @@ class EZ_EDITORFRAMEWORK_DLL ezPropertyEditorEnumWidget : public ezPropertyEdito
   Q_OBJECT
 
 public:
-  ezPropertyEditorEnumWidget(const ezPropertyPath& path, const char* szName, QWidget* pParent, const ezReflectedTypeHandle enumType);
+  ezPropertyEditorEnumWidget(const ezPropertyPath& path, const char* szName, QWidget* pParent, const ezRTTI* enumType);
 
 private slots:
   void on_CurrentEnum_changed(int iEnum);
@@ -211,7 +211,7 @@ class EZ_EDITORFRAMEWORK_DLL ezPropertyEditorBitflagsWidget : public ezPropertyE
   Q_OBJECT
 
 public:
-  ezPropertyEditorBitflagsWidget(const ezPropertyPath& path, const char* szName, QWidget* pParent, const ezReflectedTypeHandle enumType);
+  ezPropertyEditorBitflagsWidget(const ezPropertyPath& path, const char* szName, QWidget* pParent, const ezRTTI* enumType);
   virtual ~ezPropertyEditorBitflagsWidget();
 
 private slots:

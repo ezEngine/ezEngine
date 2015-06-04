@@ -48,7 +48,7 @@ void ezDocumentObjectTree::RecursiveRemoveGuids(ezDocumentObjectBase* pObject)
 void ezDocumentObjectTree::AddObject(ezDocumentObjectBase* pObject, ezDocumentObjectBase* pParent, ezInt32 iChildIndex)
 {
   EZ_ASSERT_DEV(pObject->GetGuid().IsValid(), "Object Guid invalid! Object was not created via an ezObjectManagerBase!");
-  EZ_ASSERT_DEV(m_pDocument == nullptr || m_pDocument->GetObjectManager()->CanAdd(pObject->GetTypeAccessor().GetReflectedTypeHandle(), pParent), "Trying to execute invalid add!");
+  EZ_ASSERT_DEV(m_pDocument == nullptr || m_pDocument->GetObjectManager()->CanAdd(pObject->GetTypeAccessor().GetType(), pParent), "Trying to execute invalid add!");
 
   if (pParent == nullptr)
     pParent = &m_RootObject;

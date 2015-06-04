@@ -34,16 +34,14 @@ EZ_END_SUBSYSTEM_DECLARATION
 ezRTTI::ezRTTI(const char* szName, const ezRTTI* pParentType, ezUInt32 uiTypeSize, ezUInt32 uiTypeVersion, ezUInt32 uiVariantType, ezBitflags<ezTypeFlags> flags,
   ezRTTIAllocator* pAllocator, ezArrayPtr<ezAbstractProperty*> properties, ezArrayPtr<ezAbstractMessageHandler*> messageHandlers)
 {
+  UpdateType(pParentType, uiTypeSize, uiTypeVersion, uiVariantType, flags);
+
   m_szPluginName = nullptr;
   m_szTypeName = szName;
-  m_pParentType = pParentType;
-  m_uiVariantType = uiVariantType;
-  m_uiTypeSize = uiTypeSize;
-  m_uiTypeVersion = uiTypeVersion;
-  m_TypeFlags = flags;
   m_pAllocator = pAllocator;
   m_Properties = properties;
-  m_MessageHandlers = messageHandlers;  
+  m_MessageHandlers = messageHandlers;
+  m_uiMsgIdOffset = 0;
 
 #if EZ_ENABLED(EZ_COMPILE_FOR_DEVELOPMENT)
   {
@@ -113,6 +111,15 @@ ezRTTI::ezRTTI(const char* szName, const ezRTTI* pParentType, ezUInt32 uiTypeSiz
 
 ezRTTI::~ezRTTI()
 {
+}
+
+void ezRTTI::UpdateType(const ezRTTI* pParentType, ezUInt32 uiTypeSize, ezUInt32 uiTypeVersion, ezUInt32 uiVariantType, ezBitflags<ezTypeFlags> flags)
+{
+  m_pParentType = pParentType;
+  m_uiVariantType = uiVariantType;
+  m_uiTypeSize = uiTypeSize;
+  m_uiTypeVersion = uiTypeVersion;
+  m_TypeFlags = flags;
 }
 
 bool ezRTTI::IsDerivedFrom(const ezRTTI* pBaseType) const

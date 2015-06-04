@@ -491,8 +491,8 @@ void ezAssetCurator::ReadAssetDocumentInfo(ezAssetDocumentInfo* pInfo, ezStreamR
     {
       if (sType == pInfo->GetDynamicRTTI()->GetTypeName()) // this should always be "ezAssetDocumentInfo"
       {
-        ezReflectedTypeHandle hType = ezReflectedTypeManager::GetTypeHandleByName(pInfo->GetDynamicRTTI()->GetTypeName());
-        EZ_ASSERT_DEV(!hType.IsInvalidated(), "Need to register ezDocumentInfo at the ezReflectedTypeManager first!");
+        const ezRTTI* pRtti = ezRTTI::FindTypeByName(pInfo->GetDynamicRTTI()->GetTypeName());
+        EZ_ASSERT_DEV(pRtti != nullptr, "Need to register ezDocumentInfo at the ezReflectedTypeManager first!");
 
         ezReflectedTypeDirectAccessor acc(pInfo);
         ezSerializedTypeAccessorObjectReader objectReader(&acc);

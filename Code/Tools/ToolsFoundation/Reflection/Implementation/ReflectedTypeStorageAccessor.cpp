@@ -7,9 +7,9 @@
 // ezReflectedTypeStorageAccessor public functions
 ////////////////////////////////////////////////////////////////////////
 
-ezReflectedTypeStorageAccessor::ezReflectedTypeStorageAccessor(ezReflectedTypeHandle hReflectedType) : ezIReflectedTypeAccessor(hReflectedType)
+ezReflectedTypeStorageAccessor::ezReflectedTypeStorageAccessor(const ezRTTI* pRtti) : ezIReflectedTypeAccessor(pRtti)
 {
-  const ezReflectedType* pType = hReflectedType.GetType();
+  const ezRTTI* pType = pRtti;
   EZ_ASSERT_DEV(pType != nullptr, "Trying to construct an ezReflectedTypeStorageAccessor for an invalid type!");
   m_pMapping = ezReflectedTypeStorageManager::AddStorageAccessor(this);
   EZ_ASSERT_DEV(m_pMapping != nullptr, "The type for this ezReflectedTypeStorageAccessor is unknown to the ezReflectedTypeStorageManager!");
@@ -57,14 +57,15 @@ bool ezReflectedTypeStorageAccessor::SetValue(const ezPropertyPath& path, const 
   {
     if (value.IsA<ezString>())
     {
-      const ezReflectedProperty* pProp = GetReflectedTypeHandle().GetType()->GetPropertyByPath(path);
+      const ezAbstractProperty* pProp = ezToolsReflectionUtils::GetPropertyByPath(GetType(), path);
       if (pProp == nullptr)
         return false;
 
-      if (pProp->m_Flags.IsAnySet(ezPropertyFlags::IsEnum | ezPropertyFlags::Bitflags))
+      if (pProp->GetFlags().IsAnySet(ezPropertyFlags::IsEnum | ezPropertyFlags::Bitflags))
       {
+        const ezAbstractMemberProperty* pMemberProp = static_cast<const ezAbstractMemberProperty*>(pProp);
         ezInt64 iValue;
-        ezToolsReflectionUtils::StringToEnumeration(pProp->m_hTypeHandle.GetType(), value.Get<ezString>(), iValue);
+        ezReflectionUtils::StringToEnumeration(pMemberProp->GetPropertyType(), value.Get<ezString>(), iValue);
         m_Data[storageInfo->m_uiIndex] = ezVariant(iValue).ConvertTo(storageInfo->m_Type);
         return true;
       }

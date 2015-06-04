@@ -4,6 +4,8 @@
 
 #include <Foundation/Reflection/Implementation/AbstractProperty.h>
 
+class ezRTTI;
+
 /// \brief Do not cast into this class or any of its derived classes, use ezTypedArrayProperty instead.
 template<typename Type>
 class ezTypedArrayProperty : public ezAbstractArrayProperty

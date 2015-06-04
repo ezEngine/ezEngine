@@ -21,20 +21,4 @@ public:
   ezRttiMappedObjectFactory();
 };
 
-/// \brief Type traverser for ezReflectedTypeMappedObjectFactory.
-struct ezReflectedTypeHandleTraverser
-{
-  static bool IsValid(ezReflectedTypeHandle hType);
-  static ezReflectedTypeHandle GetParentType(ezReflectedTypeHandle hType);
-};
-
-/// \brief ezReflectedTypeHandle based mapped object factory. \see ezRttiMappedObjectFactoryBase
-template <typename Object>
-struct ezReflectedTypeMappedObjectFactory : public ezRttiMappedObjectFactoryBase<ezReflectedTypeHandle, Object, ezReflectedTypeHandleTraverser>
-{
-  EZ_DISALLOW_COPY_AND_ASSIGN(ezReflectedTypeMappedObjectFactory);
-public:
-  ezReflectedTypeMappedObjectFactory();
-};
-
 #include <ToolsFoundation/Factory/Implementation/RttiMappedObjectFactory_inl.h>

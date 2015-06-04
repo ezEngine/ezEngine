@@ -26,8 +26,8 @@ ezUuid ezSerializedDocumentObjectWriter::GetParentGuid() const
 
 const char* ezSerializedDocumentObjectWriter::GetType(ezStringBuilder& builder) const
 {
-  auto pType = m_pObject->GetTypeAccessor().GetReflectedTypeHandle().GetType();
-  builder = pType->GetTypeName().GetData();
+  auto pType = m_pObject->GetTypeAccessor().GetType();
+  builder = pType->GetTypeName();
   return builder.GetData();
 }
 

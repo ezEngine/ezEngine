@@ -43,7 +43,7 @@ private:
     auto pRoot = GetObjectTree()->GetRootObject();
     if (pRoot->GetChildren().IsEmpty())
     {
-      AssetObjectType* pObject = static_cast<AssetObjectType*>(GetObjectManager()->CreateObject(ezReflectedTypeManager::GetTypeHandleByName(ezGetStaticRTTI<PropertyType>()->GetTypeName())));
+      AssetObjectType* pObject = static_cast<AssetObjectType*>(GetObjectManager()->CreateObject(ezRTTI::FindTypeByName(ezGetStaticRTTI<PropertyType>()->GetTypeName())));
       GetObjectTree()->AddObject(pObject, pRoot);
     }
   }
@@ -61,14 +61,14 @@ template<typename ObjectProperties, typename ObjectType>
 class ezSimpleDocumentObjectManager : public ezDocumentObjectManagerBase
 {
 public:
-  virtual void GetCreateableTypes(ezHybridArray<ezReflectedTypeHandle, 32>& Types) const override
+  virtual void GetCreateableTypes(ezHybridArray<ezRTTI*, 32>& Types) const override
   {
-    Types.PushBack(ezReflectedTypeManager::GetTypeHandleByName(ezGetStaticRTTI<ObjectProperties>()->GetTypeName()));
+    Types.PushBack(ezRTTI::FindTypeByName(ezGetStaticRTTI<ObjectProperties>()->GetTypeName()));
   }
 
 private:
 
-  virtual ezDocumentObjectBase* InternalCreateObject(ezReflectedTypeHandle hType) override
+  virtual ezDocumentObjectBase* InternalCreateObject(const ezRTTI* pRtti) override
   {
     return EZ_DEFAULT_NEW(ObjectType);
   }
@@ -78,7 +78,7 @@ private:
     EZ_DEFAULT_DELETE(pObject);
   }
 
-  virtual bool InternalCanAdd(ezReflectedTypeHandle hType, const ezDocumentObjectBase* pParent) const override { return true; }
+  virtual bool InternalCanAdd(const ezRTTI* pRtti, const ezDocumentObjectBase* pParent) const override { return true; }
   virtual bool InternalCanRemove(const ezDocumentObjectBase* pObject) const override { return true; }
   virtual bool InternalCanMove(const ezDocumentObjectBase* pObject, const ezDocumentObjectBase* pNewParent, ezInt32 iChildIndex) const override { return false; }
 };

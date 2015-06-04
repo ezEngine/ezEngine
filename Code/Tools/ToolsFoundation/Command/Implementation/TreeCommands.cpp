@@ -35,15 +35,15 @@ EZ_END_DYNAMIC_REFLECTED_TYPE();
 
 const char* ezAddObjectCommand::GetType() const
 {
-  if (m_hType.IsInvalidated())
+  if (m_pType == nullptr)
     return "";
 
-  return m_hType.GetType()->GetTypeName().GetData();
+  return m_pType->GetTypeName();
 }
 
 void ezAddObjectCommand::SetType(const char* szType)
 {
-  m_hType = ezReflectedTypeManager::GetTypeHandleByName(szType);
+  m_pType = ezRTTI::FindTypeByName(szType);
 }
 
 ezAddObjectCommand::ezAddObjectCommand() :
@@ -64,16 +64,16 @@ ezStatus ezAddObjectCommand::Do(bool bRedo)
       return ezStatus(EZ_FAILURE, "Add Object: The given parent does not exist!");
   }
 
-  if (!pDocument->GetObjectManager()->CanAdd(m_hType, pParent))
+  if (!pDocument->GetObjectManager()->CanAdd(m_pType, pParent))
   {
     ezStringBuilder sErrorMessage;
-    sErrorMessage.Format("Add Object: The type '%s' cannot be added to the given parent!", m_hType.GetType()->GetTypeName().GetData());
+    sErrorMessage.Format("Add Object: The type '%s' cannot be added to the given parent!", m_pType->GetTypeName());
     return ezStatus(EZ_FAILURE, sErrorMessage);
   }
 
   if (!bRedo)
   {
-    m_pObject = pDocument->GetObjectManager()->CreateObject(m_hType);
+    m_pObject = pDocument->GetObjectManager()->CreateObject(m_pType);
   }
 
   pDocument->GetObjectTree()->AddObject(m_pObject, pParent, m_iChildIndex);
@@ -148,7 +148,7 @@ ezStatus ezRemoveObjectCommand::Undo(bool bFireEvents)
   EZ_ASSERT_DEV(bFireEvents, "This command does not support temporary commands");
 
   ezDocumentBase* pDocument = GetDocument();
-  if (!pDocument->GetObjectManager()->CanAdd(m_pObject->GetTypeAccessor().GetReflectedTypeHandle(), m_pParent))
+  if (!pDocument->GetObjectManager()->CanAdd(m_pObject->GetTypeAccessor().GetType(), m_pParent))
     return ezStatus(EZ_FAILURE, "Remove Object: Adding the object is forbidden!");
 
   pDocument->GetObjectTree()->AddObject(m_pObject, m_pParent, m_iChildIndex);

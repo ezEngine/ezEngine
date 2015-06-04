@@ -41,7 +41,8 @@ class EZ_FOUNDATION_DLL ezReflectedSerializationContext
 public:
   virtual void* CreateObject(const ezUuid& guid, const void* pType) = 0;
   virtual void DeleteObject(const ezUuid& guid) = 0;
-  virtual void* GetObjectByGUID(const ezUuid& guid) const = 0;
+  virtual void RegisterObject(const ezUuid& guid, const void* pType, void* pObject) = 0;
+  virtual ezReflectedObjectWrapper* GetObjectByGUID(const ezUuid& guid) const = 0;
   virtual ezUuid GetObjectGUID(void* pObject) const = 0;
 
   virtual ezUuid EnqueObject(void* pObject, const void* pType) = 0;
@@ -54,7 +55,8 @@ class EZ_FOUNDATION_DLL ezRttiSerializationContext : public ezReflectedSerializa
 public:
   virtual void* CreateObject(const ezUuid& guid, const void* pType) override;
   virtual void DeleteObject(const ezUuid& guid) override;
-  virtual void* GetObjectByGUID(const ezUuid& guid) const override;
+  virtual void RegisterObject(const ezUuid& guid, const void* pType, void* pObject) override;
+  virtual ezReflectedObjectWrapper* GetObjectByGUID(const ezUuid& guid) const override;
   virtual ezUuid GetObjectGUID(void* pObject) const override;
 
   virtual ezUuid EnqueObject(void* pObject, const void* pType) override;

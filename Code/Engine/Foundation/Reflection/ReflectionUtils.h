@@ -11,9 +11,6 @@ public:
   // \brief Returns whether a type can be stored directly inside a ezVariant.
   static bool IsBasicType(const ezRTTI* pRtti);
 
-  // \brief Returns the constant value of the given property as an ezVariant. Returns invalid if the type can't be stored inside an ezVariant.
-  static ezVariant GetConstantPropertyValue(const ezAbstractConstantProperty* pProp); // [tested]
-
   static ezVariant GetMemberPropertyValue(const ezAbstractMemberProperty* pProp, const void* pObject); // [tested] via ToolsFoundation 
   static void SetMemberPropertyValue(ezAbstractMemberProperty* pProp, void* pObject, const ezVariant& value); // [tested] via ToolsFoundation 
 

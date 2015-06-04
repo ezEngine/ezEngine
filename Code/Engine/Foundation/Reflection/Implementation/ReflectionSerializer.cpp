@@ -200,17 +200,6 @@ void ezReflectionSerializer::ReadPropertyFromJSON(const ezVariantDictionary& pro
   if (prop.m_Flags.IsSet(ezPropertyFlags::ReadOnly))
     return;
 
-
-  const ezRTTI* pRtti = (const ezRTTI*)object.m_pType;
-  void* pObject = object.m_pObject;
-
-  ezAbstractProperty* pProperty = pRtti->FindPropertyByName(pName->ConvertTo<ezString>().GetData());
-
-  if (pProperty == nullptr)
-    return;
-
-
-
   const ezString sType = pType->ConvertTo<ezString>();
 
   if (prop.m_Category == ezPropertyCategory::Member)
@@ -222,7 +211,7 @@ void ezReflectionSerializer::ReadPropertyFromJSON(const ezVariantDictionary& pro
     else if (prop.m_Flags.IsSet(ezPropertyFlags::Pointer) && pValue->IsA<ezUuid>())
     {
       ezUuid uObject = pValue->Get<ezUuid>();
-      void* pPtrValue = m_pContext->GetObjectByGUID(uObject);
+      void* pPtrValue = m_pContext->GetObjectByGUID(uObject)->m_pObject;
       m_pAdapter->SetPropertyValue(object, prop, ezVariant(), pPtrValue);
     }
     else if (sType == "$s")
@@ -284,7 +273,7 @@ void ezReflectionSerializer::ReadPropertyFromJSON(const ezVariantDictionary& pro
       else if (prop.m_Flags.IsSet(ezPropertyFlags::Pointer))
       {
         ezUuid uObject = pElemValue->Get<ezUuid>();
-        void* pValue = m_pContext->GetObjectByGUID(uObject);
+        void* pValue = m_pContext->GetObjectByGUID(uObject)->m_pObject;
         m_pAdapter->SetPropertyValue(object, prop, i, pValue);
       }
       else // pod element
@@ -293,19 +282,15 @@ void ezReflectionSerializer::ReadPropertyFromJSON(const ezVariantDictionary& pro
       }
     }
   }
-  else if (sType == "$set") // set property
+  else if (sType == "$set" && prop.m_Category == ezPropertyCategory::Set) // set property
   {
-    if (pProperty->GetCategory() != ezPropertyCategory::Set)
-      return;
-
     if (!pValue->IsA<ezVariantArray>())
       return;
 
-    const ezVariantArray& data = pValue->Get<ezVariantArray>();
-    ezAbstractSetProperty* pSet = (ezAbstractSetProperty*) pProperty;
-    const ezRTTI* pElemRtti = pSet->GetElementType();
+    ezHybridArray<ezVariant, 16> keys;
 
-    pSet->Clear(pObject);
+    const ezVariantArray& data = pValue->Get<ezVariantArray>();
+
     for (ezUInt32 i = 0; i < data.GetCount(); i++)
     {
       if (!data[i].IsA<ezVariantDictionary>())
@@ -322,16 +307,18 @@ void ezReflectionSerializer::ReadPropertyFromJSON(const ezVariantDictionary& pro
 
       const ezString sElemType = pElemType->ConvertTo<ezString>();
 
-      if (ezReflectionUtils::IsBasicType(pElemRtti) || pElemRtti == ezGetStaticRTTI<ezVariant>())
+      if (m_pAdapter->IsStandardType(prop.m_pType))
       {
-        ezReflectionUtils::InsertSetPropertyValue(pSet, pObject, *pElemValue);
+        keys.PushBack(*pElemValue);
       }
-      else
+      else if (prop.m_Flags.IsAnySet(ezPropertyFlags::Pointer))
       {
-        // TODO pointer
-        EZ_ASSERT_NOT_IMPLEMENTED;
+        void* pValue = m_pContext->GetObjectByGUID(pElemValue->Get<ezUuid>())->m_pObject;
+        keys.PushBack(pValue);
       }
     }
+
+    m_pAdapter->SetSetContent(object, prop, keys);
   }
 
 }
@@ -399,6 +386,65 @@ void ezReflectionSerializer::ReadJSONObject(const ezVariantDictionary& root, ezR
   }
 }
 
+ezUuid ezReflectionSerializer::ReadObjectsFromJSON(const ezVariantDictionary& root)
+{
+  ezUuid rootGuid;
+
+  ezVariant* pRootObjectGuid;
+  if (!root.TryGetValue("RootObjectGuid", pRootObjectGuid) || !pRootObjectGuid->IsA<ezUuid>())
+    return rootGuid;
+
+  rootGuid = pRootObjectGuid->Get<ezUuid>();
+
+  ezVariant* pTOC;
+  if (!root.TryGetValue("TOC", pTOC) || !pTOC->IsA<ezVariantArray>())
+    return rootGuid;
+
+  ezVariant* pObjects;
+  if (!root.TryGetValue("Objects", pObjects) || !pObjects->IsA<ezVariantDictionary>())
+    return rootGuid;
+
+  {
+    const ezVariantArray& toc = pTOC->Get<ezVariantArray>();
+
+    for (const auto& obj : toc)
+    {
+      if (obj.IsA<ezVariantDictionary>())
+      {
+        const ezVariantDictionary& MyObj = obj.Get<ezVariantDictionary>();
+
+        ezVariant* ObjType;
+        if (!MyObj.TryGetValue("type", ObjType) || !ObjType->IsA<ezString>())
+          continue;
+
+        ezVariant* ObjGuid;
+        if (!MyObj.TryGetValue("guid", ObjGuid) || !ObjGuid->IsA<ezUuid>())
+          continue;
+
+        const void* pType = m_pAdapter->FindTypeByName(ObjType->Get<ezString>());
+        if (pType == nullptr)
+          continue;
+
+        m_pContext->CreateObject(ObjGuid->Get<ezUuid>(), pType);
+      }
+    }
+  }
+
+  {
+    const ezVariantDictionary& Objects = pObjects->Get<ezVariantDictionary>();
+
+    for (ezVariantDictionary::ConstIterator it = Objects.GetIterator(); it.IsValid(); ++it)
+    {
+      const ezUuid guid = ezConversionUtils::ConvertStringToUuid(it.Key());
+
+      ezReflectedObjectWrapper* pWrapper = m_pContext->GetObjectByGUID(guid);
+      EZ_ASSERT_DEBUG(pWrapper != nullptr, "Object with GUID '%s' should have been created!", ezConversionUtils::ToString(guid).GetData());
+
+      ReadJSONObject(it.Value().Get<ezVariantDictionary>(), *pWrapper);
+    }
+  }
+  return rootGuid;
+}
 
 
 
@@ -415,12 +461,61 @@ void ezReflectionSerializer::WriteObjectToJSON(ezStreamWriterBase& stream, const
   ezRttiSerializationContext context;
   ezRttiAdapter adapter(&context);
   ezReflectionSerializer serializer(&adapter);
-  serializer.WriteJSONObject(writer, ezReflectedObjectWrapper(pRtti, const_cast<void*>(pObject)), nullptr);
+
+  writer.BeginObject();
+  {
+    struct TocData
+    {
+      ezUuid m_Guid;
+      ezString m_sType;
+    };
+
+    ezDeque<TocData> AllObjects;
+
+    const ezUuid rootGuid = context.EnqueObject(const_cast<void*>(pObject), pRtti);
+
+    writer.AddVariableUuid("RootObjectGuid", rootGuid);
+
+    writer.BeginObject("Objects");
+    {
+      ezReflectedObjectWrapper object = context.DequeueObject();
+
+      while (object.m_pObject != nullptr)
+      {
+        auto& td = AllObjects.ExpandAndGetRef();
+        td.m_Guid = context.GetObjectGUID(object.m_pObject);
+        td.m_sType = adapter.GetTypeInfo(object.m_pType).m_szName;
+
+        serializer.WriteJSONObject(writer, object, ezConversionUtils::ToString(td.m_Guid));
+
+        object = context.DequeueObject();
+      }
+
+    }
+    writer.EndObject();
+
+    writer.BeginArray("TOC");
+    {
+      for (const auto& td : AllObjects)
+      {
+        writer.BeginObject();
+          writer.AddVariableUuid("guid", td.m_Guid);
+          writer.AddVariableString("type", td.m_sType);
+        writer.EndObject();
+      }
+    }
+    writer.EndArray();
+  }
+  writer.EndObject();
 }
 
-void* ezReflectionSerializer::ReadObjectFromJSON(ezStreamReaderBase& stream, const ezRTTI*& pRtti, TypeAllocator Allocator)
+void* ezReflectionSerializer::ReadObjectFromJSON(ezStreamReaderBase& stream, const ezRTTI*& pRtti)
 {
   pRtti = nullptr;
+
+  ezRttiSerializationContext context;
+  ezRttiAdapter adapter(&context);
+  ezReflectionSerializer serializer(&adapter);
 
   ezExtendedJSONReader reader;
   if (reader.Parse(stream).Failed())
@@ -428,53 +523,28 @@ void* ezReflectionSerializer::ReadObjectFromJSON(ezStreamReaderBase& stream, con
 
   const ezVariantDictionary& root = reader.GetTopLevelObject();
 
-  ezVariant* pVal;
-
-  if (!root.TryGetValue("t", pVal))
-    return nullptr;
-
-  const ezString sType = pVal->ConvertTo<ezString>();
-
-  if (sType == "null")
-    return nullptr;
-
-  pRtti = ezRTTI::FindTypeByName(sType.GetData());
-
-  if (pRtti == nullptr)
-    return nullptr;
-
-  void* pObject = nullptr;
-
-  if (Allocator.IsValid())
-  {
-    pObject = Allocator(*pRtti);
-  }
-  else
-  {
-    if (!pRtti->GetAllocator()->CanAllocate())
-      return nullptr;
-
-    pObject = pRtti->GetAllocator()->Allocate();
-  }
-
-  ezRttiSerializationContext context;
-  ezRttiAdapter adapter(&context);
-  ezReflectionSerializer serializer(&adapter);
-  serializer.ReadJSONObject(root, ezReflectedObjectWrapper(pRtti, pObject));
-
-  return pObject;
+  ezUuid rootGuid = serializer.ReadObjectsFromJSON(root);
+  ezReflectedObjectWrapper* pWrapper = serializer.m_pContext->GetObjectByGUID(rootGuid);
+  pRtti = static_cast<const ezRTTI*>(pWrapper->m_pType);
+  return pWrapper->m_pObject;
 }
 
 void ezReflectionSerializer::ReadObjectPropertiesFromJSON(ezStreamReaderBase& stream, const ezRTTI& rtti, void* pObject)
 {
+  ezRttiSerializationContext context;
+  ezRttiAdapter adapter(&context);
+  ezReflectionSerializer serializer(&adapter);
+
   ezExtendedJSONReader reader;
   if (reader.Parse(stream).Failed())
     return;
 
   const ezVariantDictionary& root = reader.GetTopLevelObject();
 
-  ezRttiSerializationContext context;
-  ezRttiAdapter adapter(&context);
-  ezReflectionSerializer serializer(&adapter);
-  serializer.ReadJSONObject(root, ezReflectedObjectWrapper(&rtti, pObject));
+  ezVariant* pRootObjectGuid;
+  if (!root.TryGetValue("RootObjectGuid", pRootObjectGuid) || !pRootObjectGuid->IsA<ezUuid>())
+    return;
+
+  context.RegisterObject(pRootObjectGuid->Get<ezUuid>(), &rtti, pObject);
+  serializer.ReadObjectsFromJSON(root);
 }

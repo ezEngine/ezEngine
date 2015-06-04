@@ -294,7 +294,9 @@ static void LogWriter(const ezLoggingEventData& e)
 void ezTestFramework::ExecuteNextTest()
 {
   EZ_ASSERT_DEV(m_iExecutingTest >= 0, "Invalid current test.");
-  EZ_ASSERT_DEV(m_iExecutingTest < (ezInt32) GetTestCount(), "Invalid current test.");
+
+  if (m_iExecutingTest == (ezInt32)GetTestCount())
+    return;
 
   if (!m_TestEntries[m_iExecutingTest].m_bEnableTest)
   {

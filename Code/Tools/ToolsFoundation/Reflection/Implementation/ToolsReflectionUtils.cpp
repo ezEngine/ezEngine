@@ -5,7 +5,10 @@
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/IO/ExtendedJSONWriter.h>
 #include <Foundation/IO/ExtendedJSONReader.h>
+#include <Foundation/Reflection/ReflectionSerializer.h>
 #include <ToolsFoundation/Reflection/IReflectedTypeAccessor.h>
+#include <ToolsFoundation/Reflection/ObjectReflectionAdapter.h>
+#include <ToolsFoundation/Object/DocumentObjectBase.h>
 
 
 ////////////////////////////////////////////////////////////////////////
@@ -81,6 +84,8 @@ void ezToolsReflectionUtils::GetReflectedTypeDescriptorFromRtti(const ezRTTI* pR
   out_desc.m_sTypeName = pRtti->GetTypeName();
   out_desc.m_sPluginName = pRtti->GetPluginName();
   out_desc.m_Flags = pRtti->GetTypeFlags();
+  out_desc.m_uiTypeSize = pRtti->GetTypeSize();
+  out_desc.m_uiTypeVersion = pRtti->GetTypeVersion();
   const ezRTTI* pParentRtti = pRtti->GetParentType();
   out_desc.m_sParentTypeName = pParentRtti ? pParentRtti->GetTypeName() : nullptr;
 
@@ -103,7 +108,7 @@ void ezToolsReflectionUtils::GetReflectedTypeDescriptorFromRtti(const ezRTTI* pR
 
         if (ezReflectionUtils::IsBasicType(pMemberPropRtti))
         {
-          ezVariant value = ezReflectionUtils::GetConstantPropertyValue(constantProp);
+          ezVariant value = constantProp->GetConstant();
           out_desc.m_Properties.PushBack(ezReflectedPropertyDescriptor(constantProp->GetPropertyName(), memberType, value));
         }
         else
@@ -185,301 +190,165 @@ ezPropertyPath ezToolsReflectionUtils::CreatePropertyPath(const char* pData1, co
   return path;
 }
 
-ezAbstractMemberProperty* ezToolsReflectionUtils::GetMemberPropertyByPath(const ezRTTI*& inout_pRtti, void*& inout_pData, const ezPropertyPath& path)
+ezAbstractProperty* ezToolsReflectionUtils::GetPropertyByPath(const ezRTTI* pRtti, const ezPropertyPath& path)
+{
+  ezAbstractMemberProperty* pCurrentProp = ezReflectionUtils::GetMemberProperty(pRtti, path[0]);
+  if (path.GetCount() == 1)
+    return pCurrentProp;
+
+  ezPropertyPath pathCopy = path;
+  pathCopy.RemoveAt(0);
+
+  return GetPropertyByPath(pCurrentProp->GetPropertyType(), pathCopy);
+}
+
+ezVariant ezToolsReflectionUtils::GetMemberPropertyValueByPath(const ezRTTI* pRtti, void* pObject, const ezPropertyPath& path)
 {
   EZ_ASSERT_DEV(path.GetCount() > 0, "ezReflectedTypeDirectAccessor: the given property path is empty!");
 
-  ezAbstractMemberProperty* pCurrentProp = ezReflectionUtils::GetMemberProperty(inout_pRtti, path[0]);
+  ezAbstractMemberProperty* pCurrentProp = ezReflectionUtils::GetMemberProperty(pRtti, path[0]);
 
-  // Find pointer that contains the final data property.
-  const ezUInt32 uiPathSize = path.GetCount();
-  for (ezUInt32 i = 1; i < uiPathSize; ++i)
+  if (pCurrentProp == nullptr)
+    return ezVariant();
+
+  if (path.GetCount() == 1)
+    return ezReflectionUtils::GetMemberPropertyValue(pCurrentProp, pObject);
+
+  if (pCurrentProp->GetPropertyPointer(pObject) != nullptr)
   {
-    if (pCurrentProp == nullptr)
-      return nullptr;
+    ezPropertyPath pathCopy = path;
+    pathCopy.RemoveAt(0);
 
-    inout_pRtti = pCurrentProp->GetPropertyType();
-    inout_pData = pCurrentProp->GetPropertyPointer(inout_pData);
-    if (inout_pData == nullptr)
-      return nullptr;
+    return GetMemberPropertyValueByPath(pCurrentProp->GetPropertyType(), pCurrentProp->GetPropertyPointer(pObject), pathCopy);
+  }
+  else if (pCurrentProp->GetPropertyType()->GetAllocator()->CanAllocate())
+  {
+    void* pValue = pCurrentProp->GetPropertyType()->GetAllocator()->Allocate();
+    pCurrentProp->GetValuePtr(pObject, pValue);
 
-    pCurrentProp = ezReflectionUtils::GetMemberProperty(inout_pRtti, path[i]);
+    ezPropertyPath pathCopy = path;
+    pathCopy.RemoveAt(0);
+
+    ezVariant res = GetMemberPropertyValueByPath(pCurrentProp->GetPropertyType(), pValue, pathCopy);
+
+    pCurrentProp->GetPropertyType()->GetAllocator()->Deallocate(pValue);
+
+    return res;
   }
 
-  // pCurrentRtti should now be a type that contains the property that we can access directly.
-  // pData should point to the object of type pCurrentRtti.
-  // pCurrentProp should be a property defined in 'pCurrentRtti' and it should be a type that is handled by ezVariant.
-  return pCurrentProp;
+  return ezVariant();
 }
 
-
-
-
-#define IF_HANDLE_TYPE(VAR_TYPE, TYPE, FUNC) \
-  if (pProp->m_Type == VAR_TYPE) \
-{ \
-  ParentPath.PushBack(pProp->m_sPropertyName.GetData()); \
-  writer.BeginObject(); \
-  writer.AddVariableString("t", #TYPE); \
-  writer.AddVariableString("n", pProp->m_sPropertyName); \
-  writer.FUNC("v", et.GetValue(ParentPath).ConvertTo<TYPE>()); \
-  writer.EndObject(); \
-  ParentPath.PopBack(); \
-} 
-
-#define IF_HANDLE_TYPE_STRING(VAR_TYPE, TYPE, FUNC) \
-  if (pProp->m_Type == VAR_TYPE) \
-{ \
-  ParentPath.PushBack(pProp->m_sPropertyName.GetData()); \
-  writer.BeginObject(); \
-  writer.AddVariableString("t", #TYPE); \
-  writer.AddVariableString("n", pProp->m_sPropertyName); \
-  writer.FUNC("v", et.GetValue(ParentPath).ConvertTo<ezString>()); \
-  writer.EndObject(); \
-  ParentPath.PopBack(); \
-} 
-
-static void WriteJSONObject(ezJSONWriter& writer, const ezIReflectedTypeAccessor& et, const ezReflectedType* pType, ezPropertyPath& ParentPath, const char* szObjectName);
-
-static void WriteProperties(ezJSONWriter& writer, const ezIReflectedTypeAccessor& et, const ezReflectedType* pType, ezPropertyPath& ParentPath)
+bool ezToolsReflectionUtils::SetMemberPropertyValueByPath(const ezRTTI* pRtti, void* pObject, const ezPropertyPath& path, const ezVariant& value)
 {
-  if (!pType->GetParentTypeHandle().IsInvalidated())
+  EZ_ASSERT_DEV(path.GetCount() > 0, "ezReflectedTypeDirectAccessor: the given property path is empty!");
+
+  ezAbstractMemberProperty* pCurrentProp = ezReflectionUtils::GetMemberProperty(pRtti, path[0]);
+
+  if (pCurrentProp == nullptr)
+    return false;
+
+  if (path.GetCount() == 1)
   {
-    WriteProperties(writer, et, pType->GetParentTypeHandle().GetType(), ParentPath);
+    ezReflectionUtils::SetMemberPropertyValue(pCurrentProp, pObject, value);
+    return true;
   }
 
-  for (ezUInt32 p = 0; p < pType->GetPropertyCount(); ++p)
+  if (pCurrentProp->GetPropertyPointer(pObject) != nullptr)
   {
-    const ezReflectedProperty* pProp = pType->GetPropertyByIndex(p);
+    ezPropertyPath pathCopy = path;
+    pathCopy.RemoveAt(0);
 
-    if (pProp->m_Flags.IsAnySet(ezPropertyFlags::ReadOnly))
-      continue;
-
-    if (pProp->m_Flags.IsAnySet(ezPropertyFlags::StandardType))
-    {
-
-      IF_HANDLE_TYPE(ezVariant::Type::Bool, bool, AddVariableBool)
-
-    else IF_HANDLE_TYPE(ezVariant::Type::Int8, ezInt8, AddVariableInt32)
-    else IF_HANDLE_TYPE(ezVariant::Type::Int16, ezInt16, AddVariableInt32)
-  else IF_HANDLE_TYPE(ezVariant::Type::Int32, ezInt32, AddVariableInt32)
-  else IF_HANDLE_TYPE(ezVariant::Type::Int64, ezInt64, AddVariableInt64)
-
-  else IF_HANDLE_TYPE(ezVariant::Type::UInt8, ezUInt8, AddVariableUInt32)
-      else IF_HANDLE_TYPE(ezVariant::Type::UInt16, ezUInt16, AddVariableUInt32)
-      else IF_HANDLE_TYPE(ezVariant::Type::UInt32, ezUInt32, AddVariableUInt32)
-      else IF_HANDLE_TYPE(ezVariant::Type::UInt64, ezUInt64, AddVariableUInt64)
-
-      else IF_HANDLE_TYPE(ezVariant::Type::Float, float, AddVariableFloat)
-      else IF_HANDLE_TYPE(ezVariant::Type::Double, double, AddVariableDouble)
-
-      else IF_HANDLE_TYPE(ezVariant::Type::Matrix3, ezMat3, AddVariableMat3)
-      else IF_HANDLE_TYPE(ezVariant::Type::Matrix4, ezMat4, AddVariableMat4)
-      else IF_HANDLE_TYPE(ezVariant::Type::Quaternion, ezQuat, AddVariableQuat)
-
-      else IF_HANDLE_TYPE(ezVariant::Type::Vector2, ezVec2, AddVariableVec2)
-      else IF_HANDLE_TYPE(ezVariant::Type::Vector3, ezVec3, AddVariableVec3)
-      else IF_HANDLE_TYPE(ezVariant::Type::Vector4, ezVec4, AddVariableVec4)
-
-      else IF_HANDLE_TYPE(ezVariant::Type::Color, ezColor, AddVariableColor)
-      else IF_HANDLE_TYPE(ezVariant::Type::Time, ezTime, AddVariableTime)
-      else IF_HANDLE_TYPE(ezVariant::Type::Uuid, ezUuid, AddVariableUuid)
-      else IF_HANDLE_TYPE_STRING(ezVariant::Type::String, ezConstCharPtr, AddVariableString)
-    }
-    else if (pProp->m_Flags.IsAnySet(ezPropertyFlags::IsEnum | ezPropertyFlags::Bitflags))
-    {
-      ParentPath.PushBack(pProp->m_sPropertyName.GetData());
-      writer.BeginObject();
-      writer.AddVariableString("t", pProp->m_Flags.IsSet(ezPropertyFlags::IsEnum) ? "ezEnum" : "ezBitflags");
-      writer.AddVariableString("n", pProp->m_sPropertyName);
-      writer.AddVariableInt64("v", et.GetValue(ParentPath).ConvertTo<ezInt64>());
-      writer.EndObject();
-      ParentPath.PopBack();
-    }
-    else
-    {
-      writer.BeginObject();
-      writer.AddVariableString("t", "$s"); // struct property
-      writer.AddVariableString("n", pProp->m_sPropertyName);
-
-      ParentPath.PushBack(pProp->m_sPropertyName.GetData());
-      WriteJSONObject(writer, et, pProp->m_hTypeHandle.GetType(), ParentPath, "v");
-      ParentPath.PopBack();
-
-      writer.EndObject();
-    }
+    return SetMemberPropertyValueByPath(pCurrentProp->GetPropertyType(), pCurrentProp->GetPropertyPointer(pObject), pathCopy, value);
   }
+  else if (pCurrentProp->GetPropertyType()->GetAllocator()->CanAllocate())
+  {
+    void* pValue = pCurrentProp->GetPropertyType()->GetAllocator()->Allocate();
+    pCurrentProp->GetValuePtr(pObject, pValue);
+
+    ezPropertyPath pathCopy = path;
+    pathCopy.RemoveAt(0);
+
+    const bool res = SetMemberPropertyValueByPath(pCurrentProp->GetPropertyType(), pValue, pathCopy, value);
+
+    pCurrentProp->SetValuePtr(pObject, pValue);
+    pCurrentProp->GetPropertyType()->GetAllocator()->Deallocate(pValue);
+
+    return res;
+  }
+
+  return false;
 }
 
-static void WriteJSONObject(ezJSONWriter& writer, const ezIReflectedTypeAccessor& et, const ezReflectedType* pType, ezPropertyPath& ParentPath, const char* szObjectName)
-{
-  writer.BeginObject(szObjectName);
-
-  writer.AddVariableString("t", et.GetReflectedTypeHandle().GetType()->GetTypeName().GetData());
-
-  writer.BeginArray("p");
-
-  WriteProperties(writer, et, pType, ParentPath);
-
-  writer.EndArray();
-
-  writer.EndObject();
-}
-
-
-void ezToolsReflectionUtils::WriteObjectToJSON(ezStreamWriterBase& stream, const ezIReflectedTypeAccessor& accessor, ezJSONWriter::WhitespaceMode::Enum WhitespaceMode)
+void ezToolsReflectionUtils::WriteObjectToJSON(ezStreamWriterBase& stream, const ezDocumentObjectBase* pObject, ezJSONWriter::WhitespaceMode::Enum WhitespaceMode)
 {
   ezExtendedJSONWriter writer;
   writer.SetOutputStream(&stream);
   writer.SetWhitespaceMode(WhitespaceMode);
 
-  ezPropertyPath path;
-  WriteJSONObject(writer, accessor, accessor.GetReflectedTypeHandle().GetType(), path, nullptr);
-}
+  ezObjectSerializationContext context;
+  ezObjectReflectionAdapter adapter(&context);
+  ezReflectionSerializer serializer(&adapter);
 
-static void ReadJSONObject(const ezVariantDictionary& root, ezIReflectedTypeAccessor& et, ezPropertyPath& ParentPath)
-{
-  ezVariant* pVal;
-
-  if (!root.TryGetValue("p", pVal) || !pVal->IsA<ezVariantArray>())
-    return;
-
-  ezVariantArray va = pVal->ConvertTo<ezVariantArray>();
-
-  for (ezUInt32 prop = 0; prop < va.GetCount(); ++prop)
+  writer.BeginObject();
   {
-    if (va[prop].GetType() != ezVariant::Type::VariantDictionary)
-      continue;
-
-    const ezVariantDictionary obj = va[prop].ConvertTo<ezVariantDictionary>();
-
-    ezVariant* pName;
-    if (!obj.TryGetValue("n", pName))
-      continue;
-
-    ezVariant* pType;
-    if (!obj.TryGetValue("t", pType))
-      continue;
-
-    ezVariant* pValue;
-    if (!obj.TryGetValue("v", pValue))
-      continue;
-
-    ezString sName = pName->ConvertTo<ezString>();
-
-    ParentPath.PushBack(sName);
-
-    const ezString sType = pType->ConvertTo<ezString>();
-
-    if (sType != "$s") // not a struct property
+    struct TocData
     {
-      et.SetValue(ParentPath, *pValue);
-    }
-    else
+      ezUuid m_Guid;
+      ezString m_sType;
+    };
+
+    ezDeque<TocData> AllObjects;
+
+    const ezUuid rootGuid = context.EnqueObject((void*)(pObject), pObject->GetTypeAccessor().GetType());
+
+    writer.AddVariableUuid("RootObjectGuid", rootGuid);
+
+    writer.BeginObject("Objects");
     {
-      if (!pValue->IsA<ezVariantDictionary>())
+      ezReflectedObjectWrapper object = context.DequeueObject();
+
+      while (object.m_pObject != nullptr)
       {
-        ParentPath.PopBack();
-        continue;
+        auto& td = AllObjects.ExpandAndGetRef();
+        td.m_Guid = context.GetObjectGUID(object.m_pObject);
+        td.m_sType = adapter.GetTypeInfo(object.m_pType).m_szName;
+
+        serializer.WriteJSONObject(writer, object, ezConversionUtils::ToString(td.m_Guid));
+
+        object = context.DequeueObject();
       }
 
-      ReadJSONObject(pValue->ConvertTo<ezVariantDictionary>(), et, ParentPath);
     }
+    writer.EndObject();
 
-    ParentPath.PopBack();
+    writer.BeginArray("TOC");
+    {
+      for (const auto& td : AllObjects)
+      {
+        writer.BeginObject();
+        writer.AddVariableUuid("guid", td.m_Guid);
+        writer.AddVariableString("type", td.m_sType);
+        writer.EndObject();
+      }
+    }
+    writer.EndArray();
   }
+  writer.EndObject();
+
 }
 
 void ezToolsReflectionUtils::ReadObjectPropertiesFromJSON(ezStreamReaderBase& stream, ezIReflectedTypeAccessor& accessor)
 {
-  ezExtendedJSONReader reader;
-  if (reader.Parse(stream).Failed())
-    return;
+  EZ_ASSERT_NOT_IMPLEMENTED;
 
-  const ezVariantDictionary& root = reader.GetTopLevelObject();
+  //ezExtendedJSONReader reader;
+  //if (reader.Parse(stream).Failed())
+  //  return;
 
-  ezPropertyPath path;
-  ReadJSONObject(root, accessor, path);
-}
+  //const ezVariantDictionary& root = reader.GetTopLevelObject();
 
-bool ezToolsReflectionUtils::EnumerationToString(const ezReflectedType* pEnumerationRtti, ezInt64 iValue, ezStringBuilder& out_sOutput)
-{
-  out_sOutput.Clear();
-  const ezReflectedType* pParentRtti = pEnumerationRtti->GetParentTypeHandle().GetType();
-  EZ_ASSERT_DEV(pParentRtti != nullptr, "Parent type does not exist!");
-
-  // TODO: make this faster.
-  if (ezStringUtils::IsEqual(pParentRtti->GetTypeName().GetData(), "ezEnumBase"))
-  {
-    for (const ezReflectedConstant& constant : pEnumerationRtti->GetConstants())
-    {
-      if (constant.m_ConstantValue.ConvertTo<ezInt64>() == iValue)
-      {
-        out_sOutput = constant.m_sPropertyName.GetString();
-        return true;
-      }
-    }
-    return false;
-  }
-  else if (ezStringUtils::IsEqual(pParentRtti->GetTypeName().GetData(), "ezBitflagsBase"))
-  {
-    for (const ezReflectedConstant& constant : pEnumerationRtti->GetConstants())
-    {
-      if ((constant.m_ConstantValue.ConvertTo<ezInt64>() & iValue) != 0)
-      {
-        out_sOutput.Append(constant.m_sPropertyName.GetString(), "|");
-      }
-    }
-    out_sOutput.Shrink(0, 1);
-    return true;
-  }
-  else
-  {
-    EZ_ASSERT_DEV(false, "The RTTI class '%s' is not an enum or bitflags class", pEnumerationRtti->GetTypeName().GetData());
-    return false;
-  }
-}
-
-bool ezToolsReflectionUtils::StringToEnumeration(const ezReflectedType* pEnumerationRtti, const char* szValue, ezInt64& out_iValue)
-{
-  out_iValue = 0;
-  const ezReflectedType* pParentRtti = pEnumerationRtti->GetParentTypeHandle().GetType();
-  EZ_ASSERT_DEV(pParentRtti != nullptr, "Parent type does not exist!");
-
-  // TODO: make this faster.
-  if (ezStringUtils::IsEqual(pParentRtti->GetTypeName().GetData(), "ezEnumBase"))
-  {
-    for (const ezReflectedConstant& constant : pEnumerationRtti->GetConstants())
-    {
-      if (ezStringUtils::IsEqual(constant.m_sPropertyName, szValue))
-      {
-        out_iValue = constant.m_ConstantValue.ConvertTo<ezInt64>();
-        return true;
-      }
-    }
-    return false;
-  }
-  else if (ezStringUtils::IsEqual(pParentRtti->GetTypeName().GetData(), "ezBitflagsBase"))
-  {
-    ezStringBuilder temp = szValue;
-    ezHybridArray<ezStringView, 32> values;
-    temp.Split(false, values, "|");
-    for (auto sValue : values)
-    {
-      for (const ezReflectedConstant& constant : pEnumerationRtti->GetConstants())
-      {
-        if (sValue.IsEqual(constant.m_sPropertyName))
-        {
-          out_iValue |= constant.m_ConstantValue.ConvertTo<ezInt64>();
-        }
-      }
-    }
-    return true;
-  }
-  else
-  {
-    EZ_ASSERT_DEV(false, "The RTTI class '%s' is not an enum or bitflags class", pEnumerationRtti->GetTypeName().GetData());
-    return false;
-  }
+  //ezPropertyPath path;
+  //ReadJSONObject(root, accessor, path);
 }
 

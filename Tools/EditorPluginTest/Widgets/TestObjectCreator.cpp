@@ -26,7 +26,7 @@ ezTestObjectCreatorWidget::~ezTestObjectCreatorWidget()
 
 void ezTestObjectCreatorWidget::TypeChanged(const ezReflectedTypeChange& data)
 {
-  ezHybridArray<ezReflectedTypeHandle, 32> Types;
+  ezHybridArray<ezRTTI*, 32> Types;
   m_pManager->GetCreateableTypes(Types);
 
   ezQtBlockSignals b(this);
@@ -35,7 +35,7 @@ void ezTestObjectCreatorWidget::TypeChanged(const ezReflectedTypeChange& data)
 
   for (ezUInt32 i = 0; i < Types.GetCount(); ++i)
   {
-    addItem(QString::fromUtf8(Types[i].GetType()->GetTypeName().GetData()));
+    addItem(QString::fromUtf8(Types[i]->GetTypeName()));
   }
   setDragEnabled(true);
 }

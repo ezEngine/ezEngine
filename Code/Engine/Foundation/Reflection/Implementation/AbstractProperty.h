@@ -24,6 +24,7 @@ struct ezPropertyFlags
     IsEnum = EZ_BIT(4),       ///< enum property, cast to ezAbstractEnumerationProperty.
     Bitflags = EZ_BIT(5),     ///< bitflags property, cast to ezAbstractEnumerationProperty.
     Constant = EZ_BIT(6),     ///< Property is a constant.
+    Phantom = EZ_BIT(7),
     Default = 0
   };
 
@@ -36,6 +37,7 @@ struct ezPropertyFlags
     StorageType IsEnum : 1;
     StorageType Bitflags : 1;
     StorageType Constant : 1;
+    StorageType Phantom : 1;
   };
 };
 
@@ -74,7 +76,21 @@ public:
   /// \brief Returns the category of this property. Cast this property to the next higher type for more information.
   virtual ezPropertyCategory::Enum GetCategory() const = 0; // [tested]
 
-private:
+                                                            /// \brief Returns the flags of the property.
+  const ezBitflags<ezPropertyFlags>& GetFlags() const
+  {
+    return m_Flags;
+  };
+
+  /// \brief Adds flags to the property. Returns itself to allow to be called during initialization.
+  ezAbstractProperty* AddFlags(ezPropertyFlags::Enum flags)
+  {
+    m_Flags.Add(flags);
+    return this;
+  };
+
+protected:
+  ezBitflags<ezPropertyFlags> m_Flags;
   const char* m_szPropertyName;
 };
 
@@ -96,6 +112,10 @@ public:
 
   /// \brief Returns a pointer to the constant data or nullptr. See ezAbstractMemberProperty::GetPropertyPointer for more information.
   virtual void* GetPropertyPointer() const = 0;
+
+  /// \brief Returns the constant value as an ezVariant
+  virtual ezVariant GetConstant() const = 0;
+
 };
 
 /// \brief This is the base class for all properties that are members of a class. It provides more information about the actual type.
@@ -138,21 +158,6 @@ public:
   /// pObject needs to point to an instance of this property's type.
   virtual void SetValuePtr(void* pInstance, void* pObject) = 0;
 
-  /// \brief Returns the flags of the property.
-  const ezBitflags<ezPropertyFlags>& GetFlags() const // [tested]
-  {
-    return m_Flags;
-  };
-
-  /// \brief Adds flags to the property. Returns itself to allow to be called during initialization.
-  ezAbstractMemberProperty* AddFlags(ezPropertyFlags::Enum flags) // [tested]
-  {
-    m_Flags.Add(flags);
-    return this;
-  };
-
-protected:
-  ezBitflags<ezPropertyFlags> m_Flags;
 };
 
 /// \brief The base class for all function properties.
@@ -209,21 +214,6 @@ public:
   /// \brief Resizes the array to uiCount.
   virtual void SetCount(void* pInstance, ezUInt32 uiCount) = 0;
 
-  /// \brief Returns the flags of the array element property.
-  const ezBitflags<ezPropertyFlags>& GetFlags() const
-  {
-    return m_Flags;
-  };
-
-  /// \brief Adds flags to the array element property. Returns itself to allow to be called during initialization.
-  ezAbstractArrayProperty* AddFlags(ezPropertyFlags::Enum flags)
-  {
-    m_Flags.Add(flags);
-    return this;
-  };
-
-protected:
-  ezBitflags<ezPropertyFlags> m_Flags;
 };
 
 
@@ -263,21 +253,6 @@ public:
   /// \brief Writes the content of the set to out_keys.
   virtual void GetValues(const void* pInstance, ezHybridArray<ezVariant, 16>& out_keys) const = 0;
 
-  /// \brief Returns the flags of the set element property.
-  const ezBitflags<ezPropertyFlags>& GetFlags() const
-  {
-    return m_Flags;
-  };
-
-  /// \brief Adds flags to the set element property. Returns itself to allow to be called during initialization.
-  ezAbstractSetProperty* AddFlags(ezPropertyFlags::Enum flags)
-  {
-    m_Flags.Add(flags);
-    return this;
-  };
-
-protected:
-  ezBitflags<ezPropertyFlags> m_Flags;
 };
 
 

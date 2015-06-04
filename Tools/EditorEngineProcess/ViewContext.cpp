@@ -190,6 +190,7 @@ void ezViewContext::Redraw()
   ezRenderLoop::AddMainView(m_pView);
 
   // download the picking information from the GPU
+  if (GetEditorWindow().m_uiWidth != 0 && GetEditorWindow().m_uiHeight != 0)
   {
     ezGALDevice::GetDefaultDevice()->GetPrimaryContext()->ReadbackTexture(m_hPickingIdRT);
     ezGALDevice::GetDefaultDevice()->GetPrimaryContext()->ReadbackTexture(m_hPickingDepthRT);
@@ -198,6 +199,9 @@ void ezViewContext::Redraw()
 
     m_Camera.GetProjectionMatrix(GetEditorWindow().m_uiWidth / GetEditorWindow().m_uiHeight, mProj);
     m_Camera.GetViewMatrix(mView);
+
+    if (mProj.IsNaN())
+      return;
 
     m_PickingInverseViewProjectionMatrix = (mProj * mView).GetInverse();
 

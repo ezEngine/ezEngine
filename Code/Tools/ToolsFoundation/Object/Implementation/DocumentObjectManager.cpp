@@ -13,21 +13,21 @@ void ezDocumentObjectManagerBase::SetObjectTree(const ezDocumentObjectTree* pDoc
   m_pDocumentTree = pDocumentTree;
 }
 
-ezDocumentObjectBase* ezDocumentObjectManagerBase::CreateObject(ezReflectedTypeHandle hType, ezUuid guid)
+ezDocumentObjectBase* ezDocumentObjectManagerBase::CreateObject(const ezRTTI* pRtti, ezUuid guid)
 {
-  ezDocumentObjectBase* pObject = InternalCreateObject(hType);
+  ezDocumentObjectBase* pObject = InternalCreateObject(pRtti);
 
   if (pObject)
   {
-    if (!hType.GetType()->GetDefaultInitialization().IsEmpty())
-    {
-      ezMemoryStreamStorage storage;
-      ezMemoryStreamWriter writer(&storage);
-      ezMemoryStreamReader reader(&storage);
-      writer.WriteBytes(hType.GetType()->GetDefaultInitialization().GetData(), hType.GetType()->GetDefaultInitialization().GetElementCount());
+    //if (!pRtti->GetDefaultInitialization().IsEmpty())
+    //{
+    //  ezMemoryStreamStorage storage;
+    //  ezMemoryStreamWriter writer(&storage);
+    //  ezMemoryStreamReader reader(&storage);
+    //  writer.WriteBytes(hType.GetType()->GetDefaultInitialization().GetData(), hType.GetType()->GetDefaultInitialization().GetElementCount());
 
-      ezToolsReflectionUtils::ReadObjectPropertiesFromJSON(reader, pObject->GetTypeAccessor());
-    }
+    //  ezToolsReflectionUtils::ReadObjectPropertiesFromJSON(reader, pObject->GetTypeAccessor());
+    //}
 
     if (guid.IsValid())
       pObject->m_Guid = guid;
@@ -48,7 +48,7 @@ void ezDocumentObjectManagerBase::DestroyObject(ezDocumentObjectBase* pObject)
   InternalDestroyObject(pObject);
 }
 
-bool ezDocumentObjectManagerBase::CanAdd(ezReflectedTypeHandle hType, const ezDocumentObjectBase* pParent) const
+bool ezDocumentObjectManagerBase::CanAdd(const ezRTTI* pRtti, const ezDocumentObjectBase* pParent) const
 {
   // Test whether parent exists in tree.
   if (pParent == m_pDocumentTree->GetRootObject())
@@ -64,7 +64,7 @@ bool ezDocumentObjectManagerBase::CanAdd(ezReflectedTypeHandle hType, const ezDo
       return false;
   }
 
-  return InternalCanAdd(hType, pParent);
+  return InternalCanAdd(pRtti, pParent);
 }
 
 bool ezDocumentObjectManagerBase::CanRemove(const ezDocumentObjectBase* pObject) const

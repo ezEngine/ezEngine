@@ -8,7 +8,7 @@ class ezReflectedTypeStorageAccessor;
 /// \brief Manages all ezReflectedTypeStorageAccessor instances.
 ///
 /// This class takes care of patching all ezReflectedTypeStorageAccessor instances when their
-/// ezReflectedType is modified. It also provides the mapping from ezPropertyPath to the data
+/// ezRTTI is modified. It also provides the mapping from ezPropertyPath to the data
 /// storage index of the corresponding ezVariant in the ezReflectedTypeStorageAccessor.
 class EZ_TOOLSFOUNDATION_DLL ezReflectedTypeStorageManager
 {
@@ -27,15 +27,15 @@ private:
       ezEnum<ezVariant::Type> m_Type;
     };
 
-    /// \brief Flattens all POD type properties of the given ezReflectedType into m_PathToStorageInfoTable.
+    /// \brief Flattens all POD type properties of the given ezRTTI into m_PathToStorageInfoTable.
     ///
     /// The functions first adds all parent class properties and then adds its own properties.
     /// POD type properties are added under the current path and non-PODs are recursed into with a new path.
-    void AddProperties(const ezReflectedType* pType);
-    void AddPropertiesRecursive(const ezReflectedType* pType, const char* szPath);
+    void AddProperties(const ezRTTI* pType);
+    void AddPropertiesRecursive(const ezRTTI* pType, const char* szPath);
 
-    void UpdateInstances(ezUInt32 uiIndex, const ezReflectedProperty* pProperty);
-    void AddPropertyToInstances(ezUInt32 uiIndex, const ezReflectedProperty* pProperty);
+    void UpdateInstances(ezUInt32 uiIndex, const ezAbstractProperty* pProperty);
+    void AddPropertyToInstances(ezUInt32 uiIndex, const ezAbstractProperty* pProperty);
 
 
     ezSet<ezReflectedTypeStorageAccessor*> m_Instances;
@@ -56,6 +56,6 @@ private:
   static void TypeRemovedEvent(const ezReflectedTypeChange& data);
 
 private:
-  static ezMap<ezReflectedTypeHandle, ReflectedTypeStorageMapping*> m_ReflectedTypeToStorageMapping;
+  static ezMap<const ezRTTI*, ReflectedTypeStorageMapping*> m_ReflectedTypeToStorageMapping;
 };
 

@@ -101,9 +101,14 @@ public:
     return uiIndex < m_DynamicMessageHandlers.GetCount() && m_DynamicMessageHandlers[uiIndex] != nullptr;
   }
 
-private:
+protected:
   const char* m_szPluginName;
   const char* m_szTypeName;
+  ezArrayPtr<ezAbstractProperty*> m_Properties;
+
+  void UpdateType(const ezRTTI* pParentType, ezUInt32 uiTypeSize, ezUInt32 uiTypeVersion, ezUInt32 uiVariantType, ezBitflags<ezTypeFlags> flags);
+
+private:
   const ezRTTI* m_pParentType;
   ezUInt32 m_uiVariantType;
   ezUInt32 m_uiTypeSize;
@@ -111,8 +116,6 @@ private:
   ezUInt32 m_uiTypeVersion;
   ezBitflags<ezTypeFlags> m_TypeFlags;
   ezRTTIAllocator* m_pAllocator;
-
-  ezArrayPtr<ezAbstractProperty*> m_Properties;
 
   ezArrayPtr<ezAbstractMessageHandler*> m_MessageHandlers;
   ezDynamicArray<ezAbstractMessageHandler*> m_DynamicMessageHandlers;

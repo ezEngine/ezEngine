@@ -16,7 +16,7 @@ public:
   void ChangePropertyValue(const ezString& sPropertyPath, const ezVariant& value);
 
 private:
-  void BuildUI(const ezIReflectedTypeAccessor& et, const ezReflectedType* pType, ezPropertyPath& ParentPath, QLayout* pLayout);
+  void BuildUI(const ezIReflectedTypeAccessor& et, const ezRTTI* pType, ezPropertyPath& ParentPath, QLayout* pLayout);
 
   void PropertyChangedHandler(const ezPropertyEditorBaseWidget::Event& ed);
 

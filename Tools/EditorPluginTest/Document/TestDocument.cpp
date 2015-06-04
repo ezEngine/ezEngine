@@ -50,7 +50,7 @@ void ezTestDocument::SelectionManagerEventHandler(const ezSelectionManager::Even
     {
       m_TranslateGizmo.SetVisible(true);
       
-      if (GetSelectionManager()->GetSelection()[0]->GetTypeAccessor().GetReflectedTypeHandle() == ezReflectedTypeManager::GetTypeHandleByName("ezGameObject"))
+      if (GetSelectionManager()->GetSelection()[0]->GetTypeAccessor().GetType() == ezRTTI::FindTypeByName("ezGameObject"))
       {
         ezVec3 vPos = GetSelectionManager()->GetSelection()[0]->GetTypeAccessor().GetValue("Position").ConvertTo<ezVec3>();
         ezMat4 mt;
@@ -95,13 +95,18 @@ void ezTestDocument::TransformationGizmoEventHandler(const ezGizmoBase::BaseEven
       cmd.m_NewValue = mTransform.GetTranslationVector();
       cmd.SetPropertyPath("Position");
 
+      auto hType = ezRTTI::FindTypeByName("ezGameObject");
+
       for (ezUInt32 sel = 0; sel < Selection.GetCount(); ++sel)
       {
+        if (!Selection[sel]->GetTypeAccessor().GetType()->IsDerivedFrom(hType))
+          continue;
+
         cmd.m_Object = Selection[sel]->GetGuid();
 
         ezStatus res = GetCommandHistory()->AddCommand(cmd);
 
-        ezUIServices::GetInstance()->MessageBoxStatus(res, "Failed to set the position");
+        //ezUIServices::GetInstance()->MessageBoxStatus(res, "Failed to set the position");
 
         if (res.m_Result.Failed())
         {

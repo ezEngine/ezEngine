@@ -22,62 +22,73 @@ void ezDocumentObjectBase::ComputeObjectHash(ezUInt64& uiHash) const
 {
   {
     const ezIReflectedTypeAccessor& acc = GetEditorTypeAccessor();
-    auto pType = acc.GetReflectedTypeHandle().GetType();
+    auto pType = acc.GetType();
     ezPropertyPath path;
     HashPropertiesRecursive(acc, uiHash, pType, path);
   }
 
   {
     const ezIReflectedTypeAccessor& acc = GetTypeAccessor();
-    auto pType = acc.GetReflectedTypeHandle().GetType();
+    auto pType = acc.GetType();
     ezPropertyPath path;
     HashPropertiesRecursive(acc, uiHash, pType, path);
   }
 }
 
 
-void ezDocumentObjectBase::HashPropertiesRecursive(const ezIReflectedTypeAccessor& acc, ezUInt64& uiHash, const ezReflectedType* pType, ezPropertyPath& path) const
+void ezDocumentObjectBase::HashPropertiesRecursive(const ezIReflectedTypeAccessor& acc, ezUInt64& uiHash, const ezRTTI* pType, ezPropertyPath& path) const
 {
   // Parse parent class
-  ezReflectedTypeHandle hParent = pType->GetParentTypeHandle();
-  if (!hParent.IsInvalidated())
-    HashPropertiesRecursive(acc, uiHash, hParent.GetType(), path);
-  
+  const ezRTTI* pParentType = pType->GetParentType();
+  if (pParentType != nullptr)
+    HashPropertiesRecursive(acc, uiHash, pParentType, path);
+
   // Parse properties
-  ezUInt32 uiPropertyCount = pType->GetPropertyCount();
+  ezUInt32 uiPropertyCount = pType->GetProperties().GetCount();
   for (ezUInt32 i = 0; i < uiPropertyCount; ++i)
   {
-    const ezReflectedProperty* pProperty = pType->GetPropertyByIndex(i);
+    const ezAbstractProperty* pProperty = pType->GetProperties()[i];
 
-    if (pProperty->m_Flags.IsSet(ezPropertyFlags::ReadOnly))
+    if (pProperty->GetFlags().IsSet(ezPropertyFlags::ReadOnly))
       continue;
 
     // Build property path
-    path.PushBack(pProperty->m_sPropertyName.GetString().GetData());
+    path.PushBack(pProperty->GetPropertyName());
 
-    if (pProperty->m_Flags.IsSet(ezPropertyFlags::StandardType))
+    if (pProperty->GetFlags().IsSet(ezPropertyFlags::StandardType))
     {
       ezVariant var = acc.GetValue(path);
       uiHash = var.ComputeHash(uiHash);
     }
-    else if (pProperty->m_Flags.IsAnySet(ezPropertyFlags::IsEnum | ezPropertyFlags::Bitflags))
+    else if (pProperty->GetFlags().IsAnySet(ezPropertyFlags::IsEnum | ezPropertyFlags::Bitflags))
     {
       ezVariant var = acc.GetValue(path);
       uiHash = var.ComputeHash(uiHash);
     }
-    else
+    else if (pProperty->GetCategory() == ezPropertyCategory::Member)
     {
+      const ezAbstractMemberProperty* pMember = static_cast<const ezAbstractMemberProperty*>(pProperty);
+
       // Not POD type, recurse further
-      if (pProperty->m_hTypeHandle.IsInvalidated())
-      {
-        EZ_ASSERT_DEV(false, "A non-POD property was found that cannot be recursed into!");
-      }
-      else
-      {
-        HashPropertiesRecursive(acc, uiHash, pProperty->m_hTypeHandle.GetType(), path);
-      }
+      HashPropertiesRecursive(acc, uiHash, pMember->GetPropertyType(), path);
     }
 
     path.PopBack();
   }
+}
+
+ezDocumentSubObject::ezDocumentSubObject(const ezRTTI* pRtti)
+  : m_TypeAccessor(pRtti)
+  , m_EditorTypeAccessor(pRtti)
+{
+  m_pOwnerObject = nullptr;
+}
+
+void ezDocumentSubObject::SetObject(ezDocumentObjectBase* pOwnerObject, const ezPropertyPath& subPath)
+{
+  m_pOwnerObject = pOwnerObject;
+  m_SubPath = subPath;
+
+  m_TypeAccessor.SetSubAccessor(&pOwnerObject->GetTypeAccessor(), subPath);
+  m_EditorTypeAccessor.SetSubAccessor(&pOwnerObject->GetEditorTypeAccessor(), subPath);
 }

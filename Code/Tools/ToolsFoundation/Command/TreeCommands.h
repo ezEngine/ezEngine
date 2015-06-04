@@ -15,7 +15,7 @@ public: // Properties
   void SetType(const char* szType);
   const char* GetType() const;
 
-  ezReflectedTypeHandle m_hType;
+  const ezRTTI* m_pType;
   ezUuid m_Parent;
   ezInt32 m_iChildIndex;
 

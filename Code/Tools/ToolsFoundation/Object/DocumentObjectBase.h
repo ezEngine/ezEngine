@@ -3,6 +3,7 @@
 #include <ToolsFoundation/Basics.h>
 #include <ToolsFoundation/Reflection/ReflectedTypeDirectAccessor.h>
 #include <ToolsFoundation/Reflection/ReflectedTypeStorageAccessor.h>
+#include <ToolsFoundation/Reflection/ReflectedTypeSubObjectAccessor.h>
 #include <Foundation/Strings/HashedString.h>
 #include <Foundation/Types/Uuid.h>
 
@@ -31,7 +32,7 @@ private:
   friend class ezDocumentObjectTree;
   friend class ezDocumentObjectManagerBase;
 
-  void HashPropertiesRecursive(const ezIReflectedTypeAccessor& acc, ezUInt64& uiHash, const ezReflectedType* pType, ezPropertyPath& path) const;
+  void HashPropertiesRecursive(const ezIReflectedTypeAccessor& acc, ezUInt64& uiHash, const ezRTTI* pType, ezPropertyPath& path) const;
 
   ezUuid m_Guid;
   ezDocumentObjectBase* m_pParent;
@@ -39,11 +40,28 @@ private:
 };
 
 
+class EZ_TOOLSFOUNDATION_DLL ezDocumentSubObject : ezDocumentObjectBase
+{
+public:
+  ezDocumentSubObject(const ezRTTI* pRtti);
+  void SetObject(ezDocumentObjectBase* pOwnerObject, const ezPropertyPath& subPath);
+
+  virtual const ezIReflectedTypeAccessor& GetTypeAccessor() const override { return m_TypeAccessor; }
+  virtual const ezIReflectedTypeAccessor& GetEditorTypeAccessor() const override { return m_EditorTypeAccessor; }
+
+public:
+  ezReflectedTypeSubObjectAccessor m_TypeAccessor;
+  ezReflectedTypeSubObjectAccessor m_EditorTypeAccessor;
+  ezPropertyPath m_SubPath;
+  ezDocumentObjectBase* m_pOwnerObject;
+};
+
+
 template<typename EditorProperties, typename DirectMemberProperties>
 class ezDocumentObjectDirectMember : public ezDocumentObjectBase
 {
 public:
-  ezDocumentObjectDirectMember() : 
+  ezDocumentObjectDirectMember() :
     m_ObjectPropertiesAccessor(&m_MemberProperties, ezGetStaticRTTI<DirectMemberProperties>()),
     m_EditorPropertiesAccessor(&m_EditorProperties, ezGetStaticRTTI<EditorProperties>())
   {
@@ -70,7 +88,7 @@ template<typename EditorProperties>
 class ezDocumentObjectDirectPtr : public ezDocumentObjectBase
 {
 public:
-  ezDocumentObjectDirectPtr(ezReflectedClass* pObjectProperties) : 
+  ezDocumentObjectDirectPtr(ezReflectedClass* pObjectProperties) :
     m_pObjectProperties(pObjectProperties),
     m_ObjectPropertiesAccessor(pObjectProperties),
     m_EditorPropertiesAccessor(&m_EditorProperties)
@@ -100,8 +118,8 @@ template<typename EditorProperties>
 class ezDocumentObjectStorage : public ezDocumentObjectBase
 {
 public:
-  ezDocumentObjectStorage(ezReflectedTypeHandle hObjectProperties) : 
-    m_ObjectPropertiesAccessor(hObjectProperties),
+  ezDocumentObjectStorage(const ezRTTI* pType) :
+    m_ObjectPropertiesAccessor(pType),
     m_EditorPropertiesAccessor(&m_EditorProperties)
   {
   }

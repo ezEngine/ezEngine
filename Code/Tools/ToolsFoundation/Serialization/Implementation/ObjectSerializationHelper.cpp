@@ -3,42 +3,46 @@
 #include <ToolsFoundation/Serialization/ObjectSerializationContext.h>
 #include <ToolsFoundation/Reflection/IReflectedTypeAccessor.h>
 
-static void WriteTypeAccessorToContextRecursive(ezObjectSerializationContext& context, const ezIReflectedTypeAccessor& et, const ezReflectedType* pType, ezPropertyPath& ParentPath)
+static void WriteTypeAccessorToContextRecursive(ezObjectSerializationContext& context, const ezIReflectedTypeAccessor& et, const ezRTTI* pType, ezPropertyPath& ParentPath)
 {
-  ezReflectedTypeHandle hParent = pType->GetParentTypeHandle();
-  if (!hParent.IsInvalidated())
-    WriteTypeAccessorToContextRecursive(context, et, hParent.GetType(), ParentPath);
+  const ezRTTI* pParentType = pType->GetParentType();
+  if (pParentType != nullptr)
+    WriteTypeAccessorToContextRecursive(context, et, pParentType, ParentPath);
 
-  if (pType->GetPropertyCount() == 0)
+  if (pType->GetProperties().GetCount() == 0)
     return;
 
-  for (ezUInt32 i = 0; i < pType->GetPropertyCount(); ++i)
+  for (ezUInt32 i = 0; i < pType->GetProperties().GetCount(); ++i)
   {
-    const ezReflectedProperty* pProp = pType->GetPropertyByIndex(i);
+    const ezAbstractProperty* pProp = pType->GetProperties()[i];
 
-    if (pProp->m_Flags.IsAnySet(ezPropertyFlags::StandardType))
+    if (pProp->GetFlags().IsAnySet(ezPropertyFlags::StandardType))
     {
-      ParentPath.PushBack(pProp->m_sPropertyName.GetString().GetData());
+      ParentPath.PushBack(pProp->GetPropertyName());
 
       context.AddProperty(ParentPath, et.GetValue(ParentPath));
 
       ParentPath.PopBack();
     }
-    else if (pProp->m_Flags.IsAnySet(ezPropertyFlags::IsEnum | ezPropertyFlags::Bitflags))
+    else if (pProp->GetFlags().IsAnySet(ezPropertyFlags::IsEnum | ezPropertyFlags::Bitflags))
     {
-      ParentPath.PushBack(pProp->m_sPropertyName.GetString().GetData());
+      const ezAbstractMemberProperty* pMemberProp = static_cast<const ezAbstractMemberProperty*>(pProp);
+
+      ParentPath.PushBack(pProp->GetPropertyName());
 
       ezStringBuilder sEnumValue;
-      ezToolsReflectionUtils::EnumerationToString(pProp->m_hTypeHandle.GetType(), et.GetValue(ParentPath).ConvertTo<ezInt64>(), sEnumValue);
+      ezReflectionUtils::EnumerationToString(pMemberProp->GetPropertyType(), et.GetValue(ParentPath).ConvertTo<ezInt64>(), sEnumValue);
       context.AddProperty(ParentPath, sEnumValue.GetData());
 
       ParentPath.PopBack();
     }
-    else
+    else if (pProp->GetCategory() == ezPropertyCategory::Member)
     {
-      ParentPath.PushBack(pProp->m_sPropertyName.GetString().GetData());
+      const ezAbstractMemberProperty* pMemberProp = static_cast<const ezAbstractMemberProperty*>(pProp);
 
-      WriteTypeAccessorToContextRecursive(context, et, pProp->m_hTypeHandle.GetType(), ParentPath);
+      ParentPath.PushBack(pProp->GetPropertyName());
+
+      WriteTypeAccessorToContextRecursive(context, et, pMemberProp->GetPropertyType(), ParentPath);
 
       ParentPath.PopBack();
     }
@@ -47,7 +51,7 @@ static void WriteTypeAccessorToContextRecursive(ezObjectSerializationContext& co
 
 void ezObjectSerializationHelper::WriteTypeAccessorToContext(const ezIReflectedTypeAccessor& accessor, ezObjectSerializationContext& context)
 {
-  const ezReflectedType* pType = accessor.GetReflectedTypeHandle().GetType();
+  const ezRTTI* pType = accessor.GetType();
   ezPropertyPath parentPath;
   WriteTypeAccessorToContextRecursive(context, accessor, pType, parentPath);
 }

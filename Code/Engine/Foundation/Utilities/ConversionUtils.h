@@ -124,6 +124,9 @@ namespace ezConversionUtils
   /// \brief Converts a hex string (i.e. 0xAABBCCDD) into its uint32 value.
   EZ_FOUNDATION_DLL ezUInt32 ConvertHexStringToUInt32(const char* szHEX); // [tested]
 
+  /// \brief Converts a string that was written with ezConversionUtils::ToString(ezUuid) back to an ezUuid object.
+  EZ_FOUNDATION_DLL ezUuid ConvertStringToUuid(const char* szUuidString);
+
   /// \brief Converts a bool to a string
   EZ_FORCE_INLINE ezString ToString(bool value) // [tested]
   {

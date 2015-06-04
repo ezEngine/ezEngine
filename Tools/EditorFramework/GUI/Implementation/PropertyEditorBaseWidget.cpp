@@ -421,7 +421,7 @@ void ezPropertyEditorColorWidget::on_Color_accepted()
 
 /// *** ENUM COMBOBOX ***
 
-ezPropertyEditorEnumWidget::ezPropertyEditorEnumWidget(const ezPropertyPath& path, const char* szName, QWidget* pParent, const ezReflectedTypeHandle enumType) : ezPropertyEditorBaseWidget(path, szName, pParent)
+ezPropertyEditorEnumWidget::ezPropertyEditorEnumWidget(const ezPropertyPath& path, const char* szName, QWidget* pParent, const ezRTTI* enumType) : ezPropertyEditorBaseWidget(path, szName, pParent)
 {
   m_pLayout = new QHBoxLayout(this);
   m_pLayout->setMargin(0);
@@ -435,19 +435,24 @@ ezPropertyEditorEnumWidget::ezPropertyEditorEnumWidget(const ezPropertyPath& pat
 
   ezStringBuilder sTemp;
 
-  const ezReflectedType* pType = enumType.GetType();
-  ezUInt32 uiCount = pType->GetConstantCount();
+  const ezRTTI* pType = enumType;
+  ezUInt32 uiCount = pType->GetProperties().GetCount();
   for (ezUInt32 i = 0; i < uiCount; ++i)
   {
-    auto pConstant = pType->GetConstantByIndex(i);
+    auto pProp = pType->GetProperties()[i];
+
+    if (pProp->GetCategory() != ezPropertyCategory::Constant)
+      continue;
+
+    const ezAbstractConstantProperty* pConstant = static_cast<const ezAbstractConstantProperty*>(pProp);
 
     // If this is a qualified C++ name, skip everything before the last colon
-    sTemp = pConstant->m_sPropertyName.GetString();
+    sTemp = pConstant->GetPropertyName();
     const char* szColon = sTemp.FindLastSubString(":");
     if (szColon != nullptr)
       sTemp = szColon + 1;
 
-    m_pWidget->addItem(QString::fromUtf8(sTemp.GetData()), pConstant->m_ConstantValue.ConvertTo<ezInt64>());
+    m_pWidget->addItem(QString::fromUtf8(sTemp.GetData()), pConstant->GetConstant().ConvertTo<ezInt64>());
   }
 
   QSizePolicy policy = m_pLabel->sizePolicy();
@@ -479,7 +484,7 @@ void ezPropertyEditorEnumWidget::on_CurrentEnum_changed(int iEnum)
 
 /// *** BITFLAGS COMBOBOX ***
 
-ezPropertyEditorBitflagsWidget::ezPropertyEditorBitflagsWidget(const ezPropertyPath& path, const char* szName, QWidget* pParent, const ezReflectedTypeHandle enumType) : ezPropertyEditorBaseWidget(path, szName, pParent)
+ezPropertyEditorBitflagsWidget::ezPropertyEditorBitflagsWidget(const ezPropertyPath& path, const char* szName, QWidget* pParent, const ezRTTI* enumType) : ezPropertyEditorBaseWidget(path, szName, pParent)
 {
   m_pLayout = new QHBoxLayout(this);
   m_pLayout->setMargin(0);
@@ -493,19 +498,25 @@ ezPropertyEditorBitflagsWidget::ezPropertyEditorBitflagsWidget(const ezPropertyP
   m_pMenu = nullptr;
   m_pMenu = new QMenu(m_pWidget);
   m_pWidget->setMenu(m_pMenu);
-  const ezReflectedType* pType = enumType.GetType();
-  ezUInt32 uiCount = pType->GetConstantCount();
+  const ezRTTI* pType = enumType;
+  ezUInt32 uiCount = pType->GetProperties().GetCount();
   
   for (ezUInt32 i = 0; i < uiCount; ++i)
   {
-    auto pConstant = pType->GetConstantByIndex(i);
+    auto pProp = pType->GetProperties()[i];
+
+    if (pProp->GetCategory() != ezPropertyCategory::Constant)
+      continue;
+
+    const ezAbstractConstantProperty* pConstant = static_cast<const ezAbstractConstantProperty*>(pProp);
+
     QWidgetAction* pAction = new QWidgetAction(m_pMenu);
-    QCheckBox* pCheckBox = new QCheckBox(QString::fromUtf8(pConstant->m_sPropertyName.GetData()), m_pMenu);
+    QCheckBox* pCheckBox = new QCheckBox(QString::fromUtf8(pConstant->GetPropertyName()), m_pMenu);
     pCheckBox->setCheckable(true);
     pCheckBox->setCheckState(Qt::Unchecked);
     pAction->setDefaultWidget(pCheckBox);
 
-    m_Constants[pConstant->m_ConstantValue.ConvertTo<ezInt64>()] = pCheckBox;
+    m_Constants[pConstant->GetConstant().ConvertTo<ezInt64>()] = pCheckBox;
     m_pMenu->addAction(pAction);
   }
   

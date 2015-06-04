@@ -158,8 +158,8 @@ ezStatus ezDocumentBase::InternalSaveDocument()
 
   writer.StartGroup("Header");
   {
-    ezReflectedTypeHandle hType = ezReflectedTypeManager::GetTypeHandleByName(m_pDocumentInfo->GetDynamicRTTI()->GetTypeName());
-    EZ_ASSERT_DEV(!hType.IsInvalidated(), "Need to register ezDocumentInfo at the ezReflectedTypeManager first!");
+    const ezRTTI* pRtti = ezRTTI::FindTypeByName(m_pDocumentInfo->GetDynamicRTTI()->GetTypeName());
+    EZ_ASSERT_DEV(pRtti != nullptr, "Need to register ezDocumentInfo at the ezReflectedTypeManager first!");
 
     ezReflectedTypeDirectAccessor acc(m_pDocumentInfo);
     ezSerializedTypeAccessorObjectWriter objectWriter(&acc);
@@ -202,8 +202,8 @@ ezStatus ezDocumentBase::InternalLoadDocument()
     {
       if (sType == m_pDocumentInfo->GetDynamicRTTI()->GetTypeName())
       {
-        ezReflectedTypeHandle hType = ezReflectedTypeManager::GetTypeHandleByName(m_pDocumentInfo->GetDynamicRTTI()->GetTypeName());
-        EZ_ASSERT_DEV(!hType.IsInvalidated(), "Need to register ezDocumentInfo at the ezReflectedTypeManager first!");
+        const ezRTTI* pRtti = ezRTTI::FindTypeByName(m_pDocumentInfo->GetDynamicRTTI()->GetTypeName());
+        EZ_ASSERT_DEV(pRtti != nullptr, "Need to register ezDocumentInfo at the ezReflectedTypeManager first!");
 
         ezReflectedTypeDirectAccessor acc(m_pDocumentInfo);
         ezSerializedTypeAccessorObjectReader objectReader(&acc);
@@ -219,8 +219,8 @@ ezStatus ezDocumentBase::InternalLoadDocument()
     ezUuid parentGuid;
     while (reader.PeekNextObject(objectGuid, sType, parentGuid))
     {
-      ezReflectedTypeHandle hType = ezReflectedTypeManager::GetTypeHandleByName(sType);
-      ezDocumentObjectBase* pObject = GetObjectManager()->CreateObject(hType, objectGuid);
+      const ezRTTI* pRtti = ezRTTI::FindTypeByName(sType);
+      ezDocumentObjectBase* pObject = GetObjectManager()->CreateObject(pRtti, objectGuid);
 
       if (pObject)
       {

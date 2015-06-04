@@ -9,7 +9,7 @@
 #include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Containers/Set.h>
 
-class ezReflectedType;
+class ezRTTI;
 class ezReflectedTypeManager;
 class ezReflectedTypeStorageManager;
 
@@ -23,30 +23,10 @@ public:
   ezStringBuilder GetPathString() const;
 };
 
-
-typedef ezGenericId<24, 8> ezReflectedTypeId;
-
-/// \brief Handle for a ezReflectedType.
-///
-/// ezReflectedType can be changed at runtime so pointers shouldn't be stored for it.
-class EZ_TOOLSFOUNDATION_DLL ezReflectedTypeHandle
-{
-public:
-  typedef ezUInt32 StorageType;
-  EZ_DECLARE_HANDLE_TYPE(ezReflectedTypeHandle, ezReflectedTypeId);
-  friend class ezReflectedTypeManager;
-  friend class ezReflectedTypeStorageManager;
-
-public:
-  const ezReflectedType* GetType() const; // [tested]
-};
-
 /// \brief Event message used by the ezReflectedTypeManager.
 struct EZ_TOOLSFOUNDATION_DLL ezReflectedTypeChange
 {
-  ezReflectedTypeHandle m_hType;
-  const ezReflectedType* pOldType;
-  const ezReflectedType* pNewType;
+  const ezRTTI* m_pChangedType;
 };
 
 /// \brief Stores the description of a reflected property in a serializable form, used by ezReflectedTypeDescriptor.
@@ -77,86 +57,10 @@ struct EZ_TOOLSFOUNDATION_DLL ezReflectedTypeDescriptor
   ezString m_sDefaultInitialization;
   ezBitflags<ezTypeFlags> m_Flags;
   ezDynamicArray<ezReflectedPropertyDescriptor> m_Properties;
+  ezUInt32 m_uiTypeSize;
+  ezUInt32 m_uiTypeVersion;
 };
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_TOOLSFOUNDATION_DLL, ezReflectedTypeDescriptor);
 
 
-/// \brief Describes a reflected property - what type it is and what name and access rights it has.
-struct EZ_TOOLSFOUNDATION_DLL ezReflectedProperty
-{
-  ezReflectedProperty(ezPropertyCategory::Enum category, const char* szName, ezVariant::Type::Enum type, ezBitflags<ezPropertyFlags> flags); // [tested]
-  ezReflectedProperty(ezPropertyCategory::Enum category, const char* szName, ezReflectedTypeHandle hType, ezBitflags<ezPropertyFlags> flags); // [tested]
-  bool operator== (const ezReflectedProperty& rhs) const;
-  bool operator!= (const ezReflectedProperty& rhs) const { return !(*this == rhs);}
-
-  ezEnum<ezPropertyCategory> m_Category;
-  ezHashedString m_sPropertyName;          ///< Name of the property, must be unique inside an ezReflectedType.
-  ezReflectedTypeHandle m_hTypeHandle;     ///< invalid for any type that is directly storable in a ezVariant.
-  ezEnum<ezVariant::Type> m_Type;          ///< POD type storable in an ezVariant. If m_pType is set, this value is set to 'Invalid'.
-  ezBitflags<ezPropertyFlags> m_Flags;     ///< Property flags.
-};
-
-
-/// \brief Describes a reflected constant.
-struct EZ_TOOLSFOUNDATION_DLL ezReflectedConstant
-{
-  ezReflectedConstant(const char* szName, const ezVariant& constantValue);
-  bool operator== (const ezReflectedConstant& rhs) const;
-  bool operator!= (const ezReflectedConstant& rhs) const { return !(*this == rhs);}
-
-  ezHashedString m_sPropertyName;          ///< Name of the constant, must be unique inside an ezReflectedType.
-  ezVariant m_ConstantValue;               ///< Constant value.
-};
-
-
-/// \brief Describes the properties and functions of a reflected type.
-///
-/// The content of this class describes what data needs to be stored to describe a class instance of the represented type.
-class EZ_TOOLSFOUNDATION_DLL ezReflectedType
-{
-  friend class ezReflectedTypeManager;
-public:
-  bool operator== (const ezReflectedType& rhs) const;
-  bool operator!= (const ezReflectedType& rhs) const { return !(*this == rhs);}
-
-  ezHashedString GetPluginName() const { return m_sPluginName; } // [tested]
-  ezHashedString GetTypeName() const { return m_sTypeName; } // [tested]
-  ezReflectedTypeHandle GetParentTypeHandle() const { return m_hParentType; } // [tested]
-  ezReflectedTypeHandle GetTypeHandle() const { return m_hType; } // [tested]
-  ezBitflags<ezTypeFlags> GetFlags() const { return m_Flags; }
-  bool IsDerivedFrom(ezReflectedTypeHandle hType) const;
-
-  const ezUInt32 GetPropertyCount() const { return m_Properties.GetCount(); } // [tested]
-  const ezReflectedProperty* GetPropertyByIndex(ezUInt32 uiIndex) const; // [tested]
-  const ezReflectedProperty* GetPropertyByName(const char* szPropertyName) const; // [tested]
-  const ezReflectedProperty* GetPropertyByPath(const ezPropertyPath& path) const;
-
-  const ezArrayPtr<ezReflectedConstant> GetConstants() const { return m_Constants; } // [tested]
-  const ezUInt32 GetConstantCount() const { return m_Constants.GetCount(); }
-  const ezReflectedConstant* GetConstantByIndex(ezUInt32 uiIndex) const;
-  const ezReflectedConstant* GetConstantByName(const char* szPropertyName) const;
-
-  void GetDependencies(ezSet<ezReflectedTypeHandle>& out_dependencies, bool bTransitive = false) const;
-  const ezString& GetDefaultInitialization() const { return m_sDefaultInitialization; }
-
-private:
-  EZ_DISALLOW_COPY_AND_ASSIGN(ezReflectedType);
-  ezReflectedType(const char* szTypeName, const char* szPluginName, ezReflectedTypeHandle hParentType, ezBitflags<ezTypeFlags> flags);
-  void RegisterProperties();
-  void RegisterConstants();
-
-private:
-  ezHashedString m_sTypeName;
-  ezHashedString m_sPluginName;
-  ezReflectedTypeHandle m_hParentType;
-  ezReflectedTypeHandle m_hType;
-  ezString m_sDefaultInitialization;
-  ezBitflags<ezTypeFlags> m_Flags;
-
-  ezDynamicArray<ezReflectedProperty> m_Properties;
-  ezDynamicArray<ezReflectedConstant> m_Constants;
-  ezHashTable<const char*, ezUInt32> m_PropertyNameToIndex;
-  ezHashTable<const char*, ezUInt32> m_ConstantNameToIndex;
-  ezSet<ezReflectedTypeHandle> m_Dependencies;
-};
 

@@ -69,6 +69,8 @@ ezStatus ezCommandTransaction::AddCommand(ezCommandBase& command)
   ezMemoryStreamWriter writer(&storage);
   ezMemoryStreamReader reader(&storage);
 
+  /// \todo Clone action, instead of writing to JSON and then reading from it again
+
   ezReflectionSerializer::WriteObjectToJSON(writer, command.GetDynamicRTTI(), &command, ezJSONWriter::WhitespaceMode::None);
 
   const ezRTTI* pRtti;

@@ -173,7 +173,7 @@ void ezRawPropertyGridWidget::SetSelection(const ezDeque<const ezDocumentObjectB
     m_pGroups[0]->setTitle(QLatin1String("Editor Properties"));
 
     ezStringBuilder sName;
-    sName.Format("Object Properties [%s]", m_Selection[0]->GetTypeAccessor().GetReflectedTypeHandle().GetType()->GetTypeName().GetData());
+    sName.Format("Object Properties [%s]", m_Selection[0]->GetTypeAccessor().GetType()->GetTypeName());
     m_pGroups[1]->setTitle(QString::fromUtf8(sName));
 
 
@@ -194,7 +194,7 @@ void ezRawPropertyGridWidget::SetSelection(const ezDeque<const ezDocumentObjectB
     pLayout0->addWidget(m_pRawPropertyWidget[0]);
     pLayout1->addWidget(m_pRawPropertyWidget[1]);
 
-    m_pGroups[0]->setVisible(m_Selection[0]->GetEditorTypeAccessor().GetReflectedTypeHandle().GetType()->GetPropertyCount() > 0);
+    m_pGroups[0]->setVisible(m_Selection[0]->GetEditorTypeAccessor().GetType()->GetProperties().GetCount() > 0);
   }
 
    // TODO: Multi selection

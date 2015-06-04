@@ -197,14 +197,14 @@ void ezEditorEngineConnection::SendObjectProperties(const ezDocumentObjectTreePr
   msg.m_DocumentGuid = m_pDocument->GetGuid();
   msg.m_ObjectGuid = e.m_pObject->GetGuid();
   msg.m_iMsgType = ezEntityMsgToEngine::PropertyChanged;
-  msg.m_sObjectType = e.m_pObject->GetTypeAccessor().GetReflectedTypeHandle().GetType()->GetTypeName().GetData();
+  msg.m_sObjectType = e.m_pObject->GetTypeAccessor().GetType()->GetTypeName();
 
   ezMemoryStreamStorage storage;
   ezMemoryStreamWriter writer(&storage);
   ezMemoryStreamReader reader(&storage);
 
   // TODO: Only write a single property
-  ezToolsReflectionUtils::WriteObjectToJSON(writer, e.m_pObject->GetTypeAccessor());
+  ezToolsReflectionUtils::WriteObjectToJSON(writer, e.m_pObject);
 
   ezStringBuilder sData;
   sData.ReadAll(reader);
@@ -219,7 +219,7 @@ void ezEditorEngineConnection::SendDocumentTreeChange(const ezDocumentObjectTree
   ezEntityMsgToEngine msg;
   msg.m_DocumentGuid = m_pDocument->GetGuid();
   msg.m_ObjectGuid = e.m_pObject->GetGuid();
-  msg.m_sObjectType = e.m_pObject->GetTypeAccessor().GetReflectedTypeHandle().GetType()->GetTypeName().GetData();
+  msg.m_sObjectType = e.m_pObject->GetTypeAccessor().GetType()->GetTypeName();
   msg.m_uiNewChildIndex = e.m_uiNewChildIndex;
 
   if (e.m_pPreviousParent)
@@ -236,7 +236,7 @@ void ezEditorEngineConnection::SendDocumentTreeChange(const ezDocumentObjectTree
       ezMemoryStreamStorage storage;
       ezMemoryStreamWriter writer(&storage);
       ezMemoryStreamReader reader(&storage);
-      ezToolsReflectionUtils::WriteObjectToJSON(writer, e.m_pObject->GetTypeAccessor());
+      ezToolsReflectionUtils::WriteObjectToJSON(writer, e.m_pObject);
 
       ezStringBuilder sData;
       sData.ReadAll(reader);
