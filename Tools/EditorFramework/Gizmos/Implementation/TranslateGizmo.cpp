@@ -1,6 +1,7 @@
 #include <PCH.h>
 #include <EditorFramework/Gizmos/TranslateGizmo.h>
 #include <Foundation/Logging/Log.h>
+#include <QMouseEvent>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTranslateGizmo, ezGizmoBase, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
@@ -43,11 +44,34 @@ void ezTranslateGizmo::OnTransformationChanged(const ezMat4& transform)
   m_AxisZ.SetTransformation(transform * m);
 }
 
+void ezTranslateGizmo::FocusLost()
+{
+  BaseEvent ev;
+  ev.m_pGizmo = this;
+  ev.m_Type = BaseEvent::Type::EndInteractions;
+  m_BaseEvents.Broadcast(ev);
+}
+
 bool ezTranslateGizmo::mousePressEvent(QMouseEvent* e)
 {
-  ezLog::Info("Clicked on Gizmo");
+  if (m_pInteractionGizmoHandle == &m_AxisX)
+    m_vMoveAxis = m_AxisX.GetTransformation().GetColumn(1).GetAsVec3();
+  else if (m_pInteractionGizmoHandle == &m_AxisY)
+    m_vMoveAxis = m_AxisY.GetTransformation().GetColumn(1).GetAsVec3();
+  else if (m_pInteractionGizmoHandle == &m_AxisZ)
+    m_vMoveAxis = m_AxisZ.GetTransformation().GetColumn(1).GetAsVec3();
+  else
+    return false;
 
   SetActiveInputContext(this);
+
+  m_iMousePosX = e->globalPos().x();
+  m_iMousePosY = e->globalPos().y();
+
+  BaseEvent ev;
+  ev.m_pGizmo = this;
+  ev.m_Type = BaseEvent::Type::BeginInteractions;
+  m_BaseEvents.Broadcast(ev);
 
   return true;
 }
@@ -57,7 +81,10 @@ bool ezTranslateGizmo::mouseReleaseEvent(QMouseEvent* e)
   if (!IsActiveInputContext())
     return false;
 
-  ezLog::Info("Released on Gizmo");
+  BaseEvent ev;
+  ev.m_pGizmo = this;
+  ev.m_Type = BaseEvent::Type::EndInteractions;
+  m_BaseEvents.Broadcast(ev);
 
   SetActiveInputContext(nullptr);
   return true;
@@ -67,6 +94,27 @@ bool ezTranslateGizmo::mouseMoveEvent(QMouseEvent* e)
 {
   if (!IsActiveInputContext())
     return false;
+
+  const ezInt32 iNewPosX = e->globalPos().x();
+  const ezInt32 iNewPosY = e->globalPos().y();
+
+  const ezInt32 iDiffX = iNewPosX - m_iMousePosX;
+  const ezInt32 iDiffY = iNewPosY - m_iMousePosY;
+
+  m_iMousePosX = iNewPosX;
+  m_iMousePosY = iNewPosY;
+
+  const ezVec3 vMove = m_vMoveAxis * (float) iDiffX * 0.01f;
+
+  ezMat4 mTrans;
+  mTrans.SetTranslationMatrix(vMove);
+
+  SetTransformation(mTrans * GetTransformation());
+
+  BaseEvent ev;
+  ev.m_pGizmo = this;
+  ev.m_Type = BaseEvent::Type::Interaction;
+  m_BaseEvents.Broadcast(ev);
 
   return true;
 }

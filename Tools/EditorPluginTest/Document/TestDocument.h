@@ -23,5 +23,7 @@ protected:
   virtual void InitializeAfterLoading() override;
 
 private:
+  void TransformationGizmoEventHandler(const ezGizmoBase::BaseEvent& e);
+
   virtual ezDocumentInfo* CreateDocumentInfo() override { return EZ_DEFAULT_NEW(ezDocumentInfo); }
 };

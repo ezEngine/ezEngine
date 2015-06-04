@@ -126,7 +126,7 @@ void ezRawPropertyGridWidget::PropertyChangedHandler(const ezPropertyEditorBaseW
 
   }
 
-  /// ..asdfsdf
+  /// \todo ..asdfsdf (not sure what this means, though)
 }
 
 void ezRawPropertyGridWidget::EditorPropertyChangedHandler(const ezPropertyEditorBaseWidget::Event& ed)

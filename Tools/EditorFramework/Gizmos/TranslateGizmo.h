@@ -13,6 +13,8 @@ public:
 
   virtual void SetDocumentGuid(const ezUuid& guid) override;
 
+  virtual void FocusLost() override;
+
   virtual bool mousePressEvent(QMouseEvent* e) override;
   virtual bool mouseReleaseEvent(QMouseEvent* e) override;
   virtual bool mouseMoveEvent(QMouseEvent* e) override;
@@ -26,4 +28,8 @@ private:
   ezGizmoHandle m_AxisY;
   ezGizmoHandle m_AxisZ;
 
+  ezInt32 m_iMousePosX;
+  ezInt32 m_iMousePosY;
+
+  ezVec3 m_vMoveAxis;
 };

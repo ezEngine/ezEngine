@@ -21,6 +21,21 @@ public:
 
   void ConfigureInteraction(ezGizmoHandleBase* pHandle) { m_pInteractionGizmoHandle = pHandle; }
 
+  struct BaseEvent
+  {
+    enum class Type
+    {
+      BeginInteractions,
+      EndInteractions,
+      Interaction,
+    };
+
+    const ezGizmoBase* m_pGizmo;
+    Type m_Type;
+  };
+
+  ezEvent<const BaseEvent&> m_BaseEvents;
+
 protected:
   virtual void OnVisibleChanged(bool bVisible) = 0;
   virtual void OnTransformationChanged(const ezMat4& transform) = 0;

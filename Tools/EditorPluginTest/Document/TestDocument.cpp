@@ -5,6 +5,7 @@
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
 #include <ToolsFoundation/Reflection/ReflectedTypeManager.h>
 #include <Core/World/GameObject.h>
+#include <ToolsFoundation/Command/TreeCommands.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezTestDocument, ezDocumentBase, 1, ezRTTINoAllocator);
 EZ_END_DYNAMIC_REFLECTED_TYPE();
@@ -20,10 +21,12 @@ void ezTestDocument::InitializeAfterLoading()
   ezDocumentBase::InitializeAfterLoading();
 
   m_TranslateGizmo.SetDocumentGuid(GetGuid());
+  m_TranslateGizmo.m_BaseEvents.AddEventHandler(ezMakeDelegate(&ezTestDocument::TransformationGizmoEventHandler, this));
 }
 
 ezTestDocument::~ezTestDocument()
 {
+  m_TranslateGizmo.m_BaseEvents.RemoveEventHandler(ezMakeDelegate(&ezTestDocument::TransformationGizmoEventHandler, this));
   GetSelectionManager()->m_Events.RemoveEventHandler(ezMakeDelegate(&ezTestDocument::SelectionManagerEventHandler, this));
 }
 
@@ -58,5 +61,59 @@ void ezTestDocument::SelectionManagerEventHandler(const ezSelectionManager::Even
     }
     break;
   }
+}
+
+void ezTestDocument::TransformationGizmoEventHandler(const ezGizmoBase::BaseEvent& e)
+{
+  switch (e.m_Type)
+  {
+  case ezGizmoBase::BaseEvent::Type::BeginInteractions:
+    {
+      GetCommandHistory()->BeginTemporaryCommands();
+
+    }
+    break;
+
+  case ezGizmoBase::BaseEvent::Type::EndInteractions:
+    {
+      GetCommandHistory()->EndTemporaryCommands(false);
+    }
+    break;
+
+  case ezGizmoBase::BaseEvent::Type::Interaction:
+    {
+      const ezMat4 mTransform = e.m_pGizmo->GetTransformation();
+
+      auto Selection = GetSelectionManager()->GetSelection();
+
+      GetCommandHistory()->StartTransaction();
+
+      bool bCancel = false;
+
+      ezSetObjectPropertyCommand cmd;
+      cmd.m_bEditorProperty = false;
+      cmd.m_NewValue = mTransform.GetTranslationVector();
+      cmd.SetPropertyPath("Position");
+
+      for (ezUInt32 sel = 0; sel < Selection.GetCount(); ++sel)
+      {
+        cmd.m_Object = Selection[sel]->GetGuid();
+
+        ezStatus res = GetCommandHistory()->AddCommand(cmd);
+
+        ezUIServices::GetInstance()->MessageBoxStatus(res, "Failed to set the position");
+
+        if (res.m_Result.Failed())
+        {
+          bCancel = true;
+          break;
+        }
+      }
+
+      GetCommandHistory()->EndTransaction(bCancel);
+    }
+    break;
+  }
+
 }
 
