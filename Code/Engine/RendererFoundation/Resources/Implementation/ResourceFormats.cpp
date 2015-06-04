@@ -7,9 +7,9 @@ const ezUInt8 ezGALResourceFormat::BitsPerElement[ezGALResourceFormat::ENUM_COUN
   128, // RGBAUInt
   128, // RGBAInt
 
-  128, // RGBFloat, XYZFloat, UVWFloat
-  128, // RGBUInt
-  128, // RGBInt
+  96, // RGBFloat, XYZFloat, UVWFloat
+  96, // RGBUInt
+  96, // RGBInt
 
   16, // B5G6R5UNormalized
 
