@@ -176,28 +176,29 @@ void ezReflectionSerializer::WritePropertyToJSON(ezJSONWriter& writer, const ezR
 }
 
 
-void ezReflectionSerializer::ReadPropertyFromJSON(const ezVariantDictionary& prop, ezReflectedObjectWrapper& object)
+void ezReflectionSerializer::ReadPropertyFromJSON(const ezVariantDictionary& propDict, ezReflectedObjectWrapper& object)
 {
   ezVariant* pName;
-  if (!prop.TryGetValue("n", pName))
+  if (!propDict.TryGetValue("n", pName))
     return;
 
   ezVariant* pType;
-  if (!prop.TryGetValue("t", pType))
+  if (!propDict.TryGetValue("t", pType))
     return;
 
   ezVariant* pValue;
-  if (!prop.TryGetValue("v", pValue))
+  if (!propDict.TryGetValue("v", pValue))
     return;
 
   void* pProp = m_pAdapter->FindPropertyByName(object.m_pType, pName->ConvertTo<ezString>().GetData());
   if (pProp == nullptr)
     return;
 
-  ezReflectedPropertyWrapper property = m_pAdapter->GetPropertyInfo(pProp);
-  ezReflectedTypeWrapper propType = m_pAdapter->GetTypeInfo(property.m_pType);
+  ezReflectedPropertyWrapper prop = m_pAdapter->GetPropertyInfo(pProp);
+  ezReflectedTypeWrapper propType = m_pAdapter->GetTypeInfo(prop.m_pType);
 
-
+  if (prop.m_Flags.IsSet(ezPropertyFlags::ReadOnly))
+    return;
 
 
   const ezRTTI* pRtti = (const ezRTTI*)object.m_pType;
@@ -212,44 +213,49 @@ void ezReflectionSerializer::ReadPropertyFromJSON(const ezVariantDictionary& pro
 
   const ezString sType = pType->ConvertTo<ezString>();
 
-  if (sType == "$s") // struct property
+  if (prop.m_Category == ezPropertyCategory::Member)
   {
-    if (property.m_Category != ezPropertyCategory::Member)
-      return;
-
-    ezAbstractMemberProperty* pMember = (ezAbstractMemberProperty*) pProperty;
-    const ezRTTI* pPropRtti = pMember->GetPropertyType();
-
-    if (!pValue->IsA<ezVariantDictionary>())
-      return;
-
-    void* pStruct = pMember->GetPropertyPointer(pObject);
-
-    if (pStruct != nullptr)
+    if (m_pAdapter->IsStandardType(prop.m_pType) || propType.m_Flags.IsAnySet(ezTypeFlags::IsEnum | ezTypeFlags::Bitflags))
     {
-      ReadJSONObject(pValue->Get<ezVariantDictionary>(), ezReflectedObjectWrapper(pPropRtti, pStruct));
+      m_pAdapter->SetPropertyValue(object, prop, ezVariant(), *pValue);
     }
-    else if (pPropRtti->GetAllocator()->CanAllocate())
+    else if (prop.m_Flags.IsSet(ezPropertyFlags::Pointer) && pValue->IsA<ezUuid>())
     {
-      void* pTempObject = pPropRtti->GetAllocator()->Allocate();
-      ReadJSONObject(pValue->Get<ezVariantDictionary>(), ezReflectedObjectWrapper(pPropRtti, pTempObject));
-      pMember->SetValuePtr(pObject, pTempObject);
-      pPropRtti->GetAllocator()->Deallocate(pTempObject);
+      ezUuid uObject = pValue->Get<ezUuid>();
+      void* pPtrValue = m_pContext->GetObjectByGUID(uObject);
+      m_pAdapter->SetPropertyValue(object, prop, ezVariant(), pPtrValue);
+    }
+    else if (sType == "$s")
+    {
+      if (!pValue->IsA<ezVariantDictionary>())
+        return;
+
+      if (m_pAdapter->CanGetDirectPropertyPointer(object, prop, ezVariant()))
+      {
+        ezReflectedObjectWrapper propObject = m_pAdapter->GetDirectPropertyPointer(object, prop, ezVariant());
+        ReadJSONObject(pValue->Get<ezVariantDictionary>(), propObject);
+      }
+      else if (m_pAdapter->CanCreateObject(prop.m_pType))
+      {
+        ezReflectedObjectWrapper propObject = m_pAdapter->CreateObject(prop.m_pType);
+        ReadJSONObject(pValue->Get<ezVariantDictionary>(), propObject);
+        m_pAdapter->SetPropertyObject(object, prop, ezVariant(), propObject);
+        m_pAdapter->DeleteObject(propObject);
+      }
     }
   }
   else if (sType == "$array") // array property
   {
-    if (pProperty->GetCategory() != ezPropertyCategory::Array)
+    if (prop.m_Category != ezPropertyCategory::Array)
       return;
 
     if (!pValue->IsA<ezVariantArray>())
       return;
 
     const ezVariantArray& data = pValue->Get<ezVariantArray>();
-    ezAbstractArrayProperty* pArray = (ezAbstractArrayProperty*) pProperty;
-    const ezRTTI* pElemRtti = pArray->GetElementType();
 
-    pArray->SetCount(pObject, data.GetCount());
+    m_pAdapter->SetArrayElementCount(object, prop, data.GetCount());
+
     for (ezUInt32 i = 0; i < data.GetCount(); i++)
     {
       if (!data[i].IsA<ezVariantDictionary>())
@@ -270,14 +276,20 @@ void ezReflectionSerializer::ReadPropertyFromJSON(const ezVariantDictionary& pro
         if (!pElemValue->IsA<ezVariantDictionary>())
           return;
 
-        void* pTempObject = pElemRtti->GetAllocator()->Allocate();
-        ReadJSONObject(pElemValue->Get<ezVariantDictionary>(), ezReflectedObjectWrapper(pElemRtti, pTempObject));
-        pArray->SetValue(pObject, i, pTempObject);
-        pElemRtti->GetAllocator()->Deallocate(pTempObject);
+        ezReflectedObjectWrapper propObject = m_pAdapter->CreateObject(prop.m_pType);
+        ReadJSONObject(pElemValue->Get<ezVariantDictionary>(), propObject);
+        m_pAdapter->SetPropertyObject(object, prop, i, propObject);
+        m_pAdapter->DeleteObject(propObject);
+      }
+      else if (prop.m_Flags.IsSet(ezPropertyFlags::Pointer))
+      {
+        ezUuid uObject = pElemValue->Get<ezUuid>();
+        void* pValue = m_pContext->GetObjectByGUID(uObject);
+        m_pAdapter->SetPropertyValue(object, prop, i, pValue);
       }
       else // pod element
       {
-        ezReflectionUtils::SetArrayPropertyValue(pArray, pObject, i, *pElemValue);
+        m_pAdapter->SetPropertyValue(object, prop, i, *pElemValue);
       }
     }
   }
@@ -321,14 +333,7 @@ void ezReflectionSerializer::ReadPropertyFromJSON(const ezVariantDictionary& pro
       }
     }
   }
-  else // POD
-  {
-    if (pProperty->GetCategory() != ezPropertyCategory::Member)
-      return;
 
-    ezAbstractMemberProperty* pMember = (ezAbstractMemberProperty*) pProperty;
-    ezReflectionUtils::SetMemberPropertyValue(pMember, pObject, *pValue);
-  }
 }
 
 
