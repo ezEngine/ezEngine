@@ -61,8 +61,9 @@ namespace BuildMachine
         for (int iTry = 0; iTry < 2; ++iTry)
         {
           _Result.ProcessRes = ezProcessHelper.RunExternalExe("svn", sParams, _Settings.AbsCodePath, _Result);
-          _Result.ProcessRes.StdOut = _Result.ProcessRes.StdOut.Replace(_Settings.SVNPassword, "***");
-          _Result.ProcessRes.ErrorOut = _Result.ProcessRes.ErrorOut.Replace(_Settings.SVNPassword, "***");
+          _Result.ProcessRes.StdOut = _Result.ProcessRes.StdOut.Replace(_Settings.SVNPassword, "***").Replace(_Settings.SVNUsername, "***");
+          _Result.ProcessRes.ErrorOut = _Result.ProcessRes.ErrorOut.Replace(_Settings.SVNPassword, "***").Replace(_Settings.SVNUsername, "***");
+          _Result.Errors = _Result.Errors.Replace(_Settings.SVNPassword, "***").Replace(_Settings.SVNUsername, "***");
 
           if (_Result.ProcessRes.ExitCode != 0)
           {
