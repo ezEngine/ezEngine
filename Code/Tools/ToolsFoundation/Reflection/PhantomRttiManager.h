@@ -6,11 +6,11 @@
 
 class ezPhantomRTTI;
 
-/// \brief Manages all reflected types that have been added to him.
+/// \brief Manages all ezPhantomRTTI types that have been added to him.
 ///
-/// An ezRTTI cannot be created directly but must be created via this managers
+/// A ezPhantomRTTI cannot be created directly but must be created via this managers
 /// RegisterType function with a given ezReflectedTypeDescriptor.
-class EZ_TOOLSFOUNDATION_DLL ezReflectedTypeManager
+class EZ_TOOLSFOUNDATION_DLL ezPhantomRttiManager
 {
 public:
   /// \brief Adds a reflected type to the list of accessible types.
@@ -37,9 +37,9 @@ private:
   static void Shutdown();
 
 public:
-  static ezEvent<const ezReflectedTypeChange&> m_TypeAddedEvent;
-  static ezEvent<const ezReflectedTypeChange&> m_TypeChangedEvent;
-  static ezEvent<const ezReflectedTypeChange&> m_TypeRemovedEvent;
+  static ezEvent<const ezPhantomTypeChange&> m_TypeAddedEvent;
+  static ezEvent<const ezPhantomTypeChange&> m_TypeChangedEvent;
+  static ezEvent<const ezPhantomTypeChange&> m_TypeRemovedEvent;
 
 private:
   static ezSet<const ezRTTI*> m_RegisteredConcreteTypes;

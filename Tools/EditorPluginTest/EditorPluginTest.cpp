@@ -4,7 +4,7 @@
 #include <EditorFramework/GUI/RawPropertyGridWidget.h>
 #include <EditorFramework/GUI/RawDocumentTreeWidget.moc.h>
 #include <ToolsFoundation/Reflection/ToolsReflectionUtils.h>
-#include <ToolsFoundation/Reflection/ReflectedTypeManager.h>
+#include <ToolsFoundation/Reflection/PhantomRttiManager.h>
 #include <EditorPluginTest/Objects/TestObject.h>
 #include <EditorPluginTest/Objects/TestObjectManager.h>
 #include <EditorPluginTest/Widgets/TestObjectCreator.moc.h>

@@ -2,7 +2,7 @@
 #include <EditorFramework/GUI/RawDocumentTreeModel.moc.h>
 #include <GuiFoundation/UIServices/UIServices.moc.h>
 #include <ToolsFoundation/Reflection/ToolsReflectionUtils.h>
-#include <ToolsFoundation/Reflection/ReflectedTypeManager.h>
+#include <ToolsFoundation/Reflection/PhantomRttiManager.h>
 #include <ToolsFoundation/Document/Document.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
 #include <QStringList>

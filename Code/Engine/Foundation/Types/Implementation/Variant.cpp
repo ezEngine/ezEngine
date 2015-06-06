@@ -246,6 +246,9 @@ bool ezVariant::CanConvertTo(Type::Enum type) const
   if (type == Type::String && m_Type < Type::VariantArray)
     return true;
 
+  if (type == Type::VoidPointer && m_Type == Type::ReflectedPointer)
+    return true;
+
   return false;
 }
 

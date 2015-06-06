@@ -51,9 +51,9 @@ private:
   static const ReflectedTypeStorageMapping* AddStorageAccessor(ezReflectedTypeStorageAccessor* pInstance);
   static void RemoveStorageAccessor(ezReflectedTypeStorageAccessor* pInstance);
 
-  static void TypeAddedEvent(const ezReflectedTypeChange& data);
-  static void TypeChangedEvent(const ezReflectedTypeChange& data);
-  static void TypeRemovedEvent(const ezReflectedTypeChange& data);
+  static void TypeAddedEvent(const ezPhantomTypeChange& data);
+  static void TypeChangedEvent(const ezPhantomTypeChange& data);
+  static void TypeRemovedEvent(const ezPhantomTypeChange& data);
 
 private:
   static ezMap<const ezRTTI*, ReflectedTypeStorageMapping*> m_ReflectedTypeToStorageMapping;

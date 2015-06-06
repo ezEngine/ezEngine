@@ -6,7 +6,7 @@
 // ezRttiSerializationContext
 ////////////////////////////////////////////////////////////////////////
 
-void* ezRttiSerializationContext::CreateObject(const ezUuid& guid, const void* pType)
+void* ezRttiSerializationContext::CreateObject(const ezUuid& guid, const ezRTTI* pRtti)
 {
   ezReflectedObjectWrapper* pWrapper = GetObjectByGUID(guid);
   if (pWrapper != nullptr)
@@ -14,14 +14,13 @@ void* ezRttiSerializationContext::CreateObject(const ezUuid& guid, const void* p
     return pWrapper->m_pObject;
   }
 
-  const ezRTTI* pRtti = static_cast<const ezRTTI*>(pType);
   if (!pRtti->GetAllocator()->CanAllocate())
     return nullptr;
 
 
   ezReflectedObjectWrapper object;
   object.m_pObject = pRtti->GetAllocator()->Allocate();
-  object.m_pType = pType;
+  object.m_pType = pRtti;
   m_Objects.Insert(guid, object);
   m_PtrLookup.Insert(object.m_pObject, guid);
 
@@ -37,13 +36,13 @@ void ezRttiSerializationContext::DeleteObject(const ezUuid& guid)
     return;
   }
 
-  const ezRTTI* pRtti = static_cast<const ezRTTI*>(pObjectWrapper->m_pType);
-  if (!pRtti->GetAllocator()->CanAllocate())
+  if (!pObjectWrapper->m_pType->GetAllocator()->CanAllocate())
   {
     EZ_REPORT_FAILURE("Given object has no allocator and thus can't be deleted!");
     return;
   }
 
+  const ezRTTI* pRtti = pObjectWrapper->m_pType;
   void* pObject = pObjectWrapper->m_pObject;
   m_PtrLookup.Remove(pObject);
   m_Objects.Remove(guid);
@@ -51,11 +50,11 @@ void ezRttiSerializationContext::DeleteObject(const ezUuid& guid)
   pRtti->GetAllocator()->Deallocate(pObject);
 }
 
-void ezRttiSerializationContext::RegisterObject(const ezUuid& guid, const void* pType, void* pObject)
+void ezRttiSerializationContext::RegisterObject(const ezUuid& guid, const ezRTTI* pRtti, void* pObject)
 {
   ezReflectedObjectWrapper object;
   object.m_pObject = pObject;
-  object.m_pType = pType;
+  object.m_pType = pRtti;
   m_Objects.Insert(guid, object);
   m_PtrLookup.Insert(object.m_pObject, guid);
 }
@@ -80,14 +79,15 @@ ezUuid ezRttiSerializationContext::GetObjectGUID(void* pObject) const
   return ezUuid();
 }
 
-ezUuid ezRttiSerializationContext::EnqueObject(void* pObject, const void* pType)
+ezUuid ezRttiSerializationContext::EnqueObject(void* pObject, const ezRTTI* pRtti)
 {
+  EZ_ASSERT_DEBUG(pObject != nullptr && pRtti != nullptr, "To-be-serialized object and ptr must be known!");
   ezUuid guid = GetObjectGUID(pObject);
   if (!guid.IsValid())
   {
     ezReflectedObjectWrapper object;
     object.m_pObject = pObject;
-    object.m_pType = pType;
+    object.m_pType = pRtti;
     guid.CreateNewUuid();
     m_Objects.Insert(guid, object);
     m_PtrLookup.Insert(object.m_pObject, guid);
@@ -124,31 +124,29 @@ ezRttiAdapter::ezRttiAdapter(ezReflectedSerializationContext* pContext) : ezRefl
 }
 
 // Type Info
-ezReflectedTypeWrapper ezRttiAdapter::GetTypeInfo(const void* pType) const
+ezReflectedTypeWrapper ezRttiAdapter::GetTypeInfo(const ezRTTI* pRtti) const
 {
   ezReflectedTypeWrapper info;
 
-  const ezRTTI* pRtti = static_cast<const ezRTTI*>(pType);
   info.m_Flags = pRtti->GetTypeFlags();
   info.m_pType = pRtti;
   info.m_szName = pRtti->GetTypeName();
   return info;
 }
 
-const void* ezRttiAdapter::FindTypeByName(const char* szTypeName) const
+const ezRTTI* ezRttiAdapter::FindTypeByName(const char* szTypeName) const
 {
   return ezRTTI::FindTypeByName(szTypeName);
 }
 
-const void* ezRttiAdapter::GetParentType(const void* pType) const
+const ezRTTI* ezRttiAdapter::GetParentType(const ezRTTI* pRtti) const
 {
-  return static_cast<const ezRTTI*>(pType)->GetParentType();
+  return pRtti->GetParentType();
 }
 
-bool ezRttiAdapter::IsStandardType(const void* pType) const
+bool ezRttiAdapter::IsStandardType(const ezRTTI* pRtti) const
 {
-  const ezRTTI* pRttiType = static_cast<const ezRTTI*>(pType);
-  return ezReflectionUtils::IsBasicType(pRttiType) || pRttiType == ezGetStaticRTTI<ezVariant>();
+  return ezReflectionUtils::IsBasicType(pRtti) || pRtti == ezGetStaticRTTI<ezVariant>();
 }
 
 // Property Info
@@ -161,6 +159,7 @@ ezReflectedPropertyWrapper ezRttiAdapter::GetPropertyInfo(void* pProp) const
   info.m_pProperty = pProp2;
   info.m_pType = nullptr;
   info.m_szName = pProp2->GetPropertyName();
+  info.m_Flags = pProp2->GetFlags();
 
   switch (info.m_Category)
   {
@@ -168,28 +167,24 @@ ezReflectedPropertyWrapper ezRttiAdapter::GetPropertyInfo(void* pProp) const
     {
       ezAbstractConstantProperty* pProp3 = static_cast<ezAbstractConstantProperty*>(pProp2);
       info.m_pType = pProp3->GetPropertyType();
-      info.m_Flags;
     }
     break;
   case ezPropertyCategory::Member:
     {
       ezAbstractMemberProperty* pProp3 = static_cast<ezAbstractMemberProperty*>(pProp2);
       info.m_pType = pProp3->GetPropertyType();
-      info.m_Flags = pProp3->GetFlags();
     }
     break;
   case ezPropertyCategory::Array:
     {
       ezAbstractArrayProperty* pProp3 = static_cast<ezAbstractArrayProperty*>(pProp2);
       info.m_pType = pProp3->GetElementType();
-      info.m_Flags = pProp3->GetFlags();
     }
     break;
   case ezPropertyCategory::Set:
     {
       ezAbstractSetProperty* pProp3 = static_cast<ezAbstractSetProperty*>(pProp2);
       info.m_pType = pProp3->GetElementType();
-      info.m_Flags = pProp3->GetFlags();
     }
     break;
   default:
@@ -199,19 +194,19 @@ ezReflectedPropertyWrapper ezRttiAdapter::GetPropertyInfo(void* pProp) const
   return info;
 }
 
-ezUInt32 ezRttiAdapter::GetPropertyCount(const void* pType) const
+ezUInt32 ezRttiAdapter::GetPropertyCount(const ezRTTI* pRtti) const
 {
-  return static_cast<const ezRTTI*>(pType)->GetProperties().GetCount();
+  return pRtti->GetProperties().GetCount();
 }
 
-void* ezRttiAdapter::GetProperty(const void* pType, ezUInt32 uiIndex) const
+void* ezRttiAdapter::GetProperty(const ezRTTI* pRtti, ezUInt32 uiIndex) const
 {
-  return static_cast<const ezRTTI*>(pType)->GetProperties()[uiIndex];
+  return pRtti->GetProperties()[uiIndex];
 }
 
-void* ezRttiAdapter::FindPropertyByName(const void* pType, const char* szPropName) const
+void* ezRttiAdapter::FindPropertyByName(const ezRTTI* pRtti, const char* szPropName) const
 {
-  return static_cast<const ezRTTI*>(pType)->FindPropertyByName(szPropName, true);
+  return pRtti->FindPropertyByName(szPropName, true);
 }
 
 // Property Access
@@ -381,16 +376,14 @@ void ezRttiAdapter::SetSetContent(const ezReflectedObjectWrapper& object, const 
 }
 
 // Allocate
-bool ezRttiAdapter::CanCreateObject(const void* pType)
+bool ezRttiAdapter::CanCreateObject(const ezRTTI* pRtti)
 {
-  const ezRTTI* pRtti = static_cast<const ezRTTI*>(pType);
   return pRtti->GetAllocator()->CanAllocate();
 }
-ezReflectedObjectWrapper ezRttiAdapter::CreateObject(const void* pType)
+ezReflectedObjectWrapper ezRttiAdapter::CreateObject(const ezRTTI* pRtti)
 {
   ezReflectedObjectWrapper object;
 
-  const ezRTTI* pRtti = static_cast<const ezRTTI*>(pType);
   object.m_pObject = pRtti->GetAllocator()->Allocate();
   object.m_pType = pRtti;
 
@@ -398,8 +391,7 @@ ezReflectedObjectWrapper ezRttiAdapter::CreateObject(const void* pType)
 }
 void ezRttiAdapter::DeleteObject(ezReflectedObjectWrapper& object)
 {
-  const ezRTTI* pRtti = static_cast<const ezRTTI*>(object.m_pType);
-  pRtti->GetAllocator()->Deallocate(object.m_pObject);
+  object.m_pType->GetAllocator()->Deallocate(object.m_pObject);
   object.m_pObject = nullptr;
 }
 

@@ -5,10 +5,12 @@
 
 class ezPhantomRTTI : public ezRTTI
 {
+  friend class ezPhantomRttiManager;
 public:
-
-  ezPhantomRTTI(const char* szName, const ezRTTI* pParentType, ezUInt32 uiTypeSize, ezUInt32 uiTypeVersion, ezUInt32 uiVariantType, ezBitflags<ezTypeFlags> flags, const char* szPluginName);
   ~ezPhantomRTTI();
+
+private:
+  ezPhantomRTTI(const char* szName, const ezRTTI* pParentType, ezUInt32 uiTypeSize, ezUInt32 uiTypeVersion, ezUInt32 uiVariantType, ezBitflags<ezTypeFlags> flags, const char* szPluginName);
 
   void SetProperties(const ezDynamicArray<ezReflectedPropertyDescriptor>& properties);
   bool IsEqualToDescriptor(const ezReflectedTypeDescriptor& desc);

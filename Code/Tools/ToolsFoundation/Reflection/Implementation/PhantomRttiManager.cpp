@@ -1,17 +1,17 @@
 #include <ToolsFoundation/PCH.h>
-#include <ToolsFoundation/Reflection/ReflectedTypeManager.h>
+#include <ToolsFoundation/Reflection/PhantomRttiManager.h>
 #include <ToolsFoundation/Reflection/ToolsReflectionUtils.h>
 #include <ToolsFoundation/Reflection/PhantomRtti.h>
 #include <Foundation/Reflection/Reflection.h>
 #include <Foundation/Memory/Allocator.h>
 #include <Foundation/Configuration/Startup.h>
 
-ezEvent<const ezReflectedTypeChange&> ezReflectedTypeManager::m_TypeAddedEvent;
-ezEvent<const ezReflectedTypeChange&> ezReflectedTypeManager::m_TypeChangedEvent;
-ezEvent<const ezReflectedTypeChange&> ezReflectedTypeManager::m_TypeRemovedEvent;
+ezEvent<const ezPhantomTypeChange&> ezPhantomRttiManager::m_TypeAddedEvent;
+ezEvent<const ezPhantomTypeChange&> ezPhantomRttiManager::m_TypeChangedEvent;
+ezEvent<const ezPhantomTypeChange&> ezPhantomRttiManager::m_TypeRemovedEvent;
 
-ezSet<const ezRTTI*> ezReflectedTypeManager::m_RegisteredConcreteTypes;
-ezHashTable<const char*, ezPhantomRTTI*> ezReflectedTypeManager::m_NameToPhantom;
+ezSet<const ezRTTI*> ezPhantomRttiManager::m_RegisteredConcreteTypes;
+ezHashTable<const char*, ezPhantomRTTI*> ezPhantomRttiManager::m_NameToPhantom;
 
 EZ_BEGIN_SUBSYSTEM_DECLARATION(ToolsFoundation, ReflectedTypeManager)
 
@@ -21,21 +21,21 @@ END_SUBSYSTEM_DEPENDENCIES
 
 ON_CORE_STARTUP
 {
-  ezReflectedTypeManager::Startup();
+  ezPhantomRttiManager::Startup();
 }
 
 ON_CORE_SHUTDOWN
 {
-  ezReflectedTypeManager::Shutdown();
+  ezPhantomRttiManager::Shutdown();
 }
 
 EZ_END_SUBSYSTEM_DECLARATION
 
 ////////////////////////////////////////////////////////////////////////
-// ezReflectedTypeManager public functions
+// ezPhantomRttiManager public functions
 ////////////////////////////////////////////////////////////////////////
 
-const ezRTTI* ezReflectedTypeManager::RegisterType(const ezReflectedTypeDescriptor& desc)
+const ezRTTI* ezPhantomRttiManager::RegisterType(const ezReflectedTypeDescriptor& desc)
 {
   ezRTTI* pType = ezRTTI::FindTypeByName(desc.m_sTypeName);
   ezPhantomRTTI* pPhantom = nullptr;
@@ -49,7 +49,7 @@ const ezRTTI* ezReflectedTypeManager::RegisterType(const ezReflectedTypeDescript
 
     m_RegisteredConcreteTypes.Insert(pType);
 
-    ezReflectedTypeChange msg;
+    ezPhantomTypeChange msg;
     msg.m_pChangedType = pType;
     m_TypeAddedEvent.Broadcast(msg);
     return pType;
@@ -67,7 +67,7 @@ const ezRTTI* ezReflectedTypeManager::RegisterType(const ezReflectedTypeDescript
 
     m_NameToPhantom[pPhantom->GetTypeName()] = pPhantom;
 
-    ezReflectedTypeChange msg;
+    ezPhantomTypeChange msg;
     msg.m_pChangedType = pPhantom;
     m_TypeAddedEvent.Broadcast(msg);
   }
@@ -75,7 +75,7 @@ const ezRTTI* ezReflectedTypeManager::RegisterType(const ezReflectedTypeDescript
   {
     pPhantom->UpdateType(desc);
 
-    ezReflectedTypeChange msg;
+    ezPhantomTypeChange msg;
     msg.m_pChangedType = pPhantom;
     m_TypeChangedEvent.Broadcast(msg);
   }
@@ -83,7 +83,7 @@ const ezRTTI* ezReflectedTypeManager::RegisterType(const ezReflectedTypeDescript
   return pPhantom;
 }
 
-bool ezReflectedTypeManager::UnregisterType(const ezRTTI* pRtti)
+bool ezPhantomRttiManager::UnregisterType(const ezRTTI* pRtti)
 {
   ezPhantomRTTI* pPhantom = nullptr;
   m_NameToPhantom.TryGetValue(pRtti->GetTypeName(), pPhantom);
@@ -92,7 +92,7 @@ bool ezReflectedTypeManager::UnregisterType(const ezRTTI* pRtti)
     return false;
 
   {
-    ezReflectedTypeChange msg;
+    ezPhantomTypeChange msg;
     msg.m_pChangedType = pPhantom;
     m_TypeRemovedEvent.Broadcast(msg);
   }
@@ -104,21 +104,21 @@ bool ezReflectedTypeManager::UnregisterType(const ezRTTI* pRtti)
 }
 
 ////////////////////////////////////////////////////////////////////////
-// ezReflectedTypeManager private functions
+// ezPhantomRttiManager private functions
 ////////////////////////////////////////////////////////////////////////
 
-void ezReflectedTypeManager::Startup()
+void ezPhantomRttiManager::Startup()
 {
 
 }
 
 
-void ezReflectedTypeManager::Shutdown()
+void ezPhantomRttiManager::Shutdown()
 {
   while (!m_NameToPhantom.IsEmpty())
   {
     UnregisterType(m_NameToPhantom.GetIterator().Value());
   }
 
-  EZ_ASSERT_DEV(m_NameToPhantom.IsEmpty(), "ezReflectedTypeManager::Shutdown: Removal of types failed!");
+  EZ_ASSERT_DEV(m_NameToPhantom.IsEmpty(), "ezPhantomRttiManager::Shutdown: Removal of types failed!");
 }

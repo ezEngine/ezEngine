@@ -17,7 +17,7 @@
 #include <Foundation/Logging/Log.h>
 #include <Foundation/Logging/ConsoleWriter.h>
 #include <Foundation/Logging/VisualStudioWriter.h>
-#include <ToolsFoundation/Reflection/ReflectedTypeManager.h>
+#include <ToolsFoundation/Reflection/PhantomRttiManager.h>
 #include <QMainWindow>
 #include <QSettings>
 #include <QTimer>
@@ -390,7 +390,7 @@ void ezEditorApp::EngineProcessMsgHandler(const ezEditorEngineProcessConnection:
       if (e.m_pMsg->GetDynamicRTTI()->IsDerivedFrom<ezUpdateReflectionTypeMsgToEditor>())
       {
         const ezUpdateReflectionTypeMsgToEditor* pMsg = static_cast<const ezUpdateReflectionTypeMsgToEditor*>(e.m_pMsg);
-        ezReflectedTypeManager::RegisterType(pMsg->m_desc);
+        ezPhantomRttiManager::RegisterType(pMsg->m_desc);
       }
       else if (e.m_pMsg->GetDynamicRTTI()->IsDerivedFrom<ezProjectReadyMsgToEditor>())
       {

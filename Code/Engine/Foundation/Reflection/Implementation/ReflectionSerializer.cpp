@@ -273,7 +273,8 @@ void ezReflectionSerializer::ReadPropertyFromJSON(const ezVariantDictionary& pro
       else if (prop.m_Flags.IsSet(ezPropertyFlags::Pointer))
       {
         ezUuid uObject = pElemValue->Get<ezUuid>();
-        void* pValue = m_pContext->GetObjectByGUID(uObject)->m_pObject;
+        ezReflectedObjectWrapper* pWrapper = m_pContext->GetObjectByGUID(uObject);
+        void* pValue = pWrapper->m_pObject;
         m_pAdapter->SetPropertyValue(object, prop, i, pValue);
       }
       else // pod element
@@ -313,7 +314,9 @@ void ezReflectionSerializer::ReadPropertyFromJSON(const ezVariantDictionary& pro
       }
       else if (prop.m_Flags.IsAnySet(ezPropertyFlags::Pointer))
       {
-        void* pValue = m_pContext->GetObjectByGUID(pElemValue->Get<ezUuid>())->m_pObject;
+        ezUuid uObject = pElemValue->Get<ezUuid>();
+        ezReflectedObjectWrapper* pWrapper = m_pContext->GetObjectByGUID(uObject);
+        void* pValue = pWrapper->m_pObject;
         keys.PushBack(pValue);
       }
     }
@@ -421,11 +424,11 @@ ezUuid ezReflectionSerializer::ReadObjectsFromJSON(const ezVariantDictionary& ro
         if (!MyObj.TryGetValue("guid", ObjGuid) || !ObjGuid->IsA<ezUuid>())
           continue;
 
-        const void* pType = m_pAdapter->FindTypeByName(ObjType->Get<ezString>());
-        if (pType == nullptr)
+        const ezRTTI* pRtti = m_pAdapter->FindTypeByName(ObjType->Get<ezString>());
+        if (pRtti == nullptr)
           continue;
 
-        m_pContext->CreateObject(ObjGuid->Get<ezUuid>(), pType);
+        m_pContext->CreateObject(ObjGuid->Get<ezUuid>(), pRtti);
       }
     }
   }

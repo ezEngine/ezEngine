@@ -2,7 +2,7 @@
 #include <GuiFoundation/Action/ActionMap.h>
 #include <GuiFoundation/Action/ActionManager.h>
 #include <Foundation/Logging/Log.h>
-#include <ToolsFoundation/Reflection/ReflectedTypeManager.h>
+#include <ToolsFoundation/Reflection/PhantomRttiManager.h>
 
 EZ_BEGIN_STATIC_REFLECTED_TYPE(ezActionMapDescriptor, ezNoBase, 0, ezRTTINoAllocator);
 //  EZ_BEGIN_PROPERTIES
@@ -65,7 +65,7 @@ ezActionMap::ezActionMap() : ezDocumentObjectTree()
 
   ezReflectedTypeDescriptor desc;
   ezToolsReflectionUtils::GetReflectedTypeDescriptorFromRtti(ezGetStaticRTTI<ezActionMapDescriptor>(), desc);
-  m_pRtti = ezReflectedTypeManager::RegisterType(desc);
+  m_pRtti = ezPhantomRttiManager::RegisterType(desc);
 }
 
 ezActionMap::~ezActionMap()

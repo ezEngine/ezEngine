@@ -1,6 +1,6 @@
 #include <ToolsFoundation/PCH.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
-#include <ToolsFoundation/Reflection/ReflectedTypeManager.h>
+#include <ToolsFoundation/Reflection/PhantomRttiManager.h>
 
 EZ_BEGIN_DYNAMIC_REFLECTED_TYPE(ezAddObjectCommand, ezCommandBase, 1, ezRTTIDefaultAllocator<ezAddObjectCommand>);
   EZ_BEGIN_PROPERTIES

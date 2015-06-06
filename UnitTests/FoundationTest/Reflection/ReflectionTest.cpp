@@ -960,12 +960,12 @@ void TestPointerMemberProperty(const char* szPropName, void* pObject, const ezRT
 
 EZ_CREATE_SIMPLE_TEST(Reflection, Pointer)
 {
-  ezTestPtr containers;
   const ezRTTI* pRtti = ezGetStaticRTTI<ezTestPtr>();
   EZ_TEST_BOOL(pRtti != nullptr);
 
   EZ_TEST_BLOCK(ezTestBlock::Enabled, "Member Property Ptr")
   {
+    ezTestPtr containers;
     {
       ezAbstractProperty* pProp = pRtti->FindPropertyByName("ConstCharPtr");
       EZ_TEST_BOOL(pProp != nullptr);
@@ -977,9 +977,63 @@ EZ_CREATE_SIMPLE_TEST(Reflection, Pointer)
 
     TestPointerMemberProperty<ezTestArrays>("ArraysPtr", &containers, pRtti, ezPropertyFlags::Pointer | ezPropertyFlags::PointerOwner, containers.m_pArrays);
     TestPointerMemberProperty<ezTestArrays>("ArraysPtrDirect", &containers, pRtti, ezPropertyFlags::Pointer | ezPropertyFlags::PointerOwner, containers.m_pArrays);
-    TestPointerMemberProperty<const ezTestArrays>("ConstArraysPtr", &containers, pRtti, ezPropertyFlags::Pointer | ezPropertyFlags::PointerOwner, containers.m_pArraysC);
-    TestPointerMemberProperty<const ezTestArrays>("ConstArraysPtrDirect", &containers, pRtti, ezPropertyFlags::Pointer | ezPropertyFlags::PointerOwner, containers.m_pArraysC);
   }
 
+  ezTestPtr containers;
+  ezMemoryStreamStorage StreamStorage;
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "Serialize Property Ptr")
+  {
+    containers.m_sString = "Test";
+
+    containers.m_pArrays = EZ_DEFAULT_NEW(ezTestArrays);
+    containers.m_pArrays->m_Deque.PushBack(ezTestArrays());
+
+    containers.m_ArrayPtr.PushBack(EZ_DEFAULT_NEW(ezTestArrays));
+    containers.m_ArrayPtr[0]->m_Hybrid.PushBack(5.0);
+
+    containers.m_SetPtr.Insert(EZ_DEFAULT_NEW(ezTestSets));
+    containers.m_SetPtr.GetIterator().Key()->m_Array.PushBack("BLA");
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "WriteObjectToJSON")
+  {
+    ezMemoryStreamWriter FileOut(&StreamStorage);
+
+    ezReflectionSerializer::WriteObjectToJSON(FileOut, containers.GetDynamicRTTI(), &containers, ezJSONWriter::WhitespaceMode::All);
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ReadObjectPropertiesFromJSON")
+  {
+    ezMemoryStreamReader FileIn(&StreamStorage);
+    ezTestPtr data;
+    ezReflectionSerializer::ReadObjectPropertiesFromJSON(FileIn, *data.GetDynamicRTTI(), &data);
+
+    EZ_TEST_BOOL(data.m_sString == containers.m_sString);
+    EZ_TEST_BOOL(*data.m_pArrays == *containers.m_pArrays);
+    EZ_TEST_BOOL(*data.m_ArrayPtr[0] == *containers.m_ArrayPtr[0]);
+    EZ_TEST_BOOL(*data.m_SetPtr.GetIterator().Key() == *containers.m_SetPtr.GetIterator().Key());
+  }
+
+  EZ_TEST_BLOCK(ezTestBlock::Enabled, "ReadObjectFromJSON")
+  {
+    ezMemoryStreamReader FileIn(&StreamStorage);
+
+    const ezRTTI* pRtti2;
+    void* pObject = ezReflectionSerializer::ReadObjectFromJSON(FileIn, pRtti2);
+    EZ_TEST_BOOL(pRtti == pRtti2);
+    
+    ezTestPtr& data = *((ezTestPtr*) pObject);
+
+    EZ_TEST_BOOL(data.m_sString == containers.m_sString);
+    EZ_TEST_BOOL(*data.m_pArrays == *containers.m_pArrays);
+    EZ_TEST_BOOL(*data.m_ArrayPtr[0] == *containers.m_ArrayPtr[0]);
+    EZ_TEST_BOOL(*data.m_SetPtr.GetIterator().Key() == *containers.m_SetPtr.GetIterator().Key());
+
+    if (pObject)
+    {
+      pRtti->GetAllocator()->Deallocate(pObject);
+    }
+  }
 
 }

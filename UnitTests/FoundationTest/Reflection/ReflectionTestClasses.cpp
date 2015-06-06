@@ -229,8 +229,8 @@ EZ_BEGIN_PROPERTIES
   EZ_ACCESSOR_PROPERTY("ConstCharPtr", GetString, SetString),
   EZ_ACCESSOR_PROPERTY("ArraysPtr", GetArrays, SetArrays)->AddFlags(ezPropertyFlags::PointerOwner),
   EZ_MEMBER_PROPERTY("ArraysPtrDirect", m_pArrays)->AddFlags(ezPropertyFlags::PointerOwner),
-  EZ_ACCESSOR_PROPERTY("ConstArraysPtr", GetArraysC, SetArraysC)->AddFlags(ezPropertyFlags::PointerOwner),
-  EZ_MEMBER_PROPERTY("ConstArraysPtrDirect", m_pArraysC)->AddFlags(ezPropertyFlags::PointerOwner),
+  EZ_ARRAY_MEMBER_PROPERTY("PtrArray", m_ArrayPtr)->AddFlags(ezPropertyFlags::PointerOwner),
+  EZ_SET_MEMBER_PROPERTY("PtrSet", m_SetPtr)->AddFlags(ezPropertyFlags::PointerOwner),
 EZ_END_PROPERTIES
 EZ_END_DYNAMIC_REFLECTED_TYPE();
 

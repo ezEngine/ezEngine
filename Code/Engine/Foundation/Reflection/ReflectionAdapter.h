@@ -5,11 +5,11 @@
 struct EZ_FOUNDATION_DLL ezReflectedObjectWrapper
 {
   ezReflectedObjectWrapper() : m_pType(nullptr), m_pObject(nullptr) {}
-  ezReflectedObjectWrapper(const void* pType, void* pObject) : m_pType(pType), m_pObject(pObject) {}
+  ezReflectedObjectWrapper(const ezRTTI* pType, void* pObject) : m_pType(pType), m_pObject(pObject) {}
 
   EZ_DECLARE_POD_TYPE();
 
-  const void* m_pType;
+  const ezRTTI* m_pType;
   void* m_pObject;
 };
 
@@ -20,7 +20,7 @@ struct EZ_FOUNDATION_DLL ezReflectedTypeWrapper
 
   const char* m_szName;
   ezBitflags<ezTypeFlags> m_Flags;
-  const void* m_pType;
+  const ezRTTI* m_pType;
 };
 
 
@@ -31,7 +31,7 @@ struct EZ_FOUNDATION_DLL ezReflectedPropertyWrapper
   const char* m_szName;
   ezEnum<ezPropertyCategory> m_Category;
   ezBitflags<ezPropertyFlags> m_Flags;
-  const void* m_pType;
+  const ezRTTI* m_pType;
   void* m_pProperty;
 };
 
@@ -39,13 +39,13 @@ struct EZ_FOUNDATION_DLL ezReflectedPropertyWrapper
 class EZ_FOUNDATION_DLL ezReflectedSerializationContext
 {
 public:
-  virtual void* CreateObject(const ezUuid& guid, const void* pType) = 0;
+  virtual void* CreateObject(const ezUuid& guid, const ezRTTI* pRtti) = 0;
   virtual void DeleteObject(const ezUuid& guid) = 0;
-  virtual void RegisterObject(const ezUuid& guid, const void* pType, void* pObject) = 0;
+  virtual void RegisterObject(const ezUuid& guid, const ezRTTI* pRtti, void* pObject) = 0;
   virtual ezReflectedObjectWrapper* GetObjectByGUID(const ezUuid& guid) const = 0;
   virtual ezUuid GetObjectGUID(void* pObject) const = 0;
 
-  virtual ezUuid EnqueObject(void* pObject, const void* pType) = 0;
+  virtual ezUuid EnqueObject(void* pObject, const ezRTTI* pRtti) = 0;
   virtual ezReflectedObjectWrapper DequeueObject() = 0;
 };
 
@@ -53,13 +53,13 @@ public:
 class EZ_FOUNDATION_DLL ezRttiSerializationContext : public ezReflectedSerializationContext
 {
 public:
-  virtual void* CreateObject(const ezUuid& guid, const void* pType) override;
+  virtual void* CreateObject(const ezUuid& guid, const ezRTTI* pRtti) override;
   virtual void DeleteObject(const ezUuid& guid) override;
-  virtual void RegisterObject(const ezUuid& guid, const void* pType, void* pObject) override;
+  virtual void RegisterObject(const ezUuid& guid, const ezRTTI* pRtti, void* pObject) override;
   virtual ezReflectedObjectWrapper* GetObjectByGUID(const ezUuid& guid) const override;
   virtual ezUuid GetObjectGUID(void* pObject) const override;
 
-  virtual ezUuid EnqueObject(void* pObject, const void* pType) override;
+  virtual ezUuid EnqueObject(void* pObject, const ezRTTI* pRtti) override;
   virtual ezReflectedObjectWrapper DequeueObject() override;
 
 private:
@@ -76,16 +76,16 @@ public:
   ezReflectedSerializationContext* GetContext() { return m_pContext; }
 
   // Type Info
-  virtual ezReflectedTypeWrapper GetTypeInfo(const void* pType) const = 0;
-  virtual const void* FindTypeByName(const char* szTypeName) const = 0;
-  virtual const void* GetParentType(const void* pType) const = 0;
-  virtual bool IsStandardType(const void* pType) const = 0;
+  virtual ezReflectedTypeWrapper GetTypeInfo(const ezRTTI* pRtti) const = 0;
+  virtual const ezRTTI* FindTypeByName(const char* szTypeName) const = 0;
+  virtual const ezRTTI* GetParentType(const ezRTTI* pRtti) const = 0;
+  virtual bool IsStandardType(const ezRTTI* pRtti) const = 0;
 
   // Property Info
   virtual ezReflectedPropertyWrapper GetPropertyInfo(void* pProp) const = 0;
-  virtual ezUInt32 GetPropertyCount(const void* pType) const = 0;
-  virtual void* GetProperty(const void* pType, ezUInt32 uiIndex) const = 0;
-  virtual void* FindPropertyByName(const void* pType, const char* szPropName) const = 0;
+  virtual ezUInt32 GetPropertyCount(const ezRTTI* pRtti) const = 0;
+  virtual void* GetProperty(const ezRTTI* pRtti, ezUInt32 uiIndex) const = 0;
+  virtual void* FindPropertyByName(const ezRTTI* pRtti, const char* szPropName) const = 0;
 
   // Property Access
   virtual ezVariant GetPropertyValue(const ezReflectedObjectWrapper& object, const ezReflectedPropertyWrapper& prop, const ezVariant& index) const = 0;
@@ -106,8 +106,8 @@ public:
   virtual void SetSetContent(const ezReflectedObjectWrapper& object, const ezReflectedPropertyWrapper& prop, const ezHybridArray<ezVariant, 16>& keys) = 0;
 
   // Allocate
-  virtual bool CanCreateObject(const void* pType) = 0;
-  virtual ezReflectedObjectWrapper CreateObject(const void* pType) = 0;
+  virtual bool CanCreateObject(const ezRTTI* pRtti) = 0;
+  virtual ezReflectedObjectWrapper CreateObject(const ezRTTI* pRtti) = 0;
   virtual void DeleteObject(ezReflectedObjectWrapper& object) = 0;
 
 protected:
@@ -121,16 +121,16 @@ public:
   ezRttiAdapter(ezReflectedSerializationContext* pContext);
 
   // Type Info
-  virtual ezReflectedTypeWrapper GetTypeInfo(const void* pType) const override;
-  virtual const void* FindTypeByName(const char* szTypeName) const override;
-  virtual const void* GetParentType(const void* pType) const override;
-  virtual bool IsStandardType(const void* pType) const override;
+  virtual ezReflectedTypeWrapper GetTypeInfo(const ezRTTI* pRtti) const override;
+  virtual const ezRTTI* FindTypeByName(const char* szTypeName) const override;
+  virtual const ezRTTI* GetParentType(const ezRTTI* pRtti) const override;
+  virtual bool IsStandardType(const ezRTTI* pRtti) const override;
 
   // Property Info
   virtual ezReflectedPropertyWrapper GetPropertyInfo(void* pPropm) const override;
-  virtual ezUInt32 GetPropertyCount(const void* pType) const override;
-  virtual void* GetProperty(const void* pType, ezUInt32 uiIndex) const override;
-  virtual void* FindPropertyByName(const void* pType, const char* szPropName) const override;
+  virtual ezUInt32 GetPropertyCount(const ezRTTI* pRtti) const override;
+  virtual void* GetProperty(const ezRTTI* pRtti, ezUInt32 uiIndex) const override;
+  virtual void* FindPropertyByName(const ezRTTI* pRtti, const char* szPropName) const override;
 
   // Property Access
   virtual ezVariant GetPropertyValue(const ezReflectedObjectWrapper& object, const ezReflectedPropertyWrapper& prop, const ezVariant& index) const override;
@@ -151,7 +151,7 @@ public:
   virtual void SetSetContent(const ezReflectedObjectWrapper& object, const ezReflectedPropertyWrapper& prop, const ezHybridArray<ezVariant, 16>& keys) override;
 
   // Allocate
-  virtual bool CanCreateObject(const void* pType) override;
-  virtual ezReflectedObjectWrapper CreateObject(const void* pType) override;
+  virtual bool CanCreateObject(const ezRTTI* pRtti) override;
+  virtual ezReflectedObjectWrapper CreateObject(const ezRTTI* pRtti) override;
   virtual void DeleteObject(ezReflectedObjectWrapper& object) override;
 };

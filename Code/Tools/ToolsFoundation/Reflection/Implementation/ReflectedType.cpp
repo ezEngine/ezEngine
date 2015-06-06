@@ -1,6 +1,6 @@
 #include <ToolsFoundation/PCH.h>
 #include <ToolsFoundation/Reflection/ReflectedType.h>
-#include <ToolsFoundation/Reflection/ReflectedTypeManager.h>
+#include <ToolsFoundation/Reflection/PhantomRttiManager.h>
 
 ////////////////////////////////////////////////////////////////////////
 // ezPropertyPath functions
@@ -42,19 +42,18 @@ EZ_BEGIN_PROPERTIES
   EZ_ENUM_MEMBER_PROPERTY("Category", ezPropertyCategory, m_Category),
   EZ_MEMBER_PROPERTY("Name", m_sName),
   EZ_MEMBER_PROPERTY("Type", m_sType),
-  EZ_ENUM_MEMBER_PROPERTY("VariantType", ezVariantType, m_Type),
   EZ_BITFLAGS_MEMBER_PROPERTY("Flags", ezPropertyFlags, m_Flags),
   EZ_MEMBER_PROPERTY("ConstantValue", m_ConstantValue),
 EZ_END_PROPERTIES
 EZ_END_STATIC_REFLECTED_TYPE();
 
 ezReflectedPropertyDescriptor::ezReflectedPropertyDescriptor(ezPropertyCategory::Enum category, const char* szName, const char* szType, ezVariant::Type::Enum type, ezBitflags<ezPropertyFlags> flags)
-  : m_Category(category), m_sName(szName), m_sType(szType), m_Type(type), m_Flags(flags)
+  : m_Category(category), m_sName(szName), m_sType(szType), m_Flags(flags)
 {
 }
 
 ezReflectedPropertyDescriptor::ezReflectedPropertyDescriptor(const char* szName, ezVariant::Type::Enum type, const ezVariant& constantValue)
-  : m_Category(ezPropertyCategory::Constant), m_sName(szName), m_sType(), m_Type(type), m_Flags(ezPropertyFlags::StandardType | ezPropertyFlags::ReadOnly | ezPropertyFlags::Constant)
+  : m_Category(ezPropertyCategory::Constant), m_sName(szName), m_sType(), m_Flags(ezPropertyFlags::StandardType | ezPropertyFlags::ReadOnly | ezPropertyFlags::Constant)
   , m_ConstantValue(constantValue)
 {
 }

@@ -13,7 +13,7 @@
 #include <ToolsFoundation/Serialization/DocumentJSONReader.h>
 #include <ToolsFoundation/Serialization/SerializedTypeAccessorObject.h>
 #include <ToolsFoundation/Object/SerializedDocumentObject.h>
-#include <ToolsFoundation/Reflection/ReflectedTypeManager.h>
+#include <ToolsFoundation/Reflection/PhantomRttiManager.h>
 #include <GuiFoundation/UIServices/ProgressBar.h>
 
 ezAssetCurator* ezAssetCurator::s_pInstance = nullptr;
@@ -492,7 +492,7 @@ void ezAssetCurator::ReadAssetDocumentInfo(ezAssetDocumentInfo* pInfo, ezStreamR
       if (sType == pInfo->GetDynamicRTTI()->GetTypeName()) // this should always be "ezAssetDocumentInfo"
       {
         const ezRTTI* pRtti = ezRTTI::FindTypeByName(pInfo->GetDynamicRTTI()->GetTypeName());
-        EZ_ASSERT_DEV(pRtti != nullptr, "Need to register ezDocumentInfo at the ezReflectedTypeManager first!");
+        EZ_ASSERT_DEV(pRtti != nullptr, "Need to register ezDocumentInfo at the ezPhantomRttiManager first!");
 
         ezReflectedTypeDirectAccessor acc(pInfo);
         ezSerializedTypeAccessorObjectReader objectReader(&acc);

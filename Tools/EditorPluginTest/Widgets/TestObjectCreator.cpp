@@ -1,7 +1,7 @@
 #include <PCH.h>
 #include <EditorPluginTest/Widgets/TestObjectCreator.moc.h>
 #include <EditorFramework/GUI/QtHelpers.h>
-#include <ToolsFoundation/Reflection/ReflectedTypeManager.h>
+#include <ToolsFoundation/Reflection/PhantomRttiManager.h>
 #include <QMimeData>
 
 ezTestObjectCreatorWidget::ezTestObjectCreatorWidget(const ezDocumentObjectManagerBase* pManager, QWidget* parent) : QListWidget(parent)
@@ -10,21 +10,21 @@ ezTestObjectCreatorWidget::ezTestObjectCreatorWidget(const ezDocumentObjectManag
 
   m_DelegateTypeChanged = ezMakeDelegate(&ezTestObjectCreatorWidget::TypeChanged, this);
 
-  ezReflectedTypeManager::m_TypeAddedEvent.AddEventHandler(m_DelegateTypeChanged);
-  ezReflectedTypeManager::m_TypeChangedEvent.AddEventHandler(m_DelegateTypeChanged);
-  ezReflectedTypeManager::m_TypeRemovedEvent.AddEventHandler(m_DelegateTypeChanged);
+  ezPhantomRttiManager::m_TypeAddedEvent.AddEventHandler(m_DelegateTypeChanged);
+  ezPhantomRttiManager::m_TypeChangedEvent.AddEventHandler(m_DelegateTypeChanged);
+  ezPhantomRttiManager::m_TypeRemovedEvent.AddEventHandler(m_DelegateTypeChanged);
 
-  TypeChanged(ezReflectedTypeChange());
+  TypeChanged(ezPhantomTypeChange());
 }
 
 ezTestObjectCreatorWidget::~ezTestObjectCreatorWidget()
 {
-  ezReflectedTypeManager::m_TypeAddedEvent.RemoveEventHandler(m_DelegateTypeChanged);
-  ezReflectedTypeManager::m_TypeChangedEvent.RemoveEventHandler(m_DelegateTypeChanged);
-  ezReflectedTypeManager::m_TypeRemovedEvent.RemoveEventHandler(m_DelegateTypeChanged);
+  ezPhantomRttiManager::m_TypeAddedEvent.RemoveEventHandler(m_DelegateTypeChanged);
+  ezPhantomRttiManager::m_TypeChangedEvent.RemoveEventHandler(m_DelegateTypeChanged);
+  ezPhantomRttiManager::m_TypeRemovedEvent.RemoveEventHandler(m_DelegateTypeChanged);
 }
 
-void ezTestObjectCreatorWidget::TypeChanged(const ezReflectedTypeChange& data)
+void ezTestObjectCreatorWidget::TypeChanged(const ezPhantomTypeChange& data)
 {
   ezHybridArray<ezRTTI*, 32> Types;
   m_pManager->GetCreateableTypes(Types);

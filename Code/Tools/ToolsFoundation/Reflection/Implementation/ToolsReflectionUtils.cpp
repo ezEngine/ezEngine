@@ -1,7 +1,7 @@
 #include <ToolsFoundation/PCH.h>
 #include <ToolsFoundation/Reflection/ReflectedType.h>
 #include <ToolsFoundation/Reflection/ToolsReflectionUtils.h>
-#include <ToolsFoundation/Reflection/ReflectedTypeManager.h>
+#include <ToolsFoundation/Reflection/PhantomRttiManager.h>
 #include <Foundation/Configuration/Startup.h>
 #include <Foundation/IO/ExtendedJSONWriter.h>
 #include <Foundation/IO/ExtendedJSONReader.h>
@@ -169,7 +169,7 @@ void ezToolsReflectionUtils::RegisterType(const ezRTTI* pRtti, bool bIncludeDeri
   {
     ezReflectedTypeDescriptor desc;
     ezToolsReflectionUtils::GetReflectedTypeDescriptorFromRtti(type, desc);
-    ezReflectedTypeManager::RegisterType(desc);
+    ezPhantomRttiManager::RegisterType(desc);
   }
 }
 

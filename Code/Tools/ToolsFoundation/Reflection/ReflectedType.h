@@ -10,7 +10,7 @@
 #include <Foundation/Containers/Set.h>
 
 class ezRTTI;
-class ezReflectedTypeManager;
+class ezPhantomRttiManager;
 class ezReflectedTypeStorageManager;
 
 /// \brief A path of property names to the data type that is to be set / get inside ezIReflectedTypeAccessor.
@@ -23,8 +23,8 @@ public:
   ezStringBuilder GetPathString() const;
 };
 
-/// \brief Event message used by the ezReflectedTypeManager.
-struct EZ_TOOLSFOUNDATION_DLL ezReflectedTypeChange
+/// \brief Event message used by the ezPhantomRttiManager.
+struct EZ_TOOLSFOUNDATION_DLL ezPhantomTypeChange
 {
   const ezRTTI* m_pChangedType;
 };
@@ -40,7 +40,7 @@ struct EZ_TOOLSFOUNDATION_DLL ezReflectedPropertyDescriptor
   ezString m_sName;
 
   ezString m_sType;
-  ezEnum<ezVariantType> m_Type;
+  //ezEnum<ezVariantType> m_Type;
 
   ezBitflags<ezPropertyFlags> m_Flags;
 
@@ -48,7 +48,7 @@ struct EZ_TOOLSFOUNDATION_DLL ezReflectedPropertyDescriptor
 };
 EZ_DECLARE_REFLECTABLE_TYPE(EZ_TOOLSFOUNDATION_DLL, ezReflectedPropertyDescriptor);
 
-/// \brief Stores the description of a reflected type in a serializable form. Used by ezReflectedTypeManager to add new types.
+/// \brief Stores the description of a reflected type in a serializable form. Used by ezPhantomRttiManager to add new types.
 struct EZ_TOOLSFOUNDATION_DLL ezReflectedTypeDescriptor
 {
   ezString m_sTypeName;

@@ -4,7 +4,7 @@
 #include <ToolsFoundation/Serialization/DocumentJSONWriter.h>
 #include <ToolsFoundation/Serialization/SerializedTypeAccessorObject.h>
 #include <ToolsFoundation/Object/SerializedDocumentObject.h>
-#include <ToolsFoundation/Reflection/ReflectedTypeManager.h>
+#include <ToolsFoundation/Reflection/PhantomRttiManager.h>
 #include <Foundation/IO/FileSystem/FileReader.h>
 #include <Foundation/IO/FileSystem/FileWriter.h>
 
@@ -159,7 +159,7 @@ ezStatus ezDocumentBase::InternalSaveDocument()
   writer.StartGroup("Header");
   {
     const ezRTTI* pRtti = ezRTTI::FindTypeByName(m_pDocumentInfo->GetDynamicRTTI()->GetTypeName());
-    EZ_ASSERT_DEV(pRtti != nullptr, "Need to register ezDocumentInfo at the ezReflectedTypeManager first!");
+    EZ_ASSERT_DEV(pRtti != nullptr, "Need to register ezDocumentInfo at the ezPhantomRttiManager first!");
 
     ezReflectedTypeDirectAccessor acc(m_pDocumentInfo);
     ezSerializedTypeAccessorObjectWriter objectWriter(&acc);
@@ -203,7 +203,7 @@ ezStatus ezDocumentBase::InternalLoadDocument()
       if (sType == m_pDocumentInfo->GetDynamicRTTI()->GetTypeName())
       {
         const ezRTTI* pRtti = ezRTTI::FindTypeByName(m_pDocumentInfo->GetDynamicRTTI()->GetTypeName());
-        EZ_ASSERT_DEV(pRtti != nullptr, "Need to register ezDocumentInfo at the ezReflectedTypeManager first!");
+        EZ_ASSERT_DEV(pRtti != nullptr, "Need to register ezDocumentInfo at the ezPhantomRttiManager first!");
 
         ezReflectedTypeDirectAccessor acc(m_pDocumentInfo);
         ezSerializedTypeAccessorObjectReader objectReader(&acc);

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <EditorFramework/Assets/AssetDocument.h>
-#include <ToolsFoundation/Reflection/ReflectedTypeManager.h>
+#include <ToolsFoundation/Reflection/PhantomRttiManager.h>
 
 template<typename PropertyType, typename AssetObjectType, typename ObjectManagerType>
 class ezSimpleAssetDocument : public ezAssetDocument

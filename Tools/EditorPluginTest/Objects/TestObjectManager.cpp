@@ -1,7 +1,7 @@
 #include <PCH.h>
 #include <EditorPluginTest/Objects/TestObjectManager.h>
 #include <EditorPluginTest/Objects/TestObject.h>
-#include <ToolsFoundation/Reflection/ReflectedTypeManager.h>
+#include <ToolsFoundation/Reflection/PhantomRttiManager.h>
 #include <Core/World/GameObject.h>
 
 ezTestObjectManager::ezTestObjectManager() : ezDocumentObjectManagerBase()

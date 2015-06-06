@@ -303,15 +303,21 @@ public:
   ezTestPtr()
   {
     m_pArrays = nullptr;
-    m_pArraysC = EZ_DEFAULT_NEW(ezTestArrays);
   }
 
   ~ezTestPtr()
   {
-    ezTestArrays* pTemp = const_cast<ezTestArrays*>(m_pArraysC);
-    EZ_DEFAULT_DELETE(pTemp);
-    m_pArraysC = nullptr;
     EZ_DEFAULT_DELETE(m_pArrays);
+    for (auto ptr : m_ArrayPtr)
+    {
+      EZ_DEFAULT_DELETE(ptr);
+    }
+    m_ArrayPtr.Clear();
+    for (auto ptr : m_SetPtr)
+    {
+      EZ_DEFAULT_DELETE(ptr);
+    }
+    m_SetPtr.Clear();
   }
 
   void SetString(const char* pzValue) { m_sString = pzValue; }
@@ -320,14 +326,11 @@ public:
   void SetArrays(ezTestArrays* pValue) { m_pArrays = pValue; }
   ezTestArrays* GetArrays() const { return m_pArrays; }
 
-  void SetArraysC(const ezTestArrays* pValue) { m_pArraysC = pValue; }
-  const ezTestArrays* GetArraysC() const { return m_pArraysC; }
-
 
   ezString m_sString;
   ezTestArrays* m_pArrays;
-  const ezTestArrays* m_pArraysC;
-
+  ezDeque<ezTestArrays*> m_ArrayPtr;
+  ezSet<ezTestSets*> m_SetPtr;
 };
 
 

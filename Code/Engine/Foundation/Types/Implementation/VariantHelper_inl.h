@@ -187,6 +187,13 @@ class ezVariantHelper
     bSuccessful = true;
   }
 
+  static void To(const ezVariant& value, void*& result, bool& bSuccessful)
+  {
+    EZ_ASSERT_DEBUG(value.GetType() == ezVariant::Type::VoidPointer || value.GetType() == ezVariant::Type::ReflectedPointer, "Only ptr can be converted to void*!");
+    result = value.GetType() == ezVariant::Type::VoidPointer ? value.Get<void*>() : value.Get<ezReflectedClass*>();
+    bSuccessful = true;
+  }
+
   template <typename T>
   static void To(const ezVariant& value, T& result, bool& bSuccessful)
   {

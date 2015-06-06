@@ -7,7 +7,7 @@
 ///
 /// This class is used to store data on the tool side for classes that are not known to the tool but exist outside of it
 /// like engine components. As this is basically a complex value map the used type can be hot-reloaded. For this, the
-/// ezRTTI just needs to be updated with its new definition in the ezReflectedTypeManager and all ezReflectedTypeStorageAccessor
+/// ezRTTI just needs to be updated with its new definition in the ezPhantomRttiManager and all ezReflectedTypeStorageAccessor
 /// will be automatically rearranged to match the new class layout.
 class EZ_TOOLSFOUNDATION_DLL ezReflectedTypeStorageAccessor : public ezIReflectedTypeAccessor
 {

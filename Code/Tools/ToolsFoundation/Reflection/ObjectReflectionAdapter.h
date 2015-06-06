@@ -7,13 +7,13 @@
 class EZ_TOOLSFOUNDATION_DLL ezObjectSerializationContext : public ezReflectedSerializationContext
 {
 public:
-  virtual void* CreateObject(const ezUuid& guid, const void* pType) override;
+  virtual void* CreateObject(const ezUuid& guid, const ezRTTI* pType) override;
   virtual void DeleteObject(const ezUuid& guid) override;
-  virtual void RegisterObject(const ezUuid& guid, const void* pType, void* pObject) override;
+  virtual void RegisterObject(const ezUuid& guid, const ezRTTI* pType, void* pObject) override;
   virtual ezReflectedObjectWrapper* GetObjectByGUID(const ezUuid& guid) const override;
   virtual ezUuid GetObjectGUID(void* pObject) const override;
 
-  virtual ezUuid EnqueObject(void* pObject, const void* pType) override;
+  virtual ezUuid EnqueObject(void* pObject, const ezRTTI* pType) override;
   virtual ezReflectedObjectWrapper DequeueObject() override;
 
 private:
@@ -47,7 +47,7 @@ public:
   virtual void SetSetContent(const ezReflectedObjectWrapper& object, const ezReflectedPropertyWrapper& prop, const ezHybridArray<ezVariant, 16>& keys) override;
 
   // Allocate
-  virtual bool CanCreateObject(const void* pType) override;
-  virtual ezReflectedObjectWrapper CreateObject(const void* pType) override;
+  virtual bool CanCreateObject(const ezRTTI* pType) override;
+  virtual ezReflectedObjectWrapper CreateObject(const ezRTTI* pType) override;
   virtual void DeleteObject(ezReflectedObjectWrapper& object) override;
 };

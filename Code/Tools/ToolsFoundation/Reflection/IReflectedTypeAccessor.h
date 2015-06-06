@@ -11,7 +11,7 @@ public:
   ///
   /// It is a valid implementation to pass an invalid handle. Note that in this case there is no way to determine
   /// what is actually stored inside. However, it can be useful to use e.g. the ezReflectedTypeDirectAccessor
-  /// to set properties on the engine runtime side without having the ezReflectedTypeManager initialized.
+  /// to set properties on the engine runtime side without having the ezPhantomRttiManager initialized.
   ezIReflectedTypeAccessor(const ezRTTI* pRtti) : m_pRtti(pRtti) {} // [tested]
 
   /// \brief Returns the ezRTTI* of the wrapped instance type.

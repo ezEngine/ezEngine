@@ -47,7 +47,7 @@
       sizeof(OwnType),                                              \
       GetTypeVersion(),                                             \
       ezVariant::TypeDeduction<OwnType>::value,                     \
-      flags,                                         \
+      flags,                                                        \
       &Allocator, Properties, MessageHandlers);                     \
   }
 

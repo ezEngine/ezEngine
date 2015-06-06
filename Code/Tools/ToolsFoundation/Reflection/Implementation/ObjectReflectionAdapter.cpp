@@ -6,7 +6,7 @@
 // ezObjectSerializationContext
 ////////////////////////////////////////////////////////////////////////
 
-void* ezObjectSerializationContext::CreateObject(const ezUuid& guid, const void* pType)
+void* ezObjectSerializationContext::CreateObject(const ezUuid& guid, const ezRTTI* pType)
 {
   ezReflectedObjectWrapper* pWrapper = GetObjectByGUID(guid);
   if (pWrapper != nullptr)
@@ -28,11 +28,11 @@ void ezObjectSerializationContext::DeleteObject(const ezUuid& guid)
   }
 
   const ezRTTI* pRtti = static_cast<const ezRTTI*>(pObjectWrapper->m_pType);
-  
+
   EZ_ASSERT_NOT_IMPLEMENTED;
 }
 
-void ezObjectSerializationContext::RegisterObject(const ezUuid& guid, const void* pType, void* pObject)
+void ezObjectSerializationContext::RegisterObject(const ezUuid& guid, const ezRTTI* pType, void* pObject)
 {
   ezReflectedObjectWrapper object;
   object.m_pObject = pObject;
@@ -61,7 +61,7 @@ ezUuid ezObjectSerializationContext::GetObjectGUID(void* pObject) const
   return ezUuid();
 }
 
-ezUuid ezObjectSerializationContext::EnqueObject(void* pObject, const void* pType)
+ezUuid ezObjectSerializationContext::EnqueObject(void* pObject, const ezRTTI* pType)
 {
   ezUuid guid = GetObjectGUID(pObject);
   if (!guid.IsValid())
@@ -72,7 +72,7 @@ ezUuid ezObjectSerializationContext::EnqueObject(void* pObject, const void* pTyp
     ezReflectedObjectWrapper object;
     object.m_pObject = pObject;
     object.m_pType = pType;
-    
+
     m_Objects.Insert(guid, object);
     m_PtrLookup.Insert(object.m_pObject, guid);
     m_PendingObjects.Insert(guid);
@@ -130,6 +130,11 @@ ezVariant ezObjectReflectionAdapter::GetPropertyValue(const ezReflectedObjectWra
       EZ_ASSERT_NOT_IMPLEMENTED;
     }
     break;
+  case ezPropertyCategory::Set:
+    {
+      EZ_ASSERT_NOT_IMPLEMENTED;
+    }
+    break;
   default:
     EZ_ASSERT_DEBUG(false, "Not implemented!");
     break;
@@ -153,6 +158,11 @@ void ezObjectReflectionAdapter::SetPropertyValue(const ezReflectedObjectWrapper&
       EZ_ASSERT_NOT_IMPLEMENTED;
     }
     break;
+  case ezPropertyCategory::Set:
+    {
+      EZ_ASSERT_NOT_IMPLEMENTED;
+    }
+    break;
   default:
     EZ_ASSERT_DEBUG(false, "Not implemented!");
     break;
@@ -171,6 +181,11 @@ void ezObjectReflectionAdapter::GetPropertyObject(const ezReflectedObjectWrapper
     }
     break;
   case ezPropertyCategory::Array:
+    {
+      EZ_ASSERT_NOT_IMPLEMENTED;
+    }
+    break;
+  case ezPropertyCategory::Set:
     {
       EZ_ASSERT_NOT_IMPLEMENTED;
     }
@@ -216,12 +231,12 @@ void ezObjectReflectionAdapter::SetSetContent(const ezReflectedObjectWrapper& ob
 }
 
 // Allocate
-bool ezObjectReflectionAdapter::CanCreateObject(const void* pType)
+bool ezObjectReflectionAdapter::CanCreateObject(const ezRTTI* pType)
 {
   return true;
 }
 
-ezReflectedObjectWrapper ezObjectReflectionAdapter::CreateObject(const void* pType)
+ezReflectedObjectWrapper ezObjectReflectionAdapter::CreateObject(const ezRTTI* pType)
 {
   ezReflectedObjectWrapper object;
 

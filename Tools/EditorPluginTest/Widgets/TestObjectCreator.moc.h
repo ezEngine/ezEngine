@@ -17,14 +17,14 @@ public:
   virtual QStringList mimeTypes () const override;
 
 private:
-  void TypeChanged(const ezReflectedTypeChange& data);
+  void TypeChanged(const ezPhantomTypeChange& data);
 
 private:
   const ezDocumentObjectManagerBase* m_pManager;
 
 
   /// \todo Broken delegates
-  ezDelegate<void(const ezReflectedTypeChange&)> m_DelegateTypeChanged;
+  ezDelegate<void(const ezPhantomTypeChange&)> m_DelegateTypeChanged;
 };
 
 

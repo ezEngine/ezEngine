@@ -22,6 +22,10 @@ ezPhantomRTTI::~ezPhantomRTTI()
 
 void ezPhantomRTTI::SetProperties(const ezDynamicArray<ezReflectedPropertyDescriptor>& properties)
 {
+  for (auto pProp : m_PropertiesStorage)
+  {
+    EZ_DEFAULT_DELETE(pProp);
+  }
   m_PropertiesStorage.Clear();
 
   const ezUInt32 iCount = properties.GetCount();
@@ -31,25 +35,9 @@ void ezPhantomRTTI::SetProperties(const ezDynamicArray<ezReflectedPropertyDescri
   {
     switch (properties[i].m_Category)
     {
-    case ezPropertyCategory::Array:
-      {
-        m_PropertiesStorage.PushBack(EZ_DEFAULT_NEW(ezPhantomArrayProperty, &properties[i]));
-      }
-      break;
     case ezPropertyCategory::Constant:
       {
         m_PropertiesStorage.PushBack(EZ_DEFAULT_NEW(ezPhantomConstantProperty, &properties[i]));
-      }
-      break;
-    case ezPropertyCategory::Function:
-      {
-        m_PropertiesStorage.PushBack(EZ_DEFAULT_NEW(ezPhantomFunctionProperty, &properties[i]));
-      }
-      break;
-    case ezPropertyCategory::Map:
-      {
-        EZ_ASSERT_NOT_IMPLEMENTED;
-        //m_PropertiesStorage.PushBack(EZ_DEFAULT_NEW(ezPhantomMapProperty, &properties[i]));
       }
       break;
     case ezPropertyCategory::Member:
@@ -57,9 +45,25 @@ void ezPhantomRTTI::SetProperties(const ezDynamicArray<ezReflectedPropertyDescri
         m_PropertiesStorage.PushBack(EZ_DEFAULT_NEW(ezPhantomMemberProperty, &properties[i]));
       }
       break;
+    case ezPropertyCategory::Function:
+      {
+        m_PropertiesStorage.PushBack(EZ_DEFAULT_NEW(ezPhantomFunctionProperty, &properties[i]));
+      }
+      break;
+    case ezPropertyCategory::Array:
+      {
+        m_PropertiesStorage.PushBack(EZ_DEFAULT_NEW(ezPhantomArrayProperty, &properties[i]));
+      }
+      break;
     case ezPropertyCategory::Set:
       {
         m_PropertiesStorage.PushBack(EZ_DEFAULT_NEW(ezPhantomSetProperty, &properties[i]));
+      }
+      break;
+    case ezPropertyCategory::Map:
+      {
+        EZ_ASSERT_NOT_IMPLEMENTED;
+        //m_PropertiesStorage.PushBack(EZ_DEFAULT_NEW(ezPhantomMapProperty, &properties[i]));
       }
       break;
     }
@@ -85,9 +89,9 @@ bool ezPhantomRTTI::IsEqualToDescriptor(const ezReflectedTypeDescriptor& desc)
     return false;
 
   if (desc.m_sParentTypeName.IsEmpty() && GetParentType() != nullptr)
-      return false;
+    return false;
 
-  if (desc.m_sParentTypeName != GetParentType()->GetTypeName())
+  if (GetParentType() != nullptr && desc.m_sParentTypeName != GetParentType()->GetTypeName())
     return false;
 
   if (desc.m_sPluginName != GetPluginName())
@@ -112,14 +116,6 @@ bool ezPhantomRTTI::IsEqualToDescriptor(const ezReflectedTypeDescriptor& desc)
 
     switch (desc.m_Properties[i].m_Category)
     {
-    case ezPropertyCategory::Array:
-      {
-        auto pProp = (ezPhantomArrayProperty*)GetProperties()[i];
-
-        if (pProp->GetElementType() != ezRTTI::FindTypeByName(desc.m_Properties[i].m_sType))
-          return false;
-      }
-      break;
     case ezPropertyCategory::Constant:
       {
         auto pProp = (ezPhantomConstantProperty*)GetProperties()[i];
@@ -131,21 +127,24 @@ bool ezPhantomRTTI::IsEqualToDescriptor(const ezReflectedTypeDescriptor& desc)
           return false;
       }
       break;
-    case ezPropertyCategory::Function:
-      {
-        EZ_ASSERT_NOT_IMPLEMENTED;
-      }
-      break;
-    case ezPropertyCategory::Map:
-      {
-        EZ_ASSERT_NOT_IMPLEMENTED;
-      }
-      break;
     case ezPropertyCategory::Member:
       {
         auto pProp = (ezPhantomMemberProperty*)GetProperties()[i];
 
         if (pProp->GetPropertyType() != ezRTTI::FindTypeByName(desc.m_Properties[i].m_sType))
+          return false;
+      }
+      break;
+    case ezPropertyCategory::Function:
+      {
+        EZ_ASSERT_NOT_IMPLEMENTED;
+      }
+      break;
+    case ezPropertyCategory::Array:
+      {
+        auto pProp = (ezPhantomArrayProperty*)GetProperties()[i];
+
+        if (pProp->GetElementType() != ezRTTI::FindTypeByName(desc.m_Properties[i].m_sType))
           return false;
       }
       break;
@@ -157,6 +156,12 @@ bool ezPhantomRTTI::IsEqualToDescriptor(const ezReflectedTypeDescriptor& desc)
           return false;
       }
       break;
+    case ezPropertyCategory::Map:
+      {
+        EZ_ASSERT_NOT_IMPLEMENTED;
+      }
+      break;
+
     }
 
   }

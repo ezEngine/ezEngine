@@ -3,7 +3,7 @@
 #include <EditorPluginTest/Objects/TestObject.h>
 #include <EditorPluginTest/Objects/TestObjectManager.h>
 #include <EditorFramework/EditorApp/EditorApp.moc.h>
-#include <ToolsFoundation/Reflection/ReflectedTypeManager.h>
+#include <ToolsFoundation/Reflection/PhantomRttiManager.h>
 #include <Core/World/GameObject.h>
 #include <ToolsFoundation/Command/TreeCommands.h>
 
